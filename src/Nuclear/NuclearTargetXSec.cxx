@@ -16,9 +16,6 @@
 */
 //____________________________________________________________________________
 
-#include <iostream>
-
-#include "AlgFactory/AlgFactory.h"
 #include "Nuclear/NuclearTargetXSec.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
@@ -29,7 +26,7 @@ using namespace genie;
 NuclearTargetXSec::NuclearTargetXSec() :
 XSecAlgorithmI()
 {
-  fName     = "genie::NuclearTargetXSec";
+  fName = "genie::NuclearTargetXSec";
 }
 //____________________________________________________________________________
 NuclearTargetXSec::NuclearTargetXSec(const char * param_set) :
@@ -47,24 +44,13 @@ NuclearTargetXSec::~NuclearTargetXSec()
 //____________________________________________________________________________
 double NuclearTargetXSec::XSec(const Interaction * interaction) const
 {
-  //--- find out the requested free nucleon cross section algorithm
-
-  assert( fConfig->Exists("free-nucleon-xsec-alg-name")  &&
-                            fConfig->Exists("free-nucleon-xsec-param-set") );
-
-  string xsec_alg_name  = fConfig->GetString( "free-nucleon-xsec-alg-name" );
-  string xsec_param_set = fConfig->GetString( "free-nucleon-xsec-param-set");
-    
   //--- get free nucleon cross section calculator
-  
-  AlgFactory * algf = AlgFactory::Instance();
 
-  const Algorithm * algbase =
-                          algf->GetAlgorithm(xsec_alg_name, xsec_param_set);
-  assert(algbase);
+  const Algorithm * xsec_alg_base = this->SubAlg(
+                "free-nucleon-xsec-alg-name", "free-nucleon-xsec-param-set");
 
   const XSecAlgorithmI * free_nucleon_xsec_alg =
-                              dynamic_cast<const XSecAlgorithmI *>(algbase);
+                         dynamic_cast<const XSecAlgorithmI *>(xsec_alg_base);
 
   //--- get a cloned interaction
 
