@@ -31,8 +31,6 @@
 
 namespace genie {
 
-class PDFModelI;
-
 class AivazisCharmPXSecLO : public XSecAlgorithmI {
 
 public:
@@ -46,8 +44,6 @@ public:
   double XSec (const Interaction * interaction) const;
 
 private:
-
-  const PDFModelI * PdfModel(void) const;
 
   //-- methods that allow constant values of charm mass and CKM elements Vcd,
   //   Vcs to be overriden by XML/registry config values if the user wishes to
