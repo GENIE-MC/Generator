@@ -28,7 +28,6 @@
 
 #include <TMath.h>
 
-#include "AlgFactory/AlgFactory.h"
 #include "Charm/AivazisCharmPXSecLO.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -142,7 +141,9 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   
   //----- Calculate the PDFs
   
-  const PDFModelI * pdf_model = this->PdfModel();
+  const Algorithm * algbase = this->SubAlg("pdf-alg-name", "pdf-param-set");
+
+  const PDFModelI* pdf_model = dynamic_cast<const PDFModelI *>(algbase);
 
   PDF pdfs;
 
@@ -215,26 +216,5 @@ double AivazisCharmPXSecLO::Vcs(void) const
 // Allows default CKM Vcs to be overriden by XML config / config registry
 
   return (fConfig->Exists("Vcs")) ? fConfig->GetDouble("Vcs") : kVcs;
-}
-//____________________________________________________________________________
-const PDFModelI * AivazisCharmPXSecLO::PdfModel(void) const
-{
-  assert( fConfig->Exists("pdf-alg-name") && fConfig->Exists("pdf-param-set") );
-
-  string pdf_alg_name, pdf_param_set;
-
-  fConfig->Get("pdf-alg-name",  pdf_alg_name );
-  fConfig->Get("pdf-param-set", pdf_param_set);
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase =
-                        algf->GetAlgorithm(pdf_alg_name, pdf_param_set);
-
-  const PDFModelI* pdf_model = dynamic_cast<const PDFModelI *>(algbase);
-
-  assert(pdf_model);
-
-  return pdf_model;
 }
 //____________________________________________________________________________

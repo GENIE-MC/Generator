@@ -155,12 +155,12 @@ double KovalenkoQELCharmPXSec::DR(
 {
   //----- get the requested PDF model & attach it to a PDF object
 
-  const PDFModelI * pdf_model = this->PdfModel();
+  const Algorithm * algbase = this->SubAlg("pdf-alg-name", "pdf-param-set");
   
+  const PDFModelI * pdf_model = dynamic_cast<const PDFModelI *> (algbase);
+
   PDF pdfs;
-
   pdfs.SetModel(pdf_model);   // <-- attach algorithm
-
 
   //----- compute integration area = [xi_bar_plus, xi_bar_minus]
 
@@ -386,30 +386,6 @@ const IntegratorI * KovalenkoQELCharmPXSec::Integrator(void) const
   assert( integrator != 0 );
 
   return integrator;
-}
-//____________________________________________________________________________
-const PDFModelI * KovalenkoQELCharmPXSec::PdfModel(void) const
-{
-  //----- get the specified PDF model
-
-  assert(fConfig->Exists("pdf-alg-name") && fConfig->Exists("pdf-param-set"));
-
-  string pdf_alg_name  = fConfig->GetString("pdf-alg-name");
-  string pdf_param_set = fConfig->GetString("pdf-param-set");
-
-  //----- Get the PDF calculators
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase = algf->GetAlgorithm(pdf_alg_name, pdf_param_set);
-
-  assert(algbase);
-
-  const PDFModelI * pdf_model = dynamic_cast<const PDFModelI *>(algbase);
-
-  assert(pdf_model != 0);
-
-  return pdf_model;
 }
 //____________________________________________________________________________
 double KovalenkoQELCharmPXSec::SumF2(const Interaction * interaction) const

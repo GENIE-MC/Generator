@@ -32,7 +32,6 @@
 
 #include "Base/XSecAlgorithmI.h"
 #include "Numerical/IntegratorI.h"
-#include "PDF/PDFModelI.h"
 
 namespace genie {
 
@@ -54,7 +53,6 @@ private:
   void Q2Cuts(double & Q2min, double & Q2max) const;
 
   const IntegratorI * Integrator (void) const;
-  const PDFModelI *   PdfModel   (void) const;
   
   double ZR       (const Interaction * interaction) const;
   double DR       (const Interaction * interaction, bool norm = false) const;                              
