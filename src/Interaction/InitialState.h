@@ -44,7 +44,8 @@ public:
   
   TLorentzVector * GetTargetP4 (RefFrame_t ref_frame = kRfLab) const;
   TLorentzVector * GetProbeP4  (RefFrame_t ref_frame = kRfStruckNucAtRest) const;
-  
+  double           GetProbeE   (RefFrame_t ref_frame) const;
+   
   void SetProbePDGCode (int pdg_code) { fProbePdgC = pdg_code; }
 
   void SetTargetP4     (const TLorentzVector & P4); // in LAB-frame
