@@ -25,6 +25,7 @@
 #include "AlgFactory/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "CrossSections/DISPXSec.h"
+#include "Messenger/Messenger.h"
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
@@ -54,14 +55,16 @@ DISPXSec::~DISPXSec()
 //____________________________________________________________________________
 double DISPXSec::XSec(const Interaction * interaction) const
 {
+  LOG("DISPXSec", pDEBUG) << *fConfig;
+
   //-- Make sure it knows what kind of partial (dxsec/d?) xsec algorithm it is
 
   assert( fConfig->Exists("is-differential-over") );
 
-  string variable;
-
-  fConfig->Get("is-differential-over", variable );  
+  string variable = fConfig->GetString("is-differential-over");  
     
+  LOG("DISPXSec", pDEBUG) << "XSec is differential over var: " << variable;
+
   //-- Get a d^2xsec/dxdy xsec algorithm 
 
   fConfig->AssertExistence("partial-xsec-alg-name", "partial-xsec-param-set");
@@ -96,6 +99,9 @@ double DISPXSec::XSec(const Interaction * interaction) const
      if ( fConfig->Exists("y-max")   ) fConfig->Get("y-max",   tmax  );
   }
   
+  LOG("DISPXSec", pDEBUG) << "Integration: n(log)bins = "
+                     << nlogt << ", min = " << tmin << ", max = " << tmax;
+
   //-- Check that t (x or y) range is meaningful
 
   assert( nlogt > 1 );
