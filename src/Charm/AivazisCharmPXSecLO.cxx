@@ -171,12 +171,10 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
 
   //----- Calculate cross section
   
-  double Gw  = (kGF/kSqrt_2) * (1 + Q2/kMw_2);
-
+  double Gw  = (kGF/kSqrt2) * (1 + Q2/kMw_2);
   double Gw2 = TMath::Power(Gw, 2);
-
-  double tmp = Gw2 * (y*Q2/kPi) * ( TMath::Power((1+coshpsi)/2, 2) + 
-                                                (0.5*mc2/Q2)*sinh2psi/2 );
+  double tmp = Gw2 * (y*Q2/kPi) *
+                   (TMath::Power((1+coshpsi)/2, 2) + (0.5*mc2/Q2)*sinh2psi/2);
   double xsec = 0;
 
   if(d_contributes) {
