@@ -19,5 +19,22 @@
      <param type="string" name="is-differential-over">     W                                </param>
   </param_set>
 
+  <param_set name="Rein-Seghal-dQ2"> 
+     <param type="string" name="partial-xsec-alg-name">    genie::RSPXSecExclFinState       </param>
+     <param type="string" name="partial-xsec-param-set">   Default                          </param>
+     <param type="string" name="integrator">               genie::Simpson1D                 </param>
+     <param type="string" name="is-differential-over">     Q2                               </param>
+     <param type="double" name="Wmax">                     1.4                              </param>
+     <param type="int"    name="nW">                       21                               </param>
+  </param_set>
+
+  <param_set name="Rein-Seghal-dW"> 
+     <param type="string" name="partial-xsec-alg-name">    genie::RSPXSecExclFinState       </param>
+     <param type="string" name="partial-xsec-param-set">   Default                          </param>
+     <param type="string" name="integrator">               genie::Simpson1D                 </param>
+     <param type="string" name="is-differential-over">     W                                </param>
+     <param type="int"    name="nLogQ2">                   31                               </param>
+  </param_set>
+
 </alg_conf>
 

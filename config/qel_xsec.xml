@@ -9,7 +9,7 @@
 
   <param_set name="CC-Default"> 
      <param type="int"    name="N-logQ2-bins">           101                   </param>
-     <param type="string" name="partial-xsec-alg-name">  genie::QELPartialXSec </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::QELPXSec       </param>
      <param type="string" name="partial-xsec-param-set"> CC-Default            </param>
      <param type="string" name="integrator">             genie::Simpson1D      </param>
   </param_set>
@@ -19,7 +19,7 @@
 
   <param_set name="NC-Default"> 
      <param type="int"    name="N-logQ2-bins">           101                   </param>
-     <param type="string" name="partial-xsec-alg-name">  genie::QELPartialXSec </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::QELPXSec       </param>
      <param type="string" name="partial-xsec-param-set"> NC-Default            </param>
      <param type="string" name="integrator">             genie::Simpson1D      </param>
   </param_set>
@@ -40,7 +40,7 @@ genie::KovalenkoQELCharmPXSec
 
   <param_set name="CC-Fast-Calc"> 
      <param type="int"    name="N-logQ2-bins">           31                    </param>
-     <param type="string" name="partial-xsec-alg-name">  genie::QELPartialXSec </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::QELPXSec       </param>
      <param type="string" name="partial-xsec-param-set"> CC-Default            </param>
      <param type="string" name="integrator">             genie::Simpson1D      </param>
   </param_set>
@@ -50,7 +50,7 @@ genie::KovalenkoQELCharmPXSec
 
   <param_set name="NC-Fast-Calc"> 
      <param type="int"    name="N-logQ2-bins">           31                    </param>
-     <param type="string" name="partial-xsec-alg-name">  genie::QELPartialXSec </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::QELPXSec       </param>
      <param type="string" name="partial-xsec-param-set"> NC-Default            </param>
      <param type="string" name="integrator">             genie::Simpson1D      </param>
   </param_set>

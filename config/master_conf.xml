@@ -36,6 +36,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::CharmHadronization">   
+       <config_file> 
+             charm_hadronization.xml 
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::KNODistribution">   
        <config_file> 
              kno_distribution.xml 
@@ -147,6 +153,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::RSPXSecExclFinState">   
+       <config_file> 
+             rs_exculsive_final_state_xsec.xml
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::HelicityAmplModelCC">   
        <config_file> 
              rein_seghal_helicity_amplitudes_cc.xml 
@@ -185,6 +197,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::QELPXSec">   
+       <config_file> 
+             qel_partial_xsec.xml 
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::DISPXSec">   
        <config_file> 
              dis_partial_xsec.xml 
@@ -196,6 +214,9 @@
              res_partial_xsec.xml 
        </config_file>
    </alg_config>
+
+
+   ------- CONFIGURATION FOR INVERSE MU DECAY XSEC ALGORITHMS --------
 
    <alg_config alg_name="genie::BardinIMDRadCorPXSec">   
        <config_file>
@@ -209,6 +230,9 @@
        </config_file>
    </alg_config>
 
+
+   ------------ CONFIGURATION FOR ELASTIC XSEC ALGORITHMS ------------
+
    <alg_config alg_name="genie::StdElasticPXSec">   
        <config_file>
              standard_elastic_partial_xsec.xml
@@ -221,11 +245,8 @@
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::QELPartialXSec">   
-       <config_file> 
-             qel_partial_xsec.xml 
-       </config_file>
-   </alg_config>
+
+   ------------ CONFIGURATION FOR CHARM XSEC ALGORITHMS ------------
 
    <alg_config alg_name="genie::AivazisCharmPXSecLO">   
        <config_file> 
@@ -244,6 +265,8 @@
              bardin_radiative_partial_dis_xsec.xml
        </config_file>
    </alg_config>
+
+   ----- CONFIGURATION FOR PARTON MODEL / DIS XSEC ALGORITHMS -----
 
    <alg_config alg_name="genie::DISPartonModelPXSec">   
        <config_file> 
@@ -474,6 +497,12 @@
    <alg_config alg_name="genie::VldReinSeghalXSecRes">   
        <config_file> 
              vld_rein_seghal_xsec_res.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldReinSeghalExclusiveXSec">   
+       <config_file> 
+             vld_rein_seghal_exclusive_xsec.xml
        </config_file>
    </alg_config>
 

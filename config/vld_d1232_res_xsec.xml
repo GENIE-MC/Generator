@@ -16,7 +16,7 @@
      <param type="string" name="d2xsec-dQ2dW-param-set"> Default                          </param>
 
      <param type="int"    name="n-logQ2-bins">        50       </param>
-     <param type="double" name="Q2-min">              0.1     </param>
+     <param type="double" name="Q2-min">              0.1      </param>
      <param type="double" name="Q2-max">              2.0      </param>
      <param type="int"    name="n-W-bins">            50       </param>
      <param type="double" name="W-min">               1.00     </param>
@@ -34,6 +34,41 @@
 
      <param type="string" name="xsec-alg-name">    genie::RESXSec     </param>
      <param type="string" name="xsec-param-set">   Paschos-Lalakulich </param>
+
+  </param_set>
+
+
+
+  <param_set name="RS"> 
+
+     <param type="string" name="title">             
+                     RS </param>
+
+
+     <!-- configuration inputs relevant to double differential cross section plots -->
+
+     <param type="string" name="d2xsec-dQ2dW-alg-name">  genie::RSPXSecExclFinState </param>
+     <param type="string" name="d2xsec-dQ2dW-param-set"> Default                          </param>
+
+     <param type="int"    name="n-logQ2-bins">        50       </param>
+     <param type="double" name="Q2-min">              0.1      </param>
+     <param type="double" name="Q2-max">              2.0      </param>
+     <param type="int"    name="n-W-bins">            100       </param>
+     <param type="double" name="W-min">               0.50     </param>
+     <param type="double" name="W-max">               2.50     </param>
+
+     <!-- configuration inputs relevant to differential cross section plots -->
+
+     <param type="string" name="dxsec-dQ2-alg-name">    genie::RESPXSec        </param>
+     <param type="string" name="dxsec-dQ2-param-set">   Rein-Seghal-dQ2 </param>
+
+     <param type="string" name="dxsec-dW-alg-name">     genie::RESPXSec        </param>
+     <param type="string" name="dxsec-dW-param-set">    Rein-Seghal-dW  </param>
+
+     <!-- configuration inputs relevant to cross section plots -->
+
+     <param type="string" name="xsec-alg-name">    genie::RESXSec     </param>
+     <param type="string" name="xsec-param-set">   Rein-Seghal </param>
 
   </param_set>
 

@@ -2,11 +2,13 @@
 
 <alg_conf>
 
-  Configuration sets for the Validity Document
+  Configuration sets for GENIE Validity Document (VldDocument) Algorithm.
+  The VldAlgorithm configuration consists of a list of concrete implementations of
+  the VldDocumentPageI interface - each contributing a page to the document.
 
   <param_set name="Show-All-Pages"> 
 
-     <param type="int"    name="n-pages">       24                             </param>
+     <param type="int"    name="n-pages">       26                             </param>
 
      <param type="string" name="page-0-alg">    genie::VldCoverPage            </param>
      <param type="string" name="page-0-conf">   Default                        </param>
@@ -80,6 +82,12 @@
      <param type="string" name="page-23-alg">   genie::VldD1232ResXSec         </param>
      <param type="string" name="page-23-conf">  Paschos-Lalakulich-Default     </param>
 
+     <param type="string" name="page-24-alg">   genie::VldD1232ResXSec         </param>
+     <param type="string" name="page-24-conf">  RS                             </param>
+
+     <param type="string" name="page-25-alg">   genie::VldReinSeghalExclusiveXSec </param>
+     <param type="string" name="page-25-conf">  Default                           </param>
+
   </param_set>
 
 
@@ -87,12 +95,14 @@
 
      <param type="int"    name="n-pages">       1                              </param>
 
-     <param type="string" name="page-0-alg">    genie::VldD1232ResXSec         </param>
-     <param type="string" name="page-0-conf">   Paschos-Lalakulich-Default     </param>
+     <param type="string" name="page-0-alg">    genie::VldDisXSecVsE           </param>
+     <param type="string" name="page-0-conf">   CC-Default-Below-Charm         </param>
+
 <!--
-     <param type="string" name="page-0-alg">    genie::VldCharmDisXSec         </param>
-     <param type="string" name="page-0-conf">   CC-Aivazis                     </param>
+     <param type="string" name="page-0-alg">    genie::VldElasticXSec         </param>
+     <param type="string" name="page-0-conf">   Default                       </param>
 -->
+
   </param_set>
 
 </alg_conf>

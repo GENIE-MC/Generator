@@ -2,7 +2,7 @@
 
 <alg_conf>
 
-  Config set for CC--QELPartialXsec algorithm
+  Config set for CC--QELPXsec algorithm
 
   <param_set name="CC-Default"> 
      <param type="string"  name="form-factors-alg-name">  genie::LlewellynSmithModelCC </param>
@@ -10,7 +10,7 @@
   </param_set>
 
 
-  Config set for NC--QELPartialXsec algorithm
+  Config set for NC--QELPXsec algorithm
 
   <param_set name="NC-Default"> 
      <param type="string"  name="form-factors-alg-name">  genie::LlewellynSmithModelNC </param>
