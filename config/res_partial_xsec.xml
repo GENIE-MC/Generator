@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  -- Configurations for RES dxsec/dt, where t=Q2,W
+
+  <param_set name="Paschos-Lalakulich-dQ2"> 
+     <param type="string" name="partial-xsec-alg-name">    genie::P33PaschosLalakulichPXSec </param>
+     <param type="string" name="partial-xsec-param-set">   Default                          </param>
+     <param type="string" name="integrator">               genie::Simpson1D                 </param>
+     <param type="string" name="is-differential-over">     Q2                               </param>
+     <param type="double" name="Wmax">                     1.4                              </param>
+  </param_set>
+
+  <param_set name="Paschos-Lalakulich-dW"> 
+     <param type="string" name="partial-xsec-alg-name">    genie::P33PaschosLalakulichPXSec </param>
+     <param type="string" name="partial-xsec-param-set">   Default                          </param>
+     <param type="string" name="integrator">               genie::Simpson1D                 </param>
+     <param type="string" name="is-differential-over">     W                                </param>
+  </param_set>
+
+</alg_conf>
+
