@@ -61,7 +61,7 @@ double RESPXSec::XSec(const Interaction * interaction) const
 {
   //-- Make sure it knows what kind of partial (dxsec/d?) xsec algorithm it is
 
-  assert( fConfig->Exists("is-differential-over") );
+  fConfig->AssertExistence("is-differential-over");
 
   string variable = fConfig->GetString("is-differential-over");  
 
@@ -69,7 +69,10 @@ double RESPXSec::XSec(const Interaction * interaction) const
   
   //-- Get the specified double differential (d^2xsec/dQ2dW) xsec algorithm
 
-  const XSecAlgorithmI * d2xsec_alg = this->DoubleDifferentialXSecAlg();
+  const Algorithm * xsec_alg_base = this->SubAlg(
+                           "partial-xsec-alg-name", "partial-xsec-param-set");                           
+  const XSecAlgorithmI * d2xsec_alg = 
+                         dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
 
   //-- Get t (W,logQ2) integration range from config (if it exists 
   //   or set default values). It should be OK if default range extends to
@@ -160,35 +163,6 @@ double RESPXSec::XSec(const Interaction * interaction) const
   double xsec = integrator->Integrate(funcmap);
          
   return xsec;  
-}
-//____________________________________________________________________________
-const XSecAlgorithmI * RESPXSec::DoubleDifferentialXSecAlg(void) const
-{
-  //-- Make sure it knows which partial (d^2xsec/dQ2dW) xsec algorithm to use
-
-  assert( fConfig->Exists("partial-xsec-alg-name") &&
-                                fConfig->Exists("partial-xsec-param-set")   );
-
-  //-- Get the partial xsec alg-name & param-set from the config. registry
-
-  string pxsec_alg_name, pxsec_param_set;
-
-  fConfig->Get("partial-xsec-alg-name",  pxsec_alg_name  );
-  fConfig->Get("partial-xsec-param-set", pxsec_param_set );
-
-  //-- Get an instance of the AlgFactory & request the partial xsec algorithm
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase =
-                       algf->GetAlgorithm(pxsec_alg_name, pxsec_param_set);
-
-  const XSecAlgorithmI * xsec_alg =
-                            dynamic_cast<const XSecAlgorithmI *> (algbase);
-
-  assert(xsec_alg);
-
-  return xsec_alg;
 }
 //____________________________________________________________________________
 const IntegratorI * RESPXSec::Integrator(void) const

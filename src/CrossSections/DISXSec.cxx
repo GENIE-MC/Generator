@@ -15,6 +15,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "AlgFactory/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "CrossSections/DISXSec.h"
@@ -52,7 +54,12 @@ double DISXSec::XSec(const Interaction * interaction) const
 {
   //-- Get the requested d^2xsec/dxdy xsec algorithm to use
 
-  const XSecAlgorithmI * partial_xsec_alg = this->PartialXSecAlgorithm();
+  const Algorithm * xsec_alg_base = this->SubAlg(
+                           "partial-xsec-alg-name", "partial-xsec-param-set");
+  const XSecAlgorithmI * partial_xsec_alg =
+                         dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
+                         
+  LOG("DISXSec", pDEBUG) << *partial_xsec_alg;
 
   //-- Get neutrino energy in the struck nucleon rest frame
 
@@ -64,8 +71,14 @@ double DISXSec::XSec(const Interaction * interaction) const
 
   delete p4;
 
-  //double s   = M2 + 2*M*Ev;
+  //-- Check the energy threshold
 
+  double Ethr = kine_limits::EnergyThreshold(interaction);
+  
+  if(Ev <= Ethr) {   
+     LOG("DISXSec", pINFO) << "E = " << Ev << " < Ethreshold = " << Ethr;
+     return 0.;
+  }
   //-- Get x,y from config (if they exist) or set defaults
 
   int    nlogx = this -> NLogX ();
@@ -84,10 +97,10 @@ double DISXSec::XSec(const Interaction * interaction) const
                 
   //-- Define the integration area
                 
-  double log_xmax = log(xmax);
-  double log_xmin = log(xmin);
-  double log_ymax = log(ymax);
-  double log_ymin = log(ymin);
+  double log_xmax = TMath::Log(xmax);
+  double log_xmin = TMath::Log(xmin);
+  double log_ymax = TMath::Log(ymax);
+  double log_ymin = TMath::Log(ymin);
 
   double dlogx = (log_xmax - log_xmin) / (nlogx-1);
   double dlogy = (log_ymax - log_ymin) / (nlogy-1);
@@ -104,23 +117,20 @@ double DISXSec::XSec(const Interaction * interaction) const
   //----- Loop over x,y & compute the differential xsec
 
   LOG("DISXSec", pDEBUG) 
-           << "x integration limits: (" << xmin << ", " << xmax << ")";
-  LOG("DISXSec", pDEBUG) 
-           << "y integration limits: (" << ymin << ", " << ymax << ")";
+         << "integration limits: x = (" << xmin << ", " << xmax << ") "
+                                    << "y = (" << ymin << ", " << ymax << ")";
 
   for(int ix = 0; ix < nlogx; ix++) {
-
-    double x  = exp(log_xmin + ix * dlogx);
+    double x  = TMath::Exp(log_xmin + ix * dlogx);
 
     for(int iy = 0; iy < nlogy; iy++) {
-
-       double y  = exp(log_ymin + iy * dlogy);
-
-       double pxsec = 0;
+       double y = TMath::Exp(log_ymin + iy * dlogy);
                                         
        //-- update the scattering parameters
        interaction->GetScatParamsPtr()->Set("x", x);
        interaction->GetScatParamsPtr()->Set("y", y);
+
+       double pxsec = 0.;
 
        if ( this->IsWithinIntegrationRange(interaction) ) {
          
@@ -130,8 +140,7 @@ double DISXSec::XSec(const Interaction * interaction) const
           LOG("DISXSec", pDEBUG)
               << "dxsec/dxdy (x = " << x << ", y = " << y
                                         << ", Ev = " << Ev << ") = " << pxsec;
-       }
-                
+       }                
        //-- push x*y*(d^2xsec/dxdy) to the FunctionMap       
        xyd2xsec.AddPoint(x*y*pxsec, ix, iy);
               
@@ -152,34 +161,6 @@ double DISXSec::XSec(const Interaction * interaction) const
   LOG("DISXSec", pINFO)  << "xsec_dis (E = " << Ev << " GeV) = " << xsec;
 
   return xsec;
-}
-//____________________________________________________________________________
-const XSecAlgorithmI * DISXSec::PartialXSecAlgorithm(void) const
-{
-  assert(
-     fConfig->Exists("partial-xsec-alg-name") &&
-                                     fConfig->Exists("partial-xsec-param-set")
-  );
-
-  //-- Get the partial xsec alg-name & param-set from the config. registry
-
-  string alg_name, param_set;
-
-  fConfig->Get("partial-xsec-alg-name",  alg_name  );
-  fConfig->Get("partial-xsec-param-set", param_set );
-
-  //----- Get the requested algorithm from the algorithm factory
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase = algf->GetAlgorithm(alg_name, param_set);
-
-  const XSecAlgorithmI * xsec_alg =
-                            dynamic_cast<const XSecAlgorithmI *> (algbase);
-
-  assert(xsec_alg);
-
-  return xsec_alg;
 }
 //____________________________________________________________________________
 const IntegratorI * DISXSec::Integrator(void) const
@@ -220,30 +201,26 @@ bool DISXSec::IsWithinIntegrationRange(const Interaction * interaction) const
   Range1D_t rQ2 = kine_limits::Q2Range_xy (interaction);
 
   LOG("DISXSec", pDEBUG)
-       << "\n Physical W integration range: "
-                               << "[" << rW.min << ", " << rW.max << "] GeV";
-  LOG("DISXSec", pDEBUG)
-          << "\n Physical Q2 integration range: "
-                           << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
+       << "\n Physical integration range: "
+             << "W = [" << rW.min << ", " << rW.max << "] GeV "
+                      << "Q2 = [" << rQ2.min << ", " << rQ2.max << "] GeV^2";
 
   // check whether the user wants to override these values
 
   double Wmin  = (fConfig->Exists("Wmin"))  ? fConfig->GetDouble("Wmin")  : -1;
-  double Wmax  = (fConfig->Exists("Wmax"))  ? fConfig->GetDouble("Wmax")  : -1;
+  double Wmax  = (fConfig->Exists("Wmax"))  ? fConfig->GetDouble("Wmax")  : 1e9;
   double Q2min = (fConfig->Exists("Q2min")) ? fConfig->GetDouble("Q2min") : -1;
-  double Q2max = (fConfig->Exists("Q2max")) ? fConfig->GetDouble("Q2max") : -1;
+  double Q2max = (fConfig->Exists("Q2max")) ? fConfig->GetDouble("Q2max") : 1e9;
 
-  // define the W,Q2 range: the user selection (if any) is not allowed to
-  // extend it to an unphysical region but is allowed to narrow it down.
+  // apply cuts
 
-  if ( math_utils::IsWithinLimits(Wmin,  rW ) ) rW.min  = Wmin;
-  if ( math_utils::IsWithinLimits(Wmax,  rW ) ) rW.max  = Wmax;
-  if ( math_utils::IsWithinLimits(Q2min, rQ2) ) rQ2.min = Q2min;
-  if ( math_utils::IsWithinLimits(Q2max, rQ2) ) rQ2.max = Q2max;
+  kine_limits::ApplyCutsToKineLimits(rW,  Wmin,  Wmax );
+  kine_limits::ApplyCutsToKineLimits(rQ2, Q2min, Q2max);
 
-//  assert( rW.min  < rW.max  && rW.min  >= 0 );
-//  assert( rQ2.min < rQ2.max && rQ2.min >= 0 );
-
+  LOG("DISXSec", pDEBUG)
+       << "\n Physical && User integration range: "
+             << "W = [" << rW.min << ", " << rW.max << "] GeV "
+                      << "Q2 = [" << rQ2.min << ", " << rQ2.max << "] GeV^2";
   // current W, Q2
 
   double x  = interaction->GetScatteringParams().x();
@@ -268,10 +245,13 @@ bool DISXSec::IsWithinIntegrationRange(const Interaction * interaction) const
                                      && math_utils::IsWithinLimits(currW, rW);
 
   if(!in_range) {
-       LOG("DISXSec", pDEBUG) << "*** ommitted from integral: "
-                 << "x = " << x << ", y = " << y << ", Q2 = " << currQ2
-                                      << ", W = " << currW << ", Ev = " << Ev;
+      LOG("DISXSec", pDEBUG) << "*** excluding from phase space: ";
+  } else {
+      LOG("DISXSec", pDEBUG) << "*** including in phase space: ";
   }
+  LOG("DISXSec", pDEBUG) 
+            << "x = " << x << ", y = " << y << ", Q2 = " << currQ2
+                                      << ", W = " << currW << ", Ev = " << Ev;
 
   return in_range;
 }
@@ -306,5 +286,3 @@ double DISXSec::Ymax(void) const
   return ( fConfig->Exists("y-max")   ) ? fConfig->GetDouble("y-max") : 0.999;
 }
 //____________________________________________________________________________
-
-

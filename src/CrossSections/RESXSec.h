@@ -19,6 +19,7 @@
 #define _RES_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
+#include "Utils/Range1.h"
 
 namespace genie {
 
@@ -38,10 +39,10 @@ public:
 
 private:
 
-  const XSecAlgorithmI * PartialXSecAlgorithm (void) const;
-  const IntegratorI *    Integrator           (void) const;
+  const IntegratorI * Integrator (void) const;
 
-  bool IsKinematicallyAllowed (const Interaction * interaction) const;
+  Range1D_t WRange  (const Interaction * interaction) const;
+  Range1D_t Q2Range (const Interaction * interaction) const;
 
   int    NW     (void) const;
   int    NLogQ2 (void) const;
