@@ -15,8 +15,8 @@
 */
 //____________________________________________________________________________
 
-#include "AlgFactory/AlgFactory.h"
 #include "Base/DISFormFactors.h"
+#include "Base/DISFormFactorsModelI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/Units.h"
@@ -112,8 +112,11 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
     
   //-- get the specified DISFormFactorsModelI algorithm
 
-  const DISFormFactorsModelI *
-                      form_factors_model = this->FormFactorsAlgorithm();
+  const Algorithm * alg_base = this->SubAlg(
+                         "form-factors-alg-name", "form-factors-param-set");
+
+  const DISFormFactorsModelI * form_factors_model =
+                      dynamic_cast<const DISFormFactorsModelI *> (alg_base);
 
   //-- instantiate a DISFormFactors object
 
@@ -160,30 +163,4 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
   return CrossSection;
 }
 //____________________________________________________________________________
-const DISFormFactorsModelI *
-                        DISPartonModelPXSec::FormFactorsAlgorithm(void) const
-{
-  assert (
-        fConfig->Exists("form-factors-alg-name")  &&
-                                   fConfig->Exists("form-factors-param-set")
-  );
 
-  string alg_name, param_set;
-
-  fConfig->Get("form-factors-alg-name",  alg_name  );
-  fConfig->Get("form-factors-param-set", param_set );
-
-  //-- get the specified DISFormFactorsModelI algorithm from the AlgFactory
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase = algf->GetAlgorithm(alg_name, param_set);
-
-  const DISFormFactorsModelI * form_factors_model =
-                      dynamic_cast<const DISFormFactorsModelI *> (algbase);
-
-  assert(form_factors_model);
-
-  return form_factors_model;
-}
-//____________________________________________________________________________
