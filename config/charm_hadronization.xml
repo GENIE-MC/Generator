@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for charm hadronization algorithm
+
+  <param_set name="Default"> 
+
+    <param type="string" name="fragmentation-func-alg-name">  genie::PetersonFragm  </param>
+    <param type="string" name="fragmentation-func-param-set"> Default               </param>
+    <param type="string" name="charm-fractions-table">                              </param>
+    <param type="string" name="decayer-alg-name">             genie::PythiaDecayer  </param>
+    <param type="string" name="decayer-param-set">            Default               </param>
+
+  </param_set>
+
+</alg_conf>
+

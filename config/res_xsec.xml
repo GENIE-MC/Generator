@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!--
+
+RESXSec Algorithm Configurable Parameters:
+...................................................................................
+Name                     Type     Optional   Comment
+
+partial-xsec-alg-name    string   No         d2xsec/dQ2 dW algorithm name
+partial-xsec-param-set   string   No         d2xsec/dQ2 dW algorithm config
+integrator               string   Yes        1-D integration alg. for integrations
+                                             along W and along Q2 at fixed W.
+nW                       int      Yes        integration steps in W
+Wmin                     double   Yes        ext Wmin - narrows the physical range
+Wmax                     double   Yes        ext Wmax - narrows the physical range
+nLogQ2                   int      Yes        integration steps in logQ2
+Q2min                    double   Yes        ext Q2min - narrows the physical range
+Q2max                    double   Yes        ext Q2max - narrows the physical range
+
+-->
+
 <alg_conf>
 
-  -- Default configuration for CC charm production / DIS XSec
+  -- Default configuration for Paschos-Lalakulich RES XSec
 
   <param_set name="Paschos-Lalakulich"> 
 
@@ -10,13 +29,25 @@
                                 genie::P33PaschosLalakulichPXSec </param>
      <param type="string" name="partial-xsec-param-set"> Default </param>
 
-     <param type="string" name="integrator">    genie::Simpson2D </param>
-     <param type="int"    name="nW">           191               </param>
-     <param type="double" name="Wmin">           1.e-3           </param>
+     <param type="string" name="integrator">    genie::Simpson1D </param>
+     <param type="int"    name="nW">            31               </param>
      <param type="double" name="Wmax">           1.4             </param>
-     <param type="int"    name="nLogQ2">       191               </param>
-     <param type="double" name="Q2min">          1.e-2          </param>
-     <param type="double" name="Q2max">          8.0             </param>
+     <param type="int"    name="nLogQ2">        81               </param>
+  </param_set>
+
+
+  -- Default configuration for Rein-Seghal RES XSec
+
+  <param_set name="Rein-Seghal"> 
+
+     <param type="string" name="partial-xsec-alg-name">  
+                                      genie::RSPXSecExclFinState </param>
+     <param type="string" name="partial-xsec-param-set"> Default </param> 
+
+     <param type="string" name="integrator">    genie::Simpson1D </param>
+     <param type="int"    name="nW">            16               </param>
+     <param type="double" name="Wmax">           1.4             </param>
+     <param type="int"    name="nLogQ2">        31               </param>
   </param_set>
 
 </alg_conf>
