@@ -10,6 +10,7 @@
 #pragma link C++ namespace genie::fragm_rec_utils;
 #pragma link C++ namespace genie::string_utils;
 #pragma link C++ namespace genie::gui_utils;
+#pragma link C++ namespace genie::xsec_utils;
 
 #pragma link C++ class genie::Cache;
 
