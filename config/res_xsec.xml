@@ -11,7 +11,7 @@
      <param type="string" name="integrator">    genie::Simpson2D </param>
      <param type="int"    name="nW">           191               </param>
      <param type="double" name="Wmin">           1.e-3           </param>
-     <param type="double" name="Wmax">           8.0             </param>
+     <param type="double" name="Wmax">           1.4             </param>
      <param type="int"    name="nLogQ2">       191               </param>
      <param type="double" name="Q2min">          1.e-2          </param>
      <param type="double" name="Q2max">          8.0             </param>
