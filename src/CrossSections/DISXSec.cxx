@@ -59,7 +59,7 @@ double DISXSec::XSec(const Interaction * interaction) const
   const XSecAlgorithmI * partial_xsec_alg =
                          dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
                          
-  LOG("DISXSec", pDEBUG) << *partial_xsec_alg;
+  LOG("DISXSec", pINFO) << *partial_xsec_alg;
 
   //-- Get neutrino energy in the struck nucleon rest frame
 
