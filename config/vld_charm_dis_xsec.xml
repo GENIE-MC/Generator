@@ -16,8 +16,8 @@
      <param type="string" name="charmdis-partial-xsec-alg-name">  genie::AivazisCharmPXSecLO   </param>
      <param type="string" name="charmdis-partial-xsec-param-set"> CC-Default                   </param>
 
-     <param type="int"    name="n-E-bins">   30    </param>
-     <param type="double" name="E-min">       0.1  </param>
+     <param type="int"    name="n-E-bins">   20    </param>
+     <param type="double" name="E-min">       1.0  </param>
      <param type="double" name="E-max">      60.0  </param>
 
   </param_set>
