@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  RSListRESPXSec configuration [Rein-Seghal Model RES d^xsec / dQ^2 dW for a 
+  LIST of resonances weighted by their Breit Wigner value at the given W
+
+  The actual Rein-Seghal model is coded at ReinSeghalRESPXSec.
+
+  The Breit-Wigner weighting is performed in the same class. Make sure that
+  you run it with a configuration that does not inhibit the weighting.
+
+  This algorithm uses RSSingleRESPXSec decides which instance of the 
+  ReinSeghalRESPXSec algorithm to run depending on the initial state: 
+  1) CC (n+p), 2) NC (n), 3) NC (p).
+
+  The resonances can be passed as a list of names (use resonance-name-list key),
+  as a list of PDG codes (use resonance-pdgc-list key) or as a list of Resonance_t
+  enumerations (use resonance-id-list key)
+
+
+  <param_set name="Default"> 
+
+     In this configuration parameter set we do not include the ambiguous P33(1600), F17(1970)
+
+     <param type="string" name="single-res-xsec-alg-name">   genie::RSSingleRESPXSec  </param>
+     <param type="string" name="single-res-xsec-param-set">  Default                  </param>
+
+     <param type="string" name="resonance-name-list">  
+                   P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
+                   D33(1700),P11(1440),P13(1720),F15(1680),P31(1910),P33(1920),
+                   F35(1905),F37(1950),P11(1710)
+     </param>
+  </param_set>
+
+
+  <param_set name="All-Resonances"> 
+
+     <param type="string" name="single-res-xsec-alg-name">   genie::RSSingleRESPXSec  </param>
+     <param type="string" name="single-res-xsec-param-set">  Default                  </param>
+
+     <param type="string" name="resonance-name-list">  
+                   P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
+                   D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),P31(1910),P33(1920),
+                   F35(1905),F37(1950),P11(1710),F17(1970)
+     </param>
+  </param_set>
+
+</alg_conf>
+
+

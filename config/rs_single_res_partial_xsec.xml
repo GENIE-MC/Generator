@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  RSSingleRESPXSec [Rein-Seghal] Model RES d^xsec / dQ^2 dW configuration.
+
+  The actual Rein-Seghal model is coded at ReinSeghalRESPXSec.
+
+  This algorithm decides which instance of the ReinSeghalRESPXSec algorithm to run
+  depending on the initial state: 1) CC (n+p), 2) NC (n), 3) NC (p).
+
+  <param_set name="Default">
+     <param type="string"  name="CC-alg-name">    genie::ReinSeghalRESPXSec </param>
+     <param type="string"  name="CC-param-set">   CC-Default                </param>
+     <param type="string"  name="NC-n-alg-name">  genie::ReinSeghalRESPXSec </param>
+     <param type="string"  name="NC-n-param-set"> NCn-Default               </param>
+     <param type="string"  name="NC-p-alg-name">  genie::ReinSeghalRESPXSec </param>
+     <param type="string"  name="NC-p-param-set"> NCp-Default               </param>
+  </param_set>
+
+
+  <!-- with this configuration the rein-seghal differential cross section is not weighted
+       with the value of the resonance's Breit-Wigner distribution at the given W -->
+
+  <param_set name="No-BreitWigner">
+     <param type="string"  name="CC-alg-name">    genie::ReinSeghalRESPXSec </param>
+     <param type="string"  name="CC-param-set">   CC-No-BreitWigner         </param>
+     <param type="string"  name="NC-n-alg-name">  genie::ReinSeghalRESPXSec </param>
+     <param type="string"  name="NC-n-param-set"> NCn-No-BreitWigner        </param>
+     <param type="string"  name="NC-p-alg-name">  genie::ReinSeghalRESPXSec </param>
+     <param type="string"  name="NC-p-param-set"> NCp-No-BreitWigner        </param>
+  </param_set>
+
+</alg_conf>
+
+
