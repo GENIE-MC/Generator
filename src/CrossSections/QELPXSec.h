@@ -1,46 +1,40 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::QELXSec
+\class    genie::QELPXSec
 
-\brief    Computes the Quasi Elastic (QEL) cross section.
+\brief    Computes the differential Quasi Elastic cross section dxsec/dq^2.
 
-          Is a concrete implementation of the XSecAlgorithmI interface. \n
-          
+          Is a concrete implementation of the XSecAlgorithmI interface.
+
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
-\created  May 04, 2004
+\created  May 05, 2004
 
-*/ 
+*/
 //____________________________________________________________________________
 
-#ifndef _QEL_XSEC_H_
-#define _QEL_XSEC_H_
+#ifndef _QEL_PARTIAL_XSEC_H_
+#define _QEL_PARTIAL_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
-#include "Numerical/IntegratorI.h"
 
 namespace genie {
 
-class QELXSec : public XSecAlgorithmI {
+class QELPXSec : public XSecAlgorithmI {
 
 public:
 
-  QELXSec();
-  QELXSec(const char * param_set);
-  virtual ~QELXSec();
+  QELPXSec();
+  QELPXSec(const char * param_set);
+  virtual ~QELPXSec();
 
   //-- XSecAlgorithmI interface implementation
-
+  
   double XSec (const Interaction * interaction) const;
-
-private:
-
-  const IntegratorI * Integrator(void) const;
-
 };
 
 }       // genie namespace
 
-#endif  // _QEL_XSEC_H_
+#endif  // _QEL_PARTIAL_XSEC_H_

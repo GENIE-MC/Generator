@@ -37,11 +37,11 @@ public:
 
 private:
 
-  const XSecAlgorithmI * PartialXSecAlgorithm (void) const;
-  const IntegratorI *    Integrator           (void) const;
+  const IntegratorI * Integrator(void) const;
 
   bool IsWithinIntegrationRange(const Interaction * interaction) const;
 
+  // methods that allow default values to be overriden by the XML config
   int    NLogX (void) const;
   int    NLogY (void) const;
   double Xmin  (void) const;

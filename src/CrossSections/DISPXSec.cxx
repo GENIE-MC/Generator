@@ -62,31 +62,14 @@ double DISPXSec::XSec(const Interaction * interaction) const
 
   fConfig->Get("is-differential-over", variable );  
     
-  //-- Make sure it knows which partial (d^2xsec/dxdy) xsec algorithm to use
+  //-- Get a d^2xsec/dxdy xsec algorithm 
 
-  assert( fConfig->Exists("partial-xsec-alg-name") &&
-          fConfig->Exists("partial-xsec-param-set")   );
+  fConfig->AssertExistence("partial-xsec-alg-name", "partial-xsec-param-set");
 
-  //-- Get the partial xsec alg-name & param-set from the config. registry
-  
-  string pxsec_alg_name, pxsec_param_set;
-  
-  fConfig->Get("partial-xsec-alg-name",  pxsec_alg_name  );
-  fConfig->Get("partial-xsec-param-set", pxsec_param_set );
-  
-  //----- Get an algorithm to calculate partial cross sections 
-
-  //-- Get an instance of the AlgFactory
-
-  AlgFactory * algf = AlgFactory::Instance();
-  
-  //-- Get the specified partial xsec algorithm
-
-  const Algorithm * algbase =
-                       algf->GetAlgorithm(pxsec_alg_name, pxsec_param_set);
-
+  const Algorithm * xsec_alg_base = this->SubAlg(
+                           "partial-xsec-alg-name", "partial-xsec-param-set");
   const XSecAlgorithmI * partial_xsec_alg =
-                            dynamic_cast<const XSecAlgorithmI *> (algbase);
+                         dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
 
   //----- Set default & check for user defined integration range
 
@@ -164,6 +147,8 @@ double DISPXSec::XSec(const Interaction * interaction) const
   else integrator_name = "genie::Simpson1D";
 
   //-- ask the AlgFactory for the integrator algorithm
+
+  AlgFactory * algf = AlgFactory::Instance();
 
   const Algorithm * intg_alg_base = algf->GetAlgorithm(integrator_name);
 

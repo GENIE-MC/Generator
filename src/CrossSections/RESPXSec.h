@@ -45,8 +45,7 @@ public:
 
 public:
 
-  const XSecAlgorithmI * DoubleDifferentialXSecAlg (void) const;
-  const IntegratorI *    Integrator                (void) const;
+  const IntegratorI * Integrator(void) const;
 };
 
 }       // genie namespace

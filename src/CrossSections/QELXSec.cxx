@@ -15,7 +15,6 @@
 */
 //____________________________________________________________________________
 
-#include <iostream>
 
 #include "AlgFactory/AlgFactory.h"
 #include "Conventions/Constants.h"
@@ -24,6 +23,8 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
+#include "Utils/KineLimits.h"
+#include "Utils/Range1.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -52,7 +53,11 @@ double QELXSec::XSec(const Interaction * interaction) const
 {
   //----- Get an algorithm to calculate differential cross sections dxsec/dQ2
   
-  const XSecAlgorithmI * partial_xsec_alg = this->PartialXSecModel();
+  const Algorithm * xsec_alg_base = this->SubAlg(
+                          "partial-xsec-alg-name", "partial-xsec-param-set");
+
+  const XSecAlgorithmI * partial_xsec_alg =
+                        dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
 
   //----- get the input number of dxsec/dlogQ2 points for num. integration
   //      or use a default if no number is specified
@@ -77,7 +82,7 @@ double QELXSec::XSec(const Interaction * interaction) const
   double Mnuc = init_state.GetTarget().StruckNucleonMass();
 
   double ml2   = ml   * ml; 
-  double Mnuc2 = Mnuc * Mnuc;
+  //double Mnuc2 = Mnuc * Mnuc;
 
   delete nu_p4;
         
@@ -92,6 +97,12 @@ double QELXSec::XSec(const Interaction * interaction) const
   
   //----- estimate the integration limits & step
 
+  Range1D_t  rQ2 = kine_limits::Q2Range_M(interaction);
+
+  LOG("QELXSec", pDEBUG) << "Q2 integration range = ("
+                                    << rQ2.min << ", " << rQ2.max << ")";
+  
+/*  
   double s     = 2*Mnuc*E + Mnuc2;
   double tmp   = s + ml2 -Mnuc2;
   double tmp2  = tmp*tmp - 4*s*ml2;
@@ -110,6 +121,12 @@ double QELXSec::XSec(const Interaction * interaction) const
   double logQ2max = TMath::Log(Q2max);
   double logQ2min = TMath::Log(Q2min);
     
+  double dlogQ2   = (logQ2max - logQ2min) / (nbins - 1);
+*/
+
+  double logQ2max = TMath::Log(rQ2.max);
+  double logQ2min = TMath::Log(rQ2.min);
+
   double dlogQ2   = (logQ2max - logQ2min) / (nbins - 1);
 
   //----- define the integration grid & instantiate a FunctionMap
@@ -144,35 +161,6 @@ double QELXSec::XSec(const Interaction * interaction) const
   double sQEtot = integrator->Integrate(Q2dxsec_dQ2);
             
   return sQEtot;
-}
-//____________________________________________________________________________
-const XSecAlgorithmI * QELXSec::PartialXSecModel(void) const
-{
-// Get an algorithm to calculate differential cross sections (dxsec/dQ2)
-
-  assert( fConfig->Exists("partial-xsec-alg-name")  &&
-                                  fConfig->Exists("partial-xsec-param-set") );
- 
-  //-- get the QEL alg-name & param-set from the configuration registry
-
-  string pxsec_alg_name, pxsec_param_set;
-
-  fConfig->Get("partial-xsec-alg-name",  pxsec_alg_name  );
-  fConfig->Get("partial-xsec-param-set", pxsec_param_set );
-
-  //-- get the specified algorithm from the AlgFactory
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase =
-                       algf->GetAlgorithm(pxsec_alg_name, pxsec_param_set);
-
-  const XSecAlgorithmI * partial_xsec_alg =
-                            dynamic_cast<const XSecAlgorithmI *> (algbase);
-
-  assert(partial_xsec_alg);
-
-  return partial_xsec_alg;
 }
 //____________________________________________________________________________
 const IntegratorI * QELXSec::Integrator(void) const
