@@ -36,15 +36,14 @@ public:
   NeuGenCuts();
   NeuGenCuts(const char * name);
   NeuGenCuts(NGKineVar_t kvid, float kvmin, float kvmax,
-                   int procmask, bool sumQel, bool sumRes, bool sumDis);
+                                    bool sumQel, bool sumRes, bool sumDis);
   ~NeuGenCuts();
 
   void SetCut(NGKineVar_t kvid, float kvmin, float kvmax);
 
-  void SetProcmask (int in)   { _procmask = in;  }
-  void SetSumQel   (bool sum) { _sumqel   = sum; }
-  void SetSumRes   (bool sum) { _sumres   = sum; }
-  void SetSumDis   (bool sum) { _sumdis   = sum; }
+  void SetSumQel   (bool sum);
+  void SetSumRes   (bool sum);
+  void SetSumDis   (bool sum);
 
   bool         IsCutSet (void) const { return _cutset;   }
   NGKineVar_t  CutKVId  (void) const { return _kvid;     } 
@@ -60,6 +59,8 @@ public:
   friend ostream & operator << (ostream & stream, const NeuGenCuts & final);
   
 private:
+
+  void UpdateProcessMask (void);
 
   string       _name;
   bool         _cutset;

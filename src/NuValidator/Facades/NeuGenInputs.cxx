@@ -69,7 +69,7 @@ NeuGenInputs::NeuGenInputs(const NeuGenInputs * inputs)
   _target_code       = inputs->_target_code;
   _final_state_code  = inputs->_final_state_code;
   _init_state_code   = inputs->_init_state_code;
-  _process_mask_code = inputs->_process_mask_code;
+  //_process_mask_code = inputs->_process_mask_code;
   _cut_var_code      = inputs->_cut_var_code;
   _cut_var_min       = inputs->_cut_var_min;
   _cut_var_max       = inputs->_cut_var_max;
@@ -77,9 +77,9 @@ NeuGenInputs::NeuGenInputs(const NeuGenInputs * inputs)
   _res_sum           = inputs->_res_sum;
   _dis_sum           = inputs->_dis_sum;
 
-  _qel_bit_in_mask   = inputs->_qel_bit_in_mask;
-  _res_bit_in_mask   = inputs->_res_bit_in_mask;
-  _dis_bit_in_mask   = inputs->_dis_bit_in_mask;
+  //_qel_bit_in_mask   = inputs->_qel_bit_in_mask;
+  //_res_bit_in_mask   = inputs->_res_bit_in_mask;
+  //_dis_bit_in_mask   = inputs->_dis_bit_in_mask;
 
    // aux
 
@@ -172,10 +172,12 @@ void NeuGenInputs::WriteNeuGenInputCard(const char * filename) const
             << _init_state_code
             << " \\\\ initial state - (1=v-p, 2=v-n, 3=vbar-p, 4=vbar-n "
             << endl;
+/*
   data_card << setiosflags(ios::left) << setfill(' ') << setw(9)
             << _process_mask_code
             << " \\\\ process mask: bits for qel, res, dis, coh "
             << endl;
+*/
   data_card << setiosflags(ios::left) << setfill(' ') << setw(9)
             << _cut_var_code
             << " \\\\ cuts variable (0=none, 1=|q^2|, 2=W, 3=x, 4=y "
@@ -231,8 +233,7 @@ NeuGenCuts NeuGenInputs::GetCuts(void) const
   bool sumRes = (_res_sum == 1);
   bool sumDis = (_dis_sum == 1);
 
-  NeuGenCuts cuts(kvid, _cut_var_min, _cut_var_max, 
-                                  _process_mask_code, sumQel, sumRes, sumDis);
+  NeuGenCuts cuts(kvid, _cut_var_min, _cut_var_max, sumQel, sumRes, sumDis);
 
   return cuts;
 }
@@ -242,26 +243,28 @@ void NeuGenInputs::SetNBins(int nbins)
   _nbins = nbins;
 }
 //____________________________________________________________________________
+/*
 void NeuGenInputs::SetQelBitInMask(bool on)
 {
   ( on ) ? _qel_bit_in_mask = 1 : _qel_bit_in_mask = 0;
 
-  this->ComputeProcessMask();
+  //this->ComputeProcessMask();
 }
 //____________________________________________________________________________
 void NeuGenInputs::SetResBitInMask(bool on)
 {
   ( on ) ? _res_bit_in_mask = 1 : _res_bit_in_mask = 0;
 
-  this->ComputeProcessMask();
+  //this->ComputeProcessMask();
 }
 //____________________________________________________________________________
 void NeuGenInputs::SetDisBitInMask(bool on)
 {
   ( on ) ? _dis_bit_in_mask = 1 : _dis_bit_in_mask = 0;
 
-  this->ComputeProcessMask();
+  //this->ComputeProcessMask();
 }
+*/
 //____________________________________________________________________________
 void NeuGenInputs::SetXSecType(string xsec_type)
 {
@@ -350,9 +353,11 @@ void NeuGenInputs::SetInclusive(bool on)
 {
   _inclusive = on;
   
-  this->SetQelSum(on);
-  this->SetResSum(on);
-  this->SetDisSum(on);
+  if(on) {
+    this->SetQelSum(true);
+    this->SetResSum(true);
+    this->SetDisSum(true);
+  }
 }
 //____________________________________________________________________________
 void NeuGenInputs::SetQelSum(bool on)
@@ -465,6 +470,7 @@ int NeuGenInputs::NeuGenVariableCode(string cut_variable)
   else                                                 return 0;
 }      
 //____________________________________________________________________________
+/*
 void NeuGenInputs::ComputeProcessMask(void)
 {
   int qel, dis, res;
@@ -475,6 +481,7 @@ void NeuGenInputs::ComputeProcessMask(void)
   
   _process_mask_code = qel + 2 * res + 4 * dis;
 }
+*/
 //____________________________________________________________________________
 int NeuGenInputs::NMatches(string input, string pattern)
 {
@@ -521,7 +528,7 @@ void NeuGenInputs::Init(void)
   _target_code       = 0;
   _final_state_code  = "00000";
   _init_state_code   = 0;
-  _process_mask_code = 0;
+  //_process_mask_code = 0;
   _cut_var_code      = 0;
   _cut_var_min       = 0;
   _cut_var_max       = 0;
@@ -529,9 +536,9 @@ void NeuGenInputs::Init(void)
   _res_sum           = 0;
   _dis_sum           = 0;
 
-  _qel_bit_in_mask   = 0;
-  _res_bit_in_mask   = 0;
-  _dis_bit_in_mask   = 0;
+  //_qel_bit_in_mask   = 0;
+  //_res_bit_in_mask   = 0;
+  //_dis_bit_in_mask   = 0;
 
   //-- init auxiliary variables
 
@@ -570,10 +577,10 @@ void NeuGenInputs::Print(ostream & stream) const
   stream << "target =          " << _target_code       << endl;
   stream << "final state =     " << _final_state_code  << endl;
   stream << "initial state =   " << _init_state_code   << endl;
-  stream << "process mask =    " << _process_mask_code << endl;
-  stream << "qel bit in mask = " << _qel_bit_in_mask   << endl;
-  stream << "res bit in mask = " << _res_bit_in_mask   << endl;
-  stream << "dis bit in mask = " << _dis_bit_in_mask   << endl;
+  //stream << "process mask =    " << _process_mask_code << endl;
+  //stream << "qel bit in mask = " << _qel_bit_in_mask   << endl;
+  //stream << "res bit in mask = " << _res_bit_in_mask   << endl;
+  //stream << "dis bit in mask = " << _dis_bit_in_mask   << endl;
   stream << "cut variable =    " << _cut_var_code      << endl;
   stream << "cut var - min =   " << _cut_var_min       << endl;
   stream << "cut var - max =   " << _cut_var_max       << endl;
