@@ -2,7 +2,7 @@
 
 <alg_conf>
 
-  -- Default configuration for CC charm production / DIS XSec
+  -- Aivazis Charm DIS dxsec/dy
 
   <param_set name="CC-Charm-Default-dy"> 
      <param type="string" name="partial-xsec-alg-name">  genie::AivazisCharmPXSecLO </param>
@@ -12,6 +12,42 @@
      <param type="int"    name="n-log-x">                161                        </param>
      <param type="double" name="x-min">                  0.001                      </param>
      <param type="double" name="x-max">                  0.999                      </param>
+  </param_set>
+
+  -- Aivazis Charm DIS dxsec/dx
+
+  <param_set name="CC-Charm-Default-dx"> 
+     <param type="string" name="partial-xsec-alg-name">  genie::AivazisCharmPXSecLO </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
+     <param type="string" name="integrator">             genie::Simpson1D           </param>
+     <param type="string" name="is-differential-over">   x                          </param>
+     <param type="int"    name="n-log-y">                161                        </param>
+     <param type="double" name="y-min">                  0.001                      </param>
+     <param type="double" name="y-max">                  0.999                      </param>
+  </param_set>
+
+  -- Slow Rescaling Charm DIS dxsec/dy
+
+  <param_set name="CC-Charm-Slow-Rescaling-Default-dy"> 
+     <param type="string" name="partial-xsec-alg-name">  genie::SlowRsclCharmDISPXSecLO </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default                     </param>
+     <param type="string" name="integrator">             genie::Simpson1D               </param>
+     <param type="string" name="is-differential-over">   y                              </param>
+     <param type="int"    name="n-log-x">                161                            </param>
+     <param type="double" name="x-min">                  0.001                          </param>
+     <param type="double" name="x-max">                  0.999                          </param>
+  </param_set>
+
+  -- Slow Rescaling Charm DIS dxsec/dy
+
+  <param_set name="CC-Charm-Slow-Rescaling-Default-dx"> 
+     <param type="string" name="partial-xsec-alg-name">  genie::SlowRsclCharmDISPXSecLO </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default                     </param>
+     <param type="string" name="integrator">             genie::Simpson1D               </param>
+     <param type="string" name="is-differential-over">   x                              </param>
+     <param type="int"    name="n-log-y">                161                            </param>
+     <param type="double" name="y-min">                  0.001                          </param>
+     <param type="double" name="y-max">                  0.999                          </param>
   </param_set>
 
  <param_set name="CC-Parton-Model-Default-dy">

@@ -254,6 +254,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::SlowRsclCharmDISPXSecLO">   
+       <config_file> 
+             slow_rescaling_charm_dis_partial_xsec_lo.xml
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::KovalenkoQELCharmPXSec">   
        <config_file> 
              kovalenko_charm_qel_xsec.xml 

@@ -91,15 +91,42 @@
      <param type="string" name="page-26-alg">   genie::VldReinSeghalExclusiveXSec </param>
      <param type="string" name="page-26-conf">  Default                           </param>
 
+     <param type="string" name="page-0-alg">    genie::VldCharmDisXSec         </param>
+     <param type="string" name="page-0-conf">   CC-Slow-Rescaling              </param>
+
   </param_set>
 
 
   <param_set name="Test"> 
 
-     <param type="int"    name="n-pages">       0                              </param>
+     <param type="int"    name="n-pages">       1                              </param>
+
+<!--
+     <param type="string" name="page-0-alg">    genie::VldResonances           </param>
+     <param type="string" name="page-0-conf">   Default                        </param>
+
+     <param type="string" name="page-1-alg">    genie::VldReinSeghalPXSecRes   </param>
+     <param type="string" name="page-1-conf">   CC-numu-p-1GeV                 </param>
+
+     <param type="string" name="page-2-alg">    genie::VldReinSeghalPXSecRes   </param>
+     <param type="string" name="page-2-conf">   CC-numu-p-4GeV                 </param>
+
+     <param type="string" name="page-3-alg">   genie::VldReinSeghalXSecRes    </param>
+     <param type="string" name="page-3-conf">  CC-numu-p-NoBreitWigner        </param>
+
+     <param type="string" name="page-4-alg">   genie::VldReinSeghalXSecRes    </param>
+     <param type="string" name="page-4-conf">  CC-numu-p                      </param>
+
+     <param type="string" name="page-5-alg">   genie::VldD1232ResXSec         </param>
+     <param type="string" name="page-5-conf">  Paschos-Lalakulich-Default     </param>
+
+     <param type="string" name="page-0-alg">   genie::VldReinSeghalExclusiveXSec </param>
+     <param type="string" name="page-0-conf">  Default                           </param>
+-->
 
      <param type="string" name="page-0-alg">   genie::VldD1232ResXSec         </param>
-     <param type="string" name="page-0-conf">  Paschos-Lalakulich-Default     </param>
+     <param type="string" name="page-0-conf">  Rein-Seghal-Default            </param>
+
 
 <!--
      <param type="string" name="page-0-alg">    genie::VldElasticXSec         </param>
