@@ -22,11 +22,17 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
 #include <TRandom3.h>
 #include <TRandom2.h>
+#include <TSystem.h>
 
+#include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+
+using namespace genie::constants;
 
 namespace genie {
 
@@ -37,7 +43,18 @@ RandomGen::RandomGen()
 {
   fInstance =  0;
 
-  fCurrSeed = 65539;
+  fCurrSeed = kDefaultRandSeed; // default seed number
+
+  // try to get this job's random number seed from the envoronment
+  const char * seed = gSystem->Getenv("GENIE_SEED");
+
+  if(seed) {
+     LOG("Rndm", pINFO) << "Getting Rndm Generator seed from the environment";
+
+     fCurrSeed = atoi(seed);
+  }
+
+  LOG("Rndm", pINFO) << "Starting Rndm Generators with seed = " << fCurrSeed;
   
   InitRandomGenerators(fCurrSeed);
 }
