@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::AivazisCharmPXSecLO
+\class    genie::SlowRsclCharmDISPXSecLO
 
 \brief    Computes, at Leading Order (LO), the differential cross section for
           neutrino charm production using the \b Aivazis,Olness,Tung model.
@@ -26,7 +26,7 @@
 
 #include <TMath.h>
 
-#include "Charm/AivazisCharmPXSecLO.h"
+#include "Charm/SlowRsclCharmDISPXSecLO.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/Units.h"
@@ -44,48 +44,43 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-AivazisCharmPXSecLO::AivazisCharmPXSecLO() :
+SlowRsclCharmDISPXSecLO::SlowRsclCharmDISPXSecLO() :
 XSecAlgorithmI()
 {
-  fName = "genie::AivazisCharmPXSecLO";
+  fName = "genie::SlowRsclCharmDISPXSecLO";
 }
 //____________________________________________________________________________
-AivazisCharmPXSecLO::AivazisCharmPXSecLO(const char * param_set) :
+SlowRsclCharmDISPXSecLO::SlowRsclCharmDISPXSecLO(const char * param_set) :
 XSecAlgorithmI(param_set)
 {
-  fName = "genie::AivazisCharmPXSecLO";
+  fName = "genie::SlowRsclCharmDISPXSecLO";
 
   FindConfig();
 }
 //____________________________________________________________________________
-AivazisCharmPXSecLO::~AivazisCharmPXSecLO()
+SlowRsclCharmDISPXSecLO::~SlowRsclCharmDISPXSecLO()
 {
 
 }
 //____________________________________________________________________________
-double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
+double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
 {
-  LOG("AivazisCharm", pDEBUG) << *fConfig;
+  LOG("SlowRsclCharm", pDEBUG) << *fConfig;
 
   //----- get scattering & init-state parameters
 
   const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
   const InitialState &     init_state = interaction -> GetInitialState();
 
-  TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-  
   double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
-  double E    = p4->Energy();
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double x    = sc_params.x();
   double y    = sc_params.y();
-
-  delete p4;
   
   //----- make sure that x, y are in the physically acceptable region
 
-  if(x<=0 || x>1) return 0;
-  if(y<=0 || y>1) return 0;
-
+  if(x<=0 || x>1) return 0.;
+  if(y<=0 || y>1) return 0.;
 
   //----- get charm mass & CKM elements -- get constants unless they
   //      are overriden in the config registry
@@ -98,21 +93,17 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   double Vcs2  = TMath::Power(Vcs, 2);
 
   //----- compute kinematic & auxiliary parameters
+  
+  double Mnuc2 = TMath::Power(Mnuc, 2);
+  double Q2    = 2*Mnuc*E*x*y;
+  double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
+  double W     = TMath::Max(0., TMath::Sqrt(W2));
 
-  double x2          = TMath::Power(x,    2);
-  double Mnuc2       = TMath::Power(Mnuc, 2);
-  double Q2          = 2*Mnuc*E*x*y;
-  double W2          = Mnuc2 + 2*Mnuc*E*y*(1-x);
-  double W           = TMath::Max(0., TMath::Sqrt(W2));
-  double inverse_eta = 0.5/x + TMath::Sqrt( 0.25/x2 + Mnuc2/Q2 );
-  double eta         = 1 / inverse_eta;
-  double xi          = eta * (1 + mc2/Q2);
-  double coshpsi     = (2-y)/y; // hyperbolic-cosine(psi)
-  double sinh2psi    = TMath::Power(coshpsi, 2) - 1;
+  //----- compute slow rescaling variable & check its value
 
-  //----- make sure that the mass-corrected x is in physical region
+  double xi = x * (1 + mc2/Q2);
 
-  if(xi<=0 || xi>1) return 0;
+  if(xi<=0 || xi>1) return 0.;
 
   //----- Get the physical W and Q2 range and check whether the current W,Q2
   //      pair is allowed
@@ -121,13 +112,13 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   Range1D_t rQ2 = kine_limits::Q2Range_xy (interaction);
 
   bool in_range = math_utils::IsWithinLimits(Q2, rQ2)
-                                        && math_utils::IsWithinLimits(W, rW);
+                                       && math_utils::IsWithinLimits(W, rW);
 
   if(!in_range) {
-    LOG("AivazisCharm", pDEBUG)
+    LOG("SlowRsclCharm", pDEBUG)
         << "\n W: " << "[" << rW.min << ", " << rW.max << "] GeV"
                  << " Q2: "<< "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-    LOG("AivazisCharm", pDEBUG)
+    LOG("SlowRsclCharm", pDEBUG)
         << "\n (W = " << W << ", Q2 = " << Q2 << " is not in physical range"
         << " - returning 0";
     return 0;
@@ -142,7 +133,7 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   PDF pdfs;
 
   pdfs.SetModel(pdf_model);   // <-- attach algorithm
-  pdfs.Calculate(xi, Q2);    // <-- calculate
+  pdfs.Calculate(xi, Q2);     // <-- calculate
 
   bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
   bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );
@@ -158,44 +149,39 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   d /= xi;
   s /= xi;
  
-  
   //----- Check if we compute contributions from both d and s quarks
+  //      default = both contribute
 
-  bool d_contributes = true;
-  bool s_contributes = true;
-
-  if( fConfig->Exists("d-contrib-switch") ) 
-                      fConfig->Get("d-contrib-switch", d_contributes);
-  if( fConfig->Exists("s-contrib-switch") ) 
-                      fConfig->Get("s-contrib-switch", s_contributes);
+  bool d_contributes = fConfig->Exists("d-contrib-switch") ?
+                                 fConfig->GetBool("d-contrib-switch") : true;
+  bool s_contributes = fConfig->Exists("s-contrib-switch") ?
+                                 fConfig->GetBool("s-contrib-switch") : true;
 
   //----- Calculate cross section
   
   double Gw  = (kGF/kSqrt_2) * (1 + Q2/kMw_2);
-
   double Gw2 = TMath::Power(Gw, 2);
+  double tmp = Gw2 * 2*Q2/(y*kPi) * (y + xi*(1-y)/x);
 
-  double tmp = Gw2 * (y*Q2/kPi) * ( TMath::Power((1+coshpsi)/2, 2) + 
-                                                (0.5*mc2/Q2)*sinh2psi/2 );
   double xsec = 0;
 
   if(d_contributes) {
-      double xsec_d = 2 * Vcd2 * d * tmp;
+      double xsec_d = Vcd2 * d * tmp;
       xsec += xsec_d;
-  }    
+  }
   if(s_contributes) {
-      double xsec_s = 2 * Vcs2 * s * tmp;
+      double xsec_s = Vcs2 * s * tmp;
       xsec += xsec_s;
   }
-
-  LOG("AivazisCharm", pDEBUG)
+  
+  LOG("SlowRsclCharm", pDEBUG)
     << "\n dxsec[DIS-Charm]/dxdy (E= " << E
                  << ", x= " << x << ", y= " << y
-                         << ", W= " << W << ", Q2 = " << Q2 << ") = " << xsec;    
+                         << ", W= " << W << ", Q2 = " << Q2 << ") = " << xsec;
   return xsec;
 }
 //____________________________________________________________________________
-double AivazisCharmPXSecLO::CharmMass(void) const
+double SlowRsclCharmDISPXSecLO::CharmMass(void) const
 {
 // Allows default charm mass to be overriden by XML config / config registry
 
@@ -204,14 +190,14 @@ double AivazisCharmPXSecLO::CharmMass(void) const
                   PDGLibrary::Instance()->Find(kPdgCQuark)->Mass();
 }
 //____________________________________________________________________________
-double AivazisCharmPXSecLO::Vcd(void) const
+double SlowRsclCharmDISPXSecLO::Vcd(void) const
 {
 // Allows default CKM Vcd  to be overriden by XML config / config registry
 
   return (fConfig->Exists("Vcd")) ? fConfig->GetDouble("Vcd") : kVcd;
 }
 //____________________________________________________________________________
-double AivazisCharmPXSecLO::Vcs(void) const
+double SlowRsclCharmDISPXSecLO::Vcs(void) const
 {
 // Allows default CKM Vcs to be overriden by XML config / config registry
 

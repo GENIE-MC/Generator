@@ -8,5 +8,6 @@
 
 #pragma link C++ class genie::AivazisCharmPXSecLO;
 #pragma link C++ class genie::KovalenkoQELCharmPXSec;
+#pragma link C++ class genie::SlowRsclCharmDISPXSecLO;
 
 #endif
