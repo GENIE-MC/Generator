@@ -251,6 +251,17 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
   return 0;                          
 }
 //___________________________________________________________________________
+double InitialState::GetProbeE(RefFrame_t ref_frame) const
+{
+  TLorentzVector * p4 = this->GetProbeP4(ref_frame);
+
+  double E = p4->Energy();
+
+  delete p4;
+
+  return E;
+}
+//___________________________________________________________________________
 void InitialState::Print(ostream & stream) const
 {
   stream << "[-] [Init-State] " << endl;
