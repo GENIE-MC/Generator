@@ -60,7 +60,7 @@ ReinSeghalCOHPXSec::~ReinSeghalCOHPXSec()
 //____________________________________________________________________________
 double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
 {
-  LOG("ReinSeghal", pDEBUG) << *fConfig;
+  LOG("ReinSeghalCoh", pDEBUG) << *fConfig;
   
   //----- Get scattering & init-state parameters
 

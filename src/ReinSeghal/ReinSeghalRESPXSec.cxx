@@ -74,11 +74,12 @@ ReinSeghalRESPXSec::~ReinSeghalRESPXSec()
 //____________________________________________________________________________
 double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 {
-  LOG("ReinSeghal", pDEBUG) << *fConfig;
+  LOG("ReinSeghalRes", pDEBUG) << *fConfig;
   
   //----- Get scattering & init-state parameters
 
-  LOG("ReinSeghal", pDEBUG) << "Getting scattering and initial-state parameters";
+  LOG("ReinSeghalRes", pDEBUG)
+                        << "Getting scattering and initial-state parameters";
 
   const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
   const InitialState &     init_state = interaction -> GetInitialState();
@@ -98,7 +99,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double EvThr = kine_limits::EnergyThreshold(interaction);
 
   if(E <= EvThr) {
-    LOG("ReinSeghal", pINFO) << "E  = " << E << " < Threshold = " << EvThr;
+    LOG("ReinSeghalRes", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
     return 0;
   }
 
@@ -133,7 +134,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 
   double Mres = bres_params.Mass();
 
-  LOG("ReinSeghal", pDEBUG)
+  LOG("ReinSeghalRes", pDEBUG)
         << "Resonance = " << res_utils::AsString(resonance)
                                       << " with mass = " << Mres << " GeV";
 
@@ -157,7 +158,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 
   //-- Calculate the Helicity Amplitudes
 
-  LOG("ReinSeghal", pDEBUG) << "Computing SPP Helicity Amplitudes";
+  LOG("ReinSeghalRes", pDEBUG) << "Computing SPP Helicity Amplitudes";
 
   const Algorithm * hamp_alg_base = this->SubAlg(
              "helicity-amplitudes-alg-name", "helicity-amplitudes-param-set");
@@ -170,7 +171,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   helicity_ampl.SetModel(helicity_ampl_model); // <-- attach algorithm
   helicity_ampl.Calculate(interaction);        // <-- calculate
 
-  LOG("ReinSeghal", pDEBUG)
+  LOG("ReinSeghalRes", pDEBUG)
          << "\n Helicity Amplitudes for ["
                  << res_utils::AsString(resonance) << "]: " << helicity_ampl;
 
@@ -197,7 +198,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   xsec_right  *=  scale_lr;
   xsec_scalar *= (scale_sc*(-Q2/q2));
 
-  LOG("ReinSeghal", pDEBUG)
+  LOG("ReinSeghalRes", pDEBUG)
       << "\n Helicity XSecs for ["<< res_utils::AsString(resonance) << "]: "
       << "\n   Sigma-Left   = " << xsec_left
       << "\n   Sigma-Right  = " << xsec_right
@@ -214,7 +215,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
      xsec = Gf * Wf * ( V2 * xsec_left + U2 * xsec_right + 2*UV*xsec_scalar );
 
   } else {
-     LOG("ReinSeghal", pERROR) << "Probe is not (anti-)neutrino!";
+     LOG("ReinSeghalRes", pERROR) << "Probe is not (anti-)neutrino!";
      return 0;
   }
 
@@ -235,12 +236,12 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 
      bw = bw_model->Eval(W);
   } else {
-      LOG("ReinSeghal", pINFO) << "Breit-Wigner weighting is turned-off";
+      LOG("ReinSeghalRes", pINFO) << "Breit-Wigner weighting is turned-off";
   }
 
   double wxsec = bw * xsec; // weighted-xsec
 
-  SLOG("ReinSeghal", pDEBUG)
+  SLOG("ReinSeghalRes", pDEBUG)
       << "Res[" << res_utils::AsString(resonance) << "]: "
         << "<Breit-Wigner(=" << bw << ")> * <d^2 xsec/dQ^2 dW [W=" << W
           << ", q2=" << q2 << ", E=" << E << "](="<< xsec << ")> = " << wxsec;
