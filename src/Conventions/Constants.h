@@ -157,20 +157,21 @@ static const int kMaxMultiplicity = 15;
 
 //----- sqrts frequently encountered in Helicity Amplitude calculations
 
-static const double kSqrt_2       = TMath::Sqrt(  2.0 );
-static const double kSqrt_3       = TMath::Sqrt(  3.0 );
-static const double kSqrt_4       = 2.0;
-static const double kSqrt_5       = TMath::Sqrt(  5.0 );
-static const double kSqrt_6       = TMath::Sqrt(  6.0 );
-static const double kSqrt_7       = TMath::Sqrt(  7.0 );
-static const double kSqrt_8       = TMath::Sqrt(  8.0 );
-static const double kSqrt_9       = TMath::Sqrt(  9.0 );
-static const double kSqrt_10      = TMath::Sqrt( 10.0 );
-static const double kSqrt_15      = TMath::Sqrt( 15.0 );
-static const double kSqrt_18      = TMath::Sqrt( 18.0 );
-static const double kSqrt_27      = TMath::Sqrt( 27.0 );
-static const double kSqrt_30      = TMath::Sqrt( 30.0 );
-static const double kSqrt_35      = TMath::Sqrt( 35.0 );
+static const double kSqrt2       = TMath::Sqrt(  2.0 );
+static const double kSqrt3       = TMath::Sqrt(  3.0 );
+static const double kSqrt4       = 2.0;
+static const double kSqrt5       = TMath::Sqrt(  5.0 );
+static const double kSqrt6       = TMath::Sqrt(  6.0 );
+static const double kSqrt7       = TMath::Sqrt(  7.0 );
+static const double kSqrt8       = TMath::Sqrt(  8.0 );
+static const double kSqrt9       = TMath::Sqrt(  9.0 );
+static const double kSqrt10      = TMath::Sqrt( 10.0 );
+static const double kSqrt15      = TMath::Sqrt( 15.0 );
+static const double kSqrt18      = TMath::Sqrt( 18.0 );
+static const double kSqrt24      = TMath::Sqrt( 24.0 );
+static const double kSqrt27      = TMath::Sqrt( 27.0 );
+static const double kSqrt30      = TMath::Sqrt( 30.0 );
+static const double kSqrt35      = TMath::Sqrt( 35.0 );
 
 //----- Standard model constants used in Parton Model
 
