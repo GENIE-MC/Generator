@@ -129,33 +129,27 @@
 
    ------- CONFIGURATION FOR REIN-SEGHAL MODEL ALGORITHMS --------
 
-   <alg_config alg_name="genie::ReinSeghalPartialXSec">   
+   <alg_config alg_name="genie::ReinSeghalRESPXSec">   
        <config_file> 
-             rein_seghal_partial_xsec.xml 
+             rein_seghal_res_partial_xsec.xml 
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::ReinSeghalXSec">   
+   <alg_config alg_name="genie::RSSingleRESPXSec">   
        <config_file> 
-             rein_seghal_xsec.xml 
+             rs_single_res_partial_xsec.xml 
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::RSPXSecSingleRes">   
+   <alg_config alg_name="genie::RSListRESPXSec">   
        <config_file> 
-             rs_partial_xsec_single_res.xml 
+             rs_list_res_partial_xsec.xml 
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::RSPXSecResList">   
+   <alg_config alg_name="genie::RSExclusiveRESPXSec">   
        <config_file> 
-             rs_partial_xsec_res_list.xml 
-       </config_file>
-   </alg_config>
-
-   <alg_config alg_name="genie::RSPXSecExclFinState">   
-       <config_file> 
-             rs_exculsive_final_state_xsec.xml
+             rs_exculsive_res_partial_xsec.xml
        </config_file>
    </alg_config>
 
