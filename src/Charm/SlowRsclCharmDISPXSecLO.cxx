@@ -159,7 +159,7 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
 
   //----- Calculate cross section
   
-  double Gw  = (kGF/kSqrt_2) * (1 + Q2/kMw_2);
+  double Gw  = (kGF/kSqrt2) * (1 + Q2/kMw_2);
   double Gw2 = TMath::Power(Gw, 2);
   double tmp = Gw2 * 2*Q2/(y*kPi) * (y + xi*(1-y)/x);
 
