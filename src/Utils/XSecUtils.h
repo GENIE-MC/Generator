@@ -21,9 +21,9 @@ namespace genie {
 namespace xsec_utils
 {
   double InelasticPionNucleonXSec (double Epion);
+  double TotalPionNucleonXSec     (double Epion);
 
 }      // xsec_utils namespace
-
 }      // genie namespace
 
 #endif // _XSEC_UTILS_H_
