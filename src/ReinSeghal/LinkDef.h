@@ -10,9 +10,10 @@
 #pragma link C++ class genie::HelicityAmplModelNCp;
 #pragma link C++ class genie::HelicityAmplModelNCn;
 #pragma link C++ class genie::RSHelicityAmplModel;
-#pragma link C++ class genie::ReinSeghalPartialXSec;
-#pragma link C++ class genie::RSPXSecSingleRes;
-#pragma link C++ class genie::RSPXSecResList;
-#pragma link C++ class genie::RSPXSecExclFinState;
+
+#pragma link C++ class genie::ReinSeghalRESPXSec;
+#pragma link C++ class genie::RSSingleRESPXSec;
+#pragma link C++ class genie::RSListRESPXSec;
+#pragma link C++ class genie::RSExclusiveRESPXSec;
 
 #endif
