@@ -86,7 +86,7 @@
      <param type="string" name="page-24-conf">  Paschos-Lalakulich-Default     </param>
 
      <param type="string" name="page-25-alg">   genie::VldD1232ResXSec         </param>
-     <param type="string" name="page-25-conf">  RS                             </param>
+     <param type="string" name="page-25-conf">  Rein-Seghal-Default            </param>
 
      <param type="string" name="page-26-alg">   genie::VldReinSeghalExclusiveXSec </param>
      <param type="string" name="page-26-conf">  Default                           </param>
@@ -96,15 +96,10 @@
 
   <param_set name="Test"> 
 
-     <param type="int"    name="n-pages">       1                              </param>
+     <param type="int"    name="n-pages">       0                              </param>
 
-     <param type="string" name="page-0-alg">   genie::VldReinSeghalXSecRes    </param>
-     <param type="string" name="page-0-conf">  CC-numu-p-NoBreitWigner        </param>
-
-<!--
-     <param type="string" name="page-0-alg">   genie::VldReinSeghalExclusiveXSec </param>
-     <param type="string" name="page-0-conf">  Default                           </param>
--->
+     <param type="string" name="page-0-alg">   genie::VldD1232ResXSec         </param>
+     <param type="string" name="page-0-conf">  Paschos-Lalakulich-Default     </param>
 
 <!--
      <param type="string" name="page-0-alg">    genie::VldElasticXSec         </param>

@@ -13,7 +13,7 @@
      <param type="double" name="final-quark-mass">     0.2              </param>
   </param_set>
 
-  Bardin-Dokuchaeva model configuration for v-bar CC, d -> u
+  Bardin-Dokuchaeva model configuration for v-bar CC, u -> d
 
   <param_set name="CC-d-u"> 
      <param type="string" name="pdf-alg-name">         genie::PDFLIB    </param>

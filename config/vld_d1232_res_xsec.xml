@@ -7,8 +7,7 @@
   <param_set name="Paschos-Lalakulich-Default"> 
 
      <param type="string" name="title">             
-                     Paschos-Lalakulich model for v production of the Delta(1232) resonance </param>
-
+         Paschos-Lalakulich: v + p #rightarrow mu- + Delta(1232) #rightarrow mu- + p + pi+ </param>
 
      <!-- configuration inputs relevant to double differential cross section plots -->
 
@@ -39,16 +38,15 @@
 
 
 
-  <param_set name="RS"> 
+  <param_set name="Rein-Seghal-Default"> 
 
-     <param type="string" name="title">             
-                     RS </param>
-
+     <param type="string" name="title"> 
+         Rein-Seghal: v + p #rightarrow mu- + Delta #rightarrow mu- + p + pi+ </param>
 
      <!-- configuration inputs relevant to double differential cross section plots -->
 
-     <param type="string" name="d2xsec-dQ2dW-alg-name">  genie::RSPXSecExclFinState </param>
-     <param type="string" name="d2xsec-dQ2dW-param-set"> Default                          </param>
+     <param type="string" name="d2xsec-dQ2dW-alg-name">  genie::RSExclusiveRESPXSec </param>
+     <param type="string" name="d2xsec-dQ2dW-param-set"> Default                    </param>
 
      <param type="int"    name="n-logQ2-bins">        50       </param>
      <param type="double" name="Q2-min">              0.1      </param>
