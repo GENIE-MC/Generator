@@ -491,9 +491,12 @@ void NeuGenInputDialog::OK(void)
   cards->CurrInputs()->SetCutVar       ( this->ReadCutVar()       );
   cards->CurrInputs()->SetCutVarMin    ( this->ReadCutVarMin()    );
   cards->CurrInputs()->SetCutVarMax    ( this->ReadCutVarMax()    );
-  cards->CurrInputs()->SetQelBitInMask ( this->ReadQelBitInMask() );
-  cards->CurrInputs()->SetResBitInMask ( this->ReadResBitInMask() );
-  cards->CurrInputs()->SetDisBitInMask ( this->ReadDisBitInMask() );
+//  cards->CurrInputs()->SetQelBitInMask ( this->ReadQelBitInMask() );
+//  cards->CurrInputs()->SetResBitInMask ( this->ReadResBitInMask() );
+//  cards->CurrInputs()->SetDisBitInMask ( this->ReadDisBitInMask() );
+  cards->CurrInputs()->SetQelSum       ( this->ReadQelBitInMask() );
+  cards->CurrInputs()->SetResSum       ( this->ReadResBitInMask() );
+  cards->CurrInputs()->SetDisSum       ( this->ReadDisBitInMask() );
   cards->CurrInputs()->SetInclusive    ( this->ReadInclusive()    );
 
   this->Report(); // write out user selections to the GUI
@@ -600,9 +603,16 @@ void NeuGenInputDialog::LoadLastEntries(void)
   _cut_min -> SetNumber ( inp->CutVarMin()  );
   _cut_max -> SetNumber ( inp->CutVarMax()  );
 
-  _qel_bit_mask -> SetOn ( inp->QelBitInMask() );
-  _res_bit_mask -> SetOn ( inp->ResBitInMask() );
-  _dis_bit_mask -> SetOn ( inp->DisBitInMask() );
+  int qel_sum = ( inp->QelSum() ) ? 1 : 0;
+  int res_sum = ( inp->ResSum() ) ? 1 : 0;
+  int dis_sum = ( inp->DisSum() ) ? 1 : 0;
+
+  _qel_bit_mask -> SetOn ( qel_sum );
+  _res_bit_mask -> SetOn ( res_sum );
+  _dis_bit_mask -> SetOn ( dis_sum );
+//  _qel_bit_mask -> SetOn ( inp->QelBitInMask() );
+//  _res_bit_mask -> SetOn ( inp->ResBitInMask() );
+//  _dis_bit_mask -> SetOn ( inp->DisBitInMask() );
 
   _all_finstates-> SetOn ( inp->Inclusive()    );
 }
