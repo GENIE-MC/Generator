@@ -9,6 +9,8 @@
 #pragma link C++ class genie::HelicityAmplModelCC;
 #pragma link C++ class genie::HelicityAmplModelNCp;
 #pragma link C++ class genie::HelicityAmplModelNCn;
+#pragma link C++ class genie::HelicityAmplModelEMp;
+#pragma link C++ class genie::HelicityAmplModelEMn;
 #pragma link C++ class genie::RSHelicityAmplModel;
 
 #pragma link C++ class genie::ReinSeghalCOHPXSec;
