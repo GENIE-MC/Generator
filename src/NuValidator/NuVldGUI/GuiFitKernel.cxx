@@ -11,6 +11,8 @@
 */
 //_____________________________________________________________________________
 
+#include <cassert>
+
 #include <TGTextEdit.h>
 #include <TF1.h>
 #include <TMinuit.h>
