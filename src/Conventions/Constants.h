@@ -191,8 +191,12 @@ static const double kMinQ2Limit   = 1e-6;  // GeV^2
 
 // maximum allowed number of iterations in rejection MC method
 // before selecting a valid number
-
 static const unsigned int kRjMaxIterations = 1000;
+
+// Default random number generator seed number. It can be overriden
+// setting the $GENIE_SEED environmental variable or by using
+// RandomGen::SetSeed(int)
+static const unsigned int kDefaultRandSeed = 65539;
                                           
 
 } // namespace constants
