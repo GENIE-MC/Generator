@@ -11,6 +11,7 @@
 #pragma link C++ class genie::HelicityAmplModelNCn;
 #pragma link C++ class genie::RSHelicityAmplModel;
 
+#pragma link C++ class genie::ReinSeghalCOHPXSec;
 #pragma link C++ class genie::ReinSeghalRESPXSec;
 #pragma link C++ class genie::RSSingleRESPXSec;
 #pragma link C++ class genie::RSListRESPXSec;
