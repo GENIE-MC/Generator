@@ -13,5 +13,6 @@
 #pragma link C++ class genie::RESXSec;
 
 #pragma link C++ class genie::DISPXSec;
+#pragma link C++ class genie::RESPXSec;
 
 #endif

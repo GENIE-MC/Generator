@@ -9,6 +9,9 @@
             \li dxsec / dx  where \c x is the Bjorken scaling variable, or
             \li dxsec / dy  where \c y is the Inelasticity
 
+          This is a model-independent algorithm. It merely integrates the
+          specified double differential cross section.
+
           Is a concrete implementation of the XSecAlgorithmI interface. 
             
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
