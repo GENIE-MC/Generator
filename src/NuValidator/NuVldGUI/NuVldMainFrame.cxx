@@ -267,9 +267,12 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
 
   fMenuNeuGen = new TGPopupMenu(gClient->GetRoot());
 
-  fMenuNeuGen->AddEntry("Physics", M_NEUGEN_CONFIG_PHYSICS);
-  fMenuNeuGen->AddEntry("Process", M_NEUGEN_CONFIG_PROCESS);
-  fMenuNeuGen->AddEntry("Run",     M_NEUGEN_RUN);
+  fMenuNeuGen->AddEntry("Physics",       M_NEUGEN_CONFIG_PHYSICS);
+  fMenuNeuGen->AddEntry("Process",       M_NEUGEN_CONFIG_PROCESS);
+  fMenuNeuGen->AddEntry("Run",           M_NEUGEN_RUN);
+  fMenuNeuGen->AddSeparator();
+  fMenuNeuGen->AddEntry("Load external", M_NEUGEN_LOAD_EXTERNAL);
+
   fMenuNeuGen->Connect("Activated(Int_t)",
                                    "genie::nuvld::NuVldMainFrame",
                                                     this,"HandleMenu(Int_t)");
@@ -1012,7 +1015,8 @@ void NuVldMainFrame::Init(void)
   fLtxAuth -> SetTextColor (50);
   fLtxAuth -> SetTextFont  (32);
 
-  _xsec_vs_energy = 0;
+  fPlotterShowIsOn = false;
+  _xsec_vs_energy  = 0;
 
   _v_slc_dialog_requires_attn = false;
   _active_v_slc_dialog        = 0;
@@ -1084,6 +1088,7 @@ void NuVldMainFrame::HandleMenu(Int_t id)
   case M_NEUGEN_CONFIG_PHYSICS: this->ConfigNeugenPhysics();             break;
   case M_NEUGEN_CONFIG_PROCESS: this->ConfigNeugenProcess();             break;
   case M_NEUGEN_RUN:            this->RunNulook();                       break;
+  case M_NEUGEN_LOAD_EXTERNAL:  this->LoadExtXSecPrediction();           break;
   case M_FIT_OPEN:              this->OpenFitterTab();                   break;
   case M_FIT_RUN:               this->RunFitter();                       break;
   case M_FIT_RESET:             this->ResetFitterTab();                  break;
@@ -1184,18 +1189,16 @@ void NuVldMainFrame::ResetSqlSelections(void)
 //______________________________________________________________________________
 void NuVldMainFrame::ClearViewer(void)
 {
-  //NuVldUserData * user_data = NuVldUserData::Instance();
-
   if (fTabData->GetCurrent() == 0)
   {
     fPlotTabEmbCnv->GetCanvas()->Clear();
     fPlotTabEmbCnv->GetCanvas()->Update();
-
-    //user_data->DelCurrDBTable();
+    fPlotterShowIsOn = false;
   }
   else if (fTabData->GetCurrent() == 1)
   {
     fDataViewer->Clear();
+    fPlotterShowIsOn = false;
   }
 }
 //______________________________________________________________________________
@@ -1441,23 +1444,23 @@ string NuVldMainFrame::ElTabBundleCutsInString(void)
 
   ostringstream cuts;
 
-  cuts << "E-min="       << E_min       << ";"
+  cuts << "E_min="       << E_min       << ";"
        << "E_max="       << E_max       << ";"
-       << "EP-min="      << EP_min      << ";"
+       << "EP_min="      << EP_min      << ";"
        << "EP_max="      << EP_max      << ";"
-       << "Theta-min="   << Theta_min   << ";"
+       << "Theta_min="   << Theta_min   << ";"
        << "Theta_max="   << Theta_max   << ";"
-       << "Q2-min="      << Q2_min      << ";"
+       << "Q2_min="      << Q2_min      << ";"
        << "Q2_max="      << Q2_max      << ";"
-       << "W2-min="      << W2_min      << ";"
+       << "W2_min="      << W2_min      << ";"
        << "W2_max="      << W2_max      << ";"
-       << "Nu-min="      << Nu_min      << ";"
+       << "Nu_min="      << Nu_min      << ";"
        << "Nu_max="      << Nu_max      << ";"
-       << "Epsilon-min=" << Epsilon_min << ";"
+       << "Epsilon_min=" << Epsilon_min << ";"
        << "Epsilon_max=" << Epsilon_max << ";"
-       << "Gamma-min="   << Gamma_min   << ";"
+       << "Gamma_min="   << Gamma_min   << ";"
        << "Gamma_max="   << Gamma_max   << ";"
-       << "x-min="       << x_min       << ";"
+       << "x_min="       << x_min       << ";"
        << "x_max="       << x_max       << ";";
 
   return cuts.str();
@@ -1675,8 +1678,45 @@ void NuVldMainFrame::RunNulook(void)
   }    
 }
 //______________________________________________________________________________
+void NuVldMainFrame::LoadExtXSecPrediction(void)
+{
+  fLog       -> AddLine( "Loading xsec prediction from file"    );
+  fStatusBar -> SetText( "Loading xsec prediction from file", 0 );
+
+  static TString dir(".");
+
+  const char * kFileExt[] = {"All files", "*", "Ascii files", "*.txt", 0, 0};
+
+  TGFileInfo fi;
+  fi.fFileTypes = kFileExt;
+  fi.fIniDir    = StrDup(dir.Data());
+
+  new TGFileDialog(gClient->GetRoot(), fMain, kFDOpen, &fi);
+
+  if( fi.fFilename ) {
+
+     string xsec_data_file = string( fi.fFilename );
+
+     ostringstream cmd;
+     cmd << "Reading xsec data from file: " << xsec_data_file.c_str();
+
+     fLog       -> AddLine( cmd.str().c_str()   );
+     fStatusBar -> SetText( cmd.str().c_str(), 0 );
+     fStatusBar -> SetText( "XSec Data File Opened",   1 );
+
+     if(_xsec_vs_energy) delete _xsec_vs_energy;
+     
+     _xsec_vs_energy = new XSecVsEnergy;
+     _xsec_vs_energy->LoadFromFile( xsec_data_file.c_str() );
+     
+     LOG("NuVld", pDEBUG) << "Drawing xsec vs energy ";
+
+     this->DrawNeugenXSecVsEnergy (_xsec_vs_energy, fPlotTabEmbCnv, false);
+  }
+}
+//______________________________________________________________________________
 void NuVldMainFrame::DrawNeugenXSecVsEnergy(
-                               XSecVsEnergy * xs, TRootEmbeddedCanvas * ecanvas)
+             XSecVsEnergy * xs, TRootEmbeddedCanvas * ecanvas, bool show_titles)
 {
   bool scale_E = this->ScaleWithEnergy();
 
@@ -1690,9 +1730,10 @@ void NuVldMainFrame::DrawNeugenXSecVsEnergy(
 
   LOG("NuVld", pDEBUG) << "Checking whether a frame is already drawn";
   
-  NuVldUserData * user_data = NuVldUserData::Instance();
+  //NuVldUserData * user_data = NuVldUserData::Instance();
 
-  if( user_data->CurrDBTableIsNull() ) {
+  //if( user_data->CurrDBTableIsNull() ) {
+  if( !fPlotterShowIsOn ) {
 
       LOG("NuVld", pDEBUG) << "No frame found - Drawing the x,y axes";
 
@@ -1723,17 +1764,20 @@ void NuVldMainFrame::DrawNeugenXSecVsEnergy(
       
       TH1F * hframe = ecanvas->GetCanvas()->DrawFrame(xmin, TMath::Max(0.,ymin), xmax, 1.2*ymax);
 
-      hframe->GetXaxis()->SetTitle("Ev (GeV)");
-      if(scale_E)
-          hframe->GetYaxis()->SetTitle("#sigma/Ev (10^{-38} cm^{2}/GeV");
-      else
-          hframe->GetYaxis()->SetTitle("#sigma (10^{-38} cm^{2}");
-      
+      if(show_titles) {
+         hframe->GetXaxis()->SetTitle("Ev (GeV)");
+         if(scale_E)
+            hframe->GetYaxis()->SetTitle("#sigma/Ev (10^{-38} cm^{2}/GeV");
+         else
+            hframe->GetYaxis()->SetTitle("#sigma (10^{-38} cm^{2}");
+      }
       hframe->Draw();
       graph->Draw("LP");
 
       fLtxAuth->Draw();
       fLtxLink->Draw();
+      
+      fPlotterShowIsOn = true;
       
       if( xmin > 0 && xmax/xmin > 10. ) ecanvas->GetCanvas()->GetPad(1)->SetLogx();
       if( ymin > 0 && ymax/ymin > 10. ) ecanvas->GetCanvas()->GetPad(1)->SetLogy();
@@ -1744,7 +1788,7 @@ void NuVldMainFrame::DrawNeugenXSecVsEnergy(
 
   } else {
 
-      LOG("NuVld", pDEBUG) << "Found not null mplots_pad TPad in TRootEmbeddedCanvas";
+      LOG("NuVld", pDEBUG) << "Found mplots_pad TPad in TRootEmbeddedCanvas";
   
       ecanvas->GetCanvas()->GetPad(1)->cd();
 
@@ -2016,6 +2060,8 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
          fLtxAuth->Draw();
          fLtxLink->Draw();
 
+         fPlotterShowIsOn = true;
+         
       } else {
 
         fStatusBar -> SetText( "pointer to DBTable<T> is null", 1 );
@@ -2047,6 +2093,8 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
 
          fLtxAuth->Draw();
          fLtxLink->Draw();
+
+         fPlotterShowIsOn = true;
 
       } else {
         fStatusBar -> SetText( "pointer to DBTable<T> is null", 1 );

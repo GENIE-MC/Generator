@@ -87,18 +87,19 @@ public:
    void ConfigNeugenProcess   (void);
    void SelectNeuGenFitParams (void);
    void RunNulook             (void);  
+   void LoadExtXSecPrediction (void);
 
-   void HandleSaveCanvas       (void);
+   void HandleSaveCanvas      (void);
    
-   void DrawDBTable         (void);
-   void PrintDBTable        (void);
-   void DrawCurrentDBTable  (void);
-   void PrintCurrentDBTable (void);
+   void DrawDBTable           (void);
+   void PrintDBTable          (void);
+   void DrawCurrentDBTable    (void);
+   void PrintCurrentDBTable   (void);
 
-   void SetCurrDBTable         (void);
-   void RetrieveStackedDBTable (void);
+   void SetCurrDBTable        (void);
+   void RetrieveStackedDBTable(void);
 
-   void DrawNeugenXSecVsEnergy (XSecVsEnergy * xs, TRootEmbeddedCanvas * ecanvas);
+   void DrawNeugenXSecVsEnergy (XSecVsEnergy * xs, TRootEmbeddedCanvas * ecanvas, bool show_titles = true);
    
    bool CheckNeugenCards(void);
 
@@ -357,6 +358,8 @@ private:
    GuiStackHandler *         fStackHandler;
    GuiFitKernel *            fFitKernel;
 
+   bool                      fPlotterShowIsOn;
+   
    bool                      _v_slc_dialog_requires_attn;
    DataSelectionDialog *     _active_v_slc_dialog;
    XSecVsEnergy *            _xsec_vs_energy;
