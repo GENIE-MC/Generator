@@ -6,12 +6,12 @@
 
   <param_set name="CC-Bardin"> 
 
-     <param type="string" name="title"> Bardin / Dokuchaeva Radiative Corrections model              </param>
-     <param type="string" name="xsec-alg-name-with-rad-corr">     genie::BardinDISPXSec              </param>
-     <param type="string" name="xsec-param-set-with-rad-corr">    CC-d-u-no-kin-cuts                 </param>
-     <param type="string" name="xsec-alg-name-without-rad-corr">  genie::DISPartonModelPXSec         </param>
-     <param type="string" name="xsec-param-set-without-rad-corr"> CC-Default-Below-Charm-no-kin-cuts </param>
-     <param type="bool"   name="is-CC">                           true                               </param>
+     <param type="string" name="title"> Bardin / Dokuchaeva Radiative Corrections model      </param>
+     <param type="string" name="xsec-alg-name-with-rad-corr">     genie::BardinDISPXSec      </param>
+     <param type="string" name="xsec-param-set-with-rad-corr">    CC-d-u                     </param>
+     <param type="string" name="xsec-alg-name-without-rad-corr">  genie::DISPartonModelPXSec </param>
+     <param type="string" name="xsec-param-set-without-rad-corr"> CC-Default-Below-Charm     </param>
+     <param type="bool"   name="is-CC">                           true                       </param>
   </param_set>
 
 </alg_conf>

@@ -20,7 +20,7 @@
   </param_set>
 
   <param_set name="Rein-Seghal-dQ2"> 
-     <param type="string" name="partial-xsec-alg-name">    genie::RSPXSecExclFinState       </param>
+     <param type="string" name="partial-xsec-alg-name">    genie::RSExclusiveRESPXSec       </param>
      <param type="string" name="partial-xsec-param-set">   Default                          </param>
      <param type="string" name="integrator">               genie::Simpson1D                 </param>
      <param type="string" name="is-differential-over">     Q2                               </param>
@@ -29,7 +29,7 @@
   </param_set>
 
   <param_set name="Rein-Seghal-dW"> 
-     <param type="string" name="partial-xsec-alg-name">    genie::RSPXSecExclFinState       </param>
+     <param type="string" name="partial-xsec-alg-name">    genie::RSExclusiveRESPXSec       </param>
      <param type="string" name="partial-xsec-param-set">   Default                          </param>
      <param type="string" name="integrator">               genie::Simpson1D                 </param>
      <param type="string" name="is-differential-over">     W                                </param>
