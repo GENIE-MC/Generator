@@ -69,10 +69,10 @@ void XclsTag::UnsetCharm(void)
   fCharmedHadronPdg = 0; 
 }
 //___________________________________________________________________________
-void XclsTag::SetNPions(int npi_0, int npi_plus, int npi_minus)
+void XclsTag::SetNPions(int npi_plus, int npi_0, int npi_minus)
 {
-  fNPi0     = npi_0;
   fNPiPlus  = npi_plus;
+  fNPi0     = npi_0;
   fNPiMinus = npi_minus;
 }
 //___________________________________________________________________________
@@ -135,6 +135,7 @@ string XclsTag::AsString(void) const
 //___________________________________________________________________________
 void XclsTag::Print(ostream & stream) const
 {
+  stream << endl;
   stream << "[-] [Exclusive Process Info] " << endl;
 
   stream << " |--> charm        : " 
@@ -151,15 +152,15 @@ void XclsTag::Print(ostream & stream) const
   }
   stream << endl;
 
-  stream << " |--> f/s nucleons : " 
-         << "N(p) = "    << fNProtons
-         << "N(n) = "    << fNNeutrons
+  stream << " |--> f/s nucleons :" 
+         << " N(p) = "    << fNProtons
+         << " N(n) = "    << fNNeutrons
          << endl;
 
-  stream << " |--> f/s pions    : " 
-         << "N(pi^0) = "    << fNPi0
-         << "N(pi^+) = "    << fNPiPlus
-         << "N(pi^-) = "    << fNPiMinus
+  stream << " |--> f/s pions    :" 
+         << " N(pi^0) = "    << fNPi0
+         << " N(pi^+) = "    << fNPiPlus
+         << " N(pi^-) = "    << fNPiMinus
          << endl;
 
 }  

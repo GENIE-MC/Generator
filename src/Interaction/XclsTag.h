@@ -48,7 +48,7 @@ public:
   //-- Setting Exclusive Final State information
 
   void   SetCharm       (int charm_pdgc = 0);
-  void   SetNPions      (int npi_0, int npi_plus, int npi_minus);
+  void   SetNPions      (int npi_plus, int npi_0, int npi_minus);
   void   SetNNucleons   (int np, int nn);
   void   SetNProtons    (int np) { fNProtons  = np; }
   void   SetNNeutrons   (int nn) { fNNeutrons = nn; }
