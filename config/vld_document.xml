@@ -98,8 +98,13 @@
 
      <param type="int"    name="n-pages">       1                              </param>
 
+     <param type="string" name="page-0-alg">   genie::VldReinSeghalXSecRes    </param>
+     <param type="string" name="page-0-conf">  CC-numu-p-NoBreitWigner        </param>
+
+<!--
      <param type="string" name="page-0-alg">   genie::VldReinSeghalExclusiveXSec </param>
      <param type="string" name="page-0-conf">  Default                           </param>
+-->
 
 <!--
      <param type="string" name="page-0-alg">    genie::VldElasticXSec         </param>
