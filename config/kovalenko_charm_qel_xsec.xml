@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  <param_set name="Default"> 
+     <param type="string"  name="pdf-alg-name">     genie::PDFLIB    </param>
+     <param type="string"  name="pdf-param-set">    GRVHO            </param>
+     <param type="int"     name="nbins">            101              </param>
+     <param type="string"  name="integrator"  >     genie::Simpson1D </param>
+  </param_set>
+
+</alg_conf>
+

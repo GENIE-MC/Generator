@@ -1,0 +1,51 @@
+//____________________________________________________________________________
+/*!
+
+\class    genie::CollinsSpillerFragm
+
+\brief    The Collins-Spiller fragmentation function.
+
+          Is a concrete implementation of the FragmentationFunctionI interface.
+
+\ref      P.D.B.Collins and T.P.Spiller, J.Phys.G11, 1289 (1984)
+
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
+
+\created  June 15, 2004
+
+*/
+//____________________________________________________________________________
+
+#ifndef _COLLINS_SPILLER_FRAGM_H_
+#define _COLLINS_SPILLER_FRAGM_H_
+
+#include <TF1.h>
+
+#include "Fragmentation/FragmentationFunctionI.h"
+
+namespace genie {
+
+class CollinsSpillerFragm : public FragmentationFunctionI {
+
+public:
+
+  CollinsSpillerFragm();
+  CollinsSpillerFragm(const char * param_set);
+  ~CollinsSpillerFragm();
+
+  //-- implements the FragmentationFunctionI interface
+
+  double Value     (double z) const;
+  double GenerateZ (void)     const;
+
+private:
+
+  void BuildFunction (void);
+
+  TF1 * fFunc;
+};
+
+}      // genie namespace
+
+#endif // _COLLINS_SPILLER_FRAGM_H_

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for QEL XSec Algorithm
+
+  <param_set name="Default"> 
+
+     <param type="string" name="version">       1.5         </param>
+     <param type="int"    name="n-comments">    3           </param>
+
+     <param type="string" name="comment-0">  
+                              This is a comment line </param>
+
+     <param type="string" name="comment-1">  
+                              This is another comment line </param>
+
+     <param type="string" name="comment-2">  
+                              This is yet another comment line </param>
+
+  </param_set>
+
+</alg_conf>
+

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  default pdf set (=GRVLO) :
+
+  <param_set name="Default"> 
+     <param type="int"  name="Nptype">  1  </param>
+     <param type="int"  name="Ngroup">  5  </param>
+     <param type="int"  name="Nset">    4  </param>
+  </param_set>
+  
+  GRVHO PDF set:
+
+  <param_set name="GRVHO"> 
+     <param type="int"  name="Nptype">  1  </param>
+     <param type="int"  name="Ngroup">  5  </param>
+     <param type="int"  name="Nset">    3  </param>
+  </param_set>
+
+  GRVLO PDF set:
+
+  <param_set name="GRVLO"> 
+     <param type="int"  name="Nptype">  1  </param>
+     <param type="int"  name="Ngroup">  5  </param>
+     <param type="int"  name="Nset">    4  </param>
+  </param_set>
+
+  GRV94HO PDF set:
+
+  <param_set name="GRV94HO"> 
+     <param type="int"  name="Nptype">  1  </param>
+     <param type="int"  name="Ngroup">  5  </param>
+     <param type="int"  name="Nset">    6  </param>
+  </param_set>
+
+</alg_conf>
+

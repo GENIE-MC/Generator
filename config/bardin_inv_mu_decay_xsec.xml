@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for the Bardin-Dokuchaeva inverse muon
+  decay xsec algorithm with 1-loop radiative corrections
+
+  <param_set name="Default"> 
+
+    <param type="string" name="integrator-name">        genie::Simpson1D            </param>
+    <param type="string" name="partial-xsec-alg-name">  genie::BardinIMDRadCorPXSec </param>
+    <param type="string" name="partial-xsec-param-set"> Default                     </param>
+
+  </param_set>
+
+</alg_conf>
+

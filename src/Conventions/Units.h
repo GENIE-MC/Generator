@@ -1,0 +1,152 @@
+//____________________________________________________________________________
+/*!
+
+\namespace  genie::units
+
+\brief      Physical System of Units
+
+\author     Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+            CCLRC, Rutherford Appleton Laboratory
+
+\created    May 03, 2004
+
+*/ 
+//____________________________________________________________________________
+
+#ifndef _UNITS_H_
+#define _UNITS_H_
+
+namespace genie {
+
+namespace units {
+
+//-- Basic unit
+
+static const double gigaelectronvolt  = 1.;                        
+static const double GeV               = gigaelectronvolt;                        
+
+//-- Conversion of conventionl [L], [M], [T] units in physical units
+
+static const double meter    = 5.07e+15 / GeV;
+static const double kilogram = 5.61e+26 * GeV;
+static const double second   = 1.52e+24 / GeV;
+
+//const Double_t kinvGeV2_2_mb =  0.389;               // GeV^-2  -> mbarns
+//const Double_t kmb2cm2       =  1.e-27;              // mbarns  -> cm^2
+//const Double_t km2invGeV     =  5.07e15;             // m       -> GeV^-1
+//const Double_t kcm2invGeV    =  5.07e13;             // cm      -> GeV^-1
+//const Double_t kKg2GeV       =  5.61e26;             // kgr     -> GeV
+//const Double_t kgr2GeV       =  5.61e23;             // gr      -> GeV
+//const Double_t kSec2invGeV   =  1.52e24;             // sec     -> GeV^-1
+//const Double_t kgr_cm3_2_GeV4=  4.30466e-18;         // gr/cm^3 -> GeV^4
+
+//-- [L: length],[S: area],[V: volume]
+
+static const double millimeter  = 0.001*meter;                        
+static const double millimeter2 = millimeter*millimeter;
+static const double millimeter3 = millimeter*millimeter*millimeter;
+static const double centimeter  = 0.01*meter;   
+static const double centimeter2 = centimeter*centimeter;
+static const double centimeter3 = centimeter*centimeter*centimeter;
+static const double decimeter   = 0.1*meter;   
+static const double decimeter2  = decimeter*decimeter;
+static const double decimeter3  = decimeter*decimeter*decimeter;
+static const double meter2      = meter*meter;
+static const double meter3      = meter*meter*meter;
+static const double micrometer  = 1.e-6 *meter;             
+static const double nanometer   = 1.e-9 *meter;
+static const double angstrom    = 1.e-10*meter;
+static const double fermi       = 1.e-15*meter;
+static const double barn        = 1.e-28*meter2;
+static const double millibarn   = 1.e-3 *barn;
+static const double microbarn   = 1.e-6 *barn;
+static const double nanobarn    = 1.e-9 *barn;
+static const double picobarn    = 1.e-12*barn;
+
+static const double mm  = millimeter;                        
+static const double mm2 = millimeter2;
+static const double mm3 = millimeter3;
+static const double cm  = centimeter;   
+static const double cm2 = centimeter2;
+static const double cm3 = centimeter3;
+static const double m   = meter;                  
+static const double m2  = meter2;
+static const double m3  = meter3;
+static const double A   = angstrom;
+static const double fm  = fermi;
+static const double b   = barn;
+static const double mb  = millibarn;
+static const double ub  = microbarn;
+static const double nb  = nanobarn;
+static const double pb  = picobarn;
+
+//-- [T: time]
+
+static const double millisecond = 1.e-03 *second;
+static const double microsecond = 1.e-06 *second;
+static const double nanosecond  = 1.e-09 *second;
+static const double picosecond  = 1.e-12 *second;
+
+static const double s  = second;
+static const double ms = millisecond;
+static const double us = microsecond;
+static const double ns = nanosecond;
+static const double ps = picosecond;
+
+static const double hertz     = 1./second;
+static const double kilohertz = 1.e+3*hertz;
+static const double megahertz = 1.e+6*hertz;
+static const double gigahertz = 1.e+9*hertz;
+
+static const double  Hz  = hertz;
+static const double  kHz = kilohertz;
+static const double  MHz = megahertz;
+static const double  GHz = gigahertz;
+
+//-- [Q: Charge]
+
+static const double qe          = 1.;
+static const double qe_coulomb  = 1.60217733e-19;
+
+//-- [E: Energy]
+
+static const double     electronvolt = 1.e-09 *GeV;
+static const double kiloelectronvolt = 1.e+03 *electronvolt;
+static const double megaelectronvolt = 1.e+06 *electronvolt ;
+static const double teraelectronvolt = 1.e+12 *electronvolt;
+static const double petaelectronvolt = 1.e+15 *electronvolt;
+
+static const double  eV = electronvolt;
+static const double keV = kiloelectronvolt;
+static const double MeV = megaelectronvolt;
+static const double TeV = teraelectronvolt;
+static const double PeV = petaelectronvolt;
+
+//-- [M: Mass]
+
+static const double      gram = 1.e-3 *kilogram;
+static const double milligram = 1.e-3 *gram;
+
+static const double  kg = kilogram;
+static const double   g = gram;
+static const double  mg = milligram;
+
+//-- Dimensionless quantities
+
+//- Angle
+
+static const double radian      = 1.;                  
+static const double milliradian = 1.e-3*radian;
+static const double degree      = (3.14159265358979323846/180.0)*radian;
+static const double steradian   = 1.;
+	
+static const double rad  = radian;	
+static const double mrad = milliradian;
+static const double sr   = steradian;
+static const double deg  = degree;
+
+} // namespace units
+} // namespace genie
+
+#endif // _UNITS_H_
+

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  -- Default configuration for CC charm production / DIS XSec
+
+  <param_set name="CC-Charm-Default-dy"> 
+     <param type="string" name="partial-xsec-alg-name">  genie::AivazisCharmPXSecLO </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
+     <param type="string" name="integrator">             genie::Simpson1D           </param>
+     <param type="string" name="is-differential-over">   y                          </param>
+     <param type="int"    name="n-log-x">                161                        </param>
+     <param type="double" name="x-min">                  0.001                      </param>
+     <param type="double" name="x-max">                  0.999                      </param>
+  </param_set>
+
+ <param_set name="CC-Parton-Model-Default-dy">
+     <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default-Below-Charm     </param>
+     <param type="string" name="integrator">             genie::Simpson1D           </param>
+     <param type="string" name="is-differential-over">   y                          </param>
+     <param type="int"    name="n-log-x">                161                        </param>
+     <param type="double" name="x-min">                  0.001                      </param>
+     <param type="double" name="x-max">                  0.999                      </param>
+  </param_set>
+
+
+</alg_conf>
+

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for DISKinematicsGenerator EventRecordVisitorI
+
+  <param_set name="CC-Default"> 
+
+     <param type="string" name="xsec-alg-name">   genie::DISPartonModelPXSec  </param>
+     <param type="string" name="xsec-param-set">  CC-Default-Below-Charm      </param>
+
+     <param type="double" name="x-min">           0.001                       </param>
+     <param type="double" name="x-max">           0.999                       </param>
+     <param type="double" name="y-min">           0.001                       </param>
+     <param type="double" name="y-max">           0.999                       </param>
+
+     <param type="double" name="W-min">           1.6                         </param>
+     <param type="double" name="Q2-min">          1.0                         </param>
+  </param_set>
+
+
+  <param_set name="NC-Default"> 
+
+     <param type="string" name="xsec-alg-name">   genie::DISPartonModelPXSec  </param>
+     <param type="string" name="xsec-param-set">  NC-Default                  </param>
+
+     <param type="double" name="x-min">           0.001                       </param>
+     <param type="double" name="x-max">           0.999                       </param>
+     <param type="double" name="y-min">           0.001                       </param>
+     <param type="double" name="y-max">           0.999                       </param>
+
+     <param type="double" name="W-min">           1.6                         </param>
+     <param type="double" name="Q2-min">          1.0                         </param>
+  </param_set>
+
+</alg_conf>
+

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for VldResonances VldDocumentPageI algorithm
+
+  <param_set name="Default"> 
+
+     <param type="string" name="title"> Baryon Resonances Breit Wigner distributions </param>
+     <param type="string" name="breit-wigner-param-set-suffix">  PDG-Default         </param>
+
+  </param_set>
+
+</alg_conf>
+

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  <param_set name="Default"> 
+     <param type="string"  name="baryon-res-alg-name">    genie::BaryonResDataPDG    </param>
+     <param type="string"  name="baryon-res-param-set">   Default                    </param>
+  </param_set>
+
+</alg_conf>
+
+

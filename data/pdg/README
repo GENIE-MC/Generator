@@ -1,0 +1,13 @@
+-----------------------------------------------------------------------------------
+genie_pdg_table.txt .......... PDG table used in GENIE:
+
+                               Original PDG table + 
+                               Ion list from MINOS PDG extensions + 
+                               GENIE minimal PDG extensions
+-----------------------------------------------------------------------------------
+genie_extra_pdg.txt .......... GENIE PDG extensions
+minos_extra_pdg.txt .......... MINOS PDG extensions
+minos_ion_list.txt ........... The Ion List extracted from the MINOS PDG extensions
+pdg_table.txt ................ The orginal PDG table taken from ROOT
+-----------------------------------------------------------------------------------
+

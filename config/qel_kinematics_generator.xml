@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for QELKinematicsGenerator EventRecordVisitorI
+
+  <param_set name="CC-Default"> 
+
+     <param type="string" name="xsec-alg-name">   genie::QELPartialXSec    </param>
+     <param type="string" name="xsec-param-set">  CC-Default               </param>
+     <param type="double" name="Q2-min">          1e-2                     </param>
+     <param type="double" name="Q2-max">          5                        </param>
+  </param_set>
+
+  <param_set name="NC-Default"> 
+
+     <param type="string" name="xsec-alg-name">   genie::QELPartialXSec    </param>
+     <param type="string" name="xsec-param-set">  NC-Default               </param>
+     <param type="double" name="Q2-min">          1e-2                     </param>
+     <param type="double" name="Q2-max">          5                        </param>
+  </param_set>
+
+</alg_conf>
+

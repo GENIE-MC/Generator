@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  -- Default configuration for the SchmitzMultiplicityModel MultiplityProbModelI
+
+  <param_set name="Default"> 
+
+     <param type="string" name="kno-param-set">    NeuGEN-KNO-Data     </param>
+     <param type="double" name="beta">             1.30                </param>
+     <param type="double" name="alpha-vp">         0.60                </param>
+     <param type="double" name="alpha-vn">         0.00                </param>
+     <param type="double" name="alpha-vbp" >       0.20                </param>
+     <param type="double" name="alpha-vbn">        0.80                </param>
+
+  </param_set>
+
+</alg_conf>
+

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  -- Default configuration for KNOHadronization HadronizationModelI
+
+  <param_set name="Default"> 
+     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
+     <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
+     <param type="double" name="prob-fs-pi0-pair">            0.30                            </param>
+     <param type="double" name="prob-fs-piplus-piminus">      0.60                            </param>
+     <param type="double" name="prob-fs-Kplus-Kminus">        0.05                            </param>
+     <param type="double" name="prob-fs-K0-K0bar">            0.05                            </param>
+     <param type="bool"   name="force-decays">                false                           </param>
+  </param_set>
+
+  <param_set name="Default-Decaying"> 
+     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
+     <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
+     <param type="double" name="prob-fs-pi0-pair">            0.30                            </param>
+     <param type="double" name="prob-fs-piplus-piminus">      0.60                            </param>
+     <param type="double" name="prob-fs-Kplus-Kminus">        0.05                            </param>
+     <param type="double" name="prob-fs-K0-K0bar">            0.05                            </param>
+     <param type="bool"   name="force-decays">                true                            </param>
+     <param type="string" name="decayer-alg-name">            genie::PythiaDecayer            </param>
+     <param type="string" name="decayer-param-set">           Default                         </param>
+  </param_set>
+
+</alg_conf>
+

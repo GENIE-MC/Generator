@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for VldReinSeghalPXSecRes VldDocumentPageI algorithm
+
+  <param_set name="CC-numu-p"> 
+
+     <param type="string" name="title">             
+                          Rein-Seghal Resonance Production Cross Sections  </param>
+
+     <param type="string" name="xsec-alg-name">    genie::ReinSeghalXSec    </param>
+     <param type="string" name="xsec-param-set">   Quick                    </param>
+
+     <param type="int"    name="neutrino-pdg-code">   14       </param>
+
+     <param type="int"    name="target-Z">            1        </param>
+     <param type="int"    name="target-A">            1        </param>
+     <param type="bool"   name="is-CC">            true        </param>
+
+     <param type="int"    name="n-logE-bins">        20        </param>
+     <param type="double" name="E-min">              0.1       </param>
+     <param type="double" name="E-max">              8.0       </param>
+  </param_set>
+
+
+  -- This configuration differs from the previous one in that it inhibits weighting
+     with the resonance's Breit-Wigner distribution
+
+  <param_set name="CC-numu-p-NoBreitWigner"> 
+
+     <param type="string" name="title">             
+                   Rein-Seghal Resonance Production Cross Sections [no-BW] </param>
+
+     <param type="string" name="xsec-alg-name">    genie::ReinSeghalXSec    </param>
+     <param type="string" name="xsec-param-set">   Quick-NoBreitWigner      </param>
+
+     <param type="int"    name="neutrino-pdg-code">   14       </param>
+
+     <param type="int"    name="target-Z">            1        </param>
+     <param type="int"    name="target-A">            1        </param>
+     <param type="bool"   name="is-CC">            true        </param>
+
+     <param type="int"    name="n-logE-bins">        20        </param>
+     <param type="double" name="E-min">              0.1       </param>
+     <param type="double" name="E-max">              8.0       </param>
+  </param_set>
+
+</alg_conf>
+

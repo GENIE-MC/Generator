@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  -- Default configuration for CC charm production / DIS XSec
+
+  <param_set name="CC-P33-Paschos-Lalakulich"> 
+     <param type="string" name="partial-xsec-alg-name">  
+                                genie::P33PaschosLalakulichPXSec </param>
+     <param type="string" name="partial-xsec-param-set"> Default </param>
+     <param type="string" name="integrator">    genie::Simpson2D </param>
+     <param type="int"    name="nW">           191               </param>
+     <param type="double" name="Wmin">           1.e-3           </param>
+     <param type="double" name="Wmax">           8.0             </param>
+     <param type="int"    name="nLogQ2">       191               </param>
+     <param type="double" name="Q2min">          1.e-2          </param>
+     <param type="double" name="Q2max">          8.0             </param>
+  </param_set>
+
+</alg_conf>
+
