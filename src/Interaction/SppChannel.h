@@ -152,19 +152,21 @@ public:
 
     bool is_delta = res_utils::IsDelta(res);
 
-    double iw_2_3 = 0.66666667;
     double iw_1_3 = 0.33333333;
+    double iw_2_3 = 0.66666666;
 
     switch (channel) {
 
-      case (kSpp_vp_cc_10100) : return (is_delta) ? (3.0)   : (0.0);    break;
-      case (kSpp_vn_cc_10010) : return (is_delta) ? (iw_2_3): (iw_1_3); break;
-      case (kSpp_vn_cc_01100) : return (is_delta) ? (iw_1_3): (iw_2_3); break;
+      //-- v CC
+      case (kSpp_vp_cc_10100) : return (is_delta) ? (3.0)    : (0.0);    break;
+      case (kSpp_vn_cc_10010) : return (is_delta) ? (iw_2_3) : (iw_1_3); break;
+      case (kSpp_vn_cc_01100) : return (is_delta) ? (iw_1_3) : (iw_2_3); break;
 
-      case (kSpp_vp_nc_10010) : return (is_delta) ? (iw_2_3): (iw_1_3); break;
-      case (kSpp_vp_nc_01100) : return (is_delta) ? (iw_1_3): (iw_2_3); break;
-      case (kSpp_vn_nc_01010) : return (is_delta) ? (iw_2_3): (iw_1_3); break;
-      case (kSpp_vn_nc_10001) : return (is_delta) ? (iw_1_3): (iw_2_3); break;
+      //-- v NC     
+      case (kSpp_vp_nc_10010) : return (is_delta) ? (iw_2_3) : (iw_1_3); break;
+      case (kSpp_vp_nc_01100) : return (is_delta) ? (iw_1_3) : (iw_2_3); break;
+      case (kSpp_vn_nc_01010) : return (is_delta) ? (iw_2_3) : (iw_1_3); break;
+      case (kSpp_vn_nc_10001) : return (is_delta) ? (iw_1_3) : (iw_2_3); break;
 
       default : return 0;  break;
     }
@@ -180,10 +182,28 @@ public:
     // get list of TDecayChannels, match one with the input channel and get 
     // the branching ratio.
 
-    // For now, just...
-
-    if(res == kP33_1232) return 1.0;
-    else                 return 0.0;
+    switch(res) {
+      case kP33_1232  : return 1.00; break;
+      case kS11_1535  : return 0.45; break;
+      case kD13_1520  : return 0.55; break; // REMOVE HARDCODED DATA FROM
+      case kS11_1650  : return 0.73; break; // HERE AND GET BR's from PDG
+      case kD13_1700  : return 0.10; break; // TABLES via TDatabasePDG
+      case kD15_1675  : return 0.45; break;
+      case kS31_1620  : return 0.25; break;
+      case kD33_1700  : return 0.15; break;
+      case kP11_1440  : return 0.65; break;
+      case kP33_1600  : return 0.18; break;
+      case kP13_1720  : return 0.15; break;
+      case kF15_1680  : return 0.65; break;
+      case kP31_1910  : return 0.23; break;
+      case kP33_1920  : return 0.13; break;
+      case kF35_1905  : return 0.10; break;
+      case kF37_1950  : return 0.38; break;
+      case kP11_1710  : return 0.15; break;
+      case kF17_1970  : return 0.00; break;
+      default: break;
+    }
+    return 0;
   }
   //__________________________________________________________________________
   static SppChannel_t FromInteraction(const Interaction * interaction)
