@@ -177,12 +177,11 @@ static const double kGR2          = kGR      * kGR;
 static const double kGLprime2     = kGLprime * kGLprime;
 static const double kGRprime2     = kGRprime * kGRprime;
 
-//----- Conversion constants
+//----- Misc hard limits, cuts
 
-static const double kPUAreaToCm2  = 0.389e-27;
+static const double kMinQ2Limit   = 1e-6;  // GeV^2
 
-
-//----- Etc non-physical constans
+//----- Misc non-physics model constans
 
 // maximum allowed number of iterations in rejection MC method
 // before selecting a valid number
