@@ -95,8 +95,8 @@
 
      <param type="int"    name="n-pages">       1                              </param>
 
-     <param type="string" name="page-0-alg">    genie::VldDisXSecVsE           </param>
-     <param type="string" name="page-0-conf">   CC-Default-Below-Charm         </param>
+     <param type="string" name="page-0-alg">   genie::VldReinSeghalExclusiveXSec </param>
+     <param type="string" name="page-0-conf">  Default                           </param>
 
 <!--
      <param type="string" name="page-0-alg">    genie::VldElasticXSec         </param>

@@ -14,9 +14,6 @@
 
      <param type="int"    name="neutrino-pdg-code">   14       </param>
 
-     <param type="int"    name="target-Z">            1        </param>
-     <param type="int"    name="target-A">            1        </param>
-
      <param type="int"    name="n-logE-bins">        15        </param>
      <param type="double" name="E-min">              0.5       </param>
      <param type="double" name="E-max">              8.0       </param>
