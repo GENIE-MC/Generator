@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  <!-- REIN-SEGHAL Model Helicity Amplitude Model for vp NC -->
+
+  <param_set name="Default"> 
+      <param type="string"  name="fkr-alg-name">    genie::FKRParamsModelStd    </param>
+      <param type="string"  name="fkr-param-set">   Default                     </param>
+  </param_set>
+
+</alg_conf>
+
+

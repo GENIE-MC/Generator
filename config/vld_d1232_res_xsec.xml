@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for VldD1232ResXSec VldDocumentPageI algorithm
+
+  <param_set name="Paschos-Lalakulich-Default"> 
+
+     <param type="string" name="title">             
+                     R/S Resonance Production Diff. Cross Sections (numu+p, 4 GeV) </param>
+
+     <param type="string" name="partial-xsec-alg-name">    genie::P33PaschosLalakulichPXSec </param>
+     <param type="string" name="partial-xsec-param-set">   Default                          </param>
+
+     <param type="int"    name="n-logQ2-bins">        50       </param>
+     <param type="double" name="Q2-min">              0.1     </param>
+     <param type="double" name="Q2-max">              2.0      </param>
+     <param type="int"    name="n-W-bins">            50       </param>
+     <param type="double" name="W-min">               1.00     </param>
+     <param type="double" name="W-max">               2.00     </param>
+
+     <param type="string" name="xsec-alg-name">    genie::RESXSec            </param>
+     <param type="string" name="xsec-param-set">   CC-P33-Paschos-Lalakulich </param>
+
+  </param_set>
+
+</alg_conf>
+

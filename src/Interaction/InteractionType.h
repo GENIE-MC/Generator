@@ -1,0 +1,91 @@
+//____________________________________________________________________________
+/*!
+
+\class    genie::InteractionType
+
+\brief    Enumeration of interaction types: e/m, weak cc, weak nc
+
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
+
+\created  May 06, 2004
+
+*/ 
+//____________________________________________________________________________
+
+#ifndef _INTERACTION_TYPE_H_
+#define _INTERACTION_TYPE_H_
+
+#include <cassert>
+#include <string>
+
+using std::string;
+
+namespace genie {
+
+
+typedef enum EInteractionType {
+
+  kIntNull   = 0,
+  kIntEM,
+  kIntWeakCC,
+  kIntWeakNC
+
+} InteractionType_t;
+
+
+class InteractionType
+{
+public:
+
+  //__________________________________________________________________________
+  static string AsString(InteractionType_t type)
+  {
+    switch (type) {
+
+      case(kIntEM) :     return "EM";        break;
+      case(kIntWeakCC) : return "Weak[CC]";  break;
+      case(kIntWeakNC) : return "Weak[NC]";  break;
+      default :          return "Unknown";   break;
+    }
+    return "Unknown";    
+  }
+  //__________________________________________________________________________
+  static InteractionType_t FromString(string type) 
+  {
+    //-- Make uppercase/lowercase irrelevant
+
+    for(unsigned int i=0; i<type.size(); i++) type[i] = toupper(type[i]);
+    
+    //-- Figure out the ScatteringType_t from the input string
+
+    const char * t = type.c_str();
+
+    if ( strcmp(t,"EM") == 0 ||
+            strcmp(t,"E-M") == 0 ||
+                strcmp(t,"E/M") == 0 ||
+                   strcmp(t,"ELECTROMAGNETIC") == 0 ||
+                      strcmp(t,"ELECTRO-MAGNETIC") == 0 ) return kIntEM;
+
+    else if ( strcmp(t,"WEAK-CC") == 0 ||
+                  strcmp(t,"CHARGED-CURRENT") == 0 ||
+                      strcmp(t,"CHARGED CURRENT") == 0 ||
+                          strcmp(t,"WEAK-CHARGED-CURRENT") == 0 ||
+                               strcmp(t,"WEAK CHARGED CURRENT") == 0 ||
+                                    strcmp(t,"CC") == 0 ) return kIntWeakCC;
+
+    else if ( strcmp(t,"WEAK-NC") == 0 ||
+                 strcmp(t,"NEUTRAL-CURRENT") == 0 ||
+                      strcmp(t,"NEUTRAL CURRENT") == 0 ||
+                          strcmp(t,"WEAK-NEUTRAL-CURRENT") == 0 ||
+                               strcmp(t,"WEAK NEUTRAL CURRENT") == 0 ||
+                                     strcmp(t,"NC") == 0 ) return kIntWeakNC;
+                                     
+    else return kIntNull;
+  }
+  //__________________________________________________________________________
+};
+
+}      // genie namespace
+
+#endif // _INTERACTION_TYPE_H_

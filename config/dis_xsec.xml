@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  -- Default configuration for CC charm production / DIS XSec
+
+  <param_set name="CC-Charm-Default"> 
+     <param type="string" name="partial-xsec-alg-name">  genie::AivazisCharmPXSecLO </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
+     <param type="string" name="integrator">             genie::Simpson2D           </param>
+     <param type="int"    name="n-log-x">                101                        </param>
+     <param type="double" name="x-min">                  0.001                      </param>
+     <param type="double" name="x-max">                  0.999                      </param>
+     <param type="int"    name="n-log-y">                101                        </param>
+     <param type="double" name="y-min">                  0.001                      </param>
+     <param type="double" name="y-max">                  0.999                      </param>
+     <param type="double" name="Wmin">                   1.400                      </param>
+     <param type="double" name="Q2min">                  1.000                      </param>
+  </param_set>
+
+  -- Default configuration for CC DIS including radiative corrections
+
+  <param_set name="CC-Bardin-Rad-Corr"> 
+     <param type="string" name="partial-xsec-alg-name">  genie::BardinDISPXSec      </param>
+     <param type="string" name="partial-xsec-param-set"> CC-d-u                     </param>
+     <param type="string" name="integrator">             genie::Simpson2D           </param>
+     <param type="int"    name="n-log-x">                101                        </param>
+     <param type="double" name="x-min">                  0.001                      </param>
+     <param type="double" name="x-max">                  0.999                      </param>
+     <param type="int"    name="n-log-y">                101                        </param>
+     <param type="double" name="y-min">                  0.001                      </param>
+     <param type="double" name="y-max">                  0.950                      </param>
+     <param type="double" name="Wmin">                   1.400                      </param>
+     <param type="double" name="Q2min">                  1.000                      </param>
+  </param_set>
+
+  -- Massless Parton Model CC DIS XSec configuration (below and above Charm threshold)
+
+  <param_set name="CC-Parton-Model-Default-Below-Charm"> 
+     <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default-Below-Charm     </param>
+     <param type="string" name="integrator">             genie::Simpson2D           </param>
+     <param type="int"    name="n-log-x">                101                        </param>
+     <param type="double" name="x-min">                  0.001                      </param>
+     <param type="double" name="x-max">                  0.999                      </param>
+     <param type="int"    name="n-log-y">                101                        </param>
+     <param type="double" name="y-min">                  0.001                      </param>
+     <param type="double" name="y-max">                  0.999                      </param>
+     <param type="double" name="Wmin">                   1.400                      </param>
+     <param type="double" name="Q2min">                  1.000                      </param>
+  </param_set>
+
+  <param_set name="CC-Parton-Model-Default-Above-Charm"> 
+     <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default-Above-Charm     </param>
+     <param type="string" name="integrator">             genie::Simpson2D           </param>
+     <param type="int"    name="n-log-x">                101                        </param>
+     <param type="double" name="x-min">                  0.001                      </param>
+     <param type="double" name="x-max">                  0.999                      </param>
+     <param type="int"    name="n-log-y">                101                        </param>
+     <param type="double" name="y-min">                  0.001                      </param>
+     <param type="double" name="y-max">                  0.999                      </param>
+     <param type="double" name="Wmin">                   1.400                      </param>
+     <param type="double" name="Q2min">                  1.000                      </param>
+  </param_set>
+
+  <param_set name="NC-Parton-Model-Default"> 
+     <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>
+     <param type="string" name="partial-xsec-param-set"> NC-Default                 </param>
+     <param type="string" name="integrator">             genie::Simpson2D           </param>
+     <param type="int"    name="n-log-x">                101                        </param>
+     <param type="double" name="x-min">                  0.001                      </param>
+     <param type="double" name="x-max">                  0.999                      </param>
+     <param type="int"    name="n-log-y">                101                        </param>
+     <param type="double" name="y-min">                  0.001                      </param>
+     <param type="double" name="y-max">                  0.999                      </param>
+     <param type="double" name="Wmin">                   1.400                      </param>
+     <param type="double" name="Q2min">                  1.000                      </param>
+  </param_set>
+
+
+</alg_conf>
+

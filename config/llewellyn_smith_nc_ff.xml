@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for Llewellyn-Smith QEL NC form factors
+
+  <param_set name="Default"> 
+
+     <param type="double" name="FA(q2=0)">                           -1.23      </param>
+     <param type="double" name="Vector-Mass^2">                       0.71      </param>
+     <param type="double" name="Axial-Mass^2">                        1.01      </param>
+     <param type="double" name="Proton-Anomalous-Magnetic-Moment">    2.7928473 </param>
+     <param type="double" name="Neutron-Anomalous-Magnetic-Moment">  -1.913042  </param>
+  </param_set>
+
+</alg_conf>
+

@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<genie_config>
+
+   -------- CONFIGURATION FOR FRAGMENTATION FUNCTIONS ------------
+
+   <alg_config alg_name="genie::PetersonFragm">   
+       <config_file> 
+             peterson_fragmentation.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::CollinsSpillerFragm">   
+       <config_file> 
+             collins_spiller_fragmentation.xml 
+       </config_file>
+   </alg_config>
+
+   ------- CONFIGURATION FOR FRAGMENTATION ALGORITHMS ------------
+
+   <alg_config alg_name="genie::PythiaHadronization">   
+       <config_file> 
+             pythia_hadronization.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::KNOHadronization">   
+       <config_file> 
+             kno_hadronization.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::KNOHadronization2">   
+       <config_file> 
+             kno_hadronization_2.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::KNODistribution">   
+       <config_file> 
+             kno_distribution.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::SchmitzMultiplicityModel">   
+       <config_file> 
+             schmitz_multiplicity_prob_model.xml
+       </config_file>
+   </alg_config>
+
+   ------- CONFIGURATION FOR PARTON DENSITY FUNCTIONS ------------
+
+   <alg_config alg_name="genie::PDFLIB">  
+       <config_file> 
+             pdflib.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::BodekYangPDF">  
+       <config_file> 
+             bodek_yang_pdf.xml 
+       </config_file>
+   </alg_config>
+
+   ------ CONFIGURATION FOR BARYON RESONANCE ALGORITHMS ----------
+
+   <alg_config alg_name="genie::BaryonResDataPDG">   
+       <config_file> 
+             baryon_res_data_pdg.xml 
+       </config_file>
+   </alg_config>
+
+   --- CONFIGURATION FOR FEYNMAN-KISLINGER-RAVNDALL ALGORITHMS ---
+
+   <alg_config alg_name="genie::FKRParamsModelStd">  
+       <config_file> 
+             fkr_model.xml 
+       </config_file>
+   </alg_config>
+
+   -------- CONFIGURATION FOR QEL FORM FACTOR ALGORITHMS ---------
+
+   <alg_config alg_name="genie::LlewellynSmithModelCC">  
+       <config_file> 
+             llewellyn_smith_cc_ff.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::LlewellynSmithModelNC">  
+       <config_file> 
+             llewellyn_smith_nc_ff.xml 
+       </config_file>
+   </alg_config>
+
+   -------- CONFIGURATION FOR DIS FORM FACTOR ALGORITHMS ---------
+
+   <alg_config alg_name="genie::PartonModelCCAboveCharm">  
+       <config_file> 
+             parton_model_cc_ff_charm.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::PartonModelCCBelowCharm">  
+       <config_file> 
+             parton_model_cc_ff.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::PartonModelNC">  
+       <config_file> 
+             parton_model_nc_ff.xml
+       </config_file>
+   </alg_config>
+
+
+   --------- CONFIGURATION FOR PASCHOS ET AL ALGORITHMS ----------
+
+   <alg_config alg_name="genie::P33PaschosLalakulichPXSec">   
+       <config_file> 
+             p33_paschos_lalakulich_partial_xsec.xml 
+       </config_file>
+   </alg_config>
+
+   ------- CONFIGURATION FOR REIN-SEGHAL MODEL ALGORITHMS --------
+
+   <alg_config alg_name="genie::ReinSeghalPartialXSec">   
+       <config_file> 
+             rein_seghal_partial_xsec.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::ReinSeghalXSec">   
+       <config_file> 
+             rein_seghal_xsec.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::RSPXSecSingleRes">   
+       <config_file> 
+             rs_partial_xsec_single_res.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::RSPXSecResList">   
+       <config_file> 
+             rs_partial_xsec_res_list.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::HelicityAmplModelCC">   
+       <config_file> 
+             rein_seghal_helicity_amplitudes_cc.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::HelicityAmplModelNCp">   
+       <config_file> 
+             rein_seghal_helicity_amplitudes_nc_p.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::HelicityAmplModelNCn">   
+       <config_file> 
+             rein_seghal_helicity_amplitudes_nc_n.xml 
+       </config_file>
+   </alg_config>
+
+   ------ CONFIGURATION FOR GENERIC CROSS SECTION ALGORITHMS -----
+
+   <alg_config alg_name="genie::QELXSec">   
+       <config_file> 
+             qel_xsec.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::DISXSec">   
+       <config_file> 
+             dis_xsec.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::RESXSec">   
+       <config_file> 
+             res_xsec.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::DISPXSec">   
+       <config_file> 
+             dis_partial_xsec.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::BardinIMDRadCorPXSec">   
+       <config_file>
+             bardin_inv_mu_decay_partial_xsec.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::BardinIMDRadCorXSec">   
+       <config_file>
+             bardin_inv_mu_decay_xsec.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::StdElasticPXSec">   
+       <config_file>
+             standard_elastic_partial_xsec.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::StdElasticXSec">   
+       <config_file>
+             standard_elastic_xsec.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::QELPartialXSec">   
+       <config_file> 
+             qel_partial_xsec.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::AivazisCharmPXSecLO">   
+       <config_file> 
+             aivazis_charm_partial_xsec_lo.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::KovalenkoQELCharmPXSec">   
+       <config_file> 
+             kovalenko_charm_qel_xsec.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::BardinDISPXSec">   
+       <config_file> 
+             bardin_radiative_partial_dis_xsec.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::DISPartonModelPXSec">   
+       <config_file> 
+             dis_parton_model_partial_xsec.xml
+       </config_file>
+   </alg_config>
+
+   --------- CONFIGURATION FOR PARTICLE DECAY ALGORITHMS ----------
+
+   <alg_config alg_name="genie::PythiaDecayer">   
+       <config_file> 
+             pythia_decayer.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::BaryonResonanceDecayer">   
+       <config_file> 
+             baryon_resonance_decayer.xml 
+       </config_file>
+   </alg_config>
+
+   --------- CONFIGURATION FOR NUCLEAR EFFECT ALGORITHMS ----------
+
+   <alg_config alg_name="genie::BodekRitchie">   
+       <config_file> 
+             bodek_ritchie.xml 
+       </config_file>
+   </alg_config>
+
+   -------------- CONFIGURATION FOR EV-REC VISITORS ---------------
+
+   <alg_config alg_name="genie::FermiMover">   
+       <config_file> 
+             fermi_mover.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::UnstableParticleDecayer">   
+       <config_file> 
+             unstable_particle_decayer.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::PauliBlocker">   
+       <config_file> 
+             pauli_blocker.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::NucBindEnergyAggregator">   
+       <config_file> 
+             nuclear_binding_energy_aggregator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::EventGenerator">   
+       <config_file> 
+             event_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::EventGeneratorList">   
+       <config_file> 
+             event_generator_list.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::EGResponsibilityChain">   
+       <config_file> 
+             eg_responsibility_chain.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::FamilyTreeMaker">   
+       <config_file> 
+             family_tree_maker.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::InitialStateAppender">   
+       <config_file> 
+             initial_state_appender.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::QELHadronicSystemGenerator">   
+       <config_file> 
+             qel_hadronic_system_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::QELPrimaryLeptonGenerator">   
+       <config_file> 
+             qel_primary_lepton_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::QELKinematicsGenerator">   
+       <config_file> 
+             qel_kinematics_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::DISHadronicSystemGenerator">   
+       <config_file> 
+             dis_hadronic_system_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::DISPrimaryLeptonGenerator">   
+       <config_file> 
+             dis_primary_lepton_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::DISKinematicsGenerator">   
+       <config_file> 
+             dis_kinematics_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::RESResonanceSelector">   
+       <config_file> 
+             res_resonance_selector.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::RESPrimaryLeptonGenerator">   
+       <config_file> 
+             res_primary_lepton_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::RESKinematicsGenerator">   
+       <config_file> 
+             res_kinematics_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::RESHadronicSystemGenerator">   
+       <config_file> 
+             res_hadronic_system_generator.xml 
+       </config_file>
+   </alg_config>
+
+   ------------ CONFIGURATION FOR BREIT-WIGNER ALGs --------------
+
+   <alg_config alg_name="genie::BreitWignerLRes">   
+       <config_file> 
+             resonances_breit_wigner.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::BreitWignerRes">   
+       <config_file> 
+             resonances_breit_wigner.xml 
+       </config_file>
+   </alg_config>
+
+   --------------- CONFIGURATION FOR VLD-DOCUMENT -----------------
+
+   <alg_config alg_name="genie::VldDocument">   
+       <config_file> 
+             vld_document.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldCoverPage">   
+       <config_file> 
+             vld_cover_page.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldQelXSecVsE">   
+       <config_file> 
+             vld_qel_xsec_vs_energy.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldQelFormFactors">   
+       <config_file> 
+             vld_qel_form_factors.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldDisXSecVsE">   
+       <config_file> 
+             vld_dis_xsec_vs_energy.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldDisStrucFunctions">   
+       <config_file> 
+             vld_dis_structure_functions.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldCharmDisXSec">   
+       <config_file> 
+             vld_charm_dis_xsec.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldCharmQelXSec">   
+       <config_file> 
+             vld_charm_qel_xsec.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldResonances">   
+       <config_file> 
+             vld_resonances.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldBodekYangPDF">   
+       <config_file> 
+             vld_bodek_yang_pdf.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldReinSeghalPXSecRes">   
+       <config_file> 
+             vld_rein_seghal_partial_xsec_res.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldReinSeghalXSecRes">   
+       <config_file> 
+             vld_rein_seghal_xsec_res.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldRadiativeCorr">   
+       <config_file> 
+             vld_radiative_corrections.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldRadiativeCorrPXSec">   
+       <config_file> 
+             vld_radiative_corrections_pxsec.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldHadronMultiplicities">   
+       <config_file> 
+             vld_hadron_multiplicities.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldHadronP4Distributions">   
+       <config_file> 
+             vld_hadron_p4_distributions.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldKnoDistribution">   
+       <config_file> 
+             vld_kno_distribution.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::VldInvMuonDecayXSec">   
+       <config_file> 
+             vld_inverse_muon_decay_xsec.xml
+       </config_file>
+   </alg_config>
+
+
+   <alg_config alg_name="genie::VldElasticXSec">   
+       <config_file> 
+             vld_elastic_xsec.xml
+       </config_file>
+   </alg_config>
+
+
+   <alg_config alg_name="genie::VldD1232ResXSec">   
+       <config_file> 
+             vld_d1232_res_xsec.xml
+       </config_file>
+   </alg_config>
+
+
+</genie_config>
+

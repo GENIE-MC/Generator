@@ -1,0 +1,98 @@
+//____________________________________________________________________________
+/*!
+
+\class    genie::Cache
+
+\brief
+
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
+
+\created  November 26, 2004
+
+*/
+//____________________________________________________________________________
+
+#include <sstream>
+
+#include "Messenger/Messenger.h"
+#include "Utils/Cache.h"
+
+using std::ostringstream;
+
+using namespace genie;
+
+//____________________________________________________________________________
+Cache * Cache::fInstance = 0;
+//____________________________________________________________________________
+Cache::Cache()
+{
+  fInstance =  0;
+
+  fCacheMap = new map<string, TNtuple * >;
+}
+//____________________________________________________________________________
+Cache::~Cache()
+{
+  fInstance = 0;
+
+  delete fCacheMap;
+}
+//____________________________________________________________________________
+Cache * Cache::Instance()
+{
+  if(fInstance == 0) {
+
+    static Cache::Cleaner cleaner;
+
+    cleaner.DummyMethodAndSilentCompiler();
+
+    fInstance = new Cache;
+  }
+  return fInstance;
+}
+//____________________________________________________________________________
+TNtuple * Cache::FindCacheBranchPtr(const Algorithm * alg, string subbranch)
+{
+// Each algorithm, in each of its configuration states, can have a number
+// of cache branch to cache its data.
+// The key for accessing the cache branch is assembled as:
+// alg-name/alg-config-set/subbranch-number
+
+  string key = this->CacheBranchKey(alg, subbranch);
+  
+  if (fCacheMap->count(key) == 1) {
+
+     map<string, TNtuple *>::const_iterator map_iter;
+
+     map_iter = fCacheMap->find(key);
+     
+     return map_iter->second;
+  }
+  
+  return 0;
+}
+//____________________________________________________________________________
+TNtuple * Cache::CreateCacheBranch(
+                    const Algorithm * alg, string subbranch, string branchdef)
+{
+  string key = this->CacheBranchKey(alg, subbranch);
+
+  TNtuple * nt = new TNtuple(key.c_str(), "cache branch", branchdef.c_str());
+
+  nt->SetCircular(1600000);
+  
+  fCacheMap->insert( map<string, TNtuple *>::value_type(key,nt) );
+
+  return nt;
+}
+//____________________________________________________________________________
+string Cache::CacheBranchKey(const Algorithm * alg, string subbranch) const
+{
+  ostringstream key;
+
+  key << alg->Name() << "/" << alg->ParamSet() << "/" << subbranch;
+
+  return key.str();
+}
+//____________________________________________________________________________

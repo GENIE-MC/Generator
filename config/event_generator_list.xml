@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  -- Default configuration for EventGeneratorList
+
+  <param_set name="Default"> 
+
+     <param type="int"    name="n-processes">                     5                        </param>
+
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  QEL-CC                   </param>
+     <param type="string" name="event-generator-id-1-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-1-param-set">  DIS-CC                   </param>
+     <param type="string" name="event-generator-id-2-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-2-param-set">  RES                      </param>
+     <param type="string" name="event-generator-id-3-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-3-param-set">  QEL-NC                   </param>
+     <param type="string" name="event-generator-id-4-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-4-param-set">  DIS-NC                   </param>
+
+  </param_set>
+
+</alg_conf>
+

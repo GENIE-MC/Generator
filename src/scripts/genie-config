@@ -1,0 +1,89 @@
+#!/bin/sh
+# -*- sh-indentation: 3 -*-
+#
+# genie-config a la ROOT's root-config
+#
+
+########################### GENIE Libraries Directory:
+
+libdir=$GENIE/lib
+
+########################### GENIE src top level directory:
+
+srcdir=$GENIE/src
+
+########################### GENIE Libraries;
+
+libs="-L $libdir -lGAlgorithm -lGAlgFactory -lGBaryonResonance -lGBase\
+ -lGBodekYang -lGCharm -lGConfig -lGCrossSections -lGDecay -lGEventGen\
+ -lGFKR -lGFragmentation -lGInteraction -lGInverseMuDecay -lGLlewellynSmith -lGMessenger\
+ -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
+ -lGRadiative -lGReinSeghal -lGViewer -lGUtils -lGValidityDoc"
+
+########################### GENIE Dictionaries;
+
+dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
+		$srcdir/AlgFactory/_ROOT_DICT_AlgFactory.o \
+		$srcdir/BaryonResonance/_ROOT_DICT_BaryonResonance.o \
+                $srcdir/Base/_ROOT_DICT_Base.o \
+                $srcdir/BodekYang/_ROOT_DICT_BodekYang.o \
+                $srcdir/Charm/_ROOT_DICT_Charm.o \
+                $srcdir/Config/_ROOT_DICT_Config.o \
+                $srcdir/CrossSections/_ROOT_DICT_CrossSections.o \
+                $srcdir/Decay/_ROOT_DICT_Decay.o \
+                $srcdir/EventGeneration/_ROOT_DICT_EventGeneration.o \
+                $srcdir/FKR/_ROOT_DICT_FKR.o \
+                $srcdir/Fragmentation/_ROOT_DICT_Fragmentation.o \
+                $srcdir/Interaction/_ROOT_DICT_Interaction.o \
+                $srcdir/InverseMuonDecay/_ROOT_DICT_InverseMuDecay.o \
+                $srcdir/LlewellynSmith/_ROOT_DICT_LlewellynSmith.o \
+                $srcdir/Ntuple/_ROOT_DICT_Ntuple.o \
+                $srcdir/Nuclear/_ROOT_DICT_Nuclear.o \
+                $srcdir/Numerical/_ROOT_DICT_Numerical.o \
+                $srcdir/PartonModel/_ROOT_DICT_PartonModel.o \
+                $srcdir/PDG/_ROOT_DICT_PDG.o \
+                $srcdir/PDF/_ROOT_DICT_PDF.o \
+		$srcdir/Radiative/_ROOT_DICT_Radiative.o \
+                $srcdir/ReinSeghal/_ROOT_DICT_ReinSeghal.o \
+                $srcdir/Viewer/_ROOT_DICT_Viewer.o \
+                $srcdir/Utils/_ROOT_DICT_Utils.o \
+                $srcdir/ValidityDoc/_ROOT_DICT_ValidityDoc.o"
+
+usage="\
+Usage: genie-config [--libs] [--dicts] [--libdir] [--topsrcdir]" 
+
+if test $# -eq 0; then
+   echo "${usage}" 1>&2
+   exit 1
+fi
+
+out=""
+
+while test $# -gt 0; do
+  case "$1" in
+  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+  *)    optarg= ;;
+  esac
+
+  case $1 in
+    --libs)
+      ### Output GENIE libraries
+      out="$out $libs"
+      ;;
+    --dicts)
+      ### Output GENIE dictionaries
+      out="$out $dictionaries"
+      ;;
+    --libdir)
+      ### Output GENIE libdir
+      out="$out $libdir"
+      ;;
+    --topsrcdir)
+      ### Output GENIE top level src directory
+      out="$out $srcdir"
+      ;;
+  esac
+  shift
+done
+
+echo $out

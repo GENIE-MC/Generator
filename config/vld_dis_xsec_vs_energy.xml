@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for VldDisXSecVsE VldDocumentPageI algorithm
+
+
+  ---------------------- Validate Parton model
+
+  <param_set name="CC-Default-Below-Charm"> 
+
+     <param type="string" name="title">             Parton Model CC DIS Cross Section    </param>
+     <param type="string" name="xsec-alg-name">     genie::DISXSec                       </param>
+     <param type="string" name="xsec-param-set">    CC-Parton-Model-Default-Below-Charm  </param>
+     <param type="int"    name="n-E-bins">          50                                   </param>
+     <param type="double" name="E-min">             0.1                                  </param>
+     <param type="double" name="E-max">             200.0                                </param>
+     <param type="bool"   name="scale-with-energy"> true                                 </param>
+     <param type="bool"   name="is-CC">             true                                 </param>
+  </param_set>
+
+  <param_set name="NC-Default"> 
+
+     <param type="string" name="title">             Parton Model NC DIS Cross Section    </param>
+     <param type="string" name="xsec-alg-name">     genie::DISXSec                       </param>
+     <param type="string" name="xsec-param-set">    NC-Parton-Model-Default              </param>
+     <param type="int"    name="n-E-bins">          30                                   </param>
+     <param type="double" name="E-min">             0.1                                  </param>
+     <param type="double" name="E-max">             200.0                                </param>
+     <param type="bool"   name="scale-with-energy"> true                                 </param>
+     <param type="bool"   name="is-CC">             false                                </param>
+  </param_set>
+
+  ---------------------- Validate Bardin/Dokuchaeva model
+
+  <param_set name="CC-Default-Rad-Corr"> 
+
+     <param type="string" name="title">  
+               Bardin / Dokuchaeva model - Radiative corrections to CC DIS Cross Section </param>
+     <param type="string" name="xsec-alg-name">     genie::DISXSec                       </param>
+     <param type="string" name="xsec-param-set">    CC-Bardin-Rad-Corr                   </param>
+     <param type="int"    name="n-E-bins">          50                                   </param>
+     <param type="double" name="E-min">             0.1                                  </param>
+     <param type="double" name="E-max">             200.0                                </param>
+     <param type="bool"   name="scale-with-energy"> true                                 </param>
+     <param type="bool"   name="is-CC">             true                                 </param>
+  </param_set>
+
+</alg_conf>
+

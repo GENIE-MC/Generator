@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for QEL XSec Algorithm
+
+
+  -- Default configuration for CC QEL XSec
+
+  <param_set name="CC-Default"> 
+     <param type="int"    name="N-logQ2-bins">           101                   </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::QELPartialXSec </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default            </param>
+     <param type="string" name="integrator">             genie::Simpson1D      </param>
+  </param_set>
+
+
+  -- Default configuration for NC QEL XSec
+
+  <param_set name="NC-Default"> 
+     <param type="int"    name="N-logQ2-bins">           101                   </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::QELPartialXSec </param>
+     <param type="string" name="partial-xsec-param-set"> NC-Default            </param>
+     <param type="string" name="integrator">             genie::Simpson1D      </param>
+  </param_set>
+
+
+  -- Configuration for QEL Charm Production XSec calculation using Kovalenko's model
+
+  <param_set name="Charm-Kovalenko"> 
+     <param type="int"    name="N-logQ2-bins">           101                           </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::KovalenkoQELCharmPXSec </param>
+     <param type="string" name="partial-xsec-param-set"> Default                       </param>
+     <param type="string" name="integrator">             genie::Simpson1D              </param>
+  </param_set>
+
+genie::KovalenkoQELCharmPXSec
+
+  -- Configuration for faster CC QEL XSec calculation
+
+  <param_set name="CC-Fast-Calc"> 
+     <param type="int"    name="N-logQ2-bins">           31                    </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::QELPartialXSec </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default            </param>
+     <param type="string" name="integrator">             genie::Simpson1D      </param>
+  </param_set>
+
+
+  -- Configuration for faster NC QEL XSec calculation
+
+  <param_set name="NC-Fast-Calc"> 
+     <param type="int"    name="N-logQ2-bins">           31                    </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::QELPartialXSec </param>
+     <param type="string" name="partial-xsec-param-set"> NC-Default            </param>
+     <param type="string" name="integrator">             genie::Simpson1D      </param>
+  </param_set>
+
+
+</alg_conf>
+

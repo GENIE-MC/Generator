@@ -1,0 +1,358 @@
+//_____________________________________________________________________________
+/*!
+
+\class    genie::nuvld::GuiDBHandler
+
+\brief    Responds to GUI events associated with the NuValidator's data-base
+
+\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+
+\created  January 12, 2004
+*/
+//_____________________________________________________________________________
+
+#include <cstdio>
+#include <iostream>
+#include <vector>
+
+#include <TSystem.h>
+#include <TSQLRow.h>
+#include <TGFileDialog.h>
+
+#include "NuVldGUI/GuiDBHandler.h"
+#include "NuVldGUI/DBConnectionDialog.h"
+#include "NuVldGUI/SysLogSingleton.h"
+#include "NuVldGUI/BrowserSingleton.h"
+#include "NuVldGUI/MultiLineMsgBox.h"
+#include "NuVldGUI/MsgBox.h"
+#include "NuVldGUI/YNQuestionBox.h"
+#include "NuVldGUI/TextEntryDialog.h"
+#include "Utils/StringUtils.h"
+#include "XmlParser/ParserUtils.h"
+
+using std::cout;
+using std::endl;
+using std::vector;
+
+using namespace genie::string_utils;
+using namespace genie::nuvld;
+
+ClassImp(GuiDBHandler)
+
+//______________________________________________________________________________
+GuiDBHandler::GuiDBHandler()
+{
+  _main = 0;
+  _dbc  = 0;
+}
+//______________________________________________________________________________
+GuiDBHandler::GuiDBHandler(const TGWindow * main, DBConnection * connection) : 
+_main(main),
+_dbc(connection)
+{
+
+}
+//______________________________________________________________________________
+GuiDBHandler::~GuiDBHandler()
+{
+
+}
+//______________________________________________________________________________
+void GuiDBHandler::MakeConnection(void)
+{
+  SysLogSingleton * syslog = SysLogSingleton::Instance();
+
+  syslog -> Log()       ->AddLine( "Connecting to dbase" );
+  syslog -> StatusBar() ->SetText( "Connecting to dbase", 0 );
+
+  new DBConnectionDialog(
+           gClient->GetRoot(), _main, 800, 400, kVerticalFrame, _dbc);
+            
+  string url    = _dbc->URL();
+  string user   = _dbc->User();
+  string passwd = _dbc->Password();
+
+  bool values_were_set = (url.size() > 0 && user.size() > 0);
+
+  if(values_were_set) {
+    
+     TSQLServer * db = TSQLServer::Connect(
+                                    url.c_str(), user.c_str(), passwd.c_str());
+     if ( db ) {
+
+        syslog -> Log() -> AddLine( "Server info: " );
+        syslog -> Log() -> AddLine( db->ServerInfo() );
+
+        _dbc->SetSqlServer(db);
+
+     } else {
+
+        syslog -> StatusBar() -> SetText("Connection to dbase failed", 0 );
+        syslog -> Log()       -> AddLine("Connection to dbase failed");
+
+        _dbc->SetSqlServer(0);
+
+        new MsgBox(gClient->GetRoot(), _main,
+                        380, 250, kVerticalFrame, "Connection to dbase failed");
+     }
+  }   
+}
+//______________________________________________________________________________
+void GuiDBHandler::CloseConnection(void)
+{
+  SysLogSingleton * syslog = SysLogSingleton::Instance();
+
+  if( ! this->IsConnected() )
+    new MsgBox(gClient->GetRoot(), _main, 380, 250, kVerticalFrame,
+                            "There is no active dbase connection to terminate");
+  else {
+
+    // close connection
+
+    syslog -> Log()       -> AddLine( "Closing dbase connection" );
+    syslog -> StatusBar() -> SetText( "Closing dbase connection", 0 );
+  
+    _dbc->SqlServer()->Close();
+
+    _dbc->SetSqlServer(0);
+  }
+}
+//______________________________________________________________________________
+void GuiDBHandler::CheckConnection(void)
+{
+  bool connected = this->IsConnected();
+
+  if(connected)
+      new MsgBox(gClient->GetRoot(), _main, 380, 250, 
+                 kVerticalFrame, Concat(" Connected to ", _dbc->URL().c_str()));
+  else
+      new MsgBox(gClient->GetRoot(), _main, 380, 250, kVerticalFrame,
+                                         "There is no active dbase connection");
+}
+//______________________________________________________________________________
+void GuiDBHandler::PrintInfo(void)
+{
+  if(!this->IsConnected()) {
+
+    new MsgBox(gClient->GetRoot(), _main, 380, 250, kVerticalFrame,
+                                        "There is no active dbase connection");
+  } else {
+
+    vector<string> db_info;
+
+    TSQLServer * db = _dbc->SqlServer();
+
+    db_info.push_back( "                                \
+                                                 ");
+    db_info.push_back( "   Getting SQL Server information:   " );
+    db_info.push_back( "   -------------------------------   " );
+    db_info.push_back( "     ");
+    db_info.push_back( Concat("DBMS:..........", db->GetDBMS())    );
+    db_info.push_back( Concat("Host:..........", db->GetHost())    );
+    db_info.push_back( Concat("Port:..........", db->GetPort())    );
+    db_info.push_back( Concat("Server info:...", db->ServerInfo()) );
+    db_info.push_back( "     ");
+    db_info.push_back( "  Tables:  " );
+    db_info.push_back( "  -------  " );
+
+    TSQLResult * tables = db->GetTables(_dbc->DataBase().c_str() );
+
+    int nrows = tables->GetRowCount();
+
+    for(int i=0; i<nrows; i++) {
+
+      TSQLRow * table_row = tables->Next();
+
+      TSQLResult * n_table_rows = db->Query( Concat(
+                              "SELECT COUNT(*) FROM ", table_row->GetField(0)) );
+
+      db_info.push_back(Concat(table_row->GetField(0), " ..... [nrows = ",
+                                        n_table_rows->Next()->GetField(0),"]") );
+
+      delete n_table_rows;
+      delete table_row;
+    }
+
+    delete tables;
+
+    db_info.push_back( "     ");
+
+    new MultiLineMsgBox(gClient->GetRoot(), _main, 380, 250,
+                                                       kVerticalFrame, &db_info);
+  }
+}
+//______________________________________________________________________________
+void GuiDBHandler::Bootstrap(void)
+{
+  SysLogSingleton * syslog = SysLogSingleton::Instance();
+
+  if(! this->IsConnected()) {
+      new MsgBox(gClient->GetRoot(), _main, 380, 250, kVerticalFrame,
+                            "  Undefinded DB - Use 'Connect to dbase' first  ");
+  } else {
+
+     bool are_you_sure = false;
+
+     // ask first if he really means to overwrite the database
+     new YNQuestionBox(
+         gClient->GetRoot(), _main, 380, 250, kVerticalFrame,
+          "  I hope you were aware this will overwrite the dbase - Continue? ",
+                                                                   &are_you_sure);
+
+     // if the QuestionBox returns positive answer, bootstrap the dbase
+     if(are_you_sure) {
+
+        syslog -> Log()       -> AddLine( "Bootstraping the SQL data-base"    );
+        syslog -> StatusBar() -> SetText( "Bootstraping the SQL data-base", 0 );
+
+         _dbc->SqlServer()->DropDataBase("NuScat");
+
+         _dbc->SqlServer()->CreateDataBase("NuScat");
+
+         const int k_n_files = 6;
+
+         string k_sql_file[k_n_files] = {
+                            "createTable_ExpInfo.sql",
+                            "createTable_BeamFlux.sql",
+                            "createTable_Reference.sql",
+                            "createTable_MeasurementHeader.sql",
+                            "createTable_CrossSection.sql",
+                            "createTable_eDiffCrossSection.sql"   };
+
+         for(int ifile = 0; ifile < k_n_files; ifile++) {
+
+            string filename = string(gSystem->Getenv("GENIE")) +
+                                       "/data/sql_queries/" + k_sql_file[ifile];
+
+            string sql = this->ReadSqlQueryFromFile(filename);
+
+            _dbc->SqlServer()->Query( sql.c_str() );
+         }
+     }
+  }
+}
+//______________________________________________________________________________
+void GuiDBHandler::QueryWithSqlFromDialog(void)
+{
+  SysLogSingleton * syslog = SysLogSingleton::Instance();
+  
+  syslog -> Log()       -> AddLine( "Entering custom SQL query"    );
+  syslog -> StatusBar() -> SetText( "Entering custom SQL query", 0 );
+
+/*  
+  new TextEntryDialog(gClient->GetRoot(), _main, 900, 500, sql);
+  
+  TSQLResult * result = _dbc->SqlServer()->Query( sql );
+
+  syslog -> ProgressBar() -> SetPosition(0);
+   
+  this->PrintSqlResultInTGTextEdit(result);  
+
+  syslog -> ProgressBar() -> SetPosition(0);
+*/  
+}
+//______________________________________________________________________________
+void GuiDBHandler::QueryWithSqlFromFile(void)
+{
+  SysLogSingleton * syslog = SysLogSingleton::Instance();
+
+  syslog -> Log()       -> AddLine( "Loading custom SQL query from file" );
+  syslog -> StatusBar() -> SetText( "Loading custom SQL query from file", 0 );
+
+  static TString dir(".");
+
+  const char * kSqlFileExt[] = {"All files", "*", "SQL files", "*.sql", 0, 0};
+  
+  TGFileInfo fi;
+  fi.fFileTypes = kSqlFileExt;
+  fi.fIniDir    = StrDup(dir.Data());
+
+  new TGFileDialog(gClient->GetRoot(), _main, kFDOpen, &fi);
+
+  if( fi.fFilename ) {
+
+     string sqlFile = string( fi.fFilename );
+
+     ostringstream cmd;
+     cmd << "Opening file: " << sqlFile.c_str();
+     
+     syslog -> Log()       -> AddLine( cmd.str().c_str() );
+     syslog -> StatusBar() -> SetText( cmd.str().c_str(), 0 );
+     syslog -> StatusBar() -> SetText( "SQL File Open", 1 );
+
+     string sql = this->ReadSqlQueryFromFile(sqlFile);
+
+     syslog -> ProgressBar() -> SetPosition(0);
+
+     TSQLResult * result = _dbc->SqlServer()->Query( sql.c_str() );
+
+     this->PrintSqlResultInTGTextEdit(result);     
+
+     syslog -> ProgressBar() -> SetPosition(0);
+  }
+}
+//______________________________________________________________________________
+bool GuiDBHandler::IsConnected(void)
+{
+  if( !_dbc->SqlServer() ) return false;
+  else 
+    return  _dbc->SqlServer()->IsConnected();
+}
+//______________________________________________________________________________
+string GuiDBHandler::ReadSqlQueryFromFile(string filename)
+{
+  // read SQL query
+  FILE *fp = fopen(filename.c_str(), "r");
+
+  if(!fp) {
+     //cerr << "File " << filename << " could not be read" << endl;
+     return "";
+  }
+
+  char sql[4096] = {};
+  fread(sql, 1, 4096, fp);
+  fclose(fp);
+
+  string ssql = string(sql);
+
+  return ParserUtils::filter_string(";", ssql);
+}
+//______________________________________________________________________________
+void GuiDBHandler::PrintSqlResultInTGTextEdit(TSQLResult * res)
+{
+  TSQLRow * row = 0;
+
+  SysLogSingleton * syslog   = SysLogSingleton::Instance();
+  BrowserSingleton * browser = BrowserSingleton::Instance();
+
+  const int nr = res->GetRowCount();
+  const int nf = res->GetFieldCount();
+
+  string * field_name = new string[nf];
+
+  for (int i = 0; i < nf; i++) field_name[i] = string( res->GetFieldName(i) );
+
+  if(nr > 0) {
+
+     double dprogress = 100. / nr;
+
+     for (int i = 0; i < nr; i++) {
+
+       syslog -> ProgressBar() -> SetPosition( (int) i*dprogress );
+
+       row = res->Next();
+
+       browser->TextBrowser()->AddLine(
+                                  Concat("---------------------- row: ", i) );
+
+       // print all fields
+       for (int j = 0; j < nf; j++) {
+           browser->TextBrowser()->AddLine(Concat(
+                           field_name[j].c_str(), " : ", row->GetField(j) ) );
+       }//fields
+     }//rows
+  }
+  
+  delete [] field_name;
+}
+//______________________________________________________________________________

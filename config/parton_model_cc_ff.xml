@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for Parton Model DIS CC Form Factors (below Charm threshold)
+
+  <param_set name="Default"> 
+
+     <param type="string" name="pdf-alg-name">   genie::PDFLIB </param>
+     <param type="string" name="pdf-param-set">  GRVLO         </param>
+  </param_set>
+
+</alg_conf>
+

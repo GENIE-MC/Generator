@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for VldReinSeghalPXSecRes VldDocumentPageI algorithm
+
+  <param_set name="CC-numu-p-4GeV"> 
+
+     <param type="string" name="title">             
+                     R/S Resonance Production Diff. Cross Sections (numu+p, 4 GeV) </param>
+
+     <param type="string" name="partial-xsec-alg-name">    genie::RSPXSecSingleRes </param>
+     <param type="string" name="partial-xsec-param-set">   Default                 </param>
+
+     <param type="int"    name="neutrino-pdg-code">   14       </param>
+     <param type="double" name="neutrino-energy">     4        </param>
+
+     <param type="int"    name="target-Z">            1        </param>
+     <param type="int"    name="target-A">            1        </param>
+     <param type="bool"   name="is-CC">               true     </param>
+
+     <param type="int"    name="n-logQ2-bins">        25       </param>
+     <param type="double" name="Q2-min">              0.05     </param>
+     <param type="double" name="Q2-max">              3.0      </param>
+     <param type="int"    name="n-logW-bins">         20       </param>
+     <param type="double" name="W-min">               0.95     </param>
+     <param type="double" name="W-max">               2.00     </param>
+  </param_set>
+
+</alg_conf>
+

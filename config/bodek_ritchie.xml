@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+   Bodek-Ritche nucleon probability distribution models
+
+  <param_set name="Default"> 
+
+     <param type="int"    name="n-momentum-bins">    100     </param>
+     <param type="double" name="p-max">               10     </param>
+     <param type="double" name="p-cut-off">            4     </param>
+  </param_set>
+
+</alg_conf>
+

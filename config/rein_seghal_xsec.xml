@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  ReinSeghalXSec configuration 
+  [Rein-Seghal Model RES xsec = Integral {BreitWigner(W) * (d^2xsec/dQ^2 dW)} {dW*dQ^2}
+
+  The actual Rein-Seghal model is coded at ReinSeghalPartialXSec.
+
+  This algorithm uses RSPXSecSingleRes to decide which instance of the
+  ReinSeghalPartialXSec algorithm to run depending on the initial state:
+  1) CC (n+p), 2) NC (n), 3) NC (p).
+
+  Note that in the pre-configured instances of various BreitWignerI instances
+  that can be found in the algorithm factory, the parameter set is defined as
+  "resonance_name"-"configuration-set". Below, you only need to specify the
+  configuration set (use the breit-wigner-param-set-suffix key) as the resonance
+  name is extracted from the interaction parameters and is appended to the key.
+
+  From this XML config file you can select: 
+  a) the actual differential cross section algorithm
+  b) the baryon resonance parameter set
+  c) the breit-wigner distribution algorithm
+  d) the integration algorithm and the integration step
+  e) you can narrow the physically allowed kinematic integration range
+  f) you can decide whether to weight with the Breit-Wigner distribution or not
+
+  <param_set name="Default"> 
+     <param type="string"  name="partial-xsec-alg-name">         genie::RSPXSecSingleRes </param>
+     <param type="string"  name="partial-xsec-param-set">        Default                 </param>
+     <param type="int"     name="n-logQ2-bins">                  61                      </param>
+     <param type="int"     name="n-logW-bins">                   61                      </param>
+     <param type="double"  name="W-max">                         1.400                   </param> 
+     <param type="string"  name="integrator">                    genie::Simpson1D        </param>
+  </param_set>
+
+  <param_set name="Default-NoBreitWigner"> 
+     <param type="string"  name="partial-xsec-alg-name">         genie::RSPXSecSingleRes </param>
+     <param type="string"  name="partial-xsec-param-set">        No-BreitWigner          </param>
+     <param type="int"     name="n-logQ2-bins">                  61                      </param>
+     <param type="int"     name="n-logW-bins">                   61                      </param>
+     <param type="double"  name="W-max">                         1.400                   </param> 
+     <param type="string"  name="integrator">                    genie::Simpson1D        </param>
+  </param_set>
+
+  <param_set name="Quick"> 
+     <param type="string"  name="partial-xsec-alg-name">         genie::RSPXSecSingleRes </param>
+     <param type="string"  name="partial-xsec-param-set">        Default                 </param>
+     <param type="int"     name="n-logQ2-bins">                  21                      </param>
+     <param type="int"     name="n-logW-bins">                   16                      </param>
+     <param type="double"  name="W-max">                         1.400                   </param> 
+     <param type="string"  name="integrator">                    genie::Simpson1D        </param>
+  </param_set>
+
+  <param_set name="Quick-NoBreitWigner"> 
+     <param type="string"  name="partial-xsec-alg-name">         genie::RSPXSecSingleRes </param>
+     <param type="string"  name="partial-xsec-param-set">        No-BreitWigner          </param>
+     <param type="int"     name="n-logQ2-bins">                  21                      </param>
+     <param type="int"     name="n-logW-bins">                   16                      </param>
+     <param type="double"  name="W-max">                         1.400                   </param> 
+     <param type="string"  name="integrator">                    genie::Simpson1D        </param>
+  </param_set>
+
+</alg_conf>
+
+

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for VldQelXSecVsE VldDocumentPageI algorithm
+
+  <param_set name="CC-Default"> 
+
+     <param type="string" name="title"> Llewellyn-Smith CC QEL Cross Section </param>
+     <param type="string" name="xsec-alg-name">   genie::QELXSec       </param>
+     <param type="string" name="xsec-param-set">  CC-Default           </param>
+     <param type="int"    name="n-E-bins">        200                  </param>
+     <param type="double" name="E-min">           0.05                 </param>
+     <param type="double" name="E-max">           40                   </param>
+     <param type="bool"   name="is-CC">           true                 </param>
+  </param_set>
+
+  <param_set name="NC-Default"> 
+
+     <param type="string" name="title"> Llewellyn-Smith NC QEL Cross Section </param>
+     <param type="string" name="xsec-alg-name">   genie::QELXSec       </param>
+     <param type="string" name="xsec-param-set">  NC-Default           </param>
+     <param type="int"    name="n-E-bins">        200                  </param>
+     <param type="double" name="E-min">           0.05                 </param>
+     <param type="double" name="E-max">           40                   </param>
+     <param type="bool"   name="is-CC">           false                </param>
+  </param_set>
+
+</alg_conf>
+

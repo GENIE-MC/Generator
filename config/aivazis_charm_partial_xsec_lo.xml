@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  <param_set name="CC-Default"> 
+     <param type="string"  name="pdf-alg-name">     genie::PDFLIB  </param>
+     <param type="string"  name="pdf-param-set">    GRVLO          </param>
+     <param type="bool"    name="d-contrib-switch"> true           </param>
+     <param type="bool"    name="s-contrib-switch"> true           </param>
+  </param_set>
+
+  <param_set name="CC-d-contrib-OFF"> 
+     <param type="string"  name="pdf-alg-name">     genie::PDFLIB  </param>
+     <param type="string"  name="pdf-param-set">    GRVLO          </param>
+     <param type="bool"    name="d-contrib-switch"> false          </param>
+     <param type="bool"    name="s-contrib-switch"> true           </param>
+  </param_set>
+
+  <param_set name="CC-s-contrib-off"> 
+     <param type="string"  name="pdf-alg-name">     genie::PDFLIB  </param>
+     <param type="string"  name="pdf-param-set">    GRVLO          </param>
+     <param type="bool"    name="d-contrib-switch"> true           </param>
+     <param type="bool"    name="s-contrib-switch"> false          </param>
+  </param_set>
+
+  <param_set name="CC-Tweak-Consts"> 
+     <param type="double"  name="c-quark-mass">     1.4            </param>
+     <param type="double"  name="Vcd">              0.224          </param>
+     <param type="double"  name="Vcs">              0.996          </param>
+     <param type="string"  name="pdf-alg-name">     genie::PDFLIB  </param>
+     <param type="string"  name="pdf-param-set">    GRVLO          </param>
+     <param type="bool"    name="d-contrib-switch"> true           </param>
+     <param type="bool"    name="s-contrib-switch"> true           </param>
+  </param_set>
+
+</alg_conf>
+

@@ -1,0 +1,207 @@
+####################################################################
+# Make.include for GENIE Object-Oriented Neutrino Generator
+#
+# Costas Andreopoulos (Rutherford Lab.) <C.V.Andreopoulos@rl.ac.uk>
+####################################################################
+
+###### Define XML lib & include directory
+
+XML_INC_DIR = /usr/include/libxml2
+XML_LIB_DIR = /usr/lib
+
+###### Define log4cpp lib & include directory
+
+LOG_INC_DIR = /usr/local/src/log4cpp/include
+LOG_LIB_DIR = /usr/local/lib
+
+###### Define CERNLIB libraries directory
+
+CERN_LIB_DIR = $(CERNLIB)
+PYTHIA_DIR   = $(PYTHIA6)
+
+###### Define some global variables.
+
+MAKE   := gmake
+RM      = rm -f
+MKDIR   = mkdir -p
+CAT     = cat
+INSTALL = @INSTALL@
+
+###### AR, ARFLAGS and RANLIB are for manipulating an archive
+
+AR        = ar
+ARFLAGS   = rv
+RANLIB    = ranlib
+
+###### Extra flags to make specific SO libraries 
+
+SOMINF =
+
+###### Architecture-specific options
+
+ARCH = linux
+
+###### LINUX (with gcc)
+CXX           = g++
+CXXFLAGS      = -g -O -Wall -fPIC
+LD            = g++
+LDFLAGS       = -g
+SOFLAGS       = -shared
+DllSuf       := so
+ObjSuf       := o
+SrcSuf       := cxx
+FORT         := g77
+FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
+RANLIB       := ranlib
+SOCMD         = $(LD)
+OutPutOpt     = -o
+
+###### ROOT header files
+
+ROOT_INC =  -I $(ROOTSYS)/include
+
+###### XML header files
+
+XML_INC  := -I $(XML_INC_DIR)
+
+###### GENIE & NuValidator header files base dir
+
+GENIE_INC  := -I$(GENIE)/src/
+NUVLD_INC  := -I$(GENIE)/src/NuValidator/
+
+###### LOG4CPP header files
+
+LOG_INC  := -I $(LOG_INC_DIR)
+
+###### ROOT Libraries
+
+ROOT_LIBS = $(shell root-config --glibs) -lMinuit
+
+###### XML Libraries
+
+XML_LIBS   = -L $(XML_LIB_DIR) -lxml2
+
+###### LOG4CPP Libraries
+
+LOG_LIBS   = -L $(LOG_LIB_DIR) -llog4cpp
+
+###### CLHEP Libraries
+
+#CLHEP_LIBS = -L $(CLHEP_LIB_DIR) -lCLHEP-HepPDT-2.0.0.0 -lCLHEP-HepMC-2.0.0.0 -lCLHEP-StdHep-2.0.0.0
+
+###### CERN Libraries & PYTHIA
+
+#CERN_LIBS = -L $(CERN_LIB_DIR) -lpdflib804 -lkernlib -lmathlib -lpacklib -lg2c
+CERN_LIBS = -L $(CERN_LIB_DIR) -lpdflib804 -lkernlib -lmathlib -lpacklib -lstdhep -lg2c
+PYTHIA_LIBS = -L $(PYTHIA_DIR) -lPythia6  $(PYTHIA_DIR)/pythia62.o
+
+###### NEUGEN LIBRARY
+###### Is only needed only if someone wants to run NeuGEN in the NuValidator
+
+NEUGEN_LIBS = -L$(NEUGEN3PATH)/lib -lneugen -lg2c
+
+###### GENIE lib & bin paths
+
+GENIE_LIB_PATH   := $(GENIE)/lib
+GENIE_BIN_PATH   := $(GENIE)/bin
+
+###### GENIE & NuValidator libraries
+
+GENIE_ALGFACTORY_SHARED_LIB       := $(GENIE_LIB_PATH)/libGAlgFactory.$(DllSuf)
+GENIE_ALGORITHM_SHARED_LIB        := $(GENIE_LIB_PATH)/libGAlgorithm.$(DllSuf)
+GENIE_BARYONRES_SHARED_LIB        := $(GENIE_LIB_PATH)/libGBaryonResonance.$(DllSuf)
+GENIE_BASE_SHARED_LIB             := $(GENIE_LIB_PATH)/libGBase.$(DllSuf)
+GENIE_BODEK_YANG_SHARED_LIB       := $(GENIE_LIB_PATH)/libGBodekYang.$(DllSuf)
+GENIE_CHARM_SHARED_LIB            := $(GENIE_LIB_PATH)/libGCharm.$(DllSuf)
+GENIE_CONFIG_SHARED_LIB           := $(GENIE_LIB_PATH)/libGConfig.$(DllSuf)
+GENIE_DECAY_SHARED_LIB            := $(GENIE_LIB_PATH)/libGDecay.$(DllSuf)
+GENIE_ELASTIC_SHARED_LIB          := $(GENIE_LIB_PATH)/libGElas.$(DllSuf)
+GENIE_EVENT_GENERATION_SHARED_LIB := $(GENIE_LIB_PATH)/libGEventGen.$(DllSuf)
+GENIE_FKR_SHARED_LIB              := $(GENIE_LIB_PATH)/libGFKR.$(DllSuf)
+GENIE_LLEWELLYN_SMITH_SHARED_LIB  := $(GENIE_LIB_PATH)/libGLlewellynSmith.$(DllSuf)
+GENIE_FRAGMENTATION_SHARED_LIB    := $(GENIE_LIB_PATH)/libGFragmentation.$(DllSuf)
+GENIE_INTERACTION_SHARED_LIB      := $(GENIE_LIB_PATH)/libGInteraction.$(DllSuf)
+GENIE_INVERSE_MU_DECAY_SHARED_LIB := $(GENIE_LIB_PATH)/libGInvMuDecay.$(DllSuf)
+GENIE_MSG_SHARED_LIB              := $(GENIE_LIB_PATH)/libGMessenger.$(DllSuf)
+GENIE_NTUPLE_SHARED_LIB           := $(GENIE_LIB_PATH)/libGNtuple.$(DllSuf)
+GENIE_NUCLEAR_SHARED_LIB          := $(GENIE_LIB_PATH)/libGNuclear.$(DllSuf)
+GENIE_NUMERICAL_SHARED_LIB        := $(GENIE_LIB_PATH)/libGNumerical.$(DllSuf)
+GENIE_VALIDITY_DOC_SHARED_LIB     := $(GENIE_LIB_PATH)/libGValidityDoc.$(DllSuf)
+GENIE_PARTON_MODEL_SHARED_LIB     := $(GENIE_LIB_PATH)/libGPartonModel.$(DllSuf)
+GENIE_PASCHOS_SHARED_LIB          := $(GENIE_LIB_PATH)/libGPaschos.$(DllSuf)
+GENIE_PDG_SHARED_LIB              := $(GENIE_LIB_PATH)/libGPDG.$(DllSuf)
+GENIE_PDF_SHARED_LIB              := $(GENIE_LIB_PATH)/libGPDF.$(DllSuf)
+GENIE_RADIATIVE_SHARED_LIB        := $(GENIE_LIB_PATH)/libGRadiative.$(DllSuf)
+GENIE_REIN_SEGHAL_SHARED_LIB      := $(GENIE_LIB_PATH)/libGReinSeghal.$(DllSuf)
+GENIE_UTILS_SHARED_LIB            := $(GENIE_LIB_PATH)/libGUtils.$(DllSuf)
+GENIE_VIEWER_SHARED_LIB           := $(GENIE_LIB_PATH)/libGViewer.$(DllSuf)
+GENIE_XSEC_SHARED_LIB             := $(GENIE_LIB_PATH)/libGCrossSections.$(DllSuf)
+GENIE_XML_SHARED_LIB              := $(GENIE_LIB_PATH)/libGXML.$(DllSuf)
+VLD_PARSER_SHARED_LIB             := $(GENIE_LIB_PATH)/libGNuVldXML.$(DllSuf)
+VLD_DBUTIL_SHARED_LIB             := $(GENIE_LIB_PATH)/libGNuVldDBU.$(DllSuf)
+VLD_GUI_WIDGETS_SHARED_LIB        := $(GENIE_LIB_PATH)/libGNuVldGUI.$(DllSuf)
+VLD_NEUGEN_INTERFACE_SHARED_LIB   := $(GENIE_LIB_PATH)/libGNuVldNeugen.$(DllSuf)
+
+VLD_PARSER_LIB           := -L $(GENIE_LIB_PATH) -lGNuVldXML
+VLD_DBUTIL_LIB           := -L $(GENIE_LIB_PATH) -lGNuVldDBU
+VLD_NEUGEN_INTERFACE_LIB := -L $(GENIE_LIB_PATH) -lGNuVldNeugen
+VLD_GUI_WIDGETS_LIB      := -L $(GENIE_LIB_PATH) -lGNuVldGUI
+
+
+GEN_LIBS := -L $(GENIE_LIB_PATH) -lGAlgFactory -lGAlgorithm -lGBaryonResonance \
+				 -lGBase -lGBodekYang -lGCharm -lGConfig -lGDecay -lGElas -lGEventGen \
+				 -lGFKR -lGLlewellynSmith -lGFragmentation -lGInteraction -lGInvMuDecay \
+				 -lGMessenger -lGNtuple -lGNuclear -lGNumerical -lGValidityDoc \
+				 -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGReinSeghal \
+				 -lGUtils -lGViewer -lGCrossSections 
+
+VLD_LIBS := -L $(GENIE_LIB_PATH) -lGNuVldXML -lGNuVldDBU -lGNuVldNeugen -lGNuVldGUI
+
+###### LIBS should contain general libraries needed to compile programs. 
+
+#LIBS         := $(GLIBS) $(SYSLIBS) $(XML_LIBS) $(LOG_LIBS) $(PYTHIA_LIBS) $(CLHEP_LIBS)
+LIBS         := $(SYSLIBS) $(ROOT_LIBS) $(XML_LIBS) $(LOG_LIBS) -lnsl
+#GLIBS         = $(ROOT_LIBS) $(ROOT_GLIBS) $(EXTRA_ROOT_LIBS) -lnsl
+INCLUDES      = $(ROOT_INC) $(XML_INC) $(LOG_INC) $(GENIE_INC) $(NUVLD_INC)
+INCLUDES     := $(INCLUDES) $(LINUX_SYS_INCLUDES)
+
+###### Default compiler and preprocessor flags
+
+CXXFLAGS      := $(ENV_CXXFLAGS) $(CXXFLAGS)
+CPPFLAGS       = $(INCLUDES)
+CFLAGS         = -g
+LDFLAGS       := $(LDFLAGS) $(LIBS)
+
+###### Define some rules.
+
+.SUFFIXES : .inc .cxx
+
+.cc.o:
+	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
+
+.cxx.o:
+	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
+
+.C.o:
+	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
+
+.c.o:
+	$(CC) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
+
+.F.o :
+	$(FORT) $(FORTOPTS) -o $@ $<
+
+.f.o :
+	$(FORT) $(FORTOPTS) -o $@ $<
+
+.F.a :
+	$(FORT) $(FORTOPTS) -o $*.o $<
+	$(AR) $(ARFLAGS) $@ $*.o
+	$(RANLIB) $@
+	$(RM) $*.o
+
+.f.a :
+	$(FORT) $(FORTOPTS) -o $*.o $<
+	$(AR) $(ARFLAGS) $@ $*.o
+	$(RANLIB) $@
+	$(RM) $*.o

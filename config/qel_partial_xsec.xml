@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Config set for CC--QELPartialXsec algorithm
+
+  <param_set name="CC-Default"> 
+     <param type="string"  name="form-factors-alg-name">  genie::LlewellynSmithModelCC </param>
+     <param type="string"  name="form-factors-param-set"> Default                      </param>
+  </param_set>
+
+
+  Config set for NC--QELPartialXsec algorithm
+
+  <param_set name="NC-Default"> 
+     <param type="string"  name="form-factors-alg-name">  genie::LlewellynSmithModelNC </param>
+     <param type="string"  name="form-factors-param-set"> Default                      </param>
+  </param_set>
+
+</alg_conf>
+
