@@ -191,6 +191,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::RESPXSec">   
+       <config_file> 
+             res_partial_xsec.xml 
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::BardinIMDRadCorPXSec">   
        <config_file>
              bardin_inv_mu_decay_partial_xsec.xml

@@ -6,7 +6,7 @@
 
   <param_set name="Show-All-Pages"> 
 
-     <param type="int"    name="n-pages">       23                             </param>
+     <param type="int"    name="n-pages">       24                             </param>
 
      <param type="string" name="page-0-alg">    genie::VldCoverPage            </param>
      <param type="string" name="page-0-conf">   Default                        </param>
@@ -76,6 +76,9 @@
 
      <param type="string" name="page-22-alg">   genie::VldInvMuonDecayXSec     </param>
      <param type="string" name="page-22-conf">  Bardin                         </param>
+
+     <param type="string" name="page-23-alg">   genie::VldD1232ResXSec         </param>
+     <param type="string" name="page-23-conf">  Paschos-Lalakulich-Default     </param>
 
   </param_set>
 
