@@ -83,8 +83,32 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   double MN   = kNucleonMass;
   double MN2  = kNucleonMass_2;
   double Mmu2 = kMuonMass_2;
+  double Mmu4 = TMath::Power(Mmu2,2.);
+  double Mpi  = kPionMass;
   double Mpi2 = kPionMass_2;
 
+  //-- make sure that W,Q2 are kinematically allowed
+  //   (this should not be here - for consistency, all xsec algorithms should
+  //   lookup their kinematical limits from the functions in kine_limits
+  //   namespace - but I am not sure how to translate the W = f(Q2) limits
+  //   used in the Paschos-Lalakulich paper to the the Q2 = f(W), W = f(MN,Mp,s)
+  //   computed within the kine_limits namespace - could use my limits ANW?)
+
+  double s     = 2*MN*E + MN2;
+  double ap    = 1 + MN2/s; // a+
+  double am    = 1 - MN2/s; // a-
+  double s2    = TMath::Power(s,2.);
+  double am2   = TMath::Power(am,2.);
+  double ap2   = TMath::Power(ap,2.);
+  double wtmp0 = 0.25*s2*am2 * (Mmu4/s2 - 2*Mmu2/s);
+  double wtmp1 = TMath::Power(Q2+0.5*Mmu2*ap2, 2.);
+  double wtmp2 = s*am * (Q2+0.5*Mmu2*ap);
+  
+  double Wmin  = MN + Mpi;
+  double Wmax  = (wtmp0 - wtmp1 + wtmp2) / (am*(Q2+Mmu2));
+
+  if(W <= Wmin && W >= Wmax) return 0;
+  
   //-- P33(1232) information
   
   AlgFactory * algf = AlgFactory::Instance();
