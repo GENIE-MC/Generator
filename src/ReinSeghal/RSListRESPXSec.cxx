@@ -61,7 +61,7 @@ RSListRESPXSec::~RSListRESPXSec()
 //____________________________________________________________________________
 double RSListRESPXSec::XSec(const Interaction * interaction) const
 {
-  LOG("ReinSeghal", pDEBUG) << *fConfig;
+  LOG("ReinSeghalRes", pDEBUG) << *fConfig;
 
   //-- Get the requested single resonance cross section model
 
@@ -88,7 +88,7 @@ double RSListRESPXSec::XSec(const Interaction * interaction) const
 
   unsigned int nres = res_list.NResonances();
   
-  LOG("ReinSeghal", pINFO)
+  LOG("ReinSeghalRes", pDEBUG)
       << "Computing a weighted cross section for = " << nres << " resonances";
     
   double xsec = 0;
@@ -96,24 +96,18 @@ double RSListRESPXSec::XSec(const Interaction * interaction) const
   for(unsigned int ires = 0; ires < nres; ires++) {
 
      //-- Current resonance
-
      Resonance_t res = res_list.ResonanceId(ires);
   
      //-- Set current resonance to interaction object
-
      interaction->GetScatParamsPtr()->Set("resonance-id", (int) res);
      
-     //-- Get the Breit-Wigner weighted xsec for the current resonance
-
-     LOG("ReinSeghal", pINFO)
-             << "Asking cross section for RES = " << res_utils::AsString(res);
-     
+     //-- Get the Breit-Wigner weighted xsec for the current resonance     
      double rxsec = res_xsec_model->XSec(interaction);
 
      xsec += rxsec;
   }    
 
-  LOG("ReinSeghal", pINFO) << "Res List: d^2 xsec/ dQ^2 dW = " << xsec;
+  LOG("ReinSeghalRes", pDEBUG) << "Res List: d^2 xsec/ dQ^2 dW = " << xsec;
   
   return xsec;
 }

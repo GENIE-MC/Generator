@@ -56,7 +56,7 @@ RSSingleRESPXSec::~RSSingleRESPXSec()
 //____________________________________________________________________________
 double RSSingleRESPXSec::XSec(const Interaction * interaction) const
 {
-  LOG("ReinSeghal", pDEBUG) << *fConfig;
+  LOG("ReinSeghalRes", pDEBUG) << *fConfig;
 
   //-- Find out the weak current & the struck nucleon pdg code
   
@@ -71,13 +71,13 @@ double RSSingleRESPXSec::XSec(const Interaction * interaction) const
 
   if( !is_CC && !is_NC) {
     
-     LOG("ReinSeghal", pERROR) << "*** Not a CC or a NC interaction";
+     LOG("ReinSeghalRes", pERROR) << "*** Not a CC or a NC interaction";
      return 0;
   }
     
   if(! pdg::IsNeutronOrProton(nucleon_pdgc) ) {
 
-     LOG("ReinSeghal", pERROR) << "*** Undefined struck nucleon";
+     LOG("ReinSeghalRes", pERROR) << "*** Undefined struck nucleon";
      return 0;
   }
 
@@ -104,7 +104,7 @@ double RSSingleRESPXSec::XSec(const Interaction * interaction) const
       }      
   }  
 
-  LOG("ReinSeghal", pDEBUG)
+  LOG("ReinSeghalRes", pDEBUG)
           << "\n alg-key = " << alg_key << " / config-key = " << config_key;
 
   //-- Look-up the configuration registry to get the values that
@@ -116,7 +116,7 @@ double RSSingleRESPXSec::XSec(const Interaction * interaction) const
   string alg_name  = fConfig->GetString( alg_key    );
   string param_set = fConfig->GetString( config_key );
   
-  LOG("ReinSeghal", pDEBUG)
+  LOG("ReinSeghalRes", pDEBUG)
           << "\n alg-name = " << alg_name << " / param-set = " << param_set;
 
   AlgFactory * algf = AlgFactory::Instance();
@@ -133,11 +133,6 @@ double RSSingleRESPXSec::XSec(const Interaction * interaction) const
   
   double xsec = xsec_alg->XSec(interaction);
 
-  Resonance_t res = res_utils::FromInteraction(interaction);
-  
-  LOG("ReinSeghal", pDEBUG)
-         << "d^2xsec/dQ^2 dW [" << res_utils::AsString(res) << "] = " << xsec;
-         
   return xsec;
 }
 //____________________________________________________________________________

@@ -75,7 +75,7 @@ RSExclusiveRESPXSec::~RSExclusiveRESPXSec()
 //____________________________________________________________________________
 double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
 {
-  LOG("ReinSeghal", pINFO) << *fConfig;
+  LOG("ReinSeghalRes", pINFO) << *fConfig;
 
   //-- Get the requested SPP channel
 
@@ -83,12 +83,12 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
     
   if( spp_channel == kSppNull ) {
 
-    LOG("ReinSeghal", pERROR)
+    LOG("ReinSeghalRes", pERROR)
             << "\n *** Insufficient SPP exclusive final state information!";
     return 0;
     
   } else {
-     LOG("ReinSeghal", pINFO)
+     LOG("ReinSeghalRes", pINFO)
                        << "Reaction: " << SppChannel::AsString(spp_channel);
   }
 
@@ -117,7 +117,7 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
 
   unsigned int nres = res_list.NResonances();
 
-  LOG("ReinSeghal", pINFO)
+  LOG("ReinSeghalRes", pINFO)
       << "Computing a weighted cross section for " << *interaction
       << "using " << nres << " resonances";
 
@@ -152,7 +152,7 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
      //  (total weight = Breit-Wigner * BR * isospin Glebsch-Gordon)
      double res_xsec_contrib = rxsec*br*igg;
      
-     SLOG("ReinSeghal", pINFO)
+     SLOG("ReinSeghalRes", pINFO)
          << "Contrib. from [" << res_utils::AsString(res) << "] = "
          << "<Glebsch-Gordon = " << igg
          << "> * <BR(->1pi) = " << br
@@ -163,7 +163,7 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
      xsec += res_xsec_contrib;
   }
 
-  LOG("ReinSeghal", pINFO) << "d^2 xsec/ dQ^2 dW = " << xsec;
+  LOG("ReinSeghalRes", pINFO) << "d^2 xsec/ dQ^2 dW = " << xsec;
 
   return xsec;
 }
