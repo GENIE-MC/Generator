@@ -203,9 +203,13 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   }
   double Breit_Wigner = TMath::Power(W*W-MR2,2) + MR2 * TMath::Power(Gamma_R,2);
 
-  //-- Pauli suppression in Iron
-  
-  double pauli = this->Pauli(Q2,W);
+  //-- Include Pauli suppression [if the option was turned on by the user]
+
+  bool add_pauli_correction =
+           fConfig->Exists("turn-on-pauli-suppression") ?
+                         fConfig->GetBool("turn-on-pauli-suppression") : false;
+  double pauli = 1.;
+  if(add_pauli_correction) pauli = this->Pauli(Q2,W);
 
   //-- Kinematic variables
 
