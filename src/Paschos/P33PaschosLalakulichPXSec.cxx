@@ -24,7 +24,6 @@
 
 #include <TMath.h>
 
-#include "AlgFactory/AlgFactory.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResParams.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
@@ -109,19 +108,11 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   if( !is_within_limits ) return 0.;
   
   //-- P33(1232) information
-  
-  AlgFactory * algf = AlgFactory::Instance();
 
-  assert( fConfig->Exists("baryon-res-alg-name") &&
-                                  fConfig->Exists("baryon-res-param-set") );
-
-  string bran = fConfig->GetString("baryon-res-alg-name");
-  string brps = fConfig->GetString("baryon-res-param-set");
+  const Algorithm * algbase = this->SubAlg("baryon-res-alg-name", "baryon-res-param-set");
 
   const BaryonResDataSetI * resonance_data =
-                    dynamic_cast<const BaryonResDataSetI *>
-                                          (algf->GetAlgorithm(bran,brps));
-  assert(resonance_data);
+                        dynamic_cast<const BaryonResDataSetI *> (algbase);
   
   BaryonResParams res_params;
 

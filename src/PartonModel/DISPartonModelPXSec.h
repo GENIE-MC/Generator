@@ -19,7 +19,6 @@
 #define _DIS_PARTON_MODEL_PARTIAL_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
-#include "Base/DISFormFactorsModelI.h"
 
 namespace genie {
 
@@ -34,11 +33,6 @@ public:
   //-- XSecAlgorithmI interface implementation
 
   double XSec (const Interaction * interaction) const;
-
-private:
-
-  const DISFormFactorsModelI * FormFactorsAlgorithm(void) const;
-
 };
 
 }       // genie namespace
