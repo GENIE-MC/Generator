@@ -3,7 +3,7 @@
 
 \namespace  genie
 
-\brief      
+\brief      \c THE MAIN GENIE PROJECT NAMESPACE
 */
 //____________________________________________________________________________
 
