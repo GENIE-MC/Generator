@@ -140,7 +140,7 @@ template<class T> DBTable<T> * DBTable<T>::Subset(
 // Create a subset DBTable with the measurements corresponding to an
 // (experiment name, measurement tag) pair.
 //
-  LOG("NuVld", pERROR)
+  LOG("NuVld", pDEBUG)
               << "Slicing DBTable<T> for exp = "
                              << experiment << ", mtag = " << measurement_tag;
 
@@ -157,7 +157,7 @@ template<class T> DBTable<T> * DBTable<T>::Subset(
     }
   }
 
-  SLOG("NuVld", pERROR)
+  SLOG("NuVld", pDEBUG)
              << "Sliced DBTable<T> has " << subset_table->NRows() << " rows";
   
   return subset_table;

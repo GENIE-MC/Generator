@@ -132,31 +132,114 @@ string SqlQueryBuilder::AddCutList(const DBQueryString & query_string)
 
     if(cut_list.size() > 0) {
 
-       vector<string> cuts = ParserUtils::split(cut_list,  ";");
+        DBTableType_t table_type = query_string.TableType();
 
-       vector<string>::iterator cut_iter;
+        SLOG("NuVld", pINFO) << "Table type: " << DBTableType::AsString(table_type);
 
-       for(cut_iter = cuts.begin(); cut_iter != cuts.end(); ++cut_iter) {
+        vector<string> cuts = ParserUtils::split(cut_list,  ";");
 
-          if(cut_iter->find("Emin") != string::npos) {
+        vector<string>::iterator cut_iter;
 
-               vector<string> cut_parts = ParserUtils::split(*cut_iter, "=");
-               assert(cut_parts.size() == 2);
+        switch(table_type) {
 
-               query << " AND CROSS_SECTION.E > "
-                                              << atof( cut_parts[1].c_str() );
-          }
+        case eDbt_NuXSec:
 
-          if(cut_iter->find("Emax") != string::npos) {
+          // cuts for the CROSS_SECTION table data
+          for(cut_iter = cuts.begin(); cut_iter != cuts.end(); ++cut_iter) {
 
-               vector<string> cut_parts = ParserUtils::split(*cut_iter, "=");
-               assert(cut_parts.size() == 2);
+              if(cut_iter->find("Emin") != string::npos) {
+                  query << " AND CROSS_SECTION.E > "<< this->CutValue(*cut_iter);
+               }
+               if(cut_iter->find("Emax") != string::npos) {
+                  query << " AND CROSS_SECTION.E < "<< this->CutValue(*cut_iter);
+               }
+          } // CROSS_SECTION table cuts
+          break;
 
-               query << " AND CROSS_SECTION.E < "
-                                              << atof( cut_parts[1].c_str() );
-          }
+        case eDbt_ElDiffXSec:
 
-       } // cuts
+          // cuts for the E_DIFF_CROSS_SECTION table data
+          for(cut_iter = cuts.begin(); cut_iter != cuts.end(); ++cut_iter) {
+
+              if(cut_iter->find("E_min") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.E > "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("E_max") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.E < "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("EP_min") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.EP > "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("EP_max") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.EP < "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("Theta_min") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.Theta > "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("Theta_max") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.Theta < "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("Q2_min") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.Q2 > "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("Q2_max") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.Q2 < "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("W2_min") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.W2 > "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("W2_max") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.W2 < "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("Nu_min") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.Nu > "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("Nu_max") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.Nu < "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("Epsilon_min") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.Epsilon > "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("Epsilon_max") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.Epsilon < "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("Gamma_min") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.Gamma > "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("Gamma_max") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.Gamma < "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("x_min") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.x > "
+                        << this->CutValue(*cut_iter);
+              }
+              if(cut_iter->find("x_max") != string::npos) {
+                  query << " AND E_DIFF_CROSS_SECTION.x < "
+                        << this->CutValue(*cut_iter);
+              }
+          } // E_DIFF_CROSS_SECTION table cuts
+
+               break;
+        default:
+               return "";
+        } // db-table-type
+
     } // >0 cut-list
 
   } else query << " AND 0 ";
@@ -228,4 +311,14 @@ string SqlQueryBuilder::MakeJoin(const DBQueryString & query_string)
   return query.str();        
 }
 //____________________________________________________________________________
+double SqlQueryBuilder::CutValue(string cut_segment)
+{
+// Extract the cut value from a segment of the cuts sector in DBQueryString
+// The cuts sector is a ; separated list of segments CUTS=cut1;cut2;...;cutN
+// Each segment is a name=pair string
 
+  vector<string> cut = ParserUtils::split(cut_segment, "=");
+  assert(cut.size() == 2);
+  return atof(cut[1].c_str());
+}
+//____________________________________________________________________________
