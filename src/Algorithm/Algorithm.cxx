@@ -13,6 +13,7 @@
 */
 //____________________________________________________________________________
 
+#include "AlgFactory/AlgFactory.h"
 #include "Algorithm/Algorithm.h"
 #include "Config/ConfigPool.h"
 #include "Messenger/Messenger.h"
@@ -120,3 +121,30 @@ void Algorithm::FindConfig(void)
   }
 }
 //____________________________________________________________________________
+const Algorithm * Algorithm::SubAlg(string alg_key, string config_key) const
+{
+  SLOG("Algorithm", pDEBUG)
+               << "Fetching sub-algorithm within algorithm: " << this->Name();
+  SLOG("Algorithm", pDEBUG)
+              << "Asserting existence of keys: ["
+                                    << alg_key << "], [" << config_key << "]";
+
+  fConfig->AssertExistence(alg_key, config_key);
+
+  string alg_name  = fConfig->GetString(alg_key);
+  string param_set = fConfig->GetString(config_key);
+
+  SLOG("Algorithm", pDEBUG)
+              << "Keys retrieved these values: alg="
+                                     << alg_name << ", config=" << param_set;
+                                     
+  AlgFactory * algf = AlgFactory::Instance();
+
+  const Algorithm * algbase = algf->GetAlgorithm(alg_name, param_set);
+
+  assert(algbase);
+
+  return algbase;
+}
+//____________________________________________________________________________
+

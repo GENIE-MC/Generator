@@ -34,6 +34,8 @@ public:
 
   virtual ~Algorithm(); 
 
+  //-- define the Algorithm interface
+
   virtual void             Configure  (const Registry & config);
   virtual void             Configure  (string param_set);
   virtual void             FindConfig (void);  
@@ -48,6 +50,8 @@ protected:
 
   Algorithm();
   Algorithm(const char * param_set);
+
+  const Algorithm *  SubAlg(string alg_key, string config_key) const;
 
   bool         fConfigIsOwned; ///< true if the algorithm owns its config. registry
   string       fName;          ///< algorithm name
