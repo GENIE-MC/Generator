@@ -96,5 +96,15 @@ int main(int argc, char ** argv)
  LOG("Main", pINFO) << "retrieved-int    = " << retrieved_int;
  LOG("Main", pINFO) << "retrieved-double = " << retrieved_double;
  LOG("Main", pINFO) << "retrieved-string = " << retrieved_string;
+
+ //-- Test Copy
+
+ LOG("Main", pINFO) << "Testing Registry::Copy(const Registry & reg)";
+
+ Registry registry3;
+
+ registry3.Copy(registry2); // copy registry2 contents to registry3
+
+ LOG("Main", pINFO) << ENDL << registry3;
 }
 
