@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+
+Configurations for the Rein-Seghal Coherent NC pi0 production d2xsec/dxdy algorithm
+
+RESXSec Algorithm Configurable Parameters:
+....................................................................................
+Name                     Type     Optional   Comment
+
+Ma                       double   Yes        Coherent Axial Mass
+                                             [default const. value used if not set]
+Ro                       double   Yes        Nuclear Size Scale
+                                             [default const. value used if not set]
+Re-Im-Ampl               double   Yes        Re/Im of forward pion scat. amplitude
+                                             [default const. value used if not set]
+
+-->
+
+<alg_conf>
+
+  <param_set name="Default"> 
+
+  </param_set>
+
+  <param_set name="Tweaked"> 
+     <param type="double"  name="Ma">          0.9   </param>
+     <param type="double"  name="Ro">          0.7   </param>
+     <param type="double"  name="Re-Im-Ampl">  0.4   </param>
+  </param_set>
+
+</alg_conf>
+
+

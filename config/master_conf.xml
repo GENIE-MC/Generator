@@ -129,6 +129,12 @@
 
    ------- CONFIGURATION FOR REIN-SEGHAL MODEL ALGORITHMS --------
 
+   <alg_config alg_name="genie::ReinSeghalCOHPXSec">   
+       <config_file> 
+             rein_seghal_coh_partial_xsec.xml 
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::ReinSeghalRESPXSec">   
        <config_file> 
              rein_seghal_res_partial_xsec.xml 
