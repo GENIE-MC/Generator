@@ -15,6 +15,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "PDF/PDFLIB.h"
 #include "Messenger/Messenger.h"
 
@@ -143,7 +145,7 @@ double PDFLIB::Gluon(double x, double q2) const
 //____________________________________________________________________________
 PDF_t PDFLIB::AllPDFs(double x, double q2) const
 {
-  double scale = sqrt( fabs(q2) ); // QCD scale
+  double scale = TMath::Sqrt( TMath::Abs(q2) ); // QCD scale
 
   // call structm from the fortran PDFLIB library
 
