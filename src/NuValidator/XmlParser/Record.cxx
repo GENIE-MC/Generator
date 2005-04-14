@@ -22,11 +22,11 @@ using std::endl;
 namespace genie {
 namespace nuvld {
   
-template Record<vXSecRecord>;
+template class Record<vXSecRecord>;
 template ostream & operator 
                       << (ostream & stream, const Record<vXSecRecord> & rec);
 
-template Record<eDiffXSecRecord>;
+template class Record<eDiffXSecRecord>;
 template ostream & operator 
                << (ostream & stream, const Record<eDiffXSecRecord> & rec);
 
