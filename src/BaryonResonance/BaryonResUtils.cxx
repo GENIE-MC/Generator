@@ -336,7 +336,6 @@ bool genie::res_utils::IsBaryonResonance(int pdgc)
 
     case (12112) : /* N0  */
     case (12212) : /* N+  */
-                   return kP11_1440; break;
 
     /* ------ P33(1600) ------*/
 
