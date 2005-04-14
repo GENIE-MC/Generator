@@ -30,11 +30,11 @@ using std::ostringstream;
 namespace genie {
 namespace nuvld {
 
-template DBTableStack<vXSecTableRow>;
+template class DBTableStack<vXSecTableRow>;
 //template ostream & operator
 //          << (ostream & stream, const DBTableStack<vXSecTableRow> & table);
 
-template DBTableStack<eDiffXSecTableRow>;
+template class DBTableStack<eDiffXSecTableRow>;
 //template ostream & operator
 //   << (ostream & stream, const DBTableStack<eDiffXSecTableRow> & table);
 
@@ -85,7 +85,7 @@ template<class T> void DBTableStack<T>::AddDBTable(
   DBTable<T> * cloned_table = new DBTable<T>(table);
 
   _db_table_map.insert(
-                    map<string, DBTable<T> *>::value_type(name,cloned_table) );
+                    typename map<string, DBTable<T> *>::value_type(name,cloned_table) );
 }
 //______________________________________________________________________________
 template<class T> void DBTableStack<T>::Merge(const DBTableStack * mt)

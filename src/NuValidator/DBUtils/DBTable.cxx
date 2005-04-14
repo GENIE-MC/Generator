@@ -32,11 +32,11 @@ using std::ostringstream;
 namespace genie {
 namespace nuvld {
 
-template DBTable<vXSecTableRow>;
+template class DBTable<vXSecTableRow>;
 //template ostream & operator
 //                << (ostream & stream, const DBTable<vXSecTableRow> & table);
 
-template DBTable<eDiffXSecTableRow>;
+template class DBTable<eDiffXSecTableRow>;
 //template ostream & operator
 //            << (ostream & stream, const DBTable<eDiffXSecTableRow> & table);
 
