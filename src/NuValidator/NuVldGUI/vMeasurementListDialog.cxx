@@ -143,7 +143,11 @@ string vMeasurementListDialog::BundleKeyListInString(void)
 
   TIter iter(selected);
 
-  int nselected = selected->IndexOf( selected->Last() ) + 1;
+  // IndexOf() is broken in ROOT > 4.02 ??
+  //int nselected = selected->IndexOf( selected->Last() ) + 1;
+  int nselected = 0;
+  while( (entry = (TGTextLBEntry *) iter.Next()) ) nselected++;
+  iter.Reset();
   
   while( (entry = (TGTextLBEntry *) iter.Next()) ) {
 
