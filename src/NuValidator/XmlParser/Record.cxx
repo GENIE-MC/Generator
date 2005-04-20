@@ -18,17 +18,22 @@ using std::endl;
 
 #include "vXSecRecord.h"
 #include "eDiffXSecRecord.h"
+#include "SFRecord.h"
 
 namespace genie {
 namespace nuvld {
   
 template class Record<vXSecRecord>;
 template ostream & operator 
-                      << (ostream & stream, const Record<vXSecRecord> & rec);
+                   << (ostream & stream, const Record<vXSecRecord> & rec);
 
 template class Record<eDiffXSecRecord>;
 template ostream & operator 
                << (ostream & stream, const Record<eDiffXSecRecord> & rec);
+
+template class Record<SFRecord>;
+template ostream & operator 
+                      << (ostream & stream, const Record<SFRecord> & rec);
 
 //____________________________________________________________________________
 template <class T>
