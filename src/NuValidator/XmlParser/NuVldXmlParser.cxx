@@ -16,6 +16,7 @@
 #include "XmlParser/ParserUtils.h" 
 #include "XmlParser/vXSecRecord.h"
 #include "XmlParser/eDiffXSecRecord.h"
+#include "XmlParser/SFRecord.h"
 
 namespace genie {
 namespace nuvld {
@@ -496,6 +497,12 @@ RecordBase * NuVldXmlParser::CreateNewRecord(Observable_t obs)
    case (e_electron_diff_xsec):
 
             rec = new Record<eDiffXSecRecord>();
+            break;
+
+   case (e_f2):
+   case (e_xf3):
+
+            rec = new Record<SFRecord>();
             break;
 
    default:

@@ -32,7 +32,9 @@ typedef enum EObservable {
    e_qes_diff_xsec,
    e_spp_diff_xsec,
    e_tot_diff_xsec,
-   e_electron_diff_xsec
+   e_electron_diff_xsec,
+   e_f2,
+   e_xf3
 
 } Observable_t;
 
@@ -64,6 +66,10 @@ public:
                                     break;
         case e_electron_diff_xsec:  return "electron differential cross sections"; 
                                     break;
+        case e_f2:                  return "structure function F2";
+                                    break;
+        case e_xf3:                 return "structure function xF3";
+                                    break;
         case e_undefined:           return "unknown Observable";      
                                     break;  	
         default:                    return "unknown Observable";      
@@ -92,6 +98,10 @@ public:
                                     break;
         case e_electron_diff_xsec:  return "ELEC_PXSEC"; 
                                     break;
+        case e_f2:                  return "F2"; 
+                                    break;
+        case e_xf3:                 return "xF3"; 
+                                    break;
         case e_undefined:        
         default:                    return "unknown Observable";      
                                     break;  
@@ -109,6 +119,8 @@ public:
        else if( str_observable.compare("spp_diff_xsec")      == 0 ) return e_spp_diff_xsec;
        else if( str_observable.compare("tot_diff_xsec")      == 0 ) return e_tot_diff_xsec;
        else if( str_observable.compare("electron_diff_xsec") == 0 ) return e_electron_diff_xsec;
+       else if( str_observable.compare("f2")                 == 0 ) return e_f2;
+       else if( str_observable.compare("xf3")                == 0 ) return e_xf3;
        else                                                         return e_undefined;
     }
     //_____________________________________________________________________________________
