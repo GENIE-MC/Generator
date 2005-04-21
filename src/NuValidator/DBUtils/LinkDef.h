@@ -16,15 +16,19 @@
 #pragma link C++ class genie::nuvld::DBTableFields;
 #pragma link C++ class genie::nuvld::SqlQueryBuilder;
 
-#pragma link C++ class genie::nuvld::vXSecTableRow;
-#pragma link C++ class genie::nuvld::eDiffXSecTableRow;
 #pragma link C++ class genie::nuvld::vXSecTableFields;
+#pragma link C++ class genie::nuvld::vXSecTableRow;
 #pragma link C++ class genie::nuvld::eDiffXSecTableFields;
+#pragma link C++ class genie::nuvld::eDiffXSecTableRow;
+#pragma link C++ class genie::nuvld::SFTableFields;
+#pragma link C++ class genie::nuvld::SFTableRow;
 
 #pragma link C++ class genie::nuvld::DBTable<genie::nuvld::vXSecTableRow>+;
 #pragma link C++ class genie::nuvld::DBTable<genie::nuvld::eDiffXSecTableRow>+;
+#pragma link C++ class genie::nuvld::DBTable<genie::nuvld::SFTableRow>+;
 #pragma link C++ class genie::nuvld::DBTableStack<genie::nuvld::vXSecTableRow>+;
 #pragma link C++ class genie::nuvld::DBTableStack<genie::nuvld::eDiffXSecTableRow>+;
+#pragma link C++ class genie::nuvld::DBTableStack<genie::nuvld::SFTableRow>+;
 
 #pragma link C++ class genie::nuvld::MultiGraph;
 #pragma link C++ class genie::nuvld::MeasurementId;

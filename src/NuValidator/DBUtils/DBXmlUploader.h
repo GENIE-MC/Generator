@@ -48,6 +48,7 @@ private:
                                 const MeasurementHeader & mhdr) const;
   DBStatus_t UploadNuXSec      (const ExperimentInfo & expi, const Measurement * meas) const;
   DBStatus_t UploadElDiffXSec  (const ExperimentInfo & expi, const Measurement * meas) const;
+  DBStatus_t UploadSF          (const ExperimentInfo & expi, const Measurement * meas) const;
 
   TSQLServer *       _sql_server;
 };

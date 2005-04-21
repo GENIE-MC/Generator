@@ -64,7 +64,6 @@ DBStatus_t DBI::FillTable(
      SqlQueryBuilder qbld;
       
      string sql_query = qbld.FormQuery(query_string);
-
      SLOG("NuVld", pINFO) << "Formed SQL-Query: " << sql_query;
 
      TSQLResult * res = fSqlServer->Query( sql_query.c_str() );
@@ -80,20 +79,17 @@ DBStatus_t DBI::FillTable(
 
      for (int i = 0; i < nrows; i++) {
 
-       row = res->Next();
-
+       row      = res->Next();
        xsec_row = new vXSecTableRow(row);
 
        table->AddRow(xsec_row);
 
        delete row;
      }
-
      delete res;
   
-     this->AddMeasurementIdList(table);
-
-     table->SetQueryString(query_string);
+     this  -> AddMeasurementIdList (table);
+     table -> SetQueryString       (query_string);
 
      return eDbu_OK;
   }
@@ -120,7 +116,6 @@ DBStatus_t DBI::FillTable(
      TSQLResult * res = fSqlServer->Query( sql_query.c_str() );
 
      const int nrows = res->GetRowCount();
-
      SLOG("NuVld", pINFO) << "The Query returned: " << nrows << " rows";
 
      if(nrows == 0) return eDbu_EMPTY_TABLE;
@@ -130,20 +125,63 @@ DBStatus_t DBI::FillTable(
 
      for (int i = 0; i < nrows; i++) {
 
-       row = res->Next();
-
+       row      = res->Next();
        xsec_row = new eDiffXSecTableRow(row);
 
        table->AddRow(xsec_row);
 
        delete row;
      }
-
      delete res;
 
-     this->AddMeasurementIdList(table);
+     this  -> AddMeasurementIdList (table);
+     table -> SetQueryString       (query_string);
+     
+     return eDbu_OK;     
+  }
 
-     table->SetQueryString(query_string);
+  SLOG("NuVld", pERROR) << "*** No connection to data-base";
+
+  return eDbu_CONNECTION_LOST;
+}
+//______________________________________________________________________________
+DBStatus_t DBI::FillTable(
+                DBTable<SFTableRow> * table, const DBQueryString & query_string)
+{
+  if( this->HaveConnection() ) {
+
+     SLOG("NuVld", pINFO)
+                     << "Forming SQL-Query for DBQueryString: " << query_string;
+
+     SqlQueryBuilder qbld;
+
+     string sql_query = qbld.FormQuery(query_string);
+
+     SLOG("NuVld", pINFO) << "Formed SQL-Query: " << sql_query;
+
+     TSQLResult * res = fSqlServer->Query( sql_query.c_str() );
+
+     const int nrows = res->GetRowCount();
+     SLOG("NuVld", pINFO) << "The Query returned: " << nrows << " rows";
+
+     if(nrows == 0) return eDbu_EMPTY_TABLE;
+     
+     TSQLRow *    row      = 0;
+     SFTableRow * xsec_row = 0;
+
+     for (int i = 0; i < nrows; i++) {
+
+       row      = res->Next();
+       xsec_row = new SFTableRow(row);
+
+       table->AddRow(xsec_row);
+
+       delete row;
+     }
+     delete res;
+
+     this  -> AddMeasurementIdList (table);
+     table -> SetQueryString       (query_string);
      
      return eDbu_OK;     
   }
@@ -194,10 +232,8 @@ void DBI::AddMeasurementIdList(DBTableBase * table)
 
          SLOG("NuVld", pDEBUG) << row->GetField(0) << " "
                                << row->GetField(1) << " " << row->GetField(2);
-
          delete row;
      }
-
      delete res;
 
      id_list->AddId(id);

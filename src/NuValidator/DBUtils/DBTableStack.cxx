@@ -21,6 +21,7 @@
 #include "DBUtils/DBTableStack.h"
 #include "DBUtils/vXSecTableRow.h"
 #include "DBUtils/eDiffXSecTableRow.h"
+#include "DBUtils/SFTableRow.h"
 #include "Messenger/Messenger.h"
 
 using std::endl;
@@ -32,11 +33,15 @@ namespace nuvld {
 
 template class DBTableStack<vXSecTableRow>;
 //template ostream & operator
-//          << (ostream & stream, const DBTableStack<vXSecTableRow> & table);
+//           << (ostream & stream, const DBTableStack<vXSecTableRow> & table);
 
 template class DBTableStack<eDiffXSecTableRow>;
 //template ostream & operator
-//   << (ostream & stream, const DBTableStack<eDiffXSecTableRow> & table);
+//       << (ostream & stream, const DBTableStack<eDiffXSecTableRow> & table);
+
+template class DBTableStack<SFTableRow>;
+//template ostream & operator
+//              << (ostream & stream, const DBTableStack<SFTableRow> & table);
 
 //____________________________________________________________________________
 /*
@@ -85,7 +90,7 @@ template<class T> void DBTableStack<T>::AddDBTable(
   DBTable<T> * cloned_table = new DBTable<T>(table);
 
   _db_table_map.insert(
-                    typename map<string, DBTable<T> *>::value_type(name,cloned_table) );
+            typename map<string, DBTable<T> *>::value_type(name,cloned_table) );
 }
 //______________________________________________________________________________
 template<class T> void DBTableStack<T>::Merge(const DBTableStack * mt)

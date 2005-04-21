@@ -21,6 +21,7 @@
 #include "DBUtils/DBQueryString.h"
 #include "DBUtils/vXSecTableRow.h"
 #include "DBUtils/eDiffXSecTableRow.h"
+#include "DBUtils/SFTableRow.h"
 #include "XmlParser/XmlDataSet.h"
 
 namespace genie {
@@ -37,6 +38,7 @@ public:
   DBStatus_t  UploadXML (const XmlDataSet & data);
   DBStatus_t  FillTable (genie::nuvld::DBTable<vXSecTableRow> * t,     const DBQueryString & query_string);
   DBStatus_t  FillTable (genie::nuvld::DBTable<eDiffXSecTableRow> * t, const DBQueryString & query_string);
+  DBStatus_t  FillTable (genie::nuvld::DBTable<SFTableRow> * t,        const DBQueryString & query_string);
   
 private:
 
