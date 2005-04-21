@@ -56,6 +56,8 @@ public:
   double Gamma          (void) const;
   double x              (void) const;
 
+  void   Print (ostream & stream) const;
+
 private:
 
   eDiffXSecTableRow();

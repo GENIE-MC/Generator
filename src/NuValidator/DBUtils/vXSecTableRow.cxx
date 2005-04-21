@@ -27,10 +27,7 @@ namespace nuvld {
 //____________________________________________________________________________
 ostream & operator << (ostream & stream, const vXSecTableRow & row)
 {
-  stream << "E = " << row.Field("E") << " " << row.Field("E_units")
-         << " --> xsec " << row.Field("xsec") << " " << row.Field("xsec_units")
-         << endl;
-         
+  row.Print(stream);         
   return stream;
 }
 //____________________________________________________________________________
@@ -188,6 +185,13 @@ void vXSecTableRow::ApplyUnitsFactor(double & xsec, string factor) const
    else if (factor.compare("/GeV") == 0)     xsec /= GeV;
    else if (factor.compare("/nucleon") == 0) xsec /= nucleon;
    else                                      xsec *= (1e+38 * atof( &(factor.c_str())[1]));
+}
+//____________________________________________________________________________
+void vXSecTableRow::Print (ostream & stream) const
+{
+  stream << "E = " << this->Field("E") << " " << this->Field("E_units")
+         << " --> xsec "<< this->Field("xsec")  << " " << this->Field("xsec_units") 
+         << endl;
 }
 //____________________________________________________________________________
 

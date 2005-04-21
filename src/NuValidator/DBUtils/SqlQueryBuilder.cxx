@@ -19,6 +19,7 @@
 #include "DBUtils/DBTableFields.h"
 #include "DBUtils/vXSecTableFields.h"
 #include "DBUtils/eDiffXSecTableFields.h"
+#include "DBUtils/SFTableFields.h"
 #include "Messenger/Messenger.h"
 #include "XmlParser/ParserUtils.h"
 
@@ -58,7 +59,6 @@ string SqlQueryBuilder::FormQuery(const DBQueryString & query_string)
 
   if(have_conditional) query << " AND " << conditional.str() << ";";
   else                 query << ";";
-
 
   SLOG("NuVld", pDEBUG) << "SQL Query = " << query.str();
 
@@ -127,14 +127,14 @@ string SqlQueryBuilder::AddCutList(const DBQueryString & query_string)
   if( ! query_string.IsNull() ) {
 
     string cut_list = query_string.CutList();
+    LOG("NuVld", pINFO) << "Cut List: " << cut_list;
 
     // add cuts to the SQL query
 
     if(cut_list.size() > 0) {
 
         DBTableType_t table_type = query_string.TableType();
-
-        SLOG("NuVld", pINFO) << "Table type: " << DBTableType::AsString(table_type);
+        LOG("NuVld", pINFO) << "Table type: " << DBTableType::AsString(table_type);
 
         vector<string> cuts = ParserUtils::split(cut_list,  ";");
 
@@ -234,8 +234,30 @@ string SqlQueryBuilder::AddCutList(const DBQueryString & query_string)
                         << this->CutValue(*cut_iter);
               }
           } // E_DIFF_CROSS_SECTION table cuts
+          break;
 
-               break;
+        case eDbt_SF:
+
+          // cuts for the STRUCTURE_FUNCTION table data
+          for(cut_iter = cuts.begin(); cut_iter != cuts.end(); ++cut_iter) {
+
+              if(cut_iter->find("Q2min") != string::npos) {
+                  query << " AND STRUCTURE_FUNCTION.Q2 >= "
+                        << this->CutValue(*cut_iter);
+              } else
+              if(cut_iter->find("Q2max") != string::npos) {
+                  query << " AND STRUCTURE_FUNCTION.Q2 <= "
+                        << this->CutValue(*cut_iter);
+              } else
+              if(cut_iter->find("x") != string::npos) {
+                  query << " AND STRUCTURE_FUNCTION.x > "
+                        << this->CutValue(*cut_iter) - 1E-6
+                        << " AND STRUCTURE_FUNCTION.x < "
+                        << this->CutValue(*cut_iter) + 1E-6;
+              }
+          } // STRUCTURE_FUNCTION table cuts
+          break;
+
         default:
                return "";
         } // db-table-type
@@ -269,6 +291,11 @@ string SqlQueryBuilder::AddTableFields(const DBQueryString & query_string)
                fields     = new eDiffXSecTableFields;
                table_name = "E_DIFF_CROSS_SECTION";
                break;
+
+      case eDbt_SF:
+               fields     = new SFTableFields;
+               table_name = "STRUCTURE_FUNCTION";
+               break;
       default:
                return "";
   }
@@ -297,9 +324,11 @@ string SqlQueryBuilder::MakeJoin(const DBQueryString & query_string)
 
   switch(table_type) {
       case eDbt_NuXSec:
-               table_name = "CROSS_SECTION"; break;
+               table_name = "CROSS_SECTION";        break;
       case eDbt_ElDiffXSec:
                table_name = "E_DIFF_CROSS_SECTION"; break;
+      case eDbt_SF:
+               table_name = "STRUCTURE_FUNCTION";   break;
       default:
                return "";
   }

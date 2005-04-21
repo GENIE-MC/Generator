@@ -29,7 +29,8 @@ typedef enum EDBTableType {
    eDbt_ElXSec            = 2,
    eDbt_ElDiffXSec        = 3,
    eDbt_HadrMult          = 4,
-   eDbt_Unknown           = 5
+   eDbt_SF                = 5,
+   eDbt_Unknown           = 6
 
 } DBTableType_t;
 
@@ -47,6 +48,7 @@ public:
       case eDbt_ElXSec:            return "eN-XSec";       break;
       case eDbt_ElDiffXSec:        return "eN-Diff-XSec";  break;
       case eDbt_HadrMult:          return "Hadron-Mult";   break;
+      case eDbt_SF:                return "SF";            break;
       case eDbt_Unknown:           
       default:                     return "Unknown";
     }
@@ -59,6 +61,7 @@ public:
     else if( strcmp( ttype.c_str(),"eN-XSec" )      == 0 ) return eDbt_ElXSec;
     else if( strcmp( ttype.c_str(),"eN-Diff-XSec" ) == 0 ) return eDbt_ElDiffXSec;
     else if( strcmp( ttype.c_str(),"Hadron-Mult" )  == 0 ) return eDbt_HadrMult;
+    else if( strcmp( ttype.c_str(),"SF" )           == 0 ) return eDbt_SF;
     else
          return eDbt_Unknown;
   }

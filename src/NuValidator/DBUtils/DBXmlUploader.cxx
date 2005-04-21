@@ -40,7 +40,6 @@ DBStatus_t DBXmlUploader::Upload(const XmlDataSet & nuscat_data) const
  for(exp_iter = all_data.begin(); exp_iter != all_data.end(); ++exp_iter) {
 
    const ExperimentInfo & exp_info = exp_iter->second->GetExperimentInfo();
-
    const map<string, BeamFluxSpectrum *> & spectra = exp_iter->second->GetSpectra();
 
    this->UploadExpInfo( exp_info );
@@ -54,8 +53,8 @@ DBStatus_t DBXmlUploader::Upload(const XmlDataSet & nuscat_data) const
 
        const MeasurementHeader & m_header = (*meas_iter)->GetMeasurementHeader();
 
-       UploadReferences( exp_info, m_header );
-       UploadMeasHdr( exp_info, m_header );
+       this->UploadReferences( exp_info, m_header );
+       this->UploadMeasHdr   ( exp_info, m_header );
 
        if( m_header.Observable().find("TOT_XSEC") == 0  ||
            m_header.Observable().find("QES_XSEC") == 0  ||
@@ -66,13 +65,15 @@ DBStatus_t DBXmlUploader::Upload(const XmlDataSet & nuscat_data) const
        else 
        if( m_header.Observable().find("ELEC_PXSEC") == 0 )
                                     this->UploadElDiffXSec(exp_info, *meas_iter);
-
+       else
+       if( m_header.Observable().find("F2") == 0 ||
+           m_header.Observable().find("xF3") == 0 )
+                                            this->UploadSF(exp_info, *meas_iter);
        else {
           SLOG("NuVld", pERROR) << "Unrecognized observable!";
        }
    }        
  }
-
  return eDbu_OK;
 }
 //_______________________________________________________________________________
@@ -129,7 +130,7 @@ DBStatus_t DBXmlUploader::UploadFluxSpectra(
 
               sql_string 
                   << "INSERT INTO BEAM_FLUX VALUES "
-                  << "(\""  << exp_info.Name()    << "\""
+                  << "(\""  << exp_info.Name()        << "\""
                   << ",\""  << beam                   << "\""
                   << ","    << (*bin)->MeanEnergy()            
                   << ","    << (*bin)->MinEnergy()          
@@ -292,5 +293,38 @@ DBStatus_t DBXmlUploader::UploadElDiffXSec(
   return eDbu_OK;
 }
 //_______________________________________________________________________________
+DBStatus_t DBXmlUploader::UploadSF(
+                 const ExperimentInfo & exp_info, const Measurement * meas) const
+{
+  const vector<RecordBase *> & d_points = meas->GetDataPoints();
+  const MeasurementHeader &    m_header = meas->GetMeasurementHeader();
 
+  vector<RecordBase *>::const_iterator point_iter;
+
+  for(point_iter = d_points.begin(); point_iter != d_points.end(); ++point_iter){
+
+     ostringstream sql_string;
+
+     sql_string << "INSERT INTO STRUCTURE_FUNCTION VALUES "
+                << "(\""  << exp_info.Name()            << "\""
+                << ",\""  << m_header.Tag()             << "\""
+                << ","    << (*point_iter)->Get("sf")
+                << ",\""  << (*point_iter)->Get("p")    << "\""
+                << ",\""  << (*point_iter)->Get("R")    << "\""
+                << ","    << (*point_iter)->Get("x")
+                << ","    << (*point_iter)->Get("Q2")     
+                << ","    << (*point_iter)->Get("stat_err+")
+                << ","    << (*point_iter)->Get("stat_err-")
+                << ","    << (*point_iter)->Get("syst_err+")
+                << ","    << (*point_iter)->Get("syst_err-")
+                << ");";
+
+     SLOG("NuVld", pINFO)
+          << "SQL string to be sent to the DBase: " << sql_string.str().c_str();
+                
+     _sql_server->Query( sql_string.str().c_str() );
+  }
+  return eDbu_OK;
+}
+//_______________________________________________________________________________
 

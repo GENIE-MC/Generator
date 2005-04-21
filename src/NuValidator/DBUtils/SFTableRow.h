@@ -1,7 +1,7 @@
 //_____________________________________________________________________________
 /*!
 
-\class    genie::nuvld::vXSecTableRow
+\class    genie::nuvld::SFTableRow
 
 \brief
 
@@ -11,8 +11,8 @@
 */
 //_____________________________________________________________________________
 
-#ifndef _XSEC_TABLE_ROW_H_
-#define _XSEC_TABLE_ROW_H_
+#ifndef _SF_TABLE_ROW_H_
+#define _SF_TABLE_ROW_H_
 
 #include <string>
 #include <ostream>
@@ -27,43 +27,37 @@ using std::ostream;
 namespace genie {
 namespace nuvld {
 
-class vXSecTableRow : public DBTableRow
+class SFTableRow : public DBTableRow
 {
 public:
 
   friend class DBI;
 
-  friend ostream & operator << (ostream & stream, const vXSecTableRow & row);
+  friend ostream & operator << (ostream & stream, const SFTableRow & row);
 
   string Experiment     (void) const;  
   string MeasurementTag (void) const;
-  string XSecNorm       (void) const;
-  string XSecUnits      (void) const;  
-  double XSec           (void) const;
+  string R              (void) const; ///< longitud./transv. structure function
+  double SF             (void) const; ///< structure function
   double StatErrP       (void) const;
   double StatErrM       (void) const;
   double SystErrP       (void) const;
   double SystErrM       (void) const;
   double ErrP           (void) const;
   double ErrM           (void) const;
-  double E              (void) const;
-  double Emin           (void) const;
-  double Emax           (void) const;
-  double dE             (void) const;
-   
-  void Print (ostream & stream) const;
+  double x              (void) const;
+  double Q2             (void) const;
+
+  void   Print (ostream & stream) const;
 
 private:
 
-  vXSecTableRow();
-  vXSecTableRow(const DBTableRow * db_row);
-  vXSecTableRow(TSQLRow * row);
-  virtual ~vXSecTableRow();
+  SFTableRow();
+  SFTableRow(const DBTableRow * db_row);
+  SFTableRow(TSQLRow * row);
+  virtual ~SFTableRow();
 
-  void   UndoXSecNorm     (double & xsec, double E, string norm) const;
-  void   ApplyUnitsFactor (double & xsec, string factor) const;   
-
-ClassDef(vXSecTableRow, 1)
+ClassDef(SFTableRow, 1)
 };
 
 } // nuvld namespace

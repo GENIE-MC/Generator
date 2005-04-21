@@ -25,13 +25,7 @@ namespace nuvld {
 //____________________________________________________________________________
 ostream & operator << (ostream & stream, const eDiffXSecTableRow & row)
 {
-  stream << " E = "    << row.Field("E")     << " " << row.Field("E_units")
-         << " EP = "   << row.Field("EP")    << " " << row.Field("EP_units")
-         << " Theta = "<< row.Field("Theta") << " " << row.Field("Theta_units")         
-         << " --> xsec " << row.Field("Sigma")
-         << " " << row.Field("Sigma_units")
-         << endl;
-
+  row.Print(stream);
   return stream;
 }
 //____________________________________________________________________________
@@ -156,6 +150,16 @@ double eDiffXSecTableRow::Gamma(void) const
 double eDiffXSecTableRow::x(void) const
 {
   return atof( Field("x").c_str() );
+}
+//____________________________________________________________________________
+void eDiffXSecTableRow::Print(ostream & stream) const
+{
+  stream 
+    << " E= "      << this->Field("E")     << " " << this->Field("E_units")
+    << " EP= "     << this->Field("EP")    << " " << this->Field("EP_units")
+    << " Theta= "  << this->Field("Theta") << " " << this->Field("Theta_units")         
+    << " -> sig= " << this->Field("Sigma") << " " << this->Field("Sigma_units")
+    << endl;  
 }
 //____________________________________________________________________________
 

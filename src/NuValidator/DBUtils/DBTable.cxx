@@ -22,6 +22,8 @@
 #include "DBUtils/vXSecTableFields.h"
 #include "DBUtils/eDiffXSecTableRow.h"
 #include "DBUtils/eDiffXSecTableFields.h"
+#include "DBUtils/SFTableRow.h"
+#include "DBUtils/SFTableFields.h"
 #include "Messenger/Messenger.h"
 #include "XmlParser/ParserUtils.h"
 
@@ -40,6 +42,9 @@ template class DBTable<eDiffXSecTableRow>;
 //template ostream & operator
 //            << (ostream & stream, const DBTable<eDiffXSecTableRow> & table);
 
+template class DBTable<SFTableRow>;
+//template ostream & operator
+//                   << (ostream & stream, const DBTable<SFTableRow> & table);
          
 //____________________________________________________________________________
 /*
@@ -68,26 +73,31 @@ DBTable<vXSecTableRow>::DBTable()
   _id_list = 0;
 }
 //____________________________________________________________________________
+DBTable<SFTableRow>::DBTable()
+{
+  _fields  = new SFTableFields();
+  _query_string = 0;
+  _id_list = 0;
+}
+//____________________________________________________________________________
 template<class T> DBTable<T>::DBTable(const DBTable<T> * table)
 {
   LOG("NuVld", pDEBUG) << "Copying DBTableFields...";
-
+  
   _fields  = new DBTableFields(table->_fields);
 
   LOG("NuVld", pDEBUG) << "Copying DBTableRows...";
-
+  
   typename vector<T *>::const_iterator iter;
-
   for(iter = table->_table.begin();
-                        iter != table->_table.end(); ++iter)
-                                                        this->AddRow( *iter );
-
+                   iter != table->_table.end(); ++iter) this->AddRow( *iter );
+                   
   LOG("NuVld", pDEBUG) << "Copying MeasurementIdList...";
-                                                        
+  
   _id_list = new MeasurementIdList(table->_id_list);
 
   LOG("NuVld", pDEBUG) << "Copying DBQueryString...";
-
+  
   if( table->QueryString() )
      _query_string = new DBQueryString( *(table->QueryString()) );
   else {
@@ -390,6 +400,73 @@ MultiGraph * DBTable<eDiffXSecTableRow>::GetMultiGraph(
 
     DBTable<eDiffXSecTableRow> * subset =
                                 this->Subset( experiment, measurement_tag );
+
+    TGraphAsymmErrors * graph = subset->GetGraph(opt, var);
+
+    mgraph->AddGraph(id_list->GetId(i)->Reference().c_str(), graph);
+
+    delete subset;
+  }
+
+  LOG("NuVld", pDEBUG) << "ngraphs = " << mgraph->NGraphs();
+
+  return mgraph;
+}
+//____________________________________________________________________________
+TGraphAsymmErrors * DBTable<SFTableRow>::GetGraph(
+                                           const char * opt, const char * var)
+{
+  const vector<SFTableRow *> & rows = this->Rows();
+
+  const int npoints = rows.size();
+
+  if(npoints == 0) return 0;
+
+  double * x    = new double[npoints];
+  double * dx   = new double[npoints];
+  double * y    = new double[npoints];
+  double * dyp  = new double[npoints];
+  double * dym  = new double[npoints];
+
+  vector<SFTableRow *>::const_iterator row_iter;
+
+  int ipoint = 0;
+
+  for(row_iter = rows.begin(); row_iter != rows.end(); ++row_iter) {
+
+     x  [ipoint] = (*row_iter)->Q2();
+     y  [ipoint] = (*row_iter)->SF();
+     dx [ipoint] = 0;
+     dyp[ipoint] = 0;
+     dym[ipoint] = 0;
+
+     //y-err
+     if( strcmp(opt,"err") == 0) {
+          dyp[ipoint] = (*row_iter)->ErrP();
+          dym[ipoint] = (*row_iter)->ErrM();
+     }          
+     ipoint++;
+  }
+  return new TGraphAsymmErrors(npoints, x, y, dx, dx, dym, dyp);
+}
+//____________________________________________________________________________
+MultiGraph * DBTable<SFTableRow>::GetMultiGraph(
+                                           const char * opt, const char * var)
+{
+  MultiGraph * mgraph = new MultiGraph();
+
+  const MeasurementIdList * id_list = this->IdList();
+
+  for(unsigned int i = 0; i < id_list->NIds(); i++) {
+
+    string experiment      = id_list->GetId(i)->Experiment();
+    string measurement_tag = id_list->GetId(i)->MeasurementTag();
+
+    LOG("NuVld", pDEBUG)
+                 << "Getting/Adding graph..." << i << ": "
+                                     << experiment << "/" << measurement_tag;
+
+    DBTable<SFTableRow> * subset = this->Subset(experiment, measurement_tag);
 
     TGraphAsymmErrors * graph = subset->GetGraph(opt, var);
 
