@@ -19,6 +19,7 @@
 #include <TSQLRow.h>
 #include <TGFileDialog.h>
 
+#include "Messenger/Messenger.h"
 #include "NuVldGUI/GuiDBHandler.h"
 #include "NuVldGUI/DBConnectionDialog.h"
 #include "NuVldGUI/SysLogSingleton.h"
@@ -209,7 +210,7 @@ void GuiDBHandler::Bootstrap(void)
 
          _dbc->SqlServer()->CreateDataBase("NuScat");
 
-         const int k_n_files = 6;
+         const int k_n_files = 7;
 
          string k_sql_file[k_n_files] = {
                             "createTable_ExpInfo.sql",
@@ -217,7 +218,8 @@ void GuiDBHandler::Bootstrap(void)
                             "createTable_Reference.sql",
                             "createTable_MeasurementHeader.sql",
                             "createTable_CrossSection.sql",
-                            "createTable_eDiffCrossSection.sql"   };
+                            "createTable_eDiffCrossSection.sql",
+                            "createTable_StructureFunction.sql" };
 
          for(int ifile = 0; ifile < k_n_files; ifile++) {
 
@@ -225,7 +227,8 @@ void GuiDBHandler::Bootstrap(void)
                                        "/data/sql_queries/" + k_sql_file[ifile];
 
             string sql = this->ReadSqlQueryFromFile(filename);
-
+            LOG("NuVld", pINFO) << sql;
+            
             _dbc->SqlServer()->Query( sql.c_str() );
          }
      }
@@ -333,7 +336,6 @@ void GuiDBHandler::PrintSqlResultInTGTextEdit(TSQLResult * res)
   for (int i = 0; i < nf; i++) field_name[i] = string( res->GetFieldName(i) );
 
   if(nr > 0) {
-
      double dprogress = 100. / nr;
 
      for (int i = 0; i < nr; i++) {
@@ -344,7 +346,6 @@ void GuiDBHandler::PrintSqlResultInTGTextEdit(TSQLResult * res)
 
        browser->TextBrowser()->AddLine(
                                   Concat("---------------------- row: ", i) );
-
        // print all fields
        for (int j = 0; j < nf; j++) {
            browser->TextBrowser()->AddLine(Concat(
