@@ -32,6 +32,9 @@ using std::string;
 using std::ostream;
 
 extern "C" {
+
+//-- the original NeuGEN function calls
+
   void set_parameters_         (char*, int *,float * val);
   void set_pdfset_             (int *, int * , float *);
   void makestate_              (int*,int*,int*,int*,int*,int*,int*,int*,int*);
@@ -41,6 +44,9 @@ extern "C" {
   void dsig_value_             (float *, int *, float *, int *, int *, float *) ;
   void set_kvcuts_             (int*,float*,float*);
   void set_masks_              (int *, bool *, bool *, bool *);
+  void nu_structurefunctions_  (int *, int *, int *, float *, float *, int *, float *, float *, 
+                                float *, float *, float *, float *);
+  void e_structurefunctions_   (int *, int *, float *, float *, int *, float *, float *);
 }
 
 namespace genie   {
@@ -59,22 +65,22 @@ public:
 
   const char * Name (void) const { return _name.c_str(); }
 
-  void SetDefaultConfig (void);
-  void Reconfigure      (const NeuGenConfig * config);
-  void SetCuts          (NeuGenCuts * cuts);
-  void NoCuts           (void);
-  
-  float XSec (float e, NGInteraction * ni, NeuGenCuts * cuts=0);
-
-  float ExclusiveXSec(float e, NGInteraction * ni, NGFinalState * final, NeuGenCuts * cuts=0);
-
-  float DiffXSec(float e, NGKineVar_t  kid, float kval, NGInteraction *ni, NeuGenCuts * cuts=0);
-
-  float ExclusiveDiffXSec(float e, NGKineVar_t  kid, float kval, NGInteraction *ni, NGFinalState * final,
+  void    SetDefaultConfig  (void);
+  void    Reconfigure       (const NeuGenConfig * config);
+  void    SetCuts           (NeuGenCuts * cuts);
+  void    NoCuts            (void);  
+  float   XSec              (float e, NGInteraction * ni, NeuGenCuts * cuts=0);
+  float   ExclusiveXSec     (float e, NGInteraction * ni, NGFinalState * final,
                              NeuGenCuts * cuts=0);
-                  
-  XSecVsEnergy * XSecSpline (float emin,float emax, int nbins, NGInteraction * ni, NeuGenCuts * cuts=0);
+  float   DiffXSec          (float e, NGKineVar_t  kid, float kval, NGInteraction *ni, 
+                             NeuGenCuts * cuts=0);
+  float   ExclusiveDiffXSec (float e, NGKineVar_t  kid, float kval, NGInteraction *ni, 
+                             NGFinalState * final, NeuGenCuts * cuts=0);
+  float   StrucFunc         (float x, float Q2, int A, NGInitState_t init,
+                             NGCcNc_t ccnc, int isf, int raw_dis);
 
+  XSecVsEnergy * XSecSpline (float emin,float emax, int nbins, NGInteraction * ni, NeuGenCuts * cuts=0);
+  
   XSecVsEnergy * ExclusiveXSecSpline(float emin,float emax, int nbins, 
                           NGInteraction * ni, NGFinalState * final, NeuGenCuts * cuts=0);
 
