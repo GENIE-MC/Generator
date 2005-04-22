@@ -101,6 +101,8 @@ string genie::gui_utils::ListBoxSelectionAsString(
        if(++i < selections.GetSize() ) str_select << ", ";
   }
 
+  if(i==0) return "empty";
+  
   return str_select.str();
 }
 //____________________________________________________________________________
