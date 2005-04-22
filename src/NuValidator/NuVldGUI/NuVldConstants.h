@@ -38,6 +38,8 @@ static const char * kFitters[] =
    "NONE", "SIMPLE", "SIMPLE/UWF", "NORM-FLOAT", "NORM-FLOAT/UWF", 0, 
 };
 
+// Constants used in the vN data Selection Tab
+
 static const char * kExperimentName[] =
 {
    "Gargamelle", "BEBC", "ANL-12ft", "BNL-7ft", "FNAL-15ft", "SKAT",
@@ -87,6 +89,8 @@ static const char * kXSecErrDrawOpt[] = { "noXsec", "stat", "all", 0 };
 static const double kEmin =   0.1;
 static const double kEmax = 120.00;
 
+// Constants used in the eN data Selection Tab
+
 static const char * kElExperiment[] =
 {
    "E133", "E140", "E140X", "E49A10", "E49A6", "E49B", "E61", "E87", 
@@ -120,6 +124,31 @@ static const double kElVarMin[kNElVarRangeFrames] =
 static double kElVarMax[kNElVarRangeFrames] =
 {
   100, 100, 100, 100, 100, 100, 100, 100, 100
+};
+
+// Constants used in the Structure Functions Selection Tab
+
+static const char * kSFErrType[] = { "no error", "stat. only", "stat.+syst.", 0 };
+
+static const char * kSFExperimentName[] =
+{
+   "BCDMS", "CCFR", "CDHS", "EMC", "NMC", "SLAC", "WA59", 0
+};
+static const char * kSFTarget[] =
+{
+   "Proton", "Iron", "Neon", 0
+};
+static const char * kSFProbe[] =
+{
+   "nu_mu", "muon", "electron", 0
+};
+static const char * kSFName[] =
+{
+   "F2", "xF3", 0
+};
+static const char * kSFR[] =
+{
+   "QCD", "Whitlow", "Unknown", 0
 };
 
 } // namespace constants

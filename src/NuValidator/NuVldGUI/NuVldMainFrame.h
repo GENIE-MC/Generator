@@ -120,6 +120,7 @@ public:
    void ResetSqlSelections    (void);
    void ResetElSqlSelections  (void);
    void ResetNuSqlSelections  (void);
+   void ResetSFSqlSelections  (void);
    void ResetCommonSelections (void);
    void SelectAllNuExp        (void);
    void SelectAllNuXSec       (void);
@@ -127,6 +128,9 @@ public:
    void SelectAllNuTargets    (void);
    void SelectAllElExp        (void);
    void SelectAllElTargets    (void);
+   void SelectAllSFExp        (void);
+   void SelectAllSFProbes     (void);
+   void SelectAllSFTargets    (void);
    void ClearViewer           (void);
 
    //-- methods for switching tabs
@@ -137,9 +141,11 @@ public:
    void OpenSessionLogTab (void);
    
    //-- methods for poping up data selection dialogs
-
+   //   or filling gui widgets with dbase data
+   
    void PopupNuDataSelectionDialog   (void);
    void PopupNuMeasurementListDialog (void);
+   void SFLoadx                      (void);
 
 private:
 
@@ -163,6 +169,7 @@ private:
    TGStatusBar *       BuildStatusBar           (void);   
    void                FillNuSqlFrame           (void);
    void                FillElSqlFrame           (void);
+   void                FillSFSqlFrame           (void);
    void                AddCommonCheckButtons    (void);
    void                FillFitterFrame          (void);
    void                CreateUpperFrameButtons  (TGGroupFrame * gf);
@@ -194,10 +201,16 @@ private:
    string ElTabBundleCutsInString       (void);
    string ElTabBundleDrawOptInString    (void);
 
+   string SFTabBundleSelectionsInString (void);
+   string SFTabBundleKeyListInString    (void);
+   string SFTabBundleCutsInString       (void);
+   string SFTabBundleDrawOptInString    (void);
+
    //-- methods for extracting cross section data
    
    DBTable<vXSecTableRow> *     FillNuXSecTable     (void);
    DBTable<eDiffXSecTableRow> * FillElDiffXSecTable (void);
+   DBTable<SFTableRow> *        FillSFTable         (void);
 
    //-- GUI widgets
    
@@ -216,6 +229,7 @@ private:
    TGCompositeFrame *        fTabLog;
    TGCompositeFrame *        fTabNuSql;
    TGCompositeFrame *        fTabElSql;
+   TGCompositeFrame *        fTabSFSql;
    TGCompositeFrame *        fMainFrame;
    TGCompositeFrame *        fMainTopFrame;
    TGCompositeFrame *        fMainBottomFrame;
@@ -239,6 +253,7 @@ private:
    TGLayoutHints *           fFitterTabLt;
    TGLayoutHints *           fNuSqlTabLt; 
    TGLayoutHints *           fElSqlTabLt;
+   TGLayoutHints *           fSFSqlTabLt;
    TGLayoutHints *           fLogTabLt;
    TGLayoutHints *           fDataTabLt;
    TGLayoutHints *           fSqlTabLt;
@@ -267,6 +282,11 @@ private:
    TGGroupFrame *            fElExpGrpFrame;
    TGGroupFrame *            fElTgGrpFrm;
    TGGroupFrame *            fElDrawXGrpFrm;
+   TGGroupFrame *            fSFErrGrpFrm;
+   TGGroupFrame *            fSFExpGrpFrm;
+   TGGroupFrame *            fSFGrpFrm;
+   TGGroupFrame *            fSFKineGrpFrm;
+   TGGroupFrame *            fSFInitStateGrpFrm;
    TGListBox *               fNuXSecErrLBx;
    TGListBox *               fNuExpLBx;
    TGListBox *               fNuProcLBx;
@@ -274,6 +294,13 @@ private:
    TGListBox *               fNuTgtLBx;
    TGListBox *               fElExpLBx;
    TGListBox *               fElTgtLBx;
+   TGListBox *               fSFErrLBx;
+   TGListBox *               fSFExpLBx;
+   TGListBox *               fSFLBx;
+   TGListBox *               fSFProbeLBx;
+   TGListBox *               fSFTgtLBx;
+   TGListBox *               fSFRLBx;
+   TGListBox *               fSFxLBx;
    TGComboBox *              fTableStackCBx;
    TGComboBox *              fConfigStackCBx;
    TGComboBox *              fFitterCBx;
@@ -312,6 +339,7 @@ private:
    TGTextButton *            fShowFullNuDialogTBtn;
    TGTextButton *            fShowExpertNuDialogTBtn;
    TGTextButton *            fSelectNeuGenFitParams;
+   TGTextButton *            fSFLoadxTBtn;
    TGHorizontalFrame *       fProgressBarHFrm;
    TGHorizontalFrame *       fStackHFrm;   
    TGCheckButton *           fAllNuExpChkB;
@@ -320,12 +348,17 @@ private:
    TGCheckButton *           fAllNuTgtChkB;
    TGCheckButton *           fAllElExpChkB;
    TGCheckButton *           fAllElTgtChkB;
+   TGCheckButton *           fAllSFExpChkB;
+   TGCheckButton *           fAllSFProbesChkB;
+   TGCheckButton *           fAllSFTgtChkB;   
    TGCheckButton *           fScaleWithEvChkB;
    TGCheckButton *           fShowColorCodeChkB;
    TGCheckButton *           fShowExtLegendChkB;   
-   TGCheckButton *           fUseStackedChkB;   
+   TGCheckButton *           fUseStackedChkB;
    TGNumberEntry *           fEMinNmE;
    TGNumberEntry *           fEMaxNmE;
+   TGNumberEntry *           fSFQ2MinNmE;
+   TGNumberEntry *           fSFQ2MaxNmE;
    vector<TGNumberEntry * >  fElVarMinNmEV;
    vector<TGNumberEntry * >  fElVarMaxNmEV;
    TGNumberEntry *           fXMinNmE;
@@ -342,6 +375,7 @@ private:
    TGLabel *                 fLinkSelLb;
    TGLabel *                 fLFitSpacerLb;
    TGLabel *                 fRFitSpacerLb;
+   TGLabel *                 fSFTabBtnSpacerLb;
    TLatex *                  fLtxAuth;
    TLatex *                  fLtxLink;
 
