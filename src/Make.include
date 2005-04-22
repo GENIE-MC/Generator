@@ -98,7 +98,7 @@ PYTHIA_LIBS = -L $(PYTHIA_DIR) -lPythia6  $(PYTHIA_DIR)/pythia62.o
 ###### NEUGEN LIBRARY
 ###### Is only needed only if someone wants to run NeuGEN in the NuValidator
 
-NEUGEN_LIBS = -L$(NEUGEN3PATH)/lib -lneugen -lg2c
+NEUGEN_LIBS = -L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
 
 ###### GENIE lib & bin paths
 
