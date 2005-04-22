@@ -254,7 +254,22 @@ string SqlQueryBuilder::AddCutList(const DBQueryString & query_string)
                         << this->CutValue(*cut_iter) - 1E-6
                         << " AND STRUCTURE_FUNCTION.x < "
                         << this->CutValue(*cut_iter) + 1E-6;
-              }
+              } else 
+              if(cut_iter->find("R") != string::npos) {
+
+                 query << " AND (";
+
+                 vector<string>::iterator str_iter;
+                 vector<string> R = ParserUtils::split(
+                                         this->CutValueStr(*cut_iter), ",");
+                 int ir=0;
+                 for(str_iter = R.begin(); str_iter != R.end(); ++str_iter) {
+                    query << " STRUCTURE_FUNCTION.R = \"" 
+                          << ParserUtils::filter_string(" ", *str_iter) << "\"";
+                    if(ir++ < R.size()-1) query << " OR ";
+                 }
+                 query << ")";
+              } 
           } // STRUCTURE_FUNCTION table cuts
           break;
 
@@ -349,5 +364,16 @@ double SqlQueryBuilder::CutValue(string cut_segment)
   vector<string> cut = ParserUtils::split(cut_segment, "=");
   assert(cut.size() == 2);
   return atof(cut[1].c_str());
+}
+//____________________________________________________________________________
+string SqlQueryBuilder::CutValueStr(string cut_segment)
+{
+// Extract the cut value from a segment of the cuts sector in DBQueryString
+// The cuts sector is a ; separated list of segments CUTS=cut1;cut2;...;cutN
+// Each segment is a name=pair string
+
+  vector<string> cut = ParserUtils::split(cut_segment, "=");
+  assert(cut.size() == 2);
+  return cut[1];
 }
 //____________________________________________________________________________

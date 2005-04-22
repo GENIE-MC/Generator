@@ -37,8 +37,9 @@ public:
 
   string Experiment     (void) const;  
   string MeasurementTag (void) const;
-  string R              (void) const; ///< longitud./transv. structure function
   double SF             (void) const; ///< structure function
+  string R              (void) const; ///< longitud./transv. structure function
+  string p              (void) const; ///< Proton/Neutron/Nuclear
   double StatErrP       (void) const;
   double StatErrM       (void) const;
   double SystErrP       (void) const;

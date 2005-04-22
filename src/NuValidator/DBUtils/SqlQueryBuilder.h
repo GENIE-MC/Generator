@@ -38,6 +38,7 @@ private:
   string AddCutList     (const DBQueryString & query_string);
   string MakeJoin       (const DBQueryString & query_string);
   double CutValue       (string cut_segment);
+  string CutValueStr    (string cut_segment);
 };
 
 } // nuvld namespace

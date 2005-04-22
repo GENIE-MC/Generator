@@ -257,6 +257,124 @@ public:
   return key_list.str();
  }
  //__________________________________________________________________________
+ static string SqlUtils::build_sf_conditional(
+      string experiments, string sf, string probes, string targets, string R)
+ {
+   unsigned int i = 0;
+
+   ostringstream conditional;
+
+   vector<string>::iterator str_iter;
+
+   vector<string> vec_exp    = ParserUtils::split(experiments.c_str(),  ",");
+   vector<string> vec_probes = ParserUtils::split(probes.c_str(),       ",");
+   vector<string> vec_tgt    = ParserUtils::split(targets.c_str(),      ",");
+
+   //-- add "experiments"-selection
+
+   if(strcmp(experiments.c_str(), "*") != 0 && experiments.size() > 0) {
+
+     i=0;
+     conditional << "MEASUREMENT_HEADER.name IN (";
+     for(str_iter = vec_exp.begin(); str_iter != vec_exp.end(); ++str_iter) {
+
+        conditional << "\""
+                    << ParserUtils::filter_string(" ", *str_iter) << "\"";
+
+        if(i < vec_exp.size()-1 ) conditional << ", ";
+        i++;
+     }
+     conditional << ")";
+   } else if ( strcmp(experiments.c_str(), "*") == 0)  conditional << " 1 ";
+   else conditional << " 0 ";
+
+   //-- add "probes"-selection
+
+   //-- add "neutrino"-selection
+
+   if( strcmp(probes.c_str(),"*") != 0  && probes.size() > 0) {
+    i=0;
+    conditional << " AND (";
+
+    for(str_iter = vec_probes.begin(); str_iter != vec_probes.end(); ++str_iter) {
+
+       conditional << " MEASUREMENT_HEADER.reaction LIKE \"%"
+                   << ParserUtils::filter_string(" ", *str_iter) << " %\" ";
+
+       if(i < vec_probes.size()-1 ) conditional << " OR ";
+       i++;
+    }
+    conditional << ") ";
+   } else if (strcmp(probes.c_str(), "*") == 0) conditional << " AND 1 ";
+   else conditional << " AND 0 ";
+
+   //-- add "target"-selection
+
+   if(strcmp(targets.c_str(),"*") != 0 && targets.size() > 0)  {
+    i=0;
+    conditional << " AND (";
+
+    for(str_iter = vec_tgt.begin(); str_iter != vec_tgt.end(); ++str_iter) {
+
+         conditional << "MEASUREMENT_HEADER.target LIKE \"%"
+                    << ParserUtils::filter_string(" ", *str_iter) << "%\"";
+
+         if(i < vec_tgt.size()-1 ) conditional << " OR ";
+         i++;
+     }
+     conditional << ") ";
+
+   } else if (strcmp(targets.c_str(), "*") == 0) conditional << " AND 1 ";
+   else conditional << " AND 0 ";
+
+   //-- add "observables"-selection
+
+   assert(sf.size() > 0);   
+   conditional << " AND MEASUREMENT_HEADER.observable = \"" << sf << "\"";
+
+   //assert(R.size() > 0);
+   //conditional << " AND MEASUREMENT_HEADER.observable = \"" << sf << "\"";
+
+   cout << conditional.str() << endl;
+
+   return conditional.str();   
+ }
+ //__________________________________________________________________________
+ static string SqlUtils::build_sf_key_list(TSQLServer * db,
+       string experiments, string sf, string probe, string targets, string R)
+ {
+   string conditional = build_sf_conditional(experiments, sf, probe, targets, R);
+
+   ostringstream query;
+
+   query << "SELECT MEASUREMENT_HEADER.name, MEASUREMENT_HEADER.measurement_tag"
+         << " FROM MEASUREMENT_HEADER WHERE " << conditional << ";";
+
+   //cout << query.str() << endl;
+
+   TSQLResult * result = db->Query(query.str().c_str());
+
+   const int nrows = result->GetRowCount();
+
+   TSQLRow * row = 0;
+
+   ostringstream key_list;
+
+   for (int i = 0; i < nrows; i++) {
+
+      row = result->Next();
+
+      key_list << row->GetField(0) << "," << row->GetField(1) << ";";
+
+      delete row;
+  }
+  delete result;
+
+  cout << key_list.str() << endl;
+
+  return key_list.str();
+ }
+ //__________________________________________________________________________
 
 };
 

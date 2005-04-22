@@ -309,8 +309,8 @@ DBStatus_t DBXmlUploader::UploadSF(
                 << "(\""  << exp_info.Name()            << "\""
                 << ",\""  << m_header.Tag()             << "\""
                 << ","    << (*point_iter)->Get("sf")
-                << ",\""  << (*point_iter)->Get("p")    << "\""
-                << ",\""  << (*point_iter)->Get("R")    << "\""
+                << ",\""  << (*point_iter)->Get("sf_p") << "\""
+                << ",\""  << (*point_iter)->Get("sf_R") << "\""
                 << ","    << (*point_iter)->Get("x")
                 << ","    << (*point_iter)->Get("Q2")     
                 << ","    << (*point_iter)->Get("stat_err+")
