@@ -23,6 +23,7 @@
 #include "DBUtils/DBTable.h"
 #include "DBUtils/vXSecTableRow.h"
 #include "DBUtils/eDiffXSecTableRow.h"
+#include "DBUtils/SFTableRow.h"
 
 using std::string;
 
@@ -45,6 +46,7 @@ private:
     
   void DrawXSecTable (genie::nuvld::DBTable<vXSecTableRow> *     table);
   void DrawXSecTable (genie::nuvld::DBTable<eDiffXSecTableRow> * table);
+  void DrawXSecTable (genie::nuvld::DBTable<SFTableRow> *        table);
 
   //-- table drawing options
   
@@ -66,6 +68,8 @@ private:
   void DrawMultiGraphInCanvas (genie::nuvld::DBTable<vXSecTableRow> *     table);    
   void DrawGraphInCanvas      (genie::nuvld::DBTable<eDiffXSecTableRow> * table);
   void DrawMultiGraphInCanvas (genie::nuvld::DBTable<eDiffXSecTableRow> * table);
+  void DrawGraphInCanvas      (genie::nuvld::DBTable<SFTableRow> *        table);
+  void DrawMultiGraphInCanvas (genie::nuvld::DBTable<SFTableRow> *        table);
 
   //-- data members
 

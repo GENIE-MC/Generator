@@ -181,6 +181,7 @@ void NuVldMainFrame::DefineLayoutHints(void)
   ULong_t hintTabDataViewerLayout = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
   ULong_t hintTabNuSqlLayout      = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
   ULong_t hintTabElSqlLayout      = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
+  ULong_t hintTabSFSqlLayout      = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
   ULong_t hintTabDataLayout       = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
   ULong_t hintTabSqlLayout        = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
   ULong_t hintExitButtonLayout    = kLHintsRight;
@@ -202,6 +203,7 @@ void NuVldMainFrame::DefineLayoutHints(void)
   fDataViewTabLt   = new TGLayoutHints(hintTabDataViewerLayout, 5, 5, 10, 1);
   fNuSqlTabLt      = new TGLayoutHints(hintTabNuSqlLayout,      5, 5, 10, 1);
   fElSqlTabLt      = new TGLayoutHints(hintTabElSqlLayout,      5, 5, 10, 1);
+  fSFSqlTabLt      = new TGLayoutHints(hintTabSFSqlLayout,      5, 5, 10, 1);
   fDataTabLt       = new TGLayoutHints(hintTabDataLayout,       5, 5, 10, 1);
   fSqlTabLt        = new TGLayoutHints(hintTabSqlLayout,        5, 5, 10, 1);
   fProgressBarLt   = new TGLayoutHints(hintProgressBarLayout,   5, 5,  3, 4);
@@ -320,9 +322,9 @@ TGGroupFrame * NuVldMainFrame::BuildUpperButtonFrame(void)
 
   grpf->SetLayoutManager( fBtnMatrixLt );
 
-  this->CreateUpperFrameButtons(grpf); // create buttons
-  this->SetUpperFrameButtonText();            // set tool-tip text
-  this->ConnectUpperFrameButtons();           // connect Click() with a method
+  this->CreateUpperFrameButtons(grpf);   // create buttons
+  this->SetUpperFrameButtonText();       // set tool-tip text
+  this->ConnectUpperFrameButtons();      // connect Click() with a method
 
   grpf -> AddFrame( fOpenXmlBtn      );
   grpf -> AddFrame( fParseXmlBtn     );
@@ -430,9 +432,8 @@ TGTab * NuVldMainFrame::BuildSqlTab(void)
 
   fTabNuSql = new TGCompositeFrame(tf, width, height, kVerticalFrame);
 
-  this->FillNuSqlFrame();
-
-  tf->AddFrame( fTabNuSql, fNuSqlTabLt );
+  this -> FillNuSqlFrame();
+  tf   -> AddFrame( fTabNuSql, fNuSqlTabLt );
 
   //-- tab: SQL GUI widgets for e scattering data
 
@@ -440,9 +441,17 @@ TGTab * NuVldMainFrame::BuildSqlTab(void)
 
   fTabElSql = new TGCompositeFrame(tf, width, height, kVerticalFrame);
 
-  this->FillElSqlFrame();
+  this -> FillElSqlFrame();  
+  tf   -> AddFrame( fTabElSql, fElSqlTabLt );
 
-  tf -> AddFrame( fTabElSql, fElSqlTabLt );
+  //-- tab: SQL GUI widgets for e scattering data
+
+  tf = tab->AddTab( "S/F" );
+
+  fTabSFSql = new TGCompositeFrame(tf, width, height, kVerticalFrame);
+
+  this -> FillSFSqlFrame();
+  tf   -> AddFrame( fTabSFSql, fSFSqlTabLt );
 
   return tab;
 }
@@ -524,7 +533,7 @@ void NuVldMainFrame::FillNuSqlFrame(void)
   fNuTabBtnSpacerLb = new TGLabel(fTabNuSql, new TGString(" "));
 
   fShowFullNuDialogTBtn   = new TGTextButton (fTabNuSql, "More data selections... ", 76);
-  fShowExpertNuDialogTBtn = new TGTextButton (fTabNuSql, "Select by dbase entry...", 77);
+  fShowExpertNuDialogTBtn = new TGTextButton (fTabNuSql, "Expert mode...          ", 77);
 
   fShowFullNuDialogTBtn->Connect("Clicked()", "genie::nuvld::NuVldMainFrame",
                                        this, "PopupNuDataSelectionDialog()");
@@ -630,6 +639,91 @@ void NuVldMainFrame::FillElSqlFrame(void)
   
   this->SelectAllElExp();  
   this->SelectAllElTargets();
+}
+//______________________________________________________________________________
+void NuVldMainFrame::FillSFSqlFrame(void)
+{
+  fSFErrGrpFrm       = new TGGroupFrame(fTabSFSql, "Err Type",           kVerticalFrame);
+  fSFExpGrpFrm       = new TGGroupFrame(fTabSFSql, "Experiment",         kVerticalFrame);
+  fSFGrpFrm          = new TGGroupFrame(fTabSFSql, "SF / R=sT/sL",       kVerticalFrame);
+  fSFKineGrpFrm      = new TGGroupFrame(fTabSFSql, "Kine: Q2min/max, x", kVerticalFrame);
+  fSFInitStateGrpFrm = new TGGroupFrame(fTabSFSql, "Initial State",      kVerticalFrame);
+
+  fSFErrLBx   = new TGListBox(fSFErrGrpFrm,       2);
+  fSFExpLBx   = new TGListBox(fSFExpGrpFrm,       2);
+  fSFLBx      = new TGListBox(fSFGrpFrm,          2);
+  fSFRLBx     = new TGListBox(fSFGrpFrm,          2);
+  fSFProbeLBx = new TGListBox(fSFInitStateGrpFrm, 2);
+  fSFTgtLBx   = new TGListBox(fSFInitStateGrpFrm, 2);
+  fSFxLBx     = new TGListBox(fSFKineGrpFrm,      2);
+
+  gui_utils::FillListBox( fSFErrLBx,   kSFErrType        );
+  gui_utils::FillListBox( fSFExpLBx,   kSFExperimentName );
+  gui_utils::FillListBox( fSFLBx,      kSFName           );
+  gui_utils::FillListBox( fSFRLBx,     kSFR              );
+  gui_utils::FillListBox( fSFProbeLBx, kSFProbe          );
+  gui_utils::FillListBox( fSFTgtLBx,   kSFTarget         );
+
+  fSFErrLBx   -> Resize (100,  60);
+  fSFExpLBx   -> Resize (100,  60);
+  fSFLBx      -> Resize (100,  40);
+  fSFProbeLBx -> Resize (100,  60);
+  fSFTgtLBx   -> Resize (100,  60);
+  fSFRLBx     -> Resize (100,  60);
+  fSFxLBx     -> Resize (100,  60);
+
+  fSFErrLBx   -> SetMultipleSelections( false );
+  fSFExpLBx   -> SetMultipleSelections( true  );
+  fSFLBx      -> SetMultipleSelections( false );
+  fSFProbeLBx -> SetMultipleSelections( true  );
+  fSFTgtLBx   -> SetMultipleSelections( true  );
+  fSFRLBx     -> SetMultipleSelections( true  );
+  fSFxLBx     -> SetMultipleSelections( true  );
+
+  fAllSFExpChkB    = new TGCheckButton(fSFExpGrpFrm,       "Select all", 371);
+  fAllSFProbesChkB = new TGCheckButton(fSFInitStateGrpFrm, "Select all", 372);
+  fAllSFTgtChkB    = new TGCheckButton(fSFInitStateGrpFrm, "Select all", 373);
+
+  fAllSFExpChkB    -> Connect("Clicked()",
+                     "genie::nuvld::NuVldMainFrame", this,"SelectAllSFExp()");
+  fAllSFProbesChkB -> Connect("Clicked()",
+                     "genie::nuvld::NuVldMainFrame",this,"SelectAllSFProbes()");
+  fAllSFTgtChkB    -> Connect("Clicked()",
+                     "genie::nuvld::NuVldMainFrame",this,"SelectAllSFTargets()");
+
+  fSFQ2MinNmE  = new TGNumberEntry(
+                      fSFKineGrpFrm, 0, 8, 3, TGNumberFormat::kNESReal);
+  fSFQ2MaxNmE  = new TGNumberEntry(
+                   fSFKineGrpFrm, 100., 8, 3, TGNumberFormat::kNESReal);
+
+  fSFLoadxTBtn = new TGTextButton (fSFKineGrpFrm, "Load x... ", 374);
+
+  fSFLoadxTBtn->Connect("Clicked()",
+                        "genie::nuvld::NuVldMainFrame", this, "SFLoadx()");
+
+  fSFTabBtnSpacerLb = new TGLabel(fTabSFSql, new TGString(" "));
+
+  fSFErrGrpFrm       -> AddFrame ( fSFErrLBx        );
+  fSFExpGrpFrm       -> AddFrame ( fSFExpLBx        );
+  fSFExpGrpFrm       -> AddFrame ( fAllSFExpChkB    );
+  fSFGrpFrm          -> AddFrame ( fSFLBx           );
+  fSFGrpFrm          -> AddFrame ( fSFRLBx          );
+  fSFInitStateGrpFrm -> AddFrame ( fSFProbeLBx      );
+  fSFInitStateGrpFrm -> AddFrame ( fAllSFProbesChkB );
+  fSFInitStateGrpFrm -> AddFrame ( fSFTgtLBx        );
+  fSFInitStateGrpFrm -> AddFrame ( fAllSFTgtChkB    );
+  fSFKineGrpFrm      -> AddFrame ( fSFQ2MinNmE      );
+  fSFKineGrpFrm      -> AddFrame ( fSFQ2MaxNmE      );
+  fSFKineGrpFrm      -> AddFrame ( fSFxLBx          );
+  fSFKineGrpFrm      -> AddFrame ( fSFLoadxTBtn     );
+
+  fTabSFSql -> AddFrame( fSFErrGrpFrm        );
+  fTabSFSql -> AddFrame( fSFExpGrpFrm        );
+  fTabSFSql -> AddFrame( fSFGrpFrm           );
+  fTabSFSql -> AddFrame( fSFInitStateGrpFrm  );
+  fTabSFSql -> AddFrame( fSFKineGrpFrm       );
+
+  this->ResetSFSqlSelections();
 }
 //______________________________________________________________________________
 void NuVldMainFrame::AddCommonCheckButtons(void)
@@ -1177,12 +1271,46 @@ void NuVldMainFrame::SelectAllElTargets(void)
   gClient->NeedRedraw(fElTgtLBx->GetContainer());
 }
 //______________________________________________________________________________
+void NuVldMainFrame::SelectAllSFExp(void)
+{
+  if(fAllSFExpChkB->GetState() == kButtonDown)
+                                  gui_utils::SelectAllListBoxEntries(fSFExpLBx);
+  else gui_utils::ResetAllListBoxSelections(fSFExpLBx);
+
+  fSFExpLBx->SelectionChanged();
+
+  gClient->NeedRedraw(fSFExpLBx->GetContainer());
+}
+//______________________________________________________________________________
+void NuVldMainFrame::SelectAllSFProbes(void)
+{
+  if(fAllSFProbesChkB->GetState() == kButtonDown)
+                                 gui_utils::SelectAllListBoxEntries(fSFProbeLBx);
+  else gui_utils::ResetAllListBoxSelections(fSFProbeLBx);
+
+  fSFProbeLBx->SelectionChanged();
+
+  gClient->NeedRedraw(fSFProbeLBx->GetContainer());
+}
+//______________________________________________________________________________
+void NuVldMainFrame::SelectAllSFTargets(void)
+{
+  if(fAllSFTgtChkB->GetState() == kButtonDown)
+                                  gui_utils::SelectAllListBoxEntries(fSFTgtLBx);
+  else gui_utils::ResetAllListBoxSelections(fSFTgtLBx);
+
+  fSFTgtLBx->SelectionChanged();
+
+  gClient->NeedRedraw(fSFTgtLBx->GetContainer());
+}
+//______________________________________________________________________________
 void NuVldMainFrame::ResetSqlSelections(void)
 {
   // check which SQL tab is active when the reset button is pressed
 
   if      (fTabSql->GetCurrent() == 0) this->ResetNuSqlSelections();
   else if (fTabSql->GetCurrent() == 1) this->ResetElSqlSelections();
+  else if (fTabSql->GetCurrent() == 2) this->ResetSFSqlSelections();
 
   this->ResetCommonSelections();
 }
@@ -1243,6 +1371,31 @@ void NuVldMainFrame::ResetElSqlSelections(void)
 
   this->SelectAllElExp();
   this->SelectAllElTargets();
+}
+//______________________________________________________________________________
+void NuVldMainFrame::ResetSFSqlSelections(void)
+{
+  gui_utils::ResetAllListBoxSelections( fSFExpLBx   );
+  gui_utils::ResetAllListBoxSelections( fSFLBx      );
+  gui_utils::ResetAllListBoxSelections( fSFRLBx     );
+  gui_utils::ResetAllListBoxSelections( fSFProbeLBx );
+  gui_utils::ResetAllListBoxSelections( fSFTgtLBx   );
+
+  fSFQ2MinNmE->SetNumber(0);
+  fSFQ2MaxNmE->SetNumber(100);
+
+  fSFErrLBx  -> Select (2);
+  fSFLBx     -> Select (0);
+  fSFRLBx    -> Select (0);
+  fSFRLBx    -> Select (2);
+
+  fAllSFExpChkB    -> SetOn (kTRUE);
+  fAllSFProbesChkB -> SetOn (kTRUE);
+  fAllSFTgtChkB    -> SetOn (kTRUE);
+
+  this->SelectAllSFExp();
+  this->SelectAllSFProbes();
+  this->SelectAllSFTargets();
 }
 //______________________________________________________________________________
 void NuVldMainFrame::ResetCommonSelections(void)
@@ -1479,6 +1632,68 @@ string NuVldMainFrame::ElTabBundleDrawOptInString(void)
   return draw_opt.str();
 }
 //______________________________________________________________________________
+string NuVldMainFrame::SFTabBundleSelectionsInString(void)
+{
+  ostringstream options;
+
+  options << "KEY-LIST:" << this->SFTabBundleKeyListInString()  << "$"
+          << "CUTS:"     << this->SFTabBundleCutsInString()     << "$"
+          << "DRAW_OPT:" << this->SFTabBundleDrawOptInString()  << "$"
+          << "DB-TYPE:SF";
+
+  return options.str();
+}
+//______________________________________________________________________________
+string NuVldMainFrame::SFTabBundleKeyListInString(void)
+{
+  // Read experiment name selections
+  string experiments = gui_utils::ListBoxSelectionAsString(
+                                                  fSFExpLBx, kSFExperimentName);
+  // Read SF selection
+  string sf = gui_utils::ListBoxSelectionAsString(fSFLBx, kSFName);
+  // Read probe selections
+  string probes = gui_utils::ListBoxSelectionAsString(fSFProbeLBx, kSFProbe);
+  // Read target selections
+  string targets = gui_utils::ListBoxSelectionAsString(fSFTgtLBx, kSFTarget);
+  // Read R selections
+  string R = gui_utils::ListBoxSelectionAsString(fSFRLBx, kSFR);
+
+  fLog->AddLine( Concat("requested Experiments : ", experiments.c_str()) );
+  fLog->AddLine( Concat("requested SF : ",          sf.c_str())          );
+  fLog->AddLine( Concat("requested Probes : ",      probes.c_str())      );
+  fLog->AddLine( Concat("requested Targets : ",     targets.c_str())     );
+  fLog->AddLine( Concat("requested R : ",           R.c_str())           );
+
+  // Build key list
+  string key_list = SqlUtils::build_sf_key_list(
+                   fDBC->SqlServer(), experiments, sf, probes, targets, R);
+
+  return key_list;
+}
+//______________________________________________________________________________
+string NuVldMainFrame::SFTabBundleCutsInString(void)
+{
+  float Q2min = fSFQ2MinNmE->GetNumber();
+  float Q2max = fSFQ2MaxNmE->GetNumber();
+
+  // Read R selection
+  string R = gui_utils::ListBoxSelectionAsString(fSFRLBx, kSFR);
+  
+  // Read x selections
+  //string x = gui_utils::ListBoxSelectionAsString(fSFxLBx, kSFR);
+  
+  ostringstream cuts;
+
+  cuts << "Q2min=" << Q2min << ";" << "Q2max=" << Q2max << ";R=" << R;
+
+  return cuts.str();
+}
+//______________________________________________________________________________
+string NuVldMainFrame::SFTabBundleDrawOptInString(void)
+{
+  return "";
+}
+//______________________________________________________________________________
 void NuVldMainFrame::OpenPlotterTab(void)
 {
   fTabData->SetTab(0);
@@ -1615,6 +1830,44 @@ void NuVldMainFrame::PopupNuMeasurementListDialog(void)
   } else {
       new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
                    "You must be connected to the data-base to use this option");
+  }
+}
+//______________________________________________________________________________
+void NuVldMainFrame::SFLoadx(void)
+{
+  bool IsConnected;
+
+  if( !fDBC->SqlServer() ) IsConnected = false;
+  else IsConnected = fDBC->SqlServer()->IsConnected();
+
+  if(IsConnected) {
+
+     string query = "SELECT DISTINCT x from STRUCTURE_FUNCTION";
+     TSQLResult * res = fDBC->SqlServer()->Query(query.c_str());
+
+     const int nrows = res->GetRowCount();
+     vector<string> x(nrows);
+     
+     for (int i = 0; i < nrows; i++) {
+
+       TSQLRow * row = res->Next();
+       x[i] = row->GetField(0);
+       
+       LOG("NuVld", pINFO)
+              << "Adding x in SF kinematics: " << "x[" << i << "] = " << x[i];
+       delete row;
+     }
+     delete res; 
+
+     gui_utils::FillListBox(fSFxLBx,&x);
+
+     fSFxLBx->MapSubwindows();
+     fSFxLBx->Layout();
+     
+     fSFxLBx->SelectionChanged();
+     gClient->NeedRedraw(fSFxLBx->GetContainer());
+
+     gSystem->ProcessEvents();
   }
 }
 //______________________________________________________________________________
@@ -1878,7 +2131,6 @@ DBTable<eDiffXSecTableRow> * NuVldMainFrame::FillElDiffXSecTable(void)
      new MsgBox(gClient->GetRoot(), fMain, 380, 250,
                         kVerticalFrame, " No active connection to SQL Server ");
   }
-
   fProgressBar->SetPosition(100);
   fProgressBar->SetPosition(0);
 
@@ -1935,7 +2187,54 @@ DBTable<vXSecTableRow> * NuVldMainFrame::FillNuXSecTable(void)
                 kVerticalFrame, " No active connection to SQL Server ");
      return 0;
   }
+  fProgressBar->SetPosition(100);
+  fProgressBar->SetPosition(0);
 
+  //-- done! return the table
+
+  return table;
+}
+//______________________________________________________________________________
+DBTable<SFTableRow> * NuVldMainFrame::FillSFTable(void)
+{
+  DBTable<SFTableRow> * table = 0;
+
+  // read inputs from SQL GUI widgets
+
+  fProgressBar->SetPosition(10);
+  fProgressBar->SetPosition(20);
+
+  if( fDBaseHandler->IsConnected() ) {
+
+    fStatusBar -> SetText( "Found connection to SQL Server", 1 );
+    fLog       -> AddLine( "Found connection to SQL Server"    );
+
+    string selections = this->SFTabBundleSelectionsInString();
+    LOG("NuVld", pDEBUG) << "Selections: " << selections;
+
+    fProgressBar->SetPosition(60);
+
+    DBQueryString query_string(selections);
+
+    table = new DBTable<SFTableRow>;
+
+    DBI dbi( fDBC->SqlServer() );
+
+    dbi.FillTable(table, query_string);
+
+    fProgressBar->SetPosition(80);
+
+  } else {
+
+     fStatusBar -> SetText( "No active connection to SQL Server", 1 );
+     fLog       -> AddLine( "No active connection to SQL Server"    );
+
+     fProgressBar->SetPosition(0);
+
+     new MsgBox(gClient->GetRoot(), fMain, 380, 250,
+                         kVerticalFrame, " No active connection to SQL Server ");
+     return 0;
+  }
   fProgressBar->SetPosition(100);
   fProgressBar->SetPosition(0);
 
@@ -2010,6 +2309,8 @@ void NuVldMainFrame::SetCurrDBTable(void)
                            user_data->SetCurrDBTable( this->FillNuXSecTable() );
       if (fTabSql->GetCurrent() == 1)
                        user_data->SetCurrDBTable( this->FillElDiffXSecTable() );
+      if (fTabSql->GetCurrent() == 2)
+                               user_data->SetCurrDBTable( this->FillSFTable() );
    }
 }
 //______________________________________________________________________________
@@ -2103,7 +2404,39 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
         new MsgBox(gClient->GetRoot(), fMain,
              380, 250, kVerticalFrame, " The table you want to draw is empty ");
       }
-   }//e
+   } else
+
+  //--- Read selections from the SF SQL GUI tab
+
+  if (fTabSql->GetCurrent() == 2) {
+
+      if( !user_data->CurrDBTableIsNull() ) {
+
+         GuiTableRenderer renderer(fPlotTabEmbCnv);
+
+         renderer.SetMultigraph( fShowColorCodeChkB->GetState() == kButtonDown );
+         //renderer.SetDrawOption(this->ReadXSecSelectionListbox());
+         //renderer.SetPlotVariable(this->PlotVariable());
+
+         if(fShowExtLegendChkB->GetState() == kButtonDown)
+                                       renderer.SetExternalLegend(new TLegend());
+
+         renderer.DrawXSecTable( user_data->SF() );
+         renderer.PrintDrawingOptions();
+
+         fLtxAuth->Draw();
+         fLtxLink->Draw();
+
+         fPlotterShowIsOn = true;
+
+      } else {
+        fStatusBar -> SetText( "pointer to DBTable<T> is null", 1 );
+        fLog       -> AddLine( "pointer to DBTable<T> is null"    );
+
+        new MsgBox(gClient->GetRoot(), fMain,
+             380, 250, kVerticalFrame, " The table you want to draw is empty ");
+      }
+   } 
 
   fPlotTabEmbCnv->GetCanvas()->Update();
 }

@@ -26,6 +26,7 @@
 #include "DBUtils/DBTableStack.h"
 #include "DBUtils/vXSecTableRow.h"
 #include "DBUtils/eDiffXSecTableRow.h"
+#include "DBUtils/SFTableRow.h"
 #include "Facades/NGCardPairList.h"
 
 using std::vector;
@@ -44,11 +45,13 @@ public:
    NGCardPairList *                  NeuGenCardPairStack (void) { return fNeuGenCardPairStack; }
    DBTableStack<vXSecTableRow> *     NuXSecStack         (void) { return fNuXSecTableStack;    }
    DBTableStack<eDiffXSecTableRow> * ElDiffXSecStack     (void) { return fElDiffXSecTableStack;}
+   DBTableStack<SFTableRow> *        SFStack             (void) { return fSFTableStack;        }
 
    bool CurrDBTableIsNull (void) const { return (fCurrDBTable == 0); }
 
    void SetCurrDBTable (genie::nuvld::DBTable<vXSecTableRow> *     table);
    void SetCurrDBTable (genie::nuvld::DBTable<eDiffXSecTableRow> * table);
+   void SetCurrDBTable (genie::nuvld::DBTable<SFTableRow> *        table);
       
    void DelCurrDBTable (void);
    
@@ -61,6 +64,7 @@ public:
    
    DBTable<vXSecTableRow> *     NuXSec     (void);
    DBTable<eDiffXSecTableRow> * ElDiffXSec (void);
+   DBTable<SFTableRow> *        SF         (void);
 
    unsigned int NStackedDBTables (void) const;
    unsigned int NStackedConfigs  (void) const;
@@ -89,6 +93,7 @@ private:
    NGCardPairList *                  fNeuGenCardPairStack;
    DBTableStack<vXSecTableRow> *     fNuXSecTableStack;
    DBTableStack<eDiffXSecTableRow> * fElDiffXSecTableStack;
+   DBTableStack<SFTableRow> *        fSFTableStack;
       
 ClassDef(NuVldUserData, 0)
 };
