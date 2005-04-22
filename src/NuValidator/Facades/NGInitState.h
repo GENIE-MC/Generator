@@ -35,6 +35,9 @@ typedef enum ENGInitState {
   e_vbN,
   e_vA,
   e_vbA,
+  e_lp,
+  e_ln,
+  e_lN,
   e_undefined_init_state
 
 } NGInitState_t;
@@ -54,6 +57,9 @@ class NGInitState {
          case e_vbn:  return "v_bar + n";   break;
          case e_vbN:  return "v_bar + N";   break;
          case e_vbA:  return "v_bar + A";   break;
+         case e_lp:   return "l + p";       break;
+         case e_ln:   return "l + n";       break;
+         case e_lN:   return "l + N";       break;
 
          case e_undefined_init_state:
          default:            
@@ -63,15 +69,18 @@ class NGInitState {
      
      static NGInitState_t GetInitStateFromCode(int code)
      {
-        if      (code == 1) return e_vp;
-        else if (code == 2) return e_vn;
-        else if (code == 5) return e_vN;
-        else if (code == 6) return e_vA;
-        else if (code == 3) return e_vbp;
-        else if (code == 4) return e_vbn;
-        else if (code == 7) return e_vbN;
-        else if (code == 8) return e_vbA;
-        else                return e_undefined_init_state;
+        if      (code ==  1) return e_vp;
+        else if (code ==  2) return e_vn;
+        else if (code ==  5) return e_vN;
+        else if (code ==  6) return e_vA;
+        else if (code ==  3) return e_vbp;
+        else if (code ==  4) return e_vbn;
+        else if (code ==  7) return e_vbN;
+        else if (code ==  8) return e_vbA;
+        else if (code ==  9) return e_lp;
+        else if (code == 10) return e_ln;
+        else if (code == 11) return e_lN;
+        else                 return e_undefined_init_state;
      }
 
 ClassDef(NGInitState, 0)

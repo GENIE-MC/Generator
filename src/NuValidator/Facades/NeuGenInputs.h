@@ -63,10 +63,6 @@ public:
   int    WkCurrentCode    (void) const { return _wcurrent_code;     }
   int    TargetCode       (void) const { return _target_code;       }
   int    InitStateCode    (void) const { return _init_state_code;   }
-  //int    ProcessMaskCode  (void) const { return _process_mask_code; }
-  //int    QelBitInMask     (void) const { return _qel_bit_in_mask;   }
-  //int    ResBitInMask     (void) const { return _res_bit_in_mask;   }
-  //int    DisBitInMask     (void) const { return _dis_bit_in_mask;   }
   int    CutVarCode       (void) const { return _cut_var_code;      }
   float  EnergyMin        (void) const { return _emin;              }
   float  EnergyMax        (void) const { return _emax;              }
@@ -88,9 +84,6 @@ public:
   string CutVarString     (void) const { return _cut_var_str;       }
 
   void SetNBins         ( int    nbins      );
-  //void SetQelBitInMask  ( bool on           );
-  //void SetResBitInMask  ( bool on           );
-  //void SetDisBitInMask  ( bool on           );
   void SetXSecType      ( string xsec_type  );
   void SetEmin          ( float e_min       );
   void SetEmax          ( float e_max       );
@@ -125,7 +118,6 @@ private:
   string NeuGenFinalStateCode   (string fin_state);
   int    NeuGenInitialStateCode (string init_state);
   int    NeuGenVariableCode     (string plot_variable);
-  //void   ComputeProcessMask     (void);
   int    Bool2Int               (bool on);
   int    NMatches               (string input, string pattern);
 
@@ -146,7 +138,6 @@ private:
   int    _target_code;
   string _final_state_code;
   int    _init_state_code;
-  //int    _process_mask_code;
   int    _cut_var_code;
   float  _cut_var_min;
   float  _cut_var_max;
@@ -155,10 +146,6 @@ private:
   int    _dis_sum;
   bool   _inclusive;
   
-  //int    _qel_bit_in_mask;
-  //int    _res_bit_in_mask; 
-  //int    _dis_bit_in_mask; 
-
   // auxiliary variables:
   
   int    _fin_p;          // final state: number of p's

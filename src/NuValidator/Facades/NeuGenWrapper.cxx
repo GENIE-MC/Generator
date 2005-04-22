@@ -306,6 +306,58 @@ void NeuGenWrapper::NoCuts(void)
   set_masks_(&procmask,&valid,&valid,&valid);
 }
 //____________________________________________________________________________
+float NeuGenWrapper::StrucFunc(float x, float Q2, int A,
+                      NGInitState_t init, NGCcNc_t ccnc, int isf, int raw_dis)
+{
+// raw_dis :  1 = calculate sf from y-dependence subject to normal
+//                neugen cuts and flags (i.e. turn off certain proceses)
+//            2 = calculate sf purely from the DIS model with no
+//                resonance contribution or DIS subtraction
+// isf: 1-6, the structure function number F1-F6
+                    
+  float f1=0, f2=0, f3=0, f4=0, f5=0, f6=0;
+
+  int  im    = -1;
+  int  iccnc = -1;
+  bool isNu  = false;
+  
+  switch(init) {
+      case e_vp:   im =  1; isNu = true;   break;
+      case e_vn:   im =  2; isNu = true;   break;
+      case e_vN:   im =  5; isNu = true;   break;
+      case e_vbp:  im =  3; isNu = true;   break;
+      case e_vbn:  im =  4; isNu = true;   break;
+      case e_vbN:  im =  6; isNu = true;   break;
+      case e_lp:   im =  1; isNu = false;  break;
+      case e_ln:   im =  2; isNu = false;  break;
+      case e_lN:   im =  3; isNu = false;  break;
+      default:     im = -1; isNu = false;
+  }
+  switch(ccnc) {
+      case e_cc: iccnc = 1; break;
+      case e_nc: iccnc = 2; break;
+      default:   iccnc = 0; break;
+  }
+  
+  if(isNu) {
+     nu_structurefunctions_ (
+             &im, &iccnc, &A, &x, &Q2, &raw_dis, &f1,&f2,&f3,&f4,&f5,&f6);
+  } else {                                
+     e_structurefunctions_ (&im, &A, &x, &Q2, &raw_dis, &f1,&f2);
+  }
+
+  switch(isf) {
+      case 1:  return f1; break;
+      case 2:  return f2; break;
+      case 3:  return f3; break;
+      case 4:  return f4; break;
+      case 5:  return f5; break;
+      case 6:  return f6; break;
+      default: return 0.;
+ }
+ return 0.;     
+}
+//____________________________________________________________________________
 XSecVsEnergy * NeuGenWrapper::XSecSpline (
       float emin, float emax, int nbins, NGInteraction * ni, NeuGenCuts * cuts)
 {
