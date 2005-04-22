@@ -435,7 +435,7 @@ RecordBase * NuVldXmlParser::ParsePoint(xmlNodePtr xml_cur, Observable_t obs)
     xmlNodePtr xml_node = xml_cur;
 
     while (xml_node != NULL) {
-    	
+
         if( (!xmlStrcmp(xml_node->name, xml_element)) ) {
   
           // get the value associated with this element (tag)
@@ -466,7 +466,6 @@ RecordBase * NuVldXmlParser::ParsePoint(xmlNodePtr xml_cur, Observable_t obs)
                   rec->Add( *element_iter + "_" + *attribute_iter, attrib);
       
           } // element attributes
-
         } // if element is matched
     
         xml_node = xml_node->next;
@@ -490,18 +489,15 @@ RecordBase * NuVldXmlParser::CreateNewRecord(Observable_t obs)
    case (e_spp_xsec):
    case (e_mpp_xsec):
    case (e_coh_xsec):
-
             rec = new Record<vXSecRecord>();
             break;
                                
    case (e_electron_diff_xsec):
-
             rec = new Record<eDiffXSecRecord>();
             break;
 
    case (e_f2):
    case (e_xf3):
-
             rec = new Record<SFRecord>();
             break;
 
