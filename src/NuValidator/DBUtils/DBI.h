@@ -11,8 +11,8 @@
 */
 //_____________________________________________________________________________
 
-#ifndef _NUVLD_KERNEL_H_
-#define _NUVLD_KERNEL_H_
+#ifndef _DBI_H_
+#define _DBI_H_
 
 #include <TSQLServer.h>
 
@@ -36,9 +36,13 @@ public:
   ~DBI();
 
   DBStatus_t  UploadXML (const XmlDataSet & data);
-  DBStatus_t  FillTable (genie::nuvld::DBTable<vXSecTableRow> * t,     const DBQueryString & query_string);
-  DBStatus_t  FillTable (genie::nuvld::DBTable<eDiffXSecTableRow> * t, const DBQueryString & query_string);
-  DBStatus_t  FillTable (genie::nuvld::DBTable<SFTableRow> * t,        const DBQueryString & query_string);
+  
+  DBStatus_t  FillTable (genie::nuvld::DBTable<vXSecTableRow> * t,
+                                       const DBQueryString & query_string);
+  DBStatus_t  FillTable (genie::nuvld::DBTable<eDiffXSecTableRow> * t,
+                                       const DBQueryString & query_string);
+  DBStatus_t  FillTable (genie::nuvld::DBTable<SFTableRow> * t,
+                                       const DBQueryString & query_string);
   
 private:
 

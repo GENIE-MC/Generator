@@ -110,6 +110,11 @@ string SFTableRow::R(void) const
   return Field("R");
 }
 //____________________________________________________________________________
+string SFTableRow::p(void) const
+{
+  return Field("p");
+}
+//____________________________________________________________________________
 double SFTableRow::Q2(void) const
 {
   return atof( Field("Q2").c_str() );
