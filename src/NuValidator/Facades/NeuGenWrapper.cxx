@@ -13,15 +13,16 @@
 //_____________________________________________________________________________
 
 #include <cassert>
-
 #include <iostream>
 
+#include "Messenger/Messenger.h"
 #include "Facades/NeuGenWrapper.h"
 #include "Facades/NGInitState.h"
 
 using std::endl;
 using std::cout;
 
+using genie::Messenger;
 using namespace genie::nuvld::facades;
 
 //____________________________________________________________________________
@@ -315,11 +316,16 @@ float NeuGenWrapper::StrucFunc(float x, float Q2, int A,
 //                resonance contribution or DIS subtraction
 // isf: 1-6, the structure function number F1-F6
                     
-  float f1=0, f2=0, f3=0, f4=0, f5=0, f6=0;
+  float f1=0., f2=0., f3=0., f4=0., f5=0., f6=0.;
 
   int  im    = -1;
   int  iccnc = -1;
   bool isNu  = false;
+
+  int   lA  = A;
+  int   lrd = raw_dis;
+  float lx  = x;
+  float lQ2 = Q2;
   
   switch(init) {
       case e_vp:   im =  1; isNu = true;   break;
@@ -338,12 +344,20 @@ float NeuGenWrapper::StrucFunc(float x, float Q2, int A,
       case e_nc: iccnc = 2; break;
       default:   iccnc = 0; break;
   }
-  
+   
   if(isNu) {
-     nu_structurefunctions_ (
-             &im, &iccnc, &A, &x, &Q2, &raw_dis, &f1,&f2,&f3,&f4,&f5,&f6);
+
+     SLOG("NeuGen", pINFO)
+                << "IM = " << im << ", CCNC = " << iccnc << ", A = " << A
+                << ", Q2 = " << Q2 << ", x = " << x;
+                
+     nu_structurefunctions_(&im, &iccnc, &lA, &lx, &lQ2, &lrd, &f1,&f2,&f3,&f4,&f5,&f6);
+
+     SLOG("NeuGen", pINFO)
+                <<  " F1 = " << f1 << ", F2 = " << f2 << ", F3 = " << f3
+                << ", F4 = " << f4 << ", F5 = " << f5 << ", F6 = " << f6;
   } else {                                
-     e_structurefunctions_ (&im, &A, &x, &Q2, &raw_dis, &f1,&f2);
+     e_structurefunctions_(&im, &lA, &lx, &lQ2, &lrd, &f1,&f2);
   }
 
   switch(isf) {
@@ -358,7 +372,7 @@ float NeuGenWrapper::StrucFunc(float x, float Q2, int A,
  return 0.;     
 }
 //____________________________________________________________________________
-XSecVsEnergy * NeuGenWrapper::XSecSpline (
+Spline * NeuGenWrapper::XSecSpline (
       float emin, float emax, int nbins, NGInteraction * ni, NeuGenCuts * cuts)
 {
   assert(emin < emax && nbins > 1);
@@ -373,10 +387,10 @@ XSecVsEnergy * NeuGenWrapper::XSecSpline (
       E[ie]    = emin + ie * de;
       xsec[ie] = this->XSec (E[ie], ni, cuts);
 
-      cout << "xsec(" << E[ie] << ") = " << xsec[ie] << endl;
+      LOG("NeuGen", pINFO) << "xsec(" << E[ie] << ") = " << xsec[ie];
   }
 
-  XSecVsEnergy * spline = new XSecVsEnergy(nbins, E, xsec);
+  Spline * spline = new Spline(nbins, E, xsec);
 
   //delete [] E;
   //delete [] xsec;
@@ -384,7 +398,7 @@ XSecVsEnergy * NeuGenWrapper::XSecSpline (
   return spline;
 }
 //____________________________________________________________________________
-XSecVsEnergy * NeuGenWrapper::ExclusiveXSecSpline(
+Spline * NeuGenWrapper::ExclusiveXSecSpline(
     float emin, float emax, int nbins,
                     NGInteraction * ni, NGFinalState * final, NeuGenCuts * cuts)
 {
@@ -400,16 +414,91 @@ XSecVsEnergy * NeuGenWrapper::ExclusiveXSecSpline(
       E[ie]    = emin + ie * de;
       xsec[ie] = this->ExclusiveXSec(E[ie], ni, final, cuts);
 
-      cout << "xsec(" << E[ie] << ") = " << xsec[ie] << endl;
+      LOG("NeuGen", pINFO) << "xsec(" << E[ie] << ") = " << xsec[ie];
   }
 
-  XSecVsEnergy * spline = new XSecVsEnergy(nbins, E, xsec);
+  Spline * spline = new Spline(nbins, E, xsec);
 
   //delete [] E;
   //delete [] xsec;
 
   return spline;
 }
+//____________________________________________________________________________
+Spline * NeuGenWrapper::StrucFuncSpline(
+   NGKineVar_t xvar, float varmin, float varmax, int nbins, float fixedvar,
+             int A, NGInitState_t init, NGCcNc_t ccnc, NGSF_t sf, int raw_dis)
+{
+  assert(varmin < varmax && nbins > 0);
+
+  Spline * spl = 0;
+
+  float * SF   = new float[nbins];
+  float * var  = new float[nbins];
+  float   dvar = (varmax - varmin) / (nbins - 1);
+
+  // tmp - to be removed when non raw-DIS SFs can be computed in NeuGEN.
+  // For now, force raw-DIS so that NeuGEN does not quit.
+  if(raw_dis != 2) {
+    LOG("NeuGen", pWARN)
+             << "RAW-DIS = " << raw_dis
+                            << " -> switched to 2: forcing raw-dis SFs";
+    raw_dis = 2;
+  }
+
+  switch(xvar) {
+    
+  case (e_qqs) :
+    //----- compute: structrure function = f(Q2) at fixed x
+    
+    for(int i = 0; i < nbins; i++) {
+      var [i]  = varmin + i * dvar; // Q2
+      float Q2 = (float) var [i];
+      if(sf == e_F2) {
+        SF [i] = this->StrucFunc(fixedvar, Q2, A, init, ccnc, 2, raw_dis);
+      } else
+      if (sf == e_xF3) {
+        SF [i] = this->StrucFunc(fixedvar, Q2, A, init, ccnc, 3, raw_dis);
+        SF [i] *= fixedvar;
+      } else
+        SF[i] = 0;
+        
+      LOG("NeuGen", pINFO)
+           << "SF(Q2 = " << var[i] << ", x = " << fixedvar << ") = " << SF[i];
+    }
+    spl = new Spline(nbins, var, SF);
+    return spl;
+    break;
+
+  case (e_x)   :
+    //----- compute: structrure function = f(x) at fixed Q2
+
+    for(int i = 0; i < nbins; i++) {
+      var [i] = varmin + i * dvar; // x
+      float x = (float) var[i];
+      if(sf == e_F2) {
+        SF [i] = this->StrucFunc(x, fixedvar, A, init, ccnc, 2, raw_dis);
+      } else
+      if (sf == e_xF3) {
+        SF [i] = this->StrucFunc(x, fixedvar, A, init, ccnc, 3, raw_dis);
+        SF [i] *= var[i];
+      } else
+        SF[i] = 0;
+
+      LOG("NeuGen", pINFO)
+           << "SF(Q2 = " << fixedvar << ", x = " << var[i] << ") = " << SF[i];
+    }
+    spl = new Spline(nbins, var, SF);
+    return spl;
+    break;
+
+  default:
+    delete [] SF;
+    delete [] var;
+    spl = 0;    
+  }
+  return spl;
+}               
 //____________________________________________________________________________
 void NeuGenWrapper::Print(ostream & stream) const
 {
