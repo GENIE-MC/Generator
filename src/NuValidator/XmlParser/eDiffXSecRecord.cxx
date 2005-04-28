@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::eDiffXSecRecord
 
-\brief
+\brief    XML record structure for eN differential cross section data points
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 

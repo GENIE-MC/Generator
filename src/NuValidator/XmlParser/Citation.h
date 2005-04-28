@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::Citation
 
-\brief
+\brief    Encapsulates an XML data file citation
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
