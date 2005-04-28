@@ -434,7 +434,11 @@ TGraphAsymmErrors * DBTable<SFTableRow>::GetGraph(
 
   for(row_iter = rows.begin(); row_iter != rows.end(); ++row_iter) {
 
-     x  [ipoint] = (*row_iter)->Q2();
+     //x-var
+     if      ( strcmp(var,"Q2") == 0)  x[ipoint] = (*row_iter)->Q2();
+     else if ( strcmp(var,"x" ) == 0)  x[ipoint] = (*row_iter)->x();
+     else                              x[ipoint] = 0;
+
      y  [ipoint] = (*row_iter)->SF();
      dx [ipoint] = 0;
      dyp[ipoint] = 0;

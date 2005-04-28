@@ -258,7 +258,7 @@ public:
  }
  //__________________________________________________________________________
  static string SqlUtils::build_sf_conditional(
-      string experiments, string sf, string probes, string targets, string R)
+                string experiments, string sf, string probes, string targets)
  {
    unsigned int i = 0;
 
@@ -289,8 +289,6 @@ public:
    else conditional << " 0 ";
 
    //-- add "probes"-selection
-
-   //-- add "neutrino"-selection
 
    if( strcmp(probes.c_str(),"*") != 0  && probes.size() > 0) {
     i=0;
@@ -332,18 +330,15 @@ public:
    assert(sf.size() > 0);   
    conditional << " AND MEASUREMENT_HEADER.observable = \"" << sf << "\"";
 
-   //assert(R.size() > 0);
-   //conditional << " AND MEASUREMENT_HEADER.observable = \"" << sf << "\"";
-
    cout << conditional.str() << endl;
 
    return conditional.str();   
  }
  //__________________________________________________________________________
  static string SqlUtils::build_sf_key_list(TSQLServer * db,
-       string experiments, string sf, string probe, string targets, string R)
+                 string experiments, string sf, string probe, string targets)
  {
-   string conditional = build_sf_conditional(experiments, sf, probe, targets, R);
+   string conditional = build_sf_conditional(experiments, sf, probe, targets);
 
    ostringstream query;
 
