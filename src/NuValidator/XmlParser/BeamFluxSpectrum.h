@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::BeamFluxSpectrum
 
-\brief
+\brief    Encapsulates an XML data file beam flux
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 

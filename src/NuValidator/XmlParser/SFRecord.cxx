@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::SFRecord
 
-\brief
+\brief    XML record structure for structure function data points
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
