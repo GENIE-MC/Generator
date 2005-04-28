@@ -1398,11 +1398,30 @@ bool NuVldMainFrame::CheckNeugenCards(void)
 
   NeuGenCards * cards = NeuGenCards::Instance();
 
-  bool vld_NBins  = cards->CurrInputs()->NBins() > 0;
-  bool vld_Erange = cards->CurrInputs()->EnergyMax() >
-                                               cards->CurrInputs()->EnergyMin();
- 
-  bool valid = vld_NBins && vld_Erange;
+  bool valid = false;
+  
+  int           nbins        = cards->CurrInputs()->NBins();
+  int           A            = cards->CurrInputs()->A();
+  float         Emin         = cards->CurrInputs()->EnergyMin();
+  float         Emax         = cards->CurrInputs()->EnergyMax();
+  float         varmin       = cards->CurrInputs()->PlotVarMin();
+  float         varmax       = cards->CurrInputs()->PlotVarMax();
+  float         fixvar       = cards->CurrInputs()->SFFixedVar();
+  NGKineVar_t   var          = cards->CurrInputs()->PlotVar();
+
+  // figure out the type of plot
+  NGPlotType_t plot_type = cards->CurrInputs()->PlotType();
+
+  // cross section plot
+  if(plot_type == e_XSec) {
+    valid = (nbins>2) && (Emin<Emax);        
+  }
+  // structure function plot
+  if(plot_type == e_SF) {
+    valid = (nbins>2) && (varmin<varmax) && (A>0);
+    valid = valid && ((var == e_x   && fixvar > 0) ||
+                      (var == e_qqs && fixvar >= 0 && fixvar <= 1));
+  }
 
   return valid;
 }
