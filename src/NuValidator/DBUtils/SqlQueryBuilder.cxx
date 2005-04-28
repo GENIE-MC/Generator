@@ -249,12 +249,23 @@ string SqlQueryBuilder::AddCutList(const DBQueryString & query_string)
                   query << " AND STRUCTURE_FUNCTION.Q2 <= "
                         << this->CutValue(*cut_iter);
               } else
+/*
               if(cut_iter->find("x") != string::npos) {
                   query << " AND STRUCTURE_FUNCTION.x > "
                         << this->CutValue(*cut_iter) - 1E-6
                         << " AND STRUCTURE_FUNCTION.x < "
                         << this->CutValue(*cut_iter) + 1E-6;
-              } else 
+              } else
+*/              
+              if(cut_iter->find("xmin") != string::npos) {
+                  query << " AND STRUCTURE_FUNCTION.x >= "
+                        << this->CutValue(*cut_iter);
+              } else
+              if(cut_iter->find("xmax") != string::npos) {
+                  query << " AND STRUCTURE_FUNCTION.x <= "
+                        << this->CutValue(*cut_iter);
+              } else
+
               if(cut_iter->find("R") != string::npos) {
 
                  query << " AND (";
@@ -262,7 +273,7 @@ string SqlQueryBuilder::AddCutList(const DBQueryString & query_string)
                  vector<string>::iterator str_iter;
                  vector<string> R = ParserUtils::split(
                                          this->CutValueStr(*cut_iter), ",");
-                 int ir=0;
+                 unsigned int ir=0;
                  for(str_iter = R.begin(); str_iter != R.end(); ++str_iter) {
                     query << " STRUCTURE_FUNCTION.R = \"" 
                           << ParserUtils::filter_string(" ", *str_iter) << "\"";
