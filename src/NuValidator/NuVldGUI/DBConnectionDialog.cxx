@@ -16,6 +16,16 @@
 #include <fstream>
 #include <iomanip>
 
+#include <TSystem.h>
+#include <TGLabel.h>
+#include <TGButton.h>
+#include <TGTextEdit.h>
+#include <TGTextEntry.h>
+#include <TGMsgBox.h>
+#include <TGStatusBar.h>
+#include <TGProgressBar.h>
+
+#include "NuVldGUI/DBConnection.h"
 #include "NuVldGUI/DBConnectionDialog.h"
 #include "NuVldGUI/SysLogSingleton.h"
 #include "Utils/StringUtils.h"

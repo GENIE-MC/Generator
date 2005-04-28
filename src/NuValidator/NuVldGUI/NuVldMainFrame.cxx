@@ -11,22 +11,49 @@
 */
 //_____________________________________________________________________________
 
-#include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
 
 #include <TStyle.h>
-#include <TFile.h>
+#include <TSystem.h>
+#include <TGListBox.h>
+#include <TGComboBox.h>
+#include <TGClient.h>
+#include <TGIcon.h>
+#include <TGLabel.h>
+#include <TGButton.h>
+#include <TGNumberEntry.h>
+#include <TGTextEntry.h>
+#include <TGMsgBox.h>
+#include <TGMenu.h>
+#include <TGCanvas.h>
+#include <TGTab.h>
+#include <TGFileDialog.h>
+#include <TGTextEdit.h>
+#include <TGStatusBar.h>
+#include <TGProgressBar.h>
+#include <TGColorSelect.h>
+#include <TGLayout.h>
+#include <TCanvas.h>
+#include <TRootEmbeddedCanvas.h>
+#include <TSQLRow.h>
 #include <TSQLResult.h>
+#include <TSQLServer.h>
+#include <TGraphAsymmErrors.h>
+#include <TFile.h>
 #include <TLatex.h>
+#include <TF1.h>
 #include <TH2F.h>
 
 #include "DBUtils/DBI.h"
+#include "DBUtils/DBTable.h"
 #include "DBUtils/DBQueryString.h"
 #include "DBUtils/SqlUtils.hh"
-#include "Messenger/Messenger.h"
 #include "Facades/NeuGenWrapper.h"
+#include "Facades/NGPlotType.h"
+#include "Messenger/Messenger.h"
+#include "Numerical/Spline.h"
 #include "NuVldGUI/NuVldMainFrame.h"
 #include "NuVldGUI/NuVldUserData.h"
 #include "NuVldGUI/GuiTablePrinter.h"
@@ -36,16 +63,24 @@
 #include "NuVldGUI/NeuGenFitParamsDialog.h"
 #include "NuVldGUI/YNQuestionBox.h"
 #include "NuVldGUI/TextEntryDialog.h"
+#include "NuVldGUI/NeuGenFitParams.h"
 #include "NuVldGUI/NeuGenConfigDialog.h"
 #include "NuVldGUI/NeuGenInputDialog.h"
 #include "NuVldGUI/NeuGenCards.h"
+#include "NuVldGUI/DBConnection.h"
 #include "NuVldGUI/DBConnectionDialog.h"
 #include "NuVldGUI/SysLogSingleton.h"
 #include "NuVldGUI/BrowserSingleton.h"
 #include "NuVldGUI/GraphUtils.hh"
-#include "NuVldGUI/vDataSelectionDialog.h"
-#include "NuVldGUI/vMeasurementListDialog.h"
+#include "NuVldGUI/vDataSelectionTab.h"
+#include "NuVldGUI/eDataSelectionTab.h"
+#include "NuVldGUI/SFDataSelectionTab.h"
 #include "NuVldGUI/NuVldConstants.h"
+#include "NuVldGUI/GuiHelpHandler.h"
+#include "NuVldGUI/GuiStackHandler.h"
+#include "NuVldGUI/GuiDBHandler.h"
+#include "NuVldGUI/GuiXmlFileHandler.h"
+#include "NuVldGUI/GuiFitKernel.h"
 #include "Utils/StringUtils.h"
 #include "Utils/GUIUtils.h"
 
@@ -68,10 +103,12 @@ ClassImp(NuVldMainFrame)
 NuVldMainFrame::NuVldMainFrame(const TGWindow * p, UInt_t w, UInt_t h) :
 TGMainFrame(p, w, h)
 {
+  UInt_t kv = kVerticalFrame;
+  UInt_t kh = kHorizontalFrame;
+  
   fMain = new TGMainFrame(p,w,h);
   fMain->Connect("CloseWindow()",
                          "genie::nuvld::NuVldMainFrame", this, "CloseWindow()");
-
   this->Init();
   this->InitializeHandlers();    // initialize GUI event handlers
 
@@ -87,9 +124,9 @@ TGMainFrame(p, w, h)
 
   //-- instantiate main frames (below menu & above the status bar)
 
-  fMainFrame       = new TGCompositeFrame(fMain,       1, 1, kVerticalFrame);
-  fMainTopFrame    = new TGCompositeFrame(fMainFrame, 3, 3, kHorizontalFrame);
-  fMainBottomFrame = new TGCompositeFrame(fMainFrame, 3, 3, kHorizontalFrame);
+  fMainFrame       = new TGCompositeFrame(fMain,       1, 1, kv);
+  fMainTopFrame    = new TGCompositeFrame(fMainFrame,  3, 3, kh);
+  fMainBottomFrame = new TGCompositeFrame(fMainFrame,  3, 3, kh);
 
   //-- TOP FRAME: add image buttons frame
 
@@ -101,8 +138,8 @@ TGMainFrame(p, w, h)
   //         left  : neutrino / electron scattering data SQL tabs
   //         right : plotter / data viewer / session log tabs
 
-  fMainLeftFrame   = new TGCompositeFrame(fMainBottomFrame, 3, 3, kVerticalFrame);
-  fMainRightFrame  = new TGCompositeFrame(fMainBottomFrame, 3, 3, kVerticalFrame);
+  fMainLeftFrame   = new TGCompositeFrame(fMainBottomFrame, 3, 3, kv);
+  fMainRightFrame  = new TGCompositeFrame(fMainBottomFrame, 3, 3, kv);
 
   fMainBottomFrame  -> AddFrame ( fMainLeftFrame,    fMLeftFrameLt  );
   fMainBottomFrame  -> AddFrame ( fMainRightFrame,   fMRightFrameLt );
@@ -172,27 +209,36 @@ NuVldMainFrame::~NuVldMainFrame()
 //______________________________________________________________________________
 void NuVldMainFrame::DefineLayoutHints(void)
 {
-  ULong_t hintMenuBarLayout       = kLHintsTop | kLHintsLeft | kLHintsExpandX;
-  ULong_t hintMenuBarItemLayout   = kLHintsTop | kLHintsLeft;
-  ULong_t hintMenuBarHelpLayout   = kLHintsTop | kLHintsRight;
-  ULong_t hintTabPlotterLayout    = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintTabFitterLayout     = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintTabLogLayout        = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintTabDataViewerLayout = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintTabNuSqlLayout      = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintTabElSqlLayout      = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintTabSFSqlLayout      = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintTabDataLayout       = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintTabSqlLayout        = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintExitButtonLayout    = kLHintsRight;
-  ULong_t hintLeftButtonsLayout   = kLHintsLeft;
-  ULong_t hintStatusBarLayout     = kLHintsBottom | kLHintsLeft | kLHintsExpandX;
-  ULong_t hintMLeftFrameLayout    = kLHintsCenterY;
-  ULong_t hintMRightFrameLayout   = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintProgressBarLayout   = kLHintsCenterX;
-  ULong_t hintSelectStackLayout   = kLHintsCenterX;
-  ULong_t hintFitLeftFrameLayout  = kLHintsTop | kLHintsLeft;
-  ULong_t hintFitRightFrameLayout = kLHintsTop | kLHintsRight;
+  ELayoutHints kht  = kLHintsTop;
+  ELayoutHints khl  = kLHintsLeft;
+  ELayoutHints khr  = kLHintsRight;
+  ELayoutHints khb  = kLHintsBottom;
+  ELayoutHints khcx = kLHintsCenterX;
+  ELayoutHints khcy = kLHintsCenterY;
+  ELayoutHints khex = kLHintsExpandX;
+  ELayoutHints khey = kLHintsExpandY;
+  
+  ULong_t hintMenuBarLayout       = kht  | khl  | khex;
+  ULong_t hintMenuBarItemLayout   = kht  | khl;
+  ULong_t hintMenuBarHelpLayout   = kht  | khr;
+  ULong_t hintTabPlotterLayout    = kht  | khl  | khex | khey;
+  ULong_t hintTabFitterLayout     = kht  | khl  | khex | khey;
+  ULong_t hintTabLogLayout        = kht  | khl  | khex | khey;
+  ULong_t hintTabDataViewerLayout = kht  | khl  | khex | khey;
+  ULong_t hintTabNuSqlLayout      = kht  | khl  | khex | khey;
+  ULong_t hintTabElSqlLayout      = kht  | khl  | khex | khey;
+  ULong_t hintTabSFSqlLayout      = kht  | khl  | khex | khey;
+  ULong_t hintTabDataLayout       = kht  | khex | khey;
+  ULong_t hintTabSqlLayout        = kht  | khex | khey;
+  ULong_t hintExitButtonLayout    = khr;
+  ULong_t hintLeftButtonsLayout   = khl;
+  ULong_t hintStatusBarLayout     = khb  | khl  | khex;
+  ULong_t hintMLeftFrameLayout    = khcy;
+  ULong_t hintMRightFrameLayout   = kht  | khex | khey;
+  ULong_t hintProgressBarLayout   = khcx;
+  ULong_t hintSelectStackLayout   = khcx;
+  ULong_t hintFitLeftFrameLayout  = kht  | khl;
+  ULong_t hintFitRightFrameLayout = kht  | khr;
 
   fMenuBarLt       = new TGLayoutHints(hintMenuBarLayout,       0, 0,  1, 1);
   fMenuBarItemLt   = new TGLayoutHints(hintMenuBarItemLayout,   0, 4,  0, 0);
@@ -278,6 +324,10 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
   fMenuNeuGen->Connect("Activated(Int_t)",
                                    "genie::nuvld::NuVldMainFrame",
                                                     this,"HandleMenu(Int_t)");
+  // Menu: GENIE
+
+  fMenuGENIE = new TGPopupMenu(gClient->GetRoot());
+
   // Menu: Fit
 
   fMenuFit = new TGPopupMenu(gClient->GetRoot());
@@ -308,6 +358,7 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
   menu_bar->AddPopup("&File",     fMenuFile,   fMenuBarItemLt);
   menu_bar->AddPopup("&Database", fMenuDBase,  fMenuBarItemLt);
   menu_bar->AddPopup("&NeuGEN",   fMenuNeuGen, fMenuBarItemLt);
+  menu_bar->AddPopup("&GENIE",    fMenuGENIE,  fMenuBarItemLt);
   menu_bar->AddPopup("&Fit",      fMenuFit,    fMenuBarItemLt);
   menu_bar->AddPopup("&Help",     fMenuHelp,   fMenuBarHelpLt);
 
@@ -386,9 +437,9 @@ void NuVldMainFrame::SetUpperFrameButtonText(void)
 void NuVldMainFrame::ConnectUpperFrameButtons(void)
 {
   fOpenXmlBtn      -> Connect("Clicked()","genie::nuvld::GuiXmlFileHandler",
-                                               fXmlFileHandler,"OpenFile()");
+                                                fXmlFileHandler,"OpenFile()");
   fParseXmlBtn     -> Connect("Clicked()","genie::nuvld::GuiXmlFileHandler",
-                                              fXmlFileHandler,"ParseFile()");
+                                               fXmlFileHandler,"ParseFile()");
   fDBConnectBtn    -> Connect("Clicked()","genie::nuvld::GuiDBHandler",
                                            fDBaseHandler, "MakeConnection()");
   fDBCloseBtn      -> Connect("Clicked()","genie::nuvld::GuiDBHandler",
@@ -398,13 +449,13 @@ void NuVldMainFrame::ConnectUpperFrameButtons(void)
   fDBCheckBtn      -> Connect("Clicked()","genie::nuvld::GuiDBHandler",
                                            fDBaseHandler,"CheckConnection()");
   fDBBootstrapBtn  -> Connect("Clicked()","genie::nuvld::GuiDBHandler",
-                                                  fDBaseHandler,"Bootstrap()");
+                                                 fDBaseHandler,"Bootstrap()");
   fSqlQInpBtn      -> Connect("Clicked()","genie::nuvld::GuiDBHandler",
-                                 fDBaseHandler,"QueryWithSqlFromDialog()");
+                                    fDBaseHandler,"QueryWithSqlFromDialog()");
   fSqlQFileBtn     -> Connect("Clicked()","genie::nuvld::GuiDBHandler",
-                                   fDBaseHandler,"QueryWithSqlFromFile()");
+                                      fDBaseHandler,"QueryWithSqlFromFile()");
   fDBUploadBtn     -> Connect("Clicked()","genie::nuvld::GuiXmlFileHandler",
-                                           fXmlFileHandler,"SendToDBase()");
+                                             fXmlFileHandler,"SendToDBase()");
   fNeugenProcBtn   -> Connect("Clicked()","genie::nuvld::NuVldMainFrame",
                                                 this,"ConfigNeugenProcess()");
   fNeugenConfigBtn -> Connect("Clicked()","genie::nuvld::NuVldMainFrame",
@@ -429,301 +480,25 @@ TGTab * NuVldMainFrame::BuildSqlTab(void)
   //-- tab: SQL GUI widgets for v scattering data
 
   tf = tab->AddTab( "vN" );
-
-  fTabNuSql = new TGCompositeFrame(tf, width, height, kVerticalFrame);
-
-  this -> FillNuSqlFrame();
-  tf   -> AddFrame( fTabNuSql, fNuSqlTabLt );
+        
+  fTabNuSql = fNuXSecTab->Create(tf, width, height);
+  tf -> AddFrame( fTabNuSql, fNuSqlTabLt );
 
   //-- tab: SQL GUI widgets for e scattering data
 
   tf = tab->AddTab( "eN" );
 
-  fTabElSql = new TGCompositeFrame(tf, width, height, kVerticalFrame);
-
-  this -> FillElSqlFrame();  
+  fTabElSql = fElXSecTab->Create(tf, width, height);
   tf   -> AddFrame( fTabElSql, fElSqlTabLt );
 
   //-- tab: SQL GUI widgets for e scattering data
 
   tf = tab->AddTab( "S/F" );
-
-  fTabSFSql = new TGCompositeFrame(tf, width, height, kVerticalFrame);
-
-  this -> FillSFSqlFrame();
-  tf   -> AddFrame( fTabSFSql, fSFSqlTabLt );
+  
+  fTabSFSql = fSFTab->Create(tf, width, height);
+  tf -> AddFrame( fTabSFSql, fSFSqlTabLt );
 
   return tab;
-}
-//______________________________________________________________________________
-void NuVldMainFrame::FillNuSqlFrame(void)
-{
-  fNuXSecErrGrpFrm   = new TGGroupFrame(fTabNuSql, "Cross Section Err",  kVerticalFrame);
-  fNuExpGrpFrm       = new TGGroupFrame(fTabNuSql, "Experiment",         kVerticalFrame);
-  fNuXSecGrpFrm      = new TGGroupFrame(fTabNuSql, "Cross Section",      kVerticalFrame);
-  fEnergyGrpFrm      = new TGGroupFrame(fTabNuSql, "Energy Range (GeV)", kVerticalFrame);
-  fNuInitStateGrpFrm = new TGGroupFrame(fTabNuSql, "Initial State",      kVerticalFrame);
-
-  fEnergyMatrixLt = new TGMatrixLayout(fEnergyGrpFrm, 0, 2, 2);
-  fEnergyGrpFrm->SetLayoutManager( fEnergyMatrixLt );
-
-  fNuXSecErrLBx = new TGListBox(fNuXSecErrGrpFrm,   2);
-  fNuExpLBx     = new TGListBox(fNuExpGrpFrm,       2);
-  fNuProcLBx    = new TGListBox(fNuXSecGrpFrm,      2);
-  fNuTypeLBx    = new TGListBox(fNuInitStateGrpFrm, 2);
-  fNuTgtLBx     = new TGListBox(fNuInitStateGrpFrm, 2);
-
-  gui_utils::FillListBox( fNuXSecErrLBx, kXSecErrType    );
-  gui_utils::FillListBox( fNuExpLBx,     kExperimentName );
-  gui_utils::FillListBox( fNuProcLBx,    kProcName       );
-  gui_utils::FillListBox( fNuTypeLBx,    kNuType         );
-  gui_utils::FillListBox( fNuTgtLBx,     kTarget         );
-
-  fNuXSecErrLBx -> Resize (100,  60);
-  fNuExpLBx     -> Resize (100,  60);
-  fNuProcLBx    -> Resize (100,  60);
-  fNuTypeLBx    -> Resize (100,  60);
-  fNuTgtLBx     -> Resize (100,  60);
-
-  fNuXSecErrLBx -> SetMultipleSelections( false );
-  fNuExpLBx     -> SetMultipleSelections( true  );
-  fNuProcLBx    -> SetMultipleSelections( true  );
-  fNuTypeLBx    -> SetMultipleSelections( true  );
-  fNuTgtLBx     -> SetMultipleSelections( true  );
-
-  fAllNuExpChkB    = new TGCheckButton(fNuExpGrpFrm,       "Select all", 71);
-  fAllNuProcChkB   = new TGCheckButton(fNuXSecGrpFrm,      "Select all", 72);
-  fAllNuTypesChkB  = new TGCheckButton(fNuInitStateGrpFrm, "Select all", 73);
-  fAllNuTgtChkB    = new TGCheckButton(fNuInitStateGrpFrm, "Select all", 74);
-
-  fAllNuExpChkB    -> Connect("Clicked()","genie::nuvld::NuVldMainFrame",
-                                                       this,"SelectAllNuExp()");
-  fAllNuProcChkB   -> Connect("Clicked()","genie::nuvld::NuVldMainFrame",
-                                                      this,"SelectAllNuXSec()");
-  fAllNuTypesChkB  -> Connect("Clicked()","genie::nuvld::NuVldMainFrame",
-                                                    this,"SelectAllNuProbes()");
-  fAllNuTgtChkB    -> Connect("Clicked()","genie::nuvld::NuVldMainFrame",
-                                                   this,"SelectAllNuTargets()");
-
-  fNuXSecErrGrpFrm   -> AddFrame( fNuXSecErrLBx   );
-  fNuExpGrpFrm       -> AddFrame( fNuExpLBx       );
-  fNuExpGrpFrm       -> AddFrame( fAllNuExpChkB   );
-  fNuXSecGrpFrm      -> AddFrame( fNuProcLBx      );
-  fNuXSecGrpFrm      -> AddFrame( fAllNuProcChkB  );
-  fNuInitStateGrpFrm -> AddFrame( fNuTypeLBx      );
-  fNuInitStateGrpFrm -> AddFrame( fAllNuTypesChkB );
-  fNuInitStateGrpFrm -> AddFrame( fNuTgtLBx       );
-  fNuInitStateGrpFrm -> AddFrame( fAllNuTgtChkB   );
-
-  fScaleWithEvChkB  = new TGCheckButton(fTabNuSql, "Scale With Energy", 75);
-
-  fEMinNmE = new TGNumberEntry(
-                   fEnergyGrpFrm, kEmin, 6, 1, TGNumberFormat::kNESReal);
-  fEMaxNmE = new TGNumberEntry(
-                   fEnergyGrpFrm, kEmax, 6, 1, TGNumberFormat::kNESReal);
-
-  fMinELb = new TGLabel(fEnergyGrpFrm, new TGString( "min:"));
-  fMaxELb = new TGLabel(fEnergyGrpFrm, new TGString( "max:"));
-
-  fEnergyGrpFrm -> AddFrame ( fMinELb  );
-  fEnergyGrpFrm -> AddFrame ( fEMinNmE );
-  fEnergyGrpFrm -> AddFrame ( fMaxELb  );
-  fEnergyGrpFrm -> AddFrame ( fEMaxNmE );
-
-  fNuTabBtnSpacerLb = new TGLabel(fTabNuSql, new TGString(" "));
-
-  fShowFullNuDialogTBtn   = new TGTextButton (fTabNuSql, "More data selections... ", 76);
-  fShowExpertNuDialogTBtn = new TGTextButton (fTabNuSql, "Expert mode...          ", 77);
-
-  fShowFullNuDialogTBtn->Connect("Clicked()", "genie::nuvld::NuVldMainFrame",
-                                       this, "PopupNuDataSelectionDialog()");
-
-  fShowExpertNuDialogTBtn->Connect("Clicked()", "genie::nuvld::NuVldMainFrame",
-                                       this, "PopupNuMeasurementListDialog()");
-
-  //-- bottom/left side: add all parent frames
-
-  fTabNuSql -> AddFrame( fNuXSecErrGrpFrm        );
-  fTabNuSql -> AddFrame( fNuExpGrpFrm            );
-  fTabNuSql -> AddFrame( fNuXSecGrpFrm           );
-  fTabNuSql -> AddFrame( fEnergyGrpFrm           );
-  fTabNuSql -> AddFrame( fNuInitStateGrpFrm      );
-  fTabNuSql -> AddFrame( fNuTabBtnSpacerLb       );
-  fTabNuSql -> AddFrame( fShowFullNuDialogTBtn   );
-  fTabNuSql -> AddFrame( fShowExpertNuDialogTBtn );
-  fTabNuSql -> AddFrame( fNuTabBtnSpacerLb       );
-  fTabNuSql -> AddFrame( fScaleWithEvChkB        );
-}
-//______________________________________________________________________________
-void NuVldMainFrame::FillElSqlFrame(void)
-{
-  fElExpGrpFrame = new TGGroupFrame(fTabElSql, "Experiment", kVerticalFrame);
-  fElTgGrpFrm    = new TGGroupFrame(fTabElSql, "Target",     kVerticalFrame);
-
-  fElExpLBx = new TGListBox(fElExpGrpFrame,  222);
-  fElTgtLBx = new TGListBox(fElTgGrpFrm,  223);
-
-  gui_utils::FillListBox( fElExpLBx,  kElExperiment );
-  gui_utils::FillListBox( fElTgtLBx,  kElTarget     );
-
-  fElExpLBx -> Resize (100,  60);
-  fElTgtLBx -> Resize (100,  50);
-
-  fElExpLBx -> SetMultipleSelections( true );
-  fElTgtLBx -> SetMultipleSelections( true );
-
-  fAllElExpChkB  = new TGCheckButton(fElExpGrpFrame, "Select all", 401);
-  fAllElTgtChkB  = new TGCheckButton(fElTgGrpFrm, "Select all", 402);
-
-  fAllElExpChkB  -> Connect("Clicked()",
-                                 "genie::nuvld::NuVldMainFrame", this,"SelectAllElExp()");
-  fAllElTgtChkB  -> Connect("Clicked()",
-                             "genie::nuvld::NuVldMainFrame", this,"SelectAllElTargets()");
-
-  fElExpGrpFrame -> AddFrame( fElExpLBx     );
-  fElExpGrpFrame -> AddFrame( fAllElExpChkB );
-
-  fElTgGrpFrm -> AddFrame( fElTgtLBx     );
-  fElTgGrpFrm -> AddFrame( fAllElTgtChkB );
-
-  fTabElSql -> AddFrame( fElExpGrpFrame );
-  fTabElSql -> AddFrame( fElTgGrpFrm    );
-
-  // build all (E,Ep,W2,Q2,Theta,v) min/max selections
-
-  for(int iframe = 0; iframe < kNElVarRangeFrames; iframe++) {
-
-     fElVarRangeGrpFrm.push_back( new TGGroupFrame(
-                  fTabElSql, kElVarFrameName[iframe], kVerticalFrame) );
-
-     fElVarRangeLt.push_back( new TGMatrixLayout(
-                                  fElVarRangeGrpFrm[iframe], 0, 2, 1) );
-
-     fElVarRangeGrpFrm[iframe]->SetLayoutManager(
-                                                 fElVarRangeLt[iframe] );
-
-
-     fElVarMinNmEV.push_back( new TGNumberEntry(
-                  fElVarRangeGrpFrm[iframe], kElVarMin[iframe],
-                                             6, 1, TGNumberFormat::kNESReal) );
-
-     fElVarMaxNmEV.push_back( new TGNumberEntry(
-                  fElVarRangeGrpFrm[iframe], kElVarMax[iframe],
-                                             6, 1, TGNumberFormat::kNESReal) );
-
-     fElVarRangeGrpFrm[iframe] -> AddFrame ( fElVarMinNmEV   [iframe] );
-     fElVarRangeGrpFrm[iframe] -> AddFrame ( fElVarMaxNmEV   [iframe] );
-
-     fTabElSql -> AddFrame ( fElVarRangeGrpFrm[iframe] );
-  }
-
-  // x-variable
-
-  fElDrawXGrpFrm = new TGGroupFrame(fTabElSql,"x-variable:", kVerticalFrame);
-
-  fElDrawXCBx = new TGComboBox(fElDrawXGrpFrm, 412);
-
-  gui_utils::FillComboBox( fElDrawXCBx, kElVarFrameName );
-
-  fElDrawXCBx -> Resize (115, 20);
-
-  fElDrawXGrpFrm -> AddFrame (fElDrawXCBx);
-  fTabElSql      -> AddFrame (fElDrawXGrpFrm);
-
-  // Init state
-
-  fAllElExpChkB -> SetOn (kTRUE);
-  fAllElTgtChkB -> SetOn (kTRUE);
-
-  fElDrawXCBx->Select(5);
-  
-  this->SelectAllElExp();  
-  this->SelectAllElTargets();
-}
-//______________________________________________________________________________
-void NuVldMainFrame::FillSFSqlFrame(void)
-{
-  fSFErrGrpFrm       = new TGGroupFrame(fTabSFSql, "Err Type",           kVerticalFrame);
-  fSFExpGrpFrm       = new TGGroupFrame(fTabSFSql, "Experiment",         kVerticalFrame);
-  fSFGrpFrm          = new TGGroupFrame(fTabSFSql, "SF / R=sT/sL",       kVerticalFrame);
-  fSFKineGrpFrm      = new TGGroupFrame(fTabSFSql, "Kine: Q2min/max, x", kVerticalFrame);
-  fSFInitStateGrpFrm = new TGGroupFrame(fTabSFSql, "Initial State",      kVerticalFrame);
-
-  fSFErrLBx   = new TGListBox(fSFErrGrpFrm,       2);
-  fSFExpLBx   = new TGListBox(fSFExpGrpFrm,       2);
-  fSFLBx      = new TGListBox(fSFGrpFrm,          2);
-  fSFRLBx     = new TGListBox(fSFGrpFrm,          2);
-  fSFProbeLBx = new TGListBox(fSFInitStateGrpFrm, 2);
-  fSFTgtLBx   = new TGListBox(fSFInitStateGrpFrm, 2);
-  fSFxLBx     = new TGListBox(fSFKineGrpFrm,      2);
-
-  gui_utils::FillListBox( fSFErrLBx,   kSFErrType        );
-  gui_utils::FillListBox( fSFExpLBx,   kSFExperimentName );
-  gui_utils::FillListBox( fSFLBx,      kSFName           );
-  gui_utils::FillListBox( fSFRLBx,     kSFR              );
-  gui_utils::FillListBox( fSFProbeLBx, kSFProbe          );
-  gui_utils::FillListBox( fSFTgtLBx,   kSFTarget         );
-
-  fSFErrLBx   -> Resize (100,  60);
-  fSFExpLBx   -> Resize (100,  60);
-  fSFLBx      -> Resize (100,  40);
-  fSFProbeLBx -> Resize (100,  60);
-  fSFTgtLBx   -> Resize (100,  60);
-  fSFRLBx     -> Resize (100,  60);
-  fSFxLBx     -> Resize (100,  60);
-
-  fSFErrLBx   -> SetMultipleSelections( false );
-  fSFExpLBx   -> SetMultipleSelections( true  );
-  fSFLBx      -> SetMultipleSelections( false );
-  fSFProbeLBx -> SetMultipleSelections( true  );
-  fSFTgtLBx   -> SetMultipleSelections( true  );
-  fSFRLBx     -> SetMultipleSelections( true  );
-  fSFxLBx     -> SetMultipleSelections( true  );
-
-  fAllSFExpChkB    = new TGCheckButton(fSFExpGrpFrm,       "Select all", 371);
-  fAllSFProbesChkB = new TGCheckButton(fSFInitStateGrpFrm, "Select all", 372);
-  fAllSFTgtChkB    = new TGCheckButton(fSFInitStateGrpFrm, "Select all", 373);
-
-  fAllSFExpChkB    -> Connect("Clicked()",
-                     "genie::nuvld::NuVldMainFrame", this,"SelectAllSFExp()");
-  fAllSFProbesChkB -> Connect("Clicked()",
-                     "genie::nuvld::NuVldMainFrame",this,"SelectAllSFProbes()");
-  fAllSFTgtChkB    -> Connect("Clicked()",
-                     "genie::nuvld::NuVldMainFrame",this,"SelectAllSFTargets()");
-
-  fSFQ2MinNmE  = new TGNumberEntry(
-                      fSFKineGrpFrm, 0, 8, 3, TGNumberFormat::kNESReal);
-  fSFQ2MaxNmE  = new TGNumberEntry(
-                   fSFKineGrpFrm, 100., 8, 3, TGNumberFormat::kNESReal);
-
-  fSFLoadxTBtn = new TGTextButton (fSFKineGrpFrm, "Load x... ", 374);
-
-  fSFLoadxTBtn->Connect("Clicked()",
-                        "genie::nuvld::NuVldMainFrame", this, "SFLoadx()");
-
-  fSFTabBtnSpacerLb = new TGLabel(fTabSFSql, new TGString(" "));
-
-  fSFErrGrpFrm       -> AddFrame ( fSFErrLBx        );
-  fSFExpGrpFrm       -> AddFrame ( fSFExpLBx        );
-  fSFExpGrpFrm       -> AddFrame ( fAllSFExpChkB    );
-  fSFGrpFrm          -> AddFrame ( fSFLBx           );
-  fSFGrpFrm          -> AddFrame ( fSFRLBx          );
-  fSFInitStateGrpFrm -> AddFrame ( fSFProbeLBx      );
-  fSFInitStateGrpFrm -> AddFrame ( fAllSFProbesChkB );
-  fSFInitStateGrpFrm -> AddFrame ( fSFTgtLBx        );
-  fSFInitStateGrpFrm -> AddFrame ( fAllSFTgtChkB    );
-  fSFKineGrpFrm      -> AddFrame ( fSFQ2MinNmE      );
-  fSFKineGrpFrm      -> AddFrame ( fSFQ2MaxNmE      );
-  fSFKineGrpFrm      -> AddFrame ( fSFxLBx          );
-  fSFKineGrpFrm      -> AddFrame ( fSFLoadxTBtn     );
-
-  fTabSFSql -> AddFrame( fSFErrGrpFrm        );
-  fTabSFSql -> AddFrame( fSFExpGrpFrm        );
-  fTabSFSql -> AddFrame( fSFGrpFrm           );
-  fTabSFSql -> AddFrame( fSFInitStateGrpFrm  );
-  fTabSFSql -> AddFrame( fSFKineGrpFrm       );
-
-  this->ResetSFSqlSelections();
 }
 //______________________________________________________________________________
 void NuVldMainFrame::AddCommonCheckButtons(void)
@@ -853,11 +628,11 @@ void NuVldMainFrame::FillFitterFrame(void)
   fPrmScan2dBtn = new TGPictureButton(fFitBtnGrpFrm, this->Pic("scan2d", 32,32));
   fResetFitBtn  = new TGPictureButton(fFitBtnGrpFrm, this->Pic("reset",  32,32));
 
-  fDoFitBtn     -> SetToolTipText( "Do the fit",                               1);
-  fPrmScanBtn   -> SetToolTipText( "multi-D parameter space MC scanning",      2);
-  fPrmScan1dBtn -> SetToolTipText( "1-D parameter space scanning",             3);
-  fPrmScan2dBtn -> SetToolTipText( "2-D parameter space scanning",             4);
-  fResetFitBtn  -> SetToolTipText( "Reset fitter selections" ,                 5);
+  fDoFitBtn     -> SetToolTipText( "Do the fit",                              1);
+  fPrmScanBtn   -> SetToolTipText( "multi-D parameter space MC scanning",     2);
+  fPrmScan1dBtn -> SetToolTipText( "1-D parameter space scanning",            3);
+  fPrmScan2dBtn -> SetToolTipText( "2-D parameter space scanning",            4);
+  fResetFitBtn  -> SetToolTipText( "Reset fitter selections" ,                5);
 
   fDoFitBtn    -> Connect("Clicked()","genie::nuvld::NuVldMainFrame",
                                                           this,"RunFitter()");
@@ -962,11 +737,11 @@ TGHorizontalFrame * NuVldMainFrame::BuildSelectionStackFrame(void)
 
 
   fStackTableBtn  -> Connect("Clicked()",
-                                   "genie::nuvld::GuiStackHandler",fStackHandler,"StackDBTable()");
+                 "genie::nuvld::GuiStackHandler",fStackHandler,"StackDBTable()");
   fStackConfigBtn -> Connect("Clicked()",
-                                 "genie::nuvld::GuiStackHandler",fStackHandler,"StackConfig()");
+                  "genie::nuvld::GuiStackHandler",fStackHandler,"StackConfig()");
   fDelStackedBtn  -> Connect("Clicked()",
-                                 "genie::nuvld::GuiStackHandler",fStackHandler,"EraseStackedItem()");
+             "genie::nuvld::GuiStackHandler",fStackHandler,"EraseStackedItem()");
 
   // selection-stack-frame: combo boxes
 
@@ -1006,25 +781,28 @@ TGHorizontalFrame * NuVldMainFrame::BuildLowerButtonFrame(void)
   fNeugenRunBtn = new TGPictureButton(hf, this->Pic("neugen_run", 32,32));
   fSaveBtn      = new TGPictureButton(hf, this->Pic("save",       32,32));
 
-  fSelResetBtn  -> SetToolTipText( "Reset selection" , 1);
-  fViewClearBtn -> SetToolTipText( "Clear view" , 1);
-  fDrawDataBtn  -> SetToolTipText( "Query dbase for selected experiments & draw data", 1);
-  fPrintDataBtn -> SetToolTipText( "Query dbase for selected experiments & print data in text format", 1);
-  fNeugenRunBtn -> SetToolTipText( "Run NeuGEN with selected inputs & draw its prediction", 1);
-  fSaveBtn      -> SetToolTipText( "Save graph", 1);
+  string sfSelResetBtn  = "Reset selection";
+  string sfViewClearBtn = "Clear view";
+  string sfDrawDataBtn  = "Query dbase & draw data";
+  string sfPrintDataBtn = "Query dbase & print data in text format";
+  string sfNeugenRunBtn = "Run NeuGEN with selected inputs & draw its prediction";
+  string sfSaveBtn      = "Save graph";
+  
+  fSelResetBtn  -> SetToolTipText( sfSelResetBtn.c_str(),  1 );
+  fViewClearBtn -> SetToolTipText( sfViewClearBtn.c_str(), 1 );
+  fDrawDataBtn  -> SetToolTipText( sfDrawDataBtn.c_str(),  1 );
+  fPrintDataBtn -> SetToolTipText( sfPrintDataBtn.c_str(), 1 );
+  fNeugenRunBtn -> SetToolTipText( sfNeugenRunBtn.c_str(), 1 );
+  fSaveBtn      -> SetToolTipText( sfSaveBtn.c_str(),      1 );
 
-  fSelResetBtn  -> Connect("Clicked()", "genie::nuvld::NuVldMainFrame",
-                                                 this,"ResetSqlSelections()");
-  fViewClearBtn -> Connect("Clicked()", "genie::nuvld::NuVldMainFrame",
-                                                        this,"ClearViewer()");
-  fDrawDataBtn  -> Connect("Clicked()", "genie::nuvld::NuVldMainFrame",
-                                                      this,"DrawDBTable()");
-  fPrintDataBtn -> Connect("Clicked()", "genie::nuvld::NuVldMainFrame",
-                                                     this,"PrintDBTable()");
-  fNeugenRunBtn -> Connect("Clicked()", "genie::nuvld::NuVldMainFrame",
-                                                           this,"RunNulook()");
-  fSaveBtn      -> Connect("Clicked()", "genie::nuvld::NuVldMainFrame",
-                                                   this,"HandleSaveCanvas()");
+  string tc = "genie::nuvld::NuVldMainFrame"; // this class
+  
+  fSelResetBtn  -> Connect("Clicked()",tc.c_str(),this,"ResetSqlSelections()" );
+  fViewClearBtn -> Connect("Clicked()",tc.c_str(),this,"ClearViewer()"        );
+  fDrawDataBtn  -> Connect("Clicked()",tc.c_str(),this,"DrawDBTable()"        );
+  fPrintDataBtn -> Connect("Clicked()",tc.c_str(),this,"PrintDBTable()"       );
+  fNeugenRunBtn -> Connect("Clicked()",tc.c_str(),this,"RunNeuGen()"          );
+  fSaveBtn      -> Connect("Clicked()",tc.c_str(),this,"HandleSaveCanvas()"   );
 
   // lower frame: progress bar
 
@@ -1097,9 +875,9 @@ void NuVldMainFrame::Init(void)
   fNGFP = new NeuGenFitParams();
   
   fLtxAuth = new TLatex(0.01,0.96,
-              "GENIE - C.Andreopoulos (CCLRC,Rutherford), H.Gallagher (Tufts)");
+           "GENIE OO Neutrino Generator Collaboration (C.Andreopoulos et al.)");
   fLtxLink = new TLatex(0.01,0.92,
-                          "http://hepunx.rl.ac.uk/~candreop/generators/GENIE/");
+                  "more at http://hepunx.rl.ac.uk/~candreop/generators/GENIE/");
   
   fLtxLink -> SetNDC(); // use Normalized Device Coordinates (NDC)
   fLtxLink -> SetTextSize  (0.03);
@@ -1110,10 +888,11 @@ void NuVldMainFrame::Init(void)
   fLtxAuth -> SetTextFont  (32);
 
   fPlotterShowIsOn = false;
-  _xsec_vs_energy  = 0;
+  fSpline  = 0;
 
-  _v_slc_dialog_requires_attn = false;
-  _active_v_slc_dialog        = 0;
+  fNuXSecTab = new vDataSelectionTab  (fMain, fDBC);
+  fElXSecTab = new eDataSelectionTab  (fDBC);
+  fSFTab     = new SFDataSelectionTab (fDBC);
 }
 //______________________________________________________________________________
 void NuVldMainFrame::InitializeHandlers(void)
@@ -1181,7 +960,7 @@ void NuVldMainFrame::HandleMenu(Int_t id)
   case M_DATA_QUERY_PRINT_GUI:  this->PrintDBTable();                    break;
   case M_NEUGEN_CONFIG_PHYSICS: this->ConfigNeugenPhysics();             break;
   case M_NEUGEN_CONFIG_PROCESS: this->ConfigNeugenProcess();             break;
-  case M_NEUGEN_RUN:            this->RunNulook();                       break;
+  case M_NEUGEN_RUN:            this->RunNeuGen();                       break;
   case M_NEUGEN_LOAD_EXTERNAL:  this->LoadExtXSecPrediction();           break;
   case M_FIT_OPEN:              this->OpenFitterTab();                   break;
   case M_FIT_RUN:               this->RunFitter();                       break;
@@ -1205,112 +984,13 @@ void NuVldMainFrame::HandleMenu(Int_t id)
 //______________________________________________________________________________
 
 //______________________________________________________________________________
-void NuVldMainFrame::SelectAllNuExp(void)
-{
-  if(fAllNuExpChkB->GetState() == kButtonDown)
-                                  gui_utils::SelectAllListBoxEntries(fNuExpLBx);
-  else gui_utils::ResetAllListBoxSelections(fNuExpLBx);
-
-  fNuExpLBx->SelectionChanged();
-
-  gClient->NeedRedraw(fNuExpLBx->GetContainer());
-}
-//______________________________________________________________________________
-void NuVldMainFrame::SelectAllNuXSec(void)
-{
-  if(fAllNuProcChkB->GetState() == kButtonDown)
-                                 gui_utils::SelectAllListBoxEntries(fNuProcLBx);
-  else gui_utils::ResetAllListBoxSelections(fNuProcLBx);
-
-  fNuProcLBx->SelectionChanged();
-
-  gClient->NeedRedraw(fNuProcLBx->GetContainer());
-}
-//______________________________________________________________________________
-void NuVldMainFrame::SelectAllNuProbes(void)
-{
-  if(fAllNuTypesChkB->GetState() == kButtonDown)
-                                 gui_utils::SelectAllListBoxEntries(fNuTypeLBx);
-  else gui_utils::ResetAllListBoxSelections(fNuTypeLBx);
-
-  fNuTypeLBx->SelectionChanged();
-
-  gClient->NeedRedraw(fNuTypeLBx->GetContainer());
-}
-//______________________________________________________________________________
-void NuVldMainFrame::SelectAllNuTargets(void)
-{
-  if(fAllNuTgtChkB->GetState() == kButtonDown)
-                                  gui_utils::SelectAllListBoxEntries(fNuTgtLBx);
-  else gui_utils::ResetAllListBoxSelections(fNuTgtLBx);
-
-  fNuTgtLBx->SelectionChanged();
-
-  gClient->NeedRedraw(fNuTgtLBx->GetContainer());
-}
-//______________________________________________________________________________
-void NuVldMainFrame::SelectAllElExp(void)
-{
-  if(fAllElExpChkB->GetState() == kButtonDown)
-                                  gui_utils::SelectAllListBoxEntries(fElExpLBx);
-  else gui_utils::ResetAllListBoxSelections(fElExpLBx);
-
-  fElExpLBx->SelectionChanged();
-
-  gClient->NeedRedraw(fElExpLBx->GetContainer());
-}
-//______________________________________________________________________________
-void NuVldMainFrame::SelectAllElTargets(void)
-{
-  if(fAllElTgtChkB->GetState() == kButtonDown)
-                                 gui_utils::SelectAllListBoxEntries(fElTgtLBx);
-  else gui_utils::ResetAllListBoxSelections(fElTgtLBx);
-
-  fElTgtLBx->SelectionChanged();
-
-  gClient->NeedRedraw(fElTgtLBx->GetContainer());
-}
-//______________________________________________________________________________
-void NuVldMainFrame::SelectAllSFExp(void)
-{
-  if(fAllSFExpChkB->GetState() == kButtonDown)
-                                  gui_utils::SelectAllListBoxEntries(fSFExpLBx);
-  else gui_utils::ResetAllListBoxSelections(fSFExpLBx);
-
-  fSFExpLBx->SelectionChanged();
-
-  gClient->NeedRedraw(fSFExpLBx->GetContainer());
-}
-//______________________________________________________________________________
-void NuVldMainFrame::SelectAllSFProbes(void)
-{
-  if(fAllSFProbesChkB->GetState() == kButtonDown)
-                                 gui_utils::SelectAllListBoxEntries(fSFProbeLBx);
-  else gui_utils::ResetAllListBoxSelections(fSFProbeLBx);
-
-  fSFProbeLBx->SelectionChanged();
-
-  gClient->NeedRedraw(fSFProbeLBx->GetContainer());
-}
-//______________________________________________________________________________
-void NuVldMainFrame::SelectAllSFTargets(void)
-{
-  if(fAllSFTgtChkB->GetState() == kButtonDown)
-                                  gui_utils::SelectAllListBoxEntries(fSFTgtLBx);
-  else gui_utils::ResetAllListBoxSelections(fSFTgtLBx);
-
-  fSFTgtLBx->SelectionChanged();
-
-  gClient->NeedRedraw(fSFTgtLBx->GetContainer());
-}
-//______________________________________________________________________________
 void NuVldMainFrame::ResetSqlSelections(void)
 {
   // check which SQL tab is active when the reset button is pressed
 
-  if      (fTabSql->GetCurrent() == 0) this->ResetNuSqlSelections();
-  else if (fTabSql->GetCurrent() == 1) this->ResetElSqlSelections();
-  else if (fTabSql->GetCurrent() == 2) this->ResetSFSqlSelections();
+  if      (fTabSql->GetCurrent() == 0) fNuXSecTab -> ResetSelections();
+  else if (fTabSql->GetCurrent() == 1) fElXSecTab -> ResetSelections();
+  else if (fTabSql->GetCurrent() == 2) fSFTab     -> ResetSelections();
 
   this->ResetCommonSelections();
 }
@@ -1330,110 +1010,28 @@ void NuVldMainFrame::ClearViewer(void)
   }
 }
 //______________________________________________________________________________
-void NuVldMainFrame::ResetNuSqlSelections(void)
-{
-  gui_utils::ResetAllListBoxSelections( fNuExpLBx  );
-  gui_utils::ResetAllListBoxSelections( fNuProcLBx );
-  gui_utils::ResetAllListBoxSelections( fNuTypeLBx );
-  gui_utils::ResetAllListBoxSelections( fNuTgtLBx  );
-
-  fEMinNmE->SetNumber(kEmin);
-  fEMaxNmE->SetNumber(kEmax);
-
-  fNuXSecErrLBx  -> Select (2);
-
-  fAllNuExpChkB   -> SetOn (kTRUE);
-  fAllNuProcChkB  -> SetOn (kTRUE);
-  fAllNuTypesChkB -> SetOn (kTRUE);
-  fAllNuTgtChkB   -> SetOn (kTRUE);
-
-  this->SelectAllNuExp();
-  this->SelectAllNuXSec();
-  this->SelectAllNuProbes();
-  this->SelectAllNuTargets();
-}
-//______________________________________________________________________________
-void NuVldMainFrame::ResetElSqlSelections(void)
-{
-  gui_utils::ResetAllListBoxSelections( fElExpLBx );
-  gui_utils::ResetAllListBoxSelections( fElTgtLBx );
-
-  for(int iframe = 0; iframe < kNElVarRangeFrames; iframe++) {
-
-     fElVarMinNmEV[iframe] -> SetNumber ( kElVarMin[iframe] );
-     fElVarMaxNmEV[iframe] -> SetNumber ( kElVarMax[iframe] );
-  }
-
-  fAllElExpChkB -> SetOn (kTRUE);
-  fAllElTgtChkB -> SetOn (kTRUE);
-
-  fElDrawXCBx -> Select (5);
-
-  this->SelectAllElExp();
-  this->SelectAllElTargets();
-}
-//______________________________________________________________________________
-void NuVldMainFrame::ResetSFSqlSelections(void)
-{
-  gui_utils::ResetAllListBoxSelections( fSFExpLBx   );
-  gui_utils::ResetAllListBoxSelections( fSFLBx      );
-  gui_utils::ResetAllListBoxSelections( fSFRLBx     );
-  gui_utils::ResetAllListBoxSelections( fSFProbeLBx );
-  gui_utils::ResetAllListBoxSelections( fSFTgtLBx   );
-
-  fSFQ2MinNmE->SetNumber(0);
-  fSFQ2MaxNmE->SetNumber(100);
-
-  fSFErrLBx  -> Select (2);
-  fSFLBx     -> Select (0);
-  fSFRLBx    -> Select (0);
-  fSFRLBx    -> Select (2);
-
-  fAllSFExpChkB    -> SetOn (kTRUE);
-  fAllSFProbesChkB -> SetOn (kTRUE);
-  fAllSFTgtChkB    -> SetOn (kTRUE);
-
-  this->SelectAllSFExp();
-  this->SelectAllSFProbes();
-  this->SelectAllSFTargets();
-}
-//______________________________________________________________________________
 void NuVldMainFrame::ResetCommonSelections(void)
 {
-  fScaleWithEvChkB   -> SetOn (kTRUE );
   fShowColorCodeChkB -> SetOn (kTRUE );
   fShowExtLegendChkB -> SetOn (kFALSE);
 }
 //______________________________________________________________________________
-string NuVldMainFrame::NuDataSelections(void)
-{
-  string selections = "";
-
-  if(_v_slc_dialog_requires_attn)
-       selections = _active_v_slc_dialog->BundleSelectionsInString();
-  else
-       selections = this->NuTabBundleSelectionsInString();
-
-  return selections;
-}
-//______________________________________________________________________________
 bool NuVldMainFrame::ScaleWithEnergy(void)
 {
-  NuVldUserData * user_data = NuVldUserData::Instance();
+  string selections = fNuXSecTab->BundleSelectionsInString();
 
-  if( user_data->CurrDBTableIsNull() ) 
-                       return (fScaleWithEvChkB->GetState() == kButtonDown);  
-  else {
-     string selections = this->NuDataSelections();
-
-     if( selections.find("scale-with-energy") != string::npos ) return true;
-     else return false;
-  }
+  if( selections.find("scale-with-energy") != string::npos ) return true;
+  else return false;
 }
 //______________________________________________________________________________
 string NuVldMainFrame::PlotVariable(void)
 {
-  string selections = this->ElDataSelections();
+  string selections = "";
+
+  if (fTabSql->GetCurrent() == 1)
+                      selections = fElXSecTab->BundleSelectionsInString();
+  if (fTabSql->GetCurrent() == 2)
+                      selections = fSFTab->BundleSelectionsInString();
 
   vector<string> elements = ParserUtils::split(selections,  "$");
 
@@ -1459,238 +1057,6 @@ string NuVldMainFrame::PlotVariable(void)
          }
     }
   }
-  return "";
-}
-//______________________________________________________________________________
-string NuVldMainFrame::ReadXSecSelectionListbox(void)
-{
-  ostringstream err;
-
-  TGLBEntry * selected_entry = fNuXSecErrLBx->GetSelectedEntry();
-
-  if(selected_entry) {
-
-    err << kXSecErrDrawOpt[ selected_entry->EntryId() ] << "-noE";
-
-    fLog->AddLine( Concat(
-     "Cross Section Errors - List Box selection: ", selected_entry->EntryId()) );
-
-  } else {
-
-    err << "allXsec-noE";
-    fLog->AddLine( "No Cross Section Error Selection - setting default" );
-  }
-
-  LOG("NuVld", pDEBUG) << "error selection = " << err.str().c_str();
-
-  return err.str();
-}
-//______________________________________________________________________________
-string NuVldMainFrame::ElDataSelections(void)
-{
-  string selections = this->ElTabBundleSelectionsInString();
-
-  return selections;
-}
-//______________________________________________________________________________
-string NuVldMainFrame::NuTabBundleSelectionsInString(void)
-{
-  ostringstream options;
-
-  options << "KEY-LIST:" << this->NuTabBundleKeyListInString()  << "$"
-          << "CUTS:"     << this->NuTabBundleCutsInString()     << "$"
-          << "DRAW_OPT:" << this->NuTabBundleDrawOptInString()  << "$"
-          << "DB-TYPE:vN-XSec";
-
-  return options.str();
-}
-//______________________________________________________________________________
-string NuVldMainFrame::NuTabBundleKeyListInString(void)
-{
-  // Read experiment name selections
-  string experiments = gui_utils::ListBoxSelectionAsString(
-                                                fNuExpLBx, kExperimentMySQLName);
-  // Read xsec selections
-  string xsecs = gui_utils::ListBoxSelectionAsString(fNuProcLBx, kProcMySQLName);
-  // Read neutrino selections
-  string nus = gui_utils::ListBoxSelectionAsString(fNuTypeLBx, kNuTypeMySQLName);
-  // Read target selections
-  string targets = gui_utils::ListBoxSelectionAsString(
-                                                    fNuTgtLBx, kTargetMySQLName);
-
-  fLog->AddLine( Concat("requested experiments : ", experiments.c_str()) );
-  fLog->AddLine( Concat("requested measurements : ", xsecs.c_str()) );
-  fLog->AddLine( Concat("requested neutrino beams : ", nus.c_str()) );
-  fLog->AddLine( Concat("requested targets : ", targets.c_str()) );
-
-  // Build key list
-  string key_list = SqlUtils::build_v_key_list(
-                fDBC->SqlServer(), experiments, xsecs, nus, targets);
-
-  return key_list;
-}
-//______________________________________________________________________________
-string NuVldMainFrame::NuTabBundleCutsInString(void)
-{
-  float Emin = fEMinNmE->GetNumber();
-  float Emax = fEMaxNmE->GetNumber();
-
-  ostringstream cuts;
-
-  cuts << "Emin=" << Emin << ";" << "Emax=" << Emax;
-
-  return cuts.str();
-}
-//______________________________________________________________________________
-string NuVldMainFrame::NuTabBundleDrawOptInString(void)
-{
-  if(fScaleWithEvChkB->GetState() == kButtonDown) return "scale-with-energy";
-  else return "";
-}
-//______________________________________________________________________________
-string NuVldMainFrame::ElTabBundleSelectionsInString(void)
-{
-  ostringstream options;
-
-  options << "KEY-LIST:" << this->ElTabBundleKeyListInString() << "$"
-          << "CUTS:"     << this->ElTabBundleCutsInString()    << "$"
-          << "DRAW_OPT:" << this->ElTabBundleDrawOptInString() << "$"
-          << "DB-TYPE:eN-Diff-XSec";
-          
-  return options.str();
-}
-//______________________________________________________________________________
-string NuVldMainFrame::ElTabBundleKeyListInString(void)
-{
-  // Read experiment name selections
-  string exprm = gui_utils::ListBoxSelectionAsString(fElExpLBx, kElExperiment);
-
-  // Read target selections
-  string targets = gui_utils::ListBoxSelectionAsString(fElTgtLBx, kElTarget);
-
-  // Build key list
-  string key_list = SqlUtils::build_e_key_list(fDBC->SqlServer(), exprm, targets);
-
-  return key_list;
-}
-//______________________________________________________________________________
-string NuVldMainFrame::ElTabBundleCutsInString(void)
-{
-  float E_min       =  fElVarMinNmEV[0]->GetNumber();
-  float E_max       =  fElVarMaxNmEV[0]->GetNumber();
-  float EP_min      =  fElVarMinNmEV[1]->GetNumber();
-  float EP_max      =  fElVarMaxNmEV[1]->GetNumber();
-  float Theta_min   =  fElVarMinNmEV[2]->GetNumber();
-  float Theta_max   =  fElVarMaxNmEV[2]->GetNumber();
-  float Q2_min      =  fElVarMinNmEV[3]->GetNumber();
-  float Q2_max      =  fElVarMaxNmEV[3]->GetNumber();
-  float W2_min      =  fElVarMinNmEV[4]->GetNumber();
-  float W2_max      =  fElVarMaxNmEV[4]->GetNumber();
-  float Nu_min      =  fElVarMinNmEV[5]->GetNumber();
-  float Nu_max      =  fElVarMaxNmEV[5]->GetNumber();
-  float Epsilon_min =  fElVarMinNmEV[6]->GetNumber();
-  float Epsilon_max =  fElVarMaxNmEV[6]->GetNumber();
-  float Gamma_min   =  fElVarMinNmEV[7]->GetNumber();
-  float Gamma_max   =  fElVarMaxNmEV[7]->GetNumber();
-  float x_min       =  fElVarMinNmEV[8]->GetNumber();
-  float x_max       =  fElVarMaxNmEV[8]->GetNumber();
-
-  ostringstream cuts;
-
-  cuts << "E_min="       << E_min       << ";"
-       << "E_max="       << E_max       << ";"
-       << "EP_min="      << EP_min      << ";"
-       << "EP_max="      << EP_max      << ";"
-       << "Theta_min="   << Theta_min   << ";"
-       << "Theta_max="   << Theta_max   << ";"
-       << "Q2_min="      << Q2_min      << ";"
-       << "Q2_max="      << Q2_max      << ";"
-       << "W2_min="      << W2_min      << ";"
-       << "W2_max="      << W2_max      << ";"
-       << "Nu_min="      << Nu_min      << ";"
-       << "Nu_max="      << Nu_max      << ";"
-       << "Epsilon_min=" << Epsilon_min << ";"
-       << "Epsilon_max=" << Epsilon_max << ";"
-       << "Gamma_min="   << Gamma_min   << ";"
-       << "Gamma_max="   << Gamma_max   << ";"
-       << "x_min="       << x_min       << ";"
-       << "x_max="       << x_max       << ";";
-
-  return cuts.str();
-}
-//______________________________________________________________________________
-string NuVldMainFrame::ElTabBundleDrawOptInString(void)
-{
-  int selected = fElDrawXCBx->GetSelected();
-
-  const char * plot_var = kElVarMySQLName[selected];
-
-  ostringstream draw_opt;
-
-  draw_opt << "plot-var=" << plot_var;
-
-  return draw_opt.str();
-}
-//______________________________________________________________________________
-string NuVldMainFrame::SFTabBundleSelectionsInString(void)
-{
-  ostringstream options;
-
-  options << "KEY-LIST:" << this->SFTabBundleKeyListInString()  << "$"
-          << "CUTS:"     << this->SFTabBundleCutsInString()     << "$"
-          << "DRAW_OPT:" << this->SFTabBundleDrawOptInString()  << "$"
-          << "DB-TYPE:SF";
-
-  return options.str();
-}
-//______________________________________________________________________________
-string NuVldMainFrame::SFTabBundleKeyListInString(void)
-{
-  // Read experiment name selections
-  string experiments = gui_utils::ListBoxSelectionAsString(
-                                                  fSFExpLBx, kSFExperimentName);
-  // Read SF selection
-  string sf = gui_utils::ListBoxSelectionAsString(fSFLBx, kSFName);
-  // Read probe selections
-  string probes = gui_utils::ListBoxSelectionAsString(fSFProbeLBx, kSFProbe);
-  // Read target selections
-  string targets = gui_utils::ListBoxSelectionAsString(fSFTgtLBx, kSFTarget);
-  // Read R selections
-  string R = gui_utils::ListBoxSelectionAsString(fSFRLBx, kSFR);
-
-  fLog->AddLine( Concat("requested Experiments : ", experiments.c_str()) );
-  fLog->AddLine( Concat("requested SF : ",          sf.c_str())          );
-  fLog->AddLine( Concat("requested Probes : ",      probes.c_str())      );
-  fLog->AddLine( Concat("requested Targets : ",     targets.c_str())     );
-  fLog->AddLine( Concat("requested R : ",           R.c_str())           );
-
-  // Build key list
-  string key_list = SqlUtils::build_sf_key_list(
-                   fDBC->SqlServer(), experiments, sf, probes, targets, R);
-
-  return key_list;
-}
-//______________________________________________________________________________
-string NuVldMainFrame::SFTabBundleCutsInString(void)
-{
-  float Q2min = fSFQ2MinNmE->GetNumber();
-  float Q2max = fSFQ2MaxNmE->GetNumber();
-
-  // Read R selection
-  string R = gui_utils::ListBoxSelectionAsString(fSFRLBx, kSFR);
-  
-  // Read x selections
-  //string x = gui_utils::ListBoxSelectionAsString(fSFxLBx, kSFR);
-  
-  ostringstream cuts;
-
-  cuts << "Q2min=" << Q2min << ";" << "Q2max=" << Q2max << ";R=" << R;
-
-  return cuts.str();
-}
-//______________________________________________________________________________
-string NuVldMainFrame::SFTabBundleDrawOptInString(void)
-{
   return "";
 }
 //______________________________________________________________________________
@@ -1781,104 +1147,14 @@ void NuVldMainFrame::ConfigNeugenProcess(void)
   new NeuGenInputDialog(gClient->GetRoot(), fMain, 400, 200);
 }
 //______________________________________________________________________________
-void NuVldMainFrame::PopupNuDataSelectionDialog(void)
+void NuVldMainFrame::RetrieveNeuGenCards(void)
 {
-  bool IsConnected;
-
-  if( !fDBC->SqlServer() ) IsConnected = false;
-  else IsConnected = fDBC->SqlServer()->IsConnected();
-
-  if(IsConnected) {
-
-     if(!_v_slc_dialog_requires_attn) {
-
-      _active_v_slc_dialog = new vDataSelectionDialog(
-                  gClient->GetRoot(), fMain, _v_slc_dialog_requires_attn,
-                                   750, 500, kHorizontalFrame, fDBC );
-     } else {
-
-       new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
-           "Another selection dialog has locked my attention. Close it first.");
-     }
-
-  } else {
-      new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
-                   "You must be connected to the data-base to use this option");
-  }
-}
-//______________________________________________________________________________
-void NuVldMainFrame::PopupNuMeasurementListDialog(void)
-{
-  bool IsConnected;
-
-  if( !fDBC->SqlServer() ) IsConnected = false;
-  else IsConnected = fDBC->SqlServer()->IsConnected();
-
-  if(IsConnected) {
-
-     if(!_v_slc_dialog_requires_attn) {
-
-      _active_v_slc_dialog = new vMeasurementListDialog(
-                  gClient->GetRoot(), fMain, _v_slc_dialog_requires_attn,
-                                               650, 400, kVerticalFrame, fDBC );
-     } else {
-
-       new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
-           "Another selection dialog has locked my attention. Close it first.");
-     }
-
-  } else {
-      new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
-                   "You must be connected to the data-base to use this option");
-  }
-}
-//______________________________________________________________________________
-void NuVldMainFrame::SFLoadx(void)
-{
-  bool IsConnected;
-
-  if( !fDBC->SqlServer() ) IsConnected = false;
-  else IsConnected = fDBC->SqlServer()->IsConnected();
-
-  if(IsConnected) {
-
-     string query = "SELECT DISTINCT x from STRUCTURE_FUNCTION";
-     TSQLResult * res = fDBC->SqlServer()->Query(query.c_str());
-
-     const int nrows = res->GetRowCount();
-     vector<string> x(nrows);
-     
-     for (int i = 0; i < nrows; i++) {
-
-       TSQLRow * row = res->Next();
-       x[i] = row->GetField(0);
-       
-       LOG("NuVld", pINFO)
-              << "Adding x in SF kinematics: " << "x[" << i << "] = " << x[i];
-       delete row;
-     }
-     delete res; 
-
-     gui_utils::FillListBox(fSFxLBx,&x);
-
-     fSFxLBx->MapSubwindows();
-     fSFxLBx->Layout();
-     
-     fSFxLBx->SelectionChanged();
-     gClient->NeedRedraw(fSFxLBx->GetContainer());
-
-     gSystem->ProcessEvents();
-  }
-}
-//______________________________________________________________________________
-void NuVldMainFrame::RunNulook(void)
-{
-  fLog       -> AddLine( "Running NeuGEN"    );
-  fStatusBar -> SetText( "Running NeuGEN", 0 );
+  fLog       -> AddLine( "Retrieving NeuGEN Cards"    );
+  fStatusBar -> SetText( "Retrieving NeuGEN Cards", 0 );
 
   NeuGenCards * cards = NeuGenCards::Instance();
   NuVldUserData * user_data = NuVldUserData::Instance();
-  
+
   if(fUseStackedChkB->GetState() == kButtonDown) {
 
       if(fConfigStackCBx->GetSelectedEntry()) {
@@ -1897,38 +1173,84 @@ void NuVldMainFrame::RunNulook(void)
       }
   }
 
+  LOG("NuVld", pINFO) << *(cards->CurrInputs());
+}
+//______________________________________________________________________________
+void NuVldMainFrame::RunNeuGen(void)
+{
+  fLog       -> AddLine( "Running NeuGEN"    );
+  fStatusBar -> SetText( "Running NeuGEN", 0 );
+
+  this->RetrieveNeuGenCards();
+
+  NeuGenCards * cards = NeuGenCards::Instance();
+
   if(this->CheckNeugenCards()) {
 
-    if(_xsec_vs_energy) delete _xsec_vs_energy;
+    if(fSpline) delete fSpline;
 
-    LOG("NuVld", pDEBUG) << "NeuGEN with configuration : ";
+    LOG("NuVld", pDEBUG) << "Starting NeuGEN with configuration : ";
     LOG("NuVld", pDEBUG) << *(cards->CurrConfig());
 
-    NeuGenWrapper neugen( cards->CurrConfig() );
+    // figure out the type of plot    
+    NGPlotType_t plot_type = cards->CurrInputs()->PlotType();
+    
+    // cross section plot           
+    if(plot_type == e_XSec) {
+      int           nbins = cards->CurrInputs()->NBins();
+      float         emin  = cards->CurrInputs()->EnergyMin();
+      float         emax  = cards->CurrInputs()->EnergyMax();
+      NGInteraction intr  = cards->CurrInputs()->GetInteraction();
+      NGFinalState  fs    = cards->CurrInputs()->GetFinalState();
+      NeuGenCuts    cuts  = cards->CurrInputs()->GetCuts();
 
-    int           nbins = cards->CurrInputs()->NBins();
-    float         emin  = cards->CurrInputs()->EnergyMin();
-    float         emax  = cards->CurrInputs()->EnergyMax();
-    NGInteraction intr  = cards->CurrInputs()->GetInteraction();
-    NGFinalState  fs    = cards->CurrInputs()->GetFinalState();
-    NeuGenCuts    cuts  = cards->CurrInputs()->GetCuts();
+      bool is_inclusive = cards->CurrInputs()->Inclusive();
 
-    bool is_inclusive = cards->CurrInputs()->Inclusive();
+      NeuGenWrapper neugen( cards->CurrConfig() );
 
-    if(is_inclusive)
-        _xsec_vs_energy = neugen.XSecSpline( emin, emax, nbins, &intr, &cuts);
-    else
-        _xsec_vs_energy = neugen.ExclusiveXSecSpline(
+      if(is_inclusive)
+         fSpline = neugen.XSecSpline( emin, emax, nbins, &intr, &cuts);
+      else
+         fSpline = neugen.ExclusiveXSecSpline(
                                           emin, emax, nbins, &intr, &fs, &cuts);
 
-    LOG("NuVld", pDEBUG) << "Drawing xsec vs energy ";
+      LOG("NuVld", pDEBUG) << "Drawing xsec vs energy ";
 
-    this->DrawNeugenXSecVsEnergy (_xsec_vs_energy, fPlotTabEmbCnv);
+      this->DrawSpline (fSpline, fPlotTabEmbCnv);
+    }
 
+    // structure function plot
+    if(plot_type == e_SF) {      
+
+      int           raw_dis_code = cards->CurrInputs()->SFRawDisCode();
+      int           nbins        = cards->CurrInputs()->NBins();
+      int           A            = cards->CurrInputs()->A();
+      float         varmin       = cards->CurrInputs()->PlotVarMin();
+      float         varmax       = cards->CurrInputs()->PlotVarMax();
+      float         fixvar       = cards->CurrInputs()->SFFixedVar();
+      NGSF_t        sftype       = cards->CurrInputs()->SF();
+      NGKineVar_t   var          = cards->CurrInputs()->PlotVar();
+      NGInteraction intr         = cards->CurrInputs()->GetInteraction();
+      NGInitState_t init         = intr.GetInitState();
+      NGCcNc_t      ccnc         = intr.GetCCNC();
+
+      LOG("NuVld", pINFO) << "raw dis code = " << raw_dis_code ;
+      
+      //NeuGenWrapper neugen( cards->CurrConfig() ); why does this messes with SF's?!!
+      NeuGenWrapper neugen;
+
+      fSpline = neugen.StrucFuncSpline(var, varmin, varmax, nbins,
+                                 fixvar, A, init, ccnc, sftype, raw_dis_code);
+
+      LOG("NuVld", pDEBUG) << "Drawing structure function vs Q2 or x";
+
+      if(fSpline) this->DrawSpline (fSpline, fPlotTabEmbCnv);      
+    }
+     
   } else {
       new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
                                         "Your NeuGEN cards must be messed up!");
-  }    
+  }
 }
 //______________________________________________________________________________
 void NuVldMainFrame::LoadExtXSecPrediction(void)
@@ -1957,25 +1279,25 @@ void NuVldMainFrame::LoadExtXSecPrediction(void)
      fStatusBar -> SetText( cmd.str().c_str(), 0 );
      fStatusBar -> SetText( "XSec Data File Opened",   1 );
 
-     if(_xsec_vs_energy) delete _xsec_vs_energy;
+     if(fSpline) delete fSpline;
      
-     _xsec_vs_energy = new XSecVsEnergy;
-     _xsec_vs_energy->LoadFromFile( xsec_data_file.c_str() );
+     fSpline = new Spline;
+     fSpline->LoadFromFile( xsec_data_file.c_str() );
      
      LOG("NuVld", pDEBUG) << "Drawing xsec vs energy ";
 
-     this->DrawNeugenXSecVsEnergy (_xsec_vs_energy, fPlotTabEmbCnv, false);
+     this->DrawSpline (fSpline, fPlotTabEmbCnv, false);
   }
 }
 //______________________________________________________________________________
-void NuVldMainFrame::DrawNeugenXSecVsEnergy(
-             XSecVsEnergy * xs, TRootEmbeddedCanvas * ecanvas, bool show_titles)
+void NuVldMainFrame::DrawSpline(
+                   Spline * xs, TRootEmbeddedCanvas * ecanvas, bool show_titles)
 {
   bool scale_E = this->ScaleWithEnergy();
 
   LOG("NuVld", pDEBUG) << "Getting xsec = f (E)";
   
-  TGraph * graph = xs->GetAsGraph(1000, scale_E);
+  TGraph * graph = xs->GetAsTGraph(1000, scale_E);
 
   graph->SetLineWidth(2);
   graph->SetLineStyle(1);
@@ -1983,11 +1305,7 @@ void NuVldMainFrame::DrawNeugenXSecVsEnergy(
 
   LOG("NuVld", pDEBUG) << "Checking whether a frame is already drawn";
   
-  //NuVldUserData * user_data = NuVldUserData::Instance();
-
-  //if( user_data->CurrDBTableIsNull() ) {
   if( !fPlotterShowIsOn ) {
-
       LOG("NuVld", pDEBUG) << "No frame found - Drawing the x,y axes";
 
       double xmin, xmax, ymin, ymax;
@@ -2097,7 +1415,7 @@ DBTable<eDiffXSecTableRow> * NuVldMainFrame::FillElDiffXSecTable(void)
 
   // read inputs from SQL GUI widgets
 
-  string selections = ElTabBundleSelectionsInString();
+  string selections = fElXSecTab->BundleSelectionsInString();
 
   DBQueryString query_string(selections);
   
@@ -2151,18 +1469,8 @@ DBTable<vXSecTableRow> * NuVldMainFrame::FillNuXSecTable(void)
     fStatusBar -> SetText( "Found connection to SQL Server", 1 );
     fLog       -> AddLine( "Found connection to SQL Server"    );
 
-    string selections = "";
-
-    if(_v_slc_dialog_requires_attn)
-    {
-       selections = _active_v_slc_dialog->BundleSelectionsInString();
-       fProgressBar->SetPosition(60);
-    }
-    else
-    {
-       selections = this->NuTabBundleSelectionsInString();
-       fProgressBar->SetPosition(60);
-    }
+    string selections = fNuXSecTab->BundleSelectionsInString();
+    fProgressBar->SetPosition(60);
 
     LOG("NuVld", pDEBUG) << "Selections: " << selections;
 
@@ -2209,7 +1517,7 @@ DBTable<SFTableRow> * NuVldMainFrame::FillSFTable(void)
     fStatusBar -> SetText( "Found connection to SQL Server", 1 );
     fLog       -> AddLine( "Found connection to SQL Server"    );
 
-    string selections = this->SFTabBundleSelectionsInString();
+    string selections = fSFTab->BundleSelectionsInString();
     LOG("NuVld", pDEBUG) << "Selections: " << selections;
 
     fProgressBar->SetPosition(60);
@@ -2350,7 +1658,7 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
 
          renderer.SetScaleWithEnergy( this->ScaleWithEnergy() );
          renderer.SetMultigraph( fShowColorCodeChkB->GetState() == kButtonDown );
-         renderer.SetErrorOption(this->ReadXSecSelectionListbox());
+         renderer.SetErrorOption(fNuXSecTab->ReadXSecSelectionListbox());
 
          if(fShowExtLegendChkB->GetState() == kButtonDown) 
                                        renderer.SetExternalLegend(new TLegend());
@@ -2383,7 +1691,7 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
          GuiTableRenderer renderer(fPlotTabEmbCnv);
 
          renderer.SetMultigraph( fShowColorCodeChkB->GetState() == kButtonDown );
-         renderer.SetDrawOption(this->ReadXSecSelectionListbox());
+//         renderer.SetDrawOption(this->ReadXSecSelectionListbox()); // UPDATE
          renderer.SetPlotVariable(this->PlotVariable());
          
          if(fShowExtLegendChkB->GetState() == kButtonDown) 
@@ -2416,7 +1724,7 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
 
          renderer.SetMultigraph( fShowColorCodeChkB->GetState() == kButtonDown );
          //renderer.SetDrawOption(this->ReadXSecSelectionListbox());
-         //renderer.SetPlotVariable(this->PlotVariable());
+         renderer.SetPlotVariable(this->PlotVariable());
 
          if(fShowExtLegendChkB->GetState() == kButtonDown)
                                        renderer.SetExternalLegend(new TLegend());
@@ -2479,7 +1787,7 @@ void NuVldMainFrame::RunFitter(void)
 {
   LOG("NuVld", pDEBUG) << "Running fitter";
 
-  // create a fit-kernel ans set GUI fit options
+  // create a fit-kernel and set GUI fit options
 
   fFitKernel->Reset();
 
@@ -2525,8 +1833,6 @@ void NuVldMainFrame::RunFitter(void)
 
           if      ( strcmp(fitter.c_str(),"SIMPLE") == 0 )     fFitKernel->DoSimpleFit();
           else if ( strcmp(fitter.c_str(),"NORM-FLOAT") == 0 ) fFitKernel->DoFloatingNormFit();
-          else if ( strcmp(fitter.c_str(),"SIMPLE/UWF") == 0 )     {}
-          else if ( strcmp(fitter.c_str(),"NORM-FLOAT/UWF") == 0 ) {}
           else {
             // should never be here
           }
@@ -2752,7 +2058,8 @@ void NuVldMainFrame::RunPostFitProcessor(void)
 
     renderer.SetScaleWithEnergy( this->ScaleWithEnergy() );
     renderer.SetMultigraph(false);
-    renderer.SetErrorOption(this->ReadXSecSelectionListbox());
+//    renderer.SetErrorOption(this->ReadXSecSelectionListbox()); // UPDATE
+    renderer.SetErrorOption(fNuXSecTab->ReadXSecSelectionListbox());
     renderer.DrawXSecTable( user_data->NuXSec() );
     renderer.PrintDrawingOptions();
 
@@ -2835,7 +2142,6 @@ void NuVldMainFrame::DrawResiduals(void)
       ymin = TMath::Min(ymin, gr->GetY()[i]);
       ymax = TMath::Max(ymax, gr->GetY()[i]);
     }
-
     fFitTabChisqEmbCnv->GetCanvas()->cd();
 
     TH1F * hframe = (TH1F *)

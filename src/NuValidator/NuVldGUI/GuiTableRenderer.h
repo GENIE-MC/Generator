@@ -15,15 +15,8 @@
 #define _GUI_TABLE_RENDERER_H_
 
 #include <string>
-
 #include <TObject.h>
-#include <TRootEmbeddedCanvas.h>
-#include <TLegend.h>
-
 #include "DBUtils/DBTable.h"
-#include "DBUtils/vXSecTableRow.h"
-#include "DBUtils/eDiffXSecTableRow.h"
-#include "DBUtils/SFTableRow.h"
 
 using std::string;
 
@@ -31,6 +24,10 @@ namespace genie {
 namespace nuvld {
 
 const double kRangeInLog = 0.8;
+
+class vXSecTableRow;
+class eDiffXSecTableRow;
+class SFTableRow;
 
 class GuiTableRenderer : public TObject {
 

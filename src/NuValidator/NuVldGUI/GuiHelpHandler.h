@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include <TGWindow.h>
+class TGWindow;
 
 using std::string;
 

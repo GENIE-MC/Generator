@@ -14,24 +14,22 @@
 #ifndef _DBASE_CONNECTION_DIALOG_H_
 #define _DBASE_CONNECTION_DIALOG_H_
 
-#include <TApplication.h>
-#include <TSystem.h>
-#include <TVirtualX.h>
-#include <TGClient.h>
 #include <TGFrame.h>
-#include <TGLabel.h>
-#include <TGButton.h>
-#include <TGTextEdit.h>
-#include <TGTextEntry.h>
-#include <TGMsgBox.h>
-#include <TGStatusBar.h>
-#include <TGProgressBar.h>
 #include <RQ_OBJECT.h>
 
-#include "NuVldGUI/DBConnection.h"
+class TGLabel;
+class TGButton;
+class TGTextEdit;
+class TGTextEntry;
+class TGMsgBox;
+class TGCheckButton;
+class TGStatusBar;
+class TGProgressBar;
 
 namespace genie {
 namespace nuvld {
+
+class DBConnection;
 
 class DBConnectionDialog {
 

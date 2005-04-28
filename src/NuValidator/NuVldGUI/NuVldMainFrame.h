@@ -14,58 +14,65 @@
 #ifndef _NUVLD_MAIN_FRAME_H_
 #define _NUVLD_MAIN_FRAME_H_
 
-#include <vector>
-
 #include <TApplication.h>
 #include <TVirtualX.h>
-#include <TSystem.h>
-#include <TGListBox.h>
-#include <TGComboBox.h>
-#include <TGClient.h>
 #include <TGFrame.h>
-#include <TGIcon.h>
-#include <TGLabel.h>
-#include <TGButton.h>
-#include <TGNumberEntry.h>
-#include <TGTextEntry.h>
-#include <TGMsgBox.h>
-#include <TGMenu.h>
-#include <TGCanvas.h>
-#include <TGTab.h>
-#include <TGFileDialog.h>
-#include <TGTextEdit.h>
-#include <TGStatusBar.h>
-#include <TGProgressBar.h>
-#include <TGColorSelect.h>
-#include <TCanvas.h>
-#include <TGraphAsymmErrors.h>
-#include <TRootEmbeddedCanvas.h>
-#include <TSQLServer.h>
-#include <TSQLResult.h>
-#include <TSQLRow.h>
-#include <TF1.h>
 #include <RQ_OBJECT.h>
 
 #include "DBUtils/DBTable.h"
 #include "DBUtils/vXSecTableRow.h"
 #include "DBUtils/eDiffXSecTableRow.h"
+#include "DBUtils/SFTableRow.h"
 #include "Facades/NGCardPairList.h"
-#include "NuVldGUI/NeuGenFitParams.h"
-#include "Facades/XSecVsEnergy.h"
-#include "NuVldGUI/GuiHelpHandler.h"
-#include "NuVldGUI/GuiStackHandler.h"
-#include "NuVldGUI/GuiDBHandler.h"
-#include "NuVldGUI/GuiXmlFileHandler.h"
-#include "NuVldGUI/GuiFitKernel.h"
-#include "NuVldGUI/vDataSelectionDialog.h"
 #include "NuVldGUI/MenuCommandId.h"
 
+class TSystem;
+class TGListBox;
+class TGComboBox;
+class TGClient;
+class TGIcon;
+class TGLabel;
+class TGButton;
+class TGNumberEntry;
+class TGPopupMenu;
+class TGTextEntry;
+class TGMsgBox;
+class TGMenu;
+class TGMenuBar;
+class TGCanvas;
+class TGTab;
+class TGFileDialog;
+class TGTextEdit;
+class TGStatusBar;
+class TGHProgressBar;
+class TGColorSelect;
+class TGPictureButton;
+class TGTextButton;
+class TGCheckButton;
+class TCanvas;
+class TGraphAsymmErrors;
+class TRootEmbeddedCanvas;
 class TLatex;
 
-using std::vector;
+using namespace genie;
 
 namespace genie {
+
+class Spline;
+  
 namespace nuvld {
+
+class DBConnection;
+class GuiHelpHandler;
+class GuiStackHandler;
+class GuiDBHandler;
+class GuiXmlFileHandler;
+class GuiFitKernel;
+class NeuGenFitParams;
+class DataSelectionDialog;
+class vDataSelectionTab;
+class eDataSelectionTab;
+class SFDataSelectionTab;
 
 class NuVldMainFrame : public TGMainFrame {
 
@@ -86,20 +93,18 @@ public:
    void ConfigNeugenPhysics   (void);  
    void ConfigNeugenProcess   (void);
    void SelectNeuGenFitParams (void);
-   void RunNulook             (void);  
+   void RunNeuGen             (void);
+   void RetrieveNeuGenCards   (void);
    void LoadExtXSecPrediction (void);
-
-   void HandleSaveCanvas      (void);
-   
+   void HandleSaveCanvas      (void);   
    void DrawDBTable           (void);
    void PrintDBTable          (void);
    void DrawCurrentDBTable    (void);
    void PrintCurrentDBTable   (void);
-
    void SetCurrDBTable        (void);
    void RetrieveStackedDBTable(void);
 
-   void DrawNeugenXSecVsEnergy (XSecVsEnergy * xs, TRootEmbeddedCanvas * ecanvas, bool show_titles = true);
+   void DrawSpline (Spline * xs, TRootEmbeddedCanvas * ecanvas, bool show_titles = true);
    
    bool CheckNeugenCards(void);
 
@@ -116,37 +121,18 @@ public:
    void  PlotXSecBoundaries   (TCanvas * c, bool clear);
 
    //-- methods for reseting SQL GUI widgets & viewers
-
+   
    void ResetSqlSelections    (void);
-   void ResetElSqlSelections  (void);
-   void ResetNuSqlSelections  (void);
-   void ResetSFSqlSelections  (void);
    void ResetCommonSelections (void);
-   void SelectAllNuExp        (void);
-   void SelectAllNuXSec       (void);
-   void SelectAllNuProbes     (void);
-   void SelectAllNuTargets    (void);
-   void SelectAllElExp        (void);
-   void SelectAllElTargets    (void);
-   void SelectAllSFExp        (void);
-   void SelectAllSFProbes     (void);
-   void SelectAllSFTargets    (void);
    void ClearViewer           (void);
 
    //-- methods for switching tabs
 
-   void OpenPlotterTab    (void);
-   void OpenDataViewerTab (void);
-   void OpenFitterTab     (void);
-   void OpenSessionLogTab (void);
+   void OpenPlotterTab        (void);
+   void OpenDataViewerTab     (void);
+   void OpenFitterTab         (void);
+   void OpenSessionLogTab     (void);
    
-   //-- methods for poping up data selection dialogs
-   //   or filling gui widgets with dbase data
-   
-   void PopupNuDataSelectionDialog   (void);
-   void PopupNuMeasurementListDialog (void);
-   void SFLoadx                      (void);
-
 private:
 
    //-- initialization & configuration methods
@@ -167,9 +153,6 @@ private:
    TGHorizontalFrame * BuildSelectionStackFrame (void);
    TGHorizontalFrame * BuildLowerButtonFrame    (void);
    TGStatusBar *       BuildStatusBar           (void);   
-   void                FillNuSqlFrame           (void);
-   void                FillElSqlFrame           (void);
-   void                FillSFSqlFrame           (void);
    void                AddCommonCheckButtons    (void);
    void                FillFitterFrame          (void);
    void                CreateUpperFrameButtons  (TGGroupFrame * gf);
@@ -180,32 +163,9 @@ private:
 
    //-- methods for handling data selections
    
-   string  ReadXSecSelectionListbox  (void);
-
-   string  NuDataSelections (void);
-   string  ElDataSelections (void);
-
    bool    ScaleWithEnergy (void);
    string  PlotVariable    (void);
       
-   //-- methods mimicing the vDataSelectionDialog interface for
-   //   the data selection tabs embedded in the main GUI window
-
-   string NuTabBundleSelectionsInString (void);
-   string NuTabBundleKeyListInString    (void);
-   string NuTabBundleCutsInString       (void);
-   string NuTabBundleDrawOptInString    (void);
-      
-   string ElTabBundleSelectionsInString (void);
-   string ElTabBundleKeyListInString    (void);
-   string ElTabBundleCutsInString       (void);
-   string ElTabBundleDrawOptInString    (void);
-
-   string SFTabBundleSelectionsInString (void);
-   string SFTabBundleKeyListInString    (void);
-   string SFTabBundleCutsInString       (void);
-   string SFTabBundleDrawOptInString    (void);
-
    //-- methods for extracting cross section data
    
    DBTable<vXSecTableRow> *     FillNuXSecTable     (void);
@@ -219,6 +179,7 @@ private:
    TGPopupMenu *             fMenuFile;
    TGPopupMenu *             fMenuDBase;
    TGPopupMenu *             fMenuNeuGen;
+   TGPopupMenu *             fMenuGENIE;
    TGPopupMenu *             fMenuFit;
    TGPopupMenu *             fMenuHelp;
    TGTab *                   fTabSql;
@@ -227,9 +188,9 @@ private:
    TGCompositeFrame *        fTabDataViewer;
    TGCompositeFrame *        fTabFitter;
    TGCompositeFrame *        fTabLog;
-   TGCompositeFrame *        fTabNuSql;
-   TGCompositeFrame *        fTabElSql;
-   TGCompositeFrame *        fTabSFSql;
+   TGCompositeFrame *        fTabNuSql; // owned by tab object
+   TGCompositeFrame *        fTabElSql; // owned by tab object
+   TGCompositeFrame *        fTabSFSql; // owned by tab object
    TGCompositeFrame *        fMainFrame;
    TGCompositeFrame *        fMainTopFrame;
    TGCompositeFrame *        fMainBottomFrame;
@@ -268,43 +229,14 @@ private:
    TGLayoutHints *           fFitRightFrameLt;
    TGMatrixLayout *          fBtnMatrixLt;
    TGMatrixLayout *          fEnergyMatrixLt;
-   vector<TGMatrixLayout * > fElVarRangeLt;   
-   TGGroupFrame *            fNuXSecErrGrpFrm;
-   TGGroupFrame *            fNuExpGrpFrm;
-   TGGroupFrame *            fNuXSecGrpFrm;
-   TGGroupFrame *            fNuInitStateGrpFrm;
-   vector<TGGroupFrame * >   fElVarRangeGrpFrm;   
    TGGroupFrame *            fImgBtnGrpFrm;
    TGGroupFrame *            fEnergyGrpFrm;
    TGGroupFrame *            fFitterGrpFrm;
    TGGroupFrame *            fFitFreeParamGrpFrm;
    TGGroupFrame *            fFitBtnGrpFrm;
-   TGGroupFrame *            fElExpGrpFrame;
-   TGGroupFrame *            fElTgGrpFrm;
-   TGGroupFrame *            fElDrawXGrpFrm;
-   TGGroupFrame *            fSFErrGrpFrm;
-   TGGroupFrame *            fSFExpGrpFrm;
-   TGGroupFrame *            fSFGrpFrm;
-   TGGroupFrame *            fSFKineGrpFrm;
-   TGGroupFrame *            fSFInitStateGrpFrm;
-   TGListBox *               fNuXSecErrLBx;
-   TGListBox *               fNuExpLBx;
-   TGListBox *               fNuProcLBx;
-   TGListBox *               fNuTypeLBx;
-   TGListBox *               fNuTgtLBx;
-   TGListBox *               fElExpLBx;
-   TGListBox *               fElTgtLBx;
-   TGListBox *               fSFErrLBx;
-   TGListBox *               fSFExpLBx;
-   TGListBox *               fSFLBx;
-   TGListBox *               fSFProbeLBx;
-   TGListBox *               fSFTgtLBx;
-   TGListBox *               fSFRLBx;
-   TGListBox *               fSFxLBx;
    TGComboBox *              fTableStackCBx;
    TGComboBox *              fConfigStackCBx;
    TGComboBox *              fFitterCBx;
-   TGComboBox *              fElDrawXCBx;   
    TGPictureButton *         fExitBtn;
    TGPictureButton *         fOpenXmlBtn;
    TGPictureButton *         fParseXmlBtn;
@@ -339,35 +271,17 @@ private:
    TGTextButton *            fShowFullNuDialogTBtn;
    TGTextButton *            fShowExpertNuDialogTBtn;
    TGTextButton *            fSelectNeuGenFitParams;
-   TGTextButton *            fSFLoadxTBtn;
    TGHorizontalFrame *       fProgressBarHFrm;
    TGHorizontalFrame *       fStackHFrm;   
-   TGCheckButton *           fAllNuExpChkB;
-   TGCheckButton *           fAllNuProcChkB;
-   TGCheckButton *           fAllNuTypesChkB;
-   TGCheckButton *           fAllNuTgtChkB;
-   TGCheckButton *           fAllElExpChkB;
-   TGCheckButton *           fAllElTgtChkB;
-   TGCheckButton *           fAllSFExpChkB;
-   TGCheckButton *           fAllSFProbesChkB;
-   TGCheckButton *           fAllSFTgtChkB;   
-   TGCheckButton *           fScaleWithEvChkB;
    TGCheckButton *           fShowColorCodeChkB;
    TGCheckButton *           fShowExtLegendChkB;   
    TGCheckButton *           fUseStackedChkB;
    TGNumberEntry *           fEMinNmE;
    TGNumberEntry *           fEMaxNmE;
-   TGNumberEntry *           fSFQ2MinNmE;
-   TGNumberEntry *           fSFQ2MaxNmE;
-   vector<TGNumberEntry * >  fElVarMinNmEV;
-   vector<TGNumberEntry * >  fElVarMaxNmEV;
    TGNumberEntry *           fXMinNmE;
    TGNumberEntry *           fXMaxNmE;
    TGTextEntry *             fStackTableNameTxE;
    TGTextEntry *             fStackConfigNameTxE;
-   TGLabel *                 fMinELb;
-   TGLabel *                 fMaxELb;
-   TGLabel *                 fNuTabBtnSpacerLb;
    TGLabel *                 fXMinLb;
    TGLabel *                 fXMaxLb;
    TGLabel *                 fStackDBTableLb;
@@ -375,15 +289,15 @@ private:
    TGLabel *                 fLinkSelLb;
    TGLabel *                 fLFitSpacerLb;
    TGLabel *                 fRFitSpacerLb;
-   TGLabel *                 fSFTabBtnSpacerLb;
    TLatex *                  fLtxAuth;
    TLatex *                  fLtxLink;
 
-   //-- other private date members
+   //-- data selection tabs
 
-   DBConnection *            fDBC;
-   NeuGenFitParams *         fNGFP;
-   
+   vDataSelectionTab *       fNuXSecTab;
+   eDataSelectionTab *       fElXSecTab;
+   SFDataSelectionTab *      fSFTab;
+      
    //-- 'action' objects that handle some classes of GUI events
    
    GuiHelpHandler *          fHelpHandler;
@@ -392,11 +306,12 @@ private:
    GuiStackHandler *         fStackHandler;
    GuiFitKernel *            fFitKernel;
 
-   bool                      fPlotterShowIsOn;
-   
-   bool                      _v_slc_dialog_requires_attn;
-   DataSelectionDialog *     _active_v_slc_dialog;
-   XSecVsEnergy *            _xsec_vs_energy;
+   //-- other private date members
+
+   DBConnection *            fDBC;
+   NeuGenFitParams *         fNGFP;   
+   bool                      fPlotterShowIsOn;   
+   Spline *                  fSpline;
 
 ClassDef(NuVldMainFrame, 0)
 };

@@ -16,16 +16,16 @@
 
 #include <string>
 
-#include <TGWindow.h>
-#include <TSQLResult.h>
-
-#include "NuVldGUI/DBConnection.h"
+class TGWindow;
+class TSQLResult;
 
 using std::string;
 using namespace genie::nuvld;
 
 namespace genie {
 namespace nuvld {
+
+class DBConnection;
 
 class GuiDBHandler {
 
@@ -49,8 +49,8 @@ private:
    string ReadSqlQueryFromFile       (string filename);
    void   PrintSqlResultInTGTextEdit (TSQLResult * rs);
 
-   const TGWindow *   _main;
-   DBConnection *     _dbc;
+   const TGWindow *   fMain;
+   DBConnection *     fDBC;
 };
 
 } // nuvld namespace

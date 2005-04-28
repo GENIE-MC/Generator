@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::MsgBox
 
-\brief
+\brief    A GUI Message Box
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
@@ -11,49 +11,50 @@
 */
 //_____________________________________________________________________________
 
-#include "MsgBox.h"
+#include <TGFrame.h>
+#include <TGLabel.h>
+#include <TGButton.h>
+
+#include "NuVldGUI/MsgBox.h"
 
 using namespace genie::nuvld;
 
 ClassImp(MsgBox)
 
-//namespace genie {
-//namespace nuvld {
-
 //______________________________________________________________________________
 MsgBox::MsgBox(const TGWindow *p,
      const TGWindow *main, UInt_t w, UInt_t h, UInt_t options, const char * txt)
 {
-  _main = new TGTransientFrame(p, main, w, h, options);
-  _main->Connect("CloseWindow()", "genie::nuvld::MsgBox", this, "close_window()");
+  fMain = new TGTransientFrame(p, main, w, h, options);
+  fMain->Connect("CloseWindow()", "genie::nuvld::MsgBox", this, "CloseWindow()");
 
-  _layout = new TGLayoutHints(kLHintsTop | kLHintsCenterX, 2, 2, 2, 2);
+  fLayout = new TGLayoutHints(kLHintsTop | kLHintsCenterX, 2, 2, 2, 2);
 
-  _label    = new TGLabel       (_main, new TGString(txt));
-  _ok_button = new TGTextButton  (_main, "&Ok", 1);
+  fLabel    = new TGLabel       (fMain, new TGString(txt));
+  fOkBtn = new TGTextButton  (fMain, "&Ok", 1);
 
-  _ok_button->Connect("Clicked()", "genie::nuvld::MsgBox", this, "ok()");
+  fOkBtn->Connect("Clicked()", "genie::nuvld::MsgBox", this, "Ok()");
 
-  _main->AddFrame (_label,      _layout);
-  _main->AddFrame (_ok_button,  _layout);
+  fMain->AddFrame (fLabel,      fLayout);
+  fMain->AddFrame (fOkBtn,  fLayout);
 
-  _main->MapSubwindows();
-  _main->Resize();
+  fMain->MapSubwindows();
+  fMain->Resize();
 
   position_relative_to_parent(main); // position relative to the parent's window
 
-  _main->SetWindowName("MsgBox");
+  fMain->SetWindowName("MsgBox");
 
-  _main->MapWindow();
-  gClient->WaitFor(_main);
+  fMain->MapWindow();
+  gClient->WaitFor(fMain);
 }
 //______________________________________________________________________________
 MsgBox::~MsgBox()
 {
-  delete _label;
-  delete _ok_button;
-  delete _layout;
-  delete _main;
+  delete fLabel;
+  delete fOkBtn;
+  delete fLayout;
+  delete fMain;
 }
 //______________________________________________________________________________
 void MsgBox::position_relative_to_parent(const TGWindow * main)
@@ -63,14 +64,12 @@ void MsgBox::position_relative_to_parent(const TGWindow * main)
   int ax, ay;
   Window_t wdum;
 
-  gVirtualX->TranslateCoordinates(main->GetId(), _main->GetParent()->GetId(),
-             (Int_t)(((TGFrame *) main)->GetWidth() - _main->GetWidth()) >> 1,
-             (Int_t)(((TGFrame *) main)->GetHeight() - _main->GetHeight()) >> 1,
+  gVirtualX->TranslateCoordinates(main->GetId(), fMain->GetParent()->GetId(),
+             (Int_t)(((TGFrame *) main)->GetWidth() - fMain->GetWidth()) >> 1,
+             (Int_t)(((TGFrame *) main)->GetHeight() - fMain->GetHeight()) >> 1,
              ax, ay, wdum);
-  _main->Move(ax, ay);
+  fMain->Move(ax, ay);
 }
 //______________________________________________________________________________
 
-//} // nuvld namespace
-//} // genie namespace
 

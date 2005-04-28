@@ -20,10 +20,13 @@ class TGraph;
 class TGraphAsymmErrors;
 class TMinuit;
 
-#include "NuVldGUI/NeuGenFitParams.h"
-
 namespace genie {
+
+class Spline;
+  
 namespace nuvld {
+
+class NeuGenFitParams;
 
 class GuiFitKernel {
 
@@ -55,10 +58,11 @@ public:
    TF1 *    FitFunction         (void) const { return fFunc1d; }
    TGraph * GetResidualsAsGraph (void);
 
+   //tmp
    TGraph * lowb;
    TGraph * highb;
    TGraph * chisq1d;
-   TH2F * chisq2d;
+   TH2F *   chisq2d;
    
 private:
 

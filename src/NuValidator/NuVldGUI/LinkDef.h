@@ -25,6 +25,9 @@
 #pragma link C++ class genie::nuvld::DataSelectionDialog;
 #pragma link C++ class genie::nuvld::vDataSelectionDialog;
 #pragma link C++ class genie::nuvld::vMeasurementListDialog;
+#pragma link C++ class genie::nuvld::vDataSelectionTab;
+#pragma link C++ class genie::nuvld::eDataSelectionTab;
+#pragma link C++ class genie::nuvld::SFDataSelectionTab;
 #pragma link C++ class genie::nuvld::NuVldMainFrame;
 #pragma link C++ class genie::nuvld::NuVldUserData;
 #pragma link C++ class genie::nuvld::NeuGenCards;

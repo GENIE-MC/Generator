@@ -14,13 +14,11 @@
 #ifndef _Y_N_QUESTION_BOX_H_
 #define _Y_N_QUESTION_BOX_H_
 
-#include <TApplication.h>
-#include <TVirtualX.h>
-#include <TGClient.h>
 #include <TGFrame.h>
-#include <TGLabel.h>
-#include <TGButton.h>
 #include <RQ_OBJECT.h>
+
+class TGLabel;
+class TGButton;
 
 namespace genie {
 namespace nuvld {
@@ -42,15 +40,14 @@ private:
 
    void PositionRelativeToParent(const TGWindow * main);
 
-   bool *              _answer;
-
-   TGTransientFrame *  _main;
-   TGHorizontalFrame * _button_frame;    
-   TGLabel *           _label;
-   TGButton *          _yes_button;
-   TGButton *          _no_button;
-   TGLayoutHints *     _label_layout;
-   TGLayoutHints *     _button_frame_layout;
+   bool *              fAnswer;
+   TGTransientFrame *  fMain;
+   TGHorizontalFrame * fButtonFrame;    
+   TGLabel *           fLabel;
+   TGButton *          fYesBtn;
+   TGButton *          fNoBtn;
+   TGLayoutHints *     fLabelLt;
+   TGLayoutHints *     fButtonFrameLt;
    
    ClassDef(YNQuestionBox, 0)
 };

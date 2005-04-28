@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::vMeasurementListDialog
 
-\brief
+\brief    Expert-Mode Neutrino Data Selection Popup Dialog
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
@@ -13,23 +13,23 @@
 
 #include <cassert>
 #include <sstream>
-#include <iostream>
 #include <vector>
-#include <string>
 
+#include <TGFrame.h>
+#include <TGListBox.h>
+#include <TGButton.h>
 #include <TGText.h>
 #include <TSQLServer.h>
 #include <TSQLResult.h>
 #include <TSQLRow.h>
 
+#include "Messenger/Messenger.h"
+#include "NuVldGUI/DBConnection.h"
 #include "NuVldGUI/vMeasurementListDialog.h"
 #include "XmlParser/ParserUtils.h"
 
 using std::ostringstream;
-using std::cout;
-using std::endl;
 using std::vector;
-using std::string;
 
 using namespace genie::nuvld;
 
@@ -37,12 +37,15 @@ ClassImp(vMeasurementListDialog)
 
 //______________________________________________________________________________
 vMeasurementListDialog::vMeasurementListDialog(
-             const TGWindow *p, const TGWindow *main, bool & attn,
+             const TGWindow *p, const TGWindow *main, bool * attn,
                          UInt_t w, UInt_t h, UInt_t options, DBConnection * db):
-DataSelectionDialog(attn)
+DataSelectionDialog()
 {
   _db = db;
-  
+
+  _attn  = attn;
+  *_attn = true; // lock main window's attention through-out this dialog's lifetime
+    
   _main = new TGTransientFrame(p, main, w, h, options);
   _main->Connect("CloseWindow()",
                  "genie::nuvld::vMeasurementListDialog", this, "CloseWindow()");
@@ -80,6 +83,8 @@ DataSelectionDialog(attn)
 //______________________________________________________________________________
 vMeasurementListDialog::~vMeasurementListDialog()
 {
+  *_attn = false; // release attention-lock
+
   delete _measurements_listbox;
   delete _close_button;
   delete _listbox_layout;
@@ -98,7 +103,7 @@ void vMeasurementListDialog::LoadMeasurementsFromDB(void)
          FROM MEASUREMENT_HEADER, REFERENCE \
          WHERE REFERENCE.name = MEASUREMENT_HEADER.name AND \
          REFERENCE.measurement_tag = MEASUREMENT_HEADER.measurement_tag \
-         AND MEASUREMENT_HEADER.reaction LIKE \"%nu%\";";
+         AND MEASUREMENT_HEADER.reaction LIKE \"%nu%\";";         
 
   TSQLResult * result = sql_server->Query(query);
 
@@ -122,7 +127,7 @@ void vMeasurementListDialog::LoadMeasurementsFromDB(void)
 
       _measurements_listbox->AddEntry(item.str().c_str(), i);
 
-      cout << item.str() << endl;
+      LOG("NuVld", pINFO) << item.str();
 
       delete row;
   }
@@ -172,6 +177,11 @@ string vMeasurementListDialog::BundleCutsInString(void)
 string vMeasurementListDialog::BundleDrawOptInString(void)
 {
   return "";
+}
+//______________________________________________________________________________
+void vMeasurementListDialog::ResetSelections(void)
+{
+
 }
 //______________________________________________________________________________
 void vMeasurementListDialog::PositionRelativeToParent(const TGWindow * main)

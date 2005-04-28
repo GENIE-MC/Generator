@@ -3,8 +3,7 @@
 
 \class    genie::nuvld::DataSelectionDialog
 
-\brief    Base class for data selection pop-up dialogs that require (& lock) 
-          the attention of the main GUI throughout their lifetime
+\brief    Base class for data selection popup dialogs and tabs
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
@@ -22,15 +21,14 @@ using std::ostringstream;
 using namespace genie::nuvld;
 
 //______________________________________________________________________________
-DataSelectionDialog::DataSelectionDialog(bool & attn) :
-_attn(attn)
+DataSelectionDialog::DataSelectionDialog(void) 
 {
-  _attn = true;
+
 }
 //______________________________________________________________________________
 DataSelectionDialog::~DataSelectionDialog()
 {
-  _attn = false;
+
 }
 //______________________________________________________________________________
 string DataSelectionDialog::BundleSelectionsInString(void)
