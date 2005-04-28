@@ -14,13 +14,12 @@
 #ifndef _HELP_BOX_H_
 #define _HELP_BOX_H_
 
-#include <TApplication.h>
-#include <TVirtualX.h>
-#include <TGClient.h>
 #include <TGFrame.h>
-#include <TGTextEdit.h>
-#include <TGButton.h>
 #include <RQ_OBJECT.h>
+
+class TGTextEdit;
+class TGButton;
+class TGTransientFrame;
 
 namespace genie {
 namespace nuvld {
@@ -35,18 +34,18 @@ public:
    virtual ~HelpBox();
 
    void CloseWindow (void) { delete this;               }
-   void OK          (void) { _main->SendCloseMessage(); }
+   void OK          (void) { fMain->SendCloseMessage(); }
 
 private:
 
    void LoadTextFromFle          (const char * filename);
    void PositionRelativeToParent (const TGWindow * main);
 
-   TGTransientFrame * _main;
-   TGTextEdit *       _text;
-   TGButton *         _ok_button;
-   TGLayoutHints *    _text_layout;
-   TGLayoutHints *    _button_layout;
+   TGTransientFrame * fMain;
+   TGTextEdit *       fText;
+   TGButton *         fOkBtn;
+   TGLayoutHints *    fTextLt;
+   TGLayoutHints *    fBtnLt;
 
    ClassDef(HelpBox, 0)
 };

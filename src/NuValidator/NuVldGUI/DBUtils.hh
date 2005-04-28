@@ -85,8 +85,7 @@ public:
 
     if(nrows > 0) {
 
-       double dprogress = 100. / nrows;
-
+       //double dprogress = 100. / nrows;
        for (int i = 0; i < nrows; i++) {
           row = res->Next();
           //g_data_viewer->AddLine( nuvld_str_utils::concatenate(

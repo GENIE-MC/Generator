@@ -12,6 +12,9 @@
 //_____________________________________________________________________________
 
 #include <TGText.h>
+#include <TGTextEdit.h>
+#include <TGButton.h>
+#include <TGWindow.h>
 
 #include "NuVldGUI/HelpBox.h"
 
@@ -23,43 +26,42 @@ ClassImp(HelpBox)
 HelpBox::HelpBox(const TGWindow *p, const TGWindow *main,
                       UInt_t w, UInt_t h, UInt_t options, const char * filename)
 {
-  _main = new TGTransientFrame(p, main, w, h, options);
-  _main->Connect("CloseWindow()", "genie::nuvld::HelpBox", this, "CloseWindow()");
+  fMain = new TGTransientFrame(p, main, w, h, options);
+  fMain->Connect("CloseWindow()", "genie::nuvld::HelpBox", this, "CloseWindow()");
 
-  _text_layout = new TGLayoutHints(
+  fTextLt = new TGLayoutHints(
      kLHintsTop | kLHintsCenterX | kLHintsExpandX | kLHintsExpandY, 1, 1, 1, 1);
 
-  _button_layout = new TGLayoutHints( kLHintsTop | kLHintsCenterX, 2, 2, 2, 2 );
+  fBtnLt = new TGLayoutHints( kLHintsTop | kLHintsCenterX, 2, 2, 2, 2 );
+  fText  = new TGTextEdit(fMain,  400, 400, kSunkenFrame | kDoubleBorder);
+  fOkBtn = new TGTextButton  (fMain, "&Ok", 1);
 
-  _text      = new TGTextEdit(_main,  400, 400, kSunkenFrame | kDoubleBorder);
-  _ok_button = new TGTextButton  (_main, "&Ok", 1);
+  fOkBtn->Connect("Clicked()", "genie::nuvld::HelpBox", this, "OK()");
 
-  _ok_button->Connect("Clicked()", "genie::nuvld::HelpBox", this, "OK()");
+  fMain->AddFrame (fText,       fTextLt  );
+  fMain->AddFrame (fOkBtn,  fBtnLt);
 
-  _main->AddFrame (_text,       _text_layout  );
-  _main->AddFrame (_ok_button,  _button_layout);
-
-  _main->MapSubwindows();
-  _main->Resize();
+  fMain->MapSubwindows();
+  fMain->Resize();
 
   this->PositionRelativeToParent(main); // position relative to the parent's window
 
-  _main->SetWindowName("HelpBox");
+  fMain->SetWindowName("HelpBox");
 
   this->LoadTextFromFle(filename);
   
-  _main->MapWindow();
+  fMain->MapWindow();
   
-  //gClient->WaitFor(_main);
+  //gClient->WaitFor(fMain);
 }
 //______________________________________________________________________________
 HelpBox::~HelpBox()
 {
-  delete _text;
-  delete _ok_button;
-  delete _text_layout;
-  delete _button_layout;
-  delete _main;
+  delete fText;
+  delete fOkBtn;
+  delete fTextLt;
+  delete fBtnLt;
+  delete fMain;
 }
 //______________________________________________________________________________
 void HelpBox::LoadTextFromFle(const char * filename)
@@ -75,7 +77,7 @@ void HelpBox::LoadTextFromFle(const char * filename)
     TGText tgtxt;
     tgtxt.LoadBuffer(txt_buf);
 
-    _text->AddText(&tgtxt);
+    fText->AddText(&tgtxt);
 
     fclose(fp);
   }
@@ -88,11 +90,11 @@ void HelpBox::PositionRelativeToParent(const TGWindow * main)
   int ax, ay;
   Window_t wdum;
 
-  gVirtualX->TranslateCoordinates(main->GetId(), _main->GetParent()->GetId(),
-             (Int_t)(((TGFrame *) main)->GetWidth() - _main->GetWidth()) >> 1,
-             (Int_t)(((TGFrame *) main)->GetHeight() - _main->GetHeight()) >> 1,
+  gVirtualX->TranslateCoordinates(main->GetId(), fMain->GetParent()->GetId(),
+             (Int_t)(((TGFrame *) main)->GetWidth() - fMain->GetWidth()) >> 1,
+             (Int_t)(((TGFrame *) main)->GetHeight() - fMain->GetHeight()) >> 1,
              ax, ay, wdum);
-  _main->Move(ax, ay);
+  fMain->Move(ax, ay);
 }
 //______________________________________________________________________________
 

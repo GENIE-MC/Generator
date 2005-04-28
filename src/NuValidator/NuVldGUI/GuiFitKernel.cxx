@@ -23,13 +23,17 @@
 #include "Facades/NeuGenWrapper.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+#include "Numerical/Spline.h"
 #include "NuVldGUI/GuiFitKernel.h"
 #include "NuVldGUI/NuVldUserData.h"
 #include "NuVldGUI/NeuGenCards.h"
+#include "NuVldGUI/NeuGenFitParams.h"
 #include "NuVldGUI/SysLogSingleton.h"
 #include "NuVldGUI/fit_functions.h"
 #include "Utils/StringUtils.h"
 
+using genie::RandomGen;
+using genie::Spline;
 using namespace genie::nuvld;
 using namespace genie::nuvld::facades;
 using namespace genie::string_utils;
@@ -289,7 +293,7 @@ bool GuiFitKernel::MCParamScanning(void)
              
      // get NeuGEN prediction
 
-     XSecVsEnergy * xs_vs_e = 0;
+     Spline * xs_vs_e = 0;
 
      if(is_inclusive)
         xs_vs_e = neugen.XSecSpline( emin, emax, nbins, &intr, &cuts);
@@ -302,14 +306,14 @@ bool GuiFitKernel::MCParamScanning(void)
      LOG("NuVld", pDEBUG) << "Updating boundaries";
 
      if(imc==0) {
-       lowb  = new TGraph( * xs_vs_e->GetAsGraph(1000,fScaleWithE) );
-       highb = new TGraph( * xs_vs_e->GetAsGraph(1000,fScaleWithE) );
+       lowb  = new TGraph( * xs_vs_e->GetAsTGraph(1000,fScaleWithE) );
+       highb = new TGraph( * xs_vs_e->GetAsTGraph(1000,fScaleWithE) );
      } else {
 
        for(int ie=0; ie<lowb->GetN(); ie++) {
 
            double E  = lowb->GetX()[ie];
-           double xs = xs_vs_e->XSec(E);
+           double xs = xs_vs_e->Evaluate(E);
 
            if(fScaleWithE && E>0) xs/=E;
            
@@ -350,7 +354,7 @@ bool GuiFitKernel::ChisqScan1D(void)
 
   bool is_inclusive = cards->CurrInputs()->Inclusive();
 
-  XSecVsEnergy * ref = 0, * cur = 0;
+  Spline * ref = 0, * cur = 0;
 
   if(is_inclusive)
         ref = neugen.XSecSpline( emin, emax, nbins, &intr, &cuts);
@@ -381,7 +385,7 @@ bool GuiFitKernel::ChisqScan1D(void)
          step = 0.04 * (max-min);
       }  
 
-      int n = (max-min)/step;
+      int n = int((max-min)/step);
 
       LOG("NuVld", pINFO) << "n = " << n;
       
@@ -418,7 +422,7 @@ bool GuiFitKernel::ChisqScan1D(void)
 
              float E = emin + ie * dE;
 
-             chisq += TMath::Power( ref->XSec(E) - cur->XSec(E), 2 );
+             chisq += TMath::Power( ref->Evaluate(E) - cur->Evaluate(E), 2 );
           }//E
 
           LOG("NuVld", pINFO) << "param = " << param << " - chisq = " << chisq;
@@ -466,7 +470,7 @@ bool GuiFitKernel::ChisqScan2D(void)
 
   bool is_inclusive = cards->CurrInputs()->Inclusive();
 
-  XSecVsEnergy * ref = 0, * cur = 0;
+  Spline * ref = 0, * cur = 0;
 
   if(is_inclusive)
         ref = neugen.XSecSpline( emin, emax, nbins, &intr, &cuts);
@@ -507,8 +511,8 @@ bool GuiFitKernel::ChisqScan2D(void)
   assert(step1>0 && step2>0);
   assert(max1>min1 && max2>min2);
     
-  int n1 = (int) (max1-min1)/step1;
-  int n2 = (int) (max2-min2)/step2;
+  int n1 = int( (max1-min1)/step1 );
+  int n2 = int( (max2-min2)/step2 );
 
   assert(n1>0);
   assert(n2>0);
@@ -547,7 +551,7 @@ bool GuiFitKernel::ChisqScan2D(void)
 
              float E = emin + ie * dE;
 
-             chisq += TMath::Power( ref->XSec(E) - cur->XSec(E), 2 );
+             chisq += TMath::Power( ref->Evaluate(E) - cur->Evaluate(E), 2 );
           }//E
 
           LOG("NuVld", pINFO) << "params = ("

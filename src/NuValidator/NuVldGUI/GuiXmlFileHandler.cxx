@@ -17,10 +17,13 @@
 #include <string>
 
 #include <TSystem.h>
+#include <TGWindow.h>
+#include <TGMenu.h>
 #include <TSQLResult.h>
 #include <TGFileDialog.h>
 #include <TGStatusBar.h>
 
+#include "NuVldGUI/DBConnection.h"
 #include "NuVldGUI/GuiXmlFileHandler.h"
 #include "NuVldGUI/SysLogSingleton.h"
 #include "NuVldGUI/MsgBox.h"

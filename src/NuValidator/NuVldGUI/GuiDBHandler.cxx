@@ -16,10 +16,14 @@
 #include <vector>
 
 #include <TSystem.h>
+#include <TGWindow.h>
+#include <TGProgressBar.h>
+#include <TSQLResult.h>
 #include <TSQLRow.h>
 #include <TGFileDialog.h>
 
 #include "Messenger/Messenger.h"
+#include "NuVldGUI/DBConnection.h"
 #include "NuVldGUI/GuiDBHandler.h"
 #include "NuVldGUI/DBConnectionDialog.h"
 #include "NuVldGUI/SysLogSingleton.h"
@@ -43,13 +47,13 @@ ClassImp(GuiDBHandler)
 //______________________________________________________________________________
 GuiDBHandler::GuiDBHandler()
 {
-  _main = 0;
-  _dbc  = 0;
+  fMain = 0;
+  fDBC  = 0;
 }
 //______________________________________________________________________________
 GuiDBHandler::GuiDBHandler(const TGWindow * main, DBConnection * connection) : 
-_main(main),
-_dbc(connection)
+fMain(main),
+fDBC(connection)
 {
 
 }
@@ -67,11 +71,11 @@ void GuiDBHandler::MakeConnection(void)
   syslog -> StatusBar() ->SetText( "Connecting to dbase", 0 );
 
   new DBConnectionDialog(
-           gClient->GetRoot(), _main, 800, 400, kVerticalFrame, _dbc);
+           gClient->GetRoot(), fMain, 800, 400, kVerticalFrame, fDBC);
             
-  string url    = _dbc->URL();
-  string user   = _dbc->User();
-  string passwd = _dbc->Password();
+  string url    = fDBC->URL();
+  string user   = fDBC->User();
+  string passwd = fDBC->Password();
 
   bool values_were_set = (url.size() > 0 && user.size() > 0);
 
@@ -84,16 +88,16 @@ void GuiDBHandler::MakeConnection(void)
         syslog -> Log() -> AddLine( "Server info: " );
         syslog -> Log() -> AddLine( db->ServerInfo() );
 
-        _dbc->SetSqlServer(db);
+        fDBC->SetSqlServer(db);
 
      } else {
 
         syslog -> StatusBar() -> SetText("Connection to dbase failed", 0 );
         syslog -> Log()       -> AddLine("Connection to dbase failed");
 
-        _dbc->SetSqlServer(0);
+        fDBC->SetSqlServer(0);
 
-        new MsgBox(gClient->GetRoot(), _main,
+        new MsgBox(gClient->GetRoot(), fMain,
                         380, 250, kVerticalFrame, "Connection to dbase failed");
      }
   }   
@@ -104,7 +108,7 @@ void GuiDBHandler::CloseConnection(void)
   SysLogSingleton * syslog = SysLogSingleton::Instance();
 
   if( ! this->IsConnected() )
-    new MsgBox(gClient->GetRoot(), _main, 380, 250, kVerticalFrame,
+    new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
                             "There is no active dbase connection to terminate");
   else {
 
@@ -113,9 +117,9 @@ void GuiDBHandler::CloseConnection(void)
     syslog -> Log()       -> AddLine( "Closing dbase connection" );
     syslog -> StatusBar() -> SetText( "Closing dbase connection", 0 );
   
-    _dbc->SqlServer()->Close();
+    fDBC->SqlServer()->Close();
 
-    _dbc->SetSqlServer(0);
+    fDBC->SetSqlServer(0);
   }
 }
 //______________________________________________________________________________
@@ -124,10 +128,10 @@ void GuiDBHandler::CheckConnection(void)
   bool connected = this->IsConnected();
 
   if(connected)
-      new MsgBox(gClient->GetRoot(), _main, 380, 250, 
-                 kVerticalFrame, Concat(" Connected to ", _dbc->URL().c_str()));
+      new MsgBox(gClient->GetRoot(), fMain, 380, 250, 
+                 kVerticalFrame, Concat(" Connected to ", fDBC->URL().c_str()));
   else
-      new MsgBox(gClient->GetRoot(), _main, 380, 250, kVerticalFrame,
+      new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
                                          "There is no active dbase connection");
 }
 //______________________________________________________________________________
@@ -135,13 +139,13 @@ void GuiDBHandler::PrintInfo(void)
 {
   if(!this->IsConnected()) {
 
-    new MsgBox(gClient->GetRoot(), _main, 380, 250, kVerticalFrame,
+    new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
                                         "There is no active dbase connection");
   } else {
 
     vector<string> db_info;
 
-    TSQLServer * db = _dbc->SqlServer();
+    TSQLServer * db = fDBC->SqlServer();
 
     db_info.push_back( "                                \
                                                  ");
@@ -156,7 +160,7 @@ void GuiDBHandler::PrintInfo(void)
     db_info.push_back( "  Tables:  " );
     db_info.push_back( "  -------  " );
 
-    TSQLResult * tables = db->GetTables(_dbc->DataBase().c_str() );
+    TSQLResult * tables = db->GetTables(fDBC->DataBase().c_str() );
 
     int nrows = tables->GetRowCount();
 
@@ -178,7 +182,7 @@ void GuiDBHandler::PrintInfo(void)
 
     db_info.push_back( "     ");
 
-    new MultiLineMsgBox(gClient->GetRoot(), _main, 380, 250,
+    new MultiLineMsgBox(gClient->GetRoot(), fMain, 380, 250,
                                                        kVerticalFrame, &db_info);
   }
 }
@@ -188,7 +192,7 @@ void GuiDBHandler::Bootstrap(void)
   SysLogSingleton * syslog = SysLogSingleton::Instance();
 
   if(! this->IsConnected()) {
-      new MsgBox(gClient->GetRoot(), _main, 380, 250, kVerticalFrame,
+      new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
                             "  Undefinded DB - Use 'Connect to dbase' first  ");
   } else {
 
@@ -196,7 +200,7 @@ void GuiDBHandler::Bootstrap(void)
 
      // ask first if he really means to overwrite the database
      new YNQuestionBox(
-         gClient->GetRoot(), _main, 380, 250, kVerticalFrame,
+         gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
           "  I hope you were aware this will overwrite the dbase - Continue? ",
                                                                    &are_you_sure);
 
@@ -206,9 +210,9 @@ void GuiDBHandler::Bootstrap(void)
         syslog -> Log()       -> AddLine( "Bootstraping the SQL data-base"    );
         syslog -> StatusBar() -> SetText( "Bootstraping the SQL data-base", 0 );
 
-         _dbc->SqlServer()->DropDataBase("NuScat");
+         fDBC->SqlServer()->DropDataBase("NuScat");
 
-         _dbc->SqlServer()->CreateDataBase("NuScat");
+         fDBC->SqlServer()->CreateDataBase("NuScat");
 
          const int k_n_files = 7;
 
@@ -229,7 +233,7 @@ void GuiDBHandler::Bootstrap(void)
             string sql = this->ReadSqlQueryFromFile(filename);
             LOG("NuVld", pINFO) << sql;
             
-            _dbc->SqlServer()->Query( sql.c_str() );
+            fDBC->SqlServer()->Query( sql.c_str() );
          }
      }
   }
@@ -243,9 +247,9 @@ void GuiDBHandler::QueryWithSqlFromDialog(void)
   syslog -> StatusBar() -> SetText( "Entering custom SQL query", 0 );
 
 /*  
-  new TextEntryDialog(gClient->GetRoot(), _main, 900, 500, sql);
+  new TextEntryDialog(gClient->GetRoot(), fMain, 900, 500, sql);
   
-  TSQLResult * result = _dbc->SqlServer()->Query( sql );
+  TSQLResult * result = fDBC->SqlServer()->Query( sql );
 
   syslog -> ProgressBar() -> SetPosition(0);
    
@@ -270,7 +274,7 @@ void GuiDBHandler::QueryWithSqlFromFile(void)
   fi.fFileTypes = kSqlFileExt;
   fi.fIniDir    = StrDup(dir.Data());
 
-  new TGFileDialog(gClient->GetRoot(), _main, kFDOpen, &fi);
+  new TGFileDialog(gClient->GetRoot(), fMain, kFDOpen, &fi);
 
   if( fi.fFilename ) {
 
@@ -287,7 +291,7 @@ void GuiDBHandler::QueryWithSqlFromFile(void)
 
      syslog -> ProgressBar() -> SetPosition(0);
 
-     TSQLResult * result = _dbc->SqlServer()->Query( sql.c_str() );
+     TSQLResult * result = fDBC->SqlServer()->Query( sql.c_str() );
 
      this->PrintSqlResultInTGTextEdit(result);     
 
@@ -297,9 +301,9 @@ void GuiDBHandler::QueryWithSqlFromFile(void)
 //______________________________________________________________________________
 bool GuiDBHandler::IsConnected(void)
 {
-  if( !_dbc->SqlServer() ) return false;
+  if( !fDBC->SqlServer() ) return false;
   else 
-    return  _dbc->SqlServer()->IsConnected();
+    return fDBC->SqlServer()->IsConnected();
 }
 //______________________________________________________________________________
 string GuiDBHandler::ReadSqlQueryFromFile(string filename)

@@ -16,10 +16,9 @@
 #ifndef _GUI_XML_FILE_HANDLER_H_
 #define _GUI_XML_FILE_HANDLER_H_
 
-#include <TGWindow.h>
-#include <TGMenu.h>
-
-#include "NuVldGUI/DBConnection.h"
+class TGWindow;
+class TGMenu;
+class TGPopupMenu;
 
 namespace genie {
 namespace nuvld {

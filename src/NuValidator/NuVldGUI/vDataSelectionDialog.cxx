@@ -3,7 +3,9 @@
 
 \class    genie::nuvld::vDataSelectionDialog
 
-\brief
+\brief    Neutrino Data Selection Popup Dialog which offers more options than
+          the Selection Tab and allows the highest granularity in selecting
+          data (at citation level)
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
@@ -13,25 +15,26 @@
 
 #include <cassert>
 #include <sstream>
-#include <iostream>
-#include <iomanip>
 #include <map>
 
+#include <TGFrame.h>
+#include <TGListBox.h>
+#include <TGButton.h>
+#include <TGNumberEntry.h>
+#include <TGLabel.h>
 #include <TGText.h>
 #include <TSQLServer.h>
 #include <TSQLResult.h>
 #include <TSQLRow.h>
 
+#include "Messenger/Messenger.h"
+#include "NuVldGUI/DBConnection.h"
 #include "NuVldGUI/vDataSelectionDialog.h"
 #include "XmlParser/ParserUtils.h"
 #include "Utils/GUIUtils.h"
 
-using std::cout;
-using std::endl;
 using std::map;
 using std::ostringstream;
-using std::setw;
-using std::setfill;
 
 using namespace genie;
 using namespace genie::nuvld;
@@ -42,11 +45,14 @@ const char * k_xsec_err_types[] = {"no error", "stat. only", "stat.+syst.", 0};
 
 //______________________________________________________________________________
 vDataSelectionDialog::vDataSelectionDialog(
-             const TGWindow *p, const TGWindow *main, bool & attn,
+             const TGWindow *p, const TGWindow *main, bool * attn,
                         UInt_t w, UInt_t h, UInt_t options, DBConnection * db):
-DataSelectionDialog(attn)
-{
-  _db = db;
+DataSelectionDialog()
+{  
+  _db   = db;
+
+  _attn  = attn;
+  *_attn = true; // lock main window's attention through-out this dialog's lifetime
   
   _main = new TGTransientFrame(p, main, w, h, options);
   _main->Connect("CloseWindow()",
@@ -84,6 +90,8 @@ DataSelectionDialog(attn)
 //______________________________________________________________________________
 vDataSelectionDialog::~vDataSelectionDialog()
 {
+  *_attn = false; // release attention-lock 
+
   delete _mleft_frame_layout;
   delete _mright_frame_layout;
   delete _listbox_layout;
@@ -451,7 +459,7 @@ void vDataSelectionDialog::LoadMeasurementsFromDB(void)
                       
       _measurements_listbox->AddEntry(item.str().c_str(), i);
 
-      cout << item.str() << endl;
+      LOG("NuVld",pINFO) << item.str();
 
       delete row;
   }
@@ -834,7 +842,7 @@ string vDataSelectionDialog::BundleKeyListInString(void)
 
   // IndexOf() is broken in ROOT > 4.02 ??
   //int nselected = selected->IndexOf( selected->Last() ) + 1;
-  int nselected = 0;  
+  unsigned int nselected = 0;  
   while( (entry = (TGTextLBEntry *) iter.Next()) ) nselected++;
   iter.Reset();
 
@@ -871,6 +879,11 @@ string vDataSelectionDialog::BundleDrawOptInString(void)
   else return "";
 }
 //______________________________________________________________________________  
+void vDataSelectionDialog::ResetSelections(void)
+{
+
+}
+//______________________________________________________________________________
 void vDataSelectionDialog::PositionRelativeToParent(const TGWindow * main)
 {
 // position relative to the parent's window

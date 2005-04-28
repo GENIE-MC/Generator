@@ -3,7 +3,9 @@
 
 \class    genie::nuvld::vDataSelectionDialog
 
-\brief
+\brief    Neutrino Data Selection Popup Dialog which offers more options than
+          the Selection Tab and allows the highest granularity in selecting
+          data (at citation level)
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
@@ -14,25 +16,20 @@
 #ifndef _NEUTRINO_DATA_SELECTION_DIALOG_H_
 #define _NEUTRINO_DATA_SELECTION_DIALOG_H_
 
-#include <string>
-
-#include <TApplication.h>
-#include <TVirtualX.h>
-#include <TGClient.h>
-#include <TGFrame.h>
-#include <TGListBox.h>
-#include <TGButton.h>
-#include <TGNumberEntry.h>
-#include <TGLabel.h>
 #include <RQ_OBJECT.h>
 
-#include "NuVldGUI/DBConnection.h"
 #include "NuVldGUI/DataSelectionDialog.h"
 
-using std::string;
+class TGFrame;
+class TGListBox;
+class TGButton;
+class TGNumberEntry;
+class TGLabel;
 
 namespace genie {
 namespace nuvld {
+
+class DBConnection;
 
 class vDataSelectionDialog : public DataSelectionDialog {
 
@@ -40,7 +37,7 @@ RQ_OBJECT("vDataSelectionDialog")
 
 public:
    vDataSelectionDialog(const TGWindow *p, const TGWindow *main,
-                           bool & attn, UInt_t w, UInt_t h,
+                           bool * attn, UInt_t w, UInt_t h,
                            UInt_t options = kVerticalFrame, DBConnection * db = 0);
    virtual ~vDataSelectionDialog();
 
@@ -63,6 +60,7 @@ public:
    string BundleKeyListInString (void);
    string BundleCutsInString    (void);
    string BundleDrawOptInString (void);
+   void   ResetSelections       (void);
       
 private:
 
@@ -119,9 +117,9 @@ private:
    TGNumberEntry *    _E_min;
    TGNumberEntry *    _E_max;
    TGLabel *          _E_minLabel;
-   TGLabel *          _E_maxLabel;
-   
-   DBConnection * _db;
+   TGLabel *          _E_maxLabel;   
+   bool *             _attn;
+   DBConnection *     _db;
    
    ClassDef(vDataSelectionDialog, 0)
 };

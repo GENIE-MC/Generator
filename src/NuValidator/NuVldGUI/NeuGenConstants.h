@@ -17,8 +17,8 @@
 namespace genie {
 namespace nuvld {
 
-const char * k_neugen_xsec_type[] = {
-   "total", "differential", 0
+const char * k_neugen_plot_type[] = {
+   "total xsec", "diff. xsec", "struc. func", 0
 };
 
 const char * k_scaling_flux[] = {
@@ -29,18 +29,24 @@ const char * k_neugen_plot_variable[] = {
    "none", "|q^2|", "W", "x", "y", 0
 };
 
+const char * k_neugen_sf_plot_variable[] = {
+   "|q^2|", "x" , 0
+};
+
 const char * k_neugen_plot_range_option[] = {
    "automatic", "custom", 0
 };
 
+const char * k_neugen_sf[] = { "F2", "xF3", 0 };
+
 const char * k_neugen_nu[] = {
    "nu_e", "nu_e_bar", "nu_mu", "nu_mu_bar", "nu_tau", "nu_tau_bar", 0
 };
-const char * k_neugen_wcurr[] = {
-   "CC", "NC", "CC+NC", 0
-};
+const char * k_neugen_wcurr[] = { "CC", "NC", "CC+NC", 0 };
+
 const char * k_neugen_initstate[] = {
-   "nu + p", "nu + n", "nu_bar + p", "nu_bar + n", "nu + N", "nu_bar + N", 0
+   "nu + p", "nu + n", "nu_bar + p", "nu_bar + n", "nu + N", "nu_bar + N",
+   "l + p", "l + n", "l + N", 0
 };
 
 const char * k_neugen_finstate[] = {

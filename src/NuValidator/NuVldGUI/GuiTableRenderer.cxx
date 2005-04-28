@@ -11,10 +11,15 @@
 */
 //_____________________________________________________________________________
 
+#include <TRootEmbeddedCanvas.h>
+#include <TLegend.h>
 #include <TCanvas.h>
 #include <TGProgressBar.h>
 
 #include "Messenger/Messenger.h"
+#include "DBUtils/vXSecTableRow.h"
+#include "DBUtils/eDiffXSecTableRow.h"
+#include "DBUtils/SFTableRow.h"
 #include "NuVldGUI/GuiTableRenderer.h"
 #include "NuVldGUI/SysLogSingleton.h"
 #include "NuVldGUI/BrowserSingleton.h"
@@ -551,7 +556,6 @@ void GuiTableRenderer::DrawMultiGraphInCanvas (
 
   TCanvas * c = fEmbCanvas->GetCanvas();
   
-  TPad * pad    = 0;
   TH1F * hframe = 0;
 
   double xmin = 0, xmax = 0, ymin = 0, ymax = 0;
@@ -566,8 +570,7 @@ void GuiTableRenderer::DrawMultiGraphInCanvas (
 
     delete graph;
   }
-
-
+  
   if(mgraph != 0) {
 
    // check if there is a user-defined energy Range
@@ -774,7 +777,6 @@ void GuiTableRenderer::DrawMultiGraphInCanvas (
 
   TCanvas * c = fEmbCanvas->GetCanvas();
 
-  TPad * pad    = 0;
   TH1F * hframe = 0;
 
   double xmin = 0, xmax = 0, ymin = 0, ymax = 0;

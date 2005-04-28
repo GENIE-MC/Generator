@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::MsgBox
 
-\brief
+\brief    A GUI Message Box
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
@@ -14,13 +14,11 @@
 #ifndef _MSG_BOX_H_
 #define _MSG_BOX_H_
 
-#include <TApplication.h>
-#include <TVirtualX.h>
-#include <TGClient.h>
-#include <TGFrame.h>
-#include <TGLabel.h>
-#include <TGButton.h>
 #include <RQ_OBJECT.h>
+
+class TGFrame;
+class TGLabel;
+class TGButton;
 
 namespace genie {
 namespace nuvld {
@@ -34,17 +32,17 @@ public:
                         UInt_t options = kVerticalFrame, const char * txt = "");
    virtual ~MsgBox();
 
-   void close_window (void) { delete this;               }
-   void ok           (void) { _main->SendCloseMessage(); }
+   void CloseWindow (void) { delete this;               }
+   void Ok          (void) { fMain->SendCloseMessage(); }
 
 private:
 
    void position_relative_to_parent(const TGWindow * main);
 
-   TGTransientFrame * _main;
-   TGLabel *          _label;
-   TGButton *         _ok_button;
-   TGLayoutHints *    _layout;
+   TGTransientFrame * fMain;
+   TGLabel *          fLabel;
+   TGButton *         fOkBtn;
+   TGLayoutHints *    fLayout;
 
    ClassDef(MsgBox, 0)
 };

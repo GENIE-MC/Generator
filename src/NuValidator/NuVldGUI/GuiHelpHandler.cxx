@@ -12,9 +12,9 @@
 //_____________________________________________________________________________
 
 #include <vector>
-#include <string>
 
 #include <TSystem.h>
+#include <TGWindow.h>
 
 #include "NuVldGUI/GuiHelpHandler.h"
 #include "NuVldGUI/HelpBox.h"
@@ -23,7 +23,6 @@
 #include "Utils/StringUtils.h"
 
 using std::vector;
-using std::string;
 
 using namespace genie::string_utils;
 using namespace genie::nuvld;

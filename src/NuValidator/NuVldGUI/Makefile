@@ -28,7 +28,7 @@ _ROOT_DICT_NuVldGUI.cc: LinkDef.h $(CINTLIST_O)
 	$(RM) _ROOT_DICT_NuVldGUI.*
 	@echo "Generating CINT dictionary ..."
 	rootcint -f _ROOT_DICT_NuVldGUI.cc -c \
-	-I$(ROOTSYS)/include $(NUVLD_INC) $(CINTLIST_H) LinkDef.h
+	-I$(ROOTSYS)/include $(NUVLD_INC) $(GENIE_INC) $(CINTLIST_H) LinkDef.h
 
 lib: FORCE
 	@echo "Generating shared library ..."

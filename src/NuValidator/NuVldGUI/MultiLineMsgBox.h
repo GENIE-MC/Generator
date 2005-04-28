@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::MultiLineMsgBox
 
-\brief
+\brief    A multi-line GUI Message Box
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
@@ -16,15 +16,14 @@
 
 #include <string>
 #include <vector>
-#include <TApplication.h>
-#include <TList.h>
-#include <TVirtualX.h>
-#include <TGClient.h>
-#include <TGFrame.h>
-#include <TGIcon.h>
-#include <TGLabel.h>
-#include <TGButton.h>
+
 #include <RQ_OBJECT.h>
+
+class TGFrame;
+class TGIcon;
+class TList;
+class TGLabel;
+class TGButton;
 
 using std::string;
 using std::vector;
@@ -41,18 +40,18 @@ public:
         UInt_t h, UInt_t options = kVerticalFrame, const vector<string> * text = 0);
    virtual ~MultiLineMsgBox();
 
-   void close_window (void) { delete this;               }
-   void ok           (void) { _main->SendCloseMessage(); }
+   void CloseWindow (void)  { delete this;               }
+   void Ok           (void) { fMain->SendCloseMessage(); }
 
 private:
 
-   void build_multi_line_label      (const vector<string> * text);
-   void position_relative_to_parent (const TGWindow * main);
+   void BuildMultiLineLabel      (const vector<string> * text);
+   void PositionRelativeToParent (const TGWindow * main);
 
-   TGTransientFrame *  _main;
-   TList *             _labels;
-   TGButton *          _ok_button;
-   TGLayoutHints *     _layout;
+   TGTransientFrame *  fMain;
+   TList *             fLbl;
+   TGButton *          fOkBtn;
+   TGLayoutHints *     fLayout;
 
    ClassDef(MultiLineMsgBox, 0)
 };

@@ -3,8 +3,7 @@
 
 \class    genie::nuvld::DataSelectionDialog
 
-\brief    Base class for data selection pop-up dialogs that require (& lock) 
-          the attention of the main GUI throughout their lifetime
+\brief    Base class for data selection popup dialogs and tabs
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
@@ -28,18 +27,16 @@ public:
 
    //--- data selection dialog interface
    
-   string  BundleSelectionsInString(void);
-   
-   virtual string BundleKeyListInString (void) = 0;
-   virtual string BundleCutsInString    (void) = 0;
-   virtual string BundleDrawOptInString (void) = 0;
+   virtual string BundleSelectionsInString (void);   
+   virtual string BundleKeyListInString    (void) = 0;
+   virtual string BundleCutsInString       (void) = 0;
+   virtual string BundleDrawOptInString    (void) = 0;
+   virtual void   ResetSelections          (void) = 0;
 
 protected:
 
-   DataSelectionDialog(bool & attn);
+   DataSelectionDialog();
    virtual ~DataSelectionDialog();
-
-   bool & _attn;
 };
 
 } // nuvld namespace
