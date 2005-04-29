@@ -24,7 +24,7 @@ static const char * kSFErrType[] = { "no error", "stat. only", "stat.+syst.", 0 
 
 static const char * kSFExperimentName[] =
 {
-   "BCDMS", "CCFR", "CDHS", "EMC", "NMC", "SLAC", "WA59", 0
+   "NUTEV", "BCDMS", "CCFR", "CDHS", "EMC", "NMC", "SLAC", "WA59", 0
 };
 static const char * kSFTarget[] =
 {
