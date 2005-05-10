@@ -38,6 +38,12 @@ static const char * kFitters[] =
    "NONE", "SIMPLE", "NORM-FLOAT", 0, 
 };
 
+static const char * kMajorLabel =
+     "GENIE Universal Object-Oriented Neutrino Generator Collaboration";
+static const char * kMinorLabel =
+                   "http://hepunx.rl.ac.uk/~candreop/generators/GENIE/";
+
+
 } // namespace constants
 } // namespace nuvld
 } // namespace genie

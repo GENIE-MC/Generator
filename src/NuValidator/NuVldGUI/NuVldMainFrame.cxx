@@ -874,10 +874,8 @@ void NuVldMainFrame::Init(void)
   fDBC  = new DBConnection();
   fNGFP = new NeuGenFitParams();
   
-  fLtxAuth = new TLatex(0.01,0.96,
-           "GENIE OO Neutrino Generator Collaboration (C.Andreopoulos et al.)");
-  fLtxLink = new TLatex(0.01,0.92,
-                  "more at http://hepunx.rl.ac.uk/~candreop/generators/GENIE/");
+  fLtxAuth = new TLatex(0.01,0.96, kMajorLabel);
+  fLtxLink = new TLatex(0.01,0.92, kMinorLabel);
   
   fLtxLink -> SetNDC(); // use Normalized Device Coordinates (NDC)
   fLtxLink -> SetTextSize  (0.03);
