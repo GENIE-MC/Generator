@@ -473,9 +473,9 @@ TGGroupFrame * NeuGenInputDialog::BuildSumsFrame(void)
 
   fSumSpacer = new TGLabel(grpf, new TGString("     "));
 
-  fQelBitMaskCkb = new TGCheckButton(grpf, "Add QEL channel",        31);
-  fResBitMaskCkb = new TGCheckButton(grpf, "Add all RES channels",   32);
-  fDisBitMaskCkb = new TGCheckButton(grpf, "Add all DIS channels",   33);
+  fQelBitMaskCkb = new TGCheckButton(grpf, "Include QEL",  31);
+  fResBitMaskCkb = new TGCheckButton(grpf, "Include RES",  32);
+  fDisBitMaskCkb = new TGCheckButton(grpf, "Include DIS",  33);
 
   grpf -> AddFrame ( fSumSpacer  );
   grpf -> AddFrame ( fQelBitMaskCkb );
