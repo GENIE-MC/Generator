@@ -47,14 +47,15 @@ _cutset(false)
 }
 //____________________________________________________________________________
 NeuGenCuts::NeuGenCuts(NGKineVar_t kvid, float kvmin, float kvmax,
-                                      bool sumQel, bool sumRes, bool sumDis) :
-_cutset   (true), 
-_kvid     (kvid), 
-_kvmin    (kvmin), 
-_kvmax    (kvmax), 
-_sumqel   (sumQel), 
-_sumres   (sumRes), 
-_sumdis   (sumDis)
+                      bool inclusive, bool incQel, bool incRes, bool incDis) :
+_cutset    (true), 
+_kvid      (kvid), 
+_kvmin     (kvmin), 
+_kvmax     (kvmax), 
+_inclusive (inclusive), 
+_incqel    (incQel), 
+_incres    (incRes), 
+_incdis    (incDis)
 {
   LOG("NuVld",pINFO) << "Updating process mask";
 
@@ -74,21 +75,26 @@ void NeuGenCuts::SetCut(NGKineVar_t kvid, float kvmin, float kvmax)
   _kvmax  = kvmax;
 }
 //____________________________________________________________________________
-void NeuGenCuts::SetSumQel(bool sum) 
+void NeuGenCuts::SetInclusive(bool on) 
 { 
-  _sumqel = sum; 
+  _inclusive = on; 
+}
+//____________________________________________________________________________
+void NeuGenCuts::SetIncludeQel(bool on) 
+{ 
+  _incqel = on; 
   this->UpdateProcessMask();
 }
 //____________________________________________________________________________
-void NeuGenCuts::SetSumRes(bool sum) 
+void NeuGenCuts::SetIncludeRes(bool on) 
 { 
-  _sumres = sum; 
+  _incres = on; 
   this->UpdateProcessMask();
 }
 //____________________________________________________________________________
-void NeuGenCuts::SetSumDis(bool sum) 
+void NeuGenCuts::SetIncludeDis(bool on) 
 { 
-  _sumdis = sum; 
+  _incdis = on; 
   this->UpdateProcessMask();
 }
 //____________________________________________________________________________
@@ -96,22 +102,42 @@ void NeuGenCuts::UpdateProcessMask(void)
 {
   int qel, dis, res;
 
-  (_sumqel) ? qel = 0 : qel = 1;
-  (_sumres) ? res = 0 : res = 1;
-  (_sumdis) ? dis = 0 : dis = 1;
+  (_incqel) ? qel = 1 : qel = 0;
+  (_incres) ? res = 1 : res = 0;
+  (_incdis) ? dis = 1 : dis = 0;
 
-  _procmask = qel + 2 * res + 4 * dis;
+  _procmask = 15 - 4*dis - 2*res - qel;
+}
+//____________________________________________________________________________
+bool NeuGenCuts::SumQel(void) const 
+{ 
+  return (_incqel && _inclusive);   
+}
+//____________________________________________________________________________
+bool NeuGenCuts::SumRes(void) const 
+{ 
+  return (_incres && _inclusive);   
+}
+//____________________________________________________________________________
+bool NeuGenCuts::SumDis(void) const 
+{ 
+  return (_incdis && _inclusive); 
 }
 //____________________________________________________________________________
 void NeuGenCuts::Print(ostream & stream) const
 {
-  stream << "CutSet:..........." << _cutset                     << endl;
+  stream << endl;
+  stream << "cut-set:.........." << _cutset                     << endl;
   stream << "Kvid:............." << NGKineVar::AsString(_kvid)  << endl;
-  stream << "min:.............." << _kvmin                      << endl;
-  stream << "max:.............." << _kvmax                      << endl;
-  stream << "procmask:........." << _procmask                   << endl;
-  stream << "sum(qel):........." << _sumqel                     << endl;
-  stream << "sum(res):........." << _sumres                     << endl;
-  stream << "sum(dis):........." << _sumdis                     << endl;
+  stream << "min:.............." << this->KVMin()               << endl;
+  stream << "max:.............." << this->KVMax()               << endl;
+  stream << "procmask:........." << this->ProcMask()            << endl;
+  stream << "inclusive:........" << this->Inclusive()           << endl;
+  stream << "include(qel):....." << this->IncludeQel()          << endl;
+  stream << "include(res):....." << this->IncludeRes()          << endl;
+  stream << "include(dis):....." << this->IncludeDis()          << endl;
+  stream << "sum(qel):........." << this->SumQel()              << endl;
+  stream << "sum(res):........." << this->SumRes()              << endl;
+  stream << "sum(dis):........." << this->SumDis()              << endl;
 }
 //____________________________________________________________________________

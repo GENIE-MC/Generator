@@ -81,6 +81,7 @@ void NGFinalState::SetFinalState(
 //____________________________________________________________________________
 void NGFinalState::Print(ostream & stream) const
 {
+  stream << endl;
   stream << "Protons:..........." << _proton  << endl;
   stream << "Neutrons:.........." << _neutron << endl;
   stream << "Piplus:............" << _piplus  << endl;

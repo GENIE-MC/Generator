@@ -375,6 +375,8 @@ float NeuGenWrapper::StrucFunc(float x, float Q2, int A,
 Spline * NeuGenWrapper::XSecSpline (
       float emin, float emax, int nbins, NGInteraction * ni, NeuGenCuts * cuts)
 {
+  SLOG("NeuGen", pINFO) << "Building XSec Spline";
+
   assert(emin < emax && nbins > 1);
 
   double * E    = new double[nbins];
@@ -402,6 +404,8 @@ Spline * NeuGenWrapper::ExclusiveXSecSpline(
     float emin, float emax, int nbins,
                     NGInteraction * ni, NGFinalState * final, NeuGenCuts * cuts)
 {
+  SLOG("NeuGen", pINFO) << "Building Exclusive XSec Spline";
+
   assert(emin < emax && nbins > 0);
 
   double * E    = new double[nbins];
@@ -429,6 +433,8 @@ Spline * NeuGenWrapper::StrucFuncSpline(
    NGKineVar_t xvar, float varmin, float varmax, int nbins, float fixedvar,
              int A, NGInitState_t init, NGCcNc_t ccnc, NGSF_t sf, int raw_dis)
 {
+  SLOG("NeuGen", pINFO) << "Building Structure Function Spline";
+
   assert(varmin < varmax && nbins > 0);
 
   Spline * spl = 0;
