@@ -532,9 +532,9 @@ void NeuGenInputDialog::OK(void)
   cards->CurrInputs()->SetCutVar       ( this->ReadCutVar()       );
   cards->CurrInputs()->SetCutVarMin    ( this->ReadCutVarMin()    );
   cards->CurrInputs()->SetCutVarMax    ( this->ReadCutVarMax()    );
-  cards->CurrInputs()->SetQelSum       ( this->ReadQelBitInMask() );
-  cards->CurrInputs()->SetResSum       ( this->ReadResBitInMask() );
-  cards->CurrInputs()->SetDisSum       ( this->ReadDisBitInMask() );
+  cards->CurrInputs()->SetIncludeQel   ( this->ReadQelBitInMask() );
+  cards->CurrInputs()->SetIncludeRes   ( this->ReadResBitInMask() );
+  cards->CurrInputs()->SetIncludeDis   ( this->ReadDisBitInMask() );
   cards->CurrInputs()->SetInclusive    ( this->ReadInclusive()    );
   cards->CurrInputs()->SetSFRawDis     ( this->ReadSFRawDis()     );
   cards->CurrInputs()->SetSFFixedVar   ( this->ReadSFFixedVar()   );
@@ -644,15 +644,11 @@ void NeuGenInputDialog::LoadLastEntries(void)
   fSFFixVarNmE  -> SetNumber ( inp->SFFixedVar()   );
   fANmE         -> SetNumber ( inp->A()            );
 
-  int qel_sum = ( inp->QelSum() ) ? 1 : 0;
-  int res_sum = ( inp->ResSum() ) ? 1 : 0;
-  int dis_sum = ( inp->DisSum() ) ? 1 : 0;
-  
-  fQelBitMaskCkb   -> SetOn ( qel_sum );
-  fResBitMaskCkb   -> SetOn ( res_sum );
-  fDisBitMaskCkb   -> SetOn ( dis_sum );
-  fAllFinStatesCkb -> SetOn ( inp->Inclusive() );
-  fSFRawDisCkb     -> SetOn ( inp->SFRawDis()  );
+  fQelBitMaskCkb   -> SetOn ( inp->IncludeQel() );
+  fResBitMaskCkb   -> SetOn ( inp->IncludeRes() );
+  fDisBitMaskCkb   -> SetOn ( inp->IncludeDis() );
+  fAllFinStatesCkb -> SetOn ( inp->Inclusive()  );
+  fSFRawDisCkb     -> SetOn ( inp->SFRawDis()   );
 }
 //______________________________________________________________________________
 void NeuGenInputDialog::PositionRelativeToParent(const TGWindow * main)
