@@ -50,9 +50,9 @@ public:
   NGFinalState  GetFinalState  (void) const;
   NeuGenCuts    GetCuts        (void) const;
 
-  bool   QelSum           (void) const { return fQelSum == 1;      }
-  bool   ResSum           (void) const { return fResSum == 1;      }
-  bool   DisSum           (void) const { return fDisSum == 1;      }
+  bool   IncludeQel       (void) const { return fIncludeQel;       }
+  bool   IncludeRes       (void) const { return fIncludeRes;       }
+  bool   IncludeDis       (void) const { return fIncludeDis;       }
   bool   Inclusive        (void) const { return fInclusive;        }
   bool   SFRawDis         (void) const { return fSFRawDis;         }
   int    NBins            (void) const { return fNBins;            }
@@ -113,9 +113,9 @@ public:
   void SetCutVarMin     ( float  var_min    );
   void SetCutVarMax     ( float  var_max    );
   void SetSFFixedVar    ( float  var        );
-  void SetQelSum        ( bool   on         );
-  void SetResSum        ( bool   on         );
-  void SetDisSum        ( bool   on         );
+  void SetIncludeQel    ( bool   on         );
+  void SetIncludeRes    ( bool   on         );
+  void SetIncludeDis    ( bool   on         );
   void SetInclusive     ( bool   on         );
   void SetSFRawDis      ( bool   on         );
 
@@ -155,9 +155,9 @@ private:
   float        fCutVarMax;
   float        fSFFixedVar;
   int          fSFCode;
-  int          fQelSum;
-  int          fResSum;
-  int          fDisSum;
+  bool         fIncludeQel;
+  bool         fIncludeRes;
+  bool         fIncludeDis;
   bool         fInclusive;
   bool         fSFRawDis;
   NGPlotType_t fPlotType;

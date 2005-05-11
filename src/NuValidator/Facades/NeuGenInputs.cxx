@@ -16,6 +16,7 @@
 #include <sstream>
 #include <iomanip>
 
+#include "Messenger/Messenger.h"
 #include "Facades/NeuGenInputs.h"
 
 using std::endl;
@@ -25,7 +26,7 @@ using std::setiosflags;
 using std::setfill;
 using std::ofstream;
 using std::ostringstream;
-
+ 
 using namespace genie::nuvld::facades;
 
 ClassImp(NeuGenInputs)
@@ -73,9 +74,9 @@ NeuGenInputs::NeuGenInputs(const NeuGenInputs * inputs)
   fCutVarCode     = inputs->fCutVarCode;
   fCutVarMin      = inputs->fCutVarMin;
   fCutVarMax      = inputs->fCutVarMax;
-  fQelSum         = inputs->fQelSum;
-  fResSum         = inputs->fResSum;
-  fDisSum         = inputs->fDisSum;
+  fIncludeQel     = inputs->fIncludeQel;
+  fIncludeRes     = inputs->fIncludeRes;
+  fIncludeDis     = inputs->fIncludeDis;
   fInclusive      = inputs->fInclusive;
   fSFRawDis       = inputs->fSFRawDis;
   fSFCode         = inputs->fSFCode;
@@ -131,12 +132,11 @@ NeuGenCuts NeuGenInputs::GetCuts(void) const
 {
   NGKineVar_t kvid = NGKineVar::GetKineVarFromCode(fCutVarCode);
 
-  bool sumQel = (fQelSum == 1);
-  bool sumRes = (fResSum == 1);
-  bool sumDis = (fDisSum == 1);
+  NeuGenCuts cuts(kvid, fCutVarMin, fCutVarMax,
+                           fInclusive, fIncludeQel, fIncludeRes, fIncludeDis);
 
-  NeuGenCuts cuts(kvid, fCutVarMin, fCutVarMax, sumQel, sumRes, sumDis);
-
+  LOG("NeuGen", pINFO) << cuts;
+  
   return cuts;
 }
 //____________________________________________________________________________
@@ -241,27 +241,21 @@ void NeuGenInputs::SetSFFixedVar(float var)
 void NeuGenInputs::SetInclusive(bool on)
 {
   fInclusive = on;
-  
-  if(on) {
-    this->SetQelSum(true);
-    this->SetResSum(true);
-    this->SetDisSum(true);
-  }
 }
 //____________________________________________________________________________
-void NeuGenInputs::SetQelSum(bool on)
+void NeuGenInputs::SetIncludeQel(bool on)
 {
-  fQelSum  = this->Bool2Int(on);
+  fIncludeQel = on;
 }
 //____________________________________________________________________________
-void NeuGenInputs::SetResSum(bool on)
+void NeuGenInputs::SetIncludeRes(bool on)
 {
-  fResSum  = this->Bool2Int(on);
+  fIncludeRes = on;
 }
 //____________________________________________________________________________
-void NeuGenInputs::SetDisSum(bool on)
+void NeuGenInputs::SetIncludeDis(bool on)
 {
-  fDisSum  = this->Bool2Int(on);
+  fIncludeDis = on;
 }
 //____________________________________________________________________________
 void NeuGenInputs::SetSFRawDis(bool on)
@@ -448,9 +442,9 @@ void NeuGenInputs::Init(void)
   fCutVarCode       = 0;
   fCutVarMin        = 0;
   fCutVarMax        = 0;
-  fQelSum           = 0;
-  fResSum           = 0;
-  fDisSum           = 0;
+  fIncludeQel       = 0;
+  fIncludeRes       = 0;
+  fIncludeDis       = 0;
   fInclusive        = true;
   fSFRawDis         = false;
   fSFCode           = -1;
@@ -498,9 +492,9 @@ void NeuGenInputs::Print(ostream & stream) const
   stream << "cut variable =    " << fCutVarCode       << endl;
   stream << "cut var - min =   " << fCutVarMin        << endl;
   stream << "cut var - max =   " << fCutVarMax        << endl;
-  stream << "qel sum =         " << fQelSum           << endl;
-  stream << "res sum =         " << fResSum           << endl;
-  stream << "dis sum =         " << fDisSum           << endl;
+  stream << "include qel =     " << fIncludeQel       << endl;
+  stream << "include res =     " << fIncludeRes       << endl;
+  stream << "include dis =     " << fIncludeDis       << endl;
   stream << "inclusive =       " << fInclusive        << endl;
   stream << "SF raw dis =      " << fSFRawDis         << endl;
   stream << "SF code =         " << fSFCode           << endl;

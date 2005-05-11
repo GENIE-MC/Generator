@@ -36,23 +36,28 @@ public:
   NeuGenCuts();
   NeuGenCuts(const char * name);
   NeuGenCuts(NGKineVar_t kvid, float kvmin, float kvmax,
-                                    bool sumQel, bool sumRes, bool sumDis);
+                      bool inclusive, bool incQel, bool incRes, bool incDis);
   ~NeuGenCuts();
 
   void SetCut(NGKineVar_t kvid, float kvmin, float kvmax);
 
-  void SetSumQel   (bool sum);
-  void SetSumRes   (bool sum);
-  void SetSumDis   (bool sum);
+  void SetInclusive  (bool on);
+  void SetIncludeQel (bool on);
+  void SetIncludeRes (bool on);
+  void SetIncludeDis (bool on);
 
-  bool         IsCutSet (void) const { return _cutset;   }
-  NGKineVar_t  CutKVId  (void) const { return _kvid;     } 
-  float        KVMin    (void) const { return _kvmin;    }
-  float        KVMax    (void) const { return _kvmax;    }
-  int          ProcMask (void) const { return _procmask; }
-  bool         SumQel   (void) const { return _sumqel;   }
-  bool         SumRes   (void) const { return _sumres;   }
-  bool         SumDis   (void) const { return _sumdis;   }
+  bool         IsCutSet   (void) const { return _cutset;    }
+  NGKineVar_t  CutKVId    (void) const { return _kvid;      } 
+  float        KVMin      (void) const { return _kvmin;     }
+  float        KVMax      (void) const { return _kvmax;     }
+  int          ProcMask   (void) const { return _procmask;  }
+  bool         Inclusive  (void) const { return _inclusive; }
+  bool         IncludeQel (void) const { return _incqel;    }
+  bool         IncludeRes (void) const { return _incres;    }
+  bool         IncludeDis (void) const { return _incdis;    }
+  bool         SumQel     (void) const;
+  bool         SumRes     (void) const;
+  bool         SumDis     (void) const;
 
   void Print(ostream & stream) const;
 
@@ -68,9 +73,10 @@ private:
   float        _kvmin;
   float        _kvmax;
   int          _procmask;
-  bool         _sumqel;
-  bool         _sumres;
-  bool         _sumdis;
+  bool         _inclusive;
+  bool         _incqel;
+  bool         _incres;
+  bool         _incdis;
 
 ClassDef(NeuGenCuts, 0)
 };
