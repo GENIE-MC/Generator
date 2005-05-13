@@ -80,6 +80,7 @@ TNtuple * Cache::CreateCacheBranch(
 
   TNtuple * nt = new TNtuple(key.c_str(), "cache branch", branchdef.c_str());
 
+  nt->SetDirectory(0);
   nt->SetCircular(1600000);
   
   fCacheMap->insert( map<string, TNtuple *>::value_type(key,nt) );
