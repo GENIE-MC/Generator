@@ -24,7 +24,7 @@
 
   <param_set name="CC-Slow-Rescaling"> 
 
-     <param type="string" name="title"> Aivazis et al CC Charm Production Cross Section        </param>
+     <param type="string" name="title"> Slow-Rescaling model CC Charm Production Cross Section </param>
 
      <param type="string" name="charmdis-xsec-alg-name">  genie::DISXSec                       </param>
      <param type="string" name="charmdis-xsec-param-set"> CC-Charm-Slow-Rescaling              </param>
