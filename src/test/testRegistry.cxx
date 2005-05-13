@@ -19,7 +19,11 @@ using namespace genie;
 
 int main(int argc, char ** argv)
 {
+ LOG("Main", pINFO) << "***** Basic Registry tests *****";
+
  //-- Build a Registry, unlock it, add some vars, lock it, print it.
+
+ LOG("Main", pINFO) << "Building, Unlocking, Setting, Locking, Printing...";
 
  Registry registry("example-registry");
 
@@ -37,12 +41,18 @@ int main(int argc, char ** argv)
 
  //-- Try to override var-int-2 and add a new var-int-3 to the locked registry
 
+ LOG("Main", pINFO) 
+              << "Trying to set variables in a locked registry - should fail";
+
  registry.Set("var-int-2",    12);
  registry.Set("var-int-3",    89);
 
  LOG("Main", pINFO) << ENDL << registry;
 
  //-- Do the same and add a couple of string vars, but now unlock it first
+
+ LOG("Main", pINFO) 
+   << "Unlock the registry first and then set the variables - should succeed";
 
  registry.UnLock();
 
@@ -59,7 +69,8 @@ int main(int argc, char ** argv)
 
  Registry registry2(registry);
 
- LOG("Main", pINFO) << "Testing copy constructor: Registry registry2(registry)";
+ LOG("Main", pINFO) 
+    << "***** Testing copy constructor: Registry registry2(registry) *****";
  
  LOG("Main", pINFO) << ENDL << registry2;
 
@@ -80,7 +91,7 @@ int main(int argc, char ** argv)
 
  //-- Testing data retrieval
 
- LOG("Main", pINFO) << "Testing data retrieval";
+ LOG("Main", pINFO) << "***** Testing data retrieval *****";
 
  bool   retrieved_bool   = false;
  int    retrieved_int    = 0;
@@ -106,5 +117,60 @@ int main(int argc, char ** argv)
  registry3.Copy(registry2); // copy registry2 contents to registry3
 
  LOG("Main", pINFO) << ENDL << registry3;
+
+
+ //-- Test Individual Item Locking
+
+ LOG("Main", pINFO) << "***** Testing individual item locking *****";
+
+ Registry registry4("example-registry-with-locked-items");
+
+ registry4.UnLock();
+
+ registry4("an int variable",    19     );
+ registry4("a bool variable",    true   );
+ registry4("a double variable",  2.71   );
+ registry4("a string variable", "hello" );
+
+ LOG("Main", pINFO) 
+    << "Init registry" << ENDL << registry4;
+
+ //lock two of the variables
+
+ registry4.LockItem("an int variable");
+ registry4.LockItem("a double variable");
+
+ LOG("Main", pINFO) 
+    << "Registry with locked keys" << ENDL << registry4;
+
+ LOG("Main", pINFO) 
+    << "Attempting to change locked items in unlocked registry";
+
+ //try to change the locked variables - this should fail even though
+ //the registry itself is unclocked 
+
+ registry4.Set("an int variable",   25);
+ registry4.Set("a double variable", 129320.21);
+
+ LOG("Main", pINFO) 
+    << "Should have failed to change locked entries" << ENDL << registry4;
+
+ //inhibit individual item locking
+
+ LOG("Main", pINFO) << "Inhibit item locking";
+
+ registry4.InhibitItemLocks();
+
+ LOG("Main", pINFO) << ENDL << registry4;
+
+ //re-try to change the locked variables 
+
+ LOG("Main", pINFO) 
+    << "Retrying to change locked items in unlocked registry with inhibited item locking";
+
+ registry4.Set("an int variable",   25);
+ registry4.Set("a double variable", 9.21);
+
+ LOG("Main", pINFO) << ENDL << registry4;
 }
 
