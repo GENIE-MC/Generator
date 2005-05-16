@@ -356,8 +356,10 @@ void GenieViewer::Initialize(void)
 //______________________________________________________________________________
 void GenieViewer::NextEvent(void)
 {
-  fGENIE->SetNeutrinoPdgCode(14);   // nu_mu
-  fGENIE->SetNuclearTarget((int) fZ->GetNumber(), (int) fA->GetNumber());  // Z,A
+//  fGENIE->SetNeutrinoPdgCode(14);   // nu_mu
+//  fGENIE->SetNuclearTarget((int) fZ->GetNumber(), (int) fA->GetNumber());  // Z,A
+
+  fGENIE->SetInitialState(14,(int) fZ->GetNumber(), (int) fA->GetNumber());  // Z,A
 
   double px = fPx->GetNumber();
   double py = fPy->GetNumber();
