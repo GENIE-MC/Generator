@@ -7,7 +7,7 @@
    <alg_config alg_name="genie::PetersonFragm">   
        <config_file> 
              peterson_fragmentation.xml 
-       </config_file>
+       </config_file> 
    </alg_config>
 
    <alg_config alg_name="genie::CollinsSpillerFragm">   
@@ -334,11 +334,13 @@
        </config_file>
    </alg_config>
 
+<!--
    <alg_config alg_name="genie::EventGeneratorList">   
        <config_file> 
              event_generator_list.xml 
        </config_file>
    </alg_config>
+-->
 
    <alg_config alg_name="genie::EGResponsibilityChain">   
        <config_file> 
@@ -415,6 +417,38 @@
    <alg_config alg_name="genie::RESHadronicSystemGenerator">   
        <config_file> 
              res_hadronic_system_generator.xml 
+       </config_file>
+   </alg_config>
+
+   ------ CONFIGURATION FOR INTERACTION-LIST-GENERATORS --------
+
+   <alg_config alg_name="genie::QELInteractionListGenerator">   
+       <config_file> 
+             qel_interaction_list_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::RESInteractionListGenerator">   
+       <config_file> 
+             res_interaction_list_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::DISInteractionListGenerator">   
+       <config_file> 
+             dis_interaction_list_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::InteractionListAssembler">   
+       <config_file> 
+             interaction_list_assembler.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::EventGeneratorListAssembler">   
+       <config_file> 
+             event_generator_list_assembler.xml 
        </config_file>
    </alg_config>
 

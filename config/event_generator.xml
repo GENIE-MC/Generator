@@ -29,6 +29,11 @@
      <param type="string" name="generator-step-7-conf">  Default                            </param>
      <param type="string" name="generator-step-8-alg">   genie::UnstableParticleDecayer     </param>
      <param type="string" name="generator-step-8-conf">  Default                            </param>
+
+     <param type="string" name="interaction-list-alg">   genie::QELInteractionListGenerator </param>
+     <param type="string" name="interaction-list-conf">  Default                            </param>
+     <param type="string" name="cross-section-alg">      genie::QELXSec                     </param>
+     <param type="string" name="cross-section-conf">     CC-Default                         </param>
   </param_set>
 
   <param_set name="QEL-NC"> 
@@ -56,6 +61,11 @@
      <param type="string" name="generator-step-7-conf">  Default                            </param>
      <param type="string" name="generator-step-8-alg">   genie::UnstableParticleDecayer     </param>
      <param type="string" name="generator-step-8-conf">  Default                            </param>
+
+     <param type="string" name="interaction-list-alg">   genie::QELInteractionListGenerator </param>
+     <param type="string" name="interaction-list-conf">  Default                            </param>
+     <param type="string" name="cross-section-alg">      genie::QELXSec                     </param>
+     <param type="string" name="cross-section-conf">     NC-Default                         </param>
   </param_set>
 
 
@@ -80,6 +90,12 @@
      <param type="string" name="generator-step-5-conf">  Default                            </param>
      <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
+
+     <param type="string" name="interaction-list-alg">   genie::DISInteractionListGenerator </param>
+     <param type="string" name="interaction-list-conf">  Default                            </param>
+     <param type="string" name="cross-section-alg">      genie::DISXSec                     </param>
+     <param type="string" name="cross-section-conf">     CC-Parton-Model-Default-Above-Charm</param>
+
   </param_set>
 
 
@@ -104,6 +120,11 @@
      <param type="string" name="generator-step-5-conf">  Default                            </param>
      <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
+
+     <param type="string" name="interaction-list-alg">   genie::DISInteractionListGenerator </param>
+     <param type="string" name="interaction-list-conf">  Default                            </param>
+     <param type="string" name="cross-section-alg">      genie::DISXSec                     </param>
+     <param type="string" name="cross-section-conf">     NC-Parton-Model-Default            </param>
   </param_set>
 
 
@@ -131,6 +152,11 @@
      <param type="string" name="generator-step-7-conf">  Resonances                         </param>
      <param type="string" name="generator-step-8-alg">   genie::UnstableParticleDecayer     </param>
      <param type="string" name="generator-step-8-conf">  Default                            </param>
+
+     <param type="string" name="interaction-list-alg">   genie::RESInteractionListGenerator </param>
+     <param type="string" name="interaction-list-conf">  Default                            </param>
+     <param type="string" name="cross-section-alg">      genie::RESXSec                     </param>
+     <param type="string" name="cross-section-conf">     Rein-Seghal                        </param>
   </param_set>
 
 </alg_conf>
