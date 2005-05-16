@@ -151,7 +151,7 @@ void Interaction::Print(ostream & stream) const
   stream << *fProcInfo;             // print process info
   stream << *fScatteringParams;     // print scattering parameters
 
-  stream << "xsec = " << fXSec;     // xsec
+  stream << "xsec = " << fXSec << endl; // xsec
 
   // print exclusive process tag - if exists
   if( this->IsExclusive() ) stream << *fExclusiveTag;
