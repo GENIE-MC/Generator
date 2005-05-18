@@ -13,5 +13,6 @@
 #pragma link C++ namespace genie::xsec_utils;
 
 #pragma link C++ class genie::Cache;
+#pragma link C++ class genie::XSecSplineList;
 
 #endif
