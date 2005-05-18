@@ -334,17 +334,15 @@
        </config_file>
    </alg_config>
 
-<!--
-   <alg_config alg_name="genie::EventGeneratorList">   
+   <alg_config alg_name="genie::PhysInteractionSelector">   
        <config_file> 
-             event_generator_list.xml 
+             phys_interaction_selector.xml 
        </config_file>
    </alg_config>
--->
 
-   <alg_config alg_name="genie::EGResponsibilityChain">   
+   <alg_config alg_name="genie::ToyInteractionSelector">   
        <config_file> 
-             eg_responsibility_chain.xml 
+             toy_interaction_selector.xml 
        </config_file>
    </alg_config>
 
