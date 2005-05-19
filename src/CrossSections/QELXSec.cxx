@@ -41,7 +41,7 @@ XSecAlgorithmI(param_set)
 {
   fName = "genie::QELXSec";
 
-  FindConfig();
+  this->FindConfig();
 }
 //____________________________________________________________________________
 QELXSec::~QELXSec()
@@ -61,13 +61,10 @@ double QELXSec::XSec(const Interaction * interaction) const
 
   //----- get the input number of dxsec/dlogQ2 points for num. integration
   //      or use a default if no number is specified
+  //      (must be odd number for the Simpson rule)
 
-  int nbins; // <-- must be odd number (for Simpson rule)
-
-  if ( fConfig->Exists("N-logQ2-bins") )
-                                     fConfig->Get("N-logQ2-bins", nbins );
-  else nbins = 101;
-  
+  int nbins = ( fConfig->Exists("N-logQ2-bins") ) ?
+                                      fConfig->GetInt("N-logQ2-bins") : 101;
   LOG("QELXSec", pDEBUG)
                      << "Number of integration (logQ^2) bins = " << nbins;
   
@@ -80,9 +77,7 @@ double QELXSec::XSec(const Interaction * interaction) const
   double E    = nu_p4->Energy();
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double Mnuc = init_state.GetTarget().StruckNucleonMass();
-
-  double ml2   = ml   * ml; 
-  //double Mnuc2 = Mnuc * Mnuc;
+  double ml2  = ml * ml; 
 
   delete nu_p4;
         
@@ -90,10 +85,14 @@ double QELXSec::XSec(const Interaction * interaction) const
 
   double Ethr = (ml2 + 2*ml*Mnuc) / (2*Mnuc);
 
-  LOG("QELXSec", pDEBUG) << "Neutrino Energy = " << E
-                          << " and Neutrino Energy Threshold = " << Ethr;
-  
-  if(E < Ethr) return 0;
+  LOG("QELXSec", pDEBUG)
+       << "Computing QEL XSec for Ev = " << E
+                            << " / Neutrino Energy Threshold = " << Ethr;  
+
+  if(E <= Ethr) {
+     LOG("QELXSec", pINFO) << "Ev = " << E << " <= Ethreshold = "<< Ethr;
+     return 0;
+  }
   
   //----- estimate the integration limits & step
 
@@ -102,37 +101,13 @@ double QELXSec::XSec(const Interaction * interaction) const
   LOG("QELXSec", pDEBUG) << "Q2 integration range = ("
                                     << rQ2.min << ", " << rQ2.max << ")";
   
-/*  
-  double s     = 2*Mnuc*E + Mnuc2;
-  double tmp   = s + ml2 -Mnuc2;
-  double tmp2  = tmp*tmp - 4*s*ml2;
-  
-  //if(tmp2<0) tmp2=0;
-  tmp2 = sqrt(tmp2);
-  
-  double Q2min = -(ml2 - 0.5 * (s-Mnuc2) * (tmp-tmp2) /s);
-  double Q2max = -(ml2 - 0.5 * (s-Mnuc2) * (tmp+tmp2) /s);
-
-  LOG("QELXSec", pDEBUG) << "Q2 integration range = ("
-                                       << Q2min << ", " << Q2max << ")";
-  
-  //if( TMath::Abs(q2max) < 1E-12 ) Q2max = -1E-12;
-
-  double logQ2max = TMath::Log(Q2max);
-  double logQ2min = TMath::Log(Q2min);
-    
-  double dlogQ2   = (logQ2max - logQ2min) / (nbins - 1);
-*/
-
   double logQ2max = TMath::Log(rQ2.max);
   double logQ2min = TMath::Log(rQ2.min);
-
   double dlogQ2   = (logQ2max - logQ2min) / (nbins - 1);
 
   //----- define the integration grid & instantiate a FunctionMap
   
   UnifGrid grid;
-
   grid.AddDimension(nbins, logQ2min, logQ2max);
 
   FunctionMap Q2dxsec_dQ2(grid);
