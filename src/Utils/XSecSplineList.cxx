@@ -12,6 +12,7 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
 #include <TLorentzVector.h>
 
 #include "Base/XSecAlgorithmI.h"
@@ -22,11 +23,22 @@
 namespace genie {
 
 //____________________________________________________________________________
+ostream & operator<< (ostream& stream, const XSecSplineList & list)
+{
+  list.Print(stream);
+
+  return stream;
+}
+//____________________________________________________________________________
 XSecSplineList * XSecSplineList::fInstance = 0;
 //____________________________________________________________________________
 XSecSplineList::XSecSplineList()
 {
   fInstance =  0;
+  fUseLogE  = true;
+  fNKnots   = 100;
+  fEmin     =   0.01; // GeV
+  fEmax     = 100.00; // GeV
 }
 //____________________________________________________________________________
 XSecSplineList::~XSecSplineList()
@@ -74,17 +86,40 @@ const Spline * XSecSplineList::GetSpline(
 }
 //____________________________________________________________________________
 void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
-                   const Interaction * interaction, double Emin, double Emax)
+        const Interaction * interaction, int nknots, double Emin, double Emax)
 {
+// Build a cross section spline for the input interaction using the input
+// cross section algorithm and store in the list.
+// For building this specific entry of the spline list, the user is allowed
+// to override the list-wide nknots,Emin,Emax
+ 
+  SLOG("XSecSplineList", pINFO) 
+             << "Creating cross section spline using the algorithm: " << *alg;
+
   string key = this->BuildSplineKey(alg,interaction);
 
-  double xsec[100];
-  double E[100];
-  double dE = (Emax-Emin)/99.;
+  // if any of the nknots,Emin,Emax was not set or its value is not acceptable
+  // use the list values
+  if (Emin   < 0.) Emin   = this->Emin();
+  if (Emax   < 0.) Emin   = this->Emax();
+  if (nknots <= 2) nknots = this->NKnots();
+  
+  assert(Emin < Emax);
+  
+  double xsec[nknots];
+  double E   [nknots];
+  
+  double dE = 0;  
+  if( this->UseLogE() )
+       dE = (TMath::Log10(Emax) - TMath::Log10(Emin)) /(nknots-1);
+  else dE = (Emax-Emin) /(nknots-1);
 
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < nknots; i++) {
 
-    E[i] = Emin + i * dE;
+    if( this->UseLogE() )
+          E[i] = TMath::Power(10., TMath::Log10(Emin) + i * dE);
+    else  E[i] = Emin + i * dE;
+    
     TLorentzVector p4(0,0,E[i],E[i]);
 
     interaction->GetInitialStatePtr()->SetProbeP4(p4);
@@ -93,10 +128,36 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 
     SLOG("XSecSplineList", pINFO) << "xsec(E = " << E[i] << ") = " << xsec[i];
   }
-  Spline * spline = new Spline(100, E, xsec);
+  Spline * spline = new Spline(nknots, E, xsec);
 
   fSplineMap.insert( map<string, Spline *>::value_type(key, spline) );  
 }  
+//____________________________________________________________________________
+void XSecSplineList::SetLogE(bool on)
+{
+  fUseLogE = on;
+}
+//____________________________________________________________________________
+void XSecSplineList::SetNKnots(int nk)
+{
+  fNKnots = nk;
+  
+  if(fNKnots<2) fNKnots = 2; // minimum acceptable number of knots
+}
+//____________________________________________________________________________
+void XSecSplineList::SetMinE(double Ev)
+{
+  fEmin = Ev;
+
+  if(fEmin<0) fEmin = 0.; 
+}
+//____________________________________________________________________________
+void XSecSplineList::SetMaxE(double Ev)
+{
+  fEmax = Ev;
+  
+  if(fEmax<0) fEmax = 0.;
+}
 //____________________________________________________________________________
 string XSecSplineList::BuildSplineKey(
             const XSecAlgorithmI * alg, const Interaction * interaction) const
@@ -110,5 +171,26 @@ string XSecSplineList::BuildSplineKey(
   return key;
 }
 //____________________________________________________________________________
+void XSecSplineList::Print(ostream & stream) const
+{
+  stream << "\n ******************* XSecSplineList *************************";
+  stream << "\n [-] Options:";
+  stream << "\n  |";
+  stream << "\n  |-----o  UseLogE..................." << fUseLogE;
+  stream << "\n  |-----o  Spline Emin..............." << fNKnots;
+  stream << "\n  |-----o  Spline Emax..............." << fEmin;
+  stream << "\n  |-----o  Spline NKnots............." << fEmax;
+  stream << "\n  |";  
+  stream << "\n [-] Available Splines:";
+  stream << "\n  |";
+
+  map<string, Spline *>::const_iterator mapiter;
+  for(mapiter = fSplineMap.begin(); mapiter != fSplineMap.end(); ++mapiter) {
+    string key = mapiter->first;
+    stream << "\n  |-----o  " << key;
+  }
+  stream << "\n";
+}
+//___________________________________________________________________________
   
 } // genie namespace 
