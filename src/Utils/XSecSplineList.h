@@ -15,12 +15,14 @@
 #ifndef _XSEC_SPLINE_LIST_H_
 #define _XSEC_SPLINE_LIST_H_
 
+#include <ostream>
 #include <map>
 #include <string>
 
 using std::map;
 using std::pair;
 using std::string;
+using std::ostream;
 
 namespace genie {
 
@@ -35,7 +37,20 @@ public:
 
   bool           SplineExists (const XSecAlgorithmI * alg, const Interaction * i) const;
   const Spline * GetSpline    (const XSecAlgorithmI * alg, const Interaction * i) const;
-  void           CreateSpline (const XSecAlgorithmI * alg, const Interaction * i, double Emin, double Emax);
+  void           CreateSpline (const XSecAlgorithmI * alg, const Interaction * i,
+                                   int nknots = -1, double Emin = -1, double Emax = -1);
+
+  void   SetLogE   (bool   on); ///< set opt to build splines as f(E) or as f(logE)
+  void   SetNKnots (int    nk); ///< set default number of knots for building the spline
+  void   SetMinE   (double Ev); ///< set default minimum energy for xsec splines
+  void   SetMaxE   (double Ev); ///< set default maximum energy for xsec splines
+  bool   UseLogE   (void) const { return fUseLogE; }
+  int    NKnots    (void) const { return fNKnots;  }
+  double Emin      (void) const { return fEmin;    }
+  double Emax      (void) const { return fEmax;    }
+  void   Print     (ostream & stream) const;
+
+  friend ostream & operator << (ostream & stream, const XSecSplineList & xsl);
   
 private:
 
@@ -47,6 +62,11 @@ private:
 
   static XSecSplineList * fInstance;
 
+  bool   fUseLogE;
+  int    fNKnots;
+  double fEmin;
+  double fEmax;
+  
   map<string, Spline *> fSplineMap; ///< xsec_alg_name/param_set/interaction -> Spline
   
   struct Cleaner {
