@@ -42,7 +42,7 @@ XSecAlgorithmI(param_set)
 {
   fName = "genie::DISXSec";
 
-  FindConfig();
+  this->FindConfig();
 }
 //____________________________________________________________________________
 DISXSec::~DISXSec()
@@ -59,24 +59,19 @@ double DISXSec::XSec(const Interaction * interaction) const
   const XSecAlgorithmI * partial_xsec_alg =
                          dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
                          
-  LOG("DISXSec", pINFO) << *partial_xsec_alg;
+  LOG("DISXSec", pDEBUG) << *partial_xsec_alg;
 
   //-- Get neutrino energy in the struck nucleon rest frame
 
-  const InitialState & init_state = interaction -> GetInitialState();
-
-  TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> GetInitialState(); 
+  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
   
-  double Ev  = p4->Energy();
-
-  delete p4;
-
   //-- Check the energy threshold
 
   double Ethr = kine_limits::EnergyThreshold(interaction);
   
   if(Ev <= Ethr) {   
-     LOG("DISXSec", pINFO) << "E = " << Ev << " < Ethreshold = " << Ethr;
+     LOG("DISXSec", pINFO) << "E = " << Ev << " <= Ethreshold = " << Ethr;
      return 0.;
   }
   //-- Get x,y from config (if they exist) or set defaults
@@ -158,7 +153,7 @@ double DISXSec::XSec(const Interaction * interaction) const
 
   double xsec = integrator->Integrate(xyd2xsec);
 
-  LOG("DISXSec", pINFO)  << "xsec_dis (E = " << Ev << " GeV) = " << xsec;
+  LOG("DISXSec", pDEBUG)  << "xsec_dis (E = " << Ev << " GeV) = " << xsec;
 
   return xsec;
 }
