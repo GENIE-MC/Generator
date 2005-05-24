@@ -260,6 +260,43 @@ float NeuGenWrapper::ExclusiveDiffXSec(float e,NGKineVar_t  kid,
   return val;
 }
 //____________________________________________________________________________
+float NeuGenWrapper::eDiff2Xsec(float e, NGKineVar_t  kv1, float kval1,
+         NGKineVar_t  kv2, float kval2, NGInteraction * ni, NeuGenCuts * cuts)
+{
+  float val=0.;
+
+  // Get Process  and nucleus
+
+  int         process = ni->GetProcess();
+  NGNucleus_t nucleus = ni->GetNucleus();
+
+  writestate_(&process);
+
+  // Set cuts
+
+  if(cuts)  this->SetCuts(cuts);
+  else      this->NoCuts();
+
+  // Get cross section
+
+  int kvid1 = kv1;
+  int kvid2 = kv2;  
+  int nuc   = nucleus;
+
+  LOG("NeuGen", pINFO)
+      << "\nComputing electron d^2xsec / da*db with a = "
+         << NGKineVar::AsString(kv1) << ", b = " << NGKineVar::AsString(kv2);
+
+  if(kv1 == e_costh && kv2 == e_ep) {
+
+     ddsig_e_value_(&e,&kvid1,&kval1,&kvid2,&kval2,&nuc,&process,&val);
+     return val;
+  }
+  
+  LOG("NeuGen", pWARN) << "Can't compute e cross section / return 0";
+  return 0.;
+}
+//____________________________________________________________________________
 void NeuGenWrapper::SetCuts(NeuGenCuts * cuts)
 {
 // Set Cuts
