@@ -25,7 +25,7 @@
 */
 //____________________________________________________________________________
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"

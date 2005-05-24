@@ -23,7 +23,7 @@
 #include <TMCParticle6.h>
 #include <TMath.h>
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Fragmentation/KNOHadronization.h"
 #include "Fragmentation/MultiplicityProb.h"

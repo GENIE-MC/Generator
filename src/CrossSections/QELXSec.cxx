@@ -16,7 +16,7 @@
 //____________________________________________________________________________
 
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/QELXSec.h"

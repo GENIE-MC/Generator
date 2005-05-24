@@ -35,10 +35,13 @@ public:
 
   static XSecSplineList * Instance();
 
+  //-- query the existence, access or create a spline
+
   bool           SplineExists (const XSecAlgorithmI * alg, const Interaction * i) const;
   const Spline * GetSpline    (const XSecAlgorithmI * alg, const Interaction * i) const;
   void           CreateSpline (const XSecAlgorithmI * alg, const Interaction * i,
                                    int nknots = -1, double Emin = -1, double Emax = -1);
+  //-- set XSecSplineList options
 
   void   SetLogE   (bool   on); ///< set opt to build splines as f(E) or as f(logE)
   void   SetNKnots (int    nk); ///< set default number of knots for building the spline
@@ -46,6 +49,8 @@ public:
   void   SetMaxE   (double Ev); ///< set default maximum energy for xsec splines
   void   SetExtrap (double Ev); 
   
+  //-- read XSecSplineList options
+
   bool   UseLogE     (void) const { return fUseLogE;     }
   bool   Extrapolate (void) const { return fExtrapolate; }
   int    NKnots      (void) const { return fNKnots;      }
@@ -53,6 +58,13 @@ public:
   double Emax        (void) const { return fEmax;        }
   double EExtrap     (void) const { return fEExtrap;     }
 
+  //-- save to / load from file
+
+  void   SaveSplineList (string filename  );
+  void   LoadSplineList (bool keep = false);
+  
+  //-- print available splines
+  
   void   Print (ostream & stream) const;
   friend ostream & operator << (ostream & stream, const XSecSplineList & xsl);
   

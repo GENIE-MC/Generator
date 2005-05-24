@@ -13,13 +13,11 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 all:
-	cd AlgFactory;         make; cd ..; \
 	cd Algorithm;          make; cd ..; \
 	cd BaryonResonance;    make; cd ..; \
 	cd Base;               make; cd ..; \
 	cd BodekYang;          make; cd ..; \
 	cd Charm;              make; cd ..; \
-	cd Config;             make; cd ..; \
 	cd CrossSections;      make; cd ..; \
 	cd Decay; 	       make; cd ..; \
 	cd Elastic; 	       make; cd ..; \
@@ -39,6 +37,7 @@ all:
 	cd PDF;                make; cd ..; \
 	cd PDG;                make; cd ..; \
 	cd Radiative;          make; cd ..; \
+	cd Registry;           make; cd ..; \
 	cd ReinSeghal;         make; cd ..; \
 	cd Utils;              make; cd ..; \
 	cd Viewer;             make; cd ..; \
@@ -47,13 +46,11 @@ all:
 	cd scripts;	       make install; cd ..;
 
 all-no-nuvld:
-	cd AlgFactory;         make; cd ..; \
 	cd Algorithm;          make; cd ..; \
 	cd BaryonResonance;    make; cd ..; \
 	cd Base;               make; cd ..; \
 	cd BodekYang;          make; cd ..; \
 	cd Charm;              make; cd ..; \
-	cd Config;             make; cd ..; \
 	cd CrossSections;      make; cd ..; \
 	cd Decay; 	       make; cd ..; \
 	cd Elastic; 	       make; cd ..; \
@@ -73,6 +70,7 @@ all-no-nuvld:
 	cd PDF;                make; cd ..; \
 	cd PDG;                make; cd ..; \
 	cd Radiative;          make; cd ..; \
+	cd Registry;           make; cd ..; \
 	cd ReinSeghal;         make; cd ..; \
 	cd Utils;              make; cd ..; \
 	cd Viewer;             make; cd ..; \
@@ -86,13 +84,11 @@ doc:
 	cd ../doc/doxygen/; doxygen genie_doxygen; cd ../../src/
 
 clean: FORCE
-	cd AlgFactory;         make clean; cd ..; \
 	cd Algorithm;          make clean; cd ..; \
 	cd BaryonResonance;    make clean; cd ..; \
 	cd Base;               make clean; cd ..; \
 	cd BodekYang;          make clean; cd ..; \
 	cd Charm;              make clean; cd ..; \
-	cd Config;             make clean; cd ..; \
 	cd CrossSections;      make clean; cd ..; \
 	cd Decay; 	       make clean; cd ..; \
 	cd Elastic; 	       make clean; cd ..; \
@@ -113,6 +109,7 @@ clean: FORCE
 	cd PDF;                make clean; cd ..; \
 	cd PDG;                make clean; cd ..; \
 	cd Radiative;          make clean; cd ..; \
+	cd Registry;           make clean; cd ..; \
 	cd ReinSeghal;         make clean; cd ..; \
 	cd Utils;              make clean; cd ..; \
 	cd Viewer;             make clean; cd ..; \

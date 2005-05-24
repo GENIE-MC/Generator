@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "Charm/KovalenkoQELCharmPXSec.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"

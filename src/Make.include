@@ -107,13 +107,11 @@ GENIE_BIN_PATH   := $(GENIE)/bin
 
 ###### GENIE & NuValidator libraries
 
-GENIE_ALGFACTORY_SHARED_LIB       := $(GENIE_LIB_PATH)/libGAlgFactory.$(DllSuf)
 GENIE_ALGORITHM_SHARED_LIB        := $(GENIE_LIB_PATH)/libGAlgorithm.$(DllSuf)
 GENIE_BARYONRES_SHARED_LIB        := $(GENIE_LIB_PATH)/libGBaryonResonance.$(DllSuf)
 GENIE_BASE_SHARED_LIB             := $(GENIE_LIB_PATH)/libGBase.$(DllSuf)
 GENIE_BODEK_YANG_SHARED_LIB       := $(GENIE_LIB_PATH)/libGBodekYang.$(DllSuf)
 GENIE_CHARM_SHARED_LIB            := $(GENIE_LIB_PATH)/libGCharm.$(DllSuf)
-GENIE_CONFIG_SHARED_LIB           := $(GENIE_LIB_PATH)/libGConfig.$(DllSuf)
 GENIE_DECAY_SHARED_LIB            := $(GENIE_LIB_PATH)/libGDecay.$(DllSuf)
 GENIE_ELASTIC_SHARED_LIB          := $(GENIE_LIB_PATH)/libGElas.$(DllSuf)
 GENIE_EVENT_GENERATION_SHARED_LIB := $(GENIE_LIB_PATH)/libGEventGen.$(DllSuf)
@@ -132,6 +130,7 @@ GENIE_PASCHOS_SHARED_LIB          := $(GENIE_LIB_PATH)/libGPaschos.$(DllSuf)
 GENIE_PDG_SHARED_LIB              := $(GENIE_LIB_PATH)/libGPDG.$(DllSuf)
 GENIE_PDF_SHARED_LIB              := $(GENIE_LIB_PATH)/libGPDF.$(DllSuf)
 GENIE_RADIATIVE_SHARED_LIB        := $(GENIE_LIB_PATH)/libGRadiative.$(DllSuf)
+GENIE_REGISTRY_SHARED_LIB         := $(GENIE_LIB_PATH)/libGRegistry.$(DllSuf)
 GENIE_REIN_SEGHAL_SHARED_LIB      := $(GENIE_LIB_PATH)/libGReinSeghal.$(DllSuf)
 GENIE_UTILS_SHARED_LIB            := $(GENIE_LIB_PATH)/libGUtils.$(DllSuf)
 GENIE_VIEWER_SHARED_LIB           := $(GENIE_LIB_PATH)/libGViewer.$(DllSuf)
@@ -148,12 +147,12 @@ VLD_NEUGEN_INTERFACE_LIB := -L $(GENIE_LIB_PATH) -lGNuVldNeugen
 VLD_GUI_WIDGETS_LIB      := -L $(GENIE_LIB_PATH) -lGNuVldGUI
 
 
-GEN_LIBS := -L $(GENIE_LIB_PATH) -lGAlgFactory -lGAlgorithm -lGBaryonResonance \
-				 -lGBase -lGBodekYang -lGCharm -lGConfig -lGDecay -lGElas -lGEventGen \
-				 -lGFKR -lGLlewellynSmith -lGFragmentation -lGInteraction -lGInvMuDecay \
-				 -lGMessenger -lGNtuple -lGNuclear -lGNumerical -lGValidityDoc \
-				 -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGReinSeghal \
-				 -lGUtils -lGViewer -lGCrossSections 
+GEN_LIBS := -L $(GENIE_LIB_PATH) -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
+				 -lGDecay -lGElas -lGEventGen -lGFKR -lGLlewellynSmith \
+				 -lGFragmentation -lGInteraction -lGInvMuDecay -lGMessenger \
+				 -lGNtuple -lGNuclear -lGNumerical -lGValidityDoc \
+				 -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
+				 -lGReinSeghal -lGUtils -lGViewer -lGCrossSections 
 
 VLD_LIBS := -L $(GENIE_LIB_PATH) -lGNuVldXML -lGNuVldDBU -lGNuVldNeugen -lGNuVldGUI
 

@@ -21,12 +21,14 @@
 #include <TTree.h>
 #include <TSQLServer.h>
 #include <TGraph.h>
-#include <TSpline.h>
+//#include <TSpline.h>
 
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 
 using namespace genie;
+
+ClassImp(Spline)
 
 //___________________________________________________________________________
 Spline::Spline()
@@ -151,7 +153,7 @@ void Spline::LoadFromDBase(TSQLServer * db,  const char * query)
 //___________________________________________________________________________
 bool Spline::IsWithinValidRange(double x) const
 {
-  bool is_in_range = (fValidityRange.first < x && x < fValidityRange.second);
+  bool is_in_range = (fXMin < x && x < fXMax);
 
   return is_in_range;
 }
@@ -167,8 +169,8 @@ double Spline::Evaluate(double x) const
 //___________________________________________________________________________
 TGraph * Spline::GetAsTGraph(int np, bool scale_with_x) const
 {
-  double xmin = fValidityRange.first;
-  double xmax = fValidityRange.second;
+  double xmin = fXMin;
+  double xmax = fXMax;
 
   if(np < 2) np = 2;
 
@@ -194,8 +196,8 @@ void Spline::InitSpline(void)
 {
   LOG("Spline", pDEBUG) << "Initializing spline...";
   
-  fValidityRange.first  = 0.0;
-  fValidityRange.second = 0.0;
+  fXMin = 0.0;
+  fXMax = 0.0;
   
   fInterpolator = 0;
   
@@ -209,8 +211,8 @@ void Spline::BuildSpline(int nentries, double x[], double y[])
   double xmin = x[ TMath::LocMin(nentries, x) ]; // minimum x in spline
   double xmax = x[ TMath::LocMax(nentries, x) ]; // maximum x in spline
 
-  fValidityRange.first  = xmin;
-  fValidityRange.second = xmax;
+  fXMin = xmin;
+  fXMax = xmax;
 
   if(fInterpolator) delete fInterpolator;
 
