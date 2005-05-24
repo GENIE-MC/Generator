@@ -34,11 +34,13 @@ XSecSplineList * XSecSplineList::fInstance = 0;
 //____________________________________________________________________________
 XSecSplineList::XSecSplineList()
 {
-  fInstance =  0;
-  fUseLogE  = true;
-  fNKnots   = 100;
-  fEmin     =   0.01; // GeV
-  fEmax     = 100.00; // GeV
+  fInstance    =  0;
+  fUseLogE     = true;
+  fExtrapolate = false;
+  fNKnots      = 100;
+  fEmin        =   0.01; // GeV
+  fEmax        = 100.00; // GeV
+  fEExtrap     = -1.;
 }
 //____________________________________________________________________________
 XSecSplineList::~XSecSplineList()
@@ -108,6 +110,9 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   
   double xsec[nknots];
   double E   [nknots];
+
+  bool   first_extarpolation = true;
+  double slope = 0, offset = 0;
   
   double dE = 0;  
   if( this->UseLogE() )
@@ -119,14 +124,29 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
     if( this->UseLogE() )
           E[i] = TMath::Power(10., TMath::Log10(Emin) + i * dE);
     else  E[i] = Emin + i * dE;
-    
-    TLorentzVector p4(0,0,E[i],E[i]);
 
-    interaction->GetInitialStatePtr()->SetProbeP4(p4);
+    bool extrapolate = this->Extrapolate() && (E[i] > this->EExtrap()) && (i>1);
 
-    xsec[i] = alg->XSec(interaction);
+    if(extrapolate && first_extarpolation) {
+      slope  = (xsec[i-2] - xsec[i-1]) / (E[i-2] - E[i-1]);
+      offset = xsec[i-1] - slope * E[i-1];
+      first_extarpolation = false;
+    }
+      
+    if(!extrapolate) {
+      TLorentzVector p4(0,0,E[i],E[i]);
+      interaction->GetInitialStatePtr()->SetProbeP4(p4);
 
-    SLOG("XSecSplineList", pINFO) << "xsec(E = " << E[i] << ") = " << xsec[i];
+      xsec[i] = alg->XSec(interaction);
+
+      SLOG("XSecSplineList", pINFO)<< "xsec(E = " << E[i] << ") = " << xsec[i];
+
+    } else {
+      xsec[i] = offset + slope * E[i];
+      
+      SLOG("XSecSplineList", pINFO)
+            << "xsec(E = " << E[i] << ") = " << xsec[i] << " **extrapolated**";
+    }      
   }
   Spline * spline = new Spline(nknots, E, xsec);
 
@@ -159,6 +179,14 @@ void XSecSplineList::SetMaxE(double Ev)
   if(fEmax<0) fEmax = 0.;
 }
 //____________________________________________________________________________
+void XSecSplineList::SetExtrap(double Ev)
+{
+  fEExtrap = Ev;
+
+  if(fEExtrap>0) fExtrapolate = true;
+  else           fExtrapolate = false;
+}
+//____________________________________________________________________________
 string XSecSplineList::BuildSplineKey(
             const XSecAlgorithmI * alg, const Interaction * interaction) const
 {
@@ -177,9 +205,11 @@ void XSecSplineList::Print(ostream & stream) const
   stream << "\n [-] Options:";
   stream << "\n  |";
   stream << "\n  |-----o  UseLogE..................." << fUseLogE;
+  stream << "\n  |-----o  Extrapolate..............." << fExtrapolate;
   stream << "\n  |-----o  Spline Emin..............." << fNKnots;
   stream << "\n  |-----o  Spline Emax..............." << fEmin;
   stream << "\n  |-----o  Spline NKnots............." << fEmax;
+  stream << "\n  |-----o  Extrapolate E............." << fEExtrap;
   stream << "\n  |";  
   stream << "\n [-] Available Splines:";
   stream << "\n  |";

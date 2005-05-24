@@ -44,12 +44,16 @@ public:
   void   SetNKnots (int    nk); ///< set default number of knots for building the spline
   void   SetMinE   (double Ev); ///< set default minimum energy for xsec splines
   void   SetMaxE   (double Ev); ///< set default maximum energy for xsec splines
-  bool   UseLogE   (void) const { return fUseLogE; }
-  int    NKnots    (void) const { return fNKnots;  }
-  double Emin      (void) const { return fEmin;    }
-  double Emax      (void) const { return fEmax;    }
-  void   Print     (ostream & stream) const;
+  void   SetExtrap (double Ev); 
+  
+  bool   UseLogE     (void) const { return fUseLogE;     }
+  bool   Extrapolate (void) const { return fExtrapolate; }
+  int    NKnots      (void) const { return fNKnots;      }
+  double Emin        (void) const { return fEmin;        }
+  double Emax        (void) const { return fEmax;        }
+  double EExtrap     (void) const { return fEExtrap;     }
 
+  void   Print (ostream & stream) const;
   friend ostream & operator << (ostream & stream, const XSecSplineList & xsl);
   
 private:
@@ -63,9 +67,11 @@ private:
   static XSecSplineList * fInstance;
 
   bool   fUseLogE;
+  bool   fExtrapolate;
   int    fNKnots;
   double fEmin;
   double fEmax;
+  double fEExtrap;
   
   map<string, Spline *> fSplineMap; ///< xsec_alg_name/param_set/interaction -> Spline
   
