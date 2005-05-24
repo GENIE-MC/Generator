@@ -13,9 +13,9 @@
 */
 //____________________________________________________________________________
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "Algorithm/Algorithm.h"
-#include "Config/ConfigPool.h"
+#include "Algorithm/AlgConfigPool.h"
 #include "Messenger/Messenger.h"
 
 using std::endl;
@@ -94,7 +94,7 @@ void Algorithm::FindConfig(void)
 // responsibility to -eventually- delete all the Registries it instantiates
 // by parsing the XML config files).
 
-  ConfigPool * pool = ConfigPool::Instance();
+  AlgConfigPool * pool = AlgConfigPool::Instance();
 
   Registry * config = pool->FindRegistry( this );
 
