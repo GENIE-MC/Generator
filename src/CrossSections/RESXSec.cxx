@@ -17,7 +17,7 @@
 
 #include <TMath.h>
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "CrossSections/RESXSec.h"
 #include "Messenger/Messenger.h"

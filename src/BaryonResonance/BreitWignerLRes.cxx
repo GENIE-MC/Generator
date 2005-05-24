@@ -21,7 +21,7 @@
 */
 //____________________________________________________________________________
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "BaryonResonance/BreitWignerLRes.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
 #include "BaryonResonance/BaryonResParams.h"

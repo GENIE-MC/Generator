@@ -13,7 +13,7 @@
 //____________________________________________________________________________
 
 #include "Algorithm/Algorithm.h"
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResParams.h"
 #include "BaryonResonance/BaryonResDataSetI.h"

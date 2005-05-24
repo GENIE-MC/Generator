@@ -20,19 +20,18 @@
 #ifndef _SPLINE_H_
 #define _SPLINE_H_
 
-#include <map>
+#include <TObject.h>
+#include <TSpline.h>
 
 class TNtuple;
 class TTree;
 class TSQLServer;
 class TGraph;
-class TSpline3;
-
-using std::pair;
+//class TSpline3;
 
 namespace genie {
 
-class Spline {
+class Spline : public TObject {
 
 public:
 
@@ -63,9 +62,11 @@ private:
   void InitSpline       (void);
   void BuildSpline      (int nentries, double x[], double y[]);
   
-  TSpline3 *            fInterpolator;
-  pair<double, double>  fValidityRange; // (x_min, x_max)
-  
+  double     fXMin;
+  double     fXMax;
+  TSpline3 * fInterpolator;
+
+ClassDef(Spline,1)
 };
 
 }

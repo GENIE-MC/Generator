@@ -13,12 +13,10 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 GENIE_DICTS =   $(GENIE)/src/Algorithm/_ROOT_DICT_Algorithm.o \
-		$(GENIE)/src/AlgFactory/_ROOT_DICT_AlgFactory.o \
 		$(GENIE)/src/BaryonResonance/_ROOT_DICT_BaryonResonance.o \
 		$(GENIE)/src/Base/_ROOT_DICT_Base.o \
 		$(GENIE)/src/BodekYang/_ROOT_DICT_BodekYang.o \
 		$(GENIE)/src/Charm/_ROOT_DICT_Charm.o \
-		$(GENIE)/src/Config/_ROOT_DICT_Config.o \
 		$(GENIE)/src/CrossSections/_ROOT_DICT_CrossSections.o \
 		$(GENIE)/src/Decay/_ROOT_DICT_Decay.o \
 		$(GENIE)/src/Elastic/_ROOT_DICT_Elastic.o \
@@ -36,6 +34,7 @@ GENIE_DICTS =   $(GENIE)/src/Algorithm/_ROOT_DICT_Algorithm.o \
 		$(GENIE)/src/PDG/_ROOT_DICT_PDG.o \
 		$(GENIE)/src/PDF/_ROOT_DICT_PDF.o \
 		$(GENIE)/src/Radiative/_ROOT_DICT_Radiative.o \
+		$(GENIE)/src/Registry/_ROOT_DICT_Registry.o \
 		$(GENIE)/src/ReinSeghal/_ROOT_DICT_ReinSeghal.o \
 		$(GENIE)/src/Viewer/_ROOT_DICT_Viewer.o \
 		$(GENIE)/src/Utils/_ROOT_DICT_Utils.o \

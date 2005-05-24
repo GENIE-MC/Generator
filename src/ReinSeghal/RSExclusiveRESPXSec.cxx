@@ -44,7 +44,7 @@
 */
 //____________________________________________________________________________
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "BaryonResonance/BaryonResList.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Interaction/SppChannel.h"

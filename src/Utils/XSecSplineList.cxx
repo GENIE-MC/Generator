@@ -187,6 +187,20 @@ void XSecSplineList::SetExtrap(double Ev)
   else           fExtrapolate = false;
 }
 //____________________________________________________________________________
+void XSecSplineList::SaveSplineList(string /*filename*/)
+{
+// Save XSecSplineList to ROOT file
+    
+}
+//____________________________________________________________________________
+void XSecSplineList::LoadSplineList(bool /*keep*/)
+{
+// Load XSecSplineList from ROOT file. If keep = true, then the loaded splines
+// are added to the existing list. If false, then the existing list is reseted
+// before loading the splines.
+
+}
+//____________________________________________________________________________
 string XSecSplineList::BuildSplineKey(
             const XSecAlgorithmI * alg, const Interaction * interaction) const
 {

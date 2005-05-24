@@ -28,7 +28,7 @@
 
 #include <TMath.h>
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/Units.h"

@@ -16,7 +16,7 @@
 #ifndef _BREIT_WIGNER_FUNCTIONS_H_
 #define _BREIT_WIGNER_FUNCTIONS_H_
 
-#include "Config/Registry.h"
+#include "Registry/Registry.h"
 
 namespace genie {
 

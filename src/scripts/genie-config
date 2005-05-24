@@ -14,21 +14,19 @@ srcdir=$GENIE/src
 
 ########################### GENIE Libraries;
 
-libs="-L $libdir -lGAlgorithm -lGAlgFactory -lGBaryonResonance -lGBase\
- -lGBodekYang -lGCharm -lGConfig -lGCrossSections -lGDecay -lGEventGen\
+libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase\
+ -lGBodekYang -lGCharm -lGCrossSections -lGDecay -lGEventGen\
  -lGFKR -lGFragmentation -lGInteraction -lGInverseMuDecay -lGLlewellynSmith -lGMessenger\
  -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
- -lGRadiative -lGReinSeghal -lGViewer -lGUtils -lGValidityDoc"
+ -lGRadiative -lGRegistry -lGReinSeghal -lGViewer -lGUtils -lGValidityDoc"
 
 ########################### GENIE Dictionaries;
 
 dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
-		$srcdir/AlgFactory/_ROOT_DICT_AlgFactory.o \
 		$srcdir/BaryonResonance/_ROOT_DICT_BaryonResonance.o \
                 $srcdir/Base/_ROOT_DICT_Base.o \
                 $srcdir/BodekYang/_ROOT_DICT_BodekYang.o \
                 $srcdir/Charm/_ROOT_DICT_Charm.o \
-                $srcdir/Config/_ROOT_DICT_Config.o \
                 $srcdir/CrossSections/_ROOT_DICT_CrossSections.o \
                 $srcdir/Decay/_ROOT_DICT_Decay.o \
                 $srcdir/EventGeneration/_ROOT_DICT_EventGeneration.o \
@@ -44,6 +42,7 @@ dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
                 $srcdir/PDG/_ROOT_DICT_PDG.o \
                 $srcdir/PDF/_ROOT_DICT_PDF.o \
 		$srcdir/Radiative/_ROOT_DICT_Radiative.o \
+                $srcdir/Registry/_ROOT_DICT_Registry.o \
                 $srcdir/ReinSeghal/_ROOT_DICT_ReinSeghal.o \
                 $srcdir/Viewer/_ROOT_DICT_Viewer.o \
                 $srcdir/Utils/_ROOT_DICT_Utils.o \

@@ -32,7 +32,7 @@ ____________________________________________________________________________*/
 
 #include <TMath.h>
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "Base/SPPHelicityAmplModelI.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
 #include "BaryonResonance/BaryonResParams.h"

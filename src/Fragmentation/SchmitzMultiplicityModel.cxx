@@ -18,7 +18,7 @@
 */
 //____________________________________________________________________________
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Fragmentation/SchmitzMultiplicityModel.h"
 #include "Fragmentation/KNODistribution.h"

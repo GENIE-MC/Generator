@@ -27,7 +27,7 @@
 #include <TMCParticle6.h>
 #include <TF1.h>
 
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "Fragmentation/KNOHadronization2.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"

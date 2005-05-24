@@ -18,7 +18,7 @@
 
 #include <TMath.h>
 
-#include "Config/Registry.h"
+#include "Registry/Registry.h"
 
 namespace genie {
 
