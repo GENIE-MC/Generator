@@ -21,7 +21,7 @@
 #include <cassert>
 
 #include "Algorithm/AlgStatus.h"
-#include "Config/Registry.h"
+#include "Registry/Registry.h"
 
 using std::string;
 using std::ostream;

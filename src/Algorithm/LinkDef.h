@@ -8,5 +8,7 @@
 
 #pragma link C++ class genie::Algorithm;
 #pragma link C++ class genie::AlgStatus;
+#pragma link C++ class genie::AlgFactory;
+#pragma link C++ class genie::AlgConfigPool;
 
 #endif
