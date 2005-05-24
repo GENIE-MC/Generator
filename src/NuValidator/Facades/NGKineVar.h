@@ -33,6 +33,8 @@ typedef enum ENGKineVar {
   e_x,
   e_y,
   e_logqqs,
+  e_costh,    /* cosine of scattering angle in lab */
+  e_ep,       /* scattered electron energy */
   e_undefined_kinematic_variable
 
 } NGKineVar_t;
@@ -44,14 +46,17 @@ class NGKineVar {
      static const char * AsString(NGKineVar_t kid) 
      {
        switch(kid) {
-         case e_qqs:  return "qqs";  break;
-         case e_w:    return "W";    break;
-         case e_x:    return "x";    break;
-         case e_y:    return "y";    break;
+         case e_qqs:      return "qqs";        break;
+         case e_w:        return "W";          break;
+         case e_x:        return "x";          break;
+         case e_y:        return "y";          break;
+         case e_logqqs:   return "log(qqs)";   break;
+         case e_costh:    return "cos(theta)"; break;
+         case e_ep:       return "Ep";         break;
 
          case e_undefined_kinematic_variable:
          default:            
-                      return "unknown kinematic variable"; break;
+          return "unknown kinematic variable"; break;
        }
      }
      
@@ -63,6 +68,8 @@ class NGKineVar {
         else if (code == 3) return e_x;
         else if (code == 4) return e_y;
         else if (code == 5) return e_logqqs;
+        else if (code == 6) return e_costh;
+        else if (code == 7) return e_ep;
         else                return e_undefined_kinematic_variable;
      }
 
