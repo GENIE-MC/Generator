@@ -34,6 +34,18 @@ string genie::print_utils::P4AsString(const TLorentzVector * p)
   return fmt.str();
 }
 //____________________________________________________________________________
+string genie::print_utils::X4AsString(const TLorentzVector * vec4)
+{
+  ostringstream fmt;
+
+  fmt << " ( t = " << vec4->T()
+      << ", x = " << vec4->X()
+      << ", y = " << vec4->Y()
+      << ", z = " << vec4->Z() << " )";
+
+  return fmt.str();
+}
+//____________________________________________________________________________
 string genie::print_utils::Vec3AsString(const TVector3 * vec)
 {
   ostringstream fmt;
