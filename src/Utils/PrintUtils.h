@@ -28,6 +28,7 @@ namespace genie {
 namespace print_utils
 {
   string P4AsString   (const TLorentzVector * p);
+  string X4AsString   (const TLorentzVector * x);
   string Vec3AsString (const TVector3 * vec);
   string BoolAsString (bool tf);
 
