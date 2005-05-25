@@ -14,6 +14,7 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <sstream>
 #include <iomanip>
 
 #include "Interaction/InitialState.h"
@@ -26,6 +27,7 @@ using namespace genie;
 using std::endl;
 using std::setprecision;
 using std::setw;
+using std::ostringstream;
 
 //____________________________________________________________________________
 namespace genie {
@@ -42,20 +44,22 @@ InitialState::InitialState()
   this->Initialize();
 }
 //___________________________________________________________________________
+InitialState::InitialState(int tgt_pdgc, int probe_pdgc)
+{
+  int Z = pdg::IonPdgCodeToZ(tgt_pdgc);
+  int A = pdg::IonPdgCodeToA(tgt_pdgc);
+  
+  this->Create(Z, A, probe_pdgc);
+}
+//___________________________________________________________________________
+InitialState::InitialState(int Z, int A, int probe_pdgc)
+{
+  this->Create(Z, A, probe_pdgc);
+}
+//___________________________________________________________________________
 InitialState::InitialState(const Target & tgt, int probe_pdgc)
 {
-  this->Initialize();
-
-  fTarget = new Target(tgt);     // set Target properties
-  fProbePdgC = probe_pdgc;       // set Probe PDG code
-
-  // set default, on-mass-shell 4-momenta
-
-  double m = PDGLibrary::Instance() -> Find (  probe_pdgc   ) -> Mass();
-  double M = PDGLibrary::Instance() -> Find ( tgt.PDGCode() ) -> Mass();
-  
-  fProbeP4    = new TLorentzVector(0, 0, 0, m);
-  fTargetP4   = new TLorentzVector(0, 0, 0, M);
+  this->Create(tgt.Z(), tgt.A(), probe_pdgc);
 }
 //___________________________________________________________________________
 InitialState::InitialState(const InitialState & init_state)
@@ -101,11 +105,40 @@ void InitialState::Copy(const InitialState & init_state)
   fTargetP4->SetXYZT(px, py, pz, E);
 }
 //___________________________________________________________________________
+void InitialState::Create(int Z, int A, int probe_pdgc)
+{
+  this->Initialize();
+
+  fTarget = new Target(Z,A);  // set Target properties
+  fProbePdgC = probe_pdgc;    // set Probe PDG code
+
+  // set default, on-mass-shell 4-momenta
+
+  int tgt_pdgc = fTarget->PDGCode();
+  
+  double m = PDGLibrary::Instance() -> Find ( probe_pdgc ) -> Mass();
+  double M = PDGLibrary::Instance() -> Find ( tgt_pdgc   ) -> Mass();
+
+  fProbeP4    = new TLorentzVector(0, 0, 0, m);
+  fTargetP4   = new TLorentzVector(0, 0, 0, M);
+}
+//___________________________________________________________________________
 TParticlePDG * InitialState::GetProbe(void) const
 {
   TParticlePDG * p = PDGLibrary::Instance()->Find(fProbePdgC);
 
   return p;
+}
+//___________________________________________________________________________
+void InitialState::SetProbePDGCode(int pdg_code)
+{
+  TParticlePDG * p = PDGLibrary::Instance()->Find(pdg_code);
+
+  if(p) fProbePdgC = pdg_code;
+  else {
+    LOG("Interaction", pERROR)
+                   << "Can not set non-existent particle code: " << pdg_code;
+  }  
 }
 //___________________________________________________________________________
 void InitialState::SetProbeP4(const TLorentzVector & P4)
@@ -181,7 +214,6 @@ TLorentzVector * InitialState::GetTargetP4(RefFrame_t ref_frame) const
              break;
        }
        default:
-
              LOG("Interaction", pERROR) << "Uknown reference frame";
   }
   return 0;
@@ -254,12 +286,24 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
 double InitialState::GetProbeE(RefFrame_t ref_frame) const
 {
   TLorentzVector * p4 = this->GetProbeP4(ref_frame);
-
   double E = p4->Energy();
-
+  
   delete p4;
-
   return E;
+}
+//___________________________________________________________________________
+string InitialState::AsString(void) const
+{
+// Code-ify the interaction in a string to be used as (part of a) keys
+// Template:
+//     nu_pdg:code;tgt-pdg:code;
+
+  ostringstream init_state;
+
+  init_state << "nu-pdg:"  << this->GetProbePDGCode()     << ";";
+  init_state << "tgt-pdg:" << this->GetTarget().PDGCode() << ";";
+             
+  return init_state.str();
 }
 //___________________________________________________________________________
 void InitialState::Print(ostream & stream) const
