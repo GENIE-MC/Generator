@@ -8,5 +8,6 @@
 #pragma link C++ namespace genie::pdg;
 
 #pragma link C++ class genie::PDGLibrary;
+#pragma link C++ class genie::PDGCodeList;
 
 #endif
