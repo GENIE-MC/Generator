@@ -24,6 +24,7 @@ all:
 	cd EventGeneration;    make; cd ..; \
 	cd FKR;                make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
+	cd GMCJob;             make; cd ..; \
 	cd ValidityDoc;        make; cd ..; \
 	cd Interaction;        make; cd ..; \
 	cd InverseMuonDecay;   make; cd ..; \
@@ -57,6 +58,7 @@ all-no-nuvld:
 	cd EventGeneration;    make; cd ..; \
 	cd FKR;                make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
+	cd GMCJob;             make; cd ..; \
 	cd ValidityDoc;        make; cd ..; \
 	cd Interaction;        make; cd ..; \
 	cd InverseMuonDecay;   make; cd ..; \
@@ -95,6 +97,7 @@ clean: FORCE
 	cd EventGeneration;    make clean; cd ..; \
 	cd FKR;                make clean; cd ..; \
 	cd Fragmentation;      make clean; cd ..; \
+	cd GMCJob;             make clean; cd ..; \
 	cd ValidityDoc;        make clean; cd ..; \
 	cd Interaction;        make clean; cd ..; \
 	cd InverseMuonDecay;   make clean; cd ..; \
