@@ -17,7 +17,7 @@ srcdir=$GENIE/src
 libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase\
  -lGBodekYang -lGCharm -lGCrossSections -lGDecay -lGEventGen\
  -lGFKR -lGFragmentation -lGInteraction -lGInverseMuDecay -lGLlewellynSmith -lGMessenger\
- -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
+ -lGMCJob -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
  -lGRadiative -lGRegistry -lGReinSeghal -lGViewer -lGUtils -lGValidityDoc"
 
 ########################### GENIE Dictionaries;
@@ -35,6 +35,7 @@ dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
                 $srcdir/Interaction/_ROOT_DICT_Interaction.o \
                 $srcdir/InverseMuonDecay/_ROOT_DICT_InverseMuDecay.o \
                 $srcdir/LlewellynSmith/_ROOT_DICT_LlewellynSmith.o \
+                $srcdir/LlewellynSmith/_ROOT_DICT_GMCJob.o \
                 $srcdir/Ntuple/_ROOT_DICT_Ntuple.o \
                 $srcdir/Nuclear/_ROOT_DICT_Nuclear.o \
                 $srcdir/Numerical/_ROOT_DICT_Numerical.o \
