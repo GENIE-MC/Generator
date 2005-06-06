@@ -26,7 +26,7 @@ rootcint: _ROOT_DICT_Utils.o
 _ROOT_DICT_Utils.cc: LinkDef.h $(CINTLISTO)
 	$(RM) Cint.*
 	@echo "Generating ROOT dictionary ..."
-	rootcint -f _ROOT_DICT_Utils.cc -c	\
+	rootcint -f _ROOT_DICT_Utils.cc -c \
 		-I$(ROOTSYS)/include -I$(GENIE)/src $(CINTLIST) LinkDef.h
 
 lib: FORCE
