@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  -- Default configuration for the EventGenerator EventRecordVisitorI
+
+  <param_set name="QEL-CC-Default"> 
+     <param type="string" name="free-nucleon-xsec-alg-name">   genie::QELXSec                     </param>
+     <param type="string" name="free-nucleon-xsec-param-set">  CC-Default                         </param>
+  </param_set>
+
+  <param_set name="QEL-NC-Default"> 
+     <param type="string" name="free-nucleon-xsec-alg-name">   genie::QELXSec                     </param>
+     <param type="string" name="free-nucleon-xsec-param-set">  NC-Default                         </param>
+  </param_set>
+
+
+  <param_set name="DIS-CC-Default"> 
+     <param type="string" name="free-nucleon-xsec-alg-name">   genie::DISXSec                     </param>
+     <param type="string" name="free-nucleon-xsec-param-set">  CC-Parton-Model-Default-Above-Charm</param>
+  </param_set>
+
+  <param_set name="DIS-NC-Default"> 
+     <param type="string" name="free-nucleon-xsec-alg-name">   genie::DISXSec                     </param>
+     <param type="string" name="free-nucleon-xsec-param-set">  NC-Parton-Model-Default            </param>
+  </param_set>
+
+  <param_set name="RES-Default"> 
+     <param type="string" name="free-nucleon-xsec-alg-name">   genie::RESXSec                     </param>
+     <param type="string" name="free-nucleon-xsec-param-set">  Rein-Seghal                        </param>
+  </param_set>
+
+</alg_conf>
+
