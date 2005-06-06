@@ -1277,10 +1277,8 @@ void NuVldMainFrame::LoadExtXSecPrediction(void)
      fStatusBar -> SetText( cmd.str().c_str(), 0 );
      fStatusBar -> SetText( "XSec Data File Opened",   1 );
 
-     if(fSpline) delete fSpline;
-     
-     fSpline = new Spline;
-     fSpline->LoadFromFile( xsec_data_file.c_str() );
+     if(fSpline) delete fSpline;     
+     fSpline = new Spline(xsec_data_file);
      
      LOG("NuVld", pDEBUG) << "Drawing xsec vs energy ";
 
