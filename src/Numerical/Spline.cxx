@@ -17,15 +17,19 @@
 */
 //____________________________________________________________________________
 
+#include "libxml/parser.h"
+#include "libxml/xmlmemory.h"
+
 #include <TNtuple.h>
 #include <TTree.h>
 #include <TSQLServer.h>
 #include <TGraph.h>
-//#include <TSpline.h>
 
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
+#include "XML/XmlParserUtils.h"
 
+using std::endl;
 using namespace genie;
 
 ClassImp(Spline)
@@ -36,31 +40,38 @@ Spline::Spline()
 
 }
 //___________________________________________________________________________
-Spline::Spline(const char * filename)
+Spline::Spline(string filename, string xtag, string ytag, bool is_xml)
 {
-  LOG("Spline", pDEBUG) << "Constructing spline from data in text file";
+  string fmt = (is_xml) ? "XML" : "ASCII";
+  
+  LOG("Spline", pDEBUG)
+      << "Constructing spline from data in " << fmt << " file: " << filename;
 
   this->InitSpline();
-  this->LoadFromFile(filename);
+
+  if(is_xml)
+     this->LoadFromXmlFile(filename, xtag, ytag);
+  else
+     this->LoadFromAsciiFile(filename);
 }
 //___________________________________________________________________________
-Spline::Spline(TNtuple * ntuple, const char * var, const char * constraint)
+Spline::Spline(TNtuple * ntuple, string var, string cut)
 {
   LOG("Spline", pDEBUG) << "Constructing spline from data in a TNtuple";
 
   this->InitSpline();
-  this->LoadFromNtuple(ntuple, var, constraint);
+  this->LoadFromNtuple(ntuple, var, cut);
 }
 //___________________________________________________________________________
-Spline::Spline(TTree * tree, const char * var, const char * constraint)
+Spline::Spline(TTree * tree, string var, string cut)
 {
   LOG("Spline", pDEBUG) << "Constructing spline from data in a TTree";
 
   this->InitSpline();
-  this->LoadFromTree(tree, var, constraint);
+  this->LoadFromTree(tree, var, cut);
 }
 //___________________________________________________________________________
-Spline::Spline(TSQLServer * db, const char * query)
+Spline::Spline(TSQLServer * db, string query)
 {
   LOG("Spline", pDEBUG) << "Constructing spline from data in a MySQL server";
 
@@ -99,12 +110,17 @@ Spline::Spline(int nentries, float x[], float y[])
 //___________________________________________________________________________
 Spline::Spline(const Spline & spline)
 {
-  LOG("Spline", pDEBUG) << "Copy constructor";
+  LOG("Spline", pDEBUG) << "Spline copy constructor";
+
+  this->LoadFromTSpline3( *spline.GetAsTSpline() );
 }
 //___________________________________________________________________________
 Spline::Spline(const TSpline3 & spline)
 {
-
+  LOG("Spline", pDEBUG)
+                    << "Constructing spline from the input TSpline3 object";
+                                        
+  this->LoadFromTSpline3( spline );
 }
 //___________________________________________________________________________
 Spline::~Spline()
@@ -112,43 +128,148 @@ Spline::~Spline()
   if(fInterpolator) delete fInterpolator;
 }
 //___________________________________________________________________________
-void Spline::LoadFromFile(const char * filename)
+bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
 {
   LOG("Spline", pDEBUG) << "Retrieving data from file: " << filename;
 
+  xmlDocPtr xml_doc = xmlParseFile(filename.c_str());
+  
+  if(xml_doc==NULL) {
+    LOG("Spline", pERROR) 
+           << "XML file could not be parsed! [filename: " << filename << "]";
+    return false;
+  }
+
+  xmlNodePtr xml_cur = xmlDocGetRootElement(xml_doc);
+
+  if(xml_cur==NULL) {
+    LOG("Spline", pERROR)
+         << "XML doc. has null root element! [filename: " << filename << "]";
+    return false;
+  }  
+  if( xmlStrcmp(xml_cur->name, (const xmlChar *) "spline") ) {
+    LOG("Spline", pERROR)
+      << "XML doc. has invalid root element! [filename: " << filename << "]";
+    return false;
+  }
+
+  string strnknots = string_utils::TrimSpaces(
+                         XmlParserUtils::GetAttribute(xml_cur, "nknots"));
+  int nknots = atoi( strnknots.c_str() );
+  
+  int iknot = 0;
+  double * vx = new double[nknots];
+  double * vy = new double[nknots];
+
+  xmlNodePtr xml_cur_spl = xml_cur->xmlChildrenNode; // <knots>'s
+
+  // loop over all xml tree nodes that are children of the <spline> node
+  while (xml_cur_spl != NULL) {
+
+     // enter everytime you find a <knot> tag
+     if( (!xmlStrcmp(xml_cur_spl->name, (const xmlChar *) "knot")) ) {
+
+        xmlNodePtr xml_cur_knot = xml_cur_spl->xmlChildrenNode;
+
+        double x = 0, y = 0;
+
+        while (xml_cur_knot != NULL) {
+             string val = XmlParserUtils::TrimSpaces(
+                              xmlNodeListGetString(xml_doc, xml_cur_knot, 1));
+
+             if( (!xmlStrcmp(xml_cur_knot->name,
+                     (const xmlChar *) xtag.c_str())) ) x = atof(val.c_str());
+             else if( (!xmlStrcmp(xml_cur_knot->name,
+                     (const xmlChar *) ytag.c_str())) ) y = atof(val.c_str());
+             else {}
+
+             xml_cur_knot = xml_cur_knot->next;
+        } // [end of] loop over tags within <knot> ... </knot> tags
+
+        xmlFree(xml_cur_knot);
+
+        vx[iknot] = x;
+        vy[iknot] = y;
+        iknot++;
+     } // [end of] found & parsing a <knot> section
+
+     xml_cur_spl = xml_cur_spl->next;
+  } // [end of] loop over tags within <spline>...</spline> tags
+
+  xmlFree(xml_cur);
+  xmlFree(xml_cur_spl);
+
+  this->BuildSpline(nknots, vx, vy);
+
+  return true;
 }
 //___________________________________________________________________________
-void Spline::LoadFromNtuple(
-                     TNtuple * nt, const char * var, const char * constraint)
+bool Spline::LoadFromAsciiFile(string filename)
+{
+  LOG("Spline", pDEBUG) << "Retrieving data from file: " << filename;
+
+  TNtuple nt("ntuple","","x:y");
+  nt.ReadFile(filename.c_str());
+
+  this->LoadFromNtuple(&nt, "x:y");
+  return true;
+}
+//___________________________________________________________________________
+bool Spline::LoadFromNtuple(TNtuple * nt, string var, string cut)
 {
   LOG("Spline", pDEBUG) << "Retrieving data from ntuple: " << nt->GetName();
 
-  nt->Draw(var,"","GOFF"); // select all entries - graphics off
+  if(!cut.size()) nt->Draw(var.c_str(), "",          "GOFF"); 
+  else            nt->Draw(var.c_str(), cut.c_str(), "GOFF"); 
 
   int      n = nt->GetSelectedRows();
   double * x = nt->GetV1();
   double * y = nt->GetV2();
 
   this->BuildSpline(n, x, y);
+  return true;
 }
 //___________________________________________________________________________
-void Spline::LoadFromTree(
-              TTree * tree, const char * var_string, const char * constraint)
+bool Spline::LoadFromTree(TTree * tree, string var, string cut)
 {
   LOG("Spline", pDEBUG) << "Retrieving data from tree: " << tree->GetName();
 
-  tree->Draw(var_string,"","GOFF"); // select all entries - graphics off
+  if(!cut.size()) tree->Draw(var.c_str(), "",          "GOFF");
+  else            tree->Draw(var.c_str(), cut.c_str(), "GOFF");
 
   int      n = tree->GetSelectedRows();
   double * x = tree->GetV1();
   double * y = tree->GetV2();
 
   this->BuildSpline(n, x, y);
+  return true;  
 }
 //___________________________________________________________________________
-void Spline::LoadFromDBase(TSQLServer * db,  const char * query)
+bool Spline::LoadFromDBase(TSQLServer * db,  string query)
 {
   LOG("Spline", pDEBUG) << "Retrieving data from data-base: ";
+  return true;  
+}
+//___________________________________________________________________________
+bool Spline::LoadFromTSpline3(const TSpline3 & spline)
+{
+  int nentries = spline.GetNpx();
+
+  double * x = new double[nentries];
+  double * y = new double[nentries];
+  double cx = 0, cy = 0;
+
+  for(int i = 0; i < nentries; i++) {
+     spline.GetKnot(i, cx, cy);
+     x[i] = cx;
+     y[i] = cy;
+  }
+  this->BuildSpline(nentries, x, y);
+
+  delete [] x;
+  delete [] y;
+  
+  return true;  
 }
 //___________________________________________________________________________
 bool Spline::IsWithinValidRange(double x) const
@@ -165,6 +286,43 @@ double Spline::Evaluate(double x) const
   if( this->IsWithinValidRange(x) ) return y = fInterpolator->Eval(x);
   
   return y;
+}
+//___________________________________________________________________________
+void Spline::SaveAsXml(
+                string filename, string xtag, string ytag, string name) const
+{
+  ofstream outxml(filename.c_str());
+  if(!outxml.is_open()) {
+    LOG("Spline", pERROR) << "Couldn't create file = " << filename;
+    return;
+  }
+  this->SaveAsXml(outxml, xtag, ytag, name, false);
+  
+  outxml << endl;
+  outxml.close();
+}
+//___________________________________________________________________________
+void Spline::SaveAsXml(
+    ofstream & ofs, string xtag, string ytag, string name, bool insert) const
+{
+  if(!insert) {
+    ofs << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>";
+    ofs << endl << endl;
+    ofs << "<!-- generated by genie::Spline::SaveAsXml() -->";
+    ofs << endl << endl;
+  }  
+  double x=0, y=0;
+  int    nknots = fInterpolator->GetNpx();
+
+  ofs << "<spline name=\"" << name
+                               << "\" nknots=\"" << nknots << "\">" << endl;
+  
+  for(int iknot = 0; iknot < nknots; iknot++) {
+    fInterpolator->GetKnot(iknot, x, y);
+    ofs  << "    <knot> <" << xtag << "> " << x << "</" << xtag << "> "
+         << "<" << ytag << "> " << y << "</" << ytag << "> </knot>" << endl;
+  }
+  ofs << "</spline>" << endl;  
 }
 //___________________________________________________________________________
 TGraph * Spline::GetAsTGraph(int np, bool scale_with_x) const
@@ -222,4 +380,3 @@ void Spline::BuildSpline(int nentries, double x[], double y[])
 }
 //___________________________________________________________________________
 
-  
