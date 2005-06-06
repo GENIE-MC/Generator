@@ -19,6 +19,8 @@
 #include <map>
 #include <string>
 
+#include "XML/XmlParserStatus.h"
+
 using std::map;
 using std::pair;
 using std::string;
@@ -47,21 +49,18 @@ public:
   void   SetNKnots (int    nk); ///< set default number of knots for building the spline
   void   SetMinE   (double Ev); ///< set default minimum energy for xsec splines
   void   SetMaxE   (double Ev); ///< set default maximum energy for xsec splines
-  void   SetExtrap (double Ev); 
   
   //-- read XSecSplineList options
 
   bool   UseLogE     (void) const { return fUseLogE;     }
-  bool   Extrapolate (void) const { return fExtrapolate; }
   int    NKnots      (void) const { return fNKnots;      }
   double Emin        (void) const { return fEmin;        }
   double Emax        (void) const { return fEmax;        }
-  double EExtrap     (void) const { return fEExtrap;     }
 
-  //-- save to / load from file
+  //-- save to / load from XML file
 
-  void   SaveSplineList (string filename  );
-  void   LoadSplineList (bool keep = false);
+  void               SaveAsXml   (string filename) const;
+  XmlParserStatus_t  LoadFromXml (string filename, bool keep = false);
   
   //-- print available splines
   
@@ -79,7 +78,6 @@ private:
   static XSecSplineList * fInstance;
 
   bool   fUseLogE;
-  bool   fExtrapolate;
   int    fNKnots;
   double fEmin;
   double fEmax;

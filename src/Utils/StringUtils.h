@@ -17,12 +17,21 @@
 #define _STRING_UTILS_H_
 
 #include <string>
+#include <vector>
 
 using std::string;
+using std::vector;
 
 namespace genie {
 
 namespace string_utils {
+
+  string         TrimSpaces             (string input);
+  string         IntAsString            (int i);
+  vector<string> Split                  (string input, string delim);
+  string         RemoveSuccessiveSpaces (string input);
+  string         FilterString           (string filt, string input);
+  string         ToUpper                (string input);
 
   //! concatenation methods used for NuValidator's TGTextEdit widgets
 
