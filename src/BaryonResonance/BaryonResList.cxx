@@ -16,7 +16,7 @@
 #include "BaryonResonance/BaryonResList.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Messenger/Messenger.h"
-#include "XML/XmlParserUtils.h"
+#include "Utils/StringUtils.h"
 
 using std::endl;
 
@@ -91,9 +91,9 @@ void BaryonResList::DecodeFromNameList(string input_list, string delimiter)
 {
   //-- remove all spaces in the input string coming from the XML config file
   
-  string list = XmlParserUtils::FilterString(" ", input_list);
+  string list = string_utils::FilterString(" ", input_list);
     
-  vector<string> resonances = XmlParserUtils::Split(list, delimiter);
+  vector<string> resonances = string_utils::Split(list, delimiter);
 
   SLOG("BaryonResList", pINFO) << list;
   SLOG("BaryonResList", pINFO) << resonances.size();
