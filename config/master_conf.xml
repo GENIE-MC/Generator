@@ -215,6 +215,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::NuclearTargetXSec">   
+       <config_file> 
+             nuclear_target_xsec.xml 
+       </config_file>
+   </alg_config>
+
 
    ------- CONFIGURATION FOR INVERSE MU DECAY XSEC ALGORITHMS --------
 
