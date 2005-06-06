@@ -20,6 +20,9 @@
 #ifndef _SPLINE_H_
 #define _SPLINE_H_
 
+#include <string>
+#include <fstream>
+
 #include <TObject.h>
 #include <TSpline.h>
 
@@ -27,7 +30,9 @@ class TNtuple;
 class TTree;
 class TSQLServer;
 class TGraph;
-//class TSpline3;
+
+using std::string;
+using std::ofstream;
 
 namespace genie {
 
@@ -36,31 +41,37 @@ class Spline : public TObject {
 public:
 
   Spline();
-  Spline(const char * filename);
-  Spline(TNtuple * ntuple, const char * xy, const char * constraint = 0);
-  Spline(TTree * tree,     const char * xy, const char * constraint = 0);
-  Spline(TSQLServer * db, const char * query);
+  Spline(string filename, string xtag="", string ytag="", bool is_xml = false);
+  Spline(TNtuple * ntuple, string xy, string cut="");
+  Spline(TTree * tree,     string xy, string cut="");
+  Spline(TSQLServer * db, string query);
   Spline(int nentries, double x[], double y[]);
   Spline(int nentries, float  x[], float  y[]);
   Spline(const Spline & spline);
   Spline(const TSpline3 & spline);
   virtual ~Spline();
-  
-  void LoadFromFile   (const char * filename);
-  void LoadFromNtuple (TNtuple * nt, const char * xy, const char * constraint = 0);
-  void LoadFromTree   (TTree *   tr, const char * xy, const char * constraint = 0);
-  void LoadFromDBase  (TSQLServer * db,  const char * query);
 
+  bool   LoadFromXmlFile    (string filename, string xtag, string ytag);
+  bool   LoadFromAsciiFile  (string filename);
+  bool   LoadFromNtuple     (TNtuple * nt, string xy, string cut = "");
+  bool   LoadFromTree       (TTree *   tr, string xy, string cut = "");
+  bool   LoadFromDBase      (TSQLServer * db,  string query);
+  bool   LoadFromTSpline3   (const TSpline3 & spline);
+  
   bool   IsWithinValidRange (double x) const;
   double Evaluate           (double x) const;
   
+  void   SaveAsXml (string filename, string xtag, string ytag, string name) const;
+  void   SaveAsXml (ofstream & str,  string xtag, string ytag,
+                                          string name, bool insert = false) const;
+
   TGraph *   GetAsTGraph  (int npoints = 100, bool scale_with_x = false) const;
   TSpline3 * GetAsTSpline (void) const { return fInterpolator; }
 
 private:
 
-  void InitSpline       (void);
-  void BuildSpline      (int nentries, double x[], double y[]);
+  void InitSpline  (void);
+  void BuildSpline (int nentries, double x[], double y[]);
   
   double     fXMin;
   double     fXMax;
