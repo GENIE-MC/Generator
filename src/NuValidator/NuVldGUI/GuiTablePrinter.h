@@ -21,6 +21,7 @@
 #include "DBUtils/DBTable.h"
 #include "DBUtils/vXSecTableRow.h"
 #include "DBUtils/eDiffXSecTableRow.h"
+#include "DBUtils/SFTableRow.h"
 
 using std::string;
 
@@ -39,10 +40,11 @@ private:
 
   //-- table printing methods
     
-  void PrintXSecTable (genie::nuvld::DBTable<vXSecTableRow> *     table) const;
-  void PrintXSecTable (genie::nuvld::DBTable<eDiffXSecTableRow> * table) const;
+  void PrintTable (genie::nuvld::DBTable<vXSecTableRow> *     table) const;
+  void PrintTable (genie::nuvld::DBTable<eDiffXSecTableRow> * table) const;
+  void PrintTable (genie::nuvld::DBTable<SFTableRow> *        table) const;
 
-  //-- drawing options
+  //-- options
 
   void ScaleXSecWithEnergy(bool tf) { fScaleXSecWithEnergy = tf; }
 
@@ -50,11 +52,12 @@ private:
         
   string PrintNuXSecTableHeader          (void) const;
   string PrintElDiffXSecTableHeader      (void) const;
+  string PrintSFTableHeader              (void) const;
   string PrintElDiffXSecTableHeaderUnits (void) const;
-  string PrintNuXSecTableSeparator       (void) const;
-  string PrintElDiffXSecTableSeparator   (void) const;
-  string PrintXSecTableRowAsString       (const vXSecTableRow * row) const;
-  string PrintXSecTableRowAsString       (const eDiffXSecTableRow * row) const;
+  string PrintTableRowAsString           (const vXSecTableRow * row) const;
+  string PrintTableRowAsString           (const eDiffXSecTableRow * row) const;
+  string PrintTableRowAsString           (const SFTableRow * row) const;
+  string PrintTableSeparator             (int n) const;
 
   bool fScaleXSecWithEnergy;
 

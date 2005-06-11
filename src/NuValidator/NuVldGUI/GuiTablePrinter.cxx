@@ -42,7 +42,7 @@ GuiTablePrinter::~GuiTablePrinter()
 
 }
 //______________________________________________________________________________
-void GuiTablePrinter::PrintXSecTable(DBTable<vXSecTableRow> * table) const
+void GuiTablePrinter::PrintTable(DBTable<vXSecTableRow> * table) const
 {
   SysLogSingleton *  syslog  = SysLogSingleton::Instance();
   BrowserSingleton * browser = BrowserSingleton::Instance();
@@ -60,8 +60,7 @@ void GuiTablePrinter::PrintXSecTable(DBTable<vXSecTableRow> * table) const
 
      // print table header & separator
      string header = this->PrintNuXSecTableHeader();
-
-     string separator = this->PrintNuXSecTableSeparator();
+     string separator = this->PrintTableSeparator(112);
 
      browser->TextBrowser()->AddLine( header.c_str()    );
      browser->TextBrowser()->AddLine( separator.c_str() );
@@ -73,7 +72,7 @@ void GuiTablePrinter::PrintXSecTable(DBTable<vXSecTableRow> * table) const
         const vXSecTableRow * row =
                           dynamic_cast<const vXSecTableRow * > (table->Row(i));
 
-        string strrow = this->PrintXSecTableRowAsString(row);
+        string strrow = this->PrintTableRowAsString(row);
 
         browser->TextBrowser()  -> AddLine     ( strrow.c_str()  );
         syslog->ProgressBar() -> SetPosition ( (i+1)*dprogress );
@@ -90,7 +89,7 @@ void GuiTablePrinter::PrintXSecTable(DBTable<vXSecTableRow> * table) const
   }
 }
 //______________________________________________________________________________
-void GuiTablePrinter::PrintXSecTable(DBTable<eDiffXSecTableRow> * table) const
+void GuiTablePrinter::PrintTable(DBTable<eDiffXSecTableRow> * table) const
 {
   SysLogSingleton *  syslog  = SysLogSingleton::Instance();
   BrowserSingleton * browser = BrowserSingleton::Instance();
@@ -108,7 +107,7 @@ void GuiTablePrinter::PrintXSecTable(DBTable<eDiffXSecTableRow> * table) const
 
      string header    = this->PrintElDiffXSecTableHeader();
      string units     = this->PrintElDiffXSecTableHeaderUnits();
-     string separator = this->PrintElDiffXSecTableSeparator();
+     string separator = this->PrintTableSeparator(158);
 
      browser->TextBrowser()->AddLine( header.c_str()    );
      browser->TextBrowser()->AddLine( units.c_str()     );
@@ -121,7 +120,7 @@ void GuiTablePrinter::PrintXSecTable(DBTable<eDiffXSecTableRow> * table) const
         const eDiffXSecTableRow * row =
                      dynamic_cast<const eDiffXSecTableRow *>(table->Row(i));
 
-        string strrow = this->PrintXSecTableRowAsString(row);
+        string strrow = this->PrintTableRowAsString(row);
 
         browser -> TextBrowser() -> AddLine     ( strrow.c_str()  );
         syslog  -> ProgressBar() -> SetPosition ( (i+1)*dprogress );
@@ -138,9 +137,55 @@ void GuiTablePrinter::PrintXSecTable(DBTable<eDiffXSecTableRow> * table) const
   }
 }
 //______________________________________________________________________________
+void GuiTablePrinter::PrintTable(DBTable<SFTableRow> * table) const
+{
+  SysLogSingleton *  syslog  = SysLogSingleton::Instance();
+  BrowserSingleton * browser = BrowserSingleton::Instance();
+
+  // if >0 entries plot them, else display warning
+  if( table->NRows() > 0) {
+
+     syslog->StatusBar()->SetText( "Data are printed in 'Data Viewer' tab", 0 );
+     syslog->StatusBar()->SetText( " ",    1 );
+     
+     syslog->ProgressBar()->SetPosition(100);
+     syslog->ProgressBar()->SetPosition(0);
+
+     // print table header & separator
+
+     string header    = this->PrintSFTableHeader();
+     string separator = this->PrintTableSeparator(130);
+
+     browser->TextBrowser()->AddLine( header.c_str()    );
+     //browser->TextBrowser()->AddLine( units.c_str()     );
+     browser->TextBrowser()->AddLine( separator.c_str() );
+
+     double dprogress = 100. / ( table->NRows() );
+
+     for(int i = 0; i< table->NRows(); i++) {
+
+        const SFTableRow * row = dynamic_cast<const SFTableRow *>(table->Row(i));        
+        string strrow = this->PrintTableRowAsString(row);
+        browser -> TextBrowser() -> AddLine     ( strrow.c_str()  );
+        syslog  -> ProgressBar() -> SetPosition ( (i+1)*dprogress );
+     }
+     syslog->ProgressBar()->SetPosition(0);
+
+  } else {
+     syslog->StatusBar() -> SetText( "The table contains no data", 1 );
+     syslog->Log()       -> AddLine( "The table contains no data"    );
+
+     syslog->ProgressBar()->SetPosition(0);
+  }
+}
+//______________________________________________________________________________
 string GuiTablePrinter::PrintNuXSecTableHeader(void) const
 {
   ostringstream strrow;
+
+  strrow << "| ";
+  strrow << setfill(' ') << "Experiment ";
+  strrow << setfill(' ') << setw(6)   << "Tag ";
 
   strrow << setfill(' ') << setw(7)   << "E ";
   strrow << setfill(' ') << setw(10)  << "Emin ";
@@ -149,10 +194,10 @@ string GuiTablePrinter::PrintNuXSecTableHeader(void) const
   if(fScaleXSecWithEnergy) strrow << setfill(' ') << setw(10)  << "xsec/E ";
   else                     strrow << setfill(' ') << setw(10)  << "xsec ";
 
-  strrow << setfill(' ') << setw(14)  << "+dstat ";
-  strrow << setfill(' ') << setw(14)  << "-dstat ";
-  strrow << setfill(' ') << setw(10)  << "+dsyst ";
-  strrow << setfill(' ') << setw(14)  << "-dsyst ";
+  strrow << setfill(' ') << setw(13)  << "+dstat ";
+  strrow << setfill(' ') << setw(13)  << "-dstat ";
+  strrow << setfill(' ') << setw(13)  << "+dsyst ";
+  strrow << setfill(' ') << setw(13)  << "-dsyst ";
 
   return strrow.str();
 }
@@ -162,16 +207,18 @@ string GuiTablePrinter::PrintElDiffXSecTableHeader(void) const
   ostringstream strrow;
 
   strrow << "| ";
-  strrow << setfill(' ') << "dxsec/dEdOmega ";
-  strrow << setfill(' ') << setw(19)  << "Uncertainty ";
-  strrow << setfill(' ') << setw(10)  << "E ";
-  strrow << setfill(' ') << setw(10)  << "Ep ";
+  strrow << setfill(' ') << "Experiment ";
+  strrow << setfill(' ') << setw(6)   << "Tag ";
+  strrow << setfill(' ') << setw(19)  << "dxsec/dEdOmega ";
+  strrow << setfill(' ') << setw(18)  << "Uncertainty ";
+  strrow << setfill(' ') << setw(9)   << "E ";
+  strrow << setfill(' ') << setw(11)  << "Ep ";
   strrow << setfill(' ') << setw(13)  << "Theta ";
   strrow << setfill(' ') << setw(10)  << "W^2 ";
-  strrow << setfill(' ') << setw(12)  << "Q^2 ";
-  strrow << setfill(' ') << setw(10)  << "v ";
+  strrow << setfill(' ') << setw(10)  << "Q^2 ";
+  strrow << setfill(' ') << setw(11)  << "v ";
   strrow << setfill(' ') << setw(10)  << "x ";
-  strrow << setfill(' ') << setw(14)  << "Epsilon ";
+  strrow << setfill(' ') << setw(13)  << "Epsilon ";
   strrow << setfill(' ') << setw(10)  << "Gamma ";
 
   return strrow.str();
@@ -182,14 +229,14 @@ string GuiTablePrinter::PrintElDiffXSecTableHeaderUnits(void) const
   ostringstream strrow;
 
   strrow << "| ";
-  strrow << setfill(' ') << "nb/GeV*sr      ";
-  strrow << setfill(' ') << setw(19)  << "nb/GeV*sr   ";
+  strrow << setfill(' ') << setw(34)  << "nb/GeV*sr ";
+  strrow << setfill(' ') << setw(19)  << "nb/GeV*sr ";
   strrow << setfill(' ') << setw(10)  << "GeV";
   strrow << setfill(' ') << setw(10)  << "GeV";
-  strrow << setfill(' ') << setw(13)  << "Deg   ";
-  strrow << setfill(' ') << setw(8)   << "GeV^2 ";
+  strrow << setfill(' ') << setw(15)  << "Deg   ";
   strrow << setfill(' ') << setw(10)  << "GeV^2 ";
-  strrow << setfill(' ') << setw(8)   << "GeV ";
+  strrow << setfill(' ') << setw(11)  << "GeV^2 ";
+  strrow << setfill(' ') << setw(10)  << "GeV ";
   strrow << setfill(' ') << setw(10)  << "  ";
   strrow << setfill(' ') << setw(14)  << "        ";
   strrow << setfill(' ') << setw(10)  << "      ";
@@ -197,55 +244,117 @@ string GuiTablePrinter::PrintElDiffXSecTableHeaderUnits(void) const
   return strrow.str();
 }
 //______________________________________________________________________________
-string GuiTablePrinter::PrintNuXSecTableSeparator(void) const
-{
-  ostringstream strrow;
-  strrow << setfill('-') << setw(93) << " ";
-  return strrow.str();
-}
-//______________________________________________________________________________
-string GuiTablePrinter::PrintElDiffXSecTableSeparator(void) const
-{
-  ostringstream strrow;
-  strrow << setfill('-') << setw(139) << " ";
-  return strrow.str();
-}
-//______________________________________________________________________________
-string GuiTablePrinter::PrintXSecTableRowAsString(
-                                                const vXSecTableRow * row) const
+string GuiTablePrinter::PrintSFTableHeader(void) const
 {
   ostringstream strrow;
 
+  strrow << "| ";
+  strrow << setfill(' ') << "Experiment ";
+  strrow << setfill(' ') << setw(6)   << "Tag ";
+  strrow << setfill(' ') << setw(9)   << "p ";
+  strrow << setfill(' ') << setw(11)  << "R ";
+  strrow << setfill(' ') << setw(11)  << "x ";
+  strrow << setfill(' ') << setw(12)  << "Q^2 ";
+  strrow << setfill(' ') << setw(12)  << "S/F ";
+  strrow << setfill(' ') << setw(13)  << "+dstat ";
+  strrow << setfill(' ') << setw(13)  << "-dstat ";
+  strrow << setfill(' ') << setw(13)  << "+dsyst ";
+  strrow << setfill(' ') << setw(13)  << "-dsyst ";
+
+  return strrow.str();
+}
+//______________________________________________________________________________
+string GuiTablePrinter::PrintTableSeparator(int n) const
+{
+  ostringstream strrow;
+  strrow << setfill('-') << setw(n) << " ";
+  return strrow.str();
+}
+//______________________________________________________________________________
+string GuiTablePrinter::PrintTableRowAsString(const vXSecTableRow * r) const
+{
+  ostringstream strrow;
+
+  strrow << "|" << setfill(' ') << setw(11) << r->Experiment()      << " ";
+  strrow << "|" << setfill(' ') << setw(4)  << r->MeasurementTag()  << " ";
+
+  strrow << "|" << setfill(' ') << setw(7)
+                                << setprecision(2) << r->E() << " ";
+  strrow << "|" << setfill(' ') << setw(7)
+                                << setprecision(1) << r->Emin() << " ";
+  strrow << "|" << setfill(' ') << setw(7)
+                                << setprecision(1) << r->Emax() << " ";
+  strrow << "|" << setfill(' ') << setw(10)
+                                << setprecision(2) << r->XSec() << " ";
+
+  strrow << "|" << " + " << setfill(' ') << setw(8)
+                         << setprecision(2) << r->StatErrP() << " ";
+  strrow << "|" << " - " << setfill(' ') << setw(8)
+                         << setprecision(2) << r->StatErrM() << " ";
+  strrow << "|" << " + " << setfill(' ') << setw(8)
+                         << setprecision(2) << r->SystErrP() << " ";
+  strrow << "|" << " - " << setfill(' ') << setw(8)
+                         << setprecision(2) << r->SystErrM() << " ";
   strrow << "|";
-  strrow << setfill(' ') << setw(7)  << setprecision(2) << row->E() << " ";
-  strrow << "|" << setfill(' ') << setw(7)  << setprecision(1) << row->Emin() << " ";
-  strrow << "|" << setfill(' ') << setw(7)  << setprecision(1) << row->Emax() << " ";
-  strrow << "|" << setfill(' ') << setw(10) << setprecision(2) << row->XSec() << " ";
-  strrow << "|" << " + " << setfill(' ') << setw(8)  << setprecision(2) << row->StatErrP() << " ";
-  strrow << "|" << " - " << setfill(' ') << setw(8)  << setprecision(2) << row->StatErrM() << " ";
-  strrow << "|" << " + " << setfill(' ') << setw(8)  << setprecision(2) << row->SystErrP() << " ";
-  strrow << "|" << " - " << setfill(' ') << setw(8)  << setprecision(2) << row->SystErrM() << " ";
+
+  return strrow.str();
+}
+//______________________________________________________________________________
+string GuiTablePrinter::PrintTableRowAsString(const eDiffXSecTableRow * r) const
+{
+  ostringstream strrow;
+
+  strrow << "|" << setfill(' ') << setw(11) << r->Experiment()     << " ";
+  strrow << "|" << setfill(' ') << setw(4)  << r->MeasurementTag() << " ";
+  strrow << "|" << setfill(' ') << setw(21)
+                                << setprecision(6) << r->Sigma()   << " ";
+  strrow << "|" << setfill(' ') << setw(13)
+                                << setprecision(6) << r->dSigma()  << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->E()       << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->EP()      << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(2) << r->Theta()   << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->W2()      << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->Q2()      << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->Nu()      << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->x()       << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->Epsilon() << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->Gamma()   << " ";
   strrow << "|";
 
   return strrow.str();
 }
 //______________________________________________________________________________
-string GuiTablePrinter::PrintXSecTableRowAsString(
-                                            const eDiffXSecTableRow * row) const
+string GuiTablePrinter::PrintTableRowAsString(const SFTableRow * r) const
 {
   ostringstream strrow;
 
-  strrow << "|" << setfill(' ') << setw(21) << setprecision(6) << row->Sigma()   << " ";
-  strrow << "|" << setfill(' ') << setw(13) << setprecision(6) << row->dSigma()  << " ";
-  strrow << "|" << setfill(' ') << setw(9)  << setprecision(6) << row->E()       << " ";
-  strrow << "|" << setfill(' ') << setw(9)  << setprecision(6) << row->EP()      << " ";
-  strrow << "|" << setfill(' ') << setw(9)  << setprecision(2) << row->Theta()   << " ";
-  strrow << "|" << setfill(' ') << setw(9)  << setprecision(6) << row->W2()      << " ";
-  strrow << "|" << setfill(' ') << setw(9)  << setprecision(6) << row->Q2()      << " ";
-  strrow << "|" << setfill(' ') << setw(9)  << setprecision(6) << row->Nu()      << " ";
-  strrow << "|" << setfill(' ') << setw(9)  << setprecision(6) << row->x()       << " ";
-  strrow << "|" << setfill(' ') << setw(9)  << setprecision(6) << row->Epsilon() << " ";
-  strrow << "|" << setfill(' ') << setw(9)  << setprecision(6) << row->Gamma()   << " ";
+  strrow << "|" << setfill(' ') << setw(11) << r->Experiment()      << " ";
+  strrow << "|" << setfill(' ') << setw(4)  << r->MeasurementTag()  << " ";
+  strrow << "|" << setfill(' ') << setw(10) << r->p()               << " ";
+  strrow << "|" << setfill(' ') << setw(10) << r->R()               << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->x()        << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->Q2()       << " ";
+  strrow << "|" << setfill(' ') << setw(9)
+                                << setprecision(6) << r->SF()       << " ";
+  strrow << "|" << setfill(' ') << setw(11)
+                                << setprecision(6) << r->StatErrP() << " ";
+  strrow << "|" << setfill(' ') << setw(11)
+                                << setprecision(6) << r->StatErrM() << " ";
+  strrow << "|" << setfill(' ') << setw(11)
+                                << setprecision(6) << r->SystErrP() << " ";
+  strrow << "|" << setfill(' ') << setw(11)
+                                << setprecision(6) << r->SystErrM() << " ";
   strrow << "|";
 
   return strrow.str();
