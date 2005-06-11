@@ -85,6 +85,38 @@ nuvld-only:
 doc:
 	cd ../doc/doxygen/; doxygen genie_doxygen; cd ../../src/
 
+purge: FORCE
+	cd Algorithm;          make purge; cd ..; \
+	cd BaryonResonance;    make purge; cd ..; \
+	cd Base;               make purge; cd ..; \
+	cd BodekYang;          make purge; cd ..; \
+	cd Charm;              make purge; cd ..; \
+	cd CrossSections;      make purge; cd ..; \
+	cd Decay; 	       make purge; cd ..; \
+	cd Elastic; 	       make purge; cd ..; \
+	cd EventGeneration;    make purge; cd ..; \
+	cd FKR;                make purge; cd ..; \
+	cd Fragmentation;      make purge; cd ..; \
+	cd GMCJob;             make purge; cd ..; \
+	cd ValidityDoc;        make purge; cd ..; \
+	cd Interaction;        make purge; cd ..; \
+	cd InverseMuonDecay;   make purge; cd ..; \
+	cd LlewellynSmith;     make purge; cd ..; \
+	cd Messenger;	       make purge; cd ..; \
+	cd Nuclear;            make purge; cd ..; \
+	cd Ntuple;             make purge; cd ..; \
+	cd Numerical;          make purge; cd ..; \
+	cd NuValidator;        make purge; cd ..; \
+	cd PartonModel;        make purge; cd ..; \
+	cd Paschos;            make purge; cd ..; \
+	cd PDF;                make purge; cd ..; \
+	cd PDG;                make purge; cd ..; \
+	cd Radiative;          make purge; cd ..; \
+	cd Registry;           make purge; cd ..; \
+	cd ReinSeghal;         make purge; cd ..; \
+	cd Utils;              make purge; cd ..; \
+	cd Viewer;             make purge; cd ..; \
+
 clean: FORCE
 	cd Algorithm;          make clean; cd ..; \
 	cd BaryonResonance;    make clean; cd ..; \
