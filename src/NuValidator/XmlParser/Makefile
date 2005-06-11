@@ -27,6 +27,9 @@ $(VLD_PARSER_SHARED_LIB): $(PROJECT_O)
 	$(SOCMD) $(SOFLAGS) $(SOMINF)				\
 		$(PROJECT_O) $(OutPutOpt) $(VLD_PARSER_SHARED_LIB)
 
+purge: FORCE
+	$(RM) *.o *~ core a.out 
+
 clean: FORCE
 	$(RM) *.o *~ core a.out $(VLD_PARSER_SHARED_LIB)
 
