@@ -25,6 +25,12 @@ applications:
 	cd app;                make; cd ..; 
 
 
+purge: FORCE
+	cd XmlParser;          make purge; cd ..;    \
+	cd DBUtils;            make purge; cd ..;    \
+	cd Facades;	       make purge; cd ..;    \
+	cd NuVldGUI;           make purge; cd ..; 
+
 clean: FORCE
 	cd XmlParser;          make clean; cd ..;    \
 	cd DBUtils;            make clean; cd ..;    \

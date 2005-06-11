@@ -19,6 +19,8 @@ CINTLIST_H := $(addsuffix .h, $(basename $(PROJECT_S)))
 CINTLIST_O := $(addsuffix .$(ObjSuf), $(basename $(CINTLIST_H)))
 PROJECT_S  := $(PROJECT_S) _ROOT_DICT_NeuGen.cc
 PROJECT_O   = $(addsuffix .$(ObjSuf), $(basename $(PROJECT_S)))
+PROJECT_bS := $(wildcard *.$(SrcSuf))
+PROJECT_bO  = $(addsuffix .$(ObjSuf), $(basename $(PROJECT_bS)))
 
 all:	rootcint lib
 
@@ -36,6 +38,9 @@ lib: FORCE
 
 $(VLD_NEUGEN_INTERFACE_SHARED_LIB): $(PROJECT_O)
 	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PROJECT_O) $(NEUGEN_LIBS) $(CERN_LIBS) $(OutPutOpt) $(VLD_NEUGEN_INTERFACE_SHARED_LIB)
+
+purge: FORCE
+	$(RM) *.o *~ core a.out _ROOT_DICT_NeuGen.*
 
 clean: FORCE
 	$(RM) *.o *~ core a.out $(VLD_NEUGEN_INTERFACE_SHARED_LIB) _ROOT_DICT_NeuGen.* 

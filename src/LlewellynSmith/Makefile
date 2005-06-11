@@ -17,6 +17,8 @@ CINTLIST  := $(addsuffix .h, $(basename $(GENIES)))
 CINTLISTO := $(addsuffix .$(ObjSuf), $(basename $(CINTLIST)))
 GENIES 	  := $(GENIES) _ROOT_DICT_LlewellynSmith.cc $(wildcard *.cpp)
 GENIEO 	   = $(addsuffix .$(ObjSuf), $(basename $(GENIES)))
+GENIEbS   := $(wildcard *.cxx)
+GENIEbO    = $(addsuffix .$(ObjSuf), $(basename $(GENIEbS)))
 GENIESO   := $(GENIE_LLEWELLYN_SMITH_SHARED_LIB)
 
 all:	rootcint lib
@@ -36,6 +38,9 @@ lib: FORCE
 $(GENIESO): $(GENIEO)
 	$(SOCMD) $(SOFLAGS) $(SOMINF)				\
 		$(GENIEO) $(OutPutOpt) $(GENIESO)
+
+purge: FORCE
+	$(RM) $(GENIEbO) *~ core a.out Makefile.temp
 
 clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIESO)		        \

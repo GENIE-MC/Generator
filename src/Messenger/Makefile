@@ -16,6 +16,8 @@ GENIES	  := $(wildcard *.cxx)
 CINTLIST  := $(addsuffix .h, $(basename $(GENIES)))
 CINTLISTO := $(addsuffix .$(ObjSuf), $(basename $(CINTLIST)))
 GENIEO 	   = $(addsuffix .$(ObjSuf), $(basename $(GENIES)))
+GENIEbS   := $(wildcard *.cxx)
+GENIEbO    = $(addsuffix .$(ObjSuf), $(basename $(GENIEbS)))
 GENIESO   := $(GENIE_MSG_SHARED_LIB)
 
 all: $(GENIESO)
@@ -23,6 +25,9 @@ all: $(GENIESO)
 $(GENIESO): $(GENIEO)
 	$(SOCMD) $(SOFLAGS) $(SOMINF)				\
 		$(GENIEO) $(OutPutOpt) $(GENIESO)
+
+purge: FORCE
+	$(RM) $(GENIEbO) *~ core a.out Makefile.temp
 
 clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIESO)		        \
