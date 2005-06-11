@@ -4,6 +4,13 @@
 # Costas Andreopoulos (Rutherford Lab.) <C.V.Andreopoulos@rl.ac.uk>
 ####################################################################
 
+###### Define whether you want to switch on gprof code profiling
+
+###### Architecture-specific options
+
+ARCH     = $(shell uname -s)
+GPROFILE = NO
+
 ###### Define XML lib & include directory
 
 XML_INC_DIR = /usr/include/libxml2
@@ -37,13 +44,12 @@ RANLIB    = ranlib
 
 SOMINF =
 
-###### Architecture-specific options
-
-ARCH = linux
-
 ###### LINUX (with gcc)
 CXX           = g++
 CXXFLAGS      = -g -O -Wall -fPIC
+ifeq ($(strip $(GPROFILE)),YES) 
+CXXFLAGS += -pg 
+endif
 LD            = g++
 LDFLAGS       = -g
 SOFLAGS       = -shared
