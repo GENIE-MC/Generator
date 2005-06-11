@@ -316,6 +316,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::Intranuke">   
+       <config_file> 
+             intranuke.xml 
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::UnstableParticleDecayer">   
        <config_file> 
              unstable_particle_decayer.xml 
