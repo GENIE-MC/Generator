@@ -63,11 +63,11 @@ void GuiFitKernel::Reset(void)
   fFunc1d = 0;
   fNGFP   = 0;
 
-lowb  = 0;
-highb = 0;
-
-chisq1d = 0;
-chisq2d = 0;
+  //tmp names
+  lowb    = 0;
+  highb   = 0;
+  chisq1d = 0;
+  chisq2d = 0;
 }
 //______________________________________________________________________________
 void GuiFitKernel::SetFitRange(float xmin, float xmax)
@@ -101,14 +101,11 @@ void GuiFitKernel::DoSimpleFit(void)
   SysLogSingleton * syslog  = SysLogSingleton::Instance();    
   NuVldUserData * user_data = NuVldUserData::Instance();
 
-  // get free parameter range
-
+  // free parameter range
   LOG("NuVld", pDEBUG) << "Energy = [" << fXmin << ", " << fXmax << "]";
 
   // find out if we are fitting xsecs for an exclusive or inclusive channel
-
   NeuGenCards * cards = NeuGenCards::Instance();
-
   bool is_inclusive  = cards->CurrInputs()->Inclusive();
 
   // get a fit function (TF1 object)
@@ -196,7 +193,6 @@ void GuiFitKernel::DoFloatingNormFit(void)
      if(is_inclusive) {
          LOG("NuVld", pWARN) << "need to set the fitting for inclusive  channels too";
      }
-
      else minuit->SetFCN(fcn_mgr_floating_norm_e);
 
   } else {
@@ -204,7 +200,6 @@ void GuiFitKernel::DoFloatingNormFit(void)
      if(is_inclusive) {
          LOG("NuVld", pWARN) << "need to set the fitting for inclusive  channels too";
      }
-
      else minuit->SetFCN(fcn_mgr_floating_norm);
   }
 
@@ -216,16 +211,16 @@ void GuiFitKernel::DoFloatingNormFit(void)
 
   this->InitMinuitFitParameters(minuit); // also - need to set the step size...  
 
-   // MINUIT's minimization step
-   arglist[0] = 500;
-   arglist[1] = 1.;
-   minuit->mnexcm("MIGRAD", arglist ,2,ierflg);
+  // MINUIT's minimization step
+  arglist[0] = 500;
+  arglist[1] = 1.;
+  minuit->mnexcm("MIGRAD", arglist ,2,ierflg);
 
-   // Printing MINUIT results
-   Double_t amin,edm,errdef;
-   Int_t nvpar,nparx,icstat;
-   minuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);
-   minuit->mnprin(3,amin);
+  // Printing MINUIT results
+  Double_t amin,edm,errdef;
+  Int_t nvpar,nparx,icstat;
+  minuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);
+  minuit->mnprin(3,amin);
 
   LOG("NuVld", pDEBUG) << "fitting: ...done";
 }

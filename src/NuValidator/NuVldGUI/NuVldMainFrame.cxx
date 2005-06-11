@@ -1771,31 +1771,21 @@ void NuVldMainFrame::PrintCurrentDBTable(void)
   GuiTablePrinter printer;
   printer.ScaleXSecWithEnergy( this->ScaleWithEnergy() );
   
-  /* neutrino scattering data */
-
-  if (fTabSql->GetCurrent() == 0) {
-
-      if( ! user_data->CurrDBTableIsNull() )
-                                  printer.PrintXSecTable( user_data->NuXSec() );
-      else {
+  if( ! user_data->CurrDBTableIsNull() ) {
+    
+     /* neutrino scattering data */
+     if (fTabSql->GetCurrent() == 0)    
+                          printer.PrintTable( user_data->NuXSec() );                          
+     /* electron scattering data */
+     else if (fTabSql->GetCurrent() == 1)
+                      printer.PrintTable( user_data->ElDiffXSec() );     
+     /* S/F data */
+     else if (fTabSql->GetCurrent() == 2)
+                              printer.PrintTable( user_data->SF() );
+   } else {
         fStatusBar -> SetText( "pointer to DBTable<T> is null", 1 );
         fLog       -> AddLine( "pointer to DBTable<T> is null"    );
-      }
-
-  } else
-
-  /* electron scattering data */
-
-  if (fTabSql->GetCurrent() == 1) {
-
-      if( ! user_data->CurrDBTableIsNull() )
-                              printer.PrintXSecTable( user_data->ElDiffXSec() );
-      else {
-
-        fStatusBar -> SetText( "pointer to DBTable<T> is null", 1 );
-        fLog       -> AddLine( "pointer to DBTable<T> is null"    );
-      }
-   }//e
+   }
 }
 //______________________________________________________________________________
 void NuVldMainFrame::RunFitter(void)
