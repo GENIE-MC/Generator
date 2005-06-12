@@ -466,38 +466,6 @@ Spline * NeuGenWrapper::ExclusiveXSecSpline(
   return spline;
 }
 //____________________________________________________________________________
-/*
-Spline * NeuGenWrapper::eDiffXSecSpline (
-      float emin, float emax, int nbins, NGInteraction * ni, NeuGenCuts * cuts)
-{
-  float eDiff2Xsec
-             (float e, NGKineVar_t  kv1, float kval1, NGKineVar_t  kv2, float kval2, NGInteraction * ni, NeuGenCuts * c=0);
-  
-  SLOG("NeuGen", pINFO) << "Building electron XSec Spline";
-
-  assert(emin < emax && nbins > 1);
-
-  double * E    = new double[nbins];
-  double * xsec = new double[nbins];
-
-  double de = (emax - emin) / ( nbins - 1);
-
-  for(int ie = 0; ie < nbins; ie++) {
-
-      E[ie]    = emin + ie * de;
-      xsec[ie] = this->XSec (E[ie], ni, cuts);
-
-      LOG("NeuGen", pINFO) << "xsec(" << E[ie] << ") = " << xsec[ie];
-  }
-
-  Spline * spline = new Spline(nbins, E, xsec);
-
-  //delete [] E;
-  //delete [] xsec;
-
-  return spline;
-}*/
-//____________________________________________________________________________
 Spline * NeuGenWrapper::StrucFuncSpline(
    NGKineVar_t xvar, float varmin, float varmax, int nbins, float fixedvar,
              int A, NGInitState_t init, NGCcNc_t ccnc, NGSF_t sf, int raw_dis)
