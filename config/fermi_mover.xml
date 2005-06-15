@@ -5,7 +5,8 @@
  Configuration sets for the FermiMover EventRecordVisitorI
 
   <param_set name="Default"> 
-
+     <param type="string" name="nucl-p-distribution-alg">   genie::BodekRitchie </param>
+     <param type="string" name="nucl-p-distribution-conf">  Default             </param>
   </param_set>
 
 </alg_conf>

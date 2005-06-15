@@ -8,9 +8,7 @@
 
     <param type="string" name="fragmentation-func-alg-name">  genie::PetersonFragm  </param>
     <param type="string" name="fragmentation-func-param-set"> Default               </param>
-    <param type="string" name="charm-fractions-table">                              </param>
-    <param type="string" name="decayer-alg-name">             genie::PythiaDecayer  </param>
-    <param type="string" name="decayer-param-set">            Default               </param>
+    <param type="string" name="charm-fractions-table">        Default               </param>
 
   </param_set>
 

@@ -3,12 +3,17 @@
 <alg_conf>
 
   <param_set name="CC-Default">
-        <param type="bool" name="is-CC"> true  </param>
+        <param type="bool" name="is-CC">    true  </param>
   </param_set>
 
   <param_set name="NC-Default">
-        <param type="bool" name="is-NC"> true  </param>
+        <param type="bool" name="is-NC">    true  </param>
   </param_set>
   
+  <param_set name="CC-Charm-Default">
+        <param type="bool" name="is-CC">    true  </param>
+        <param type="bool" name="is-Charm"> true  </param>
+  </param_set>
+
 </alg_conf>
 

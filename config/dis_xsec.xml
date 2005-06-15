@@ -14,7 +14,7 @@
      <param type="int"    name="n-log-y">                101                        </param>
      <param type="double" name="y-min">                  0.001                      </param>
      <param type="double" name="y-max">                  0.999                      </param>
-     <param type="double" name="Wmin">                   1.400                      </param>
+     <param type="double" name="Wmin">                   1.600                      </param>
      <param type="double" name="Q2min">                  1.000                      </param>
   </param_set>
 
@@ -30,7 +30,7 @@
      <param type="int"    name="n-log-y">                101                            </param>
      <param type="double" name="y-min">                  0.001                          </param>
      <param type="double" name="y-max">                  0.999                          </param>
-     <param type="double" name="Wmin">                   1.400                          </param>
+     <param type="double" name="Wmin">                   1.600                          </param>
      <param type="double" name="Q2min">                  1.000                          </param>
   </param_set>
 
@@ -46,7 +46,7 @@
      <param type="int"    name="n-log-y">                101                        </param>
      <param type="double" name="y-min">                  0.001                      </param>
      <param type="double" name="y-max">                  0.950                      </param>
-     <param type="double" name="Wmin">                   1.400                      </param>
+     <param type="double" name="Wmin">                   1.600                      </param>
      <param type="double" name="Q2min">                  1.000                      </param>
   </param_set>
 
@@ -62,7 +62,7 @@
      <param type="int"    name="n-log-y">                71                         </param>
      <param type="double" name="y-min">                  0.001                      </param>
      <param type="double" name="y-max">                  0.999                      </param>
-     <param type="double" name="Wmin">                   1.400                      </param>
+     <param type="double" name="Wmin">                   1.600                      </param>
      <param type="double" name="Q2min">                  1.000                      </param>
   </param_set>
 
@@ -76,7 +76,7 @@
      <param type="int"    name="n-log-y">                71                         </param>
      <param type="double" name="y-min">                  0.001                      </param>
      <param type="double" name="y-max">                  0.999                      </param>
-     <param type="double" name="Wmin">                   1.400                      </param>
+     <param type="double" name="Wmin">                   1.600                      </param>
      <param type="double" name="Q2min">                  1.000                      </param>
   </param_set>
 
@@ -90,7 +90,7 @@
      <param type="int"    name="n-log-y">                71                         </param>
      <param type="double" name="y-min">                  0.001                      </param>
      <param type="double" name="y-max">                  0.999                      </param>
-     <param type="double" name="Wmin">                   1.400                      </param>
+     <param type="double" name="Wmin">                   1.600                      </param>
      <param type="double" name="Q2min">                  1.000                      </param>
   </param_set>
 
