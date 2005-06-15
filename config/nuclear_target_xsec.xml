@@ -30,5 +30,10 @@
      <param type="string" name="free-nucleon-xsec-param-set">  Rein-Seghal                        </param>
   </param_set>
 
+  <param_set name="DIS-CC-Charm-Default"> 
+     <param type="string" name="free-nucleon-xsec-alg-name">   genie::DISXSec                     </param>
+     <param type="string" name="free-nucleon-xsec-param-set">  CC-Charm-Default                   </param>
+  </param_set>
+
 </alg_conf>
 

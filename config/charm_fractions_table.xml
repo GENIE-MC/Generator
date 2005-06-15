@@ -1,16 +1,34 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<charm_fraction>
+<charm_fraction_table name="Default">
 
-  <energy_bin min="" max="">
- 
-       <fraction pdg_code="">   </fraction>
-       <fraction pdg_code="">   </fraction>
-       <fraction pdg_code="">   </fraction>
-       <fraction pdg_code="">   </fraction>
+  <energy_bin min="0" max="20">
+       <fraction pdg_code="421">  0.32  </fraction>
+       <fraction pdg_code="411">  0.05  </fraction>
+       <fraction pdg_code="-411"> 0.18  </fraction>
+       <fraction pdg_code="4122"> 0.44  </fraction>
   </energy_bin>
 
+  <energy_bin min="20" max="40">
+       <fraction pdg_code="421">  0.50  </fraction>
+       <fraction pdg_code="411">  0.10  </fraction>
+       <fraction pdg_code="-411"> 0.22  </fraction>
+       <fraction pdg_code="4122"> 0.18  </fraction>
+  </energy_bin>
 
+  <energy_bin min="40" max="80">
+       <fraction pdg_code="421">  0.64  </fraction>
+       <fraction pdg_code="411">  0.22  </fraction>
+       <fraction pdg_code="-411"> 0.09  </fraction>
+       <fraction pdg_code="4122"> 0.05  </fraction>
+  </energy_bin>
 
-</charm_fraction>
+  <energy_bin min="80" max="1000">
+       <fraction pdg_code="421">  0.60  </fraction>
+       <fraction pdg_code="411">  0.30  </fraction>
+       <fraction pdg_code="-411"> 0.01  </fraction>
+       <fraction pdg_code="4122"> 0.09  </fraction>
+  </energy_bin>
+
+</charm_fraction_table>
 
