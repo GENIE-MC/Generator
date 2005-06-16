@@ -21,6 +21,9 @@
 #pragma link C++ class genie::KNODistribution;
 #pragma link C++ class genie::MultiplicityProb;
 
+#pragma link C++ class genie::CharmFractionTablePool;
+#pragma link C++ class genie::CharmFractionTable;
+
 #pragma link C++ function genie::peterson_fragmentation_function;
 #pragma link C++ function genie::collins_spiller_fragmentation_function;
 
