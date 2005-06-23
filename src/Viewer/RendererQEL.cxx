@@ -26,7 +26,7 @@
 #include <TStyle.h>
 
 #include "EventGeneration/EventRecord.h"
-#include "EventGeneration/StdhepParticle.h"
+#include "EventGeneration/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "Viewer/RendererQEL.h"
 
@@ -72,7 +72,7 @@ void RendererQEL::DrawDiagram(EventRecord * ev_rec)
 
    // incoming neutrino
 
-   StdhepParticle * nu = ev_rec->GetParticle(0);
+   GHepParticle * nu = ev_rec->GetParticle(0);
 
    l = new TLine(15, 85, 50, 68);
    l->SetLineColor(2);
@@ -82,7 +82,7 @@ void RendererQEL::DrawDiagram(EventRecord * ev_rec)
 
    // final state primary lepton
 
-   StdhepParticle * fsl = ev_rec->GetParticle( nu->FirstDaughter() );
+   GHepParticle * fsl = ev_rec->GetParticle( nu->FirstDaughter() );
 
    l = new TLine(50, 68, 85, 85);
    l->SetLineColor(1);
@@ -90,12 +90,12 @@ void RendererQEL::DrawDiagram(EventRecord * ev_rec)
    t.DrawLatex(80,95,fsl->Name().c_str());
    tn.DrawLatex(80,90, P4AsString(fsl->Energy(),fsl->Px(),fsl->Py(),fsl->Pz()));
 
-   StdhepParticle * p = 0;
+   GHepParticle * p = 0;
    TIter rec_iter(ev_rec);
 
    // <-- nucleons
 
-   while( (p = (StdhepParticle *) rec_iter.Next()) ) {
+   while( (p = (GHepParticle *) rec_iter.Next()) ) {
 
       //-- if particle = nucleon
       if( p->PdgCode() == 2112 || p->PdgCode() == 2212 ) {
@@ -125,7 +125,7 @@ void RendererQEL::DrawDiagram(EventRecord * ev_rec)
 
    // <-- nuclei
 
-   while( (p = (StdhepParticle *) rec_iter.Next()) ) {
+   while( (p = (GHepParticle *) rec_iter.Next()) ) {
 
       //-- if particle = nucleus
       if( p->PdgCode() == 0 ) {
