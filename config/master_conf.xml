@@ -36,12 +36,6 @@
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::CharmHadronization">   
-       <config_file> 
-             charm_hadronization.xml 
-       </config_file>
-   </alg_config>
-
    <alg_config alg_name="genie::KNODistribution">   
        <config_file> 
              kno_distribution.xml 
@@ -391,6 +385,12 @@
    <alg_config alg_name="genie::DISHadronicSystemGenerator">   
        <config_file> 
              dis_hadronic_system_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::FragmentCharmDISGenerator">   
+       <config_file> 
+             fragment_charm_dis_generator.xml 
        </config_file>
    </alg_config>
 

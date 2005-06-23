@@ -159,7 +159,6 @@
      <param type="string" name="cross-section-conf">     RES-Default                        </param>
   </param_set>
 
-<!--
   <param_set name="DIS-CC-CHARM"> 
 
      <param type="string" name="vld-context">   
@@ -175,8 +174,8 @@
      <param type="string" name="generator-step-2-conf">  CC-Charm-Default                   </param>
      <param type="string" name="generator-step-3-alg">   genie::DISPrimaryLeptonGenerator   </param>
      <param type="string" name="generator-step-3-conf">  Default                            </param>
-     <param type="string" name="generator-step-4-alg">   genie::DISHadronicSystemGenerator  </param>
-     <param type="string" name="generator-step-4-conf">  Charm-Default                      </param>
+     <param type="string" name="generator-step-4-alg">   genie::FragmentCharmDISGenerator   </param>
+     <param type="string" name="generator-step-4-conf">  Default                            </param>
      <param type="string" name="generator-step-5-alg">   genie::FamilyTreeMaker             </param>
      <param type="string" name="generator-step-5-conf">  Default                            </param>
      <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
@@ -188,7 +187,6 @@
      <param type="string" name="cross-section-conf">     DIS-CC-Charm-Default               </param>
 
   </param_set>
--->
 
 </alg_conf>
 
