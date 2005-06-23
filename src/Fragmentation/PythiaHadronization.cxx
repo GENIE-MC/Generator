@@ -43,7 +43,7 @@ HadronizationModelI(param_set)
 {
   fName = "genie::PythiaHadronization";
 
-  FindConfig();
+  this->FindConfig();
 
   fPythia = new TPythia6();  
 }
@@ -61,19 +61,15 @@ void PythiaHadronization::Initialize(void) const
 TClonesArray * PythiaHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
-  int ip = 0;
+  const ScatteringParams & scp = interaction->GetScatteringParams();
+
+  double W = scp.W();
 
   const InitialState & init_state = interaction->GetInitialState();
 
-  const ScatteringParams & scp = interaction->GetScatteringParams();
-
-  //-- make sure all scattering parameters are in place
-
-  int    hit_nucleon = init_state.GetTarget().StruckNucleonPDGCode();
-  double E_hadr      = scp.GetDouble("W");
-
-  int hit_quark = 0;
-  int diquark   = 0;
+  int hit_nucleon = init_state.GetTarget().StruckNucleonPDGCode();
+  int hit_quark   = 0;
+  int diquark     = 0;
 
   //-- check for hit-quark assignment
   
@@ -104,6 +100,8 @@ TClonesArray * PythiaHadronization::Hadronize(
 
   //-- PYTHIA->HADRONIZE:
 
+  int ip = 0;
+
   //-- hit nucleon = proton
 
   if ( pdg::IsProton(hit_nucleon) ) {
@@ -112,18 +110,14 @@ TClonesArray * PythiaHadronization::Hadronize(
        if ( pdg::IsUQuark(hit_quark) )
        {
           diquark = kPdgUDDiquarkS1;
-
-          py2ent_(&ip, &hit_quark, &diquark, &E_hadr);
+          py2ent_(&ip, &hit_quark, &diquark, &W);
        }
-
        /* d + uu */
        else if ( pdg::IsDQuark(hit_quark) )
        {
           diquark = kPdgUUDiquarkS1;
-
-          py2ent_(&ip, &hit_quark, &diquark, &E_hadr);
+          py2ent_(&ip, &hit_quark, &diquark, &W);
        }
-
        else {
          LOG("PythiaHad", pERROR) << "Can not handle quark: " << hit_quark;
        }
@@ -137,18 +131,14 @@ TClonesArray * PythiaHadronization::Hadronize(
        if ( pdg::IsUQuark(hit_quark) )
        {
           diquark = kPdgDDDiquarkS1;
-
-          py2ent_(&ip, &hit_quark, &diquark, &E_hadr);
-       }
-          
+          py2ent_(&ip, &hit_quark, &diquark, &W);
+       }          
         /* d + ud */
        else if ( pdg::IsDQuark(hit_quark) )
        {
           diquark = kPdgUDDiquarkS1;
-
-          py2ent_(&ip, &hit_quark, &diquark, &E_hadr);
-       }
-       
+          py2ent_(&ip, &hit_quark, &diquark, &W);
+       }       
        else {
           LOG("PythiaHad", pERROR) << "Can not handle quark: " << hit_quark;
        }
