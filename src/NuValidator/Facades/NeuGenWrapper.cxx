@@ -157,6 +157,14 @@ void NeuGenWrapper::Reconfigure(const NeuGenConfig * config)
 void NeuGenWrapper::SetDefaultConfig(void)
 {
   set_default_parameters_();
+
+  int  nchar = 7;
+  int  vrs   = 1;
+  bool ok    = false;
+ 
+  initialize_configuration_("MODBYRS", &nchar, &vrs, &ok);
+
+  assert(ok);
 }
 //____________________________________________________________________________
 float NeuGenWrapper::XSec(float e, NGInteraction * ni, NeuGenCuts * cuts)
