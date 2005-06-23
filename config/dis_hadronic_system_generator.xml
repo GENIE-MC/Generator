@@ -9,10 +9,5 @@
      <param type="string" name="hadronization-param-set">  Default                    </param>
   </param_set>
 
-  <param_set name="Charm-Default"> 
-     <param type="string" name="hadronization-alg-name">   genie::CharmHadronization  </param>
-     <param type="string" name="hadronization-param-set">  Default                    </param>
-  </param_set>
-
 </alg_conf>
 
