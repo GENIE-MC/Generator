@@ -4,7 +4,7 @@
 \class   genie::NtpWriter
 
 \brief   A simple class to facilitate creating the GENIE MC Ntuple from the
-         output GENIE STDHEP event records.
+         output GENIE GHEP event records.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -32,9 +32,9 @@ public :
   NtpWriter();
   ~NtpWriter();
   
-  void InitTree        (const char * filename);
-  void AddStdhepRecord (int ievent, const EventRecord * ev_rec);
-  void SaveTree        (void);
+  void InitTree      (const char * filename);
+  void AddGHepRecord (int ievent, const EventRecord * ev_rec);
+  void SaveTree      (void);
 
 private:
 
