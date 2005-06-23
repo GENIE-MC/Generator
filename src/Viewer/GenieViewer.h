@@ -50,7 +50,7 @@ namespace genie {
 class GENIE;
 class EventRecord;
 class Renderer;
-class StdhepPrinter;
+class GHepPrinter;
 
 class GenieViewer : public TGMainFrame {
 
@@ -92,10 +92,10 @@ private:
    TGCompositeFrame *       fLowerLeftFrame;
    TGCompositeFrame *       fLowerRightFrame;
    TGCompositeFrame *       fFeynmanTab;
-   TGCompositeFrame *       fStdhepTab;
+   TGCompositeFrame *       fGHepTab;
    TGTab *                  fViewerTabs;
    TRootEmbeddedCanvas *    fEmbeddedCanvas;
-   TGTextEdit *             fStdhep;
+   TGTextEdit *             fGHep;
    TGCheckButton *          fCcCheckButton;
    TGCheckButton *          fNcCheckButton;
    TGCheckButton *          fQelCheckButton;
@@ -104,7 +104,7 @@ private:
    TGCheckButton *          fCohCheckButton;   
    TGStatusBar *            fStatusBar;
    TGLayoutHints *          fFeynmanTabLayout;
-   TGLayoutHints *          fStdhepTabLayout;
+   TGLayoutHints *          fGHepTabLayout;
    TGLayoutHints *          fStatusBarLayout;
    TGLayoutHints *          fLowerLeftFrameLayout;
    TGLayoutHints *          fLowerRightFrameLayout;
@@ -133,7 +133,7 @@ private:
    TGComboBox *             fNu;
 
    Renderer *               fQELRenderer;
-   StdhepPrinter *          fStdhepPrinter;
+   GHepPrinter *            fGHepPrinter;
    
    ClassDef(GenieViewer, 0)
 };

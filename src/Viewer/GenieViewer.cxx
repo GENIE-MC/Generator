@@ -51,7 +51,7 @@
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Viewer/RendererQEL.h"
-#include "Viewer/StdhepPrinter.h"
+#include "Viewer/GHepPrinter.h"
 #include "Viewer/GenieViewer.h"
 
 using std::ostringstream;
@@ -153,7 +153,7 @@ GenieViewer::~GenieViewer()
 void GenieViewer::DefineLayoutHints(void)
 {
   ULong_t hintFeynmanTabLayout  = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintStdhepTabLayout   = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
+  ULong_t hintGHepTabLayout   = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
   ULong_t hintStatusBarLayout   = kLHintsBottom | kLHintsLeft | kLHintsExpandX;
   ULong_t hintLLeftFrameLayout  = kLHintsCenterY;
   ULong_t hintLRightFrameLayout = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
@@ -161,7 +161,7 @@ void GenieViewer::DefineLayoutHints(void)
   ULong_t hintViewerTabsLayout  = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
 
   fFeynmanTabLayout      = new TGLayoutHints(hintFeynmanTabLayout,    5, 5, 10, 1);
-  fStdhepTabLayout       = new TGLayoutHints(hintStdhepTabLayout,     5, 5, 10, 1);
+  fGHepTabLayout       = new TGLayoutHints(hintGHepTabLayout,     5, 5, 10, 1);
   fStatusBarLayout       = new TGLayoutHints(hintStatusBarLayout,     0, 0,  2, 0);
   fLowerLeftFrameLayout  = new TGLayoutHints(hintLLeftFrameLayout,    1, 1,  1, 1);
   fLowerRightFrameLayout = new TGLayoutHints(hintLRightFrameLayout,   1, 1,  1, 1);
@@ -308,7 +308,8 @@ TGTab * GenieViewer::BuildViewerTabs(void)
   tf = tab->AddTab( "Feynman Diagram" );
 
   fFeynmanTab     = new TGCompositeFrame    (tf, width, height, kVerticalFrame);
-  fEmbeddedCanvas = new TRootEmbeddedCanvas ("fEmbeddedCanvas", fFeynmanTab, width, height);
+  fEmbeddedCanvas = new TRootEmbeddedCanvas (
+                                 "fEmbeddedCanvas", fFeynmanTab, width, height);
 
   fEmbeddedCanvas -> GetCanvas() -> SetBorderMode (0);
   fEmbeddedCanvas -> GetCanvas() -> SetFillColor  (0);
@@ -318,15 +319,15 @@ TGTab * GenieViewer::BuildViewerTabs(void)
 
   //--- tab "Data Viewer"
 
-  tf = tab->AddTab("STDHEP Record");
+  tf = tab->AddTab("GHEP Record");
 
-  fStdhepTab = new TGCompositeFrame(tf,  width, height, kVerticalFrame);
+  fGHepTab = new TGCompositeFrame(tf,  width, height, kVerticalFrame);
 
-  fStdhep = new TGTextEdit(fStdhepTab,  width, height, kSunkenFrame | kDoubleBorder);
-  fStdhep->AddLine( "STDHEP:" );
+  fGHep = new TGTextEdit(fGHepTab,  width, height, kSunkenFrame | kDoubleBorder);
+  fGHep->AddLine( "GHEP:" );
 
-  fStdhepTab -> AddFrame( fStdhep,    fStdhepTabLayout);
-  tf         -> AddFrame( fStdhepTab, fStdhepTabLayout);
+  fGHepTab -> AddFrame( fGHep,    fGHepTabLayout);
+  tf       -> AddFrame( fGHepTab, fGHepTabLayout);
 
   return tab;
 }
@@ -348,17 +349,14 @@ void GenieViewer::Initialize(void)
   //-- build Feynman diagram renderers and STDHEP record printer
 
   fQELRenderer   = new RendererQEL;
-  fStdhepPrinter = new StdhepPrinter;
+  fGHepPrinter = new GHepPrinter;
 
   fQELRenderer->SetEmbeddedCanvas(fEmbeddedCanvas);
-  fStdhepPrinter->SetTextEdit(fStdhep);
+  fGHepPrinter->SetTextEdit(fGHep);
 }
 //______________________________________________________________________________
 void GenieViewer::NextEvent(void)
 {
-//  fGENIE->SetNeutrinoPdgCode(14);   // nu_mu
-//  fGENIE->SetNuclearTarget((int) fZ->GetNumber(), (int) fA->GetNumber());  // Z,A
-
   fGENIE->SetInitialState(14,(int) fZ->GetNumber(), (int) fA->GetNumber());  // Z,A
 
   double px = fPx->GetNumber();
@@ -372,14 +370,14 @@ void GenieViewer::NextEvent(void)
 
   LOG("gviewer", pINFO) << *ev_rec;
 
-  ShowEvent(ev_rec);
+  this->ShowEvent(ev_rec);
 }
 //______________________________________________________________________________
 void GenieViewer::ShowEvent(EventRecord * ev_rec) 
 {
   LOG("gviewer", pINFO) << "Drawing Feynman Diagram";
 
-  fStdhepPrinter->Print(ev_rec);
+  fGHepPrinter->Print(ev_rec);
 
   Interaction * interaction = ev_rec->GetInteraction();
 

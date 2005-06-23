@@ -7,7 +7,7 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::GenieViewer;
-#pragma link C++ class genie::StdhepPrinter;
+#pragma link C++ class genie::GHepPrinter;
 #pragma link C++ class genie::Renderer;
 #pragma link C++ class genie::RendererQEL;
 
