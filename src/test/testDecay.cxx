@@ -20,7 +20,7 @@
 #include <TIterator.h>
 
 #include "Algorithm/Algorithm.h"
-#include "AlgFactory/AlgFactory.h"
+#include "Algorithm/AlgFactory.h"
 #include "Decay/DecayModelI.h"
 #include "Decay/PythiaDecayer.h"
 #include "Messenger/Messenger.h"
