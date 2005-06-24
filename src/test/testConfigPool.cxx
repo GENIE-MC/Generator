@@ -25,7 +25,7 @@ int main(int argc, char ** argv)
   //-- Get an instance of the ConfigPool
 
   LOG("Main", pINFO) << "Get config pool instance";
-  AlgConfigPool * pool = ConfigPool::Instance();
+  AlgConfigPool * pool = AlgConfigPool::Instance();
 
   //-- Print the ConfigPool ( => print all its configuration registries )
 
