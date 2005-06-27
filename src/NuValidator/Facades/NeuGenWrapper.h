@@ -37,23 +37,37 @@ extern "C" {
 
 //-- the original NeuGEN function calls
 
-  void initialize_configuration_(char*, int*, int*, bool*);
-  void set_parameters_         (char*, int *,float * val);
-  void set_pdfset_             (int *, int * , float *);
-  void makestate_              (int*,int*,int*,int*,int*,int*,int*,int*,int*);
-  void writestate_             (int*);
-  void set_default_parameters_ (void);
-  void set_kvcuts_             (int*,float*,float*);
-  void set_masks_              (int *, bool *, bool *, bool *);
-  void sig_value_              (float *, int *, int *, float *) ;
-  void dsig_value_             (float *, int *, float *, int *, int *, float *) ;
-  void nu_structurefunctions_  (int *, int *, int *, float *, float *, int *, float *, float *, 
-                                float *, float *, float *, float *);
-  void e_structurefunctions_   (int *, int *, float *, float *, int *, float *, float *);
-  void ddsig_e_value_          (float *, int *, float *, int *, float *, int *, int *, float *);
+  void initialize_configuration_ (char*, int*, int*, bool*);
+  void set_parameters_           (char*, int *,float *);
+  void set_pdfset_               (int *, int * , float *);
+  void makestate_                (int*,int*,int*,int*,int*,int*,int*,int*,int*);
+  void writestate_               (int*);
+  void set_default_parameters_   (void);
+  void set_kvcuts_               (int*,float*,float*);
+  void set_masks_                (int *, bool *, bool *, bool *);
+  void sig_value_                (float *, int *, int *, float *) ;
+  void dsig_value_               (float *, int *, float *, int *, int *, float *) ;
+  void nu_structurefunctions_    (int *, int *, int *, float *, float *, int *, float *, float *, 
+                                    float *, float *, float *, float *);
+  void e_structurefunctions_     (int *, int *, float *, float *, int *, float *, float *);
+  void ddsig_e_value_            (float *, int *, float *, int *, float *, int *, int *, float *);
+
+  void gen_control_                   (char *, int *, bool *);
+  void heplst_                        (int *);
+  void generate_nu_event_             (int *, float *, int *, int *);
+  void get_n_stdhep_entries_          (int *);
+  void get_stdhep_particle_info_      (int *, int *, int *);
+  void get_stdhep_particle_mothers_   (int *, int *, int *);
+  void get_stdhep_particle_daughters_ (int *, int *, int *);
+  void get_stdhep_particle_p4_        (int *, double *, double *, double *, double *);
+  void get_stdhep_particle_v4_        (int *, double *, double *, double *, double *);
 }
 
 namespace genie   {
+
+class EventRecord;
+class InitialState;
+
 namespace nuvld   {
 namespace facades {
 
@@ -101,6 +115,12 @@ public:
             (NGKineVar_t xvar, float varmin, float varmax, int nbins,
              float fixedvar, int A, NGInitState_t init, NGCcNc_t ccnc,NGSF_t sf, int raw_dis = 2);
              
+  //-- methods for generating an event and getting it as a GENIE event record
+
+  void          GenControl    (char * name, int var);
+  EventRecord * GenerateEvent (int nupdgc, float E, int A, int Z);
+  void          PrintEvent    (void);
+
   //-- print state
                                   
   void Print(ostream & stream) const;
