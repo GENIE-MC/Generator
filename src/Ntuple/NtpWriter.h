@@ -23,7 +23,7 @@ class TTree;
 namespace genie {
 
 class EventRecord;
-class NtpMCEvent;
+class NtpMCRecord;
 
 class NtpWriter {
 
@@ -32,17 +32,17 @@ public :
   NtpWriter();
   ~NtpWriter();
   
-  void InitTree      (const char * filename);
-  void AddGHepRecord (int ievent, const EventRecord * ev_rec);
-  void SaveTree      (void);
+  void InitTree       (const char * filename);
+  void AddEventRecord (int ievent, const EventRecord * ev_rec);
+  void SaveTree       (void);
 
 private:
 
   void Init(void);
 
-  TFile *      fOutFile;
-  TTree *      fOutTree;
-  NtpMCEvent * fNtpMCEvent;
+  TFile *       fOutFile;
+  TTree *       fOutTree;
+  NtpMCRecord * fNtpMCRecord;
 };
 
 }      // genie namespace
