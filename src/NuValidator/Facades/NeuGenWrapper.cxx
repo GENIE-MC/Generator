@@ -15,6 +15,8 @@
 #include <cassert>
 #include <iostream>
 
+#include "EventGeneration/EventRecord.h"
+#include "EventGeneration/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "Facades/NeuGenWrapper.h"
 #include "Facades/NGInitState.h"
@@ -23,6 +25,8 @@ using std::endl;
 using std::cout;
 
 using genie::Messenger;
+using genie::EventRecord;
+using genie::GHepParticle;
 using namespace genie::nuvld::facades;
 
 //____________________________________________________________________________
@@ -163,7 +167,6 @@ void NeuGenWrapper::SetDefaultConfig(void)
   bool ok    = false;
  
   initialize_configuration_("MODBYRS", &nchar, &vrs, &ok);
-
   assert(ok);
 }
 //____________________________________________________________________________
@@ -171,18 +174,16 @@ float NeuGenWrapper::XSec(float e, NGInteraction * ni, NeuGenCuts * cuts)
 {
   float val=0.;
 
-  // Get Process and nucleus
-  
+  // Get Process and nucleus  
   int         process = ni->GetProcess();
   NGNucleus_t nucleus = ni->GetNucleus();
 
+  // Set cuts  
   if(cuts)  this->SetCuts(cuts);
   else      this->NoCuts();
   
   // Get cross section
-
   int nuc = nucleus;
-
   sig_value_(&e,&nuc,&process,&val);
 
   return val;
@@ -193,22 +194,18 @@ float NeuGenWrapper::ExclusiveXSec(float e, NGInteraction * ni,
 {
   float val=0.;
 
-  // Get Process  and nucleus
-  
+  // Get Process  and nucleus  
   int         process = ni->GetProcess(final);
   NGNucleus_t nucleus = ni->GetNucleus();
 
   writestate_(&process);
 
-  // Set cuts
-  
+  // Set cuts  
   if(cuts)  this->SetCuts(cuts);
   else      this->NoCuts();
 
   // Get cross section
-
   int nuc = nucleus;
-
   sig_value_(&e,&nuc,&process,&val);
 
   return val;
@@ -219,20 +216,17 @@ float NeuGenWrapper::DiffXSec(float e, NGKineVar_t  kid,
 {
   float val=0.;
 
-  // Get Process  and nucleus
-  
+  // Get Process  and nucleus  
   int         process = ni->GetProcess();
   NGNucleus_t nucleus = ni->GetNucleus();
 
   writestate_(&process);
 
-  // Set cuts
-  
+  // Set cuts  
   if(cuts)  this->SetCuts(cuts);
   else      this->NoCuts();
   
-  // Get cross section
-  
+  // Get cross section  
   int kvid = kid;
   int nuc  = nucleus;
 
@@ -246,20 +240,17 @@ float NeuGenWrapper::ExclusiveDiffXSec(float e,NGKineVar_t  kid,
 {
   float val=0.;
 
-  // Get Process  and nucleus
-  
+  // Get Process  and nucleus  
   int         process = ni->GetProcess(final);
   NGNucleus_t nucleus = ni->GetNucleus();
 
   writestate_(&process);
 
-  // Set cuts
-  
+  // Set cuts  
   if(cuts)  this->SetCuts(cuts);
   else      this->NoCuts();
 
   // Get cross section
-
   int nuc  = nucleus;
   int kvid = kid;
 
@@ -274,19 +265,16 @@ float NeuGenWrapper::eDiff2Xsec(float e, NGKineVar_t  kv1, float kval1,
   float val=0.;
 
   // Get Process  and nucleus
-
   int         process = ni->GetProcess();
   NGNucleus_t nucleus = ni->GetNucleus();
 
   writestate_(&process);
 
   // Set cuts
-
   if(cuts)  this->SetCuts(cuts);
   else      this->NoCuts();
 
   // Get cross section
-
   int kvid1 = kv1;
   int kvid2 = kv2;  
   int nuc   = nucleus;
@@ -550,6 +538,95 @@ Spline * NeuGenWrapper::StrucFuncSpline(
   }
   return spl;
 }               
+//____________________________________________________________________________
+void NeuGenWrapper::GenControl(char * flag, int var)
+{
+  bool ok = false;
+  
+  gen_control_(flag, &var, &ok);
+  //assert(ok);
+}
+//____________________________________________________________________________
+EventRecord * NeuGenWrapper::GenerateEvent(int nupdgc, float E, int A, int Z)
+{
+  EventRecord * evrec = new EventRecord;
+
+  //-- ask NeuGEN to generate an event
+
+  SLOG("NeuGen", pINFO)
+     << "Generating neutrino event for v(" << nupdgc
+         << ") + tgt (A=" << A << ", Z=" << Z << ") at E = " << E << " GeV";
+  generate_nu_event_(&nupdgc,&E,&A,&Z);
+
+  //-- get the number of STDHEP entries NeuGENs event record
+
+  int N = 0;
+  get_n_stdhep_entries_(&N);
+
+  SLOG("NeuGen", pINFO)
+                 << "NeuGEN's STDHEP record contains: " << N << " entries";
+  
+  //-- get particle information and build GENIE event record
+
+  for (int i=0; i<N; i++) {
+    
+    //-- get i^th particle status & pdg code
+    int ist=0, pdgc=0;
+    get_stdhep_particle_info_(&i, &ist, &pdgc);
+
+    SLOG("NeuGen", pINFO)
+        << "Adding NeuGEN's STDHEP entry = " << i << " with PDGC = " << pdgc;
+
+    // set all Soudan2 codes to 'Rootino'...
+    if(pdgc>1e7 && pdgc<1e8) {
+       SLOG("NeuGen", pWARN)
+                      << "GENIE resets Soudan-2 PDGC = " << pdgc << " to 0";
+       pdgc=0; 
+    }
+    
+    //-- get i^th particle mothers
+    int mom1=0, mom2=0;
+    get_stdhep_particle_mothers_(&i, &mom1, &mom2);
+    
+    //-- get i^th particle daughters
+    int dau1=0, dau2=0;
+    get_stdhep_particle_daughters_(&i, &dau1, &dau2);
+
+    //-- translate NeuGEN/fortran indices [1,N] to GENIE/C++ indices [0,N-1]
+    mom1--;
+    mom2--;
+    dau1--;
+    dau2--;
+
+    //-- get i^th particle 4-p
+    double px=0, py=0, pz=0, E=0;
+    get_stdhep_particle_p4_(&i, &px, &py, &pz, &E);
+
+    //-- get i^th particle vertex
+    double x=0, y=0, z=0, t=0;
+    get_stdhep_particle_v4_(&i, &x, &y, &z, &z);
+
+    //-- add the particle at GENIE's event record
+    new ( (*evrec)[i] ) GHepParticle(
+                         pdgc, ist, mom1,mom2,dau1,dau2, px,py,pz,E, x,y,z,t);    
+  }
+
+  // Since the event was not created from within the GENIE framework it will
+  // be missing the summary (Interaction object). Recreate it from the GHep
+  // record.
+  evrec->CreateSummary();
+  
+  return evrec;
+}
+//____________________________________________________________________________
+void NeuGenWrapper::PrintEvent(void)
+{
+// Prints NeuGEN STDHEP common block.
+// Note that for printing GENIE's EventRecord you must: "cout << event_rec;"
+
+  int one = 1;
+  heplst_(&one);
+}
 //____________________________________________________________________________
 void NeuGenWrapper::Print(ostream & stream) const
 {
