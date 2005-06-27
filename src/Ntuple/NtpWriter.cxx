@@ -20,15 +20,14 @@
 #include "EventGeneration/EventRecord.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
-#include "Ntuple/NtpGHepEntry.h"
-#include "Ntuple/NtpMCEvent.h"
+#include "Ntuple/NtpMCRecord.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
 NtpWriter::NtpWriter()
 {
-  Init();
+  this->Init();
 }
 //____________________________________________________________________________
 NtpWriter::~NtpWriter()
@@ -38,13 +37,13 @@ NtpWriter::~NtpWriter()
 //  if(fOutFile)    delete fOutFile;
 }
 //____________________________________________________________________________
-void NtpWriter::AddGHepRecord(int ievent, const EventRecord * ev_rec)
+void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
 {
 //  if(fNtpMCEvent) delete fNtpMCEvent;
   
-  fNtpMCEvent = new NtpMCEvent();
+  fNtpMCRecord = new NtpMCRecord();
 
-  fNtpMCEvent->BuildRecord(ievent, ev_rec);
+  fNtpMCRecord->BuildRecord(ievent, ev_rec);
 
   if(fOutTree) fOutTree->Fill();
   else
@@ -61,17 +60,17 @@ void NtpWriter::InitTree(const char * filename)
   fOutFile = new TFile(filename,"RECREATE");  
   fOutTree = new TTree("genie","GENIE MC Truth TTree");
 
-  fOutTree->SetAutoSave(1000000000);  // autosave when 1 Gbyte written
+  fOutTree->SetAutoSave(200000000);  // autosave when 0.2 Gbyte written
 
   int split   = 1;
   int bufsize = 16000;
-
-  fNtpMCEvent = 0;
+  
+  fNtpMCRecord = 0;
 
   TTree::SetBranchStyle(2);
 
   TBranch *branch = fOutTree->Branch(
-                    "mc", "genie::NtpMCEvent", &fNtpMCEvent, bufsize, split);
+               "gmcrec", "genie::NtpMCRecord", &fNtpMCRecord, bufsize, split);
 
   branch->SetAutoDelete(kFALSE);
 }  
