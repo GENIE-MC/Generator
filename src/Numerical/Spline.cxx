@@ -119,15 +119,15 @@ Spline::Spline(const Spline & spline)
 {
   LOG("Spline", pDEBUG) << "Spline copy constructor";
 
-  this->LoadFromTSpline3( *spline.GetAsTSpline() );
+  this->LoadFromTSpline3( *spline.GetAsTSpline(), spline.NKnots() );
 }
 //___________________________________________________________________________
-Spline::Spline(const TSpline3 & spline)
+Spline::Spline(const TSpline3 & spline, int nknots)
 {
   LOG("Spline", pDEBUG)
                     << "Constructing spline from the input TSpline3 object";
                                         
-  this->LoadFromTSpline3( spline );
+  this->LoadFromTSpline3( spline, nknots );
 }
 //___________________________________________________________________________
 Spline::~Spline()
@@ -258,9 +258,9 @@ bool Spline::LoadFromDBase(TSQLServer * db,  string query)
   return true;  
 }
 //___________________________________________________________________________
-bool Spline::LoadFromTSpline3(const TSpline3 & spline)
+bool Spline::LoadFromTSpline3(const TSpline3 & spline, int nknots)
 {
-  int nentries = spline.GetNpx();
+  int nentries = nknots;
 
   double * x = new double[nentries];
   double * y = new double[nentries];
@@ -320,7 +320,7 @@ void Spline::SaveAsXml(
   }
 
   // create a spline tag with the number of knots as an attribute
-  int nknots = fInterpolator->GetNpx();
+  int nknots = this->NKnots();
   ofs << "<spline name=\"" << name
                                << "\" nknots=\"" << nknots << "\">" << endl;
 
@@ -348,7 +348,7 @@ void Spline::SaveAsText(string filename, string format) const
     LOG("Spline", pERROR) << "Couldn't create file = " << filename;
     return;
   }
-  int nknots = fInterpolator->GetNpx();
+  int nknots = this->NKnots();
   outtxt << nknots << endl;
 
   double x=0, y=0;
@@ -415,8 +415,9 @@ void Spline::BuildSpline(int nentries, double x[], double y[])
   double xmin = x[ TMath::LocMin(nentries, x) ]; // minimum x in spline
   double xmax = x[ TMath::LocMax(nentries, x) ]; // maximum x in spline
 
-  fXMin = xmin;
-  fXMax = xmax;
+  fNKnots = nentries;
+  fXMin   = xmin;
+  fXMax   = xmax;
 
   if(fInterpolator) delete fInterpolator;
 

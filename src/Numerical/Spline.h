@@ -48,7 +48,7 @@ public:
   Spline(int nentries, double x[], double y[]);
   Spline(int nentries, float  x[], float  y[]);
   Spline(const Spline & spline);
-  Spline(const TSpline3 & spline);
+  Spline(const TSpline3 & spline, int nknots);
   virtual ~Spline();
 
   // load the Spline from XML, flat ASCII, ROOT ntuple/tree/tspline3, or SQL DB
@@ -57,11 +57,14 @@ public:
   bool   LoadFromNtuple     (TNtuple * nt, string xy, string cut = "");
   bool   LoadFromTree       (TTree *   tr, string xy, string cut = "");
   bool   LoadFromDBase      (TSQLServer * db,  string query);
-  bool   LoadFromTSpline3   (const TSpline3 & spline);
+  bool   LoadFromTSpline3   (const TSpline3 & spline, int nknots);
   
-  // check x variable against spline range and evaluate spline
-  bool   IsWithinValidRange (double x) const;
+  // get xmin,xmax,nknots, check x variable against valid range and evaluate spline
+  int    NKnots(void) const {return fNKnots;}
+  double XMin  (void) const {return fXMin;  }
+  double XMax  (void) const {return fXMax;  }
   double Evaluate           (double x) const;
+  bool   IsWithinValidRange (double x) const;
 
   // save the Spline in XML, flat ASCII or ROOT format
   void   SaveAsXml (string filename, string xtag, string ytag, string name) const;
@@ -79,7 +82,8 @@ private:
   // initialize and build spline
   void InitSpline  (void);
   void BuildSpline (int nentries, double x[], double y[]);
-  
+
+  int        fNKnots;  
   double     fXMin;
   double     fXMax;
   TSpline3 * fInterpolator;
