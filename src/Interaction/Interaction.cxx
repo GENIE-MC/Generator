@@ -102,21 +102,17 @@ TParticlePDG * Interaction::GetFSPrimaryLepton(void) const
   LOG("Interaction", pDEBUG) << "Probe PDG code: " << pdgc; 
 
   // -- vN (Weak-NC) or eN (EM)
-
-  if ( proc_info.IsWeakNC() || proc_info.IsEM() ) {
-
+  if ( proc_info.IsWeakNC() || proc_info.IsEM() )
+  {
      return PDGLibrary::Instance()->Find(pdgc);
   }
 
   // -- vN (Weak-CC)
-
-  else if ( proc_info.IsWeakCC() ) {
-
+  else if ( proc_info.IsWeakCC() )
+  {
      int clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
-
      return PDGLibrary::Instance()->Find(clpdgc);
   }
-
   LOG("Interaction", pWARN) 
         << "Could not figure out the final state primary lepton pdg code!!";
 
@@ -131,11 +127,8 @@ void Interaction::SetExclusiveTag(const XclsTag & xcls_tag)
 void Interaction::ResetExclusive(void)
 {
   if(fExclusiveTag) {
-
      LOG("Interaction", pDEBUG)  << "Reseting exclusive tag";
-
      delete fExclusiveTag;
-
      fExclusiveTag = 0;
   }
 }
