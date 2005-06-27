@@ -51,6 +51,7 @@ public:
   Spline(const TSpline3 & spline);
   virtual ~Spline();
 
+  // load the Spline from XML, flat ASCII, ROOT ntuple/tree/tspline3, or SQL DB
   bool   LoadFromXmlFile    (string filename, string xtag, string ytag);
   bool   LoadFromAsciiFile  (string filename);
   bool   LoadFromNtuple     (TNtuple * nt, string xy, string cut = "");
@@ -58,18 +59,24 @@ public:
   bool   LoadFromDBase      (TSQLServer * db,  string query);
   bool   LoadFromTSpline3   (const TSpline3 & spline);
   
+  // check x variable against spline range and evaluate spline
   bool   IsWithinValidRange (double x) const;
   double Evaluate           (double x) const;
-  
+
+  // save the Spline in XML, flat ASCII or ROOT format
   void   SaveAsXml (string filename, string xtag, string ytag, string name) const;
   void   SaveAsXml (ofstream & str,  string xtag, string ytag,
                                           string name, bool insert = false) const;
+  void   SaveAsText(string filename, string format="%10.6f\t%10.6f") const;
+  void   SaveAsROOT(string filename, string name, bool recreate=false) const;
 
+  // export Spline as TGraph or TSpline3
   TGraph *   GetAsTGraph  (int npoints = 100, bool scale_with_x = false) const;
   TSpline3 * GetAsTSpline (void) const { return fInterpolator; }
 
 private:
 
+  // initialize and build spline
   void InitSpline  (void);
   void BuildSpline (int nentries, double x[], double y[]);
   
