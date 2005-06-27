@@ -97,6 +97,8 @@ public:
    void RetrieveNeuGenCards   (void);
    void LoadExtXSecPrediction (void);
    void HandleSaveCanvas      (void);   
+   void HandleSaveTableAsText (void);
+   void HandleSaveSpline      (void);
    void DrawDBTable           (void);
    void PrintDBTable          (void);
    void DrawCurrentDBTable    (void);
@@ -178,6 +180,7 @@ private:
    TGMenuBar *               fMenu;
    TGPopupMenu *             fMenuFile;
    TGPopupMenu *             fMenuDBase;
+   TGPopupMenu *             fMenuExport;
    TGPopupMenu *             fMenuNeuGen;
    TGPopupMenu *             fMenuGENIE;
    TGPopupMenu *             fMenuFit;

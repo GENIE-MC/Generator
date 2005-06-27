@@ -44,7 +44,8 @@ RQ_OBJECT("TextEntryDialog")
 
 public:
    TextEntryDialog(const TGWindow *p, const TGWindow *main,
-                        UInt_t w, UInt_t h, UInt_t options, const char * txt);
+        UInt_t w, UInt_t h, UInt_t options, string title, string & txt);
+//        UInt_t w, UInt_t h, UInt_t options, const char * title, const char * txt);
    virtual ~TextEntryDialog();
 
    void CloseWindow (void) { delete this;               }
@@ -55,7 +56,8 @@ private:
 
    void PositionRelativeToParent(const TGWindow * main);
 
-   const char *       _txt;
+//   const char * _txt;
+   string * _txt;
 
    TGTransientFrame * _main;
    TGCompositeFrame * _buttons;

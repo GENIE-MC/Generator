@@ -311,6 +311,17 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
   fMenuDBase->Connect("Activated(Int_t)",
                        "genie::nuvld::NuVldMainFrame",this,"HandleMenu(Int_t)");
 
+  // Menu: Export
+
+  fMenuExport = new TGPopupMenu(gClient->GetRoot());
+
+  fMenuExport->AddEntry("Plot  -> eps/gif plot or ROOT macro", M_EXPORT_PLOT);
+  fMenuExport->AddEntry("Table -> text file",                  M_EXPORT_TABLE);
+  fMenuExport->AddEntry("Model -> XML/ROOT/text file",         M_EXPORT_MODEL);
+
+  fMenuExport->Connect("Activated(Int_t)",
+                                   "genie::nuvld::NuVldMainFrame",
+                                                    this,"HandleMenu(Int_t)");
   // Menu: NeuGEN
 
   fMenuNeuGen = new TGPopupMenu(gClient->GetRoot());
@@ -357,6 +368,7 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
 
   menu_bar->AddPopup("&File",     fMenuFile,   fMenuBarItemLt);
   menu_bar->AddPopup("&Database", fMenuDBase,  fMenuBarItemLt);
+  menu_bar->AddPopup("&Export",   fMenuExport, fMenuBarItemLt);
   menu_bar->AddPopup("&NeuGEN",   fMenuNeuGen, fMenuBarItemLt);
   menu_bar->AddPopup("&GENIE",    fMenuGENIE,  fMenuBarItemLt);
   menu_bar->AddPopup("&Fit",      fMenuFit,    fMenuBarItemLt);
@@ -956,6 +968,9 @@ void NuVldMainFrame::HandleMenu(Int_t id)
   case M_DATA_QUERY_FILE:       fDBaseHandler->QueryWithSqlFromFile();   break;
   case M_DATA_QUERY_DRAW_GUI:   this->DrawDBTable();                     break;
   case M_DATA_QUERY_PRINT_GUI:  this->PrintDBTable();                    break;
+  case M_EXPORT_PLOT:           this->HandleSaveCanvas();                break;
+  case M_EXPORT_TABLE:          this->HandleSaveTableAsText();           break;
+  case M_EXPORT_MODEL:          this->HandleSaveSpline();                break;
   case M_NEUGEN_CONFIG_PHYSICS: this->ConfigNeugenPhysics();             break;
   case M_NEUGEN_CONFIG_PROCESS: this->ConfigNeugenProcess();             break;
   case M_NEUGEN_RUN:            this->RunNeuGen();                       break;
@@ -1108,6 +1123,76 @@ void NuVldMainFrame::HandleSaveCanvas(void)
 
      fPlotTabEmbCnv -> GetCanvas() -> SaveAs( save_as_filename.c_str() );
   }
+}
+//______________________________________________________________________________
+void NuVldMainFrame::HandleSaveSpline(void)
+{
+  if(!fSpline) {
+    fLog       -> AddLine ("No model to export");
+    fStatusBar -> SetText ("No model to export", 0 );
+    new MsgBox(gClient->GetRoot(),
+       fMain, 380, 250, kVerticalFrame, "There is model prediction to export!");
+    return;
+  }
+  
+  static TString dir(".");
+
+  TGFileInfo fi;
+  fi.fFileTypes = kSavedSplineExtensions;
+  fi.fIniDir    = StrDup( dir.Data() );
+
+  new TGFileDialog(gClient->GetRoot(), fMain, kFDSave, &fi);
+
+  if( fi.fFilename ) {
+
+     string filename = string( fi.fFilename );
+
+     ostringstream cmd;
+     cmd << "Saving spline in file : " << filename.c_str();
+     fLog       -> AddLine( cmd.str().c_str()    );
+     fStatusBar -> SetText( cmd.str().c_str(), 0 );
+
+     if (filename.find(".xml") != string::npos) {     
+        string splname;
+        new TextEntryDialog(gClient->GetRoot(), fMain, 1, 1,
+                       kHorizontalFrame, "Type in the spline name", splname);
+        if(splname.length() == 0) splname = "NuVldSpline";
+
+        cmd << " with name = " << splname;
+        fStatusBar -> SetText( cmd.str().c_str(), 0 );
+        
+        fSpline->SaveAsXml(filename,"x","y",splname);
+     }
+     
+     else if (filename.find(".txt") != string::npos) {
+        fSpline->SaveAsText(filename);
+     }
+     
+     else if (filename.find(".root") != string::npos) {
+
+        string splname;
+        new TextEntryDialog(gClient->GetRoot(), fMain, 1, 1,
+                          kHorizontalFrame, "Type a spline name", splname);
+                
+        cmd << " with name = " << splname;
+        fStatusBar -> SetText( cmd.str().c_str(), 0 );
+
+        fSpline->SaveAsROOT(filename, splname, false);
+     }
+     else {
+        new MsgBox(gClient->GetRoot(),
+                        fMain, 380, 250, kVerticalFrame, "Unknown file format");
+        return;       
+     }
+  }
+}
+//______________________________________________________________________________
+void NuVldMainFrame::HandleSaveTableAsText(void)
+{
+  BrowserSingleton * browser = BrowserSingleton::Instance();
+
+  this->OpenDataViewerTab();
+  browser->TextBrowser()->SaveFile(0,false);
 }
 //______________________________________________________________________________
 void NuVldMainFrame::ResetFitterTab(void)
