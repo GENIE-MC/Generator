@@ -18,29 +18,35 @@ using namespace genie::nuvld;
 ClassImp(TextEntryDialog)
 
 //______________________________________________________________________________
-TextEntryDialog::TextEntryDialog(
-             const TGWindow * p,const TGWindow * main,
-                         UInt_t w, UInt_t h, UInt_t options, const char * txt) :
-_txt(txt)
+TextEntryDialog::TextEntryDialog(const TGWindow * p, const TGWindow * main,
+               UInt_t w, UInt_t h, UInt_t options, string title, string & txt) :
+_txt(&txt)
 {
+  const char * cname = "genie::nuvld::TextEntryDialog";
+  
   _main = new TGTransientFrame(p, main, w, h, options);
-  _main->Connect("CloseWindow()", "genie::nuvld::TextEntryDialog", this, "CloseWindow()");
+  
+  _main->Connect("CloseWindow()", cname, this, "CloseWindow()");
 
-  _layout_1 = new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 2, 2, 2, 2);
-  _layout_2 = new TGLayoutHints(kLHintsBottom | kLHintsLeft,   2, 2, 2, 2);
-  _layout_3 = new TGLayoutHints(kLHintsBottom | kLHintsRight,  2, 2, 2, 2);
+  UInt_t lhints1 = kLHintsTop    | kLHintsCenterX | kLHintsExpandX;
+  UInt_t lhints2 = kLHintsBottom | kLHintsLeft;
+  UInt_t lhints3 = kLHintsBottom | kLHintsRight;
+  
+  _layout_1 = new TGLayoutHints(lhints1, 2, 2, 2, 2);
+  _layout_2 = new TGLayoutHints(lhints2, 2, 2, 2, 2);
+  _layout_3 = new TGLayoutHints(lhints3, 2, 2, 2, 2);
 
-  _text_entry = new TGTextEntry(_main, new TGTextBuffer(350));
+  _text_entry = new TGTextEntry(_main, new TGTextBuffer(35));
 
   _main->AddFrame (_text_entry, _layout_1);
 
   _buttons = new TGCompositeFrame(_main, 3, 3, kHorizontalFrame);
 
   _ok_button = new TGTextButton(_buttons, "&Ok", 1);
-  _ok_button->Connect("Clicked()", "genie::nuvld::TextEntryDialog", this, "Ok()");
+  _ok_button->Connect("Clicked()", cname, this, "Ok()");
 
   _cancel_button = new TGTextButton(_buttons, "&Cancel", 2);
-  _cancel_button->Connect("Clicked()", "genie::nuvld::TextEntryDialog", this, "Cancel()");
+  _cancel_button->Connect("Clicked()", cname, this, "Cancel()");
 
   _buttons->AddFrame (_ok_button,     _layout_2);
   _buttons->AddFrame (_cancel_button, _layout_3);
@@ -50,11 +56,13 @@ _txt(txt)
   _main->MapSubwindows();
   _main->Resize();
 
-  this->PositionRelativeToParent(main); // position relative to the parent's window
+  this->PositionRelativeToParent(main); // pos. relative to the parent's window
 
-  _main->SetWindowName("Custom SQL Query");
+  _main->SetWindowName(title.c_str());
 
   _main->MapWindow();
+  
+  gClient->WaitFor(_main);
 }
 //______________________________________________________________________________
 TextEntryDialog::~TextEntryDialog()
@@ -85,7 +93,7 @@ void TextEntryDialog::PositionRelativeToParent(const TGWindow * main)
 //______________________________________________________________________________
 void TextEntryDialog::Ok(void)
 {
-  _txt =  _text_entry -> GetBuffer() -> GetString();
+  *_txt =  string(_text_entry->GetBuffer()->GetString());
 
   _main->SendCloseMessage();
 }

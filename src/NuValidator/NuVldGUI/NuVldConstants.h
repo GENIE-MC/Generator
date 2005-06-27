@@ -33,6 +33,11 @@ static const char * kSavedPlotExtensions[] =
   "GIF", "*.gif", "ROOT macro", "*.C", "Encapsulated postscript", "*.eps", 0, 0
 };
 
+static const char * kSavedSplineExtensions[] =
+{
+  "XML", "*.xml", "ROOT", "*root", "text", "*.txt", 0, 0
+};
+
 static const char * kFitters[] =
 {
    "NONE", "SIMPLE", "NORM-FLOAT", 0, 
