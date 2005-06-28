@@ -7,12 +7,12 @@
           from XML configuration files for all (agorithm-name, parameter-set)
           pairs. Any algorithmic object can get an instance of the algorithm
           config. pool and query it to learn its configuration parameters.
-          
+
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
 \created  May 06, 2004
- 
+
 */
 //____________________________________________________________________________
 
@@ -29,28 +29,28 @@ using std::endl;
 
 //____________________________________________________________________________
 namespace genie {
-  ostream & operator<<(ostream & stream, const AlgConfigPool & config_pool) 
+  ostream & operator<<(ostream & stream, const AlgConfigPool & config_pool)
   {
     config_pool.Print(stream);
     return stream;
   }
 }
 //____________________________________________________________________________
-AlgConfigPool * AlgConfigPool::fInstance = 0; 
+AlgConfigPool * AlgConfigPool::fInstance = 0;
 //____________________________________________________________________________
 AlgConfigPool::AlgConfigPool()
-{ 
+{
   if( ! LoadXMLConfig() )
 
   LOG("AlgConfigPool", pERROR) << "Could not load XML config file";
-  
+
   fInstance =  0;
 }
 //____________________________________________________________________________
 AlgConfigPool::~AlgConfigPool()
 {
   fInstance = 0;
-} 
+}
 //____________________________________________________________________________
 AlgConfigPool * AlgConfigPool::Instance()
 {
@@ -66,30 +66,33 @@ AlgConfigPool * AlgConfigPool::Instance()
   return fInstance;
 }
 //____________________________________________________________________________
-bool AlgConfigPool::LoadXMLConfig(void) 
+bool AlgConfigPool::LoadXMLConfig(void)
 {
+  LOG("AlgConfigPool", pINFO)
+        << "AlgConfigPool late initialization: Loading all XML config. files";
+
   //-- get base GENIE directory from $GENIE environmental variable
-  
-  string base_dir      = string( gSystem->Getenv("GENIE") );
+
+  string base_dir = string( gSystem->Getenv("GENIE") );
 
   //-- build base config directory and master config filename
-    
-  string config_dir    = base_dir + string("/config"); 
+
+  string config_dir    = base_dir + string("/config");
   string master_config = base_dir + string("/config/master_conf.xml");
 
   //-- check XML structure of MASTER_CONFIG file
-    
+
   if(Xml2ConfigFileList::CheckXmlParsing(master_config)
                                                    != kXmlOK) return false;
 
-  //-- build a "algorithm" -> "XML config file" look-up map 
-  
+  //-- build a "algorithm" -> "XML config file" look-up map
+
   map<string, string> conf_files =
                            Xml2ConfigFileList::ReadFileList(master_config);
 
   //-- loop over all XML config files and read all named configuration
   //   sets for each algorithm
-  
+
   map<string, string>::const_iterator conf_file_iter;
 
   for(conf_file_iter = conf_files.begin();
@@ -97,7 +100,7 @@ bool AlgConfigPool::LoadXMLConfig(void)
 
     string alg_name    = conf_file_iter->first;
     string config_file = config_dir + "/" + conf_file_iter->second;
-    
+
     LOG("AlgConfigPool", pINFO) << alg_name << " ---> " << config_file;
 
     map<string, Registry *> alg_configs =
@@ -112,12 +115,12 @@ bool AlgConfigPool::LoadXMLConfig(void)
 
         conf_registry->SetName(alg_param_set);
         conf_registry->Lock();
-        
+
         pair<string, Registry *> alg_conf(alg_param_set, conf_registry);
         fRegistryPool.insert(alg_conf);
-    }    
+    }
   }
-                                                                      
+
   return true;
 };
 //____________________________________________________________________________
@@ -131,7 +134,7 @@ Registry* AlgConfigPool::FindRegistry(string alg_name, string param_set) const
   string key = alg_name + "/" + param_set;
 
   LOG("AlgConfigPool", pDEBUG) << "Searching for registry with key " << key;
-  
+
   if( fRegistryPool.count(key) == 1 ) {
 
      map<string, Registry *>::const_iterator config_entry =
