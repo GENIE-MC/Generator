@@ -57,7 +57,7 @@ const char * k_neugen_finstate[] = {
    "l(-) + p + pi(+)", "l(-) + p + pi(0) ", "l(-) + n + pi(+)",              
 
    /*RES - nu_bar CC*/   
-   "l(+) + n + pi(-)", "l(+) + n + pi(0)", "l(+) + n + pi(-)",              
+   "l(+) + n + pi(-)", "l(+) + n + pi(0)", 
 
    /*RES - nu NC*/
    "nu + p + pi(0)", "nu + n + pi(+)", "nu + n + pi(0)", "nu + p + pi(-)",  
