@@ -3,7 +3,11 @@
 <alg_conf>
 
   <param_set name="Default"> 
+       <param type="bool" name="use-stored-xsecs"> true  </param>
+  </param_set>
 
+  <param_set name="BruteForce"> 
+       <param type="bool" name="use-stored-xsecs"> false </param>
   </param_set>
 
 </alg_conf>
