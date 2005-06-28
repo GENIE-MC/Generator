@@ -74,7 +74,7 @@ bool XSecSplineList::SplineExists(
 {
   string key = this->BuildSplineKey(alg,interaction);
 
-  if(fSplineMap.count(key) != 1) return true;
+  if(fSplineMap.count(key) == 1) return true;
 
   return false;
 }
