@@ -4,12 +4,14 @@
 # Costas Andreopoulos (Rutherford Lab.) <C.V.Andreopoulos@rl.ac.uk>
 ####################################################################
 
-###### Define whether you want to switch on gprof code profiling
 
-###### Architecture-specific options
-
-ARCH     = $(shell uname -s)
-GPROFILE = NO
+###### Variables to *get from your environment*
+###### Make sure they are defined in your login script
+#
+# ROOTSYS     ->
+# NEUGEN3PATH ->
+# CERNLIB     ->
+# PYTHIA6     ->
 
 ###### Define XML lib & include directory
 
@@ -24,7 +26,27 @@ LOG_LIB_DIR = /usr/local/lib
 ###### Define CERNLIB libraries directory
 
 CERN_LIB_DIR = $(CERNLIB)
+#CERN_LIBS = -L $(CERN_LIB_DIR) -lpdflib804 -lkernlib -lmathlib -lpacklib -lg2c
+CERN_LIBS = -L $(CERN_LIB_DIR) -lpdflib804 -lkernlib -lmathlib -lpacklib -lstdhep -lg2c
+
+###### Define PYTHIA6 dir/lib/object file
+
 PYTHIA_DIR   = $(PYTHIA6)
+PYTHIA_O     = pythia6319.o
+PYTHIA_LIBS  = -L $(PYTHIA_DIR) -lPythia6  $(PYTHIA_DIR)/$(PYTHIA_O)
+
+###### Architecture 
+
+ARCH = $(shell uname -s)  # your system's architecture
+
+###### Profiling / Debuging options
+
+GPROFILE = NO  # profiling using google PerfTools? type 'YES' or 'NO'
+
+GPTLIB = ""
+ifeq ($(strip $(GPROFILE)),YES) 
+GPTLIB += "-L /usr/local/lib -lprofiler"
+endif
 
 ###### Define some global variables.
 
@@ -47,9 +69,6 @@ SOMINF =
 ###### LINUX (with gcc)
 CXX           = g++
 CXXFLAGS      = -g -O -Wall -fPIC
-ifeq ($(strip $(GPROFILE)),YES) 
-CXXFLAGS += -pg 
-endif
 LD            = g++
 LDFLAGS       = -g
 SOFLAGS       = -shared
@@ -90,16 +109,6 @@ XML_LIBS   = -L $(XML_LIB_DIR) -lxml2
 ###### LOG4CPP Libraries
 
 LOG_LIBS   = -L $(LOG_LIB_DIR) -llog4cpp
-
-###### CLHEP Libraries
-
-#CLHEP_LIBS = -L $(CLHEP_LIB_DIR) -lCLHEP-HepPDT-2.0.0.0 -lCLHEP-HepMC-2.0.0.0 -lCLHEP-StdHep-2.0.0.0
-
-###### CERN Libraries & PYTHIA
-
-#CERN_LIBS = -L $(CERN_LIB_DIR) -lpdflib804 -lkernlib -lmathlib -lpacklib -lg2c
-CERN_LIBS = -L $(CERN_LIB_DIR) -lpdflib804 -lkernlib -lmathlib -lpacklib -lstdhep -lg2c
-PYTHIA_LIBS = -L $(PYTHIA_DIR) -lPythia6  $(PYTHIA_DIR)/pythia62.o
 
 ###### NEUGEN LIBRARY
 ###### Is only needed only if someone wants to run NeuGEN in the NuValidator
