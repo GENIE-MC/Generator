@@ -47,7 +47,7 @@ Q2max                    double   Yes        ext Q2max - narrows the physical ra
      <param type="string" name="integrator">    genie::Simpson1D </param>
      <param type="int"    name="nW">            16               </param>
      <param type="double" name="Wmax">           1.4             </param>
-     <param type="int"    name="nLogQ2">        31               </param>
+     <param type="int"    name="nLogQ2">        21               </param>
   </param_set>
 
   -- Default configuration for Rein-Seghal RES XSec for Single Resonances
@@ -61,7 +61,7 @@ Q2max                    double   Yes        ext Q2max - narrows the physical ra
      <param type="string" name="integrator">    genie::Simpson1D </param>
      <param type="int"    name="nW">            16               </param>
      <param type="double" name="Wmax">           1.4             </param>
-     <param type="int"    name="nLogQ2">        31               </param>
+     <param type="int"    name="nLogQ2">        21               </param>
   </param_set>
 
   <param_set name="Rein-Seghal-Single-NoBreitWigner"> 
@@ -73,7 +73,7 @@ Q2max                    double   Yes        ext Q2max - narrows the physical ra
      <param type="string" name="integrator">    genie::Simpson1D </param>
      <param type="int"    name="nW">            16               </param>
      <param type="double" name="Wmax">           1.4             </param>
-     <param type="int"    name="nLogQ2">        31               </param>
+     <param type="int"    name="nLogQ2">        21               </param>
   </param_set>
 
 </alg_conf>
