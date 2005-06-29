@@ -12,7 +12,7 @@ MAKEFILE = Makefile
 # Include machine specific flags and locations (inc. files & libs)
 include $(GENIE)/src/Make.include
 
-all:
+all: 
 	cd Algorithm;          make; cd ..; \
 	cd BaryonResonance;    make; cd ..; \
 	cd Base;               make; cd ..; \
@@ -46,7 +46,7 @@ all:
 	cd test;               make all-no-test; cd ..; \
 	cd scripts;	       make install; cd ..;
 
-all-no-nuvld:
+all-no-nuvld: 
 	cd Algorithm;          make; cd ..; \
 	cd BaryonResonance;    make; cd ..; \
 	cd Base;               make; cd ..; \
