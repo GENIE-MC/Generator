@@ -81,10 +81,6 @@ all: $(TGT)
 
 all-no-test: makeValidityDoc gviewer testEvGen
 
-testAlgorithms: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testAlgorithms \
-			testAlgorithms.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
-
 testBaryonResDataSet: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testBaryonResDataSet \
 			testBaryonResDataSet.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
@@ -134,9 +130,6 @@ gviewer: FORCE
 
 clean: FORCE
 	$(RM) *.o *~ core $(EXE)
-
-clean--testAlgorithms: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testAlgorithms
 
 clean--testBaryonResDataSet: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testBaryonResDataSet
