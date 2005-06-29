@@ -21,7 +21,6 @@ GENIE_DICTS =   $(GENIE)/src/Algorithm/_ROOT_DICT_Algorithm.o \
 		$(GENIE)/src/Decay/_ROOT_DICT_Decay.o \
 		$(GENIE)/src/Elastic/_ROOT_DICT_Elastic.o \
 		$(GENIE)/src/EventGeneration/_ROOT_DICT_EventGeneration.o \
-		$(GENIE)/src/FKR/_ROOT_DICT_FKR.o \
 		$(GENIE)/src/Fragmentation/_ROOT_DICT_Fragmentation.o \
 		$(GENIE)/src/Interaction/_ROOT_DICT_Interaction.o \
 		$(GENIE)/src/InverseMuonDecay/_ROOT_DICT_InverseMuDecay.o \
@@ -46,7 +45,7 @@ WITH_LIB   = -L $(ROOTSYS)/lib $(ROOT_LIBS) $(ROOT_GLIBS) \
 		$(GEN_LIBS) \
 		$(CERN_LIBS)  \
 		$(LOG_LIBS) \
-		$(GPTLIB)
+		$(GPT_LIB)
 
 WITH_INC   = $(LOG_INC) $(XML_INC) $(ROOT_INC) $(GENIE_INC)
 
