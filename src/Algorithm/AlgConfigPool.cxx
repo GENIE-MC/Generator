@@ -16,6 +16,8 @@
 */
 //____________________________________________________________________________
 
+#include <sstream>
+
 #include <TSystem.h>
 
 #include "Algorithm/AlgConfigPool.h"
@@ -26,6 +28,7 @@
 using namespace genie;
 
 using std::endl;
+using std::ostringstream;
 
 //____________________________________________________________________________
 namespace genie {
@@ -40,7 +43,7 @@ AlgConfigPool * AlgConfigPool::fInstance = 0;
 //____________________________________________________________________________
 AlgConfigPool::AlgConfigPool()
 {
-  if( ! LoadXMLConfig() )
+  if( ! this->LoadXMLConfig() )
 
   LOG("AlgConfigPool", pERROR) << "Could not load XML config file";
 
@@ -68,7 +71,7 @@ AlgConfigPool * AlgConfigPool::Instance()
 //____________________________________________________________________________
 bool AlgConfigPool::LoadXMLConfig(void)
 {
-  LOG("AlgConfigPool", pINFO)
+  SLOG("AlgConfigPool", pINFO)
         << "AlgConfigPool late initialization: Loading all XML config. files";
 
   //-- get base GENIE directory from $GENIE environmental variable
@@ -101,7 +104,10 @@ bool AlgConfigPool::LoadXMLConfig(void)
     string alg_name    = conf_file_iter->first;
     string config_file = config_dir + "/" + conf_file_iter->second;
 
-    LOG("AlgConfigPool", pINFO) << alg_name << " ---> " << config_file;
+    SLOG("AlgConfigPool", pINFO) << alg_name << " ---> " << config_file;
+
+    ostringstream allconf;
+    allconf << "loading configs:";
 
     map<string, Registry *> alg_configs =
                                  Xml2Registry::ReadAlgConfigs(config_file);
@@ -110,7 +116,8 @@ bool AlgConfigPool::LoadXMLConfig(void)
     for(conf_iter = alg_configs.begin();
                              conf_iter != alg_configs.end(); ++conf_iter) {
 
-        string     alg_param_set = alg_name + "/" + conf_iter->first;
+        string     config_name   = conf_iter->first;
+        string     alg_param_set = alg_name + "/" + config_name;
         Registry * conf_registry = conf_iter->second;
 
         conf_registry->SetName(alg_param_set);
@@ -118,7 +125,10 @@ bool AlgConfigPool::LoadXMLConfig(void)
 
         pair<string, Registry *> alg_conf(alg_param_set, conf_registry);
         fRegistryPool.insert(alg_conf);
+
+        allconf << " [" << config_name << "]";
     }
+    SLOG("AlgConfigPool", pINFO) << allconf.str();
   }
 
   return true;
