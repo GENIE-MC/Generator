@@ -22,7 +22,6 @@ all:
 	cd Decay; 	       make; cd ..; \
 	cd Elastic; 	       make; cd ..; \
 	cd EventGeneration;    make; cd ..; \
-	cd FKR;                make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
 	cd GMCJob;             make; cd ..; \
 	cd ValidityDoc;        make; cd ..; \
@@ -56,7 +55,6 @@ all-no-nuvld:
 	cd Decay; 	       make; cd ..; \
 	cd Elastic; 	       make; cd ..; \
 	cd EventGeneration;    make; cd ..; \
-	cd FKR;                make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
 	cd GMCJob;             make; cd ..; \
 	cd ValidityDoc;        make; cd ..; \
@@ -95,7 +93,6 @@ purge: FORCE
 	cd Decay; 	       make purge; cd ..; \
 	cd Elastic; 	       make purge; cd ..; \
 	cd EventGeneration;    make purge; cd ..; \
-	cd FKR;                make purge; cd ..; \
 	cd Fragmentation;      make purge; cd ..; \
 	cd GMCJob;             make purge; cd ..; \
 	cd ValidityDoc;        make purge; cd ..; \
@@ -127,7 +124,6 @@ clean: FORCE
 	cd Decay; 	       make clean; cd ..; \
 	cd Elastic; 	       make clean; cd ..; \
 	cd EventGeneration;    make clean; cd ..; \
-	cd FKR;                make clean; cd ..; \
 	cd Fragmentation;      make clean; cd ..; \
 	cd GMCJob;             make clean; cd ..; \
 	cd ValidityDoc;        make clean; cd ..; \
