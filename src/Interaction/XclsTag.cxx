@@ -63,10 +63,10 @@ void XclsTag::SetCharm(int charm_pdgc)
   fCharmedHadronPdg = charm_pdgc; // leave as 0 (default) for inclusive charm
 }
 //___________________________________________________________________________
-void XclsTag::UnsetCharm(void) 
+void XclsTag::UnsetCharm(void)
 {
   fIsCharmEvent     = false;
-  fCharmedHadronPdg = 0; 
+  fCharmedHadronPdg = 0;
 }
 //___________________________________________________________________________
 void XclsTag::SetNPions(int npi_plus, int npi_0, int npi_minus)
@@ -128,7 +128,7 @@ string XclsTag::AsString(void) const
 
   tag << "c= " << fIsCharmEvent << "," << fCharmedHadronPdg << ";";
   tag << "nucl(p,n)=" << fNProtons << "," << fNNeutrons << ";";
-  tag << "pi(+,-,0)=" << fNPiPlus << "," << fNPiMinus << "," << fNPi0 << ";";
+  tag << "pi(+,-,0)=" << fNPiPlus << "," << fNPiMinus << "," << fNPi0;
 
   return tag.str();
 }
@@ -138,32 +138,32 @@ void XclsTag::Print(ostream & stream) const
   stream << endl;
   stream << "[-] [Exclusive Process Info] " << endl;
 
-  stream << " |--> charm        : " 
+  stream << " |--> charm        : "
          << print_utils::BoolAsString(fIsCharmEvent)
-         << " - Charm hadron PDG-code = "; 
+         << " - Charm hadron PDG-code = ";
 
   if(!fCharmedHadronPdg) stream << "[inclusive]";
   else  {
      stream << fCharmedHadronPdg;
 
      TParticlePDG * chadr = PDGLibrary::Instance()->Find( fCharmedHadronPdg );
-     if(chadr) 
+     if(chadr)
         stream << " (" << chadr->GetName() << ")";
   }
   stream << endl;
 
-  stream << " |--> f/s nucleons :" 
+  stream << " |--> f/s nucleons :"
          << " N(p) = "    << fNProtons
          << " N(n) = "    << fNNeutrons
          << endl;
 
-  stream << " |--> f/s pions    :" 
+  stream << " |--> f/s pions    :"
          << " N(pi^0) = "    << fNPi0
          << " N(pi^+) = "    << fNPiPlus
          << " N(pi^-) = "    << fNPiMinus
          << endl;
 
-}  
-//___________________________________________________________________________  
+}
+//___________________________________________________________________________
 
 

@@ -13,7 +13,7 @@
 
 \created  April 25, 2004
 
-*/ 
+*/
 //____________________________________________________________________________
 
 #include <sstream>
@@ -55,7 +55,7 @@ Interaction::Interaction(
 {
   fInitialState     = new InitialState     (init_state);
   fProcInfo         = new ProcessInfo      (proc_info);
-  fScatteringParams = new ScatteringParams ();  
+  fScatteringParams = new ScatteringParams ();
   fExclusiveTag     = 0;
   fXSec             = 0;
 }
@@ -63,12 +63,12 @@ Interaction::Interaction(
 Interaction::Interaction(const Interaction & interaction)
 {
   fInitialState     = new InitialState    (* interaction.fInitialState    );
-  fProcInfo         = new ProcessInfo     (* interaction.fProcInfo        );  
+  fProcInfo         = new ProcessInfo     (* interaction.fProcInfo        );
 
 //  fScatteringParams = new ScatteringParams(* interaction.fScatteringParams);
 
   try {
-     const Registry & reg = 
+     const Registry & reg =
               dynamic_cast<const Registry &>(*interaction.fScatteringParams);
 
     fScatteringParams = new ScatteringParams(reg);
@@ -77,7 +77,7 @@ Interaction::Interaction(const Interaction & interaction)
      LOG("Interaction", pERROR) << "dynamic_cast to const Registry & failed";
   }
 
-  if( interaction.IsExclusive() ) 
+  if( interaction.IsExclusive() )
        fExclusiveTag = new XclsTag(* interaction.fExclusiveTag);
   else fExclusiveTag = 0;
 
@@ -99,7 +99,7 @@ TParticlePDG * Interaction::GetFSPrimaryLepton(void) const
 
   int pdgc = init_state.GetProbePDGCode();
 
-  LOG("Interaction", pDEBUG) << "Probe PDG code: " << pdgc; 
+  LOG("Interaction", pDEBUG) << "Probe PDG code: " << pdgc;
 
   // -- vN (Weak-NC) or eN (EM)
   if ( proc_info.IsWeakNC() || proc_info.IsEM() )
@@ -113,7 +113,7 @@ TParticlePDG * Interaction::GetFSPrimaryLepton(void) const
      int clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
      return PDGLibrary::Instance()->Find(clpdgc);
   }
-  LOG("Interaction", pWARN) 
+  LOG("Interaction", pWARN)
         << "Could not figure out the final state primary lepton pdg code!!";
 
   return 0;
@@ -138,7 +138,7 @@ void Interaction::Print(ostream & stream) const
   const string line(100, '-');
 
   stream << endl;
-  stream << line << endl;  
+  stream << line << endl;
 
   stream << *fInitialState << endl; // print initial state
   stream << *fProcInfo;             // print process info
@@ -149,12 +149,12 @@ void Interaction::Print(ostream & stream) const
   // print exclusive process tag - if exists
   if( this->IsExclusive() ) stream << *fExclusiveTag;
 
-  stream << line << endl;  
+  stream << line << endl;
 }
 //___________________________________________________________________________
-string Interaction::AsString(void) const 
+string Interaction::AsString(void) const
 {
-// Code-ify the interaction in a string to be used as (part of a) cache 
+// Code-ify the interaction in a string to be used as (part of a) cache
 // branch key.
 //
 // Template:
@@ -162,18 +162,18 @@ string Interaction::AsString(void) const
 
   ostringstream interaction;
 
-  interaction << "nu-pdg:"   
+  interaction << "nu-pdg:"
               << fInitialState->GetProbePDGCode() << ";";
-  interaction << "tgt-pdg:"  
+  interaction << "tgt-pdg:"
               << fInitialState->GetTarget().PDGCode() << ";";
-  interaction << "nucl-pdg:" 
+  interaction << "nucl-pdg:"
               << fInitialState->GetTarget().StruckNucleonPDGCode() << ";";
-  interaction << "intype:"   
+  interaction << "intype:"
               << fProcInfo->InteractionTypeAsString() << ";";
-  interaction << "sctype:"   
+  interaction << "sctype:"
               << fProcInfo->ScatteringTypeAsString() << ";";
 
-  if( this->IsExclusive() ) 
+  if( this->IsExclusive() )
                 interaction << "xclv:" << fExclusiveTag->AsString() << ";";
 
   return interaction.str();
