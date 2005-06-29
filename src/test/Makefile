@@ -45,7 +45,8 @@ WITH_LIB   = -L $(ROOTSYS)/lib $(ROOT_LIBS) $(ROOT_GLIBS) \
 		$(XML_LIBS)   \
 		$(GEN_LIBS) \
 		$(CERN_LIBS)  \
-		$(LOG_LIBS)
+		$(LOG_LIBS) \
+		$(GPTLIB)
 
 WITH_INC   = $(LOG_INC) $(XML_INC) $(ROOT_INC) $(GENIE_INC)
 
