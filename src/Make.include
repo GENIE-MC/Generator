@@ -80,7 +80,7 @@ ROOT_LIBS = $(shell root-config --glibs) -lMinuit
 
 ###### Google PerfTools / Debuging options
 
-GPROFILE = YES            # profiling using PerfTools? (YES/NO)
+GPROFILE = NO             # profiling using PerfTools? (YES/NO)
 GPT_LIB  = /usr/local/src # location of libprofiler.so
 
 ###### Linking in the Google Profiling Tool library
