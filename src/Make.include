@@ -80,14 +80,14 @@ ROOT_LIBS = $(shell root-config --glibs) -lMinuit
 
 ###### Google PerfTools / Debuging options
 
-GPROFILE = NO             # profiling using PerfTools? (YES/NO)
-GPT_LIB  = /usr/local/src # location of libprofiler.so
+GPROFILE     = YES            # profiling using PerfTools? (YES/NO)
+GPT_LIB_DIR  = /usr/local/src # location of libprofiler.so
 
 ###### Linking in the Google Profiling Tool library
 
 GPT_LIB = 
-ifeq ($(strip $(GPROFILE)),YES) 
-GPT_LIB += -L $GPT_LIB_DIR -lprofiler
+ifeq ($(strip $(GPROFILE)),NO) 
+GPT_LIB += -L $(GPT_LIB_DIR) -lprofiler
 endif
 
 #-------------------------------------------------------------------
@@ -156,7 +156,6 @@ GENIE_CHARM_SHARED_LIB            := $(GENIE_LIB_PATH)/libGCharm.$(DllSuf)
 GENIE_DECAY_SHARED_LIB            := $(GENIE_LIB_PATH)/libGDecay.$(DllSuf)
 GENIE_ELASTIC_SHARED_LIB          := $(GENIE_LIB_PATH)/libGElas.$(DllSuf)
 GENIE_EVENT_GENERATION_SHARED_LIB := $(GENIE_LIB_PATH)/libGEventGen.$(DllSuf)
-GENIE_FKR_SHARED_LIB              := $(GENIE_LIB_PATH)/libGFKR.$(DllSuf)
 GENIE_GMCJOB_SHARED_LIB           := $(GENIE_LIB_PATH)/libGMCJob.$(DllSuf)
 GENIE_LLEWELLYN_SMITH_SHARED_LIB  := $(GENIE_LIB_PATH)/libGLlewellynSmith.$(DllSuf)
 GENIE_FRAGMENTATION_SHARED_LIB    := $(GENIE_LIB_PATH)/libGFragmentation.$(DllSuf)
@@ -190,7 +189,7 @@ VLD_GUI_WIDGETS_LIB      := -L $(GENIE_LIB_PATH) -lGNuVldGUI
 
 
 GEN_LIBS := -L $(GENIE_LIB_PATH) -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
-				 -lGDecay -lGElas -lGEventGen -lGFKR -lGMCJob -lGLlewellynSmith \
+				 -lGDecay -lGElas -lGEventGen -lGMCJob -lGLlewellynSmith \
 				 -lGFragmentation -lGInteraction -lGInvMuDecay -lGMessenger \
 				 -lGNtuple -lGNuclear -lGNumerical -lGValidityDoc \
 				 -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
