@@ -70,14 +70,6 @@
        </config_file>
    </alg_config>
 
-   --- CONFIGURATION FOR FEYNMAN-KISLINGER-RAVNDALL ALGORITHMS ---
-
-   <alg_config alg_name="genie::FKRParamsModelStd">  
-       <config_file> 
-             fkr_model.xml 
-       </config_file>
-   </alg_config>
-
    -------- CONFIGURATION FOR QEL FORM FACTOR ALGORITHMS ---------
 
    <alg_config alg_name="genie::LlewellynSmithModelCC">  
