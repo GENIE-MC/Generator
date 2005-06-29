@@ -16,7 +16,7 @@ srcdir=$GENIE/src
 
 libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase\
  -lGBodekYang -lGCharm -lGCrossSections -lGDecay -lGEventGen\
- -lGFKR -lGFragmentation -lGInteraction -lGInverseMuDecay -lGLlewellynSmith -lGMessenger\
+ -lGFragmentation -lGInteraction -lGInverseMuDecay -lGLlewellynSmith -lGMessenger\
  -lGMCJob -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
  -lGRadiative -lGRegistry -lGReinSeghal -lGViewer -lGUtils -lGValidityDoc"
 
@@ -30,12 +30,11 @@ dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
                 $srcdir/CrossSections/_ROOT_DICT_CrossSections.o \
                 $srcdir/Decay/_ROOT_DICT_Decay.o \
                 $srcdir/EventGeneration/_ROOT_DICT_EventGeneration.o \
-                $srcdir/FKR/_ROOT_DICT_FKR.o \
                 $srcdir/Fragmentation/_ROOT_DICT_Fragmentation.o \
                 $srcdir/Interaction/_ROOT_DICT_Interaction.o \
                 $srcdir/InverseMuonDecay/_ROOT_DICT_InverseMuDecay.o \
                 $srcdir/LlewellynSmith/_ROOT_DICT_LlewellynSmith.o \
-                $srcdir/LlewellynSmith/_ROOT_DICT_GMCJob.o \
+                $srcdir/GMCJob/_ROOT_DICT_GMCJob.o \
                 $srcdir/Ntuple/_ROOT_DICT_Ntuple.o \
                 $srcdir/Nuclear/_ROOT_DICT_Nuclear.o \
                 $srcdir/Numerical/_ROOT_DICT_Numerical.o \
