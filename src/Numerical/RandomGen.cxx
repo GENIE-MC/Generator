@@ -41,22 +41,25 @@ RandomGen * RandomGen::fInstance = 0;
 //____________________________________________________________________________
 RandomGen::RandomGen()
 {
+  LOG("Rndm", pINFO) << "RandomGen late initialization";
+
   fInstance =  0;
 
   fCurrSeed = kDefaultRandSeed; // default seed number
 
   // try to get this job's random number seed from the envoronment
-  const char * seed = gSystem->Getenv("GENIE_SEED");
+  const char * seed = gSystem->Getenv("GSEED");
 
   if(seed) {
      LOG("Rndm", pINFO) << "Getting Rndm Generator seed from the environment";
-
      fCurrSeed = atoi(seed);
+  } else {
+     LOG("Rndm", pINFO) << "Env.Var. GSEED not set. Using default seed;
   }
+  LOG("Rndm", pINFO) 
+            << "Starting Random Number Generators with seed = " << fCurrSeed;
 
-  LOG("Rndm", pINFO) << "Starting Rndm Generators with seed = " << fCurrSeed;
-  
-  InitRandomGenerators(fCurrSeed);
+  this->InitRandomGenerators(fCurrSeed);
 }
 //____________________________________________________________________________
 RandomGen::~RandomGen()
@@ -69,7 +72,6 @@ RandomGen * RandomGen::Instance()
   if(fInstance == 0) {
 
     static RandomGen::Cleaner cleaner;
-
     cleaner.DummyMethodAndSilentCompiler();
 
     fInstance = new RandomGen;
