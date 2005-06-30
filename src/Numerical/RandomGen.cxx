@@ -54,7 +54,7 @@ RandomGen::RandomGen()
      LOG("Rndm", pINFO) << "Getting Rndm Generator seed from the environment";
      fCurrSeed = atoi(seed);
   } else {
-     LOG("Rndm", pINFO) << "Env.Var. GSEED not set. Using default seed;
+     LOG("Rndm", pINFO) << "Env. var. $GSEED is not set. Using default seed";
   }
   LOG("Rndm", pINFO) 
             << "Starting Random Number Generators with seed = " << fCurrSeed;
