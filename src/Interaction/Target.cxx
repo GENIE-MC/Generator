@@ -274,17 +274,13 @@ bool Target::ForceStruckNucleonValidity(void)
 {
 // resets the struck nucleon pdg-code if it found not to be a valid one
   
-  bool is_valid =
-               pdg::IsProton(fStruckNucPDG) || pdg::IsNeutron(fStruckNucPDG);
+  bool valid = pdg::IsProton(fStruckNucPDG) || pdg::IsNeutron(fStruckNucPDG);
 
-  if( ! is_valid ) {
-
-    LOG("Target", pWARN)<< "Reseting to struck nucleon to 'Rootino'";
-
+  if( ! valid ) {
+    LOG("Target", pDEBUG) << "Reseting to struck nucleon to 'Rootino'";
     fStruckNucPDG = 0;
   }
-
-  return is_valid;
+  return valid;
 }
 //___________________________________________________________________________
 void Target::ForceNucleusValidity(void)
