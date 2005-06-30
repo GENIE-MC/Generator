@@ -133,25 +133,23 @@
      <param type="string" name="vld-context">   
                   proc:RES;curr:CC,NC;probe:nue,nuebar,numu,numubar;target:all;energy:0-100 </param>
 
-     <param type="int"    name="n-generator-steps">      9                                  </param>
+     <param type="int"    name="n-generator-steps">      8                                  </param>
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
      <param type="string" name="generator-step-1-alg">   genie::FermiMover                  </param>
      <param type="string" name="generator-step-1-conf">  Default                            </param>
      <param type="string" name="generator-step-2-alg">   genie::RESKinematicsGenerator      </param>
      <param type="string" name="generator-step-2-conf">  Default                            </param>
-     <param type="string" name="generator-step-3-alg">   genie::RESResonanceSelector        </param>
+     <param type="string" name="generator-step-3-alg">   genie::RESPrimaryLeptonGenerator   </param>
      <param type="string" name="generator-step-3-conf">  Default                            </param>
-     <param type="string" name="generator-step-4-alg">   genie::RESPrimaryLeptonGenerator   </param>
+     <param type="string" name="generator-step-4-alg">   genie::RESResonanceSelector        </param>
      <param type="string" name="generator-step-4-conf">  Default                            </param>
      <param type="string" name="generator-step-5-alg">   genie::RESHadronicSystemGenerator  </param>
      <param type="string" name="generator-step-5-conf">  Default                            </param>
      <param type="string" name="generator-step-6-alg">   genie::FamilyTreeMaker             </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
      <param type="string" name="generator-step-7-alg">   genie::UnstableParticleDecayer     </param>
-     <param type="string" name="generator-step-7-conf">  Resonances                         </param>
-     <param type="string" name="generator-step-8-alg">   genie::UnstableParticleDecayer     </param>
-     <param type="string" name="generator-step-8-conf">  Default                            </param>
+     <param type="string" name="generator-step-7-conf">  Default                            </param>
 
      <param type="string" name="interaction-list-alg">   genie::RESInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  Default                            </param>
