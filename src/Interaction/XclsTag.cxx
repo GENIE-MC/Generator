@@ -126,7 +126,7 @@ string XclsTag::AsString(void) const
 
   ostringstream tag;
 
-  tag << "c= " << fIsCharmEvent << "," << fCharmedHadronPdg << ";";
+  tag << "c=" << fIsCharmEvent << "," << fCharmedHadronPdg << ";";
   tag << "nucl(p,n)=" << fNProtons << "," << fNNeutrons << ";";
   tag << "pi(+,-,0)=" << fNPiPlus << "," << fNPiMinus << "," << fNPi0;
 
