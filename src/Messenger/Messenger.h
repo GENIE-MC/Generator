@@ -26,6 +26,8 @@
 #include "log4cpp/BasicLayout.hh"
 #include "log4cpp/Priority.hh"
 
+using std::string;
+
 // comment defined priority levels for the document generator
 /*! \def pFATAL  \brief Defines the FATAL priority level */
 /*! \def pALERT  \brief Defines the ALERT priority level */
@@ -49,68 +51,128 @@
 
 #define ENDL log4cpp::CategoryStream::ENDLINE
 
+/*! \def _GCLASS \brief Define a class name macro */
+
+#define __P1__ __PRETTY_FUNCTION__
+#define __P2__ string(__P1__).erase( string(__P1__).find_first_of("("),  string(__P1__).size() )
+#define __P3__ string(__P2__).erase( (string(__P2__).find_last_of(":") != string::npos) ? string(__P2__).find_last_of(":")-1 : 0, string(__P2__).size() )
+#define __P4__ string(__P3__).erase( 0, string(__P3__).find_last_of(" ")+1)
+#define __GCLASS __P4__
+
 /*!
   \def   SLOG(stream, priority)
   \brief A macro that returns the requested log4cpp::Category
          appending a short string (using the __FUNCTION__ and __LINE__ macros)
-         with information for the calling method.
+         with information for the calling method [produces short message].
 */
 
 #define SLOG(stream, priority) \
 	   (*Messenger::Instance())(stream) \
-               << priority << "<" \
+               << priority << "[s] <" \
                << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 /*!
-  \def   SLOG(stream, priority)
+  \def   LOG(stream, priority)
   \brief A macro that returns the requested log4cpp::Category
-         appending a string (using the __PRETTY_FUNCTION__ and __LINE__ macros)
-         with information for the calling method.
+         appending a string (using the __GCLASS, __FUNCTION__ and __LINE__ macros)
+         with information for the calling method [produces normal messages].
 */
                
 #define LOG(stream, priority) \
 	   (*Messenger::Instance())(stream) \
-               << priority << "<" \
-               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+               << priority << "[n] <" \
+               << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_FATAL(stream) \
 	  (*Messenger::Instance())(stream) \
-               << log4cpp::Priority::FATAL << "<" \
-               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+               << log4cpp::Priority::FATAL << "[n] <" \
+               << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_ALERT(stream) \
 	  (*Messenger::Instance())(stream) \
-               << log4cpp::Priority::ALERT << "<" \
-               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+               << log4cpp::Priority::ALERT << "[n] <" \
+               << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_CRIT(stream) \
 	  (*Messenger::Instance())(stream) \
-               << log4cpp::Priority::CRIT << "<" \
-               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+               << log4cpp::Priority::CRIT << "[n] <" \
+               << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_ERROR(stream) \
 	  (*Messenger::Instance())(stream) \
-               << log4cpp::Priority::ERROR << "<" \
-               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+               << log4cpp::Priority::ERROR << "[n] <" \
+               << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_WARN(stream) \
 	  (*Messenger::Instance())(stream) \
-               << log4cpp::Priority::WARN << "<" \
-               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+               << log4cpp::Priority::WARN << "[n] <" \
+               << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_NOTICE(stream) \
 	  (*Messenger::Instance())(stream) \
-               << log4cpp::Priority::NOTICE << "<" \
-               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+               << log4cpp::Priority::NOTICE << "[n] <" \
+               << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_INFO(stream) \
 	  (*Messenger::Instance())(stream) \
-               << log4cpp::Priority::INFO << "<" \
-               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+               << log4cpp::Priority::INFO << "[n] <" \
+               << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_DEBUG(stream) \
 	  (*Messenger::Instance())(stream) \
-               << log4cpp::Priority::DEBUG << "<" \
+               << log4cpp::Priority::DEBUG << "[n] <" \
+               << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
+
+/*!
+  \def   LLOG(stream, priority)
+  \brief A macro that returns the requested log4cpp::Category
+         appending a string (using the __PRETTY_FUNCTION__ and __LINE__ macros)
+         with information for the calling method [produces long messages].
+*/
+
+#define LLOG(stream, priority) \
+	   (*Messenger::Instance())(stream) \
+               << priority << "[l] <" \
+               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+
+#define LLOG_FATAL(stream) \
+	  (*Messenger::Instance())(stream) \
+               << log4cpp::Priority::FATAL << "[l] <" \
+               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+
+#define LLOG_ALERT(stream) \
+	  (*Messenger::Instance())(stream) \
+               << log4cpp::Priority::ALERT << "[l] <" \
+               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+
+#define LLOG_CRIT(stream) \
+	  (*Messenger::Instance())(stream) \
+               << log4cpp::Priority::CRIT << "[l] <" \
+               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+
+#define LLOG_ERROR(stream) \
+	  (*Messenger::Instance())(stream) \
+               << log4cpp::Priority::ERROR << "[l] <" \
+               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+
+#define LLOG_WARN(stream) \
+	  (*Messenger::Instance())(stream) \
+               << log4cpp::Priority::WARN << "'[l] <" \
+               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+
+#define LLOG_NOTICE(stream) \
+	  (*Messenger::Instance())(stream) \
+               << log4cpp::Priority::NOTICE << "[l] <" \
+               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+
+#define LLOG_INFO(stream) \
+	  (*Messenger::Instance())(stream) \
+               << log4cpp::Priority::INFO << "[l] <" \
+               << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
+
+#define LLOG_DEBUG(stream) \
+	  (*Messenger::Instance())(stream) \
+               << log4cpp::Priority::DEBUG << "[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
 namespace genie {
