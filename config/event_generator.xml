@@ -173,7 +173,7 @@
      <param type="string" name="generator-step-3-alg">   genie::DISPrimaryLeptonGenerator   </param>
      <param type="string" name="generator-step-3-conf">  Default                            </param>
      <param type="string" name="generator-step-4-alg">   genie::FragmentCharmDISGenerator   </param>
-     <param type="string" name="generator-step-4-conf">  Default                            </param>
+     <param type="string" name="generator-step-4-conf">  CharmHadronOnly                    </param>
      <param type="string" name="generator-step-5-alg">   genie::FamilyTreeMaker             </param>
      <param type="string" name="generator-step-5-conf">  Default                            </param>
      <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
