@@ -36,36 +36,41 @@ namespace genie {
  ostream & operator<< (ostream& stream, const Interaction & interaction)
  {
    interaction.Print(stream);
-
    return stream;
  }
 }
 //___________________________________________________________________________
 Interaction::Interaction()
 {
-  fInitialState     = 0;
-  fProcInfo         = 0;
-  fScatteringParams = 0;
-  fExclusiveTag     = 0;
-  fXSec             = 0;
+  this->Init();
 }
 //___________________________________________________________________________
 Interaction::Interaction(
               const InitialState & init_state, const ProcessInfo & proc_info)
 {
-  fInitialState     = new InitialState     (init_state);
-  fProcInfo         = new ProcessInfo      (proc_info);
+  this->Init();
+
+  fInitialState = new InitialState (init_state);
+  fProcInfo     = new ProcessInfo  (proc_info);
+
   fScatteringParams = new ScatteringParams ();
-  fExclusiveTag     = 0;
-  fXSec             = 0;
 }
 //___________________________________________________________________________
 Interaction::Interaction(const Interaction & interaction)
 {
-  fInitialState     = new InitialState    (* interaction.fInitialState    );
-  fProcInfo         = new ProcessInfo     (* interaction.fProcInfo        );
-
-//  fScatteringParams = new ScatteringParams(* interaction.fScatteringParams);
+  this->Init();
+  this->Copy(interaction);
+}
+//___________________________________________________________________________
+Interaction::~Interaction()
+{
+  this->Reset();
+}
+//___________________________________________________________________________
+void Interaction::Copy(const Interaction & interaction)
+{
+  fInitialState = new InitialState (*interaction.fInitialState);
+  fProcInfo     = new ProcessInfo  (*interaction.fProcInfo    );
 
   try {
      const Registry & reg =
@@ -81,15 +86,28 @@ Interaction::Interaction(const Interaction & interaction)
        fExclusiveTag = new XclsTag(* interaction.fExclusiveTag);
   else fExclusiveTag = 0;
 
-  fXSec = interaction.fXSec;
+  fXSec  = interaction.fXSec;
+  fdXSec = interaction.fdXSec;
 }
 //___________________________________________________________________________
-Interaction::~Interaction()
+void Interaction::Reset(void)
 {
   if ( fInitialState     ) delete fInitialState;
   if ( fProcInfo         ) delete fProcInfo;
   if ( fScatteringParams ) delete fScatteringParams;
   if ( fExclusiveTag     ) delete fExclusiveTag;
+
+  this->Init();
+}
+//___________________________________________________________________________
+void Interaction::Init(void)
+{
+  fInitialState     = 0;
+  fProcInfo         = 0;
+  fScatteringParams = 0;
+  fExclusiveTag     = 0;
+  fXSec             = 0;
+  fdXSec            = 0;
 }
 //___________________________________________________________________________
 TParticlePDG * Interaction::GetFSPrimaryLepton(void) const
@@ -144,11 +162,21 @@ void Interaction::Print(ostream & stream) const
   stream << *fProcInfo;             // print process info
   stream << *fScatteringParams;     // print scattering parameters
 
-  stream << "xsec = " << fXSec << endl; // xsec
-
   // print exclusive process tag - if exists
   if( this->IsExclusive() ) stream << *fExclusiveTag;
 
+  // print cross section information - if exists
+  if(fXSec>0 || fdXSec>0) {
+    stream << "[-] [Cross Sections]" << endl;
+    if(fXSec>0) {
+       stream << " |--> xsec (@ given E) = "
+              << fXSec << endl;
+    }
+    if(fdXSec>0) {
+       stream << " |--> diff. xsec (@ given E & kinematical vars) = "
+              << fdXSec << endl;
+    }
+  }
   stream << line << endl;
 }
 //___________________________________________________________________________
