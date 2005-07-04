@@ -158,6 +158,7 @@ GENIE_ELASTIC_SHARED_LIB          := $(GENIE_LIB_PATH)/libGElas.$(DllSuf)
 GENIE_EVENT_GENERATION_SHARED_LIB := $(GENIE_LIB_PATH)/libGEventGen.$(DllSuf)
 GENIE_GMCJOB_SHARED_LIB           := $(GENIE_LIB_PATH)/libGMCJob.$(DllSuf)
 GENIE_LLEWELLYN_SMITH_SHARED_LIB  := $(GENIE_LIB_PATH)/libGLlewellynSmith.$(DllSuf)
+GENIE_FLUX_DRIVERS_SHARED_LIB     := $(GENIE_LIB_PATH)/libGFluxDrivers.$(DllSuf)
 GENIE_FRAGMENTATION_SHARED_LIB    := $(GENIE_LIB_PATH)/libGFragmentation.$(DllSuf)
 GENIE_INTERACTION_SHARED_LIB      := $(GENIE_LIB_PATH)/libGInteraction.$(DllSuf)
 GENIE_INVERSE_MU_DECAY_SHARED_LIB := $(GENIE_LIB_PATH)/libGInvMuDecay.$(DllSuf)
@@ -193,7 +194,7 @@ GEN_LIBS := -L $(GENIE_LIB_PATH) -lGAlgorithm -lGBaryonResonance -lGBase -lGBode
 				 -lGFragmentation -lGInteraction -lGInvMuDecay -lGMessenger \
 				 -lGNtuple -lGNuclear -lGNumerical -lGValidityDoc \
 				 -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
-				 -lGReinSeghal -lGUtils -lGViewer -lGCrossSections 
+				 -lGReinSeghal -lGUtils -lGViewer -lGCrossSections -lGFluxDrivers
 
 VLD_LIBS := -L $(GENIE_LIB_PATH) -lGNuVldXML -lGNuVldDBU -lGNuVldNeugen -lGNuVldGUI
 
