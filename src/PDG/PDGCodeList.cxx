@@ -13,6 +13,8 @@
 */
 //____________________________________________________________________________
 
+#include <algorithm>
+
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodeList.h"
 #include "PDG/PDGLibrary.h"
@@ -25,17 +27,16 @@ namespace genie {
  ostream & operator << (ostream & stream, const PDGCodeList & list)
  {
    list.Print(stream);
-
    return stream;
  }
 }
 //___________________________________________________________________________
-PDGCodeList::PDGCodeList() : list<int>()
+PDGCodeList::PDGCodeList() : vector<int>()
 {
 
 }
 //___________________________________________________________________________
-PDGCodeList::PDGCodeList(size_type n) : list<int>(n)
+PDGCodeList::PDGCodeList(size_type n) : vector<int>(n)
 {
 
 }
@@ -45,28 +46,36 @@ PDGCodeList::~PDGCodeList()
 
 }
 //___________________________________________________________________________
-void PDGCodeList::push_front(int pdg_code)
-{
-  bool exists = this->ExistsInPDGLibrary(pdg_code);
-
-  if(!exists) {
-    LOG("PDG", pERROR)
-                   << "\n*** Can't push_front non-existent particle in list";
-  } else {
-    list<int>::push_front(pdg_code);
-  }  
-}
-//___________________________________________________________________________
 void PDGCodeList::push_back(int pdg_code)
 {
+  if(this->CheckPDGCode(pdg_code)) vector<int>::push_back(pdg_code);
+}
+//___________________________________________________________________________
+void PDGCodeList::insert(iterator pos, size_type n, const int& pdg_code)
+{
+  if(this->CheckPDGCode(pdg_code)) {
+     if(n>1) n = 1;
+     vector<int>::insert(pos,n,pdg_code);
+  }
+}
+//___________________________________________________________________________
+bool PDGCodeList::CheckPDGCode(int pdg_code)
+{
   bool exists = this->ExistsInPDGLibrary(pdg_code);
-
   if(!exists) {
     LOG("PDG", pERROR)
-                   << "\n*** Can't push_back non-existent particle in list";
-  } else {
-    list<int>::push_back(pdg_code);
+           << "Can't add non-existent particle [pdgc = " << pdg_code << "]";
+    return false;
   }
+
+  bool added = this->ExistsInPDGCodeList(pdg_code);
+  if(added) {
+    LOG("PDG", pERROR)
+                << "Particle [pdgc = " << pdg_code << "] was already added";
+    return false;
+  }
+
+  return true;
 }
 //___________________________________________________________________________
 bool PDGCodeList::ExistsInPDGLibrary(int pdg_code)
@@ -78,6 +87,15 @@ bool PDGCodeList::ExistsInPDGLibrary(int pdg_code)
   if(!particle) return false;
 
   return true;
+}
+//___________________________________________________________________________
+bool PDGCodeList::ExistsInPDGCodeList(int pdg_code)
+{
+  int n = count(this->begin(), this->end(), pdg_code);
+
+  if(n!=0) return true;
+  
+  return false;
 }
 //___________________________________________________________________________
 void PDGCodeList::Print(ostream & stream) const
