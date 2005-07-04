@@ -1,0 +1,45 @@
+------------------------------------------------------------------------
+\package FluxDrivers
+
+\brief   The package provides flux drivers for some commonly 
+         used fluxes.
+
+         Within the GENIE framework each neutrino flux driver 
+         is a concrete implementation of the GFluxI interface.
+         The concrete GFluxI object is passed to GMCJob (the
+         GENIE MC job driver) at the job initialization.
+
+         This package also serves as a template showing how to
+         add your own flux driver.
+------------------------------------------------------------------------
+\driver
+
+  genie::flux::GFlukaAtmo3DFlux (status: beta)
+
+\flux
+
+  Astrop.Phys.19 (2003) p.269; hep-ph/0207035; hep-ph/9907408
+
+  Alfredo.Ferrari     <Alfredo.Ferrari@cern.ch>
+  Paola.Sala          <Paola.Sala@cern.ch>
+  Giuseppe Battistoni <Giuseppe.Battistoni@mi.infn.it>
+  Teresa Montaruli    <Teresa.Montaruli@ba.infn.it>
+
+  To be able to use this flux driver you will need to download
+  the flux data from:  http://lxmi.mi.infn.it/~battist/neutrino.html
+
+  The flux describes the energy and zenith angle distributions of 
+  numu, numubar, nue and nuebar at various sites.
+  The neutrinos are generated at the surface of a sphere, with radius
+  equal to the input longitudinal radius Rl. surrounding the detector
+  [at (0,0,0)]. The generated positions are randomly displaced at the 
+  plane that is perpendicular to the sphere at the generated point.
+  (so that the generated neutrinos are properly distrubuted within the
+  detector and not all pointing towards the origin). The scale of the 
+  transverse displacement is governed by the input transverse radius Rt.
+  The user can select not to input some of the 4 input files (one for
+  each neutrino species) and which case generation of the corresponding
+  neutrino species will be inhibited. You must input at least one 
+  flux data file.
+------------------------------------------------------------------------
+
