@@ -24,12 +24,24 @@ string genie::print_utils::P4AsString(const TLorentzVector * p)
 {
   ostringstream fmt;
 
-  fmt << " ( E = " << p->Energy() 
+  fmt << "(E = " << p->Energy() 
       << ", px = " << p->Px() 
       << ", py = " << p->Py() 
-      << ", pz = " << p->Pz() << " )"
+      << ", pz = " << p->Pz() << ")"
       << " / M = " << TMath::Sqrt( TMath::Max(0., p->Mag2()) )
       << " / P = " << p->P();
+
+  return fmt.str();
+}
+//____________________________________________________________________________
+string genie::print_utils::P4AsShortString(const TLorentzVector * p)
+{
+  ostringstream fmt;
+
+  fmt << "(E = " << p->Energy() 
+      << ", px = " << p->Px() 
+      << ", py = " << p->Py() 
+      << ", pz = " << p->Pz() << ")";
 
   return fmt.str();
 }
@@ -38,10 +50,10 @@ string genie::print_utils::X4AsString(const TLorentzVector * vec4)
 {
   ostringstream fmt;
 
-  fmt << " ( t = " << vec4->T()
+  fmt << "( t = " << vec4->T()
       << ", x = " << vec4->X()
       << ", y = " << vec4->Y()
-      << ", z = " << vec4->Z() << " )";
+      << ", z = " << vec4->Z() << ")";
 
   return fmt.str();
 }
@@ -52,7 +64,7 @@ string genie::print_utils::Vec3AsString(const TVector3 * vec)
 
   fmt << "( x = " << vec->X() 
       << ", y = " << vec->Y() 
-      << ", z = " << vec->Z() << " )";
+      << ", z = " << vec->Z() << ")";
 
   return fmt.str();
 }
