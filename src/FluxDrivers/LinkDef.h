@@ -8,5 +8,6 @@
 #pragma link C++ namespace genie::flux;
 
 #pragma link C++ class genie::flux::GFlukaAtmo3DFlux;
+#pragma link C++ class genie::flux::GCylindTH1Flux;
 
 #endif
