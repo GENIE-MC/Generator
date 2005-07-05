@@ -33,6 +33,7 @@
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
 #include "PDG/PDGCodes.h"
+#include "Utils/PrintUtils.h"
 
 using std::ifstream;
 using std::ios;
@@ -48,9 +49,7 @@ GFlukaAtmo3DFlux::GFlukaAtmo3DFlux()
 //___________________________________________________________________________
 GFlukaAtmo3DFlux::~GFlukaAtmo3DFlux()
 {
-  for(unsigned int iflux = 0;
-        iflux < kNNu; iflux++) { if (fFlux2D[iflux]) delete fFlux2D[iflux]; }
-  if (fFluxSum2D) delete fFluxSum2D;
+  this->CleanUp();
 }
 //___________________________________________________________________________
 const PDGCodeList & GFlukaAtmo3DFlux::FluxParticles(void)
@@ -66,14 +65,13 @@ double GFlukaAtmo3DFlux::MaxEnergy(void)
 bool GFlukaAtmo3DFlux::GenerateNext(void)
 {
   //-- Reset previously generated neutrino code / 4-p / 4-x
-  fgPdgC = 0;
-  fgP4.SetPxPyPzE(0.,0.,0.,0.);
-  fgX4.SetXYZT(0.,0.,0.,0.);
+  this->ResetSelection();
 
   //-- Get a RandomGen instance
   RandomGen * rnd = RandomGen::Instance();
 
-  //-- Generate a (Ev, costheta, phi) triplet
+  //-- Generate a (Ev, costheta) pair from the 'combined' flux histogram
+  //   and select (phi) uniformly over [0,2pi]
   Axis_t aEv   = 0;
   Axis_t aCos8 = 0;
   fFluxSum2D->GetRandom2( aEv, aCos8);
@@ -81,17 +79,21 @@ bool GFlukaAtmo3DFlux::GenerateNext(void)
   double cos8 = (double)aCos8;
   double phi  = 2.*kPi*(rnd->Random2().Rndm());
 
-  //-- Select a neutrino species
-  int iflux = this->SelectNeutrino(Ev, cos8);
-  assert(iflux>=0 && iflux<4);
+  //-- etc trigonometric numbers
+  double sin8   = TMath::Sqrt(1-cos8*cos8);
+  double cosphi = TMath::Cos(phi);
+  double sinphi = TMath::Sin(phi);
 
-  fgPdgC = (*fPdgCList)[iflux];
+  //-- Select a neutrino species from the flux fractions at the selected
+  //   (Ev,costtheta) pair
+
+  fgPdgC = (*fPdgCList)[this->SelectNeutrino(Ev, cos8)];
 
   //-- Compute the neutrino 4-p
-  double sin8 = TMath::Sqrt(1-cos8*cos8);
+  //   (the - means it is directed towards the detector)
   double pz = -1.* Ev * cos8;
-  double py = -1.* Ev * sin8 * TMath::Cos(phi);
-  double px = -1.* Ev * sin8 * TMath::Sin(phi);
+  double py = -1.* Ev * sin8 * cosphi;
+  double px = -1.* Ev * sin8 * sinphi;
 
   fgP4.SetPxPyPzE(px, py, pz, Ev);
 
@@ -99,27 +101,27 @@ bool GFlukaAtmo3DFlux::GenerateNext(void)
 
   // compute its position at the surface of a sphere with R=fRl
   double z = fRl * cos8;
-  double y = fRl * sin8 * TMath::Cos(phi);
-  double x = fRl * sin8 * TMath::Sin(phi);
+  double y = fRl * sin8 * cosphi;
+  double x = fRl * sin8 * sinphi;
 
   // If the position is left as is, then all generated neutrinos
   // would point towards the origin.
   // Displace the position randomly on the surface that is
-  // perpendicular to the selected point of the sphere.
+  // perpendicular to the selected point P(xo,yo,zo) on the sphere
 
-  // Note: for the vector (xo,yo,zo), the perpendicular plane
-  // a*z + b*y + c*x = 0 has a=zo,b=yo,c=xo.
-  double az = z;
-  double ay = y;
-  double ax = x;
-  // The displacement is governed by the input transverse scale
-  double Rx = -fRt + fRt * rnd->Random2().Rndm();
-  double Ry = -fRt + fRt * rnd->Random2().Rndm();
-  // Compute new displaced position
-  x = x + Rx;
-  y = y + Ry;
-  if(az!= 0) z = -(ay*y+ax*x)/az;
-  else       z = 0;
+  TVector3 vec(x,y,z);              // vector towards selected point
+  TVector3 dvec = vec.Orthogonal(); // orthogonal vector
+
+  double psi = 2.*kPi*(rnd->Random2().Rndm()); // rndm angle [0,2pi]
+  double Rt  = fRt * rnd->Random2().Rndm();    // rndm norm  [0,Rtransverse]
+
+  dvec.Rotate(psi,vec); // rotate around original vector
+  dvec.SetMag(Rt);      // set new norm
+
+  // displace the original vector & set the neutrino 4-position
+  x += dvec.X();
+  y += dvec.Y();
+  z += dvec.Z();
 
   fgX4.SetXYZT(x,y,z,0.);
 
@@ -128,34 +130,35 @@ bool GFlukaAtmo3DFlux::GenerateNext(void)
 //___________________________________________________________________________
 int GFlukaAtmo3DFlux::PdgCode(void)
 {
-  LOG("Flux", pINFO)
-         << "Loading GFluka 3-D Atmo. (Battistoni et al.) Simulation Data";
+  LOG("Flux", pINFO) << "Generated neutrino pdg-code: " << fgPdgC;
   return fgPdgC;
 }
 //___________________________________________________________________________
 const TLorentzVector & GFlukaAtmo3DFlux::Momentum(void)
 {
   LOG("Flux", pINFO)
-         << "Loading GFluka 3-D Atmo. (Battistoni et al.) Simulation Data";
+         << "Generated neutrino p4: " << print_utils::P4AsShortString(&fgP4);
   return fgP4;
 }
 //___________________________________________________________________________
 const TLorentzVector & GFlukaAtmo3DFlux::Position(void)
 {
   LOG("Flux", pINFO)
-         << "Loading GFluka 3-D Atmo. (Battistoni et al.) Simulation Data";
+             << "Generated neutrino x4: " << print_utils::X4AsString(&fgX4);
   return fgX4;
 }
 //___________________________________________________________________________
 void GFlukaAtmo3DFlux::Initialize(void)
 {
-  // maximum energy in flux files & list of neutrinos
+  LOG("Flux", pINFO) << "Initializing GFlukaAtmo3DFlux driver";
+
+  // setting maximum energy in flux files & list of neutrinos
   fMaxEv    = kGFlk3DEv[kNGFlk3DEv-1];
   fPdgCList = new PDGCodeList(4);
-  fPdgCList->push_back(kPdgNuMu);
-  fPdgCList->push_back(kPdgNuMuBar);
-  fPdgCList->push_back(kPdgNuE);
-  fPdgCList->push_back(kPdgNuEBar);
+  (*fPdgCList)[0]= kPdgNuMu;
+  (*fPdgCList)[1]= kPdgNuMuBar;
+  (*fPdgCList)[2]= kPdgNuE;
+  (*fPdgCList)[3]= kPdgNuEBar;
 
   // Filenames for flux files [you need to get them from Battistoni's web
   // page - see class documentation]
@@ -166,30 +169,50 @@ void GFlukaAtmo3DFlux::Initialize(void)
   for (unsigned int iflux=0; iflux<kNNu; iflux++) fFluxFile[iflux] = "";
 
   // initializing flux TH2D histos [ flux = f(Ev,costheta) ]
+  //fFlux2D = new TH2D[kNNu];
   for (unsigned int iflux=0; iflux<kNNu; iflux++) fFlux2D[iflux] = 0;
   fFluxSum2D = 0;
 
-  // initializing running neutrino pdg-code, 4-position, 4-momentum
+  this->ResetSelection();
+}
+//___________________________________________________________________________
+void GFlukaAtmo3DFlux::ResetSelection(void)
+{
+// initializing running neutrino pdg-code, 4-position, 4-momentum
   fgPdgC = 0;
-  fgP4.SetPxPyPzE(0.,0.,0.,0.);
-  fgX4.SetXYZT(0.,0.,0.,0.);
+  fgP4.SetPxPyPzE (0.,0.,0.,0.);
+  fgX4.SetXYZT    (0.,0.,0.,0.);
+}
+//___________________________________________________________________________
+void GFlukaAtmo3DFlux::CleanUp(void)
+{
+  LOG("Flux", pDEBUG) << "Cleaning up...";
+
+  for(unsigned int iflux = 0;
+        iflux < kNNu; iflux++) { if (fFlux2D[iflux]) delete fFlux2D[iflux]; }
+  if (fFluxSum2D) delete fFluxSum2D;
+  if (fPdgCList ) delete fPdgCList;
 }
 //___________________________________________________________________________
 void GFlukaAtmo3DFlux::SetRadii(double Rlongitudinal, double Rtransverse)
 {
+  LOG ("Flux", pINFO) << "Setting R[longitudinal] = " << Rlongitudinal;
+  LOG ("Flux", pINFO) << "Setting R[transverse]   = " << Rtransverse;
+
   fRl = Rlongitudinal;
   fRt = Rtransverse;
 }
 //___________________________________________________________________________
 bool GFlukaAtmo3DFlux::LoadFluxData(void)
 {
-  LOG("Flux", pINFO)
-         << "Loading GFluka 3-D Atmo. (Battistoni et al.) Simulation Data";
+  LOG("Flux", pINFO) << "Creating Flux = f(Ev,cos8z) 2-D histograms";
 
-  this->CreateFluxHisto2D(fFlux2D[0],"nu_mu",    "GFluka 3D flux: numu"   );
-  this->CreateFluxHisto2D(fFlux2D[1],"nu_mu_bar","GFluka 3D flux: numubar");
-  this->CreateFluxHisto2D(fFlux2D[2],"nu_e",     "GFluka 3D flux: nue"    );
-  this->CreateFluxHisto2D(fFlux2D[3],"nu_e_bar", "GFluka 3D flux: nuebar" );
+  fFlux2D[0] = this->CreateFluxHisto2D("numu",   "GFluka 3D flux: numu"   );
+  fFlux2D[1] = this->CreateFluxHisto2D("numubar","GFluka 3D flux: numubar");
+  fFlux2D[2] = this->CreateFluxHisto2D("nue",    "GFluka 3D flux: nue"    );
+  fFlux2D[3] = this->CreateFluxHisto2D("nuebar", "GFluka 3D flux: nuebar" );
+
+  LOG("Flux", pINFO) << "Loading GFluka 3-D Atmo. (Battistoni et al.) data";
 
   bool loading_status = true;
   for(unsigned int iflux = 0; iflux < kNNu; iflux++) {
@@ -201,15 +224,18 @@ bool GFlukaAtmo3DFlux::LoadFluxData(void)
      this->AddAllFluxes();
      return true;
   }
-
   LOG("Flux", pERROR) << "Error in loading GFluka Simulation Data";
   return false;
 }
 //___________________________________________________________________________
 bool GFlukaAtmo3DFlux::FillFluxHisto2D(TH2D * histo, string filename)
 {
-  LOG("Flux", pINFO) << "Reading flux data from: " << filename;
+  LOG("Flux", pINFO) << "Loading: " << filename;
 
+  if(!histo) {
+     LOG("Flux", pERROR) << "The flux histo to fill is not instantiated!";
+     return false;
+  }
   if(filename.size() == 0) {
      // the user wants to skip this flux component - create an empty flux
      this->ZeroFluxHisto2D(histo);
@@ -255,17 +281,18 @@ void GFlukaAtmo3DFlux::AddAllFluxes(void)
 {
   LOG("Flux", pINFO) << "Computing combined flux";
 
-  this->CreateFluxHisto2D(fFluxSum2D, "sum", "combined flux");
+  fFluxSum2D = this->CreateFluxHisto2D("sum", "combined flux" );
 
   for(unsigned int iflux=0;
-         iflux<kNNu; iflux++) fFluxSum2D->Add(fFlux2D[iflux]);
+           iflux<kNNu; iflux++) fFluxSum2D->Add(fFlux2D[iflux]);
 }
 //___________________________________________________________________________
-void GFlukaAtmo3DFlux::CreateFluxHisto2D(TH2D* h2, string name, string title)
+TH2D * GFlukaAtmo3DFlux::CreateFluxHisto2D(string name, string title)
 {
-  if (h2) delete h2;
-  h2 = new TH2D(name.c_str(), title.c_str(),
+  LOG("Flux", pINFO) << "Instantiating histogram: [" << name << "]";
+  TH2D * h2 = new TH2D(name.c_str(), title.c_str(),
                            kNGFlk3DEv-1,kGFlk3DEv, kNGFlk3DCos-1,kGFlk3DCos);
+  return h2;
 }
 //___________________________________________________________________________
 int GFlukaAtmo3DFlux::SelectNeutrino(double Ev, double costheta)
@@ -290,6 +317,11 @@ int GFlukaAtmo3DFlux::SelectNeutrino(double Ev, double costheta)
   for(unsigned int iflux = 0; iflux < kNNu; iflux++) {
      if( R < flux[iflux] ) return iflux;
   }
+
+  LOG("Flux", pERROR) << "Could not select a neutrino species";
+  assert(false);
+
   return -1;
 }
 //___________________________________________________________________________
+

@@ -29,14 +29,11 @@
 #include <TLorentzVector.h>
 #include "GMCJob/GFluxI.h"
 
-using std::string;
-
 class TH2D;
 
+using std::string;
+
 namespace genie {
-
-class PDGCodeList;
-
 namespace flux  {
 
 // Number of cos8 and energy bins in flux simulation
@@ -82,22 +79,24 @@ public :
   void SetNuEBarFluxFile  (string filename) { fFluxFile[3] = filename; }
 
   //-- methods implementing the GENIE GFluxI interface
-  const PDGCodeList &    FluxParticles (void) = 0;
-  double                 MaxEnergy     (void) = 0;
-  bool                   GenerateNext  (void) = 0;
-  int                    PdgCode       (void) = 0;
-  const TLorentzVector & Momentum      (void) = 0;
-  const TLorentzVector & Position      (void) = 0;
+  const PDGCodeList &    FluxParticles (void);
+  double                 MaxEnergy     (void);
+  bool                   GenerateNext  (void);
+  int                    PdgCode       (void);
+  const TLorentzVector & Momentum      (void);
+  const TLorentzVector & Position      (void);
 
 private:
 
-  //-- private methods for initializing / loading flux
-  void Initialize        (void);
-  bool FillFluxHisto2D   (TH2D * h2, string filename);
-  void CreateFluxHisto2D (TH2D * h2, string name, string title);
-  void ZeroFluxHisto2D   (TH2D * h2);
-  void AddAllFluxes      (void);
-  int  SelectNeutrino    (double Ev, double costheta);
+  //-- private methods
+  void   Initialize        (void);
+  void   CleanUp           (void);
+  void   ResetSelection    (void);
+  TH2D * CreateFluxHisto2D (string name, string title);
+  bool   FillFluxHisto2D   (TH2D * h2, string filename);
+  void   ZeroFluxHisto2D   (TH2D * h2);
+  void   AddAllFluxes      (void);
+  int    SelectNeutrino    (double Ev, double costheta);
 
   //-- private data members
   double         fMaxEv;          ///< maximum energy
@@ -105,7 +104,7 @@ private:
   int            fgPdgC;          ///< running generated nu pdg-code
   TLorentzVector fgP4;            ///< running generated nu 4-momentum
   TLorentzVector fgX4;            ///< running generated nu 4-position
-  TH2D *         fFlux2D[kNNu];   ///< flux = f(Ev,cos8)
+  TH2D *         fFlux2D[kNNu];   ///< flux = f(Ev,cos8), 1/neutrino species
   TH2D *         fFluxSum2D;      ///< combined flux = f(Ev,cos8)
   string         fFluxFile[kNNu]; ///< flux file
   int            fNSkipped;       ///< number of skipped fluxes
