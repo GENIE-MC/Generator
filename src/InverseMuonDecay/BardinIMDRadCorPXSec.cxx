@@ -94,6 +94,10 @@ double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
 
   double y    = interaction->GetScatteringParams().y();
 
+  //Note: y = (Ev-El)/Ev but in Bardin's paper y=El/Ev
+  //Switch here:
+  y = 1-y;
+
   double ymin = r + re;
   double ymax = 1 + re + r*re / (1+re);
 
