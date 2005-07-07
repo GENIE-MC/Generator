@@ -62,7 +62,7 @@ private:
 
   void Initialize (void);
   void Copy       (const InitialState & init_state);
-  void Create     (int Z, int A, int probe_pdgc);
+  void Create     (int target_pdgc, int probe_pdgc);
 
   int              fProbePdgC; // probe PDG code
   Target *         fTarget;    // nuclear target
