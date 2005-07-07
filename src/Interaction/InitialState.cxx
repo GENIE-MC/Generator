@@ -44,22 +44,21 @@ InitialState::InitialState()
   this->Initialize();
 }
 //___________________________________________________________________________
-InitialState::InitialState(int tgt_pdgc, int probe_pdgc)
+InitialState::InitialState(int target_pdgc, int probe_pdgc)
 {
-  int Z = pdg::IonPdgCodeToZ(tgt_pdgc);
-  int A = pdg::IonPdgCodeToA(tgt_pdgc);
-  
-  this->Create(Z, A, probe_pdgc);
+  this->Create(target_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
 InitialState::InitialState(int Z, int A, int probe_pdgc)
 {
-  this->Create(Z, A, probe_pdgc);
+  int target_pdgc = pdg::IonPdgCode(A,Z);
+
+  this->Create(target_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
 InitialState::InitialState(const Target & tgt, int probe_pdgc)
 {
-  this->Create(tgt.Z(), tgt.A(), probe_pdgc);
+  this->Create(tgt.PDGCode(), probe_pdgc);
 }
 //___________________________________________________________________________
 InitialState::InitialState(const InitialState & init_state)
@@ -105,12 +104,12 @@ void InitialState::Copy(const InitialState & init_state)
   fTargetP4->SetXYZT(px, py, pz, E);
 }
 //___________________________________________________________________________
-void InitialState::Create(int Z, int A, int probe_pdgc)
+void InitialState::Create(int target_pdgc, int probe_pdgc)
 {
   this->Initialize();
 
-  fTarget = new Target(Z,A);  // set Target properties
-  fProbePdgC = probe_pdgc;    // set Probe PDG code
+  fTarget = new Target(target_pdgc);  // set Target properties
+  fProbePdgC = probe_pdgc;            // set Probe PDG code
 
   // set default, on-mass-shell 4-momenta
 
@@ -184,25 +183,19 @@ TLorentzVector * InitialState::GetTargetP4(RefFrame_t ref_frame) const
        {
              // make sure that 'struck nucleon' properties were set in
              // the nuclear target object
-
              assert( fTarget->StruckNucleonP4() != 0 );
-
              TLorentzVector * pnuc4 = fTarget->StruckNucleonP4();
 
              // compute velocity vector (px/E, py/E, pz/E)
-
              double bx = pnuc4->Px() / pnuc4->Energy();
              double by = pnuc4->Py() / pnuc4->Energy();
              double bz = pnuc4->Pz() / pnuc4->Energy();
 
              // BOOST
-
              TLorentzVector * p4 = new TLorentzVector(*fTargetP4);
-
              p4->Boost(-bx,-by,-bz);
 
              return p4;
-
              break;
        }
        //------------------ LAB:
@@ -210,7 +203,6 @@ TLorentzVector * InitialState::GetTargetP4(RefFrame_t ref_frame) const
        {
              TLorentzVector * p4 = new TLorentzVector(*fTargetP4);
              return p4;
-
              break;
        }
        default:

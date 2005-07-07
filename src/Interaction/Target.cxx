@@ -36,19 +36,18 @@ namespace genie {
  ostream & operator<< (ostream& stream, const Target & target)
  {
    target.Print(stream);
-
    return stream;
  }
 }
 //___________________________________________________________________________
 Target::Target()
 {
-  Init();
+  this->Init();
 }
 //___________________________________________________________________________
 Target::Target(int pdgc)
 {
-  Init();
+  this->Init();
 
   fTgtPDG = pdgc;
 
@@ -58,14 +57,13 @@ Target::Target(int pdgc)
      int A = pdg::IonPdgCodeToA(pdgc);
 
      // set Z,A & fix struck nucleon PDG if tgt = free nucleon
-
      this->SetZA(Z,A);     
   }  
 }
 //___________________________________________________________________________
 Target::Target(int Z, int A)
 {
-  Init();
+  this->Init();
 
   // set Z,A & fix struck nucleon PDG if tgt = free nucleon
   
@@ -76,7 +74,7 @@ Target::Target(int Z, int A)
 //___________________________________________________________________________
 Target::Target(int Z, int A, int struck_nucleon_pdgc)
 {
-  Init();
+  this->Init();
 
   fZ = Z;
   fA = A;
@@ -84,7 +82,6 @@ Target::Target(int Z, int A, int struck_nucleon_pdgc)
   fTgtPDG = pdg::IonPdgCode(A,Z);
   
   this->ForceNucleusValidity(); // search for this nucleus at the PDG Ions
-
   this->SetStruckNucleonPDGCode(struck_nucleon_pdgc);  
 }
 //___________________________________________________________________________
@@ -100,21 +97,23 @@ Target::~Target()
 //___________________________________________________________________________
 void Target::Copy(const Target & tgt)
 {
-  Init();
+  this->Init();
 
-  fZ = tgt.fZ; // copy A,Z
-  fA = tgt.fA;
+  fTgtPDG = tgt.fTgtPDG;
 
-  fStruckNucPDG = tgt.fStruckNucPDG; // copy struck nucleon & tgt PDG
-  fTgtPDG       = tgt.fTgtPDG;
+  if( pdg::IsIon(fTgtPDG) ) {
 
-  if(tgt.fStruckNucP4) {
+     fZ = tgt.fZ; // copy A,Z
+     fA = tgt.fA;
 
-     fStruckNucP4 = new TLorentzVector(*tgt.fStruckNucP4);
+     fStruckNucPDG = tgt.fStruckNucPDG; // copy struck nucleon & tgt PDG
+
+     if(tgt.fStruckNucP4) {
+        fStruckNucP4 = new TLorentzVector(*tgt.fStruckNucP4);
+     }
+     this->ForceNucleusValidity(); // look it up at the isotopes chart
+     this->ForceStruckNucleonValidity(); // must be p or n
   }
-
-  ForceNucleusValidity(); // search for this nucleus at the isotopes chart
-  ForceStruckNucleonValidity(); // must be p or n
 }
 //___________________________________________________________________________
 int Target::Z(void) const
