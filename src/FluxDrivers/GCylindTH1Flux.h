@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::GCylindTH1Flux
+\class   genie::flux::GCylindTH1Flux
 
 \brief   A simple GENIE flux driver. Generates a 'cylindrical' neutrino beam
          along the input direction, with the input transverse radius and

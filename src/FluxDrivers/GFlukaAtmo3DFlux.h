@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::GFlukaAtmo3DFlux
+\class   genie::flux::GFlukaAtmo3DFlux
 
 \brief   A flux driver for the FLUKA 3-D Atmospheric Neutrino Flux
 
