@@ -58,7 +58,7 @@ public:
   bool   LoadFromTree       (TTree *   tr, string xy, string cut = "");
   bool   LoadFromDBase      (TSQLServer * db,  string query);
   bool   LoadFromTSpline3   (const TSpline3 & spline, int nknots);
-  
+
   // get xmin,xmax,nknots, check x variable against valid range and evaluate spline
   int    NKnots(void) const {return fNKnots;}
   double XMin  (void) const {return fXMin;  }
@@ -66,12 +66,15 @@ public:
   double Evaluate           (double x) const;
   bool   IsWithinValidRange (double x) const;
 
+  void   SetName (string name) { fName = name; }
+  string Name (void) const     { return fName; }
+
   // save the Spline in XML, flat ASCII or ROOT format
-  void   SaveAsXml (string filename, string xtag, string ytag, string name) const;
+  void   SaveAsXml (string filename, string xtag, string ytag, string name="") const;
   void   SaveAsXml (ofstream & str,  string xtag, string ytag,
-                                          string name, bool insert = false) const;
+                                          string name="", bool insert = false) const;
   void   SaveAsText(string filename, string format="%10.6f\t%10.6f") const;
-  void   SaveAsROOT(string filename, string name, bool recreate=false) const;
+  void   SaveAsROOT(string filename, string name="", bool recreate=false) const;
 
   // export Spline as TGraph or TSpline3
   TGraph *   GetAsTGraph  (int npoints = 100, bool scale_with_x = false) const;
@@ -83,7 +86,8 @@ private:
   void InitSpline  (void);
   void BuildSpline (int nentries, double x[], double y[]);
 
-  int        fNKnots;  
+  string     fName;
+  int        fNKnots;
   double     fXMin;
   double     fXMax;
   TSpline3 * fInterpolator;
