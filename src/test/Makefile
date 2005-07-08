@@ -51,8 +51,7 @@ WITH_INC   = $(LOG_INC) $(XML_INC) $(ROOT_INC) $(GENIE_INC)
 
 WITH_DICT  = $(GENIE_DICTS)
 
-TGT =	testAlgorithms		\
- 	testBaryonResDataSet	\
+TGT =	testBaryonResDataSet	\
  	testConfigPool		\
  	testDecay		\
  	testEvGen       	\
@@ -64,8 +63,7 @@ TGT =	testAlgorithms		\
 	makeValidityDoc		\
 	gviewer
 
-EXE =	$(GENIE_BIN_PATH)/testAlgorithms	\
- 	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
+EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
  	$(GENIE_BIN_PATH)/testConfigPool	\
  	$(GENIE_BIN_PATH)/testDecay		\
  	$(GENIE_BIN_PATH)/testEvGen       	\
