@@ -232,6 +232,13 @@ string vDataSelectionTab::BundleKeyListInString(void)
 {
   if(fPopupDialogLAM) return fPopupDialog->BundleKeyListInString();
 
+  bool is_connected;
+  if( !fDBC->SqlServer() ) is_connected = false;
+  else {
+    is_connected = fDBC->SqlServer()->IsConnected();
+  }
+  if(!is_connected) return "";
+
   // Read experiment name selections
   string experiments = gui_utils::ListBoxSelectionAsString(
                                                 fNuExpLBx, kExperimentMySQLName);
