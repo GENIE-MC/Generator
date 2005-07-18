@@ -344,15 +344,15 @@
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::FamilyTreeMaker">   
-       <config_file> 
-             family_tree_maker.xml 
-       </config_file>
-   </alg_config>
-
    <alg_config alg_name="genie::InitialStateAppender">   
        <config_file> 
              initial_state_appender.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::PrimaryVtxGenerator">   
+       <config_file> 
+             primary_vtx_generator.xml 
        </config_file>
    </alg_config>
 
@@ -422,7 +422,26 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::IMDKinematicsGenerator">   
+       <config_file> 
+             imd_kinematics_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::IMDPrimaryLeptonGenerator">   
+       <config_file> 
+             imd_primary_lepton_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::IMDTargetRemnantGenerator">   
+       <config_file> 
+             imd_target_remnant_generator.xml
+       </config_file>
+   </alg_config>
+
    ------ CONFIGURATION FOR INTERACTION-LIST-GENERATORS --------
+   ----- AND  INTERACTION-LIST, EVENT-GENERATOR ASSEMBLERS -----
 
    <alg_config alg_name="genie::QELInteractionListGenerator">   
        <config_file> 
@@ -439,6 +458,12 @@
    <alg_config alg_name="genie::DISInteractionListGenerator">   
        <config_file> 
              dis_interaction_list_generator.xml 
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::IMDInteractionListGenerator">   
+       <config_file> 
+             imd_interaction_list_generator.xml 
        </config_file>
    </alg_config>
 
