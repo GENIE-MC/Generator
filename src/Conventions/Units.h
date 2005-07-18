@@ -10,7 +10,7 @@
 
 \created    May 03, 2004
 
-*/ 
+*/
 //____________________________________________________________________________
 
 #ifndef _UNITS_H_
@@ -22,8 +22,8 @@ namespace units {
 
 //-- Basic unit
 
-static const double gigaelectronvolt  = 1.;                        
-static const double GeV               = gigaelectronvolt;                        
+static const double gigaelectronvolt  = 1.;
+static const double GeV               = gigaelectronvolt;
 
 //-- Conversion of conventionl [L], [M], [T] units in physical units
 
@@ -31,29 +31,29 @@ static const double meter    = 5.07e+15 / GeV;
 static const double kilogram = 5.61e+26 * GeV;
 static const double second   = 1.52e+24 / GeV;
 
-//const Double_t kinvGeV2_2_mb =  0.389;               // GeV^-2  -> mbarns
-//const Double_t kmb2cm2       =  1.e-27;              // mbarns  -> cm^2
-//const Double_t km2invGeV     =  5.07e15;             // m       -> GeV^-1
-//const Double_t kcm2invGeV    =  5.07e13;             // cm      -> GeV^-1
-//const Double_t kKg2GeV       =  5.61e26;             // kgr     -> GeV
-//const Double_t kgr2GeV       =  5.61e23;             // gr      -> GeV
-//const Double_t kSec2invGeV   =  1.52e24;             // sec     -> GeV^-1
-//const Double_t kgr_cm3_2_GeV4=  4.30466e-18;         // gr/cm^3 -> GeV^4
+// GeV^-2  -> mbarns : x 0.389;
+// mbarns  -> cm^2   : x 1.00E-27;
+// m       -> GeV^-1 : x 5.07E+15;
+// cm      -> GeV^-1 : x 5.07E+13;
+// kgr     -> GeV    : x 5.61E+26;
+// gr      -> GeV    : x 5.61E+23;
+// sec     -> GeV^-1 : x 1.52E+24;
+// gr/cm^3 -> GeV^4  : x 4.30466E-18;
 
 //-- [L: length],[S: area],[V: volume]
 
-static const double millimeter  = 0.001*meter;                        
+static const double millimeter  = 0.001*meter;
 static const double millimeter2 = millimeter*millimeter;
 static const double millimeter3 = millimeter*millimeter*millimeter;
-static const double centimeter  = 0.01*meter;   
+static const double centimeter  = 0.01*meter;
 static const double centimeter2 = centimeter*centimeter;
 static const double centimeter3 = centimeter*centimeter*centimeter;
-static const double decimeter   = 0.1*meter;   
+static const double decimeter   = 0.1*meter;
 static const double decimeter2  = decimeter*decimeter;
 static const double decimeter3  = decimeter*decimeter*decimeter;
 static const double meter2      = meter*meter;
 static const double meter3      = meter*meter*meter;
-static const double micrometer  = 1.e-6 *meter;             
+static const double micrometer  = 1.e-6 *meter;
 static const double nanometer   = 1.e-9 *meter;
 static const double angstrom    = 1.e-10*meter;
 static const double fermi       = 1.e-15*meter;
@@ -63,13 +63,13 @@ static const double microbarn   = 1.e-6 *barn;
 static const double nanobarn    = 1.e-9 *barn;
 static const double picobarn    = 1.e-12*barn;
 
-static const double mm  = millimeter;                        
+static const double mm  = millimeter;
 static const double mm2 = millimeter2;
 static const double mm3 = millimeter3;
-static const double cm  = centimeter;   
+static const double cm  = centimeter;
 static const double cm2 = centimeter2;
 static const double cm3 = centimeter3;
-static const double m   = meter;                  
+static const double m   = meter;
 static const double m2  = meter2;
 static const double m3  = meter3;
 static const double A   = angstrom;
@@ -135,12 +135,12 @@ static const double  mg = milligram;
 
 //- Angle
 
-static const double radian      = 1.;                  
+static const double radian      = 1.;
 static const double milliradian = 1.e-3*radian;
 static const double degree      = (3.14159265358979323846/180.0)*radian;
 static const double steradian   = 1.;
-	
-static const double rad  = radian;	
+
+static const double rad  = radian;
 static const double mrad = milliradian;
 static const double sr   = steradian;
 static const double deg  = degree;
