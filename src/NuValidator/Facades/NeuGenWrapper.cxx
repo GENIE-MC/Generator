@@ -612,9 +612,8 @@ EventRecord * NeuGenWrapper::GenerateEvent(int nupdgc, float E, int A, int Z)
   }
 
   // Since the event was not created from within the GENIE framework it will
-  // be missing the summary (Interaction object). Recreate it from the GHep
-  // record.
-  evrec->CreateSummary();
+  // be missing the summary (Interaction object). 
+  evrec->AttachInteraction(0);
   
   return evrec;
 }
