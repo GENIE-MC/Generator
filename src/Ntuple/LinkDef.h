@@ -11,5 +11,6 @@
 #pragma link C++ class genie::NtpMCSummary;
 #pragma link C++ class genie::NtpGHepParticle;
 #pragma link C++ class genie::NtpWriter;
+#pragma link C++ class genie::NtpGHepAnalyzer;
 
 #endif
