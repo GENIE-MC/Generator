@@ -31,20 +31,26 @@ AlgFactory::AlgFactory()
 //____________________________________________________________________________
 AlgFactory::~AlgFactory()
 {
+  LOG("AlgFactory", pINFO) << "Deleting all owned algorithmic objects";
+
+  map<string, Algorithm *>::iterator alg_iter;
+  for(alg_iter = fAlgPool.begin(); alg_iter != fAlgPool.end(); ++alg_iter) {
+    Algorithm * alg = alg_iter->second;
+    if(alg) delete alg;
+    alg = 0;
+  }
+  fAlgPool.clear();
   fInstance = 0;
 }
 //____________________________________________________________________________
 AlgFactory * AlgFactory::Instance()
 {
   if(fInstance == 0) {
-
     static AlgFactory::Cleaner cleaner;
-
     cleaner.DummyMethodAndSilentCompiler();
 
     fInstance = new AlgFactory;
   }
-
   return fInstance;
 }
 //____________________________________________________________________________
@@ -67,27 +73,20 @@ const Algorithm * AlgFactory::GetAlgorithm(string alg_name, string param_set)
      map<string, Algorithm *>::const_iterator alg_iter = fAlgPool.find(key);
      return alg_iter->second;
 
-  } else {
-  
+  } else {  
      Algorithm * alg_base = InstantiateAlgorithm(alg_name, param_set);
 
      //-- cache the algorithm for future use
      if(alg_base) {
-        pair<string, Algorithm *> key_alg_pair(key, alg_base);
-        
+        pair<string, Algorithm *> key_alg_pair(key, alg_base);        
         fAlgPool.insert(key_alg_pair);
-        
      } else {
-
         LOG("AlgFactory", pFATAL)
                                << key << " could not be instantiated" << ENDL;
-
         assert(false);
      }
-     
      return alg_base;
   }
-
   return 0;
 }
 //____________________________________________________________________________
@@ -111,19 +110,16 @@ Algorithm * AlgFactory::InstantiateAlgorithm(
 
   LOG("AlgFactory", pDEBUG) << "Instantiating algorithm = " << alg_name;
 
+  // Get object through gROOT->GetClass() and cast it to the Algorithm base 
+  // class (ABC)
   void * base = gROOT->GetClass(alg_name.c_str())->New();
-
-  // Cast to the Algorithm Abstract Base Class (ABC)
-
   Algorithm * alg_base = (Algorithm *) base;
-
-  // Set the configuration Registry that corresonds to the input param_set
 
   LOG("AlgFactory", pDEBUG) << "Setting Configuration Set = " << param_set;
 
+  // Set the configuration Registry that corresonds to the input param_set
   if( strcmp(param_set.c_str(),"NoConfig") != 0)
                                      alg_base->Configure(param_set);
-
   return alg_base;
 }
 //____________________________________________________________________________
