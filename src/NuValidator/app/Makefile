@@ -24,7 +24,7 @@ APP_INC   = $(XML_INC) $(LOG_INC) $(ROOT_INC) $(NUVLD_INC) $(GENIE_INC)
 EXE = $(GENIE_BIN_PATH)/parsexml \
       $(GENIE_BIN_PATH)/filldbase \
       $(GENIE_BIN_PATH)/nuvld \
-      $(GENIE_BIN_PATH)/neugen_evgen 
+      $(GENIE_BIN_PATH)/ngevgen 
 
 all: parsexml filldbase nuvld neugen_evgen
 
