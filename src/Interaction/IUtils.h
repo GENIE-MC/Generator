@@ -51,9 +51,8 @@ namespace interaction_utils {
   Interaction * GetResNC(int Z, int A, int probe, const TLorentzVector & p4probe);
   Interaction * GetResNC(int Z, int A, int probe);
 
-  Interaction * GetIMD(int probe, const TLorentzVector & p4probe);
-
-  Interaction * GetEl(int Z, int A, int probe, const TLorentzVector & p4probe);
+  Interaction * GetIMD (int Z, int A, int probe, const TLorentzVector & p4probe);
+  Interaction * GetEl  (int Z, int A, int probe, const TLorentzVector & p4probe);
 
 }      // interaction_utils namespace
 

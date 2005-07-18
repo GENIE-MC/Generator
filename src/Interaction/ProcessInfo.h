@@ -39,15 +39,16 @@ public:
 
   void Set(ScatteringType_t sc_type, InteractionType_t  int_type);
 
-  bool IsElastic       (void) const;
-  bool IsQuasiElastic  (void) const;
-  bool IsDeepInelastic (void) const;
-  bool IsResonant      (void) const;
-  bool IsCoherent      (void) const;
-  bool IsEM            (void) const;
-  bool IsWeak          (void) const;
-  bool IsWeakCC        (void) const;
-  bool IsWeakNC        (void) const;
+  bool IsElastic        (void) const;
+  bool IsQuasiElastic   (void) const;
+  bool IsDeepInelastic  (void) const;
+  bool IsResonant       (void) const;
+  bool IsCoherent       (void) const;
+  bool IsInverseMuDecay (void) const;
+  bool IsEM             (void) const;
+  bool IsWeak           (void) const;
+  bool IsWeakCC         (void) const;
+  bool IsWeakNC         (void) const;
 
   ScatteringType_t  ScatteringTypeId  (void) const;
   InteractionType_t InteractionTypeId (void) const;

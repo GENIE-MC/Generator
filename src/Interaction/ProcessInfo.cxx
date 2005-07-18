@@ -87,6 +87,11 @@ bool ProcessInfo::IsCoherent(void) const
   return (fScatteringType == kScCoherent);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsInverseMuDecay(void) const
+{
+  return (fScatteringType == kScInverseMuDecay);
+}
+//____________________________________________________________________________
 bool ProcessInfo::IsEM(void) const
 {
   return (fInteractionType == kIntEM);
