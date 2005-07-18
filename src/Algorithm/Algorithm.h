@@ -51,7 +51,9 @@ protected:
   Algorithm();
   Algorithm(const char * param_set);
 
-  const Algorithm *  SubAlg(string alg_key, string config_key) const;
+  const Algorithm * SubAlg(string alg_key, string config_key) const;
+  const Algorithm * SubAlgWithDefault(string alg_key, string config_key, 
+                                string def_alg_name, string def_config_name) const;
 
   bool         fConfigIsOwned; ///< true if the algorithm owns its config. registry
   string       fName;          ///< algorithm name
