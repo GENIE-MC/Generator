@@ -101,6 +101,9 @@
 
      <param type="int"    name="n-pages">       1                              </param>
 
+     <param type="string" name="page-0-alg">   genie::VldInvMuonDecayXSec     </param>
+     <param type="string" name="page-0-conf">  Bardin                         </param>
+
 <!--
      <param type="string" name="page-0-alg">    genie::VldResonances           </param>
      <param type="string" name="page-0-conf">   Default                        </param>
@@ -122,13 +125,10 @@
 
      <param type="string" name="page-0-alg">   genie::VldReinSeghalExclusiveXSec </param>
      <param type="string" name="page-0-conf">  Default                           </param>
--->
 
      <param type="string" name="page-0-alg">   genie::VldD1232ResXSec         </param>
      <param type="string" name="page-0-conf">  Rein-Seghal-Default            </param>
 
-
-<!--
      <param type="string" name="page-0-alg">    genie::VldElasticXSec         </param>
      <param type="string" name="page-0-conf">   Default                       </param>
 -->

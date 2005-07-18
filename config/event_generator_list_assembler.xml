@@ -5,7 +5,7 @@
   -- Default configuration for EventGeneratorList
 
   <param_set name="Default"> 
-     <param type="int"    name="n-processes">                     5                        </param>
+     <param type="int"    name="n-processes">                     6                        </param>
      <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
      <param type="string" name="event-generator-id-0-param-set">  QEL-CC                   </param>
      <param type="string" name="event-generator-id-1-alg-name">   genie::EventGenerator    </param>
@@ -16,12 +16,20 @@
      <param type="string" name="event-generator-id-3-param-set">  QEL-NC                   </param>
      <param type="string" name="event-generator-id-4-alg-name">   genie::EventGenerator    </param>
      <param type="string" name="event-generator-id-4-param-set">  DIS-NC                   </param>
+     <param type="string" name="event-generator-id-5-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-5-param-set">  IMD                      </param>
   </param_set>
 
   <param_set name="Dimuons"> 
      <param type="int"    name="n-processes">                     1                        </param>
      <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
      <param type="string" name="event-generator-id-0-param-set">  DIS-CC-CHARM             </param>
+  </param_set>
+
+  <param_set name="IMD"> 
+     <param type="int"    name="n-processes">                     1                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  IMD                      </param>
   </param_set>
 
   <param_set name="QEL"> 
