@@ -68,49 +68,46 @@ double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
 
   const InitialState & init_state = interaction -> GetInitialState();
 
-  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
+  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfLab);
 
   double E = nu_p4->Energy();
   double s = kElectronMass_2 + 2*kElectronMass*E;
-  
   delete nu_p4;
 
   //-- check if it is kinematically allowed
                 
   if(s < kMuonMass_2) {
-
-     LOG("InverseMuDecay", pDEBUG)
-           << "Inverse Muon Decay with Ev = " << E << " (s = " << s
-                << ") is below threshold (s-min = " << kMuonMass_2 << ")";
+     LOG("InverseMuDecay", pINFO)
+        << "Ev = " << E << " (s = " << s << ") is below threshold (s-min = " 
+        << kMuonMass_2 << ") for IMD";
      return 0;
   }
 
   //-- compute cross section
 
   double sig0 = kGF_2 * kElectronMass * E / kPi;
-
   double re   = 0.5 * kElectronMass / E;
   double r    = (kMuonMass_2 / kElectronMass_2) * re;
-
   double y    = interaction->GetScatteringParams().y();
 
-  //Note: y = (Ev-El)/Ev but in Bardin's paper y=El/Ev
-  //Switch here:
+  //Note: y = (Ev-El)/Ev but in Bardin's paper y=El/Ev. Switch here:
   y = 1-y;
 
   double ymin = r + re;
   double ymax = 1 + re + r*re / (1+re);
 
+  ymax = TMath::Min(ymax,0.9999999); // avoid ymax=1, due to a log(1-y)
+
   LOG("InverseMuDecay", pDEBUG)
-                     << "sig0 = " << sig0 << ", r = " << r << ", re = " << re;
+                << "sig0 = " << sig0 << ", r = " << r << ", re = " << re;
   LOG("InverseMuDecay", pDEBUG)
-                             << "allowed y: [" << ymin << ", " << ymax << "]";
+                        << "allowed y: [" << ymin << ", " << ymax << "]";
 
   if(y<ymin || y>ymax) return 0;
 
   double dsig_dy = 2 * sig0 * ( 1 - r + (kAem/kPi) * Fa(re,r,y) );
 
-  LOG("InverseMuDecay", pDEBUG)
+  LOG("InverseMuDecay", pINFO)
       << "dxsec[1-loop]/dy (Ev = " << E << ", y = " << y << ") = " << dsig_dy;
 
   return dsig_dy;

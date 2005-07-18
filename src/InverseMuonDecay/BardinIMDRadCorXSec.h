@@ -48,13 +48,7 @@ public:
   virtual ~BardinIMDRadCorXSec();
 
   //-- XSecAlgorithmI interface implementation
-
   double XSec (const Interaction * interaction) const;
-
-private:
-
-  const XSecAlgorithmI * DiffXSec   (void) const;
-  const IntegratorI *    Integrator (void) const;
 };
 
 }       // genie namespace
