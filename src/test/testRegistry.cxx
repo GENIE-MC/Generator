@@ -12,7 +12,7 @@
 */
 //____________________________________________________________________________
 
-#include "Config/Registry.h"
+#include "Registry/Registry.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;
