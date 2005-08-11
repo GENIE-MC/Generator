@@ -72,7 +72,7 @@ NEUGEN_LIBS = -L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
 # ROOT headers and libraries
 
 ROOT_INC  = -I $(ROOTSYS)/include
-ROOT_LIBS = $(shell root-config --glibs) -lMinuit
+ROOT_LIBS = $(shell root-config --glibs) -lMinuit -lGeom
 
 #-------------------------------------------------------------------
 #                   PROFILING / DEBUGING OPTIONS
