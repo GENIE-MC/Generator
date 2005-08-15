@@ -12,8 +12,8 @@
 */
 //_____________________________________________________________________________
 
-#ifndef _FINAL_STATE_H_
-#define _FINAL_STATE_H_
+#ifndef _NG_FINAL_STATE_H_
+#define _NG_FINAL_STATE_H_
 
 #include <string>
 #include <ostream>
