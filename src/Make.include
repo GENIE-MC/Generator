@@ -157,6 +157,7 @@ GENIE_DECAY_SHARED_LIB            := $(GENIE_LIB_PATH)/libGDecay.$(DllSuf)
 GENIE_ELASTIC_SHARED_LIB          := $(GENIE_LIB_PATH)/libGElas.$(DllSuf)
 GENIE_EVENT_GENERATION_SHARED_LIB := $(GENIE_LIB_PATH)/libGEventGen.$(DllSuf)
 GENIE_GMCJOB_SHARED_LIB           := $(GENIE_LIB_PATH)/libGMCJob.$(DllSuf)
+GENIE_GHEP_SHARED_LIB             := $(GENIE_LIB_PATH)/libGHEP.$(DllSuf)
 GENIE_LLEWELLYN_SMITH_SHARED_LIB  := $(GENIE_LIB_PATH)/libGLlewellynSmith.$(DllSuf)
 GENIE_FLUX_DRIVERS_SHARED_LIB     := $(GENIE_LIB_PATH)/libGFluxDrivers.$(DllSuf)
 GENIE_FRAGMENTATION_SHARED_LIB    := $(GENIE_LIB_PATH)/libGFragmentation.$(DllSuf)
@@ -190,7 +191,7 @@ VLD_GUI_WIDGETS_LIB      := -L $(GENIE_LIB_PATH) -lGNuVldGUI
 
 
 GEN_LIBS := -L $(GENIE_LIB_PATH) -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
-				 -lGDecay -lGElas -lGEventGen -lGMCJob -lGLlewellynSmith \
+				 -lGDecay -lGElas -lGHEP -lGEventGen -lGMCJob -lGLlewellynSmith \
 				 -lGFragmentation -lGInteraction -lGInvMuDecay -lGMessenger \
 				 -lGNtuple -lGNuclear -lGNumerical -lGValidityDoc \
 				 -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
