@@ -24,6 +24,7 @@ all:
 	cd EventGeneration;    make; cd ..; \
 	cd FluxDrivers;        make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
+	cd GHEP;               make; cd ..; \
 	cd GMCJob;             make; cd ..; \
 	cd ValidityDoc;        make; cd ..; \
 	cd Interaction;        make; cd ..; \
@@ -58,6 +59,7 @@ all-no-nuvld:
 	cd EventGeneration;    make; cd ..; \
 	cd FluxDrivers;        make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
+	cd GHEP;               make; cd ..; \
 	cd GMCJob;             make; cd ..; \
 	cd ValidityDoc;        make; cd ..; \
 	cd Interaction;        make; cd ..; \
@@ -97,6 +99,7 @@ purge: FORCE
 	cd EventGeneration;    make purge; cd ..; \
 	cd FluxDrivers;        make purge; cd ..; \
 	cd Fragmentation;      make purge; cd ..; \
+	cd GHEP;               make purge; cd ..; \
 	cd GMCJob;             make purge; cd ..; \
 	cd ValidityDoc;        make purge; cd ..; \
 	cd Interaction;        make purge; cd ..; \
@@ -129,6 +132,7 @@ clean: FORCE
 	cd EventGeneration;    make clean; cd ..; \
 	cd FluxDrivers;        make clean; cd ..; \
 	cd Fragmentation;      make clean; cd ..; \
+	cd GHEP;               make clean; cd ..; \
 	cd GMCJob;             make clean; cd ..; \
 	cd ValidityDoc;        make clean; cd ..; \
 	cd Interaction;        make clean; cd ..; \

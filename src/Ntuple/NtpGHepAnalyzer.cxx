@@ -29,9 +29,9 @@
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
-#include "EventGeneration/GHepStatus.h"
-#include "EventGeneration/GHepParticle.h"
 #include "EventGeneration/EventRecord.h"
+#include "GHEP/GHepStatus.h"
+#include "GHEP/GHepParticle.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpGHepAnalyzer.h"

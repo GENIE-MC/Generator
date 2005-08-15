@@ -26,7 +26,7 @@
 #include <TStyle.h>
 
 #include "EventGeneration/EventRecord.h"
-#include "EventGeneration/GHepParticle.h"
+#include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "Viewer/RendererQEL.h"
 
