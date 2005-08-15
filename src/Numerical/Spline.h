@@ -80,6 +80,10 @@ public:
   TGraph *   GetAsTGraph  (int npoints = 100, bool scale_with_x = false) const;
   TSpline3 * GetAsTSpline (void) const { return fInterpolator; }
 
+  // knot manipulation methods in additions to the TSpline3 ones
+  void FindClosestKnot(double x, double & xknot, double & yknot, Option_t * opt="-+") const;
+  bool ClosestKnotValueIsZero(double x, Option_t * opt="-+") const;
+
 private:
 
   // initialize and build spline

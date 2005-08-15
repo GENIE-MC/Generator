@@ -29,6 +29,7 @@
 
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
+#include "Utils/MathUtils.h"
 #include "XML/XmlParserUtils.h"
 
 using std::endl;
@@ -410,6 +411,41 @@ TGraph * Spline::GetAsTGraph(int np, bool scale_with_x) const
   TGraph * graph = new TGraph(np, x, y);
 
   return graph;
+}
+//___________________________________________________________________________
+void Spline::FindClosestKnot(
+              double x, double & xknot, double & yknot, Option_t * opt) const
+{
+  string option(opt);
+
+  bool pos = (option.find("+") != string::npos);
+  bool neg = (option.find("-") != string::npos);
+
+  if(!pos && !neg) return;
+
+  int iknot = fInterpolator->FindX(x);
+
+  double xp=0, yp=0, xn=0, yn=0;
+  fInterpolator->GetKnot(iknot,  xp,yp);
+  fInterpolator->GetKnot(iknot+1,xn,yn);
+
+  bool p = (TMath::Abs(x-xp) < TMath::Abs(x-xn));
+
+  if(pos&&neg) {
+    if(p) { xknot = xp; yknot = yp; }
+    else  { xknot = xn; yknot = yn; }
+  } else {
+    if(pos) { xknot = xp; yknot = yp; }
+    if(neg) { xknot = xn; yknot = yn; }
+  }
+}
+//___________________________________________________________________________
+bool Spline::ClosestKnotValueIsZero(double x, Option_t * opt) const
+{
+  double xknot = 0, yknot = 0;
+  this->FindClosestKnot(x, xknot, yknot, opt);
+  if(math_utils::AreEqual(yknot,0)) return true;
+  return false;
 }
 //___________________________________________________________________________
 void Spline::InitSpline(void)
