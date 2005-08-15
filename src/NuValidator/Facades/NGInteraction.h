@@ -12,8 +12,8 @@
 */
 //_____________________________________________________________________________
 
-#ifndef _INTERACTION_H_
-#define _INTERACTION_H_
+#ifndef _NG_INTERACTION_H_
+#define _NG_INTERACTION_H_
 
 #include <string>
 #include <ostream>
