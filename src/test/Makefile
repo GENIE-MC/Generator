@@ -12,32 +12,7 @@ MAKEFILE = Makefile
 # Include machine specific flags and locations (inc. files & libs)
 include $(GENIE)/src/Make.include
 
-GENIE_DICTS =   $(GENIE)/src/Algorithm/_ROOT_DICT_Algorithm.o \
-		$(GENIE)/src/BaryonResonance/_ROOT_DICT_BaryonResonance.o \
-		$(GENIE)/src/Base/_ROOT_DICT_Base.o \
-		$(GENIE)/src/BodekYang/_ROOT_DICT_BodekYang.o \
-		$(GENIE)/src/Charm/_ROOT_DICT_Charm.o \
-		$(GENIE)/src/CrossSections/_ROOT_DICT_CrossSections.o \
-		$(GENIE)/src/Decay/_ROOT_DICT_Decay.o \
-		$(GENIE)/src/Elastic/_ROOT_DICT_Elastic.o \
-		$(GENIE)/src/EventGeneration/_ROOT_DICT_EventGeneration.o \
-		$(GENIE)/src/Fragmentation/_ROOT_DICT_Fragmentation.o \
-		$(GENIE)/src/Interaction/_ROOT_DICT_Interaction.o \
-		$(GENIE)/src/InverseMuonDecay/_ROOT_DICT_InverseMuDecay.o \
-		$(GENIE)/src/LlewellynSmith/_ROOT_DICT_LlewellynSmith.o \
-		$(GENIE)/src/Ntuple/_ROOT_DICT_Ntuple.o \
-		$(GENIE)/src/Nuclear/_ROOT_DICT_Nuclear.o \
-		$(GENIE)/src/Numerical/_ROOT_DICT_Numerical.o \
-		$(GENIE)/src/PartonModel/_ROOT_DICT_PartonModel.o \
-		$(GENIE)/src/Paschos/_ROOT_DICT_Paschos.o \
-		$(GENIE)/src/PDG/_ROOT_DICT_PDG.o \
-		$(GENIE)/src/PDF/_ROOT_DICT_PDF.o \
-		$(GENIE)/src/Radiative/_ROOT_DICT_Radiative.o \
-		$(GENIE)/src/Registry/_ROOT_DICT_Registry.o \
-		$(GENIE)/src/ReinSeghal/_ROOT_DICT_ReinSeghal.o \
-		$(GENIE)/src/Viewer/_ROOT_DICT_Viewer.o \
-		$(GENIE)/src/Utils/_ROOT_DICT_Utils.o \
-		$(GENIE)/src/ValidityDoc/_ROOT_DICT_ValidityDoc.o 
+GENIE_DICTS = $(shell $(GENIE)/src/scripts/genie-config --dicts)
 
 WITH_LIB   = -L $(ROOTSYS)/lib $(ROOT_LIBS) $(ROOT_GLIBS) \
 		$(PYTHIA_LIBS) -lEG -lEGPythia6 \
