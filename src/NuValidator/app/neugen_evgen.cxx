@@ -44,7 +44,7 @@
 #include <TTree.h>
 
 #include "Facades/NeuGenWrapper.h"
-#include "EventGeneration/EventRecord.h"
+#include "EVGCore/EventRecord.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
 #include "PDG/PDGCodes.h"
