@@ -18,7 +18,7 @@
 
 #include <TRootEmbeddedCanvas.h>
 
-#include "EventGeneration/EventRecord.h"
+#include "EVGCore/EventRecord.h"
 #include "Viewer/Renderer.h"
 
 using std::ostringstream;

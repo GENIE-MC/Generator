@@ -15,7 +15,7 @@
 
 #include <iomanip>
 
-#include "EventGeneration/EventRecord.h"
+#include "EVGCore/EventRecord.h"
 #include "Interaction/Interaction.h"
 #include "Ntuple/NtpMCSummary.h"
 #include "Ntuple/NtpGHepAnalyzer.h"

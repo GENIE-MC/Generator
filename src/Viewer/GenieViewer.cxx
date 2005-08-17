@@ -46,8 +46,8 @@
 #include <TLatex.h>
 #include <TStyle.h>
 
-#include "EventGeneration/GENIE.h"
-#include "EventGeneration/EventRecord.h"
+#include "EVGDrivers/GENIE.h"
+#include "EVGCore/EventRecord.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Viewer/RendererQEL.h"

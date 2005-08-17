@@ -17,7 +17,7 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "EventGeneration/EventRecord.h"
+#include "EVGCore/EventRecord.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
 #include "Ntuple/NtpMCRecord.h"

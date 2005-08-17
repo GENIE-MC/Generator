@@ -29,7 +29,7 @@
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
-#include "EventGeneration/EventRecord.h"
+#include "EVGCore/EventRecord.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "Interaction/Interaction.h"
