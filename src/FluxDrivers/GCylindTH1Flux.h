@@ -23,7 +23,7 @@
 
 #include <vector>
 #include <TLorentzVector.h>
-#include "GMCJob/GFluxI.h"
+#include "FluxDrivers/GFluxI.h"
 
 class TH1D;
 class TVector3;
