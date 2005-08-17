@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<messenger_config>
+
+  <!-- 
+    Defines the priority levels for GENIE message streams
+
+    The priority (in descending importance order) can be 
+    FATAL, ALERT, CRIT, ERROR, WARN, NOTICE, INFO, DEBUG
+
+    To change the default priority level for a message stream
+    or to add a default priority level for a new message stream
+    a) edit this file OR b) set the GMSGCONF env. var to point to 
+    your custom messenger config file. More than one custom files
+    may defined in the GMSGCONF var delimited with a ':'. Example:
+    export GMSGCONF= /home/me/msgconf1.xml:/home/me/tmp/msgconf2.xml
+
+    These files are read in addition to the default priority levels
+    file and after it. The later each file is in the Messenger 
+    configuration file chain the higher priority it has, eg. if the 
+    same stream is listed twice with conflicting priority then the 
+    one found last is used
+   -->
+
+  <priority msgstream="AlgFactory">          WARN  </priority>
+  <priority msgstream="ConfigPool">          INFO  </priority>
+  <priority msgstream="RESXSec">             WARN  </priority>
+  <priority msgstream="QELXSec">             INFO  </priority>
+  <priority msgstream="DISXSec">             INFO  </priority>
+  <priority msgstream="ReinSeghalRes">       WARN  </priority>
+  <priority msgstream="ReinSeghalCoh">       WARN  </priority>
+  <priority msgstream="VldContext">          INFO  </priority>
+  <priority msgstream="EventGenerator">      INFO  </priority>
+  <priority msgstream="EventGenChain">       INFO  </priority>
+  <priority msgstream="GENIE">               INFO  </priority>
+  <priority msgstream="PDG">                 INFO  </priority>
+  <priority msgstream="Target">              INFO  </priority>
+  <priority msgstream="InteractionSelector"> INFO  </priority>
+  <priority msgstream="Kinematics">          INFO  </priority>
+  <priority msgstream="LeptonicVertex">      INFO  </priority>
+  <priority msgstream="HadronicVertex">      INFO  </priority>
+  <priority msgstream="Nuclear">             INFO  </priority>
+  <priority msgstream="PartonModel">         INFO  </priority>
+  <priority msgstream="BaryonResList">       INFO  </priority>
+  <priority msgstream="FermiMover">          INFO  </priority>
+  <priority msgstream="ParticleDecayer">     INFO  </priority>
+  <priority msgstream="Decay">               INFO  </priority>
+  <priority msgstream="Bardin">              INFO  </priority>
+  <priority msgstream="PythiaHad">           INFO  </priority>
+  <priority msgstream="KNOHad">              INFO  </priority>
+  <priority msgstream="KineLimits">          INFO  </priority>
+  <priority msgstream="BaryonResList">       WARN  </priority>
+  <priority msgstream="InverseMuDecay">      WARN  </priority>
+
+</messenger_config>
+
