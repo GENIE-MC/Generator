@@ -156,6 +156,10 @@ GENIE_CHARM_SHARED_LIB            := $(GENIE_LIB_PATH)/libGCharm.$(DllSuf)
 GENIE_DECAY_SHARED_LIB            := $(GENIE_LIB_PATH)/libGDecay.$(DllSuf)
 GENIE_ELASTIC_SHARED_LIB          := $(GENIE_LIB_PATH)/libGElas.$(DllSuf)
 GENIE_EVENT_GENERATION_SHARED_LIB := $(GENIE_LIB_PATH)/libGEventGen.$(DllSuf)
+GENIE_EVGCORE_SHARED_LIB          := $(GENIE_LIB_PATH)/libGEVGCore.$(DllSuf)
+GENIE_EVGDRIVERS_SHARED_LIB       := $(GENIE_LIB_PATH)/libGEVGDrivers.$(DllSuf)
+GENIE_EVGMODULES_SHARED_LIB       := $(GENIE_LIB_PATH)/libGEVGModules.$(DllSuf)
+GENIE_GEO_SHARED_LIB              := $(GENIE_LIB_PATH)/libGGeo.$(DllSuf)
 GENIE_GMCJOB_SHARED_LIB           := $(GENIE_LIB_PATH)/libGMCJob.$(DllSuf)
 GENIE_GHEP_SHARED_LIB             := $(GENIE_LIB_PATH)/libGHEP.$(DllSuf)
 GENIE_LLEWELLYN_SMITH_SHARED_LIB  := $(GENIE_LIB_PATH)/libGLlewellynSmith.$(DllSuf)
@@ -191,9 +195,11 @@ VLD_GUI_WIDGETS_LIB      := -L $(GENIE_LIB_PATH) -lGNuVldGUI
 
 
 GEN_LIBS := -L $(GENIE_LIB_PATH) -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
-				 -lGDecay -lGElas -lGHEP -lGEventGen -lGMCJob -lGLlewellynSmith \
+				 -lGDecay -lGElas -lGHEP -lGLlewellynSmith \
+				 -lGEVGCore -lGEVGModules -lGEVGDrivers\
 				 -lGFragmentation -lGInteraction -lGInvMuDecay -lGMessenger \
 				 -lGNtuple -lGNuclear -lGNumerical -lGValidityDoc \
+				 -lGEVGCore -lGEVGDrivers -lGEVGModules -lGGeo \
 				 -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
 				 -lGReinSeghal -lGUtils -lGViewer -lGCrossSections -lGFluxDrivers
 

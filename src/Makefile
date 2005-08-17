@@ -21,11 +21,13 @@ all:
 	cd CrossSections;      make; cd ..; \
 	cd Decay; 	       make; cd ..; \
 	cd Elastic; 	       make; cd ..; \
-	cd EventGeneration;    make; cd ..; \
+	cd EVGCore;            make; cd ..; \
+	cd EVGModules;         make; cd ..; \
+	cd EVGDrivers;         make; cd ..; \
 	cd FluxDrivers;        make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
 	cd GHEP;               make; cd ..; \
-	cd GMCJob;             make; cd ..; \
+	cd Geo;                make; cd ..; \
 	cd ValidityDoc;        make; cd ..; \
 	cd Interaction;        make; cd ..; \
 	cd InverseMuonDecay;   make; cd ..; \
@@ -56,11 +58,13 @@ all-no-nuvld:
 	cd CrossSections;      make; cd ..; \
 	cd Decay; 	       make; cd ..; \
 	cd Elastic; 	       make; cd ..; \
-	cd EventGeneration;    make; cd ..; \
+	cd EVGCore;            make; cd ..; \
+	cd EVGModules;         make; cd ..; \
+	cd EVGDrivers;         make; cd ..; \
 	cd FluxDrivers;        make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
 	cd GHEP;               make; cd ..; \
-	cd GMCJob;             make; cd ..; \
+	cd Geo;                make; cd ..; \
 	cd ValidityDoc;        make; cd ..; \
 	cd Interaction;        make; cd ..; \
 	cd InverseMuonDecay;   make; cd ..; \
@@ -96,11 +100,13 @@ purge: FORCE
 	cd CrossSections;      make purge; cd ..; \
 	cd Decay; 	       make purge; cd ..; \
 	cd Elastic; 	       make purge; cd ..; \
-	cd EventGeneration;    make purge; cd ..; \
+	cd EVGCore;            make purge; cd ..; \
+	cd EVGModules;         make purge; cd ..; \
+	cd EVGDrivers;         make purge; cd ..; \
 	cd FluxDrivers;        make purge; cd ..; \
 	cd Fragmentation;      make purge; cd ..; \
 	cd GHEP;               make purge; cd ..; \
-	cd GMCJob;             make purge; cd ..; \
+	cd Geo;                make purge; cd ..; \
 	cd ValidityDoc;        make purge; cd ..; \
 	cd Interaction;        make purge; cd ..; \
 	cd InverseMuonDecay;   make purge; cd ..; \
@@ -129,11 +135,13 @@ clean: FORCE
 	cd CrossSections;      make clean; cd ..; \
 	cd Decay; 	       make clean; cd ..; \
 	cd Elastic; 	       make clean; cd ..; \
-	cd EventGeneration;    make clean; cd ..; \
+	cd EVGCore;            make clean; cd ..; \
+	cd EVGModules;         make clean; cd ..; \
+	cd EVGDrivers;         make clean; cd ..; \
 	cd FluxDrivers;        make clean; cd ..; \
 	cd Fragmentation;      make clean; cd ..; \
 	cd GHEP;               make clean; cd ..; \
-	cd GMCJob;             make clean; cd ..; \
+	cd Geo;                make clean; cd ..; \
 	cd ValidityDoc;        make clean; cd ..; \
 	cd Interaction;        make clean; cd ..; \
 	cd InverseMuonDecay;   make clean; cd ..; \
