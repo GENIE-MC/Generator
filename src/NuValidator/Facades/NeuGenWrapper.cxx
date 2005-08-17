@@ -15,7 +15,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "EventGeneration/EventRecord.h"
+#include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "Facades/NeuGenWrapper.h"
