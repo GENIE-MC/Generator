@@ -27,7 +27,7 @@
 
 #include <string>
 #include <TLorentzVector.h>
-#include "GMCJob/GFluxI.h"
+#include "FluxDrivers/GFluxI.h"
 
 class TH2D;
 
