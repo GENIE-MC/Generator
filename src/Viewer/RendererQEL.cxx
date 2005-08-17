@@ -25,7 +25,7 @@
 #include <TCanvas.h>
 #include <TStyle.h>
 
-#include "EventGeneration/EventRecord.h"
+#include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "Viewer/RendererQEL.h"

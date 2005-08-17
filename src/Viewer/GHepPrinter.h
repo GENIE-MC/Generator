@@ -18,7 +18,7 @@
 
 #include <TGTextEdit.h>
 
-#include "EventGeneration/EventRecord.h"
+#include "EVGCore/EventRecord.h"
 
 namespace genie {
 
