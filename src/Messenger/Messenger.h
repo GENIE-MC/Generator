@@ -9,7 +9,7 @@
           CCLRC, Rutherford Appleton Laboratory
 
 \created  June 16, 2004
- 
+
 */
 //____________________________________________________________________________
 
@@ -67,7 +67,7 @@ using std::string;
 */
 
 #define SLOG(stream, priority) \
-	   (*Messenger::Instance())(stream) \
+           (*Messenger::Instance())(stream) \
                << priority << "[s] <" \
                << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
@@ -77,49 +77,49 @@ using std::string;
          appending a string (using the __GCLASS, __FUNCTION__ and __LINE__ macros)
          with information for the calling method [produces normal messages].
 */
-               
+
 #define LOG(stream, priority) \
-	   (*Messenger::Instance())(stream) \
+           (*Messenger::Instance())(stream) \
                << priority << "[n] <" \
                << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_FATAL(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::FATAL << "[n] <" \
                << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_ALERT(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::ALERT << "[n] <" \
                << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_CRIT(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::CRIT << "[n] <" \
                << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_ERROR(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::ERROR << "[n] <" \
                << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_WARN(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::WARN << "[n] <" \
                << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_NOTICE(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::NOTICE << "[n] <" \
                << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_INFO(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::INFO << "[n] <" \
                << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_DEBUG(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::DEBUG << "[n] <" \
                << __GCLASS << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
@@ -131,53 +131,53 @@ using std::string;
 */
 
 #define LLOG(stream, priority) \
-	   (*Messenger::Instance())(stream) \
+           (*Messenger::Instance())(stream) \
                << priority << "[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LLOG_FATAL(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::FATAL << "[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LLOG_ALERT(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::ALERT << "[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LLOG_CRIT(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::CRIT << "[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LLOG_ERROR(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::ERROR << "[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LLOG_WARN(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::WARN << "'[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LLOG_NOTICE(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::NOTICE << "[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LLOG_INFO(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::INFO << "[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LLOG_DEBUG(stream) \
-	  (*Messenger::Instance())(stream) \
+          (*Messenger::Instance())(stream) \
                << log4cpp::Priority::DEBUG << "[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
 namespace genie {
 
-class Messenger 
+class Messenger
 {
 public:
 
@@ -185,7 +185,7 @@ public:
 
   log4cpp::Category & operator () (const char * stream);
 
-  void SetPriorityLevel(const char * stream, 
+  void SetPriorityLevel(const char * stream,
                                  log4cpp::Priority::Value priority);
 
 private:
@@ -195,7 +195,12 @@ private:
   virtual ~Messenger();
 
   static Messenger * fInstance;
-  
+
+  // configuration methods
+  void Configure(void);
+  bool SetPrioritiesFromXmlFile(string filename);
+  log4cpp::Priority::Value PriorityFromString(string priority);
+
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
       ~Cleaner() {
