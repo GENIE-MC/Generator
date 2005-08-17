@@ -14,10 +14,10 @@ srcdir=$GENIE/src
 
 ########################### GENIE Libraries;
 
-libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase\
- -lGBodekYang -lGCharm -lGCrossSections -lGDecay -lGHEP -lGEventGen\
+libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
+ -lGCrossSections -lGDecay -lGHEP -lGGeo -lGEVGCore -lGEVGModules -lGEVGDrivers \
  -lGFragmentation -lGInteraction -lGInverseMuDecay -lGLlewellynSmith -lGMessenger\
- -lGMCJob -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
+ -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
  -lGRadiative -lGRegistry -lGReinSeghal -lGViewer -lGUtils -lGValidityDoc"
 
 ########################### GENIE Dictionaries;
@@ -29,13 +29,15 @@ dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
                 $srcdir/Charm/_ROOT_DICT_Charm.o \
                 $srcdir/CrossSections/_ROOT_DICT_CrossSections.o \
                 $srcdir/Decay/_ROOT_DICT_Decay.o \
-                $srcdir/EventGeneration/_ROOT_DICT_EventGeneration.o \
+                $srcdir/EVGCore/_ROOT_DICT_EVGCore.o \
+                $srcdir/EVGModules/_ROOT_DICT_EVGModules.o \
+                $srcdir/EVGDrivers/_ROOT_DICT_EVGDrivers.o \
                 $srcdir/Fragmentation/_ROOT_DICT_Fragmentation.o \
                 $srcdir/Interaction/_ROOT_DICT_Interaction.o \
                 $srcdir/InverseMuonDecay/_ROOT_DICT_InverseMuDecay.o \
                 $srcdir/LlewellynSmith/_ROOT_DICT_LlewellynSmith.o \
                 $srcdir/GHEP/_ROOT_DICT_GHEP.o \
-                $srcdir/GMCJob/_ROOT_DICT_GMCJob.o \
+                $srcdir/Geo/_ROOT_DICT_Geo.o \
                 $srcdir/Ntuple/_ROOT_DICT_Ntuple.o \
                 $srcdir/Nuclear/_ROOT_DICT_Nuclear.o \
                 $srcdir/Numerical/_ROOT_DICT_Numerical.o \
