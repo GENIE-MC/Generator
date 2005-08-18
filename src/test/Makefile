@@ -36,7 +36,8 @@ TGT =	testBaryonResDataSet	\
 	testRegistry		\
 	testScatteringParams    \
 	makeValidityDoc		\
-	gviewer
+	gviewer			\
+	testROOTGeometry
 
 EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
  	$(GENIE_BIN_PATH)/testConfigPool	\
@@ -48,7 +49,8 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testRegistry		\
 	$(GENIE_BIN_PATH)/testScatteringParams  \
 	$(GENIE_BIN_PATH)/makeValidityDoc	\
-	$(GENIE_BIN_PATH)/gviewer
+	$(GENIE_BIN_PATH)/gviewer		\
+	$(GENIE_BIN_PATH)/testROOTGeometry  
 
 all: $(TGT)
 
@@ -98,6 +100,9 @@ gviewer: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gviewer \
 			gviewer.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
 
+testROOTGeometry: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testROOTGeometry \
+			testROOTGeometry.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
 
 #################### CLEANING
 
@@ -137,6 +142,8 @@ clean--makeValidityDoc: FORCE
 clean--gviewer: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gviewer
 
+clean--testROOTGeometry: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testROOTGeometry
 
 FORCE:
 
