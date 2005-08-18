@@ -16,9 +16,11 @@
 #ifndef _ROOT_GEOMETRY_ANALYZER_H_
 #define _ROOT_GEOMETRY_ANALYZER_H_
 
+
 class TGeoVolume;
 
-#include "Geo/GeomAnalyzerI.h"
+#include "GeomAnalyzerI.h"
+#include <TGeoManager.h>
 
 namespace genie {
 
@@ -26,8 +28,10 @@ class ROOTGeomAnalyzer : public GeomAnalyzerI {
 
 public :
 
-  ROOTGeomAnalyzer(TGeoVolume * geom);
-  ~ROOTGeomAnalyzer();
+  ROOTGeomAnalyzer();
+ ~ROOTGeomAnalyzer();
+ void Load(char* filename);
+ int SetVtxMaterial(char* material);
 
   // implement the GeomAnalyzerI interface
 
@@ -35,17 +39,23 @@ public :
 
   const PathLengthList &
            ComputePathLengths
-             (const TLorentzVector & x, const TLorentzVector & p);
+             (const TLorentzVector & x, const TLorentzVector & p); 
+
   const TVector3 &
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
+
+  void test(void);
 
 private:
 
   void Initialize              (void);
   void BuildListOfTargetNuclei (void);
+  TGeoVolume* GetWorldVolume(void);
 
-  TGeoVolume *     fGeometry;            ///< [input] detector geometry
+  char*            fMaterial;            ///< [input] selected material for vertex
+  
+  TGeoManager *    fGeometry;            ///< [input] detector geometry
   TVector3 *       fCurrVertex;          ///< current generated vertex
   PathLengthList * fCurrPathLengthList;  ///< current list of path-lengths
   PDGCodeList *    fCurrPDGCodeList;     ///< current list of target nuclei

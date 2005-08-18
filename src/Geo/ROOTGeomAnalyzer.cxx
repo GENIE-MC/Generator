@@ -14,6 +14,11 @@
 //____________________________________________________________________________
 
 #include <TGeoVolume.h>
+#include <TGeoManager.h>
+#include <TGeoShape.h>
+#include <TGeoMedium.h>
+#include <TGeoMaterial.h>
+#include <TObjArray.h>
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
@@ -24,12 +29,14 @@
 #include "PDG/PDGLibrary.h"
 #include "Utils/PrintUtils.h"
 
+#include <TPolyMarker3D.h>
+#include <TGeoBBox.h>
+#include <TRandom3.h>
 using namespace genie;
 
 //___________________________________________________________________________
-ROOTGeomAnalyzer::ROOTGeomAnalyzer(TGeoVolume * geom) :
-GeomAnalyzerI(),
-fGeometry(geom)
+ROOTGeomAnalyzer::ROOTGeomAnalyzer(void) :
+GeomAnalyzerI()
 {
   this->Initialize();
 }
@@ -38,8 +45,96 @@ ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
 {
   if( fCurrPathLengthList ) delete fCurrPathLengthList;
   if( fCurrPDGCodeList    ) delete fCurrPDGCodeList;
+  if( fGeometry) delete fGeometry;
+
 }
 //___________________________________________________________________________
+void ROOTGeomAnalyzer::Load(char* filename)
+{
+  fGeometry = new TGeoManager("TGM","TGM");
+  fGeometry->Import(filename);
+   
+}
+//___________________________________________________________________________
+int ROOTGeomAnalyzer::SetVtxMaterial(char* material)
+{
+  if(!fGeometry)
+    {
+      std::cout<<" WARNING!!! Load geometry before setting the material!!! "<<std::endl;
+      return 0;
+    }
+ 
+  fMaterial=material;
+  
+  TObjArray *LV = new TObjArray();
+  
+  LV=fGeometry->GetListOfVolumes();
+  int numVol;
+  
+  numVol=(LV->GetEntries());
+  TGeoVolume *TV = new TGeoVolume();
+  int MaterialFound(0);
+  char* MaterialName;
+
+  for(int i=0;i<numVol;i++)
+    {
+      TV= dynamic_cast <TGeoVolume *>(LV->At(i));
+      
+      // std::cout<<i<<"  "<<TV->GetName()<<" made of "<<TV->GetMaterial()->GetName()<<std::endl;
+      
+      MaterialName=const_cast<char*>(TV->GetMaterial()->GetName());
+      
+      if(!strcmp(material,MaterialName)) 
+	{
+	  MaterialFound=1;
+	  //std::cout<<material<<" FOUND "<<std::endl;  
+	}
+    }
+
+  if(!MaterialFound)  
+    {
+      std::cout<<" WARNING!!! No volume made of the selected material "<<std::endl;
+      delete LV;
+      delete TV;
+      return 0;
+    }
+  
+  delete LV;
+  delete TV;
+  return 1;
+}
+//________________________________________________________________________
+TGeoVolume* ROOTGeomAnalyzer::GetWorldVolume(void)
+{  
+  if(!fGeometry)
+    {
+      std::cout<<" WARNING!!! Load geometry before looking for the Wrld!!! "<<std::endl;
+      return 0;
+    }
+  TObjArray *LV = new TObjArray();
+  
+  LV=fGeometry->GetListOfVolumes();
+  int numVol;
+  
+  numVol=(LV->GetEntries());
+  TGeoVolume *TV = new TGeoVolume();
+  TGeoVolume *TVWorld = new TGeoVolume();
+  
+  char *name;
+  char *str;
+  str="World";
+  
+  for(Int_t i=0;i<numVol;i++)
+    {
+      TV= dynamic_cast <TGeoVolume *>(LV->At(i)); 
+      name=const_cast<char*>(TV->GetName());
+      if(!strcmp(str,name)) 
+	TVWorld=TV;
+    }
+  
+  return TVWorld;
+}
+//________________________________________________________________________
 void ROOTGeomAnalyzer::Initialize(void)
 {
   fCurrPathLengthList = 0;
@@ -71,10 +166,69 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
        << "\nComputing path-lengths for neutrino: "
        << "\n  with 4-momentum : " << print_utils::P4AsString(&p)
        << "\n  starting from   : " << print_utils::X4AsString(&x);
+  
 
-  //-- fill in list using the input TGeoVolume
-  //
-  // ... ... ...
+  TGeoVolume *TVWorld = new TGeoVolume();
+  TGeoVolume *current = new TGeoVolume();
+
+  int FlagNotInYet(0);
+  bool condition(kTRUE);
+
+  float xx,yy,zz;
+  double xyz[3];
+  float step(0.1);
+
+  xx=x.X();
+  yy=x.Y();
+  zz=x.Z();
+
+  while((!FlagNotInYet) || condition)
+    {
+      xx+=step * p.Px()/p.P();
+      yy+=step * p.Py()/p.P();
+      zz+=step * p.Pz()/p.P();
+  
+      std::cout<<" x "<<xx<<" y "<<yy<<" z "<<zz<<std::endl;
+      xyz[0]=xx;
+      xyz[1]=yy;
+      xyz[2]=zz;
+      fGeometry->SetCurrentPoint(xyz);
+      //fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
+      fGeometry->FindNode();
+      //current =  dynamic_cast <TGeoVolume *>(gGeoManager->GetCurrentVolume());
+      current =  gGeoManager->GetCurrentVolume();
+      std::cout<<" current volume "<<current->GetName()<<std::endl;  
+      TGeoMedium *med;
+      TGeoMaterial *mat;
+
+      if (fGeometry->IsOutside() || !current) 
+	condition=kFALSE; 
+      
+      if(condition)
+	{
+	  if(!FlagNotInYet)
+	    FlagNotInYet=1;
+
+	  med = current->GetMedium(); 
+	  std::cout<<" current medium "<<med->GetName()<<std::endl;
+	  if (!med) 
+	    condition=kFALSE;
+	}
+      
+      if(condition)
+	{ 
+	  mat = med->GetMaterial();
+	  std::cout<<" current material "<<mat->GetName()<<std::endl;
+	  if (!mat) 
+	    condition=kFALSE;
+	}
+      
+      if(condition)
+	{
+	  fCurrPathLengthList->AddPathLength(1,step);//to be changed!!!
+	}
+      
+    }
 
   return *fCurrPathLengthList;
 }
@@ -109,5 +263,150 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
   //-- fill in list using the input TGeoVolume
   //
   //... ...
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::test(void)
+{
+  TGeoManager *TGM = new TGeoManager("TGM","test");
+  //TGM->Import("/eth/store_6/home_6/amerega/TEST/vgm.2.03/examples/E01/N03/bin/Linux-g++/Geometry.root");
+  TGM->Import("$GENIE/src/test/TestGeometry.root");
+    
+  TObjArray *LV = new TObjArray();
+  TObjArray *LN = new TObjArray();
+  
+  LV=TGM->GetListOfVolumes();
+  
+  int numVol;
+  numVol=(LV->GetEntries());
+  
+  std::cout<<numVol<<" volumes found  "<<std::endl;
+  
+  TGeoVolume *TV = new TGeoVolume();
+  TGeoVolume *TVWorld = new TGeoVolume();
+  
+  TGeoShape *TS;
+  
+  char *name;
+  char *str;
+  str="World";
+  
+  Double_t  point [3];
+  point[0]=0;
+  point[1]=0;
+  point[2]=0;
+  
+  Double_t  dir [3];
+  dir[0]=1;
+  dir[1]=0;
+  dir[2]=0;
+  
+  for(Int_t i=0;i<numVol;i++)
+    {
+      TV= dynamic_cast <TGeoVolume *> (LV->At(i));
+      std::cout<<i<<"  "<<TV->GetName()<<" made of "<<TV->GetMaterial()->GetName()<<std::endl;
+      name=const_cast<char*>(TV->GetName());
+      TS=TV->GetShape();
+      TS->ComputeBBox();
+      std::cout<<i<< " test "<<TV->GetNdaughters()<<" contains "<<TV->Contains(point)<<" distance out "<<TS->DistFromOutside(point,dir)<<std::endl;
+      if(!strcmp(str,name)) 
+	TVWorld=TV;
+      std::cout<<TVWorld->GetName()<<" FOUND "<<std::endl;
+    }
+  
+  //help Andrei
+  
+  TGM->SetVisOption(0);
+  TVWorld->Draw();
+  
+  TPolyMarker3D *marker = new TPolyMarker3D();
+  marker->SetMarkerColor(kRed);
+  marker->SetMarkerStyle(8);
+  marker->SetMarkerSize(0.5);
+  
+  const TGeoShape *TS1=TVWorld->GetShape();
+  TGeoBBox *box=(TGeoBBox *)TS1;
+  
+  Double_t dx = box->GetDX();
+  Double_t dy = box->GetDY();
+  Double_t dz = box->GetDZ();
+  Double_t ox = (box->GetOrigin())[0];
+  Double_t oy = (box->GetOrigin())[1];
+  Double_t oz = (box->GetOrigin())[2];
+  
+  std::cout<<" max dimensions : x = "<<dx<<" ; y = "<<dy<<" ; z = "<<dz<<std::endl;
+  std::cout<<" origin : x = "<<ox<<" ; y = "<<oy<<" ; z = "<<oz<<std::endl;
+  
+  gRandom = new TRandom3();
+  Int_t igen(0);
+  Double_t xyz[3];
+  
+  Int_t found(0);
+  //while(igen<1)
+ char *nameMat;
+ char *strmat;
+
+  while(found==0 && igen<100)
+    {
+      // xyz[0] = ox-dx+2*dx*gRandom->Rndm();
+      //xyz[1] = oy-dy+2*dy*gRandom->Rndm();
+      //xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+      
+      xyz[0] = 0.5;
+      xyz[1] = 0;
+      xyz[2] = 0;
+      
+      std::cout<<" random generated point: x = "<<xyz[0]<<" ; y = "<<xyz[1]<<" ; z = "<<xyz[2]<<std::endl;
+      
+      TGM->SetCurrentPoint(xyz);
+      igen++;
+      TGM->FindNode(xyz[0],xyz[1],xyz[2]);
+      
+      
+      Bool_t condition;
+      condition=kTRUE;
+      
+      TGeoVolume *current = gGeoManager->GetCurrentVolume();
+      std::cout<<" current volume "<<current->GetName()<<std::endl;
+      if (TGM->IsOutside() || !current) 
+	condition=kFALSE;
+      
+      TGeoMedium *med;
+      TGeoMaterial *mat;
+
+      if(condition)
+	{
+	  med = current->GetMedium(); 
+	  std::cout<<" current medium "<<med->GetName()<<std::endl;
+	  if (!med) 
+	    condition=kFALSE;
+	}
+      if(condition)
+	{ 
+	  mat = med->GetMaterial();
+	  std::cout<<" current material "<<mat->GetName()<<std::endl;
+	  if (!mat) 
+	    condition=kFALSE;
+	}
+      
+      if(condition)
+	{
+	 
+	  //strmat="Lead";
+	  //strmat="liquidArgon";
+	  strmat="Galactic";
+	  nameMat=const_cast<char*>(mat->GetName());
+	  if(!strcmp(strmat,nameMat))
+	    found=1;
+	}
+      
+      marker->SetNextPoint(xyz[0],xyz[1],xyz[2]); 
+      
+    }
+  
+  if(found==1)
+    std::cout<<" found point : x = "<<xyz[0]<<" ; y = "<<xyz[1]<<" ; z = "<<xyz[2]<<" ; in material : "<<strmat<<std::endl;
+  else
+    std::cout<<" point not found!!!!"<<std::endl;
+  marker->Draw("same");
 }
 //___________________________________________________________________________
