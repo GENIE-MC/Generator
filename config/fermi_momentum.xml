@@ -6,18 +6,18 @@
 
 <fermi_momentum_const name="Default">
 
-  <kf nucleus_pdgc="1006003000"> <p> 169 </p> <n> 169 </n> </kf> <!-- Li6   -->
-  <kf nucleus_pdgc="1012006000"> <p> 221 </p> <n> 221 </n> </kf> <!-- C12   -->
-  <kf nucleus_pdgc="1016008000"> <p> 225 </p> <n> 225 </n> </kf> <!-- O16   -->
-  <kf nucleus_pdgc="1024012000"> <p> 235 </p> <n> 235 </n> </kf> <!-- Mg24  -->
-  <kf nucleus_pdgc="1028014000"> <p> 239 </p> <n> 239 </n> </kf> <!-- Si28  -->
-  <kf nucleus_pdgc="1040018000"> <p> 242 </p> <n> 259 </n> </kf> <!-- Ar40  -->
-  <kf nucleus_pdgc="1040020000"> <p> 251 </p> <n> 251 </n> </kf> <!-- Ca40  -->
-  <kf nucleus_pdgc="1056026000"> <p> 251 </p> <n> 263 </n> </kf> <!-- Fe56  -->
-  <kf nucleus_pdgc="1058028000"> <p> 257 </p> <n> 263 </n> </kf> <!-- Ni58  -->
-  <kf nucleus_pdgc="1120050000"> <p> 245 </p> <n> 274 </n> </kf> <!-- Sn120 -->
-  <kf nucleus_pdgc="1181073000"> <p> 247 </p> <n> 281 </n> </kf> <!-- Ta181 -->
-  <kf nucleus_pdgc="1208082000"> <p> 245 </p> <n> 283 </n> </kf> <!-- Pb208 -->
+  <!-- Li6   --> <kf nucleus_pdgc="1006003000"> <p> 169 </p> <n> 169 </n> </kf> 
+  <!-- C12   --> <kf nucleus_pdgc="1012006000"> <p> 221 </p> <n> 221 </n> </kf> 
+  <!-- O16   --> <kf nucleus_pdgc="1016008000"> <p> 225 </p> <n> 225 </n> </kf> 
+  <!-- Mg24  --> <kf nucleus_pdgc="1024012000"> <p> 235 </p> <n> 235 </n> </kf> 
+  <!-- Si28  --> <kf nucleus_pdgc="1028014000"> <p> 239 </p> <n> 239 </n> </kf> 
+  <!-- Ar40  --> <kf nucleus_pdgc="1040018000"> <p> 242 </p> <n> 259 </n> </kf> 
+  <!-- Ca40  --> <kf nucleus_pdgc="1040020000"> <p> 251 </p> <n> 251 </n> </kf> 
+  <!-- Fe56  --> <kf nucleus_pdgc="1056026000"> <p> 251 </p> <n> 263 </n> </kf> 
+  <!-- Ni58  --> <kf nucleus_pdgc="1058028000"> <p> 257 </p> <n> 263 </n> </kf> 
+  <!-- Sn120 --> <kf nucleus_pdgc="1120050000"> <p> 245 </p> <n> 274 </n> </kf> 
+  <!-- Ta181 --> <kf nucleus_pdgc="1181073000"> <p> 247 </p> <n> 281 </n> </kf>
+  <!-- Pb208 --> <kf nucleus_pdgc="1208082000"> <p> 245 </p> <n> 283 </n> </kf> 
 
 </fermi_momentum_const>
 
