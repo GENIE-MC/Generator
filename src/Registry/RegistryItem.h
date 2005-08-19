@@ -33,7 +33,7 @@ public:
   RegistryItem() { };
   RegistryItem(T item, bool locked = false);
   RegistryItem(const RegistryItem * ri);
-  ~RegistryItem() { }
+  ~RegistryItem();
 
   const type_info & TypeInfo (void) const { return typeid(fItem); }
   const T &         Data     (void) const { return fItem;         }
@@ -48,8 +48,8 @@ public:
 
 private:
 
-  T    fItem;    
-  bool fIsLocked;    
+  T    fItem;
+  bool fIsLocked;
 };
 
 }      // genie namespace

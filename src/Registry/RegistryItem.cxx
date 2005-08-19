@@ -11,7 +11,7 @@
           CCLRC, Rutherford Appleton Laboratory
 
 \created  May 06, 2004
- 
+
 */
 //____________________________________________________________________________
 
@@ -33,8 +33,9 @@ template class RegistryItem<bool>;
 template class RegistryItem<int>;
 template class RegistryItem<double>;
 template class RegistryItem<string>;
+template class RegistryItem<TH1F*>;
 
-namespace genie {  
+namespace genie {
  template
     ostream & operator << (ostream & stream, const RegistryItem<bool> &   rb);
  template
@@ -43,6 +44,8 @@ namespace genie {
     ostream & operator << (ostream & stream, const RegistryItem<double> & rd);
  template
     ostream & operator << (ostream & stream, const RegistryItem<string> & rs);
+ template
+    ostream & operator << (ostream & stream, const RegistryItem<TH1F*> &  rh);
 }
 //____________________________________________________________________________
 namespace genie {
@@ -52,9 +55,9 @@ namespace genie {
       rec.Print(stream);
       return stream;
     }
-}  
+}
 //____________________________________________________________________________
-template<class T> RegistryItem<T>::RegistryItem(T item, bool locked) 
+template<class T> RegistryItem<T>::RegistryItem(T item, bool locked)
 {
   fItem     = item;
   fIsLocked = locked;
@@ -66,9 +69,27 @@ template<class T> RegistryItem<T>::RegistryItem(const RegistryItem * ri)
   fIsLocked = ri->fIsLocked;
 }
 //____________________________________________________________________________
+template<class T> RegistryItem<T>::~RegistryItem()
+{
+
+}
+//____________________________________________________________________________
+RegistryItem<TH1F*>::~RegistryItem()
+{
+  if (fItem) delete fItem;
+}
+//____________________________________________________________________________
 template<class T> void RegistryItem<T>::Print(ostream & stream) const
 {
-  if(fIsLocked) stream << "[  locked] : " << fItem << endl; 
-  else          stream << "[unlocked] : " << fItem << endl; 
+  if(fIsLocked) stream << "[  locked] : " << fItem << endl;
+  else          stream << "[unlocked] : " << fItem << endl;
+}
+//____________________________________________________________________________
+void RegistryItem<TH1F*>::Print(ostream & stream) const
+{
+  if(fIsLocked) stream << "[  locked] : TH1F = "
+                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
+  else          stream << "[unlocked] : TH1F = "
+                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
 }
 //____________________________________________________________________________
