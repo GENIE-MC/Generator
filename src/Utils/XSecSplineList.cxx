@@ -25,7 +25,7 @@
 #include "Numerical/Spline.h"
 #include "Utils/StringUtils.h"
 #include "Utils/XSecSplineList.h"
-#include "XML/XmlParserUtils.h"
+#include "Utils/XmlParserUtils.h"
 
 using std::ofstream;
 using std::endl;

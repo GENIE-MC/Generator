@@ -1,0 +1,74 @@
+//____________________________________________________________________________
+/*!
+
+\class    genie::XmlParserUtils
+
+\brief    XML document parsing utilities.
+
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
+
+\created  May 04, 2004
+ 
+*/
+//____________________________________________________________________________
+
+#ifndef _XML_PARSER_UTILS_H_
+#define _XML_PARSER_UTILS_H_
+
+//#include <sstream>
+#include <string>
+//#include <iostream>
+//#include <vector>
+
+#include "libxml/parser.h"
+#include "libxml/xmlmemory.h"
+
+#include "Utils/StringUtils.h"
+
+//using std::ostringstream;
+using std::string;
+//using std::vector;
+
+//using std::cout;
+//using std::endl;
+
+
+namespace genie {
+
+class XmlParserUtils {
+
+public:
+
+  static string TrimSpaces(xmlChar * xmls)
+  {
+   // trim the leading/trailing spaces from an parsed xml string like in:
+   //
+   // "      I am a string with lots of spaces      " ---->
+   //                                  "I am a string with lots of spaces"
+   //
+   // In this method, "\n" is treated as 'empty space' so as to trim not only
+   // empty spaces in the line that contains the string but also all leading
+   // and trailing empty lines
+
+    string str = string( (const char *) xmls );
+
+    return string_utils::TrimSpaces(str);
+  }
+  //_________________________________________________________________________
+  static string GetAttribute(xmlNodePtr xml_cur, string attr_name)
+  {
+   xmlChar * xmls = xmlGetProp(xml_cur, (const xmlChar *) attr_name.c_str());
+
+   string str = TrimSpaces(xmls);
+
+   xmlFree(xmls);
+
+   return str;
+  }
+  //_________________________________________________________________________
+};
+
+}         // namespace
+#endif    // _XML_PARSER_UTILS_H_
+

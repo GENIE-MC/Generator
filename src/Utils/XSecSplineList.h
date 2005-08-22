@@ -19,7 +19,7 @@
 #include <map>
 #include <string>
 
-#include "XML/XmlParserStatus.h"
+#include "Conventions/XmlParserStatus.h"
 
 using std::map;
 using std::pair;
