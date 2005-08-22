@@ -30,7 +30,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 #include "Utils/MathUtils.h"
-#include "XML/XmlParserUtils.h"
+#include "Utils/XmlParserUtils.h"
 
 using std::endl;
 using std::setw;

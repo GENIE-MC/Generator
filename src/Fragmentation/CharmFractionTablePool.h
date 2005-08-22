@@ -19,7 +19,7 @@
 #include <map>
 #include <string>
 
-#include "XML/XmlParserStatus.h"
+#include "Conventions/XmlParserStatus.h"
 #include "Fragmentation/CharmFractionTable.h"
 
 using std::map;
@@ -27,7 +27,7 @@ using std::string;
 
 namespace genie {
 
-class CharmFractionTablePool 
+class CharmFractionTablePool
 {
 public:
 
@@ -45,7 +45,7 @@ private:
   static CharmFractionTablePool * fInstance;
 
   map<string, CharmFractionTable *> fTablePool;
-      
+
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
       ~Cleaner() {
