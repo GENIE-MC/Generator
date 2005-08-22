@@ -23,8 +23,8 @@
 
 #include "Messenger/Messenger.h"
 #include "Utils/StringUtils.h"
+#include "Utils/XmlParserUtils.h"
 #include "Fragmentation/CharmFractionTablePool.h"
-#include "XML/XmlParserUtils.h"
 
 using std::string;
 
@@ -61,28 +61,28 @@ CharmFractionTablePool * CharmFractionTablePool::Instance()
 bool CharmFractionTablePool::LoadTables(void)
 {
   bool loaded = true;
-  
+
   //-- get base GENIE base directory from the environment
   string genie_base_dir = string( gSystem->Getenv("GENIE") );
-  
+
   //-- build the full pathnames for possible pdg data file locations
   string path = genie_base_dir + string("/config/charm_fraction_tables.xml");
 
   LOG("CFracTab", pINFO)  << "\n *** Loading charm fractions from " << path;
 
   bool is_accessible = ! (gSystem->AccessPathName( path.c_str() ));
-  
+
   if ( is_accessible ) {
       XmlParserStatus_t status = this->ParseXMLTables(path.c_str());
       if(status != kXmlOK) {
          LOG("CFracTab", pWARN)
                            << "\n *** " << XmlParserStatus::AsString(status);
          loaded = false;
-      }  
+      }
   } else {
       LOG("CFracTab", pWARN) << "\n *** Charm Fractions could not be loaded";
       loaded = false;
-  }  
+  }
   return loaded;
 };
 //____________________________________________________________________________
@@ -92,19 +92,19 @@ XmlParserStatus_t CharmFractionTablePool::ParseXMLTables(string filename)
 
   xmlDocPtr xml_doc = xmlParseFile(filename.c_str());
   if(xml_doc == NULL) return kXmlNotParsed;
-  
+
   xmlNodePtr xml_cur = xmlDocGetRootElement(xml_doc);
   if(xml_cur==NULL) return kXmlEmpty;
-  
+
   if( xmlStrcmp(xml_cur->name, (const xmlChar *)
                            "charm_fraction_table") ) return kXmlInvalidRoot;
-  
+
   // parsing single charm fractions table
   string name = string_utils::TrimSpaces(
                              XmlParserUtils::GetAttribute(xml_cur, "name"));
 
   LOG("CFracTab", pDEBUG) << "Reading charm fraction table: " << name;
-                             
+
   xmlNodePtr xml_cur_ebin = xml_cur->xmlChildrenNode; // <energy_bin>'s
 
   // loop over all <charm_fraction_table> node children nodes
@@ -124,7 +124,7 @@ XmlParserStatus_t CharmFractionTablePool::ParseXMLTables(string filename)
         xmlNodePtr xml_cur_frac = xml_cur_ebin->xmlChildrenNode;
 
         while (xml_cur_frac != NULL) {
-     
+
              string val = XmlParserUtils::TrimSpaces(
                              xmlNodeListGetString(xml_doc, xml_cur_frac, 1));
 
@@ -136,7 +136,7 @@ XmlParserStatus_t CharmFractionTablePool::ParseXMLTables(string filename)
 
              double frac = atof(val.c_str());
              int    pdgc = atoi(pdg.c_str());
-              
+
              LOG("CFracTab", pDEBUG) << "Fraction(PDG: " << pdgc
                          << ", emin = " << emin << ", emax = " << emax
                                                            << ") = " << frac;

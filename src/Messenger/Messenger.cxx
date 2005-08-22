@@ -23,7 +23,7 @@
 
 #include "Messenger/Messenger.h"
 #include "Utils/StringUtils.h"
-#include "XML/XmlParserUtils.h"
+#include "Utils/XmlParserUtils.h"
 
 using namespace genie;
 
