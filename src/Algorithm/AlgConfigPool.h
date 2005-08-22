@@ -40,23 +40,31 @@ public:
 
   Registry * FindRegistry (string alg_name, string param_set) const;
   Registry * FindRegistry (const Algorithm * algorithm)       const;
-  
+
   void Print(ostream & stream) const;
-  
-  friend ostream& operator<<(ostream& stream, const AlgConfigPool & config_pool); 
+
+  friend ostream & operator << (ostream & stream, const AlgConfigPool & cp);
 
 private:
 
-  AlgConfigPool(); 
+  AlgConfigPool();
   AlgConfigPool(const AlgConfigPool & config_pool);
   virtual ~AlgConfigPool();
 
-  bool LoadXMLConfig(void);
-    
+  // methods for loading all algorithm XML configuration files
+  bool LoadAlgConfig       (void);
+  bool LoadMasterConfig    (void);
+  bool LoadSingleAlgConfig (string alg_name, string file_name);
+  void AddConfigParameter  (Registry * r, string pt, string pn, string pv);
+  void AddBasicParameter   (Registry * r, string pt, string pn, string pv);
+  void AddRootObjParameter (Registry * r, string pt, string pn, string pv);
+
   static AlgConfigPool * fInstance;
 
-  map<string, Registry *> fRegistryPool;    //-- algorithm/param_set -> Registry
-  
+  map<string, Registry *> fRegistryPool; ///< algorithm/param_set -> Registry
+  map<string, string>     fConfigFiles;  ///< algorithm -> XML config file
+  string                  fMasterConfig; ///< lists config files for all algorithms
+
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
       ~Cleaner() {
