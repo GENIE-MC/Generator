@@ -19,6 +19,8 @@
 #include <iostream>
 
 #include <TH1F.h>
+#include <TH2F.h>
+#include <TTree.h>
 
 #include "RegistryItem.h"
 
@@ -34,6 +36,8 @@ template class RegistryItem<int>;
 template class RegistryItem<double>;
 template class RegistryItem<string>;
 template class RegistryItem<TH1F*>;
+template class RegistryItem<TH2F*>;
+template class RegistryItem<TTree*>;
 
 namespace genie {
  template
@@ -46,6 +50,10 @@ namespace genie {
     ostream & operator << (ostream & stream, const RegistryItem<string> & rs);
  template
     ostream & operator << (ostream & stream, const RegistryItem<TH1F*> &  rh);
+ template
+    ostream & operator << (ostream & stream, const RegistryItem<TH2F*> &  rh);
+ template
+    ostream & operator << (ostream & stream, const RegistryItem<TTree*> & rt);
 }
 //____________________________________________________________________________
 namespace genie {
@@ -79,6 +87,16 @@ RegistryItem<TH1F*>::~RegistryItem()
   if (fItem) delete fItem;
 }
 //____________________________________________________________________________
+RegistryItem<TH2F*>::~RegistryItem()
+{
+  if (fItem) delete fItem;
+}
+//____________________________________________________________________________
+RegistryItem<TTree*>::~RegistryItem()
+{
+  if (fItem) delete fItem;
+}
+//____________________________________________________________________________
 template<class T> void RegistryItem<T>::Print(ostream & stream) const
 {
   if(fIsLocked) stream << "[  locked] : " << fItem << endl;
@@ -90,6 +108,22 @@ void RegistryItem<TH1F*>::Print(ostream & stream) const
   if(fIsLocked) stream << "[  locked] : TH1F = "
                             << ( (fItem) ? fItem->GetName() : "NULL") << endl;
   else          stream << "[unlocked] : TH1F = "
+                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
+}
+//____________________________________________________________________________
+void RegistryItem<TH2F*>::Print(ostream & stream) const
+{
+  if(fIsLocked) stream << "[  locked] : TH2F = "
+                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
+  else          stream << "[unlocked] : TH2F = "
+                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
+}
+//____________________________________________________________________________
+void RegistryItem<TTree*>::Print(ostream & stream) const
+{
+  if(fIsLocked) stream << "[  locked] : TTree = "
+                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
+  else          stream << "[unlocked] : TTree = "
                             << ( (fItem) ? fItem->GetName() : "NULL") << endl;
 }
 //____________________________________________________________________________

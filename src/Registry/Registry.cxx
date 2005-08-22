@@ -18,13 +18,14 @@
 #include <iomanip>
 
 #include <TH1F.h>
+#include <TH2F.h>
+#include <TTree.h>
 
 #include "Messenger/Messenger.h"
-#include "Registry.h"
+#include "Registry/Registry.h"
 
 using namespace genie;
 
-using std::pair;
 using std::setw;
 using std::setfill;
 using std::istream;
@@ -32,6 +33,19 @@ using std::endl;
 
 //____________________________________________________________________________
 namespace genie {
+
+ template<class T> void SetRegistryItem(Registry * r, string key, T item)
+ {
+    string itemtype = typeid(item).name();
+    LOG("Registry", pDEBUG)
+             << "Set item [" << itemtype << "]: key = "
+                                      << key << " --> value = " << item;
+    bool lock = r->ItemIsLocked(key); // store, could be true but inhibited
+    RegistryItem<T> * reg_item = new RegistryItem<T>(item,lock);
+    pair<string, RegistryItemI *> config_entry(key, reg_item);
+    r->Set(config_entry);
+ }
+
  ostream & operator << (ostream & stream, const Registry & registry)
  {
    registry.Print(stream);
@@ -71,10 +85,8 @@ Registry::~Registry()
      RegistryItemI * item = reg_iter->second;
 
      delete item;
-
      item = 0;
   }
-
   fRegistry.clear();
 }
 //____________________________________________________________________________
@@ -187,61 +199,32 @@ bool Registry::CanSetItem(string key) const
   return can_set;
 }
 //____________________________________________________________________________
-void Registry::Set(string key, bool item)
+void Registry::Set(pair<string, RegistryItemI *> entry)
 {
-  LOG("Registry", pDEBUG) << "Set item (bool) = " << key << " --> " << item;
+  string key = entry.first;
 
   if( this->CanSetItem(key) ) {
-
-    bool lock = this->ItemIsLocked(key); // store, could be true but inhibited
     this->DeleteEntry(key);
-
-    RegistryItem<bool> * reg_item = new RegistryItem<bool>(item,lock);
-    pair<string, RegistryItemI *> config_entry(key, reg_item);
-    fRegistry.insert(config_entry);
-
+    fRegistry.insert(entry);
   } else {
      LOG("Registry", pWARN)
               << "\n ********** Registry item [" << key << "] can not be set";
   }
+}
+//____________________________________________________________________________
+void Registry::Set(string key, bool item)
+{
+  SetRegistryItem(this, key, item); // call templated set method
 }
 //____________________________________________________________________________
 void Registry::Set(string key, int item)
 {
-  LOG("Registry", pDEBUG) << "Set item (int) = " << key << " --> " << item;
-
-  if( this->CanSetItem(key) ) {
-
-    bool lock = this->ItemIsLocked(key); // store, could be true but inhibited
-    this->DeleteEntry(key);
-
-    RegistryItem<int> * reg_item = new RegistryItem<int>(item,lock);
-    pair<string, RegistryItemI *> config_entry(key, reg_item);
-    fRegistry.insert(config_entry);
-
-  } else {
-     LOG("Registry", pWARN)
-              << "\n ********** Registry item [" << key << "] can not be set";
-  }
+  SetRegistryItem(this, key, item); // call templated set method
 }
 //____________________________________________________________________________
 void Registry::Set(string key, double item)
 {
-  LOG("Registry", pDEBUG) << "Set item (double) = " << key << " --> " << item;
-
-  if( this->CanSetItem(key) ) {
-
-    bool lock = this->ItemIsLocked(key); // store, could be true but inhibited
-    this->DeleteEntry(key);
-
-    RegistryItem<double> * reg_item = new RegistryItem<double>(item,lock);
-    pair<string, RegistryItemI *> config_entry(key, reg_item);
-    fRegistry.insert(config_entry);
-
-  } else {
-     LOG("Registry", pWARN)
-              << "\n ********** Registry item [" << key << "] can not be set";
-  }
+  SetRegistryItem(this, key, item); // call templated set method
 }
 //____________________________________________________________________________
 void Registry::Set(string key, const char* item)
@@ -251,47 +234,39 @@ void Registry::Set(string key, const char* item)
 //____________________________________________________________________________
 void Registry::Set(string key, string item)
 {
-  LOG("Registry", pDEBUG) << "Set item (string) = " << key << " --> " << item;
-
-  if( this->CanSetItem(key) ) {
-
-    bool lock = this->ItemIsLocked(key); // store, could be true but inhibited
-    this->DeleteEntry(key);
-
-    RegistryItem<string> * reg_item = new RegistryItem<string>(item,lock);
-    pair<string, RegistryItemI *> config_entry(key, reg_item);
-    fRegistry.insert(config_entry);
-
-  } else {
-     LOG("Registry", pWARN)
-              << "\n ********** Registry item [" << key << "] can not be set";
-  }
+  SetRegistryItem(this, key, item); // call templated set method
 }
 //____________________________________________________________________________
 void Registry::Set(string key, TH1F * item)
 {
-  if( this->CanSetItem(key) ) {
-    bool lock = this->ItemIsLocked(key); // store, could be true but inhibited
-    this->DeleteEntry(key);
-
-    RegistryItem<TH1F*> * reg_item = new RegistryItem<TH1F*>(item,lock);
-    pair<string, RegistryItemI *> config_entry(key, reg_item);
-    fRegistry.insert(config_entry);
-
-  } else {
-     LOG("Registry", pWARN)
-              << "\n ********** Registry item [" << key << "] can not be set";
-  }
+  SetRegistryItem(this, key, item); // call templated set method
+}
+//____________________________________________________________________________
+void Registry::Set(string key, TH2F * item)
+{
+  SetRegistryItem(this, key, item); // call templated set method
+}
+//____________________________________________________________________________
+void Registry::Set(string key, TTree * item)
+{
+  SetRegistryItem(this, key, item); // call templated set method
+}
+//____________________________________________________________________________
+void Registry::Get(string key, const RegistryItemI * item) const
+{
+  map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
+  item = entry->second;
 }
 //____________________________________________________________________________
 void Registry::Get(string key, bool & item) const
 {
-  LOG("Registry", pDEBUG) << "Getting item (bool) = " << key;
+  LOG("Registry", pDEBUG) << "Get item [bool]: key = " << key;
 
   map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
-  RegistryItem<bool> * ri = dynamic_cast<RegistryItem<bool>*> (entry->second);
+  RegistryItemI * rib = entry->second;
+  RegistryItem<bool> * ri = dynamic_cast<RegistryItem<bool>*> (rib);
 
-  LOG("Registry", pDEBUG) << "item value = " << ri->Data();
+  LOG("Registry", pDEBUG) << "Item value = " << ri->Data();
   item = ri->Data();
 }
 //____________________________________________________________________________
@@ -300,9 +275,10 @@ void Registry::Get(string key, int & item) const
   LOG("Registry", pDEBUG) << "Getting item (int) = " << key;
 
   map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
-  RegistryItem<int> * ri = dynamic_cast< RegistryItem<int> * > (entry->second);
+  RegistryItemI * rib = entry->second;
+  RegistryItem<int> * ri = dynamic_cast< RegistryItem<int> * > (rib);
 
-  LOG("Registry", pDEBUG) << "item value = " << ri->Data();
+  LOG("Registry", pDEBUG) << "Item value = " << ri->Data();
   item = ri->Data();
 }
 //____________________________________________________________________________
@@ -311,10 +287,10 @@ void Registry::Get(string key, double & item) const
   LOG("Registry", pDEBUG) << "Getting item (double) = " << key;
 
   map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
-  RegistryItem<double> * ri =
-                          dynamic_cast<RegistryItem<double>*> (entry->second);
+  RegistryItemI * rib = entry->second;
+  RegistryItem<double> * ri = dynamic_cast<RegistryItem<double>*> (rib);
 
-  LOG("Registry", pDEBUG) << "item value = " << ri->Data();
+  LOG("Registry", pDEBUG) << "Item value = " << ri->Data();
   item = ri->Data();
 }
 //____________________________________________________________________________
@@ -323,24 +299,52 @@ void Registry::Get(string key, string & item) const
   LOG("Registry", pDEBUG) << "Getting item (string) = " << key;
 
   map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
-  RegistryItem<string> * ri =
-                          dynamic_cast<RegistryItem<string>*> (entry->second);
+  RegistryItemI * rib = entry->second;
+  RegistryItem<string> * ri = dynamic_cast<RegistryItem<string>*> (rib);
 
-  LOG("Registry", pDEBUG) << "item value = " << ri->Data();
+  LOG("Registry", pDEBUG) << "Item value = " << ri->Data();
   item = ri->Data();
 }
 //____________________________________________________________________________
 void Registry::Get(string key, TH1F * item) const
 {
-  LOG("Registry", pDEBUG) << "Getting item (TH1F histogram) = " << key;
+  LOG("Registry", pDEBUG) << "Getting item (TH1F) = " << key;
 
   map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
-
-  RegistryItem<TH1F*> *ri = dynamic_cast<RegistryItem<TH1F*>*> (entry->second);
+  RegistryItemI * rib = entry->second;
+  RegistryItem<TH1F*> *ri = dynamic_cast<RegistryItem<TH1F*>*> (rib);
   item = ri->Data();
 
   if(!item) {
     LOG("Registry", pWARN) << "Returned NULL ptr for TH1F param = " << key;
+  }
+}
+//____________________________________________________________________________
+void Registry::Get(string key, TH2F * item) const
+{
+  LOG("Registry", pDEBUG) << "Getting item (TH2F) = " << key;
+
+  map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
+  RegistryItemI * rib = entry->second;
+  RegistryItem<TH2F*> *ri = dynamic_cast<RegistryItem<TH2F*>*> (rib);
+  item = ri->Data();
+
+  if(!item) {
+    LOG("Registry", pWARN) << "Returned NULL ptr for TH2F param = " << key;
+  }
+}
+//____________________________________________________________________________
+void Registry::Get(string key, TTree * item) const
+{
+  LOG("Registry", pDEBUG) << "Getting item (TTree) = " << key;
+
+  map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
+  RegistryItemI * rib = entry->second;
+  RegistryItem<TTree*> *ri =  dynamic_cast<RegistryItem<TTree*>*> (rib);
+  item = ri->Data();
+
+  if(!item) {
+    LOG("Registry", pWARN) << "Returned NULL ptr for TTree param = " << key;
   }
 }
 //____________________________________________________________________________
@@ -375,9 +379,30 @@ string Registry::GetString(string key) const
 TH1F * Registry::GetTH1F(string key) const
 {
   map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
-  RegistryItem<TH1F*> *ri = dynamic_cast<RegistryItem<TH1F*>*> (entry->second);
+  RegistryItemI * rib = entry->second;
+  RegistryItem<TH1F*> *ri = dynamic_cast<RegistryItem<TH1F*>*> (rib);
 
   TH1F* item = ri->Data();
+  return item;
+}
+//____________________________________________________________________________
+TH2F * Registry::GetTH2F(string key) const
+{
+  map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
+  RegistryItemI * rib = entry->second;
+  RegistryItem<TH2F*> *ri = dynamic_cast<RegistryItem<TH2F*>*> (rib);
+
+  TH2F* item = ri->Data();
+  return item;
+}
+//____________________________________________________________________________
+TTree * Registry::GetTTree(string key) const
+{
+  map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
+  RegistryItemI * rib = entry->second;
+  RegistryItem<TTree*> *ri = dynamic_cast<RegistryItem<TTree*>*> (rib);
+
+  TTree* item = ri->Data();
   return item;
 }
 //____________________________________________________________________________
@@ -457,10 +482,9 @@ void Registry::Print(ostream & stream) const
    if(fInhibitItemLocks) { stream << "[on]";       }
    else                  { stream << "[off]";      }
 
-   stream << endl;
+   stream << " - # entries: " << setfill(' ') << setw(3) << fRegistry.size();
 
-   stream << " |-->[-] number of entries    : "
-                       << setfill(' ') << setw(3) << fRegistry.size() << endl;
+   stream << endl;
 
    map<string, RegistryItemI *>::const_iterator r_iter;
 
@@ -471,12 +495,12 @@ void Registry::Print(ostream & stream) const
 
      if(ritem) {
         string var_name = string("> ") + key;
-        string var_type = ritem->TypeInfo().name();
-
+        string var_type = string("[") + string(ritem->TypeInfo().name())
+                        + string("] ");
         LOG("Registry", pDEBUG)
                     << "Printing [" << var_type << "] item named = " << key;
-        stream << "      |" << setfill('-') << setw(45) << var_name
-                     << " [" << setfill(' ') << setw(2) << var_type << "] ";
+        stream << " |" << setfill('-') << setw(45) << var_name
+               << setfill('.') << setw(12) << var_type;
         ritem->Print(stream);
 
      } else {
@@ -528,6 +552,26 @@ void Registry::Copy(const Registry & registry)
            } else {
              LOG("Registry", pERROR)
                << "Null TH1F with key = " << name << " - not copied";
+           }
+     } else if (var_type == "P4TH2F") {
+           TH2F * histo = registry.GetTH2F(name);
+           if(histo) {
+               TH2F * chisto = new TH2F(*histo);
+               LOG("Registry", pDEBUG) << chisto->GetName();
+               cri = new RegistryItem<TH2F*>(chisto,item_lock);
+           } else {
+             LOG("Registry", pERROR)
+               << "Null TH2F with key = " << name << " - not copied";
+           }
+     } else if (var_type == "P4TTree") {
+           TTree * tree = registry.GetTTree(name);
+           if(tree) {
+               TTree * ctree = new TTree(*tree);
+               LOG("Registry", pDEBUG) << ctree->GetName();
+               cri = new RegistryItem<TTree*>(ctree,item_lock);
+           } else {
+             LOG("Registry", pERROR)
+               << "Null TTree with key = " << name << " - not copied";
            }
 
      } else {}

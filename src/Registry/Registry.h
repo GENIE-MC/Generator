@@ -24,8 +24,11 @@
 #include "Registry/RegistryItem.h"
 
 class TH1F;
+class TH2F;
+class TTree;
 
 using std::map;
+using std::pair;
 using std::string;
 using std::ostream;
 
@@ -52,9 +55,9 @@ public:
 
   //! Registry locks
 
-  void   Lock               (void);       ///< locks the registry
-  void   UnLock             (void);       ///< unlocks the registry (doesn't unlock items)
-  bool   IsLocked           (void) const; ///< checks registry lock
+  void   Lock      (void);       ///< locks the registry
+  void   UnLock    (void);       ///< unlocks the registry (doesn't unlock items)
+  bool   IsLocked  (void) const; ///< checks registry lock
 
   //! Registry item locks
 
@@ -67,23 +70,32 @@ public:
 
   //! Methods to set/retrieve Registry values
 
+  void   Set (pair<string, genie::RegistryItemI *> entry);
+  void   Get (string key, const RegistryItemI * item) const;
+
   void   Set (string key, bool        item);
   void   Set (string key, int         item);
   void   Set (string key, double      item);
   void   Set (string key, string      item);
   void   Set (string key, const char* item);
   void   Set (string key, TH1F *      item);
+  void   Set (string key, TH2F *      item);
+  void   Set (string key, TTree *     item);
   void   Get (string key, bool &      item) const;
   void   Get (string key, int &       item) const;
   void   Get (string key, double &    item) const;
   void   Get (string key, string &    item) const;
   void   Get (string key, TH1F *      item) const;
+  void   Get (string key, TH2F *      item) const;
+  void   Get (string key, TTree *     item) const;
 
   bool   GetBool     (string key) const;
   int    GetInt      (string key) const;
   double GetDouble   (string key) const;
   string GetString   (string key) const;
   TH1F * GetTH1F     (string key) const;
+  TH2F * GetTH2F     (string key) const;
+  TTree* GetTTree    (string key) const;
 
   int    NEntries    (void) const;
   bool   Exists      (string key) const;
@@ -108,6 +120,8 @@ private:
 
   map<string, RegistryItemI *> fRegistry;
 };
+
+template<class T> void SetRegistryItem(Registry * r, string key, T   item);
 
 }        // namespace
 
