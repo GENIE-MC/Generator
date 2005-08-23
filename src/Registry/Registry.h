@@ -89,22 +89,26 @@ public:
   void   Get (string key, TH2F *      item) const;
   void   Get (string key, TTree *     item) const;
 
-  bool   GetBool     (string key) const;
-  int    GetInt      (string key) const;
-  double GetDouble   (string key) const;
-  string GetString   (string key) const;
-  TH1F * GetTH1F     (string key) const;
-  TH2F * GetTH2F     (string key) const;
-  TTree* GetTTree    (string key) const;
+  bool   GetBool      (string key) const;
+  int    GetInt       (string key) const;
+  double GetDouble    (string key) const;
+  string GetString    (string key) const;
+  TH1F * GetTH1F      (string key) const;
+  TH2F * GetTH2F      (string key) const;
+  TTree* GetTTree     (string key) const;
+  bool   GetBoolDef   (string key, bool   def_opt) const;
+  int    GetIntDef    (string key, int    def_opt) const;
+  double GetDoubleDef (string key, double def_opt) const;
+  string GetStringDef (string key, string def_opt) const;
 
-  int    NEntries    (void) const;
-  bool   Exists      (string key) const;
-  bool   CanSetItem  (string key) const;
-  bool   DeleteEntry (string key);
-  void   SetName     (string name);
-  string Name        (void) const;
-  void   Print       (ostream & stream) const;
-  void   Copy        (const Registry &);
+  int    NEntries     (void) const;
+  bool   Exists       (string key) const;
+  bool   CanSetItem   (string key) const;
+  bool   DeleteEntry  (string key);
+  void   SetName      (string name);
+  string Name         (void) const;
+  void   Print        (ostream & stream) const;
+  void   Copy         (const Registry &);
 
   //! Assert the existence or registry items
 

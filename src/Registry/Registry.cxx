@@ -406,6 +406,42 @@ TTree * Registry::GetTTree(string key) const
   return item;
 }
 //____________________________________________________________________________
+bool Registry::GetBoolDef(string key, bool def_opt) const
+{
+// Return the requested boolean registry item. If it does not exist return
+// the input default value
+
+  if(this->Exists(key)) return this->GetBool(key);
+  else return def_opt;
+}
+//____________________________________________________________________________
+int Registry::GetIntDef(string key, int def_opt) const
+{
+// Return the requested integer registry item. If it does not exist return
+// the input default value
+
+  if(this->Exists(key)) return this->GetInt(key);
+  else return def_opt;
+}
+//____________________________________________________________________________
+double Registry::GetDoubleDef(string key, double def_opt) const
+{
+// Return the requested double registry item. If it does not exist return
+// the input default value
+
+  if(this->Exists(key)) return this->GetDouble(key);
+  else return def_opt;
+}
+//____________________________________________________________________________
+string Registry::GetStringDef(string key, string def_opt) const
+{
+// Return the requested string registry item. If it does not exist return
+// the input default value
+
+  if(this->Exists(key)) return this->GetString(key);
+  else return def_opt;
+}
+//____________________________________________________________________________
 bool Registry::Exists(string key) const
 {
   if (fRegistry.count(key) == 1) return true;
