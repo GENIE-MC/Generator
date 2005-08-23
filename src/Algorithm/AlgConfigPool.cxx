@@ -77,14 +77,12 @@ bool AlgConfigPool::LoadAlgConfig(void)
   SLOG("AlgConfigPool", pINFO)
         << "AlgConfigPool late initialization: Loading all XML config. files";
 
+  //-- read the MASTER_CONFIG XML file
+  if(!this->LoadMasterConfig()) return false;
+
   //-- get base GENIE directory from $GENIE environmental variable & build
   //   the GENIE config dir name
-  string base_dir   = string( gSystem->Getenv("GENIE") );
-  string config_dir = base_dir + string("/config");
-
-  //-- read the MASTER_CONFIG XML file
-  fMasterConfig = config_dir + string("/master_conf.xml");
-  if(!this->LoadMasterConfig()) return false;
+  string config_dir = string( gSystem->Getenv("GENIE") ) + string("/config");
 
   //-- loop over all XML config files and read all named configuration
   //   sets for each algorithm
@@ -97,7 +95,11 @@ bool AlgConfigPool::LoadAlgConfig(void)
     string config_file = config_dir + "/" + conf_file_iter->second;
 
     SLOG("AlgConfigPool", pINFO) << alg_name << " ---> " << config_file;
-    this->LoadSingleAlgConfig(alg_name, config_file);
+    bool ok = this->LoadSingleAlgConfig(alg_name, config_file);
+    if(!ok) {
+      SLOG("AlgConfigPool", pERROR)
+           << "Error in loading config sets for algorithm = " << alg_name";
+    }
   }
   return true;
 };
@@ -106,6 +108,16 @@ bool AlgConfigPool::LoadMasterConfig(void)
 {
 // Loads the master config XML file: the file that specifies which XML config
 // file to load for each algorithm
+
+  string base_dir = string( gSystem->Getenv("GENIE") );
+  fMasterConfig   = config_dir + string("/master_conf.xml");
+
+  bool is_accessible = ! (gSystem->AccessPathName( fMasterConfig.c_str() ));
+  if (!is_accessible) {
+     SLOG("AlgConfigPool", pERROR)
+       << "The XML doc doesn't exist! (filename : " << fMasterConfig << ")";
+     return false;
+  }
 
   xmlDocPtr xml_doc = xmlParseFile(fMasterConfig.c_str());
   if(xml_doc==NULL) {
@@ -166,6 +178,13 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
 // file
   ostringstream allconf;
   allconf << "loading configs:";
+
+  bool is_accessible = ! (gSystem->AccessPathName( fMasterConfig.c_str() ));
+  if (!is_accessible) {
+     SLOG("AlgConfigPool", pERROR)
+       << "The XML doc doesn't exist! (filename : " << fMasterConfig << ")";
+     return false;
+  }
 
   xmlDocPtr xml_doc = xmlParseFile( file_name.c_str() );
   if(xml_doc==NULL) {
@@ -357,15 +376,12 @@ Registry * AlgConfigPool::FindRegistry(const Algorithm * algorithm) const
 Registry* AlgConfigPool::FindRegistry(string alg_name, string param_set) const
 {
   string key = alg_name + "/" + param_set;
-
   LOG("AlgConfigPool", pDEBUG) << "Searching for registry with key " << key;
 
   if( fRegistryPool.count(key) == 1 ) {
-
      map<string, Registry *>::const_iterator config_entry =
                                                    fRegistryPool.find(key);
      return config_entry->second;
-
   } else {
      LOG("AlgConfigPool", pWARN) << "No config registry for key " << key;
      return 0;
