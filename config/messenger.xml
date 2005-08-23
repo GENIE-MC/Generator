@@ -41,6 +41,7 @@
   <priority msgstream="EventGenerator">      INFO  </priority>
   <priority msgstream="EventGenChain">       INFO  </priority>
   <priority msgstream="FermiMover">          INFO  </priority>
+  <priority msgstream="FermiP">              INFO  </priority>
   <priority msgstream="FragmentCharm">       INFO  </priority>
   <priority msgstream="Flux">                INFO  </priority>
   <priority msgstream="GENIE">               INFO  </priority>
