@@ -21,6 +21,8 @@ class TGeoVolume;
 
 #include "GeomAnalyzerI.h"
 #include <TGeoManager.h>
+#include <PDG/PDGUtils.h>
+
 
 namespace genie {
 
@@ -28,9 +30,8 @@ class ROOTGeomAnalyzer : public GeomAnalyzerI {
 
 public :
 
-  ROOTGeomAnalyzer();
+  ROOTGeomAnalyzer(char* filename);
  ~ROOTGeomAnalyzer();
- void Load(char* filename);
  int SetVtxMaterial(char* material);
 
   // implement the GeomAnalyzerI interface
@@ -45,13 +46,13 @@ public :
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
 
-  void test(void);
+   void test(void);
 
 private:
 
-  void Initialize              (void);
+  void Initialize              (char* filename);
   void BuildListOfTargetNuclei (void);
-  TGeoVolume* GetWorldVolume(void);
+ 
 
   char*            fMaterial;            ///< [input] selected material for vertex
   

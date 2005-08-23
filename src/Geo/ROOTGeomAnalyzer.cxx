@@ -35,10 +35,10 @@
 using namespace genie;
 
 //___________________________________________________________________________
-ROOTGeomAnalyzer::ROOTGeomAnalyzer(void) :
+ROOTGeomAnalyzer::ROOTGeomAnalyzer(char* filename) :
 GeomAnalyzerI()
 {
-  this->Initialize();
+  this->Initialize(filename);
 }
 //___________________________________________________________________________
 ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
@@ -47,11 +47,6 @@ ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
   if( fCurrPDGCodeList    ) delete fCurrPDGCodeList;
   if( fGeometry) delete fGeometry;
 
-}
-//___________________________________________________________________________
-void ROOTGeomAnalyzer::Load(char* filename)
-{
-  fGeometry=TGeoManager::Import(filename);
 }
 //___________________________________________________________________________
 int ROOTGeomAnalyzer::SetVtxMaterial(char* material)
@@ -102,41 +97,12 @@ int ROOTGeomAnalyzer::SetVtxMaterial(char* material)
   return 1;
 }
 //________________________________________________________________________
-TGeoVolume* ROOTGeomAnalyzer::GetWorldVolume(void)
-{
-  if(!fGeometry)
-    {
-      std::cout<<" WARNING!!! Load geometry before looking for the Wrld!!! "<<std::endl;
-      return 0;
-    }
-  TObjArray *LV = new TObjArray();
-
-  LV=fGeometry->GetListOfVolumes();
-  int numVol;
-
-  numVol=(LV->GetEntries());
-  TGeoVolume *TV = new TGeoVolume();
-  TGeoVolume *TVWorld = new TGeoVolume();
-
-  char *name;
-  char *str;
-  str="World";
-
-  for(Int_t i=0;i<numVol;i++)
-    {
-      TV= dynamic_cast <TGeoVolume *>(LV->At(i));
-      name=const_cast<char*>(TV->GetName());
-      if(!strcmp(str,name))
-        TVWorld=TV;
-    }
-
-  return TVWorld;
-}
-//________________________________________________________________________
-void ROOTGeomAnalyzer::Initialize(void)
+void ROOTGeomAnalyzer::Initialize(char* filename)
 {
   fCurrPathLengthList = 0;
   fCurrPDGCodeList    = 0;
+
+  fGeometry=TGeoManager::Import(filename);
 
   this->BuildListOfTargetNuclei();
 
@@ -190,12 +156,6 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
       xyz[2]=zz;
       fGeometry->SetCurrentPoint(xyz);
       fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
-      //fGeometry->FindNode();
-      //current =  dynamic_cast <TGeoVolume *>(gGeoManager->GetCurrentVolume());
-      
-      //gGeoManager->SetCurrentPoint(xyz);
-      //gGeoManager->FindNode(xyz[0],xyz[1],xyz[2]);
-      //current =  gGeoManager->GetCurrentVolume();
       current =  fGeometry->GetCurrentVolume();
       std::cout<<" current volume "<<current->GetName()<<std::endl;
       TGeoMedium *med;
@@ -235,35 +195,25 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 	      for(int i=0;i<Nelements;i++)
 		{
 		  std::cout<<" number of elements "<<Nelements<<std::endl;
-		  ele=mat->GetElement(i);
-		  int A(ele->A());
+		  ele=(dynamic_cast <TGeoMixture*> (mat))->GetElement(i);
+		  std::cout<<" test "<<ele->A()<<std::endl;
+		  int A=(int)(ele->A());
 		  int Z(ele->Z());
-		  char strA[3];
-		  char strZ[3];
-		  char strMat[11];
-		  if(A>99)
-		    sprintf( strA, "%d", A );
-		  else if(A>9)
-		    sprintf( strA, "0%d", A );
-		  else
-		    sprintf( strA, "00%d", A );
-		  
-		  if(Z>99)
-		    sprintf( strZ, "%d", Z );
-		  else if(Z>9)
-		    sprintf( strZ, "0%d", Z );
-		  else
-		    sprintf( strZ, "00%d", Z );
-
-		  sprintf( strMat, "1%s%s0000", strA,strZ);
-		  std::cout<<" a "<<strA<<" z "<<strZ<<" mat "<<strMat<<std::endl;
-		  
-		  fCurrPathLengthList->AddPathLength(atoi(strMat),step);
+		  int ion_pdgc = pdg::IonPdgCode(A,Z);
+		  std::cout<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<std::endl;
+		  fCurrPathLengthList->AddPathLength(ion_pdgc,step);
 		
 		}
 	    }
+	  else
+	    {
+	      int A=(int)(mat->GetA());
+	      int Z(mat->GetZ());
+	      int ion_pdgc = pdg::IonPdgCode(A,Z);
+	      std::cout<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<std::endl;
+	      fCurrPathLengthList->AddPathLength(ion_pdgc,step);
+	    }
 	}
-
     }
 
   return *fCurrPathLengthList;
@@ -296,9 +246,49 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
 {
   fCurrPDGCodeList = new PDGCodeList;
 
-  //-- fill in list using the input TGeoVolume
-  //
-  //... ...
+  if(!fGeometry)
+    {
+      std::cout<<" ERROR!!! Load geometry Fisrt!!! "<<std::endl;
+      return;
+    }
+  
+  TObjArray *LV = new TObjArray();
+  
+  LV=fGeometry->GetListOfVolumes();
+  int numVol;
+  
+  numVol=(LV->GetEntries());
+  TGeoVolume *TV =0;
+  
+  for(Int_t i=0;i<numVol;i++)
+    {
+      TV= dynamic_cast <TGeoVolume *>(LV->At(i));
+      TGeoMedium *med;
+      TGeoMaterial *mat;
+      med = TV->GetMedium(); 
+      mat = med->GetMaterial(); 
+      if(mat->IsMixture())
+	{
+	  int Nelements((dynamic_cast <TGeoMixture*> (mat))->GetNelements());
+	  TGeoElement *ele;
+	  for(int i=0;i<Nelements;i++)
+	    {
+	      ele=(dynamic_cast <TGeoMixture*> (mat))->GetElement(i);
+	      int A=(int)(ele->A());
+	      int Z(ele->Z());
+	      int ion_pdgc = pdg::IonPdgCode(A,Z);
+	      fCurrPDGCodeList->push_back(ion_pdgc);
+	      
+	    }
+	}
+      else
+	{
+	  int A=(int)(mat->GetA());
+	  int Z(mat->GetZ());
+	  int ion_pdgc = pdg::IonPdgCode(A,Z);
+	  fCurrPDGCodeList->push_back(ion_pdgc);
+	}
+    }
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::test(void)
