@@ -33,8 +33,8 @@ XML_LIBS    = -L $(XML_LIB_DIR) -lxml2
 
 # log4cpp lib & include directory
 
-LOG_INC_DIR = /eth/store_6/home_6/amerega/GENIEdir/NEEDED/log4cpp/include 
-LOG_LIB_DIR = /eth/store_6/home_6/amerega/GENIEdir/NEEDED/log4cpp/lib
+LOG_INC_DIR = /usr/local/include 
+LOG_LIB_DIR = /usr/local/lib
 
 # log4cpp libraries and headers
 
