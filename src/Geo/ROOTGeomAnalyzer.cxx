@@ -51,9 +51,7 @@ ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::Load(char* filename)
 {
-  fGeometry = new TGeoManager("TGM","TGM");
-  fGeometry->Import(filename);
-
+  fGeometry=TGeoManager::Import(filename);
 }
 //___________________________________________________________________________
 int ROOTGeomAnalyzer::SetVtxMaterial(char* material)
@@ -167,9 +165,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
        << "\n  with 4-momentum : " << print_utils::P4AsString(&p)
        << "\n  starting from   : " << print_utils::X4AsString(&x);
 
-
-  TGeoVolume *TVWorld = new TGeoVolume();
-  TGeoVolume *current = new TGeoVolume();
+  TGeoVolume *current =0;
 
   int FlagNotInYet(0);
   bool condition(kTRUE);
@@ -193,10 +189,14 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
       xyz[1]=yy;
       xyz[2]=zz;
       fGeometry->SetCurrentPoint(xyz);
-      //fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
-      fGeometry->FindNode();
+      fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
+      //fGeometry->FindNode();
       //current =  dynamic_cast <TGeoVolume *>(gGeoManager->GetCurrentVolume());
-      current =  gGeoManager->GetCurrentVolume();
+      
+      //gGeoManager->SetCurrentPoint(xyz);
+      //gGeoManager->FindNode(xyz[0],xyz[1],xyz[2]);
+      //current =  gGeoManager->GetCurrentVolume();
+      current =  fGeometry->GetCurrentVolume();
       std::cout<<" current volume "<<current->GetName()<<std::endl;
       TGeoMedium *med;
       TGeoMaterial *mat;
@@ -219,14 +219,50 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
         {
           mat = med->GetMaterial();
           std::cout<<" current material "<<mat->GetName()<<std::endl;
+	  std::cout<<" current material A"<<mat->GetA()<<std::endl;
+	  std::cout<<" current material Z"<<mat->GetZ()<<std::endl;
+	  std::cout<<" current material is mix "<<mat->IsMixture()<<std::endl;
           if (!mat)
             condition=kFALSE;
         }
 
       if(condition)
         {
-          fCurrPathLengthList->AddPathLength(1,step);//to be changed!!!
-        }
+	  if(mat->IsMixture())
+	    {
+	      int Nelements((dynamic_cast <TGeoMixture*> (mat))->GetNelements());
+	      TGeoElement *ele;
+	      for(int i=0;i<Nelements;i++)
+		{
+		  std::cout<<" number of elements "<<Nelements<<std::endl;
+		  ele=mat->GetElement(i);
+		  int A(ele->A());
+		  int Z(ele->Z());
+		  char strA[3];
+		  char strZ[3];
+		  char strMat[11];
+		  if(A>99)
+		    sprintf( strA, "%d", A );
+		  else if(A>9)
+		    sprintf( strA, "0%d", A );
+		  else
+		    sprintf( strA, "00%d", A );
+		  
+		  if(Z>99)
+		    sprintf( strZ, "%d", Z );
+		  else if(Z>9)
+		    sprintf( strZ, "0%d", Z );
+		  else
+		    sprintf( strZ, "00%d", Z );
+
+		  sprintf( strMat, "1%s%s0000", strA,strZ);
+		  std::cout<<" a "<<strA<<" z "<<strZ<<" mat "<<strMat<<std::endl;
+		  
+		  fCurrPathLengthList->AddPathLength(atoi(strMat),step);
+		
+		}
+	    }
+	}
 
     }
 
