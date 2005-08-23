@@ -24,6 +24,8 @@
 #include "Interaction/Interaction.h"
 #include "Interaction/IUtils.h"
 #include "Messenger/Messenger.h"
+#include "Nuclear/FermiMomentumTablePool.h"
+#include "Nuclear/FermiMomentumTable.h"
 
 using namespace genie;
 
@@ -50,13 +52,10 @@ PauliBlocker::~PauliBlocker()
 void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
 {
   //-- Initialize
-
   LOG("Nuclear", pINFO) << "Init PauliBlocking switch to FALSE";
-
   event_rec->SwitchIsPauliBlocked(true);
 
   //-- Get the Interaction & InitialState objects
-
   Interaction * interaction = event_rec->GetInteraction();
   const InitialState & init_state = interaction->GetInitialState();
 
@@ -64,25 +63,28 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
 
   if( init_state.GetTarget().IsNucleus() ) {
 
+    int tgt_pdgc = init_state.GetTarget().PDGCode();
     int nuc_pdgc = interaction_utils::RecoilNucleonPdgCode(interaction);
 
     if(nuc_pdgc != 0) {
-
        // Find the recoil nucleon in the EventRecord
        GHepParticle * nuc = event_rec->FindParticle(nuc_pdgc, 1, 0);
 
        if(nuc) {
-          // in this test version use a const value for the Fermi momentum
+         // get the Fermi momentum
+         FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+         const FermiMomentumTable * kft  = kftp->GetTable("Default");
+         const double kf = kft->FindClosestKF(tgt_pdgc, nuc_pdgc);
+         LOG("Nuclear", pINFO) << "KF = " << kf;
 
-          const double kf = 0.225;   // Fermi momentum for the input tgt
-          double p = nuc->P4()->P(); // |p| for the recoil nucleon
+         double p = nuc->P4()->P(); // |p| for the recoil nucleon
 
-          if(p < kf) {
+         if(p < kf) {
               LOG("Nuclear", pINFO)
                    << "\n The generated event is Pauli-blocked: "
                           << " |p| = " << p << " < Fermi-Momentum = " << kf;
               event_rec->SwitchIsPauliBlocked(true);
-          }
+         }
 
        }//nuc!=0
     }//nuc_pdgc!=0
