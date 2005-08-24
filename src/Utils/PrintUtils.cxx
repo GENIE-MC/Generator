@@ -69,10 +69,27 @@ string genie::print_utils::Vec3AsString(const TVector3 * vec)
   return fmt.str();
 }
 //____________________________________________________________________________
-string genie::print_utils::BoolAsString(bool tf)
+string genie::print_utils::BoolAsString(bool b)
 {
-  if(tf) return "[true]";
-  else   return "[false]";
+  return BoolAsTFString(b);
+}
+//____________________________________________________________________________
+string genie::print_utils::BoolAsTFString(bool b)
+{
+  if(b) return "[true]";
+  else  return "[false]";
+}
+//____________________________________________________________________________
+string genie::print_utils::BoolAsIOString(bool b)
+{
+  if(b) return "[ON]";
+  else  return "[OFF]";
+}
+//____________________________________________________________________________
+string genie::print_utils::BoolAsYNString(bool b)
+{
+  if(b) return "[YES]";
+  else  return "[NO]";
 }
 //____________________________________________________________________________
 
