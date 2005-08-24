@@ -61,8 +61,8 @@
              and also to add the priority levels in mymsg.xml on top of the
              default ones.
              shell% export GEVGL=QEL
-             shell% export GSPLOAD="/home/me/GENIE/mydata/splines.xml"
-             shell% export GMSGCONF="/home/me/GENIE/mydata/mymsg.xml
+             shell% export GSPLOAD=/home/me/GENIE/mydata/splines.xml
+             shell% export GMSGCONF=/home/me/GENIE/mydata/mymsg.xml
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
