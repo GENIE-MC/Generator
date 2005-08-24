@@ -52,8 +52,8 @@ PauliBlocker::~PauliBlocker()
 void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
 {
   //-- Initialize
-  LOG("Nuclear", pINFO) << "Init PauliBlocking switch to FALSE";
-  event_rec->SwitchIsPauliBlocked(true);
+  LOG("Nuclear", pINFO) << "Initialize Pauli Block flag";
+  event_rec->SwitchIsPauliBlocked(false);
 
   //-- Get the Interaction & InitialState objects
   Interaction * interaction = event_rec->GetInteraction();
@@ -78,14 +78,15 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
          LOG("Nuclear", pINFO) << "KF = " << kf;
 
          double p = nuc->P4()->P(); // |p| for the recoil nucleon
+         LOG("Nuclear", pINFO) << "Recoil nucleon |P| = " << p;
 
          if(p < kf) {
               LOG("Nuclear", pINFO)
                    << "\n The generated event is Pauli-blocked: "
                           << " |p| = " << p << " < Fermi-Momentum = " << kf;
               event_rec->SwitchIsPauliBlocked(true);
+              event_rec->EnableFastForward(true);
          }
-
        }//nuc!=0
     }//nuc_pdgc!=0
   }//not a free nucleon
