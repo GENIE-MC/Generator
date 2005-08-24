@@ -27,6 +27,7 @@
 #include "EVGCore/EventGenerator.h"
 #include "EVGCore/InteractionListGeneratorI.h"
 #include "GHEP/GHepVirtualListFolder.h"
+#include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
 
 using std::ostringstream;
@@ -71,7 +72,12 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   //-- Loop over the event record processing steps
   for(int istep = 0; istep < n_generator_steps; istep++) {
      const EventRecordVisitorI * visitor = this->ProcessingStep(istep);
-     visitor->ProcessEventRecord(event_rec);
+     bool ffwd = event_rec->FastForwardEnabled();
+     if(!ffwd) visitor->ProcessEventRecord(event_rec);
+     else {
+       LOG("EventGenerator", pINFO) 
+           << "Fast Forward flag was set - Skipping processing step!";
+     }
   }
 }
 //___________________________________________________________________________
