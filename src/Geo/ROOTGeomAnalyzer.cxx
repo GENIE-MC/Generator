@@ -32,10 +32,11 @@
 #include <TPolyMarker3D.h>
 #include <TGeoBBox.h>
 #include <TRandom3.h>
+
 using namespace genie;
 
 //___________________________________________________________________________
-ROOTGeomAnalyzer::ROOTGeomAnalyzer(char* filename) :
+ROOTGeomAnalyzer::ROOTGeomAnalyzer(string filename) :
 GeomAnalyzerI()
 {
   this->Initialize(filename);
@@ -97,12 +98,12 @@ int ROOTGeomAnalyzer::SetVtxMaterial(char* material)
   return 1;
 }
 //________________________________________________________________________
-void ROOTGeomAnalyzer::Initialize(char* filename)
+void ROOTGeomAnalyzer::Initialize(string filename)
 {
   fCurrPathLengthList = 0;
   fCurrPDGCodeList    = 0;
 
-  fGeometry=TGeoManager::Import(filename);
+  fGeometry=TGeoManager::Import(filename.c_str());
 
   this->BuildListOfTargetNuclei();
 
