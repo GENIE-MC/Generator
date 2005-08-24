@@ -585,14 +585,14 @@ void GHepRecord::Print(ostream & stream) const
 
   // Print FLAGS
   stream << "\n |";
-  stream << setfill(' ') << setw(17) << "FLAGS:   |"
-         << setfill(' ') << setw(15) << "PauliBlock......"
-         << print_utils::BoolAsIOString(this->IsPauliBlocked()) << " |"
-         << setfill(' ') << setw(15) << "BelowThrNRF....."
-         << print_utils::BoolAsIOString(this->IsBelowThrNRF())  << " |"
-         << setfill(' ') << setw(15) << "UnPhysical......"
-         << print_utils::BoolAsIOString(this->IsUnphysical())   << " |"
-         << setfill(' ') << setw(15) << "FastFwd........"
+  stream << setfill(' ') << setw(17) << "FLAGS:   | "
+         << setfill(' ') << setw(14) << "PauliBlock......"
+         << print_utils::BoolAsIOString(this->IsPauliBlocked()) << "|"
+         << setfill(' ') << setw(14) << "BelowThrNRF....."
+         << print_utils::BoolAsIOString(this->IsBelowThrNRF())  << "|"
+         << setfill(' ') << setw(14) << "UnPhysical......"
+         << print_utils::BoolAsIOString(this->IsUnphysical())   << "|"
+         << setfill(' ') << setw(14) << "FastFwd........"
          << print_utils::BoolAsIOString(this->FastForwardEnabled())
          << "|";
 
