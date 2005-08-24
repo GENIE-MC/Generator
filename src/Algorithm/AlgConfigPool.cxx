@@ -98,7 +98,7 @@ bool AlgConfigPool::LoadAlgConfig(void)
     bool ok = this->LoadSingleAlgConfig(alg_name, config_file);
     if(!ok) {
       SLOG("AlgConfigPool", pERROR)
-           << "Error in loading config sets for algorithm = " << alg_name";
+           << "Error in loading config sets for algorithm = " << alg_name;
     }
   }
   return true;
@@ -110,7 +110,7 @@ bool AlgConfigPool::LoadMasterConfig(void)
 // file to load for each algorithm
 
   string base_dir = string( gSystem->Getenv("GENIE") );
-  fMasterConfig   = config_dir + string("/master_conf.xml");
+  fMasterConfig   = base_dir + string("/config/master_conf.xml");
 
   bool is_accessible = ! (gSystem->AccessPathName( fMasterConfig.c_str() ));
   if (!is_accessible) {
