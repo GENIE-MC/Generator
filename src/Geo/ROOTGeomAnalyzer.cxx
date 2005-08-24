@@ -120,12 +120,12 @@ const PDGCodeList & ROOTGeomAnalyzer::ListOfTargetNuclei(void)
 const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                           const TLorentzVector & x, const TLorentzVector & p)
 {
-// Computes the path-length within each detector material for a neutrino
-// starting from point x and travelling along the direction of p
-
+  // Computes the path-length within each detector material for a neutrino
+  // starting from point x and travelling along the direction of p
   // reset current list of path-lengths
+  
   fCurrPathLengthList->SetAllToZero();
-
+  
   LOG("GROOTGeom", pINFO)
        << "\nComputing path-lengths for neutrino: "
        << "\n  with 4-momentum : " << print_utils::P4AsString(&p)
@@ -138,22 +138,22 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 
   float xx,yy,zz;
   double xyz[3];
-  float step(0.1);
-
+  double step(0);
   xx=x.X();
   yy=x.Y();
   zz=x.Z();
-
+  
+  fGeometry->SetCurrentDirection(p.Px()/p.P(),p.Py()/p.P(),p.Pz()/p.P());
+  
   while((!FlagNotInYet) || condition)
     {
-      xx+=step * p.Px()/p.P();
-      yy+=step * p.Py()/p.P();
-      zz+=step * p.Pz()/p.P();
+      condition=kTRUE;
 
-      std::cout<<" x "<<xx<<" y "<<yy<<" z "<<zz<<std::endl;
+      std::cout<<" x "<<xx<<" y "<<yy<<" z "<<zz<<" flag not yet in "<<FlagNotInYet<<std::endl;
       xyz[0]=xx;
       xyz[1]=yy;
       xyz[2]=zz;
+      
       fGeometry->SetCurrentPoint(xyz);
       fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
       current =  fGeometry->GetCurrentVolume();
@@ -162,7 +162,24 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
       TGeoMaterial *mat;
 
       if (fGeometry->IsOutside() || !current)
-        condition=kFALSE;
+	{
+	  condition=kFALSE;
+
+	  if(FlagNotInYet)
+	    break;
+
+	  fGeometry->FindNextBoundary();
+	  step=fGeometry->GetStep();
+	  while(!fGeometry->IsEntering())
+	    {
+	      fGeometry->Step(); 
+	      step=fGeometry->GetStep();
+	    }
+
+	  xx+=step * p.Px()/p.P();
+	  yy+=step * p.Py()/p.P();
+	  zz+=step * p.Pz()/p.P();
+	}
 
       if(condition)
         {
@@ -200,9 +217,21 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 		  int A=(int)(ele->A());
 		  int Z(ele->Z());
 		  int ion_pdgc = pdg::IonPdgCode(A,Z);
-		  std::cout<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<std::endl;
+		  fGeometry->FindNextBoundary();
+		  step=fGeometry->GetStep();
+		  while(!fGeometry->IsEntering())
+		    {
+		      fGeometry->Step(); 
+		      step=fGeometry->GetStep();
+		    }
+		  std::cout<<" isentering? "<< fGeometry->IsEntering()<<std::endl;
+		  std::cout<<" isonboundary? "<< fGeometry->IsOnBoundary()<<std::endl;
+		  std::cout<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<" step "<<step<<std::endl;
+		  
 		  fCurrPathLengthList->AddPathLength(ion_pdgc,step);
-		
+		  xx+=step * p.Px()/p.P();
+		  yy+=step * p.Py()/p.P();
+		  zz+=step * p.Pz()/p.P();
 		}
 	    }
 	  else
@@ -210,14 +239,28 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 	      int A=(int)(mat->GetA());
 	      int Z(mat->GetZ());
 	      int ion_pdgc = pdg::IonPdgCode(A,Z);
-	      std::cout<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<std::endl;
+	      fGeometry->FindNextBoundary();
+	      step=fGeometry->GetStep(); 
+	      while(!fGeometry->IsEntering())
+		{
+		  fGeometry->Step();
+		  step=fGeometry->GetStep();
+		}
+	      std::cout<<" isentering? "<< fGeometry->IsEntering()<<std::endl;
+	      std::cout<<" isonboundary? "<< fGeometry->IsOnBoundary()<<std::endl;
+	      std::cout<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<" step "<<step<<std::endl;
+	      
 	      fCurrPathLengthList->AddPathLength(ion_pdgc,step);
+	      xx+=step * p.Px()/p.P();
+	      yy+=step * p.Py()/p.P();
+	      zz+=step * p.Pz()/p.P();
 	    }
+	  
 	}
     }
-
   return *fCurrPathLengthList;
 }
+
 //___________________________________________________________________________
 const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
               const TLorentzVector & x, const TLorentzVector & p, int tgtpdg)
