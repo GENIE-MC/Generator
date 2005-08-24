@@ -16,13 +16,16 @@
 #ifndef _ROOT_GEOMETRY_ANALYZER_H_
 #define _ROOT_GEOMETRY_ANALYZER_H_
 
+#include <string>
+
+#include <TGeoManager.h>
+
+#include "Geo/GeomAnalyzerI.h"
+#include "PDG/PDGUtils.h"
 
 class TGeoVolume;
 
-#include "GeomAnalyzerI.h"
-#include <TGeoManager.h>
-#include <PDG/PDGUtils.h>
-
+using std::string;
 
 namespace genie {
 
@@ -30,7 +33,7 @@ class ROOTGeomAnalyzer : public GeomAnalyzerI {
 
 public :
 
-  ROOTGeomAnalyzer(char* filename);
+  ROOTGeomAnalyzer(string filename);
  ~ROOTGeomAnalyzer();
  int SetVtxMaterial(char* material);
 
@@ -50,7 +53,7 @@ public :
 
 private:
 
-  void Initialize              (char* filename);
+  void Initialize              (string filename);
   void BuildListOfTargetNuclei (void);
  
 
