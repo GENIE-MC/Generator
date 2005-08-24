@@ -203,6 +203,9 @@ static const double kMinQ2Limit = 1e-6;  // GeV^2
 // before selecting a valid number
 static const unsigned int kRjMaxIterations = 1000;
 
+// maximum allowed depth when GENIE is running in recursive mode
+static const unsigned int kRjMaxRecLevel = 20;
+
 // Default random number generator seed number. It can be overriden
 // setting the $GSEED env. var. or by using RandomGen::SetSeed(int)
 static const unsigned int kDefaultRandSeed = 65539;
