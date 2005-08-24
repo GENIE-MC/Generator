@@ -16,10 +16,14 @@
 #ifndef _GHEP_RECORD_H_
 #define _GHEP_RECORD_H_
 
+#include <ostream>
+
 #include <TClonesArray.h>
 #include "Interaction/Interaction.h"
 
 class TLorentzVector;
+
+using std::ostream;
 
 namespace genie {
 
@@ -54,6 +58,12 @@ public :
   virtual void ResetGHepRecord         (void);
   virtual void CompactifyDaughterLists (void);
 
+  //-- printing the record
+
+  void Print (ostream & stream) const;
+
+  friend ostream & operator << (ostream & stream, const GHepRecord & event);
+
   //-- provide a simplified wrapper of the 'new with placement'
   //   TClonesArray object insertion method
 
@@ -74,16 +84,23 @@ public :
   //-- methods to switch on/off and ask for event record flags
 
   virtual void SwitchIsPauliBlocked (bool on_off);
-  virtual bool IsPauliBlocked (void) const { return fEventIsPauliBlocked; }
-  virtual bool IsForbidden    (void) const;
+  virtual void SwitchIsBelowThrNRF  (bool on_off);
+  virtual void EnableFastForward    (bool on_off);
+
+  virtual bool IsPauliBlocked     (void) const { return fIsPauliBlocked; }
+  virtual bool IsBelowThrNRF      (void) const { return fIsBelowThrNRF;  }
+  virtual bool FastForwardEnabled (void) const { return fFastFwdEnabled; }
+  virtual bool IsUnphysical       (void) const;
 
 protected:
 
   // Summary information for the Initial State, Process Type & Kinematics
   Interaction * fInteraction;
 
-  // Frags for the generated event
-  bool fEventIsPauliBlocked;
+  // Flags for the generated event
+  bool fIsPauliBlocked;   ///< true for Pauli-blocked event
+  bool fIsBelowThrNRF;    ///< true if it is below threshold in the nucleon rest frame
+  bool fFastFwdEnabled;   ///< true if subsequent processing steps should be skipped
 
   // Utility methods
   void InitGHepRecord  (void);
