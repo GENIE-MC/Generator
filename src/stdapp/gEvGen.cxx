@@ -6,7 +6,7 @@
 \brief   Example program driving GENIE event generation modules
 
          Syntax :
-           testEvGen [-n nev] [-c] [-e energy] [-p nupdg] [-t tgtpdg]
+           gEvGen [-n nev] [-c] [-e energy] [-p nupdg] [-t tgtpdg]
 
          Options :
            -n specifies the number of events to generate
@@ -16,7 +16,7 @@
            -t specifies the target PDG code (std format: 1aaazzz000)
 
          Example:
-           testEvGev -n 300 -s -e 6.5 -p 14 -t 1056026000
+           gEvGev -n 300 -s -e 6.5 -p 14 -t 1056026000
 
            will build cross section splines during the initialization step,
            and will generate 300 events of muon neutrinos (pdg = 14) on Iron
@@ -48,11 +48,21 @@
              If GSPLOAD is not set, GENIE will not attempt to load any splines
              and will compute them all.
 
+           - You can set the GMSGCONF env.variable to point to a messenger
+             XML configuration file (following the syntax of the default one
+             that can be found in $GENIE/config/messenger.xml) and modify the
+             verbosity of GENIE output. Both the default and your messenger
+             configuration will be read but yours will take precedence in 
+             case of clashing priority for the same stream.
+
              Examples:
              By setting the following env.vars you ask GENIE to generate QEL
              events only, and load the cross section splines from splines.xml
+             and also to add the priority levels in mymsg.xml on top of the
+             default ones.
              shell% export GEVGL=QEL
              shell% export GSPLOAD="/home/me/GENIE/mydata/splines.xml"
+             shell% export GMSGCONF="/home/me/GENIE/mydata/mymsg.xml
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
