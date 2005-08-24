@@ -29,32 +29,24 @@ WITH_DICT  = $(GENIE_DICTS)
 TGT =	testBaryonResDataSet	\
  	testConfigPool		\
  	testDecay		\
- 	testEvGen       	\
 	testMessenger		\
 	testNumerical		\
 	testPDFLIB		\
 	testRegistry		\
 	testScatteringParams    \
-	makeValidityDoc		\
-	gviewer			\
 	testROOTGeometry
 
 EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
  	$(GENIE_BIN_PATH)/testConfigPool	\
  	$(GENIE_BIN_PATH)/testDecay		\
- 	$(GENIE_BIN_PATH)/testEvGen       	\
 	$(GENIE_BIN_PATH)/testMessenger		\
 	$(GENIE_BIN_PATH)/testNumerical		\
 	$(GENIE_BIN_PATH)/testPDFLIB		\
 	$(GENIE_BIN_PATH)/testRegistry		\
 	$(GENIE_BIN_PATH)/testScatteringParams  \
-	$(GENIE_BIN_PATH)/makeValidityDoc	\
-	$(GENIE_BIN_PATH)/gviewer		\
 	$(GENIE_BIN_PATH)/testROOTGeometry  
 
 all: $(TGT)
-
-all-no-test: makeValidityDoc gviewer testEvGen
 
 testBaryonResDataSet: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testBaryonResDataSet \
@@ -67,10 +59,6 @@ testConfigPool: FORCE
 testDecay: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDecay \
 			testDecay.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
-
-testEvGen: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testEvGen \
-			testEvGen.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
 
 testPDFLIB: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testPDFLIB \
@@ -92,14 +80,6 @@ testScatteringParams: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testScatteringParams \
 			testScatteringParams.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
 
-makeValidityDoc: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/makeValidityDoc \
-			 makeValidityDoc.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
-
-gviewer: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gviewer \
-			gviewer.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
-
 testROOTGeometry: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testROOTGeometry \
 			testROOTGeometry.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
@@ -118,9 +98,6 @@ clean--testConfigPool: FORCE
 clean--testDecay: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testDecay
 
-clean--testEvGen: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testEvGen
-
 clean--testMessenger: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testMessenger
 
@@ -135,12 +112,6 @@ clean--testRegistry: FORCE
 
 clean--testScatteringParams: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testScatteringParams
-
-clean--makeValidityDoc: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/makeValidityDoc
-
-clean--gviewer: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gviewer
 
 clean--testROOTGeometry: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testROOTGeometry
