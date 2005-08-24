@@ -46,7 +46,7 @@ all:
 	cd Utils;              make; cd ..; \
 	cd Viewer;             make; cd ..; \
 	cd NuValidator;        make; cd ..; \
-	cd test;               make all-no-test; cd ..; \
+	cd stdapp;             make all; cd ..; \
 	cd scripts;	       make install; cd ..;
 
 all-no-nuvld: 
@@ -82,7 +82,7 @@ all-no-nuvld:
 	cd ReinSeghal;         make; cd ..; \
 	cd Utils;              make; cd ..; \
 	cd Viewer;             make; cd ..; \
-	cd test;               make all-no-test; cd ..; \
+	cd stdapp;             make all; cd ..; \
 	cd scripts;	       make install; cd ..;
 
 nuvld-only:
@@ -160,7 +160,7 @@ clean: FORCE
 	cd ReinSeghal;         make clean; cd ..; \
 	cd Utils;              make clean; cd ..; \
 	cd Viewer;             make clean; cd ..; \
-	cd test;               make clean; cd ..; \
+	cd stdapp;             make clean; cd ..; \
 	cd scripts;	       make clean; cd ..;
 
 FORCE:
