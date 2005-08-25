@@ -23,6 +23,7 @@
 
 #include "Messenger/Messenger.h"
 #include "Utils/StringUtils.h"
+#include "Utils/PrintUtils.h"
 #include "Utils/XmlParserUtils.h"
 
 using namespace genie;
@@ -47,6 +48,9 @@ Messenger::~Messenger()
 Messenger * Messenger::Instance()
 {
   if(fInstance == 0) {
+
+    // the first thing that get's printed in a GENIE session is the banner
+    print_utils::PrintBanner();
 
     static Messenger::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
@@ -127,6 +131,9 @@ void Messenger::Configure(void)
                 << "Priority levels from: " << conf_xml << " were not set!";
             }
      }
+  } else {
+    SLOG("Messenger", pINFO)
+                  << "No additional messenger config XML file was specified";
   }
 }
 //____________________________________________________________________________
