@@ -52,7 +52,6 @@ ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
 //___________________________________________________________________________
 double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
 {
-
   if(!fGeometry)
     {
       std::cout<<" ERROR!!! Load geometry before setting the material!!! "<<std::endl;
@@ -62,7 +61,7 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
 
   fMaterial=pdgc;
 
-  if(!fCurrPDGCodeList->CheckMaterial(fMaterial))
+  if(!fCurrPDGCodeList->ExistsInPDGCodeList(fMaterial))
     {
       std::cout<<" ERROR!!! The selected material does not exist!!! "<<std::endl;
       fMaterial=-1;
