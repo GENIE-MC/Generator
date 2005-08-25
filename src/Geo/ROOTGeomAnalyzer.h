@@ -35,7 +35,8 @@ public :
 
   ROOTGeomAnalyzer(string filename);
  ~ROOTGeomAnalyzer();
- int SetVtxMaterial(char* material);
+ double SetVtxMaterial(int pdgc);
+ double ComputeMaxPathLength(double* XYZ,double* direction,int pdgc);
 
   // implement the GeomAnalyzerI interface
 
@@ -57,7 +58,7 @@ private:
   void BuildListOfTargetNuclei (void);
  
 
-  char*            fMaterial;            ///< [input] selected material for vertex
+  int              fMaterial;            ///< [input] selected material for vertex
   
   TGeoManager *    fGeometry;            ///< [input] detector geometry
   TVector3 *       fCurrVertex;          ///< current generated vertex

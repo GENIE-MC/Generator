@@ -37,7 +37,7 @@ public :
 
   void push_back  (int pdg_code);
   void insert     (iterator pos, size_type n, const int& x);
-
+  bool CheckMaterial (int pdg_code){return  ExistsInPDGLibrary(pdg_code);};
   //-- print 
   
   void Print(ostream & stream) const;
