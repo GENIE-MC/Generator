@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+
+export GENIE=/home/costas/MC/GENIE
+export ROOTSYS=/usr/local/src/root_cvs
+export NEUGEN3PATH=/home/costas/MC/neugen3
+export CERNLIB=/usr/local/src/CERN/2004/lib
+export PYTHIA6=/home/costas/MC/PYTHIA/v-6
+export LIBXML2_INC=/usr/include/libxml2
+export LIBXML2_LIB=/usr/lib
+export LOG4CPP_INC=/usr/local/src/log4cpp/include
+export LOG4CPP_LIB=/usr/local/lib
+
+export PATH=${PATH}:${ROOTSYS}/bin:${GENIE}/bin
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${ROOTSYS}/lib:${GENIE}/lib
+
+echo
+echo "Setting up the environment for GENIE:"
+echo "-------------------------------------"
+
+if [ ! -z "SRT_ENV_SET" ]; 
+then
+ echo "srt_setup --unsetup"
+ srt_setup --unsetup
+fi
+
+echo "GENIE       -> " ${GENIE}
+echo "ROOTSYS     -> " ${ROOTSYS}
+echo "NEUGEN3PATH -> " ${NEUGEN3PATH}
+echo "CERNLIB     -> " ${CERNLIB}
+echo "PYTHIA      -> " ${PYTHIA6}
+echo "LIBXML2_INC -> " ${LIBXML2_INC}
+echo "LIBXML2_LIB -> " ${LIBXML2_LIB}
+echo "LOG4CPP_INC -> " ${LOG4CPP_INC}
+echo "LOG4CPP_LIB -> " ${LOG4CPP_LIB}
+echo
+
