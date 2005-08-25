@@ -76,7 +76,6 @@ private:
   int    fNKnots;
   double fEmin;
   double fEmax;
-  double fEExtrap;
 
   map<string, Spline *> fSplineMap; ///< xsec_alg_name/param_set/interaction -> Spline
 

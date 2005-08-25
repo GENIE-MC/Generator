@@ -24,6 +24,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 #include "Utils/StringUtils.h"
+#include "Utils/PrintUtils.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/XmlParserUtils.h"
 
@@ -36,7 +37,6 @@ namespace genie {
 ostream & operator<< (ostream& stream, const XSecSplineList & list)
 {
   list.Print(stream);
-
   return stream;
 }
 //____________________________________________________________________________
@@ -49,18 +49,25 @@ XSecSplineList::XSecSplineList()
   fNKnots      = 100;
   fEmin        =   0.01; // GeV
   fEmax        = 100.00; // GeV
-  fEExtrap     = -1.;
 }
 //____________________________________________________________________________
 XSecSplineList::~XSecSplineList()
 {
+  LOG("XSecSplineList", pINFO) << "Deleting all splines";
+  map<string, Spline *>::const_iterator spliter;
+  for(spliter = fSplineMap.begin(); spliter != fSplineMap.end(); ++spliter) {
+    Spline * spline = spliter->second;
+    if(spline) {
+      delete spline;
+      spline = 0;
+    }
+  }
   fInstance = 0;
 }
 //____________________________________________________________________________
 XSecSplineList * XSecSplineList::Instance()
 {
   if(fInstance == 0) {
-
     static XSecSplineList::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
 
@@ -74,9 +81,12 @@ bool XSecSplineList::SplineExists(
 {
   string key = this->BuildSplineKey(alg,interaction);
 
-  if(fSplineMap.count(key) == 1) return true;
+  bool exists = (fSplineMap.count(key) == 1);
 
-  return false;
+  SLOG("XSecSplineList", pDEBUG)
+                << "\nFound spline with key: " << key << " -> "
+                                       << print_utils::BoolAsYNString(exists);
+  return exists;
 }
 //____________________________________________________________________________
 const Spline * XSecSplineList::GetSpline(
@@ -85,10 +95,8 @@ const Spline * XSecSplineList::GetSpline(
   string key = this->BuildSplineKey(alg,interaction);
 
   if ( this->SplineExists(alg,interaction) ) {
-
      map<string, Spline *>::const_iterator iter = fSplineMap.find(key);
      return iter->second;
-
   } else {
     SLOG("XSecSplineList", pWARN) << "Couldn't find spline for key = " << key;
     return 0;
@@ -151,21 +159,18 @@ void XSecSplineList::SetLogE(bool on)
 void XSecSplineList::SetNKnots(int nk)
 {
   fNKnots = nk;
-
   if(fNKnots<2) fNKnots = 2; // minimum acceptable number of knots
 }
 //____________________________________________________________________________
 void XSecSplineList::SetMinE(double Ev)
 {
   fEmin = Ev;
-
   if(fEmin<0) fEmin = 0.;
 }
 //____________________________________________________________________________
 void XSecSplineList::SetMaxE(double Ev)
 {
   fEmax = Ev;
-
   if(fEmax<0) fEmax = 0.;
 }
 //____________________________________________________________________________
@@ -329,6 +334,18 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 string XSecSplineList::BuildSplineKey(
             const XSecAlgorithmI * alg, const Interaction * interaction) const
 {
+  if(!alg) {
+    LOG("XSecSplineList", pWARN)
+            << "Null XSecAlgorithmI - Returning empty spline key";
+    return "";
+  }
+
+  if(!interaction) {
+    LOG("XSecSplineList", pWARN)
+            << "Null Interaction - Returning empty spline key";
+    return "";
+  }
+
   string alg_name  = alg->Name();
   string param_set = alg->ParamSet();
   string intkey    = interaction->AsString();
