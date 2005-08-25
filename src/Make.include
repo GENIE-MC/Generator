@@ -8,10 +8,14 @@
 #
 # Note that the following env. vars should be properly defined:
 #
-# ROOTSYS     -> top level ROOT directory
-# NEUGEN3PATH -> top level NEUGEN-3 directory
-# CERNLIB     -> where CERN libraries live
-# PYTHIA6     -> where libPythia6 library lives
+# ROOTSYS      -> top level ROOT directory
+# NEUGEN3PATH  -> top level NEUGEN-3 directory
+# CERNLIB      -> where the CERN libraries live
+# PYTHIA6      -> where the libPythia6 library lives
+# LIBXML2_INC  -> where the libxml2 header files are
+# LIBXML2_LIB  -> where the libxml2 library is
+# LOG4CPP_INC  -> where the log4cpp directory of log4cpp headers is
+# LOG4CPP_LIB  -> where the log4cpp library is
 
 #-------------------------------------------------------------------
 #                             libxml2
@@ -19,8 +23,16 @@
 
 # XML lib & include directories 
 
+XML_INC_DIR = $(LIBXML2_INC)
+XML_LIB_DIR = $(LIBXML2_LIB)
+
+ifndef XML_INC_DIR
 XML_INC_DIR = /usr/include/libxml2
+endif
+
+ifndef XML_LIB_DIR
 XML_LIB_DIR = /usr/lib
+endif
 
 # XML libraries and headers
 
@@ -33,8 +45,16 @@ XML_LIBS    = -L $(XML_LIB_DIR) -lxml2
 
 # log4cpp lib & include directory
 
+LOG_INC_DIR = $(LOG4CPP_INC)
+LOG_LIB_DIR = $(LOG4CPP_LIB)
+
+ifndef XML_INC_DIR
 LOG_INC_DIR = /usr/local/src/log4cpp/include
+endif
+
+ifndef XML_LIB_DIR
 LOG_LIB_DIR = /usr/local/lib
+endif
 
 # log4cpp libraries and headers
 
@@ -55,9 +75,10 @@ CERN_LIBS = -L $(CERN_LIB_DIR) -lpdflib804 -lkernlib \
 
 # PYTHIA6 dir/lib/object file
 
-PYTHIA_DIR   = $(PYTHIA6)
-PYTHIA_O     = pythia6319.o
-PYTHIA_LIBS  = -L $(PYTHIA_DIR) -lPythia6  $(PYTHIA_DIR)/$(PYTHIA_O)
+PYTHIA_DIR = $(PYTHIA6)
+PYTHIA_O   = $(wildcard $(PYTHIA_DIR)/pythia*.o) # match all vrs
+
+PYTHIA_LIBS  = -L $(PYTHIA_DIR) -lPythia6 $(PYTHIA_O)
 
 #-------------------------------------------------------------------
 #                             NEUGEN3
