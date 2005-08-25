@@ -35,6 +35,7 @@ namespace print_utils
   string BoolAsTFString  (bool b);
   string BoolAsIOString  (bool b);
   string BoolAsYNString  (bool b);
+  void   PrintBanner     (void);
 
 }      // print_utils namespace
 
