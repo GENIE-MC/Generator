@@ -32,6 +32,7 @@ TGT =	testBaryonResDataSet	\
 	testMessenger		\
 	testNumerical		\
 	testPDFLIB		\
+	testMCJobDriver		\
 	testRegistry		\
 	testScatteringParams    \
 	testROOTGeometry
@@ -42,6 +43,7 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testMessenger		\
 	$(GENIE_BIN_PATH)/testNumerical		\
 	$(GENIE_BIN_PATH)/testPDFLIB		\
+	$(GENIE_BIN_PATH)/testMCJobDriver	\
 	$(GENIE_BIN_PATH)/testRegistry		\
 	$(GENIE_BIN_PATH)/testScatteringParams  \
 	$(GENIE_BIN_PATH)/testROOTGeometry  
@@ -63,6 +65,10 @@ testDecay: FORCE
 testPDFLIB: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testPDFLIB \
 			testPDFLIB.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+
+testMCJobDriver: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMCJobDriver \
+			testMCJobDriver.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
 
 testMessenger: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMessenger \
@@ -105,6 +111,9 @@ clean--testNumerical: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testNumerical
 
 clean--testPDFLIB: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testPDFLIB
+
+clean--testMCJobDriver: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testPDFLIB
 
 clean--testRegistry: FORCE
