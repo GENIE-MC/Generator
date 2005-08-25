@@ -37,13 +37,13 @@ public :
 
   void push_back  (int pdg_code);
   void insert     (iterator pos, size_type n, const int& x);
-  bool CheckMaterial (int pdg_code){return  ExistsInPDGLibrary(pdg_code);};
+
   //-- print 
   
   void Print(ostream & stream) const;
   friend ostream & operator << (ostream & stream, const PDGCodeList & list);
 
-private:
+  //-- PDG code checks used by PDGCodeList
 
   bool CheckPDGCode        (int pdg_code);
   bool ExistsInPDGLibrary  (int pdg_code);
