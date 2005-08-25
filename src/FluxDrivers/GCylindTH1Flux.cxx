@@ -192,6 +192,8 @@ void GCylindTH1Flux::AddEnergySpectrum(int nu_pdgc, TH1D * spectrum)
      int    nb  = spectrum->GetNbinsX();
      Axis_t max = spectrum->GetBinLowEdge(nb)+spectrum->GetBinWidth(nb);
      fMaxEv = TMath::Max(fMaxEv, (double)max);
+
+     this->AddAllFluxes(); // update combined flux
   }
 }
 //___________________________________________________________________________
