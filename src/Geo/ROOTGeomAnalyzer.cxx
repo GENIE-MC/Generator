@@ -50,52 +50,272 @@ ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
 
 }
 //___________________________________________________________________________
-int ROOTGeomAnalyzer::SetVtxMaterial(char* material)
+double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
 {
+
   if(!fGeometry)
     {
-      std::cout<<" WARNING!!! Load geometry before setting the material!!! "<<std::endl;
+      std::cout<<" ERROR!!! Load geometry before setting the material!!! "<<std::endl;
+      fMaterial=-1;
       return 0;
     }
 
-  fMaterial=material;
+  fMaterial=pdgc;
 
-  TObjArray *LV = new TObjArray();
+  if(!fCurrPDGCodeList->CheckMaterial(fMaterial))
+    {
+      std::cout<<" ERROR!!! The selected material does not exist!!! "<<std::endl;
+      fMaterial=-1;
+      return 0;
+    }
+  else
+    {
+      std::cout<<" Material selected : "<<fMaterial<<std::endl;
+    }
 
+  //select World volume
+  
+
+  TObjArray *LV =0;
+   
   LV=fGeometry->GetListOfVolumes();
+
   int numVol;
-
   numVol=(LV->GetEntries());
-  TGeoVolume *TV = new TGeoVolume();
-  int MaterialFound(0);
-  char* MaterialName;
 
-  for(int i=0;i<numVol;i++)
+  TGeoVolume *TV =0;
+  TGeoVolume *TVWorld =0;
+  TGeoShape *TS=0;;
+
+  char *name;
+  char *str;
+  str="World";
+  int FlagFound(0);
+  
+  for(Int_t i=0;i<numVol;i++)
     {
-      TV= dynamic_cast <TGeoVolume *>(LV->At(i));
-
-      // std::cout<<i<<"  "<<TV->GetName()<<" made of "<<TV->GetMaterial()->GetName()<<std::endl;
-
-      MaterialName=const_cast<char*>(TV->GetMaterial()->GetName());
-
-      if(!strcmp(material,MaterialName))
-        {
-          MaterialFound=1;
-          //std::cout<<material<<" FOUND "<<std::endl;
-        }
+      TV= dynamic_cast <TGeoVolume *> (LV->At(i));
+      name=const_cast<char*>(TV->GetName());
+      if(!strcmp(str,name))
+	{
+	  FlagFound=1;
+	  TVWorld=TV;
+	  break;
+	}
     }
-
-  if(!MaterialFound)
+  
+  if(!FlagFound)
     {
-      std::cout<<" WARNING!!! No volume made of the selected material "<<std::endl;
-      delete LV;
-      delete TV;
+      std::cout<<" ERROR!!! The World Volume does not exist in your geometry!!! "<<std::endl;
+      fMaterial=-1;
       return 0;
     }
 
-  delete LV;
-  delete TV;
-  return 1;
+  //generate 200 random points on each surface, use 200 rays to calculate maximum path for selected material
+   
+  TS=TVWorld->GetShape();
+  TGeoBBox *box=(TGeoBBox *)TS;
+
+  double dx = box->GetDX();
+  double dy = box->GetDY();
+  double dz = box->GetDZ();
+  double ox = (box->GetOrigin())[0];
+  double oy = (box->GetOrigin())[1];
+  double oz = (box->GetOrigin())[2];
+
+  std::cout<<" max dimensions : x = "<<dx<<" ; y = "<<dy<<" ; z = "<<dz<<std::endl;
+  std::cout<<" origin : x = "<<ox<<" ; y = "<<oy<<" ; z = "<<oz<<std::endl;
+
+  gRandom = new TRandom3();
+  int igen(0);
+  int Rgen(0);
+  int maxPoints(200);
+  int maxRays(200);
+  double xyz[3];
+  double direction[3];
+  double MaxPath(0);
+  double Length(0);
+  double dirTot(0);
+
+  //top
+  igen=0;
+  while(igen<maxPoints)
+    {
+      igen++;
+      xyz[0] = ox-dx+2*dx*gRandom->Rndm();
+      xyz[1] = oy+dy;
+      xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+      
+      Rgen=0;
+      while(Rgen<maxRays)
+	{
+	  Rgen++;
+	  direction[0]=-0.5+gRandom->Rndm();
+	  direction[1]=-gRandom->Rndm();
+	  direction[2]=-0.5+gRandom->Rndm();
+	  
+	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	  
+	  direction[0]/=dirTot;
+	  direction[1]/=dirTot;
+	  direction[2]/=dirTot;
+	   
+	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
+	  if(Length>MaxPath)
+	    MaxPath=Length;
+	  
+	}
+    }
+  
+ 
+  //bottom
+  igen=0;
+  while(igen<maxPoints)
+    { 
+      igen++;
+      xyz[0] = ox-dx+2*dx*gRandom->Rndm();
+      xyz[1] = oy-dy;
+      xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+
+      Rgen=0;
+      while(Rgen<maxRays)
+	{ 
+	  Rgen++;
+	  direction[0]=-0.5+gRandom->Rndm();
+	  direction[1]=gRandom->Rndm();
+	  direction[2]=-0.5+gRandom->Rndm();
+	  
+	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	  
+	  direction[0]/=dirTot;
+	  direction[1]/=dirTot;
+	  direction[2]/=dirTot;
+	  
+	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
+	  if(Length>MaxPath)
+	    MaxPath=Length;
+	}
+    }
+
+  //left  
+  igen=0;
+  while(igen<maxPoints)
+    {
+      igen++;
+      xyz[0] = ox-dx;
+      xyz[1] = oy-dy+2*dy*gRandom->Rndm();
+      xyz[2] = oz-dz+2*dz*gRandom->Rndm(); 
+      
+      Rgen=0;
+      while(Rgen<maxRays)
+	{
+	  Rgen++;
+	  direction[0]=gRandom->Rndm();
+	  direction[1]=-0.5+gRandom->Rndm();
+	  direction[2]=-0.5+gRandom->Rndm();
+	  
+	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	  
+	  direction[0]/=dirTot;
+	  direction[1]/=dirTot;
+	  direction[2]/=dirTot;
+	  
+	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
+	  if(Length>MaxPath)
+	    MaxPath=Length;
+	}
+    }
+  
+  //right  
+  igen=0;
+  while(igen<maxPoints)
+    {
+      igen++;
+      xyz[0] = ox+dx;
+      xyz[1] = oy-dy+2*dy*gRandom->Rndm();
+      xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+      
+      Rgen=0;
+      while(Rgen<maxRays)
+	{
+	  Rgen++;
+	  direction[0]=-gRandom->Rndm();
+	  direction[1]=-0.5+gRandom->Rndm();
+	  direction[2]=-0.5+gRandom->Rndm();
+	  
+	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	  
+	  direction[0]/=dirTot;
+	  direction[1]/=dirTot;
+	  direction[2]/=dirTot;
+	  
+	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
+	  if(Length>MaxPath)
+	    MaxPath=Length;
+	}
+    }
+  
+  //back
+  igen=0;
+  while(igen<maxPoints)
+    {
+      igen++;
+      xyz[0] = ox-dx+2*dx*gRandom->Rndm();
+      xyz[1] = oy-dy+2*dy*gRandom->Rndm();
+      xyz[2] = oz-dz; 
+
+      Rgen=0;
+      while(Rgen<maxRays)
+	{
+	  Rgen++;
+	  direction[0]=-0.5+gRandom->Rndm();
+	  direction[1]=-0.5+gRandom->Rndm();
+	  direction[2]=gRandom->Rndm();
+	  
+	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	  
+	  direction[0]/=dirTot;
+	  direction[1]/=dirTot;
+	  direction[2]/=dirTot;
+	  
+	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
+	  if(Length>MaxPath)
+	    MaxPath=Length;
+	}
+    }  
+
+  //front
+  igen=0;
+  while(igen<maxPoints)
+    {
+      igen++;
+      xyz[0] = ox-dx+2*dx*gRandom->Rndm();
+      xyz[1] = oy-dy+2*dy*gRandom->Rndm();
+      xyz[2] = oz+dz; 
+
+      Rgen=0;
+      while(Rgen<maxRays)
+	{
+	  Rgen++;
+	  direction[0]=-0.5+gRandom->Rndm();
+	  direction[1]=-0.5+gRandom->Rndm();
+	  direction[2]=-gRandom->Rndm();
+	  
+	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	  
+	  direction[0]/=dirTot;
+	  direction[1]/=dirTot;
+	  direction[2]/=dirTot;
+	  
+	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
+	  if(Length>MaxPath)
+	    MaxPath=Length;
+	}
+    }
+ 
+
+  return MaxPath;
+
 }
 //________________________________________________________________________
 void ROOTGeomAnalyzer::Initialize(string filename)
@@ -335,6 +555,109 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
     }
 }
 //___________________________________________________________________________
+double ROOTGeomAnalyzer::ComputeMaxPathLength(double* XYZ,double* direction,int pdgc)
+{ 
+  TGeoVolume *current =0;
+  int counterloop(0);
+  double Length(0);
+
+  int FlagNotInYet(0);
+  bool condition(kTRUE);
+  
+  float xx,yy,zz;
+  double xyz[3];
+  double step(0);
+  xx=XYZ[0];
+  yy=XYZ[1];
+  zz=XYZ[2];
+  
+  fGeometry->SetCurrentDirection(direction);
+  
+  while(((!FlagNotInYet) || condition) && counterloop <100)
+    {
+      counterloop++;
+      condition=kTRUE;
+
+      //std::cout<<" x "<<xx<<" y "<<yy<<" z "<<zz<<" flag not yet in "<<FlagNotInYet<<std::endl;
+      xyz[0]=xx;
+      xyz[1]=yy;
+      xyz[2]=zz;
+      
+      fGeometry->SetCurrentPoint(xyz);
+      fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
+      current =  fGeometry->GetCurrentVolume();
+      TGeoMedium *med;
+      TGeoMaterial *mat;
+
+      if (fGeometry->IsOutside() || !current)
+	{
+	  condition=kFALSE;
+
+	  if(FlagNotInYet)
+	    break;
+
+	  fGeometry->FindNextBoundary();
+	  step=fGeometry->GetStep();
+	  while(!fGeometry->IsEntering())
+	    {
+	      fGeometry->Step(); 
+	      step=fGeometry->GetStep();
+	    }
+
+	  xx+=step * direction[0];
+	  yy+=step * direction[1];
+	  zz+=step * direction[2];
+	}
+
+      if(condition)
+        {
+          if(!FlagNotInYet)
+            FlagNotInYet=1;
+
+          med = current->GetMedium();
+          //std::cout<<" current medium "<<med->GetName()<<std::endl;
+          if (!med)
+            condition=kFALSE;
+        }
+
+      if(condition)
+        {
+          mat = med->GetMaterial();
+          //std::cout<<" current material "<<mat->GetName()<<std::endl;
+	  //std::cout<<" current material A"<<mat->GetA()<<std::endl;
+	  //std::cout<<" current material Z"<<mat->GetZ()<<std::endl;
+	  //std::cout<<" current material is mix "<<mat->IsMixture()<<std::endl;
+          if (!mat)
+            condition=kFALSE;
+        }
+
+      if(condition)
+        {
+	  int A=(int)(mat->GetA());
+	  int Z(mat->GetZ());
+	  int ion_pdgc = pdg::IonPdgCode(A,Z);
+	  fGeometry->FindNextBoundary();
+	  step=fGeometry->GetStep();  
+	  while(!fGeometry->IsEntering())
+	    {
+	      fGeometry->Step();
+	      step=fGeometry->GetStep();
+	    }
+	  //std::cout<<" isentering? "<< fGeometry->IsEntering()<<std::endl;
+	  //std::cout<<" isonboundary? "<< fGeometry->IsOnBoundary()<<std::endl;
+	  //std::cout<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<" step "<<step<<std::endl;
+	  
+	  if(ion_pdgc == pdgc)
+	    Length+=step;
+ 
+	  xx+=step * direction[0];
+	  yy+=step * direction[1];
+	  zz+=step * direction[2];
+	}
+    }
+  return Length;
+} 
+//___________________________________________________________________________
 void ROOTGeomAnalyzer::test(void)
 {
   TGeoManager *TGM = new TGeoManager("TGM","test");
@@ -342,7 +665,6 @@ void ROOTGeomAnalyzer::test(void)
   TGM->Import("$GENIE/src/test/TestGeometry.root");
 
   TObjArray *LV = new TObjArray();
-  TObjArray *LN = new TObjArray();
 
   //TObjArray *LV=TGM->GetListOfVolumes();
   LV=gGeoManager->GetListOfVolumes();

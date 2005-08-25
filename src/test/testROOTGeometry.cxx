@@ -53,6 +53,10 @@ int main(int argc, char ** argv)
   LOG("Test",pINFO) << "Printing computed path lengths:";
   LOG("Test",pINFO) << pl;
   
+  double matLength = root_analyzer->SetVtxMaterial(1039018000);
+
+  LOG("Test",pINFO) << "Path in selected material ...";
+  LOG("Test",pINFO) << matLength;
   return 0;
 }
 
