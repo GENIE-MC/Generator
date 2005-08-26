@@ -46,10 +46,10 @@ DISInteractionListGenerator::~DISInteractionListGenerator()
 }
 //___________________________________________________________________________
 InteractionList * DISInteractionListGenerator::CreateInteractionList(
-                                       const InitialState & init_state) const
+                                      const InitialState & init_state) const
 {
   LOG("InteractionList", pINFO)
-                     << "\nGenerating Interaction List for \n" << init_state;
+                      << "Generating InteractionList for: \n" << init_state;
 
   bool isCC    = fConfig->Exists("is-CC") ?
                                     fConfig->GetBool("is-CC")    : false;
@@ -62,8 +62,7 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
   if      (isCC) inttype = kIntWeakCC;
   else if (isNC) inttype = kIntWeakNC;
   else {
-     LOG("InteractionList", pWARN)
-                            << "\n**** Could not generate Interaction List";
+     LOG("InteractionList", pWARN) << "Couldn't generate InteractionList";
      return 0;
   }
 
@@ -71,8 +70,7 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
   Target * target = init_state.GetTargetPtr();
 
   if( !pdg::IsNeutrino(nupdg) && !pdg::IsAntiNeutrino(nupdg) ) {
-     LOG("InteractionList", pWARN)
-                            << "\n**** Could not generate Interaction List";
+     LOG("InteractionList", pWARN) << "Couldn't generate InteractionList";
      return 0;
   }
 
@@ -107,8 +105,7 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
   }
 
   if(intlist->size() == 0) {
-     LOG("InteractionList", pWARN)
-                             << "\n**** Returning empty Interaction List";
+     LOG("InteractionList", pWARN) << "Returning NULL InteractionList";
      delete intlist;
      return 0;
   }

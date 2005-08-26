@@ -49,7 +49,7 @@ InteractionList * IMDInteractionListGenerator::CreateInteractionList(
                                        const InitialState & init_state) const
 {
   LOG("InteractionList", pINFO)
-                     << "\nGenerating Interaction List for \n" << init_state;
+                       << "Generating InteractionList for: \n" << init_state;
 
   assert(init_state.GetProbePDGCode() == kPdgNuMu);
 

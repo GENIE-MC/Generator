@@ -49,7 +49,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionList(
                                        const InitialState & init_state) const
 {
   LOG("InteractionList", pINFO)
-                     << "\nGenerating Interaction List for \n" << init_state;
+                      << "Generating Interaction List for: \n" << init_state;
 
   bool isCC = fConfig->Exists("is-CC") ? fConfig->GetBool("is-CC") : false;
   bool isNC = fConfig->Exists("is-NC") ? fConfig->GetBool("is-NC") : false;
@@ -57,8 +57,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionList(
   if      (isCC) return this->CreateInteractionListCC(init_state);
   else if (isNC) return this->CreateInteractionListNC(init_state);
   else {
-     LOG("InteractionList", pWARN)
-                            << "\n**** Could not generate Interaction List";
+     LOG("InteractionList", pWARN) << "Couldn't generate InteractionList";
      return 0;
   }
   return 0;
@@ -89,8 +88,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
      intlist->push_back(interaction);
 
   } else {
-     LOG("InteractionList", pWARN)
-                             << "\n**** Returning empty Interaction List";
+     LOG("InteractionList", pWARN) << "Returning NULL InteractionList";
      delete interaction;
      delete intlist;
      return 0;
@@ -110,8 +108,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
   bool     isnubar = pdg::IsAntiNeutrino (nupdg);
 
   if(!isnu && !isnubar) {
-     LOG("InteractionList", pWARN)
-                             << "\n**** Returning empty Interaction List";
+     LOG("InteractionList", pWARN) << "Returning NULL InteractionList";
      delete intlist;
      return 0;
   }
@@ -138,8 +135,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
   }
 
   if(intlist->size() == 0) {
-     LOG("InteractionList", pWARN)
-                             << "\n**** Returning empty Interaction List";
+     LOG("InteractionList", pWARN) << "Returning NULL InteractionList";
      delete intlist;
      return 0;
   }
