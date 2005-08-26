@@ -48,8 +48,7 @@ DISInteractionListGenerator::~DISInteractionListGenerator()
 InteractionList * DISInteractionListGenerator::CreateInteractionList(
                                       const InitialState & init_state) const
 {
-  LOG("InteractionList", pINFO)
-                      << "Generating InteractionList for: \n" << init_state;
+  LOG("InteractionList", pINFO) << "InitialState = " << init_state.AsString();
 
   bool isCC    = fConfig->Exists("is-CC") ?
                                     fConfig->GetBool("is-CC")    : false;

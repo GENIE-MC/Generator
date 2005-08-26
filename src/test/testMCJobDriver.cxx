@@ -30,6 +30,13 @@ using namespace genie::flux;
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
+  // get filename from the command line argument (following -f)
+
+  string filename = "$GENIE/src/test/TestGeometry.root"; // default
+  for(int iarg = 0; iarg < argc-1; iarg++) {
+     string argument(argv[iarg]);
+     if( argument.compare("-f") == 0 ) filename = string(argv[++iarg]);
+  }
 /*
   LOG("Main", pINFO)  << "Creating [GFlukaAtmo3DFlux] flux driver";
 
@@ -60,7 +67,7 @@ int main(int argc, char ** argv)
   flux -> SetTransverseRadius (0.5);
   flux -> AddEnergySpectrum   (kPdgNuMu, spectrum1);
 
-  ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer("$GENIE/src/test/TestGeometry.root");
+  ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer(filename);
 
   LOG("Main", pINFO)
     << "Creating the GENIE MC Job Driver & specifying flux & geometry";
@@ -78,6 +85,10 @@ int main(int argc, char ** argv)
   EventRecord * event = mcj.GenerateEvent();
 
   LOG("Main", pINFO) << *event;
+
+  delete f1;
+  delete flux;
+  delete geom;
 
   LOG("Main", pINFO)  << "Done!";
 

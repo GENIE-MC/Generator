@@ -106,8 +106,8 @@ Interaction * PhysInteractionSelector::SelectInteraction (
      const EventGeneratorI * evgen = *evgliter;
 
      LOG("InteractionList", pINFO)
-            << "\nQuerying EventGenerator: " << evgen->Name() << "/"
-                        << evgen->ParamSet() << " for its Interaction List";
+            << "Querying [" << evgen->Name() << "/"
+                        << evgen->ParamSet() << "] for its InteractionList";
 
      // ask the event generator to produce a list of all interaction it can
      // generate for the input initial state
@@ -168,18 +168,18 @@ Interaction * PhysInteractionSelector::SelectInteraction (
      xseclist[iint]  = xsec_sum;
 
      SLOG("InteractionList", pINFO)
-            << "cross section sum : proc [0->" << iint << "] = " << xsec_sum;
+                           << "Sum{xsec}(0->" << iint << ") = " << xsec_sum;
   }
   RandomGen * rnd = RandomGen::Instance();
   double R = xsec_sum * rnd->Random2().Rndm();
 
   LOG("InteractionSelector", pINFO)
-             << "\nGenerating Rndm (0. -> max = " << xsec_sum << ") = " << R;
+               << "Generating Rndm (0. -> max = " << xsec_sum << ") = " << R;
 
   for(unsigned int iint = 0; iint < xseclist.size(); iint++) {
 
      SLOG("InteractionSelector", pDEBUG)
-                        << "SUM-XSEC(0->" << iint <<") = " << xseclist[iint];
+                       << "Sum{xsec}(0->" << iint <<") = " << xseclist[iint];
 
      if( R < xseclist[iint] ) {
        Interaction * selected_interaction = new Interaction (*intlist[iint]);

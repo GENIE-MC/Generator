@@ -96,8 +96,8 @@ GHepParticle * GHepRecord::GetParticle(int position) const
      if(particle) return particle;
   }
   LOG("GHEP", pWARN)
-           << "\n **** Returning NULL GHepParticle: "
-                                     << "None found at position" << position;
+        << "No GHepParticle found with:  (pos = "
+                              << position << ") - Returning NULL";
   return 0;
 }
 //___________________________________________________________________________
@@ -112,12 +112,8 @@ GHepParticle * GHepRecord::FindParticle(int pdg, int status, int start) const
      if(p->Status() == status && p->PdgCode() == pdg) return p;
   }
   LOG("GHEP", pWARN)
-        << "\n **** Returning NULL GHepParticle: "
-              << "None found with pdgc = " << pdg << " and status = "
-                                << status << " with position >= " << start;
-
-  LOG("GHEP", pWARN) << "Returning NULL GHepParticle";
-
+        << "No GHepParticle found with:  (pos >= " << start
+          << ", pdg = " << pdg << ", ist = " << status ") - Returning NULL";
   return 0;
 }
 //___________________________________________________________________________
@@ -156,6 +152,9 @@ void GHepRecord::ShiftVertex(const TLorentzVector & vec4)
 // Shifts the event record entries in space (used when events generated at
 // the origin (0,0,0,0) are distributed within the volume described by an
 // input ROOT geometry)
+
+  LOG("GHEP", pINFO)
+       << "Shifting vertex to: " << print_utils::X4AsString(&vec4);
 
   double x0 = vec4.X();
   double y0 = vec4.Y();
@@ -486,7 +485,7 @@ void GHepRecord::Copy(const GHepRecord & record)
 void GHepRecord::Print(ostream & stream) const
 {
   stream << "\n\n |";
-  stream << setfill('-') << setw(104) << "|";
+  stream << setfill('-') << setw(109) << "|";
 
   stream << "\n |";
   stream << setfill(' ') << setw(6)  << "Idx | "
@@ -495,14 +494,14 @@ void GHepRecord::Print(ostream & stream) const
          << setfill(' ') << setw(13) << "PDG | "
          << setfill(' ') << setw(12) << "Mother  | "
          << setfill(' ') << setw(12) << "Daughter  | "
-         << setfill(' ') << setw(9)  << "Px | "
-         << setfill(' ') << setw(9)  << "Py | "
-         << setfill(' ') << setw(9)  << "Pz | "
-         << setfill(' ') << setw(9)  << "E  | "
-         << setfill(' ') << setw(9)  << "m  | ";
+         << setfill(' ') << setw(10) << "Px | "
+         << setfill(' ') << setw(10) << "Py | "
+         << setfill(' ') << setw(10) << "Pz | "
+         << setfill(' ') << setw(10) << "E  | "
+         << setfill(' ') << setw(10) << "m  | ";
 
   stream << "\n |";
-  stream << setfill('-') << setw(104) << "|";
+  stream << setfill('-') << setw(109) << "|";
 
   GHepParticle * p = 0;
 
@@ -527,15 +526,15 @@ void GHepRecord::Print(ostream & stream) const
      stream << setfill(' ') << setw(3)  << p->FirstDaughter()  << " | ";
      stream << setfill(' ') << setw(3)  << p->LastDaughter()   << " | ";
      stream << setiosflags(ios::fixed) << setprecision(3);
-     stream << setfill(' ') << setw(6)  << p->Px()             << " | ";
-     stream << setfill(' ') << setw(6)  << p->Py()             << " | ";
-     stream << setfill(' ') << setw(6)  << p->Pz()             << " | ";
-     stream << setfill(' ') << setw(6)  << p->E()              << " | ";
+     stream << setfill(' ') << setw(7)  << p->Px()             << " | ";
+     stream << setfill(' ') << setw(7)  << p->Py()             << " | ";
+     stream << setfill(' ') << setw(7)  << p->Pz()             << " | ";
+     stream << setfill(' ') << setw(7)  << p->E()              << " | ";
 
      if( p->IsOnMassShell() )
-        stream << setfill(' ') << setw(6)  << p->Mass()        << " | ";
+        stream << setfill(' ') << setw(7)  << p->Mass()        << " | ";
      else
-        stream << setfill('*') << setw(6)  << p->Mass()        << " | " << p->GetP4()->M();
+        stream << setfill('*') << setw(7)  << p->Mass()        << " | " << p->GetP4()->M();
 
      // compute P4Final - P4Initial
      //
@@ -564,7 +563,7 @@ void GHepRecord::Print(ostream & stream) const
   } // loop over particles
 
   stream << "\n |";
-  stream << setfill('-') << setw(104) << "|";
+  stream << setfill('-') << setw(109) << "|";
 
   // Print SUMS
   stream << "\n |";
@@ -574,30 +573,30 @@ void GHepRecord::Print(ostream & stream) const
          << setfill(' ') << setw(12) << "        | "
          << setfill(' ') << setw(12) << "          | ";
   stream << setiosflags(ios::fixed) << setprecision(3);
-  stream << setfill(' ') << setw(6)  << sum_px  << " | ";
-  stream << setfill(' ') << setw(6)  << sum_py  << " | ";
-  stream << setfill(' ') << setw(6)  << sum_pz  << " | ";
-  stream << setfill(' ') << setw(6)  << sum_E   << " | ";
-  stream << setfill(' ') << setw(9)  << "   | ";
+  stream << setfill(' ') << setw(7)  << sum_px  << " | ";
+  stream << setfill(' ') << setw(7)  << sum_py  << " | ";
+  stream << setfill(' ') << setw(7)  << sum_pz  << " | ";
+  stream << setfill(' ') << setw(7)  << sum_E   << " | ";
+  stream << setfill(' ') << setw(10)  << "   | ";
 
   stream << "\n |";
-  stream << setfill('-') << setw(104) << "|";
+  stream << setfill('-') << setw(109) << "|";
 
   // Print FLAGS
   stream << "\n |";
   stream << setfill(' ') << setw(17) << "FLAGS:   | "
-         << setfill(' ') << setw(14) << "PauliBlock......"
-         << print_utils::BoolAsIOString(this->IsPauliBlocked()) << "|"
-         << setfill(' ') << setw(14) << "BelowThrNRF....."
-         << print_utils::BoolAsIOString(this->IsBelowThrNRF())  << "|"
-         << setfill(' ') << setw(14) << "UnPhysical......"
-         << print_utils::BoolAsIOString(this->IsUnphysical())   << "|"
-         << setfill(' ') << setw(14) << "FastFwd........"
+         << setfill(' ') << setw(15) << "PauliBlock......"
+         << print_utils::BoolAsIOString(this->IsPauliBlocked()) << " |"
+         << setfill(' ') << setw(15) << " BelowThrNRF...."
+         << print_utils::BoolAsIOString(this->IsBelowThrNRF())  << " |"
+         << setfill(' ') << setw(15) << " UnPhysical....."
+         << print_utils::BoolAsIOString(this->IsUnphysical())   << " |"
+         << setfill(' ') << setw(15) << " FastFwd........"
          << print_utils::BoolAsIOString(this->FastForwardEnabled())
-         << "|";
+         << " |";
 
   stream << "\n |";
-  stream << setfill('-') << setw(104) << "|";
+  stream << setfill('-') << setw(109) << "|";
   stream << "\n";
 
 }

@@ -46,8 +46,7 @@ RESInteractionListGenerator::~RESInteractionListGenerator()
 InteractionList * RESInteractionListGenerator::CreateInteractionList(
                                        const InitialState & init_state) const
 {
-  LOG("InteractionList", pINFO)
-                         << "Generating InteractionList for: " << init_state;
+  LOG("InteractionList", pINFO) << "InitialState = " << init_state.AsString();
 
   const int n_nucc_channels = 3;
   const int n_nunc_channels = 4;

@@ -34,7 +34,7 @@ using std::endl;
 namespace genie {
 
 //____________________________________________________________________________
-ostream & operator<< (ostream& stream, const XSecSplineList & list)
+ostream & operator << (ostream & stream, const XSecSplineList & list)
 {
   list.Print(stream);
   return stream;
@@ -80,12 +80,11 @@ bool XSecSplineList::SplineExists(
             const XSecAlgorithmI * alg, const Interaction * interaction) const
 {
   string key = this->BuildSplineKey(alg,interaction);
+  SLOG("XSecSplineList", pDEBUG) << "Checking for spline with key = " << key;
 
   bool exists = (fSplineMap.count(key) == 1);
-
   SLOG("XSecSplineList", pDEBUG)
-                << "\nFound spline with key: " << key << " -> "
-                                       << print_utils::BoolAsYNString(exists);
+               << "Spline found?...." << print_utils::BoolAsYNString(exists);
   return exists;
 }
 //____________________________________________________________________________

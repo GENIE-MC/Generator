@@ -43,6 +43,16 @@ CharmFractionTablePool::CharmFractionTablePool()
 //____________________________________________________________________________
 CharmFractionTablePool::~CharmFractionTablePool()
 {
+  LOG("CFracTab", pINFO) << "Deleting all charm fraction tables";
+  map<string, CharmFractionTable *>::iterator titer;
+  for(titer = fTablePool.begin(); titer != fTablePool.end(); ++titer) {
+    CharmFractionTable * table = titer->second;
+    if(table) {
+      delete table;
+      table = 0;
+    }
+  }
+  fTablePool.clear();
   fInstance = 0;
 }
 //____________________________________________________________________________

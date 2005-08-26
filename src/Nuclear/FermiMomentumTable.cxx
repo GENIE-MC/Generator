@@ -43,9 +43,9 @@ void FermiMomentumTable::AddTableEntry(int tgt_pdgc, KF_t kf)
 //____________________________________________________________________________
 double FermiMomentumTable::FindClosestKF(int tgt_pdgc, int nucleon_pdgc) const
 {
-  LOG("FermiP", pDEBUG)
-       << "Finding Fermi momenta table entry for nucleus closest to pdgc = "
-       << tgt_pdgc;
+  LOG("FermiP", pINFO)
+       << "Finding Fermi momenta table entry for (tgt = "
+                      << tgt_pdgc << ", nucl = " << nucleon_pdgc << ")";
 
   if(fKFSets.size()==0) {
       LOG("FermiP", pWARN)
@@ -54,18 +54,21 @@ double FermiMomentumTable::FindClosestKF(int tgt_pdgc, int nucleon_pdgc) const
       return 0;
   }
 
+  double kf=0;
+  bool isp = pdg::IsProton(nucleon_pdgc);
+
   if(fKFSets.count(tgt_pdgc) == 1) {
      LOG("FermiP", pDEBUG) << "Got exact match in Fermi momenta table";
      map<int, KF_t>::const_iterator table_iter = fKFSets.find(tgt_pdgc);
-     return table_iter->second.p;
+     if(isp) kf = table_iter->second.p;
+     else    kf = table_iter->second.n;
+     LOG("FermiP", pINFO) << "kF = " << kf;
+     return kf;
   }
-  LOG("FermiP", pDEBUG) << "Couldn't find exact match in Fermi momenta table";
+  LOG("FermiP", pINFO) << "Couldn't find exact match in Fermi momenta table";
 
   int  Z   = pdg::IonPdgCodeToZ(tgt_pdgc);
-  bool isp = pdg::IsProton(nucleon_pdgc);
-
   int    Ac=9999, Zc=9999, dZmin=9999;
-  double kf=0;
   map<int, KF_t>::const_iterator kfiter;
   for(kfiter=fKFSets.begin(); kfiter!=fKFSets.end(); ++kfiter) {
     int pdgc = kfiter->first;
@@ -80,8 +83,9 @@ double FermiMomentumTable::FindClosestKF(int tgt_pdgc, int nucleon_pdgc) const
       else    kf=kft.n;
     }
   }
-  LOG("FermiP", pDEBUG)
+  LOG("FermiP", pINFO)
        << "The closest nucleus in table is pdgc = " << pdg::IonPdgCode(Ac,Zc);
+  LOG("FermiP", pINFO) << "kF = " << kf;
   return kf;
 }
 //____________________________________________________________________________
