@@ -52,11 +52,19 @@ int main(int argc, char ** argv)
 
   LOG("Test",pINFO) << "Printing computed path lengths:";
   LOG("Test",pINFO) << pl;
-  
-  double matLength = root_analyzer->SetVtxMaterial(1039018000);
+
+  int pdg(1039018000);  
+
+  double matLength = root_analyzer->SetVtxMaterial(pdg);
 
   LOG("Test",pINFO) << "Path in selected material ...";
   LOG("Test",pINFO) << matLength;
+
+  const TVector3 & vtx = root_analyzer->GenerateVertex(*x,*p,pdg);
+   
+  LOG("Test",pINFO) << "Vertex selected ...";
+  LOG("Test",pINFO) << " x "<<vtx.X()<<" y "<<vtx.Y()<<" z "<<vtx.Z();
+
   return 0;
 }
 
