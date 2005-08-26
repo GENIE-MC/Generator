@@ -96,7 +96,7 @@ GHepParticle * GHepRecord::GetParticle(int position) const
      if(particle) return particle;
   }
   LOG("GHEP", pWARN)
-        << "No GHepParticle found with:  (pos = "
+        << "No GHepParticle found with: (pos = "
                               << position << ") - Returning NULL";
   return 0;
 }
@@ -112,8 +112,8 @@ GHepParticle * GHepRecord::FindParticle(int pdg, int status, int start) const
      if(p->Status() == status && p->PdgCode() == pdg) return p;
   }
   LOG("GHEP", pWARN)
-        << "No GHepParticle found with:  (pos >= " << start
-          << ", pdg = " << pdg << ", ist = " << status ") - Returning NULL";
+        << "No GHepParticle found with: (pos >= " << start
+        << ", pdg = " << pdg << ", ist = " << status << ") - Returning NULL";
   return 0;
 }
 //___________________________________________________________________________
