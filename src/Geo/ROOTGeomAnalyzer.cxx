@@ -31,7 +31,7 @@
 
 #include <TPolyMarker3D.h>
 #include <TGeoBBox.h>
-#include <TRandom3.h>
+#include "Numerical/RandomGen.h"
 
 using namespace genie;
 
@@ -54,7 +54,7 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
 {
   if(!fGeometry)
     {
-      std::cout<<" ERROR!!! Load geometry before setting the material!!! "<<std::endl;
+      LOG("GROOTGeom",pERROR)<<" ERROR!!! Load geometry before setting the material!!! ";
       fMaterial=-1;
       return 0;
     }
@@ -63,13 +63,13 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
 
   if(!fCurrPDGCodeList->ExistsInPDGCodeList(fMaterial))
     {
-      std::cout<<" ERROR!!! The selected material does not exist!!! "<<std::endl;
+      LOG("GROOTGeom",pERROR)<<" ERROR!!! The selected material does not exist!!! ";
       fMaterial=-1;
       return 0;
     }
   else
     {
-      std::cout<<" Material selected : "<<fMaterial<<std::endl;
+      LOG("GROOTGeom",pINFO)<<" Material selected : "<<fMaterial;
     }
 
   //select World volume
@@ -105,7 +105,7 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
   
   if(!FlagFound)
     {
-      std::cout<<" ERROR!!! The World Volume does not exist in your geometry!!! "<<std::endl;
+      LOG("GROOTGeom",pERROR)<<" ERROR!!! The World Volume does not exist in your geometry!!! ";
       fMaterial=-1;
       return 0;
     }
@@ -122,10 +122,13 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
   double oy = (box->GetOrigin())[1];
   double oz = (box->GetOrigin())[2];
 
-  std::cout<<" max dimensions : x = "<<dx<<" ; y = "<<dy<<" ; z = "<<dz<<std::endl;
-  std::cout<<" origin : x = "<<ox<<" ; y = "<<oy<<" ; z = "<<oz<<std::endl;
+  LOG("GROOTGeom",pDEBUG)<<" max dimensions : x = "<<dx<<" ; y = "<<dy<<" ; z = "<<dz;
+  LOG("GROOTGeom",pDEBUG)<<" origin : x = "<<ox<<" ; y = "<<oy<<" ; z = "<<oz;
 
-  gRandom = new TRandom3();
+  //gRandom = new TRandom3(); 
+  RandomGen* rand=RandomGen::Instance();
+  TRandom & r3=rand->Random3();
+  
   int igen(0);
   int Rgen(0);
   int maxPoints(200);
@@ -141,17 +144,17 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
   while(igen<maxPoints)
     {
       igen++;
-      xyz[0] = ox-dx+2*dx*gRandom->Rndm();
+      xyz[0] = ox-dx+2*dx*r3.Rndm();
       xyz[1] = oy+dy;
-      xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+      xyz[2] = oz-dz+2*dz*r3.Rndm();
       
       Rgen=0;
       while(Rgen<maxRays)
 	{
 	  Rgen++;
-	  direction[0]=-0.5+gRandom->Rndm();
-	  direction[1]=-gRandom->Rndm();
-	  direction[2]=-0.5+gRandom->Rndm();
+	  direction[0]=-0.5+r3.Rndm();
+	  direction[1]=-r3.Rndm();
+	  direction[2]=-0.5+r3.Rndm();
 	  
 	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
 	  
@@ -172,17 +175,17 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
   while(igen<maxPoints)
     { 
       igen++;
-      xyz[0] = ox-dx+2*dx*gRandom->Rndm();
+      xyz[0] = ox-dx+2*dx*r3.Rndm();
       xyz[1] = oy-dy;
-      xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+      xyz[2] = oz-dz+2*dz*r3.Rndm();
 
       Rgen=0;
       while(Rgen<maxRays)
 	{ 
 	  Rgen++;
-	  direction[0]=-0.5+gRandom->Rndm();
-	  direction[1]=gRandom->Rndm();
-	  direction[2]=-0.5+gRandom->Rndm();
+	  direction[0]=-0.5+r3.Rndm();
+	  direction[1]=r3.Rndm();
+	  direction[2]=-0.5+r3.Rndm();
 	  
 	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
 	  
@@ -202,16 +205,16 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
     {
       igen++;
       xyz[0] = ox-dx;
-      xyz[1] = oy-dy+2*dy*gRandom->Rndm();
-      xyz[2] = oz-dz+2*dz*gRandom->Rndm(); 
+      xyz[1] = oy-dy+2*dy*r3.Rndm();
+      xyz[2] = oz-dz+2*dz*r3.Rndm(); 
       
       Rgen=0;
       while(Rgen<maxRays)
 	{
 	  Rgen++;
-	  direction[0]=gRandom->Rndm();
-	  direction[1]=-0.5+gRandom->Rndm();
-	  direction[2]=-0.5+gRandom->Rndm();
+	  direction[0]=r3.Rndm();
+	  direction[1]=-0.5+r3.Rndm();
+	  direction[2]=-0.5+r3.Rndm();
 	  
 	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
 	  
@@ -231,16 +234,16 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
     {
       igen++;
       xyz[0] = ox+dx;
-      xyz[1] = oy-dy+2*dy*gRandom->Rndm();
-      xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+      xyz[1] = oy-dy+2*dy*r3.Rndm();
+      xyz[2] = oz-dz+2*dz*r3.Rndm();
       
       Rgen=0;
       while(Rgen<maxRays)
 	{
 	  Rgen++;
-	  direction[0]=-gRandom->Rndm();
-	  direction[1]=-0.5+gRandom->Rndm();
-	  direction[2]=-0.5+gRandom->Rndm();
+	  direction[0]=-r3.Rndm();
+	  direction[1]=-0.5+r3.Rndm();
+	  direction[2]=-0.5+r3.Rndm();
 	  
 	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
 	  
@@ -259,17 +262,17 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
   while(igen<maxPoints)
     {
       igen++;
-      xyz[0] = ox-dx+2*dx*gRandom->Rndm();
-      xyz[1] = oy-dy+2*dy*gRandom->Rndm();
+      xyz[0] = ox-dx+2*dx*r3.Rndm();
+      xyz[1] = oy-dy+2*dy*r3.Rndm();
       xyz[2] = oz-dz; 
 
       Rgen=0;
       while(Rgen<maxRays)
 	{
 	  Rgen++;
-	  direction[0]=-0.5+gRandom->Rndm();
-	  direction[1]=-0.5+gRandom->Rndm();
-	  direction[2]=gRandom->Rndm();
+	  direction[0]=-0.5+r3.Rndm();
+	  direction[1]=-0.5+r3.Rndm();
+	  direction[2]=r3.Rndm();
 	  
 	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
 	  
@@ -288,17 +291,17 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
   while(igen<maxPoints)
     {
       igen++;
-      xyz[0] = ox-dx+2*dx*gRandom->Rndm();
-      xyz[1] = oy-dy+2*dy*gRandom->Rndm();
+      xyz[0] = ox-dx+2*dx*r3.Rndm();
+      xyz[1] = oy-dy+2*dy*r3.Rndm();
       xyz[2] = oz+dz; 
 
       Rgen=0;
       while(Rgen<maxRays)
 	{
 	  Rgen++;
-	  direction[0]=-0.5+gRandom->Rndm();
-	  direction[1]=-0.5+gRandom->Rndm();
-	  direction[2]=-gRandom->Rndm();
+	  direction[0]=-0.5+r3.Rndm();
+	  direction[1]=-0.5+r3.Rndm();
+	  direction[2]=-r3.Rndm();
 	  
 	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
 	  
@@ -369,7 +372,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
     {
       condition=kTRUE;
 
-      std::cout<<" x "<<xx<<" y "<<yy<<" z "<<zz<<" flag not yet in "<<FlagNotInYet<<std::endl;
+      LOG("GROOTGeom",pDEBUG)<<" x "<<xx<<" y "<<yy<<" z "<<zz<<" flag not yet in "<<FlagNotInYet;
       xyz[0]=xx;
       xyz[1]=yy;
       xyz[2]=zz;
@@ -377,7 +380,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
       fGeometry->SetCurrentPoint(xyz);
       fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
       current =  fGeometry->GetCurrentVolume();
-      std::cout<<" current volume "<<current->GetName()<<std::endl;
+      LOG("GROOTGeom",pDEBUG)<<" current volume "<<current->GetName();
       TGeoMedium *med;
       TGeoMaterial *mat;
 
@@ -407,7 +410,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
             FlagNotInYet=1;
 
           med = current->GetMedium();
-          std::cout<<" current medium "<<med->GetName()<<std::endl;
+          LOG("GROOTGeom",pDEBUG)<<" current medium "<<med->GetName();
           if (!med)
             condition=kFALSE;
         }
@@ -415,10 +418,10 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
       if(condition)
         {
           mat = med->GetMaterial();
-          std::cout<<" current material "<<mat->GetName()<<std::endl;
-	  std::cout<<" current material A"<<mat->GetA()<<std::endl;
-	  std::cout<<" current material Z"<<mat->GetZ()<<std::endl;
-	  std::cout<<" current material is mix "<<mat->IsMixture()<<std::endl;
+          LOG("GROOTGeom",pDEBUG)<<" current material "<<mat->GetName();
+	  LOG("GROOTGeom",pDEBUG)<<" current material A"<<mat->GetA();
+	  LOG("GROOTGeom",pDEBUG)<<" current material Z"<<mat->GetZ();
+	  LOG("GROOTGeom",pDEBUG)<<" current material is mix "<<mat->IsMixture();
           if (!mat)
             condition=kFALSE;
         }
@@ -431,9 +434,9 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 	      TGeoElement *ele;
 	      for(int i=0;i<Nelements;i++)
 		{
-		  std::cout<<" number of elements "<<Nelements<<std::endl;
+		  LOG("GROOTGeom",pDEBUG)<<" number of elements "<<Nelements;
 		  ele=(dynamic_cast <TGeoMixture*> (mat))->GetElement(i);
-		  std::cout<<" test "<<ele->A()<<std::endl;
+		  LOG("GROOTGeom",pDEBUG)<<" test "<<ele->A();
 		  int A=(int)(ele->A());
 		  int Z(ele->Z());
 		  int ion_pdgc = pdg::IonPdgCode(A,Z);
@@ -444,9 +447,9 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 		      fGeometry->Step(); 
 		      step=fGeometry->GetStep();
 		    }
-		  std::cout<<" isentering? "<< fGeometry->IsEntering()<<std::endl;
-		  std::cout<<" isonboundary? "<< fGeometry->IsOnBoundary()<<std::endl;
-		  std::cout<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<" step "<<step<<std::endl;
+		  LOG("GROOTGeom",pDEBUG)<<" isentering? "<< fGeometry->IsEntering();
+		  LOG("GROOTGeom",pDEBUG)<<" isonboundary? "<< fGeometry->IsOnBoundary();
+		  LOG("GROOTGeom",pDEBUG)<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<" step "<<step;
 		  
 		  fCurrPathLengthList->AddPathLength(ion_pdgc,step);
 		  xx+=step * p.Px()/p.P();
@@ -466,9 +469,9 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 		  fGeometry->Step();
 		  step=fGeometry->GetStep();
 		}
-	      std::cout<<" isentering? "<< fGeometry->IsEntering()<<std::endl;
-	      std::cout<<" isonboundary? "<< fGeometry->IsOnBoundary()<<std::endl;
-	      std::cout<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<" step "<<step<<std::endl;
+	      LOG("GROOTGeom",pDEBUG)<<" isentering? "<< fGeometry->IsEntering();
+	      LOG("GROOTGeom",pDEBUG)<<" isonboundary? "<< fGeometry->IsOnBoundary();
+	      LOG("GROOTGeom",pDEBUG)<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<" step "<<step;
 	      
 	      fCurrPathLengthList->AddPathLength(ion_pdgc,step);
 	      xx+=step * p.Px()/p.P();
@@ -498,10 +501,201 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
        << "\n  with 4-momentum : " << print_utils::P4AsString(&p)
        << "\n  starting from   : " << print_utils::X4AsString(&x);
 
-  //-- generate the vertex
-  //
-  // ... ... ...
+  if(!fGeometry)
+    {
+      LOG("GROOTGeom",pERROR)<<" ERROR!!! Load geometry before calculating the vertex!!! ";
+      return *fCurrVertex;
+    } 
+  
+  //calculate length weighted with density
+  double dist(0);
+  
+  TGeoVolume *current =0;
+  
+  int FlagNotInYet(0);
+  bool condition(kTRUE);
+  
+  float xx,yy,zz;
+  double xyz[3];
+  double step(0);
+  xx=x.X();
+  yy=x.Y();
+  zz=x.Z();
+  
+  fGeometry->SetCurrentDirection(p.Px()/p.P(),p.Py()/p.P(),p.Pz()/p.P());
+  
+  while((!FlagNotInYet) || condition)
+    {
+      condition=kTRUE;
+      
+      LOG("GROOTGeom",pDEBUG)<<" x "<<xx<<" y "<<yy<<" z "<<zz<<" flag not yet in "<<FlagNotInYet;
+      xyz[0]=xx;
+      xyz[1]=yy;
+      xyz[2]=zz;
+      
+      fGeometry->SetCurrentPoint(xyz);
+      fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
+      current =  fGeometry->GetCurrentVolume();
+      LOG("GROOTGeom",pDEBUG)<<" current volume "<<current->GetName();
+      TGeoMedium *med;
+      TGeoMaterial *mat;
+      
+      if (fGeometry->IsOutside() || !current)
+	{
+	  condition=kFALSE;
 
+	  if(FlagNotInYet)
+	    break;
+	  
+	  fGeometry->FindNextBoundary();
+	  step=fGeometry->GetStep();
+	  while(!fGeometry->IsEntering())
+	    {
+	      fGeometry->Step(); 
+	      step=fGeometry->GetStep();
+	    }
+	  
+	  xx+=step * p.Px()/p.P();
+	  yy+=step * p.Py()/p.P();
+	  zz+=step * p.Pz()/p.P();
+	}
+
+      if(condition)
+        {
+          if(!FlagNotInYet)
+            FlagNotInYet=1;
+
+          med = current->GetMedium();
+          LOG("GROOTGeom",pDEBUG)<<" current medium "<<med->GetName();
+          if (!med)
+            condition=kFALSE;
+        }
+
+      if(condition)
+        {
+          mat = med->GetMaterial();
+          LOG("GROOTGeom",pDEBUG)<<" current material "<<mat->GetName();
+	  LOG("GROOTGeom",pDEBUG)<<" current material A"<<mat->GetA();
+	  LOG("GROOTGeom",pDEBUG)<<" current material Z"<<mat->GetZ();
+	  LOG("GROOTGeom",pDEBUG)<<" current material is mix "<<mat->IsMixture();
+          if (!mat)
+            condition=kFALSE;
+        }
+
+      if(condition)
+        {  
+	  int A=(int)(mat->GetA());
+	  int Z(mat->GetZ());
+	  double density(mat->GetDensity());
+	  int ion_pdgc = pdg::IonPdgCode(A,Z);
+	  fGeometry->FindNextBoundary();
+	  step=fGeometry->GetStep();  
+	  while(!fGeometry->IsEntering())
+	    {
+	      fGeometry->Step();
+	      step=fGeometry->GetStep();
+	    }
+	  
+	  if(ion_pdgc == tgtpdg)
+	    dist+=(step*density);
+	  
+	  xx+=step * p.Px()/p.P();
+	  yy+=step * p.Py()/p.P();
+	  zz+=step * p.Pz()/p.P();
+	  
+	}
+    }
+  
+  if(dist==0)
+    {
+      LOG("GROOTGeom",pERROR)<<" ERROR!!! No material selected along this direction from set point!!! ";
+      return *fCurrVertex;
+    } 
+   
+  LOG("GROOTGeom",pDEBUG)<<" dist times density "<<dist;
+  //generate random number between 0 and dist
+  RandomGen* rand=RandomGen::Instance();
+  TRandom & r3=rand->Random3();
+  double distVertex(r3.Rndm()*dist);
+  LOG("GROOTGeom",pDEBUG)<<" Random distance in selected material "<<distVertex;
+
+  //-- generate the vertex
+
+  xx=x.X();
+  yy=x.Y();
+  zz=x.Z();
+  double StepIncrease(0.001);
+  double distToVtx(0);
+  FlagNotInYet=0;
+  condition=kTRUE;
+
+  while(((!FlagNotInYet) || condition) && distToVtx<distVertex)
+    {
+      condition=kTRUE;
+      
+      LOG("GROOTGeom",pDEBUG)<<" x "<<xx<<" y "<<yy<<" z "<<zz<<" flag not yet in "<<FlagNotInYet;
+      xx+=StepIncrease * p.Px()/p.P();
+      yy+=StepIncrease * p.Py()/p.P();
+      zz+=StepIncrease * p.Pz()/p.P();
+      xyz[0]=xx;
+      xyz[1]=yy;
+      xyz[2]=zz;
+      
+      fGeometry->SetCurrentPoint(xyz);
+      fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
+      current =  fGeometry->GetCurrentVolume();
+      LOG("GROOTGeom",pDEBUG)<<" current volume "<<current->GetName();
+      TGeoMedium *med;
+      TGeoMaterial *mat;
+      
+      if (fGeometry->IsOutside() || !current)
+	{
+	  condition=kFALSE;
+
+	  if(FlagNotInYet)
+	    break;
+	}
+
+      if(condition)
+        {
+          if(!FlagNotInYet)
+            FlagNotInYet=1;
+
+          med = current->GetMedium();
+          LOG("GROOTGeom",pDEBUG)<<" current medium "<<med->GetName();
+          if (!med)
+            condition=kFALSE;
+        }
+
+      if(condition)
+        {
+          mat = med->GetMaterial();
+          LOG("GROOTGeom",pDEBUG)<<" current material "<<mat->GetName();
+	  LOG("GROOTGeom",pDEBUG)<<" current material A"<<mat->GetA();
+	  LOG("GROOTGeom",pDEBUG)<<" current material Z"<<mat->GetZ();
+	  LOG("GROOTGeom",pDEBUG)<<" current material is mix "<<mat->IsMixture();
+          if (!mat)
+            condition=kFALSE;
+        }
+
+      if(condition)
+        {  
+	  int A=(int)(mat->GetA());
+	  int Z(mat->GetZ());
+	  double density(mat->GetDensity());
+	  int ion_pdgc = pdg::IonPdgCode(A,Z);
+	  if(ion_pdgc == tgtpdg)
+	    distToVtx+=(StepIncrease*density);
+	}
+    }
+  
+  xx-=StepIncrease * p.Px()/p.P();
+  yy-=StepIncrease * p.Py()/p.P();
+  zz-=StepIncrease * p.Pz()/p.P();
+
+  fCurrVertex->SetXYZ(xx,yy,zz); 
+ 
+  LOG("GROOTGeom",pDEBUG)<<" Vtx : x "<<xx<<" y "<<yy<<" z "<<zz;
   return *fCurrVertex;
 }
 //___________________________________________________________________________
@@ -511,7 +705,7 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
 
   if(!fGeometry)
     {
-      std::cout<<" ERROR!!! Load geometry Fisrt!!! "<<std::endl;
+      LOG("GROOTGeom",pERROR)<<" ERROR!!! Load geometry Fisrt!!! ";
       return;
     }
   
@@ -577,7 +771,6 @@ double ROOTGeomAnalyzer::ComputeMaxPathLength(double* XYZ,double* direction,int 
       counterloop++;
       condition=kTRUE;
 
-      //std::cout<<" x "<<xx<<" y "<<yy<<" z "<<zz<<" flag not yet in "<<FlagNotInYet<<std::endl;
       xyz[0]=xx;
       xyz[1]=yy;
       xyz[2]=zz;
@@ -614,19 +807,14 @@ double ROOTGeomAnalyzer::ComputeMaxPathLength(double* XYZ,double* direction,int 
             FlagNotInYet=1;
 
           med = current->GetMedium();
-          //std::cout<<" current medium "<<med->GetName()<<std::endl;
-          if (!med)
+	  if (!med)
             condition=kFALSE;
         }
 
       if(condition)
         {
           mat = med->GetMaterial();
-          //std::cout<<" current material "<<mat->GetName()<<std::endl;
-	  //std::cout<<" current material A"<<mat->GetA()<<std::endl;
-	  //std::cout<<" current material Z"<<mat->GetZ()<<std::endl;
-	  //std::cout<<" current material is mix "<<mat->IsMixture()<<std::endl;
-          if (!mat)
+	  if (!mat)
             condition=kFALSE;
         }
 
@@ -642,9 +830,6 @@ double ROOTGeomAnalyzer::ComputeMaxPathLength(double* XYZ,double* direction,int 
 	      fGeometry->Step();
 	      step=fGeometry->GetStep();
 	    }
-	  //std::cout<<" isentering? "<< fGeometry->IsEntering()<<std::endl;
-	  //std::cout<<" isonboundary? "<< fGeometry->IsOnBoundary()<<std::endl;
-	  //std::cout<<" A "<<A<<" Z "<<Z<<" code "<<ion_pdgc<<" step "<<step<<std::endl;
 	  
 	  if(ion_pdgc == pdgc)
 	    Length+=step;
@@ -671,7 +856,7 @@ void ROOTGeomAnalyzer::test(void)
   int numVol;
   numVol=(LV->GetEntries());
 
-  std::cout<<numVol<<" volumes found  "<<std::endl;
+  LOG("GROOTGeom",pDEBUG)<<numVol<<" volumes found  ";
 
   TGeoVolume *TV = new TGeoVolume();
   TGeoVolume *TVWorld = new TGeoVolume();
@@ -695,14 +880,14 @@ void ROOTGeomAnalyzer::test(void)
   for(Int_t i=0;i<numVol;i++)
     {
       TV= dynamic_cast <TGeoVolume *> (LV->At(i));
-      std::cout<<i<<"  "<<TV->GetName()<<" made of "<<TV->GetMaterial()->GetName()<<std::endl;
+      LOG("GROOTGeom",pDEBUG)<<i<<"  "<<TV->GetName()<<" made of "<<TV->GetMaterial()->GetName();
       name=const_cast<char*>(TV->GetName());
       TS=TV->GetShape();
       TS->ComputeBBox();
-      std::cout<<i<< " test "<<TV->GetNdaughters()<<" contains "<<TV->Contains(point)<<" distance out "<<TS->DistFromOutside(point,dir)<<std::endl;
+      LOG("GROOTGeom",pDEBUG)<<i<< " test "<<TV->GetNdaughters()<<" contains "<<TV->Contains(point)<<" distance out "<<TS->DistFromOutside(point,dir);
       if(!strcmp(str,name))
         TVWorld=TV;
-      std::cout<<TVWorld->GetName()<<" FOUND "<<std::endl;
+      LOG("GROOTGeom",pDEBUG)<<TVWorld->GetName()<<" FOUND ";
     }
 
   //help Andrei
@@ -725,10 +910,13 @@ void ROOTGeomAnalyzer::test(void)
   Double_t oy = (box->GetOrigin())[1];
   Double_t oz = (box->GetOrigin())[2];
 
-  std::cout<<" max dimensions : x = "<<dx<<" ; y = "<<dy<<" ; z = "<<dz<<std::endl;
-  std::cout<<" origin : x = "<<ox<<" ; y = "<<oy<<" ; z = "<<oz<<std::endl;
+  LOG("GROOTGeom",pDEBUG)<<" max dimensions : x = "<<dx<<" ; y = "<<dy<<" ; z = "<<dz;
+  LOG("GROOTGeom",pDEBUG)<<" origin : x = "<<ox<<" ; y = "<<oy<<" ; z = "<<oz;
 
-  gRandom = new TRandom3();
+  //  gRandom= new TRandom3();
+  RandomGen* rand=RandomGen::Instance();
+  TRandom & r3=rand->Random3();
+  
   Int_t igen(0);
   Double_t xyz[3];
 
@@ -739,15 +927,15 @@ void ROOTGeomAnalyzer::test(void)
 
   while(found==0 && igen<100)
     {
-      // xyz[0] = ox-dx+2*dx*gRandom->Rndm();
-      //xyz[1] = oy-dy+2*dy*gRandom->Rndm();
-      //xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+      // xyz[0] = ox-dx+2*dx*r3.Rndm();
+      //xyz[1] = oy-dy+2*dy*r3.Rndm();
+      //xyz[2] = oz-dz+2*dz*r3.Rndm();
 
       xyz[0] = 0.5;
       xyz[1] = 0;
       xyz[2] = 0;
 
-      std::cout<<" random generated point: x = "<<xyz[0]<<" ; y = "<<xyz[1]<<" ; z = "<<xyz[2]<<std::endl;
+      LOG("GROOTGeom",pDEBUG)<<" random generated point: x = "<<xyz[0]<<" ; y = "<<xyz[1]<<" ; z = "<<xyz[2];
 
       //TGM->SetCurrentPoint(xyz);
       gGeoManager->SetCurrentPoint(xyz);
@@ -759,7 +947,7 @@ void ROOTGeomAnalyzer::test(void)
       condition=kTRUE;
 
       TGeoVolume *current = gGeoManager->GetCurrentVolume();
-      std::cout<<" current volume "<<current->GetName()<<std::endl;
+      LOG("GROOTGeom",pDEBUG)<<" current volume "<<current->GetName();
       if (TGM->IsOutside() || !current)
         condition=kFALSE;
 
@@ -769,14 +957,14 @@ void ROOTGeomAnalyzer::test(void)
       if(condition)
         {
           med = current->GetMedium();
-          std::cout<<" current medium "<<med->GetName()<<std::endl;
+          LOG("GROOTGeom",pDEBUG)<<" current medium "<<med->GetName();
           if (!med)
             condition=kFALSE;
         }
       if(condition)
         {
           mat = med->GetMaterial();
-          std::cout<<" current material "<<mat->GetName()<<std::endl;
+          LOG("GROOTGeom",pDEBUG)<<" current material "<<mat->GetName();
           if (!mat)
             condition=kFALSE;
         }
@@ -797,9 +985,9 @@ void ROOTGeomAnalyzer::test(void)
     }
 
   if(found==1)
-    std::cout<<" found point : x = "<<xyz[0]<<" ; y = "<<xyz[1]<<" ; z = "<<xyz[2]<<" ; in material : "<<strmat<<std::endl;
+    LOG("GROOTGeom",pDEBUG)<<" found point : x = "<<xyz[0]<<" ; y = "<<xyz[1]<<" ; z = "<<xyz[2]<<" ; in material : "<<strmat;
   else
-    std::cout<<" point not found!!!!"<<std::endl;
+    LOG("GROOTGeom",pDEBUG)<<" point not found!!!!";
   marker->Draw("same");
 }
 //___________________________________________________________________________
