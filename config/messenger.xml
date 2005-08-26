@@ -22,7 +22,7 @@
     one found last is used
    -->
 
-  <priority msgstream="AlgFactory">          WARN  </priority>
+  <priority msgstream="AlgFactory">          INFO  </priority>
   <priority msgstream="Algorithm">           INFO  </priority>
   <priority msgstream="AlgConfigPool">       INFO  </priority>
   <priority msgstream="AivazisCharm">        INFO  </priority>
