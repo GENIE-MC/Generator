@@ -91,6 +91,41 @@ nuvld-only:
 doc:
 	cd ../doc/doxygen/; doxygen genie_doxygen; cd ../../src/
 
+libs: 
+	cd Algorithm;          make; cd ..; \
+	cd BaryonResonance;    make; cd ..; \
+	cd Base;               make; cd ..; \
+	cd BodekYang;          make; cd ..; \
+	cd Charm;              make; cd ..; \
+	cd CrossSections;      make; cd ..; \
+	cd Decay; 	       make; cd ..; \
+	cd Elastic; 	       make; cd ..; \
+	cd EVGCore;            make; cd ..; \
+	cd EVGModules;         make; cd ..; \
+	cd EVGDrivers;         make; cd ..; \
+	cd FluxDrivers;        make; cd ..; \
+	cd Fragmentation;      make; cd ..; \
+	cd GHEP;               make; cd ..; \
+	cd Geo;                make; cd ..; \
+	cd ValidityDoc;        make; cd ..; \
+	cd Interaction;        make; cd ..; \
+	cd InverseMuonDecay;   make; cd ..; \
+	cd LlewellynSmith;     make; cd ..; \
+	cd Messenger;	       make; cd ..; \
+	cd Ntuple;             make; cd ..; \
+	cd Nuclear;            make; cd ..; \
+	cd Numerical;          make; cd ..; \
+	cd PartonModel;        make; cd ..; \
+	cd Paschos; 	       make; cd ..; \
+	cd PDF;                make; cd ..; \
+	cd PDG;                make; cd ..; \
+	cd Radiative;          make; cd ..; \
+	cd Registry;           make; cd ..; \
+	cd ReinSeghal;         make; cd ..; \
+	cd Utils;              make; cd ..; \
+	cd Viewer;             make; cd ..; \
+	cd NuValidator;        make libs; cd ..; \
+
 purge: FORCE
 	cd Algorithm;          make purge; cd ..; \
 	cd BaryonResonance;    make purge; cd ..; \
