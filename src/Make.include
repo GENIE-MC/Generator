@@ -23,14 +23,15 @@
 
 # XML lib & include directories 
 
+ifdef LIBXML2_INC
 XML_INC_DIR = $(LIBXML2_INC)
-XML_LIB_DIR = $(LIBXML2_LIB)
-
-ifndef XML_INC_DIR
+else
 XML_INC_DIR = /usr/include/libxml2
 endif
 
-ifndef XML_LIB_DIR
+ifdef LIBXML2_LIB
+XML_LIB_DIR = $(LIBXML2_LIB)
+else
 XML_LIB_DIR = /usr/lib
 endif
 
@@ -45,14 +46,15 @@ XML_LIBS    = -L $(XML_LIB_DIR) -lxml2
 
 # log4cpp lib & include directory
 
+ifdef LOG4CPP_INC
 LOG_INC_DIR = $(LOG4CPP_INC)
-LOG_LIB_DIR = $(LOG4CPP_LIB)
-
-ifndef XML_INC_DIR
+else
 LOG_INC_DIR = /usr/local/src/log4cpp/include
 endif
 
-ifndef XML_LIB_DIR
+ifdef LOG4CPP_LIB
+LOG_LIB_DIR = $(LOG4CPP_LIB)
+else
 LOG_LIB_DIR = /usr/local/lib
 endif
 
