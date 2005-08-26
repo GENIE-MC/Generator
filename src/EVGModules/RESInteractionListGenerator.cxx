@@ -47,7 +47,7 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
                                        const InitialState & init_state) const
 {
   LOG("InteractionList", pINFO)
-                     << "\nGenerating Interaction List for \n" << init_state;
+                         << "Generating InteractionList for: " << init_state;
 
   const int n_nucc_channels = 3;
   const int n_nunc_channels = 4;
@@ -61,8 +61,7 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
   int nupdg  = init_state.GetProbePDGCode();
 
   if( !pdg::IsNeutrino(nupdg) && !pdg::IsAntiNeutrino(nupdg) ) {
-     LOG("InteractionList", pWARN)
-                            << "\n**** Could not generate Interaction List";
+     LOG("InteractionList", pWARN) << "Couldn't generate InteractionList";
      return 0;
   }
 
@@ -109,8 +108,7 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
   }
 
   if(intlist->size() == 0) {
-     LOG("InteractionList", pWARN)
-                             << "\n**** Returning empty Interaction List";
+     LOG("InteractionList", pWARN) << "Returning NULL InteractionList";
      delete intlist;
      return 0;
   }
