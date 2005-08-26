@@ -48,8 +48,7 @@ QELInteractionListGenerator::~QELInteractionListGenerator()
 InteractionList * QELInteractionListGenerator::CreateInteractionList(
                                        const InitialState & init_state) const
 {
-  LOG("InteractionList", pINFO)
-                      << "Generating Interaction List for: \n" << init_state;
+  LOG("InteractionList", pINFO) << "InitialState = " << init_state.AsString();
 
   bool isCC = fConfig->Exists("is-CC") ? fConfig->GetBool("is-CC") : false;
   bool isNC = fConfig->Exists("is-NC") ? fConfig->GetBool("is-NC") : false;

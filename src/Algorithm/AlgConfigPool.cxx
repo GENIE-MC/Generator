@@ -56,6 +56,18 @@ AlgConfigPool::AlgConfigPool()
 //____________________________________________________________________________
 AlgConfigPool::~AlgConfigPool()
 {
+  LOG("AlgConfigPool", pINFO) << "Deleting all algorithm configurations";
+
+  map<string, Registry *>::iterator citer;
+  for(citer = fRegistryPool.begin(); citer != fRegistryPool.end(); ++citer) {
+    Registry * config = citer->second;
+    if(config) {
+      delete config;
+      config = 0;
+    }
+  }
+  fRegistryPool.clear();
+  fConfigFiles.clear();
   fInstance = 0;
 }
 //____________________________________________________________________________

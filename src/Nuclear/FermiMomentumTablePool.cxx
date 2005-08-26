@@ -44,13 +44,14 @@ FermiMomentumTablePool::FermiMomentumTablePool()
 //____________________________________________________________________________
 FermiMomentumTablePool::~FermiMomentumTablePool()
 {
+  LOG("FermiP", pINFO) << "Deleting all Fermi momenta tables";
   map<string, FermiMomentumTable *>::iterator titer;
-
   for(titer = fKFSets.begin(); titer != fKFSets.end(); ++titer) {
     FermiMomentumTable * t = titer->second;
     if(t) delete t;
     t=0;
   }
+  fKFSets.clear();
   fInstance = 0;
 }
 //____________________________________________________________________________
@@ -182,7 +183,7 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
            kft.n = kfn;
 
            LOG("FermiP", pDEBUG)
-              << "Adding Fermi Momentum table entry: PDGC = " << pdgc
+              << "Add KF table entry: PDGC = " << pdgc
                   << " --> " << "kf(p) = " << kft.p << ", kf(n) = " << kft.n;
            kftable->AddTableEntry(pdgc,kft);
          } //<x> == <kf>

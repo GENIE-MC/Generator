@@ -58,7 +58,7 @@ string genie::print_utils::X4AsString(const TLorentzVector * vec4)
 {
   ostringstream fmt;
 
-  fmt << "( t = " << vec4->T()
+  fmt << "(t = "  << vec4->T()
       << ", x = " << vec4->X()
       << ", y = " << vec4->Y()
       << ", z = " << vec4->Z() << ")";
