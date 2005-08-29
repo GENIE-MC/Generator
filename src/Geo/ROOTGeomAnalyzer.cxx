@@ -44,32 +44,21 @@ GeomAnalyzerI()
 //___________________________________________________________________________
 ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
 {
-  if( fCurrPathLengthList ) delete fCurrPathLengthList;
+  if( fCurrPathLengthList ) delete fCurrPathLengthList;  
+  if( fCurrMaxPathLengthList ) delete fCurrMaxPathLengthList;
   if( fCurrPDGCodeList    ) delete fCurrPDGCodeList;
   if( fGeometry) delete fGeometry;
 
 }
 //___________________________________________________________________________
-double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
-{
+const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
+{ 
+  fCurrMaxPathLengthList->SetAllToZero();
+  
   if(!fGeometry)
     {
-      LOG("GROOTGeom",pERROR)<<" ERROR!!! Load geometry before setting the material!!! ";
-      fMaterial=-1;
-      return 0;
-    }
-
-  fMaterial=pdgc;
-
-  if(!fCurrPDGCodeList->ExistsInPDGCodeList(fMaterial))
-    {
-      LOG("GROOTGeom",pERROR)<<" ERROR!!! The selected material does not exist!!! ";
-      fMaterial=-1;
-      return 0;
-    }
-  else
-    {
-      LOG("GROOTGeom",pINFO)<<" Material selected : "<<fMaterial;
+      LOG("GROOTGeom",pERROR)<<" ERROR!!! Load geometry before!!! ";
+      return *fCurrMaxPathLengthList;
     }
 
   //select World volume
@@ -106,11 +95,11 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
   if(!FlagFound)
     {
       LOG("GROOTGeom",pERROR)<<" ERROR!!! The World Volume does not exist in your geometry!!! ";
-      fMaterial=-1;
-      return 0;
+      return *fCurrMaxPathLengthList;
     }
 
-  //generate 200 random points on each surface, use 200 rays to calculate maximum path for selected material
+
+  //generate 200 random points on each surface, use 200 rays to calculate maximum path for each material
    
   TS=TVWorld->GetShape();
   TGeoBBox *box=(TGeoBBox *)TS;
@@ -128,200 +117,211 @@ double ROOTGeomAnalyzer::SetVtxMaterial(int pdgc)
   //gRandom = new TRandom3(); 
   RandomGen* rand=RandomGen::Instance();
   TRandom & r3=rand->Random3();
-  
-  int igen(0);
-  int Rgen(0);
-  int maxPoints(200);
-  int maxRays(200);
-  double xyz[3];
-  double direction[3];
-  double MaxPath(0);
-  double Length(0);
-  double dirTot(0);
-
-  //top
-  igen=0;
-  while(igen<maxPoints)
+   
+  //loop on materials
+  int pdgc(0);
+  vector<int>::iterator itrPDG; 
+  for(itrPDG=fCurrPDGCodeList->begin();itrPDG!=fCurrPDGCodeList->end();itrPDG++)
     {
-      igen++;
-      xyz[0] = ox-dx+2*dx*r3.Rndm();
-      xyz[1] = oy+dy;
-      xyz[2] = oz-dz+2*dz*r3.Rndm();
-      
-      Rgen=0;
-      while(Rgen<maxRays)
-	{
-	  Rgen++;
-	  direction[0]=-0.5+r3.Rndm();
-	  direction[1]=-r3.Rndm();
-	  direction[2]=-0.5+r3.Rndm();
-	  
-	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-	  
-	  direction[0]/=dirTot;
-	  direction[1]/=dirTot;
-	  direction[2]/=dirTot;
-	   
-	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
-	  if(Length>MaxPath)
-	    MaxPath=Length;
-	  
-	}
-    }
+      pdgc=*itrPDG;
+      LOG("GROOTGeom",pDEBUG)<<" calculating max path length for material "<<pdgc;
   
- 
-  //bottom
-  igen=0;
-  while(igen<maxPoints)
-    { 
-      igen++;
-      xyz[0] = ox-dx+2*dx*r3.Rndm();
-      xyz[1] = oy-dy;
-      xyz[2] = oz-dz+2*dz*r3.Rndm();
-
-      Rgen=0;
-      while(Rgen<maxRays)
+      int igen(0);
+      int Rgen(0);
+      int maxPoints(200);
+      int maxRays(200);
+      double xyz[3];
+      double direction[3];
+      double MaxPath(0);
+      double Length(0);
+      double dirTot(0);
+      
+      //top
+      igen=0;
+      while(igen<maxPoints)
+	{
+	  igen++;
+	  xyz[0] = ox-dx+2*dx*r3.Rndm();
+	  xyz[1] = oy+dy;
+	  xyz[2] = oz-dz+2*dz*r3.Rndm();
+	  
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    {
+	      Rgen++;
+	      direction[0]=-0.5+r3.Rndm();
+	      direction[1]=-r3.Rndm();
+	      direction[2]=-0.5+r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	      
+	    }
+	}
+      
+      
+      //bottom
+      igen=0;
+      while(igen<maxPoints)
 	{ 
-	  Rgen++;
-	  direction[0]=-0.5+r3.Rndm();
-	  direction[1]=r3.Rndm();
-	  direction[2]=-0.5+r3.Rndm();
+	  igen++;
+	  xyz[0] = ox-dx+2*dx*r3.Rndm();
+	  xyz[1] = oy-dy;
+	  xyz[2] = oz-dz+2*dz*r3.Rndm();
 	  
-	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-	  
-	  direction[0]/=dirTot;
-	  direction[1]/=dirTot;
-	  direction[2]/=dirTot;
-	  
-	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
-	  if(Length>MaxPath)
-	    MaxPath=Length;
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    { 
+	      Rgen++;
+	      direction[0]=-0.5+r3.Rndm();
+	      direction[1]=r3.Rndm();
+	      direction[2]=-0.5+r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	    }
 	}
-    }
-
-  //left  
-  igen=0;
-  while(igen<maxPoints)
-    {
-      igen++;
-      xyz[0] = ox-dx;
-      xyz[1] = oy-dy+2*dy*r3.Rndm();
-      xyz[2] = oz-dz+2*dz*r3.Rndm(); 
       
-      Rgen=0;
-      while(Rgen<maxRays)
+      //left  
+      igen=0;
+      while(igen<maxPoints)
 	{
-	  Rgen++;
-	  direction[0]=r3.Rndm();
-	  direction[1]=-0.5+r3.Rndm();
-	  direction[2]=-0.5+r3.Rndm();
+	  igen++;
+	  xyz[0] = ox-dx;
+	  xyz[1] = oy-dy+2*dy*r3.Rndm();
+	  xyz[2] = oz-dz+2*dz*r3.Rndm(); 
 	  
-	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-	  
-	  direction[0]/=dirTot;
-	  direction[1]/=dirTot;
-	  direction[2]/=dirTot;
-	  
-	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
-	  if(Length>MaxPath)
-	    MaxPath=Length;
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    {
+	      Rgen++;
+	      direction[0]=r3.Rndm();
+	      direction[1]=-0.5+r3.Rndm();
+	      direction[2]=-0.5+r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	    }
 	}
-    }
-  
-  //right  
-  igen=0;
-  while(igen<maxPoints)
-    {
-      igen++;
-      xyz[0] = ox+dx;
-      xyz[1] = oy-dy+2*dy*r3.Rndm();
-      xyz[2] = oz-dz+2*dz*r3.Rndm();
       
-      Rgen=0;
-      while(Rgen<maxRays)
+      //right  
+      igen=0;
+      while(igen<maxPoints)
 	{
-	  Rgen++;
-	  direction[0]=-r3.Rndm();
-	  direction[1]=-0.5+r3.Rndm();
-	  direction[2]=-0.5+r3.Rndm();
+	  igen++;
+	  xyz[0] = ox+dx;
+	  xyz[1] = oy-dy+2*dy*r3.Rndm();
+	  xyz[2] = oz-dz+2*dz*r3.Rndm();
 	  
-	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-	  
-	  direction[0]/=dirTot;
-	  direction[1]/=dirTot;
-	  direction[2]/=dirTot;
-	  
-	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
-	  if(Length>MaxPath)
-	    MaxPath=Length;
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    {
+	      Rgen++;
+	      direction[0]=-r3.Rndm();
+	      direction[1]=-0.5+r3.Rndm();
+	      direction[2]=-0.5+r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	    }
 	}
+      
+      //back
+      igen=0;
+      while(igen<maxPoints)
+	{
+	  igen++;
+	  xyz[0] = ox-dx+2*dx*r3.Rndm();
+	  xyz[1] = oy-dy+2*dy*r3.Rndm();
+	  xyz[2] = oz-dz; 
+	  
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    {
+	      Rgen++;
+	      direction[0]=-0.5+r3.Rndm();
+	      direction[1]=-0.5+r3.Rndm();
+	      direction[2]=r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	    }
+	}  
+      
+      //front
+      igen=0;
+      while(igen<maxPoints)
+	{
+	  igen++;
+	  xyz[0] = ox-dx+2*dx*r3.Rndm();
+	  xyz[1] = oy-dy+2*dy*r3.Rndm();
+	  xyz[2] = oz+dz; 
+	  
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    {
+	      Rgen++;
+	      direction[0]=-0.5+r3.Rndm();
+	      direction[1]=-0.5+r3.Rndm();
+	      direction[2]=-r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	    }
+	}
+      
+      
+      fCurrMaxPathLengthList->AddPathLength(pdgc,MaxPath);
     }
-  
-  //back
-  igen=0;
-  while(igen<maxPoints)
-    {
-      igen++;
-      xyz[0] = ox-dx+2*dx*r3.Rndm();
-      xyz[1] = oy-dy+2*dy*r3.Rndm();
-      xyz[2] = oz-dz; 
 
-      Rgen=0;
-      while(Rgen<maxRays)
-	{
-	  Rgen++;
-	  direction[0]=-0.5+r3.Rndm();
-	  direction[1]=-0.5+r3.Rndm();
-	  direction[2]=r3.Rndm();
-	  
-	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-	  
-	  direction[0]/=dirTot;
-	  direction[1]/=dirTot;
-	  direction[2]/=dirTot;
-	  
-	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
-	  if(Length>MaxPath)
-	    MaxPath=Length;
-	}
-    }  
-
-  //front
-  igen=0;
-  while(igen<maxPoints)
-    {
-      igen++;
-      xyz[0] = ox-dx+2*dx*r3.Rndm();
-      xyz[1] = oy-dy+2*dy*r3.Rndm();
-      xyz[2] = oz+dz; 
-
-      Rgen=0;
-      while(Rgen<maxRays)
-	{
-	  Rgen++;
-	  direction[0]=-0.5+r3.Rndm();
-	  direction[1]=-0.5+r3.Rndm();
-	  direction[2]=-r3.Rndm();
-	  
-	  dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-	  
-	  direction[0]/=dirTot;
-	  direction[1]/=dirTot;
-	  direction[2]/=dirTot;
-	  
-	  Length=ComputeMaxPathLength(xyz,direction,pdgc); 
-	  if(Length>MaxPath)
-	    MaxPath=Length;
-	}
-    }
- 
-
-  return MaxPath;
-
+  return *fCurrMaxPathLengthList;
 }
 //________________________________________________________________________
 void ROOTGeomAnalyzer::Initialize(string filename)
 {
+  fCurrMaxPathLengthList = 0;
   fCurrPathLengthList = 0;
   fCurrPDGCodeList    = 0;
 
@@ -332,6 +332,7 @@ void ROOTGeomAnalyzer::Initialize(string filename)
   const PDGCodeList & pdglist = this->ListOfTargetNuclei();
 
   fCurrPathLengthList = new PathLengthList(pdglist);
+  fCurrMaxPathLengthList = new PathLengthList(pdglist);
   fCurrVertex = new TVector3(0.,0.,0.);
 }
 //___________________________________________________________________________
@@ -748,7 +749,7 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
     }
 }
 //___________________________________________________________________________
-double ROOTGeomAnalyzer::ComputeMaxPathLength(double* XYZ,double* direction,int pdgc)
+double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,int pdgc)
 { 
   TGeoVolume *current =0;
   int counterloop(0);
@@ -841,153 +842,4 @@ double ROOTGeomAnalyzer::ComputeMaxPathLength(double* XYZ,double* direction,int 
     }
   return Length;
 } 
-//___________________________________________________________________________
-void ROOTGeomAnalyzer::test(void)
-{
-  TGeoManager *TGM = new TGeoManager("TGM","test");
-  //TGM->Import("/eth/store_6/home_6/amerega/TEST/vgm.2.03/examples/E01/N03/bin/Linux-g++/Geometry.root");
-  TGM->Import("$GENIE/src/test/TestGeometry.root");
-
-  TObjArray *LV = new TObjArray();
-
-  //TObjArray *LV=TGM->GetListOfVolumes();
-  LV=gGeoManager->GetListOfVolumes();
-
-  int numVol;
-  numVol=(LV->GetEntries());
-
-  LOG("GROOTGeom",pDEBUG)<<numVol<<" volumes found  ";
-
-  TGeoVolume *TV = new TGeoVolume();
-  TGeoVolume *TVWorld = new TGeoVolume();
-
-  TGeoShape *TS;
-
-  char *name;
-  char *str;
-  str="World";
-
-  Double_t  point [3];
-  point[0]=0;
-  point[1]=0;
-  point[2]=0;
-
-  Double_t  dir [3];
-  dir[0]=1;
-  dir[1]=0;
-  dir[2]=0;
-
-  for(Int_t i=0;i<numVol;i++)
-    {
-      TV= dynamic_cast <TGeoVolume *> (LV->At(i));
-      LOG("GROOTGeom",pDEBUG)<<i<<"  "<<TV->GetName()<<" made of "<<TV->GetMaterial()->GetName();
-      name=const_cast<char*>(TV->GetName());
-      TS=TV->GetShape();
-      TS->ComputeBBox();
-      LOG("GROOTGeom",pDEBUG)<<i<< " test "<<TV->GetNdaughters()<<" contains "<<TV->Contains(point)<<" distance out "<<TS->DistFromOutside(point,dir);
-      if(!strcmp(str,name))
-        TVWorld=TV;
-      LOG("GROOTGeom",pDEBUG)<<TVWorld->GetName()<<" FOUND ";
-    }
-
-  //help Andrei
-
-  TGM->SetVisOption(0);
-  TVWorld->Draw();
-
-  TPolyMarker3D *marker = new TPolyMarker3D();
-  marker->SetMarkerColor(kRed);
-  marker->SetMarkerStyle(8);
-  marker->SetMarkerSize(0.5);
-
-  const TGeoShape *TS1=TVWorld->GetShape();
-  TGeoBBox *box=(TGeoBBox *)TS1;
-
-  Double_t dx = box->GetDX();
-  Double_t dy = box->GetDY();
-  Double_t dz = box->GetDZ();
-  Double_t ox = (box->GetOrigin())[0];
-  Double_t oy = (box->GetOrigin())[1];
-  Double_t oz = (box->GetOrigin())[2];
-
-  LOG("GROOTGeom",pDEBUG)<<" max dimensions : x = "<<dx<<" ; y = "<<dy<<" ; z = "<<dz;
-  LOG("GROOTGeom",pDEBUG)<<" origin : x = "<<ox<<" ; y = "<<oy<<" ; z = "<<oz;
-
-  //  gRandom= new TRandom3();
-  RandomGen* rand=RandomGen::Instance();
-  TRandom & r3=rand->Random3();
-  
-  Int_t igen(0);
-  Double_t xyz[3];
-
-  Int_t found(0);
-  //while(igen<1)
- char *nameMat;
- char *strmat;
-
-  while(found==0 && igen<100)
-    {
-      // xyz[0] = ox-dx+2*dx*r3.Rndm();
-      //xyz[1] = oy-dy+2*dy*r3.Rndm();
-      //xyz[2] = oz-dz+2*dz*r3.Rndm();
-
-      xyz[0] = 0.5;
-      xyz[1] = 0;
-      xyz[2] = 0;
-
-      LOG("GROOTGeom",pDEBUG)<<" random generated point: x = "<<xyz[0]<<" ; y = "<<xyz[1]<<" ; z = "<<xyz[2];
-
-      //TGM->SetCurrentPoint(xyz);
-      gGeoManager->SetCurrentPoint(xyz);
-      igen++;
-      //TGM->FindNode(xyz[0],xyz[1],xyz[2]);
-      gGeoManager->FindNode(xyz[0],xyz[1],xyz[2]);
-
-      Bool_t condition;
-      condition=kTRUE;
-
-      TGeoVolume *current = gGeoManager->GetCurrentVolume();
-      LOG("GROOTGeom",pDEBUG)<<" current volume "<<current->GetName();
-      if (TGM->IsOutside() || !current)
-        condition=kFALSE;
-
-      TGeoMedium *med;
-      TGeoMaterial *mat;
-
-      if(condition)
-        {
-          med = current->GetMedium();
-          LOG("GROOTGeom",pDEBUG)<<" current medium "<<med->GetName();
-          if (!med)
-            condition=kFALSE;
-        }
-      if(condition)
-        {
-          mat = med->GetMaterial();
-          LOG("GROOTGeom",pDEBUG)<<" current material "<<mat->GetName();
-          if (!mat)
-            condition=kFALSE;
-        }
-
-      if(condition)
-        {
-
-          //strmat="Lead";
-          //strmat="liquidArgon";
-          strmat="Galactic";
-          nameMat=const_cast<char*>(mat->GetName());
-          if(!strcmp(strmat,nameMat))
-            found=1;
-        }
-
-      marker->SetNextPoint(xyz[0],xyz[1],xyz[2]);
-
-    }
-
-  if(found==1)
-    LOG("GROOTGeom",pDEBUG)<<" found point : x = "<<xyz[0]<<" ; y = "<<xyz[1]<<" ; z = "<<xyz[2]<<" ; in material : "<<strmat;
-  else
-    LOG("GROOTGeom",pDEBUG)<<" point not found!!!!";
-  marker->Draw("same");
-}
 //___________________________________________________________________________

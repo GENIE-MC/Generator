@@ -35,8 +35,8 @@ public :
 
   ROOTGeomAnalyzer(string filename);
  ~ROOTGeomAnalyzer();
- double SetVtxMaterial(int pdgc);
- double ComputeMaxPathLength(double* XYZ,double* direction,int pdgc);
+ 
+ double ComputeMaxPathLengthPDG(double* XYZ,double* direction,int pdgc);
 
   // implement the GeomAnalyzerI interface
 
@@ -49,8 +49,8 @@ public :
   const TVector3 &
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
-
-   void test(void);
+  
+  const PathLengthList & ComputeMaxPathLengths(void);
 
 private:
 
@@ -58,12 +58,13 @@ private:
   void BuildListOfTargetNuclei (void);
  
 
-  int              fMaterial;            ///< [input] selected material for vertex
+  int              fMaterial;               ///< [input] selected material for vertex
   
-  TGeoManager *    fGeometry;            ///< [input] detector geometry
-  TVector3 *       fCurrVertex;          ///< current generated vertex
-  PathLengthList * fCurrPathLengthList;  ///< current list of path-lengths
-  PDGCodeList *    fCurrPDGCodeList;     ///< current list of target nuclei
+  TGeoManager *    fGeometry;               ///< [input] detector geometry
+  TVector3 *       fCurrVertex;             ///< current generated vertex
+  PathLengthList * fCurrPathLengthList;     ///< current list of path-lengths 
+  PathLengthList * fCurrMaxPathLengthList;  ///< current list of Max path-lengths
+  PDGCodeList *    fCurrPDGCodeList;        ///< current list of target nuclei
 };
 
 }      // genie namespace

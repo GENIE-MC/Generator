@@ -40,28 +40,24 @@ int main(int argc, char ** argv)
   }
 
   LOG("Test",pINFO) << "Starting ROOTGeomAnalyzer with geometry from: " << filename;
-
   ROOTGeomAnalyzer* root_analyzer = new ROOTGeomAnalyzer(filename);
- 
-  LOG("Test",pINFO) << "Computing path lengths";
+   
 
+  LOG("Test",pINFO) << "Computing Max path lengths";
+  const PathLengthList & maxpl = root_analyzer->ComputeMaxPathLengths();
+  LOG("Test",pINFO) << "Printing computed Max path lengths:";
+  LOG("Test",pINFO) << maxpl;
+  
+  LOG("Test",pINFO) << "Computing path lengths";
   TLorentzVector* x= new TLorentzVector(0,0,0,0);
   TLorentzVector* p= new TLorentzVector(1,0,0,1);
-  
   const PathLengthList & pl = root_analyzer->ComputePathLengths(*x,*p);
-
   LOG("Test",pINFO) << "Printing computed path lengths:";
   LOG("Test",pINFO) << pl;
 
   int pdg(1039018000);  
-
-  double matLength = root_analyzer->SetVtxMaterial(pdg);
-
-  LOG("Test",pINFO) << "Path in selected material ...";
-  LOG("Test",pINFO) << matLength;
-
   const TVector3 & vtx = root_analyzer->GenerateVertex(*x,*p,pdg);
-   
+  
   LOG("Test",pINFO) << "Vertex selected ...";
   LOG("Test",pINFO) << " x "<<vtx.X()<<" y "<<vtx.Y()<<" z "<<vtx.Z();
 
