@@ -28,12 +28,12 @@
          GSPLOAD and GSPSAVE environmental variables.
 
            - Set the GEVGL environmental variable to contol the list of event
-             generator objects that gets loaded (at job initialization, the
+             generator objects that get loaded (at job initialization, the
              EventGeneratorListAssember assembles the list of all requested
-             event generator objects, that is all concrete implementations of
+             event generator objects -meaning: all concrete implementations of
              the EventGeneratorI interface that know how to generate various
-             classes of events). You can see the possible GEVGL options by
-             looking up the names of the EventGeneratorListAssembler config.
+             classes of events-). You can see the possible GEVGL options by
+             looking up the names of the EventGeneratorListAssembler configuration
              sets at $GENIE/config/event_generator_list_assembler.xml
              If GEVGL is not set, the 'Default' generator list is used.
 
