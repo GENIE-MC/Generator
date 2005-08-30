@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\program testEvGen
+\program gEvGen
 
 \brief   Example program driving GENIE event generation modules
 
