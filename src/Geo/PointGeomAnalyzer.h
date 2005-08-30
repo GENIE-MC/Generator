@@ -35,7 +35,8 @@ public :
 
   // implement the GeomAnalyzerI interface
 
-  const PDGCodeList & ListOfTargetNuclei (void);
+  const PDGCodeList &    ListOfTargetNuclei    (void);
+  const PathLengthList & ComputeMaxPathLengths (void);
 
   const PathLengthList &
            ComputePathLengths
