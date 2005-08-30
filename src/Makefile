@@ -196,6 +196,7 @@ clean: FORCE
 	cd Utils;              make clean; cd ..; \
 	cd Viewer;             make clean; cd ..; \
 	cd stdapp;             make clean; cd ..; \
+	cd test;               make clean; cd ..; \
 	cd scripts;	       make clean; cd ..;
 
 FORCE:
