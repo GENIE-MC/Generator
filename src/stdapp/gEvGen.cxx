@@ -6,7 +6,7 @@
 \brief   Example program driving GENIE event generation modules
 
          Syntax :
-           gEvGen [-n nev] [-c] [-e energy] [-p nupdg] [-t tgtpdg]
+           gEvGen [-n nev] [-s] [-e energy] [-p nupdg] [-t tgtpdg]
 
          Options :
            -n specifies the number of events to generate
