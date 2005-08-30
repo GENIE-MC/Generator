@@ -57,6 +57,14 @@ const PDGCodeList & PointGeomAnalyzer::ListOfTargetNuclei(void)
   return *fCurrPDGCodeList;
 }
 //___________________________________________________________________________
+const PathLengthList & PointGeomAnalyzer::ComputeMaxPathLengths(void)
+{
+// this is irrelevant for the 'point' geometry - return a path length of 1.
+// for the only defined material
+
+  return *fCurrPathLengthList;
+}
+//___________________________________________________________________________
 const PathLengthList & PointGeomAnalyzer::ComputePathLengths(
                   const TLorentzVector & /*x*/, const TLorentzVector & /*p*/)
 {
