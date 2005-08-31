@@ -16,7 +16,7 @@
 */
 //____________________________________________________________________________
 
-#include <sstream>
+#include <iomanip>
 
 #include "libxml/xmlmemory.h"
 #include "libxml/parser.h"
@@ -31,10 +31,12 @@
 #include "Messenger/Messenger.h"
 #include "Utils/XmlParserUtils.h"
 
+using std::setw;
+using std::setfill;
+
 using namespace genie;
 
 using std::endl;
-using std::ostringstream;
 
 //____________________________________________________________________________
 namespace genie {
@@ -95,6 +97,8 @@ bool AlgConfigPool::LoadAlgConfig(void)
   //-- get base GENIE directory from $GENIE environmental variable & build
   //   the GENIE config dir name
   string config_dir = string( gSystem->Getenv("GENIE") ) + string("/config");
+  SLOG("AlgConfigPool", pINFO)
+                 << "GENIE XML configuration files found in: " << config_dir;
 
   //-- loop over all XML config files and read all named configuration
   //   sets for each algorithm
@@ -104,10 +108,13 @@ bool AlgConfigPool::LoadAlgConfig(void)
                   conf_file_iter != fConfigFiles.end(); ++conf_file_iter) {
 
     string alg_name    = conf_file_iter->first;
-    string config_file = config_dir + "/" + conf_file_iter->second;
+    string file_name   = conf_file_iter->second;
 
-    SLOG("AlgConfigPool", pINFO) << alg_name << " ---> " << config_file;
-    bool ok = this->LoadSingleAlgConfig(alg_name, config_file);
+    SLOG("AlgConfigPool", pINFO) << "XML config for:"
+         << setfill('.') << setw(35) << alg_name << " -> " << file_name;
+
+    string full_path = config_dir + "/" + file_name;
+    bool ok = this->LoadSingleAlgConfig(alg_name, full_path);
     if(!ok) {
       SLOG("AlgConfigPool", pERROR)
            << "Error in loading config sets for algorithm = " << alg_name;
@@ -188,8 +195,8 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
 {
 // Loads all configuration sets for the input algorithm using the input XML
 // file
-  ostringstream allconf;
-  allconf << "loading configs:";
+
+  SLOG("AlgConfigPool", pDEBUG) << "[-] Loaded configuration sets:";
 
   bool is_accessible = ! (gSystem->AccessPathName( fMasterConfig.c_str() ));
   if (!is_accessible) {
@@ -219,7 +226,6 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
   }
 
   // loop over all xml tree nodes that are children of the root node
-
   xml_cur = xml_cur->xmlChildrenNode;
   while (xml_cur != NULL) {
     // enter everytime you find an 'param_set' tag
@@ -259,12 +265,11 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
       pair<string, Registry *> alg_single_conf(config_key, config);
       fRegistryPool.insert(alg_single_conf);
 
-      allconf << " [" << param_set << "]";
+      SLOG("AlgConfigPool", pDEBUG) << " |---o " << config_key;
     }
     xml_cur = xml_cur->next;
   }
   xmlFree(xml_cur);
-  SLOG("AlgConfigPool", pINFO) << allconf.str();
   return true;
 }
 //____________________________________________________________________________

@@ -125,3 +125,12 @@ void genie::print_utils::PrintBanner(void)
   }
 }
 //___________________________________________________________________________
+string genie::print_utils::PrintFramedMesg(string mesg)
+{
+  string frame(4+mesg.size(), '*');
+
+  string framed_mesg = string("\n") + frame + string("\n* ") +
+                               mesg + string(" *\n") + frame + string("\n");
+  return framed_mesg;
+}
+//___________________________________________________________________________

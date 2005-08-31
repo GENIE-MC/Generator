@@ -106,24 +106,25 @@ bool PDGCodeList::ExistsInPDGCodeList(int pdg_code)
 //___________________________________________________________________________
 void PDGCodeList::Print(ostream & stream) const
 {
-  stream << "\n[-] PDG Code List" << endl;
+  stream << "\n[-]" << endl;
 
   PDGLibrary * pdglib = PDGLibrary::Instance();
 
   PDGCodeList::const_iterator iter;
+  size_t nc = this->size();
 
   for(iter = this->begin(); iter != this->end(); ++iter) {
     int pdg_code = *iter;
     TParticlePDG * p = pdglib->Find(pdg_code);
 
     if(!p) {
-      stream << " |---o ** ERR: no particle with PDG code: "
-             << pdg_code << endl;
+      stream << " |---o ** ERR: no particle with PDG code: " << pdg_code;
     } else {
       string name = p->GetName();
       stream << " |---o code: " << pdg_code
-             << " [" << setfill(' ') << setw(5) << name << "]";
+                       << " [" << setfill(' ') << setw(5) << name << "]";
     }
+    if( (--nc) > 0) stream << endl;
   }
 }
 //___________________________________________________________________________
