@@ -27,6 +27,8 @@
 #include "Fragmentation/CharmFractionTablePool.h"
 
 using std::string;
+using std::cout;
+using std::endl;
 
 using namespace genie;
 
@@ -43,7 +45,8 @@ CharmFractionTablePool::CharmFractionTablePool()
 //____________________________________________________________________________
 CharmFractionTablePool::~CharmFractionTablePool()
 {
-  LOG("CFracTab", pINFO) << "Deleting all charm fraction tables";
+  cout << "CharmFractionTablePool singleton dtor: "
+                              << "Deleting all charm fraction tables" << endl;
   map<string, CharmFractionTable *>::iterator titer;
   for(titer = fTablePool.begin(); titer != fTablePool.end(); ++titer) {
     CharmFractionTable * table = titer->second;

@@ -29,6 +29,7 @@
 #include "Utils/XmlParserUtils.h"
 
 using std::ofstream;
+using std::cout;
 using std::endl;
 
 namespace genie {
@@ -53,7 +54,7 @@ XSecSplineList::XSecSplineList()
 //____________________________________________________________________________
 XSecSplineList::~XSecSplineList()
 {
-  LOG("XSecSplineList", pINFO) << "Deleting all splines";
+  cout << "XSecSplineList singleton dtor: Deleting all splines" << endl;
   map<string, Spline *>::const_iterator spliter;
   for(spliter = fSplineMap.begin(); spliter != fSplineMap.end(); ++spliter) {
     Spline * spline = spliter->second;

@@ -12,12 +12,17 @@
 */
 //____________________________________________________________________________
 
+#include <iostream>
+
 #include <TROOT.h>
 #include <TClass.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/Algorithm.h"
 #include "Messenger/Messenger.h"
+
+using std::cout;
+using std::endl;
 
 namespace genie {
 
@@ -31,8 +36,8 @@ AlgFactory::AlgFactory()
 //____________________________________________________________________________
 AlgFactory::~AlgFactory()
 {
-  LOG("AlgFactory", pINFO) << "Deleting all owned algorithmic objects";
-
+  cout << "AlgFactory singleton dtor: "
+                          << "Deleting all owned algorithmic objects" << endl;
   map<string, Algorithm *>::iterator alg_iter;
   for(alg_iter = fAlgPool.begin(); alg_iter != fAlgPool.end(); ++alg_iter) {
     Algorithm * alg = alg_iter->second;
@@ -54,7 +59,7 @@ AlgFactory * AlgFactory::Instance()
   return fInstance;
 }
 //____________________________________________________________________________
-const Algorithm * AlgFactory::GetAlgorithm(string alg_name, string param_set) 
+const Algorithm * AlgFactory::GetAlgorithm(string alg_name, string param_set)
 {
 //! Manages the instantiation and "storage/retrieval" of algorithms.
 //! These algorithms are owned by the factory and it hands over (to the client)
@@ -63,22 +68,22 @@ const Algorithm * AlgFactory::GetAlgorithm(string alg_name, string param_set)
 
   string key = alg_name + "/" + param_set;
 
-  SLOG("AlgFactory", pDEBUG) 
+  SLOG("AlgFactory", pDEBUG)
                       << "Algorithm: " << key << " requested from AlgFactory";
 
   if( fAlgPool.count(key) == 1 ) {
 
      LOG("AlgFactory", pDEBUG) << key << " algorithm found in memory";
-  
+
      map<string, Algorithm *>::const_iterator alg_iter = fAlgPool.find(key);
      return alg_iter->second;
 
-  } else {  
+  } else {
      Algorithm * alg_base = InstantiateAlgorithm(alg_name, param_set);
 
      //-- cache the algorithm for future use
      if(alg_base) {
-        pair<string, Algorithm *> key_alg_pair(key, alg_base);        
+        pair<string, Algorithm *> key_alg_pair(key, alg_base);
         fAlgPool.insert(key_alg_pair);
      } else {
         LOG("AlgFactory", pFATAL)
@@ -95,10 +100,10 @@ Algorithm * AlgFactory::AdoptAlgorithm(string alg_name, string param_set) const
 //! Hands over an algorithm instance that is owned by the client.
 //! The client can alter this object (eg. reconfigure) but the AlgFactory does
 //! not keep track of it and the client is responsible for deleting it.
-  
+
    Algorithm * alg_base = InstantiateAlgorithm(alg_name, param_set);
 
-   return alg_base;   
+   return alg_base;
 }
 //____________________________________________________________________________
 Algorithm * AlgFactory::InstantiateAlgorithm(
@@ -110,7 +115,7 @@ Algorithm * AlgFactory::InstantiateAlgorithm(
 
   LOG("AlgFactory", pDEBUG) << "Instantiating algorithm = " << alg_name;
 
-  // Get object through gROOT->GetClass() and cast it to the Algorithm base 
+  // Get object through gROOT->GetClass() and cast it to the Algorithm base
   // class (ABC)
   void * base = gROOT->GetClass(alg_name.c_str())->New();
   Algorithm * alg_base = (Algorithm *) base;
@@ -124,4 +129,4 @@ Algorithm * AlgFactory::InstantiateAlgorithm(
 }
 //____________________________________________________________________________
 
-} // genie namespace 
+} // genie namespace
