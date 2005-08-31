@@ -14,12 +14,18 @@
 //____________________________________________________________________________
 
 #include <algorithm>
+#include <iomanip>
+#include <string>
 
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodeList.h"
 #include "PDG/PDGLibrary.h"
 
+using std::setw;
+using std::setfill;
 using std::endl;
+using std::string;
+
 using namespace genie;
 
 //____________________________________________________________________________
@@ -70,7 +76,7 @@ bool PDGCodeList::CheckPDGCode(int pdg_code)
 
   bool added = this->ExistsInPDGCodeList(pdg_code);
   if(added) {
-    LOG("PDG", pERROR)
+    LOG("PDG", pINFO)
                 << "Particle [pdgc = " << pdg_code << "] was already added";
     return false;
   }
@@ -94,20 +100,30 @@ bool PDGCodeList::ExistsInPDGCodeList(int pdg_code)
   int n = count(this->begin(), this->end(), pdg_code);
 
   if(n!=0) return true;
-  
+
   return false;
 }
 //___________________________________________________________________________
 void PDGCodeList::Print(ostream & stream) const
 {
   stream << "\n[-] PDG Code List" << endl;
-  
+
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+
   PDGCodeList::const_iterator iter;
 
   for(iter = this->begin(); iter != this->end(); ++iter) {
-
     int pdg_code = *iter;
-    stream << " |-----o code: " << pdg_code << endl;
+    TParticlePDG * p = pdglib->Find(pdg_code);
+
+    if(!p) {
+      stream << " |---o ** ERR: no particle with PDG code: "
+             << pdg_code << endl;
+    } else {
+      string name = p->GetName();
+      stream << " |---o code: " << pdg_code
+             << " [" << setfill(' ') << setw(5) << name << "]";
+    }
   }
 }
 //___________________________________________________________________________
