@@ -37,6 +37,11 @@ int main(int argc, char ** argv)
      string argument(argv[iarg]);
      if( argument.compare("-f") == 0 ) filename = string(argv[++iarg]);
   }
+
+  //-- Create the GENIE MC-job driver
+  GMCJob mcj;
+
+  //-- Specify a flux driver
 /*
   LOG("Main", pINFO)  << "Creating [GFlukaAtmo3DFlux] flux driver";
 
@@ -67,12 +72,14 @@ int main(int argc, char ** argv)
   flux -> SetTransverseRadius (0.5);
   flux -> AddEnergySpectrum   (kPdgNuMu, spectrum1);
 
+  //-- Specify the geometry analyzer
+
   ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer(filename);
+
+  //-- Set the flux and the geometry analyzer to the GENIE MC driver
 
   LOG("Main", pINFO)
     << "Creating the GENIE MC Job Driver & specifying flux & geometry";
-
-  GMCJob mcj;
 
   GFluxI *        fluxb = dynamic_cast<GFluxI *>       (flux);
   GeomAnalyzerI * geomb = dynamic_cast<GeomAnalyzerI *>(geom);
@@ -80,7 +87,11 @@ int main(int argc, char ** argv)
   mcj.UseFluxDriver  (fluxb);
   mcj.UseGeomAnalyzer(geomb);
 
+  //-- Configure the GENIE MC driver
+
   mcj.Configure();
+
+  //-- Start generating events -here, just 1 for testing purposes-
 
   EventRecord * event = mcj.GenerateEvent();
 

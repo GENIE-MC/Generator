@@ -36,6 +36,7 @@ namespace print_utils
   string BoolAsIOString  (bool b);
   string BoolAsYNString  (bool b);
   void   PrintBanner     (void);
+  string PrintFramedMesg (string mesg);
 
 }      // print_utils namespace
 

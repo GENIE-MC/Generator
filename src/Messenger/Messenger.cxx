@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <vector>
+#include <iomanip>
 
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
@@ -26,11 +27,13 @@
 #include "Utils/PrintUtils.h"
 #include "Utils/XmlParserUtils.h"
 
-using namespace genie;
-
+using std::setw;
+using std::setfill;
 using std::cout;
 using std::endl;
 using std::vector;
+
+using namespace genie;
 
 //____________________________________________________________________________
 Messenger * Messenger::fInstance = 0;
@@ -179,7 +182,8 @@ bool Messenger::SetPrioritiesFromXmlFile(string filename)
                 XmlParserUtils::TrimSpaces( xmlNodeListGetString(
                                xml_doc, xml_msgp->xmlChildrenNode, 1));
          SLOG("Messenger", pINFO)
-           << "Setting priority level: " << msgstream << " --> " << priority;
+                  << "Setting priority level: " << setfill('.')
+                          << setw(24) << msgstream << " --> " << priority;
 
          log4cpp::Priority::Value pv = this->PriorityFromString(priority);
          this->SetPriorityLevel(msgstream.c_str(), pv);
