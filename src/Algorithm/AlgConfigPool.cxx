@@ -17,6 +17,7 @@
 //____________________________________________________________________________
 
 #include <iomanip>
+#include <iostream>
 
 #include "libxml/xmlmemory.h"
 #include "libxml/parser.h"
@@ -33,10 +34,10 @@
 
 using std::setw;
 using std::setfill;
+using std::cout;
+using std::endl;
 
 using namespace genie;
-
-using std::endl;
 
 //____________________________________________________________________________
 namespace genie {
@@ -58,8 +59,8 @@ AlgConfigPool::AlgConfigPool()
 //____________________________________________________________________________
 AlgConfigPool::~AlgConfigPool()
 {
-  LOG("AlgConfigPool", pINFO) << "Deleting all algorithm configurations";
-
+  cout << "AlgConfigPool singleton dtor: "
+                          << "Deleting all algorithm configurations" << endl;
   map<string, Registry *>::iterator citer;
   for(citer = fRegistryPool.begin(); citer != fRegistryPool.end(); ++citer) {
     Registry * config = citer->second;

@@ -14,11 +14,14 @@
 //____________________________________________________________________________
 
 #include <sstream>
+#include <iostream>
 
 #include "Messenger/Messenger.h"
 #include "Utils/Cache.h"
 
 using std::ostringstream;
+using std::cout;
+using std::endl;
 
 using namespace genie;
 
@@ -28,14 +31,22 @@ Cache * Cache::fInstance = 0;
 Cache::Cache()
 {
   fInstance =  0;
-
   fCacheMap = new map<string, TNtuple * >;
 }
 //____________________________________________________________________________
 Cache::~Cache()
 {
+  cout << "Cache singleton dtor: Deleting all cache branches" << endl;
   fInstance = 0;
-
+  map<string, TNtuple * >::iterator citer;
+  for(citer = fCacheMap->begin(); citer != fCacheMap->end(); ++citer) {
+    TNtuple * branch = citer->second;
+    if(branch) {
+      delete branch;
+      branch = 0;
+    }
+  }
+  fCacheMap->clear();
   delete fCacheMap;
 }
 //____________________________________________________________________________
@@ -60,16 +71,16 @@ TNtuple * Cache::FindCacheBranchPtr(const Algorithm * alg, string subbranch)
 // alg-name/alg-config-set/subbranch-number
 
   string key = this->CacheBranchKey(alg, subbranch);
-  
+
   if (fCacheMap->count(key) == 1) {
 
      map<string, TNtuple *>::const_iterator map_iter;
 
      map_iter = fCacheMap->find(key);
-     
+
      return map_iter->second;
   }
-  
+
   return 0;
 }
 //____________________________________________________________________________
@@ -82,7 +93,7 @@ TNtuple * Cache::CreateCacheBranch(
 
   nt->SetDirectory(0);
   nt->SetCircular(1600000);
-  
+
   fCacheMap->insert( map<string, TNtuple *>::value_type(key,nt) );
 
   return nt;
