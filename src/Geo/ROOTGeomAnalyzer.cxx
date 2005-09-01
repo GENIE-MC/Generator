@@ -99,25 +99,25 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
       return *fCurrMaxPathLengthList;
     }
 
-  //generate 200 random points on each surface, use 200 rays to
-  //calculate maximum path for each material
-
   LOG("GROOTGeom", pINFO) << "Getting a TGeoBBox enclosing the detector";
   TS=TVWorld->GetShape();
   TGeoBBox *box=(TGeoBBox *)TS;
 
-  double dx = box->GetDX();
-  double dy = box->GetDY();
-  double dz = box->GetDZ();
+  //get box origin and dimensions
+  double dx = box->GetDX(); // half-length
+  double dy = box->GetDY(); // half-length
+  double dz = box->GetDZ(); // half-length
   double ox = (box->GetOrigin())[0];
   double oy = (box->GetOrigin())[1];
   double oz = (box->GetOrigin())[2];
   LOG("GROOTGeom",pINFO)
-     << "Box dimensions : x = " << dx << ", y = " << dy << ", z = " <<dz;
+     << "Box dimensions : x = "<< 2*dx << ", y = "<< 2*dy << ", z = "<< 2*dz;
   LOG("GROOTGeom",pINFO)
-     << "Box origin     : x = " << ox << ", y = " << oy << ", z = " <<oz;
+     << "Box origin     : x = "<< ox   << ", y = "<< oy   << ", z = "<<   oz;
 
-  //gRandom = new TRandom3();
+  //generate 200 random points on each surface, use 200 rays to
+  //calculate maximum path for each material
+
   RandomGen* rand=RandomGen::Instance();
   TRandom & r3=rand->Random3();
 
