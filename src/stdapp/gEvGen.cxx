@@ -52,7 +52,7 @@
              XML configuration file (following the syntax of the default one
              that can be found in $GENIE/config/messenger.xml) and modify the
              verbosity of GENIE output. Both the default and your messenger
-             configuration will be read but yours will take precedence in 
+             configuration will be read but yours will take precedence in
              case of clashing priority for the same stream.
 
              Examples:
@@ -114,21 +114,19 @@ int main(int argc, char ** argv)
   LOG("test", pINFO) << "Neutrino PDG code          = " << gOptNuPdgCode;
   LOG("test", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
 
-  //-- high level GENIE event generation interface object
-  GENIE genie;
+  //-- create the GENIE high level event generation interface object
+  //   for the given initial state
 
-  //-- set neutrino pdg code, and target Z,A
-  int Z = pdg::IonPdgCodeToZ(gOptTgtPdgCode);
-  int A = pdg::IonPdgCodeToA(gOptTgtPdgCode);
-  genie.SetInitialState(gOptNuPdgCode, Z,A);
+  InitialState init_state(gOptTgtPdgCode, gOptNuPdgCode);
+
+  GENIE genie;
+  genie.SetInitialState(init_state);
 
   //-- load and/or build splines if required
   XSecSplineList * xssl = 0;
   if(gOptBuildSplines) {
      xssl = XSecSplineList::Instance();
      // check whether there is a spline-list XML file to load
-     LOG("test", pINFO) << "gerring var";
-
      string spllst_load_xmlfile =
              (gSystem->Getenv("GSPLOAD") ? gSystem->Getenv("GSPLOAD") : "");
      LOG("test", pINFO) << "$GSPLOAD env.var = " << spllst_load_xmlfile;
