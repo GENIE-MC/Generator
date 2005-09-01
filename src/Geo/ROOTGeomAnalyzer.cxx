@@ -21,6 +21,7 @@
 #include <TObjArray.h>
 #include <TLorentzVector.h>
 #include <TVector3.h>
+#include <TSystem.h>
 
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Geo/PathLengthList.h"
@@ -98,7 +99,10 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
       return *fCurrMaxPathLengthList;
     }
 
-  //generate 200 random points on each surface, use 200 rays to calculate maximum path for each material
+  //generate 200 random points on each surface, use 200 rays to
+  //calculate maximum path for each material
+
+  LOG("GROOTGeom", pINFO) << "Getting a TGeoBBox enclosing the detector";
   TS=TVWorld->GetShape();
   TGeoBBox *box=(TGeoBBox *)TS;
 
@@ -108,13 +112,19 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
   double ox = (box->GetOrigin())[0];
   double oy = (box->GetOrigin())[1];
   double oz = (box->GetOrigin())[2];
-
-  LOG("GROOTGeom",pDEBUG)<<" max dimensions : x = "<<dx<<" ; y = "<<dy<<" ; z = "<<dz;
-  LOG("GROOTGeom",pDEBUG)<<" origin : x = "<<ox<<" ; y = "<<oy<<" ; z = "<<oz;
+  LOG("GROOTGeom",pINFO)
+     << "Box dimensions : x = " << dx << ", y = " << dy << ", z = " <<dz;
+  LOG("GROOTGeom",pINFO)
+     << "Box origin     : x = " << ox << ", y = " << oy << ", z = " <<oz;
 
   //gRandom = new TRandom3();
   RandomGen* rand=RandomGen::Instance();
   TRandom & r3=rand->Random3();
+
+  LOG("GROOTGeom",pINFO)
+        << "Will generate [" << fNPoints << "] random points on each box surface";
+  LOG("GROOTGeom",pINFO)
+        << "Will generate [" << fNRays   << "] rays for each point";
 
   //loop on materials
   int pdgc(0);
@@ -122,12 +132,13 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
   for(itrPDG=fCurrPDGCodeList->begin();itrPDG!=fCurrPDGCodeList->end();itrPDG++)
     {
       pdgc=*itrPDG;
-      LOG("GROOTGeom",pDEBUG)<<" calculating max path length for material "<<pdgc;
+      LOG("GROOTGeom", pINFO)
+             <<" Calculating max path length for material: " << pdgc;
 
       int igen(0);
       int Rgen(0);
-      int maxPoints(200);
-      int maxRays(200);
+      int maxPoints(fNPoints);
+      int maxRays(fNRays);
       double xyz[3];
       double direction[3];
       double MaxPath(0);
@@ -135,6 +146,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
       double dirTot(0);
 
       //top
+      LOG("GROOTGeom",pINFO) << "Box surface scanned: [TOP]";
       igen=0;
       while(igen<maxPoints)
         {
@@ -166,6 +178,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
 
 
       //bottom
+      LOG("GROOTGeom",pINFO) << "Box surface scanned: [BOTTOM]";
       igen=0;
       while(igen<maxPoints)
         {
@@ -195,6 +208,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
         }
 
       //left
+      LOG("GROOTGeom",pINFO) << "Box surface scanned: [LEFT]";
       igen=0;
       while(igen<maxPoints)
         {
@@ -224,6 +238,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
         }
 
       //right
+      LOG("GROOTGeom",pINFO) << "Box surface scanned: [RIGHT]";
       igen=0;
       while(igen<maxPoints)
         {
@@ -253,6 +268,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
         }
 
       //back
+      LOG("GROOTGeom",pINFO) << "Box surface scanned: [BACK]";
       igen=0;
       while(igen<maxPoints)
         {
@@ -282,6 +298,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
         }
 
       //front
+      LOG("GROOTGeom",pINFO) << "Box surface scanned: [FRONT]";
       igen=0;
       while(igen<maxPoints)
         {
@@ -310,6 +327,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
             }
         }
 
+      LOG("GROOTGeom", pINFO) << "Max path length found = " << MaxPath;
       fCurrMaxPathLengthList->AddPathLength(pdgc,MaxPath);
     }
   return *fCurrMaxPathLengthList;
@@ -320,19 +338,28 @@ void ROOTGeomAnalyzer::Initialize(string filename)
   LOG("GROOTGeom", pINFO)
                << "Initializing with input geometry from: " << filename;
 
-  fCurrMaxPathLengthList = 0;
-  fCurrPathLengthList = 0;
-  fCurrPDGCodeList    = 0;
+  bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
+  if (!is_accessible) {
+     LOG("GROOTGeom", pERROR)
+       << "The ROOT geometry doesn't exist! Initialization failed!";
+     return;
+  }
+  fGeometry = TGeoManager::Import(filename.c_str());
 
-  fGeometry=TGeoManager::Import(filename.c_str());
+  fCurrMaxPathLengthList = 0;
+  fCurrPathLengthList    = 0;
+  fCurrPDGCodeList       = 0;
 
   this->BuildListOfTargetNuclei();
 
   const PDGCodeList & pdglist = this->ListOfTargetNuclei();
 
-  fCurrPathLengthList = new PathLengthList(pdglist);
+  fCurrPathLengthList    = new PathLengthList(pdglist);
   fCurrMaxPathLengthList = new PathLengthList(pdglist);
-  fCurrVertex = new TVector3(0.,0.,0.);
+  fCurrVertex            = new TVector3(0.,0.,0.);
+
+  this->SetScannerNPoints(200);
+  this->SetScannerNRays(200);
 }
 //___________________________________________________________________________
 const PDGCodeList & ROOTGeomAnalyzer::ListOfTargetNuclei(void)

@@ -38,7 +38,9 @@ public :
   ROOTGeomAnalyzer(string filename);
  ~ROOTGeomAnalyzer();
 
- double ComputeMaxPathLengthPDG(double* XYZ,double* direction,int pdgc);
+  // analyzer configuration options
+  void SetScannerNPoints(int np) { fNPoints = np; };
+  void SetScannerNRays  (int nr) { fNRays   = nr; };
 
   // implement the GeomAnalyzerI interface
 
@@ -48,20 +50,24 @@ public :
   const PathLengthList &
            ComputePathLengths
              (const TLorentzVector & x, const TLorentzVector & p);
+
   const TVector3 &
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
 
 private:
 
-  void Initialize              (string filename);
-  void BuildListOfTargetNuclei (void);
-  int  GetTargetPdgCode        (const TGeoMaterial * const m) const;
-  int  GetTargetPdgCode        (const TGeoElement  * const e) const;
+  void   Initialize              (string filename);
+  void   BuildListOfTargetNuclei (void);
+  int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
+  int    GetTargetPdgCode        (const TGeoElement  * const e) const;
+  double ComputeMaxPathLengthPDG (double* XYZ, double* direction, int pdgc);
+
 
   int              fMaterial;               ///< [input] selected material for vertex
-
   TGeoManager *    fGeometry;               ///< [input] detector geometry
+  int              fNPoints;                ///< max path length scanner: points/surface [def:200]
+  int              fNRays;                  ///< max path length scanner: rays/point [def:200]
   TVector3 *       fCurrVertex;             ///< current generated vertex
   PathLengthList * fCurrPathLengthList;     ///< current list of path-lengths
   PathLengthList * fCurrMaxPathLengthList;  ///< current list of Max path-lengths
