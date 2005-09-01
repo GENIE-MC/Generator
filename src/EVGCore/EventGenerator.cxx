@@ -66,6 +66,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   assert( n_generator_steps > 0 );
 
   //-- Clear previous virtual list folder
+  LOG("EventGenerator", pINFO) << "Clearing the GHepVirtualListFolder";
   GHepVirtualListFolder * vlfolder = GHepVirtualListFolder::Instance();
   vlfolder->Clear();
 
@@ -75,10 +76,12 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
      bool ffwd = event_rec->FastForwardEnabled();
      if(!ffwd) visitor->ProcessEventRecord(event_rec);
      else {
-       LOG("EventGenerator", pINFO) 
+       LOG("EventGenerator", pINFO)
            << "Fast Forward flag was set - Skipping processing step!";
      }
   }
+  LOG("EventGenerator", pINFO)
+         << "The EventRecord was visited by all EventRecordVisitors\n";
 }
 //___________________________________________________________________________
 const EventRecordVisitorI * EventGenerator::ProcessingStep(int istep) const
