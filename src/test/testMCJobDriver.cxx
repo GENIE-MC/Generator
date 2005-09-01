@@ -12,6 +12,9 @@
 */
 //____________________________________________________________________________
 
+#include <string>
+
+#include <TSystem.h>
 #include <TFile.h>
 #include <TH1D.h>
 #include <TF1.h>
@@ -24,15 +27,17 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 
+using std::string;
 using namespace genie;
 using namespace genie::flux;
 
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
-  // get filename from the command line argument (following -f)
-
-  string filename = "$GENIE/src/test/TestGeometry.root"; // default
+  //-- Default geometry
+  string base_dir = string( gSystem->Getenv("GENIE") );
+  string filename = base_dir+ string("/src/test/TestGeometry.root");
+  //-- Scan for filename from the command line argument (following -f)
   for(int iarg = 0; iarg < argc-1; iarg++) {
      string argument(argv[iarg]);
      if( argument.compare("-f") == 0 ) filename = string(argv[++iarg]);
