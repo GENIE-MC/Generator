@@ -43,6 +43,8 @@ PDGLibrary::~PDGLibrary()
 PDGLibrary * PDGLibrary::Instance()
 {
   if(fInstance == 0) {
+    LOG("PDG", pINFO) << "PDGLibrary late initialization";
+
     static PDGLibrary::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
 
@@ -80,8 +82,7 @@ bool PDGLibrary::LoadDBase(void)
   if ( ! (gSystem->AccessPathName( path_1.c_str() ) ) ) {
 
      // loading PDG data from $GENIE/config/
-     LOG("PDG", pINFO)
-              << "\n ***** Loading PDG data and extensions from " << path_1;
+     LOG("PDG", pINFO) << "Load PDG data from: " << path_1;
      fDatabasePDG->ReadPDGTable( path_1.c_str() );
      pdg_data_loaded = true;
 
@@ -90,9 +91,9 @@ bool PDGLibrary::LoadDBase(void)
      if ( ! (gSystem->AccessPathName( path_2.c_str() ) ) ) {
 
         // no PDG data in $ROOTSYS/etc either !!
-        LOG("PDG", pWARN)
-           << "\n ***** Loading standard PDG data from " << path_2
-                      << " - The PDG extensions will not be loaded!! [<-bad]";
+        LOG("PDG", pERROR)
+           << "Load PDG data from: " << path_2
+            << "\n ****** The PDG extensions will not be loaded!! ******";
 
         fDatabasePDG->ReadPDGTable( path_2.c_str() );
         pdg_data_loaded = true;
