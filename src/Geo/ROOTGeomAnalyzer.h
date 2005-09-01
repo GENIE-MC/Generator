@@ -24,6 +24,8 @@
 #include "PDG/PDGUtils.h"
 
 class TGeoVolume;
+class TGeoMaterial;
+class TGeoElement;
 
 using std::string;
 
@@ -35,7 +37,7 @@ public :
 
   ROOTGeomAnalyzer(string filename);
  ~ROOTGeomAnalyzer();
- 
+
  double ComputeMaxPathLengthPDG(double* XYZ,double* direction,int pdgc);
 
   // implement the GeomAnalyzerI interface
@@ -45,7 +47,7 @@ public :
 
   const PathLengthList &
            ComputePathLengths
-             (const TLorentzVector & x, const TLorentzVector & p); 
+             (const TLorentzVector & x, const TLorentzVector & p);
   const TVector3 &
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
@@ -54,12 +56,14 @@ private:
 
   void Initialize              (string filename);
   void BuildListOfTargetNuclei (void);
+  int  GetTargetPdgCode        (const TGeoMaterial * const m) const;
+  int  GetTargetPdgCode        (const TGeoElement  * const e) const;
 
   int              fMaterial;               ///< [input] selected material for vertex
-  
+
   TGeoManager *    fGeometry;               ///< [input] detector geometry
   TVector3 *       fCurrVertex;             ///< current generated vertex
-  PathLengthList * fCurrPathLengthList;     ///< current list of path-lengths 
+  PathLengthList * fCurrPathLengthList;     ///< current list of path-lengths
   PathLengthList * fCurrMaxPathLengthList;  ///< current list of Max path-lengths
   PDGCodeList *    fCurrPDGCodeList;        ///< current list of target nuclei
 };
