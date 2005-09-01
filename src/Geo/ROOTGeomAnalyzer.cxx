@@ -44,6 +44,7 @@ GeomAnalyzerI()
 //___________________________________________________________________________
 ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
 {
+
   if( fCurrPathLengthList ) delete fCurrPathLengthList;
   if( fCurrMaxPathLengthList ) delete fCurrMaxPathLengthList;
   if( fCurrPDGCodeList    ) delete fCurrPDGCodeList;
@@ -63,14 +64,12 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
       LOG("GROOTGeom",pERROR)<<" ERROR!!! Load geometry before!!! ";
       return *fCurrMaxPathLengthList;
     }
-
+  
   //select World volume
-
-
   TObjArray *LV =0;
-
+  
   LV=fGeometry->GetListOfVolumes();
-
+  
   int numVol;
   numVol=(LV->GetEntries());
 
@@ -101,9 +100,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
       return *fCurrMaxPathLengthList;
     }
 
-
   //generate 200 random points on each surface, use 200 rays to calculate maximum path for each material
-
   TS=TVWorld->GetShape();
   TGeoBBox *box=(TGeoBBox *)TS;
 
@@ -120,15 +117,15 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
   //gRandom = new TRandom3();
   RandomGen* rand=RandomGen::Instance();
   TRandom & r3=rand->Random3();
-
+   
   //loop on materials
   int pdgc(0);
-  vector<int>::iterator itrPDG;
+  vector<int>::iterator itrPDG; 
   for(itrPDG=fCurrPDGCodeList->begin();itrPDG!=fCurrPDGCodeList->end();itrPDG++)
     {
       pdgc=*itrPDG;
       LOG("GROOTGeom",pDEBUG)<<" calculating max path length for material "<<pdgc;
-
+  
       int igen(0);
       int Rgen(0);
       int maxPoints(200);
@@ -138,192 +135,194 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
       double MaxPath(0);
       double Length(0);
       double dirTot(0);
-
+      
       //top
       igen=0;
       while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox-dx+2*dx*r3.Rndm();
-          xyz[1] = oy+dy;
-          xyz[2] = oz-dz+2*dz*r3.Rndm();
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=-0.5+r3.Rndm();
-              direction[1]=-r3.Rndm();
-              direction[2]=-0.5+r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-
-            }
-        }
-
-
+	{
+	  igen++;
+	  xyz[0] = ox-dx+2*dx*r3.Rndm();
+	  xyz[1] = oy+dy;
+	  xyz[2] = oz-dz+2*dz*r3.Rndm();
+	  
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    {
+	      Rgen++;
+	      direction[0]=-0.5+r3.Rndm();
+	      direction[1]=-r3.Rndm();
+	      direction[2]=-0.5+r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	      
+	    }
+	}
+      
+      
       //bottom
       igen=0;
       while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox-dx+2*dx*r3.Rndm();
-          xyz[1] = oy-dy;
-          xyz[2] = oz-dz+2*dz*r3.Rndm();
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=-0.5+r3.Rndm();
-              direction[1]=r3.Rndm();
-              direction[2]=-0.5+r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-            }
-        }
-
-      //left
+	{ 
+	  igen++;
+	  xyz[0] = ox-dx+2*dx*r3.Rndm();
+	  xyz[1] = oy-dy;
+	  xyz[2] = oz-dz+2*dz*r3.Rndm();
+	  
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    { 
+	      Rgen++;
+	      direction[0]=-0.5+r3.Rndm();
+	      direction[1]=r3.Rndm();
+	      direction[2]=-0.5+r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	    }
+	}
+      
+      //left  
       igen=0;
       while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox-dx;
-          xyz[1] = oy-dy+2*dy*r3.Rndm();
-          xyz[2] = oz-dz+2*dz*r3.Rndm();
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=r3.Rndm();
-              direction[1]=-0.5+r3.Rndm();
-              direction[2]=-0.5+r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-            }
-        }
-
-      //right
+	{
+	  igen++;
+	  xyz[0] = ox-dx;
+	  xyz[1] = oy-dy+2*dy*r3.Rndm();
+	  xyz[2] = oz-dz+2*dz*r3.Rndm(); 
+	  
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    {
+	      Rgen++;
+	      direction[0]=r3.Rndm();
+	      direction[1]=-0.5+r3.Rndm();
+	      direction[2]=-0.5+r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	    }
+	}
+      
+      //right  
       igen=0;
       while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox+dx;
-          xyz[1] = oy-dy+2*dy*r3.Rndm();
-          xyz[2] = oz-dz+2*dz*r3.Rndm();
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=-r3.Rndm();
-              direction[1]=-0.5+r3.Rndm();
-              direction[2]=-0.5+r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-            }
-        }
-
+	{
+	  igen++;
+	  xyz[0] = ox+dx;
+	  xyz[1] = oy-dy+2*dy*r3.Rndm();
+	  xyz[2] = oz-dz+2*dz*r3.Rndm();
+	  
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    {
+	      Rgen++;
+	      direction[0]=-r3.Rndm();
+	      direction[1]=-0.5+r3.Rndm();
+	      direction[2]=-0.5+r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	    }
+	}
+      
       //back
       igen=0;
       while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox-dx+2*dx*r3.Rndm();
-          xyz[1] = oy-dy+2*dy*r3.Rndm();
-          xyz[2] = oz-dz;
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=-0.5+r3.Rndm();
-              direction[1]=-0.5+r3.Rndm();
-              direction[2]=r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-            }
-        }
-
+	{
+	  igen++;
+	  xyz[0] = ox-dx+2*dx*r3.Rndm();
+	  xyz[1] = oy-dy+2*dy*r3.Rndm();
+	  xyz[2] = oz-dz; 
+	  
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    {
+	      Rgen++;
+	      direction[0]=-0.5+r3.Rndm();
+	      direction[1]=-0.5+r3.Rndm();
+	      direction[2]=r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	    }
+	}  
+      
       //front
       igen=0;
       while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox-dx+2*dx*r3.Rndm();
-          xyz[1] = oy-dy+2*dy*r3.Rndm();
-          xyz[2] = oz+dz;
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=-0.5+r3.Rndm();
-              direction[1]=-0.5+r3.Rndm();
-              direction[2]=-r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-            }
-        }
-
-
+	{
+	  igen++;
+	  xyz[0] = ox-dx+2*dx*r3.Rndm();
+	  xyz[1] = oy-dy+2*dy*r3.Rndm();
+	  xyz[2] = oz+dz; 
+	  
+	  Rgen=0;
+	  while(Rgen<maxRays)
+	    {
+	      Rgen++;
+	      direction[0]=-0.5+r3.Rndm();
+	      direction[1]=-0.5+r3.Rndm();
+	      direction[2]=-r3.Rndm();
+	      
+	      dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
+	      
+	      direction[0]/=dirTot;
+	      direction[1]/=dirTot;
+	      direction[2]/=dirTot;
+	      
+	      Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc); 
+	      if(Length>MaxPath)
+		MaxPath=Length;
+	    }
+	}
+      
+      
       fCurrMaxPathLengthList->AddPathLength(pdgc,MaxPath);
+      
     }
-
+  
   return *fCurrMaxPathLengthList;
 }
 //________________________________________________________________________
 void ROOTGeomAnalyzer::Initialize(string filename)
 {
+
   LOG("GROOTGeom", pINFO)
                << "Initializing with input geometry from: " << filename;
 
@@ -494,7 +493,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 
 //___________________________________________________________________________
 const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
-              const TLorentzVector & x, const TLorentzVector & p, int tgtpdg)
+		const TLorentzVector & x, const TLorentzVector & p, int tgtpdg)
 {
 // Generates a random vertex, within the detector material with the input
 // PDG code, for a neutrino starting from point x and travelling along the
@@ -502,7 +501,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
   LOG("GROOTGeom", pINFO)
            << "Generating vtx in material: " << tgtpdg
-                                     << "along the input neutrino direction";
+                                     << " along the input neutrino direction";
   // reset current interaction vertex
   fCurrVertex->SetXYZ(0.,0.,0.);
 
@@ -759,6 +758,7 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
 //___________________________________________________________________________
 double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,int pdgc)
 {
+
   TGeoVolume *current =0;
   int counterloop(0);
   double Length(0);
@@ -823,31 +823,32 @@ double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,i
       if(condition)
         {
           mat = med->GetMaterial();
-          if (!mat)
+	  if (!mat)
             condition=kFALSE;
         }
 
       if(condition)
         {
-          int A=(int)(mat->GetA());
-          int Z(mat->GetZ());
-          int ion_pdgc = pdg::IonPdgCode(A,Z);
-          fGeometry->FindNextBoundary();
-          step=fGeometry->GetStep();
-          while(!fGeometry->IsEntering())
-            {
-              fGeometry->Step();
-              step=fGeometry->GetStep();
-            }
-
-          if(ion_pdgc == pdgc)
-            Length+=step;
-
-          xx+=step * direction[0];
-          yy+=step * direction[1];
-          zz+=step * direction[2];
-        }
+	  int A=(int)(mat->GetA());
+	  int Z(mat->GetZ());
+	  int ion_pdgc = pdg::IonPdgCode(A,Z);
+	  fGeometry->FindNextBoundary();
+	  step=fGeometry->GetStep();  
+	  while(!fGeometry->IsEntering())
+	    {
+	      fGeometry->Step();
+	      step=fGeometry->GetStep();
+	    }
+	  
+	  if(ion_pdgc == pdgc)
+	    Length+=step;
+ 
+	  xx+=step * direction[0];
+	  yy+=step * direction[1];
+	  zz+=step * direction[2];
+	}
     }
   return Length;
-}
+} 
 //___________________________________________________________________________
+

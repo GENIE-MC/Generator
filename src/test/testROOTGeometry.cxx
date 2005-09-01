@@ -18,7 +18,9 @@
 //____________________________________________________________________________
 
 #include <string>
-
+#include <iostream>
+#include <stdlib.h>
+#include <fstream>
 #include <TLorentzVector.h>
 
 #include "Geo/ROOTGeomAnalyzer.h"
@@ -55,11 +57,19 @@ int main(int argc, char ** argv)
   LOG("Test",pINFO) << "Printing computed path lengths:";
   LOG("Test",pINFO) << pl;
 
+  //material selected for the vertex generation
   int pdg(1039018000);  
-  const TVector3 & vtx = root_analyzer->GenerateVertex(*x,*p,pdg);
+  //number of vertices to be generated
+  int numVtx(100);
+  ofstream outfileVTX("VtxCoord.txt",std::ios_base::app);
   
-  LOG("Test",pINFO) << "Vertex selected ...";
-  LOG("Test",pINFO) << " x "<<vtx.X()<<" y "<<vtx.Y()<<" z "<<vtx.Z();
+  for(int i=0;i<numVtx;i++)
+    {
+      const TVector3 & vtx = root_analyzer->GenerateVertex(*x,*p,pdg);
+      LOG("Test",pINFO) << "Vertex selected ...";
+      LOG("Test",pINFO) << " x "<<vtx.X()<<" y "<<vtx.Y()<<" z "<<vtx.Z();  
+      outfileVTX<<vtx.X()<<"\t"<<vtx.Y()<<"\t"<<vtx.Z()<<std::endl;
+    }
 
   return 0;
 }

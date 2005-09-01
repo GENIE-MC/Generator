@@ -49,12 +49,11 @@ public :
   const TVector3 &
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
-  
+
 private:
 
   void Initialize              (string filename);
   void BuildListOfTargetNuclei (void);
- 
 
   int              fMaterial;               ///< [input] selected material for vertex
   
