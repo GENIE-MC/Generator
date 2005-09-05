@@ -6,7 +6,7 @@
 \brief   Example program driving GENIE event generation modules
 
          Syntax :
-           gEvGen [-n nev] [-s] [-e energy] [-p nupdg] [-t tgtpdg]
+           gEvGen [-n nev] [-s] [-e energy] [-p nupdg] [-t tgtpdg] [-f format]
 
          Options :
            -n specifies the number of events to generate
@@ -14,6 +14,11 @@
            -e specifies the neutrino energy
            -p specifies the neutrino PDG code
            -t specifies the target PDG code (std format: 1aaazzz000)
+           -f specifies the output TTree format. If set to 0 will create a
+              single-branch TTree with NtpMCPlainRecord objects in its leaves,
+              while if set to 1 it will have NtpMCEventRecord objects in
+              its leaves (see the Ntuple package for descriptions of the ntuple
+              records and their intended usage). Default options is 1.
 
          Example:
            gEvGev -n 300 -s -e 6.5 -p 14 -t 1056026000
@@ -72,6 +77,7 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <sstream>
 #include <string>
 
 #include <TFile.h>
@@ -84,20 +90,25 @@
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
+#include "Ntuple/NtpMCFormat.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/XSecSplineList.h"
 
 using std::string;
+using std::ostringstream;
+
 using namespace genie;
 
 void GetCommandLineArgs (int argc, char ** argv);
 
-int    gOptNevents      = 100;        // default n-events to generate
-bool   gOptBuildSplines = false;      // default spline building option
-double gOptNuEnergy     = 3.0;        // default neutrino energy
-int    gOptNuPdgCode    = kPdgNuMu;   // default neutrino PDG code
-int    gOptTgtPdgCode   = 1056026000; // default target PDG code
+//Default options:
+int           gOptNevents      = 100;            // n-events to generate
+bool          gOptBuildSplines = false;          // spline building option
+double        gOptNuEnergy     = 3.0;            // neutrino energy
+int           gOptNuPdgCode    = kPdgNuMu;       // neutrino PDG code
+int           gOptTgtPdgCode   = 1056026000;     // target PDG code
+NtpMCFormat_t gOptNtpFormat    = kNFEventRecord; // ntuple format
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -113,6 +124,8 @@ int main(int argc, char ** argv)
   LOG("test", pINFO) << "Neutrino energy            = " << gOptNuEnergy;
   LOG("test", pINFO) << "Neutrino PDG code          = " << gOptNuPdgCode;
   LOG("test", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
+  LOG("test", pINFO) << "Output ntuple format       = "
+                                    << NtpMCFormat::AsString(gOptNtpFormat);
 
   //-- create the GENIE high level event generation interface object
   //   for the given initial state
@@ -153,9 +166,13 @@ int main(int argc, char ** argv)
   //-- in this test just request events for monoenergetic neutrinos
   TLorentzVector nu_p4 (0., 0., gOptNuEnergy, gOptNuEnergy); // px,py,pz,E (GeV)
 
+  //-- create the output ROOT file name;
+  ostringstream filename;
+  filename << "GNtp" << NtpMCFormat::FilenameTag(gOptNtpFormat) << ".root";
+
   //-- initialize an Ntuple Writer
-  NtpWriter ntpw;
-  ntpw.InitTree("./events.root");
+  NtpWriter ntpw(gOptNtpFormat);
+  ntpw.InitTree(filename.str());
 
   //-- generate events / print the GHEP record / add it to the ntuple
   int ievent = 0;
@@ -236,6 +253,20 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
 
     if (argv[1][1] == 's') gOptBuildSplines = true;
+
+    int format = 1;
+    if (argv[1][1] == 'f') {
+      if (strlen(&argv[1][2]) ) {
+        strcpy(argument,&argv[1][2]);
+        format = atoi(argument);
+      } else if( (argc>2) && (argv[2][0] != '-') ) {
+        argc--;
+        argv++;
+        strcpy(argument,&argv[1][0]);
+        format = atoi(argument);
+      }
+    }
+    if(format == 0 || format == 1) gOptNtpFormat = (NtpMCFormat_t)format;
 
     argc--;
     argv++;
