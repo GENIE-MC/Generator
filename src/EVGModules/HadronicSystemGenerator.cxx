@@ -80,7 +80,7 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
       LOG("HadronicVtx", pFATAL)
           << "No particle with [A = " << A << ", Z = " << Z
                               << ", pdgc = " << ipdgc << "] in PDGLibrary!";
-      assert(false);
+      assert(particle);
   }
   double mass  = particle->Mass();
 
