@@ -6,11 +6,14 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::NtpMCRecord;
-#pragma link C++ class genie::NtpMCEventHeader;
+#pragma link C++ class genie::NtpMCTreeHeader;
+#pragma link C++ class genie::NtpMCRecHeader;
+#pragma link C++ class genie::NtpMCRecordI;
+#pragma link C++ class genie::NtpMCPlainRecord;
+#pragma link C++ class genie::NtpMCEventRecord;
 #pragma link C++ class genie::NtpMCSummary;
-#pragma link C++ class genie::NtpGHepParticle;
-#pragma link C++ class genie::NtpWriter;
+#pragma link C++ class genie::NtpMCGHepEntry;
 #pragma link C++ class genie::NtpGHepAnalyzer;
+#pragma link C++ class genie::NtpWriter;
 
 #endif

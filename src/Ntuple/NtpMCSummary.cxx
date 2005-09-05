@@ -3,7 +3,10 @@
 
 \class   genie::NtpMCSummary
 
-\brief   MINOS-style Ntuple Class to hold a MC Summary Information
+\brief   MINOS-style Ntuple class to hold a MC Summary Information.
+         The Ntuple class is treated as a C-struct with public member data of
+         basic-only types so that the ntuple can be easily analyzed in bare
+         ROOT sessions (without loading the GENIE libraries).
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -56,7 +59,53 @@ NtpMCSummary::~NtpMCSummary()
 //____________________________________________________________________________
 void NtpMCSummary::PrintToStream(ostream & stream) const
 {
+  stream << endl;
+  stream << "Probe PDG code:............... " << this->probe  << endl;
+  stream << "F/S primary lepton PDG code:.. " << this->fsl    << endl;
+  stream << "Nuclear target PDG code:......." << this->tgt    << endl;
+  stream << "Hit nucleon PDG code:.........." << this->nucl   << endl;
+  stream << "Hit quark PDG code:............" << this->iqrk   << endl;
+  stream << "Outgoing quark PDG code:......." << this->fqrk   << endl;
+  stream << "Resonance PDG code:............" << this->res    << endl;
+  stream << "Charm hadron PDG code:........." << this->ch     << endl;
+  stream << "Target Z:......................" << this->Z      << endl;
+  stream << "Target A:......................" << this->A      << endl;
+  stream << "Target N:......................" << this->N      << endl;
+  stream << "Scattering Type:..............." << this->scat   << endl;
+  stream << "Interaction Type:.............." << this->proc   << endl;
+  stream << "Bjorken x:....................." << this->x      << endl;
+  stream << "Inelasticity y:................" << this->y      << endl;
+  stream << "Fragmentation parameter z:....." << this->z      << endl;
+  stream << "Momentum transfer Q^2:........." << this->Q2     << endl;
+  stream << "Invariant mass W:.............." << this->W      << endl;
+  stream << "Cross Section (E):............." << this->xsec   << endl;
+  stream << "Cross Section (E, Kinematics).:" << this->dxsec  << endl;
+  stream << "E/M fraction:.................:" << this->emfrac << endl;
 
+  stream << "Vertex (x,y,z,t)..............: ("
+         << this->v[0] << ", " << this->v[1] << ", "
+         << this->v[2] << ", " << this->v[3] << ")"
+         << endl;
+  stream << "Probe 4P (px,py,pz,E).........: ("
+         << this->p4p[0] << ", " << this->p4p[1] << ", "
+         << this->p4p[2] << ", " << this->p4p[3] << ")"
+         << endl;
+  stream << "Hit nucleon 4P (px,py,pz,E)...: ("
+         << this->p4nucl[0] << ", " << this->p4nucl[1] << ", "
+         << this->p4nucl[2] << ", " << this->p4nucl[3] << ")"
+         << endl;
+  stream << "F/S lepton 4P (px,py,pz,E)...: ("
+         << this->p4fsl[0] << ", " << this->p4fsl[1] << ", "
+         << this->p4fsl[2] << ", " << this->p4fsl[3] << ")"
+         << endl;
+  stream << "Num (p,n)....................: ("
+         << this->np << ", " << this->nn << ")"
+         << endl;
+  stream << "Num (pi^0,pi^+,pi^-).........: ("
+         << this->npi0 << ", " << this->npip << ", " << this->npim << ")"
+         << endl;
+  stream << "Num (K^0,K^+,K^-)............: ("
+         << this->nK0 << ", " << this->nKp << ", " << this->nKm << ")";
 }
 //____________________________________________________________________________
 void NtpMCSummary::Copy(const EventRecord & evrec)

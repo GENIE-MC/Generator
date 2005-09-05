@@ -3,7 +3,10 @@
 
 \class   genie::NtpMCSummary
 
-\brief   MINOS-style Ntuple Class to hold an MC event summary information.
+\brief   MINOS-style Ntuple class to hold an MC event summary information.
+         The Ntuple class is treated as a C-struct with public member data of
+         basic-only types so that the ntuple can be easily analyzed in bare
+         ROOT sessions (without loading the GENIE libraries).
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory

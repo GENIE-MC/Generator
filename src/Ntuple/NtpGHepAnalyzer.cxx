@@ -130,7 +130,7 @@ void NtpGHepAnalyzer::AnalyzeEventRecord(const EventRecord & evrec)
 
   //IMD
   GHepParticle * elec = evrec.GetParticle(2);
-  if(elec->Status()==kIStInitialState && 
+  if(elec->Status()==kIStInitialState &&
               elec->PdgCode()==kPdgElectron) fScatType = kScInverseMuDecay;
 
   //QEL or DIS
