@@ -39,6 +39,7 @@ public :
   ~EventRecord();
 
   void AcceptVisitor (EventRecordVisitorI * visitor);
+  void Copy          (const EventRecord & record);
   void Print         (ostream & stream) const;
 
   friend ostream & operator<< (ostream& stream, const EventRecord & event);
