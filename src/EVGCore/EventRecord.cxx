@@ -20,6 +20,7 @@
 #include "EVGCore/EventRecordVisitorI.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
+#include "Messenger/Messenger.h"
 
 using namespace genie;
 
@@ -62,6 +63,19 @@ EventRecord::~EventRecord()
 void EventRecord::AcceptVisitor(EventRecordVisitorI * visitor)
 {
   visitor->ProcessEventRecord(this);
+}
+//___________________________________________________________________________
+void EventRecord::Copy(const EventRecord & record)
+{
+  try {
+    const GHepRecord & ghep = dynamic_cast<const GHepRecord &>(record);
+
+    GHepRecord::Copy(ghep);
+
+  } catch( std::bad_cast ) {
+    LOG("EventRecord", pERROR) 
+          << "Bad casting to 'const GHepRecord &'. Can not copy EventRecord";
+  }
 }
 //___________________________________________________________________________
 void EventRecord::Print(ostream & stream) const
