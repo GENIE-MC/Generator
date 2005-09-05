@@ -73,8 +73,16 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
   if (is_p) Z--;
   A--;
 
-  int    ipdgc = pdg::IonPdgCode(A, Z);
-  double mass  = PDGLibrary::Instance()->Find(ipdgc)->Mass();
+  TParticlePDG * particle = 0;
+  int ipdgc = pdg::IonPdgCode(A, Z);
+  particle = PDGLibrary::Instance()->Find(ipdgc);
+  if(!particle) {
+      LOG("HadronicVtx", pFATAL)
+          << "No particle with [A = " << A << ", Z = " << Z
+                              << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+      assert(false);
+  }
+  double mass  = particle->Mass();
 
   //-- Add the nucleus to the event record
   LOG("HadronicVtx", pINFO)
