@@ -101,27 +101,22 @@ void NtpWriter::InitTree(string filename)
   LOG("NtpWriter",pINFO) << *fNtpMCTreeHeader;
   fNtpMCTreeHeader->Write();
 
-  //TTree::SetBranchStyle(2);
-
-  int split;
-  int bufsize = 16000;
   TBranch *branch = 0;
   switch (fNtpFormat) {
      case kNFPlainRecord:
         LOG("NtpWriter",pINFO) << "Creating a NtpMCPlainRecord TBranch";
-
+        TTree::SetBranchStyle(2);
         fNtpMCPlainRecord = 0;
-        split = 1;
         branch = fOutTree->Branch("gmcrec",
-            "genie::NtpMCPlainRecord", &fNtpMCPlainRecord, bufsize, split);
+            "genie::NtpMCPlainRecord", &fNtpMCPlainRecord, 32000,1);
         break;
 
      case kNFEventRecord:
         LOG("NtpWriter",pINFO) << "Creating a NtpMCEventRecord TBranch";
+        TTree::SetBranchStyle(1);
         fNtpMCEventRecord = 0;
-        split = 99;
         branch = fOutTree->Branch("gmcrec",
-            "genie::NtpMCEventRecord", &fNtpMCEventRecord, bufsize, split);
+            "genie::NtpMCEventRecord", &fNtpMCEventRecord, 32000, 99);
         break;
 
      default:
