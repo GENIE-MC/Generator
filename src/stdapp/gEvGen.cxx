@@ -1,12 +1,12 @@
 //____________________________________________________________________________
 /*!
 
-\program gEvGen
+\program gevgen
 
 \brief   Example program driving GENIE event generation modules
 
          Syntax :
-           gEvGen [-n nev] [-s] [-e energy] [-p nupdg] [-t tgtpdg] [-f format]
+           gevgen [-n nev] [-s] [-e energy] [-p nupdg] [-t tgtpdg] [-f format]
 
          Options :
            -n specifies the number of events to generate
@@ -21,7 +21,7 @@
               records and their intended usage). Default options is 1.
 
          Example:
-           gEvGev -n 300 -s -e 6.5 -p 14 -t 1056026000
+           gevgen -n 300 -s -e 6.5 -p 14 -t 1056026000
 
            will build cross section splines during the initialization step,
            and will generate 300 events of muon neutrinos (pdg = 14) on Iron
