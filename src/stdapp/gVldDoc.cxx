@@ -5,7 +5,7 @@
 
 \brief   Creates GENIE's Validity Document
 
-         Syntax : gVldDoc [-c document-config]
+         Syntax : gvlddoc [-c document-config]
 
          where document-config is a string specifying one of the named
          VldDocument algorithm configurations [as they are found in the
@@ -15,7 +15,7 @@
             >> Show-All-Pages [default]
             >> Test
 
-         Example: gVldDoc -c Show-All-Pages
+         Example: gvlddoc -c Show-All-Pages
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
