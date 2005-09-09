@@ -46,6 +46,7 @@
 #include "Facades/NeuGenWrapper.h"
 #include "EVGCore/EventRecord.h"
 #include "Messenger/Messenger.h"
+#include "Ntuple/NtpMCFormat.h"
 #include "Ntuple/NtpWriter.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
@@ -77,8 +78,10 @@ int main(int argc, char ** argv)
   //-- start NeuGEN
   NeuGenWrapper neugen;
 
-  //-- initialize an Ntuple Writer
-  NtpWriter ntpw;
+  //-- initialize an Ntuple Writer (build PR rathen that ER ntuples
+  //   since event records wrapped from NeuGEN lack the Interaction
+  //   summary and it has to be recosntructed)
+  NtpWriter ntpw(kNFPlainRecord);
   ntpw.InitTree("./neugen_events.root");
 
   //-- initialize NeuGEN event generation
