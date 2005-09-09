@@ -15,6 +15,8 @@
 #include <cassert>
 #include <iostream>
 
+#include <TSystem.h>
+
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
@@ -160,14 +162,28 @@ void NeuGenWrapper::Reconfigure(const NeuGenConfig * config)
 //____________________________________________________________________________
 void NeuGenWrapper::SetDefaultConfig(void)
 {
-  set_default_parameters_();
-
-  int  nchar = 7;
+  int  nchar = 0;
   int  vrs   = 1;
   bool ok    = false;
  
-  initialize_configuration_("MODBYRS", &nchar, &vrs, &ok);
+  // Get the user-prefered NeuGEN configuration set from the GNEUGENCONF env. 
+  // variable and initialize NeuGEN with it.
+  // If the env.variable is not set, use the "MODBYEF2" NeuGEN configuration.
+  // For the names of NeuGEN configuration sets, see the NeuGEN documentation.
+
+  string gneugenconf =
+              ( gSystem->Getenv("GNEUGENCONF") ? 
+                                gSystem->Getenv("GNEUGENCONF") : "MODBYEF2");
+  nchar = gneugenconf.size();
+
+  LOG("NeuGen", pINFO)
+          << "Using NeuGEN configuration set: [" << gneugenconf << "]";
+
+  char * conf = (char*)gneugenconf.c_str(); // get what NeuGEN expects
+  initialize_configuration_(conf, &nchar, &vrs, &ok);
   assert(ok);
+
+  set_default_parameters_();
 }
 //____________________________________________________________________________
 float NeuGenWrapper::XSec(float e, NGInteraction * ni, NeuGenCuts * cuts)
@@ -543,6 +559,9 @@ void NeuGenWrapper::GenControl(char * flag, int var)
 {
   bool ok = false;
   
+  LOG("NeuGen", pINFO) 
+             << "Setting NeuGEN control flag: [" << flag << "] --> " << var;
+
   gen_control_(flag, &var, &ok);
   //assert(ok);
 }
