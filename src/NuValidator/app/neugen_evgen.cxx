@@ -40,6 +40,8 @@
 */
 //____________________________________________________________________________
 
+#include <sstream>
+
 #include <TFile.h>
 #include <TTree.h>
 
@@ -51,6 +53,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 
+using std::ostringstream;
 using namespace genie;
 
 void GetCommandLineArgs (int argc, char ** argv);
@@ -81,8 +84,14 @@ int main(int argc, char ** argv)
   //-- initialize an Ntuple Writer (build PR rathen that ER ntuples
   //   since event records wrapped from NeuGEN lack the Interaction
   //   summary and it has to be recosntructed)
-  NtpWriter ntpw(kNFPlainRecord);
-  ntpw.InitTree("./neugen_events.root");
+
+  NtpMCFormat_t format = kNFPlainRecord;
+
+  ostringstream filename;
+  filename << "GNtp" << NtpMCFormat::FilenameTag(format) << "-NeuGEN.root";
+
+  NtpWriter ntpw(format);
+  ntpw.InitTree(filename.str());
 
   //-- initialize NeuGEN event generation
   char * flag = "NOFF";
