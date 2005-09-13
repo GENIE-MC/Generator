@@ -19,8 +19,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BODEK_YANG_FORM_FACTORS_CC_H_
-#define _BODEK_YANG_FORM_FACTORS_CC_H_
+#ifndef _BODEK_YANG_STRUCTURE_FUNCTIONS_MODEL_CC_H_
+#define _BODEK_YANG_STRUCTURE_FUNCTIONS_MODEL_CC_H_
 
 #include "BodekYang/BYStructureFuncModel.h"
 
@@ -34,16 +34,13 @@ public:
   BYStructureFuncModelCC(const char * param_set);
   ~BYStructureFuncModelCC();
 
-  //-- DISFormFactorsModelI interface implementation
+  //-- DISStructureFuncModelI interface implementation
 
-  double xF1 (const Interaction * interaction) const;
-  double F2  (const Interaction * interaction) const;
-  double xF3 (const Interaction * interaction) const;
-  double F4  (const Interaction * interaction) const;
-  double xF5 (const Interaction * interaction) const;
-  double F6  (const Interaction * interaction) const;
+  // override just this interface method and take any other implementation
+  // from DISStructureFuncModel
+  void Calculate(const Interaction * interaction) const;
 };
 
 }         // genie namespace
 
-#endif    // _BODEK_YANG_FORM_FACTORS_CC_H_
+#endif    // _BODEK_YANG_STRUCTURE_FUNCTIONS_MODEL_CC_H_

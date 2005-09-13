@@ -3,24 +3,11 @@
 
 \class    genie::BYStructureFuncModel
 
-\brief    Abstract class.
-          Implements part of the DISFormFactorsModelI interface and
-          provides some common implementation for concrete Bodek-Yang
-          form factor algorithms.
+\brief    Abstract class. Provides common implementation for concrete
+          DISStructureFuncModelI objects computing the Bodek Yang structure
+          functions.
 
-\ref      U.K.Yang and A.Bodek,
-          Modeling Deep Inelastic Cross Sections in the Few GeV Region,
-          NuINT-01 Proceedings
-
-          U.K.Yang and A.Bodek,
-          Parton distributions, d/u and higher twist effect at high x,
-          PRL 82, 2467 (1999), hep-ph/9809480,
-          PRL 84, 5456 (2000), hep-ph/9912543
-
-          U.K.Yang and A.Bodek,
-          Studies of Hugher Twist and Higher Order Effects in NLO and
-          NNLO QCD analysis of lepton-nucleon scattering data on F2 and R,
-          Eur.Phys.J C13 245, 2000, hep-ex/9908058
+\ref      hep-ph/0411202
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -44,13 +31,13 @@ using namespace genie::constants;
 BYStructureFuncModel::BYStructureFuncModel() :
 DISStructureFuncModel()
 {
-  this->Init();
+
 }
 //____________________________________________________________________________
 BYStructureFuncModel::BYStructureFuncModel(const char * param_set):
 DISStructureFuncModel(param_set)
 {
-  this->Init();
+
 }
 //____________________________________________________________________________
 BYStructureFuncModel::~BYStructureFuncModel()
@@ -67,12 +54,16 @@ void BYStructureFuncModel::Configure(const Registry & config)
 // For the ReadBYParams() method see below
 
   DISStructureFuncModel::Configure(config);
+
+  this->Init();
   this->ReadBYParams();
 }
 //____________________________________________________________________________
 void BYStructureFuncModel::Configure(string param_set)
 {
   DISStructureFuncModel::Configure(param_set);
+
+  this->Init();
   this->ReadBYParams();
 }
 //____________________________________________________________________________
@@ -110,31 +101,38 @@ void BYStructureFuncModel::Init(void)
   fCv2 = 0;
 }
 //____________________________________________________________________________
-bool BYStructureFuncModel::CalculatePDFs(const Interaction * interaction) const
+double BYStructureFuncModel::ScalingVar(const Interaction * interaction) const
 {
-  //-- Get the kinematical variables (x,Q2)
+// Overrides DISStructureFuncModel::ScalingVar() to compute the BY scaling var
+
   const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
   double x  = sc_params.x();
-  double Q2 = this->CalcQ2(interaction);
+  double Q2 = this->Q2(interaction);
 
-  //-- Calculate Bodek-Yang modified scaling variable xw
   double xw = x * (Q2 + fB) / (Q2 + fA*x);
 
-  //-- Compute the Bodek-Yang PDFs (GRVLO98 + Bodek-Yang corrections)
-  //   The fPDF member was created in DISStructureFuncModel::Configure()
-  //    and a BYPDFModel should have been set as the input PDFModelI.
-  fPDF->Calculate(xw, Q2);
+  return xw;
+}
+//____________________________________________________________________________
+double BYStructureFuncModel::KSea(const Interaction * interaction) const
+{
+// Overrides DISStructureFuncModel::KSea() to compute the BY KSea factor
 
-  //-- scale with sea and valence with the k factors
+  double Q2   = this->Q2(interaction);
 
+  double ksea = Q2/(Q2+fCs);
+  return ksea;
+}
+//____________________________________________________________________________
+double BYStructureFuncModel::KVal(const Interaction * interaction) const
+{
+// Overrides DISStructureFuncModel::KSea() to compute the BY KVal factor
+
+  double Q2   = this->Q2(interaction);
   double GD   = 1. / TMath::Power(1.+Q2/0.71, 2); // p elastic form factor
   double GD2  = TMath::Power(GD,2);
+
   double kval = (1.-GD2)*(Q2+fCv2)/(Q2+fCv1);
-  double ksea = Q2/(Q2+fCs);
-
-  fPDF->ScaleValence(kval);
-  fPDF->ScaleSea(ksea);
-
-  return true;
+  return kval;
 }
 //____________________________________________________________________________
