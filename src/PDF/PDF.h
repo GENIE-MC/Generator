@@ -38,12 +38,10 @@ public:
   virtual ~PDF();
 
   //-- methods to set a PDFModelI and compute PDFs
-
   void   SetModel  (const PDFModelI * model);
   void   Calculate (double x, double q2);
 
   //-- methods to access the computed PDFs
-
   double UpValence   (void) const { return fUpValence;   }
   double DownValence (void) const { return fDownValence; }
   double UpSea       (void) const { return fUpSea;       }
@@ -56,18 +54,20 @@ public:
 
   //-- methods to scale sea and valence PDFs (eg used to apply 
   //   corrections from non-QCD based fits / etc see Bodek Yang model)
+  void ScaleValence (double kscale);
+  void ScaleSea     (double kscale);
 
-  void   ScaleValence (double kscale);
-  void   ScaleSea     (double kscale);
+  //-- reseting/copying methods
+  void Reset (void);
+  void Copy  (const PDF & pdf_set);
 
   //-- printing methods & operators
-
   void Print(ostream & stream) const;
   friend ostream & operator << (ostream & stream, const PDF & pdf_set);
 
 protected:
 
-  void InitPDFs(void);
+  void Init(void);
 
   double fUpValence;
   double fDownValence;

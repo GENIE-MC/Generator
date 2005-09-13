@@ -36,24 +36,12 @@ namespace genie
 //____________________________________________________________________________
 PDF::PDF()
 {
-  fModel = 0;
-
-  InitPDFs();
+  this->Init();
 }
 //____________________________________________________________________________
 PDF::PDF(const PDF & pdf_set)
 {
-  fModel       = pdf_set.fModel;
-
-  fUpValence   = pdf_set.fUpValence;
-  fDownValence = pdf_set.fDownValence;
-  fUpSea       = pdf_set.fUpSea;
-  fDownSea     = pdf_set.fDownSea;
-  fStrange     = pdf_set.fStrange;
-  fCharm       = pdf_set.fCharm;
-  fBottom      = pdf_set.fBottom;
-  fTop         = pdf_set.fTop;
-  fGluon       = pdf_set.fGluon;
+  this->Copy(pdf_set);
 }
 //____________________________________________________________________________
 PDF::~PDF()
@@ -63,7 +51,7 @@ PDF::~PDF()
 //____________________________________________________________________________
 void PDF::SetModel(const PDFModelI * model)
 {
-  this->InitPDFs();
+  this->Init();
 
   fModel = model;
 }
@@ -100,8 +88,38 @@ void PDF::ScaleSea(double kscale)
   fGluon       *= kscale;
 }
 //____________________________________________________________________________
-void PDF::InitPDFs(void)
+void PDF::Reset(void)
 {
+  fUpValence   = 0.0;
+  fDownValence = 0.0;
+  fUpSea       = 0.0;
+  fDownSea     = 0.0;
+  fStrange     = 0.0;
+  fCharm       = 0.0;
+  fBottom      = 0.0;
+  fTop         = 0.0;
+  fGluon       = 0.0;
+}
+//____________________________________________________________________________
+void PDF::Copy(const PDF & pdf_set)
+{
+  fModel       = pdf_set.fModel;
+
+  fUpValence   = pdf_set.fUpValence;
+  fDownValence = pdf_set.fDownValence;
+  fUpSea       = pdf_set.fUpSea;
+  fDownSea     = pdf_set.fDownSea;
+  fStrange     = pdf_set.fStrange;
+  fCharm       = pdf_set.fCharm;
+  fBottom      = pdf_set.fBottom;
+  fTop         = pdf_set.fTop;
+  fGluon       = pdf_set.fGluon;
+}
+//____________________________________________________________________________
+void PDF::Init(void)
+{
+  fModel = 0;
+
   fUpValence   = 0.0;
   fDownValence = 0.0;
   fUpSea       = 0.0;
