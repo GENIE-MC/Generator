@@ -49,91 +49,45 @@ BYStructureFuncModelCC::~BYStructureFuncModelCC()
 
 }
 //____________________________________________________________________________
-double BYStructureFuncModelCC::xF1(const Interaction * interaction) const
+void BYStructureFuncModelCC::Calculate(const Interaction * interaction) const
 {
-  return BYStructureFuncModel::xF1(interaction);
-}
-//____________________________________________________________________________
-double BYStructureFuncModelCC::F2(const Interaction * interaction) const
-{
-  double u    = fPDF->UpValence() + fPDF->UpSea();
-  double ubar = fPDF->UpSea();
-  double d    = fPDF->DownValence() + fPDF->DownSea();
-  double dbar = fPDF->DownSea();
-  double s    = fPDF->Strange();
-  double sbar = fPDF->Strange();
-  double c    = fPDF->Charm();
-  double cbar = fPDF->Charm();
+  // Reset mutable members
+  fF1 = 0;
+  fF2 = 0;
+  fF3 = 0;
+  fF4 = 0;
+  fF5 = 0;
+  fF6 = 0;
 
-  // Compute F2
+  // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
+  // Here all corrections to computing the rescaling variable and the
+  // K factors are applied
+  this->CalcPDFs(interaction);
 
-  double F2 = 0;
+  // Compute q and qbar
+  double q    = this -> Q    (interaction);
+  double qbar = this -> QBar (interaction);
 
-  const InitialState & init_state = interaction->GetInitialState();
-
-  bool isP     = init_state.GetTarget().IsProton();
-  bool isN     = init_state.GetTarget().IsNeutron();
-
-  bool isNu    = pdg::IsNeutrino     ( init_state.GetProbePDGCode() );
-  bool isNuBar = pdg::IsAntiNeutrino ( init_state.GetProbePDGCode() );
-
-  if      ( isP &&  isNu    )  F2 = 2*(d*kCos8c_2 + s*kSin8c_2 + ubar + cbar);
-  else if ( isP &&  isNuBar )  F2 = 2*(u*kCos8c_2 + c*kSin8c_2 + dbar + sbar);
-  else if ( isN &&  isNu    )  F2 = 2*(u*kCos8c_2 + s*kSin8c_2 + dbar + cbar);
-  else if ( isN &&  isNuBar )  F2 = 2*(d*kCos8c_2 + c*kSin8c_2 + ubar + sbar);
-  else {
-     LOG("BodekYang", pWARN) << "v/N types are not handled" << *interaction;
+  if(q<0 || qbar<0) {
+     LOG("BodekYang", pERROR) << "Negative q and/or q{bar}! Can not compute SFs";
+     return;
   }
 
-  return F2;
-}
-//____________________________________________________________________________
-double BYStructureFuncModelCC::xF3(const Interaction * interaction) const
-{
-  double u    = fPDF->UpValence() + fPDF->UpSea();
-  double ubar = fPDF->UpSea();
-  double d    = fPDF->DownValence() + fPDF->DownSea();
-  double dbar = fPDF->DownSea();
-  double s    = fPDF->Strange();
-  double sbar = fPDF->Strange();
-  double c    = fPDF->Charm();
-  double cbar = fPDF->Charm();
-
-  // Compute xF3
-
-  double xF3 = 0;
-
-  const InitialState & init_state = interaction->GetInitialState();
-
-  bool isP     = init_state.GetTarget().IsProton();
-  bool isN     = init_state.GetTarget().IsNeutron();
-
-  bool isNu    = pdg::IsNeutrino     ( init_state.GetProbePDGCode() );
-  bool isNuBar = pdg::IsAntiNeutrino ( init_state.GetProbePDGCode() );
-
-  if      ( isP && isNu     ) xF3 = 2*(d*kCos8c_2 + s*kSin8c_2 - ubar - cbar);
-  else if ( isP &&  isNuBar ) xF3 = 2*(u*kCos8c_2 + c*kSin8c_2 - dbar - sbar);
-  else if ( isN &&  isNu    ) xF3 = 2*(u*kCos8c_2 + s*kSin8c_2 - dbar - cbar);
-  else if ( isN &&  isNuBar ) xF3 = 2*(d*kCos8c_2 + c*kSin8c_2 - ubar - sbar);
-  else {
-     LOG("BodekYang", pWARN) << "v/N types are not handled" << *interaction;
+  const ScatteringParams & sc_params  = interaction->GetScatteringParams();
+  double x = sc_params.x();
+  if(x<=0.) {
+     LOG("BodekYang", pERROR)
+                 << "scaling variable x = " << x << ". Can not compute SFs";
+     return;
   }
 
-  return xF3;
-}
-//____________________________________________________________________________
-double BYStructureFuncModelCC::F4(const Interaction * interaction) const
-{
-  return BYStructureFuncModel::F4(interaction);
-}
-//____________________________________________________________________________
-double BYStructureFuncModelCC::xF5(const Interaction * interaction) const
-{
-  return BYStructureFuncModel::xF5(interaction);
-}
-//____________________________________________________________________________
-double BYStructureFuncModelCC::F6(const Interaction * interaction) const
-{
-  return BYStructureFuncModel::F6(interaction);
+  double f = this->NuclMod(interaction);
+
+  fF6 = 0.;
+  fF5 = 0.;
+  fF4 = 0.;
+  fF3 = f * 2*(q-qbar)/x;
+  fF2 = f * 2*(q+qbar);
+  fF1 = 0.5*fF2/x;
 }
 //____________________________________________________________________________
