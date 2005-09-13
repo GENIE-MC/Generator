@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  <!-- Parton Model / CC DIS d^xsec/dxdy - below charm threshold -->
+
+  <param_set name="CC-Default"> 
+     <param type="string" name="sf-alg-name">   genie::DISStructureFuncModelCC </param>
+     <param type="string" name="sf-param-set">  Default                        </param>
+  </param_set>
+
+  <!-- Parton Model / NC DIS d^xsec/dxdy -->
+
+  <param_set name="NC-Default"> 
+     <param type="string" name="sf-alg-name">   genie::DISStructureFuncModelNC </param>
+     <param type="string" name="sf-param-set">  Default                        </param>
+  </param_set>
+
+</alg_conf>
+
