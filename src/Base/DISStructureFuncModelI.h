@@ -31,14 +31,14 @@ public:
 
   //-- define DISStructureFuncModelI interface
 
-  virtual bool CalculatePDFs (
-                      const Interaction * interaction) const = 0;
-  virtual double xF1 (const Interaction * interaction) const = 0;
-  virtual double F2  (const Interaction * interaction) const = 0;
-  virtual double xF3 (const Interaction * interaction) const = 0;
-  virtual double F4  (const Interaction * interaction) const = 0;
-  virtual double xF5 (const Interaction * interaction) const = 0;
-  virtual double F6  (const Interaction * interaction) const = 0;
+  virtual void Calculate (const Interaction * interaction) const = 0;
+
+  virtual double F1 (void) const = 0;
+  virtual double F2 (void) const = 0;
+  virtual double F3 (void) const = 0;
+  virtual double F4 (void) const = 0;
+  virtual double F5 (void) const = 0;
+  virtual double F6 (void) const = 0;
 
 protected:
 
