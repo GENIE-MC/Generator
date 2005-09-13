@@ -106,7 +106,7 @@ void Messenger::Configure(void)
 
   //-- get the default messenger configuration XML file
   string base_dir = string( gSystem->Getenv("GENIE") );
-  string msg_config_file = base_dir + string("/config/messenger.xml");
+  string msg_config_file = base_dir + string("/config/Messenger.xml");
 
   // parse & set the default priority levels
   ok = this->SetPrioritiesFromXmlFile(msg_config_file);
