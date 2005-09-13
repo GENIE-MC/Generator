@@ -79,7 +79,7 @@ bool CharmFractionTablePool::LoadTables(void)
   string genie_base_dir = string( gSystem->Getenv("GENIE") );
 
   //-- build the full pathnames for possible pdg data file locations
-  string path = genie_base_dir + string("/config/charm_fraction_tables.xml");
+  string path = genie_base_dir + string("/config/CharmFractionTables.xml");
 
   LOG("CFracTab", pINFO)  << "\n *** Loading charm fractions from " << path;
 
