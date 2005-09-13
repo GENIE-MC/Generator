@@ -63,7 +63,7 @@ PDF::~PDF()
 //____________________________________________________________________________
 void PDF::SetModel(const PDFModelI * model)
 {
-  InitPDFs();
+  this->InitPDFs();
 
   fModel = model;
 }
@@ -81,6 +81,23 @@ void PDF::Calculate(double x, double q2)
   fBottom      = pdfs.bot;
   fTop         = pdfs.top;
   fGluon       = pdfs.gl;
+}
+//____________________________________________________________________________
+void PDF::ScaleValence(double kscale)
+{
+  fUpValence   *= kscale;
+  fDownValence *= kscale;
+}
+//____________________________________________________________________________
+void PDF::ScaleSea(double kscale)
+{
+  fUpSea       *= kscale;
+  fDownSea     *= kscale;
+  fStrange     *= kscale;
+  fCharm       *= kscale;
+  fBottom      *= kscale;
+  fTop         *= kscale;
+  fGluon       *= kscale;
 }
 //____________________________________________________________________________
 void PDF::InitPDFs(void)
