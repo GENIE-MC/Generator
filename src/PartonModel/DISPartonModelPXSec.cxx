@@ -121,38 +121,31 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
   dis_sf.SetModel(dis_sf_model);  // <-- attach algorithm
   dis_sf.Calculate(interaction);  // <-- calculate
 
-  double F1   = dis_sf.xF1() / x;
-  double F2   = dis_sf.F2();
-  double F3   = dis_sf.xF3() / x;
-  double F4   = dis_sf.F4();
-  double F5   = dis_sf.xF5() / x;
+  double F1 = dis_sf.F1();
+  double F2 = dis_sf.F2();
+  double F3 = dis_sf.F3();
+  double F4 = dis_sf.F4();
+  double F5 = dis_sf.F5();
 
   //-- calculate auxiliary parameters
-
   double ml2     = ml    * ml;
   double ml4     = ml2   * ml2;
   double E2      = E     * E;
   double Gfactor = (kGF*kGF*Mnuc*E) / kPi;
 
   //----- Build all dsigmaQE / dQ2 terms
-
   double term1 = y * ( x*y + ml2/(2*E*Mnuc) );
-
   double term2 = 1 - y - Mnuc*x*y/(2*E) - ml2/(4*E2);
-
   double term3 = x*y*(1-y/2) - y*ml2/(4*Mnuc*E);
-
   double term4 = x*y*ml2/(2*Mnuc*E) + ml4/(4*Mnuc2*E2);
-
   double term5 = ml2/(2*Mnuc*E);
 
   //----- Compute the differential cross section
-
   double CrossSection = Gfactor*( term1*F1 + term2*F2 +
                                   sign*term3*F3 + term4*F4 - term5*F5 );
 
-  LOG("PartonModel", pDEBUG)  << dis_sf;
-  LOG("PartonModel", pDEBUG)
+  LOG("DISXSec", pDEBUG)  << dis_sf;
+  LOG("DISXSec", pDEBUG)
       << "d^2xsec/dxdy (E = " << E << ", x = " << x << ", y = " << y << ") = "
       << CrossSection;
 

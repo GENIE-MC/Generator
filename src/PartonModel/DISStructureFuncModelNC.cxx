@@ -43,49 +43,29 @@ DISStructureFuncModelNC::~DISStructureFuncModelNC()
 
 }
 //____________________________________________________________________________
-double DISStructureFuncModelNC::xF1(const Interaction * interaction) const
+void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
 {
-  return DISStructureFuncModel::xF1(interaction);
-}
-//____________________________________________________________________________
-double DISStructureFuncModelNC::F2(const Interaction * interaction) const
-{
-  //this->CalcPDFs(interaction);
+  // Reset mutable members
+  fF1 = 0;
+  fF2 = 0;
+  fF3 = 0;
+  fF4 = 0;
+  fF5 = 0;
+  fF6 = 0;
 
-  double u    = fPDF->UpValence() + fPDF->UpSea();
-  double ubar = fPDF->UpSea();
-  double d    = fPDF->DownValence() + fPDF->DownSea();
-  double dbar = fPDF->DownSea();
-  double s    = fPDF->Strange();
-  double sbar = fPDF->Strange();
-  double c    = fPDF->Charm();
-  double cbar = fPDF->Charm();
-
-  double F2 = 0;
-
-  const InitialState & init_state = interaction->GetInitialState();
-
-  bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
-  bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );
-
-  if(isP)
-      F2 = 2*( (kGL2 + kGR2) * (u + c + ubar + cbar) +
-                            (kGLprime2 + kGRprime2) * (d + s + dbar + sbar) );
-
-  else if (isN)
-      F2 = 2*( (kGL2 + kGR2) * ( d + c + dbar + cbar) +
-                            (kGLprime2 + kGRprime2) * (u + s + ubar + sbar) );
-
-  else {
-     LOG("DISSF", pWARN) << "N type is not handled" << *interaction;
+  const ScatteringParams & sc_params  = interaction->GetScatteringParams();
+  double x = sc_params.x();
+  if(x<=0.) {
+     LOG("DISSF", pERROR)
+                 << "scaling variable x = " << x << "! Can not compute SFs";
+     return;
   }
 
-  return F2;
-}
-//____________________________________________________________________________
-double DISStructureFuncModelNC::xF3(const Interaction * interaction) const
-{
-  //this->CalcPDFs(interaction);
+  // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
+  // Here all corrections to computing the slow rescaling variable and the
+  // K factors are applied
+
+  this->CalcPDFs(interaction);
 
   double u    = fPDF->UpValence() + fPDF->UpSea();
   double ubar = fPDF->UpSea();
@@ -96,41 +76,36 @@ double DISStructureFuncModelNC::xF3(const Interaction * interaction) const
   double c    = fPDF->Charm();
   double cbar = fPDF->Charm();
 
-  double xF3 = 0;
-
   const InitialState & init_state = interaction->GetInitialState();
 
   bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
   bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );
 
-  if(isP)
-       xF3 = 2* ( (kGL2 - kGR2) * (u + c - ubar - cbar) +
+  double F2  = 0.;
+  double xF3 = 0.;
+
+  if(isP) {
+      F2  = 2*( (kGL2 + kGR2) * (u + c + ubar + cbar) +
+                            (kGLprime2 + kGRprime2) * (d + s + dbar + sbar) );
+      xF3 = 2*( (kGL2 - kGR2) * (u + c - ubar - cbar) +
                             (kGLprime2 - kGRprime2) * (d + s - dbar - sbar) );
 
-  else if (isN)
-       xF3 = 2* ( (kGL2 - kGR2) * (d + c - dbar - cbar) +
+  } else if (isN) {
+      F2  = 2*( (kGL2 + kGR2) * (d + c + dbar + cbar) +
+                            (kGLprime2 + kGRprime2) * (u + s + ubar + sbar) );
+      xF3 = 2*( (kGL2 - kGR2) * (d + c - dbar - cbar) +
                             (kGLprime2 - kGRprime2) * (u + s - ubar - sbar) );
-
-  else {
-     LOG("DISSFs", pWARN) << "N type is not handled" << *interaction;
+  } else {
+     LOG("DISSF", pWARN) << "N type is not handled" << *interaction;
+     return;
   }
 
-  return xF3;
-}
-//____________________________________________________________________________
-double DISStructureFuncModelNC::F4(const Interaction * interaction) const
-{
-  return DISStructureFuncModel::F4(interaction);
-}
-//____________________________________________________________________________
-double DISStructureFuncModelNC::xF5(const Interaction * interaction) const
-{
-  return DISStructureFuncModel::xF5(interaction);
-}
-//____________________________________________________________________________
-double DISStructureFuncModelNC::F6(const Interaction * interaction) const
-{
-  return DISStructureFuncModel::F6(interaction);
+  fF6 = 0.;
+  fF5 = 0.;
+  fF4 = 0.;
+  fF3 = xF3/x;
+  fF2 = F2;
+  fF1 = 0.5*F2/x;
 }
 //____________________________________________________________________________
 

@@ -41,93 +41,46 @@ DISStructureFuncModelCC::~DISStructureFuncModelCC()
 
 }
 //____________________________________________________________________________
-double DISStructureFuncModelCC::xF1(const Interaction * interaction) const
+void DISStructureFuncModelCC::Calculate(const Interaction * interaction) const
 {
-  return DISStructureFuncModel::xF1(interaction);
-}
-//____________________________________________________________________________
-double DISStructureFuncModelCC::F2(const Interaction * interaction) const
-{
-  //this->CalcPDFs(interaction);
+  // Reset mutable members
+  fF1 = 0;
+  fF2 = 0;
+  fF3 = 0;
+  fF4 = 0;
+  fF5 = 0;
+  fF6 = 0;
 
-  double u    = fPDF->UpValence() + fPDF->UpSea();
-  double ubar = fPDF->UpSea();
-  double d    = fPDF->DownValence() + fPDF->DownSea();
-  double dbar = fPDF->DownSea();
-  double s    = fPDF->Strange();
-  double sbar = fPDF->Strange();
-  double c    = fPDF->Charm();
-  double cbar = fPDF->Charm();
+  // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
+  // Here all corrections to computing the slow rescaling variable and the
+  // K factors are applied
+  this->CalcPDFs(interaction);
 
-  double F2 = 0;
+  // Compute q and qbar
+  double q    = this -> Q    (interaction);
+  double qbar = this -> QBar (interaction);
 
-  const InitialState & init_state = interaction->GetInitialState();
-
-  bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
-  bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );
-
-  bool isNu    = pdg::IsNeutrino     ( init_state.GetProbePDGCode() );
-  bool isNuBar = pdg::IsAntiNeutrino ( init_state.GetProbePDGCode() );
-
-  if      ( isP && isNu     )  F2  = 2*(d+s+ubar+cbar);
-  else if ( isP &&  isNuBar )  F2  = 2*(u+c+dbar+sbar);
-  else if ( isN &&  isNu    )  F2  = 2*(u+s+dbar+cbar);
-  else if ( isN &&  isNuBar )  F2  = 2*(d+c+ubar+sbar);
-  else {
-     LOG("DISSF", pWARN) << "v/N types are not handled" << *interaction;
+  if(q<0 || qbar<0) {
+     LOG("DISSF", pERROR) << "Negative q and/or q{bar}! Can not compute SFs";
+     return;
   }
 
-  return F2;
-}
-//____________________________________________________________________________
-double DISStructureFuncModelCC::xF3(const Interaction * interaction) const
-{
-  //this->CalcPDFs(interaction);
-
-  double u    = fPDF->UpValence() + fPDF->UpSea();
-  double ubar = fPDF->UpSea();
-  double d    = fPDF->DownValence() + fPDF->DownSea();
-  double dbar = fPDF->DownSea();
-  double s    = fPDF->Strange();
-  double sbar = fPDF->Strange();
-  double c    = fPDF->Charm();
-  double cbar = fPDF->Charm();
-
-  double xF3 = 0;
-
-  const InitialState & init_state = interaction->GetInitialState();
-
-  bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
-  bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );
-
-  bool isNu    = pdg::IsNeutrino     ( init_state.GetProbePDGCode() );
-  bool isNuBar = pdg::IsAntiNeutrino ( init_state.GetProbePDGCode() );
-
-  if      ( isP && isNu     )  xF3  = 2*(d+s-ubar-cbar);
-  else if ( isP &&  isNuBar )  xF3  = 2*(u+c-dbar-sbar);
-  else if ( isN &&  isNu    )  xF3  = 2*(u+s-dbar-cbar);
-  else if ( isN &&  isNuBar )  xF3  = 2*(d+c-ubar-sbar);
-  else {
-     LOG("DISSF", pWARN) << "v/N types are not handled" << *interaction;
+  const ScatteringParams & sc_params  = interaction->GetScatteringParams();
+  double x = sc_params.x();
+  if(x<=0.) {
+     LOG("DISSF", pERROR)
+                 << "scaling variable x = " << x << ". Can not compute SFs";
+     return;
   }
 
-  return xF3;
-}
-//____________________________________________________________________________
-double DISStructureFuncModelCC::F4(const Interaction * interaction) const
-{
-  return DISStructureFuncModel::F4(interaction);
-}
-//____________________________________________________________________________
-double DISStructureFuncModelCC::xF5(const Interaction * interaction) const
-{
-  return DISStructureFuncModel::xF5(interaction);
-}
-//____________________________________________________________________________
-double DISStructureFuncModelCC::F6(const Interaction * interaction) const
-{
-  return DISStructureFuncModel::F6(interaction);
-}
-//____________________________________________________________________________
+  double f = this->NuclMod(interaction);
 
+  fF6 = 0.;
+  fF5 = 0.;
+  fF4 = 0.;
+  fF3 = f * 2*(q-qbar)/x;
+  fF2 = f * 2*(q+qbar);
+  fF1 = 0.5*fF2/x;
+}
+//____________________________________________________________________________
 

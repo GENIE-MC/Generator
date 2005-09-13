@@ -31,12 +31,9 @@ public:
 
   //-- DISStructureFuncModelI interface implementation
 
-  double xF1 (const Interaction * interaction) const;
-  double F2  (const Interaction * interaction) const;
-  double xF3 (const Interaction * interaction) const;
-  double F4  (const Interaction * interaction) const;
-  double xF5 (const Interaction * interaction) const;
-  double F6  (const Interaction * interaction) const;
+  // override just this interface method and take any other implementation
+  // from DISStructureFuncModel
+  void Calculate(const Interaction * interaction) const;
 };
 
 }         // genie namespace
