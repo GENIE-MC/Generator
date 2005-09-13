@@ -13,10 +13,14 @@
 */
 //____________________________________________________________________________
 
+#include <string>
+
+#include <TSystem.h>
 #include <TObjString.h>
 
 #include "Ntuple/NtpMCTreeHeader.h"
 
+using std::string;
 using namespace genie;
 
 ClassImp(NtpMCTreeHeader)
@@ -52,6 +56,17 @@ NtpMCTreeHeader::~NtpMCTreeHeader()
 void NtpMCTreeHeader::Fill(NtpMCFormat_t fmt)
 {
   format =  fmt;
+
+  //-- read/store all GENIE environmental variables that have been set
+  string envvar = "";
+  envvar = (gSystem->Getenv("GEVGL")    ? gSystem->Getenv("GEVGL")    : "");
+  env.gevgl.SetString(envvar.c_str());
+  envvar = (gSystem->Getenv("GSPLOAD")  ? gSystem->Getenv("GSPLOAD")  : "");
+  env.gspload.SetString(envvar.c_str());
+  envvar = (gSystem->Getenv("GSPSAVE")  ? gSystem->Getenv("GSPSAVE")  : "");
+  env.gspsave.SetString(envvar.c_str());
+  envvar = (gSystem->Getenv("GMSGCONF") ? gSystem->Getenv("GMSGCONF") : "");
+  env.gmsgconf.SetString(envvar.c_str());
 
   //-- need to add code to save the MC job configuration from AlgConfigPool
 }
