@@ -7,7 +7,7 @@
   <param_set name="CC-Default"> 
 
      <param type="string" name="xsec-alg-name">   genie::DISPartonModelPXSec  </param>
-     <param type="string" name="xsec-param-set">  CC-Default-Below-Charm      </param>
+     <param type="string" name="xsec-param-set">  CC-Default                  </param>
 
      <param type="double" name="x-min">           0.001                       </param>
      <param type="double" name="x-max">           0.999                       </param>

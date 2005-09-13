@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+  Configuration for the actual Rein-Seghal Model RES d^xsec / dQ^2 dW xsec algorithm
+
+  parameter                       comment
+  **********************************************************************************
+  Zeta                            Z parameter used in FKR model (optional) [*]
+  Omega                           Omega parameter used in FKR model (optional)
+  Ma2                             RES Ma^2 (optional)
+  Mv2                             RES Mv^2 (optional)
+  baryonres-dataset-alg-name      algorithm used for retrieving resonance data
+  baryonres-dataset-param-set     ... and its config set
+  helicity-amplitudes-alg-name    algorithm used for computing helicity amplitudes
+  helicity-amplitudes-param-set   ... and its config set
+  weight-with-breit-wigner        set true to weight xsec with breit-wigner
+  breit-wigner-alg-name           breit-wigner algorithm
+  breit-wigner-param-set-suffix   see below [**]
+
+  [*]  Optional parameters are set to some default value at initialization
+
+  [**] The xsec can be weighted by the resonance Breit-Wigner value at the given W.
+       Note that in the pre-configured instances of various BreitWignerI instances
+       that can be found in the algorithm factory, the parameter set is defined as
+       "resonance-name"-"configuration-set". Below, you only need to specify the
+       configuration set (use the breit-wigner-param-set-suffix key) as the resonance
+       name is extracted from the interaction parameters and is appended to the key.
+-->
+
+  <!-- REIN-SEGHAL Model: CC SPP d^xsec / dQ^2 dW -->
+
+  <param_set name="CC-Default"> 
+     <param type="double"  name="Zeta" >                         0.75                         </param>
+     <param type="double"  name="Omega">                         1.05                         </param>
+     <param type="double"  name="Ma2" >                          1.01                         </param>
+     <param type="double"  name="Mv2">                           0.71                         </param>
+     <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG      </param>
+     <param type="string"  name="baryonres-dataset-param-set">   Default                      </param>
+     <param type="string"  name="helicity-amplitudes-alg-name">  genie::RSHelicityAmplModelCC </param>
+     <param type="string"  name="helicity-amplitudes-param-set"> Default                      </param>
+     <param type="bool"    name="weight-with-breit-wigner">      true                         </param>
+     <param type="string"  name="breit-wigner-alg-name">         genie::BreitWignerLRes       </param>
+     <param type="string"  name="breit-wigner-param-set-suffix"> PDG-Default                  </param>
+  </param_set>
+
+  <param_set name="CC-No-BreitWigner"> 
+     <param type="double"  name="Zeta" >                         0.75                         </param>
+     <param type="double"  name="Omega">                         1.05                         </param>
+     <param type="double"  name="Ma2" >                          1.01                         </param>
+     <param type="double"  name="Mv2">                           0.71                         </param>
+     <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG      </param>
+     <param type="string"  name="baryonres-dataset-param-set">   Default                      </param>
+     <param type="string"  name="helicity-amplitudes-alg-name">  genie::RSHelicityAmplModelCC </param>
+     <param type="string"  name="helicity-amplitudes-param-set"> Default                      </param>
+     <param type="bool"    name="weight-with-breit-wigner">      false                        </param>
+  </param_set>
+
+
+  <!-- REIN-SEGHAL Model: NC vn SPP d^xsec / dQ^2 dW -->
+
+  <param_set name="NCn-Default"> 
+     <param type="double"  name="Zeta" >                         0.75                          </param>
+     <param type="double"  name="Omega">                         1.05                          </param>
+     <param type="double"  name="Ma2" >                          1.01                          </param>
+     <param type="double"  name="Mv2">                           0.71                          </param>
+     <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG       </param>
+     <param type="string"  name="baryonres-dataset-param-set">   Default                       </param>
+     <param type="string"  name="helicity-amplitudes-alg-name">  genie::RSHelicityAmplModelNCn </param>
+     <param type="string"  name="helicity-amplitudes-param-set"> Default                       </param>
+     <param type="bool"    name="weight-with-breit-wigner">      true                          </param>
+     <param type="string"  name="breit-wigner-alg-name">         genie::BreitWignerLRes        </param>
+     <param type="string"  name="breit-wigner-param-set-suffix"> PDG-Default                   </param>
+  </param_set>
+
+  <param_set name="NCn-No-BreitWigner"> 
+     <param type="double"  name="Zeta" >                         0.75                          </param>
+     <param type="double"  name="Omega">                         1.05                          </param>
+     <param type="double"  name="Ma2" >                          1.01                          </param>
+     <param type="double"  name="Mv2">                           0.71                          </param>
+     <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG       </param>
+     <param type="string"  name="baryonres-dataset-param-set">   Default                       </param>
+     <param type="string"  name="helicity-amplitudes-alg-name">  genie::RSHelicityAmplModelNCn </param>
+     <param type="string"  name="helicity-amplitudes-param-set"> Default                       </param>
+     <param type="bool"    name="weight-with-breit-wigner">      false                         </param>
+  </param_set>
+
+
+  <!-- REIN-SEGHAL Model: NC vp SPP d^xsec / dQ^2 dW -->
+
+  <param_set name="NCp-Default"> 
+     <param type="double"  name="Zeta" >                         0.75                          </param>
+     <param type="double"  name="Omega">                         1.05                          </param>
+     <param type="double"  name="Ma2" >                          1.01                          </param>
+     <param type="double"  name="Mv2">                           0.71                          </param>
+     <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG       </param>
+     <param type="string"  name="baryonres-dataset-param-set">   Default                       </param>
+     <param type="string"  name="helicity-amplitudes-alg-name">  genie::RSHelicityAmplModelNCp </param>
+     <param type="string"  name="helicity-amplitudes-param-set"> Default                       </param>
+     <param type="bool"    name="weight-with-breit-wigner">      true                          </param>
+     <param type="string"  name="breit-wigner-alg-name">         genie::BreitWignerLRes        </param>
+     <param type="string"  name="breit-wigner-param-set-suffix"> PDG-Default                   </param>
+  </param_set>
+
+  <param_set name="NCp-No-BreitWigner"> 
+     <param type="double"  name="Zeta" >                         0.75                          </param>
+     <param type="double"  name="Omega">                         1.05                          </param>
+     <param type="double"  name="Ma2" >                          1.01                          </param>
+     <param type="double"  name="Mv2">                           0.71                          </param>
+     <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG       </param>
+     <param type="string"  name="baryonres-dataset-param-set">   Default                       </param>
+     <param type="string"  name="helicity-amplitudes-alg-name">  genie::RSHelicityAmplModelNCp </param>
+     <param type="string"  name="helicity-amplitudes-param-set"> Default                       </param>
+     <param type="bool"    name="weight-with-breit-wigner">      false                         </param>
+  </param_set>
+
+</alg_conf>
+
+

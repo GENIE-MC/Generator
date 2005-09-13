@@ -10,7 +10,7 @@
 
      <param type="string"  name="base-pdf-model-alg-name">        genie::PDFLIB       </param>
      <param type="string"  name="base-pdf-model-param-set">       GRVLO               </param>
-     <param type="string"  name="bodek-yang-pdf-model-alg-name">  genie::BodekYangPDF </param>
+     <param type="string"  name="bodek-yang-pdf-model-alg-name">  genie::BYPDFModel   </param>
      <param type="string"  name="bodek-yang-pdf-model-param-set"> Default             </param>
 
      <param type="int"    name="n-x">                   100                           </param>

@@ -50,11 +50,11 @@
      <param type="double" name="Q2min">                  1.000                      </param>
   </param_set>
 
-  -- Massless Parton Model CC DIS XSec configuration (below and above Charm threshold)
+  -- Massless Parton Model CC DIS XSec configuration 
 
-  <param_set name="CC-Parton-Model-Default-Below-Charm"> 
+  <param_set name="CC-Parton-Model-Default"> 
      <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> CC-Default-Below-Charm     </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
      <param type="string" name="integrator">             genie::Simpson2D           </param>
      <param type="int"    name="n-log-x">                71                         </param>
      <param type="double" name="x-min">                  0.001                      </param>
@@ -66,19 +66,7 @@
      <param type="double" name="Q2min">                  1.000                      </param>
   </param_set>
 
-  <param_set name="CC-Parton-Model-Default-Above-Charm"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> CC-Default-Above-Charm     </param>
-     <param type="string" name="integrator">             genie::Simpson2D           </param>
-     <param type="int"    name="n-log-x">                71                         </param>
-     <param type="double" name="x-min">                  0.001                      </param>
-     <param type="double" name="x-max">                  0.999                      </param>
-     <param type="int"    name="n-log-y">                71                         </param>
-     <param type="double" name="y-min">                  0.001                      </param>
-     <param type="double" name="y-max">                  0.999                      </param>
-     <param type="double" name="Wmin">                   1.600                      </param>
-     <param type="double" name="Q2min">                  1.000                      </param>
-  </param_set>
+  -- Massless Parton Model NC DIS XSec configuration 
 
   <param_set name="NC-Parton-Model-Default"> 
      <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>

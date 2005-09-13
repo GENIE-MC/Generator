@@ -11,7 +11,7 @@
      <param type="string" name="charmdis-xsec-alg-name">  genie::DISXSec                       </param>
      <param type="string" name="charmdis-xsec-param-set"> CC-Charm-Default                     </param>
      <param type="string" name="ccdis-xsec-alg-name">     genie::DISXSec                       </param>
-     <param type="string" name="ccdis-xsec-param-set">    CC-Parton-Model-Default-Below-Charm  </param>
+     <param type="string" name="ccdis-xsec-param-set">    CC-Parton-Model-Default              </param>
 
      <param type="string" name="charmdis-partial-xsec-alg-name">  genie::AivazisCharmPXSecLO   </param>
      <param type="string" name="charmdis-partial-xsec-param-set"> CC-Default                   </param>
@@ -29,7 +29,7 @@
      <param type="string" name="charmdis-xsec-alg-name">  genie::DISXSec                       </param>
      <param type="string" name="charmdis-xsec-param-set"> CC-Charm-Slow-Rescaling              </param>
      <param type="string" name="ccdis-xsec-alg-name">     genie::DISXSec                       </param>
-     <param type="string" name="ccdis-xsec-param-set">    CC-Parton-Model-Default-Below-Charm  </param>
+     <param type="string" name="ccdis-xsec-param-set">    CC-Parton-Model-Default              </param>
 
      <param type="string" name="charmdis-partial-xsec-alg-name">  genie::SlowRsclCharmDISPXSecLO </param>
      <param type="string" name="charmdis-partial-xsec-param-set"> CC-Default                     </param>

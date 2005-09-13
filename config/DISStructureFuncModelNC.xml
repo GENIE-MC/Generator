@@ -2,7 +2,7 @@
 
 <alg_conf>
 
-  Configuration sets for Parton Model DIS CC Form Factors (above Charm threshold)
+  Configuration sets for DIS NC Structure Functions
 
   <param_set name="Default"> 
 
