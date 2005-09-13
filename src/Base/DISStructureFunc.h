@@ -42,12 +42,12 @@ public:
   void   SetModel  (const DISStructureFuncModelI * model);
   void   Calculate (const Interaction * interaction);
 
-  double xF1 (void) const { return fxF1; }
-  double F2  (void) const { return fF2;  }
-  double xF3 (void) const { return fxF3; }
-  double F4  (void) const { return fF4;  }
-  double xF5 (void) const { return fxF5; }
-  double F6  (void) const { return fF6;  }
+  double F1 (void) const { return fF1; }
+  double F2 (void) const { return fF2; }
+  double F3 (void) const { return fF3; }
+  double F4 (void) const { return fF4; }
+  double F5 (void) const { return fF5; }
+  double F6 (void) const { return fF6; }
 
   void Print(ostream & stream) const;
 
@@ -57,11 +57,11 @@ private:
 
   void   InitFormFactors(void);
 
-  double fxF1;
+  double fF1;
   double fF2;
-  double fxF3;
+  double fF3;
   double fF4;
-  double fxF5;
+  double fF5;
   double fF6;
 
   const DISStructureFuncModelI * fModel;

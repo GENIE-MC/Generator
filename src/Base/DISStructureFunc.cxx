@@ -20,6 +20,7 @@
 //____________________________________________________________________________
 
 #include "Base/DISStructureFunc.h"
+#include "Messenger/Messenger.h"
 
 using namespace genie;
 
@@ -44,11 +45,11 @@ DISStructureFunc::DISStructureFunc()
 DISStructureFunc::DISStructureFunc(const DISStructureFunc & form_factors)
 {
   this->fModel = form_factors.fModel;
-  this->fxF1   = form_factors.fxF1;
+  this->fF1    = form_factors.fF1;
   this->fF2    = form_factors.fF2;
-  this->fxF3   = form_factors.fxF3;
+  this->fF3    = form_factors.fF3;
   this->fF4    = form_factors.fF4;
-  this->fxF5   = form_factors.fxF5;
+  this->fF5    = form_factors.fF5;
   this->fF6    = form_factors.fF6;
 }
 //____________________________________________________________________________
@@ -61,34 +62,40 @@ void DISStructureFunc::SetModel(const DISStructureFuncModelI * model)
 //____________________________________________________________________________
 void DISStructureFunc::Calculate(const Interaction * interaction)
 {
-  fModel->CalculatePDFs(interaction);
+  if(!this->fModel) {
+    LOG("DISSF",pERROR)
+             << "No DISStructureFuncModelI attached. Can not calculate SF's";
+    return;
+  }
 
-  this->fxF1   = fModel->xF1 (interaction);
-  this->fF2    = fModel->F2  (interaction);
-  this->fxF3   = fModel->xF3 (interaction);
-  this->fF4    = fModel->F4  (interaction);
-  this->fxF5   = fModel->xF5 (interaction);
-  this->fF6    = fModel->F6  (interaction);
+  fModel->Calculate(interaction);
+
+  this->fF1 = fModel->F1();
+  this->fF2 = fModel->F2();
+  this->fF3 = fModel->F3();
+  this->fF4 = fModel->F4();
+  this->fF5 = fModel->F5();
+  this->fF6 = fModel->F6();
 }
 //____________________________________________________________________________
 void DISStructureFunc::InitFormFactors(void)
 {
-  this->fxF1 = 0.0;
-  this->fF2  = 0.0;
-  this->fxF3 = 0.0;
-  this->fF4  = 0.0;
-  this->fxF5 = 0.0;
-  this->fF6  = 0.0;
+  this->fF1 = 0.0;
+  this->fF2 = 0.0;
+  this->fF3 = 0.0;
+  this->fF4 = 0.0;
+  this->fF5 = 0.0;
+  this->fF6 = 0.0;
 }
 //____________________________________________________________________________
 void DISStructureFunc::Print(ostream & stream) const
 {
-  stream << "xF1  = " << this->fxF1   << endl;
-  stream << "F2   = " << this->fF2    << endl;
-  stream << "xF3  = " << this->fxF3   << endl;
-  stream << "F4   = " << this->fF4    << endl;
-  stream << "xF5  = " << this->fxF5   << endl;
-  stream << "F6   = " << this->fF6    << endl;
+  stream << "F1  = " << this->fF1 << endl;
+  stream << "F2  = " << this->fF2 << endl;
+  stream << "F3  = " << this->fF3 << endl;
+  stream << "F4  = " << this->fF4 << endl;
+  stream << "F5  = " << this->fF5 << endl;
+  stream << "F6  = " << this->fF6 << endl;
 }
 //____________________________________________________________________________
 
