@@ -56,7 +56,7 @@
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::BodekYangPDF">  
+   <alg_config alg_name="genie::BYPDFModel">  
        <config_file> 
              BYPDFModel.xml 
        </config_file>

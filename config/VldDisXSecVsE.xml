@@ -5,10 +5,9 @@
   Configuration sets for VldDisXSecVsE VldDocumentPageI algorithm
 
 
-  ---------------------- Validate Parton model
+  ---------------------- Validate standard DIS XSec model
 
-  <param_set name="CC-Default-Below-Charm"> 
-
+  <param_set name="CC-Default"> 
      <param type="string" name="title">             Parton Model CC DIS Cross Section    </param>
      <param type="string" name="xsec-alg-name">     genie::DISXSec                       </param>
      <param type="string" name="xsec-param-set">    CC-Parton-Model-Default              </param>
@@ -20,7 +19,6 @@
   </param_set>
 
   <param_set name="NC-Default"> 
-
      <param type="string" name="title">             Parton Model NC DIS Cross Section    </param>
      <param type="string" name="xsec-alg-name">     genie::DISXSec                       </param>
      <param type="string" name="xsec-param-set">    NC-Parton-Model-Default              </param>
