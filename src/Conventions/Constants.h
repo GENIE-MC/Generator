@@ -74,6 +74,10 @@ static const double kMz             =  91.19;                // GeV - Z boson ma
 static const double kMw_2           =  TMath::Power(kMw,2);  // GeV^2
 static const double kMz_2           =  TMath::Power(kMz,2);  // GeV^2
 
+// caution on consistency:
+// the charm mass scale can be configurable parameter in some algorithms
+static const double kMc             =  1.3; // charm mass, GeV
+
 //----- Cabbibo & Weinberg angles angles
 
 static const double kCos8c    =  0.97437;                 // cos   (Cabbibo angle)
