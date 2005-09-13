@@ -130,7 +130,7 @@ bool AlgConfigPool::LoadMasterConfig(void)
 // file to load for each algorithm
 
   string base_dir = string( gSystem->Getenv("GENIE") );
-  fMasterConfig   = base_dir + string("/config/master_conf.xml");
+  fMasterConfig   = base_dir + string("/config/master_config.xml");
 
   bool is_accessible = ! (gSystem->AccessPathName( fMasterConfig.c_str() ));
   if (!is_accessible) {
