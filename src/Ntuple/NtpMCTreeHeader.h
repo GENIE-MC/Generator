@@ -22,6 +22,7 @@
 //#include <TList.h>
 
 #include "Ntuple/NtpMCFormat.h"
+#include "Ntuple/NtpMCJobEnv.h"
 
 using std::ostream;
 
@@ -48,6 +49,7 @@ public :
 
   NtpMCFormat_t format; ///< Event Record format (GENIE support multiple formats)
   //TList         config; ///< MC job config (list of all config Registry entries)
+  NtpMCJobEnv   env;    ///< GENIE MC Job environment
 
   ClassDef(NtpMCTreeHeader, 1)
 };
