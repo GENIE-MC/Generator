@@ -6,10 +6,14 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::DISStructureFuncModel;
+#pragma link C++ class genie::DISStructureFuncModelNC;
+#pragma link C++ class genie::DISStructureFuncModelCC;
 #pragma link C++ class genie::DISPartonModelPXSec;
-#pragma link C++ class genie::DISPartonModelFormFactors;
-#pragma link C++ class genie::PartonModelCCBelowCharm;
-#pragma link C++ class genie::PartonModelCCAboveCharm;
-#pragma link C++ class genie::PartonModelNC;
+
+//#pragma link C++ class genie::DISPartonModelFormFactors;
+//#pragma link C++ class genie::PartonModelCCBelowCharm;
+//#pragma link C++ class genie::PartonModelCCAboveCharm;
+//#pragma link C++ class genie::PartonModelNC;
 
 #endif
