@@ -105,7 +105,7 @@ bool FermiMomentumTablePool::LoadTables(void)
   //   path for the XML file where Fermi momenta sets should be stored
 
   string base_dir = string( gSystem->Getenv("GENIE") );
-  string filename = base_dir + string("/config/fermi_momentum.xml");
+  string filename = base_dir + string("/config/FermiMomentumTables.xml");
 
   LOG("FermiP", pINFO)  << "Loading Fermi momenta from file: " << filename;
 
