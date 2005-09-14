@@ -47,7 +47,7 @@ class TF1;
 
 namespace genie {
 
-class GENIE;
+class GEVGDriver;
 class EventRecord;
 class Renderer;
 class GHepPrinter;
@@ -63,7 +63,7 @@ public:
    void Exit               (void) { Close();                    }
    void NextEvent          (void);
    void ShowEvent          (EventRecord * ev_rec);
-   
+
 private:
 
    void                Initialize                (void);
@@ -72,15 +72,15 @@ private:
    TGGroupFrame *      BuildGenieControls        (void);
    TGGroupFrame *      BuildImageButtonFrame     (void);
    TGGroupFrame *      BuildNeutrinoP4Controls   (void);
-   TGGroupFrame *      BuildInitialStateControls (void);   
+   TGGroupFrame *      BuildInitialStateControls (void);
    const char *        Icon         (const char * name);
 
-   //-- GENIE interface
+   //-- GEVGDriver driver
 
-   GENIE * fGENIE;
-   
+   GEVGDriver * fEVGDriver;
+
    //-- GUI widgets
-   
+
    TGMainFrame *            _main;
    TGGroupFrame *           fControlsGroupFrame;
    TGGroupFrame *           fNuP4ControlsGroupFrame;
@@ -101,7 +101,7 @@ private:
    TGCheckButton *          fQelCheckButton;
    TGCheckButton *          fSppCheckButton;
    TGCheckButton *          fDisCheckButton;
-   TGCheckButton *          fCohCheckButton;   
+   TGCheckButton *          fCohCheckButton;
    TGStatusBar *            fStatusBar;
    TGLayoutHints *          fFeynmanTabLayout;
    TGLayoutHints *          fGHepTabLayout;
@@ -134,7 +134,7 @@ private:
 
    Renderer *               fQELRenderer;
    GHepPrinter *            fGHepPrinter;
-   
+
    ClassDef(GenieViewer, 0)
 };
 

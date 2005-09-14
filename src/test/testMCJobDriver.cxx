@@ -20,7 +20,7 @@
 #include <TF1.h>
 
 #include "EVGCore/EventRecord.h"
-#include "EVGDrivers/GMCJob.h"
+#include "EVGDrivers/GMCJDriver.h"
 #include "FluxDrivers/GFlukaAtmo3DFlux.h"
 #include "FluxDrivers/GCylindTH1Flux.h"
 #include "Geo/ROOTGeomAnalyzer.h"
@@ -44,7 +44,7 @@ int main(int argc, char ** argv)
   }
 
   //-- Create the GENIE MC-job driver
-  GMCJob mcj;
+  GMCJDriver mcj;
 
   //-- Specify a flux driver
 /*

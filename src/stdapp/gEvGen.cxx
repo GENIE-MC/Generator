@@ -86,7 +86,7 @@
 
 #include "Conventions/XmlParserStatus.h"
 #include "EVGCore/EventRecord.h"
-#include "EVGDrivers/GENIE.h"
+#include "EVGDrivers/GEVGDriver.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
@@ -132,8 +132,8 @@ int main(int argc, char ** argv)
 
   InitialState init_state(gOptTgtPdgCode, gOptNuPdgCode);
 
-  GENIE genie;
-  genie.SetInitialState(init_state);
+  GEVGDriver driver;
+  driver.SetInitialState(init_state);
 
   //-- load and/or build splines if required
   XSecSplineList * xssl = 0;
@@ -150,7 +150,7 @@ int main(int argc, char ** argv)
        assert(status==kXmlOK);
      }
      // create any spline that is needed but is not loaded
-     genie.CreateSplines();
+     driver.CreateSplines();
   }
 
   //-- save the splines if requested
@@ -179,7 +179,7 @@ int main(int argc, char ** argv)
   while ( ievent < gOptNevents) {
 
      // generate a single event
-     EventRecord * ev_rec = genie.GenerateEvent(nu_p4);
+     EventRecord * ev_rec = driver.GenerateEvent(nu_p4);
 
      // print the event record and the interaction summary
      Interaction & summary = *ev_rec->GetInteraction();

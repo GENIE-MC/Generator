@@ -46,7 +46,7 @@
 #include <TLatex.h>
 #include <TStyle.h>
 
-#include "EVGDrivers/GENIE.h"
+#include "EVGDrivers/GEVGDriver.h"
 #include "EVGCore/EventRecord.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -146,7 +146,7 @@ TGMainFrame(p, w, h)
 GenieViewer::~GenieViewer()
 {
   _main->Cleanup();
-  
+
   delete _main;
 }
 //______________________________________________________________________________
@@ -188,7 +188,7 @@ TGGroupFrame * GenieViewer::BuildImageButtonFrame(void)
   fExitButton       -> SetToolTipText( "Exit Viewer",   1);
 
   fNextEventButton  -> Connect("Clicked()","genie::GenieViewer", this,"NextEvent()");
-  
+
   button_group_frame -> AddFrame( fNextEventButton  );
   button_group_frame -> AddFrame( fExitButton       );
 
@@ -230,12 +230,12 @@ TGGroupFrame * GenieViewer::BuildNeutrinoP4Controls(void)
   fPy = new TGNumberEntry(nup4_frame, 0, 7, 3, TGNumberFormat::kNESReal);
   fPz = new TGNumberEntry(nup4_frame, 0, 7, 3, TGNumberFormat::kNESReal);
   fE  = new TGNumberEntry(nup4_frame, 0, 7, 3, TGNumberFormat::kNESReal);
-                   
+
   fPxLabel = new TGLabel(nup4_frame, new TGString( "Px = "));
   fPyLabel = new TGLabel(nup4_frame, new TGString( "Py = "));
   fPzLabel = new TGLabel(nup4_frame, new TGString( "Pz = "));
   fELabel  = new TGLabel(nup4_frame, new TGString( "E  = "));
-  
+
   nup4_frame -> AddFrame ( fPxLabel );
   nup4_frame -> AddFrame ( fPx      );
   nup4_frame -> AddFrame ( fPyLabel );
@@ -264,13 +264,13 @@ TGGroupFrame * GenieViewer::BuildInitialStateControls(void)
 
   fA = new TGNumberEntry(init_state_frame, 1, 4, 0, TGNumberFormat::kNESInteger);
   fZ = new TGNumberEntry(init_state_frame, 1, 4, 0, TGNumberFormat::kNESInteger);
-  
+
   fALabel  = new TGLabel(init_state_frame, new TGString( "A = "));
   fZLabel  = new TGLabel(init_state_frame, new TGString( "Z = "));
   fNuLabel = new TGLabel(init_state_frame, new TGString( "Nu "));
 
   fNu = new TGComboBox(init_state_frame, 201);
-  
+
   int i = 0;
   while( neutrinos[i] ) {
     fNu->AddEntry(neutrinos[i], i);
@@ -343,8 +343,8 @@ const char * GenieViewer::Icon(const char * name)
 void GenieViewer::Initialize(void)
 {
   //-- build GENIE interface object
-  
-  fGENIE = new GENIE();
+
+  fEVGDriver = new GEVGDriver();
 
   //-- build Feynman diagram renderers and STDHEP record printer
 
@@ -357,7 +357,7 @@ void GenieViewer::Initialize(void)
 //______________________________________________________________________________
 void GenieViewer::NextEvent(void)
 {
-  fGENIE->SetInitialState(14,(int) fZ->GetNumber(), (int) fA->GetNumber());  // Z,A
+  fEVGDriver->SetInitialState(14,(int) fZ->GetNumber(), (int) fA->GetNumber());  // Z,A
 
   double px = fPx->GetNumber();
   double py = fPy->GetNumber();
@@ -366,14 +366,14 @@ void GenieViewer::NextEvent(void)
 
   TLorentzVector nu_p4(px,py,pz,E); // px,py,pz,E (GeV)
 
-  EventRecord * ev_rec = fGENIE->GenerateEvent(nu_p4);
+  EventRecord * ev_rec = fEVGDriver->GenerateEvent(nu_p4);
 
   LOG("gviewer", pINFO) << *ev_rec;
 
   this->ShowEvent(ev_rec);
 }
 //______________________________________________________________________________
-void GenieViewer::ShowEvent(EventRecord * ev_rec) 
+void GenieViewer::ShowEvent(EventRecord * ev_rec)
 {
   LOG("gviewer", pINFO) << "Drawing Feynman Diagram";
 
@@ -393,7 +393,7 @@ void GenieViewer::ShowEvent(EventRecord * ev_rec)
   {
 
   }
-  else 
+  else
   {
 
   }
