@@ -6,8 +6,8 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::GENIE;
-#pragma link C++ class genie::GMCJob;
-#pragma link C++ class genie::GPool;
+#pragma link C++ class genie::GEVGDriver;
+#pragma link C++ class genie::GMCJDriver;
+#pragma link C++ class genie::GEVGPool;
 
 #endif
