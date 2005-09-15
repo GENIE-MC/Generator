@@ -24,7 +24,7 @@ using namespace genie;
 using namespace genie::geant;
 
 //____________________________________________________________________________
-GPrimaryGeneratorAction::GPrimaryGeneratorAction() :
+GPrimaryGeneratorAction::GPrimaryGeneratorAction(GPrimaryGeneratorType_t pgt):
 fPrimaryGeneratorType(pgt)
 {
 

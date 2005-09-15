@@ -14,6 +14,9 @@
 */
 //____________________________________________________________________________
 
+#include <TFile.h>
+#include <TTree.h>
+
 #include <G4Event.hh>
 #include <G4ParticleTable.hh>
 #include <G4ParticleDefinition.hh>
@@ -38,7 +41,7 @@ GNtpPrimaryGenerator::~GNtpPrimaryGenerator()
   this->CleanUp();
 }
 //____________________________________________________________________________
-void GNtpPrimaryGenerator::GeneratePrimaryVertex(G4Event* geant_primary_event)
+void GNtpPrimaryGenerator::GeneratePrimaryVertex(G4Event* )
 {
   //-- read GENIE event from the input ROOT file
   EventRecord * genie_event = this->ReadNextEvent();
@@ -76,49 +79,49 @@ void GNtpPrimaryGenerator::ReadFromFile(string filename)
   this->CleanUp();
 
   //-- open ROOT file
-  LOG("GEANTInterface", pINFO) << "Reading events from file: " << filename;
+  LOG("GEANTi", pINFO) << "Reading events from file: " << filename;
 
   fFile = new TFile(filename.c_str(),"READ");
 
   //-- get event TTree
-  LOG("GEANTInterface", pDEBUG) << "Getting event tree";
+  LOG("GEANTi", pDEBUG) << "Getting event tree";
 
   fTree = dynamic_cast <TTree *> (fFile->Get("gtree"));
-  fNEntries = tree->GetEntries();
-  LOG("GEANTInterface", pINFO) << "Number of events to read: " << fNEntries;
+  fNEntries = fTree->GetEntries();
+  LOG("GEANTi", pINFO) << "Number of events to read: " << fNEntries;
 
   //-- get tree header
-  LOG("GEANTInterface", pDEBUG) << "Getting tree header";
+  LOG("GEANTi", pDEBUG) << "Getting tree header";
 
   fTreeHdr = dynamic_cast <NtpMCTreeHeader *> ( fFile->Get("header") );
-  LOG("GEANTInterface", pDEBUG) << "Input tree header: " << *fTreeHdr;
+  LOG("GEANTi", pDEBUG) << "Input tree header: " << *fTreeHdr;
 
   //-- set the ntuple record
-  LOG("GEANTInterface", pDEBUG) << "Setting NtpMCEventRecord branch addrress";
+  LOG("GEANTi", pDEBUG) << "Setting NtpMCEventRecord branch addrress";
 
-  tree->SetBranchAddress("gmcrec", &fNtpRec);
+  fTree->SetBranchAddress("gmcrec", &fNtpRec);
 }
 //____________________________________________________________________________
 EventRecord * GNtpPrimaryGenerator::ReadNextEvent(void)
 {
   if(fCurrentEvent < fNEntries) {
 
-    LOG("GEANTInterface", pINFO) << "Getting tree entry: " << fCurrentEvent;
+    LOG("GEANTi", pINFO) << "Getting tree entry: " << fCurrentEvent;
     fTree->GetEntry(fCurrentEvent);
 
-    LOG("GEANTInterface", pINFO) << "Getting the stored GENIE event";
+    LOG("GEANTi", pINFO) << "Getting the stored GENIE event";
     NtpMCRecHeader rec_header = fNtpRec->hdr;
     EventRecord *  event      = fNtpRec->event;
 
-    LOG("GEANTInterface", pINFO) << rec_header;
-    LOG("GEANTInterface", pINFO) << *event;
+    LOG("GEANTi", pINFO) << rec_header;
+    LOG("GEANTi", pINFO) << *event;
 
     fCurrentEvent++;
 
     return event;
 
   } else {
-    LOG("GEANTInterface", pWARN) << "No more events in the file!!!";
+    LOG("GEANTi", pWARN) << "No more events in the file!!!";
     return 0;
   }
   return 0;
