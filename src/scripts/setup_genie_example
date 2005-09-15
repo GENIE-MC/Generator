@@ -1,6 +1,5 @@
 #!/bin/bash
 #
-
 #----------------------------------------------------------------
 # An example bash shell script for setting up the environment for
 # building/using GENIE
@@ -10,33 +9,62 @@
 #
 # See $GENIE/src/Make.include for a definition of these variables
 # and change them to match your machine's package organization.
-# Note: not all of these are mandatory (see Make.include)
+# Note: not all of these are mandatory (see below)
 
-# Setting paths:
+#----------------------------------------------------------------
+#                         Setting paths
+#----------------------------------------------------------------
+
+# [mandatory] 
+
 export GENIE=/home/costas/MC/GENIE
 export ROOTSYS=/usr/local/src/root-4.04.02b
-export NEUGEN3PATH=/home/costas/MC/neugen3
 export CERNLIB=/usr/local/src/CERN/2004/lib
 export PYTHIA6=/home/costas/MC/PYTHIA/v-6
 export LIBXML2_INC=/usr/include/libxml2
 export LIBXML2_LIB=/usr/lib
 export LOG4CPP_INC=/usr/local/src/log4cpp/include
 export LOG4CPP_LIB=/usr/local/lib
+
+# [optional]
+#   (depending on which features you enable)
+
+#---  You only really need to set NEUGEN3PATH is you plan to enable
+#---  GENIE's NuValidator (by setting GOPT_ENABLE_NUVALIDATOR=YES)
+export NEUGEN3PATH=/home/costas/MC/neugen3
+
+#--- You only really need to set GPROFILER is you plan to enable
+#--- Google's profiling tool (by setting GOPT_ENABLE_PROFILER=YES)
 export GPROFILER_LIB=/usr/lical/lib
+
+#--- You only really need to set DOXYGEN is you plan to enable
+#--- GENIE's Doxygen documentation (by setting GOPT_ENABLE_DOXYGEN_DOC=YES)
+export DOXYGEN=/usr/local/bin/doxygen
+
+#--- You only really need to set the following is you plan to enable the
+#--- GENIE/GEANT interface (by setting GOPT_ENABLE_GEANT_INTERFACE=YES)
 export CLHEP_LIB=/home/costas/MC/GEANT4/install/lib/
 export CLHEP_INC=/home/costas/MC/GEANT4/install/include/
 export GEANT4_LIB=/home/costas/MC/GEANT4/install/lib/Linux-g++/
 export GEANT4_INC=/home/costas/MC/GEANT4/geant4.7.1/source/
 
+# this adds the necessary paths to your PATH and LD_LIBRARY_PATH
+# environmental variables:
 export PATH=${PATH}:${ROOTSYS}/bin:${GENIE}/bin
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${ROOTSYS}/lib:${GENIE}/lib:${GEANT_LIB}:${CLHEP_LIB}
 
-# Setting build options:
+#----------------------------------------------------------------
+#                    Setting build options
+#----------------------------------------------------------------
 
 export GOPT_ENABLE_PROFILER=NO
 export GOPT_ENABLE_NUVALIDATOR=YES 
 export GOPT_ENABLE_GEANT_INTERFACE=NO 
-export GOPT_ENABLE_DOC=NO 
+export GOPT_ENABLE_DOXYGEN_DOC=NO 
+
+#----------------------------------------------------------------
+#                           Report
+#----------------------------------------------------------------
 
 echo
 echo "Setting up the environment for GENIE:"
@@ -61,11 +89,9 @@ echo "CLHEP_INC   -> " ${CLHEP_INC}
 echo "CLHEP_LIB   -> " ${CLHEP_LIB}
 echo "GEANT4_INC  -> " ${GEANT4_INC}
 echo "GEANT4_LIB  -> " ${GEANT4_LIB}
-
 echo
 echo "GENIE building options:"
 echo "-----------------------"
-
 echo "Enabling Google profiler        -> " ${GOPT_ENABLE_PROFILER}
 echo "Enabling GENIE's NuValidator    -> " ${GOPT_ENABLE_NUVALIDATOR}
 echo "Enabling GENIE/GEANT interface  -> " ${GOPT_ENABLE_GEANT_INTERFACE}
