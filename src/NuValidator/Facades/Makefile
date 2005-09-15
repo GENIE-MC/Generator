@@ -30,7 +30,7 @@ _ROOT_DICT_NeuGen.cc: LinkDef.h $(CINTLIST_O)
 	$(RM) _ROOT_DICT_NeuGen.*
 	@echo "Generating CINT dictionary ..."
 	rootcint -f _ROOT_DICT_NeuGen.cc -c \
-	-I$(ROOTSYS)/include $(NUVLD_INC) $(GENIE_INC) $(CINTLIST_H) LinkDef.h
+	  $(ROOT_INCLUDES) $(NUVLD_INCLUDES) $(GENIE_INCLUDES) $(CINTLIST_H) LinkDef.h
 
 lib: FORCE
 	@echo "Generating shared library ..."

@@ -12,7 +12,8 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 # Add extra libraries needed for these executables
-LIBRARIES := $(GENIE_LIBRARIES) $(NUVLD_LIBRARIES) $(LIBRARIES) $(CERN_LIBRARIES)
+LIBRARIES := $(GENIE_LIBRARIES) $(NUVLD_LIBRARIES) \
+             $(LIBRARIES) $(NEUGEN_LIBRARIES) $(CERN_LIBRARIES) 
 
 EXE = $(GENIE_BIN_PATH)/parsexml \
       $(GENIE_BIN_PATH)/filldbase \

@@ -30,7 +30,7 @@ _ROOT_DICT_DBUtils.cc: LinkDef.h $(CINTLIST_O)
 	$(RM) _ROOT_DICT_DBUtils.*
 	@echo "Generating CINT dictionary ..."
 	rootcint -f _ROOT_DICT_DBUtils.cc -c \
-	-I$(ROOTSYS)/include $(NUVLD_INC) $(CINTLIST_H) LinkDef.h
+	    $(ROOT_INCLUDES) $(NUVLD_INCLUDES) $(CINTLIST_H) LinkDef.h
 
 lib: FORCE
 	@echo "Generating shared library ..."
