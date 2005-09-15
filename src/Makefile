@@ -18,16 +18,16 @@ BUILD_TARGETS = generator-libs generator-std-exe scripts
 # build targets to be enabled by the user (nu-validator, 
 # genie/geant interface, doxygen documentation)
 
-ifdef GOPT_ENABLE_NUVALIDATOR
+ifdef GOPT_NUVALIDATOR
 BUILD_TARGETS := $(BUILD_TARGETS) nuvld
 endif
 
-ifdef GOPT_ENABLE_GEANT_INTERFACE
+ifdef GOPT_GEANT_INTERFACE
 BUILD_TARGETS := $(BUILD_TARGETS) geanti
 endif
 
-ifdef GOPT_ENABLE_DOC
-BUILD_TARGETS := $(BUILD_TARGETS) doc
+ifdef GOPT_DOXYGEN_DOC
+BUILD_TARGETS := $(BUILD_TARGETS) doxygen-doc
 endif
 
 # define build targets
@@ -80,7 +80,7 @@ nuvld-exe:
 geanti:
 	cd GeantInterface; make; cd ..; \
 
-doc:
+doxygen-doc:
 	cd ../doc/doxygen/; $(DOXYGEN) genie_doxygen; cd ../../src/
 
 generator-std-exe:
