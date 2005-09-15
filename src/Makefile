@@ -12,7 +12,23 @@ MAKEFILE = Makefile
 # Include machine specific flags and locations (inc. files & libs)
 include $(GENIE)/src/Make.include
 
-all: 
+BUILD_TARGETS = generator-libs generator-std-exe scripts
+
+ifdef GOPT_ENABLE_NUVALIDATOR
+BUILD_TARGETS := $(BUILD_TARGETS) nuvld
+endif
+
+ifdef GOPT_ENABLE_GEANT_INTERFACE
+BUILD_TARGETS := $(BUILD_TARGETS) geanti
+endif
+
+ifdef GOPT_ENABLE_DOC
+BUILD_TARGETS := $(BUILD_TARGETS) doc
+endif
+
+all: $(BUILD_TARGETS)
+
+generator-libs:
 	cd Algorithm;          make; cd ..; \
 	cd BaryonResonance;    make; cd ..; \
 	cd Base;               make; cd ..; \
@@ -45,86 +61,32 @@ all:
 	cd ReinSeghal;         make; cd ..; \
 	cd Utils;              make; cd ..; \
 	cd Viewer;             make; cd ..; \
-	cd NuValidator;        make; cd ..; \
-	cd stdapp;             make all; cd ..; \
-	cd scripts;	       make install; cd ..;
 
-all-no-nuvld: 
-	cd Algorithm;          make; cd ..; \
-	cd BaryonResonance;    make; cd ..; \
-	cd Base;               make; cd ..; \
-	cd BodekYang;          make; cd ..; \
-	cd Charm;              make; cd ..; \
-	cd CrossSections;      make; cd ..; \
-	cd Decay; 	       make; cd ..; \
-	cd Elastic; 	       make; cd ..; \
-	cd EVGCore;            make; cd ..; \
-	cd EVGModules;         make; cd ..; \
-	cd EVGDrivers;         make; cd ..; \
-	cd FluxDrivers;        make; cd ..; \
-	cd Fragmentation;      make; cd ..; \
-	cd GHEP;               make; cd ..; \
-	cd Geo;                make; cd ..; \
-	cd ValidityDoc;        make; cd ..; \
-	cd Interaction;        make; cd ..; \
-	cd InverseMuonDecay;   make; cd ..; \
-	cd LlewellynSmith;     make; cd ..; \
-	cd Messenger;	       make; cd ..; \
-	cd Ntuple;             make; cd ..; \
-	cd Nuclear;            make; cd ..; \
-	cd Numerical;          make; cd ..; \
-	cd PartonModel;        make; cd ..; \
-	cd Paschos;	       make; cd ..; \
-	cd PDF;                make; cd ..; \
-	cd PDG;                make; cd ..; \
-	cd Radiative;          make; cd ..; \
-	cd Registry;           make; cd ..; \
-	cd ReinSeghal;         make; cd ..; \
-	cd Utils;              make; cd ..; \
-	cd Viewer;             make; cd ..; \
-	cd stdapp;             make all; cd ..; \
-	cd scripts;	       make install; cd ..;
+nuvld: 
+	cd NuValidator; make; cd ..; 
 
-nuvld-only:
-	cd NuValidator;        make; cd ..; 
+nuvld-libs:
+	cd NuValidator; make libs; cd ..; 
+
+nuvld-exe:
+	cd NuValidator; make applications; cd ..; 
+
+geanti:
+	cd GeantInterface; make; cd ..; \
 
 doc:
-	cd ../doc/doxygen/; doxygen genie_doxygen; cd ../../src/
+	cd ../doc/doxygen/; $(DOXYGEN) genie_doxygen; cd ../../src/
 
-libs: 
-	cd Algorithm;          make; cd ..; \
-	cd BaryonResonance;    make; cd ..; \
-	cd Base;               make; cd ..; \
-	cd BodekYang;          make; cd ..; \
-	cd Charm;              make; cd ..; \
-	cd CrossSections;      make; cd ..; \
-	cd Decay; 	       make; cd ..; \
-	cd Elastic; 	       make; cd ..; \
-	cd EVGCore;            make; cd ..; \
-	cd EVGModules;         make; cd ..; \
-	cd EVGDrivers;         make; cd ..; \
-	cd FluxDrivers;        make; cd ..; \
-	cd Fragmentation;      make; cd ..; \
-	cd GHEP;               make; cd ..; \
-	cd Geo;                make; cd ..; \
-	cd ValidityDoc;        make; cd ..; \
-	cd Interaction;        make; cd ..; \
-	cd InverseMuonDecay;   make; cd ..; \
-	cd LlewellynSmith;     make; cd ..; \
-	cd Messenger;	       make; cd ..; \
-	cd Ntuple;             make; cd ..; \
-	cd Nuclear;            make; cd ..; \
-	cd Numerical;          make; cd ..; \
-	cd PartonModel;        make; cd ..; \
-	cd Paschos; 	       make; cd ..; \
-	cd PDF;                make; cd ..; \
-	cd PDG;                make; cd ..; \
-	cd Radiative;          make; cd ..; \
-	cd Registry;           make; cd ..; \
-	cd ReinSeghal;         make; cd ..; \
-	cd Utils;              make; cd ..; \
-	cd Viewer;             make; cd ..; \
-	cd NuValidator;        make libs; cd ..; \
+generator-std-exe:
+	cd stdapp; make all; cd ..; \
+
+generator-test-exe:
+	cd test; make all; cd ..; \
+
+scripts:
+	cd scripts; make install; cd ..;
+
+all-libs: generator-libs nuvld-libs
 
 purge: FORCE
 	cd Algorithm;          make purge; cd ..; \
