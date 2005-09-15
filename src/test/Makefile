@@ -14,15 +14,7 @@ include $(GENIE)/src/Make.include
 
 GENIE_DICTS = $(shell $(GENIE)/src/scripts/genie-config --dicts)
 
-WITH_LIB   = -L $(ROOTSYS)/lib $(ROOT_LIBS) $(ROOT_GLIBS) \
-		$(PYTHIA_LIBS) -lEG -lEGPythia6 \
-		$(XML_LIBS)   \
-		$(GEN_LIBS) \
-		$(CERN_LIBS)  \
-		$(LOG_LIBS) \
-		$(GPT_LIB)
-
-WITH_INC   = $(LOG_INC) $(XML_INC) $(ROOT_INC) $(GENIE_INC)
+LIBRARIES := $(GENIE_LIBRARIES) $(LIBRARIES) $(CERN_LIBRARIES)
 
 WITH_DICT  = $(GENIE_DICTS)
 
@@ -54,47 +46,47 @@ all: $(TGT)
 
 testBaryonResDataSet: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testBaryonResDataSet \
-			testBaryonResDataSet.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testBaryonResDataSet.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testConfigPool: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testConfigPool \
-			testConfigPool.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testConfigPool.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testDecay: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDecay \
-			testDecay.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testDecay.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testPDFLIB: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testPDFLIB \
-			testPDFLIB.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testPDFLIB.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testMCJobDriver: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMCJobDriver \
-			testMCJobDriver.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testMCJobDriver.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testMessenger: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMessenger \
-			testMessenger.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testMessenger.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testNumerical: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testNumerical \
-			testNumerical.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testNumerical.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testRegistry: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testRegistry \
-			testRegistry.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testRegistry.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testReadGNtuple: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testReadGNtuple \
-			testReadGNtuple.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testReadGNtuple.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testScatteringParams: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testScatteringParams \
-			testScatteringParams.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testScatteringParams.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testROOTGeometry: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testROOTGeometry \
-			testROOTGeometry.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+			testROOTGeometry.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 #################### CLEANING
 

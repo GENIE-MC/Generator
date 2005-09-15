@@ -14,17 +14,7 @@ include $(GENIE)/src/Make.include
 
 GENIE_DICTS = $(shell $(GENIE)/src/scripts/genie-config --dicts)
 
-WITH_LIB   = -L $(ROOTSYS)/lib $(ROOT_LIBS) $(ROOT_GLIBS) \
-		$(PYTHIA_LIBS) -lEG -lEGPythia6 \
-		$(XML_LIBS)   \
-		$(GEN_LIBS)   \
-		$(CERN_LIBS)  \
-		$(LOG_LIBS)   \
-		$(GPT_LIB)
-
-WITH_INC   = $(LOG_INC) $(XML_INC) $(ROOT_INC) $(GENIE_INC)
-
-WITH_DICT  = $(GENIE_DICTS)
+LIBRARIES := $(GENIE_LIBRARIES) $(LIBRARIES) $(CERN_LIBRARIES)
 
 TGT =	gEvGen		\
 	gVldDoc		\
@@ -37,16 +27,18 @@ EXE =	$(GENIE_BIN_PATH)/gevgen  \
 all: $(TGT)
 
 gEvGen: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gevgen \
-			gEvGen.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gevgen gEvGen.cxx \
+			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
 
 gVldDoc: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gvlddoc \
-			 gVldDoc.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gvlddoc gVldDoc.cxx \
+			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+
 
 gViewer: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gviewer \
-			gViewer.cxx $(WITH_DICT) $(WITH_LIB) $(WITH_INC)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gviewer gViewer.cxx \
+			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+
 
 #################### CLEANING
 
