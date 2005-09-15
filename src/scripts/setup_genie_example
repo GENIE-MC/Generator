@@ -1,8 +1,20 @@
 #!/bin/bash
 #
 
+#----------------------------------------------------------------
+# An example bash shell script for setting up the environment for
+# building/using GENIE
+#
+# Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+#----------------------------------------------------------------
+#
+# See $GENIE/src/Make.include for a definition of these variables
+# and change them to match your machine's package organization.
+# Note: not all of these are mandatory (see Make.include)
+
+# Setting paths:
 export GENIE=/home/costas/MC/GENIE
-export ROOTSYS=/usr/local/src/root_cvs
+export ROOTSYS=/usr/local/src/root-4.04.02b
 export NEUGEN3PATH=/home/costas/MC/neugen3
 export CERNLIB=/usr/local/src/CERN/2004/lib
 export PYTHIA6=/home/costas/MC/PYTHIA/v-6
@@ -10,9 +22,21 @@ export LIBXML2_INC=/usr/include/libxml2
 export LIBXML2_LIB=/usr/lib
 export LOG4CPP_INC=/usr/local/src/log4cpp/include
 export LOG4CPP_LIB=/usr/local/lib
+export GPROFILER_LIB=/usr/lical/lib
+export CLHEP_LIB=/home/costas/MC/GEANT4/install/lib/
+export CLHEP_INC=/home/costas/MC/GEANT4/install/include/
+export GEANT4_LIB=/home/costas/MC/GEANT4/install/lib/Linux-g++/
+export GEANT4_INC=/home/costas/MC/GEANT4/geant4.7.1/source/
 
 export PATH=${PATH}:${ROOTSYS}/bin:${GENIE}/bin
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${ROOTSYS}/lib:${GENIE}/lib
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${ROOTSYS}/lib:${GENIE}/lib:${GEANT_LIB}:${CLHEP_LIB}
+
+# Setting build options:
+
+export GOPT_ENABLE_PROFILER=NO
+export GOPT_ENABLE_NUVALIDATOR=YES 
+export GOPT_ENABLE_GEANT_INTERFACE=NO 
+export GOPT_ENABLE_DOC=NO 
 
 echo
 echo "Setting up the environment for GENIE:"
@@ -33,5 +57,19 @@ echo "LIBXML2_INC -> " ${LIBXML2_INC}
 echo "LIBXML2_LIB -> " ${LIBXML2_LIB}
 echo "LOG4CPP_INC -> " ${LOG4CPP_INC}
 echo "LOG4CPP_LIB -> " ${LOG4CPP_LIB}
+echo "CLHEP_INC   -> " ${CLHEP_INC}
+echo "CLHEP_LIB   -> " ${CLHEP_LIB}
+echo "GEANT4_INC  -> " ${GEANT4_INC}
+echo "GEANT4_LIB  -> " ${GEANT4_LIB}
+
+echo
+echo "GENIE building options:"
+echo "-----------------------"
+
+echo "Enabling Google profiler        -> " ${GOPT_ENABLE_PROFILER}
+echo "Enabling GENIE's NuValidator    -> " ${GOPT_ENABLE_NUVALIDATOR}
+echo "Enabling GENIE/GEANT interface  -> " ${GOPT_ENABLE_GEANT_INTERFACE}
+echo "Enabling Doxygen doc generation -> " ${GOPT_ENABLE_DOC}
+
 echo
 
