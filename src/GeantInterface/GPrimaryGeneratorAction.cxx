@@ -14,11 +14,15 @@
 */
 //____________________________________________________________________________
 
+#include <cassert>
+
 #include <G4Event.hh>
 #include <G4ParticleTable.hh>
 #include <G4ParticleDefinition.hh>
 
 #include "GeantInterface/GPrimaryGeneratorAction.h"
+#include "GeantInterface/GNtpPrimaryGenerator.h"
+#include "Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::geant;
@@ -27,7 +31,12 @@ using namespace genie::geant;
 GPrimaryGeneratorAction::GPrimaryGeneratorAction(GPrimaryGeneratorType_t pgt):
 fPrimaryGeneratorType(pgt)
 {
+  this->Init();
 
+  if(!fPrimaryGenerator) {
+     LOG("GEANTi", pFATAL) << "No G4VPrimaryGenerator was instantiated";
+  }
+  assert(fPrimaryGenerator);
 }
 //____________________________________________________________________________
 GPrimaryGeneratorAction::~GPrimaryGeneratorAction()
@@ -37,6 +46,35 @@ GPrimaryGeneratorAction::~GPrimaryGeneratorAction()
 //____________________________________________________________________________
 void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 {
-
+  // ask the G4VPrimaryGenerator to generate (or simply read) an event
+  fPrimaryGenerator->GeneratePrimaryVertex(event);
 }
 //____________________________________________________________________________
+void GPrimaryGeneratorAction::Init(void)
+{
+  fPrimaryGenerator = 0;
+
+  LOG("GEANTi", pINFO) 
+            << "You requested: " 
+            << GPrimaryGeneratorType::AsString(fPrimaryGeneratorType);
+
+  switch (fPrimaryGeneratorType) {
+     case kPGNtpRd:     
+          fPrimaryGenerator = new GNtpPrimaryGenerator;
+          break;
+
+     case kPGEVGDrv:  
+     case kPGMCJDrv:
+          LOG("GEANTi", pERROR) 
+                << "The requested G4VPrimaryGenerator is not supported yet!";
+          break;
+
+     case kPGUndefined: 
+     default:   
+          LOG("GEANTi", pERROR) 
+                     << "You didn't requested a valid G4VPrimaryGenerator!";
+          break;
+  }
+}
+//____________________________________________________________________________
+

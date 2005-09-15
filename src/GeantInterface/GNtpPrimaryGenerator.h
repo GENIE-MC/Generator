@@ -29,6 +29,7 @@ using std::string;
 
 namespace genie {
 
+class EventRecord;
 class NtpMCTreeHeader;
 class NtpMCEventRecord;
 
