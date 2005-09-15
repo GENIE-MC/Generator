@@ -11,7 +11,7 @@
 
      <param type="string" name="title"> 
                                Parton Model CC DIS Structure Functions - Ev = 20 GeV     </param>
-     <param type="string" name="struc-func-alg-name">   genie::PartonModelCCAboveCharm   </param>
+     <param type="string" name="struc-func-alg-name">   genie::DISStructureFuncModelCC   </param>
      <param type="string" name="struc-func-param-set">  Default                          </param>
      <param type="int"    name="n-x">                   100                              </param>
      <param type="double" name="x-min">                 0.1                              </param>
@@ -49,7 +49,7 @@
 
      <param type="string" name="title"> 
                                 Parton Model CC DIS Structure Functions - Ev = 5 GeV     </param>
-     <param type="string" name="struc-func-alg-name">   genie::PartonModelCCAboveCharm   </param>
+     <param type="string" name="struc-func-alg-name">   genie::DISStructureFuncModelCC   </param>
      <param type="string" name="struc-func-param-set">  Default                          </param>
      <param type="int"    name="n-x">                   100                              </param>
      <param type="double" name="x-min">                 0.1                              </param>
@@ -68,7 +68,7 @@
 
      <param type="string" name="title"> 
                                Parton Model NC DIS Structure Functions - Ev = 20 GeV     </param>
-     <param type="string" name="struc-func-alg-name">   genie::PartonModelNC             </param>
+     <param type="string" name="struc-func-alg-name">   genie::DISStructureFuncModelNC   </param>
      <param type="string" name="struc-func-param-set">  Default                          </param>
      <param type="int"    name="n-x">                   100                              </param>
      <param type="double" name="x-min">                 0.1                              </param>
@@ -87,7 +87,7 @@
 
      <param type="string" name="title"> 
                                 Parton Model NC DIS Structure Functions - Ev = 5 GeV     </param>
-     <param type="string" name="struc-func-alg-name">   genie::PartonModelNC             </param>
+     <param type="string" name="struc-func-alg-name">   genie::DISStructureFuncModelNC   </param>
      <param type="string" name="struc-func-param-set">  Default                          </param>
      <param type="int"    name="n-x">                   100                              </param>
      <param type="double" name="x-min">                 0.1                              </param>

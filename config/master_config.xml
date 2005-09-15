@@ -501,39 +501,39 @@
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::VldQelXSecVsE">   
+   <alg_config alg_name="genie::VldQELXSec">   
        <config_file> 
-             VldQelXSecVsE.xml
+             VldQELXSec.xml
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::VldQelFormFactors">   
+   <alg_config alg_name="genie::VldQELFormFactors">   
        <config_file> 
-             VldQelFormFactors.xml
+             VldQELFormFactors.xml
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::VldDisXSecVsE">   
+   <alg_config alg_name="genie::VldDISXSec">   
        <config_file> 
-             VldDisXSecVsE.xml
+             VldDISXSec.xml
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::VldDisStrucFunctions">   
+   <alg_config alg_name="genie::VldDISStrucFunctions">   
        <config_file> 
-             VldDisStrucFunctions.xml
+             VldDISStrucFunctions.xml
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::VldCharmDisXSec">   
+   <alg_config alg_name="genie::VldCharmDISXSec">   
        <config_file> 
-             VldCharmDisXSec.xml
+             VldCharmDISXSec.xml
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::VldCharmQelXSec">   
+   <alg_config alg_name="genie::VldCharmQELXSec">   
        <config_file> 
-             VldCharmQelXSec.xml
+             VldCharmQELXSec.xml
        </config_file>
    </alg_config>
 
@@ -597,9 +597,9 @@
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::VldInvMuonDecayXSec">   
+   <alg_config alg_name="genie::VldIMDXSec">   
        <config_file> 
-             VldInvMuonDecayXSec.xml
+             VldIMDXSec.xml
        </config_file>
    </alg_config>
 

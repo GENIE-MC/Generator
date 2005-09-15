@@ -8,107 +8,100 @@
 
   <param_set name="Show-All-Pages"> 
 
-     <param type="int"    name="n-pages">       28                             </param>
+     <param type="int"    name="n-sections">       28                             </param>
 
-     <param type="string" name="page-0-alg">    genie::VldCoverPage            </param>
-     <param type="string" name="page-0-conf">   Default                        </param>
+     <param type="string" name="section-0-alg">    genie::VldCoverPage            </param>
+     <param type="string" name="section-0-conf">   Default                        </param>
 
-     <param type="string" name="page-1-alg">    genie::VldQelXSecVsE           </param>
-     <param type="string" name="page-1-conf">   CC-Default                     </param>
+     <param type="string" name="section-1-alg">    genie::VldQELXSec              </param>
+     <param type="string" name="section-1-conf">   CC-Default                     </param>
 
-     <param type="string" name="page-2-alg">    genie::VldQelFormFactors       </param>
-     <param type="string" name="page-2-conf">   LlewellynSmith-CC              </param>
+     <param type="string" name="section-2-alg">    genie::VldQELFormFactors       </param>
+     <param type="string" name="section-2-conf">   LlewellynSmith-CC              </param>
 
-     <param type="string" name="page-3-alg">    genie::VldQelFormFactors       </param>
-     <param type="string" name="page-3-conf">   LlewellynSmith-NC              </param>
+     <param type="string" name="section-3-alg">    genie::VldQELFormFactors       </param>
+     <param type="string" name="section-3-conf">   LlewellynSmith-NC              </param>
 
-     <param type="string" name="page-4-alg">    genie::VldCharmDisXSec         </param>
-     <param type="string" name="page-4-conf">   CC-Aivazis                     </param>
+     <param type="string" name="section-4-alg">    genie::VldCharmDISXSec         </param>
+     <param type="string" name="section-4-conf">   CC-Aivazis                     </param>
 
-     <param type="string" name="page-5-alg">    genie::VldCharmDisXSec         </param>
-     <param type="string" name="page-5-conf">   CC-Slow-Rescaling              </param>
+     <param type="string" name="section-5-alg">    genie::VldCharmDISXSec         </param>
+     <param type="string" name="section-5-conf">   CC-Slow-Rescaling              </param>
 
-     <param type="string" name="page-6-alg">    genie::VldResonances           </param>
-     <param type="string" name="page-6-conf">   Default                        </param>
+     <param type="string" name="section-6-alg">    genie::VldResonances           </param>
+     <param type="string" name="section-6-conf">   Default                        </param>
 
-     <param type="string" name="page-7-alg">    genie::VldDisXSecVsE           </param>
-     <param type="string" name="page-7-conf">   CC-Default                     </param>
+     <param type="string" name="section-7-alg">    genie::VldDISXSec              </param>
+     <param type="string" name="section-7-conf">   CC-Default                     </param>
 
-     <param type="string" name="page-8-alg">    genie::VldDisXSecVsE           </param>
-     <param type="string" name="page-8-conf">   NC-Default                     </param>
+     <param type="string" name="section-8-alg">    genie::VldDISXSec              </param>
+     <param type="string" name="section-8-conf">   NC-Default                     </param>
 
-     <param type="string" name="page-9-alg">    genie::VldReinSeghalPXSecRes   </param>
-     <param type="string" name="page-9-conf">   CC-numu-p-1GeV                 </param>
+     <param type="string" name="section-9-alg">    genie::VldReinSeghalPXSecRes   </param>
+     <param type="string" name="section-9-conf">   CC-numu-p-1GeV                 </param>
 
-     <param type="string" name="page-10-alg">   genie::VldReinSeghalPXSecRes   </param>
-     <param type="string" name="page-10-conf">  CC-numu-p-4GeV                 </param>
+     <param type="string" name="section-10-alg">   genie::VldReinSeghalPXSecRes   </param>
+     <param type="string" name="section-10-conf">  CC-numu-p-4GeV                 </param>
 
-     <param type="string" name="page-11-alg">   genie::VldReinSeghalXSecRes    </param>
-     <param type="string" name="page-11-conf">  CC-numu-p-NoBreitWigner        </param>
+     <param type="string" name="section-11-alg">   genie::VldReinSeghalXSecRes    </param>
+     <param type="string" name="section-11-conf">  CC-numu-p-NoBreitWigner        </param>
 
-     <param type="string" name="page-12-alg">   genie::VldReinSeghalXSecRes    </param>
-     <param type="string" name="page-12-conf">  CC-numu-p                      </param>
+     <param type="string" name="section-12-alg">   genie::VldReinSeghalXSecRes    </param>
+     <param type="string" name="section-12-conf">  CC-numu-p                      </param>
 
-     <param type="string" name="page-13-alg">   genie::VldHadronMultiplicities </param>
-     <param type="string" name="page-13-conf">  PYTHIA-Default                 </param>
+     <param type="string" name="section-13-alg">   genie::VldHadronMultiplicities </param>
+     <param type="string" name="section-13-conf">  PYTHIA-Default                 </param>
 
-     <param type="string" name="page-14-alg">   genie::VldHadronMultiplicities </param>
-     <param type="string" name="page-14-conf">  KNO-Default                    </param>
+     <param type="string" name="section-14-alg">   genie::VldHadronMultiplicities </param>
+     <param type="string" name="section-14-conf">  KNO-Default                    </param>
 
-     <param type="string" name="page-15-alg">   genie::VldKnoDistribution      </param>
-     <param type="string" name="page-15-conf">  Default                        </param>
+     <param type="string" name="section-15-alg">   genie::VldKnoDistribution      </param>
+     <param type="string" name="section-15-conf">  Default                        </param>
 
-     <param type="string" name="page-16-alg">   genie::VldRadiativeCorr        </param>
-     <param type="string" name="page-16-conf">  CC-Bardin                      </param>
+     <param type="string" name="section-16-alg">   genie::VldRadiativeCorr        </param>
+     <param type="string" name="section-16-conf">  CC-Bardin                      </param>
 
-     <param type="string" name="page-17-alg">   genie::VldRadiativeCorrPXSec   </param>
-     <param type="string" name="page-17-conf">  CC-Bardin                      </param>
+     <param type="string" name="section-17-alg">   genie::VldRadiativeCorrPXSec   </param>
+     <param type="string" name="section-17-conf">  CC-Bardin                      </param>
 
-     <param type="string" name="page-18-alg">   genie::VldBodekYangPDF         </param>
-     <param type="string" name="page-18-conf">  Default                        </param>
+     <param type="string" name="section-18-alg">   genie::VldBodekYangPDF         </param>
+     <param type="string" name="section-18-conf">  Default                        </param>
 
-     <param type="string" name="page-19-alg">   genie::VldDisStrucFunctions    </param>
-     <param type="string" name="page-19-conf">  CC-20-GeV                      </param> 
+     <param type="string" name="section-19-alg">   genie::VldDISStrucFunctions    </param>
+     <param type="string" name="section-19-conf">  CC-20-GeV                      </param> 
 
-     <param type="string" name="page-20-alg">   genie::VldDisStrucFunctions    </param>
-     <param type="string" name="page-20-conf">  CC-5-GeV                      </param> 
+     <param type="string" name="section-20-alg">   genie::VldDISStrucFunctions    </param>
+     <param type="string" name="section-20-conf">  CC-5-GeV                      </param> 
 
-     <param type="string" name="page-21-alg">   genie::VldDisStrucFunctions    </param>
-     <param type="string" name="page-21-conf">  NC-20-GeV                      </param> 
+     <param type="string" name="section-21-alg">   genie::VldDISStrucFunctions    </param>
+     <param type="string" name="section-21-conf">  NC-20-GeV                      </param> 
 
-     <param type="string" name="page-22-alg">   genie::VldDisStrucFunctions    </param>
-     <param type="string" name="page-22-conf">  NC-5-GeV                       </param> 
+     <param type="string" name="section-22-alg">   genie::VldDISStrucFunctions    </param>
+     <param type="string" name="section-22-conf">  NC-5-GeV                       </param> 
 
-     <param type="string" name="page-23-alg">   genie::VldCharmQelXSec         </param>
-     <param type="string" name="page-23-conf">  Kovalenko                      </param> 
+     <param type="string" name="section-23-alg">   genie::VldCharmQELXSec         </param>
+     <param type="string" name="section-23-conf">  Kovalenko                      </param> 
 
-     <param type="string" name="page-24-alg">   genie::VldInvMuonDecayXSec     </param>
-     <param type="string" name="page-24-conf">  Bardin                         </param>
+     <param type="string" name="section-24-alg">   genie::VldIMDXSec              </param>
+     <param type="string" name="section-24-conf">  Bardin                         </param>
 
-     <param type="string" name="page-25-alg">   genie::VldD1232ResXSec         </param>
-     <param type="string" name="page-25-conf">  Paschos-Lalakulich-Default     </param>
+     <param type="string" name="section-25-alg">   genie::VldD1232ResXSec         </param>
+     <param type="string" name="section-25-conf">  Paschos-Lalakulich-Default     </param>
 
-     <param type="string" name="page-26-alg">   genie::VldD1232ResXSec         </param>
-     <param type="string" name="page-26-conf">  Rein-Seghal-Default            </param>
+     <param type="string" name="section-26-alg">   genie::VldD1232ResXSec         </param>
+     <param type="string" name="section-26-conf">  Rein-Seghal-Default            </param>
 
-     <param type="string" name="page-27-alg">   genie::VldReinSeghalExclusiveXSec </param>
-     <param type="string" name="page-27-conf">  Default                           </param>
-
+     <param type="string" name="section-27-alg">   genie::VldReinSeghalExclusiveXSec </param>
+     <param type="string" name="section-27-conf">  Default                           </param>
   </param_set>
 
 
   <param_set name="Test"> 
 
-     <param type="int"    name="n-pages">       1                              </param>
+     <param type="int"    name="n-sections">      1                              </param>
 
-     <param type="string" name="page-0-alg">   genie::VldBodekYangPDF         </param>
-     <param type="string" name="page-0-conf">  Default                        </param>
-
-<!--
-     <param type="string" name="page-0-alg">    genie::VldDisXSecVsE           </param>
-     <param type="string" name="page-0-conf">   CC-Default                     </param>
--->
-
+     <param type="string" name="section-0-alg">   genie::VldBodekYangPDF         </param>
+     <param type="string" name="section-0-conf">  Default                        </param>
   </param_set>
 
 </alg_conf>
