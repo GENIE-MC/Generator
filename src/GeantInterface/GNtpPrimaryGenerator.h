@@ -19,11 +19,10 @@
 
 #include <string>
 
-#include <TFile.h>
-#include <TTree.h>
-
 #include <G4VPrimaryGenerator.hh>
 
+class TFile;
+class TTree;
 class G4Event;
 
 using std::string;
@@ -54,7 +53,7 @@ private:
 
   EventRecord * ReadNextEvent(void);
 
-  TTree *            fFile;
+  TFile *            fFile;
   TTree *            fTree;
   NtpMCTreeHeader *  fTreeHdr;
   NtpMCEventRecord * fNtpRec;
