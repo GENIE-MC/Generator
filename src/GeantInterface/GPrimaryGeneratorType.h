@@ -40,13 +40,22 @@ class GPrimaryGeneratorType {
 
   static char * AsString(GPrimaryGeneratorType_t pgt) {
      switch (pgt) {
-     case kPGUndefined: return "Undefined PrimaryGenerator";                                break;
-     case kPGNtpRd:     return "PrimaryGenerator: Reads events from GENIE's ER ROOT Trees"; break;
-     case kPGEVGDrv:    return "PrimaryGenerator: Invokes GENIE's GEVGDriver";              break;
-     case kPGMCJDrv:    return "PrimaryGenerator: Invokes GENIE's GMCJDriver";              break;
-     default:           break;
+     case kPGUndefined: 
+         return "Undefined PrimaryGenerator";                                
+         break;
+     case kPGNtpRd:     
+         return "NTP PrimaryGenerator [Reads events from GENIE's ER ROOT Trees]"; 
+         break;
+     case kPGEVGDrv:    
+         return "EVG PrimaryGenerator [Invokes GENIE's GEVGDriver]";              
+         break;
+     case kPGMCJDrv:    
+         return "MCJ PrimaryGenerator [Invokes GENIE's GMCJDriver]";              
+         break;
+     default:           
+         break;
      }
-     return " ";
+     return "---";
   }
 
 };

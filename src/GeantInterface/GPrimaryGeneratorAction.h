@@ -37,6 +37,9 @@ public:
   virtual void GeneratePrimaries(G4Event * event);
 
 private:
+
+  void Init(void);
+
   G4VPrimaryGenerator *   fPrimaryGenerator;
   GPrimaryGeneratorType_t fPrimaryGeneratorType;
 };
