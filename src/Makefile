@@ -12,7 +12,11 @@ MAKEFILE = Makefile
 # Include machine specific flags and locations (inc. files & libs)
 include $(GENIE)/src/Make.include
 
+# default build targets
 BUILD_TARGETS = generator-libs generator-std-exe scripts
+
+# build targets to be enabled by the user (nu-validator, 
+# genie/geant interface, doxygen documentation)
 
 ifdef GOPT_ENABLE_NUVALIDATOR
 BUILD_TARGETS := $(BUILD_TARGETS) nuvld
@@ -25,6 +29,8 @@ endif
 ifdef GOPT_ENABLE_DOC
 BUILD_TARGETS := $(BUILD_TARGETS) doc
 endif
+
+# define build targets
 
 all: $(BUILD_TARGETS)
 
@@ -103,6 +109,7 @@ purge: FORCE
 	cd FluxDrivers;        make purge; cd ..; \
 	cd Fragmentation;      make purge; cd ..; \
 	cd GHEP;               make purge; cd ..; \
+	cd GeantInterface;     make purge; cd ..; \
 	cd Geo;                make purge; cd ..; \
 	cd ValidityDoc;        make purge; cd ..; \
 	cd Interaction;        make purge; cd ..; \
@@ -138,6 +145,7 @@ clean: FORCE
 	cd FluxDrivers;        make clean; cd ..; \
 	cd Fragmentation;      make clean; cd ..; \
 	cd GHEP;               make clean; cd ..; \
+	cd GeantInterface;     make clean; cd ..; \
 	cd Geo;                make clean; cd ..; \
 	cd ValidityDoc;        make clean; cd ..; \
 	cd Interaction;        make clean; cd ..; \
