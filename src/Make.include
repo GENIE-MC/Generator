@@ -7,8 +7,12 @@
 #-------------------------------------------------------------------
 #                      Documentation Section
 #-------------------------------------------------------------------
-
-# Env. vars that should be properly defined:
+#
+# In the following section you will find a list of environmental vars 
+# that should be properly defined.
+# See also $GENIE/src/scripts/setup_genie_example for an example
+# shell script that can configure your environment for building/using
+# GENIE.
 #
 # Mandatory:
 # .................................................................
@@ -47,15 +51,44 @@
 #
 
 #-------------------------------------------------------------------
-# GENIE build options [eventually to be set with a configure script]
+#                        GENIE build options
 # ------------------------------------------------------------------
-# comment/uncomment to enable GENIE options
+# Set the following environmental variables to enable GENIE options
 #
+# GOPT_ENABLE_PROFILER        -> enables Google profiler
+# GOPT_ENABLE_NUVALIDATOR     -> enables GENIE's NuValidator
+# GOPT_ENABLE_GEANT_INTERFACE -> enables GENIE/GEANT interface
+# GOPT_ENABLE_DOXYGEN_DOC     -> enables GENIE's Doxygen doc
 
-#GOPT_ENABLE_PROFILER=YES
-GOPT_ENABLE_NUVALIDATOR=YES
-#GOPT_ENABLE_GEANT_INTERFACE=YES
-#GOPT_ENABLE_DOC=YES
+# If variables not set, set defaults
+
+ifndef GOPT_ENABLE_PROFILER   
+ GOPT_ENABLE_PROFILER=NO
+endif
+ifndef GOPT_ENABLE_NUVALIDATOR    
+  GOPT_ENABLE_NUVALIDATOR=YES
+endif 
+ifndef GOPT_ENABLE_GEANT_INTERFACE
+  GOPT_ENABLE_GEANT_INTERFACE=NO
+endif 
+ifndef GOPT_ENABLE_DOXYGEN_DOC
+  GOPT_ENABLE_DOXYGEN_DOC=NO
+endif
+
+# read options
+
+ifeq ($(strip $(GOPT_ENABLE_PROFILER)),YES) 
+  GOPT_PROFILER=1
+endif
+ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES) 
+  GOPT_NUVALIDATOR=1
+endif
+ifeq ($(strip $(GOPT_ENABLE_GEANT_INTERFACE)),YES) 
+  GOPT_GEANT_INTERFACE=1
+endif
+ifeq ($(strip $(GOPT_DOXYGEN_DOC)),YES) 
+  GOPT_DOXYGEN_DOC=1
+endif
 
 #-------------------------------------------------------------------
 #                             libxml2
@@ -77,8 +110,8 @@ endif
 
 # XML libraries and headers
 
-XML_INCLUDES  := -I $(XML_INC_DIR) 
-XML_LIBRARIES := -L $(XML_LIB_DIR) -lxml2
+XML_INCLUDES  := -I$(XML_INC_DIR) 
+XML_LIBRARIES := -L$(XML_LIB_DIR) -lxml2
 
 #-------------------------------------------------------------------
 #                             log4cpp
@@ -100,8 +133,8 @@ endif
 
 # log4cpp libraries and headers
 
-LOG_INCLUDES  := -I $(LOG_INC_DIR)
-LOG_LIBRARIES := -L $(LOG_LIB_DIR) -llog4cpp
+LOG_INCLUDES  := -I$(LOG_INC_DIR)
+LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 
 #-------------------------------------------------------------------
 #                             CERNLIB
@@ -134,7 +167,7 @@ NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
 
 # ROOT headers and libraries
 
-ROOT_INCLUDES  = -I $(ROOTSYS)/include
+ROOT_INCLUDES  = -I$(ROOTSYS)/include
 ROOT_LIBRARIES = $(shell root-config --glibs) \
                         -lMinuit -lGeom -lEG -lEGPythia6
 
@@ -145,7 +178,7 @@ ROOT_LIBRARIES = $(shell root-config --glibs) \
 ###### Linking in the Google Profiling Tool library
 
 GPROF_LIBRARIES = 
-ifdef GOPT_ENABLE_PROFILER
+ifdef GOPT_PROFILER
   ifdef GPROFILER_LIB
     GPROF_LIBRARIES += -L $(GPROFILER_LIB) -lprofiler
   else
@@ -160,7 +193,7 @@ endif
 CLHEP_INCLUDES=
 CHEP_LIBRARIES=
 
-ifdef GOPT_ENABLE_GEANT_INTERFACE
+ifdef GOPT_GEANT_INTERFACE
   CLHEP_INCLUDES = -I$(CLHEP_INC)
   CHEP_LIBRARIES = -L$(CLHEP_LIB) -lCLHEP
 endif
@@ -176,7 +209,7 @@ endif
 GEANT4_LIBRARIES=
 GEANT4_INCLUDES=
 
-ifdef GOPT_ENABLE_GEANT_INTERFACE
+ifdef GOPT_GEANT_INTERFACE
 
  GEANT4_LIBRARIES := -L $(GEANT4_LIB) \
   -lG4baryons -lG4graphics_reps -lG4hadronic_deex_photon_evaporation \
@@ -290,7 +323,7 @@ endif
 
 # if doc was enabled but DOXYGEN was not set, try a default
 
-ifdef GOPT_ENABLE_DOC
+ifdef GOPT_DOXYGEN_DOC
   ifndef DOXYGEN
     DOXYGEN=doxygen
   endif
@@ -344,13 +377,13 @@ OutPutOpt     = -o
 
 # GENIE & NuValidator header files base dir
 
-GENIE_INCLUDES  := -I$(GENIE)/src/
-NUVLD_INCLUDES  := -I$(GENIE)/src/NuValidator/
+GENIE_INCLUDES := -I$(GENIE)/src/
+NUVLD_INCLUDES := -I$(GENIE)/src/NuValidator/
 
 # GENIE lib & bin paths
 
-GENIE_LIB_PATH   := $(GENIE)/lib
-GENIE_BIN_PATH   := $(GENIE)/bin
+GENIE_LIB_PATH := $(GENIE)/lib
+GENIE_BIN_PATH := $(GENIE)/bin
 
 # GENIE & NuValidator libraries
 
@@ -413,7 +446,7 @@ GENIE_LIBRARIES := -L $(GENIE_LIB_PATH) \
 
 # add the GENIE/GEANT interface library if the interface is enabled
 
-ifdef GOPT_ENABLE_GEANT_INTERFACE
+ifdef GOPT_GEANT_INTERFACE
 #  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGG4I
 endif
 
