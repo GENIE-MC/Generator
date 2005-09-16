@@ -134,6 +134,7 @@ purge: FORCE
 	cd Viewer;             make purge; cd ..; \
 
 clean: FORCE
+	rm build.options; \
 	cd Algorithm;          make clean; cd ..; \
 	cd BaryonResonance;    make clean; cd ..; \
 	cd Base;               make clean; cd ..; \
