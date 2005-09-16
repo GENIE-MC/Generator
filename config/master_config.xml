@@ -6,13 +6,13 @@
 
    <alg_config alg_name="genie::PetersonFragm">   
        <config_file> 
-             PetersonFragm.xml 
+          PetersonFragm.xml 
        </config_file> 
    </alg_config>
 
    <alg_config alg_name="genie::CollinsSpillerFragm">   
-       <config_file> 
-             CollinsSpillerFragm.xml 
+       <config_file>  
+           CollinsSpillerFragm.xml  
        </config_file>
    </alg_config>
 
@@ -191,7 +191,7 @@
 
    <alg_config alg_name="genie::RESPXSec">   
        <config_file> 
-             RESPXSecec.xml 
+             RESPXSec.xml 
        </config_file>
    </alg_config>
 
@@ -316,7 +316,7 @@
 
    <alg_config alg_name="genie::NucBindEnergyAggregator">   
        <config_file> 
-             NuclBindEnergyAggregator.xml 
+             NucBindEnergyAggregator.xml 
        </config_file>
    </alg_config>
 
@@ -616,7 +616,6 @@
              VldD1232ResXSec.xml
        </config_file>
    </alg_config>
-
 
 </genie_config>
 
