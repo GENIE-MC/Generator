@@ -13,7 +13,7 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 # default build targets
-BUILD_TARGETS = generator-libs generator-std-exe scripts
+BUILD_TARGETS = save-build-options generator-libs generator-std-exe scripts
 
 # build targets to be enabled by the user (nu-validator, 
 # genie/geant interface, doxygen documentation)
@@ -93,6 +93,9 @@ scripts:
 	cd scripts; make install; cd ..;
 
 all-libs: generator-libs nuvld-libs
+
+save-build-options:
+	perl scripts/save-build-env;
 
 purge: FORCE
 	cd Algorithm;          make purge; cd ..; \
