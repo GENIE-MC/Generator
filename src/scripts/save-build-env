@@ -1,0 +1,67 @@
+#! /usr/bin/perl -w
+
+# Reads building options from your environment and writes them
+# down to the 'build.options' file.
+# Consult this file if you have any doubt on how was GENIE build
+# was performed...
+
+$GENIE = $ENV{'GENIE'};
+
+$SRT_ENV_SET   = $ENV{'SRT_ENV_SET'};
+$ROOTSYS       = $ENV{'ROOTSYS'};
+$CERNLIB       = $ENV{'CERNLIB'};
+$PYTHIA6       = $ENV{'PYTHIA6'};
+$LIBXML2_INC   = $ENV{'LIBXML2_INC'};
+$LIBXML2_LIB   = $ENV{'LIBXML2_LIB'};
+$LOG4CPP_INC   = $ENV{'LOG4CPP_INC'};
+$LOG4CPP_LIB   = $ENV{'LOG4CPP_LIB'};
+$NEUGEN3PATH   = $ENV{'NEUGEN3PATH'};
+$GPROFILER_LIB = $ENV{'GPROFILER_LIB'};
+$DOXYGEN       = $ENV{'DOXYGEN'};
+$CLHEP_INC     = $ENV{'CLHEP_INC'};
+$CLHEP_LIB     = $ENV{'CLHEP_LIB'};
+$GEANT4_INC    = $ENV{'GEANT4_INC'};
+$GEANT4_LIB    = $ENV{'GEANT4_LIB'};
+
+$PATH            = $ENV{'PATH'};
+$LD_LIBRARY_PATH = $ENV{'LD_LIBRARY_PATH'};
+
+$GOPT_ENABLE_NUVALIDATOR     = $ENV{'GOPT_ENABLE_NUVALIDATOR'};
+$GOPT_ENABLE_GEANT_INTERFACE = $ENV{'GOPT_ENABLE_GEANT_INTERFACE'};
+$GOPT_ENABLE_PROFILER        = $ENV{'GOPT_ENABLE_PROFILER'};
+$GOPT_ENABLE_DOXYGEN_DOC     = $ENV{'GOPT_ENABLE_DOXYGEN_DOC'};
+
+$BLD_OPT = "$GENIE/src/build.options";
+open(OPT, ">$BLD_OPT") 
+    or die("Can not open build.options file to save your build settings");
+
+print OPT "[The GENIE spy reports]\n\n";
+print OPT "This was your environment last time you typed 'gmake' in $GENIE/src:\n\n";
+
+print OPT "\$SRT_ENV_SET   -> $SRT_ENV_SET\n";
+print OPT "\$ROOTSYS       -> $ROOTSYS\n";
+print OPT "\$CERNLIB       -> $CERNLIB\n";
+print OPT "\$PYTHIA6       -> $PYTHIA6\n";
+print OPT "\$LIBXML2_INC   -> $LIBXML2_INC\n";
+print OPT "\$LIBXML2_LIB   -> $LIBXML2_LIB\n";
+print OPT "\$LOG4CPP_INC   -> $LOG4CPP_INC\n";
+print OPT "\$LOG4CPP_LIB   -> $LOG4CPP_LIB\n";
+print OPT "\$NEUGEN3PATH   -> $NEUGEN3PATH\n";
+print OPT "\$GPROFILER_LIB -> $GPROFILER_LIB\n";
+print OPT "\$DOXYGEN       -> $DOXYGEN\n";
+print OPT "\$CLHEP_INC     -> $CLHEP_INC\n";
+print OPT "\$CLHEP_LIB     -> $CLHEP_LIB\n";
+print OPT "\$GEANT4_INC    -> $GEANT4_INC\n";
+print OPT "\$GEANT4_LIB    -> $GEANT4_LIB\n\n";
+
+print OPT "\$PATH            -> $PATH\n\n";
+
+print OPT "\$LD_LIBRARY_PATH -> $LD_LIBRARY_PATH\n\n";
+
+print OPT "\$GOPT_ENABLE_NUVALIDATOR     -> $GOPT_ENABLE_NUVALIDATOR\n";
+print OPT "\$GOPT_ENABLE_GEANT_INTERFACE -> $GOPT_ENABLE_GEANT_INTERFACE\n";
+print OPT "\$GOPT_ENABLE_PROFILER        -> $GOPT_ENABLE_PROFILER\n";
+print OPT "\$GOPT_ENABLE_DOXYGEN_DOC     -> $GOPT_ENABLE_DOXYGEN_DOC\n";
+
+close(OPT);
+
