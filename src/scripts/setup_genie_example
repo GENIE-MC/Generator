@@ -35,7 +35,7 @@ export NEUGEN3PATH=/home/costas/MC/neugen3
 
 #--- You only really need to set GPROFILER is you plan to enable
 #--- Google's profiling tool (by setting GOPT_ENABLE_PROFILER=YES)
-export GPROFILER_LIB=/usr/lical/lib
+export GPROFILER_LIB=/usr/local/lib
 
 #--- You only really need to set DOXYGEN is you plan to enable
 #--- GENIE's Doxygen documentation (by setting GOPT_ENABLE_DOXYGEN_DOC=YES)
