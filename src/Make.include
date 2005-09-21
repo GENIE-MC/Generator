@@ -427,11 +427,6 @@ VLD_DBUTIL_SHARED_LIB             := $(GENIE_LIB_PATH)/libGNuVldDBU.$(DllSuf)
 VLD_GUI_WIDGETS_SHARED_LIB        := $(GENIE_LIB_PATH)/libGNuVldGUI.$(DllSuf)
 VLD_NEUGEN_INTERFACE_SHARED_LIB   := $(GENIE_LIB_PATH)/libGNuVldNeugen.$(DllSuf)
 
-#VLD_PARSER_LIB           := -L $(GENIE_LIB_PATH) -lGNuVldXML
-#VLD_DBUTIL_LIB           := -L $(GENIE_LIB_PATH) -lGNuVldDBU
-#VLD_NEUGEN_INTERFACE_LIB := -L $(GENIE_LIB_PATH) -lGNuVldNeugen
-#VLD_GUI_WIDGETS_LIB      := -L $(GENIE_LIB_PATH) -lGNuVldGUI
-
 # standard GENIE's Neutrino Generator libraries
 
 GENIE_LIBRARIES := -L $(GENIE_LIB_PATH) \
@@ -454,6 +449,9 @@ endif
 
 NUVLD_LIBRARIES := -L $(GENIE_LIB_PATH) \
   -lGNuVldXML -lGNuVldDBU -lGNuVldNeugen -lGNuVldGUI
+
+NUVLD_CORE_LIBRARIES := -L $(GENIE_LIB_PATH) \
+  -lGNuVldXML -lGNuVldDBU -lGNuVldGUI
 
 #-------------------------------------------------------------------
 #                            SUMMING-UP
