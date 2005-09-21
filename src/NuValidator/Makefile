@@ -15,10 +15,21 @@ all:
 	cd NuVldGUI;           make; cd ..;    \
 	cd app;                make; cd ..; 
 
+all-no-neugen:
+	cd XmlParser;          make; cd ..;    \
+	cd DBUtils;            make; cd ..;    \
+	cd NuVldGUI;           make; cd ..;    \
+	cd app;                make; cd ..; 
+
 libs:
 	cd XmlParser;          make; cd ..;    \
 	cd DBUtils;            make; cd ..;    \
 	cd Facades;            make; cd ..;    \
+	cd NuVldGUI;           make; cd ..;    
+
+libs-no-neugen:
+	cd XmlParser;          make; cd ..;    \
+	cd DBUtils;            make; cd ..;    \
 	cd NuVldGUI;           make; cd ..;    
 
 applications:

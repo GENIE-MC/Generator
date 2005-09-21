@@ -25,6 +25,7 @@
 #include "DBUtils/SFTableRow.h"
 #include "Facades/NGCardPairList.h"
 #include "NuVldGUI/MenuCommandId.h"
+#include "NuVldGUI/NuVldConfig.h"
 
 class TSystem;
 class TGListBox;
@@ -80,7 +81,7 @@ public:
 
    friend class GuiHelpHandler;
    
-   NuVldMainFrame(const TGWindow * p, UInt_t w, UInt_t h);
+   NuVldMainFrame(const TGWindow * p, UInt_t w, UInt_t h, const NuVldConfig & my_config);
    virtual ~NuVldMainFrame();
 
    //-- methods for handling GUI events
@@ -315,6 +316,7 @@ private:
    NeuGenFitParams *         fNGFP;   
    bool                      fPlotterShowIsOn;   
    Spline *                  fSpline;
+   NuVldConfig *             fMyConfig;
 
 ClassDef(NuVldMainFrame, 0)
 };

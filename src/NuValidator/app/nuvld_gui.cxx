@@ -18,6 +18,7 @@
 
 #include "Messenger/Messenger.h"
 #include "NuVldGUI/NuVldMainFrame.h"
+#include "NuVldGUI/NuVldConfig.h"
 
 using genie::Messenger;
 using namespace genie::nuvld;
@@ -30,7 +31,10 @@ int main(int argc, char ** argv)
 
   TApplication vld_gui("VLD", &argc, argv);
 
-  NuVldMainFrame main_window(gClient->GetRoot(), 800, 1100);
+  NuVldConfig config;
+  config.AutoDetect();
+
+  NuVldMainFrame main_window(gClient->GetRoot(), 800, 1100, config);
 
   vld_gui.Run();
 
