@@ -11,6 +11,7 @@
 */
 //_____________________________________________________________________________
 
+#include <cassert>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -100,9 +101,12 @@ using namespace genie::nuvld::constants;
 ClassImp(NuVldMainFrame)
 
 //______________________________________________________________________________
-NuVldMainFrame::NuVldMainFrame(const TGWindow * p, UInt_t w, UInt_t h) :
+NuVldMainFrame::NuVldMainFrame(
+        const TGWindow * p, UInt_t w, UInt_t h, const NuVldConfig & my_config) :
 TGMainFrame(p, w, h)
 {
+  fMyConfig = new NuVldConfig(my_config);
+
   UInt_t kv = kVerticalFrame;
   UInt_t kh = kHorizontalFrame;
   
@@ -199,6 +203,7 @@ NuVldMainFrame::~NuVldMainFrame()
 {
   fMain->Cleanup();
   delete fMain;
+  delete fMyConfig;
 }
 //______________________________________________________________________________
 
@@ -333,8 +338,16 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
   fMenuNeuGen->AddEntry("Load external", M_NEUGEN_LOAD_EXTERNAL);
 
   fMenuNeuGen->Connect("Activated(Int_t)",
-                                   "genie::nuvld::NuVldMainFrame",
-                                                    this,"HandleMenu(Int_t)");
+                                   "genie::nuvld::NuVldMainFrame",   
+                                                 this,"HandleMenu(Int_t)");
+
+  // de-activate NeuGEN if user does not have the NeuGEN libraries
+  if(!fMyConfig->UseNeuGEN()) {
+      fMenuNeuGen->DisableEntry(M_NEUGEN_CONFIG_PHYSICS);
+      fMenuNeuGen->DisableEntry(M_NEUGEN_CONFIG_PROCESS);
+      fMenuNeuGen->DisableEntry(M_NEUGEN_RUN);
+  }
+
   // Menu: GENIE
 
   fMenuGENIE = new TGPopupMenu(gClient->GetRoot());
@@ -425,6 +438,11 @@ void NuVldMainFrame::CreateUpperFrameButtons(TGGroupFrame * gf)
   fHelpBtn         = new TGPictureButton(gf, this->Pic("nuvld_help",   32,32));
   fDurhamBtn       = new TGPictureButton(gf, this->Pic("durham",       32,32));
   fAboutBtn        = new TGPictureButton(gf, this->Pic("about",        32,32));
+
+  if( !fMyConfig->UseNeuGEN() ) {
+     fNeugenConfigBtn -> SetState(kButtonDisabled);
+     fNeugenProcBtn  ->  SetState(kButtonDisabled);
+  }
 }
 //______________________________________________________________________________
 void NuVldMainFrame::SetUpperFrameButtonText(void)
