@@ -95,11 +95,176 @@
      <param type="string" name="section-27-conf">  Default                           </param>
   </param_set>
 
+  <param_set name="Test-Cover-Page"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldCoverPage            </param>
+     <param type="string" name="section-0-conf">   Default                        </param>
+  </param_set>
+
+  <param_set name="QELXSec"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldQELXSec              </param>
+     <param type="string" name="section-0-conf">   CC-Default                     </param>
+  </param_set>
+
+  <param_set name="QELFormFactors-1"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldQELFormFactors       </param>
+     <param type="string" name="section-0-conf">   LlewellynSmith-CC              </param>
+  </param_set>
+
+  <param_set name="QELFormFactors-2"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldQELFormFactors       </param>
+     <param type="string" name="section-0-conf">   LlewellynSmith-NC              </param>
+  </param_set>
+
+  <param_set name="CharmDISXSec-Aivazis"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldCharmDISXSec         </param>
+     <param type="string" name="section-0-conf">   CC-Aivazis                     </param>
+  </param_set>
+
+  <param_set name="CharmDISXSec-SlowRescaling"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldCharmDISXSec         </param>
+     <param type="string" name="section-0-conf">   CC-Slow-Rescaling              </param>
+  </param_set>
+
+  <param_set name="Resonances"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldResonances           </param>
+     <param type="string" name="section-0-conf">   Default                        </param>
+  </param_set>
+
+  <param_set name="DISXSecCC"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldDISXSec              </param>
+     <param type="string" name="section-0-conf">   CC-Default                     </param>
+  </param_set>
+
+  <param_set name="DISXSecNC"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldDISXSec              </param>
+     <param type="string" name="section-0-conf">   NC-Default                     </param>
+  </param_set>
+
+  <param_set name="RSPXSec-1"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldReinSeghalPXSecRes   </param>
+     <param type="string" name="section-0-conf">   CC-numu-p-1GeV                 </param>
+  </param_set>
+
+  <param_set name="RSPXSec-2"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldReinSeghalPXSecRes   </param>
+     <param type="string" name="section-0-conf">  CC-numu-p-4GeV                 </param>
+  </param_set>
+
+  <param_set name="RSXSec-1"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldReinSeghalXSecRes    </param>
+     <param type="string" name="section-0-conf">  CC-numu-p-NoBreitWigner        </param>
+  </param_set>
+
+  <param_set name="RSXSec-2"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldReinSeghalXSecRes    </param>
+     <param type="string" name="section-0-conf">  CC-numu-p                      </param>
+  </param_set>
+
+  <param_set name="PYTHIA-Hadronization"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldHadronMultiplicities </param>
+     <param type="string" name="section-0-conf">  PYTHIA-Default                 </param>
+  </param_set>
+
+  <param_set name="KNO-Hadronization"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldHadronMultiplicities </param>
+     <param type="string" name="section-0-conf">  KNO-Default                    </param>
+  </param_set>
+
+  <param_set name="KNO"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldKnoDistribution      </param>
+     <param type="string" name="section-0-conf">  Default                        </param>
+  </param_set>
+
+  <param_set name="RadCorrXSec"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldRadiativeCorr        </param>
+     <param type="string" name="section-0-conf">  CC-Bardin                      </param>
+  </param_set>
+
+  <param_set name="RadCorrPXSec"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldRadiativeCorrPXSec   </param>
+     <param type="string" name="section-0-conf">  CC-Bardin                      </param>
+  </param_set>
+
+  <param_set name="BYPDF"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldBodekYangPDF         </param>
+     <param type="string" name="section-0-conf">  Default                        </param>
+  </param_set>
+
+  <param_set name="DISSF-1"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldDISStrucFunctions    </param>
+     <param type="string" name="section-0-conf">  CC-20-GeV                      </param> 
+  </param_set>
+
+  <param_set name="DISSF-2"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldDISStrucFunctions    </param>
+     <param type="string" name="section-0-conf">  CC-5-GeV                      </param> 
+  </param_set>
+
+  <param_set name="DISSF-3"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldDISStrucFunctions    </param>
+     <param type="string" name="section-0-conf">  NC-20-GeV                      </param> 
+  </param_set>
+
+  <param_set name="DISSF-4"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldDISStrucFunctions    </param>
+     <param type="string" name="section-0-conf">  NC-5-GeV                       </param> 
+  </param_set>
+
+  <param_set name="CharmQELXSec"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldCharmQELXSec         </param>
+     <param type="string" name="section-0-conf">  Kovalenko                      </param> 
+  </param_set>
+
+  <param_set name="IMDXSec"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldIMDXSec              </param>
+     <param type="string" name="section-0-conf">  Bardin                         </param>
+  </param_set>
+
+  <param_set name="PL-D1232-XSec"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldD1232ResXSec         </param>
+     <param type="string" name="section-0-conf">  Paschos-Lalakulich-Default     </param>
+  </param_set>
+
+  <param_set name="RS-D1232-XSec"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldD1232ResXSec         </param>
+     <param type="string" name="section-0-conf">  Rein-Seghal-Default            </param>
+  </param_set>
+
+  <param_set name="PL-Exclusive-XSec"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">   genie::VldReinSeghalExclusiveXSec </param>
+     <param type="string" name="section-0-conf">  Default                           </param>
+  </param_set>
 
   <param_set name="Test"> 
-
      <param type="int"    name="n-sections">      1                              </param>
-
      <param type="string" name="section-0-alg">   genie::VldBodekYangPDF         </param>
      <param type="string" name="section-0-conf">  Default                        </param>
   </param_set>
