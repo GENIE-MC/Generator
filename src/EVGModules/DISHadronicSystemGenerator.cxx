@@ -100,6 +100,17 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   //   A collection of ROOT TMCParticles (equivalent to a LUJETS record)
   TClonesArray * particle_list = hadr_model->Hadronize(interaction);
 
+  if(!particle_list) {
+     LOG("DISHadronicVtx", pWARN) 
+                    << "Got an empty particle list. Hadronizer failed!";
+     LOG("DISHadronicVtx", pWARN) 
+                      << "Quitting the current event generation thread";
+
+     evrec->SwitchGenericErrFlag(true);
+     evrec->EnableFastForward(true);
+     return;
+  }
+
   //-- Velocity for the [Hadronic CM] -> [LAB] active Lorentz transform
   TVector3 beta = this->HCM2LAB(evrec);
 
