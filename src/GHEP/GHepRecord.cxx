@@ -427,6 +427,14 @@ void GHepRecord::SwitchIsBelowThrNRF(bool on_off)
   fIsBelowThrNRF = on_off;
 }
 //___________________________________________________________________________
+void GHepRecord::SwitchGenericErrFlag(bool on_off)
+{
+  LOG("GHEP", pINFO)
+      << "Switching Generic Error Flag: "
+                               << print_utils::BoolAsIOString(on_off);
+  fGenericErrFlag = on_off;
+}
+//___________________________________________________________________________
 void GHepRecord::EnableFastForward(bool on_off)
 {
   LOG("GHEP", pINFO)
@@ -439,7 +447,7 @@ bool GHepRecord::IsUnphysical(void) const
 {
 // Summarizes record flags
 
-  return (fIsPauliBlocked || fIsBelowThrNRF);
+  return (fIsPauliBlocked || fIsBelowThrNRF || fGenericErrFlag);
 }
 //___________________________________________________________________________
 void GHepRecord::InitGHepRecord(void)
@@ -450,6 +458,7 @@ void GHepRecord::InitGHepRecord(void)
 
   this -> SwitchIsPauliBlocked (false);
   this -> SwitchIsBelowThrNRF  (false);
+  this -> SwitchGenericErrFlag (false);
   this -> EnableFastForward    (false);
 }
 //___________________________________________________________________________
@@ -477,9 +486,10 @@ void GHepRecord::Copy(const GHepRecord & record)
   fInteraction = new Interaction( *record.fInteraction );
 
   // copy flags
-  fIsPauliBlocked = record.fIsPauliBlocked;
-  fIsBelowThrNRF  = record.fIsBelowThrNRF;
-  fFastFwdEnabled = record.fFastFwdEnabled;
+  fIsPauliBlocked  = record.fIsPauliBlocked;
+  fIsBelowThrNRF   = record.fIsBelowThrNRF;
+  fGenericErrFlag  = record.fGenericErrFlag;
+  fFastFwdEnabled  = record.fFastFwdEnabled;
 }
 //___________________________________________________________________________
 void GHepRecord::Print(ostream & stream) const

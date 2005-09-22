@@ -85,6 +85,7 @@ public :
 
   virtual void SwitchIsPauliBlocked (bool on_off);
   virtual void SwitchIsBelowThrNRF  (bool on_off);
+  virtual void SwitchGenericErrFlag (bool on_off);
   virtual void EnableFastForward    (bool on_off);
 
   virtual bool IsPauliBlocked     (void) const { return fIsPauliBlocked; }
@@ -100,6 +101,7 @@ protected:
   // Flags for the generated event
   bool fIsPauliBlocked;   ///< true for Pauli-blocked event
   bool fIsBelowThrNRF;    ///< true if it is below threshold in the nucleon rest frame
+  bool fGenericErrFlag;   ///< true for etc problems
   bool fFastFwdEnabled;   ///< true if subsequent processing steps should be skipped
 
   // Utility methods
