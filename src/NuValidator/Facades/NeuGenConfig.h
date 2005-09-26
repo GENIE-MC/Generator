@@ -32,8 +32,8 @@ const unsigned int kNInSt = 4; ///< number of initial states (vp,vn,vbp,vbn)
 
 //! Default (best) NeuGEN parameters
 
-const int    kNGDefPdfGrp   =  1;
-const int    kNGDefPdfSet   = 11;
+const int    kNGDefPdfGrp   =  5;
+const int    kNGDefPdfSet   = 12;
 const float  kNGDefMaQel    =  1.032;
 const float  kNGDefMaRes    =  1.032;
 const float  kNGDefMaCoh    =  1.000;    
@@ -51,8 +51,8 @@ const float kNGDefKnoA[kNInSt] = {
 };
 const float kNGDefDisRes[kNMlt][kNInSt] = {
                  /* v+p   v+n   vb+p  vb+n */
-                   {0.78, 0.21, 0.21, 0.11},    /* multiplicity = 2 */
-                   {0.54, 0.31, 0.33, 0.27}     /* multiplicity = 3 */
+                   {0.20, 0.20, 0.20, 0.20},    /* multiplicity = 2 */
+                   {1.00, 1.00, 1.00, 1.00}     /* multiplicity = 3 */
 };
 
 namespace genie   {
