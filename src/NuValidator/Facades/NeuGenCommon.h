@@ -39,6 +39,28 @@ struct physconst_ {
   double gv_reim;
   double gv_hbarcsq;
   double gv_pi;
+  int gv_pdfgroup;
+  int gv_pdfset;
+  double gv_disq2min; 
+  double gv_byht_a;
+  double gv_byht_b;
+  double gv_byht_cv1;
+  double gv_byht_cv2; 
+  double gv_byht_cs;
+  double gv_byht_q2min; 
+  int gv_byht_pdfset; 
+  int gv_byht_pdfgroup;
+  double gv_alpha;
+  double gv_wcut_dis;
+  double gv_wcut_res;
+  int gv_howmanyres; 
+  double gv_resdcf;
+  double  gv_formation_time;
+  double gv_fz_b;
+  int imod_formation_zone;  
+  int imod_dismodel; 
+  int imod_overlap; 
+  int imod_piabsorption; 
   int iok_physconst;
 };
 
