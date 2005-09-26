@@ -157,13 +157,15 @@ void NeuGenWrapper::Reconfigure(const NeuGenConfig * config)
   int pdfgroup = _config->PdfGroup();
   int pdfset   = _config->PdfSet();
   
+  LOG("NeuGen", pINFO) << "Reconfiguring: pdfgroup [" << pdfgroup <<
+  "], pdset [" << pdfset <<"]";
   set_pdfset_(&pdfgroup,&pdfset,&q2min);   
 }  
 //____________________________________________________________________________
 void NeuGenWrapper::SetDefaultConfig(void)
 {
   int  nchar = 0;
-  int  vrs   = 1;
+  int  nver = 2;
   bool ok    = false;
  
   // Get the user-prefered NeuGEN configuration set from the GNEUGENCONF env. 
@@ -173,17 +175,26 @@ void NeuGenWrapper::SetDefaultConfig(void)
 
   string gneugenconf =
               ( gSystem->Getenv("GNEUGENCONF") ? 
-                                gSystem->Getenv("GNEUGENCONF") : "MODBYEF2");
+                                gSystem->Getenv("GNEUGENCONF") : "MODBYRS");
   nchar = gneugenconf.size();
 
+  string gneugenconfv =
+              ( gSystem->Getenv("GNEUGENCONFV") ? 
+                                gSystem->Getenv("GNEUGENCONFV") : "2");
+
   LOG("NeuGen", pINFO)
-          << "Using NeuGEN configuration set: [" << gneugenconf << "]";
-
+          << "Using NeuGEN configuration set: [" << gneugenconf << "]" << " version: ["
+          << gneugenconfv << "]" ;
   char * conf = (char*)gneugenconf.c_str(); // get what NeuGEN expects
-  initialize_configuration_(conf, &nchar, &vrs, &ok);
-  assert(ok);
+  char * confv = (char*)gneugenconfv.c_str(); // get what NeuGEN expects
+  int  vrs = atoi(confv); 
+  LOG("NeuGen", pINFO) << "version " << vrs;
 
-  set_default_parameters_();
+  initialize_configuration_(conf, &nchar, &nver, &ok);
+  assert(ok);
+  print_configuration_();
+
+//  set_default_parameters_();
 }
 //____________________________________________________________________________
 float NeuGenWrapper::XSec(float e, NGInteraction * ni, NeuGenCuts * cuts)
