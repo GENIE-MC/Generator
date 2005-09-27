@@ -35,12 +35,14 @@ class GHepRecordHistory : public map<int, GHepRecord*> {
 public :
 
   GHepRecordHistory();
+  GHepRecordHistory(const GHepRecordHistory & history);
   ~GHepRecordHistory();
 
   void AddSnapshot  (int step, GHepRecord * record);
   void PurgeHistory (void);
 
-  void Print(ostream & stream) const;
+  void Copy  (const GHepRecordHistory & history);
+  void Print (ostream & stream) const;
 
   friend ostream & operator << (ostream & stream, const GHepRecordHistory & history);
 };

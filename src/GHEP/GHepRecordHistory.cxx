@@ -40,6 +40,12 @@ map<int, GHepRecord*>()
 
 }
 //___________________________________________________________________________
+GHepRecordHistory::GHepRecordHistory(const GHepRecordHistory & history) :
+map<int, GHepRecord*>()
+{
+  this->Copy(history);
+}
+//___________________________________________________________________________
 GHepRecordHistory::~GHepRecordHistory()
 {
   this->PurgeHistory();
@@ -79,6 +85,21 @@ void GHepRecordHistory::PurgeHistory(void)
     }
   }
   this->clear();
+}
+//___________________________________________________________________________
+void GHepRecordHistory::Copy(const GHepRecordHistory & history)
+{
+  this->PurgeHistory();
+
+  GHepRecordHistory::const_iterator history_iter;
+  for(history_iter = this->begin();
+                              history_iter != this->end(); ++history_iter) {
+
+    unsigned int step   = history_iter->first;
+    GHepRecord * record = history_iter->second;
+
+    this->AddSnapshot(step, record);
+  }
 }
 //___________________________________________________________________________
 void GHepRecordHistory::Print(ostream & stream) const
