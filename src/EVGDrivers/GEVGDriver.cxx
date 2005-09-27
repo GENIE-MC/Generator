@@ -117,6 +117,13 @@ void GEVGDriver::Initialize(void)
   fFilter        = 0;
   fUseSplines    = false;
   fNRecLevel     = 0;
+
+  // Default driver behaviour is to filter out unphysical events,
+  // Set this to false to get them if needed, but be warned that the event 
+  // record for unphysical events might be incomplete depending on the 
+  // processing step that event generation was stopped.
+  this->FilterUnphysical(true); 
+                                
 }
 //___________________________________________________________________________
 void GEVGDriver::Configure(void)
@@ -193,6 +200,11 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   //   (note: use of the 'Visitor' Design Pattern)
   LOG("GEVGDriver", pINFO) << "Generating Event:";
   evgen->ProcessEventRecord(fCurrentRecord);
+
+  //-- If the user requested that unphysical events should be returned too,
+  //   return the event record here
+
+  if (!fFilterUnphysical) return fCurrentRecord;
 
   //-- Check whether the generated event is unphysical (eg Pauli-Blocked,
   //   etc). If the unphysical it will not be returned. This method would

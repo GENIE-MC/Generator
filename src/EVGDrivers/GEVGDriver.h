@@ -49,11 +49,12 @@ public :
 
   //-- Set initial state, interaction filter and option to create splines
 
-  void SetInitialState  (int nu_pdgc, int Z, int A);
-  void SetInitialState  (const InitialState & init_state);
-  void SetFilter        (const InteractionFilter & filter);
-  void UseSplines       (void);
-  void CreateSplines    (bool useLogE = true);
+  void SetInitialState   (int nu_pdgc, int Z, int A);
+  void SetInitialState   (const InitialState & init_state);
+  void SetFilter         (const InteractionFilter & filter);
+  void UseSplines        (void);
+  void CreateSplines     (bool useLogE = true);
+  void FilterUnphysical  (bool on_off);
 
   //-- Generate single event
 
@@ -104,7 +105,7 @@ private:
   EGResponsibilityChain * fChain;         ///< an Event Generator chain of responsibility
   InteractionSelectorI *  fIntSelector;   ///< interaction selector
   InteractionFilter *     fFilter;
-
+  bool                    fFilterUnphysical; ///< controls whether unphysical events are returned
   //-- Other private data
   unsigned int fNRecLevel; ///< a counter of how many levels deep it is in recursive mode.
 };
