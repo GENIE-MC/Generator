@@ -435,14 +435,6 @@ void GHepRecord::SwitchGenericErrFlag(bool on_off)
   fGenericErrFlag = on_off;
 }
 //___________________________________________________________________________
-void GHepRecord::EnableFastForward(bool on_off)
-{
-  LOG("GHEP", pINFO)
-      << "Switching Fast Fwd flag: " << print_utils::BoolAsIOString(on_off);
-
-  fFastFwdEnabled = on_off;
-}
-//___________________________________________________________________________
 bool GHepRecord::IsUnphysical(void) const
 {
 // Summarizes record flags
@@ -459,7 +451,6 @@ void GHepRecord::InitGHepRecord(void)
   this -> SwitchIsPauliBlocked (false);
   this -> SwitchIsBelowThrNRF  (false);
   this -> SwitchGenericErrFlag (false);
-  this -> EnableFastForward    (false);
 }
 //___________________________________________________________________________
 void GHepRecord::ResetGHepRecord(void)
@@ -489,7 +480,6 @@ void GHepRecord::Copy(const GHepRecord & record)
   fIsPauliBlocked  = record.fIsPauliBlocked;
   fIsBelowThrNRF   = record.fIsBelowThrNRF;
   fGenericErrFlag  = record.fGenericErrFlag;
-  fFastFwdEnabled  = record.fFastFwdEnabled;
 }
 //___________________________________________________________________________
 void GHepRecord::Print(ostream & stream) const
@@ -599,11 +589,10 @@ void GHepRecord::Print(ostream & stream) const
          << print_utils::BoolAsIOString(this->IsPauliBlocked()) << " |"
          << setfill(' ') << setw(15) << " BelowThrNRF...."
          << print_utils::BoolAsIOString(this->IsBelowThrNRF())  << " |"
+         << setfill(' ') << setw(15) << " GenericErr....."
+         << print_utils::BoolAsIOString(this->GenericErrFlag()) << " |"
          << setfill(' ') << setw(15) << " UnPhysical....."
-         << print_utils::BoolAsIOString(this->IsUnphysical())   << " |"
-         << setfill(' ') << setw(15) << " FastFwd........"
-         << print_utils::BoolAsIOString(this->FastForwardEnabled())
-         << " |";
+         << print_utils::BoolAsIOString(this->IsUnphysical())   << " |";
 
   stream << "\n |";
   stream << setfill('-') << setw(109) << "|";
