@@ -46,14 +46,18 @@ EVGThreadException::~EVGThreadException()
 //___________________________________________________________________________
 void EVGThreadException::Init(void)
 {
-  fReason   = "";
-  fFastFwd  = false;
-  fStepBack = false;
+  fReason     = "";
+  fFastFwd    = false;
+  fStepBack   = false;
+  fReturnStep = 999999;
 }
 //___________________________________________________________________________
 void EVGThreadException::Copy(const EVGThreadException & exc)
 {
-  fReason = exc.fReason;
+  fReason     = exc.fReason;
+  fFastFwd    = exc.fFastFwd;
+  fStepBack   = exc.fStepBack;
+  fReturnStep = exc.fReturnStep;
 }
 //___________________________________________________________________________
 void EVGThreadException::Print(ostream & stream) const
