@@ -12,6 +12,8 @@
             \li \c x : Bjorken x = Q2/2Mv
             \li \c y : Inelasticity y=v/E, v=E-E'
 
+          The t dependence is analytically integrated out.
+
           Is a concrete implementation of the XSecAlgorithmI interface.
 
 \ref      D.Rein and L.M.Seghal, Coherent pi0 production in neutrino
