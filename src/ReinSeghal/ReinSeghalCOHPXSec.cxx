@@ -12,6 +12,8 @@
             \li \c x : Bjorken x = Q2/2Mv
             \li \c y : Inelasticity y=v/E, v=E-E'
 
+          The t dependence is analytically integrated out.
+
           Is a concrete implementation of the XSecAlgorithmI interface.
 
 \ref      D.Rein and L.M.Seghal, Coherent pi0 production in neutrino
@@ -61,7 +63,7 @@ ReinSeghalCOHPXSec::~ReinSeghalCOHPXSec()
 double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
 {
   LOG("ReinSeghalCoh", pDEBUG) << *fConfig;
-  
+
   //----- Get scattering & init-state parameters
 
   const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
@@ -83,14 +85,14 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
 
   //----- Compute the coherent NC pi0 production d2xsec/dxdy
   //      see page 34 in Nucl.Phys.B223:29-144 (1983)
-  
+
   double Q2     = 2.*x*y*Mnuc*E;  // momentum transfer Q2>0
   double A      = (double) init_state.GetTarget().A(); // mass number
-  double A2     = TMath::Power(A,2.); 
+  double A2     = TMath::Power(A,2.);
   double A_3    = TMath::Power(A,1./3.);
   double Gf     = kGF_2 * Mnuc / (32 * kPi_3);
   double fp     = 0.93 * Mpi; // pion decay constant
-  double fp2    = TMath::Power(fp,2.); 
+  double fp2    = TMath::Power(fp,2.);
   double Epi    = y*E; // pion energy
   double ma     = this->Ma(); // Axial Mass [default can be overriden]
   double ma2    = TMath::Power(ma,2);
@@ -102,11 +104,11 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
   double sInel  = xsec_utils::InelasticPionNucleonXSec(Epi); // inel. pi+N xsec
   double Ro     = this->NuclSizeScale(); // nuclear size scale parameter
   double Ro2    = TMath::Power(Ro,2.);
-  
-  // effect of pion absorption in the nucleus
-  double Fabs   = TMath::Exp( -9.*A_3*sInel / (16.*kPi*Ro2) ); 
 
-  // the xsec in Nucl.Phys.B223:29-144 (1983) is d^3xsec/dxdydt but the only 
+  // effect of pion absorption in the nucleus
+  double Fabs   = TMath::Exp( -9.*A_3*sInel / (16.*kPi*Ro2) );
+
+  // the xsec in Nucl.Phys.B223:29-144 (1983) is d^3xsec/dxdydt but the only
   // t-dependent factor is an exp(-bt) so it can be integrated analyticaly
   double Epi2   = TMath::Power(Epi,2.);
   double Mpi2   = kPionMass_2;
@@ -117,7 +119,7 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
   double tB     = TMath::Sqrt(1. + 2*Mnuc*x/Epi) * TMath::Sqrt(1.-Mpi2/Epi2);
   double tmin   = 2*Epi2 * (tA-tB);
   double tmax   = 2*Epi2 * (tA+tB);
-  
+
   double tint   = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; // t integration factor
 
   double xsec = Gf * fp2 * A2 * E * (1-y) * sTot2 * (1+r2) * propg * Fabs * tint;
@@ -135,7 +137,7 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
       << "\n t integration range .............. [" << tmin << "," << tmax << "]"
       << "\n t integration factor ............. tint  =" << tint;
 
-  
+
   LOG("ReinSeghalCoh", pINFO)
                 << "d2xsec/dxdy[COH] (x= " << x << ", y="
                                          << y << ", E=" << E << ") = "<< xsec;
