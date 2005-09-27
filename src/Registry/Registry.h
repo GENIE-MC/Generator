@@ -47,11 +47,11 @@ public:
 
   Registry * operator = (const Registry & reg);
 
-  void operator () (string       key,  int          item);
-  void operator () (string       key,  bool         item);
-  void operator () (string       key,  double       item);
-  void operator () (string       key,  const char * item);
-  void operator () (string       key,  string       item);
+  void operator () (string key,  int          item);
+  void operator () (string key,  bool         item);
+  void operator () (string key,  double       item);
+  void operator () (string key,  const char * item);
+  void operator () (string key,  string       item);
 
   //! Registry locks
 
@@ -73,21 +73,21 @@ public:
   void   Set (pair<string, genie::RegistryItemI *> entry);
   void   Get (string key, const RegistryItemI * item) const;
 
-  void   Set (string key, bool        item);
-  void   Set (string key, int         item);
-  void   Set (string key, double      item);
-  void   Set (string key, string      item);
-  void   Set (string key, const char* item);
-  void   Set (string key, TH1F *      item);
-  void   Set (string key, TH2F *      item);
-  void   Set (string key, TTree *     item);
-  void   Get (string key, bool &      item) const;
-  void   Get (string key, int &       item) const;
-  void   Get (string key, double &    item) const;
-  void   Get (string key, string &    item) const;
-  void   Get (string key, TH1F *      item) const;
-  void   Get (string key, TH2F *      item) const;
-  void   Get (string key, TTree *     item) const;
+  void   Set (string key, bool         item);
+  void   Set (string key, int          item);
+  void   Set (string key, double       item);
+  void   Set (string key, string       item);
+  void   Set (string key, const char * item);
+  void   Set (string key, TH1F *       item);
+  void   Set (string key, TH2F *       item);
+  void   Set (string key, TTree *      item);
+  void   Get (string key, bool &       item) const;
+  void   Get (string key, int &        item) const;
+  void   Get (string key, double &     item) const;
+  void   Get (string key, string &     item) const;
+  void   Get (string key, TH1F *       item) const;
+  void   Get (string key, TH2F *       item) const;
+  void   Get (string key, TTree *      item) const;
 
   bool   GetBool      (string key) const;
   int    GetInt       (string key) const;
