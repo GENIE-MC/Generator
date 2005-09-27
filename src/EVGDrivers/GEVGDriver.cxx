@@ -44,6 +44,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/XSecSplineList.h"
+#include "Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -107,6 +108,14 @@ void GEVGDriver::SetFilter(const InteractionFilter & filter)
   if (fFilter && fIntSelector) fIntSelector->SetInteractionFilter(fFilter);
 }
 //___________________________________________________________________________
+void GEVGDriver::FilterUnphysical(bool on_off)
+{
+  LOG("GEVGDriver", pNOTICE)
+        << "Filtering unphysical events is turned "
+                                      << print_utils::BoolAsIOString(on_off);
+  fFilterUnphysical = on_off;
+}
+//___________________________________________________________________________
 void GEVGDriver::Initialize(void)
 {
   fCurrentRecord = 0;
@@ -119,11 +128,11 @@ void GEVGDriver::Initialize(void)
   fNRecLevel     = 0;
 
   // Default driver behaviour is to filter out unphysical events,
-  // Set this to false to get them if needed, but be warned that the event 
-  // record for unphysical events might be incomplete depending on the 
+  // Set this to false to get them if needed, but be warned that the event
+  // record for unphysical events might be incomplete depending on the
   // processing step that event generation was stopped.
-  this->FilterUnphysical(true); 
-                                
+  this->FilterUnphysical(true);
+
 }
 //___________________________________________________________________________
 void GEVGDriver::Configure(void)
@@ -532,6 +541,10 @@ void GEVGDriver::Print(ostream & stream) const
   if (fFilter) {
     stream << "\n  |---o An InteractionFilter is being used: " << *fFilter;
   }
+  stream << "\n  |---o Using cross section splines is turned "
+                                << print_utils::BoolAsIOString(fUseSplines);
+  stream << "\n  |---o Filtering unphysical events is turned "
+                          << print_utils::BoolAsIOString(fFilterUnphysical);
   stream << "\n *********************************************************\n";
 }
 //___________________________________________________________________________
