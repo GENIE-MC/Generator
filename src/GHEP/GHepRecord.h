@@ -86,12 +86,11 @@ public :
   virtual void SwitchIsPauliBlocked (bool on_off);
   virtual void SwitchIsBelowThrNRF  (bool on_off);
   virtual void SwitchGenericErrFlag (bool on_off);
-  virtual void EnableFastForward    (bool on_off);
 
-  virtual bool IsPauliBlocked     (void) const { return fIsPauliBlocked; }
-  virtual bool IsBelowThrNRF      (void) const { return fIsBelowThrNRF;  }
-  virtual bool FastForwardEnabled (void) const { return fFastFwdEnabled; }
-  virtual bool IsUnphysical       (void) const;
+  virtual bool IsPauliBlocked      (void) const { return fIsPauliBlocked; }
+  virtual bool IsBelowThrNRF       (void) const { return fIsBelowThrNRF;  }
+  virtual bool GenericErrFlag      (void) const { return fGenericErrFlag; }
+  virtual bool IsUnphysical        (void) const;
 
 protected:
 
@@ -102,7 +101,6 @@ protected:
   bool fIsPauliBlocked;   ///< true for Pauli-blocked event
   bool fIsBelowThrNRF;    ///< true if it is below threshold in the nucleon rest frame
   bool fGenericErrFlag;   ///< true for etc problems
-  bool fFastFwdEnabled;   ///< true if subsequent processing steps should be skipped
 
   // Utility methods
   void InitGHepRecord  (void);
