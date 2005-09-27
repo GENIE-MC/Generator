@@ -18,6 +18,7 @@
 #include <TMCParticle6.h>
 
 #include "Conventions/Constants.h"
+#include "EVGCore/EVGThreadException.h"
 #include "EVGModules/DISHadronicSystemGenerator.h"
 #include "Fragmentation/HadronizationModelI.h"
 #include "GHEP/GHepStatus.h"
@@ -107,7 +108,13 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
                       << "Quitting the current event generation thread";
 
      evrec->SwitchGenericErrFlag(true);
-     evrec->EnableFastForward(true);
+
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason(
+                "Unphysical Event [Not enough phase space for hadronizer]");
+     exception.SwitchOnFastForward();
+     throw exception;
+
      return;
   }
 
