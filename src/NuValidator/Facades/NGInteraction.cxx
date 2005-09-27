@@ -12,8 +12,11 @@
 */
 //_____________________________________________________________________________
 
+#include <iostream>
+
 #include "Facades/NGInteraction.h"
 
+using std::endl;
 using namespace genie::nuvld::facades;
 
 ClassImp(NGInteraction)
