@@ -37,6 +37,7 @@ extern "C" {
 
 //-- the original NeuGEN function calls
 
+  void print_configuration_      (void);
   void initialize_configuration_ (char*, int*, int*, bool*);
   void set_parameters_           (char*, int *,float *);
   void set_pdfset_               (int *, int * , float *);
