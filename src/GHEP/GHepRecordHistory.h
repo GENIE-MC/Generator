@@ -39,7 +39,8 @@ public :
   ~GHepRecordHistory();
 
   void AddSnapshot  (int step, GHepRecord * record);
-  void PurgeHistory (void);
+  void PurgeHistory       (void);
+  void PurgeRecentHistory (int start_step);
 
   void Copy  (const GHepRecordHistory & history);
   void Print (ostream & stream) const;

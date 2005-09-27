@@ -69,7 +69,7 @@ TClonesArray("genie::GHepParticle", record.GetEntries())
 //___________________________________________________________________________
 GHepRecord::~GHepRecord()
 {
-  if(fInteraction) delete fInteraction;
+  this->ResetGHepRecord();
 }
 //___________________________________________________________________________
 Interaction * GHepRecord::GetInteraction(void) const

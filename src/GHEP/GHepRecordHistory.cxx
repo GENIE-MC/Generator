@@ -74,7 +74,7 @@ void GHepRecordHistory::AddSnapshot(int step, GHepRecord * record)
 //___________________________________________________________________________
 void GHepRecordHistory::PurgeHistory(void)
 {
-  GHepRecordHistory::const_iterator history_iter;
+  GHepRecordHistory::iterator history_iter;
   for(history_iter = this->begin();
                               history_iter != this->end(); ++history_iter) {
 
@@ -85,6 +85,33 @@ void GHepRecordHistory::PurgeHistory(void)
     }
   }
   this->clear();
+}
+//___________________________________________________________________________
+void GHepRecordHistory::PurgeRecentHistory(int start_step)
+{
+// Snapshots are added to the history record *after* each processing step
+// (marked 0,1,2,...). A special snapshot corresponding to the event record
+// before any processing step is added with key = -1.
+// Therefore GHepRecordHistory keys should be: -1,0,1,2,3,...
+
+  if(start_step < -1) {
+    LOG("GHEP", pWARN) 
+               << "Invalid starting step: " << start_step << " - Ignoring";
+    return;
+  }
+
+  if(start_step == -1) {
+    // delete everything
+    this->PurgeHistory();
+    return;
+  }
+
+  GHepRecordHistory::iterator history_iter;
+  for(history_iter = this->begin();
+                              history_iter != this->end(); ++history_iter) {
+
+    if(history_iter->first >= start_step) { this->erase(history_iter); }
+  }
 }
 //___________________________________________________________________________
 void GHepRecordHistory::Copy(const GHepRecordHistory & history)
