@@ -28,6 +28,7 @@
 #include "EVGCore/InteractionListGeneratorI.h"
 #include "GHEP/GHepVirtualListFolder.h"
 #include "GHEP/GHepRecord.h"
+#include "GHEP/GHepRecordHistory.h"
 #include "Messenger/Messenger.h"
 
 using std::ostringstream;
@@ -61,25 +62,36 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   SLOG("EventGenerator", pINFO) << "Generating Event:";
 
   fConfig->AssertExistence("n-generator-steps");
+  int nsteps = fConfig->GetInt("n-generator-steps");
 
-  int n_generator_steps = fConfig->GetInt("n-generator-steps");
-  assert( n_generator_steps > 0 );
+  if(nsteps == 0) {
+    LOG("EventGenerator", pWARN) 
+         << "EventGenerator configuration declares null visitor list!";
+  }
 
   //-- Clear previous virtual list folder
   LOG("EventGenerator", pINFO) << "Clearing the GHepVirtualListFolder";
   GHepVirtualListFolder * vlfolder = GHepVirtualListFolder::Instance();
   vlfolder->Clear();
 
+  //-- Create a history buffer in case I need to step back
+  GHepRecordHistory rh;
+
   //-- Loop over the event record processing steps
-  for(int istep = 0; istep < n_generator_steps; istep++) {
+  for(int istep = 0; istep < nsteps; istep++) {
+
      const EventRecordVisitorI * visitor = this->ProcessingStep(istep);
+
      bool ffwd = event_rec->FastForwardEnabled();
-     if(!ffwd) visitor->ProcessEventRecord(event_rec);
-     else {
+     if(!ffwd) {
+         visitor->ProcessEventRecord(event_rec);
+         rh.AddSnapshot(istep, event_rec);
+     } else {
        LOG("EventGenerator", pINFO)
            << "Fast Forward flag was set - Skipping processing step!";
      }
   }
+
   LOG("EventGenerator", pINFO)
          << "The EventRecord was visited by all EventRecordVisitors\n";
 }
