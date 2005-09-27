@@ -26,6 +26,7 @@
 #include "Base/XSecAlgorithmI.h"
 #include "EVGCore/EventGenerator.h"
 #include "EVGCore/InteractionListGeneratorI.h"
+#include "EVGCore/EVGThreadException.h"
 #include "GHEP/GHepVirtualListFolder.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepRecordHistory.h"
@@ -34,6 +35,7 @@
 using std::ostringstream;
 
 using namespace genie;
+using namespace genie::exceptions;
 
 //___________________________________________________________________________
 EventGenerator::EventGenerator() :
@@ -65,7 +67,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   int nsteps = fConfig->GetInt("n-generator-steps");
 
   if(nsteps == 0) {
-    LOG("EventGenerator", pWARN) 
+    LOG("EventGenerator", pWARN)
          << "EventGenerator configuration declares null visitor list!";
   }
 
@@ -77,19 +79,32 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   //-- Create a history buffer in case I need to step back
   GHepRecordHistory rh;
 
+  //-- initialize evg thread control flags
+  bool ffwd = false;
+
   //-- Loop over the event record processing steps
   for(int istep = 0; istep < nsteps; istep++) {
 
-     const EventRecordVisitorI * visitor = this->ProcessingStep(istep);
-
-     bool ffwd = event_rec->FastForwardEnabled();
-     if(!ffwd) {
-         visitor->ProcessEventRecord(event_rec);
-         rh.AddSnapshot(istep, event_rec);
-     } else {
-       LOG("EventGenerator", pINFO)
+    if(ffwd) {
+      LOG("EventGenerator", pINFO)
            << "Fast Forward flag was set - Skipping processing step!";
-     }
+      continue;
+    }
+
+    try
+    {
+      const EventRecordVisitorI * visitor = this->ProcessingStep(istep);
+      visitor->ProcessEventRecord(event_rec);
+      rh.AddSnapshot(istep, event_rec);
+    }
+    catch (EVGThreadException exception)
+    {
+      LOG("EventGenerator", pNOTICE)
+           << "An exception was thrown and caught by EventGenerator!";
+      LOG("EventGenerator", pNOTICE) << exception;
+
+      ffwd = exception.FastForward();
+    }
   }
 
   LOG("EventGenerator", pINFO)
