@@ -20,6 +20,8 @@
 #include <string>
 #include <ostream>
 
+#include <TMath.h>
+
 using std::string;
 using std::ostream;
 
@@ -36,25 +38,28 @@ public :
   EVGThreadException(const EVGThreadException & exception);
   ~EVGThreadException();
 
-  void   SetReason  (string reason) { fReason   = reason; }
-  void   SwitchOnFastForward (void) { fFastFwd  = true;   }
-  void   SwitchOnStepBack    (void) { fStepBack = true;   }
+  void   SetReason  (string reason) { fReason     = reason;          }
+  void   SwitchOnFastForward (void) { fFastFwd    = true;            }
+  void   SwitchOnStepBack    (void) { fStepBack   = true;            }
+  void   SetReturnStep (int s)      { fReturnStep = TMath::Max(0,s); }
 
-  string ShowReason  (void) const { return fReason;   }
-  bool   FastForward (void) const { return fFastFwd;  }
-  bool   StepBack    (void) const { return fStepBack; }
+  string ShowReason  (void) const { return fReason;     }
+  bool   FastForward (void) const { return fFastFwd;    }
+  bool   StepBack    (void) const { return fStepBack;   }
+  int    ReturnBack  (void) const { return fReturnStep; }
 
   void Init  (void);
   void Copy  (const EVGThreadException & exception);
   void Print (ostream & stream) const;
 
   friend ostream & operator << (
-                    ostream & stream, const EVGThreadException & exception);
+             ostream & stream, const EVGThreadException & exception);
 
 private:
 
   bool   fFastFwd;
   bool   fStepBack;
+  int    fReturnStep;
   string fReason;
 };
 
