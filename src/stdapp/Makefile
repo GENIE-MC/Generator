@@ -18,10 +18,12 @@ LIBRARIES := $(GENIE_LIBRARIES) $(LIBRARIES) $(CERN_LIBRARIES)
 
 TGT =	gEvGen		\
 	gVldDoc		\
+	gMakeSplines	\
 	gViewer		
 
 EXE =	$(GENIE_BIN_PATH)/gevgen  \
 	$(GENIE_BIN_PATH)/gvlddoc \
+	$(GENIE_BIN_PATH)/gmkspl  \
 	$(GENIE_BIN_PATH)/gviewer
 
 all: $(TGT)
@@ -34,6 +36,9 @@ gVldDoc: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gvlddoc gVldDoc.cxx \
 			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
 
+gMakeSplines: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmkspl gMakeSplines.cxx \
+			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
 
 gViewer: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gviewer gViewer.cxx \
@@ -51,7 +56,10 @@ clean--gEvGen: FORCE
 clean--gVldDoc: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gvlddoc
 
-clean--gviewer: FORCE
+clean--gMakeSplines: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmkspl
+
+clean--gViewer: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gviewer
 
 FORCE:
