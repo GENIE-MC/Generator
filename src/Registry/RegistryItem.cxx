@@ -40,20 +40,20 @@ template class RegistryItem<TH2F*>;
 template class RegistryItem<TTree*>;
 
 namespace genie {
- template
-    ostream & operator << (ostream & stream, const RegistryItem<bool> &   rb);
- template
-    ostream & operator << (ostream & stream, const RegistryItem<int> &    ri);
- template
-    ostream & operator << (ostream & stream, const RegistryItem<double> & rd);
- template
-    ostream & operator << (ostream & stream, const RegistryItem<string> & rs);
- template
-    ostream & operator << (ostream & stream, const RegistryItem<TH1F*> &  rh);
- template
-    ostream & operator << (ostream & stream, const RegistryItem<TH2F*> &  rh);
- template
-    ostream & operator << (ostream & stream, const RegistryItem<TTree*> & rt);
+ template ostream & operator << 
+               (ostream & stream, const RegistryItem<bool> &    rb);
+ template ostream & operator << 
+               (ostream & stream, const RegistryItem<int> &     ri);
+ template ostream & operator << 
+               (ostream & stream, const RegistryItem<double> &  rd);
+ template ostream & operator << 
+               (ostream & stream, const RegistryItem<string> &  rs);
+ template ostream & operator << 
+               (ostream & stream, const RegistryItem<TH1F*> &   rh);
+ template ostream & operator << 
+               (ostream & stream, const RegistryItem<TH2F*> &   rh);
+ template ostream & operator << 
+               (ostream & stream, const RegistryItem<TTree*> &  rt);
 }
 //____________________________________________________________________________
 namespace genie {
