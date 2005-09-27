@@ -12,12 +12,7 @@
 */
 //_____________________________________________________________________________
 
-#include <iostream>
-
 #include "Facades/NGInteraction.h"
-
-using std::endl;
-using std::cout;
 
 using namespace genie::nuvld::facades;
 
@@ -83,9 +78,6 @@ int NGInteraction::GetProcess(void) const
 
   makestate_(&pa, &pa, &pa, &pa, &pa, &it, &im, &cn, &icode);
 
-  writestate_(&icode);
-  cout << "In NGInteraction, process = " << icode << endl;
-
   return icode;
 }
 //____________________________________________________________________________
@@ -104,8 +96,6 @@ int NGInteraction::GetProcess(NGFinalState * final) const
 
   makestate_(&piplus, &piminus, &pizero, &proton, &neutron,
              &it, &im, &cn, &icode);
-
-  cout << "In NGInteraction, process (w/final)= " << icode << endl;
 
   return icode;
 }

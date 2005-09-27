@@ -225,8 +225,6 @@ float NeuGenWrapper::ExclusiveXSec(float e, NGInteraction * ni,
   int         process = ni->GetProcess(final);
   NGNucleus_t nucleus = ni->GetNucleus();
 
-  writestate_(&process);
-
   // Set cuts  
   if(cuts)  this->SetCuts(cuts);
   else      this->NoCuts();
@@ -246,8 +244,6 @@ float NeuGenWrapper::DiffXSec(float e, NGKineVar_t  kid,
   // Get Process  and nucleus  
   int         process = ni->GetProcess();
   NGNucleus_t nucleus = ni->GetNucleus();
-
-  writestate_(&process);
 
   // Set cuts  
   if(cuts)  this->SetCuts(cuts);
@@ -271,8 +267,6 @@ float NeuGenWrapper::ExclusiveDiffXSec(float e,NGKineVar_t  kid,
   int         process = ni->GetProcess(final);
   NGNucleus_t nucleus = ni->GetNucleus();
 
-  writestate_(&process);
-
   // Set cuts  
   if(cuts)  this->SetCuts(cuts);
   else      this->NoCuts();
@@ -294,8 +288,6 @@ float NeuGenWrapper::eDiff2Xsec(float e, NGKineVar_t  kv1, float kval1,
   // Get Process  and nucleus
   int         process = ni->GetProcess();
   NGNucleus_t nucleus = ni->GetNucleus();
-
-  writestate_(&process);
 
   // Set cuts
   if(cuts)  this->SetCuts(cuts);
