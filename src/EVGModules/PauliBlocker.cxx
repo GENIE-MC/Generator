@@ -18,6 +18,7 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
+#include "EVGCore/EVGThreadException.h"
 #include "EVGModules/PauliBlocker.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
@@ -84,8 +85,13 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
               LOG("Nuclear", pINFO)
                    << "\n The generated event is Pauli-blocked: "
                           << " |p| = " << p << " < Fermi-Momentum = " << kf;
+
               event_rec->SwitchIsPauliBlocked(true);
-              event_rec->EnableFastForward(true);
+
+              genie::exceptions::EVGThreadException exception;
+              exception.SetReason("Unphysical Event [Pauli-Blocked]");
+              exception.SwitchOnFastForward();
+              throw exception;
          }
        }//nuc!=0
     }//nuc_pdgc!=0
