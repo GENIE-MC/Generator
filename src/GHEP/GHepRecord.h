@@ -103,7 +103,8 @@ protected:
   bool fGenericErrFlag;   ///< true for etc problems
 
   // Utility methods
-  void InitGHepRecord  (void);
+  void InitGHepRecord     (void);
+  void CleanUpGHepRecord  (void);
 
   // Methods used by the daughter list compactifier
   virtual void UpdateDaughterLists    (void);

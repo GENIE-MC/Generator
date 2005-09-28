@@ -244,7 +244,8 @@ void GHepParticle::Init(void)
 //___________________________________________________________________________
 void GHepParticle::CleanUp(void)
 {
-  this->Clear("C");
+  if(fP4) delete fP4;
+  if(fV4) delete fV4;
   this->Init();
 }
 //___________________________________________________________________________
@@ -254,8 +255,7 @@ void GHepParticle::Clear(Option_t * option)
 // member of a GHepRecord, gets deleted properly when calling TClonesArray's
 // Clear("C")
 
-  if(fP4) delete fP4;
-  if(fV4) delete fV4;
+  this->CleanUp();
 }
 //___________________________________________________________________________
 void GHepParticle::Print(ostream & stream) const
