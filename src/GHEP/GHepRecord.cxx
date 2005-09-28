@@ -153,7 +153,7 @@ void GHepRecord::ShiftVertex(const TLorentzVector & vec4)
 // the origin (0,0,0,0) are distributed within the volume described by an
 // input ROOT geometry)
 
-  LOG("GHEP", pINFO)
+  LOG("GHEP", pNOTICE)
        << "Shifting vertex to: " << print_utils::X4AsString(&vec4);
 
   double x0 = vec4.X();
@@ -179,7 +179,7 @@ void GHepRecord::AddParticle(const GHepParticle & p)
 // Provides a simplified method for inserting entries in the TClonesArray
 
   unsigned int pos = this->GetEntries();
-  LOG("GHEP", pINFO)
+  LOG("GHEP", pNOTICE)
     << "Adding particle with pdgc = " << p.PdgCode() << " at slot = " << pos;
 
   new ((*this)[pos]) GHepParticle(p);
@@ -196,7 +196,7 @@ void GHepRecord::AddParticle(
 // Provides a 'simplified' method for inserting entries in the TClonesArray
 
   unsigned int pos = this->GetEntries();
-  LOG("GHEP", pINFO)
+  LOG("GHEP", pNOTICE)
            << "Adding particle with pdgc = " << pdg << " at slot = " << pos;
 
   new ((*this)[pos]) GHepParticle(pdg,status, mom1,mom2,dau1,dau2, p, v);
@@ -214,7 +214,7 @@ void GHepRecord::AddParticle(
 // Provides a 'simplified' method for inserting entries in the TClonesArray
 
   unsigned int pos = this->GetEntries();
-  LOG("GHEP", pINFO)
+  LOG("GHEP", pNOTICE)
            << "Adding particle with pdgc = " << pdg << " at slot = " << pos;
 
   new ( (*this)[pos] ) GHepParticle (
@@ -237,6 +237,7 @@ void GHepRecord::UpdateDaughterLists(void)
 
   int mom_pos = p->FirstMother();
   LOG("GHEP", pINFO) << "Mother particle is at slot: " << mom_pos;
+  if(mom_pos==-1) return; // may not have mom (eg init state)  
   GHepParticle * mom = this->GetParticle(mom_pos);
   if(!mom) return; // may not have mom (eg init state)
 
@@ -270,7 +271,7 @@ void GHepRecord::UpdateDaughterLists(void)
 
   // If you are here, then the last particle insertion broke the daughter
   // list compactification - Run the compactifier
-  LOG("GHEP", pINFO)
+  LOG("GHEP", pNOTICE)
                    << "Daughter-list is not compact - Running compactifier";
   this->CompactifyDaughterLists();
 }
@@ -302,8 +303,9 @@ void GHepRecord::CompactifyDaughterLists(void)
           this->GetParticle(i)->SetLastDaughter(-1);
         }
      } //!compact
-     LOG("GHEP", pINFO)
-       << "Compactifying daughter-list of particle at: " << i << " - Done!";
+     LOG("GHEP", pNOTICE)
+          << "Compactifying daughter-list for particle at slot: " 
+                                                    << i << " - Done!";
   }
   this->FinalizeDaughterLists();
 }
@@ -413,7 +415,7 @@ void GHepRecord::FinalizeDaughterLists(void)
 //___________________________________________________________________________
 void GHepRecord::SwitchIsPauliBlocked(bool on_off)
 {
-  LOG("GHEP", pINFO)
+  LOG("GHEP", pNOTICE)
     << "Switching Pauli Block flag: " << print_utils::BoolAsIOString(on_off);
 
   fIsPauliBlocked = on_off;
@@ -421,7 +423,7 @@ void GHepRecord::SwitchIsPauliBlocked(bool on_off)
 //___________________________________________________________________________
 void GHepRecord::SwitchIsBelowThrNRF(bool on_off)
 {
-  LOG("GHEP", pINFO)
+  LOG("GHEP", pNOTICE)
       << "Switching Below Threshold in nucleon rest frame flag: "
                                      << print_utils::BoolAsIOString(on_off);
   fIsBelowThrNRF = on_off;
@@ -429,7 +431,7 @@ void GHepRecord::SwitchIsBelowThrNRF(bool on_off)
 //___________________________________________________________________________
 void GHepRecord::SwitchGenericErrFlag(bool on_off)
 {
-  LOG("GHEP", pINFO)
+  LOG("GHEP", pNOTICE)
       << "Switching Generic Error Flag: "
                                << print_utils::BoolAsIOString(on_off);
   fGenericErrFlag = on_off;
