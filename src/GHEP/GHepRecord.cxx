@@ -69,7 +69,7 @@ TClonesArray("genie::GHepParticle", record.GetEntries())
 //___________________________________________________________________________
 GHepRecord::~GHepRecord()
 {
-  this->ResetGHepRecord();
+  this->CleanUpGHepRecord();
 }
 //___________________________________________________________________________
 Interaction * GHepRecord::GetInteraction(void) const
@@ -446,20 +446,31 @@ bool GHepRecord::IsUnphysical(void) const
 //___________________________________________________________________________
 void GHepRecord::InitGHepRecord(void)
 {
-  LOG("GHEP", pINFO) << "GHepRecord initialization";
+  LOG("GHEP", pDEBUG) << "Initializing GHepRecord";
 
   fInteraction = 0;
 
   this -> SwitchIsPauliBlocked (false);
   this -> SwitchIsBelowThrNRF  (false);
   this -> SwitchGenericErrFlag (false);
+
+  this->SetOwner(true);
+}
+//___________________________________________________________________________
+void GHepRecord::CleanUpGHepRecord(void)
+{
+  LOG("GHEP", pDEBUG) << "Cleaning up GHepRecord";
+
+  if (fInteraction) delete fInteraction;
+
+  this->Clear("C");
 }
 //___________________________________________________________________________
 void GHepRecord::ResetGHepRecord(void)
 {
-  if (fInteraction) delete fInteraction;
+  LOG("GHEP", pDEBUG) << "Reseting GHepRecord";
 
-  this->Clear("C");
+  this->CleanUpGHepRecord();
   this->InitGHepRecord();
 }
 //___________________________________________________________________________

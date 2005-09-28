@@ -61,7 +61,10 @@ void GHepRecordHistory::AddSnapshot(int step, GHepRecord * record)
     return;
   }
 
-  if( (*this)[step] ) {
+  if( this->count(step) == 0 ) {
+
+     LOG("GHEP", pNOTICE)
+                     << "Adding GHEP snapshot for processing step: " << step;
 
      GHepRecord * snapshot = new GHepRecord(*record);
      this->insert( map<int, GHepRecord*>::value_type(step,snapshot));
@@ -74,9 +77,15 @@ void GHepRecordHistory::AddSnapshot(int step, GHepRecord * record)
 //___________________________________________________________________________
 void GHepRecordHistory::PurgeHistory(void)
 {
+  LOG("GHEP", pNOTICE) << "Purging GHEP history buffer";
+
   GHepRecordHistory::iterator history_iter;
   for(history_iter = this->begin();
                               history_iter != this->end(); ++history_iter) {
+
+    int step = history_iter->first;
+    LOG("GHEP", pINFO) 
+                  << "Deleting GHEP snapshot for processing step: " << step;
 
     GHepRecord * record = history_iter->second;
     if(record) {
@@ -94,6 +103,10 @@ void GHepRecordHistory::PurgeRecentHistory(int start_step)
 // before any processing step is added with key = -1.
 // Therefore GHepRecordHistory keys should be: -1,0,1,2,3,...
 
+  LOG("GHEP", pNOTICE) 
+       << "Purging recent GHEP history buffer (processing step >= " 
+                                                      << start_step << ")";
+
   if(start_step < -1) {
     LOG("GHEP", pWARN) 
                << "Invalid starting step: " << start_step << " - Ignoring";
@@ -110,7 +123,12 @@ void GHepRecordHistory::PurgeRecentHistory(int start_step)
   for(history_iter = this->begin();
                               history_iter != this->end(); ++history_iter) {
 
-    if(history_iter->first >= start_step) { this->erase(history_iter); }
+    if(history_iter->first >= start_step) { 
+       int step = history_iter->first;
+       LOG("GHEP", pINFO) 
+                  << "Deleting GHEP snapshot for processing step: " << step;
+       this->erase(history_iter); 
+    }
   }
 }
 //___________________________________________________________________________
