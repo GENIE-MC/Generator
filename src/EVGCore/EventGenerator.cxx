@@ -18,12 +18,14 @@
 */
 //____________________________________________________________________________
 
+#include <cassert>
 #include <sstream>
 
 #include <TMCParticle6.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Base/XSecAlgorithmI.h"
+#include "Conventions/Constants.h"
 #include "EVGCore/EventGenerator.h"
 #include "EVGCore/InteractionListGeneratorI.h"
 #include "EVGCore/EVGThreadException.h"
@@ -35,6 +37,7 @@
 using std::ostringstream;
 
 using namespace genie;
+using namespace genie::constants;
 using namespace genie::exceptions;
 
 //___________________________________________________________________________
@@ -78,9 +81,11 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
   //-- Create a history buffer in case I need to step back
   GHepRecordHistory rh;
+  rh.AddSnapshot(-1, event_rec);
 
   //-- initialize evg thread control flags
   bool ffwd = false;
+  unsigned int nexceptions = 0;
 
   //-- Loop over the event record processing steps
   for(int istep = 0; istep < nsteps; istep++) {
@@ -103,8 +108,34 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
            << "An exception was thrown and caught by EventGenerator!";
       LOG("EventGenerator", pNOTICE) << exception;
 
+      nexceptions++;
+      if ( nexceptions > kMaxEVGThreadExceptions ) {
+         LOG("EventGenerator", pFATAL)
+           << "Caught max allowed number (" << kMaxEVGThreadExceptions 
+                           << ") of EVGThreadExceptions/thread. Aborting";
+         abort();
+      }
+
+      // make sure we are not asked to go at both directions...
+      assert( !(exception.FastForward() && exception.StepBack()) );
+
       ffwd = exception.FastForward();
-    }
+
+      if(exception.StepBack()) {
+
+         // get return step (if return_step > current_step just ignore it)
+         if(exception.ReturnStep() >= 0 && exception.ReturnStep() <= istep) {
+           istep = exception.ReturnStep();
+
+           // restore the event record as it was just before the processing
+           // step we are about to return to
+           event_rec->ResetGHepRecord();
+           GHepRecord * snapshot = rh[istep-1];
+           rh.PurgeRecentHistory(istep);
+           event_rec->Copy(*snapshot);
+         } // valid-return-step
+      } // step-back
+    } // catch exception
   }
 
   LOG("EventGenerator", pINFO)

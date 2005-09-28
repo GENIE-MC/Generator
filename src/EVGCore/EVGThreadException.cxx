@@ -22,10 +22,12 @@ using namespace genie::exceptions;
 
 //___________________________________________________________________________
 namespace genie {
- ostream & operator<< (ostream& stream, const EVGThreadException & exc)
- {
+ namespace exceptions {
+  ostream & operator<< (ostream& stream, const EVGThreadException & exc)
+  {
    exc.Print(stream);
    return stream;
+  }
  }
 }
 //___________________________________________________________________________

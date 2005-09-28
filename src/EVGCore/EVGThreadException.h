@@ -46,7 +46,7 @@ public :
   string ShowReason  (void) const { return fReason;     }
   bool   FastForward (void) const { return fFastFwd;    }
   bool   StepBack    (void) const { return fStepBack;   }
-  int    ReturnBack  (void) const { return fReturnStep; }
+  int    ReturnStep  (void) const { return fReturnStep; }
 
   void Init  (void);
   void Copy  (const EVGThreadException & exception);
