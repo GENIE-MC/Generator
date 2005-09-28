@@ -227,12 +227,13 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
      fCurrentRecord = 0;
      fNRecLevel++; // increase the nested level counter
 
-     if(fNRecLevel<=kRjMaxRecLevel) {
+     if(fNRecLevel<=kRecursiveModeMaxDepth) {
          LOG("GEVGDriver", pWARN) << "Attempting to regenerate the event.";
          return this->GenerateEvent(nu4p);
      } else {
-        LOG("GEVGDriver", pFATAL) << "Could not produce a physical event after "
-                             << kRjMaxRecLevel << " attempts - Aborting!";
+        LOG("GEVGDriver", pFATAL) 
+             << "Could not produce a physical event after "
+                      << kRecursiveModeMaxDepth << " attempts - Aborting!";
         assert(false);
      }
   }
