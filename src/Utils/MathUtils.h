@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::math_utils
+\namespace  genie::utils::math
 
 \brief      Simple mathematical utilities not found in ROOT's TMath
 
@@ -19,8 +19,9 @@
 #include "Utils/Range1.h"
 
 namespace genie {
+namespace utils {
 
-namespace math_utils
+namespace math
 {
   bool   AreEqual (double x1, double x2);
   bool   AreEqual (float  x1, float  x2);
@@ -32,8 +33,8 @@ namespace math_utils
   double NonNegative (double x);
   double NonNegative (float  x);
 
-}      // math_utils namespace
+} // math  namespace
+} // utils namespace
+} // genie namespace
 
-}      // genie namespace
-
-#endif // _PRINT_UTILS_H_
+#endif // _MATH_UTILS_H_

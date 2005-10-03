@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::xsec_utils
+\namespace  genie::utils::xsec
 
 \brief      Simple non-neutrino cross section functions
 
@@ -17,13 +17,15 @@
 #define _XSEC_UTILS_H_
 
 namespace genie {
+namespace utils {
 
-namespace xsec_utils
+namespace xsec
 {
   double InelasticPionNucleonXSec (double Epion);
   double TotalPionNucleonXSec     (double Epion);
 
-}      // xsec_utils namespace
+}      // xsec  namespace
+}      // utils namespace
 }      // genie namespace
 
 #endif // _XSEC_UTILS_H_

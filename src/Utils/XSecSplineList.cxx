@@ -85,7 +85,7 @@ bool XSecSplineList::SplineExists(
 
   bool exists = (fSplineMap.count(key) == 1);
   SLOG("XSecSplineList", pDEBUG)
-               << "Spline found?...." << print_utils::BoolAsYNString(exists);
+               << "Spline found?...." << utils::print::BoolAsYNString(exists);
   return exists;
 }
 //____________________________________________________________________________
@@ -248,7 +248,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
   SLOG("XSecSplineList", pINFO) << "XML file was successfully parsed";
 
   // read/set the uselog attribute
-  string uselog = string_utils::TrimSpaces(
+  string uselog = utils::str::TrimSpaces(
                              XmlParserUtils::GetAttribute(xmlCur, "uselog"));
   if (atoi(uselog.c_str()) == 1) this->SetLogE(true);
   else this->SetLogE(false);
@@ -261,9 +261,9 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
     // enter everytime you find a <spline> tag
     if( (!xmlStrcmp(xmlCur->name, (const xmlChar *) "spline")) ) {
 
-       string name = string_utils::TrimSpaces(
+       string name = utils::str::TrimSpaces(
                              XmlParserUtils::GetAttribute(xmlCur, "name"));
-       string snkn = string_utils::TrimSpaces(
+       string snkn = utils::str::TrimSpaces(
                            XmlParserUtils::GetAttribute(xmlCur, "nknots"));
        int nknots = atoi( snkn.c_str() );
 

@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::print_utils
+\namespace  genie::utils::print
 
 \brief      Simple printing utilities
 
@@ -24,8 +24,9 @@
 using std::string;
 
 namespace genie {
+namespace utils {
 
-namespace print_utils
+namespace print
 {
   string P4AsString      (const TLorentzVector * p);
   string P4AsShortString (const TLorentzVector * p);
@@ -38,8 +39,8 @@ namespace print_utils
   void   PrintBanner     (void);
   string PrintFramedMesg (string mesg);
 
-}      // print_utils namespace
-
+}      // print namespace
+}      // utils namespace
 }      // genie namespace
 
 #endif // _PRINT_UTILS_H_

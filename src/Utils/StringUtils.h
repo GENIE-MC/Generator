@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::string_utils
+\namespace  genie::utils::str
 
 \brief      Utilities for string manipulation
 
@@ -23,9 +23,10 @@ using std::string;
 using std::vector;
 
 namespace genie {
+namespace utils {
 
-namespace string_utils {
-
+namespace str
+{
   string         TrimSpaces             (string input);
   string         IntAsString            (int i);
   vector<string> Split                  (string input, string delim);
@@ -42,8 +43,9 @@ namespace string_utils {
   const char * Concat(const char * s1, float x);
   const char * Concat(const char * s1, double x);
 
-} // string_utils namespace
-} // genie        namespace
+} // str    namespace
+} // utils  namespace
+} // genie  namespace
 
 #endif // _STRING_UTILS_H_
 
