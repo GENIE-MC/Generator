@@ -60,8 +60,21 @@ void GMCJDriver::UseGeomAnalyzer(GeomAnalyzerI * geom_analyzer)
 //___________________________________________________________________________
 void GMCJDriver::CreateSplines(bool useLogE)
 {
+  LOG("GMCJDriver", pNOTICE)
+            << "Creating missing (not already loaded) cross section splines";
+
   fUseSplines = true;
   fUseLogE    = useLogE;
+
+  GEVGPool::const_iterator iter = fGPool->begin();
+  for(; iter != fGPool->end(); ++iter) {
+    GEVGDriver * evgdriver = iter->second;
+    if(evgdriver) {
+       evgdriver->CreateSplines(useLogE);
+    } else {
+       LOG("GMCJDriver", pERROR) << "NULL GEVGDriver";
+    }
+  }
 }
 //___________________________________________________________________________
 void GMCJDriver::Initialize(void)
