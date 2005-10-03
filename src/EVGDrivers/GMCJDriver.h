@@ -36,7 +36,7 @@ public :
 
   void UseFluxDriver   (GFluxI * flux);
   void UseGeomAnalyzer (GeomAnalyzerI * geom);
-  void CreateSplines   (bool useLogE = true);
+  void UseSplines      (bool useLogE = true);
   void Configure       (void);
 
   //-- generate single neutrino event
