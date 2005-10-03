@@ -277,13 +277,12 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(1);
     }
   }
-
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("gevgen", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gevgen [-n nev] [-s] -e energy -p nupdg -t tgtpdg [-f format]";
+    << "   gevgen [-n nev] [-s] -e energy -p nupdg -t tgtpdg [-f format]\n";
 }
 //____________________________________________________________________________
