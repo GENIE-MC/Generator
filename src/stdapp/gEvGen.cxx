@@ -6,9 +6,10 @@
 \brief   Example program driving GENIE event generation modules
 
          Syntax :
-           gevgen [-n nev] [-s] [-e energy] [-p nupdg] [-t tgtpdg] [-f format]
+           gevgen [-n nev] [-s] -e energy -p nupdg -t tgtpdg [-f format]
 
          Options :
+           [] denotes an optional argument
            -n specifies the number of events to generate
            -s turns on cross section spline building at job initialization
            -e specifies the neutrino energy
@@ -94,6 +95,8 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/XSecSplineList.h"
+#include "Utils/CmdLineArgParserUtils.h"
+#include "Utils/CmdLineArgParserException.h"
 
 using std::string;
 using std::ostringstream;
@@ -101,14 +104,19 @@ using std::ostringstream;
 using namespace genie;
 
 void GetCommandLineArgs (int argc, char ** argv);
+void PrintSyntax        (void);
 
-//Default options:
-int           gOptNevents      = 100;            // n-events to generate
-bool          gOptBuildSplines = false;          // spline building option
-double        gOptNuEnergy     = 3.0;            // neutrino energy
-int           gOptNuPdgCode    = kPdgNuMu;       // neutrino PDG code
-int           gOptTgtPdgCode   = 1056026000;     // target PDG code
-NtpMCFormat_t gOptNtpFormat    = kNFEventRecord; // ntuple format
+//Default options (override them using the command line arguments):
+int           kDefOptNevents   = 100;            // n-events to generate
+NtpMCFormat_t kDefOptNtpFormat = kNFEventRecord; // ntuple format
+
+//User-specified options:
+int           gOptNevents;      // n-events to generate
+bool          gOptBuildSplines; // spline building option
+double        gOptNuEnergy;     // neutrino energy
+int           gOptNuPdgCode;    // neutrino PDG code
+int           gOptTgtPdgCode;   // target PDG code
+NtpMCFormat_t gOptNtpFormat;    // ntuple format
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -119,12 +127,12 @@ int main(int argc, char ** argv)
 
   //-- print the options you got from command line arguments
 
-  LOG("test", pINFO) << "Number of events requested = " << gOptNevents;
-  LOG("test", pINFO) << "Building splines at init.  = " << gOptBuildSplines;
-  LOG("test", pINFO) << "Neutrino energy            = " << gOptNuEnergy;
-  LOG("test", pINFO) << "Neutrino PDG code          = " << gOptNuPdgCode;
-  LOG("test", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
-  LOG("test", pINFO) << "Output ntuple format       = "
+  LOG("gevgen", pINFO) << "Number of events requested = " << gOptNevents;
+  LOG("gevgen", pINFO) << "Building splines at init.  = " << gOptBuildSplines;
+  LOG("gevgen", pINFO) << "Neutrino energy            = " << gOptNuEnergy;
+  LOG("gevgen", pINFO) << "Neutrino PDG code          = " << gOptNuPdgCode;
+  LOG("gevgen", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
+  LOG("gevgen", pINFO) << "Output ntuple format       = "
                                     << NtpMCFormat::AsString(gOptNtpFormat);
 
   //-- create the GENIE high level event generation interface object
@@ -142,10 +150,10 @@ int main(int argc, char ** argv)
      // check whether there is a spline-list XML file to load
      string spllst_load_xmlfile =
              (gSystem->Getenv("GSPLOAD") ? gSystem->Getenv("GSPLOAD") : "");
-     LOG("test", pINFO) << "$GSPLOAD env.var = " << spllst_load_xmlfile;
+     LOG("gevgen", pINFO) << "$GSPLOAD env.var = " << spllst_load_xmlfile;
 
      if(spllst_load_xmlfile.size()>0) {
-       LOG("test", pINFO) << "Loading cross section splines from an xml file";
+       LOG("gevgen", pINFO) << "Loading cross section splines from an xml file";
        XmlParserStatus_t status = xssl->LoadFromXml(spllst_load_xmlfile);
        assert(status==kXmlOK);
      }
@@ -156,14 +164,14 @@ int main(int argc, char ** argv)
   //-- save the splines if requested
   string spllst_save_xmlfile =
              (gSystem->Getenv("GSPSAVE") ? gSystem->Getenv("GSPSAVE") : "");
-  LOG("test", pINFO) << "$GSPSAVE env.var = " << spllst_save_xmlfile;
+  LOG("gevgen", pINFO) << "$GSPSAVE env.var = " << spllst_save_xmlfile;
 
   if(gOptBuildSplines && spllst_save_xmlfile.size()>0) {
-     LOG("test", pINFO) << "Saving cross section splines to an xml file";
+     LOG("gevgen", pINFO) << "Saving cross section splines to an xml file";
      xssl->SaveAsXml(spllst_save_xmlfile);
   }
 
-  //-- in this test just request events for monoenergetic neutrinos
+  //-- in this gevgen just request events for monoenergetic neutrinos
   TLorentzVector nu_p4 (0., 0., gOptNuEnergy, gOptNuEnergy); // px,py,pz,E (GeV)
 
   //-- create the output ROOT file name;
@@ -184,8 +192,8 @@ int main(int argc, char ** argv)
      // print the event record and the interaction summary
      Interaction & summary = *ev_rec->GetInteraction();
 
-     LOG("test", pINFO) << "Generated Event GHEP Record: " << *ev_rec;
-     LOG("test", pINFO) << "Generated Event summary: "     << summary;
+     LOG("gevgen", pINFO) << "Generated Event GHEP Record: " << *ev_rec;
+     LOG("gevgen", pINFO) << "Generated Event summary: "     << summary;
 
      // add event at the output ntuple
      ntpw.AddEventRecord(ievent++, ev_rec);
@@ -201,77 +209,81 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  char * argument = new char[128];
+  LOG("gevgen", pNOTICE) << "Parsing commad line arguments";
 
-  while( argc>1 && (argv[1][0] == '-'))
-  {
-    if (argv[1][1] == 'n') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptNevents = atoi(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptNevents = atoi(argument);
-      }
+  //-- Optional arguments
+
+  //number of events:
+  try {
+    LOG("gevgen", pINFO) << "Reading number of events to generate";
+    gOptNevents = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
+  } catch(genie::utils::clap::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gevgen", pNOTICE)
+            << "Unspecified number of events to generate - Using default";
+      gOptNevents = kDefOptNevents;
     }
-
-    if (argv[1][1] == 'e') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptNuEnergy = atof(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptNuEnergy = atof(argument);
-      }
-    }
-
-    if (argv[1][1] == 'p') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptNuPdgCode = atoi(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptNuPdgCode = atoi(argument);
-      }
-    }
-    if (argv[1][1] == 't') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptTgtPdgCode = atoi(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptTgtPdgCode = atoi(argument);
-      }
-    }
-
-    if (argv[1][1] == 's') gOptBuildSplines = true;
-
-    int format = 1;
-    if (argv[1][1] == 'f') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        format = atoi(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        format = atoi(argument);
-      }
-    }
-    if(format == 0 || format == 1) gOptNtpFormat = (NtpMCFormat_t)format;
-
-    argc--;
-    argv++;
   }
-  delete [] argument;
+
+  //output ntuple format
+  int format = 1;
+  try {
+    LOG("gevgen", pINFO) << "Reading requested output ntuple format";
+    format = genie::utils::clap::CmdLineArgAsInt(argc,argv,'f');
+  } catch(genie::utils::clap::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gevgen", pNOTICE) << "Unspecified tree format - Using default";
+    }
+  }
+  if(format == 0 || format == 1) gOptNtpFormat = (NtpMCFormat_t)format;
+
+  //spline building option
+  gOptBuildSplines = genie::utils::clap::CmdLineArgAsBool(argc,argv,'s');
+
+  //-- Required arguments
+
+  //neutrino energy:
+  try {
+    LOG("gevgen", pINFO) << "Reading neutrino energy";
+    gOptNuEnergy = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'e');
+  } catch(genie::utils::clap::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gevgen", pFATAL) << "Unspecified neutrino energy - Exiting";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+
+  //neutrino PDG code:
+  try {
+    LOG("gevgen", pINFO) << "Reading neutrino PDG code";
+    gOptNuPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
+  } catch(genie::utils::clap::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gevgen", pFATAL) << "Unspecified neutrino PDG code - Exiting";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+
+  //target PDG code:
+  try {
+    LOG("gevgen", pINFO) << "Reading target PDG code";
+    gOptTgtPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'t');
+  } catch(genie::utils::clap::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gevgen", pFATAL) << "Unspecified target PDG code - Exiting";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+
 }
 //____________________________________________________________________________
-
+void PrintSyntax(void)
+{
+  LOG("gevgen", pNOTICE)
+    << "\n\n" << "Syntax:" << "\n"
+    << "   gevgen [-n nev] [-s] -e energy -p nupdg -t tgtpdg [-f format]";
+}
+//____________________________________________________________________________

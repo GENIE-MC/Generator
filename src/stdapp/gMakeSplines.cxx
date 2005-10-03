@@ -56,6 +56,8 @@
 #include "Messenger/Messenger.h"
 #include "Utils/StringUtils.h"
 #include "Utils/XSecSplineList.h"
+#include "Utils/CmdLineArgParserUtils.h"
+#include "Utils/CmdLineArgParserException.h"
 
 using std::string;
 using std::vector;
@@ -63,11 +65,15 @@ using std::vector;
 using namespace genie;
 
 void GetCommandLineArgs(int argc, char ** argv);
+void PrintSyntax        (void);
 
-//Default options:
-string gOptNuPdgCodeList  = "";  // comma separated list of neutrino PDG codes
-string gOptTgtPdgCodeList = "";  // comma separated list of target PDG codes
-string gOptXMLFilename = "xsec_splines.xml";
+//Defaults for optional options:
+string kDefOptXMLFilename = "xsec_splines.xml";
+
+//User-specified options:
+string gOptNuPdgCodeList;
+string gOptTgtPdgCodeList;
+string gOptXMLFilename;
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -81,8 +87,8 @@ int main(int argc, char ** argv)
   LOG("gmkspl", pINFO) << "Output XML file    = " << gOptXMLFilename;
 
   //-- split the coma-separated lists
-  vector<string> nuvec  = string_utils::Split(gOptNuPdgCodeList,  ",");
-  vector<string> tgtvec = string_utils::Split(gOptTgtPdgCodeList, ",");
+  vector<string> nuvec  = utils::str::Split(gOptNuPdgCodeList,  ",");
+  vector<string> tgtvec = utils::str::Split(gOptTgtPdgCodeList, ",");
 
   if(nuvec.size() == 0 || tgtvec.size() == 0) {
 
@@ -130,47 +136,52 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  char * argument = new char[1024];
+  LOG("gmkspl", pNOTICE) << "Parsing commad line arguments";
 
-  while( argc>1 && (argv[1][0] == '-'))
-  {
-    if (argv[1][1] == 'p') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptNuPdgCodeList = argument;
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptNuPdgCodeList = argument;
-      }
+  //-- Optional arguments
+
+  //output XML file name:
+  try {
+    LOG("gmkspl", pINFO) << "Reading output filename";
+    gOptXMLFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
+  } catch(genie::utils::clap::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gmkspl", pNOTICE) << "Unspecified filename - Using default";
+      gOptXMLFilename = kDefOptXMLFilename;
     }
-    if (argv[1][1] == 't') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptTgtPdgCodeList = argument;
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptTgtPdgCodeList = argument;
-      }
-    }
-    if (argv[1][1] == 'f') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptXMLFilename = argument;
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptXMLFilename = argument;
-      }
-    }
-    argc--;
-    argv++;
   }
-  delete [] argument;
+
+  //-- Required arguments
+
+  //comma-separated neutrino PDG code list:
+  try {
+    LOG("gmkspl", pINFO) << "Reading neutrino PDG codes";
+    gOptNuPdgCodeList = genie::utils::clap::CmdLineArgAsString(argc,argv,'p');
+  } catch(genie::utils::clap::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gmkspl", pFATAL) << "Unspecified neutrino PDG code list - Exiting";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+  //comma-separated target PDG code list:
+  try {
+    LOG("gmkspl", pINFO) << "Reading target nuclei PDG codes";
+    gOptTgtPdgCodeList = genie::utils::clap::CmdLineArgAsString(argc,argv,'t');
+  } catch(genie::utils::clap::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gmkspl", pFATAL) << "Unspecified target PDG code list - Exiting";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+}
+//____________________________________________________________________________
+void PrintSyntax(void)
+{
+  LOG("gmkspl", pNOTICE)
+    << "\n\n" << "Syntax:" << "\n"
+    << "   gmkspl -p nupdg -t tgtpdg [-f output_xml_file]";
 }
 //____________________________________________________________________________
 
