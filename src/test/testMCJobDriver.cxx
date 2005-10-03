@@ -26,25 +26,44 @@
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
+#include "Utils/XSecSplineList.h"
 
 using std::string;
 using namespace genie;
 using namespace genie::flux;
 
+void GetCommandLineArgs(int argc, char ** argv);
+
+//command line options
+bool   gOptBuildSplines; // spline building option
+string gOptRootGeom;     // detector geometry ROOT file
+
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
-  //-- Default geometry
-  string base_dir = string( gSystem->Getenv("GENIE") );
-  string filename = base_dir+ string("/src/test/TestGeometry.root");
-  //-- Scan for filename from the command line argument (following -f)
-  for(int iarg = 0; iarg < argc-1; iarg++) {
-     string argument(argv[iarg]);
-     if( argument.compare("-f") == 0 ) filename = string(argv[++iarg]);
-  }
+  //-- Parse command line arguments
+  GetCommandLineArgs(argc, argv);
 
   //-- Create the GENIE MC-job driver
   GMCJDriver mcj;
+
+  //-- load and/or build splines if required
+  XSecSplineList * xssl = 0;
+  if(gOptBuildSplines) {
+     xssl = XSecSplineList::Instance();
+     // check whether there is a spline-list XML file to load
+     string spllst_load_xmlfile =
+             (gSystem->Getenv("GSPLOAD") ? gSystem->Getenv("GSPLOAD") : "");
+     LOG("test", pINFO) << "$GSPLOAD env.var = " << spllst_load_xmlfile;
+
+     if(spllst_load_xmlfile.size()>0) {
+       LOG("test", pINFO) << "Loading cross section splines from an xml file";
+       XmlParserStatus_t status = xssl->LoadFromXml(spllst_load_xmlfile);
+       assert(status==kXmlOK);
+     }
+     // create any spline that is needed but is not loaded
+     mcj.UseSplines();
+  }
 
   //-- Specify a flux driver
 /*
@@ -79,7 +98,7 @@ int main(int argc, char ** argv)
 
   //-- Specify the geometry analyzer
 
-  ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer(filename);
+  ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer(gOptRootGeom);
 
   //-- Set the flux and the geometry analyzer to the GENIE MC driver
 
@@ -111,3 +130,37 @@ int main(int argc, char ** argv)
   return 0;
 }
 //___________________________________________________________________
+void GetCommandLineArgs(int argc, char ** argv)
+{
+  string base_dir = string( gSystem->Getenv("GENIE") );
+
+  // default options
+  gOptBuildSplines = false;  
+  gOptRootGeom     = base_dir + string("/src/test/TestGeometry.root");
+
+  char * argument = new char[128];
+
+  while( argc>1 && (argv[1][0] == '-'))
+  {
+    if (argv[1][1] == 'f') {
+      if (strlen(&argv[1][2]) ) {
+        strcpy(argument,&argv[1][2]);
+        gOptRootGeom = string(argument);
+      } else if( (argc>2) && (argv[2][0] != '-') ) {
+        argc--;
+        argv++;
+        strcpy(argument,&argv[1][0]);
+        gOptRootGeom = string(argument);
+      }
+    }
+
+    if (argv[1][1] == 's') gOptBuildSplines = true;
+
+    argc--;
+    argv++;
+  }
+
+  delete [] argument;
+}
+//___________________________________________________________________
+
