@@ -16,23 +16,14 @@
 #ifndef _XML_PARSER_UTILS_H_
 #define _XML_PARSER_UTILS_H_
 
-//#include <sstream>
 #include <string>
-//#include <iostream>
-//#include <vector>
 
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
 
 #include "Utils/StringUtils.h"
 
-//using std::ostringstream;
 using std::string;
-//using std::vector;
-
-//using std::cout;
-//using std::endl;
-
 
 namespace genie {
 
@@ -53,7 +44,7 @@ public:
 
     string str = string( (const char *) xmls );
 
-    return string_utils::TrimSpaces(str);
+    return utils::str::TrimSpaces(str);
   }
   //_________________________________________________________________________
   static string GetAttribute(xmlNodePtr xml_cur, string attr_name)

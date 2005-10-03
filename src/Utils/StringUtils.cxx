@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::string_utils
+\namespace  genie::utils::str
 
 \brief      Utilities for string manipulation
 
@@ -20,7 +20,7 @@
 using std::ostringstream;
 
 //____________________________________________________________________________
-string genie::string_utils::TrimSpaces(string input)
+string genie::utils::str::TrimSpaces(string input)
 {
   if( input.find_first_not_of(" \n") != 0)
        input.erase( 0,  input.find_first_not_of(" \n")  );
@@ -31,14 +31,14 @@ string genie::string_utils::TrimSpaces(string input)
   return RemoveSuccessiveSpaces(input);
 }
 //____________________________________________________________________________
-string genie::string_utils::IntAsString(int i)
+string genie::utils::str::IntAsString(int i)
 {
   ostringstream os;
   os << i;
   return os.str();
 }
 //____________________________________________________________________________
-vector<string> genie::string_utils::Split(string input, string delimiter)
+vector<string> genie::utils::str::Split(string input, string delimiter)
 {
 // split a string of 'delimiter' separated values and return each string
 // part as a vector<string> element.
@@ -54,7 +54,7 @@ vector<string> genie::string_utils::Split(string input, string delimiter)
   return string_parts;
 }
 //____________________________________________________________________________
-string genie::string_utils::RemoveSuccessiveSpaces(string input)
+string genie::utils::str::RemoveSuccessiveSpaces(string input)
 {
 // this method trims white space that may be found within an expression...
 // eg. "stop    pressing     the spacebar" -> "stop pressing the spacebar"
@@ -69,7 +69,7 @@ string genie::string_utils::RemoveSuccessiveSpaces(string input)
   return FilterString("\n",trimmed);
 }
 //____________________________________________________________________________
-string genie::string_utils::FilterString(string filt_elements, string input)
+string genie::utils::str::FilterString(string filt_elements, string input)
 {
 // filter out from 'input' all characters that can be found in 'filt_elements'
 
@@ -82,25 +82,25 @@ string genie::string_utils::FilterString(string filt_elements, string input)
   return filtered_string;
 }
 //____________________________________________________________________________
-string genie::string_utils::ToUpper(string input)
+string genie::utils::str::ToUpper(string input)
 {
   for(unsigned int i=0; i<input.size(); i++) input[i] = toupper(input[i]);
   return input;
 }
 //____________________________________________________________________________
-const char * genie::string_utils::Concat(
+const char * genie::utils::str::Concat(
            const char * s1, const char * s2, const char * s3, const char * s4)
 {
   ostringstream sstr;
   sstr << s1 << s2;
-  
+
   if(s3) sstr << s3;
   if(s4) sstr << s4;
-    
+
   return sstr.str().c_str();
 }
 //____________________________________________________________________________
-const char * genie::string_utils::Concat(const char * s1, bool b)
+const char * genie::utils::str::Concat(const char * s1, bool b)
 {
     ostringstream sstr;
     sstr << s1;
@@ -111,26 +111,26 @@ const char * genie::string_utils::Concat(const char * s1, bool b)
     return sstr.str().c_str();
 }
 //____________________________________________________________________________
-const char * genie::string_utils::Concat(const char * s1, int n)
+const char * genie::utils::str::Concat(const char * s1, int n)
 {
   ostringstream sstr;
   sstr << s1 << n;
   return sstr.str().c_str();
 }
 //____________________________________________________________________________
-const char * genie::string_utils::Concat(const char * s1, double x)
+const char * genie::utils::str::Concat(const char * s1, double x)
 {
   ostringstream sstr;
   sstr << s1 << x;
   return sstr.str().c_str();
-}    
+}
 //____________________________________________________________________________
-const char * genie::string_utils::Concat(const char * s1, float x)
+const char * genie::utils::str::Concat(const char * s1, float x)
 {
   ostringstream sstr;
   sstr << s1 << x;
   return sstr.str().c_str();
-}    
+}
 //____________________________________________________________________________
 
 

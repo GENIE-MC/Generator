@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::fragm_rec_utils
+\namespace  genie::utils::fragmrec
 
 \brief      Simple utilities for the Fragmentation Event Record.
 
@@ -26,7 +26,7 @@
 using namespace genie;
 
 //____________________________________________________________________________
-int genie::fragm_rec_utils::NParticles(
+int genie::utils::fragmrec::NParticles(
                        int pdg_code, const TClonesArray * const particle_list)
 {
   int nparticles = 0;
@@ -41,7 +41,7 @@ int genie::fragm_rec_utils::NParticles(
   return nparticles;
 }
 //____________________________________________________________________________
-int genie::fragm_rec_utils::NParticles(
+int genie::utils::fragmrec::NParticles(
            int pdg_code, int status, const TClonesArray * const particle_list)
 {
   int nparticles = 0;
@@ -56,23 +56,23 @@ int genie::fragm_rec_utils::NParticles(
   return nparticles;
 }
 //____________________________________________________________________________
-int genie::fragm_rec_utils::NPositives(const TClonesArray * const part_list)
+int genie::utils::fragmrec::NPositives(const TClonesArray * const part_list)
 {
 // Find out the number of negative particles in the particle container
-  
+
   TIter piter(part_list);
 
   TMCParticle * p = 0;
 
   int npos = 0;
 
-  while( (p = (TMCParticle *) piter.Next()) ) 
+  while( (p = (TMCParticle *) piter.Next()) )
          if( PDGLibrary::Instance()->Find(p->GetKF())->Charge() > 0 ) npos++;
 
-  return npos; 
+  return npos;
 }
 //____________________________________________________________________________
-int genie::fragm_rec_utils::NNegatives(const TClonesArray * const part_list) 
+int genie::utils::fragmrec::NNegatives(const TClonesArray * const part_list)
 {
 // Find out the number of negative particles in the particle container
 
@@ -88,7 +88,7 @@ int genie::fragm_rec_utils::NNegatives(const TClonesArray * const part_list)
   return nneg;
 }
 //____________________________________________________________________________
-void genie::fragm_rec_utils::Print(const TClonesArray * const part_list) 
+void genie::utils::fragmrec::Print(const TClonesArray * const part_list)
 {
   TIter piter(part_list);
 
@@ -114,7 +114,7 @@ void genie::fragm_rec_utils::Print(const TClonesArray * const part_list)
   }
 
   SLOG("FragmResUtils", pINFO)
-       << "SUMS: E = " << sum_E 
+       << "SUMS: E = " << sum_E
        << ", px = " << sum_px << ", py = " << sum_py << ", pz = " << sum_pz;
 
 }

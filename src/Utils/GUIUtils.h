@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::gui_utils
+\namespace  genie::utils::gui
 
 \brief      Simple utilities for GENIE Graphical User Interface widgets
 
@@ -26,11 +26,11 @@ using std::vector;
 using std::string;
 
 namespace genie {
-
-namespace gui_utils
+namespace utils {
+namespace gui  
 {
   //-- ListBox methods
-  
+
   void   FillListBox               (TGListBox * lb, const char * lbitems[]);
   void   FillListBox               (TGListBox * lb, const vector<string> * lbitems);
   void   SelectAllListBoxEntries   (TGListBox * lb);
@@ -45,8 +45,8 @@ namespace gui_utils
   string ComboBoxSelectionAsString (TGComboBox * cb, const char * cbitems[]);
   int    ComboBoxSelectionId       (const char * cbitems[], const char * sel);
 
-}      // gui_utils namespace
-
+}      // gui   namespace
+}      // utils namespace
 }      // genie namespace
 
 #endif // _GUI_UTILS_H_

@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::gui_utils
+\namespace  genie::utils::gui
 
 \brief      Simple utilities for GENIE Graphical User Interface widgets
 
@@ -23,17 +23,17 @@
 using std::ostringstream;
 
 //____________________________________________________________________________
-void genie::gui_utils::FillListBox(TGListBox * lb, const char * lbitems[] )
+void genie::utils::gui::FillListBox(TGListBox * lb, const char * lbitems[] )
 {
-  int i = 0;    
+  int i = 0;
   while( lbitems[i] )
-  {      
+  {
       lb->AddEntry(lbitems[i], i);
       i++;
-  }  
+  }
 }
 //____________________________________________________________________________
-void genie::gui_utils::FillListBox(
+void genie::utils::gui::FillListBox(
                                TGListBox * lb, const vector<string> * lbitems)
 {
   int i = 0;
@@ -45,21 +45,21 @@ void genie::gui_utils::FillListBox(
 
       lb->AddEntry( lbiter->c_str(), i);
       i++;
-    }  
+    }
   }
 }
 //____________________________________________________________________________
-void genie::gui_utils::SelectAllListBoxEntries(TGListBox * lb)
+void genie::utils::gui::SelectAllListBoxEntries(TGListBox * lb)
 {
   SLOG("GuiUtils", pDEBUG) << "Selecting all listbox entries";
   SLOG("GuiUtils", pDEBUG) << "n-entries = " << lb->GetNumberOfEntries();
-   
+
   for(int i = 0; i < lb->GetNumberOfEntries(); i++) lb->Select(i);
 
   lb->SelectionChanged();
 }
 //____________________________________________________________________________
-void genie::gui_utils::ResetAllListBoxSelections(TGListBox * lb)
+void genie::utils::gui::ResetAllListBoxSelections(TGListBox * lb)
 {
   SLOG("GuiUtils", pDEBUG) << "Reseting all listbox entries";
   SLOG("GuiUtils", pDEBUG) << "n-entries = " << lb->GetNumberOfEntries();
@@ -79,7 +79,7 @@ void genie::gui_utils::ResetAllListBoxSelections(TGListBox * lb)
   lb->SelectionChanged();
 }
 //____________________________________________________________________________
-string genie::gui_utils::ListBoxSelectionAsString(
+string genie::utils::gui::ListBoxSelectionAsString(
                                        TGListBox * lb, const char * lbitems[])
 {
   TList selections;
@@ -102,11 +102,11 @@ string genie::gui_utils::ListBoxSelectionAsString(
   }
 
   if(i==0) return "empty";
-  
+
   return str_select.str();
 }
 //____________________________________________________________________________
-int genie::gui_utils::ListBoxSelectionId(
+int genie::utils::gui::ListBoxSelectionId(
                                const char * lbitems[], const char * selection)
 {
   int i = 0;
@@ -118,7 +118,7 @@ int genie::gui_utils::ListBoxSelectionId(
   return 0;
 }
 //____________________________________________________________________________
-void genie::gui_utils::FillComboBox(TGComboBox * cb, const char * cbitems[])
+void genie::utils::gui::FillComboBox(TGComboBox * cb, const char * cbitems[])
 {
   int i = 0;
   while( cbitems[i] )
@@ -128,7 +128,7 @@ void genie::gui_utils::FillComboBox(TGComboBox * cb, const char * cbitems[])
   }
 }
 //____________________________________________________________________________
-void genie::gui_utils::FillComboBox(
+void genie::utils::gui::FillComboBox(
                               TGComboBox * cb, const vector<string> * cbitems)
 {
   int i = 0;
@@ -139,11 +139,11 @@ void genie::gui_utils::FillComboBox(
     if( cbiter->size() > 0 ) {
       cb->AddEntry( cbiter->c_str(), i);
       i++;
-    }  
+    }
   }
 }
 //____________________________________________________________________________
-string genie::gui_utils::ComboBoxSelectionAsString(
+string genie::utils::gui::ComboBoxSelectionAsString(
                                      TGComboBox * cb, const char * cbitems[])
 {
   TGLBEntry * selected_entry = cb->GetSelectedEntry();
@@ -152,7 +152,7 @@ string genie::gui_utils::ComboBoxSelectionAsString(
   else return "";
 }
 //____________________________________________________________________________
-int genie::gui_utils::ComboBoxSelectionId(
+int genie::utils::gui::ComboBoxSelectionId(
                               const char * cbitems[], const char * selection)
 {
   int i = 0;

@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::fragm_rec_utils
+\namespace  genie::utils::fragmrec
 
 \brief      Simple utilities for the Fragmentation Event Record.
 
@@ -22,8 +22,9 @@
 #include <TClonesArray.h>
 
 namespace genie {
+namespace utils {
 
-namespace fragm_rec_utils
+namespace fragmrec
 {
   int NParticles(int pdg_code, const TClonesArray * const particle_list);
   int NParticles(int pdg_code, int status, const TClonesArray * const particle_list);
@@ -32,8 +33,8 @@ namespace fragm_rec_utils
 
   void Print(const TClonesArray * const part_list);
 
-}      // fragm_rec_utils namespace
-
-}      // genie namespace
+} // fragmrec namespace
+} // utils    namespace
+} // genie    namespace
 
 #endif // _FRAGM_REC_UTILS_H_

@@ -4,13 +4,15 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ namespace genie::kine_limits;
-#pragma link C++ namespace genie::print_utils;
-#pragma link C++ namespace genie::math_utils;
-#pragma link C++ namespace genie::fragm_rec_utils;
-#pragma link C++ namespace genie::string_utils;
-#pragma link C++ namespace genie::gui_utils;
-#pragma link C++ namespace genie::xsec_utils;
+#pragma link C++ namespace genie::utils;
+#pragma link C++ namespace genie::utils::gui;
+#pragma link C++ namespace genie::utils::clap;
+#pragma link C++ namespace genie::utils::print;
+#pragma link C++ namespace genie::utils::str;
+#pragma link C++ namespace genie::utils::math;
+#pragma link C++ namespace genie::utils::kinematics;
+#pragma link C++ namespace genie::utils::xsec;
+#pragma link C++ namespace genie::utils::fragmrec;
 
 #pragma link C++ class genie::Cache;
 #pragma link C++ class genie::XSecSplineList;

@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::print_utils
+\namespace  genie::utils::print
 
 \brief      Simple printing utilities
 
@@ -28,7 +28,7 @@ using std::ios;
 using std::ifstream;
 
 //____________________________________________________________________________
-string genie::print_utils::P4AsString(const TLorentzVector * p)
+string genie::utils::print::P4AsString(const TLorentzVector * p)
 {
   ostringstream fmt;
 
@@ -42,7 +42,7 @@ string genie::print_utils::P4AsString(const TLorentzVector * p)
   return fmt.str();
 }
 //____________________________________________________________________________
-string genie::print_utils::P4AsShortString(const TLorentzVector * p)
+string genie::utils::print::P4AsShortString(const TLorentzVector * p)
 {
   ostringstream fmt;
 
@@ -54,7 +54,7 @@ string genie::print_utils::P4AsShortString(const TLorentzVector * p)
   return fmt.str();
 }
 //____________________________________________________________________________
-string genie::print_utils::X4AsString(const TLorentzVector * vec4)
+string genie::utils::print::X4AsString(const TLorentzVector * vec4)
 {
   ostringstream fmt;
 
@@ -66,7 +66,7 @@ string genie::print_utils::X4AsString(const TLorentzVector * vec4)
   return fmt.str();
 }
 //____________________________________________________________________________
-string genie::print_utils::Vec3AsString(const TVector3 * vec)
+string genie::utils::print::Vec3AsString(const TVector3 * vec)
 {
   ostringstream fmt;
 
@@ -77,30 +77,30 @@ string genie::print_utils::Vec3AsString(const TVector3 * vec)
   return fmt.str();
 }
 //____________________________________________________________________________
-string genie::print_utils::BoolAsString(bool b)
+string genie::utils::print::BoolAsString(bool b)
 {
   return BoolAsTFString(b);
 }
 //____________________________________________________________________________
-string genie::print_utils::BoolAsTFString(bool b)
+string genie::utils::print::BoolAsTFString(bool b)
 {
   if(b) return "[true]";
   else  return "[false]";
 }
 //____________________________________________________________________________
-string genie::print_utils::BoolAsIOString(bool b)
+string genie::utils::print::BoolAsIOString(bool b)
 {
   if(b) return "[ON]";
   else  return "[OFF]";
 }
 //____________________________________________________________________________
-string genie::print_utils::BoolAsYNString(bool b)
+string genie::utils::print::BoolAsYNString(bool b)
 {
   if(b) return "[YES]";
   else  return "[NO]";
 }
 //____________________________________________________________________________
-void genie::print_utils::PrintBanner(void)
+void genie::utils::print::PrintBanner(void)
 {
 // loads & prints the GENIE banner
 
@@ -125,7 +125,7 @@ void genie::print_utils::PrintBanner(void)
   }
 }
 //___________________________________________________________________________
-string genie::print_utils::PrintFramedMesg(string mesg)
+string genie::utils::print::PrintFramedMesg(string mesg)
 {
   string frame(4+mesg.size(), '*');
 

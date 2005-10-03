@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::xsec_utils
+\namespace  genie::utils::xsec
 
 \brief      Simple non-neutrino cross section functions
 
@@ -21,12 +21,12 @@
 using namespace genie::constants;
 
 //____________________________________________________________________________
-double genie::xsec_utils::InelasticPionNucleonXSec(double Epion)
+double genie::utils::xsec::InelasticPionNucleonXSec(double Epion)
 {
 // The inelastic pion-nucleon cross section used in Rein-Seghal coherent pi0
 // production xsec: D.Rein and L.M.Seghal,Nucl.Phys.B223:29-144 (1983).
 // The data used here are coming from CERN-HERA 79-01, 1979, 'Compilation of
-// cross sections I - pi- and pi+ induced reactions'. Also, look at the 
+// cross sections I - pi- and pi+ induced reactions'. Also, look at the
 // Fig.3 in Rein-Seghal's paper.
 // However, the actual values I am using are copied from Hugh Gallagher's
 // NeuGEN's inel function which is adapted here.
@@ -62,11 +62,11 @@ double genie::xsec_utils::InelasticPionNucleonXSec(double Epion)
 
   if      (N<0)  return (P/0.1059)*SigInel[0];
   else if (N>58) return SigInel[59];
-  else 
+  else
    return (log10P-kMinLog10P-N*kdLog10P)*(SigInel[N+1]-SigInel[N])/kdLog10P;
 }
 //____________________________________________________________________________
-double genie::xsec_utils::TotalPionNucleonXSec(double Epion)
+double genie::utils::xsec::TotalPionNucleonXSec(double Epion)
 {
 // Returns the total pion-nucleon cross section - similar with the above.
 // Adapted from Hugh's total()
@@ -102,7 +102,7 @@ double genie::xsec_utils::TotalPionNucleonXSec(double Epion)
 
   if      (N<0)  return (P/0.1059)*SigTotal[0];
   else if (N>58) return SigTotal[59];
-  else 
+  else
    return (log10P-kMinLog10P-N*kdLog10P)*(SigTotal[N+1]-SigTotal[N])/kdLog10P;
 }
 //____________________________________________________________________________
