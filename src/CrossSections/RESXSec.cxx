@@ -25,7 +25,7 @@
 #include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
 #include "Utils/MathUtils.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -58,7 +58,7 @@ double RESXSec::XSec(const Interaction * interaction) const
 
   const Algorithm * xsec_alg_base = this->SubAlg(
                            "partial-xsec-alg-name", "partial-xsec-param-set");
-  const XSecAlgorithmI * partial_xsec_alg = 
+  const XSecAlgorithmI * partial_xsec_alg =
                          dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
 
   //-- Get neutrino energy in the struck nucleon rest frame
@@ -66,16 +66,16 @@ double RESXSec::XSec(const Interaction * interaction) const
   const InitialState & init_state = interaction -> GetInitialState();
 
   TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-  
+
   double Ev  = p4->Energy();
 
   delete p4;
 
   //-- check energy threshold
-  
-  double EvThr = kine_limits::EnergyThreshold(interaction);
+
+  double EvThr = utils::kinematics::EnergyThreshold(interaction);
   if(Ev <= EvThr) return 0.;
-  
+
   //-- Get number of integration steps
 
   int   nW      = this->NW();
@@ -90,7 +90,7 @@ double RESXSec::XSec(const Interaction * interaction) const
 
   //-- Get W integration range
 
-  Range1D_t rW = this->WRange(interaction);  
+  Range1D_t rW = this->WRange(interaction);
 
   double dW = (rW.max - rW.min) / (nW-1);
 
@@ -98,19 +98,19 @@ double RESXSec::XSec(const Interaction * interaction) const
 
   UnifGrid gridW;
   gridW.AddDimension(nW, rW.min, rW.max);
-  
+
   FunctionMap dxsec_dW(gridW); // dxsec/dW vs W
 
   for(int i = 0; i < nW; i++) {
 
     double W = rW.min + i*dW;
     interaction->GetScatParamsPtr()->Set("W",  W );
-    
+
     // Q^2 limits depend on W
     Range1D_t rQ2 = this->Q2Range(interaction);
 
     double d1xsec = 0.; // Q2*d^2xsec/dWdQ2 integral over logQ2
-    
+
     if(TMath::Abs(rQ2.max-rQ2.min) > 1e-3) {
 
       double logQ2min = TMath::Log( rQ2.min );
@@ -121,12 +121,12 @@ double RESXSec::XSec(const Interaction * interaction) const
       gridQ2.AddDimension(nlogQ2, logQ2min, logQ2max);
 
       FunctionMap Q2d2xsec_dWdQ2(gridQ2); // Q2*d^2xsec/dWdQ2 vs Q2 [@ fixed W]
-    
+
       for(int j = 0; j < nlogQ2; j++) {
 
         double Q2 = TMath::Exp(logQ2min + j * dlogQ2);
         interaction->GetScatParamsPtr()->Set("Q2", Q2);
-       
+
         //-- compute d^2xsec / dW dQ2
         double d2xsec = partial_xsec_alg->XSec(interaction);
 
@@ -135,21 +135,21 @@ double RESXSec::XSec(const Interaction * interaction) const
                     << ", W = " << W << ", Ev = " << Ev << ") = " << d2xsec;
 
         //-- push Q2*(d^2xsec/dWdQ2) to the FunctionMap
-       
-        Q2d2xsec_dWdQ2.AddPoint(Q2*d2xsec, j);                     
+
+        Q2d2xsec_dWdQ2.AddPoint(Q2*d2xsec, j);
       } //Q2
 
       //-- integrate d^2xsec/dWdQ2 over logQ2
       d1xsec = integrator->Integrate(Q2d2xsec_dWdQ2);
 
     } // Q2min != Q2max
-    
+
     SLOG("RESXSec", pDEBUG)
               << "Integral{ dlogQ2 * Q2 * d^2xsec[RES]/dQ2dW ("
                     << "W = " << W << ", Ev = " << Ev << ") } = " << d1xsec;
 
     //-- add integral to dxsec/dW vs W function map
-    dxsec_dW.AddPoint(d1xsec, i);      
+    dxsec_dW.AddPoint(d1xsec, i);
   } //W
 
   //----- integrate dxsec/dW over W
@@ -163,7 +163,7 @@ double RESXSec::XSec(const Interaction * interaction) const
 //____________________________________________________________________________
 const IntegratorI * RESXSec::Integrator(void) const
 {
-// Returns the specified (in the config. registry) integration algorithm 
+// Returns the specified (in the config. registry) integration algorithm
 // If none is specified it returns a Simpson2D Integration algorithm
 
   string integrator_name;
@@ -189,9 +189,9 @@ const IntegratorI * RESXSec::Integrator(void) const
 Range1D_t RESXSec::WRange(const Interaction * interaction) const
 {
   //-- Get the physically allowed W range for this interaction and allow the
-  //   user inputs (if any) to narrow it 
+  //   user inputs (if any) to narrow it
 
-  Range1D_t rW = kine_limits::WRange(interaction); // physical range
+  Range1D_t rW = utils::kinematics::WRange(interaction); // physical range
 
   LOG("RESXSec", pDEBUG)
        << "Physical W range: " << "[" << rW.min << ", " << rW.max << "] GeV";
@@ -199,7 +199,7 @@ Range1D_t RESXSec::WRange(const Interaction * interaction) const
   double Wmin = this->Wmin(); // user cuts
   double Wmax = this->Wmax();
 
-  kine_limits::ApplyCutsToKineLimits(rW,  Wmin,  Wmax );
+  utils::kinematics::ApplyCutsToKineLimits(rW,  Wmin,  Wmax );
 
   LOG("RESXSec", pDEBUG)
        << "Physical & User W range: "
@@ -212,7 +212,7 @@ Range1D_t RESXSec::Q2Range(const Interaction * interaction) const
   //-- Get the physically allowed Q2 range for this interaction and allow the
   //   user inputs (if any) to narrow it
 
-  Range1D_t rQ2 = kine_limits::Q2Range_W(interaction); // physical range
+  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction); // physical range
 
   LOG("RESXSec", pDEBUG) << "Physical Q2 range: "
                          << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
@@ -220,8 +220,8 @@ Range1D_t RESXSec::Q2Range(const Interaction * interaction) const
   double Q2min = this->Q2min(); // user cuts
   double Q2max = this->Q2max();
 
-  kine_limits::ApplyCutsToKineLimits(rQ2, Q2min, Q2max );
- 
+  utils::kinematics::ApplyCutsToKineLimits(rQ2, Q2min, Q2max );
+
   LOG("RESXSec", pDEBUG)
        << "Physical & User Q2 range: "
                          << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
@@ -236,7 +236,7 @@ int RESXSec::NW(void) const
 double RESXSec::Wmin(void) const
 {
   return ( fConfig->Exists("Wmin") ) ? fConfig->GetDouble("Wmin") : -1.0;
-}  
+}
 //____________________________________________________________________________
 double RESXSec::Wmax(void) const
 {
@@ -249,7 +249,7 @@ int RESXSec::NLogQ2(void) const
 }
 //____________________________________________________________________________
 double RESXSec::Q2min(void) const
-{  
+{
   return ( fConfig->Exists("Q2min") ) ? fConfig->GetDouble("Q2min") : -1.0;
 }
 //____________________________________________________________________________

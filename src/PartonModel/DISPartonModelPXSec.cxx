@@ -25,7 +25,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
 
 using namespace genie;
@@ -84,11 +84,11 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
   //----- Get the physical W and Q2 range and check whether the current W,Q2
   //      pair is allowed
 
-  Range1D_t rW  = kine_limits::WRange     (interaction);
-  Range1D_t rQ2 = kine_limits::Q2Range_xy (interaction);
+  Range1D_t rW  = utils::kinematics::WRange     (interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
 
-  bool in_range = math_utils::IsWithinLimits(Q2, rQ2)
-                                        && math_utils::IsWithinLimits(W, rW);
+  bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
+                                        && utils::math::IsWithinLimits(W, rW);
 
   if(!in_range) {
        LOG("DISXSec", pDEBUG)

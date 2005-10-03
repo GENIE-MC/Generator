@@ -24,7 +24,7 @@
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
 #include "Utils/MathUtils.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
 
 using namespace genie;
@@ -58,19 +58,19 @@ double DISXSec::XSec(const Interaction * interaction) const
                            "partial-xsec-alg-name", "partial-xsec-param-set");
   const XSecAlgorithmI * partial_xsec_alg =
                          dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
-                         
+
   LOG("DISXSec", pDEBUG) << *partial_xsec_alg;
 
   //-- Get neutrino energy in the struck nucleon rest frame
 
-  const InitialState & init_state = interaction -> GetInitialState(); 
+  const InitialState & init_state = interaction -> GetInitialState();
   double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-  
+
   //-- Check the energy threshold
 
-  double Ethr = kine_limits::EnergyThreshold(interaction);
-  
-  if(Ev <= Ethr) {   
+  double Ethr = utils::kinematics::EnergyThreshold(interaction);
+
+  if(Ev <= Ethr) {
      LOG("DISXSec", pINFO) << "E = " << Ev << " <= Ethreshold = " << Ethr;
      return 0.;
   }
@@ -86,12 +86,12 @@ double DISXSec::XSec(const Interaction * interaction) const
   //-- Check that x,y range is meaningful
 
   assert( nlogx > 1 && nlogy > 1 );
-  
+
   assert( xmax > xmin && xmax < 1 && xmin < 1 && xmax > 0 & xmin > 0 );
   assert( ymax > ymin && ymax < 1 && ymin < 1 && ymax > 0 & ymin > 0 );
-                
+
   //-- Define the integration area
-                
+
   double log_xmax = TMath::Log(xmax);
   double log_xmin = TMath::Log(xmin);
   double log_ymax = TMath::Log(ymax);
@@ -111,7 +111,7 @@ double DISXSec::XSec(const Interaction * interaction) const
 
   //----- Loop over x,y & compute the differential xsec
 
-  LOG("DISXSec", pDEBUG) 
+  LOG("DISXSec", pDEBUG)
          << "integration limits: x = (" << xmin << ", " << xmax << ") "
                                     << "y = (" << ymin << ", " << ymax << ")";
 
@@ -120,7 +120,7 @@ double DISXSec::XSec(const Interaction * interaction) const
 
     for(int iy = 0; iy < nlogy; iy++) {
        double y = TMath::Exp(log_ymin + iy * dlogy);
-                                        
+
        //-- update the scattering parameters
        interaction->GetScatParamsPtr()->Set("x", x);
        interaction->GetScatParamsPtr()->Set("y", y);
@@ -128,17 +128,17 @@ double DISXSec::XSec(const Interaction * interaction) const
        double pxsec = 0.;
 
        if ( this->IsWithinIntegrationRange(interaction) ) {
-         
+
           //-- compute d^2xsec/dxdy
           pxsec = partial_xsec_alg->XSec(interaction);
 
           LOG("DISXSec", pDEBUG)
               << "dxsec/dxdy (x = " << x << ", y = " << y
                                         << ", Ev = " << Ev << ") = " << pxsec;
-       }                
-       //-- push x*y*(d^2xsec/dxdy) to the FunctionMap       
+       }
+       //-- push x*y*(d^2xsec/dxdy) to the FunctionMap
        xyd2xsec.AddPoint(x*y*pxsec, ix, iy);
-              
+
     } //y
   } //x
 
@@ -148,7 +148,7 @@ double DISXSec::XSec(const Interaction * interaction) const
 
   //-- get specified integration algorithm from the config. registry
   //   or use Simpson2D if none is defined
-  
+
   const IntegratorI * integrator = this->Integrator();
 
   double xsec = integrator->Integrate(xyd2xsec);
@@ -160,7 +160,7 @@ double DISXSec::XSec(const Interaction * interaction) const
 //____________________________________________________________________________
 const IntegratorI * DISXSec::Integrator(void) const
 {
-// Returns the specified (in the config. registry) integration algorithm 
+// Returns the specified (in the config. registry) integration algorithm
 // If none is specified it returns a Simpson2D Integration algorithm
 
   string integrator_name;
@@ -192,8 +192,8 @@ bool DISXSec::IsWithinIntegrationRange(const Interaction * interaction) const
 
   // get physical integration range for W and Q2
 
-  Range1D_t rW  = kine_limits::WRange     (interaction);
-  Range1D_t rQ2 = kine_limits::Q2Range_xy (interaction);
+  Range1D_t rW  = utils::kinematics::WRange     (interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
 
   LOG("DISXSec", pDEBUG)
        << "\n Physical integration range: "
@@ -209,8 +209,8 @@ bool DISXSec::IsWithinIntegrationRange(const Interaction * interaction) const
 
   // apply cuts
 
-  kine_limits::ApplyCutsToKineLimits(rW,  Wmin,  Wmax );
-  kine_limits::ApplyCutsToKineLimits(rQ2, Q2min, Q2max);
+  utils::kinematics::ApplyCutsToKineLimits(rW,  Wmin,  Wmax );
+  utils::kinematics::ApplyCutsToKineLimits(rQ2, Q2min, Q2max);
 
   LOG("DISXSec", pDEBUG)
        << "\n Physical && User integration range: "
@@ -231,20 +231,20 @@ bool DISXSec::IsWithinIntegrationRange(const Interaction * interaction) const
 
   double M  = init_state.GetTarget().StruckNucleonMass();
   double M2 = M*M;
-  
+
   double currW2 = TMath::Max(0., M2 + 2*Ev*M*y*(1-x));
   double currW  = TMath::Sqrt(currW2);
   double currQ2 = TMath::Max(0., 2*M*Ev*x*y);
-  
-  bool in_range = math_utils::IsWithinLimits(currQ2, rQ2)
-                                     && math_utils::IsWithinLimits(currW, rW);
+
+  bool in_range = utils::math::IsWithinLimits(currQ2, rQ2)
+                                     && utils::math::IsWithinLimits(currW, rW);
 
   if(!in_range) {
       LOG("DISXSec", pDEBUG) << "*** excluding from phase space: ";
   } else {
       LOG("DISXSec", pDEBUG) << "*** including in phase space: ";
   }
-  LOG("DISXSec", pDEBUG) 
+  LOG("DISXSec", pDEBUG)
             << "x = " << x << ", y = " << y << ", Q2 = " << currQ2
                                       << ", W = " << currW << ", Ev = " << Ev;
 
@@ -259,7 +259,7 @@ int DISXSec::NLogX(void) const
 double DISXSec::Xmin(void) const
 {
   return ( fConfig->Exists("x-min")   ) ? fConfig->GetDouble("x-min") : 0.001;
-}  
+}
 //____________________________________________________________________________
 double DISXSec::Xmax(void) const
 {
@@ -272,7 +272,7 @@ int DISXSec::NLogY(void) const
 }
 //____________________________________________________________________________
 double DISXSec::Ymin(void) const
-{  
+{
   return ( fConfig->Exists("y-min")   ) ? fConfig->GetDouble("y-min") : 0.001;
 }
 //____________________________________________________________________________

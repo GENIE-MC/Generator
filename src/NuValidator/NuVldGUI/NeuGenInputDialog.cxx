@@ -36,7 +36,7 @@ using std::endl;
 
 using namespace genie;
 using namespace genie::nuvld;
-using namespace genie::string_utils;
+using namespace genie::utils::str;
 using namespace genie::nuvld::facades;
 
 ClassImp(NeuGenInputDialog)
@@ -52,7 +52,7 @@ NeuGenInputDialog::NeuGenInputDialog(const TGWindow * p,
                       "genie::nuvld::NeuGenInputDialog", this, "CloseWindow()");
 
   // Build frames
-  
+
   fPlotTypeGrpf    = this->BuildXSecTypeFrame();
   fTotXSecConfGrpf = this->BuildConfigTotalXSecFrame();
   fDifXSecConfGrpf = this->BuildConfigDiffXSecFrame();
@@ -60,9 +60,9 @@ NeuGenInputDialog::NeuGenInputDialog(const TGWindow * p,
   fPlotVarGrpf     = this->BuildPlotVarFrame();
 
   fInteractionGrpf = this->BuildInteractionFrame();
-  
+
   fCutsSumsHFrm   = new TGHorizontalFrame(fMain, 10, 10);
-  
+
   fCutsGrpf = this->BuildCutsFrame();
   fSumsGrpf = this->BuildSumsFrame();
 
@@ -80,7 +80,7 @@ NeuGenInputDialog::NeuGenInputDialog(const TGWindow * p,
   fPlotVarFrmLt     = new TGLayoutHints(kLHintsTop | kLHintsCenterX,  2, 2, 2, 2);
   fInteractionFrmLt = new TGLayoutHints(kLHintsTop | kLHintsCenterX,  2, 2, 2, 2);
   fCutsSumsFrmLt    = new TGLayoutHints(kLHintsTop | kLHintsCenterX,  2, 2, 2, 2);
-  fBtnFrmLt         = new TGLayoutHints(kLHintsTop | kLHintsCenterX,  2, 2, 2, 2);  
+  fBtnFrmLt         = new TGLayoutHints(kLHintsTop | kLHintsCenterX,  2, 2, 2, 2);
   fBtnFrmLt         = new TGLayoutHints(kLHintsTop | kLHintsCenterX,  2, 2, 2, 2);
 
   // Add Frames to Main Frame
@@ -101,9 +101,9 @@ NeuGenInputDialog::NeuGenInputDialog(const TGWindow * p,
 
   if (fHaveNoHistory) this->Defaults();        // load some default values, or
   else                this->LoadLastEntries(); // last known set of user inputs
-  
+
   fHaveNoHistory = false;
-  
+
   fMain->SetWindowName("NeuGEN Inputs Dialog");
 
   fMain->MapWindow();
@@ -120,7 +120,7 @@ NeuGenInputDialog::~NeuGenInputDialog()
    delete fFluxLb;
    delete fFluxCbx;
    delete fPlotTypeHFrm;
-   
+
    delete fMinEnergyNmE;
    delete fMaxEnergyNmE;
    delete fMinEnergyLb;
@@ -152,17 +152,17 @@ NeuGenInputDialog::~NeuGenInputDialog()
    delete fProbeLb;
    delete fWkCurrLb;
    delete fInitStateLb;
-   delete fInteractionSpacer;   
+   delete fInteractionSpacer;
    delete fFinStateLb;
    delete fALb;
    delete fFinStateLbx;
-   delete fANmE;   
+   delete fANmE;
    delete fAllFinStatesCkb;
    delete fInteractionLFrm;
    delete fInteractionCFrm;
    delete fInteractionRFrm;
    delete fInteractionHFrm;
-   
+
    delete fMinCutNmE;
    delete fMaxCutNmE;
    delete fMinCutLb;
@@ -214,7 +214,7 @@ TGGroupFrame * NeuGenInputDialog::BuildXSecTypeFrame(void)
   fPlotTypeLb = new TGLabel(fPlotTypeHFrm, new TGString( "quantity: "));
 
   fPlotTypeCbx = new TGComboBox(fPlotTypeHFrm, 97);
-  gui_utils::FillComboBox( fPlotTypeCbx,  k_neugen_plot_type );
+  utils::gui::FillComboBox( fPlotTypeCbx,  k_neugen_plot_type );
   fPlotTypeCbx->Resize(100, 20);
 
   //-- # of points
@@ -225,7 +225,7 @@ TGGroupFrame * NeuGenInputDialog::BuildXSecTypeFrame(void)
   fFluxLb = new TGLabel(fPlotTypeHFrm, new TGString( "  scaling flux: "));
 
   fFluxCbx = new TGComboBox(fPlotTypeHFrm, 98);
-  gui_utils::FillComboBox( fFluxCbx,  k_scaling_flux );
+  utils::gui::FillComboBox( fFluxCbx,  k_scaling_flux );
   fFluxCbx->Resize(60, 20);
 
   //-- add widgets to horizontal frame
@@ -271,7 +271,7 @@ TGGroupFrame * NeuGenInputDialog::BuildConfigDiffXSecFrame(void)
 {
   UInt_t kh = kHorizontalFrame;
   TGNumberFormat::EStyle rstyle = TGNumberFormat::kNESReal;
-  
+
   TGGroupFrame * grpf = new TGGroupFrame(fMain, "differential xsec config", kh);
 
   fEnergyLb     = new TGLabel       (grpf, new TGString( "     E:  "));
@@ -279,7 +279,7 @@ TGGroupFrame * NeuGenInputDialog::BuildConfigDiffXSecFrame(void)
   fPlotRangeLb  = new TGLabel       (grpf, new TGString( "  range: "));
   fPlotRangeCbx = new TGComboBox    (grpf, 100);
 
-  gui_utils::FillComboBox( fPlotRangeCbx,  k_neugen_plot_range_option );
+  utils::gui::FillComboBox( fPlotRangeCbx,  k_neugen_plot_range_option );
   fPlotRangeCbx->Resize(80, 20);
 
   grpf -> AddFrame ( fEnergyLb     );
@@ -295,7 +295,7 @@ TGGroupFrame * NeuGenInputDialog::BuildConfigSFFrame(void)
   UInt_t kh = kHorizontalFrame;
 
   TGNumberFormat::EStyle rstyle = TGNumberFormat::kNESReal;
-  
+
   TGGroupFrame * grpf = new TGGroupFrame(fMain,"structure function config", kh);
 
   fSFRawDisCkb = new TGCheckButton (grpf, "Raw DIS - ", 133);
@@ -304,7 +304,7 @@ TGGroupFrame * NeuGenInputDialog::BuildConfigSFFrame(void)
   fSFLb        = new TGLabel       (grpf, new TGString( "  SF: "));
   fSFTypeCbx   = new TGComboBox    (grpf, 197);
 
-  gui_utils::FillComboBox( fSFTypeCbx,  k_neugen_sf );
+  utils::gui::FillComboBox( fSFTypeCbx,  k_neugen_sf );
   fSFTypeCbx->Resize(50, 20);
 
   grpf -> AddFrame ( fSFRawDisCkb );
@@ -327,13 +327,13 @@ TGGroupFrame * NeuGenInputDialog::BuildPlotVarFrame(void)
   fPlotVarLb  = new TGLabel       (grpf, new TGString(" plot variable:  "));
   fPlotVarCbx = new TGComboBox    (grpf, 99);
   fMinVarLb   = new TGLabel       (grpf, new TGString( "  min: "));
-  fMaxVarLb   = new TGLabel       (grpf, new TGString( "  max: "));  
+  fMaxVarLb   = new TGLabel       (grpf, new TGString( "  max: "));
   fMinVarNmE  = new TGNumberEntry (grpf, 0., 6, 1, rstyle);
   fMaxVarNmE  = new TGNumberEntry (grpf, 0., 6, 1, rstyle);
 
-  gui_utils::FillComboBox( fPlotVarCbx,  k_neugen_plot_variable );
+  utils::gui::FillComboBox( fPlotVarCbx,  k_neugen_plot_variable );
   fPlotVarCbx->Resize(100, 20);
-                              
+
   grpf -> AddFrame ( fPlotVarLb    );
   grpf -> AddFrame ( fPlotVarCbx   );
   grpf -> AddFrame ( fMinVarLb     );
@@ -341,7 +341,7 @@ TGGroupFrame * NeuGenInputDialog::BuildPlotVarFrame(void)
   grpf -> AddFrame ( fMaxVarLb     );
   grpf -> AddFrame ( fMaxVarNmE    );
 
-  return grpf;                 
+  return grpf;
 }
 //______________________________________________________________________________
 TGGroupFrame * NeuGenInputDialog::BuildInteractionFrame(void)
@@ -360,7 +360,7 @@ TGGroupFrame * NeuGenInputDialog::BuildInteractionFrame(void)
   fInteractionRFrm = new TGCompositeFrame(fInteractionHFrm, 1, 1, kv);
 
   //-- left composite frame
-  
+
   fProbeLb     = new TGLabel(fInteractionLFrm, new TGString(" Neutrino:")    );
   fWkCurrLb    = new TGLabel(fInteractionLFrm, new TGString(" Weak current:"));
   fInitStateLb = new TGLabel(fInteractionLFrm, new TGString(" Init. state:") );
@@ -369,9 +369,9 @@ TGGroupFrame * NeuGenInputDialog::BuildInteractionFrame(void)
   fWkCurrCbx    = new TGComboBox (fInteractionLFrm, 12);
   fInitStateCbx = new TGComboBox (fInteractionLFrm, 13);
 
-  gui_utils::FillComboBox ( fProbeCbx,     k_neugen_nu        );
-  gui_utils::FillComboBox ( fWkCurrCbx,    k_neugen_wcurr     );
-  gui_utils::FillComboBox ( fInitStateCbx, k_neugen_initstate );
+  utils::gui::FillComboBox ( fProbeCbx,     k_neugen_nu        );
+  utils::gui::FillComboBox ( fWkCurrCbx,    k_neugen_wcurr     );
+  utils::gui::FillComboBox ( fInitStateCbx, k_neugen_initstate );
 
   fProbeCbx     -> Resize(150, 22);
   fWkCurrCbx    -> Resize(150, 22);
@@ -379,7 +379,7 @@ TGGroupFrame * NeuGenInputDialog::BuildInteractionFrame(void)
 
   fALb  = new TGLabel       (fInteractionLFrm, new TGString( "  Nucl.target mass number "));
   fANmE = new TGNumberEntry (fInteractionLFrm, 0, 10, 1, istyle);
-    
+
   fInteractionLFrm -> AddFrame ( fProbeLb      );
   fInteractionLFrm -> AddFrame ( fProbeCbx     );
   fInteractionLFrm -> AddFrame ( fWkCurrLb     );
@@ -400,7 +400,7 @@ TGGroupFrame * NeuGenInputDialog::BuildInteractionFrame(void)
   fFinStateLb  = new TGLabel(fInteractionRFrm, new TGString( " Final state:"));
   fFinStateLbx = new TGListBox(fInteractionRFrm, 21);
 
-  gui_utils::FillListBox(fFinStateLbx,  k_neugen_finstate);
+  utils::gui::FillListBox(fFinStateLbx,  k_neugen_finstate);
 
   fFinStateLbx->Resize(165, 90);
 
@@ -435,7 +435,7 @@ TGGroupFrame * NeuGenInputDialog::BuildCutsFrame(void)
 
   fCutVarCbx = new TGComboBox(fCutsUFrm, 21);
 
-  gui_utils::FillComboBox( fCutVarCbx,  k_neugen_cut_variable );
+  utils::gui::FillComboBox( fCutVarCbx,  k_neugen_cut_variable );
 
   fCutVarCbx -> Resize(175, 20);
 
@@ -539,11 +539,11 @@ void NeuGenInputDialog::OK(void)
   cards->CurrInputs()->SetSFRawDis     ( this->ReadSFRawDis()     );
   cards->CurrInputs()->SetSFFixedVar   ( this->ReadSFFixedVar()   );
   cards->CurrInputs()->SetSF           ( this->ReadSF()           );
-      
+
   this->Report(); // write out user selections to the GUI
 
   //cout << *(cards->CurrInputs());
-  
+
   fMain->SendCloseMessage();
 }
 //______________________________________________________________________________
@@ -604,34 +604,34 @@ void NeuGenInputDialog::LoadLastEntries(void)
   fNPointsNmE -> SetIntNumber ( inp->NBins() );
 
   fPlotTypeCbx->Select(
-          gui_utils::ComboBoxSelectionId(k_neugen_plot_type,
+          utils::gui::ComboBoxSelectionId(k_neugen_plot_type,
                                            inp->PlotTypeString().c_str()) );
   fPlotRangeCbx->Select(
-          gui_utils::ComboBoxSelectionId(k_neugen_plot_range_option,
+          utils::gui::ComboBoxSelectionId(k_neugen_plot_range_option,
                                           inp->PlotRangeString().c_str()) );
   fProbeCbx->Select(
-          gui_utils::ComboBoxSelectionId(k_neugen_nu,
+          utils::gui::ComboBoxSelectionId(k_neugen_nu,
                                               inp->ProbeString().c_str()) );
   fWkCurrCbx->Select(
-          gui_utils::ComboBoxSelectionId(k_neugen_wcurr,
+          utils::gui::ComboBoxSelectionId(k_neugen_wcurr,
                                           inp->WkCurrentString().c_str()) );
   fInitStateCbx->Select(
-          gui_utils::ComboBoxSelectionId(k_neugen_initstate,
+          utils::gui::ComboBoxSelectionId(k_neugen_initstate,
                                           inp->InitStateString().c_str()) );
   fFinStateLbx->Select(
-          gui_utils::ListBoxSelectionId(k_neugen_finstate,
+          utils::gui::ListBoxSelectionId(k_neugen_finstate,
                                          inp->FinalStateString().c_str()) );
   fFluxCbx->Select(
-          gui_utils::ComboBoxSelectionId(k_scaling_flux,
+          utils::gui::ComboBoxSelectionId(k_scaling_flux,
                                              inp->FluxIdString().c_str()) );
   fPlotVarCbx->Select(
-          gui_utils::ComboBoxSelectionId(k_neugen_plot_variable,
+          utils::gui::ComboBoxSelectionId(k_neugen_plot_variable,
                                             inp->PlotVarString().c_str()) );
   fCutVarCbx->Select(
-          gui_utils::ComboBoxSelectionId(k_neugen_cut_variable,
+          utils::gui::ComboBoxSelectionId(k_neugen_cut_variable,
                                              inp->CutVarString().c_str()) );
   fSFTypeCbx->Select(
-          gui_utils::ComboBoxSelectionId(k_neugen_sf,
+          utils::gui::ComboBoxSelectionId(k_neugen_sf,
                                                  inp->SFString().c_str()) );
 
   fEnergyNmE    -> SetNumber ( inp->Energy()       );
@@ -743,52 +743,52 @@ float NeuGenInputDialog::ReadA(void)
 //______________________________________________________________________________
 string NeuGenInputDialog::ReadFinalState(void)
 {
-  return gui_utils::ListBoxSelectionAsString(fFinStateLbx, k_neugen_finstate);
-}    
+  return utils::gui::ListBoxSelectionAsString(fFinStateLbx, k_neugen_finstate);
+}
 //______________________________________________________________________________
 string NeuGenInputDialog::ReadInitialState(void)
 {
-  return gui_utils::ComboBoxSelectionAsString(fInitStateCbx, k_neugen_initstate);
+  return utils::gui::ComboBoxSelectionAsString(fInitStateCbx, k_neugen_initstate);
 }
 //______________________________________________________________________________
 string NeuGenInputDialog::ReadPlotType(void)
 {
-  return gui_utils::ComboBoxSelectionAsString(fPlotTypeCbx, k_neugen_plot_type);
+  return utils::gui::ComboBoxSelectionAsString(fPlotTypeCbx, k_neugen_plot_type);
 }
 //______________________________________________________________________________
 string NeuGenInputDialog::ReadScalingFlux(void)
 {
-  return gui_utils::ComboBoxSelectionAsString(fFluxCbx, k_scaling_flux);
+  return utils::gui::ComboBoxSelectionAsString(fFluxCbx, k_scaling_flux);
 }
 //______________________________________________________________________________
 string NeuGenInputDialog::ReadPlotVar(void)
 {
-  return gui_utils::ComboBoxSelectionAsString(fPlotVarCbx, k_neugen_plot_variable);
+  return utils::gui::ComboBoxSelectionAsString(fPlotVarCbx, k_neugen_plot_variable);
 }
 //______________________________________________________________________________
 string NeuGenInputDialog::ReadCutVar(void)
 {
-  return gui_utils::ComboBoxSelectionAsString(fCutVarCbx, k_neugen_cut_variable);
+  return utils::gui::ComboBoxSelectionAsString(fCutVarCbx, k_neugen_cut_variable);
 }
 //______________________________________________________________________________
 string NeuGenInputDialog::ReadPlotRange(void)
 {
-  return gui_utils::ComboBoxSelectionAsString(fPlotVarCbx, k_neugen_plot_range_option);
+  return utils::gui::ComboBoxSelectionAsString(fPlotVarCbx, k_neugen_plot_range_option);
 }
 //______________________________________________________________________________
 string NeuGenInputDialog::ReadNeutrino(void)
 {
-  return gui_utils::ComboBoxSelectionAsString(fProbeCbx, k_neugen_nu);
+  return utils::gui::ComboBoxSelectionAsString(fProbeCbx, k_neugen_nu);
 }
 //______________________________________________________________________________
 string NeuGenInputDialog::ReadWkCurrent(void)
 {
-  return gui_utils::ComboBoxSelectionAsString(fWkCurrCbx, k_neugen_wcurr);
+  return utils::gui::ComboBoxSelectionAsString(fWkCurrCbx, k_neugen_wcurr);
 }
 //______________________________________________________________________________
 string NeuGenInputDialog::ReadSF(void)
 {
-  return gui_utils::ComboBoxSelectionAsString(fSFTypeCbx, k_neugen_sf);
+  return utils::gui::ComboBoxSelectionAsString(fSFTypeCbx, k_neugen_sf);
 }
 //______________________________________________________________________________
 void NeuGenInputDialog::Report(void)
@@ -826,7 +826,7 @@ void NeuGenInputDialog::Report(void)
   syslog->Log()->AddLine( Concat(
                   "Initial state......", this->ReadInitialState().c_str()) );
   syslog->Log()->AddLine( Concat(
-                  "A..................", this->ReadA())                    );                  
+                  "A..................", this->ReadA())                    );
   syslog->Log()->AddLine( Concat(
                   "Cut variable.......", this->ReadCutVar().c_str())       );
   syslog->Log()->AddLine( Concat(

@@ -26,7 +26,7 @@
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -67,10 +67,10 @@ double StdElasticXSec::XSec(const Interaction * interaction) const
   double E  = nu_p4->Energy();
 
   delete nu_p4;
-  
+
   //----- integrate the differential cross section
 
-  Range1D_t rQ2 = kine_limits::Q2Range_M(interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_M(interaction);
 
   const int    nsteps  = 201;
   const double dQ2     = (rQ2.max-rQ2.min)/(nsteps-1);
@@ -86,7 +86,7 @@ double StdElasticXSec::XSec(const Interaction * interaction) const
     double Q2  = rQ2.min + i * dQ2;
 
     interaction->GetScatParamsPtr()->Set("Q2",Q2);
-    
+
     double dsig_dQ2  = pxsec->XSec(interaction);
 
     fmap.AddPoint(dsig_dQ2, i);
@@ -130,7 +130,7 @@ const IntegratorI * StdElasticXSec::Integrator(void) const
  // read integrator name from config or set default
  string integrator_name = ( fConfig->Exists("integrator-name") ) ?
                   fConfig->GetString("integrator-name") : "genie::Simpson1D";
- 
+
  // get integrator algorithm
 
  AlgFactory * algf = AlgFactory::Instance();

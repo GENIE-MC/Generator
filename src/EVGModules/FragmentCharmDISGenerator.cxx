@@ -42,7 +42,7 @@
 
 using namespace genie;
 using namespace genie::constants;
-using namespace genie::print_utils;
+using namespace genie::utils::print;
 
 //___________________________________________________________________________
 FragmentCharmDISGenerator::FragmentCharmDISGenerator() :
@@ -89,7 +89,7 @@ bool FragmentCharmDISGenerator::GenerateCharmHadronOnly(
 
   TLorentzVector P4Had = this->HadronicSystemP4(evrec);
   LOG("FragmentCharm", pINFO)
-                     << "P4Had [LAB] = " << print_utils::P4AsString(&P4Had);
+                     << "P4Had [LAB] = " << utils::print::P4AsString(&P4Had);
 
   Interaction * interaction = evrec->GetInteraction();
   const InitialState & init_state = interaction -> GetInitialState();
@@ -237,7 +237,7 @@ void FragmentCharmDISGenerator::GenerateHadronicSystem(
   TLorentzVector * pR4 = remnants->GetP4();
   LOG("FragmentCharm", pINFO)
       << "P4(" << remnants->Name()
-               << ") [Remnants/LAB] = " << print_utils::P4AsString(pR4);
+               << ") [Remnants/LAB] = " << utils::print::P4AsString(pR4);
 
   //-- Hadronic remnants multiplicity (= all - charm hadron)
 /*
@@ -297,7 +297,7 @@ void FragmentCharmDISGenerator::GenerateHadronicSystem(
 
        LOG("FragmentCharm", pINFO)
                << "Adding final state particle PDGC = " << rpdgc[i]
-               << " with 4-P = " << print_utils::P4AsString(p4);
+               << " with 4-P = " << utils::print::P4AsString(p4);
        evrec->AddParticle(rpdgc[i], kIStStableFinalState,
                                    mom,-1,-1,-1, phx,phy,phz,Eh, 0,0,0,0);
     }//add remnants

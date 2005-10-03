@@ -112,7 +112,7 @@ void GEVGDriver::FilterUnphysical(bool on_off)
 {
   LOG("GEVGDriver", pNOTICE)
         << "Filtering unphysical events is turned "
-                                      << print_utils::BoolAsIOString(on_off);
+                                      << utils::print::BoolAsIOString(on_off);
   fFilterUnphysical = on_off;
 }
 //___________________________________________________________________________
@@ -231,7 +231,7 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
          LOG("GEVGDriver", pWARN) << "Attempting to regenerate the event.";
          return this->GenerateEvent(nu4p);
      } else {
-        LOG("GEVGDriver", pFATAL) 
+        LOG("GEVGDriver", pFATAL)
              << "Could not produce a physical event after "
                       << kRecursiveModeMaxDepth << " attempts - Aborting!";
         assert(false);
@@ -543,9 +543,9 @@ void GEVGDriver::Print(ostream & stream) const
     stream << "\n  |---o An InteractionFilter is being used: " << *fFilter;
   }
   stream << "\n  |---o Using cross section splines is turned "
-                                << print_utils::BoolAsIOString(fUseSplines);
+                                << utils::print::BoolAsIOString(fUseSplines);
   stream << "\n  |---o Filtering unphysical events is turned "
-                          << print_utils::BoolAsIOString(fFilterUnphysical);
+                          << utils::print::BoolAsIOString(fFilterUnphysical);
   stream << "\n *********************************************************\n";
 }
 //___________________________________________________________________________

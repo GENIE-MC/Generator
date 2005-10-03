@@ -139,7 +139,7 @@ void XclsTag::Print(ostream & stream) const
   stream << "[-] [Exclusive Process Info] " << endl;
 
   stream << " |--> charm        : "
-         << print_utils::BoolAsString(fIsCharmEvent)
+         << utils::print::BoolAsString(fIsCharmEvent)
          << " - Charm hadron PDG-code = ";
 
   if(!fCharmedHadronPdg) stream << "[inclusive]";

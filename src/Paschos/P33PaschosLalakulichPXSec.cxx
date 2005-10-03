@@ -5,7 +5,7 @@
 
 \brief    Double differential resonance cross section d^2xsec / dQ^2 dW
           for P33 according to the Paschos, Lalakuich model.
-          
+
           Is a concrete implementation of the XSecAlgorithmI interface.
 
 \ref      O.Lalakulich and E.A.Paschos, Resonance Production by Neutrinos:
@@ -31,7 +31,7 @@
 #include "Conventions/RefFrame.h"
 #include "Messenger/Messenger.h"
 #include "Paschos/P33PaschosLalakulichPXSec.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
 
@@ -65,17 +65,17 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   LOG("Paschos", pDEBUG) << *fConfig;
 
   //-- Get initial state and kinematic variables
-  
+
   const InitialState & init_state = interaction -> GetInitialState();
 
   TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
 
-  double E = nu_p4->Energy();    
+  double E = nu_p4->Energy();
 
   delete nu_p4;
 
   const ScatteringParams & sc_params = interaction -> GetScatteringParams();
-  
+
   double E2   = TMath::Power(E,2);
   double Q2   = sc_params.Q2();
   double W    = sc_params.W();
@@ -90,30 +90,30 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   //-- Compute kinematically allowed W, Q2 range
   //   Return 0 if not valid kinematics
   //   Here I am using the standard GENIE kinematic limit functions from the
-  //   kine_limits phase space. These differ from the expressions in the
+  //   utils::kinematics phase space. These differ from the expressions in the
   //   Paschos-Lalakulich paper that are inverted and W limits are expressed
   //   as a function of Q^2. This should not make any difference.
-  
-  Range1D_t rW  = kine_limits::WRange(interaction);
-  Range1D_t rQ2 = kine_limits::Q2Range_W(interaction);
+
+  Range1D_t rW  = utils::kinematics::WRange(interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
 
   LOG("Paschos", pDEBUG) << "\n Physical W range: "
                          << "["<< rW.min   << ", " << rW.max  << "] GeV";
   LOG("Paschos", pDEBUG) << "\n Physical Q2 range: "
                          << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
   bool is_within_limits =
-               math_utils::IsWithinLimits(W, rW) &&
-                                     math_utils::IsWithinLimits(Q2, rQ2);
+               utils::math::IsWithinLimits(W, rW) &&
+                                     utils::math::IsWithinLimits(Q2, rQ2);
 
   if( !is_within_limits ) return 0.;
-  
+
   //-- P33(1232) information
 
   const Algorithm * algbase = this->SubAlg("baryon-res-alg-name", "baryon-res-param-set");
 
   const BaryonResDataSetI * resonance_data =
                         dynamic_cast<const BaryonResDataSetI *> (algbase);
-  
+
   BaryonResParams res_params;
 
   res_params.SetDataSet(resonance_data);
@@ -128,14 +128,14 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   //-- MA,MV and coupling consts
 
   double MA     = this->MA();
-  double MV     = this->MV();  
+  double MV     = this->MV();
   double MA2    = TMath::Power( MA, 2 );
   double MV2    = TMath::Power( MV, 2 );
   double ftmp1a = TMath::Power( 1 + Q2/MA2, 2 );
   double ftmp1v = TMath::Power( 1 + Q2/MA2, 2 );
   double ftmp2a = 1 + Q2/3/MA2;
   double ftmp2v = 1 + Q2/4/MV2;
-  
+
   double f3A = kPlRes_f3_P1232_A/ftmp1a/ftmp2a;
   double f4A = kPlRes_f4_P1232_A/ftmp1a/ftmp2a;
   double f5A = kPlRes_f5_P1232_A/ftmp1a/ftmp2a;
@@ -199,7 +199,7 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
          double gtmp1 = TMath::Power( this->PPiStar(W) / this->PPiStar(MR), 3);
          double gtmp2 = TMath::Power( this->PPiStar(W) / this->PPiStar(MR), 2);
          Gamma_R = Gamma_R0*gtmp1/(1+gtmp2);
-     }  
+     }
   }
   double Breit_Wigner = TMath::Power(W*W-MR2,2) + MR2 * TMath::Power(Gamma_R,2);
 
@@ -224,13 +224,13 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
 
   // defined in the original code but left unused
   // commented out to suppress gcc warning
-  //double qW  = MN*nu-Q2;  
-  //double pW  = (W*W+Q2+MN2)/2.; 
-  
+  //double qW  = MN*nu-Q2;
+  //double pW  = (W*W+Q2+MN2)/2.;
+
   //  W1 -> W5 from Lalakulich-Paschos paper
 
   double W1=0, W2=0, W3=0, W4=0, W5=0;
-  
+
   W1 = 3.*(2*f5A2*MN2*MR2+2*f5A2*MN*MR3+2*f3A*f5A*MN2*MR*pq+2*f5A2*MR2*pq
        +4*f3A*f5A*MN*MR2*pq+4*f4A*f5A*MN2*MR2*pq+2*f3A*f5A*MR3*pq
        +4*f4A*f5A*MN*MR3*pq+2*f3A2*MN2*pq2+2*f3V2*MN2*pq2+2*f3A*f5A*MR*pq2
@@ -310,7 +310,7 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
        -2*f5A*f6A*pq*Q2+2*f5V2*MN2*pq*Q2+2*f3V*f5V*MR*pq*Q2
        -2*f5V2*MN*MR*pq*Q2-2*f4A*f6A*MR2*pq*Q2+2*f5V2*pq2*Q2-f3A*f6A*MR*Q4)/(3.*MR2);
 
-  double s1 =    W1 * (Q2+Mmu2) 
+  double s1 =    W1 * (Q2+Mmu2)
                + W2 * (2*pk*pk-2*pq*pk+MN*qk)
                - W3 * (pq*qk+Q2*pk)
                + W4 * Mmu2*(Q2+Mmu2)/2.
@@ -332,7 +332,7 @@ double P33PaschosLalakulichPXSec::Pauli(double Q2, double W) const
 
   double p_pi_star = this->PPiStar(W);
   double nu_star   = this->NuStar(Q2,W);
-  
+
   double p_pi_star_2 = TMath::Power(p_pi_star,   2);
   double p_pi_star_4 = TMath::Power(p_pi_star_2, 2);
   double nu_star_2   = TMath::Power(nu_star,     2);
@@ -340,12 +340,12 @@ double P33PaschosLalakulichPXSec::Pauli(double Q2, double W) const
   double q3  = TMath::Sqrt(Q2+nu_star_2);
   double q6  = TMath::Power(q3,2);
   double q12 = TMath::Power(q6,2);
-  
+
   double qF2 = TMath::Power(qF,2);
   double qF3 = TMath::Power(qF,3);
-  
+
   if ( q3+p_pi_star < 2*qF )
-  {   
+  {
      Paulii = ( (3*q6 + p_pi_star_2)/2/qF
                -(5*q12+p_pi_star_4 + 10*q6*p_pi_star_2)/40/qF3
               )/2/q3;
@@ -355,7 +355,7 @@ double P33PaschosLalakulichPXSec::Pauli(double Q2, double W) const
      double tmp1 = TMath::Power( q3+p_pi_star, 2 );
      double tmp2 = TMath::Power( q3-p_pi_star, 3 );
      double tmp3 = TMath::Power( q3-p_pi_star, 5 );
-     
+
      Paulii = (tmp1-4.0*qF2/5.0 - tmp2/2/qF + tmp3/40/qF3)/4/p_pi_star/q3;
   }
   if ( q3-p_pi_star > 2*qF )
@@ -376,7 +376,7 @@ double P33PaschosLalakulichPXSec::PPiStar(double W) const
   double W2 = TMath::Power(W,2);
   double a  = TMath::Power(kNucleonMass+kPionMass,2);
   double b  = TMath::Power(kNucleonMass-kPionMass,2);
-  
+
   return TMath::Sqrt( (W2-a)*(W2-b) )/2/W;
 }
 //____________________________________________________________________________
@@ -389,7 +389,7 @@ double P33PaschosLalakulichPXSec::MA(void) const
 {
 // Allow the default (const) Paschos-Lalakulich RES Ma (Axial-Mass) to be
 // overriden from  a value at the algorithm's config registry
-  
+
   if( fConfig->Exists("Ma") ) return fConfig->GetDouble("Ma");
   else                        return kPlResMa;
 }

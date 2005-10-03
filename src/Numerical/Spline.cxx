@@ -161,9 +161,9 @@ bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
     return false;
   }
 
-  string name = string_utils::TrimSpaces(
+  string name = utils::str::TrimSpaces(
                              XmlParserUtils::GetAttribute(xmlCur, "name"));
-  string snkn = string_utils::TrimSpaces(
+  string snkn = utils::str::TrimSpaces(
                            XmlParserUtils::GetAttribute(xmlCur, "nknots"));
   int nknots = atoi( snkn.c_str() );
 
@@ -444,7 +444,7 @@ bool Spline::ClosestKnotValueIsZero(double x, Option_t * opt) const
 {
   double xknot = 0, yknot = 0;
   this->FindClosestKnot(x, xknot, yknot, opt);
-  if(math_utils::AreEqual(yknot,0)) return true;
+  if(utils::math::AreEqual(yknot,0)) return true;
   return false;
 }
 //___________________________________________________________________________

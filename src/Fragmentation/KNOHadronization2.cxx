@@ -10,7 +10,7 @@
           multiplicity correlations. \n
 
           Is a concrete implementation of the HadronizationModelI interface.\n
-          
+
           -- Test & currently broken version --
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -43,7 +43,7 @@
 using std::ostringstream;
 
 using namespace genie;
-using namespace genie::print_utils;
+using namespace genie::utils::print;
 
 const UInt_t kIsForward = 1<<17; // forwardness bit in TMCParticle bit field.
 
@@ -84,7 +84,7 @@ TClonesArray * KNOHadronization2::Hadronize(
   TClonesArray * particle_list = base_kno->Hadronize(interaction);
 
   int multiplicity = particle_list->GetEntries();
-  
+
   LOG("KNOHad2", pINFO)
       << "\n Original KNO Hadronizer returned a list with "
                                              << multiplicity << " particles";
@@ -92,18 +92,18 @@ TClonesArray * KNOHadronization2::Hadronize(
   assert(multiplicity > 1); // if everything was ok at previous step
 
   if(multiplicity == 2) return particle_list; // take no futhrer action for now
-  
-  fragm_rec_utils::Print(particle_list);
-  
+
+  utils::fragmrec::Print(particle_list);
+
   //-- Compute the 'forwardness' based on the expected Forard (xF>0) and
   //   Backward (xF<0) tot/+/-/neutral multiplicities
 
   bool ok = this->ComputeForwardness(particle_list, interaction);
 
   if(!ok) return particle_list;
-  
+
   //-- Get the number of forward & backward going particles that we start with
-    
+
   SLOG("KNOHad2", pINFO) << "NF = " << this->NParticles(particle_list, true )
                        << ", NB = " << this->NParticles(particle_list, false);
 
@@ -113,26 +113,26 @@ TClonesArray * KNOHadronization2::Hadronize(
   //   availabe momentum
 
   double W  = interaction->GetScatteringParams().W();
-  
-/*    
+
+/*
   double PL = this->PKick(particle_list, interaction);
 
   if(PL<0) return particle_list;
-  
+
   TLorentzVector p4_fwd(0,0, PL, W/2.);
   TLorentzVector p4_bkw(0,0,-PL, W/2.);
 
   LOG("KNOHad2", pINFO)
                 << "\n 4P(fwd) = " << P4AsString(&p4_fwd)
                                     << "\n 4P(bkw) = " << P4AsString(&p4_bkw);
-      
+
   //-- get foward & backward hadronic system
 
   TClonesArray * fwd_system = this->DecayExclusive(p4_fwd, particle_list, true );
   TClonesArray * bkw_system = this->DecayExclusive(p4_fwd, particle_list, false);
 
   //-- merge them into a single particle list
-      
+
   TClonesArray * new_particle_list = new TClonesArray("TMCParticle", multiplicity);
 
   TMCParticle * particle = 0;
@@ -141,31 +141,31 @@ TClonesArray * KNOHadronization2::Hadronize(
   TIter bkw_piter(bkw_system);
 
   int i = 0;
-  
-  while( (particle = (TMCParticle * ) fwd_piter.Next()) ) 
+
+  while( (particle = (TMCParticle * ) fwd_piter.Next()) )
                     new ( (*new_particle_list)[i++] ) TMCParticle(*particle);
 
   while( (particle = (TMCParticle * ) bkw_piter.Next()) )
                     new ( (*new_particle_list)[i++] ) TMCParticle(*particle);
 
-  fragm_rec_utils::Print(new_particle_list);
+  utils::fragmrec::Print(new_particle_list);
 
   // pT...
   this->Cooling(new_particle_list);
 */
-    
+
   this->Cooling2(particle_list, W);
 
-//  fragm_rec_utils::Print(new_particle_list);
-  fragm_rec_utils::Print(particle_list);
-  
+//  utils::fragmrec::Print(new_particle_list);
+  utils::fragmrec::Print(particle_list);
+
   // the cooling gets you out of the HCMS - boost back
 
 //  this->BoostToHCMS(new_particle_list);
   this->BoostToHCMS(particle_list);
-     
-//  fragm_rec_utils::Print(new_particle_list);
-  fragm_rec_utils::Print(particle_list);
+
+//  utils::fragmrec::Print(new_particle_list);
+  utils::fragmrec::Print(particle_list);
 
   // delete the old particle list & the temporary bkw/fwd particle lists
 
@@ -180,7 +180,7 @@ TClonesArray * KNOHadronization2::Hadronize(
   // set the container as its element 'owner' & return
 
 //  new_particle_list->SetOwner(true);
-  
+
 //  return new_particle_list;
 
   return particle_list;
@@ -235,9 +235,9 @@ bool KNOHadronization2::ComputeForwardness(
   int multiplicity = particle_list->GetEntries();
 
   double n    = (double) multiplicity;
-  double npos = (double) fragm_rec_utils::NPositives(particle_list);
-  double nneg = (double) fragm_rec_utils::NNegatives(particle_list);
-  double n0   = math_utils::NonNegative(n - npos - nneg);
+  double npos = (double) utils::fragmrec::NPositives(particle_list);
+  double nneg = (double) utils::fragmrec::NNegatives(particle_list);
+  double n0   = utils::math::NonNegative(n - npos - nneg);
 
   SLOG("KNOHad2", pINFO)
      << "KNO: N = " << n << ", N+ = " << npos << ", N- = " << nneg << ", N0 = " << n0;
@@ -309,12 +309,12 @@ bool KNOHadronization2::ComputeForwardness(
   double WB = W/2;
 
   bool is_first = true;
-    
+
   while( (p = (TMCParticle *) piter.Next()) ) {
 
       int    pdgc = p->GetKF();
       double mass = p->GetMass();
-      
+
       double Q    = PDGLibrary::Instance()->Find(pdgc)->Charge();
 
       bool is_nucleon    = pdg::IsNeutronOrProton(pdgc);
@@ -334,7 +334,7 @@ bool KNOHadronization2::ComputeForwardness(
          WB -= mass;
 
       } else if (is_first_pion) {
-        
+
          p->SetBit(kIsForward, true);
          WF -= mass;
 
@@ -393,33 +393,33 @@ double KNOHadronization2::PKick(
   double PL = lambda*PAvail;
 
   double M = 0;
-  
+
   TMCParticle * p = 0;
 
   TIter piter(particle_list);
-  
+
   if( this->NParticles(particle_list, true ) == 1 ) {
-    
-     while( (p = (TMCParticle *) piter.Next()) ) 
+
+     while( (p = (TMCParticle *) piter.Next()) )
                           if( p->TestBit(kIsForward) ) M = p->GetMass();
-   
+
   } else if ( this->NParticles(particle_list, false ) == 1 ) {
 
      while( (p = (TMCParticle *) piter.Next()) )
-                        if( ! p->TestBit(kIsForward) ) M = p->GetMass();  
-  }  
+                        if( ! p->TestBit(kIsForward) ) M = p->GetMass();
+  }
 
   if( M>0 ) {
      PL = TMath::Sqrt(W*W/4 - M*M);
   }
-  
+
   if(PL > PAvail) return -1;
 
   LOG("KNOHad2", pINFO)
       << "\n W = " << W
       << ", M(fwd) = " << fwd_mass << ", M(bkw) = " << bkw_mass
       << "\n Pavail = " << PAvail << " / lambda = " << lambda;
-      
+
   return PL;
 }
 //____________________________________________________________________________
@@ -430,13 +430,13 @@ int KNOHadronization2::NParticles(TClonesArray * part_list, bool fwd) const
   TMCParticle * p = 0;
 
   int N = 0;
-  
+
   while( (p = (TMCParticle *) piter.Next()) ) {
-    
+
       if( fwd &&  p->TestBit(kIsForward) ) N++;
       if(!fwd && !p->TestBit(kIsForward) ) N++;
-  }                       
-  return N;  
+  }
+  return N;
 }
 //____________________________________________________________________________
 double KNOHadronization2::TotalMass(TClonesArray * part_list, bool fwd) const
@@ -446,7 +446,7 @@ double KNOHadronization2::TotalMass(TClonesArray * part_list, bool fwd) const
   TMCParticle * p = 0;
 
   double total_mass = 0;
-    
+
   while( (p = (TMCParticle *) piter.Next()) ) {
 
      double m = p->GetMass();
@@ -500,7 +500,7 @@ void KNOHadronization2::BoostToHCMS(TClonesArray * particle_list) const
        particle->SetPz     ( p4.Pz()     );
        particle->SetEnergy ( p4.Energy() );
    }
-}   
+}
 //____________________________________________________________________________
 TClonesArray * KNOHadronization2::DecayExclusive(
            TLorentzVector & sp4, TClonesArray * particle_list, bool fwd) const
@@ -515,7 +515,7 @@ TClonesArray * KNOHadronization2::DecayExclusive(
   TMCParticle * p = 0;
 
   int i = 0;
-  
+
   while( (p = (TMCParticle *) piter.Next()) ) {
 
      double m  = p->GetMass();
@@ -528,9 +528,9 @@ TClonesArray * KNOHadronization2::DecayExclusive(
          i++;
      }
   }
-  
+
   TClonesArray * new_particle_list = new TClonesArray("TMCParticle", N);
-  
+
   if(N > 1) {
 
     LOG("KNOHad2", pINFO) << "Setting the decay to the phase space generator";
@@ -581,21 +581,21 @@ TClonesArray * KNOHadronization2::DecayExclusive(
 
     new ( (*new_particle_list)[0] )
                              TMCParticle(1,code,0,0,0,px,py,pz,E,M,0,0,0,0,0);
-                             
-    if(fwd) (*new_particle_list)[0]->SetBit(kIsForward);                             
+
+    if(fwd) (*new_particle_list)[0]->SetBit(kIsForward);
   }
 
   // set the container as its element 'owner' & return
 
   new_particle_list->SetOwner(true);
 
-  return new_particle_list;  
+  return new_particle_list;
 }
 //____________________________________________________________________________
 void KNOHadronization2::Cooling(TClonesArray * particle_list) const
 {
   // pT2 is selected from an exponential distribution
-  
+
   TF1 pt2func("pt2func","exp(-x/[0])",0.,2.);
 
   pt2func.SetParameter(0,0.65);
@@ -614,7 +614,7 @@ void KNOHadronization2::Cooling(TClonesArray * particle_list) const
 
   int j = 0;
   int N = particle_list->GetEntries();
-    
+
   while( (particle = (TMCParticle * ) piter.Next()) ) {
 
     LOG("KNOHad2", pINFO)
@@ -634,7 +634,7 @@ void KNOHadronization2::Cooling(TClonesArray * particle_list) const
 
     if( pT2 > pT2o ) pT2 = pT2o;
 
-    double dpT2 = math_utils::NonNegative(pT2o - pT2);
+    double dpT2 = utils::math::NonNegative(pT2o - pT2);
 
     assert( dpT2 >= 0 );
 
@@ -655,7 +655,7 @@ void KNOHadronization2::Cooling(TClonesArray * particle_list) const
     particle->SetPx(px);
     particle->SetPy(py);
     particle->SetPz(pz);
-    
+
     sum_px += px;
     sum_py += py;
 
@@ -675,7 +675,7 @@ void KNOHadronization2::Cooling2(TClonesArray * particle_list, double W) const
   pt2func.SetParameter(0,0.65);
 
   // xF is selected from a function fitted to experimental data
-  
+
   TF1 fwd_xf_func("fwd_xf_func","0.10-0.09*x", 0.,1.);
   TF1 bkw_xf_func("bkw_xf_func","0.10+0.9*x", -1.,0.);
 
@@ -705,25 +705,25 @@ void KNOHadronization2::Cooling2(TClonesArray * particle_list, double W) const
     double pz   = particle->GetPz();
 
     double p2   = px*px + py*py + pz*pz;
-    
+
     LOG("KNOHad2", pINFO) << "p2 = " << p2;
 
     LOG("KNOHad2", pINFO) << "Getting random xF";
 
     double xF = 0, pL = 0;
 
-    do {    
+    do {
       if ( particle->TestBit(kIsForward)) xF = fwd_xf_func.GetRandom();
       else                                xF = bkw_xf_func.GetRandom();
 
       pL = xF*W/2;
-      
+
       LOG("KNOHad2", pINFO) << "xF = " << xF;
       LOG("KNOHad2", pINFO) << "pL = " << pL;
 
     } while(pL*pL >= p2);
 
-      
+
     double pT2  = p2 - pL*pL;
 
     LOG("KNOHad2", pINFO) << "pT^2 = " << pT2;
@@ -757,7 +757,7 @@ void KNOHadronization2::Cooling2(TClonesArray * particle_list, double W) const
   }
 }
 //____________________________________________________________________________
-map<Multiplicity_t, double> 
+map<Multiplicity_t, double>
              KNOHadronization2::ExpectedMultiplicities(
                                         const Interaction * interaction) const
 {
@@ -770,7 +770,7 @@ map<Multiplicity_t, double>
 
   int v = interaction->GetInitialState().GetProbePDGCode();
   int N = interaction->GetInitialState().GetTarget().StruckNucleonPDGCode();
-  
+
   double nF_tot = this->MultiplicityParam('A', kMltFwdTotal,    v,N) +
                   this->MultiplicityParam('B', kMltFwdTotal,    v,N) * lnW2;
   double nB_tot = this->MultiplicityParam('A', kMltBkwTotal,    v,N) +
@@ -783,16 +783,16 @@ map<Multiplicity_t, double>
                   this->MultiplicityParam('B', kMltFwdPositive, v,N) * lnW2;
   double nB_pos = this->MultiplicityParam('A', kMltBkwPositive, v,N) +
                   this->MultiplicityParam('B', kMltBkwPositive, v,N) * lnW2;
-  
-  nF_tot = math_utils::NonNegative( nF_tot );
-  nB_tot = math_utils::NonNegative( nB_tot );
-  nF_neg = math_utils::NonNegative( nF_neg );
-  nB_neg = math_utils::NonNegative( nB_neg );
-  nF_pos = math_utils::NonNegative( nF_pos );
-  nB_pos = math_utils::NonNegative( nB_pos );
 
-  double nF_0   = math_utils::NonNegative(nF_tot - nF_neg - nF_pos);
-  double nB_0   = math_utils::NonNegative(nB_tot - nB_neg - nB_pos);
+  nF_tot = utils::math::NonNegative( nF_tot );
+  nB_tot = utils::math::NonNegative( nB_tot );
+  nF_neg = utils::math::NonNegative( nF_neg );
+  nB_neg = utils::math::NonNegative( nB_neg );
+  nF_pos = utils::math::NonNegative( nF_pos );
+  nB_pos = utils::math::NonNegative( nB_pos );
+
+  double nF_0   = utils::math::NonNegative(nF_tot - nF_neg - nF_pos);
+  double nB_0   = utils::math::NonNegative(nB_tot - nB_neg - nB_pos);
 
   nF_0  += TMath::Min(nF_neg, nF_pos);
   nB_0  += TMath::Min(nB_neg, nB_pos);
@@ -840,16 +840,16 @@ double KNOHadronization2::MultiplicityParam(
    LOG("KNOHad2", pERROR)
         << "**** Unknown state with v-pdg = " << v << "and nuc-pdg = " << N;
 
-   return 0; 
+   return 0;
   }
-        
+
   if      (param == 'A') key << "A-";
-  else if (param == 'B') key << "B-";  
+  else if (param == 'B') key << "B-";
   else
   {
    LOG("KNOHad2", pERROR) << "**** Unknown parameter = " << param;
    return 0;
-  }  
+  }
 
   if      ( mult == kMltFwdTotal    ) key << "fwd-tot";
   else if ( mult == kMltBkwTotal    ) key << "bkw-tot";
@@ -862,7 +862,7 @@ double KNOHadronization2::MultiplicityParam(
    LOG("KNOHad2", pERROR) << "**** Unknown multiplicity code = " << mult;
    return 0;
   }
-          
+
   assert( fConfig->Exists(key.str()) );
 
   double parameter = fConfig->GetDouble( key.str() );

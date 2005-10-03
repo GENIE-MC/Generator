@@ -409,7 +409,7 @@ void Target::Print(ostream & stream) const
     TParticlePDG * p = PDGLibrary::Instance()->Find(fStruckNucPDG);
 
     stream << " struck nucleon = " << p->GetName() 
-               << ", P4 = " << print_utils::P4AsString(fStruckNucP4) << endl;
+              << ", P4 = " << utils::print::P4AsString(fStruckNucP4) << endl;
   }
 }
 //___________________________________________________________________________

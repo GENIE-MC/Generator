@@ -45,7 +45,7 @@ ____________________________________________________________________________*/
 #include "ReinSeghal/ReinSeghalRESPXSec.h"
 #include "ReinSeghal/RSHelicityAmplModelI.h"
 #include "ReinSeghal/RSHelicityAmpl.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
 
@@ -91,7 +91,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 
   //-- Check energy threshold & kinematical limits in q2, W
 
-  double EvThr = kine_limits::EnergyThreshold(interaction);
+  double EvThr = utils::kinematics::EnergyThreshold(interaction);
 
   if(E <= EvThr) {
     LOG("ReinSeghalRes", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
@@ -100,11 +100,11 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 
   //-- Check against physical range in W and Q2
 
-  Range1D_t rW  = kine_limits::WRange(interaction);
-  Range1D_t rQ2 = kine_limits::Q2Range_W(interaction);
+  Range1D_t rW  = utils::kinematics::WRange(interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
 
-  bool in_physical_range = math_utils::IsWithinLimits(W, rW)
-                                   && math_utils::IsWithinLimits(-q2, rQ2);
+  bool in_physical_range = utils::math::IsWithinLimits(W, rW)
+                                   && utils::math::IsWithinLimits(-q2, rQ2);
 
   if(!in_physical_range) return 0;
 

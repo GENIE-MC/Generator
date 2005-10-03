@@ -99,9 +99,9 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
   double propg  = TMath::Power(ma2/(ma2+Q2),2.); // propagator term
   double r      = this->ReImPiApl(); // Re/Im Fwd Ampl. [def. can be overriden]
   double r2     = TMath::Power(r,2.);
-  double sTot   = xsec_utils::TotalPionNucleonXSec(Epi); // tot. pi+N xsec
+  double sTot   = utils::xsec::TotalPionNucleonXSec(Epi); // tot. pi+N xsec
   double sTot2  = TMath::Power(sTot,2.);
-  double sInel  = xsec_utils::InelasticPionNucleonXSec(Epi); // inel. pi+N xsec
+  double sInel  = utils::xsec::InelasticPionNucleonXSec(Epi); // inel. pi+N xsec
   double Ro     = this->NuclSizeScale(); // nuclear size scale parameter
   double Ro2    = TMath::Power(Ro,2.);
 

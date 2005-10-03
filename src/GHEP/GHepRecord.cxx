@@ -154,7 +154,7 @@ void GHepRecord::ShiftVertex(const TLorentzVector & vec4)
 // input ROOT geometry)
 
   LOG("GHEP", pNOTICE)
-       << "Shifting vertex to: " << print_utils::X4AsString(&vec4);
+       << "Shifting vertex to: " << utils::print::X4AsString(&vec4);
 
   double x0 = vec4.X();
   double y0 = vec4.Y();
@@ -237,7 +237,7 @@ void GHepRecord::UpdateDaughterLists(void)
 
   int mom_pos = p->FirstMother();
   LOG("GHEP", pINFO) << "Mother particle is at slot: " << mom_pos;
-  if(mom_pos==-1) return; // may not have mom (eg init state)  
+  if(mom_pos==-1) return; // may not have mom (eg init state)
   GHepParticle * mom = this->GetParticle(mom_pos);
   if(!mom) return; // may not have mom (eg init state)
 
@@ -304,7 +304,7 @@ void GHepRecord::CompactifyDaughterLists(void)
         }
      } //!compact
      LOG("GHEP", pNOTICE)
-          << "Compactifying daughter-list for particle at slot: " 
+          << "Compactifying daughter-list for particle at slot: "
                                                     << i << " - Done!";
   }
   this->FinalizeDaughterLists();
@@ -416,7 +416,7 @@ void GHepRecord::FinalizeDaughterLists(void)
 void GHepRecord::SwitchIsPauliBlocked(bool on_off)
 {
   LOG("GHEP", pNOTICE)
-    << "Switching Pauli Block flag: " << print_utils::BoolAsIOString(on_off);
+    << "Switching Pauli Block flag: " << utils::print::BoolAsIOString(on_off);
 
   fIsPauliBlocked = on_off;
 }
@@ -425,7 +425,7 @@ void GHepRecord::SwitchIsBelowThrNRF(bool on_off)
 {
   LOG("GHEP", pNOTICE)
       << "Switching Below Threshold in nucleon rest frame flag: "
-                                     << print_utils::BoolAsIOString(on_off);
+                                     << utils::print::BoolAsIOString(on_off);
   fIsBelowThrNRF = on_off;
 }
 //___________________________________________________________________________
@@ -433,7 +433,7 @@ void GHepRecord::SwitchGenericErrFlag(bool on_off)
 {
   LOG("GHEP", pNOTICE)
       << "Switching Generic Error Flag: "
-                               << print_utils::BoolAsIOString(on_off);
+                               << utils::print::BoolAsIOString(on_off);
   fGenericErrFlag = on_off;
 }
 //___________________________________________________________________________
@@ -599,13 +599,13 @@ void GHepRecord::Print(ostream & stream) const
   stream << "\n |";
   stream << setfill(' ') << setw(17) << "FLAGS:   | "
          << setfill(' ') << setw(15) << "PauliBlock......"
-         << print_utils::BoolAsIOString(this->IsPauliBlocked()) << " |"
+         << utils::print::BoolAsIOString(this->IsPauliBlocked()) << " |"
          << setfill(' ') << setw(15) << " BelowThrNRF...."
-         << print_utils::BoolAsIOString(this->IsBelowThrNRF())  << " |"
+         << utils::print::BoolAsIOString(this->IsBelowThrNRF())  << " |"
          << setfill(' ') << setw(15) << " GenericErr....."
-         << print_utils::BoolAsIOString(this->GenericErrFlag()) << " |"
+         << utils::print::BoolAsIOString(this->GenericErrFlag()) << " |"
          << setfill(' ') << setw(15) << " UnPhysical....."
-         << print_utils::BoolAsIOString(this->IsUnphysical())   << " |";
+         << utils::print::BoolAsIOString(this->IsUnphysical())   << " |";
 
   stream << "\n |";
   stream << setfill('-') << setw(109) << "|";

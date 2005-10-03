@@ -5,7 +5,7 @@
 
 \brief    Computes, the differential cross section for neutrino DIS including
           radiative corrections according to the \b Bardin-Dokuchaeva model.
-          
+
           The computed xsec is the double differential d^2(xsec) / dy dx \n
           where \n
            \li \c y is the inelasticity, and
@@ -41,7 +41,7 @@
 #include "PDG/PDGUtils.h"
 #include "Radiative/BardinDISPXSec.h"
 #include "Utils/MathUtils.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
 
 using namespace genie;
@@ -77,14 +77,14 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   const InitialState &    init_state = interaction -> GetInitialState();
 
   TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-  
+
   double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
   double E    = p4->Energy();
   double x    = sc_params.x();
   double y    = sc_params.y();
 
   delete p4;
-  
+
   //----- make sure that x, y are in the physically acceptable region
 
   if(x<=0 || x>1) return 0;
@@ -100,11 +100,11 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   //----- Get the physical W and Q2 range and check whether the current W,Q2
   //      pair is allowed
 
-  Range1D_t rW  = kine_limits::WRange     (interaction);
-  Range1D_t rQ2 = kine_limits::Q2Range_xy (interaction);
+  Range1D_t rW  = utils::kinematics::WRange     (interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
 
-  bool in_range = math_utils::IsWithinLimits(Q2, rQ2)
-                                        && math_utils::IsWithinLimits(W, rW);
+  bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
+                                        && utils::math::IsWithinLimits(W, rW);
 
   if(!in_range) {
        LOG("DISXSec", pDEBUG)
@@ -118,7 +118,7 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
                            << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
        return 0;
    }
-  
+
   //----- make sure it can get all critical configuration parameters
 
   assert(
@@ -126,7 +126,7 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
           fConfig->Exists("pdf-param-set")          &&
           fConfig->Exists("init-quark-pdg-code")    &&
           fConfig->Exists("final-quark-pdg-code")   &&
-          fConfig->Exists("final-quark-mass")  
+          fConfig->Exists("final-quark-mass")
         );
 
   //----- get init & final quarks
@@ -146,14 +146,14 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   LOG("Bardin", pDEBUG) << "Vckm = " << Vckm;
 
   double Vckm2 = Vckm*Vckm;
-  
+
   //----- get the PDF set
 
   string pdf_alg_name, pdf_param_set;
 
   fConfig->Get("pdf-alg-name",  pdf_alg_name );
   fConfig->Get("pdf-param-set", pdf_param_set);
-  
+
   //----- Get PDF objects & attach PDFModels
 
   AlgFactory * algf = AlgFactory::Instance();
@@ -170,13 +170,13 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   pdf_xi.SetModel (pdf_model);   // <-- attach algorithm
 
   //----- Get init quark PDF at (x,Q2)
-  
+
   pdf_x.Calculate(x, Q2);
 
   LOG("Bardin", pDEBUG) << pdf_x;
-  
+
   double f_x  = PDFFunc( pdf_x,  init_pdgc )  / x;
-  
+
   //-- Define the range for variable xi
   //
   //   Note: Integration over xi is performed for xi e [x, 1].
@@ -207,7 +207,7 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
      double xi = xi_min + ix * dxi;
 
      //----- Get init quark PDF at (xi,Q2)
-     
+
      pdf_xi.Calculate(xi, Q2);
 
      double f_xi = PDFFunc( pdf_xi, init_pdgc )  / xi;
@@ -244,7 +244,7 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   double term3 = integrator->Integrate( term3_vs_xi );
 
   //-- form the differential cross section
-  
+
   double Gfactor = pow(kGF,2) * S(interaction) * Vckm2 / kPi;
 
   double d2xsec_dxdy = Gfactor * ( term1 + (kAem/kPi) * (term2 + term3) );
@@ -258,7 +258,7 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
                                    << ", y = " << y << ") = " << d2xsec_dxdy;
 
   assert(d2xsec_dxdy >= 0);
-  
+
   return d2xsec_dxdy;
 }
 //____________________________________________________________________________
@@ -415,7 +415,7 @@ double BardinDISPXSec::S(const Interaction * interaction) const
   double E = p4->Energy();
 
   delete p4;
-  
+
   return 2 * kNucleonMass * E;
 }
 //__________________________________________________________________________
@@ -479,7 +479,7 @@ double BardinDISPXSec::PDFFunc(const PDF & pdf, int pdgc) const
      LOG("Bardin", pERROR)
          << "Scattering off quarks with pdg = " << pdgc << "is not handled";
   }
-  return 0;  
+  return 0;
 }
 //__________________________________________________________________________
 

@@ -48,31 +48,31 @@ vDataSelectionDialog::vDataSelectionDialog(
              const TGWindow *p, const TGWindow *main, bool * attn,
                         UInt_t w, UInt_t h, UInt_t options, DBConnection * db):
 DataSelectionDialog()
-{  
+{
   _db   = db;
 
   _attn  = attn;
   *_attn = true; // lock main window's attention through-out this dialog's lifetime
-  
+
   _main = new TGTransientFrame(p, main, w, h, options);
   _main->Connect("CloseWindow()",
                   "genie::nuvld::vDataSelectionDialog", this, "CloseWindow()");
 
   _main_left_frame   = new TGCompositeFrame(_main, 3, 3, kVerticalFrame);
   _main_right_frame  = new TGCompositeFrame(_main, 3, 3, kVerticalFrame);
-  
+
   ULong_t hintMLeftFrameLayout    = kLHintsCenterY;
   ULong_t hintMRightFrameLayout   = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
-  
+
   _mleft_frame_layout  = new TGLayoutHints(hintMLeftFrameLayout,    1, 1,  1, 1);
   _mright_frame_layout = new TGLayoutHints(hintMRightFrameLayout,   1, 1,  1, 1);
 
   this->BuildLeftFrameWidgets();
   this->BuildRightFrameWidgets();
-        
+
   _main  -> AddFrame ( _main_left_frame,    _mleft_frame_layout  );
   _main  -> AddFrame ( _main_right_frame,   _mright_frame_layout );
-  
+
   _main->MapSubwindows();
   _main->Resize();
 
@@ -90,7 +90,7 @@ DataSelectionDialog()
 //______________________________________________________________________________
 vDataSelectionDialog::~vDataSelectionDialog()
 {
-  *_attn = false; // release attention-lock 
+  *_attn = false; // release attention-lock
 
   delete _mleft_frame_layout;
   delete _mright_frame_layout;
@@ -113,16 +113,16 @@ vDataSelectionDialog::~vDataSelectionDialog()
   delete _xsec_listbox;
   delete _nu_listbox;
   delete _target_listbox;
-  delete _xsec_err_group_frame; 
+  delete _xsec_err_group_frame;
   delete _exp_group_frame;
   delete _obs_group_frame;
   //delete _energy_matrix_layout;
   delete _energy_group_frame;
   delete _wcut_group_frame;
-  delete _cuts_group_frame;  
+  delete _cuts_group_frame;
   delete _init_state_group_frame;
   delete _target_group_frame;
-  delete _reaction_group_frame;  
+  delete _reaction_group_frame;
   delete _main_left_frame;
   delete _main_right_frame;
   delete _main;
@@ -149,8 +149,8 @@ void vDataSelectionDialog::BuildLeftFrameWidgets(void)
 
   this->LoadExperimentsFromDB();
 
-  gui_utils::FillListBox( _xsec_err_listbox, k_xsec_err_types );
-  
+  utils::gui::FillListBox( _xsec_err_listbox, k_xsec_err_types );
+
   _xsec_err_listbox -> Resize (120,  60);
   _exp_listbox      -> Resize (120,  90);
 
@@ -160,12 +160,12 @@ void vDataSelectionDialog::BuildLeftFrameWidgets(void)
   _select_all_exp    = new TGCheckButton(_exp_group_frame,     "Select all", 71);
 
   //--- FORCE CONSISTENCY BETWEEN SELECTED VALUES
-  
+
   // Update widgets / force consistency every time the expts listbox is clicked
-  
+
   _exp_listbox ->Connect("SelectionChanged()","genie::nuvld::vDataSelectionDialog",
                                        this,"MakeConsistentWithExpListbox()");
-    
+
   //--- "Select all" action
 
   _select_all_exp    -> Connect("Clicked()","genie::nuvld::vDataSelectionDialog",
@@ -184,10 +184,10 @@ void vDataSelectionDialog::BuildLeftFrameWidgets(void)
   _W_cut = new TGNumberEntry(
                      _wcut_group_frame,   1.4, 6, 1, TGNumberFormat::kNESReal);
 
-                   
+
   _scale_with_energy  = new TGCheckButton(
                                       _main_left_frame, "Scale With Energy", 75);
-    
+
   _xsec_err_group_frame  -> AddFrame( _xsec_err_listbox  );
   _exp_group_frame       -> AddFrame( _exp_listbox       );
   _exp_group_frame       -> AddFrame( _select_all_exp    );
@@ -230,7 +230,7 @@ void vDataSelectionDialog::BuildRightFrameWidgets(void)
   _target_listbox       = new TGListBox(_target_group_frame,      204);
 
   _measurements_listbox -> Resize (580, 220);
-  _xsec_listbox         -> Resize (100, 90);  
+  _xsec_listbox         -> Resize (100, 90);
   _nu_listbox           -> Resize (200, 90);
   _target_listbox       -> Resize (170, 90);
 
@@ -252,7 +252,7 @@ void vDataSelectionDialog::BuildRightFrameWidgets(void)
 
   _close_button         = new TGTextButton (_main_right_frame, "&Close", 101);
 
-  
+
   //--- FORCE CONSISTENCY BETWEEN SELECTED VALUES
 
   // Update widgets / force consistency every time the "obervables" listbox is clicked
@@ -275,13 +275,13 @@ void vDataSelectionDialog::BuildRightFrameWidgets(void)
   _init_state_group_frame -> AddFrame( _select_all_nu     );
   _target_group_frame     -> AddFrame( _target_listbox    );
   _target_group_frame     -> AddFrame( _select_all_target );
-  
+
   _reaction_group_frame   -> AddFrame( _obs_group_frame        );
   _reaction_group_frame   -> AddFrame( _init_state_group_frame );
   _reaction_group_frame   -> AddFrame( _target_group_frame     );
-                                                    
+
   _close_button->Connect("Clicked()",
-                         "genie::nuvld::vDataSelectionDialog", this, "Close()");  
+                         "genie::nuvld::vDataSelectionDialog", this, "Close()");
 
   _main_right_frame->AddFrame (_measurements_listbox,  _listbox_layout  );
   _main_right_frame->AddFrame (_reaction_group_frame );
@@ -299,7 +299,7 @@ void vDataSelectionDialog::LoadExperimentsFromDB(void)
   const int nrows = result->GetRowCount();
 
   TSQLRow * row = 0;
-    
+
   for (int i = 0; i < nrows; i++) {
 
       row = result->Next();
@@ -307,7 +307,7 @@ void vDataSelectionDialog::LoadExperimentsFromDB(void)
       _exp_listbox->AddEntry( row->GetField(0), i);
 
       delete row;
-  }    
+  }
   delete result;
 
   gClient->NeedRedraw(_exp_listbox->GetContainer());
@@ -332,8 +332,8 @@ void vDataSelectionDialog::LoadXSecTypesFromDB(void)
 
       row = result->Next();
 
-      // add in a map to remove duplicate keys      
-      xsec_types[string(row->GetField(0))]++; 
+      // add in a map to remove duplicate keys
+      xsec_types[string(row->GetField(0))]++;
 
       delete row;
   }
@@ -342,12 +342,12 @@ void vDataSelectionDialog::LoadXSecTypesFromDB(void)
   map<string, int>::const_iterator xsec_types_iter;
 
   int i=0;
-  
+
   for(xsec_types_iter = xsec_types.begin();
          xsec_types_iter != xsec_types.end(); ++xsec_types_iter)
                   _xsec_listbox->AddEntry( xsec_types_iter->first.c_str(), i++);
 
-  gClient->NeedRedraw(_xsec_listbox->GetContainer());                  
+  gClient->NeedRedraw(_xsec_listbox->GetContainer());
 }
 //______________________________________________________________________________
 void vDataSelectionDialog::LoadProbesFromDB(void)
@@ -384,7 +384,7 @@ void vDataSelectionDialog::LoadProbesFromDB(void)
          xsec_types_iter != xsec_types.end(); ++xsec_types_iter)
                   _nu_listbox->AddEntry( xsec_types_iter->first.c_str(), i++);
 
-  gClient->NeedRedraw(_nu_listbox->GetContainer());                  
+  gClient->NeedRedraw(_nu_listbox->GetContainer());
 }
 //______________________________________________________________________________
 void vDataSelectionDialog::LoadTargetsFromDB(void)
@@ -421,7 +421,7 @@ void vDataSelectionDialog::LoadTargetsFromDB(void)
              target_iter != targets.end(); ++target_iter)
                     _target_listbox->AddEntry( target_iter->first.c_str(), i++);
 
-  gClient->NeedRedraw(_target_listbox->GetContainer());                    
+  gClient->NeedRedraw(_target_listbox->GetContainer());
 }
 //______________________________________________________________________________
 void vDataSelectionDialog::LoadMeasurementsFromDB(void)
@@ -456,7 +456,7 @@ void vDataSelectionDialog::LoadMeasurementsFromDB(void)
            << row->GetField(6) << ";"
            << row->GetField(0) << ";"
            << row->GetField(1);
-                      
+
       _measurements_listbox->AddEntry(item.str().c_str(), i);
 
       LOG("NuVld",pINFO) << item.str();
@@ -471,7 +471,7 @@ void vDataSelectionDialog::LoadMeasurementsFromDB(void)
 void vDataSelectionDialog::MakeConsistentWithExpListbox(void)
 {
   TList * selected = new TList();
-  
+
   _exp_listbox->GetSelectedEntries(selected);
 
   TGTextLBEntry * selected_entry = 0;
@@ -479,26 +479,26 @@ void vDataSelectionDialog::MakeConsistentWithExpListbox(void)
   TIter selected_iter(selected);
 
   //--- reset all dependent:
-  
-  gui_utils::ResetAllListBoxSelections(_measurements_listbox); // measurement list entries 
-  gui_utils::ResetAllListBoxSelections(_xsec_listbox); // observables
-  gui_utils::ResetAllListBoxSelections(_nu_listbox); // reactions
-  gui_utils::ResetAllListBoxSelections(_target_listbox); // targets
-  
+
+  utils::gui::ResetAllListBoxSelections(_measurements_listbox); // measurement list entries
+  utils::gui::ResetAllListBoxSelections(_xsec_listbox); // observables
+  utils::gui::ResetAllListBoxSelections(_nu_listbox); // reactions
+  utils::gui::ResetAllListBoxSelections(_target_listbox); // targets
+
   while( (selected_entry = (TGTextLBEntry *) selected_iter.Next()) ) {
-  
+
      string exp_name = selected_entry->GetText()->GetString();
 
      //--- select al matched "measurement list" entries
      SelectAllMeasurementsForExp(exp_name);
 
-     //--- select all matched "observables"      
+     //--- select all matched "observables"
      SelectAllObservablesForExp(exp_name);
 
-     //--- select all matched "reactions" 
+     //--- select all matched "reactions"
      SelectAllReactionsForExp(exp_name);
 
-     //--- select all matched "targets" 
+     //--- select all matched "targets"
      SelectAllTargetsForExp(exp_name);
 
   }
@@ -521,16 +521,16 @@ void vDataSelectionDialog::MakeConsistentWithExpObsListboxes(void)
 
   //--- reset all dependent:
 
-  gui_utils::ResetAllListBoxSelections(_measurements_listbox);
-  gui_utils::ResetAllListBoxSelections(_nu_listbox); 
-  gui_utils::ResetAllListBoxSelections(_target_listbox); 
+  utils::gui::ResetAllListBoxSelections(_measurements_listbox);
+  utils::gui::ResetAllListBoxSelections(_nu_listbox);
+  utils::gui::ResetAllListBoxSelections(_target_listbox);
 
   while( (exp_entry = (TGTextLBEntry *) exp_iter.Next()) ) {
 
      string exp_name = exp_entry->GetText()->GetString();
 
      obs_iter.Reset();
-     
+
      while( (obs_entry = (TGTextLBEntry *) obs_iter.Next()) ) {
 
          string observable = obs_entry->GetText()->GetString();
@@ -543,9 +543,9 @@ void vDataSelectionDialog::MakeConsistentWithExpObsListboxes(void)
 
          //--- select all matched "targets"
          SelectAllTargetsForExpObs(exp_name, observable);
-     }         
+     }
   }
-  
+
   delete selected_exp;
   delete selected_obs;
 }
@@ -564,9 +564,9 @@ void vDataSelectionDialog::SelectAllMeasurementsForExp(string exp_name)
      string mle_as_string = mle->GetText()->GetString();
 
      if(mle_as_string.find(exp_name) != string::npos)
-                                        _measurements_listbox->Select(i, true);                                        
+                                        _measurements_listbox->Select(i, true);
   }
-  
+
   gClient->NeedRedraw(_measurements_listbox->GetContainer());
 }
 //______________________________________________________________________________
@@ -592,7 +592,7 @@ void vDataSelectionDialog::SelectAllObservablesForExp(string exp_name)
      string exp_obs = row->GetField(0); // current observable
 
      // loop over the observables listbox and highlight the matched entries
-     
+
      for(int i = 0; i < nobs; i++) {
 
         TGTextLBEntry* obs = (TGTextLBEntry*) _xsec_listbox->GetEntry(i);
@@ -601,11 +601,11 @@ void vDataSelectionDialog::SelectAllObservablesForExp(string exp_name)
 
         if(obs_as_string.find(exp_obs) != string::npos)
                                                 _xsec_listbox->Select(i, true);
-     }                                              
+     }
   }
   delete result;
 
-  gClient->NeedRedraw(_xsec_listbox->GetContainer());  
+  gClient->NeedRedraw(_xsec_listbox->GetContainer());
 }
 //______________________________________________________________________________
 void vDataSelectionDialog::SelectAllReactionsForExp(string exp_name)
@@ -643,7 +643,7 @@ void vDataSelectionDialog::SelectAllReactionsForExp(string exp_name)
   }
   delete result;
 
-  gClient->NeedRedraw(_nu_listbox->GetContainer());  
+  gClient->NeedRedraw(_nu_listbox->GetContainer());
 }
 //______________________________________________________________________________
 void vDataSelectionDialog::SelectAllTargetsForExp(string exp_name)
@@ -681,7 +681,7 @@ void vDataSelectionDialog::SelectAllTargetsForExp(string exp_name)
   }
   delete result;
 
-  gClient->NeedRedraw(_target_listbox->GetContainer());  
+  gClient->NeedRedraw(_target_listbox->GetContainer());
 }
 //______________________________________________________________________________
 void vDataSelectionDialog::SelectAllMeasurementsForExpObs(
@@ -789,8 +789,8 @@ void vDataSelectionDialog::SelectAllTargetsForExpObs(
 void vDataSelectionDialog::SelectAllExp(void)
 {
   if(_select_all_exp->GetState() == kButtonDown)
-                               gui_utils::SelectAllListBoxEntries(_exp_listbox);
-  else gui_utils::ResetAllListBoxSelections(_exp_listbox);
+                               utils::gui::SelectAllListBoxEntries(_exp_listbox);
+  else utils::gui::ResetAllListBoxSelections(_exp_listbox);
 
   _exp_listbox->Resize(120, 90);
 
@@ -802,28 +802,28 @@ void vDataSelectionDialog::SelectAllExp(void)
 void vDataSelectionDialog::SelectAllXSec(void)
 {
   if(_select_all_xsec->GetState() == kButtonDown)
-                              gui_utils::SelectAllListBoxEntries(_xsec_listbox);
-  else gui_utils::ResetAllListBoxSelections(_xsec_listbox);
+                              utils::gui::SelectAllListBoxEntries(_xsec_listbox);
+  else utils::gui::ResetAllListBoxSelections(_xsec_listbox);
 
-  gClient->NeedRedraw(_xsec_listbox->GetContainer());  
+  gClient->NeedRedraw(_xsec_listbox->GetContainer());
 }
 //______________________________________________________________________________
 void vDataSelectionDialog::SelectAllProbes(void)
 {
   if(_select_all_nu->GetState() == kButtonDown)
-                                gui_utils::SelectAllListBoxEntries(_nu_listbox);
-  else gui_utils::ResetAllListBoxSelections(_nu_listbox);
+                                utils::gui::SelectAllListBoxEntries(_nu_listbox);
+  else utils::gui::ResetAllListBoxSelections(_nu_listbox);
 
-  gClient->NeedRedraw(_nu_listbox->GetContainer());    
+  gClient->NeedRedraw(_nu_listbox->GetContainer());
 }
 //______________________________________________________________________________
 void vDataSelectionDialog::SelectAllTargets(void)
 {
   if(_select_all_target->GetState() == kButtonDown)
-                            gui_utils::SelectAllListBoxEntries(_target_listbox);
-  else gui_utils::ResetAllListBoxSelections(_target_listbox);
+                            utils::gui::SelectAllListBoxEntries(_target_listbox);
+  else utils::gui::ResetAllListBoxSelections(_target_listbox);
 
-  gClient->NeedRedraw(_target_listbox->GetContainer());  
+  gClient->NeedRedraw(_target_listbox->GetContainer());
 }
 //______________________________________________________________________________
 string vDataSelectionDialog::BundleKeyListInString(void)
@@ -842,7 +842,7 @@ string vDataSelectionDialog::BundleKeyListInString(void)
 
   // IndexOf() is broken in ROOT > 4.02 ??
   //int nselected = selected->IndexOf( selected->Last() ) + 1;
-  unsigned int nselected = 0;  
+  unsigned int nselected = 0;
   while( (entry = (TGTextLBEntry *) iter.Next()) ) nselected++;
   iter.Reset();
 
@@ -865,7 +865,7 @@ string vDataSelectionDialog::BundleCutsInString(void)
 {
   float Emin = _E_min->GetNumber();
   float Emax = _E_max->GetNumber();
-  
+
   ostringstream cuts;
 
   cuts << "Emin=" << Emin << ";" << "Emax=" << Emax;
@@ -878,7 +878,7 @@ string vDataSelectionDialog::BundleDrawOptInString(void)
   if(_scale_with_energy->GetState() == kButtonDown) return "scale-with-energy";
   else return "";
 }
-//______________________________________________________________________________  
+//______________________________________________________________________________
 void vDataSelectionDialog::ResetSelections(void)
 {
 
@@ -887,7 +887,7 @@ void vDataSelectionDialog::ResetSelections(void)
 void vDataSelectionDialog::PositionRelativeToParent(const TGWindow * main)
 {
 // position relative to the parent's window
-  
+
   int ax, ay;
   Window_t wdum;
 
@@ -896,7 +896,7 @@ void vDataSelectionDialog::PositionRelativeToParent(const TGWindow * main)
               (Int_t)(((TGFrame *) main)->GetWidth() - _main->GetWidth()) >> 1,
               (Int_t)(((TGFrame *) main)->GetHeight() - _main->GetHeight()) >> 1,
               ax, ay, wdum);
-              
+
   _main->Move(ax, ay);
 }
 //______________________________________________________________________________

@@ -91,7 +91,7 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
 
   LOG("Decay", pINFO)
            << "Decaying resonance = " << mother->GetName()
-                         << " with P4 = " << print_utils::P4AsString(inp.P4);
+                        << " with P4 = " << utils::print::P4AsString(inp.P4);
   
   //-- Get the resonance mass W (generally different from the mass associated
   //   with the input pdg_code)

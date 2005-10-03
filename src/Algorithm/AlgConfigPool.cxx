@@ -167,7 +167,7 @@ bool AlgConfigPool::LoadMasterConfig(void)
   while (xml_ac != NULL) {
     if( (!xmlStrcmp(xml_ac->name, (const xmlChar *) "alg_config")) ) {
 
-       string alg_name  = string_utils::TrimSpaces(
+       string alg_name  = utils::str::TrimSpaces(
                     XmlParserUtils::GetAttribute(xml_ac, "alg_name"));
 
        // loop over all xml tree nodes that are children of the <alg_config>
@@ -232,7 +232,7 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
     // enter everytime you find an 'param_set' tag
     if( (!xmlStrcmp(xml_cur->name, (const xmlChar *) "param_set")) ) {
 
-      string param_set  = string_utils::TrimSpaces(
+      string param_set  = utils::str::TrimSpaces(
                            XmlParserUtils::GetAttribute(xml_cur, "name"));
       string config_key = alg_name + "/" + param_set;
 
@@ -244,10 +244,10 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
         if( (!xmlStrcmp(xml_param->name, (const xmlChar *) "param")) ) {
 
             string param_type =
-                   string_utils::TrimSpaces(
+                   utils::str::TrimSpaces(
                          XmlParserUtils::GetAttribute(xml_param, "type"));
             string param_name =
-                   string_utils::TrimSpaces(
+                   utils::str::TrimSpaces(
                          XmlParserUtils::GetAttribute(xml_param, "name"));
             string param_value =
                    XmlParserUtils::TrimSpaces(
@@ -334,7 +334,7 @@ void AlgConfigPool::AddRootObjParameter(
 {
   // the ROOT object is given in the XML config file as
   // <param> object_name@root_file_name </param>
-  vector<string> rootobjv = string_utils::Split(pvalue, "@");
+  vector<string> rootobjv = utils::str::Split(pvalue, "@");
 
   if(rootobjv.size() != 2) {
     SLOG("AlgConfigPool", pWARN)

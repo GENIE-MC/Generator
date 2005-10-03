@@ -108,7 +108,7 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
   TLorentzVector * p4 = res->GetP4();
 
   LOG("RESHadronicVtx", pINFO)
-                 << "\n RES 4-P = " << print_utils::P4AsString(p4);
+                 << "\n RES 4-P = " << utils::print::P4AsString(p4);
 
   //-- generate 4-p for the two-hadron system
   double mnuc = PDGLibrary::Instance() -> Find(nuc_pdgc) -> Mass();

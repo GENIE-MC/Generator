@@ -21,7 +21,7 @@
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 
 using namespace genie;
@@ -132,7 +132,7 @@ Range1D_t RESKinematicsGenerator::WRange(
 {
   //-- Get the physically allowed kinematical region for this interaction
 
-  Range1D_t W = kine_limits::WRange(interaction);
+  Range1D_t W = utils::kinematics::WRange(interaction);
   LOG("RESKinematics", pDEBUG)
        << "\n Physical W integration range: "
                                  << "[" << W.min << ", " << W.max << "] GeV";
@@ -144,8 +144,8 @@ Range1D_t RESKinematicsGenerator::WRange(
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
 
-  if ( math_utils::IsWithinLimits(min, W) ) W.min = min;
-  if ( math_utils::IsWithinLimits(max, W) ) W.max = max;
+  if ( utils::math::IsWithinLimits(min, W) ) W.min = min;
+  if ( utils::math::IsWithinLimits(max, W) ) W.max = max;
 
   LOG("RESKinematics", pDEBUG)
        << "\n (Physical & User) W integration range: "
@@ -160,7 +160,7 @@ Range1D_t RESKinematicsGenerator::Q2Range(
 {
   //-- Get the physically allowed kinematical region for this interaction
 
-  Range1D_t Q2 = kine_limits::Q2Range_W(interaction);
+  Range1D_t Q2 = utils::kinematics::Q2Range_W(interaction);
   LOG("RESKinematics", pDEBUG)
        << "\n Physical Q2 integration range: "
                             << "[" << Q2.min << ", " << Q2.max << "] GeV^2";
@@ -172,8 +172,8 @@ Range1D_t RESKinematicsGenerator::Q2Range(
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
 
-  if ( math_utils::IsWithinLimits(min, Q2) ) Q2.min = min;
-  if ( math_utils::IsWithinLimits(max, Q2) ) Q2.max = max;
+  if ( utils::math::IsWithinLimits(min, Q2) ) Q2.min = min;
+  if ( utils::math::IsWithinLimits(max, Q2) ) Q2.max = max;
 
   LOG("RESKinematics", pDEBUG)
        << "\n (Physical && User) Q2 integration range: "

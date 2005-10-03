@@ -79,7 +79,7 @@ void GMCJDriver::Initialize(void)
 void GMCJDriver::Configure(void)
 {
   LOG("GMCJDriver", pINFO)
-                  << print_utils::PrintFramedMesg("Configuring GMCJDriver");
+                  << utils::print::PrintFramedMesg("Configuring GMCJDriver");
 
   //-- Ask the input GFluxI for a list of all neutrino-types it will be using
   LOG("GMCJDriver", pINFO)
@@ -230,8 +230,8 @@ EventRecord * GMCJDriver::GenerateEvent(void)
   LOG("GMCJDriver", pINFO)
      << "\n [-] Generated flux neutrino: "
      << "\n  |----o PDG-code   : " << nupdg
-     << "\n  |----o 4-momentum : " << print_utils::P4AsString(&nup4)
-     << "\n  |----o 4-position : " << print_utils::X4AsString(&nux4);
+     << "\n  |----o 4-momentum : " << utils::print::P4AsString(&nup4)
+     << "\n  |----o 4-position : " << utils::print::X4AsString(&nux4);
 
   //-- get the list of detector material and the v path-length in each one,
   //   staring from nux4 and travelling along the direction of nup4

@@ -94,7 +94,7 @@ using std::ostringstream;
 using std::vector;
 
 using namespace genie;
-using namespace genie::string_utils;
+using namespace genie::utils::str;
 using namespace genie::nuvld;
 using namespace genie::nuvld::constants;
 
@@ -109,7 +109,7 @@ TGMainFrame(p, w, h)
 
   UInt_t kv = kVerticalFrame;
   UInt_t kh = kHorizontalFrame;
-  
+
   fMain = new TGMainFrame(p,w,h);
   fMain->Connect("CloseWindow()",
                          "genie::nuvld::NuVldMainFrame", this, "CloseWindow()");
@@ -185,10 +185,10 @@ TGMainFrame(p, w, h)
 
   this->ResetSqlSelections();    // set all selection widgets to default values
   this->ResetFitterTab();        // set all selections to default values
-  
+
   this->InitializeSyslog();      // initialize "system-log" singleton
   this->InitializeBrowser();     // initialize "data-browser" singleton
-  this->ConfigHandlers();  
+  this->ConfigHandlers();
 
   fMain->SetWindowName("GENIE/NuValidator");
 
@@ -222,7 +222,7 @@ void NuVldMainFrame::DefineLayoutHints(void)
   ELayoutHints khcy = kLHintsCenterY;
   ELayoutHints khex = kLHintsExpandX;
   ELayoutHints khey = kLHintsExpandY;
-  
+
   ULong_t hintMenuBarLayout       = kht  | khl  | khex;
   ULong_t hintMenuBarItemLayout   = kht  | khl;
   ULong_t hintMenuBarHelpLayout   = kht  | khr;
@@ -338,7 +338,7 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
   fMenuNeuGen->AddEntry("Load external", M_NEUGEN_LOAD_EXTERNAL);
 
   fMenuNeuGen->Connect("Activated(Int_t)",
-                                   "genie::nuvld::NuVldMainFrame",   
+                                   "genie::nuvld::NuVldMainFrame",
                                                  this,"HandleMenu(Int_t)");
 
   // de-activate NeuGEN if user does not have the NeuGEN libraries
@@ -510,7 +510,7 @@ TGTab * NuVldMainFrame::BuildSqlTab(void)
   //-- tab: SQL GUI widgets for v scattering data
 
   tf = tab->AddTab( "vN" );
-        
+
   fTabNuSql = fNuXSecTab->Create(tf, width, height);
   tf -> AddFrame( fTabNuSql, fNuSqlTabLt );
 
@@ -524,7 +524,7 @@ TGTab * NuVldMainFrame::BuildSqlTab(void)
   //-- tab: SQL GUI widgets for e scattering data
 
   tf = tab->AddTab( "S/F" );
-  
+
   fTabSFSql = fSFTab->Create(tf, width, height);
   tf -> AddFrame( fTabSFSql, fSFSqlTabLt );
 
@@ -620,7 +620,7 @@ void NuVldMainFrame::FillFitterFrame(void)
 
   fFitterCBx = new TGComboBox(fFitterGrpFrm, 112);
 
-  gui_utils::FillComboBox( fFitterCBx, kFitters );
+  utils::gui::FillComboBox( fFitterCBx, kFitters );
 
   fFitterCBx->Resize (160,20);
 
@@ -629,7 +629,7 @@ void NuVldMainFrame::FillFitterFrame(void)
 
   fSelectNeuGenFitParams->Connect("Clicked()",
               "genie::nuvld::NuVldMainFrame", this, "SelectNeuGenFitParams()");
-  
+
   // add option to set a range for the free parameters (E, W, Q^2...)
 
   fFitFreeParamGrpFrm = new TGGroupFrame(
@@ -674,7 +674,7 @@ void NuVldMainFrame::FillFitterFrame(void)
                                                        this,"Run2dScanner()");
   fResetFitBtn -> Connect("Clicked()", "genie::nuvld::NuVldMainFrame",
                                                      this,"ResetFitterTab()");
-                                                    
+
   // text results TGTextEdit
 
   unsigned int width  = 330;
@@ -817,7 +817,7 @@ TGHorizontalFrame * NuVldMainFrame::BuildLowerButtonFrame(void)
   string sfPrintDataBtn = "Query dbase & print data in text format";
   string sfNeugenRunBtn = "Run NeuGEN with selected inputs & draw its prediction";
   string sfSaveBtn      = "Save graph";
-  
+
   fSelResetBtn  -> SetToolTipText( sfSelResetBtn.c_str(),  1 );
   fViewClearBtn -> SetToolTipText( sfViewClearBtn.c_str(), 1 );
   fDrawDataBtn  -> SetToolTipText( sfDrawDataBtn.c_str(),  1 );
@@ -826,7 +826,7 @@ TGHorizontalFrame * NuVldMainFrame::BuildLowerButtonFrame(void)
   fSaveBtn      -> SetToolTipText( sfSaveBtn.c_str(),      1 );
 
   string tc = "genie::nuvld::NuVldMainFrame"; // this class
-  
+
   fSelResetBtn  -> Connect("Clicked()",tc.c_str(),this,"ResetSqlSelections()" );
   fViewClearBtn -> Connect("Clicked()",tc.c_str(),this,"ClearViewer()"        );
   fDrawDataBtn  -> Connect("Clicked()",tc.c_str(),this,"DrawDBTable()"        );
@@ -878,7 +878,7 @@ TGStatusBar * NuVldMainFrame::BuildStatusBar(void)
 //______________________________________________________________________________
 const char * NuVldMainFrame::Icon(const char * name)
 {
-//! Returns the full path-name for the requested picture 
+//! Returns the full path-name for the requested picture
 
   ostringstream pic;
   pic  << gSystem->Getenv("GENIE") << "/data/icons/" << name << ".xpm";
@@ -889,7 +889,7 @@ const char * NuVldMainFrame::Icon(const char * name)
 const TGPicture * NuVldMainFrame::Pic(const char * name, int x, int y)
 {
 //! Returns the requested picture at the requested size
-  
+
   return gClient->GetPicture( this->Icon(name), x,y );
 }
 //______________________________________________________________________________
@@ -903,10 +903,10 @@ void NuVldMainFrame::Init(void)
 {
   fDBC  = new DBConnection();
   fNGFP = new NeuGenFitParams();
-  
+
   fLtxAuth = new TLatex(0.01,0.96, kMajorLabel);
   fLtxLink = new TLatex(0.01,0.92, kMinorLabel);
-  
+
   fLtxLink -> SetNDC(); // use Normalized Device Coordinates (NDC)
   fLtxLink -> SetTextSize  (0.03);
   fLtxLink -> SetTextColor (9);
@@ -1152,7 +1152,7 @@ void NuVldMainFrame::HandleSaveSpline(void)
        fMain, 380, 250, kVerticalFrame, "There is model prediction to export!");
     return;
   }
-  
+
   static TString dir(".");
 
   TGFileInfo fi;
@@ -1170,7 +1170,7 @@ void NuVldMainFrame::HandleSaveSpline(void)
      fLog       -> AddLine( cmd.str().c_str()    );
      fStatusBar -> SetText( cmd.str().c_str(), 0 );
 
-     if (filename.find(".xml") != string::npos) {     
+     if (filename.find(".xml") != string::npos) {
         string splname;
         new TextEntryDialog(gClient->GetRoot(), fMain, 1, 1,
                        kHorizontalFrame, "Type in the spline name", splname);
@@ -1178,20 +1178,20 @@ void NuVldMainFrame::HandleSaveSpline(void)
 
         cmd << " with name = " << splname;
         fStatusBar -> SetText( cmd.str().c_str(), 0 );
-        
+
         fSpline->SaveAsXml(filename,"x","y",splname);
      }
-     
+
      else if (filename.find(".txt") != string::npos) {
         fSpline->SaveAsText(filename);
      }
-     
+
      else if (filename.find(".root") != string::npos) {
 
         string splname;
         new TextEntryDialog(gClient->GetRoot(), fMain, 1, 1,
                           kHorizontalFrame, "Type a spline name", splname);
-                
+
         cmd << " with name = " << splname;
         fStatusBar -> SetText( cmd.str().c_str(), 0 );
 
@@ -1200,7 +1200,7 @@ void NuVldMainFrame::HandleSaveSpline(void)
      else {
         new MsgBox(gClient->GetRoot(),
                         fMain, 380, 250, kVerticalFrame, "Unknown file format");
-        return;       
+        return;
      }
   }
 }
@@ -1221,7 +1221,7 @@ void NuVldMainFrame::ResetFitterTab(void)
   fFitterCBx->Select(0);
 
   fFitTxtResults -> Clear();
-  
+
   fFitTabFuncEmbCnv  -> GetCanvas() -> Clear();
   fFitTabChisqEmbCnv -> GetCanvas() -> Clear();
 }
@@ -1293,10 +1293,10 @@ void NuVldMainFrame::RunNeuGen(void)
     LOG("NuVld", pDEBUG) << "Starting NeuGEN with configuration : ";
     LOG("NuVld", pDEBUG) << *(cards->CurrConfig());
 
-    // figure out the type of plot    
+    // figure out the type of plot
     NGPlotType_t plot_type = cards->CurrInputs()->PlotType();
-    
-    // cross section plot           
+
+    // cross section plot
     if(plot_type == e_XSec) {
       int           nbins = cards->CurrInputs()->NBins();
       float         emin  = cards->CurrInputs()->EnergyMin();
@@ -1321,7 +1321,7 @@ void NuVldMainFrame::RunNeuGen(void)
     }
 
     // structure function plot
-    if(plot_type == e_SF) {      
+    if(plot_type == e_SF) {
 
       int           raw_dis_code = cards->CurrInputs()->SFRawDisCode();
       int           nbins        = cards->CurrInputs()->NBins();
@@ -1336,7 +1336,7 @@ void NuVldMainFrame::RunNeuGen(void)
       NGCcNc_t      ccnc         = intr.GetCCNC();
 
       LOG("NuVld", pINFO) << "raw dis code = " << raw_dis_code ;
-      
+
       //NeuGenWrapper neugen( cards->CurrConfig() ); why does this messes with SF's?!!
       NeuGenWrapper neugen;
 
@@ -1345,9 +1345,9 @@ void NuVldMainFrame::RunNeuGen(void)
 
       LOG("NuVld", pDEBUG) << "Drawing structure function vs Q2 or x";
 
-      if(fSpline) this->DrawSpline (fSpline, fPlotTabEmbCnv);      
+      if(fSpline) this->DrawSpline (fSpline, fPlotTabEmbCnv);
     }
-     
+
   } else {
       new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
                                         "Your NeuGEN cards must be messed up!");
@@ -1380,9 +1380,9 @@ void NuVldMainFrame::LoadExtXSecPrediction(void)
      fStatusBar -> SetText( cmd.str().c_str(), 0 );
      fStatusBar -> SetText( "XSec Data File Opened",   1 );
 
-     if(fSpline) delete fSpline;     
+     if(fSpline) delete fSpline;
      fSpline = new Spline(xsec_data_file);
-     
+
      LOG("NuVld", pDEBUG) << "Drawing xsec vs energy ";
 
      this->DrawSpline (fSpline, fPlotTabEmbCnv, false);
@@ -1395,7 +1395,7 @@ void NuVldMainFrame::DrawSpline(
   bool scale_E = this->ScaleWithEnergy();
 
   LOG("NuVld", pDEBUG) << "Getting xsec = f (E)";
-  
+
   TGraph * graph = xs->GetAsTGraph(1000, scale_E);
 
   graph->SetLineWidth(2);
@@ -1403,7 +1403,7 @@ void NuVldMainFrame::DrawSpline(
   graph->SetLineColor(1);
 
   LOG("NuVld", pDEBUG) << "Checking whether a frame is already drawn";
-  
+
   if( !fPlotterShowIsOn ) {
       LOG("NuVld", pDEBUG) << "No frame found - Drawing the x,y axes";
 
@@ -1411,8 +1411,8 @@ void NuVldMainFrame::DrawSpline(
 
       GraphUtils::range(graph, xmin, xmax, ymin, ymax);
 
-      LOG("NuVld", pDEBUG) 
-                  << " x = [" << xmin << ", " << xmax << "]," 
+      LOG("NuVld", pDEBUG)
+                  << " x = [" << xmin << ", " << xmax << "],"
                   << " y = [" << ymin << ", " << ymax << "] ";
 
       ecanvas->GetCanvas()->cd();
@@ -1431,7 +1431,7 @@ void NuVldMainFrame::DrawSpline(
       ecanvas->GetCanvas()->GetPad(1)->cd();
 
       ecanvas->GetCanvas()->GetPad(1)->SetBorderMode(0);
-      
+
       TH1F * hframe = ecanvas->GetCanvas()->DrawFrame(xmin, TMath::Max(0.,ymin), xmax, 1.2*ymax);
 
       if(show_titles) {
@@ -1446,9 +1446,9 @@ void NuVldMainFrame::DrawSpline(
 
       fLtxAuth->Draw();
       fLtxLink->Draw();
-      
+
       fPlotterShowIsOn = true;
-      
+
       if( xmin > 0 && xmax/xmin > 10. ) ecanvas->GetCanvas()->GetPad(1)->SetLogx();
       if( ymin > 0 && ymax/ymin > 10. ) ecanvas->GetCanvas()->GetPad(1)->SetLogy();
       if( xmin == 0 && xmax > 40.     ) ecanvas->GetCanvas()->GetPad(1)->SetLogx();
@@ -1459,36 +1459,36 @@ void NuVldMainFrame::DrawSpline(
   } else {
 
       LOG("NuVld", pDEBUG) << "Found mplots_pad TPad in TRootEmbeddedCanvas";
-  
+
       ecanvas->GetCanvas()->GetPad(1)->cd();
 
       graph->Draw("LP");
       ecanvas->GetCanvas()->GetPad(1)->Update();
-/*  
+/*
       LOG("NuVld", pDEBUG) << "Asking gROOT to finding mplots_pad TPad";
-  
+
       TPad * pad = (TPad *) gROOT->FindObject("mplots_pad");
 
       if(pad) {
-        
+
         LOG("NuVld", pDEBUG)
                   << "Plotting NeuGEN xsecs & updating embedded canvas";
 
         pad->cd();
         graph->Draw("LP");
         pad->Update();
-        
+
       } else {
         LOG("NuVld", pERROR) << "gROOT returned a NULL mplots_pad TPad";
 
         ecanvas->GetCanvas()->GetPad(1)->cd();
-        
+
         graph->Draw("LP");
         ecanvas->GetCanvas()->GetPad(1)->Update();
       }
-*/      
+*/
   }
-  ecanvas->GetCanvas()->Update();    
+  ecanvas->GetCanvas()->Update();
 }
 //______________________________________________________________________________
 bool NuVldMainFrame::CheckNeugenCards(void)
@@ -1498,7 +1498,7 @@ bool NuVldMainFrame::CheckNeugenCards(void)
   NeuGenCards * cards = NeuGenCards::Instance();
 
   bool valid = false;
-  
+
   int           nbins        = cards->CurrInputs()->NBins();
   int           A            = cards->CurrInputs()->A();
   float         Emin         = cards->CurrInputs()->EnergyMin();
@@ -1513,7 +1513,7 @@ bool NuVldMainFrame::CheckNeugenCards(void)
 
   // cross section plot
   if(plot_type == e_XSec) {
-    valid = (nbins>2) && (Emin<Emax);        
+    valid = (nbins>2) && (Emin<Emax);
   }
   // structure function plot
   if(plot_type == e_SF) {
@@ -1536,7 +1536,7 @@ DBTable<eDiffXSecTableRow> * NuVldMainFrame::FillElDiffXSecTable(void)
   string selections = fElXSecTab->BundleSelectionsInString();
 
   DBQueryString query_string(selections);
-  
+
   // create a DBTable loader
 
   fProgressBar->SetPosition(20);
@@ -1597,9 +1597,9 @@ DBTable<vXSecTableRow> * NuVldMainFrame::FillNuXSecTable(void)
     table = new DBTable<vXSecTableRow>;
 
     DBI dbi( fDBC->SqlServer() );
-    
+
     dbi.FillTable(table, query_string);
-    
+
     fProgressBar->SetPosition(80);
 
   } else {
@@ -1672,7 +1672,7 @@ DBTable<SFTableRow> * NuVldMainFrame::FillSFTable(void)
 void NuVldMainFrame::RetrieveStackedDBTable(void)
 {
   LOG("NuVld", pDEBUG) << "Retrieving stacked DBTable<T>";
-  
+
   NuVldUserData * user_data = NuVldUserData::Instance();
 
   if(fTableStackCBx->GetSelectedEntry()) {
@@ -1686,7 +1686,7 @@ void NuVldMainFrame::RetrieveStackedDBTable(void)
        string name = fStackHandler->StackedDBTableName(id);
 
        LOG("NuVld", pDEBUG) << "Stacked table name: " << name;
-       
+
        // 'status bar' & 'session log' entries
 
        fStatusBar -> SetText( "Selected stacked data-set:", 0);
@@ -1704,7 +1704,7 @@ void NuVldMainFrame::RetrieveStackedDBTable(void)
            new MsgBox(gClient->GetRoot(), fMain, 380, 250,
                   kVerticalFrame, " Error! Stacked DBTable was not retrieved. ");
        else {
-         
+
          DBTableType_t dbtype = user_data->CurrDBTableType();
 
          LOG("NuVld", pERROR) << "Table type: " << DBTableType::AsString(dbtype);
@@ -1713,9 +1713,9 @@ void NuVldMainFrame::RetrieveStackedDBTable(void)
          else if (dbtype == eDbt_ElDiffXSec) fTabSql->SetTab(1);
          else {
            LOG("NuVld", pERROR) << "Unknown current DBTable<T> type";
-         }  
+         }
        }
-         
+
     }// entry-id
 
   } else
@@ -1756,7 +1756,7 @@ void NuVldMainFrame::PrintDBTable(void)
    this->SetCurrDBTable();
 
    NuVldUserData * user_data = NuVldUserData::Instance();
-   
+
    if( !user_data->CurrDBTableIsNull() ) this->PrintCurrentDBTable();
 }
 //______________________________________________________________________________
@@ -1778,9 +1778,9 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
          renderer.SetMultigraph( fShowColorCodeChkB->GetState() == kButtonDown );
          renderer.SetErrorOption(fNuXSecTab->ReadXSecSelectionListbox());
 
-         if(fShowExtLegendChkB->GetState() == kButtonDown) 
+         if(fShowExtLegendChkB->GetState() == kButtonDown)
                                        renderer.SetExternalLegend(new TLegend());
-                           
+
          renderer.DrawXSecTable( user_data->NuXSec() );
          renderer.PrintDrawingOptions();
 
@@ -1788,7 +1788,7 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
          fLtxLink->Draw();
 
          fPlotterShowIsOn = true;
-         
+
       } else {
 
         fStatusBar -> SetText( "pointer to DBTable<T> is null", 1 );
@@ -1811,8 +1811,8 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
          renderer.SetMultigraph( fShowColorCodeChkB->GetState() == kButtonDown );
 //         renderer.SetDrawOption(this->ReadXSecSelectionListbox()); // UPDATE
          renderer.SetPlotVariable(this->PlotVariable());
-         
-         if(fShowExtLegendChkB->GetState() == kButtonDown) 
+
+         if(fShowExtLegendChkB->GetState() == kButtonDown)
                                        renderer.SetExternalLegend(new TLegend());
 
          renderer.DrawXSecTable( user_data->ElDiffXSec() );
@@ -1862,7 +1862,7 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
         new MsgBox(gClient->GetRoot(), fMain,
              380, 250, kVerticalFrame, " The table you want to draw is empty ");
       }
-   } 
+   }
 
   fPlotTabEmbCnv->GetCanvas()->Update();
 }
@@ -1873,15 +1873,15 @@ void NuVldMainFrame::PrintCurrentDBTable(void)
 
   GuiTablePrinter printer;
   printer.ScaleXSecWithEnergy( this->ScaleWithEnergy() );
-  
+
   if( ! user_data->CurrDBTableIsNull() ) {
-    
+
      /* neutrino scattering data */
-     if (fTabSql->GetCurrent() == 0)    
-                          printer.PrintTable( user_data->NuXSec() );                          
+     if (fTabSql->GetCurrent() == 0)
+                          printer.PrintTable( user_data->NuXSec() );
      /* electron scattering data */
      else if (fTabSql->GetCurrent() == 1)
-                      printer.PrintTable( user_data->ElDiffXSec() );     
+                      printer.PrintTable( user_data->ElDiffXSec() );
      /* S/F data */
      else if (fTabSql->GetCurrent() == 2)
                               printer.PrintTable( user_data->SF() );
@@ -1960,7 +1960,7 @@ void NuVldMainFrame::RunFitter(void)
 void NuVldMainFrame::RunMcScanner(void)
 {
   LOG("NuVld", pDEBUG) << "Running 2-D scanner";
-    
+
   // create a fit-kernel ans set GUI fit options
 
   fFitKernel->Reset();
@@ -1980,13 +1980,13 @@ void NuVldMainFrame::RunMcScanner(void)
 
     this->PlotXSecBoundaries( fPlotTabEmbCnv->GetCanvas(), false );
 
-    fPlotTabEmbCnv->GetCanvas()->GetPad(1)->Update();  
+    fPlotTabEmbCnv->GetCanvas()->GetPad(1)->Update();
     fPlotTabEmbCnv->GetCanvas()->Update();
 
     this->OpenPlotterTab();
-    
+
   } else new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
-             " You have not configured the multi-D MC param scanner properly "); 
+             " You have not configured the multi-D MC param scanner properly ");
 }
 //______________________________________________________________________________
 void NuVldMainFrame::Run2dScanner(void)
@@ -2046,7 +2046,7 @@ void NuVldMainFrame::Run1dScanner(void)
 
   fFitTabChisqEmbCnv->GetCanvas()->cd();
   fFitTabChisqEmbCnv->GetCanvas()->Clear();
-    
+
   fFitKernel->ChisqScan1D();
 /*
   double xmin = fFitKernel->chisq1d->GetX()[TMath::LocMin(fFitKernel->chisq1d->GetN(), fFitKernel->chisq1d->GetX())];
@@ -2062,7 +2062,7 @@ void NuVldMainFrame::Run1dScanner(void)
 
   fLtxAuth->Draw();
   fLtxLink->Draw();
-  
+
   fFitTabChisqEmbCnv->GetCanvas()->Update();
 }
 //______________________________________________________________________________
@@ -2072,15 +2072,15 @@ void NuVldMainFrame::PlotXSecBoundaries(TCanvas * c, bool clear)
   fFitKernel->highb->SetLineWidth(2);
   fFitKernel->lowb->SetLineStyle(2);
   fFitKernel->highb->SetLineStyle(2);
-  
+
   bool new_pad = false;
-  
+
   if(! c->GetPad(1) || clear) {
-    
+
     LOG("NuVld", pWARN) << "NULL pad";
 
     new_pad = true;
-    
+
     c->Clear();
     c->Divide(2,1);
 
@@ -2093,13 +2093,13 @@ void NuVldMainFrame::PlotXSecBoundaries(TCanvas * c, bool clear)
     c->GetPad(2)->SetBorderMode(0);
   }
   c->GetPad(1)->cd();
-  
+
   if( new_pad ) {
 
       LOG("NuVld", pDEBUG) << "No frame found - Drawing the x,y axes";
 
       gStyle->SetOptTitle(0);
-      
+
       double xmin = fFitKernel->lowb->GetX()[TMath::LocMin(fFitKernel->lowb->GetN(), fFitKernel->lowb->GetX())];
       double xmax = fFitKernel->highb->GetX()[TMath::LocMax(fFitKernel->highb->GetN(), fFitKernel->highb->GetX())];
       double ymin = fFitKernel->lowb->GetY()[TMath::LocMin(fFitKernel->lowb->GetN(), fFitKernel->lowb->GetY())];
@@ -2108,10 +2108,10 @@ void NuVldMainFrame::PlotXSecBoundaries(TCanvas * c, bool clear)
       TH1F * hframe = c->GetPad(1)->DrawFrame(xmin,TMath::Max(0.,ymin),xmax,ymax);
 
       hframe->Draw();
-      
+
       fFitKernel->lowb->Draw("LP");
       fFitKernel->highb->Draw("LP");
-      
+
       if( xmin > 0 && xmax/xmin > 10. ) c->GetPad(1)->SetLogx();
       if( ymin > 0 && ymax/ymin > 10. ) c->GetPad(1)->SetLogy();
       if( xmin == 0 && xmax > 40. ) c->GetPad(1)->SetLogx();
@@ -2121,12 +2121,12 @@ void NuVldMainFrame::PlotXSecBoundaries(TCanvas * c, bool clear)
       fLtxLink->Draw();
 
       c->GetPad(1)->Update();
-            
+
   } else {
-    
+
       fFitKernel->lowb->Draw("LP");
       fFitKernel->highb->Draw("LP");
-  }              
+  }
 }
 //______________________________________________________________________________
 void NuVldMainFrame::RunPostFitProcessor(void)
@@ -2151,7 +2151,7 @@ void NuVldMainFrame::RunPostFitProcessor(void)
   TF1 * func = fFitKernel -> FitFunction();
 
   if (func) {
-    
+
     func->Draw("same");
 
     fPlotTabEmbCnv->GetCanvas()->cd(1)->Update();
@@ -2161,7 +2161,7 @@ void NuVldMainFrame::RunPostFitProcessor(void)
             << "Drawing fitted DBTable<T> & fit function in fFitTabFuncEmbCnv";
 
     fFitTabFuncEmbCnv->GetCanvas()->cd();
-  
+
     GuiTableRenderer renderer(fFitTabFuncEmbCnv);
 
     renderer.SetScaleWithEnergy( this->ScaleWithEnergy() );
@@ -2172,14 +2172,14 @@ void NuVldMainFrame::RunPostFitProcessor(void)
     renderer.PrintDrawingOptions();
 
     fFitTabFuncEmbCnv->GetCanvas()->cd(1);
-    
+
     func->Draw("same");
 
     fLtxAuth->Draw();
 
     fFitTabFuncEmbCnv->GetCanvas()->GetPad(1)->Update();
     fFitTabFuncEmbCnv->GetCanvas()->Update();
-      
+
   } else {
     LOG("NuVld", pERROR) << "Fit function is NULL";
   }
@@ -2197,10 +2197,10 @@ void NuVldMainFrame::PrintFitParameters(void)
   if (func) {
 
     fFitTxtResults->AddLine("-----------------------------------------------");
-  
+
     for(int i = 0; i < kNNGFitParams; i++) {
        if( fNGFP->IsFitted(i) ) {
-         
+
           ostringstream fitparam;
 
           fitparam << fNGFP->ParamAsString(i) << " = "
@@ -2215,22 +2215,22 @@ void NuVldMainFrame::PrintFitParameters(void)
 
     if(func->GetNDF() > 0) {
        float chisq_ndf = func->GetChisquare() / func->GetNDF();
-       fFitTxtResults->AddLine(Concat("* x^2/ndf = ", chisq_ndf));   
-    }  
-    
+       fFitTxtResults->AddLine(Concat("* x^2/ndf = ", chisq_ndf));
+    }
+
     fFitTxtResults->AddLine(Concat("* Prob    = ", func->GetProb()));
 
     fFitTxtResults->AddLine("-----------------------------------------------");
 
   } else {
     LOG("NuVld", pERROR) << "Fit function is NULL";
-  }    
+  }
 }
 //______________________________________________________________________________
 void NuVldMainFrame::DrawResiduals(void)
 {
   // get residuals as graph
-  
+
   LOG("NuVld", pDEBUG) << "Getting residuals as graph";
 
   TGraph * gr = fFitKernel->GetResidualsAsGraph();
@@ -2268,6 +2268,6 @@ void NuVldMainFrame::DrawResiduals(void)
     fFitTabChisqEmbCnv->GetCanvas()->Update();
 
     delete gr;
-  }  
+  }
 }
 //______________________________________________________________________________
