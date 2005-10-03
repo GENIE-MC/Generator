@@ -137,14 +137,14 @@ int GFlukaAtmo3DFlux::PdgCode(void)
 const TLorentzVector & GFlukaAtmo3DFlux::Momentum(void)
 {
   LOG("Flux", pINFO)
-         << "Generated neutrino p4: " << print_utils::P4AsShortString(&fgP4);
+        << "Generated neutrino p4: " << utils::print::P4AsShortString(&fgP4);
   return fgP4;
 }
 //___________________________________________________________________________
 const TLorentzVector & GFlukaAtmo3DFlux::Position(void)
 {
   LOG("Flux", pINFO)
-             << "Generated neutrino x4: " << print_utils::X4AsString(&fgX4);
+             << "Generated neutrino x4: " << utils::print::X4AsString(&fgX4);
   return fgX4;
 }
 //___________________________________________________________________________

@@ -36,7 +36,7 @@ using genie::RandomGen;
 using genie::Spline;
 using namespace genie::nuvld;
 using namespace genie::nuvld::facades;
-using namespace genie::string_utils;
+using namespace genie::utils::str;
 
 //______________________________________________________________________________
 GuiFitKernel::GuiFitKernel()

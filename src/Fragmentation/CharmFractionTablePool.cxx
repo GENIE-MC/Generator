@@ -113,7 +113,7 @@ XmlParserStatus_t CharmFractionTablePool::ParseXMLTables(string filename)
                            "charm_fraction_table") ) return kXmlInvalidRoot;
 
   // parsing single charm fractions table
-  string name = string_utils::TrimSpaces(
+  string name = utils::str::TrimSpaces(
                              XmlParserUtils::GetAttribute(xml_cur, "name"));
 
   LOG("CFracTab", pDEBUG) << "Reading charm fraction table: " << name;
@@ -126,9 +126,9 @@ XmlParserStatus_t CharmFractionTablePool::ParseXMLTables(string filename)
      // enter everytime you find an <energy_bin> tag
      if( (!xmlStrcmp(xml_cur_ebin->name, (const xmlChar *) "energy_bin")) ) {
 
-        string semin = string_utils::TrimSpaces(
+        string semin = utils::str::TrimSpaces(
                                XmlParserUtils::GetAttribute(xml_cur, "min"));
-        string semax = string_utils::TrimSpaces(
+        string semax = utils::str::TrimSpaces(
                                XmlParserUtils::GetAttribute(xml_cur, "max"));
 
         double emin  = atof( semin.c_str() );
@@ -141,7 +141,7 @@ XmlParserStatus_t CharmFractionTablePool::ParseXMLTables(string filename)
              string val = XmlParserUtils::TrimSpaces(
                              xmlNodeListGetString(xml_doc, xml_cur_frac, 1));
 
-             string pdg = string_utils::TrimSpaces(
+             string pdg = utils::str::TrimSpaces(
                            XmlParserUtils::GetAttribute(xml_cur, "pdg_code"));
 
              assert( !xmlStrcmp(xml_cur_frac->name,

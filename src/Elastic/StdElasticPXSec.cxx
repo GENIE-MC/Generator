@@ -27,7 +27,7 @@
 #include "Elastic/StdElasticPXSec.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -61,17 +61,17 @@ double StdElasticPXSec::XSec(const Interaction * interaction) const
   TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
 
   double E  = nu_p4->Energy();
-  
+
   delete nu_p4;
 
   double Q2  = interaction->GetScatteringParams().Q2();
 
-  Range1D_t rQ2 = kine_limits::Q2Range_M(interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_M(interaction);
 
   if ( Q2 < rQ2.min || Q2 > rQ2.max ) return 0;
 
   //-- compute cross section
-  
+
   double M   = init_state.GetTarget().StruckNucleonMass();
   double M2  = M*M;
   double M4  = M2*M2;
@@ -90,14 +90,14 @@ double StdElasticPXSec::XSec(const Interaction * interaction) const
   double ga2  = ga*ga;
   double f12  = f1*f1;
   double f22  = f2*f2;
-  
+
   double A = qm2 * ( ga2 * (1 + 0.25*qm2)                    +
                      (0.25 * f22*qm2 - f12) * (1 - 0.25*qm2) +
                      f1*f2*qm2
-                   );  
+                   );
   double B = qm2 * ga * (f1+f2);
   double C = 0.25 * (ga2 + f12 + 0.25*f22*qm2);
-  
+
   int sign = 1;
   if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
 
@@ -116,9 +116,9 @@ double StdElasticPXSec::GA(const Interaction * interaction) const
   double Q2  = interaction->GetScatteringParams().Q2();
   double M   = interaction->GetInitialState().GetTarget().StruckNucleonMass();
   double M2  = M*M;
-  
+
   double qm2 = Q2 / M2;
-  
+
   double Ga  = 0.5 * kElGa0 / TMath::Power(1+qm2,2);
 
   return Ga;
@@ -137,7 +137,7 @@ double StdElasticPXSec::F1(const Interaction * interaction) const
 
   double Gv3   = 0.5 * (1+kMuP-kMuN) / d;
   double Gv0   = 1.5 * (1+kMuP+kMuN) / d;
-  
+
   double f2 = this->F2(interaction);
 
   double f1 = this->Alpha() * Gv3 + this->Gamma() * Gv0 - f2;
@@ -152,7 +152,7 @@ double StdElasticPXSec::F2(const Interaction * interaction) const
   double Q2  = interaction->GetScatteringParams().Q2();
   double M   = interaction->GetInitialState().GetTarget().StruckNucleonMass();
   double M2  = M*M;
-  
+
   double qm2 = Q2 / M2;
   double d   = (1. + 0.25*qm2) * TMath::Power( 1.+qm2, 2.);
 
@@ -167,7 +167,7 @@ double StdElasticPXSec::F2(const Interaction * interaction) const
 double StdElasticPXSec::Alpha(void) const
 {
   return (1.-2.*kSin8w_2);
-}  
+}
 //____________________________________________________________________________
 double StdElasticPXSec::Gamma(void) const
 {

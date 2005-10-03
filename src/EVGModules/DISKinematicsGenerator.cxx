@@ -27,7 +27,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "Utils/MathUtils.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -127,7 +127,7 @@ Range1D_t DISKinematicsGenerator::WRange(
 {
   //-- Get the physically allowed kinematical region for this interaction
 
-  Range1D_t W = kine_limits::WRange(interaction);
+  Range1D_t W = utils::kinematics::WRange(interaction);
   LOG("DISKinematics", pDEBUG)
        << "\n Physical W integration range: "
                                  << "[" << W.min << ", " << W.max << "] GeV";
@@ -138,8 +138,8 @@ Range1D_t DISKinematicsGenerator::WRange(
 
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if ( math_utils::IsWithinLimits(min, W) ) W.min = min;
-  if ( math_utils::IsWithinLimits(max, W) ) W.max = max;
+  if ( utils::math::IsWithinLimits(min, W) ) W.min = min;
+  if ( utils::math::IsWithinLimits(max, W) ) W.max = max;
 
   LOG("DISKinematics", pDEBUG)
        << "\n (Physical && User) W integration range: "
@@ -154,7 +154,7 @@ Range1D_t DISKinematicsGenerator::Q2Range(
 {
   //-- Get the physically allowed kinematical region for this interaction
 
-  Range1D_t Q2 = kine_limits::Q2Range_xy(interaction);
+  Range1D_t Q2 = utils::kinematics::Q2Range_xy(interaction);
   LOG("DISKinematics", pDEBUG)
        << "\n Physical Q2 integration range: "
                             << "[" << Q2.min << ", " << Q2.max << "] GeV^2";
@@ -165,8 +165,8 @@ Range1D_t DISKinematicsGenerator::Q2Range(
 
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if ( math_utils::IsWithinLimits(min, Q2) ) Q2.min = min;
-  if ( math_utils::IsWithinLimits(max, Q2) ) Q2.max = max;
+  if ( utils::math::IsWithinLimits(min, Q2) ) Q2.min = min;
+  if ( utils::math::IsWithinLimits(max, Q2) ) Q2.max = max;
 
   LOG("DISKinematics", pDEBUG)
        << "\n (Physical && User) Q2 integration range: "
@@ -224,7 +224,7 @@ bool DISKinematicsGenerator::ValidKinematics(
   double gy  = interaction->GetScatteringParams().y();
 
   //-- compute the corresponding generated W, Q^2
-  double gW  = TMath::Sqrt( math_utils::NonNegative(M2+2*Ev*M*gy*(1-gx)) );
+  double gW  = TMath::Sqrt( utils::math::NonNegative(M2+2*Ev*M*gy*(1-gx)) );
   double gQ2 = 2*gx*gy*M*Ev;
 
   //-- get the W, Q^2 range
@@ -240,8 +240,8 @@ bool DISKinematicsGenerator::ValidKinematics(
   LOG("DISKinematics", pDEBUG)
                       << "Q^2 range = (" << Q2.min << ", " << Q2.max << ")";
 
-  bool valid_W  = math_utils::IsWithinLimits( gW, W  );
-  bool valid_Q2 = math_utils::IsWithinLimits( gQ2,Q2 );
+  bool valid_W  = utils::math::IsWithinLimits( gW, W  );
+  bool valid_Q2 = utils::math::IsWithinLimits( gQ2,Q2 );
 
   if(valid_W && valid_Q2) return true;
   else return false;

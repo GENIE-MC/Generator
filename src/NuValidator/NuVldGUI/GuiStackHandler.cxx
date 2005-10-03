@@ -59,7 +59,7 @@ void GuiStackHandler::SaveStack(void)
   NuVldUserData * user_data = NuVldUserData::Instance();
 
   static TString dir(".");
-  
+
   const char * kFileExt[] = { "All files", "*", "ROOT files", "*.root", 0, 0 };
 
   TGFileInfo fi;
@@ -150,7 +150,7 @@ void GuiStackHandler::LoadStack(void)
 
      // update the combo box with all the stacked data items
 
-     this -> UpdateStackedDBTableCombo (); 
+     this -> UpdateStackedDBTableCombo ();
      this -> UpdateStackedConfigCombo  ();
 
      // fancy fake effect...
@@ -165,15 +165,15 @@ void GuiStackHandler::LoadStack(void)
 void GuiStackHandler::StackDBTable(void)
 {
   LOG("NuVld", pDEBUG) << "Attempting to stack a DBTable<T>";
-  
+
   NuVldUserData * user_data = NuVldUserData::Instance();
 
   // get the contents of the TGTextEntry
-  
-  string name = fDBTableTxtEntry->GetBuffer()->GetString(); 
+
+  string name = fDBTableTxtEntry->GetBuffer()->GetString();
 
   LOG("NuVld", pDEBUG) << "Name given by the user to the DBTable<T>: " << name;
-  
+
   // check whether the given name or current DBTable<T> is null
 
   if( user_data->CurrDBTableIsNull() )
@@ -243,7 +243,7 @@ void GuiStackHandler::StackConfig(void)
      fConfigTxtEntry->SetCursorPosition(0);
 
      gClient->NeedRedraw(fConfigTxtEntry); // force re-fresh
-     
+
     } else
        new MsgBox(gClient->GetRoot(), fMain, 380, 250, kVerticalFrame,
                                                "You must enter a name first!");
@@ -274,7 +274,7 @@ void GuiStackHandler::EraseStackedDBTable(void)
        this->UpdateStackedDBTableCombo();
 
     }//entry-id
-    
+
   }//selected-entry
 }
 //______________________________________________________________________________
@@ -315,11 +315,11 @@ void GuiStackHandler::LoadDBTables(string root_file, bool keep_current)
   }
 
   bool is_connected = (fDBC->SqlServer() != 0 && fDBC->SqlServer()->IsConnected());
-    
+
   if( is_connected ) {
 
     LOG("NuVld", pDEBUG) << "Found an active DB connection";
-  
+
     DBI dbi( fDBC->SqlServer() );
 
     TFile f(root_file.c_str(),"READ");
@@ -340,7 +340,7 @@ void GuiStackHandler::LoadDBTables(string root_file, bool keep_current)
 
            DBQueryString * query_string =
                           (DBQueryString *) v_xsec_dir->Get(key->GetName());
-       
+
            dbi.FillTable(table, *query_string);
 
            user_data->NuXSecStack()->AddDBTable( key->GetName(), table);
@@ -369,7 +369,7 @@ void GuiStackHandler::LoadDBTables(string root_file, bool keep_current)
            user_data->ElDiffXSecStack()->AddDBTable( key->GetName(), table);
        }
     }
-        
+
     f.Close();
 
   } else {
@@ -397,7 +397,7 @@ void GuiStackHandler::LoadNeugenConfig(string root_file, bool keep_current)
   {
      LOG("NuVld", pDEBUG)
             << "Asking NuVldUserData to clear existing stacked configurations";
-            
+
      user_data->ClearStackedConfig();
   }
 
@@ -417,7 +417,7 @@ void GuiStackHandler::UpdateStackedDBTableCombo(void)
   NuVldUserData * user_data = NuVldUserData::Instance();
 
   int nentries = fStackedDBTableCombo->GetNumberOfEntries();
-  
+
   LOG("NuVld", pDEBUG) << "Removing combo-box entries: 0 --> " << nentries;
 
   fStackedDBTableCombo->RemoveEntries(0,nentries);
@@ -425,14 +425,14 @@ void GuiStackHandler::UpdateStackedDBTableCombo(void)
   const vector<string> * names = user_data->GetStackedDBTableNames();
 
   if(names) {
-    gui_utils::FillComboBox( fStackedDBTableCombo, names );
+    utils::gui::FillComboBox( fStackedDBTableCombo, names );
 
     fStackedDBTableCombo->Select(0);
     gClient->ForceRedraw();
 
     delete names;
-  }    
-}  
+  }
+}
 //______________________________________________________________________________
 void GuiStackHandler::UpdateStackedConfigCombo(void)
 {
@@ -441,7 +441,7 @@ void GuiStackHandler::UpdateStackedConfigCombo(void)
   NuVldUserData * user_data = NuVldUserData::Instance();
 
   int nentries = fStackedConfigCombo->GetNumberOfEntries();
-    
+
   LOG("NuVld", pDEBUG) << "Removing combo-box entries: 0 --> " << nentries;
 
   fStackedConfigCombo->RemoveEntries(0,nentries);
@@ -450,7 +450,7 @@ void GuiStackHandler::UpdateStackedConfigCombo(void)
                            user_data->NeuGenCardPairStack()->GetListOfNames();
 
   if(names) {
-    gui_utils::FillComboBox( fStackedConfigCombo, names );
+    utils::gui::FillComboBox( fStackedConfigCombo, names );
 
     fStackedConfigCombo->Select(0);
     gClient->ForceRedraw();
@@ -471,7 +471,7 @@ string GuiStackHandler::StackedDBTableName(unsigned int id) const
      if(id>=0 && id<names->size()) dbtname = (*names)[id];
      delete names;
   }
-  
+
   return dbtname;
 }
 //______________________________________________________________________________

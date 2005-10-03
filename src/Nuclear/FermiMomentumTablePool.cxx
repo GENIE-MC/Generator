@@ -146,7 +146,7 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
   while (xml_kft != NULL) {
     if( (!xmlStrcmp(xml_kft->name, (const xmlChar *) "kf_table")) ) {
 
-       string name = string_utils::TrimSpaces(
+       string name = utils::str::TrimSpaces(
                       XmlParserUtils::GetAttribute(xml_kft, "name"));
 
        LOG("FermiP", pDEBUG) << "Reading Fermi momenta table: " << name;
@@ -158,7 +158,7 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
        while (xml_kf != NULL) {
          if( (!xmlStrcmp(xml_kf->name, (const xmlChar *) "kf")) ) {
 
-           string spdgc = string_utils::TrimSpaces(
+           string spdgc = utils::str::TrimSpaces(
                        XmlParserUtils::GetAttribute(xml_kf, "nucleus_pdgc"));
            int    pdgc = atoi (spdgc.c_str());
 

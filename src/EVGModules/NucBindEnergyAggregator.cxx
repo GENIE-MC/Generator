@@ -96,7 +96,7 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
            double En = p->Energy() - bindE;
 
            double pmag_old = p->P4()->P();
-           double pmag_new = TMath::Sqrt(math_utils::NonNegative(En*En-M*M));
+           double pmag_new = TMath::Sqrt(utils::math::NonNegative(En*En-M*M));
 
            double scale = pmag_new / pmag_old;
 

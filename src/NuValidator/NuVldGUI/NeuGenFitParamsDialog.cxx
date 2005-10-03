@@ -20,7 +20,7 @@
 
 using std::ostringstream;
 
-using namespace genie::string_utils;
+using namespace genie::utils::str;
 using namespace genie::nuvld;
 
 ClassImp(NeuGenFitParamsDialog)

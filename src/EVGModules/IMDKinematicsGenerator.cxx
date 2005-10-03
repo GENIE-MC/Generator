@@ -22,7 +22,6 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "Utils/MathUtils.h"
-#include "Utils/KineLimits.h"
 
 using namespace genie;
 using namespace genie::constants;

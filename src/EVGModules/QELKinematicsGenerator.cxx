@@ -22,7 +22,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "Utils/MathUtils.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -111,7 +111,7 @@ Range1D_t QELKinematicsGenerator::Q2Range(
 {
   //-- Get the physically allowed kinematical region for this interaction
 
-  Range1D_t Q2 = kine_limits::Q2Range_M(interaction);
+  Range1D_t Q2 = utils::kinematics::Q2Range_M(interaction);
 
   LOG("QELKinematics", pDEBUG)
                << "Physical Q2 range = (" << Q2.min << ", " << Q2.max << ")";
@@ -122,8 +122,8 @@ Range1D_t QELKinematicsGenerator::Q2Range(
 
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if ( math_utils::IsWithinLimits(min, Q2) ) Q2.min = min;
-  if ( math_utils::IsWithinLimits(max, Q2) ) Q2.max = max;
+  if ( utils::math::IsWithinLimits(min, Q2) ) Q2.min = min;
+  if ( utils::math::IsWithinLimits(max, Q2) ) Q2.max = max;
 
   LOG("QELKinematics", pDEBUG)
       << "(Physical & User) Q2 range = (" << Q2.min << ", " << Q2.max << ")";

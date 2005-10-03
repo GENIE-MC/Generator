@@ -57,13 +57,13 @@ string BaryonResList::ResonanceName(unsigned int ires) const
   if( ires >= 0 & ires < NResonances() ) {
 
     return res_utils::AsString( (*fResVec)[ires] );
-  
+
   } else {
 
     SLOG("BaryonResList", pERROR) << "*** ires: " << ires
-                           << " outside limits: [0, " << NResonances() << "]";  
+                           << " outside limits: [0, " << NResonances() << "]";
   }
-  
+
   return "-";
 }
 //____________________________________________________________________________
@@ -90,10 +90,10 @@ int BaryonResList::ResonancePdgCode(unsigned int ires) const
 void BaryonResList::DecodeFromNameList(string input_list, string delimiter)
 {
   //-- remove all spaces in the input string coming from the XML config file
-  
-  string list = string_utils::FilterString(" ", input_list);
-    
-  vector<string> resonances = string_utils::Split(list, delimiter);
+
+  string list = utils::str::FilterString(" ", input_list);
+
+  vector<string> resonances = utils::str::Split(list, delimiter);
 
   SLOG("BaryonResList", pINFO) << list;
   SLOG("BaryonResList", pINFO) << resonances.size();
@@ -108,13 +108,13 @@ void BaryonResList::DecodeFromNameList(string input_list, string delimiter)
   for(riter = resonances.begin(); riter != resonances.end(); ++riter) {
 
     Resonance_t res = res_utils::FromString( (*riter).c_str() );
-        
+
     if( res == kNoResonance ) {
 
         SLOG("BaryonResList", pERROR) << "*** Unknown resonance: " << *riter;
-    
-    } else (*fResVec)[ires++] = res;  
-  }  
+
+    } else (*fResVec)[ires++] = res;
+  }
 }
 //____________________________________________________________________________
 void BaryonResList::Print(ostream & stream) const

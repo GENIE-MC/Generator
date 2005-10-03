@@ -54,7 +54,7 @@ Messenger * Messenger::Instance()
   if(fInstance == 0) {
 
     // the first thing that get's printed in a GENIE session is the banner
-    print_utils::PrintBanner();
+    utils::print::PrintBanner();
 
     static Messenger::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
@@ -122,7 +122,7 @@ void Messenger::Configure(void)
 
   if(gmsgconf.size()>0) {
      //-- check for multiple files delimited with a ":"
-     vector<string> conf_xmlv = string_utils::Split(gmsgconf, ":");
+     vector<string> conf_xmlv = utils::str::Split(gmsgconf, ":");
 
      //-- loop over messenger config files -- parse & set priorities
      vector<string>::const_iterator conf_iter;
@@ -177,7 +177,7 @@ bool Messenger::SetPrioritiesFromXmlFile(string filename)
      // enter everytime you find a <priority> tag
      if( (!xmlStrcmp(xml_msgp->name, (const xmlChar *) "priority")) ) {
 
-         string msgstream = string_utils::TrimSpaces(
+         string msgstream = utils::str::TrimSpaces(
                   XmlParserUtils::GetAttribute(xml_msgp, "msgstream"));
          string priority =
                 XmlParserUtils::TrimSpaces( xmlNodeListGetString(

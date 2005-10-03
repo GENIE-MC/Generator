@@ -11,7 +11,7 @@
           CCLRC, Rutherford Appleton Laboratory
 
 \created  May 05, 2004
- 
+
 */
 //____________________________________________________________________________
 
@@ -53,27 +53,27 @@ double QELPXSec::XSec(const Interaction * interaction) const
 {
   LOG("QELPXSec", pDEBUG) << *fConfig;
 
-  //----- get scattering & init-state parameters 
+  //----- get scattering & init-state parameters
 
   const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
   const InitialState &     init_state = interaction -> GetInitialState();
 
   TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
 
-  double E    = nu_p4->Energy();  
+  double E    = nu_p4->Energy();
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double Mnuc = init_state.GetTarget().StruckNucleonMass();
   double q2   = sc_params.q2();
 
   delete nu_p4;
-  
+
   //----- "phase space" cuts
 
   if (E < ml) return 0.;
-  if (math_utils::AreEqual( TMath::Abs(q2), 0.)) return 0.;
-  
+  if (utils::math::AreEqual( TMath::Abs(q2), 0.)) return 0.;
+
   //----- one of the xsec terms changes sign for antineutrinos
-  
+
   int sign = 1;
   if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
 
@@ -83,7 +83,7 @@ double QELPXSec::XSec(const Interaction * interaction) const
 
   const Algorithm * algbase = this->SubAlg(
                           "form-factors-alg-name", "form-factors-param-set");
-  const QELFormFactorsModelI * form_factors_model = 
+  const QELFormFactorsModelI * form_factors_model =
                         dynamic_cast<const QELFormFactorsModelI *> (algbase);
 
   QELFormFactors form_factors;
@@ -97,9 +97,9 @@ double QELPXSec::XSec(const Interaction * interaction) const
   double Fp    = form_factors.Fp();
 
   LOG("QELPXSec", pDEBUG) << ENDL << form_factors;
-  
+
   //-- calculate auxiliary parameters
-  
+
   double ml2     = ml    * ml;
   double ml4     = ml2   * ml2;
   double Mnuc2   = Mnuc  * Mnuc;
@@ -112,7 +112,7 @@ double QELPXSec::XSec(const Interaction * interaction) const
   double xiF2V_2 = xiF2V * xiF2V;
   double Gfactor = pow( (kGF*kCos8c)/E, 2.) / (8.*kPi);
   double ml2_q2  = ml2 - q2;
-  
+
   //----- start building all dsigmaQE / dQ2 terms
 
   double term1 = F1V_2     * (q4 - 4*Mnuc2*ml2_q2 - ml4)     / (4*Mnuc2);
@@ -124,7 +124,7 @@ double QELPXSec::XSec(const Interaction * interaction) const
   double term7 = sign * FA*(F1V+xiF2V) * q2 * s_u            / Mnuc2;
   double term8 = ( F1V_2 - xiF2V*xiF2V*q2/(4*Mnuc2) + FA_2 ) * s_u*s_u / (4*Mnuc2);
 
-  //----- compute differential cross section 
+  //----- compute differential cross section
 
   double CrossSection = Gfactor*(term1+term2+term3-term4+term5-term6+term7+term8);
 

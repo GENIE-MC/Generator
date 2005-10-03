@@ -379,8 +379,8 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
   fCurrPathLengthList->SetAllToZero();
 
   LOG("GROOTGeom", pDEBUG)
-       << "\nInput nu: 4p = " << print_utils::P4AsShortString(&p)
-       << ", 4x = " << print_utils::X4AsString(&x);
+       << "\nInput nu: 4p = " << utils::print::P4AsShortString(&p)
+       << ", 4x = " << utils::print::X4AsString(&x);
 
   TGeoVolume *current =0;
 
@@ -473,9 +473,9 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                       step=fGeometry->GetStep();
                     }
                   LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
-                        << print_utils::BoolAsYNString(fGeometry->IsEntering());
+                        << utils::print::BoolAsYNString(fGeometry->IsEntering());
                   LOG("GROOTGeom",pDEBUG) <<" IsOnBoundary = "
-                        << print_utils::BoolAsYNString(fGeometry->IsOnBoundary());
+                        << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
                   LOG("GROOTGeom",pDEBUG)
                       <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
 
@@ -496,9 +496,9 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                   step=fGeometry->GetStep();
                 }
               LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
-                   << print_utils::BoolAsYNString(fGeometry->IsEntering());
+                   << utils::print::BoolAsYNString(fGeometry->IsEntering());
               LOG("GROOTGeom",pDEBUG) <<" IsOnBoundary = "
-                   << print_utils::BoolAsYNString(fGeometry->IsOnBoundary());
+                   << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
               LOG("GROOTGeom",pDEBUG)
                    <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
 
@@ -528,8 +528,8 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   fCurrVertex->SetXYZ(0.,0.,0.);
 
   LOG("GROOTGeom", pDEBUG)
-       << "\nInput nu: 4p = " << print_utils::P4AsShortString(&p)
-       << ", 4x = " << print_utils::X4AsString(&x);
+       << "\nInput nu: 4p = " << utils::print::P4AsShortString(&p)
+       << ", 4x = " << utils::print::X4AsString(&x);
 
   if(!fGeometry)
     {

@@ -21,7 +21,7 @@
 
 \created  June 10, 2004
 
-*/ 
+*/
 //____________________________________________________________________________
 
 #include <TMath.h>
@@ -37,7 +37,7 @@
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
 #include "Utils/MathUtils.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
 
 using namespace genie;
@@ -76,7 +76,7 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
   double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double x    = sc_params.x();
   double y    = sc_params.y();
-  
+
   //----- make sure that x, y are in the physically acceptable region
 
   if(x<=0 || x>1) return 0.;
@@ -93,7 +93,7 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
   double Vcs2  = TMath::Power(Vcs, 2);
 
   //----- compute kinematic & auxiliary parameters
-  
+
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double Q2    = 2*Mnuc*E*x*y;
   double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
@@ -108,11 +108,11 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
   //----- Get the physical W and Q2 range and check whether the current W,Q2
   //      pair is allowed
 
-  Range1D_t rW  = kine_limits::WRange     (interaction);
-  Range1D_t rQ2 = kine_limits::Q2Range_xy (interaction);
+  Range1D_t rW  = utils::kinematics::WRange     (interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
 
-  bool in_range = math_utils::IsWithinLimits(Q2, rQ2)
-                                       && math_utils::IsWithinLimits(W, rW);
+  bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
+                                       && utils::math::IsWithinLimits(W, rW);
 
   if(!in_range) {
     LOG("SlowRsclCharm", pDEBUG)
@@ -123,9 +123,9 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
         << " - returning 0";
     return 0;
   }
-  
+
   //----- Calculate the PDFs
-  
+
   const Algorithm * algbase = this->SubAlg("pdf-alg-name", "pdf-param-set");
 
   const PDFModelI* pdf_model = dynamic_cast<const PDFModelI *>(algbase);
@@ -137,7 +137,7 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
 
   bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
   bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );
-  
+
   double d = 0;
 
   if(!isP && !isN) return 0;
@@ -148,7 +148,7 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
 
   d /= xi;
   s /= xi;
- 
+
   //----- Check if we compute contributions from both d and s quarks
   //      default = both contribute
 
@@ -158,7 +158,7 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
                                  fConfig->GetBool("s-contrib-switch") : true;
 
   //----- Calculate cross section
-  
+
   double Gw  = (kGF/kSqrt2) * (1 + Q2/kMw_2);
   double Gw2 = TMath::Power(Gw, 2);
   double tmp = Gw2 * 2*Q2/(y*kPi) * (y + xi*(1-y)/x);
@@ -173,7 +173,7 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
       double xsec_s = Vcs2 * s * tmp;
       xsec += xsec_s;
   }
-  
+
   LOG("SlowRsclCharm", pDEBUG)
     << "\n dxsec[DIS-Charm]/dxdy (E= " << E
                  << ", x= " << x << ", y= " << y

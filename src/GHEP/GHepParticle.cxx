@@ -215,7 +215,7 @@ bool GHepParticle::IsOnMassShell(void) const
   double Mpdg = p->Mass();
   double M4p  = (fP4) ? fP4->M() : 0.;
 
-//  return math_utils::AreEqual(Mpdg, M4p);
+//  return utils::math::AreEqual(Mpdg, M4p);
 
   return (TMath::Abs(M4p-Mpdg) < kOffShellDm);
 }

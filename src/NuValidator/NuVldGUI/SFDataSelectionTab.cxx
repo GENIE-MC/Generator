@@ -37,7 +37,7 @@
 using std::ostringstream;
 
 using namespace genie;
-using namespace genie::string_utils;
+using namespace genie::utils::str;
 using namespace genie::nuvld;
 using namespace genie::nuvld::constants;
 
@@ -46,7 +46,7 @@ ClassImp(SFDataSelectionTab)
 //______________________________________________________________________________
 SFDataSelectionTab::SFDataSelectionTab(DBConnection * db):
 DataSelectionDialog()
-{  
+{
   fDBC = db;
 }
 //______________________________________________________________________________
@@ -59,9 +59,9 @@ TGCompositeFrame * SFDataSelectionTab::Create(
                                    TGCompositeFrame * tf, int width, int height)
 {
   UInt_t kv = kVerticalFrame;
-  
+
   fTabSFSql = new TGCompositeFrame(tf, width, height, kv);
-  
+
   fErrGrpFrm       = new TGGroupFrame(fTabSFSql, "Err Type",           kv);
   fExpGrpFrm       = new TGGroupFrame(fTabSFSql, "Experiment",         kv);
   fSFGrpFrm        = new TGGroupFrame(fTabSFSql, "SF, R=sT/sL",        kv);
@@ -75,16 +75,16 @@ TGCompositeFrame * SFDataSelectionTab::Create(
   fRLBx       = new TGListBox  (fSFGrpFrm,          2);
   fProbeLBx   = new TGListBox  (fInitStateGrpFrm,   2);
   fTgtLBx     = new TGListBox  (fInitStateGrpFrm,   2);
-  fPlotVarCBx = new TGComboBox (fPlotVarGrpFrm,     2);  
+  fPlotVarCBx = new TGComboBox (fPlotVarGrpFrm,     2);
   //fSFxLBx   = new TGListBox(fKineGrpFrm, 2);
 
-  gui_utils::FillListBox  ( fErrLBx,     kSFErrType        );
-  gui_utils::FillListBox  ( fExpLBx,     kSFExperimentName );
-  gui_utils::FillListBox  ( fSFLBx,      kSFName           );
-  gui_utils::FillListBox  ( fRLBx,       kSFR              );
-  gui_utils::FillListBox  ( fProbeLBx,   kSFProbe          );
-  gui_utils::FillListBox  ( fTgtLBx,     kSFTarget         );
-  gui_utils::FillComboBox ( fPlotVarCBx, kSFPlotVar        );
+  utils::gui::FillListBox  ( fErrLBx,     kSFErrType        );
+  utils::gui::FillListBox  ( fExpLBx,     kSFExperimentName );
+  utils::gui::FillListBox  ( fSFLBx,      kSFName           );
+  utils::gui::FillListBox  ( fRLBx,       kSFR              );
+  utils::gui::FillListBox  ( fProbeLBx,   kSFProbe          );
+  utils::gui::FillListBox  ( fTgtLBx,     kSFTarget         );
+  utils::gui::FillComboBox ( fPlotVarCBx, kSFPlotVar        );
 
   fErrLBx     -> Resize (100,  60);
   fExpLBx     -> Resize (100,  60);
@@ -117,7 +117,7 @@ TGCompositeFrame * SFDataSelectionTab::Create(
   // kinematical variables: x,Q2 range
 
   TGNumberFormat::EStyle style = TGNumberFormat::kNESReal;
-  
+
   fMinQ2NmE  = new TGNumberEntry(fKineGrpFrm,   0,  12, 3, style);
   fMaxQ2NmE  = new TGNumberEntry(fKineGrpFrm, 100., 12, 3, style);
   fMinXNmE   = new TGNumberEntry(fKineGrpFrm,   0., 12, 5, style);
@@ -150,7 +150,7 @@ TGCompositeFrame * SFDataSelectionTab::Create(
   fTabSFSql -> AddFrame( fInitStateGrpFrm  );
   fTabSFSql -> AddFrame( fKineGrpFrm       );
   fTabSFSql -> AddFrame( fPlotVarGrpFrm    );
-  
+
   this->ResetSelections();
 
   return fTabSFSql;
@@ -159,8 +159,8 @@ TGCompositeFrame * SFDataSelectionTab::Create(
 void SFDataSelectionTab::SelectAllExp(void)
 {
   if(fAllExpChkB->GetState() == kButtonDown)
-                                  gui_utils::SelectAllListBoxEntries(fExpLBx);
-  else gui_utils::ResetAllListBoxSelections(fExpLBx);
+                                  utils::gui::SelectAllListBoxEntries(fExpLBx);
+  else utils::gui::ResetAllListBoxSelections(fExpLBx);
 
   fExpLBx->SelectionChanged();
 
@@ -170,8 +170,8 @@ void SFDataSelectionTab::SelectAllExp(void)
 void SFDataSelectionTab::SelectAllProbes(void)
 {
   if(fAllProbesChkB->GetState() == kButtonDown)
-                                 gui_utils::SelectAllListBoxEntries(fProbeLBx);
-  else gui_utils::ResetAllListBoxSelections(fProbeLBx);
+                                 utils::gui::SelectAllListBoxEntries(fProbeLBx);
+  else utils::gui::ResetAllListBoxSelections(fProbeLBx);
 
   fProbeLBx->SelectionChanged();
 
@@ -181,8 +181,8 @@ void SFDataSelectionTab::SelectAllProbes(void)
 void SFDataSelectionTab::SelectAllTargets(void)
 {
   if(fAllTgtChkB->GetState() == kButtonDown)
-                                  gui_utils::SelectAllListBoxEntries(fTgtLBx);
-  else gui_utils::ResetAllListBoxSelections(fTgtLBx);
+                                  utils::gui::SelectAllListBoxEntries(fTgtLBx);
+  else utils::gui::ResetAllListBoxSelections(fTgtLBx);
 
   fTgtLBx->SelectionChanged();
 
@@ -191,11 +191,11 @@ void SFDataSelectionTab::SelectAllTargets(void)
 //______________________________________________________________________________
 void SFDataSelectionTab::ResetSelections(void)
 {
-  gui_utils::ResetAllListBoxSelections( fExpLBx   );
-  gui_utils::ResetAllListBoxSelections( fSFLBx      );
-  gui_utils::ResetAllListBoxSelections( fRLBx     );
-  gui_utils::ResetAllListBoxSelections( fProbeLBx );
-  gui_utils::ResetAllListBoxSelections( fTgtLBx   );
+  utils::gui::ResetAllListBoxSelections( fExpLBx   );
+  utils::gui::ResetAllListBoxSelections( fSFLBx      );
+  utils::gui::ResetAllListBoxSelections( fRLBx     );
+  utils::gui::ResetAllListBoxSelections( fProbeLBx );
+  utils::gui::ResetAllListBoxSelections( fTgtLBx   );
 
   fMinQ2NmE      -> SetNumber (0);
   fMaxQ2NmE      -> SetNumber (100);
@@ -230,17 +230,17 @@ string SFDataSelectionTab::BundleSelectionsInString(void)
 string SFDataSelectionTab::BundleKeyListInString(void)
 {
   // Read experiment name selections
-  string experiments = gui_utils::ListBoxSelectionAsString(
+  string experiments = utils::gui::ListBoxSelectionAsString(
                                                   fExpLBx, kSFExperimentName);
   // Read SF selection
-  string sf = gui_utils::ListBoxSelectionAsString(fSFLBx, kSFName);
+  string sf = utils::gui::ListBoxSelectionAsString(fSFLBx, kSFName);
   // Read probe selections
-  string probes = gui_utils::ListBoxSelectionAsString(fProbeLBx, kSFProbe);
+  string probes = utils::gui::ListBoxSelectionAsString(fProbeLBx, kSFProbe);
   // Read target selections
-  string targets = gui_utils::ListBoxSelectionAsString(fTgtLBx, kSFTarget);
+  string targets = utils::gui::ListBoxSelectionAsString(fTgtLBx, kSFTarget);
 
   SysLogSingleton * syslog = SysLogSingleton::Instance();
-  
+
   syslog->Log()->AddLine( "Requested key : ");
   syslog->Log()->AddLine( Concat("- Experiments... : ", experiments.c_str()) );
   syslog->Log()->AddLine( Concat("- SF............ : ", sf.c_str())          );
@@ -262,10 +262,10 @@ string SFDataSelectionTab::BundleCutsInString(void)
   float xmax  = fMaxXNmE  -> GetNumber();
 
   // Read R selection
-  string R = gui_utils::ListBoxSelectionAsString(fRLBx, kSFR);
+  string R = utils::gui::ListBoxSelectionAsString(fRLBx, kSFR);
 
   // Read x selections
-  //string x = gui_utils::ListBoxSelectionAsString(fSFxLBx, kSFR);
+  //string x = utils::gui::ListBoxSelectionAsString(fSFxLBx, kSFR);
 
   ostringstream cuts;
 
@@ -276,7 +276,7 @@ string SFDataSelectionTab::BundleCutsInString(void)
   SysLogSingleton * syslog = SysLogSingleton::Instance();
 
   syslog->Log()->AddLine( Concat("Requested cuts : ", cuts.str().c_str()) );
-    
+
   return cuts.str();
 }
 //______________________________________________________________________________
@@ -320,7 +320,7 @@ void SFDataSelectionTab::SFLoadx(void)
      }
      delete res;
 
-     gui_utils::FillListBox(fSFxLBx,&x);
+     utils::gui::FillListBox(fSFxLBx,&x);
 
      fSFxLBx->MapSubwindows();
      fSFxLBx->Layout();

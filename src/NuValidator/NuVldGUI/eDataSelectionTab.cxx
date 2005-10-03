@@ -36,7 +36,7 @@
 using std::ostringstream;
 
 using namespace genie;
-using namespace genie::string_utils;
+using namespace genie::utils::str;
 using namespace genie::nuvld;
 using namespace genie::nuvld::constants;
 
@@ -45,7 +45,7 @@ ClassImp(eDataSelectionTab)
 //______________________________________________________________________________
 eDataSelectionTab::eDataSelectionTab(DBConnection * db):
 DataSelectionDialog()
-{  
+{
   fDBC = db;
 }
 //______________________________________________________________________________
@@ -66,8 +66,8 @@ TGCompositeFrame * eDataSelectionTab::Create(
   fElExpLBx = new TGListBox(fElExpGrpFrame,  222);
   fElTgtLBx = new TGListBox(fElTgGrpFrm,     223);
 
-  gui_utils::FillListBox( fElExpLBx,  kElExperiment );
-  gui_utils::FillListBox( fElTgtLBx,  kElTarget     );
+  utils::gui::FillListBox( fElExpLBx,  kElExperiment );
+  utils::gui::FillListBox( fElTgtLBx,  kElTarget     );
 
   fElExpLBx -> Resize (100,  60);
   fElTgtLBx -> Resize (100,  50);
@@ -126,7 +126,7 @@ TGCompositeFrame * eDataSelectionTab::Create(
 
   fElDrawXCBx = new TGComboBox(fElDrawXGrpFrm, 412);
 
-  gui_utils::FillComboBox( fElDrawXCBx, kElVarFrameName );
+  utils::gui::FillComboBox( fElDrawXCBx, kElVarFrameName );
 
   fElDrawXCBx -> Resize (115, 20);
 
@@ -161,10 +161,10 @@ string eDataSelectionTab::BundleSelectionsInString(void)
 string eDataSelectionTab::BundleKeyListInString(void)
 {
   // Read experiment name selections
-  string exprm = gui_utils::ListBoxSelectionAsString(fElExpLBx, kElExperiment);
+  string exprm = utils::gui::ListBoxSelectionAsString(fElExpLBx, kElExperiment);
 
   // Read target selections
-  string targets = gui_utils::ListBoxSelectionAsString(fElTgtLBx, kElTarget);
+  string targets = utils::gui::ListBoxSelectionAsString(fElTgtLBx, kElTarget);
 
   // Build key list
   string key_list = SqlUtils::build_e_key_list(fDBC->SqlServer(), exprm, targets);
@@ -232,8 +232,8 @@ string eDataSelectionTab::BundleDrawOptInString(void)
 //______________________________________________________________________________
 void eDataSelectionTab::ResetSelections(void)
 {
-  gui_utils::ResetAllListBoxSelections( fElExpLBx );
-  gui_utils::ResetAllListBoxSelections( fElTgtLBx );
+  utils::gui::ResetAllListBoxSelections( fElExpLBx );
+  utils::gui::ResetAllListBoxSelections( fElTgtLBx );
 
   for(int iframe = 0; iframe < kNElVarRangeFrames; iframe++) {
 
@@ -253,8 +253,8 @@ void eDataSelectionTab::ResetSelections(void)
 void eDataSelectionTab::SelectAllExp(void)
 {
   if(fAllElExpChkB->GetState() == kButtonDown)
-                                  gui_utils::SelectAllListBoxEntries(fElExpLBx);
-  else gui_utils::ResetAllListBoxSelections(fElExpLBx);
+                                  utils::gui::SelectAllListBoxEntries(fElExpLBx);
+  else utils::gui::ResetAllListBoxSelections(fElExpLBx);
 
   fElExpLBx->SelectionChanged();
 
@@ -264,8 +264,8 @@ void eDataSelectionTab::SelectAllExp(void)
 void eDataSelectionTab::SelectAllTargets(void)
 {
   if(fAllElTgtChkB->GetState() == kButtonDown)
-                                 gui_utils::SelectAllListBoxEntries(fElTgtLBx);
-  else gui_utils::ResetAllListBoxSelections(fElTgtLBx);
+                                 utils::gui::SelectAllListBoxEntries(fElTgtLBx);
+  else utils::gui::ResetAllListBoxSelections(fElTgtLBx);
 
   fElTgtLBx->SelectionChanged();
 

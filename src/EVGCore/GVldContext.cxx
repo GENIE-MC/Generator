@@ -77,7 +77,7 @@ void GVldContext::Decode(string encoded_vld_context)
 //example:
 //  PROC:RES;CURR:CC,NC;PROBE:nue,nuebar,numu,numubar;TARGET:all;ENERGY:0-100
 
-  vector<string> fields = string_utils::Split(encoded_vld_context, ";");
+  vector<string> fields = utils::str::Split(encoded_vld_context, ";");
 
   vector<string>::const_iterator field_iter;
 
@@ -85,7 +85,7 @@ void GVldContext::Decode(string encoded_vld_context)
 
      SLOG("VldContext", pINFO) << " ************ " << *field_iter;
 
-     vector<string> curr_field = string_utils::Split(*field_iter, ":");
+     vector<string> curr_field = utils::str::Split(*field_iter, ":");
 
      assert(curr_field.size() == 2);
 
@@ -94,7 +94,7 @@ void GVldContext::Decode(string encoded_vld_context)
 
      //-- Make lowercase/uppercase irrelevant
 
-     name = string_utils::ToUpper(name);
+     name = utils::str::ToUpper(name);
 
      //-- send the string to an appropriate decoder
 
@@ -130,7 +130,7 @@ void GVldContext::DecodeCURR(string encoded_curr)
 
   SLOG("VldContext", pDEBUG) << "Decoding CURR: " << encoded_curr;
 
-  vector<string> curr = string_utils::Split(encoded_curr, ",");
+  vector<string> curr = utils::str::Split(encoded_curr, ",");
 
   vector<string>::const_iterator curr_iter;
 
@@ -162,7 +162,7 @@ void GVldContext::DecodeENERGY(string encoded_energy)
 {
   SLOG("VldContext", pDEBUG) << "Decoding ENERGY: " << encoded_energy;
 
-  vector<string> energy = string_utils::Split(encoded_energy, "-");
+  vector<string> energy = utils::str::Split(encoded_energy, "-");
 
   assert ( energy.size() == 2 );
 

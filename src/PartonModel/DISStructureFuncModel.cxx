@@ -19,7 +19,7 @@
 #include "PartonModel/DISStructureFuncModel.h"
 #include "PDF/PDFModelI.h"
 #include "PDG/PDGUtils.h"
-#include "Utils/KineLimits.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -82,7 +82,7 @@ double DISStructureFuncModel::Q2(const Interaction * interaction) const
 // Return Q2 from the scattering param objects or, if not set, compute if
 // from x,y
 
-  return kine_limits::CalcQ2(interaction);
+  return utils::kinematics::CalcQ2(interaction);
 }
 //____________________________________________________________________________
 double DISStructureFuncModel::ScalingVar (
@@ -134,10 +134,10 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   fPDF->Calculate(x, Q2);
 
   //-- check whether it is above charm threshold
-  bool isAbvCh = kine_limits::IsAboveCharmThreshold(interaction, kMc);
+  bool isAbvCh = utils::kinematics::IsAboveCharmThreshold(interaction, kMc);
   double xc=0.;
   if(isAbvCh) {
-    xc = kine_limits::SlowRescalingVar(interaction, kMc);
+    xc = utils::kinematics::SlowRescalingVar(interaction, kMc);
       fPDF->Calculate(xc, Q2);
   }
 

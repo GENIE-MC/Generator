@@ -40,7 +40,7 @@
 using std::ostringstream;
 
 using namespace genie;
-using namespace genie::string_utils;
+using namespace genie::utils::str;
 using namespace genie::nuvld;
 using namespace genie::nuvld::constants;
 
@@ -52,7 +52,7 @@ DataSelectionDialog()
 {
   fMain = main;
   fDBC  = db;
-  
+
   fPopupDialogLAM = false;
 }
 //______________________________________________________________________________
@@ -65,7 +65,7 @@ TGCompositeFrame * vDataSelectionTab::Create(
                                    TGCompositeFrame * tf, int width, int height)
 {
   UInt_t kv = kVerticalFrame;
-  
+
   TGCompositeFrame * fTabNuSql = new TGCompositeFrame(tf, width, height, kv);
 
   fNuXSecErrGrpFrm   = new TGGroupFrame(fTabNuSql, "Cross Section Err",  kv);
@@ -83,11 +83,11 @@ TGCompositeFrame * vDataSelectionTab::Create(
   fNuTypeLBx    = new TGListBox(fNuInitStateGrpFrm, 2);
   fNuTgtLBx     = new TGListBox(fNuInitStateGrpFrm, 2);
 
-  gui_utils::FillListBox( fNuXSecErrLBx, kXSecErrType    );
-  gui_utils::FillListBox( fNuExpLBx,     kExperimentName );
-  gui_utils::FillListBox( fNuProcLBx,    kProcName       );
-  gui_utils::FillListBox( fNuTypeLBx,    kNuType         );
-  gui_utils::FillListBox( fNuTgtLBx,     kTarget         );
+  utils::gui::FillListBox( fNuXSecErrLBx, kXSecErrType    );
+  utils::gui::FillListBox( fNuExpLBx,     kExperimentName );
+  utils::gui::FillListBox( fNuProcLBx,    kProcName       );
+  utils::gui::FillListBox( fNuTypeLBx,    kNuType         );
+  utils::gui::FillListBox( fNuTgtLBx,     kTarget         );
 
   fNuXSecErrLBx -> Resize (100,  60);
   fNuExpLBx     -> Resize (100,  60);
@@ -128,7 +128,7 @@ TGCompositeFrame * vDataSelectionTab::Create(
   fScaleWithEvChkB  = new TGCheckButton(fTabNuSql, "Scale With Energy", 75);
 
   TGNumberFormat::EStyle rstyle = TGNumberFormat::kNESReal;
-  
+
   fEMinNmE = new TGNumberEntry(fEnergyGrpFrm, kEmin, 6, 1, rstyle);
   fEMaxNmE = new TGNumberEntry(fEnergyGrpFrm, kEmax, 6, 1, rstyle);
 
@@ -145,9 +145,9 @@ TGCompositeFrame * vDataSelectionTab::Create(
   fShowFullNuDialogTBtn   = new TGTextButton (fTabNuSql, "More data selections... ", 76);
   fShowExpertNuDialogTBtn = new TGTextButton (fTabNuSql, "Expert mode...          ", 77);
 
-  fShowFullNuDialogTBtn->Connect("Clicked()", 
+  fShowFullNuDialogTBtn->Connect("Clicked()",
                    "genie::nuvld::vDataSelectionTab", this, "PopupNuDataSelectionDialog()");
-  fShowExpertNuDialogTBtn->Connect("Clicked()", 
+  fShowExpertNuDialogTBtn->Connect("Clicked()",
                  "genie::nuvld::vDataSelectionTab", this, "PopupNuMeasurementListDialog()");
 
   //-- bottom/left side: add all parent frames
@@ -169,8 +169,8 @@ TGCompositeFrame * vDataSelectionTab::Create(
 void vDataSelectionTab::SelectAllExp(void)
 {
   if(fAllNuExpChkB->GetState() == kButtonDown)
-                                  gui_utils::SelectAllListBoxEntries(fNuExpLBx);
-  else gui_utils::ResetAllListBoxSelections(fNuExpLBx);
+                                  utils::gui::SelectAllListBoxEntries(fNuExpLBx);
+  else utils::gui::ResetAllListBoxSelections(fNuExpLBx);
 
   fNuExpLBx->SelectionChanged();
 
@@ -180,8 +180,8 @@ void vDataSelectionTab::SelectAllExp(void)
 void vDataSelectionTab::SelectAllXSec(void)
 {
   if(fAllNuProcChkB->GetState() == kButtonDown)
-                                 gui_utils::SelectAllListBoxEntries(fNuProcLBx);
-  else gui_utils::ResetAllListBoxSelections(fNuProcLBx);
+                                 utils::gui::SelectAllListBoxEntries(fNuProcLBx);
+  else utils::gui::ResetAllListBoxSelections(fNuProcLBx);
 
   fNuProcLBx->SelectionChanged();
 
@@ -191,8 +191,8 @@ void vDataSelectionTab::SelectAllXSec(void)
 void vDataSelectionTab::SelectAllProbes(void)
 {
   if(fAllNuTypesChkB->GetState() == kButtonDown)
-                                 gui_utils::SelectAllListBoxEntries(fNuTypeLBx);
-  else gui_utils::ResetAllListBoxSelections(fNuTypeLBx);
+                                 utils::gui::SelectAllListBoxEntries(fNuTypeLBx);
+  else utils::gui::ResetAllListBoxSelections(fNuTypeLBx);
 
   fNuTypeLBx->SelectionChanged();
 
@@ -202,8 +202,8 @@ void vDataSelectionTab::SelectAllProbes(void)
 void vDataSelectionTab::SelectAllTargets(void)
 {
   if(fAllNuTgtChkB->GetState() == kButtonDown)
-                                  gui_utils::SelectAllListBoxEntries(fNuTgtLBx);
-  else gui_utils::ResetAllListBoxSelections(fNuTgtLBx);
+                                  utils::gui::SelectAllListBoxEntries(fNuTgtLBx);
+  else utils::gui::ResetAllListBoxSelections(fNuTgtLBx);
 
   fNuTgtLBx->SelectionChanged();
 
@@ -217,7 +217,7 @@ string vDataSelectionTab::BundleSelectionsInString(void)
 
     return fPopupDialog->BundleSelectionsInString();
   }
-  
+
   ostringstream options;
 
   options << "KEY-LIST:" << this->BundleKeyListInString()  << "$"
@@ -240,14 +240,14 @@ string vDataSelectionTab::BundleKeyListInString(void)
   if(!is_connected) return "";
 
   // Read experiment name selections
-  string experiments = gui_utils::ListBoxSelectionAsString(
+  string experiments = utils::gui::ListBoxSelectionAsString(
                                                 fNuExpLBx, kExperimentMySQLName);
   // Read xsec selections
-  string xsecs = gui_utils::ListBoxSelectionAsString(fNuProcLBx, kProcMySQLName);
+  string xsecs = utils::gui::ListBoxSelectionAsString(fNuProcLBx, kProcMySQLName);
   // Read neutrino selections
-  string nus = gui_utils::ListBoxSelectionAsString(fNuTypeLBx, kNuTypeMySQLName);
+  string nus = utils::gui::ListBoxSelectionAsString(fNuTypeLBx, kNuTypeMySQLName);
   // Read target selections
-  string targets = gui_utils::ListBoxSelectionAsString(
+  string targets = utils::gui::ListBoxSelectionAsString(
                                                     fNuTgtLBx, kTargetMySQLName);
 
   SysLogSingleton * syslog = SysLogSingleton::Instance();
@@ -288,10 +288,10 @@ string vDataSelectionTab::BundleDrawOptInString(void)
 //______________________________________________________________________________
 void vDataSelectionTab::ResetSelections(void)
 {
-  gui_utils::ResetAllListBoxSelections( fNuExpLBx  );
-  gui_utils::ResetAllListBoxSelections( fNuProcLBx );
-  gui_utils::ResetAllListBoxSelections( fNuTypeLBx );
-  gui_utils::ResetAllListBoxSelections( fNuTgtLBx  );
+  utils::gui::ResetAllListBoxSelections( fNuExpLBx  );
+  utils::gui::ResetAllListBoxSelections( fNuProcLBx );
+  utils::gui::ResetAllListBoxSelections( fNuTypeLBx );
+  utils::gui::ResetAllListBoxSelections( fNuTgtLBx  );
 
   fEMinNmE->SetNumber(kEmin);
   fEMaxNmE->SetNumber(kEmax);

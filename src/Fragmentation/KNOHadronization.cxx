@@ -36,7 +36,7 @@
 
 using namespace genie;
 using namespace genie::constants;
-using namespace genie::print_utils;
+using namespace genie::utils::print;
 
 //____________________________________________________________________________
 KNOHadronization::KNOHadronization() :

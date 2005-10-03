@@ -39,7 +39,7 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-using namespace genie::string_utils;
+using namespace genie::utils::str;
 using namespace genie::nuvld;
 
 ClassImp(GuiDBHandler)

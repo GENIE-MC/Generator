@@ -7,6 +7,8 @@
 
 $GENIE = $ENV{'GENIE'};
 
+$SRT_ENV_SET = "" unless defined $SRT_ENV_SET;
+
 $SRT_ENV_SET   = $ENV{'SRT_ENV_SET'};
 $ROOTSYS       = $ENV{'ROOTSYS'};
 $CERNLIB       = $ENV{'CERNLIB'};
