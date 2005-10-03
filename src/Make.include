@@ -363,6 +363,7 @@ LD            = g++
 LDFLAGS       = -g
 SOFLAGS       = -shared
 DllSuf       := so
+StaticLibSuf := a
 ObjSuf       := o
 SrcSuf       := cxx
 FORT         := g77
@@ -422,10 +423,13 @@ GENIE_UTILS_SHARED_LIB            := $(GENIE_LIB_PATH)/libGUtils.$(DllSuf)
 GENIE_VIEWER_SHARED_LIB           := $(GENIE_LIB_PATH)/libGViewer.$(DllSuf)
 GENIE_XSEC_SHARED_LIB             := $(GENIE_LIB_PATH)/libGCrossSections.$(DllSuf)
 GENIE_XML_TOOLS_SHARED_LIB        := $(GENIE_LIB_PATH)/libGXML.$(DllSuf)
+
 VLD_PARSER_SHARED_LIB             := $(GENIE_LIB_PATH)/libGNuVldXML.$(DllSuf)
 VLD_DBUTIL_SHARED_LIB             := $(GENIE_LIB_PATH)/libGNuVldDBU.$(DllSuf)
 VLD_GUI_WIDGETS_SHARED_LIB        := $(GENIE_LIB_PATH)/libGNuVldGUI.$(DllSuf)
 VLD_NEUGEN_INTERFACE_SHARED_LIB   := $(GENIE_LIB_PATH)/libGNuVldNeugen.$(DllSuf)
+
+GDUMMY_NEUGEN_STATIC_LIB          := $(GENIE_LIB_PATH)/libneugen3.$(StaticLibSuf)
 
 # standard GENIE's Neutrino Generator libraries
 
