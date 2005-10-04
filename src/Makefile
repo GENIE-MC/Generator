@@ -18,10 +18,10 @@ BUILD_TARGETS = save-build-options generator-std-libs
 # build targets to be enabled by the user (nu-validator, 
 # genie/geant interface, flux/geometry drivers doxygen documentation)
 
-ifndef GOPT_FLUX_DRIVERS
+ifdef GOPT_FLUX_DRIVERS
   BUILD_TARGETS := $(BUILD_TARGETS) flux-drivers
 endif
-ifndef GOPT_GEOM_DRIVERS
+ifdef GOPT_GEOM_DRIVERS
   BUILD_TARGETS := $(BUILD_TARGETS) geom-drivers
 endif
 ifndef GOPT_NEUGEN
