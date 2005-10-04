@@ -8,7 +8,14 @@ SHELL = /bin/sh
 NAME = all
 MAKEFILE = Makefile
 
-all:
+ifndef GOPT_NEUGEN
+  BUILD_TARGETS := dummy-neugen
+endif
+BUILD_TARGETS := $(BUILD_TARGETS) std
+
+all: $(BUILD_TARGETS)
+
+std:
 	cd XmlParser;          make; cd ..;    \
 	cd DBUtils;            make; cd ..;    \
 	cd Facades;            make; cd ..;    \
