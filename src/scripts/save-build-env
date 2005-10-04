@@ -7,7 +7,7 @@
 
 $GENIE = $ENV{'GENIE'};
 
-$SRT_ENV_SET = "" unless defined $SRT_ENV_SET;
+die ("Not even the GENIE environmental variable is defined!") unless defined $GENIE;
 
 $SRT_ENV_SET   = $ENV{'SRT_ENV_SET'};
 $ROOTSYS       = $ENV{'ROOTSYS'};
@@ -29,9 +29,32 @@ $PATH            = $ENV{'PATH'};
 $LD_LIBRARY_PATH = $ENV{'LD_LIBRARY_PATH'};
 
 $GOPT_ENABLE_NUVALIDATOR     = $ENV{'GOPT_ENABLE_NUVALIDATOR'};
+$GOPT_ENABLE_NEUGEN          = $ENV{'GOPT_ENABLE_NEUGEN'};
 $GOPT_ENABLE_GEANT_INTERFACE = $ENV{'GOPT_ENABLE_GEANT_INTERFACE'};
+$GOPT_ENABLE_FLUX_DRIVERS    = $ENV{'GOPT_ENABLE_FLUX_DRIVERS'};
+$GOPT_ENABLE_GEOM_DRIVERS    = $ENV{'GOPT_ENABLE_GEOM_DRIVERS'};
 $GOPT_ENABLE_PROFILER        = $ENV{'GOPT_ENABLE_PROFILER'};
 $GOPT_ENABLE_DOXYGEN_DOC     = $ENV{'GOPT_ENABLE_DOXYGEN_DOC'};
+
+# suppress PERL warnings when using undefined variables
+
+$SRT_ENV_SET   = "" unless defined $SRT_ENV_SET;
+$ROOTSYS       = "" unless defined $ROOTSYS;
+$CERNLIB       = "" unless defined $CERNLIB;
+$PYTHIA6       = "" unless defined $PYTHIA6;
+$LIBXML2_INC   = "" unless defined $LIBXML2_INC;
+$LIBXML2_LIB   = "" unless defined $LIBXML2_LIB;
+$LOG4CPP_INC   = "" unless defined $LOG4CPP_INC;
+$LOG4CPP_LIB   = "" unless defined $LOG4CPP_LIB;
+$NEUGEN3PATH   = "" unless defined $NEUGEN3PATH;
+$GPROFILER_LIB = "" unless defined $GPROFILER_LIB;
+$DOXYGEN       = "" unless defined $DOXYGEN;
+$CLHEP_INC     = "" unless defined $CLHEP_INC;
+$CLHEP_LIB     = "" unless defined $CLHEP_LIB;
+$GEANT4_INC    = "" unless defined $GEANT4_INC;
+$GEANT4_LIB    = "" unless defined $GEANT4_LIB;
+
+# save build options
 
 $BLD_OPT = "$GENIE/src/build.options";
 open(OPT, ">$BLD_OPT") 
@@ -62,6 +85,8 @@ print OPT "\$LD_LIBRARY_PATH -> $LD_LIBRARY_PATH\n\n";
 
 print OPT "\$GOPT_ENABLE_NUVALIDATOR     -> $GOPT_ENABLE_NUVALIDATOR\n";
 print OPT "\$GOPT_ENABLE_NEUGEN          -> $GOPT_ENABLE_NEUGEN\n";
+print OPT "\$GOPT_ENABLE_FLUX_DRIVERS    -> $GOPT_ENABLE_FLUX_DRIVERS\n";
+print OPT "\$GOPT_ENABLE_GEOM_DRIVERS    -> $GOPT_ENABLE_GEOM_DRIVERS\n";
 print OPT "\$GOPT_ENABLE_GEANT_INTERFACE -> $GOPT_ENABLE_GEANT_INTERFACE\n";
 print OPT "\$GOPT_ENABLE_PROFILER        -> $GOPT_ENABLE_PROFILER\n";
 print OPT "\$GOPT_ENABLE_DOXYGEN_DOC     -> $GOPT_ENABLE_DOXYGEN_DOC\n";
