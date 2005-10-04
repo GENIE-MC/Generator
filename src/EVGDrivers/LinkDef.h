@@ -9,5 +9,8 @@
 #pragma link C++ class genie::GEVGDriver;
 #pragma link C++ class genie::GMCJDriver;
 #pragma link C++ class genie::GEVGPool;
+#pragma link C++ class genie::PathLengthList;
+#pragma link C++ class genie::GFluxI;
+#pragma link C++ class genie::GeomAnalyzerI;
 
 #endif
