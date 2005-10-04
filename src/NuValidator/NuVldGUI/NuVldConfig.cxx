@@ -36,22 +36,14 @@ NuVldConfig::~NuVldConfig()
 //_____________________________________________________________________________
 void NuVldConfig::AutoDetect(void)
 {
-  // if you can not find the NeuGEN library and NuValidator's NeuGEN,
-  // deactivate NeuGEN
+// if you can not find the GENIE's NeuGEN facade was not enabled (and therefore
+// a dummy NeuGEN library was built in the program) deactivate NeuGEN
 
-  string genie_path  = string( gSystem->Getenv("GENIE")       );
-  string neugen_path = string( gSystem->Getenv("NEUGEN3PATH") );
+  string facade_enabled  = string( gSystem->Getenv("GOPT_ENABLE_NEUGEN") );
 
-  string nuvldn_lib = genie_path  + string("/lib/libGNuVldNeugen.so");
-  string neugen_lib = neugen_path + string("/lib/libneugen3.a");
+  LOG("NuVld", pDEBUG) << "GOPT_ENABLE_NEUGEN: " << facade_enabled;
 
-  LOG("NuVld", pDEBUG) << "NuVld/NeuGEN lib.: " << nuvldn_lib;
-  LOG("NuVld", pDEBUG) << "NeuGEN lib.......: " << neugen_lib;
-
-  bool nuvldn_lib_exists = ! (gSystem->AccessPathName( nuvldn_lib.c_str() ));
-  bool neugen_lib_exists = ! (gSystem->AccessPathName( neugen_lib.c_str() ));
-
-  bool activate = nuvldn_lib_exists && neugen_lib_exists;
+  bool activate = ( facade_enabled.find("YES") != string::npos );
 
   if (!activate) {
      LOG("NuVld", pNOTICE) << "NeuGEN will be disabled in the NuVld session";
