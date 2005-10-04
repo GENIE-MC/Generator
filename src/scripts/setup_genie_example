@@ -59,7 +59,9 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${ROOTSYS}/lib:${GENIE}/lib:${GEANT_LI
 
 export GOPT_ENABLE_PROFILER=NO
 export GOPT_ENABLE_NUVALIDATOR=YES 
-export GOPT_ENABLE_NEUGEN=NO
+export GOPT_ENABLE_NEUGEN=YES
+export GOPT_ENABLE_FLUX_DRIVERS=YES
+export GOPT_ENABLE_GEOM_DRIVERS=YES
 export GOPT_ENABLE_GEANT_INTERFACE=NO 
 export GOPT_ENABLE_DOXYGEN_DOC=NO 
 
@@ -93,11 +95,13 @@ echo "GEANT4_LIB  -> " ${GEANT4_LIB}
 echo
 echo "GENIE building options:"
 echo "-----------------------"
-echo "Enabling Google profiler        -> " ${GOPT_ENABLE_PROFILER}
-echo "Enabling GENIE's NuValidator    -> " ${GOPT_ENABLE_NUVALIDATOR}
-echo "Enabling GENIE's NeuGen facade  -> " ${GOPT_ENABLE_NEUGEN}
-echo "Enabling GENIE/GEANT interface  -> " ${GOPT_ENABLE_GEANT_INTERFACE}
-echo "Enabling Doxygen doc generation -> " ${GOPT_ENABLE_DOC}
+echo "Enabling GENIE's NuValidator      -> " ${GOPT_ENABLE_NUVALIDATOR}
+echo "Enabling GENIE's NeuGen facade    -> " ${GOPT_ENABLE_NEUGEN}
+echo "Enabling GENIE's flux drivers     -> " ${GOPT_ENABLE_FLUX_DRIVERS}
+echo "Enabling GENIE's geometry drivers -> " ${GOPT_ENABLE_GEOM_DRIVERS}
+echo "Enabling GENIE/GEANT interface    -> " ${GOPT_ENABLE_GEANT_INTERFACE}
+echo "Enabling Google profiler          -> " ${GOPT_ENABLE_PROFILER}
+echo "Enabling Doxygen doc generation   -> " ${GOPT_ENABLE_DOC}
 
 echo
 
