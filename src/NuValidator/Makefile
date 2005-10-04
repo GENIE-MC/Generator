@@ -31,7 +31,7 @@ libs:
 	cd Facades;            make; cd ..;    \
 	cd NuVldGUI;           make; cd ..;    
 
-applications:
+exe:
 	cd app;                make; cd ..; 
 
 
@@ -56,7 +56,7 @@ clean-libs: FORCE
 	cd NuVldGUI;           make clean; cd ..;    \
 	cd Facades/dummy;      make clean; cd ../..; 
 
-clean-applications: FORCE
+clean-exe: FORCE
 	cd app;                make clean; cd ..; 
 
 
