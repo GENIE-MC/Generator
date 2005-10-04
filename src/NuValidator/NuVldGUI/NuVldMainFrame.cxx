@@ -37,6 +37,7 @@
 #include <TGColorSelect.h>
 #include <TGLayout.h>
 #include <TCanvas.h>
+#include <TGDockableFrame.h>
 #include <TRootEmbeddedCanvas.h>
 #include <TSQLRow.h>
 #include <TSQLResult.h>
@@ -122,9 +123,15 @@ TGMainFrame(p, w, h)
 
   //-- add menu bar
 
+  fMenuDock = new TGDockableFrame(fMain);
+  fMenuDock->SetWindowName("NuVld Menu Bar");
+  fMenuDock->EnableUndock(kTRUE);
+  fMenuDock->EnableHide(kTRUE);
+
   fMenu = this->BuildMenuBar();
 
-  fMain->AddFrame(fMenu, fMenuBarLt);
+  fMenuDock->AddFrame(fMenu, fMenuBarLt);
+  fMain->AddFrame(fMenuDock, new TGLayoutHints(kLHintsExpandX, 0, 0, 1, 0));
 
   //-- instantiate main frames (below menu & above the status bar)
 
@@ -271,8 +278,6 @@ void NuVldMainFrame::DefineLayoutHints(void)
 //______________________________________________________________________________
 TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
 {
-  TGMenuBar * menu_bar = new TGMenuBar(fMain, 1, 1, kHorizontalFrame);
-
   // Menu: File
 
   fMenuFile = new TGPopupMenu(gClient->GetRoot());
@@ -282,8 +287,8 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
   fMenuFile->AddSeparator();
   fMenuFile->AddEntry ("&Test XML File Parsing",  M_FILE_PARSE );
   fMenuFile->AddSeparator();
-  fMenuFile->AddEntry ("&Load Stack",             M_LOAD_STACKED_DATA );
-  fMenuFile->AddEntry ("&Save Stack",             M_SAVE_STACKED_DATA );
+  fMenuFile->AddEntry ("&Load Selections",        M_LOAD_STACKED_DATA );
+  fMenuFile->AddEntry ("&Save Selections",        M_SAVE_STACKED_DATA );
   fMenuFile->AddSeparator();
   fMenuFile->AddEntry ("E&xit",                   M_FILE_EXIT  );
 
@@ -295,6 +300,23 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
 
   fXmlFileHandler->AttachFileMenu(fMenuFile); // to (de/)activate open/close
 
+    // Menu: View
+
+  fMenuView = new TGPopupMenu(gClient->GetRoot());
+
+  fMenuView->AddEntry ("Enable (Un)Dock Menu", M_VIEW_ENABLE_UNDOCK  );
+  fMenuView->AddEntry ("Enable Hide Menu",     M_VIEW_ENABLE_HIDE    );
+  fMenuView->AddSeparator();
+  fMenuView->AddEntry ("Dock Menu",            M_VIEW_DOCK           );
+  fMenuView->AddEntry ("UnDock Menu",          M_VIEW_UNDOCK         );
+  fMenuView->AddEntry ("Hide Menu",            M_VIEW_HIDE           );
+
+  fMenuView->CheckEntry ( M_VIEW_ENABLE_UNDOCK );
+  fMenuView->CheckEntry ( M_VIEW_ENABLE_HIDE   );
+
+  fMenuView->Connect("Activated(Int_t)",
+                                  "genie::nuvld::NuVldMainFrame",
+                                                     this,"HandleMenu(Int_t)");
   // Menu: DataBase
 
   fMenuDBase = new TGPopupMenu(gClient->GetRoot());
@@ -316,15 +338,17 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
   fMenuDBase->Connect("Activated(Int_t)",
                        "genie::nuvld::NuVldMainFrame",this,"HandleMenu(Int_t)");
 
-  // Menu: Export
+  // Menu: Export/Import
 
-  fMenuExport = new TGPopupMenu(gClient->GetRoot());
+  fMenuExpImp = new TGPopupMenu(gClient->GetRoot());
 
-  fMenuExport->AddEntry("Plot  -> eps/gif plot or ROOT macro", M_EXPORT_PLOT);
-  fMenuExport->AddEntry("Table -> text file",                  M_EXPORT_TABLE);
-  fMenuExport->AddEntry("Model -> XML/ROOT/text file",         M_EXPORT_MODEL);
+  fMenuExpImp->AddEntry("Plot  -> eps/gif plot or ROOT macro", M_EXPORT_PLOT);
+  fMenuExpImp->AddEntry("Table -> text file",                  M_EXPORT_TABLE);
+  fMenuExpImp->AddEntry("Model -> XML/ROOT/text file",         M_EXPORT_MODEL);
+  fMenuExpImp->AddSeparator();
+  fMenuExpImp->AddEntry("XML/text file -> Model",              M_IMPORT_MODEL);
 
-  fMenuExport->Connect("Activated(Int_t)",
+  fMenuExpImp->Connect("Activated(Int_t)",
                                    "genie::nuvld::NuVldMainFrame",
                                                     this,"HandleMenu(Int_t)");
   // Menu: NeuGEN
@@ -334,8 +358,6 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
   fMenuNeuGen->AddEntry("Physics",       M_NEUGEN_CONFIG_PHYSICS);
   fMenuNeuGen->AddEntry("Process",       M_NEUGEN_CONFIG_PROCESS);
   fMenuNeuGen->AddEntry("Run",           M_NEUGEN_RUN);
-  fMenuNeuGen->AddSeparator();
-  fMenuNeuGen->AddEntry("Load external", M_NEUGEN_LOAD_EXTERNAL);
 
   fMenuNeuGen->Connect("Activated(Int_t)",
                                    "genie::nuvld::NuVldMainFrame",
@@ -377,15 +399,17 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
                                 "genie::nuvld::NuVldMainFrame",
                                                     this,"HandleMenu(Int_t)");
 
-  menu_bar = new TGMenuBar(fMain, 1, 1, kHorizontalFrame);
+  //menu_bar = new TGMenuBar(fMain, 1, 1, kHorizontalFrame);
+  TGMenuBar * menu_bar = new TGMenuBar(fMenuDock, 1, 1, kHorizontalFrame);
 
-  menu_bar->AddPopup("&File",     fMenuFile,   fMenuBarItemLt);
-  menu_bar->AddPopup("&Database", fMenuDBase,  fMenuBarItemLt);
-  menu_bar->AddPopup("&Export",   fMenuExport, fMenuBarItemLt);
-  menu_bar->AddPopup("&NeuGEN",   fMenuNeuGen, fMenuBarItemLt);
-  menu_bar->AddPopup("&GENIE",    fMenuGENIE,  fMenuBarItemLt);
-  menu_bar->AddPopup("&Fit",      fMenuFit,    fMenuBarItemLt);
-  menu_bar->AddPopup("&Help",     fMenuHelp,   fMenuBarHelpLt);
+  menu_bar->AddPopup("&File",          fMenuFile,   fMenuBarItemLt);
+  menu_bar->AddPopup("&View",          fMenuView,   fMenuBarItemLt);
+  menu_bar->AddPopup("&Database",      fMenuDBase,  fMenuBarItemLt);
+  menu_bar->AddPopup("&Export/Import", fMenuExpImp, fMenuBarItemLt);
+  menu_bar->AddPopup("&NeuGEN",        fMenuNeuGen, fMenuBarItemLt);
+  menu_bar->AddPopup("&GENIE",         fMenuGENIE,  fMenuBarItemLt);
+  menu_bar->AddPopup("&Fit",           fMenuFit,    fMenuBarItemLt);
+  menu_bar->AddPopup("&Help",          fMenuHelp,   fMenuBarHelpLt);
 
   return menu_bar;
 }
@@ -992,7 +1016,7 @@ void NuVldMainFrame::HandleMenu(Int_t id)
   case M_NEUGEN_CONFIG_PHYSICS: this->ConfigNeugenPhysics();             break;
   case M_NEUGEN_CONFIG_PROCESS: this->ConfigNeugenProcess();             break;
   case M_NEUGEN_RUN:            this->RunNeuGen();                       break;
-  case M_NEUGEN_LOAD_EXTERNAL:  this->LoadExtXSecPrediction();           break;
+  case M_IMPORT_MODEL:  this->LoadExtXSecPrediction();           break;
   case M_FIT_OPEN:              this->OpenFitterTab();                   break;
   case M_FIT_RUN:               this->RunFitter();                       break;
   case M_FIT_RESET:             this->ResetFitterTab();                  break;
@@ -1001,8 +1025,48 @@ void NuVldMainFrame::HandleMenu(Int_t id)
   case M_HELP_DURHAM:           fHelpHandler->DurhamOnline();            break;
   case M_HELP_HOWTO_CONN_DBASE: fHelpHandler->HowtoConnDBase();          break;
   case M_HELP_HOWTO_FILL_DBASE: fHelpHandler->HowtoFillDBase();          break;
+  case M_VIEW_ENABLE_UNDOCK:
+           fMenuDock->EnableUndock(!fMenuDock->EnableUndock());
+           if (fMenuDock->EnableUndock()) {
+               fMenuView->CheckEntry(M_VIEW_ENABLE_UNDOCK);
+               fMenuView->EnableEntry(M_VIEW_DOCK);
+               fMenuView->EnableEntry(M_VIEW_UNDOCK);
+           } else {
+               fMenuView->UnCheckEntry(M_VIEW_ENABLE_UNDOCK);
+               fMenuView->DisableEntry(M_VIEW_DOCK);
+               fMenuView->DisableEntry(M_VIEW_UNDOCK);
+           }
+           break;
 
-   default:
+  case M_VIEW_ENABLE_HIDE:
+           fMenuDock->EnableHide(!fMenuDock->EnableHide());
+           if (fMenuDock->EnableHide()) {
+               fMenuView->CheckEntry(M_VIEW_ENABLE_HIDE);
+               fMenuView->EnableEntry(M_VIEW_HIDE);
+           } else {
+               fMenuView->UnCheckEntry(M_VIEW_ENABLE_HIDE);
+               fMenuView->DisableEntry(M_VIEW_HIDE);
+           }
+           break;
+
+  case M_VIEW_DOCK:
+          fMenuDock->DockContainer();
+          fMenuView->EnableEntry(M_VIEW_UNDOCK);
+          fMenuView->DisableEntry(M_VIEW_DOCK);
+          break;
+
+  case M_VIEW_UNDOCK:
+          fMenuDock->UndockContainer();
+          fMenuView->EnableEntry(M_VIEW_DOCK);
+          fMenuView->DisableEntry(M_VIEW_UNDOCK);
+          break;
+
+  case M_VIEW_HIDE:
+          fMenuDock->HideContainer();
+          fMenuView->DisableEntry(M_VIEW_HIDE);
+          break;
+
+  default:
        fLog->AddLine( "GUI Event could not be handled" );
        fStatusBar->SetText( "GUI Event could not be handled", 0 );
   }

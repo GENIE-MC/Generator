@@ -38,6 +38,7 @@ class TGNumberEntry;
 class TGPopupMenu;
 class TGTextEntry;
 class TGMsgBox;
+class TGDockableFrame;
 class TGMenu;
 class TGMenuBar;
 class TGCanvas;
@@ -60,7 +61,7 @@ using namespace genie;
 namespace genie {
 
 class Spline;
-  
+
 namespace nuvld {
 
 class DBConnection;
@@ -80,7 +81,7 @@ class NuVldMainFrame : public TGMainFrame {
 public:
 
    friend class GuiHelpHandler;
-   
+
    NuVldMainFrame(const TGWindow * p, UInt_t w, UInt_t h, const NuVldConfig & my_config);
    virtual ~NuVldMainFrame();
 
@@ -88,16 +89,16 @@ public:
 
    void CloseWindow  (void) { gApplication->Terminate(0); }
    void Exit         (void) { this->CloseWindow();        }
-   
+
    void HandleMenu  (Int_t id);
 
-   void ConfigNeugenPhysics   (void);  
+   void ConfigNeugenPhysics   (void);
    void ConfigNeugenProcess   (void);
    void SelectNeuGenFitParams (void);
    void RunNeuGen             (void);
    void RetrieveNeuGenCards   (void);
    void LoadExtXSecPrediction (void);
-   void HandleSaveCanvas      (void);   
+   void HandleSaveCanvas      (void);
    void HandleSaveTableAsText (void);
    void HandleSaveSpline      (void);
    void DrawDBTable           (void);
@@ -108,7 +109,7 @@ public:
    void RetrieveStackedDBTable(void);
 
    void DrawSpline (Spline * xs, TRootEmbeddedCanvas * ecanvas, bool show_titles = true);
-   
+
    bool CheckNeugenCards(void);
 
    //-- GUI fitter methods
@@ -124,7 +125,7 @@ public:
    void  PlotXSecBoundaries   (TCanvas * c, bool clear);
 
    //-- methods for reseting SQL GUI widgets & viewers
-   
+
    void ResetSqlSelections    (void);
    void ResetCommonSelections (void);
    void ClearViewer           (void);
@@ -135,7 +136,7 @@ public:
    void OpenDataViewerTab     (void);
    void OpenFitterTab         (void);
    void OpenSessionLogTab     (void);
-   
+
 private:
 
    //-- initialization & configuration methods
@@ -155,33 +156,35 @@ private:
    TGGroupFrame *      BuildUpperButtonFrame    (void);
    TGHorizontalFrame * BuildSelectionStackFrame (void);
    TGHorizontalFrame * BuildLowerButtonFrame    (void);
-   TGStatusBar *       BuildStatusBar           (void);   
+   TGStatusBar *       BuildStatusBar           (void);
    void                AddCommonCheckButtons    (void);
    void                FillFitterFrame          (void);
    void                CreateUpperFrameButtons  (TGGroupFrame * gf);
    void                SetUpperFrameButtonText  (void);
    void                ConnectUpperFrameButtons (void);
-   const TGPicture *   Pic  (const char * name, int x, int y);   
+   const TGPicture *   Pic  (const char * name, int x, int y);
    const char *        Icon (const char * name);
 
    //-- methods for handling data selections
-   
+
    bool    ScaleWithEnergy (void);
    string  PlotVariable    (void);
-      
+
    //-- methods for extracting cross section data
-   
+
    DBTable<vXSecTableRow> *     FillNuXSecTable     (void);
    DBTable<eDiffXSecTableRow> * FillElDiffXSecTable (void);
    DBTable<SFTableRow> *        FillSFTable         (void);
 
    //-- GUI widgets
-   
+
    TGMainFrame *             fMain;
    TGMenuBar *               fMenu;
+   TGDockableFrame *         fMenuDock;
    TGPopupMenu *             fMenuFile;
+   TGPopupMenu *             fMenuView;
    TGPopupMenu *             fMenuDBase;
-   TGPopupMenu *             fMenuExport;
+   TGPopupMenu *             fMenuExpImp;
    TGPopupMenu *             fMenuNeuGen;
    TGPopupMenu *             fMenuGENIE;
    TGPopupMenu *             fMenuFit;
@@ -204,19 +207,19 @@ private:
    TGCompositeFrame *        fFitterRightFrame;
    TGStatusBar *             fStatusBar;
    TGHProgressBar *          fProgressBar;
-   TGTextEdit *              fDataViewer;   
+   TGTextEdit *              fDataViewer;
    TGTextEdit *              fLog;
    TGTextEdit *              fFitTxtResults;
    TRootEmbeddedCanvas *     fPlotTabEmbCnv;
    TRootEmbeddedCanvas *     fFitTabFuncEmbCnv;
-   TRootEmbeddedCanvas *     fFitTabChisqEmbCnv;   
+   TRootEmbeddedCanvas *     fFitTabChisqEmbCnv;
    TGLayoutHints *           fMenuBarLt;
    TGLayoutHints *           fMenuBarItemLt;
    TGLayoutHints *           fMenuBarHelpLt;
    TGLayoutHints *           fPlotterTabLt;
    TGLayoutHints *           fDataViewTabLt;
    TGLayoutHints *           fFitterTabLt;
-   TGLayoutHints *           fNuSqlTabLt; 
+   TGLayoutHints *           fNuSqlTabLt;
    TGLayoutHints *           fElSqlTabLt;
    TGLayoutHints *           fSFSqlTabLt;
    TGLayoutHints *           fLogTabLt;
@@ -257,9 +260,9 @@ private:
    TGPictureButton *         fSaveBtn;
    TGPictureButton *         fHelpBtn;
    TGPictureButton *         fDurhamBtn;
-   TGPictureButton *         fAboutBtn;  
+   TGPictureButton *         fAboutBtn;
    TGPictureButton *         fSelResetBtn;
-   TGPictureButton *         fPrintDataBtn;   
+   TGPictureButton *         fPrintDataBtn;
    TGPictureButton *         fDBCloseBtn;
    TGPictureButton *         fDBCheckBtn;
    TGPictureButton *         fDBInfoBtn;
@@ -271,14 +274,14 @@ private:
    TGPictureButton *         fPrmScanBtn;
    TGPictureButton *         fPrmScan1dBtn;
    TGPictureButton *         fPrmScan2dBtn;
-   TGPictureButton *         fResetFitBtn;   
+   TGPictureButton *         fResetFitBtn;
    TGTextButton *            fShowFullNuDialogTBtn;
    TGTextButton *            fShowExpertNuDialogTBtn;
    TGTextButton *            fSelectNeuGenFitParams;
    TGHorizontalFrame *       fProgressBarHFrm;
-   TGHorizontalFrame *       fStackHFrm;   
+   TGHorizontalFrame *       fStackHFrm;
    TGCheckButton *           fShowColorCodeChkB;
-   TGCheckButton *           fShowExtLegendChkB;   
+   TGCheckButton *           fShowExtLegendChkB;
    TGCheckButton *           fUseStackedChkB;
    TGNumberEntry *           fEMinNmE;
    TGNumberEntry *           fEMaxNmE;
@@ -301,9 +304,9 @@ private:
    vDataSelectionTab *       fNuXSecTab;
    eDataSelectionTab *       fElXSecTab;
    SFDataSelectionTab *      fSFTab;
-      
+
    //-- 'action' objects that handle some classes of GUI events
-   
+
    GuiHelpHandler *          fHelpHandler;
    GuiDBHandler *            fDBaseHandler;
    GuiXmlFileHandler *       fXmlFileHandler;
@@ -313,8 +316,8 @@ private:
    //-- other private date members
 
    DBConnection *            fDBC;
-   NeuGenFitParams *         fNGFP;   
-   bool                      fPlotterShowIsOn;   
+   NeuGenFitParams *         fNGFP;
+   bool                      fPlotterShowIsOn;
    Spline *                  fSpline;
    NuVldConfig *             fMyConfig;
 
