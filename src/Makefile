@@ -23,7 +23,7 @@ ifndef GOPT_NEUGEN
 endif
 
 ifdef GOPT_NUVALIDATOR
-  BUILD_TARGETS := $(BUILD_TARGETS) nuvld
+  BUILD_TARGETS := $(BUILD_TARGETS) nuvld-std
 endif
 
 ifdef GOPT_GEANT_INTERFACE
@@ -75,8 +75,8 @@ generator-libs:
 dummy-neugen: 
 	cd NuValidator; make dummy-neugen; cd ..; 
 
-nuvld: 
-	cd NuValidator; make; cd ..; 
+nuvld-std: 
+	cd NuValidator; make std; cd ..; 
 
 nuvld-libs:
 	cd NuValidator; make libs; cd ..; 
