@@ -64,6 +64,8 @@
 # GOPT_ENABLE_NUVALIDATOR     -> enables GENIE's NuValidator
 # GOPT_ENABLE_NEUGEN          -> enables NuValidator's NeuGEN facade
 # GOPT_ENABLE_GEANT_INTERFACE -> enables GENIE/GEANT interface
+# GOPT_ENABLE_FLUX_DRIVERS    -> enables GENIE's flux drivers
+# GOPT_ENABLE_GEOM_DRIVERS    -> enables GENIE's geometry drivers
 # GOPT_ENABLE_DOXYGEN_DOC     -> enables GENIE's Doxygen doc
 
 
@@ -76,6 +78,8 @@
 # GOPT_ENABLE_NUVALIDATOR     -> YES
 # GOPT_ENABLE_NEUGEN          -> YES
 # GOPT_ENABLE_GEANT_INTERFACE -> NO
+# GOPT_ENABLE_FLUX_DRIVERS    -> YES
+# GOPT_ENABLE_GEOM_DRIVERS    -> YES
 # GOPT_ENABLE_DOXYGEN_DOC     -> NO
 
 ifndef GOPT_ENABLE_PROFILER   
@@ -89,6 +93,12 @@ ifndef GOPT_ENABLE_NEUGEN
 endif 
 ifndef GOPT_ENABLE_GEANT_INTERFACE
   GOPT_ENABLE_GEANT_INTERFACE=NO
+endif 
+ifndef GOPT_ENABLE_FLUX_DRIVERS
+  GOPT_ENABLE_FLUX_DRIVERS=YES
+endif 
+ifndef GOPT_ENABLE_GEOM_DRIVERS
+  GOPT_ENABLE_GEOM_DRIVERS=YES
 endif 
 ifndef GOPT_ENABLE_DOXYGEN_DOC
   GOPT_ENABLE_DOXYGEN_DOC=NO
@@ -109,6 +119,12 @@ ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),YES)
 endif
 ifeq ($(strip $(GOPT_ENABLE_GEANT_INTERFACE)),YES) 
   GOPT_GEANT_INTERFACE=1
+endif
+ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES) 
+  GOPT_FLUX_DRIVERS=1
+endif
+ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES) 
+  GOPT_GEOM_DRIVERS=1
 endif
 ifeq ($(strip $(GOPT_DOXYGEN_DOC)),YES) 
   GOPT_DOXYGEN_DOC=1
@@ -474,14 +490,20 @@ GENIE_LIBRARIES := -L $(GENIE_LIB_PATH) \
   -lGEVGCore -lGEVGModules -lGEVGDrivers\
   -lGFragmentation -lGInteraction -lGInvMuDecay -lGMessenger \
   -lGNtuple -lGNuclear -lGNumerical -lGValidityDoc \
-  -lGEVGCore -lGEVGDrivers -lGEVGModules -lGGeo \
+  -lGEVGCore -lGEVGDrivers -lGEVGModules  \
   -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
-  -lGReinSeghal -lGUtils -lGViewer -lGCrossSections -lGFluxDrivers
+  -lGReinSeghal -lGUtils -lGViewer -lGCrossSections
 
 # add the GENIE/GEANT interface library if the interface is enabled
 
 ifdef GOPT_GEANT_INTERFACE
-#  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGG4I
+  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGG4I
+endif
+ifdef GOPT_FLUX_DRIVERS
+  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGFluxDrivers
+endif
+ifdef GOPT_GEOM_DRIVERS
+  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGGeo
 endif
 
 # standard GENIE's NuValidator libraries
