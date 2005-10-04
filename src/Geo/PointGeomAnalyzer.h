@@ -22,7 +22,7 @@
 #ifndef _POINT_GEOMETRY_ANALYZER_H_
 #define _POINT_GEOMETRY_ANALYZER_H_
 
-#include "Geo/GeomAnalyzerI.h"
+#include "EVGDrivers/GeomAnalyzerI.h"
 
 namespace genie {
 

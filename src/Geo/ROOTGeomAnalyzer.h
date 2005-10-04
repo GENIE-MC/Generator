@@ -20,7 +20,7 @@
 
 #include <TGeoManager.h>
 
-#include "Geo/GeomAnalyzerI.h"
+#include "EVGDrivers/GeomAnalyzerI.h"
 #include "PDG/PDGUtils.h"
 
 class TGeoVolume;

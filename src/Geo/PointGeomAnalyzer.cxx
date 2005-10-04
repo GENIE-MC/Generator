@@ -23,7 +23,7 @@
 #include <TVector3.h>
 
 #include "Geo/PointGeomAnalyzer.h"
-#include "Geo/PathLengthList.h"
+#include "EVGDrivers/PathLengthList.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodeList.h"
 #include "PDG/PDGLibrary.h"
