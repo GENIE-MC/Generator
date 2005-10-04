@@ -15,21 +15,13 @@ all:
 	cd NuVldGUI;           make; cd ..;    \
 	cd app;                make; cd ..; 
 
-all-no-neugen:
-	cd XmlParser;          make; cd ..;    \
-	cd DBUtils;            make; cd ..;    \
-	cd NuVldGUI;           make; cd ..;    \
-	cd app;                make; cd ..; 
+dummy-neugen:
+	cd Facades/dummy/;     make; cd ../..;  
 
 libs:
 	cd XmlParser;          make; cd ..;    \
 	cd DBUtils;            make; cd ..;    \
 	cd Facades;            make; cd ..;    \
-	cd NuVldGUI;           make; cd ..;    
-
-libs-no-neugen:
-	cd XmlParser;          make; cd ..;    \
-	cd DBUtils;            make; cd ..;    \
 	cd NuVldGUI;           make; cd ..;    
 
 applications:
@@ -47,13 +39,15 @@ clean: FORCE
 	cd DBUtils;            make clean; cd ..;    \
 	cd Facades;	       make clean; cd ..;    \
 	cd NuVldGUI;           make clean; cd ..;    \
+	cd Facades/dummy;      make clean; cd ../..; \
 	cd app;                make clean; cd ..; 
 
 clean-libs: FORCE
 	cd XmlParser;          make clean; cd ..;    \
 	cd DBUtils;            make clean; cd ..;    \
 	cd Facades;            make clean; cd ..;    \
-	cd NuVldGUI;           make clean; cd ..;    
+	cd NuVldGUI;           make clean; cd ..;    \
+	cd Facades/dummy;      make clean; cd ../..; 
 
 clean-applications: FORCE
 	cd app;                make clean; cd ..; 
