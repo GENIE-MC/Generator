@@ -12,33 +12,41 @@ MAKEFILE = Makefile
 # Include machine specific flags and locations (inc. files & libs)
 include $(GENIE)/src/Make.include
 
-# default build targets
-BUILD_TARGETS = save-build-options generator-libs generator-std-exe scripts
+# std build targets
+BUILD_TARGETS = save-build-options generator-std-libs 
 
 # build targets to be enabled by the user (nu-validator, 
-# genie/geant interface, doxygen documentation)
+# genie/geant interface, flux/geometry drivers doxygen documentation)
 
+ifndef GOPT_FLUX_DRIVERS
+  BUILD_TARGETS := $(BUILD_TARGETS) flux-drivers
+endif
+ifndef GOPT_GEOM_DRIVERS
+  BUILD_TARGETS := $(BUILD_TARGETS) geom-drivers
+endif
 ifndef GOPT_NEUGEN
   BUILD_TARGETS := $(BUILD_TARGETS) dummy-neugen
 endif
-
 ifdef GOPT_NUVALIDATOR
   BUILD_TARGETS := $(BUILD_TARGETS) nuvld-std
 endif
-
 ifdef GOPT_GEANT_INTERFACE
   BUILD_TARGETS := $(BUILD_TARGETS) geanti
 endif
-
 ifdef GOPT_DOXYGEN_DOC
   BUILD_TARGETS := $(BUILD_TARGETS) doxygen-doc
 endif
+
+# after all libraries have been build, add some standard 
+# build targets (standalone apps, etc)
+
+BUILD_TARGETS := $(BUILD_TARGETS) generator-std-exe scripts
 
 # define build targets
 
 all: $(BUILD_TARGETS)
 
-generator-libs:
+generator-std-libs:
 	cd Algorithm;          make; cd ..; \
 	cd BaryonResonance;    make; cd ..; \
 	cd Base;               make; cd ..; \
@@ -50,10 +58,8 @@ generator-libs:
 	cd EVGCore;            make; cd ..; \
 	cd EVGModules;         make; cd ..; \
 	cd EVGDrivers;         make; cd ..; \
-	cd FluxDrivers;        make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
 	cd GHEP;               make; cd ..; \
-	cd Geo;                make; cd ..; \
 	cd ValidityDoc;        make; cd ..; \
 	cd Interaction;        make; cd ..; \
 	cd InverseMuonDecay;   make; cd ..; \
@@ -71,6 +77,12 @@ generator-libs:
 	cd ReinSeghal;         make; cd ..; \
 	cd Utils;              make; cd ..; \
 	cd Viewer;             make; cd ..; \
+
+flux-drivers:
+	cd FluxDrivers;        make; cd ..;
+
+geom-drivers:
+	cd Geo;                make; cd ..; 
 
 dummy-neugen: 
 	cd NuValidator; make dummy-neugen; cd ..; 
@@ -99,7 +111,7 @@ generator-test-exe:
 scripts:
 	cd scripts; make install; cd ..;
 
-all-libs: generator-libs nuvld-libs
+all-libs: generator-std-libs flux-drivers geom-drivers geanti nuvld-libs
 
 save-build-options:
 	perl scripts/save-build-env;
