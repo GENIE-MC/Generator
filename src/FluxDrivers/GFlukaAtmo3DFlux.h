@@ -26,8 +26,10 @@
 #define _GFLUKA_ATMO_3D_FLUX_I_H_
 
 #include <string>
+
 #include <TLorentzVector.h>
-#include "FluxDrivers/GFluxI.h"
+
+#include "EVGDrivers/GFluxI.h"
 
 class TH2D;
 
