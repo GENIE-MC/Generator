@@ -22,8 +22,10 @@
 #define _G_TH1_CYLICDRICAL_FLUX_H_
 
 #include <vector>
+
 #include <TLorentzVector.h>
-#include "FluxDrivers/GFluxI.h"
+
+#include "EVGDrivers/GFluxI.h"
 
 class TH1D;
 class TVector3;
