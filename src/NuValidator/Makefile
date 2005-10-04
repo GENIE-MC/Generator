@@ -8,6 +8,9 @@ SHELL = /bin/sh
 NAME = all
 MAKEFILE = Makefile
 
+# Include machine specific flags and locations (inc. files & libs)
+include $(GENIE)/src/Make.include
+
 ifndef GOPT_NEUGEN
   BUILD_TARGETS := dummy-neugen
 endif
