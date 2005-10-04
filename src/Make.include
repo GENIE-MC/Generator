@@ -10,10 +10,14 @@
 #
 # In the following section you will find a list of environmental vars 
 # that should be properly defined.
-# See also $GENIE/src/scripts/setup_genie_example for an example
-# shell script that can configure your environment for building/using
-# GENIE.
+# Note: Do not not set them here. Create a setup script and run it to
+# configure your environment prior to building/running GENIE.
+# See $GENIE/src/scripts/setup_genie_example for an example shell 
+# script that can configure your environment for GENIE.
 #
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#                    GENIE paths - Description
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Mandatory:
 # .................................................................
 #  ROOTSYS        -> top level ROOT directory
@@ -43,30 +47,45 @@
 #  GEANT4_INC     -> top level GEANT4 source directory 
 #  GEANT4_LIB     -> top level GEANT4 source directory 
 #
-# Note:
-# -----
-# If you enable GENIE's NuValidator then you must also have the MySQL 
-# relational data-base management system properly installed and ROOT
-# configured to work with MySQL.
+# Notes:
+# ------
+# - If you enable GENIE's NuValidator then you must also have the 
+#   MySQL  relational data-base management system properly installed 
+#   and ROOT configured to work with MySQL.
+# - As of now, independently of your enabled options ROOT must be 
+#   properly configured to work with PYTHIA-6 and CERNLIBs
 #
-
-#-------------------------------------------------------------------
-#                        GENIE build options
-# ------------------------------------------------------------------
-# Set the following environmental variables to enable GENIE options
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#                 GENIE build options - Description
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Set the following environmental variables to enable GENIE options:
 #
 # GOPT_ENABLE_PROFILER        -> enables Google profiler
 # GOPT_ENABLE_NUVALIDATOR     -> enables GENIE's NuValidator
+# GOPT_ENABLE_NEUGEN          -> enables NuValidator's NeuGEN facade
 # GOPT_ENABLE_GEANT_INTERFACE -> enables GENIE/GEANT interface
 # GOPT_ENABLE_DOXYGEN_DOC     -> enables GENIE's Doxygen doc
 
-# If variables not set, set defaults
+
+#-------------------------------------------------------------------
+#              GENIE build options - Setting defaults
+# ------------------------------------------------------------------
+# If variables controlling build options are not set, set defaults:
+#
+# GOPT_ENABLE_PROFILER        -> NO
+# GOPT_ENABLE_NUVALIDATOR     -> YES
+# GOPT_ENABLE_NEUGEN          -> YES
+# GOPT_ENABLE_GEANT_INTERFACE -> NO
+# GOPT_ENABLE_DOXYGEN_DOC     -> NO
 
 ifndef GOPT_ENABLE_PROFILER   
  GOPT_ENABLE_PROFILER=NO
 endif
-ifndef GOPT_ENABLE_NUVALIDATOR    
+ifndef GOPT_ENABLE_NUVALIDATOR 
   GOPT_ENABLE_NUVALIDATOR=YES
+endif 
+ifndef GOPT_ENABLE_NEUGEN
+  GOPT_ENABLE_NEUGEN=YES
 endif 
 ifndef GOPT_ENABLE_GEANT_INTERFACE
   GOPT_ENABLE_GEANT_INTERFACE=NO
@@ -75,13 +94,18 @@ ifndef GOPT_ENABLE_DOXYGEN_DOC
   GOPT_ENABLE_DOXYGEN_DOC=NO
 endif
 
-# read options
+#-------------------------------------------------------------------
+#         GENIE build options - Read user-specified options
+# ------------------------------------------------------------------
 
 ifeq ($(strip $(GOPT_ENABLE_PROFILER)),YES) 
   GOPT_PROFILER=1
 endif
 ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES) 
   GOPT_NUVALIDATOR=1
+endif
+ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),YES) 
+  GOPT_NEUGEN=1
 endif
 ifeq ($(strip $(GOPT_ENABLE_GEANT_INTERFACE)),YES) 
   GOPT_GEANT_INTERFACE=1
@@ -158,6 +182,17 @@ PYTHIA_LIBRARIES  = -L $(PYTHIA_DIR) -lPythia6 $(PYTHIA_O)
 #-------------------------------------------------------------------
 #                             NEUGEN3
 #-------------------------------------------------------------------
+
+# if NuValidator's NeuGEN facade was not enabled (eg because NeuGEN
+# is not installed) we will build a dummy NeuGEN library so that the
+# NuValidator's facade can compile. In this case, override NEUGEN3PATH
+
+ifndef GOPT_NEUGEN
+  NEUGEN3PATH=$(GENIE)
+endif
+
+# Set NeuGEN library - This would work for either the proper NeuGEN 
+# library or the dummy library.
 
 NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
 
