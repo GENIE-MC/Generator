@@ -107,6 +107,7 @@ public:
    void PrintCurrentDBTable   (void);
    void SetCurrDBTable        (void);
    void RetrieveStackedDBTable(void);
+   void UpdateFrameSize       (void);
 
    void DrawSpline (Spline * xs, TRootEmbeddedCanvas * ecanvas, bool show_titles = true);
 
@@ -181,6 +182,8 @@ private:
    TGMainFrame *             fMain;
    TGMenuBar *               fMenu;
    TGDockableFrame *         fMenuDock;
+   TGDockableFrame *         fDBSelDock;
+   TGDockableFrame *         fBottomFrmDock;
    TGPopupMenu *             fMenuFile;
    TGPopupMenu *             fMenuView;
    TGPopupMenu *             fMenuDBase;
@@ -200,9 +203,13 @@ private:
    TGCompositeFrame *        fTabSFSql; // owned by tab object
    TGCompositeFrame *        fMainFrame;
    TGCompositeFrame *        fMainTopFrame;
+   TGCompositeFrame *        fMainMiddleFrame;
    TGCompositeFrame *        fMainBottomFrame;
+   TGCompositeFrame *        fMainDBottomFrame;
    TGCompositeFrame *        fMainLeftFrame;
    TGCompositeFrame *        fMainRightFrame;
+   TGCompositeFrame *        fBottomLeftFrame;
+   TGCompositeFrame *        fBottomRightFrame;
    TGCompositeFrame *        fFitterLeftFrame;
    TGCompositeFrame *        fFitterRightFrame;
    TGStatusBar *             fStatusBar;
@@ -319,7 +326,9 @@ private:
    NeuGenFitParams *         fNGFP;
    bool                      fPlotterShowIsOn;
    Spline *                  fSpline;
-   NuVldConfig *             fMyConfig;
+   NuVldConfig *             fMyConfig;        // nuvld session config
+   UInt_t                    fW0;              // original window width
+   UInt_t                    fH0;              // original window height
 
 ClassDef(NuVldMainFrame, 0)
 };

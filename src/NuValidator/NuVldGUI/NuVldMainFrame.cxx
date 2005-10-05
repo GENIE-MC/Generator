@@ -104,14 +104,15 @@ ClassImp(NuVldMainFrame)
 //______________________________________________________________________________
 NuVldMainFrame::NuVldMainFrame(
         const TGWindow * p, UInt_t w, UInt_t h, const NuVldConfig & my_config) :
-TGMainFrame(p, w, h)
+TGMainFrame(p, w, h, kFitHeight | kFitWidth)
 {
   fMyConfig = new NuVldConfig(my_config);
 
   UInt_t kv = kVerticalFrame;
   UInt_t kh = kHorizontalFrame;
+  UInt_t kf = kFitHeight | kFitWidth;
 
-  fMain = new TGMainFrame(p,w,h);
+  fMain = new TGMainFrame(p,w,h,kf);
   fMain->Connect("CloseWindow()",
                          "genie::nuvld::NuVldMainFrame", this, "CloseWindow()");
   this->Init();
@@ -135,9 +136,10 @@ TGMainFrame(p, w, h)
 
   //-- instantiate main frames (below menu & above the status bar)
 
-  fMainFrame       = new TGCompositeFrame(fMain,       1, 1, kv);
-  fMainTopFrame    = new TGCompositeFrame(fMainFrame,  3, 3, kh);
-  fMainBottomFrame = new TGCompositeFrame(fMainFrame,  3, 3, kh);
+  fMainFrame       = new TGCompositeFrame(fMain,       1, 1, kv|kf);
+  fMainTopFrame    = new TGCompositeFrame(fMainFrame,  3, 3, kh|kf);
+  fMainMiddleFrame = new TGCompositeFrame(fMainFrame,  3, 3, kh|kf);
+  fMainBottomFrame = new TGCompositeFrame(fMainFrame,  3, 3, kh|kf);
 
   //-- TOP FRAME: add image buttons frame
 
@@ -145,47 +147,64 @@ TGMainFrame(p, w, h)
 
   fMainTopFrame -> AddFrame( fImgBtnGrpFrm  );
 
-  //-- BOOTOM FRAME:
+  //-- MIDDLE FRAME:
   //         left  : neutrino / electron scattering data SQL tabs
   //         right : plotter / data viewer / session log tabs
 
-  fMainLeftFrame   = new TGCompositeFrame(fMainBottomFrame, 3, 3, kv);
-  fMainRightFrame  = new TGCompositeFrame(fMainBottomFrame, 3, 3, kv);
+  fMainLeftFrame   = new TGCompositeFrame(fMainMiddleFrame, 3, 3, kv);
+  fMainRightFrame  = new TGCompositeFrame(fMainMiddleFrame, 3, 3, kv);
 
-  fMainBottomFrame  -> AddFrame ( fMainLeftFrame,    fMLeftFrameLt  );
-  fMainBottomFrame  -> AddFrame ( fMainRightFrame,   fMRightFrameLt );
+  fDBSelDock = new TGDockableFrame(fMainLeftFrame);
+  fDBSelDock->SetWindowName("NuVld DB Selections");
+  fDBSelDock->EnableUndock(kTRUE);
+  fDBSelDock->EnableHide(kTRUE);
 
   fTabSql  = this->BuildSqlTab();
   fTabData = this->BuildDataTab();
 
-  fMainRightFrame -> AddFrame ( fTabData, fDataTabLt );
-  fMainLeftFrame  -> AddFrame ( fTabSql,  fSqlTabLt  );
+  fDBSelDock        -> AddFrame ( fTabSql, fSqlTabLt   );
+  fMainRightFrame   -> AddFrame ( fTabData, fDataTabLt );
+  fMainLeftFrame    -> AddFrame ( fDBSelDock           );
+  fMainMiddleFrame  -> AddFrame ( fMainLeftFrame,    fMLeftFrameLt  );
+  fMainMiddleFrame  -> AddFrame ( fMainRightFrame,   fMRightFrameLt );
 
-  this->AddCommonCheckButtons();
+  //-- BOTTOM FRAME:
+  //         left  : checkboxes
+  //         right : common buttons / progress bar / selection stacking
 
-  //-- add Selection-Stacking GUI widgets
+  fBottomFrmDock = new TGDockableFrame(fMainBottomFrame);
+  fBottomFrmDock->SetWindowName("NuVld");
+  fBottomFrmDock->EnableUndock(kTRUE);
+  fBottomFrmDock->EnableHide(kTRUE);
 
-  fStackHFrm = this->BuildSelectionStackFrame();
+  fMainDBottomFrame = new TGCompositeFrame(fBottomFrmDock,    3, 3, kh|kf);
+  fBottomLeftFrame  = new TGCompositeFrame(fMainDBottomFrame, 3, 3, kv);
+  fBottomRightFrame = new TGCompositeFrame(fMainDBottomFrame, 3, 3, kv);
 
-  fMainRightFrame->AddFrame( fStackHFrm, fSelStackLt );
+  this->AddCommonCheckButtons();                    // build second button-bar
+  fStackHFrm = this->BuildSelectionStackFrame();    // add selection-stacking GUI
+  fProgressBarHFrm = this->BuildLowerButtonFrame(); // add progress bar
 
-  //-- add Progress Bar & lower row of image buttons
+  fBottomRightFrame ->AddFrame ( fStackHFrm,       fSelStackLt    );
+  fBottomRightFrame ->AddFrame ( fProgressBarHFrm, fProgressBarLt );
 
-  fProgressBarHFrm = this->BuildLowerButtonFrame();
+  //fMainBottomFrame->AddFrame(fBottomLeftFrame,  new TGLayoutHints(kLHintsExpandX, 0, 0, 1, 0));
+  fMainDBottomFrame->AddFrame(fBottomLeftFrame);
+  fMainDBottomFrame->AddFrame(fBottomRightFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 1, 0));
 
-  fMainRightFrame->AddFrame( fProgressBarHFrm, fProgressBarLt );
+  fBottomFrmDock->AddFrame(fMainDBottomFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 1, 0));
+  fMainBottomFrame->AddFrame(fBottomFrmDock);
 
   //-- add top/bottom main frames to main frame, and main frame to main
 
   fMainFrame -> AddFrame ( fMainTopFrame    );
+  fMainFrame -> AddFrame ( fMainMiddleFrame );
   fMainFrame -> AddFrame ( fMainBottomFrame );
-
-  fMain -> AddFrame ( fMainFrame  );
+  fMain      -> AddFrame ( fMainFrame       , new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 0));
 
   //-- add Status Bar
 
   fStatusBar = this->BuildStatusBar();
-
   fMain->AddFrame(fStatusBar, fStatusBarLt);
 
   //-- initialize
@@ -198,12 +217,12 @@ TGMainFrame(p, w, h)
   this->ConfigHandlers();
 
   fMain->SetWindowName("GENIE/NuValidator");
-
   fMain->MapSubwindows();
-
   fMain->Resize( fMain->GetDefaultSize() );
-
   fMain->MapWindow();
+
+  fW0 = fMain->GetWidth();  // original window width
+  fH0 = fMain->GetHeight(); // original window height
 }
 //______________________________________________________________________________
 NuVldMainFrame::~NuVldMainFrame()
@@ -304,15 +323,33 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
 
   fMenuView = new TGPopupMenu(gClient->GetRoot());
 
-  fMenuView->AddEntry ("Enable (Un)Dock Menu", M_VIEW_ENABLE_UNDOCK  );
-  fMenuView->AddEntry ("Enable Hide Menu",     M_VIEW_ENABLE_HIDE    );
+  fMenuView->AddEntry ("Enable (Un)Dock Menu-Bar",       M_VIEW_ENABLE_UNDOCK_MENU           );
+  fMenuView->AddEntry ("Enable (Un)Dock Selection-Tabs", M_VIEW_ENABLE_UNDOCK_SELECTION_TABS );
+  fMenuView->AddEntry ("Enable (Un)Dock Bottom-Frame",   M_VIEW_ENABLE_UNDOCK_BOTTOM_FRAME   );
+  fMenuView->AddEntry ("Enable Hide Menu-Bar",           M_VIEW_ENABLE_HIDE_MENU             );
+  fMenuView->AddEntry ("Enable Hide Selection-Tabs",     M_VIEW_ENABLE_HIDE_SELECTION_TABS   );
+  fMenuView->AddEntry ("Enable Hide Bottom-Frame",       M_VIEW_ENABLE_HIDE_BOTTOM_FRAME     );
   fMenuView->AddSeparator();
-  fMenuView->AddEntry ("Dock Menu",            M_VIEW_DOCK           );
-  fMenuView->AddEntry ("UnDock Menu",          M_VIEW_UNDOCK         );
-  fMenuView->AddEntry ("Hide Menu",            M_VIEW_HIDE           );
+  fMenuView->AddEntry ("Dock Menu-Bar",                  M_VIEW_DOCK_MENU                    );
+  fMenuView->AddEntry ("UnDock Menu-Bar",                M_VIEW_UNDOCK_MENU                  );
+  fMenuView->AddEntry ("Hide Menu-Bar",                  M_VIEW_HIDE_MENU                    );
+  fMenuView->AddSeparator();
+  fMenuView->AddEntry ("Dock Selection-Tabs",            M_VIEW_DOCK_SELECTION_TABS          );
+  fMenuView->AddEntry ("UnDock Selection-Tabs",          M_VIEW_UNDOCK_SELECTION_TABS        );
+  fMenuView->AddEntry ("Hide Selection-Tabs",            M_VIEW_HIDE_SELECTION_TABS          );
+  fMenuView->AddEntry ("Show Selection-Tabs",            M_VIEW_SHOW_SELECTION_TABS          );
+  fMenuView->AddSeparator();
+  fMenuView->AddEntry ("Dock Bottom-Frame",              M_VIEW_DOCK_BOTTOM_FRAME            );
+  fMenuView->AddEntry ("UnDock Bottom-Frame",            M_VIEW_UNDOCK_BOTTOM_FRAME          );
+  fMenuView->AddEntry ("Hide Bottom-Frame",              M_VIEW_HIDE_BOTTOM_FRAME            );
+  fMenuView->AddEntry ("Show Bottom-Frame",              M_VIEW_SHOW_BOTTOM_FRAME            );
 
-  fMenuView->CheckEntry ( M_VIEW_ENABLE_UNDOCK );
-  fMenuView->CheckEntry ( M_VIEW_ENABLE_HIDE   );
+  fMenuView->CheckEntry ( M_VIEW_ENABLE_UNDOCK_MENU           );
+  fMenuView->CheckEntry ( M_VIEW_ENABLE_HIDE_MENU             );
+  fMenuView->CheckEntry ( M_VIEW_ENABLE_UNDOCK_SELECTION_TABS );
+  fMenuView->CheckEntry ( M_VIEW_ENABLE_HIDE_SELECTION_TABS   );
+  fMenuView->CheckEntry ( M_VIEW_ENABLE_UNDOCK_BOTTOM_FRAME   );
+  fMenuView->CheckEntry ( M_VIEW_ENABLE_HIDE_BOTTOM_FRAME     );
 
   fMenuView->Connect("Activated(Int_t)",
                                   "genie::nuvld::NuVldMainFrame",
@@ -529,7 +566,8 @@ TGTab * NuVldMainFrame::BuildSqlTab(void)
   unsigned int width  = 250;
   unsigned int height = 550;
 
-  TGTab * tab = new TGTab(fMainLeftFrame, 1, 1);
+  //TGTab * tab = new TGTab(fMainLeftFrame, 1, 1);
+  TGTab * tab = new TGTab(fDBSelDock, 1, 1);
 
   //-- tab: SQL GUI widgets for v scattering data
 
@@ -557,13 +595,15 @@ TGTab * NuVldMainFrame::BuildSqlTab(void)
 //______________________________________________________________________________
 void NuVldMainFrame::AddCommonCheckButtons(void)
 {
-  fShowColorCodeChkB = new TGCheckButton(fMainLeftFrame, "Color-Code plot",  72);
-  fShowExtLegendChkB = new TGCheckButton(fMainLeftFrame, "External legend",  73);
-  fUseStackedChkB    = new TGCheckButton(fMainLeftFrame, "Use stacked",      74);
+  TGCompositeFrame * frm = fBottomLeftFrame;
 
-  fMainLeftFrame -> AddFrame( fShowColorCodeChkB );
-  fMainLeftFrame -> AddFrame( fShowExtLegendChkB );
-  fMainLeftFrame -> AddFrame( fUseStackedChkB    );
+  fShowColorCodeChkB = new TGCheckButton(frm, "Color-Code plot",  72);
+  fShowExtLegendChkB = new TGCheckButton(frm, "External legend",  73);
+  fUseStackedChkB    = new TGCheckButton(frm, "Use stacked",      74);
+
+  frm -> AddFrame( fShowColorCodeChkB );
+  frm -> AddFrame( fShowExtLegendChkB );
+  frm -> AddFrame( fUseStackedChkB    );
 }
 //______________________________________________________________________________
 TGTab * NuVldMainFrame::BuildDataTab(void)
@@ -576,6 +616,7 @@ TGTab * NuVldMainFrame::BuildDataTab(void)
   unsigned int height = 550;
 
   TGTab * tab = new TGTab(fMainRightFrame, 1, 1);
+  //TGTab * tab = new TGTab(fMainTabDock, 1, 1);
 
   //--- tab: "Plotter"
 
@@ -766,7 +807,7 @@ void NuVldMainFrame::SelectNeuGenFitParams(void)
 //______________________________________________________________________________
 TGHorizontalFrame * NuVldMainFrame::BuildSelectionStackFrame(void)
 {
-  TGHorizontalFrame * hf = new TGHorizontalFrame(fMainRightFrame, 10, 10);
+  TGHorizontalFrame * hf = new TGHorizontalFrame(fBottomRightFrame, 10, 10);
 
   // selection-stack-frame: labels
 
@@ -824,7 +865,7 @@ TGHorizontalFrame * NuVldMainFrame::BuildSelectionStackFrame(void)
 //______________________________________________________________________________
 TGHorizontalFrame * NuVldMainFrame::BuildLowerButtonFrame(void)
 {
-  TGHorizontalFrame * hf = new TGHorizontalFrame(fMainRightFrame, 10, 10);
+  TGHorizontalFrame * hf = new TGHorizontalFrame(fBottomRightFrame, 10, 10);
 
   // lower frame: left hand-side picture buttons
 
@@ -1025,51 +1066,156 @@ void NuVldMainFrame::HandleMenu(Int_t id)
   case M_HELP_DURHAM:           fHelpHandler->DurhamOnline();            break;
   case M_HELP_HOWTO_CONN_DBASE: fHelpHandler->HowtoConnDBase();          break;
   case M_HELP_HOWTO_FILL_DBASE: fHelpHandler->HowtoFillDBase();          break;
-  case M_VIEW_ENABLE_UNDOCK:
+
+  case M_VIEW_ENABLE_UNDOCK_MENU:
            fMenuDock->EnableUndock(!fMenuDock->EnableUndock());
            if (fMenuDock->EnableUndock()) {
-               fMenuView->CheckEntry(M_VIEW_ENABLE_UNDOCK);
-               fMenuView->EnableEntry(M_VIEW_DOCK);
-               fMenuView->EnableEntry(M_VIEW_UNDOCK);
+               fMenuView->CheckEntry(M_VIEW_ENABLE_UNDOCK_MENU);
+               fMenuView->EnableEntry(M_VIEW_DOCK_MENU);
+               fMenuView->EnableEntry(M_VIEW_UNDOCK_MENU);
            } else {
-               fMenuView->UnCheckEntry(M_VIEW_ENABLE_UNDOCK);
-               fMenuView->DisableEntry(M_VIEW_DOCK);
-               fMenuView->DisableEntry(M_VIEW_UNDOCK);
+               fMenuView->UnCheckEntry(M_VIEW_ENABLE_UNDOCK_MENU);
+               fMenuView->DisableEntry(M_VIEW_DOCK_MENU);
+               fMenuView->DisableEntry(M_VIEW_UNDOCK_MENU);
+           }
+           break;
+  case M_VIEW_ENABLE_UNDOCK_SELECTION_TABS:
+           fDBSelDock->EnableUndock(!fDBSelDock->EnableUndock());
+           if (fDBSelDock->EnableUndock()) {
+               fMenuView->CheckEntry(M_VIEW_ENABLE_UNDOCK_SELECTION_TABS);
+               fMenuView->EnableEntry(M_VIEW_DOCK_SELECTION_TABS);
+               fMenuView->EnableEntry(M_VIEW_UNDOCK_SELECTION_TABS);
+           } else {
+               fMenuView->UnCheckEntry(M_VIEW_ENABLE_UNDOCK_SELECTION_TABS);
+               fMenuView->DisableEntry(M_VIEW_DOCK_SELECTION_TABS);
+               fMenuView->DisableEntry(M_VIEW_UNDOCK_SELECTION_TABS);
+           }
+           break;
+  case M_VIEW_ENABLE_UNDOCK_BOTTOM_FRAME:
+           fBottomFrmDock->EnableUndock(!fBottomFrmDock->EnableUndock());
+           if (fBottomFrmDock->EnableUndock()) {
+               fMenuView->CheckEntry(M_VIEW_ENABLE_UNDOCK_BOTTOM_FRAME);
+               fMenuView->EnableEntry(M_VIEW_DOCK_BOTTOM_FRAME);
+               fMenuView->EnableEntry(M_VIEW_UNDOCK_BOTTOM_FRAME);
+           } else {
+               fMenuView->UnCheckEntry(M_VIEW_ENABLE_UNDOCK_BOTTOM_FRAME);
+               fMenuView->DisableEntry(M_VIEW_DOCK_BOTTOM_FRAME);
+               fMenuView->DisableEntry(M_VIEW_UNDOCK_BOTTOM_FRAME);
            }
            break;
 
-  case M_VIEW_ENABLE_HIDE:
+  case M_VIEW_ENABLE_HIDE_MENU:
            fMenuDock->EnableHide(!fMenuDock->EnableHide());
            if (fMenuDock->EnableHide()) {
-               fMenuView->CheckEntry(M_VIEW_ENABLE_HIDE);
-               fMenuView->EnableEntry(M_VIEW_HIDE);
+               fMenuView->CheckEntry(M_VIEW_ENABLE_HIDE_MENU);
+               fMenuView->EnableEntry(M_VIEW_HIDE_MENU);
            } else {
-               fMenuView->UnCheckEntry(M_VIEW_ENABLE_HIDE);
-               fMenuView->DisableEntry(M_VIEW_HIDE);
+               fMenuView->UnCheckEntry(M_VIEW_ENABLE_HIDE_MENU);
+               fMenuView->DisableEntry(M_VIEW_HIDE_MENU);
+           }
+           break;
+  case M_VIEW_ENABLE_HIDE_SELECTION_TABS:
+           fDBSelDock->EnableHide(!fDBSelDock->EnableHide());
+           if (fDBSelDock->EnableHide()) {
+               fMenuView->CheckEntry(M_VIEW_ENABLE_HIDE_SELECTION_TABS);
+               fMenuView->EnableEntry(M_VIEW_HIDE_SELECTION_TABS);
+           } else {
+               fMenuView->UnCheckEntry(M_VIEW_ENABLE_HIDE_SELECTION_TABS);
+               fMenuView->DisableEntry(M_VIEW_HIDE_SELECTION_TABS);
+           }
+           break;
+  case M_VIEW_ENABLE_HIDE_BOTTOM_FRAME:
+           fBottomFrmDock->EnableHide(!fBottomFrmDock->EnableHide());
+           if (fBottomFrmDock->EnableHide()) {
+               fMenuView->CheckEntry(M_VIEW_ENABLE_HIDE_BOTTOM_FRAME);
+               fMenuView->EnableEntry(M_VIEW_HIDE_BOTTOM_FRAME);
+           } else {
+               fMenuView->UnCheckEntry(M_VIEW_ENABLE_HIDE_BOTTOM_FRAME);
+               fMenuView->DisableEntry(M_VIEW_HIDE_BOTTOM_FRAME);
            }
            break;
 
-  case M_VIEW_DOCK:
+  case M_VIEW_DOCK_MENU:
           fMenuDock->DockContainer();
-          fMenuView->EnableEntry(M_VIEW_UNDOCK);
-          fMenuView->DisableEntry(M_VIEW_DOCK);
+          fMenuView->EnableEntry(M_VIEW_UNDOCK_MENU);
+          fMenuView->DisableEntry(M_VIEW_DOCK_MENU);
           break;
-
-  case M_VIEW_UNDOCK:
+  case M_VIEW_UNDOCK_MENU:
           fMenuDock->UndockContainer();
-          fMenuView->EnableEntry(M_VIEW_DOCK);
-          fMenuView->DisableEntry(M_VIEW_UNDOCK);
+          fMenuView->EnableEntry(M_VIEW_DOCK_MENU);
+          fMenuView->DisableEntry(M_VIEW_UNDOCK_MENU);
+          break;
+  case M_VIEW_HIDE_MENU:
+          fMenuDock->HideContainer();
           break;
 
-  case M_VIEW_HIDE:
-          fMenuDock->HideContainer();
-          fMenuView->DisableEntry(M_VIEW_HIDE);
+  case M_VIEW_DOCK_SELECTION_TABS:
+          fDBSelDock->DockContainer();
+          fMenuView->EnableEntry(M_VIEW_UNDOCK_SELECTION_TABS);
+          fMenuView->DisableEntry(M_VIEW_DOCK_SELECTION_TABS);
+          this->UpdateFrameSize();
+          break;
+  case M_VIEW_UNDOCK_SELECTION_TABS:
+          fDBSelDock->UndockContainer();
+          fMenuView->EnableEntry(M_VIEW_DOCK_SELECTION_TABS);
+          fMenuView->DisableEntry(M_VIEW_UNDOCK_SELECTION_TABS);
+          this->UpdateFrameSize();
+          break;
+  case M_VIEW_HIDE_SELECTION_TABS:
+          fDBSelDock->HideContainer();
+          this->UpdateFrameSize();
+          break;
+  case M_VIEW_SHOW_SELECTION_TABS:
+          fDBSelDock->ShowContainer();
+          this->UpdateFrameSize();
+          break;
+
+  case M_VIEW_DOCK_BOTTOM_FRAME:
+          fBottomFrmDock->DockContainer();
+          fMenuView->EnableEntry(M_VIEW_UNDOCK_BOTTOM_FRAME);
+          fMenuView->DisableEntry(M_VIEW_DOCK_BOTTOM_FRAME);
+          this->UpdateFrameSize();
+          break;
+  case M_VIEW_UNDOCK_BOTTOM_FRAME:
+          fBottomFrmDock->UndockContainer();
+          fMenuView->EnableEntry(M_VIEW_DOCK_BOTTOM_FRAME);
+          fMenuView->DisableEntry(M_VIEW_UNDOCK_BOTTOM_FRAME);
+          this->UpdateFrameSize();
+          break;
+  case M_VIEW_HIDE_BOTTOM_FRAME:
+          fBottomFrmDock->HideContainer();
+          this->UpdateFrameSize();
+          break;
+  case M_VIEW_SHOW_BOTTOM_FRAME:
+          fBottomFrmDock->ShowContainer();
+          this->UpdateFrameSize();
           break;
 
   default:
        fLog->AddLine( "GUI Event could not be handled" );
        fStatusBar->SetText( "GUI Event could not be handled", 0 );
   }
+}
+//______________________________________________________________________________
+void NuVldMainFrame::UpdateFrameSize(void)
+{
+  UInt_t dW=0, dH=0;
+
+  bool no_btmfrm = fBottomFrmDock->IsUndocked() || fBottomFrmDock->IsHidden();
+  bool no_seltab = fDBSelDock->IsUndocked()     || fDBSelDock->IsHidden();
+
+  if (no_btmfrm && no_seltab) {
+     dW = fMainLeftFrame->GetWidth();
+     dH = fMainDBottomFrame->GetHeight();
+     fMain->Resize(fW0-dW,fH0-dH);
+  } else if (no_btmfrm && !no_seltab) {
+     dW = fMainLeftFrame->GetWidth();
+     dH = fMainDBottomFrame->GetHeight();
+     fMain->Resize(fW0,fH0-dH);
+  } else {
+     fMain->Resize(fW0,fH0);
+  }
+  gClient->ForceRedraw();
 }
 //______________________________________________________________________________
 
