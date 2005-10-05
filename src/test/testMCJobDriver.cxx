@@ -29,8 +29,10 @@
 #include "Utils/XSecSplineList.h"
 
 using std::string;
+
 using namespace genie;
 using namespace genie::flux;
+using namespace genie::geometry;
 
 void GetCommandLineArgs(int argc, char ** argv);
 
