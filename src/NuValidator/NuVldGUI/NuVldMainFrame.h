@@ -163,6 +163,8 @@ private:
    void                CreateUpperFrameButtons  (TGGroupFrame * gf);
    void                SetUpperFrameButtonText  (void);
    void                ConnectUpperFrameButtons (void);
+   void                HandleDisabledNeuGEN     (void);
+   void                InitNotify               (void);
    const TGPicture *   Pic  (const char * name, int x, int y);
    const char *        Icon (const char * name);
 
