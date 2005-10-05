@@ -4,6 +4,8 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
+#pragma link C++ namespace genie;
+#pragma link C++ namespace genie::exceptions;
 #pragma link C++ namespace genie::utils;
 #pragma link C++ namespace genie::utils::gui;
 #pragma link C++ namespace genie::utils::clap;

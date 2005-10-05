@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::utils::clap::CmdLineArgParserException
+\class   genie::exceptions::CmdLineArgParserException
 
 \brief   An exception thrown by the command line argument parser when command
          line arguments can not be found.
@@ -17,18 +17,16 @@
 #include "Utils/CmdLineArgParserException.h"
 
 using std::endl;
-using namespace genie::utils::clap;
+using namespace genie::exceptions;
 
 //___________________________________________________________________________
 namespace genie {
- namespace utils {
-  namespace clap {
+ namespace exceptions {
    ostream & operator<< (ostream& stream, const CmdLineArgParserException & e)
    {
       e.Print(stream);
       return stream;
    }
-  }
  }
 }
 //___________________________________________________________________________
