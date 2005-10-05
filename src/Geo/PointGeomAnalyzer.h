@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::PointGeomAnalyzer
+\class   genie::geometry::PointGeomAnalyzer
 
 \brief   The PointGeomAnalyzer class is the simplest implementation of the
          GeomAnalyserI interface and defines a simple 'point-like' geometry.
@@ -24,7 +24,8 @@
 
 #include "EVGDrivers/GeomAnalyzerI.h"
 
-namespace genie {
+namespace genie    {
+namespace geometry {
 
 class PointGeomAnalyzer : public GeomAnalyzerI {
 
@@ -52,6 +53,7 @@ private:
   PDGCodeList *    fCurrPDGCodeList;     ///< current list of target nuclei
 };
 
-}      // genie namespace
+}      // geometry namespace
+}      // genie    namespace
 
 #endif // _POINT_GEOMETRY_ANALYZER_H_

@@ -5,8 +5,9 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
+#pragma link C++ namespace genie::geometry;
 
-#pragma link C++ class genie::ROOTGeomAnalyzer;
-#pragma link C++ class genie::PointGeomAnalyzer;
+#pragma link C++ class genie::geometry::ROOTGeomAnalyzer;
+#pragma link C++ class genie::geometry::PointGeomAnalyzer;
 
 #endif

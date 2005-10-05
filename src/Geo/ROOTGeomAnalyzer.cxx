@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::ROOTGeomAnalyzer
+\class   genie::geometry::ROOTGeomAnalyzer
 
 \brief   A ROOT/GEANT Geometry Analyzer
 
@@ -35,6 +35,7 @@
 #include "Numerical/RandomGen.h"
 
 using namespace genie;
+using namespace genie::geometry;
 
 //___________________________________________________________________________
 ROOTGeomAnalyzer::ROOTGeomAnalyzer(string filename) :

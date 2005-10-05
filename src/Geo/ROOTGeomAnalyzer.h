@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::ROOTGeomAnalyzer
+\class   genie::geometry::ROOTGeomAnalyzer
 
 \brief   A ROOT/GEANT Geometry Analyzer
 
@@ -29,7 +29,8 @@ class TGeoElement;
 
 using std::string;
 
-namespace genie {
+namespace genie    {
+namespace geometry {
 
 class ROOTGeomAnalyzer : public GeomAnalyzerI {
 
@@ -74,6 +75,7 @@ private:
   PDGCodeList *    fCurrPDGCodeList;        ///< current list of target nuclei
 };
 
-}      // genie namespace
+}      // geometry namespace
+}      // genie    namespace
 
 #endif // _ROOT_GEOMETRY_ANALYZER_H_
