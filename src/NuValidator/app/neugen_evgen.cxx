@@ -13,9 +13,10 @@
          The equivalent GENIE program can be found in src/test/testEvGen.cxx
 
          Syntax :
-            ngevgen [-n nev] [-e energy] [-p nupdg] [-t tgtpdg] [-o opt]
+            ngevgen [-n nev] -e energy -p nupdg -t tgtpdg [-o opt]
 
          Options :
+           [] denotes an optional argument
            -n specifies the number of events to generate
            -e specifies the neutrino energy
            -p specifies the neutrino PDG code
@@ -52,17 +53,25 @@
 #include "Ntuple/NtpWriter.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Utils/CmdLineArgParserUtils.h"
+#include "Utils/CmdLineArgParserException.h"
 
 using std::ostringstream;
+
 using namespace genie;
 
 void GetCommandLineArgs (int argc, char ** argv);
+void PrintSyntax        (void);
 
-int    gOptNevents    = 300;        // default n-events to generate
-int    gOptPrint      = 3;          // default output (printing) option
-double gOptNuEnergy   = 3.0;        // default neutrino energy
-int    gOptNuPdgCode  = kPdgNuMu;   // default neutrino PDG code
-int    gOptTgtPdgCode = 1056026000; // default target PDG code
+//Default options (override them using the command line arguments):
+int    kDefOptNevents   = 1000; // n-events to generate
+int    kDefOptPrint     = 3;    // default output (printing) option
+//User-specified options:
+int    gOptNevents;             // n-events to generate
+int    gOptPrint;               // output (printing) option
+double gOptNuEnergy;            // neutrino energy
+int    gOptNuPdgCode;           // neutrino PDG code
+int    gOptTgtPdgCode;          // target PDG code
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -132,74 +141,80 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  char * argument = new char[128];
+  LOG("ngevgen", pNOTICE) << "Parsing commad line arguments";
 
-  while( argc>1 && (argv[1][0] == '-'))
-  {
-    // parse command line argument for number of events
-    if (argv[1][1] == 'n') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptNevents = atoi(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptNevents = atoi(argument);
-      }
-    }
-    // parse command line argument for neutrino energy
-    if (argv[1][1] == 'e') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptNuEnergy = atof(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptNuEnergy = atof(argument);
-      }
-    }
-    // parse command line argument for neutrino PDG code
-    if (argv[1][1] == 'p') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptNuPdgCode = atoi(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptNuPdgCode = atoi(argument);
-      }
-    }
-    // parse command line argument for target pdg code
-    if (argv[1][1] == 't') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptTgtPdgCode = atoi(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptTgtPdgCode = atoi(argument);
-      }
-    }
-    // parse command line argument for output (print) options
-    if (argv[1][1] == 'o') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptPrint = atoi(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptPrint = atoi(argument);
-      }
-    }
-    argc--;
-    argv++;
+  //-- Optional arguments
+
+  //number of events:
+  try {
+    LOG("ngevgen", pINFO) << "Reading number of events to generate";
+    gOptNevents = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
   }
-  delete [] argument;
+  catch (exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("ngevgen", pNOTICE)
+            << "Unspecified number of events to generate - Using default";
+      gOptNevents = kDefOptNevents;
+    }
+  }
+  //print-out options
+  try {
+    LOG("ngevgen", pINFO) << "Reading requested print-out option";
+    gOptPrint = genie::utils::clap::CmdLineArgAsInt(argc,argv,'o');
+  }
+  catch (exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("ngevgen", pNOTICE)
+                          << "Unspecified print option - Using default";
+      gOptPrint = kDefOptPrint;
+    }
+  }
+
+  //-- Required arguments
+
+  //neutrino energy:
+  try {
+    LOG("ngevgen", pINFO) << "Reading neutrino energy";
+    gOptNuEnergy = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'e');
+  }
+  catch (exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("ngevgen", pFATAL) << "Unspecified neutrino energy - Exiting";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+  //neutrino PDG code:
+  try {
+    LOG("ngevgen", pINFO) << "Reading neutrino PDG code";
+    gOptNuPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
+  }
+  catch (exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("ngevgen", pFATAL) << "Unspecified neutrino PDG code - Exiting";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+  //target PDG code:
+  try {
+    LOG("ngevgen", pINFO) << "Reading target PDG code";
+    gOptTgtPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'t');
+  }
+  catch (exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("ngevgen", pFATAL) << "Unspecified target PDG code - Exiting";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+}
+//____________________________________________________________________________
+void PrintSyntax(void)
+{
+  LOG("ngevgen", pNOTICE)
+    << "\n\n" << "Syntax:" << "\n"
+     << "  ngevgen [-n nev] -e energy -p nupdg -t tgtpdg [-o print_opt]\n";
 }
 //____________________________________________________________________________
 
