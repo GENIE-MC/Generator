@@ -110,7 +110,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 
   //-- Get the input baryon resonance
 
-  Resonance_t resonance = res_utils::FromInteraction(interaction);
+  Resonance_t resonance = utils::res::FromInteraction(interaction);
 
   //-- Instantiate a Baryon Resonance Params object & attach data-set
 
@@ -130,7 +130,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double Mres = bres_params.Mass();
 
   LOG("ReinSeghalRes", pDEBUG)
-        << "Resonance = " << res_utils::AsString(resonance)
+        << "Resonance = " << utils::res::AsString(resonance)
                                       << " with mass = " << Mres << " GeV";
 
   //-- Compute auxiliary & kinematical factors for the Rein-Seghal model
@@ -171,7 +171,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   fkr.Calculate(interaction);
 
   LOG("ReinSeghalRes", pDEBUG) << "\n FKR params for ["
-                          << res_utils::AsString(resonance) << "]: " << fkr;
+                          << utils::res::AsString(resonance) << "]: " << fkr;
 
   //-- Calculate the Rein-Seghal Helicity Amplitudes
 
@@ -188,7 +188,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 
   LOG("ReinSeghalRes", pDEBUG)
          << "\n Helicity Amplitudes for ["
-               << res_utils::AsString(resonance) << "]: " << helicity_ampl;
+               << utils::res::AsString(resonance) << "]: " << helicity_ampl;
 
   double amp_minus_1  = helicity_ampl.AmpMinus1 ();
   double amp_plus_1   = helicity_ampl.AmpPlus1  ();
@@ -214,7 +214,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   xsec_scalar *= (scale_sc*(-Q2/q2));
 
   LOG("ReinSeghalRes", pDEBUG)
-      << "\n Helicity XSecs for ["<< res_utils::AsString(resonance) << "]: "
+      << "\n Helicity XSecs for ["<< utils::res::AsString(resonance) << "]: "
       << "\n   Sigma-Left   = " << xsec_left
       << "\n   Sigma-Right  = " << xsec_right
       << "\n   Sigma-Scalar = " << xsec_scalar;
@@ -257,7 +257,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double wxsec = bw * xsec; // weighted-xsec
 
   SLOG("ReinSeghalRes", pDEBUG)
-      << "Res[" << res_utils::AsString(resonance) << "]: "
+      << "Res[" << utils::res::AsString(resonance) << "]: "
         << "<Breit-Wigner(=" << bw << ")> * <d^2 xsec/dQ^2 dW [W=" << W
           << ", q2=" << q2 << ", E=" << E << "](="<< xsec << ")> = " << wxsec;
 
@@ -277,7 +277,7 @@ const BreitWignerI * ReinSeghalRESPXSec::BreitWignerAlgorithm(
   string alg_name       = fConfig->GetString("breit-wigner-alg-name");
   string param_set_sufx = fConfig->GetString("breit-wigner-param-set-suffix");
 
-  string resonance_name = res_utils::AsString(resonance_id);
+  string resonance_name = utils::res::AsString(resonance_id);
   string param_set      = resonance_name + "-" + param_set_sufx;
 
   AlgFactory * algf = AlgFactory::Instance();

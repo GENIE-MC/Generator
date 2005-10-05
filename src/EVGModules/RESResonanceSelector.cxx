@@ -107,12 +107,12 @@ Resonance_t RESResonanceSelector::SelectResonance(GHepRecord * evrec) const
      //   (do it only for resonances that can conserve charge)
      interaction->GetScatParamsPtr()->Set("resonance-id", (int) res );
      double xsec = 0;
-     bool   skip = (q_res==2 && !res_utils::IsDelta(res));
+     bool   skip = (q_res==2 && !utils::res::IsDelta(res));
 
      if(!skip) xsec = xsec_alg->XSec(interaction);
      else {
        SLOG("RESSelector", pINFO)
-                 << "RES: " << res_utils::AsString(res)
+                 << "RES: " << utils::res::AsString(res)
                          << " would not conserve charge -- skipping it";
      }
      //-- For the ith resonance store the sum of (xsec) * (breit-wigner)
@@ -139,7 +139,7 @@ Resonance_t RESResonanceSelector::SelectResonance(GHepRecord * evrec) const
      if( R < xsec_vec[ires] ) {
         Resonance_t sres = res_list.ResonanceId(ires); // selected RES.
         LOG("RESSelector", pINFO)
-                   << "Selected RES = " << res_utils::AsString(sres);
+                   << "Selected RES = " << utils::res::AsString(sres);
         return sres;
      }
   }
@@ -171,7 +171,7 @@ void RESResonanceSelector::AddResonance(GHepRecord * evrec) const
   Interaction * interaction = evrec->GetInteraction();
   const InitialState & init_state = interaction->GetInitialState();
 
-  Resonance_t res = res_utils::FromInteraction(interaction);
+  Resonance_t res = utils::res::FromInteraction(interaction);
 
   //-- Get all initial & final state particles 4-momenta (in the LAB frame)
 
@@ -201,7 +201,7 @@ void RESResonanceSelector::AddResonance(GHepRecord * evrec) const
 
   //-- Determine the RES pdg code (from the selected Resonance_t & charge)
   int q_res    = this->ResQ(interaction);
-  int res_pdgc = res_utils::PdgCode(res,q_res);
+  int res_pdgc = utils::res::PdgCode(res,q_res);
   LOG("RESSelector", pINFO)
            << "Adding RES with PDGC = " << res_pdgc << ", Q = " << q_res;
 

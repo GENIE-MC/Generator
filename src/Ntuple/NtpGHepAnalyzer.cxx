@@ -147,7 +147,7 @@ void NtpGHepAnalyzer::AnalyzeEventRecord(const EventRecord & evrec)
   GHepParticle * p = 0;
   TIter piter(fEventRec);
   while ( (p = (GHepParticle *) piter.Next()) ) {
-     bool is_res_pdg = res_utils::IsBaryonResonance(p->PdgCode());
+     bool is_res_pdg = utils::res::IsBaryonResonance(p->PdgCode());
      bool is_res_Ist = p->Status() == kIstPreDecayResonantState;
      if( is_res_Ist && is_res_pdg ) fScatType = kScResonant;
   }

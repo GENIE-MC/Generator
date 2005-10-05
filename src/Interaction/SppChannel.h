@@ -150,7 +150,7 @@ public:
     // return the isospin Glebsch Gordon coefficient for the input resonance
     // contribution to the input exclusive channel
 
-    bool is_delta = res_utils::IsDelta(res);
+    bool is_delta = utils::res::IsDelta(res);
 
     double iw_1_3 = 0.33333333;
     double iw_2_3 = 0.66666666;

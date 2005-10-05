@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace genie::res_utils
+\namespace genie::utils::res
 
 \brief     Utilities for the using the Baryon Resonance enumeration.
 
@@ -27,8 +27,9 @@
 using std::string;
 
 namespace genie {
+namespace utils {
 
-namespace res_utils {
+namespace res {
 
   char *      AsString          (Resonance_t res);
   Resonance_t FromString        (const char * res);
@@ -39,7 +40,8 @@ namespace res_utils {
   bool        IsDelta           (Resonance_t res);
   bool        IsN               (Resonance_t res);
 
-}        // res_utils namespace
+}        // res   namespace
+}        // utils namespace
 }        // genie namespace
 
 #endif   // _BARYON_RESONANCE_H_

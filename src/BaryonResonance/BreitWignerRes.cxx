@@ -79,7 +79,7 @@ double BreitWignerRes::Eval(double W) const
 
   if ( fConfig->Exists("resonance") ) {
 
-      resonance = res_utils::FromString(
+      resonance = utils::res::FromString(
                            fConfig->GetString("resonance").c_str() );
 
   } else if ( fConfig->Exists("resonance-id") ) {

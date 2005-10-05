@@ -149,7 +149,7 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
 
   int matches = count(particles_to_decay, particles_to_decay+N, pdg_code);
 
-  if(matches > 0 || res_utils::IsBaryonResonance(pdg_code)) return true;
+  if(matches > 0 || utils::res::IsBaryonResonance(pdg_code)) return true;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - /temporary
 
   return false;

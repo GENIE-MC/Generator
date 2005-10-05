@@ -32,7 +32,7 @@
           resonance production amplitudes.
 
           Is a concrete implementation of the XSecAlgorithmI initerface.
-          
+
 \ref      D.Rein and L.M.Seghal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
@@ -80,13 +80,13 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
   //-- Get the requested SPP channel
 
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-    
+
   if( spp_channel == kSppNull ) {
 
     LOG("ReinSeghalRes", pERROR)
             << "\n *** Insufficient SPP exclusive final state information!";
     return 0;
-    
+
   } else {
      LOG("ReinSeghalRes", pINFO)
                        << "Reaction: " << SppChannel::AsString(spp_channel);
@@ -129,7 +129,7 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
 
      Resonance_t res = res_list.ResonanceId(ires);
 
-     //-- Find out the charge that the produced resonance should have to 
+     //-- Find out the charge that the produced resonance should have to
      //   yield the requested exclusive final state.
      //   Eg if the resonance is kP33_1232, find out which of the Delta-,
      //      Delta0, Delta+ or Delta++ is relevant here.
@@ -138,9 +138,9 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
      //-- Set current resonance to interaction object
      interaction->GetScatParamsPtr()->Set("resonance-id", (int) res);
 
-     //-- Get the Breit-Wigner weighted xsec for the current resonance     
+     //-- Get the Breit-Wigner weighted xsec for the current resonance
      double rxsec = res_xsec_model->XSec(interaction);
-     
+
      //-- Get the BR for the (resonance) -> (exclusive final state)
      double br = SppChannel::BranchingRatio(spp_channel, res);
 
@@ -151,9 +151,9 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
      //-- Compute the weighted xsec
      //  (total weight = Breit-Wigner * BR * isospin Glebsch-Gordon)
      double res_xsec_contrib = rxsec*br*igg;
-     
+
      SLOG("ReinSeghalRes", pINFO)
-         << "Contrib. from [" << res_utils::AsString(res) << "] = "
+         << "Contrib. from [" << utils::res::AsString(res) << "] = "
          << "<Glebsch-Gordon = " << igg
          << "> * <BR(->1pi) = " << br
          << "> * <Breit-Wigner * d^2xsec/dQ^2dW = " << rxsec
