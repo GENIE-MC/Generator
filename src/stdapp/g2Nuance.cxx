@@ -38,6 +38,7 @@ using std::string;
 using std::ofstream;
 using std::endl;
 using std::ios;
+
 using namespace genie;
 
 void GetCommandLineArgs (int argc, char ** argv);
@@ -219,7 +220,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("g2nuance", pINFO) << "Reading input filename";
     gOptInpFile = utils::clap::CmdLineArgAsString(argc,argv,'i');
-  } catch(utils::clap::CmdLineArgParserException e) {
+  } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("g2nuance", pFATAL)
                       << "Unspecified input filename - Exiting";
@@ -232,7 +233,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("g2nuance", pINFO) << "Reading output filename";
     gOptOutFile = utils::clap::CmdLineArgAsString(argc,argv,'o');
-  } catch(genie::utils::clap::CmdLineArgParserException e) {
+  } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("g2nuance", pNOTICE)
                 << "Unspecified output filename - Using default";
