@@ -56,7 +56,7 @@ string BaryonResList::ResonanceName(unsigned int ires) const
 {
   if( ires >= 0 & ires < NResonances() ) {
 
-    return res_utils::AsString( (*fResVec)[ires] );
+    return utils::res::AsString( (*fResVec)[ires] );
 
   } else {
 
@@ -107,7 +107,7 @@ void BaryonResList::DecodeFromNameList(string input_list, string delimiter)
 
   for(riter = resonances.begin(); riter != resonances.end(); ++riter) {
 
-    Resonance_t res = res_utils::FromString( (*riter).c_str() );
+    Resonance_t res = utils::res::FromString( (*riter).c_str() );
 
     if( res == kNoResonance ) {
 
@@ -125,7 +125,7 @@ void BaryonResList::Print(ostream & stream) const
 
   for(riter = fResVec->begin(); riter != fResVec->end(); ++riter) {
 
-       stream << "  |--> RES: " << res_utils::AsString(*riter) << endl;
+       stream << "  |--> RES: " << utils::res::AsString(*riter) << endl;
   }
 }
 //____________________________________________________________________________

@@ -50,7 +50,7 @@ double RSHelicityAmplModelNCn::AmpMinus1(
   double ampl = 0;
   double xi   = kSin8w_2;
 
-  Resonance_t res = res_utils::FromInteraction(interaction);
+  Resonance_t res = utils::res::FromInteraction(interaction);
 
   switch(res) {
 
@@ -140,7 +140,7 @@ double RSHelicityAmplModelNCn::AmpMinus1(
   }
 
   LOG("RSHAmpl", pDEBUG)
-            << "A(-1) for RES: " << res_utils::AsString(res) << " = " << ampl;
+            << "A(-1) for RES: " << utils::res::AsString(res) << " = " << ampl;
 
   return ampl;
 }
@@ -151,7 +151,7 @@ double RSHelicityAmplModelNCn::AmpPlus1(
   double ampl = 0;
   double xi   = kSin8w_2;
 
-  Resonance_t res = res_utils::FromInteraction(interaction);
+  Resonance_t res = utils::res::FromInteraction(interaction);
 
   switch(res) {
 
@@ -242,7 +242,7 @@ double RSHelicityAmplModelNCn::AmpPlus1(
   }
 
   LOG("RSHAmpl", pDEBUG)
-            << "A(+1) for RES: " << res_utils::AsString(res) << " = " << ampl;
+            << "A(+1) for RES: " << utils::res::AsString(res) << " = " << ampl;
 
   return ampl;
 }
@@ -252,7 +252,7 @@ double RSHelicityAmplModelNCn::AmpMinus3(
 {
   double ampl = 0;
 
-  Resonance_t res = res_utils::FromInteraction(interaction);
+  Resonance_t res = utils::res::FromInteraction(interaction);
 
   switch(res) {
 
@@ -334,7 +334,7 @@ double RSHelicityAmplModelNCn::AmpMinus3(
   }
 
   LOG("RSHAmpl", pDEBUG)
-            << "A(-3) for RES: " << res_utils::AsString(res) << " = " << ampl;
+            << "A(-3) for RES: " << utils::res::AsString(res) << " = " << ampl;
 
   return ampl;
 }
@@ -344,7 +344,7 @@ double RSHelicityAmplModelNCn::AmpPlus3(
 {
   double ampl = 0;
 
-  Resonance_t res = res_utils::FromInteraction(interaction);
+  Resonance_t res = utils::res::FromInteraction(interaction);
 
   switch(res) {
 
@@ -426,7 +426,7 @@ double RSHelicityAmplModelNCn::AmpPlus3(
   }
 
   LOG("RSHAmpl", pDEBUG)
-            << "A(+3) for RES: " << res_utils::AsString(res) << " = " << ampl;
+            << "A(+3) for RES: " << utils::res::AsString(res) << " = " << ampl;
 
   return ampl;
 }
@@ -437,7 +437,7 @@ double RSHelicityAmplModelNCn::Amp0Minus(
   double ampl = 0;
   double xi   = kSin8w_2;
 
-  Resonance_t res = res_utils::FromInteraction(interaction);
+  Resonance_t res = utils::res::FromInteraction(interaction);
 
   switch(res) {
 
@@ -523,7 +523,7 @@ double RSHelicityAmplModelNCn::Amp0Minus(
   }
 
   LOG("RSHAmpl", pDEBUG)
-            << "A(0-) for RES: " << res_utils::AsString(res) << " = " << ampl;
+            << "A(0-) for RES: " << utils::res::AsString(res) << " = " << ampl;
 
   return ampl;
 }
@@ -534,7 +534,7 @@ double RSHelicityAmplModelNCn::Amp0Plus(
   double ampl = 0;
   double xi   = kSin8w_2;
 
-  Resonance_t res = res_utils::FromInteraction(interaction);
+  Resonance_t res = utils::res::FromInteraction(interaction);
 
   switch(res) {
 
@@ -620,7 +620,7 @@ double RSHelicityAmplModelNCn::Amp0Plus(
   }
 
   LOG("RSHAmpl", pDEBUG)
-            << "A(0+) for RES: " << res_utils::AsString(res) << " = " << ampl;
+            << "A(0+) for RES: " << utils::res::AsString(res) << " = " << ampl;
 
   return ampl;
 }

@@ -231,7 +231,7 @@ int genie::pdg::SwitchProtonNeutron(int pdgc)
 //____________________________________________________________________________
 bool genie::pdg::IsBaryonResonance(int pdgc)
 {
-    return res_utils::IsBaryonResonance(pdgc);
+    return utils::res::IsBaryonResonance(pdgc);
 }
 //____________________________________________________________________________
 

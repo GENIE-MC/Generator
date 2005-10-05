@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace genie::res_utils
+\namespace genie::utils::res
 
 \brief     Utilities for the using the Baryon Resonance enumeration.
 
@@ -21,7 +21,7 @@
 using namespace genie;
 
 //____________________________________________________________________________
-char * genie::res_utils::AsString(Resonance_t res)
+char * genie::utils::res::AsString(Resonance_t res)
 {
   switch(res) {
     case kP33_1232  : return "P33(1232)" ; break;
@@ -45,9 +45,9 @@ char * genie::res_utils::AsString(Resonance_t res)
     default: break;
   }
   return "unknown resonance!";
-}  
+}
 //____________________________________________________________________________
-Resonance_t genie::res_utils::FromString(const char * res)
+Resonance_t genie::utils::res::FromString(const char * res)
 {
   if     ( strcmp( res,"P33(1232)" ) == 0 )  return kP33_1232;
   else if( strcmp( res,"S11(1535)" ) == 0 )  return kS11_1535;
@@ -68,9 +68,9 @@ Resonance_t genie::res_utils::FromString(const char * res)
   else if( strcmp( res,"P11(1710)" ) == 0 )  return kP11_1710;
   else if( strcmp( res,"F17(1970)" ) == 0 )  return kF17_1970;
   else return kNoResonance;
-}  
+}
 //____________________________________________________________________________
-Resonance_t genie::res_utils::FromPdgCode(int pdgc)
+Resonance_t genie::utils::res::FromPdgCode(int pdgc)
 {
 // Delta(1232) code from the standard PDG table.
 // Higher resonance codes come from MINOS extensions to PDG tables.
@@ -80,7 +80,7 @@ Resonance_t genie::res_utils::FromPdgCode(int pdgc)
     case (-1214) : /* Delta-  */
     case  (2114) : /* Delta0  */
     case  (2214) : /* Delta+  */
-    case  (2224) : /* Delta++ */ 
+    case  (2224) : /* Delta++ */
                    return kP33_1232; break;
 
     case (22112) : /* N0  */
@@ -106,13 +106,13 @@ Resonance_t genie::res_utils::FromPdgCode(int pdgc)
     case  (1112) : /* Delta-  */
     case  (1212) : /* Delta0  */
     case  (2122) : /* Delta+  */
-    case  (2222) : /* Delta++ */ 
+    case  (2222) : /* Delta++ */
                    return kS31_1620; break;
 
     case (11114) : /* Delta-  */
     case (12114) : /* Delta0  */
     case (12214) : /* Delta+  */
-    case (12224) : /* Delta++ */ 
+    case (12224) : /* Delta++ */
                    return kD33_1700; break;
 
     case (12112) : /* N0  */
@@ -133,25 +133,25 @@ Resonance_t genie::res_utils::FromPdgCode(int pdgc)
     case (21112) : /* Delta-  */
     case (21212) : /* Delta0  */
     case (22122) : /* Delta+  */
-    case (22222) : /* Delta++ */ 
+    case (22222) : /* Delta++ */
                    return kP31_1910; break;
 
     case (21114) : /* Delta-  */
     case (22114) : /* Delta0  */
     case (22214) : /* Delta+  */
-    case (22224) : /* Delta++ */ 
+    case (22224) : /* Delta++ */
                    return kP33_1920; break;
 
     case  (1116) : /* Delta-  */
     case  (1216) : /* Delta0  */
     case  (2126) : /* Delta+  */
-    case  (2226) : /* Delta++ */ 
+    case  (2226) : /* Delta++ */
                    return kF35_1905; break;
 
     case  (1118) : /* Delta-  */
     case  (2118) : /* Delta0  */
     case  (2218) : /* Delta+  */
-    case  (2228) : /* Delta++ */ 
+    case  (2228) : /* Delta++ */
                    return kF37_1950; break;
 
     case (42112) : /* N0  */
@@ -160,11 +160,11 @@ Resonance_t genie::res_utils::FromPdgCode(int pdgc)
 
 //                   return kF17_1970; break; ?
   }
-  
-  return kNoResonance; 
+
+  return kNoResonance;
 }
 //____________________________________________________________________________
-int genie::res_utils::PdgCode(Resonance_t res, int Q)
+int genie::utils::res::PdgCode(Resonance_t res, int Q)
 {
 // Delta(1232) code from the standard PDG table
 // Higher resonance codes come from MINOS extensions to PDG tables
@@ -175,7 +175,7 @@ int genie::res_utils::PdgCode(Resonance_t res, int Q)
         if(Q == -1) return -1214; /* Delta-  */
         if(Q ==  0) return  2114; /* Delta0  */
         if(Q ==  1) return  2214; /* Delta+  */
-        if(Q ==  2) return  2224; /* Delta++ */ 
+        if(Q ==  2) return  2224; /* Delta++ */
         break;
 
     case kS11_1535:
@@ -207,14 +207,14 @@ int genie::res_utils::PdgCode(Resonance_t res, int Q)
         if(Q == -1) return 1112; /* Delta-  */
         if(Q ==  0) return 1212; /* Delta0  */
         if(Q ==  1) return 2122; /* Delta+  */
-        if(Q ==  2) return 2222; /* Delta++ */ 
+        if(Q ==  2) return 2222; /* Delta++ */
         break;
 
     case kD33_1700:
         if(Q == -1) return 11114; /* Delta-  */
         if(Q ==  0) return 12114; /* Delta0  */
         if(Q ==  1) return 12214; /* Delta+  */
-        if(Q ==  2) return 12224; /* Delta++ */ 
+        if(Q ==  2) return 12224; /* Delta++ */
         break;
 
     case kP11_1440:
@@ -239,28 +239,28 @@ int genie::res_utils::PdgCode(Resonance_t res, int Q)
         if(Q == -1) return 21112; /* Delta-  */
         if(Q ==  0) return 21212; /* Delta0  */
         if(Q ==  1) return 22122; /* Delta+  */
-        if(Q ==  2) return 22222; /* Delta++ */ 
+        if(Q ==  2) return 22222; /* Delta++ */
         break;
 
     case kP33_1920:
         if(Q == -1) return 21114; /* Delta-  */
         if(Q ==  0) return 22114; /* Delta0  */
         if(Q ==  1) return 22214; /* Delta+  */
-        if(Q ==  2) return 22224; /* Delta++ */ 
+        if(Q ==  2) return 22224; /* Delta++ */
         break;
 
     case kF35_1905:
         if(Q == -1) return 1116; /* Delta-  */
         if(Q ==  0) return 1216; /* Delta0  */
         if(Q ==  1) return 2126; /* Delta+  */
-        if(Q ==  2) return 2226; /* Delta++ */ 
+        if(Q ==  2) return 2226; /* Delta++ */
         break;
 
     case kF37_1950:
         if(Q == -1) return 1118; /* Delta-  */
         if(Q ==  0) return 2118; /* Delta0  */
         if(Q ==  1) return 2218; /* Delta+  */
-        if(Q ==  2) return 2228; /* Delta++ */ 
+        if(Q ==  2) return 2228; /* Delta++ */
         break;
 
     case kP11_1710:
@@ -273,13 +273,13 @@ int genie::res_utils::PdgCode(Resonance_t res, int Q)
         break;
 
     default:
-        return 0; 
+        return 0;
   }
-  
-  return 0; 
+
+  return 0;
 }
 //____________________________________________________________________________
-bool genie::res_utils::IsBaryonResonance(int pdgc)
+bool genie::utils::res::IsBaryonResonance(int pdgc)
 {
 // Delta(1232) code from the standard PDG table.
 // Higher resonance codes come from MINOS extensions to PDG tables.
@@ -291,7 +291,7 @@ bool genie::res_utils::IsBaryonResonance(int pdgc)
     case (-1214) : /* Delta-  */
     case  (2114) : /* Delta0  */
     case  (2214) : /* Delta+  */
-    case  (2224) : /* Delta++ */ 
+    case  (2224) : /* Delta++ */
 
     /* ------ S11(1535) ------*/
 
@@ -323,14 +323,14 @@ bool genie::res_utils::IsBaryonResonance(int pdgc)
     case  (1112) : /* Delta-  */
     case  (1212) : /* Delta0  */
     case  (2122) : /* Delta+  */
-    case  (2222) : /* Delta++ */ 
+    case  (2222) : /* Delta++ */
 
     /* ------ D33(1700) ------*/
 
     case (11114) : /* Delta-  */
     case (12114) : /* Delta0  */
     case (12214) : /* Delta+  */
-    case (12224) : /* Delta++ */ 
+    case (12224) : /* Delta++ */
 
     /* ------ P11(1440) ------*/
 
@@ -355,28 +355,28 @@ bool genie::res_utils::IsBaryonResonance(int pdgc)
     case (21112) : /* Delta-  */
     case (21212) : /* Delta0  */
     case (22122) : /* Delta+  */
-    case (22222) : /* Delta++ */ 
+    case (22222) : /* Delta++ */
 
     /* ------ P33(1920) ------*/
 
     case (21114) : /* Delta-  */
     case (22114) : /* Delta0  */
     case (22214) : /* Delta+  */
-    case (22224) : /* Delta++ */ 
+    case (22224) : /* Delta++ */
 
     /* ------ F35(1905) ------*/
 
     case  (1116) : /* Delta-  */
     case  (1216) : /* Delta0  */
     case  (2126) : /* Delta+  */
-    case  (2226) : /* Delta++ */ 
+    case  (2226) : /* Delta++ */
 
     /* ------ F37(1950) ------*/
 
     case  (1118) : /* Delta-  */
     case  (2118) : /* Delta0  */
     case  (2218) : /* Delta+  */
-    case  (2228) : /* Delta++ */ 
+    case  (2228) : /* Delta++ */
 
     /* ------ P11(1710) ------*/
 
@@ -387,11 +387,11 @@ bool genie::res_utils::IsBaryonResonance(int pdgc)
 
         return true;
   }
-  
-  return false; 
+
+  return false;
 }
 //____________________________________________________________________________
-bool genie::res_utils::IsDelta(Resonance_t res)
+bool genie::utils::res::IsDelta(Resonance_t res)
 {
   switch(res) {
 
@@ -415,17 +415,17 @@ bool genie::res_utils::IsDelta(Resonance_t res)
     case kF17_1970:  return false; break;
     default:
        // should not be here - meaningless to return anything
-       assert(false);  
+       assert(false);
   }
 
 }
 //____________________________________________________________________________
-bool genie::res_utils::IsN(Resonance_t res)
+bool genie::utils::res::IsN(Resonance_t res)
 {
-  return (! res_utils::IsDelta(res) );
+  return (! utils::res::IsDelta(res) );
 }
 //____________________________________________________________________________
-Resonance_t genie::res_utils::FromInteraction(const Interaction * interaction)
+Resonance_t genie::utils::res::FromInteraction(const Interaction * interaction)
 {
   const ScatteringParams & scp = interaction->GetScatteringParams();
 

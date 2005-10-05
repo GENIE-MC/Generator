@@ -21,7 +21,7 @@
 using std::endl;
 
 using namespace genie;
-using namespace genie::res_utils;
+using namespace genie::utils::res;
 
 //____________________________________________________________________________
 BaryonResDataPDG::BaryonResDataPDG() :
@@ -35,7 +35,7 @@ BaryonResDataSetI(param_set)
 {
   fName = "genie::BaryonResDataPDG";
 
-  FindConfig();
+  this->FindConfig();
 }
 //____________________________________________________________________________
 BaryonResDataPDG::~BaryonResDataPDG()

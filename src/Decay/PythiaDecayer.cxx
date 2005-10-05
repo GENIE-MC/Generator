@@ -64,7 +64,7 @@ bool PythiaDecayer::IsHandled(int pdg_code) const
 {
 // does not handle requests to decay baryon resonances
   
-  if( res_utils::IsBaryonResonance(pdg_code) ) {
+  if( utils::res::IsBaryonResonance(pdg_code) ) {
 
     LOG("Decay", pINFO)
          << "\n *** The particle with PDG-Code = "

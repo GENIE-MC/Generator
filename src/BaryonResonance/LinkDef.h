@@ -5,7 +5,8 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
-#pragma link C++ namespace genie::res_utils;
+#pragma link C++ namespace genie::utils;
+#pragma link C++ namespace genie::utils::res;
 
 #pragma link C++ class genie::BaryonResDataSetI;
 #pragma link C++ class genie::BaryonResDataPDG;
