@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::PointGeomAnalyzer
+\class   genie::geometry::PointGeomAnalyzer
 
 \brief   The PointGeomAnalyzer class is the simplest implementation of the
          GeomAnalyserI interface and defines a simple 'point-like' geometry.
@@ -30,6 +30,7 @@
 #include "Utils/PrintUtils.h"
 
 using namespace genie;
+using namespace genie::geometry;
 
 //___________________________________________________________________________
 PointGeomAnalyzer::PointGeomAnalyzer(int tgtpdgc) :
