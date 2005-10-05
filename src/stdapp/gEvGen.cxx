@@ -217,7 +217,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("gevgen", pINFO) << "Reading number of events to generate";
     gOptNevents = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(genie::utils::clap::CmdLineArgParserException e) {
+  } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gevgen", pNOTICE)
             << "Unspecified number of events to generate - Using default";
@@ -230,7 +230,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("gevgen", pINFO) << "Reading requested output ntuple format";
     format = genie::utils::clap::CmdLineArgAsInt(argc,argv,'f');
-  } catch(genie::utils::clap::CmdLineArgParserException e) {
+  } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gevgen", pNOTICE) << "Unspecified tree format - Using default";
     }
@@ -246,7 +246,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("gevgen", pINFO) << "Reading neutrino energy";
     gOptNuEnergy = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'e');
-  } catch(genie::utils::clap::CmdLineArgParserException e) {
+  } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gevgen", pFATAL) << "Unspecified neutrino energy - Exiting";
       PrintSyntax();
@@ -258,7 +258,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("gevgen", pINFO) << "Reading neutrino PDG code";
     gOptNuPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
-  } catch(genie::utils::clap::CmdLineArgParserException e) {
+  } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gevgen", pFATAL) << "Unspecified neutrino PDG code - Exiting";
       PrintSyntax();
@@ -270,7 +270,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("gevgen", pINFO) << "Reading target PDG code";
     gOptTgtPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'t');
-  } catch(genie::utils::clap::CmdLineArgParserException e) {
+  } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gevgen", pFATAL) << "Unspecified target PDG code - Exiting";
       PrintSyntax();

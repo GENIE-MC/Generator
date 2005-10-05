@@ -144,7 +144,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("gmkspl", pINFO) << "Reading output filename";
     gOptXMLFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
-  } catch(genie::utils::clap::CmdLineArgParserException e) {
+  } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gmkspl", pNOTICE) << "Unspecified filename - Using default";
       gOptXMLFilename = kDefOptXMLFilename;
@@ -157,7 +157,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("gmkspl", pINFO) << "Reading neutrino PDG codes";
     gOptNuPdgCodeList = genie::utils::clap::CmdLineArgAsString(argc,argv,'p');
-  } catch(genie::utils::clap::CmdLineArgParserException e) {
+  } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gmkspl", pFATAL) << "Unspecified neutrino PDG code list - Exiting";
       PrintSyntax();
@@ -168,7 +168,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("gmkspl", pINFO) << "Reading target nuclei PDG codes";
     gOptTgtPdgCodeList = genie::utils::clap::CmdLineArgAsString(argc,argv,'t');
-  } catch(genie::utils::clap::CmdLineArgParserException e) {
+  } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gmkspl", pFATAL) << "Unspecified target PDG code list - Exiting";
       PrintSyntax();
