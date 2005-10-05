@@ -216,6 +216,8 @@ TGMainFrame(p, w, h, kFitHeight | kFitWidth)
   this->InitializeBrowser();     // initialize "data-browser" singleton
   this->ConfigHandlers();
 
+  this->HandleDisabledNeuGEN();  // deactivate NeuGEN GUI is interface is dummy
+
   fMain->SetWindowName("GENIE/NuValidator");
   fMain->MapSubwindows();
   fMain->Resize( fMain->GetDefaultSize() );
@@ -223,6 +225,8 @@ TGMainFrame(p, w, h, kFitHeight | kFitWidth)
 
   fW0 = fMain->GetWidth();  // original window width
   fH0 = fMain->GetHeight(); // original window height
+
+  this->InitNotify();
 }
 //______________________________________________________________________________
 NuVldMainFrame::~NuVldMainFrame()
@@ -400,13 +404,6 @@ TGMenuBar * NuVldMainFrame::BuildMenuBar(void)
                                    "genie::nuvld::NuVldMainFrame",
                                                  this,"HandleMenu(Int_t)");
 
-  // de-activate NeuGEN if user does not have the NeuGEN libraries
-  if(!fMyConfig->UseNeuGEN()) {
-      fMenuNeuGen->DisableEntry(M_NEUGEN_CONFIG_PHYSICS);
-      fMenuNeuGen->DisableEntry(M_NEUGEN_CONFIG_PROCESS);
-      fMenuNeuGen->DisableEntry(M_NEUGEN_RUN);
-  }
-
   // Menu: GENIE
 
   fMenuGENIE = new TGPopupMenu(gClient->GetRoot());
@@ -499,11 +496,6 @@ void NuVldMainFrame::CreateUpperFrameButtons(TGGroupFrame * gf)
   fHelpBtn         = new TGPictureButton(gf, this->Pic("nuvld_help",   32,32));
   fDurhamBtn       = new TGPictureButton(gf, this->Pic("durham",       32,32));
   fAboutBtn        = new TGPictureButton(gf, this->Pic("about",        32,32));
-
-  if( !fMyConfig->UseNeuGEN() ) {
-     fNeugenConfigBtn -> SetState(kButtonDisabled);
-     fNeugenProcBtn  ->  SetState(kButtonDisabled);
-  }
 }
 //______________________________________________________________________________
 void NuVldMainFrame::SetUpperFrameButtonText(void)
@@ -958,6 +950,38 @@ const TGPicture * NuVldMainFrame::Pic(const char * name, int x, int y)
   return gClient->GetPicture( this->Icon(name), x,y );
 }
 //______________________________________________________________________________
+void NuVldMainFrame::HandleDisabledNeuGEN(void)
+{
+  // if the neugen interfac is not activated there is no point in:
+  if(!fMyConfig->UseNeuGEN()) {
+    // ... having the NeuGEN menu enabled
+    fMenuNeuGen->DisableEntry(M_NEUGEN_CONFIG_PHYSICS);
+    fMenuNeuGen->DisableEntry(M_NEUGEN_CONFIG_PROCESS);
+    fMenuNeuGen->DisableEntry(M_NEUGEN_RUN);
+
+    // ... having the fitter tab enabled
+    fTabData->SetEnabled(2,kFALSE);
+    fMenuFit->DisableEntry(M_FIT_OPEN );
+    fMenuFit->DisableEntry(M_FIT_RUN  );
+    fMenuFit->DisableEntry(M_FIT_RESET);
+
+    // ... having the neugen buttons enabled
+    fNeugenConfigBtn -> SetState(kButtonDisabled);
+    fNeugenProcBtn  ->  SetState(kButtonDisabled);
+  }
+}
+//______________________________________________________________________________
+void NuVldMainFrame::InitNotify(void)
+{
+  if(!fMyConfig->UseNeuGEN()) {
+      fLog -> AddLine(
+             "Dummy GENIE/NeuGEN interface found. NeuGEN options were disabled");
+      new MsgBox(gClient->GetRoot(),fMain, 380, 250, kVerticalFrame,
+         "Dummy GENIE/NeuGEN interface found. All NeuGEN options were disabled");
+  }
+}
+//______________________________________________________________________________
+
 
 //______________________________________________________________________________
 //--------------------- Window initialization methods --------------------------
