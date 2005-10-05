@@ -113,5 +113,10 @@
   <priority msgstream="Vld">                 INFO   </priority>
   <priority msgstream="XSecSplineList">      INFO   </priority>
 
+  <priority msgstream="gevgen">              INFO   </priority>
+  <priority msgstream="ngevgen">             INFO   </priority>
+  <priority msgstream="g2nuance">            INFO   </priority>
+  <priority msgstream="gmkspl">              INFO   </priority>
+
 </messenger_config>
 
