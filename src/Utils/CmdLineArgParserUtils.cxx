@@ -18,6 +18,8 @@
 #include "Utils/CmdLineArgParserException.h"
 #include "Messenger/Messenger.h"
 
+using namespace genie::exceptions;
+
 //____________________________________________________________________________
 char * genie::utils::clap::CmdLineArg(int argc, char ** argv, char op)
 {

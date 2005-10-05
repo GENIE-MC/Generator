@@ -24,8 +24,7 @@ using std::string;
 using std::ostream;
 
 namespace genie {
-namespace utils {
-namespace clap  {
+namespace exceptions {
 
 class CmdLineArgParserException {
 
@@ -54,8 +53,7 @@ private:
   string fReason;
 };
 
-}      // clap  namespace
-}      // utils namespace
-}      // genie namespace
+} // exceptions namespace
+} // genie namespace
 
 #endif // _CLAP_EXCEPTION_H_
