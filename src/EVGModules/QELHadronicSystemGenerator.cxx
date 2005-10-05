@@ -72,7 +72,7 @@ void QELHadronicSystemGenerator::AddRecoilNucleon(GHepRecord * evrec) const
 
   //-- Determine the pdg code of the recoil nucleon
 
-  int recoil_nuc_pdgc = interaction_utils::RecoilNucleonPdgCode(interaction);
+  int recoil_nuc_pdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
 
   //-- Get all initial & final state particles 4-momenta (in the LAB frame)
 

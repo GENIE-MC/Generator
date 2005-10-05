@@ -65,7 +65,7 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
   if( init_state.GetTarget().IsNucleus() ) {
 
     int tgt_pdgc = init_state.GetTarget().PDGCode();
-    int nuc_pdgc = interaction_utils::RecoilNucleonPdgCode(interaction);
+    int nuc_pdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
 
     if(nuc_pdgc != 0) {
        // Find the recoil nucleon in the EventRecord

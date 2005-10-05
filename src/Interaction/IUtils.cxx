@@ -1,16 +1,16 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::interaction_utils
+\namespace  genie::utils::interaction
 
-\brief      Interaction Utilities 
+\brief      Interaction Utilities
 
 \author     Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
             CCLRC, Rutherford Appleton Laboratory
 
 \created    May 06, 2004
 
-*/ 
+*/
 //____________________________________________________________________________
 
 #include <cassert>
@@ -23,17 +23,17 @@
 using namespace genie;
 
 //____________________________________________________________________________
-int genie::interaction_utils::RecoilNucleonPdgCode(
+int genie::utils::interaction::RecoilNucleonPdgCode(
                                               const Interaction * interaction)
 {
-  if( interaction->GetProcessInfo().IsQuasiElastic() ) 
+  if( interaction->GetProcessInfo().IsQuasiElastic() )
   {
-       return interaction_utils::QELRecoilNucleonPdgCode(interaction);
-  } 
+       return utils::interaction::QELRecoilNucleonPdgCode(interaction);
+  }
   else return 0;
 }
 //____________________________________________________________________________
-int genie::interaction_utils::QELRecoilNucleonPdgCode(
+int genie::utils::interaction::QELRecoilNucleonPdgCode(
                                               const Interaction * interaction)
 {
   const InitialState & init_state = interaction->GetInitialState();
@@ -47,7 +47,7 @@ int genie::interaction_utils::QELRecoilNucleonPdgCode(
 
   if ( interaction->GetProcessInfo().IsWeakCC() )
   {
-    recoil_nuc_pdgc = pdg::SwitchProtonNeutron(struck_nuc_pdgc); // CC  
+    recoil_nuc_pdgc = pdg::SwitchProtonNeutron(struck_nuc_pdgc); // CC
   }
   else
   {
@@ -58,7 +58,7 @@ int genie::interaction_utils::QELRecoilNucleonPdgCode(
   return recoil_nuc_pdgc;
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetDis(int Z, int A, 
+Interaction * genie::utils::interaction::GetDis(int Z, int A,
           int probe, const TLorentzVector & p4probe, InteractionType_t intype)
 {
   Target       target(Z,A);
@@ -71,37 +71,37 @@ Interaction * genie::interaction_utils::GetDis(int Z, int A,
   return interaction;
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetDis(
+Interaction * genie::utils::interaction::GetDis(
                             int Z, int A, int probe, InteractionType_t intype)
 {
   TLorentzVector p4(0,0,0,0); // null probe 4-momentum
 
-  return interaction_utils::GetDis(Z,A,probe,p4,intype);
+  return utils::interaction::GetDis(Z,A,probe,p4,intype);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetDisCC(
+Interaction * genie::utils::interaction::GetDisCC(
                       int Z, int A, int probe, const TLorentzVector & p4probe)
 {
-  return interaction_utils::GetDis(Z,A,probe,p4probe,kIntWeakCC);
+  return utils::interaction::GetDis(Z,A,probe,p4probe,kIntWeakCC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetDisCC(int Z, int A, int probe)
+Interaction * genie::utils::interaction::GetDisCC(int Z, int A, int probe)
 {
-  return interaction_utils::GetDis(Z,A,probe,kIntWeakCC);
+  return utils::interaction::GetDis(Z,A,probe,kIntWeakCC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetDisNC(
+Interaction * genie::utils::interaction::GetDisNC(
                       int Z, int A, int probe, const TLorentzVector & p4probe)
 {
-  return interaction_utils::GetDis(Z,A,probe,p4probe,kIntWeakNC);
+  return utils::interaction::GetDis(Z,A,probe,p4probe,kIntWeakNC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetDisNC(int Z, int A, int probe)
+Interaction * genie::utils::interaction::GetDisNC(int Z, int A, int probe)
 {
-  return interaction_utils::GetDis(Z,A,probe,kIntWeakNC);
+  return utils::interaction::GetDis(Z,A,probe,kIntWeakNC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetQel(int Z, int A, 
+Interaction * genie::utils::interaction::GetQel(int Z, int A,
           int probe, const TLorentzVector & p4probe, InteractionType_t intype)
 {
   Target       target(Z,A);
@@ -114,37 +114,37 @@ Interaction * genie::interaction_utils::GetQel(int Z, int A,
   return interaction;
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetQel(
+Interaction * genie::utils::interaction::GetQel(
                             int Z, int A, int probe, InteractionType_t intype)
 {
   TLorentzVector p4(0,0,0,0); // null probe 4-momentum
 
-  return interaction_utils::GetQel(Z,A,probe,p4,intype);
+  return utils::interaction::GetQel(Z,A,probe,p4,intype);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetQelCC(
+Interaction * genie::utils::interaction::GetQelCC(
                       int Z, int A, int probe, const TLorentzVector & p4probe)
 {
-  return interaction_utils::GetQel(Z,A,probe,p4probe,kIntWeakCC);
+  return utils::interaction::GetQel(Z,A,probe,p4probe,kIntWeakCC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetQelCC(int Z, int A, int probe)
+Interaction * genie::utils::interaction::GetQelCC(int Z, int A, int probe)
 {
-  return interaction_utils::GetQel(Z,A,probe,kIntWeakCC);
+  return utils::interaction::GetQel(Z,A,probe,kIntWeakCC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetQelNC(
+Interaction * genie::utils::interaction::GetQelNC(
                       int Z, int A, int probe, const TLorentzVector & p4probe)
 {
-  return interaction_utils::GetQel(Z,A,probe,p4probe,kIntWeakNC);
+  return utils::interaction::GetQel(Z,A,probe,p4probe,kIntWeakNC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetQelNC(int Z, int A, int probe)
+Interaction * genie::utils::interaction::GetQelNC(int Z, int A, int probe)
 {
-  return interaction_utils::GetQel(Z,A,probe,kIntWeakNC);
+  return utils::interaction::GetQel(Z,A,probe,kIntWeakNC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetRes(int Z, int A, 
+Interaction * genie::utils::interaction::GetRes(int Z, int A,
           int probe, const TLorentzVector & p4probe, InteractionType_t intype)
 {
   Target       target(Z,A);
@@ -157,37 +157,37 @@ Interaction * genie::interaction_utils::GetRes(int Z, int A,
   return interaction;
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetRes(
+Interaction * genie::utils::interaction::GetRes(
                             int Z, int A, int probe, InteractionType_t intype)
 {
   TLorentzVector p4(0,0,0,0); // null probe 4-momentum
 
-  return interaction_utils::GetQel(Z,A,probe,p4,intype);
+  return utils::interaction::GetQel(Z,A,probe,p4,intype);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetResCC(
+Interaction * genie::utils::interaction::GetResCC(
                       int Z, int A, int probe, const TLorentzVector & p4probe)
 {
-  return interaction_utils::GetQel(Z,A,probe,p4probe,kIntWeakCC);
+  return utils::interaction::GetQel(Z,A,probe,p4probe,kIntWeakCC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetResCC(int Z, int A, int probe)
+Interaction * genie::utils::interaction::GetResCC(int Z, int A, int probe)
 {
-  return interaction_utils::GetQel(Z,A,probe,kIntWeakCC);
+  return utils::interaction::GetQel(Z,A,probe,kIntWeakCC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetResNC(
+Interaction * genie::utils::interaction::GetResNC(
                       int Z, int A, int probe, const TLorentzVector & p4probe)
 {
-  return interaction_utils::GetQel(Z,A,probe,p4probe,kIntWeakNC);
+  return utils::interaction::GetQel(Z,A,probe,p4probe,kIntWeakNC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetResNC(int Z, int A, int probe)
+Interaction * genie::utils::interaction::GetResNC(int Z, int A, int probe)
 {
-  return interaction_utils::GetQel(Z,A,probe,kIntWeakNC);
+  return utils::interaction::GetQel(Z,A,probe,kIntWeakNC);
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetIMD(
+Interaction * genie::utils::interaction::GetIMD(
                       int Z, int A, int probe, const TLorentzVector & p4probe)
 {
   // IMD: Inverse Muon Decay
@@ -202,7 +202,7 @@ Interaction * genie::interaction_utils::GetIMD(
   return interaction;
 }
 //____________________________________________________________________________
-Interaction * genie::interaction_utils::GetEl(int Z, int A, 
+Interaction * genie::utils::interaction::GetEl(int Z, int A,
                                      int probe, const TLorentzVector & p4probe)
 {
   Target target(Z,A);

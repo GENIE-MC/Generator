@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::interaction_utils
+\namespace  genie::utils::interaction
 
 \brief      Interaction Utilities
 
@@ -19,8 +19,9 @@
 #include "Interaction/Interaction.h"
 
 namespace genie {
+namespace utils {
 
-namespace interaction_utils {
+namespace interaction {
 
   // Get the PDG code of the recoil (final state) nucleon based on the initial
   // state and the process type
@@ -54,8 +55,9 @@ namespace interaction_utils {
   Interaction * GetIMD (int Z, int A, int probe, const TLorentzVector & p4probe);
   Interaction * GetEl  (int Z, int A, int probe, const TLorentzVector & p4probe);
 
-}      // interaction_utils namespace
+} // interaction namespace
 
-}      // genie namespace
+} // utils namespace
+} // genie namespace
 
 #endif // _INTERACTION_UTILITIES_H_
