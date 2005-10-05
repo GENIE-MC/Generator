@@ -18,12 +18,12 @@
 **                                   @  p                                          **
 **                                                                                 **
 **                                                                                 **
-** Costas Andreopoulos (Rutherford), Jerome Damet (Annecy), Hugh Gallagher (Tufts) **
-**   Yoshinari Hayato (KEK), Stefan Kretzer (BNL), Anselmo Meregaglia (ETHZ),      **
-**            Donna Naples (Pittsburgh), Geoff Pearce (Rutherford),                **
-**                  Andre Rubbia (ETHZ), Mike Whalley (Durham)                     **
+**      Costas Andreopoulos (Rutherford), Flavio Cavanna (L'Aquila & INFN),        **
+**     Jerome Damet (Annecy), Hugh Gallagher (Tufts), Yoshinari Hayato (KEK),      **
+**   Stefan Kretzer (BNL), Anselmo Meregaglia (ETHZ), Donna Naples (Pittsburgh),   **
+**     Geoff Pearce (Rutherford), Andre Rubbia (ETHZ), Mike Whalley (Durham)       **
 **                                                                                 **
-**          Home Page: http://hepunx.rl.ac.uk/~candreop/generators/GENIE/          **
+**         Home Page: http://hepunx.rl.ac.uk/~candreop/generators/GENIE/           **
 **                                                                                 **
 *************************************************************************************
 *************************************************************************************
