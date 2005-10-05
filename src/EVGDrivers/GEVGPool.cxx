@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   driver::GEVGPool
+\class   genie::GEVGPool
 
 \brief   A pool of GEVGDriver objects with an initial state key
 
