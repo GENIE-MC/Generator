@@ -23,6 +23,7 @@
 #include <TVector3.h>
 #include <TSystem.h>
 
+#include "Conventions/Units.h"
 #include "EVGDrivers/PathLengthList.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Messenger/Messenger.h"
@@ -46,12 +47,23 @@ GeomAnalyzerI()
 //___________________________________________________________________________
 ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
 {
-
-  if( fCurrPathLengthList ) delete fCurrPathLengthList;
+  if( fCurrPathLengthList    ) delete fCurrPathLengthList;
   if( fCurrMaxPathLengthList ) delete fCurrMaxPathLengthList;
-  if( fCurrPDGCodeList    ) delete fCurrPDGCodeList;
-  if( fGeometry) delete fGeometry;
+  if( fCurrPDGCodeList       ) delete fCurrPDGCodeList;
+  if( fGeometry              ) delete fGeometry;
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::SetUnits(double u)
+{
+// Use the units of your input geometry, eg
+//               geom.SetUnits(genie::units::centimeter)
+// GENIE uses the physical system of units (hbar=c=1) almost throughtout so
+// everything is expressed in GeV but when analyzing detector geometries we 
+// use meters. Setting your input geometry units will allow us to figure the
+// conversion factor. 
+// As input, use one of the constants in $GENIE/src/Conventions/Units.h
 
+  fScale = u/units::meter;
 }
 //___________________________________________________________________________
 const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
@@ -331,6 +343,9 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
       LOG("GROOTGeom", pINFO) << "Max path length found = " << MaxPath;
       fCurrMaxPathLengthList->AddPathLength(pdgc,MaxPath);
     }
+
+  this->ScalePathLengths(*fCurrMaxPathLengthList);
+
   return *fCurrMaxPathLengthList;
 }
 //________________________________________________________________________
@@ -359,8 +374,10 @@ void ROOTGeomAnalyzer::Initialize(string filename)
   fCurrMaxPathLengthList = new PathLengthList(pdglist);
   fCurrVertex            = new TVector3(0.,0.,0.);
 
-  this->SetScannerNPoints(200);
-  this->SetScannerNRays(200);
+  // some defaults:
+  this -> SetScannerNPoints (200);
+  this -> SetScannerNRays   (200);
+  this -> SetUnits          (genie::units::meter);
 }
 //___________________________________________________________________________
 const PDGCodeList & ROOTGeomAnalyzer::ListOfTargetNuclei(void)
@@ -511,12 +528,14 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 
         }
     }
+
+  this->ScalePathLengths(*fCurrPathLengthList);
+
   return *fCurrPathLengthList;
 }
-
 //___________________________________________________________________________
 const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
-                const TLorentzVector & x, const TLorentzVector & p, int tgtpdg)
+               const TLorentzVector & x, const TLorentzVector & p, int tgtpdg)
 {
 // Generates a random vertex, within the detector material with the input
 // PDG code, for a neutrino starting from point x and travelling along the
@@ -862,6 +881,21 @@ double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,i
         }
     }
   return Length;
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::ScalePathLengths(PathLengthList & pl)
+{
+// convert path lenghts to default GENIE length scale
+//
+  LOG("GROOTGeom", pDEBUG) 
+              << "Scaling path-lengths -> meters (scale = " << fScale << ")";
+
+  PathLengthList::iterator pliter;
+  for(pliter = pl.begin(); pliter != pl.end(); ++pliter) 
+  {
+    int pdgc = pliter->first;
+    pl.ScalePathLength(pdgc,fScale);
+  }
 }
 //___________________________________________________________________________
 int ROOTGeomAnalyzer::GetTargetPdgCode(const TGeoMaterial * const m) const
