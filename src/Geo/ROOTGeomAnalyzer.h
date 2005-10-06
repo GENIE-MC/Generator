@@ -40,8 +40,9 @@ public :
  ~ROOTGeomAnalyzer();
 
   // analyzer configuration options
-  void SetScannerNPoints(int np) { fNPoints = np; };
-  void SetScannerNRays  (int nr) { fNRays   = nr; };
+  void SetScannerNPoints(int    np) { fNPoints = np; };
+  void SetScannerNRays  (int    nr) { fNRays   = nr; };
+  void SetUnits         (double lu);
 
   // implement the GeomAnalyzerI interface
 
@@ -62,6 +63,7 @@ private:
   void   BuildListOfTargetNuclei (void);
   int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
   int    GetTargetPdgCode        (const TGeoElement  * const e) const;
+  void   ScalePathLengths        (PathLengthList & pl);
   double ComputeMaxPathLengthPDG (double* XYZ, double* direction, int pdgc);
 
 
@@ -69,9 +71,10 @@ private:
   TGeoManager *    fGeometry;               ///< [input] detector geometry
   int              fNPoints;                ///< max path length scanner: points/surface [def:200]
   int              fNRays;                  ///< max path length scanner: rays/point [def:200]
+  double           fScale;                  ///< conversion factor: input geometry units -> meters
   TVector3 *       fCurrVertex;             ///< current generated vertex
   PathLengthList * fCurrPathLengthList;     ///< current list of path-lengths
-  PathLengthList * fCurrMaxPathLengthList;  ///< current list of Max path-lengths
+  PathLengthList * fCurrMaxPathLengthList;  ///< current list of max path-lengths
   PDGCodeList *    fCurrPDGCodeList;        ///< current list of target nuclei
 };
 
