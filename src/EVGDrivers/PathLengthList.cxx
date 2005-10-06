@@ -38,7 +38,6 @@ namespace genie {
  ostream & operator << (ostream & stream, const PathLengthList & list)
  {
    list.Print(stream);
-
    return stream;
  }
 }
@@ -64,12 +63,9 @@ void PathLengthList::AddPathLength(int pdgc, double pl)
 {
 // Adds pl to the total path length for material with code = pdgc
 
-  if ( this->count(pdgc) == 1 ) {
-
-     (*this)[pdgc] += pl;
-
-  } else {
-     LOG("GMCJob", pWARN)
+  if (this->count(pdgc) == 1) { (*this)[pdgc] += pl; } 
+  else {
+     LOG("PathL", pWARN)
          << "No material with PDG code = " << pdgc << " in path length list";
   }
 }
@@ -78,12 +74,23 @@ void PathLengthList::SetPathLength(int pdgc, double pl)
 {
 // Sets the total path length for material with code = pdgc to be pl
 
-  if ( this->count(pdgc) == 1 ) {
+  if (this->count(pdgc) == 1) { (*this)[pdgc] = pl; }
+  else {
+     LOG("PathL", pWARN)
+         << "No material with PDG code = " << pdgc << " in path length list";
+  }
+}
+//___________________________________________________________________________
+void PathLengthList::ScalePathLength(int pdgc, double scale)
+{
+// Scales pl for material with code = pdgc with the input scale factor
 
+  if (this->count(pdgc) == 1) {
+     double pl = (*this)[pdgc];
+     pl *= scale;
      (*this)[pdgc] = pl;
-
   } else {
-     LOG("GMCJob", pWARN)
+     LOG("PathL", pWARN)
          << "No material with PDG code = " << pdgc << " in path length list";
   }
 }
@@ -93,12 +100,10 @@ double PathLengthList::PathLength(int pdgc) const
 // Gets the total path length for material with code = pdgc to be pl
 
   if ( this->count(pdgc) == 1 ) {
-
      map<int, double>::const_iterator pl_iter = this->find(pdgc);
      return pl_iter->second;
-
   } else {
-     LOG("GMCJob", pWARN)
+     LOG("PathL", pWARN)
          << "No material with PDG code = " << pdgc << " in path length list";
   }
   return 0;
