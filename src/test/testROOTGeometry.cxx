@@ -24,12 +24,13 @@
 #include <TLorentzVector.h>
 
 #include "Geo/ROOTGeomAnalyzer.h"
-#include "Geo/PathLengthList.h"
+#include "EVGDrivers/PathLengthList.h"
 #include "Messenger/Messenger.h"
 
 using std::string;
 
 using namespace genie;
+using namespace genie::geometry;
 
 int main(int argc, char ** argv)
 {
