@@ -19,9 +19,11 @@
 #include <ostream>
 
 #include <TNamed.h>
+#include <TObjString.h>
 
 #include "Ntuple/NtpMCFormat.h"
 
+using std::string;
 using std::ostream;
 
 namespace genie {
@@ -45,6 +47,7 @@ public :
   // rule-breakinsg field data members not prefaced by "f" and mostly lowercase.
 
   NtpMCFormat_t format;  ///< Event Record format (GENIE support multiple formats)
+  TObjString    cvstag;  ///< GENIE CVS Tag (to keep track of GENIE's version)
 
   ClassDef(NtpMCTreeHeader, 1)
 };
