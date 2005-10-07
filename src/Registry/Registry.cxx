@@ -15,11 +15,14 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <sstream>
 #include <iomanip>
 
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TTree.h>
+#include <TFolder.h>
+#include <TObjString.h>
 
 #include "Messenger/Messenger.h"
 #include "Registry/Registry.h"
@@ -30,6 +33,7 @@ using std::setw;
 using std::setfill;
 using std::istream;
 using std::endl;
+using std::ostringstream;
 
 //____________________________________________________________________________
 namespace genie {
@@ -503,6 +507,52 @@ void Registry::AssertExistence(string key0, string key1, string key2) const
   this->AssertExistence(key0);
   this->AssertExistence(key1);
   this->AssertExistence(key2);
+}
+//____________________________________________________________________________
+void Registry::CopyToFolder(TFolder * folder) const
+{
+  LOG("Registry", pINFO) << "Converting Registry to TFolder";
+
+  folder->SetOwner(true);
+
+  map<string, RegistryItemI *>::const_iterator reg_iter;
+
+  for(reg_iter = this->fRegistry.begin();
+                          reg_iter != this->fRegistry.end(); reg_iter++) {
+
+     ostringstream   entry;
+     string          key   = reg_iter->first;
+     RegistryItemI * ritem = reg_iter->second;
+     string          type  = string(ritem->TypeInfo().name());
+
+     entry << "key:" << key << ";type:" << type;
+
+     if(type == "b") {
+        entry << ";value: " << this->GetBool(key);
+        LOG("Registry", pINFO) << "entry = " << entry.str();
+        folder->Add(new TObjString(entry.str().c_str()));
+     }
+     else if (type == "d") {
+        entry << ";value: " << this->GetDouble(key);
+        LOG("Registry", pINFO) << "entry = " << entry.str();
+        folder->Add(new TObjString(entry.str().c_str()));
+     }
+     else if (type == "i") {
+        entry << ";value: " << this->GetInt(key);
+        LOG("Registry", pINFO) << "entry = " << entry.str();
+        folder->Add(new TObjString(entry.str().c_str()));
+     }
+     else if (type == "Ss") {
+        entry << ";value: " << this->GetString(key);
+        LOG("Registry", pINFO) << "entry = " << entry.str();
+        folder->Add(new TObjString(entry.str().c_str()));
+     }
+     else if (type == "P4TH1F")
+     {
+     } else if (type == "P4TH2F") {
+     } else if (type == "P4TTree") {
+     } else {}
+  }// registry iterator
 }
 //____________________________________________________________________________
 void Registry::Print(ostream & stream) const

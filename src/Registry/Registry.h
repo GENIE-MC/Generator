@@ -18,6 +18,7 @@
 #define _REGISTRY_H_
 
 #include <map>
+#include <vector>
 #include <string>
 #include <iostream>
 
@@ -26,8 +27,10 @@
 class TH1F;
 class TH2F;
 class TTree;
+class TFolder;
 
 using std::map;
+using std::vector;
 using std::pair;
 using std::string;
 using std::ostream;
@@ -110,6 +113,11 @@ public:
   void   Print        (ostream & stream) const;
   void   Copy         (const Registry &);
 
+  //! Convert to TFolder (this is the primary mechanism for saving the
+  //! GENIE configuration in a ROOT file, along with its generated events)
+
+  void   CopyToFolder (TFolder * folder) const;
+
   //! Assert the existence or registry items
 
   void   AssertExistence (string key0) const;
@@ -125,7 +133,7 @@ private:
   map<string, RegistryItemI *> fRegistry;
 };
 
-template<class T> void SetRegistryItem(Registry * r, string key, T   item);
+template<class T> void SetRegistryItem(Registry * r, string key, T item);
 
 }        // namespace
 
