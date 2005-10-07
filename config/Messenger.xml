@@ -72,6 +72,8 @@
   <priority msgstream="NucleonP">            INFO   </priority>
   <priority msgstream="Numerical">           INFO   </priority>
   <priority msgstream="NtpGHepAnalyzer">     INFO   </priority>
+  <priority msgstream="NtpMCConfig">         NOTICE </priority>
+  <priority msgstream="NtpMCEnv">            NOTICE </priority>
   <priority msgstream="NuVld">               DEBUG  </priority>
   <priority msgstream="NeuGen">              INFO   </priority>
   <priority msgstream="PartonModel">         INFO   </priority>
