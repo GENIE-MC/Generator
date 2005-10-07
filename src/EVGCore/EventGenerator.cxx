@@ -25,7 +25,7 @@
 
 #include "Algorithm/AlgFactory.h"
 #include "Base/XSecAlgorithmI.h"
-#include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "EVGCore/EventGenerator.h"
 #include "EVGCore/InteractionListGeneratorI.h"
 #include "EVGCore/EVGThreadException.h"
@@ -37,7 +37,7 @@
 using std::ostringstream;
 
 using namespace genie;
-using namespace genie::constants;
+using namespace genie::controls;
 using namespace genie::exceptions;
 
 //___________________________________________________________________________

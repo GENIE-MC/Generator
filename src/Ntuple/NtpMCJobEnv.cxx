@@ -23,7 +23,7 @@
 #include <TFolder.h>
 #include <TObjString.h>
 
-#include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpMCJobEnv.h"
 
@@ -32,7 +32,7 @@ using std::ostringstream;
 using std::vector;
 
 using namespace genie;
-using namespace genie::constants;
+using namespace genie::controls;
 
 //____________________________________________________________________________
 NtpMCJobEnv::NtpMCJobEnv()

@@ -28,11 +28,11 @@
 #include <TRandom2.h>
 #include <TSystem.h>
 
-#include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 
-using namespace genie::constants;
+using namespace genie::controls;
 
 namespace genie {
 

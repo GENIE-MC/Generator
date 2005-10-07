@@ -26,7 +26,7 @@
 
 #include "Algorithm/AlgFactory.h"
 #include "Base/XSecAlgorithmI.h"
-#include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "EVGDrivers/GEVGDriver.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGCore/EventGeneratorList.h"
@@ -47,7 +47,7 @@
 #include "Utils/PrintUtils.h"
 
 using namespace genie;
-using namespace genie::constants;
+using namespace genie::controls;
 
 //____________________________________________________________________________
 namespace genie {
