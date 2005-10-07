@@ -19,6 +19,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TClonesArray.h>
+#include <TFolder.h>
 
 #include "EVGCore/EventRecord.h"
 #include "Messenger/Messenger.h"
@@ -26,6 +27,8 @@
 #include "Ntuple/NtpMCPlainRecord.h"
 #include "Ntuple/NtpMCEventRecord.h"
 #include "Ntuple/NtpMCTreeHeader.h"
+#include "Ntuple/NtpMCJobConfig.h"
+#include "Ntuple/NtpMCJobEnv.h"
 
 using std::ostringstream;
 
@@ -97,7 +100,7 @@ void NtpWriter::InitTree(string filename)
 
   if(fNtpMCTreeHeader) delete fNtpMCTreeHeader;
   fNtpMCTreeHeader = new NtpMCTreeHeader;
-  fNtpMCTreeHeader->Fill(fNtpFormat);
+  fNtpMCTreeHeader->format = fNtpFormat;
   LOG("NtpWriter",pINFO) << *fNtpMCTreeHeader;
   fNtpMCTreeHeader->Write();
 
@@ -121,11 +124,20 @@ void NtpWriter::InitTree(string filename)
 
      default:
         LOG("NtpWriter", pERROR)
-                          << "Unknown TTree format. Can not create TBranches";
+                    << "Unknown TTree format. Can not create TBranches";
         return;
         break;
   }
   branch->SetAutoDelete(kFALSE);
+
+  //-- save GENIE configuration for this MC Job
+  NtpMCJobConfig configuration;
+  configuration.Load()->Write();
+
+  //-- take a snapshot of the user's environment
+  NtpMCJobEnv environment;
+  environment.TakeSnapshot()->Write();
+
 }
 //____________________________________________________________________________
 void NtpWriter::SaveTree(void)

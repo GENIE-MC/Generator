@@ -8,6 +8,7 @@
 
 #pragma link C++ class genie::NtpMCTreeHeader;
 #pragma link C++ class genie::NtpMCJobEnv;
+#pragma link C++ class genie::NtpMCJobConfig;
 #pragma link C++ class genie::NtpMCRecHeader;
 #pragma link C++ class genie::NtpMCRecordI;
 #pragma link C++ class genie::NtpMCPlainRecord;

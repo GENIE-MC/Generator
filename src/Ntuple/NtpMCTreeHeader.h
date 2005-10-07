@@ -19,10 +19,8 @@
 #include <ostream>
 
 #include <TNamed.h>
-//#include <TList.h>
 
 #include "Ntuple/NtpMCFormat.h"
-#include "Ntuple/NtpMCJobEnv.h"
 
 using std::ostream;
 
@@ -36,7 +34,6 @@ public :
   NtpMCTreeHeader(const NtpMCTreeHeader & hdr);
   virtual ~NtpMCTreeHeader();
 
-  void Fill (NtpMCFormat_t fmt);
   void Init (void);
   void Copy (const NtpMCTreeHeader & hdr);
 
@@ -45,11 +42,9 @@ public :
   friend ostream & operator << (ostream & stream, const NtpMCTreeHeader & hdr);
 
   // Ntuple is treated like a C-struct with public data members and
-  // rule-breaking field data members not prefaced by "f" and mostly lowercase.
+  // rule-breakinsg field data members not prefaced by "f" and mostly lowercase.
 
-  NtpMCFormat_t format; ///< Event Record format (GENIE support multiple formats)
-  //TList         config; ///< MC job config (list of all config Registry entries)
-  NtpMCJobEnv   env;    ///< GENIE MC Job environment
+  NtpMCFormat_t format;  ///< Event Record format (GENIE support multiple formats)
 
   ClassDef(NtpMCTreeHeader, 1)
 };
