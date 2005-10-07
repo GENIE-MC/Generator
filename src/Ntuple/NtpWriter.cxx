@@ -96,14 +96,6 @@ void NtpWriter::InitTree(string filename)
   fOutTree = new TTree("gtree",title.str().c_str());
   fOutTree->SetAutoSave(200000000);  // autosave when 0.2 Gbyte written
 
-  LOG("NtpWriter",pINFO) << "Creating & saving the NtpMCTreeHeader";
-
-  if(fNtpMCTreeHeader) delete fNtpMCTreeHeader;
-  fNtpMCTreeHeader = new NtpMCTreeHeader;
-  fNtpMCTreeHeader->format = fNtpFormat;
-  LOG("NtpWriter",pINFO) << *fNtpMCTreeHeader;
-  fNtpMCTreeHeader->Write();
-
   TBranch *branch = 0;
   switch (fNtpFormat) {
      case kNFPlainRecord:
@@ -129,6 +121,14 @@ void NtpWriter::InitTree(string filename)
         break;
   }
   branch->SetAutoDelete(kFALSE);
+
+  //-- create the tree header
+  LOG("NtpWriter",pINFO) << "Creating & saving the NtpMCTreeHeader";
+  if(fNtpMCTreeHeader) delete fNtpMCTreeHeader;
+  fNtpMCTreeHeader = new NtpMCTreeHeader;
+  fNtpMCTreeHeader->format = fNtpFormat;
+  LOG("NtpWriter",pINFO) << *fNtpMCTreeHeader;
+  fNtpMCTreeHeader->Write();
 
   //-- save GENIE configuration for this MC Job
   NtpMCJobConfig configuration;
