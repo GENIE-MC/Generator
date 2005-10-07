@@ -41,10 +41,10 @@ class NtpMCFormat {
               return "Undefined";
               break;
      case kNFPlainRecord:
-              return "TTree with [TBranch=NtpMCPlainRecord]";
+              return "[NtpMCPlainRecord]";
               break;
      case kNFEventRecord:
-              return "TTree with [TBranch=NtpMCEventRecord]";
+              return "[NtpMCEventRecord]";
               break;
      default:
               break;

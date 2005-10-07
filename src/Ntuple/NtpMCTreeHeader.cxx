@@ -49,13 +49,11 @@ NtpMCTreeHeader::~NtpMCTreeHeader()
 //____________________________________________________________________________
 void NtpMCTreeHeader::PrintToStream(ostream & stream) const
 {
-  stream << endl
-         << "Tree Header" << endl
-         << "-----------" << endl
-         << "NtpRecord format: "
+  stream << "Tree Header Info:" << endl
+         << "NtpRecord Format -> "
                  << NtpMCFormat::AsString(this->format) << endl
-         << "GENIE's Vrs Nu: "
-                     << this->cvstag.GetString().Data() << endl;
+         << "GENIE CVS Vrs Nu -> ["
+                     << this->cvstag.GetString().Data() << "]" << endl;
 }
 //____________________________________________________________________________
 void NtpMCTreeHeader::Copy(const NtpMCTreeHeader & hdr)
