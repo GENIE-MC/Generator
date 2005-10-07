@@ -20,6 +20,7 @@
 #define _ALG_CONFIG_POOL_H_
 
 #include <map>
+#include <vector>
 #include <string>
 #include <iostream>
 
@@ -27,6 +28,7 @@
 #include "Registry/Registry.h"
 
 using std::map;
+using std::vector;
 using std::string;
 using std::ostream;
 
@@ -38,8 +40,11 @@ public:
 
   static AlgConfigPool * Instance();
 
+  Registry * FindRegistry (string config_key)                 const;
   Registry * FindRegistry (string alg_name, string param_set) const;
   Registry * FindRegistry (const Algorithm * algorithm)       const;
+
+  const vector<string> & ConfigKeyList (void) const;
 
   void Print(ostream & stream) const;
 
@@ -52,18 +57,21 @@ private:
   virtual ~AlgConfigPool();
 
   // methods for loading all algorithm XML configuration files
-  bool LoadAlgConfig       (void);
-  bool LoadMasterConfig    (void);
-  bool LoadSingleAlgConfig (string alg_name, string file_name);
-  void AddConfigParameter  (Registry * r, string pt, string pn, string pv);
-  void AddBasicParameter   (Registry * r, string pt, string pn, string pv);
-  void AddRootObjParameter (Registry * r, string pt, string pn, string pv);
+  string BuildConfigKey      (string alg_name, string param_set) const;
+  string BuildConfigKey      (const Algorithm * algorithm) const;
+  bool   LoadAlgConfig       (void);
+  bool   LoadMasterConfig    (void);
+  bool   LoadSingleAlgConfig (string alg_name, string file_name);
+  void   AddConfigParameter  (Registry * r, string pt, string pn, string pv);
+  void   AddBasicParameter   (Registry * r, string pt, string pn, string pv);
+  void   AddRootObjParameter (Registry * r, string pt, string pn, string pv);
 
   static AlgConfigPool * fInstance;
 
-  map<string, Registry *> fRegistryPool; ///< algorithm/param_set -> Registry
-  map<string, string>     fConfigFiles;  ///< algorithm -> XML config file
-  string                  fMasterConfig; ///< lists config files for all algorithms
+  map<string, Registry *> fRegistryPool;  ///< algorithm/param_set -> Registry
+  map<string, string>     fConfigFiles;   ///< algorithm -> XML config file
+  vector<string>          fConfigKeyList; ///< list of all available configuration keys
+  string                  fMasterConfig;  ///< lists config files for all algorithms
 
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }

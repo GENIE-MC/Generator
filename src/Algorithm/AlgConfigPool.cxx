@@ -71,6 +71,7 @@ AlgConfigPool::~AlgConfigPool()
   }
   fRegistryPool.clear();
   fConfigFiles.clear();
+  fConfigKeyList.clear();
   fInstance = 0;
 }
 //____________________________________________________________________________
@@ -234,7 +235,12 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
 
       string param_set  = utils::str::TrimSpaces(
                            XmlParserUtils::GetAttribute(xml_cur, "name"));
-      string config_key = alg_name + "/" + param_set;
+
+      // build the config key
+      string config_key = this->BuildConfigKey(alg_name,param_set);
+
+      // store the key in the key list
+      fConfigKeyList.push_back(config_key);
 
       // create a new Registry and fill it with the configuration params
       Registry * config = new Registry();
@@ -388,12 +394,18 @@ void AlgConfigPool::AddRootObjParameter(
 //____________________________________________________________________________
 Registry * AlgConfigPool::FindRegistry(const Algorithm * algorithm) const
 {
-  return FindRegistry( algorithm->Name(), algorithm->ParamSet() );
+  string key = this->BuildConfigKey(algorithm);
+  return this->FindRegistry(key);
 }
 //____________________________________________________________________________
 Registry* AlgConfigPool::FindRegistry(string alg_name, string param_set) const
 {
-  string key = alg_name + "/" + param_set;
+  string key = this->BuildConfigKey(alg_name, param_set);
+  return this->FindRegistry(key);
+}
+//____________________________________________________________________________
+Registry * AlgConfigPool::FindRegistry(string key) const
+{
   LOG("AlgConfigPool", pDEBUG) << "Searching for registry with key " << key;
 
   if( fRegistryPool.count(key) == 1 ) {
@@ -404,6 +416,26 @@ Registry* AlgConfigPool::FindRegistry(string alg_name, string param_set) const
      LOG("AlgConfigPool", pWARN) << "No config registry for key " << key;
      return 0;
   }
+  return 0;
+}
+//____________________________________________________________________________
+const vector<string> & AlgConfigPool::ConfigKeyList(void) const
+{
+  return fConfigKeyList;
+}
+//____________________________________________________________________________
+string AlgConfigPool::BuildConfigKey(string alg_name, string param_set) const
+{
+  string key = alg_name + "/" + param_set;
+  return key;
+}
+//____________________________________________________________________________
+string AlgConfigPool::BuildConfigKey(const Algorithm * algorithm) const
+{
+  string alg_name  = algorithm->Name();
+  string param_set = algorithm->ParamSet();
+
+  return this->BuildConfigKey(alg_name, param_set);
 }
 //____________________________________________________________________________
 void AlgConfigPool::Print(ostream & stream) const
