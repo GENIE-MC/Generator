@@ -16,7 +16,7 @@
 //____________________________________________________________________________
 
 #include "BaryonResonance/BaryonResonance.h"
-#include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "EVGModules/RESKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
@@ -25,7 +25,7 @@
 #include "Utils/MathUtils.h"
 
 using namespace genie;
-using namespace genie::constants;
+using namespace genie::controls;
 
 //___________________________________________________________________________
 RESKinematicsGenerator::RESKinematicsGenerator() :

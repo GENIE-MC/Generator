@@ -21,7 +21,7 @@
 //____________________________________________________________________________
 
 #include "Base/XSecAlgorithmI.h"
-#include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "EVGModules/DISKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
@@ -30,7 +30,7 @@
 #include "Utils/KineUtils.h"
 
 using namespace genie;
-using namespace genie::constants;
+using namespace genie::controls;
 
 //___________________________________________________________________________
 DISKinematicsGenerator::DISKinematicsGenerator() :
