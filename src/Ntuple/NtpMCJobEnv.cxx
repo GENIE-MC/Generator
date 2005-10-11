@@ -23,14 +23,13 @@
 #include <TFolder.h>
 #include <TObjString.h>
 
-#include "Conventions/Controls.h"
+#include "Conventions/EnvSnapshot.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpMCJobEnv.h"
 
 using std::string;
 using std::ostringstream;
 using std::vector;
-
 using namespace genie;
 using namespace genie::controls;
 

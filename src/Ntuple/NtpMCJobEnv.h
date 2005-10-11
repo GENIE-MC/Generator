@@ -17,6 +17,8 @@
 #ifndef _NTP_MC_JOB_ENV_H_
 #define _NTP_MC_JOB_ENV_H_
 
+class TFolder;
+
 namespace genie {
 
 class NtpMCJobEnv {
