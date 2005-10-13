@@ -64,41 +64,52 @@ void ROOTGeomAnalyzer::SetUnits(double u)
 // As input, use one of the constants in $GENIE/src/Conventions/Units.h
 
   fScale = u/units::meter;
+
+  LOG("GROOTGeom",pNOTICE) << "Geometry units scale factor: " << fScale;
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::SetWorldVolName(string name)
+{
+// Set the name of the world volume - default = "World"
+
+  fWorldVolName = name;
+
+  LOG("GROOTGeom",pNOTICE) << "Geometry World Vol. name: " << fWorldVolName;
 }
 //___________________________________________________________________________
 const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
 {
   LOG("GROOTGeom", pINFO)
                   << "Computing the maximum path lengths for all materials";
-  if(!fGeometry)
-    {
+
+  if(!fGeometry) {
       LOG("GROOTGeom",pERROR) << "No ROOT geometry is loaded!";
       return *fCurrMaxPathLengthList;
-    }
+  }
 
+  //-- initialize max path lengths
   fCurrMaxPathLengthList->SetAllToZero();
 
-  //select World volume
+  //-- get list of volumes
   TObjArray *LV =0;
   LV=fGeometry->GetListOfVolumes();
 
-  int numVol;
-  numVol=(LV->GetEntries());
+  int numVol = LV->GetEntries();
 
-  TGeoVolume *TV =0;
-  TGeoVolume *TVWorld =0;
-  TGeoShape *TS=0;;
+  //-- select World volume
+
+  TGeoVolume * TV      = 0;
+  TGeoVolume * TVWorld = 0;
+  TGeoShape *  TS      = 0;
 
   char *name;
-  char *str;
-  str="World";
   int FlagFound(0);
 
   for(Int_t i=0;i<numVol;i++)
     {
       TV= dynamic_cast <TGeoVolume *> (LV->At(i));
       name=const_cast<char*>(TV->GetName());
-      if(!strcmp(str,name))
+      if(!strcmp(fWorldVolName.c_str(),name))
         {
           FlagFound=1;
           TVWorld=TV;
@@ -378,6 +389,7 @@ void ROOTGeomAnalyzer::Initialize(string filename)
   this -> SetScannerNPoints (200);
   this -> SetScannerNRays   (200);
   this -> SetUnits          (genie::units::meter);
+  this -> SetWorldVolName   ("World");
 }
 //___________________________________________________________________________
 const PDGCodeList & ROOTGeomAnalyzer::ListOfTargetNuclei(void)

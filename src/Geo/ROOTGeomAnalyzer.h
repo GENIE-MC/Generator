@@ -43,6 +43,7 @@ public :
   void SetScannerNPoints(int    np) { fNPoints = np; };
   void SetScannerNRays  (int    nr) { fNRays   = nr; };
   void SetUnits         (double lu);
+  void SetWorldVolName  (string name);
 
   // implement the GeomAnalyzerI interface
 
@@ -67,8 +68,9 @@ private:
   double ComputeMaxPathLengthPDG (double* XYZ, double* direction, int pdgc);
 
 
-  int              fMaterial;               ///< [input] selected material for vertex
-  TGeoManager *    fGeometry;               ///< [input] detector geometry
+  int              fMaterial;               ///< input selected material for vertex generation
+  TGeoManager *    fGeometry;               ///< input detector geometry
+  string           fWorldVolName;           ///< input world volume name [def: "world"]
   int              fNPoints;                ///< max path length scanner: points/surface [def:200]
   int              fNRays;                  ///< max path length scanner: rays/point [def:200]
   double           fScale;                  ///< conversion factor: input geometry units -> meters
