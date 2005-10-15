@@ -36,5 +36,6 @@
 #pragma link C++ class genie::PrimaryLeptonGenerator;
 #pragma link C++ class genie::HadronicSystemGenerator;
 #pragma link C++ class genie::KineGeneratorWithCache;
+#pragma link C++ class genie::UniformKinematicsGenerator;
 
 #endif
