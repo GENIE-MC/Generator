@@ -100,6 +100,7 @@
   <priority msgstream="Simpson1D">           INFO   </priority>
   <priority msgstream="Spline">              INFO   </priority>
   <priority msgstream="Target">              INFO   </priority>
+  <priority msgstream="UnifKinematics">      INFO   </priority>
   <priority msgstream="Utils">               INFO   </priority>
   <priority msgstream="VtxGenerator">        INFO   </priority>
   <priority msgstream="VldContext">          INFO   </priority>
