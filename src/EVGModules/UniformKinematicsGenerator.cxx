@@ -1,0 +1,207 @@
+//____________________________________________________________________________
+/*!
+
+\class   genie::UniformKinematicsGenerator
+
+\brief   Generates values for the kinematic variables describing QEL,RES,DIS
+         or COH neutrino interaction events (depending on the interaction
+         already found at the event record it visits) using a flat probability
+         distribution.
+
+         Only use this one if you want to generate samples with many events
+         from improbable phase space regions without having to generate very
+         large statistics.
+
+         Is a concrete implementation of the EventRecordVisitorI interface.
+
+\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory
+
+\created September 29, 2005
+
+*/
+//____________________________________________________________________________
+
+#include "Conventions/Controls.h"
+#include "EVGModules/UniformKinematicsGenerator.h"
+#include "GHEP/GHepRecord.h"
+#include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
+#include "Utils/MathUtils.h"
+#include "Utils/KineUtils.h"
+#include "Utils/Range1.h"
+
+using namespace genie;
+using namespace genie::controls;
+
+//___________________________________________________________________________
+UniformKinematicsGenerator::UniformKinematicsGenerator() :
+EventRecordVisitorI()
+{
+  fName = "genie::UniformKinematicsGenerator";
+}
+//___________________________________________________________________________
+UniformKinematicsGenerator::UniformKinematicsGenerator(const char * param) :
+EventRecordVisitorI(param)
+{
+  fName = "genie::UniformKinematicsGenerator";
+
+  this->FindConfig();
+}
+//___________________________________________________________________________
+UniformKinematicsGenerator::~UniformKinematicsGenerator()
+{
+
+}
+//___________________________________________________________________________
+void UniformKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
+{
+// Selects kinematic variables and adds them to the event record's summary.
+// This is a 'Uniform Kinematics Generator', so no differential xsec model
+// is attached. Every point in the available phase space is equally probable.
+// It is a generic visitor that would work for any interaction.
+
+  Interaction * interaction = evrec->GetInteraction();
+  const ProcessInfo & proc_info = interaction->GetProcessInfo();
+
+  if(proc_info.IsQuasiElastic())
+         this->GenerateUnifQELKinematics(evrec);
+  else if (proc_info.IsResonant())
+         this->GenerateUnifRESKinematics(evrec);
+  else if (proc_info.IsDeepInelastic())
+         this->GenerateUnifDISKinematics(evrec);
+  else if (proc_info.IsCoherent())
+         this->GenerateUnifCOHKinematics(evrec);
+  else {
+    LOG("UnifKinematics", pERROR)
+       << "Can not generate uniform kinematics for scattering type:"
+                                     << proc_info.ScatteringTypeAsString();
+  }
+}
+//___________________________________________________________________________
+void UniformKinematicsGenerator::GenerateUnifQELKinematics(
+                                                    GHepRecord * evrec) const
+{
+  RandomGen * rnd = RandomGen::Instance();
+  Interaction * interaction = evrec->GetInteraction();
+
+  // compute physical Q^2 range
+  Range1D_t Q2 = utils::kinematics::Q2Range_M(interaction);
+
+  // generate/set a Q^2 in available phase space (const probability)
+  double gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random2().Rndm();
+  interaction->GetScatParamsPtr()->Set("Q2", gQ2);
+
+  LOG("UnifKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
+
+  interaction->SetDiffXSec(-1);
+}
+//___________________________________________________________________________
+void UniformKinematicsGenerator::GenerateUnifRESKinematics(
+                                                    GHepRecord * evrec) const
+{
+  RandomGen * rnd = RandomGen::Instance();
+  Interaction * interaction = evrec->GetInteraction();
+
+  // compute physical W range
+  Range1D_t W  = utils::kinematics::WRange(interaction);
+
+  bool found = false;
+  register unsigned int iter = 0;
+  double gW = -1, gQ2 = -1;
+
+  while(!found) {
+
+     // generate/set an invariant mass (const probability)
+     gW = W.min + (W.max - W.min) * rnd->Random2().Rndm();
+     interaction->GetScatParamsPtr()->Set("W", gW);
+
+     // compute physical Q^2 for selected W
+     Range1D_t Q2 = utils::kinematics::Q2Range_W(interaction);
+
+     if(Q2.min < Q2.max) {
+        // generate/set a Q^2 (const probability)
+        gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random2().Rndm();
+        interaction->GetScatParamsPtr()->Set("Q2", gQ2);
+        found = true;
+     }
+
+     iter++;
+     if(iter > kRjMaxIterations) {
+         LOG("UnifKinematics", pERROR)
+             << "*** Could not select a valid (W,Q^2) pair after "
+                                                  << iter << " iterations";
+         exit(1);
+     }
+  }
+
+  LOG("UnifKinematics", pINFO) << "Selected: W   = " << gW;
+  LOG("UnifKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
+
+  interaction->SetDiffXSec(-1);
+}
+//___________________________________________________________________________
+void UniformKinematicsGenerator::GenerateUnifDISKinematics(
+                                                    GHepRecord * evrec) const
+{
+  RandomGen * rnd = RandomGen::Instance();
+  Interaction * interaction = evrec->GetInteraction();
+
+  // get initial state information
+  const InitialState & init_state = interaction->GetInitialState();
+
+  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
+  double M   = init_state.GetTarget().StruckNucleonMass();
+  double M2  = M*M;
+
+  // select kinematics
+
+  bool found = false;
+  register unsigned int iter = 0;
+
+  double gx = -1, gy = -1, gW = -1, gQ2 = -1;
+
+  while(!found) {
+     // generate x,y in [0,1]
+     gx = rnd->Random2().Rndm();
+     gy = rnd->Random2().Rndm();
+
+     interaction->GetScatParamsPtr()->Set("x", gx);
+     interaction->GetScatParamsPtr()->Set("y", gy);
+
+     // check whether generated x,y correspond to valid kinematics
+     gW  = TMath::Sqrt( utils::math::NonNegative(M2+2*Ev*M*gy*(1-gx)) );
+     gQ2 = 2*gx*gy*M*Ev;
+
+     //-- get the physical W, Q^2 range
+     Range1D_t W  = utils::kinematics::WRange(interaction);
+     Range1D_t Q2 = utils::kinematics::Q2Range_xy(interaction);
+
+     bool valid_W  = utils::math::IsWithinLimits( gW, W  );
+     bool valid_Q2 = utils::math::IsWithinLimits( gQ2,Q2 );
+
+     found = (valid_W && valid_Q2);
+
+     iter++;
+     if(iter > kRjMaxIterations) {
+         LOG("UnifKinematics", pERROR)
+             << "*** Could not select a valid (W,Q^2) pair after "
+                                                  << iter << " iterations";
+         exit(1);
+     }
+  }
+
+  LOG("UnifKinematics", pINFO) << "Selected: x   = " << gx;
+  LOG("UnifKinematics", pINFO) << "Selected: y   = " << gy;
+  LOG("UnifKinematics", pINFO) << "Selected: W   = " << gW;
+  LOG("UnifKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
+
+  interaction->SetDiffXSec(-1);
+}
+//___________________________________________________________________________
+void UniformKinematicsGenerator::GenerateUnifCOHKinematics(
+                                               GHepRecord * /*evrec*/) const
+{
+  LOG("UnifKinematics", pWARN) << "Kinematics generator not implemented!!";
+}
+//___________________________________________________________________________
