@@ -308,6 +308,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::UniformKinematicsGenerator">   
+       <config_file> 
+             UniformKinematicsGenerator.xml 
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::PauliBlocker">   
        <config_file> 
              PauliBlocker.xml 
