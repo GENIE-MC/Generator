@@ -13,7 +13,7 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 # std build targets
-BUILD_TARGETS = save-build-options generator-std-libs 
+BUILD_TARGETS = bin-lib-dir save-build-options generator-std-libs 
 
 # build targets to be enabled by the user (nu-validator, 
 # genie/geant interface, flux/geometry drivers doxygen documentation)
@@ -116,6 +116,11 @@ all-libs: generator-std-libs flux-drivers geom-drivers geanti nuvld-libs
 save-build-options:
 	perl scripts/save-build-env;
 
+bin-lib-dir:
+	cd $(GENIE); \
+	mkdir bin; chmod 755 bin;\
+	mkdir lib; chmod 755 lib;\
+
 purge: FORCE
 	cd Algorithm;          make purge; cd ..; \
 	cd BaryonResonance;    make purge; cd ..; \
@@ -152,7 +157,9 @@ purge: FORCE
 	cd Utils;              make purge; cd ..; \
 	cd Viewer;             make purge; cd ..; \
 
-clean: FORCE
+clean: clean-files clean-dir
+
+clean-files: FORCE
 	rm build.options; \
 	cd Algorithm;          make clean; cd ..; \
 	cd BaryonResonance;    make clean; cd ..; \
@@ -191,6 +198,11 @@ clean: FORCE
 	cd stdapp;             make clean; cd ..; \
 	cd test;               make clean; cd ..; \
 	cd scripts;	       make clean; cd ..;
+
+clean-dir: FORCE
+	cd $(GENIE);\
+	rmdir ./bin;\
+	rmdir ./lib 
 
 FORCE:
 
