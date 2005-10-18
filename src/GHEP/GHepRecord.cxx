@@ -101,7 +101,8 @@ GHepParticle * GHepRecord::GetParticle(int position) const
   return 0;
 }
 //___________________________________________________________________________
-GHepParticle * GHepRecord::FindParticle(int pdg, int status, int start) const
+GHepParticle * GHepRecord::FindParticle(
+                               int pdg, GHepStatus_t status, int start) const
 {
 // Returns the first GHepParticle with the input pdg-code and status
 // starting from the specified position of the event record.
@@ -117,7 +118,8 @@ GHepParticle * GHepRecord::FindParticle(int pdg, int status, int start) const
   return 0;
 }
 //___________________________________________________________________________
-int GHepRecord::ParticlePosition(int pdg, int status, int start) const
+int GHepRecord::ParticlePosition(
+                               int pdg, GHepStatus_t status, int start) const
 {
 // Returns the position of the first GHepParticle with the input pdg-code
 // and status starting from the specified position of the event record.
@@ -190,7 +192,7 @@ void GHepRecord::AddParticle(const GHepParticle & p)
 }
 //___________________________________________________________________________
 void GHepRecord::AddParticle(
-  int pdg, int status, int mom1, int mom2, int dau1, int dau2,
+  int pdg, GHepStatus_t status, int mom1, int mom2, int dau1, int dau2,
                          const TLorentzVector & p, const TLorentzVector & v)
 {
 // Provides a 'simplified' method for inserting entries in the TClonesArray
@@ -207,8 +209,8 @@ void GHepRecord::AddParticle(
 }
 //___________________________________________________________________________
 void GHepRecord::AddParticle(
-  int pdg, int status, int mom1, int mom2, int dau1, int dau2,
-                         double px, double py, double pz, double E,
+  int pdg, GHepStatus_t status, int mom1, int mom2, int dau1, int dau2,
+                               double px, double py, double pz, double E,
                                      double x, double y, double z, double t)
 {
 // Provides a 'simplified' method for inserting entries in the TClonesArray
