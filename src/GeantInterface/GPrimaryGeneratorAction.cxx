@@ -66,13 +66,13 @@ void GPrimaryGeneratorAction::Init(void)
      case kPGEVGDrv:  
      case kPGMCJDrv:
           LOG("GEANTi", pERROR) 
-                << "The requested G4VPrimaryGenerator is not supported yet!";
+             << "The requested G4VPrimaryGenerator is not supported yet!";
           break;
 
      case kPGUndefined: 
      default:   
           LOG("GEANTi", pERROR) 
-                     << "You didn't requested a valid G4VPrimaryGenerator!";
+                     << "You didn't request a valid G4VPrimaryGenerator!";
           break;
   }
 }
