@@ -22,6 +22,8 @@
 #include <TObject.h>
 #include <TLorentzVector.h>
 
+#include "GHEP/GHepStatus.h"
+
 using std::string;
 using std::ostream;
 
@@ -36,11 +38,11 @@ public :
 
   // TParticle-like constructors for compatibility
   GHepParticle(
-      int pdg, int status,
+      int pdg, GHepStatus_t status,
             int mother1, int mother2, int daughter1, int daughter2,
                         const TLorentzVector & p, const TLorentzVector & v);
   GHepParticle(
-       int pdg, int status,
+       int pdg, GHepStatus_t status,
          int mother1, int mother2, int daughter1, int daughter2,
                            double px, double py, double pz, double E,
                                     double x, double y, double z, double t);
@@ -48,16 +50,16 @@ public :
 
 
   //-- Basic properties
-  bool IsNucleus      (void) const { return  fIsNucleus;          }
-  bool IsParticle     (void) const { return !fIsNucleus;          }
-  bool IsFake         (void) const { return  fIsFake;             }
-  int  PdgCode        (void) const { return  fPdgCode;            }
-  int  Status         (void) const { return  fStatus;             }
-  int  FirstMother    (void) const { return  fFirstMother;        }
-  int  LastMother     (void) const { return  fLastMother;         }
-  int  FirstDaughter  (void) const { return  fFirstDaughter;      }
-  int  LastDaughter   (void) const { return  fLastDaughter;       }
-  bool HasDaughters   (void) const { return (fFirstDaughter!=-1); }
+  bool          IsNucleus      (void) const { return  fIsNucleus;          }
+  bool          IsParticle     (void) const { return !fIsNucleus;          }
+  bool          IsFake         (void) const { return  fIsFake;             }
+  int           PdgCode        (void) const { return  fPdgCode;            }
+  GHepStatus_t  Status         (void) const { return  fStatus;             }
+  int           FirstMother    (void) const { return  fFirstMother;        }
+  int           LastMother     (void) const { return  fLastMother;         }
+  int           FirstDaughter  (void) const { return  fFirstDaughter;      }
+  int           LastDaughter   (void) const { return  fLastDaughter;       }
+  bool          HasDaughters   (void) const { return (fFirstDaughter!=-1); }
 
   //-- Returns the momentum & vertex 4-vectors
   TLorentzVector * P4 (void) const { return  fP4; }
@@ -94,11 +96,11 @@ public :
 
   //-- Set pdg code / status / parent-children links
   void SetPdgCode        (int c);
-  void SetStatus         (int s) { fStatus        = s; }
-  void SetFirstMother    (int m) { fFirstMother   = m; }
-  void SetLastMother     (int m) { fLastMother    = m; }
-  void SetFirstDaughter  (int d) { fFirstDaughter = d; }
-  void SetLastDaughter   (int d) { fLastDaughter  = d; }
+  void SetStatus         (GHepStatus_t s) { fStatus        = s; }
+  void SetFirstMother    (int m)          { fFirstMother   = m; }
+  void SetLastMother     (int m)          { fLastMother    = m; }
+  void SetFirstDaughter  (int d)          { fFirstDaughter = d; }
+  void SetLastDaughter   (int d)          { fLastDaughter  = d; }
 
   //-- Set the momentum & vertex 4-vectors
   void SetMomentum (const TLorentzVector & p4);
@@ -126,16 +128,16 @@ private:
   bool CompareFamily   (const GHepParticle * p) const;
   bool CompareMomentum (const GHepParticle * p) const;
 
-  bool fIsNucleus;        // nucleus flag
-  bool fIsFake;           // fake particle flag (rootino, bindino, etc)
-  int  fPdgCode;          // particle PDG code
-  int  fStatus;           // particle status
-  int  fFirstMother;      // first mother idx
-  int  fLastMother;       // last mother idx
-  int  fFirstDaughter;    // first daughter idx
-  int  fLastDaughter;     // last daughter idx
-  TLorentzVector * fP4;   // momentum 4-vector
-  TLorentzVector * fV4;   // vertex 4-vector
+  bool             fIsNucleus;      ///< nucleus flag
+  bool             fIsFake;         ///< fake particle flag (rootino etc)
+  int              fPdgCode;        ///< particle PDG code
+  GHepStatus_t     fStatus;         ///< particle status
+  int              fFirstMother;    ///< first mother idx
+  int              fLastMother;     ///< last mother idx
+  int              fFirstDaughter;  ///< first daughter idx
+  int              fLastDaughter;   ///< last daughter idx
+  TLorentzVector * fP4;             ///< momentum 4-vector
+  TLorentzVector * fV4;             ///< vertex 4-vector
 
 ClassDef(GHepParticle, 1)
 
