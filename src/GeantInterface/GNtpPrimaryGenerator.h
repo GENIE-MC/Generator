@@ -39,7 +39,7 @@ class GNtpPrimaryGenerator : public G4VPrimaryGenerator
 {
 public:
   GNtpPrimaryGenerator();
-  virtual ~GNtpPrimaryGenerator();
+  ~GNtpPrimaryGenerator();
 
   // overriden methods from GEANT's G4VPrimaryGenerator interface
   void GeneratePrimaryVertex(G4Event * event);
