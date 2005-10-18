@@ -54,12 +54,12 @@ private:
 
   EventRecord * ReadNextEvent(void);
 
-  TFile *            fFile;
-  TTree *            fTree;
-  NtpMCTreeHeader *  fTreeHdr;
-  NtpMCEventRecord * fNtpRec;
-  Long64_t           fNEntries;
-  Long64_t           fCurrentEvent;
+  TFile *                   fFile;
+  TTree *                   fTree;
+  NtpMCTreeHeader *         fTreeHdr;
+  NtpMCEventRecord *        fNtpRec;
+  Long64_t                  fNEntries;
+  Long64_t                  fCurrentEvent;
 };
 
 } // geant namespace
