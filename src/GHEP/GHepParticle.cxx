@@ -51,7 +51,7 @@ GHepParticle::GHepParticle()
 }
 //___________________________________________________________________________
 // TParticle-like constructor
-GHepParticle::GHepParticle(int pdg, int status,
+GHepParticle::GHepParticle(int pdg, GHepStatus_t status,
             int mother1, int mother2, int daughter1, int daughter2,
                         const TLorentzVector & p, const TLorentzVector & v) :
 fStatus(status),
@@ -67,7 +67,7 @@ fLastDaughter(daughter2)
 }
 //___________________________________________________________________________
 // TParticle-like constructor
-GHepParticle::GHepParticle(int pdg, int status,
+GHepParticle::GHepParticle(int pdg, GHepStatus_t status,
          int mother1, int mother2, int daughter1, int daughter2,
                            double px, double py, double pz, double E,
                                     double x, double y, double z, double t) :
@@ -230,8 +230,8 @@ void GHepParticle::Init(void)
   fIsNucleus = false;
   fIsFake    = true;
 
-  fPdgCode =  0;
-  fStatus  = -1;
+  fPdgCode = 0;
+  fStatus  = kIStUndefined;
 
   fFirstMother   = -1;
   fLastMother    = -1;
