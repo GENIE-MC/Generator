@@ -242,11 +242,11 @@ endif
 #-------------------------------------------------------------------
 
 CLHEP_INCLUDES=
-CHEP_LIBRARIES=
+CLHEP_LIBRARIES=
 
 ifdef GOPT_GEANT_INTERFACE
-  CLHEP_INCLUDES = -I$(CLHEP_INC)
-  CHEP_LIBRARIES = -L$(CLHEP_LIB) -lCLHEP
+  CLHEP_INCLUDES  = -I$(CLHEP_INC)
+  CLHEP_LIBRARIES = -L$(CLHEP_LIB) -lCLHEP
 endif
 
 #-------------------------------------------------------------------

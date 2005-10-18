@@ -16,6 +16,11 @@ GENIE_DICTS = $(shell $(GENIE)/src/scripts/genie-config --dicts)
 
 LIBRARIES := $(GENIE_LIBRARIES) $(LIBRARIES) $(CERN_LIBRARIES)
 
+ifdef GOPT_GEANT_INTERFACE
+  LIBRARIES := $(LIBRARIES) $(GEANT4_LIBRARIES) $(CLHEP_LIBRARIES)
+endif
+
+
 TGT =	gEvGen		\
 	gVldDoc		\
 	gMakeSplines	\
