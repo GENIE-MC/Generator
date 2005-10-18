@@ -15,6 +15,10 @@ include $(GENIE)/src/Make.include
 LIBRARIES := $(GENIE_LIBRARIES) $(NUVLD_LIBRARIES) \
              $(LIBRARIES) $(NEUGEN_LIBRARIES) $(CERN_LIBRARIES) 
 
+ifdef GOPT_GEANT_INTERFACE
+  LIBRARIES := $(LIBRARIES) $(GEANT4_LIBRARIES) $(CLHEP_LIBRARIES)
+endif
+
 EXE = $(GENIE_BIN_PATH)/parsexml \
       $(GENIE_BIN_PATH)/filldbase \
       $(GENIE_BIN_PATH)/nuvld \

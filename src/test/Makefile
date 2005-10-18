@@ -13,10 +13,13 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 GENIE_DICTS = $(shell $(GENIE)/src/scripts/genie-config --dicts)
+WITH_DICT   = $(GENIE_DICTS)
 
 LIBRARIES := $(GENIE_LIBRARIES) $(LIBRARIES) $(CERN_LIBRARIES)
 
-WITH_DICT  = $(GENIE_DICTS)
+ifdef GOPT_GEANT_INTERFACE
+  LIBRARIES := $(LIBRARIES) $(GEANT4_LIBRARIES) $(CLHEP_LIBRARIES)
+endif
 
 TGT =	testBaryonResDataSet	\
  	testConfigPool		\
