@@ -29,6 +29,7 @@
 
 #include "EVGCore/EventRecord.h"
 #include "GeantInterface/GNtpPrimaryGenerator.h"
+#include "GeantInterface/GG4IException.h"
 #include "Messenger/Messenger.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepOrder.h"
@@ -39,9 +40,11 @@
 using std::vector;
 using namespace genie;
 using namespace genie::geant;
+using namespace genie::exceptions;
 
 //____________________________________________________________________________
-GNtpPrimaryGenerator::GNtpPrimaryGenerator()
+GNtpPrimaryGenerator::GNtpPrimaryGenerator() :
+G4VPrimaryGenerator()
 {
   this->Initialize();
 }
@@ -71,10 +74,8 @@ void GNtpPrimaryGenerator::GeneratePrimaryVertex(G4Event* g4event)
 
   TLorentzVector * vtx = gevt.GetParticle(GHepOrder::ProbePosition())->V4();
 
-  G4ThreeVector gvtx_pos  (vtx->X(), vtx->Y(), vtx->Z());
-  G4double      gvtx_time (vtx->T());
-
-  G4PrimaryVertex * g4vertex = new G4PrimaryVertex(gvtx_pos, gvtx_time);
+  G4PrimaryVertex * g4vertex =
+                new G4PrimaryVertex(vtx->X(), vtx->Y(), vtx->Z(), vtx->T());
 
   //-- create & store GEANT's primary particles
 
@@ -166,7 +167,10 @@ void GNtpPrimaryGenerator::ReadFromFile(string filename)
 
   bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
   if (!is_accessible) {
-    G4Exception("GNtpPrimaryGenerator:: Can not open file.");
+    GG4IException e;
+    e.SetReason("GENIE ROOT file not found");
+    e.SetFileNotFound(true);
+    throw e;
     return;
   }
   fFile = new TFile(filename.c_str(),"READ");
@@ -178,7 +182,10 @@ void GNtpPrimaryGenerator::ReadFromFile(string filename)
   LOG("GEANTi", pDEBUG) << "Input tree header: " << *fTreeHdr;
 
   if(fTreeHdr->format != kNFEventRecord) {
-    G4Exception("GNtpPrimaryGenerator:: Incompatible event tree format.");
+    GG4IException e;
+    e.SetReason("Error in event tree format");
+    e.SetFormatError(true);
+    throw e;
     return;
   }
 
@@ -191,8 +198,10 @@ void GNtpPrimaryGenerator::ReadFromFile(string filename)
   LOG("GEANTi", pINFO) << "Number of events to read: " << fNEntries;
 
   if(fNEntries <=0) {
-    G4Exception("GNtpPrimaryGenerator:: Empty event tree.");
-    return;
+    GG4IException e;
+    e.SetReason("Empty event tree");
+    e.SetEmptyTree(true);
+    throw e;
   }
 
   //-- set the ntuple record
@@ -220,8 +229,13 @@ EventRecord * GNtpPrimaryGenerator::ReadNextEvent(void)
     return event;
 
   } else {
+
     LOG("GEANTi", pWARN) << "No more events in the file!!!";
-    G4Exception("GNtpPrimaryGenerator:: End of GENIE's event tree.");
+    GG4IException e;
+    e.SetReason("Reached the end of the event file");
+    e.SetEndOfFile(true);
+    throw e;
+
     return 0;
   }
   return 0;
