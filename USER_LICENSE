@@ -1,0 +1,62 @@
+<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+<><>                                                                        <><>
+<><>         The GENIE Universal Object-Oriented Neutrino Generator         <><>
+<><>         ------------------------------------------------------         <><>
+<><>                                                                        <><>
+<><> Detailed information including a 'User & Physics manual', a 'Reference <><>
+<><>   manual, Doxygen documentation, Installation & Running instructions,  <><>
+<><>   HOWTO's, list of available releases and ChangeLogs can be found in:  <><>
+<><>                                                                        <><>
+<><>            http://hepunx.rl.ac.uk/~candreop/generators/GENIE/          <><>
+<><>                                                                        <><>
+<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+
+(c) 2003-2005, GENIE Universal Generator Collaboration
+
+
+GENIE Universal Generator Collaboration
+................................................................................
+Costas Andreopoulos  C.V.Andreopoulos \at rl.ac.uk      CCLRC, Rutherford Lab.
+Flavio Cavanna       flavio.cavanna \at aquila.infn.it  L'Aquila Univ. & INFN
+Jerome Damet         damet \at lapp.in2p3.fr            Annecy
+Hugh Gallagher       gallag \at minos.phy.tufts.edu     Tufts University
+Yoshinari Hayato     yoshinari.hayato \at kek.jp        KEK
+Stefan Kretzer       kretzer \at quark.phy.bnl.gov      Brookhaven National Lab.
+Anselmo Meregaglia   anselmo.meregaglia \at cern.ch     ETH Zurich
+Donna Naples         naples \at merlin.phyast.pitt.edu  Pittsburgh Univ.
+Geoff Pearce         G.F.Pearce \at rl.ac.uk            CCLRC, Rutherford Lab.
+Andre Rubbia         rubbia \at phys.ethz.ch            ETH Zurich
+Mike Whalley         M.R.Whalley \at durham.ac.uk       Durham Univ.
+
+
+LICENCE
+................................................................................
+The authors hereby grant permission to use, copy, and distribute this software
+and its documentation for any purpose, provided that existing copyright notices
+are retained in all copies and that this notice is included verbatim in any
+distributions.
+
+Additionally, the authors grant permission to modify this software and its
+documentation for any purpose, provided that such modifications are not
+distributed without the explicit consent of the authors and that existing
+copyright notices are retained in all copies.
+
+Support for this software is done on a best effort basis. All bug fixes and
+enhancements will be made available under the same terms and conditions as the
+original software.
+
+You are granted the right to use GENIE on the explicit understanding that every
+refereed publication, contribution to conference proceedings or publicly
+available internal note describing derivative works should cite GENIE.
+
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR DIRECT,
+INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF
+THIS SOFTWARE, ITS DOCUMENTATION, OR ANY DERIVATIVES THEREOF, EVEN IF THE AUTHORS
+HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. THE AUTHORS AND DISTRIBUTORS
+SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE  IMPLIED
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+NON-INFRINGEMENT. THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS
+AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ENHANCEMENTS, OR MODIFICATIONS.
+
