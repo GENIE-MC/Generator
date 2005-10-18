@@ -596,6 +596,8 @@ EventRecord * NeuGenWrapper::GenerateEvent(int nupdgc, float E, int A, int Z)
     int ist=0, pdgc=0;
     get_stdhep_particle_info_(&i, &ist, &pdgc);
 
+    GHepStatus_t status = GHepStatus_t(ist);
+
     SLOG("NeuGen", pINFO)
         << "Adding NeuGEN's STDHEP entry = " << i << " with PDGC = " << pdgc;
 
@@ -630,7 +632,7 @@ EventRecord * NeuGenWrapper::GenerateEvent(int nupdgc, float E, int A, int Z)
 
     //-- add the particle at GENIE's event record
     new ( (*evrec)[i] ) GHepParticle(
-                         pdgc, ist, mom1,mom2,dau1,dau2, px,py,pz,E, x,y,z,t);    
+                    pdgc, status, mom1,mom2,dau1,dau2, px,py,pz,E, x,y,z,t);    
   }
 
   // Since the event was not created from within the GENIE framework it will

@@ -19,7 +19,9 @@
 #include <ostream>
 
 #include <TClonesArray.h>
+
 #include "Interaction/Interaction.h"
+#include "GHEP/GHepStatus.h"
 
 class TLorentzVector;
 
@@ -46,9 +48,9 @@ public :
   //-- methods to search the GHEP (STDHEP-like) record
 
   virtual GHepParticle * GetParticle    (int position) const;
-  virtual GHepParticle * FindParticle   (int pdg, int status, int start) const;
+  virtual GHepParticle * FindParticle   (int pdg, GHepStatus_t ist, int start) const;
 
-  virtual int ParticlePosition(int pdg, int status,  int start) const;
+  virtual int ParticlePosition(int pdg, GHepStatus_t ist,  int start) const;
   virtual int ParticlePosition(GHepParticle * particle, int start) const;
 
   //-- operations on the record
@@ -73,10 +75,10 @@ public :
   //   result of your GHepParticle insertion
 
   virtual void AddParticle (const GHepParticle & p);
-  virtual void AddParticle (int pdg, int status,
+  virtual void AddParticle (int pdg, GHepStatus_t ist,
                      int mom1, int mom2, int dau1, int dau2,
                         const TLorentzVector & p, const TLorentzVector & v);
-  virtual void AddParticle (int pdg, int status,
+  virtual void AddParticle (int pdg, GHepStatus_t ist,
                      int mom1, int mom2, int dau1, int dau2,
                            double px, double py, double pz, double E,
                                     double x, double y, double z, double t);
