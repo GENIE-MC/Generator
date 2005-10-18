@@ -22,6 +22,7 @@
 #include <TObjString.h>
 
 #include "Ntuple/NtpMCFormat.h"
+#include "Ntuple/NtpMCDTime.h"
 
 using std::string;
 using std::ostream;
@@ -48,6 +49,7 @@ public :
 
   NtpMCFormat_t format;  ///< Event Record format (GENIE support multiple formats)
   TObjString    cvstag;  ///< GENIE CVS Tag (to keep track of GENIE's version)
+  NtpMCDTime    datime;  ///< Date and Time that the event ntuple was generated
 
   ClassDef(NtpMCTreeHeader, 1)
 };
