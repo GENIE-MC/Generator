@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::utils::clap::CmdLineArgParserException
+\class   genie::exceptions::CmdLineArgParserException
 
 \brief   An exception thrown by the command line argument parser when command
          line arguments can not be found.
