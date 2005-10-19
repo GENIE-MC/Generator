@@ -137,8 +137,8 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
      p4.Boost(beta);
 
      // copy the particle to the event record
-     int pdgc   = p->GetKF();
-     int status = p->GetKS();
+     int          pdgc   = p->GetKF();
+     GHepStatus_t status = GHepStatus_t(p->GetKS());
      TLorentzVector v4(0,0,0,0); // dummy position 4-vector
 
      evrec->AddParticle(pdgc, status, mom,-1,-1,-1, p4, v4);
