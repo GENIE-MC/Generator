@@ -8,8 +8,8 @@
 
 #pragma link C++ class genie::DISStructureFunc;
 #pragma link C++ class genie::DISStructureFuncModelI;
-//#pragma link C++ class genie::DISHelicityFormFactors;
-//#pragma link C++ class genie::DISHelicityFormFactorsModelI;
+#pragma link C++ class genie::ELFormFactors;
+#pragma link C++ class genie::ELFormFactorsModelI;
 #pragma link C++ class genie::QELFormFactors;
 #pragma link C++ class genie::QELFormFactorsModelI;
 #pragma link C++ class genie::XSecAlgorithmI;
