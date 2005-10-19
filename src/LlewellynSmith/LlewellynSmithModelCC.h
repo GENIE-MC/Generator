@@ -3,10 +3,11 @@
 
 \class    genie::LlewellynSmithModelCC
 
-\brief    Form Factors for Quasi Elastic CC vN scattering according to
+\brief    Is a concrete implementation of the QELFormFactorsModelI:
+          Form Factors for Quasi Elastic CC vN scattering according to
           Llewellyn-Smith model.
 
-          Is a concrete implementation of the QELFormFactorsModelI :
+\ref      H.Budd, A.Bodek, J.Arrington, NuINT02 proceedings
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
