@@ -28,7 +28,7 @@ using namespace genie::constants;
 DipoleELFormFactorsModel::DipoleELFormFactorsModel() :
 ELFormFactorsModelI()
 {
-
+  fName = "genie::DipoleELFormFactorsModel";
 }
 //____________________________________________________________________________
 DipoleELFormFactorsModel::DipoleELFormFactorsModel(const char * param_set) :
@@ -44,62 +44,48 @@ DipoleELFormFactorsModel::~DipoleELFormFactorsModel()
 
 }
 //____________________________________________________________________________
-double DipoleELFormFactorsModel::Ge(const Interaction * interaction) const
+double DipoleELFormFactorsModel::Gep(double q2) const
 {
-  // get initial state & scattering parameters
-  const InitialState & init_state = interaction->GetInitialState();
-  const Target & target = init_state.GetTarget();
-  const ScatteringParams & scp = interaction -> GetScatteringParams();
-
-  // get Ge(0) for the struck nucleon
-  double ge0;
-  if      ( target.IsProton()  ) ge0 = 1.;
-  else if ( target.IsNeutron() ) ge0 = 0.;
-  else  {
-    LOG("ELFormFactors", pERROR) << "Undefined struck nucleon!";
-    return -99999;
-  }
-
-  // get the momentum transfer
-  double q2 = scp.q2();
-
   // get Mv2 (vector mass squared) from the configuration registry if it
   // exists, otherwise use the default value
   double Mv2 = fConfig->GetDoubleDef("Mv2", kElMv2);
 
   // calculate and return GNE
-  double ge = ge0 / TMath::Power(1-q2/Mv2, 2);
+  double ge = 1. / TMath::Power(1-q2/Mv2, 2);
 
+  LOG("ELFormFactors", pDEBUG) << "Gep(q^2 = " << q2 << ") = " << ge;
   return ge;
 }
 //____________________________________________________________________________
-double DipoleELFormFactorsModel::Gm(const Interaction * interaction) const
+double DipoleELFormFactorsModel::Gen(double /*q2*/) const
 {
-  // get initial state & scattering parameters
-  const InitialState & init_state = interaction->GetInitialState();
-  const Target & target = init_state.GetTarget();
-  const ScatteringParams & scp = interaction->GetScatteringParams();
-
-  // get the anomalous magnetic moment of the struck nucleon
-  double MagnMom;
-  if      ( target.IsProton()  ) MagnMom = kMuP;
-  else if ( target.IsNeutron() ) MagnMom = kMuN;
-  else  {
-    LOG("ELFormFactors", pERROR) << "Undefined struck nucleon!";
-    return -99999;
-  }
-
-  // get the momentum transfer
-  double q2 = scp.q2();
-
+  return 0.;
+}
+//____________________________________________________________________________
+double DipoleELFormFactorsModel::Gmp(double q2) const
+{
   // get Mv2 (vector mass squared) from the configuration registry if it
   // exists, otherwise use the default value
   double Mv2 = fConfig->GetDoubleDef("Mv2", kElMv2);
 
   // calculate & return Gm
-  double Gm = MagnMom / TMath::Power(1-q2/Mv2, 2);
+  double gm = kMuP / TMath::Power(1-q2/Mv2, 2);
 
-  return Gm;
+  LOG("ELFormFactors", pDEBUG) << "Gmp(q^2 = " << q2 << ") = " << gm;
+  return gm;
+}
+//____________________________________________________________________________
+double DipoleELFormFactorsModel::Gmn(double q2) const
+{
+  // get Mv2 (vector mass squared) from the configuration registry if it
+  // exists, otherwise use the default value
+  double Mv2 = fConfig->GetDoubleDef("Mv2", kElMv2);
+
+  // calculate & return Gm
+  double gm = kMuN / TMath::Power(1-q2/Mv2, 2);
+
+  LOG("ELFormFactors", pDEBUG) << "Gmn(q^2 = " << q2 << ") = " << gm;
+  return gm;
 }
 //____________________________________________________________________________
 

@@ -28,8 +28,10 @@ public:
   DipoleELFormFactorsModel(const char * param_set);
   virtual ~DipoleELFormFactorsModel();
 
-  double Ge (const Interaction * interaction) const;
-  double Gm (const Interaction * interaction) const;
+  double Gep (double q2) const;
+  double Gmp (double q2) const;
+  double Gen (double q2) const;
+  double Gmn (double q2) const;
 };
 
 }         // genie namespace
