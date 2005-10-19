@@ -16,6 +16,7 @@
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/QELFormFactorsModelI.h"
+#include "Base/ELFormFactorsModelI.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;
@@ -32,23 +33,39 @@ int main(int argc, char ** argv)
   LOG("Main", pINFO) << "Printing the config pool";
   LOG("Main", pINFO) << ENDL << *pool;
 
+  //-- get the algorithm factory
+
+  AlgFactory * algf = AlgFactory::Instance();
+
   //-- instantiate an algorithm
 
   LOG("Main", pINFO) << "Instantiate a concrete algorithm";
-  AlgFactory * algf = AlgFactory::Instance();
 
-  const Algorithm * alg_base = algf->GetAlgorithm(
+  const Algorithm * alg0 = algf->GetAlgorithm(
                                   "genie::LlewellynSmithModelCC","Default");
   const QELFormFactorsModelI * llewellyn_smith =
-                      dynamic_cast<const QELFormFactorsModelI *> (alg_base);
+                         dynamic_cast<const QELFormFactorsModelI *> (alg0);
+  LOG("Main", pINFO) << *alg0;
+
+
+  LOG("Main", pINFO) << "Instantiate another concrete algorithm";
+
+  const Algorithm * alg1 = algf->GetAlgorithm(
+                             "genie::DipoleELFormFactorsModel","Default");
+  const ELFormFactorsModelI * dipole_elff =
+                         dynamic_cast<const ELFormFactorsModelI *> (alg1);
+  LOG("Main", pINFO) << *alg1;
+
 
   //-- Ask the ConfigPool for this algorithm's config registry and print it
 
-  LOG("Main", pINFO) << "Find the configuration registry";
+  LOG("Main", pINFO) << "Find the configuration for both algorithms";
 
-  Registry * config = pool->FindRegistry( llewellyn_smith );
+  Registry * config1 = pool->FindRegistry( llewellyn_smith );
+  Registry * config2 = pool->FindRegistry( dipole_elff     );
 
-  if(config) LOG("Main", pINFO) << ENDL << *config;
+  if(config1) LOG("Main", pINFO) << ENDL << *config1;
+  if(config2) LOG("Main", pINFO) << ENDL << *config2;
 
   return 0;
 }
