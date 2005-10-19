@@ -41,20 +41,12 @@ public:
 
 protected:
 
-  virtual double q2_4Mnucl2 (const Interaction * interaction) const;
-  virtual double F1N        (const Interaction * interaction) const;
-  virtual double munF2N     (const Interaction * interaction) const;
-  virtual double GNE        (const Interaction * interaction) const;
-  virtual double GNE0       (const Interaction * interaction) const;
-  virtual double GNM        (const Interaction * interaction) const;
-  virtual double GNM0       (const Interaction * interaction) const;
-  virtual double GVE        (double q2) const;
-  virtual double GVM        (double q2) const;
+  virtual double tau    (const Interaction * interaction) const;
+  virtual double GVE    (const Interaction * interaction) const;
+  virtual double GVM    (const Interaction * interaction) const;
 
   LlewellynSmithModel();
   LlewellynSmithModel(const char * param_set);
-
-//ClassDef(LlewellynSmithModel, 0)
 };
 
 }       // genie namespace

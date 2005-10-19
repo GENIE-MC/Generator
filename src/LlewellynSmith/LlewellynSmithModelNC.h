@@ -5,7 +5,9 @@
 
 \brief    Concrete implementation of the QELFormFactorsModelI :
           Form Factors for Quasi Elastic NC vN scattering according to
-          Llewellyn-Smith model
+          Llewellyn-Smith model.
+
+\ref      E.A.Paschos and J.Y.Yu, hep-ph/0107261
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -35,7 +37,7 @@ public:
   double F1V     (const Interaction * interaction) const;
   double xiF2V   (const Interaction * interaction) const;
   double FA      (const Interaction * interaction) const;
-  double Fp      (const Interaction * interaction) const;  
+  double Fp      (const Interaction * interaction) const;
 };
 
 }       // genie namespace
