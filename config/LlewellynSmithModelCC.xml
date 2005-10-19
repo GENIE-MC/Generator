@@ -2,15 +2,21 @@
 
 <alg_conf>
 
+<!--
   Configuration sets for Llewellyn-Smith QEL CC form factors
+  You can set the folowing configuration parameters
+
+  Name                       Description                 Default 
+                                                        (for optional params)
+  ***************************************************************************
+  Mv2                        Vector Mass squared         kQElMv2
+  Ma2                        Vector Mass squared         kQElMa2
+  FA0                        FA(q2=0)                    kFA0
+  el-form-factors
+-->
 
   <param_set name="Default"> 
-
-     <param type="double" name="FA(q2=0)">                           -1.23      </param>
-     <param type="double" name="Vector-Mass^2">                       0.71      </param>
-     <param type="double" name="Axial-Mass^2">                        1.01      </param>
-     <param type="double" name="Proton-Anomalous-Magnetic-Moment">    2.7928473 </param>
-     <param type="double" name="Neutron-Anomalous-Magnetic-Moment">  -1.913042  </param>
+     <param type="string" name="el-form-factors"> genie::DipoleELFormFactorsModel/Default </param>
   </param_set>
 
 </alg_conf>

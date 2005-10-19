@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+  Configuration sets for the Dipole elastic form factors model.
+  You can set the folowing configuration parameters 
+
+  Name        Description                 Default (for optional params)
+  *********************************************************************
+  Mv2         Vector Mass squared         kElMv2
+
+-->
+
+  <param_set name="Default"> 
+
+  </param_set>
+
+</alg_conf>
+
