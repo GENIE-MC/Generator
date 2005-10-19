@@ -3,24 +3,31 @@
 
 \class    genie::Algorithm
 
-\brief    Algorithm abstract base class. 
+\brief    Algorithm abstract base class.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
 \created  May 02, 2004
- 
+
 */
 //____________________________________________________________________________
+
+#include <vector>
+#include <string>
 
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/Algorithm.h"
 #include "Algorithm/AlgConfigPool.h"
 #include "Messenger/Messenger.h"
+#include "Utils/StringUtils.h"
 
+using std::vector;
+using std::string;
 using std::endl;
 
 using namespace genie;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 namespace genie
@@ -39,21 +46,21 @@ namespace genie
 //____________________________________________________________________________
 Algorithm::Algorithm()
 {
-  fConfigIsOwned = false; 
+  fConfigIsOwned = false;
   fConfig        = 0;
-} 
+}
 //____________________________________________________________________________
 Algorithm::Algorithm(const char * param_set) :
 fParamSet(param_set)
-{ 
-  fConfigIsOwned = false; 
+{
+  fConfigIsOwned = false;
   fConfig        = 0;
 }
 //____________________________________________________________________________
 Algorithm::~Algorithm()
 {
   //if(fConfigIsOwned && fConfig) delete fConfig; -- check
-} 
+}
 //____________________________________________________________________________
 void Algorithm::Configure(const Registry & config)
 {
@@ -64,14 +71,14 @@ void Algorithm::Configure(const Registry & config)
   if(fConfigIsOwned && fConfig) {
 
     LOG("Algorithm", pINFO) << "Deleting old owned configuration";
-        
+
     //delete fConfig; -- check
   }
 
   // create a new configuration Registry & raise the "owned" flag
 
   fConfig        = new Registry(config);
-  fConfigIsOwned = true; 
+  fConfigIsOwned = true;
 
   LOG("Algorithm", pINFO) << *fConfig;
 }
@@ -90,7 +97,7 @@ void Algorithm::FindConfig(void)
 {
 // Finds its configration Registry from the ConfigPool and gets a pointer to
 // it. If the Registry comes from the ConfigPool then the Algorithm does not
-// own its configuration (the ConfigPool singleton keeps the ownership and the 
+// own its configuration (the ConfigPool singleton keeps the ownership and the
 // responsibility to -eventually- delete all the Registries it instantiates
 // by parsing the XML config files).
 
@@ -102,9 +109,9 @@ void Algorithm::FindConfig(void)
 
         // notify & keep whatever config Registry was used before.
 
-        LOG("Algorithm", pWARN)         
-               << "No Configuration available for " 
-                      << this->Name() << "/" << this->ParamSet() 
+        LOG("Algorithm", pWARN)
+               << "No Configuration available for "
+                      << this->Name() << "/" << this->ParamSet()
                                                     << " at the ConfigPool";
   else {
         // check if its already owns a configuration Registry & delete it;
@@ -119,6 +126,40 @@ void Algorithm::FindConfig(void)
 
         LOG("Algorithm", pDEBUG) << ENDL << *fConfig;
   }
+}
+//____________________________________________________________________________
+const Algorithm * Algorithm::SubAlg(string key) const
+{
+// Returns the sub-algorithm pointed to this algorithm's XML config file using
+// the the values of the key.
+// This method asserts the existence of these keys in the XML config.
+// Note: Since only 1 parameter is used, the key value should contain both the
+// algorithm name and its configuration set according to the usual scheme:
+// namespace::algorithm_name/configuration_set
+
+  LOG("Algorithm", pDEBUG)
+               << "Fetching sub-algorithm within algorithm: " << this->Name();
+  LOG("Algorithm", pDEBUG)
+               << "Asserting existence of key: [" << key << "]";
+
+  fConfig->AssertExistence(key);
+  string alg = fConfig->GetString(key);
+  LOG("Algorithm", pDEBUG)
+                   << "Input key [" << key << "] points to value: " << alg;
+
+  vector<string> algv = str::Split(alg,"/");
+  assert(algv.size()==2);
+  string alg_name  = algv[0];
+  string param_set = algv[1];
+  LOG("Algorithm", pDEBUG) << "Key value split, alg-name  : " << alg_name;
+  LOG("Algorithm", pDEBUG) << "Key value split, param_set : " << param_set;
+
+  AlgFactory * algf = AlgFactory::Instance();
+
+  const Algorithm * algbase = algf->GetAlgorithm(alg_name, param_set);
+  assert(algbase);
+
+  return algbase;
 }
 //____________________________________________________________________________
 const Algorithm * Algorithm::SubAlg(string alg_key, string config_key) const
@@ -139,9 +180,10 @@ const Algorithm * Algorithm::SubAlg(string alg_key, string config_key) const
   string param_set = fConfig->GetString(config_key);
 
   LOG("Algorithm", pDEBUG)
-              << "Keys retrieved these values: alg="
-                                     << alg_name << ", config=" << param_set;
-                                     
+          << "Input key [" << alg_key << "] points to value: " << alg_name;
+  LOG("Algorithm", pDEBUG)
+      << "Input key [" << config_key << "] points to value: " << param_set;
+
   AlgFactory * algf = AlgFactory::Instance();
 
   const Algorithm * algbase = algf->GetAlgorithm(alg_name, param_set);
@@ -150,13 +192,13 @@ const Algorithm * Algorithm::SubAlg(string alg_key, string config_key) const
   return algbase;
 }
 //____________________________________________________________________________
-const Algorithm * Algorithm::SubAlgWithDefault(string alg_key, 
+const Algorithm * Algorithm::SubAlgWithDefault(string alg_key,
          string config_key, string def_alg_name, string def_config_name) const
 {
 // Returns the sub-algorithm pointed to this algorithm's XML config file using
 // the the values of the alg/config keys
 // This method does not assert the existence of these keys in the XML config.
-// If the keys are not found it will attempt to load the specified 'Default' 
+// If the keys are not found it will attempt to load the specified 'Default'
 // preconfigured sub-algorithm
 
   AlgFactory * algf = AlgFactory::Instance();
@@ -174,21 +216,21 @@ const Algorithm * Algorithm::SubAlgWithDefault(string alg_key,
      string param_set = fConfig->GetString(config_key);
 
      LOG("Algorithm", pDEBUG)
-              << "Keys retrieved these values: alg="
-                                     << alg_name << ", config=" << param_set;
-                                     
+              << "Input keys point to algorithm: "
+                                        << alg_name << "/" << param_set;
+
      const Algorithm* algbase = algf->GetAlgorithm(alg_name, param_set);
      assert(algbase);
 
      return algbase;
   }
 
-  LOG("Algorithm", pDEBUG) 
+  LOG("Algorithm", pDEBUG)
        << "Keys were not found. Loading defaults";
   LOG("Algorithm", pDEBUG)
        << "Defaults: alg=" << def_alg_name << ", config=" << def_config_name;
 
-  const Algorithm * defalgbase = 
+  const Algorithm * defalgbase =
                            algf->GetAlgorithm(def_alg_name, def_config_name);
   assert(defalgbase);
 
