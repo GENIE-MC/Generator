@@ -34,13 +34,11 @@ public:
 
   const Algorithm * GetAlgorithm(
                          string alg_name, string param_set="NoConfig");
-                         
   Algorithm * AdoptAlgorithm(
-                          string alg_name, string param_set="NoConfig") const;
-  
-private:
+                   string alg_name, string param_set="NoConfig") const;
 
-  AlgFactory(); 
+private:
+  AlgFactory();
   AlgFactory(const AlgFactory & alg_factory);
   virtual ~AlgFactory();
 
@@ -48,8 +46,8 @@ private:
 
   static AlgFactory * fInstance;
 
-  map<string, Algorithm *> fAlgPool; ///< alg_name/param_set -> Algorithm 
-  
+  map<string, Algorithm *> fAlgPool; ///< alg_name/param_set -> Algorithm
+
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
       ~Cleaner() {
