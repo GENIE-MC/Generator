@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::BBA03ELFormFactorsModel;
 #pragma link C++ class genie::BBA05ELFormFactorsModel;
 #pragma link C++ class genie::DipoleELFormFactorsModel;
 #pragma link C++ class genie::StdElasticPXSec;

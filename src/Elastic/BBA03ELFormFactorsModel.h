@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BBA05ELFormFactorsModel
+\class    genie::BBA03ELFormFactorsModel
 
 \brief    Concrete implementation of the ELFormFactorsModelI interface.
-          Computes elastic form factors using the BBA2005 parameterization.
+          Computes elastic form factors using the BBA2003 parameterization.
 
 \ref
 
@@ -15,19 +15,19 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BBA2005_EL_FORM_FACTORS_MODEL_H_
-#define _BBA2005_EL_FORM_FACTORS_MODEL_H_
+#ifndef _BBA2003_EL_FORM_FACTORS_MODEL_H_
+#define _BBA2003_EL_FORM_FACTORS_MODEL_H_
 
 #include "Base/ELFormFactorsModelI.h"
 
 namespace genie {
 
-class BBA05ELFormFactorsModel : public ELFormFactorsModelI {
+class BBA03ELFormFactorsModel : public ELFormFactorsModelI {
 
 public:
-  BBA05ELFormFactorsModel();
-  BBA05ELFormFactorsModel(const char * param_set);
-  virtual ~BBA05ELFormFactorsModel();
+  BBA03ELFormFactorsModel();
+  BBA03ELFormFactorsModel(const char * param_set);
+  virtual ~BBA03ELFormFactorsModel();
 
   double Gep (double q2) const;
   double Gmp (double q2) const;
@@ -37,4 +37,4 @@ public:
 
 }         // genie namespace
 
-#endif    // _BBA2005_EL_FORM_FACTORS_MODEL_H_
+#endif    // _BBA2003_EL_FORM_FACTORS_MODEL_H_

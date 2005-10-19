@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BBA05ELFormFactorsModel
+\class    genie::BBA03ELFormFactorsModel
 
 \brief    Concrete implementation of the ELFormFactorsModelI interface.
-          Computes elastic form factors using the BBA2005 parameterization.
+          Computes elastic form factors using the BBA2003 parameterization.
 
 \ref
 
@@ -15,48 +15,49 @@
 */
 //____________________________________________________________________________
 
-#include "Elastic/BBA05ELFormFactorsModel.h"
+#include "Elastic/BBA03ELFormFactorsModel.h"
 #include "Interaction/Interaction.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-BBA05ELFormFactorsModel::BBA05ELFormFactorsModel() :
+BBA03ELFormFactorsModel::BBA03ELFormFactorsModel() :
 ELFormFactorsModelI()
 {
-  fName = "genie::BBA05ELFormFactorsModel";
+  fName = "genie::BBA03ELFormFactorsModel";
 }
 //____________________________________________________________________________
-BBA05ELFormFactorsModel::BBA05ELFormFactorsModel(const char * param_set) :
+BBA03ELFormFactorsModel::BBA03ELFormFactorsModel(const char * param_set) :
 ELFormFactorsModelI(param_set)
 {
-  fName = "genie::BBA05ELFormFactorsModel";
+  fName = "genie::BBA03ELFormFactorsModel";
 
   this->FindConfig();
 }
 //____________________________________________________________________________
-BBA05ELFormFactorsModel::~BBA05ELFormFactorsModel()
+BBA03ELFormFactorsModel::~BBA03ELFormFactorsModel()
 {
 
 }
 //____________________________________________________________________________
-double BBA05ELFormFactorsModel::Gep(double) const
+double BBA03ELFormFactorsModel::Gep(double) const
 {
   return 0;
 }
 //____________________________________________________________________________
-double BBA05ELFormFactorsModel::Gmp(double) const
+double BBA03ELFormFactorsModel::Gmp(double) const
 {
   return 0;
 }
 //____________________________________________________________________________
-double BBA05ELFormFactorsModel::Gen(double) const
+double BBA03ELFormFactorsModel::Gen(double) const
 {
   return 0;
 }
 //____________________________________________________________________________
-double BBA05ELFormFactorsModel::Gmn(double) const
+double BBA03ELFormFactorsModel::Gmn(double) const
 {
   return 0;
 }
 //____________________________________________________________________________
+
