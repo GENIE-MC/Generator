@@ -41,6 +41,7 @@
   <priority msgstream="DISKinematics">       INFO   </priority>
   <priority msgstream="EventGenerator">      INFO   </priority>
   <priority msgstream="EventGenChain">       INFO   </priority>
+  <priority msgstream="ELFormFactors">       INFO   </priority>
   <priority msgstream="FermiMover">          INFO   </priority>
   <priority msgstream="FermiP">              INFO   </priority>
   <priority msgstream="FragmentCharm">       INFO   </priority>
