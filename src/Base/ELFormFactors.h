@@ -21,7 +21,6 @@
 #include <iostream>
 
 #include "Base/ELFormFactorsModelI.h"
-#include "Interaction/Interaction.h"
 
 using std::ostream;
 
@@ -36,10 +35,12 @@ public:
   virtual ~ELFormFactors() { }
 
   void   SetModel  (const ELFormFactorsModelI * model);
-  void   Calculate (const Interaction * interaction);
+  void   Calculate (double q2);
 
-  double Ge  (void) const { return fGe; }
-  double Gm  (void) const { return fGm; }
+  double Gep (void) const { return fGep; }
+  double Gmp (void) const { return fGmp; }
+  double Gen (void) const { return fGen; }
+  double Gmn (void) const { return fGmn; }
 
   friend ostream & operator << (ostream & stream, const ELFormFactors & ff);
 
@@ -49,8 +50,10 @@ private:
 
   void   InitFormFactors(void);
 
-  double fGe;
-  double fGm;
+  double fGep;
+  double fGmp;
+  double fGen;
+  double fGmn;
 
   const ELFormFactorsModelI * fModel;
 };

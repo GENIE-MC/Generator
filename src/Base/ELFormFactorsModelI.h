@@ -19,7 +19,6 @@
 #define _EL_FORM_FACTORS_MODEL_I_H_
 
 #include "Algorithm/Algorithm.h"
-#include "Interaction/Interaction.h"
 
 namespace genie {
 
@@ -29,8 +28,10 @@ public:
 
   virtual ~ELFormFactorsModelI();
 
-  virtual double Ge (const Interaction * interaction) const = 0;
-  virtual double Gm (const Interaction * interaction) const = 0;
+  virtual double Gep (double q2) const = 0;
+  virtual double Gmp (double q2) const = 0;
+  virtual double Gen (double q2) const = 0;
+  virtual double Gmn (double q2) const = 0;
 
 protected:
 
