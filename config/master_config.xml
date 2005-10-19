@@ -70,6 +70,26 @@
        </config_file>
    </alg_config>
 
+   ------ CONFIGURATION FOR ELASTIC FORM FACTOR ALGORITHMS -------
+
+   <alg_config alg_name="genie::DipoleELFormFactorsModel">   
+       <config_file> 
+             DipoleELFormFactorsModel.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::BBA05ELFormFactorsModel">   
+       <config_file> 
+             BBA05ELFormFactorsModel.xml
+       </config_file>
+   </alg_config>
+
+   <alg_config alg_name="genie::BBA03ELFormFactorsModel">   
+       <config_file> 
+             BBA03ELFormFactorsModel.xml
+       </config_file>
+   </alg_config>
+
    -------- CONFIGURATION FOR QEL FORM FACTOR ALGORITHMS ---------
 
    <alg_config alg_name="genie::LlewellynSmithModelCC">  

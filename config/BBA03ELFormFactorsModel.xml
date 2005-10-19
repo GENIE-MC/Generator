@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+  Configuration sets for the BBA2005 elastic form factors parameterization.
+  You can set the folowing configuration parameters 
+
+  Name        Description                 Default (for optional params)
+  *********************************************************************
+
+-->
+
+  <param_set name="Default"> 
+
+  </param_set>
+
+</alg_conf>
+
