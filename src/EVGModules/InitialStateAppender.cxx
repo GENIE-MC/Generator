@@ -130,17 +130,19 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
   int pdgc = init_state.GetTarget().StruckNucleonPDGCode();
 
   if(pdgc != 0) {
+
     bool is_nucleus = init_state.GetTarget().IsNucleus();
-    int  istatus    = (is_nucleus) ? kIstNucleonTarget : kIStInitialState;
-    int  imother1   = (is_nucleus) ? 1 : -1;
-    int  imother2   = -1;
+
+    GHepStatus_t ist   = (is_nucleus) ? kIstNucleonTarget : kIStInitialState;
+    int          imom1 = (is_nucleus) ? 1 : -1;
+    int          imom2 = -1;
 
     const TLorentzVector p4(*init_state.GetTarget().StruckNucleonP4());
     const TLorentzVector v4(0.,0.,0.,0.);
 
     LOG("ISApp", pINFO)<< "Adding struck nucleon [pdgc = " << pdgc << "]";
 
-    evrec->AddParticle(pdgc, istatus, imother1, imother2, -1, -1, p4, v4);
+    evrec->AddParticle(pdgc, ist, imom1, imom2, -1, -1, p4, v4);
 
   }//if struck nucleon was set
 }

@@ -173,8 +173,8 @@ void UnstableParticleDecayer::CopyToEventRecord(TClonesArray *
 
      TLorentzVector p4(px, py, pz, E); // momentum 4-vector
 
-     int pdg    = dpmc->GetKF();
-     int status = dpmc->GetKS();
+     int          pdg    = dpmc->GetKF();
+     GHepStatus_t status = GHepStatus_t (dpmc->GetKS());
 
      //-- Only add the decay products - the mother particle already exists
      //   (mother's daughter list will be automatically updated with every

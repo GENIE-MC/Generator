@@ -122,7 +122,10 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
            TLorentzVector v4(0,0,0,0);             // dummy position 4-vector
            TLorentzVector p4(pxb,pyb,pzb,bindE);   // momentum 4-vector
 
-           event_rec->AddParticle(kPdgBindino, 1, -1,-1,-1,-1, p4, v4);
+           int          bpdgc = kPdgBindino;
+           GHepStatus_t bist  = kIStStableFinalState;
+
+           event_rec->AddParticle(bpdgc, bist, -1,-1,-1,-1, p4, v4);
 
         } // nucleus != 0
      }  // if is a final state p,n

@@ -233,7 +233,7 @@ void FragmentCharmDISGenerator::GenerateHadronicSystem(
                           << qhs << ", " << qch << ", " << qremn << ")";
 
   //-- find the hadronic remnants 'fake' particle and get its 4-p
-  GHepParticle * remnants = evrec->FindParticle(0, 1, 0);
+  GHepParticle * remnants = evrec->FindParticle(0, kIStStableFinalState, 0);
   TLorentzVector * pR4 = remnants->GetP4();
   LOG("FragmentCharm", pINFO)
       << "P4(" << remnants->Name()
@@ -329,7 +329,7 @@ TLorentzVector FragmentCharmDISGenerator::HadronicSystemP4(
 
   //final state primary lepton:
   int fsl_pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
-  GHepParticle * fsl = evrec->FindParticle(fsl_pdgc, 1, 0);
+  GHepParticle * fsl = evrec->FindParticle(fsl_pdgc,kIStStableFinalState,0);
   assert(fsl);
 
   TLorentzVector * fsl_p4 = fsl->GetP4();

@@ -69,7 +69,9 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
 
     if(nuc_pdgc != 0) {
        // Find the recoil nucleon in the EventRecord
-       GHepParticle * nuc = event_rec->FindParticle(nuc_pdgc, 1, 0);
+
+       GHepStatus_t ist = kIStStableFinalState;
+       GHepParticle * nuc = event_rec->FindParticle(nuc_pdgc, ist, 0);
 
        if(nuc) {
          // get the Fermi momentum
