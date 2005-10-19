@@ -40,8 +40,10 @@ ELFormFactors::ELFormFactors()
 ELFormFactors::ELFormFactors(const ELFormFactors & ff)
 {
   this->fModel = ff.fModel;
-  this->fGe    = ff.fGe;
-  this->fGm    = ff.fGm;
+  this->fGep   = ff.fGep;
+  this->fGmp   = ff.fGmp;
+  this->fGen   = ff.fGen;
+  this->fGmn   = ff.fGmn;
 }
 //____________________________________________________________________________
 void ELFormFactors::SetModel(const ELFormFactorsModelI * model)
@@ -50,7 +52,7 @@ void ELFormFactors::SetModel(const ELFormFactorsModelI * model)
   this->InitFormFactors();
 }
 //____________________________________________________________________________
-void ELFormFactors::Calculate(const Interaction * interaction)
+void ELFormFactors::Calculate(double q2)
 {
   if(!this->fModel)
   {
@@ -59,20 +61,26 @@ void ELFormFactors::Calculate(const Interaction * interaction)
     this->InitFormFactors();
   }
   else {
-    this->fGe = this->fModel->Ge(interaction);
-    this->fGm = this->fModel->Gm(interaction);
+    this->fGep = this->fModel->Gep(q2);
+    this->fGmp = this->fModel->Gmp(q2);
+    this->fGen = this->fModel->Gen(q2);
+    this->fGmn = this->fModel->Gmn(q2);
   }
 }
 //____________________________________________________________________________
 void ELFormFactors::InitFormFactors()
 {
-  this->fGe = 0.;
-  this->fGm = 0.;
+  this->fGep = 0.;
+  this->fGmp = 0.;
+  this->fGen = 0.;
+  this->fGmn = 0.;
 }
 //____________________________________________________________________________
 void ELFormFactors::Print(ostream & stream) const
 {
-  stream << "(Ge = " << this->fGe << ", Gm = " << this->fGm << ")" << endl;
+  stream<< endl;
+  stream<< "(Gep = " << this->fGep << ", Gmp = " << this->fGmp << ")" << endl;
+  stream<< "(Gen = " << this->fGen << ", Gmn = " << this->fGmn << ")" << endl;
 }
 //____________________________________________________________________________
 
