@@ -110,6 +110,7 @@
   <priority msgstream="VldDis">              INFO   </priority>
   <priority msgstream="VldSpp">              INFO   </priority>
   <priority msgstream="VldQel">              INFO   </priority>
+  <priority msgstream="VldEl">               INFO   </priority>
   <priority msgstream="VldElas">             INFO   </priority>
   <priority msgstream="VldIMD">              INFO   </priority>
   <priority msgstream="VldRdC">              INFO   </priority>

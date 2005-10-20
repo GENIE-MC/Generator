@@ -9,6 +9,10 @@
      <param type="string"  name="form-factors-param-set"> Default                      </param>
   </param_set>
 
+  <param_set name="CC-Default-BBA2003"> 
+     <param type="string"  name="form-factors-alg-name">  genie::LlewellynSmithModelCC </param>
+     <param type="string"  name="form-factors-param-set"> Default-BBA2003              </param>
+  </param_set>
 
   Config set for NC--QELPXsec algorithm
 

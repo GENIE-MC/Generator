@@ -101,10 +101,28 @@
      <param type="string" name="section-0-conf">   Default                        </param>
   </param_set>
 
-  <param_set name="QELXSec"> 
+  <param_set name="ELFormFactors"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldELFormFactors        </param>
+     <param type="string" name="section-0-conf">   Default                        </param>
+  </param_set>
+
+  <param_set name="QELXSecCC"> 
      <param type="int"    name="n-sections">      1                              </param>
      <param type="string" name="section-0-alg">    genie::VldQELXSec              </param>
      <param type="string" name="section-0-conf">   CC-Default                     </param>
+  </param_set>
+
+  <param_set name="QELXSecCC-BBA2003"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldQELXSec              </param>
+     <param type="string" name="section-0-conf">   CC-Default-BBA2003             </param>
+  </param_set>
+
+  <param_set name="QELXSecNC"> 
+     <param type="int"    name="n-sections">      1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldQELXSec              </param>
+     <param type="string" name="section-0-conf">   NC-Default                     </param>
   </param_set>
 
   <param_set name="QELFormFactors-1"> 

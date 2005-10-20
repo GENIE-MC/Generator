@@ -533,6 +533,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::VldELFormFactors">   
+       <config_file> 
+             VldELFormFactors.xml
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::VldQELFormFactors">   
        <config_file> 
              VldQELFormFactors.xml
