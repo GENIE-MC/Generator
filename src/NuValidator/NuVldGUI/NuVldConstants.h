@@ -40,7 +40,7 @@ static const char * kSavedSplineExtensions[] =
 
 static const char * kFitters[] =
 {
-   "NONE", "SIMPLE", "NORM-FLOAT", 0, 
+   "NONE", "SIMPLE", "XSEC-NORM", "NORM-FLOAT", 0, 
 };
 
 static const char * kMajorLabel =

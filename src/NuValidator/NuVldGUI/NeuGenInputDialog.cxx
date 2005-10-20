@@ -452,10 +452,10 @@ TGGroupFrame * NeuGenInputDialog::BuildCutsFrame(void)
   fMinCutLb = new TGLabel(fCutsLFrm, new TGString( "min:"));
   fMaxCutLb = new TGLabel(fCutsLFrm, new TGString( "max:"));
 
-  fCutsLFrm -> AddFrame ( fMinCutLb );
-  fCutsLFrm -> AddFrame ( fMinCutNmE       );
-  fCutsLFrm -> AddFrame ( fMaxCutLb );
-  fCutsLFrm -> AddFrame ( fMaxCutNmE       );
+  fCutsLFrm -> AddFrame ( fMinCutLb  );
+  fCutsLFrm -> AddFrame ( fMinCutNmE );
+  fCutsLFrm -> AddFrame ( fMaxCutLb  );
+  fCutsLFrm -> AddFrame ( fMaxCutNmE );
 
   //-- add upper/lower composite frames to main group frame
 

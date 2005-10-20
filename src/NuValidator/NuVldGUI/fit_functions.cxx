@@ -28,12 +28,12 @@ void update_neugen_config_with_fit_params(double * par)
 // par[5]   --- RES - Rein/Seghal parameter Omega
 // par[6]   --- RES - Rein/Seghal parameter Z
 // par[7]   --- COH - Nuclear size scale R0
-// par[8]   --- COH - Pion scattering amplitude Re/Im 
+// par[8]   --- COH - Pion scattering amplitude Re/Im
 // par[9]   --- KNO Hadronization model, parameter B
-// par[10]  --- KNO Hadronization model, parameter A / v+p  
-// par[11]  --- KNO Hadronization model, parameter A / v+n  
+// par[10]  --- KNO Hadronization model, parameter A / v+p
+// par[11]  --- KNO Hadronization model, parameter A / v+n
 // par[12]  --- KNO Hadronization model, parameter A / vb+p
-// par[13]  --- KNO Hadronization model, parameter A / vb+n 
+// par[13]  --- KNO Hadronization model, parameter A / vb+n
 // par[14]  --- DIS/RES tuning parameter / v+p  / multiplicity = 2
 // par[15]  --- DIS/RES tuning parameter / v+p  / multiplicity = 3
 // par[16]  --- DIS/RES tuning parameter / v+n  / multiplicity = 2
@@ -42,6 +42,8 @@ void update_neugen_config_with_fit_params(double * par)
 // par[19]  --- DIS/RES tuning parameter / vb+p / multiplicity = 3
 // par[20]  --- DIS/RES tuning parameter / vb+n / multiplicity = 2
 // par[21]  --- DIS/RES tuning parameter / vb+n / multiplicity = 3
+//
+// par[22]  --- XSEC NORM
 //
 // From the NuValidator GUI:
 // -- You determine which parameters are actually fitted.
@@ -151,7 +153,7 @@ void update_neugen_config(double par, int iparam)
   default:
       break;
   }
-  
+
 //  cout << "CURRENT NeuGEN CONFIG: " << endl;
 //  cout << *(cards -> CurrConfig());
 }
@@ -169,15 +171,15 @@ void fcn_mgr_floating_norm_e(
   MultiGraph * mgr = user_data->NuXSec()->GetMultiGraph("all-noE-scale-with-E");
 
   double x[1];
-  
+
   // loop over graphs
-  int ngr = mgr->NGraphs();  
+  int ngr = mgr->NGraphs();
   for(int igr = 0; igr < ngr; igr++) {
 
      double scale = 1.0;
-     
+
      // loop over graph points
-     int np = mgr->GetGraph(igr)->GetN();     
+     int np = mgr->GetGraph(igr)->GetN();
      for (int i=0; i < np; i++) {
 
         double xp  = mgr->GetGraph(igr)->GetX()[i];
@@ -185,14 +187,14 @@ void fcn_mgr_floating_norm_e(
         double err = mgr->GetGraph(igr)->GetErrorY(i);
 
         scale = par[kNNGFitParams+igr];
-        
+
         yp *= scale;
         x[0] = xp;
-        
+
         double fm = exclusive_xsec_fitfunc_e(x, par);
-        
+
         double delta = (yp - fm) / err;
-        
+
         chisq += delta*delta;
      }
      chisq += (1-scale)*(1-scale)/(0.15*0.15);
@@ -269,10 +271,12 @@ double xsec_fitfunc(double * x, double * par)
 
   double xsec = neugen.XSec(energy, &intr, &cuts);
 
-  cout << "XSec ( E = " << energy 
-                << " Ma-QEL = " << par[0] << " ) = " << xsec << endl;
+  cout << "XSec (E = " << energy << ") = " << xsec << endl;
 
-  return xsec; 
+  double scale = par[kNNGFitParams];
+  xsec = xsec*scale;
+
+  return xsec;
 }
 //___________________________________________________________________
 double xsec_fitfunc_e(double * x, double * par)
@@ -281,7 +285,7 @@ double xsec_fitfunc_e(double * x, double * par)
 
   if(energy>0) return xsec_fitfunc(x,par)/energy;
   else         return 0;
-}  
+}
 //___________________________________________________________________
 double exclusive_xsec_fitfunc(double * x, double * par)
 {
@@ -300,7 +304,7 @@ double exclusive_xsec_fitfunc(double * x, double * par)
   NGInteraction intr = cards->CurrInputs()->GetInteraction();
   NGFinalState  fs   = cards->CurrInputs()->GetFinalState();
   NeuGenCuts    cuts = cards->CurrInputs()->GetCuts();
-  
+
   //-- Reconfigure the neugen wrapper with the updated neugen params
 
   NeuGenWrapper neugen( cards -> CurrConfig() );
@@ -309,8 +313,10 @@ double exclusive_xsec_fitfunc(double * x, double * par)
 
   double xsec = neugen.ExclusiveXSec(energy, &intr, &fs, &cuts);
 
-  cout << "XSec ( E = " << energy
-                << " Ma-QEL = " << par[0] << " ) = " << xsec << endl;
+  cout << "XSec (E = " << energy << ") = " << xsec << endl;
+
+  double scale = par[kNNGFitParams];
+  xsec = xsec*scale;
 
   return xsec;
 }
