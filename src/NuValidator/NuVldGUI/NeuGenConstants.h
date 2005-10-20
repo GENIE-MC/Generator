@@ -45,8 +45,8 @@ const char * k_neugen_nu[] = {
 const char * k_neugen_wcurr[] = { "CC", "NC", "CC+NC", 0 };
 
 const char * k_neugen_initstate[] = {
-   "nu + p", "nu + n", "nu_bar + p", "nu_bar + n", "nu + N", "nu_bar + N",
-   "l + p", "l + n", "l + N", 0
+   "nu + p", "nu + n", "nu_bar + p", "nu_bar + n", "nu + N (isoscalar)", "nu_bar + N (isoscalar)",
+   "l + p", "l + n", "l + N (isoscalar)", 0
 };
 
 const char * k_neugen_finstate[] = {

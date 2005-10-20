@@ -81,7 +81,7 @@ void GuiFitKernel::PrintConfig(void)
   int np = fNGFP->NFittedParams();
 
   //-- send to msg service stream
-  
+
   LOG("NuVld", pINFO) << "N not-fixed fit parameters: " << np;
   LOG("NuVld", pINFO) << "Energy range = [" << fXmin << ", " << fXmax << "]";
   LOG("NuVld", pINFO) << "Scale with energy = [" << fScaleWithE;
@@ -89,16 +89,16 @@ void GuiFitKernel::PrintConfig(void)
   //-- send to GUI's session log TGTextEdit
 
   SysLogSingleton * syslog = SysLogSingleton::Instance();
-  
+
   syslog->Log()->AddLine( Concat("N not-fixed fit parameters: ", np) );
   syslog->Log()->AddLine( Concat("(free var) E-min: ", fXmin)        );
   syslog->Log()->AddLine( Concat("(free var) E-max: ", fXmax)        );
   syslog->Log()->AddLine( Concat("scale with energy: ", fScaleWithE) );
 }
 //______________________________________________________________________________
-void GuiFitKernel::DoSimpleFit(void)
+void GuiFitKernel::DoSimpleFit(bool fit_norm)
 {
-  SysLogSingleton * syslog  = SysLogSingleton::Instance();    
+  SysLogSingleton * syslog  = SysLogSingleton::Instance();
   NuVldUserData * user_data = NuVldUserData::Instance();
 
   // free parameter range
@@ -111,40 +111,36 @@ void GuiFitKernel::DoSimpleFit(void)
   // get a fit function (TF1 object)
 
   if( fFunc1d ) delete fFunc1d;
-  
+
   fFunc1d = 0;
 
   if( fScaleWithE ) {
 
      if(is_inclusive) {
-       
         LOG("NuVld", pDEBUG) << "Using fit function: xsec_fitfunc_e";
         syslog->Log()->AddLine( "Using fit function: xsec_fitfunc_e" );
 
-        fFunc1d = new TF1("fitfunc", xsec_fitfunc_e, fXmin, fXmax, kNNGFitParams);
-        
-     } else {
+        fFunc1d = new TF1("fitfunc", xsec_fitfunc_e, fXmin, fXmax, 1+kNNGFitParams);
 
+     } else {
         LOG("NuVld", pDEBUG) << "Using fit function: exclusive_xsec_fitfunc_e";
         syslog->Log()->AddLine( "Using fit function: exclusive_xsec_fitfunc_e" );
 
-        fFunc1d = new TF1("fitfunc", exclusive_xsec_fitfunc_e, fXmin, fXmax, kNNGFitParams);
+        fFunc1d = new TF1("fitfunc", exclusive_xsec_fitfunc_e, fXmin, fXmax, 1+kNNGFitParams);
      }
-     
+
   } else {
      if(is_inclusive) {
-
         LOG("NuVld", pDEBUG) << "Using fit function: xsec_fitfunc";
         syslog->Log()->AddLine( "Using fit function: xsec_fitfunc" );
-       
-        fFunc1d = new TF1("fitfunc", xsec_fitfunc, fXmin, fXmax, kNNGFitParams);
+
+        fFunc1d = new TF1("fitfunc", xsec_fitfunc, fXmin, fXmax, 1+kNNGFitParams);
 
      } else {
-
         LOG("NuVld", pDEBUG) << "Using fit function: exclusive_xsec_fitfunc";
         syslog->Log()->AddLine( "Using fit function: exclusive_xsec_fitfunc" );
-     
-        fFunc1d = new TF1("fitfunc", exclusive_xsec_fitfunc, fXmin, fXmax, kNNGFitParams);
+
+        fFunc1d = new TF1("fitfunc", exclusive_xsec_fitfunc, fXmin, fXmax, 1+kNNGFitParams);
      }
   }
 
@@ -152,7 +148,8 @@ void GuiFitKernel::DoSimpleFit(void)
 
   LOG("NuVld", pDEBUG) << "Initializing/Fixing NeuGEN fit parameters";
 
-  this->InitFitParameters();
+  if(fit_norm) this->InitXSecNormFitParameters();
+  else         this->InitFitParameters();
 
   // get selected data as a TGraph with errors
 
@@ -161,7 +158,7 @@ void GuiFitKernel::DoSimpleFit(void)
   if( fScaleWithE ) gr = user_data->NuXSec()->GetGraph("all-noE-scale-with-E");
   else gr = user_data->NuXSec()->GetGraph("all-noE");
 
-  // fit graph 
+  // fit graph
 
   gr->Fit(fFunc1d,"R");
 
@@ -178,10 +175,11 @@ void GuiFitKernel::DoFloatingNormFit(void)
 
   // create a MINUIT fitter with npf params
   // npf = number of fit params (NeuGEN prms + 1 relative norm factor / data-set)
+  //       + xsec norm factor (fixed)
 
-  int npf = kNNGFitParams + mgr->NGraphs();
+  int npf = kNNGFitParams + mgr->NGraphs() + 1;
 
-  TMinuit * minuit = new TMinuit(npf);  
+  TMinuit * minuit = new TMinuit(npf);
 
   // find out if we are fitting xsecs for an exclusive or inclusive channel
 
@@ -209,7 +207,7 @@ void GuiFitKernel::DoFloatingNormFit(void)
   arglist[0] = 1;
   minuit->mnexcm("SET ERR", arglist ,1,ierflg);
 
-  this->InitMinuitFitParameters(minuit); // also - need to set the step size...  
+  this->InitMinuitFitParameters(minuit); // also - need to set the step size...
 
   // MINUIT's minimization step
   arglist[0] = 500;
@@ -233,10 +231,10 @@ bool GuiFitKernel::MCParamScanning(void)
      LOG("NuVld", pWARN) << "No parameters to scan";
      return false;
   }
-  
+
   if(lowb)  delete lowb;  lowb  = 0;
   if(highb) delete highb; highb = 0;
-  
+
   RandomGen * rnd = RandomGen::Instance();
 
   NeuGenCards * cards = NeuGenCards::Instance();
@@ -258,9 +256,9 @@ bool GuiFitKernel::MCParamScanning(void)
   for(int imc = 0; imc < nmc; imc++) {
 
      LOG("NuVld", pDEBUG) << "MC-iteration: " << imc;
-  
+
      //-- set a point in the physics parameter space
-     
+
      for(int ip = 0; ip < kNNGFitParams; ip++) {
 
         if( fNGFP->IsFitted(ip) ) {
@@ -274,18 +272,18 @@ bool GuiFitKernel::MCParamScanning(void)
            float param = min + x*(max-min);
 
            LOG("NuVld", pDEBUG) << "Rndm = " << x << ", Param(" << ip << ")=" << param;
-           
+
            update_neugen_config(param, ip);
-           
+
         }//is-scanned
      }//ip
 
      // set current params
 
      LOG("NuVld", pDEBUG) << "Reconfiguring NeuGEN";
-     
+
      neugen.Reconfigure( cards->CurrConfig() );
-             
+
      // get NeuGEN prediction
 
      Spline * xs_vs_e = 0;
@@ -297,7 +295,7 @@ bool GuiFitKernel::MCParamScanning(void)
                                         emin, emax, nbins, &intr, &fs, &cuts);
 
      // update low/high xsec boundaries
-     
+
      LOG("NuVld", pDEBUG) << "Updating boundaries";
 
      if(imc==0) {
@@ -311,16 +309,16 @@ bool GuiFitKernel::MCParamScanning(void)
            double xs = xs_vs_e->Evaluate(E);
 
            if(fScaleWithE && E>0) xs/=E;
-           
+
            lowb  -> GetY()[ie] = TMath::Min( xs, lowb  -> GetY()[ie] );
            highb -> GetY()[ie] = TMath::Max( xs, highb -> GetY()[ie] );
-       }  
-    }  
+       }
+    }
   }// imc
 
   cards->CurrConfig()->Copy(init_config); // restore initial configuration
   delete init_config;
-  
+
   return true;
 }
 //______________________________________________________________________________
@@ -333,10 +331,10 @@ bool GuiFitKernel::ChisqScan1D(void)
      chisq1d = 0;
 
      return false;
-  }  
+  }
 
   NeuGenCards * cards = NeuGenCards::Instance();
-  
+
   NeuGenConfig * init_config = new NeuGenConfig(cards->CurrConfig()); // orig
   NeuGenWrapper neugen( init_config );
 
@@ -361,7 +359,7 @@ bool GuiFitKernel::ChisqScan1D(void)
   double * chisq_values = 0;
 
   bool prm_found = false;
-    
+
   for(int ip = 0; ip < kNNGFitParams; ip++) {
 
     if(fNGFP->IsFitted(ip) && !prm_found) {
@@ -371,19 +369,19 @@ bool GuiFitKernel::ChisqScan1D(void)
       float step = (float) fNGFP->Step(ip);
 
       prm_found = true;
-      
+
       assert(max>min);
 
       if(step<=0) {
          LOG("NuVld", pDEBUG) << "step = " << step << "! --> setting default";
 
          step = 0.04 * (max-min);
-      }  
+      }
 
       int n = int((max-min)/step);
 
       LOG("NuVld", pINFO) << "n = " << n;
-      
+
       assert(n>0);
 
       param_values = new double[n];
@@ -412,7 +410,7 @@ bool GuiFitKernel::ChisqScan1D(void)
           double chisq = 0;
 
           float dE = (emax-emin)/(nbins-1);
-          
+
           for(int ie = 0; ie < nbins; ie++) {
 
              float E = emin + ie * dE;
@@ -436,7 +434,7 @@ bool GuiFitKernel::ChisqScan1D(void)
 
   cards->CurrConfig()->Copy(init_config); // restore initial configuration
   delete init_config;
-  
+
   return true;
 }
 //______________________________________________________________________________
@@ -475,7 +473,7 @@ bool GuiFitKernel::ChisqScan2D(void)
 
   int   ip1 = -1, ip2 = -1;
   float min1 = 0, max1 = 0, step1 = 0, min2 = 0, max2 = 0, step2 = 0;
-  
+
   bool prm_found = false;
   for(int ip = 0; ip < kNNGFitParams; ip++) {
 
@@ -489,7 +487,7 @@ bool GuiFitKernel::ChisqScan2D(void)
       prm_found = true;
     }
   }
-  
+
   prm_found = false;
   for(int ip = 0; ip < kNNGFitParams; ip++) {
 
@@ -505,7 +503,7 @@ bool GuiFitKernel::ChisqScan2D(void)
   }
   assert(step1>0 && step2>0);
   assert(max1>min1 && max2>min2);
-    
+
   int n1 = int( (max1-min1)/step1 );
   int n2 = int( (max2-min2)/step2 );
 
@@ -514,7 +512,7 @@ bool GuiFitKernel::ChisqScan2D(void)
 
   if(chisq2d) delete chisq2d;
   chisq2d = new TH2F("chisq2d","",n1,min1,max1,n2,min2,max2);
-  
+
   for(int i=0; i<=n1; i++) {
     for(int j=0; j<=n2; j++) {
 
@@ -592,21 +590,49 @@ void GuiFitKernel::InitFitParameters(void)
       LOG("NuVld", pINFO)
            << "** Fixing fit parameter " << i << "(" << fNGFP->ParamAsString(i)
            << ") value := " << value;
-      
+
       fFunc1d->FixParameter(i, value);
     }
   }//i
+
+  fFunc1d->SetParName(kNNGFitParams, "XSEC NORM");
+  fFunc1d->FixParameter(kNNGFitParams, 1.);
+}
+//______________________________________________________________________________
+void GuiFitKernel::InitXSecNormFitParameters(void)
+{
+  // fix all physics parameters to best values
+
+  for(int i = 0; i < kNNGFitParams; i++) {
+
+    fFunc1d->SetParName( i, fNGFP->ParamAsString(i).c_str() );
+
+    // As set in current neugen config
+    float value = this->CurrFitParamValue(i);
+
+    LOG("NuVld", pINFO)
+           << "** Fixing fit parameter " << i << "(" << fNGFP->ParamAsString(i)
+           << ") value := " << value;
+
+    fFunc1d->FixParameter(i, value);
+  }
+
+  // allow an overall normalization parameter
+
+  fFunc1d->SetParName(kNNGFitParams, "XSEC NORM");
+  fFunc1d->SetParameter(kNNGFitParams, 1.);
+  fFunc1d->SetParLimits(kNNGFitParams, 0.,2.);
 }
 //______________________________________________________________________________
 void GuiFitKernel::InitMinuitFitParameters(TMinuit * minuit)
 {
   int ierrflag = 0;
-  
+
   NuVldUserData * user_data = NuVldUserData::Instance();
 
   MultiGraph * mgr = user_data->NuXSec()->GetMultiGraph("all-noE-scale-with-E");
 
-  int npf = kNNGFitParams + mgr->NGraphs();
+  int npf = kNNGFitParams + mgr->NGraphs() + 1;
 
   for(int i = 0; i < kNNGFitParams; i++) {
 
@@ -618,22 +644,23 @@ void GuiFitKernel::InitMinuitFitParameters(TMinuit * minuit)
     float step = (float) fNGFP->Step(i);
 
     if(step < 0) step = 0.01;
-    
+
     LOG("NuVld", pINFO)
            << "** Setting fit parameter " << i << "(" << fNGFP->ParamAsString(i)
            << ") value = " << value << ", range = [" << min << ", " << max <<"]";
-      
+
     minuit->mnparm(i, fNGFP->ParamAsString(i).c_str(), value, step, min,max, ierrflag);
   }
 
+  fFunc1d->SetParName(kNNGFitParams, "XSEC NORM");
+  fFunc1d->FixParameter(kNNGFitParams, 1.);
+
   int igraph = 0;
-  for(int i = kNNGFitParams; i < npf; i++) {
-    
+  for(int i = kNNGFitParams+1; i < npf; i++) {
     minuit->mnparm(i, mgr->GetLegendEntry(igraph++), 1.0, 0.03, 0.8, 1.2,ierrflag);
   }
 
   for(int i = 0; i < kNNGFitParams; i++) {
-            
     if( ! fNGFP->IsFitted(i)) {
       LOG("NuVld", pINFO)
            << "** Fixing fit parameter " << i << "(" << fNGFP->ParamAsString(i);
@@ -679,15 +706,15 @@ float GuiFitKernel::CurrFitParamValue(int iparam)
 TGraph * GuiFitKernel::GetResidualsAsGraph(void)
 {
   if(!fFunc1d) return 0;
-    
+
   //-- getting the fitted data as TGraphAsymmErrors
-  
+
   NuVldUserData * user_data = NuVldUserData::Instance();
 
   TGraphAsymmErrors * gr = user_data->NuXSec()->GetGraph("all-noE");
 
   if(!gr) return 0;
-  
+
   //-- computing the residuals
 
   double * x = new double[ gr->GetN() ];

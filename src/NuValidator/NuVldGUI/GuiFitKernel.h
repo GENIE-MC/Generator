@@ -23,7 +23,7 @@ class TMinuit;
 namespace genie {
 
 class Spline;
-  
+
 namespace nuvld {
 
 class NeuGenFitParams;
@@ -43,10 +43,10 @@ public:
 
    void Reset       (void);
    void PrintConfig (void);
-      
+
    //-- various fitters or parameter scanners
 
-   void  DoSimpleFit       (void);
+   void  DoSimpleFit       (bool fit_norm);
    void  DoFloatingNormFit (void);
 
    bool  MCParamScanning   (void);
@@ -63,11 +63,12 @@ public:
    TGraph * highb;
    TGraph * chisq1d;
    TH2F *   chisq2d;
-   
+
 private:
 
    float CurrFitParamValue (int iparam);
    void  InitFitParameters (void);
+   void  InitXSecNormFitParameters (void);
    void  InitMinuitFitParameters(TMinuit * minuit);
 
    bool  fScaleWithE;

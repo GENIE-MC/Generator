@@ -2143,52 +2143,56 @@ void NuVldMainFrame::RunFitter(void)
 
   // check whether a fitter was selected
 
-  int entry_id = fFitterCBx->GetSelectedEntry()->EntryId();
+  int    entry_id = fFitterCBx->GetSelectedEntry()->EntryId();
+  string fitter   = kFitters[entry_id];
 
-  string fitter = kFitters[entry_id];
+  bool fitter_selected =
+       (fFitterCBx->GetSelectedEntry() && (strcmp(fitter.c_str(),"NONE") != 0));
 
-  if( fFitterCBx->GetSelectedEntry() && (strcmp(fitter.c_str(),"NONE") != 0) ) {
-
-    // check the number of parameters to fit
-
-    if( fNGFP->NFittedParams() > 0) {
-
-      // if the fit is on stacked data & retrieve them and set as current
-
-      if(fUseStackedChkB->GetState() == kButtonDown) {
-         if(fTableStackCBx->GetSelectedEntry()) {
-
-             int entry_id = fTableStackCBx->GetSelectedEntry()->EntryId();
-
-             string xsec_table_name = fStackHandler->StackedDBTableName(entry_id);
-             user_data->SetStackedDBTableAsCurr(xsec_table_name);
-
-         } else new MsgBox(gClient->GetRoot(), fMain,  380, 250, kVerticalFrame,
-                        " If you want to use a stacked data-set, then select one!");
-      }
-
-      // fit current the current data-set
-
-      if( ! user_data->CurrDBTableIsNull() ) {
-
-          LOG("NuVld", pDEBUG) << "Selected fitter: " << fitter;
-
-          if      ( strcmp(fitter.c_str(),"SIMPLE") == 0 )     fFitKernel->DoSimpleFit();
-          else if ( strcmp(fitter.c_str(),"NORM-FLOAT") == 0 ) fFitKernel->DoFloatingNormFit();
-          else {
-            // should never be here
-          }
-
-          this->RunPostFitProcessor();
-
-      } else new MsgBox(gClient->GetRoot(), fMain,
-                 380, 250, kVerticalFrame, " You have selected no data to fit");
-
-    } else new MsgBox(gClient->GetRoot(), fMain,
-           380, 250, kVerticalFrame, " You have selected no parameters to fit");
-
-  } else new MsgBox(gClient->GetRoot(), fMain,
+  if(!fitter_selected) {
+    new MsgBox(gClient->GetRoot(), fMain,
                   380, 250, kVerticalFrame, " First, you must select a fitter");
+    return;
+  }
+
+  // if the fit is on stacked data & retrieve them and set as current
+  if(fUseStackedChkB->GetState() == kButtonDown) {
+    if(fTableStackCBx->GetSelectedEntry()) {
+
+        int entry_id = fTableStackCBx->GetSelectedEntry()->EntryId();
+
+        string xsec_table_name = fStackHandler->StackedDBTableName(entry_id);
+        user_data->SetStackedDBTableAsCurr(xsec_table_name);
+
+     }
+     else new MsgBox(gClient->GetRoot(), fMain,  380, 250, kVerticalFrame,
+                   " If you want to use a stacked data-set, then select one!");
+  }
+
+
+  // have fit data?
+  if( user_data->CurrDBTableIsNull() ) {
+    new MsgBox(gClient->GetRoot(), fMain,
+                 380, 250, kVerticalFrame, " You have selected no data to fit");
+    return;
+  }
+
+  if (strcmp(fitter.c_str(),"XSEC-NORM") == 0)  fFitKernel->DoSimpleFit(true);
+  else {
+
+    int nfitparams = fNGFP->NFittedParams();
+    if(nfitparams==0) {
+        if      ( strcmp(fitter.c_str(),"SIMPLE") == 0 )     fFitKernel->DoSimpleFit(false);
+        else if ( strcmp(fitter.c_str(),"NORM-FLOAT") == 0 ) fFitKernel->DoFloatingNormFit();
+        else {
+          // should never be here
+        }
+    }
+    else new MsgBox(gClient->GetRoot(), fMain,
+           380, 250, kVerticalFrame, " You have selected no parameters to fit");
+  }
+
+  this->RunPostFitProcessor();
 }
 //______________________________________________________________________________
 void NuVldMainFrame::RunMcScanner(void)
@@ -2427,22 +2431,26 @@ void NuVldMainFrame::PrintFitParameters(void)
   LOG("NuVld", pDEBUG) << "Getting fit func & and printing fit params";
 
   TF1 * func = fFitKernel -> FitFunction();
-
   if (func) {
-
     fFitTxtResults->AddLine("-----------------------------------------------");
-
+    fFitTxtResults->AddLine("PHYSICS PARAMS:");
     for(int i = 0; i < kNNGFitParams; i++) {
+       ostringstream fitparam;
+
        if( fNGFP->IsFitted(i) ) {
-
-          ostringstream fitparam;
-
           fitparam << fNGFP->ParamAsString(i) << " = "
                    << func->GetParameter(i) << " +/- " << func->GetParError(i);
-
-          fFitTxtResults->AddLine(fitparam.str().c_str());
+       } else {
+          fitparam << fNGFP->ParamAsString(i) << " = "
+                   << func->GetParameter(i) << " **FIXED**";
        }
+       fFitTxtResults->AddLine(fitparam.str().c_str());
     }
+    fFitTxtResults->AddLine("XSEC NORM:");
+    ostringstream norm;
+    norm << func->GetParameter(kNNGFitParams)
+                      << " +/- " << func->GetParError(kNNGFitParams);
+    fFitTxtResults->AddLine(norm.str().c_str());
 
     fFitTxtResults->AddLine(Concat("* x^2     = ", func->GetChisquare()));
     fFitTxtResults->AddLine(Concat("* ndf     = ", func->GetNDF()));
