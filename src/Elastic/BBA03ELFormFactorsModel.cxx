@@ -130,8 +130,8 @@ void BBA03ELFormFactorsModel::LoadBBA2003Params(void)
   fGmn.a12 = fConfig->GetDoubleDef("Gmn-a12", bba2003::kGmn_a12);
 
   // Krutov parameters
-  fGenA    = fConfig->GetDoubleDef("Gmn-a",   bba2003::kGen_a  );
-  fGenB    = fConfig->GetDoubleDef("Gmn-b",   bba2003::kGen_b  );
+  fGenA    = fConfig->GetDoubleDef("Gen-a",   bba2003::kGen_a  );
+  fGenB    = fConfig->GetDoubleDef("Gen-b",   bba2003::kGen_b  );
 
   // Q2max
   fQ2Max   = fConfig->GetDoubleDef("Q2Max",   bba2003::kQ2Max  );
