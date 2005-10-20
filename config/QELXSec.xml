@@ -14,6 +14,13 @@
      <param type="string" name="integrator">             genie::Simpson1D      </param>
   </param_set>
 
+  <param_set name="CC-Default-BBA2003"> 
+     <param type="int"    name="N-logQ2-bins">           101                   </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::QELPXSec       </param>
+     <param type="string" name="partial-xsec-param-set"> CC-Default-BBA2003    </param>
+     <param type="string" name="integrator">             genie::Simpson1D      </param>
+  </param_set>
+
 
   -- Default configuration for NC QEL XSec
 

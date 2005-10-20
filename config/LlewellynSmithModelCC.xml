@@ -19,5 +19,9 @@
      <param type="string" name="el-form-factors"> genie::DipoleELFormFactorsModel/Default </param>
   </param_set>
 
+  <param_set name="Default-BBA2003"> 
+     <param type="string" name="el-form-factors"> genie::BBA03ELFormFactorsModel/Default </param>
+  </param_set>
+
 </alg_conf>
 
