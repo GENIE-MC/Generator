@@ -16,6 +16,8 @@
 */
 //____________________________________________________________________________
 
+#include <sstream>
+
 #include <TParticlePDG.h>
 
 #include "Conventions/Constants.h"
@@ -26,10 +28,11 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 
+using std::endl;
+using std::ostringstream;
+
 using namespace genie;
 using namespace genie::constants;
-
-using std::endl;
 
 //____________________________________________________________________________
 namespace genie {
@@ -93,6 +96,17 @@ Target::Target(const Target & tgt)
 Target::~Target()
 {
   if(fStruckNucP4) delete fStruckNucP4;
+}
+//___________________________________________________________________________
+string Target::AsString(void) const
+{
+  ostringstream s;
+
+  s << this->PDGCode();
+  if(this->StruckNucleonIsSet()) 
+           s << "[" <<  this->StruckNucleonPDGCode() << "]";
+
+  return s.str();
 }
 //___________________________________________________________________________
 void Target::Copy(const Target & tgt)
