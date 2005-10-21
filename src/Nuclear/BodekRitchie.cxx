@@ -77,7 +77,7 @@ TH1D * BodekRitchie::ProbabilityDistribution(const Target & target) const
   LOG("BodekRitchie", pDEBUG) << "R  = " << R;
 
   //-- create the probability distribution
-  int    n       = fConfig->GetIntDef("n-momentum-bins", 100);
+  int    n       = fConfig->GetIntDef("n-momentum-bins", 250);
   double pmax    = fConfig->GetDoubleDef("p-max", 10);
   double pcutoff = fConfig->GetDoubleDef("p-cut-off", 4);
 
