@@ -20,10 +20,12 @@
 #define _TARGET_H_
 
 #include <ostream>
+#include <string>
 
 #include <TLorentzVector.h>
 
 using std::ostream;
+using std::string;
 
 namespace genie {
 
@@ -41,13 +43,11 @@ public:
   void SetZA (int Z, int A);
 
   //-- Get atomic number, mass number & number of neutrons
-    
   int  Z (void) const;
   int  N (void) const;
   int  A (void) const;
 
   //-- Get nucleus PDG code according to the MINOS PDG extensions 
-  
   int  PDGCode (void) const;
   
   //-- Set & Get struck nucleon pdg code & 4-momentum
@@ -93,8 +93,9 @@ public:
 //  double        DecayRate             (DecayChannel & dc)     const;
 //  DecayList &   GetDecayChannels      (void)                  const;
 
-  void   Copy  (const Target & t);
-  void   Print (ostream & stream) const;
+  string AsString (void) const;
+  void   Copy     (const Target & t);
+  void   Print    (ostream & stream) const;
 
   friend ostream & operator<< (ostream& stream, const Target & target);
 
