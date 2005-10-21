@@ -108,6 +108,7 @@
   <priority msgstream="VldBodekYang">        INFO   </priority>
   <priority msgstream="VldCharm">            INFO   </priority>
   <priority msgstream="VldDis">              INFO   </priority>
+  <priority msgstream="VldFermiM">           INFO   </priority>
   <priority msgstream="VldSpp">              INFO   </priority>
   <priority msgstream="VldQel">              INFO   </priority>
   <priority msgstream="VldEl">               INFO   </priority>

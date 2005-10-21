@@ -155,6 +155,12 @@
      <param type="string" name="section-0-conf">   Default                        </param>
   </param_set>
 
+  <param_set name="FermiMotion"> 
+     <param type="int"    name="n-sections">       1                              </param>
+     <param type="string" name="section-0-alg">    genie::VldFermiMotion          </param>
+     <param type="string" name="section-0-conf">   Default                        </param>
+  </param_set>
+
   <param_set name="DISXSecCC"> 
      <param type="int"    name="n-sections">      1                              </param>
      <param type="string" name="section-0-alg">    genie::VldDISXSec              </param>
