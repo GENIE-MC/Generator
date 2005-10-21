@@ -3,7 +3,9 @@
 
 \class    genie::NuclearPDistribution
 
-\brief    Describes a Nucleon Momentum Probability Distribution.
+\brief    Describes a nucleon momentum probability distribution (constructed
+          from the attached NuclearPDistributionModelI) and can act as a
+          nucleon momentum generator.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory

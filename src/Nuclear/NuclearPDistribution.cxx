@@ -3,7 +3,9 @@
 
 \class    genie::NuclearPDistribution
 
-\brief    Describes a Nucleon Momentum Probability Distribution.
+\brief    Describes a nucleon momentum probability distribution (constructed
+          from the attached NuclearPDistributionModelI) and can act as a
+          nucleon momentum generator.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -12,6 +14,8 @@
 
 */
 //____________________________________________________________________________
+
+#include <TMath.h>
 
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
@@ -24,106 +28,94 @@ using namespace genie::constants;
 //____________________________________________________________________________
 NuclearPDistribution::NuclearPDistribution()
 {
-  Init();
+  this->Init();
 }
 //____________________________________________________________________________
 NuclearPDistribution::NuclearPDistribution(const NuclearPDistribution & npd)
 {
-  Init();
+  if (this->fProbDistribution) delete this->fProbDistribution;
 
-  fProbModel = npd.fProbModel;
+  this->Init();
 
-  fProbDistribution = new TH1D( *(npd.fProbDistribution) );
+  this->fProbModel = npd.fProbModel;
+  this->fProbDistribution = new TH1D( *(npd.fProbDistribution) );
 }
 //____________________________________________________________________________
 NuclearPDistribution::~NuclearPDistribution()
 {
-  if (fProbDistribution) delete fProbDistribution;
+  if (this->fProbDistribution) delete this->fProbDistribution;
 }
 //____________________________________________________________________________
 void NuclearPDistribution::AttachModel(const NuclearPDistributionModelI * model)
 {
   LOG("NucleonP", pDEBUG) << "Initializing & attaching model";
 
-  if (fProbDistribution) delete fProbDistribution;
+  if (this->fProbDistribution) delete this->fProbDistribution;
+  this->fProbDistribution = 0;
 
-  fProbDistribution = 0;
-
-  fProbModel    = model;
+  this->fProbModel = model;
 }
 //____________________________________________________________________________
 void NuclearPDistribution::BuildProbDistribution(const Target & target)
 {
   LOG("NucleonP", pDEBUG) << "Building probability distributions";
 
-  fProbDistribution = fProbModel->ProbabilityDistribution(target);
+  this->fProbDistribution = fProbModel->ProbabilityDistribution(target);
 }
 //____________________________________________________________________________
 double NuclearPDistribution::Probability(const TVector3 & p) const
 {
-  return Probability( p.Mag() );
+  return this->Probability( p.Mag() );
 }
 //____________________________________________________________________________
 double NuclearPDistribution::Probability(double p) const
 {
-  if (fProbDistribution) {
-
-     int bin = fProbDistribution->FindBin(p);
-     return (double) fProbDistribution->GetBinContent(bin);
-
+  if (this->fProbDistribution) {
+     int bin = this->fProbDistribution->FindBin(p);
+     return (double) this->fProbDistribution->GetBinContent(bin);
   } else {
      LOG("NucleonP", pERROR) << "Probability distribution is not built yet";
   }
-
   return -1;
 }
 //____________________________________________________________________________
 double NuclearPDistribution::RandomMomentum(void) const
 {
-  if (fProbDistribution) {
-
-     double p = fProbDistribution->GetRandom();
-
-     SLOG("NucleonP", pINFO) << "|p,nucleon| = " << p;
-     
+  if (this->fProbDistribution) {
+     double p = this->fProbDistribution->GetRandom();
+     LOG("NucleonP", pINFO) << "|p,nucleon| = " << p;
      return p;
-
   } else {
      LOG("NucleonP", pERROR) << "Probability distribution is not built yet";
   }
-
   return 0;
 }
 //____________________________________________________________________________
 TVector3 NuclearPDistribution::RandomMomentum3(void) const
 {
-  TVector3 p(0, 0, RandomMomentum()); // fix in z direction
+  double p = this->RandomMomentum();
 
-  // get Euler angles for a random rotation of the momentum 3-vector
-  
   RandomGen * rnd = RandomGen::Instance();
 
-  double theta = 2*kPi * rnd->Random2().Rndm();
-  double fi    =   kPi * rnd->Random2().Rndm();
-  double psi   = 2*kPi * rnd->Random2().Rndm();
+  double costheta = -1. + 2. * rnd->Random2().Rndm();
+  double sintheta = TMath::Sqrt(1.-costheta*costheta);
+  double fi       = 2 * kPi * rnd->Random2().Rndm();
+  double cosfi    = TMath::Cos(fi);
+  double sinfi    = TMath::Sin(fi);
 
-  SLOG("NucleonP", pINFO) << "Euler angles: " <<
-                 "theta = " << theta << ", fi = " << fi << ", psi = " << psi;
-   
-  TRotation random_rotation;
+  double px = p*sintheta*cosfi;
+  double py = p*sintheta*sinfi;
+  double pz = p*costheta;
 
-  random_rotation.SetToIdentity();
-  random_rotation.SetXEulerAngles(theta, fi, psi);
+  TVector3 p3(px,py,pz);
 
-  p.Transform(random_rotation);
-  
-  return p;
+  return p3;
 }
 //____________________________________________________________________________
 void NuclearPDistribution::Init(void)
 {
-  fProbModel        = 0;
-  fProbDistribution = 0;
+  this->fProbModel        = 0;
+  this->fProbDistribution = 0;
 }
 //____________________________________________________________________________
 
