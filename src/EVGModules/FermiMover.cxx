@@ -18,6 +18,7 @@
 
 #include <TLorentzVector.h>
 #include <TVector3.h>
+#include <TMath.h>
 
 #include "Conventions/Constants.h"
 #include "EVGModules/FermiMover.h"
@@ -78,12 +79,14 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
 
      TLorentzVector * nucleon_p4 = init_state.GetTarget().StruckNucleonP4();
 
-     double M = init_state.GetTarget().StruckNucleonMass();
+     double M  = init_state.GetTarget().StruckNucleonMass();
+     double M2 = M*M;
+     double P2 = p3.Mag2();
 
      nucleon_p4->SetPx( p3.Px() );
      nucleon_p4->SetPy( p3.Py() );
      nucleon_p4->SetPz( p3.Pz() );
-     nucleon_p4->SetE ( sqrt(p3.Mag2() + M*M ) ); // should be kept on-shell?
+     nucleon_p4->SetE ( TMath::Sqrt(P2+M2) ); //?
 
      //-- update the event record (particle with Ist == kIstNucleonTarget)
 
