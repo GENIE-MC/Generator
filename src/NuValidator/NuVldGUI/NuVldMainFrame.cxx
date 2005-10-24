@@ -2181,7 +2181,7 @@ void NuVldMainFrame::RunFitter(void)
   else {
 
     int nfitparams = fNGFP->NFittedParams();
-    if(nfitparams==0) {
+    if(nfitparams>0) {
         if      ( strcmp(fitter.c_str(),"SIMPLE") == 0 )     fFitKernel->DoSimpleFit(false);
         else if ( strcmp(fitter.c_str(),"NORM-FLOAT") == 0 ) fFitKernel->DoFloatingNormFit();
         else {
