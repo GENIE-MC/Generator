@@ -32,7 +32,7 @@ typedef enum EAlgCmp {
 } AlgCmp_t; 
   
 
-class AlgComp {
+class AlgCmp {
 
  public:
 
