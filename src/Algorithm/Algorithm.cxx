@@ -128,6 +128,25 @@ void Algorithm::FindConfig(void)
   }
 }
 //____________________________________________________________________________
+AlgCmp_t Algorithm::Compare(const Algorithm * algo) const
+{
+// Compares itself with the input algorithm
+
+  string alg1    = this->Name();
+  string config1 = this->ParamSet();
+  string alg2    = algo->Name();
+  string config2 = algo->ParamSet();
+
+  if(alg1 == alg2) 
+  {
+    if(config1 == config2) return kAlgCmpIdentical;
+    else                   return kAlgCmpDiffConfig;
+  } 
+  else return kAlgCmpDiffAlg;
+
+  return kAlgCmpUnknown;
+}
+//____________________________________________________________________________
 const Algorithm * Algorithm::SubAlg(string key) const
 {
 // Returns the sub-algorithm pointed to this algorithm's XML config file using

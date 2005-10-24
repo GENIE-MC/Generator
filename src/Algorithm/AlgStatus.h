@@ -26,8 +26,7 @@ typedef enum EAlgStatus {
 
    kAlgUndefinedStatus    = -1, 
    kAlgFail,
-   kAlgSuccess,
-   kAlgNotConverged
+   kAlgSuccess
 
 } AlgStatus_t; 
   
@@ -38,10 +37,9 @@ class AlgStatus {
 
   static char * AsString(AlgStatus_t alg) {
      switch (alg) {
-     case kAlgFail:                 return "FAIL";             break;
-     case kAlgSuccess:              return "SUCCESS";          break;
-     case kAlgUndefinedStatus:      return "UNDEFINED STATUS"; break;
-     case kAlgNotConverged:         return "NOT CONVERGED";    break;
+     case kAlgFail:                 return "Algorithm failed";           break;
+     case kAlgSuccess:              return "Algorithm run successfully"; break;
+     case kAlgUndefinedStatus:      return "Undefined alg status";       break;
      default:                       break;
      }
      return " ";
