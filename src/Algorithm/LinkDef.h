@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::AlgId;
 #pragma link C++ class genie::Algorithm;
 #pragma link C++ class genie::AlgStatus;
 #pragma link C++ class genie::AlgCmp;

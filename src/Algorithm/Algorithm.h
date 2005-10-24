@@ -22,6 +22,7 @@
 
 #include "Algorithm/AlgStatus.h"
 #include "Algorithm/AlgCmp.h"
+#include "Algorithm/AlgId.h"
 #include "Registry/Registry.h"
 
 using std::string;
@@ -33,34 +34,38 @@ class Algorithm {
 
 public:
 
-  virtual ~Algorithm(); 
+  virtual ~Algorithm();
 
   //-- define the Algorithm interface
 
   virtual void             Configure  (const Registry & config);
-  virtual void             Configure  (string param_set);
-  virtual void             FindConfig (void);  
-  virtual const Registry & GetConfig  (void) const { return *fConfig;         }
-  virtual string           Name       (void) const { return  fName;           }
-  virtual string           ParamSet   (void) const { return  fParamSet;       }
-  virtual AlgStatus_t      GetStatus  (void) const { return  fStatus;         }
+  virtual void             Configure  (string config);
+  virtual void             FindConfig (void);
+  virtual const Registry & GetConfig  (void) const { return *fConfig; }
+  virtual const AlgId &    Id         (void) const { return  fID;     }
+  virtual AlgStatus_t      GetStatus  (void) const { return  fStatus; }
   virtual AlgCmp_t         Compare    (const Algorithm * alg) const;
+  virtual void             SetId      (const AlgId & id);
+  virtual void             SetId      (string name,  string config);
+  virtual void             Print      (ostream & stream) const;
 
   friend ostream & operator << (ostream & stream, const Algorithm & alg);
 
 protected:
 
   Algorithm();
-  Algorithm(const char * param_set);
+  Algorithm(string name);
+  Algorithm(string name, string config);
+
+  void Initialize();
 
   const Algorithm * SubAlg(string key) const;
   const Algorithm * SubAlg(string alg_key, string config_key) const;
-  const Algorithm * SubAlgWithDefault(string alg_key, string config_key, 
+  const Algorithm * SubAlgWithDefault(string alg_key, string config_key,
                                 string def_alg_name, string def_config_name) const;
 
   bool         fConfigIsOwned; ///< true if the algorithm owns its config. registry
-  string       fName;          ///< algorithm name
-  string       fParamSet;      ///< configuration parameter set name
+  AlgId        fID;            ///< algorithm name and configuration set
   Registry *   fConfig;        ///< config. (either owned or pointing to config pool)
   AlgStatus_t  fStatus;        ///< algorithm execution status
 };

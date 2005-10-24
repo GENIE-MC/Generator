@@ -38,11 +38,11 @@ class AlgCmp {
 
   static char * AsString(AlgCmp_t alg) {
      switch (alg) {
-     case kAlgCmpIdentical:    return "Algorithm [same], configuration [same]";  break;
-     case kAlgCmpDiffConfig:   return "Algorithm [same], configuration [diff]";  break;
-     case kAlgCmpDiffAlg:      return "Algorithm [diff]";                        break;
-     case kAlgUndefinedStatus: return "Undefined algorithm comparison result";   break;
-     default:                  break;
+     case kAlgCmpIdentical:   return "Algorithm [same], configuration [same]";  break;
+     case kAlgCmpDiffConfig:  return "Algorithm [same], configuration [diff]";  break;
+     case kAlgCmpDiffAlg:     return "Algorithm [diff]";                        break;
+     case kAlgCmpUnknown:     return "Undefined algorithm comparison result";   break;
+     default:                 break;
      }
      return " ";
   }
