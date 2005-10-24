@@ -75,6 +75,7 @@ generator-std-libs:
 	cd Radiative;          make; cd ..; \
 	cd Registry;           make; cd ..; \
 	cd ReinSeghal;         make; cd ..; \
+	cd ReWeight;           make; cd ..; \
 	cd Utils;              make; cd ..; \
 	cd Viewer;             make; cd ..; \
 
@@ -154,6 +155,7 @@ purge: FORCE
 	cd Radiative;          make purge; cd ..; \
 	cd Registry;           make purge; cd ..; \
 	cd ReinSeghal;         make purge; cd ..; \
+	cd ReWeight;           make purge; cd ..; \
 	cd Utils;              make purge; cd ..; \
 	cd Viewer;             make purge; cd ..; \
 
@@ -193,6 +195,7 @@ clean-files: FORCE
 	cd Radiative;          make clean; cd ..; \
 	cd Registry;           make clean; cd ..; \
 	cd ReinSeghal;         make clean; cd ..; \
+	cd ReWeight;           make clean; cd ..; \
 	cd Utils;              make clean; cd ..; \
 	cd Viewer;             make clean; cd ..; \
 	cd stdapp;             make clean; cd ..; \
