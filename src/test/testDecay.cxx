@@ -56,8 +56,8 @@ int main(int argc, char ** argv)
 
   //-- ask the algorithms for its name and its configuration parameter set
 
-  LOG("Main",pINFO) << "Algorithm name = " << pythia_decayer->Name();
-  LOG("Main",pINFO) << "Parameter set  = " << pythia_decayer->ParamSet();
+  LOG("Main",pINFO) << "Algorithm name = " << pythia_decayer->Id().Name();
+  LOG("Main",pINFO) << "Parameter set  = " << pythia_decayer->Id().Config();
 
 
   //-- get the configuration registries and print them
