@@ -21,6 +21,7 @@
 #include <cassert>
 
 #include "Algorithm/AlgStatus.h"
+#include "Algorithm/AlgCmp.h"
 #include "Registry/Registry.h"
 
 using std::string;
@@ -43,6 +44,7 @@ public:
   virtual string           Name       (void) const { return  fName;           }
   virtual string           ParamSet   (void) const { return  fParamSet;       }
   virtual AlgStatus_t      GetStatus  (void) const { return  fStatus;         }
+  virtual AlgCmp_t         Compare    (const Algorithm * alg) const;
 
   friend ostream & operator << (ostream & stream, const Algorithm & alg);
 
