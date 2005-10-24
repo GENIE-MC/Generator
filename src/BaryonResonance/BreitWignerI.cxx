@@ -20,13 +20,20 @@
 using namespace genie;
 
 //______________________________________________________________________
-BreitWignerI::BreitWignerI() : Algorithm()
+BreitWignerI::BreitWignerI() : 
+Algorithm()
 {
 
 }
 //______________________________________________________________________
-BreitWignerI::BreitWignerI(const char * param_set) :
-Algorithm(param_set)
+BreitWignerI::BreitWignerI(string name) :
+Algorithm(name)
+{
+
+}
+//______________________________________________________________________
+BreitWignerI::BreitWignerI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

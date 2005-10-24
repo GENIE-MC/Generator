@@ -26,17 +26,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 LlewellynSmithModelCC::LlewellynSmithModelCC() :
-LlewellynSmithModel()
+LlewellynSmithModel("genie::LlewellynSmithModelCC")
 {
-  fName = "genie::LlewellynSmithModelCC";
+
 }
 //____________________________________________________________________________
-LlewellynSmithModelCC::LlewellynSmithModelCC(const char * param_set) :
-LlewellynSmithModel(param_set)
+LlewellynSmithModelCC::LlewellynSmithModelCC(string config) :
+LlewellynSmithModel("genie::LlewellynSmithModelCC", config)
 {
-  fName = "genie::LlewellynSmithModelCC";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 LlewellynSmithModelCC::~LlewellynSmithModelCC()

@@ -27,7 +27,7 @@ class InitialStateAppender : public EventRecordVisitorI {
 public :
 
   InitialStateAppender();
-  InitialStateAppender(const char * param_set);
+  InitialStateAppender(string config);
   ~InitialStateAppender();
 
   //-- implement the EventRecordVisitorI interface

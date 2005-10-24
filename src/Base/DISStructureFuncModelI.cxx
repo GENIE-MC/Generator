@@ -26,8 +26,14 @@ Algorithm()
 
 }
 //____________________________________________________________________________
-DISStructureFuncModelI::DISStructureFuncModelI(const char * param_set):
-Algorithm(param_set)
+DISStructureFuncModelI::DISStructureFuncModelI(string name):
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+DISStructureFuncModelI::DISStructureFuncModelI(string name, string config):
+Algorithm(name, config)
 {
 
 }

@@ -32,7 +32,7 @@ class StdElasticXSec : public XSecAlgorithmI {
 public:
 
   StdElasticXSec();
-  StdElasticXSec(const char * param_set);
+  StdElasticXSec(string config);
   virtual ~StdElasticXSec();
 
   //-- XSecAlgorithmI interface implementation

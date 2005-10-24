@@ -41,17 +41,15 @@ using namespace genie;
 
 //____________________________________________________________________________
 RSListRESPXSec::RSListRESPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::RSListRESPXSec")
 {
-  fName = "genie::RSListRESPXSec";
+
 }
 //____________________________________________________________________________
-RSListRESPXSec::RSListRESPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+RSListRESPXSec::RSListRESPXSec(string config) :
+XSecAlgorithmI("genie::RSListRESPXSec", config)
 {
-  fName = "genie::RSListRESPXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 RSListRESPXSec::~RSListRESPXSec()

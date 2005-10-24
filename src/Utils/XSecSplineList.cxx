@@ -346,8 +346,8 @@ string XSecSplineList::BuildSplineKey(
     return "";
   }
 
-  string alg_name  = alg->Name();
-  string param_set = alg->ParamSet();
+  string alg_name  = alg->Id().Name();
+  string param_set = alg->Id().Config();
   string intkey    = interaction->AsString();
 
   string key = alg_name + "/" + param_set + "/" + intkey;

@@ -38,7 +38,8 @@ public:
 protected:
 
   RSHelicityAmplModelI();
-  RSHelicityAmplModelI(const char * param_set);
+  RSHelicityAmplModelI(string name);
+  RSHelicityAmplModelI(string name, string config);
 };
 
 }        // namespace

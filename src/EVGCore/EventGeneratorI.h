@@ -53,7 +53,8 @@ protected:
 
   //-- dummy ctors & dtor
   EventGeneratorI();
-  EventGeneratorI(const char * param_set);
+  EventGeneratorI(string name);
+  EventGeneratorI(string name, string config);
   ~EventGeneratorI();
 };
 

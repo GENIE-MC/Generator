@@ -30,7 +30,7 @@ class RESXSec : public XSecAlgorithmI {
 public:
 
   RESXSec();
-  RESXSec(const char * param_set);
+  RESXSec(string param_set);
   virtual ~RESXSec();
 
   //-- XSecAlgorithmI interface implementation

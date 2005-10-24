@@ -23,17 +23,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 QELPrimaryLeptonGenerator::QELPrimaryLeptonGenerator() :
-PrimaryLeptonGenerator()
+PrimaryLeptonGenerator("genie::QELPrimaryLeptonGenerator")
 {
-  fName = "genie::QELPrimaryLeptonGenerator";
+
 }
 //___________________________________________________________________________
-QELPrimaryLeptonGenerator::QELPrimaryLeptonGenerator(const char * param_set):
-PrimaryLeptonGenerator(param_set)
+QELPrimaryLeptonGenerator::QELPrimaryLeptonGenerator(string config):
+PrimaryLeptonGenerator("genie::QELPrimaryLeptonGenerator", config)
 {
-  fName = "genie::QELPrimaryLeptonGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 QELPrimaryLeptonGenerator::~QELPrimaryLeptonGenerator()

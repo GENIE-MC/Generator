@@ -24,6 +24,18 @@ Algorithm()
 
 }
 //____________________________________________________________________________
+IntegratorI::IntegratorI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+IntegratorI::IntegratorI(string name, string config) :
+Algorithm(name, config)
+{
+
+}
+//____________________________________________________________________________
 IntegratorI::~IntegratorI()
 {
 

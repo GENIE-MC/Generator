@@ -40,7 +40,7 @@ class RESHadronicSystemGenerator : public HadronicSystemGenerator {
 public :
 
   RESHadronicSystemGenerator();
-  RESHadronicSystemGenerator(const char * param_set);
+  RESHadronicSystemGenerator(string config);
   ~RESHadronicSystemGenerator();
 
   //-- implement the EventRecordVisitorI interface

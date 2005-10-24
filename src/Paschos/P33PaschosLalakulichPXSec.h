@@ -32,7 +32,7 @@ class P33PaschosLalakulichPXSec : public XSecAlgorithmI {
 public:
 
   P33PaschosLalakulichPXSec();
-  P33PaschosLalakulichPXSec(const char * param_set);
+  P33PaschosLalakulichPXSec(string name);
   virtual ~P33PaschosLalakulichPXSec();
 
   //-- XSecAlgorithmI interface implementation

@@ -26,7 +26,7 @@ class DISStructureFuncModelNC : public DISStructureFuncModel {
 public:
 
   DISStructureFuncModelNC();
-  DISStructureFuncModelNC(const char * param_set);
+  DISStructureFuncModelNC(string config);
   virtual ~DISStructureFuncModelNC();
 
   //-- DISStructureFuncModelI interface implementation

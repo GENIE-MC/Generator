@@ -34,7 +34,8 @@ public:
 protected:
 
   BreitWignerI(); 
-  BreitWignerI(const char * param_set); 
+  BreitWignerI(string name); 
+  BreitWignerI(string name, string config); 
 };
 
 }         // genie namespace

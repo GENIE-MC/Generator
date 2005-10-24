@@ -49,17 +49,15 @@ const UInt_t kIsForward = 1<<17; // forwardness bit in TMCParticle bit field.
 
 //____________________________________________________________________________
 KNOHadronization2::KNOHadronization2() :
-HadronizationModelI()
+HadronizationModelI("genie::KNOHadronization2")
 {
-  fName = "genie::KNOHadronization2";
+
 }
 //____________________________________________________________________________
-KNOHadronization2::KNOHadronization2(const char * param_set) :
-HadronizationModelI(param_set)
+KNOHadronization2::KNOHadronization2(string config) :
+HadronizationModelI("genie::KNOHadronization2", config)
 {
-  fName = "genie::KNOHadronization2";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 KNOHadronization2::~KNOHadronization2()

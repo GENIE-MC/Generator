@@ -22,17 +22,15 @@ using namespace genie;
 
 //____________________________________________________________________________
 BBA05ELFormFactorsModel::BBA05ELFormFactorsModel() :
-ELFormFactorsModelI()
+ELFormFactorsModelI("genie::BBA05ELFormFactorsModel")
 {
-  fName = "genie::BBA05ELFormFactorsModel";
+
 }
 //____________________________________________________________________________
-BBA05ELFormFactorsModel::BBA05ELFormFactorsModel(const char * param_set) :
-ELFormFactorsModelI(param_set)
+BBA05ELFormFactorsModel::BBA05ELFormFactorsModel(string config) :
+ELFormFactorsModelI("genie::BBA05ELFormFactorsModel", config)
 {
-  fName = "genie::BBA05ELFormFactorsModel";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 BBA05ELFormFactorsModel::~BBA05ELFormFactorsModel()

@@ -31,7 +31,7 @@ class StdElasticPXSec : public XSecAlgorithmI {
 public:
 
   StdElasticPXSec();
-  StdElasticPXSec(const char * param_set);
+  StdElasticPXSec(string config);
   virtual ~StdElasticPXSec();
 
   //-- XSecAlgorithmI interface implementation

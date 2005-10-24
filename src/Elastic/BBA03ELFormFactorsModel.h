@@ -33,7 +33,7 @@ class BBA03ELFormFactorsModel : public ELFormFactorsModelI {
 
 public:
   BBA03ELFormFactorsModel();
-  BBA03ELFormFactorsModel(const char * param_set);
+  BBA03ELFormFactorsModel(string config);
   virtual ~BBA03ELFormFactorsModel();
 
   // implement the ELFormFactorsModelI interface

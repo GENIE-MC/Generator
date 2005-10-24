@@ -38,7 +38,7 @@ class BardinIMDRadCorPXSec : public XSecAlgorithmI {
 public:
 
   BardinIMDRadCorPXSec();
-  BardinIMDRadCorPXSec(const char * param_set);
+  BardinIMDRadCorPXSec(string config);
   virtual ~BardinIMDRadCorPXSec();
 
   //-- XSecAlgorithmI interface implementation

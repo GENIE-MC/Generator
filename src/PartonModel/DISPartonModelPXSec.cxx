@@ -33,17 +33,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 DISPartonModelPXSec::DISPartonModelPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::DISPartonModelPXSec")
 {
-  fName = "genie::DISPartonModelPXSec";
+
 }
 //____________________________________________________________________________
-DISPartonModelPXSec::DISPartonModelPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+DISPartonModelPXSec::DISPartonModelPXSec(string config) :
+XSecAlgorithmI("genie::DISPartonModelPXSec", config)
 {
-  fName = "genie::DISPartonModelPXSec";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 DISPartonModelPXSec::~DISPartonModelPXSec()

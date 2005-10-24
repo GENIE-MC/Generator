@@ -25,7 +25,7 @@ class DipoleELFormFactorsModel : public ELFormFactorsModelI {
 
 public:
   DipoleELFormFactorsModel();
-  DipoleELFormFactorsModel(const char * param_set);
+  DipoleELFormFactorsModel(string config);
   virtual ~DipoleELFormFactorsModel();
 
   double Gep (double q2) const;

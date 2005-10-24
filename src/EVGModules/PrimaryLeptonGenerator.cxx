@@ -39,8 +39,14 @@ EventRecordVisitorI()
 
 }
 //___________________________________________________________________________
-PrimaryLeptonGenerator::PrimaryLeptonGenerator(const char * param_set) :
-EventRecordVisitorI(param_set)
+PrimaryLeptonGenerator::PrimaryLeptonGenerator(string name) :
+EventRecordVisitorI(name)
+{
+
+}
+//___________________________________________________________________________
+PrimaryLeptonGenerator::PrimaryLeptonGenerator(string name, string config) :
+EventRecordVisitorI(name, config)
 {
 
 }

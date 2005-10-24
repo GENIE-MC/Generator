@@ -27,7 +27,7 @@ class QELInteractionListGenerator : public InteractionListGeneratorI {
 public :
 
   QELInteractionListGenerator();
-  QELInteractionListGenerator(const char * param_set);
+  QELInteractionListGenerator(string config);
   ~QELInteractionListGenerator();
 
   //-- define the InteractionListGeneratorI interface

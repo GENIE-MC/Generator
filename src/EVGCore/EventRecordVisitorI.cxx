@@ -26,8 +26,14 @@ Algorithm()
 
 }
 //___________________________________________________________________________
-EventRecordVisitorI::EventRecordVisitorI(const char * param_set) :
-Algorithm(param_set)
+EventRecordVisitorI::EventRecordVisitorI(string name) :
+Algorithm(name)
+{
+
+}
+//___________________________________________________________________________
+EventRecordVisitorI::EventRecordVisitorI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

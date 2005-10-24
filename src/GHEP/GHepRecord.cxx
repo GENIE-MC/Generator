@@ -451,6 +451,7 @@ void GHepRecord::InitGHepRecord(void)
   LOG("GHEP", pDEBUG) << "Initializing GHepRecord";
 
   fInteraction = 0;
+  fWeight      = 1.;
 
   this -> SwitchIsPauliBlocked (false);
   this -> SwitchIsBelowThrNRF  (false);

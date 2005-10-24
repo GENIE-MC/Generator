@@ -30,7 +30,7 @@ class EventGenerator : public EventGeneratorI {
 public :
 
   EventGenerator();
-  EventGenerator(const char * param_set);
+  EventGenerator(string config);
   ~EventGenerator();
 
   //-- implement the original EventRecordVisitorI interface

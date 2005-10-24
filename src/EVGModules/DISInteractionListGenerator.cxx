@@ -26,18 +26,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 DISInteractionListGenerator::DISInteractionListGenerator() :
-InteractionListGeneratorI()
+InteractionListGeneratorI("genie::DISInteractionListGenerator")
 {
-  fName = "genie::DISInteractionListGenerator";
+
 }
 //___________________________________________________________________________
-DISInteractionListGenerator::DISInteractionListGenerator(
-                                                    const char * param_set) :
-InteractionListGeneratorI(param_set)
+DISInteractionListGenerator::DISInteractionListGenerator(string config) :
+InteractionListGeneratorI("genie::DISInteractionListGenerator", config)
 {
-  fName = "genie::DISInteractionListGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 DISInteractionListGenerator::~DISInteractionListGenerator()

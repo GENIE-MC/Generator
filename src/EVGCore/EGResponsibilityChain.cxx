@@ -64,8 +64,7 @@ const EventGeneratorI * EGResponsibilityChain::FindGenerator(
 
      const EventGeneratorI * evgen = *evgliter;
 
-     LOG("EVGChain", pINFO)
-           << "Trying........." << evgen->Name() << "/" << evgen->ParamSet();
+     LOG("EVGChain", pINFO) << "Trying........." << evgen->Id().Key();
 
      //-- Ask the validity context of this event generator & check whether
      //   it is the appropriate one to handle this event
@@ -76,8 +75,7 @@ const EventGeneratorI * EGResponsibilityChain::FindGenerator(
      //-- Return the right event generator so that it can be asked to start
      //   generate the selected event
      if(is_valid) {
-        LOG("EVGChain", pINFO)
-           << " *** Selected: " << evgen->Name() << "/" << evgen->ParamSet();
+        LOG("EVGChain", pINFO) << " *** Selected: " << evgen->Id().Key();
         return evgen;
      }
   }

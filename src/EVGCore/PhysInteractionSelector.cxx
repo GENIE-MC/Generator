@@ -35,21 +35,15 @@ using namespace genie::units;
 
 //___________________________________________________________________________
 PhysInteractionSelector::PhysInteractionSelector() :
-InteractionSelectorI()
+InteractionSelectorI("genie::PhysInteractionSelector")
 {
-  fName = "genie::PhysInteractionSelector";
-
   fEventGeneratorList = 0;
   fInteractionFilter  = 0;
 }
 //___________________________________________________________________________
-PhysInteractionSelector::PhysInteractionSelector(const char * param_set) :
-InteractionSelectorI(param_set)
+PhysInteractionSelector::PhysInteractionSelector(string config) :
+InteractionSelectorI("genie::PhysInteractionSelector", config)
 {
-  fName = "genie::PhysInteractionSelector";
-
-  this->FindConfig();
-
   fEventGeneratorList = 0;
   fInteractionFilter  = 0;
 }
@@ -106,8 +100,8 @@ Interaction * PhysInteractionSelector::SelectInteraction (
      const EventGeneratorI * evgen = *evgliter;
 
      LOG("InteractionList", pINFO)
-            << "Querying [" << evgen->Name() << "/"
-                        << evgen->ParamSet() << "] for its InteractionList";
+                 << "Querying [" << evgen->Id().Key() 
+                                            << "] for its InteractionList";
 
      // ask the event generator to produce a list of all interaction it can
      // generate for the input initial state

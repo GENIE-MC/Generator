@@ -31,7 +31,7 @@ class BYStructureFuncModelCC : public BYStructureFuncModel {
 public:
 
   BYStructureFuncModelCC();
-  BYStructureFuncModelCC(const char * param_set);
+  BYStructureFuncModelCC(string config);
   ~BYStructureFuncModelCC();
 
   //-- DISStructureFuncModelI interface implementation

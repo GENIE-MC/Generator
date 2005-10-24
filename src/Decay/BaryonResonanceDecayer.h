@@ -39,7 +39,7 @@ class BaryonResonanceDecayer : public DecayModelI {
 public:
 
   BaryonResonanceDecayer();
-  BaryonResonanceDecayer(const char * param_set);
+  BaryonResonanceDecayer(string config);
   virtual ~BaryonResonanceDecayer();
 
   //-- implement the DecayModelI interface

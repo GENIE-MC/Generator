@@ -23,17 +23,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 DISPrimaryLeptonGenerator::DISPrimaryLeptonGenerator() :
-PrimaryLeptonGenerator()
+PrimaryLeptonGenerator("genie::DISPrimaryLeptonGenerator")
 {
-  fName = "genie::DISPrimaryLeptonGenerator";
+
 }
 //___________________________________________________________________________
-DISPrimaryLeptonGenerator::DISPrimaryLeptonGenerator(const char * param_set) :
-PrimaryLeptonGenerator(param_set)
+DISPrimaryLeptonGenerator::DISPrimaryLeptonGenerator(string config) :
+PrimaryLeptonGenerator("genie::DISPrimaryLeptonGenerator", config)
 {
-  fName = "genie::DISPrimaryLeptonGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 DISPrimaryLeptonGenerator::~DISPrimaryLeptonGenerator()

@@ -41,17 +41,15 @@ using namespace genie;
 
 //____________________________________________________________________________
 BaryonResonanceDecayer::BaryonResonanceDecayer() :
-DecayModelI()
+DecayModelI("genie::BaryonResonanceDecayer")
 {
-  fName     = "genie::BaryonResonanceDecayer";
+
 }
 //____________________________________________________________________________
-BaryonResonanceDecayer::BaryonResonanceDecayer(const char * param_set) :
-DecayModelI(param_set)
+BaryonResonanceDecayer::BaryonResonanceDecayer(string config) :
+DecayModelI("genie::BaryonResonanceDecayer", config)
 {
-  fName = "genie::BaryonResonanceDecayer";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 BaryonResonanceDecayer::~BaryonResonanceDecayer()

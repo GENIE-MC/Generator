@@ -94,6 +94,11 @@ public :
   virtual bool GenericErrFlag      (void) const { return fGenericErrFlag; }
   virtual bool IsUnphysical        (void) const;
 
+  //-- methods to set / get the event weight
+
+  virtual double GetWeight (void) const   { return fWeight;                }
+  virtual void   SetWeight (double wght)  { fWeight = (wght>0) ? wght : 0; }
+
 protected:
 
   // Summary information for the Initial State, Process Type & Kinematics
@@ -103,6 +108,9 @@ protected:
   bool fIsPauliBlocked;   ///< true for Pauli-blocked event
   bool fIsBelowThrNRF;    ///< true if it is below threshold in the nucleon rest frame
   bool fGenericErrFlag;   ///< true for etc problems
+
+  // Event weight
+  double fWeight;
 
   // Utility methods
   void InitGHepRecord     (void);

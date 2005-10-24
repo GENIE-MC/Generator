@@ -38,7 +38,7 @@ class KNOHadronization2 : public HadronizationModelI {
 public:
 
   KNOHadronization2();
-  KNOHadronization2(const char * param_set);
+  KNOHadronization2(string config);
   virtual ~KNOHadronization2();
 
   //-- define KNOHadronization2 interface

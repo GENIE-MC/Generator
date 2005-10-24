@@ -36,7 +36,7 @@ class SlowRsclCharmDISPXSecLO : public XSecAlgorithmI {
 public:
 
   SlowRsclCharmDISPXSecLO();
-  SlowRsclCharmDISPXSecLO(const char * param_set);
+  SlowRsclCharmDISPXSecLO(string config);
   virtual ~SlowRsclCharmDISPXSecLO();
 
   //-- XSecAlgorithmI interface implementation

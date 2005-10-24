@@ -28,7 +28,7 @@ class RESKinematicsGenerator : public KineGeneratorWithCache {
 public :
 
   RESKinematicsGenerator();
-  RESKinematicsGenerator(const char * param_set);
+  RESKinematicsGenerator(string config);
   ~RESKinematicsGenerator();
 
   //-- implement the EventRecordVisitorI interface

@@ -22,17 +22,15 @@ using namespace genie;
 
 //____________________________________________________________________________
 BYPDFModel::BYPDFModel() :
-PDFModelI()
+PDFModelI("genie::BYPDFModel")
 {
-  fName = "genie::BYPDFModel";
+
 }
 //____________________________________________________________________________
-BYPDFModel::BYPDFModel(const char * param_set) :
-PDFModelI(param_set)
+BYPDFModel::BYPDFModel(string config) :
+PDFModelI("genie::BYPDFModel", config)
 {
-  fName = "genie::BYPDFModel";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 BYPDFModel::~BYPDFModel()

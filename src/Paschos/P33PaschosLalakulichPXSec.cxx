@@ -42,17 +42,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 P33PaschosLalakulichPXSec::P33PaschosLalakulichPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::P33PaschosLalakulichPXSec")
 {
-  fName = "genie::P33PaschosLalakulichPXSec";
+
 }
 //____________________________________________________________________________
-P33PaschosLalakulichPXSec::P33PaschosLalakulichPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+P33PaschosLalakulichPXSec::P33PaschosLalakulichPXSec(string config) :
+XSecAlgorithmI("genie::P33PaschosLalakulichPXSec", config)
 {
-  fName = "genie::P33PaschosLalakulichPXSec";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 P33PaschosLalakulichPXSec::~P33PaschosLalakulichPXSec()

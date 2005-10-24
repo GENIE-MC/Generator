@@ -46,7 +46,8 @@ protected:
   virtual double GVM    (const Interaction * interaction) const;
 
   LlewellynSmithModel();
-  LlewellynSmithModel(const char * param_set);
+  LlewellynSmithModel(string name);
+  LlewellynSmithModel(string name, string config);
 };
 
 }       // genie namespace

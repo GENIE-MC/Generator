@@ -28,7 +28,7 @@ class FermiMover : public EventRecordVisitorI {
 public :
 
   FermiMover();
-  FermiMover(const char * param_set);
+  FermiMover(string config);
   ~FermiMover();
 
   //-- implement the EventRecordVisitorI interface

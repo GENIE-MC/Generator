@@ -27,8 +27,15 @@ Algorithm()
 
 }
 //___________________________________________________________________________
-InteractionListGeneratorI::InteractionListGeneratorI(const char * param_set) :
-Algorithm(param_set)
+InteractionListGeneratorI::InteractionListGeneratorI(string name) :
+Algorithm(name)
+{
+
+}
+//___________________________________________________________________________
+InteractionListGeneratorI::InteractionListGeneratorI(
+                                                string name, string config) :
+Algorithm(name, config)
 {
 
 }

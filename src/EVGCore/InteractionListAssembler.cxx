@@ -27,20 +27,14 @@ using namespace genie;
 
 //___________________________________________________________________________
 InteractionListAssembler::InteractionListAssembler() :
-Algorithm()
+Algorithm("genie::InteractionListAssembler")
 {
-  fName = "genie::InteractionListAssembler";
-
   fEventGeneratorList = 0;
 }
 //___________________________________________________________________________
-InteractionListAssembler::InteractionListAssembler(const char * param_set) :
-Algorithm(param_set)
+InteractionListAssembler::InteractionListAssembler(string config) :
+Algorithm("genie::InteractionListAssembler", config)
 {
-  fName = "genie::InteractionListAssembler";
-
-  this->FindConfig();
-
   fEventGeneratorList = 0;
 }
 //___________________________________________________________________________
@@ -75,8 +69,8 @@ InteractionList * InteractionListAssembler::AssembleInteractionList(
      const EventGeneratorI * evgen = *evgliter;
 
      LOG("InteractionList", pINFO)
-            << "\nQuerying EventGenerator: " << evgen->Name() << "/"
-                        << evgen->ParamSet() << " for its Interaction List";
+            << "\nQuerying EventGenerator: " << evgen->Id().Key()
+                                            << " for its Interaction List";
 
      // ask the event generator to produce a list of all interaction it can
      // generate for the input initial state

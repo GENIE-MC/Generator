@@ -25,17 +25,17 @@ using namespace genie::utils::res;
 
 //____________________________________________________________________________
 BaryonResDataPDG::BaryonResDataPDG() :
-BaryonResDataSetI()
+BaryonResDataSetI("genie::BaryonResDataPDG")
 {
-  fName = "genie::BaryonResDataPDG";
+//  fName = "genie::BaryonResDataPDG";
 }
 //____________________________________________________________________________
-BaryonResDataPDG::BaryonResDataPDG(const char * param_set) :
-BaryonResDataSetI(param_set)
+BaryonResDataPDG::BaryonResDataPDG(string config) :
+BaryonResDataSetI("genie::BaryonResDataPDG", config)
 {
-  fName = "genie::BaryonResDataPDG";
+//  fName = "genie::BaryonResDataPDG";
 
-  this->FindConfig();
+//  this->FindConfig();
 }
 //____________________________________________________________________________
 BaryonResDataPDG::~BaryonResDataPDG()

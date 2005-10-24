@@ -24,20 +24,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 CollinsSpillerFragm::CollinsSpillerFragm() :
-FragmentationFunctionI()
+FragmentationFunctionI("genie::CollinsSpillerFragm")
 {
-  fName     = "genie::CollinsSpillerFragm";
-  fParamSet = "Default";
 
-  FindConfig();
 }
 //___________________________________________________________________________
-CollinsSpillerFragm::CollinsSpillerFragm(const char * param_set) :
-FragmentationFunctionI(param_set)
+CollinsSpillerFragm::CollinsSpillerFragm(string config) :
+FragmentationFunctionI("genie::CollinsSpillerFragm", config)
 {
-  fName = "genie::CollinsSpillerFragm";
 
-  FindConfig();
 }
 //___________________________________________________________________________
 CollinsSpillerFragm::~CollinsSpillerFragm()

@@ -39,17 +39,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 RESPXSec::RESPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::RESPXSec")
 {
-  fName = "genie::RESPXSec";
+
 }
 //____________________________________________________________________________
-RESPXSec::RESPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+RESPXSec::RESPXSec(string config) :
+XSecAlgorithmI("genie::RESPXSec", config)
 {
-  fName = "genie::RESPXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 RESPXSec::~RESPXSec()

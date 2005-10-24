@@ -26,18 +26,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 QELInteractionListGenerator::QELInteractionListGenerator() :
-InteractionListGeneratorI()
+InteractionListGeneratorI("genie::QELInteractionListGenerator")
 {
-  fName = "genie::QELInteractionListGenerator";
+
 }
 //___________________________________________________________________________
-QELInteractionListGenerator::QELInteractionListGenerator(
-                                                    const char * param_set) :
-InteractionListGeneratorI(param_set)
+QELInteractionListGenerator::QELInteractionListGenerator(string config):
+InteractionListGeneratorI("genie::QELInteractionListGenerator",  config)
 {
-  fName = "genie::QELInteractionListGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 QELInteractionListGenerator::~QELInteractionListGenerator()

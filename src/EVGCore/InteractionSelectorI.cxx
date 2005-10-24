@@ -26,8 +26,14 @@ Algorithm()
 
 }
 //___________________________________________________________________________
-InteractionSelectorI::InteractionSelectorI(const char * param_set) :
-Algorithm(param_set)
+InteractionSelectorI::InteractionSelectorI(string name) :
+Algorithm(name)
+{
+
+}
+//___________________________________________________________________________
+InteractionSelectorI::InteractionSelectorI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

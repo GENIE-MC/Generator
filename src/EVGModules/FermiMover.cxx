@@ -35,17 +35,15 @@ using namespace genie::constants;
 
 //___________________________________________________________________________
 FermiMover::FermiMover() :
-EventRecordVisitorI()
+EventRecordVisitorI("genie::FermiMover")
 {
-  fName = "genie::FermiMover";
+
 }
 //___________________________________________________________________________
-FermiMover::FermiMover(const char * param_set) :
-EventRecordVisitorI(param_set)
+FermiMover::FermiMover(string config) :
+EventRecordVisitorI("genie::FermiMover", config)
 {
-  fName = "genie::FermiMover";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 FermiMover::~FermiMover()

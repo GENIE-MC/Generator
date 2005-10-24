@@ -29,7 +29,7 @@ class PythiaHadronization : public HadronizationModelI {
 public:
 
   PythiaHadronization();
-  PythiaHadronization(const char * param_set);
+  PythiaHadronization(string config);
   virtual ~PythiaHadronization();
 
   //-- define PythiaHadronization interface

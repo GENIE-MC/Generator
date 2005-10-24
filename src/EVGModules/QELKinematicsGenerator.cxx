@@ -29,17 +29,15 @@ using namespace genie::controls;
 
 //___________________________________________________________________________
 QELKinematicsGenerator::QELKinematicsGenerator() :
-KineGeneratorWithCache()
+KineGeneratorWithCache("genie::QELKinematicsGenerator")
 {
-  fName = "genie::QELKinematicsGenerator";
+
 }
 //___________________________________________________________________________
-QELKinematicsGenerator::QELKinematicsGenerator(const char * param_set) :
-KineGeneratorWithCache(param_set)
+QELKinematicsGenerator::QELKinematicsGenerator(string config) :
+KineGeneratorWithCache("genie::QELKinematicsGenerator", config)
 {
-  fName = "genie::QELKinematicsGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 QELKinematicsGenerator::~QELKinematicsGenerator()

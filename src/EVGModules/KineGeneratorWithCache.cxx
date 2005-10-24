@@ -42,8 +42,14 @@ EventRecordVisitorI()
 
 }
 //___________________________________________________________________________
-KineGeneratorWithCache::KineGeneratorWithCache(const char * param_set) :
-EventRecordVisitorI(param_set)
+KineGeneratorWithCache::KineGeneratorWithCache(string name) :
+EventRecordVisitorI(name)
+{
+
+}
+//___________________________________________________________________________
+KineGeneratorWithCache::KineGeneratorWithCache(string name, string config) :
+EventRecordVisitorI(name, config)
 {
 
 }

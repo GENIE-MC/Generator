@@ -28,7 +28,7 @@ class RSHelicityAmplModelNCn : public RSHelicityAmplModelI {
 public:
 
   RSHelicityAmplModelNCn();
-  RSHelicityAmplModelNCn(const char * param_set);
+  RSHelicityAmplModelNCn(string config);
   virtual ~RSHelicityAmplModelNCn();
 
   //-- SPPHelicityAmplModelI interface implementation

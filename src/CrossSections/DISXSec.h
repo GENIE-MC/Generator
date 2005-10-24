@@ -28,7 +28,7 @@ class DISXSec : public XSecAlgorithmI {
 public:
 
   DISXSec();
-  DISXSec(const char * param_set);
+  DISXSec(string config);
   virtual ~DISXSec();
 
   //-- XSecAlgorithmI interface implementation

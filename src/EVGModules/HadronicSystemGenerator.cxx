@@ -35,8 +35,14 @@ EventRecordVisitorI()
 
 }
 //___________________________________________________________________________
-HadronicSystemGenerator::HadronicSystemGenerator(const char * param_set) :
-EventRecordVisitorI(param_set)
+HadronicSystemGenerator::HadronicSystemGenerator(string name) :
+EventRecordVisitorI(name)
+{
+
+}
+//___________________________________________________________________________
+HadronicSystemGenerator::HadronicSystemGenerator(string name, string config):
+EventRecordVisitorI(name, config)
 {
 
 }

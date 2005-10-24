@@ -44,17 +44,15 @@ using namespace genie::constants;
 
 //___________________________________________________________________________
 UnstableParticleDecayer::UnstableParticleDecayer() :
-EventRecordVisitorI()
+EventRecordVisitorI("genie::UnstableParticleDecayer")
 {
-  fName = "genie::UnstableParticleDecayer";
+
 }
 //___________________________________________________________________________
-UnstableParticleDecayer::UnstableParticleDecayer(const char * param_set) :
-EventRecordVisitorI(param_set)
+UnstableParticleDecayer::UnstableParticleDecayer(string config) :
+EventRecordVisitorI("genie::UnstableParticleDecayer", config)
 {
-  fName = "genie::UnstableParticleDecayer";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 UnstableParticleDecayer::~UnstableParticleDecayer()

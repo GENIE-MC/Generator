@@ -36,7 +36,8 @@ public:
 protected:
 
   FragmentationFunctionI();
-  FragmentationFunctionI(const char * param_set);
+  FragmentationFunctionI(string name);
+  FragmentationFunctionI(string name, string config);
 };
 
 }      // genie namespace

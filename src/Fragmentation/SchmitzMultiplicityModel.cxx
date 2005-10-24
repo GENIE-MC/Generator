@@ -31,17 +31,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 SchmitzMultiplicityModel::SchmitzMultiplicityModel() :
-MultiplicityProbModelI()
+MultiplicityProbModelI("genie::SchmitzMultiplicityModel")
 {                
-  fName = "genie::SchmitzMultiplicityModel";
+
 }
 //____________________________________________________________________________
-SchmitzMultiplicityModel::SchmitzMultiplicityModel(const char * param_set) :
-MultiplicityProbModelI(param_set)
+SchmitzMultiplicityModel::SchmitzMultiplicityModel(string config) :
+MultiplicityProbModelI("genie::SchmitzMultiplicityModel", config)
 {                 
-  fName = "genie::SchmitzMultiplicityModel";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 SchmitzMultiplicityModel::~SchmitzMultiplicityModel()

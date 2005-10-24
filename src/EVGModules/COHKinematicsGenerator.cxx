@@ -31,17 +31,15 @@ using namespace genie::controls;
 
 //___________________________________________________________________________
 COHKinematicsGenerator::COHKinematicsGenerator() :
-KineGeneratorWithCache()
+KineGeneratorWithCache("genie::COHKinematicsGenerator")
 {
-  fName = "genie::COHKinematicsGenerator";
+
 }
 //___________________________________________________________________________
-COHKinematicsGenerator::COHKinematicsGenerator(const char * param_set) :
-KineGeneratorWithCache(param_set)
+COHKinematicsGenerator::COHKinematicsGenerator(string config) :
+KineGeneratorWithCache("genie::COHKinematicsGenerator", config)
 {
-  fName = "genie::COHKinematicsGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 COHKinematicsGenerator::~COHKinematicsGenerator()

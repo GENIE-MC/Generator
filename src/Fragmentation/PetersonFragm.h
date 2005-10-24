@@ -31,7 +31,7 @@ class PetersonFragm : public FragmentationFunctionI {
 public:
 
   PetersonFragm();
-  PetersonFragm(const char * param_set);
+  PetersonFragm(string config);
   ~PetersonFragm();
 
   //-- implements the FragmentationFunctionI interface

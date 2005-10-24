@@ -27,7 +27,7 @@ class QELPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
 public :
 
   QELPrimaryLeptonGenerator();
-  QELPrimaryLeptonGenerator(const char * param_set);
+  QELPrimaryLeptonGenerator(string config);
   ~QELPrimaryLeptonGenerator();
 
   //-- implement the EventRecordVisitorI interface

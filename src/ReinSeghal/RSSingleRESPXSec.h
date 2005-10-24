@@ -37,7 +37,7 @@ class RSSingleRESPXSec : public XSecAlgorithmI {
 public:
 
   RSSingleRESPXSec();
-  RSSingleRESPXSec(const char * param_set);
+  RSSingleRESPXSec(string config);
   virtual ~RSSingleRESPXSec();
 
   //-- XSecAlgorithmI interface implementation

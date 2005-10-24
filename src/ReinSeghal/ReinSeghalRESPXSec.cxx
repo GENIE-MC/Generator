@@ -54,17 +54,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 ReinSeghalRESPXSec::ReinSeghalRESPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::ReinSeghalRESPXSec")
 {
-  fName = "genie::ReinSeghalRESPXSec";
+
 }
 //____________________________________________________________________________
-ReinSeghalRESPXSec::ReinSeghalRESPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+ReinSeghalRESPXSec::ReinSeghalRESPXSec(string config) :
+XSecAlgorithmI("genie::ReinSeghalRESPXSec", config)
 {
-  fName = "genie::ReinSeghalRESPXSec";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 ReinSeghalRESPXSec::~ReinSeghalRESPXSec()

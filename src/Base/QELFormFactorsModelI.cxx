@@ -26,8 +26,14 @@ Algorithm()
 
 }
 //____________________________________________________________________________
-QELFormFactorsModelI::QELFormFactorsModelI(const char * param_set) :
-Algorithm(param_set)
+QELFormFactorsModelI::QELFormFactorsModelI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+QELFormFactorsModelI::QELFormFactorsModelI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

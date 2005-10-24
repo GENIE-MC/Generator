@@ -30,8 +30,14 @@ Algorithm()
 
 }
 //____________________________________________________________________________
-MultiplicityProbModelI::MultiplicityProbModelI(const char * param_set) :
-Algorithm(param_set)
+MultiplicityProbModelI::MultiplicityProbModelI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+MultiplicityProbModelI::MultiplicityProbModelI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

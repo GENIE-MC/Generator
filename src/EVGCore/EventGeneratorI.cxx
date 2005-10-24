@@ -32,8 +32,14 @@ EventRecordVisitorI()
 
 }
 //___________________________________________________________________________
-EventGeneratorI::EventGeneratorI(const char * param_set) :
-EventRecordVisitorI(param_set)
+EventGeneratorI::EventGeneratorI(string name) :
+EventRecordVisitorI(name)
+{
+
+}
+//___________________________________________________________________________
+EventGeneratorI::EventGeneratorI(string name, string config) :
+EventRecordVisitorI(name, config)
 {
 
 }

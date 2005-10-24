@@ -29,17 +29,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 BodekRitchie::BodekRitchie() :
-NuclearPDistributionModelI()
+NuclearPDistributionModelI("genie::BodekRitchie")
 {
-  fName = "genie::BodekRitchie";
+
 }
 //____________________________________________________________________________
-BodekRitchie::BodekRitchie(const char * param_set) :
-NuclearPDistributionModelI(param_set)
+BodekRitchie::BodekRitchie(string config) :
+NuclearPDistributionModelI("genie::BodekRitchie", config)
 {
-  fName = "genie::BodekRitchie";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 BodekRitchie::~BodekRitchie()

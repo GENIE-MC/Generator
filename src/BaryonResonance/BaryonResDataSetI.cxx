@@ -26,8 +26,14 @@ Algorithm()
 
 }
 //____________________________________________________________________________
-BaryonResDataSetI::BaryonResDataSetI(const char * param_set) :
-Algorithm(param_set)
+BaryonResDataSetI::BaryonResDataSetI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+BaryonResDataSetI::BaryonResDataSetI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

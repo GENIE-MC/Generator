@@ -24,8 +24,14 @@ Algorithm()
 
 }
 //___________________________________________________________________________
-XSecAlgorithmI::XSecAlgorithmI(const char * param_set) :
-Algorithm(param_set)
+XSecAlgorithmI::XSecAlgorithmI(string name) :
+Algorithm(name)
+{
+
+}
+//___________________________________________________________________________
+XSecAlgorithmI::XSecAlgorithmI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

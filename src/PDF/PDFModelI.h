@@ -49,7 +49,8 @@ public:
 protected:
 
   PDFModelI();
-  PDFModelI(const char * param_set);
+  PDFModelI(string name);
+  PDFModelI(string name, string config);
 };
 
 }         // genie namespace

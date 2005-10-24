@@ -27,7 +27,7 @@ class RESPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
 public :
 
   RESPrimaryLeptonGenerator();
-  RESPrimaryLeptonGenerator(const char * param_set);
+  RESPrimaryLeptonGenerator(string config);
   ~RESPrimaryLeptonGenerator();
 
   //-- implement the EventRecordVisitorI interface

@@ -29,17 +29,15 @@ using namespace genie::controls;
 
 //___________________________________________________________________________
 RESKinematicsGenerator::RESKinematicsGenerator() :
-KineGeneratorWithCache()
+KineGeneratorWithCache("genie::RESKinematicsGenerator")
 {
-  fName = "genie::RESKinematicsGenerator";
+
 }
 //___________________________________________________________________________
-RESKinematicsGenerator::RESKinematicsGenerator(const char * param_set) :
-KineGeneratorWithCache(param_set)
+RESKinematicsGenerator::RESKinematicsGenerator(string config) :
+KineGeneratorWithCache("genie::RESKinematicsGenerator", config)
 {
-  fName = "genie::RESKinematicsGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 RESKinematicsGenerator::~RESKinematicsGenerator()

@@ -40,7 +40,8 @@ public:
 protected:
 
   MultiplicityProbModelI();
-  MultiplicityProbModelI(const char * param_set);
+  MultiplicityProbModelI(string name);
+  MultiplicityProbModelI(string name, string config);
 };
 
 }         // genie namespace

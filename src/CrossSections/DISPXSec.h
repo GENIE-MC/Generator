@@ -34,7 +34,7 @@ class DISPXSec : public XSecAlgorithmI {
 public:
 
   DISPXSec();
-  DISPXSec(const char * param_set);
+  DISPXSec(string config);
   virtual ~DISPXSec();
 
   //-- XSecAlgorithmI interface implementation

@@ -43,7 +43,7 @@ class RSListRESPXSec : public XSecAlgorithmI {
 public:
 
   RSListRESPXSec();
-  RSListRESPXSec(const char * param_set);
+  RSListRESPXSec(string config);
   virtual ~RSListRESPXSec();
 
   //-- XSecAlgorithmI interface implementation

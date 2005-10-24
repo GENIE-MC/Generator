@@ -27,7 +27,7 @@ class DISPartonModelPXSec : public XSecAlgorithmI {
 public:
 
   DISPartonModelPXSec();
-  DISPartonModelPXSec(const char * param_set);
+  DISPartonModelPXSec(string config);
   virtual ~DISPartonModelPXSec();
 
   //-- XSecAlgorithmI interface implementation

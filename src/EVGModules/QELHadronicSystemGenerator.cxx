@@ -30,18 +30,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 QELHadronicSystemGenerator::QELHadronicSystemGenerator() :
-HadronicSystemGenerator()
+HadronicSystemGenerator("genie::QELHadronicSystemGenerator")
 {
-  fName = "genie::QELHadronicSystemGenerator";
+
 }
 //___________________________________________________________________________
-QELHadronicSystemGenerator::QELHadronicSystemGenerator(
-                                                    const char * param_set) :
-HadronicSystemGenerator(param_set)
+QELHadronicSystemGenerator::QELHadronicSystemGenerator(string config) :
+HadronicSystemGenerator("genie::QELHadronicSystemGenerator", config)
 {
-  fName = "genie::QELHadronicSystemGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 QELHadronicSystemGenerator::~QELHadronicSystemGenerator()

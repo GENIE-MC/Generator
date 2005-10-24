@@ -32,15 +32,16 @@
 using namespace genie;
 
 //______________________________________________________________________
-BreitWignerRes::BreitWignerRes() : BreitWignerI()
+BreitWignerRes::BreitWignerRes() : 
+BreitWignerI("genie::BreitWignerRes")
 {
-  fName = "genie::BreitWignerRes";
+
 }
 //______________________________________________________________________
-BreitWignerRes::BreitWignerRes(const char * param_set) :
-BreitWignerI(param_set)
+BreitWignerRes::BreitWignerRes(string config) :
+BreitWignerI("genie::BreitWignerRes", config)
 {
-  fName = "genie::BreitWignerRes";
+
 }
 //______________________________________________________________________
 BreitWignerRes::~BreitWignerRes()

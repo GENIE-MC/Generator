@@ -45,17 +45,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 BardinIMDRadCorXSec::BardinIMDRadCorXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::BardinIMDRadCorXSec")
 {
-  fName = "genie::BardinIMDRadCorXSec";
+
 }
 //____________________________________________________________________________
-BardinIMDRadCorXSec::BardinIMDRadCorXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+BardinIMDRadCorXSec::BardinIMDRadCorXSec(string config) :
+XSecAlgorithmI("genie::BardinIMDRadCorXSec", config)
 {
-  fName = "genie::BardinIMDRadCorXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 BardinIMDRadCorXSec::~BardinIMDRadCorXSec()

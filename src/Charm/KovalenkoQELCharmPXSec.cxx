@@ -49,17 +49,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 KovalenkoQELCharmPXSec::KovalenkoQELCharmPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::KovalenkoQELCharmPXSec")
 {
-  fName     = "genie::KovalenkoQELCharmPXSec";
+
 }
 //____________________________________________________________________________
-KovalenkoQELCharmPXSec::KovalenkoQELCharmPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+KovalenkoQELCharmPXSec::KovalenkoQELCharmPXSec(string config) :
+XSecAlgorithmI("genie::KovalenkoQELCharmPXSec", config)
 {
-  fName = "genie::KovalenkoQELCharmPXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 KovalenkoQELCharmPXSec::~KovalenkoQELCharmPXSec()

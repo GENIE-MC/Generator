@@ -27,7 +27,7 @@ class BYPDFModel : public PDFModelI {
 public:
 
   BYPDFModel();
-  BYPDFModel(const char * param_set);
+  BYPDFModel(string config);
   virtual ~BYPDFModel();
 
   //-- impement PDFModelI interface

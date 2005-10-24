@@ -36,7 +36,7 @@ class AivazisCharmPXSecLO : public XSecAlgorithmI {
 public:
 
   AivazisCharmPXSecLO();
-  AivazisCharmPXSecLO(const char * param_set);
+  AivazisCharmPXSecLO(string config);
   virtual ~AivazisCharmPXSecLO();
 
   //-- XSecAlgorithmI interface implementation

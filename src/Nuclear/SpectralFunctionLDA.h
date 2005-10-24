@@ -28,7 +28,7 @@ class SpectralFunctionLDA : public SpectralFunctionI {
 public:
 
   SpectralFunctionLDA();
-  SpectralFunctionLDA(const char * param_set);
+  SpectralFunctionLDA(string config);
   ~SpectralFunctionLDA();
 
   //-- SpectralFunctionI interface implementation

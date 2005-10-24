@@ -27,7 +27,7 @@ class BaryonResDataPDG : public BaryonResDataSetI {
 public:
 
   BaryonResDataPDG();
-  BaryonResDataPDG(const char * param_set);
+  BaryonResDataPDG(string config);
   virtual ~BaryonResDataPDG();
 
   //-- BaryonResDataSetI interface implementation

@@ -40,7 +40,7 @@ class KovalenkoQELCharmPXSec : public XSecAlgorithmI {
 public:
 
   KovalenkoQELCharmPXSec();
-  KovalenkoQELCharmPXSec(const char * param_set);
+  KovalenkoQELCharmPXSec(string config);
   virtual ~KovalenkoQELCharmPXSec();
 
   //-- XSecAlgorithmI interface implementation

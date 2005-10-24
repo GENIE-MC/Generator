@@ -26,17 +26,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 DipoleELFormFactorsModel::DipoleELFormFactorsModel() :
-ELFormFactorsModelI()
+ELFormFactorsModelI("genie::DipoleELFormFactorsModel")
 {
-  fName = "genie::DipoleELFormFactorsModel";
+
 }
 //____________________________________________________________________________
-DipoleELFormFactorsModel::DipoleELFormFactorsModel(const char * param_set) :
-ELFormFactorsModelI(param_set)
+DipoleELFormFactorsModel::DipoleELFormFactorsModel(string config) :
+ELFormFactorsModelI("genie::DipoleELFormFactorsModel", config)
 {
-  fName = "genie::DipoleELFormFactorsModel";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 DipoleELFormFactorsModel::~DipoleELFormFactorsModel()

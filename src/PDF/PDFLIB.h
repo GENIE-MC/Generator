@@ -27,7 +27,7 @@ class PDFLIB : public PDFModelI {
 public:
 
   PDFLIB();
-  PDFLIB(const char * param_set);
+  PDFLIB(string config);
   virtual ~PDFLIB();
 
   //-- impement PDFModelI interface

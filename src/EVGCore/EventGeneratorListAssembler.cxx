@@ -28,18 +28,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 EventGeneratorListAssembler::EventGeneratorListAssembler() :
-Algorithm()
+Algorithm("genie::EventGeneratorListAssembler")
 {
-  fName = "genie::EventGeneratorListAssembler";
+
 }
 //___________________________________________________________________________
-EventGeneratorListAssembler::EventGeneratorListAssembler(
-                                                    const char * param_set) :
-Algorithm(param_set)
+EventGeneratorListAssembler::EventGeneratorListAssembler(string config) :
+Algorithm("genie::EventGeneratorListAssembler", config)
 {
-  fName = "genie::EventGeneratorListAssembler";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 EventGeneratorListAssembler::~EventGeneratorListAssembler()

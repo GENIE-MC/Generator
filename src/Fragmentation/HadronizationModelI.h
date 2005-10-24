@@ -40,7 +40,8 @@ public:
 protected:
 
   HadronizationModelI();
-  HadronizationModelI(const char * param_set);
+  HadronizationModelI(string name);
+  HadronizationModelI(string name, string config);
 };
 
 }         // genie namespace

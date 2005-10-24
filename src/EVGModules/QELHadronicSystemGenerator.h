@@ -27,7 +27,7 @@ class QELHadronicSystemGenerator : public HadronicSystemGenerator {
 public :
 
   QELHadronicSystemGenerator();
-  QELHadronicSystemGenerator(const char * param_set);
+  QELHadronicSystemGenerator(string config);
   ~QELHadronicSystemGenerator();
 
   //-- implement the EventRecordVisitorI interface

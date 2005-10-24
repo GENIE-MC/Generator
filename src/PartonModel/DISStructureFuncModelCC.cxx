@@ -23,17 +23,15 @@ using namespace genie;
 
 //____________________________________________________________________________
 DISStructureFuncModelCC::DISStructureFuncModelCC() :
-DISStructureFuncModel()
+DISStructureFuncModel("genie::DISStructureFuncModelCC")
 {
-  fName = "genie::DISStructureFuncModelCC";
+
 }
 //____________________________________________________________________________
-DISStructureFuncModelCC::DISStructureFuncModelCC(const char * param_set):
-DISStructureFuncModel(param_set)
+DISStructureFuncModelCC::DISStructureFuncModelCC(string config):
+DISStructureFuncModel("genie::DISStructureFuncModelCC", config)
 {
-  fName = "genie::DISStructureFuncModelCC";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 DISStructureFuncModelCC::~DISStructureFuncModelCC()

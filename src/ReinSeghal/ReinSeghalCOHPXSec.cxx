@@ -42,17 +42,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 ReinSeghalCOHPXSec::ReinSeghalCOHPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::ReinSeghalCOHPXSec")
 {
-  fName = "genie::ReinSeghalCOHPXSec";
+
 }
 //____________________________________________________________________________
-ReinSeghalCOHPXSec::ReinSeghalCOHPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+ReinSeghalCOHPXSec::ReinSeghalCOHPXSec(string config) :
+XSecAlgorithmI("genie::ReinSeghalCOHPXSec", config)
 {
-  fName = "genie::ReinSeghalCOHPXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 ReinSeghalCOHPXSec::~ReinSeghalCOHPXSec()

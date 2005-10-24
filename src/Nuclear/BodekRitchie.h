@@ -28,7 +28,7 @@ class BodekRitchie : public NuclearPDistributionModelI {
 public:
 
   BodekRitchie();
-  BodekRitchie(const char * param_set);
+  BodekRitchie(string config);
   virtual ~BodekRitchie();
 
   TH1D * ProbabilityDistribution(const Target & target) const;

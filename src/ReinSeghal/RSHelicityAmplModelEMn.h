@@ -29,7 +29,7 @@ class RSHelicityAmplModelEMn : public RSHelicityAmplModelI {
 public:
 
   RSHelicityAmplModelEMn();
-  RSHelicityAmplModelEMn(const char * param_set);
+  RSHelicityAmplModelEMn(string config);
   virtual ~RSHelicityAmplModelEMn();
 
   //-- SPPHelicityAmplModelI interface implementation

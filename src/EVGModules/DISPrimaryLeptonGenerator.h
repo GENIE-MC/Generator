@@ -27,7 +27,7 @@ class DISPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
 public :
 
   DISPrimaryLeptonGenerator();
-  DISPrimaryLeptonGenerator(const char * param_set);
+  DISPrimaryLeptonGenerator(string config);
   ~DISPrimaryLeptonGenerator();
 
   //-- implement the EventRecordVisitorI interface

@@ -28,7 +28,7 @@ class IMDPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
 public :
 
   IMDPrimaryLeptonGenerator();
-  IMDPrimaryLeptonGenerator(const char * param_set);
+  IMDPrimaryLeptonGenerator(string config);
   ~IMDPrimaryLeptonGenerator();
 
   //-- implement the EventRecordVisitorI interface

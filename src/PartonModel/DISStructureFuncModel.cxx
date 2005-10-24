@@ -28,16 +28,19 @@ using namespace genie::constants;
 DISStructureFuncModel::DISStructureFuncModel() :
 DISStructureFuncModelI()
 {
-                     // at each calculation are evaluated at:
-  fPDF  = new PDF(); //   x = computed (+/-corrections) scaling var, Q2
-  fPDFc = new PDF(); //   x = computed charm slow re-scaling var,    Q2
+  this->InitPDF();
 }
 //____________________________________________________________________________
-DISStructureFuncModel::DISStructureFuncModel(const char * param_set):
-DISStructureFuncModelI(param_set)
+DISStructureFuncModel::DISStructureFuncModel(string name) :
+DISStructureFuncModelI(name)
 {
-  fPDF  = new PDF();
-  fPDFc = new PDF();
+  this->InitPDF();
+}
+//____________________________________________________________________________
+DISStructureFuncModel::DISStructureFuncModel(string name, string config):
+DISStructureFuncModelI(name, config)
+{
+  this->InitPDF();
 }
 //____________________________________________________________________________
 DISStructureFuncModel::~DISStructureFuncModel()
@@ -64,6 +67,13 @@ void DISStructureFuncModel::ConfigPDF(void)
                   dynamic_cast<const PDFModelI *>
                              (this->SubAlg("pdf-alg-name", "pdf-param-set"));
   fPDF->SetModel(pdf_model);
+}
+//____________________________________________________________________________
+void DISStructureFuncModel::InitPDF(void)
+{
+                     // at each calculation are evaluated at:
+  fPDF  = new PDF(); //   x = computed (+/-corrections) scaling var, Q2
+  fPDFc = new PDF(); //   x = computed charm slow re-scaling var,    Q2
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::Calculate(const Interaction * ) const

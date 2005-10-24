@@ -31,7 +31,7 @@ class InteractionListAssembler : public Algorithm {
 public :
 
   InteractionListAssembler();
-  InteractionListAssembler(const char * param_set);
+  InteractionListAssembler(string config);
   ~InteractionListAssembler();
 
   void              SetGeneratorList        (EventGeneratorList * evglist);

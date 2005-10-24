@@ -25,17 +25,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 DISStructureFuncModelNC::DISStructureFuncModelNC() :
-DISStructureFuncModel()
+DISStructureFuncModel("genie::DISStructureFuncModelNC")
 {
-  fName = "genie::DISStructureFuncModelNC";
+
 }
 //____________________________________________________________________________
-DISStructureFuncModelNC::DISStructureFuncModelNC(const char * param_set):
-DISStructureFuncModel(param_set)
+DISStructureFuncModelNC::DISStructureFuncModelNC(string config):
+DISStructureFuncModel("genie::DISStructureFuncModelNC", config)
 {
-  fName = "genie::DISStructureFuncModelNC";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 DISStructureFuncModelNC::~DISStructureFuncModelNC()

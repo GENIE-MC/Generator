@@ -24,21 +24,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 PetersonFragm::PetersonFragm() :
-FragmentationFunctionI()
+FragmentationFunctionI("genie::PetersonFragm")
 {
-  fName     = "genie::PetersonFragm";
 
-  BuildFunction();
 }
 //___________________________________________________________________________
-PetersonFragm::PetersonFragm(const char * param_set) :
-FragmentationFunctionI(param_set)
+PetersonFragm::PetersonFragm(string config) :
+FragmentationFunctionI("genie::PetersonFragm", config)
 {
-  fName = "genie::PetersonFragm";
-
-  FindConfig();
-
-  BuildFunction();
+  this->BuildFunction();
 }
 //___________________________________________________________________________
 PetersonFragm::~PetersonFragm()

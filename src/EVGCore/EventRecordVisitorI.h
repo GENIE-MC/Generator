@@ -35,7 +35,8 @@ public :
 protected :
 
   EventRecordVisitorI();
-  EventRecordVisitorI(const char * param_set);
+  EventRecordVisitorI(string name);
+  EventRecordVisitorI(string name, string config);
   ~EventRecordVisitorI();
 };
 

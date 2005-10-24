@@ -49,17 +49,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 BardinDISPXSec::BardinDISPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::BardinDISPXSec")
 {
-  fName     = "genie::BardinDISPXSec";
+
 }
 //____________________________________________________________________________
-BardinDISPXSec::BardinDISPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+BardinDISPXSec::BardinDISPXSec(string config) :
+XSecAlgorithmI("genie::BardinDISPXSec", config)
 {
-  fName = "genie::BardinDISPXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 BardinDISPXSec::~BardinDISPXSec()

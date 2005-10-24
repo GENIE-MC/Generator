@@ -31,28 +31,18 @@ extern "C" void structm_(double *, double *, double *, double *, double *,
 
 //____________________________________________________________________________
 PDFLIB::PDFLIB() :
-PDFModelI()
+PDFModelI("genie::PDFLIB")
 {
-  fName     = "genie::PDFLIB";
-  fParamSet = "Default";
-
-  FindConfig();
-  
-  Initialize();
-  SetPDFSetFromConfig();
+  this->Initialize();
 }
 //____________________________________________________________________________
-PDFLIB::PDFLIB(const char * param_set) :
-PDFModelI(param_set)
+PDFLIB::PDFLIB(string config) :
+PDFModelI("genie::PDFLIB", config)
 {
-  fName = "genie::PDFLIB";
-
-  FindConfig();
-
   LOG("PDF", pDEBUG) << "PDFLIB configuration: " << ENDL << *fConfig;  
 
-  Initialize();
-  SetPDFSetFromConfig();
+  this->Initialize();
+  this->SetPDFSetFromConfig();
 }
 //____________________________________________________________________________
 PDFLIB::~PDFLIB() 

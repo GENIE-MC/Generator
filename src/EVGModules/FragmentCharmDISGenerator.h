@@ -35,7 +35,7 @@ class FragmentCharmDISGenerator : public HadronicSystemGenerator {
 public :
 
   FragmentCharmDISGenerator();
-  FragmentCharmDISGenerator(const char * param_set);
+  FragmentCharmDISGenerator(string config);
   ~FragmentCharmDISGenerator();
 
   //-- implement the EventRecordVisitorI interface

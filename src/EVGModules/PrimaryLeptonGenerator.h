@@ -49,7 +49,8 @@ protected:
   //-- Abstract class - Can only be instantiated by its children.
 
   PrimaryLeptonGenerator();
-  PrimaryLeptonGenerator(const char * param_set);
+  PrimaryLeptonGenerator(string name);
+  PrimaryLeptonGenerator(string name, string config);
   ~PrimaryLeptonGenerator();
 };
 

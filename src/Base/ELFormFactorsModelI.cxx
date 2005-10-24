@@ -26,8 +26,14 @@ Algorithm()
 
 }
 //____________________________________________________________________________
-ELFormFactorsModelI::ELFormFactorsModelI(const char * param_set) :
-Algorithm(param_set)
+ELFormFactorsModelI::ELFormFactorsModelI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+ELFormFactorsModelI::ELFormFactorsModelI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

@@ -30,7 +30,7 @@ class RESResonanceSelector : public EventRecordVisitorI {
 public :
 
   RESResonanceSelector();
-  RESResonanceSelector(const char * param_set);
+  RESResonanceSelector(string config);
   ~RESResonanceSelector();
 
   //-- implement the EventRecordVisitorI interface

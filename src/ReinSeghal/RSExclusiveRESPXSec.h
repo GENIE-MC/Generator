@@ -56,7 +56,7 @@ class RSExclusiveRESPXSec : public XSecAlgorithmI {
 public:
 
   RSExclusiveRESPXSec();
-  RSExclusiveRESPXSec(const char * param_set);
+  RSExclusiveRESPXSec(string config);
   virtual ~RSExclusiveRESPXSec();
 
   //-- XSecAlgorithmI interface implementation

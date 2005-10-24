@@ -47,11 +47,13 @@ public:
 protected:
 
   DISStructureFuncModel();
-  DISStructureFuncModel(const char * param_set);
+  DISStructureFuncModel(string name);
+  DISStructureFuncModel(string name, string config);
 
   //-- commom code for SF calculation for all DISFormFactorsModelI
   //   interface implementations inheriting DISFormFactorsModel
   virtual void   ConfigPDF  (void);
+  virtual void   InitPDF    (void);
   virtual double Q2         (const Interaction * interaction) const;
   virtual double ScalingVar (const Interaction * interaction) const;
   virtual double KSea       (const Interaction * interaction) const;

@@ -24,18 +24,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 RESInteractionListGenerator::RESInteractionListGenerator() :
-InteractionListGeneratorI()
+InteractionListGeneratorI("genie::RESInteractionListGenerator")
 {
-  fName = "genie::RESInteractionListGenerator";
+
 }
 //___________________________________________________________________________
-RESInteractionListGenerator::RESInteractionListGenerator(
-                                                    const char * param_set) :
-InteractionListGeneratorI(param_set)
+RESInteractionListGenerator::RESInteractionListGenerator(string config) :
+InteractionListGeneratorI("genie::RESInteractionListGenerator", config)
 {
-  fName = "genie::RESInteractionListGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 RESInteractionListGenerator::~RESInteractionListGenerator()

@@ -27,7 +27,7 @@ class SpectralFunctionFG : public SpectralFunctionI {
 public:
 
   SpectralFunctionFG();
-  SpectralFunctionFG(const char * param_set);  
+  SpectralFunctionFG(string config);  
   ~SpectralFunctionFG();
 
   //-- SpectralFunctionI interface implementation

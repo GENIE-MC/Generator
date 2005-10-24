@@ -37,7 +37,8 @@ public:
 protected:
 
   QELFormFactorsModelI();
-  QELFormFactorsModelI(const char * param_set);
+  QELFormFactorsModelI(string name);
+  QELFormFactorsModelI(string name, string config);
 };
 
 }         // genie namespace 

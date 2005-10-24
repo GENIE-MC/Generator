@@ -29,7 +29,7 @@ class Intranuke : public EventRecordVisitorI {
 public :
 
   Intranuke();
-  Intranuke(const char * param_set);
+  Intranuke(string config);
   ~Intranuke();
 
   //-- implement the EventRecordVisitorI interface

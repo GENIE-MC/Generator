@@ -35,23 +35,14 @@ extern "C" void pydecy_(int *);
 
 //____________________________________________________________________________
 PythiaDecayer::PythiaDecayer() :
-DecayModelI()
+DecayModelI("genie::PythiaDecayer")
 {
-  fName     = "genie::PythiaDecayer";
-  fParamSet = "Default";
-
-  FindConfig();
-
   fPythia = new TPythia6();
 }
 //____________________________________________________________________________
-PythiaDecayer::PythiaDecayer(const char * param_set) :
-DecayModelI(param_set)
+PythiaDecayer::PythiaDecayer(string config) :
+DecayModelI("genie::PythiaDecayer", config)
 {
-  fName = "genie::PythiaDecayer";
-
-  FindConfig();
-
   fPythia = new TPythia6();
 }
 //____________________________________________________________________________

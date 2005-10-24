@@ -55,17 +55,15 @@ using namespace genie;
 
 //____________________________________________________________________________
 RSExclusiveRESPXSec::RSExclusiveRESPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::RSExclusiveRESPXSec")
 {
-  fName = "genie::RSExclusiveRESPXSec";
+
 }
 //____________________________________________________________________________
-RSExclusiveRESPXSec::RSExclusiveRESPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+RSExclusiveRESPXSec::RSExclusiveRESPXSec(string config) :
+XSecAlgorithmI("genie::RSExclusiveRESPXSec", config)
 {
-  fName = "genie::RSExclusiveRESPXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 RSExclusiveRESPXSec::~RSExclusiveRESPXSec()
