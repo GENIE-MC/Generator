@@ -38,18 +38,15 @@ using namespace genie::utils::print;
 
 //___________________________________________________________________________
 DISHadronicSystemGenerator::DISHadronicSystemGenerator() :
-HadronicSystemGenerator()
+HadronicSystemGenerator("genie::DISHadronicSystemGenerator")
 {
-  fName = "genie::DISHadronicSystemGenerator";
+
 }
 //___________________________________________________________________________
-DISHadronicSystemGenerator::DISHadronicSystemGenerator(
-                                                    const char * param_set) :
-HadronicSystemGenerator(param_set)
+DISHadronicSystemGenerator::DISHadronicSystemGenerator(string config) :
+HadronicSystemGenerator("genie::DISHadronicSystemGenerator", config)
 {
-  fName = "genie::DISHadronicSystemGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 DISHadronicSystemGenerator::~DISHadronicSystemGenerator()

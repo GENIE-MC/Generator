@@ -36,7 +36,8 @@ public:
 protected:
 
   ELFormFactorsModelI();
-  ELFormFactorsModelI(const char * param_set);
+  ELFormFactorsModelI(string name);
+  ELFormFactorsModelI(string name, string config);
 };
 
 }         // genie namespace

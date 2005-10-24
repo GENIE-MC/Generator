@@ -28,7 +28,7 @@ class IMDTargetRemnantGenerator : public EventRecordVisitorI {
 public :
 
   IMDTargetRemnantGenerator();
-  IMDTargetRemnantGenerator(const char * param_set);
+  IMDTargetRemnantGenerator(string config);
   ~IMDTargetRemnantGenerator();
 
   //-- implement the EventRecordVisitorI interface

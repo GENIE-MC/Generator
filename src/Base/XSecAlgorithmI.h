@@ -32,7 +32,8 @@ public:
 protected:
 
   XSecAlgorithmI();
-  XSecAlgorithmI(const char * param_set);  
+  XSecAlgorithmI(string name);  
+  XSecAlgorithmI(string name, string config);  
 };
 
 }       // genie namespace

@@ -269,8 +269,8 @@ double GEVGDriver::SumCrossSection(const TLorentzVector & nup4)
      const EventGeneratorI * evgen = *evgliter; // current EventGenerator
 
      LOG("GEVGDriver", pINFO)
-            << "Querying [" << evgen->Name() << "/"
-                       << evgen->ParamSet() << "] for its InteractionList";
+            << "Querying [" << evgen->Id().Key()
+                                           << "] for its InteractionList";
 
      // ask the event generator to produce a list of all interaction it can
      // generate for the input initial state
@@ -342,8 +342,8 @@ double GEVGDriver::MaxCrossSection(const TLorentzVector & nup4)
      const EventGeneratorI * evgen = *evgliter; // current EventGenerator
 
      LOG("GEVGDriver", pINFO)
-            << "Querying [" << evgen->Name() << "/"
-                       << evgen->ParamSet() << "] for its InteractionList";
+            << "Querying [" << evgen->Id().Key() 
+                                          << "] for its InteractionList";
 
      // ask the event generator to produce a list of all interaction it can
      // generate for the input initial state
@@ -468,8 +468,8 @@ void GEVGDriver::CreateSplines(bool useLogE)
      const EventGeneratorI * evgen = *evgliter;
 
      LOG("GEVGDriver", pINFO)
-            << "Querying [ " << evgen->Name() << "/"
-                       << evgen->ParamSet() << "] for its InteractionList";
+            << "Querying [ " << evgen->Id().Key() 
+                                            << "] for its InteractionList";
 
      // ask the event generator to produce a list of all interaction it can
      // generate for the input initial state

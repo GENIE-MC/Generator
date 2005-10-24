@@ -40,17 +40,15 @@ using namespace genie::utils::print;
 
 //____________________________________________________________________________
 KNOHadronization::KNOHadronization() :
-HadronizationModelI()
+HadronizationModelI("genie::KNOHadronization")
 {
-  fName = "genie::KNOHadronization";
+
 }
 //____________________________________________________________________________
-KNOHadronization::KNOHadronization(const char * param_set) :
-HadronizationModelI(param_set)
+KNOHadronization::KNOHadronization(string config) :
+HadronizationModelI("genie::KNOHadronization", config)
 {
-  fName = "genie::KNOHadronization";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 KNOHadronization::~KNOHadronization()

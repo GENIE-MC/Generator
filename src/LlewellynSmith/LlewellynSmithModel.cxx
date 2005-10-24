@@ -37,8 +37,14 @@ QELFormFactorsModelI()
 
 }
 //____________________________________________________________________________
-LlewellynSmithModel::LlewellynSmithModel(const char * param_set) :
-QELFormFactorsModelI(param_set)
+LlewellynSmithModel::LlewellynSmithModel(string name) :
+QELFormFactorsModelI(name)
+{
+
+}
+//____________________________________________________________________________
+LlewellynSmithModel::LlewellynSmithModel(string name, string config) :
+QELFormFactorsModelI(name, config)
 {
 
 }

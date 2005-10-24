@@ -41,7 +41,8 @@ public :
 protected:
 
   InteractionSelectorI();
-  InteractionSelectorI(const char * param_set);
+  InteractionSelectorI(string name);
+  InteractionSelectorI(string name, string config);
 };
 
 }      // genie namespace

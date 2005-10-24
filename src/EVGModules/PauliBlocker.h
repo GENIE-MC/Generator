@@ -27,7 +27,7 @@ class PauliBlocker : public EventRecordVisitorI {
 public :
 
   PauliBlocker();
-  PauliBlocker(const char * param_set);
+  PauliBlocker(string config);
   ~PauliBlocker();
 
   //-- implement the EventRecordVisitorI interface

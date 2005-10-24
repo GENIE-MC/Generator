@@ -32,17 +32,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 PauliBlocker::PauliBlocker() :
-EventRecordVisitorI()
+EventRecordVisitorI("genie::PauliBlocker")
 {
-  fName = "genie::PauliBlocker";
+
 }
 //___________________________________________________________________________
-PauliBlocker::PauliBlocker(const char * param_set) :
-EventRecordVisitorI(param_set)
+PauliBlocker::PauliBlocker(string config) :
+EventRecordVisitorI("genie::PauliBlocker",  config)
 {
-  fName = "genie::PauliBlocker";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 PauliBlocker::~PauliBlocker()

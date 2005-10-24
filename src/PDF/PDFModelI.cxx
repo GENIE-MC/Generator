@@ -30,8 +30,14 @@ Algorithm()
 
 }
 //____________________________________________________________________________
-PDFModelI::PDFModelI(const char * param_set) :
-Algorithm(param_set)
+PDFModelI::PDFModelI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+PDFModelI::PDFModelI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

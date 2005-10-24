@@ -31,7 +31,7 @@ class PhysInteractionSelector : public InteractionSelectorI {
 public :
 
   PhysInteractionSelector();
-  PhysInteractionSelector(const char * param_set);
+  PhysInteractionSelector(string config);
   ~PhysInteractionSelector();
 
   //! implement the InteractionSelectorI interface

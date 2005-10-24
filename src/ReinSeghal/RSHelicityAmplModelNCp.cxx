@@ -26,17 +26,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 RSHelicityAmplModelNCp::RSHelicityAmplModelNCp() :
-RSHelicityAmplModelI()
+RSHelicityAmplModelI("genie::RSHelicityAmplModelNCp")
 {
-  fName = "genie::RSHelicityAmplModelNCp";
+
 }
 //____________________________________________________________________________
-RSHelicityAmplModelNCp::RSHelicityAmplModelNCp(const char * param_set) :
-RSHelicityAmplModelI(param_set)
+RSHelicityAmplModelNCp::RSHelicityAmplModelNCp(string config) :
+RSHelicityAmplModelI("genie::RSHelicityAmplModelNCp", config)
 {
-  fName = "genie::RSHelicityAmplModelNCp";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 RSHelicityAmplModelNCp::~RSHelicityAmplModelNCp()

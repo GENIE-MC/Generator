@@ -40,8 +40,8 @@ public:
 protected:
 
   // protected constructors - abstract class
-  BYStructureFuncModel();
-  BYStructureFuncModel(const char * param_set);
+  BYStructureFuncModel(string name);
+  BYStructureFuncModel(string name, string config);
 
   // override part of the DISStructureFuncModel implementation
   // to compute all the corrections applied by the Bodek-Yang model.

@@ -26,18 +26,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 IMDInteractionListGenerator::IMDInteractionListGenerator() :
-InteractionListGeneratorI()
+InteractionListGeneratorI("genie::IMDInteractionListGenerator")
 {
-  fName = "genie::IMDInteractionListGenerator";
+
 }
 //___________________________________________________________________________
-IMDInteractionListGenerator::IMDInteractionListGenerator(
-                                                    const char * param_set) :
-InteractionListGeneratorI(param_set)
+IMDInteractionListGenerator::IMDInteractionListGenerator(string config) :
+InteractionListGeneratorI("genie::IMDInteractionListGenerator", config)
 {
-  fName = "genie::IMDInteractionListGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 IMDInteractionListGenerator::~IMDInteractionListGenerator()

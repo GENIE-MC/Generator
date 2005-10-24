@@ -29,7 +29,7 @@ class COHKinematicsGenerator : public KineGeneratorWithCache {
 public :
 
   COHKinematicsGenerator();
-  COHKinematicsGenerator(const char * param_set);
+  COHKinematicsGenerator(string config);
   ~COHKinematicsGenerator();
 
   //-- implement the EventRecordVisitorI interface

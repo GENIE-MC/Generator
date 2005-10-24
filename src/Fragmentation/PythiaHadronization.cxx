@@ -31,20 +31,14 @@ extern "C" void py2ent_(int *,  int *, int *, double *);
 
 //____________________________________________________________________________
 PythiaHadronization::PythiaHadronization() :
-HadronizationModelI()
+HadronizationModelI("genie::PythiaHadronization")
 {
-  fName = "genie::PythiaHadronization";
-
   fPythia = new TPythia6();  
 }
 //____________________________________________________________________________
-PythiaHadronization::PythiaHadronization(const char * param_set) :
-HadronizationModelI(param_set)
+PythiaHadronization::PythiaHadronization(string config) :
+HadronizationModelI("genie::PythiaHadronization", config)
 {
-  fName = "genie::PythiaHadronization";
-
-  this->FindConfig();
-
   fPythia = new TPythia6();  
 }
 //____________________________________________________________________________

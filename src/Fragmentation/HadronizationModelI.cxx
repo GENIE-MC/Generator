@@ -26,8 +26,14 @@ Algorithm()
 
 }
 //____________________________________________________________________________
-HadronizationModelI::HadronizationModelI(const char * param_set) :
-Algorithm(param_set)
+HadronizationModelI::HadronizationModelI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+HadronizationModelI::HadronizationModelI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

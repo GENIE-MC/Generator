@@ -32,7 +32,7 @@ class BreitWignerRes : public BreitWignerI {
 
 public:
   BreitWignerRes(); 
-  BreitWignerRes(const char * param_set); 
+  BreitWignerRes(string config); 
   virtual ~BreitWignerRes(); 
 
   double Eval(double W) const;

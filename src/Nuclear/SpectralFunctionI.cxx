@@ -26,8 +26,14 @@ Algorithm()
 
 }
 //___________________________________________________________________________
-SpectralFunctionI::SpectralFunctionI(const char * param_set) :
-Algorithm(param_set)
+SpectralFunctionI::SpectralFunctionI(string name) :
+Algorithm(name)
+{
+
+}
+//___________________________________________________________________________
+SpectralFunctionI::SpectralFunctionI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

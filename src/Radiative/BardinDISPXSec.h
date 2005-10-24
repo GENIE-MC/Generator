@@ -37,7 +37,7 @@ class BardinDISPXSec : public XSecAlgorithmI {
 public:
 
   BardinDISPXSec();
-  BardinDISPXSec(const char * param_set);
+  BardinDISPXSec(string config);
   virtual ~BardinDISPXSec();
 
   //-- XSecAlgorithmI interface implementation

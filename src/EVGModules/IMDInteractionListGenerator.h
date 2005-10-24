@@ -27,7 +27,7 @@ class IMDInteractionListGenerator : public InteractionListGeneratorI {
 public :
 
   IMDInteractionListGenerator();
-  IMDInteractionListGenerator(const char * param_set);
+  IMDInteractionListGenerator(string config);
   ~IMDInteractionListGenerator();
 
   //-- define the InteractionListGeneratorI interface

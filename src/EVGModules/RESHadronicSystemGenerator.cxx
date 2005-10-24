@@ -50,18 +50,15 @@ using namespace genie::constants;
 
 //___________________________________________________________________________
 RESHadronicSystemGenerator::RESHadronicSystemGenerator() :
-HadronicSystemGenerator()
+HadronicSystemGenerator("genie::RESHadronicSystemGenerator")
 {
-  fName = "genie::RESHadronicSystemGenerator";
+
 }
 //___________________________________________________________________________
-RESHadronicSystemGenerator::RESHadronicSystemGenerator(
-                                                    const char * param_set) :
-HadronicSystemGenerator(param_set)
+RESHadronicSystemGenerator::RESHadronicSystemGenerator(string config):
+HadronicSystemGenerator("genie::RESHadronicSystemGenerator", config)
 {
-  fName = "genie::RESHadronicSystemGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 RESHadronicSystemGenerator::~RESHadronicSystemGenerator()

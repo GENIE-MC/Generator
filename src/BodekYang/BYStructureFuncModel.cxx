@@ -28,14 +28,14 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-BYStructureFuncModel::BYStructureFuncModel() :
-DISStructureFuncModel()
+BYStructureFuncModel::BYStructureFuncModel(string name) :
+DISStructureFuncModel(name)
 {
 
 }
 //____________________________________________________________________________
-BYStructureFuncModel::BYStructureFuncModel(const char * param_set):
-DISStructureFuncModel(param_set)
+BYStructureFuncModel::BYStructureFuncModel(string name, string config):
+DISStructureFuncModel(name, config)
 {
 
 }

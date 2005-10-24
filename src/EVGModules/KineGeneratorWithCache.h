@@ -39,7 +39,8 @@ class KineGeneratorWithCache : public EventRecordVisitorI {
 protected:
 
   KineGeneratorWithCache();
-  KineGeneratorWithCache(const char * param_set);
+  KineGeneratorWithCache(string name);
+  KineGeneratorWithCache(string name, string config);
   ~KineGeneratorWithCache();
 
   virtual double ComputeMaxXSec (const Interaction * interaction) const = 0;

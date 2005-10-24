@@ -37,17 +37,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 RESResonanceSelector::RESResonanceSelector() :
-EventRecordVisitorI()
+EventRecordVisitorI("genie::RESResonanceSelector")
 {
-  fName = "genie::RESResonanceSelector";
+
 }
 //___________________________________________________________________________
-RESResonanceSelector::RESResonanceSelector(const char * param_set) :
-EventRecordVisitorI(param_set)
+RESResonanceSelector::RESResonanceSelector(string config) :
+EventRecordVisitorI("genie::RESResonanceSelector", config)
 {
-  fName = "genie::RESResonanceSelector";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 RESResonanceSelector::~RESResonanceSelector()

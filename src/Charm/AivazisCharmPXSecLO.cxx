@@ -45,17 +45,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 AivazisCharmPXSecLO::AivazisCharmPXSecLO() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::AivazisCharmPXSecLO")
 {
-  fName = "genie::AivazisCharmPXSecLO";
+
 }
 //____________________________________________________________________________
-AivazisCharmPXSecLO::AivazisCharmPXSecLO(const char * param_set) :
-XSecAlgorithmI(param_set)
+AivazisCharmPXSecLO::AivazisCharmPXSecLO(string config) :
+XSecAlgorithmI("genie::AivazisCharmPXSecLO", config)
 {
-  fName = "genie::AivazisCharmPXSecLO";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 AivazisCharmPXSecLO::~AivazisCharmPXSecLO()

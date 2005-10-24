@@ -34,17 +34,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 StdElasticPXSec::StdElasticPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::StdElasticPXSec")
 {
-  fName = "genie::StdElasticPXSec";
+
 }
 //____________________________________________________________________________
-StdElasticPXSec::StdElasticPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+StdElasticPXSec::StdElasticPXSec(string config) :
+XSecAlgorithmI("genie::StdElasticPXSec", config)
 {
-  fName = "genie::StdElasticPXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 StdElasticPXSec::~StdElasticPXSec()

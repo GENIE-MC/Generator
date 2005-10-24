@@ -42,7 +42,8 @@ public:
 protected:
 
   DecayModelI();
-  DecayModelI(const char * param_set);
+  DecayModelI(string name);
+  DecayModelI(string name, string config);
 };
 
 }         // genie namespace

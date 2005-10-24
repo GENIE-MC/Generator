@@ -20,10 +20,9 @@ using namespace genie;
 
 //____________________________________________________________________________
 Simpson1D::Simpson1D():
-IntegratorI()
+IntegratorI("genie::Simpson1D")
 {
-  fName     = "genie::Simpson1D";
-  fParamSet = "NoConfig";
+
 }
 //____________________________________________________________________________
 Simpson1D::~Simpson1D()

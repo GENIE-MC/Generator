@@ -42,7 +42,8 @@ public:
 protected:
 
   BaryonResDataSetI();
-  BaryonResDataSetI(const char * param_set);
+  BaryonResDataSetI(string name);
+  BaryonResDataSetI(string name, string config);
 };
 
 }         // genie namespace 

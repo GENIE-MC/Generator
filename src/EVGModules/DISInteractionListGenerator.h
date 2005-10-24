@@ -27,7 +27,7 @@ class DISInteractionListGenerator : public InteractionListGeneratorI {
 public :
 
   DISInteractionListGenerator();
-  DISInteractionListGenerator(const char * param_set);
+  DISInteractionListGenerator(string config);
   ~DISInteractionListGenerator();
 
   //-- define the InteractionListGeneratorI interface

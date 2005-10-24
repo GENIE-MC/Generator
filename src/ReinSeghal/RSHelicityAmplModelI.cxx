@@ -22,8 +22,14 @@ Algorithm()
 
 }
 //____________________________________________________________________________
-RSHelicityAmplModelI::RSHelicityAmplModelI(const char * param_set) :
-Algorithm(param_set)
+RSHelicityAmplModelI::RSHelicityAmplModelI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+RSHelicityAmplModelI::RSHelicityAmplModelI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

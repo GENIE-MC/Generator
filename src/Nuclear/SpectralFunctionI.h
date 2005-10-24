@@ -35,7 +35,8 @@ public:
 protected:
 
   SpectralFunctionI();
-  SpectralFunctionI(const char * param_set);
+  SpectralFunctionI(string name);
+  SpectralFunctionI(string name, string config);
 };
 
 }      // genie namespace

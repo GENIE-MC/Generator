@@ -29,7 +29,7 @@ class EventGeneratorListAssembler : public Algorithm {
 public :
 
   EventGeneratorListAssembler();
-  EventGeneratorListAssembler(const char * param_set);
+  EventGeneratorListAssembler(string config);
   ~EventGeneratorListAssembler();
 
   EventGeneratorList * AssembleGeneratorList();

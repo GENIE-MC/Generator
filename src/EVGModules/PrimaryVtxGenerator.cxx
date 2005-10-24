@@ -38,17 +38,15 @@ using namespace genie::units;
 
 //___________________________________________________________________________
 PrimaryVtxGenerator::PrimaryVtxGenerator() :
-EventRecordVisitorI()
+EventRecordVisitorI("genie::PrimaryVtxGenerator")
 {
-  fName = "genie::PrimaryVtxGenerator";
+
 }
 //___________________________________________________________________________
-PrimaryVtxGenerator::PrimaryVtxGenerator(const char * param_set) :
-EventRecordVisitorI(param_set)
+PrimaryVtxGenerator::PrimaryVtxGenerator(string config) :
+EventRecordVisitorI("genie::PrimaryVtxGenerator", config)
 {
-  fName = "genie::PrimaryVtxGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 PrimaryVtxGenerator::~PrimaryVtxGenerator()

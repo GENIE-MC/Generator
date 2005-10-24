@@ -30,7 +30,7 @@ class PythiaDecayer : public DecayModelI {
 public:
 
   PythiaDecayer();
-  PythiaDecayer(const char * param_set);
+  PythiaDecayer(string config);
   virtual ~PythiaDecayer();
 
   //-- implement the DecayModelI interface

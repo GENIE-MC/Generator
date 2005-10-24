@@ -33,17 +33,15 @@ using namespace genie::constants;
 
 //___________________________________________________________________________
 Intranuke::Intranuke() :
-EventRecordVisitorI()
+EventRecordVisitorI("genie::Intranuke")
 {
-  fName = "genie::Intranuke";
+
 }
 //___________________________________________________________________________
-Intranuke::Intranuke(const char * param_set) :
-EventRecordVisitorI(param_set)
+Intranuke::Intranuke(string config) :
+EventRecordVisitorI("genie::Intranuke", config)
 {
-  fName = "genie::Intranuke";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 Intranuke::~Intranuke()

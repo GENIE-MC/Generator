@@ -29,7 +29,7 @@ class LlewellynSmithModelNC : public LlewellynSmithModel {
 public:
 
   LlewellynSmithModelNC();
-  LlewellynSmithModelNC(const char * param_set);
+  LlewellynSmithModelNC(string config);
   virtual ~LlewellynSmithModelNC();
 
   //-- QELFormFactorModelI interface implementation

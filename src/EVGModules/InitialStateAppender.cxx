@@ -31,17 +31,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 InitialStateAppender::InitialStateAppender() :
-EventRecordVisitorI()
+EventRecordVisitorI("genie::InitialStateAppender")
 {
-  fName = "genie::InitialStateAppender";
+
 }
 //___________________________________________________________________________
-InitialStateAppender::InitialStateAppender(const char * param_set) :
-EventRecordVisitorI(param_set)
+InitialStateAppender::InitialStateAppender(string config) :
+EventRecordVisitorI("genie::InitialStateAppender", config)
 {
-  fName = "genie::InitialStateAppender";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 InitialStateAppender::~InitialStateAppender()

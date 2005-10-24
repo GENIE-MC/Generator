@@ -26,7 +26,7 @@ class BBA05ELFormFactorsModel : public ELFormFactorsModelI {
 
 public:
   BBA05ELFormFactorsModel();
-  BBA05ELFormFactorsModel(const char * param_set);
+  BBA05ELFormFactorsModel(string config);
   virtual ~BBA05ELFormFactorsModel();
 
   double Gep (double q2) const;

@@ -15,7 +15,6 @@
 */
 //____________________________________________________________________________
 
-
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -31,17 +30,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 QELXSec::QELXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::QELXSec")
 {
-  fName = "genie::QELXSec";
+
 }
 //____________________________________________________________________________
-QELXSec::QELXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+QELXSec::QELXSec(string config) :
+XSecAlgorithmI("genie::QELXSec", config)
 {
-  fName = "genie::QELXSec";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 QELXSec::~QELXSec()

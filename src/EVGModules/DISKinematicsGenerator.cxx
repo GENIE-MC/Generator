@@ -34,17 +34,15 @@ using namespace genie::controls;
 
 //___________________________________________________________________________
 DISKinematicsGenerator::DISKinematicsGenerator() :
-KineGeneratorWithCache()
+KineGeneratorWithCache("genie::DISKinematicsGenerator")
 {
-  fName = "genie::DISKinematicsGenerator";
+
 }
 //___________________________________________________________________________
-DISKinematicsGenerator::DISKinematicsGenerator(const char * param_set) :
-KineGeneratorWithCache(param_set)
+DISKinematicsGenerator::DISKinematicsGenerator(string config) :
+KineGeneratorWithCache("genie::DISKinematicsGenerator", config)
 {
-  fName = "genie::DISKinematicsGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 DISKinematicsGenerator::~DISKinematicsGenerator()

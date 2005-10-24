@@ -28,7 +28,7 @@ class NuclearTargetXSec : public XSecAlgorithmI {
 public:
 
   NuclearTargetXSec();
-  NuclearTargetXSec(const char * param_set);
+  NuclearTargetXSec(string config);
   virtual ~NuclearTargetXSec();
 
   //-- XSecAlgorithmI interface implementation

@@ -25,17 +25,15 @@ using namespace genie;
 
 //____________________________________________________________________________
 NuclearTargetXSec::NuclearTargetXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::NuclearTargetXSec")
 {
-  fName = "genie::NuclearTargetXSec";
+
 }
 //____________________________________________________________________________
-NuclearTargetXSec::NuclearTargetXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+NuclearTargetXSec::NuclearTargetXSec(string config) :
+XSecAlgorithmI("genie::NuclearTargetXSec", config)
 {
-  fName = "genie::NuclearTargetXSec";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 NuclearTargetXSec::~NuclearTargetXSec()

@@ -22,15 +22,15 @@ using namespace genie;
 
 //____________________________________________________________________________
 SpectralFunctionLDA::SpectralFunctionLDA() :
-SpectralFunctionI()
+SpectralFunctionI("genie::SpectralFunctionLDA")
 {
-  fName = "genie::SpectralFunctionLDA";
+
 }
 //____________________________________________________________________________
-SpectralFunctionLDA::SpectralFunctionLDA(const char * param_set) :
-SpectralFunctionI(param_set)
+SpectralFunctionLDA::SpectralFunctionLDA(string config) :
+SpectralFunctionI("genie::SpectralFunctionLDA", config)
 {
-  fName = "genie::SpectralFunctionLDA";
+
 }
 //____________________________________________________________________________
 SpectralFunctionLDA::~SpectralFunctionLDA()

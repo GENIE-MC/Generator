@@ -29,7 +29,7 @@ class IMDKinematicsGenerator : public KineGeneratorWithCache {
 public :
 
   IMDKinematicsGenerator();
-  IMDKinematicsGenerator(const char * param_set);
+  IMDKinematicsGenerator(string config);
   ~IMDKinematicsGenerator();
 
   //-- implement the EventRecordVisitorI interface

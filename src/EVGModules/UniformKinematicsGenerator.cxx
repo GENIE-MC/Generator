@@ -36,17 +36,15 @@ using namespace genie::controls;
 
 //___________________________________________________________________________
 UniformKinematicsGenerator::UniformKinematicsGenerator() :
-EventRecordVisitorI()
+EventRecordVisitorI("genie::UniformKinematicsGenerator")
 {
-  fName = "genie::UniformKinematicsGenerator";
+
 }
 //___________________________________________________________________________
-UniformKinematicsGenerator::UniformKinematicsGenerator(const char * param) :
-EventRecordVisitorI(param)
+UniformKinematicsGenerator::UniformKinematicsGenerator(string config) :
+EventRecordVisitorI("genie::UniformKinematicsGenerator", config)
 {
-  fName = "genie::UniformKinematicsGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 UniformKinematicsGenerator::~UniformKinematicsGenerator()

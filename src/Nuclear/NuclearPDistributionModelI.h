@@ -36,7 +36,8 @@ public:
 protected:
 
   NuclearPDistributionModelI();
-  NuclearPDistributionModelI(const char * param_set);
+  NuclearPDistributionModelI(string name);
+  NuclearPDistributionModelI(string name, string config);
 };
 
 }         // genie namespace

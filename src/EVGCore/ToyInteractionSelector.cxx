@@ -35,21 +35,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 ToyInteractionSelector::ToyInteractionSelector() :
-InteractionSelectorI()
+InteractionSelectorI("genie::ToyInteractionSelector")
 {
-  fName = "genie::ToyInteractionSelector";
-
   fEventGeneratorList = 0;
   fInteractionFilter  = 0;
 }
 //___________________________________________________________________________
-ToyInteractionSelector::ToyInteractionSelector(const char * param_set) :
-InteractionSelectorI(param_set)
+ToyInteractionSelector::ToyInteractionSelector(string config) :
+InteractionSelectorI("genie::ToyInteractionSelector", config)
 {
-  fName = "genie::ToyInteractionSelector";
-
-  this->FindConfig();
-
   fEventGeneratorList = 0;
   fInteractionFilter  = 0;
 }

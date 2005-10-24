@@ -21,10 +21,9 @@ using namespace genie;
 
 //____________________________________________________________________________
 Simpson2D::Simpson2D():
-IntegratorI()
+IntegratorI("genie::Simpson2D")
 {
-  fName     = "genie::Simpson2D";
-  fParamSet = "NoConfig";
+
 }
 //____________________________________________________________________________
 Simpson2D::~Simpson2D()

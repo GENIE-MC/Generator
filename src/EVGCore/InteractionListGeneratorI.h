@@ -38,7 +38,8 @@ public :
 protected :
 
   InteractionListGeneratorI();
-  InteractionListGeneratorI(const char * param_set);
+  InteractionListGeneratorI(string name);
+  InteractionListGeneratorI(string name, string config);
   ~InteractionListGeneratorI();
 };
 

@@ -28,7 +28,7 @@ class RESInteractionListGenerator : public InteractionListGeneratorI {
 public :
 
   RESInteractionListGenerator();
-  RESInteractionListGenerator(const char * param_set);
+  RESInteractionListGenerator(string config);
   ~RESInteractionListGenerator();
 
   //-- define the InteractionListGeneratorI interface

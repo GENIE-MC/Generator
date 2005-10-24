@@ -44,7 +44,7 @@ class ReinSeghalRESPXSec : public XSecAlgorithmI {
 public:
 
   ReinSeghalRESPXSec();
-  ReinSeghalRESPXSec(const char * param_set);
+  ReinSeghalRESPXSec(string config);
   virtual ~ReinSeghalRESPXSec();
 
   //-- XSecAlgorithmI interface implementation

@@ -31,17 +31,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 BYStructureFuncModelCC::BYStructureFuncModelCC() :
-BYStructureFuncModel()
+BYStructureFuncModel("genie::BYStructureFuncModelCC")
 {
-  fName = "genie::BYStructureFuncModelCC";
+
 }
 //____________________________________________________________________________
-BYStructureFuncModelCC::BYStructureFuncModelCC(const char * param_set):
-BYStructureFuncModel(param_set)
+BYStructureFuncModelCC::BYStructureFuncModelCC(string config):
+BYStructureFuncModel("genie::BYStructureFuncModelCC", config)
 {
-  fName = "genie::BYStructureFuncModelCC";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 BYStructureFuncModelCC::~BYStructureFuncModelCC()

@@ -46,17 +46,15 @@ using namespace genie::utils::print;
 
 //___________________________________________________________________________
 FragmentCharmDISGenerator::FragmentCharmDISGenerator() :
-HadronicSystemGenerator()
+HadronicSystemGenerator("genie::FragmentCharmDISGenerator")
 {
-  fName = "genie::FragmentCharmDISGenerator";
+
 }
 //___________________________________________________________________________
-FragmentCharmDISGenerator::FragmentCharmDISGenerator(const char * param_set):
-HadronicSystemGenerator(param_set)
+FragmentCharmDISGenerator::FragmentCharmDISGenerator(string config):
+HadronicSystemGenerator("genie::FragmentCharmDISGenerator", config)
 {
-  fName = "genie::FragmentCharmDISGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 FragmentCharmDISGenerator::~FragmentCharmDISGenerator()

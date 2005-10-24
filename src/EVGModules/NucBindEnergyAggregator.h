@@ -34,7 +34,7 @@ class NucBindEnergyAggregator : public EventRecordVisitorI {
 public :
 
   NucBindEnergyAggregator();
-  NucBindEnergyAggregator(const char * param_set);
+  NucBindEnergyAggregator(string config);
   ~NucBindEnergyAggregator();
 
   //-- implement the EventRecordVisitorI interface

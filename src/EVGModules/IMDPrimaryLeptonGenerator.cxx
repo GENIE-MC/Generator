@@ -30,17 +30,15 @@ using namespace genie::constants;
 
 //___________________________________________________________________________
 IMDPrimaryLeptonGenerator::IMDPrimaryLeptonGenerator() :
-PrimaryLeptonGenerator()
+PrimaryLeptonGenerator("genie::IMDPrimaryLeptonGenerator")
 {
-  fName = "genie::IMDPrimaryLeptonGenerator";
+
 }
 //___________________________________________________________________________
-IMDPrimaryLeptonGenerator::IMDPrimaryLeptonGenerator(const char * param_set):
-PrimaryLeptonGenerator(param_set)
+IMDPrimaryLeptonGenerator::IMDPrimaryLeptonGenerator(string config):
+PrimaryLeptonGenerator("genie::IMDPrimaryLeptonGenerator", config)
 {
-  fName = "genie::IMDPrimaryLeptonGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 IMDPrimaryLeptonGenerator::~IMDPrimaryLeptonGenerator()

@@ -39,7 +39,8 @@ protected:
 
   //-- Abstract class - Can only be instantiated by its children.
   HadronicSystemGenerator();
-  HadronicSystemGenerator(const char * param_set);
+  HadronicSystemGenerator(string name);
+  HadronicSystemGenerator(string name, string config);
   ~HadronicSystemGenerator();
 };
 

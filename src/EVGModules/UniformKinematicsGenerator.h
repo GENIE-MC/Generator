@@ -34,7 +34,7 @@ class UniformKinematicsGenerator : public EventRecordVisitorI {
 public :
 
   UniformKinematicsGenerator();
-  UniformKinematicsGenerator(const char * param_set);
+  UniformKinematicsGenerator(string config);
   ~UniformKinematicsGenerator();
 
   //-- implement the EventRecordVisitorI interface

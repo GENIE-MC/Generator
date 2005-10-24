@@ -30,7 +30,7 @@ class SchmitzMultiplicityModel : public MultiplicityProbModelI {
 public:
 
   SchmitzMultiplicityModel();
-  SchmitzMultiplicityModel(const char * param_set);
+  SchmitzMultiplicityModel(string config);
   virtual ~SchmitzMultiplicityModel();
 
   TH1D * ProbabilityDistribution(const Interaction * interaction) const;

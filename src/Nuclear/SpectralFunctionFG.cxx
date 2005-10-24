@@ -21,15 +21,15 @@ using namespace genie;
 
 //____________________________________________________________________________
 SpectralFunctionFG::SpectralFunctionFG() :
-SpectralFunctionI()
+SpectralFunctionI("genie::SpectralFunctionFG")
 {
-  fName = "genie::SpectralFunctionFG";
+
 }
 //____________________________________________________________________________
-SpectralFunctionFG::SpectralFunctionFG(const char * param_set) :
-SpectralFunctionI(param_set)
+SpectralFunctionFG::SpectralFunctionFG(string config) :
+SpectralFunctionI("genie::SpectralFunctionFG", config)
 {
-  fName = "genie::SpectralFunctionFG";
+
 }
 //____________________________________________________________________________
 SpectralFunctionFG::~SpectralFunctionFG()

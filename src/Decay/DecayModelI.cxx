@@ -25,8 +25,14 @@ Algorithm()
 
 }
 //____________________________________________________________________________
-DecayModelI::DecayModelI(const char * param_set) :
-Algorithm(param_set)
+DecayModelI::DecayModelI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+DecayModelI::DecayModelI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

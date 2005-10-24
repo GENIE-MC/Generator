@@ -26,8 +26,14 @@ Algorithm()
 
 }
 //___________________________________________________________________________
-FragmentationFunctionI::FragmentationFunctionI(const char * param_set) :
-Algorithm(param_set)
+FragmentationFunctionI::FragmentationFunctionI(string name) :
+Algorithm(name)
+{
+
+}
+//___________________________________________________________________________
+FragmentationFunctionI::FragmentationFunctionI(string name, string config) :
+Algorithm(name, config)
 {
 
 }

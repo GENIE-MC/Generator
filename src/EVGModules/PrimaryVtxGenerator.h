@@ -35,7 +35,7 @@ class PrimaryVtxGenerator : public EventRecordVisitorI {
 public :
 
   PrimaryVtxGenerator();
-  PrimaryVtxGenerator(const char * param_set);
+  PrimaryVtxGenerator(string config);
   ~PrimaryVtxGenerator();
 
   //-- implement the EventRecordVisitorI interface

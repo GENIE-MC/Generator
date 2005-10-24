@@ -29,7 +29,7 @@ class QELKinematicsGenerator : public KineGeneratorWithCache {
 public :
 
   QELKinematicsGenerator();
-  QELKinematicsGenerator(const char * param_set);
+  QELKinematicsGenerator(string config);
   ~QELKinematicsGenerator();
 
   //-- implement the EventRecordVisitorI interface

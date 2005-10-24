@@ -42,18 +42,14 @@ using namespace genie::exceptions;
 
 //___________________________________________________________________________
 EventGenerator::EventGenerator() :
-EventGeneratorI()
+EventGeneratorI("genie::EventGenerator")
 {
-  fName = "genie::EventGenerator";
+
 }
 //___________________________________________________________________________
-EventGenerator::EventGenerator(const char * param_set) :
-EventGeneratorI(param_set)
+EventGenerator::EventGenerator(string config) :
+EventGeneratorI("genie::EventGenerator", config)
 {
-  fName = "genie::EventGenerator";
-
-  this->FindConfig();
-
   this->InstantiateValidityContext();
 }
 //___________________________________________________________________________

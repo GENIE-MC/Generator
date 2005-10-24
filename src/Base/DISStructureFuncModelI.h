@@ -43,7 +43,8 @@ public:
 protected:
 
   DISStructureFuncModelI();
-  DISStructureFuncModelI(const char * param_set);
+  DISStructureFuncModelI(string name);
+  DISStructureFuncModelI(string name, string config);
 };
 
 }         // genie namespace

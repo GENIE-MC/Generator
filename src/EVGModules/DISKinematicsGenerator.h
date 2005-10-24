@@ -33,7 +33,7 @@ class DISKinematicsGenerator : public KineGeneratorWithCache {
 public :
 
   DISKinematicsGenerator();
-  DISKinematicsGenerator(const char * param_set);
+  DISKinematicsGenerator(string config);
   ~DISKinematicsGenerator();
 
   //-- implement the EventRecordVisitorI interface

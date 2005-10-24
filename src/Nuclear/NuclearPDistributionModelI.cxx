@@ -26,8 +26,15 @@ Algorithm()
 
 }
 //____________________________________________________________________________
-NuclearPDistributionModelI::NuclearPDistributionModelI(const char * param_set) :
-Algorithm(param_set)
+NuclearPDistributionModelI::NuclearPDistributionModelI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+NuclearPDistributionModelI::NuclearPDistributionModelI(
+                                                string name, string config) :
+Algorithm(name, config)
 {
 
 }

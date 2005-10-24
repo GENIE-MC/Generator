@@ -28,10 +28,10 @@ class KNODistribution : public Algorithm {
 public:
 
   KNODistribution();
-  KNODistribution(const char * param_set);
+  KNODistribution(string config);
   virtual ~KNODistribution();
 
-  double Value      (double n_avn) const;
+  double Value (double n_avn) const;
 
   //-- Overload Algorithm's Configure() to make sure that the configuration
   //   registry (which is read by its config XML file) is translated to the

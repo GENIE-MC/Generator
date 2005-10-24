@@ -32,17 +32,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 DISXSec::DISXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::DISXSec")
 {
-  fName = "genie::DISXSec";
+
 }
 //____________________________________________________________________________
-DISXSec::DISXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+DISXSec::DISXSec(string config) :
+XSecAlgorithmI("genie::DISXSec", config)
 {
-  fName = "genie::DISXSec";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 DISXSec::~DISXSec()

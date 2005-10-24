@@ -30,6 +30,8 @@ public:
 protected:
 
   IntegratorI();
+  IntegratorI(string name);
+  IntegratorI(string name, string config);
   virtual ~IntegratorI();
 };
 

@@ -28,7 +28,7 @@ class DISHadronicSystemGenerator : public HadronicSystemGenerator {
 public :
 
   DISHadronicSystemGenerator();
-  DISHadronicSystemGenerator(const char * param_set);
+  DISHadronicSystemGenerator(string config);
   ~DISHadronicSystemGenerator();
 
   //-- implement the EventRecordVisitorI interface

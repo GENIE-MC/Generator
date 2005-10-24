@@ -28,7 +28,7 @@ class QELXSec : public XSecAlgorithmI {
 public:
 
   QELXSec();
-  QELXSec(const char * param_set);
+  QELXSec(string config);
   virtual ~QELXSec();
 
   //-- XSecAlgorithmI interface implementation

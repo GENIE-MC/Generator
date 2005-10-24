@@ -35,7 +35,7 @@ class ToyInteractionSelector : public InteractionSelectorI {
 public :
 
   ToyInteractionSelector();
-  ToyInteractionSelector(const char * param_set);
+  ToyInteractionSelector(string config);
   ~ToyInteractionSelector();
 
   void          SetInteractionFilter (const InteractionFilter * filt);

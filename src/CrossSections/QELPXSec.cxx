@@ -31,17 +31,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 QELPXSec::QELPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::QELPXSec")
 {
-  fName = "genie::QELPXSec";
+
 }
 //____________________________________________________________________________
-QELPXSec::QELPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+QELPXSec::QELPXSec(string config) :
+XSecAlgorithmI("genie::QELPXSec", config)
 {
-  fName = "genie::QELPXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 QELPXSec::~QELPXSec()

@@ -103,7 +103,7 @@ string Cache::CacheBranchKey(const Algorithm * alg, string subbranch) const
 {
   ostringstream key;
 
-  key << alg->Name() << "/" << alg->ParamSet() << "/" << subbranch;
+  key << alg->Id().Name() << "/" << alg->Id().Config() << "/" << subbranch;
 
   return key.str();
 }

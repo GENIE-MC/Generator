@@ -24,23 +24,17 @@ using namespace genie;
 
 //____________________________________________________________________________
 KNODistribution::KNODistribution() :
-Algorithm()
+Algorithm("genie::KNODistribution")
 {
-  fName = "genie::KNODistribution";
-
   fKNOSpline = 0;
   fMaxScaledMultiplicity = 0;
 }
 //____________________________________________________________________________
-KNODistribution::KNODistribution(const char * param_set) :
-Algorithm(param_set)
+KNODistribution::KNODistribution(string config) :
+Algorithm("genie::KNODistribution", config)
 {
-  fName = "genie::KNODistribution";
-
   fKNOSpline = 0;
   fMaxScaledMultiplicity = 0;
-  
-  FindConfig();
 }
 //____________________________________________________________________________
 KNODistribution::~KNODistribution()

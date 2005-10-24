@@ -30,17 +30,15 @@ using namespace genie;
 
 //___________________________________________________________________________
 IMDTargetRemnantGenerator::IMDTargetRemnantGenerator() :
-EventRecordVisitorI()
+EventRecordVisitorI("genie::IMDTargetRemnantGenerator")
 {
-  fName = "genie::IMDTargetRemnantGenerator";
+
 }
 //___________________________________________________________________________
-IMDTargetRemnantGenerator::IMDTargetRemnantGenerator(const char * param_set) :
-EventRecordVisitorI(param_set)
+IMDTargetRemnantGenerator::IMDTargetRemnantGenerator(string config) :
+EventRecordVisitorI("genie::IMDTargetRemnantGenerator", config)
 {
-  fName = "genie::IMDTargetRemnantGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 IMDTargetRemnantGenerator::~IMDTargetRemnantGenerator()

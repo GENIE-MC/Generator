@@ -36,7 +36,7 @@ class RESPXSec : public XSecAlgorithmI {
 public:
 
   RESPXSec();
-  RESPXSec(const char * param_set);
+  RESPXSec(string config);
   virtual ~RESPXSec();
 
   //-- XSecAlgorithmI interface implementation

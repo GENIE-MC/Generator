@@ -31,7 +31,7 @@ class CollinsSpillerFragm : public FragmentationFunctionI {
 public:
 
   CollinsSpillerFragm();
-  CollinsSpillerFragm(const char * param_set);
+  CollinsSpillerFragm(string config);
   ~CollinsSpillerFragm();
 
   //-- implements the FragmentationFunctionI interface

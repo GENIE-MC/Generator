@@ -28,17 +28,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 BBA03ELFormFactorsModel::BBA03ELFormFactorsModel() :
-ELFormFactorsModelI()
+ELFormFactorsModelI("genie::BBA03ELFormFactorsModel")
 {
-  fName = "genie::BBA03ELFormFactorsModel";
+
 }
 //____________________________________________________________________________
-BBA03ELFormFactorsModel::BBA03ELFormFactorsModel(const char * param_set) :
-ELFormFactorsModelI(param_set)
+BBA03ELFormFactorsModel::BBA03ELFormFactorsModel(string config) :
+ELFormFactorsModelI("genie::BBA03ELFormFactorsModel")
 {
-  fName = "genie::BBA03ELFormFactorsModel";
 
-  this->FindConfig();
 }
 //____________________________________________________________________________
 BBA03ELFormFactorsModel::~BBA03ELFormFactorsModel()

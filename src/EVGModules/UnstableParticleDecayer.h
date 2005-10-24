@@ -34,7 +34,7 @@ class UnstableParticleDecayer : public EventRecordVisitorI {
 public :
 
   UnstableParticleDecayer();
-  UnstableParticleDecayer(const char * param_set);
+  UnstableParticleDecayer(string config);
   ~UnstableParticleDecayer();
 
   //-- implement the EventRecordVisitorI interface

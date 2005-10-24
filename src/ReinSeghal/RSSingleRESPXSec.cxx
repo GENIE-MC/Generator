@@ -36,17 +36,15 @@ using namespace genie;
 
 //____________________________________________________________________________
 RSSingleRESPXSec::RSSingleRESPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::RSSingleRESPXSec")
 {
-  fName = "genie::RSSingleRESPXSec";
+
 }
 //____________________________________________________________________________
-RSSingleRESPXSec::RSSingleRESPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+RSSingleRESPXSec::RSSingleRESPXSec(string config) :
+XSecAlgorithmI("genie::RSSingleRESPXSec", config)
 {
-  fName = "genie::RSSingleRESPXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 RSSingleRESPXSec::~RSSingleRESPXSec()

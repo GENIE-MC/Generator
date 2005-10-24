@@ -45,17 +45,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 SlowRsclCharmDISPXSecLO::SlowRsclCharmDISPXSecLO() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::SlowRsclCharmDISPXSecLO")
 {
-  fName = "genie::SlowRsclCharmDISPXSecLO";
+
 }
 //____________________________________________________________________________
-SlowRsclCharmDISPXSecLO::SlowRsclCharmDISPXSecLO(const char * param_set) :
-XSecAlgorithmI(param_set)
+SlowRsclCharmDISPXSecLO::SlowRsclCharmDISPXSecLO(string config) :
+XSecAlgorithmI("genie::SlowRsclCharmDISPXSecLO", config)
 {
-  fName = "genie::SlowRsclCharmDISPXSecLO";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 SlowRsclCharmDISPXSecLO::~SlowRsclCharmDISPXSecLO()

@@ -28,17 +28,15 @@ using namespace genie::controls;
 
 //___________________________________________________________________________
 IMDKinematicsGenerator::IMDKinematicsGenerator() :
-KineGeneratorWithCache()
+KineGeneratorWithCache("genie::IMDKinematicsGenerator")
 {
-  fName = "genie::IMDKinematicsGenerator";
+
 }
 //___________________________________________________________________________
-IMDKinematicsGenerator::IMDKinematicsGenerator(const char * param_set) :
-KineGeneratorWithCache(param_set)
+IMDKinematicsGenerator::IMDKinematicsGenerator(string config) :
+KineGeneratorWithCache("genie::IMDKinematicsGenerator", config)
 {
-  fName = "genie::IMDKinematicsGenerator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 IMDKinematicsGenerator::~IMDKinematicsGenerator()

@@ -35,17 +35,15 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 DISPXSec::DISPXSec() :
-XSecAlgorithmI()
+XSecAlgorithmI("genie::DISPXSec")
 {
-  fName = "genie::DISPXSec";
+
 }
 //____________________________________________________________________________
-DISPXSec::DISPXSec(const char * param_set) :
-XSecAlgorithmI(param_set)
+DISPXSec::DISPXSec(string config) :
+XSecAlgorithmI("genie::DISPXSec", config)
 {
-  fName = "genie::DISPXSec";
 
-  FindConfig();
 }
 //____________________________________________________________________________
 DISPXSec::~DISPXSec()

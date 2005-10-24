@@ -38,17 +38,15 @@ using namespace genie::constants;
 
 //___________________________________________________________________________
 NucBindEnergyAggregator::NucBindEnergyAggregator() :
-EventRecordVisitorI()
+EventRecordVisitorI("genie::NucBindEnergyAggregator")
 {
-  fName = "genie::NucBindEnergyAggregator";
+
 }
 //___________________________________________________________________________
-NucBindEnergyAggregator::NucBindEnergyAggregator(const char * param_set) :
-EventRecordVisitorI(param_set)
+NucBindEnergyAggregator::NucBindEnergyAggregator(string config) :
+EventRecordVisitorI("genie::NucBindEnergyAggregator", config)
 {
-  fName = "genie::NucBindEnergyAggregator";
 
-  this->FindConfig();
 }
 //___________________________________________________________________________
 NucBindEnergyAggregator::~NucBindEnergyAggregator()
