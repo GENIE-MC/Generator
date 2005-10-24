@@ -21,7 +21,6 @@
 
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GMCJDriver.h"
-#include "FluxDrivers/GFlukaAtmo3DFlux.h"
 #include "FluxDrivers/GCylindTH1Flux.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Messenger/Messenger.h"
@@ -68,19 +67,6 @@ int main(int argc, char ** argv)
   }
 
   //-- Specify a flux driver
-/*
-  LOG("Main", pINFO)  << "Creating [GFlukaAtmo3DFlux] flux driver";
-
-  GFlukaAtmo3DFlux * flux = new GFlukaAtmo3DFlux;
-
-  flux->SetNuMuFluxFile("/home/costas/tmp/downloads/sdave_numu07.dat");
-  flux->SetNuMuBarFluxFile("/home/costas/tmp/downloads/sdave_anumu07.dat");
-  flux->SetNuEFluxFile("/home/costas/tmp/downloads/sdave_nue07.dat");
-  flux->SetNuEBarFluxFile("/home/costas/tmp/downloads/sdave_anue07.dat");
-  flux->SetRadii(1000.,100.);
-
-  flux->LoadFluxData();
-*/
 
   LOG("Main", pINFO)  << "Creating [GCylindTH1Flux] flux driver";
 
