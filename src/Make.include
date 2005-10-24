@@ -462,6 +462,7 @@ GENIE_MSG_SHARED_LIB              := $(GENIE_LIB_PATH)/libGMessenger.$(DllSuf)
 GENIE_NTUPLE_SHARED_LIB           := $(GENIE_LIB_PATH)/libGNtuple.$(DllSuf)
 GENIE_NUCLEAR_SHARED_LIB          := $(GENIE_LIB_PATH)/libGNuclear.$(DllSuf)
 GENIE_NUMERICAL_SHARED_LIB        := $(GENIE_LIB_PATH)/libGNumerical.$(DllSuf)
+GENIE_REWEIGHT_SHARED_LIB         := $(GENIE_LIB_PATH)/libGReWeight.$(DllSuf)
 GENIE_VALIDITY_DOC_SHARED_LIB     := $(GENIE_LIB_PATH)/libGValidityDoc.$(DllSuf)
 GENIE_PARTON_MODEL_SHARED_LIB     := $(GENIE_LIB_PATH)/libGPartonModel.$(DllSuf)
 GENIE_PASCHOS_SHARED_LIB          := $(GENIE_LIB_PATH)/libGPaschos.$(DllSuf)
@@ -492,7 +493,7 @@ GENIE_LIBRARIES := -L $(GENIE_LIB_PATH) \
   -lGNtuple -lGNuclear -lGNumerical -lGValidityDoc \
   -lGEVGCore -lGEVGDrivers -lGEVGModules  \
   -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
-  -lGReinSeghal -lGUtils -lGViewer -lGCrossSections
+  -lGReinSeghal -lGUtils -lGViewer -lGCrossSections -lGReWeight
 
 # add the GENIE/GEANT interface library if the interface is enabled
 
