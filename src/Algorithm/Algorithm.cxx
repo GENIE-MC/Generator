@@ -34,27 +34,27 @@ namespace genie
 {
   ostream & operator << (ostream & stream, const Algorithm & alg)
   {
-     // print algorithm name & parameter-set
-     stream << alg.fName << "/" << alg.fParamSet << endl;
-
-     // print algorithm configuration
-     stream << *(alg.fConfig);
-
-     return stream;
+    alg.Print(stream);
+    return stream;
   }
 }
 //____________________________________________________________________________
 Algorithm::Algorithm()
 {
-  fConfigIsOwned = false;
-  fConfig        = 0;
+  this->Initialize();
 }
 //____________________________________________________________________________
-Algorithm::Algorithm(const char * param_set) :
-fParamSet(param_set)
+Algorithm::Algorithm(string name)
 {
-  fConfigIsOwned = false;
-  fConfig        = 0;
+  this->Initialize();
+  fID.SetId(name);
+}
+//____________________________________________________________________________
+Algorithm::Algorithm(string name, string config)
+{
+  this->Initialize();
+  fID.SetId(name,config);
+  this->FindConfig();
 }
 //____________________________________________________________________________
 Algorithm::~Algorithm()
@@ -83,14 +83,14 @@ void Algorithm::Configure(const Registry & config)
   LOG("Algorithm", pINFO) << *fConfig;
 }
 //____________________________________________________________________________
-void Algorithm::Configure(string param_set)
+void Algorithm::Configure(string config)
 {
 // Configure the Algorithm looking up at the ConfigPool singleton for a
 // configuration Registry corresponding to the input named parameter set.
 
-  fParamSet = param_set;
+  fID.SetConfig(config);
 
-  FindConfig();
+  this->FindConfig();
 }
 //____________________________________________________________________________
 void Algorithm::FindConfig(void)
@@ -106,21 +106,16 @@ void Algorithm::FindConfig(void)
   Registry * config = pool->FindRegistry( this );
 
   if(!config)
-
         // notify & keep whatever config Registry was used before.
-
         LOG("Algorithm", pWARN)
-               << "No Configuration available for "
-                      << this->Name() << "/" << this->ParamSet()
-                                                    << " at the ConfigPool";
+                   << "No Configuration available for "
+                               << this->Id().Key() << " at the ConfigPool";
   else {
         // check if its already owns a configuration Registry & delete it;
-
         if(fConfigIsOwned && fConfig) delete fConfig;
 
         // point to the configuration Registry retrieved from the ConfigPool
         // and raise the "not-owned" flag.
-
         fConfig        = config;
         fConfigIsOwned = false;
 
@@ -132,19 +127,44 @@ AlgCmp_t Algorithm::Compare(const Algorithm * algo) const
 {
 // Compares itself with the input algorithm
 
-  string alg1    = this->Name();
-  string config1 = this->ParamSet();
-  string alg2    = algo->Name();
-  string config2 = algo->ParamSet();
+  string alg1    = this->Id().Name();
+  string config1 = this->Id().Config();
+  string alg2    = algo->Id().Name();
+  string config2 = algo->Id().Config();
 
-  if(alg1 == alg2) 
+  if(alg1 == alg2)
   {
     if(config1 == config2) return kAlgCmpIdentical;
     else                   return kAlgCmpDiffConfig;
-  } 
+  }
   else return kAlgCmpDiffAlg;
 
   return kAlgCmpUnknown;
+}
+//____________________________________________________________________________
+void Algorithm::SetId(const AlgId & id)
+{
+  fID.Copy(id);
+}
+//____________________________________________________________________________
+void Algorithm::SetId(string name, string config)
+{
+  fID.SetId(name, config);
+}
+//____________________________________________________________________________
+void Algorithm::Print(ostream & stream) const
+{
+  // print algorithm name & parameter-set
+  stream << this->fID.Key() << endl;
+
+  // print algorithm configuration
+  stream << *(this->fConfig);
+}
+//____________________________________________________________________________
+void Algorithm::Initialize()
+{
+  fConfigIsOwned = false;
+  fConfig        = 0;
 }
 //____________________________________________________________________________
 const Algorithm * Algorithm::SubAlg(string key) const
@@ -157,7 +177,7 @@ const Algorithm * Algorithm::SubAlg(string key) const
 // namespace::algorithm_name/configuration_set
 
   LOG("Algorithm", pDEBUG)
-               << "Fetching sub-algorithm within algorithm: " << this->Name();
+          << "Fetching sub-algorithm within algorithm: " << this->Id().Key();
   LOG("Algorithm", pDEBUG)
                << "Asserting existence of key: [" << key << "]";
 
@@ -188,10 +208,10 @@ const Algorithm * Algorithm::SubAlg(string alg_key, string config_key) const
 // This method asserts the existence of these keys in the XML config.
 
   LOG("Algorithm", pDEBUG)
-               << "Fetching sub-algorithm within algorithm: " << this->Name();
+          << "Fetching sub-algorithm within algorithm: " << this->Id().Key();
   LOG("Algorithm", pDEBUG)
               << "Asserting existence of keys: ["
-                                    << alg_key << "], [" << config_key << "]";
+                                   << alg_key << "], [" << config_key << "]";
 
   fConfig->AssertExistence(alg_key, config_key);
 
@@ -223,10 +243,10 @@ const Algorithm * Algorithm::SubAlgWithDefault(string alg_key,
   AlgFactory * algf = AlgFactory::Instance();
 
   LOG("Algorithm", pDEBUG)
-               << "Fetching sub-algorithm within algorithm: " << this->Name();
+          << "Fetching sub-algorithm within algorithm: " << this->Id().Key();
   LOG("Algorithm", pDEBUG)
               << "Testing existence of keys: ["
-                                    << alg_key << "], [" << config_key << "]";
+                                   << alg_key << "], [" << config_key << "]";
 
   bool keys_exist = (fConfig->Exists(alg_key) && fConfig->Exists(config_key));
 

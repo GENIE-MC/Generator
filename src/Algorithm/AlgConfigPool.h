@@ -40,9 +40,10 @@ public:
 
   static AlgConfigPool * Instance();
 
-  Registry * FindRegistry (string config_key)                 const;
+  Registry * FindRegistry (string key)                        const;
   Registry * FindRegistry (string alg_name, string param_set) const;
   Registry * FindRegistry (const Algorithm * algorithm)       const;
+  Registry * FindRegistry (const AlgId & algid)               const;
 
   const vector<string> & ConfigKeyList (void) const;
 
