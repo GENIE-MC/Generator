@@ -35,7 +35,7 @@ ____________________________________________________________________________*/
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "ReinSeghal/ReinSeghalCOHPXSec.h"
-#include "Utils/XSecUtils.h"
+#include "Utils/HadXSUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -97,9 +97,9 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
   double propg  = TMath::Power(ma2/(ma2+Q2),2.); // propagator term
   double r      = this->ReImPiApl(); // Re/Im Fwd Ampl. [def. can be overriden]
   double r2     = TMath::Power(r,2.);
-  double sTot   = utils::xsec::TotalPionNucleonXSec(Epi); // tot. pi+N xsec
+  double sTot   = utils::hadxs::TotalPionNucleonXSec(Epi); // tot. pi+N xsec
   double sTot2  = TMath::Power(sTot,2.);
-  double sInel  = utils::xsec::InelasticPionNucleonXSec(Epi); // inel. pi+N xsec
+  double sInel  = utils::hadxs::InelasticPionNucleonXSec(Epi); // inel. pi+N xsec
   double Ro     = this->NuclSizeScale(); // nuclear size scale parameter
   double Ro2    = TMath::Power(Ro,2.);
 
