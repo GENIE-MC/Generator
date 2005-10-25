@@ -180,10 +180,8 @@ void vDataSelectionDialog::BuildLeftFrameWidgets(void)
   _E_minLabel = new TGLabel(_energy_group_frame, new TGString( "min:"));
   _E_maxLabel = new TGLabel(_energy_group_frame, new TGString( "max:"));
 
-
   _W_cut = new TGNumberEntry(
                      _wcut_group_frame,   1.4, 6, 1, TGNumberFormat::kNESReal);
-
 
   _scale_with_energy  = new TGCheckButton(
                                       _main_left_frame, "Scale With Energy", 75);
@@ -292,7 +290,11 @@ void vDataSelectionDialog::LoadExperimentsFromDB(void)
 {
   TSQLServer * sql_server = _db->SqlServer();
 
-  const char query[] = "SELECT name from EXP_INFO;";
+  const char query[] = "SELECT DISTINCT EXP_INFO.name \
+         FROM EXP_INFO, MEASUREMENT_HEADER \
+         WHERE EXP_INFO.name = MEASUREMENT_HEADER.name AND \
+         MEASUREMENT_HEADER.observable IN \
+         ('MPP_XSEC', 'QES_XSEC', 'SPP_XSEC', 'TOT_XSEC', 'COH_XSEC');";
 
   TSQLResult * result = sql_server->Query(query);
 
@@ -318,7 +320,10 @@ void vDataSelectionDialog::LoadXSecTypesFromDB(void)
   TSQLServer * sql_server = _db->SqlServer();
 
   const char query[] =
-      "SELECT observable from MEASUREMENT_HEADER WHERE reaction LIKE \"%nu%\";";
+      "SELECT observable from MEASUREMENT_HEADER WHERE reaction LIKE \"%nu%\" \
+       AND  MEASUREMENT_HEADER.observable IN \
+       ('MPP_XSEC', 'QES_XSEC', 'SPP_XSEC', 'TOT_XSEC', 'COH_XSEC');";
+
 
   TSQLResult * result = sql_server->Query(query);
 
@@ -355,7 +360,9 @@ void vDataSelectionDialog::LoadProbesFromDB(void)
   TSQLServer * sql_server = _db->SqlServer();
 
   const char query[] =
-      "SELECT reaction from MEASUREMENT_HEADER WHERE reaction LIKE \"%nu%\";";
+      "SELECT reaction from MEASUREMENT_HEADER WHERE reaction LIKE \"%nu%\" \
+       AND MEASUREMENT_HEADER.observable IN \
+         ('MPP_XSEC', 'QES_XSEC', 'SPP_XSEC', 'TOT_XSEC', 'COH_XSEC');";
 
   TSQLResult * result = sql_server->Query(query);
 
@@ -392,7 +399,9 @@ void vDataSelectionDialog::LoadTargetsFromDB(void)
   TSQLServer * sql_server = _db->SqlServer();
 
   const char query[] =
-         "SELECT target from MEASUREMENT_HEADER WHERE reaction LIKE \"%nu%\";";
+         "SELECT target from MEASUREMENT_HEADER WHERE reaction LIKE \"%nu%\" \
+          AND MEASUREMENT_HEADER.observable IN \
+         ('MPP_XSEC', 'QES_XSEC', 'SPP_XSEC', 'TOT_XSEC', 'COH_XSEC');";
 
   TSQLResult * result = sql_server->Query(query);
 
@@ -435,7 +444,10 @@ void vDataSelectionDialog::LoadMeasurementsFromDB(void)
          FROM MEASUREMENT_HEADER, REFERENCE \
          WHERE REFERENCE.name = MEASUREMENT_HEADER.name AND \
          REFERENCE.measurement_tag = MEASUREMENT_HEADER.measurement_tag \
-         AND MEASUREMENT_HEADER.reaction LIKE \"%nu%\";";
+         AND MEASUREMENT_HEADER.reaction LIKE \"%nu%\" \
+         AND MEASUREMENT_HEADER.observable IN \
+         ('MPP_XSEC', 'QES_XSEC', 'SPP_XSEC', 'TOT_XSEC', 'COH_XSEC');";
+
 
   TSQLResult * result = sql_server->Query(query);
 
@@ -577,7 +589,9 @@ void vDataSelectionDialog::SelectAllObservablesForExp(string exp_name)
   ostringstream query;
 
   query << "SELECT observable FROM MEASUREMENT_HEADER where name = \""
-        << exp_name << "\";";
+        << exp_name << "\" "
+        << "AND MEASUREMENT_HEADER.observable IN "
+        << "('MPP_XSEC', 'QES_XSEC', 'SPP_XSEC', 'TOT_XSEC', 'COH_XSEC');";
 
   TSQLResult * result = _db->SqlServer()->Query( query.str().c_str() );
 
@@ -615,7 +629,9 @@ void vDataSelectionDialog::SelectAllReactionsForExp(string exp_name)
   ostringstream query;
 
   query << "SELECT reaction FROM MEASUREMENT_HEADER where name = \""
-        << exp_name << "\";";
+        << exp_name << "\" "
+        << "AND MEASUREMENT_HEADER.observable IN "
+        << "('MPP_XSEC', 'QES_XSEC', 'SPP_XSEC', 'TOT_XSEC', 'COH_XSEC');";
 
   TSQLResult * result = _db->SqlServer()->Query( query.str().c_str() );
 
@@ -653,7 +669,9 @@ void vDataSelectionDialog::SelectAllTargetsForExp(string exp_name)
   ostringstream query;
 
   query << "SELECT target FROM MEASUREMENT_HEADER where name = \""
-        << exp_name << "\";";
+        << exp_name << "\" "
+        << "AND MEASUREMENT_HEADER.observable IN "
+        << "('MPP_XSEC', 'QES_XSEC', 'SPP_XSEC', 'TOT_XSEC', 'COH_XSEC');";
 
   TSQLResult * result = _db->SqlServer()->Query( query.str().c_str() );
 
