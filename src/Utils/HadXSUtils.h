@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::utils::xsec
+\namespace  genie::utils::hadxs
 
-\brief      Simple non-neutrino cross section functions
+\brief      Simple functions and data for computing hadron interaction xsecs
 
 \author     Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
             CCLRC, Rutherford Appleton Laboratory
@@ -13,19 +13,19 @@
 */
 //____________________________________________________________________________
 
-#ifndef _XSEC_UTILS_H_
-#define _XSEC_UTILS_H_
+#ifndef _HADXS_UTILS_H_
+#define _HADXS_UTILS_H_
 
 namespace genie {
 namespace utils {
 
-namespace xsec
+namespace hadxs
 {
   double InelasticPionNucleonXSec (double Epion);
   double TotalPionNucleonXSec     (double Epion);
 
-}      // xsec  namespace
+}      // hadxs namespace
 }      // utils namespace
 }      // genie namespace
 
-#endif // _XSEC_UTILS_H_
+#endif // _HADXS_UTILS_H_
