@@ -3,7 +3,7 @@
 
 \class   genie::MCModel
 
-\brief
+\brief   A collection of cross section models
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -45,19 +45,30 @@ MCModel::MCModel(const MCModel & model)
 //___________________________________________________________________________
 MCModel::~MCModel()
 {
-
+  fXSecModelList.clear();
 }
 //___________________________________________________________________________
 void MCModel::Copy(const MCModel & model)
 {
+  this->Initialize();
 
+  map<string, const XSecAlgorithmI *>::const_iterator iter;
+  for(iter = model.fXSecModelList.begin();
+                           iter != model.fXSecModelList.end(); ++iter) {
+     string key = iter->first;
+     const XSecAlgorithmI * alg = iter->second;
+
+     fXSecModelList.insert(
+             map<string, const XSecAlgorithmI *>::value_type(key, alg));
+  }
+  fName = model.fName;
 }
 //___________________________________________________________________________
 void MCModel::UseXSecAlg(const ProcessInfo & proc, const AlgId & algid)
 {
   AlgFactory * algf = AlgFactory::Instance();
-  const XSecAlgorithmI * alg = 
-              dynamic_cast<const XSecAlgorithmI *> 
+  const XSecAlgorithmI * alg =
+              dynamic_cast<const XSecAlgorithmI *>
                          (algf->GetAlgorithm(algid.Name(), algid.Config()));
 
   string key = this->BuildKey(proc);
@@ -70,8 +81,8 @@ void MCModel::UseXSecAlg(
     const ProcessInfo & proc, const InitialState & init, const AlgId & algid)
 {
   AlgFactory * algf = AlgFactory::Instance();
-  const XSecAlgorithmI * alg = 
-              dynamic_cast<const XSecAlgorithmI *> 
+  const XSecAlgorithmI * alg =
+              dynamic_cast<const XSecAlgorithmI *>
                          (algf->GetAlgorithm(algid.Name(), algid.Config()));
 
   string key = this->BuildKey(proc, init);
@@ -87,7 +98,7 @@ const XSecAlgorithmI * MCModel::XSecAlg(const Interaction * interaction) const
 
   string key = this->BuildKey(proc, init);
 
-  if(fXSecModelList.count(key) == 1) 
+  if(fXSecModelList.count(key) == 1)
   {
     map<string, const XSecAlgorithmI *>::const_iterator iter;
     iter = fXSecModelList.find(key);
@@ -98,7 +109,7 @@ const XSecAlgorithmI * MCModel::XSecAlg(const Interaction * interaction) const
 
   key = this->BuildKey(proc);
 
-  if(fXSecModelList.count(key) == 1) 
+  if(fXSecModelList.count(key) == 1)
   {
     map<string, const XSecAlgorithmI *>::const_iterator iter;
     iter = fXSecModelList.find(key);
@@ -107,7 +118,7 @@ const XSecAlgorithmI * MCModel::XSecAlg(const Interaction * interaction) const
     return alg;
   }
 
-  LOG("ReWeight", pWARN) 
+  LOG("ReWeight", pWARN)
            << "No cross section model for the input interaction";
   return 0;
 }
