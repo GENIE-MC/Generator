@@ -96,14 +96,19 @@ const XSecAlgorithmI * MCModel::XSecAlg(const Interaction * interaction) const
   const ProcessInfo &  proc = interaction->GetProcessInfo();
   const InitialState & init = interaction->GetInitialState();
 
+  const XSecAlgorithmI * alg = 0;
+
   string key = this->BuildKey(proc, init);
+
 
   if(fXSecModelList.count(key) == 1)
   {
     map<string, const XSecAlgorithmI *>::const_iterator iter;
     iter = fXSecModelList.find(key);
+    alg  = iter->second;
 
-    const XSecAlgorithmI * alg = iter->second;
+    LOG("ReWeight", pDEBUG) 
+                << "Key = " << key << " -> AlgId = " << alg->Id();
     return alg;
   }
 
@@ -113,8 +118,10 @@ const XSecAlgorithmI * MCModel::XSecAlg(const Interaction * interaction) const
   {
     map<string, const XSecAlgorithmI *>::const_iterator iter;
     iter = fXSecModelList.find(key);
+    alg  = iter->second;
 
-    const XSecAlgorithmI * alg = iter->second;
+    LOG("ReWeight", pDEBUG) 
+                << "Key = " << key << " -> AlgId = " << alg->Id();
     return alg;
   }
 

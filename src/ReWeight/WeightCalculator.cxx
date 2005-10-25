@@ -48,6 +48,8 @@ double WeightCalculator::ReWeight(const EventRecord & event)
   // get event summary (Interaction)
   Interaction * interaction = event.GetInteraction();
 
+  LOG("ReWeight", pDEBUG) << "Computing new weight for: \n" << *interaction;
+
   // get the appropriate xsec alhorithms
   const XSecAlgorithmI * old_alg = fOldMCModel.XSecAlg(interaction);
   const XSecAlgorithmI * new_alg = fNewMCModel.XSecAlg(interaction);
@@ -61,7 +63,12 @@ double WeightCalculator::ReWeight(const EventRecord & event)
 
   // if the old and new xsec models are identical, then do not
   // bother computing a weight
-  if( old_alg->Compare(new_alg) == kAlgCmpIdentical ) return 1.;
+  if( old_alg->Compare(new_alg) == kAlgCmpIdentical ) {
+
+    LOG("ReWeight", pDEBUG) 
+        << "Same old/new xsec models for the given process. Weight = 1.";
+    return 1.;
+  }
 
   double old_xsec   = old_alg->XSec(interaction);
   double new_xsec   = new_alg->XSec(interaction);
