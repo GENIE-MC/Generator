@@ -3,7 +3,7 @@
 
 \class   genie::MCModel
 
-\brief
+\brief   A collection of cross section models
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
