@@ -13,7 +13,7 @@
 #pragma link C++ namespace genie::utils::str;
 #pragma link C++ namespace genie::utils::math;
 #pragma link C++ namespace genie::utils::kinematics;
-#pragma link C++ namespace genie::utils::xsec;
+#pragma link C++ namespace genie::utils::hadxs;
 #pragma link C++ namespace genie::utils::fragmrec;
 
 #pragma link C++ class genie::Cache;
