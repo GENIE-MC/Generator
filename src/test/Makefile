@@ -31,7 +31,6 @@ TGT =	testBaryonResDataSet	\
 	testRegistry		\
 	testReWeight		\
 	testReadGNtuple		\
-	testScatteringParams    \
 	testROOTGeometry
 
 EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
@@ -44,7 +43,6 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testRegistry		\
 	$(GENIE_BIN_PATH)/testReWeight		\
 	$(GENIE_BIN_PATH)/testReadGNtuple	\
-	$(GENIE_BIN_PATH)/testScatteringParams  \
 	$(GENIE_BIN_PATH)/testROOTGeometry  
 
 all: $(TGT)
@@ -89,10 +87,6 @@ testReadGNtuple: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testReadGNtuple \
 			testReadGNtuple.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
-testScatteringParams: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testScatteringParams \
-			testScatteringParams.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
-
 testROOTGeometry: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testROOTGeometry \
 			testROOTGeometry.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
@@ -131,9 +125,6 @@ clean--testReWeight: FORCE
 
 clean--testReadGNtuple: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testReadGNtuple
-
-clean--testScatteringParams: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testScatteringParams
 
 clean--testROOTGeometry: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testROOTGeometry
