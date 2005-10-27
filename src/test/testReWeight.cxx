@@ -52,7 +52,7 @@ int main(int argc, char ** argv)
 
   //-- define the 'old' & 'new' MCModel
   MCModel old_model = CreateOldXSecModel();
-  MCModel new_model = CreateOldXSecModel();
+  MCModel new_model = CreateNewXSecModel();
 
   //-- create a weight calculator
   WeightCalculator wcalc;
@@ -111,27 +111,27 @@ MCModel CreateOldXSecModel(void)
   AlgId       alg;
 
   proc.Set(kScQuasiElastic,  kIntWeakCC);
-  alg.SetId("genie::NuclearTargetXSec","QEL-CC-Default");
+  alg.SetId("genie::QELPXSec","CC-Default-BBA2003");
   model.UseXSecAlg(proc,alg);
 
   proc.Set(kScQuasiElastic,  kIntWeakNC);
-  alg.SetId("genie::NuclearTargetXSec","QEL-NC-Default");
+  alg.SetId("genie::QELPXSec","NC-Default");
   model.UseXSecAlg(proc,alg);
 
   proc.Set(kScDeepInelastic, kIntWeakCC);
-  alg.SetId("genie::NuclearTargetXSec","DIS-CC-Default");
+  alg.SetId("genie::DISPartonModelPXSec","CC-Default");
   model.UseXSecAlg(proc,alg);
 
   proc.Set(kScDeepInelastic, kIntWeakNC);
-  alg.SetId("genie::NuclearTargetXSec","DIS-NC-Default");
+  alg.SetId("genie::DISPartonModelPXSec","NC-Default");
   model.UseXSecAlg(proc,alg);
 
   proc.Set(kScResonant, kIntWeakCC);
-  alg.SetId("genie::NuclearTargetXSec","RES-Default");
+  alg.SetId("genie::RSExclusiveRESPXSec","Default");
   model.UseXSecAlg(proc,alg);
 
   proc.Set(kScResonant, kIntWeakNC);
-  alg.SetId("genie::NuclearTargetXSec","RES-Default");
+  alg.SetId("genie::RSExclusiveRESPXSec","Default");
   model.UseXSecAlg(proc,alg);
 
   return model;
@@ -144,27 +144,27 @@ MCModel CreateNewXSecModel(void)
   AlgId       alg;
 
   proc.Set(kScQuasiElastic,  kIntWeakCC);
-  alg.SetId("genie::NuclearTargetXSec","QEL-CC-Default");
+  alg.SetId("genie::QELPXSec","CC-Default");
   model.UseXSecAlg(proc,alg);
 
   proc.Set(kScQuasiElastic,  kIntWeakNC);
-  alg.SetId("genie::NuclearTargetXSec","QEL-NC-Default");
+  alg.SetId("genie::QELPXSec","NC-Default");
   model.UseXSecAlg(proc,alg);
 
   proc.Set(kScDeepInelastic, kIntWeakCC);
-  alg.SetId("genie::NuclearTargetXSec","DIS-CC-Default");
+  alg.SetId("genie::DISPartonModelPXSec","CC-Default");
   model.UseXSecAlg(proc,alg);
 
   proc.Set(kScDeepInelastic, kIntWeakNC);
-  alg.SetId("genie::NuclearTargetXSec","DIS-NC-Default");
+  alg.SetId("genie::DISPartonModelPXSec","NC-Default");
   model.UseXSecAlg(proc,alg);
 
   proc.Set(kScResonant, kIntWeakCC);
-  alg.SetId("genie::NuclearTargetXSec","RES-Default");
+  alg.SetId("genie::RSExclusiveRESPXSec","Default");
   model.UseXSecAlg(proc,alg);
 
   proc.Set(kScResonant, kIntWeakNC);
-  alg.SetId("genie::NuclearTargetXSec","RES-Default");
+  alg.SetId("genie::RSExclusiveRESPXSec","Default");
   model.UseXSecAlg(proc,alg);
 
   return model;
