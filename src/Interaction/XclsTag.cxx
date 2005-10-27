@@ -140,7 +140,7 @@ string XclsTag::AsString(void) const
 
   tag << "c=" << fIsCharmEvent << "," << fCharmedHadronPdg << ";";
   tag << "nucl(p,n)=" << fNProtons << "," << fNNeutrons << ";";
-  tag << "pi(+,-,0)=" << fNPiPlus << "," << fNPiMinus << "," << fNPi0;
+  tag << "pi(+,-,0)=" << fNPiPlus << "," << fNPiMinus << "," << fNPi0 << ";";
   tag << "res=" << fResonance;
 
   return tag.str();
