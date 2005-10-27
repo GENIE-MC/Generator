@@ -134,7 +134,7 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
      //int QRes = SppChannel::ResonanceCharge(spp_channel);
 
      //-- Set current resonance to interaction object
-     interaction->GetScatParamsPtr()->Set("resonance-id", (int) res);
+     interaction->GetExclusiveTagPtr()->SetResonance(res);
 
      //-- Get the Breit-Wigner weighted xsec for the current resonance
      double rxsec = res_xsec_model->XSec(interaction);

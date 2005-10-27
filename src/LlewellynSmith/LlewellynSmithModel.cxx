@@ -82,8 +82,8 @@ double LlewellynSmithModel::FA(const Interaction * interaction) const
   double FA0 = fConfig->GetDoubleDef("FA0", kQelFA0);
 
   // get scattering parameters
-  const ScatteringParams & scp = interaction->GetScatteringParams();
-  double q2 = scp.q2();
+  const Kinematics & kine = interaction->GetKinematics();
+  double q2 = kine.q2();
 
   // calculate FA(q2)
   double dn = TMath::Power(1.-q2/Ma2, 2);
@@ -94,8 +94,8 @@ double LlewellynSmithModel::FA(const Interaction * interaction) const
 double LlewellynSmithModel::Fp(const Interaction * interaction) const
 {
   // get momentum transfer
-  const ScatteringParams & scp = interaction->GetScatteringParams();
-  double q2 = scp.q2();
+  const Kinematics & kine = interaction->GetKinematics();
+  double q2 = kine.q2();
 
   // get struck nucleon mass & set pion mass
   const InitialState & init_state = interaction->GetInitialState();
@@ -116,10 +116,10 @@ double LlewellynSmithModel::tau(const Interaction * interaction) const
 {
 // computes q^2 / (4 * MNucl^2)
 
-  //-- get scattering & initial state parameters
-  const ScatteringParams & scp = interaction->GetScatteringParams();
+  //-- get kinematics & initial state parameters
+  const Kinematics &   kinematics = interaction->GetKinematics();
   const InitialState & init_state = interaction->GetInitialState();
-  double q2     = scp.q2();
+  double q2     = kinematics.q2();
   double Mnucl  = init_state.GetTarget().StruckNucleonMass();
   double Mnucl2 = TMath::Power(Mnucl, 2);
 
@@ -130,8 +130,8 @@ double LlewellynSmithModel::tau(const Interaction * interaction) const
 double LlewellynSmithModel::GVE(const Interaction * interaction) const
 {
   //-- get the momentum transfer
-  const ScatteringParams & scp = interaction->GetScatteringParams();
-  double q2 = scp.q2();
+  const Kinematics & kinematics = interaction->GetKinematics();
+  double q2 = kinematics.q2();
 
   //-- compute elastic form factors
   const ELFormFactorsModelI * elffmodel =
@@ -149,8 +149,8 @@ double LlewellynSmithModel::GVE(const Interaction * interaction) const
 double LlewellynSmithModel::GVM(const Interaction * interaction) const
 {
   //-- get the momentum transfer
-  const ScatteringParams & scp = interaction->GetScatteringParams();
-  double q2 = scp.q2();
+  const Kinematics & kinematics = interaction->GetKinematics();
+  double q2 = kinematics.q2();
 
   //-- compute elastic form factors
   const ELFormFactorsModelI * elffmodel =

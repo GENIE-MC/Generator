@@ -45,8 +45,14 @@ void WeightCalculator::NewCrossSectionModel(const MCModel & model)
 //___________________________________________________________________________
 double WeightCalculator::ReWeight(const EventRecord & event)
 {
+  LOG("ReWeight", pWARN) << "Yipiii!!";
+
   // get event summary (Interaction)
   Interaction * interaction = event.GetInteraction();
+  if(!interaction) {
+      LOG("ReWeight", pWARN) << "Null interaction!!";
+      return 0;
+  }
 
   LOG("ReWeight", pDEBUG) << "Computing new weight for: \n" << *interaction;
 
@@ -65,7 +71,7 @@ double WeightCalculator::ReWeight(const EventRecord & event)
   // bother computing a weight
   if( old_alg->Compare(new_alg) == kAlgCmpIdentical ) {
 
-    LOG("ReWeight", pDEBUG) 
+    LOG("ReWeight", pDEBUG)
         << "Same old/new xsec models for the given process. Weight = 1.";
     return 1.;
   }

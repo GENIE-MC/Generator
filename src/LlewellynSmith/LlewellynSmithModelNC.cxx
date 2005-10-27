@@ -57,8 +57,8 @@ double LlewellynSmithModelNC::F1V(const Interaction * interaction) const
   ELFormFactors elff;
   elff.SetModel(elffmodel);
 
-  const ScatteringParams & scp = interaction->GetScatteringParams();
-  double q2 = scp.q2();
+  const Kinematics & kine = interaction->GetKinematics();
+  double q2 = kine.q2();
 
   elff.Calculate(q2);
 
@@ -85,8 +85,8 @@ double LlewellynSmithModelNC::xiF2V(const Interaction * interaction) const
   ELFormFactors elff;
   elff.SetModel(elffmodel);
 
-  const ScatteringParams & scp = interaction->GetScatteringParams();
-  double q2 = scp.q2();
+  const Kinematics & kine = interaction->GetKinematics();
+  double q2 = kine.q2();
 
   elff.Calculate(q2);
 
@@ -112,8 +112,8 @@ double LlewellynSmithModelNC::FA(const Interaction * interaction) const
 double LlewellynSmithModelNC::Fp(const Interaction * interaction) const
 {
   //-- get the momentum transfer
-  const ScatteringParams & sc_params = interaction->GetScatteringParams();
-  double q2 = sc_params.q2();
+  const Kinematics & kine = interaction->GetKinematics();
+  double q2 = kine.q2();
 
   //-- get struck nucleon mass & pion pass
   const InitialState & init_state = interaction->GetInitialState();

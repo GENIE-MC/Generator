@@ -72,41 +72,41 @@ double RSListRESPXSec::XSec(const Interaction * interaction) const
   //   The BaryonResList can also decode lists of pdg-codes or
   //   resonance-ids (Resonance_t enumerations).
   //   Support for this will be added here as well.
-  
+
   assert( fConfig->Exists("resonance-name-list") );
-    
+
   string resonanes = fConfig->GetString("resonance-name-list");
-  
+
   BaryonResList res_list;
 
   res_list.DecodeFromNameList(resonanes);
-  
+
   //-- Loop over the specified list of baryon resonances and compute
   //   the total weighted cross section
 
   unsigned int nres = res_list.NResonances();
-  
+
   LOG("ReinSeghalRes", pDEBUG)
       << "Computing a weighted cross section for = " << nres << " resonances";
-    
+
   double xsec = 0;
-  
+
   for(unsigned int ires = 0; ires < nres; ires++) {
 
      //-- Current resonance
      Resonance_t res = res_list.ResonanceId(ires);
-  
+
      //-- Set current resonance to interaction object
-     interaction->GetScatParamsPtr()->Set("resonance-id", (int) res);
-     
-     //-- Get the Breit-Wigner weighted xsec for the current resonance     
+     interaction->GetExclusiveTagPtr()->SetResonance(res);
+
+     //-- Get the Breit-Wigner weighted xsec for the current resonance
      double rxsec = res_xsec_model->XSec(interaction);
 
      xsec += rxsec;
-  }    
+  }
 
   LOG("ReinSeghalRes", pDEBUG) << "Res List: d^2 xsec/ dQ^2 dW = " << xsec;
-  
+
   return xsec;
 }
 //____________________________________________________________________________
@@ -121,10 +121,10 @@ const XSecAlgorithmI * RSListRESPXSec::SingleResXSecModel(void) const
 
   string alg_name  = fConfig->GetString("single-res-xsec-alg-name");
   string param_set = fConfig->GetString("single-res-xsec-param-set");
-  
+
 
   AlgFactory * algf = AlgFactory::Instance();
-  
+
   const Algorithm * algbase = algf->GetAlgorithm(alg_name, param_set);
 
   const XSecAlgorithmI * xs = dynamic_cast<const XSecAlgorithmI *> (algbase);

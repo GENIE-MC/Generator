@@ -40,16 +40,7 @@ public:
   virtual ~SlowRsclCharmDISPXSecLO();
 
   //-- XSecAlgorithmI interface implementation
-  
   double XSec (const Interaction * interaction) const;
-
-private:
-
-  //-- methods that allow constant values of charm mass and CKM elements Vcd,
-  //   Vcs to be overriden by XML/registry config values if the user wishes to
-  double CharmMass (void) const;
-  double Vcd       (void) const;
-  double Vcs       (void) const;
 };
 
 }       // genie namespace

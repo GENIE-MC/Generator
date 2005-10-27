@@ -88,11 +88,11 @@ void UniformKinematicsGenerator::GenerateUnifQELKinematics(
 
   // generate/set a Q^2 in available phase space (const probability)
   double gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random2().Rndm();
-  interaction->GetScatParamsPtr()->Set("Q2", gQ2);
+  interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
   LOG("UnifKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
 
-  interaction->SetDiffXSec(-1);
+  evrec->SetDiffXSec(0);
 }
 //___________________________________________________________________________
 void UniformKinematicsGenerator::GenerateUnifRESKinematics(
@@ -112,7 +112,7 @@ void UniformKinematicsGenerator::GenerateUnifRESKinematics(
 
      // generate/set an invariant mass (const probability)
      gW = W.min + (W.max - W.min) * rnd->Random2().Rndm();
-     interaction->GetScatParamsPtr()->Set("W", gW);
+     interaction->GetKinematicsPtr()->SetW(gW);
 
      // compute physical Q^2 for selected W
      Range1D_t Q2 = utils::kinematics::Q2Range_W(interaction);
@@ -120,7 +120,7 @@ void UniformKinematicsGenerator::GenerateUnifRESKinematics(
      if(Q2.min < Q2.max) {
         // generate/set a Q^2 (const probability)
         gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random2().Rndm();
-        interaction->GetScatParamsPtr()->Set("Q2", gQ2);
+        interaction->GetKinematicsPtr()->SetQ2(gQ2);
         found = true;
      }
 
@@ -136,7 +136,7 @@ void UniformKinematicsGenerator::GenerateUnifRESKinematics(
   LOG("UnifKinematics", pINFO) << "Selected: W   = " << gW;
   LOG("UnifKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
 
-  interaction->SetDiffXSec(-1);
+  evrec->SetDiffXSec(0);
 }
 //___________________________________________________________________________
 void UniformKinematicsGenerator::GenerateUnifDISKinematics(
@@ -164,8 +164,8 @@ void UniformKinematicsGenerator::GenerateUnifDISKinematics(
      gx = rnd->Random2().Rndm();
      gy = rnd->Random2().Rndm();
 
-     interaction->GetScatParamsPtr()->Set("x", gx);
-     interaction->GetScatParamsPtr()->Set("y", gy);
+     interaction->GetKinematicsPtr()->Setx(gx);
+     interaction->GetKinematicsPtr()->Sety(gy);
 
      // check whether generated x,y correspond to valid kinematics
      gW  = TMath::Sqrt( utils::math::NonNegative(M2+2*Ev*M*gy*(1-gx)) );
@@ -194,7 +194,7 @@ void UniformKinematicsGenerator::GenerateUnifDISKinematics(
   LOG("UnifKinematics", pINFO) << "Selected: W   = " << gW;
   LOG("UnifKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
 
-  interaction->SetDiffXSec(-1);
+  evrec->SetDiffXSec(0);
 }
 //___________________________________________________________________________
 void UniformKinematicsGenerator::GenerateUnifCOHKinematics(

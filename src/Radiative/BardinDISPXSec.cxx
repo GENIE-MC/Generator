@@ -69,19 +69,15 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
 {
   LOG("Bardin", pDEBUG) << *fConfig;
 
-  //----- get scattering & init-state parameters
+  //----- get kinematical & init-state parameters
 
-  const ScatteringParams & sc_params = interaction -> GetScatteringParams();
-  const InitialState &    init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
 
-  TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
-  double E    = p4->Energy();
-  double x    = sc_params.x();
-  double y    = sc_params.y();
-
-  delete p4;
+  double x    = kinematics.x();
+  double y    = kinematics.y();
 
   //----- make sure that x, y are in the physically acceptable region
 
@@ -90,7 +86,7 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
 
   //----- compute auxiliary & kinematic parameters
 
-  double Mnuc2 = pow(Mnuc, 2);
+  double Mnuc2 = TMath::Power(Mnuc, 2);
   double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
   double Q2    = S(interaction) * x * y;
   double W     = TMath::Max(0., TMath::Sqrt(W2));
@@ -117,8 +113,8 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
        return 0;
    }
 
+  //----- tmp/
   //----- make sure it can get all critical configuration parameters
-
   assert(
           fConfig->Exists("pdf-alg-name")           &&
           fConfig->Exists("pdf-param-set")          &&
@@ -131,6 +127,7 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
 
   int init_pdgc = fConfig->GetInt("init-quark-pdg-code");
   int fin_pdgc  = fConfig->GetInt("final-quark-pdg-code");
+  //----- /tmp
 
   //----- check if the user wants to override standard the CKM element
   //      before reading it from the constants
@@ -262,27 +259,22 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
 //____________________________________________________________________________
 double BardinDISPXSec::PhiCCi(double xi, const Interaction * interaction) const
 {
-  const ScatteringParams & scp = interaction->GetScatteringParams();
+  const Kinematics & kine = interaction->GetKinematics();
 
-  double x    = scp.GetDouble("x");
-  double y    = scp.GetDouble("y");
+  double x    = kine.x();
+  double y    = kine.y();
   int    pdg  = fConfig->GetInt("init-quark-pdg-code");
-
   double mqf  = fConfig->GetDouble("final-quark-mass");
   double mqi  = InitQuarkMass(xi);
-  double mqf2 = pow(mqf,2);
-  double mqi2 = pow(mqi,2);
-
+  double mqf2 = TMath::Power(mqf,2);
+  double mqi2 = TMath::Power(mqi,2);
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
-
   double Q2   = S(interaction) * x * y;
   double t    = tau(xi, interaction);
   double st   = St(xi, interaction);
   double u    = U(xi, interaction);
   double su   = Su(xi, interaction);
-
   double f    = Utils::QuarkCharge(pdg);
-
   double ml2  = ml * ml;
   double st2  = st * st;
   double u2   = u  * u;
@@ -314,17 +306,15 @@ double BardinDISPXSec::PhiCCi(double xi, const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::DeltaCCi(const Interaction * interaction) const
 {
-  const ScatteringParams & scp = interaction->GetScatteringParams();
+  const Kinematics & kine = interaction->GetKinematics();
 
-  double x    = scp.GetDouble("x");
-  double y    = scp.GetDouble("y");
+  double x    = kine.x();
+  double y    = kine.y();
   int    pdg  = fConfig->GetInt("init-quark-pdg-code");
-
   double mqf  = fConfig->GetDouble("final-quark-mass");
   double mqi  = InitQuarkMass(interaction);
-  double mqf2 = pow(mqf,2);
-  double mqi2 = pow(mqi,2);
-
+  double mqf2 = TMath::Power(mqf,2);
+  double mqi2 = TMath::Power(mqi,2);
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double ml2  = ml*ml;
 
@@ -370,10 +360,10 @@ double BardinDISPXSec::DeltaCCi(const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::Ii(double xi, const Interaction * interaction) const
 {
-  const ScatteringParams & scp = interaction->GetScatteringParams();
+  const Kinematics & kine = interaction->GetKinematics();
 
-  double x    = scp.GetDouble("x");
-  double y    = scp.GetDouble("y");
+  double x    = kine.x();
+  double y    = kine.y();
   int    pdg  = fConfig->GetInt("init-quark-pdg-code");
 
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
@@ -406,28 +396,24 @@ double BardinDISPXSec::Ii(double xi, const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::S(const Interaction * interaction) const
 {
-  const InitialState & init_state = interaction -> GetInitialState();
+  const InitialState & init_state = interaction->GetInitialState();
 
-  TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-
-  double E = p4->Energy();
-
-  delete p4;
-
-  return 2 * kNucleonMass * E;
+  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+  double S = 2 * kNucleonMass * E;
+  return S;
 }
 //__________________________________________________________________________
 double BardinDISPXSec::U(double xi, const Interaction * interaction) const
 {
-  double y  = interaction->GetScatteringParams().GetDouble("y");
+  double y  = interaction->GetKinematics().y();
 
   return S(interaction) * y * xi;
 }
 //__________________________________________________________________________
 double BardinDISPXSec::tau(double xi, const Interaction * interaction) const
 {
-  double x    = interaction->GetScatteringParams().GetDouble("x");
-  double y    = interaction->GetScatteringParams().GetDouble("y");
+  double x    = interaction->GetKinematics().x();
+  double y    = interaction->GetKinematics().y();
 
   double mqf  = fConfig->GetDouble("final-quark-mass");
   double mqf2 = pow(mqf,2);
@@ -437,29 +423,29 @@ double BardinDISPXSec::tau(double xi, const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::St(double xi, const Interaction * interaction) const
 {
-  double x  = interaction->GetScatteringParams().GetDouble("x");
-  double y  = interaction->GetScatteringParams().GetDouble("y");
+  double x  = interaction->GetKinematics().x();
+  double y  = interaction->GetKinematics().y();
 
   return S(interaction) * (xi - y*(xi-x));
 }
 //__________________________________________________________________________
 double BardinDISPXSec::Su(double xi, const Interaction * interaction) const
 {
-  double y  = interaction->GetScatteringParams().GetDouble("y");
+  double y  = interaction->GetKinematics().y();
 
   return S(interaction) * xi * (1-y);
 }
 //__________________________________________________________________________
 double BardinDISPXSec::Sq(const Interaction * interaction) const
 {
-  double x  = interaction->GetScatteringParams().GetDouble("x");
+  double x  = interaction->GetKinematics().x();
 
   return S(interaction) * x;
 }
 //__________________________________________________________________________
 double BardinDISPXSec::InitQuarkMass(const Interaction * interaction) const
 {
-  double x  = interaction->GetScatteringParams().GetDouble("x");
+  double x  = interaction->GetKinematics().x();
 
   return x * kNucleonMass;
 }

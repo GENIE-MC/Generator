@@ -71,8 +71,8 @@ void BYStructureFuncModelCC::Calculate(const Interaction * interaction) const
      return;
   }
 
-  const ScatteringParams & sc_params  = interaction->GetScatteringParams();
-  double x = sc_params.x();
+  const Kinematics & kine  = interaction->GetKinematics();
+  double x = kine.x();
   if(x<=0.) {
      LOG("BodekYang", pERROR)
                  << "scaling variable x = " << x << ". Can not compute SFs";

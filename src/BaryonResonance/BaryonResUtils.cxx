@@ -425,38 +425,4 @@ bool genie::utils::res::IsN(Resonance_t res)
   return (! utils::res::IsDelta(res) );
 }
 //____________________________________________________________________________
-Resonance_t genie::utils::res::FromInteraction(const Interaction * interaction)
-{
-  const ScatteringParams & scp = interaction->GetScatteringParams();
-
-  Resonance_t res = kNoResonance;
-
-  if( scp.Exists("resonance-id") ) {
-
-      res = (Resonance_t) scp.GetInt("resonance-id");
-
-      return res;
-  }
-
-  if( scp.Exists("resonance-name") ) {
-
-      string res_name = scp.GetString("resonance-name");
-
-      res = FromString(res_name.c_str());
-
-      return res;
-  }
-
-  if( scp.Exists("resonance-pdgc") ) {
-
-      int pdgc = scp.GetInt("resonance-pdgc");
-
-      res = FromPdgCode(pdgc);
-
-      return res;
-  }
-
-  return res;
-}
-//____________________________________________________________________________
 

@@ -54,10 +54,8 @@ void QELPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   angle with respect to the incoming neutrino
 
   //auxiliary params:
-  TLorentzVector * p4nu = init_state.GetProbeP4(kRfStruckNucAtRest);
-
-  double Ev   = p4nu->Energy();
-  double Q2   = interaction->GetScatteringParams().Q2();
+  double Ev   = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Q2   = interaction->GetKinematics().Q2();
   double M    = init_state.GetTarget().StruckNucleonMass();
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double M2   = M*M;
@@ -91,7 +89,6 @@ void QELPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   this->AddToEventRecord(evrec, pdgc, p4l);
 
-  delete p4nu;
   delete p4l;
 }
 //___________________________________________________________________________

@@ -11,7 +11,7 @@
           CCLRC, Rutherford Appleton Laboratory
 
 \created  May 04, 2004
- 
+
 */
 //____________________________________________________________________________
 
@@ -19,7 +19,6 @@
 #define _DIS_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
-#include "Numerical/IntegratorI.h"
 
 namespace genie {
 
@@ -37,17 +36,7 @@ public:
 
 private:
 
-  const IntegratorI * Integrator(void) const;
-
   bool IsWithinIntegrationRange(const Interaction * interaction) const;
-
-  // methods that allow default values to be overriden by the XML config
-  int    NLogX (void) const;
-  int    NLogY (void) const;
-  double Xmin  (void) const;
-  double Xmax  (void) const;
-  double Ymin  (void) const;
-  double Ymax  (void) const;
 };
 
 }       // genie namespace

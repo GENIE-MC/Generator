@@ -110,7 +110,7 @@ TClonesArray * KNOHadronization2::Hadronize(
   //   Generate momentum kicks as a tunable gaussian fraction of the
   //   availabe momentum
 
-  double W  = interaction->GetScatteringParams().W();
+  double W  = interaction->GetKinematics().W();
 
 /*
   double PL = this->PKick(particle_list, interaction);
@@ -302,7 +302,7 @@ bool KNOHadronization2::ComputeForwardness(
 
   TMCParticle * p = 0;
 
-  double W  = interaction->GetScatteringParams().W();
+  double W  = interaction->GetKinematics().W();
   double WF = W/2;
   double WB = W/2;
 
@@ -376,7 +376,7 @@ double KNOHadronization2::PKick(
   double fwd_mass = this->TotalMass(particle_list, true );
   double bkw_mass = this->TotalMass(particle_list, false);
 
-  double W = interaction->GetScatteringParams().W();
+  double W = interaction->GetKinematics().W();
 
   double PAvail = W/2. - TMath::Max(fwd_mass, bkw_mass);
 
@@ -762,7 +762,7 @@ map<Multiplicity_t, double>
 // Returns the expected Forward (xF>0) & Backward <xF<0), tot/+/-/neutral
 // average multipliciies according to the external (XML) configuration params
 
-  double W = interaction->GetScatteringParams().W();
+  double W = interaction->GetKinematics().W();
 
   double lnW2 = TMath::Log(W*W);
 

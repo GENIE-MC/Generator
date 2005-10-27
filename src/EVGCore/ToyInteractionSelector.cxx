@@ -22,6 +22,7 @@
 #include "EVGCore/ToyInteractionSelector.h"
 #include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/EventGeneratorList.h"
+#include "EVGCore/EventRecord.h"
 #include "EVGCore/InteractionList.h"
 #include "EVGCore/InteractionFilter.h"
 #include "EVGCore/InteractionListGeneratorI.h"
@@ -65,7 +66,7 @@ void ToyInteractionSelector::SetInteractionFilter(
   fInteractionFilter = filter;
 }
 //___________________________________________________________________________
-Interaction * ToyInteractionSelector::SelectInteraction(
+EventRecord * ToyInteractionSelector::SelectInteraction(
                                        const InitialState & init_state) const
 {
   if(!fEventGeneratorList) {
@@ -91,26 +92,25 @@ Interaction * ToyInteractionSelector::SelectInteraction(
 
   // ask the event generator to produce a list of all interaction it can
   // generate for the input initial state
-
   const InteractionListGeneratorI * intlistgen = evgen->IntListGenerator();
-
   InteractionList * intlist = intlistgen->CreateInteractionList(init_state);
 
   // select a random interaction from the interaction list
-
   unsigned int nint = intlist->size();
   int          iint = rnd->Random1().Integer(nint);
-
   Interaction * interaction = (*intlist)[iint];
 
-  // clone, print and return
-
+  // clone interaction 
   Interaction * selected_interaction = new Interaction( *interaction );
-
   LOG("InteractionSelector", pINFO)
                    << "Interaction to generate: \n" << *selected_interaction;
 
+  // bootstrap the event record
+  EventRecord * evrec = new EventRecord;
+  evrec->AttachInteraction(selected_interaction);
+
   delete intlist;
-  return selected_interaction;
+
+  return evrec;
 }
 //___________________________________________________________________________

@@ -4,8 +4,8 @@
 \class    genie::StdElasticPXSec
 
 \brief    Standard differential cross section dxsec/dQ^2 for v+N / vbar+N
-          elastic scattering.        
-          
+          elastic scattering.
+
           StdElasticPXSec is a concrete implementation of the
           XSecAlgorithmI interface. \n
 
@@ -35,17 +35,7 @@ public:
   virtual ~StdElasticPXSec();
 
   //-- XSecAlgorithmI interface implementation
-
   double XSec (const Interaction * interaction) const;
-
-private:
-
-  // symbols follow the notation in L.A.Ahrens et al. paper
-  double GA    (const Interaction * interaction) const;
-  double F1    (const Interaction * interaction) const;
-  double F2    (const Interaction * interaction) const;
-  double Alpha (void) const;
-  double Gamma (void) const;
 };
 
 }       // genie namespace

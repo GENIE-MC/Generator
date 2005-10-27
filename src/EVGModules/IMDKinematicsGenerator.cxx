@@ -73,7 +73,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   register unsigned int iter = 0;
   while(1) {
      double y = ymin + dy * rnd->Random2().Rndm();
-     interaction->GetScatParamsPtr()->Set("y", y);
+     interaction->GetKinematicsPtr()->Sety(y);
 
      LOG("IMDKinematics", pINFO) << "Trying: y = " << y;
 
@@ -89,7 +89,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         LOG("IMDKinematics", pINFO) << "Selected: y = " << y;
 
         // set the cross section for the selected kinematics
-        interaction->SetDiffXSec(xsec);
+        evrec->SetDiffXSec(xsec);
         return;
      }
 
@@ -128,7 +128,7 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
   for(int i=0; i<N; i++) {
 
      double y = ymin + i * dy;
-     interaction->GetScatParamsPtr()->Set("y", y);
+     interaction->GetKinematicsPtr()->Sety(y);
 
      double xsec = xsec_alg->XSec(interaction);
 

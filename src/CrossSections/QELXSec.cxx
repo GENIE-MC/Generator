@@ -15,6 +15,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -22,6 +24,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
+#include "Numerical/IntegratorI.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
 
@@ -49,50 +52,38 @@ QELXSec::~QELXSec()
 double QELXSec::XSec(const Interaction * interaction) const
 {
   //----- Get an algorithm to calculate differential cross sections dxsec/dQ2
-
-  const Algorithm * xsec_alg_base = this->SubAlg(
-                          "partial-xsec-alg-name", "partial-xsec-param-set");
-
   const XSecAlgorithmI * partial_xsec_alg =
-                        dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
+          dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
+                         "partial-xsec-alg-name", "partial-xsec-param-set"));
 
   //----- get the input number of dxsec/dlogQ2 points for num. integration
   //      or use a default if no number is specified
   //      (must be odd number for the Simpson rule)
-
-  int nbins = ( fConfig->Exists("N-logQ2-bins") ) ?
-                                      fConfig->GetInt("N-logQ2-bins") : 101;
+  int nbins = fConfig->GetIntDef("N-logQ2-bins", 101);
   LOG("QELXSec", pDEBUG)
-                     << "Number of integration (logQ^2) bins = " << nbins;
+                 << "Number of integration (logQ^2) bins = " << nbins;
 
   //----- get initial & final state information
 
   const InitialState & init_state = interaction -> GetInitialState();
 
-  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-
-  double E    = nu_p4->Energy();
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double Mnuc = init_state.GetTarget().StruckNucleonMass();
   double ml2  = ml * ml;
 
-  delete nu_p4;
-
   //----- "phase-space" cut
-
   double Ethr = (ml2 + 2*ml*Mnuc) / (2*Mnuc);
 
   LOG("QELXSec", pDEBUG)
        << "Computing QEL XSec for Ev = " << E
                             << " / Neutrino Energy Threshold = " << Ethr;
-
   if(E <= Ethr) {
      LOG("QELXSec", pINFO) << "Ev = " << E << " <= Ethreshold = "<< Ethr;
      return 0;
   }
 
   //----- estimate the integration limits & step
-
   Range1D_t  rQ2 = utils::kinematics::Q2Range_M(interaction);
 
   LOG("QELXSec", pDEBUG) << "Q2 integration range = ("
@@ -103,7 +94,6 @@ double QELXSec::XSec(const Interaction * interaction) const
   double dlogQ2   = (logQ2max - logQ2min) / (nbins - 1);
 
   //----- define the integration grid & instantiate a FunctionMap
-
   UnifGrid grid;
   grid.AddDimension(nbins, logQ2min, logQ2max);
 
@@ -114,11 +104,9 @@ double QELXSec::XSec(const Interaction * interaction) const
   for(int iQ2 = 0; iQ2 < nbins; iQ2++) {
 
      double Q2 = TMath::Exp(logQ2min + iQ2 * dlogQ2);
-
-     interaction->GetScatParamsPtr()->Set("Q2", Q2); // <-- update Q2
+     interaction->GetKinematicsPtr()->SetQ2(Q2);
 
      double partial_xsec = partial_xsec_alg->XSec(interaction);
-
      Q2dxsec_dQ2.AddPoint( Q2 * partial_xsec, iQ2 );
 
      LOG("QELXSec", pDEBUG)
@@ -127,36 +115,13 @@ double QELXSec::XSec(const Interaction * interaction) const
   }
 
   //----- Numerical integration
-
-  const IntegratorI * integrator = this->Integrator();
-
-  double sQEtot = integrator->Integrate(Q2dxsec_dQ2);
-
-  return sQEtot;
-}
-//____________________________________________________________________________
-const IntegratorI * QELXSec::Integrator(void) const
-{
-// Get the integration algorithm specified in the configuration registry.
-// Use Simpson1D if no one else is defined
-
-  string integrator_name;
-
-  if( fConfig->Exists("integrator") )
-                          fConfig->Get("integrator", integrator_name );
-  else integrator_name = "genie::Simpson1D";
-
-  //-- ask the AlgFactory for the integrator algorithm
+  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
 
   AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * intg_alg_base = algf->GetAlgorithm(integrator_name);
-
   const IntegratorI * integrator =
-                           dynamic_cast<const IntegratorI *> (intg_alg_base);
+          dynamic_cast<const IntegratorI *> (algf->GetAlgorithm(intgr));
 
-  assert(integrator);
-
-  return integrator;
+  double sQEtot = integrator->Integrate(Q2dxsec_dQ2);
+  return sQEtot;
 }
 //____________________________________________________________________________

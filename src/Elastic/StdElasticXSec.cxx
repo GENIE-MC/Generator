@@ -53,28 +53,31 @@ double StdElasticXSec::XSec(const Interaction * interaction) const
 {
   //----- get differential cross section & integrator algorithms
 
-  const XSecAlgorithmI * pxsec      = this->DiffXSec();
-  const IntegratorI *    integrator = this->Integrator();
+  LOG("InverseMuDecay", pDEBUG) << "Getting requested diff. xsec algorithm";
+
+  const XSecAlgorithmI * pxsec =
+          dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
+                        "partial-xsec-alg-name", "partial-xsec-param-set"));
+
+  LOG("InverseMuDecay", pDEBUG)
+           << "Getting requested integrator algorithm (or setting default)";
+
+  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
+  AlgFactory * algf = AlgFactory::Instance();
+  const IntegratorI * integrator =
+          dynamic_cast<const IntegratorI *> (algf->GetAlgorithm(intgr));
 
   //----- get initial & final state information
-
-  const InitialState & init_state = interaction -> GetInitialState();
-
-  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-
-  double E  = nu_p4->Energy();
-
-  delete nu_p4;
+  const InitialState & init_state = interaction->GetInitialState();
+  double E  = init_state.GetProbeE(kRfStruckNucAtRest);
 
   //----- integrate the differential cross section
-
   Range1D_t rQ2 = utils::kinematics::Q2Range_M(interaction);
 
   const int    nsteps  = 201;
   const double dQ2     = (rQ2.max-rQ2.min)/(nsteps-1);
 
   UnifGrid grid;
-
   grid.AddDimension(nsteps, rQ2.min, rQ2.max);
 
   FunctionMap fmap(grid);
@@ -82,63 +85,16 @@ double StdElasticXSec::XSec(const Interaction * interaction) const
   for(int i = 0; i < nsteps; i++) {
 
     double Q2  = rQ2.min + i * dQ2;
-
-    interaction->GetScatParamsPtr()->Set("Q2",Q2);
+    interaction->GetKinematicsPtr()->SetQ2(Q2);
 
     double dsig_dQ2  = pxsec->XSec(interaction);
-
     fmap.AddPoint(dsig_dQ2, i);
   }
 
   double sig = integrator->Integrate(fmap);
 
-  LOG("InverseMuDecay", pDEBUG) << "*** xsec[IMD] = " << sig;
+  LOG("InverseMuDecay", pDEBUG) << "*** xsec[IMD (E=" << E << ")] = " << sig;
 
   return sig;
-}
-//____________________________________________________________________________
-const XSecAlgorithmI * StdElasticXSec::DiffXSec(void) const
-{
- LOG("InverseMuDecay", pINFO)
-                           << "Getting requested differential xsec algorithm";
-
- assert(fConfig->Exists("partial-xsec-alg-name") &&
-                                  fConfig->Exists("partial-xsec-param-set"));
-
- string alg_name  = fConfig->GetString("partial-xsec-alg-name");
- string param_set = fConfig->GetString("partial-xsec-param-set");
-
- //-- Get the requested cross section calculator from the AlgFactory
-
- AlgFactory * algf = AlgFactory::Instance();
-
- const Algorithm * alg_base = algf->GetAlgorithm(alg_name, param_set);
-
- const XSecAlgorithmI * xs = dynamic_cast<const XSecAlgorithmI *> (alg_base);
-
- assert(xs);
-
- return xs;
-}
-//____________________________________________________________________________
-const IntegratorI * StdElasticXSec::Integrator(void) const
-{
- LOG("InverseMuDecay", pINFO) << "Getting requested integrator algorithm";
-
- // read integrator name from config or set default
- string integrator_name = ( fConfig->Exists("integrator-name") ) ?
-                  fConfig->GetString("integrator-name") : "genie::Simpson1D";
-
- // get integrator algorithm
-
- AlgFactory * algf = AlgFactory::Instance();
-
- const Algorithm * alg_base = algf->GetAlgorithm(integrator_name);
-
- const IntegratorI * intgr = dynamic_cast<const IntegratorI *> (alg_base);
-
- assert(intgr);
-
- return intgr;
 }
 //____________________________________________________________________________

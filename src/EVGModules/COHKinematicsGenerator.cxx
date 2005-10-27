@@ -81,8 +81,8 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   while(1) {
      double gx = x.min + (x.max-x.min) * rnd->Random2().Rndm();
      double gy = y.min + (y.max-y.min) * rnd->Random2().Rndm();
-     interaction->GetScatParamsPtr()->Set("x", gx);
-     interaction->GetScatParamsPtr()->Set("y", gy);
+     interaction->GetKinematicsPtr()->Setx(gx);
+     interaction->GetKinematicsPtr()->Sety(gy);
      LOG("COHKinematics", pINFO)
                        << "Trying: (x = " << gx << ", y = " << gy << ")";
 
@@ -99,7 +99,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
                              << "Selected: x = " << gx << ", y = " << gy;
 
         // set the cross section for the selected kinematics
-        interaction->SetDiffXSec(xsec);
+        event_rec->SetDiffXSec(xsec);
         return;
      }
 
@@ -160,10 +160,10 @@ double COHKinematicsGenerator::ComputeMaxXSec(
 
   for(int i=0; i<N; i++) {
    double gx = TMath::Exp(logxmin + i * dlogx);
-   interaction->GetScatParamsPtr()->Set("x", gx);
+   interaction->GetKinematicsPtr()->Setx(gx);
    for(int j=0; j<N; j++) {
      double gy = TMath::Exp(logymin + j * dlogy);
-     interaction->GetScatParamsPtr()->Set("y", gy);
+     interaction->GetKinematicsPtr()->Sety(gy);
 
      max_xsec = TMath::Max(max_xsec, xsec_alg->XSec(interaction));
    }//y

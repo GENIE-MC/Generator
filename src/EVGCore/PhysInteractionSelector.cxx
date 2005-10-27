@@ -21,6 +21,7 @@
 #include "Conventions/Units.h"
 #include "EVGCore/PhysInteractionSelector.h"
 #include "EVGCore/EventGeneratorList.h"
+#include "EVGCore/EventRecord.h"
 #include "EVGCore/InteractionList.h"
 #include "EVGCore/InteractionFilter.h"
 #include "EVGCore/InteractionListGeneratorI.h"
@@ -65,7 +66,7 @@ void PhysInteractionSelector::SetInteractionFilter(
   fInteractionFilter = filter;
 }
 //___________________________________________________________________________
-Interaction * PhysInteractionSelector::SelectInteraction (
+EventRecord * PhysInteractionSelector::SelectInteraction (
                                        const InitialState & init_state) const
 {
   if(!fEventGeneratorList) {
@@ -183,11 +184,16 @@ Interaction * PhysInteractionSelector::SelectInteraction (
        double xsec_pedestal = (iint > 0) ? xseclist[iint-1] : 0.;
        double xsec = xseclist[iint] - xsec_pedestal;
        assert(xsec>0);
-       selected_interaction->SetXSec(xsec);
 
        LOG("InteractionSelector", pINFO)
                       << "Selected interaction: \n" << *selected_interaction;
-       return selected_interaction;
+
+       // bootstrap the event record
+       EventRecord * evrec = new EventRecord;
+       evrec->AttachInteraction(selected_interaction);
+       evrec->SetXSec(xsec);
+
+       return evrec;
      }
   }
   LOG("InteractionSelector", pERROR)

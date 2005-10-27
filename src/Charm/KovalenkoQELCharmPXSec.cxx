@@ -4,7 +4,7 @@
 \class    genie::KovalenkoQELCharmPXSec
 
 \brief    Computes the QEL Charm Production Differential Cross Section
-          using \b Kovalenko's duality model approach. 
+          using \b Kovalenko's duality model approach.
 
           The computed differential cross section is the Dxsec = dxsec/dQ^2
           where \n
@@ -28,6 +28,8 @@
 //____________________________________________________________________________
 
 #include <iostream>
+
+#include <TMath.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Charm/KovalenkoQELCharmPXSec.h"
@@ -71,32 +73,26 @@ double KovalenkoQELCharmPXSec::XSec(const Interaction * interaction) const
 
   this->AssertProcessValidity(interaction);
 
-  //----- get scattering params & init state - compute auxiliary vars
+  //----- get kinematics & init state - compute auxiliary vars
+  const Kinematics &   kinematics  = interaction->GetKinematics();
+  const InitialState & init_state  = interaction->GetInitialState();
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
-  const InitialState &     init_state = interaction -> GetInitialState();
-  
   //final state primary lepton & nucleon mass
-  double ml    = interaction -> GetFSPrimaryLepton() -> Mass();
-  double Mnuc  = kNucleonMass; 
+  double ml    = interaction->GetFSPrimaryLepton()->Mass();
+  double Mnuc  = kNucleonMass;
   double Mnuc2 = Mnuc * Mnuc;
-  
-  //neutrino energy & momentum transfer  
 
-  TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-  
-  double E     = p4->Energy();
-  double E2    = E * E;
-  double Q2    = sc_params.Q2();
+  //neutrino energy & momentum transfer
+  double E   = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E2  = E * E;
+  double Q2  = kinematics.Q2();
 
-  delete p4;
-  
   //resonance mass
-  double MR    = this -> MRes  (interaction);
-  double MR2   = this -> MRes2 (interaction);
-  
+  double MR  = this -> MRes  (interaction);
+  double MR2 = this -> MRes2 (interaction);
+
   //resonance threshold
-  double ER = ( pow(MR+ml,2) - Mnuc2 ) / (2*Mnuc);
+  double ER = ( TMath::Power(MR+ml,2) - Mnuc2 ) / (2*Mnuc);
 
   //----- check for user cuts on Q2;
 
@@ -109,7 +105,7 @@ double KovalenkoQELCharmPXSec::XSec(const Interaction * interaction) const
   //----- Calculate the differential cross section dxsec/dQ^2
 
   double xsec = 0;
-  
+
   if(E > ER) {
 
     double Gf  = kGF_2 / (2*kPi);
@@ -124,25 +120,25 @@ double KovalenkoQELCharmPXSec::XSec(const Interaction * interaction) const
 
     double Z = this->ZR(interaction);
     double D = this->DR(interaction);
-    
+
     LOG("CharmXSec", pDEBUG) << "Z = " << Z << ", D = " << D;
 
-    xsec = Gf * Z * D * ( 1 - vR_E + Q2_4E2 + Q2_2MExiR ) * sqrt(vR2 + Q2) / (vR*xiR);    
+    xsec = Gf*Z*D * (1 - vR_E + Q2_4E2 + Q2_2MExiR) *
+                                     TMath::Sqrt(vR2 + Q2) / (vR*xiR);
   }
-
   return xsec;
 }
 //____________________________________________________________________________
 double KovalenkoQELCharmPXSec::ZR(const Interaction * interaction) const
 {
   double Mo    = this->MoScale();
-  double Mo2   = Mo*Mo;  
+  double Mo2   = Mo*Mo;
   double Mnuc2 = kNucleonMass_2;
   double MR2   = this->MRes2(interaction);
 
   double D0    = this->DR(interaction, true); // D^R(Q^2=0)
   double sumF2 = this->SumF2(interaction);    // FA^2+F1^2
-  
+
   double Z  = 2*Mo2*kSin8c_2 * sumF2 / (D0 * (MR2-Mnuc2));
 
   return Z;
@@ -154,7 +150,7 @@ double KovalenkoQELCharmPXSec::DR(
   //----- get the requested PDF model & attach it to a PDF object
 
   const Algorithm * algbase = this->SubAlg("pdf-alg-name", "pdf-param-set");
-  
+
   const PDFModelI * pdf_model = dynamic_cast<const PDFModelI *> (algbase);
 
   PDF pdfs;
@@ -162,32 +158,32 @@ double KovalenkoQELCharmPXSec::DR(
 
   //----- compute integration area = [xi_bar_plus, xi_bar_minus]
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
+  const Kinematics & kinematics = interaction->GetKinematics();
 
-  double Q2     = sc_params.Q2();
+  double Q2     = kinematics.Q2();
   double Mnuc   = kNucleonMass;
   double Mnuc2  = kNucleonMass_2;
   double MR     = this->MRes(interaction);
   double DeltaR = this->ResDM(interaction);
 
-  double vR_minus  = ( pow(MR-DeltaR,2) - Mnuc2 + Q2 ) / (2*Mnuc);
-  double vR_plus   = ( pow(MR+DeltaR,2) - Mnuc2 + Q2 ) / (2*Mnuc);
+  double vR_minus  = ( TMath::Power(MR-DeltaR,2) - Mnuc2 + Q2 ) / (2*Mnuc);
+  double vR_plus   = ( TMath::Power(MR+DeltaR,2) - Mnuc2 + Q2 ) / (2*Mnuc);
 
   LOG("CharmXSec", pDEBUG)
             << "vR = [plus: " << vR_plus << ", minus: " << vR_minus << "]";
-  
+
   double xi_bar_minus = this->xiBar(interaction, vR_minus);
   double xi_bar_plus  = this->xiBar(interaction, vR_plus);
 
   LOG("CharmXSec", pDEBUG) << "Integration limits = ["
-                             << xi_bar_plus << ", " << xi_bar_minus << "]";  
+                             << xi_bar_plus << ", " << xi_bar_minus << "]";
 
   //----- define the integration grid & instantiate a FunctionMap
 
   UnifGrid grid;
 
   int nbins = (fConfig->Exists("nbins")) ? fConfig->GetInt("nbins") : 201;
-  
+
   grid.AddDimension(nbins, xi_bar_plus, xi_bar_minus);
 
   FunctionMap fmap(grid);
@@ -209,7 +205,7 @@ double KovalenkoQELCharmPXSec::DR(
   for(int i = 0; i < nbins; i++) {
 
      double t = xi_bar_plus + i * delta_xi_bar;
-     
+
      if( t<0 || t>1) fmap.AddPoint( 0., i );
      else {
 
@@ -239,9 +235,9 @@ double KovalenkoQELCharmPXSec::DR(
 double KovalenkoQELCharmPXSec::xiBar(
                               const Interaction * interaction, double v) const
 {
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
+  const Kinematics & kinematics = interaction->GetKinematics();
 
-  double Q2     = sc_params.Q2();
+  double Q2     = kinematics.Q2();
   double Mnuc   = kNucleonMass;
   double Mo     = this->MoScale();
   double Mo2    = Mo*Mo;
@@ -250,11 +246,9 @@ double KovalenkoQELCharmPXSec::xiBar(
   LOG("CharmXSec", pDEBUG)
                      << "Q2 = " << Q2 << ", Mo = " << Mo << ", v = " << v;
 
-  double xi  = ( Q2/Mnuc ) / ( v + sqrt(v2+Q2) );
-
-  double xi_bar = xi * ( 1 + (1 + Mo2/(Q2+Mo2))*Mo2/Q2 );
-
-  return xi_bar;
+  double xi  = (Q2/Mnuc) / (v + TMath::Sqrt(v2+Q2));
+  double xib = xi * ( 1 + (1 + Mo2/(Q2+Mo2))*Mo2/Q2 );
+  return xib;
 }
 //____________________________________________________________________________
 void KovalenkoQELCharmPXSec::Q2Cuts(double & Q2min, double & Q2max) const
@@ -290,16 +284,14 @@ double KovalenkoQELCharmPXSec::ResDM(const Interaction * interaction) const
 // Get the values from the algorithm conf. registry, and if they do not exist
 // set them to default values (Eq.(20) in Sov.J.Nucl.Phys.52:934 (1990)
 
-  double ResDMLambda = (fConfig->Exists("Res-DeltaM-Lambda")) ?
-                     fConfig->GetDouble("Res-DeltaM-Lambda") : 0.56; /*GeV*/
-  double ResDMSigma  = (fConfig->Exists("Res-DeltaM-Sigma")) ?
-                     fConfig->GetDouble("Res-DeltaM-Sigma")  : 0.20; /*GeV*/
+  double ResDMLambda = fConfig->GetDoubleDef("Res-DeltaM-Lambda", 0.56); /*GeV*/
+  double ResDMSigma  = fConfig->GetDoubleDef("Res-DeltaM-Sigma",  0.20); /*GeV*/
 
-  //----- get final state charm particle & initial state (struck) nucleon
+  //----- get final state charm particle
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
+  const XclsTag & xcls = interaction->GetExclusiveTag();
 
-  int pdgc = sc_params.GetInt("fs-charm-hadron-pdgc");
+  int pdgc = xcls.CharmHadronPDGCode();
 
   bool isLambda = (pdgc == kPdgLambdacP);
   bool isSigma  = (pdgc == kPdgSigmacP || pdgc == kPdgSigmacPP);
@@ -307,58 +299,50 @@ double KovalenkoQELCharmPXSec::ResDM(const Interaction * interaction) const
   if      ( isLambda ) return ResDMLambda;
   else if ( isSigma  ) return ResDMSigma;
   else
-    assert(1);
+    exit(1);
 
   return 0;
 }
 //____________________________________________________________________________
 double KovalenkoQELCharmPXSec::MRes(const Interaction * interaction) const
 {
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
+  const XclsTag & xcls = interaction->GetExclusiveTag();
 
-  int pdgc = sc_params.GetInt("fs-charm-hadron-pdgc");
-
+  int pdgc  = xcls.CharmHadronPDGCode();
   double MR = PDGLibrary::Instance()->Find(pdgc)->Mass();
-
   return MR;
 }
 //____________________________________________________________________________
 double KovalenkoQELCharmPXSec::MRes2(const Interaction * interaction) const
 {
   double MR  = this->MRes(interaction);
-
   double MR2 = MR*MR;
-
   return MR2;
 }
 //____________________________________________________________________________
 double KovalenkoQELCharmPXSec::vR_minus(const Interaction * interaction) const
 {
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
+  const Kinematics & kinematics = interaction->GetKinematics();
 
-  double Q2     = sc_params.GetDouble("Q2");
-  double DeltaR = this->ResDM(interaction);
-  double MR     = MRes(interaction);
-  double MN     = kNucleonMass;
-  double MN2    = kNucleonMass_2;
-
-  double vR = ( pow(MR-DeltaR,2) - MN2 + Q2 ) / (2*MN);
-
+  double Q2  = kinematics.Q2();
+  double dR  = this->ResDM(interaction);
+  double MR  = MRes(interaction);
+  double MN  = kNucleonMass;
+  double MN2 = kNucleonMass_2;
+  double vR  = (TMath::Power(MR-dR,2) - MN2 + Q2) / (2*MN);
   return vR;
 }
 //____________________________________________________________________________
 double KovalenkoQELCharmPXSec::vR_plus(const Interaction * interaction) const
 {
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
+  const Kinematics & kinematics = interaction->GetKinematics();
 
-  double Q2     = sc_params.GetDouble("Q2");
-  double DeltaR = this->ResDM(interaction);
-  double MR     = MRes(interaction);
-  double MN     = kNucleonMass;
-  double MN2    = kNucleonMass_2;
-
-  double vR = ( pow(MR+DeltaR,2) - MN2 + Q2 ) / (2*MN);
-
+  double Q2  = kinematics.Q2();
+  double dR  = this->ResDM(interaction);
+  double MR  = MRes(interaction);
+  double MN  = kNucleonMass;
+  double MN2 = kNucleonMass_2;
+  double vR  = (TMath::Power(MR+dR,2) - MN2 + Q2) / (2*MN);
   return vR;
 }
 //____________________________________________________________________________
@@ -400,12 +384,10 @@ double KovalenkoQELCharmPXSec::SumF2(const Interaction * interaction) const
                             fConfig->GetDouble("F1^2+FA^2-SigmaPP") : 1.42;
 
   //----- get final state charm particle & initial state (struck) nucleon
+  const XclsTag &      xcls       = interaction->GetExclusiveTag();
+  const InitialState & init_state = interaction->GetInitialState();
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
-  const InitialState &     init_state = interaction -> GetInitialState();
-
-  int pdgc = sc_params.GetInt("fs-charm-hadron-pdgc");
-
+  int pdgc = xcls.CharmHadronPDGCode();
   bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
   bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );
 
@@ -418,17 +400,16 @@ double KovalenkoQELCharmPXSec::SumF2(const Interaction * interaction) const
   return 0;
 }
 //____________________________________________________________________________
-void KovalenkoQELCharmPXSec::AssertProcessValidity(
+void KovalenkoQELCharmPXSec::AssertProcessValidity (
                                         const Interaction * interaction) const
 {
   //----- get final state charm particle & initial state (struck) nucleon
+  const XclsTag &      xcls       = interaction->GetExclusiveTag();
+  const InitialState & init_state = interaction->GetInitialState();
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
-  const InitialState &     init_state = interaction -> GetInitialState();
+  assert(xcls.IsCharmEvent() && ! xcls.IsInclusiveCharm());
 
-  assert( sc_params.Exists("fs-charm-hadron-pdgc") );
-
-  int pdgc = sc_params.GetInt("fs-charm-hadron-pdgc");
+  int pdgc = xcls.CharmHadronPDGCode();
 
   bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
   bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );

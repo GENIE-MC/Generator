@@ -93,40 +93,45 @@ void MCModel::UseXSecAlg(
 //___________________________________________________________________________
 const XSecAlgorithmI * MCModel::XSecAlg(const Interaction * interaction) const
 {
+  if(!interaction) {
+      LOG("ReWeight", pWARN) << "Null interaction!!";
+      return 0;
+  }
+
+  LOG("ReWeight", pDEBUG)
+               << "Finding cross section algorithm for: \n" << *interaction;
+
   const ProcessInfo &  proc = interaction->GetProcessInfo();
   const InitialState & init = interaction->GetInitialState();
 
   const XSecAlgorithmI * alg = 0;
 
   string key = this->BuildKey(proc, init);
-
-
   if(fXSecModelList.count(key) == 1)
   {
     map<string, const XSecAlgorithmI *>::const_iterator iter;
     iter = fXSecModelList.find(key);
     alg  = iter->second;
 
-    LOG("ReWeight", pDEBUG) 
-                << "Key = " << key << " -> AlgId = " << alg->Id();
+    LOG("ReWeight", pDEBUG)
+           << "Key = " << key << " -> AlgId = " << alg->Id();
     return alg;
   }
 
   key = this->BuildKey(proc);
-
   if(fXSecModelList.count(key) == 1)
   {
     map<string, const XSecAlgorithmI *>::const_iterator iter;
     iter = fXSecModelList.find(key);
     alg  = iter->second;
 
-    LOG("ReWeight", pDEBUG) 
-                << "Key = " << key << " -> AlgId = " << alg->Id();
+    LOG("ReWeight", pDEBUG)
+           << "Key = " << key << " -> AlgId = " << alg->Id();
     return alg;
   }
 
   LOG("ReWeight", pWARN)
-           << "No cross section model for the input interaction";
+       << "No cross section model for the input interaction";
   return 0;
 }
 //___________________________________________________________________________

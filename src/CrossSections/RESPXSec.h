@@ -11,9 +11,9 @@
 
           This is a model-independent algorithm. It merely integrates the
           specified double differential cross section.
-            
+
           Is a concrete implementation of the XSecAlgorithmI interface.
-            
+
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
@@ -29,8 +29,6 @@
 
 namespace genie {
 
-class IntegratorI;
-
 class RESPXSec : public XSecAlgorithmI {
 
 public:
@@ -40,13 +38,9 @@ public:
   virtual ~RESPXSec();
 
   //-- XSecAlgorithmI interface implementation
-
   double XSec (const Interaction * interaction) const;
-
-public:
-
-  const IntegratorI * Integrator(void) const;
 };
 
 }       // genie namespace
+
 #endif  // _RES_PXSEC_H_

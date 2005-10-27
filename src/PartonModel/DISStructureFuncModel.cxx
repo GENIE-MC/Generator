@@ -89,8 +89,7 @@ void DISStructureFuncModel::Calculate(const Interaction * ) const
 //____________________________________________________________________________
 double DISStructureFuncModel::Q2(const Interaction * interaction) const
 {
-// Return Q2 from the scattering param objects or, if not set, compute if
-// from x,y
+// Return Q2 from the kinematics or, if not set, compute it from x,y
 
   return utils::kinematics::CalcQ2(interaction);
 }
@@ -102,9 +101,8 @@ double DISStructureFuncModel::ScalingVar (
 // The scaling variable is set to the normal Bjorken x.
 // Override DISStructureFuncModel::ScalingVar() to compute corrections
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
-  double x  = sc_params.x();
-
+  const Kinematics & kine = interaction->GetKinematics();
+  double x = kine.x();
   return x;
 }
 //____________________________________________________________________________

@@ -22,9 +22,9 @@
 
 namespace genie {
 
-class Interaction;
 class InteractionFilter;
 class EventGeneratorList;
+class EventRecord;
 
 class InteractionSelectorI : public Algorithm {
 
@@ -36,7 +36,7 @@ public :
 
   virtual void          SetInteractionFilter (const InteractionFilter * filt) = 0;
   virtual void          SetGeneratorList     (const EventGeneratorList * egl) = 0;
-  virtual Interaction * SelectInteraction    (const InitialState & ist) const = 0;
+  virtual EventRecord * SelectInteraction    (const InitialState & ist) const = 0;
 
 protected:
 
