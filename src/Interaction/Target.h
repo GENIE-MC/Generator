@@ -23,13 +23,14 @@
 #include <string>
 
 #include <TLorentzVector.h>
+#include <TObject.h>
 
 using std::ostream;
 using std::string;
 
 namespace genie {
 
-class Target {
+class Target : public TObject {
 
 public:
 
@@ -47,18 +48,20 @@ public:
   int  N (void) const;
   int  A (void) const;
 
-  //-- Get nucleus PDG code according to the MINOS PDG extensions 
+  //-- Get nucleus PDG code according to the MINOS PDG extensions
   int  PDGCode (void) const;
-  
+
   //-- Set & Get struck nucleon pdg code & 4-momentum
 
-  void SetStruckNucleonPDGCode (int nucl_pdgc);
-  void SetStruckNucleonP4      (const TLorentzVector & p4);  
+  void SetStruckNucleonPDGCode (int pdgc);
+  void SetStruckQuarkPDGCode   (int pdgc);
+  void SetStruckNucleonP4      (const TLorentzVector & p4);
 
   int              StruckNucleonPDGCode (void) const;
+  int              StruckQuarkPDGCode   (void) const;
   double           StruckNucleonMass    (void) const;
   TLorentzVector * StruckNucleonP4      (void) const;
-  
+
   double Mass                    (void) const;
   double Charge                  (void) const;
   double BindEnergy              (void) const;
@@ -73,25 +76,7 @@ public:
   bool   StruckNucleonIsSet      (void) const;
   bool   IsEvenEven              (void) const;
   bool   IsEvenOdd               (void) const;
-  bool   IsOddOdd                (void) const;        
-
-//  double        NuclDensityProfile    (double r)              const;
-//  NucSpectrum & ExcitationSpectrum    (const)                 const;
-//  double        Parity                (void)                  const;
-//  double        Lifetime              (void)                  const;
-//  double        ElDipoleMoment        (void)                  const;
-//  double        ElQuadrupoleMoment    (void)                  const;
-//  double        MgDipoleMoment        (void)                  const;
-//  double        MeanFreePath          (TParticlePDG & probe)  const;
-//  double        Spin                  (void)                  const;
-//  double        SpinZ                 (void)                  const;
-//  double        Isospin               (void)                  const;
-//  double        IsospinZ              (void)                  const;
-//  double        OrbitalMomentum       (void)                  const;
-//  double        OrbitalMomentumZ      (void)                  const;
-//  bool          IsAllowedDecay        (DecayChannel & dc)     const;
-//  double        DecayRate             (DecayChannel & dc)     const;
-//  DecayList &   GetDecayChannels      (void)                  const;
+  bool   IsOddOdd                (void) const;
 
   string AsString (void) const;
   void   Copy     (const Target & t);
@@ -108,12 +93,15 @@ private:
   void ForceNucleusValidity       (void);
   bool ForceStruckNucleonValidity (void);
 
-  //-- Data members    
+  //-- Data members
   int  fZ;
-  int  fA;  
+  int  fA;
   int  fStruckNucPDG;
+  int  fStruckQuarkPDG;
   int  fTgtPDG;
   TLorentzVector * fStruckNucP4;
+
+ClassDef(Target,1)
 };
 
 }      // genie namespace

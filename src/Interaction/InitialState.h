@@ -21,6 +21,7 @@
 
 #include <TParticlePDG.h>
 #include <TLorentzVector.h>
+#include <TObject.h>
 
 #include "Conventions/RefFrame.h"
 #include "Interaction/Target.h"
@@ -30,7 +31,7 @@ using std::string;
 
 namespace genie {
 
-class InitialState {
+class InitialState : public TObject {
 
 public:
 
@@ -48,26 +49,29 @@ public:
   TLorentzVector * GetTargetP4 (RefFrame_t ref_frame = kRfLab) const;
   TLorentzVector * GetProbeP4  (RefFrame_t ref_frame = kRfStruckNucAtRest) const;
   double           GetProbeE   (RefFrame_t ref_frame) const;
-   
+
   void SetProbePDGCode (int pdg_code);
   void SetTargetP4     (const TLorentzVector & P4); // in LAB-frame
   void SetProbeP4      (const TLorentzVector & P4); // in LAB-frame
 
   string AsString (void) const;
+  void   Copy     (const InitialState & init_state);
   void   Print    (ostream & stream) const;
-  
+
   friend ostream & operator << (ostream& stream, const InitialState & init_state);
-   
+
 private:
 
   void Initialize (void);
-  void Copy       (const InitialState & init_state);
+  void CleanUp    (void);
   void Create     (int target_pdgc, int probe_pdgc);
 
   int              fProbePdgC; // probe PDG code
   Target *         fTarget;    // nuclear target
   TLorentzVector * fProbeP4;   // probe 4-momentum in LAB-frame
   TLorentzVector * fTargetP4;  // nuclear target 4-momentum in LAB-frame
+
+ClassDef(InitialState,1)
 };
 
 }      // namespace

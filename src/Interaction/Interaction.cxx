@@ -6,7 +6,7 @@
 \brief    Summary information for an interaction.
 
           It is a container of an InitialState, a ProcessInfo, an XclsTag
-          and a ScatteringParams object.
+          and a Kinematics object.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -31,6 +31,8 @@ using namespace genie::constants;
 using std::endl;
 using std::ostringstream;
 
+ClassImp(Interaction)
+
 //____________________________________________________________________________
 namespace genie {
  ostream & operator<< (ostream& stream, const Interaction & interaction)
@@ -50,10 +52,8 @@ Interaction::Interaction(
 {
   this->Init();
 
-  fInitialState = new InitialState (init_state);
-  fProcInfo     = new ProcessInfo  (proc_info);
-
-  fScatteringParams = new ScatteringParams ();
+  fInitialState -> Copy (init_state);
+  fProcInfo     -> Copy (proc_info);
 }
 //___________________________________________________________________________
 Interaction::Interaction(const Interaction & interaction)
@@ -69,45 +69,33 @@ Interaction::~Interaction()
 //___________________________________________________________________________
 void Interaction::Copy(const Interaction & interaction)
 {
-  fInitialState = new InitialState (*interaction.fInitialState);
-  fProcInfo     = new ProcessInfo  (*interaction.fProcInfo    );
-
-  try {
-     const Registry & reg =
-              dynamic_cast<const Registry &>(*interaction.fScatteringParams);
-
-    fScatteringParams = new ScatteringParams(reg);
-
-  } catch( std::bad_cast ) {
-     LOG("Interaction", pERROR) << "dynamic_cast to const Registry & failed";
-  }
-
-  if( interaction.IsExclusive() )
-       fExclusiveTag = new XclsTag(* interaction.fExclusiveTag);
-  else fExclusiveTag = 0;
-
-  fXSec  = interaction.fXSec;
-  fdXSec = interaction.fdXSec;
+  fInitialState = new InitialState ( *interaction.fInitialState  );
+  fProcInfo     = new ProcessInfo  ( *interaction.fProcInfo      );
+  fKinematics   = new Kinematics   ( *interaction.fKinematics    );
+  fExclusiveTag = new XclsTag      ( * interaction.fExclusiveTag );
 }
 //___________________________________________________________________________
 void Interaction::Reset(void)
 {
-  if ( fInitialState     ) delete fInitialState;
-  if ( fProcInfo         ) delete fProcInfo;
-  if ( fScatteringParams ) delete fScatteringParams;
-  if ( fExclusiveTag     ) delete fExclusiveTag;
+  if ( fInitialState ) delete fInitialState;
+  if ( fProcInfo     ) delete fProcInfo;
+  if ( fKinematics   ) delete fKinematics;
+  if ( fExclusiveTag ) delete fExclusiveTag;
+
+  fInitialState = 0;
+  fProcInfo     = 0;
+  fKinematics   = 0;
+  fExclusiveTag = 0;
 
   this->Init();
 }
 //___________________________________________________________________________
 void Interaction::Init(void)
 {
-  fInitialState     = 0;
-  fProcInfo         = 0;
-  fScatteringParams = 0;
-  fExclusiveTag     = 0;
-  fXSec             = 0;
-  fdXSec            = 0;
+  fInitialState = new InitialState ();
+  fProcInfo     = new ProcessInfo  ();
+  fKinematics   = new Kinematics   ();
+  fExclusiveTag = new XclsTag      ();
 }
 //___________________________________________________________________________
 TParticlePDG * Interaction::GetFSPrimaryLepton(void) const
@@ -137,18 +125,28 @@ TParticlePDG * Interaction::GetFSPrimaryLepton(void) const
   return 0;
 }
 //___________________________________________________________________________
-void Interaction::SetExclusiveTag(const XclsTag & xcls_tag)
+void Interaction::SetInitialState(const InitialState & init_state)
 {
-  fExclusiveTag = new XclsTag(xcls_tag);
+  if (!fInitialState) fInitialState = new InitialState();
+  fInitialState->Copy(init_state);
 }
 //___________________________________________________________________________
-void Interaction::ResetExclusive(void)
+void Interaction::SetProcessInfo(const ProcessInfo & proc_info)
 {
-  if(fExclusiveTag) {
-     LOG("Interaction", pDEBUG)  << "Reseting exclusive tag";
-     delete fExclusiveTag;
-     fExclusiveTag = 0;
-  }
+  if (!fProcInfo) fProcInfo = new ProcessInfo();
+  fProcInfo->Copy(proc_info);
+}
+//___________________________________________________________________________
+void Interaction::SetKinematics(const Kinematics & kinematics)
+{
+  if (!fKinematics) fKinematics = new Kinematics();
+  fKinematics->Copy(kinematics);
+}
+//___________________________________________________________________________
+void Interaction::SetExclusiveTag(const XclsTag & xcls_tag)
+{
+  if (!fExclusiveTag) fExclusiveTag = new XclsTag();
+  fExclusiveTag->Copy(xcls_tag);
 }
 //___________________________________________________________________________
 void Interaction::Print(ostream & stream) const
@@ -160,23 +158,9 @@ void Interaction::Print(ostream & stream) const
 
   stream << *fInitialState << endl; // print initial state
   stream << *fProcInfo;             // print process info
-  stream << *fScatteringParams;     // print scattering parameters
+  stream << *fKinematics;           // print scattering parameters
+  stream << *fExclusiveTag;         // print exclusive process tag
 
-  // print exclusive process tag - if exists
-  if( this->IsExclusive() ) stream << *fExclusiveTag;
-
-  // print cross section information - if exists
-  if(fXSec>0 || fdXSec>0) {
-    stream << "[-] [Cross Sections]" << endl;
-    if(fXSec>0) {
-       stream << " |--> xsec (@ given E) = "
-              << fXSec << endl;
-    }
-    if(fdXSec>0) {
-       stream << " |--> diff. xsec (@ given E & kinematical vars) = "
-              << fdXSec << endl;
-    }
-  }
   stream << line << endl;
 }
 //___________________________________________________________________________
@@ -184,25 +168,25 @@ string Interaction::AsString(void) const
 {
 // Code-ify the interaction in a string to be used as (part of a) cache
 // branch key.
-//
 // Template:
-//     nu_pdg:code;tgt-pdg:code;nucl-pdg:code;intype:name;sctype:name
+// nu:x;tgt:x;N:x;q:x;intp:x;sctp:x;xclv:x
 
   ostringstream interaction;
 
-  interaction << "nu-pdg:"
+  interaction << "nu:"
               << fInitialState->GetProbePDGCode() << ";";
-  interaction << "tgt-pdg:"
+  interaction << "tgt:"
               << fInitialState->GetTarget().PDGCode() << ";";
-  interaction << "nucl-pdg:"
+  interaction << "N:"
               << fInitialState->GetTarget().StruckNucleonPDGCode() << ";";
-  interaction << "intype:"
+  interaction << "q:"
+              << fInitialState->GetTarget().StruckQuarkPDGCode() << ";";
+  interaction << "intp:"
               << fProcInfo->InteractionTypeAsString() << ";";
-  interaction << "sctype:"
+  interaction << "sctp:"
               << fProcInfo->ScatteringTypeAsString() << ";";
-
-  if( this->IsExclusive() )
-                interaction << "xclv:" << fExclusiveTag->AsString() << ";";
+  interaction << "xclv:"
+              << fExclusiveTag->AsString() << ";";
 
   return interaction.str();
 }
