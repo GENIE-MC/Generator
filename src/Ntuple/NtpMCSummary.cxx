@@ -21,7 +21,7 @@
 #include "EVGCore/EventRecord.h"
 #include "Interaction/Interaction.h"
 #include "Ntuple/NtpMCSummary.h"
-#include "Ntuple/NtpGHepAnalyzer.h"
+#include "GHEP/GHepSummaryBuilder.h"
 
 using namespace genie;
 
@@ -78,8 +78,6 @@ void NtpMCSummary::PrintToStream(ostream & stream) const
   stream << "Fragmentation parameter z:....." << this->z      << endl;
   stream << "Momentum transfer Q^2:........." << this->Q2     << endl;
   stream << "Invariant mass W:.............." << this->W      << endl;
-  stream << "Cross Section (E):............." << this->xsec   << endl;
-  stream << "Cross Section (E, Kinematics).:" << this->dxsec  << endl;
   stream << "E/M fraction:.................:" << this->emfrac << endl;
 
   stream << "Vertex (x,y,z,t)..............: ("
@@ -105,75 +103,82 @@ void NtpMCSummary::PrintToStream(ostream & stream) const
          << this->npi0 << ", " << this->npip << ", " << this->npim << ")"
          << endl;
   stream << "Num (K^0,K^+,K^-)............: ("
-         << this->nK0 << ", " << this->nKp << ", " << this->nKm << ")";
+         << this->nK0 << ", " << this->nKp << ", " << this->nKm << ")"
+         << endl;
+
+  stream << "Cross Section (E):............." << this->xsec  << endl;
+  stream << "Cross Section (E, Kinematics).:" << this->dxsec << endl;
+  stream << "Event weight..................:" << this->wght  << endl;
 }
 //____________________________________________________________________________
 void NtpMCSummary::Copy(const EventRecord & evrec)
 {
-  NtpGHepAnalyzer ghep_analyzer;
+  GHepSummaryBuilder sbld;
 
-  ghep_analyzer.AnalyzeEventRecord(evrec);
+  sbld.AnalyzeEventRecord(evrec);
 
-  this->probe     = ghep_analyzer.ProbePdgCode();
-  this->fsl       = ghep_analyzer.FslPdgCode();
-  this->tgt       = ghep_analyzer.TgtPdgCode();
-  this->nucl      = ghep_analyzer.HitNuclPdgCode();
-  this->iqrk      = ghep_analyzer.HitQuarkPdgCode();
-  this->fqrk      = ghep_analyzer.OutgQuarkPdgCode();
-  this->res       = ghep_analyzer.ResPdgCode();
-  this->ch        = ghep_analyzer.CharmHadPdgCode();
-  this->Z         = ghep_analyzer.NuclTgtZ();
-  this->A         = ghep_analyzer.NuclTgtA();
-  this->N         = ghep_analyzer.NuclTgtN();
-  this->scat      = ghep_analyzer.ScatType();
-  this->proc      = ghep_analyzer.ProcType();
-  this->x         = ghep_analyzer.KineX();
-  this->y         = ghep_analyzer.KineY();
-  this->z         = ghep_analyzer.FragmZ();
-  this->Q2        = ghep_analyzer.KineQ2();
-  this->W         = ghep_analyzer.KineW();
-  this->xsec      = ghep_analyzer.XSec();
-  this->dxsec     = ghep_analyzer.dXSec();
-  this->emfrac    = ghep_analyzer.EmFrac();
+  this->probe     = sbld.ProbePdgC();
+  this->fsl       = sbld.FslPdgC();
+  this->tgt       = sbld.TgtPdgC();
+  this->nucl      = sbld.HitNuclPdgC();
+  this->iqrk      = sbld.HitQuarkPdgC();
+  this->fqrk      = sbld.OutQuarkPdgC();
+  this->res       = sbld.ResPdgC();
+  this->ch        = sbld.CharmHadPdgC();
+  this->Z         = sbld.NuclTgtZ();
+  this->A         = sbld.NuclTgtA();
+  this->N         = sbld.NuclTgtN();
+  this->scat      = int(sbld.ScatType());
+  this->proc      = int(sbld.ProcType());
+  this->x         = sbld.KineX();
+  this->y         = sbld.KineY();
+  this->z         = sbld.FragmZ();
+  this->Q2        = sbld.KineQ2();
+  this->W         = sbld.KineW();
+  this->emfrac    = sbld.EmFrac();
 
-  this->v[0]      = ghep_analyzer.Vtx().X();
-  this->v[1]      = ghep_analyzer.Vtx().Y();
-  this->v[2]      = ghep_analyzer.Vtx().Z();
-  this->v[3]      = ghep_analyzer.Vtx().T();
+  this->v[0]      = sbld.Vtx().X();
+  this->v[1]      = sbld.Vtx().Y();
+  this->v[2]      = sbld.Vtx().Z();
+  this->v[3]      = sbld.Vtx().T();
 
-  this->p4p[0]    = ghep_analyzer.Probe4P().Px();
-  this->p4p[1]    = ghep_analyzer.Probe4P().Py();
-  this->p4p[2]    = ghep_analyzer.Probe4P().Pz();
-  this->p4p[3]    = ghep_analyzer.Probe4P().E();
+  this->p4p[0]    = sbld.Probe4P().Px();
+  this->p4p[1]    = sbld.Probe4P().Py();
+  this->p4p[2]    = sbld.Probe4P().Pz();
+  this->p4p[3]    = sbld.Probe4P().E();
 
-  this->p4nucl[0] = ghep_analyzer.HitNucl4P().Px();
-  this->p4nucl[1] = ghep_analyzer.HitNucl4P().Py();
-  this->p4nucl[2] = ghep_analyzer.HitNucl4P().Pz();
-  this->p4nucl[3] = ghep_analyzer.HitNucl4P().E();
+  this->p4nucl[0] = sbld.HitNucl4P().Px();
+  this->p4nucl[1] = sbld.HitNucl4P().Py();
+  this->p4nucl[2] = sbld.HitNucl4P().Pz();
+  this->p4nucl[3] = sbld.HitNucl4P().E();
 
-  this->p4fsl[0]  = ghep_analyzer.Fsl4P().Px();
-  this->p4fsl[1]  = ghep_analyzer.Fsl4P().Py();
-  this->p4fsl[2]  = ghep_analyzer.Fsl4P().Pz();
-  this->p4fsl[3]  = ghep_analyzer.Fsl4P().E();
+  this->p4fsl[0]  = sbld.Fsl4P().Px();
+  this->p4fsl[1]  = sbld.Fsl4P().Py();
+  this->p4fsl[2]  = sbld.Fsl4P().Pz();
+  this->p4fsl[3]  = sbld.Fsl4P().E();
 
-  this->p4fsh[0]  = ghep_analyzer.HadShw4P().Px();
-  this->p4fsh[1]  = ghep_analyzer.HadShw4P().Py();
-  this->p4fsh[2]  = ghep_analyzer.HadShw4P().Pz();
-  this->p4fsh[3]  = ghep_analyzer.HadShw4P().E();
+  this->p4fsh[0]  = sbld.HadShw4P().Px();
+  this->p4fsh[1]  = sbld.HadShw4P().Py();
+  this->p4fsh[2]  = sbld.HadShw4P().Pz();
+  this->p4fsh[3]  = sbld.HadShw4P().E();
 
   this->p4fsl2[0] = 0;
   this->p4fsl2[1] = 0;
   this->p4fsl2[2] = 0;
   this->p4fsl2[3] = 0;
 
-  this->np   = ghep_analyzer.NumProton();
-  this->nn   = ghep_analyzer.NumNeutron();
-  this->npi0 = ghep_analyzer.NumPi0();
-  this->npip = ghep_analyzer.NumPiPlus();
-  this->npim = ghep_analyzer.NumPiMinus();
-  this->nK0  = ghep_analyzer.NumK0();
-  this->nKp  = ghep_analyzer.NumKPlus();
-  this->nKm  = ghep_analyzer.NumKMinus();
+  this->np   = sbld.NProton();
+  this->nn   = sbld.NNeutron();
+  this->npi0 = sbld.NPi0();
+  this->npip = sbld.NPiPlus();
+  this->npim = sbld.NPiMinus();
+  this->nK0  = sbld.NK0();
+  this->nKp  = sbld.NKPlus();
+  this->nKm  = sbld.NKMinus();
+
+  this->xsec  = evrec.GetXSec();
+  this->dxsec = evrec.GetDiffXSec();
+  this->wght  = evrec.GetWeight();
 }
 //____________________________________________________________________________
 void NtpMCSummary::Copy(const NtpMCSummary & mcs)
@@ -196,8 +201,6 @@ void NtpMCSummary::Copy(const NtpMCSummary & mcs)
   this->z         =  mcs.z;
   this->Q2        =  mcs.Q2;
   this->W         =  mcs.W;
-  this->xsec      =  mcs.xsec;
-  this->dxsec     =  mcs.dxsec;
   this->emfrac    =  mcs.emfrac;
   this->p4p[0]    =  mcs.p4p[0];
   this->p4p[1]    =  mcs.p4p[1];
@@ -227,6 +230,9 @@ void NtpMCSummary::Copy(const NtpMCSummary & mcs)
   this->nK0       =  mcs.nK0;
   this->nKp       =  mcs.nKp;
   this->nKm       =  mcs.nKm;
+  this->xsec      =  mcs.xsec;
+  this->dxsec     =  mcs.dxsec;
+  this->wght      =  mcs.wght;
 }
 //____________________________________________________________________________
 void NtpMCSummary::Init(void)
@@ -249,8 +255,6 @@ void NtpMCSummary::Init(void)
   this->z         =  0.;
   this->Q2        =  0.;
   this->W         =  0.;
-  this->xsec      =  0.;
-  this->dxsec     =  0.;
   this->emfrac    =  0.;
   this->p4p[0]    =  0.;
   this->p4p[1]    =  0.;
@@ -280,5 +284,8 @@ void NtpMCSummary::Init(void)
   this->nK0       =  0;
   this->nKp       =  0;
   this->nKm       =  0;
+  this->xsec      =  0.;
+  this->dxsec     =  0.;
+  this->wght      =  0.;
 }
 //____________________________________________________________________________
