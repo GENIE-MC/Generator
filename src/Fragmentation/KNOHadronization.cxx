@@ -106,7 +106,7 @@ TClonesArray * KNOHadronization::Hadronize(
   //----- Initial particle 4-momentum
   //      (in z-direction, with Energy = all the final state invariant mass)
 
-  double W = interaction->GetScatteringParams().W();
+  double W = interaction->GetKinematics().W();
 
   assert(W > kNucleonMass+kPionMass);
 
@@ -517,24 +517,19 @@ int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
   int HadronShowerCharge = 0;
 
   // find out the charge of the final state lepton
-  
   double ql = interaction->GetFSPrimaryLepton()->Charge() / 3.;
 
-  // get the scattering parameters, ask for the hit-nucleon and get
-  // its charge ( = initial state charge for vN interactions)
-  
+  // get the initial state, ask for the hit-nucleon and get
+  // its charge ( = initial state charge for vN interactions)  
   const InitialState & init_state = interaction->GetInitialState();
-
   int hit_nucleon = init_state.GetTarget().StruckNucleonPDGCode();
   
   assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
 
   // Ask PDGLibrary for the nucleon charge
-  
   double qinit = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
 
   // calculate the hadron shower charge
-  
   HadronShowerCharge = (int) ( qinit - ql );
 
   return HadronShowerCharge;

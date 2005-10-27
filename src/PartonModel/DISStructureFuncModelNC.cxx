@@ -51,8 +51,8 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
   fF5 = 0;
   fF6 = 0;
 
-  const ScatteringParams & sc_params  = interaction->GetScatteringParams();
-  double x = sc_params.x();
+  const Kinematics & kine  = interaction->GetKinematics();
+  double x = kine.x();
   if(x<=0.) {
      LOG("DISSF", pERROR)
                  << "scaling variable x = " << x << "! Can not compute SFs";

@@ -125,7 +125,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
            // restore the event record as it was just before the processing
            // step we are about to return to
-           event_rec->ResetGHepRecord();
+           event_rec->ResetRecord();
            GHepRecord * snapshot = rh[istep-1];
            rh.PurgeRecentHistory(istep);
            event_rec->Copy(*snapshot);

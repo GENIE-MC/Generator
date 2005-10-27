@@ -60,7 +60,7 @@ void RESResonanceSelector::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- add the resonance at the event summary
   Interaction * interaction = evrec->GetInteraction();
-  interaction->GetScatParamsPtr()->Set("resonance-id", res );
+  interaction->GetExclusiveTagPtr()->SetResonance(res);
 
   //-- add an entry at the GHep event record & the event summary
   this->AddResonance(evrec);
@@ -100,10 +100,11 @@ Resonance_t RESResonanceSelector::SelectResonance(GHepRecord * evrec) const
      //-- Current resonance
      Resonance_t res = res_list.ResonanceId(ires);
 
-     //-- Pass the current resonance as a 'scattering parameter'
+     //-- Set the current resonance at the interaction summary
      //   compute the differential cross section d^2xsec/dWdQ^2
      //   (do it only for resonances that can conserve charge)
-     interaction->GetScatParamsPtr()->Set("resonance-id", (int) res );
+     interaction->GetExclusiveTagPtr()->SetResonance(res);
+
      double xsec = 0;
      bool   skip = (q_res==2 && !utils::res::IsDelta(res));
 
@@ -169,7 +170,8 @@ void RESResonanceSelector::AddResonance(GHepRecord * evrec) const
   Interaction * interaction = evrec->GetInteraction();
   const InitialState & init_state = interaction->GetInitialState();
 
-  Resonance_t res = utils::res::FromInteraction(interaction);
+  assert(interaction->GetExclusiveTag().KnownResonance());
+  Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
   //-- Get all initial & final state particles 4-momenta (in the LAB frame)
 

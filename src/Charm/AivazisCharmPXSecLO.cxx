@@ -65,32 +65,25 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
 {
   LOG("AivazisCharm", pDEBUG) << *fConfig;
 
-  //----- get scattering & init-state parameters
+  //----- get init-state & kinematical parameters
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
-  const InitialState &     init_state = interaction -> GetInitialState();
-
-  TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-
-  double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
-  double E    = p4->Energy();
-  double x    = sc_params.x();
-  double y    = sc_params.y();
-
-  delete p4;
+  double Mnuc = kNucleonMass; // or use init_state->HitNucleon->Mass; ?
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double x    = kinematics.x();
+  double y    = kinematics.y();
 
   //----- make sure that x, y are in the physically acceptable region
-
   if(x<=0 || x>1) return 0;
   if(y<=0 || y>1) return 0;
 
-
   //----- get charm mass & CKM elements -- get constants unless they
   //      are overriden in the config registry
-
-  double mc    = this->CharmMass();
-  double Vcd   = this->Vcd();
-  double Vcs   = this->Vcs();
+  double mcdef = PDGLibrary::Instance()->Find(kPdgCQuark)->Mass();
+  double mc    = fConfig->GetDoubleDef("c-quark-mass", mcdef);
+  double Vcd   = fConfig->GetDoubleDef("Vcd", kVcd);
+  double Vcs   = fConfig->GetDoubleDef("Vcs", kVcs);
   double mc2   = TMath::Power(mc,  2);
   double Vcd2  = TMath::Power(Vcd, 2);
   double Vcs2  = TMath::Power(Vcs, 2);
@@ -189,28 +182,5 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
                  << ", x= " << x << ", y= " << y
                          << ", W= " << W << ", Q2 = " << Q2 << ") = " << xsec;
   return xsec;
-}
-//____________________________________________________________________________
-double AivazisCharmPXSecLO::CharmMass(void) const
-{
-// Allows default charm mass to be overriden by XML config / config registry
-
-  return (fConfig->Exists("c-quark-mass")) ?
-                  fConfig->GetDouble("c-quark-mass") :
-                  PDGLibrary::Instance()->Find(kPdgCQuark)->Mass();
-}
-//____________________________________________________________________________
-double AivazisCharmPXSecLO::Vcd(void) const
-{
-// Allows default CKM Vcd  to be overriden by XML config / config registry
-
-  return (fConfig->Exists("Vcd")) ? fConfig->GetDouble("Vcd") : kVcd;
-}
-//____________________________________________________________________________
-double AivazisCharmPXSecLO::Vcs(void) const
-{
-// Allows default CKM Vcs to be overriden by XML config / config registry
-
-  return (fConfig->Exists("Vcs")) ? fConfig->GetDouble("Vcs") : kVcs;
 }
 //____________________________________________________________________________

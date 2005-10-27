@@ -22,7 +22,6 @@
 #include <string>
 
 #include "BaryonResonance/BaryonResonance.h"
-#include "Interaction/Interaction.h"
 
 using std::string;
 
@@ -35,7 +34,6 @@ namespace res {
   Resonance_t FromString        (const char * res);
   Resonance_t FromPdgCode       (int pdgc);
   int         PdgCode           (Resonance_t res, int Q);
-  Resonance_t FromInteraction   (const Interaction * interaction);
   bool        IsBaryonResonance (int pdgc);
   bool        IsDelta           (Resonance_t res);
   bool        IsN               (Resonance_t res);

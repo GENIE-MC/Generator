@@ -86,7 +86,7 @@ TH1D * SchmitzMultiplicityModel::ProbabilityDistribution(
   double beta  = fConfig->GetDouble("beta");
   double alpha = SelectOffset(interaction);
 
-  double W = interaction->GetScatteringParams().W();
+  double W = interaction->GetKinematics().W();
 
   assert( W > 0 );
   

@@ -52,10 +52,10 @@ void FKR::Calculate(const Interaction * interaction)
 
   //-- compute kinematical parameters
 
-  const ScatteringParams & sc_params = interaction -> GetScatteringParams();
+  const Kinematics & kine = interaction->GetKinematics();
 
-  double q2  = sc_params.q2(); // momentum transfer (<0)
-  double W   = sc_params.W();  // invariant mass of the hadronic system
+  double q2  = kine.q2(); // momentum transfer (<0)
+  double W   = kine.W();  // invariant mass of the hadronic system
   double mN  = kNucleonMass;   // or use struck nucleon mass instead?
   double mN2 = TMath::Power(mN, 2);
   double W2  = TMath::Power(W,  2);

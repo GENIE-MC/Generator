@@ -63,23 +63,15 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   LOG("Paschos", pDEBUG) << *fConfig;
 
   //-- Get initial state and kinematic variables
-
   const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> GetKinematics();
 
-  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-
-  double E = nu_p4->Energy();
-
-  delete nu_p4;
-
-  const ScatteringParams & sc_params = interaction -> GetScatteringParams();
-
-  double E2   = TMath::Power(E,2);
-  double Q2   = sc_params.Q2();
-  double W    = sc_params.W();
+  double E  = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E2 = TMath::Power(E,2);
+  double Q2 = kinematics.Q2();
+  double W  = kinematics.W();
 
   //-- Commonly used masses
-
   double MN   = kNucleonMass;
   double MN2  = kNucleonMass_2;
   double Mmu2 = kMuonMass_2;

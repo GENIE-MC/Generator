@@ -55,11 +55,9 @@ void DISPrimaryLeptonGenerator::ProcessEventRecord(
   //   angle with respect to the incoming neutrino
 
   //auxiliary params:
-  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-
-  double Ev   = nu_p4->Energy();
-  double x    = interaction->GetScatteringParams().x();
-  double y    = interaction->GetScatteringParams().y();
+  double Ev   = init_state.GetProbeE(kRfStruckNucAtRest);
+  double x    = interaction->GetKinematics().x();
+  double y    = interaction->GetKinematics().y();
   double M    = init_state.GetTarget().StruckNucleonMass();
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double M2   = M*M;
@@ -68,30 +66,24 @@ void DISPrimaryLeptonGenerator::ProcessEventRecord(
   double W2   = M2 + 2*M*Ev*y*(1-x);
 
   //Compute outgoing lepton energy
-
   double El  = Ev - 0.5 * (W2 - M2 + Q2) / M;
 
   //Compute outgoing lepton scat. angle with respect to the incoming v
-
   double pl  = TMath::Sqrt( TMath::Max(0., El*El-ml2) );
   assert(pl > 0);
-
   double cThSc = (El - 0.5*(Q2+ml2)/Ev) / pl; // cos(theta-scat) [-1,1]
   assert( TMath::Abs(cThSc) <= 1 );
 
   //-- Rotate its 4-momentum to the nucleon rest frame
   //   unit' = R(Theta0,Phi0) * R(ThetaSc,PhiSc) * R^-1(Theta0,Phi0) * unit
-
   TLorentzVector * pl4 = P4InNucRestFrame(event_rec, cThSc, El);
 
   //-- Boost it to the lab frame
-
   TVector3 * beta = NucRestFrame2Lab(event_rec);
   pl4->Boost(*beta); // active Lorentz transform
 
   //-- Create a GHepParticle and add it to the event record
   //   (use the insertion method at the base PrimaryLeptonGenerator visitor)
-
   this->AddToEventRecord(event_rec, pdgc, pl4);
 
   delete pl4;

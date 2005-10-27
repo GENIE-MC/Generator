@@ -88,7 +88,7 @@ double BardinIMDRadCorXSec::XSec(const Interaction * interaction) const
 
   for(int i = 0; i < nsteps; i++) {
     double y = min + i * step;
-    interaction->GetScatParamsPtr()->Set("y",y);
+    interaction->GetKinematicsPtr()->Sety(y);
     double dsig_dy = pxsec->XSec(interaction);
     fmap.AddPoint(dsig_dy, i);
   }

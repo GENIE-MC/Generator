@@ -62,16 +62,16 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
 {
   LOG("ReinSeghalCoh", pDEBUG) << *fConfig;
 
-  //----- Get scattering & init-state parameters
+  //----- Get kinematical & init-state parameters
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
-  const InitialState &     init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
 
   double E      = init_state.GetProbeE(kRfLab); // neutrino energy
   double Mnuc   = kNucleonMass;
   double Mpi    = kPionMass;
-  double x      = sc_params.x(); // bjorken x
-  double y      = sc_params.y(); // inelasticity y
+  double x      = kinematics.x(); // bjorken x
+  double y      = kinematics.y(); // inelasticity y
 
   if (E<=Mpi || x<=0 || x>=1 || y<=Mpi/E || y>=1) {
 

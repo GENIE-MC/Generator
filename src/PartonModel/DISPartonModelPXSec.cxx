@@ -51,20 +51,16 @@ DISPartonModelPXSec::~DISPartonModelPXSec()
 //____________________________________________________________________________
 double DISPartonModelPXSec::XSec(const Interaction * interaction) const
 {
-  //----- Get scattering & init-state parameters
+  //----- Get kinematical & init-state parameters
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
-  const InitialState &     init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
 
-  TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double Mnuc = init_state.GetTarget().StruckNucleonMass();
-  double E    = p4->Energy();
-  double x    = sc_params.x();
-  double y    = sc_params.y();
-
-  delete p4;
+  double x    = kinematics.x();
+  double y    = kinematics.y();
 
   //----- Make sure everything makes sense
 

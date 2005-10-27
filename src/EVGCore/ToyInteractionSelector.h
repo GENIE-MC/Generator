@@ -40,7 +40,7 @@ public :
 
   void          SetInteractionFilter (const InteractionFilter * filt);
   void          SetGeneratorList     (const EventGeneratorList * egl);
-  Interaction * SelectInteraction    (const InitialState & init_state) const;
+  EventRecord * SelectInteraction    (const InitialState & init_state) const;
 
 private:
 

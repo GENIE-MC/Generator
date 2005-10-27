@@ -74,7 +74,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   register unsigned int iter = 0;
   while(1) {
      double gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random2().Rndm();
-     interaction->GetScatParamsPtr()->Set("Q2", gQ2);
+     interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("QELKinematics", pINFO) << "Trying: Q^2 = " << gQ2;
 
@@ -90,7 +90,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
         LOG("QELKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
 
         // set the cross section for the selected kinematics
-        interaction->SetDiffXSec(xsec);
+        event_rec->SetDiffXSec(xsec);
         return;
      }
 
@@ -157,7 +157,7 @@ double QELKinematicsGenerator::ComputeMaxXSec(
   for(int i=0; i<N; i++) {
 
      double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
-     interaction->GetScatParamsPtr()->Set("Q2", Q2);
+     interaction->GetKinematicsPtr()->SetQ2(Q2);
 
      double xsec = xsec_alg->XSec(interaction);
 

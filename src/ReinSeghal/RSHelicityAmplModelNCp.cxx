@@ -48,7 +48,7 @@ double RSHelicityAmplModelNCp::AmpMinus1(
   double ampl = 0;
   double xi   = kSin8w_2;
 
-  Resonance_t res = utils::res::FromInteraction(interaction);
+  Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
   switch(res) {
 
@@ -150,7 +150,7 @@ double RSHelicityAmplModelNCp::AmpPlus1(
   double ampl = 0;
   double xi   = kSin8w_2;
 
-  Resonance_t res = utils::res::FromInteraction(interaction);
+  Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
   switch(res) {
 
@@ -250,7 +250,7 @@ double RSHelicityAmplModelNCp::AmpMinus3(
 {
   double ampl = 0;
 
-  Resonance_t res = utils::res::FromInteraction(interaction);
+  Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
   switch(res) {
 
@@ -342,7 +342,7 @@ double RSHelicityAmplModelNCp::AmpPlus3(
 {
   double ampl = 0;
 
-  Resonance_t res = utils::res::FromInteraction(interaction);
+  Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
   switch(res) {
 
@@ -435,7 +435,7 @@ double RSHelicityAmplModelNCp::Amp0Minus(
   double ampl = 0;
   double xi   = kSin8w_2;
 
-  Resonance_t res = utils::res::FromInteraction(interaction);
+  Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
   switch(res) {
 
@@ -534,7 +534,7 @@ double RSHelicityAmplModelNCp::Amp0Plus(
   double ampl = 0;
   double xi   = kSin8w_2;
 
-  Resonance_t res = utils::res::FromInteraction(interaction);
+  Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
   switch(res) {
 

@@ -86,7 +86,7 @@ double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
   double sig0 = kGF_2 * kElectronMass * E / kPi;
   double re   = 0.5 * kElectronMass / E;
   double r    = (kMuonMass_2 / kElectronMass_2) * re;
-  double y    = interaction->GetScatteringParams().y();
+  double y    = interaction->GetKinematics().y();
 
   //Note: y = (Ev-El)/Ev but in Bardin's paper y=El/Ev. Switch here:
   y = 1-y;

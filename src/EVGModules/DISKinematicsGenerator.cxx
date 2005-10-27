@@ -84,8 +84,8 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      double gx = x.min + (x.max-x.min) * rnd->Random2().Rndm();
      double gy = y.min + (y.max-y.min) * rnd->Random2().Rndm();
 
-     interaction->GetScatParamsPtr()->Set("x", gx);
-     interaction->GetScatParamsPtr()->Set("y", gy);
+     interaction->GetKinematicsPtr()->Setx(gx);
+     interaction->GetKinematicsPtr()->Sety(gy);
 
      LOG("DISKinematics", pINFO) << "Trying: x = "<< gx << ", y = "<< gy;
 
@@ -104,7 +104,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
             LOG("DISKinematics", pINFO)
                              << "Selected: x = " << gx << ", y = " << gy;
             // set the cross section for the selected kinematics
-            interaction->SetDiffXSec(xsec);
+            evrec->SetDiffXSec(xsec);
             return;
          }
 
@@ -218,8 +218,8 @@ bool DISKinematicsGenerator::ValidKinematics(
   delete p4;
 
   //-- get current set of generated x,y
-  double gx  = interaction->GetScatteringParams().x();
-  double gy  = interaction->GetScatteringParams().y();
+  double gx  = interaction->GetKinematics().x();
+  double gy  = interaction->GetKinematics().y();
 
   //-- compute the corresponding generated W, Q^2
   double gW  = TMath::Sqrt( utils::math::NonNegative(M2+2*Ev*M*gy*(1-gx)) );
@@ -277,12 +277,12 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   for(int ix=0; ix<Nx; ix++) {
 
      double x = TMath::Exp(logxmin + ix * dlogx);
-     interaction->GetScatParamsPtr()->Set("x", x);
+     interaction->GetKinematicsPtr()->Setx(x);
 
      for(int iy=0; iy<Ny; iy++) {
 
          double y = TMath::Exp(logymin + iy * dlogy);
-         interaction->GetScatParamsPtr()->Set("y", y);
+         interaction->GetKinematicsPtr()->Sety(y);
 
          if( this->ValidKinematics(interaction) ) {
 

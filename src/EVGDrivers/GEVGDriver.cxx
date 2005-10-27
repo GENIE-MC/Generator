@@ -166,25 +166,24 @@ void GEVGDriver::Configure(void)
 //___________________________________________________________________________
 EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
 {
-  //-- Create a new event record
-  LOG("GEVGDriver", pINFO) << "Creating an event record";
-  fCurrentRecord = new EventRecord();
-
   //-- Build initial state information from inputs
-  LOG("GEVGDriver", pINFO) << "Creating an initial state from the user inputs";
+  LOG("GEVGDriver", pINFO) << "Creating an init state from the user inputs";
   InitialState init_state(*fNuclTarget, fNuPDG);
   init_state.SetProbeP4(nu4p);
 
   //-- Select the interaction to be generated (amongst the entries of the
-  //   InteractionList assembled by the EventGenerators)
-  LOG("GEVGDriver", pINFO) << "Selecting an Interaction to simulate";
-  Interaction * interaction = fIntSelector->SelectInteraction(init_state);
+  //   InteractionList assembled by the EventGenerators) and bootstrap the
+  //   event record
+  LOG("GEVGDriver", pINFO) 
+               << "Selecting an Interaction & Bootstraping the EventRecord";
+  fCurrentRecord = fIntSelector->SelectInteraction(init_state);
 
-  assert(interaction); // abort if no interaction could be selected!
+  assert(fCurrentRecord); // abort if no interaction could be selected!
 
-  //-- Hand over the pointer to the event record
-  LOG("GEVGDriver", pINFO) << "Attaching interaction to event-record";
-  fCurrentRecord->AttachInteraction(interaction); // transfer ownership
+  //-- Get a ptr to the interaction summary
+  LOG("GEVGDriver", pDEBUG) 
+                     << "Getting the interaction from the new event-record";
+  Interaction * interaction = fCurrentRecord->GetInteraction();
 
   //-- Find the appropriate concrete EventGeneratorI implementation
   //   for generating this event.

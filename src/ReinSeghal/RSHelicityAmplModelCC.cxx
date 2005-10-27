@@ -47,7 +47,7 @@ double RSHelicityAmplModelCC::AmpMinus1(
 {
    double ampl = 0;
 
-   Resonance_t res = utils::res::FromInteraction(interaction);
+   Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
    switch(res) {
 
@@ -140,8 +140,7 @@ double RSHelicityAmplModelCC::AmpPlus1(
                        const Interaction * interaction, const FKR & fkr) const
 {
    double ampl = 0;
-
-   Resonance_t res = utils::res::FromInteraction(interaction);
+   Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
    switch(res) {
 
@@ -232,8 +231,7 @@ double RSHelicityAmplModelCC::AmpMinus3(
                        const Interaction * interaction, const FKR & fkr) const
 {
    double ampl = 0;
-
-   Resonance_t res = utils::res::FromInteraction(interaction);
+   Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
    switch(res) {
 
@@ -325,8 +323,7 @@ double RSHelicityAmplModelCC::AmpPlus3(
                        const Interaction * interaction, const FKR & fkr) const
 {
    double ampl = 0;
-
-   Resonance_t res = utils::res::FromInteraction(interaction);
+   Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
    switch(res) {
 
@@ -418,8 +415,7 @@ double RSHelicityAmplModelCC::Amp0Minus(
                        const Interaction * interaction, const FKR & fkr) const
 {
    double ampl = 0;
-
-   Resonance_t res = utils::res::FromInteraction(interaction);
+   Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
    switch(res) {
 
@@ -511,8 +507,7 @@ double RSHelicityAmplModelCC::Amp0Plus(
                        const Interaction * interaction, const FKR & fkr) const
 {
    double ampl = 0;
-
-   Resonance_t res = utils::res::FromInteraction(interaction);
+   Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
    switch(res) {
 

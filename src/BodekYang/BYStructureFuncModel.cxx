@@ -105,12 +105,11 @@ double BYStructureFuncModel::ScalingVar(const Interaction * interaction) const
 {
 // Overrides DISStructureFuncModel::ScalingVar() to compute the BY scaling var
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
-  double x  = sc_params.x();
+  const Kinematics & kine  = interaction->GetKinematics();
+  double x  = kine.x();
   double Q2 = this->Q2(interaction);
 
   double xw = x * (Q2 + fB) / (Q2 + fA*x);
-
   return xw;
 }
 //____________________________________________________________________________

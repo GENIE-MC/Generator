@@ -74,17 +74,17 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 {
   LOG("ReinSeghalRes", pDEBUG) << *fConfig;
 
-  //----- Get scattering & init-state parameters
+  //----- Get kinematical & init-state parameters
 
   LOG("ReinSeghalRes", pDEBUG)
                         << "Getting scattering and initial-state parameters";
 
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
-  const InitialState &     init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
 
   double E    = init_state.GetProbeE(kRfStruckNucAtRest);
-  double W    = sc_params.W();
-  double q2   = sc_params.q2();
+  double W    = kinematics.W();
+  double q2   = kinematics.q2();
   double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
 
   //-- Check energy threshold & kinematical limits in q2, W
@@ -108,7 +108,8 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 
   //-- Get the input baryon resonance
 
-  Resonance_t resonance = utils::res::FromInteraction(interaction);
+  assert(interaction->GetExclusiveTag().KnownResonance());
+  Resonance_t resonance = interaction->GetExclusiveTag().Resonance();
 
   //-- Instantiate a Baryon Resonance Params object & attach data-set
 

@@ -52,42 +52,41 @@ StdElasticPXSec::~StdElasticPXSec()
 //____________________________________________________________________________
 double StdElasticPXSec::XSec(const Interaction * interaction) const
 {
-  //----- get initial & final state information
-
+  //-- get initial state information & kinematics
   const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> GetKinematics();
 
-  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
+  double E   = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Q2  = kinematics.Q2();
 
-  double E  = nu_p4->Energy();
-
-  delete nu_p4;
-
-  double Q2  = interaction->GetScatteringParams().Q2();
-
+  //-- check kinematics
   Range1D_t rQ2 = utils::kinematics::Q2Range_M(interaction);
-
   if ( Q2 < rQ2.min || Q2 > rQ2.max ) return 0;
 
   //-- compute cross section
-
-  double M   = init_state.GetTarget().StruckNucleonMass();
-  double M2  = M*M;
-  double M4  = M2*M2;
-  double E2  = E*E;
-
-  double sig0 = kGF_2*M2 / (8*kPi*E2);
-
-  double su   = 4*M*E - Q2; // s-u
-  double su2  = su*su;      // (s-u)^2
-  double qm2  = Q2 / M2;
-
-  double ga   = this->GA(interaction);
-  double f1   = this->F1(interaction);
-  double f2   = this->F2(interaction);
-
-  double ga2  = ga*ga;
-  double f12  = f1*f1;
-  double f22  = f2*f2;
+  double M     = init_state.GetTarget().StruckNucleonMass();
+  double M2    = M*M;
+  double M4    = M2*M2;
+  double E2    = E*E;
+  double sig0  = kGF_2*M2 / (8*kPi*E2);
+  double su    = 4*M*E - Q2; // s-u
+  double su2   = su*su;      // (s-u)^2
+  double qm2   = Q2 / M2;
+  double qmf   = TMath::Power(1+qm2,2);
+  double alpha = 1.-2.*kSin8w_2;
+  double gamma = -0.66666667*kSin8w_2;
+  double df1   = TMath::Power( 1.+qm2, 2.);
+  double Gv3   = 0.5 * (1+kMuP-kMuN) / df1;
+  double Gv0   = 1.5 * (1+kMuP+kMuN) / df1;
+  double df2   = (1. + 0.25*qm2) * TMath::Power( 1.+qm2, 2.);
+  double Fv3   = 0.5 * (kMuP-kMuN) / df2;
+  double Fv0   = 1.5 * (kMuP+kMuN) / df2;
+  double ga    = 0.5 * kElGa0 / qmf;           // El.nucl. form factor GA
+  double f2    = alpha*Fv3 + gamma*Fv0;        // El.nucl. form factor F2
+  double f1    = alpha*Gv3 + gamma* Gv0 - f2;  // El.nucl. form factor F1
+  double ga2   = ga*ga;
+  double f12   = f1*f1;
+  double f22   = f2*f2;
 
   double A = qm2 * ( ga2 * (1 + 0.25*qm2)                    +
                      (0.25 * f22*qm2 - f12) * (1 - 0.25*qm2) +
@@ -107,69 +106,3 @@ double StdElasticPXSec::XSec(const Interaction * interaction) const
   return dsig_dQ2;
 }
 //____________________________________________________________________________
-double StdElasticPXSec::GA(const Interaction * interaction) const
-{
-// Elastic nucleon form factor GA
-
-  double Q2  = interaction->GetScatteringParams().Q2();
-  double M   = interaction->GetInitialState().GetTarget().StruckNucleonMass();
-  double M2  = M*M;
-
-  double qm2 = Q2 / M2;
-
-  double Ga  = 0.5 * kElGa0 / TMath::Power(1+qm2,2);
-
-  return Ga;
-}
-//____________________________________________________________________________
-double StdElasticPXSec::F1(const Interaction * interaction) const
-{
-// Elastic nucleon form factor F1
-
-  double Q2  = interaction->GetScatteringParams().Q2();
-  double M   = interaction->GetInitialState().GetTarget().StruckNucleonMass();
-  double M2  = M*M;
-
-  double qm2 = Q2 / M2;
-  double d   = TMath::Power( 1.+qm2, 2.);
-
-  double Gv3   = 0.5 * (1+kMuP-kMuN) / d;
-  double Gv0   = 1.5 * (1+kMuP+kMuN) / d;
-
-  double f2 = this->F2(interaction);
-
-  double f1 = this->Alpha() * Gv3 + this->Gamma() * Gv0 - f2;
-
-  return f1;
-}
-//____________________________________________________________________________
-double StdElasticPXSec::F2(const Interaction * interaction) const
-{
-// Elastic nucleon form factor F2
-
-  double Q2  = interaction->GetScatteringParams().Q2();
-  double M   = interaction->GetInitialState().GetTarget().StruckNucleonMass();
-  double M2  = M*M;
-
-  double qm2 = Q2 / M2;
-  double d   = (1. + 0.25*qm2) * TMath::Power( 1.+qm2, 2.);
-
-  double Fv3   = 0.5 * (kMuP-kMuN) / d;
-  double Fv0   = 1.5 * (kMuP+kMuN) / d;
-
-  double f2    = this->Alpha() * Fv3 + this->Gamma() * Fv0;
-
-  return f2;
-}
-//____________________________________________________________________________
-double StdElasticPXSec::Alpha(void) const
-{
-  return (1.-2.*kSin8w_2);
-}
-//____________________________________________________________________________
-double StdElasticPXSec::Gamma(void) const
-{
-  return (-0.66666667*kSin8w_2);
-}
-//____________________________________________________________________________
-

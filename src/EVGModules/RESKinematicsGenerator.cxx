@@ -80,7 +80,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
      //-- Get a random W within its allowed limits
 
      double gW = W.min + (W.max - W.min) * rnd->Random2().Rndm();
-     interaction->GetScatParamsPtr()->Set("W", gW);
+     interaction->GetKinematicsPtr()->SetW(gW);
 
      //-- Compute the allowed Q^2 limits for the selected W
      //   (the physically allowed W's, unless an external cut is imposed)
@@ -90,7 +90,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
      //-- Get a random Q2 within its allowed limits
 
      double gQ2 = Q2.min + (Q2.max - Q2.min) * rnd->Random2().Rndm();
-     interaction->GetScatParamsPtr()->Set("Q2", gQ2);
+     interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("RESKinematics", pINFO) << "Trying: W = " << gW << ", Q2 = " << gQ2;
 
@@ -111,7 +111,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
         LOG("RESKinematics", pINFO)
                             << "Selected: W = " << gW << ", Q2 = " << gQ2;
         // set the cross section for the selected kinematics
-        interaction->SetDiffXSec(xsec);
+        event_rec->SetDiffXSec(xsec);
         return;
      }
 
@@ -207,7 +207,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
   for(int iw=0; iw<NW; iw++) {
      double W = rW.min + iw * dW;
-     interaction->GetScatParamsPtr()->Set("W", W);
+     interaction->GetKinematicsPtr()->SetW(W);
 
      Range1D_t rQ2 = this->Q2Range(interaction);
      const double logQ2min = TMath::Log(rQ2.min);
@@ -216,7 +216,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
      for(int iq2=0; iq2<NQ2; iq2++) {
         double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
-        interaction->GetScatParamsPtr()->Set("Q2", Q2);
+        interaction->GetKinematicsPtr()->SetQ2(Q2);
 
         double xsec = xsec_alg->XSec(interaction);
 

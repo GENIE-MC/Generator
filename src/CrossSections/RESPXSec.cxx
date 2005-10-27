@@ -58,19 +58,15 @@ RESPXSec::~RESPXSec()
 double RESPXSec::XSec(const Interaction * interaction) const
 {
   //-- Make sure it knows what kind of partial (dxsec/d?) xsec algorithm it is
-
   fConfig->AssertExistence("is-differential-over");
-
   string variable = fConfig->GetString("is-differential-over");
 
   LOG("RESPXSec", pINFO) << "Computing dxsec_{RES}/d" << variable;
 
   //-- Get the specified double differential (d^2xsec/dQ2dW) xsec algorithm
-
-  const Algorithm * xsec_alg_base = this->SubAlg(
-                           "partial-xsec-alg-name", "partial-xsec-param-set");
   const XSecAlgorithmI * d2xsec_alg =
-                         dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
+                 dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
+                           "partial-xsec-alg-name", "partial-xsec-param-set"));
 
   //-- Get t (W,logQ2) integration range from config (if it exists
   //   or set default values). It should be OK if default range extends to
@@ -90,9 +86,9 @@ double RESPXSec::XSec(const Interaction * interaction) const
 
      if(rQ2.min<0 && rQ2.max<0) return 0.;
 
-     nt   = ( fConfig->Exists("nLogQ2") ) ? fConfig->GetInt("nLogQ2")    : 151;
-     tmin = ( fConfig->Exists("Q2min")  ) ? fConfig->GetDouble("Q2min")  : rQ2.min;
-     tmax = ( fConfig->Exists("Q2max")  ) ? fConfig->GetDouble("Q2max")  : rQ2.max;
+     nt   = fConfig -> GetIntDef    ("nLogQ2", 151    );
+     tmin = fConfig -> GetDoubleDef ("Q2min",  rQ2.min);
+     tmax = fConfig -> GetDoubleDef ("Q2max",  rQ2.max);
 
   } else if ( variable.find("Q2") != string::npos ) {
 
@@ -101,16 +97,15 @@ double RESPXSec::XSec(const Interaction * interaction) const
      // default is physical W range for the given energy
      Range1D_t rW = utils::kinematics::WRange(interaction);
 
-     nt   = ( fConfig->Exists("nW") )    ? fConfig->GetInt("nW")       : 51;
-     tmin = ( fConfig->Exists("Wmin")  ) ? fConfig->GetDouble("Wmin")  : rW.min;
-     tmax = ( fConfig->Exists("Wmax")  ) ? fConfig->GetDouble("Wmax")  : rW.max;
+     nt   = fConfig -> GetIntDef    ("nW",   51    );
+     tmin = fConfig -> GetDoubleDef ("Wmin", rW.min);
+     tmax = fConfig -> GetDoubleDef ("Wmax", rW.max);
 
   } else return 0.;
 
   //-- Check that t (W or Q2) range is meaningful
-
-  LOG("RESPXSec", pINFO) << "tmin = " << tmin << ", tmax = " << tmax << ", nt = " << nt;
-
+  LOG("RESPXSec", pINFO)
+    << "tmin = " << tmin << ", tmax = " << tmax << ", nt = " << nt;
   assert( nt > 1 && tmax > tmin);
 
   //-- Define the integration grid & instantiate a FunctionMap
@@ -118,16 +113,12 @@ double RESPXSec::XSec(const Interaction * interaction) const
   UnifGrid grid;
 
   if ( variable == "W" ) {
-
     // It is a dxsec/dW -- do the Q2 integration over *dlogQ2*
-
     dt = (TMath::Log(tmax) - TMath::Log(tmin)) / (nt-1);
     grid.AddDimension(nt, TMath::Log(tmin), TMath::Log(tmax)); // 1-D
 
   } else if ( variable == "Q2" ) {
-
     // It is a dxsec/dQ2 -- do the W integration
-
     dt = (tmax - tmin) / (nt-1);
     grid.AddDimension(nt, tmin, tmax); // 1-D
   }
@@ -135,57 +126,30 @@ double RESPXSec::XSec(const Interaction * interaction) const
   FunctionMap funcmap(grid); // Q2*(d^2xsec/dlogQ2) or d^2xsec/dW
 
   //-- Loop over t (W or Q2) and compute dxsec/dt
-
   for(int it = 0; it < nt; it++) {
-
     if ( variable == "W" ) {
-
        t = TMath::Exp( TMath::Log(tmin) + it * dt);
-       interaction->GetScatParamsPtr()->Set("Q2", t);
+       interaction->GetKinematicsPtr()->SetQ2(t);
        double d2xsec = d2xsec_alg->XSec(interaction);
        funcmap.AddPoint(t*d2xsec, it);
 
     } else if ( variable == "Q2" ) {
-
        t = tmin + it * dt;
-       interaction->GetScatParamsPtr()->Set("W", t);
+       interaction->GetKinematicsPtr()->SetW(t);
        double d2xsec = d2xsec_alg->XSec(interaction);
        funcmap.AddPoint(d2xsec, it);
     }
   } //t
 
   //-- Numerical integration
-
-  const IntegratorI * integrator = this->Integrator();
-
-  double xsec = integrator->Integrate(funcmap);
-
-  return xsec;
-}
-//____________________________________________________________________________
-const IntegratorI * RESPXSec::Integrator(void) const
-{
-  //-- get specified integration algorithm from the config. registry
-  //   or use Simpson1D if no one else is defined
-
-  string integrator_name;
-
-  if( fConfig->Exists("integrator") )
-                          fConfig->Get("integrator", integrator_name );
-  else integrator_name = "genie::Simpson1D";
-
-  //-- Get an instance of the AlgFactory & request the integrator algorithm
+  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
 
   AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * intg_alg_base = algf->GetAlgorithm(integrator_name);
-
   const IntegratorI * integrator =
-                           dynamic_cast<const IntegratorI *> (intg_alg_base);
+          dynamic_cast<const IntegratorI *> (algf->GetAlgorithm(intgr));
 
-  assert(integrator);
-
-  return integrator;
+  double xsec = integrator->Integrate(funcmap);
+  return xsec;
 }
 //____________________________________________________________________________
 

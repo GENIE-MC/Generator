@@ -55,41 +55,31 @@ void PythiaHadronization::Initialize(void) const
 TClonesArray * PythiaHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
-  const ScatteringParams & scp = interaction->GetScatteringParams();
-
-  double W = scp.W();
+  const Kinematics & kinematics = interaction->GetKinematics();
+  double W = kinematics.W();
 
   const InitialState & init_state = interaction->GetInitialState();
 
   int hit_nucleon = init_state.GetTarget().StruckNucleonPDGCode();
-  int hit_quark   = 0;
+  int hit_quark   = init_state.GetTarget().StruckQuarkPDGCode();
   int diquark     = 0;
 
   //-- check for hit-quark assignment
   
-  if( !scp.Exists("hit-quark-pdgc") ) {
+  if(hit_quark==0) {
 
      // no hit-quark assignement - selecting a random one for the input nucleon
-
+     // (should actually use PDFs here...)
      RandomGen * rnd = RandomGen::Instance();
 
      double x = rnd->Random1().Rndm();
-
      if (pdg::IsProton(hit_nucleon)) {
-
          hit_quark = kPdgUQuark;
          if(x < 0.3333) hit_quark = kPdgDQuark;
-
      } else if(pdg::IsNeutron(hit_nucleon)) {
-
          hit_quark = kPdgUQuark;
          if(x < 0.6666) hit_quark = kPdgDQuark;
      }
-
-  } else {
-     // use input hit-quark
-
-    hit_quark = scp.GetInt("hit-quark-pdgc");
   }
 
   //-- PYTHIA->HADRONIZE:

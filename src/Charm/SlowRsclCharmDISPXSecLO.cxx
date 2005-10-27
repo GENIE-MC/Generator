@@ -65,47 +65,41 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
 {
   LOG("SlowRsclCharm", pDEBUG) << *fConfig;
 
-  //----- get scattering & init-state parameters
-
-  const ScatteringParams & sc_params  = interaction -> GetScatteringParams();
-  const InitialState &     init_state = interaction -> GetInitialState();
+  //----- get kinematics & init-state parameters
+  const Kinematics &   kinematics = interaction->GetKinematics();
+  const InitialState & init_state = interaction->GetInitialState();
 
   double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
   double E    = init_state.GetProbeE(kRfStruckNucAtRest);
-  double x    = sc_params.x();
-  double y    = sc_params.y();
+  double x    = kinematics.x();
+  double y    = kinematics.y();
 
   //----- make sure that x, y are in the physically acceptable region
-
   if(x<=0 || x>1) return 0.;
   if(y<=0 || y>1) return 0.;
 
   //----- get charm mass & CKM elements -- get constants unless they
   //      are overriden in the config registry
-
-  double mc    = this->CharmMass();
-  double Vcd   = this->Vcd();
-  double Vcs   = this->Vcs();
+  double mcdef = PDGLibrary::Instance()->Find(kPdgCQuark)->Mass();
+  double mc    = fConfig->GetDoubleDef("c-quark-mass", mcdef);
+  double Vcd   = fConfig->GetDoubleDef("Vcd", kVcd);
+  double Vcs   = fConfig->GetDoubleDef("Vcs", kVcs);
   double mc2   = TMath::Power(mc,  2);
   double Vcd2  = TMath::Power(Vcd, 2);
   double Vcs2  = TMath::Power(Vcs, 2);
 
   //----- compute kinematic & auxiliary parameters
-
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double Q2    = 2*Mnuc*E*x*y;
   double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
   double W     = TMath::Max(0., TMath::Sqrt(W2));
 
   //----- compute slow rescaling variable & check its value
-
   double xi = x * (1 + mc2/Q2);
-
   if(xi<=0 || xi>1) return 0.;
 
   //----- Get the physical W and Q2 range and check whether the current W,Q2
   //      pair is allowed
-
   Range1D_t rW  = utils::kinematics::WRange     (interaction);
   Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
 
@@ -177,28 +171,5 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
                  << ", x= " << x << ", y= " << y
                          << ", W= " << W << ", Q2 = " << Q2 << ") = " << xsec;
   return xsec;
-}
-//____________________________________________________________________________
-double SlowRsclCharmDISPXSecLO::CharmMass(void) const
-{
-// Allows default charm mass to be overriden by XML config / config registry
-
-  return (fConfig->Exists("c-quark-mass")) ?
-                  fConfig->GetDouble("c-quark-mass") :
-                  PDGLibrary::Instance()->Find(kPdgCQuark)->Mass();
-}
-//____________________________________________________________________________
-double SlowRsclCharmDISPXSecLO::Vcd(void) const
-{
-// Allows default CKM Vcd  to be overriden by XML config / config registry
-
-  return (fConfig->Exists("Vcd")) ? fConfig->GetDouble("Vcd") : kVcd;
-}
-//____________________________________________________________________________
-double SlowRsclCharmDISPXSecLO::Vcs(void) const
-{
-// Allows default CKM Vcs to be overriden by XML config / config registry
-
-  return (fConfig->Exists("Vcs")) ? fConfig->GetDouble("Vcs") : kVcs;
 }
 //____________________________________________________________________________

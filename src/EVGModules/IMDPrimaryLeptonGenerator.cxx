@@ -56,7 +56,7 @@ void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const InitialState & init_state = interaction->GetInitialState();
 
   TLorentzVector * p4nu = init_state.GetProbeP4(kRfLab); //ignore e velocity
-  double y = interaction->GetScatteringParams().y();
+  double y = interaction->GetKinematics().y();
 
   assert(1);
   assert(y>=0 && y<=1);
