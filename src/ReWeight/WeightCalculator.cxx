@@ -45,8 +45,6 @@ void WeightCalculator::NewCrossSectionModel(const MCModel & model)
 //___________________________________________________________________________
 double WeightCalculator::ReWeight(const EventRecord & event)
 {
-  LOG("ReWeight", pWARN) << "Yipiii!!";
-
   // get event summary (Interaction)
   Interaction * interaction = event.GetInteraction();
   if(!interaction) {

@@ -91,7 +91,8 @@ void MCModel::UseXSecAlg(
                  map<string, const XSecAlgorithmI *>::value_type(key, alg));
 }
 //___________________________________________________________________________
-const XSecAlgorithmI * MCModel::XSecAlg(const Interaction * interaction) const
+const XSecAlgorithmI * MCModel::XSecAlg (
+                                       const Interaction * interaction) const
 {
   if(!interaction) {
       LOG("ReWeight", pWARN) << "Null interaction!!";
@@ -99,7 +100,7 @@ const XSecAlgorithmI * MCModel::XSecAlg(const Interaction * interaction) const
   }
 
   LOG("ReWeight", pDEBUG)
-               << "Finding cross section algorithm for: \n" << *interaction;
+     << "Finding cross section algorithm for: \n" << interaction->AsString();
 
   const ProcessInfo &  proc = interaction->GetProcessInfo();
   const InitialState & init = interaction->GetInitialState();
