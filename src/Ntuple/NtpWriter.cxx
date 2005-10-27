@@ -111,7 +111,7 @@ void NtpWriter::InitTree(string filename)
         TTree::SetBranchStyle(1);
         fNtpMCEventRecord = 0;
         branch = fOutTree->Branch("gmcrec",
-            "genie::NtpMCEventRecord", &fNtpMCEventRecord, 32000, 99);
+            "genie::NtpMCEventRecord", &fNtpMCEventRecord, 32000, 1);
         break;
 
      default:

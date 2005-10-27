@@ -16,7 +16,6 @@
 #pragma link C++ class genie::NtpMCEventRecord;
 #pragma link C++ class genie::NtpMCSummary;
 #pragma link C++ class genie::NtpMCGHepEntry;
-#pragma link C++ class genie::NtpGHepAnalyzer;
 #pragma link C++ class genie::NtpWriter;
 
 #endif

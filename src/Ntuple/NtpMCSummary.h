@@ -63,20 +63,21 @@ public :
   int          N;         ///< Nuclear target: N
   int          scat;      ///< Scattering type (QEL, DIS, RES, COH, ...)
   int          proc;      ///< Process type (E/M, CC, NC, ...)
-  float        x;         ///< Bjorken x
-  float        y;         ///< Inelasticity
-  float        z;         ///< Fragmentation z
-  float        Q2;        ///< Momentum transfer (>0 = -q2)
-  float        W;         ///< Hadronic invariant mass
-  float        xsec;      ///< Cross section at this energy
-  float        dxsec;     ///< Cross section for the selected kinematics
-  float        emfrac;    ///< E/M fraction
-  float        v[4];      ///< Interaction vertex (x,y,z,t)
-  float        p4p[4];    ///< Probe 4-P (px,py,pz,E) in LAB
-  float        p4nucl[4]; ///< Struck nucleon 4-P (px,py,py,E) in LAB
-  float        p4fsl[4];  ///< Final state primary lepton 4-P (px,py,py,E) in LAB
-  float        p4fsl2[4]; ///<
-  float        p4fsh[4];  ///< Hadronic system 4-P (px,py,py,E) in LAB
+  double       x;         ///< Bjorken x
+  double       y;         ///< Inelasticity
+  double       z;         ///< Fragmentation z
+  double       Q2;        ///< Momentum transfer (>0 = -q2)
+  double       W;         ///< Hadronic invariant mass
+  double       emfrac;    ///< E/M fraction
+  double       xsec;      ///< Cross section at this energy
+  double       dxsec;     ///< Cross section for the selected kinematics
+  double       wght;      ///< Event weight (if weighted events are produced)
+  double       v[4];      ///< Interaction vertex (x,y,z,t)
+  double       p4p[4];    ///< Probe 4-P (px,py,pz,E) in LAB
+  double       p4nucl[4]; ///< Struck nucleon 4-P (px,py,py,E) in LAB
+  double       p4fsl[4];  ///< Final state primary lepton 4-P (px,py,py,E) in LAB
+  double       p4fsl2[4]; ///<
+  double       p4fsh[4];  ///< Hadronic system 4-P (px,py,py,E) in LAB
   unsigned int np;        ///< Number of generated protons
   unsigned int nn;        ///< Number of generated neutrons
   unsigned int npi0;      ///< Number of generated pi^0
