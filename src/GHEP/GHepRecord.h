@@ -45,26 +45,12 @@ public :
   virtual Interaction * GetInteraction    (void) const;
   virtual void          AttachInteraction (Interaction * interaction);
 
-  //-- methods to search the GHEP (STDHEP-like) record
-
-  virtual GHepParticle * GetParticle    (int position) const;
-  virtual GHepParticle * FindParticle   (int pdg, GHepStatus_t ist, int start) const;
-
-  virtual int ParticlePosition(int pdg, GHepStatus_t ist,  int start) const;
-  virtual int ParticlePosition(GHepParticle * particle, int start) const;
-
   //-- operations on the record
 
   virtual void Copy                    (const GHepRecord & record);
   virtual void ShiftVertex             (const TLorentzVector & vec4);
-  virtual void ResetGHepRecord         (void);
+  virtual void ResetRecord             (void);
   virtual void CompactifyDaughterLists (void);
-
-  //-- printing the record
-
-  void Print (ostream & stream) const;
-
-  friend ostream & operator << (ostream & stream, const GHepRecord & event);
 
   //-- provide a simplified wrapper of the 'new with placement'
   //   TClonesArray object insertion method
@@ -83,6 +69,17 @@ public :
                            double px, double py, double pz, double E,
                                     double x, double y, double z, double t);
 
+  //-- methods to search the GHEP (STDHEP-like) record
+
+  virtual GHepParticle * GetParticle    (int position) const;
+  virtual GHepParticle * FindParticle   (int pdg, GHepStatus_t ist, int start) const;
+
+  virtual int ParticlePosition(int pdg, GHepStatus_t ist,  int start=0) const;
+  virtual int ParticlePosition(GHepParticle * particle, int start=0) const;
+
+  virtual unsigned int NEntries (int pdg, GHepStatus_t ist, int start=0) const;
+  virtual unsigned int NEntries (int pdg, int start=0) const;
+
   //-- methods to switch on/off and ask for event record flags
 
   virtual void SwitchIsPauliBlocked (bool on_off);
@@ -94,10 +91,21 @@ public :
   virtual bool GenericErrFlag      (void) const { return fGenericErrFlag; }
   virtual bool IsUnphysical        (void) const;
 
-  //-- methods to set / get the event weight
+  //-- methods to set / get the event weight and cross sections
 
-  virtual double GetWeight (void) const   { return fWeight;                }
-  virtual void   SetWeight (double wght)  { fWeight = (wght>0) ? wght : 0; }
+  virtual double GetWeight   (void) const { return fWeight;   }
+  virtual double GetXSec     (void) const { return fXSec;     }
+  virtual double GetDiffXSec (void) const { return fDiffXSec; }
+
+  virtual void SetWeight   (double wght)  { fWeight   = (wght>0) ? wght : 0.; }
+  virtual void SetXSec     (double xsec)  { fXSec     = (xsec>0) ? xsec : 0.; }
+  virtual void SetDiffXSec (double xsec)  { fDiffXSec = (xsec>0) ? xsec : 0.; }
+
+  //-- methods & operators to print the record
+
+  void Print (ostream & stream) const;
+
+  friend ostream & operator << (ostream & stream, const GHepRecord & event);
 
 protected:
 
@@ -109,12 +117,14 @@ protected:
   bool fIsBelowThrNRF;    ///< true if it is below threshold in the nucleon rest frame
   bool fGenericErrFlag;   ///< true for etc problems
 
-  // Event weight
-  double fWeight;
+  // Misc info associated with the generated event
+  double fWeight;         ///< event weight
+  double fXSec;           ///< cross section for selected event
+  double fDiffXSec;       ///< differential cross section for selected event kinematics
 
   // Utility methods
-  void InitGHepRecord     (void);
-  void CleanUpGHepRecord  (void);
+  void InitRecord  (void);
+  void CleanRecord (void);
 
   // Methods used by the daughter list compactifier
   virtual void UpdateDaughterLists    (void);

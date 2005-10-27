@@ -43,7 +43,6 @@ namespace genie {
  ostream & operator << (ostream & stream, const GHepRecord & rec)
  {
    rec.Print(stream);
-
    return stream;
  }
 }
@@ -51,25 +50,25 @@ namespace genie {
 GHepRecord::GHepRecord() :
 TClonesArray("genie::GHepParticle")
 {
-  this->InitGHepRecord();
+  this->InitRecord();
 }
 //___________________________________________________________________________
 GHepRecord::GHepRecord(int size) :
 TClonesArray("genie::GHepParticle", size)
 {
-  this->InitGHepRecord();
+  this->InitRecord();
 }
 //___________________________________________________________________________
 GHepRecord::GHepRecord(const GHepRecord & record) :
 TClonesArray("genie::GHepParticle", record.GetEntries())
 {
-  this->InitGHepRecord();
+  this->InitRecord();
   this->Copy(record);
 }
 //___________________________________________________________________________
 GHepRecord::~GHepRecord()
 {
-  this->CleanUpGHepRecord();
+  this->CleanRecord();
 }
 //___________________________________________________________________________
 Interaction * GHepRecord::GetInteraction(void) const
@@ -147,6 +146,28 @@ int GHepRecord::ParticlePosition(GHepParticle * particle, int start) const
   LOG("GHEP", pWARN) << "Returning Invalid StdHep Record position";
 
   return -1;
+}
+//___________________________________________________________________________
+unsigned int GHepRecord::NEntries(int pdg, GHepStatus_t ist, int start) const
+{
+  unsigned int nentries = 0;
+
+  for(int i = start; i < this->GetEntries(); i++) {
+     GHepParticle * p = (GHepParticle *) (*this)[i];
+     if(p->PdgCode()==pdg && p->Status()==ist) nentries++;
+  }
+  return nentries;
+}
+//___________________________________________________________________________
+unsigned int GHepRecord::NEntries(int pdg, int start) const
+{
+  unsigned int nentries = 0;
+
+  for(int i = start; i < this->GetEntries(); i++) {
+     GHepParticle * p = (GHepParticle *) (*this)[i];
+     if(p->PdgCode()==pdg) nentries++;
+  }
+  return nentries;
 }
 //___________________________________________________________________________
 void GHepRecord::ShiftVertex(const TLorentzVector & vec4)
@@ -446,12 +467,14 @@ bool GHepRecord::IsUnphysical(void) const
   return (fIsPauliBlocked || fIsBelowThrNRF || fGenericErrFlag);
 }
 //___________________________________________________________________________
-void GHepRecord::InitGHepRecord(void)
+void GHepRecord::InitRecord(void)
 {
   LOG("GHEP", pDEBUG) << "Initializing GHepRecord";
 
   fInteraction = 0;
   fWeight      = 1.;
+  fXSec        = 0.;
+  fDiffXSec    = 0.;
 
   this -> SwitchIsPauliBlocked (false);
   this -> SwitchIsBelowThrNRF  (false);
@@ -460,7 +483,7 @@ void GHepRecord::InitGHepRecord(void)
   this->SetOwner(true);
 }
 //___________________________________________________________________________
-void GHepRecord::CleanUpGHepRecord(void)
+void GHepRecord::CleanRecord(void)
 {
   LOG("GHEP", pDEBUG) << "Cleaning up GHepRecord";
 
@@ -469,25 +492,25 @@ void GHepRecord::CleanUpGHepRecord(void)
   this->Clear("C");
 }
 //___________________________________________________________________________
-void GHepRecord::ResetGHepRecord(void)
+void GHepRecord::ResetRecord(void)
 {
   LOG("GHEP", pDEBUG) << "Reseting GHepRecord";
 
-  this->CleanUpGHepRecord();
-  this->InitGHepRecord();
+  this->CleanRecord();
+  this->InitRecord();
 }
 //___________________________________________________________________________
 void GHepRecord::Copy(const GHepRecord & record)
 {
   // clean up
-  this->ResetGHepRecord();
+  this->ResetRecord();
 
   // copy event record entries
   unsigned int ientry = 0;
   GHepParticle * p = 0;
   TIter ghepiter(&record);
   while ( (p = (GHepParticle *) ghepiter.Next()) )
-                         new ( (*this)[ientry++] ) GHepParticle(*p);
+                              new ( (*this)[ientry++] ) GHepParticle(*p);
 
   // copy summary
   fInteraction = new Interaction( *record.fInteraction );
@@ -496,6 +519,11 @@ void GHepRecord::Copy(const GHepRecord & record)
   fIsPauliBlocked  = record.fIsPauliBlocked;
   fIsBelowThrNRF   = record.fIsBelowThrNRF;
   fGenericErrFlag  = record.fGenericErrFlag;
+
+  // copy weights & xsecs
+  fWeight   = record.fWeight;
+  fXSec     = record.fXSec;
+  fDiffXSec = record.fDiffXSec;
 }
 //___________________________________________________________________________
 void GHepRecord::Print(ostream & stream) const
