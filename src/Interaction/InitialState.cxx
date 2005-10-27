@@ -9,7 +9,7 @@
           CCLRC, Rutherford Appleton Laboratory
 
 \created  May 02, 2004
- 
+
 */
 //____________________________________________________________________________
 
@@ -29,12 +29,13 @@ using std::setprecision;
 using std::setw;
 using std::ostringstream;
 
+ClassImp(InitialState)
+
 //____________________________________________________________________________
 namespace genie {
- ostream & operator<< (ostream& stream, const InitialState & init_state)
+ ostream & operator << (ostream & stream, const InitialState & init_state)
  {
    init_state.Print(stream);
-
    return stream;
  }
 }
@@ -64,15 +65,13 @@ InitialState::InitialState(const Target & tgt, int probe_pdgc)
 InitialState::InitialState(const InitialState & init_state)
 {
   this->Initialize();
-  
+
   this->Copy(init_state);
 }
 //___________________________________________________________________________
 InitialState::~InitialState()
 {
-  delete fTarget;
-  delete fProbeP4;
-  delete fTargetP4;
+  this->CleanUp();
 }
 //___________________________________________________________________________
 void InitialState::Initialize(void)
@@ -83,19 +82,26 @@ void InitialState::Initialize(void)
   fTargetP4   = new TLorentzVector(0, 0, 0, 0);
 }
 //___________________________________________________________________________
+void InitialState::CleanUp(void)
+{
+  if(fTarget)   delete fTarget;
+  if(fProbeP4)  delete fProbeP4;
+  if(fTargetP4) delete fTargetP4;
+}
+//___________________________________________________________________________
 void InitialState::Copy(const InitialState & init_state)
 {
   fProbePdgC  = init_state.fProbePdgC;
-  
+
   fTarget->Copy( *init_state.fTarget );
 
   double px = init_state.fProbeP4->Px();
   double py = init_state.fProbeP4->Py();
   double pz = init_state.fProbeP4->Pz();
   double E  = init_state.fProbeP4->Energy();
-  
+
   fProbeP4->SetXYZT(px, py, pz, E);
-  
+
   px = init_state.fTargetP4->Px();
   py = init_state.fTargetP4->Py();
   pz = init_state.fTargetP4->Pz();
@@ -106,15 +112,13 @@ void InitialState::Copy(const InitialState & init_state)
 //___________________________________________________________________________
 void InitialState::Create(int target_pdgc, int probe_pdgc)
 {
-  this->Initialize();
-
   fTarget = new Target(target_pdgc);  // set Target properties
   fProbePdgC = probe_pdgc;            // set Probe PDG code
 
   // set default, on-mass-shell 4-momenta
 
   int tgt_pdgc = fTarget->PDGCode();
-  
+
   double m = PDGLibrary::Instance() -> Find ( probe_pdgc ) -> Mass();
   double M = PDGLibrary::Instance() -> Find ( tgt_pdgc   ) -> Mass();
 
@@ -124,6 +128,8 @@ void InitialState::Create(int target_pdgc, int probe_pdgc)
 //___________________________________________________________________________
 TParticlePDG * InitialState::GetProbe(void) const
 {
+  LOG("Interaction", pINFO) << "PROBE = " << fProbePdgC;
+
   TParticlePDG * p = PDGLibrary::Instance()->Find(fProbePdgC);
 
   return p;
@@ -137,7 +143,7 @@ void InitialState::SetProbePDGCode(int pdg_code)
   else {
     LOG("Interaction", pERROR)
                    << "Can not set non-existent particle code: " << pdg_code;
-  }  
+  }
 }
 //___________________________________________________________________________
 void InitialState::SetProbeP4(const TLorentzVector & P4)
@@ -171,13 +177,13 @@ TLorentzVector * InitialState::GetTargetP4(RefFrame_t ref_frame) const
        //------------------ NUCLEAR TARGET REST FRAME:
        case (kRfTargetAtRest) :
        {
-             // for now make sure that the target nucleus is always at 
+             // for now make sure that the target nucleus is always at
              // rest and it is only the struck nucleons that can move:
              // so the [target rest frame] = [LAB frame]
 
              return this->GetTargetP4(kRfLab);
        }
-       
+
        //------------------ STRUCK NUCLEON REST FRAME:
        case (kRfStruckNucAtRest) :
        {
@@ -215,31 +221,31 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
 {
 // Return the probe 4-momentum in the specified reference frame
 // Note: the caller adopts the TLorentzVector object
- 
+
   switch (ref_frame) {
-    
+
        //------------------ CENTER OF MOMENTUM FRAME:
        case (kRfCenterOfMass) :
              return 0;
              break;
-             
+
        //------------------ NUCLEAR TARGET REST FRAME:
-       case (kRfTargetAtRest) :     
+       case (kRfTargetAtRest) :
        {
              // for now assure that the target nucleus is always at rest
              // and it is only the struck nucleons that can move:
              // so the [target rest frame] = [LAB frame]
-       
+
              TLorentzVector * p4 = new TLorentzVector(*fProbeP4);
              return p4;
        }
-       
+
        //------------------ STRUCK NUCLEON REST FRAME:
        case (kRfStruckNucAtRest) :
        {
              // make sure that 'struck nucleon' properties were set in
              // the nuclear target object
-             
+
              assert( fTarget->StruckNucleonP4() != 0 );
 
              TLorentzVector * pnuc4 = fTarget->StruckNucleonP4();
@@ -260,26 +266,26 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
 
              break;
        }
-       //------------------ LAB:      
-       case (kRfLab) :       
+       //------------------ LAB:
+       case (kRfLab) :
        {
              TLorentzVector * p4 = new TLorentzVector(*fProbeP4);
              return p4;
 
              break;
-       }      
+       }
        default:
 
              LOG("Interaction", pERROR) << "Uknown reference frame";
-  }  
-  return 0;                          
+  }
+  return 0;
 }
 //___________________________________________________________________________
 double InitialState::GetProbeE(RefFrame_t ref_frame) const
 {
   TLorentzVector * p4 = this->GetProbeP4(ref_frame);
   double E = p4->Energy();
-  
+
   delete p4;
   return E;
 }
@@ -294,7 +300,7 @@ string InitialState::AsString(void) const
 
   init_state << "nu-pdg:"  << this->GetProbePDGCode()     << ";";
   init_state << "tgt-pdg:" << this->GetTarget().PDGCode() << ";";
-             
+
   return init_state.str();
 }
 //___________________________________________________________________________
@@ -302,14 +308,14 @@ void InitialState::Print(ostream & stream) const
 {
   stream << "[-] [Init-State] " << endl;
 
-  stream << " |--> probe       : " 
-         << "PDG-code = " << fProbePdgC 
+  stream << " |--> probe       : "
+         << "PDG-code = " << fProbePdgC
          << " (" << this->GetProbe()->GetName() << ")" << endl;
 
-  stream << " |--> target      : " 
-         << "Z = "          << fTarget->Z() 
-         << ", A = "        << fTarget->A() 
-         << ", PDG-Code = " << fTarget->PDGCode(); 
+  stream << " |--> target      : "
+         << "Z = "          << fTarget->Z()
+         << ", A = "        << fTarget->A()
+         << ", PDG-Code = " << fTarget->PDGCode();
 
   TParticlePDG * tgt = PDGLibrary::Instance()->Find( fTarget->PDGCode() );
 
@@ -330,18 +336,18 @@ void InitialState::Print(ostream & stream) const
   }
   stream << endl;
 
-  stream << " |--> probe 4P    : " 
+  stream << " |--> probe 4P    : "
          << "(E = "   << setw(12) << setprecision(6) << fProbeP4->E()
          << ", Px = " << setw(12) << setprecision(6) << fProbeP4->Px()
          << ", Py = " << setw(12) << setprecision(6) << fProbeP4->Py()
-         << ", Pz = " << setw(12) << setprecision(6) << fProbeP4->Pz() 
+         << ", Pz = " << setw(12) << setprecision(6) << fProbeP4->Pz()
          << ")"
          << endl;
-  stream << " |--> target 4P   : " 
+  stream << " |--> target 4P   : "
          << "(E = "   << setw(12) << setprecision(6) << fTargetP4->E()
          << ", Px = " << setw(12) << setprecision(6) << fTargetP4->Px()
          << ", Py = " << setw(12) << setprecision(6) << fTargetP4->Py()
-         << ", Pz = " << setw(12) << setprecision(6) << fTargetP4->Pz() 
+         << ", Pz = " << setw(12) << setprecision(6) << fTargetP4->Pz()
          << ")"
          << endl;
 
@@ -349,14 +355,14 @@ void InitialState::Print(ostream & stream) const
 
     TLorentzVector * nuc_p4 = fTarget->StruckNucleonP4();
 
-    stream << " |--> nucleon 4P  : " 
+    stream << " |--> nucleon 4P  : "
            << "(E = "   << setw(12) << setprecision(6) << nuc_p4->E()
            << ", Px = " << setw(12) << setprecision(6) << nuc_p4->Px()
            << ", Py = " << setw(12) << setprecision(6) << nuc_p4->Py()
-           << ", Pz = " << setw(12) << setprecision(6) << nuc_p4->Pz() 
+           << ", Pz = " << setw(12) << setprecision(6) << nuc_p4->Pz()
            << ")";
-  } 
-}  
-//___________________________________________________________________________  
+  }
+}
+//___________________________________________________________________________
 
 

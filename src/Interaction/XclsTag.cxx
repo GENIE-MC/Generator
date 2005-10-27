@@ -15,6 +15,7 @@
 
 #include <sstream>
 
+#include "BaryonResonance/BaryonResUtils.h"
 #include "Interaction/XclsTag.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
@@ -24,13 +25,15 @@ using std::endl;
 using std::ostringstream;
 
 using namespace genie;
+using namespace genie::utils;
+
+ClassImp(XclsTag)
 
 //____________________________________________________________________________
 namespace genie {
- ostream & operator<< (ostream& stream, const XclsTag & final_state)
+ ostream & operator << (ostream & stream, const XclsTag & xcls)
  {
-   final_state.Print(stream);
-
+   xcls.Print(stream);
    return stream;
  }
 }
@@ -40,11 +43,11 @@ XclsTag::XclsTag()
   this->Initialize();
 }
 //___________________________________________________________________________
-XclsTag::XclsTag(const XclsTag & final_state)
+XclsTag::XclsTag(const XclsTag & xcls)
 {
   this->Initialize();
 
-  this->Copy(final_state);
+  this->Copy(xcls);
 }
 //___________________________________________________________________________
 XclsTag::~XclsTag()
@@ -95,6 +98,11 @@ void XclsTag::ResetNNucleons(void)
   fNNeutrons = 0;
 }
 //___________________________________________________________________________
+void XclsTag::SetResonance(Resonance_t res)
+{
+  fResonance = res;
+}
+//___________________________________________________________________________
 void XclsTag::Initialize(void)
 {
   fIsCharmEvent     = false;
@@ -105,37 +113,41 @@ void XclsTag::Initialize(void)
   fNPi0         = 0;
   fNPiPlus      = 0;
   fNPiMinus     = 0;
+
+  fResonance    = kNoResonance;
 }
 //___________________________________________________________________________
-void XclsTag::Copy(const XclsTag & final_state)
+void XclsTag::Copy(const XclsTag & xcls)
 {
-  fIsCharmEvent     = final_state.fIsCharmEvent;
-  fCharmedHadronPdg = final_state.fCharmedHadronPdg;
+  fIsCharmEvent     = xcls.fIsCharmEvent;
+  fCharmedHadronPdg = xcls.fCharmedHadronPdg;
 
-  fNProtons     = final_state.fNProtons;
-  fNNeutrons    = final_state.fNNeutrons;
-  fNPi0         = final_state.fNPi0;
-  fNPiPlus      = final_state.fNPiPlus;
-  fNPiMinus     = final_state.fNPiMinus;
+  fNProtons     = xcls.fNProtons;
+  fNNeutrons    = xcls.fNNeutrons;
+  fNPi0         = xcls.fNPi0;
+  fNPiPlus      = xcls.fNPiPlus;
+  fNPiMinus     = xcls.fNPiMinus;
+
+  fResonance    = xcls.fResonance;
 }
 //___________________________________________________________________________
 string XclsTag::AsString(void) const
 {
 // codifies XclsTag state into a compact string:
-// c=is-charm,charm-pdgc;nucl(p,n)=np,nn;pi(+,-,0)=npi+,npi-,npi0;
+// c=is-charm,charm-pdgc;nucl(p,n)=np,nn;pi(+,-,0)=npi+,npi-,npi0;res=respdg
 
   ostringstream tag;
 
   tag << "c=" << fIsCharmEvent << "," << fCharmedHadronPdg << ";";
   tag << "nucl(p,n)=" << fNProtons << "," << fNNeutrons << ";";
   tag << "pi(+,-,0)=" << fNPiPlus << "," << fNPiMinus << "," << fNPi0;
+  tag << "res=" << fResonance;
 
   return tag.str();
 }
 //___________________________________________________________________________
 void XclsTag::Print(ostream & stream) const
 {
-  stream << endl;
   stream << "[-] [Exclusive Process Info] " << endl;
 
   stream << " |--> charm        : "
@@ -163,6 +175,9 @@ void XclsTag::Print(ostream & stream) const
          << " N(pi^-) = "    << fNPiMinus
          << endl;
 
+  if(this->KnownResonance()) {
+     stream << " |--> resonance    : " << res::AsString(fResonance) << endl;
+  }
 }
 //___________________________________________________________________________
 

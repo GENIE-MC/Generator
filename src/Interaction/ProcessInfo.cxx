@@ -12,7 +12,7 @@
           CCLRC, Rutherford Appleton Laboratory
 
 \created  May 04, 2004
- 
+
 */
 //____________________________________________________________________________
 
@@ -27,12 +27,13 @@ using std::endl;
 
 using namespace genie;
 
+ClassImp(ProcessInfo)
+
 //____________________________________________________________________________
 namespace genie {
- ostream & operator<< (ostream& stream, const ProcessInfo & proc)
+ ostream & operator << (ostream & stream, const ProcessInfo & proc)
  {
    proc.Print(stream);
-
    return stream;
  }
 }
@@ -125,7 +126,7 @@ ScatteringType_t ProcessInfo::ScatteringTypeId(void) const
 const char * ProcessInfo::AsString(void) const
 {
   ostringstream stream;
-  
+
   stream << "<" << ScatteringTypeAsString() << " - "
                                           << InteractionTypeAsString() << ">";
 
@@ -133,7 +134,7 @@ const char * ProcessInfo::AsString(void) const
 }
 //____________________________________________________________________________
 const char * ProcessInfo::ScatteringTypeAsString(void) const
-{  
+{
   string scattering_type = ScatteringType::AsString(fScatteringType);
 
   return scattering_type.c_str();
@@ -146,7 +147,7 @@ const char * ProcessInfo::InteractionTypeAsString(void) const
   return interaction_type.c_str();
 }
 //____________________________________________________________________________
-void ProcessInfo::Set(ScatteringType_t sc_type, InteractionType_t  int_type) 
+void ProcessInfo::Set(ScatteringType_t sc_type, InteractionType_t  int_type)
 {
   fScatteringType  = sc_type;
   fInteractionType = int_type;
@@ -158,6 +159,12 @@ bool ProcessInfo::Compare(const ProcessInfo & proc) const
        fScatteringType  == proc.fScatteringType &&
        fInteractionType == proc.fInteractionType
   );
+}
+//____________________________________________________________________________
+void ProcessInfo::Copy(const ProcessInfo & proc)
+{
+  fScatteringType  = proc.fScatteringType;
+  fInteractionType = proc.fInteractionType;
 }
 //____________________________________________________________________________
 void ProcessInfo::Print(ostream & stream) const

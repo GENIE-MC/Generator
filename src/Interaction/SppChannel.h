@@ -10,7 +10,7 @@
 
 \created  December 16, 2004
 
-*/ 
+*/
 //____________________________________________________________________________
 
 #ifndef _SPP_CHANNEL_H_
@@ -162,7 +162,7 @@ public:
       case (kSpp_vn_cc_10010) : return (is_delta) ? (iw_2_3) : (iw_1_3); break;
       case (kSpp_vn_cc_01100) : return (is_delta) ? (iw_1_3) : (iw_2_3); break;
 
-      //-- v NC     
+      //-- v NC
       case (kSpp_vp_nc_10010) : return (is_delta) ? (iw_2_3) : (iw_1_3); break;
       case (kSpp_vp_nc_01100) : return (is_delta) ? (iw_1_3) : (iw_2_3); break;
       case (kSpp_vn_nc_01010) : return (is_delta) ? (iw_2_3) : (iw_1_3); break;
@@ -179,7 +179,7 @@ public:
     // return the BR for the decay of the input resonance to the final state
     // hadronic system of the input exclusive channel.
 
-    // get list of TDecayChannels, match one with the input channel and get 
+    // get list of TDecayChannels, match one with the input channel and get
     // the branching ratio.
 
     switch(res) {
@@ -208,8 +208,6 @@ public:
   //__________________________________________________________________________
   static SppChannel_t FromInteraction(const Interaction * interaction)
   {
-    if ( ! interaction->IsExclusive() ) return kSppNull;
-
     const InitialState & init_state = interaction->GetInitialState();
     const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
     const XclsTag &      xcls_tag   = interaction->GetExclusiveTag();
@@ -227,7 +225,7 @@ public:
     bool hit_n = !hit_p;
 
     // the final state hadronic sytem has 1 pi and 1 nucleon
-   
+
     bool fs_pi_plus  = ( xcls_tag.NPiPlus()   == 1 );
     bool fs_pi_minus = ( xcls_tag.NPiMinus()  == 1 );
     bool fs_pi_0     = ( xcls_tag.NPi0()      == 1 );

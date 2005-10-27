@@ -21,6 +21,8 @@
 
 #include <iostream>
 
+#include <TObject.h>
+
 #include "Interaction/InteractionType.h"
 #include "Interaction/ScatteringType.h"
 
@@ -28,7 +30,7 @@ using std::ostream;
 
 namespace genie {
 
-class ProcessInfo {
+class ProcessInfo : public TObject {
 
 public:
 
@@ -56,16 +58,19 @@ public:
   const char * AsString                (void) const;
   const char * ScatteringTypeAsString  (void) const;
   const char * InteractionTypeAsString (void) const;
-  
+
   bool Compare (const ProcessInfo & proc) const;
+  void Copy    (const ProcessInfo & proc);
   void Print   (ostream & stream)         const;
 
   friend ostream & operator<< (ostream& stream, const ProcessInfo & proc);
-    
+
 private:
 
   ScatteringType_t  fScatteringType;
   InteractionType_t fInteractionType;
+
+ClassDef(ProcessInfo,1)
 };
 
 }        // genie namespace
