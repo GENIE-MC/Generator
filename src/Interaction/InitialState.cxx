@@ -128,8 +128,6 @@ void InitialState::Create(int target_pdgc, int probe_pdgc)
 //___________________________________________________________________________
 TParticlePDG * InitialState::GetProbe(void) const
 {
-  LOG("Interaction", pINFO) << "PROBE = " << fProbePdgC;
-
   TParticlePDG * p = PDGLibrary::Instance()->Find(fProbePdgC);
 
   return p;
