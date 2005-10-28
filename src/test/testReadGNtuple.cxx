@@ -138,11 +138,9 @@ void readNtpEventRecord(TTree * tree)
 
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
-    Interaction & interaction = *(event.GetInteraction());
 
     LOG("Main", pINFO) << rec_header;
     LOG("Main", pINFO) << event;
-    LOG("Main", pINFO) << interaction;
   }
 }
 //___________________________________________________________________
