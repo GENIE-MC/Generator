@@ -19,6 +19,7 @@
 #include <iomanip>
 
 #include <TLorentzVector.h>
+#include <TSystem.h>
 
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
@@ -528,10 +529,30 @@ void GHepRecord::Copy(const GHepRecord & record)
 //___________________________________________________________________________
 void GHepRecord::Print(ostream & stream) const
 {
-  stream << "\n\n |";
-  stream << setfill('-') << setw(109) << "|";
+  // Check $GHEPPRINTLEVEL for the preferred GHEP printout detail level
+  // 0 -> prints particle list
+  // 1 -> prints particle list + event flags
+  // 2 -> prints particle list + event flags + weights/xsecs
+  // 3 -> prints particle list + event flags + weights/xsecs + summary
 
-  stream << "\n |";
+  int printlevel = 1;
+  if( gSystem->Getenv("GHEPPRINTLEVEL") ) {
+     printlevel = atoi( gSystem->Getenv("GHEPPRINTLEVEL") );
+  }
+  if(printlevel < 0 || printlevel > 3) printlevel = 1;
+
+  // start printing the record
+
+  stream << "\n\n|";
+  stream << setfill('-') << setw(110) << "|";
+
+  stream << "\n|GENIE GHEP Event Record [shown using $GHEPPRINTLEVEL = " 
+         << printlevel << "]" << setfill(' ') << setw(53) << "|";
+
+  stream << "\n|";
+  stream << setfill('-') << setw(110) << "|";
+
+  stream << "\n| ";
   stream << setfill(' ') << setw(6)  << "Idx | "
          << setfill(' ') << setw(11) << "Name | "
          << setfill(' ') << setw(6)  << "Ist | "
@@ -544,8 +565,8 @@ void GHepRecord::Print(ostream & stream) const
          << setfill(' ') << setw(10) << "E  | "
          << setfill(' ') << setw(10) << "m  | ";
 
-  stream << "\n |";
-  stream << setfill('-') << setw(109) << "|";
+  stream << "\n|";
+  stream << setfill('-') << setw(110) << "|";
 
   GHepParticle * p = 0;
 
@@ -560,7 +581,7 @@ void GHepRecord::Print(ostream & stream) const
 
   while( (p = (GHepParticle *) piter.Next()) ) {
 
-     stream << "\n |";
+     stream << "\n| ";
      stream << setfill(' ') << setw(3)  << idx++               << " | ";
      stream << setfill(' ') << setw(8)  << p->Name()           << " | ";
      stream << setfill(' ') << setw(3)  << p->Status()         << " | ";
@@ -606,11 +627,11 @@ void GHepRecord::Print(ostream & stream) const
 
   } // loop over particles
 
-  stream << "\n |";
-  stream << setfill('-') << setw(109) << "|";
+  stream << "\n|";
+  stream << setfill('-') << setw(110) << "|";
 
   // Print SUMS
-  stream << "\n |";
+  stream << "\n| ";
   stream << setfill(' ') << setw(17) << "Fin-Init:| "
          << setfill(' ') << setw(6)  << "    | "
          << setfill(' ') << setw(13) << "    | "
@@ -623,24 +644,51 @@ void GHepRecord::Print(ostream & stream) const
   stream << setfill(' ') << setw(7)  << sum_E   << " | ";
   stream << setfill(' ') << setw(10)  << "   | ";
 
-  stream << "\n |";
-  stream << setfill('-') << setw(109) << "|";
+  stream << "\n|";
+  stream << setfill('-') << setw(110) << "|";
 
   // Print FLAGS
-  stream << "\n |";
-  stream << setfill(' ') << setw(17) << "FLAGS:   | "
-         << setfill(' ') << setw(15) << "PauliBlock......"
-         << utils::print::BoolAsIOString(this->IsPauliBlocked()) << " |"
-         << setfill(' ') << setw(15) << " BelowThrNRF...."
-         << utils::print::BoolAsIOString(this->IsBelowThrNRF())  << " |"
-         << setfill(' ') << setw(15) << " GenericErr....."
-         << utils::print::BoolAsIOString(this->GenericErrFlag()) << " |"
-         << setfill(' ') << setw(15) << " UnPhysical....."
-         << utils::print::BoolAsIOString(this->IsUnphysical())   << " |";
 
-  stream << "\n |";
-  stream << setfill('-') << setw(109) << "|";
+  if(printlevel>=1) {
+    stream << "\n| ";
+    stream << setfill(' ') << setw(17) << "FLAGS:   | "
+           << setfill(' ') << setw(15) << "PauliBlock......"
+           << utils::print::BoolAsIOString(this->IsPauliBlocked()) << " |"
+           << setfill(' ') << setw(15) << " BelowThrNRF...."
+           << utils::print::BoolAsIOString(this->IsBelowThrNRF())  << " |"
+           << setfill(' ') << setw(15) << " GenericErr....."
+           << utils::print::BoolAsIOString(this->GenericErrFlag()) << " |"
+           << setfill(' ') << setw(15) << " UnPhysical....."
+           << utils::print::BoolAsIOString(this->IsUnphysical())   << " |";
+
+    stream << "\n|";
+    stream << setfill('-') << setw(110) << "|";
+  }
+
+  if(printlevel==3) {
+    stream << "\n| ";
+    stream << setiosflags(ios::scientific) << setprecision(5);
+
+    stream << setfill(' ') << setw(17) << "XSC/WGT: | "
+           << setfill(' ') << setw(15) << "XSec (Event)...." 
+           << fXSec << " |"
+           << setfill(' ') << setw(15) << " XSec (Event Kinematics)...." 
+           << fDiffXSec << " |"
+           << setfill(' ') << setw(15) << " Event weight..."
+           << setiosflags(ios::fixed) << setprecision(5)
+           << fWeight   << " |";
+
+    stream << "\n|";
+    stream << setfill('-') << setw(110) << "|";
+  }
+
   stream << "\n";
+  stream << setfill(' ');
 
+  if(printlevel==3) {
+     if(fInteraction) stream << *fInteraction;
+     else             stream << "NULL Interaction!" << endl;
+  }
+  stream << "\n";
 }
 //___________________________________________________________________________
