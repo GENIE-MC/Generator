@@ -13,6 +13,8 @@
 */
 //____________________________________________________________________________
 
+#include <cassert>
+
 #include <TGeoVolume.h>
 #include <TGeoManager.h>
 #include <TGeoShape.h>
@@ -90,42 +92,13 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
   //-- initialize max path lengths
   fCurrMaxPathLengthList->SetAllToZero();
 
-  //-- get list of volumes
-  TObjArray *LV =0;
-  LV=fGeometry->GetListOfVolumes();
-
-  int numVol = LV->GetEntries();
-
-  //-- select World volume
-
-  TGeoVolume * TV      = 0;
-  TGeoVolume * TVWorld = 0;
-  TGeoShape *  TS      = 0;
-
-  char *name;
-  int FlagFound(0);
-
-  for(Int_t i=0;i<numVol;i++)
-    {
-      TV= dynamic_cast <TGeoVolume *> (LV->At(i));
-      name=const_cast<char*>(TV->GetName());
-      if(!strcmp(fWorldVolName.c_str(),name))
-        {
-          FlagFound=1;
-          TVWorld=TV;
-          break;
-        }
-    }
-
-  if(!FlagFound)
-    {
-      LOG("GROOTGeom",pERROR) << "The World Volume does not exist in your geometry!!! ";
-      return *fCurrMaxPathLengthList;
-    }
+  //-- find the world volume
+  TGeoVolume * TVWorld = this->FindWorldVolume();
+  assert(TVWorld);
 
   LOG("GROOTGeom", pINFO) << "Getting a TGeoBBox enclosing the detector";
-  TS=TVWorld->GetShape();
-  TGeoBBox *box=(TGeoBBox *)TS;
+  TGeoShape * TS  = TVWorld->GetShape();
+  TGeoBBox *  box = (TGeoBBox *)TS;
 
   //get box origin and dimensions
   double dx = box->GetDX(); // half-length
@@ -388,11 +361,51 @@ void ROOTGeomAnalyzer::Initialize(string filename)
   fCurrVertex            = new TVector3(0.,0.,0.);
 
   // some defaults:
-  this -> SetScannerNPoints (200);
-  this -> SetScannerNRays   (200);
-  this -> SetUnits          (genie::units::meter);
-  this -> SetWorldVolName   ("World");
+  this -> SetScannerNPoints    (200);
+  this -> SetScannerNRays      (200);
+  this -> SetUnits             (genie::units::meter);
+  this -> SetWorldVolName      ("World");
   this -> SetWeightWithDensity (true);
+}
+//___________________________________________________________________________
+TGeoVolume * ROOTGeomAnalyzer::FindWorldVolume(void) const
+{
+  LOG("GROOTGeom", pDEBUG) << "Getting world volume";
+
+  //-- get list of volumes
+  LOG("GROOTGeom", pDEBUG) << "Getting list of volumes";
+
+  TObjArray * volume_list = fGeometry->GetListOfVolumes();
+  if(!volume_list) {
+     LOG("GROOTGeom", pERROR) 
+        << "Null list of geometry volumes. Can not find world volume!";
+     return 0;
+  }
+
+  int numVol = volume_list->GetEntries();
+  LOG("GROOTGeom", pDEBUG) << "Number of volumes found: " << numVol;
+
+  TGeoVolume * volume = 0;
+  char *       name   = 0;
+
+  for(int ivol = 0; ivol < numVol; ivol++) {
+
+      volume = dynamic_cast<TGeoVolume*> (volume_list->At(ivol));
+      if(!volume) {
+         LOG("GROOTGeom", pWARN) 
+           << "Got a null geometry volume!! Skiping current list element";
+         continue;
+      }
+      name = const_cast<char*>(volume->GetName());
+
+      if(!strcmp(fWorldVolName.c_str(),name)) {
+         LOG("GROOTGeom", pDEBUG) << "Found world volume";
+         return volume;
+      }
+  }
+  LOG("GROOTGeom",pERROR) << "Couldn't find a world volume in your geometry!";
+
+  return 0;
 }
 //___________________________________________________________________________
 const PDGCodeList & ROOTGeomAnalyzer::ListOfTargetNuclei(void)
@@ -419,8 +432,6 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 
   int FlagNotInYet(0);
   bool condition(kTRUE);
-
-  double density(0);
 
   float xx,yy,zz;
   double xyz[3];
@@ -499,8 +510,10 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                 {
                   LOG("GROOTGeom",pDEBUG)<<" number of elements "<<Nelements;
                   ele=(dynamic_cast <TGeoMixture*> (mat))->GetElement(i);
-                  int ion_pdgc = this->GetTargetPdgCode(ele); 
-		  density=mat->GetDensity();
+
+                  int   ion_pdgc = this->GetTargetPdgCode(ele); 
+  	          double weight  = (this->WeightWithDensity()) ? mat->GetDensity() : 1.0;
+
                   fGeometry->FindNextBoundary();
                   step=fGeometry->GetStep();
                   while(!fGeometry->IsEntering())
@@ -514,10 +527,8 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                         << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
                   LOG("GROOTGeom",pDEBUG)
                       <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
-		  if(fDensity)
-		    fCurrPathLengthList->AddPathLength(ion_pdgc,step*density);
-                  else
-		    fCurrPathLengthList->AddPathLength(ion_pdgc,step);
+
+		  fCurrPathLengthList->AddPathLength(ion_pdgc,step*weight);
 
 		  xx+=step * p.Px()/p.P();
                   yy+=step * p.Py()/p.P();
@@ -526,8 +537,9 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
             }
           else
             {
-              int ion_pdgc = this->GetTargetPdgCode(mat); 
-	      density=mat->GetDensity();
+              int    ion_pdgc = this->GetTargetPdgCode(mat); 
+	      double weight   = (this->WeightWithDensity()) ? mat->GetDensity() : 1.0;
+
               fGeometry->FindNextBoundary();
               step=fGeometry->GetStep();
               while(!fGeometry->IsEntering())
@@ -542,10 +554,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
               LOG("GROOTGeom",pDEBUG)
                    <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
 	  
-	      if(fDensity)
-		fCurrPathLengthList->AddPathLength(ion_pdgc,step*density);
-	      else
-		fCurrPathLengthList->AddPathLength(ion_pdgc,step);
+	      fCurrPathLengthList->AddPathLength(ion_pdgc,step*weight);
 	      
 	      xx+=step * p.Px()/p.P();
               yy+=step * p.Py()/p.P();
@@ -660,8 +669,9 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
       if(condition)
         {
-          int ion_pdgc = this->GetTargetPdgCode(mat);
-          double density(mat->GetDensity());
+          int ion_pdgc  = this->GetTargetPdgCode(mat);
+	  double weight = (this->WeightWithDensity()) ? mat->GetDensity() : 1.0;
+
           fGeometry->FindNextBoundary();
           step=fGeometry->GetStep();
           while(!fGeometry->IsEntering())
@@ -670,8 +680,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
               step=fGeometry->GetStep();
             }
 
-          if(ion_pdgc == tgtpdg)
-            dist+=(step*density);
+          if(ion_pdgc == tgtpdg) dist+=(step*weight);
 
           xx+=step * p.Px()/p.P();
           yy+=step * p.Py()/p.P();
@@ -755,10 +764,10 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
       if(condition)
         {
-          int ion_pdgc = this->GetTargetPdgCode(mat);
-          double density(mat->GetDensity());
-          if(ion_pdgc == tgtpdg)
-            distToVtx+=(StepIncrease*density);
+          int    ion_pdgc = this->GetTargetPdgCode(mat);
+	  double weight   = (this->WeightWithDensity()) ? mat->GetDensity() : 1.0;
+
+          if(ion_pdgc == tgtpdg) distToVtx+=(StepIncrease*weight);
         }
     }
 
@@ -776,49 +785,51 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
 {
   fCurrPDGCodeList = new PDGCodeList;
 
-  if(!fGeometry)
-    {
-      LOG("GROOTGeom", pERROR) << "No ROOT geometry is loaded!";
-      return;
-    }
+  if(!fGeometry) {
+    LOG("GROOTGeom", pERROR) << "No ROOT geometry is loaded!";
+    return;
+  }
 
-  TObjArray *LV = new TObjArray();
+  TObjArray * volume_list = fGeometry->GetListOfVolumes();
+  if(!volume_list) {
+     LOG("GROOTGeom", pERROR) 
+        << "Null list of geometry volumes. Can not find build target list!";
+     return;
+  }
 
-  LV=fGeometry->GetListOfVolumes();
-  int numVol;
+  int numVol = volume_list->GetEntries();
+  LOG("GROOTGeom", pDEBUG) << "Number of volumes found: " << numVol;
 
-  numVol=(LV->GetEntries());
-  TGeoVolume *TV =0;
+  for(int ivol = 0; ivol < numVol; ivol++) {
 
-  for(Int_t i=0;i<numVol;i++)
-    {
-      TV= dynamic_cast <TGeoVolume *>(LV->At(i));
-      TGeoMedium *med;
-      TGeoMaterial *mat;
-      med = TV->GetMedium();
-      mat = med->GetMaterial();
-      if(mat->IsMixture())
-        {
-          int Nelements((dynamic_cast <TGeoMixture*> (mat))->GetNelements());
-          TGeoElement *ele;
-          for(int i=0;i<Nelements;i++)
-            {
-              ele=(dynamic_cast <TGeoMixture*> (mat))->GetElement(i);
-              int ion_pdgc = this->GetTargetPdgCode(ele);
-              fCurrPDGCodeList->push_back(ion_pdgc);
-            }
-        }
-      else
-        {
+      TGeoVolume * volume = dynamic_cast <TGeoVolume *>(volume_list->At(ivol));
+
+      if(!volume) {
+         LOG("GROOTGeom", pWARN) 
+           << "Got a null geometry volume!! Skiping current list element";
+         continue;
+      }
+
+      TGeoMaterial * mat = volume->GetMedium()->GetMaterial();
+
+      if(mat->IsMixture()) {
+         int Nelements((dynamic_cast <TGeoMixture*> (mat))->GetNelements());
+         TGeoElement *ele;
+         for(int i=0;i<Nelements;i++) {
+            ele=(dynamic_cast <TGeoMixture*> (mat))->GetElement(i);
+            int ion_pdgc = this->GetTargetPdgCode(ele);
+            fCurrPDGCodeList->push_back(ion_pdgc);
+         }
+      } else {
           int ion_pdgc = this->GetTargetPdgCode(mat);
           fCurrPDGCodeList->push_back(ion_pdgc);
-        }
-    }
+      }
+  }
 }
 //___________________________________________________________________________
 double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,int pdgc)
 {
-  double density(0);
+  double weight(0);
   TGeoVolume *current =0;
   int counterloop(0);
   double Length(0);
@@ -901,17 +912,15 @@ double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,i
           if(ion_pdgc == pdgc)
 	    {
 	      Length+=step;
-	      density=mat->GetDensity();
+    	      weight = (this->WeightWithDensity()) ? mat->GetDensity() : 1.0;
 	    }
           xx+=step * direction[0];
           yy+=step * direction[1];
           zz+=step * direction[2];
         }
     }  
-  if(fDensity)
-    return Length*density;
-  else
-    return Length;
+
+  return (Length*weight);
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::ScalePathLengths(PathLengthList & pl)
