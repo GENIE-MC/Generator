@@ -39,12 +39,19 @@ public :
   ROOTGeomAnalyzer(string filename);
  ~ROOTGeomAnalyzer();
 
-  // analyzer configuration options
-  void SetScannerNPoints(int    np) { fNPoints = np; };
-  void SetScannerNRays  (int    nr) { fNRays   = nr; };
-  void SetUnits         (double lu);
-  void SetWorldVolName  (string name);
-  void SetWeightWithDensity (bool dst) {fDensity = dst;};
+  // set or enquire for analyzer configuration options
+
+  void SetScannerNPoints    (int    np) { fNPoints    = np; }
+  void SetScannerNRays      (int    nr) { fNRays      = nr; }
+  void SetWeightWithDensity (bool   wt) { fDensWeight = wt; }
+  void SetUnits             (double lu);
+  void SetWorldVolName      (string nm);
+
+  int    ScannerNPoints    (void) const { return fNPoints;      }
+  int    ScannerNRays      (void) const { return fNRays;        }
+  bool   WeightWithDensity (void) const { return fDensWeight;   }
+  double Units             (void) const { return fScale;        }
+  string WorldVolName      (void) const { return fWorldVolName; }
 
   // implement the GeomAnalyzerI interface
 
@@ -61,20 +68,20 @@ public :
 
 private:
 
-  void   Initialize              (string filename);
-  void   BuildListOfTargetNuclei (void);
-  int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
-  int    GetTargetPdgCode        (const TGeoElement  * const e) const;
-  void   ScalePathLengths        (PathLengthList & pl);
-  double ComputeMaxPathLengthPDG (double* XYZ, double* direction, int pdgc);
+  void        Initialize              (string filename);
+  TGeoVolume* FindWorldVolume         (void) const;
+  void        BuildListOfTargetNuclei (void);
+  int         GetTargetPdgCode        (const TGeoMaterial * const m) const;
+  int         GetTargetPdgCode        (const TGeoElement  * const e) const;
+  void        ScalePathLengths        (PathLengthList & pl);
+  double      ComputeMaxPathLengthPDG (double* XYZ, double* direction, int pdgc);
 
-
-  bool             fDensity                 ///< selectif pathlenghts are calculated using density [def:true]
   int              fMaterial;               ///< input selected material for vertex generation
   TGeoManager *    fGeometry;               ///< input detector geometry
   string           fWorldVolName;           ///< input world volume name [def: "world"]
   int              fNPoints;                ///< max path length scanner: points/surface [def:200]
   int              fNRays;                  ///< max path length scanner: rays/point [def:200]
+  bool             fDensWeight;             ///< if true pathlengths are weighted with density [def:true]
   double           fScale;                  ///< conversion factor: input geometry units -> meters
   TVector3 *       fCurrVertex;             ///< current generated vertex
   PathLengthList * fCurrPathLengthList;     ///< current list of path-lengths
