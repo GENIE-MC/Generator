@@ -44,6 +44,7 @@ public :
   void SetScannerNRays  (int    nr) { fNRays   = nr; };
   void SetUnits         (double lu);
   void SetWorldVolName  (string name);
+  void SetWeightWithDensity (bool dst) {fDensity = dst;};
 
   // implement the GeomAnalyzerI interface
 
@@ -68,6 +69,7 @@ private:
   double ComputeMaxPathLengthPDG (double* XYZ, double* direction, int pdgc);
 
 
+  bool             fDensity                 ///< selectif pathlenghts are calculated using density [def:true]
   int              fMaterial;               ///< input selected material for vertex generation
   TGeoManager *    fGeometry;               ///< input detector geometry
   string           fWorldVolName;           ///< input world volume name [def: "world"]

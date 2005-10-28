@@ -151,6 +151,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
         << "Will generate [" << fNRays   << "] rays for each point";
 
   //loop on materials
+
   int pdgc(0);
   vector<int>::iterator itrPDG;
   for(itrPDG=fCurrPDGCodeList->begin();itrPDG!=fCurrPDGCodeList->end();itrPDG++)
@@ -352,6 +353,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
         }
 
       LOG("GROOTGeom", pINFO) << "Max path length found = " << MaxPath;
+    
       fCurrMaxPathLengthList->AddPathLength(pdgc,MaxPath);
     }
 
@@ -390,6 +392,7 @@ void ROOTGeomAnalyzer::Initialize(string filename)
   this -> SetScannerNRays   (200);
   this -> SetUnits          (genie::units::meter);
   this -> SetWorldVolName   ("World");
+  this -> SetWeightWithDensity (true);
 }
 //___________________________________________________________________________
 const PDGCodeList & ROOTGeomAnalyzer::ListOfTargetNuclei(void)
@@ -416,6 +419,8 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 
   int FlagNotInYet(0);
   bool condition(kTRUE);
+
+  double density(0);
 
   float xx,yy,zz;
   double xyz[3];
@@ -494,7 +499,8 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                 {
                   LOG("GROOTGeom",pDEBUG)<<" number of elements "<<Nelements;
                   ele=(dynamic_cast <TGeoMixture*> (mat))->GetElement(i);
-                  int ion_pdgc = this->GetTargetPdgCode(ele);
+                  int ion_pdgc = this->GetTargetPdgCode(ele); 
+		  density=mat->GetDensity();
                   fGeometry->FindNextBoundary();
                   step=fGeometry->GetStep();
                   while(!fGeometry->IsEntering())
@@ -508,16 +514,20 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                         << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
                   LOG("GROOTGeom",pDEBUG)
                       <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
+		  if(fDensity)
+		    fCurrPathLengthList->AddPathLength(ion_pdgc,step*density);
+                  else
+		    fCurrPathLengthList->AddPathLength(ion_pdgc,step);
 
-                  fCurrPathLengthList->AddPathLength(ion_pdgc,step);
-                  xx+=step * p.Px()/p.P();
+		  xx+=step * p.Px()/p.P();
                   yy+=step * p.Py()/p.P();
                   zz+=step * p.Pz()/p.P();
                 }
             }
           else
             {
-              int ion_pdgc = this->GetTargetPdgCode(mat);
+              int ion_pdgc = this->GetTargetPdgCode(mat); 
+	      density=mat->GetDensity();
               fGeometry->FindNextBoundary();
               step=fGeometry->GetStep();
               while(!fGeometry->IsEntering())
@@ -531,9 +541,13 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                    << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
               LOG("GROOTGeom",pDEBUG)
                    <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
-
-              fCurrPathLengthList->AddPathLength(ion_pdgc,step);
-              xx+=step * p.Px()/p.P();
+	  
+	      if(fDensity)
+		fCurrPathLengthList->AddPathLength(ion_pdgc,step*density);
+	      else
+		fCurrPathLengthList->AddPathLength(ion_pdgc,step);
+	      
+	      xx+=step * p.Px()/p.P();
               yy+=step * p.Py()/p.P();
               zz+=step * p.Pz()/p.P();
             }
@@ -804,7 +818,7 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
 //___________________________________________________________________________
 double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,int pdgc)
 {
-
+  double density(0);
   TGeoVolume *current =0;
   int counterloop(0);
   double Length(0);
@@ -885,14 +899,19 @@ double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,i
             }
 
           if(ion_pdgc == pdgc)
-            Length+=step;
-
+	    {
+	      Length+=step;
+	      density=mat->GetDensity();
+	    }
           xx+=step * direction[0];
           yy+=step * direction[1];
           zz+=step * direction[2];
         }
-    }
-  return Length;
+    }  
+  if(fDensity)
+    return Length*density;
+  else
+    return Length;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::ScalePathLengths(PathLengthList & pl)
