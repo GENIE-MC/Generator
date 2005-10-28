@@ -31,7 +31,7 @@
          Other control options:
 
          You can further control the program behaviour by setting the GEVGL,
-         GSPLOAD and GSPSAVE environmental variables.
+         GSPLOAD, GSPSAVE, GHEPPRINTLEVEL environmental variables.
 
            - Set the GEVGL environmental variable to contol the list of event
              generator objects that get loaded (at job initialization, the
@@ -60,6 +60,8 @@
              verbosity of GENIE output. Both the default and your messenger
              configuration will be read but yours will take precedence in
              case of clashing priority for the same stream.
+
+           - You can set the GHEPPRINTLEVEL to control the GHEP print options
 
              Examples:
              By setting the following env.vars you ask GENIE to generate QEL
@@ -189,11 +191,7 @@ int main(int argc, char ** argv)
      // generate a single event
      EventRecord * ev_rec = driver.GenerateEvent(nu_p4);
 
-     // print the event record and the interaction summary
-     Interaction & summary = *ev_rec->GetInteraction();
-
      LOG("gevgen", pINFO) << "Generated Event GHEP Record: " << *ev_rec;
-     LOG("gevgen", pINFO) << "Generated Event summary: "     << summary;
 
      // add event at the output ntuple
      ntpw.AddEventRecord(ievent++, ev_rec);
