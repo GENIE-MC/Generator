@@ -306,42 +306,51 @@ void InitialState::Print(ostream & stream) const
 {
   stream << "[-] [Init-State] " << endl;
 
-  stream << " |--> probe       : "
+  stream << " |--> probe        : "
          << "PDG-code = " << fProbePdgC
          << " (" << this->GetProbe()->GetName() << ")" << endl;
 
-  stream << " |--> target      : "
+  stream << " |--> nucl. target : "
          << "Z = "          << fTarget->Z()
          << ", A = "        << fTarget->A()
          << ", PDG-Code = " << fTarget->PDGCode();
 
   TParticlePDG * tgt = PDGLibrary::Instance()->Find( fTarget->PDGCode() );
-
   if(tgt) {
     stream << " (" << tgt->GetName() << ")";
   }
   stream << endl;
 
-  stream << " |--> hit nucleon : ";
-
+  stream << " |--> hit nucleon  : ";
   int nuc_pdgc = fTarget->StruckNucleonPDGCode();
 
   if ( pdg::IsNeutronOrProton(nuc_pdgc) ) {
-
     TParticlePDG * p = PDGLibrary::Instance()->Find(nuc_pdgc);
-
     stream << "PDC-Code = " << nuc_pdgc << " (" << p->GetName() << ")";
+  } else {
+    stream << "no set";
   }
   stream << endl;
 
-  stream << " |--> probe 4P    : "
+  stream << " |--> hit quark    : ";
+  int qrk_pdgc = fTarget->StruckQuarkPDGCode();
+
+  if ( pdg::IsQuark(qrk_pdgc) || pdg::IsAntiQuark(qrk_pdgc)) {
+    TParticlePDG * p = PDGLibrary::Instance()->Find(qrk_pdgc);
+    stream << "PDC-Code = " << qrk_pdgc << " (" << p->GetName() << ")";
+  } else {
+    stream << "no set";
+  }
+  stream << endl;
+
+  stream << " |--> probe 4P     : "
          << "(E = "   << setw(12) << setprecision(6) << fProbeP4->E()
          << ", Px = " << setw(12) << setprecision(6) << fProbeP4->Px()
          << ", Py = " << setw(12) << setprecision(6) << fProbeP4->Py()
          << ", Pz = " << setw(12) << setprecision(6) << fProbeP4->Pz()
          << ")"
          << endl;
-  stream << " |--> target 4P   : "
+  stream << " |--> target 4P    : "
          << "(E = "   << setw(12) << setprecision(6) << fTargetP4->E()
          << ", Px = " << setw(12) << setprecision(6) << fTargetP4->Px()
          << ", Py = " << setw(12) << setprecision(6) << fTargetP4->Py()
@@ -353,7 +362,7 @@ void InitialState::Print(ostream & stream) const
 
     TLorentzVector * nuc_p4 = fTarget->StruckNucleonP4();
 
-    stream << " |--> nucleon 4P  : "
+    stream << " |--> nucleon 4P   : "
            << "(E = "   << setw(12) << setprecision(6) << nuc_p4->E()
            << ", Px = " << setw(12) << setprecision(6) << nuc_p4->Px()
            << ", Py = " << setw(12) << setprecision(6) << nuc_p4->Py()

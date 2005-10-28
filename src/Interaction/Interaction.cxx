@@ -151,9 +151,12 @@ void Interaction::SetExclusiveTag(const XclsTag & xcls_tag)
 //___________________________________________________________________________
 void Interaction::Print(ostream & stream) const
 {
-  const string line(100, '-');
+  const string line(110, '-');
 
   stream << endl;
+  stream << line << endl;
+
+  stream << "GENIE Interaction Summary" << endl;
   stream << line << endl;
 
   stream << *fInitialState << endl; // print initial state
