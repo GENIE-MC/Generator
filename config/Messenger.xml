@@ -92,6 +92,7 @@
   <priority msgstream="ReinSeghalRes">       WARN   </priority>
   <priority msgstream="RSHAmpl">             WARN   </priority>
   <priority msgstream="Registry">            WARN   </priority>
+  <priority msgstream="ReWeight">            DEBUG  </priority>
   <priority msgstream="RESHadronicVtx">      INFO   </priority>
   <priority msgstream="RESKinematics">       INFO   </priority>
   <priority msgstream="RESSelector">         INFO   </priority>
@@ -117,7 +118,7 @@
   <priority msgstream="VldRdC">              INFO   </priority>
   <priority msgstream="VldKno">              INFO   </priority>
   <priority msgstream="VldHadrMult">         INFO   </priority>
-  <priority msgstream="Vld">                 INFO   </priority>
+  <priority msgstream="VldPiNucXSec">        INFO   </priority>
   <priority msgstream="XSecSplineList">      INFO   </priority>
 
   <priority msgstream="gevgen">              INFO   </priority>

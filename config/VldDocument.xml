@@ -287,9 +287,9 @@
      <param type="string" name="section-0-conf">  Default                           </param>
   </param_set>
 
-  <param_set name="Test"> 
+  <param_set name="PiNucXSec"> 
      <param type="int"    name="n-sections">      1                              </param>
-     <param type="string" name="section-0-alg">   genie::VldBodekYangPDF         </param>
+     <param type="string" name="section-0-alg">   genie::VldPiNucXSec            </param>
      <param type="string" name="section-0-conf">  Default                        </param>
   </param_set>
 
