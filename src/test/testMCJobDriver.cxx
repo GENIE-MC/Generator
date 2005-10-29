@@ -48,24 +48,6 @@ int main(int argc, char ** argv)
   //-- Create the GENIE MC-job driver
   GMCJDriver mcj;
 
-  //-- load and/or build splines if required
-  XSecSplineList * xssl = 0;
-  if(gOptBuildSplines) {
-     xssl = XSecSplineList::Instance();
-     // check whether there is a spline-list XML file to load
-     string spllst_load_xmlfile =
-             (gSystem->Getenv("GSPLOAD") ? gSystem->Getenv("GSPLOAD") : "");
-     LOG("test", pINFO) << "$GSPLOAD env.var = " << spllst_load_xmlfile;
-
-     if(spllst_load_xmlfile.size()>0) {
-       LOG("test", pINFO) << "Loading cross section splines from an xml file";
-       XmlParserStatus_t status = xssl->LoadFromXml(spllst_load_xmlfile);
-       assert(status==kXmlOK);
-     }
-     // create any spline that is needed but is not loaded
-     mcj.UseSplines();
-  }
-
   //-- Specify a flux driver
 
   LOG("Main", pINFO)  << "Creating [GCylindTH1Flux] flux driver";
@@ -102,6 +84,12 @@ int main(int argc, char ** argv)
   //-- Configure the GENIE MC driver
 
   mcj.Configure();
+
+  //-- If this job uses cross section splines, build all splines that
+  //   are needed and have not already loaded from an XML file via 
+  //   XSecSplineList::AutoLoad()
+
+  if(gOptBuildSplines) mcj.UseSplines();
 
   //-- Start generating events -here, just 1 for testing purposes-
 
