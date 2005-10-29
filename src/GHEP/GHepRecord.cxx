@@ -439,25 +439,26 @@ void GHepRecord::FinalizeDaughterLists(void)
 //___________________________________________________________________________
 void GHepRecord::SwitchIsPauliBlocked(bool on_off)
 {
-  LOG("GHEP", pNOTICE)
-    << "Switching Pauli Block flag: " << utils::print::BoolAsIOString(on_off);
-
+  if(on_off) {
+     LOG("GHEP", pNOTICE) << "Switching Pauli Block flag: ON";
+  }
   fIsPauliBlocked = on_off;
 }
 //___________________________________________________________________________
 void GHepRecord::SwitchIsBelowThrNRF(bool on_off)
 {
-  LOG("GHEP", pNOTICE)
-      << "Switching Below Threshold in nucleon rest frame flag: "
-                                     << utils::print::BoolAsIOString(on_off);
+  if(on_off) {
+     LOG("GHEP", pNOTICE)
+        << "Switching Below Threshold in nucleon rest frame flag: ON";
+  }
   fIsBelowThrNRF = on_off;
 }
 //___________________________________________________________________________
 void GHepRecord::SwitchGenericErrFlag(bool on_off)
 {
-  LOG("GHEP", pNOTICE)
-      << "Switching Generic Error Flag: "
-                               << utils::print::BoolAsIOString(on_off);
+  if(on_off) {
+     LOG("GHEP", pNOTICE) << "Switching Generic Error Flag: ON";
+  }
   fGenericErrFlag = on_off;
 }
 //___________________________________________________________________________
