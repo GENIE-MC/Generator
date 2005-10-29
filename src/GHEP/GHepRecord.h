@@ -85,21 +85,19 @@ public :
   virtual void SwitchIsPauliBlocked (bool on_off);
   virtual void SwitchIsBelowThrNRF  (bool on_off);
   virtual void SwitchGenericErrFlag (bool on_off);
-
-  virtual bool IsPauliBlocked      (void) const { return fIsPauliBlocked; }
-  virtual bool IsBelowThrNRF       (void) const { return fIsBelowThrNRF;  }
-  virtual bool GenericErrFlag      (void) const { return fGenericErrFlag; }
-  virtual bool IsUnphysical        (void) const;
+  virtual bool IsPauliBlocked       (void) const { return fIsPauliBlocked; }
+  virtual bool IsBelowThrNRF        (void) const { return fIsBelowThrNRF;  }
+  virtual bool GenericErrFlag       (void) const { return fGenericErrFlag; }
+  virtual bool IsUnphysical         (void) const;
 
   //-- methods to set / get the event weight and cross sections
 
-  virtual double GetWeight   (void) const { return fWeight;   }
-  virtual double GetXSec     (void) const { return fXSec;     }
-  virtual double GetDiffXSec (void) const { return fDiffXSec; }
-
-  virtual void SetWeight   (double wght)  { fWeight   = (wght>0) ? wght : 0.; }
-  virtual void SetXSec     (double xsec)  { fXSec     = (xsec>0) ? xsec : 0.; }
-  virtual void SetDiffXSec (double xsec)  { fDiffXSec = (xsec>0) ? xsec : 0.; }
+  virtual double GetWeight   (void) const  { return fWeight;   }
+  virtual double GetXSec     (void) const  { return fXSec;     }
+  virtual double GetDiffXSec (void) const  { return fDiffXSec; }
+  virtual void   SetWeight   (double wght) { fWeight   = (wght>0) ? wght : 0.; }
+  virtual void   SetXSec     (double xsec) { fXSec     = (xsec>0) ? xsec : 0.; }
+  virtual void   SetDiffXSec (double xsec) { fDiffXSec = (xsec>0) ? xsec : 0.; }
 
   //-- methods & operators to print the record
 
