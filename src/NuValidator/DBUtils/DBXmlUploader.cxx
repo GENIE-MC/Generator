@@ -7,7 +7,7 @@
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
-\created  January 2004          
+\created  January 2004
 */
 //_____________________________________________________________________________
 
@@ -24,17 +24,17 @@ using namespace genie::nuvld;
 DBXmlUploader::DBXmlUploader(TSQLServer * server)
 {
  _sql_server = server;
-} 
+}
 //_______________________________________________________________________________
 DBXmlUploader::~DBXmlUploader()
 {
 
-} 
+}
 //_______________________________________________________________________________
 DBStatus_t DBXmlUploader::Upload(const XmlDataSet & nuscat_data) const
 {
  const map<string, ExperimentMeasurements *> & all_data = nuscat_data.Get();
- 
+
  map<string, ExperimentMeasurements *>::const_iterator exp_iter;
 
  for(exp_iter = all_data.begin(); exp_iter != all_data.end(); ++exp_iter) {
@@ -46,9 +46,9 @@ DBStatus_t DBXmlUploader::Upload(const XmlDataSet & nuscat_data) const
    this->UploadFluxSpectra( exp_info, spectra);
 
    const vector<Measurement *> & meas = exp_iter->second->GetMeasurements();
-    
+
    vector<Measurement *>::const_iterator meas_iter;
-   
+
    for(meas_iter = meas.begin(); meas_iter != meas.end(); ++meas_iter) {
 
        const MeasurementHeader & m_header = (*meas_iter)->GetMeasurementHeader();
@@ -62,7 +62,7 @@ DBStatus_t DBXmlUploader::Upload(const XmlDataSet & nuscat_data) const
            m_header.Observable().find("COH_XSEC") == 0  ||
            m_header.Observable().find("MPP_XSEC") == 0  )
                                         this->UploadNuXSec(exp_info, *meas_iter);
-       else 
+       else
        if( m_header.Observable().find("ELEC_PXSEC") == 0 )
                                     this->UploadElDiffXSec(exp_info, *meas_iter);
        else
@@ -72,7 +72,7 @@ DBStatus_t DBXmlUploader::Upload(const XmlDataSet & nuscat_data) const
        else {
           SLOG("NuVld", pERROR) << "Unrecognized observable!";
        }
-   }        
+   }
  }
  return eDbu_OK;
 }
@@ -100,41 +100,41 @@ DBStatus_t DBXmlUploader::UploadExpInfo(const ExperimentInfo & exp_info) const
 
   SLOG("NuVld", pINFO)
            << "SQL string to be sent to the DBase: " << sql_string.str().c_str();
-	
+
   _sql_server->Query( sql_string.str().c_str() );
 
   return eDbu_OK;
 }
 //_______________________________________________________________________________
 DBStatus_t DBXmlUploader::UploadFluxSpectra(
-                                         const ExperimentInfo & exp_info, 
+                                         const ExperimentInfo & exp_info,
                          const map<string, BeamFluxSpectrum *> & spectra) const
 {
   //-- loop over all flux spectra for this experiment
 
   map<string, BeamFluxSpectrum *>::const_iterator spectrum_iter;
-  for(spectrum_iter = spectra.begin(); 
+  for(spectrum_iter = spectra.begin();
                                spectrum_iter != spectra.end(); ++spectrum_iter) {
 
        const string beam = spectrum_iter->first;
-       const vector<BeamFluxBin *> & spectrum_bins 
+       const vector<BeamFluxBin *> & spectrum_bins
                                           = spectrum_iter->second->GetSpectrum();
-                                          
+
        vector<BeamFluxBin *>::const_iterator bin;
 
        //-- loop over all energy bins for the current spectrum
 
        for(bin = spectrum_bins.begin(); bin != spectrum_bins.end(); ++bin) {
-    
+
               ostringstream sql_string;
 
-              sql_string 
+              sql_string
                   << "INSERT INTO BEAM_FLUX VALUES "
                   << "(\""  << exp_info.Name()        << "\""
                   << ",\""  << beam                   << "\""
-                  << ","    << (*bin)->MeanEnergy()            
-                  << ","    << (*bin)->MinEnergy()          
-                  << ","    << (*bin)->MaxEnergy()          
+                  << ","    << (*bin)->MeanEnergy()
+                  << ","    << (*bin)->MinEnergy()
+                  << ","    << (*bin)->MaxEnergy()
                   << ",\""  << spectrum_iter->second->EnergyUnits() << "\""
                   << ",\""  << spectrum_iter->second->EnergyFrame() << "\""
                   << ","    << (*bin)->Flux()
@@ -146,7 +146,7 @@ DBStatus_t DBXmlUploader::UploadFluxSpectra(
               SLOG("NuVld", pINFO)
                       << "SQL string to be sent to the DBase: "
                                                      << sql_string.str().c_str();
-                                                     
+
               _sql_server->Query( sql_string.str().c_str() );
 
        } // loop ober spectrum bins
@@ -159,7 +159,7 @@ DBStatus_t DBXmlUploader::UploadReferences(
        const ExperimentInfo & exp_info, const MeasurementHeader & m_header) const
 {
   const vector<Citation *> & refs = m_header.GetRefs();
-  
+
   int iref=0;
   vector<Citation *>::const_iterator ref_iter;
   for(ref_iter = refs.begin(); ref_iter != refs.end(); ++ref_iter) {
@@ -172,7 +172,7 @@ DBStatus_t DBXmlUploader::UploadReferences(
                 << ","    << iref++
                 << ",\""  << (*ref_iter)->Author()   << "\""
                 << ",\""  << (*ref_iter)->Journal()  << "\""
-                << ","    << (*ref_iter)->Year()          
+                << ","    << (*ref_iter)->Year()
                 << ");";
 
      SLOG("NuVld", pINFO)
@@ -200,7 +200,8 @@ DBStatus_t DBXmlUploader::UploadMeasHdr(
                 << ",\""  << m_header.Exposure()       << "\""
                 << ",\""  << m_header.ExposureUnits()  << "\""
                 << ",\""  << m_header.DataSource()     << "\""
-                << ","    << m_header.NPoints()    
+                << ","    << m_header.NPoints()
+                << ","    << m_header.ErrorStatus()
                 << ","    << m_header.GetRefs().size()
                 << ",\""  << m_header.Comment()        << "\""
                 << ");";
@@ -233,8 +234,10 @@ DBStatus_t DBXmlUploader::UploadNuXSec(
                 << ","    << (*point_iter)->Get("stat_err-")
                 << ","    << (*point_iter)->Get("syst_err+")
                 << ","    << (*point_iter)->Get("syst_err-")
-                << ",\""  << (*point_iter)->Get("xsec_units")  << "\""
-                << ",\""  << (*point_iter)->Get("xsec_norm")   << "\""
+                << ",\""  << (*point_iter)->Get("xsec_units")     << "\""
+                << ",\""  << (*point_iter)->Get("xsec_norm")      << "\""
+                << ",\""  << (*point_iter)->Get("stat_err_value") << "\""
+                << ",\""  << (*point_iter)->Get("syst_err_value") << "\""
                 << ","    << (*point_iter)->Get("E")
                 << ","    << (*point_iter)->Get("E_min")
                 << ","    << (*point_iter)->Get("E_max")
@@ -244,7 +247,7 @@ DBStatus_t DBXmlUploader::UploadNuXSec(
 
      SLOG("NuVld", pINFO)
           << "SQL string to be sent to the DBase: " << sql_string.str().c_str();
-                              
+
      _sql_server->Query( sql_string.str().c_str() );
   }
   return eDbu_OK;
@@ -287,7 +290,7 @@ DBStatus_t DBXmlUploader::UploadElDiffXSec(
 
      SLOG("NuVld", pINFO)
           << "SQL string to be sent to the DBase: " << sql_string.str().c_str();
-                
+
      _sql_server->Query( sql_string.str().c_str() );
   }
   return eDbu_OK;
@@ -312,7 +315,7 @@ DBStatus_t DBXmlUploader::UploadSF(
                 << ",\""  << (*point_iter)->Get("sf_p") << "\""
                 << ",\""  << (*point_iter)->Get("sf_R") << "\""
                 << ","    << (*point_iter)->Get("x")
-                << ","    << (*point_iter)->Get("Q2")     
+                << ","    << (*point_iter)->Get("Q2")
                 << ","    << (*point_iter)->Get("stat_err+")
                 << ","    << (*point_iter)->Get("stat_err-")
                 << ","    << (*point_iter)->Get("syst_err+")
@@ -321,7 +324,7 @@ DBStatus_t DBXmlUploader::UploadSF(
 
      SLOG("NuVld", pINFO)
           << "SQL string to be sent to the DBase: " << sql_string.str().c_str();
-                
+
      _sql_server->Query( sql_string.str().c_str() );
   }
   return eDbu_OK;

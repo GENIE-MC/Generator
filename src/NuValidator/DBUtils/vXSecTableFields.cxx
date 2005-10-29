@@ -7,7 +7,7 @@
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
-\created  January 2004          
+\created  January 2004
 */
 //_____________________________________________________________________________
 
@@ -30,6 +30,8 @@ DBTableFields()
   AddField("syst_err_m");
   AddField("xsec_units");
   AddField("xsec_norm");
+  AddField("stat_err_type");
+  AddField("syst_err_type");
   AddField("E");
   AddField("E_min");
   AddField("E_max");
