@@ -28,8 +28,8 @@ using std::vector;
 
 namespace genie {
 namespace nuvld {
-  
-const int c_meas_header_ntags = 8;
+
+const int c_meas_header_ntags = 9;
 const string c_meas_header_tag[c_meas_header_ntags] = {
    string("observable"),
    string("target"),
@@ -38,7 +38,8 @@ const string c_meas_header_tag[c_meas_header_ntags] = {
    string("exposure"),
    string("exposure_units"),
    string("data_source"),
-   string("npoints")
+   string("npoints"),
+   string("err_status"),
 };
 
 class MeasurementHeader
@@ -56,11 +57,12 @@ public:
   virtual const string Target        (void) const { return _target;         }
   virtual const string Reaction      (void) const { return _reaction;       }
   virtual const string A             (void) const { return _A;              }
-  virtual const string Exposure      (void) const { return _exposure;       } 
+  virtual const string Exposure      (void) const { return _exposure;       }
   virtual const string ExposureUnits (void) const { return _exposure_units; }
   virtual const string DataSource    (void) const { return _data_source;    }
   virtual const string Tag           (void) const { return _tag;            }
   virtual const string NPoints       (void) const { return _npoints;        }
+  virtual const string ErrorStatus   (void) const { return _err_status;     }
   virtual const string Comment       (void) const { return _comment;        }
 
   const vector<Citation *> & GetRefs(void) const { return *_refs; }
@@ -80,6 +82,7 @@ protected:
   string  _data_source;
   string  _tag;
   string  _npoints;
+  string  _err_status;
   string  _comment;
 };
 
