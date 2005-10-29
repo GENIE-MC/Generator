@@ -47,6 +47,7 @@ public:
   //   of the Algorithm interface
 
   void Configure (const Registry & config);
+  void Configure (string config);
 
 private:
 

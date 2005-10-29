@@ -133,6 +133,7 @@ void PDF::Init(void)
 //____________________________________________________________________________
 void PDF::Print(ostream & stream) const
 {
+  stream << endl;
   stream << "UP-VAL....... " << fUpValence   << endl;
   stream << "DOWN-VAL..... " << fDownValence << endl;
   stream << "UP-SEA....... " << fUpSea       << endl;

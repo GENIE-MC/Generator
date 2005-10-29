@@ -42,7 +42,6 @@ PDFModelI("genie::PDFLIB", config)
   LOG("PDF", pDEBUG) << "PDFLIB configuration: " << ENDL << *fConfig;  
 
   this->Initialize();
-  this->SetPDFSetFromConfig();
 }
 //____________________________________________________________________________
 PDFLIB::~PDFLIB() 
@@ -161,13 +160,18 @@ PDF_t PDFLIB::AllPDFs(double x, double q2) const
 //____________________________________________________________________________
 void PDFLIB::Configure(const Registry & config)
 {
-  Initialize(); // re-initialize PDFLIB
+  Algorithm::Configure(config);
 
-  fConfig = new Registry(config);
+  this->Initialize();          // re-initialize PDFLIB
+  this->SetPDFSetFromConfig(); // call PDFLIB's pdfset with new configuration
+}
+//____________________________________________________________________________
+void PDFLIB::Configure(string config)
+{
+  Algorithm::Configure(config);
 
-  LOG("PDF", pDEBUG) << "PDFLIB configuration: " << ENDL << *fConfig;
-
-  SetPDFSetFromConfig(); // call PDFLIB's pdfset with new configuration
+  this->Initialize();          // re-initialize PDFLIB
+  this->SetPDFSetFromConfig(); // call PDFLIB's pdfset with new configuration
 }
 //____________________________________________________________________________
 
