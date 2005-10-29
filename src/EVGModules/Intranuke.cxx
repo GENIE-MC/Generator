@@ -28,8 +28,10 @@
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Utils/PrintUtils.h"
 
 using namespace genie;
+using namespace genie::utils;
 using namespace genie::constants;
 
 //___________________________________________________________________________
@@ -52,7 +54,10 @@ Intranuke::~Intranuke()
 //___________________________________________________________________________
 void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
 {
-  LOG("Intranuke", pDEBUG) << "Running INTRANUKE";
+  LOG("Intranuke", pINFO) << "Running INTRANUKE";
+
+  // remove this line to continue
+  //LOG("Intranuke", pWARN) << "(not ready yet)"; return; 
 
   // get the Interaction attached to the event record & get its InitialState
   // and Target objects
@@ -67,23 +72,37 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
     return;
   }
 
-  // Intranuke configuration (uncomment when intranuke is reallt coded)
-  //double t0  = fConfig->GetDoubleDef("t0",    kInukeFormationTime);
-  //double K   = fConfig->GetDoubleDef("Kpt2",  kInukeKpt2);
-  //double Ro  = fConfig->GetDoubleDef("Ro",    kInukeNuclRadius);
+  // Get Intranuke configuration (or set defaults)
+  // (uncomment when intranuke is really coded)
+
+  bool   opaque = fConfig->GetDoubleDef("opaque", false);
+  //double t0     = fConfig->GetDoubleDef("t0",    kInukeFormationTime);
+  //double K      = fConfig->GetDoubleDef("Kpt2",  kInukeKpt2);
+  //double Ro     = fConfig->GetDoubleDef("Ro",    kInukeNuclRadius);
   double t0  = 1.; // tmp
   double K   = 1.; // tmp
   double Ro  = 1.; // tmp
 
-  // Get the random number generator
-
-  RandomGen * rnd = RandomGen::Instance();
-
   // Get hadronic system's momentum vector
 
-  TLorentzVector * p4hadronic = new TLorentzVector;
-  // .. .. .. fill p4hadronic from GHEP
-  TVector3 p3hadronic = p4hadronic->Vect(); // get px,py,pz
+  TLorentzVector p4hadronic(0,0,0,0);
+  // (.. .. .. fill p4hadronic from GHEP)
+  TVector3 p3hadronic = p4hadronic.Vect(); // get px,py,pz
+
+  // Get the random number generator
+  RandomGen * rnd = RandomGen::Instance();
+
+  // Generate a random vertex within the nuclear radius
+  double R        = Ro * rnd->Random2().Rndm();
+  double costheta = -1. + 2. * rnd->Random2().Rndm();
+  double sintheta = TMath::Sqrt(1.-costheta*costheta);
+  double fi       = 2 * kPi * rnd->Random2().Rndm();
+  double cosfi    = TMath::Cos(fi);
+  double sinfi    = TMath::Sin(fi);
+
+  TVector3 vtx(R*sintheta*cosfi, R*sintheta*sinfi, R*costheta);
+
+  LOG("Intranuke", pINFO) << "Vtx = " << print::Vec3AsString(&vtx);
 
   // loop over the event record entries and look for final state pi+,pi-,pi0
   TObjArrayIter piter(event_rec);
@@ -115,29 +134,49 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
          LOG("Intranuke", pINFO) 
             << "|P| = " << P << ", Pt = " << Pt << ", FormationZone = " << fz;
 
-         // generate a random vertex within the nuclear radius
+         // check hadron's position after it is advanced by the 'formation
+         // length' in 3-D
 
-         double R        = Ro * rnd->Random2().Rndm();
-         double costheta = -1. + 2. * rnd->Random2().Rndm();
-         double sintheta = TMath::Sqrt(1.-costheta*costheta);
-         double fi       = 2 * kPi * rnd->Random2().Rndm();
-         double cosfi    = TMath::Cos(fi);
-         double sinfi    = TMath::Sin(fi);
+         TVector3 dr = p3.Unit(); // take a unit vector along momentum
+         dr.SetMag(fz);           // set its length to be te formation length
+         TVector3 r = vtx + dr;   // current position = vtx + dr
 
-         double vtxx = R*sintheta*cosfi;
-         double vtxy = R*sintheta*sinfi;
-         double vtxz = R*costheta;
+         LOG("Intranuke", pDEBUG) 
+              << "The " << p->Name() << " stepped by " << print::Vec3AsString(&dr);
+         LOG("Intranuke", pDEBUG) 
+              << "The " << p->Name() << " is now at  " << print::Vec3AsString(&r);
 
-         LOG("Intranuke", pINFO) 
-            << "(vtxx = " << vtxx << ", vtxy = " << vtxy 
-                                               << ", vtxz = " << vtxz << ")";
+         bool is_in = (r.Mag() < Ro);
+         if(!is_in) {
+            LOG("Intranuke", pINFO) 
+                     << "Hadron is out of the nuclear radius. Done with it.";
+            delete p4;
+            continue;
+         }
 
-         // ...
+         // Start Intranuclear rescattering for current hadron
+
+         // Check if the "opaque" config var is true in which case absorb 
+         // the hadron anyway
+
+         if(opaque) {
+            // ?? The particle has a kIstStableFinalState status
+            // ?? Now, mark it as kIstHadronInTheNucleus
+
+            p->SetStatus(kIstHadronInTheNucleus);
+
+            delete p4;
+            continue;
+         }
+
+         // ... ... ... ... ... 
 
       } // is pi+,pi-.pi0
     } // is stable-final-state
   }// stdhep entries
 
   //...
+
+  LOG("Intranuke", pINFO) << "Done with this event";
 }
 //___________________________________________________________________________
