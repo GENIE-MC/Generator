@@ -208,7 +208,14 @@ double Kinematics::GetKV(KineVar_t kv) const
 //____________________________________________________________________________
 void Kinematics::SetKV(KineVar_t kv, double value)
 {
-  fKV.insert( map<KineVar_t, double>::value_type(kv,value) );
+  LOG("Interaction", pDEBUG)
+            << "Setting " << KineVar::AsString(kv) << " to " << value;
+
+  if(this->KVSet(kv)) {
+     fKV[kv] = value;
+  } else {
+     fKV.insert( map<KineVar_t, double>::value_type(kv,value) );
+  }
 }
 //____________________________________________________________________________
 void Kinematics::Initialize(void)
