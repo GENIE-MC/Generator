@@ -309,7 +309,7 @@ void vDataSelectionTab::ResetSelections(void)
   this->SelectAllTargets();
 }
 //______________________________________________________________________________
-string vDataSelectionTab::ReadXSecSelectionListbox(void)
+string vDataSelectionTab::ReadXSecErrorListbox(void)
 {
   ostringstream err;
 

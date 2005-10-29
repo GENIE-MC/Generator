@@ -18,16 +18,6 @@ namespace genie {
 namespace nuvld {
 namespace constants {
 
-//static const char * kSqlFileExtensions[] =
-//{
-// "All files", "*", "SQL files", "*.sql", 0, 0
-//};
-
-//static const char * kRootFileExtensions[] =
-//{
-//  "All files", "*", "ROOT files", "*.root", 0, 0
-//};
-
 static const char * kSavedPlotExtensions[] =
 {
   "GIF", "*.gif", "ROOT macro", "*.C", "Encapsulated postscript", "*.eps", 0, 0
@@ -40,7 +30,7 @@ static const char * kSavedSplineExtensions[] =
 
 static const char * kFitters[] =
 {
-   "NONE", "SIMPLE", "XSEC-NORM", "NORM-FLOAT", 0, 
+   "NONE", "SIMPLE", "XSEC-NORM", "NORM-FLOAT", 0,
 };
 
 static const char * kMajorLabel =
