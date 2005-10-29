@@ -36,32 +36,31 @@ RQ_OBJECT("vDataSelectionTab")
 public:
    vDataSelectionTab(TGMainFrame * main, DBConnection * db = 0);
    virtual ~vDataSelectionTab();
-      
+
    TGCompositeFrame * Create(TGCompositeFrame * tf, int width, int height);
 
-   string BundleSelectionsInString (void);
-   string BundleKeyListInString    (void);
-   string BundleCutsInString       (void);
-   string BundleDrawOptInString    (void);
-   void   ResetSelections          (void);
-   void   SelectAllExp             (void);
-   void   SelectAllXSec            (void);
-   void   SelectAllProbes          (void);
-   void   SelectAllTargets         (void);
-   string ReadXSecSelectionListbox (void);
-
-   void PopupNuDataSelectionDialog   (void);
-   void PopupNuMeasurementListDialog (void);
+   string BundleSelectionsInString     (void);
+   string BundleKeyListInString        (void);
+   string BundleCutsInString           (void);
+   string BundleDrawOptInString        (void);
+   void   ResetSelections              (void);
+   void   SelectAllExp                 (void);
+   void   SelectAllXSec                (void);
+   void   SelectAllProbes              (void);
+   void   SelectAllTargets             (void);
+   string ReadXSecErrorListbox         (void);
+   void   PopupNuDataSelectionDialog   (void);
+   void   PopupNuMeasurementListDialog (void);
 
 private:
 
    //-- GUI widgets
 
-   TGMainFrame *         fMain;   
+   TGMainFrame *         fMain;
    TGCompositeFrame *    fTabNuSql;
    TGLayoutHints *       fNuSqlTabLt;
    TGMatrixLayout *      fEnergyMatrixLt;
-   TGGroupFrame *        fEnergyGrpFrm;   
+   TGGroupFrame *        fEnergyGrpFrm;
    TGGroupFrame *        fNuXSecErrGrpFrm;
    TGGroupFrame *        fNuExpGrpFrm;
    TGGroupFrame *        fNuXSecGrpFrm;
@@ -83,12 +82,12 @@ private:
    TGLabel *             fMaxELb;
    TGLabel *             fNuTabBtnSpacerLb;
    TGCheckButton *       fScaleWithEvChkB;
-   
+
    DBConnection *        fDBC;            ///< NuVld database connection
-   
+
    bool                  fPopupDialogLAM; ///< LAM (Look-At-Me) flag for popup dialog
    DataSelectionDialog * fPopupDialog;    ///< popup delection dialog interface
-            
+
    ClassDef(vDataSelectionTab, 0)
 };
 

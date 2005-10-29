@@ -168,7 +168,7 @@ void fcn_mgr_floating_norm_e(
 
   // get selected data as a MultiGraph with errors
 
-  MultiGraph * mgr = user_data->NuXSec()->GetMultiGraph("all-noE-scale-with-E");
+  MultiGraph * mgr = user_data->NuXSec()->GetMultiGraph("stat-noE-scale-with-E");
 
   double x[1];
 
@@ -212,7 +212,7 @@ void fcn_mgr_floating_norm(
 
   // get selected data as a MultiGraph with errors
 
-  MultiGraph * mgr = user_data->NuXSec()->GetMultiGraph("all-noE");
+  MultiGraph * mgr = user_data->NuXSec()->GetMultiGraph("stat-noE");
 
   double x[1];
 

@@ -2010,7 +2010,7 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
 
          renderer.SetScaleWithEnergy( this->ScaleWithEnergy() );
          renderer.SetMultigraph( fShowColorCodeChkB->GetState() == kButtonDown );
-         renderer.SetErrorOption(fNuXSecTab->ReadXSecSelectionListbox());
+         renderer.SetErrorOption(fNuXSecTab->ReadXSecErrorListbox());
 
          if(fShowExtLegendChkB->GetState() == kButtonDown)
                                        renderer.SetExternalLegend(new TLegend());
@@ -2404,8 +2404,7 @@ void NuVldMainFrame::RunPostFitProcessor(void)
 
     renderer.SetScaleWithEnergy( this->ScaleWithEnergy() );
     renderer.SetMultigraph(false);
-//    renderer.SetErrorOption(this->ReadXSecSelectionListbox()); // UPDATE
-    renderer.SetErrorOption(fNuXSecTab->ReadXSecSelectionListbox());
+    renderer.SetErrorOption(fNuXSecTab->ReadXSecErrorListbox());
     renderer.DrawXSecTable( user_data->NuXSec() );
     renderer.PrintDrawingOptions();
 
