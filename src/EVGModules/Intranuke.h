@@ -33,10 +33,11 @@ public :
   ~Intranuke();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
 private:
+
+//  double FormationZone();
 
 };
 
