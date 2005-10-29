@@ -7,7 +7,7 @@
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
-\created  January 2004          
+\created  January 2004
 */
 //_____________________________________________________________________________
 
@@ -15,6 +15,7 @@
 
 #include "DBUtils/vXSecTableRow.h"
 #include "DBUtils/vXSecTableFields.h"
+#include "Messenger/Messenger.h"
 
 using std::endl;
 using namespace genie::nuvld;
@@ -27,7 +28,7 @@ namespace nuvld {
 //____________________________________________________________________________
 ostream & operator << (ostream & stream, const vXSecTableRow & row)
 {
-  row.Print(stream);         
+  row.Print(stream);
   return stream;
 }
 //____________________________________________________________________________
@@ -37,11 +38,6 @@ DBTableRow()
 
 }
 //____________________________________________________________________________
-//vXSecTableRow::vXSecTableRow(const DBTableFields * fields, TSQLRow * row) :
-//DBTableRow(fields, row)
-//{
-   
-//}
 vXSecTableRow::vXSecTableRow(TSQLRow * row) :
 DBTableRow(new vXSecTableFields, row)
 {
@@ -61,111 +57,164 @@ vXSecTableRow::~vXSecTableRow()
 //____________________________________________________________________________
 string vXSecTableRow::Experiment(void) const
 {
-  return Field("name");
+  return this->Field("name");
 }
 //____________________________________________________________________________
 string vXSecTableRow::MeasurementTag(void) const
 {
-  return Field("measurement_tag");
+  return this->Field("measurement_tag");
 }
 //____________________________________________________________________________
 double vXSecTableRow::XSec(void) const
 {
-  double xsec   = atof( Field("xsec").c_str() );  
-  double energy = E();  
-  string norm   = XSecNorm();
-  string units  = XSecUnits();
-  
-  ApplyUnitsFactor (xsec, units);   
-  UndoXSecNorm     (xsec, energy, norm);
-
-  return xsec;
-}
-//____________________________________________________________________________
-double vXSecTableRow::StatErrP(void) const 
-{
-  double xsec_err = atof( Field("stat_err_p").c_str() );  
-
+  double xsec   = atof( this->Field("xsec").c_str() );
   double energy = E();
   string norm   = XSecNorm();
   string units  = XSecUnits();
 
-  ApplyUnitsFactor (xsec_err, units);
-  UndoXSecNorm     (xsec_err, energy, norm);
+  ApplyUnitsFactor (xsec, units);
+  UndoXSecNorm     (xsec, energy, norm);
+
+  LOG("NuVldDBI", pINFO) << "xsec = " << xsec << " (E = " << energy << ")";
+
+  return xsec;
+}
+//____________________________________________________________________________
+double vXSecTableRow::StatErrP(void) const
+{
+  double xsec_err = atof( this->Field("stat_err_p").c_str() );
+
+  double energy = this->E();
+  string norm   = this->XSecNorm();
+  string units  = this->XSecUnits();
+
+  this->ApplyUnitsFactor (xsec_err, units);
+  this->UndoXSecNorm     (xsec_err, energy, norm);
+
+  // LOG("NuVldDBI", pINFO) 
+  //      << "+dxsec[stat] = " << xsec_err << " (E = " << energy << ")";
 
   return xsec_err;
 }
 //____________________________________________________________________________
 double vXSecTableRow::StatErrM(void) const
 {
-  double xsec_err = atof( Field("stat_err_m").c_str() );  
+  double xsec_err = atof( this->Field("stat_err_m").c_str() );
 
-  double energy = E();
-  string norm   = XSecNorm();
-  string units  = XSecUnits();
+  double energy = this->E();
+  string norm   = this->XSecNorm();
+  string units  = this->XSecUnits();
 
-  ApplyUnitsFactor (xsec_err, units);
-  UndoXSecNorm     (xsec_err, energy, norm);
+  this->ApplyUnitsFactor (xsec_err, units);
+  this->UndoXSecNorm     (xsec_err, energy, norm);
 
-  return xsec_err;  
+  //LOG("NuVldDBI", pINFO) 
+  //      << "-dxsec[stat] = " << xsec_err << " (E = " << energy << ")";
+
+  return xsec_err;
 }
 //____________________________________________________________________________
 double vXSecTableRow::SystErrP(void) const
 {
-  return 0;
+  double xsec_err = atof( this->Field("syst_err_p").c_str() );
+
+  if(this->IsPercentageErr(this->SystErrType()))
+  {
+    double xsec = this->XSec();
+    xsec_err = xsec_err * xsec / 100.;
+  } else {
+    double energy = this->E();
+    string norm   = this->XSecNorm();
+    string units  = this->XSecUnits();
+
+    this->ApplyUnitsFactor (xsec_err, units);
+    this->UndoXSecNorm     (xsec_err, energy, norm);
+  }
+
+  //LOG("NuVldDBI", pINFO) 
+  //      << "+dxsec[syst] = " << xsec_err << " (E = " << this->E() << ")";
+
+  return xsec_err;
 }
 //____________________________________________________________________________
 double vXSecTableRow::SystErrM(void) const
 {
-  return 0;
+  double xsec_err = atof( this->Field("syst_err_m").c_str() );
+
+  if(this->IsPercentageErr(this->SystErrType()))
+  {
+    double xsec = this->XSec();
+    xsec_err = xsec_err * xsec / 100.;
+  } else {
+    double energy = this->E();
+    string norm   = this->XSecNorm();
+    string units  = this->XSecUnits();
+
+    this->ApplyUnitsFactor (xsec_err, units);
+    this->UndoXSecNorm     (xsec_err, energy, norm);
+  }
+
+  //LOG("NuVldDBI", pINFO) 
+  //      << "-dxsec[syst] = " << xsec_err << " (E = " << this->E() << ")";
+
+  return xsec_err;
 }
 //____________________________________________________________________________
 double vXSecTableRow::ErrP(void) const
 {
-  double stat = StatErrP();
-  double syst = SystErrP();
+  double stat = this->StatErrP();
+  double syst = this->SystErrP();
 
   return TMath::Sqrt( stat*stat + syst*syst );
 }
 //____________________________________________________________________________
 double vXSecTableRow::ErrM(void) const
 {
-  double stat = StatErrM();
-  double syst = SystErrM();
+  double stat = this->StatErrM();
+  double syst = this->SystErrM();
 
   return TMath::Sqrt( stat*stat + syst*syst );
 }
 //____________________________________________________________________________
 string vXSecTableRow::XSecNorm(void) const
 {
-  return Field("xsec_norm");
+  return this->Field("xsec_norm");
 }
 //____________________________________________________________________________
 string vXSecTableRow::XSecUnits(void) const
 {
-  return Field("xsec_units");
+  return this->Field("xsec_units");
+}
+//____________________________________________________________________________
+string vXSecTableRow::StatErrType(void) const
+{
+  return this->Field("stat_err_type");
+}
+//____________________________________________________________________________
+string vXSecTableRow::SystErrType(void) const
+{
+  return this->Field("syst_err_type");
 }
 //____________________________________________________________________________
 double vXSecTableRow::E(void) const
 {
-  return atof( Field("E").c_str() );
+  return atof( this->Field("E").c_str() );
 }
 //____________________________________________________________________________
 double vXSecTableRow::Emin(void) const
 {
-  return atof( Field("E_min").c_str() );
+  return atof( this->Field("E_min").c_str() );
 }
 //____________________________________________________________________________
 double vXSecTableRow::Emax(void) const
 {
-  return atof( Field("E_max").c_str() );
+  return atof( this->Field("E_max").c_str() );
 }
 //____________________________________________________________________________
 double vXSecTableRow::dE(void) const
 {
   return ( Emax() - Emin() );
 }
-
 //____________________________________________________________________________
 void vXSecTableRow::UndoXSecNorm(double & xsec, double E, string norm) const
 {
@@ -181,16 +230,34 @@ void vXSecTableRow::ApplyUnitsFactor(double & xsec, string factor) const
    static double GeV     = 1;
    static double nucleon = 1;
 
+   double d = atof( &(factor.c_str())[1]);
+
    if      (factor.compare("*cm2") == 0)     xsec *= cm2;
    else if (factor.compare("/GeV") == 0)     xsec /= GeV;
    else if (factor.compare("/nucleon") == 0) xsec /= nucleon;
-   else                                      xsec *= (1e+38 * atof( &(factor.c_str())[1]));
+   else                                      xsec *= (1e+38 * d);
+}
+//____________________________________________________________________________
+bool vXSecTableRow::IsPercentageErr(string err_type) const
+{
+  LOG("NuVldDBI", pDEBUG) << err_type;
+
+  bool isp = (err_type.find("%")    != string::npos) &&
+             (err_type.find("*")    != string::npos) &&
+             (err_type.find("xsec") != string::npos);
+
+  if(isp) {
+      LOG("NuVldDBI", pDEBUG) 
+         << "Error is given as fraction of cross section value";
+  }
+  return isp;
 }
 //____________________________________________________________________________
 void vXSecTableRow::Print (ostream & stream) const
 {
   stream << "E = " << this->Field("E") << " " << this->Field("E_units")
-         << " --> xsec "<< this->Field("xsec")  << " " << this->Field("xsec_units") 
+         << " --> xsec " << this->Field("xsec")
+         << " " << this->Field("xsec_units")
          << endl;
 }
 //____________________________________________________________________________

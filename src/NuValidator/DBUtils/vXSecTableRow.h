@@ -35,10 +35,12 @@ public:
 
   friend ostream & operator << (ostream & stream, const vXSecTableRow & row);
 
-  string Experiment     (void) const;  
+  string Experiment     (void) const;
   string MeasurementTag (void) const;
   string XSecNorm       (void) const;
-  string XSecUnits      (void) const;  
+  string XSecUnits      (void) const;
+  string StatErrType    (void) const;
+  string SystErrType    (void) const;
   double XSec           (void) const;
   double StatErrP       (void) const;
   double StatErrM       (void) const;
@@ -50,7 +52,7 @@ public:
   double Emin           (void) const;
   double Emax           (void) const;
   double dE             (void) const;
-   
+
   void Print (ostream & stream) const;
 
 private:
@@ -61,8 +63,8 @@ private:
   virtual ~vXSecTableRow();
 
   void   UndoXSecNorm     (double & xsec, double E, string norm) const;
-  void   ApplyUnitsFactor (double & xsec, string factor) const;   
-
+  void   ApplyUnitsFactor (double & xsec, string factor) const;
+  bool   IsPercentageErr  (string err_type) const;
 ClassDef(vXSecTableRow, 1)
 };
 
