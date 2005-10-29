@@ -145,35 +145,16 @@ int main(int argc, char ** argv)
   GEVGDriver driver;
   driver.SetInitialState(init_state);
 
-  //-- load and/or build splines if required
-  XSecSplineList * xssl = 0;
-  if(gOptBuildSplines) {
-     xssl = XSecSplineList::Instance();
-     // check whether there is a spline-list XML file to load
-     string spllst_load_xmlfile =
-             (gSystem->Getenv("GSPLOAD") ? gSystem->Getenv("GSPLOAD") : "");
-     LOG("gevgen", pINFO) << "$GSPLOAD env.var = " << spllst_load_xmlfile;
+  //-- Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
+  //   if the env. var. has been set)
+  XSecSplineList * xspl = XSecSplineList::Instance();
+  xspl->AutoLoad();
 
-     if(spllst_load_xmlfile.size()>0) {
-       LOG("gevgen", pINFO) << "Loading cross section splines from an xml file";
-       XmlParserStatus_t status = xssl->LoadFromXml(spllst_load_xmlfile);
-       assert(status==kXmlOK);
-     }
-     // create any spline that is needed but is not loaded
-     driver.CreateSplines();
-  }
+  //-- If splines are used, then create any spline that is needed but is not 
+  //   already loaded (can built them all here if no spline at all is loaded)
+  if(gOptBuildSplines) driver.CreateSplines();
 
-  //-- save the splines if requested
-  string spllst_save_xmlfile =
-             (gSystem->Getenv("GSPSAVE") ? gSystem->Getenv("GSPSAVE") : "");
-  LOG("gevgen", pINFO) << "$GSPSAVE env.var = " << spllst_save_xmlfile;
-
-  if(gOptBuildSplines && spllst_save_xmlfile.size()>0) {
-     LOG("gevgen", pINFO) << "Saving cross section splines to an xml file";
-     xssl->SaveAsXml(spllst_save_xmlfile);
-  }
-
-  //-- in this gevgen just request events for monoenergetic neutrinos
+  //-- this driver produces events for monoenergetic neutrinos
   TLorentzVector nu_p4 (0., 0., gOptNuEnergy, gOptNuEnergy); // px,py,pz,E (GeV)
 
   //-- create the output ROOT file name;
