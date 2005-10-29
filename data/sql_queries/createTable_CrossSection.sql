@@ -10,7 +10,9 @@ CREATE TABLE IF NOT EXISTS CROSS_SECTION (
   syst_err_m       FLOAT,
 
   xsec_units       VARCHAR(40)   DEFAULT '10-38 cm2/GeV/nucleon' NOT NULL,
-  xsec_norm        VARCHAR(5)    DEFAULT 'E'                     NOT NULL,
+  xsec_norm        VARCHAR(10)   DEFAULT 'E'                     NOT NULL,
+  stat_err_type    VARCHAR(10)   DEFAULT 'xsec'                  NOT NULL,
+  syst_err_type    VARCHAR(10)   DEFAULT 'xsec'                  NOT NULL,
 
   E                FLOAT         NOT NULL,
   E_min            FLOAT,

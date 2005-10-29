@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS MEASUREMENT_HEADER (
   exposure_units   VARCHAR(30),
   data_source      VARCHAR(30)   NOT NULL,
   npoints          INT(4)        NOT NULL,
+  err_status       INT(1)        DEFAULT '1' NOT NULL,
   nrefs            INT(2)        NOT NULL,
 
   comment          TEXT,
