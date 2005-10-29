@@ -33,6 +33,7 @@
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
 #include "Utils/PrintUtils.h"
+#include "Utils/XSecSplineList.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -72,8 +73,17 @@ void GMCJDriver::Initialize(void)
   fPmax         = 0;
   fUseSplines   = false;
 
-  assert( Messenger::Instance()     ); // send prolific printout on top
-  assert( AlgConfigPool::Instance() ); //           --//--
+  // Force early initialization of singleton objects that are typically
+  // would be initialized at their first use later on.
+  // This is purely cosmetic and I do it to send the banner and some prolific
+  // initialization printout at the top.
+  assert( Messenger::Instance()     ); 
+  assert( AlgConfigPool::Instance() ); 
+
+  // Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
+  // if the env. var. has been set);
+  XSecSplineList * xspl = XSecSplineList::Instance();
+  xspl->AutoLoad();
 }
 //___________________________________________________________________________
 void GMCJDriver::Configure(void)
