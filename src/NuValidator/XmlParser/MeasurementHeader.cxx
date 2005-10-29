@@ -7,7 +7,7 @@
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
-\created  August 2003          
+\created  August 2003
 */
 //_____________________________________________________________________________
 
@@ -15,7 +15,7 @@
 
 namespace genie {
 namespace nuvld {
-  
+
 //___________________________________________________________________________
 ostream & operator << (ostream & stream, const MeasurementHeader & header)
 {
@@ -23,7 +23,7 @@ ostream & operator << (ostream & stream, const MeasurementHeader & header)
   stream << "---------------------- printing measurement header: " << endl;
 
   const vector<Citation *> & refs = header.GetRefs();
-  
+
   vector<Citation *>::const_iterator ref_iter;
   for(ref_iter = refs.begin();
                 ref_iter != refs.end(); ++ref_iter) stream << *(*ref_iter);
@@ -38,6 +38,7 @@ ostream & operator << (ostream & stream, const MeasurementHeader & header)
   stream << " |-> data source......: " << header._data_source    << endl;
   stream << " |-> tag..............: " << header._tag            << endl;
   stream << " |-> npoints..........: " << header._npoints        << endl;
+  stream << " |-> error status.....: " << header._err_status     << endl;
   stream << " |-> comment..........: " << header._comment        << endl;
 
   return stream;
@@ -53,6 +54,7 @@ _exposure_units(""),
 _data_source(""),
 _tag(""),
 _npoints(""),
+_err_status("1"),
 _comment("")
 {
   _refs = new vector<Citation *>;
@@ -74,8 +76,9 @@ void MeasurementHeader::Add(string key, string value)
   else if (key.compare("data_source")    == 0) _data_source    = value;
   else if (key.compare("tag")            == 0) _tag            = value;
   else if (key.compare("npoints")        == 0) _npoints        = value;
+  else if (key.compare("error_status")   == 0) _err_status     = value;
   else if (key.compare("comment")        == 0) _comment        = value;
-  else 
+  else
       cerr << "MeasurementHeader::add(string, string): unknown key" << endl;
 }
 //___________________________________________________________________________
