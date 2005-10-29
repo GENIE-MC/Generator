@@ -5,6 +5,9 @@
 
 \brief   An object that knows how to look at the GHEP event record and extract
          summary information.
+         The summary builder is used for building the plain (PR) ntuple which
+         can also be generated for GHEP records converted from other generator
+         outputs.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
