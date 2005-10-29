@@ -73,6 +73,10 @@ void DISStructureFuncModelCC::Calculate(const Interaction * interaction) const
 
   double f = this->NuclMod(interaction);
 
+  LOG("DISSF", pDEBUG) << "\n" << kinematics;
+  LOG("DISSF", pDEBUG) << "q(x,Q2) = " << q << ", q{bar}(x,Q2) = " << qbar;
+  LOG("DISSF", pDEBUG) << "Nuclear factor = " << f;
+
   fF6 = 0.;
   fF5 = 0.;
   fF4 = 0.;
