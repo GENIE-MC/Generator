@@ -29,6 +29,7 @@ TGT =	testBaryonResDataSet	\
 	testPDFLIB		\
 	testMCJobDriver		\
 	testRegistry		\
+	testInteraction		\
 	testReWeight		\
 	testReadGNtuple		\
 	testROOTGeometry
@@ -41,6 +42,7 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testPDFLIB		\
 	$(GENIE_BIN_PATH)/testMCJobDriver	\
 	$(GENIE_BIN_PATH)/testRegistry		\
+	$(GENIE_BIN_PATH)/testInteraction	\
 	$(GENIE_BIN_PATH)/testReWeight		\
 	$(GENIE_BIN_PATH)/testReadGNtuple	\
 	$(GENIE_BIN_PATH)/testROOTGeometry  
@@ -78,6 +80,10 @@ testNumerical: FORCE
 testRegistry: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testRegistry \
 			testRegistry.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+
+testInteraction: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testInteraction \
+			testInteraction.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testReWeight: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testReWeight \
@@ -119,6 +125,9 @@ clean--testMCJobDriver: FORCE
 
 clean--testRegistry: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testRegistry
+
+clean--testInteraction: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testInteraction
 
 clean--testReWeight: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testReWeight
