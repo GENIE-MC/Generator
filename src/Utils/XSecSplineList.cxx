@@ -17,6 +17,7 @@
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
 
+#include <TSystem.h>
 #include <TMath.h>
 #include <TLorentzVector.h>
 
@@ -55,6 +56,10 @@ XSecSplineList::XSecSplineList()
 XSecSplineList::~XSecSplineList()
 {
   cout << "XSecSplineList singleton dtor: Deleting all splines" << endl;
+
+  cout << "Checking whether to AutoSave() first" << endl;
+  this->AutoSave();
+
   map<string, Spline *>::const_iterator spliter;
   for(spliter = fSplineMap.begin(); spliter != fSplineMap.end(); ++spliter) {
     Spline * spline = spliter->second;
@@ -353,6 +358,55 @@ string XSecSplineList::BuildSplineKey(
   string key = alg_name + "/" + param_set + "/" + intkey;
 
   return key;
+}
+//____________________________________________________________________________
+bool XSecSplineList::AutoLoad(void) 
+{
+// Checks the $GSPLOAD env. variable and if found set reads the cross splines
+// from the XML file it points to.
+// Returns true if $GSPLOAD was set and splines were read / false otherwise.
+
+  if( gSystem->Getenv("GSPLOAD") ) {
+
+     string xmlfile = gSystem->Getenv("GSPLOAD");
+     LOG("XSecSplineList", pNOTICE) << "$GSPLOAD env.var = " << xmlfile;
+
+     bool is_accessible = ! (gSystem->AccessPathName(xmlfile.c_str()));
+
+     if(is_accessible) {
+       LOG("XSecSplineList", pINFO) << "Loading cross section splines";
+       XmlParserStatus_t status = this->LoadFromXml(xmlfile);
+       assert(status==kXmlOK);
+       return true;
+     } else {
+       LOG("XSecSplineList", pWARN) 
+              << "Specified XML file [" << xmlfile << "] is not accessible!";
+       return false;
+     }
+  }
+  LOG("XSecSplineList", pNOTICE) 
+                      << "No cross section splines will be loaded";
+  return false;
+}
+//____________________________________________________________________________
+void XSecSplineList::AutoSave(void) 
+{
+// Checks whether the $GSPSAVE env. variable and if found set it saves the
+// cross section splines at the XML file this variable points to.
+// You do not need to invoke this method (just set the env. variable). The
+// method would be automatically called before the singleton destroys itself.
+
+  if( gSystem->Getenv("GSPSAVE") ) {
+
+     string xmlfile = gSystem->Getenv("GSPSAVE");
+
+     // Use cout rather than LOG(). The method is called when when singletons
+     // have started destroying themselves. The Messenger singleotn can be
+     // deleted before the XSecSplineList.
+     cout << "Saving cross section splines to xml file: " << xmlfile << endl;
+
+     this->SaveAsXml(xmlfile);
+  }
 }
 //____________________________________________________________________________
 void XSecSplineList::Print(ostream & stream) const
