@@ -58,6 +58,11 @@ public:
   void               SaveAsXml   (string filename) const;
   XmlParserStatus_t  LoadFromXml (string filename, bool keep = false);
 
+  //-- autosave / autoload
+
+  bool AutoLoad (void);
+  void AutoSave (void);
+
   //-- print available splines
   void   Print (ostream & stream) const;
   friend ostream & operator << (ostream & stream, const XSecSplineList & xsl);
