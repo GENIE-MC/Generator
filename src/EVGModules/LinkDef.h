@@ -9,6 +9,7 @@
 #pragma link C++ class genie::InitialStateAppender;
 #pragma link C++ class genie::FermiMover;
 #pragma link C++ class genie::COHKinematicsGenerator;
+#pragma link C++ class genie::COHPrimaryLeptonGenerator;
 #pragma link C++ class genie::QELKinematicsGenerator;
 #pragma link C++ class genie::QELPrimaryLeptonGenerator;
 #pragma link C++ class genie::QELHadronicSystemGenerator;

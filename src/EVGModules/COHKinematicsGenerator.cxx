@@ -77,14 +77,22 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
   Range1D_t y = this->yRange(interaction);
 
+  const double logxmin = TMath::Log(x.min);
+  const double logxmax = TMath::Log(x.max);
+  const double rlogx   = (logxmax - logxmin);
+
+  const double logymin = TMath::Log(y.min);
+  const double logymax = TMath::Log(y.max);
+  const double rlogy   = (logymax - logymin);
+
   register unsigned int iter = 0;
   while(1) {
-     double gx = x.min + (x.max-x.min) * rnd->Random2().Rndm();
-     double gy = y.min + (y.max-y.min) * rnd->Random2().Rndm();
+     double gx = TMath::Exp(logxmin + rlogx * rnd->Random2().Rndm());
+     double gy = TMath::Exp(logymin + rlogy * rnd->Random2().Rndm());
      interaction->GetKinematicsPtr()->Setx(gx);
      interaction->GetKinematicsPtr()->Sety(gy);
      LOG("COHKinematics", pINFO)
-                       << "Trying: (x = " << gx << ", y = " << gy << ")";
+                   << "Trying: (x = " << gx << ", y = " << gy << ")";
 
      double xsec = xsec_alg->XSec(interaction);
      double t    = xsec_max * rnd->Random2().Rndm();
