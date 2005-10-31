@@ -76,7 +76,7 @@ bool PDGCodeList::CheckPDGCode(int pdg_code)
 
   bool added = this->ExistsInPDGCodeList(pdg_code);
   if(added) {
-    LOG("PDG", pINFO)
+    LOG("PDG", pDEBUG)
                 << "Particle [pdgc = " << pdg_code << "] was already added";
     return false;
   }
