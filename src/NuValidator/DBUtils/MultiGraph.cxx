@@ -77,11 +77,10 @@ void MultiGraph::FillLegend(const char * option, TLegend * legend) const
 //______________________________________________________________________________
 void MultiGraph::FormatGraph(unsigned int igraph)
 {  
-  const int colors[] =  { 1, 2, 4, 7, 8, 50, 38   };
-  const int markers[] = { 3, 4, 8, 21, 22, 23, 28 };
+  const int n_colors  = 10;
+  const int colors[]  = { 1, 2, 4, 6, 7, 8, 9, 50, 38, 40  };
+  const int markers[] = { 3, 4, 5, 8, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 };
 
-  const int n_colors  = sizeof(colors)  /sizeof(int);
-  
   int imarker = igraph / n_colors;
   int icolor  = igraph % n_colors;
 
