@@ -41,18 +41,23 @@ using namespace genie;
 using namespace genie::geometry;
 
 //___________________________________________________________________________
-ROOTGeomAnalyzer::ROOTGeomAnalyzer(string filename) :
+ROOTGeomAnalyzer::ROOTGeomAnalyzer(string geometry_filename) :
 GeomAnalyzerI()
 {
-  this->Initialize(filename);
+  this->Initialize();
+  this->Load(geometry_filename);
+}
+//___________________________________________________________________________
+ROOTGeomAnalyzer::ROOTGeomAnalyzer(TGeoManager * gm) :
+GeomAnalyzerI()
+{
+  this->Initialize();
+  this->Load(gm);
 }
 //___________________________________________________________________________
 ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
 {
-  if( fCurrPathLengthList    ) delete fCurrPathLengthList;
-  if( fCurrMaxPathLengthList ) delete fCurrMaxPathLengthList;
-  if( fCurrPDGCodeList       ) delete fCurrPDGCodeList;
-  if( fGeometry              ) delete fGeometry;
+  this->CleanUp();
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::SetUnits(double u)
@@ -70,13 +75,27 @@ void ROOTGeomAnalyzer::SetUnits(double u)
   LOG("GROOTGeom",pNOTICE) << "Geometry units scale factor: " << fScale;
 }
 //___________________________________________________________________________
-void ROOTGeomAnalyzer::SetWorldVolName(string name)
+void ROOTGeomAnalyzer::SetTopVolName(string name)
 {
-// Set the name of the world volume - default = "World"
+// Set the name of the top volume.
+// This driver would ask the TGeoManager::GetTopVolume() for the top volume.
+// Use this method for changing this if for example you want to set a smaller
+// volume as the top one so as to generate events only in a specific part of
+// your detector.
 
-  fWorldVolName = name;
+  fTopVolumeName = name;
 
-  LOG("GROOTGeom",pNOTICE) << "Geometry World Vol. name: " << fWorldVolName;
+  LOG("GROOTGeom",pNOTICE) << "Geometry Top Volume name: " << fTopVolumeName;
+
+  TGeoVolume * gvol = fGeometry->GetVolume(fTopVolumeName.c_str());
+
+  if(!gvol) {
+     LOG("GROOTGeom",pWARN) << "Could not find volume: " << name.c_str();
+     LOG("GROOTGeom",pWARN) << "Will not change the current top volume";
+     fTopVolumeName = "";
+     return;
+  }
+  fTopVolume = gvol;
 }
 //___________________________________________________________________________
 const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
@@ -92,12 +111,10 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
   //-- initialize max path lengths
   fCurrMaxPathLengthList->SetAllToZero();
 
-  //-- find the world volume
-  TGeoVolume * TVWorld = this->FindWorldVolume();
-  assert(TVWorld);
+  //-- get a bounding box
 
   LOG("GROOTGeom", pINFO) << "Getting a TGeoBBox enclosing the detector";
-  TGeoShape * TS  = TVWorld->GetShape();
+  TGeoShape * TS  = fTopVolume->GetShape();
   TGeoBBox *  box = (TGeoBBox *)TS;
 
   //get box origin and dimensions
@@ -335,6 +352,87 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
   return *fCurrMaxPathLengthList;
 }
 //________________________________________________________________________
+void ROOTGeomAnalyzer::Initialize()
+{
+  LOG("GROOTGeom", pINFO) << "Initializing ROOT geometry driver";
+
+  fCurrMaxPathLengthList = 0;
+  fCurrPathLengthList    = 0;
+  fCurrPDGCodeList       = 0;
+  fTopVolume             = 0;
+  fTopVolumeName         = "";
+
+  // some defaults:
+  this -> SetScannerNPoints    (200);
+  this -> SetScannerNRays      (200);
+  this -> SetUnits             (genie::units::meter);
+  this -> SetWeightWithDensity (true);
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::CleanUp(void)
+{
+  if( fCurrPathLengthList    ) delete fCurrPathLengthList;
+  if( fCurrMaxPathLengthList ) delete fCurrMaxPathLengthList;
+  if( fCurrPDGCodeList       ) delete fCurrPDGCodeList;
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::Load(string filename)
+{
+  LOG("GROOTGeom", pINFO) << "Loading geometry from: " << filename;
+
+  bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
+  if (!is_accessible) {
+     LOG("GROOTGeom", pERROR)
+       << "The ROOT geometry doesn't exist! Initialization failed!";
+     return;
+  }
+  fGeometry = TGeoManager::Import(filename.c_str());
+
+  if(!fGeometry) {
+    LOG("GROOTGeom", pFATAL) << "Null TGeoManager! Aborting";
+    assert(fGeometry);
+  }
+
+  this->BuildListOfTargetNuclei();
+
+  const PDGCodeList & pdglist = this->ListOfTargetNuclei();
+
+  fCurrPathLengthList    = new PathLengthList(pdglist);
+  fCurrMaxPathLengthList = new PathLengthList(pdglist);
+  fCurrVertex            = new TVector3(0.,0.,0.);
+
+  // ask geometry manager for its top volume
+  fTopVolume = fGeometry->GetTopVolume();
+  LOG("GROOTGeom", pFATAL) << "Could not get top volume!!!";
+  assert(fTopVolume);
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::Load(TGeoManager * gm)
+{
+  LOG("GROOTGeom", pINFO) 
+                   << "A TGeoManager is being passed to the geometry driver";
+  fGeometry = gm;
+
+  if(!fGeometry) {
+    LOG("GROOTGeom", pFATAL) << "Null TGeoManager! Aborting";
+    assert(fGeometry);
+  }
+
+  this->BuildListOfTargetNuclei();
+
+  const PDGCodeList & pdglist = this->ListOfTargetNuclei();
+
+  fCurrPathLengthList    = new PathLengthList(pdglist);
+  fCurrMaxPathLengthList = new PathLengthList(pdglist);
+  fCurrVertex            = new TVector3(0.,0.,0.);
+
+  // ask geometry manager for its top volume
+  fTopVolume = fGeometry->GetTopVolume();
+  LOG("GROOTGeom", pFATAL) << "Could not get top volume!!!";
+  assert(fTopVolume);
+}
+//___________________________________________________________________________
+/*
 void ROOTGeomAnalyzer::Initialize(string filename)
 {
   LOG("GROOTGeom", pINFO)
@@ -351,6 +449,8 @@ void ROOTGeomAnalyzer::Initialize(string filename)
   fCurrMaxPathLengthList = 0;
   fCurrPathLengthList    = 0;
   fCurrPDGCodeList       = 0;
+  fTopVolume             = 0;
+  fTopVolumeName         = "";
 
   this->BuildListOfTargetNuclei();
 
@@ -360,53 +460,17 @@ void ROOTGeomAnalyzer::Initialize(string filename)
   fCurrMaxPathLengthList = new PathLengthList(pdglist);
   fCurrVertex            = new TVector3(0.,0.,0.);
 
+  // ask geometry manager for its top volume
+  fTopVolume = fGeometry->GetTopVolume();
+  LOG("GROOTGeom", pFATAL) << "Could not get top volume!!!";
+  assert(fTopVolume);
+
   // some defaults:
   this -> SetScannerNPoints    (200);
   this -> SetScannerNRays      (200);
   this -> SetUnits             (genie::units::meter);
-  this -> SetWorldVolName      ("World");
   this -> SetWeightWithDensity (true);
-}
-//___________________________________________________________________________
-TGeoVolume * ROOTGeomAnalyzer::FindWorldVolume(void) const
-{
-  LOG("GROOTGeom", pDEBUG) << "Getting world volume";
-
-  //-- get list of volumes
-  LOG("GROOTGeom", pDEBUG) << "Getting list of volumes";
-
-  TObjArray * volume_list = fGeometry->GetListOfVolumes();
-  if(!volume_list) {
-     LOG("GROOTGeom", pERROR) 
-        << "Null list of geometry volumes. Can not find world volume!";
-     return 0;
-  }
-
-  int numVol = volume_list->GetEntries();
-  LOG("GROOTGeom", pDEBUG) << "Number of volumes found: " << numVol;
-
-  TGeoVolume * volume = 0;
-  char *       name   = 0;
-
-  for(int ivol = 0; ivol < numVol; ivol++) {
-
-      volume = dynamic_cast<TGeoVolume*> (volume_list->At(ivol));
-      if(!volume) {
-         LOG("GROOTGeom", pWARN) 
-           << "Got a null geometry volume!! Skiping current list element";
-         continue;
-      }
-      name = const_cast<char*>(volume->GetName());
-
-      if(!strcmp(fWorldVolName.c_str(),name)) {
-         LOG("GROOTGeom", pDEBUG) << "Found world volume";
-         return volume;
-      }
-  }
-  LOG("GROOTGeom",pERROR) << "Couldn't find a world volume in your geometry!";
-
-  return 0;
-}
+}*/
 //___________________________________________________________________________
 const PDGCodeList & ROOTGeomAnalyzer::ListOfTargetNuclei(void)
 {
