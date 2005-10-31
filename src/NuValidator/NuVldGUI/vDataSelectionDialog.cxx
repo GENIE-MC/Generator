@@ -30,18 +30,21 @@
 #include "Messenger/Messenger.h"
 #include "NuVldGUI/DBConnection.h"
 #include "NuVldGUI/vDataSelectionDialog.h"
+#include "NuVldGUI/SysLogSingleton.h"
 #include "XmlParser/ParserUtils.h"
 #include "Utils/GUIUtils.h"
+#include "Utils/StringUtils.h"
 
 using std::map;
 using std::ostringstream;
 
 using namespace genie;
+using namespace genie::utils::str;
 using namespace genie::nuvld;
 
 ClassImp(vDataSelectionDialog)
 
-const char * k_xsec_err_types[] = {"no error", "stat. only", "stat.+syst.", 0};
+const char * k_xsec_err_types[] = { "none", "stat", "syst", "stat+syst", 0 };
 
 //______________________________________________________________________________
 vDataSelectionDialog::vDataSelectionDialog(
@@ -806,6 +809,8 @@ void vDataSelectionDialog::SelectAllTargetsForExpObs(
 //______________________________________________________________________________
 void vDataSelectionDialog::SelectAllExp(void)
 {
+  _xsec_err_listbox -> Select (1);
+
   if(_select_all_exp->GetState() == kButtonDown)
                                utils::gui::SelectAllListBoxEntries(_exp_listbox);
   else utils::gui::ResetAllListBoxSelections(_exp_listbox);
@@ -842,6 +847,28 @@ void vDataSelectionDialog::SelectAllTargets(void)
   else utils::gui::ResetAllListBoxSelections(_target_listbox);
 
   gClient->NeedRedraw(_target_listbox->GetContainer());
+}
+//______________________________________________________________________________
+string vDataSelectionDialog::ReadXSecErrorListbox(void)
+{
+  ostringstream err;
+
+  TGLBEntry * selected_entry = _xsec_err_listbox->GetSelectedEntry();
+
+  SysLogSingleton * syslog = SysLogSingleton::Instance();
+
+  if(selected_entry) {
+    int sid = selected_entry->EntryId();
+    err << k_xsec_err_types[sid] << "-noE";
+    syslog->Log()->AddLine( Concat("XSec Errors Selection: ", sid) );
+  } else {
+    err << "allXsec-noE";
+    syslog->Log()->AddLine(
+              "No Cross Section Error Selection - setting default" );
+  }
+  LOG("NuVld", pDEBUG) << "error selection = " << err.str().c_str();
+
+  return err.str();
 }
 //______________________________________________________________________________
 string vDataSelectionDialog::BundleKeyListInString(void)
@@ -893,8 +920,18 @@ string vDataSelectionDialog::BundleCutsInString(void)
 //______________________________________________________________________________
 string vDataSelectionDialog::BundleDrawOptInString(void)
 {
-  if(_scale_with_energy->GetState() == kButtonDown) return "scale-with-energy";
-  else return "";
+  bool   scale_e = (_scale_with_energy->GetState() == kButtonDown);
+  string err_opt = this->ReadXSecErrorListbox();
+
+  ostringstream dopt;
+
+  dopt << "scale-with-energy=";
+  if(scale_e) dopt << "yes;";
+  else        dopt << "no;";
+
+  dopt << "err-opt=" << err_opt << ";";
+
+  return dopt.str();
 }
 //______________________________________________________________________________
 void vDataSelectionDialog::ResetSelections(void)

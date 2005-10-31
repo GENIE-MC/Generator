@@ -172,6 +172,7 @@ private:
 
    bool    ScaleWithEnergy (void);
    string  PlotVariable    (void);
+   string  ErrorOption     (void);
 
    //-- methods for extracting cross section data
 

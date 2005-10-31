@@ -62,9 +62,7 @@ static const char * kTargetMySQLName[] =
    "Hydrogen", "Deuterium", "Neon", "Iron", "Aluminium", "Carbon", "Propane", "Freon", 0
 };
 
-static const char * kXSecErrType[] = { "no error", "stat. only", "stat.+syst.", 0 };
-
-static const char * kXSecErrDrawOpt[] = { "noXsec", "stat", "all", 0 };
+static const char * kXSecErrType[] = { "none", "stat", "syst", "stat+syst", 0 };
 
 static const double kEmin =   0.1;
 static const double kEmax = 120.00;
