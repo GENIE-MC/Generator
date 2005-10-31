@@ -1,0 +1,40 @@
+//____________________________________________________________________________
+/*!
+
+\class   genie::COHPrimaryLeptonGenerator
+
+\brief   Generates the final state primary lepton in v COH NC interactions.
+
+         Is a concrete implementation of the EventRecordVisitorI interface.
+
+\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory
+
+\created September 26, 2005
+
+*/
+//____________________________________________________________________________
+
+#ifndef _COH_PRIMARY_LEPTON_GENERATOR_H_
+#define _COH_PRIMARY_LEPTON_GENERATOR_H_
+
+#include "EVGModules/PrimaryLeptonGenerator.h"
+
+namespace genie {
+
+class COHPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
+
+public :
+
+  COHPrimaryLeptonGenerator();
+  COHPrimaryLeptonGenerator(string config);
+  ~COHPrimaryLeptonGenerator();
+
+  //-- implement the EventRecordVisitorI interface
+
+  void ProcessEventRecord(GHepRecord * event_rec) const;
+};
+
+}      // genie namespace
+
+#endif // _COH_PRIMARY_LEPTON_GENERATOR_H_
