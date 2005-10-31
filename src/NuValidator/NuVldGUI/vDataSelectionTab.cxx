@@ -282,8 +282,18 @@ string vDataSelectionTab::BundleDrawOptInString(void)
 {
   if(fPopupDialogLAM) return fPopupDialog->BundleDrawOptInString();
 
-  if(fScaleWithEvChkB->GetState() == kButtonDown) return "scale-with-energy";
-  else return "";
+  bool   scale_e = (fScaleWithEvChkB->GetState() == kButtonDown);
+  string err_opt = this->ReadXSecErrorListbox();
+
+  ostringstream dopt;
+
+  dopt << "scale-with-energy=";
+  if(scale_e) dopt << "yes;";
+  else        dopt << "no;";
+
+  dopt << "err-opt=" << err_opt << ";";
+
+  return dopt.str();
 }
 //______________________________________________________________________________
 void vDataSelectionTab::ResetSelections(void)
@@ -296,7 +306,7 @@ void vDataSelectionTab::ResetSelections(void)
   fEMinNmE->SetNumber(kEmin);
   fEMaxNmE->SetNumber(kEmax);
 
-  fNuXSecErrLBx  -> Select (2);
+  fNuXSecErrLBx  -> Select (1);
 
   fAllNuExpChkB   -> SetOn (kTRUE);
   fAllNuProcChkB  -> SetOn (kTRUE);
@@ -318,15 +328,12 @@ string vDataSelectionTab::ReadXSecErrorListbox(void)
   SysLogSingleton * syslog = SysLogSingleton::Instance();
 
   if(selected_entry) {
-
-    err << kXSecErrDrawOpt[ selected_entry->EntryId() ] << "-noE";
-
-      syslog->Log()->AddLine( Concat("XSec Errors Selection: ",
-                                                  selected_entry->EntryId()) );
+    int sid = selected_entry->EntryId();
+    err << kXSecErrType[sid] << "-noE";
+    syslog->Log()->AddLine( Concat("XSec Errors Selection: ", sid) );
   } else {
     err << "allXsec-noE";
-      syslog->Log()->AddLine(
-                         "No Cross Section Error Selection - setting default" );
+    syslog->Log()->AddLine("No Cross Section Error Selection - setting default");
   }
   LOG("NuVld", pDEBUG) << "error selection = " << err.str().c_str();
 

@@ -1285,8 +1285,19 @@ bool NuVldMainFrame::ScaleWithEnergy(void)
 {
   string selections = fNuXSecTab->BundleSelectionsInString();
 
-  if( selections.find("scale-with-energy") != string::npos ) return true;
+  if( selections.find("scale-with-energy=yes") != string::npos ) return true;
   else return false;
+}
+//______________________________________________________________________________
+string NuVldMainFrame::ErrorOption(void)
+{
+  string selections = fNuXSecTab->BundleSelectionsInString();
+
+  if      ( selections.find("err-opt=none")      != string::npos ) return "none-noE";
+  else if ( selections.find("err-opt=stat+syst") != string::npos ) return "all-noE";
+  else if ( selections.find("err-opt=stat")      != string::npos ) return "stat-noE";
+  else if ( selections.find("err-opt=syst")      != string::npos ) return "syst-noE";
+  else return "";
 }
 //______________________________________________________________________________
 string NuVldMainFrame::PlotVariable(void)
@@ -2010,7 +2021,8 @@ void NuVldMainFrame::DrawCurrentDBTable(void)
 
          renderer.SetScaleWithEnergy( this->ScaleWithEnergy() );
          renderer.SetMultigraph( fShowColorCodeChkB->GetState() == kButtonDown );
-         renderer.SetErrorOption(fNuXSecTab->ReadXSecErrorListbox());
+         //renderer.SetErrorOption(fNuXSecTab->ReadXSecErrorListbox());
+         renderer.SetErrorOption(this->ErrorOption());
 
          if(fShowExtLegendChkB->GetState() == kButtonDown)
                                        renderer.SetExternalLegend(new TLegend());
@@ -2404,7 +2416,8 @@ void NuVldMainFrame::RunPostFitProcessor(void)
 
     renderer.SetScaleWithEnergy( this->ScaleWithEnergy() );
     renderer.SetMultigraph(false);
-    renderer.SetErrorOption(fNuXSecTab->ReadXSecErrorListbox());
+    //renderer.SetErrorOption(fNuXSecTab->ReadXSecErrorListbox());
+    renderer.SetErrorOption(this->ErrorOption());
     renderer.DrawXSecTable( user_data->NuXSec() );
     renderer.PrintDrawingOptions();
 

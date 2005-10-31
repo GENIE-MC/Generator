@@ -49,11 +49,13 @@ public:
 
    void MakeConsistentWithExpListbox      (void);
    void MakeConsistentWithExpObsListboxes (void);
-   
+
    void SelectAllExp     (void);
    void SelectAllXSec    (void);
    void SelectAllProbes  (void);
    void SelectAllTargets (void);
+
+   string ReadXSecErrorListbox  (void);
 
    //--- DataSelectionDialog interface
 
@@ -61,13 +63,13 @@ public:
    string BundleCutsInString    (void);
    string BundleDrawOptInString (void);
    void   ResetSelections       (void);
-      
+
 private:
 
    void BuildLeftFrameWidgets    (void);
    void BuildRightFrameWidgets   (void);
 
-   void LoadExperimentsFromDB    (void);   
+   void LoadExperimentsFromDB    (void);
    void LoadXSecTypesFromDB      (void);
    void LoadProbesFromDB         (void);
    void LoadTargetsFromDB        (void);
@@ -81,7 +83,7 @@ private:
    void SelectAllObservablesForExpObs  (string exp_name, string observable);
    void SelectAllReactionsForExpObs    (string exp_name, string observable);
    void SelectAllTargetsForExpObs      (string exp_name, string observable);
-            
+
    void PositionRelativeToParent (const TGWindow * main);
 
    TGTransientFrame * _main;
@@ -100,7 +102,7 @@ private:
    TGCheckButton *    _select_all_exp;
    TGCheckButton *    _select_all_xsec;
    TGCheckButton *    _select_all_nu;
-   TGCheckButton *    _select_all_target;   
+   TGCheckButton *    _select_all_target;
    TGCheckButton *    _scale_with_energy;
    TGMatrixLayout *   _energy_matrix_layout;
    TGLayoutHints *    _mleft_frame_layout;
@@ -117,10 +119,10 @@ private:
    TGNumberEntry *    _E_min;
    TGNumberEntry *    _E_max;
    TGLabel *          _E_minLabel;
-   TGLabel *          _E_maxLabel;   
+   TGLabel *          _E_maxLabel;
    bool *             _attn;
    DBConnection *     _db;
-   
+
    ClassDef(vDataSelectionDialog, 0)
 };
 
