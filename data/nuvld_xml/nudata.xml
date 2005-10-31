@@ -873,7 +873,7 @@ XML-izers: Costas Andreopoulos and Hugh Gallagher
                     </ref>
 
                     <reaction>              nu_mu N --> mu- X         </reaction>
-                    <target>                Propane - Freon           </target>
+                    <target>                Propane-Freon             </target>
                     <exposure units="">                               </exposure>
 		    <npoints>               5                         </npoints>
 		    <data_source>  plot in 1992 PDG, values by B. Seligman (Columbia)  </data_source>
@@ -1594,6 +1594,8 @@ XML-izers: Costas Andreopoulos and Hugh Gallagher
 	<measurement observable="spp_xsec">
 	       <header>
 		     
+                    W less than 2 GeV
+
                     <ref>
                          <author>   Allen et al.             </author>
                          <journal>  Nucl.Phys.B264:221       </journal>
