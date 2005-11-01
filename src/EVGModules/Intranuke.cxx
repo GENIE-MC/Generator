@@ -73,15 +73,11 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
   }
 
   // Get Intranuke configuration (or set defaults)
-  // (uncomment when intranuke is really coded)
 
   bool   opaque = fConfig->GetDoubleDef("opaque", false);
-  //double t0     = fConfig->GetDoubleDef("t0",    kInukeFormationTime);
-  //double K      = fConfig->GetDoubleDef("Kpt2",  kInukeKpt2);
-  //double Ro     = fConfig->GetDoubleDef("Ro",    kInukeNuclRadius);
-  double t0  = 1.; // tmp
-  double K   = 1.; // tmp
-  double Ro  = 1.; // tmp
+  double t0     = fConfig->GetDoubleDef("t0",    kInukeFormationTime);
+  double K      = fConfig->GetDoubleDef("Kpt2",  kInukeKpt2);
+  double Ro     = fConfig->GetDoubleDef("Ro",    kInukeNuclRadius);
 
   // Get hadronic system's momentum vector
 
