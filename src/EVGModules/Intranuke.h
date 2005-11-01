@@ -21,6 +21,7 @@
 #define _INTRANUKE_H_
 
 #include "EVGCore/EventRecordVisitorI.h"
+#include "EVGModules/InukeInt.h"
 
 namespace genie {
 
@@ -37,7 +38,7 @@ public :
 
 private:
 
-//  double FormationZone();
+  InukeInt_t SelectInukeInteraction(void) const;
 
 };
 

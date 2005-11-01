@@ -169,6 +169,12 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
             continue;
          }
 
+         InukeInt_t inukei = this->SelectInukeInteraction();
+
+         LOG("Intranuke", pINFO) 
+               << "Selected intranuke interaction for " << p->Name() 
+                                       << ": " << InukeInt::AsString(inukei);
+
          // ... ... ... ... ... 
 
       } // is pi+,pi-.pi0
@@ -180,3 +186,20 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
   LOG("Intranuke", pINFO) << "Done with this event";
 }
 //___________________________________________________________________________
+InukeInt_t Intranuke::SelectInukeInteraction(void) const
+{
+// Selects interaction type for the particle that is currently rescaterred.
+// Do something silly for now
+
+  RandomGen * rnd = RandomGen::Instance();
+  double t = rnd->Random2().Rndm();
+
+  if      (0    <= t && t <  0.25) return kInukiChargeExchange;
+  else if (0.25 <= t && t <  0.50) return kInukiInelastic;
+  else if (0.50 <= t && t <  0.75) return kInukiAbsorption;
+  else if (0.70 <= t && t <= 1.00) return kInukiElastic;
+  else                             return kInukiUndefined;
+
+}
+//___________________________________________________________________________
+

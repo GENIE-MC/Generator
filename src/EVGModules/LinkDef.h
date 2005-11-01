@@ -28,10 +28,9 @@
 #pragma link C++ class genie::IMDPrimaryLeptonGenerator;
 #pragma link C++ class genie::IMDTargetRemnantGenerator;
 #pragma link C++ class genie::IMDInteractionListGenerator;
-//#pragma link C++ class genie::COHKinematicsGenerator;
-//#pragma link C++ class genie::COHPrimaryLeptonGenerator;
 #pragma link C++ class genie::PrimaryVtxGenerator;
 #pragma link C++ class genie::Intranuke;
+#pragma link C++ class genie::InukeInt;
 #pragma link C++ class genie::UnstableParticleDecayer;
 #pragma link C++ class genie::NucBindEnergyAggregator;
 #pragma link C++ class genie::PauliBlocker;
