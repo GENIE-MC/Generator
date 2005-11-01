@@ -197,6 +197,12 @@ static const double kGRprime2 = TMath::Power(kGRprime,2);
 // Ro in nuclear radius formula R=Ro*A^(1/3), in GeV^-1
 static const double kNucRo = 1.2E-15*m;
 
+//----- INTRANUKE constants
+
+static const double kInukeFormationTime = 1.; //tmp
+static const double kInukeKpt2          = 1.; //tmp
+static const double kInukeNuclRadius    = 1.; //tmp
+
 //----- Misc hard limits, cuts
 
 static const double kMinQ2Limit = 1e-6;  // GeV^2
