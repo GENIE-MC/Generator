@@ -432,46 +432,6 @@ void ROOTGeomAnalyzer::Load(TGeoManager * gm)
   assert(fTopVolume);
 }
 //___________________________________________________________________________
-/*
-void ROOTGeomAnalyzer::Initialize(string filename)
-{
-  LOG("GROOTGeom", pINFO)
-               << "Initializing with input geometry from: " << filename;
-
-  bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
-  if (!is_accessible) {
-     LOG("GROOTGeom", pERROR)
-       << "The ROOT geometry doesn't exist! Initialization failed!";
-     return;
-  }
-  fGeometry = TGeoManager::Import(filename.c_str());
-
-  fCurrMaxPathLengthList = 0;
-  fCurrPathLengthList    = 0;
-  fCurrPDGCodeList       = 0;
-  fTopVolume             = 0;
-  fTopVolumeName         = "";
-
-  this->BuildListOfTargetNuclei();
-
-  const PDGCodeList & pdglist = this->ListOfTargetNuclei();
-
-  fCurrPathLengthList    = new PathLengthList(pdglist);
-  fCurrMaxPathLengthList = new PathLengthList(pdglist);
-  fCurrVertex            = new TVector3(0.,0.,0.);
-
-  // ask geometry manager for its top volume
-  fTopVolume = fGeometry->GetTopVolume();
-  LOG("GROOTGeom", pFATAL) << "Could not get top volume!!!";
-  assert(fTopVolume);
-
-  // some defaults:
-  this -> SetScannerNPoints    (200);
-  this -> SetScannerNRays      (200);
-  this -> SetUnits             (genie::units::meter);
-  this -> SetWeightWithDensity (true);
-}*/
-//___________________________________________________________________________
 const PDGCodeList & ROOTGeomAnalyzer::ListOfTargetNuclei(void)
 {
   return *fCurrPDGCodeList;
