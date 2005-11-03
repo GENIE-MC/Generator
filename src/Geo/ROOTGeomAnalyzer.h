@@ -66,6 +66,9 @@ public :
   const TVector3 &
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
+ 
+  // Return Geometry
+  TGeoManager * GetGeometry (void){return fGeometry;};
 
 private:
 

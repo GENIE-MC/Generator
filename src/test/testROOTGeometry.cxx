@@ -27,13 +27,18 @@
 #include "EVGDrivers/PathLengthList.h"
 #include "Messenger/Messenger.h"
 
+#include "TApplication.h"
+#include "TPolyMarker3D.h"
+
 using std::string;
 
 using namespace genie;
 using namespace genie::geometry;
 
 int main(int argc, char ** argv)
-{
+{  
+  TApplication theApp("App", &argc, argv);
+  
   //-- Default geometry
   string base_dir = string( gSystem->Getenv("GENIE") );
   string filename = base_dir+ string("/src/test/TestGeometry.root");
@@ -45,9 +50,9 @@ int main(int argc, char ** argv)
 
   LOG("Test",pINFO) << "Starting ROOTGeomAnalyzer with geometry from: " << filename;
   ROOTGeomAnalyzer* root_analyzer = new ROOTGeomAnalyzer(filename);
-
-
-  LOG("Test",pINFO) << "Computing Max path lengths";
+  LOG("Test",pINFO) << "Drawing Geometry ";
+  root_analyzer->GetGeometry()->GetTopVolume()->Draw();
+    LOG("Test",pINFO) << "Computing Max path lengths";
   const PathLengthList & maxpl = root_analyzer->ComputeMaxPathLengths();
   LOG("Test",pINFO) << "Printing computed Max path lengths:";
   LOG("Test",pINFO) << maxpl;
@@ -62,17 +67,28 @@ int main(int argc, char ** argv)
   //material selected for the vertex generation
   int pdg(1039018000);
   //number of vertices to be generated
-  int numVtx(100);
+  int numVtx(10);
   ofstream outfileVTX("VtxCoord.txt",std::ios_base::app);
+
+  //define TPolyMarker3D
+  TPolyMarker3D *marker = new TPolyMarker3D();
+  marker->SetMarkerColor(kRed);
+  marker->SetMarkerStyle(8);
+  marker->SetMarkerSize(0.5);
 
   for(int i=0;i<numVtx;i++)
     {
       const TVector3 & vtx = root_analyzer->GenerateVertex(*x,*p,pdg);
       LOG("Test",pINFO) << "Vertex selected ...";
       LOG("Test",pINFO) << " x "<<vtx.X()<<" y "<<vtx.Y()<<" z "<<vtx.Z();
-      outfileVTX<<vtx.X()<<"\t"<<vtx.Y()<<"\t"<<vtx.Z()<<std::endl;
-    }
+      outfileVTX<<vtx.X()<<"\t"<<vtx.Y()<<"\t"<<vtx.Z()<<std::endl; 
 
+      marker->SetNextPoint(vtx.X(),vtx.Y(),vtx.Z()); 
+    }
+ 
+  marker->Draw("same");
+  
+  theApp.Run(kTRUE);
   return 0;
 }
 
