@@ -14,10 +14,12 @@
 
 #include <TFile.h>
 #include <TNtuple.h>
+#include <TSystem.h>
 #include <TH1D.h>
 #include <TF1.h>
 
 #include "FluxDrivers/GCylindTH1Flux.h"
+#include "FluxDrivers/GFlukaAtmo3DFlux.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 
@@ -26,21 +28,37 @@ using namespace genie::flux;
 
 const unsigned int kNEvents = 10000;
 
-void testGCylindTH1Flux(void);
+TNtuple * runGCylindTH1FluxDriver   (void);
+TNtuple * runGFlukaAtmo3DFluxDriver (void);
+TNtuple * createFluxNtuple           (GFluxI * flux);
 
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
   LOG("Main", pINFO)  << "Running [GCylindTH1Flux] driver test";
+  TNtuple * ntcylf = runGCylindTH1FluxDriver();
+  ntcylf->SetTitle("[GCylindTH1Flux] driver data");
 
-  testGCylindTH1Flux();
+  LOG("Main", pINFO)  << "Running [GFlukaAtmo3DFlux] driver test";
+  TNtuple * ntflk3d = runGFlukaAtmo3DFluxDriver();
+  ntflk3d->SetTitle("[GFlukaAtmo3DFlux] driver data");
+
+  LOG("Main", pINFO) << "Saving flux ntuples";
+
+  TFile f("./gfluxnt.root","recreate");
+  ntcylf  -> Write("ntcylf");
+  ntflk3d -> Write("ntflk3d");
+  f.Close();
+
+  delete ntcylf;
+  delete ntflk3d;
 
   LOG("Main", pINFO)  << "Done!";
 
   return 0;
 }
 //___________________________________________________________________
-void testGCylindTH1Flux(void)
+TNtuple * runGCylindTH1FluxDriver(void)
 {
   LOG("Main", pINFO)  << "Creating [GCylindTH1Flux] flux driver";
 
@@ -48,13 +66,13 @@ void testGCylindTH1Flux(void)
 
   LOG("Main", pINFO)  << "Setting configuration data";
 
-  TF1 * f1 = new TF1("f1","1./x+2.",0.5,5.0);
+  TF1 * f1 = new TF1("f1","1./x",0.5,5.0);
   TH1D * spectrum1 = new TH1D("spectrum1","numu E",    20,0.5,5);
   spectrum1->FillRandom("f1",100000);
 
-  TF1 * f2 = new TF1("f2","1./(1.+x)",0.5,5.0);
+  TF1 * f2 = new TF1("f2","x",0.5,5.0);
   TH1D * spectrum2 = new TH1D("spectrum2","numubar E", 20,0.5,5);
-  spectrum2->FillRandom("f2",1000);
+  spectrum2->FillRandom("f2",10000);
 
   TVector3 direction(0,0,1);
   TVector3 beam_spot(0,0,-10);
@@ -69,13 +87,65 @@ void testGCylindTH1Flux(void)
   flux -> AddEnergySpectrum   (kPdgNuMu,    spectrum1);
   flux -> AddEnergySpectrum   (kPdgNuMuBar, spectrum2);
 
+  LOG("Main", pINFO) << "Creating flux ntuple";
+  GFluxI * fluxi = dynamic_cast<GFluxI*>(flux);
+
+  TNtuple * fluxntp = createFluxNtuple(fluxi);
+
+  delete f1;
+  delete f2;
+  delete flux;
+
+  return fluxntp;
+}
+//___________________________________________________________________
+TNtuple * runGFlukaAtmo3DFluxDriver(void)
+{
+  LOG("Main", pINFO)  << "Creating [GFlukaAtmo3DFlux] flux driver";
+
+  GFlukaAtmo3DFlux * flux = new GFlukaAtmo3DFlux;
+
+  LOG("Main", pINFO)  << "Setting configuration data";
+
+  string base_dir = (gSystem->Getenv("GFLUX_FLUKA3DATMO") ?
+                        gSystem->Getenv("GFLUX_FLUKA3DATMO") : ".");
+
+  string numu_flux_file    = base_dir + "/sdave_numu07.dat";
+  string numubar_flux_file = base_dir + "/sdave_anumu07.dat";
+  string nue_flux_file     = base_dir + "/sdave_nue07.dat";
+  string nuebar_flux_file  = base_dir + "/sdave_anue07.dat";
+  double Rlongitudinal     = 1000.; //m
+  double Rtransverse       = 100.;  //m
+
+  LOG("Main", pINFO)  << "Configuring [GFlukaAtmo3DFlux] flux driver";
+
+  flux -> SetNuMuFluxFile    ( numu_flux_file    );
+  flux -> SetNuMuBarFluxFile ( numubar_flux_file );
+  flux -> SetNuEFluxFile     ( nue_flux_file     );
+  flux -> SetNuEBarFluxFile  ( nuebar_flux_file  );
+
+  flux -> SetRadii(Rlongitudinal, Rtransverse);
+  flux -> LoadFluxData();
+
+  LOG("Main", pINFO) << "Creating flux ntuple";
+
+  GFluxI * fluxi = dynamic_cast<GFluxI*>(flux);
+
+  TNtuple * fluxntp = createFluxNtuple(fluxi);
+
+  delete flux;
+
+  return fluxntp;
+}
+//___________________________________________________________________
+TNtuple * createFluxNtuple(GFluxI * flux)
+{
+  TNtuple * fluxntp = new TNtuple("fluxntp",
+                             "flux data", "x:y:z:t:px:py:pz:E:pdgc");
+
   LOG("Main", pINFO) << "Generating flux neutrinos";
 
-  TNtuple * fluxntp = new TNtuple("fluxntp",
-           "[GCylindTH1Flux] flux data", "x:y:z:t:px:py:pz:E:pdgc");
-
   unsigned int ievent = 0;
-
   while(ievent++ < kNEvents) {
 
     flux->GenerateNext();
@@ -87,15 +157,7 @@ void testGCylindTH1Flux(void)
     fluxntp->Fill( x4.X(),  x4.Y(),  x4.Z(),  x4.T(),
                    p4.Px(), p4.Py(), p4.Pz(), p4.E(), pdgc);
   }
-
-  TFile f("./GCylindTH1Flux.root","recreate");
-  fluxntp->Write();
-  f.Close();
-
-  delete f1;
-  delete f2;
-  delete flux;
-  delete fluxntp;
+  return fluxntp;
 }
 //___________________________________________________________________
 
