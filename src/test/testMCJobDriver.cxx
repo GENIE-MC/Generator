@@ -18,14 +18,21 @@
 #include <TFile.h>
 #include <TH1D.h>
 #include <TF1.h>
+#include <TMath.h>
 
+#include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GMCJDriver.h"
 #include "FluxDrivers/GCylindTH1Flux.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Messenger/Messenger.h"
+#include "Ntuple/NtpWriter.h"
+#include "Ntuple/NtpMCFormat.h"
 #include "PDG/PDGCodes.h"
 #include "Utils/XSecSplineList.h"
+#include "Utils/UnitUtils.h"
+#include "Utils/CmdLineArgParserUtils.h"
+#include "Utils/CmdLineArgParserException.h"
 
 using std::string;
 
@@ -37,7 +44,9 @@ void GetCommandLineArgs(int argc, char ** argv);
 
 //command line options
 bool   gOptBuildSplines; // spline building option
+int    gOptNevents;      // number of events to generate
 string gOptRootGeom;     // detector geometry ROOT file
+string gOptGeomUnits;    // detector geometry units
 
 //___________________________________________________________________
 int main(int argc, char ** argv)
@@ -45,12 +54,9 @@ int main(int argc, char ** argv)
   //-- Parse command line arguments
   GetCommandLineArgs(argc, argv);
 
-  //-- Create the GENIE MC-job driver
-  GMCJDriver mcj;
-
-  //-- Specify a flux driver
-
-  LOG("Main", pINFO)  << "Creating [GCylindTH1Flux] flux driver";
+  //-- Create/configure a flux driver
+  LOG("Main", pINFO)
+            << "Creating/configuring the GCylindTH1Flux flux driver";
 
   GCylindTH1Flux * flux = new GCylindTH1Flux;
 
@@ -66,14 +72,21 @@ int main(int argc, char ** argv)
   flux -> SetTransverseRadius (0.5);
   flux -> AddEnergySpectrum   (kPdgNuMu, spectrum1);
 
-  //-- Specify the geometry analyzer
+  //-- Create/configure a geometry driver
+  LOG("Main", pINFO) << "Creating/configuring the ROOT geom. driver";
 
   ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer(gOptRootGeom);
+  geom->SetUnits(genie::utils::units::UnitFromString(gOptGeomUnits));
 
-  //-- Set the flux and the geometry analyzer to the GENIE MC driver
+  //-- Create the GENIE MC-job driver
+  LOG("Main", pINFO) << "Creating the GENIE MC Job driver";
+
+  GMCJDriver mcj;
+
+  //-- Load the the flux and the geometry drivers to the MC driver
 
   LOG("Main", pINFO)
-    << "Creating the GENIE MC Job Driver & specifying flux & geometry";
+         << "Loading flux & geometry drivers to GENIE MC Job driver";
 
   GFluxI *        fluxb = dynamic_cast<GFluxI *>       (flux);
   GeomAnalyzerI * geomb = dynamic_cast<GeomAnalyzerI *>(geom);
@@ -82,20 +95,30 @@ int main(int argc, char ** argv)
   mcj.UseGeomAnalyzer(geomb);
 
   //-- Configure the GENIE MC driver
+  LOG("Main", pINFO) << "Configuring the GENIE MC Job driver";
 
   mcj.Configure();
 
   //-- If this job uses cross section splines, build all splines that
-  //   are needed and have not already loaded from an XML file via 
+  //   are needed and have not already loaded from an XML file via
   //   XSecSplineList::AutoLoad()
-
   if(gOptBuildSplines) mcj.UseSplines();
+
+  //-- initialize an Ntuple Writer
+  NtpWriter ntpw(kNFEventRecord);
+  ntpw.InitTree("mcjobdriver.root");
 
   //-- Start generating events -here, just 1 for testing purposes-
 
-  EventRecord * event = mcj.GenerateEvent();
+  int i=0;
+  while (i<gOptNevents) {
+     EventRecord * event = mcj.GenerateEvent();
 
-  LOG("Main", pINFO) << *event;
+     LOG("Main", pINFO) << *event;
+
+     ntpw.AddEventRecord(i++, event);
+     delete event;
+  }
 
   delete f1;
   delete flux;
@@ -108,35 +131,56 @@ int main(int argc, char ** argv)
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  string base_dir = string( gSystem->Getenv("GENIE") );
+  string base_dir = string(gSystem->Getenv("GENIE")) + "/src/test/";
 
   // default options
-  gOptBuildSplines = false;  
-  gOptRootGeom     = base_dir + string("/src/test/TestGeometry.root");
+  string kDefOptRootGeom  = base_dir + "TestGeometry.root";
+  string kDefOptGeomUnits = "m";
+  int    kDefOptNevents   = 10;
 
-  char * argument = new char[128];
-
-  while( argc>1 && (argv[1][0] == '-'))
-  {
-    if (argv[1][1] == 'f') {
-      if (strlen(&argv[1][2]) ) {
-        strcpy(argument,&argv[1][2]);
-        gOptRootGeom = string(argument);
-      } else if( (argc>2) && (argv[2][0] != '-') ) {
-        argc--;
-        argv++;
-        strcpy(argument,&argv[1][0]);
-        gOptRootGeom = string(argument);
-      }
+  //geometry file:
+  try {
+    LOG("Main", pINFO) << "Getting input geometry file";
+    gOptRootGeom =
+              genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("Main", pNOTICE) << "Using default geometry file";
+      gOptRootGeom = kDefOptRootGeom;
     }
-
-    if (argv[1][1] == 's') gOptBuildSplines = true;
-
-    argc--;
-    argv++;
   }
+  //geometry units:
+  try {
+    LOG("Main", pINFO) << "Getting input geometry units";
+    gOptGeomUnits =
+              genie::utils::clap::CmdLineArgAsString(argc,argv,'u');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("Main", pNOTICE) << "Using default geometry units";
+      gOptGeomUnits = kDefOptGeomUnits;
+    }
+  }
+  //number of events:
+  try {
+    LOG("Main", pINFO) << "Reading number of events to generate";
+    gOptNevents = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("Main", pNOTICE) << "Using default number of events";
+      gOptNevents = kDefOptNevents;
+    }
+  }
+  gOptNevents = TMath::Max(gOptNevents,1); // generate at least 1
 
-  delete [] argument;
+  //spline building option:
+  gOptBuildSplines =
+                genie::utils::clap::CmdLineArgAsBool(argc,argv,'s');
+
+  LOG("Main", pINFO) << "Command line options - Summary:";
+  LOG("Main", pINFO) << "spline building:      " << gOptBuildSplines;
+  LOG("Main", pINFO) << "number of events:     " << gOptNevents;
+  LOG("Main", pINFO) << "detector geom. file:  " << gOptRootGeom;
+  LOG("Main", pINFO) << "detector geom. units: " << gOptGeomUnits;
 }
 //___________________________________________________________________
 
