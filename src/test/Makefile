@@ -28,6 +28,7 @@ TGT =	testBaryonResDataSet	\
 	testNumerical		\
 	testPDFLIB		\
 	testMCJobDriver		\
+	testFluxDriver		\
 	testRegistry		\
 	testInteraction		\
 	testReWeight		\
@@ -41,6 +42,7 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testNumerical		\
 	$(GENIE_BIN_PATH)/testPDFLIB		\
 	$(GENIE_BIN_PATH)/testMCJobDriver	\
+	$(GENIE_BIN_PATH)/testFluxDriver	\
 	$(GENIE_BIN_PATH)/testRegistry		\
 	$(GENIE_BIN_PATH)/testInteraction	\
 	$(GENIE_BIN_PATH)/testReWeight		\
@@ -68,6 +70,10 @@ testPDFLIB: FORCE
 testMCJobDriver: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMCJobDriver \
 			testMCJobDriver.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+
+testFluxDriver: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testFluxDriver \
+			testFluxDriver.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testMessenger: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMessenger \
@@ -121,7 +127,10 @@ clean--testPDFLIB: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testPDFLIB
 
 clean--testMCJobDriver: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testPDFLIB
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testMCJobDriver
+
+clean--testFluxDriver: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testFluxDriver
 
 clean--testRegistry: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testRegistry
