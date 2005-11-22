@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include <TH1D.h>
+#include <TF1.h>
 #include <TVector3.h>
 
 #include "Conventions/Constants.h"
@@ -60,9 +61,6 @@ bool GCylindTH1Flux::GenerateNext(void)
   //-- Reset previously generated neutrino code / 4-p / 4-x
   this->ResetSelection();
 
-  //-- Get a RandomGen instance
-  RandomGen * rnd = RandomGen::Instance();
-
   //-- Generate an energy from the 'combined' spectrum histogram
   //   and compute the momentum vector
   double Ev = (double) fTotSpectrum->GetRandom();
@@ -74,7 +72,6 @@ bool GCylindTH1Flux::GenerateNext(void)
 
   //-- Select a neutrino species from the flux fractions at the
   //   selected energy
-
   fgPdgC = (*fPdgCList)[this->SelectNeutrino(Ev)];
 
   //-- Compute neutrino 4-x
@@ -83,10 +80,10 @@ bool GCylindTH1Flux::GenerateNext(void)
   // of radius Rt passing through the origin, perpendicular to the
   // input direction.
   TVector3 vec0(*fDirVec);           // vector along the input direction
-  TVector3 vec = vec0.Orthogonal(); // orthogonal vector
+  TVector3 vec = vec0.Orthogonal();  // orthogonal vector
 
-  double psi = 2.*kPi*(rnd->Random2().Rndm()); // rndm angle [0,2pi]
-  double Rt  = fRt * rnd->Random2().Rndm();    // rndm norm  [0,Rtransverse]
+  double psi = this->GeneratePhi();  // rndm angle [0,2pi]
+  double Rt  = this->GenerateRt();   // rndm R [0,Rtransverse]
 
   vec.Rotate(psi,vec0); // rotate around original vector
   vec.SetMag(Rt);       // set new norm
@@ -131,8 +128,11 @@ void GCylindTH1Flux::Initialize(void)
   fDirVec      = 0;
   fBeamSpot    = 0;
   fRt          = 0;
+  fRtDep       = 0;
 
   this->ResetSelection();
+  this->SetRtDependence("x");
+  //this->SetRtDependence("pow(x,2)");
 }
 //___________________________________________________________________________
 void GCylindTH1Flux::ResetSelection(void)
@@ -176,6 +176,8 @@ void GCylindTH1Flux::SetTransverseRadius(double Rt)
 {
   LOG ("Flux", pINFO) << "Setting R[transverse] = " << Rt;
   fRt = Rt;
+
+  if(fRtDep) fRtDep->SetRange(0,Rt);
 }
 //___________________________________________________________________________
 void GCylindTH1Flux::AddEnergySpectrum(int nu_pdgc, TH1D * spectrum)
@@ -195,6 +197,17 @@ void GCylindTH1Flux::AddEnergySpectrum(int nu_pdgc, TH1D * spectrum)
 
      this->AddAllFluxes(); // update combined flux
   }
+}
+//___________________________________________________________________________
+void GCylindTH1Flux::SetRtDependence(string rdep)
+{
+// Set the (functional form of) Rt dependence as string, eg "x*x+sin(x)"
+// You do not need to set this method. The default behaviour is to generate
+// flux neutrinos uniformly over the area of the cylinder's cross section.
+
+  if(fRtDep) delete fRtDep;
+
+  fRtDep = new TF1("rdep", rdep.c_str(), 0,fRt);
 }
 //___________________________________________________________________________
 void GCylindTH1Flux::AddAllFluxes(void)
@@ -249,4 +262,16 @@ int GCylindTH1Flux::SelectNeutrino(double Ev)
   return -1;
 }
 //___________________________________________________________________________
-
+double GCylindTH1Flux::GeneratePhi(void) const
+{
+  RandomGen * rnd = RandomGen::Instance();
+  double phi = 2.*kPi*(rnd->Random2().Rndm()); // [0,2pi]
+  return phi;
+}
+//___________________________________________________________________________
+double GCylindTH1Flux::GenerateRt(void) const
+{
+  double Rt = fRtDep->GetRandom(); // rndm R [0,Rtransverse]
+  return Rt;
+}
+//___________________________________________________________________________

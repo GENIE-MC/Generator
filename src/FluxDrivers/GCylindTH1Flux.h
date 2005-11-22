@@ -21,6 +21,7 @@
 #ifndef _G_TH1_CYLICDRICAL_FLUX_H_
 #define _G_TH1_CYLICDRICAL_FLUX_H_
 
+#include <string>
 #include <vector>
 
 #include <TLorentzVector.h>
@@ -28,8 +29,10 @@
 #include "EVGDrivers/GFluxI.h"
 
 class TH1D;
+class TF1;
 class TVector3;
 
+using std::string;
 using std::vector;
 
 namespace genie {
@@ -47,6 +50,7 @@ public :
   void SetBeamSpot         (const TVector3 & spot);
   void SetTransverseRadius (double Rt);
   void AddEnergySpectrum   (int nu_pdgc, TH1D * spectrum);
+  void SetRtDependence     (string rdep);
 
   //-- methods implementing the GENIE GFluxI interface
   const PDGCodeList &    FluxParticles (void);
@@ -64,6 +68,8 @@ private:
   void   ResetSelection    (void);
   void   AddAllFluxes      (void);
   int    SelectNeutrino    (double Ev);
+  double GeneratePhi       (void) const;
+  double GenerateRt        (void) const;
 
   //-- private data members
   double         fMaxEv;       ///< maximum energy
@@ -76,6 +82,7 @@ private:
   TVector3 *     fDirVec;      ///< neutrino direction
   TVector3 *     fBeamSpot;    ///< beam spot position
   double         fRt;          ///< transverse size of neutrino beam
+  TF1 *          fRtDep;       ///< transverse radius dependence
 };
 
 } // flux namespace
