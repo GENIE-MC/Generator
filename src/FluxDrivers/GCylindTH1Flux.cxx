@@ -151,6 +151,7 @@ void GCylindTH1Flux::CleanUp(void)
   if (fBeamSpot   ) delete fBeamSpot;
   if (fPdgCList   ) delete fPdgCList;
   if (fTotSpectrum) delete fTotSpectrum;
+  if (fRtDep      ) delete fRtDep;
 
   unsigned int nspectra = fSpectrum.size();
   for(unsigned int i = 0; i < nspectra; i++) {
@@ -225,6 +226,7 @@ void GCylindTH1Flux::AddAllFluxes(void)
 
      if(inu==0) { fTotSpectrum = new TH1D(*spectrum); }
      else       { fTotSpectrum->Add(spectrum);        }
+     inu++;
   }
 }
 //___________________________________________________________________________
