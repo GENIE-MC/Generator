@@ -66,8 +66,8 @@ public :
   TLorentzVector * V4 (void) const { return  fV4; }
 
   //-- Hand over clones of the momentum & vertex 4-vectors (+ their ownership)
-  TLorentzVector * GetP4 (void) const { return new TLorentzVector(Px(),Py(),Pz(),E() ); }
-  TLorentzVector * GetV4 (void) const { return new TLorentzVector(Vx(),Vy(),Vz(),Vt()); }
+  TLorentzVector * GetP4 (void) const;
+  TLorentzVector * GetV4 (void) const;
 
   //-- Returns the momentum & vertex 4-vectors components
   double Px     (void) const { return (fP4) ? fP4->Px()     : 0; }

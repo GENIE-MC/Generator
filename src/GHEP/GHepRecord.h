@@ -45,7 +45,7 @@ public :
   virtual Interaction * GetInteraction    (void) const;
   virtual void          AttachInteraction (Interaction * interaction);
 
-  //-- operations on the record
+  //-- common record operations
 
   virtual void Copy                    (const GHepRecord & record);
   virtual void ShiftVertex             (const TLorentzVector & vec4);
@@ -98,6 +98,10 @@ public :
   virtual void   SetWeight   (double wght) { fWeight   = (wght>0) ? wght : 0.; }
   virtual void   SetXSec     (double xsec) { fXSec     = (xsec>0) ? xsec : 0.; }
   virtual void   SetDiffXSec (double xsec) { fDiffXSec = (xsec>0) ? xsec : 0.; }
+
+  //-- commonly queried record attributes extracted from its particle list
+
+  virtual TLorentzVector * GetVertex  (void) const;
 
   //-- methods & operators to print the record
 
