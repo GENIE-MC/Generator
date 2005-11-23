@@ -15,6 +15,7 @@
 #pragma link C++ namespace genie::utils::kinematics;
 #pragma link C++ namespace genie::utils::hadxs;
 #pragma link C++ namespace genie::utils::fragmrec;
+#pragma link C++ namespace genie::utils::units;
 
 #pragma link C++ class genie::Cache;
 #pragma link C++ class genie::XSecSplineList;
