@@ -108,7 +108,7 @@ int main(int argc, char ** argv)
   NtpWriter ntpw(kNFEventRecord);
   ntpw.InitTree("mcjobdriver.root");
 
-  //-- Start generating events -here, just 1 for testing purposes-
+  //-- Start generating events
 
   int i=0;
   while (i<gOptNevents) {
@@ -119,6 +119,9 @@ int main(int argc, char ** argv)
      ntpw.AddEventRecord(i++, event);
      delete event;
   }
+
+  //-- save the ntuple
+  ntpw.SaveTree();
 
   delete f1;
   delete flux;
