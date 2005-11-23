@@ -7,8 +7,8 @@
 
 \syntax  testROOTGeometry -f /path/to/root/geometry/file.root
 
-         If no file is specified, $GENIE/src/test/TestGeometry.root is used
-         as default.
+         If no file is specified, $GENIE/src/test/data/GeometryLArPbBox.root 
+         is used as default.
 
 \author  Anselmo Meregaglia <anselmo.meregaglia@cern.ch>
          ETH Zurich
@@ -41,7 +41,7 @@ int main(int argc, char ** argv)
   
   //-- Default geometry
   string base_dir = string( gSystem->Getenv("GENIE") );
-  string filename = base_dir+ string("/src/test/TestGeometry.root");
+  string filename = base_dir + string("/src/test/data/GeometryLArPbBox.root");
   //-- Scan for filename from the command line argument (following -f)
   for(int iarg = 0; iarg < argc-1; iarg++) {
      string argument(argv[iarg]);

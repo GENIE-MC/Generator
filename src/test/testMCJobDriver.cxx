@@ -131,10 +131,9 @@ int main(int argc, char ** argv)
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  string base_dir = string(gSystem->Getenv("GENIE")) + "/src/test/";
-
   // default options
-  string kDefOptRootGeom  = base_dir + "TestGeometry.root";
+  string kDefOptRootGeom  = string(gSystem->Getenv("GENIE")) + 
+                            "/src/test/data/GeometryLArPbBox.root";
   string kDefOptGeomUnits = "m";
   int    kDefOptNevents   = 10;
 
