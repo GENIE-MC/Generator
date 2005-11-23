@@ -21,6 +21,7 @@
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Utils/PrintUtils.h"
 
 using namespace genie;
 
@@ -136,6 +137,38 @@ int GHepParticle::A(void) const
        return pdg::IonPdgCodeToA(fPdgCode);
 }
 //___________________________________________________________________________
+TLorentzVector * GHepParticle::GetP4(void) const 
+{ 
+// see GHepParticle::P4() for a method that does not create a new object and
+// transfers its ownership 
+
+  if(fP4) {
+     TLorentzVector * p4 = new TLorentzVector(*fP4); 
+     LOG("GHepParticle", pDEBUG) 
+                    << "Return vp = " << utils::print::P4AsShortString(p4);
+     return p4;
+  } else {
+    LOG("GHepParticle", pWARN) << "NULL 4-momentum TLorentzVector";
+    return 0;
+  }
+}
+//___________________________________________________________________________
+TLorentzVector * GHepParticle::GetV4(void) const 
+{ 
+// see GHepParticle::V4() for a method that does not create a new object and
+// transfers its ownership
+
+  if(fV4) {
+     TLorentzVector * v4 = new TLorentzVector(*fV4); 
+     LOG("GHepParticle", pDEBUG) 
+                          << "Return v4 = " << utils::print::X4AsString(v4);
+     return v4;
+  } else {
+    LOG("GHepParticle", pWARN) << "NULL 4-position TLorentzVector";
+    return 0;
+  }
+}
+//___________________________________________________________________________
 void GHepParticle::SetPdgCode(int code)
 {
 // Always set PDG code through this method to make sure that the fIsNucleus
@@ -172,18 +205,17 @@ void GHepParticle::SetMomentum(double px, double py, double pz, double E)
 //___________________________________________________________________________
 void GHepParticle::SetVertex(const TLorentzVector & v4)
 {
-  if(fV4)
-      fV4->SetXYZT( v4.X(), v4.Y(), v4.Z(), v4.T() );
-  else
-      fV4 = new TLorentzVector(v4);
+  this->SetVertex(v4.X(), v4.Y(), v4.Z(), v4.T());
 }
 //___________________________________________________________________________
 void GHepParticle::SetVertex(double x, double y, double z, double t)
 {
-  if(fV4)
-      fV4->SetXYZT(x,y,z,t);
-  else
-      fV4 = new TLorentzVector(x,y,z,t);
+  LOG("GHepParticle", pDEBUG) 
+            << "Setting vertex to (x = " << x << ", y = " 
+                               << y << ", z = " << z << ", t = " << t << ")";
+
+  if(fV4) fV4->SetXYZT(x,y,z,t);
+  else    fV4 = new TLorentzVector(x,y,z,t);
 }
 //___________________________________________________________________________
 void GHepParticle::SetEnergy(double E)

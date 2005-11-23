@@ -24,6 +24,7 @@
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepStatus.h"
+#include "GHEP/GHepOrder.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
@@ -469,6 +470,20 @@ bool GHepRecord::IsUnphysical(void) const
   return (fIsPauliBlocked || fIsBelowThrNRF || fGenericErrFlag);
 }
 //___________________________________________________________________________
+TLorentzVector * GHepRecord::GetVertex(void) const
+{
+  GHepParticle * probe = this->GetParticle(GHepOrder::ProbePosition());
+
+  if(!probe) {
+     LOG("GHEP", pWARN) << "GHepParticle probe not set. Can not get vertex!";
+     return 0;
+  }
+
+  TLorentzVector * v4 = probe->GetV4();
+  LOG("GHEP", pDEBUG) << "Event vertex = " << utils::print::X4AsString(v4);
+  return v4;
+}
+//___________________________________________________________________________
 void GHepRecord::InitRecord(void)
 {
   LOG("GHEP", pDEBUG) << "Initializing GHepRecord";
@@ -647,6 +662,27 @@ void GHepRecord::Print(ostream & stream) const
 
   stream << "\n|";
   stream << setfill('-') << setw(110) << "|";
+
+  // Print vertex
+  GHepParticle * probe = this->GetParticle(GHepOrder::ProbePosition());
+  if(probe) {
+    stream << "\n| ";
+    stream << setfill(' ') << setw(17) << "Vertex:  | ";
+    stream << setfill(' ') << setw(6) << probe->Name() << " @ (";
+
+    stream << setiosflags(ios::fixed)  << setprecision(5);
+    stream << "x = " << setfill(' ') << setw(11) << probe->V4()->X() << " m, ";
+    stream << "y = " << setfill(' ') << setw(11) << probe->V4()->Y() << " m, ";
+    stream << "z = " << setfill(' ') << setw(11) << probe->V4()->Z() << " m, ";
+    stream << setiosflags(ios::scientific) << setprecision(6);
+    stream << "t = " << setfill(' ') << setw(15) << probe->V4()->T() << " s) ";
+    stream << setiosflags(ios::fixed)  << setprecision(3);
+    stream << setfill(' ') << setw(2)  << "|";
+
+    stream << "\n|";
+    stream << setfill('-') << setw(110) << "|";
+  }
+
 
   // Print FLAGS
 
