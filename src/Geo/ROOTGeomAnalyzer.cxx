@@ -653,9 +653,9 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
            fGeometry->Step();
            step=fGeometry->GetStep();
          }
-         r[1] += (step * p.Px()/p.P());
-         r[2] += (step * p.Py()/p.P());
-         r[3] += (step * p.Pz()/p.P());
+         r[0] += (step * p.Px()/p.P());
+         r[1] += (step * p.Py()/p.P());
+         r[2] += (step * p.Pz()/p.P());
       }
 
       if(condition) {
@@ -693,10 +693,10 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
           if(ion_pdgc == tgtpdg) dist+=(step*weight);
 
-          r[1] += (step * p.Px()/p.P());
-          r[2] += (step * p.Py()/p.P());
-          r[3] += (step * p.Pz()/p.P());
-      }//condtion
+          r[0] += (step * p.Px()/p.P());
+          r[1] += (step * p.Py()/p.P());
+          r[2] += (step * p.Pz()/p.P());
+      }//condition
   }//while
 
   if(dist==0) {
