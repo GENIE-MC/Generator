@@ -3,7 +3,8 @@
 
 \program testMCJobDriver
 
-\brief
+\brief   Simple program to drive the GMCJobDriver and generate events for an
+         input neutrino flux and an input detector geometry
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -64,12 +65,12 @@ int main(int argc, char ** argv)
   TH1D * spectrum1 = new TH1D("spectrum1","numu spectrum", 20,0.5,5);
   spectrum1->FillRandom("f1",10000);
 
-  TVector3 direction(0,0,1);
-  TVector3 beam_spot(0,0,-10);
+  TVector3 direction(1,0,0);
+  TVector3 beam_spot(-10,0,0);
 
   flux -> SetNuDirection      (direction);
   flux -> SetBeamSpot         (beam_spot);
-  flux -> SetTransverseRadius (0.5);
+  flux -> SetTransverseRadius (8.0);
   flux -> AddEnergySpectrum   (kPdgNuMu, spectrum1);
 
   //-- Create/configure a geometry driver
@@ -114,10 +115,19 @@ int main(int argc, char ** argv)
   while (i<gOptNevents) {
      EventRecord * event = mcj.GenerateEvent();
 
-     LOG("Main", pINFO) << *event;
+     if(event) {
 
-     ntpw.AddEventRecord(i++, event);
-     delete event;
+       LOG("Main", pINFO) << "\n\n***EVENT NU: " << i;
+       LOG("Main", pINFO) << *event;
+
+       ntpw.AddEventRecord(i++, event);
+       delete event;
+
+     } else {
+       LOG("Main", pINFO)
+         << "\n** Got a null interaction."
+         << "If recursive mode isn't allowed then an error occurred";
+     }
   }
 
   //-- save the ntuple
@@ -135,7 +145,7 @@ int main(int argc, char ** argv)
 void GetCommandLineArgs(int argc, char ** argv)
 {
   // default options
-  string kDefOptRootGeom  = string(gSystem->Getenv("GENIE")) + 
+  string kDefOptRootGeom  = string(gSystem->Getenv("GENIE")) +
                             "/src/test/data/GeometryLArPbBox.root";
   string kDefOptGeomUnits = "m";
   int    kDefOptNevents   = 10;
