@@ -80,10 +80,13 @@ void GMCJDriver::FilterUnphysical(bool filter)
                              << utils::print::BoolAsYNString(filter);
   fFilterUnphysical = filter;
 
-  GEVGPool::const_iterator giter;
-  for(giter = fGPool->begin(); giter != fGPool->end(); ++giter) {
-    GEVGDriver * driver = giter->second;
-    driver->FilterUnphysical(filter);
+  //if Configure() was run first configure all GEVGDrivers now
+  if(fGPool) {
+    GEVGPool::const_iterator giter;
+    for(giter = fGPool->begin(); giter != fGPool->end(); ++giter) {
+      GEVGDriver * driver = giter->second;
+      driver->FilterUnphysical(filter);
+    }
   }
 }
 //___________________________________________________________________________
