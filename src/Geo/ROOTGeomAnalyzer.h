@@ -25,7 +25,9 @@
 
 class TGeoVolume;
 class TGeoMaterial;
+class TGeoMixture;
 class TGeoElement;
+class TVector3;
 
 using std::string;
 
@@ -67,8 +69,8 @@ public :
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
 
-  // Return Geometry
-  TGeoManager * GetGeometry (void){return fGeometry;};
+  // access the loaded ROOT geometry
+  TGeoManager * GetGeometry (void) { return fGeometry; }
 
 private:
 
@@ -80,22 +82,26 @@ private:
   int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
   int    GetTargetPdgCode        (const TGeoElement  * const e) const;
   void   ScalePathLengths        (PathLengthList & pl);
-  double ComputeMaxPathLengthPDG (double* XYZ, double* direction, int pdgc);
+  double ComputePathLengthPDG    (TVector3 r, TVector3 udir, int pdgc);
   double GetWeight               (TGeoMaterial * mat);
+  double GetWeight               (TGeoMixture * mixt, int ielement);
   bool   WillNeverEnter          (double step);
+  double StepToNextBoundary      (void);
+  double Step                    (void);
+  double StepUntilExiting        (void);
 
-  int              fMaterial;               ///< input selected material for vertex generation
-  TGeoManager *    fGeometry;               ///< input detector geometry
-  string           fTopVolumeName;          ///< input top volume name (if other that TGeoManager::GetTopVolume()]
-  int              fNPoints;                ///< max path length scanner: points/surface [def:200]
-  int              fNRays;                  ///< max path length scanner: rays/point [def:200]
-  bool             fDensWeight;             ///< if true pathlengths are weighted with density [def:true]
-  double           fScale;                  ///< conversion factor: input geometry units -> meters
-  TVector3 *       fCurrVertex;             ///< current generated vertex
-  PathLengthList * fCurrPathLengthList;     ///< current list of path-lengths
-  PathLengthList * fCurrMaxPathLengthList;  ///< current list of max path-lengths
-  PDGCodeList *    fCurrPDGCodeList;        ///< current list of target nuclei
-  TGeoVolume *     fTopVolume;              ///< top volume
+  int              fMaterial;              ///< input selected material for vertex generation
+  TGeoManager *    fGeometry;              ///< input detector geometry
+  string           fTopVolumeName;         ///< input top vol (if other than TGeoManager::GetTopVolume()]
+  int              fNPoints;               ///< max path length scanner: points/surface [def:200]
+  int              fNRays;                 ///< max path length scanner: rays/point [def:200]
+  bool             fDensWeight;            ///< if true pathlengths are weighted with density [def:true]
+  double           fScale;                 ///< conversion factor: input geometry units -> meters
+  TVector3 *       fCurrVertex;            ///< current generated vertex
+  PathLengthList * fCurrPathLengthList;    ///< current list of path-lengths
+  PathLengthList * fCurrMaxPathLengthList; ///< current list of max path-lengths
+  PDGCodeList *    fCurrPDGCodeList;       ///< current list of target nuclei
+  TGeoVolume *     fTopVolume;             ///< top volume
 };
 
 }      // geometry namespace
