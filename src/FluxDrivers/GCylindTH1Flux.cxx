@@ -132,7 +132,7 @@ void GCylindTH1Flux::Initialize(void)
 
   this->ResetSelection();
   this->SetRtDependence("x");
-  //this->SetRtDependence("pow(x,2)");
+  //eg, other example: this->SetRtDependence("pow(x,2)");
 }
 //___________________________________________________________________________
 void GCylindTH1Flux::ResetSelection(void)
@@ -145,7 +145,7 @@ void GCylindTH1Flux::ResetSelection(void)
 //___________________________________________________________________________
 void GCylindTH1Flux::CleanUp(void)
 {
-  LOG("Flux", pDEBUG) << "Cleaning up...";
+  LOG("Flux", pINFO) << "Cleaning up...";
 
   if (fDirVec     ) delete fDirVec;
   if (fBeamSpot   ) delete fBeamSpot;
@@ -248,13 +248,13 @@ int GCylindTH1Flux::SelectNeutrino(double Ev)
   for(inu = 0; inu < n; inu++) {
      sum += fraction[inu];
      fraction[inu] = sum;
-     LOG("Flux", pINFO) << "SUM-FRACTION(0->" << inu <<") = " << sum;
+     LOG("Flux", pDEBUG) << "SUM-FRACTION(0->" << inu <<") = " << sum;
   }
 
   RandomGen * rnd = RandomGen::Instance();
   double R = sum * rnd->Random2().Rndm();
 
-  LOG("Flux", pINFO) << "R = " << R;
+  LOG("Flux", pDEBUG) << "R e [0,SUM] = " << R;
 
   for(inu = 0; inu < n; inu++) {if ( R < fraction[inu] ) return inu;}
 
