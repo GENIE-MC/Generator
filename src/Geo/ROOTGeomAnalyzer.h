@@ -66,7 +66,7 @@ public :
   const TVector3 &
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
- 
+
   // Return Geometry
   TGeoManager * GetGeometry (void){return fGeometry;};
 
@@ -81,6 +81,8 @@ private:
   int    GetTargetPdgCode        (const TGeoElement  * const e) const;
   void   ScalePathLengths        (PathLengthList & pl);
   double ComputeMaxPathLengthPDG (double* XYZ, double* direction, int pdgc);
+  double GetWeight               (TGeoMaterial * mat);
+  bool   WillNeverEnter          (double step);
 
   int              fMaterial;               ///< input selected material for vertex generation
   TGeoManager *    fGeometry;               ///< input detector geometry
@@ -93,7 +95,7 @@ private:
   PathLengthList * fCurrPathLengthList;     ///< current list of path-lengths
   PathLengthList * fCurrMaxPathLengthList;  ///< current list of max path-lengths
   PDGCodeList *    fCurrPDGCodeList;        ///< current list of target nuclei
-  TGeoVolume *     fTopVolume;              ///< top volume 
+  TGeoVolume *     fTopVolume;              ///< top volume
 };
 
 }      // geometry namespace

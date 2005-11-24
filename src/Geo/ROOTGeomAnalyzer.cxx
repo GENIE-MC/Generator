@@ -65,9 +65,9 @@ void ROOTGeomAnalyzer::SetUnits(double u)
 // Use the units of your input geometry, eg
 //               geom.SetUnits(genie::units::centimeter)
 // GENIE uses the physical system of units (hbar=c=1) almost throughtout so
-// everything is expressed in GeV but when analyzing detector geometries we 
+// everything is expressed in GeV but when analyzing detector geometries we
 // use meters. Setting your input geometry units will allow us to figure the
-// conversion factor. 
+// conversion factor.
 // As input, use one of the constants in $GENIE/src/Conventions/Units.h
 
   fScale = u/units::meter;
@@ -343,7 +343,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
         }
 
       LOG("GROOTGeom", pINFO) << "Max path length found = " << MaxPath;
-    
+
       fCurrMaxPathLengthList->AddPathLength(pdgc,MaxPath);
     }
 
@@ -409,7 +409,7 @@ void ROOTGeomAnalyzer::Load(string filename)
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::Load(TGeoManager * gm)
 {
-  LOG("GROOTGeom", pINFO) 
+  LOG("GROOTGeom", pINFO)
                    << "A TGeoManager is being passed to the geometry driver";
   fGeometry = gm;
 
@@ -440,153 +440,148 @@ const PDGCodeList & ROOTGeomAnalyzer::ListOfTargetNuclei(void)
 const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                           const TLorentzVector & x, const TLorentzVector & p)
 {
-  // Computes the path-length within each detector material for a neutrino
-  // starting from point x and travelling along the direction of p
-  // reset current list of path-lengths
+// Computes the path-length within each detector material for a neutrino
+// starting from point x and travelling along the direction of p.
 
   LOG("GROOTGeom", pINFO) << "Computing path-lengths for the input neutrino";
-
-  fCurrPathLengthList->SetAllToZero();
 
   LOG("GROOTGeom", pDEBUG)
        << "\nInput nu: 4p = " << utils::print::P4AsShortString(&p)
        << ", 4x = " << utils::print::X4AsString(&x);
 
-  TGeoVolume *current =0;
+  // reset current list of path-lengths
+  fCurrPathLengthList->SetAllToZero();
 
-  int FlagNotInYet(0);
-  bool condition(kTRUE);
+  TGeoVolume *   vol = 0;
+  TGeoMedium *   med = 0;
+  TGeoMaterial * mat = 0;
 
-  float xx,yy,zz;
-  double xyz[3];
+  int    FlagNotInYet(0);
+  bool   condition(kTRUE);
   double step(0);
-  xx=x.X();
-  yy=x.Y();
-  zz=x.Z();
+
+  TVector3 r(x.X(), x.Y(), x.Z()); // current position
 
   fGeometry->SetCurrentDirection(p.Px()/p.P(),p.Py()/p.P(),p.Pz()/p.P());
 
-  while((!FlagNotInYet) || condition)
-    {
-      condition=kTRUE;
+  while((!FlagNotInYet) || condition) {
 
-      LOG("GROOTGeom",pDEBUG)<<" x "<<xx<<" y "<<yy<<" z "<<zz<<" flag not yet in "<<FlagNotInYet;
-      xyz[0]=xx;
-      xyz[1]=yy;
-      xyz[2]=zz;
+      condition = kTRUE;
 
-      fGeometry->SetCurrentPoint(xyz);
-      fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
-      current =  fGeometry->GetCurrentVolume();
-      LOG("GROOTGeom",pDEBUG)<<" current volume "<<current->GetName();
-      TGeoMedium *med;
-      TGeoMaterial *mat;
+      LOG("GROOTGeom",pDEBUG)
+           << "Position = " << utils::print::Vec3AsString(&r)
+                             << ", flag(not in yet) = " << FlagNotInYet;
 
-      if (fGeometry->IsOutside() || !current)
-        {
-          condition=kFALSE;
+      fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
+      fGeometry -> FindNode        (r[0],r[1],r[2]);
 
-          if(FlagNotInYet)
-            break;
+      vol =  fGeometry->GetCurrentVolume();
+      med = 0;
+      mat = 0;
 
-          fGeometry->FindNextBoundary();
+      LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName();
+
+      if(fGeometry->IsOutside() || !vol) {
+
+        if(FlagNotInYet) break;
+        condition = kFALSE;
+
+        fGeometry->FindNextBoundary();
+        step=fGeometry->GetStep();
+
+        while(!fGeometry->IsEntering()) {
+          fGeometry->Step();
           step=fGeometry->GetStep();
-          while(!fGeometry->IsEntering())
-            {
-              fGeometry->Step();
-              step=fGeometry->GetStep();
-            }
+          LOG("GROOTGeom",pDEBUG) <<"Stepping...dr = " << step;
 
-          xx+=step * p.Px()/p.P();
-          yy+=step * p.Py()/p.P();
-          zz+=step * p.Pz()/p.P();
+          if(this->WillNeverEnter(step)) return *fCurrPathLengthList;
         }
+        r[0] += (step * p.Px()/p.P());
+        r[1] += (step * p.Py()/p.P());
+        r[2] += (step * p.Pz()/p.P());
+      }
 
-      if(condition)
-        {
-          if(!FlagNotInYet)
-            FlagNotInYet=1;
+      if(condition) {
+        if(!FlagNotInYet) FlagNotInYet=1;
+        med = vol->GetMedium();
+        if (!med) condition=kFALSE;
+      }
 
-          med = current->GetMedium();
-          LOG("GROOTGeom",pDEBUG)<<" current medium "<<med->GetName();
-          if (!med)
-            condition=kFALSE;
-        }
-
-      if(condition)
-        {
+      if(condition) {
           mat = med->GetMaterial();
-          LOG("GROOTGeom",pDEBUG)<<" current material "<<mat->GetName();
-          LOG("GROOTGeom",pDEBUG)<<" current material A"<<mat->GetA();
-          LOG("GROOTGeom",pDEBUG)<<" current material Z"<<mat->GetZ();
-          LOG("GROOTGeom",pDEBUG)<<" current material is mix "<<mat->IsMixture();
-          if (!mat)
-            condition=kFALSE;
-        }
+          if (!mat) condition=kFALSE;
+      }
 
-      if(condition)
-        {
-          if(mat->IsMixture())
-            {
-              int Nelements((dynamic_cast <TGeoMixture*> (mat))->GetNelements());
-              TGeoElement *ele;
-              for(int i=0;i<Nelements;i++)
-                {
-                  LOG("GROOTGeom",pDEBUG)<<" number of elements "<<Nelements;
-                  ele=(dynamic_cast <TGeoMixture*> (mat))->GetElement(i);
+      if(condition) {
+          bool ismixt = mat->IsMixture();
 
-                  int   ion_pdgc = this->GetTargetPdgCode(ele); 
-  	          double weight  = (this->WeightWithDensity()) ? mat->GetDensity() : 1.0;
+          LOG("GROOTGeom",pDEBUG)
+              << "Current medium:   " << med->GetName();
+          LOG("GROOTGeom",pDEBUG)
+              << "Current material: " << mat->GetName()
+                 << " (A = " << mat->GetA() << ", Z = " << mat->GetZ() << ")";
+          LOG("GROOTGeom",pDEBUG)
+              << "Material is mix:  " << utils::print::BoolAsYNString(ismixt);
 
-                  fGeometry->FindNextBoundary();
-                  step=fGeometry->GetStep();
-                  while(!fGeometry->IsEntering())
-                    {
-                      fGeometry->Step();
-                      step=fGeometry->GetStep();
-                    }
-                  LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
-                        << utils::print::BoolAsYNString(fGeometry->IsEntering());
-                  LOG("GROOTGeom",pDEBUG) <<" IsOnBoundary = "
-                        << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
-                  LOG("GROOTGeom",pDEBUG)
-                      <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
+          if(ismixt) {
+            TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
 
-		  fCurrPathLengthList->AddPathLength(ion_pdgc,step*weight);
+            int Nelements = mixt->GetNelements();
+            LOG("GROOTGeom",pDEBUG) << "Number of elements = " << Nelements;
 
-		  xx+=step * p.Px()/p.P();
-                  yy+=step * p.Py()/p.P();
-                  zz+=step * p.Pz()/p.P();
-                }
-            }
-          else
-            {
-              int    ion_pdgc = this->GetTargetPdgCode(mat); 
-	      double weight   = (this->WeightWithDensity()) ? mat->GetDensity() : 1.0;
+            TGeoElement * ele = 0;
+            for(int i=0; i<Nelements; i++) {
 
-              fGeometry->FindNextBoundary();
-              step=fGeometry->GetStep();
-              while(!fGeometry->IsEntering())
-                {
+               ele = mixt->GetElement(i);
+
+               int   ion_pdgc = this->GetTargetPdgCode(ele);
+               double weight  = this->GetWeight(mat);
+
+               fGeometry->FindNextBoundary();
+               step=fGeometry->GetStep();
+               while(!fGeometry->IsEntering()) {
                   fGeometry->Step();
                   step=fGeometry->GetStep();
-                }
-              LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
-                   << utils::print::BoolAsYNString(fGeometry->IsEntering());
-              LOG("GROOTGeom",pDEBUG) <<" IsOnBoundary = "
-                   << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
-              LOG("GROOTGeom",pDEBUG)
-                   <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
-	  
-	      fCurrPathLengthList->AddPathLength(ion_pdgc,step*weight);
-	      
-	      xx+=step * p.Px()/p.P();
-              yy+=step * p.Py()/p.P();
-              zz+=step * p.Pz()/p.P();
-            }
+               }
+               LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
+                        << utils::print::BoolAsYNString(fGeometry->IsEntering());
+               LOG("GROOTGeom",pDEBUG) <<" IsOnBoundary = "
+                        << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
+               LOG("GROOTGeom",pDEBUG)
+                      <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
 
-        }
-    }
+               fCurrPathLengthList->AddPathLength(ion_pdgc,step*weight);
+               r[0] += (step * p.Px()/p.P());
+               r[1] += (step * p.Py()/p.P());
+               r[2] += (step * p.Pz()/p.P());
+           }//elements
+         } // is mixture
+
+         else {
+           int    ion_pdgc = this->GetTargetPdgCode(mat);
+           double weight   = this->GetWeight(mat);
+
+           fGeometry->FindNextBoundary();
+           step=fGeometry->GetStep();
+           while(!fGeometry->IsEntering()) {
+              fGeometry->Step();
+              step=fGeometry->GetStep();
+           }
+           LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
+                   << utils::print::BoolAsYNString(fGeometry->IsEntering());
+           LOG("GROOTGeom",pDEBUG) <<" IsOnBoundary = "
+                   << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
+           LOG("GROOTGeom",pDEBUG)
+                   <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
+
+           fCurrPathLengthList->AddPathLength(ion_pdgc,step*weight);
+
+           r[0] += (step * p.Px()/p.P());
+           r[1] += (step * p.Py()/p.P());
+           r[2] += (step * p.Pz()/p.P());
+         }
+     }//condition
+  }//while
 
   this->ScalePathLengths(*fCurrPathLengthList);
 
@@ -610,198 +605,182 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
        << "\nInput nu: 4p = " << utils::print::P4AsShortString(&p)
        << ", 4x = " << utils::print::X4AsString(&x);
 
-  if(!fGeometry)
-    {
+  if(!fGeometry) {
       LOG("GROOTGeom",pERROR) << "No ROOT geometry is loaded!";
       return *fCurrVertex;
-    }
+  }
 
   //calculate length weighted with density
   double dist(0);
 
-  TGeoVolume *current =0;
+  TGeoVolume *   vol = 0;
+  TGeoMedium *   med = 0;
+  TGeoMaterial * mat = 0;
 
   int FlagNotInYet(0);
   bool condition(kTRUE);
-
-  float xx,yy,zz;
-  double xyz[3];
   double step(0);
-  xx=x.X();
-  yy=x.Y();
-  zz=x.Z();
+
+  TVector3 r(x.X(), x.Y(), x.Z()); // current position
 
   fGeometry->SetCurrentDirection(p.Px()/p.P(),p.Py()/p.P(),p.Pz()/p.P());
 
-  while((!FlagNotInYet) || condition)
-    {
+  while((!FlagNotInYet) || condition) {
+
       condition=kTRUE;
 
-      LOG("GROOTGeom",pDEBUG)<<" x "<<xx<<" y "<<yy<<" z "<<zz<<" flag not yet in "<<FlagNotInYet;
-      xyz[0]=xx;
-      xyz[1]=yy;
-      xyz[2]=zz;
+      LOG("GROOTGeom",pDEBUG)
+           << "Position = " << utils::print::Vec3AsString(&r)
+                             << ", flag(not in yet) = " << FlagNotInYet;
 
-      fGeometry->SetCurrentPoint(xyz);
-      fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
-      current =  fGeometry->GetCurrentVolume();
-      LOG("GROOTGeom",pDEBUG)<<" current volume "<<current->GetName();
-      TGeoMedium *med;
-      TGeoMaterial *mat;
+      fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
+      fGeometry -> FindNode        (r[0],r[1],r[2]);
 
-      if (fGeometry->IsOutside() || !current)
-        {
-          condition=kFALSE;
+      vol = fGeometry->GetCurrentVolume();
+      med = 0;
+      mat = 0;
 
-          if(FlagNotInYet)
-            break;
+      LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName();
 
-          fGeometry->FindNextBoundary();
-          step=fGeometry->GetStep();
-          while(!fGeometry->IsEntering())
-            {
-              fGeometry->Step();
-              step=fGeometry->GetStep();
-            }
+      if (fGeometry->IsOutside() || !vol) {
 
-          xx+=step * p.Px()/p.P();
-          yy+=step * p.Py()/p.P();
-          zz+=step * p.Pz()/p.P();
+         condition=kFALSE;
+         if(FlagNotInYet) break;
+
+         fGeometry->FindNextBoundary();
+         step=fGeometry->GetStep();
+         while(!fGeometry->IsEntering()) {
+           fGeometry->Step();
+           step=fGeometry->GetStep();
+         }
+         r[1] += (step * p.Px()/p.P());
+         r[2] += (step * p.Py()/p.P());
+         r[3] += (step * p.Pz()/p.P());
+      }
+
+      if(condition) {
+        if(!FlagNotInYet) FlagNotInYet=1;
+        med = vol->GetMedium();
+        if (!med) condition=kFALSE;
+      }
+
+      if(condition) {
+        mat = med->GetMaterial();
+        if (!mat) condition=kFALSE;
         }
 
-      if(condition)
-        {
-          if(!FlagNotInYet)
-            FlagNotInYet=1;
+      if(condition) {
 
-          med = current->GetMedium();
-          LOG("GROOTGeom",pDEBUG)<<" current medium "<<med->GetName();
-          if (!med)
-            condition=kFALSE;
-        }
+          bool ismixt = mat->IsMixture();
 
-      if(condition)
-        {
-          mat = med->GetMaterial();
-          LOG("GROOTGeom",pDEBUG)<<" current material "<<mat->GetName();
-          LOG("GROOTGeom",pDEBUG)<<" current material A"<<mat->GetA();
-          LOG("GROOTGeom",pDEBUG)<<" current material Z"<<mat->GetZ();
-          LOG("GROOTGeom",pDEBUG)<<" current material is mix "<<mat->IsMixture();
-          if (!mat)
-            condition=kFALSE;
-        }
+          LOG("GROOTGeom",pDEBUG)
+              << "Current medium:   " << med->GetName();
+          LOG("GROOTGeom",pDEBUG)
+              << "Current material: " << mat->GetName()
+                 << " (A = " << mat->GetA() << ", Z = " << mat->GetZ() << ")";
+          LOG("GROOTGeom",pDEBUG)
+              << "Material is mix:  " << utils::print::BoolAsYNString(ismixt);
 
-      if(condition)
-        {
           int ion_pdgc  = this->GetTargetPdgCode(mat);
-	  double weight = (this->WeightWithDensity()) ? mat->GetDensity() : 1.0;
+          double weight = this->GetWeight(mat);
 
           fGeometry->FindNextBoundary();
           step=fGeometry->GetStep();
-          while(!fGeometry->IsEntering())
-            {
+          while(!fGeometry->IsEntering()) {
               fGeometry->Step();
               step=fGeometry->GetStep();
-            }
+          }
 
           if(ion_pdgc == tgtpdg) dist+=(step*weight);
 
-          xx+=step * p.Px()/p.P();
-          yy+=step * p.Py()/p.P();
-          zz+=step * p.Pz()/p.P();
+          r[1] += (step * p.Px()/p.P());
+          r[2] += (step * p.Py()/p.P());
+          r[3] += (step * p.Pz()/p.P());
+      }//condtion
+  }//while
 
-        }
-    }
+  if(dist==0) {
+    LOG("GROOTGeom",pERROR)
+        <<"No material selected along this direction from set point!!! ";
+    return *fCurrVertex;
+  }
 
-  if(dist==0)
-    {
-      LOG("GROOTGeom",pERROR)
-           <<"No material selected along this direction from set point!!! ";
-      return *fCurrVertex;
-    }
+  LOG("GROOTGeom",pDEBUG) << "(Distance)x(Density) = " << dist;
 
-  LOG("GROOTGeom",pDEBUG)<<" dist times density "<<dist;
   //generate random number between 0 and dist
   RandomGen* rand=RandomGen::Instance();
-  TRandom & r3=rand->Random3();
+  TRandom & r3 = rand->Random3();
   double distVertex(r3.Rndm()*dist);
-  LOG("GROOTGeom",pDEBUG)<<" Random distance in selected material "<<distVertex;
+  LOG("GROOTGeom",pDEBUG)
+        <<" Random distance in selected material "<<distVertex;
 
   //-- generate the vertex
 
-  xx=x.X();
-  yy=x.Y();
-  zz=x.Z();
+  r.SetXYZ(x.X(), x.Y(), x.Z());
   double StepIncrease(0.001);
   double distToVtx(0);
   FlagNotInYet=0;
   condition=kTRUE;
 
-  while(((!FlagNotInYet) || condition) && distToVtx<distVertex)
-    {
+  while(((!FlagNotInYet) || condition) && distToVtx<distVertex) {
+
       condition=kTRUE;
 
-      LOG("GROOTGeom",pDEBUG)<<" x "<<xx<<" y "<<yy<<" z "<<zz<<" flag not yet in "<<FlagNotInYet;
-      xx+=StepIncrease * p.Px()/p.P();
-      yy+=StepIncrease * p.Py()/p.P();
-      zz+=StepIncrease * p.Pz()/p.P();
-      xyz[0]=xx;
-      xyz[1]=yy;
-      xyz[2]=zz;
+      LOG("GROOTGeom",pDEBUG)
+           << "Position = " << utils::print::Vec3AsString(&r)
+                             << ", flag(not in yet) = " << FlagNotInYet;
 
-      fGeometry->SetCurrentPoint(xyz);
-      fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
-      current =  fGeometry->GetCurrentVolume();
-      LOG("GROOTGeom",pDEBUG)<<" current volume "<<current->GetName();
-      TGeoMedium *med;
-      TGeoMaterial *mat;
+      r[0] += (StepIncrease * p.Px()/p.P());
+      r[1] += (StepIncrease * p.Py()/p.P());
+      r[2] += (StepIncrease * p.Pz()/p.P());
 
-      if (fGeometry->IsOutside() || !current)
-        {
-          condition=kFALSE;
+      fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
+      fGeometry -> FindNode        (r[0],r[1],r[2]);
 
-          if(FlagNotInYet)
-            break;
-        }
+      vol = fGeometry->GetCurrentVolume();
+      med = 0;
+      mat = 0;
 
-      if(condition)
-        {
-          if(!FlagNotInYet)
-            FlagNotInYet=1;
+      LOG("GROOTGeom",pDEBUG) << "Current volume "<<vol->GetName();
 
-          med = current->GetMedium();
-          LOG("GROOTGeom",pDEBUG)<<" current medium "<<med->GetName();
-          if (!med)
-            condition=kFALSE;
-        }
+      if(fGeometry->IsOutside() || !vol) {
+         condition=kFALSE;
+         if(FlagNotInYet) break;
+      }
 
-      if(condition)
-        {
-          mat = med->GetMaterial();
-          LOG("GROOTGeom",pDEBUG)<<" current material "<<mat->GetName();
-          LOG("GROOTGeom",pDEBUG)<<" current material A"<<mat->GetA();
-          LOG("GROOTGeom",pDEBUG)<<" current material Z"<<mat->GetZ();
-          LOG("GROOTGeom",pDEBUG)<<" current material is mix "<<mat->IsMixture();
-          if (!mat)
-            condition=kFALSE;
-        }
+      if(condition) {
+         if(!FlagNotInYet) FlagNotInYet=1;
+         med = vol->GetMedium();
+         if (!med) condition=kFALSE;
+      }
 
-      if(condition)
-        {
-          int    ion_pdgc = this->GetTargetPdgCode(mat);
-	  double weight   = (this->WeightWithDensity()) ? mat->GetDensity() : 1.0;
+      if(condition) {
+         mat = med->GetMaterial();
+         if (!mat) condition=kFALSE;
+      }
 
-          if(ion_pdgc == tgtpdg) distToVtx+=(StepIncrease*weight);
-        }
-    }
+      if(condition) {
+         LOG("GROOTGeom",pDEBUG)
+              << "Current medium:   " << med->GetName();
+         LOG("GROOTGeom",pDEBUG)
+              << "Current material: " << mat->GetName()
+              << " (A = " << mat->GetA() << ", Z = " << mat->GetZ() << ")";
 
-  xx-=StepIncrease * p.Px()/p.P();
-  yy-=StepIncrease * p.Py()/p.P();
-  zz-=StepIncrease * p.Pz()/p.P();
+         int    ion_pdgc = this->GetTargetPdgCode(mat);
+         double weight   = this->GetWeight(mat);
 
-  fCurrVertex->SetXYZ(xx,yy,zz);
+         if(ion_pdgc == tgtpdg) distToVtx+=(StepIncrease*weight);
+     }
+  }
 
-  LOG("GROOTGeom",pDEBUG)<<" Vtx : x "<<xx<<" y "<<yy<<" z "<<zz;
+  r[0] -= (StepIncrease * p.Px()/p.P());
+  r[1] -= (StepIncrease * p.Py()/p.P());
+  r[2] -= (StepIncrease * p.Pz()/p.P());
+
+  fCurrVertex->SetXYZ(r[0],r[1],r[2]);
+
+  LOG("GROOTGeom",pDEBUG) << "Vertex = " << utils::print::Vec3AsString(&r);
+
   return *fCurrVertex;
 }
 //___________________________________________________________________________
@@ -816,7 +795,7 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
 
   TObjArray * volume_list = fGeometry->GetListOfVolumes();
   if(!volume_list) {
-     LOG("GROOTGeom", pERROR) 
+     LOG("GROOTGeom", pERROR)
         << "Null list of geometry volumes. Can not find build target list!";
      return;
   }
@@ -829,7 +808,7 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
       TGeoVolume * volume = dynamic_cast <TGeoVolume *>(volume_list->At(ivol));
 
       if(!volume) {
-         LOG("GROOTGeom", pWARN) 
+         LOG("GROOTGeom", pWARN)
            << "Got a null geometry volume!! Skiping current list element";
          continue;
       }
@@ -837,10 +816,10 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
       TGeoMaterial * mat = volume->GetMedium()->GetMaterial();
 
       if(mat->IsMixture()) {
-         int Nelements((dynamic_cast <TGeoMixture*> (mat))->GetNelements());
-         TGeoElement *ele;
-         for(int i=0;i<Nelements;i++) {
-            ele=(dynamic_cast <TGeoMixture*> (mat))->GetElement(i);
+         TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
+         int Nelements = mixt->GetNelements();
+         for(int i=0; i<Nelements; i++) {
+            TGeoElement * ele = mixt->GetElement(i);
             int ion_pdgc = this->GetTargetPdgCode(ele);
             fCurrPDGCodeList->push_back(ion_pdgc);
          }
@@ -854,7 +833,7 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
 double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,int pdgc)
 {
   double weight(0);
-  TGeoVolume *current =0;
+  TGeoVolume *vol =0;
   int counterloop(0);
   double Length(0);
 
@@ -881,11 +860,11 @@ double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,i
 
       fGeometry->SetCurrentPoint(xyz);
       fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
-      current =  fGeometry->GetCurrentVolume();
+      vol =  fGeometry->GetCurrentVolume();
       TGeoMedium *med;
       TGeoMaterial *mat;
 
-      if (fGeometry->IsOutside() || !current)
+      if (fGeometry->IsOutside() || !vol)
         {
           condition=kFALSE;
 
@@ -910,7 +889,7 @@ double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,i
           if(!FlagNotInYet)
             FlagNotInYet=1;
 
-          med = current->GetMedium();
+          med = vol->GetMedium();
           if (!med)
             condition=kFALSE;
         }
@@ -934,28 +913,49 @@ double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,i
             }
 
           if(ion_pdgc == pdgc)
-	    {
-	      Length+=step;
-    	      weight = (this->WeightWithDensity()) ? mat->GetDensity() : 1.0;
-	    }
+            {
+              Length+=step;
+              weight = this->GetWeight(mat);
+            }
           xx+=step * direction[0];
           yy+=step * direction[1];
           zz+=step * direction[2];
         }
-    }  
+    }
 
   return (Length*weight);
+}
+//___________________________________________________________________________
+double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat)
+{
+  double weight = 1.0;
+  if (this->WeightWithDensity()) weight = mat->GetDensity();
+  return weight;
+}
+//___________________________________________________________________________
+bool ROOTGeomAnalyzer::WillNeverEnter(double step)
+{
+// If the neutrino trajectory would never enter the detector, then the
+// TGeoManager::GetStep returns the maximum step (1E30).
+// Compare surrent step with max step and figure out whether the particle
+// would never enter the detector
+
+  if(step > 9.99E29) {
+     LOG("GROOTGeom", pINFO) << "Wow! Current step is dr = " << step;
+     LOG("GROOTGeom", pINFO) << "This trajectory isn't entering the detector";
+     return true;
+  } else return false;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::ScalePathLengths(PathLengthList & pl)
 {
 // convert path lenghts to default GENIE length scale
 //
-  LOG("GROOTGeom", pDEBUG) 
+  LOG("GROOTGeom", pDEBUG)
               << "Scaling path-lengths -> meters (scale = " << fScale << ")";
 
   PathLengthList::iterator pliter;
-  for(pliter = pl.begin(); pliter != pl.end(); ++pliter) 
+  for(pliter = pl.begin(); pliter != pl.end(); ++pliter)
   {
     int pdgc = pliter->first;
     pl.ScalePathLength(pdgc,fScale);
