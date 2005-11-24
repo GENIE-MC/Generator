@@ -371,6 +371,8 @@ void ROOTGeomAnalyzer::Initialize()
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::CleanUp(void)
 {
+  LOG("GROOTGeom", pINFO) << "Cleaning up...";
+
   if( fCurrPathLengthList    ) delete fCurrPathLengthList;
   if( fCurrMaxPathLengthList ) delete fCurrMaxPathLengthList;
   if( fCurrPDGCodeList       ) delete fCurrPDGCodeList;
