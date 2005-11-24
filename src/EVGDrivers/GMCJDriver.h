@@ -34,10 +34,12 @@ public :
 
   //-- configure MC job: set flux and detector geometry
 
-  void UseFluxDriver   (GFluxI * flux);
-  void UseGeomAnalyzer (GeomAnalyzerI * geom);
-  void UseSplines      (bool useLogE = true);
-  void Configure       (void);
+  void UseFluxDriver      (GFluxI * flux);
+  void UseGeomAnalyzer    (GeomAnalyzerI * geom);
+  void UseSplines         (bool useLogE = true);
+  void AllowRecursiveMode (bool allow);
+  void FilterUnphysical   (bool filter);
+  void Configure          (void);
 
   //-- generate single neutrino event
 
@@ -52,8 +54,10 @@ private:
   GeomAnalyzerI *  fGeomAnalyzer; ///< [input] detector geometry analyzer
   GEVGPool *       fGPool;        ///< A pool of available GEVGDrivers objects
   double           fPmax;         ///< [computed] Pmax(interaction) given flux and geom
-  bool             fUseSplines;
-  bool             fUseLogE;
+  bool             fUseSplines;   ///< compute all needed & not-loaded splines at init
+  bool             fUseLogE;      ///< build splines as function of logE (rather than E)
+  bool             fAllowRecursiveMode;
+  bool             fFilterUnphysical;
 };
 
 }      // genie namespace

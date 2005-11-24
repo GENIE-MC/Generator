@@ -40,10 +40,11 @@ public :
   void   AddPathLength   (int pdgc, double pl); // path-legth(pdgc) += pl
   void   SetPathLength   (int pdgc, double pl); // path-legth(pdgc)  = pl
   void   SetAllToZero    (void);
+  bool   AreAllZero      (void) const;
   void   ScalePathLength (int pdgc, double scale);
   double PathLength      (int pdgc) const;
   void   Print           (ostream & stream) const;
-  
+
   friend ostream & operator << (ostream & stream, const PathLengthList & list);
 };
 

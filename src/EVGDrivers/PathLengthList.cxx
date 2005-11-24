@@ -25,6 +25,7 @@
 #include "PDG/PDGCodeList.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/PrintUtils.h"
+#include "Utils/MathUtils.h"
 
 using std::string;
 using std::setw;
@@ -63,7 +64,7 @@ void PathLengthList::AddPathLength(int pdgc, double pl)
 {
 // Adds pl to the total path length for material with code = pdgc
 
-  if (this->count(pdgc) == 1) { (*this)[pdgc] += pl; } 
+  if (this->count(pdgc) == 1) { (*this)[pdgc] += pl; }
   else {
      LOG("PathL", pWARN)
          << "No material with PDG code = " << pdgc << " in path length list";
@@ -117,6 +118,19 @@ void PathLengthList::SetAllToZero(void)
     int pdgc = pl_iter->first;
     (*this)[pdgc] = 0.;
   }
+}
+//___________________________________________________________________________
+bool PathLengthList::AreAllZero(void) const
+{
+  bool allzero = true;
+
+  PathLengthList::const_iterator pl_iter;
+
+  for(pl_iter = this->begin(); pl_iter != this->end(); ++pl_iter) {
+    double pl = pl_iter->second;
+    allzero = allzero && (utils::math::AreEqual(pl,0.));
+  }
+  return allzero;
 }
 //___________________________________________________________________________
 void PathLengthList::Print(ostream & stream) const

@@ -65,20 +65,51 @@ void GMCJDriver::UseSplines(bool useLogE)
   fUseLogE    = useLogE;
 }
 //___________________________________________________________________________
+void GMCJDriver::AllowRecursiveMode(bool allow)
+{
+  LOG("GMCJDriver", pNOTICE)
+        << "[Allow recursive mode] flag is set to: "
+                             << utils::print::BoolAsYNString(allow);
+  fAllowRecursiveMode = allow;
+}
+//___________________________________________________________________________
+void GMCJDriver::FilterUnphysical(bool filter)
+{
+  LOG("GMCJDriver", pNOTICE)
+        << "[Filter unphysical] flag is set to: "
+                             << utils::print::BoolAsYNString(filter);
+  fFilterUnphysical = filter;
+
+  GEVGPool::const_iterator giter;
+  for(giter = fGPool->begin(); giter != fGPool->end(); ++giter) {
+    GEVGDriver * driver = giter->second;
+    driver->FilterUnphysical(filter);
+  }
+}
+//___________________________________________________________________________
 void GMCJDriver::Initialize(void)
 {
-  fFluxDriver   = 0;
-  fGeomAnalyzer = 0;
-  fGPool        = 0;
-  fPmax         = 0;
+  fFluxDriver   = 0; // <-- flux driver
+  fGeomAnalyzer = 0; // <-- geometry driver
+  fGPool        = 0; // <-- pool of GEVGDriver event generation drivers
+  fPmax         = 0; // <-- (scaled) maximum interaction probability
   fUseSplines   = false;
+
+  // Go into recursive mode when it does not generate an event (neutrino
+  // does not cross the detector, does not interact etc...) so that it never
+  // returns NULL (except when in error)
+  this->AllowRecursiveMode(true);
+
+  // Allow the selected GEVGDriver to go into recursive mode and regenerate
+  // an interaction that turns out to be unphysical.
+  this->FilterUnphysical(true);
 
   // Force early initialization of singleton objects that are typically
   // would be initialized at their first use later on.
   // This is purely cosmetic and I do it to send the banner and some prolific
   // initialization printout at the top.
-  assert( Messenger::Instance()     ); 
-  assert( AlgConfigPool::Instance() ); 
+  assert( Messenger::Instance()     );
+  assert( AlgConfigPool::Instance() );
 
   // Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
   // if the env. var. has been set);
@@ -143,6 +174,7 @@ void GMCJDriver::Configure(void)
 
      GEVGDriver * evgdriver = new GEVGDriver;
      evgdriver->SetInitialState(init_state);
+     evgdriver->FilterUnphysical(fFilterUnphysical);
 
      LOG("GMCJDriver", pDEBUG) << "Adding new GEVGDriver object to GEVGPool";
      fGPool->insert( GEVGPool::value_type(init_state.AsString(), evgdriver) );
@@ -151,7 +183,6 @@ void GMCJDriver::Configure(void)
 
   LOG("GMCJDriver", pINFO)
              << "All necessary GEVGDriver object were pushed into GEVGPool\n";
-
 
   // If requested splines then coordinate spline creation from all GEVGDriver
   // objects pushed into GEVGPool. This will create all xsec splines needed
@@ -223,7 +254,7 @@ EventRecord * GMCJDriver::GenerateEvent(void)
 {
   LOG("GMCJDriver", pINFO) << "Generating next event...";
 
-  //-- generate a neutrino using the input GFluxI & get current pdgc/p4/x4
+  //-- Generate a neutrino using the input GFluxI & get current pdgc/p4/x4
 
   LOG("GMCJDriver", pINFO) << "Generating a flux neutrino";
 
@@ -243,20 +274,41 @@ EventRecord * GMCJDriver::GenerateEvent(void)
      << "\n  |----o 4-momentum : " << utils::print::P4AsString(&nup4)
      << "\n  |----o 4-position : " << utils::print::X4AsString(&nux4);
 
-  //-- get the list of detector material and the v path-length in each one,
-  //   staring from nux4 and travelling along the direction of nup4
+  //-- Get the list of detector material and the v path-length in each one,
+  //   starting from nux4 and travelling along the direction of nup4
 
   const PathLengthList & pl = fGeomAnalyzer->ComputePathLengths(nux4, nup4);
 
   if(pl.size() == 0) {
-     LOG("GMCJDriver", pWARN)
-           << "Got an empty PathLengthList - Returning NULL EventRecord";
+     LOG("GMCJDriver", pERROR)
+        << "Got an empty PathLengthList - No material found in geometry?";
+     LOG("GMCJDriver", pERROR) << "Returning NULL EventRecord!";
      return 0;
   }
-  LOG("GMCJDriver", pINFO) << "Path lengths for flux neutrino direction: " << pl;
 
-  //-- compute the total (scaled) interaction probabilities for each material
-  //   (for the selected nu type
+  //-- Check that everything is ok
+  //-- If all pathlengths are 0 then the neutrino didn't cross the detector
+  //   so do not bother continuing...
+
+  LOG("GMCJDriver", pINFO) << "Path lengths for flux v direction: " << pl;
+
+  if(pl.AreAllZero()) {
+    LOG("GMCJDriver", pINFO)
+               << "The flux v doesn't even enter the detector";
+
+    if(fAllowRecursiveMode) {
+       LOG("GMCJDriver", pINFO)
+          << "In recursive mode - Attermting to regenerate the event...";
+       return this->GenerateEvent(); // enter in reccursive mode...
+    } else {
+       LOG("GMCJDriver", pINFO)
+          << "Recursive mode not allowed  - Returning NULL EventRecord!";
+       return 0;
+    }
+  }
+
+  //-- Compute the total (scaled) interaction probabilities for each
+  //   material (for the selected neutrino type
 
   LOG("GMCJDriver", pINFO)
              << "Computing interaction probabilities for each material";
@@ -294,7 +346,7 @@ EventRecord * GMCJDriver::GenerateEvent(void)
   LOG("GMCJDriver", pINFO)
           << "The 'no interaction' probability is: " << 100*Pesc << " %";
 
-  //-- select a detector material
+  //-- Select a detector material
   LOG("GMCJDriver", pINFO)
              << "Computing interaction probabilities for each material";
 
@@ -302,14 +354,23 @@ EventRecord * GMCJDriver::GenerateEvent(void)
   double R = rnd->Random2().Rndm();
   LOG("GMCJDriver", pDEBUG) << "Rndm [0,1] = " << R;
 
-  //if the neutrino does not interact go into a recursive mode until
-  //an interaction does take place.
+  //-- If the neutrino does not interact go into a recursive mode until
+  //-- an interaction does take place.
   if(R>=1-Pesc) {
      LOG("GMCJDriver", pINFO) << "Flux neutrino didn't interact - Retrying!";
-     return this->GenerateEvent();
+
+     if(fAllowRecursiveMode) {
+         LOG("GMCJDriver", pINFO)
+             << "In recursive mode - Attermting to regenerate the event...";
+         return this->GenerateEvent(); // enter in reccursive mode...
+      } else {
+         LOG("GMCJDriver", pINFO)
+            << "Recursive mode not allowed  - Returning NULL EventRecord!";
+         return 0;
+      }
   }
 
-  //an interaction does happen: select material
+  //-- If an interaction does happen then select target material
   LOG("GMCJDriver", pINFO)
                    << "The neutrino does interact - Selecting material";
   int tgtpdg = 0;
@@ -328,8 +389,8 @@ EventRecord * GMCJDriver::GenerateEvent(void)
   }
   LOG("GMCJDriver", pINFO) << "Selected target material = " << tgtpdg;
 
-  //-- find the GEVGDriver object that generates interactions for the given
-  //   initial state (neutrino + target)
+  //-- Find the GEVGDriver object that generates interactions for the
+  //   given initial state (neutrino + target)
   InitialState init_state(tgtpdg, nupdg);
   LOG("GMCJDriver", pWARN)
       << "Searching GEVGDriver configured with: " << init_state.AsString();
@@ -341,19 +402,19 @@ EventRecord * GMCJDriver::GenerateEvent(void)
      return 0;
   }
 
-  //-- ask the GEVGDriver object to select and generate an interaction for the
-  //   selected initial state & neutrino 4-momentum
+  //-- Ask the GEVGDriver object to select and generate an interaction for
+  //   the selected initial state & neutrino 4-momentum
   LOG("GMCJDriver", pINFO)
               << "Asking the selected GEVGDriver object to generate an event";
   EventRecord * event = evgdriver->GenerateEvent(nup4);
 
-  //-- generate an 'interaction position' in the selected material, along
+  //-- Generate an 'interaction position' in the selected material, along
   //   the direction of nup4
   LOG("GMCJDriver", pINFO)
                   << "Asking the geometry analyzer to generate a vertex";
   const TVector3 & vtx = fGeomAnalyzer->GenerateVertex(nux4, nup4, tgtpdg);
 
-  //-- the GEVGDriver object generates events at (x=0,y=0,z=0,t=0) / shift the
+  //-- The GEVGDriver object generates events at (x=0,y=0,z=0,t=0) / shift the
   //   event record entries accrording to the selected interaction vertex
 
   TVector3 origin(nux4.X(), nux4.Y(), nux4.Z());
