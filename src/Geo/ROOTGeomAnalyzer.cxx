@@ -24,6 +24,7 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 #include <TSystem.h>
+#include <TMath.h>
 
 #include "Conventions/Units.h"
 #include "EVGDrivers/PathLengthList.h"
@@ -142,217 +143,105 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
 
   //loop on materials
 
-  int pdgc(0);
-  vector<int>::iterator itrPDG;
-  for(itrPDG=fCurrPDGCodeList->begin();itrPDG!=fCurrPDGCodeList->end();itrPDG++)
-    {
-      pdgc=*itrPDG;
-      LOG("GROOTGeom", pINFO)
-             <<" Calculating max path length for material: " << pdgc;
+  vector<int>::iterator itr;
+  for(itr=fCurrPDGCodeList->begin();itr!=fCurrPDGCodeList->end();itr++) {
 
-      int igen(0);
-      int Rgen(0);
-      int maxPoints(fNPoints);
-      int maxRays(fNRays);
-      double xyz[3];
-      double direction[3];
-      double MaxPath(0);
-      double Length(0);
-      double dirTot(0);
+    int pdgc = *itr;
+    LOG("GROOTGeom", pINFO)
+                 <<"Calculating max path length for material: " << pdgc;
 
-      //top
-      LOG("GROOTGeom",pINFO) << "Box surface scanned: [TOP]";
-      igen=0;
-      while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox-dx+2*dx*r3.Rndm();
-          xyz[1] = oy+dy;
-          xyz[2] = oz-dz+2*dz*r3.Rndm();
+    int    ipoint    (0);
+    int    iray      (0);
+    int    maxPoints (fNPoints);
+    int    maxRays   (fNRays);
+    double maxPath   (0);
 
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=-0.5+r3.Rndm();
-              direction[1]=-r3.Rndm();
-              direction[2]=-0.5+r3.Rndm();
+    TVector3 pos(0.,0.,0.); // position
+    TVector3 dir(0.,0.,0.); // direction
 
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-
-            }
-        }
-
-
-      //bottom
-      LOG("GROOTGeom",pINFO) << "Box surface scanned: [BOTTOM]";
-      igen=0;
-      while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox-dx+2*dx*r3.Rndm();
-          xyz[1] = oy-dy;
-          xyz[2] = oz-dz+2*dz*r3.Rndm();
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=-0.5+r3.Rndm();
-              direction[1]=r3.Rndm();
-              direction[2]=-0.5+r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-            }
-        }
-
-      //left
-      LOG("GROOTGeom",pINFO) << "Box surface scanned: [LEFT]";
-      igen=0;
-      while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox-dx;
-          xyz[1] = oy-dy+2*dy*r3.Rndm();
-          xyz[2] = oz-dz+2*dz*r3.Rndm();
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=r3.Rndm();
-              direction[1]=-0.5+r3.Rndm();
-              direction[2]=-0.5+r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-            }
-        }
-
-      //right
-      LOG("GROOTGeom",pINFO) << "Box surface scanned: [RIGHT]";
-      igen=0;
-      while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox+dx;
-          xyz[1] = oy-dy+2*dy*r3.Rndm();
-          xyz[2] = oz-dz+2*dz*r3.Rndm();
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=-r3.Rndm();
-              direction[1]=-0.5+r3.Rndm();
-              direction[2]=-0.5+r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-            }
-        }
-
-      //back
-      LOG("GROOTGeom",pINFO) << "Box surface scanned: [BACK]";
-      igen=0;
-      while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox-dx+2*dx*r3.Rndm();
-          xyz[1] = oy-dy+2*dy*r3.Rndm();
-          xyz[2] = oz-dz;
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=-0.5+r3.Rndm();
-              direction[1]=-0.5+r3.Rndm();
-              direction[2]=r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-            }
-        }
-
-      //front
-      LOG("GROOTGeom",pINFO) << "Box surface scanned: [FRONT]";
-      igen=0;
-      while(igen<maxPoints)
-        {
-          igen++;
-          xyz[0] = ox-dx+2*dx*r3.Rndm();
-          xyz[1] = oy-dy+2*dy*r3.Rndm();
-          xyz[2] = oz+dz;
-
-          Rgen=0;
-          while(Rgen<maxRays)
-            {
-              Rgen++;
-              direction[0]=-0.5+r3.Rndm();
-              direction[1]=-0.5+r3.Rndm();
-              direction[2]=-r3.Rndm();
-
-              dirTot=sqrt( direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2]);
-
-              direction[0]/=dirTot;
-              direction[1]/=dirTot;
-              direction[2]/=dirTot;
-
-              Length=ComputeMaxPathLengthPDG(xyz,direction,pdgc);
-              if(Length>MaxPath)
-                MaxPath=Length;
-            }
-        }
-
-      LOG("GROOTGeom", pINFO) << "Max path length found = " << MaxPath;
-
-      fCurrMaxPathLengthList->AddPathLength(pdgc,MaxPath);
+    //top:
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [TOP]";
+    ipoint=0;
+    while (ipoint++ < maxPoints) {
+      iray=0;
+      pos.SetXYZ(ox-dx+2*dx*r3.Rndm(), oy+dy, oz-dz+2*dz*r3.Rndm());
+      while (iray++ < maxRays) {
+        dir.SetXYZ(-0.5+r3.Rndm(), -r3.Rndm(), -0.5+r3.Rndm());
+        maxPath = TMath::Max(maxPath,
+                   this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
+      }
     }
+    //bottom:
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [BOTTOM]";
+    ipoint=0;
+    while (ipoint++ < maxPoints) {
+      iray=0;
+      pos.SetXYZ(ox-dx+2*dx*r3.Rndm(), oy-dy, oz-dz+2*dz*r3.Rndm());
+      while (iray++ < maxRays) {
+        dir.SetXYZ(-0.5+r3.Rndm(), r3.Rndm(), -0.5+r3.Rndm());
+        maxPath = TMath::Max(maxPath,
+                   this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
+      }
+    }
+    //left:
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [LEFT]";
+    ipoint=0;
+    while (ipoint++ < maxPoints) {
+      iray=0;
+      pos.SetXYZ(ox-dx, oy-dy+2*dy*r3.Rndm(), oz-dz+2*dz*r3.Rndm());
+      while (iray++ < maxRays) {
+        dir.SetXYZ(r3.Rndm(), -0.5+r3.Rndm(), -0.5+r3.Rndm());
+        maxPath = TMath::Max(maxPath,
+                   this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
+      }
+    }
+    //right:
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [RIGHT]";
+    ipoint=0;
+    while (ipoint++ < maxPoints) {
+      iray=0;
+      pos.SetXYZ(ox+dx, oy-dy+2*dy*r3.Rndm(), oz-dz+2*dz*r3.Rndm());
+      while (iray++ < maxRays) {
+        dir.SetXYZ(-r3.Rndm(), -0.5+r3.Rndm(), -0.5+r3.Rndm());
+        maxPath = TMath::Max(maxPath,
+                   this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
+      }
+    }
+    //back:
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [BACK]";
+    ipoint=0;
+    while (ipoint++ < maxPoints) {
+      iray=0;
+      pos.SetXYZ(ox-dx+2*dx*r3.Rndm(), oy-dy+2*dy*r3.Rndm(), oz-dz);
+      while (iray++ < maxRays) {
+        dir.SetXYZ(-0.5+r3.Rndm(), -0.5+r3.Rndm(), r3.Rndm());
+        maxPath = TMath::Max(maxPath,
+                   this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
+      }
+    }
+    //front:
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [FRONT]";
+    ipoint=0;
+    while (ipoint++ < maxPoints) {
+      iray=0;
+      pos.SetXYZ(ox-dx+2*dx*r3.Rndm(), oy-dy+2*dy*r3.Rndm(), oz+dz);
+      while (iray++ < maxRays) {
+        dir.SetXYZ(-0.5+r3.Rndm(), -0.5+r3.Rndm(), -r3.Rndm());
+        maxPath = TMath::Max(maxPath,
+                   this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
+      }
+    }
+    LOG("GROOTGeom", pINFO) << "Max path length found = " << maxPath;
+
+    fCurrMaxPathLengthList->AddPathLength(pdgc, maxPath);
+  }
 
   this->ScalePathLengths(*fCurrMaxPathLengthList);
 
   return *fCurrMaxPathLengthList;
 }
 //________________________________________________________________________
-void ROOTGeomAnalyzer::Initialize()
+void ROOTGeomAnalyzer::Initialize(void)
 {
   LOG("GROOTGeom", pINFO) << "Initializing ROOT geometry driver";
 
@@ -477,7 +366,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
       fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
       fGeometry -> FindNode        (r[0],r[1],r[2]);
 
-      vol =  fGeometry->GetCurrentVolume();
+      vol = fGeometry->GetCurrentVolume();
       med = 0;
       mat = 0;
 
@@ -488,12 +377,10 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
         if(FlagNotInYet) break;
         condition = kFALSE;
 
-        fGeometry->FindNextBoundary();
-        step=fGeometry->GetStep();
+        step = this->StepToNextBoundary();
 
         while(!fGeometry->IsEntering()) {
-          fGeometry->Step();
-          step=fGeometry->GetStep();
+          step = this->Step();
           LOG("GROOTGeom",pDEBUG) <<"Stepping...dr = " << step;
 
           if(this->WillNeverEnter(step)) return *fCurrPathLengthList;
@@ -539,12 +426,8 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                int   ion_pdgc = this->GetTargetPdgCode(ele);
                double weight  = this->GetWeight(mat);
 
-               fGeometry->FindNextBoundary();
-               step=fGeometry->GetStep();
-               while(!fGeometry->IsEntering()) {
-                  fGeometry->Step();
-                  step=fGeometry->GetStep();
-               }
+               step = this->StepUntilExiting();
+
                LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
                         << utils::print::BoolAsYNString(fGeometry->IsEntering());
                LOG("GROOTGeom",pDEBUG) <<" IsOnBoundary = "
@@ -563,12 +446,8 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
            int    ion_pdgc = this->GetTargetPdgCode(mat);
            double weight   = this->GetWeight(mat);
 
-           fGeometry->FindNextBoundary();
-           step=fGeometry->GetStep();
-           while(!fGeometry->IsEntering()) {
-              fGeometry->Step();
-              step=fGeometry->GetStep();
-           }
+           step = this->StepUntilExiting();
+
            LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
                    << utils::print::BoolAsYNString(fGeometry->IsEntering());
            LOG("GROOTGeom",pDEBUG) <<" IsOnBoundary = "
@@ -649,12 +528,8 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
          condition=kFALSE;
          if(FlagNotInYet) break;
 
-         fGeometry->FindNextBoundary();
-         step=fGeometry->GetStep();
-         while(!fGeometry->IsEntering()) {
-           fGeometry->Step();
-           step=fGeometry->GetStep();
-         }
+         step = this->StepUntilExiting();
+
          r[0] += (step * p.Px()/p.P());
          r[1] += (step * p.Py()/p.P());
          r[2] += (step * p.Pz()/p.P());
@@ -686,12 +561,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
           int ion_pdgc  = this->GetTargetPdgCode(mat);
           double weight = this->GetWeight(mat);
 
-          fGeometry->FindNextBoundary();
-          step=fGeometry->GetStep();
-          while(!fGeometry->IsEntering()) {
-              fGeometry->Step();
-              step=fGeometry->GetStep();
-          }
+          step = this->StepUntilExiting();
 
           if(ion_pdgc == tgtpdg) dist+=(step*weight);
 
@@ -832,107 +702,141 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
   }
 }
 //___________________________________________________________________________
-double ROOTGeomAnalyzer::ComputeMaxPathLengthPDG(double* XYZ,double* direction,int pdgc)
+double ROOTGeomAnalyzer::ComputePathLengthPDG(
+                                         TVector3 r, TVector3 udir, int pdgc)
 {
-  double weight(0);
-  TGeoVolume *vol =0;
-  int counterloop(0);
-  double Length(0);
+// Compute the path length for the material with pdg-code = pdc, staring from
+// the input position r and moving along the direction of the unit vector udir
+//
+  LOG("GROOTGeom", pDEBUG) << "Pos: " << utils::print::Vec3AsString(&r);
+  LOG("GROOTGeom", pDEBUG) << "Dir: " << utils::print::Vec3AsString(&udir);
 
-  int FlagNotInYet(0);
-  bool condition(kTRUE);
+  double weight       (0);
+  int    counterloop  (0);
+  double Length       (0);
+  int    FlagNotInYet (0);
+  bool   condition    (kTRUE);
+  double step         (0);
 
-  float xx,yy,zz;
-  double xyz[3];
-  double step(0);
-  xx=XYZ[0];
-  yy=XYZ[1];
-  zz=XYZ[2];
+  TGeoVolume *   vol = 0;
+  TGeoMedium *   med = 0;
+  TGeoMaterial * mat = 0;
 
-  fGeometry->SetCurrentDirection(direction);
+  fGeometry->SetCurrentDirection(udir[0],udir[1],udir[2]);
 
-  while(((!FlagNotInYet) || condition) && counterloop <100)
-    {
+  while(((!FlagNotInYet) || condition) && counterloop <100) {
       counterloop++;
       condition=kTRUE;
 
-      xyz[0]=xx;
-      xyz[1]=yy;
-      xyz[2]=zz;
+      fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
+      fGeometry -> FindNode        (r[0],r[1],r[2]);
 
-      fGeometry->SetCurrentPoint(xyz);
-      fGeometry->FindNode(xyz[0],xyz[1],xyz[2]);
       vol =  fGeometry->GetCurrentVolume();
-      TGeoMedium *med;
-      TGeoMaterial *mat;
+      med = 0;
+      mat = 0;
 
-      if (fGeometry->IsOutside() || !vol)
-        {
-          condition=kFALSE;
+      if (fGeometry->IsOutside() || !vol) {
+        condition=kFALSE;
+        if(FlagNotInYet) break;
 
-          if(FlagNotInYet)
-            break;
+        step = this->StepUntilExiting();
 
-          fGeometry->FindNextBoundary();
-          step=fGeometry->GetStep();
-          while(!fGeometry->IsEntering())
-            {
-              fGeometry->Step();
-              step=fGeometry->GetStep();
-            }
+        r[0] += (step * udir[0]);
+        r[1] += (step * udir[1]);
+        r[2] += (step * udir[2]);
+     }
 
-          xx+=step * direction[0];
-          yy+=step * direction[1];
-          zz+=step * direction[2];
+     if(condition) {
+       if(!FlagNotInYet) FlagNotInYet=1;
+       med = vol->GetMedium();
+       if (!med) condition=kFALSE;
+     }
+
+     if(condition) {
+       mat = med->GetMaterial();
+       if (!mat) condition=kFALSE;
+     }
+
+     if(condition) {
+        int ion_pdgc = this->GetTargetPdgCode(mat);
+        step = this->StepUntilExiting();
+        if(ion_pdgc == pdgc) {
+            Length+=step;
+            weight = this->GetWeight(mat);
         }
-
-      if(condition)
-        {
-          if(!FlagNotInYet)
-            FlagNotInYet=1;
-
-          med = vol->GetMedium();
-          if (!med)
-            condition=kFALSE;
-        }
-
-      if(condition)
-        {
-          mat = med->GetMaterial();
-          if (!mat)
-            condition=kFALSE;
-        }
-
-      if(condition)
-        {
-          int ion_pdgc = this->GetTargetPdgCode(mat);
-          fGeometry->FindNextBoundary();
-          step=fGeometry->GetStep();
-          while(!fGeometry->IsEntering())
-            {
-              fGeometry->Step();
-              step=fGeometry->GetStep();
-            }
-
-          if(ion_pdgc == pdgc)
-            {
-              Length+=step;
-              weight = this->GetWeight(mat);
-            }
-          xx+=step * direction[0];
-          yy+=step * direction[1];
-          zz+=step * direction[2];
-        }
-    }
-
+        r[0] += (step * udir[0]);
+        r[1] += (step * udir[1]);
+        r[2] += (step * udir[2]);
+     }
+  }
   return (Length*weight);
 }
 //___________________________________________________________________________
 double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat)
 {
+  if(!mat) {
+    LOG("GROOTGeom", pERROR) << "Null input material. Return weight = 0.";
+    return 0;
+  }
+  if(mat->IsMixture()) {
+//    LOG("GROOTGeom", pWARN)
+//      << "Not taking into account the relative proportion of each element!";
+  }
+
   double weight = 1.0;
   if (this->WeightWithDensity()) weight = mat->GetDensity();
+
+  LOG("GROOTGeom", pDEBUG)
+                    << "Weight[mat:" << mat->GetName() << "] = " << weight;
   return weight;
+}
+//___________________________________________________________________________
+double ROOTGeomAnalyzer::GetWeight(TGeoMixture * mixt, int ielement)
+{
+  if(!mixt) {
+    LOG("GROOTGeom", pERROR) << "Null input mixture. Return weight = 0.";
+    return 0;
+  }
+  if(ielement < 0 || ielement >= mixt->GetNelements()) {
+    LOG("GROOTGeom", pERROR)
+                   << "Element number out of bounds. Return weight = 0.";
+    return 0;
+  }
+
+  double weight = 1.0;
+  if (this->WeightWithDensity()) {
+     double d = mixt->GetDensity();         // mixture density
+     double w = mixt->GetWmixt()[ielement]; // relative proportion by mass
+     weight = d*w;
+  }
+
+  LOG("GROOTGeom", pDEBUG)
+             << "Weight[mixt:" << mixt->GetName()
+                           << ", iel = " << ielement << "] = " << weight;
+  return weight;
+}
+//___________________________________________________________________________
+double ROOTGeomAnalyzer::StepToNextBoundary(void)
+{
+  fGeometry->FindNextBoundary();
+  double step=fGeometry->GetStep();
+  return step;
+}
+//___________________________________________________________________________
+double ROOTGeomAnalyzer::Step(void)
+{
+  fGeometry->Step();
+  double step=fGeometry->GetStep();
+  return step;
+}
+//___________________________________________________________________________
+double ROOTGeomAnalyzer::StepUntilExiting(void)
+{
+  double step = this->StepToNextBoundary();
+  while(!fGeometry->IsEntering()) {
+    step = this->Step();
+  }
+  return step;
 }
 //___________________________________________________________________________
 bool ROOTGeomAnalyzer::WillNeverEnter(double step)
