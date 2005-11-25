@@ -49,13 +49,14 @@ NtpMCTreeHeader::~NtpMCTreeHeader()
 //____________________________________________________________________________
 void NtpMCTreeHeader::PrintToStream(ostream & stream) const
 {
-  stream << "Tree Header Info:" << endl
-         << "NtpRecord Format  -> "
-                 << NtpMCFormat::AsString(this->format) << endl
-         << "GENIE CVS Vrs Nu  -> ["
-                     << this->cvstag.GetString().Data() << "]" << endl
-         << "File generated at -> " << this->datime
-         << endl;
+  string sformat = NtpMCFormat::AsString(this->format);
+  string scvstag = this->cvstag.GetString().Data();
+
+  stream << "Tree Header Info:"                     << endl
+         << "MC run number     -> " << this->runnu  << endl
+         << "NtpRecord Format  -> " << sformat      << endl
+         << "GENIE CVS Vrs Nu  -> " << scvstag      << endl
+         << "File generated at -> " << this->datime << endl;
 }
 //____________________________________________________________________________
 void NtpMCTreeHeader::Copy(const NtpMCTreeHeader & hdr)
@@ -63,6 +64,7 @@ void NtpMCTreeHeader::Copy(const NtpMCTreeHeader & hdr)
   this->format = hdr.format;
   this->cvstag.SetString(hdr.cvstag.GetString().Data());
   this->datime.Copy(hdr.datime);
+  this->runnu  = hdr.runnu;
 }
 //____________________________________________________________________________
 void NtpMCTreeHeader::Init(void)
@@ -70,5 +72,6 @@ void NtpMCTreeHeader::Init(void)
   this->format = kNFUndefined;
   this->cvstag.SetString("NO CVS version number was specified");
   this->datime.Now();
+  this->runnu  = 0;
 }
 //____________________________________________________________________________
