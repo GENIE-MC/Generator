@@ -24,6 +24,7 @@
 #include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GMCJDriver.h"
+#include "EVGDrivers/GMCJMonitor.h"
 #include "FluxDrivers/GCylindTH1Flux.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Messenger/Messenger.h"
@@ -46,6 +47,7 @@ void GetCommandLineArgs(int argc, char ** argv);
 //command line options
 bool   gOptBuildSplines; // spline building option
 int    gOptNevents;      // number of events to generate
+Long_t gOptRunNu;        // run number
 string gOptRootGeom;     // detector geometry ROOT file
 string gOptGeomUnits;    // detector geometry units
 
@@ -105,15 +107,21 @@ int main(int argc, char ** argv)
   //   XSecSplineList::AutoLoad()
   if(gOptBuildSplines) mcj.UseSplines();
 
-  //-- initialize an Ntuple Writer
+  //-- Initialize an Ntuple Writer
   NtpWriter ntpw(kNFEventRecord);
-  ntpw.InitTree("mcjobdriver.root");
+  ntpw.Initialize("mcjobdriver.root");
+
+  //-- Create an MC Job Monitor
+  GMCJMonitor mcjmonitor(gOptRunNu);
 
   //-- Start generating events
 
   int i=0;
   while (i<gOptNevents) {
+
      EventRecord * event = mcj.GenerateEvent();
+
+     mcjmonitor.Update(i,event);
 
      if(event) {
 
@@ -130,8 +138,8 @@ int main(int argc, char ** argv)
      }
   }
 
-  //-- save the ntuple
-  ntpw.SaveTree();
+  //-- save the generated MC events
+  ntpw.Save();
 
   delete f1;
   delete flux;
@@ -149,6 +157,7 @@ void GetCommandLineArgs(int argc, char ** argv)
                             "/src/test/data/GeometryLArPbBox.root";
   string kDefOptGeomUnits = "m";
   int    kDefOptNevents   = 10;
+  Long_t kDefOptRunNu     = 0;
 
   //geometry file:
   try {
@@ -184,11 +193,23 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
   gOptNevents = TMath::Max(gOptNevents,1); // generate at least 1
 
+  //run number:
+  try {
+    LOG("Main", pINFO) << "Reading MC run number";
+    gOptRunNu = genie::utils::clap::CmdLineArgAsInt(argc,argv,'r');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("Main", pNOTICE) << "Unspecified run number - Using default";
+      gOptRunNu = kDefOptRunNu;
+    }
+  }
+
   //spline building option:
   gOptBuildSplines =
                 genie::utils::clap::CmdLineArgAsBool(argc,argv,'s');
 
   LOG("Main", pINFO) << "Command line options - Summary:";
+  LOG("Main", pINFO) << "run number:           " << gOptRunNu;
   LOG("Main", pINFO) << "spline building:      " << gOptBuildSplines;
   LOG("Main", pINFO) << "number of events:     " << gOptNevents;
   LOG("Main", pINFO) << "detector geom. file:  " << gOptRootGeom;
