@@ -23,6 +23,7 @@
 
 class TFile;
 class TTree;
+class TBranch;
 class TClonesArray;
 
 using std::string;
@@ -38,18 +39,24 @@ class NtpWriter {
 
 public :
 
-  NtpWriter(NtpMCFormat_t fmt = kNFEventRecord);
+  NtpWriter(NtpMCFormat_t fmt = kNFEventRecord, Long_t runnu = 0);
   ~NtpWriter();
 
-  void InitTree       (string filename);
+  void Initialize     (string filename);
   void AddEventRecord (int ievent, const EventRecord * ev_rec);
-  void SaveTree       (void);
+  void Save           (void);
 
 private:
 
-  void Init(void);
+  void      OpenFile           (string filename);
+  void      CreateTree         (void);
+  void      CreateTreeHeader   (void);
+  TBranch * CreateTreeBranch   (void);
+  TBranch * CreatePRTreeBranch (void);
+  TBranch * CreateERTreeBranch (void);
 
   NtpMCFormat_t      fNtpFormat;
+  Long_t             fRunNu;
   TFile *            fOutFile;
   TTree *            fOutTree;
   NtpMCPlainRecord * fNtpMCPlainRecord;

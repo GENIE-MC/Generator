@@ -14,6 +14,7 @@
 */
 //____________________________________________________________________________
 
+#include <cassert>
 #include <sstream>
 
 #include <TFile.h>
@@ -35,10 +36,18 @@ using std::ostringstream;
 using namespace genie;
 
 //____________________________________________________________________________
-NtpWriter::NtpWriter(NtpMCFormat_t fmt) :
-fNtpFormat(fmt)
+NtpWriter::NtpWriter(NtpMCFormat_t fmt, Long_t runnu) :
+fNtpFormat(fmt),
+fRunNu(runnu),
+fOutFile(0),
+fOutTree(0),
+fNtpMCPlainRecord(0),
+fNtpMCEventRecord(0),
+fNtpMCTreeHeader(0)
 {
-  this->Init();
+  LOG("NtpWriter", pNOTICE) << "Run number: " << runnu;
+  LOG("NtpWriter", pNOTICE)
+     << "Requested G/ROOT tree format: " << NtpMCFormat::AsString(fNtpFormat);
 }
 //____________________________________________________________________________
 NtpWriter::~NtpWriter()
@@ -53,10 +62,9 @@ void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
 {
 //  if(fNtpMCEvent) delete fNtpMCEvent;
 
-  LOG("NtpWriter",pINFO) << "Adding event " << ievent << " to output tree";
+  LOG("NtpWriter", pINFO) << "Adding event " << ievent << " to output tree";
 
   switch (fNtpFormat) {
-
      case kNFPlainRecord:
           fNtpMCPlainRecord = new NtpMCPlainRecord();
           fNtpMCPlainRecord->Fill(ievent, ev_rec);
@@ -70,64 +78,25 @@ void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
   }
 
   if(fOutTree) fOutTree->Fill();
-  else
-  {
+  else {
     LOG("Ntp", pERROR) << "*** No TTree to add the input EventRecord!";
   }
 }
 //____________________________________________________________________________
-void NtpWriter::InitTree(string filename)
+void NtpWriter::Initialize(string filename)
 {
   LOG("NtpWriter",pINFO) << "Initializing GENIE output MC tree";
 
-  if(fOutFile) delete fOutFile;
-  if(fOutTree) delete fOutTree;
+  this->OpenFile(filename); // open ROOT file
+  this->CreateTree();       // create output ROOT file
 
-  LOG("NtpWriter",pINFO) << "Creating ROOT file: " << filename;
-  fOutFile = new TFile(filename.c_str(),"RECREATE");
+  TBranch * branch = this->CreateTreeBranch(); // create tree branch
+  assert(branch);
 
-  LOG("NtpWriter",pINFO)
-             << "Creating a GENIE ROOT tree with format: "
-                                       << NtpMCFormat::AsString(fNtpFormat);
-  ostringstream title;
-  title << "GENIE MC Truth TTree"
-                       << ", Format: " << NtpMCFormat::AsString(fNtpFormat);
-
-  fOutTree = new TTree("gtree",title.str().c_str());
-  fOutTree->SetAutoSave(200000000);  // autosave when 0.2 Gbyte written
-
-  TBranch *branch = 0;
-  switch (fNtpFormat) {
-     case kNFPlainRecord:
-        LOG("NtpWriter",pINFO) << "Creating a NtpMCPlainRecord TBranch";
-        TTree::SetBranchStyle(2);
-        fNtpMCPlainRecord = 0;
-        branch = fOutTree->Branch("gmcrec",
-            "genie::NtpMCPlainRecord", &fNtpMCPlainRecord, 32000,1);
-        break;
-
-     case kNFEventRecord:
-        LOG("NtpWriter",pINFO) << "Creating a NtpMCEventRecord TBranch";
-        TTree::SetBranchStyle(1);
-        fNtpMCEventRecord = 0;
-        branch = fOutTree->Branch("gmcrec",
-            "genie::NtpMCEventRecord", &fNtpMCEventRecord, 32000, 1);
-        break;
-
-     default:
-        LOG("NtpWriter", pERROR)
-                    << "Unknown TTree format. Can not create TBranches";
-        return;
-        break;
-  }
   branch->SetAutoDelete(kFALSE);
 
   //-- create the tree header
-  LOG("NtpWriter",pINFO) << "Creating & saving the NtpMCTreeHeader";
-  if(fNtpMCTreeHeader) delete fNtpMCTreeHeader;
-  fNtpMCTreeHeader = new NtpMCTreeHeader;
-  fNtpMCTreeHeader->format = fNtpFormat;
-  LOG("NtpWriter",pINFO) << *fNtpMCTreeHeader;
+  this->CreateTreeHeader();
   fNtpMCTreeHeader->Write();
 
   //-- save GENIE configuration for this MC Job
@@ -137,12 +106,90 @@ void NtpWriter::InitTree(string filename)
   //-- take a snapshot of the user's environment
   NtpMCJobEnv environment;
   environment.TakeSnapshot()->Write();
-
 }
 //____________________________________________________________________________
-void NtpWriter::SaveTree(void)
+void NtpWriter::OpenFile(string filename)
 {
-  LOG("NtpWriter",pINFO) << "Saving the output tree";
+  if(fOutFile) delete fOutFile;
+
+  LOG("NtpWriter", pINFO) << "Opening the output ROOT file: " << filename;
+  fOutFile = new TFile(filename.c_str(),"RECREATE");
+}
+//____________________________________________________________________________
+void NtpWriter::CreateTree(void)
+{
+  if(fOutTree) delete fOutTree;
+
+  LOG("NtpWriter", pINFO) << "Creating the output GENIE/ROOT tree";
+
+  ostringstream title;
+  title << "GENIE MC Truth TTree"
+              << ", Format: " << NtpMCFormat::AsString(fNtpFormat);
+
+  fOutTree = new TTree("gtree",title.str().c_str());
+  fOutTree->SetAutoSave(200000000);  // autosave when 0.2 Gbyte written
+}
+//____________________________________________________________________________
+TBranch * NtpWriter::CreateTreeBranch(void)
+{
+  TBranch * branch = 0;
+
+  switch (fNtpFormat) {
+     case kNFPlainRecord:
+        branch = this->CreatePRTreeBranch();
+        break;
+     case kNFEventRecord:
+        branch = this->CreateERTreeBranch();
+        break;
+     default:
+        LOG("NtpWriter", pERROR)
+                    << "Unknown TTree format. Can not create TBranches";
+        break;
+  }
+  return branch;
+}
+//____________________________________________________________________________
+TBranch * NtpWriter::CreatePRTreeBranch(void)
+{
+  LOG("NtpWriter", pINFO) << "Creating a NtpMCPlainRecord TBranch";
+
+  fNtpMCPlainRecord = 0;
+  TTree::SetBranchStyle(2);
+
+  TBranch * branch = fOutTree->Branch("gmcrec",
+                      "genie::NtpMCPlainRecord", &fNtpMCPlainRecord, 32000,1);
+  return branch;
+}
+//____________________________________________________________________________
+TBranch * NtpWriter::CreateERTreeBranch(void)
+{
+  LOG("NtpWriter", pINFO) << "Creating a NtpMCEventRecord TBranch";
+
+  fNtpMCEventRecord = 0;
+  TTree::SetBranchStyle(1);
+
+  TBranch * branch = fOutTree->Branch("gmcrec",
+                    "genie::NtpMCEventRecord", &fNtpMCEventRecord, 32000, 1);
+  return branch;
+}
+//____________________________________________________________________________
+void NtpWriter::CreateTreeHeader(void)
+{
+  LOG("NtpWriter", pINFO) << "Creating the NtpMCTreeHeader";
+
+  if(fNtpMCTreeHeader) delete fNtpMCTreeHeader;
+
+  fNtpMCTreeHeader = new NtpMCTreeHeader;
+
+  fNtpMCTreeHeader->format = fNtpFormat;
+  fNtpMCTreeHeader->runnu  = fRunNu;
+
+  LOG("NtpWriter", pINFO) << *fNtpMCTreeHeader;
+}
+//____________________________________________________________________________
+void NtpWriter::Save(void)
+{
+  LOG("NtpWriter", pINFO) << "Saving the output tree";
 
   if(fOutFile) {
 
@@ -152,16 +199,8 @@ void NtpWriter::SaveTree(void)
     fOutFile = 0;
 
   } else {
-     LOG("NtpWriter",pERROR) << "No open ROOT file was found";
+     LOG("NtpWriter", pERROR) << "No open ROOT file was found";
   }
 }
 //____________________________________________________________________________
-void NtpWriter::Init(void)
-{
-  fOutFile          = 0;
-  fOutTree          = 0;
-  fNtpMCPlainRecord = 0;
-  fNtpMCEventRecord = 0;
-  fNtpMCTreeHeader  = 0;
-}
-//____________________________________________________________________________
+
