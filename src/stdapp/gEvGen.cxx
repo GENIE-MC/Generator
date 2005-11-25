@@ -6,7 +6,7 @@
 \brief   Example program driving GENIE event generation modules
 
          Syntax :
-           gevgen [-n nev] [-s] -e energy -p nupdg -t tgtpdg [-f format]
+           gevgen [-n nev] [-s] -e E -p nupdg -t tgtpdg [-f format] [-r run#]
 
          Options :
            [] denotes an optional argument
@@ -20,9 +20,10 @@
               while if set to 1 it will have NtpMCEventRecord objects in
               its leaves (see the Ntuple package for descriptions of the ntuple
               records and their intended usage). Default options is 1.
+           -r specifies the MC run number
 
          Example:
-           gevgen -n 300 -s -e 6.5 -p 14 -t 1056026000
+           gevgen -n 300 -s -e 6.5 -p 14 -t 1056026000 -r 10000
 
            will build cross section splines during the initialization step,
            and will generate 300 events of muon neutrinos (pdg = 14) on Iron
@@ -31,7 +32,7 @@
          Other control options:
 
          You can further control the program behaviour by setting the GEVGL,
-         GSPLOAD, GSPSAVE, GHEPPRINTLEVEL environmental variables.
+         GSPLOAD, GSPSAVE, GHEPPRINTLEVEL, GSEED environmental variables.
 
            - Set the GEVGL environmental variable to contol the list of event
              generator objects that get loaded (at job initialization, the
@@ -63,6 +64,9 @@
 
            - You can set the GHEPPRINTLEVEL to control the GHEP print options
 
+           - You can set the GSEED env variable to define the random number
+             seed number (default seed number in (src/Conventions/Controls.h)
+
              Examples:
              By setting the following env.vars you ask GENIE to generate QEL
              events only, and load the cross section splines from splines.xml
@@ -90,6 +94,7 @@
 #include "Conventions/XmlParserStatus.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GEVGDriver.h"
+#include "EVGDrivers/GMCJMonitor.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
@@ -111,6 +116,7 @@ void PrintSyntax        (void);
 //Default options (override them using the command line arguments):
 int           kDefOptNevents   = 100;            // n-events to generate
 NtpMCFormat_t kDefOptNtpFormat = kNFEventRecord; // ntuple format
+Long_t        kDefOptRunNu     = 0;              // default run number
 
 //User-specified options:
 int           gOptNevents;      // n-events to generate
@@ -119,6 +125,7 @@ double        gOptNuEnergy;     // neutrino energy
 int           gOptNuPdgCode;    // neutrino PDG code
 int           gOptTgtPdgCode;   // target PDG code
 NtpMCFormat_t gOptNtpFormat;    // ntuple format
+Long_t        gOptRunNu;        // run number
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -134,6 +141,7 @@ int main(int argc, char ** argv)
   LOG("gevgen", pINFO) << "Neutrino energy            = " << gOptNuEnergy;
   LOG("gevgen", pINFO) << "Neutrino PDG code          = " << gOptNuPdgCode;
   LOG("gevgen", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
+  LOG("gevgen", pINFO) << "MC Run Number              = " << gOptRunNu;
   LOG("gevgen", pINFO) << "Output ntuple format       = "
                                     << NtpMCFormat::AsString(gOptNtpFormat);
 
@@ -162,26 +170,32 @@ int main(int argc, char ** argv)
   filename << "GNtp" << NtpMCFormat::FilenameTag(gOptNtpFormat) << ".root";
 
   //-- initialize an Ntuple Writer
-  NtpWriter ntpw(gOptNtpFormat);
-  ntpw.InitTree(filename.str());
+  NtpWriter ntpw(gOptNtpFormat, gOptRunNu);
+  ntpw.Initialize(filename.str());
+
+ //-- create an MC Job Monitor
+  GMCJMonitor mcjmonitor(gOptRunNu);
 
   //-- generate events / print the GHEP record / add it to the ntuple
   int ievent = 0;
   while ( ievent < gOptNevents) {
 
      // generate a single event
-     EventRecord * ev_rec = driver.GenerateEvent(nu_p4);
+     EventRecord * event = driver.GenerateEvent(nu_p4);
 
-     LOG("gevgen", pINFO) << "Generated Event GHEP Record: " << *ev_rec;
+     LOG("gevgen", pINFO) << "Generated Event GHEP Record: " << *event;
 
      // add event at the output ntuple
-     ntpw.AddEventRecord(ievent++, ev_rec);
+     ntpw.AddEventRecord(ievent++, event);
 
-     delete ev_rec;
+     // refresh the mc job monitor
+     mcjmonitor.Update(ievent,event);
+
+     delete event;
   }
 
-  //-- save the ntuple
-  ntpw.SaveTree();
+  //-- save the generated MC events
+  ntpw.Save();
 
   return 0;
 }
@@ -201,6 +215,17 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("gevgen", pNOTICE)
             << "Unspecified number of events to generate - Using default";
       gOptNevents = kDefOptNevents;
+    }
+  }
+
+  //run number:
+  try {
+    LOG("gevgen", pINFO) << "Reading MC run number";
+    gOptRunNu = genie::utils::clap::CmdLineArgAsInt(argc,argv,'r');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gevgen", pNOTICE) << "Unspecified run number - Using default";
+      gOptRunNu = kDefOptRunNu;
     }
   }
 
