@@ -1,0 +1,47 @@
+//____________________________________________________________________________
+/*!
+
+\class   genie::GMCJMonitor
+
+\brief   Simple class to create & update MC job status files and env. vars.
+         This is used to be able to keep track of an MC job status even when
+         all output is suppressed or redirected to /dev/null.
+
+\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory
+
+\created July 13, 2005
+
+*/
+//____________________________________________________________________________
+
+#ifndef _G_MC_JOB_MONITOR_H_
+#define _G_MC_JOB_MONITOR_H_
+
+namespace genie {
+
+class EventRecord;
+
+class GMCJMonitor {
+
+public :
+
+  GMCJMonitor(Long_t runnu);
+  ~GMCJMonitor();
+
+  void Update(int iev, const EventRecord * event);
+
+private:
+
+  void BuildNames         (void);
+  void UpdateStatusEnvVar (int iev, const EventRecord * event);
+  void UpdateStatusFile   (int iev, const EventRecord * event);
+
+  Long_t fRunNu;
+  string fStatusFile;
+  string fStatusEnvVar;
+};
+
+}      // genie namespace
+
+#endif // _G_MC_JOB_MONITOR_H_
