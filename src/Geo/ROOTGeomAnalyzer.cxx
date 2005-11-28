@@ -492,6 +492,12 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   }
 
   //calculate length weighted with density
+
+  //Here we could replace all the while loop with something like:
+  // TVector3 r(x.X(), x.Y(), x.Z());  // current position
+  // TVector3 udir = p.Vect().Unit();  // current direction (unit vector)
+  // double dist = this->ComputePathLengthPDG(r, udir, tgtpdg);
+
   double dist(0);
 
   TGeoVolume *   vol = 0;
@@ -769,7 +775,11 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
         r[2] += (step * udir[2]);
      }
   }
-  return (Length*weight);
+
+  double pl = Length*weight;
+  LOG("GROOTGeom", pDEBUG) << "PathLength[" << pdgc << "] = " << pl;
+
+  return pl;
 }
 //___________________________________________________________________________
 double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat)
@@ -833,10 +843,10 @@ double ROOTGeomAnalyzer::Step(void)
 double ROOTGeomAnalyzer::StepUntilEntering(void)
 {
   double step  = this->StepToNextBoundary();
-  bool   enter = fGeometry->IsEntering();
 
-  while(!enter) {
+  while(!fGeometry->IsEntering()) {
     step = this->Step();
+    LOG("GROOTGeom", pDEBUG) << "Steping dr = " << step;
   }
   return step;
 }
