@@ -64,9 +64,6 @@ public:
 
   double Mass                    (void) const;
   double Charge                  (void) const;
-  double BindEnergy              (void) const;
-  double BindEnergyPerNucleon    (void) const;
-  double BindEnergyLastNucleon   (void) const;
   bool   IsFreeNucleon           (void) const;
   bool   IsProton                (void) const;
   bool   IsNeutron               (void) const;
