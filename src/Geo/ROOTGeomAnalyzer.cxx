@@ -426,7 +426,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                int   ion_pdgc = this->GetTargetPdgCode(ele);
                double weight  = this->GetWeight(mat);
 
-               step = this->StepUntilExiting();
+               step = this->StepUntilEntering();
 
                LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
                         << utils::print::BoolAsYNString(fGeometry->IsEntering());
@@ -446,7 +446,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
            int    ion_pdgc = this->GetTargetPdgCode(mat);
            double weight   = this->GetWeight(mat);
 
-           step = this->StepUntilExiting();
+           step = this->StepUntilEntering();
 
            LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
                    << utils::print::BoolAsYNString(fGeometry->IsEntering());
@@ -528,7 +528,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
          condition=kFALSE;
          if(FlagNotInYet) break;
 
-         step = this->StepUntilExiting();
+         step = this->StepUntilEntering();
 
          r[0] += (step * p.Px()/p.P());
          r[1] += (step * p.Py()/p.P());
@@ -561,7 +561,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
           int ion_pdgc  = this->GetTargetPdgCode(mat);
           double weight = this->GetWeight(mat);
 
-          step = this->StepUntilExiting();
+          step = this->StepUntilEntering();
 
           if(ion_pdgc == tgtpdg) dist+=(step*weight);
 
@@ -739,7 +739,7 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
         condition=kFALSE;
         if(FlagNotInYet) break;
 
-        step = this->StepUntilExiting();
+        step = this->StepUntilEntering();
 
         r[0] += (step * udir[0]);
         r[1] += (step * udir[1]);
@@ -759,7 +759,7 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
 
      if(condition) {
         int ion_pdgc = this->GetTargetPdgCode(mat);
-        step = this->StepUntilExiting();
+        step = this->StepUntilEntering();
         if(ion_pdgc == pdgc) {
             Length+=step;
             weight = this->GetWeight(mat);
@@ -830,10 +830,12 @@ double ROOTGeomAnalyzer::Step(void)
   return step;
 }
 //___________________________________________________________________________
-double ROOTGeomAnalyzer::StepUntilExiting(void)
+double ROOTGeomAnalyzer::StepUntilEntering(void)
 {
-  double step = this->StepToNextBoundary();
-  while(!fGeometry->IsEntering()) {
+  double step  = this->StepToNextBoundary();
+  bool   enter = fGeometry->IsEntering();
+
+  while(!enter) {
     step = this->Step();
   }
   return step;

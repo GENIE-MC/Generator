@@ -88,7 +88,7 @@ private:
   bool   WillNeverEnter          (double step);
   double StepToNextBoundary      (void);
   double Step                    (void);
-  double StepUntilExiting        (void);
+  double StepUntilEntering       (void);
 
   int              fMaterial;              ///< input selected material for vertex generation
   TGeoManager *    fGeometry;              ///< input detector geometry
