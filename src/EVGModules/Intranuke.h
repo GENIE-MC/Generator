@@ -23,12 +23,15 @@
 #include "EVGCore/EventRecordVisitorI.h"
 #include "EVGModules/InukeInt.h"
 
+class TLorentzVector;
+
 namespace genie {
+
+class Target;
 
 class Intranuke : public EventRecordVisitorI {
 
 public :
-
   Intranuke();
   Intranuke(string config);
   ~Intranuke();
@@ -38,8 +41,11 @@ public :
 
 private:
 
-  InukeInt_t SelectInukeInteraction(void) const;
-
+  TLorentzVector StepParticle (const TLorentzVector & x4,
+                               const TLorentzVector & p4, double step) const;
+  double         MeanFreePath (const Target & target,
+                               const TLorentzVector & p4, int pdgc) const;
+  InukeInt_t     PionFate     (void) const;
 };
 
 }      // genie namespace
