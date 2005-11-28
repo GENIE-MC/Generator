@@ -277,49 +277,36 @@ void ROOTGeomAnalyzer::Load(string filename)
        << "The ROOT geometry doesn't exist! Initialization failed!";
      return;
   }
-  fGeometry = TGeoManager::Import(filename.c_str());
+  TGeoManager * gm = TGeoManager::Import(filename.c_str());
 
-  if(!fGeometry) {
-    LOG("GROOTGeom", pFATAL) << "Null TGeoManager! Aborting";
-    assert(fGeometry);
-  }
-
-  this->BuildListOfTargetNuclei();
-
-  const PDGCodeList & pdglist = this->ListOfTargetNuclei();
-
-  fCurrPathLengthList    = new PathLengthList(pdglist);
-  fCurrMaxPathLengthList = new PathLengthList(pdglist);
-  fCurrVertex            = new TVector3(0.,0.,0.);
-
-  // ask geometry manager for its top volume
-  fTopVolume = fGeometry->GetTopVolume();
-  LOG("GROOTGeom", pFATAL) << "Could not get top volume!!!";
-  assert(fTopVolume);
+  this->Load(gm);
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::Load(TGeoManager * gm)
 {
   LOG("GROOTGeom", pINFO)
-                   << "A TGeoManager is being passed to the geometry driver";
+         << "A TGeoManager is being loaded to the geometry driver";
   fGeometry = gm;
 
   if(!fGeometry) {
     LOG("GROOTGeom", pFATAL) << "Null TGeoManager! Aborting";
-    assert(fGeometry);
   }
+  assert(fGeometry);
 
   this->BuildListOfTargetNuclei();
 
   const PDGCodeList & pdglist = this->ListOfTargetNuclei();
 
+  fTopVolume             = 0;
   fCurrPathLengthList    = new PathLengthList(pdglist);
   fCurrMaxPathLengthList = new PathLengthList(pdglist);
   fCurrVertex            = new TVector3(0.,0.,0.);
 
   // ask geometry manager for its top volume
   fTopVolume = fGeometry->GetTopVolume();
-  LOG("GROOTGeom", pFATAL) << "Could not get top volume!!!";
+  if(!fTopVolume) {
+      LOG("GROOTGeom", pFATAL) << "Could not get top volume!!!";
+  }
   assert(fTopVolume);
 }
 //___________________________________________________________________________
@@ -343,24 +330,23 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
   // reset current list of path-lengths
   fCurrPathLengthList->SetAllToZero();
 
-  TGeoVolume *   vol = 0;
-  TGeoMedium *   med = 0;
-  TGeoMaterial * mat = 0;
- 
-  //loop on materials
-  
+  //loop over materials & compute the path-length
   vector<int>::iterator itr;
   for(itr=fCurrPDGCodeList->begin();itr!=fCurrPDGCodeList->end();itr++) {
-    
+
     int pdgc = *itr;
     LOG("GROOTGeom", pINFO)
-      <<"Calculating path length for material: " << pdgc;
-    
-    fCurrPathLengthList->AddPathLength(pdgc,this->ComputePathLengthPDG(x,p.Unit(),pdgc));
+                      <<"Calculating path length for material: " << pdgc;
+
+    TVector3 pos  = x.Vect();        // initial position
+    TVector3 udir = p.Vect().Unit(); // unit vector along direction
+
+    fCurrPathLengthList->AddPathLength(
+                       pdgc, this->ComputePathLengthPDG(pos,udir,pdgc));
   }
-  
+
   this->ScalePathLengths(*fCurrPathLengthList);
-  
+
   return *fCurrPathLengthList;
 }
 //___________________________________________________________________________
@@ -386,33 +372,33 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
       return *fCurrVertex;
   }
 
-  //calculate length weighted with density
-
-  double dist(0);
-
   TGeoVolume *   vol = 0;
   TGeoMedium *   med = 0;
   TGeoMaterial * mat = 0;
 
   int FlagNotInYet(0);
   bool condition(kTRUE);
- 
-  dist=this->ComputePathLengthPDG(x, p..Unit(),tgtpdg)
+
+  // calculate the event length for the selected material starting from
+  // x and looking along the direction of p
+  TVector3 r    = x.Vect();
+  TVector3 dir  = p.Vect().Unit();
+  double   dist = this->ComputePathLengthPDG(r, dir, tgtpdg);
+
+  LOG("GROOTGeom", pINFO) << "(Distance)x(Density) = " << dist;
 
   if(dist==0) {
-    LOG("GROOTGeom",pERROR)
-        <<"No material selected along this direction from set point!!! ";
+    LOG("GROOTGeom", pERROR)
+     << "The current trajectory does not cross the selected material!!";
     return *fCurrVertex;
   }
 
-  LOG("GROOTGeom",pDEBUG) << "(Distance)x(Density) = " << dist;
-
-  //generate random number between 0 and dist
+  // generate random number between 0 and dist
   RandomGen* rand=RandomGen::Instance();
   TRandom & r3 = rand->Random3();
   double distVertex(r3.Rndm()*dist);
-  LOG("GROOTGeom",pDEBUG)
-        <<" Random distance in selected material "<<distVertex;
+  LOG("GROOTGeom", pINFO)
+    << "Generated 'distance' travelled in selected material = " << distVertex;
 
   //-- generate the vertex
 
@@ -430,9 +416,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
            << "Position = " << utils::print::Vec3AsString(&r)
                              << ", flag(not in yet) = " << FlagNotInYet;
 
-      r[0] += (StepIncrease * p.Px()/p.P());
-      r[1] += (StepIncrease * p.Py()/p.P());
-      r[2] += (StepIncrease * p.Pz()/p.P());
+      r = r + StepIncrease * dir;
 
       fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
       fGeometry -> FindNode        (r[0],r[1],r[2]);
@@ -473,10 +457,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
      }
   }
 
-  r[0] -= (StepIncrease * p.Px()/p.P());
-  r[1] -= (StepIncrease * p.Py()/p.P());
-  r[2] -= (StepIncrease * p.Pz()/p.P());
-
+  r = r - StepIncrease * dir;
   fCurrVertex->SetXYZ(r[0],r[1],r[2]);
 
   LOG("GROOTGeom",pDEBUG) << "Vertex = " << utils::print::Vec3AsString(&r);
@@ -531,17 +512,18 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
 }
 //___________________________________________________________________________
 double ROOTGeomAnalyzer::ComputePathLengthPDG(
-                                         TVector3 r, TVector3 udir, int pdgc)
+                        const TVector3 & r0, const TVector3 & udir, int pdgc)
 {
 // Compute the path length for the material with pdg-code = pdc, staring from
 // the input position r and moving along the direction of the unit vector udir
 //
-  LOG("GROOTGeom", pDEBUG) << "Pos: " << utils::print::Vec3AsString(&r);
+
+  double pl = 0; // <-- path length (x density, if weight by density is ON)
+
+  LOG("GROOTGeom", pDEBUG) << "Pos: " << utils::print::Vec3AsString(&r0);
   LOG("GROOTGeom", pDEBUG) << "Dir: " << utils::print::Vec3AsString(&udir);
 
-  double weight       (0);
   int    counterloop  (0);
-  double Length       (0);
   int    FlagNotInYet (0);
   bool   condition    (kTRUE);
   double step         (0);
@@ -549,6 +531,8 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
   TGeoVolume *   vol = 0;
   TGeoMedium *   med = 0;
   TGeoMaterial * mat = 0;
+
+  TVector3 r(r0); // local copy of initial position vector
 
   fGeometry->SetCurrentDirection(udir[0],udir[1],udir[2]);
 
@@ -559,27 +543,23 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
       fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
       fGeometry -> FindNode        (r[0],r[1],r[2]);
 
-      vol =  fGeometry->GetCurrentVolume();
+      vol = fGeometry->GetCurrentVolume();
       med = 0;
       mat = 0;
 
       if (fGeometry->IsOutside() || !vol) {
         condition=kFALSE;
         if(FlagNotInYet) break;
-   
 
-	step = this->StepToNextBoundary();
-	
+        step = this->StepToNextBoundary();
+
         while(!fGeometry->IsEntering()) {
           step = this->Step();
           LOG("GROOTGeom",pDEBUG) <<"Stepping...dr = " << step;
-	  
-          if(this->WillNeverEnter(step)) return *fCurrPathLengthList;
+
+          if(this->WillNeverEnter(step)) return 0.;
         }
-	
-        r[0] += (step * udir[0]);
-        r[1] += (step * udir[1]);
-        r[2] += (step * udir[2]);
+        r = r + step*udir;
      }
 
      if(condition) {
@@ -593,74 +573,41 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
        if (!mat) condition=kFALSE;
      }
 
-
      if(condition) {
        bool ismixt = mat->IsMixture();
-       
-       LOG("GROOTGeom",pDEBUG)
-	 << "Current medium:   " << med->GetName();
-       LOG("GROOTGeom",pDEBUG)
-	 << "Current material: " << mat->GetName()
-	 << " (A = " << mat->GetA() << ", Z = " << mat->GetZ() << ")";
-       LOG("GROOTGeom",pDEBUG)
-	 << "Material is mix:  " << utils::print::BoolAsYNString(ismixt);
-       
-       if(ismixt) {
-	 TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
-	 
-	 int Nelements = mixt->GetNelements();
-	 LOG("GROOTGeom",pDEBUG) << "Number of elements = " << Nelements;
-	 
-	 TGeoElement * ele = 0;
-	 for(int i=0; i<Nelements; i++) {
-	   
-	   ele = mixt->GetElement(i);
-	   
-	   int   ion_pdgc = this->GetTargetPdgCode(ele);
-	   double weight  = this->GetWeight(mat);
-	   
-	   step = this->StepUntilEntering();
-	   
-	   Length+=step;
-	   weight = this->GetWeight(mat);
 
-	   LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
-				   << utils::print::BoolAsYNString(fGeometry->IsEntering());
-	   LOG("GROOTGeom",pDEBUG) <<" IsOnBoundary = "
-				   << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
-	   LOG("GROOTGeom",pDEBUG)
-	     <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
-	   
-	   r[0] += (step * p.Px()/p.P());
-	   r[1] += (step * p.Py()/p.P());
-	   r[2] += (step * p.Pz()/p.P());
-	 }//elements
+       LOG("GROOTGeom",pDEBUG)
+         << "Current med.: " << med->GetName() << ", mat.: " << mat->GetName()
+         << " (A = " << mat->GetA() << ", Z = " << mat->GetZ() << "),"
+         << " IsMixt = " << utils::print::BoolAsYNString(ismixt);
+
+       int    ion_pdgc = 0;
+       double weight   = 0.;
+
+       if(ismixt) {
+         TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
+         int Nelements = mixt->GetNelements();
+         LOG("GROOTGeom", pDEBUG) << "Number of elements = " << Nelements;
+
+         for(int i=0; i<Nelements; i++) {
+           ion_pdgc = this->GetTargetPdgCode(mixt->GetElement(i));
+           weight   = this->GetWeight(mixt,i);
+           step     = this->StepUntilEntering();
+           if(ion_pdgc == pdgc) pl += (step*weight);
+           r = r + step*udir;
+         }//elements
        } // is mixture
-       
+
        else {
-	 int    ion_pdgc = this->GetTargetPdgCode(mat);
-	 double weight   = this->GetWeight(mat);
-	 
-	 step = this->StepUntilEntering();
-	 
-	 Length+=step;
-	 weight = this->GetWeight(mat);
-	 
-	 LOG("GROOTGeom",pDEBUG) <<" IsEntering   = "
-				 << utils::print::BoolAsYNString(fGeometry->IsEntering());
-	 LOG("GROOTGeom",pDEBUG) <<" IsOnBoundary = "
-				 << utils::print::BoolAsYNString(fGeometry->IsOnBoundary());
-	 LOG("GROOTGeom",pDEBUG)
-	   <<" PDG-Code = " << ion_pdgc << ", Step = "<<step;
-	 
-	 r[0] += (step * p.Px()/p.P());
-	 r[1] += (step * p.Py()/p.P());
-	 r[2] += (step * p.Pz()/p.P());
+         ion_pdgc = this->GetTargetPdgCode(mat);
+         weight   = this->GetWeight(mat);
+         step     = this->StepUntilEntering();
+         if(ion_pdgc == pdgc) pl += (step*weight);
+         r = r + step*udir;
        }
      }//condition
   }
 
-  double pl = Length*weight;
   LOG("GROOTGeom", pDEBUG) << "PathLength[" << pdgc << "] = " << pl;
 
   return pl;
@@ -700,8 +647,8 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture * mixt, int ielement)
   double weight = 1.0;
   if (this->WeightWithDensity()) {
      double d = mixt->GetDensity();         // mixture density
-     double w = mixt->GetWmixt()[ielement]; // relative proportion by mass
-     weight = d*w;
+     double w = mixt->GetWmixt()[ielement]; // relative proportion by mass (%)
+     weight = d*(w/100.);
   }
 
   LOG("GROOTGeom", pDEBUG)
@@ -730,8 +677,16 @@ double ROOTGeomAnalyzer::StepUntilEntering(void)
 
   while(!fGeometry->IsEntering()) {
     step = this->Step();
-    LOG("GROOTGeom", pDEBUG) << "Steping dr = " << step;
   }
+
+  bool isen = fGeometry->IsEntering();
+  bool isob = fGeometry->IsOnBoundary();
+
+  LOG("GROOTGeom",pDEBUG)
+      << "IsEntering = "     << utils::print::BoolAsYNString(isen)
+      << ", IsOnBoundary = " << utils::print::BoolAsYNString(isob)
+      << ", Step = " << step;
+
   return step;
 }
 //___________________________________________________________________________
