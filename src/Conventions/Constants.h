@@ -196,6 +196,8 @@ static const double kGRprime2 = TMath::Power(kGRprime,2);
 
 // Ro in nuclear radius formula R=Ro*A^(1/3), in GeV^-1
 static const double kNucRo = 1.2E-15*m;
+// Nuclear density (in nuclear core), in GeV^4
+static const double kNucDensity = 2.3E+17 *kg/m3;
 
 //----- INTRANUKE constants
 
