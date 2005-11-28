@@ -204,6 +204,7 @@ static const double kNucDensity = 2.3E+17 *kg/m3;
 static const double kInukeFormationTime = 1.; //tmp
 static const double kInukeKpt2          = 1.; //tmp
 static const double kInukeNuclRadius    = 1.; //tmp
+static const double kInukeStepSize      = 1.; //tmp
 
 //----- Misc hard limits, cuts
 
