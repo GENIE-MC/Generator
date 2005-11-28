@@ -32,6 +32,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
+#include "Utils/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -80,13 +81,12 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
            //-- ask for the binding energy of the most loose nucleon
            //  (separation energy)
 
-           double bindE = init_state.GetTarget().BindEnergyLastNucleon();
+           const Target & target = init_state.GetTarget();
+           double bindE = utils::nuclear::BindEnergyLastNucleon(target);
 
            LOG("Nuclear", pINFO) << "Binding energy = " << bindE;
 
-
            //-- subtract this energy from the final state nucleon
-
            LOG("Nuclear", pINFO)
               << "Subtracting the binding energy from the escaped nucleon";
 
