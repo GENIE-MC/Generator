@@ -338,59 +338,6 @@ bool Target::IsValidNucleus(void) const
   return false;
 }
 //___________________________________________________________________________
-double Target::BindEnergy(void) const
-{
-  if( this->IsNucleus() ) {
-
-    // Compute the average binding energy using the
-    // semi-empirical, hardcoded, formula from Wapstra (Handbuch der
-    // Physik, XXXVIII/1)
-
-    // Eventually, this piece of code should not be here. The Target object
-    // should either ask an external calculator or lookup an external table.
-
-    double a = 15.835;
-    double b =  18.33;
-    double s =  23.20;
-    double d =   0.714;
-
-    double delta = 0;                        /*E-O*/
-    if ( this->IsOddOdd()   ) delta =  11.2; /*O-O*/
-    if ( this->IsEvenEven() ) delta = -11.2; /*E-E*/
-
-    double N = (double) this->N();
-    double Z = (double) this->Z();
-    double A = (double) this->A();
-
-    double BE = a*A - b*pow(A,0.667) - s*pow(N-Z,2.0)/A -
-                           d*pow(Z,2.0)/pow(A,0.333) - delta/sqrt(A); // MeV
-
-    return ( 1e-3 * BE ); // GeV
-
-  } else return 0;
-}
-//___________________________________________________________________________
-double Target::BindEnergyPerNucleon(void) const
-{
-  if( this->IsNucleus() ) {
-
-     return ( this->BindEnergy() / this->A() );
-
-  } else return 0;
-}
-//___________________________________________________________________________
-double Target::BindEnergyLastNucleon(void) const
-{
-  if( this->IsNucleus() ) {
-
-     //-- temporarily, return the binding energy per nucleon rather than the
-     //   separation energy of the last nucleon
-
-     return ( this->BindEnergy() / this->N() );
-
-  } else return 0;
-}
-//___________________________________________________________________________
 bool Target::IsEvenEven(void) const
 {
   if( this->IsNucleus() ) {
