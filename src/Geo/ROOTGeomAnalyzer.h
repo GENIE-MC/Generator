@@ -82,7 +82,7 @@ private:
   int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
   int    GetTargetPdgCode        (const TGeoElement  * const e) const;
   void   ScalePathLengths        (PathLengthList & pl);
-  double ComputePathLengthPDG    (TVector3 r, TVector3 udir, int pdgc);
+  double ComputePathLengthPDG    (const TVector3 & r, const TVector3 & udir, int pdgc);
   double GetWeight               (TGeoMaterial * mat);
   double GetWeight               (TGeoMixture * mixt, int ielement);
   bool   WillNeverEnter          (double step);
