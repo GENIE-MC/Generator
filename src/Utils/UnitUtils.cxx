@@ -98,6 +98,22 @@ double genie::utils::units::UnitFromString(string u)
   else if (u == "sr"              ) return  genie::units::sr;
   else if (u == "deg"             ) return  genie::units::deg;
 
+  else if (u == "mm2"             ) return  genie::units::mm2;
+  else if (u == "mm3"             ) return  genie::units::mm3;
+  else if (u == "mm"              ) return  genie::units::mm;
+  else if (u == "cm2"             ) return  genie::units::cm2;
+  else if (u == "cm3"             ) return  genie::units::cm3;
+  else if (u == "cm"              ) return  genie::units::cm;
+  else if (u == "m2"              ) return  genie::units::m2;
+  else if (u == "m3"              ) return  genie::units::m3;
+  else if (u == "m"               ) return  genie::units::m;
+  else if (u == "A"               ) return  genie::units::A;
+  else if (u == "fm"              ) return  genie::units::fm;
+  else if (u == "b"               ) return  genie::units::b;
+  else if (u == "mb"              ) return  genie::units::mb;
+  else if (u == "ub"              ) return  genie::units::ub;
+  else if (u == "nb"              ) return  genie::units::nb;
+  else if (u == "pb"              ) return  genie::units::pb;
   else {
     LOG("Units", pWARN) << "Unknown units: " << u;
     return 1.;
