@@ -20,6 +20,7 @@
 #include "Conventions/Constants.h"
 #include "EVGModules/Intranuke.h"
 #include "GHEP/GHepStatus.h"
+#include "GHEP/GHepOrder.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Interaction/Interaction.h"
@@ -57,7 +58,7 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
 {
   LOG("Intranuke", pINFO) << "Running INTRANUKE";
 
-  // remove this line to continue
+  // comment out this line to continue
   LOG("Intranuke", pWARN) << "(not ready yet)"; return;
 
   // Get the Interaction attached to the event record & get its InitialState
@@ -72,24 +73,37 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
     LOG("Intranuke", pINFO) << "No nuclear target found - INTRANUKE exits";
     return;
   }
+  if(target.A() != 56) {
+    LOG("Intranuke", pWARN)
+                    << "Can only select pion interactions for iron target";
+    return;
+  }
 
   // Get Intranuke configuration (or set defaults)
+
+  double RoDef  = nuclear::Radius(target); // = R*A^(1/3), GeV
+
   bool   opaque = fConfig->GetDoubleDef("opaque", false);
-  double t0     = fConfig->GetDoubleDef("t0",     kInukeFormationTime); // ?
-  double K      = fConfig->GetDoubleDef("Kpt2",   kInukeKpt2);          // GeV^2
-  double Ro     = fConfig->GetDoubleDef("Ro",     kInukeNuclRadius);    // m
+  double ct0    = fConfig->GetDoubleDef("ct0",    kInukeFormationL); //GeV^-1
+  double K      = fConfig->GetDoubleDef("Kpt2",   kInukeKpt2);
+  double R0     = fConfig->GetDoubleDef("R0",     RoDef); // GeV
+
+  R0  /= units::m; // GeV -> m
+  ct0 /= units::m; // GeV -> m
+
+  LOG("Intranuke", pDEBUG) << "ct0     = " << ct0 << " m";
+  LOG("Intranuke", pDEBUG) << "K(pt^2) = " << K;
+  LOG("Intranuke", pDEBUG) << "R0      = " << R0  << " m";
 
   // Get hadronic system's momentum vector
-
-  TLorentzVector p4hadronic(0,0,0,0);
-  // (.. .. .. fill p4hadronic from GHEP)
-  TVector3 p3hadronic = p4hadronic.Vect(); // get px,py,pz
+  TVector3 p3hadronic = this->Hadronic3P(event_rec);
+  LOG("Intranuke", pINFO) << "P3Hadronic = " << print::P3AsString(&p3hadronic);
 
   // Get the random number generator
   RandomGen * rnd = RandomGen::Instance();
 
   // Generate a random vertex within the nuclear radius
-  double R        = Ro * rnd->Random2().Rndm();
+  double R        = R0 * rnd->Random2().Rndm();
   double costheta = -1. + 2. * rnd->Random2().Rndm();
   double sintheta = TMath::Sqrt(1.-costheta*costheta);
   double fi       = 2 * kPi * rnd->Random2().Rndm();
@@ -129,13 +143,11 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
     double   P   = p4.P();             //           |p|
     double   Pt  = p3.Pt(p3hadronic);  //           pT
     double   Pt2 = Pt*Pt;              //           pT^2
-    double   fz  = P*t0*m/(m2+K*Pt2);  //           formation zone, in fm
+    double   fz  = P*ct0*m/(m2+K*Pt2); //           formation zone, in m
 
     LOG("Intranuke", pINFO)
           << "|P| = " << P << " GeV, Pt = " << Pt
-                       << " GeV, Formation Zone = " << fz << " fermi";
-
-    fz *= (units::fermi/units::meter); // convert to meters
+                              << " GeV, Formation Zone = " << fz << " m";
 
     // Advanced the intranuked hadron by the 'formation length' in 4-D
     LOG("Intranuke", pDEBUG) << "Advancing " << p->Name()
@@ -143,7 +155,7 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
     x4 = this->StepParticle(x4, p4, fz);
 
     // Check whether the hadron's position is still within the nucleus
-    bool is_in = (x4.Vect().Mag() < Ro);
+    bool is_in = (x4.Vect().Mag() < R0);
     if(!is_in) {
        LOG("Intranuke", pINFO)
              << "Hadron is out of the nuclear radius. Done with it.";
@@ -157,12 +169,10 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
     // Check if the "opaque" config var is true in which case absorb
     // the hadron anyway
     if(opaque) {
-       // ?? The particle has a kIstStableFinalState status
-       // ?? Now, mark it as kIstHadronInTheNucleus
+       // ?? Change status kIstStableFinalState -> kIstHadronInTheNucleus
        LOG("Intranuke", pINFO)
              << "In *OPAQUE* mode. Absorbing hadron & done with it.";
        p->SetStatus(kIstHadronInTheNucleus);
-       LOG("Intranuke", pDEBUG) << "Updating 4-position";
        p->SetVertex(x4);
 
        continue;
@@ -179,14 +189,14 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
       double d = -1.*L * TMath::Log(rnd->Random2().Rndm());
 
       LOG("Intranuke", pDEBUG)
-                << "Mean free path = " << L << "m, "
+                << "Mean free path = " << L << " m, "
                               << "Generated path length = " << d << " m";
 
       // Check whether the hadron interacts (is it still inside the
       // nucleus after stepping it by d)
       x4 = this->StepParticle(x4, p4, d);
 
-      bool interacts = (x4.Vect().Mag() < Ro);
+      bool interacts = (x4.Vect().Mag() < R0);
 
       // If it does not interact, advance, check whether it exits
       // the nucleus & continue...
@@ -199,10 +209,33 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
       }
 
       // If it interacts, decide the hadron interaction type
-      InukeInt_t inukei = this->PionFate();
+      InukeInt_t inukei = this->PionFate(target, p4, pdgc);
       LOG("Intranuke", pINFO)
            << "Selected intranuke interaction for " << p->Name()
                                   << ": " << InukeInt::AsString(inukei);
+
+      // Compute 4-p of the interacted hadron
+      switch (inukei) {
+        case kInukiAbsorption:
+             LOG("Intranuke", pINFO) << "Absorbing hadron & done with it.";
+             p->SetStatus(kIstHadronInTheNucleus);
+             p->SetVertex(x4);
+             go_on = false;
+             break;
+
+        case kInukiChargeExchange:
+             LOG("Intranuke", pWARN) << "Can not do charge exchange yet.";
+             break;
+        case kInukiInelastic:
+             LOG("Intranuke", pWARN) << "Can not do inelastic scatering yet.";
+             break;
+        case kInukiElastic:
+             LOG("Intranuke", pWARN) << "Can not do elastic scatering yet.";
+             break;
+        default:
+             LOG("Intranuke", pWARN) << "Oops! Unknown interaction type.";
+             break;
+      }
 
       // ... ... ... ... ...
 
@@ -224,9 +257,10 @@ double Intranuke::MeanFreePath(
 //   Determine the scattering length LAMDA from yellowbook data and scale
 //   it to the nuclear density.
 
+  // compute pion kinetic energy K
   double E = p4.E();
   double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
-  double K = 1000*(E-m); // kinetic energy, in MeV
+  double K = 1000*(E-m); // in MeV
 
   // collision length in fermis
   double rlmbda;
@@ -237,28 +271,38 @@ double Intranuke::MeanFreePath(
   // additional correction for iron
   if(target.A() == 56) rlmbda = rlmbda/2.297;
 
+  rlmbda *= (units::fermi/units::m); // fermi -> m
+
   // scale to nuclear density.
-  double density = kNucDensity;
+  //double density = kNucDensity;
+  double density = 3.4; // units?
 
   double L  = (rlmbda/density); // units?
   return L;
 }
 //___________________________________________________________________________
-InukeInt_t Intranuke::PionFate(void) const
+InukeInt_t Intranuke::PionFate(
+            const Target & target, const TLorentzVector & p4, int pdgc) const
 {
 // Selects interaction type for the particle that is currently rescaterred.
 // Adapted from NeuGEN's intranuke_pifate
-// Do something silly for now
+
+  // compute pion kinetic energy K
+  double E = p4.E();
+  double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
+  double K = 1000*(E-m); // in MeV
+
+  int Kbin = TMath::Min (int(K/50.), kPNDataPoints-1);
 
   RandomGen * rnd = RandomGen::Instance();
   double t = rnd->Random2().Rndm();
 
-  if      (0    <= t && t <  0.25) return kInukiChargeExchange;
-  else if (0.25 <= t && t <  0.50) return kInukiInelastic;
-  else if (0.50 <= t && t <  0.75) return kInukiAbsorption;
-  else if (0.70 <= t && t <= 1.00) return kInukiElastic;
-  else                             return kInukiUndefined;
+  if      ( t < kPElastic[Kbin]    ) return kInukiElastic;
+  else if ( t < kPInelastic[Kbin]  ) return kInukiInelastic;
+  else if ( t < kPAbsorption[Kbin] ) return kInukiAbsorption;
+  else                               return kInukiChargeExchange;
 
+  return kInukiUndefined;
 }
 //___________________________________________________________________________
 TLorentzVector Intranuke::StepParticle(
@@ -267,13 +311,15 @@ TLorentzVector Intranuke::StepParticle(
 // Steps a particle starting at position x4 (in m, sec) moving along the
 // direction of the input momentum by the input step (in m)
 
+  LOG("Intranuke", pDEBUG) << "Stepping particle in nucleus:";
+
   TVector3 dr = p4.Vect().Unit();  // unit vector along momentum direction
 
   LOG("Intranuke", pDEBUG)
-       << "Step: initial position (in m,sec) = " << print::X4AsString(&x4);
+                << "dr = " << step
+                         << " m, direction = " << print::Vec3AsString(&dr);
   LOG("Intranuke", pDEBUG)
-                << "Step: dr = " << step
-                         << "m,  direction = " << print::Vec3AsString(&dr);
+                     << "X4[init] (in m,sec) = " << print::X4AsString(&x4);
 
   // spatial step size:
   dr.SetMag(step);
@@ -286,9 +332,29 @@ TLorentzVector Intranuke::StepParticle(
   TLorentzVector x4new = x4 + dx4; // new position
 
   LOG("Intranuke", pDEBUG)
-        << "Step: new position (in m,sec) = " << print::X4AsString(&x4new);
-
+                  << "X4[new] (in m,sec) = " << print::X4AsString(&x4new);
   return x4new;
+}
+//___________________________________________________________________________
+TVector3 Intranuke::Hadronic3P(GHepRecord * event_rec) const
+{
+  Interaction * interaction = event_rec->GetInteraction();
+
+  int ipos = GHepOrder::StruckNucleonPosition(interaction);
+  assert(ipos>0);
+
+  GHepParticle * struck_nucleon = event_rec->GetParticle(ipos);
+
+  int daughter1 = struck_nucleon->FirstDaughter();
+  int daughter2 = struck_nucleon->LastDaughter();
+
+  TLorentzVector p4had(0.,0.,0.,0.);
+  for(int i=daughter1; i<=daughter2; i++) {
+    TLorentzVector & p4 = *(event_rec->GetParticle(i)->P4());
+    p4had = p4had + p4;
+  }
+
+  return p4had.Vect();  // (px,py,pz)
 }
 //___________________________________________________________________________
 
