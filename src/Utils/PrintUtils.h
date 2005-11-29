@@ -31,6 +31,7 @@ namespace print
   string P4AsString      (const TLorentzVector * p);
   string P4AsShortString (const TLorentzVector * p);
   string X4AsString      (const TLorentzVector * x);
+  string P3AsString      (const TVector3 * vec);
   string Vec3AsString    (const TVector3 * vec);
   string BoolAsString    (bool b);
   string BoolAsTFString  (bool b);
