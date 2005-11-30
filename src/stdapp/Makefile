@@ -20,17 +20,20 @@ ifdef GOPT_GEANT_INTERFACE
   LIBRARIES := $(LIBRARIES) $(GEANT4_LIBRARIES) $(CLHEP_LIBRARIES)
 endif
 
-
 TGT =	gEvGen		\
 	gVldDoc		\
 	gMakeSplines	\
+	gMaxPathLengths	\
 	g2Nuance	\
+	gMCSampleTest	\
 	gViewer		
 
 EXE =	$(GENIE_BIN_PATH)/gevgen   \
 	$(GENIE_BIN_PATH)/gvlddoc  \
 	$(GENIE_BIN_PATH)/gmkspl   \
+	$(GENIE_BIN_PATH)/gmxpl    \
 	$(GENIE_BIN_PATH)/g2nuance \
+	$(GENIE_BIN_PATH)/gmctest  \
 	$(GENIE_BIN_PATH)/gviewer
 
 all: $(TGT)
@@ -47,8 +50,16 @@ gMakeSplines: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmkspl gMakeSplines.cxx \
 			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
 
+gMaxPathLengths: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmxpl gMaxPathLengths.cxx \
+			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+
 g2Nuance: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/g2nuance g2Nuance.cxx \
+			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+
+gMCSampleTest: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmctest gMCSampleTest.cxx \
 			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
 
 gViewer: FORCE
@@ -70,8 +81,14 @@ clean--gVldDoc: FORCE
 clean--gMakeSplines: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmkspl
 
+clean--gMaxPathLengths: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmxpl
+
 clean--g2Nuance: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/g2nuance
+
+clean--gMCSampleTest: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmctest
 
 clean--gViewer: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gviewer
