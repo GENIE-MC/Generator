@@ -47,6 +47,17 @@ PDGCodeList::PDGCodeList(size_type n) : vector<int>(n)
 
 }
 //___________________________________________________________________________
+PDGCodeList::PDGCodeList(const PDGCodeList & list) : 
+vector<int>()
+{
+  PDGCodeList::const_iterator iter;
+
+  for(iter = list.begin(); iter != list.end(); ++iter) {
+    int code = *iter;
+    this->push_back(code);
+  }
+}
+//___________________________________________________________________________
 PDGCodeList::~PDGCodeList()
 {
 
