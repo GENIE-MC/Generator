@@ -3,22 +3,40 @@
 
 \program gmkspl
 
-\brief   GENIE utility program building XML cross section splines that can be
-         loaded into GENIE to speed-up event generation
+\brief   GENIE utility program building XML cross section splines that can
+         be loaded into GENIE to speed-up event generation.
+         The list of neutrino PDG codes is passed from the command line.
+         The list of nuclear target PDG codes is either passed from the 
+         command line or extracted from the input ROOT/GEANT geometry.
 
          Syntax :
-           gmkspl -p nupdg -t tgtpdg [-f output_xml_file]
+           gmkspl -p nupdg <-t tgtpdg, -f geomfile> [-o output_xml_file]
+
+         Note :
+           [] marks optional arguments.
+           <> marks a list of arguments out of which only one can be 
+              selected at any given time.
 
          Options :
-           -p a comma separated list of nu PDG code
-           -t a comma separated list of tgt PDG codes (format: 1aaazzz000)
-           -f output XML filename
+           -p  a comma separated list of nu PDG code
+           -t  a comma separated list of tgt PDG codes (format: 1aaazzz000)
+           -f  a ROOT file containing a ROOT/GEANT geometry description
+           -o  output XML filename [ default: xsec_splines.xml ]
 
-         Example:
-           gmkspl -p 14,-14 -t 1056026000
+         Examples:
 
-           will build cross section splines for muon neutrinos (pdg = 14)
-           and muon anti-neutrinos (pgc = -14) on Iron (A=56,Z=26).
+         1) gmkspl -p 14,-14 -t 1056026000
+
+            will build cross section splines for muon neutrinos (pdg = 14)
+            and muon anti-neutrinos (pgc = -14) on Iron (A=56,Z=26) and will
+            save them in an XML file with the default name.
+
+         2) gmkspl -p 14,-14 -f ~/data/mygeometry.root -o spl.xml
+
+            will build cross section splines for muon neutrinos (pdg = 14)
+            and muon anti-neutrinos (pgc = -14) on all the materials found
+            in the input ROOT geometry (found at mygeometry.root) and will
+            save them in an XML file named spl.xml
 
          Other control options:
 
@@ -52,8 +70,10 @@
 #include <TSystem.h>
 
 #include "EVGDrivers/GEVGDriver.h"
+#include "Geo/ROOTGeomAnalyzer.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
+#include "PDG/PDGCodeList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/CmdLineArgParserUtils.h"
@@ -63,17 +83,22 @@ using std::string;
 using std::vector;
 
 using namespace genie;
+using namespace genie::geometry;
 
-void GetCommandLineArgs(int argc, char ** argv);
-void PrintSyntax        (void);
+//Prototypes:
+void          GetCommandLineArgs (int argc, char ** argv);
+void          PrintSyntax        (void);
+PDGCodeList * GetNeutrinoCodes   (void);
+PDGCodeList * GetTargetCodes     (void);
 
 //Defaults for optional options:
 string kDefOptXMLFilename = "xsec_splines.xml";
 
 //User-specified options:
-string gOptNuPdgCodeList;
-string gOptTgtPdgCodeList;
-string gOptXMLFilename;
+string gOptNuPdgCodeList  = "";
+string gOptTgtPdgCodeList = "";
+string gOptGeomFilename   = "";
+string gOptXMLFilename    = "";
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -82,38 +107,40 @@ int main(int argc, char ** argv)
   GetCommandLineArgs(argc,argv);
 
   //-- print the options you got from command line arguments
-  LOG("gmkspl", pINFO) << "Neutrino PDG codes = " << gOptNuPdgCodeList;
-  LOG("gmkspl", pINFO) << "Target PDG codes   = " << gOptTgtPdgCodeList;
-  LOG("gmkspl", pINFO) << "Output XML file    = " << gOptXMLFilename;
+  LOG("gmkspl", pINFO) << "Neutrino PDG codes  = " << gOptNuPdgCodeList;
+  LOG("gmkspl", pINFO) << "Target PDG codes    = " << gOptTgtPdgCodeList;
+  LOG("gmkspl", pINFO) << "Input ROOT geometry = " << gOptGeomFilename;
+  LOG("gmkspl", pINFO) << "Output XML file     = " << gOptXMLFilename;
 
-  //-- split the coma-separated lists
-  vector<string> nuvec  = utils::str::Split(gOptNuPdgCodeList,  ",");
-  vector<string> tgtvec = utils::str::Split(gOptTgtPdgCodeList, ",");
+  PDGCodeList * neutrinos = GetNeutrinoCodes();
+  PDGCodeList * targets   = GetTargetCodes();
 
-  if(nuvec.size() == 0 || tgtvec.size() == 0) {
-
-    if(nuvec.size() == 0) {
-         LOG("gmkspl", pFATAL) << "Empty neutrino PDG code list";
-    }
-    if(tgtvec.size() == 0) {
-         LOG("gmkspl", pFATAL) << "Empty target PDG code list";
-    }
-    LOG("gmkspl", pINFO)
-      << "\n\n Syntax: gmkspl -p nupdg -t tgtpdg [-f output_xml_file] \n\n";
+  if(!neutrinos || neutrinos->size() == 0 ) {
+     LOG("gmkspl", pFATAL) << "Empty neutrino PDG code list";
+     PrintSyntax();
+     exit(2);
   }
+  if(!targets || targets->size() == 0 ) {
+     LOG("gmkspl", pFATAL) << "Empty target PDG code list";
+     PrintSyntax();
+     exit(3);
+  }
+
+  LOG("gmkspl", pINFO) << "Neutrinos: " << *neutrinos;
+  LOG("gmkspl", pINFO) << "Targets: "   << *targets;
 
   //-- loop over all possible input init states and ask the GEVGDriver
   //   to build splines for all the interactions that its loaded list
   //   of event generators can generate.
 
-  vector<string>::const_iterator nuiter;
-  vector<string>::const_iterator tgtiter;
+  PDGCodeList::const_iterator nuiter;
+  PDGCodeList::const_iterator tgtiter;
 
-  for(nuiter = nuvec.begin(); nuiter != nuvec.end(); ++nuiter) {
-    for(tgtiter = tgtvec.begin(); tgtiter != tgtvec.end(); ++tgtiter) {
+  for(nuiter = neutrinos->begin(); nuiter != neutrinos->end(); ++nuiter) {
+    for(tgtiter = targets->begin(); tgtiter != targets->end(); ++tgtiter) {
 
-      int nupdgc  = atoi(nuiter->c_str());
-      int tgtpdgc = atoi(tgtiter->c_str());
+      int nupdgc  = *nuiter;
+      int tgtpdgc = *tgtiter;
 
       InitialState init_state(tgtpdgc, nupdgc);
 
@@ -131,22 +158,25 @@ int main(int argc, char ** argv)
 
   spline_list->SaveAsXml(gOptXMLFilename);
 
+  delete neutrinos;
+  delete targets;
+
   return 0;
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gmkspl", pNOTICE) << "Parsing commad line arguments";
+  LOG("gmkspl", pINFO) << "Parsing commad line arguments";
 
   //-- Optional arguments
 
   //output XML file name:
   try {
     LOG("gmkspl", pINFO) << "Reading output filename";
-    gOptXMLFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
+    gOptXMLFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("gmkspl", pNOTICE) << "Unspecified filename - Using default";
+      LOG("gmkspl", pINFO) << "Unspecified filename - Using default";
       gOptXMLFilename = kDefOptXMLFilename;
     }
   }
@@ -154,8 +184,9 @@ void GetCommandLineArgs(int argc, char ** argv)
   //-- Required arguments
 
   //comma-separated neutrino PDG code list:
+
   try {
-    LOG("gmkspl", pINFO) << "Reading neutrino PDG codes";
+    LOG("gmkspl", pINFO) << "Reading neutrino PDG codes from command line";
     gOptNuPdgCodeList = genie::utils::clap::CmdLineArgAsString(argc,argv,'p');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
@@ -164,16 +195,47 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(1);
     }
   }
-  //comma-separated target PDG code list:
+
+  //comma-separated target PDG code list or input geometry file:
+
+  bool tgt_cmd = true;
   try {
-    LOG("gmkspl", pINFO) << "Reading target nuclei PDG codes";
+    LOG("gmkspl", pINFO) << "Reading target nuclei PDG codes from command line";
     gOptTgtPdgCodeList = genie::utils::clap::CmdLineArgAsString(argc,argv,'t');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("gmkspl", pFATAL) << "Unspecified target PDG code list - Exiting";
-      PrintSyntax();
-      exit(1);
+      LOG("gmkspl", pINFO) << "No code list specified from the command line";
+      tgt_cmd = false;
     }
+  }
+
+  bool tgt_geom = true;
+  try {
+    LOG("gmkspl", pINFO) << "Reading ROOT/GEANT geometry filename";
+    gOptGeomFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gmkspl", pINFO) << "No geometry file was specified";
+      tgt_cmd = false;
+    }
+  }
+
+  bool both =  tgt_geom &&  tgt_cmd;
+  bool none = !tgt_geom && !tgt_cmd;
+
+  if(none) {
+    LOG("gmkspl", pFATAL) 
+          << "No geom file or cmd line target list was specified - Exiting";
+    PrintSyntax();
+    exit(1);
+  }
+
+  if(both) {
+    LOG("gmkspl", pFATAL) 
+       << "You specified both a geom file and a cmd line target list "
+         << "- Exiting confused";
+    PrintSyntax();
+    exit(1);
   }
 }
 //____________________________________________________________________________
@@ -181,7 +243,52 @@ void PrintSyntax(void)
 {
   LOG("gmkspl", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gmkspl -p nupdg -t tgtpdg [-f output_xml_file]";
+    << "   gmkspl -p nupdg <-t tgtpdg, -f geomfile> [-o output_xml_file]";
+}
+//____________________________________________________________________________
+PDGCodeList * GetNeutrinoCodes(void)
+{
+  // split the comma separated list
+  vector<string> nuvec = utils::str::Split(gOptNuPdgCodeList,  ",");
+
+  // fill in the PDG code list
+  PDGCodeList * list = new PDGCodeList;
+  vector<string>::const_iterator iter;
+  for(iter = nuvec.begin(); iter != nuvec.end(); ++iter) {
+    list->push_back( atoi(iter->c_str()) );
+  }
+  return list;
+}
+//____________________________________________________________________________
+PDGCodeList * GetTargetCodes(void)
+{
+  bool from_geom_file = ( gOptGeomFilename.size()   > 0 );
+  bool from_cmd_line  = ( gOptTgtPdgCodeList.size() > 0 );
+
+  if (from_cmd_line) {
+     // split the comma separated list
+     vector<string> tgtvec = utils::str::Split(gOptTgtPdgCodeList, ",");
+
+     // fill in the PDG code list
+     PDGCodeList * list = new PDGCodeList;
+     vector<string>::const_iterator iter;
+     for(iter = tgtvec.begin(); iter != tgtvec.end(); ++iter) {
+        list->push_back( atoi(iter->c_str()) );
+     }
+     return list;
+  }
+
+  if (from_geom_file) {
+     // create/configure a geometry driver
+     LOG("gmkspl", pINFO) << "Creating/configuring a ROOT geom. driver";
+     ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer(gOptGeomFilename);
+
+     PDGCodeList * list = new PDGCodeList(geom->ListOfTargetNuclei());
+
+     delete geom;
+     return list;
+  }
+  return 0;
 }
 //____________________________________________________________________________
 
