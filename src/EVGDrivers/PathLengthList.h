@@ -20,11 +20,15 @@
 
 #include <map>
 #include <ostream>
+#include <string>
+
+#include "Conventions/XmlParserStatus.h"
 
 class TLorentzVector;
 
 using std::map;
 using std::ostream;
+using std::string;
 
 namespace genie {
 
@@ -43,7 +47,11 @@ public :
   bool   AreAllZero      (void) const;
   void   ScalePathLength (int pdgc, double scale);
   double PathLength      (int pdgc) const;
-  void   Print           (ostream & stream) const;
+
+  XmlParserStatus_t LoadAsXml (string filename);
+  void              SaveAsXml (string filename) const;
+
+  void   Print (ostream & stream) const;
 
   friend ostream & operator << (ostream & stream, const PathLengthList & list);
 };
