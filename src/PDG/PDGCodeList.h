@@ -30,6 +30,7 @@ public :
 
   PDGCodeList();
   PDGCodeList(size_type n);
+  PDGCodeList(const PDGCodeList & list);
   ~PDGCodeList();
 
   //-- override the vector<int> insertion methods to explicitly check for
