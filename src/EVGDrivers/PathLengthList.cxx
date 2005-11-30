@@ -197,22 +197,28 @@ XmlParserStatus_t PathLengthList::LoadAsXml(string filename)
 
   // loop over all xml tree nodes that are children of the root node
   while (xmlCur != NULL) {
+
     // enter everytime you find a <path_length> tag
     if( (!xmlStrcmp(xmlCur->name, (const xmlChar *) "path_length")) ) {
+
+       xmlNodePtr xmlPlVal = xmlCur->xmlChildrenNode;
 
        string spdgc = utils::str::TrimSpaces(
                          XmlParserUtils::GetAttribute(xmlCur, "pdgc"));
 
        string spl = XmlParserUtils::TrimSpaces(
-                             xmlNodeListGetString(xml_doc, xmlCur, 1));
+                           xmlNodeListGetString(xml_doc, xmlPlVal, 1));
+
+       LOG("PathL", pDEBUG) << "pdgc = " << spdgc << " --> pl = " << spl;
 
        int    pdgc = atoi( spdgc.c_str() );
        double pl   = atof( spl.c_str()   );
 
        this->AddPathLength(pdgc, pl);
 
-       xmlCur = xmlCur->next;
+       xmlFree(xmlPlVal);
     }
+       xmlCur = xmlCur->next;
   } // [end of] loop over tags within root elements
 
   xmlFree(xmlCur);
