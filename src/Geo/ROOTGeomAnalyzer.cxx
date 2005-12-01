@@ -553,7 +553,6 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
 // Compute the path length for the material with pdg-code = pdc, staring from
 // the input position r and moving along the direction of the unit vector udir
 //
-
   double pl = 0; // <-- path length (x density, if weight by density is ON)
 
   LOG("GROOTGeom", pDEBUG) << "Pos: " << utils::print::Vec3AsString(&r0);
@@ -568,48 +567,35 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
   TGeoMedium *   med = 0;
   TGeoMaterial * mat = 0;
 
-  TVector3 r(r0); // local copy of initial position vector
-
-  fGeometry->SetCurrentDirection(udir[0],udir[1],udir[2]);
+  fGeometry -> SetCurrentDirection (udir[0],udir[1],udir[2]);
+  fGeometry -> SetCurrentPoint     (r0[0],r0[1],r0[2]);
 
   while(((!FlagNotInYet) || condition) && counterloop <100) {
-      counterloop++;
-      condition=kTRUE;
+     counterloop++;
+     condition=kTRUE;
 
-      //fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
-      fGeometry -> FindNode        (r[0],r[1],r[2]);
+     fGeometry->FindNode();
 
-      vol = fGeometry->GetCurrentVolume();
-      med = 0;
-      mat = 0;
+     vol = fGeometry->GetCurrentVolume();
+     med = 0;
+     mat = 0;
 
-      if (fGeometry->IsOutside() || !vol) {
+     if (fGeometry->IsOutside() || !vol) {
         condition=kFALSE;
         if(FlagNotInYet) break;
 
         step = this->StepToNextBoundary();
-
         while(!fGeometry->IsEntering()) {
           step = this->Step();
           LOG("GROOTGeom",pDEBUG) <<"Stepping...dr = " << step;
-
           if(this->WillNeverEnter(step)) return 0.;
         }
-        r = r + step*udir;
-     }
+      }
 
-     if(condition) {
+      if(condition) {
        if(!FlagNotInYet) FlagNotInYet=1;
        med = vol->GetMedium();
-       if (!med) condition=kFALSE;
-     }
-
-     if(condition) {
        mat = med->GetMaterial();
-       if (!mat) condition=kFALSE;
-     }
-
-     if(condition) {
        bool ismixt = mat->IsMixture();
 
        LOG("GROOTGeom",pDEBUG)
@@ -617,8 +603,8 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
          << " (A = " << mat->GetA() << ", Z = " << mat->GetZ() << "),"
          << " IsMixt = " << utils::print::BoolAsYNString(ismixt);
 
-       int    ion_pdgc = 0;
-       double weight   = 0.;
+       step = this->StepUntilEntering();
+       double weight = 0.;
 
        if(ismixt) {
          TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
@@ -626,21 +612,13 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
          LOG("GROOTGeom", pDEBUG) << "Number of elements = " << Nelements;
 
          for(int i=0; i<Nelements; i++) {
-           ion_pdgc = this->GetTargetPdgCode(mixt->GetElement(i));
-           weight   = this->GetWeight(mixt,i);
-           step     = this->StepUntilEntering();
-           if(ion_pdgc == pdgc) pl += (step*weight);
-           r = r + step*udir;
+            weight+=(this->GetWeight(mixt,i,pdgc));
          }//elements
-       } // is mixture
 
-       else {
-         ion_pdgc = this->GetTargetPdgCode(mat);
-         weight   = this->GetWeight(mat);
-         step     = this->StepUntilEntering();
-         if(ion_pdgc == pdgc) pl += (step*weight);
-         r = r + step*udir;
+       } else {
+         weight = this->GetWeight(mat, pdgc);
        }
+       pl += (step*weight);
      }//condition
   }
 
@@ -649,8 +627,11 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
   return pl;
 }
 //___________________________________________________________________________
-double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat)
+double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat, int pdgc)
 {
+// Get the weight of the input material. If the input pdg code is set (!=0),
+// return the weight only if the material's pdg code matches
+//
   if(!mat) {
     LOG("GROOTGeom", pERROR) << "Null input material. Return weight = 0.";
     return 0;
@@ -660,6 +641,9 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat)
       << "Not taking into account the relative proportion of each element!";
   }
 
+  int ion_pdgc = this->GetTargetPdgCode(mat);
+  if(pdgc == 0 || ion_pdgc != pdgc) return 0.;
+
   double weight = 1.0;
   if (this->WeightWithDensity()) weight = mat->GetDensity();
 
@@ -668,8 +652,12 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat)
   return weight;
 }
 //___________________________________________________________________________
-double ROOTGeomAnalyzer::GetWeight(TGeoMixture * mixt, int ielement)
+double ROOTGeomAnalyzer::GetWeight(TGeoMixture* mixt, int ielement, int pdgc)
 {
+// Get the weight of the input ith element of the input material. If the input
+// pdg code is set (!=0), return the weight only if the element's pdg code
+// matches
+//
   if(!mixt) {
     LOG("GROOTGeom", pERROR) << "Null input mixture. Return weight = 0.";
     return 0;
@@ -679,6 +667,9 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture * mixt, int ielement)
                    << "Element number out of bounds. Return weight = 0.";
     return 0;
   }
+
+  int ion_pdgc = this->GetTargetPdgCode(mixt->GetElement(ielement));
+  if(pdgc == 0 || ion_pdgc != pdgc) return 0.;
 
   double weight = 1.0;
   if (this->WeightWithDensity()) {
