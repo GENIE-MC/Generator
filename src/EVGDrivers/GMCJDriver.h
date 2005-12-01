@@ -16,6 +16,10 @@
 #ifndef _GENIE_MC_JOB_DRIVER_H_
 #define _GENIE_MC_JOB_DRIVER_H_
 
+#include <string>
+
+using std::string;
+
 namespace genie {
 
 class EventRecord;
@@ -33,16 +37,15 @@ public :
   ~GMCJDriver();
 
   //-- configure MC job: set flux and detector geometry
-
   void UseFluxDriver      (GFluxI * flux);
   void UseGeomAnalyzer    (GeomAnalyzerI * geom);
   void UseSplines         (bool useLogE = true);
+  void UseMaxPathLengths  (string xml_filename);
   void AllowRecursiveMode (bool allow);
   void FilterUnphysical   (bool filter);
   void Configure          (void);
 
-  //-- generate single neutrino event
-
+  //-- generate single neutrino event for input flux & geometry
   EventRecord * GenerateEvent (void);
 
 private:
@@ -50,14 +53,16 @@ private:
   void   Initialize (void);
   double PInt       (double xsec, double pl);
 
-  GFluxI *         fFluxDriver;   ///< [input] neutrino flux driver
-  GeomAnalyzerI *  fGeomAnalyzer; ///< [input] detector geometry analyzer
-  GEVGPool *       fGPool;        ///< A pool of available GEVGDrivers objects
-  double           fPmax;         ///< [computed] Pmax(interaction) given flux and geom
-  bool             fUseSplines;   ///< compute all needed & not-loaded splines at init
-  bool             fUseLogE;      ///< build splines as function of logE (rather than E)
-  bool             fAllowRecursiveMode;
-  bool             fFilterUnphysical;
+  GFluxI *        fFluxDriver;       ///< [input] neutrino flux driver
+  GeomAnalyzerI * fGeomAnalyzer;     ///< [input] detector geometry analyzer
+  GEVGPool *      fGPool;            ///< A pool of available GEVGDrivers objects
+  double          fPmax;             ///< [computed] Pmax(interaction)|<flux/geom>
+  string          fMaxPlXmlFilename; ///< [input/opt] max path lengths, all materials|geom
+  bool            fUseExtMaxPl;      ///< using external max path length estimate?
+  bool            fUseSplines;       ///< compute all needed & not-loaded splines at init
+  bool            fUseLogE;          ///< build splines = f(logE) (rather than f(E)) ?
+  bool            fAllowRecursMode;  ///< can enter into recursive mode?
+  bool            fFilterUnphysical; ///< should I filter unphysical events?
 };
 
 }      // genie namespace

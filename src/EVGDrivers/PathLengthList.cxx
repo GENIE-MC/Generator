@@ -47,6 +47,12 @@ namespace genie {
  }
 }
 //___________________________________________________________________________
+PathLengthList::PathLengthList(void) :
+map<int, double>()
+{
+
+}
+//___________________________________________________________________________
 PathLengthList::PathLengthList(const PDGCodeList & pdg_list) :
 map<int, double>()
 {
@@ -57,6 +63,11 @@ map<int, double>()
      int pdgc = *pdg_iter;
      this->insert( map<int, double>::value_type(pdgc, 0.) );
   }
+}
+//___________________________________________________________________________
+PathLengthList::PathLengthList(const PathLengthList & plist)
+{
+  this->Copy(plist);
 }
 //___________________________________________________________________________
 PathLengthList::~PathLengthList()
@@ -137,6 +148,17 @@ bool PathLengthList::AreAllZero(void) const
   return allzero;
 }
 //___________________________________________________________________________
+void PathLengthList::Copy(const PathLengthList & plist)
+{
+  this->clear();
+  PathLengthList::const_iterator pl_iter;
+  for(pl_iter = this->begin(); pl_iter != this->end(); ++pl_iter) {
+    int    pdgc = pl_iter->first;
+    double pl   = pl_iter->second;
+    this->insert( map<int, double>::value_type(pdgc, pl) );
+  }
+}
+//___________________________________________________________________________
 void PathLengthList::Print(ostream & stream) const
 {
   stream << "\n[-]" << endl;
@@ -164,10 +186,13 @@ void PathLengthList::Print(ostream & stream) const
   }
 }
 //___________________________________________________________________________
-XmlParserStatus_t PathLengthList::LoadAsXml(string filename)
+XmlParserStatus_t PathLengthList::LoadFromXml(string filename)
 {
+  this->clear();
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+
   LOG("PathL", pINFO)
-                    << "Loading PathLengthList from XML file: " << filename;
+               << "Loading PathLengthList from XML file: " << filename;
 
   xmlDocPtr xml_doc = xmlParseFile(filename.c_str() );
 
@@ -214,7 +239,13 @@ XmlParserStatus_t PathLengthList::LoadAsXml(string filename)
        int    pdgc = atoi( spdgc.c_str() );
        double pl   = atof( spl.c_str()   );
 
-       this->AddPathLength(pdgc, pl);
+       TParticlePDG * p = pdglib->Find(pdgc);
+       if(!p) {
+         LOG("PathL", pERROR)
+            << "No particle with pdgc " << pdgc
+                             << " found. Will not load its path length";
+       } else
+            this->insert( map<int, double>::value_type(pdgc, pl) );
 
        xmlFree(xmlPlVal);
     }
@@ -259,6 +290,12 @@ void PathLengthList::SaveAsXml(string filename) const
 
   outxml.close();
 
+}
+//___________________________________________________________________________
+PathLengthList & PathLengthList::operator = (const PathLengthList & list)
+{
+  this->Copy(list);
+  return (*this);
 }
 //___________________________________________________________________________
 

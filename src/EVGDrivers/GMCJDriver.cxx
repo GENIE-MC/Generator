@@ -16,6 +16,7 @@
 #include <cassert>
 
 #include <TLorentzVector.h>
+#include <TSystem.h>
 #include <TVector3.h>
 
 #include "Algorithm/AlgConfigPool.h"
@@ -65,12 +66,27 @@ void GMCJDriver::UseSplines(bool useLogE)
   fUseLogE    = useLogE;
 }
 //___________________________________________________________________________
+void GMCJDriver::UseMaxPathLengths(string xml_filename)
+{
+// If you supply the maximum path lengths for all materials in your geometry
+// (eg for ROOT/GEANT geometries by running GENIE#s gmxpl application - see
+// $GENIE/src/stdapp/gMaxPathLengths.cxx - ) you can speed up the driver init
+// time (quite a bit for complex geometries).
+
+  fMaxPlXmlFilename = xml_filename;
+
+  bool is_accessible = !(gSystem->AccessPathName(fMaxPlXmlFilename.c_str()));
+
+  if (!is_accessible) fUseExtMaxPl = false;
+  else                fUseExtMaxPl = true;
+}
+//___________________________________________________________________________
 void GMCJDriver::AllowRecursiveMode(bool allow)
 {
   LOG("GMCJDriver", pNOTICE)
         << "[Allow recursive mode] flag is set to: "
                              << utils::print::BoolAsYNString(allow);
-  fAllowRecursiveMode = allow;
+  fAllowRecursMode = allow;
 }
 //___________________________________________________________________________
 void GMCJDriver::FilterUnphysical(bool filter)
@@ -127,28 +143,42 @@ void GMCJDriver::Configure(void)
 
   //-- Ask the input GFluxI for a list of all neutrino-types it will be using
   LOG("GMCJDriver", pINFO)
-              << "Asking input GFluxI for the list of flux particles";
+                  << "Asking the flux driver for the list of flux particles";
   const PDGCodeList & nulist = fFluxDriver->FluxParticles();
-  LOG("GMCJDriver", pINFO) << "Flux particles: " << nulist;
 
   //-- Ask the ROOTGeomHandler for a list of all target materials
   LOG("GMCJDriver", pINFO)
-     << "Asking input GeomAnalyzerI for the list of target materials";
+            << "Asking the geometry driver for the list of target materials";
   const PDGCodeList & tgtlist = fGeomAnalyzer->ListOfTargetNuclei();
+
+  //-- Print particle lists
+  LOG("GMCJDriver", pINFO) << "Flux particles: "   << nulist;
   LOG("GMCJDriver", pINFO) << "Target materials: " << tgtlist;
 
   //-- Ask the ROOTGeomHandler for a the max. path length for each material
-  //   in the list of all target materials (to be used in calculating the max.
-  //   interaction probability, Pmax,  to scale all interaction probabilities)
-  LOG("GMCJDriver", pINFO)
-             << "Asking input GeomAnalyzerI for the max path-lengths";
-  const PathLengthList & plmax = fGeomAnalyzer->ComputeMaxPathLengths();
-  LOG("GMCJDriver", pINFO) << "Maximum path lengths: " << plmax;
+  //   in the list of all target materials (to be used in calculating the max
+  //   interaction probability which will scale all interaction probabilities)
+
+  PathLengthList plmax;
+
+  if(fUseExtMaxPl) {
+     LOG("GMCJDriver", pINFO)
+               << "Loading external max path-length list for input geometry";
+     plmax.LoadFromXml(fMaxPlXmlFilename);
+
+  } else {
+     LOG("GMCJDriver", pINFO)
+         << "Asking the geometry driver to compute the max path-length list";
+     plmax = fGeomAnalyzer->ComputeMaxPathLengths();
+  }
 
   //-- Ask the input GFluxI for the max. neutrino energy (to compute Pmax)
   LOG("GMCJDriver", pINFO)
-            << "Asking input GFluxI for maximum flux neutrino energy";
+       << "Asking the flux driver for the maximum energy of flux neutrinos";
   double Emax = fFluxDriver->MaxEnergy();
+
+  //-- Print maximum path lengths & neutrino energy
+  LOG("GMCJDriver", pINFO) << "Maximum path length list: "      << plmax;
   LOG("GMCJDriver", pINFO) << "Maximum flux neutrino energy = " << Emax;
 
   //-- Create all possible initial states and initialize/store a
@@ -234,10 +264,11 @@ void GMCJDriver::Configure(void)
      LOG("GMCJDriver", pINFO)
            << "Computing Pmax for init-state: " << init_state.AsString();
 
-     GEVGDriver * evgdriver = fGPool->FindDriver(init_state); // get the appropriate driver
+     // get the appropriate driver
+     GEVGDriver * evgdriver = fGPool->FindDriver(init_state);
 
-     double xsec_sum    = evgdriver->SumCrossSection(nup4);  // interaction xsec
-     double path_length = plmax.PathLength(target_pdgc); // max L for material
+     double xsec_sum    = evgdriver->SumCrossSection(nup4); // sum{xsec}
+     double path_length = plmax.PathLength(target_pdgc);    // max{L*density}
 
      double Pmax = this->PInt(xsec_sum, path_length);
      fPmax += Pmax;
@@ -299,7 +330,7 @@ EventRecord * GMCJDriver::GenerateEvent(void)
     LOG("GMCJDriver", pINFO)
                << "The flux v doesn't even enter the detector";
 
-    if(fAllowRecursiveMode) {
+    if(fAllowRecursMode) {
        LOG("GMCJDriver", pINFO)
           << "In recursive mode - Attermting to regenerate the event...";
        return this->GenerateEvent(); // enter in reccursive mode...
@@ -362,7 +393,7 @@ EventRecord * GMCJDriver::GenerateEvent(void)
   if(R>=1-Pesc) {
      LOG("GMCJDriver", pINFO) << "Flux neutrino didn't interact - Retrying!";
 
-     if(fAllowRecursiveMode) {
+     if(fAllowRecursMode) {
          LOG("GMCJDriver", pINFO)
              << "In recursive mode - Attermting to regenerate the event...";
          return this->GenerateEvent(); // enter in reccursive mode...
