@@ -108,11 +108,13 @@ void GMCJDriver::FilterUnphysical(bool filter)
 //___________________________________________________________________________
 void GMCJDriver::Initialize(void)
 {
-  fFluxDriver   = 0; // <-- flux driver
-  fGeomAnalyzer = 0; // <-- geometry driver
-  fGPool        = 0; // <-- pool of GEVGDriver event generation drivers
-  fPmax         = 0; // <-- (scaled) maximum interaction probability
-  fUseSplines   = false;
+  fFluxDriver       = 0;  // <-- flux driver
+  fGeomAnalyzer     = 0;  // <-- geometry driver
+  fGPool            = 0;  // <-- pool of GEVGDriver event generation drivers
+  fPmax             = 0;  // <-- (scaled) maximum interaction probability
+  fMaxPlXmlFilename = ""; // <-- XML file with external path lengths
+  fUseExtMaxPl      = false;
+  fUseSplines       = false;
 
   // Go into recursive mode when it does not generate an event (neutrino
   // does not cross the detector, does not interact etc...) so that it never
