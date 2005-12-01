@@ -47,14 +47,17 @@ public :
   void SetScannerNPoints    (int    np) { fNPoints    = np; }
   void SetScannerNRays      (int    nr) { fNRays      = nr; }
   void SetWeightWithDensity (bool   wt) { fDensWeight = wt; }
+  void SetPCentRelativeWgt  (bool   pc);
   void SetUnits             (double lu);
+  void SetMaxPlSafetyFactor (double sf);
   void SetTopVolName        (string nm);
 
-  int    ScannerNPoints    (void) const { return fNPoints;       }
-  int    ScannerNRays      (void) const { return fNRays;         }
-  bool   WeightWithDensity (void) const { return fDensWeight;    }
-  double Units             (void) const { return fScale;         }
-  string TopVolName        (void) const { return fTopVolumeName; }
+  int    ScannerNPoints    (void) const { return fNPoints;           }
+  int    ScannerNRays      (void) const { return fNRays;             }
+  bool   WeightWithDensity (void) const { return fDensWeight;        }
+  double Units             (void) const { return fScale;             }
+  double MaxPlSafetyFactor (void) const { return fMaxPlSafetyFactor; }
+  string TopVolName        (void) const { return fTopVolumeName;     }
 
   // implement the GeomAnalyzerI interface
 
@@ -97,6 +100,8 @@ private:
   int              fNRays;                 ///< max path length scanner: rays/point [def:200]
   bool             fDensWeight;            ///< if true pathlengths are weighted with density [def:true]
   double           fScale;                 ///< conversion factor: input geometry units -> meters
+  double           fMaxPlSafetyFactor;     ///< factor that can multiply the computed max path lengths
+  double           fRelWghtFactor;         ///< multiplies relative element weight in mixtures (if in %)
   TVector3 *       fCurrVertex;            ///< current generated vertex
   PathLengthList * fCurrPathLengthList;    ///< current list of path-lengths
   PathLengthList * fCurrMaxPathLengthList; ///< current list of max path-lengths

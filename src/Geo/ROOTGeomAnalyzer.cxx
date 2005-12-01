@@ -73,7 +73,33 @@ void ROOTGeomAnalyzer::SetUnits(double u)
 
   fScale = u/units::meter;
 
-  LOG("GROOTGeom",pNOTICE) << "Geometry units scale factor: " << fScale;
+  LOG("GROOTGeom", pNOTICE) << "Geometry units scale factor: " << fScale;
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::SetMaxPlSafetyFactor(double sf)
+{
+// Set a factor that can multiply the computed max path lengths.
+// The maximum path lengths are computed by performing an MC scanning of the
+// input geometry. If you configure the scanner with a low number of points
+// or rays you might understimate the path lengths, so you might want to
+// 'inflate' them a little bit using this method.
+// Do not set this number too high, because the max interaction probability
+// will be grossly overestimated and you would need lots of attempts before
+// getting a flux neutrino to interact...
+
+  fMaxPlSafetyFactor = sf;
+
+  LOG("GROOTGeom", pNOTICE)
+            << "Max path length safety factor: " << fMaxPlSafetyFactor;
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::SetPCentRelativeWgt(bool pc)
+{
+// If TMixture's array of relative element weights has values that are
+// normalized to 100 set this to true. If they are normalized to 1 set this
+// to false.
+
+  fRelWghtFactor = (pc) ? 0.01 : 1.;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::SetTopVolName(string name)
@@ -171,6 +197,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
     }
+/*
     //bottom:
     LOG("GROOTGeom",pINFO) << "Box surface scanned: [BOTTOM]";
     ipoint=0;
@@ -183,6 +210,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
     }
+*/
     //left:
     LOG("GROOTGeom",pINFO) << "Box surface scanned: [LEFT]";
     ipoint=0;
@@ -195,6 +223,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
     }
+/*
     //right:
     LOG("GROOTGeom",pINFO) << "Box surface scanned: [RIGHT]";
     ipoint=0;
@@ -207,18 +236,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
     }
-    //back:
-    LOG("GROOTGeom",pINFO) << "Box surface scanned: [BACK]";
-    ipoint=0;
-    while (ipoint++ < maxPoints) {
-      iray=0;
-      pos.SetXYZ(ox-dx+2*dx*r3.Rndm(), oy-dy+2*dy*r3.Rndm(), oz-dz);
-      while (iray++ < maxRays) {
-        dir.SetXYZ(-0.5+r3.Rndm(), -0.5+r3.Rndm(), r3.Rndm());
-        maxPath = TMath::Max(maxPath,
-                   this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
-      }
-    }
+*/
     //front:
     LOG("GROOTGeom",pINFO) << "Box surface scanned: [FRONT]";
     ipoint=0;
@@ -231,6 +249,22 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
     }
+/*
+    //back:
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [BACK]";
+    ipoint=0;
+    while (ipoint++ < maxPoints) {
+      iray=0;
+      pos.SetXYZ(ox-dx+2*dx*r3.Rndm(), oy-dy+2*dy*r3.Rndm(), oz-dz);
+      while (iray++ < maxRays) {
+        dir.SetXYZ(-0.5+r3.Rndm(), -0.5+r3.Rndm(), r3.Rndm());
+        maxPath = TMath::Max(maxPath,
+                   this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
+      }
+    }
+*/
+    maxPath *= (this->MaxPlSafetyFactor());
+
     LOG("GROOTGeom", pINFO) << "Max path length found = " << maxPath;
 
     fCurrMaxPathLengthList->AddPathLength(pdgc, maxPath);
@@ -254,8 +288,10 @@ void ROOTGeomAnalyzer::Initialize(void)
   // some defaults:
   this -> SetScannerNPoints    (200);
   this -> SetScannerNRays      (200);
+  this -> SetMaxPlSafetyFactor (1.1);
   this -> SetUnits             (genie::units::meter);
   this -> SetWeightWithDensity (true);
+  this -> SetPCentRelativeWgt  (false);
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::CleanUp(void)
@@ -418,7 +454,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
       r = r + StepIncrease * dir;
 
-      fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
+      //fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
       fGeometry -> FindNode        (r[0],r[1],r[2]);
 
       vol = fGeometry->GetCurrentVolume();
@@ -540,7 +576,7 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
       counterloop++;
       condition=kTRUE;
 
-      fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
+      //fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
       fGeometry -> FindNode        (r[0],r[1],r[2]);
 
       vol = fGeometry->GetCurrentVolume();
@@ -620,8 +656,8 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat)
     return 0;
   }
   if(mat->IsMixture()) {
-//    LOG("GROOTGeom", pWARN)
-//      << "Not taking into account the relative proportion of each element!";
+    LOG("GROOTGeom", pWARN)
+      << "Not taking into account the relative proportion of each element!";
   }
 
   double weight = 1.0;
@@ -647,8 +683,10 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture * mixt, int ielement)
   double weight = 1.0;
   if (this->WeightWithDensity()) {
      double d = mixt->GetDensity();         // mixture density
-     double w = mixt->GetWmixt()[ielement]; // relative proportion by mass (%)
-     weight = d*(w/100.);
+     double w = mixt->GetWmixt()[ielement]; // relative proportion by mass
+
+     w *= fRelWghtFactor;
+     weight = d*w;
   }
 
   LOG("GROOTGeom", pDEBUG)
