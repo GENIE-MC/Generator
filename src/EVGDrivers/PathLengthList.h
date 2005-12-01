@@ -37,8 +37,9 @@ class PDGCodeList;
 class PathLengthList : public map<int, double> {
 
 public :
-
+  PathLengthList();
   PathLengthList(const PDGCodeList & pdglist);
+  PathLengthList(const PathLengthList & plist);
   ~PathLengthList();
 
   void   AddPathLength   (int pdgc, double pl); // path-legth(pdgc) += pl
@@ -48,11 +49,13 @@ public :
   void   ScalePathLength (int pdgc, double scale);
   double PathLength      (int pdgc) const;
 
-  XmlParserStatus_t LoadAsXml (string filename);
-  void              SaveAsXml (string filename) const;
+  XmlParserStatus_t LoadFromXml (string filename);
+  void              SaveAsXml   (string filename) const;
 
-  void   Print (ostream & stream) const;
+  void Copy  (const PathLengthList & plist);
+  void Print (ostream & stream) const;
 
+  PathLengthList & operator =  (const PathLengthList & list);
   friend ostream & operator << (ostream & stream, const PathLengthList & list);
 };
 
