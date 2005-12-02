@@ -86,8 +86,9 @@ private:
   int    GetTargetPdgCode        (const TGeoElement  * const e) const;
   void   ScalePathLengths        (PathLengthList & pl);
   double ComputePathLengthPDG    (const TVector3 & r, const TVector3 & udir, int pdgc);
-  double GetWeight               (TGeoMaterial * mat, int pdgc=0);
-  double GetWeight               (TGeoMixture * mixt, int ielement, int pdgc=0);
+  double GetWeight               (TGeoMaterial * mat, int pdgc);
+  double GetWeight               (TGeoMixture * mixt, int pdgc);
+  double GetWeight               (TGeoMixture * mixt, int ielement, int pdgc);
   bool   WillNeverEnter          (double step);
   double StepToNextBoundary      (void);
   double Step                    (void);
@@ -95,7 +96,7 @@ private:
 
   int              fMaterial;              ///< input selected material for vertex generation
   TGeoManager *    fGeometry;              ///< input detector geometry
-  string           fTopVolumeName;         ///< input top vol (if other than TGeoManager::GetTopVolume()]
+  string           fTopVolumeName;         ///< input top vol [other than TGeoManager::GetTopVolume()]
   int              fNPoints;               ///< max path length scanner: points/surface [def:200]
   int              fNRays;                 ///< max path length scanner: rays/point [def:200]
   bool             fDensWeight;            ///< if true pathlengths are weighted with density [def:true]
