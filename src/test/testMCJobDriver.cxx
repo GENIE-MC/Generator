@@ -34,11 +34,22 @@
            - An argument in []'s is optional
            - The defaults for the flux driver match the example detector setup
              in the $GENIE/src/test/data directory
+           - The flux driver is fixed to produce numu's only with f(E) ~ 1/E
+             (you can add more neutrino types and modify the energy spectrum)
+           - The flux driver is fixed to produce neutrinos uniformly over a
+             cross section of the specified "flux cylinder" (you can modify
+             the functional form of the Rt dependence)
 
          Example :
            testMCJobDriver -f ~/mysim/inputs/geometry.root -u cm -r 101 -n 1000
-                           -s -m ~/mysim/inputs/maxpl.xml -d 0,0,1 -b 0,0,-100
+                           -s -m ~/mysim/inputs/maxpl.xml -d 0,0,1 -b 0,0,100m
                            -t 0.20
+           would use the detector geometry from geometry.root, set the geometry
+           units to cm, produce 1000 events marked as mc run 101, enable splines
+           at the jon initialization, read pre-computed max path lengths for
+           the input geometry from maxpl.xml, set the neutrino direction to
+           (0,0,1) -along z-, set the beam spot at (0,0,-100) meters and set
+           the transverse beam size to 0.20 meters
 
          Also see $GENIE/src/stdapp/gEvGen.cxx for a list of environmental
          variables that can affect the program behaviour (eg which event
