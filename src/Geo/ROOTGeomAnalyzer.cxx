@@ -454,7 +454,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
                              << ", flag(not in yet) = " << FlagNotInYet;
 
       r = r + StepIncrease * dir;
-
+      fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
       fGeometry->FindNode();
 
       med = 0;
