@@ -47,7 +47,7 @@ public :
   void SetScannerNPoints    (int    np) { fNPoints    = np; }
   void SetScannerNRays      (int    nr) { fNRays      = nr; }
   void SetWeightWithDensity (bool   wt) { fDensWeight = wt; }
-  void SetPCentRelativeWgt  (bool   pc);
+  void SetMixtureWeightsSum (double sum);
   void SetUnits             (double lu);
   void SetMaxPlSafetyFactor (double sf);
   void SetTopVolName        (string nm);
@@ -56,6 +56,7 @@ public :
   int    ScannerNRays      (void) const { return fNRays;             }
   bool   WeightWithDensity (void) const { return fDensWeight;        }
   double Units             (void) const { return fScale;             }
+  double MixtureWeightsSum (void) const { return fMixtWghtSum;       }
   double MaxPlSafetyFactor (void) const { return fMaxPlSafetyFactor; }
   string TopVolName        (void) const { return fTopVolumeName;     }
 
@@ -102,7 +103,7 @@ private:
   bool             fDensWeight;            ///< if true pathlengths are weighted with density [def:true]
   double           fScale;                 ///< conversion factor: input geometry units -> meters
   double           fMaxPlSafetyFactor;     ///< factor that can multiply the computed max path lengths
-  double           fRelWghtFactor;         ///< multiplies relative element weight in mixtures (if in %)
+  double           fMixtWghtSum;           ///< norm of relative weights (<0 if explicit summing required)
   TVector3 *       fCurrVertex;            ///< current generated vertex
   PathLengthList * fCurrPathLengthList;    ///< current list of path-lengths
   PathLengthList * fCurrMaxPathLengthList; ///< current list of max path-lengths
