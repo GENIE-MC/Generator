@@ -237,7 +237,6 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
                            XmlParserUtils::GetAttribute(xml_cur, "name"));
 
       // build the config key
-      ///////..string config_key = this->BuildConfigKey(alg_name,param_set);
       AlgId id(alg_name,param_set);
       string config_key = id.Key();
 
@@ -396,7 +395,6 @@ void AlgConfigPool::AddRootObjParameter(
 //____________________________________________________________________________
 Registry * AlgConfigPool::FindRegistry(const Algorithm * algorithm) const
 {
-  /////////////string key = this->BuildConfigKey(algorithm);
   string key = algorithm->Id().Key();
   return this->FindRegistry(key);
 }
@@ -411,7 +409,6 @@ Registry* AlgConfigPool::FindRegistry(string alg_name, string param_set) const
 {
   AlgId id(alg_name,param_set);
   string key = id.Key();
-  ///////////string key = this->BuildConfigKey(alg_name, param_set);
   return this->FindRegistry(key);
 }
 //____________________________________________________________________________
@@ -434,20 +431,6 @@ const vector<string> & AlgConfigPool::ConfigKeyList(void) const
 {
   return fConfigKeyList;
 }
-//____________________________________________________________________________
-//string AlgConfigPool::BuildConfigKey(string alg_name, string param_set) const
-//{
-  //string key = alg_name + "/" + param_set;
-  //return key;
-//}
-//____________________________________________________________________________
-//string AlgConfigPool::BuildConfigKey(const Algorithm * algorithm) const
-//{
-//  string alg_name  = algorithm->Name();
-//  string param_set = algorithm->ParamSet();
-//
-//  return this->BuildConfigKey(alg_name, param_set);
-//}
 //____________________________________________________________________________
 void AlgConfigPool::Print(ostream & stream) const
 {
