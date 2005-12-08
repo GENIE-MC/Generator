@@ -93,13 +93,13 @@ void ROOTGeomAnalyzer::SetMaxPlSafetyFactor(double sf)
             << "Max path length safety factor: " << fMaxPlSafetyFactor;
 }
 //___________________________________________________________________________
-void ROOTGeomAnalyzer::SetPCentRelativeWgt(bool pc)
+void ROOTGeomAnalyzer::SetMixtureWeightsSum(double sum)
 {
-// If TMixture's array of relative element weights has values that are
-// normalized to 100 set this to true. If they are normalized to 1 set this
-// to false.
+// Set it to x, if the relative weight proportions of elements in a mixture
+// add up to x (eg x=1, 100, etc). Set it to a negative value if you want
+// driver to be explicitly computing the correct weight normalization.
 
-  fRelWghtFactor = (pc) ? 0.01 : 1.;
+  fMixtWghtSum = sum;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::SetTopVolName(string name)
@@ -291,7 +291,7 @@ void ROOTGeomAnalyzer::Initialize(void)
   this -> SetMaxPlSafetyFactor (1.1);
   this -> SetUnits             (genie::units::meter);
   this -> SetWeightWithDensity (true);
-  this -> SetPCentRelativeWgt  (false);
+  this -> SetMixtureWeightsSum (-1.);
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::CleanUp(void)
@@ -660,7 +660,12 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture * mixt, int pdgc)
 
   // loop over elements & sum weights of matching elements
   for(int i = 0; i < mixt->GetNelements(); i++) {
-      weight += (this->GetWeight(mixt,i,pdgc));
+     if(weight>0) {
+        LOG("GROOTGeom", pWARN)
+           << "Material pdgc = " << pdgc
+              << " appears more than once in mixture = " << mixt->GetName();
+     }
+     weight += (this->GetWeight(mixt,i,pdgc));
   }
 
   // if we are not weighting with the density then the weight=1 if the pdg
@@ -681,7 +686,17 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture* mixt, int ielement, int pdgc)
   double d = mixt->GetDensity();         // mixture density
   double w = mixt->GetWmixt()[ielement]; // relative proportion by mass
 
-  w *= fRelWghtFactor;
+  double wtot = this->MixtureWeightsSum();
+
+  // <0 forces explicit calculation of relative proportion normalization
+  if(wtot < 0) {
+    for(int i = 0; i < mixt->GetNelements(); i++) {
+      wtot += (mixt->GetWmixt()[ielement]);
+    }
+  }
+  assert(wtot>0);
+
+  w /= wtot;
   double weight = d*w;
 
   LOG("GROOTGeom", pDEBUG)
