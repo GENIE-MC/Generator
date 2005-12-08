@@ -179,5 +179,21 @@ int main(int argc, char ** argv)
  registry4.Set("a double variable", 9.21);
 
  LOG("Main", pINFO) << ENDL << registry4;
+
+ //-- Test Assignment operator
+
+ Registry & registry5 = registry4;
+
+ LOG("Main", pINFO) << "Printing registry set with the assignment operator = ";
+ LOG("Main", pINFO) << ENDL << registry5;
+
+ //-- Test + operator
+
+ LOG("Main", pINFO) << "Printing registry after adding values with the += operator ";
+
+ registry5 += registry;
+
+ LOG("Main", pINFO) << ENDL << registry5;
+
 }
 
