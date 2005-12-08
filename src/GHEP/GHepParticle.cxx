@@ -87,6 +87,7 @@ fLastDaughter(daughter2)
 // Copy constructor
 GHepParticle::GHepParticle(const GHepParticle & particle)
 {
+  this->Init();
   this->Copy(particle);
 }
 //___________________________________________________________________________
@@ -270,14 +271,25 @@ void GHepParticle::Init(void)
   fFirstDaughter = -1;
   fLastDaughter  = -1;
 
-  fP4 = 0;
-  fV4 = 0;
+  fP4 = new TLorentzVector(0,0,0,0);
+  fV4 = new TLorentzVector(0,0,0,0);
 }
 //___________________________________________________________________________
 void GHepParticle::CleanUp(void)
 {
+// deallocate memory
+
   if(fP4) delete fP4;
   if(fV4) delete fV4;
+  fP4 = 0;
+  fV4 = 0;
+}
+//___________________________________________________________________________
+void GHepParticle::Reset(void)
+{
+// deallocate memory + initialize
+
+  this->CleanUp();
   this->Init();
 }
 //___________________________________________________________________________
@@ -359,16 +371,14 @@ bool GHepParticle::CompareMomentum(const GHepParticle * p) const
 //___________________________________________________________________________
 void GHepParticle::Copy(const GHepParticle & particle)
 {
-  this->fStatus         = particle.fStatus;
-  this->fFirstMother    = particle.fFirstMother;
-  this->fLastMother     = particle.fLastMother;
-  this->fFirstDaughter  = particle.fFirstDaughter;
-  this->fLastDaughter   = particle.fLastDaughter;
-
-  this->fP4 = new TLorentzVector(*particle.fP4);
-  this->fV4 = new TLorentzVector(*particle.fV4);
-
-  this->SetPdgCode(particle.fPdgCode);
+  this->SetStatus        (particle.Status());
+  this->SetFirstMother   (particle.FirstMother());
+  this->SetLastMother    (particle.LastMother());
+  this->SetFirstDaughter (particle.FirstDaughter());
+  this->SetLastDaughter  (particle.LastDaughter());
+  this->SetMomentum      (*particle.P4());
+  this->SetVertex        (*particle.V4());
+  this->SetPdgCode       (particle.PdgCode());
 }
 //___________________________________________________________________________
 void GHepParticle::AssertIsKnownParticle(void) const
@@ -383,3 +393,15 @@ void GHepParticle::AssertIsKnownParticle(void) const
   }
 }
 //___________________________________________________________________________
+bool GHepParticle::operator == (const GHepParticle & p) const
+{
+  return (this->Compare(&p));
+}
+//___________________________________________________________________________
+GHepParticle & GHepParticle::operator = (const GHepParticle & p)
+{
+  this->Copy(p);
+  return (*this);
+}
+//___________________________________________________________________________
+
