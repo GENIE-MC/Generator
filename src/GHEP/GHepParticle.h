@@ -48,7 +48,6 @@ public :
                                     double x, double y, double z, double t);
   ~GHepParticle();
 
-
   //-- Basic properties
   bool          IsNucleus      (void) const { return  fIsNucleus;          }
   bool          IsParticle     (void) const { return !fIsNucleus;          }
@@ -113,12 +112,15 @@ public :
   void SetPz       (double pz);
 
   void CleanUp (void);
+  void Reset   (void);
   void Clear   (Option_t * option);
   void Copy    (const GHepParticle & particle);
   void Print   (ostream & stream) const;
   void Print   (Option_t * opt)   const;
 
-  friend ostream & operator<< (ostream & stream, const GHepParticle & p);
+  bool             operator == (const GHepParticle & p) const;
+  GHepParticle &   operator =  (const GHepParticle & p);
+  friend ostream & operator << (ostream & stream, const GHepParticle & p);
 
 private:
 
