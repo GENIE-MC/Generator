@@ -48,7 +48,8 @@ public:
 
   friend ostream & operator << (ostream & stream, const Registry & registry);
 
-  Registry * operator = (const Registry & reg);
+  Registry & operator =  (const Registry & reg);
+  Registry & operator += (const Registry & reg);
 
   void operator () (string key,  int          item);
   void operator () (string key,  bool         item);
@@ -112,6 +113,8 @@ public:
   string Name         (void) const;
   void   Print        (ostream & stream) const;
   void   Copy         (const Registry &);
+  void   Clear        (bool force = false);
+  void   Init         (void);
 
   //! Convert to TFolder (this is the primary mechanism for saving the
   //! GENIE configuration in a ROOT file, along with its generated events)

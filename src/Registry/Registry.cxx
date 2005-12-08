@@ -58,12 +58,9 @@ namespace genie {
  }
 }
 //____________________________________________________________________________
-Registry::Registry() :
-fName              ( "unnamed" ),
-fIsReadOnly        ( false     ),
-fInhibitItemLocks  ( false     )
+Registry::Registry() 
 {
-
+  this->Init();
 }
 //____________________________________________________________________________
 Registry::Registry(string name, bool isReadOnly) :
@@ -81,17 +78,7 @@ Registry::Registry(const Registry & registry)
 //____________________________________________________________________________
 Registry::~Registry()
 {
-  map<string, RegistryItemI *>::iterator reg_iter;
-
-  for(reg_iter = fRegistry.begin(); reg_iter != fRegistry.end(); reg_iter++) {
-
-     string          name = reg_iter->first;
-     RegistryItemI * item = reg_iter->second;
-
-     delete item;
-     item = 0;
-  }
-  fRegistry.clear();
+  this->Clear(true);
 }
 //____________________________________________________________________________
 void Registry::operator() (string key, int item)
@@ -119,9 +106,32 @@ void Registry::operator() (string key, string item)
   this->Set(key, item);
 }
 //____________________________________________________________________________
-Registry * Registry::operator = (const Registry & reg)
+Registry & Registry::operator = (const Registry & reg)
 {
-  return new Registry(reg);
+  this->Copy(reg);
+  return (*this);
+}
+//____________________________________________________________________________
+Registry & Registry::operator += (const Registry & reg)
+{
+  if( this->IsLocked() ) {
+      LOG("Registry", pWARN)
+               << "Registry is locked. Can not add more entries!";
+      return (*this);
+  }
+
+  Registry inp_reg(reg);
+
+  map<string, RegistryItemI *>::const_iterator reg_iter;
+  for(reg_iter = inp_reg.fRegistry.begin();
+                   reg_iter != inp_reg.fRegistry.end(); reg_iter++) {
+     string          name = reg_iter->first;
+     RegistryItemI * item = reg_iter->second;
+
+     pair<string, RegistryItemI *> reg_entry(name, item);
+     this->fRegistry.insert(reg_entry);
+  }
+  return (*this);
 }
 //____________________________________________________________________________
 void Registry::Lock(void)
@@ -597,6 +607,17 @@ void Registry::Print(ostream & stream) const
 //____________________________________________________________________________
 void Registry::Copy(const Registry & registry)
 {
+// copy input registry
+
+  if( this->IsLocked() ) {
+     LOG("Registry", pWARN)
+                << "Registry is locked. Can not copy input entries!";
+     return;
+  }
+
+  this->Init();
+  this->Clear();
+
   fName             = registry.fName;
   fIsReadOnly       = registry.fIsReadOnly;
   fInhibitItemLocks = registry.fInhibitItemLocks;
@@ -668,3 +689,38 @@ void Registry::Copy(const Registry & registry)
    }
 }
 //____________________________________________________________________________
+void Registry::Init(void)
+{
+// initialize registry properties
+
+  fName              = "unnamed";
+  fIsReadOnly        = false;
+  fInhibitItemLocks  = false;
+}
+//____________________________________________________________________________
+void Registry::Clear(bool force)
+{
+// clean all registry entries
+
+  if(!force) {
+    if( this->IsLocked() ) {
+        LOG("Registry", pWARN)
+                    << "Registry is locked. Can not clear its entries!";
+        return;
+    }
+  }
+
+  map<string, RegistryItemI *>::iterator reg_iter;
+
+  for(reg_iter = fRegistry.begin(); reg_iter != fRegistry.end(); reg_iter++) {
+
+     string          name = reg_iter->first;
+     RegistryItemI * item = reg_iter->second;
+
+     delete item;
+     item = 0;
+  }
+  fRegistry.clear();
+}
+//____________________________________________________________________________
+
