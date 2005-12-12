@@ -100,7 +100,7 @@ int main(int argc, char ** argv)
   filename << "GNtp" << NtpMCFormat::FilenameTag(format) << "-NeuGEN.root";
 
   NtpWriter ntpw(format);
-  ntpw.InitTree(filename.str());
+  ntpw.Initialize(filename.str());
 
   //-- initialize NeuGEN event generation
   char * flag = "NOFF";
@@ -133,8 +133,9 @@ int main(int argc, char ** argv)
 
      delete ev;
   }
-  //-- save the ntuple
-  ntpw.SaveTree();
+
+  //-- save the event tree
+  ntpw.Save();
 
   return 0;
 }
