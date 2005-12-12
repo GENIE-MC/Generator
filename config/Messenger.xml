@@ -80,6 +80,7 @@
   <priority msgstream="PartonModel">         INFO   </priority>
   <priority msgstream="DISSF">               INFO   </priority>
   <priority msgstream="ParticleDecayer">     INFO   </priority>
+  <priority msgstream="PaschLal">            INFO   </priority>
   <priority msgstream="PythiaHad">           INFO   </priority>
   <priority msgstream="PDG">                 INFO   </priority>
   <priority msgstream="PathL">               NOTICE </priority>
