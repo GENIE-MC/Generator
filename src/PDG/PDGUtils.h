@@ -48,11 +48,15 @@ namespace pdg
   bool IsAntiTau       (int pdgc);
   
   bool IsQuark         (int pdgc);
-  bool IsAntiQuark     (int pdgc);
   bool IsUQuark        (int pdgc);
   bool IsDQuark        (int pdgc);
   bool IsSQuark        (int pdgc);
   bool IsCQuark        (int pdgc);
+  bool IsAntiQuark     (int pdgc);
+  bool IsUAntiQuark    (int pdgc);
+  bool IsDAntiQuark    (int pdgc);
+  bool IsSAntiQuark    (int pdgc);
+  bool IsCAntiQuark    (int pdgc);
   
   bool IsProton        (int pdgc);
   bool IsNeutron       (int pdgc);
