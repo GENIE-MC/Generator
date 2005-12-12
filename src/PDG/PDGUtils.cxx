@@ -30,9 +30,8 @@ int genie::pdg::IonPdgCodeToZ(int ion_pdgc)
 // Decoding Z from the PDG code
 // GENIE uses the MINOS PDG extension for ions: PDG Code = [1AAAZZZ000]
 
-    int Z = (ion_pdgc/1000) - 1000*(ion_pdgc/1000000); // don't factor out
-
-    return Z;
+  int Z = (ion_pdgc/1000) - 1000*(ion_pdgc/1000000); // don't factor out
+  return Z;
 }
 //____________________________________________________________________________
 int genie::pdg::IonPdgCodeToA(int ion_pdgc)
@@ -40,198 +39,213 @@ int genie::pdg::IonPdgCodeToA(int ion_pdgc)
 // Decoding A from the PDG code
 // GENIE uses the MINOS PDG extension for ions: PDG Code = [1AAAZZZ000]
 
-    int A = (ion_pdgc/1000000) - 1000;
-
-    return A;
+  int A = (ion_pdgc/1000000) - 1000;
+  return A;
 }
 //____________________________________________________________________________
 int genie::pdg::IonPdgCode(int A, int Z)
 {
-    int ion_pdgc = (1000000000) + (A*1000000) + (Z*1000);
-
-    return ion_pdgc;
+  int ion_pdgc = (1000000000) + (A*1000000) + (Z*1000);
+  return ion_pdgc;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsIon(int pdgc)
 {
-    return (pdgc > 1000000000 && pdgc < 1999999999);
+  return (pdgc > 1000000000 && pdgc < 1999999999);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNeutrino(int pdgc)
 {
-    bool is_nu = (pdgc == kPdgNuE)  ||
-                 (pdgc == kPdgNuMu) ||
-                 (pdgc == kPdgNuTau);
-    return is_nu;
+  bool is_nu = (pdgc == kPdgNuE)  ||
+               (pdgc == kPdgNuMu) ||
+               (pdgc == kPdgNuTau);
+  return is_nu;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsAntiNeutrino(int pdgc)
 {
-    bool is_nubar = (pdgc == kPdgNuEBar)  ||
-                    (pdgc == kPdgNuMuBar) ||
-                    (pdgc == kPdgNuTauBar);
+  bool is_nubar = (pdgc == kPdgNuEBar)  ||
+                  (pdgc == kPdgNuMuBar) ||
+                  (pdgc == kPdgNuTauBar);
 
-    return is_nubar;
+  return is_nubar;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNeutralLepton(int pdgc)
 {
-    bool is_neutral_lepton = IsNeutrino(pdgc) || IsAntiNeutrino(pdgc);
-
-    return is_neutral_lepton;
+  bool is_neutral_lepton = IsNeutrino(pdgc) || IsAntiNeutrino(pdgc);
+  return is_neutral_lepton;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsChargedLepton(int pdgc)
 {
-    bool is_neg_lepton = (pdgc ==  kPdgElectron) ||
-                         (pdgc ==  kPdgMuon)     ||
-                         (pdgc ==  kPdgTau);
+  bool is_neg_lepton = (pdgc ==  kPdgElectron) ||
+                       (pdgc ==  kPdgMuon)     ||
+                       (pdgc ==  kPdgTau);
 
-    bool is_pos_lepton = (pdgc ==  kPdgPositron) ||
-                         (pdgc ==  kPdgAntiMuon) ||
-                         (pdgc ==  kPdgAntiTau);
+  bool is_pos_lepton = (pdgc ==  kPdgPositron) ||
+                       (pdgc ==  kPdgAntiMuon) ||
+                       (pdgc ==  kPdgAntiTau);
 
-    bool is_charged_lepton = is_neg_lepton || is_pos_lepton;
-
-    return is_charged_lepton;
+  bool is_charged_lepton = is_neg_lepton || is_pos_lepton;
+  return is_charged_lepton;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNuE(int pdgc)
 {
-    return ( pdgc == kPdgNuE );
+  return (pdgc == kPdgNuE);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNuMu(int pdgc)
 {
-    return ( pdgc == kPdgNuMu );
+  return (pdgc == kPdgNuMu);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNuTau(int pdgc)
 {
-    return ( pdgc == kPdgNuTau );
+  return (pdgc == kPdgNuTau);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsAntiNuE(int pdgc)
 {
-    return ( pdgc == kPdgNuEBar );
+  return (pdgc == kPdgNuEBar);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsAntiNuMu(int pdgc)
 {
-    return ( pdgc == kPdgNuMuBar );
+  return (pdgc == kPdgNuMuBar);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsAntiNuTau(int pdgc)
 {
-    return ( pdgc == kPdgNuTauBar );
+  return (pdgc == kPdgNuTauBar);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsElectron(int pdgc)
 {
-    return ( pdgc == kPdgElectron );
+  return (pdgc == kPdgElectron);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsPositron(int pdgc)
 {
-    return ( pdgc == kPdgPositron );
+  return (pdgc == kPdgPositron);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsMuon(int pdgc)
 {
-    return ( pdgc == kPdgMuon );
+  return (pdgc == kPdgMuon);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsAntiMuon(int pdgc)
 {
-    return ( pdgc == kPdgAntiMuon );
+  return (pdgc == kPdgAntiMuon);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsTau(int pdgc)
 {
-    return ( pdgc == kPdgTau );
+  return (pdgc == kPdgTau);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsAntiTau(int pdgc)
 {
-    return ( pdgc == kPdgAntiTau );
+  return (pdgc == kPdgAntiTau);
 }
 //____________________________________________________________________________
 int genie::pdg::Neutrino2ChargedLepton(int pdgc)
 {
-     switch(pdgc) {
-
+  switch(pdgc) {
        case (kPdgNuE)      : return kPdgElectron; break;
        case (kPdgNuEBar)   : return kPdgPositron; break;
        case (kPdgNuMu)     : return kPdgMuon;     break;
        case (kPdgNuMuBar)  : return kPdgAntiMuon; break;
        case (kPdgNuTau)    : return kPdgTau;      break;
        case (kPdgNuTauBar) : return kPdgAntiTau;  break;
-     }
-     return -1;
+  }
+  return -1;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsQuark(int pdgc)
 {
-    return ( pdgc == kPdgDQuark || pdgc == kPdgUQuark ||
-             pdgc == kPdgSQuark || pdgc == kPdgCQuark ||
-             pdgc == kPdgBQuark || pdgc == kPdgTQuark
-           );
+  return ( pdgc == kPdgDQuark || pdgc == kPdgUQuark ||
+           pdgc == kPdgSQuark || pdgc == kPdgCQuark ||
+           pdgc == kPdgBQuark || pdgc == kPdgTQuark
+         );
 }
 //____________________________________________________________________________
 bool genie::pdg::IsAntiQuark(int pdgc)
 {
-    return ( pdgc == kPdgDQuarkBar || pdgc == kPdgUQuarkBar ||
-             pdgc == kPdgSQuarkBar || pdgc == kPdgCQuarkBar ||
-             pdgc == kPdgBQuarkBar || pdgc == kPdgTQuarkBar
-           );
+  return ( pdgc == kPdgDQuarkBar || pdgc == kPdgUQuarkBar ||
+           pdgc == kPdgSQuarkBar || pdgc == kPdgCQuarkBar ||
+           pdgc == kPdgBQuarkBar || pdgc == kPdgTQuarkBar
+         );
 }
 //____________________________________________________________________________
 bool genie::pdg::IsUQuark(int pdgc)
 {
-    return ( pdgc == kPdgUQuark );
+  return (pdgc == kPdgUQuark);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsDQuark(int pdgc)
 {
-    return ( pdgc == kPdgDQuark );
+  return (pdgc == kPdgDQuark);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsSQuark(int pdgc)
 {
-    return ( pdgc == kPdgSQuark );
+  return (pdgc == kPdgSQuark);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsCQuark(int pdgc)
 {
-    return ( pdgc == kPdgCQuark );
+  return (pdgc == kPdgCQuark);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsUAntiQuark(int pdgc)
+{
+  return (pdgc == kPdgUQuarkBar);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsDAntiQuark(int pdgc)
+{
+  return (pdgc == kPdgDQuarkBar);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsSAntiQuark(int pdgc)
+{
+  return (pdgc == kPdgSQuarkBar);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsCAntiQuark(int pdgc)
+{
+  return (pdgc == kPdgCQuarkBar);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsProton(int pdgc)
 {
-    return ( pdgc == kPdgProton );
+  return (pdgc == kPdgProton);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNeutron(int pdgc)
 {
-    return ( pdgc == kPdgNeutron );
+  return (pdgc == kPdgNeutron);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNeutronOrProton(int pdgc)
 {
-    return ( pdgc == kPdgNeutron || pdgc == kPdgProton );
+  return (pdgc == kPdgNeutron || pdgc == kPdgProton);
 }
 //____________________________________________________________________________
 int genie::pdg::SwitchProtonNeutron(int pdgc)
 {
-    assert( IsProton(pdgc) || IsNeutron(pdgc) );
+  assert(IsProton(pdgc) || IsNeutron(pdgc));
 
-    if ( IsProton(pdgc) ) return kPdgNeutron;
-    else                  return kPdgProton;
+  if (IsProton(pdgc)) return kPdgNeutron;
+  else                return kPdgProton;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsBaryonResonance(int pdgc)
 {
-    return utils::res::IsBaryonResonance(pdgc);
+  return utils::res::IsBaryonResonance(pdgc);
 }
 //____________________________________________________________________________
 
