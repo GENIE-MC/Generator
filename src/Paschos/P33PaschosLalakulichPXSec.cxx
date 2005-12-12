@@ -60,7 +60,7 @@ P33PaschosLalakulichPXSec::~P33PaschosLalakulichPXSec()
 //____________________________________________________________________________
 double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
 {
-  LOG("Paschos", pDEBUG) << *fConfig;
+  LOG("PaschLal", pDEBUG) << *fConfig;
 
   //-- Get initial state and kinematic variables
   const InitialState & init_state = interaction -> GetInitialState();
@@ -70,6 +70,8 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   double E2 = TMath::Power(E,2);
   double Q2 = kinematics.Q2();
   double W  = kinematics.W();
+
+  LOG("PaschLal", pDEBUG) << "Input kinematics: W = " << W << ", Q2 = " << Q2;
 
   //-- Commonly used masses
   double MN   = kNucleonMass;
@@ -87,9 +89,9 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   Range1D_t rW  = utils::kinematics::WRange(interaction);
   Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
 
-  LOG("Paschos", pDEBUG) << "\n Physical W range: "
+  LOG("PaschLal", pDEBUG) << "\n Physical W range: "
                          << "["<< rW.min   << ", " << rW.max  << "] GeV";
-  LOG("Paschos", pDEBUG) << "\n Physical Q2 range: "
+  LOG("PaschLal", pDEBUG) << "\n Physical Q2 range: "
                          << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
   bool is_within_limits =
                utils::math::IsWithinLimits(W, rW) &&
@@ -97,16 +99,15 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
 
   if( !is_within_limits ) return 0.;
 
-  //-- P33(1232) information
+  //-- Retrieve P33(1232) information
 
-  const Algorithm * algbase = this->SubAlg("baryon-res-alg-name", "baryon-res-param-set");
-
-  const BaryonResDataSetI * resonance_data =
-                        dynamic_cast<const BaryonResDataSetI *> (algbase);
+  const BaryonResDataSetI * res_data_table =
+           dynamic_cast<const BaryonResDataSetI *> (this->SubAlg(
+                          "baryon-res-alg-name", "baryon-res-param-set"));
 
   BaryonResParams res_params;
 
-  res_params.SetDataSet(resonance_data);
+  res_params.SetDataSet(res_data_table);
   res_params.RetrieveData(kP33_1232);
 
   double MR   = res_params.Mass();
