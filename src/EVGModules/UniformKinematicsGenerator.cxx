@@ -22,6 +22,7 @@
 */
 //____________________________________________________________________________
 
+#include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "EVGModules/UniformKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
@@ -32,6 +33,7 @@
 #include "Utils/Range1.h"
 
 using namespace genie;
+using namespace genie::constants;
 using namespace genie::controls;
 
 //___________________________________________________________________________
@@ -198,8 +200,28 @@ void UniformKinematicsGenerator::GenerateUnifDISKinematics(
 }
 //___________________________________________________________________________
 void UniformKinematicsGenerator::GenerateUnifCOHKinematics(
-                                               GHepRecord * /*evrec*/) const
+                                                   GHepRecord * evrec) const
 {
   LOG("UnifKinematics", pWARN) << "Kinematics generator not implemented!!";
+
+  RandomGen * rnd = RandomGen::Instance();
+  Interaction * interaction = evrec->GetInteraction();
+
+  double Ev  = interaction->GetInitialState().GetProbeE(kRfLab);
+  double Mpi = kPionMass;
+
+  double ymin = Mpi/Ev;
+  double ymax = 1.;
+
+  double gx = rnd->Random2().Rndm(); // x in [0,1]
+  double gy = ymin + (ymax-ymin)*rnd->Random2().Rndm(); // y in [ymin, ymax]
+
+  LOG("UnifKinematics", pINFO) << "Selected: x = " << gx;
+  LOG("UnifKinematics", pINFO) << "Selected: y = " << gy;
+
+  interaction->GetKinematicsPtr()->Setx(gx);
+  interaction->GetKinematicsPtr()->Sety(gy);
+  evrec->SetDiffXSec(0);
 }
 //___________________________________________________________________________
+
