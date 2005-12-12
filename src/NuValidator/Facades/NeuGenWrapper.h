@@ -91,6 +91,8 @@ public:
   void SetCuts          (NeuGenCuts * cuts);
   void NoCuts           (void);  
 
+  NeuGenConfig * Configuration (void) const { return _config; }
+
   //-- methods for getting NeuGEN v and e cross sections & structure functions
     
   float XSec
