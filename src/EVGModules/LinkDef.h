@@ -29,6 +29,7 @@
 #pragma link C++ class genie::IMDTargetRemnantGenerator;
 #pragma link C++ class genie::IMDInteractionListGenerator;
 #pragma link C++ class genie::PrimaryVtxGenerator;
+#pragma link C++ class genie::FLUKA;
 #pragma link C++ class genie::Intranuke;
 #pragma link C++ class genie::InukeInt;
 #pragma link C++ class genie::UnstableParticleDecayer;
