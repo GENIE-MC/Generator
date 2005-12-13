@@ -82,6 +82,7 @@ public :
   string Name   (void) const; // that corresponds to the PDG code
   double Mass   (void) const; // that corresponds to the PDG code
   double Charge (void) const; // that corresponds to the PDG code
+  double KinE   (bool mass_from_pdg = false) const; // kinetic energy (E-m)
 
   bool Compare(const GHepParticle * p) const;
 

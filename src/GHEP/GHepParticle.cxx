@@ -16,6 +16,8 @@
 #include <cassert>
 #include <iomanip>
 
+#include <TMath.h>
+
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
@@ -118,6 +120,21 @@ double GHepParticle::Charge(void) const
 
   TParticlePDG * p = PDGLibrary::Instance()->Find(fPdgCode);
   return p->Charge();
+}
+//___________________________________________________________________________
+double GHepParticle::KinE(bool mass_from_pdg) const
+{
+  if(!fP4) {
+    LOG("GHepParticle", pWARN) << "4-momentum not yet set!";
+    return 0;
+  }
+
+  double E = fP4->Energy();
+  double M = ( (mass_from_pdg) ? this->Mass() : fP4->M() );
+  double K = E-M;
+
+  K = TMath::Max(K,0.);
+  return K;
 }
 //___________________________________________________________________________
 int GHepParticle::Z(void) const
