@@ -56,6 +56,7 @@ public:
   void SetStruckNucleonPDGCode (int pdgc);
   void SetStruckQuarkPDGCode   (int pdgc);
   void SetStruckNucleonP4      (const TLorentzVector & p4);
+  void SetStruckSeaQuark       (bool tf);
 
   int              StruckNucleonPDGCode (void) const;
   int              StruckQuarkPDGCode   (void) const;
@@ -71,6 +72,8 @@ public:
   bool   IsParticle              (void) const;
   bool   IsValidNucleus          (void) const;
   bool   StruckNucleonIsSet      (void) const;
+  bool   StruckQuarkIsSet        (void) const;
+  bool   StruckQuarkIsFromSea    (void) const;
   bool   IsEvenEven              (void) const;
   bool   IsEvenOdd               (void) const;
   bool   IsOddOdd                (void) const;
@@ -96,6 +99,8 @@ private:
   int  fStruckNucPDG;
   int  fStruckQuarkPDG;
   int  fTgtPDG;
+  bool fStruckSeaQuark;
+
   TLorentzVector * fStruckNucP4;
 
 ClassDef(Target,1)
