@@ -106,7 +106,12 @@ string Target::AsString(void) const
 
   s << this->PDGCode();
   if(this->StruckNucleonIsSet())
-           s << "[" <<  this->StruckNucleonPDGCode() << "]";
+     s << "[N=" << this->StruckNucleonPDGCode() << "]";
+  if(this->StruckQuarkIsSet()) {
+     s << "[q=" << this->StruckQuarkPDGCode();
+     s << (this->StruckQuarkIsFromSea() ? "(s)" : "(v)");
+     s << "]";
+  }
 
   return s.str();
 }
@@ -122,8 +127,9 @@ void Target::Copy(const Target & tgt)
      fZ = tgt.fZ; // copy A,Z
      fA = tgt.fA;
 
-     fStruckNucPDG   = tgt.fStruckNucPDG;   // copy struck nucleon PDG
-     fStruckQuarkPDG = tgt.fStruckQuarkPDG; // copy struck quark PDG
+     fStruckNucPDG   = tgt.fStruckNucPDG;   // struck nucleon PDG
+     fStruckQuarkPDG = tgt.fStruckQuarkPDG; // struck quark PDG
+     fStruckSeaQuark = tgt.fStruckSeaQuark; // struck quark is from sea?
 
      if(tgt.fStruckNucP4) {
         fStruckNucP4 = new TLorentzVector(*tgt.fStruckNucP4);
@@ -185,6 +191,18 @@ bool Target::StruckNucleonIsSet(void) const
   return pdg::IsNeutronOrProton(fStruckNucPDG);
 }
 //___________________________________________________________________________
+bool Target::StruckQuarkIsSet(void) const
+{
+  return (
+     pdg::IsQuark(fStruckQuarkPDG) || pdg::IsAntiQuark(fStruckQuarkPDG)
+  );
+}
+//___________________________________________________________________________
+bool Target::StruckQuarkIsFromSea(void) const
+{
+  return fStruckSeaQuark;
+}
+//___________________________________________________________________________
 void Target::SetZA(int Z, int A)
 {
   fZ = Z;
@@ -196,7 +214,6 @@ void Target::SetZA(int Z, int A)
   // automaticaly set
 
   if( this->IsFreeNucleon() ) {
-
     if( this->IsProton() ) this->SetStruckNucleonPDGCode(kPdgProton);
     else                   this->SetStruckNucleonPDGCode(kPdgNeutron);
   }
@@ -205,18 +222,13 @@ void Target::SetZA(int Z, int A)
 void Target::SetStruckNucleonPDGCode(int nucl_pdgc)
 {
   fStruckNucPDG = nucl_pdgc;
-
   bool is_valid = this->ForceStruckNucleonValidity();  // must be p or n
 
   // If it is a valid struck nucleon pdg code, initialize its 4P:
   // at-rest + on-mass-shell
-
   if( is_valid ) {
-
     double M = PDGLibrary::Instance()->Find(nucl_pdgc)->Mass();
-
     TLorentzVector p4(0,0,0,M);
-
     this->SetStruckNucleonP4(p4);
   }
 }
@@ -229,8 +241,12 @@ void Target::SetStruckQuarkPDGCode(int pdgc)
 void Target::SetStruckNucleonP4(const TLorentzVector & p4)
 {
   if(fStruckNucP4) delete fStruckNucP4;
-
   fStruckNucP4 = new TLorentzVector(p4);
+}
+//___________________________________________________________________________
+void Target::SetStruckSeaQuark(bool tf)
+{
+  fStruckSeaQuark = tf;
 }
 //___________________________________________________________________________
 int Target::StruckNucleonPDGCode(void) const
@@ -258,9 +274,7 @@ double Target::Mass(void) const
 // Shortcut for commonly used code for extracting the nucleus mass from PDG
 //
   TParticlePDG * p = PDGLibrary::Instance()->Find(fTgtPDG);
-
   if(p) return p->Mass(); // in GeV
-
   return 0.;
 }
 //___________________________________________________________________________
@@ -269,9 +283,7 @@ double Target::Charge(void) const
 // Shortcut for commonly used code for extracting the nucleus charge from PDG
 //
   TParticlePDG * p = PDGLibrary::Instance()->Find(fTgtPDG);
-
   if(p) return p->Charge() / 3.; // in +e
-
   return 0;
 }
 //___________________________________________________________________________
@@ -281,7 +293,6 @@ double Target::StruckNucleonMass(void) const
     LOG("Target", pWARN) << "Returning struck nucleon mass = 0";
     return 0;
   }
-
   return PDGLibrary::Instance()->Find(fStruckNucPDG)->Mass();
 }
 //___________________________________________________________________________
@@ -293,6 +304,7 @@ void Target::Init(void)
   fTgtPDG         = 0;
   fStruckNucPDG   = 0;
   fStruckQuarkPDG = 0;
+  fStruckSeaQuark = false;
 
   fStruckNucP4  = new TLorentzVector(0,0,0,kNucleonMass);
 }
@@ -313,9 +325,7 @@ bool Target::ForceStruckNucleonValidity(void)
 void Target::ForceNucleusValidity(void)
 {
   if( ! this->IsValidNucleus() ) {
-
     LOG("Target", pWARN) << "Invalid target -- Reseting to Z = 0, A = 0";
-
     fZ = 0;
     fA = 0;
   }
@@ -324,17 +334,13 @@ void Target::ForceNucleusValidity(void)
 bool Target::IsValidNucleus(void) const
 {
   //-- it is valid if it is a free nucleon...
-
   if(this->IsFreeNucleon()) return true;
 
   //-- ... or a nucleus that can be found in the MINOS ion PDG extensions
-
   int pdg_code = pdg::IonPdgCode(fA, fZ);
-
   TParticlePDG * p = PDGLibrary::Instance()->Find(pdg_code);
 
   if(p) return true;
-
   return false;
 }
 //___________________________________________________________________________
@@ -353,7 +359,6 @@ bool Target::IsEvenEven(void) const
 bool Target::IsEvenOdd(void) const
 {
   if( this->IsNucleus() ) {
-
       if(! this->IsEvenEven() && ! this->IsOddOdd() ) return true;
   }
   return false;
@@ -362,10 +367,8 @@ bool Target::IsEvenOdd(void) const
 bool Target::IsOddOdd(void) const
 {
   if( this->IsNucleus() ) {
-
     int N = this->N();
     int Z = this->Z();
-
     if( N % 2 == 1 && Z % 2 == 1 ) return true;
   }
   return false;
