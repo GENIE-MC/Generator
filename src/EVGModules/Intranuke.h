@@ -32,7 +32,7 @@ class TVector3;
 
 namespace genie {
 
-class Target;
+class GHepParticle;
 
 class Intranuke : public EventRecordVisitorI {
 
@@ -46,13 +46,13 @@ public :
 
 private:
 
-  TVector3       Hadronic3P   (GHepRecord * event_rec) const;
-  TLorentzVector StepParticle (const TLorentzVector & x4,
-                               const TLorentzVector & p4, double step) const;
-  double         MeanFreePath (const Target & target,
-                               const TLorentzVector & p4, int pdgc) const;
-  INukeProc_t    PionFate     (const Target & target,
-                               const TLorentzVector & p4, int pdgc) const;
+  bool        CanRescatter   (const GHepParticle * p) const;
+  TVector3    Hadronic3P     (GHepRecord * event) const;
+  void        StepParticle   (GHepParticle * p, double step) const;
+  void        StepParticleMF (GHepParticle * p, double step, int Z) const;
+  double      MeanFreePath   (double K) const;
+  bool        IsInNucleus    (const GHepParticle * p, double R0) const;
+  INukeProc_t ParticleFate   (const GHepParticle * p) const;
 };
 
 }      // genie namespace
