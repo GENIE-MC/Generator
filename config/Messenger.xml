@@ -46,6 +46,7 @@
   <priority msgstream="FermiP">              INFO   </priority>
   <priority msgstream="FragmentCharm">       INFO   </priority>
   <priority msgstream="Flux">                INFO   </priority>
+  <priority msgstream="FLUKA">               INFO   </priority>
   <priority msgstream="GEVGDriver">          INFO   </priority>
   <priority msgstream="GMCJDriver">          INFO   </priority>
   <priority msgstream="GEVGPool">            INFO   </priority>
