@@ -5,14 +5,18 @@
 
 \brief   The INTRANUKE cascading MC for intranuclear rescattering.
 
-         add description here
-         this is a EventRecordVisitorI template
-
          Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author
+\ref     R.Merenyi et al., Phys.Rev.D45 (1992)
+         R.D.Ransome, Nucl.Phys.B 139 (2005)
 
-\created Month xx, yyyy
+         The original INTRANUKE cascade MC was developed (in fortran) for the
+         NeuGEN MC by G.F.Pearce, R.Edgecock, W.A.Mann and H.Gallagher.
+
+\author  Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
+         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> CCLRC, Rutherford Lab
+
+\created September 20, 2005
 
 */
 //____________________________________________________________________________
@@ -21,25 +25,12 @@
 #define _INTRANUKE_H_
 
 #include "EVGCore/EventRecordVisitorI.h"
-#include "EVGModules/InukeInt.h"
+#include "EVGModules/IntranukeProc.h"
 
 class TLorentzVector;
 class TVector3;
 
 namespace genie {
-
-// Cummulative interaction probabilities for pi+Fe in 50 MeV bins
-// Data from NeuGEN's Intranuke
-static const int kPNDataPoints = 12;
-static const double kPElastic[kPNDataPoints] = {
-       .97,.94,.93,.92,.91,.90,.90,.90,.90,.90,.90,.90
-};
-static const double kPInelastic[kPNDataPoints] = {
-       .51,.53,.55,.56,.56,.57,.57,.57,.57,.57,.57,.57
-};
-static const double kPAbsorption[kPNDataPoints] = {
-       .13,.18,.23,.23,.18,.13,.10,.08,.07,.06,.05,.05
-};
 
 class Target;
 
@@ -60,7 +51,7 @@ private:
                                const TLorentzVector & p4, double step) const;
   double         MeanFreePath (const Target & target,
                                const TLorentzVector & p4, int pdgc) const;
-  InukeInt_t     PionFate     (const Target & target,
+  INukeProc_t    PionFate     (const Target & target,
                                const TLorentzVector & p4, int pdgc) const;
 };
 

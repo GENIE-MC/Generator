@@ -5,20 +5,25 @@
 
 \brief   The INTRANUKE cascading MC for intranuclear rescattering.
 
-         add description here
-         this is a EventRecordVisitorI template
-
          Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author
+\ref     R.Merenyi et al., Phys.Rev.D45 (1992)
+         R.D.Ransome, Nucl.Phys.B 139 (2005)
 
-\created Month xx, yyyy
+         The original INTRANUKE cascade MC was developed (in fortran) for the
+         NeuGEN MC by G.F.Pearce, R.Edgecock, W.A.Mann and H.Gallagher.
+
+\author  Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
+         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> CCLRC, Rutherford Lab
+
+\created September 20, 2005
 
 */
 //____________________________________________________________________________
 
 #include "Conventions/Constants.h"
 #include "EVGModules/Intranuke.h"
+#include "EVGModules/IntranukeConstants.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepOrder.h"
 #include "GHEP/GHepRecord.h"
@@ -209,27 +214,27 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
       }
 
       // If it interacts, decide the hadron interaction type
-      InukeInt_t inukei = this->PionFate(target, p4, pdgc);
+      INukeProc_t inukp = this->PionFate(target, p4, pdgc);
       LOG("Intranuke", pINFO)
            << "Selected intranuke interaction for " << p->Name()
-                                  << ": " << InukeInt::AsString(inukei);
+                                  << ": " << INukeProc::AsString(inukp);
 
       // Compute 4-p of the interacted hadron
-      switch (inukei) {
-        case kInukiAbsorption:
+      switch (inukp) {
+        case kINukAbsorption:
              LOG("Intranuke", pINFO) << "Absorbing hadron & done with it.";
              p->SetStatus(kIstHadronInTheNucleus);
              p->SetVertex(x4);
              go_on = false;
              break;
 
-        case kInukiChargeExchange:
+        case kINukChargeExchange:
              LOG("Intranuke", pWARN) << "Can not do charge exchange yet.";
              break;
-        case kInukiInelastic:
+        case kINukInelastic:
              LOG("Intranuke", pWARN) << "Can not do inelastic scatering yet.";
              break;
-        case kInukiElastic:
+        case kINukElastic:
              LOG("Intranuke", pWARN) << "Can not do elastic scatering yet.";
              break;
         default:
@@ -281,7 +286,7 @@ double Intranuke::MeanFreePath(
   return L;
 }
 //___________________________________________________________________________
-InukeInt_t Intranuke::PionFate(
+INukeProc_t   Intranuke::PionFate(
             const Target & target, const TLorentzVector & p4, int pdgc) const
 {
 // Selects interaction type for the particle that is currently rescaterred.
@@ -292,17 +297,17 @@ InukeInt_t Intranuke::PionFate(
   double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
   double K = 1000*(E-m); // in MeV
 
-  int Kbin = TMath::Min (int(K/50.), kPNDataPoints-1);
+  int Kbin = TMath::Min (int(K/50.), intranuke::kPNDataPoints-1);
 
   RandomGen * rnd = RandomGen::Instance();
   double t = rnd->Random2().Rndm();
 
-  if      ( t < kPElastic[Kbin]    ) return kInukiElastic;
-  else if ( t < kPInelastic[Kbin]  ) return kInukiInelastic;
-  else if ( t < kPAbsorption[Kbin] ) return kInukiAbsorption;
-  else                               return kInukiChargeExchange;
+  if      ( t < intranuke::kPElastic[Kbin]    ) return kINukElastic;
+  else if ( t < intranuke::kPInelastic[Kbin]  ) return kINukInelastic;
+  else if ( t < intranuke::kPAbsorption[Kbin] ) return kINukAbsorption;
+  else                                          return kINukChargeExchange;
 
-  return kInukiUndefined;
+  return kINukUndefined;
 }
 //___________________________________________________________________________
 TLorentzVector Intranuke::StepParticle(
