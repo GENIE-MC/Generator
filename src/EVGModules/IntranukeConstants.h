@@ -5,9 +5,7 @@
 
 \brief     Data used by INTRANUKE cascade MC for intranuclear rescattering.
 
-\author    name <e-mail>
-
-\created   Month xx, yyyy
+\created   December 10, 2005
 
 */
 //____________________________________________________________________________
