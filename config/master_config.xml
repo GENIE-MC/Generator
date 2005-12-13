@@ -322,6 +322,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::FLUKA">   
+       <config_file> 
+             FLUKA.xml 
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::UnstableParticleDecayer">   
        <config_file> 
              UnstableParticleDecayer.xml 
