@@ -20,6 +20,7 @@
 #define _PROCESS_INFO_H_
 
 #include <iostream>
+#include <string>
 
 #include <TObject.h>
 
@@ -27,6 +28,7 @@
 #include "Interaction/ScatteringType.h"
 
 using std::ostream;
+using std::string;
 
 namespace genie {
 
@@ -55,15 +57,16 @@ public:
   ScatteringType_t  ScatteringTypeId  (void) const;
   InteractionType_t InteractionTypeId (void) const;
 
-  const char * AsString                (void) const;
-  const char * ScatteringTypeAsString  (void) const;
-  const char * InteractionTypeAsString (void) const;
+  string AsString                (void) const;
+  string ScatteringTypeAsString  (void) const;
+  string InteractionTypeAsString (void) const;
 
   bool Compare (const ProcessInfo & proc) const;
   void Copy    (const ProcessInfo & proc);
   void Print   (ostream & stream)         const;
 
-  friend ostream & operator<< (ostream& stream, const ProcessInfo & proc);
+  ProcessInfo &    operator =  (const ProcessInfo & proc);
+  friend ostream & operator << (ostream& stream, const ProcessInfo & proc);
 
 private:
 

@@ -17,12 +17,10 @@
 //____________________________________________________________________________
 
 #include <sstream>
-#include <string>
 
 #include "Interaction/ProcessInfo.h"
 
 using std::ostringstream;
-using std::string;
 using std::endl;
 
 using namespace genie;
@@ -45,7 +43,8 @@ fInteractionType (kIntNull)
 
 }
 //____________________________________________________________________________
-ProcessInfo::ProcessInfo(ScatteringType_t sc_type, InteractionType_t  int_type) :
+ProcessInfo::ProcessInfo(
+                      ScatteringType_t sc_type, InteractionType_t  int_type) :
 fScatteringType  (sc_type),
 fInteractionType (int_type)
 {
@@ -54,8 +53,7 @@ fInteractionType (int_type)
 //____________________________________________________________________________
 ProcessInfo::ProcessInfo(const ProcessInfo & proc)
 {
-  fScatteringType  = proc.fScatteringType;
-  fInteractionType = proc.fInteractionType;
+  this->Copy(proc);
 }
 //____________________________________________________________________________
 ProcessInfo::~ProcessInfo()
@@ -123,28 +121,29 @@ ScatteringType_t ProcessInfo::ScatteringTypeId(void) const
   return fScatteringType;
 }
 //____________________________________________________________________________
-const char * ProcessInfo::AsString(void) const
+string ProcessInfo::AsString(void) const
 {
   ostringstream stream;
 
-  stream << "<" << ScatteringTypeAsString() << " - "
-                                          << InteractionTypeAsString() << ">";
+  stream << "<" 
+         << this->ScatteringTypeAsString() 
+         << " - "
+         << this->InteractionTypeAsString() 
+         << ">";
 
-  return stream.str().c_str();
+  return stream.str();
 }
 //____________________________________________________________________________
-const char * ProcessInfo::ScatteringTypeAsString(void) const
+string ProcessInfo::ScatteringTypeAsString(void) const
 {
   string scattering_type = ScatteringType::AsString(fScatteringType);
-
-  return scattering_type.c_str();
+  return scattering_type;
 }
 //____________________________________________________________________________
-const char * ProcessInfo::InteractionTypeAsString(void) const
+string ProcessInfo::InteractionTypeAsString(void) const
 {
   string interaction_type = InteractionType::AsString(fInteractionType);
-
-  return interaction_type.c_str();
+  return interaction_type;
 }
 //____________________________________________________________________________
 void ProcessInfo::Set(ScatteringType_t sc_type, InteractionType_t  int_type)
@@ -170,8 +169,14 @@ void ProcessInfo::Copy(const ProcessInfo & proc)
 void ProcessInfo::Print(ostream & stream) const
 {
   stream << "[-] [Process-Info]  " << endl
-         << " |--> Interaction : " << InteractionTypeAsString() << endl
-         << " |--> Scattering  : " << ScatteringTypeAsString()  << endl;
+         << " |--> Interaction : " << this->InteractionTypeAsString() << endl
+         << " |--> Scattering  : " << this->ScatteringTypeAsString()  << endl;
+}
+//____________________________________________________________________________
+ProcessInfo & ProcessInfo::operator = (const ProcessInfo & proc)
+{
+  this->Copy(proc);
+  return (*this);
 }
 //____________________________________________________________________________
 

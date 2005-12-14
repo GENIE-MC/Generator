@@ -172,24 +172,27 @@ string Interaction::AsString(void) const
 // Code-ify the interaction in a string to be used as (part of a) cache
 // branch key.
 // Template:
-// nu:x;tgt:x;N:x;q:x;intp:x;sctp:x;xclv:x
+// nu:x;tgt:x;N:x;q:x(s/v);intp:x;sctp:x;xclv:x
+
+  const Target & tgt = fInitialState->GetTarget();
 
   ostringstream interaction;
 
-  interaction << "nu:"
-              << fInitialState->GetProbePDGCode() << ";";
-  interaction << "tgt:"
-              << fInitialState->GetTarget().PDGCode() << ";";
-  interaction << "N:"
-              << fInitialState->GetTarget().StruckNucleonPDGCode() << ";";
-  interaction << "q:"
-              << fInitialState->GetTarget().StruckQuarkPDGCode() << ";";
-  interaction << "intp:"
-              << fProcInfo->InteractionTypeAsString() << ";";
-  interaction << "sctp:"
-              << fProcInfo->ScatteringTypeAsString() << ";";
-  interaction << "xclv:"
-              << fExclusiveTag->AsString() << ";";
+  interaction << "nu:"  << fInitialState->GetProbePDGCode() << ";";
+  interaction << "tgt:" << tgt.PDGCode() << ";";
+
+  if(tgt.StruckNucleonIsSet()) {
+    interaction << "N:" << tgt.StruckNucleonPDGCode() << ";";
+  }
+  if(tgt.StruckQuarkIsSet()) {
+    interaction << "q:" << tgt.StruckQuarkPDGCode() 
+                << (tgt.StruckQuarkIsFromSea() ? "(s)" : "(v)") << ";";
+  }
+
+  interaction << "intp:" << fProcInfo->InteractionTypeAsString() << ";";
+  interaction << "sctp:" << fProcInfo->ScatteringTypeAsString()  << ";";
+
+  interaction << "xclv:" << fExclusiveTag->AsString() << ";";
 
   return interaction.str();
 }

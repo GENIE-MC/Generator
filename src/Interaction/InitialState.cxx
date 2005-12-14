@@ -337,7 +337,8 @@ void InitialState::Print(ostream & stream) const
 
   if ( pdg::IsQuark(qrk_pdgc) || pdg::IsAntiQuark(qrk_pdgc)) {
     TParticlePDG * p = PDGLibrary::Instance()->Find(qrk_pdgc);
-    stream << "PDC-Code = " << qrk_pdgc << " (" << p->GetName() << ")";
+    stream << "PDC-Code = " << qrk_pdgc << " (" << p->GetName() << ") ";
+    stream << (fTarget->StruckQuarkIsFromSea() ? "[sea]" : "[valence]");
   } else {
     stream << "no set";
   }

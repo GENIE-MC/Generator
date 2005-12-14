@@ -383,11 +383,17 @@ void Target::Print(ostream & stream) const
   }
 
   if( this->StruckNucleonIsSet() ) {
-
     TParticlePDG * p = PDGLibrary::Instance()->Find(fStruckNucPDG);
-
     stream << " struck nucleon = " << p->GetName()
               << ", P4 = " << utils::print::P4AsString(fStruckNucP4) << endl;
+  }
+
+  if( this->StruckQuarkIsSet() ) {
+    TParticlePDG * q = PDGLibrary::Instance()->Find(fStruckQuarkPDG);
+    stream << " struck quark = " << q->GetName()
+           << " (from sea: " 
+           << utils::print::BoolAsYNString(this->StruckQuarkIsFromSea())
+           << ")";
   }
 }
 //___________________________________________________________________________
