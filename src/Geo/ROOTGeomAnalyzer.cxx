@@ -653,19 +653,32 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat, int pdgc)
 //___________________________________________________________________________
 double ROOTGeomAnalyzer::GetWeight(TGeoMixture * mixt, int pdgc)
 {
-// Get the weight of the input mixture (sum-up the weights of all elements
-// matching the input pdg code)
+// Loop over the mixture elements, find the one matching the input pdgc
+// and  return its weight
 
   double weight = 0;
 
-  // loop over elements & sum weights of matching elements
+  int nm = 0;
   for(int i = 0; i < mixt->GetNelements(); i++) {
-     if(weight>0) {
-        LOG("GROOTGeom", pWARN)
-           << "Material pdgc = " << pdgc
-              << " appears more than once in mixture = " << mixt->GetName();
+     double dw = (this->GetWeight(mixt,i,pdgc));
+     if(dw>0) nm++;
+     weight += dw;
+  }
+
+  if(nm>1) {
+     for(int j = 0; j < mixt->GetNelements(); j++) {
+           TGeoElement * e = mixt->GetElement(j);
+           LOG("GROOTGeom", pWARN)
+              << "[" << j << "] Z = " << e->Z() << ", A = " << e->A()
+                      << " (pdgc = " << this->GetTargetPdgCode(e)
+                                       << "), w = " << mixt->GetWmixt()[j];
      }
-     weight += (this->GetWeight(mixt,i,pdgc));
+     LOG("GROOTGeom", pERROR)
+        << "Material pdgc = " << pdgc << " appears " << nm
+                        << " times (>1) in mixture = " << mixt->GetName();
+     LOG("GROOTGeom", pFATAL)
+        << "Your geometry must be incorrect - Aborting";
+     exit(1);
   }
 
   // if we are not weighting with the density then the weight=1 if the pdg
@@ -769,8 +782,8 @@ void ROOTGeomAnalyzer::ScalePathLengths(PathLengthList & pl)
 //___________________________________________________________________________
 int ROOTGeomAnalyzer::GetTargetPdgCode(const TGeoMaterial * const m) const
 {
-  int A = int(m->GetA());
-  int Z = int(m->GetZ());
+  int A = TMath::Nint(m->GetA());
+  int Z = TMath::Nint(m->GetZ());
 
   int pdgc = pdg::IonPdgCode(A,Z);
 
@@ -779,8 +792,8 @@ int ROOTGeomAnalyzer::GetTargetPdgCode(const TGeoMaterial * const m) const
 //___________________________________________________________________________
 int ROOTGeomAnalyzer::GetTargetPdgCode(const TGeoElement * const e) const
 {
-  int A = int(e->A());
-  int Z = int(e->Z());
+  int A = TMath::Nint(e->A());
+  int Z = e->Z();
 
   int pdgc = pdg::IonPdgCode(A,Z);
 
