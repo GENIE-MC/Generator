@@ -26,6 +26,7 @@
 #include <TTree.h>
 #include <TSQLServer.h>
 #include <TGraph.h>
+#include <TMath.h>
 
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
@@ -388,12 +389,20 @@ void Spline::SaveAsROOT(string filename, string name, bool recreate) const
   f.Close();
 }
 //___________________________________________________________________________
-TGraph * Spline::GetAsTGraph(int np, bool scale_with_x) const
+TGraph * Spline::GetAsTGraph(
+          int np, bool scale_with_x, bool in_log, double fx, double fy) const
 {
   double xmin = fXMin;
   double xmax = fXMax;
 
-  if(np < 2) np = 2;
+  np = TMath::Max(np,2);
+
+  bool use_log = in_log && (fXMin>0) && (fXMax>0);
+
+  if(use_log) {
+    xmin = TMath::Log10(xmin);
+    xmax = TMath::Log10(xmax);
+  }
 
   double dx = (xmax - xmin) / (np-1);
 
@@ -402,10 +411,15 @@ TGraph * Spline::GetAsTGraph(int np, bool scale_with_x) const
 
   for(int i=0; i<np; i++) {
 
-      x[i]  = xmin + i*dx;
+      x[i] = ( (use_log) ? TMath::Power(10, xmin+i*dx) : xmin + i*dx );
       y[i] = this->Evaluate( x[i] );
 
+      // scale with x if needed
       if (scale_with_x) y[i] /= x[i];
+
+      // apply x,y scaling
+      y[i] *= fy;
+      x[i] *= fx;
   }
 
   TGraph * graph = new TGraph(np, x, y);
@@ -465,8 +479,10 @@ void Spline::BuildSpline(int nentries, double x[], double y[])
 {
   LOG("Spline", pDEBUG) << "Building spline...";
 
-  double xmin = x[ TMath::LocMin(nentries, x) ]; // minimum x in spline
-  double xmax = x[ TMath::LocMax(nentries, x) ]; // maximum x in spline
+  //double xmin = x[ TMath::LocMin(nentries, x) ]; // minimum x in spline
+  //double xmax = x[ TMath::LocMax(nentries, x) ]; // maximum x in spline
+  double xmin = x[0];          // minimum x in spline
+  double xmax = x[nentries-1]; // maximum x in spline
 
   fNKnots = nentries;
   fXMin   = xmin;
