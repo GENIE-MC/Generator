@@ -77,7 +77,8 @@ public:
   void   SaveAsROOT(string filename, string name="", bool recreate=false) const;
 
   // export Spline as TGraph or TSpline3
-  TGraph *   GetAsTGraph  (int npoints = 100, bool scale_with_x = false) const;
+  TGraph *   GetAsTGraph  (int np = 500, bool xscaling = false,
+                           bool inlog=false, double fx=1., double fy=1.) const;
   TSpline3 * GetAsTSpline (void) const { return fInterpolator; }
 
   // knot manipulation methods in additions to the TSpline3 ones
