@@ -86,6 +86,11 @@ bool XSecSplineList::SplineExists(
             const XSecAlgorithmI * alg, const Interaction * interaction) const
 {
   string key = this->BuildSplineKey(alg,interaction);
+  return this->SplineExists(key);
+}
+//____________________________________________________________________________
+bool XSecSplineList::SplineExists(string key) const
+{
   SLOG("XSecSplineList", pDEBUG) << "Checking for spline with key = " << key;
 
   bool exists = (fSplineMap.count(key) == 1);
@@ -98,8 +103,12 @@ const Spline * XSecSplineList::GetSpline(
             const XSecAlgorithmI * alg, const Interaction * interaction) const
 {
   string key = this->BuildSplineKey(alg,interaction);
-
-  if ( this->SplineExists(alg,interaction) ) {
+  return this->GetSpline(key);
+}
+//____________________________________________________________________________
+const Spline * XSecSplineList::GetSpline(string key) const
+{
+  if ( this->SplineExists(key) ) {
      map<string, Spline *>::const_iterator iter = fSplineMap.find(key);
      return iter->second;
   } else {
@@ -360,7 +369,7 @@ string XSecSplineList::BuildSplineKey(
   return key;
 }
 //____________________________________________________________________________
-bool XSecSplineList::AutoLoad(void) 
+bool XSecSplineList::AutoLoad(void)
 {
 // Checks the $GSPLOAD env. variable and if found set reads the cross splines
 // from the XML file it points to.
@@ -379,17 +388,30 @@ bool XSecSplineList::AutoLoad(void)
        assert(status==kXmlOK);
        return true;
      } else {
-       LOG("XSecSplineList", pWARN) 
+       LOG("XSecSplineList", pWARN)
               << "Specified XML file [" << xmlfile << "] is not accessible!";
        return false;
      }
   }
-  LOG("XSecSplineList", pNOTICE) 
+  LOG("XSecSplineList", pNOTICE)
                       << "No cross section splines will be loaded";
   return false;
 }
 //____________________________________________________________________________
-void XSecSplineList::AutoSave(void) 
+const vector<string> * XSecSplineList::GetSplineKeys(void) const
+{
+  vector<string> * keyv = new vector<string>(fSplineMap.size());
+
+  unsigned int i=0;
+  map<string, Spline *>::const_iterator mapiter;
+  for(mapiter = fSplineMap.begin(); mapiter != fSplineMap.end(); ++mapiter) {
+    string key = mapiter->first;
+    (*keyv)[i++]=key;
+  }
+  return keyv;
+}
+//____________________________________________________________________________
+void XSecSplineList::AutoSave(void)
 {
 // Checks whether the $GSPSAVE env. variable and if found set it saves the
 // cross section splines at the XML file this variable points to.
@@ -432,3 +454,4 @@ void XSecSplineList::Print(ostream & stream) const
 //___________________________________________________________________________
 
 } // genie namespace
+
