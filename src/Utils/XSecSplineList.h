@@ -17,12 +17,14 @@
 
 #include <ostream>
 #include <map>
+#include <vector>
 #include <string>
 
 #include "Conventions/XmlParserStatus.h"
 
 using std::map;
 using std::pair;
+using std::vector;
 using std::string;
 using std::ostream;
 
@@ -39,7 +41,9 @@ public:
 
   //-- query the existence, access or create a spline
   bool           SplineExists (const XSecAlgorithmI * alg, const Interaction * i) const;
-  const Spline * GetSpline    (const XSecAlgorithmI * alg, const Interaction * i) const;
+  bool           SplineExists (string spline_key) const;
+  const Spline * GetSpline   (const XSecAlgorithmI * alg, const Interaction * i) const;
+  const Spline * GetSpline    (string spline_key) const;
   void           CreateSpline (const XSecAlgorithmI * alg, const Interaction * i,
                                    int nknots = -1, double Emin = -1, double Emax = -1);
   //-- set XSecSplineList options
@@ -54,26 +58,28 @@ public:
   double Emin        (void) const { return fEmin;        }
   double Emax        (void) const { return fEmax;        }
 
-  //-- save to / load from XML file
+  //-- save/load to/from XML file
   void               SaveAsXml   (string filename) const;
   XmlParserStatus_t  LoadFromXml (string filename, bool keep = false);
 
-  //-- autosave / autoload
-
+  //-- autosave/autoload
   bool AutoLoad (void);
   void AutoSave (void);
+
+  //-- methods for building / getting keys
+  string BuildSplineKey(const XSecAlgorithmI * alg, const Interaction * i) const;
+  const vector<string> * GetSplineKeys(void) const;
 
   //-- print available splines
   void   Print (ostream & stream) const;
   friend ostream & operator << (ostream & stream, const XSecSplineList & xsl);
+
 
 private:
 
   XSecSplineList();
   XSecSplineList(const XSecSplineList & spline_list);
   virtual ~XSecSplineList();
-
-  string BuildSplineKey(const XSecAlgorithmI * alg, const Interaction * i) const;
 
   static XSecSplineList * fInstance;
 
