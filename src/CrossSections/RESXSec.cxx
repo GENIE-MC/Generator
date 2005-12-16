@@ -145,9 +145,9 @@ void RESXSec::Configure(string config)
 //____________________________________________________________________________
 void RESXSec::LoadConfigData(void)
 {
-  //-- Get number of integration steps
-  int   fNW      = fConfig->GetIntDef("nW",     31);
-  int   fNlogQ2  = fConfig->GetIntDef("nLogQ2", 61);
+  //-- Get number of integration steps (or set default)
+  fNW     = fConfig->GetIntDef("nW",     31);
+  fNlogQ2 = fConfig->GetIntDef("nLogQ2", 61);
   assert(fNW > 1 && fNlogQ2 > 1);
 }
 //____________________________________________________________________________
