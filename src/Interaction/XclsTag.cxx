@@ -153,7 +153,7 @@ void XclsTag::Print(ostream & stream) const
   stream << " |--> charm prod.  : "
          << utils::print::BoolAsString(fIsCharmEvent);
   if(fIsCharmEvent) {
-     if(!fCharmedHadronPdg) stream << "[inclusive]";
+     if(!fCharmedHadronPdg) stream << " [inclusive]";
      else  {
        stream << " - Charm hadron PDG-code = " << fCharmedHadronPdg;
 
@@ -175,7 +175,7 @@ void XclsTag::Print(ostream & stream) const
          << " N(pi^-) = "    << fNPiMinus
          << endl;
 
-  stream << " |--> resonance    :";
+  stream << " |--> resonance    : ";
   if(this->KnownResonance()) {
      stream << res::AsString(fResonance);
   } else {
