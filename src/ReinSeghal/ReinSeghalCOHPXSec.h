@@ -42,16 +42,21 @@ public:
   virtual ~ReinSeghalCOHPXSec();
 
   //-- XSecAlgorithmI interface implementation
-
   double XSec (const Interaction * interaction) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
-  //-- methods for overiding default parameters by setting them in the
-  //   configuration registry
-  double Ma           (void) const; ///< override default axial mass
-  double ReImPiApl    (void) const; ///< override default Re/Im Fwd pi scat. ampl.
-  double NuclSizeScale(void) const; ///< override default nuclear size scale param
+  void LoadConfigData(void);
+
+  //-- private data members loaded from config Registry or set to defaults
+  double fMa;   ///< axial mass
+  double fReIm; ///< Re/Im {forward pion scattering amplitude}
+  double fRo;   ///< nuclear size scale parameter
 };
 
 }       // genie namespace

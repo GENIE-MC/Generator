@@ -92,16 +92,13 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
   double fp     = 0.93 * Mpi; // pion decay constant
   double fp2    = TMath::Power(fp,2.);
   double Epi    = y*E; // pion energy
-  double ma     = this->Ma(); // Axial Mass [default can be overriden]
-  double ma2    = TMath::Power(ma,2);
+  double ma2    = TMath::Power(fMa,2);
   double propg  = TMath::Power(ma2/(ma2+Q2),2.); // propagator term
-  double r      = this->ReImPiApl(); // Re/Im Fwd Ampl. [def. can be overriden]
-  double r2     = TMath::Power(r,2.);
+  double r2     = TMath::Power(fReIm,2.);
   double sTot   = utils::hadxs::TotalPionNucleonXSec(Epi); // tot. pi+N xsec
   double sTot2  = TMath::Power(sTot,2.);
   double sInel  = utils::hadxs::InelasticPionNucleonXSec(Epi); // inel. pi+N xsec
-  double Ro     = this->NuclSizeScale(); // nuclear size scale parameter
-  double Ro2    = TMath::Power(Ro,2.);
+  double Ro2    = TMath::Power(fRo,2.);
 
   // effect of pion absorption in the nucleus
   double Fabs   = TMath::Exp( -9.*A_3*sInel / (16.*kPi*Ro2) );
@@ -110,7 +107,7 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
   // t-dependent factor is an exp(-bt) so it can be integrated analyticaly
   double Epi2   = TMath::Power(Epi,2.);
   double Mpi2   = kPionMass_2;
-  double R      = Ro * A_3; // nuclear radius
+  double R      = fRo * A_3; // nuclear radius
   double R2     = TMath::Power(R,2.);
   double b      = 0.33333 * R2;
   double tA     = 1. + Mnuc*x/Epi - 0.5*Mpi2/Epi2;
@@ -127,10 +124,10 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
       << "\n mass number ...................... A     = " << A
       << "\n pion energy ...................... Epi   = " << Epi
       << "\n propagator term .................. propg = " << propg
-      << "\n Re/Im of fwd pion scat. ampl. .... Re/Im = " << r
+      << "\n Re/Im of fwd pion scat. ampl. .... Re/Im = " << fRo
       << "\n total pi+N cross section ......... sigT  = " << sTot
       << "\n inelastic pi+N cross section ..... sigI  = " << sInel
-      << "\n nuclear size scale ............... Ro    = " << Ro
+      << "\n nuclear size scale ............... Ro    = " << fRo
       << "\n pion absorption factor ........... Fabs  = " << Fabs
       << "\n t integration range .............. [" << tmin << "," << tmax << "]"
       << "\n t integration factor ............. tint  =" << tint;
@@ -142,29 +139,27 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
   return xsec;
 }
 //____________________________________________________________________________
-double ReinSeghalCOHPXSec::Ma(void) const
+void ReinSeghalCOHPXSec::Configure(const Registry & config)
 {
-// allow the default Ma to be overriden by the value at the config registry
-
-  if (fConfig->Exists("Ma")) return fConfig->GetDouble("Ma");
-  else                       return kCohMa;
+  Algorithm::Configure(config);
+  this->LoadConfigData();
 }
 //____________________________________________________________________________
-double ReinSeghalCOHPXSec::ReImPiApl(void) const
+void ReinSeghalCOHPXSec::Configure(string config)
 {
-// allow the default Re/Im {f_{pi+N}(0)} to be overriden by the value at
-// the config registry
-
-  if (fConfig->Exists("Re-Im-Ampl")) return fConfig->GetDouble("Re-Im-Ampl");
-  else                               return kCohReImAmpl;
+  Algorithm::Configure(config);
+  this->LoadConfigData();
 }
 //____________________________________________________________________________
-double ReinSeghalCOHPXSec::NuclSizeScale(void) const
+void ReinSeghalCOHPXSec::LoadConfigData(void)
 {
-// allow the default nuclear size scale param to be overriden by the value at
-// the config registry
+// at algorithm instantiation/configuration fill private data members with the
+// configuration data from its Registry (or set defaults) to avoid looking-up
+// the Registry all the time...
 
-  if (fConfig->Exists("Ro")) return fConfig->GetDouble("Ro");
-  else                       return kCohR0;
+  fMa   = fConfig->GetDoubleDef("Ma",         kCohMa      );
+  fReIm = fConfig->GetDoubleDef("Re-Im-Ampl", kCohReImAmpl);
+  fRo   = fConfig->GetDoubleDef("Ro",         kCohR0      );
 }
 //____________________________________________________________________________
+
