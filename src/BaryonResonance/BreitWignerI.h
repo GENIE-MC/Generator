@@ -11,7 +11,7 @@
           CCLRC, Rutherford Appleton Laboratory
 
 \created  May 04, 2004
- 
+
 */
 //____________________________________________________________________________
 
@@ -20,22 +20,21 @@
 #define _BREIT_WIGNER_I_H_
 
 #include "Algorithm/Algorithm.h"
+#include "BaryonResonance/BaryonResonance.h"
 
 namespace genie {
 
 class BreitWignerI : public Algorithm {
 
 public:
+  virtual ~BreitWignerI();
 
-  virtual ~BreitWignerI(); 
-
-  virtual double Eval(double W) const = 0;
+  virtual double Eval(Resonance_t res, double W) const = 0;
 
 protected:
-
-  BreitWignerI(); 
-  BreitWignerI(string name); 
-  BreitWignerI(string name, string config); 
+  BreitWignerI();
+  BreitWignerI(string name);
+  BreitWignerI(string name, string config);
 };
 
 }         // genie namespace

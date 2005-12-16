@@ -35,11 +35,11 @@ public:
   BaryonResList(const BaryonResList & res_list);
   virtual ~BaryonResList();
 
-  unsigned int NResonances      (void)              const;
-  string       ResonanceName    (unsigned int ires) const;
-  Resonance_t  ResonanceId      (unsigned int ires) const;
-  int          ResonancePdgCode (unsigned int ires) const;
-
+  unsigned int NResonances        (void)              const;
+  string       ResonanceName      (unsigned int ires) const;
+  Resonance_t  ResonanceId        (unsigned int ires) const;
+  int          ResonancePdgCode   (unsigned int ires) const;
+  void         Clear              (void);
   void         DecodeFromNameList (string list, string delimiter = ",");
 
   void Print(ostream & stream) const;
