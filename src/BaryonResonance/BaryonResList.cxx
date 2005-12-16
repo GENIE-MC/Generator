@@ -44,7 +44,7 @@ BaryonResList::BaryonResList(const BaryonResList & res_list)
 //____________________________________________________________________________
 BaryonResList::~BaryonResList()
 {
-
+  this->Clear();
 }
 //____________________________________________________________________________
 unsigned int BaryonResList::NResonances(void) const
@@ -55,36 +55,33 @@ unsigned int BaryonResList::NResonances(void) const
 string BaryonResList::ResonanceName(unsigned int ires) const
 {
   if( ires >= 0 & ires < NResonances() ) {
-
     return utils::res::AsString( (*fResVec)[ires] );
-
   } else {
-
     SLOG("BaryonResList", pERROR) << "*** ires: " << ires
                            << " outside limits: [0, " << NResonances() << "]";
   }
-
   return "-";
 }
 //____________________________________________________________________________
 Resonance_t BaryonResList::ResonanceId(unsigned int ires) const
 {
   if( ires >= 0 & ires < NResonances() ) {
-
     return (*fResVec)[ires];
-
   } else {
-
     SLOG("BaryonResList", pERROR) << "*** ires: " << ires
                            << " outside limits: [0, " << NResonances() << "]";
   }
-
   return kNoResonance;
 }
 //____________________________________________________________________________
 int BaryonResList::ResonancePdgCode(unsigned int ires) const
 {
   return 0;
+}
+//____________________________________________________________________________
+void BaryonResList::Clear(void)
+{
+  if(fResVec) fResVec->clear();
 }
 //____________________________________________________________________________
 void BaryonResList::DecodeFromNameList(string input_list, string delimiter)

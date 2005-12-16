@@ -6,13 +6,6 @@
 \brief    Concrete implementation of the BreitWignerI interface:
           Simple Breit-Wigner distribution with no L-dependent width.
 
-          It is similar with the breit_wigner function but rather than
-          specifying the Breit-Wigner parameters directly, you specify a
-          resonance name and the concrete implementation of BaryonResDataSetI
-          to be looked up for extracting those parameters.
-
-          Pre-configured instances can be obtained from the AlgFactory.
-
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
@@ -21,18 +14,17 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgFactory.h"
 #include "BaryonResonance/BreitWignerRes.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
 #include "BaryonResonance/BaryonResParams.h"
 #include "BaryonResonance/BaryonResUtils.h"
-#include "BaryonResonance/breit_wigner_func.h"
 #include "Messenger/Messenger.h"
+#include "Utils/BWFunc.h"
 
 using namespace genie;
 
 //______________________________________________________________________
-BreitWignerRes::BreitWignerRes() : 
+BreitWignerRes::BreitWignerRes() :
 BreitWignerI("genie::BreitWignerRes")
 {
 
@@ -49,71 +41,43 @@ BreitWignerRes::~BreitWignerRes()
 
 }
 //______________________________________________________________________
-double BreitWignerRes::Eval(double W) const
+double BreitWignerRes::Eval(Resonance_t res, double W) const
 {
-  //-- get the specified baryon resonance table
-
- assert(fConfig->Exists("baryon-res-alg-name") &&
-                               fConfig->Exists("baryon-res-param-set"));
-
-  string alg_name  = fConfig->GetString("baryon-res-alg-name");
-  string param_set = fConfig->GetString("baryon-res-param-set");
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase = algf->GetAlgorithm(alg_name, param_set);
-
-  const BaryonResDataSetI * dataset =
-                      dynamic_cast<const BaryonResDataSetI *> (algbase);
-
-
   //-- instantiate a BaryonResParams object & set the table to lookup
-
   BaryonResParams res_params;
+  res_params.SetDataSet(fBaryonResDataSet);
+  res_params.RetrieveData(res);
 
-  res_params.SetDataSet(dataset);
+  //-- get mass, width and norm
+  double mass  = res_params.Mass();
+  double width = res_params.Width();
+  double norm  = res_params.BreitWignerNorm();
 
-
-  //-- get the specified resonance from the configuration
-
-  Resonance_t resonance;
-
-  if ( fConfig->Exists("resonance") ) {
-
-      resonance = utils::res::FromString(
-                           fConfig->GetString("resonance").c_str() );
-
-  } else if ( fConfig->Exists("resonance-id") ) {
-
-      resonance = (Resonance_t) fConfig->GetInt("resonance-id");
-
-  } else {
-
-      LOG("BreitWigner", pFATAL) << "Unspecified resonance";
-
-      assert(false);
-  }
-
-
-  //-- retrieve data for the input resonance
-
-  res_params.RetrieveData(resonance);
-
-
-  //-- get mass, width and norm 
-
-  Registry config;
-
-  config.Set("Res-Mass",            res_params.Mass()              );
-  config.Set("Res-Width",           res_params.Width()             );
-  config.Set("Breit-Wigner-Norm",   res_params.BreitWignerNorm()   );
-
-
-  //-- run the actual Breit-Wigner resonance code
-
-  double bw = breit_wigner(W, config);
-
+  //-- call the actual Breit-Wigner function
+  double bw = utils::bwfunc::BreitWigner(W, mass, width, norm);
   return bw;
 }
 //______________________________________________________________________
+void BreitWignerRes::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void BreitWignerRes::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void BreitWignerRes::LoadSubAlg(void)
+{
+// Load the "baryon resonance table" sub-algorithm specified at the algorithm
+// configuration
+
+  fBaryonResDataSet =
+         dynamic_cast<const BaryonResDataSetI *> (this->SubAlg(
+                              "baryon-res-alg-name", "baryon-res-param-set"));
+}
+//____________________________________________________________________________
 

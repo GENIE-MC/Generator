@@ -15,7 +15,4 @@
 #pragma link C++ class genie::BreitWignerRes;
 #pragma link C++ class genie::BreitWignerLRes;
 
-#pragma link C++ function genie::breit_wigner_L;
-#pragma link C++ function genie::breit_wigner;
-
 #endif
