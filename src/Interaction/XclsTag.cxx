@@ -150,17 +150,17 @@ void XclsTag::Print(ostream & stream) const
 {
   stream << "[-] [Exclusive Process Info] " << endl;
 
-  stream << " |--> charm        : "
-         << utils::print::BoolAsString(fIsCharmEvent)
-         << " - Charm hadron PDG-code = ";
+  stream << " |--> charm prod.  : "
+         << utils::print::BoolAsString(fIsCharmEvent);
+  if(fIsCharmEvent) {
+     if(!fCharmedHadronPdg) stream << "[inclusive]";
+     else  {
+       stream << " - Charm hadron PDG-code = " << fCharmedHadronPdg;
 
-  if(!fCharmedHadronPdg) stream << "[inclusive]";
-  else  {
-     stream << fCharmedHadronPdg;
-
-     TParticlePDG * chadr = PDGLibrary::Instance()->Find( fCharmedHadronPdg );
-     if(chadr)
-        stream << " (" << chadr->GetName() << ")";
+       TParticlePDG * chadr = PDGLibrary::Instance()->Find( fCharmedHadronPdg );
+       if(chadr)
+           stream << " (" << chadr->GetName() << ")";
+     }
   }
   stream << endl;
 
@@ -175,9 +175,13 @@ void XclsTag::Print(ostream & stream) const
          << " N(pi^-) = "    << fNPiMinus
          << endl;
 
+  stream << " |--> resonance    :";
   if(this->KnownResonance()) {
-     stream << " |--> resonance    : " << res::AsString(fResonance) << endl;
+     stream << res::AsString(fResonance);
+  } else {
+     stream << "[not set]";
   }
+  stream << endl;
 }
 //___________________________________________________________________________
 
