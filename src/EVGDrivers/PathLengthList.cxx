@@ -152,7 +152,7 @@ void PathLengthList::Copy(const PathLengthList & plist)
 {
   this->clear();
   PathLengthList::const_iterator pl_iter;
-  for(pl_iter = this->begin(); pl_iter != this->end(); ++pl_iter) {
+  for(pl_iter = plist.begin(); pl_iter != plist.end(); ++pl_iter) {
     int    pdgc = pl_iter->first;
     double pl   = pl_iter->second;
     this->insert( map<int, double>::value_type(pdgc, pl) );
