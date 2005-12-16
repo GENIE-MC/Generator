@@ -703,6 +703,7 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture* mixt, int ielement, int pdgc)
 
   // <0 forces explicit calculation of relative proportion normalization
   if(wtot < 0) {
+    wtot = 0;
     for(int i = 0; i < mixt->GetNelements(); i++) {
       wtot += (mixt->GetWmixt()[ielement]);
     }
