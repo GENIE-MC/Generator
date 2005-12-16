@@ -28,6 +28,7 @@
 
 #include "Conventions/Units.h"
 #include "EVGDrivers/PathLengthList.h"
+#include "EVGDrivers/GFluxI.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodeList.h"
@@ -138,8 +139,69 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
   //-- initialize max path lengths
   fCurrMaxPathLengthList->SetAllToZero();
 
-  //-- get a bounding box
+  //-- select maximum path length calculation method
+  if(fFlux) this->MaxPathLengthsFluxMethod();
+  else      this->MaxPathLengthsBoxMethod();
 
+  return *fCurrMaxPathLengthList;
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::MaxPathLengthsFluxMethod(void)
+{
+// Use the input flux driver to generate "rays", and then follow them through
+// the detector and figure out the maximum path length for each material
+
+  LOG("GROOTGeom", pINFO)
+               << "Computing the maximum path lengths using the FLUX method";
+
+  int iparticle = 0;
+  PathLengthList::const_iterator pl_iter;
+
+  while(iparticle < this->ScannerNParticles()) {
+
+    bool ok = fFlux->GenerateNext();
+    if(!ok) {
+       LOG("GROOTGeom", pWARN) << "Couldn't generate a flux neutrino";
+       continue;
+    }
+
+    const TLorentzVector & nup4  = fFlux -> Momentum ();
+    const TLorentzVector & nux4  = fFlux -> Position ();
+
+    LOG("GMCJDriver", pNOTICE)
+       << "\n [-] Generated flux neutrino: "
+       << "\n  |----o 4-momentum : " << utils::print::P4AsString(&nup4)
+       << "\n  |----o 4-position : " << utils::print::X4AsString(&nux4);
+
+    const PathLengthList & pl = this->ComputePathLengths(nux4, nup4);
+
+    bool enters = false;
+
+    for(pl_iter = pl.begin(); pl_iter != pl.end(); ++pl_iter) {
+       int    pdgc = pl_iter->first;
+       double pl   = pl_iter->second;
+
+       if(pl>0) {
+          pl *= (this->MaxPlSafetyFactor());
+
+          pl = TMath::Max(pl, fCurrMaxPathLengthList->PathLength(pdgc));
+          fCurrMaxPathLengthList->SetPathLength(pdgc,pl);
+       }
+    }
+    if(enters) iparticle++;
+  }
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
+{
+// Generate points in the geometry's bounding box and for each point generate
+// random rays, follow them through the detector and figure out the maximum
+// path length for each material
+
+  LOG("GROOTGeom", pINFO)
+               << "Computing the maximum path lengths using the BOX method";
+
+  // get geometry's bounding box
   LOG("GROOTGeom", pINFO) << "Getting a TGeoBBox enclosing the detector";
   TGeoShape * TS  = fTopVolume->GetShape();
   TGeoBBox *  box = (TGeoBBox *)TS;
@@ -264,15 +326,10 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
     }
 */
     maxPath *= (this->MaxPlSafetyFactor());
-
     LOG("GROOTGeom", pINFO) << "Max path length found = " << maxPath;
-
     fCurrMaxPathLengthList->AddPathLength(pdgc, maxPath);
   }
-
   this->ScalePathLengths(*fCurrMaxPathLengthList);
-
-  return *fCurrMaxPathLengthList;
 }
 //________________________________________________________________________
 void ROOTGeomAnalyzer::Initialize(void)
@@ -288,6 +345,8 @@ void ROOTGeomAnalyzer::Initialize(void)
   // some defaults:
   this -> SetScannerNPoints    (200);
   this -> SetScannerNRays      (200);
+  this -> SetScannerNParticles (10000);
+  this -> SetScannerFlux       (0);
   this -> SetMaxPlSafetyFactor (1.1);
   this -> SetUnits             (genie::units::meter);
   this -> SetWeightWithDensity (true);
