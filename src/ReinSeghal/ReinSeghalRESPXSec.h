@@ -6,7 +6,6 @@
 \brief    Computes the double differential cross section for production of a
           single baryon resonance according to the \b Rein-Seghal model.
 
-
           The computed cross section is the d^2 xsec/ dQ^2 dW \n
 
           where \n
@@ -39,6 +38,10 @@ ____________________________________________________________________________*/
 
 namespace genie {
 
+class BreitWignerI;
+class BaryonResDataSetI;
+class RSHelicityAmplModelI;
+
 class ReinSeghalRESPXSec : public XSecAlgorithmI {
 
 public:
@@ -48,13 +51,27 @@ public:
   virtual ~ReinSeghalRESPXSec();
 
   //-- XSecAlgorithmI interface implementation
-
   double XSec (const Interaction * interaction) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
-  const BreitWignerI * BreitWignerAlgorithm(Resonance_t rid) const;
+  void LoadSubAlg     (void);
+  void LoadConfigData (void);
 
+  bool   fWghtBW;
+  double fZeta;
+  double fOmega;
+  double fMa2;
+  double fMv2;
+
+  const BreitWignerI *         fBreitWigner;
+  const BaryonResDataSetI *    fBaryonResDataSet;
+  const RSHelicityAmplModelI * fHAmplModel;
 };
 
 }       // genie namespace

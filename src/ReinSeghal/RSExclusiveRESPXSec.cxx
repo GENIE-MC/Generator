@@ -45,7 +45,6 @@
 //____________________________________________________________________________
 
 #include "Algorithm/AlgFactory.h"
-#include "BaryonResonance/BaryonResList.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Interaction/SppChannel.h"
 #include "Messenger/Messenger.h"
@@ -76,45 +75,20 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
   LOG("ReinSeghalRes", pINFO) << *fConfig;
 
   //-- Get the requested SPP channel
-
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-
   if( spp_channel == kSppNull ) {
-
     LOG("ReinSeghalRes", pERROR)
             << "\n *** Insufficient SPP exclusive final state information!";
     return 0;
-
   } else {
      LOG("ReinSeghalRes", pINFO)
                        << "Reaction: " << SppChannel::AsString(spp_channel);
   }
 
-  //-- Get the requested single resonance cross section model
-
-  const XSecAlgorithmI * res_xsec_model = this->SingleResXSecModel();
-
-  //-- Create a BaryonResList by decoding the resonance list from
-  //   the XML input
-  //   The list of resonances can be specified as a string with
-  //   comma separated resonance names (eg "P33(1233),S11(1535),D13(1520)")
-  //   The BaryonResList can also decode lists of pdg-codes or
-  //   resonance-ids (Resonance_t enumerations).
-  //   Support for this will be added here as well.
-
-  assert( fConfig->Exists("resonance-name-list") );
-
-  string resonanes = fConfig->GetString("resonance-name-list");
-
-  BaryonResList res_list;
-
-  res_list.DecodeFromNameList(resonanes);
-
   //-- Loop over the specified list of baryon resonances and compute
   //   the total weighted cross section
 
-  unsigned int nres = res_list.NResonances();
-
+  unsigned int nres = fResList.NResonances();
   LOG("ReinSeghalRes", pINFO)
       << "Computing a weighted cross section for " << *interaction
       << "using " << nres << " resonances";
@@ -124,8 +98,7 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
   for(unsigned int ires = 0; ires < nres; ires++) {
 
      //-- Get next resonance from the resonance list
-
-     Resonance_t res = res_list.ResonanceId(ires);
+     Resonance_t res = fResList.ResonanceId(ires);
 
      //-- Find out the charge that the produced resonance should have to
      //   yield the requested exclusive final state.
@@ -137,7 +110,7 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
      interaction->GetExclusiveTagPtr()->SetResonance(res);
 
      //-- Get the Breit-Wigner weighted xsec for the current resonance
-     double rxsec = res_xsec_model->XSec(interaction);
+     double rxsec = fSingleResXSecModel->XSec(interaction);
 
      //-- Get the BR for the (resonance) -> (exclusive final state)
      double br = SppChannel::BranchingRatio(spp_channel, res);
@@ -166,27 +139,50 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
   return xsec;
 }
 //____________________________________________________________________________
-const XSecAlgorithmI * RSExclusiveRESPXSec::SingleResXSecModel(void) const
+void RSExclusiveRESPXSec::Configure(const Registry & config)
 {
-// Retrieves the specifed cross section model for a single resonance
-
-  assert(
-       fConfig->Exists("single-res-xsec-alg-name")   &&
-       fConfig->Exists("single-res-xsec-param-set")
-  );
-
-  string alg_name  = fConfig->GetString("single-res-xsec-alg-name");
-  string param_set = fConfig->GetString("single-res-xsec-param-set");
-
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase = algf->GetAlgorithm(alg_name, param_set);
-
-  const XSecAlgorithmI * xs = dynamic_cast<const XSecAlgorithmI *> (algbase);
-
-  assert(xs);
-
-  return xs;
+  Algorithm::Configure(config);
+  this->LoadSubAlg();
+  this->GetResonanceList();
 }
 //____________________________________________________________________________
+void RSExclusiveRESPXSec::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadSubAlg();
+  this->GetResonanceList();
+}
+//____________________________________________________________________________
+void RSExclusiveRESPXSec::LoadSubAlg(void)
+{
+// load the single resonance cross section algorithm specified in the config.
+
+  fSingleResXSecModel = 0;
+
+  fSingleResXSecModel =
+       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
+                    "single-res-xsec-alg-name", "single-res-xsec-param-set"));
+  assert(fSingleResXSecModel);
+}
+//____________________________________________________________________________
+void RSExclusiveRESPXSec::GetResonanceList(void)
+{
+// create the baryon resonance list specified in the config.
+
+  fResList.Clear();
+
+  assert( fConfig->Exists("resonance-name-list") );
+  string resonanes = fConfig->GetString("resonance-name-list");
+
+  //-- Create a BaryonResList by decoding the resonance list from
+  //   the XML input
+  //   The list of resonances can be specified as a string with
+  //   comma separated resonance names (eg "P33(1233),S11(1535),D13(1520)")
+  //   The BaryonResList can also decode lists of pdg-codes or
+  //   resonance-ids (Resonance_t enumerations).
+  //   Support for this will be added here as well.
+
+  fResList.DecodeFromNameList(resonanes);
+}
+//____________________________________________________________________________
+

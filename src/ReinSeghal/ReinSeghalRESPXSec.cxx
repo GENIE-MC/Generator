@@ -6,7 +6,6 @@
 \brief    Computes the double differential cross section for production of a
           single baryon resonance according to the \b Rein-Seghal model.
 
-
           The computed cross section is the d^2 xsec/ dQ^2 dW \n
 
           where \n
@@ -32,10 +31,9 @@ ____________________________________________________________________________*/
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
-#include "BaryonResonance/BaryonResParams.h"
 #include "BaryonResonance/BaryonResUtils.h"
+#include "BaryonResonance/BaryonResParams.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/Units.h"
@@ -88,9 +86,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
 
   //-- Check energy threshold & kinematical limits in q2, W
-
   double EvThr = utils::kinematics::EnergyThreshold(interaction);
-
   if(E <= EvThr) {
     LOG("ReinSeghalRes", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
     return 0;
@@ -101,9 +97,8 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   Range1D_t rW  = utils::kinematics::WRange(interaction);
   Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
 
-  bool in_physical_range = utils::math::IsWithinLimits(W, rW)
-                                   && utils::math::IsWithinLimits(-q2, rQ2);
-
+  bool in_physical_range = utils::math::IsWithinLimits(W, rW) &&
+                           utils::math::IsWithinLimits(-q2, rQ2);
   if(!in_physical_range) return 0;
 
   //-- Get the input baryon resonance
@@ -112,28 +107,18 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   Resonance_t resonance = interaction->GetExclusiveTag().Resonance();
 
   //-- Instantiate a Baryon Resonance Params object & attach data-set
-
-  const Algorithm * bds_alg_base = this->SubAlg(
-             "baryonres-dataset-alg-name", "baryonres-dataset-param-set");
-
-  const BaryonResDataSetI * bres_dataset =
-                    dynamic_cast<const BaryonResDataSetI *> (bds_alg_base);
-
-  BaryonResParams bres_params;
-
-  bres_params.SetDataSet(bres_dataset); // <-- attach baryon res. data set
-  bres_params.RetrieveData(resonance);  // <-- get parameters for input res.
+  BaryonResParams brprm;
+  brprm.SetDataSet(fBaryonResDataSet); // <-- attach data set;
+  brprm.RetrieveData(resonance);  // <-- get parameters for input res.
 
   //-- Get the resonance mass
-
-  double Mres = bres_params.Mass();
+  double Mres = brprm.Mass();
 
   LOG("ReinSeghalRes", pDEBUG)
         << "Resonance = " << utils::res::AsString(resonance)
                                       << " with mass = " << Mres << " GeV";
 
   //-- Compute auxiliary & kinematical factors for the Rein-Seghal model
-
   double W2     = TMath::Power(W, 2);
   double Mnuc2  = TMath::Power(Mnuc, 2);
   double k      = 0.5 * (W2 - Mnuc2)/Mnuc;
@@ -150,51 +135,39 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double V2     = TMath::Power(V, 2);
   double UV     = U*V;
 
-  //-- Read in config options [or sets defaults]
-
-  double zeta  = fConfig->Exists("Zeta") ? fConfig->GetDouble("Zeta") : kZeta;
-  double omega = fConfig->Exists("Zeta") ? fConfig->GetDouble("Omega"): kOmega;
-  double ma2   = fConfig->Exists("Ma2")  ? fConfig->GetDouble("Ma2")  : kResMa2;
-  double mv2   = fConfig->Exists("Mv2")  ? fConfig->GetDouble("Mv2")  : kResMv2;
-
   //-- Calculate the Feynman-Kislinger-Ravndall parameters
 
   LOG("ReinSeghalRes", pDEBUG) << "Computing the FKR parameters";
 
   FKR fkr;
-  fkr.SetZeta(zeta);
-  fkr.SetOmega(omega);
-  fkr.SetMa2(ma2);
-  fkr.SetMv2(mv2);
-  fkr.SetResParams(bres_params);
+  fkr.SetZeta(fZeta);
+  fkr.SetOmega(fOmega);
+  fkr.SetMa2(fMa2);
+  fkr.SetMv2(fMv2);
+  fkr.SetResParams(brprm);
   fkr.Calculate(interaction);
 
   LOG("ReinSeghalRes", pDEBUG) << "\n FKR params for ["
-                          << utils::res::AsString(resonance) << "]: " << fkr;
+                   << utils::res::AsString(resonance) << "]: " << fkr;
 
   //-- Calculate the Rein-Seghal Helicity Amplitudes
 
   LOG("ReinSeghalRes", pDEBUG) << "Computing SPP Helicity Amplitudes";
 
-  const RSHelicityAmplModelI * helicity_ampl_model =
-         dynamic_cast<const RSHelicityAmplModelI *> (this->SubAlg(
-          "helicity-amplitudes-alg-name", "helicity-amplitudes-param-set"));
-
-  RSHelicityAmpl helicity_ampl;
-
-  helicity_ampl.SetModel(helicity_ampl_model); // <-- attach algorithm
-  helicity_ampl.Calculate(interaction,fkr);    // <-- calculate
+  RSHelicityAmpl hampl;
+  hampl.SetModel(fHAmplModel); // <-- attach algorithm
+  hampl.Calculate(interaction,fkr);    // <-- calculate
 
   LOG("ReinSeghalRes", pDEBUG)
          << "\n Helicity Amplitudes for ["
-               << utils::res::AsString(resonance) << "]: " << helicity_ampl;
+                << utils::res::AsString(resonance) << "]: " << hampl;
 
-  double amp_minus_1  = helicity_ampl.AmpMinus1 ();
-  double amp_plus_1   = helicity_ampl.AmpPlus1  ();
-  double amp_minus_3  = helicity_ampl.AmpMinus3 ();
-  double amp_plus_3   = helicity_ampl.AmpPlus3  ();
-  double amp_0_minus  = helicity_ampl.Amp0Minus ();
-  double amp_0_plus   = helicity_ampl.Amp0Plus  ();
+  double amp_minus_1  = hampl.AmpMinus1 ();
+  double amp_plus_1   = hampl.AmpPlus1  ();
+  double amp_minus_3  = hampl.AmpMinus3 ();
+  double amp_plus_3   = hampl.AmpPlus3  ();
+  double amp_0_minus  = hampl.Amp0Minus ();
+  double amp_0_plus   = hampl.Amp0Plus  ();
 
   //-- Calculate Helicity Cross Sections
 
@@ -218,16 +191,15 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
       << "\n   Sigma-Right  = " << xsec_right
       << "\n   Sigma-Scalar = " << xsec_scalar;
 
-  double xsec = 0;
+  //-- Compute the cross section
+  double xsec     = 0;
+  bool   is_nu    = pdg::IsNeutrino     (init_state.GetProbePDGCode());
+  bool   is_nubar = pdg::IsAntiNeutrino (init_state.GetProbePDGCode());
 
-  if ( pdg::IsNeutrino(init_state.GetProbePDGCode()) ) {
-
-     xsec = Gf * Wf * ( U2 * xsec_left + V2 * xsec_right + 2*UV*xsec_scalar );
-
-  } else if (pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) {
-
-     xsec = Gf * Wf * ( V2 * xsec_left + U2 * xsec_right + 2*UV*xsec_scalar );
-
+  if (is_nu) {
+     xsec = Gf*Wf*(U2 * xsec_left + V2 * xsec_right + 2*UV*xsec_scalar);
+  } else if (is_nubar) {
+     xsec = Gf*Wf*(V2 * xsec_left + U2 * xsec_right + 2*UV*xsec_scalar);
   } else {
      LOG("ReinSeghalRes", pERROR) << "Probe is not (anti-)neutrino!";
      return 0;
@@ -235,20 +207,9 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 
   //-- Check whether the cross section is to be weighted with a
   //   Breit-Wigner distribution (default: true)
-
   double bw = 1.0;
-
-  bool weight_bw = fConfig->Exists("weight-with-breit-wigner") ?
-                         fConfig->GetBool("weight-with-breit-wigner") : true;
-
-  if(weight_bw) {
-
-     //-- Get the Breit-Wigner weight for the current resonance
-     //   (the Breit-Wigner distribution must be normalized)
-
-     const BreitWignerI * bw_model = this->BreitWignerAlgorithm(resonance);
-
-     bw = bw_model->Eval(W);
+  if(fWghtBW) {
+     bw = fBreitWigner->Eval(resonance, W);
   } else {
       LOG("ReinSeghalRes", pINFO) << "Breit-Wigner weighting is turned-off";
   }
@@ -263,30 +224,59 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   return wxsec;
 }
 //____________________________________________________________________________
-const BreitWignerI * ReinSeghalRESPXSec::BreitWignerAlgorithm(
-                                               Resonance_t resonance_id) const
+void ReinSeghalRESPXSec::Configure(const Registry & config)
 {
-// Retrieves the specifed breit-wigner algorithm
-
-  assert(
-       fConfig->Exists("breit-wigner-alg-name") &&
-       fConfig->Exists("breit-wigner-param-set-suffix")
-  );
-
-  string alg_name       = fConfig->GetString("breit-wigner-alg-name");
-  string param_set_sufx = fConfig->GetString("breit-wigner-param-set-suffix");
-
-  string resonance_name = utils::res::AsString(resonance_id);
-  string param_set      = resonance_name + "-" + param_set_sufx;
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase = algf->GetAlgorithm(alg_name, param_set);
-
-  const BreitWignerI * bw = dynamic_cast<const BreitWignerI *> (algbase);
-
-  assert(bw);
-
-  return bw;
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
 }
 //____________________________________________________________________________
+void ReinSeghalRESPXSec::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void ReinSeghalRESPXSec::LoadSubAlg(void)
+{
+// Reads its configuration from its Registry and loads all the sub-algorithms
+// needed
+  fBaryonResDataSet = 0;
+  fHAmplModel       = 0;
+  fBreitWigner      = 0;
+
+  //-- Access a "Baryon Resonance data-set" sub-algorithm
+  const Algorithm * alg0 = this->SubAlg(
+                 "baryonres-dataset-alg-name", "baryonres-dataset-param-set");
+  fBaryonResDataSet = dynamic_cast<const BaryonResDataSetI *> (alg0);
+  assert(fBaryonResDataSet);
+
+  //-- Access a "Helicity Amplitudes model" sub-algorithm
+  const Algorithm * alg1 = this->SubAlg(
+             "helicity-amplitudes-alg-name", "helicity-amplitudes-param-set");
+  fHAmplModel = dynamic_cast<const RSHelicityAmplModelI *>  (alg1);
+  assert(fHAmplModel);
+
+  if(fWghtBW) {
+    //-- Access a "Breit-Wigner" sub-algorithm
+    fBreitWigner = dynamic_cast<const BreitWignerI *> (
+             this->SubAlg("breit-wigner-alg-name", "breit-wigner-param-set"));
+    assert(fBreitWigner);
+  }
+}
+//____________________________________________________________________________
+void ReinSeghalRESPXSec::LoadConfigData(void)
+{
+// Reads its configuration data from its configuration Registry and loads them
+// in private data members to avoid looking up at the Registry all the time.
+// Sets defaults for configuration options that were not specified
+
+  fZeta   = fConfig->GetDoubleDef( "Zeta",  kZeta   );
+  fOmega  = fConfig->GetDoubleDef( "Omega", kOmega  );
+  fMa2    = fConfig->GetDoubleDef( "Ma2",   kResMa2 );
+  fMv2    = fConfig->GetDoubleDef( "Mv2",   kResMv2 );
+  fWghtBW = fConfig->GetBoolDef("weight-with-breit-wigner", true);
+}
+//____________________________________________________________________________
+

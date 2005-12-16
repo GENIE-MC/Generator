@@ -48,6 +48,7 @@
 #define _RS_EXCLUSIVE_RES_PARTIAL_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
+#include "BaryonResonance/BaryonResList.h"
 
 namespace genie {
 
@@ -60,12 +61,19 @@ public:
   virtual ~RSExclusiveRESPXSec();
 
   //-- XSecAlgorithmI interface implementation
-
   double XSec (const Interaction * interaction) const;
 
-private:
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
-  const XSecAlgorithmI * SingleResXSecModel (void) const;  
+private:
+  void LoadSubAlg       (void);
+  void GetResonanceList (void);
+
+  BaryonResList          fResList;
+  const XSecAlgorithmI * fSingleResXSecModel;
 };
 
 }       // genie namespace
