@@ -311,7 +311,7 @@ void ROOTGeomAnalyzer::Load(string filename)
   if (!is_accessible) {
      LOG("GROOTGeom", pERROR)
        << "The ROOT geometry doesn't exist! Initialization failed!";
-     return;
+     exit(1);
   }
   TGeoManager * gm = TGeoManager::Import(filename.c_str());
 
