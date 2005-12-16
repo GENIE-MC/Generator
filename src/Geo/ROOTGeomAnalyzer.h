@@ -32,6 +32,9 @@ class TVector3;
 using std::string;
 
 namespace genie    {
+
+class GFluxI;
+
 namespace geometry {
 
 class ROOTGeomAnalyzer : public GeomAnalyzerI {
@@ -44,21 +47,25 @@ public :
 
   // set or enquire for analyzer configuration options
 
-  void SetScannerNPoints    (int    np) { fNPoints    = np; }
-  void SetScannerNRays      (int    nr) { fNRays      = nr; }
+  void SetScannerNPoints    (int    np) { fNPoints    = np; } /* box  scanner */
+  void SetScannerNRays      (int    nr) { fNRays      = nr; } /* box  scanner */
+  void SetScannerNParticles (int    np) { fNParticles = np; } /* flux scanner */
+  void SetScannerFlux       (GFluxI* f) { fFlux       = f;  } /* flux scanner */
   void SetWeightWithDensity (bool   wt) { fDensWeight = wt; }
   void SetMixtureWeightsSum (double sum);
   void SetUnits             (double lu);
   void SetMaxPlSafetyFactor (double sf);
   void SetTopVolName        (string nm);
 
-  int    ScannerNPoints    (void) const { return fNPoints;           }
-  int    ScannerNRays      (void) const { return fNRays;             }
-  bool   WeightWithDensity (void) const { return fDensWeight;        }
-  double Units             (void) const { return fScale;             }
-  double MixtureWeightsSum (void) const { return fMixtWghtSum;       }
-  double MaxPlSafetyFactor (void) const { return fMaxPlSafetyFactor; }
-  string TopVolName        (void) const { return fTopVolumeName;     }
+  int     ScannerNPoints    (void) const { return fNPoints;           }
+  int     ScannerNRays      (void) const { return fNRays;             }
+  int     ScannerNParticles (void) const { return fNParticles;        }
+  bool    WeightWithDensity (void) const { return fDensWeight;        }
+  double  Units             (void) const { return fScale;             }
+  double  MixtureWeightsSum (void) const { return fMixtWghtSum;       }
+  double  MaxPlSafetyFactor (void) const { return fMaxPlSafetyFactor; }
+  string  TopVolName        (void) const { return fTopVolumeName;     }
+  TGeoManager * GetGeometry (void) const { return fGeometry;          }
 
   // implement the GeomAnalyzerI interface
 
@@ -73,9 +80,6 @@ public :
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
 
-  // access the loaded ROOT geometry
-  TGeoManager * GetGeometry (void) { return fGeometry; }
-
 private:
 
   void   Initialize              (void);
@@ -83,6 +87,8 @@ private:
   void   Load                    (TGeoManager * gm);
   void   CleanUp                 (void);
   void   BuildListOfTargetNuclei (void);
+  void   MaxPathLengthsBoxMethod (void);
+  void   MaxPathLengthsFluxMethod(void);
   int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
   int    GetTargetPdgCode        (const TGeoElement  * const e) const;
   void   ScalePathLengths        (PathLengthList & pl);
@@ -98,8 +104,10 @@ private:
   int              fMaterial;              ///< input selected material for vertex generation
   TGeoManager *    fGeometry;              ///< input detector geometry
   string           fTopVolumeName;         ///< input top vol [other than TGeoManager::GetTopVolume()]
-  int              fNPoints;               ///< max path length scanner: points/surface [def:200]
-  int              fNRays;                 ///< max path length scanner: rays/point [def:200]
+  int              fNPoints;               ///< max path length scanner (box method): points/surface [def:200]
+  int              fNRays;                 ///< max path length scanner (box method): rays/point [def:200]
+  int              fNParticles;            ///< max path length scanner (flux method): particles in [def:10000]
+  GFluxI *         fFlux;                  ///< a flux objects that can be used to scan the max path lengths
   bool             fDensWeight;            ///< if true pathlengths are weighted with density [def:true]
   double           fScale;                 ///< conversion factor: input geometry units -> meters
   double           fMaxPlSafetyFactor;     ///< factor that can multiply the computed max path lengths
