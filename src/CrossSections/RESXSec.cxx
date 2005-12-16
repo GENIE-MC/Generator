@@ -52,11 +52,6 @@ double RESXSec::XSec(const Interaction * interaction) const
 {
   LOG("RESXSec", pINFO) << *fConfig;
 
-  //-- Get the requested d^2xsec/dxdy xsec algorithm to use
-  const XSecAlgorithmI * partial_xsec_alg =
-          dynamic_cast<const XSecAlgorithmI *> (SubAlg(
-                          "partial-xsec-alg-name", "partial-xsec-param-set"));
-
   //-- Get neutrino energy in the struck nucleon rest frame
   const InitialState & init_state = interaction -> GetInitialState();
   double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
@@ -65,32 +60,19 @@ double RESXSec::XSec(const Interaction * interaction) const
   double EvThr = utils::kinematics::EnergyThreshold(interaction);
   if(Ev <= EvThr) return 0.;
 
-  //-- Get number of integration steps
-  int   nW      = fConfig->GetIntDef("nW",     31);
-  int   nlogQ2  = fConfig->GetIntDef("nLogQ2", 61);
-  assert(nW > 1 && nlogQ2 > 1);
-
-  //-- get specified integration algorithm from the config. registry
-  //   for th eintegrations to follow (or use default = Simpson1D)
-  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
-
-  AlgFactory * algf = AlgFactory::Instance();
-  const IntegratorI * integrator =
-          dynamic_cast<const IntegratorI *> (algf->GetAlgorithm(intgr));
-
   //-- Get W integration range
   Range1D_t rW = this->WRange(interaction);
 
-  double dW = (rW.max - rW.min) / (nW-1);
+  double dW = (rW.max - rW.min) / (fNW-1);
 
   //-- Define the integration grid & instantiate a FunctionMap
-
   UnifGrid gridW;
-  gridW.AddDimension(nW, rW.min, rW.max);
+  gridW.AddDimension(fNW, rW.min, rW.max);
 
   FunctionMap dxsec_dW(gridW); // dxsec/dW vs W
 
-  for(int i = 0; i < nW; i++) {
+  //-- loop over the phase space points & compute the cross section
+  for(int i = 0; i < fNW; i++) {
 
     double W = rW.min + i*dW;
     interaction->GetKinematicsPtr()->SetW(W);
@@ -104,32 +86,30 @@ double RESXSec::XSec(const Interaction * interaction) const
 
       double logQ2min = TMath::Log( rQ2.min );
       double logQ2max = TMath::Log( rQ2.max );
-      double dlogQ2   = ( logQ2max - logQ2min) / (nlogQ2-1);
+      double dlogQ2   = ( logQ2max - logQ2min) / (fNlogQ2-1);
 
       UnifGrid gridQ2;
-      gridQ2.AddDimension(nlogQ2, logQ2min, logQ2max);
+      gridQ2.AddDimension(fNlogQ2, logQ2min, logQ2max);
 
       FunctionMap Q2d2xsec_dWdQ2(gridQ2); // Q2*d^2xsec/dWdQ2 vs Q2 [@ fixed W]
 
-      for(int j = 0; j < nlogQ2; j++) {
+      for(int j = 0; j < fNlogQ2; j++) {
 
         double Q2 = TMath::Exp(logQ2min + j * dlogQ2);
         interaction->GetKinematicsPtr()->SetQ2(Q2);
 
         //-- compute d^2xsec / dW dQ2
-        double d2xsec = partial_xsec_alg->XSec(interaction);
-
+        double d2xsec = fPartialXSecAlg->XSec(interaction);
         SLOG("RESXSec", pDEBUG)
               << "d^2xsec[RES]/dQ2dW (Q2 = " << Q2
                     << ", W = " << W << ", Ev = " << Ev << ") = " << d2xsec;
 
         //-- push Q2*(d^2xsec/dWdQ2) to the FunctionMap
-
         Q2d2xsec_dWdQ2.AddPoint(Q2*d2xsec, j);
       } //Q2
 
       //-- integrate d^2xsec/dWdQ2 over logQ2
-      d1xsec = integrator->Integrate(Q2d2xsec_dWdQ2);
+      d1xsec = fIntegrator->Integrate(Q2d2xsec_dWdQ2);
 
     } // Q2min != Q2max
 
@@ -142,11 +122,54 @@ double RESXSec::XSec(const Interaction * interaction) const
   } //W
 
   //----- integrate dxsec/dW over W
-  double xsec = integrator->Integrate(dxsec_dW);
+  double xsec = fIntegrator->Integrate(dxsec_dW);
 
   SLOG("RESXSec", pINFO)  << "xsec[RES] (Ev = " << Ev << " GeV) = " << xsec;
 
   return xsec;
+}
+//____________________________________________________________________________
+void RESXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void RESXSec::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void RESXSec::LoadConfigData(void)
+{
+  //-- Get number of integration steps
+  int   fNW      = fConfig->GetIntDef("nW",     31);
+  int   fNlogQ2  = fConfig->GetIntDef("nLogQ2", 61);
+  assert(fNW > 1 && fNlogQ2 > 1);
+}
+//____________________________________________________________________________
+void RESXSec::LoadSubAlg(void)
+{
+  fPartialXSecAlg = 0;
+  fIntegrator     = 0;
+
+  //-- Get the requested d^2xsec/dxdy xsec algorithm to use
+  fPartialXSecAlg =
+          dynamic_cast<const XSecAlgorithmI *> (SubAlg(
+                          "partial-xsec-alg-name", "partial-xsec-param-set"));
+
+  //-- get specified integration algorithm from the config. registry
+  //   for th eintegrations to follow (or use default = Simpson1D)
+  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
+
+  AlgFactory * algf = AlgFactory::Instance();
+  fIntegrator = dynamic_cast<const IntegratorI *> (algf->GetAlgorithm(intgr));
+
+  assert( fPartialXSecAlg );
+  assert( fIntegrator     );
 }
 //____________________________________________________________________________
 Range1D_t RESXSec::WRange(const Interaction * interaction) const
