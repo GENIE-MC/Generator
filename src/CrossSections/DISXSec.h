@@ -22,6 +22,8 @@
 
 namespace genie {
 
+class IntegratorI;
+
 class DISXSec : public XSecAlgorithmI {
 
 public:
@@ -31,12 +33,38 @@ public:
   virtual ~DISXSec();
 
   //-- XSecAlgorithmI interface implementation
-
   double XSec (const Interaction * interaction) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
-  bool IsWithinIntegrationRange(const Interaction * interaction) const;
+  void LoadConfigData           (void);
+  void LoadSubAlg               (void);
+  bool IsWithinIntegrationRange (const Interaction * interaction) const;
+
+  const XSecAlgorithmI * fPartialXSecAlg;
+  const IntegratorI *    fIntegrator;
+
+  int    fNlogx;
+  int    fNlogy;
+  double fXmin;
+  double fXmax;
+  double fYmin;
+  double fYmax;
+  double fLogXmax;
+  double fLogXmin;
+  double fLogYmax;
+  double fLogYmin;
+  double fdLogX;
+  double fdLogY;
+  double fWmin;
+  double fWmax;
+  double fQ2min;
+  double fQ2max;
 };
 
 }       // genie namespace
