@@ -147,12 +147,6 @@
        </config_file>
    </alg_config>
 
-   <alg_config alg_name="genie::RSListRESPXSec">   
-       <config_file> 
-             RSListRESPXSec.xml 
-       </config_file>
-   </alg_config>
-
    <alg_config alg_name="genie::RSExclusiveRESPXSec">   
        <config_file> 
              RSExclusiveRESPXSec.xml
