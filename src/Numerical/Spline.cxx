@@ -299,9 +299,42 @@ bool Spline::IsWithinValidRange(double x) const
 //___________________________________________________________________________
 double Spline::Evaluate(double x) const
 {
-  double y = -1;
+  double y = 0;
+  if( this->IsWithinValidRange(x) ) {
 
-  if( this->IsWithinValidRange(x) ) return y = fInterpolator->Eval(x);
+    // we can interpolate within the range of spline knots - be careful with
+    // strange cubic spline behaviour when close to knots with y=0
+    bool is0p = this->ClosestKnotValueIsZero(x, "+");
+    bool is0n = this->ClosestKnotValueIsZero(x, "-");
+
+    if(!is0p && !is0n) {
+      // both knots (on the left and right are non-zero) - just interpolate
+      y = fInterpolator->Eval(x);
+    } else {
+      // at least one of the neighboring knots has y=0
+      if(is0p && is0n) {
+        // both neighboring knots have y=0
+        y=0;
+      } else {
+        // just 1 neighboring knot has y=0 - do a linear interpolation
+        double xpknot=0, ypknot=0, xnknot=0, ynknot=0;
+        this->FindClosestKnot(x, xnknot, ynknot, "-");
+        this->FindClosestKnot(x, xpknot, ypknot, "+");
+        if(is0n) y = ypknot * (x-xnknot)/(xpknot-xnknot);
+        else     y = ynknot * (x-xnknot)/(xpknot-xnknot);
+      }
+    }
+
+  } else {
+    LOG("Spline", pDEBUG) << "x = " << x
+     << " is not within spline range [" << fXMin << ", " << fXMax << "]";
+  }
+
+  if(y<0) {
+    LOG("Spline", pERROR) << "Negative y (" << y << ")";
+    LOG("Spline", pERROR) << "x = " << x;
+    LOG("Spline", pERROR) << "spline range [" << fXMin << ", " << fXMax << "]";
+  }
 
   return y;
 }
@@ -490,7 +523,7 @@ void Spline::BuildSpline(int nentries, double x[], double y[])
 
   if(fInterpolator) delete fInterpolator;
 
-  fInterpolator = new TSpline3("spl3", x, y, nentries, "0", xmin, xmax);
+  fInterpolator = new TSpline3("spl3", x, y, nentries, "0");
 
   LOG("Spline", pDEBUG) << "...done building spline";
 }
