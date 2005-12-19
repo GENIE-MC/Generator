@@ -101,7 +101,7 @@ int main(int argc, char ** argv)
 
   //-- string to match for selecting splines for the input target only
   ostringstream tgtmatch;
-  tgtmatch << "tgt-pdg:" << gOptTgtPdgCode;
+  tgtmatch << "tgt:" << gOptTgtPdgCode;
 
   //-- get all splines and draw them
   TCanvas * c = 0;
