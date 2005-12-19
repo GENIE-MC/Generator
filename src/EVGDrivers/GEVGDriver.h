@@ -39,6 +39,7 @@ class InteractionSelectorI;
 class EGResponsibilityChain;
 class InitialState;
 class Target;
+class Spline;
 
 class GEVGDriver {
 
@@ -48,7 +49,6 @@ public :
   ~GEVGDriver();
 
   //-- Set initial state, interaction filter and option to create splines
-
   void SetInitialState   (int nu_pdgc, int Z, int A);
   void SetInitialState   (const InitialState & init_state);
   void SetFilter         (const InteractionFilter & filter);
@@ -57,7 +57,6 @@ public :
   void FilterUnphysical  (bool on_off);
 
   //-- Generate single event
-
   EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
   //-- Cross section sum for all interactions that can be generated for
@@ -70,44 +69,40 @@ public :
   //   These methods are used by the GENIE MC job driver to select a target
   //   nucleus from a ROOT geometry and estimate the maximum interaction
   //   probability that scales all interaction probabilities.
-
   double SumCrossSection(const TLorentzVector & nup4);
   double MaxCrossSection(const TLorentzVector & nup4);
+  void   CreateXSecSumSpline(int nk, double Emin, double Emax, bool inlogE=true);
+  const Spline * XSecSumSpline(void) const { return fXSecSumSpl; }
 
   //-- Get state
-
   const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
   const InteractionFilter *  Filter          (void) const { return fFilter;    }
 
   //-- Print state
-
   void Print (ostream & stream) const;
   friend ostream & operator << (ostream & stream, const GEVGDriver & driver);
 
 private:
 
   //-- Private initialization, configuration & input validation methods
-
   void Initialize       (void);
   void Configure        (void);
   bool IsValidInitState (void) const;
 
   //-- Minimal Initial State Information
-
   bool     fUseSplines;
   int      fNuPDG;
   Target * fNuclTarget;
 
-  //-- High-level private objects collaborating for event generation
-
-  EventRecord *           fCurrentRecord; ///< ptr to the event record being processed
-  EventGeneratorList *    fEvGenList;     ///< all Event Generators available at this job
-  EGResponsibilityChain * fChain;         ///< an Event Generator chain of responsibility
-  InteractionSelectorI *  fIntSelector;   ///< interaction selector
-  InteractionFilter *     fFilter;
-  bool                    fFilterUnphysical; ///< controls whether unphysical events are returned
-  //-- Other private data
-  unsigned int fNRecLevel; ///< a counter of how many levels deep it is in recursive mode.
+  //-- Private data members
+  EventRecord *           fCurrentRecord;   ///< ptr to the event record being processed
+  EventGeneratorList *    fEvGenList;       ///< all Event Generators available at this job
+  EGResponsibilityChain * fChain;           ///< an Event Generator chain of responsibility
+  InteractionSelectorI *  fIntSelector;     ///< interaction selector
+  InteractionFilter *     fFilter;          ///< interaction filter
+  bool                    fFilterUnphysical;///< controls whether unphysical events are returned
+  Spline *                fXSecSumSpl;      ///< sum{xsec(all interactions | this init state)}
+  unsigned int            fNRecLevel;       ///< recursive mode depth counter
 };
 
 }      // genie namespace
