@@ -60,7 +60,7 @@
   <priority msgstream="IMDTargetRemnant">    INFO   </priority>
   <priority msgstream="IMDKinematics">       INFO   </priority>
   <priority msgstream="InteractionSelector"> INFO   </priority>
-  <priority msgstream="InteractionList">     INFO   </priority>
+  <priority msgstream="InteractionList">     NOTICE </priority>
   <priority msgstream="Interaction">         INFO   </priority>
   <priority msgstream="Intranuke">           INFO   </priority>
   <priority msgstream="ISApp">               INFO   </priority>
