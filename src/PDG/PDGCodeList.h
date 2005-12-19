@@ -35,20 +35,21 @@ public :
 
   //-- override the vector<int> insertion methods to explicitly check for
   //   PDG code validity and that no PDG code is listed more than once
-
   void push_back  (int pdg_code);
   void insert     (iterator pos, size_type n, const int& x);
 
-  //-- print 
-  
-  void Print(ostream & stream) const;
-  friend ostream & operator << (ostream & stream, const PDGCodeList & list);
-
   //-- PDG code checks used by PDGCodeList
-
   bool CheckPDGCode        (int pdg_code);
   bool ExistsInPDGLibrary  (int pdg_code);
   bool ExistsInPDGCodeList (int pdg_code);
+
+  //-- copy / print
+  void Copy  (const PDGCodeList & list);
+  void Print (ostream & stream) const;
+
+  PDGCodeList &    operator =  (const PDGCodeList & list);
+  friend ostream & operator << (ostream & stream, const PDGCodeList & list);
+
 };
 
 }      // genie namespace

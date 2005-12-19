@@ -47,15 +47,10 @@ PDGCodeList::PDGCodeList(size_type n) : vector<int>(n)
 
 }
 //___________________________________________________________________________
-PDGCodeList::PDGCodeList(const PDGCodeList & list) : 
+PDGCodeList::PDGCodeList(const PDGCodeList & list) :
 vector<int>()
 {
-  PDGCodeList::const_iterator iter;
-
-  for(iter = list.begin(); iter != list.end(); ++iter) {
-    int code = *iter;
-    this->push_back(code);
-  }
+  this->Copy(list);
 }
 //___________________________________________________________________________
 PDGCodeList::~PDGCodeList()
@@ -91,27 +86,21 @@ bool PDGCodeList::CheckPDGCode(int pdg_code)
                 << "Particle [pdgc = " << pdg_code << "] was already added";
     return false;
   }
-
   return true;
 }
 //___________________________________________________________________________
 bool PDGCodeList::ExistsInPDGLibrary(int pdg_code)
 {
   PDGLibrary * pdglib = PDGLibrary::Instance();
-
   TParticlePDG * particle = pdglib->Find(pdg_code);
-
   if(!particle) return false;
-
   return true;
 }
 //___________________________________________________________________________
 bool PDGCodeList::ExistsInPDGCodeList(int pdg_code)
 {
   int n = count(this->begin(), this->end(), pdg_code);
-
   if(n!=0) return true;
-
   return false;
 }
 //___________________________________________________________________________
@@ -139,3 +128,21 @@ void PDGCodeList::Print(ostream & stream) const
   }
 }
 //___________________________________________________________________________
+void PDGCodeList::Copy(const PDGCodeList & list)
+{
+  this->clear();
+
+  PDGCodeList::const_iterator iter;
+  for(iter = list.begin(); iter != list.end(); ++iter) {
+    int code = *iter;
+    this->push_back(code);
+  }
+}
+//___________________________________________________________________________
+PDGCodeList & PDGCodeList::operator = (const PDGCodeList & list)
+{
+  this->Copy(list);
+  return (*this);
+}
+//___________________________________________________________________________
+
