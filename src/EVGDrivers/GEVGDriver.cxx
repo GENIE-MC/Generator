@@ -20,6 +20,7 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <sstream>
 
 #include <TSystem.h>
 #include <TMath.h>
@@ -44,8 +45,11 @@
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "PDG/PDGLibrary.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/PrintUtils.h"
+
+using std::ostringstream;
 
 using namespace genie;
 using namespace genie::controls;
@@ -128,6 +132,12 @@ void GEVGDriver::Initialize(void)
   fUseSplines    = false;
   fNRecLevel     = 0;
 
+  // A spline describing the sum of all interaction cross sections given an
+  // initial state (the init state with which this driver was configured).
+  // Create it using the CreateXSecSumSpline() method
+  // The sum of all interaction cross sections is used, for example, by
+  // GMCJDriver for selecting an initial state.
+  fXSecSumSpl    = 0;
   // Default driver behaviour is to filter out unphysical events,
   // Set this to false to get them if needed, but be warned that the event
   // record for unphysical events might be incomplete depending on the
@@ -146,12 +156,14 @@ void GEVGDriver::Configure(void)
 
   string evgl = (gSystem->Getenv("GEVGL") ?
                                gSystem->Getenv("GEVGL") : "Default");
-  LOG("GEVGDriver", pNOTICE) << "Specified Event Generator List = " << evgl;
+  LOG("GEVGDriver", pNOTICE)
+                       << "Specified Event Generator List = " << evgl;
 
   EventGeneratorListAssembler evglist_assembler(evgl.c_str());
   fEvGenList = evglist_assembler.AssembleGeneratorList();
 
-  LOG("GEVGDriver", pNOTICE) << "Creating the `Generator Chain of Responsibility`";
+  LOG("GEVGDriver", pNOTICE)
+               << "Creating the `Generator Chain of Responsibility`";
 
   if(fChain) delete fChain;
   fChain = new EGResponsibilityChain;
@@ -167,7 +179,7 @@ void GEVGDriver::Configure(void)
 EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
 {
   //-- Build initial state information from inputs
-  LOG("GEVGDriver", pINFO) << "Creating an init state from the user inputs";
+  LOG("GEVGDriver", pINFO) << "Creating the initial state";
   InitialState init_state(*fNuclTarget, fNuPDG);
   init_state.SetProbeP4(nu4p);
 
@@ -181,8 +193,7 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   assert(fCurrentRecord); // abort if no interaction could be selected!
 
   //-- Get a ptr to the interaction summary
-  LOG("GEVGDriver", pDEBUG)
-                     << "Getting the interaction from the new event-record";
+  LOG("GEVGDriver", pDEBUG) << "Getting the selected interaction";
   Interaction * interaction = fCurrentRecord->GetInteraction();
 
   //-- Find the appropriate concrete EventGeneratorI implementation
@@ -193,9 +204,10 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   //   against the ValidityContext declared by each EventGeneratorI
   //
   //   (note: use of the 'Chain of Responsibility' Design Pattern)
-  LOG("GEVGDriver", pINFO) << "Finding an appropriate EventGenerator";
-  const EventGeneratorI * evgen = fChain->FindGenerator(interaction);
 
+  LOG("GEVGDriver", pINFO) << "Finding an appropriate EventGenerator";
+
+  const EventGeneratorI * evgen = fChain->FindGenerator(interaction);
   assert(evgen);
 
   //-- Generate the selected event
@@ -206,7 +218,9 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   //   Most of the actual event generation takes place in this step.
   //
   //   (note: use of the 'Visitor' Design Pattern)
+
   LOG("GEVGDriver", pINFO) << "Generating Event:";
+
   evgen->ProcessEventRecord(fCurrentRecord);
 
   //-- If the user requested that unphysical events should be returned too,
@@ -219,6 +233,7 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   //   clean-up the failed event and it will enter into a recursive mode,
   //   calling itself so as to regenerate the event. It will exit the
   //   recursive mode when a physical event is generated
+
   bool unphys = fCurrentRecord->IsUnphysical();
   if(unphys) {
      LOG("GEVGDriver", pWARN) << "I generated an unphysical event!";
@@ -267,9 +282,8 @@ double GEVGDriver::SumCrossSection(const TLorentzVector & nup4)
                              evgliter != fEvGenList->end(); ++evgliter) {
      const EventGeneratorI * evgen = *evgliter; // current EventGenerator
 
-     LOG("GEVGDriver", pNOTICE)
-            << "Querying [" << evgen->Id().Key()
-                                           << "] for its InteractionList";
+     LOG("GEVGDriver", pINFO)
+        << "Querying [" << evgen->Id().Key() << "] for its InteractionList";
 
      // ask the event generator to produce a list of all interaction it can
      // generate for the input initial state
@@ -292,25 +306,38 @@ double GEVGDriver::SumCrossSection(const TLorentzVector & nup4)
          interaction->GetInitialStatePtr()->SetProbeP4(nup4);
 
          // get the cross section for this interaction
-         SLOG("GEVGDriver", pNOTICE)
-                          << "Interaction = " << interaction->AsString();
-
+         SLOG("GEVGDriver", pDEBUG)
+                 << "Compute cross section for interaction: \n"
+                                                 << interaction->AsString();
          double xsec = 0;
          bool spline_exists = xssl->SplineExists(xsec_alg, interaction);
          if (spline_exists && fUseSplines) {
-             double E = interaction->GetInitialState().GetProbeE(kRfStruckNucAtRest);
+             //double E = interaction->GetInitialState().GetProbeE(kRfStruckNucAtRest);
+             double E = nup4.Energy();
              xsec = xssl->GetSpline(xsec_alg,interaction)->Evaluate(E);
          } else
              xsec = xsec_alg->XSec(interaction);
 
          xsec_sum += xsec;
-         SLOG("GEVGDriver", pNOTICE)
-                  << "Cross Section = " << (xsec/units::cm2) << " cm2";
+         LOG("GEVGDriver", pINFO)
+            << "\nInteraction   = " << interaction->AsString()
+            << "\nCross Section "
+            << (fUseSplines ? "*interpolated*" : "*computed*")
+            << " = " << (xsec/units::cm2) << " cm2";
      } // loop over interaction that can be generated by this generator
 
      delete ilst;
      ilst = 0;
   } // loop over event generators
+
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+  LOG("GEVGDriver", pNOTICE)
+      << "SumXSec("
+      << pdglib->Find(fNuPDG)->GetName() << "+"
+      << pdglib->Find(fNuclTarget->PDGCode())->GetName() << "->X, "
+      << "E = " << nup4.Energy() << " GeV)"
+      << (fUseSplines ? "*interpolated*" : "*computed*")
+      << " = " << (xsec_sum/units::cm2) << " cm2";
 
   return xsec_sum;
 }
@@ -366,7 +393,7 @@ double GEVGDriver::MaxCrossSection(const TLorentzVector & nup4)
          interaction->GetInitialStatePtr()->SetProbeP4(nup4);
 
          // get the cross section for this interaction
-         SLOG("GEVGDriver", pNOTICE)
+         SLOG("GEVGDriver", pINFO)
                           << "Interaction = " << interaction->AsString();
 
          double xsec = 0;
@@ -378,7 +405,7 @@ double GEVGDriver::MaxCrossSection(const TLorentzVector & nup4)
              xsec = xsec_alg->XSec(interaction);
 
          max_xsec = TMath::Max(max_xsec, xsec);
-         SLOG("GEVGDriver", pNOTICE)
+         SLOG("GEVGDriver", pINFO)
                   << "Cross Section = " << (xsec/units::cm2) << " cm2";
      } // loop over interaction that can be generated by this generator
 
@@ -389,9 +416,69 @@ double GEVGDriver::MaxCrossSection(const TLorentzVector & nup4)
   return max_xsec;
 }
 //___________________________________________________________________________
+void GEVGDriver::CreateXSecSumSpline(
+                               int nk, double Emin, double Emax, bool inlogE)
+{
+// This method creates a spline with the *total* cross section vs E (or logE)
+// for the initial state that this driver was configured with.
+// This spline is used, for example, by the GMCJDriver to select a target
+// material out of all the materials in a detector geometry (summing the
+// cross sections again and again proved to be expensive...)
+
+  LOG("GEVGDriver", pNOTICE)
+     << "Creating spline (sum-xsec = f(" << ((inlogE) ? "logE" : "E")
+     << ") in E = [" << Emin << ", " << Emax << "] using " << nk << " knots";
+
+  if(!fUseSplines) {
+     LOG("GEVGDriver", pWARN)
+         << "You haven't loaded any splines!! Well, it will take a while...";
+  }
+
+  assert(Emin<Emax && Emin>0 && nk>2);
+
+  double logEmin=0, logEmax=0, dE=0;
+
+  double * E    = new double[nk];
+  double * xsec = new double[nk];
+
+  if(inlogE) {
+    logEmin = TMath::Log(Emin);
+    logEmax = TMath::Log(Emax);
+    dE = (logEmax-logEmin)/(nk-1);
+  } else {
+    dE = (Emax-Emin)/(nk-1);
+  }
+
+  TLorentzVector p4(0,0,0,0);
+
+  for(int i=0; i<nk; i++) {
+
+    double e = (inlogE) ? TMath::Exp(logEmin + i*dE) : Emin + i*dE;
+
+    p4.SetPxPyPzE(0.,0.,e,e);
+    double xs = this->SumCrossSection(p4);
+
+    E[i]    = e;
+    xsec[i] = xs;
+  }
+  if (fXSecSumSpl) delete fXSecSumSpl;
+  fXSecSumSpl = new Spline(nk, E, xsec);
+}
+//___________________________________________________________________________
 void GEVGDriver::UseSplines(void)
 {
-  // build the initial state
+// Instructs the driver to use cross section splines rather than computing
+// them again and again.
+// **Note**
+// -- If you called GEVGDriver::CreateSplines() already the driver would
+//    a) assume that you want to use them and b) would know that it has all
+//    the splines it needs, so you do not need to call this method.
+// -- If you populated the XSecSplineList in another way, eg from an external
+//    XML file, this driver has no way to know. So do call this method then.
+//    However, the driver would **explicitly check** that you loaded all the
+//    splines it needs. If not, then its fiery personality will take over and
+//    it will refuse your request, reverting back to not using splines.
+
   if(!this->IsValidInitState()) {
     LOG("GEVGDriver", pERROR) << "Invalid initial state"; return;
   }
@@ -432,7 +519,7 @@ void GEVGDriver::UseSplines(void)
            if(!spl_exists) {
               LOG("GEVGDriver", pWARN)
                     << "\nAt least a spline does not exist - "
-                                     << "Reverting back to not using splines";
+                                    << "Reverting back to not using splines";
               return;
            }
        } // loop over interaction that can be generated by this generator
@@ -446,6 +533,10 @@ void GEVGDriver::UseSplines(void)
 //___________________________________________________________________________
 void GEVGDriver::CreateSplines(bool useLogE)
 {
+// Creates all the cross section splines that are needed by this driver.
+// It will check for pre-loaded splines and it will skip the creation of the
+// splines it already finds loaded.
+
   LOG("GEVGDriver", pINFO)
        << "\nCreating Cross Section Splines with UseLogE = "
                                                << ((useLogE) ? "ON" : "OFF");
@@ -503,7 +594,8 @@ void GEVGDriver::CreateSplines(bool useLogE)
              LOG("GEVGDriver", pINFO) << "Computing spline knots";
              xsl->CreateSpline(alg, interaction, 40, Emin, Emax);
          } else {
-             LOG("GEVGDriver", pNOTICE) << "Spline is already loaded - skipping";
+             LOG("GEVGDriver", pNOTICE)
+                         << "Spline is already loaded - skipping";
          }
 
      } // loop over interaction that can be generated by this generator

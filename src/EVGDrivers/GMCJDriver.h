@@ -20,6 +20,9 @@
 
 using std::string;
 
+#include "EVGDrivers/PathLengthList.h"
+#include "PDG/PDGCodeList.h"
+
 namespace genie {
 
 class EventRecord;
@@ -27,7 +30,6 @@ class GFluxI;
 class GeomAnalyzerI;
 class GENIE;
 class GEVGPool;
-class PathLengthList;
 
 class GMCJDriver {
 
@@ -50,12 +52,33 @@ public :
 
 private:
 
-  void   Initialize (void);
-  double PInt       (double xsec, double pl);
+  void   Initialize            (void);
+  void   InitEventGeneration   (void);
+  void   GetParticleLists      (void);
+  void   GetMaxPathLengthList  (void);
+  void   GetMaxFluxEnergy      (void);
+  void   CreateGEVGDriverPool  (void);
+  void   CreateXSecSplines     (void);
+  void   CreateXSecSumSplines  (void);
+  void   ComputeMaxIntProb     (void);
+  bool   GenerateFluxNeutrino  (void);
+  bool   ComputePathLengths    (void);
+  int    SelectTargetMaterial  (void);
+  void   GenerateEventKinematics(void);
+  void   GenerateVertex        (void);
+  double PInt(double xsec, double pl, int A);
 
   GFluxI *        fFluxDriver;       ///< [input] neutrino flux driver
   GeomAnalyzerI * fGeomAnalyzer;     ///< [input] detector geometry analyzer
   GEVGPool *      fGPool;            ///< A pool of available GEVGDrivers objects
+  PDGCodeList     fNuList;           ///< list of neutrino codes [taken from flux driver]
+  PDGCodeList     fTgtList;          ///< list of target codes [taken from geom driver]
+  PathLengthList  fMaxPathLengths;   ///< maximum path length list [for all geometry materials]
+  PathLengthList  fCurPathLengths;   ///< path length list for current flux neutrino
+  TLorentzVector  fCurVtx;           ///< current interaction vertex
+  EventRecord *   fCurEvt;           ///< current generated event
+  int             fSelTgtPdg;        ///< selected target material PDG code
+  double          fEmax;             ///< maximum neutrino energy [taken from flux driver]
   double          fPmax;             ///< [computed] Pmax(interaction)|<flux/geom>
   string          fMaxPlXmlFilename; ///< [input/opt] max path lengths, all materials|geom
   bool            fUseExtMaxPl;      ///< using external max path length estimate?
