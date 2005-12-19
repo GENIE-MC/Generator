@@ -23,13 +23,14 @@
 
 #include <vector>
 
-#include "Decay/DecayModelI.h"
 #include "Fragmentation/HadronizationModelI.h"
-#include "Fragmentation/MultiplicityProbModelI.h"
 
 using std::vector;
 
 namespace genie {
+
+class MultiplicityProbModelI;
+class DecayModelI;
 
 class KNOHadronization : public HadronizationModelI {
 
@@ -40,19 +41,24 @@ public:
   virtual ~KNOHadronization();
 
   //-- implement the HadronizationModelI interface
-
   void           Initialize   (void)                 const;
   TClonesArray * Hadronize    (const Interaction * ) const;
 
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
+
 private:
 
-  const MultiplicityProbModelI * MultiplicityProbabilityModel (void) const;
-  const DecayModelI *            DecayModel                   (void) const;
-
+  void          LoadSubAlg            (void);
   vector<int> * GenerateFSHadronCodes (int mult, int maxQ, double W) const;
   int           GenerateBaryonPdgCode (int mult, int maxQ)           const;
   int           HadronShowerCharge    (const Interaction * proc)     const;
   void          HandleDecays          (TClonesArray * particle_list) const;
+
+  const MultiplicityProbModelI * fMultProbModel;
+  const DecayModelI *            fDecayer;
 };
 
 }         // genie namespace
