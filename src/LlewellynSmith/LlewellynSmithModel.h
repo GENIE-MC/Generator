@@ -26,6 +26,8 @@
 
 namespace genie {
 
+class ELFormFactorsModelI;
+
 class LlewellynSmithModel : public QELFormFactorsModelI {
 
 public:
@@ -33,21 +35,33 @@ public:
   virtual ~LlewellynSmithModel();
 
   //-- QELFormFactorModelI interface implementation
-
   virtual double F1V     (const Interaction * interaction) const;
   virtual double xiF2V   (const Interaction * interaction) const;
   virtual double FA      (const Interaction * interaction) const;
   virtual double Fp      (const Interaction * interaction) const;
 
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  virtual void Configure(const Registry & config);
+  virtual void Configure(string config);
+
 protected:
+
+  LlewellynSmithModel();
+  LlewellynSmithModel(string name);
+  LlewellynSmithModel(string name, string config);
+
+  virtual void LoadSubAlg     (void);
+  virtual void LoadConfigData (void);
 
   virtual double tau    (const Interaction * interaction) const;
   virtual double GVE    (const Interaction * interaction) const;
   virtual double GVM    (const Interaction * interaction) const;
 
-  LlewellynSmithModel();
-  LlewellynSmithModel(string name);
-  LlewellynSmithModel(string name, string config);
+  const ELFormFactorsModelI * fElFFModel;
+
+  double fMa2;
+  double fFA0;
 };
 
 }       // genie namespace
