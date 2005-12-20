@@ -343,7 +343,6 @@ void GMCJDriver::ComputeMaxIntProb(void)
      // get the appropriate driver
      GEVGDriver * evgdriver = fGPool->FindDriver(init_state);
 
-     //double sxsec = evgdriver->SumCrossSection(nup4); // sum{xsec}
      double sxsec = evgdriver->XSecSumSpline()->Evaluate(fEmax); // sum{xsec}
      double plmax = fMaxPathLengths.PathLength(target_pdgc); // max{L*density}
      int    A     = pdg::IonPdgCodeToA(target_pdgc);
@@ -471,6 +470,8 @@ bool GMCJDriver::ComputePathLengths(void)
 
   fCurPathLengths = fGeomAnalyzer->ComputePathLengths(nux4, nup4);
 
+  LOG("GMCJDriver", pNOTICE) << fCurPathLengths;
+
   if(fCurPathLengths.size() == 0) {
      LOG("GMCJDriver", pFATAL)
        << "\n *** Geometry driver error ***"
@@ -519,14 +520,14 @@ int GMCJDriver::SelectTargetMaterial(void)
      }
      // compute the interaction xsec and probability (if path-length>0)
      if(pl>0.) {
-        xsec  = evgdriver->SumCrossSection(nup4);
+        xsec  = evgdriver->XSecSum(nup4);
         prob  = this->PInt(xsec,pl,A);
         probn = prob/fPmax;
      }
 
      LOG("GMCJDriver", pNOTICE)
-         << "TotXSec = " << xsec/cm2 << " cm^2, "
-         << "Prob = " << prob << ", Norm.Prob = " << 100*probn << "%";
+         << "tgt: " << mpdg << " -> TotXSec = " 
+         << xsec/cm2 << " cm^2, Norm.Prob = " << 100*probn << "%";
 
      probsum += probn;
      probm.insert(map<int,double>::value_type(mpdg,probsum));
