@@ -74,7 +74,8 @@ void ROOTGeomAnalyzer::SetUnits(double u)
 
   fScale = u/units::meter;
 
-  LOG("GROOTGeom", pNOTICE) << "Geometry units scale factor: " << fScale;
+  LOG("GROOTGeom", pNOTICE)
+                << "Geometry units scale factor (GU -> m): " << fScale;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::SetMaxPlSafetyFactor(double sf)
@@ -128,12 +129,14 @@ void ROOTGeomAnalyzer::SetTopVolName(string name)
 //___________________________________________________________________________
 const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
 {
-  LOG("GROOTGeom", pINFO)
+// Computes the maximum path lengths for all materials in the input geometry
+//
+  LOG("GROOTGeom", pNOTICE)
                   << "Computing the maximum path lengths for all materials";
 
   if(!fGeometry) {
-      LOG("GROOTGeom",pERROR) << "No ROOT geometry is loaded!";
-      return *fCurrMaxPathLengthList;
+      LOG("GROOTGeom",pFATAL) << "No ROOT geometry is loaded!!";
+      exit(1);
   }
 
   //-- initialize max path lengths
@@ -151,7 +154,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsFluxMethod(void)
 // Use the input flux driver to generate "rays", and then follow them through
 // the detector and figure out the maximum path length for each material
 
-  LOG("GROOTGeom", pINFO)
+  LOG("GROOTGeom", pNOTICE)
                << "Computing the maximum path lengths using the FLUX method";
 
   int iparticle = 0;
@@ -198,25 +201,26 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
 // random rays, follow them through the detector and figure out the maximum
 // path length for each material
 
-  LOG("GROOTGeom", pINFO)
+  LOG("GROOTGeom", pNOTICE)
                << "Computing the maximum path lengths using the BOX method";
 
   // get geometry's bounding box
-  LOG("GROOTGeom", pINFO) << "Getting a TGeoBBox enclosing the detector";
+  LOG("GROOTGeom", pNOTICE) << "Getting a TGeoBBox enclosing the detector";
   TGeoShape * TS  = fTopVolume->GetShape();
   TGeoBBox *  box = (TGeoBBox *)TS;
 
-  //get box origin and dimensions
+  //get box origin and dimensions (in the same units as the geometry)
   double dx = box->GetDX(); // half-length
   double dy = box->GetDY(); // half-length
   double dz = box->GetDZ(); // half-length
   double ox = (box->GetOrigin())[0];
   double oy = (box->GetOrigin())[1];
   double oz = (box->GetOrigin())[2];
-  LOG("GROOTGeom",pINFO)
-     << "Box dimensions : x = "<< 2*dx << ", y = "<< 2*dy << ", z = "<< 2*dz;
-  LOG("GROOTGeom",pINFO)
-     << "Box origin     : x = "<< ox   << ", y = "<< oy   << ", z = "<<   oz;
+
+  LOG("GROOTGeom",pNOTICE) << "Box size (GU)   :"
+               << " x = " << 2*dx << ", y = " << 2*dy << ", z = " << 2*dz;
+  LOG("GROOTGeom",pNOTICE) << "Box origin (GU) :"
+               << " x = " << ox   << ", y = " << oy   << ", z = " <<   oz;
 
   //generate 200 random points on each surface, use 200 rays to
   //calculate maximum path for each material
@@ -224,10 +228,10 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
   RandomGen* rand=RandomGen::Instance();
   TRandom & r3=rand->Random3();
 
-  LOG("GROOTGeom",pINFO)
-        << "Will generate [" << fNPoints << "] random points on each box surface";
-  LOG("GROOTGeom",pINFO)
-        << "Will generate [" << fNRays   << "] rays for each point";
+  LOG("GROOTGeom",pNOTICE)
+        << "Will generate [" << fNPoints << "] random points / box surface";
+  LOG("GROOTGeom",pNOTICE)
+        << "Will generate [" << fNRays   << "] rays / point";
 
   //loop on materials
 
@@ -235,7 +239,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
   for(itr=fCurrPDGCodeList->begin();itr!=fCurrPDGCodeList->end();itr++) {
 
     int pdgc = *itr;
-    LOG("GROOTGeom", pINFO)
+    LOG("GROOTGeom", pNOTICE)
                  <<"Calculating max path length for material: " << pdgc;
 
     int    ipoint    (0);
@@ -244,11 +248,11 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     int    maxRays   (fNRays);
     double maxPath   (0);
 
-    TVector3 pos(0.,0.,0.); // position
+    TVector3 pos(0.,0.,0.); // position (GU)
     TVector3 dir(0.,0.,0.); // direction
 
     //top:
-    LOG("GROOTGeom",pINFO) << "Box surface scanned: [TOP]";
+    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [TOP]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -261,7 +265,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 /*
     //bottom:
-    LOG("GROOTGeom",pINFO) << "Box surface scanned: [BOTTOM]";
+    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [BOTTOM]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -274,7 +278,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 */
     //left:
-    LOG("GROOTGeom",pINFO) << "Box surface scanned: [LEFT]";
+    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [LEFT]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -287,7 +291,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 /*
     //right:
-    LOG("GROOTGeom",pINFO) << "Box surface scanned: [RIGHT]";
+    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [RIGHT]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -300,7 +304,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 */
     //front:
-    LOG("GROOTGeom",pINFO) << "Box surface scanned: [FRONT]";
+    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [FRONT]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -313,7 +317,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 /*
     //back:
-    LOG("GROOTGeom",pINFO) << "Box surface scanned: [BACK]";
+    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [BACK]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -326,15 +330,18 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 */
     maxPath *= (this->MaxPlSafetyFactor());
-    LOG("GROOTGeom", pINFO) << "Max path length found = " << maxPath;
-    fCurrMaxPathLengthList->AddPathLength(pdgc, maxPath);
+    fCurrMaxPathLengthList->AddPathLength(pdgc, maxPath); // GU
+
+    LOG("GROOTGeom", pNOTICE)
+                       << "Max path length found = " << maxPath << " GU";
   }
-  this->ScalePathLengths(*fCurrMaxPathLengthList);
+  this->ScalePathLengths(*fCurrMaxPathLengthList); // GU -> m
 }
 //________________________________________________________________________
 void ROOTGeomAnalyzer::Initialize(void)
 {
-  LOG("GROOTGeom", pINFO) << "Initializing ROOT geometry driver";
+  LOG("GROOTGeom", pNOTICE)
+                << "Initializing ROOT geometry driver & setting defaults";
 
   fCurrMaxPathLengthList = 0;
   fCurrPathLengthList    = 0;
@@ -355,7 +362,7 @@ void ROOTGeomAnalyzer::Initialize(void)
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::CleanUp(void)
 {
-  LOG("GROOTGeom", pINFO) << "Cleaning up...";
+  LOG("GROOTGeom", pNOTICE) << "Cleaning up...";
 
   if( fCurrPathLengthList    ) delete fCurrPathLengthList;
   if( fCurrMaxPathLengthList ) delete fCurrMaxPathLengthList;
@@ -364,7 +371,7 @@ void ROOTGeomAnalyzer::CleanUp(void)
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::Load(string filename)
 {
-  LOG("GROOTGeom", pINFO) << "Loading geometry from: " << filename;
+  LOG("GROOTGeom", pNOTICE) << "Loading geometry from: " << filename;
 
   bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
   if (!is_accessible) {
@@ -379,7 +386,7 @@ void ROOTGeomAnalyzer::Load(string filename)
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::Load(TGeoManager * gm)
 {
-  LOG("GROOTGeom", pINFO)
+  LOG("GROOTGeom", pNOTICE)
          << "A TGeoManager is being loaded to the geometry driver";
   fGeometry = gm;
 
@@ -416,11 +423,12 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 // Computes the path-length within each detector material for a neutrino
 // starting from point x and travelling along the direction of p.
 
-  LOG("GROOTGeom", pINFO) << "Computing path-lengths for the input neutrino";
+  LOG("GROOTGeom", pNOTICE)
+       << "Computing path-lengths for the input neutrino";
 
   LOG("GROOTGeom", pDEBUG)
-       << "\nInput nu: 4p = " << utils::print::P4AsShortString(&p)
-       << ", 4x = " << utils::print::X4AsString(&x);
+       << "\nInput nu: 4p (GeV) = " << utils::print::P4AsShortString(&p)
+       << ", 4x (m,s) = " << utils::print::X4AsString(&x);
 
   // reset current list of path-lengths
   fCurrPathLengthList->SetAllToZero();
@@ -434,13 +442,14 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                       <<"Calculating path length for material: " << pdgc;
 
     TVector3 pos  = x.Vect();        // initial position
+    pos *= (1./this->Units());       // m -> GU
     TVector3 udir = p.Vect().Unit(); // unit vector along direction
 
     fCurrPathLengthList->AddPathLength(
                        pdgc, this->ComputePathLengthPDG(pos,udir,pdgc));
   }
 
-  this->ScalePathLengths(*fCurrPathLengthList);
+  this->ScalePathLengths(*fCurrPathLengthList); // GU -> m
 
   return *fCurrPathLengthList;
 }
@@ -452,29 +461,30 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 // PDG code, for a neutrino starting from point x and travelling along the
 // direction of p
 
-  LOG("GROOTGeom", pINFO)
-           << "Generating vtx in material: " << tgtpdg
-                                    << " along the input neutrino direction";
+  LOG("GROOTGeom", pNOTICE)
+         << "Generating vtx in material: " << tgtpdg
+                                  << " along the input neutrino direction";
   // reset current interaction vertex
   fCurrVertex->SetXYZ(0.,0.,0.);
 
   LOG("GROOTGeom", pDEBUG)
-       << "\nInput nu: 4p = " << utils::print::P4AsShortString(&p)
-       << ", 4x = " << utils::print::X4AsString(&x);
+       << "\nInput nu: 4p (GeV) = " << utils::print::P4AsShortString(&p)
+       << ", 4x (m,s) = " << utils::print::X4AsString(&x);
 
   if(!fGeometry) {
-      LOG("GROOTGeom",pERROR) << "No ROOT geometry is loaded!";
-      return *fCurrVertex;
+      LOG("GROOTGeom", pFATAL) << "No ROOT geometry is loaded!!";
+      exit(1);
   }
 
   // calculate the event length for the selected material starting from
   // x and looking along the direction of p
   TVector3 r    = x.Vect();
   TVector3 dir  = p.Vect().Unit();
+  r *= (1./this->Units());  // m -> GU
   double   dist = this->ComputePathLengthPDG(r, dir, tgtpdg);
 
-  LOG("GROOTGeom", pINFO)
-              << "Max {Distance x Density} given (init,dir) = " << dist;
+  LOG("GROOTGeom", pNOTICE)
+        << "Max {L(GU) x Density x Weight} given (init,dir) = " << dist;
 
   if(dist==0) {
     LOG("GROOTGeom", pERROR)
@@ -486,8 +496,8 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   RandomGen* rand=RandomGen::Instance();
   TRandom & r3 = rand->Random3();
   double distVertex(r3.Rndm()*dist);
-  LOG("GROOTGeom", pINFO)
-        << "Generated 'distance' in selected material = " << distVertex;
+  LOG("GROOTGeom", pNOTICE)
+       << "Generated 'distance' in selected material = " << distVertex;
 
   //-- generate the vertex
 
@@ -497,10 +507,11 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
   int    FlagNotInYet(0);
   bool   condition(kTRUE);
-  double StepIncrease(0.001);
+  double StepIncrease(0.001/this->Units());
   double distToVtx(0);
 
   r.SetXYZ(x.X(), x.Y(), x.Z());
+  r *= (1./this->Units());  // m -> GU
 
   fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
 
@@ -537,8 +548,9 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
   r = r - StepIncrease * dir;
   fCurrVertex->SetXYZ(r[0],r[1],r[2]);
+  (*fCurrVertex) *= (this->Units()); // GU -> m
 
-  LOG("GROOTGeom",pDEBUG) << "Vertex = " << utils::print::Vec3AsString(&r);
+  LOG("GROOTGeom",pDEBUG) << "Vtx (m) = " << utils::print::Vec3AsString(&r);
 
   return *fCurrVertex;
 }
@@ -548,8 +560,8 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
   fCurrPDGCodeList = new PDGCodeList;
 
   if(!fGeometry) {
-    LOG("GROOTGeom", pERROR) << "No ROOT geometry is loaded!";
-    return;
+    LOG("GROOTGeom", pFATAL) << "No ROOT geometry is loaded!!";
+    exit(1);
   }
 
   TObjArray * volume_list = fGeometry->GetListOfVolumes();
@@ -653,7 +665,7 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
      }//condition
   }
 
-  LOG("GROOTGeom", pDEBUG) << "PathLength[" << pdgc << "] = " << pl;
+  LOG("GROOTGeom", pDEBUG) << "PathLength[" << pdgc << "] = " << pl << " GU";
 
   return pl;
 }
