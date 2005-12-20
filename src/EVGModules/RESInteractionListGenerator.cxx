@@ -57,7 +57,9 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
   int nupdg  = init_state.GetProbePDGCode();
 
   if( !pdg::IsNeutrino(nupdg) && !pdg::IsAntiNeutrino(nupdg) ) {
-     LOG("InteractionList", pWARN) << "Couldn't generate InteractionList";
+     LOG("InteractionList", pWARN)
+       << "Can not handle probe! Returning NULL InteractionList "
+                         << "for init-state: " << init_state.AsString();
      return 0;
   }
 
@@ -104,7 +106,9 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
   }
 
   if(intlist->size() == 0) {
-     LOG("InteractionList", pWARN) << "Returning NULL InteractionList";
+     LOG("InteractionList", pERROR)
+       << "Returning NULL InteractionList for init-state: "
+                                                  << init_state.AsString();
      delete intlist;
      return 0;
   }
@@ -148,3 +152,4 @@ void RESInteractionListGenerator::AddFinalStateInfo(
   interaction->SetExclusiveTag(exclusive_tag);
 }
 //___________________________________________________________________________
+

@@ -30,8 +30,7 @@ public :
   IMDInteractionListGenerator(string config);
   ~IMDInteractionListGenerator();
 
-  //-- define the InteractionListGeneratorI interface
-
+  //-- implement the InteractionListGeneratorI interface
   InteractionList * CreateInteractionList(const InitialState & init) const;
 };
 
