@@ -95,32 +95,33 @@ bool GCylindTH1Flux::GenerateNext(void)
 
   fgX4.SetXYZT(x,y,z,0.);
 
+  LOG("Flux", pINFO) << "Generated neutrino pdg-code: " << fgPdgC;
+  LOG("Flux", pINFO)
+        << "Generated neutrino p4: " << utils::print::P4AsShortString(&fgP4);
+  LOG("Flux", pINFO)
+             << "Generated neutrino x4: " << utils::print::X4AsString(&fgX4);
+
   return true;
 }
 //___________________________________________________________________________
 int GCylindTH1Flux::PdgCode(void)
 {
-  LOG("Flux", pINFO) << "Generated neutrino pdg-code: " << fgPdgC;
   return fgPdgC;
 }
 //___________________________________________________________________________
 const TLorentzVector & GCylindTH1Flux::Momentum(void)
 {
-  LOG("Flux", pINFO)
-        << "Generated neutrino p4: " << utils::print::P4AsShortString(&fgP4);
   return fgP4;
 }
 //___________________________________________________________________________
 const TLorentzVector & GCylindTH1Flux::Position(void)
 {
-  LOG("Flux", pINFO)
-             << "Generated neutrino x4: " << utils::print::X4AsString(&fgX4);
   return fgX4;
 }
 //___________________________________________________________________________
 void GCylindTH1Flux::Initialize(void)
 {
-  LOG("Flux", pINFO) << "Initializing GCylindTH1Flux driver";
+  LOG("Flux", pNOTICE) << "Initializing GCylindTH1Flux driver";
 
   fMaxEv       = 0;
   fPdgCList    = new PDGCodeList;
@@ -145,7 +146,7 @@ void GCylindTH1Flux::ResetSelection(void)
 //___________________________________________________________________________
 void GCylindTH1Flux::CleanUp(void)
 {
-  LOG("Flux", pINFO) << "Cleaning up...";
+  LOG("Flux", pNOTICE) << "Cleaning up...";
 
   if (fDirVec     ) delete fDirVec;
   if (fBeamSpot   ) delete fBeamSpot;
@@ -175,7 +176,7 @@ void GCylindTH1Flux::SetBeamSpot(const TVector3 & spot)
 //___________________________________________________________________________
 void GCylindTH1Flux::SetTransverseRadius(double Rt)
 {
-  LOG ("Flux", pINFO) << "Setting R[transverse] = " << Rt;
+  LOG ("Flux", pNOTICE) << "Setting R[transverse] = " << Rt;
   fRt = Rt;
 
   if(fRtDep) fRtDep->SetRange(0,Rt);
@@ -213,7 +214,7 @@ void GCylindTH1Flux::SetRtDependence(string rdep)
 //___________________________________________________________________________
 void GCylindTH1Flux::AddAllFluxes(void)
 {
-  LOG("Flux", pINFO) << "Computing combined flux";
+  LOG("Flux", pNOTICE) << "Computing combined flux";
 
   if(fTotSpectrum) delete fTotSpectrum;
 
