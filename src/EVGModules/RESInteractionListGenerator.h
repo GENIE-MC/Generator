@@ -31,8 +31,7 @@ public :
   RESInteractionListGenerator(string config);
   ~RESInteractionListGenerator();
 
-  //-- define the InteractionListGeneratorI interface
-
+  //-- implement the InteractionListGeneratorI interface
   InteractionList * CreateInteractionList(const InitialState & init) const;
 
 private:

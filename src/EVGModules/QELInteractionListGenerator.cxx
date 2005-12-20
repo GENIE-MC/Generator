@@ -45,15 +45,15 @@ QELInteractionListGenerator::~QELInteractionListGenerator()
 InteractionList * QELInteractionListGenerator::CreateInteractionList(
                                        const InitialState & init_state) const
 {
-  LOG("InteractionList", pINFO) << "InitialState = " << init_state.AsString();
+  LOG("InteractionList", pINFO)
+                          << "InitialState = " << init_state.AsString();
 
-  bool isCC = fConfig->Exists("is-CC") ? fConfig->GetBool("is-CC") : false;
-  bool isNC = fConfig->Exists("is-NC") ? fConfig->GetBool("is-NC") : false;
-
-  if      (isCC) return this->CreateInteractionListCC(init_state);
-  else if (isNC) return this->CreateInteractionListNC(init_state);
+  if      (fIsCC) return this->CreateInteractionListCC(init_state);
+  else if (fIsNC) return this->CreateInteractionListNC(init_state);
   else {
-     LOG("InteractionList", pWARN) << "Couldn't generate InteractionList";
+     LOG("InteractionList", pWARN)
+       << "Unknown InteractionType! Returning NULL InteractionList "
+                         << "for init-state: " << init_state.AsString();
      return 0;
   }
   return 0;
@@ -84,7 +84,9 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
      intlist->push_back(interaction);
 
   } else {
-     LOG("InteractionList", pWARN) << "Returning NULL InteractionList";
+     LOG("InteractionList", pWARN)
+       << "Returning NULL InteractionList for init-state: "
+                                                  << init_state.AsString();
      delete interaction;
      delete intlist;
      return 0;
@@ -104,7 +106,9 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
   bool     isnubar = pdg::IsAntiNeutrino (nupdg);
 
   if(!isnu && !isnubar) {
-     LOG("InteractionList", pWARN) << "Returning NULL InteractionList";
+     LOG("InteractionList", pWARN)
+       << "Can not handle probe! Returning NULL InteractionList "
+                         << "for init-state: " << init_state.AsString();
      delete intlist;
      return 0;
   }
@@ -131,11 +135,31 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
   }
 
   if(intlist->size() == 0) {
-     LOG("InteractionList", pWARN) << "Returning NULL InteractionList";
+     LOG("InteractionList", pERROR)
+       << "Returning NULL InteractionList for init-state: "
+                                                  << init_state.AsString();
      delete intlist;
      return 0;
   }
   return intlist;
 }
 //___________________________________________________________________________
+void QELInteractionListGenerator::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+}
+//____________________________________________________________________________
+void QELInteractionListGenerator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+}
+//____________________________________________________________________________
+void QELInteractionListGenerator::LoadConfigData(void)
+{
+  fIsCC = fConfig->GetBoolDef("is-CC", false);
+  fIsNC = fConfig->GetBoolDef("is-NC", false);
+}
+//____________________________________________________________________________
 
