@@ -60,19 +60,12 @@ public :
   EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
   //-- Cross section sum for all interactions that can be generated for
-  //   the current init-state, and the cross section for the maximum
-  //   cross section interaction that can be generated for the current
-  //   init-state.
-  //   The cross sections for specific interactions and the interaction
-  //   list for the current init-state is accessed from the EventGeneratorList
-  //   object).
-  //   These methods are used by the GENIE MC job driver to select a target
-  //   nucleus from a ROOT geometry and estimate the maximum interaction
-  //   probability that scales all interaction probabilities.
-  double SumCrossSection(const TLorentzVector & nup4);
-  double MaxCrossSection(const TLorentzVector & nup4);
-  void   CreateXSecSumSpline(int nk, double Emin, double Emax, bool inlogE=true);
-  const Spline * XSecSumSpline(void) const { return fXSecSumSpl; }
+  //   the current init-state. The cross sections for specific interactions and 
+  //   the interaction list for the current init-state is accessed from the 
+  //   EventGeneratorList object.
+  double         XSecSum             (const TLorentzVector & nup4);
+  void           CreateXSecSumSpline (int nk, double Emin, double Emax, bool inlogE=true);
+  const Spline * XSecSumSpline       (void) const { return fXSecSumSpl; }
 
   //-- Get state
   const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
