@@ -125,32 +125,33 @@ bool GFlukaAtmo3DFlux::GenerateNext(void)
 
   fgX4.SetXYZT(x,y,z,0.);
 
+  LOG("Flux", pINFO) << "Generated neutrino pdg-code: " << fgPdgC;
+  LOG("Flux", pINFO)
+        << "Generated neutrino p4: " << utils::print::P4AsShortString(&fgP4);
+  LOG("Flux", pINFO)
+             << "Generated neutrino x4: " << utils::print::X4AsString(&fgX4);
+
   return true;
 }
 //___________________________________________________________________________
 int GFlukaAtmo3DFlux::PdgCode(void)
 {
-  LOG("Flux", pINFO) << "Generated neutrino pdg-code: " << fgPdgC;
   return fgPdgC;
 }
 //___________________________________________________________________________
 const TLorentzVector & GFlukaAtmo3DFlux::Momentum(void)
 {
-  LOG("Flux", pINFO)
-        << "Generated neutrino p4: " << utils::print::P4AsShortString(&fgP4);
   return fgP4;
 }
 //___________________________________________________________________________
 const TLorentzVector & GFlukaAtmo3DFlux::Position(void)
 {
-  LOG("Flux", pINFO)
-             << "Generated neutrino x4: " << utils::print::X4AsString(&fgX4);
   return fgX4;
 }
 //___________________________________________________________________________
 void GFlukaAtmo3DFlux::Initialize(void)
 {
-  LOG("Flux", pINFO) << "Initializing GFlukaAtmo3DFlux driver";
+  LOG("Flux", pNOTICE) << "Initializing GFlukaAtmo3DFlux driver";
 
   // setting maximum energy in flux files & list of neutrinos
   fMaxEv    = kGFlk3DEv[kNGFlk3DEv-1];
@@ -186,7 +187,7 @@ void GFlukaAtmo3DFlux::ResetSelection(void)
 //___________________________________________________________________________
 void GFlukaAtmo3DFlux::CleanUp(void)
 {
-  LOG("Flux", pDEBUG) << "Cleaning up...";
+  LOG("Flux", pNOTICE) << "Cleaning up...";
 
   for(unsigned int iflux = 0;
         iflux < kNNu; iflux++) { if (fFlux2D[iflux]) delete fFlux2D[iflux]; }
@@ -196,8 +197,8 @@ void GFlukaAtmo3DFlux::CleanUp(void)
 //___________________________________________________________________________
 void GFlukaAtmo3DFlux::SetRadii(double Rlongitudinal, double Rtransverse)
 {
-  LOG ("Flux", pINFO) << "Setting R[longitudinal] = " << Rlongitudinal;
-  LOG ("Flux", pINFO) << "Setting R[transverse]   = " << Rtransverse;
+  LOG ("Flux", pNOTICE) << "Setting R[longitudinal] = " << Rlongitudinal;
+  LOG ("Flux", pNOTICE) << "Setting R[transverse]   = " << Rtransverse;
 
   fRl = Rlongitudinal;
   fRt = Rtransverse;
@@ -205,14 +206,15 @@ void GFlukaAtmo3DFlux::SetRadii(double Rlongitudinal, double Rtransverse)
 //___________________________________________________________________________
 bool GFlukaAtmo3DFlux::LoadFluxData(void)
 {
-  LOG("Flux", pINFO) << "Creating Flux = f(Ev,cos8z) 2-D histograms";
+  LOG("Flux", pNOTICE) << "Creating Flux = f(Ev,cos8z) 2-D histograms";
 
   fFlux2D[0] = this->CreateFluxHisto2D("numu",   "GFluka 3D flux: numu"   );
   fFlux2D[1] = this->CreateFluxHisto2D("numubar","GFluka 3D flux: numubar");
   fFlux2D[2] = this->CreateFluxHisto2D("nue",    "GFluka 3D flux: nue"    );
   fFlux2D[3] = this->CreateFluxHisto2D("nuebar", "GFluka 3D flux: nuebar" );
 
-  LOG("Flux", pINFO) << "Loading GFluka 3-D Atmo. (Battistoni et al.) data";
+  LOG("Flux", pNOTICE) 
+          << "Loading GFluka 3-D Atmo. (Battistoni et al.) data";
 
   bool loading_status = true;
   for(unsigned int iflux = 0; iflux < kNNu; iflux++) {
@@ -220,7 +222,7 @@ bool GFlukaAtmo3DFlux::LoadFluxData(void)
     loading_status = loading_status && loaded;
   }
   if(loading_status) {
-     LOG("Flux", pINFO) << "GFluka 3-D Atmo. Simulation Data Loaded";
+     LOG("Flux", pNOTICE) << "GFluka 3-D Atmo. Simulation Data Loaded";
      this->AddAllFluxes();
      return true;
   }
@@ -230,7 +232,7 @@ bool GFlukaAtmo3DFlux::LoadFluxData(void)
 //___________________________________________________________________________
 bool GFlukaAtmo3DFlux::FillFluxHisto2D(TH2D * histo, string filename)
 {
-  LOG("Flux", pINFO) << "Loading: " << filename;
+  LOG("Flux", pNOTICE) << "Loading: " << filename;
 
   if(!histo) {
      LOG("Flux", pERROR) << "The flux histo to fill is not instantiated!";
@@ -266,7 +268,7 @@ bool GFlukaAtmo3DFlux::FillFluxHisto2D(TH2D * histo, string filename)
 //___________________________________________________________________________
 void GFlukaAtmo3DFlux::ZeroFluxHisto2D(TH2D * histo)
 {
-  LOG("Flux", pINFO) << "Setting flux histo. contents to 0 [skipping flux]";
+  LOG("Flux", pNOTICE) << "Forcing flux histogram contents to 0";
 
   for(unsigned int ie = 0; ie < kNGFlk3DEv; ie++) {
     for(unsigned int ic = 0; ic < kNGFlk3DCos; ic++) {
@@ -279,7 +281,7 @@ void GFlukaAtmo3DFlux::ZeroFluxHisto2D(TH2D * histo)
 //___________________________________________________________________________
 void GFlukaAtmo3DFlux::AddAllFluxes(void)
 {
-  LOG("Flux", pINFO) << "Computing combined flux";
+  LOG("Flux", pNOTICE) << "Computing combined flux";
 
   fFluxSum2D = this->CreateFluxHisto2D("sum", "combined flux" );
 
@@ -289,7 +291,7 @@ void GFlukaAtmo3DFlux::AddAllFluxes(void)
 //___________________________________________________________________________
 TH2D * GFlukaAtmo3DFlux::CreateFluxHisto2D(string name, string title)
 {
-  LOG("Flux", pINFO) << "Instantiating histogram: [" << name << "]";
+  LOG("Flux", pNOTICE) << "Instantiating histogram: [" << name << "]";
   TH2D * h2 = new TH2D(name.c_str(), title.c_str(),
                            kNGFlk3DEv-1,kGFlk3DEv, kNGFlk3DCos-1,kGFlk3DCos);
   return h2;
