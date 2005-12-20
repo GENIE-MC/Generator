@@ -60,11 +60,6 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
-  //-- Get the selected cross section calculator
-  const XSecAlgorithmI * xsec_alg =
-            dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                                     "xsec-alg-name", "xsec-param-set"));
-
   //-- For the subsequent kinematic selection with the rejection method:
   //   Valculate the max differential cross section or retrieve it from
   //   the cache (if something similar was computed at a previous step).
@@ -72,17 +67,11 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   xsec_max *= 1.3;
 
   //------ Try to select a valid x,y pair
-
-  //-- Get the limits for the generated (x,y) pairs
-  Range1D_t x = this->XRange();
-  Range1D_t y = this->YRange();
-
   register unsigned int iter = 0;
-
   while(1) {
      //-- generate ax x,y pair & set it to interaction
-     double gx = x.min + (x.max-x.min) * rnd->Random2().Rndm();
-     double gy = y.min + (y.max-y.min) * rnd->Random2().Rndm();
+     double gx = fXmin + fdX * rnd->Random2().Rndm();
+     double gy = fYmin + fdY * rnd->Random2().Rndm();
 
      interaction->GetKinematicsPtr()->Setx(gx);
      interaction->GetKinematicsPtr()->Sety(gy);
@@ -92,7 +81,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- only proceed if I've got allowed kinematics
      if( this->ValidKinematics(interaction) ) {
 
-         double xsec = xsec_alg->XSec(interaction);
+         double xsec = fXSecModel->XSec(interaction);
          double t    = xsec_max * rnd->Random2().Rndm();
 
          LOG("DISKinematics", pINFO)
@@ -120,30 +109,74 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   } // iterations
 }
 //___________________________________________________________________________
+void DISKinematicsGenerator::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void DISKinematicsGenerator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void DISKinematicsGenerator::LoadSubAlg(void)
+{
+// Reads its configuration from its Registry and loads all the sub-algorithms
+// needed
+  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
+                            this->SubAlg("xsec-alg-name", "xsec-param-set"));
+  assert(fXSecModel);
+}
+//____________________________________________________________________________
+void DISKinematicsGenerator::LoadConfigData(void)
+{
+// Reads its configuration data from its configuration Registry and loads them
+// in private data members to avoid looking up at the Registry all the time.
+
+  //-- Get the user kinematical limits on W
+  fWmin = fConfig->GetDoubleDef("W-min", -1);
+  fWmax = fConfig->GetDoubleDef("W-max", -1);
+
+  //-- Get the user kinematical limits on Q2
+  fQ2min = fConfig->GetDoubleDef("Q2-min", -1);
+  fQ2max = fConfig->GetDoubleDef("Q2-max", -1);
+
+  double t0 = 1E-6;
+  double t1 = 1. - t0;
+
+  fXmin = fConfig->GetDoubleDef("x-min", t0);
+  fXmax = fConfig->GetDoubleDef("x-max", t1);
+  fYmin = fConfig->GetDoubleDef("y-min", t0);
+  fYmax = fConfig->GetDoubleDef("y-max", t1);
+
+  assert(fXmin > 0 && fXmax < 1 && fXmin < fXmax);
+  assert(fYmin > 0 && fYmax < 1 && fYmin < fYmax);
+
+  fdX = fXmax - fXmin;
+  fdY = fYmax - fYmin;
+}
+//____________________________________________________________________________
 Range1D_t DISKinematicsGenerator::WRange(
                                        const Interaction * interaction) const
 {
   //-- Get the physically allowed kinematical region for this interaction
-
   Range1D_t W = utils::kinematics::WRange(interaction);
   LOG("DISKinematics", pDEBUG)
        << "\n Physical W integration range: "
                                  << "[" << W.min << ", " << W.max << "] GeV";
 
-  //-- Get the user kinematical limits
-  double min = (fConfig->Exists("W-min")) ? fConfig->GetDouble("W-min") : -1;
-  double max = (fConfig->Exists("W-max")) ? fConfig->GetDouble("W-max") : -1;
-
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if ( utils::math::IsWithinLimits(min, W) ) W.min = min;
-  if ( utils::math::IsWithinLimits(max, W) ) W.max = max;
+  if ( utils::math::IsWithinLimits(fWmin, W) ) W.min = fWmin;
+  if ( utils::math::IsWithinLimits(fWmax, W) ) W.max = fWmax;
 
   LOG("DISKinematics", pDEBUG)
        << "\n (Physical && User) W integration range: "
                                  << "[" << W.min << ", " << W.max << "] GeV";
-//  assert( W.min < W.max && W.min >= 0 );
-
   return W;
 }
 //___________________________________________________________________________
@@ -151,55 +184,20 @@ Range1D_t DISKinematicsGenerator::Q2Range(
                                        const Interaction * interaction) const
 {
   //-- Get the physically allowed kinematical region for this interaction
-
   Range1D_t Q2 = utils::kinematics::Q2Range_xy(interaction);
   LOG("DISKinematics", pDEBUG)
        << "\n Physical Q2 integration range: "
                             << "[" << Q2.min << ", " << Q2.max << "] GeV^2";
 
-  //-- Get the user kinematical limits
-  double min = (fConfig->Exists("Q2-min")) ? fConfig->GetDouble("Q2-min") : -1;
-  double max = (fConfig->Exists("Q2-max")) ? fConfig->GetDouble("Q2-max") : -1;
-
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if ( utils::math::IsWithinLimits(min, Q2) ) Q2.min = min;
-  if ( utils::math::IsWithinLimits(max, Q2) ) Q2.max = max;
+  if ( utils::math::IsWithinLimits(fQ2min, Q2) ) Q2.min = fQ2min;
+  if ( utils::math::IsWithinLimits(fQ2max, Q2) ) Q2.max = fQ2max;
 
   LOG("DISKinematics", pDEBUG)
        << "\n (Physical && User) Q2 integration range: "
                             << "[" << Q2.min << ", " << Q2.max << "] GeV^2";
-//  assert( Q2.min < Q2.max && Q2.min >= 0 );
-
   return Q2;
-}
-//___________________________________________________________________________
-Range1D_t DISKinematicsGenerator::XRange(void) const
-{
-// Get the user-defined range for x or set the default range [0,1]
-
-  Range1D_t x;
-
-  x.min = fConfig->Exists("x-min") ? fConfig->GetDouble("x-min") : 0.;
-  x.max = fConfig->Exists("x-max") ? fConfig->GetDouble("x-max") : 1.;
-
-  assert(x.min >= 0 && x.max <= 1 && x.min < x.max);
-
-  return x;
-}
-//___________________________________________________________________________
-Range1D_t DISKinematicsGenerator::YRange(void) const
-{
-// Get the user-defined range for y or set the default range [0,1]
-
-  Range1D_t y;
-
-  y.min = fConfig->Exists("y-min") ? fConfig->GetDouble("y-min") : 0.;
-  y.max = fConfig->Exists("y-max") ? fConfig->GetDouble("y-max") : 1.;
-
-  assert(y.min >= 0 && y.max <= 1 && y.min < y.max);
-
-  return y;
 }
 //___________________________________________________________________________
 bool DISKinematicsGenerator::ValidKinematics(
@@ -261,32 +259,25 @@ double DISKinematicsGenerator::ComputeMaxXSec(
 
   double max_xsec = -1.0;
 
-  Range1D_t rx = this->XRange();
-  Range1D_t ry = this->YRange();
-
-  const double logxmin = TMath::Log(rx.min);
-  const double logxmax = TMath::Log(rx.max);
-  const double logymin = TMath::Log(ry.min);
-  const double logymax = TMath::Log(ry.max);
+  const double logxmin = TMath::Log(fXmin);
+  const double logxmax = TMath::Log(fXmax);
+  const double logymin = TMath::Log(fYmin);
+  const double logymax = TMath::Log(fYmax);
   const double dlogx   = (logxmax - logxmin) /(Nx-1);
   const double dlogy   = (logymax - logymin) /(Ny-1);
 
-  const XSecAlgorithmI * xsec_alg =
-            dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                                    "xsec-alg-name", "xsec-param-set"));
   for(int ix=0; ix<Nx; ix++) {
 
      double x = TMath::Exp(logxmin + ix * dlogx);
      interaction->GetKinematicsPtr()->Setx(x);
 
      for(int iy=0; iy<Ny; iy++) {
-
          double y = TMath::Exp(logymin + iy * dlogy);
          interaction->GetKinematicsPtr()->Sety(y);
 
          if( this->ValidKinematics(interaction) ) {
 
-            double xsec = xsec_alg->XSec(interaction);
+            double xsec = fXSecModel->XSec(interaction);
             max_xsec = TMath::Max(xsec, max_xsec);
          }
      } // y
@@ -294,7 +285,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
 
   SLOG("DISKinematics", pDEBUG) << interaction->AsString();
   SLOG("DISKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  SLOG("DISKinematics", pDEBUG) << "Computed using alg = " << *xsec_alg;
+  SLOG("DISKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
 
   return max_xsec;
 }

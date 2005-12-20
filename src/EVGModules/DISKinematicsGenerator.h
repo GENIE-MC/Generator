@@ -28,6 +28,8 @@
 
 namespace genie {
 
+class XSecAlgorithmI;
+
 class DISKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
@@ -37,17 +39,36 @@ public :
   ~DISKinematicsGenerator();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
+  void      LoadSubAlg      (void);
+  void      LoadConfigData  (void);
   Range1D_t XRange          (void) const;
   Range1D_t YRange          (void) const;
   Range1D_t WRange          (const Interaction * interaction) const;
   Range1D_t Q2Range         (const Interaction * interaction) const;
   bool      ValidKinematics (const Interaction * interaction) const;
   double    ComputeMaxXSec  (const Interaction * interaction) const;
+
+  double fWmin;
+  double fWmax;
+  double fQ2min;
+  double fQ2max;
+  double fXmin;
+  double fXmax;
+  double fYmin;
+  double fYmax;
+  double fdX;
+  double fdY;
+
+  const XSecAlgorithmI * fXSecModel;
 };
 
 }      // genie namespace
