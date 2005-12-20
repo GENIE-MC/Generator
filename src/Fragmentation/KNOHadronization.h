@@ -51,6 +51,7 @@ public:
 
 private:
 
+  void          LoadConfigData        (void);
   void          LoadSubAlg            (void);
   vector<int> * GenerateFSHadronCodes (int mult, int maxQ, double W) const;
   int           GenerateBaryonPdgCode (int mult, int maxQ)           const;
@@ -59,6 +60,12 @@ private:
 
   const MultiplicityProbModelI * fMultProbModel;
   const DecayModelI *            fDecayer;
+
+  bool   fForceDecays; ///< force decays of unstable hadrons produced?
+  double fPpi0;        ///< pi0 pi0 production probability
+  double fPpic;        ///< pi+ pi- production probability
+  double fPKc;         ///< K+  K- production probability
+  double fPK0;         ///< K0  K0bar production probability
 };
 
 }         // genie namespace

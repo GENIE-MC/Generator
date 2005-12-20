@@ -206,12 +206,14 @@ TClonesArray * KNOHadronization::Hadronize(
 void KNOHadronization::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
+  this->LoadConfigData();
   this->LoadSubAlg();
 }
 //____________________________________________________________________________
 void KNOHadronization::Configure(string config)
 {
   Algorithm::Configure(config);
+  this->LoadConfigData();
   this->LoadSubAlg();
 }
 //____________________________________________________________________________
@@ -227,8 +229,22 @@ void KNOHadronization::LoadSubAlg(void)
     this->SubAlg("multiplicity-prob-alg-name", "multiplicity-prob-param-set"));
   assert(fMultProbModel);
 
-  fDecayer = dynamic_cast<const DecayModelI *> (
+  if(fForceDecays) {
+      fDecayer = dynamic_cast<const DecayModelI *> (
                        this->SubAlg("decayer-alg-name", "decayer-param-set"));
+      assert(fDecayer);
+  }
+}
+//____________________________________________________________________________
+void KNOHadronization::LoadConfigData(void)
+{
+  fForceDecays = fConfig->GetBoolDef("force-decays", false);
+
+  // Probability for producing hadron each pairs
+  fPpi0 = fConfig->GetBoolDef("prob-fs-pi0-pair", 0.30);       // pi0 pi0
+  fPpic = fConfig->GetBoolDef("prob-fs-piplus-piminus", 0.60); // pi+ pi-
+  fPKc  = fConfig->GetBoolDef("prob-fs-Kplus-Kminus", 0.05);   // K+  K-
+  fPK0  = fConfig->GetBoolDef("prob-fs-K0-K0bar", 0.05);       // K0  K0bar
 }
 //____________________________________________________________________________
 vector<int> * KNOHadronization::GenerateFSHadronCodes(
@@ -294,12 +310,6 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
      // Final state has correct charge.
      // Now add pi0 or pairs (pi0 pi0 / pi+ pi- / K+ K- / K0 K0bar) only
 
-     // Probability for each pair
-     double Ppi0 = 0.30; // probability for : pi0 pi0
-     double Ppic = 0.60; // probability for : pi+ pi-
-     double PKc  = 0.05; // probability for : K+  K-
-     double PK0  = 0.05; // probability for : K0  K0bar
-
      // Masses of particle pairs
      double M2pi0 = 2 * pdg -> Find (kPdgPi0    ) -> Mass();
      double M2pic =     pdg -> Find (kPdgPiPlus ) -> Mass() +
@@ -334,7 +344,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
          double x = rnd->Random1().Rndm();
          LOG("KNOHad", pDEBUG) << "rndm = " << x;
 
-         if (x >= 0 && x < Ppi0) {
+         if (x >= 0 && x < fPpi0) {
             //-------------------------------------------------------------
             // Add a pi0-pair
             LOG("KNOHad", pDEBUG) << "\n ---> Adding a pi0pi0 pair";
@@ -346,7 +356,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
             W -= M2pi0; // update the available invariant mass
             //-------------------------------------------------------------
 
-         } else if (x < Ppi0 + Ppic) {
+         } else if (x < fPpi0 + fPpic) {
             //-------------------------------------------------------------
             // Add a piplus - piminus pair if there is enough W
             if(W >= M2pic) {
@@ -364,7 +374,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
             }
             //-------------------------------------------------------------
 
-         } else if (x < Ppi0 + Ppic + PKc) {
+         } else if (x < fPpi0 + fPpic + fPKc) {
             //-------------------------------------------------------------
             // Add a Kplus - Kminus pair if there is enough W
             if(W >= M2Kc) {
@@ -382,7 +392,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
             }
             //-------------------------------------------------------------
 
-         } else if (x <= Ppi0 + Ppic + PKc + PK0) {
+         } else if (x <= fPpi0 + fPpic + fPKc + fPK0) {
             //-------------------------------------------------------------
             // Add a K0 - K0bar pair if there is enough W
             if( W >= M2K0 ) {
@@ -507,8 +517,7 @@ void KNOHadronization::HandleDecays(TClonesArray * plist) const
 // (eg PYTHIA vs KNO) independently and not within the full MC simulation
 // framework it might be necessary to force the decays at this point.
 
-  bool decay = fConfig->GetBoolDef("force-decays", false);
-  if (decay) {
+  if (fForceDecays) {
      assert(fDecayer);
 
      //-- loop through the fragmentation event record & decay unstables
