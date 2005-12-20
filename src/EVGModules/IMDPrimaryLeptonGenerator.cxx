@@ -80,7 +80,8 @@ void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   if( TMath::Abs(cThSc)>1 ) {
      LOG("LeptonicVertex", pWARN)
        << "El = " << Emu << ", Ev = " << Ev << ", cos(theta) = " << cThSc;
-     if(TMath::Abs(cThSc)-1<0.01) cThSc = 1.0;
+     //if(TMath::Abs(cThSc)-1<0.01) cThSc = 1.0;
+     if(TMath::Abs(cThSc)-1<0.3) cThSc = 1.0; //why?
   }
   assert(TMath::Abs(cThSc)<=1);
 
