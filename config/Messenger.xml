@@ -45,13 +45,13 @@
   <priority msgstream="FermiMover">          INFO   </priority>
   <priority msgstream="FermiP">              INFO   </priority>
   <priority msgstream="FragmentCharm">       INFO   </priority>
-  <priority msgstream="Flux">                INFO   </priority>
+  <priority msgstream="Flux">                NOTICE </priority>
   <priority msgstream="FLUKA">               INFO   </priority>
   <priority msgstream="GEVGDriver">          NOTICE </priority>
   <priority msgstream="GMCJDriver">          INFO   </priority>
   <priority msgstream="GEVGPool">            INFO   </priority>
   <priority msgstream="GMCJob">              INFO   </priority>
-  <priority msgstream="GROOTGeom">           INFO   </priority>
+  <priority msgstream="GROOTGeom">           NOTICE </priority>
   <priority msgstream="GHEP">                NOTICE </priority>
   <priority msgstream="GHepParticle">        INFO   </priority>
   <priority msgstream="GuiUtils">            INFO   </priority>
