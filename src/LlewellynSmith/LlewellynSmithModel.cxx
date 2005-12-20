@@ -76,18 +76,13 @@ double LlewellynSmithModel::xiF2V(const Interaction * interaction) const
 //____________________________________________________________________________
 double LlewellynSmithModel::FA(const Interaction * interaction) const
 {
-  // get Ma2 (axial mass^2) and FA(q2=0) from the configuration registry or
-  // set defaults
-  double Ma2 = fConfig->GetDoubleDef("Ma2", kQelMa2);
-  double FA0 = fConfig->GetDoubleDef("FA0", kQelFA0);
-
   // get scattering parameters
   const Kinematics & kine = interaction->GetKinematics();
   double q2 = kine.q2();
 
   // calculate FA(q2)
-  double dn = TMath::Power(1.-q2/Ma2, 2);
-  double FA = FA0/dn;
+  double dn = TMath::Power(1.-q2/fMa2, 2);
+  double FA = fFA0/dn;
   return FA;
 }
 //____________________________________________________________________________
@@ -112,6 +107,44 @@ double LlewellynSmithModel::Fp(const Interaction * interaction) const
   return Fp;
 }
 //____________________________________________________________________________
+void LlewellynSmithModel::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void LlewellynSmithModel::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void LlewellynSmithModel::LoadSubAlg(void)
+{
+// Reads its configuration from its Registry and loads all the sub-algorithms
+// needed
+  fElFFModel = 0;
+
+  //-- load elastic form factors model
+  fElFFModel = dynamic_cast<const ELFormFactorsModelI *>
+                                          (this->SubAlg("el-form-factors"));
+  assert(fElFFModel);
+}
+//____________________________________________________________________________
+void LlewellynSmithModel::LoadConfigData(void)
+{
+// Reads its configuration data from its configuration Registry and loads them
+// in private data members to avoid looking up at the Registry all the time.
+// Sets defaults for configuration options that were not specified
+
+  fMa2 = fConfig->GetDoubleDef("fMa2", kQelMa2); // fMa2 (axial mass^2)
+  fFA0 = fConfig->GetDoubleDef("fFA0", kQelFA0); // FA(q2=0)
+
+  assert(fMa2>0);
+}
+//____________________________________________________________________________
 double LlewellynSmithModel::tau(const Interaction * interaction) const
 {
 // computes q^2 / (4 * MNucl^2)
@@ -133,12 +166,8 @@ double LlewellynSmithModel::GVE(const Interaction * interaction) const
   const Kinematics & kinematics = interaction->GetKinematics();
   double q2 = kinematics.q2();
 
-  //-- compute elastic form factors
-  const ELFormFactorsModelI * elffmodel =
-                 dynamic_cast<const ELFormFactorsModelI *>
-                                          (this->SubAlg("el-form-factors"));
   ELFormFactors elff;
-  elff.SetModel(elffmodel);
+  elff.SetModel(fElFFModel);
   elff.Calculate(q2);
 
   //-- compute GVE using CVC
@@ -152,12 +181,8 @@ double LlewellynSmithModel::GVM(const Interaction * interaction) const
   const Kinematics & kinematics = interaction->GetKinematics();
   double q2 = kinematics.q2();
 
-  //-- compute elastic form factors
-  const ELFormFactorsModelI * elffmodel =
-                 dynamic_cast<const ELFormFactorsModelI *>
-                                          (this->SubAlg("el-form-factors"));
   ELFormFactors elff;
-  elff.SetModel(elffmodel);
+  elff.SetModel(fElFFModel);
   elff.Calculate(q2);
 
   //-- compute GVM using CVC

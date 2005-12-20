@@ -50,12 +50,8 @@ double LlewellynSmithModelNC::F1V(const Interaction * interaction) const
   //-- calculate F1V-CC
   double F1V_CC = LlewellynSmithModel::F1V(interaction);
 
-  //-- compute elastic form factors
-  const ELFormFactorsModelI * elffmodel =
-                 dynamic_cast<const ELFormFactorsModelI *>
-                                          (this->SubAlg("el-form-factors"));
   ELFormFactors elff;
-  elff.SetModel(elffmodel);
+  elff.SetModel(fElFFModel);
 
   const Kinematics & kine = interaction->GetKinematics();
   double q2 = kine.q2();
@@ -78,12 +74,8 @@ double LlewellynSmithModelNC::xiF2V(const Interaction * interaction) const
   //-- calculate xiF2V_CC
   double xiF2V_CC = LlewellynSmithModel::xiF2V(interaction);
 
-  //-- compute elastic form factors
-  const ELFormFactorsModelI * elffmodel =
-                 dynamic_cast<const ELFormFactorsModelI *>
-                                          (this->SubAlg("el-form-factors"));
   ELFormFactors elff;
-  elff.SetModel(elffmodel);
+  elff.SetModel(fElFFModel);
 
   const Kinematics & kine = interaction->GetKinematics();
   double q2 = kine.q2();
