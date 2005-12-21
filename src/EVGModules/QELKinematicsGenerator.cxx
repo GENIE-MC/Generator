@@ -52,10 +52,6 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
   Interaction * interaction = event_rec->GetInteraction();
 
-  //-- Get the selected cross section calculator
-  const XSecAlgorithmI * xsec_alg =
-               dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                                        "xsec-alg-name", "xsec-param-set"));
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
@@ -68,7 +64,6 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   //------ Try to select a valid Q2
 
   //-- Get the limits for the generated Q2
-
   Range1D_t Q2 = this->Q2Range(interaction);
 
   register unsigned int iter = 0;
@@ -78,7 +73,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
      LOG("QELKinematics", pINFO) << "Trying: Q^2 = " << gQ2;
 
-     double xsec = xsec_alg->XSec(interaction);
+     double xsec = fXSecModel->XSec(interaction);
      double t    = xsec_max * rnd->Random2().Rndm();
 
      LOG("QELKinematics", pINFO)
@@ -104,24 +99,45 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   }// iterations
 }
 //___________________________________________________________________________
+void QELKinematicsGenerator::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void QELKinematicsGenerator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void QELKinematicsGenerator::LoadConfig(void)
+{
+// Load sub-algorithms and config data to reduce the number of registry
+// lookups
+
+  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
+                            this->SubAlg("xsec-alg-name", "xsec-param-set"));
+  assert(fXSecModel);
+
+  //-- Get the user kinematical limits on Q2
+  fQ2min = fConfig->GetDoubleDef("Q2-min", -1);
+  fQ2max = fConfig->GetDoubleDef("Q2-max", -1);
+}
+//____________________________________________________________________________
 Range1D_t QELKinematicsGenerator::Q2Range(
                                        const Interaction * interaction) const
 {
   //-- Get the physically allowed kinematical region for this interaction
-
   Range1D_t Q2 = utils::kinematics::Q2Range_M(interaction);
 
   LOG("QELKinematics", pDEBUG)
                << "Physical Q2 range = (" << Q2.min << ", " << Q2.max << ")";
 
-  //-- Get the user kinematical limits
-  double min = (fConfig->Exists("Q2-min")) ? fConfig->GetDouble("Q2-min") : -1;
-  double max = (fConfig->Exists("Q2-max")) ? fConfig->GetDouble("Q2-max") : -1;
-
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if ( utils::math::IsWithinLimits(min, Q2) ) Q2.min = min;
-  if ( utils::math::IsWithinLimits(max, Q2) ) Q2.max = max;
+  if ( utils::math::IsWithinLimits(fQ2min, Q2) ) Q2.min = fQ2min;
+  if ( utils::math::IsWithinLimits(fQ2max, Q2) ) Q2.max = fQ2max;
 
   LOG("QELKinematics", pDEBUG)
       << "(Physical & User) Q2 range = (" << Q2.min << ", " << Q2.max << ")";
@@ -143,10 +159,6 @@ double QELKinematicsGenerator::ComputeMaxXSec(
   const int N = 40;
   double max_xsec = -1.0;
 
-  const XSecAlgorithmI * xsec_alg =
-           dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                                     "xsec-alg-name", "xsec-param-set"));
-
   Range1D_t rQ2 = this->Q2Range(interaction);
   const double logQ2min = TMath::Log(rQ2.min);
   const double logQ2max = TMath::Log(rQ2.max);
@@ -157,14 +169,14 @@ double QELKinematicsGenerator::ComputeMaxXSec(
      double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
      interaction->GetKinematicsPtr()->SetQ2(Q2);
 
-     double xsec = xsec_alg->XSec(interaction);
+     double xsec = fXSecModel->XSec(interaction);
 
      max_xsec = TMath::Max(xsec, max_xsec);
   }//Q^2
 
   SLOG("QELKinematics", pDEBUG) << interaction->AsString();
   SLOG("QELKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  SLOG("QELKinematics", pDEBUG) << "Computed using alg = " << *xsec_alg;
+  SLOG("QELKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
 
   return max_xsec;
 }

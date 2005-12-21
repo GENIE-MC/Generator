@@ -97,7 +97,7 @@ double KineGeneratorWithCache::MaxXSec(const Interaction * interaction) const
   if(E<1) {
     cut << "(E-" << E << " < 0.05) && (E>" << E << ")";
   } else {
-    cut << "(E-" << E << " < 0.50) && (E>" << E << ")";
+    cut << "(E-" << E << " < 0.25) && (E>" << E << ")";
   }
 
   TSQLResult * result = nt->Query("E:xsec", cut.str().c_str());
@@ -137,10 +137,14 @@ double KineGeneratorWithCache::MaxXSec(const Interaction * interaction) const
               << "No cached cross section value. Computing & caching one";
 
   max_xsec = ComputeMaxXSec(interaction);
-  nt->Fill(E, max_xsec);
-
   LOG("Kinematics", pINFO) << "max xsec = " << max_xsec;
 
+  if(max_xsec>0) nt->Fill(E, max_xsec);
+  else {
+     LOG("Kinematics", pWARN) << *interaction;
+     LOG("Kinematics", pWARN)
+          << "** Refusing to cache non-positice xsec = " << max_xsec;
+  }
   return max_xsec;
 }
 //___________________________________________________________________________

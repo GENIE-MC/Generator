@@ -23,6 +23,8 @@
 
 namespace genie {
 
+class NuclearPDistributionModelI;
+
 class FermiMover : public EventRecordVisitorI {
 
 public :
@@ -32,8 +34,18 @@ public :
   ~FermiMover();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
+
+private:
+
+  void LoadConfig (void);
+
+  const NuclearPDistributionModelI *  fNuclPModel;
 };
 
 }      // genie namespace
