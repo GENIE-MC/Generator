@@ -126,8 +126,6 @@ Range1D_t QELKinematicsGenerator::Q2Range(
   LOG("QELKinematics", pDEBUG)
       << "(Physical & User) Q2 range = (" << Q2.min << ", " << Q2.max << ")";
 
-//  assert( Q2.min < Q2.max && Q2.min >= 0 );
-
   return Q2;
 }
 //___________________________________________________________________________
@@ -142,7 +140,7 @@ double QELKinematicsGenerator::ComputeMaxXSec(
 // maximum. The number used in the rejection method will be scaled up by a
 // safety factor. But it needs to be fast - do not use a very small dQ2 step.
 
-  const int N = 20;
+  const int N = 40;
   double max_xsec = -1.0;
 
   const XSecAlgorithmI * xsec_alg =
