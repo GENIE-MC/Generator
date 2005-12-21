@@ -316,18 +316,28 @@ Range1D_t genie::utils::kinematics::q2Range_M(const Interaction * const interact
 double genie::utils::kinematics::EnergyThreshold(
                                         const Interaction * const interaction)
 {
-  Range1D_t rW = utils::kinematics::WRange(interaction);
-
-  double Wmin  = rW.min;
-  double Wmin2 = Wmin*Wmin;
-
+  double Ethr  = 0;
   double ml    = interaction->GetFSPrimaryLepton()->Mass();
   double ml2   = ml*ml;
-
   double Mnuc  = kNucleonMass;
   double Mnuc2 = Mnuc*Mnuc;
 
-  double Ethreshold = (ml2 + Wmin2 + 2*ml*Wmin - Mnuc2) / (2*Mnuc);
+  const ProcessInfo & proc = interaction->GetProcessInfo();
+
+  if(proc.IsResonant() || proc.IsDeepInelactic()) {
+      Range1D_t rW    = utils::kinematics::WRange(interaction);
+      double    Wmin  = rW.min;
+      double    Wmin2 = Wmin*Wmin;
+
+      Ethr = (ml2 + Wmin2 + 2*ml*Wmin - Mnuc2) / (2*Mnuc);
+  }
+  else if (proc.IsQuasiElastic()) {
+      Ethr = (ml2 + 2*ml*Mnuc) / (2*Mnuc);
+  }
+  else {
+      SLOG("KineLimits", pERROR)
+             << "Doesn't compute Ethreshold for this interaction":
+  }
 
   return Ethreshold;
 }
