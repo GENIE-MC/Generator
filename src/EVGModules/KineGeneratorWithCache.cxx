@@ -94,8 +94,11 @@ double KineGeneratorWithCache::MaxXSec(const Interaction * interaction) const
 
   // query for all the entries at a window around the current energy
   ostringstream cut;
-  //cut << "abs(E-" << E << ") < 0.5";
-  cut << "(E-" << E << " < 0.5) && (E>" << E << ")";
+  if(E<1) {
+    cut << "(E-" << E << " < 0.05) && (E>" << E << ")";
+  } else {
+    cut << "(E-" << E << " < 0.50) && (E>" << E << ")";
+  }
 
   TSQLResult * result = nt->Query("E:xsec", cut.str().c_str());
   int nrows = result->GetRowCount();
