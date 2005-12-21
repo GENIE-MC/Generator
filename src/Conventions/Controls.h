@@ -24,7 +24,7 @@ namespace controls {
 static const unsigned int kRjMaxIterations = 1000;
 
 // maximum allowed depth when GENIE is running in recursive mode
-static const unsigned int kRecursiveModeMaxDepth = 20;
+static const unsigned int kRecursiveModeMaxDepth = 100;
 
 // maximum allowed number of EVGThreadExceptions that is allowed
 // to be caught by EventGenerator at a single event generation thread
