@@ -324,7 +324,7 @@ double genie::utils::kinematics::EnergyThreshold(
 
   const ProcessInfo & proc = interaction->GetProcessInfo();
 
-  if(proc.IsResonant() || proc.IsDeepInelactic()) {
+  if(proc.IsResonant() || proc.IsDeepInelastic()) {
       Range1D_t rW    = utils::kinematics::WRange(interaction);
       double    Wmin  = rW.min;
       double    Wmin2 = Wmin*Wmin;
@@ -336,7 +336,7 @@ double genie::utils::kinematics::EnergyThreshold(
   }
   else {
       SLOG("KineLimits", pERROR)
-             << "Doesn't compute Ethreshold for this interaction":
+             << "Doesn't compute Ethreshold for this interaction";
   }
 
   return Ethr;
