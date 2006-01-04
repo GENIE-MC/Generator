@@ -339,7 +339,7 @@ double genie::utils::kinematics::EnergyThreshold(
              << "Doesn't compute Ethreshold for this interaction":
   }
 
-  return Ethreshold;
+  return Ethr;
 }
 //____________________________________________________________________________
 bool genie::utils::kinematics::IsAboveCharmThreshold(
