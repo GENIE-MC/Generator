@@ -316,10 +316,13 @@ Range1D_t genie::utils::kinematics::q2Range_M(const Interaction * const interact
 double genie::utils::kinematics::EnergyThreshold(
                                         const Interaction * const interaction)
 {
+  const Target & tgt = interaction->GetInitialState().GetTarget();
+
   double Ethr  = 0;
   double ml    = interaction->GetFSPrimaryLepton()->Mass();
   double ml2   = ml*ml;
-  double Mnuc  = kNucleonMass;
+  double Mnuc  = tgt.StruckNucleonIsSet() ? 
+                           tgt.StruckNucleonMass() : kNucleonMass;
   double Mnuc2 = Mnuc*Mnuc;
 
   const ProcessInfo & proc = interaction->GetProcessInfo();
