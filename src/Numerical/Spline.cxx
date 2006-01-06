@@ -299,6 +299,8 @@ bool Spline::IsWithinValidRange(double x) const
 //___________________________________________________________________________
 double Spline::Evaluate(double x) const
 {
+  LOG("Spline", pDEBUG) << "Evaluating spline at point x = " << x;
+
   double y = 0;
   if( this->IsWithinValidRange(x) ) {
 
@@ -309,14 +311,18 @@ double Spline::Evaluate(double x) const
 
     if(!is0p && !is0n) {
       // both knots (on the left and right are non-zero) - just interpolate
+      LOG("Spline", pDEBUG) << "Point is between non-zero knots";
       y = fInterpolator->Eval(x);
     } else {
       // at least one of the neighboring knots has y=0
       if(is0p && is0n) {
         // both neighboring knots have y=0
+        LOG("Spline", pDEBUG) << "Point is between zero knots";
         y=0;
       } else {
         // just 1 neighboring knot has y=0 - do a linear interpolation
+        LOG("Spline", pDEBUG) 
+          << "Point has zero" << (is0n ? " left " : " right ") << "knot";
         double xpknot=0, ypknot=0, xnknot=0, ynknot=0;
         this->FindClosestKnot(x, xnknot, ynknot, "-");
         this->FindClosestKnot(x, xpknot, ypknot, "+");
@@ -335,6 +341,8 @@ double Spline::Evaluate(double x) const
     LOG("Spline", pERROR) << "x = " << x;
     LOG("Spline", pERROR) << "spline range [" << fXMin << ", " << fXMax << "]";
   }
+
+  LOG("Spline", pDEBUG) << "Spline(x = " << x << ") = " << y;
 
   return y;
 }
@@ -473,8 +481,8 @@ void Spline::FindClosestKnot(
   int iknot = fInterpolator->FindX(x);
 
   double xp=0, yp=0, xn=0, yn=0;
-  fInterpolator->GetKnot(iknot,  xp,yp);
-  fInterpolator->GetKnot(iknot+1,xn,yn);
+  fInterpolator->GetKnot(iknot,  xn,yn);
+  fInterpolator->GetKnot(iknot+1,xp,yp);
 
   bool p = (TMath::Abs(x-xp) < TMath::Abs(x-xn));
 
