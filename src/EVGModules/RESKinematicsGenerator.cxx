@@ -59,7 +59,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   Interaction * interaction = event_rec->GetInteraction();
 
   double xsec_max = this->MaxXSec(interaction);
-  xsec_max *= 1.3;
+  xsec_max *= 1.1;
 
   //-- Try to select a valid W, Q2 pair
 
