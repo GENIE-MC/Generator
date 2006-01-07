@@ -25,8 +25,8 @@
 #ifndef _EVENT_GENERATOR_I_H_
 #define _EVENT_GENERATOR_I_H_
 
-#include "EVGCore/GVldContext.h"
 #include "EVGCore/EventRecordVisitorI.h"
+#include "EVGCore/GVldContext.h"
 
 namespace genie {
 
@@ -35,27 +35,21 @@ class XSecAlgorithmI;
 
 class EventGeneratorI: public EventRecordVisitorI {
 
-//-- define an extension to the public EventRecordVisitorI interface
-
 public :
 
+  virtual ~EventGeneratorI();
+
+  //-- define an extension to the public EventRecordVisitorI interface
   virtual const GVldContext &               ValidityContext  (void) const = 0;
   virtual const InteractionListGeneratorI * IntListGenerator (void) const = 0;
   virtual const XSecAlgorithmI *            CrossSectionAlg  (void) const = 0;
 
-//-- define an extension to the private EventRecordVisitorI interface
-
 protected:
-
-  virtual void  InstantiateValidityContext (void) = 0;
-
-  GVldContext * fVldContext;
 
   //-- dummy ctors & dtor
   EventGeneratorI();
   EventGeneratorI(string name);
   EventGeneratorI(string name, string config);
-  ~EventGeneratorI();
 };
 
 }      // genie namespace
