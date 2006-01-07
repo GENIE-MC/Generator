@@ -241,10 +241,10 @@ void KNOHadronization::LoadConfigData(void)
   fForceDecays = fConfig->GetBoolDef("force-decays", false);
 
   // Probability for producing hadron each pairs
-  fPpi0 = fConfig->GetBoolDef("prob-fs-pi0-pair", 0.30);       // pi0 pi0
-  fPpic = fConfig->GetBoolDef("prob-fs-piplus-piminus", 0.60); // pi+ pi-
-  fPKc  = fConfig->GetBoolDef("prob-fs-Kplus-Kminus", 0.05);   // K+  K-
-  fPK0  = fConfig->GetBoolDef("prob-fs-K0-K0bar", 0.05);       // K0  K0bar
+  fPpi0 = fConfig->GetDoubleDef("prob-fs-pi0-pair",       0.30); // pi0 pi0
+  fPpic = fConfig->GetDoubleDef("prob-fs-piplus-piminus", 0.60); // pi+ pi-
+  fPKc  = fConfig->GetDoubleDef("prob-fs-Kplus-Kminus",   0.05); // K+  K-
+  fPK0  = fConfig->GetDoubleDef("prob-fs-K0-K0bar",       0.05); // K0  K0bar
 }
 //____________________________________________________________________________
 vector<int> * KNOHadronization::GenerateFSHadronCodes(
