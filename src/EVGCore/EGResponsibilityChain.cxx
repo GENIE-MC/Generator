@@ -22,6 +22,7 @@
 #include "EVGCore/EGResponsibilityChain.h"
 #include "EVGCore/EventGeneratorList.h"
 #include "EVGCore/EventGeneratorI.h"
+#include "EVGCore/GVldContext.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 

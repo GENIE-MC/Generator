@@ -28,6 +28,8 @@ class EventRecordVisitorI : public Algorithm {
 
 public :
 
+  virtual ~EventRecordVisitorI();
+
   //-- define the EventRecordVisitorI interface
 
   virtual void ProcessEventRecord(GHepRecord * event_rec) const = 0;
@@ -37,7 +39,6 @@ protected :
   EventRecordVisitorI();
   EventRecordVisitorI(string name);
   EventRecordVisitorI(string name, string config);
-  ~EventRecordVisitorI();
 };
 
 }      // genie namespace

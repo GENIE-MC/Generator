@@ -35,27 +35,26 @@ class GVldContext {
 
 public :
 
-  friend class EventGenerator;
-
-  bool   IsValid (const Interaction * proc) const;
-  bool   Clashes (const GVldContext & vld_context) const;
-  
-  double Emin    (void) const { return fEmin; }
-  double Emax    (void) const { return fEmax; }
-  
-  void   Print   (ostream & stream) const;
-  
-  friend ostream & operator<< (ostream & stream, const GVldContext & vldc);
-
-private:
-
   GVldContext();
   GVldContext(const GVldContext & validity_context);
   ~GVldContext();
 
+  void   Decode  ( string encoded_values );
+
+  bool   IsValid (const Interaction * proc) const;
+  bool   Clashes (const GVldContext & vld_context) const;  
+ 
+  double Emin    (void) const { return fEmin; }
+  double Emax    (void) const { return fEmax; }
+  
+  void   Print   (ostream & stream) const;
+ 
+  friend ostream & operator<< (ostream & stream, const GVldContext & vldc);
+
+private:
+
   void Init(void);
 
-  void Decode       ( string encoded_values );
   void DecodePROC   ( string encoded_values );
   void DecodeCURR   ( string encoded_values );
   void DecodePROBE  ( string encoded_values );

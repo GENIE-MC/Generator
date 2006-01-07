@@ -21,11 +21,17 @@
 #ifndef _EVENT_GENERATOR_H_
 #define _EVENT_GENERATOR_H_
 
+#include <vector>
+
 #include "EVGCore/EventGeneratorI.h"
+
+class TStopwatch;
+
+using std::vector;
 
 namespace genie {
 
-class EventGenerator : public EventGeneratorI {
+class EventGenerator: public EventGeneratorI {
 
 public :
 
@@ -34,27 +40,31 @@ public :
   ~EventGenerator();
 
   //-- implement the original EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
   //-- implement the extensions to the EventRecordVisitorI interface
-
   const GVldContext &               ValidityContext  (void) const;
   const InteractionListGeneratorI * IntListGenerator (void) const;
   const XSecAlgorithmI *            CrossSectionAlg  (void) const;
 
-  void  InstantiateValidityContext (void);
-
-  //-- override part of the interface to allow the instantiation of its
-  //   validity context (from an encoded XML config entry) during the
-  //   configuration step
-
-  virtual void Configure  (const Registry & config);
-  virtual void Configure  (string param_set);
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
 
 private:
 
-  const EventRecordVisitorI * ProcessingStep(int istep) const;
+  void Init           (void);
+  void LoadEVGModules (void);
+  void LoadIntSelAlg  (void);
+  void LoadVldContext (void);
+
+  vector<const EventRecordVisitorI *> * fEVGModuleVec;
+  vector<double> *                      fEVGTime;
+  const XSecAlgorithmI *                fXSecModel;
+  const InteractionListGeneratorI *     fIntListGen;
+  GVldContext *                         fVldContext;
+  TStopwatch *                          fWatch;
 };
 
 }      // genie namespace

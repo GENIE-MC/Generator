@@ -21,14 +21,15 @@
 #include <cassert>
 #include <sstream>
 
+#include <TStopwatch.h>
 #include <TMCParticle6.h>
 
-#include "Algorithm/AlgFactory.h"
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/Controls.h"
 #include "EVGCore/EventGenerator.h"
 #include "EVGCore/InteractionListGeneratorI.h"
 #include "EVGCore/EVGThreadException.h"
+#include "EVGCore/GVldContext.h"
 #include "GHEP/GHepVirtualListFolder.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepRecordHistory.h"
@@ -50,28 +51,24 @@ EventGeneratorI("genie::EventGenerator")
 EventGenerator::EventGenerator(string config) :
 EventGeneratorI("genie::EventGenerator", config)
 {
-  this->InstantiateValidityContext();
+
 }
 //___________________________________________________________________________
 EventGenerator::~EventGenerator()
 {
+  delete fWatch;
 
+  if(fEVGModuleVec) delete fEVGModuleVec;
+  if(fEVGTime)      delete fEVGTime;
+  if(fVldContext)   delete fVldContext;
 }
 //___________________________________________________________________________
 void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 {
-  SLOG("EventGenerator", pINFO) << "Generating Event:";
-
-  fConfig->AssertExistence("n-generator-steps");
-  int nsteps = fConfig->GetInt("n-generator-steps");
-
-  if(nsteps == 0) {
-    LOG("EventGenerator", pWARN)
-         << "EventGenerator configuration declares null visitor list!";
-  }
+  SLOG("EventGenerator", pNOTICE) << "Generating Event:";
 
   //-- Clear previous virtual list folder
-  LOG("EventGenerator", pINFO) << "Clearing the GHepVirtualListFolder";
+  LOG("EventGenerator", pNOTICE) << "Clearing the GHepVirtualListFolder";
   GHepVirtualListFolder * vlfolder = GHepVirtualListFolder::Instance();
   vlfolder->Clear();
 
@@ -79,24 +76,39 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   GHepRecordHistory rh;
   rh.AddSnapshot(-1, event_rec);
 
-  //-- initialize evg thread control flags
+  //-- Initialize evg thread control flags
   bool ffwd = false;
   unsigned int nexceptions = 0;
 
-  //-- Loop over the event record processing steps
-  for(int istep = 0; istep < nsteps; istep++) {
+  //-- Reset stop-watch
+  fWatch->Reset();
 
+  //-- Loop over the event record processing steps
+  int istep=0;
+  vector<const EventRecordVisitorI *>::const_iterator miter;
+
+  for(miter = fEVGModuleVec->begin();
+                               miter != fEVGModuleVec->end(); ++miter){
+
+    const EventRecordVisitorI * visitor = *miter; // generation module
+
+    SLOG("EventGenerator", pNOTICE)
+      << "\n\n---------- Running EventRecordVisitorI: "
+                             << visitor->Id().Key() << " ----------\n";
     if(ffwd) {
-      LOG("EventGenerator", pINFO)
+      LOG("EventGenerator", pNOTICE)
            << "Fast Forward flag was set - Skipping processing step!";
       continue;
     }
-
     try
     {
-      const EventRecordVisitorI * visitor = this->ProcessingStep(istep);
+      fWatch->Start();
       visitor->ProcessEventRecord(event_rec);
+      fWatch->Stop();
+
       rh.AddSnapshot(istep, event_rec);
+
+      (*fEVGTime)[istep] = fWatch->CpuTime();
     }
     catch (EVGThreadException exception)
     {
@@ -107,7 +119,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
       nexceptions++;
       if ( nexceptions > kMaxEVGThreadExceptions ) {
          LOG("EventGenerator", pFATAL)
-           << "Caught max allowed number (" << kMaxEVGThreadExceptions 
+           << "Caught max allowed number (" << kMaxEVGThreadExceptions
                            << ") of EVGThreadExceptions/thread. Aborting";
          abort();
       }
@@ -122,80 +134,64 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
          // get return step (if return_step > current_step just ignore it)
          if(exception.ReturnStep() >= 0 && exception.ReturnStep() <= istep) {
            istep = exception.ReturnStep();
+           istep--;
 
            // restore the event record as it was just before the processing
            // step we are about to return to
            event_rec->ResetRecord();
-           GHepRecord * snapshot = rh[istep-1];
-           rh.PurgeRecentHistory(istep);
+           GHepRecord * snapshot = rh[istep];
+           rh.PurgeRecentHistory(istep+1);
            event_rec->Copy(*snapshot);
          } // valid-return-step
       } // step-back
     } // catch exception
+
+    istep++;
   }
 
-  LOG("EventGenerator", pINFO)
+  LOG("EventGenerator", pNOTICE)
          << "The EventRecord was visited by all EventRecordVisitors\n";
-}
-//___________________________________________________________________________
-const EventRecordVisitorI * EventGenerator::ProcessingStep(int istep) const
-{
-  ostringstream alg_key, config_key;
 
-  alg_key    << "generator-step-" << istep << "-alg";
-  config_key << "generator-step-" << istep << "-conf";
+  LOG("EventGenerator", pINFO) << "** Event generation timing info **";
+  istep=0;
+  for(miter = fEVGModuleVec->begin();
+                               miter != fEVGModuleVec->end(); ++miter){
+    const EventRecordVisitorI * visitor = *miter;
 
-  string alg    = fConfig->GetString( alg_key.str()    );
-  string config = fConfig->GetString( config_key.str() );
-
-  SLOG("EventGenerator", pINFO)
-      << "\n\n---------- Getting EventRecordVisitorI algorithm: "
-                                  << alg << "/" << config << " ----------\n";
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase = algf->GetAlgorithm(alg, config);
-
-  const EventRecordVisitorI * visitor =
-                        dynamic_cast<const EventRecordVisitorI *> (algbase);
-
-  return visitor;
+    SLOG("EventGenerator", pINFO)
+      << "EventRecordVisitorI: " << visitor->Id().Key() << " -> "
+                                     << (*fEVGTime)[istep++] << " sec";
+  }
 }
 //___________________________________________________________________________
 const InteractionListGeneratorI * EventGenerator::IntListGenerator(void) const
 {
-  const Algorithm * algbase = this->SubAlg(
-                            "interaction-list-alg", "interaction-list-conf");
-  const InteractionListGeneratorI * intlistgen =
-                   dynamic_cast<const InteractionListGeneratorI *> (algbase);
-  assert(intlistgen);
-
-  return intlistgen;
+  return fIntListGen;
 }
 //___________________________________________________________________________
 const XSecAlgorithmI * EventGenerator::CrossSectionAlg(void) const
 {
-  const Algorithm * algbase = this->SubAlg(
-                                  "cross-section-alg", "cross-section-conf");
-  const XSecAlgorithmI * xsecalg =
-                              dynamic_cast<const XSecAlgorithmI *> (algbase);
-  assert(xsecalg);
-
-  return xsecalg;
+  return fXSecModel;
 }
 //___________________________________________________________________________
 void EventGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
 
-  this->InstantiateValidityContext();
+  this->Init();
+  this->LoadVldContext();
+  this->LoadEVGModules();
+  this->LoadIntSelAlg();
 }
 //___________________________________________________________________________
 void EventGenerator::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
 
-  this->InstantiateValidityContext();
+  this->Init();
+  this->LoadVldContext();
+  this->LoadEVGModules();
+  this->LoadIntSelAlg();
 }
 //___________________________________________________________________________
 const GVldContext & EventGenerator::ValidityContext(void) const
@@ -203,14 +199,71 @@ const GVldContext & EventGenerator::ValidityContext(void) const
   return *fVldContext;
 }
 //___________________________________________________________________________
-void EventGenerator::InstantiateValidityContext(void)
+void EventGenerator::Init(void)
+{
+  fWatch        = new TStopwatch;
+  fVldContext   = 0;
+  fEVGModuleVec = 0;
+  fEVGTime      = 0;
+  fXSecModel    = 0;
+  fIntListGen   = 0;
+}
+//___________________________________________________________________________
+void EventGenerator::LoadVldContext(void)
 {
   fVldContext = new GVldContext;
 
   assert( fConfig->Exists("vld-context") );
-
   string encoded_vld_context = fConfig->GetString("vld-context");
 
   fVldContext->Decode( encoded_vld_context );
 }
 //___________________________________________________________________________
+void EventGenerator::LoadEVGModules(void)
+{
+  fConfig->AssertExistence("n-generator-steps");
+  int nsteps = fConfig->GetInt("n-generator-steps");
+
+  if(nsteps == 0) {
+    LOG("EventGenerator", pFATAL)
+         << "EventGenerator configuration declares null visitor list!";
+  }
+  assert(nsteps>0);
+
+  fEVGModuleVec = new vector<const EventRecordVisitorI *> (nsteps);
+  fEVGTime      = new vector<double>(nsteps);
+
+  for(int istep = 0; istep < nsteps; istep++) {
+
+     ostringstream alg_key, config_key;
+
+     alg_key    << "generator-step-" << istep << "-alg";
+     config_key << "generator-step-" << istep << "-conf";
+
+     string alg    = fConfig->GetString( alg_key.str()    );
+     string config = fConfig->GetString( config_key.str() );
+     SLOG("EventGenerator", pNOTICE)
+           << "Processing step: " << istep
+               << "-> loading EventRecordVisitorI: " << alg << "/" << config;
+
+     const EventRecordVisitorI * visitor =
+                dynamic_cast<const EventRecordVisitorI *> (
+                              this->SubAlg(alg_key.str(), config_key.str()));
+     (*fEVGModuleVec)[istep] = visitor;
+     (*fEVGTime)[istep]      = 0;
+  }
+}
+//___________________________________________________________________________
+void EventGenerator::LoadIntSelAlg(void)
+{
+  fIntListGen = dynamic_cast<const InteractionListGeneratorI *> (
+              this->SubAlg("interaction-list-alg", "interaction-list-conf"));
+  assert(fIntListGen);
+
+  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
+                    this->SubAlg("cross-section-alg", "cross-section-conf"));
+  assert(fXSecModel);
+}
+//___________________________________________________________________________
+
+
