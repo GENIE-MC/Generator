@@ -66,46 +66,71 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double xsec_max = this->MaxXSec(interaction);
   xsec_max *= 1.3;
 
-  //------ Try to select a valid x,y pair
+  //------ Try to select a valid W,Q2 (=>x,y) pair using the rejection
+  //       method
+
   register unsigned int iter = 0;
+  double e = 1E-6;
+
+  //-- Get the physical W range taking into account any user cuts
+  Range1D_t W  = this->WRange(interaction);
+  LOG("DISKinematics", pDEBUG)
+                    << "W range = (" << W.min << ", " << W.max << ")";
+  assert(W.min>0.);
+  double logWmin  = TMath::Log(W.min+e);
+  double logWmax  = TMath::Log(W.max-e);
+  double dlogW    = logWmax - logWmin;
+
   while(1) {
-     //-- generate ax x,y pair & set it to interaction
-     double gx = fXmin + fdX * rnd->Random2().Rndm();
-     double gy = fYmin + fdY * rnd->Random2().Rndm();
+     //-- generate a W
+     double gW  = TMath::Exp(logWmin  + dlogW  * rnd->Random2().Rndm());
+     interaction->GetKinematicsPtr()->SetW(gW);
 
-     interaction->GetKinematicsPtr()->Setx(gx);
-     interaction->GetKinematicsPtr()->Sety(gy);
+     //-- Get the physical Q2 range (for current W) taking into account 
+     //   any user cuts
+     Range1D_t Q2 = this->Q2Range(interaction);
+     LOG("DISKinematics", pDEBUG)
+                 << "Q^2 range = (" << Q2.min << ", " << Q2.max << ")";
+     assert(Q2.min>0.);
+     double logQ2min = TMath::Log(Q2.min+e);
+     double logQ2max = TMath::Log(Q2.max-e);
+     double dlogQ2   = logQ2max - logQ2min;
 
-     LOG("DISKinematics", pINFO) << "Trying: x = "<< gx << ", y = "<< gy;
+     //-- generate a Q2
+     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random2().Rndm());
+     interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
-     //-- only proceed if I've got allowed kinematics
-     if( this->ValidKinematics(interaction) ) {
+     LOG("DISKinematics", pINFO) << "Trying: W = "<< gW << ", Q2 = "<< gQ2;
 
-         double xsec = fXSecModel->XSec(interaction);
-         double t    = xsec_max * rnd->Random2().Rndm();
+     //-- W,Q2 => x,y 
+     this->SetKineXY(interaction);
 
-         LOG("DISKinematics", pINFO)
+     //-- compute the cross section for current kinematics 
+     double xsec = fXSecModel->XSec(interaction);
+
+     //-- accept current kinematics?
+     double t = xsec_max * rnd->Random2().Rndm();
+     LOG("DISKinematics", pINFO)
              << "xsec: (computed) = " << xsec << ", (generated) = " << t;
-         assert( xsec < xsec_max );
+     assert( xsec < xsec_max );
+     if(t < xsec) {
+         // kinematical selection done.
+         LOG("DISKinematics", pINFO) 
+               << "Selected: W = "<< gW << ", Q2 = "<< gQ2
+                  << " (=> x = " << interaction->GetKinematics().x()
+                      << ", y = " << interaction->GetKinematics().y() << ")";
 
-         if( t < xsec ) {
-            // kinematical selection done.
-            LOG("DISKinematics", pINFO)
-                             << "Selected: x = " << gx << ", y = " << gy;
-            // set the cross section for the selected kinematics
-            evrec->SetDiffXSec(xsec);
-            return;
-         }
+        // set the cross section for the selected kinematics
+        evrec->SetDiffXSec(xsec);
+        return;
+     }
 
-         iter++;
-         if(iter > kRjMaxIterations) {
-             LOG("DISKinematics", pERROR)
-                << "*** Could not select a valid (x,y) pair after "
-                                               << iter << " iterations";
-             assert(false);
-         }
-
-     } // valid kinematics
+     iter++;
+     if(iter > kRjMaxIterations) {
+       LOG("DISKinematics", pERROR)
+        << "*** Could not select kinematics after " << iter << " iterations";
+       exit(1);
+     }
   } // iterations
 }
 //___________________________________________________________________________
@@ -144,20 +169,6 @@ void DISKinematicsGenerator::LoadConfigData(void)
   //-- Get the user kinematical limits on Q2
   fQ2min = fConfig->GetDoubleDef("Q2-min", -1);
   fQ2max = fConfig->GetDoubleDef("Q2-max", -1);
-
-  double t0 = 1E-6;
-  double t1 = 1. - t0;
-
-  fXmin = fConfig->GetDoubleDef("x-min", t0);
-  fXmax = fConfig->GetDoubleDef("x-max", t1);
-  fYmin = fConfig->GetDoubleDef("y-min", t0);
-  fYmax = fConfig->GetDoubleDef("y-max", t1);
-
-  assert(fXmin > 0 && fXmax < 1 && fXmin < fXmax);
-  assert(fYmin > 0 && fYmax < 1 && fYmin < fYmax);
-
-  fdX = fXmax - fXmin;
-  fdY = fYmax - fYmin;
 }
 //____________________________________________________________________________
 Range1D_t DISKinematicsGenerator::WRange(
@@ -184,7 +195,7 @@ Range1D_t DISKinematicsGenerator::Q2Range(
                                        const Interaction * interaction) const
 {
   //-- Get the physically allowed kinematical region for this interaction
-  Range1D_t Q2 = utils::kinematics::Q2Range_xy(interaction);
+  Range1D_t Q2 = utils::kinematics::Q2Range_W(interaction);
   LOG("DISKinematics", pDEBUG)
        << "\n Physical Q2 integration range: "
                             << "[" << Q2.min << ", " << Q2.max << "] GeV^2";
@@ -200,47 +211,31 @@ Range1D_t DISKinematicsGenerator::Q2Range(
   return Q2;
 }
 //___________________________________________________________________________
-bool DISKinematicsGenerator::ValidKinematics(
-                                       const Interaction * interaction) const
+void DISKinematicsGenerator::SetKineXY(const Interaction * interaction) const
 {
-// Checks whether the selected kinematic variables x, y yield valid W, Q^2
+// W,Q^2 => x,y using a) W^2 - M^2 = 2*Ev*M*y*(1-x) and b)  Q^2 = 2*x*y*M*Ev
 
   //-- get initial state information
   const InitialState & init_state = interaction->GetInitialState();
-  TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
-
-  double Ev  = p4->Energy();
+  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
   double M   = init_state.GetTarget().StruckNucleonMass();
   double M2  = M*M;
 
-  delete p4;
+  //-- get current W,Q2
+  double W  = interaction->GetKinematics().W();
+  double W2 = W*W;
+  double Q2 = interaction->GetKinematics().Q2();
 
-  //-- get current set of generated x,y
-  double gx  = interaction->GetKinematics().x();
-  double gy  = interaction->GetKinematics().y();
+  //-- compute x,y
+  double x = Q2 / (W2-M2+Q2);
+  double y = (W2-M2+Q2) / (2*M*Ev);
+  assert(x>0. and x<1.);
+  assert(y>0. and y<1.);
 
-  //-- compute the corresponding generated W, Q^2
-  double gW  = TMath::Sqrt( utils::math::NonNegative(M2+2*Ev*M*gy*(1-gx)) );
-  double gQ2 = 2*gx*gy*M*Ev;
+  LOG("DISKinematics", pDEBUG) << "(W,Q2) => (x = "<< x<< ", y = "<< y<< ")";
 
-  //-- get the W, Q^2 range
-  //   (the physical one, unless narrowed down by external user cuts)
-
-  Range1D_t W  = this->WRange(interaction);
-  Range1D_t Q2 = this->Q2Range(interaction);
-
-  LOG("DISKinematics", pDEBUG)
-                     << "Generated values: W = " << gW << ", Q^2 = " << gQ2;
-  LOG("DISKinematics", pDEBUG)
-                          << "W range = (" << W.min << ", " << W.max << ")";
-  LOG("DISKinematics", pDEBUG)
-                      << "Q^2 range = (" << Q2.min << ", " << Q2.max << ")";
-
-  bool valid_W  = utils::math::IsWithinLimits( gW, W  );
-  bool valid_Q2 = utils::math::IsWithinLimits( gQ2,Q2 );
-
-  if(valid_W && valid_Q2) return true;
-  else return false;
+  interaction->GetKinematicsPtr()->Setx(x);
+  interaction->GetKinematicsPtr()->Sety(y);
 }
 //___________________________________________________________________________
 double DISKinematicsGenerator::ComputeMaxXSec(
@@ -254,34 +249,50 @@ double DISKinematicsGenerator::ComputeMaxXSec(
 // maximum. The number used in the rejection method will be scaled up by a
 // safety factor. But this needs to be fast - do not use a very fine grid.
 
-  const int Nx = 40;
-  const int Ny = 40;
+  const int    NW  = 30;
+  const int    NQ2 = 30;
+  const double e   = 1E-6;
 
   double max_xsec = -1.0;
 
-  const double logxmin = TMath::Log(fXmin);
-  const double logxmax = TMath::Log(fXmax);
-  const double logymin = TMath::Log(fYmin);
-  const double logymax = TMath::Log(fYmax);
-  const double dlogx   = (logxmax - logxmin) /(Nx-1);
-  const double dlogy   = (logymax - logymin) /(Ny-1);
+  LOG("DISKinematics", pDEBUG)
+                << "Computing max xsec in allowed W,Q2 phase space";
 
-  for(int ix=0; ix<Nx; ix++) {
+  //-- Get the physical W range taking into account any user cuts
+  Range1D_t W  = this->WRange(interaction);
+  LOG("DISKinematics", pDEBUG)
+                    << "W range = (" << W.min << ", " << W.max << ")";
+  assert(W.min>0);
+  const double logWmin  = TMath::Log(W.min+e);
+  const double logWmax  = TMath::Log(W.max-e);
+  const double dlogW    = (logWmax - logWmin)/(NW-1);
 
-     double x = TMath::Exp(logxmin + ix * dlogx);
-     interaction->GetKinematicsPtr()->Setx(x);
+  for(int i=0; i<NW; i++) {
+     double gW = TMath::Exp(logWmin + i*dlogW);
+     interaction->GetKinematicsPtr()->SetW(gW);
 
-     for(int iy=0; iy<Ny; iy++) {
-         double y = TMath::Exp(logymin + iy * dlogy);
-         interaction->GetKinematicsPtr()->Sety(y);
+     //-- Get the physical Q2 range (for current W) taking into account 
+     //   any user cuts
+     Range1D_t Q2 = this->Q2Range(interaction);
+     LOG("DISKinematics", pDEBUG)
+                << "Q^2 range = (" << Q2.min << ", " << Q2.max << ")";
+     assert(Q2.min>0);
+     const double logQ2min = TMath::Log(Q2.min+e);
+     const double logQ2max = TMath::Log(Q2.max-e);
+     const double dlogQ2   = (logQ2max - logQ2min)/(NQ2-1);
 
-         if( this->ValidKinematics(interaction) ) {
+     for(int j=0; j<NQ2; j++) {
+         double gQ2 = TMath::Exp(logQ2min + j*dlogQ2);
+         interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
-            double xsec = fXSecModel->XSec(interaction);
-            max_xsec = TMath::Max(xsec, max_xsec);
-         }
-     } // y
-  }// x
+         // W,Q2 -> x,y
+         this->SetKineXY(interaction);
+
+         // update maximum xsec
+         double xsec = fXSecModel->XSec(interaction);
+         max_xsec = TMath::Max(xsec, max_xsec);
+     } // Q2
+  }// W
 
   SLOG("DISKinematics", pDEBUG) << interaction->AsString();
   SLOG("DISKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
