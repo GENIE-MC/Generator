@@ -44,8 +44,15 @@ public :
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
+
 private:
 
+  void        LoadConfigData (void);
+  void        SetVtxPosition (GHepRecord * evrec, TVector3 & v) const;
   bool        CanRescatter   (const GHepParticle * p) const;
   TVector3    Hadronic3P     (GHepRecord * event) const;
   void        StepParticle   (GHepParticle * p, double step) const;
@@ -53,6 +60,11 @@ private:
   double      MeanFreePath   (double K) const;
   bool        IsInNucleus    (const GHepParticle * p, double R0) const;
   INukeProc_t ParticleFate   (const GHepParticle * p) const;
+
+  bool   fIsOpaque; // is opaque nucleus?
+  double fct0;      // formation zone (c * formation time)
+  double fK;
+  double fR0;
 };
 
 }      // genie namespace
