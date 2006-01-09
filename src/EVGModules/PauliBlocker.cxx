@@ -73,9 +73,7 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
 
        if(nuc) {
          // get the Fermi momentum
-         FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-         const FermiMomentumTable * kft  = kftp->GetTable("Default");
-         const double kf = kft->FindClosestKF(tgt_pdgc, nuc_pdgc);
+         const double kf = fKFTable->FindClosestKF(tgt_pdgc, nuc_pdgc);
          LOG("Nuclear", pINFO) << "KF = " << kf;
 
          double p = nuc->P4()->P(); // |p| for the recoil nucleon
@@ -98,3 +96,27 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
   }//not a free nucleon
 }
 //___________________________________________________________________________
+void PauliBlocker::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadKFTable();
+}
+//___________________________________________________________________________
+void PauliBlocker::Configure(string param_set)
+{
+  Algorithm::Configure(param_set);
+  this->LoadKFTable();
+}
+//___________________________________________________________________________
+void PauliBlocker::LoadKFTable(void)
+{
+  fKFTable = 0;
+
+  // get the Fermi momentum table
+  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+  fKFTable = kftp->GetTable("Default");
+
+  assert(fKFTable);
+}
+//___________________________________________________________________________
+
