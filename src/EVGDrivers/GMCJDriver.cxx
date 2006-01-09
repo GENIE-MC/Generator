@@ -409,8 +409,8 @@ EventRecord * GMCJDriver::GenerateEvent(void)
   //   the direction of nup4
   this->GenerateVertex();
 
-  //-- shift the event record accrording to the selected interaction vertex
-  fCurEvt->ShiftVertex(fCurVtx);
+  //-- set the selected interaction vtx (in the detector coordinate system)
+  fCurEvt->SetVertex(fCurVtx);
 
   return fCurEvt;
 }

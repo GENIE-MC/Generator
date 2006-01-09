@@ -67,7 +67,7 @@ void GMCJMonitor::UpdateStatusEnvVar(int iev, const EventRecord * event)
             << utils::print::P4AsShortString(event->GetParticle(0)->P4())
             << ";";
      status << "Vtx:"
-            << utils::print::X4AsString(event->GetParticle(0)->V4())
+            << utils::print::X4AsString(event->Vertex())
             << ";";
   }
 
