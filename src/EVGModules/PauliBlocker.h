@@ -22,6 +22,8 @@
 
 namespace genie {
 
+class FermiMomentumTable;
+
 class PauliBlocker : public EventRecordVisitorI {
 
 public :
@@ -31,8 +33,18 @@ public :
   ~PauliBlocker();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
+
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
+
+private:
+
+   void LoadKFTable(void);
+
+   const FermiMomentumTable * fKFTable;
 };
 
 }      // genie namespace
