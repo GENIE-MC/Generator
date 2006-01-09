@@ -17,19 +17,27 @@
 
 GENIE Universal Generator Collaboration
 ................................................................................
-Costas Andreopoulos  C.V.Andreopoulos \at rl.ac.uk      CCLRC, Rutherford Lab.
-Flavio Cavanna       flavio.cavanna \at aquila.infn.it  L'Aquila Univ. & INFN
-Jerome Damet         damet \at lapp.in2p3.fr            Annecy
-Hugh Gallagher       gallag \at minos.phy.tufts.edu     Tufts University
-Yoshinari Hayato     yoshinari.hayato \at kek.jp        KEK
-Stefan Kretzer       kretzer \at quark.phy.bnl.gov      Brookhaven National Lab.
-Anselmo Meregaglia   anselmo.meregaglia \at cern.ch     ETH Zurich
-Donna Naples         naples \at merlin.phyast.pitt.edu  Pittsburgh Univ.
-Geoff Pearce         G.F.Pearce \at rl.ac.uk            CCLRC, Rutherford Lab.
-Andre Rubbia         rubbia \at phys.ethz.ch            ETH Zurich
-Mike Whalley         M.R.Whalley \at durham.ac.uk       Durham Univ.
+Costas Andreopoulos   C.V.Andreopoulos \at rl.ac.uk       [2]
+Flavio Cavanna        flavio.cavanna \at aquila.infn.it   [7]
+Jerome Damet          damet \at lapp.in2p3.fr             [6]
+Hugh Gallagher        gallag \at minos.phy.tufts.edu      [9]
+Yoshinari Hayato      hayato \at icrr.u-tokyo.ac.jp       [5]
+Stefan Kretzer        kretzer \at quark.phy.bnl.gov       [1]
+Anselmo Meregaglia    anselmo.meregaglia \at cern.ch      [4]
+Donna Naples          naples \at merlin.phyast.pitt.edu   [8]
+Geoff Pearce          G.F.Pearce \at rl.ac.uk             [2]
+Andre Rubbia          rubbia \at phys.ethz.ch             [4]
+Mike Whalley          M.R.Whalley \at durham.ac.uk        [3]
 
-
+[1] BNL, Brookhaven National Laboratory
+[2] CCLRC, Rutherford Appleton Laboratory
+[3] Durham University
+[4] ETH Zurich
+[5] Kamioka Observatory, ICRR, University of Tokyo
+[6] LAPP, Laboratoire d'Annecy-le-vieux de Physique des Particules
+[7] L'Aquila University / INFN
+[8] Pittsburgh University
+[9] Tufts University
 LICENCE
 ................................................................................
 The authors hereby grant permission to use, copy, and distribute this software
