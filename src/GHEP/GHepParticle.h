@@ -102,7 +102,7 @@ public :
   void SetFirstDaughter  (int d)          { fFirstDaughter = d; }
   void SetLastDaughter   (int d)          { fLastDaughter  = d; }
 
-  //-- Set the momentum & vertex 4-vectors
+  //-- Set the momentum & position 4-vectors
   void SetMomentum (const TLorentzVector & p4);
   void SetPosition (const TLorentzVector & v4);
   void SetMomentum (double px, double py, double pz, double E);
