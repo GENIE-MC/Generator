@@ -108,7 +108,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
       rh.AddSnapshot(istep, event_rec);
 
-      (*fEVGTime)[istep] = fWatch->CpuTime();
+      (*fEVGTime)[istep] = fWatch->CpuTime(); // sec
     }
     catch (EVGThreadException exception)
     {
@@ -160,7 +160,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
     SLOG("EventGenerator", pINFO)
       << "EventRecordVisitorI: " << visitor->Id().Key() << " -> "
-                                     << (*fEVGTime)[istep++] << " sec";
+                                          << (*fEVGTime)[istep++] << " sec";
   }
 }
 //___________________________________________________________________________
