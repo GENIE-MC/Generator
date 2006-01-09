@@ -164,7 +164,7 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   assert(fProcType != kIntNull);
 
 
-  fVtx      = probep->GetV4();
+  fVtx      = new TLorentzVector(*evrec.Vertex());
   fProbe4P  = probep->GetP4();
   fNucl4P   = (hitnuclp) ? hitnuclp->GetP4() : new TLorentzVector(0,0,0,0);
   fFsl4P    = fslp->GetP4();

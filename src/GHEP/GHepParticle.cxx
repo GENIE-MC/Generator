@@ -66,7 +66,7 @@ fLastDaughter(daughter2)
   this->SetPdgCode(pdg);
 
   fP4 = new TLorentzVector(p);
-  fV4 = new TLorentzVector(v);
+  fX4 = new TLorentzVector(v);
 }
 //___________________________________________________________________________
 // TParticle-like constructor
@@ -83,7 +83,7 @@ fLastDaughter(daughter2)
   this->SetPdgCode(pdg);
 
   fP4 = new TLorentzVector(px,py,pz,E);
-  fV4 = new TLorentzVector(x,y,z,t);
+  fX4 = new TLorentzVector(x,y,z,t);
 }
 //___________________________________________________________________________
 // Copy constructor
@@ -171,16 +171,16 @@ TLorentzVector * GHepParticle::GetP4(void) const
   }
 }
 //___________________________________________________________________________
-TLorentzVector * GHepParticle::GetV4(void) const 
+TLorentzVector * GHepParticle::GetX4(void) const 
 { 
-// see GHepParticle::V4() for a method that does not create a new object and
+// see GHepParticle::X4() for a method that does not create a new object and
 // transfers its ownership
 
-  if(fV4) {
-     TLorentzVector * v4 = new TLorentzVector(*fV4); 
+  if(fX4) {
+     TLorentzVector * x4 = new TLorentzVector(*fX4); 
      LOG("GHepParticle", pDEBUG) 
-                          << "Return v4 = " << utils::print::X4AsString(v4);
-     return v4;
+                          << "Return x4 = " << utils::print::X4AsString(x4);
+     return x4;
   } else {
     LOG("GHepParticle", pWARN) << "NULL 4-position TLorentzVector";
     return 0;
@@ -221,19 +221,19 @@ void GHepParticle::SetMomentum(double px, double py, double pz, double E)
       fP4 = new TLorentzVector(px, py, pz, E);
 }
 //___________________________________________________________________________
-void GHepParticle::SetVertex(const TLorentzVector & v4)
+void GHepParticle::SetPosition(const TLorentzVector & v4)
 {
-  this->SetVertex(v4.X(), v4.Y(), v4.Z(), v4.T());
+  this->SetPosition(v4.X(), v4.Y(), v4.Z(), v4.T());
 }
 //___________________________________________________________________________
-void GHepParticle::SetVertex(double x, double y, double z, double t)
+void GHepParticle::SetPosition(double x, double y, double z, double t)
 {
   LOG("GHepParticle", pDEBUG) 
             << "Setting vertex to (x = " << x << ", y = " 
                                << y << ", z = " << z << ", t = " << t << ")";
 
-  if(fV4) fV4->SetXYZT(x,y,z,t);
-  else    fV4 = new TLorentzVector(x,y,z,t);
+  if(fX4) fX4->SetXYZT(x,y,z,t);
+  else    fX4 = new TLorentzVector(x,y,z,t);
 }
 //___________________________________________________________________________
 void GHepParticle::SetEnergy(double E)
@@ -289,7 +289,7 @@ void GHepParticle::Init(void)
   fLastDaughter  = -1;
 
   fP4 = new TLorentzVector(0,0,0,0);
-  fV4 = new TLorentzVector(0,0,0,0);
+  fX4 = new TLorentzVector(0,0,0,0);
 }
 //___________________________________________________________________________
 void GHepParticle::CleanUp(void)
@@ -297,9 +297,9 @@ void GHepParticle::CleanUp(void)
 // deallocate memory
 
   if(fP4) delete fP4;
-  if(fV4) delete fV4;
+  if(fX4) delete fX4;
   fP4 = 0;
-  fV4 = 0;
+  fX4 = 0;
 }
 //___________________________________________________________________________
 void GHepParticle::Reset(void)
@@ -394,7 +394,7 @@ void GHepParticle::Copy(const GHepParticle & particle)
   this->SetFirstDaughter (particle.FirstDaughter());
   this->SetLastDaughter  (particle.LastDaughter());
   this->SetMomentum      (*particle.P4());
-  this->SetVertex        (*particle.V4());
+  this->SetPosition      (*particle.X4());
   this->SetPdgCode       (particle.PdgCode());
 }
 //___________________________________________________________________________

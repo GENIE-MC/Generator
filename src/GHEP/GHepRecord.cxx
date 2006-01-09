@@ -172,11 +172,9 @@ unsigned int GHepRecord::NEntries(int pdg, int start) const
   return nentries;
 }
 //___________________________________________________________________________
-void GHepRecord::ShiftVertex(const TLorentzVector & vec4)
+void GHepRecord::ShiftPosition(const TLorentzVector & vec4)
 {
-// Shifts the event record entries in space (used when events generated at
-// the origin (0,0,0,0) are distributed within the volume described by an
-// input ROOT geometry)
+// Shifts the event record entries in space 
 
   LOG("GHEP", pNOTICE)
        << "Shifting vertex to: " << utils::print::X4AsString(&vec4);
@@ -195,7 +193,7 @@ void GHepRecord::ShiftVertex(const TLorentzVector & vec4)
      double vz = z0 + p->Vz();
      double vt = t0 + p->Vt();
 
-     p->SetVertex(vx, vy, vz, vt);
+     p->SetPosition(vx, vy, vz, vt);
   }
 }
 //___________________________________________________________________________
@@ -438,6 +436,16 @@ void GHepRecord::FinalizeDaughterLists(void)
   }
 }
 //___________________________________________________________________________
+void GHepRecord::SetVertex(double x, double y, double z, double t)
+{
+  fVtx->SetXYZT(x,y,z,t);
+}
+//___________________________________________________________________________
+void GHepRecord::SetVertex(const TLorentzVector & vtx)
+{
+  fVtx->SetXYZT(vtx.X(),vtx.Y(),vtx.Z(),vtx.T());
+}
+//___________________________________________________________________________
 void GHepRecord::SwitchIsPauliBlocked(bool on_off)
 {
   if(on_off) {
@@ -470,20 +478,6 @@ bool GHepRecord::IsUnphysical(void) const
   return (fIsPauliBlocked || fIsBelowThrNRF || fGenericErrFlag);
 }
 //___________________________________________________________________________
-TLorentzVector * GHepRecord::GetVertex(void) const
-{
-  GHepParticle * probe = this->GetParticle(GHepOrder::ProbePosition());
-
-  if(!probe) {
-     LOG("GHEP", pWARN) << "GHepParticle probe not set. Can not get vertex!";
-     return 0;
-  }
-
-  TLorentzVector * v4 = probe->GetV4();
-  LOG("GHEP", pDEBUG) << "Event vertex = " << utils::print::X4AsString(v4);
-  return v4;
-}
-//___________________________________________________________________________
 void GHepRecord::InitRecord(void)
 {
   LOG("GHEP", pDEBUG) << "Initializing GHepRecord";
@@ -492,6 +486,7 @@ void GHepRecord::InitRecord(void)
   fWeight      = 1.;
   fXSec        = 0.;
   fDiffXSec    = 0.;
+  fVtx         = new TLorentzVector(0,0,0,0);  
 
   this -> SwitchIsPauliBlocked (false);
   this -> SwitchIsBelowThrNRF  (false);
@@ -505,6 +500,7 @@ void GHepRecord::CleanRecord(void)
   LOG("GHEP", pDEBUG) << "Cleaning up GHepRecord";
 
   if (fInteraction) delete fInteraction;
+  delete fVtx;
 
   this->Clear("C");
 }
@@ -531,6 +527,10 @@ void GHepRecord::Copy(const GHepRecord & record)
 
   // copy summary
   fInteraction = new Interaction( *record.fInteraction );
+
+  // copy vtx position
+  TLorentzVector * v = record.Vertex();
+  fVtx->SetXYZT(v->X(),v->Y(),v->Z(),v->T());
 
   // copy flags
   fIsPauliBlocked  = record.fIsPauliBlocked;
@@ -664,25 +664,25 @@ void GHepRecord::Print(ostream & stream) const
   stream << setfill('-') << setw(110) << "|";
 
   // Print vertex
+
   GHepParticle * probe = this->GetParticle(GHepOrder::ProbePosition());
-  if(probe) {
-    stream << "\n| ";
-    stream << setfill(' ') << setw(17) << "Vertex:  | ";
-    stream << setfill(' ') << setw(6) << probe->Name() << " @ (";
 
-    stream << setiosflags(ios::fixed)  << setprecision(5);
-    stream << "x = " << setfill(' ') << setw(11) << probe->V4()->X() << " m, ";
-    stream << "y = " << setfill(' ') << setw(11) << probe->V4()->Y() << " m, ";
-    stream << "z = " << setfill(' ') << setw(11) << probe->V4()->Z() << " m, ";
-    stream << setiosflags(ios::scientific) << setprecision(6);
-    stream << "t = " << setfill(' ') << setw(15) << probe->V4()->T() << " s) ";
-    stream << setiosflags(ios::fixed)  << setprecision(3);
-    stream << setfill(' ') << setw(2)  << "|";
+  stream << "\n| ";
+  stream << setfill(' ') << setw(17) << "Vertex:  | ";
+  stream << setfill(' ') << setw(6) 
+                       << ((probe) ? probe->Name() : "unknown probe") << " @ (";
 
-    stream << "\n|";
-    stream << setfill('-') << setw(110) << "|";
-  }
+  stream << setiosflags(ios::fixed)  << setprecision(5);
+  stream << "x = " << setfill(' ') << setw(11) << this->Vertex()->X() << " m, ";
+  stream << "y = " << setfill(' ') << setw(11) << this->Vertex()->Y() << " m, ";
+  stream << "z = " << setfill(' ') << setw(11) << this->Vertex()->Z() << " m, ";
+  stream << setiosflags(ios::scientific) << setprecision(6);
+  stream << "t = " << setfill(' ') << setw(15) << this->Vertex()->T() << " s) ";
+  stream << setiosflags(ios::fixed)  << setprecision(3);
+  stream << setfill(' ') << setw(2)  << "|";
 
+  stream << "\n|";
+  stream << setfill('-') << setw(110) << "|";
 
   // Print FLAGS
 

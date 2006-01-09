@@ -62,11 +62,11 @@ public :
 
   //-- Returns the momentum & vertex 4-vectors
   TLorentzVector * P4 (void) const { return  fP4; }
-  TLorentzVector * V4 (void) const { return  fV4; }
+  TLorentzVector * X4 (void) const { return  fX4; }
 
   //-- Hand over clones of the momentum & vertex 4-vectors (+ their ownership)
   TLorentzVector * GetP4 (void) const;
-  TLorentzVector * GetV4 (void) const;
+  TLorentzVector * GetX4 (void) const;
 
   //-- Returns the momentum & vertex 4-vectors components
   double Px     (void) const { return (fP4) ? fP4->Px()     : 0; }
@@ -74,10 +74,10 @@ public :
   double Pz     (void) const { return (fP4) ? fP4->Pz()     : 0; }
   double E      (void) const { return (fP4) ? fP4->Energy() : 0; }
   double Energy (void) const { return this->E();                 }
-  double Vx     (void) const { return (fV4) ? fV4->X()      : 0; }
-  double Vy     (void) const { return (fV4) ? fV4->Y()      : 0; }
-  double Vz     (void) const { return (fV4) ? fV4->Z()      : 0; }
-  double Vt     (void) const { return (fV4) ? fV4->T()      : 0; }
+  double Vx     (void) const { return (fX4) ? fX4->X()      : 0; }
+  double Vy     (void) const { return (fX4) ? fX4->Y()      : 0; }
+  double Vz     (void) const { return (fX4) ? fX4->Z()      : 0; }
+  double Vt     (void) const { return (fX4) ? fX4->T()      : 0; }
 
   string Name   (void) const; // that corresponds to the PDG code
   double Mass   (void) const; // that corresponds to the PDG code
@@ -104,9 +104,9 @@ public :
 
   //-- Set the momentum & vertex 4-vectors
   void SetMomentum (const TLorentzVector & p4);
-  void SetVertex   (const TLorentzVector & v4);
+  void SetPosition (const TLorentzVector & v4);
   void SetMomentum (double px, double py, double pz, double E);
-  void SetVertex   (double x,  double y,  double z,  double t);
+  void SetPosition (double x,  double y,  double z,  double t);
   void SetEnergy   (double E );
   void SetPx       (double px);
   void SetPy       (double py);
@@ -140,7 +140,7 @@ private:
   int              fFirstDaughter;  ///< first daughter idx
   int              fLastDaughter;   ///< last daughter idx
   TLorentzVector * fP4;             ///< momentum 4-vector
-  TLorentzVector * fV4;             ///< vertex 4-vector
+  TLorentzVector * fX4;             ///< position 4-vector 
 
 ClassDef(GHepParticle, 1)
 
