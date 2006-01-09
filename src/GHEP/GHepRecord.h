@@ -48,7 +48,7 @@ public :
   //-- common record operations
 
   virtual void Copy                    (const GHepRecord & record);
-  virtual void ShiftVertex             (const TLorentzVector & vec4);
+  virtual void ShiftPosition           (const TLorentzVector & vec4);
   virtual void ResetRecord             (void);
   virtual void CompactifyDaughterLists (void);
 
@@ -90,7 +90,7 @@ public :
   virtual bool GenericErrFlag       (void) const { return fGenericErrFlag; }
   virtual bool IsUnphysical         (void) const;
 
-  //-- methods to set / get the event weight and cross sections
+  //-- methods to set/get the event weight and cross sections
 
   virtual double GetWeight   (void) const  { return fWeight;   }
   virtual double GetXSec     (void) const  { return fXSec;     }
@@ -99,9 +99,12 @@ public :
   virtual void   SetXSec     (double xsec) { fXSec     = (xsec>0) ? xsec : 0.; }
   virtual void   SetDiffXSec (double xsec) { fDiffXSec = (xsec>0) ? xsec : 0.; }
 
-  //-- commonly queried record attributes extracted from its particle list
+  //-- set/get event vertex in detector coordinate system
 
-  virtual TLorentzVector * GetVertex  (void) const;
+  virtual TLorentzVector * Vertex (void) const { return fVtx; }
+
+  virtual void SetVertex (double x, double y, double z, double t);
+  virtual void SetVertex (const TLorentzVector & vtx);
 
   //-- methods & operators to print the record
 
@@ -113,6 +116,9 @@ protected:
 
   // Summary information for the Initial State, Process Type & Kinematics
   Interaction * fInteraction;
+
+  // Vertex position (in the detector coordinate system)
+  TLorentzVector * fVtx;
 
   // Flags for the generated event
   bool fIsPauliBlocked;   ///< true for Pauli-blocked event
