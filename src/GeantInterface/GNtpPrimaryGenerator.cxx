@@ -59,9 +59,7 @@ void GNtpPrimaryGenerator::GeneratePrimaryVertex(G4Event* g4event)
 // Get next GENIE's GHEP event record and convert it to GEANT's G4Event
 
   //-- read GENIE event from the input ROOT file
-
   EventRecord & gevt = *(this->ReadNextEvent());
-
   int np = gevt.GetEntries();
   if (np == 0) {
      LOG("GEANTi", pWARN)
@@ -72,8 +70,7 @@ void GNtpPrimaryGenerator::GeneratePrimaryVertex(G4Event* g4event)
   //-- convert primary vertex position & time from GENIE/ROOT TLorentzVector
   //   to GEANT/CLHEP G4ThreeVector + G4double and create G4PrimaryVertex
 
-  TLorentzVector * vtx = gevt.GetParticle(GHepOrder::ProbePosition())->V4();
-
+  TLorentzVector * vtx = gevt.Vertex();
   G4PrimaryVertex * g4vertex =
                 new G4PrimaryVertex(vtx->X(), vtx->Y(), vtx->Z(), vtx->T());
 

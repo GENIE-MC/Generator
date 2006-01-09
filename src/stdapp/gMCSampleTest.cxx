@@ -97,7 +97,7 @@ int main(int argc, char ** argv)
     LOG("Main", pINFO) << rec_header;
     LOG("Main", pINFO) << event;
 
-    TLorentzVector * vtx = event.GetVertex();
+    TLorentzVector * vtx = event.Vertex();
 
     st_iev  = i;
     st_vtxx = vtx->X();
@@ -110,8 +110,6 @@ int main(int argc, char ** argv)
     st_enu  = event.GetParticle(0)->P4()->E();
 
     st->Fill();
-
-    //delete vtx;
   }
 
   TCanvas * c = 0;

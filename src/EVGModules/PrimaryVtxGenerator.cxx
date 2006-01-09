@@ -28,13 +28,16 @@
 #include "EVGModules/PrimaryVtxGenerator.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
+#include "GHEP/GHepOrder.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+#include "Utils/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::units;
+using namespace genie::utils;
 
 //___________________________________________________________________________
 PrimaryVtxGenerator::PrimaryVtxGenerator() :
@@ -69,10 +72,10 @@ void PrimaryVtxGenerator::ProcessEventRecord(GHepRecord * evrec) const
   }
 
   // compute the target radius
-  double A  = (double) target.A();
-  double Rn = kNucRo * TMath::Power(A, 0.3333); //use the Fermi model
+  double Rn = nuclear::Radius(target); // = R*A^(1/3), GeV
+  Rn  /= units::m; // GeV -> m
 
-  LOG("VtxGenerator", pINFO) << "A = " << A << ", Rnucl = " << Rn/m << " m";
+  LOG("VtxGenerator", pINFO) << "Rnucl = " << Rn << " m";
 
   // generate a random position inside a spherical nucleus with radius R
   RandomGen * rnd = RandomGen::Instance();
@@ -94,9 +97,16 @@ void PrimaryVtxGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   // loop over the event record entries and set the interaction vertex
 
-  TObjArrayIter piter(evrec);
-  GHepParticle * p = 0;
+  int ip = GHepOrder::ProbePosition();
+  int in = GHepOrder::StruckNucleonPosition(interaction);
 
-  while ( (p = (GHepParticle *) piter.Next()) ) p->SetVertex(x,y,z,0);
+  GHepParticle * probe = evrec->GetParticle(ip);
+  assert(probe);
+  probe->SetPosition(x, y, z, 0.);
+  GHepParticle * nucleon = evrec->GetParticle(in);
+  if(nucleon) {
+    nucleon->SetPosition(x, y, z, 0.);
+  }
+
 }
 //___________________________________________________________________________
