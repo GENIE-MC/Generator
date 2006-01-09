@@ -14,16 +14,16 @@
 **     /   jet <===               @@@@@@@                   Neutrino MC Generator  **
 **    /             u  ____________@@@@@                                           **
 **  nu_mu                          @@@@@                                           ** 
-**                                  @@@         (c) 2003-2005 GENIE Collaboration  **
+**                                  @@@         (c) 2003-2006 GENIE Collaboration  **
 **                                   @  p                                          **
 **                                                                                 **
 **                                                                                 **
 **      Costas Andreopoulos (Rutherford), Flavio Cavanna (L'Aquila & INFN),        **
-**     Jerome Damet (Annecy), Hugh Gallagher (Tufts), Yoshinari Hayato (KEK),      **
+**  Jerome Damet (Annecy), Hugh Gallagher (Tufts), Yoshinari Hayato (ICRR, Tokyo), **
 **   Stefan Kretzer (BNL), Anselmo Meregaglia (ETHZ), Donna Naples (Pittsburgh),   **
 **     Geoff Pearce (Rutherford), Andre Rubbia (ETHZ), Mike Whalley (Durham)       **
 **                                                                                 **
-**         Home Page: http://hepunx.rl.ac.uk/~candreop/generators/GENIE/           **
+**                     home page URL:   http://www.genie-mc.org                    **
 **                                                                                 **
 *************************************************************************************
 *************************************************************************************
