@@ -45,12 +45,6 @@ double NuclearTargetXSec::XSec(const Interaction * interaction) const
 {
   double xsec = 0;
 
-  //--- get particle (nucleon, electron) cross section calculator
-  const Algorithm * xsec_alg_base = this->SubAlg(
-              "free-particle-xsec-alg-name", "free-particle-xsec-param-set");
-  const XSecAlgorithmI * free_particle_xsec_alg =
-                         dynamic_cast<const XSecAlgorithmI *>(xsec_alg_base);
-
   //--- get number of proton/neutrons/nucleons/e
   const Target & tgt = interaction->GetInitialState().GetTarget();
   int Z = tgt.Z();
@@ -66,7 +60,7 @@ double NuclearTargetXSec::XSec(const Interaction * interaction) const
 
   //--- handle IMD:
   if(proc_info.IsInverseMuDecay()) {
-    double xsec_e = free_particle_xsec_alg->XSec(interaction);
+    double xsec_e = fFreeParticleXSecAlg->XSec(interaction);
     xsec = Z*xsec_e;
     return xsec;
   }
@@ -84,7 +78,7 @@ double NuclearTargetXSec::XSec(const Interaction * interaction) const
                             << (pdg::IsProton(pdgc) ? "protons" : "neutrons");
 
     int nnuc = pdg::IsProton(pdgc) ? Z : N;
-    double xsec_nuc = free_particle_xsec_alg->XSec(&ci);
+    double xsec_nuc = fFreeParticleXSecAlg->XSec(&ci);
     xsec = nnuc * xsec_nuc;
 
   } else {
@@ -95,10 +89,10 @@ double NuclearTargetXSec::XSec(const Interaction * interaction) const
     Target * ctgt = ci.GetInitialStatePtr()->GetTargetPtr();
 
     ctgt->SetStruckNucleonPDGCode(kPdgProton);
-    double xsec_p = free_particle_xsec_alg->XSec(&ci);
+    double xsec_p = fFreeParticleXSecAlg->XSec(&ci);
 
     ctgt->SetStruckNucleonPDGCode(kPdgNeutron);
-    double xsec_n = free_particle_xsec_alg->XSec(&ci);
+    double xsec_n = fFreeParticleXSecAlg->XSec(&ci);
 
     xsec = (Z*xsec_p + N*xsec_n) / A;
   }
@@ -108,3 +102,23 @@ double NuclearTargetXSec::XSec(const Interaction * interaction) const
   return xsec;
 }
 //____________________________________________________________________________
+void NuclearTargetXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void NuclearTargetXSec::Configure(string param_set)
+{
+  Algorithm::Configure(param_set);
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void NuclearTargetXSec::LoadSubAlg(void)
+{
+  fFreeParticleXSecAlg =  dynamic_cast<const XSecAlgorithmI *>(this->SubAlg(
+              "free-particle-xsec-alg-name", "free-particle-xsec-param-set"));
+  assert(fFreeParticleXSecAlg);
+}
+//____________________________________________________________________________
+
