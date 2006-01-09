@@ -83,22 +83,12 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
                     << "Can only select pion interactions for iron target";
     return;
   }
-
   // Get Intranuke configuration (or set defaults)
 
   double RoDef  = nuclear::Radius(target); // = R*A^(1/3), GeV
+  RoDef  /= units::m; // GeV -> m
 
-  bool   opaque = fConfig->GetDoubleDef("opaque", false);
-  double ct0    = fConfig->GetDoubleDef("ct0",    kInukeFormationL); //GeV^-1
-  double K      = fConfig->GetDoubleDef("Kpt2",   kInukeKpt2);
-  double R0     = fConfig->GetDoubleDef("R0",     RoDef); // GeV
-
-  R0  /= units::m; // GeV -> m
-  ct0 /= units::m; // GeV -> m
-
-  LOG("Intranuke", pDEBUG) << "ct0     = " << ct0 << " m";
-  LOG("Intranuke", pDEBUG) << "K(pt^2) = " << K;
-  LOG("Intranuke", pDEBUG) << "R0      = " << R0  << " m";
+  double R0 = (fR0>0) ? fR0 : RoDef;
 
   // Get hadronic system's momentum vector
   TVector3 p3hadronic = this->Hadronic3P(event_rec);
@@ -116,6 +106,7 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
   double sinfi    = TMath::Sin(fi);
 
   TVector3 vtx(R*sintheta*cosfi, R*sintheta*sinfi, R*costheta);
+  this->SetVtxPosition(event_rec, vtx);
 
   LOG("Intranuke", pINFO) << "Vtx (in m) = " << print::Vec3AsString(&vtx);
 
@@ -144,13 +135,13 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
 
     sp->SetFirstMother(icurr); // set its unscattered clone as its mom
 
-    TVector3 p3  = sp->P4()->Vect();   // hadron's: p (px,py,pz)
-    double   m   = sp->Mass();         //           m
-    double   m2  = m*m;                //           m^2
-    double   P   = sp->P4()->P();      //           |p|
-    double   Pt  = p3.Pt(p3hadronic);  //           pT
-    double   Pt2 = Pt*Pt;              //           pT^2
-    double   fz  = P*ct0*m/(m2+K*Pt2); //           formation zone, in m
+    TVector3 p3  = sp->P4()->Vect();     // hadron's: p (px,py,pz)
+    double   m   = sp->Mass();           //           m
+    double   m2  = m*m;                  //           m^2
+    double   P   = sp->P4()->P();        //           |p|
+    double   Pt  = p3.Pt(p3hadronic);    //           pT
+    double   Pt2 = Pt*Pt;                //           pT^2
+    double   fz  = P*fct0*m/(m2+fK*Pt2); //           formation zone, in m
 
     LOG("Intranuke", pINFO)
           << "|P| = " << P << " GeV, Pt = " << Pt
@@ -169,7 +160,7 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
 
     // Check if the "opaque" config var is true in which case absorb
     // the hadron anyway
-    if(opaque) {
+    if(fIsOpaque) {
        // ?? Change status kIstStableFinalState -> kIstHadronInTheNucleus
        LOG("Intranuke", pINFO)
              << "In *OPAQUE* mode. Absorbing hadron & done with it.";
@@ -349,7 +340,7 @@ void Intranuke::StepParticle(GHepParticle * p, double step) const
   LOG("Intranuke", pDEBUG)
                << "Init direction = " << print::Vec3AsString(&dr);
   LOG("Intranuke", pDEBUG)
-       << "Init position (in m,sec) = " << print::X4AsString(p->V4());
+       << "Init position (in m,sec) = " << print::X4AsString(p->X4());
 
   // spatial step size:
   dr.SetMag(step);
@@ -359,16 +350,16 @@ void Intranuke::StepParticle(GHepParticle * p, double step) const
   double dt = step/c;
 
   TLorentzVector dx4(dr,dt);       // 4-vector step
-  TLorentzVector x4new = *(p->V4()) + dx4; // new position
+  TLorentzVector x4new = *(p->X4()) + dx4; // new position
 
   LOG("Intranuke", pDEBUG)
                   << "X4[new] (in m,sec) = " << print::X4AsString(&x4new);
-  p->SetVertex(x4new);
+  p->SetPosition(x4new);
 }
 //___________________________________________________________________________
 bool Intranuke::IsInNucleus(const GHepParticle * p, double R0) const
 {
-  return (p->V4()->Vect().Mag() < R0);
+  return (p->X4()->Vect().Mag() < R0);
 }
 //___________________________________________________________________________
 TVector3 Intranuke::Hadronic3P(GHepRecord * event_rec) const
@@ -392,4 +383,57 @@ TVector3 Intranuke::Hadronic3P(GHepRecord * event_rec) const
   return p4had.Vect();  // (px,py,pz)
 }
 //___________________________________________________________________________
+void Intranuke::SetVtxPosition(GHepRecord * event_rec, TVector3 & v) const
+{
+// set the interaction vtx position in the target nucleus coordinate system
+
+  Interaction * interaction = event_rec->GetInteraction();
+
+  int ip = GHepOrder::ProbePosition();
+  int in = GHepOrder::StruckNucleonPosition(interaction);
+
+  GHepParticle * probe = event_rec->GetParticle(ip);
+  assert(probe);
+  probe->SetPosition(v.x(), v.y(), v.z(), 0.);
+  GHepParticle * nucleon = event_rec->GetParticle(in);
+  if(nucleon) {
+    nucleon->SetPosition(v.x(), v.y(), v.z(), 0.);
+  }
+}
+//___________________________________________________________________________
+void Intranuke::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+}
+//___________________________________________________________________________
+void Intranuke::Configure(string param_set)
+{
+  Algorithm::Configure(param_set);
+  this->LoadConfigData();
+}
+//___________________________________________________________________________
+void Intranuke::LoadConfigData(void)
+{
+LOG("Intranuke", pNOTICE) << "1";
+
+  fIsOpaque = fConfig->GetBoolDef   ("opaque", false);
+LOG("Intranuke", pNOTICE) << "2";
+  fct0      = fConfig->GetDoubleDef ("ct0",    kInukeFormationL); //GeV^-1
+LOG("Intranuke", pNOTICE) << "3";
+  fK        = fConfig->GetDoubleDef ("Kpt2",   kInukeKpt2);
+LOG("Intranuke", pNOTICE) << "4";
+  fR0       = fConfig->GetDoubleDef ("R0",     -1.); // GeV
+LOG("Intranuke", pNOTICE) << "5";
+
+  fR0  /= units::m; // GeV -> m
+  fct0 /= units::m; // GeV -> m
+
+  LOG("Intranuke", pDEBUG) << "IsOpaque = " << fIsOpaque;
+  LOG("Intranuke", pDEBUG) << "ct0      = " << fct0 << " m";
+  LOG("Intranuke", pDEBUG) << "K(pt^2)  = " << fK;
+  LOG("Intranuke", pDEBUG) << "R0       = " << fR0  << " m";
+}
+//___________________________________________________________________________
+
 
