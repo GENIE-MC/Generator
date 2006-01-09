@@ -229,7 +229,7 @@ void GHepParticle::SetPosition(const TLorentzVector & v4)
 void GHepParticle::SetPosition(double x, double y, double z, double t)
 {
   LOG("GHepParticle", pDEBUG) 
-            << "Setting vertex to (x = " << x << ", y = " 
+            << "Setting position to (x = " << x << ", y = " 
                                << y << ", z = " << z << ", t = " << t << ")";
 
   if(fX4) fX4->SetXYZT(x,y,z,t);
