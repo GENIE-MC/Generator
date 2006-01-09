@@ -7,12 +7,12 @@
 <><>   manual, Doxygen documentation, Installation & Running instructions,  <><>
 <><>   HOWTO's, list of available releases and ChangeLogs can be found in:  <><>
 <><>                                                                        <><>
-<><>            http://hepunx.rl.ac.uk/~candreop/generators/GENIE/          <><>
+<><>                         http://www.genie-mc.org                        <><>
 <><>                                                                        <><>
 <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
-(c) 2003-2005, GENIE Universal Generator Collaboration
+(c) 2003-2006, GENIE Universal Generator Collaboration
 
 
 GENIE Universal Generator Collaboration
@@ -38,6 +38,7 @@ Mike Whalley          M.R.Whalley \at durham.ac.uk        [3]
 [7] L'Aquila University / INFN
 [8] Pittsburgh University
 [9] Tufts University
+
 LICENCE
 ................................................................................
 The authors hereby grant permission to use, copy, and distribute this software
