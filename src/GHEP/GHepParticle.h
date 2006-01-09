@@ -60,15 +60,15 @@ public :
   int           LastDaughter   (void) const { return  fLastDaughter;       }
   bool          HasDaughters   (void) const { return (fFirstDaughter!=-1); }
 
-  //-- Returns the momentum & vertex 4-vectors
+  //-- Returns the momentum & position 4-vectors
   TLorentzVector * P4 (void) const { return  fP4; }
   TLorentzVector * X4 (void) const { return  fX4; }
 
-  //-- Hand over clones of the momentum & vertex 4-vectors (+ their ownership)
+  //-- Hand over clones of the momentum & position 4-vectors (+ their ownership)
   TLorentzVector * GetP4 (void) const;
   TLorentzVector * GetX4 (void) const;
 
-  //-- Returns the momentum & vertex 4-vectors components
+  //-- Returns the momentum & position 4-vectors components
   double Px     (void) const { return (fP4) ? fP4->Px()     : 0; }
   double Py     (void) const { return (fP4) ? fP4->Py()     : 0; }
   double Pz     (void) const { return (fP4) ? fP4->Pz()     : 0; }

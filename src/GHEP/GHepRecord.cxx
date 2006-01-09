@@ -177,7 +177,7 @@ void GHepRecord::ShiftPosition(const TLorentzVector & vec4)
 // Shifts the event record entries in space 
 
   LOG("GHEP", pNOTICE)
-       << "Shifting vertex to: " << utils::print::X4AsString(&vec4);
+       << "Shifting position by: " << utils::print::X4AsString(&vec4);
 
   double x0 = vec4.X();
   double y0 = vec4.Y();
