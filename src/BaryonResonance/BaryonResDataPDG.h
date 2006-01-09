@@ -18,7 +18,12 @@
 #ifndef _BARYON_RES_DATA_PDG_H_
 #define _BARYON_RES_DATA_PDG_H_
 
+#include <map>
+
 #include "BaryonResonance/BaryonResDataSetI.h"
+#include "BaryonResonance/BaryonResList.h"
+
+using std::map;
 
 namespace genie {
 
@@ -31,7 +36,6 @@ public:
   virtual ~BaryonResDataPDG();
 
   //-- BaryonResDataSetI interface implementation
-
   int    ResonanceIndex    (Resonance_t res) const;
   int    OrbitalAngularMom (Resonance_t res) const;
   bool   IsDeltaResonance  (Resonance_t res) const;
@@ -40,8 +44,26 @@ public:
   double Width             (Resonance_t res) const;
   double BreitWignerNorm   (Resonance_t res) const;
 
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
+
+private:
+
+  void LoadResonanceData(void);
+
+  BaryonResList fResList;
+
+  map<Resonance_t, int>    fResIdx;
+  map<Resonance_t, int>    fResL;
+  map<Resonance_t, bool>   fIsD;
+  map<Resonance_t, bool>   fIsN;
+  map<Resonance_t, double> fResMass;
+  map<Resonance_t, double> fResWidth;
+  map<Resonance_t, double> fResNorm;
 };
 
-}         // genie namespace 
+}         // genie namespace
 
 #endif    // _BARYON_RES_DATA_PDG_H_
