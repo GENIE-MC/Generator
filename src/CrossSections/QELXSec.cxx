@@ -25,6 +25,7 @@
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
+#include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
 
@@ -49,21 +50,18 @@ QELXSec::~QELXSec()
 
 }
 //____________________________________________________________________________
-double QELXSec::XSec(const Interaction * interaction) const
+double QELXSec::XSec(const Interaction * in) const
 {
+  if(! this -> ValidProcess    (in) ) return 0.;
+  if(! this -> ValidKinematics (in) ) return 0.;
+
+  Interaction * interaction = new Interaction(*in);
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
+
   //----- get initial & final state information
   const InitialState & init_state = interaction->GetInitialState();
   double E = init_state.GetProbeE(kRfStruckNucAtRest);
-
-  //----- "phase-space" cut
-  double Ethr = utils::kinematics::EnergyThreshold(interaction);
-  LOG("QELXSec", pDEBUG)
-       << "Computing QEL XSec for Ev = " << E
-                            << " / Neutrino Energy Threshold = " << Ethr;
-  if(E <= Ethr) {
-     LOG("QELXSec", pINFO) << "Ev = " << E << " <= Ethreshold = "<< Ethr;
-     return 0;
-  }
 
   //----- estimate the integration limits & step
   Range1D_t  rQ2 = utils::kinematics::Q2Range_M(interaction);
@@ -80,7 +78,6 @@ double QELXSec::XSec(const Interaction * interaction) const
   FunctionMap Q2dxsec_dQ2(grid);
 
   //----- loop over logQ2 range, estimate/store Q2*dxsec/dQ2
-
   for(int iQ2 = 0; iQ2 < fNBins; iQ2++) {
 
      double Q2 = TMath::Exp(logQ2min + iQ2 * dlogQ2);
@@ -94,8 +91,51 @@ double QELXSec::XSec(const Interaction * interaction) const
           << "dxsec/dQ^2 (Q^2 = " << Q2 << " ) = " << partial_xsec;
   }
 
-  double sQEtot = fIntegrator->Integrate(Q2dxsec_dQ2);
-  return sQEtot;
+  delete interaction;
+
+  double xsec = fIntegrator->Integrate(Q2dxsec_dQ2);
+  LOG("QELXSec", pDEBUG) << "XSec[QEL] (E = " << E << ") = " << xsec;
+  return xsec;
+}
+//____________________________________________________________________________
+bool QELXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  const InitialState & init_state = interaction->GetInitialState();
+  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+
+  if(!proc_info.IsQuasiElastic()) return false;
+
+  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
+  int  nu  = init_state.GetProbePDGCode();
+
+  bool isP   = pdg::IsProton(nuc);
+  bool isN   = pdg::IsNeutron(nuc);
+  bool isnu  = pdg::IsNeutrino(nu);
+  bool isnub = pdg::IsAntiNeutrino(nu);
+
+  bool ccprcok = proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu));
+  bool ncprcok = proc_info.IsWeakNC() && (isP||isN) && (isnu||isnub);
+  bool prcok   = ccprcok || ncprcok;
+  if(!prcok) return false;
+
+  return true;
+}
+//____________________________________________________________________________
+bool QELXSec::ValidKinematics(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const InitialState & init_state = interaction->GetInitialState();
+
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Ethr = utils::kinematics::EnergyThreshold(interaction);
+  if(E <= Ethr) {
+     LOG("QELXSec", pINFO) << "Ev = " << E << " <= Ethreshold = "<< Ethr;
+     return false;
+  }
+  return true;
 }
 //____________________________________________________________________________
 void QELXSec::Configure(const Registry & config)
@@ -112,10 +152,6 @@ void QELXSec::Configure(string config)
 //____________________________________________________________________________
 void QELXSec::LoadConfig(void)
 {
-// Reads its configuration from its Registry and loads all the sub-algorithms
-// needed and sets configuration variables to avoid looking up at the Registry
-// all the time.
-
   //----- Get an algorithm to calculate differential cross sections dxsec/dQ2
   fDiffXSecModel =
           dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(

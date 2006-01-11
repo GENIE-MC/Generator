@@ -24,6 +24,7 @@
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
+#include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
@@ -49,18 +50,21 @@ DISXSec::~DISXSec()
 
 }
 //____________________________________________________________________________
-double DISXSec::XSec(const Interaction * interaction) const
+double DISXSec::XSec(const Interaction * in) const
 {
+  if(! this -> ValidProcess    (in) ) return 0.;
+  if(! this -> ValidKinematics (in) ) return 0.;
+
+  Interaction * interaction = new Interaction(*in);
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
+
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
   //-- Get neutrino energy in the struck nucleon rest frame
   const InitialState & init_state = interaction -> GetInitialState();
   double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-
-  //-- Check the energy threshold
-  double Ethr = utils::kinematics::EnergyThreshold(interaction);
-  if(Ev <= Ethr) {
-     LOG("DISXSec", pINFO) << "E = " << Ev << " <= Ethreshold = " << Ethr;
-     return 0.;
-  }
 
   //-- Define the integration grid & instantiate a FunctionMap
   UnifGrid grid;
@@ -98,6 +102,8 @@ double DISXSec::XSec(const Interaction * interaction) const
     } //y
   } //x
 
+  delete interaction;
+
   //----- Perform the numerical integration
   LOG("DISXSec", pDEBUG) << "Performing numerical integration";
   double xsec = fIntegrator->Integrate(xyd2xsec);
@@ -105,6 +111,41 @@ double DISXSec::XSec(const Interaction * interaction) const
   LOG("DISXSec", pDEBUG)  << "xsec_dis (E = " << Ev << " GeV) = " << xsec;
 
   return xsec;
+}
+//____________________________________________________________________________
+bool DISXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  const InitialState & init_state = interaction->GetInitialState();
+  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+
+  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
+  int  nu  = init_state.GetProbePDGCode();
+
+  if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
+  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
+  if (!proc_info.IsDeepInelastic()) return false;
+  if (!proc_info.IsWeak())          return false;
+
+  return true;
+}
+//____________________________________________________________________________
+bool DISXSec::ValidKinematics(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  //-- Get neutrino energy in the struck nucleon rest frame
+  const InitialState & init_state = interaction -> GetInitialState();
+  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+
+  //-- Check the energy threshold
+  double Ethr = utils::kinematics::EnergyThreshold(interaction);
+  if(Ev <= Ethr) {
+     LOG("DISXSec", pINFO) << "E = " << Ev << " <= Ethreshold = " << Ethr;
+     return false;
+  }
+  return true;
 }
 //____________________________________________________________________________
 void DISXSec::Configure(const Registry & config)
@@ -197,8 +238,8 @@ bool DISXSec::IsWithinIntegrationRange(const Interaction * interaction) const
        << "\n Physical && User integration range: "
             << "W = [" << rW.min << ", " << rW.max << "] GeV "
                  << "Q2 = [" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-  // current W, Q2
 
+  // current W, Q2
   const InitialState & init_state = interaction -> GetInitialState();
 
   double x  = interaction->GetKinematics().x();

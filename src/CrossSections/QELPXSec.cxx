@@ -27,9 +27,11 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 QELPXSec::QELPXSec() :
@@ -53,8 +55,10 @@ double QELPXSec::XSec(const Interaction * interaction) const
 {
   LOG("QELPXSec", pDEBUG) << *fConfig;
 
-  //----- get kinematics & init-state parameters
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
 
+  //----- get kinematics & init-state parameters
   const Kinematics &   kinematics = interaction -> GetKinematics();
   const InitialState & init_state = interaction -> GetInitialState();
 
@@ -63,27 +67,14 @@ double QELPXSec::XSec(const Interaction * interaction) const
   double Mnuc = init_state.GetTarget().StruckNucleonMass();
   double q2   = kinematics.q2();
 
-  //----- "phase space" cuts
-  if (E < ml) return 0.;
-  if (utils::math::AreEqual( TMath::Abs(q2), 0.)) return 0.;
-
   //----- one of the xsec terms changes sign for antineutrinos
   int sign = 1;
   if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
 
   //----- calculate the QEL form factors
-
-  //-- instantiate a QELFormFactors object, attach a model & calculate
-
-  const Algorithm * algbase = this->SubAlg(
-                          "form-factors-alg-name", "form-factors-param-set");
-  const QELFormFactorsModelI * form_factors_model =
-                        dynamic_cast<const QELFormFactorsModelI *> (algbase);
-
   QELFormFactors form_factors;
-
-  form_factors.SetModel(form_factors_model); // <-- attach algorithm
-  form_factors.Calculate(interaction);       // <-- calculate
+  form_factors.SetModel(fFormFactorsModel); // <-- attach algorithm
+  form_factors.Calculate(interaction);      // <-- calculate
 
   double F1V   = form_factors.F1V();
   double xiF2V = form_factors.xiF2V();
@@ -117,8 +108,86 @@ double QELPXSec::XSec(const Interaction * interaction) const
   double term8 = (F1V_2 - xiF2V*xiF2V*q2/(4*Mnuc2) +FA_2 ) * s_u*s_u / (4*Mnuc2);
 
   //----- compute differential cross section
-  double CrossSection = Gfactor*(term1+term2+term3-term4+term5-term6+term7+term8);
-  return CrossSection;
+  double xsec = Gfactor*(term1+term2+term3-term4+term5-term6+term7+term8);
+  LOG("QELPXSec", pDEBUG)
+     << "dXSec[QEL]/dQ2 (E = " << E << ", Q2 = " << -q2 << ") = " << xsec;
+  return xsec;
 }
 //____________________________________________________________________________
+bool QELPXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
 
+  const InitialState & init_state = interaction->GetInitialState();
+  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+
+  if(!proc_info.IsQuasiElastic()) return false;
+
+  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
+  int  nu  = init_state.GetProbePDGCode();
+
+  bool isP   = pdg::IsProton(nuc);
+  bool isN   = pdg::IsNeutron(nuc);
+  bool isnu  = pdg::IsNeutrino(nu);
+  bool isnub = pdg::IsAntiNeutrino(nu);
+
+  bool ccprcok = proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu));
+  bool ncprcok = proc_info.IsWeakNC() && (isP||isN) && (isnu||isnub);
+  bool prcok   = ccprcok || ncprcok;
+  if(!prcok) return false;
+
+  return true;
+}
+//____________________________________________________________________________
+bool QELPXSec::ValidKinematics(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Ethr = utils::kinematics::EnergyThreshold(interaction);
+
+  LOG("QELPXSec", pDEBUG)
+       << "Computing QEL dXSec/dQ2 for Ev = " << E
+                            << " / Neutrino Energy Threshold = " << Ethr;
+  if(E <= Ethr) {
+     LOG("QELPXSec", pINFO) << "Ev = " << E << " <= Ethreshold = "<< Ethr;
+     return false;
+  }
+
+  double     Q2  = kinematics.Q2();
+  Range1D_t  rQ2 = utils::kinematics::Q2Range_M(interaction);
+
+  LOG("QELPXSec", pDEBUG) << "Q2 integration range = ("
+                                    << rQ2.min << ", " << rQ2.max << ")";
+  bool in_range = utils::math::IsWithinLimits(Q2, rQ2);
+  if(!in_range) {
+     LOG("QELPXSec", pDEBUG) << "Q2 = " << Q2 << ", not in allowed range";
+     return false;
+  }
+  return true;
+}
+//____________________________________________________________________________
+void QELPXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void QELPXSec::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void QELPXSec::LoadSubAlg(void)
+{
+  fFormFactorsModel = 0;
+
+  fFormFactorsModel = dynamic_cast<const QELFormFactorsModelI *> (
+             this->SubAlg("form-factors-alg-name", "form-factors-param-set"));
+  assert(fFormFactorsModel);
+}
+//____________________________________________________________________________

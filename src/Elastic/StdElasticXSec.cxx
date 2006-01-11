@@ -51,21 +51,8 @@ StdElasticXSec::~StdElasticXSec()
 //____________________________________________________________________________
 double StdElasticXSec::XSec(const Interaction * interaction) const
 {
-  //----- get differential cross section & integrator algorithms
-
-  LOG("InverseMuDecay", pDEBUG) << "Getting requested diff. xsec algorithm";
-
-  const XSecAlgorithmI * pxsec =
-          dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                        "partial-xsec-alg-name", "partial-xsec-param-set"));
-
-  LOG("InverseMuDecay", pDEBUG)
-           << "Getting requested integrator algorithm (or setting default)";
-
-  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
-  AlgFactory * algf = AlgFactory::Instance();
-  const IntegratorI * integrator =
-          dynamic_cast<const IntegratorI *> (algf->GetAlgorithm(intgr));
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
 
   //----- get initial & final state information
   const InitialState & init_state = interaction->GetInitialState();
@@ -74,27 +61,81 @@ double StdElasticXSec::XSec(const Interaction * interaction) const
   //----- integrate the differential cross section
   Range1D_t rQ2 = utils::kinematics::Q2Range_M(interaction);
 
-  const int    nsteps  = 201;
-  const double dQ2     = (rQ2.max-rQ2.min)/(nsteps-1);
+  const double logQ2min = TMath::Log(rQ2.min);
+  const double logQ2max = TMath::Log(rQ2.max);
+  const double dlogQ2   = (logQ2max-logQ2min)/(fNBins-1);
 
   UnifGrid grid;
-  grid.AddDimension(nsteps, rQ2.min, rQ2.max);
+  grid.AddDimension(fNBins, logQ2min, logQ2max);
 
   FunctionMap fmap(grid);
 
-  for(int i = 0; i < nsteps; i++) {
+  for(int i = 0; i < fNBins; i++) {
 
-    double Q2  = rQ2.min + i * dQ2;
+    double Q2  = TMath::Exp(logQ2min + i * dlogQ2);
     interaction->GetKinematicsPtr()->SetQ2(Q2);
 
-    double dsig_dQ2  = pxsec->XSec(interaction);
-    fmap.AddPoint(dsig_dQ2, i);
+    double dsig_dQ2  = fDiffXSecModel->XSec(interaction);
+    fmap.AddPoint(Q2*dsig_dQ2, i);
   }
 
-  double sig = integrator->Integrate(fmap);
-
-  LOG("InverseMuDecay", pDEBUG) << "*** xsec[IMD (E=" << E << ")] = " << sig;
-
-  return sig;
+  double xsec = fIntegrator->Integrate(fmap);
+  LOG("Elastic", pDEBUG) << "*** XSec[EL] (E=" << E << ") = " << xsec;
+  return xsec;
 }
 //____________________________________________________________________________
+bool StdElasticXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  return true;
+}
+//____________________________________________________________________________
+bool StdElasticXSec::ValidKinematics(const Interaction* interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  return true;
+}
+//____________________________________________________________________________
+void StdElasticXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void StdElasticXSec::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void StdElasticXSec::LoadConfig(void)
+{
+// Reads its configuration from its Registry and loads all the sub-algorithms
+// needed and sets configuration variables to avoid looking up at the Registry
+// all the time.
+
+  //----- Get an algorithm to calculate differential cross sections dxsec/dQ2
+  fDiffXSecModel =
+          dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
+                         "partial-xsec-alg-name", "partial-xsec-param-set"));
+  assert(fDiffXSecModel);
+
+  //----- Get an integrator
+  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
+
+  AlgFactory * algf = AlgFactory::Instance();
+  fIntegrator = dynamic_cast<const IntegratorI *>(algf->GetAlgorithm(intgr));
+
+  assert(fIntegrator);
+
+  //----- get the input number of dxsec/dlogQ2 points for num. integration
+  //      or use a default if no number is specified
+  //      (must be odd number for the Simpson rule)
+  fNBins = fConfig->GetIntDef("N-logQ2-bins", 131);
+  LOG("Elastic", pDEBUG) << "Number of integration (logQ2) bins = " << fNBins;
+  assert(fNBins>2);
+}
+//____________________________________________________________________________
+

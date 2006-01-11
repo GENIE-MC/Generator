@@ -22,6 +22,8 @@
 
 namespace genie {
 
+class DISStructureFuncModelI;
+
 class DISPartonModelPXSec : public XSecAlgorithmI {
 
 public:
@@ -31,8 +33,20 @@ public:
   virtual ~DISPartonModelPXSec();
 
   //-- XSecAlgorithmI interface implementation
+  double XSec            (const Interaction * interaction) const;
+  bool   ValidProcess    (const Interaction * interaction) const;
+  bool   ValidKinematics (const Interaction * interaction) const;
 
-  double XSec (const Interaction * interaction) const;
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
+
+private:
+
+  void LoadSubAlg (void);
+
+  const DISStructureFuncModelI * fDISSFModel;
 };
 
 }       // genie namespace

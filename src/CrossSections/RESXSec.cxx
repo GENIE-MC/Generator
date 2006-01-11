@@ -24,6 +24,7 @@
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
+#include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 
@@ -48,21 +49,23 @@ RESXSec::~RESXSec()
 
 }
 //____________________________________________________________________________
-double RESXSec::XSec(const Interaction * interaction) const
+double RESXSec::XSec(const Interaction * in) const
 {
-  LOG("RESXSec", pINFO) << *fConfig;
+  LOG("RESXSec", pDEBUG) << *fConfig;
+
+  if(! this -> ValidProcess    (in) ) return 0.;
+  if(! this -> ValidKinematics (in) ) return 0.;
+
+  Interaction * interaction = new Interaction(*in);
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
 
   //-- Get neutrino energy in the struck nucleon rest frame
   const InitialState & init_state = interaction -> GetInitialState();
   double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
 
-  //-- check energy threshold
-  double EvThr = utils::kinematics::EnergyThreshold(interaction);
-  if(Ev <= EvThr) return 0.;
-
   //-- Get W integration range
   Range1D_t rW = this->WRange(interaction);
-
   double dW = (rW.max - rW.min) / (fNW-1);
 
   //-- Define the integration grid & instantiate a FunctionMap
@@ -73,7 +76,6 @@ double RESXSec::XSec(const Interaction * interaction) const
 
   //-- loop over the phase space points & compute the cross section
   for(int i = 0; i < fNW; i++) {
-
     double W = rW.min + i*dW;
     interaction->GetKinematicsPtr()->SetW(W);
 
@@ -83,10 +85,9 @@ double RESXSec::XSec(const Interaction * interaction) const
     double d1xsec = 0.; // Q2*d^2xsec/dWdQ2 integral over logQ2
 
     if(TMath::Abs(rQ2.max-rQ2.min) > 1e-3) {
-
       double logQ2min = TMath::Log( rQ2.min );
       double logQ2max = TMath::Log( rQ2.max );
-      double dlogQ2   = ( logQ2max - logQ2min) / (fNlogQ2-1);
+      double dlogQ2   = (logQ2max - logQ2min) / (fNlogQ2-1);
 
       UnifGrid gridQ2;
       gridQ2.AddDimension(fNlogQ2, logQ2min, logQ2max);
@@ -94,7 +95,6 @@ double RESXSec::XSec(const Interaction * interaction) const
       FunctionMap Q2d2xsec_dWdQ2(gridQ2); // Q2*d^2xsec/dWdQ2 vs Q2 [@ fixed W]
 
       for(int j = 0; j < fNlogQ2; j++) {
-
         double Q2 = TMath::Exp(logQ2min + j * dlogQ2);
         interaction->GetKinematicsPtr()->SetQ2(Q2);
 
@@ -110,7 +110,6 @@ double RESXSec::XSec(const Interaction * interaction) const
 
       //-- integrate d^2xsec/dWdQ2 over logQ2
       d1xsec = fIntegrator->Integrate(Q2d2xsec_dWdQ2);
-
     } // Q2min != Q2max
 
     SLOG("RESXSec", pDEBUG)
@@ -123,10 +122,40 @@ double RESXSec::XSec(const Interaction * interaction) const
 
   //----- integrate dxsec/dW over W
   double xsec = fIntegrator->Integrate(dxsec_dW);
-
   SLOG("RESXSec", pINFO)  << "xsec[RES] (Ev = " << Ev << " GeV) = " << xsec;
-
   return xsec;
+}
+//____________________________________________________________________________
+bool RESXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  const InitialState & init_state = interaction->GetInitialState();
+  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+
+  if(!proc_info.IsResonant()) return false;
+  if(!proc_info.IsWeak())     return false;
+
+  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
+  int  nu  = init_state.GetProbePDGCode();
+
+  if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
+  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
+
+  return true;
+}
+//____________________________________________________________________________
+bool RESXSec::ValidKinematics(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const InitialState & init_state = interaction -> GetInitialState();
+  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
+
+  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  if(Ev <= EvThr) return false;
+
+  return true;
 }
 //____________________________________________________________________________
 void RESXSec::Configure(const Registry & config)

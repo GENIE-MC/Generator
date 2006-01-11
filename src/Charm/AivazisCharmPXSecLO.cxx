@@ -65,78 +65,40 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
 {
   LOG("AivazisCharm", pDEBUG) << *fConfig;
 
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
   //----- get init-state & kinematical parameters
   const Kinematics &   kinematics = interaction -> GetKinematics();
   const InitialState & init_state = interaction -> GetInitialState();
 
-  double Mnuc = kNucleonMass; // or use init_state->HitNucleon->Mass; ?
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
-  double x    = kinematics.x();
-  double y    = kinematics.y();
-
-  //----- make sure that x, y are in the physically acceptable region
-  if(x<=0 || x>1) return 0;
-  if(y<=0 || y>1) return 0;
-
-  //----- get charm mass & CKM elements -- get constants unless they
-  //      are overriden in the config registry
-  double mcdef = PDGLibrary::Instance()->Find(kPdgCQuark)->Mass();
-  double mc    = fConfig->GetDoubleDef("c-quark-mass", mcdef);
-  double Vcd   = fConfig->GetDoubleDef("Vcd", kVcd);
-  double Vcs   = fConfig->GetDoubleDef("Vcs", kVcs);
-  double mc2   = TMath::Power(mc,  2);
-  double Vcd2  = TMath::Power(Vcd, 2);
-  double Vcs2  = TMath::Power(Vcs, 2);
-
   //----- compute kinematic & auxiliary parameters
-
+  double E           = init_state.GetProbeE(kRfStruckNucAtRest);
+  double x           = kinematics.x();
+  double y           = kinematics.y();
   double x2          = TMath::Power(x,    2);
+  double Mnuc        = kNucleonMass; // or use init_state->HitNucleon->Mass; ?
   double Mnuc2       = TMath::Power(Mnuc, 2);
   double Q2          = 2*Mnuc*E*x*y;
   double W2          = Mnuc2 + 2*Mnuc*E*y*(1-x);
   double W           = TMath::Max(0., TMath::Sqrt(W2));
   double inverse_eta = 0.5/x + TMath::Sqrt( 0.25/x2 + Mnuc2/Q2 );
   double eta         = 1 / inverse_eta;
-  double xi          = eta * (1 + mc2/Q2);
+  double xi          = eta * (1 + fMc2/Q2);
   double coshpsi     = (2-y)/y; // hyperbolic-cosine(psi)
   double sinh2psi    = TMath::Power(coshpsi, 2) - 1;
 
   //----- make sure that the mass-corrected x is in physical region
-
   if(xi<=0 || xi>1) return 0;
 
-  //----- Get the physical W and Q2 range and check whether the current W,Q2
-  //      pair is allowed
-
-  Range1D_t rW  = utils::kinematics::WRange     (interaction);
-  Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
-
-  bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
-                                        && utils::math::IsWithinLimits(W, rW);
-
-  if(!in_range) {
-    LOG("AivazisCharm", pDEBUG)
-        << "\n W: " << "[" << rW.min << ", " << rW.max << "] GeV"
-                 << " Q2: "<< "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-    LOG("AivazisCharm", pDEBUG)
-        << "\n (W = " << W << ", Q2 = " << Q2 << " is not in physical range"
-        << " - returning 0";
-    return 0;
-  }
-
   //----- Calculate the PDFs
-
-  const Algorithm * algbase = this->SubAlg("pdf-alg-name", "pdf-param-set");
-
-  const PDFModelI* pdf_model = dynamic_cast<const PDFModelI *>(algbase);
-
   PDF pdfs;
-
-  pdfs.SetModel(pdf_model);   // <-- attach algorithm
+  pdfs.SetModel(fPDFModel);  // <-- attach algorithm
   pdfs.Calculate(xi, Q2);    // <-- calculate
 
-  bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
-  bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );
+  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
+  bool isP = pdg::IsProton (nuc);
+  bool isN = pdg::IsNeutron(nuc);
 
   double d = 0;
 
@@ -149,31 +111,19 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   d /= xi;
   s /= xi;
 
-
-  //----- Check if we compute contributions from both d and s quarks
-
-  bool d_contributes = true;
-  bool s_contributes = true;
-
-  if( fConfig->Exists("d-contrib-switch") )
-                      fConfig->Get("d-contrib-switch", d_contributes);
-  if( fConfig->Exists("s-contrib-switch") )
-                      fConfig->Get("s-contrib-switch", s_contributes);
-
   //----- Calculate cross section
-
   double Gw  = (kGF/kSqrt2) * (1 + Q2/kMw_2);
   double Gw2 = TMath::Power(Gw, 2);
   double tmp = Gw2 * (y*Q2/kPi) *
-                   (TMath::Power((1+coshpsi)/2, 2) + (0.5*mc2/Q2)*sinh2psi/2);
+                   (TMath::Power((1+coshpsi)/2, 2) + (0.5*fMc2/Q2)*sinh2psi/2);
   double xsec = 0;
 
-  if(d_contributes) {
-      double xsec_d = 2 * Vcd2 * d * tmp;
+  if(fDContributes) {
+      double xsec_d = 2 * fVcd2 * d * tmp;
       xsec += xsec_d;
   }
-  if(s_contributes) {
-      double xsec_s = 2 * Vcs2 * s * tmp;
+  if(fSContributes) {
+      double xsec_s = 2 * fVcs2 * s * tmp;
       xsec += xsec_s;
   }
 
@@ -184,3 +134,115 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   return xsec;
 }
 //____________________________________________________________________________
+bool AivazisCharmPXSecLO::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  const XclsTag &      xcls       = interaction->GetExclusiveTag();
+  const InitialState & init_state = interaction->GetInitialState();
+  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+
+  if(!proc_info.IsDeepInelastic()) return false;
+  if(!proc_info.IsWeak())          return false;
+
+  bool is_inclusive_charm = (xcls.IsCharmEvent() && xcls.IsInclusiveCharm());
+  if(!is_inclusive_charm) return false;
+
+  int  nu  = init_state.GetProbePDGCode();
+  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
+
+  if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
+  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
+
+  return true;
+}
+//____________________________________________________________________________
+bool AivazisCharmPXSecLO::ValidKinematics(
+                                        const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
+
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double x    = kinematics.x();
+  double y    = kinematics.y();
+
+  if(x<=0 || x>=1) {
+    LOG("AivazisCharm", pDEBUG) << "x is unphysical or at limit, x = " << x;
+    return false;
+  }
+  if(y<=0 || y>=1) {
+    LOG("AivazisCharm", pDEBUG) << "x is unphysical or at limit, x = " << y;
+    return false;
+  }
+
+  double Mnuc  = kNucleonMass; // or use init_state->HitNucleon->Mass; ?
+  double Mnuc2 = TMath::Power(Mnuc, 2);
+  double Q2    = 2*Mnuc*E*x*y;
+  double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
+  double W     = TMath::Max(0., TMath::Sqrt(W2));
+
+  //----- Get the physical W and Q2 range and check whether the current W,Q2
+  //      pair is allowed
+  Range1D_t rW  = utils::kinematics::WRange     (interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
+
+  bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
+                                        && utils::math::IsWithinLimits(W, rW);
+  if(!in_range) {
+    LOG("AivazisCharm", pDEBUG)
+        << "\n W: " << "[" << rW.min << ", " << rW.max << "] GeV"
+                 << " Q2: "<< "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
+    LOG("AivazisCharm", pDEBUG)
+        << "\n (W = " << W << ", Q2 = " << Q2 << " is not in physical range"
+        << " - returning 0";
+    return false;
+  }
+  return true;
+}
+//____________________________________________________________________________
+void AivazisCharmPXSecLO::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void AivazisCharmPXSecLO::Configure(string param_set)
+{
+  Algorithm::Configure(param_set);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void AivazisCharmPXSecLO::LoadConfigData(void)
+{
+  // default charm mass
+  double mcdef = PDGLibrary::Instance()->Find(kPdgCQuark)->Mass();
+
+  // read mc, Vcd, Vcs from config or set defaults
+  fMc    = fConfig->GetDoubleDef("c-quark-mass", mcdef);
+  fVcd   = fConfig->GetDoubleDef("Vcd", kVcd);
+  fVcs   = fConfig->GetDoubleDef("Vcs", kVcs);
+
+  fMc2   = TMath::Power(fMc,  2);
+  fVcd2  = TMath::Power(fVcd, 2);
+  fVcs2  = TMath::Power(fVcs, 2);
+
+  // check if we compute contributions from both d and s quarks
+  fDContributes = fConfig->GetBoolDef("d-contrib-switch", true);
+  fSContributes = fConfig->GetBoolDef("s-contrib-switch", true);
+}
+//____________________________________________________________________________
+void AivazisCharmPXSecLO::LoadSubAlg(void)
+{
+  // load PDF set
+  fPDFModel = 0;
+  fPDFModel = dynamic_cast<const PDFModelI *> (
+                           this->SubAlg("pdf-alg-name", "pdf-param-set"));
+  assert(fPDFModel);
+}
+//____________________________________________________________________________
+
