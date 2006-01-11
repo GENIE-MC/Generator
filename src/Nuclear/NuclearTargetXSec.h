@@ -32,7 +32,9 @@ public:
   virtual ~NuclearTargetXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec (const Interaction * interaction) const;
+  double XSec            (const Interaction * interaction) const;
+  bool   ValidProcess    (const Interaction * interaction) const;
+  bool   ValidKinematics (const Interaction * interaction) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members

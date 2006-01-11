@@ -102,6 +102,16 @@ double NuclearTargetXSec::XSec(const Interaction * interaction) const
   return xsec;
 }
 //____________________________________________________________________________
+bool NuclearTargetXSec::ValidProcess(const Interaction * /*in*/) const
+{
+  return true;
+}
+//____________________________________________________________________________
+bool NuclearTargetXSec::ValidKinematics(const Interaction * /*in*/) const
+{
+  return true;
+}
+//____________________________________________________________________________
 void NuclearTargetXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
