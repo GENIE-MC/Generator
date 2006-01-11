@@ -281,7 +281,7 @@
      <param type="string" name="section-0-conf">  Rein-Seghal-Default            </param>
   </param_set>
 
-  <param_set name="PL-Exclusive-XSec"> 
+  <param_set name="RS-Exclusive-XSec"> 
      <param type="int"    name="n-sections">      1                              </param>
      <param type="string" name="section-0-alg">   genie::VldReinSeghalExclusiveXSec </param>
      <param type="string" name="section-0-conf">  Default                           </param>

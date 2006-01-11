@@ -2,34 +2,14 @@
 
 <alg_conf>
 
-  Bardin-Dokuchaeva model configuration for v CC, d -> u
+  Bardin-Dokuchaeva model configuration for v+d(->u) CC and v-bar+u(->d) CC
 
-  <param_set name="CC-d-u"> 
+  <param_set name="CC"> 
      <param type="string" name="pdf-alg-name">         genie::PDFLIB    </param>
      <param type="string" name="pdf-param-set">        GRVLO            </param>
      <param type="string" name="integrator">           genie::Simpson1D </param>
-     <param type="int"    name="init-quark-pdg-code">  1                </param>
-     <param type="int"    name="final-quark-pdg-code"> 2                </param>
      <param type="double" name="final-quark-mass">     0.2              </param>
-  </param_set>
-
-  Bardin-Dokuchaeva model configuration for v-bar CC, u -> d
-
-  <param_set name="CC-d-u"> 
-     <param type="string" name="pdf-alg-name">         genie::PDFLIB    </param>
-     <param type="string" name="pdf-param-set">        GRVLO            </param>
-     <param type="string" name="integrator">           genie::Simpson1D </param>
-     <param type="int"    name="init-quark-pdg-code">  2                </param>
-     <param type="int"    name="final-quark-pdg-code"> 1                </param>
-     <param type="double" name="final-quark-mass">     0.1              </param>
   </param_set>
 
 </alg_conf>
 
-<!--
- 
-Comments:
-
-1.  Use param Vckm to override standard CKM elements
-       
--->

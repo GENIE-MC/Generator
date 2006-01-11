@@ -12,8 +12,6 @@
      <param type="string" name="xsec-alg-name">    genie::RESXSec           </param>
      <param type="string" name="xsec-param-set">   Rein-Seghal              </param>
 
-     <param type="int"    name="neutrino-pdg-code">   14       </param>
-
      <param type="int"    name="n-logE-bins">        15        </param>
      <param type="double" name="E-min">              0.5       </param>
      <param type="double" name="E-max">              8.0       </param>
