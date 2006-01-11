@@ -26,6 +26,7 @@
   <priority msgstream="Algorithm">           INFO   </priority>
   <priority msgstream="AlgConfigPool">       INFO   </priority>
   <priority msgstream="AivazisCharm">        INFO   </priority>
+  <priority msgstream="BardinIMD">           WARN   </priority>
   <priority msgstream="BaryonResList">       WARN   </priority>
   <priority msgstream="BreitWignet">         INFO   </priority>
   <priority msgstream="Bardin">              INFO   </priority>
@@ -56,7 +57,7 @@
   <priority msgstream="GHepParticle">        INFO   </priority>
   <priority msgstream="GuiUtils">            INFO   </priority>
   <priority msgstream="HadronicVertex">      INFO   </priority>
-  <priority msgstream="InverseMuDecay">      WARN   </priority>
+  <priority msgstream="IMD">                 WARN   </priority>
   <priority msgstream="IMDTargetRemnant">    INFO   </priority>
   <priority msgstream="IMDKinematics">       INFO   </priority>
   <priority msgstream="InteractionSelector"> INFO   </priority>
