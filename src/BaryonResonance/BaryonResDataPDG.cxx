@@ -17,6 +17,7 @@
 
 #include "BaryonResonance/BaryonResDataPDG.h"
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Messenger/Messenger.h"
 
 using std::endl;
 
@@ -51,49 +52,77 @@ BaryonResDataPDG::~BaryonResDataPDG()
 int BaryonResDataPDG::ResonanceIndex(Resonance_t res) const
 {
   map<Resonance_t, int>::const_iterator it = fResIdx.find(res);
-  assert(it != fResIdx.end());
+  if(it == fResIdx.end()){
+    LOG("PDGResData", pFATAL) 
+         << "No data for resonance = " << AsString(res);
+    abort();
+  }
   return it->second;
 }
 //____________________________________________________________________________
 int BaryonResDataPDG::OrbitalAngularMom(Resonance_t res) const
 {
   map<Resonance_t, int>::const_iterator it = fResL.find(res);
-  assert(it != fResL.end());
+  if(it == fResL.end()){
+    LOG("PDGResData", pFATAL) 
+         << "No data for resonance = " << AsString(res);
+    abort();
+  }
   return it->second;
 }
 //____________________________________________________________________________
 bool BaryonResDataPDG::IsDeltaResonance(Resonance_t res) const
 {
   map<Resonance_t, bool>::const_iterator it = fIsD.find(res);
-  assert(it != fIsD.end());
+  if(it == fIsD.end()){
+    LOG("PDGResData", pFATAL) 
+         << "No data for resonance = " << AsString(res);
+    abort();
+  }
   return it->second;
 }
 //____________________________________________________________________________
 bool BaryonResDataPDG::IsNResonance(Resonance_t res) const
 {
   map<Resonance_t, bool>::const_iterator it = fIsN.find(res);
-  assert(it != fIsN.end());
+  if(it == fIsN.end()){
+    LOG("PDGResData", pFATAL) 
+         << "No data for resonance = " << AsString(res);
+    abort();
+  }
   return it->second;
 }
 //____________________________________________________________________________
 double BaryonResDataPDG::Mass(Resonance_t res) const
 {
   map<Resonance_t, double>::const_iterator it = fResMass.find(res);
-  assert(it != fResMass.end());
+  if(it == fResMass.end()){
+    LOG("PDGResData", pFATAL) 
+         << "No data for resonance = " << AsString(res);
+    abort();
+  }
   return it->second;
 }
 //____________________________________________________________________________
 double BaryonResDataPDG::Width(Resonance_t res) const
 {
   map<Resonance_t, double>::const_iterator it = fResWidth.find(res);
-  assert(it != fResWidth.end());
+  if(it == fResWidth.end()){
+    LOG("PDGResData", pFATAL) 
+         << "No data for resonance = " << AsString(res);
+    abort();
+  }
   return it->second;
 }
 //____________________________________________________________________________
 double BaryonResDataPDG::BreitWignerNorm(Resonance_t res) const
 {
   map<Resonance_t, double>::const_iterator it = fResNorm.find(res);
-  assert(it != fResNorm.end());
+  if(it == fResNorm.end()){
+    LOG("PDGResData", pFATAL) 
+         << "No data for resonance = " << AsString(res);
+    abort();
+  }
   return it->second;
 }
 //____________________________________________________________________________
