@@ -7,6 +7,5 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::BardinIMDRadCorPXSec;
-#pragma link C++ class genie::BardinIMDRadCorXSec;
 
 #endif
