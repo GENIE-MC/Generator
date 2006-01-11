@@ -35,6 +35,9 @@ using std::string;
 
 namespace genie {
 
+const UInt_t kISkipProcessChk   = 1<<17;
+const UInt_t kISkipKinematicChk = 1<<16;
+
 class Interaction : public TObject {
 
 public:
