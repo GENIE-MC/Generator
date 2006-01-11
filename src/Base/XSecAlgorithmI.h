@@ -9,7 +9,7 @@
           CCLRC, Rutherford Appleton Laboratory
 
 \created  May 03, 2004
- 
+
 */
 //____________________________________________________________________________
 
@@ -27,13 +27,15 @@ public:
 
   virtual ~XSecAlgorithmI();
 
-  virtual double XSec (const Interaction * interaction) const = 0;
+  virtual double XSec            (const Interaction * in) const = 0;
+  virtual bool   ValidProcess    (const Interaction * in) const = 0;
+  virtual bool   ValidKinematics (const Interaction * in) const = 0;
 
 protected:
 
   XSecAlgorithmI();
-  XSecAlgorithmI(string name);  
-  XSecAlgorithmI(string name, string config);  
+  XSecAlgorithmI(string name);
+  XSecAlgorithmI(string name, string config);
 };
 
 }       // genie namespace
