@@ -36,7 +36,7 @@
   </param_set>
 
   <param_set name="IMD-Default"> 
-     <param type="string" name="free-particle-xsec-alg-name">   genie::BardinIMDRadCorXSec  </param>
+     <param type="string" name="free-particle-xsec-alg-name">   genie::IMDXSec              </param>
      <param type="string" name="free-particle-xsec-param-set">  Default                     </param>
   </param_set>
 
