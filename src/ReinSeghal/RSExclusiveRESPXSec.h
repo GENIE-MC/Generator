@@ -61,7 +61,9 @@ public:
   virtual ~RSExclusiveRESPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec (const Interaction * interaction) const;
+  double XSec            (const Interaction * interaction) const;
+  bool   ValidProcess    (const Interaction * interaction) const;
+  bool   ValidKinematics (const Interaction * interaction) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
@@ -69,6 +71,7 @@ public:
   void Configure(string config);
 
 private:
+
   void LoadSubAlg       (void);
   void GetResonanceList (void);
 

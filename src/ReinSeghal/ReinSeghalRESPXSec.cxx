@@ -72,11 +72,10 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 {
   LOG("ReinSeghalRes", pDEBUG) << *fConfig;
 
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
   //----- Get kinematical & init-state parameters
-
-  LOG("ReinSeghalRes", pDEBUG)
-                        << "Getting scattering and initial-state parameters";
-
   const Kinematics &   kinematics = interaction -> GetKinematics();
   const InitialState & init_state = interaction -> GetInitialState();
 
@@ -85,24 +84,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double q2   = kinematics.q2();
   double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
 
-  //-- Check energy threshold & kinematical limits in q2, W
-  double EvThr = utils::kinematics::EnergyThreshold(interaction);
-  if(E <= EvThr) {
-    LOG("ReinSeghalRes", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
-    return 0;
-  }
-
-  //-- Check against physical range in W and Q2
-
-  Range1D_t rW  = utils::kinematics::WRange(interaction);
-  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
-
-  bool in_physical_range = utils::math::IsWithinLimits(W, rW) &&
-                           utils::math::IsWithinLimits(-q2, rQ2);
-  if(!in_physical_range) return 0;
-
   //-- Get the input baryon resonance
-
   assert(interaction->GetExclusiveTag().KnownResonance());
   Resonance_t resonance = interaction->GetExclusiveTag().Resonance();
 
@@ -136,7 +118,6 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double UV     = U*V;
 
   //-- Calculate the Feynman-Kislinger-Ravndall parameters
-
   LOG("ReinSeghalRes", pDEBUG) << "Computing the FKR parameters";
 
   FKR fkr;
@@ -151,7 +132,6 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
                    << utils::res::AsString(resonance) << "]: " << fkr;
 
   //-- Calculate the Rein-Seghal Helicity Amplitudes
-
   LOG("ReinSeghalRes", pDEBUG) << "Computing SPP Helicity Amplitudes";
 
   RSHelicityAmpl hampl;
@@ -170,7 +150,6 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double amp_0_plus   = hampl.Amp0Plus  ();
 
   //-- Calculate Helicity Cross Sections
-
   double xsec_left   = TMath::Power( amp_plus_3,  2. ) +
                        TMath::Power( amp_plus_1,  2. );
   double xsec_right  = TMath::Power( amp_minus_3, 2. ) +
@@ -222,6 +201,57 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
           << ", q2=" << q2 << ", E=" << E << "](="<< xsec << ")> = " << wxsec;
 
   return wxsec;
+}
+//____________________________________________________________________________
+bool ReinSeghalRESPXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  const InitialState & init_state = interaction->GetInitialState();
+  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const XclsTag &      xcls       = interaction->GetExclusiveTag();
+
+  if(!proc_info.IsResonant()) return false;
+  if(!proc_info.IsWeak())     return false;
+
+  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
+  int  nu  = init_state.GetProbePDGCode();
+
+  if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
+  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
+
+  if(!xcls.KnownResonance()) return false;
+
+  return true;
+}
+//____________________________________________________________________________
+bool ReinSeghalRESPXSec::ValidKinematics(const Interaction* interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
+
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double W    = kinematics.W();
+  double q2   = kinematics.q2();
+
+  //-- Check energy threshold & kinematical limits in q2, W
+  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  if(E <= EvThr) {
+    LOG("ReinSeghalRes", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
+    return false;
+  }
+
+  //-- Check against physical range in W and Q2
+  Range1D_t rW  = utils::kinematics::WRange(interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
+
+  bool in_physical_range = utils::math::IsWithinLimits(W, rW) &&
+                           utils::math::IsWithinLimits(-q2, rQ2);
+  if(!in_physical_range) return false;
+
+  return true;
 }
 //____________________________________________________________________________
 void ReinSeghalRESPXSec::Configure(const Registry & config)
