@@ -62,28 +62,19 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
 {
   LOG("ReinSeghalCoh", pDEBUG) << *fConfig;
 
-  //----- Get kinematical & init-state parameters
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
 
   const Kinematics &   kinematics = interaction -> GetKinematics();
   const InitialState & init_state = interaction -> GetInitialState();
 
+  //----- Compute the coherent NC pi0 production d2xsec/dxdy
+  //      see page 34 in Nucl.Phys.B223:29-144 (1983)
   double E      = init_state.GetProbeE(kRfLab); // neutrino energy
   double Mnuc   = kNucleonMass;
   double Mpi    = kPionMass;
   double x      = kinematics.x(); // bjorken x
   double y      = kinematics.y(); // inelasticity y
-
-  if (E<=Mpi || x<=0 || x>=1 || y<=Mpi/E || y>=1) {
-
-    LOG("ReinSeghalCoh", pINFO)
-                 << "d2xsec/dxdy[COH] (x= " << x << ", y="
-                                             << y << ", E=" << E << ") = 0";
-    return 0.;
-  }
-
-  //----- Compute the coherent NC pi0 production d2xsec/dxdy
-  //      see page 34 in Nucl.Phys.B223:29-144 (1983)
-
   double Q2     = 2.*x*y*Mnuc*E;  // momentum transfer Q2>0
   double A      = (double) init_state.GetTarget().A(); // mass number
   double A2     = TMath::Power(A,2.);
@@ -137,6 +128,46 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
                 << "d2xsec/dxdy[COH] (x= " << x << ", y="
                                          << y << ", E=" << E << ") = "<< xsec;
   return xsec;
+}
+//____________________________________________________________________________
+bool ReinSeghalCOHPXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  const InitialState & init_state = interaction->GetInitialState();
+  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const Target &       target     = init_state.GetTarget();
+
+  int nu = init_state.GetProbePDGCode();
+
+  if (!proc_info.IsCoherent())     return false;
+  if (!proc_info.IsWeak())         return false;
+  if (target.StruckNucleonIsSet()) return false;
+  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
+
+  return true;
+}
+//____________________________________________________________________________
+bool ReinSeghalCOHPXSec::ValidKinematics(const Interaction* interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
+
+  double E   = init_state.GetProbeE(kRfLab); // neutrino energy
+  double Mpi = kPionMass;
+  double x   = kinematics.x(); // bjorken x
+  double y   = kinematics.y(); // inelasticity y
+
+  if (E<=Mpi || x<=0 || x>=1 || y<=Mpi/E || y>=1) {
+
+    LOG("ReinSeghalCoh", pINFO)
+             << "d2xsec/dxdy[COH] (x= " << x << ", y="
+                                             << y << ", E=" << E << ") = 0";
+    return false;
+  }
+  return true;
 }
 //____________________________________________________________________________
 void ReinSeghalCOHPXSec::Configure(const Registry & config)

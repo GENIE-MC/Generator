@@ -53,6 +53,9 @@ double RSSingleRESPXSec::XSec(const Interaction * interaction) const
 {
   LOG("ReinSeghalRes", pDEBUG) << *fConfig;
 
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
   //-- Find out the weak current & the struck nucleon pdg code
   const InitialState & init_state = interaction->GetInitialState();
   int nucleon_pdgc = init_state.GetTarget().StruckNucleonPDGCode();
@@ -86,6 +89,16 @@ double RSSingleRESPXSec::XSec(const Interaction * interaction) const
   return xsec;
 }
 //____________________________________________________________________________
+bool RSSingleRESPXSec::ValidProcess(const Interaction * /*in*/) const
+{
+  return true;
+}
+//____________________________________________________________________________
+bool RSSingleRESPXSec::ValidKinematics(const Interaction * /*in*/) const
+{
+  return true;
+}
+//____________________________________________________________________________
 void RSSingleRESPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -106,12 +119,12 @@ void RSSingleRESPXSec::LoadSubAlg(void)
   fRSNCp = 0;
   fRSNCn = 0;
 
-  fRSCC  = dynamic_cast<const XSecAlgorithmI *>
-                             (this->SubAlg("CC-alg-name","CC-param-set"));
-  fRSNCp = dynamic_cast<const XSecAlgorithmI *>
-                             (this->SubAlg("CC-alg-name","NC-p-param-set"));
-  fRSNCn = dynamic_cast<const XSecAlgorithmI *>
-                             (this->SubAlg("CC-alg-name","NC-n-param-set"));
+  fRSCC  = dynamic_cast<const XSecAlgorithmI *> (
+                             this->SubAlg("CC-alg-name","CC-param-set"));
+  fRSNCp = dynamic_cast<const XSecAlgorithmI *> (
+                             this->SubAlg("CC-alg-name","NC-p-param-set"));
+  fRSNCn = dynamic_cast<const XSecAlgorithmI *> (
+                             this->SubAlg("CC-alg-name","NC-n-param-set"));
   assert(fRSCC);
   assert(fRSNCp);
   assert(fRSNCn);

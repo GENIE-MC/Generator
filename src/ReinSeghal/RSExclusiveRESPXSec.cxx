@@ -46,11 +46,15 @@
 
 #include "Algorithm/AlgFactory.h"
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/Constants.h"
 #include "Interaction/SppChannel.h"
 #include "Messenger/Messenger.h"
 #include "ReinSeghal/RSExclusiveRESPXSec.h"
+#include "Utils/KineUtils.h"
+#include "Utils/MathUtils.h"
 
 using namespace genie;
+using namespace genie::constants;
 
 //____________________________________________________________________________
 RSExclusiveRESPXSec::RSExclusiveRESPXSec() :
@@ -74,16 +78,10 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
 {
   LOG("ReinSeghalRes", pINFO) << *fConfig;
 
-  //-- Get the requested SPP channel
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-  if( spp_channel == kSppNull ) {
-    LOG("ReinSeghalRes", pERROR)
-            << "\n *** Insufficient SPP exclusive final state information!";
-    return 0;
-  } else {
-     LOG("ReinSeghalRes", pINFO)
-                       << "Reaction: " << SppChannel::AsString(spp_channel);
-  }
 
   //-- Loop over the specified list of baryon resonances and compute
   //   the total weighted cross section
@@ -137,6 +135,51 @@ double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
   LOG("ReinSeghalRes", pINFO) << "d^2 xsec/ dQ^2 dW = " << xsec;
 
   return xsec;
+}
+//____________________________________________________________________________
+bool RSExclusiveRESPXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  //-- Get the requested SPP channel
+  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
+  if( spp_channel == kSppNull ) {
+    LOG("ReinSeghalRes", pERROR)
+            << "\n *** Insufficient SPP exclusive final state information!";
+    return false;
+  }
+  LOG("ReinSeghalRes", pINFO)
+                       << "Reaction: " << SppChannel::AsString(spp_channel);
+  return true;
+}
+//____________________________________________________________________________
+bool RSExclusiveRESPXSec::ValidKinematics(const Interaction* interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
+
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double W    = kinematics.W();
+  double q2   = kinematics.q2();
+
+  //-- Check energy threshold & kinematical limits in q2, W
+  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  if(E <= EvThr) {
+    LOG("ReinSeghalRes", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
+    return false;
+  }
+
+  //-- Check against physical range in W and Q2
+  Range1D_t rW  = utils::kinematics::WRange(interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
+
+  bool in_physical_range = utils::math::IsWithinLimits(W, rW) &&
+                           utils::math::IsWithinLimits(-q2, rQ2);
+  if(!in_physical_range) return false;
+
+  return true;
 }
 //____________________________________________________________________________
 void RSExclusiveRESPXSec::Configure(const Registry & config)
