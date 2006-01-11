@@ -13,7 +13,7 @@
           specified double differential cross section.
 
           Is a concrete implementation of the XSecAlgorithmI interface.
-            
+
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
@@ -29,17 +29,38 @@
 
 namespace genie {
 
+class IntegratorI;
+
 class DISPXSec : public XSecAlgorithmI {
 
 public:
-
   DISPXSec();
   DISPXSec(string config);
   virtual ~DISPXSec();
 
   //-- XSecAlgorithmI interface implementation
+  double XSec            (const Interaction * interaction) const;
+  bool   ValidProcess    (const Interaction * interaction) const;
+  bool   ValidKinematics (const Interaction * interaction) const;
 
-  double XSec (const Interaction * interaction) const;
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
+
+private:
+
+  void LoadConfigData (void);
+  void LoadSubAlg     (void);
+
+  const XSecAlgorithmI * fPartialXSecAlg;
+  const IntegratorI *    fIntegrator;
+
+  string fKineVar;
+  int    fNLogt;
+  double fLogtmax;
+  double fLogtmin;
+  double fdLogt;
 };
 
 }       // genie namespace

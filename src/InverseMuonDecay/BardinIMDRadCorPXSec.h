@@ -12,7 +12,7 @@
           subtracted from the IMD cross section and therefore it is not suitable
           for experimental situations where a photon energy trigger threshold
           is applied.
-          
+
           BardinIMDRadCorPXSec is a concrete implementation of the
           XSecAlgorithmI interface. \n
 
@@ -42,8 +42,9 @@ public:
   virtual ~BardinIMDRadCorPXSec();
 
   //-- XSecAlgorithmI interface implementation
-
-  double XSec (const Interaction * interaction) const;
+  double XSec            (const Interaction * interaction) const;
+  bool   ValidProcess    (const Interaction * interaction) const;
+  bool   ValidKinematics (const Interaction * interaction) const;
 
 private:
 
@@ -52,7 +53,6 @@ private:
   double Fa  (double re, double r, double y) const;
   double P   (int    i,  double r, double y) const;
   double C   (int    i,  int k,    double r) const;
-
 };
 
 }       // genie namespace

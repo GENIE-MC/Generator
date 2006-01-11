@@ -31,6 +31,8 @@
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
+#include "PDG/PDGUtils.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -57,46 +59,108 @@ double DISPXSec::XSec(const Interaction * interaction) const
 {
   LOG("DISPXSec", pDEBUG) << *fConfig;
 
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
+  //----- Define the integration grid & instantiate a FunctionMap
+  UnifGrid grid;
+  grid.AddDimension(fNLogt, fLogtmin, fLogtmax); // 1-D
+
+  FunctionMap tdxsec(grid); // t * (dxsec/dt), t = x,y
+
+  //----- Loop over t (x or y) and compute dxsec/dt
+  for(int it = 0; it < fNLogt; it++) {
+    double t  = TMath::Exp(fLogtmin + it * fdLogt);
+
+    //-- update the "running" scattering parameter
+    if      (fKineVar == "y") interaction->GetKinematicsPtr()->Setx(t);
+    else if (fKineVar == "x") interaction->GetKinematicsPtr()->Sety(t);
+    else    abort();
+
+    //-- compute d^2xsec/dxdy
+    double pxsec = fPartialXSecAlg->XSec(interaction);
+    tdxsec.AddPoint(t*pxsec, it); // t * dxsec/dt (t = x or y)
+  } //t
+
+  //----- Numerical integration
+  double xsec = fIntegrator->Integrate(tdxsec);
+  return xsec;
+}
+//____________________________________________________________________________
+bool DISPXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  const InitialState & init_state = interaction->GetInitialState();
+  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+
+  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
+  int  nu  = init_state.GetProbePDGCode();
+
+  if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
+  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
+  if (!proc_info.IsDeepInelastic()) return false;
+  if (!proc_info.IsWeak())          return false;
+
+  return true;
+}
+//____________________________________________________________________________
+bool DISPXSec::ValidKinematics(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  //-- Get neutrino energy in the struck nucleon rest frame
+  const InitialState & init_state = interaction -> GetInitialState();
+  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+
+  //-- Check the energy threshold
+  double Ethr = utils::kinematics::EnergyThreshold(interaction);
+  if(Ev <= Ethr) {
+     LOG("DISXSec", pINFO) << "E = " << Ev << " <= Ethreshold = " << Ethr;
+     return false;
+  }
+
+  return true;
+}
+//____________________________________________________________________________
+void DISPXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void DISPXSec::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void DISPXSec::LoadConfigData(void)
+{
   //-- Make sure it knows what kind of partial (dxsec/d?) xsec algorithm it is
 
   assert( fConfig->Exists("is-differential-over") );
-
-  string variable = fConfig->GetString("is-differential-over");
-
-  LOG("DISPXSec", pDEBUG) << "XSec is differential over var: " << variable;
-
-  //-- Get a d^2xsec/dxdy xsec algorithm
-
-  fConfig->AssertExistence("partial-xsec-alg-name", "partial-xsec-param-set");
-
-  const Algorithm * xsec_alg_base = this->SubAlg(
-                           "partial-xsec-alg-name", "partial-xsec-param-set");
-  const XSecAlgorithmI * partial_xsec_alg =
-                         dynamic_cast<const XSecAlgorithmI *> (xsec_alg_base);
-
-  //----- Set default & check for user defined integration range
-
-  int    nlogt = 61;     //------- default integration range
-  double tmin  = 0.001;  // t = x or y
-  double tmax  = 0.999;
+  fKineVar = fConfig->GetString("is-differential-over");
+  LOG("DISPXSec", pDEBUG) << "XSec is differential over var: " << fKineVar;
 
   //-- Get x or y integration range from config (if exists)
+  int    nlogt;
+  double tmin, tmax;
+  double e = 1e-4;
 
-  if ( variable == "y" ) {
-
+  if ( fKineVar == "y" ) {
      //-- it is dxsec/dy, get intergation limits over x
+     nlogt = fConfig->GetIntDef    ("n-log-x", 61 );
+     tmin  = fConfig->GetDoubleDef ("x-min",   e  );
+     tmax  = fConfig->GetDoubleDef ("x-max",   1-e);
 
-     if ( fConfig->Exists("n-log-x") ) fConfig->Get("n-log-x", nlogt );
-     if ( fConfig->Exists("x-min")   ) fConfig->Get("x-min",   tmin  );
-     if ( fConfig->Exists("x-max")   ) fConfig->Get("x-max",   tmax  );
-
-  } else if ( variable == "x" ) {
-
+  } else if ( fKineVar == "x" ) {
      //-- it is dxsec/dx, get intergation limits over y
-
-     if ( fConfig->Exists("n-log-y") ) fConfig->Get("n-log-y", nlogt );
-     if ( fConfig->Exists("y-min")   ) fConfig->Get("y-min",   tmin  );
-     if ( fConfig->Exists("y-max")   ) fConfig->Get("y-max",   tmax  );
+     nlogt = fConfig->GetIntDef    ("n-log-y", 61 );
+     tmin  = fConfig->GetDoubleDef ("y-min",   e  );
+     tmax  = fConfig->GetDoubleDef ("y-max",   1-e);
   }
 
   LOG("DISPXSec", pDEBUG) << "Integration: n(log)bins = "
@@ -106,46 +170,32 @@ double DISPXSec::XSec(const Interaction * interaction) const
   assert( nlogt > 1 );
   assert( tmax > tmin && tmax < 1 && tmin < 1 && tmax > 0 & tmin > 0 );
 
-  //----- Define the integration area & step
-  double log_tmax = TMath::Log(tmax);
-  double log_tmin = TMath::Log(tmin);
-  double dlogt    = (log_tmax - log_tmin) / (nlogt-1);
+  fNLogt   = nlogt;
+  fLogtmax = TMath::Log(tmax);
+  fLogtmin = TMath::Log(tmin);
+  fdLogt   = (fLogtmax - fLogtmin) / (fNLogt-1);
+}
+//____________________________________________________________________________
+void DISPXSec::LoadSubAlg(void)
+{
+  fPartialXSecAlg = 0;
+  fIntegrator     = 0;
 
-  //----- Define the integration grid & instantiate a FunctionMap
-  UnifGrid grid;
-  grid.AddDimension(nlogt, log_tmin, log_tmax); // 1-D
+  //-- Get the requested d^2xsec/dxdy xsec algorithm to use
+  fPartialXSecAlg =
+         dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
+                         "partial-xsec-alg-name", "partial-xsec-param-set"));
+  assert(fPartialXSecAlg);
 
-  FunctionMap tdxsec(grid); // t * (dxsec/dt), t = x,y
-
-  //----- Loop over t (x or y) and compute dxsec/dt
-
-  for(int it = 0; it < nlogt; it++) {
-
-    double t  = TMath::Exp(log_tmin + it * dlogt);
-
-    //-- update the "running" scattering parameter
-    if      (variable == "y") interaction->GetKinematicsPtr()->Setx(t);
-    else if (variable == "x") interaction->GetKinematicsPtr()->Sety(t);
-
-    //-- compute d^2xsec/dxdy
-    double pxsec = partial_xsec_alg->XSec(interaction);
-
-    tdxsec.AddPoint(t*pxsec, it); // t * dxsec/dt (t = x or y)
-
-  } //t
-
-  //----- Numerical integration
+  LOG("DISPXSec", pDEBUG) << *fPartialXSecAlg;
 
   //-- get specified integration algorithm from the config. registry
-  //   or use Simpson1D if no one else is defined
-  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
+  //   or use Simpson2D if none is defined
+  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson2D");
 
   AlgFactory * algf = AlgFactory::Instance();
-  const IntegratorI * integrator =
-          dynamic_cast<const IntegratorI *> (algf->GetAlgorithm(intgr));
-
-  double xsec = integrator->Integrate(tdxsec);
-  return xsec;
+  fIntegrator = dynamic_cast<const IntegratorI *> (algf->GetAlgorithm(intgr));
+  assert(fIntegrator);
 }
 //____________________________________________________________________________
 

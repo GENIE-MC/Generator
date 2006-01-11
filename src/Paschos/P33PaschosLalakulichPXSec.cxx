@@ -62,6 +62,9 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
 {
   LOG("PaschLal", pDEBUG) << *fConfig;
 
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
   //-- Get initial state and kinematic variables
   const InitialState & init_state = interaction -> GetInitialState();
   const Kinematics &   kinematics = interaction -> GetKinematics();
@@ -73,100 +76,48 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
 
   LOG("PaschLal", pDEBUG) << "Input kinematics: W = " << W << ", Q2 = " << Q2;
 
+  //-- Retrieve P33(1232) information
+  BaryonResParams res_params;
+
+  res_params.SetDataSet(fRESDataTable);
+  res_params.RetrieveData(kP33_1232);
+
+  double MR       = res_params.Mass();
+  double Gamma_R0 = res_params.Width();
+
   //-- Commonly used masses
   double MN   = kNucleonMass;
   double MN2  = kNucleonMass_2;
   double Mmu2 = kMuonMass_2;
   double Mpi2 = kPionMass_2;
-
-  //-- Compute kinematically allowed W, Q2 range
-  //   Return 0 if not valid kinematics
-  //   Here I am using the standard GENIE kinematic limit functions from the
-  //   utils::kinematics phase space. These differ from the expressions in the
-  //   Paschos-Lalakulich paper that are inverted and W limits are expressed
-  //   as a function of Q^2. This should not make any difference.
-
-  Range1D_t rW  = utils::kinematics::WRange(interaction);
-  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
-
-  LOG("PaschLal", pDEBUG) << "\n Physical W range: "
-                         << "["<< rW.min   << ", " << rW.max  << "] GeV";
-  LOG("PaschLal", pDEBUG) << "\n Physical Q2 range: "
-                         << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-  bool is_within_limits =
-               utils::math::IsWithinLimits(W, rW) &&
-                                     utils::math::IsWithinLimits(Q2, rQ2);
-
-  if( !is_within_limits ) return 0.;
-
-  //-- Retrieve P33(1232) information
-
-  const BaryonResDataSetI * res_data_table =
-           dynamic_cast<const BaryonResDataSetI *> (this->SubAlg(
-                          "baryon-res-alg-name", "baryon-res-param-set"));
-
-  BaryonResParams res_params;
-
-  res_params.SetDataSet(res_data_table);
-  res_params.RetrieveData(kP33_1232);
-
-  double MR   = res_params.Mass();
   double MR2  = TMath::Power(MR,2);
   double MR3  = TMath::Power(MR,3);
 
-  double Gamma_R0 = res_params.Width();
-
-  //-- MA,MV and coupling consts
-
-  double MA     = this->MA();
-  double MV     = this->MV();
-  double MA2    = TMath::Power( MA, 2 );
-  double MV2    = TMath::Power( MV, 2 );
+  //-- Auxiliary params
+  double MA2    = TMath::Power( fMa, 2 );
+  double MV2    = TMath::Power( fMv, 2 );
   double ftmp1a = TMath::Power( 1 + Q2/MA2, 2 );
   double ftmp1v = TMath::Power( 1 + Q2/MA2, 2 );
   double ftmp2a = 1 + Q2/3/MA2;
   double ftmp2v = 1 + Q2/4/MV2;
-
-  double f3A = kPlRes_f3_P1232_A/ftmp1a/ftmp2a;
-  double f4A = kPlRes_f4_P1232_A/ftmp1a/ftmp2a;
-  double f5A = kPlRes_f5_P1232_A/ftmp1a/ftmp2a;
-  double f6A = kPlRes_f6_P1232_A/ftmp1a/ftmp2a/(Q2+Mpi2);
-  double f3V = kPlRes_f3_P1232_V/ftmp1v/ftmp2v;
-  double f4V = kPlRes_f4_P1232_V/ftmp1v/ftmp2v/W;
-  double f5V = kPlRes_f5_P1232_V/ftmp1v/ftmp2v;
-
-  // Most of the following params were defined in the original code but
-  // left unused. Here, they are commented out to suppress gcc warnings
-
-  //double f3V4V = f3V*f4V; // f3V..
-  //double f3V5V = f3V*f5V;
-  //double f3V3A = f3V*f3A;
-  double f3V4A = f3V*f4A;
-  double f3V5A = f3V*f5A;
-  //double f3V6A = f3V*f6A;
-  //double f4V5V = f4V*f5V; // f4V..
-  //double f4V3A = f4V*f3A;
-  double f4V4A = f4V*f4A;
-  double f4V5A = f4V*f5A;
-  //double f4V6A = f4V*f6A;
-  //double f5V3A = f5V*f3A; // f5V..
-  //double f5V4A = f5V*f4A;
-  //double f5V5A = f5V*f5A;
-  //double f5V6A = f5V*f6A;
-  //double f3A4A = f3A*f4A; // f3A..
-  //double f3A5A = f3A*f5A;
-  //double f3A6A = f3A*f6A;
-  //double f4A5A = f4A*f5A; // f4A..
-  //double f4A6A = f4A*f6A;
-  //double f5A6A = f5A*f6A;
-
-  double f3A2 = TMath::Power( f3A, 2 );
-  double f4A2 = TMath::Power( f4A, 2 );
-  double f5A2 = TMath::Power( f5A, 2 );
-  double f6A2 = TMath::Power( f6A, 2 );
-  double f3V2 = TMath::Power( f3V, 2 );
-  double f4V2 = TMath::Power( f4V, 2 );
-  double f5V2 = TMath::Power( f5V, 2 );
+  double f3A    = kPlRes_f3_P1232_A/ftmp1a/ftmp2a;
+  double f4A    = kPlRes_f4_P1232_A/ftmp1a/ftmp2a;
+  double f5A    = kPlRes_f5_P1232_A/ftmp1a/ftmp2a;
+  double f6A    = kPlRes_f6_P1232_A/ftmp1a/ftmp2a/(Q2+Mpi2);
+  double f3V    = kPlRes_f3_P1232_V/ftmp1v/ftmp2v;
+  double f4V    = kPlRes_f4_P1232_V/ftmp1v/ftmp2v/W;
+  double f5V    = kPlRes_f5_P1232_V/ftmp1v/ftmp2v;
+  double f3V4A  = f3V*f4A;
+  double f3V5A  = f3V*f5A;
+  double f4V4A  = f4V*f4A;
+  double f4V5A  = f4V*f5A;
+  double f3A2   = TMath::Power( f3A, 2 );
+  double f4A2   = TMath::Power( f4A, 2 );
+  double f5A2   = TMath::Power( f5A, 2 );
+  double f6A2   = TMath::Power( f6A, 2 );
+  double f3V2   = TMath::Power( f3V, 2 );
+  double f4V2   = TMath::Power( f4V, 2 );
+  double f5V2   = TMath::Power( f5V, 2 );
 
   //-- move these running gamma definitions into GENIE's breit-wigner
   //   functions so that they can be directly used here
@@ -195,31 +146,19 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   double Breit_Wigner = TMath::Power(W*W-MR2,2) + MR2 * TMath::Power(Gamma_R,2);
 
   //-- Include Pauli suppression [if the option was turned on by the user]
-
-  bool add_pauli_correction =
-           fConfig->Exists("turn-on-pauli-suppression") ?
-                         fConfig->GetBool("turn-on-pauli-suppression") : false;
   double pauli = 1.;
-  if(add_pauli_correction) pauli = this->Pauli(Q2,W);
+  if(fTurnOnPauliCorrection) pauli = this->Pauli(Q2,W);
 
   //-- Kinematic variables
-
   double nu    = this->Nu(Q2,W);
   double pq  = MN*nu;
   double qk  = -(Q2+Mmu2)/2.;
   double pk  = MN*E;
-
   double pq2 = TMath::Power(pq,2);
   double pq3 = TMath::Power(pq,3);
   double Q4  = TMath::Power(Q2,2);
 
-  // defined in the original code but left unused
-  // commented out to suppress gcc warning
-  //double qW  = MN*nu-Q2;
-  //double pW  = (W*W+Q2+MN2)/2.;
-
-  //  W1 -> W5 from Lalakulich-Paschos paper
-
+  //-- Compute Wi's, i=1-5
   double W1=0, W2=0, W3=0, W4=0, W5=0;
 
   W1 = 3.*(2*f5A2*MN2*MR2+2*f5A2*MN*MR3+2*f3A*f5A*MN2*MR*pq+2*f5A2*MR2*pq
@@ -312,6 +251,70 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   return xsec;
 }
 //____________________________________________________________________________
+bool P33PaschosLalakulichPXSec::ValidProcess(
+                                        const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  return true;
+}
+//____________________________________________________________________________
+bool P33PaschosLalakulichPXSec::ValidKinematics(
+                                        const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
+
+  double E  = init_state.GetProbeE(kRfStruckNucAtRest);
+  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  if(E <= EvThr) return false;
+
+  double Q2 = kinematics.Q2();
+  double W  = kinematics.W();
+
+  Range1D_t rW  = utils::kinematics::WRange(interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
+
+  LOG("PaschLal", pDEBUG) << "\n Physical W range: "
+                         << "["<< rW.min   << ", " << rW.max  << "] GeV";
+  LOG("PaschLal", pDEBUG) << "\n Physical Q2 range: "
+                         << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
+  bool is_within_limits =
+               utils::math::IsWithinLimits(W, rW) &&
+                                     utils::math::IsWithinLimits(Q2, rQ2);
+  if( !is_within_limits ) return false;
+
+  return true;
+}
+//____________________________________________________________________________
+void P33PaschosLalakulichPXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void P33PaschosLalakulichPXSec::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void P33PaschosLalakulichPXSec::LoadConfig(void)
+{
+  fMa = fConfig->GetDoubleDef("Ma", kPlResMa);
+  fMv = fConfig->GetDoubleDef("Mv", kPlResMv);
+
+  fTurnOnPauliCorrection =
+         fConfig->GetBoolDef("turn-on-pauli-suppression", false);
+
+  fRESDataTable =
+           dynamic_cast<const BaryonResDataSetI *> (this->SubAlg(
+                          "baryon-res-alg-name", "baryon-res-param-set"));
+  assert(fRESDataTable);
+}
+//____________________________________________________________________________
 double P33PaschosLalakulichPXSec::Pauli(double Q2, double W) const
 {
 // Pauli suppression for deuterium with Fermi momentum 0.160 GeV
@@ -374,24 +377,6 @@ double P33PaschosLalakulichPXSec::PPiStar(double W) const
 double P33PaschosLalakulichPXSec::NuStar(double Q2, double W) const
 {
   return (TMath::Power(W,2) - kNucleonMass_2 - Q2)/2/W;
-}
-//____________________________________________________________________________
-double P33PaschosLalakulichPXSec::MA(void) const
-{
-// Allow the default (const) Paschos-Lalakulich RES Ma (Axial-Mass) to be
-// overriden from  a value at the algorithm's config registry
-
-  if( fConfig->Exists("Ma") ) return fConfig->GetDouble("Ma");
-  else                        return kPlResMa;
-}
-//____________________________________________________________________________
-double P33PaschosLalakulichPXSec::MV(void) const
-{
-// Allow the default (const) Paschos-Lalakulich RES Mv (Vector-Mass) to be
-// overriden from a value at the algorithm's config registry
-
-  if( fConfig->Exists("Mv") ) return fConfig->GetDouble("Mv");
-  else                        return kPlResMv;
 }
 //____________________________________________________________________________
 

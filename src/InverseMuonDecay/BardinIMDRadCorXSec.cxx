@@ -63,22 +63,18 @@ BardinIMDRadCorXSec::~BardinIMDRadCorXSec()
 //____________________________________________________________________________
 double BardinIMDRadCorXSec::XSec(const Interaction * interaction) const
 {
-  //-- get a differential IMD cross section sub-algorithm
-  const XSecAlgorithmI * pxsec =
-           dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                          "partial-xsec-alg-name", "partial-xsec-param-set"));
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //-- get a 1-D nuerical integrator or set default
-  const IntegratorI * integrator =
-          dynamic_cast<const IntegratorI *> (this->SubAlgWithDefault(
-                                 "integrator-name","","genie::Simpson1D",""));
-  const int    nsteps  = 201;
-  const double min     = 0;
-  const double max     = 0.999;
-  const double step    = (max-min)/(nsteps-1);
+  const double e       = 1e-4;
+  const double ymin    = e;
+  const double ymax    = 1-e;
+  const double logymax = TMath::Log(ymax);
+  const double logymin = TMath::Log(ymin);
+  const double dlogy   = (logymax-logymin)/(fNBins-1);
 
   UnifGrid grid;
-  grid.AddDimension(nsteps, min, max);
+  grid.AddDimension(fNBins, ymin, ymax);
 
   FunctionMap fmap(grid);
 
@@ -86,16 +82,82 @@ double BardinIMDRadCorXSec::XSec(const Interaction * interaction) const
   //   applied within the differential cross section algorithm - returns 0
   //   if kinematic params are not valid.
 
-  for(int i = 0; i < nsteps; i++) {
-    double y = min + i * step;
+  for(int i = 0; i < fNBins; i++) {
+    double y = TMath::Exp(logymin + i * dlogy);
     interaction->GetKinematicsPtr()->Sety(y);
-    double dsig_dy = pxsec->XSec(interaction);
+
+    double dsig_dy = fDiffXSecModel->XSec(interaction);
     fmap.AddPoint(dsig_dy, i);
   }
-  double sig = integrator->Integrate(fmap);
 
-  LOG("InverseMuDecay", pDEBUG) << "*** xsec[IMD] = " << sig;
-
-  return sig;
+  double xsec = fIntegrator->Integrate(fmap);
+  LOG("InverseMuDecay", pDEBUG) << "*** xsec[IMD] = " << xsec;
+  return xsec;
 }
 //____________________________________________________________________________
+bool BardinIMDRadCorXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  return true;
+}
+//____________________________________________________________________________
+bool BardinIMDRadCorXSec::ValidKinematics(
+                                        const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const InitialState & init_state = interaction -> GetInitialState();
+
+  double E = init_state.GetProbeE(kRfLab);
+  double s = kElectronMass_2 + 2*kElectronMass*E;
+
+  //-- check if it is kinematically allowed
+  if(s < kMuonMass_2) {
+     LOG("InverseMuDecay", pINFO)
+        << "Ev = " << E << " (s = " << s << ") is below threshold (s-min = "
+        << kMuonMass_2 << ") for IMD";
+     return false;
+  }
+  return true;
+}
+//____________________________________________________________________________
+void BardinIMDRadCorXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void BardinIMDRadCorXSec::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void BardinIMDRadCorXSec::LoadConfig(void)
+{
+  fDiffXSecModel = 0;
+  fIntegrator    = 0;
+
+  //----- Get an algorithm to calculate differential cross sections dxsec/dQ2
+  fDiffXSecModel =
+          dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
+                         "partial-xsec-alg-name", "partial-xsec-param-set"));
+  assert(fDiffXSecModel);
+
+  //----- Get an integrator
+  fIntegrator =
+          dynamic_cast<const IntegratorI *> (this->SubAlgWithDefault(
+                                 "integrator-name","","genie::Simpson1D",""));
+  assert(fIntegrator);
+
+  //----- get the input number of dxsec/dlogQ2 points for num. integration
+  //      or use a default if no number is specified
+  //      (must be odd number for the Simpson rule)
+  fNBins = fConfig->GetIntDef("N-logQ2-bins", 101);
+  LOG("QELXSec", pDEBUG) << "Number of integration (logQ2) bins = " << fNBins;
+  assert(fNBins>2);
+}
+//____________________________________________________________________________
+
+

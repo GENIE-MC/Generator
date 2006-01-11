@@ -27,6 +27,8 @@
 
 namespace genie {
 
+class BaryonResDataSetI;
+
 class P33PaschosLalakulichPXSec : public XSecAlgorithmI {
 
 public:
@@ -36,19 +38,29 @@ public:
   virtual ~P33PaschosLalakulichPXSec();
 
   //-- XSecAlgorithmI interface implementation
+  double XSec            (const Interaction * interaction) const;
+  bool   ValidProcess    (const Interaction * interaction) const;
+  bool   ValidKinematics (const Interaction * interaction) const;
 
-  double XSec (const Interaction * interaction) const;
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
-  double Pauli   (double Q2, double W) const; ///< Pauli suppression for D2
+  void LoadConfig (void);
 
+  double Pauli   (double Q2, double W) const; ///< Pauli suppression for D2
   double Nu      (double Q2, double W) const; ///< kinematic variables
   double NuStar  (double Q2, double W) const; ///< ...
   double PPiStar (double W)            const; ///< ...
 
-  double MA (void) const; ///< gets the registry value or sets default
-  double MV (void) const; ///< ...
+  const BaryonResDataSetI * fRESDataTable;
+
+  bool   fTurnOnPauliCorrection;
+  double fMa;
+  double fMv;
 };
 
 }       // genie namespace

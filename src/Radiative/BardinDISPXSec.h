@@ -20,7 +20,7 @@
           CCLRC, Rutherford Appleton Laboratory
 
 \created  July 06, 2004
- 
+
 */
 //____________________________________________________________________________
 
@@ -32,6 +32,9 @@
 
 namespace genie {
 
+class PDFModelI;
+class IntegratorI;
+
 class BardinDISPXSec : public XSecAlgorithmI {
 
 public:
@@ -41,23 +44,32 @@ public:
   virtual ~BardinDISPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  
-  double XSec (const Interaction * interaction) const;
+  double XSec            (const Interaction * interaction) const;
+  bool   ValidProcess    (const Interaction * interaction) const;
+  bool   ValidKinematics (const Interaction * interaction) const;
+
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
 
 private:
 
   //-- Auxiliary methods used for the Bardin-Dokuchaeva xsec calculation.
-  
+
   //   xi is the running variable in the integration for computing
   //   the differential cross section d^2(xsec) / dy dx
-  
+
+  void LoadConfigData (void);
+  void LoadSubAlg     (void);
+
   double PhiCCi   (double xi, const Interaction * interaction) const;
   double Ii       (double xi, const Interaction * interaction) const;
   double U        (double xi, const Interaction * interaction) const;
   double tau      (double xi, const Interaction * interaction) const;
   double St       (double xi, const Interaction * interaction) const;
   double Su       (double xi, const Interaction * interaction) const;
-  
+
   double S        (const Interaction * interaction) const;
   double DeltaCCi (const Interaction * interaction) const;
   double Sq       (const Interaction * interaction) const;
@@ -65,6 +77,10 @@ private:
   double InitQuarkMass (const Interaction * interaction) const;
   double InitQuarkMass (double xi) const;
   double PDFFunc       (const PDF & pdf, int pgdc) const;
+
+  const PDFModelI *   fPDFModel;
+  const IntegratorI * fIntegrator;
+  double fMqf;
 };
 
 }       // genie namespace

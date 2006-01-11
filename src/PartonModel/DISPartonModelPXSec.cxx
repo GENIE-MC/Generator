@@ -51,39 +51,96 @@ DISPartonModelPXSec::~DISPartonModelPXSec()
 //____________________________________________________________________________
 double DISPartonModelPXSec::XSec(const Interaction * interaction) const
 {
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
   //----- Get kinematical & init-state parameters
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
+
+  double E     = init_state.GetProbeE(kRfStruckNucAtRest);
+  double ml    = interaction->GetFSPrimaryLepton()->Mass();
+  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
+  double Mnuc2 = TMath::Power(Mnuc, 2);
+  double x     = kinematics.x();
+  double y     = kinematics.y();
+
+  //----- One of the xsec terms changes sign for antineutrinos
+  int sign = 1;
+  if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
+
+  //----- Calculate the DIS structure functions
+  DISStructureFunc dis_sf;
+  dis_sf.SetModel(fDISSFModel);   // <-- attach algorithm
+  dis_sf.Calculate(interaction);  // <-- calculate
+
+  double F1 = dis_sf.F1();
+  double F2 = dis_sf.F2();
+  double F3 = dis_sf.F3();
+  double F4 = dis_sf.F4();
+  double F5 = dis_sf.F5();
+
+  LOG("DISXSec", pDEBUG)  << dis_sf;
+
+  //-- calculate auxiliary parameters
+  double ml2  = ml    * ml;
+  double ml4  = ml2   * ml2;
+  double E2   = E     * E;
+  double Gfac = (kGF*kGF*Mnuc*E) / kPi;
+
+  //----- Build all dxsec/dxdy terms
+  double term1 = y * ( x*y + ml2/(2*E*Mnuc) );
+  double term2 = 1 - y - Mnuc*x*y/(2*E) - ml2/(4*E2);
+  double term3 = x*y*(1-y/2) - y*ml2/(4*Mnuc*E);
+  double term4 = x*y*ml2/(2*Mnuc*E) + ml4/(4*Mnuc2*E2);
+  double term5 = ml2/(2*Mnuc*E);
+
+  term1*=F1;
+  term2*=F2;
+  term3*=(sign*F3);
+  term4*=F4;
+  term5*=(-1*F5);
+
+  //----- Compute the differential cross section
+  double xsec = Gfac*(term1 + term2 + term3 + term4 + term5);
+
+  LOG("DISXSec", pDEBUG)
+      << "d^2xsec/dxdy (E = " << E << ", x = " << x << ", y = " << y << ") = "
+      << xsec;
+  return xsec;
+}
+//____________________________________________________________________________
+bool DISPartonModelPXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  return true;
+}
+//____________________________________________________________________________
+bool DISPartonModelPXSec::ValidKinematics(
+                                       const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
 
   const Kinematics &   kinematics = interaction -> GetKinematics();
   const InitialState & init_state = interaction -> GetInitialState();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
-  double ml   = interaction->GetFSPrimaryLepton()->Mass();
-  double Mnuc = init_state.GetTarget().StruckNucleonMass();
-  double x    = kinematics.x();
-  double y    = kinematics.y();
-
-  //----- Make sure everything makes sense
-
-  assert(x>0 && x<1);
-  assert(y>0 && y<1);
-  assert(E>0);
-
-  //----- Compute final state invariant mass (W) and momentum transfer (Q^2)
-
-  double Mnuc2 = pow(Mnuc, 2);
+  double E     = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
+  double Mnuc2 = TMath::Power(Mnuc, 2);
+  double x     = kinematics.x();
+  double y     = kinematics.y();
   double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
   double W     = TMath::Sqrt(W2);
   double Q2    = 2*Mnuc*E*x*y;
 
   //----- Get the physical W and Q2 range and check whether the current W,Q2
   //      pair is allowed
-
   Range1D_t rW  = utils::kinematics::WRange     (interaction);
   Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
 
   bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
                                         && utils::math::IsWithinLimits(W, rW);
-
   if(!in_range) {
        LOG("DISXSec", pDEBUG)
              << "\n *** point (W = " << W
@@ -94,56 +151,32 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
        LOG("DISXSec", pDEBUG)
              << "\n Physical Q2 range: "
                            << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-       return 0;
+       return false;
    }
 
-  //----- One of the xsec terms changes sign for antineutrinos
-
-  int sign = 1;
-  if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
-
-  //----- Calculate the DIS structure functions
+  return true;
+}
+//____________________________________________________________________________
+void DISPartonModelPXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void DISPartonModelPXSec::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void DISPartonModelPXSec::LoadSubAlg(void)
+{
+  fDISSFModel = 0;
 
   //-- get the specified DISStructureFuncModelI algorithm
-  const DISStructureFuncModelI * dis_sf_model =
-           dynamic_cast<const DISStructureFuncModelI *> (this->SubAlg(
-                                            "sf-alg-name", "sf-param-set"));
-
-  //-- instantiate a DISStructureFunc object / set model and compute
-  DISStructureFunc dis_sf;
-
-  dis_sf.SetModel(dis_sf_model);  // <-- attach algorithm
-  dis_sf.Calculate(interaction);  // <-- calculate
-
-  double F1 = dis_sf.F1();
-  double F2 = dis_sf.F2();
-  double F3 = dis_sf.F3();
-  double F4 = dis_sf.F4();
-  double F5 = dis_sf.F5();
-
-  //-- calculate auxiliary parameters
-  double ml2     = ml    * ml;
-  double ml4     = ml2   * ml2;
-  double E2      = E     * E;
-  double Gfactor = (kGF*kGF*Mnuc*E) / kPi;
-
-  //----- Build all dsigmaQE / dQ2 terms
-  double term1 = y * ( x*y + ml2/(2*E*Mnuc) );
-  double term2 = 1 - y - Mnuc*x*y/(2*E) - ml2/(4*E2);
-  double term3 = x*y*(1-y/2) - y*ml2/(4*Mnuc*E);
-  double term4 = x*y*ml2/(2*Mnuc*E) + ml4/(4*Mnuc2*E2);
-  double term5 = ml2/(2*Mnuc*E);
-
-  //----- Compute the differential cross section
-  double CrossSection = Gfactor*( term1*F1 + term2*F2 +
-                                  sign*term3*F3 + term4*F4 - term5*F5 );
-
-  LOG("DISXSec", pDEBUG)  << dis_sf;
-  LOG("DISXSec", pDEBUG)
-      << "d^2xsec/dxdy (E = " << E << ", x = " << x << ", y = " << y << ") = "
-      << CrossSection;
-
-  return CrossSection;
+  fDISSFModel = dynamic_cast<const DISStructureFuncModelI *> (
+                                this->SubAlg("sf-alg-name", "sf-param-set"));
+  assert(fDISSFModel);
 }
 //____________________________________________________________________________
 

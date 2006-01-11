@@ -28,6 +28,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
+#include "Utils/MathUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -52,18 +53,14 @@ StdElasticPXSec::~StdElasticPXSec()
 //____________________________________________________________________________
 double StdElasticPXSec::XSec(const Interaction * interaction) const
 {
-  //-- get initial state information & kinematics
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
   const InitialState & init_state = interaction -> GetInitialState();
   const Kinematics &   kinematics = interaction -> GetKinematics();
 
-  double E   = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Q2  = kinematics.Q2();
-
-  //-- check kinematics
-  Range1D_t rQ2 = utils::kinematics::Q2Range_M(interaction);
-  if ( Q2 < rQ2.min || Q2 > rQ2.max ) return 0;
-
-  //-- compute cross section
+  double E     = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Q2    = kinematics.Q2();
   double M     = init_state.GetTarget().StruckNucleonMass();
   double M2    = M*M;
   double M4    = M2*M2;
@@ -101,8 +98,28 @@ double StdElasticPXSec::XSec(const Interaction * interaction) const
   double dsig_dQ2 = sig0 * (A + sign*B*su/M2 + C*su2/M4);
 
   LOG("InverseMuDecay", pDEBUG)
-      << "dXSec[el]/dQ2 (Ev = " << E << ", Q2 = " << Q2 << ") = " << dsig_dQ2;
+     << "dXSec[el]/dQ2 (Ev = " << E << ", Q2 = " << Q2 << ") = " << dsig_dQ2;
 
   return dsig_dQ2;
 }
 //____________________________________________________________________________
+bool StdElasticPXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  return true;
+}
+//____________________________________________________________________________
+bool StdElasticPXSec::ValidKinematics(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const Kinematics & kinematics = interaction -> GetKinematics();
+  double Q2 = kinematics.Q2();
+
+  Range1D_t rQ2 = utils::kinematics::Q2Range_M(interaction);
+
+  return (utils::math::IsWithinLimits(Q2, rQ2));
+}
+//____________________________________________________________________________
+

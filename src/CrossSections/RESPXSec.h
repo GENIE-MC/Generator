@@ -29,16 +29,37 @@
 
 namespace genie {
 
+class IntegratorI;
+
 class RESPXSec : public XSecAlgorithmI {
 
 public:
-
   RESPXSec();
   RESPXSec(string config);
   virtual ~RESPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec (const Interaction * interaction) const;
+  double XSec            (const Interaction * interaction) const;
+  bool   ValidProcess    (const Interaction * interaction) const;
+  bool   ValidKinematics (const Interaction * interaction) const;
+
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
+
+private:
+
+  void LoadConfigData (void);
+  void LoadSubAlg     (void);
+
+  const XSecAlgorithmI * fPartialXSecAlg;
+  const IntegratorI *    fIntegrator;
+
+  string fKineVar;
+  int    fNLogt;
+  double fKineMinCut;
+  double fKineMaxCut;
 };
 
 }       // genie namespace

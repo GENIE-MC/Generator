@@ -62,34 +62,18 @@ BardinIMDRadCorPXSec::~BardinIMDRadCorPXSec()
 //____________________________________________________________________________
 double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
 {
-  //----- get initial & final state information
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
 
   const InitialState & init_state = interaction -> GetInitialState();
 
-  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfLab);
-
-  double E = nu_p4->Energy();
-  double s = kElectronMass_2 + 2*kElectronMass*E;
-  delete nu_p4;
-
-  //-- check if it is kinematically allowed
-                
-  if(s < kMuonMass_2) {
-     LOG("InverseMuDecay", pINFO)
-        << "Ev = " << E << " (s = " << s << ") is below threshold (s-min = " 
-        << kMuonMass_2 << ") for IMD";
-     return 0;
-  }
-
-  //-- compute cross section
-
+  double E    = init_state.GetProbeE(kRfLab);
   double sig0 = kGF_2 * kElectronMass * E / kPi;
   double re   = 0.5 * kElectronMass / E;
   double r    = (kMuonMass_2 / kElectronMass_2) * re;
   double y    = interaction->GetKinematics().y();
 
-  //Note: y = (Ev-El)/Ev but in Bardin's paper y=El/Ev. Switch here:
-  y = 1-y;
+  y = 1-y;  //Note: y = (Ev-El)/Ev but in Bardin's paper y=El/Ev.
 
   double ymin = r + re;
   double ymax = 1 + re + r*re / (1+re);
@@ -106,9 +90,35 @@ double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
   double dsig_dy = 2 * sig0 * ( 1 - r + (kAem/kPi) * Fa(re,r,y) );
 
   LOG("InverseMuDecay", pINFO)
-      << "dxsec[1-loop]/dy (Ev = " << E << ", y = " << y << ") = " << dsig_dy;
+     << "dxsec[1-loop]/dy (Ev = " << E << ", y = " << y << ") = " << dsig_dy;
 
   return dsig_dy;
+}
+//____________________________________________________________________________
+bool BardinIMDRadCorPXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  return true;
+}
+//____________________________________________________________________________
+bool BardinIMDRadCorPXSec::ValidKinematics(
+                                        const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  const InitialState & init_state = interaction -> GetInitialState();
+  double E = init_state.GetProbeE(kRfLab);
+  double s = kElectronMass_2 + 2*kElectronMass*E;
+
+  //-- check if it is kinematically allowed
+  if(s < kMuonMass_2) {
+     LOG("InverseMuDecay", pINFO)
+        << "Ev = " << E << " (s = " << s << ") is below threshold (s-min = "
+        << kMuonMass_2 << ") for IMD";
+     return false;
+  }
+  return true;
 }
 //____________________________________________________________________________
 double BardinIMDRadCorPXSec::Fa(double re, double r, double y) const
@@ -117,7 +127,7 @@ double BardinIMDRadCorPXSec::Fa(double re, double r, double y) const
   double rre = r * re;
   double r_y = r/y;
   double y_r = y/r;
-  
+
   double fa = 0;
 
   fa = (1-r) *       ( TMath::Log(y2/rre) * TMath::Log(1-r_y) +
@@ -128,20 +138,20 @@ double BardinIMDRadCorPXSec::Fa(double re, double r, double y) const
                        1.5 * (1-r) * TMath::Log(1-r)
                      )
                      +
-                     
+
        0.5*(1+3*r) * ( this->Li2( (1-r_y) / (1-r) ) -
                        this->Li2( (y-r)   / (1-r) ) -
                        TMath::Log(y_r) * TMath::Log( (y-r) / (1-r) )
                      )
                      +
-                     
+
        this->P(1,r,y)                   -
        this->P(2,r,y) * TMath::Log(r)   -
        this->P(3,r,y) * TMath::Log(re)  +
        this->P(4,r,y) * TMath::Log(y)   +
        this->P(5,r,y) * TMath::Log(1-y) +
        this->P(6,r,y) * (1 - r_y) * TMath::Log(1-r_y);
-       
+
   return fa;
 }
 //____________________________________________________________________________
@@ -173,10 +183,10 @@ double BardinIMDRadCorPXSec::Li2(double z) const
 
   const int    nsteps  = 101;
   const double epsilon = 1e-2;
-  const double min     = epsilon;                             
+  const double min     = epsilon;
   const double max     = 1.0 - epsilon;
   const double step    = (max-min)/(nsteps-1);
-  
+
   UnifGrid grid;
 
   grid.AddDimension(nsteps, min, max);
@@ -187,12 +197,12 @@ double BardinIMDRadCorPXSec::Li2(double z) const
 
     double t  = min + i * step;
     double f  = TMath::Log(1-z*t)/t;
-    
+
     fmap.AddPoint(f, i);
   }
 
   double li2 = integrator->Integrate(fmap);
-                                                     
+
   return li2;
 }
 //____________________________________________________________________________
@@ -207,7 +217,7 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
       else if (k ==  1) return -0.91666667 - 0.25*r;
       else if (k ==  2) return 0.041666667;
       else              return 0.;
-      
+
   } else if ( i == 2 ) {
 
       if      (k == -3) return 0.;
@@ -216,8 +226,8 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
       else if (k ==  0) return 0.25 - 0.75*r + 1.5*pow(r,2);
       else if (k ==  1) return 0.5;
       else if (k ==  2) return 0.;
-      else              return 0.;  
-  
+      else              return 0.;
+
   } else if ( i == 3 ) {
 
       if      (k == -3) return 0.16666667*pow(r,3.);
@@ -227,7 +237,7 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
       else if (k ==  1) return 0.;
       else if (k ==  2) return 0.;
       else              return 0.;
-  
+
   } else if ( i == 4 ) {
 
       if      (k == -3) return 0.;
@@ -239,7 +249,7 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
       else              return 0.;
 
   } else if ( i == 5 ) {
-                
+
       if      (k == -3) return 0.16666667*pow(r,3.);
       else if (k == -2) return -0.25*pow(r,2.)*(1+r);
       else if (k == -1) return 0.5*r*(1+3*r);
@@ -249,7 +259,7 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
       else              return 0.;
 
   } else if ( i == 6 ) {
-  
+
       if      (k == -3) return 0.;
       else if (k == -2) return 0.16666667*pow(r,2.);
       else if (k == -1) return -0.25*r*(r+0.33333333);

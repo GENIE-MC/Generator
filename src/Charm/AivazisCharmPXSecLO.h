@@ -31,16 +31,40 @@
 
 namespace genie {
 
+class PDFModelI;
+
 class AivazisCharmPXSecLO : public XSecAlgorithmI {
 
 public:
-
   AivazisCharmPXSecLO();
   AivazisCharmPXSecLO(string config);
   virtual ~AivazisCharmPXSecLO();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec (const Interaction * interaction) const;
+  double XSec            (const Interaction * interaction) const;
+  bool   ValidProcess    (const Interaction * interaction) const;
+  bool   ValidKinematics (const Interaction * interaction) const;
+
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
+
+private:
+
+  void LoadConfigData (void);
+  void LoadSubAlg     (void);
+
+  const PDFModelI* fPDFModel;
+
+  bool   fDContributes;
+  bool   fSContributes;
+  double fMc;
+  double fVcd;
+  double fVcs;
+  double fMc2;
+  double fVcd2;
+  double fVcs2;
 };
 
 }       // genie namespace

@@ -69,204 +69,102 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
 {
   LOG("Bardin", pDEBUG) << *fConfig;
 
-  //----- get kinematical & init-state parameters
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
 
+  //----- get kinematical & init-state parameters
   const Kinematics &   kinematics = interaction -> GetKinematics();
   const InitialState & init_state = interaction -> GetInitialState();
+  const Target & target = init_state.GetTarget();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
-  double x    = kinematics.x();
-  double y    = kinematics.y();
+  double E  = init_state.GetProbeE(kRfStruckNucAtRest);
+  double x  = kinematics.x();
+  double y  = kinematics.y();
+  double Q2 = S(interaction) * x * y;
 
-  //----- make sure that x, y are in the physically acceptable region
-
-  if(x<=0 || x>1) return 0;
-  if(y<=0 || y>1) return 0;
-
-  //----- compute auxiliary & kinematic parameters
-
-  double Mnuc2 = TMath::Power(Mnuc, 2);
-  double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
-  double Q2    = S(interaction) * x * y;
-  double W     = TMath::Max(0., TMath::Sqrt(W2));
-
-  //----- Get the physical W and Q2 range and check whether the current W,Q2
-  //      pair is allowed
-
-  Range1D_t rW  = utils::kinematics::WRange     (interaction);
-  Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
-
-  bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
-                                        && utils::math::IsWithinLimits(W, rW);
-
-  if(!in_range) {
-       LOG("DISXSec", pDEBUG)
-             << "\n *** point (W = " << W
-                           << ", Q2 = " << Q2 << " is not in physical range";
-       LOG("DISXSec", pDEBUG)
-             << "\n Physical W range: "
-                               << "[" << rW.min << ", " << rW.max << "] GeV";
-       LOG("DISXSec", pDEBUG)
-             << "\n Physical Q2 range: "
-                           << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-       return 0;
-   }
-
-  //----- tmp/
-  //----- make sure it can get all critical configuration parameters
-  assert(
-          fConfig->Exists("pdf-alg-name")           &&
-          fConfig->Exists("pdf-param-set")          &&
-          fConfig->Exists("init-quark-pdg-code")    &&
-          fConfig->Exists("final-quark-pdg-code")   &&
-          fConfig->Exists("final-quark-mass")
-        );
-
-  //----- get init & final quarks
-
-  int init_pdgc = fConfig->GetInt("init-quark-pdg-code");
-  int fin_pdgc  = fConfig->GetInt("final-quark-pdg-code");
-  //----- /tmp
-
-  //----- check if the user wants to override standard the CKM element
-  //      before reading it from the constants
-
-  double Vckm = 0;
-
-  if ( ! fConfig->Exists("Vckm") )
-        Vckm = Utils::CkmElement(init_pdgc, fin_pdgc);
-  else  Vckm = fConfig->GetDouble("Vckm");
+  //----- get init & final quarks (only handle v/vbar CC) & CKM element
+  int    init_pdgc = target.StruckQuarkPDGCode();
+  int    fin_pdgc  = pdg::IsUQuark(init_pdgc) ? kPdgDQuark : kPdgUQuark;
+  double Vckm      = Utils::CkmElement(init_pdgc, fin_pdgc);
+  double Vckm2     = TMath::Power(Vckm,2.);
 
   LOG("Bardin", pDEBUG) << "Vckm = " << Vckm;
 
-  double Vckm2 = Vckm*Vckm;
-
-  //----- get the PDF set
-
-  string pdf_alg_name, pdf_param_set;
-
-  fConfig->Get("pdf-alg-name",  pdf_alg_name );
-  fConfig->Get("pdf-param-set", pdf_param_set);
-
-  //----- Get PDF objects & attach PDFModels
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm* algbase = algf->GetAlgorithm(pdf_alg_name, pdf_param_set);
-
-  assert(algbase);
-
-  const PDFModelI* pdf_model = dynamic_cast<const PDFModelI *> (algbase);
-
+  //----- Create PDF objects & attach PDFModels
   PDF pdf_x, pdf_xi;
 
-  pdf_x.SetModel  (pdf_model);   // <-- attach algorithm
-  pdf_xi.SetModel (pdf_model);   // <-- attach algorithm
+  pdf_x.SetModel  (fPDFModel);   // <-- attach algorithm
+  pdf_xi.SetModel (fPDFModel);   // <-- attach algorithm
 
   //----- Get init quark PDF at (x,Q2)
-
   pdf_x.Calculate(x, Q2);
-
   LOG("Bardin", pDEBUG) << pdf_x;
-
   double f_x  = PDFFunc( pdf_x,  init_pdgc )  / x;
 
-  //-- Define the range for variable xi
-  //
+  //----- Compute the differential cross section terms (1-3)
+
+  double term1 =  x * f_x * (1 + (kAem/kPi)*DeltaCCi(interaction));
+
+  // internal loop : integration over xi for the given (x,y,E) xi e (x,1)
+  // Define the range for variable xi
   //   Note: Integration over xi is performed for xi e [x, 1].
   //   During the numerical integration, When we compute values of the
   //   cross section terms at various xi, then :
   //   - xi = x can not be included because of a singularity { 1/(xi-x) term }
   //   - xi = 1 can not be included because PDF calculators complain
-
   const int    nxi   = 201;
   const double xi_min = x + 0.001;
   const double xi_max = 0.999;
   const double dxi   = (xi_max-xi_min)/(nxi-1);
 
   UnifGrid grid;
-
   grid.AddDimension(nxi, xi_min, xi_max);
-
   FunctionMap term2_vs_xi(grid);
   FunctionMap term3_vs_xi(grid);
 
-  //-- internal loop : integration over xi for the given (x,y,E)
-  //   xi e (x,1)
-
-  double term1 =  x * f_x * (1 + (kAem/kPi)*DeltaCCi(interaction));
-
   for(int ix = 0; ix < nxi; ix++) {
-
      double xi = xi_min + ix * dxi;
 
      //----- Get init quark PDF at (xi,Q2)
-
      pdf_xi.Calculate(xi, Q2);
-
      double f_xi = PDFFunc( pdf_xi, init_pdgc )  / xi;
 
      double term2_xi = f_xi * PhiCCi(xi, interaction);
-
      double term3_xi = (xi*f_xi*Ii(xi,interaction)-x*f_x*Ii(x, interaction))/(xi-x);
 
      term2_vs_xi.AddPoint( term2_xi, ix);
      term3_vs_xi.AddPoint( term3_xi, ix);
   }
 
-  //----- Numerical integration
-
-  //-- get specified integration algorithm from the config. registry
-  //   or use Simpson1D if no one else is defined
-
-  string integrator_name;
-
-  if( fConfig->Exists("integrator") )
-                          fConfig->Get("integrator", integrator_name );
-  else integrator_name = "genie::Simpson1D";
-
-  //-- ask the AlgFactory for the integrator algorithm
-
-  const Algorithm * alg_base_intg = algf->GetAlgorithm(integrator_name);
-
-  const IntegratorI * integrator =
-                          dynamic_cast<const IntegratorI *> (alg_base_intg);
-
-  //-- integrate
-
-  double term2 = integrator->Integrate( term2_vs_xi );
-  double term3 = integrator->Integrate( term3_vs_xi );
-
-  //-- form the differential cross section
-
-  double Gfactor = pow(kGF,2) * S(interaction) * Vckm2 / kPi;
-
-  double d2xsec_dxdy = Gfactor * ( term1 + (kAem/kPi) * (term2 + term3) );
+  double term2 = fIntegrator->Integrate( term2_vs_xi );
+  double term3 = fIntegrator->Integrate( term3_vs_xi );
 
   LOG("Bardin", pDEBUG) << "term1 = " << term1;
   LOG("Bardin", pDEBUG) << "term2 = " << term2;
   LOG("Bardin", pDEBUG) << "term3 = " << term3;
 
+  //----- Compute the differential cross section d^2xsec/dxdy
+  double Gfac = TMath::Power(kGF,2) * S(interaction) * Vckm2 / kPi;
+  double xsec = Gfac * ( term1 + (kAem/kPi) * (term2 + term3) );
+
   LOG("Bardin", pINFO)
-             << "d2xsec/dxdy (E = " << E << ", x = " << x
-                                   << ", y = " << y << ") = " << d2xsec_dxdy;
-
-  assert(d2xsec_dxdy >= 0);
-
-  return d2xsec_dxdy;
+     << "d2xsec/dxdy (E = " << E << ", x = " << x
+                                   << ", y = " << y << ") = " << xsec;
+  assert(xsec >= 0);
+  return xsec;
 }
 //____________________________________________________________________________
 double BardinDISPXSec::PhiCCi(double xi, const Interaction * interaction) const
 {
+  const InitialState & init_state = interaction -> GetInitialState();
   const Kinematics & kine = interaction->GetKinematics();
+  const Target & target = init_state.GetTarget();
 
   double x    = kine.x();
   double y    = kine.y();
-  int    pdg  = fConfig->GetInt("init-quark-pdg-code");
-  double mqf  = fConfig->GetDouble("final-quark-mass");
+  int    pdg  = target.StruckQuarkPDGCode();
   double mqi  = InitQuarkMass(xi);
-  double mqf2 = TMath::Power(mqf,2);
+  double mqf2 = TMath::Power(fMqf,2);
   double mqi2 = TMath::Power(mqi,2);
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double Q2   = S(interaction) * x * y;
@@ -284,17 +182,11 @@ double BardinDISPXSec::PhiCCi(double xi, const Interaction * interaction) const
   double y2   = y  * y;
 
   double term1 = pow(1+f, 2) * (0.25*Q2 /t) * (1 - mqf2/t);
-
   double term2 = 0.25 + 0.75*y - 0.5*y*(1 + xi/(xi-y*(xi-x)) ) * log(st2/(t*ml2));
-
   double term3 = f * ( 2 - (y*xi/(xi-y*(xi-x))) * log(st2/(t*ml2)) );
-
   double term4 = f * ( y*(y-2-y*x/xi) * log(st*u/(t*su)) + (0.5+y)*x/xi );
-
   double term5 = f2 * ( 2 - (1 + 0.5*x/xi + 0.5*x2/xi2) * log(u2/(t*mqi2)) );
-
   double term6 = f2 * ( 2 - 0.5*y + 0.25*y2 ) * x/xi;
-
   double term7 = f2 * (1.5 - 0.5*y - 0.25*y2) * x2/xi2;
 
   double phi   = term1 + term2 + term3 + term4 + term5 + term6 + term7;
@@ -306,14 +198,15 @@ double BardinDISPXSec::PhiCCi(double xi, const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::DeltaCCi(const Interaction * interaction) const
 {
+  const InitialState & init_state = interaction -> GetInitialState();
   const Kinematics & kine = interaction->GetKinematics();
+  const Target & target = init_state.GetTarget();
 
   double x    = kine.x();
   double y    = kine.y();
-  int    pdg  = fConfig->GetInt("init-quark-pdg-code");
-  double mqf  = fConfig->GetDouble("final-quark-mass");
+  int    pdg  = target.StruckQuarkPDGCode();
   double mqi  = InitQuarkMass(interaction);
-  double mqf2 = TMath::Power(mqf,2);
+  double mqf2 = TMath::Power(fMqf,2);
   double mqi2 = TMath::Power(mqi,2);
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double ml2  = ml*ml;
@@ -360,34 +253,30 @@ double BardinDISPXSec::DeltaCCi(const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::Ii(double xi, const Interaction * interaction) const
 {
+  const InitialState & init_state = interaction -> GetInitialState();
   const Kinematics & kine = interaction->GetKinematics();
+  const Target & target = init_state.GetTarget();
 
   double x    = kine.x();
   double y    = kine.y();
-  int    pdg  = fConfig->GetInt("init-quark-pdg-code");
-
+  int    pdg  = target.StruckQuarkPDGCode();
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double mqi  = InitQuarkMass(xi);
-
-  double st  = St(xi, interaction);
-  double u   = U(xi, interaction);
-  double su  = Su(xi, interaction);
-  double t   = tau(xi, interaction);
-
+  double st   = St(xi, interaction);
+  double u    = U(xi, interaction);
+  double su   = Su(xi, interaction);
+  double t    = tau(xi, interaction);
   double f    = Utils::QuarkCharge(pdg);
-
   double ml2  = ml  * ml;
   double mqi2 = mqi * mqi;
   double st2  = st  * st;
   double u2   = u   * u;
   double f2   = f   * f;
 
-  double term1 = ( xi / (xi - y*(xi-x)) ) * log( st2/(t*ml2) ) - 2;
-
-  double term2 = f * (2 * log(st*u/(t*su)) - 2 +
-                        ( y*(xi-x)/(xi-y*(xi-x)) ) * log( st2/(t*ml2) ) );
-
-  double term3 = f2 * ( log( u2/(t*mqi2) ) - 2 );
+  double term1 = ( xi / (xi - y*(xi-x)) ) * TMath::Log(st2/(t*ml2)) - 2;
+  double term2 = f * (2 * TMath::Log(st*u/(t*su)) - 2 +
+                        ( y*(xi-x)/(xi-y*(xi-x)) ) * TMath::Log(st2/(t*ml2)) );
+  double term3 = f2 * ( TMath::Log(u2/(t*mqi2)) - 2 );
 
   double I = term1 + term2 + term3;
 
@@ -405,8 +294,7 @@ double BardinDISPXSec::S(const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::U(double xi, const Interaction * interaction) const
 {
-  double y  = interaction->GetKinematics().y();
-
+  double y = interaction->GetKinematics().y();
   return S(interaction) * y * xi;
 }
 //__________________________________________________________________________
@@ -414,39 +302,34 @@ double BardinDISPXSec::tau(double xi, const Interaction * interaction) const
 {
   double x    = interaction->GetKinematics().x();
   double y    = interaction->GetKinematics().y();
-
-  double mqf  = fConfig->GetDouble("final-quark-mass");
-  double mqf2 = pow(mqf,2);
+  double mqf2 = TMath::Power(fMqf,2);
 
   return S(interaction) * y * (xi-x) + mqf2;
 }
 //__________________________________________________________________________
 double BardinDISPXSec::St(double xi, const Interaction * interaction) const
 {
-  double x  = interaction->GetKinematics().x();
-  double y  = interaction->GetKinematics().y();
+  double x = interaction->GetKinematics().x();
+  double y = interaction->GetKinematics().y();
 
   return S(interaction) * (xi - y*(xi-x));
 }
 //__________________________________________________________________________
 double BardinDISPXSec::Su(double xi, const Interaction * interaction) const
 {
-  double y  = interaction->GetKinematics().y();
-
+  double y = interaction->GetKinematics().y();
   return S(interaction) * xi * (1-y);
 }
 //__________________________________________________________________________
 double BardinDISPXSec::Sq(const Interaction * interaction) const
 {
-  double x  = interaction->GetKinematics().x();
-
+  double x = interaction->GetKinematics().x();
   return S(interaction) * x;
 }
 //__________________________________________________________________________
 double BardinDISPXSec::InitQuarkMass(const Interaction * interaction) const
 {
-  double x  = interaction->GetKinematics().x();
-
+  double x = interaction->GetKinematics().x();
   return x * kNucleonMass;
 }
 //__________________________________________________________________________
@@ -466,4 +349,108 @@ double BardinDISPXSec::PDFFunc(const PDF & pdf, int pdgc) const
   return 0;
 }
 //__________________________________________________________________________
+bool BardinDISPXSec::ValidProcess(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipProcessChk)) return true;
 
+  const InitialState & init_state = interaction -> GetInitialState();
+  const ProcessInfo &  proc_info  = interaction -> GetProcessInfo();
+
+  const Target & target = init_state.GetTarget();
+  if(!target.StruckQuarkIsSet()) return false;
+
+  int nu  = init_state.GetProbePDGCode();
+  int qrk = target.StruckQuarkPDGCode();
+
+  bool nqok = ( pdg::IsNeutrino(nu)     && pdg::IsDQuark(qrk) ) ||
+              ( pdg::IsAntiNeutrino(nu) && pdg::IsUQuark(qrk) );
+  if(!nqok) return false;
+
+  bool prcok = proc_info.IsDeepInelastic() && proc_info.IsWeakCC();
+  if(!prcok) return false;
+
+  return true;
+}
+//__________________________________________________________________________
+bool BardinDISPXSec::ValidKinematics(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+
+  //----- get kinematical & init-state parameters
+  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> GetInitialState();
+
+  double E     = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Mnuc  = kNucleonMass; // or init_state.TargetMass(); ?
+  double Mnuc2 = TMath::Power(Mnuc, 2);
+  double x     = kinematics.x();
+  double y     = kinematics.y();
+  double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
+  double Q2    = S(interaction) * x * y;
+  double W     = TMath::Max(0., TMath::Sqrt(W2));
+
+  // make sure that x, y are in the physically acceptable region
+  if(x<=0 || x>=1) return false;
+  if(y<=0 || y>=1) return false;
+
+  //----- Get the physical W and Q2 range and check whether the current W,Q2
+  //      pair is allowed
+  Range1D_t rW  = utils::kinematics::WRange     (interaction);
+  Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
+
+  bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
+                                       && utils::math::IsWithinLimits(W, rW);
+  if(!in_range) {
+       LOG("DISXSec", pDEBUG)
+             << "\n *** point (W = " << W
+                           << ", Q2 = " << Q2 << " is not in physical range";
+       LOG("DISXSec", pDEBUG)
+             << "\n Physical W range: "
+                               << "[" << rW.min << ", " << rW.max << "] GeV";
+       LOG("DISXSec", pDEBUG)
+             << "\n Physical Q2 range: "
+                           << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
+       return false;
+  }
+  return true;
+}
+//__________________________________________________________________________
+void BardinDISPXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//__________________________________________________________________________
+void BardinDISPXSec::Configure(string param_set)
+{
+  Algorithm::Configure(param_set);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//__________________________________________________________________________
+void BardinDISPXSec::LoadConfigData(void)
+{
+  fMqf = fConfig->GetDoubleDef("final-quark-mass", 0.1);
+}
+//__________________________________________________________________________
+void BardinDISPXSec::LoadSubAlg(void)
+{
+  fPDFModel   = 0;
+  fIntegrator = 0;
+
+  fPDFModel = dynamic_cast<const PDFModelI *> (
+                         this->SubAlg("pdf-alg-name","pdf-param-set"));
+  assert(fPDFModel);
+
+  //-- get specified integration algorithm from the config. registry
+  //   or use Simpson1D if no one else is defined
+
+  AlgFactory * algf = AlgFactory::Instance();
+  string integrator =
+                fConfig->GetStringDef("integrator", "genie::Simpson1D");
+  fIntegrator = dynamic_cast<const IntegratorI *> (
+                                        algf->GetAlgorithm(integrator));
+  assert(fIntegrator);
+}
+//__________________________________________________________________________
