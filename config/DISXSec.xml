@@ -38,7 +38,7 @@
 
   <param_set name="CC-Bardin-Rad-Corr"> 
      <param type="string" name="partial-xsec-alg-name">  genie::BardinDISPXSec      </param>
-     <param type="string" name="partial-xsec-param-set"> CC-d-u                     </param>
+     <param type="string" name="partial-xsec-param-set"> CC                         </param>
      <param type="string" name="integrator">             genie::Simpson2D           </param>
      <param type="int"    name="n-log-x">                71                         </param>
      <param type="double" name="x-min">                  0.001                      </param>
