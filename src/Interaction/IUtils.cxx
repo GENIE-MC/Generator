@@ -106,7 +106,7 @@ Interaction * genie::utils::interaction::GetQel(int Z, int A,
 {
   Target       target(Z,A);
   InitialState init_state(target, probe);
-  ProcessInfo  proc(kScDeepInelastic, intype);
+  ProcessInfo  proc(kScQuasiElastic, intype);
 
   init_state.SetProbeP4(p4probe);
   Interaction * interaction = new Interaction(init_state, proc);
@@ -162,29 +162,29 @@ Interaction * genie::utils::interaction::GetRes(
 {
   TLorentzVector p4(0,0,0,0); // null probe 4-momentum
 
-  return utils::interaction::GetQel(Z,A,probe,p4,intype);
+  return utils::interaction::GetRes(Z,A,probe,p4,intype);
 }
 //____________________________________________________________________________
 Interaction * genie::utils::interaction::GetResCC(
                       int Z, int A, int probe, const TLorentzVector & p4probe)
 {
-  return utils::interaction::GetQel(Z,A,probe,p4probe,kIntWeakCC);
+  return utils::interaction::GetRes(Z,A,probe,p4probe,kIntWeakCC);
 }
 //____________________________________________________________________________
 Interaction * genie::utils::interaction::GetResCC(int Z, int A, int probe)
 {
-  return utils::interaction::GetQel(Z,A,probe,kIntWeakCC);
+  return utils::interaction::GetRes(Z,A,probe,kIntWeakCC);
 }
 //____________________________________________________________________________
 Interaction * genie::utils::interaction::GetResNC(
                       int Z, int A, int probe, const TLorentzVector & p4probe)
 {
-  return utils::interaction::GetQel(Z,A,probe,p4probe,kIntWeakNC);
+  return utils::interaction::GetRes(Z,A,probe,p4probe,kIntWeakNC);
 }
 //____________________________________________________________________________
 Interaction * genie::utils::interaction::GetResNC(int Z, int A, int probe)
 {
-  return utils::interaction::GetQel(Z,A,probe,kIntWeakNC);
+  return utils::interaction::GetRes(Z,A,probe,kIntWeakNC);
 }
 //____________________________________________________________________________
 Interaction * genie::utils::interaction::GetIMD(
@@ -204,17 +204,14 @@ Interaction * genie::utils::interaction::GetIMD(
 //____________________________________________________________________________
 Interaction * genie::utils::interaction::GetEl(int Z, int A,
                                      int probe, const TLorentzVector & p4probe)
-{
+{	
   Target target(Z,A);
-
   InitialState init_state(target, probe);
-
   init_state.SetProbeP4(p4probe);
 
   ProcessInfo proc(kScElastic, kIntWeakNC);
 
   Interaction * interaction = new Interaction(init_state, proc);
-
   return interaction;
 }
 //____________________________________________________________________________
