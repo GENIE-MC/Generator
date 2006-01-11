@@ -57,6 +57,9 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   Interaction * interaction = evrec->GetInteraction();
 
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
+
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
@@ -64,7 +67,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   Valculate the max differential cross section or retrieve it from
   //   the cache (if something similar was computed at a previous step).
   double xsec_max = this->MaxXSec(interaction);
-  xsec_max *= 1.3;
+  xsec_max *= fSafetyFactor;
 
   //------ Try to select a valid W,Q2 (=>x,y) pair using the rejection
   //       method
@@ -120,9 +123,12 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
                   << " (=> x = " << interaction->GetKinematics().x()
                       << ", y = " << interaction->GetKinematics().y() << ")";
 
-        // set the cross section for the selected kinematics
-        evrec->SetDiffXSec(xsec);
-        return;
+         interaction->ResetBit(kISkipProcessChk);
+         interaction->ResetBit(kISkipKinematicChk);
+
+         // set the cross section for the selected kinematics
+         evrec->SetDiffXSec(xsec);
+         return;
      }
 
      iter++;
@@ -169,6 +175,9 @@ void DISKinematicsGenerator::LoadConfigData(void)
   //-- Get the user kinematical limits on Q2
   fQ2min = fConfig->GetDoubleDef("Q2-min", -1);
   fQ2max = fConfig->GetDoubleDef("Q2-max", -1);
+
+  //-- Safety factor for the maximum differential cross section
+  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
 }
 //____________________________________________________________________________
 Range1D_t DISKinematicsGenerator::WRange(

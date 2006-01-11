@@ -94,10 +94,10 @@ double KineGeneratorWithCache::MaxXSec(const Interaction * interaction) const
 
   // query for all the entries at a window around the current energy
   ostringstream cut;
-  if(E<1) {
+  if(E<1.5) {
     cut << "(E-" << E << " < 0.05) && (E>=" << E << ")";
   } else {
-    cut << "(E-" << E << " < 0.25) && (E>=" << E << ")";
+    cut << "(E-" << E << " < 0.10) && (E>=" << E << ")";
   }
 
   TSQLResult * result = nt->Query("E:xsec", cut.str().c_str());
@@ -124,7 +124,7 @@ double KineGeneratorWithCache::MaxXSec(const Interaction * interaction) const
             dEmin    = TMath::Min(dE,dEmin);
          }
      }
-     LOG("Kinematics", pDEBUG)
+     LOG("Kinematics", pINFO)
        << "\nRetrieved: max xsec = " << max_xsec << " cached at E = " << Ep;
 
      return max_xsec;

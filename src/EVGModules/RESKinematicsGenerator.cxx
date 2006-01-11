@@ -58,8 +58,11 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   //   cache (if something similar was computed at a previous step).
   Interaction * interaction = event_rec->GetInteraction();
 
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
+
   double xsec_max = this->MaxXSec(interaction);
-  xsec_max *= 1.1;
+  xsec_max *= fSafetyFactor;
 
   //-- Try to select a valid W, Q2 pair
 
@@ -100,6 +103,9 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
                             << "Selected: W = " << gW << ", Q2 = " << gQ2;
         // set the cross section for the selected kinematics
         event_rec->SetDiffXSec(xsec);
+
+        interaction->ResetBit(kISkipProcessChk);
+        interaction->ResetBit(kISkipKinematicChk);
         return;
      }
 
@@ -148,6 +154,9 @@ void RESKinematicsGenerator::LoadConfigData(void)
   //-- Get the user kinematical limits on Q2
   fQ2min = fConfig->GetDoubleDef("Q2-min", -1);
   fQ2max = fConfig->GetDoubleDef("Q2-max", -1);
+
+  //-- Safety factor for the maximum differential cross section
+  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
 }
 //____________________________________________________________________________
 Range1D_t RESKinematicsGenerator::WRange(
@@ -201,17 +210,18 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 // maximum. The number used in the rejection method will be scaled up by a
 // safety factor. But this needs to be fast - do not use a very fine grid.
 
-  const int NW  = 10;
+  //const int NW  = 10;
   const int NQ2 = 20;
 
   double max_xsec = -1.0;
 
-  Range1D_t rW = this->WRange(interaction);
+  //Range1D_t rW = this->WRange(interaction);
 
-  const double dW  = (rW.max-rW.min)/(NW-1);
+  //const double dW  = (rW.max-rW.min)/(NW-1);
 
-  for(int iw=0; iw<NW; iw++) {
-     double W = rW.min + iw * dW;
+  //for(int iw=0; iw<NW; iw++) {
+  //   double W = rW.min + iw * dW;
+     double W=1.232;
      interaction->GetKinematicsPtr()->SetW(W);
 
      Range1D_t rQ2 = this->Q2Range(interaction);
@@ -227,7 +237,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
         max_xsec = TMath::Max(xsec, max_xsec);
      } // Q2
-  }// W
+  //}// W
 
   LOG("RESKinematics", pDEBUG) << interaction->AsString();
   LOG("RESKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;

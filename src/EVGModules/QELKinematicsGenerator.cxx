@@ -52,6 +52,9 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
   Interaction * interaction = event_rec->GetInteraction();
 
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
+
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
@@ -59,7 +62,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   //   Valculate the max differential cross section or retrieve it from
   //   the cache (if something similar was computed at a previous step).
   double xsec_max = this->MaxXSec(interaction);
-  xsec_max *= 1.3;
+  xsec_max *= fSafetyFactor;
 
   //------ Try to select a valid Q2
 
@@ -86,6 +89,9 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
         // set the cross section for the selected kinematics
         event_rec->SetDiffXSec(xsec);
+
+        interaction->ResetBit(kISkipProcessChk);
+        interaction->ResetBit(kISkipKinematicChk);
         return;
      }
 
@@ -123,6 +129,9 @@ void QELKinematicsGenerator::LoadConfig(void)
   //-- Get the user kinematical limits on Q2
   fQ2min = fConfig->GetDoubleDef("Q2-min", -1);
   fQ2max = fConfig->GetDoubleDef("Q2-max", -1);
+
+  //-- Safety factor for the maximum differential cross section
+  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
 }
 //____________________________________________________________________________
 Range1D_t QELKinematicsGenerator::Q2Range(
