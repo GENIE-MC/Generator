@@ -185,6 +185,12 @@
        </config_file>
    </alg_config>
 
+   <alg_config alg_name="genie::IMDXSec">   
+       <config_file>
+             IMDXSec.xml
+       </config_file>
+   </alg_config>
+
    <alg_config alg_name="genie::RESXSec">   
        <config_file> 
              RESXSec.xml 
@@ -221,12 +227,6 @@
    <alg_config alg_name="genie::BardinIMDRadCorPXSec">   
        <config_file>
              BardinIMDRadCorPXSec.xml
-       </config_file>
-   </alg_config>
-
-   <alg_config alg_name="genie::BardinIMDRadCorXSec">   
-       <config_file>
-             BardinIMDRadCorXSec.xml
        </config_file>
    </alg_config>
 
