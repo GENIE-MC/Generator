@@ -33,6 +33,8 @@
 
 namespace genie {
 
+class IntegratorI;
+
 class BardinIMDRadCorPXSec : public XSecAlgorithmI {
 
 public:
@@ -46,13 +48,22 @@ public:
   bool   ValidProcess    (const Interaction * interaction) const;
   bool   ValidKinematics (const Interaction * interaction) const;
 
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
+
 private:
+
+  void LoadSubAlg(void);
 
   // symbols follow the notation in Bardin-Dokuchaeva paper
   double Li2 (double z)                      const;
   double Fa  (double re, double r, double y) const;
   double P   (int    i,  double r, double y) const;
   double C   (int    i,  int k,    double r) const;
+
+  const IntegratorI * fIntegrator;
 };
 
 }       // genie namespace

@@ -80,16 +80,16 @@ double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
 
   ymax = TMath::Min(ymax,0.9999999); // avoid ymax=1, due to a log(1-y)
 
-  LOG("InverseMuDecay", pDEBUG)
-                << "sig0 = " << sig0 << ", r = " << r << ", re = " << re;
-  LOG("InverseMuDecay", pDEBUG)
-                        << "allowed y: [" << ymin << ", " << ymax << "]";
+  LOG("BardinIMD", pDEBUG)
+           << "sig0 = " << sig0 << ", r = " << r << ", re = " << re;
+  LOG("BardinIMD", pDEBUG)
+                   << "allowed y: [" << ymin << ", " << ymax << "]";
 
   if(y<ymin || y>ymax) return 0;
 
   double dsig_dy = 2 * sig0 * ( 1 - r + (kAem/kPi) * Fa(re,r,y) );
 
-  LOG("InverseMuDecay", pINFO)
+  LOG("BardinIMD", pINFO)
      << "dxsec[1-loop]/dy (Ev = " << E << ", y = " << y << ") = " << dsig_dy;
 
   return dsig_dy;
@@ -113,7 +113,7 @@ bool BardinIMDRadCorPXSec::ValidKinematics(
 
   //-- check if it is kinematically allowed
   if(s < kMuonMass_2) {
-     LOG("InverseMuDecay", pINFO)
+     LOG("BardinIMD", pINFO)
         << "Ev = " << E << " (s = " << s << ") is below threshold (s-min = "
         << kMuonMass_2 << ") for IMD";
      return false;
@@ -174,13 +174,6 @@ double BardinIMDRadCorPXSec::P(int i, double r, double y) const
 //____________________________________________________________________________
 double BardinIMDRadCorPXSec::Li2(double z) const
 {
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * alg_base = algf->GetAlgorithm("genie::Simpson1D");
-
-  const IntegratorI * integrator =
-                              dynamic_cast<const IntegratorI *> (alg_base);
-
   const int    nsteps  = 101;
   const double epsilon = 1e-2;
   const double min     = epsilon;
@@ -188,21 +181,18 @@ double BardinIMDRadCorPXSec::Li2(double z) const
   const double step    = (max-min)/(nsteps-1);
 
   UnifGrid grid;
-
   grid.AddDimension(nsteps, min, max);
 
   FunctionMap fmap(grid);
 
   for(int i = 0; i < nsteps; i++) {
-
     double t  = min + i * step;
     double f  = TMath::Log(1-z*t)/t;
 
     fmap.AddPoint(f, i);
   }
 
-  double li2 = integrator->Integrate(fmap);
-
+  double li2 = fIntegrator->Integrate(fmap);
   return li2;
 }
 //____________________________________________________________________________
@@ -210,10 +200,10 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
 {
   if        ( i == 1 ) {
 
-      if      (k == -3) return -0.19444444*pow(r,3.);
-      else if (k == -2) return (0.083333333+0.29166667*r)*pow(r,2.);
-      else if (k == -1) return -0.58333333*r - 0.5*pow(r,2.) - pow(r,3.)/6.;
-      else if (k ==  0) return -1.30555560 + 3.125*r + 0.375*pow(r,2.);
+      if      (k == -3) return -0.19444444*TMath::Power(r,3.);
+      else if (k == -2) return (0.083333333+0.29166667*r)*TMath::Power(r,2.);
+      else if (k == -1) return -0.58333333*r - 0.5*TMath::Power(r,2.) - TMath::Power(r,3.)/6.;
+      else if (k ==  0) return -1.30555560 + 3.125*r + 0.375*TMath::Power(r,2.);
       else if (k ==  1) return -0.91666667 - 0.25*r;
       else if (k ==  2) return 0.041666667;
       else              return 0.;
@@ -221,18 +211,18 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
   } else if ( i == 2 ) {
 
       if      (k == -3) return 0.;
-      else if (k == -2) return 0.5*pow(r,2.);
-      else if (k == -1) return 0.5*r - 2*pow(r,2.);
-      else if (k ==  0) return 0.25 - 0.75*r + 1.5*pow(r,2);
+      else if (k == -2) return 0.5*TMath::Power(r,2.);
+      else if (k == -1) return 0.5*r - 2*TMath::Power(r,2.);
+      else if (k ==  0) return 0.25 - 0.75*r + 1.5*TMath::Power(r,2);
       else if (k ==  1) return 0.5;
       else if (k ==  2) return 0.;
       else              return 0.;
 
   } else if ( i == 3 ) {
 
-      if      (k == -3) return 0.16666667*pow(r,3.);
-      else if (k == -2) return 0.25*pow(r,2.)*(1-r);
-      else if (k == -1) return r-0.5*pow(r,2.);
+      if      (k == -3) return 0.16666667*TMath::Power(r,3.);
+      else if (k == -2) return 0.25*TMath::Power(r,2.)*(1-r);
+      else if (k == -1) return r-0.5*TMath::Power(r,2.);
       else if (k ==  0) return 0.66666667;
       else if (k ==  1) return 0.;
       else if (k ==  2) return 0.;
@@ -241,19 +231,19 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
   } else if ( i == 4 ) {
 
       if      (k == -3) return 0.;
-      else if (k == -2) return pow(r,2.);
+      else if (k == -2) return TMath::Power(r,2.);
       else if (k == -1) return r*(1-4.*r);
-      else if (k ==  0) return 1.5*pow(r,2.);
+      else if (k ==  0) return 1.5*TMath::Power(r,2.);
       else if (k ==  1) return 1.;
       else if (k ==  2) return 0.;
       else              return 0.;
 
   } else if ( i == 5 ) {
 
-      if      (k == -3) return 0.16666667*pow(r,3.);
-      else if (k == -2) return -0.25*pow(r,2.)*(1+r);
+      if      (k == -3) return 0.16666667*TMath::Power(r,3.);
+      else if (k == -2) return -0.25*TMath::Power(r,2.)*(1+r);
       else if (k == -1) return 0.5*r*(1+3*r);
-      else if (k ==  0) return -1.9166667+2.25*r-1.5*pow(r,2);
+      else if (k ==  0) return -1.9166667+2.25*r-1.5*TMath::Power(r,2);
       else if (k ==  1) return -0.5;
       else if (k ==  2) return 0.;
       else              return 0.;
@@ -261,7 +251,7 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
   } else if ( i == 6 ) {
 
       if      (k == -3) return 0.;
-      else if (k == -2) return 0.16666667*pow(r,2.);
+      else if (k == -2) return 0.16666667*TMath::Power(r,2.);
       else if (k == -1) return -0.25*r*(r+0.33333333);
       else if (k ==  0) return 1.25*(r+0.33333333);
       else if (k ==  1) return 0.5;
@@ -271,3 +261,23 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
   } else return 0.;
 }
 //____________________________________________________________________________
+void BardinIMDRadCorPXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void BardinIMDRadCorPXSec::Configure(string param_set)
+{
+  Algorithm::Configure(param_set);
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void BardinIMDRadCorPXSec::LoadSubAlg(void)
+{
+  AlgFactory * algf = AlgFactory::Instance();
+  fIntegrator = dynamic_cast<const IntegratorI *> (
+                                    algf->GetAlgorithm("genie::Simpson1D"));
+}
+//____________________________________________________________________________
+
