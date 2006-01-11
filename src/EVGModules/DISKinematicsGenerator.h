@@ -61,6 +61,7 @@ private:
   double fWmax;
   double fQ2min;
   double fQ2max;
+  double fSafetyFactor;
 
   const XSecAlgorithmI * fXSecModel;
 };
