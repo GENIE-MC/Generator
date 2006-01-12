@@ -41,7 +41,7 @@
   <priority msgstream="DISHadronicVtx">      INFO   </priority>
   <priority msgstream="DISKinematics">       INFO   </priority>
   <priority msgstream="EventGenerator">      INFO   </priority>
-  <priority msgstream="EventGenChain">       INFO   </priority>
+  <priority msgstream="EVGChain">            INFO   </priority>
   <priority msgstream="ELFormFactors">       INFO   </priority>
   <priority msgstream="FermiMover">          INFO   </priority>
   <priority msgstream="FermiP">              INFO   </priority>
@@ -52,6 +52,7 @@
   <priority msgstream="GMCJDriver">          INFO   </priority>
   <priority msgstream="GEVGPool">            INFO   </priority>
   <priority msgstream="GMCJob">              INFO   </priority>
+  <priority msgstream="GMCMonitor">          WARN   </priority>
   <priority msgstream="GROOTGeom">           NOTICE </priority>
   <priority msgstream="GHEP">                NOTICE </priority>
   <priority msgstream="GHepParticle">        INFO   </priority>
@@ -77,6 +78,7 @@
   <priority msgstream="NtpGHepAnalyzer">     INFO   </priority>
   <priority msgstream="NtpMCConfig">         NOTICE </priority>
   <priority msgstream="NtpMCEnv">            NOTICE </priority>
+  <priority msgstream="NtpWriter">           NOTICE </priority>
   <priority msgstream="NuVld">               DEBUG  </priority>
   <priority msgstream="NeuGen">              INFO   </priority>
   <priority msgstream="PartonModel">         INFO   </priority>

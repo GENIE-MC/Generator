@@ -7,8 +7,8 @@
   <param_set name="Default"> 
 
      <param type="int"    name="n-momentum-bins">    400     </param>
-     <param type="double" name="p-max">               10     </param>
-     <param type="double" name="p-cut-off">            4     </param>
+     <param type="double" name="p-max">               10.0   </param>
+     <param type="double" name="p-cut-off">            0.5   </param>
   </param_set>
 
 </alg_conf>
