@@ -32,23 +32,25 @@ class BaryonResList
 public:
 
   BaryonResList();
-  BaryonResList(const BaryonResList & res_list);
+  BaryonResList(const BaryonResList & rl);
   virtual ~BaryonResList();
+
+  void DecodeFromNameList (string list, string delimiter = ",");
 
   unsigned int NResonances        (void)              const;
   string       ResonanceName      (unsigned int ires) const;
   Resonance_t  ResonanceId        (unsigned int ires) const;
   int          ResonancePdgCode   (unsigned int ires) const;
-  void         Clear              (void);
-  void         DecodeFromNameList (string list, string delimiter = ",");
 
-  void Print(ostream & stream) const;
+  void Clear (void);
+  void Copy  (const BaryonResList & rl);
+  void Print (ostream & stream) const;
 
-  friend ostream & operator << (ostream & stream, const BaryonResList & res_list);
+  friend ostream & operator << (ostream & stream, const BaryonResList & rl);
 
 private:
 
-  vector<Resonance_t> * fResVec;  
+  vector<Resonance_t> * fResVec;
 };
 
 }       // genie namepace
