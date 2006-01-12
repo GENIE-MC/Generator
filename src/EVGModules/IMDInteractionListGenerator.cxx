@@ -47,7 +47,11 @@ InteractionList * IMDInteractionListGenerator::CreateInteractionList(
 {
   LOG("InteractionList", pINFO) << "InitialState = " << init_state.AsString();
 
-  assert(init_state.GetProbePDGCode() == kPdgNuMu);
+  if(init_state.GetProbePDGCode() != kPdgNuMu) {
+     LOG("InteractionList", pDEBUG) 
+          << "Return *null* interaction list (non nu_mu probe in IMD thread)";
+     return 0;
+  }
 
   InteractionList * intlist = new InteractionList;
 

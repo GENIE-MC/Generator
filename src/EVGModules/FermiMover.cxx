@@ -28,8 +28,8 @@
 #include "GHEP/GHepStatus.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/NuclearPDistribution.h"
-#include "Nuclear/NuclearPDistributionModelI.h"
+#include "Nuclear/NuclMomentumGenerator.h"
+#include "Nuclear/NuclMomentumModelI.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;
@@ -60,7 +60,7 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   Target *       tgt         = init_state  -> GetTargetPtr();
 
   // do nothing for non-nuclear targets
-  if( ! tgt->IsNucleus() ) return;
+  if(!tgt->IsNucleus()) return;
 
   TLorentzVector * p4 = tgt->StruckNucleonP4();
 
@@ -70,13 +70,9 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
 
   // generate a Fermi momentum
   assert(fNuclPModel);
-  NuclearPDistribution nucleon_momentum_generator;
-
-  nucleon_momentum_generator.AttachModel(fNuclPModel);
-  nucleon_momentum_generator.BuildProbDistribution(*tgt);
-
-  TVector3 p3 = nucleon_momentum_generator.RandomMomentum3();
-
+  NuclMomentumGenerator * nucp_gen = NuclMomentumGenerator::Instance();
+  nucp_gen->UseProbDistribution(fNuclPModel, *tgt);
+  TVector3 p3 = nucp_gen->RandomMomentum3();
   LOG("FermiMover", pINFO) << "Generated nucleon momentum: ("
                   << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << ")";
 
@@ -130,7 +126,7 @@ void FermiMover::LoadConfig(void)
 // Reads its configuration from its Registry and loads all the sub-algorithms
 // needed
 
-  fNuclPModel = dynamic_cast<const NuclearPDistributionModelI *>
+  fNuclPModel = dynamic_cast<const NuclMomentumModelI *>
          (this->SubAlg("nucl-p-distribution-alg","nucl-p-distribution-conf"));
 }
 //____________________________________________________________________________

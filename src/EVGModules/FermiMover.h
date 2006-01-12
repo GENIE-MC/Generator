@@ -23,7 +23,7 @@
 
 namespace genie {
 
-class NuclearPDistributionModelI;
+class NuclMomentumModelI;
 
 class FermiMover : public EventRecordVisitorI {
 
@@ -45,7 +45,7 @@ private:
 
   void LoadConfig (void);
 
-  const NuclearPDistributionModelI *  fNuclPModel;
+  const NuclMomentumModelI *  fNuclPModel;
 };
 
 }      // genie namespace
