@@ -80,9 +80,9 @@ void QELPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   TLorentzVector * p4l = P4InNucRestFrame(evrec, cThSc, El);
 
   //-- Boost it to the lab frame
-
   TVector3 * beta = NucRestFrame2Lab(evrec);
   p4l->Boost(*beta); // active Lorentz transform
+  delete beta;
 
   //-- Create a GHepParticle and add it to the event record
   //   (use the insertion method at the base PrimaryLeptonGenerator visitor)
