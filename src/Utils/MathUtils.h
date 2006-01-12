@@ -16,22 +16,26 @@
 #ifndef _MATH_UTILS_H_
 #define _MATH_UTILS_H_
 
+#include <vector>
+
 #include "Utils/Range1.h"
+
+using std::vector;
 
 namespace genie {
 namespace utils {
 
 namespace math
 {
-  bool   AreEqual (double x1, double x2);
-  bool   AreEqual (float  x1, float  x2);
-
+  double KahanSummation (double x[], unsigned int n);
+  double KahanSummation (const vector<double> & x);
+  bool   AreEqual       (double x1, double x2);
+  bool   AreEqual       (float  x1, float  x2);
   bool   IsWithinLimits (double x, Range1D_t range);
   bool   IsWithinLimits (float  x, Range1F_t range);
   bool   IsWithinLimits (int    i, Range1I_t range);
-
-  double NonNegative (double x);
-  double NonNegative (float  x);
+  double NonNegative    (double x);
+  double NonNegative    (float  x);
 
 } // math  namespace
 } // utils namespace

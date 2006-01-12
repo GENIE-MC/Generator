@@ -20,21 +20,49 @@
 #include "Utils/MathUtils.h"
 
 //____________________________________________________________________________
+double genie::utils::math::KahanSummation(double x[], unsigned int n)
+{
+// the Kahan summation algorithm - minimizes the error when adding a sequence
+// of finite precision floating point numbers (compensated summation)
+
+  double sum = x[0];
+  double c   = 0.0;
+  for(unsigned int i=1; i<n; i++) {
+    double y = x[i]-c;
+    double t = sum+y;
+    c   = (t-sum) - y;
+    sum = t;
+  }
+  return sum;
+}
+//____________________________________________________________________________
+double genie::utils::math::KahanSummation(const vector<double> & x)
+{
+// the Kahan summation algorithm - minimizes the error when adding a sequence
+// of finite precision floating point numbers (compensated summation)
+
+  double sum = x[0];
+  double c   = 0.0;
+  for(unsigned int i=1; i<x.size(); i++) {
+    double y = x[i]-c;
+    double t = sum+y;
+    c   = (t-sum) - y;
+    sum = t;
+  }
+  return sum;
+}
+//____________________________________________________________________________
 bool genie::utils::math::AreEqual(double x1, double x2)
 {
   double err = 10. * DBL_EPSILON;
-
   double dx  = TMath::Abs(x1-x2);
-
   return (dx < err);
 }
 //____________________________________________________________________________
 bool genie::utils::math::AreEqual(float x1, float x2)
 {
   float err = 10. * FLT_EPSILON;
-
   float dx  = TMath::Abs(x1-x2);
-
   return (dx < err);
 }
 //____________________________________________________________________________
