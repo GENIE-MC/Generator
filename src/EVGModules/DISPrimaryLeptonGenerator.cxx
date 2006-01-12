@@ -81,6 +81,7 @@ void DISPrimaryLeptonGenerator::ProcessEventRecord(
   //-- Boost it to the lab frame
   TVector3 * beta = NucRestFrame2Lab(event_rec);
   pl4->Boost(*beta); // active Lorentz transform
+  delete beta;
 
   //-- Create a GHepParticle and add it to the event record
   //   (use the insertion method at the base PrimaryLeptonGenerator visitor)
