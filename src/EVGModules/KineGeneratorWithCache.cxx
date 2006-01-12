@@ -142,8 +142,9 @@ double KineGeneratorWithCache::MaxXSec(const Interaction * interaction) const
   if(max_xsec>0) nt->Fill(E, max_xsec);
   else {
      LOG("Kinematics", pWARN) << *interaction;
-     LOG("Kinematics", pWARN)
-          << "** Refusing to cache non-positice xsec = " << max_xsec;
+     LOG("Kinematics", pFATAL)
+          << "** Refusing to cache non-positive xsec = " << max_xsec;
+     assert(max_xsec>0);
   }
   return max_xsec;
 }
