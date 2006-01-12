@@ -31,13 +31,11 @@ class FermiMomentumTable;
 class FermiMomentumTablePool
 {
 public:
+  static FermiMomentumTablePool * Instance (void);
 
-  static FermiMomentumTablePool * Instance(void);
-
-  const FermiMomentumTable * GetTable(string name);
+  const FermiMomentumTable * GetTable (string name);
 
 private:
-
   FermiMomentumTablePool();
   FermiMomentumTablePool(const FermiMomentumTablePool & fmc);
   virtual ~FermiMomentumTablePool();
