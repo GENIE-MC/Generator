@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::NuclearPDistributionModelI
+\class    genie::NuclMomentumModelI
 
 \brief    Pure abstract base class.
-          Defines the NuclearPDistributionModelI interface to be implemented by
+          Defines the NuclMomentumModelI interface to be implemented by
           any algorithmic class generating momenta for nucleons within nuclei
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -15,31 +15,30 @@
 */
 //____________________________________________________________________________
 
-#include "Nuclear/NuclearPDistributionModelI.h"
+#include "Nuclear/NuclMomentumModelI.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-NuclearPDistributionModelI::NuclearPDistributionModelI() :
+NuclMomentumModelI::NuclMomentumModelI() :
 Algorithm()
 {
 
 }
 //____________________________________________________________________________
-NuclearPDistributionModelI::NuclearPDistributionModelI(string name) :
+NuclMomentumModelI::NuclMomentumModelI(string name) :
 Algorithm(name)
 {
 
 }
 //____________________________________________________________________________
-NuclearPDistributionModelI::NuclearPDistributionModelI(
-                                                string name, string config) :
+NuclMomentumModelI::NuclMomentumModelI(string name, string config) :
 Algorithm(name, config)
 {
 
 }
 //____________________________________________________________________________
-NuclearPDistributionModelI::~NuclearPDistributionModelI()
+NuclMomentumModelI::~NuclMomentumModelI()
 {
 
 }
