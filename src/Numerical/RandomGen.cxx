@@ -43,20 +43,18 @@ RandomGen::RandomGen()
 {
   LOG("Rndm", pINFO) << "RandomGen late initialization";
 
-  fInstance =  0;
+  fInstance = 0;
 
-  fCurrSeed = kDefaultRandSeed; // default seed number
-
-  // try to get this job's random number seed from the envoronment
+  // try to get this job's random number seed from the environment
   const char * seed = gSystem->Getenv("GSEED");
-
   if(seed) {
-     LOG("Rndm", pINFO) << "Getting Rndm Generator seed from the environment";
-     fCurrSeed = atoi(seed);
+    LOG("Rndm", pDEBUG) << "Reading RandomNumGenerator seed env. var $GSEED";
+    fCurrSeed = atoi(seed);
   } else {
-     LOG("Rndm", pINFO) << "Env. var. $GSEED is not set. Using default seed";
+    LOG("Rndm", pINFO) << "Env. var. $GSEED is not set. Using default seed";
+    fCurrSeed = kDefaultRandSeed; // default seed number
   }
-  LOG("Rndm", pINFO) 
+  LOG("Rndm", pINFO)
             << "Starting Random Number Generators with seed = " << fCurrSeed;
 
   this->InitRandomGenerators(fCurrSeed);
@@ -70,7 +68,6 @@ RandomGen::~RandomGen()
 RandomGen * RandomGen::Instance()
 {
   if(fInstance == 0) {
-
     static RandomGen::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
 
@@ -81,6 +78,7 @@ RandomGen * RandomGen::Instance()
 //____________________________________________________________________________
 void RandomGen::SetSeed(long int seed)
 {
+  gRandom  -> SetSeed (seed);
   fRandom1 -> SetSeed (seed);
   fRandom2 -> SetSeed (seed);
   fRandom3 -> SetSeed (seed);
@@ -88,9 +86,11 @@ void RandomGen::SetSeed(long int seed)
 //____________________________________________________________________________
 void RandomGen::InitRandomGenerators(long int seed)
 {
+  gRandom->SetSeed(seed);
+
   fRandom1 = new TRandom  (seed);
   fRandom2 = new TRandom2 (seed);
   fRandom3 = new TRandom3 (seed);
 }
 //____________________________________________________________________________
-} // genie namespace 
+} // genie namespace
