@@ -186,11 +186,12 @@ int main(int argc, char ** argv)
      LOG("gevgen", pINFO) << "Generated Event GHEP Record: " << *event;
 
      // add event at the output ntuple
-     ntpw.AddEventRecord(ievent++, event);
+     ntpw.AddEventRecord(ievent, event);
 
      // refresh the mc job monitor
      mcjmonitor.Update(ievent,event);
 
+     ievent++;
      delete event;
   }
 
