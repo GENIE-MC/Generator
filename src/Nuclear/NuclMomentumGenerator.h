@@ -3,9 +3,10 @@
 
 \class    genie::NuclMomentumGenerator
 
-\brief    Describes a nucleon momentum probability distribution (constructed
-          from the attached NuclearPDistributionModelI) and can act as a
-          nucleon momentum generator.
+\brief    Holds a list of all nucleon momentum probability distributions that
+          have been generated at a MC job. Can pick up the one requested (or
+          build it if it doesn't already exists) and use it to generate nucleon
+          momenta.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -52,8 +53,8 @@ private:
 
   static NuclMomentumGenerator * fInstance;
 
-  map<string, TH1D*> fProbDistributionMap;
-  TH1D*              fCurrProbDistribution;
+  map<string, TH1D *> fProbDistributionMap;
+  TH1D *              fCurrProbDistribution;
 
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
