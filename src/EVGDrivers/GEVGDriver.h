@@ -26,6 +26,7 @@
 #include <string>
 
 #include <TLorentzVector.h>
+#include "Utils/Range1.h"
 
 using std::ostream;
 using std::string;
@@ -60,8 +61,8 @@ public :
   EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
   //-- Cross section sum for all interactions that can be generated for
-  //   the current init-state. The cross sections for specific interactions and 
-  //   the interaction list for the current init-state is accessed from the 
+  //   the current init-state. The cross sections for specific interactions and
+  //   the interaction list for the current init-state is accessed from the
   //   EventGeneratorList object.
   double         XSecSum             (const TLorentzVector & nup4);
   void           CreateXSecSumSpline (int nk, double Emin, double Emax, bool inlogE=true);
@@ -71,6 +72,9 @@ public :
   const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
   const InteractionFilter *  Filter          (void) const { return fFilter;    }
 
+  //-- Get validity range (combined validity range of loaded evg threads)
+  Range1D_t ValidEnergyRange (void) const;
+
   //-- Print state
   void Print (ostream & stream) const;
   friend ostream & operator << (ostream & stream, const GEVGDriver & driver);
@@ -78,9 +82,10 @@ public :
 private:
 
   //-- Private initialization, configuration & input validation methods
-  void Initialize       (void);
-  void Configure        (void);
-  bool IsValidInitState (void) const;
+  void Initialize             (void);
+  void Configure              (void);
+  bool IsValidInitState       (void) const;
+  void AssertIsValidInitState (void) const;
 
   //-- Minimal Initial State Information
   bool     fUseSplines;
