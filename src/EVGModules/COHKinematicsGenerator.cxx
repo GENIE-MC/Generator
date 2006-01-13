@@ -54,10 +54,6 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
   Interaction * interaction = event_rec->GetInteraction();
 
-  //-- Get the selected cross section calculator
-  const XSecAlgorithmI * xsec_alg =
-               dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                                        "xsec-alg-name", "xsec-param-set"));
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
@@ -65,12 +61,11 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   //   Valculate the max differential cross section or retrieve it from
   //   the cache (if something similar was computed at a previous step).
   double xsec_max = this->MaxXSec(interaction);
-  xsec_max *= 1.3;
+  xsec_max *= fSafetyFactor;
 
   //------ Try to select a valid x,y pair
 
   //-- Get the kinematical limits for the generated x,y
-
   Range1D_t x;
   x.min=0.;
   x.max=1.;
@@ -94,7 +89,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
      LOG("COHKinematics", pINFO)
                    << "Trying: (x = " << gx << ", y = " << gy << ")";
 
-     double xsec = xsec_alg->XSec(interaction);
+     double xsec = fXSecModel->XSec(interaction);
      double t    = xsec_max * rnd->Random2().Rndm();
 
      LOG("COHKinematics", pINFO)
@@ -103,7 +98,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
      if( t < xsec ) {
         // kinematical selection done.
-        LOG("DISKinematics", pINFO)
+        LOG("COHKinematics", pINFO)
                              << "Selected: x = " << gx << ", y = " << gy;
 
         // set the cross section for the selected kinematics
@@ -113,10 +108,10 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
      iter++;
      if(iter > kRjMaxIterations) {
-        LOG("COHKinematics", pERROR)
+        LOG("COHKinematics", pFATAL)
              << "*** Could not select a valid (x,y) pair after "
                                                << iter << " iterations";
-        assert(false);
+        abort();
      }
   }// iterations
 }
@@ -149,9 +144,6 @@ double COHKinematicsGenerator::ComputeMaxXSec(
   const int N = 20;
   double max_xsec = -1.0;
 
-  const XSecAlgorithmI * xsec_alg =
-           dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                                      "xsec-alg-name", "xsec-param-set"));
   Range1D_t x;
   x.min=0.;
   x.max=1.;
@@ -173,15 +165,41 @@ double COHKinematicsGenerator::ComputeMaxXSec(
      double gy = TMath::Exp(logymin + j * dlogy);
      interaction->GetKinematicsPtr()->Sety(gy);
 
-     max_xsec = TMath::Max(max_xsec, xsec_alg->XSec(interaction));
+     max_xsec = TMath::Max(max_xsec, fXSecModel->XSec(interaction));
    }//y
   }//x
 
   SLOG("COHKinematics", pDEBUG) << interaction->AsString();
   SLOG("COHKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  SLOG("COHKinematics", pDEBUG) << "Computed using alg = " << *xsec_alg;
+  SLOG("COHKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
 
   return max_xsec;
 }
 //___________________________________________________________________________
+void COHKinematicsGenerator::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void COHKinematicsGenerator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void COHKinematicsGenerator::LoadSubAlg(void)
+{
+  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
+                            this->SubAlg("xsec-alg-name", "xsec-param-set"));
+  assert(fXSecModel);
+}
+//____________________________________________________________________________
+void COHKinematicsGenerator::LoadConfigData(void)
+{
+  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
+}
+//____________________________________________________________________________
 

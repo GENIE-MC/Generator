@@ -28,6 +28,7 @@
 namespace genie {
 
 class GHepParticle;
+class DecayModelI;
 
 class UnstableParticleDecayer : public EventRecordVisitorI {
 
@@ -38,16 +39,23 @@ public :
   ~UnstableParticleDecayer();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
-  bool  ToBeDecayed (GHepParticle * particle) const;
-  bool  IsUnstable  (GHepParticle * particle) const;
+  void  LoadConfig        (void);
+  bool  ToBeDecayed       (GHepParticle * particle) const;
+  bool  IsUnstable        (GHepParticle * particle) const;
+  void  CopyToEventRecord (TClonesArray * dp,
+                   GHepRecord * ev, int mother_pos) const;
 
-  void  CopyToEventRecord(TClonesArray * dp,
-                            GHepRecord * event_rec, int mother_pos) const;
+  double fMaxLifetime;
+  const DecayModelI * fDecayer;
 };
 
 }      // genie namespace

@@ -97,10 +97,10 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
      iter++;
      if(iter > kRjMaxIterations) {
-        LOG("QELKinematics", pERROR)
+        LOG("QELKinematics", pFATAL)
                   << "*** Could not select a valid (x,y) pair after "
                                                     << iter << " iterations";
-        assert(false);
+        abort();
      }
   }// iterations
 }

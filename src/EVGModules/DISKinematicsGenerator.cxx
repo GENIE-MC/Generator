@@ -133,9 +133,9 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      iter++;
      if(iter > kRjMaxIterations) {
-       LOG("DISKinematics", pERROR)
+       LOG("DISKinematics", pFATAL)
         << "*** Could not select kinematics after " << iter << " iterations";
-       exit(1);
+       abort();
      }
   } // iterations
 }
