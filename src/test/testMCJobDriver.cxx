@@ -154,7 +154,7 @@ int main(int argc, char ** argv)
 
   //-- Initialize an Ntuple Writer
   NtpWriter ntpw(kNFEventRecord);
-  ntpw.Initialize("mcjobdriver.root");
+  ntpw.Initialize("GNtpMCJTest");
 
   //-- Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
