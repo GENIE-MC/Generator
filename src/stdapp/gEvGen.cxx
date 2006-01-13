@@ -131,11 +131,9 @@ Long_t        gOptRunNu;        // run number
 int main(int argc, char ** argv)
 {
   //-- parse command line arguments
-
   GetCommandLineArgs(argc,argv);
 
   //-- print the options you got from command line arguments
-
   LOG("gevgen", pINFO) << "Number of events requested = " << gOptNevents;
   LOG("gevgen", pINFO) << "Building splines at init.  = " << gOptBuildSplines;
   LOG("gevgen", pINFO) << "Neutrino energy            = " << gOptNuEnergy;
@@ -158,20 +156,16 @@ int main(int argc, char ** argv)
   XSecSplineList * xspl = XSecSplineList::Instance();
   xspl->AutoLoad();
 
-  //-- If splines are used, then create any spline that is needed but is not 
+  //-- If splines are used, then create any spline that is needed but is not
   //   already loaded (can built them all here if no spline at all is loaded)
   if(gOptBuildSplines) driver.CreateSplines();
 
   //-- this driver produces events for monoenergetic neutrinos
   TLorentzVector nu_p4 (0., 0., gOptNuEnergy, gOptNuEnergy); // px,py,pz,E (GeV)
 
-  //-- create the output ROOT file name;
-  ostringstream filename;
-  filename << "GNtp" << NtpMCFormat::FilenameTag(gOptNtpFormat) << ".root";
-
   //-- initialize an Ntuple Writer
   NtpWriter ntpw(gOptNtpFormat, gOptRunNu);
-  ntpw.Initialize(filename.str());
+  ntpw.Initialize();
 
  //-- create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
