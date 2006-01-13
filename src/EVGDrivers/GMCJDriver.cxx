@@ -312,7 +312,17 @@ void GMCJDriver::CreateXSecSumSplines(void)
     LOG("GMCJDriver", pNOTICE)
              << "**** Summing xsec splines for init-state = " << init_state;
 
-    evgdriver->CreateXSecSumSpline(40,0.1,fEmax,true);
+    Range1D_t rE = evgdriver->ValidEnergyRange();
+    assert(fEmax<rE.max && fEmax>rE.min);
+
+    // decide the energy range for the sum spline - extend the spline a little
+    // bit above the maximum beam energy (but below the maximum valid energy)
+    // to avoid the evaluation of the cubic spline around the viscinity of
+    // knots with zero y values (although the GENIE Spline object handles it)
+    double dE  = fEmax/10.;
+    double min = rE.min;
+    double max = (fEmax+dE < rE.max) ? fEmax+dE : rE.max;
+    evgdriver->CreateXSecSumSpline(100,min,max,true);
   }
   LOG("GMCJDriver", pNOTICE)
         << "Finished summing all interaction xsec splines per initial state";
@@ -526,7 +536,7 @@ int GMCJDriver::SelectTargetMaterial(void)
      }
 
      LOG("GMCJDriver", pNOTICE)
-         << "tgt: " << mpdg << " -> TotXSec = " 
+         << "tgt: " << mpdg << " -> TotXSec = "
          << xsec/cm2 << " cm^2, Norm.Prob = " << 100*probn << "%";
 
      probsum += probn;
