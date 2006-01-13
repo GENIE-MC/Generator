@@ -48,7 +48,6 @@ public :
   //-- common record operations
 
   virtual void Copy                    (const GHepRecord & record);
-  virtual void ShiftPosition           (const TLorentzVector & vec4);
   virtual void ResetRecord             (void);
   virtual void CompactifyDaughterLists (void);
 
