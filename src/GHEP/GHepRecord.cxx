@@ -172,31 +172,6 @@ unsigned int GHepRecord::NEntries(int pdg, int start) const
   return nentries;
 }
 //___________________________________________________________________________
-void GHepRecord::ShiftPosition(const TLorentzVector & vec4)
-{
-// Shifts the event record entries in space 
-
-  LOG("GHEP", pNOTICE)
-       << "Shifting position by: " << utils::print::X4AsString(&vec4);
-
-  double x0 = vec4.X();
-  double y0 = vec4.Y();
-  double z0 = vec4.Z();
-  double t0 = vec4.T();
-
-  for(int i = 0; i < this->GetEntries(); i++) {
-
-     GHepParticle * p = (GHepParticle *) (*this)[i];
-
-     double vx = x0 + p->Vx();
-     double vy = y0 + p->Vy();
-     double vz = z0 + p->Vz();
-     double vt = t0 + p->Vt();
-
-     p->SetPosition(vx, vy, vz, vt);
-  }
-}
-//___________________________________________________________________________
 void GHepRecord::AddParticle(const GHepParticle & p)
 {
 // Provides a simplified method for inserting entries in the TClonesArray
