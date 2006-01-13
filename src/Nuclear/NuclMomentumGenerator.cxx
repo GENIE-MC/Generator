@@ -3,9 +3,10 @@
 
 \class    genie::NuclMomentumGenerator
 
-\brief    Describes a nucleon momentum probability distribution (constructed
-          from the attached NuclearPDistributionModelI) and can act as a
-          nucleon momentum generator.
+\brief    Holds a list of all nucleon momentum probability distributions that
+          have been generated at a MC job. Can pick up the one requested (or
+          build it if it doesn't already exists) and use it to generate nucleon
+          momenta.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -36,6 +37,7 @@ using std::endl;
 using namespace genie;
 using namespace genie::constants;
 
+//____________________________________________________________________________
 NuclMomentumGenerator * NuclMomentumGenerator::fInstance = 0;
 //____________________________________________________________________________
 NuclMomentumGenerator::NuclMomentumGenerator()
@@ -48,11 +50,11 @@ NuclMomentumGenerator::~NuclMomentumGenerator()
 {
   cout << "NuclMomentumGenerator singleton dtor: "
                   << "Deleting all nucleon momentum distributions" << endl;
-  map<string, TH1D*>::iterator titer;
-  for(titer = fProbDistributionMap.begin();
-                            titer != fProbDistributionMap.end(); ++titer) {
-    TH1D * histo = titer->second;
-    if(histo) delete histo;
+
+  map<string, TH1D*>::iterator it;
+  for(it=fProbDistributionMap.begin(); it!=fProbDistributionMap.end(); ++it) {
+    TH1D * histo = it->second;
+    //if(histo) delete histo; ?
     histo=0;
   }
   fProbDistributionMap.clear();
