@@ -24,6 +24,8 @@
 
 namespace genie {
 
+class XSecAlgorithmI;
+
 class IMDKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
@@ -33,12 +35,22 @@ public :
   ~IMDKinematicsGenerator();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 public:
 
-  double  ComputeMaxXSec (const Interaction * in) const;
+  void   LoadSubAlg     (void);
+  void   LoadConfigData (void);
+  double ComputeMaxXSec (const Interaction * in) const;
+
+  double fSafetyFactor;
+
+  const XSecAlgorithmI * fXSecModel;
 };
 
 }      // genie namespace

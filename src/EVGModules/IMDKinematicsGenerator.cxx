@@ -51,10 +51,6 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   Interaction * interaction = evrec->GetInteraction();
 
-  //-- Get the selected cross section calculator
-  const XSecAlgorithmI * xsec_alg =
-               dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                                        "xsec-alg-name", "xsec-param-set"));
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
@@ -62,10 +58,9 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   Valculate the max differential cross section or retrieve it from
   //   the cache (if something similar was computed at a previous step).
   double xsec_max = this->MaxXSec(interaction);
-  xsec_max *= 1.3;
+  xsec_max *= fSafetyFactor;
 
   //------ Try to select a valid inelastisity y
-
   double ymin = 0.0; // the xsec algorithm would internally compute the
   double ymax = 1.0; // kinematically allowd range, and return 0 if outside
   double dy   = ymax-ymin;
@@ -77,7 +72,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      LOG("IMDKinematics", pINFO) << "Trying: y = " << y;
 
-     double xsec = xsec_alg->XSec(interaction);
+     double xsec = fXSecModel->XSec(interaction);
      double t    = xsec_max * rnd->Random2().Rndm();
 
      LOG("IMDKinematics", pINFO)
@@ -95,10 +90,10 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      iter++;
      if(iter > kRjMaxIterations) {
-        LOG("IMDKinematics", pERROR)
+        LOG("IMDKinematics", pFATAL)
               << "*** Could not select a valid y after "
                                             << iter << " iterations";
-        assert(false);
+        abort();
      }
   }// iterations
 }
@@ -117,10 +112,6 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
   const int N = 20;
   double max_xsec = -1.0;
 
-  const XSecAlgorithmI * xsec_alg =
-           dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                                     "xsec-alg-name", "xsec-param-set"));
-
   const double ymin = 0.;
   const double ymax = 1.;
   const double dy   = (ymax-ymin)/(N-1);
@@ -130,16 +121,41 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
      double y = ymin + i * dy;
      interaction->GetKinematicsPtr()->Sety(y);
 
-     double xsec = xsec_alg->XSec(interaction);
-
+     double xsec = fXSecModel->XSec(interaction);
      max_xsec = TMath::Max(xsec, max_xsec);
   }//y
 
   SLOG("IMDKinematics", pDEBUG) << interaction->AsString();
   SLOG("IMDKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  SLOG("IMDKinematics", pDEBUG) << "Computed using alg = " << *xsec_alg;
+  SLOG("IMDKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
 
   return max_xsec;
 }
 //___________________________________________________________________________
+void IMDKinematicsGenerator::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void IMDKinematicsGenerator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+  this->LoadSubAlg();
+}
+//____________________________________________________________________________
+void IMDKinematicsGenerator::LoadSubAlg(void)
+{
+  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
+                            this->SubAlg("xsec-alg-name", "xsec-param-set"));
+  assert(fXSecModel);
+}
+//____________________________________________________________________________
+void IMDKinematicsGenerator::LoadConfigData(void)
+{
+  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
+}
+//____________________________________________________________________________
 

@@ -62,11 +62,6 @@ UnstableParticleDecayer::~UnstableParticleDecayer()
 //___________________________________________________________________________
 void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
 {
-  //-- Get the specified decay model
-
-  const DecayModelI * decayer = dynamic_cast<const DecayModelI *>
-                      (this->SubAlg("decayer-alg-name","decayer-param-set"));
-
   //-- Loop over particles, find unstable ones and decay them
 
   TObjArrayIter piter(evrec);
@@ -92,7 +87,7 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
         dinp.PdgCode = p->PdgCode();
         dinp.P4      = &p4;
 
-        TClonesArray * decay_products = decayer->Decay(dinp);
+        TClonesArray * decay_products = fDecayer->Decay(dinp);
 
         //-- Check whether the particle was decayed
         if(decay_products) {
@@ -127,13 +122,7 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
 
   TParticlePDG * ppdg = PDGLibrary::Instance()->Find(pdg_code);
 
-  //-- Get the specified maximum lifetime tmax (decay with lifetime < tmax)
-
-  double tmax /* sec */ =
-          (fConfig->Exists("max-lifetime-for-unstables")) ?
-                    fConfig->GetDouble("max-lifetime-for-unstables") : 1e-10;
-
-   if( ppdg->Lifetime() < tmax ) { /*return true*/ };
+   if( ppdg->Lifetime() < fMaxLifetime ) { /*return true*/ };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - temporary/
   // ROOT's TParticlepdg::Lifetim e() does not work properly
@@ -181,5 +170,29 @@ void UnstableParticleDecayer::CopyToEventRecord(TClonesArray *
          evrec->AddParticle(pdg, status, mother_pos,-1,-1,-1, p4, vdummy);
      }
   }
+}
+//___________________________________________________________________________
+void UnstableParticleDecayer::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//___________________________________________________________________________
+void UnstableParticleDecayer::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//___________________________________________________________________________
+void UnstableParticleDecayer::LoadConfig(void)
+{
+  //-- Get the specified maximum lifetime tmax (decay with lifetime < tmax)
+  fMaxLifetime = fConfig->GetDoubleDef("max-lifetime-for-unstables", 1e-10);
+
+  //-- Get the specified decay model
+  fDecayer = dynamic_cast<const DecayModelI *>
+                      (this->SubAlg("decayer-alg-name","decayer-param-set"));
+
+  assert(fDecayer);
 }
 //___________________________________________________________________________

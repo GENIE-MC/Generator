@@ -111,10 +111,10 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
      iter++;
      if(iter > kRjMaxIterations) {
-         LOG("RESKinematics", pERROR)
+         LOG("RESKinematics", pFATAL)
               << "*** Could not select a valid (W,Q^2) pair after "
                                                     << iter << " iterations";
-         assert(false);
+         abort();
      }
   } // iterations
 }
