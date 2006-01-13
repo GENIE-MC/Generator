@@ -83,12 +83,12 @@ void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
   }
 }
 //____________________________________________________________________________
-void NtpWriter::Initialize(string filename)
+void NtpWriter::Initialize(string filename_prefix)
 {
   LOG("NtpWriter",pINFO) << "Initializing GENIE output MC tree";
 
-  this->OpenFile(filename); // open ROOT file
-  this->CreateTree();       // create output ROOT file
+  this->OpenFile(filename_prefix); // open ROOT file
+  this->CreateTree();              // create output ROOT file
 
   TBranch * branch = this->CreateTreeBranch(); // create tree branch
   assert(branch);
@@ -108,12 +108,17 @@ void NtpWriter::Initialize(string filename)
   environment.TakeSnapshot()->Write();
 }
 //____________________________________________________________________________
-void NtpWriter::OpenFile(string filename)
+void NtpWriter::OpenFile(string filename_prefix)
 {
   if(fOutFile) delete fOutFile;
 
+  // modify the filename to add the run number & the ntuple format
+  ostringstream filename;
+  filename << "GNtp-" << NtpMCFormat::FilenameTag(fNtpFormat)
+           << "-" << fRunNu << ".root";
+
   LOG("NtpWriter", pINFO) << "Opening the output ROOT file: " << filename;
-  fOutFile = new TFile(filename.c_str(),"RECREATE");
+  fOutFile = new TFile(filename.str().c_str(),"RECREATE");
 }
 //____________________________________________________________________________
 void NtpWriter::CreateTree(void)
