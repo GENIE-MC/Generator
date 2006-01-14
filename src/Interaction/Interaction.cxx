@@ -64,7 +64,7 @@ Interaction::Interaction(const Interaction & interaction)
 //___________________________________________________________________________
 Interaction::~Interaction()
 {
-  this->Reset();
+  this->CleanUp();
 }
 //___________________________________________________________________________
 void Interaction::Copy(const Interaction & interaction)
@@ -77,16 +77,7 @@ void Interaction::Copy(const Interaction & interaction)
 //___________________________________________________________________________
 void Interaction::Reset(void)
 {
-  if ( fInitialState ) delete fInitialState;
-  if ( fProcInfo     ) delete fProcInfo;
-  if ( fKinematics   ) delete fKinematics;
-  if ( fExclusiveTag ) delete fExclusiveTag;
-
-  fInitialState = 0;
-  fProcInfo     = 0;
-  fKinematics   = 0;
-  fExclusiveTag = 0;
-
+  this->CleanUp();
   this->Init();
 }
 //___________________________________________________________________________
@@ -96,6 +87,19 @@ void Interaction::Init(void)
   fProcInfo     = new ProcessInfo  ();
   fKinematics   = new Kinematics   ();
   fExclusiveTag = new XclsTag      ();
+}
+//___________________________________________________________________________
+void Interaction::CleanUp(void)
+{
+  if ( fInitialState ) delete fInitialState;
+  if ( fProcInfo     ) delete fProcInfo;
+  if ( fKinematics   ) delete fKinematics;
+  if ( fExclusiveTag ) delete fExclusiveTag;
+
+  fInitialState = 0;
+  fProcInfo     = 0;
+  fKinematics   = 0;
+  fExclusiveTag = 0;
 }
 //___________________________________________________________________________
 TParticlePDG * Interaction::GetFSPrimaryLepton(void) const

@@ -79,7 +79,8 @@ public:
 
 private:
 
-  void Init (void);
+  void Init    (void);
+  void CleanUp (void);
 
   //! initial state, process info, scattering parameters and exclusive information
   InitialState * fInitialState;  ///< Initial State info
