@@ -45,14 +45,14 @@ public :
 
   // Ntuple is treated like a C-struct with public data members and
   // rule-breaking field data members not prefaced by "f" and mostly lowercase.
-  EventRecord * event;   ///< event
+  EventRecord * event; ///< event
 
 private:
 
   void Init  (void);
   void Clear (void);
 
-  static EventRecord * fgevent;
+  static EventRecord * sevent;
 
   ClassDef(NtpMCEventRecord, 1)
 };

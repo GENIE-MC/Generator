@@ -31,7 +31,7 @@ ClassImp(NtpMCPlainRecord)
 using std::endl;
 
 //____________________________________________________________________________
-TClonesArray * genie::NtpMCPlainRecord::fgGHep = 0;
+TClonesArray * NtpMCPlainRecord::sghep = 0;
 //____________________________________________________________________________
 namespace genie {
   ostream & operator<< (ostream& stream, const NtpMCPlainRecord & ntpp)
@@ -55,7 +55,7 @@ NtpMCRecordI()
 //____________________________________________________________________________
 NtpMCPlainRecord::~NtpMCPlainRecord()
 {
-
+  this->Clear();
 }
 //____________________________________________________________________________
 void NtpMCPlainRecord::PrintToStream(ostream & stream) const
@@ -67,31 +67,25 @@ void NtpMCPlainRecord::PrintToStream(ostream & stream) const
 //____________________________________________________________________________
 void NtpMCPlainRecord::Fill(unsigned int ievent, const EventRecord * ev_rec)
 {
-  this->Clear();
-
-  // copy all GHepParticles
-
-  TClonesArray & ghep_entries = *ghep;
+  TClonesArray & ghep_entries = *(this->ghep);
 
   int n = 0;
   GHepParticle * p = 0;
   TIter piter(ev_rec);
 
   while((p = (GHepParticle *) piter.Next())) {
-
     NtpMCGHepEntry * entry = new ( ghep_entries[n] ) NtpMCGHepEntry();
-
     entry->Copy(*p);
     entry->idx = n;
     n++;
   }
 
   // fill in the header
-  hdr.ievent   = ievent;
-  nentries = n;
+  this->hdr.ievent = ievent;
+  this->nentries   = n;
 
   // fill in the summary
-  mc.Copy(*ev_rec);
+  this->mc.Copy(*ev_rec);
 }
 //____________________________________________________________________________
 void NtpMCPlainRecord::Copy(const NtpMCPlainRecord & ntpmcrec)
@@ -101,15 +95,22 @@ void NtpMCPlainRecord::Copy(const NtpMCPlainRecord & ntpmcrec)
 //____________________________________________________________________________
 void NtpMCPlainRecord::Init(void)
 {
-  if(!fgGHep) fgGHep = new TClonesArray("genie::NtpMCGHepEntry");
-  ghep = fgGHep;
-  hdr.ievent = 0;
+  if(!sghep) sghep = new TClonesArray("genie::NtpMCGHepEntry");
+  sghep->SetOwner(true);
+
+  this->ghep = sghep;
+  this->mc.Init();
+  this->nentries = 0;
+  this->hdr.ievent = 0;
 }
 //____________________________________________________________________________
 void NtpMCPlainRecord::Clear(void)
 {
-  ghep->Clear("C");
-  nentries = 0;
-  hdr.ievent = 0;
+  sghep->Delete();
+
+  this->ghep = 0;
+  this->mc.Init();
+  this->nentries = 0;
+  this->hdr.ievent = 0;
 }
 //____________________________________________________________________________

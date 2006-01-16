@@ -55,9 +55,7 @@ private:
   void Init  (void);
   void Clear (void);
 
-//  NtpGHepParticle * AddGHepParticle(int iparticle, GHepParticle * particle);
-
-  static TClonesArray * fgGHep;
+  static TClonesArray * sghep;
 
   ClassDef(NtpMCPlainRecord, 1)
 };

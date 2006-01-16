@@ -28,8 +28,6 @@ using namespace genie;
 ClassImp(NtpMCEventRecord)
 
 //____________________________________________________________________________
-EventRecord * genie::NtpMCEventRecord::fgevent = 0;
-//____________________________________________________________________________
 namespace genie {
   ostream & operator<< (ostream& stream, const NtpMCEventRecord & ntpp)
   {
@@ -50,7 +48,7 @@ NtpMCEventRecord::NtpMCEventRecord(const NtpMCEventRecord & ntpmcrec)
 //____________________________________________________________________________
 NtpMCEventRecord::~NtpMCEventRecord()
 {
-
+  this->Clear();
 }
 //____________________________________________________________________________
 void NtpMCEventRecord::PrintToStream(ostream & stream) const
@@ -61,30 +59,26 @@ void NtpMCEventRecord::PrintToStream(ostream & stream) const
 //____________________________________________________________________________
 void NtpMCEventRecord::Fill(unsigned int ievent, const EventRecord * ev_rec)
 {
-  this->Clear();
-
   this->event->Copy(*ev_rec);
   this->hdr.ievent = ievent;
 }
 //____________________________________________________________________________
 void NtpMCEventRecord::Copy(const NtpMCEventRecord & ntpmcrec)
 {
-  this->Clear();
-
   this->event->Copy(*ntpmcrec.event);
   this->hdr.ievent = ntpmcrec.hdr.ievent;
 }
 //____________________________________________________________________________
 void NtpMCEventRecord::Init(void)
 {
-  if(!fgevent) fgevent = new EventRecord;
-  event = fgevent;
-  hdr.ievent = 0;
+  this->event      = new EventRecord;
+  this->hdr.ievent = 0;
 }
 //____________________________________________________________________________
 void NtpMCEventRecord::Clear(void)
 {
-  event->Clear("C");
-  hdr.ievent = 0;
+  delete this->event;
+  this->event      = 0;
+  this->hdr.ievent = 0;
 }
 //____________________________________________________________________________
