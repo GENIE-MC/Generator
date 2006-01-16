@@ -73,8 +73,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   //-- Compute the W limits
   //  (the physically allowed W's, unless an external cut is imposed)
   Range1D_t W = this->WRange(interaction);
-  LOG("RESKinematics", pDEBUG)
-                    << "W range = (" << W.min << ", " << W.max << ")";
   assert(W.min>0.);
   double logWmin  = TMath::Log(W.min+e);
   double logWmax  = TMath::Log(W.max);
@@ -88,8 +86,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
      //-- Compute the allowed Q^2 limits for the selected W
      //   (the physically allowed W's, unless an external cut is imposed)
      Range1D_t Q2 = this->Q2Range(interaction);
-     LOG("DISKinematics", pDEBUG)
-                 << "Q^2 range = (" << Q2.min << ", " << Q2.max << ")";
      assert(Q2.min>0.);
      double logQ2min = TMath::Log(Q2.min+e);
      double logQ2max = TMath::Log(Q2.max);

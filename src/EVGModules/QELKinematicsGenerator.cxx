@@ -72,8 +72,6 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
   //-- Get the limits for the generated Q2
   Range1D_t Q2 = this->Q2Range(interaction);
-  LOG("QELKinematics", pDEBUG)
-                 << "Q^2 range = (" << Q2.min << ", " << Q2.max << ")";
   assert(Q2.min>0.);
   double logQ2min = TMath::Log(Q2.min+e);
   double logQ2max = TMath::Log(Q2.max);
