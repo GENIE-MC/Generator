@@ -16,6 +16,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "Conventions/Controls.h"
 #include "EVGModules/QELKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
@@ -65,13 +67,21 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   xsec_max *= fSafetyFactor;
 
   //------ Try to select a valid Q2
+  register unsigned int iter = 0;
+  double e = 1E-6;
 
   //-- Get the limits for the generated Q2
   Range1D_t Q2 = this->Q2Range(interaction);
+  LOG("QELKinematics", pDEBUG)
+                 << "Q^2 range = (" << Q2.min << ", " << Q2.max << ")";
+  assert(Q2.min>0.);
+  double logQ2min = TMath::Log(Q2.min+e);
+  double logQ2max = TMath::Log(Q2.max);
+  double dlogQ2   = logQ2max - logQ2min;
 
-  register unsigned int iter = 0;
   while(1) {
-     double gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random2().Rndm();
+     // generate a Q2 value within the allowed phase space
+     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random2().Rndm());
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("QELKinematics", pINFO) << "Trying: Q^2 = " << gQ2;
@@ -81,9 +91,9 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
      LOG("QELKinematics", pINFO)
              << "xsec: (computed) = " << xsec << ", (generated) = " << t;
-     assert( xsec < xsec_max );
+     assert(xsec < xsec_max);
 
-     if( t < xsec ) {
+     if(t < xsec) {
         // kinematical selection done.
         LOG("QELKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
 

@@ -20,6 +20,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/Controls.h"
 #include "EVGModules/DISKinematicsGenerator.h"
@@ -71,7 +73,6 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //------ Try to select a valid W,Q2 (=>x,y) pair using the rejection
   //       method
-
   register unsigned int iter = 0;
   double e = 1E-6;
 
@@ -81,44 +82,44 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
                     << "W range = (" << W.min << ", " << W.max << ")";
   assert(W.min>0.);
   double logWmin  = TMath::Log(W.min+e);
-  double logWmax  = TMath::Log(W.max-e);
+  double logWmax  = TMath::Log(W.max);
   double dlogW    = logWmax - logWmin;
 
   while(1) {
-     //-- generate a W
+     //-- generate a W value within the allowed phase space
      double gW  = TMath::Exp(logWmin  + dlogW  * rnd->Random2().Rndm());
      interaction->GetKinematicsPtr()->SetW(gW);
 
-     //-- Get the physical Q2 range (for current W) taking into account 
+     //-- Get the physical Q2 range (for current W) taking into account
      //   any user cuts
      Range1D_t Q2 = this->Q2Range(interaction);
      LOG("DISKinematics", pDEBUG)
                  << "Q^2 range = (" << Q2.min << ", " << Q2.max << ")";
      assert(Q2.min>0.);
      double logQ2min = TMath::Log(Q2.min+e);
-     double logQ2max = TMath::Log(Q2.max-e);
+     double logQ2max = TMath::Log(Q2.max);
      double dlogQ2   = logQ2max - logQ2min;
 
-     //-- generate a Q2
+     //-- generate a Q2 value within the allowed phase space
      double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random2().Rndm());
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("DISKinematics", pINFO) << "Trying: W = "<< gW << ", Q2 = "<< gQ2;
 
-     //-- W,Q2 => x,y 
+     //-- W,Q2 => x,y
      this->SetKineXY(interaction);
 
-     //-- compute the cross section for current kinematics 
+     //-- compute the cross section for current kinematics
      double xsec = fXSecModel->XSec(interaction);
 
      //-- accept current kinematics?
      double t = xsec_max * rnd->Random2().Rndm();
      LOG("DISKinematics", pINFO)
              << "xsec: (computed) = " << xsec << ", (generated) = " << t;
-     assert( xsec < xsec_max );
+     assert(xsec < xsec_max);
      if(t < xsec) {
          // kinematical selection done.
-         LOG("DISKinematics", pINFO) 
+         LOG("DISKinematics", pINFO)
                << "Selected: W = "<< gW << ", Q2 = "<< gQ2
                   << " (=> x = " << interaction->GetKinematics().x()
                       << ", y = " << interaction->GetKinematics().y() << ")";
@@ -280,7 +281,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
      double gW = TMath::Exp(logWmin + i*dlogW);
      interaction->GetKinematicsPtr()->SetW(gW);
 
-     //-- Get the physical Q2 range (for current W) taking into account 
+     //-- Get the physical Q2 range (for current W) taking into account
      //   any user cuts
      Range1D_t Q2 = this->Q2Range(interaction);
      LOG("DISKinematics", pDEBUG)

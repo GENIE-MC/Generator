@@ -66,9 +66,11 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   //------ Try to select a valid x,y pair
 
   //-- Get the kinematical limits for the generated x,y
+  double e = 1E-6;
+
   Range1D_t x;
-  x.min=0.;
-  x.max=1.;
+  x.min=0.+e;
+  x.max=1.-e;
 
   Range1D_t y = this->yRange(interaction);
 
@@ -76,8 +78,8 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   const double logxmax = TMath::Log(x.max);
   const double rlogx   = (logxmax - logxmin);
 
-  const double logymin = TMath::Log(y.min);
-  const double logymax = TMath::Log(y.max);
+  const double logymin = TMath::Log(y.min+e);
+  const double logymax = TMath::Log(y.max-e);
   const double rlogy   = (logymax - logymin);
 
   register unsigned int iter = 0;
@@ -94,9 +96,9 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
      LOG("COHKinematics", pINFO)
              << "xsec: (computed) = " << xsec << ", (generated) = " << t;
-     assert( xsec < xsec_max );
+     assert(xsec < xsec_max);
 
-     if( t < xsec ) {
+     if(t < xsec) {
         // kinematical selection done.
         LOG("COHKinematics", pINFO)
                              << "Selected: x = " << gx << ", y = " << gy;

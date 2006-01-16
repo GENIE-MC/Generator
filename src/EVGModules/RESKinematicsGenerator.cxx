@@ -15,6 +15,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "BaryonResonance/BaryonResonance.h"
 #include "Conventions/Controls.h"
 #include "EVGModules/RESKinematicsGenerator.h"
@@ -65,23 +67,37 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   xsec_max *= fSafetyFactor;
 
   //-- Try to select a valid W, Q2 pair
+  register unsigned int iter = 0;
+  double e = 1E-6;
 
   //-- Compute the W limits
   //  (the physically allowed W's, unless an external cut is imposed)
   Range1D_t W = this->WRange(interaction);
+  LOG("RESKinematics", pDEBUG)
+                    << "W range = (" << W.min << ", " << W.max << ")";
+  assert(W.min>0.);
+  double logWmin  = TMath::Log(W.min+e);
+  double logWmax  = TMath::Log(W.max);
+  double dlogW    = logWmax - logWmin;
 
-  register unsigned int iter = 0;
   while(1) {
      //-- Get a random W within its allowed limits
-     double gW = W.min + (W.max - W.min) * rnd->Random2().Rndm();
+     double gW = TMath::Exp(logWmin + dlogW  * rnd->Random2().Rndm());
      interaction->GetKinematicsPtr()->SetW(gW);
 
      //-- Compute the allowed Q^2 limits for the selected W
      //   (the physically allowed W's, unless an external cut is imposed)
      Range1D_t Q2 = this->Q2Range(interaction);
+     LOG("DISKinematics", pDEBUG)
+                 << "Q^2 range = (" << Q2.min << ", " << Q2.max << ")";
+     assert(Q2.min>0.);
+     double logQ2min = TMath::Log(Q2.min+e);
+     double logQ2max = TMath::Log(Q2.max);
+     double dlogQ2   = logQ2max - logQ2min;
 
      //-- Get a random Q2 within its allowed limits
-     double gQ2 = Q2.min + (Q2.max - Q2.min) * rnd->Random2().Rndm();
+     //double gQ2 = Q2.min + (Q2.max - Q2.min) * rnd->Random2().Rndm();
+     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random2().Rndm());
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("RESKinematics", pINFO) << "Trying: W = " << gW << ", Q2 = " << gQ2;
