@@ -477,7 +477,8 @@ void GHepRecord::CleanRecord(void)
   if (fInteraction) delete fInteraction;
   delete fVtx;
 
-  this->Clear("C");
+  this->Delete();
+//  this->Clear("C");
 }
 //___________________________________________________________________________
 void GHepRecord::ResetRecord(void)
