@@ -60,26 +60,35 @@ NtpWriter::~NtpWriter()
 //____________________________________________________________________________
 void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
 {
-//  if(fNtpMCEvent) delete fNtpMCEvent;
+  LOG("NtpWriter", pNOTICE) << "Adding event " << ievent << " to output tree";
 
-  LOG("NtpWriter", pINFO) << "Adding event " << ievent << " to output tree";
+  if(!ev_rec) {
+    LOG("Ntp", pERROR) << "NULL input EventRecord!";
+    return;
+  }
+
+  if(!fOutTree) {
+    LOG("Ntp", pERROR) << "No open output TTree to add the input EventRecord!";
+    return;
+  }
 
   switch (fNtpFormat) {
      case kNFPlainRecord:
           fNtpMCPlainRecord = new NtpMCPlainRecord();
           fNtpMCPlainRecord->Fill(ievent, ev_rec);
+          fOutTree->Fill();
+          delete fNtpMCPlainRecord;
+          fNtpMCPlainRecord = 0;
           break;
      case kNFEventRecord:
           fNtpMCEventRecord = new NtpMCEventRecord();
           fNtpMCEventRecord->Fill(ievent, ev_rec);
+          fOutTree->Fill();
+          delete fNtpMCEventRecord;
+          fNtpMCEventRecord = 0;
           break;
      default:
         break;
-  }
-
-  if(fOutTree) fOutTree->Fill();
-  else {
-    LOG("Ntp", pERROR) << "*** No TTree to add the input EventRecord!";
   }
 }
 //____________________________________________________________________________
