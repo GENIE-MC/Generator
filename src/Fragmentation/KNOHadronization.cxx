@@ -97,6 +97,12 @@ TClonesArray * KNOHadronization::Hadronize(
   LOG("KNOHad", pINFO) << "Hadron multiplicity  = " << mult;
   LOG("KNOHad", pINFO) << "Hadron Shower Charge = " << maxQ;
 
+  if(mult < min_mult || mult > max_mult) {
+     LOG("KNOHad", pERROR) 
+                      << "Multiplicity out of bounds. Return NULL list";
+     return 0;
+  }
+
   //----- Initial particle 4-momentum
   //      (All energy = final state invariant mass)
   double W = interaction->GetKinematics().W();
