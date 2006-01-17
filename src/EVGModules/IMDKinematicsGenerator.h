@@ -44,12 +44,16 @@ public :
 
 public:
 
+  //-- methods to load sub-algorithms and config data from the Registry
   void   LoadSubAlg     (void);
   void   LoadConfigData (void);
+
+  //-- overload KineGeneratorWithCache methods
   double ComputeMaxXSec (const Interaction * in) const;
+  double Energy         (const Interaction * in) const;
 
-  double fSafetyFactor;
-
+  //-- private data members
+  double                 fSafetyFactor;
   const XSecAlgorithmI * fXSecModel;
 };
 

@@ -108,8 +108,7 @@ double KineGeneratorWithCache::FindMaxXSec(
 // close to the specified energy
 
   //-- get neutrino energy
-  const InitialState & init_state = interaction -> GetInitialState();
-  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E = this->Energy(interaction);
   LOG("Kinematics", pINFO) << "E = " << E;
 
   //-- access the the cache branch
@@ -161,10 +160,20 @@ void KineGeneratorWithCache::CacheMaxXSec(
   assert(nt);
 
   //-- get neutrino energy
-  const InitialState & init_state = interaction -> GetInitialState();
-  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E = this->Energy(interaction);
 
   if(max_xsec>0) nt->Fill(E, max_xsec);
+}
+//___________________________________________________________________________
+double KineGeneratorWithCache::Energy(const Interaction * interaction) const
+{
+// Returns the neutrino energy at the struck nucleon rest frame. Kinematic
+// generators should override this method if they need to cache the max-xsec
+// values for another energy value (eg kinematic generators for IMD or COH)
+
+  const InitialState & init_state = interaction->GetInitialState();
+  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+  return E;
 }
 //___________________________________________________________________________
 TNtuple * KineGeneratorWithCache::AccessCacheBranch(

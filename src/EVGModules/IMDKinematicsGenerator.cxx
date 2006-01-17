@@ -136,6 +136,16 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
   return max_xsec;
 }
 //___________________________________________________________________________
+double IMDKinematicsGenerator::Energy(const Interaction * interaction) const
+{
+// Override the base class Energy() method to cache the max xsec for the
+// neutrino energy in the LAB rather than in the hit nucleon rest frame.
+
+  const InitialState & init_state = interaction->GetInitialState();
+  double E = init_state.GetProbeE(kRfLab);
+  return E;
+}
+//___________________________________________________________________________
 void IMDKinematicsGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);

@@ -44,13 +44,19 @@ public :
 
 public:
 
-  void      LoadSubAlg     (void);
-  void      LoadConfigData (void);
-  Range1D_t yRange         (const Interaction * in) const;
-  double    ComputeMaxXSec (const Interaction * in) const;
+  //-- methods to load sub-algorithms and config data from the Registry
+  void LoadSubAlg     (void);
+  void LoadConfigData (void);
 
-  double fSafetyFactor;
+  //-- compute kinematical limits
+  Range1D_t yRange (const Interaction * in) const;
 
+  //-- overload KineGeneratorWithCache methods
+  double ComputeMaxXSec (const Interaction * in) const;
+  double Energy         (const Interaction * in) const;
+
+  //-- private data members
+  double                 fSafetyFactor;
   const XSecAlgorithmI * fXSecModel;
 };
 
