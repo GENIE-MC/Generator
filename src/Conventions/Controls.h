@@ -34,6 +34,9 @@ static const unsigned int kMaxEVGThreadExceptions = 5;
 // setting the $GSEED env. var. or by using RandomGen::SetSeed(int)
 static const unsigned int kDefaultRandSeed = 65539;
 
+//----- Misc hard limits, cuts
+static const double kMinQ2Limit = 1e-6;  // GeV^2
+
 } // namespace controls
 } // namespace genie
 

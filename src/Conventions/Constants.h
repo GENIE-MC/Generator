@@ -204,11 +204,6 @@ static const double kNucDensity = 2.3E+17 *kg/m3;
 static const double kInukeFormationL = 2.0*units::fermi; //c*t0, in GeV^-1
 static const double kInukeKpt2       = 1.0;
 
-//----- Misc hard limits, cuts
-
-static const double kMinQ2Limit = 1e-6;  // GeV^2
-
-
 } // namespace constants
 } // namespace genie
 
