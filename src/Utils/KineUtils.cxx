@@ -16,6 +16,7 @@
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "Interaction/KineVar.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
@@ -25,6 +26,7 @@
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::controls;
 
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::WRange(const Interaction * const interaction)
@@ -58,23 +60,18 @@ Range1D_t genie::utils::kinematics::Q2Range(const Interaction * const interactio
   const ProcessInfo & process_info = interaction->GetProcessInfo();
 
   if ( process_info.IsQuasiElastic()  ) {
-
        Q2 = utils::kinematics::Q2Range_M(interaction);
 
   } else if ( process_info.IsDeepInelastic() ) {
-
        Q2 = utils::kinematics::Q2Range_xy(interaction);
 
   } else if ( process_info.IsResonant() ) {
-
        Q2 = utils::kinematics::Q2Range_W(interaction);
 
   } else {
-
        Q2.min = 0;
        Q2.max = 0;
   }
-
   return Q2;
 }
 //____________________________________________________________________________
