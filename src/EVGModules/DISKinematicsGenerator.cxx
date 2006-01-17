@@ -24,6 +24,7 @@
 
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/Controls.h"
+#include "EVGCore/EVGThreadException.h"
 #include "EVGModules/DISKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
@@ -54,22 +55,22 @@ DISKinematicsGenerator::~DISKinematicsGenerator()
 //___________________________________________________________________________
 void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// Selects (x,y) kinematic variables using the 'Rejection' method and adds
-// them to the event record's summary
-
-  Interaction * interaction = evrec->GetInteraction();
-
-  interaction->SetBit(kISkipProcessChk);
-  interaction->SetBit(kISkipKinematicChk);
+// Selects kinematic variables using the 'Rejection' method and adds them to
+// the event record's summary
 
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
+  //-- Get the interaction and set the 'trust' bits
+  Interaction * interaction = evrec->GetInteraction();
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
+
   //-- For the subsequent kinematic selection with the rejection method:
-  //   Valculate the max differential cross section or retrieve it from
-  //   the cache (if something similar was computed at a previous step).
-  double xsec_max = this->MaxXSec(interaction);
-  xsec_max *= fSafetyFactor;
+  //   Calculate the max differential cross section or retrieve it from the
+  //   cache. Throw an exception and quit the evg thread if a non-positive
+  //   value is found.
+  double xsec_max = this->MaxXSec(evrec);
 
   //------ Try to select a valid W,Q2 (=>x,y) pair using the rejection
   //       method
@@ -91,7 +92,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- Get the physical Q2 range (for current W) taking into account
      //   any user cuts
      Range1D_t Q2 = this->Q2Range(interaction);
-     assert(Q2.min>0.);
+     if(Q2.min<=0. || Q2.min>Q2.max) continue;
      double logQ2min = TMath::Log(Q2.min+e);
      double logQ2max = TMath::Log(Q2.max);
      double dlogQ2   = logQ2max - logQ2min;
@@ -188,9 +189,8 @@ Range1D_t DISKinematicsGenerator::WRange(
 
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if ( utils::math::IsWithinLimits(fWmin, W) ) W.min = fWmin;
-  if ( utils::math::IsWithinLimits(fWmax, W) ) W.max = fWmax;
-
+  if(fWmin>0 && fWmax>0)
+      utils::kinematics::ApplyCutsToKineLimits(W, fWmin, fWmax);
   LOG("DISKinematics", pDEBUG)
        << "\n (Physical && User) W integration range: "
                                  << "[" << W.min << ", " << W.max << "] GeV";
@@ -208,9 +208,8 @@ Range1D_t DISKinematicsGenerator::Q2Range(
 
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if ( utils::math::IsWithinLimits(fQ2min, Q2) ) Q2.min = fQ2min;
-  if ( utils::math::IsWithinLimits(fQ2max, Q2) ) Q2.max = fQ2max;
-
+  if(fQ2min>0 && fQ2max>0)
+      utils::kinematics::ApplyCutsToKineLimits(Q2, fQ2min, fQ2max);
   LOG("DISKinematics", pDEBUG)
        << "\n (Physical && User) Q2 integration range: "
                             << "[" << Q2.min << ", " << Q2.max << "] GeV^2";
@@ -255,11 +254,11 @@ double DISKinematicsGenerator::ComputeMaxXSec(
 // maximum. The number used in the rejection method will be scaled up by a
 // safety factor. But this needs to be fast - do not use a very fine grid.
 
-  const int    NW  = 30;
-  const int    NQ2 = 30;
-  const double e   = 1E-6;
+  double max_xsec = 0.0;
 
-  double max_xsec = -1.0;
+  const int    NW  = 20;
+  const int    NQ2 = 20;
+  const double e   = 1E-6;
 
   LOG("DISKinematics", pDEBUG)
                 << "Computing max xsec in allowed W,Q2 phase space";
@@ -299,6 +298,10 @@ double DISKinematicsGenerator::ComputeMaxXSec(
          max_xsec = TMath::Max(xsec, max_xsec);
      } // Q2
   }// W
+
+  // Apply safety factor, since value retrieved from the cache might
+  // correspond to a slightly different energy
+  max_xsec *= fSafetyFactor;
 
   SLOG("DISKinematics", pDEBUG) << interaction->AsString();
   SLOG("DISKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;

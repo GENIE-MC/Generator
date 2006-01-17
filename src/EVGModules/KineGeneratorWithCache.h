@@ -32,6 +32,8 @@
 
 using std::string;
 
+class TNtuple;
+
 namespace genie {
 
 class KineGeneratorWithCache : public EventRecordVisitorI {
@@ -43,11 +45,13 @@ protected:
   KineGeneratorWithCache(string name, string config);
   ~KineGeneratorWithCache();
 
-  virtual double ComputeMaxXSec (const Interaction * interaction) const = 0;
+  virtual double ComputeMaxXSec (const Interaction * in) const = 0;
 
-  double MaxXSec         (const Interaction * interaction) const;
-  string SelectSubBranch (const Interaction * interaction) const;
-
+  virtual double    MaxXSec           (GHepRecord * evrec) const;
+  virtual double    FindMaxXSec       (const Interaction * in) const;
+  virtual void      CacheMaxXSec      (const Interaction * in, double xsec) const;
+  virtual TNtuple * AccessCacheBranch (const Interaction * in) const;
+  virtual string    SelectSubBranch   (const Interaction * in) const;
 };
 
 }      // genie namespace

@@ -46,8 +46,8 @@ IMDKinematicsGenerator::~IMDKinematicsGenerator()
 //___________________________________________________________________________
 void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// Selects (x,y) kinematic variables using the 'Rejection' method and adds
-// them to the event record's summary
+// Selects kinematic variables using the 'Rejection' method and adds them to
+// the event record's summary
 
   Interaction * interaction = evrec->GetInteraction();
 
@@ -55,31 +55,32 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   RandomGen * rnd = RandomGen::Instance();
 
   //-- For the subsequent kinematic selection with the rejection method:
-  //   Valculate the max differential cross section or retrieve it from
-  //   the cache (if something similar was computed at a previous step).
-  double xsec_max = this->MaxXSec(interaction);
-  xsec_max *= fSafetyFactor;
+  //   Calculate the max differential cross section or retrieve it from the
+  //   cache. Throw an exception and quit the evg thread if a non-positive
+  //   value is found.
+  double xsec_max = this->MaxXSec(evrec);
 
   //------ Try to select a valid inelastisity y
-  double ymin = 0.0; // the xsec algorithm would internally compute the
-  double ymax = 1.0; // kinematically allowd range, and return 0 if outside
+  register unsigned int iter = 0;
+  const double e = 1E-6;
+
+  double ymin = 0.0 + e; // the xsec algorithm would internally compute the
+  double ymax = 1.0 - e; // kinematically allowd range, and return 0 if outside
   double dy   = ymax-ymin;
 
-  register unsigned int iter = 0;
   while(1) {
      double y = ymin + dy * rnd->Random2().Rndm();
      interaction->GetKinematicsPtr()->Sety(y);
 
      LOG("IMDKinematics", pINFO) << "Trying: y = " << y;
-
      double xsec = fXSecModel->XSec(interaction);
      double t    = xsec_max * rnd->Random2().Rndm();
 
      LOG("IMDKinematics", pINFO)
            << "xsec: (computed) = " << xsec << ", (generated) = " << t;
-     assert( xsec < xsec_max );
+     assert(xsec < xsec_max);
 
-     if( t < xsec ) {
+     if(t < xsec) {
         // kinematical selection done.
         LOG("IMDKinematics", pINFO) << "Selected: y = " << y;
 
@@ -87,7 +88,6 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         evrec->SetDiffXSec(xsec);
         return;
      }
-
      iter++;
      if(iter > kRjMaxIterations) {
         LOG("IMDKinematics", pFATAL)
@@ -124,6 +124,10 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
      double xsec = fXSecModel->XSec(interaction);
      max_xsec = TMath::Max(xsec, max_xsec);
   }//y
+
+  // Apply safety factor, since value retrieved from the cache might
+  // correspond to a slightly different energy.
+  max_xsec *= fSafetyFactor;
 
   SLOG("IMDKinematics", pDEBUG) << interaction->AsString();
   SLOG("IMDKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;

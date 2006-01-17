@@ -25,8 +25,11 @@
 
 #include <TSQLResult.h>
 #include <TSQLRow.h>
+#include <TMath.h>
 
+#include "EVGCore/EVGThreadException.h"
 #include "EVGModules/KineGeneratorWithCache.h"
+#include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
 #include "Utils/Cache.h"
 #include "Utils/MathUtils.h"
@@ -59,24 +62,116 @@ KineGeneratorWithCache::~KineGeneratorWithCache()
 
 }
 //___________________________________________________________________________
-double KineGeneratorWithCache::MaxXSec(const Interaction * interaction) const
+double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec) const
 {
-// Gets the max. cross section to be used with the rejection MC technique.
-// The max. xsec cache branch for this algrothm is retrieved and searched.
-// If an xsec is found then it is returned. If no xsec is found, then it is
-// computed, added to the cache and returned.
-
   LOG("Kinematics", pINFO)
                 << "Getting max. differential xsec for the rejection method";
 
-  //-- get neutrino energy
+  double xsec_max = -1;
+  Interaction * interaction = event_rec->GetInteraction();
 
+  LOG("Kinematics", pINFO)
+                  << "Attempting to find a cached max{dxsec/dK} value";
+  xsec_max = this->FindMaxXSec(interaction);
+  if(xsec_max>0) return xsec_max;
+
+  LOG("Kinematics", pINFO)
+                  << "Attempting to compute the max{dxsec/dK} value";
+  xsec_max = this->ComputeMaxXSec(interaction);
+  if(xsec_max>0) {
+     this->CacheMaxXSec(interaction, xsec_max);
+     return xsec_max;
+  }
+
+  LOG("Kinematics", pNOTICE)
+            << "Can not generate event kinematics {K} (max_xsec({K};E)<=0)";
+  // xsec for selected kinematics = 0
+  event_rec->SetDiffXSec(0);
+  // switch on error flag = 0
+  event_rec->SwitchGenericErrFlag(true);
+  // reset 'trust' bits
+  interaction->ResetBit(kISkipProcessChk);
+  interaction->ResetBit(kISkipKinematicChk);
+  // throw exception
+  genie::exceptions::EVGThreadException exception;
+  exception.SetReason("kinematics generation: max_xsec({K};E)<=0");
+  exception.SwitchOnFastForward();
+  throw exception;
+
+  return 0;
+}
+//___________________________________________________________________________
+double KineGeneratorWithCache::FindMaxXSec(
+                                       const Interaction * interaction) const
+{
+// Find a cached max xsec for the specified xsec algorithm & interaction and
+// close to the specified energy
+
+  //-- get neutrino energy
+  const InitialState & init_state = interaction -> GetInitialState();
+  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+  LOG("Kinematics", pINFO) << "E = " << E;
+
+  //-- access the the cache branch
+  TNtuple * nt = this->AccessCacheBranch(interaction);
+  assert(nt);
+
+  // build the search rule
+  double dE = TMath::Min(0.25, 0.05*E);
+  ostringstream search;
+  search << "(E-" << E << " < " << dE << ") && (E>=" << E << ")";
+
+  // query for all the entries at a window around the current energy
+  TSQLResult * result = nt->Query("E:xsec", search.str().c_str());
+  int nrows = result->GetRowCount();
+  LOG("Kinematics", pDEBUG)
+            << "Found " << nrows << " rows with " << search.str();
+  if(nrows <= 0) return -1;
+
+  // and now select the entry with the closest energy
+  double max_xsec = -1.0;
+  double Ep       = 0;
+  double dEmin    = 999;
+
+  TSQLRow * row = 0;
+  while( (row = result->Next()) ) {
+     double cE    = atof( row->GetField(0) );
+     double cxsec = atof( row->GetField(1) );
+     double dE    = TMath::Abs(E-cE);
+     if(dE < dEmin) {
+        max_xsec = cxsec;
+        Ep       = cE;
+        dEmin    = TMath::Min(dE,dEmin);
+     }
+  }
+  LOG("Kinematics", pINFO)
+     << "\nRetrieved: max xsec = " << max_xsec << " cached at E = " << Ep;
+
+  return max_xsec;
+}
+//___________________________________________________________________________
+void KineGeneratorWithCache::CacheMaxXSec(
+                     const Interaction * interaction, double max_xsec) const
+{
+  LOG("Kinematics", pINFO)
+                       << "Adding the computed max{dxsec/dK} value to cache";
+
+  //-- access the the cache branch
+  TNtuple * nt = this->AccessCacheBranch(interaction);
+  assert(nt);
+
+  //-- get neutrino energy
   const InitialState & init_state = interaction -> GetInitialState();
   double E = init_state.GetProbeE(kRfStruckNucAtRest);
 
-  LOG("Kinematics", pINFO) << "E = " << E;
-
-  //-- create the cache branch at the first pass
+  if(max_xsec>0) nt->Fill(E, max_xsec);
+}
+//___________________________________________________________________________
+TNtuple * KineGeneratorWithCache::AccessCacheBranch(
+                                      const Interaction * interaction) const
+{
+// Returns the cache branch for this algorithm & interaction. If no branch is
+// found then it is created.
 
   Cache * cache = Cache::Instance();
 
@@ -84,69 +179,13 @@ double KineGeneratorWithCache::MaxXSec(const Interaction * interaction) const
   TNtuple * nt = cache->FindCacheBranchPtr(this, subbranch);
 
   if(!nt) {
+    //-- create the cache branch at the first pass
     LOG("Kinematics", pINFO) << "Cache branch doesn't exist / creating";
     LOG("Kinematics", pINFO) << "Branch key = "
                                << cache->CacheBranchKey(this, subbranch);
     nt = cache->CreateCacheBranch(this, subbranch, "E:xsec");
   }
-
-  //-- retrieve the cross section from the cache branch
-
-  // query for all the entries at a window around the current energy
-  ostringstream cut;
-  if(E<1.5) {
-    cut << "(E-" << E << " < 0.05) && (E>=" << E << ")";
-  } else {
-    cut << "(E-" << E << " < 0.10) && (E>=" << E << ")";
-  }
-
-  TSQLResult * result = nt->Query("E:xsec", cut.str().c_str());
-  int nrows = result->GetRowCount();
-
-  LOG("Kinematics", pDEBUG)
-                    << "Found " << nrows << " rows with " << cut.str();
-
-  // and now select the entry with the closest energy
-  double Ep = 0; //
-  double max_xsec = -1.0;
-  if(nrows > 0) {
-     TSQLRow * row = 0;
-     double dEmin = 999;
-
-     while( (row = result->Next()) ) {
-         double cE    = atof( row->GetField(0) );
-         double cxsec = atof( row->GetField(1) );
-         double dE    = TMath::Abs(E-cE);
-
-         if(dE < dEmin) {
-            max_xsec = cxsec;
-            Ep       = cE;
-            dEmin    = TMath::Min(dE,dEmin);
-         }
-     }
-     LOG("Kinematics", pINFO)
-       << "\nRetrieved: max xsec = " << max_xsec << " cached at E = " << Ep;
-
-     return max_xsec;
-  }
-
-  //-- if no good cached value was found, compute the max. cross section
-  //   and add it to the cache ao that it can be used in a subsequent step.
-
-  LOG("Kinematics", pINFO)
-              << "No cached cross section value. Computing & caching one";
-
-  max_xsec = ComputeMaxXSec(interaction);
-  LOG("Kinematics", pINFO) << "max xsec = " << max_xsec;
-
-  if(max_xsec>0) nt->Fill(E, max_xsec);
-  else {
-     LOG("Kinematics", pWARN) << *interaction;
-     LOG("Kinematics", pFATAL)
-          << "** Refusing to cache non-positive xsec = " << max_xsec;
-     assert(max_xsec>0);
-  }
-  return max_xsec;
+  return nt;
 }
 //___________________________________________________________________________
 string KineGeneratorWithCache::SelectSubBranch(
@@ -161,3 +200,4 @@ string KineGeneratorWithCache::SelectSubBranch(
   return interaction->AsString();
 }
 //___________________________________________________________________________
+

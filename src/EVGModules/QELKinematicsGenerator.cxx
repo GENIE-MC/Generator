@@ -47,24 +47,24 @@ QELKinematicsGenerator::~QELKinematicsGenerator()
 
 }
 //___________________________________________________________________________
-void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
+void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// Selects (x,y) kinematic variables using the 'Rejection' method and adds
-// them to the event record's summary
-
-  Interaction * interaction = event_rec->GetInteraction();
-
-  interaction->SetBit(kISkipProcessChk);
-  interaction->SetBit(kISkipKinematicChk);
+// Selects kinematic variables using the 'Rejection' method and adds them to
+// the event record's summary
 
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
+  //-- Get the interaction and set the 'trust' bits
+  Interaction * interaction = evrec->GetInteraction();
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
+
   //-- For the subsequent kinematic selection with the rejection method:
-  //   Valculate the max differential cross section or retrieve it from
-  //   the cache (if something similar was computed at a previous step).
-  double xsec_max = this->MaxXSec(interaction);
-  xsec_max *= fSafetyFactor;
+  //   Calculate the max differential cross section or retrieve it from the
+  //   cache. Throw an exception and quit the evg thread if a non-positive
+  //   value is found.
+  double xsec_max = this->MaxXSec(evrec);
 
   //------ Try to select a valid Q2
   register unsigned int iter = 0;
@@ -96,7 +96,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
         LOG("QELKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
 
         // set the cross section for the selected kinematics
-        event_rec->SetDiffXSec(xsec);
+        evrec->SetDiffXSec(xsec);
 
         interaction->ResetBit(kISkipProcessChk);
         interaction->ResetBit(kISkipKinematicChk);
@@ -147,15 +147,12 @@ Range1D_t QELKinematicsGenerator::Q2Range(
 {
   //-- Get the physically allowed kinematical region for this interaction
   Range1D_t Q2 = utils::kinematics::Q2Range_M(interaction);
-
   LOG("QELKinematics", pDEBUG)
                << "Physical Q2 range = (" << Q2.min << ", " << Q2.max << ")";
 
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if ( utils::math::IsWithinLimits(fQ2min, Q2) ) Q2.min = fQ2min;
-  if ( utils::math::IsWithinLimits(fQ2max, Q2) ) Q2.max = fQ2max;
-
+  utils::kinematics::ApplyCutsToKineLimits(Q2, fQ2min, fQ2max);
   LOG("QELKinematics", pDEBUG)
       << "(Physical & User) Q2 range = (" << Q2.min << ", " << Q2.max << ")";
 
@@ -173,16 +170,21 @@ double QELKinematicsGenerator::ComputeMaxXSec(
 // maximum. The number used in the rejection method will be scaled up by a
 // safety factor. But it needs to be fast - do not use a very small dQ2 step.
 
-  const int N = 40;
-  double max_xsec = -1.0;
+  double max_xsec = 0.0;
+  const int N = 20;
+
+  const InitialState & init_state = interaction -> GetInitialState();
+  double E = init_state.GetProbeE(kRfStruckNucAtRest);
 
   Range1D_t rQ2 = this->Q2Range(interaction);
+  if( rQ2.max < 1e-3 || rQ2.min <=0 ) return 0.;
+  if(E<0.6) utils::kinematics::ApplyCutsToKineLimits(rQ2, E/20., 1.2*E);
+
   const double logQ2min = TMath::Log(rQ2.min);
   const double logQ2max = TMath::Log(rQ2.max);
   const double dlogQ2   = (logQ2max - logQ2min) /(N-1);
 
   for(int i=0; i<N; i++) {
-
      double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
      interaction->GetKinematicsPtr()->SetQ2(Q2);
 
@@ -190,6 +192,10 @@ double QELKinematicsGenerator::ComputeMaxXSec(
 
      max_xsec = TMath::Max(xsec, max_xsec);
   }//Q^2
+
+  // Apply safety factor, since value retrieved from the cache might
+  // correspond to a slightly different energy
+  max_xsec *= fSafetyFactor;
 
   SLOG("QELKinematics", pDEBUG) << interaction->AsString();
   SLOG("QELKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
