@@ -50,6 +50,7 @@ protected:
   virtual double    MaxXSec           (GHepRecord * evrec) const;
   virtual double    FindMaxXSec       (const Interaction * in) const;
   virtual void      CacheMaxXSec      (const Interaction * in, double xsec) const;
+  virtual double    Energy            (const Interaction * in) const;
   virtual TNtuple * AccessCacheBranch (const Interaction * in) const;
   virtual string    SelectSubBranch   (const Interaction * in) const;
 };
