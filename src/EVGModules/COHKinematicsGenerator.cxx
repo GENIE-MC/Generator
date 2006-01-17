@@ -47,42 +47,39 @@ COHKinematicsGenerator::~COHKinematicsGenerator()
 
 }
 //___________________________________________________________________________
-void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
+void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// Selects (x,y) kinematic variables using the 'Rejection' method and adds
-// them to the event record's summary
+// Selects kinematic variables using the 'Rejection' method and adds them to
+// the event record's summary
 
-  Interaction * interaction = event_rec->GetInteraction();
+  Interaction * interaction = evrec->GetInteraction();
 
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
   //-- For the subsequent kinematic selection with the rejection method:
-  //   Valculate the max differential cross section or retrieve it from
-  //   the cache (if something similar was computed at a previous step).
-  double xsec_max = this->MaxXSec(interaction);
-  xsec_max *= fSafetyFactor;
+  //   Calculate the max differential cross section or retrieve it from the
+  //   cache. Throw an exception and quit the evg thread if a non-positive
+  //   value is found.
+  double xsec_max = this->MaxXSec(evrec);
 
   //------ Try to select a valid x,y pair
+  const double e = 1E-6;
+  register unsigned int iter = 0;
 
   //-- Get the kinematical limits for the generated x,y
-  double e = 1E-6;
-
   Range1D_t x;
-  x.min=0.+e;
-  x.max=1.-e;
-
+  x.min=0;
+  x.max=1;
   Range1D_t y = this->yRange(interaction);
 
-  const double logxmin = TMath::Log(x.min);
-  const double logxmax = TMath::Log(x.max);
+  const double logxmin = TMath::Log(x.min+e);
+  const double logxmax = TMath::Log(x.max-e);
   const double rlogx   = (logxmax - logxmin);
-
   const double logymin = TMath::Log(y.min+e);
   const double logymax = TMath::Log(y.max-e);
   const double rlogy   = (logymax - logymin);
 
-  register unsigned int iter = 0;
   while(1) {
      double gx = TMath::Exp(logxmin + rlogx * rnd->Random2().Rndm());
      double gy = TMath::Exp(logymin + rlogy * rnd->Random2().Rndm());
@@ -102,12 +99,10 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * event_rec) const
         // kinematical selection done.
         LOG("COHKinematics", pINFO)
                              << "Selected: x = " << gx << ", y = " << gy;
-
         // set the cross section for the selected kinematics
-        event_rec->SetDiffXSec(xsec);
+        evrec->SetDiffXSec(xsec);
         return;
      }
-
      iter++;
      if(iter > kRjMaxIterations) {
         LOG("COHKinematics", pFATAL)
@@ -143,8 +138,10 @@ double COHKinematicsGenerator::ComputeMaxXSec(
 // method and the value is cached at a circular cache branch for retrieval
 // during subsequent event generation.
 
-  const int N = 20;
-  double max_xsec = -1.0;
+  double max_xsec = 0.;
+
+  const double e = 1E-6;
+  const int    N = 20;
 
   Range1D_t x;
   x.min=0.;
@@ -152,12 +149,11 @@ double COHKinematicsGenerator::ComputeMaxXSec(
 
   Range1D_t y = this->yRange(interaction);
 
-  const double logxmin = TMath::Log(x.min);
-  const double logxmax = TMath::Log(x.max);
+  const double logxmin = TMath::Log(x.min+e);
+  const double logxmax = TMath::Log(x.max-e);
   const double dlogx   = (logxmax - logxmin) /(N-1);
-
-  const double logymin = TMath::Log(y.min);
-  const double logymax = TMath::Log(y.max);
+  const double logymin = TMath::Log(y.min+e);
+  const double logymax = TMath::Log(y.max-e);
   const double dlogy   = (logymax - logymin) /(N-1);
 
   for(int i=0; i<N; i++) {
@@ -170,6 +166,10 @@ double COHKinematicsGenerator::ComputeMaxXSec(
      max_xsec = TMath::Max(max_xsec, fXSecModel->XSec(interaction));
    }//y
   }//x
+
+  // Apply safety factor, since value retrieved from the cache might
+  // correspond to a slightly different energy.
+  max_xsec *= fSafetyFactor;
 
   SLOG("COHKinematics", pDEBUG) << interaction->AsString();
   SLOG("COHKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
