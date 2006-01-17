@@ -57,9 +57,7 @@ void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   TLorentzVector * p4nu = init_state.GetProbeP4(kRfLab); //ignore e velocity
   double y = interaction->GetKinematics().y();
-
-  assert(1);
-  assert(y>=0 && y<=1);
+  assert(y>0 && y<1);
 
   // Final state primary lepton PDG code
   int pdgc = kPdgMuon;
@@ -68,7 +66,7 @@ void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   respect to the incoming neutrino
 
   double Ev    = p4nu->Energy();
-  double Emu   = y*Ev;
+  double Emu   = (1-y)*Ev;
   double Emu2  = TMath::Power(Emu,2);
   double me    = kElectronMass;
   double mmu2  = kMuonMass_2;
