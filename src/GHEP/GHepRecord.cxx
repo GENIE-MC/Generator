@@ -461,7 +461,7 @@ void GHepRecord::InitRecord(void)
   fWeight      = 1.;
   fXSec        = 0.;
   fDiffXSec    = 0.;
-  fVtx         = new TLorentzVector(0,0,0,0);  
+  fVtx         = new TLorentzVector(0,0,0,0);
 
   this -> SwitchIsPauliBlocked (false);
   this -> SwitchIsBelowThrNRF  (false);
@@ -538,7 +538,7 @@ void GHepRecord::Print(ostream & stream) const
   stream << "\n\n|";
   stream << setfill('-') << setw(110) << "|";
 
-  stream << "\n|GENIE GHEP Event Record [shown using $GHEPPRINTLEVEL = " 
+  stream << "\n|GENIE GHEP Event Record [shown using $GHEPPRINTLEVEL = "
          << printlevel << "]" << setfill(' ') << setw(53) << "|";
 
   stream << "\n|";
@@ -645,7 +645,7 @@ void GHepRecord::Print(ostream & stream) const
 
   stream << "\n| ";
   stream << setfill(' ') << setw(17) << "Vertex:  | ";
-  stream << setfill(' ') << setw(6) 
+  stream << setfill(' ') << setw(6)
                        << ((probe) ? probe->Name() : "unknown probe") << " @ (";
 
   stream << setiosflags(ios::fixed)  << setprecision(5);
@@ -683,9 +683,9 @@ void GHepRecord::Print(ostream & stream) const
     stream << setiosflags(ios::scientific) << setprecision(5);
 
     stream << setfill(' ') << setw(17) << "XSC/WGT: | "
-           << setfill(' ') << setw(15) << "XSec (Event)...." 
+           << setfill(' ') << setw(15) << "XSec (Event)...."
            << fXSec << " |"
-           << setfill(' ') << setw(15) << " XSec (Event Kinematics)...." 
+           << setfill(' ') << setw(15) << " XSec (Event Kinematics)...."
            << fDiffXSec << " |"
            << setfill(' ') << setw(15) << " Event weight..."
            << setiosflags(ios::fixed) << setprecision(5)

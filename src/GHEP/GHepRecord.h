@@ -38,7 +38,7 @@ public :
   GHepRecord();
   GHepRecord(int size);
   GHepRecord(const GHepRecord & record);
-  ~GHepRecord();
+  virtual ~GHepRecord();
 
   //-- methods to attach / get summary information
 
