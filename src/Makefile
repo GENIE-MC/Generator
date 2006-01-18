@@ -101,7 +101,7 @@ geanti:
 	cd GeantInterface; make; cd ..; \
 
 doxygen-doc:
-	cd ../doc/doxygen/; $(DOXYGEN) genie_doxygen; cd ../../src/
+	cd ./scripts; make doxygen; cd ../;
 
 generator-std-exe:
 	cd stdapp; make all; cd ..; \
