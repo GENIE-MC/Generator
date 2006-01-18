@@ -35,17 +35,36 @@ namespace genie {
 //___________________________________________________________________________
 Kinematics::Kinematics()
 {
-  this->Initialize();
+  this->Reset();
 }
 //____________________________________________________________________________
 Kinematics::Kinematics(const Kinematics & kinematics)
 {
+  this->Reset();
   this->Copy(kinematics);
 }
 //____________________________________________________________________________
 Kinematics::~Kinematics()
 {
+  this->Reset();
+}
+//____________________________________________________________________________
+void Kinematics::Reset(void)
+{
+  fKV.clear();
+}
+//____________________________________________________________________________
+void Kinematics::Copy(const Kinematics & kinematics)
+{
+  this->Reset();
 
+  map<KineVar_t, double>::const_iterator iter;
+
+  for(iter = kinematics.fKV.begin(); iter != kinematics.fKV.end(); ++iter) {
+    KineVar_t kv  = iter->first;
+    double    val = iter->second;
+    this->SetKV(kv,val);
+  }
 }
 //____________________________________________________________________________
 double Kinematics::x(void) const
@@ -218,24 +237,6 @@ void Kinematics::SetKV(KineVar_t kv, double value)
   }
 }
 //____________________________________________________________________________
-void Kinematics::Initialize(void)
-{
-  fKV.clear();
-}
-//____________________________________________________________________________
-void Kinematics::Copy(const Kinematics & kinematics)
-{
-  this->Initialize();
-
-  map<KineVar_t, double>::const_iterator iter;
-
-  for(iter = kinematics.fKV.begin(); iter != kinematics.fKV.end(); ++iter) {
-    KineVar_t kv  = iter->first;
-    double    val = iter->second;
-    this->SetKV(kv,val);
-  }
-}
-//____________________________________________________________________________
 void Kinematics::Print(ostream & stream) const
 {
   stream << "[-] [Kinematics]" << endl;
@@ -249,4 +250,10 @@ void Kinematics::Print(ostream & stream) const
   }
 }
 //____________________________________________________________________________
+Kinematics & Kinematics::operator = (const Kinematics & kinematics)
+{
+  this->Copy(kinematics);
+  return (*this);
+}
+//___________________________________________________________________________
 

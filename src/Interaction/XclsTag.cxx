@@ -40,12 +40,12 @@ namespace genie {
 //___________________________________________________________________________
 XclsTag::XclsTag()
 {
-  this->Initialize();
+  this->Reset();
 }
 //___________________________________________________________________________
 XclsTag::XclsTag(const XclsTag & xcls)
 {
-  this->Initialize();
+  this->Reset();
 
   this->Copy(xcls);
 }
@@ -103,32 +103,28 @@ void XclsTag::SetResonance(Resonance_t res)
   fResonance = res;
 }
 //___________________________________________________________________________
-void XclsTag::Initialize(void)
+void XclsTag::Reset(void)
 {
   fIsCharmEvent     = false;
   fCharmedHadronPdg = 0;
-
-  fNProtons     = 0;
-  fNNeutrons    = 0;
-  fNPi0         = 0;
-  fNPiPlus      = 0;
-  fNPiMinus     = 0;
-
-  fResonance    = kNoResonance;
+  fNProtons         = 0;
+  fNNeutrons        = 0;
+  fNPi0             = 0;
+  fNPiPlus          = 0;
+  fNPiMinus         = 0;
+  fResonance        = kNoResonance;
 }
 //___________________________________________________________________________
 void XclsTag::Copy(const XclsTag & xcls)
 {
   fIsCharmEvent     = xcls.fIsCharmEvent;
   fCharmedHadronPdg = xcls.fCharmedHadronPdg;
-
-  fNProtons     = xcls.fNProtons;
-  fNNeutrons    = xcls.fNNeutrons;
-  fNPi0         = xcls.fNPi0;
-  fNPiPlus      = xcls.fNPiPlus;
-  fNPiMinus     = xcls.fNPiMinus;
-
-  fResonance    = xcls.fResonance;
+  fNProtons         = xcls.fNProtons;
+  fNNeutrons        = xcls.fNNeutrons;
+  fNPi0             = xcls.fNPi0;
+  fNPiPlus          = xcls.fNPiPlus;
+  fNPiMinus         = xcls.fNPiMinus;
+  fResonance        = xcls.fResonance;
 }
 //___________________________________________________________________________
 string XclsTag::AsString(void) const
@@ -182,6 +178,12 @@ void XclsTag::Print(ostream & stream) const
      stream << "[not set]";
   }
   stream << endl;
+}
+//___________________________________________________________________________
+XclsTag & XclsTag::operator = (const XclsTag & xcls)
+{
+  this->Copy(xcls);
+  return (*this);
 }
 //___________________________________________________________________________
 

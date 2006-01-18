@@ -42,30 +42,29 @@ namespace genie {
 //___________________________________________________________________________
 InitialState::InitialState()
 {
-  this->Initialize();
+  this->Init();
 }
 //___________________________________________________________________________
 InitialState::InitialState(int target_pdgc, int probe_pdgc)
 {
-  this->Create(target_pdgc, probe_pdgc);
+  this->Init(target_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
 InitialState::InitialState(int Z, int A, int probe_pdgc)
 {
   int target_pdgc = pdg::IonPdgCode(A,Z);
-
-  this->Create(target_pdgc, probe_pdgc);
+  this->Init(target_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
 InitialState::InitialState(const Target & tgt, int probe_pdgc)
 {
-  this->Create(tgt.PDGCode(), probe_pdgc);
+  int target_pdgc = tgt.PDGCode();
+  this->Init(target_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
 InitialState::InitialState(const InitialState & init_state)
 {
-  this->Initialize();
-
+  this->Init();
   this->Copy(init_state);
 }
 //___________________________________________________________________________
@@ -74,7 +73,7 @@ InitialState::~InitialState()
   this->CleanUp();
 }
 //___________________________________________________________________________
-void InitialState::Initialize(void)
+void InitialState::Init(void)
 {
   fProbePdgC  = 0;
   fTarget     = new Target();
@@ -82,65 +81,53 @@ void InitialState::Initialize(void)
   fTargetP4   = new TLorentzVector(0, 0, 0, 0);
 }
 //___________________________________________________________________________
+void InitialState::Init(int target_pdgc, int probe_pdgc)
+{
+  double m = PDGLibrary::Instance() -> Find (probe_pdgc ) -> Mass();
+  double M = PDGLibrary::Instance() -> Find (target_pdgc) -> Mass();
+
+  fProbePdgC  = probe_pdgc;
+  fTarget     = new Target(target_pdgc);
+  fProbeP4    = new TLorentzVector(0, 0, 0, m);
+  fTargetP4   = new TLorentzVector(0, 0, 0, M);
+}
+//___________________________________________________________________________
 void InitialState::CleanUp(void)
 {
-  if(fTarget)   delete fTarget;
-  if(fProbeP4)  delete fProbeP4;
-  if(fTargetP4) delete fTargetP4;
+  delete fTarget;
+  delete fProbeP4;
+  delete fTargetP4;
+}
+//___________________________________________________________________________
+void InitialState::Reset(void)
+{
+  this->CleanUp();
+  this->Init();
 }
 //___________________________________________________________________________
 void InitialState::Copy(const InitialState & init_state)
 {
-  fProbePdgC  = init_state.fProbePdgC;
+  fProbePdgC = init_state.fProbePdgC;
 
   fTarget->Copy( *init_state.fTarget );
 
-  double px = init_state.fProbeP4->Px();
-  double py = init_state.fProbeP4->Py();
-  double pz = init_state.fProbeP4->Pz();
-  double E  = init_state.fProbeP4->Energy();
-
-  fProbeP4->SetXYZT(px, py, pz, E);
-
-  px = init_state.fTargetP4->Px();
-  py = init_state.fTargetP4->Py();
-  pz = init_state.fTargetP4->Pz();
-  E  = init_state.fTargetP4->Energy();
-
-  fTargetP4->SetXYZT(px, py, pz, E);
-}
-//___________________________________________________________________________
-void InitialState::Create(int target_pdgc, int probe_pdgc)
-{
-  fTarget = new Target(target_pdgc);  // set Target properties
-  fProbePdgC = probe_pdgc;            // set Probe PDG code
-
-  // set default, on-mass-shell 4-momenta
-
-  int tgt_pdgc = fTarget->PDGCode();
-
-  double m = PDGLibrary::Instance() -> Find ( probe_pdgc ) -> Mass();
-  double M = PDGLibrary::Instance() -> Find ( tgt_pdgc   ) -> Mass();
-
-  fProbeP4    = new TLorentzVector(0, 0, 0, m);
-  fTargetP4   = new TLorentzVector(0, 0, 0, M);
+  this -> SetProbeP4  ( *init_state.fProbeP4  );
+  this -> SetTargetP4 ( *init_state.fTargetP4 );
 }
 //___________________________________________________________________________
 TParticlePDG * InitialState::GetProbe(void) const
 {
   TParticlePDG * p = PDGLibrary::Instance()->Find(fProbePdgC);
-
   return p;
 }
 //___________________________________________________________________________
 void InitialState::SetProbePDGCode(int pdg_code)
 {
   TParticlePDG * p = PDGLibrary::Instance()->Find(pdg_code);
-
   if(p) fProbePdgC = pdg_code;
   else {
     LOG("Interaction", pERROR)
-                   << "Can not set non-existent particle code: " << pdg_code;
+        << "Can not set non-existent particle code: " << pdg_code;
   }
 }
 //___________________________________________________________________________
@@ -370,6 +357,27 @@ void InitialState::Print(ostream & stream) const
            << ", Pz = " << setw(12) << setprecision(6) << nuc_p4->Pz()
            << ")";
   }
+}
+//___________________________________________________________________________
+bool InitialState::Compare(const InitialState & init_state) const
+{
+  int            probe  = init_state.GetProbePDGCode();
+  const Target & target = init_state.GetTarget();
+
+  bool equal = (fProbePdgC == probe) && (*fTarget == target);
+
+  return equal;
+}
+//___________________________________________________________________________
+bool InitialState::operator == (const InitialState & init_state) const
+{
+  return this->Compare(init_state);
+}
+//___________________________________________________________________________
+InitialState & InitialState::operator = (const InitialState & init_state)
+{
+  this->Copy(init_state);
+  return (*this);
 }
 //___________________________________________________________________________
 

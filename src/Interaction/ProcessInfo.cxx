@@ -36,11 +36,9 @@ namespace genie {
  }
 }
 //____________________________________________________________________________
-ProcessInfo::ProcessInfo() :
-fScatteringType  (kScNull ),
-fInteractionType (kIntNull)
+ProcessInfo::ProcessInfo()
 {
-
+  this->Reset();
 }
 //____________________________________________________________________________
 ProcessInfo::ProcessInfo(
@@ -59,6 +57,12 @@ ProcessInfo::ProcessInfo(const ProcessInfo & proc)
 ProcessInfo::~ProcessInfo()
 {
 
+}
+//____________________________________________________________________________
+void ProcessInfo::Reset(void)
+{
+  fScatteringType  = kScNull;
+  fInteractionType = kIntNull;
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsElastic(void) const
@@ -125,10 +129,10 @@ string ProcessInfo::AsString(void) const
 {
   ostringstream stream;
 
-  stream << "<" 
-         << this->ScatteringTypeAsString() 
+  stream << "<"
+         << this->ScatteringTypeAsString()
          << " - "
-         << this->InteractionTypeAsString() 
+         << this->InteractionTypeAsString()
          << ">";
 
   return stream.str();
@@ -173,6 +177,11 @@ void ProcessInfo::Print(ostream & stream) const
          << " |--> Scattering  : " << this->ScatteringTypeAsString()  << endl;
 }
 //____________________________________________________________________________
+bool ProcessInfo::operator == (const ProcessInfo & proc) const
+{
+  return this->Compare(proc);
+}
+//___________________________________________________________________________
 ProcessInfo & ProcessInfo::operator = (const ProcessInfo & proc)
 {
   this->Copy(proc);

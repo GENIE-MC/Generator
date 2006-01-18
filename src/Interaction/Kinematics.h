@@ -34,7 +34,7 @@ public:
 
   Kinematics();
   Kinematics(const Kinematics & kv);
-  virtual ~Kinematics();
+  ~Kinematics();
 
   double x     (void) const;
   double y     (void) const;
@@ -60,14 +60,17 @@ public:
   double GetKV(KineVar_t kv) const;
   void   SetKV(KineVar_t kv, double value);
 
-  void Initialize (void);
-  void Copy       (const Kinematics & kinematics);
-  void Print      (ostream & stream) const;
+  //! Copy, reset, compare and print itself
+  void Reset    (void);
+  void Copy     (const Kinematics & kine);
+  void Print    (ostream & stream) const;
 
-  friend ostream & operator << (ostream & stream, const Kinematics & kinematics);
+  Kinematics &     operator =  (const Kinematics & kine);
+  friend ostream & operator << (ostream & stream, const Kinematics & kine);
 
 private:
 
+  //! Private data members
   map<KineVar_t, double> fKV;
 
 ClassDef(Kinematics,1)
