@@ -40,7 +40,7 @@ public:
   InitialState(int Z, int A, int probe_pdgc);
   InitialState(const Target & tgt, int probe_pdgc);
   InitialState(const InitialState & initial_state);
-  virtual ~InitialState();
+  ~InitialState();
 
   const Target &   GetTarget       (void) const { return *fTarget;    }
   int              GetProbePDGCode (void) const { return  fProbePdgC; }
@@ -54,22 +54,29 @@ public:
   void SetTargetP4     (const TLorentzVector & P4); // in LAB-frame
   void SetProbeP4      (const TLorentzVector & P4); // in LAB-frame
 
-  string AsString (void) const;
+  //! Copy, reset, compare, print itself and build string code
+  void   Reset    (void);
   void   Copy     (const InitialState & init_state);
+  bool   Compare  (const InitialState & init_state) const;
+  string AsString (void) const;
   void   Print    (ostream & stream) const;
 
-  friend ostream & operator << (ostream& stream, const InitialState & init_state);
+  bool             operator == (const InitialState & i) const;
+  InitialState &   operator =  (const InitialState & i);
+  friend ostream & operator << (ostream & stream, const InitialState & i);
 
 private:
 
-  void Initialize (void);
+  //! Methods for InitialState initialization and clean up
+  void Init       (void);
+  void Init       (int target_pdgc, int probe_pdgc);
   void CleanUp    (void);
-  void Create     (int target_pdgc, int probe_pdgc);
 
-  int              fProbePdgC; // probe PDG code
-  Target *         fTarget;    // nuclear target
-  TLorentzVector * fProbeP4;   // probe 4-momentum in LAB-frame
-  TLorentzVector * fTargetP4;  // nuclear target 4-momentum in LAB-frame
+  //! Private data members
+  int              fProbePdgC; ///< probe PDG code
+  Target *         fTarget;    ///< nuclear target
+  TLorentzVector * fProbeP4;   ///< probe 4-momentum in LAB-frame
+  TLorentzVector * fTargetP4;  ///< nuclear target 4-momentum in LAB-frame
 
 ClassDef(InitialState,1)
 };

@@ -47,13 +47,12 @@ Interaction::Interaction()
   this->Init();
 }
 //___________________________________________________________________________
-Interaction::Interaction(
-              const InitialState & init_state, const ProcessInfo & proc_info)
+Interaction::Interaction(const InitialState & ist, const ProcessInfo & prc)
 {
   this->Init();
 
-  fInitialState -> Copy (init_state);
-  fProcInfo     -> Copy (proc_info);
+  fInitialState -> Copy (ist);
+  fProcInfo     -> Copy (prc);
 }
 //___________________________________________________________________________
 Interaction::Interaction(const Interaction & interaction)
@@ -65,14 +64,6 @@ Interaction::Interaction(const Interaction & interaction)
 Interaction::~Interaction()
 {
   this->CleanUp();
-}
-//___________________________________________________________________________
-void Interaction::Copy(const Interaction & interaction)
-{
-  fInitialState = new InitialState ( *interaction.fInitialState  );
-  fProcInfo     = new ProcessInfo  ( *interaction.fProcInfo      );
-  fKinematics   = new Kinematics   ( *interaction.fKinematics    );
-  fExclusiveTag = new XclsTag      ( * interaction.fExclusiveTag );
 }
 //___________________________________________________________________________
 void Interaction::Reset(void)
@@ -100,6 +91,19 @@ void Interaction::CleanUp(void)
   fProcInfo     = 0;
   fKinematics   = 0;
   fExclusiveTag = 0;
+}
+//___________________________________________________________________________
+void Interaction::Copy(const Interaction & interaction)
+{
+  const InitialState & init = *interaction.fInitialState;
+  const ProcessInfo &  proc = *interaction.fProcInfo;
+  const Kinematics &   kine = *interaction.fKinematics;
+  const XclsTag &      xcls = *interaction.fExclusiveTag;
+
+  fInitialState -> Copy (init);
+  fProcInfo     -> Copy (proc);
+  fKinematics   -> Copy (kine);
+  fExclusiveTag -> Copy (xcls);
 }
 //___________________________________________________________________________
 TParticlePDG * Interaction::GetFSPrimaryLepton(void) const
@@ -153,24 +157,6 @@ void Interaction::SetExclusiveTag(const XclsTag & xcls_tag)
   fExclusiveTag->Copy(xcls_tag);
 }
 //___________________________________________________________________________
-void Interaction::Print(ostream & stream) const
-{
-  const string line(110, '-');
-
-  stream << endl;
-  stream << line << endl;
-
-  stream << "GENIE Interaction Summary" << endl;
-  stream << line << endl;
-
-  stream << *fInitialState << endl; // print initial state
-  stream << *fProcInfo;             // print process info
-  stream << *fKinematics;           // print scattering parameters
-  stream << *fExclusiveTag;         // print exclusive process tag
-
-  stream << line << endl;
-}
-//___________________________________________________________________________
 string Interaction::AsString(void) const
 {
 // Code-ify the interaction in a string to be used as (part of a) cache
@@ -189,7 +175,7 @@ string Interaction::AsString(void) const
     interaction << "N:" << tgt.StruckNucleonPDGCode() << ";";
   }
   if(tgt.StruckQuarkIsSet()) {
-    interaction << "q:" << tgt.StruckQuarkPDGCode() 
+    interaction << "q:" << tgt.StruckQuarkPDGCode()
                 << (tgt.StruckQuarkIsFromSea() ? "(s)" : "(v)") << ";";
   }
 
@@ -201,4 +187,27 @@ string Interaction::AsString(void) const
   return interaction.str();
 }
 //___________________________________________________________________________
+void Interaction::Print(ostream & stream) const
+{
+  const string line(110, '-');
 
+  stream << endl;
+  stream << line << endl;
+
+  stream << "GENIE Interaction Summary" << endl;
+  stream << line << endl;
+
+  stream << *fInitialState << endl; // print initial state
+  stream << *fProcInfo;             // print process info
+  stream << *fKinematics;           // print scattering parameters
+  stream << *fExclusiveTag;         // print exclusive process tag
+
+  stream << line << endl;
+}
+//___________________________________________________________________________
+Interaction & Interaction::operator = (const Interaction & interaction)
+{
+  this->Copy(interaction);
+  return (*this);
+}
+//___________________________________________________________________________

@@ -43,49 +43,50 @@ class Interaction : public TObject {
 public:
 
   Interaction();
-  Interaction(const InitialState & state, const ProcessInfo & proc_info);
-  Interaction(const Interaction & interaction);
-  virtual ~Interaction();
+  Interaction(const InitialState & init, const ProcessInfo & proc);
+  Interaction(const Interaction & i);
+  ~Interaction();
 
-  void Copy  (const Interaction & interaction);
-  void Reset (void);
-
-  //! get read-only interaction information
+  //! Get read-only interaction information
   const InitialState & GetInitialState (void) const { return *fInitialState; }
   const ProcessInfo &  GetProcessInfo  (void) const { return *fProcInfo;     }
   const Kinematics &   GetKinematics   (void) const { return *fKinematics;   }
   const XclsTag &      GetExclusiveTag (void) const { return *fExclusiveTag; }
 
-  //! get read/write interaction information
+  //! Get read/write interaction information
   InitialState * GetInitialStatePtr (void) const { return fInitialState; }
   ProcessInfo *  GetProcessInfoPtr  (void) const { return fProcInfo;     }
   Kinematics *   GetKinematicsPtr   (void) const { return fKinematics;   }
   XclsTag *      GetExclusiveTagPtr (void) const { return fExclusiveTag; }
 
-  //! methods to 'block' set interaction's properties
-  void SetInitialState (const InitialState & init_state);
-  void SetProcessInfo  (const ProcessInfo & proc_info);
-  void SetKinematics   (const Kinematics & kinematics);
-  void SetExclusiveTag (const XclsTag & xcls_tag);
+  //! Methods to 'block' set interaction's properties
+  void SetInitialState (const InitialState & init);
+  void SetProcessInfo  (const ProcessInfo &  proc);
+  void SetKinematics   (const Kinematics &   kine);
+  void SetExclusiveTag (const XclsTag &      xcls);
 
-  //! get final state primary lepton / uniquely determined from the inputs
+  //! Get final state primary lepton / uniquely determined from the inputs
   TParticlePDG * GetFSPrimaryLepton (void) const;
 
-  //! printing itself and the interaction string code
-  string AsString (void)             const;
+  //! Copy, reset, print itself and build string code
+  void   Reset    (void);
+  void   Copy     (const Interaction & i);
+  string AsString (void) const;
   void   Print    (ostream & stream) const;
 
-  friend ostream & operator<< (ostream & stream, const Interaction & interaction);
+  Interaction &    operator =  (const Interaction & i);
+  friend ostream & operator << (ostream & stream, const Interaction & i);
 
 private:
 
+  //! Methods for Interaction initialization and clean up
   void Init    (void);
   void CleanUp (void);
 
-  //! initial state, process info, scattering parameters and exclusive information
+  //! Private data members
   InitialState * fInitialState;  ///< Initial State info
   ProcessInfo *  fProcInfo;      ///< Process info (scattering, weak current,...)
-  Kinematics *   fKinematics;    ///< kinematical variables describing the scattering
+  Kinematics *   fKinematics;    ///< kinematical variables
   XclsTag *      fExclusiveTag;  ///< Additional info for exclusive channels
 
 ClassDef(Interaction,1)
