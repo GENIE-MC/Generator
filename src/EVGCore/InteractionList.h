@@ -36,6 +36,10 @@ public :
   void Print(ostream & stream) const;
 
   friend ostream & operator << (ostream & stream, const InteractionList & intl);
+
+private:
+
+  void CleanUp (void);
 };
 
 }      // genie namespace

@@ -37,13 +37,7 @@ InteractionList::InteractionList()
 //___________________________________________________________________________
 InteractionList::~InteractionList()
 {
-  InteractionList::const_iterator iter;
-
-  for(iter = this->begin(); iter != this->end(); ++iter) {
-    Interaction * interaction = *iter;
-    delete interaction;
-    interaction = 0;
-  }
+  this->CleanUp();
 }
 //___________________________________________________________________________
 void InteractionList::Print(ostream & stream) const
@@ -51,11 +45,22 @@ void InteractionList::Print(ostream & stream) const
   InteractionList::const_iterator iter;
 
   for(iter = this->begin(); iter != this->end(); ++iter) {
-
     Interaction * interaction = *iter;
-
     if(interaction) stream << *interaction;
     else            stream << "\n******** NULL INTERACTION ********" << endl;
   }
 }
 //___________________________________________________________________________
+void InteractionList::CleanUp(void)
+{
+  InteractionList::const_iterator iter;
+
+  for(iter = this->begin(); iter != this->end(); ++iter) {
+    Interaction * interaction = *iter;
+    delete interaction;
+    interaction = 0;
+  }
+  this->clear();
+}
+//___________________________________________________________________________
+
