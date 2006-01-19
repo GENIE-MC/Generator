@@ -125,7 +125,10 @@ double KineGeneratorWithCache::FindMaxXSec(
   int nrows = result->GetRowCount();
   LOG("Kinematics", pDEBUG)
             << "Found " << nrows << " rows with " << search.str();
-  if(nrows <= 0) return -1;
+  if(nrows <= 0) {
+     delete result;
+     return -1;
+  }
 
   // and now select the entry with the closest energy
   double max_xsec = -1.0;
@@ -142,7 +145,10 @@ double KineGeneratorWithCache::FindMaxXSec(
         Ep       = cE;
         dEmin    = TMath::Min(dE,dEmin);
      }
+     delete row;
   }
+  delete result;
+
   LOG("Kinematics", pINFO)
      << "\nRetrieved: max xsec = " << max_xsec << " cached at E = " << Ep;
 
