@@ -53,9 +53,7 @@ Cache::~Cache()
 Cache * Cache::Instance()
 {
   if(fInstance == 0) {
-
     static Cache::Cleaner cleaner;
-
     cleaner.DummyMethodAndSilentCompiler();
 
     fInstance = new Cache;
@@ -72,16 +70,10 @@ TNtuple * Cache::FindCacheBranchPtr(const Algorithm * alg, string subbranch)
 
   string key = this->CacheBranchKey(alg, subbranch);
 
-  if (fCacheMap->count(key) == 1) {
+  map<string, TNtuple *>::const_iterator map_iter = fCacheMap->find(key);
 
-     map<string, TNtuple *>::const_iterator map_iter;
-
-     map_iter = fCacheMap->find(key);
-
-     return map_iter->second;
-  }
-
-  return 0;
+  if (map_iter == fCacheMap->end()) return 0;
+  return map_iter->second;
 }
 //____________________________________________________________________________
 TNtuple * Cache::CreateCacheBranch(
@@ -90,7 +82,6 @@ TNtuple * Cache::CreateCacheBranch(
   string key = this->CacheBranchKey(alg, subbranch);
 
   TNtuple * nt = new TNtuple(key.c_str(), "cache branch", branchdef.c_str());
-
   nt->SetDirectory(0);
   nt->SetCircular(1600000);
 
@@ -102,9 +93,7 @@ TNtuple * Cache::CreateCacheBranch(
 string Cache::CacheBranchKey(const Algorithm * alg, string subbranch) const
 {
   ostringstream key;
-
   key << alg->Id().Name() << "/" << alg->Id().Config() << "/" << subbranch;
-
   return key.str();
 }
 //____________________________________________________________________________
