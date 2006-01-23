@@ -15,11 +15,17 @@
 */
 //____________________________________________________________________________
 
+#include <string>
+
 #include "Base/ELFormFactors.h"
 #include "Messenger/Messenger.h"
+#include "Utils/MathUtils.h"
 
 using std::endl;
+using std::string;
+
 using namespace genie;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 namespace genie
@@ -33,23 +39,18 @@ namespace genie
 //____________________________________________________________________________
 ELFormFactors::ELFormFactors()
 {
-  this->fModel = 0;
-  this->InitFormFactors();
+  this->Reset();
 }
 //____________________________________________________________________________
 ELFormFactors::ELFormFactors(const ELFormFactors & ff)
 {
-  this->fModel = ff.fModel;
-  this->fGep   = ff.fGep;
-  this->fGmp   = ff.fGmp;
-  this->fGen   = ff.fGen;
-  this->fGmn   = ff.fGmn;
+  this->Copy(ff);
 }
 //____________________________________________________________________________
 void ELFormFactors::SetModel(const ELFormFactorsModelI * model)
 {
+  this->Reset();
   this->fModel = model;
-  this->InitFormFactors();
 }
 //____________________________________________________________________________
 void ELFormFactors::Calculate(double q2)
@@ -58,7 +59,7 @@ void ELFormFactors::Calculate(double q2)
   {
     LOG("ELFormFactors", pERROR)
                    << "No ELFormFactorModelI algorithm was defined!";
-    this->InitFormFactors();
+    this->Reset("D");
   }
   else {
     this->fGep = this->fModel->Gep(q2);
@@ -68,12 +69,37 @@ void ELFormFactors::Calculate(double q2)
   }
 }
 //____________________________________________________________________________
-void ELFormFactors::InitFormFactors()
+void ELFormFactors::Reset(Option_t * opt)
 {
+// Reset the ELFormFactors object (data & attached model). If the input
+// option = D it resets the data only and not the attached model.
+
   this->fGep = 0.;
   this->fGmp = 0.;
   this->fGen = 0.;
   this->fGmn = 0.;
+
+  string option(opt);
+  if(option.find("D") == string::npos) {this->fModel = 0;}
+}
+//____________________________________________________________________________
+void ELFormFactors::Copy(const ELFormFactors & ff)
+{
+  this->fModel = ff.fModel;
+  this->fGep   = ff.fGep;
+  this->fGmp   = ff.fGmp;
+  this->fGen   = ff.fGen;
+  this->fGmn   = ff.fGmn;
+}
+//____________________________________________________________________________
+bool ELFormFactors::Compare(const ELFormFactors & ff) const
+{
+  bool equal =
+          math::AreEqual(this->fGep, ff.fGep) &&
+          math::AreEqual(this->fGmp, ff.fGmp) &&
+          math::AreEqual(this->fGen, ff.fGen) &&
+          math::AreEqual(this->fGmn, ff.fGmn);
+  return equal;
 }
 //____________________________________________________________________________
 void ELFormFactors::Print(ostream & stream) const
@@ -83,4 +109,15 @@ void ELFormFactors::Print(ostream & stream) const
   stream<< "(Gen = " << this->fGen << ", Gmn = " << this->fGmn << ")" << endl;
 }
 //____________________________________________________________________________
+bool ELFormFactors::operator == (const ELFormFactors & ff) const
+{
+  return this->Compare(ff);
+}
+//___________________________________________________________________________
+ELFormFactors & ELFormFactors::operator = (const ELFormFactors & ff)
+{
+  this->Copy(ff);
+  return (*this);
+}
+//___________________________________________________________________________
 

@@ -49,13 +49,18 @@ public:
   double F5 (void) const { return fF5; }
   double F6 (void) const { return fF6; }
 
-  void Print(ostream & stream) const;
+  const DISStructureFuncModelI * Model (void) const {return fModel;}
 
-  friend ostream & operator << (ostream & stream, const DISStructureFunc & sf);
+  void   Reset    (Option_t * opt="");
+  void   Copy     (const DISStructureFunc & sf);
+  bool   Compare  (const DISStructureFunc & sf) const;
+  void   Print    (ostream & stream) const;
+
+  bool               operator == (const DISStructureFunc & sf) const;
+  DISStructureFunc & operator =  (const DISStructureFunc & sf);
+  friend ostream &   operator << (ostream & stream, const DISStructureFunc & sf);
 
 private:
-
-  void   InitFormFactors(void);
 
   double fF1;
   double fF2;

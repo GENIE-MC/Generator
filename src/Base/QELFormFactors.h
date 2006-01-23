@@ -46,13 +46,18 @@ public:
   double FA     (void) const { return fFA;    }
   double Fp     (void) const { return fFp;    }
 
+  const QELFormFactorsModelI * Model (void) const {return fModel;}
+
+  void   Reset    (Option_t * opt="");
+  void   Copy     (const QELFormFactors & ff);
+  bool   Compare  (const QELFormFactors & ff) const;
+  void   Print    (ostream & stream) const;
+
+  bool             operator == (const QELFormFactors & ff) const;
+  QELFormFactors & operator =  (const QELFormFactors & ff);
   friend ostream & operator << (ostream & stream, const QELFormFactors & ff);
 
-  void Print(ostream & stream) const;
-  
 private:
-
-  void   InitFormFactors(void);
 
   double fF1V;
   double fxiF2V;
