@@ -42,13 +42,18 @@ public:
   double Gen (void) const { return fGen; }
   double Gmn (void) const { return fGmn; }
 
+  const ELFormFactorsModelI * Model (void) const {return fModel;}
+
+  void   Reset    (Option_t * opt="");
+  void   Copy     (const ELFormFactors & ff);
+  bool   Compare  (const ELFormFactors & ff) const;
+  void   Print    (ostream & stream) const;
+
+  bool             operator == (const ELFormFactors & ff) const;
+  ELFormFactors &  operator =  (const ELFormFactors & ff);
   friend ostream & operator << (ostream & stream, const ELFormFactors & ff);
 
-  void Print(ostream & stream) const;
-
 private:
-
-  void   InitFormFactors(void);
 
   double fGep;
   double fGmp;
