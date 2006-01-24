@@ -33,9 +33,7 @@ public :
 
 private:
 
-  void BuildNames         (void);
-  void UpdateStatusEnvVar (int iev, const EventRecord * event);
-  void UpdateStatusFile   (int iev, const EventRecord * event);
+  void BuildNames(void);
 
   Long_t fRunNu;
   string fStatusFile;

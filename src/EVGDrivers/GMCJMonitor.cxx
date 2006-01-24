@@ -18,8 +18,6 @@
 #include <sstream>
 #include <fstream>
 
-#include <TSystem.h>
-
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GMCJMonitor.h"
 #include "GHEP/GHepParticle.h"
@@ -46,37 +44,6 @@ GMCJMonitor::~GMCJMonitor()
 }
 //____________________________________________________________________________
 void GMCJMonitor::Update(int iev, const EventRecord * event)
-{
-  this->UpdateStatusEnvVar(iev, event);
-  this->UpdateStatusFile(iev, event);
-}
-//____________________________________________________________________________
-void GMCJMonitor::UpdateStatusEnvVar(int iev, const EventRecord * event)
-{
-  ostringstream status;
-
-  status << "IEv: " << iev << ";";
-
-  if(!event) {
-     status << "NULL";
-  } else {
-     status << "Ev:"
-            << event->GetInteraction()->AsString()
-            << ";";
-     status << "P4:"
-            << utils::print::P4AsShortString(event->GetParticle(0)->P4())
-            << ";";
-     status << "Vtx:"
-            << utils::print::X4AsString(event->Vertex())
-            << ";";
-  }
-
-  LOG("GMCJMonitor", pINFO) << "$" << fStatusEnvVar << "->" << status.str();
-
-  gSystem->Setenv(fStatusEnvVar.c_str(), status.str().c_str());
-}
-//____________________________________________________________________________
-void GMCJMonitor::UpdateStatusFile(int iev, const EventRecord * event)
 {
   ofstream out(fStatusFile.c_str(), ios::out);
 
