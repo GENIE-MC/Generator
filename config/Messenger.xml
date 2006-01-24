@@ -100,7 +100,7 @@
   <priority msgstream="ReWeight">            DEBUG  </priority>
   <priority msgstream="RESHadronicVtx">      INFO   </priority>
   <priority msgstream="RESKinematics">       INFO   </priority>
-  <priority msgstream="RESSelector">         INFO   </priority>
+  <priority msgstream="RESSelector">         NOTICE </priority>
   <priority msgstream="Rndm">                INFO   </priority>
   <priority msgstream="Schmitz">             INFO   </priority>
   <priority msgstream="SlowRsclCharm">       INFO   </priority>
@@ -124,6 +124,7 @@
   <priority msgstream="VldKno">              INFO   </priority>
   <priority msgstream="VldHadrMult">         INFO   </priority>
   <priority msgstream="VldPiNucXSec">        INFO   </priority>
+  <priority msgstream="XSecAlgMap">          NOTICE </priority>
   <priority msgstream="XSecSplineList">      INFO   </priority>
 
   <priority msgstream="gevgen">              INFO   </priority>
