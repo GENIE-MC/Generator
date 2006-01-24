@@ -71,7 +71,7 @@ Resonance_t RESResonanceSelector::SelectResonance(GHepRecord * evrec) const
 // Select a baryon resonance from a list of considered resonances based on
 // their differential d^2xsec/dWdQ^2 cross sections
 
-  LOG("RESSelector", pINFO) << "Selecting a baryon resonance";
+  LOG("RESSelector", pNOTICE) << "Selecting a baryon resonance";
 
   //-- Figure out what the resonance charge should be.
   Interaction * interaction = evrec->GetInteraction();
@@ -103,7 +103,7 @@ Resonance_t RESResonanceSelector::SelectResonance(GHepRecord * evrec) const
 
      if(!skip) xsec = fXSecAlg->XSec(interaction);
      else {
-       SLOG("RESSelector", pINFO)
+       SLOG("RESSelector", pNOTICE)
                  << "RES: " << utils::res::AsString(res)
                          << " would not conserve charge -- skipping it";
      }
@@ -112,7 +112,7 @@ Resonance_t RESResonanceSelector::SelectResonance(GHepRecord * evrec) const
      xsec_sum      += xsec;
      xsec_vec[ires] = xsec_sum;
 
-     SLOG("RESSelector", pINFO)
+     SLOG("RESSelector", pNOTICE)
           << "Resonances (0->" << ires << "): "
            << "Sum{ BW(W) * d^2xsec(E,W,Q^2)/dWd*Q^2 } = "  << xsec_sum;
   } // res
@@ -125,7 +125,7 @@ Resonance_t RESResonanceSelector::SelectResonance(GHepRecord * evrec) const
   RandomGen * rnd = RandomGen::Instance();
   double R = xsec_sum * rnd->Random2().Rndm();
 
-  SLOG("RESSelector", pINFO) << "R = " << R;
+  SLOG("RESSelector", pDEBUG) << "R = " << R;
 
   for(unsigned int ires = 0; ires < nres; ires++) {
      SLOG("RESSelector", pDEBUG)
@@ -133,7 +133,7 @@ Resonance_t RESResonanceSelector::SelectResonance(GHepRecord * evrec) const
 
      if(R < xsec_vec[ires]) {
         Resonance_t sres = fResList.ResonanceId(ires); // selected RES.
-        LOG("RESSelector", pINFO)
+        LOG("RESSelector", pNOTICE)
                    << "Selected RES = " << utils::res::AsString(sres);
         return sres;
      }
@@ -176,7 +176,7 @@ void RESResonanceSelector::AddResonance(GHepRecord * evrec) const
   //-- Determine the RES pdg code (from the selected Resonance_t & charge)
   int q_res    = this->ResQ(interaction);
   int res_pdgc = utils::res::PdgCode(res,q_res);
-  LOG("RESSelector", pINFO)
+  LOG("RESSelector", pNOTICE)
            << "Adding RES with PDGC = " << res_pdgc << ", Q = " << q_res;
 
   //-- Add the resonance at the EventRecord

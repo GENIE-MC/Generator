@@ -415,16 +415,10 @@ void Intranuke::Configure(string param_set)
 //___________________________________________________________________________
 void Intranuke::LoadConfigData(void)
 {
-LOG("Intranuke", pNOTICE) << "1";
-
   fIsOpaque = fConfig->GetBoolDef   ("opaque", false);
-LOG("Intranuke", pNOTICE) << "2";
   fct0      = fConfig->GetDoubleDef ("ct0",    kInukeFormationL); //GeV^-1
-LOG("Intranuke", pNOTICE) << "3";
   fK        = fConfig->GetDoubleDef ("Kpt2",   kInukeKpt2);
-LOG("Intranuke", pNOTICE) << "4";
   fR0       = fConfig->GetDoubleDef ("R0",     -1.); // GeV
-LOG("Intranuke", pNOTICE) << "5";
 
   fR0  /= units::m; // GeV -> m
   fct0 /= units::m; // GeV -> m
