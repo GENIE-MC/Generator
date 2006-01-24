@@ -145,8 +145,8 @@ int main(int argc, char ** argv)
       InitialState init_state(tgtpdgc, nupdgc);
 
       GEVGDriver driver;
-      driver.SetInitialState(init_state);
 
+      driver.Configure(init_state);
       driver.CreateSplines();
     }
   }
