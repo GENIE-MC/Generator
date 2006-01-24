@@ -3,7 +3,7 @@
 
 \class   genie::InteractionList
 
-\brief   
+\brief
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -29,17 +29,17 @@ class Interaction;
 class InteractionList : public vector<Interaction *> {
 
 public :
-
   InteractionList();
+  InteractionList(const InteractionList & intl);
   ~InteractionList();
 
-  void Print(ostream & stream) const;
+  void Reset  (void);
+  void Append (const InteractionList & intl);
+  void Copy   (const InteractionList & intl);
+  void Print  (ostream & stream) const;
 
-  friend ostream & operator << (ostream & stream, const InteractionList & intl);
-
-private:
-
-  void CleanUp (void);
+  InteractionList & operator =  (const InteractionList & intl);
+  friend ostream &  operator << (ostream & stream, const InteractionList & intl);
 };
 
 }      // genie namespace

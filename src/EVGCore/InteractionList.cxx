@@ -30,14 +30,53 @@ namespace genie {
  }
 }
 //___________________________________________________________________________
-InteractionList::InteractionList()
+InteractionList::InteractionList() :
+vector<Interaction *>()
 {
 
 }
 //___________________________________________________________________________
+InteractionList::InteractionList(const InteractionList & intl) :
+vector<Interaction *>()
+{
+  this->Copy(intl);
+}
+//___________________________________________________________________________
 InteractionList::~InteractionList()
 {
-  this->CleanUp();
+  this->Reset();
+}
+//___________________________________________________________________________
+void InteractionList::Reset(void)
+{
+  InteractionList::const_iterator iter;
+
+  for(iter = this->begin(); iter != this->end(); ++iter) {
+    Interaction * interaction = *iter;
+    delete interaction;
+    interaction = 0;
+  }
+  this->clear();
+}
+//___________________________________________________________________________
+void InteractionList::Append(const InteractionList & intl)
+{
+  InteractionList::const_iterator iter;
+  for(iter = intl.begin(); iter != intl.end(); ++iter) {
+    Interaction * interaction = *iter;
+    this->push_back(new Interaction(*interaction));
+  }
+}
+//___________________________________________________________________________
+void InteractionList::Copy(const InteractionList & intl)
+{
+  this->Reset();
+
+  InteractionList::const_iterator iter;
+  for(iter = intl.begin(); iter != intl.end(); ++iter) {
+    Interaction * interaction = *iter;
+    this->push_back(new Interaction(*interaction));
+  }
 }
 //___________________________________________________________________________
 void InteractionList::Print(ostream & stream) const
@@ -51,16 +90,10 @@ void InteractionList::Print(ostream & stream) const
   }
 }
 //___________________________________________________________________________
-void InteractionList::CleanUp(void)
+InteractionList & InteractionList::operator = (const InteractionList & intl)
 {
-  InteractionList::const_iterator iter;
-
-  for(iter = this->begin(); iter != this->end(); ++iter) {
-    Interaction * interaction = *iter;
-    delete interaction;
-    interaction = 0;
-  }
-  this->clear();
+  this->Copy(intl);
+  return (*this);
 }
 //___________________________________________________________________________
 
