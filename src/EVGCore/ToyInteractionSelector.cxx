@@ -19,13 +19,13 @@
 */
 //____________________________________________________________________________
 
+#include <TLorentzVector.h>
+
 #include "EVGCore/ToyInteractionSelector.h"
-#include "EVGCore/EventGeneratorI.h"
-#include "EVGCore/EventGeneratorList.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGCore/InteractionList.h"
 #include "EVGCore/InteractionFilter.h"
-#include "EVGCore/InteractionListGeneratorI.h"
+#include "EVGCore/XSecAlgorithmMap.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -38,15 +38,13 @@ using namespace genie;
 ToyInteractionSelector::ToyInteractionSelector() :
 InteractionSelectorI("genie::ToyInteractionSelector")
 {
-  fEventGeneratorList = 0;
-  fInteractionFilter  = 0;
+
 }
 //___________________________________________________________________________
 ToyInteractionSelector::ToyInteractionSelector(string config) :
 InteractionSelectorI("genie::ToyInteractionSelector", config)
 {
-  fEventGeneratorList = 0;
-  fInteractionFilter  = 0;
+
 }
 //___________________________________________________________________________
 ToyInteractionSelector::~ToyInteractionSelector()
@@ -54,62 +52,39 @@ ToyInteractionSelector::~ToyInteractionSelector()
 
 }
 //___________________________________________________________________________
-void ToyInteractionSelector::SetGeneratorList(
-                                          const EventGeneratorList * evglist)
+EventRecord * ToyInteractionSelector::SelectInteraction
+          (const XSecAlgorithmMap * xscmap, const TLorentzVector & p4) const
 {
-  fEventGeneratorList = evglist;
-}
-//___________________________________________________________________________
-void ToyInteractionSelector::SetInteractionFilter(
-                                            const InteractionFilter * filter)
-{
-  fInteractionFilter = filter;
-}
-//___________________________________________________________________________
-EventRecord * ToyInteractionSelector::SelectInteraction(
-                                       const InitialState & init_state) const
-{
-  if(!fEventGeneratorList) {
+  if(!xscmap) {
      LOG("InteractionSelector", pERROR)
-               << "\n*** NULL Generator List! "
-                         << "Can not select interaction for " << init_state;
+               << "\n*** NULL XSecAlgorithmMap! Can't select interaction";
      return 0;
   }
-  if(fEventGeneratorList->size() <= 0) {
+  if(xscmap->size() <= 0) {
      LOG("InteractionSelector", pERROR)
-               << "\n*** Empty Generator List! "
-                         << "Can not select interaction for " << init_state;
+              << "\n*** Empty XSecAlgorithmMap! Can't select interaction";
      return 0;
   }
 
   // select a random event generator
   RandomGen * rnd = RandomGen::Instance();
 
-  unsigned int ngen = fEventGeneratorList->size();
-  int          igen = rnd->Random1().Integer(ngen);
+  const InteractionList & ilst = xscmap->GetInteractionList();
 
-  const EventGeneratorI * evgen = (*fEventGeneratorList)[igen];
+  unsigned int nint = ilst.size();
+  unsigned int iint = (unsigned int) rnd->Random1().Integer(nint);
 
-  // ask the event generator to produce a list of all interaction it can
-  // generate for the input initial state
-  const InteractionListGeneratorI * intlistgen = evgen->IntListGenerator();
-  InteractionList * intlist = intlistgen->CreateInteractionList(init_state);
+  Interaction * interaction = ilst[iint];
 
-  // select a random interaction from the interaction list
-  unsigned int nint = intlist->size();
-  int          iint = rnd->Random1().Integer(nint);
-  Interaction * interaction = (*intlist)[iint];
-
-  // clone interaction 
+  // clone interaction
   Interaction * selected_interaction = new Interaction( *interaction );
+  selected_interaction->GetInitialStatePtr()->SetProbeP4(p4);
   LOG("InteractionSelector", pINFO)
                    << "Interaction to generate: \n" << *selected_interaction;
 
   // bootstrap the event record
   EventRecord * evrec = new EventRecord;
   evrec->AttachInteraction(selected_interaction);
-
-  delete intlist;
 
   return evrec;
 }

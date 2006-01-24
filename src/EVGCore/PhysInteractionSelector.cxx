@@ -17,14 +17,15 @@
 
 #include <vector>
 
+#include <TLorentzVector.h>
+
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/Units.h"
 #include "EVGCore/PhysInteractionSelector.h"
-#include "EVGCore/EventGeneratorList.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGCore/InteractionList.h"
 #include "EVGCore/InteractionFilter.h"
-#include "EVGCore/InteractionListGeneratorI.h"
+#include "EVGCore/XSecAlgorithmMap.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "Numerical/Spline.h"
@@ -38,15 +39,13 @@ using namespace genie::units;
 PhysInteractionSelector::PhysInteractionSelector() :
 InteractionSelectorI("genie::PhysInteractionSelector")
 {
-  fEventGeneratorList = 0;
-  fInteractionFilter  = 0;
+
 }
 //___________________________________________________________________________
 PhysInteractionSelector::PhysInteractionSelector(string config) :
 InteractionSelectorI("genie::PhysInteractionSelector", config)
 {
-  fEventGeneratorList = 0;
-  fInteractionFilter  = 0;
+
 }
 //___________________________________________________________________________
 PhysInteractionSelector::~PhysInteractionSelector()
@@ -54,83 +53,50 @@ PhysInteractionSelector::~PhysInteractionSelector()
 
 }
 //___________________________________________________________________________
-void PhysInteractionSelector::SetGeneratorList(
-                                          const EventGeneratorList * evglist)
+EventRecord * PhysInteractionSelector::SelectInteraction
+          (const XSecAlgorithmMap * xscmap, const TLorentzVector & p4) const
 {
-  fEventGeneratorList = evglist;
-}
-//___________________________________________________________________________
-void PhysInteractionSelector::SetInteractionFilter(
-                                            const InteractionFilter * filter)
-{
-  fInteractionFilter = filter;
-}
-//___________________________________________________________________________
-EventRecord * PhysInteractionSelector::SelectInteraction (
-                                       const InitialState & init_state) const
-{
-  if(!fEventGeneratorList) {
+  if(!xscmap) {
      LOG("InteractionSelector", pERROR)
-               << "\n*** NULL Generator List! "
-                         << "Can not select interaction for " << init_state;
+               << "\n*** NULL XSecAlgorithmMap! Can't select interaction";
      return 0;
   }
-  if(fEventGeneratorList->size() <= 0) {
+  if(xscmap->size() <= 0) {
      LOG("InteractionSelector", pERROR)
-               << "\n*** Empty Generator List! "
-                         << "Can not select interaction for " << init_state;
+              << "\n*** Empty XSecAlgorithmMap! Can't select interaction";
      return 0;
   }
-
-  XSecSplineList * xssl = 0;
-  bool used_stored_xsec = this->UseStoredCrossSections();
 
   // Get the list of spline objects
   // Should have been constructed at the job initialization
-  if (used_stored_xsec) xssl = XSecSplineList::Instance();
+  XSecSplineList * xssl = 0;
+  if (fUseSplines) xssl = XSecSplineList::Instance();
 
-  vector<double>  xseclist;
-  InteractionList intlist;
+  const InteractionList & ilst = xscmap->GetInteractionList();
 
-  EventGeneratorList::const_iterator evgliter; // event generator list iter
-  InteractionList::iterator          intliter; // interaction list iter
+  vector<double> xseclist(ilst.size());
 
-  for(evgliter = fEventGeneratorList->begin();
-                       evgliter != fEventGeneratorList->end(); ++evgliter) {
+  unsigned int i=0;
+  InteractionList::const_iterator intliter; // interaction list iter
 
-     const EventGeneratorI * evgen = *evgliter;
+  for(intliter = ilst.begin(); intliter != ilst.end(); ++intliter) {
 
-     LOG("InteractionList", pINFO)
-                 << "Querying [" << evgen->Id().Key() 
-                                            << "] for its InteractionList";
+     Interaction * interaction = new Interaction(**intliter);
+     interaction->GetInitialStatePtr()->SetProbeP4(p4);
 
-     // ask the event generator to produce a list of all interaction it can
-     // generate for the input initial state
+     SLOG("InteractionList", pINFO)
+                     << "Interaction = " << interaction->AsString();
 
-     const InteractionListGeneratorI * intlistgen = evgen->IntListGenerator();
-     InteractionList * ilst = intlistgen->CreateInteractionList(init_state);
+     // get the cross section for this interaction
+     const XSecAlgorithmI * xsec_alg =
+                             xscmap->FindXSecAlgorithm(interaction);
+     assert(xsec_alg);
 
-     // cross section algorithm used by this EventGenerator
+     double xsec = 0; // cross section for this interaction
 
-     const XSecAlgorithmI * xsec_alg = evgen->CrossSectionAlg();
-
-     // loop over all interaction that can be genererated and ask the
-     // appropriate cross section algorithm to compute its cross section
-
-     for(intliter = ilst->begin(); intliter != ilst->end(); ++intliter) {
-
-         Interaction * interaction = *intliter;
-
-         // get the cross section for this interaction
-         SLOG("InteractionList", pINFO)
-                              << "Interaction = " << interaction->AsString();
-
-         double xsec = 0; // cross section for this interaction
-
-         bool spline_computed = xssl->SplineExists(xsec_alg, interaction);
-         bool eval = used_stored_xsec && spline_computed;
-
-         if (eval) {
+     bool spline_computed = xssl->SplineExists(xsec_alg, interaction);
+     bool eval = fUseSplines && spline_computed;
+     if (eval) {
            const InitialState & init = interaction->GetInitialState();
            double E = init.GetProbeE(kRfStruckNucAtRest);
            const Spline * spl = xssl->GetSpline(xsec_alg,interaction);
@@ -138,20 +104,16 @@ EventRecord * PhysInteractionSelector::SelectInteraction (
            else xsec = spl->Evaluate(E);
            SLOG("InteractionList", pINFO)
              << "Cross Section [**interpolated**] = " << xsec/cm2 << " cm^2";
-         } else {
+     } else {
            xsec = xsec_alg->XSec(interaction);
            SLOG("InteractionList", pINFO)
                << "Cross Section [**calculated**] = " << xsec/cm2 << " cm^2";
-         }
+     }
 
-         // save the interaction and its corresponding cross section in the
-         // interaction and cross section lists respectivelly.
+     xseclist[i++] = xsec;
+     delete interaction;
 
-         intlist.push_back(interaction);
-         xseclist.push_back(xsec);
-
-     } // loop over interaction that can be generated
-  } // loop over event generators
+  } // loop over interaction that can be generated
 
   // select an interaction
 
@@ -177,7 +139,8 @@ EventRecord * PhysInteractionSelector::SelectInteraction (
                        << "Sum{xsec}(0->" << iint <<") = " << xseclist[iint];
 
      if( R < xseclist[iint] ) {
-       Interaction * selected_interaction = new Interaction (*intlist[iint]);
+       Interaction * selected_interaction = new Interaction (*ilst[iint]);
+       selected_interaction->GetInitialStatePtr()->SetProbeP4(p4);
 
        // set the cross section for the selected interaction (just extract it
        // from the array of summed xsecs rather than recomputing it)
@@ -196,17 +159,26 @@ EventRecord * PhysInteractionSelector::SelectInteraction (
        return evrec;
      }
   }
-  LOG("InteractionSelector", pERROR)
-                      << "\nCould not select interaction for " << init_state;
+  LOG("InteractionSelector", pERROR) << "\nCould not select interaction";
   return 0;
 }
 //___________________________________________________________________________
-bool PhysInteractionSelector::UseStoredCrossSections(void) const
+void PhysInteractionSelector::Configure(const Registry & config)
 {
-//check whether the user prefers the cross sections to be calculated or
-//evaluated from a spline object constructed at the job initialization
-
-  return fConfig->Exists("use-stored-xsecs") ?
-                                fConfig->GetBool("use-stored-xsecs") : false;
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+}
+//____________________________________________________________________________
+void PhysInteractionSelector::Configure(string param_set)
+{
+  Algorithm::Configure(param_set);
+  this->LoadConfigData();
+}
+//____________________________________________________________________________
+void PhysInteractionSelector::LoadConfigData(void)
+{
+  //check whether the user prefers the cross sections to be calculated or
+  //evaluated from a spline object constructed at the job initialization
+  fUseSplines = fConfig->GetBoolDef("use-stored-xsecs", false);
 }
 //___________________________________________________________________________

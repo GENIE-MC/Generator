@@ -23,12 +23,8 @@
 #define _TOY_INTERACTION_SELECTOR_H_
 
 #include "EVGCore/InteractionSelectorI.h"
-#include "Interaction/InitialState.h"
 
 namespace genie {
-
-class InteractionFilter;
-class EventGeneratorList;
 
 class ToyInteractionSelector : public InteractionSelectorI {
 
@@ -38,14 +34,9 @@ public :
   ToyInteractionSelector(string config);
   ~ToyInteractionSelector();
 
-  void          SetInteractionFilter (const InteractionFilter * filt);
-  void          SetGeneratorList     (const EventGeneratorList * egl);
-  EventRecord * SelectInteraction    (const InitialState & init_state) const;
-
-private:
-
-  const InteractionFilter *  fInteractionFilter;
-  const EventGeneratorList * fEventGeneratorList;
+  //! implement the InteractionSelectorI interface
+  EventRecord * SelectInteraction
+          (const XSecAlgorithmMap * xsmp, const TLorentzVector & p4) const;
 };
 
 }      // genie namespace
