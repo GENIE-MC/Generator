@@ -24,7 +24,6 @@
 #include "EVGCore/ToyInteractionSelector.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGCore/InteractionList.h"
-#include "EVGCore/InteractionFilter.h"
 #include "EVGCore/XSecAlgorithmMap.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"

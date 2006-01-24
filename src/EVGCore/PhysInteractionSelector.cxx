@@ -24,7 +24,6 @@
 #include "EVGCore/PhysInteractionSelector.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGCore/InteractionList.h"
-#include "EVGCore/InteractionFilter.h"
 #include "EVGCore/XSecAlgorithmMap.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
