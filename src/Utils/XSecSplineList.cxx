@@ -282,8 +282,8 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
        int nknots = atoi( snkn.c_str() );
 
        LOG("XSecSplineList", pINFO)
-             << "Parsing XML spline: " << name << ", nknots = " << nknots;
-
+             << "Parsing XML spline (# of knots = " << nknots << ")"
+                                               << " with key: \n " << name;
        int      iknot = 0;
        double * E     = new double[nknots];
        double * xsec  = new double[nknots];
