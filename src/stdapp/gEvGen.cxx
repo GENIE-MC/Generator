@@ -149,7 +149,7 @@ int main(int argc, char ** argv)
   InitialState init_state(gOptTgtPdgCode, gOptNuPdgCode);
 
   GEVGDriver driver;
-  driver.SetInitialState(init_state);
+  driver.Configure(init_state);
 
   //-- Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
   //   if the env. var. has been set)
@@ -207,7 +207,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptNevents = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("gevgen", pNOTICE)
+      LOG("gevgen", pINFO)
             << "Unspecified number of events to generate - Using default";
       gOptNevents = kDefOptNevents;
     }
@@ -219,7 +219,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRunNu = genie::utils::clap::CmdLineArgAsInt(argc,argv,'r');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("gevgen", pNOTICE) << "Unspecified run number - Using default";
+      LOG("gevgen", pINFO) << "Unspecified run number - Using default";
       gOptRunNu = kDefOptRunNu;
     }
   }
@@ -231,7 +231,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     format = genie::utils::clap::CmdLineArgAsInt(argc,argv,'f');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("gevgen", pNOTICE) << "Unspecified tree format - Using default";
+      LOG("gevgen", pINFO) << "Unspecified tree format - Using default";
     }
   }
   if(format == 0 || format == 1) gOptNtpFormat = (NtpMCFormat_t)format;

@@ -357,7 +357,7 @@ void GenieViewer::Initialize(void)
 //______________________________________________________________________________
 void GenieViewer::NextEvent(void)
 {
-  fEVGDriver->SetInitialState(14,(int) fZ->GetNumber(), (int) fA->GetNumber());  // Z,A
+  fEVGDriver->Configure(14,(int) fZ->GetNumber(), (int) fA->GetNumber()); // Z,A
 
   double px = fPx->GetNumber();
   double py = fPy->GetNumber();
