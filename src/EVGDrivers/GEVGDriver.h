@@ -35,12 +35,12 @@ namespace genie {
 
 class EventRecord;
 class EventGeneratorList;
-class InteractionFilter;
 class InteractionSelectorI;
 class EGResponsibilityChain;
 class InitialState;
 class Target;
 class Spline;
+class XSecAlgorithmMap;
 
 class GEVGDriver {
 
@@ -49,56 +49,59 @@ public :
   GEVGDriver();
   ~GEVGDriver();
 
-  //-- Set initial state, interaction filter and option to create splines
-  void SetInitialState   (int nu_pdgc, int Z, int A);
-  void SetInitialState   (const InitialState & init_state);
-  void SetFilter         (const InteractionFilter & filter);
+  //! Configure the driver
+  void Configure (int nu_pdgc, int Z, int A);
+  void Configure (const InitialState & init_state);
+
+  //! Set driver options
   void UseSplines        (void);
-  void CreateSplines     (bool useLogE = true);
   void FilterUnphysical  (bool on_off);
 
-  //-- Generate single event
+  //! Instruct the driver to create all the splines it needs
+  void CreateSplines (bool useLogE = true);
+
+  //! Generate single event
   EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
-  //-- Cross section sum for all interactions that can be generated for
-  //   the current init-state. The cross sections for specific interactions and
-  //   the interaction list for the current init-state is accessed from the
-  //   EventGeneratorList object.
+  //! Cross section sum for all interactions that can be generated for
+  //! the current init-state.
   double         XSecSum             (const TLorentzVector & nup4);
   void           CreateXSecSumSpline (int nk, double Emin, double Emax, bool inlogE=true);
   const Spline * XSecSumSpline       (void) const { return fXSecSumSpl; }
 
-  //-- Get state
+  //! Get loaded event generator list
   const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
-  const InteractionFilter *  Filter          (void) const { return fFilter;    }
 
-  //-- Get validity range (combined validity range of loaded evg threads)
+  //! Get validity range (combined validity range of loaded evg threads)
   Range1D_t ValidEnergyRange (void) const;
 
-  //-- Print state
+  //! Reset, Print etc
+  void Reset (void);
   void Print (ostream & stream) const;
+
   friend ostream & operator << (ostream & stream, const GEVGDriver & driver);
 
 private:
 
-  //-- Private initialization, configuration & input validation methods
-  void Initialize             (void);
-  void Configure              (void);
-  bool IsValidInitState       (void) const;
-  void AssertIsValidInitState (void) const;
+  //! Private initialization, configuration & input validation methods
+  void Init                     (void);
+  void CleanUp                  (void);
+  void BuildInitialState        (const InitialState & init_state);
+  void BuildGeneratorList       (void);
+  void BuildXSecAlgorithmMap    (void);
+  void BuildResponsibilityChain (void);
+  void BuildInteractionSelector (void);
+  void AssertIsValidInitState   (void) const;
 
-  //-- Minimal Initial State Information
-  bool     fUseSplines;
-  int      fNuPDG;
-  Target * fNuclTarget;
-
-  //-- Private data members
+  //! Private data members
+  InitialState *          fInitState;       ///< initial state information for driver instance
   EventRecord *           fCurrentRecord;   ///< ptr to the event record being processed
   EventGeneratorList *    fEvGenList;       ///< all Event Generators available at this job
   EGResponsibilityChain * fChain;           ///< an Event Generator chain of responsibility
   InteractionSelectorI *  fIntSelector;     ///< interaction selector
-  InteractionFilter *     fFilter;          ///< interaction filter
+  XSecAlgorithmMap *      fXSecAlgorithmMap;///< interaction -> xsec alg. assosiative container
   bool                    fFilterUnphysical;///< controls whether unphysical events are returned
+  bool                    fUseSplines;      ///< controls whether xsecs are computed or interpolated
   Spline *                fXSecSumSpl;      ///< sum{xsec(all interactions | this init state)}
   unsigned int            fNRecLevel;       ///< recursive mode depth counter
 };
