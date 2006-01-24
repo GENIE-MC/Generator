@@ -160,12 +160,12 @@ void RESKinematicsGenerator::LoadConfigData(void)
 // in private data members to avoid looking up at the Registry all the time.
 
   //-- Get the user kinematical limits on W
-  fWmin = fConfig->GetDoubleDef("W-min", -1);
-  fWmax = fConfig->GetDoubleDef("W-max", -1);
+  fWmin = fConfig->GetDoubleDef("W-min", -999999);
+  fWmax = fConfig->GetDoubleDef("W-max",  999999);
 
   //-- Get the user kinematical limits on Q2
-  fQ2min = fConfig->GetDoubleDef("Q2-min", -1);
-  fQ2max = fConfig->GetDoubleDef("Q2-max", -1);
+  fQ2min = fConfig->GetDoubleDef("Q2-min", -999999);
+  fQ2max = fConfig->GetDoubleDef("Q2-max",  999999);
 
   //-- Safety factor for the maximum differential cross section
   fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
