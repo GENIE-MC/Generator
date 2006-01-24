@@ -39,7 +39,7 @@
 #include "EVGCore/EventGeneratorListAssembler.h"
 #include "EVGCore/InteractionList.h"
 #include "EVGCore/InteractionListGeneratorI.h"
-#include "EVGCore/InteractionFilter.h"
+#include "EVGCore/XSecAlgorithmMap.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
@@ -65,51 +65,12 @@ namespace genie {
 //___________________________________________________________________________
 GEVGDriver::GEVGDriver()
 {
-  this->Initialize();
-  this->Configure();
+  this->Init();
 }
 //___________________________________________________________________________
 GEVGDriver::~GEVGDriver()
 {
-  if (fNuclTarget)  delete fNuclTarget;
-  if (fFilter)      delete fFilter;
-  if (fIntSelector) delete fIntSelector;
-}
-//___________________________________________________________________________
-void GEVGDriver::SetInitialState(const InitialState & init_state)
-{
-  int nu_pdgc = init_state.GetProbePDGCode();
-  int Z       = init_state.GetTarget().Z();
-  int A       = init_state.GetTarget().A();
-
-  this->SetInitialState(nu_pdgc, Z, A);
-}
-//___________________________________________________________________________
-void GEVGDriver::SetInitialState(int nu_pdgc, int Z, int A)
-{
-  if (fNuclTarget) delete fNuclTarget;
-
-  fNuPDG      = nu_pdgc;
-  fNuclTarget = new Target(Z, A);
-
-  assert( fNuclTarget->IsValidNucleus() || fNuclTarget->IsFreeNucleon() );
-
-  int tgtpdg = fNuclTarget->PDGCode();
-  LOG("GEVGDriver", pINFO) << "Set neutrino PDG-code:......... " << fNuPDG;
-  LOG("GEVGDriver", pINFO) << "Set nuclear target PDG-code::.. " << tgtpdg;
-}
-//___________________________________________________________________________
-void GEVGDriver::SetFilter(const InteractionFilter & filter)
-{
-// Sets an InteractionFilter that can supress entries of the InteractionList
-// from being selected. This is to be used when one is interested in some
-// event classes only (eg QEL CC) and wants to suppress the generation of
-// other event types without having to touch the XML configuration files.
-
-  if (fFilter) delete fFilter;
-  fFilter = new InteractionFilter(filter);
-
-  if (fFilter && fIntSelector) fIntSelector->SetInteractionFilter(fFilter);
+  this->CleanUp();
 }
 //___________________________________________________________________________
 void GEVGDriver::FilterUnphysical(bool on_off)
@@ -120,23 +81,37 @@ void GEVGDriver::FilterUnphysical(bool on_off)
   fFilterUnphysical = on_off;
 }
 //___________________________________________________________________________
-void GEVGDriver::Initialize(void)
+void GEVGDriver::Init(void)
 {
+  // initial state for which this driver is configured
+  fInitState = 0;
+  // current event record (ownership is transfered at GenerateEvent())
   fCurrentRecord = 0;
-  fNuclTarget    = 0;
-  fEvGenList     = 0;
-  fIntSelector   = 0;
-  fChain         = 0;
-  fFilter        = 0;
-  fUseSplines    = false;
-  fNRecLevel     = 0;
-
+  // list of Event Generator objects loaded into the driver
+  fEvGenList = 0;
+  // interaction selector
+  fIntSelector = 0;
+  // chain of responsibility - for selecting the Event Generator object that
+  // can generate the selected interaction
+  fChain = 0;
+  // flag instructing the driver whether, for each interaction, to compute
+  // cross section by running their corresponding XSecAlgorithm or by evaluating
+  // their corresponding xsec spline
+  fUseSplines = false;
+  // 'depth' counter when entering a recursive mode to re-generate a failed/
+  // unphysical event - the driver is not allowed to go into arbitrarily large
+  // depths
+  fNRecLevel = 0;
+  // an "interaction" -> "xsec algorithm" associative contained built for all
+  // simulated interactions (from the loaded Event Generators and for the input
+  // initial state)
+  fXSecAlgorithmMap = 0;
   // A spline describing the sum of all interaction cross sections given an
   // initial state (the init state with which this driver was configured).
   // Create it using the CreateXSecSumSpline() method
   // The sum of all interaction cross sections is used, for example, by
   // GMCJDriver for selecting an initial state.
-  fXSecSumSpl    = 0;
+  fXSecSumSpl = 0;
   // Default driver behaviour is to filter out unphysical events,
   // Set this to false to get them if needed, but be warned that the event
   // record for unphysical events might be incomplete depending on the
@@ -144,14 +119,57 @@ void GEVGDriver::Initialize(void)
   fFilterUnphysical = true;
 }
 //___________________________________________________________________________
-void GEVGDriver::Configure(void)
+void GEVGDriver::CleanUp(void)
+{
+  if (fInitState)        delete fInitState;
+  if (fEvGenList)        delete fEvGenList;
+  if (fIntSelector)      delete fIntSelector;
+  if (fChain)            delete fChain;
+  if (fXSecAlgorithmMap) delete fXSecAlgorithmMap;
+  if (fXSecSumSpl)       delete fXSecSumSpl;
+}
+//___________________________________________________________________________
+void GEVGDriver::Reset(void)
+{
+  this->CleanUp();
+  this->Init();
+}
+//___________________________________________________________________________
+void GEVGDriver::Configure(int nu_pdgc, int Z, int A)
+{
+  Target target(Z, A);
+  InitialState init_state(target, nu_pdgc);
+
+  this->Configure(init_state);
+}
+//___________________________________________________________________________
+void GEVGDriver::Configure(const InitialState & init_state)
 {
   LOG("GEVGDriver", pNOTICE) << "Configuring a GEVGDriver object";
 
-  // figure out which list of event generators to use from the $GEVGL
-  // environmental variable (use "Default") if the variable is not set.
+  this -> BuildInitialState        (init_state);
+  this -> BuildGeneratorList       ();
+  this -> BuildXSecAlgorithmMap    ();
+  this -> BuildResponsibilityChain ();
+  this -> BuildInteractionSelector ();
+}
+//___________________________________________________________________________
+void GEVGDriver::BuildInitialState(const InitialState & init_state)
+{
+  LOG("GEVGDriver", pNOTICE) << "Building the `InitialState`";
 
-  LOG("GEVGDriver", pNOTICE) << "Creating the `Event Generator List`";
+  if(fInitState) delete fInitState;
+  fInitState = new InitialState(init_state);
+
+  this->AssertIsValidInitState();
+}
+//___________________________________________________________________________
+void GEVGDriver::BuildGeneratorList(void)
+{
+//! figure out which list of event generators to use from the $GEVGL
+//! environmental variable (use "Default") if the variable is not set.
+
+  LOG("GEVGDriver", pNOTICE) << "Building the `EventGeneratorList`";
 
   string evgl = (gSystem->Getenv("GEVGL") ?
                                gSystem->Getenv("GEVGL") : "Default");
@@ -160,28 +178,46 @@ void GEVGDriver::Configure(void)
 
   EventGeneratorListAssembler evglist_assembler(evgl.c_str());
   fEvGenList = evglist_assembler.AssembleGeneratorList();
+}
+//___________________________________________________________________________
+void GEVGDriver::BuildXSecAlgorithmMap(void)
+{
+//! figure out which list of event generators to use from the $GEVGL
+//! environmental variable (use "Default") if the variable is not set.
 
   LOG("GEVGDriver", pNOTICE)
-               << "Creating the `Generator Chain of Responsibility`";
+     << "Building the `XSecAlgorithmMap` for init-state = " << *fInitState;
+
+  fXSecAlgorithmMap = new XSecAlgorithmMap;
+  fXSecAlgorithmMap->UseGeneratorList(fEvGenList);
+  fXSecAlgorithmMap->BuildMap(*fInitState);
+
+  LLOG("GEVGDriver", pNOTICE) << *fXSecAlgorithmMap;
+}
+//___________________________________________________________________________
+void GEVGDriver::BuildResponsibilityChain(void)
+{
+  LOG("GEVGDriver", pNOTICE)
+               << "Building the `Generator Chain of Responsibility`";
 
   if(fChain) delete fChain;
   fChain = new EGResponsibilityChain;
   fChain->SetGeneratorList(fEvGenList);
-
-  LOG("GEVGDriver", pNOTICE) << "Creating an `Interaction Selector`";
+}
+//___________________________________________________________________________
+void GEVGDriver::BuildInteractionSelector(void)
+{
+  LOG("GEVGDriver", pNOTICE) << "Building an `Interaction Selector`";
 
   if(fIntSelector) delete fIntSelector;
   fIntSelector = new PhysInteractionSelector("Default");
-  fIntSelector->SetGeneratorList(fEvGenList);
 }
 //___________________________________________________________________________
 EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
 {
-  this->AssertIsValidInitState();
-
   //-- Build initial state information from inputs
   LOG("GEVGDriver", pINFO) << "Creating the initial state";
-  InitialState init_state(*fNuclTarget, fNuPDG);
+  InitialState init_state(*fInitState);
   init_state.SetProbeP4(nu4p);
 
   //-- Select the interaction to be generated (amongst the entries of the
@@ -189,7 +225,7 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   //   event record
   LOG("GEVGDriver", pINFO)
                << "Selecting an Interaction & Bootstraping the EventRecord";
-  fCurrentRecord = fIntSelector->SelectInteraction(init_state);
+  fCurrentRecord = fIntSelector->SelectInteraction(fXSecAlgorithmMap, nu4p);
 
   assert(fCurrentRecord); // abort if no interaction could be selected!
 
@@ -269,74 +305,54 @@ double GEVGDriver::XSecSum(const TLorentzVector & nup4)
   // Should have been constructed at the job initialization
   XSecSplineList * xssl = XSecSplineList::Instance();
 
-  EventGeneratorList::const_iterator evgliter; // event generator list iter
-  InteractionList::iterator          intliter; // interaction list iter
+  // Get the list of all interactions that can be generated by this driver
+  const InteractionList & ilst = fXSecAlgorithmMap->GetInteractionList();
 
-  // build the initial state
-  this->AssertIsValidInitState();
-  InitialState init_state(*fNuclTarget, fNuPDG);
+  // Loop over all interactions & compute cross sections
+  InteractionList::const_iterator intliter;
+  for(intliter = ilst.begin(); intliter != ilst.end(); ++intliter) {
 
-  // loop over all EventGenerator objects used in the current job
+     // get current interaction
+     Interaction * interaction = new Interaction(**intliter);
+     interaction->GetInitialStatePtr()->SetProbeP4(nup4);
 
-  for(evgliter = fEvGenList->begin();
-                             evgliter != fEvGenList->end(); ++evgliter) {
-     const EventGeneratorI * evgen = *evgliter; // current EventGenerator
+     string code = interaction->AsString();
+     SLOG("GEVGDriver", pDEBUG)
+             << "Compute cross section for interaction: \n" << code;
 
-     LOG("GEVGDriver", pINFO)
-        << "Querying [" << evgen->Id().Key() << "] for its InteractionList";
+     // get corresponding cross section algorithm
+     const XSecAlgorithmI * xsec_alg =
+                  fXSecAlgorithmMap->FindXSecAlgorithm(interaction);
+     assert(xsec_alg);
 
-     // ask the event generator to produce a list of all interaction it can
-     // generate for the input initial state
-     const InteractionListGeneratorI * ilstgen = evgen->IntListGenerator();
-     InteractionList * ilst = ilstgen->CreateInteractionList(init_state);
+     // compute (or evaluate) the cross section
+     double xsec = 0;
+     bool spline_exists = xssl->SplineExists(xsec_alg, interaction);
+     if (spline_exists && fUseSplines) {
+        double E = nup4.Energy();
+        xsec = xssl->GetSpline(xsec_alg,interaction)->Evaluate(E);
+     } else
+        xsec = xsec_alg->XSec(interaction);
 
-     //no point to go on if the list is NULL - continue to next iteration
-     if(!ilst) continue;
-
-     // cross section algorithm used by this EventGenerator
-     const XSecAlgorithmI * xsec_alg = evgen->CrossSectionAlg();
-
-     // loop over all interaction that can be genererated and ask the
-     // appropriate cross section algorithm to compute its cross section
-     for(intliter = ilst->begin(); intliter != ilst->end(); ++intliter) {
-         Interaction * interaction = *intliter;
-
-         // set the input 4-momentum
-         interaction->GetInitialStatePtr()->SetProbeP4(nup4);
-
-         // get the cross section for this interaction
-         SLOG("GEVGDriver", pDEBUG)
-                 << "Compute cross section for interaction: \n"
-                                                 << interaction->AsString();
-         double xsec = 0;
-         bool spline_exists = xssl->SplineExists(xsec_alg, interaction);
-         if (spline_exists && fUseSplines) {
-             //double E = interaction->GetInitialState().GetProbeE(kRfStruckNucAtRest);
-             double E = nup4.Energy();
-             xsec = xssl->GetSpline(xsec_alg,interaction)->Evaluate(E);
-         } else
-             xsec = xsec_alg->XSec(interaction);
-
-         xsec_sum += xsec;
-         LOG("GEVGDriver", pDEBUG)
-            << "\nInteraction   = " << interaction->AsString()
+     // sum-up and report
+     xsec_sum += xsec;
+     LOG("GEVGDriver", pDEBUG)
+            << "\nInteraction   = " << code
             << "\nCross Section "
             << (fUseSplines ? "*interpolated*" : "*computed*")
             << " = " << (xsec/units::cm2) << " cm2";
-     } // loop over interaction that can be generated by this generator
 
-     delete ilst;
-     ilst = 0;
+     delete interaction;
   } // loop over event generators
 
   PDGLibrary * pdglib = PDGLibrary::Instance();
   LOG("GEVGDriver", pINFO)
-      << "SumXSec("
-      << pdglib->Find(fNuPDG)->GetName() << "+"
-      << pdglib->Find(fNuclTarget->PDGCode())->GetName() << "->X, "
-      << "E = " << nup4.Energy() << " GeV)"
-      << (fUseSplines ? "*interpolated*" : "*computed*")
-      << " = " << (xsec_sum/units::cm2) << " cm2";
+    << "SumXSec("
+    << pdglib->Find(fInitState->GetProbePDGCode())->GetName() << "+"
+    << pdglib->Find(fInitState->GetTarget().PDGCode())->GetName() << "->X, "
+    << "E = " << nup4.Energy() << " GeV)"
+    << (fUseSplines ? "*interpolated*" : "*computed*")
+    << " = " << (xsec_sum/units::cm2) << " cm2";
 
   return xsec_sum;
 }
@@ -403,50 +419,44 @@ void GEVGDriver::UseSplines(void)
 //    splines it needs. If not, then its fiery personality will take over and
 //    it will refuse your request, reverting back to not using splines.
 
-  this->AssertIsValidInitState();
-  InitialState init_state(*fNuclTarget, fNuPDG);
-
   fUseSplines = true;
+
+  // Get the list of spline objects
+  // Should have been constructed at the job initialization
   XSecSplineList * xsl = XSecSplineList::Instance();
 
-  // if the user wants to use splines, make sure that all the splines needed
+  // If the user wants to use splines, make sure that all the splines needed
   // have been computed or loaded
   if(fUseSplines) {
-     EventGeneratorList::const_iterator evgliter;
-     InteractionList::iterator          iliter;
 
-     // loop over all EventGenerator objects used in the current job
-     for(evgliter = fEvGenList->begin();
-                                evgliter != fEvGenList->end(); ++evgliter) {
-       const EventGeneratorI * evgen = *evgliter;
+    // Get the list of all interactions that can be generated by this driver
+    const InteractionList & ilst = fXSecAlgorithmMap->GetInteractionList();
 
-       // ask the event generator to produce a list of all interaction it can
-       // generate for the input initial state
-       const InteractionListGeneratorI * ilgen = evgen->IntListGenerator();
-       InteractionList * ilst = ilgen->CreateInteractionList(init_state);
-       if(!ilst) continue;
+    // Loop over all interactions & check that all splines have been loaded
+    InteractionList::const_iterator intliter;
+    for(intliter = ilst.begin(); intliter != ilst.end(); ++intliter) {
 
-       // total cross section algorithm used by the current EventGenerator
-       const XSecAlgorithmI * alg = evgen->CrossSectionAlg();
+       // current interaction
+       Interaction * interaction = *intliter;
 
-       // loop over all interaction that can be genererated
-       for(iliter = ilst->begin(); iliter != ilst->end(); ++iliter) {
+       // corresponding cross section algorithm
+       const XSecAlgorithmI * xsec_alg =
+                   fXSecAlgorithmMap->FindXSecAlgorithm(interaction);
+       assert(xsec_alg);
 
-           Interaction * interaction = *iliter;
-           bool spl_exists = xsl->SplineExists(alg, interaction);
+       // spline exists in spline list?
+       bool spl_exists = xsl->SplineExists(xsec_alg, interaction);
 
-           fUseSplines = fUseSplines && spl_exists;
+       // update the 'use splines' flag
+       fUseSplines = fUseSplines && spl_exists;
 
-           if(!spl_exists) {
-              LOG("GEVGDriver", pWARN)
-                    << "\nAt least a spline does not exist  "
-                                    << "Reverting back to not using splines";
-              return;
-           }
-       } // loop over interaction that can be generated by this generator
-     delete ilst;
-     ilst = 0;
-     } // loop over event generators
+       if(!spl_exists) {
+          LOG("GEVGDriver", pWARN)
+              << "\nAt least a spline does not exist. "
+                               << "Reverting back to not using splines";
+          return;
+       }
+     } // loop over interaction list
   }//use-splines?
 }
 //___________________________________________________________________________
@@ -457,12 +467,9 @@ void GEVGDriver::CreateSplines(bool useLogE)
 // splines it already finds loaded.
 
   LOG("GEVGDriver", pINFO)
-       << "\nCreating Cross Section Splines with UseLogE = "
+       << "\nCreating (missing) xsec splines with UseLogE = "
                                                << ((useLogE) ? "ON" : "OFF");
-  // build the initial state
-  this->AssertIsValidInitState();
-  InitialState init_state(*fNuclTarget, fNuPDG);
-
+  // Get the list of spline objects
   XSecSplineList * xsl = XSecSplineList::Instance();
   xsl->SetLogE(useLogE);
 
@@ -472,8 +479,8 @@ void GEVGDriver::CreateSplines(bool useLogE)
   // loop over all EventGenerator objects used in the current job
   for(evgliter = fEvGenList->begin();
                                evgliter != fEvGenList->end(); ++evgliter) {
+     // current event generator
      const EventGeneratorI * evgen = *evgliter;
-
      LOG("GEVGDriver", pNOTICE)
             << "Querying [ " << evgen->Id().Key()
                                             << "] for its InteractionList";
@@ -481,7 +488,7 @@ void GEVGDriver::CreateSplines(bool useLogE)
      // ask the event generator to produce a list of all interaction it can
      // generate for the input initial state
      const InteractionListGeneratorI * ilstgen = evgen->IntListGenerator();
-     InteractionList * ilst = ilstgen->CreateInteractionList(init_state);
+     InteractionList * ilst = ilstgen->CreateInteractionList(*fInitState);
      if(!ilst) continue;
 
      // total cross section algorithm used by the current EventGenerator
@@ -494,14 +501,14 @@ void GEVGDriver::CreateSplines(bool useLogE)
 
      // loop over all interaction that can be genererated and ask the
      // appropriate cross section algorithm to compute its cross section
-
      for(intliter = ilst->begin(); intliter != ilst->end(); ++intliter) {
 
+         // current interaction
          Interaction * interaction = *intliter;
 
          // create a cross section spline for this interaction & store
          LOG("GEVGDriver", pNOTICE)
-                    << "\nCreating xsec spline for \n" << *interaction;
+             << "\nNeed xsec spline for \n" << interaction->AsString();
 
          // only create the spline if it does not already exists
          bool spl_exists = xsl->SplineExists(alg, interaction);
@@ -532,46 +539,36 @@ Range1D_t GEVGDriver::ValidEnergyRange(void) const
   E.min =  9999;
   E.max = -9999;
 
-  // build the initial state
-  this->AssertIsValidInitState();
-  InitialState init_state(*fNuclTarget, fNuPDG);
-
   EventGeneratorList::const_iterator evgliter; // event generator list iter
   InteractionList::iterator          intliter; // interaction list iter
 
   // loop over all EventGenerator objects used in the current job
   for(evgliter = fEvGenList->begin();
                                evgliter != fEvGenList->end(); ++evgliter) {
-
+     // current event generator
      const EventGeneratorI * evgen = *evgliter;
 
+     // Emin, Emax as declared in current generator's validity context
      double Emin = TMath::Max(0.01,evgen->ValidityContext().Emin());
      double Emax = evgen->ValidityContext().Emax();
 
+     // combined Emin, Emax
      E.min = TMath::Min(E.min, Emin);
      E.max = TMath::Max(E.max, Emax);
   }
+
   assert(E.min<E.max && E.min>=0);
   return E;
 }
 //___________________________________________________________________________
-bool GEVGDriver::IsValidInitState(void) const
-{
-  if(!fNuclTarget) return false;
-
-  bool isnu = pdg::IsNeutrino(fNuPDG) || pdg::IsAntiNeutrino(fNuPDG);
-  if(!isnu) return false;
-
-  return true;
-}
-//___________________________________________________________________________
 void GEVGDriver::AssertIsValidInitState(void) const
 {
-  bool valid = this->IsValidInitState();
-  if(!valid) {
-    LOG("GEVGDriver", pFATAL) << "Invalid initial state";
-  }
-  assert(valid);
+  assert(fInitState);
+
+  int nu_pdgc = fInitState->GetProbePDGCode();
+
+  bool isnu = pdg::IsNeutrino(nu_pdgc) || pdg::IsAntiNeutrino(nu_pdgc);
+  assert(isnu);
 }
 //___________________________________________________________________________
 void GEVGDriver::Print(ostream & stream) const
@@ -579,20 +576,18 @@ void GEVGDriver::Print(ostream & stream) const
   stream
     << "\n\n *********************** GEVGDriver ***************************";
 
-  if( this->IsValidInitState() ) {
-    int tgtpdg = fNuclTarget->PDGCode();
-    stream << "\n  |---o Neutrino PDG-code .........: " << fNuPDG;
-    stream << "\n  |---o Nuclear Target PDG-code ...: " << tgtpdg;
-  } else
-    stream << "\n  |---o *** The initial state wasn't defined properly ***";
+  int nupdg  = fInitState->GetProbePDGCode();
+  int tgtpdg = fInitState->GetTarget().PDGCode();
 
-  if (fFilter) {
-    stream << "\n  |---o An InteractionFilter is being used: " << *fFilter;
-  }
+  stream << "\n  |---o Neutrino PDG-code .........: " << nupdg;
+  stream << "\n  |---o Nuclear Target PDG-code ...: " << tgtpdg;
+
   stream << "\n  |---o Using cross section splines is turned "
                                 << utils::print::BoolAsIOString(fUseSplines);
   stream << "\n  |---o Filtering unphysical events is turned "
                           << utils::print::BoolAsIOString(fFilterUnphysical);
+
   stream << "\n *********************************************************\n";
 }
 //___________________________________________________________________________
+

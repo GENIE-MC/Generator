@@ -257,7 +257,7 @@ void GMCJDriver::CreateGEVGDriverPool(void)
        << init_state.AsString() << " ----\n\n";
 
      GEVGDriver * evgdriver = new GEVGDriver;
-     evgdriver->SetInitialState(init_state);
+     evgdriver->Configure(init_state);
      evgdriver->FilterUnphysical(fFilterUnphysical);
      evgdriver->UseSplines(); // check if all splines needed are loaded
 
