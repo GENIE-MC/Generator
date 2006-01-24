@@ -14,11 +14,11 @@
 #pragma link C++ class genie::EventGeneratorList;
 #pragma link C++ class genie::EventGeneratorListAssembler;
 #pragma link C++ class genie::EGResponsibilityChain;
-#pragma link C++ class genie::InteractionFilter;
 #pragma link C++ class genie::ToyInteractionSelector;
 #pragma link C++ class genie::PhysInteractionSelector;
 #pragma link C++ class genie::InteractionList;
 #pragma link C++ class genie::InteractionListAssembler;
 #pragma link C++ class genie::InteractionListGeneratorI;
+#pragma link C++ class genie::XSecAlgorithmMap;
 
 #endif

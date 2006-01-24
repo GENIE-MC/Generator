@@ -18,13 +18,9 @@
 #ifndef _PHYS_INTERACTION_SELECTOR_H_
 #define _PHYS_INTERACTION_SELECTOR_H_
 
-#include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/InteractionSelectorI.h"
 
 namespace genie {
-
-class InteractionFilter;
-class EventGeneratorList;
 
 class PhysInteractionSelector : public InteractionSelectorI {
 
@@ -35,17 +31,19 @@ public :
   ~PhysInteractionSelector();
 
   //! implement the InteractionSelectorI interface
+  EventRecord * SelectInteraction
+          (const XSecAlgorithmMap * xsmp, const TLorentzVector & p4) const;
 
-  void          SetInteractionFilter (const InteractionFilter * filt);
-  void          SetGeneratorList     (const EventGeneratorList * egl);
-  EventRecord * SelectInteraction    (const InitialState & init_state) const;
+  //! override the Algorithm::Configure methods to load configuration
+  //! data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
 
 private:
 
-  bool  UseStoredCrossSections (void) const;
+  void LoadConfigData (void);
 
-  const InteractionFilter *  fInteractionFilter;
-  const EventGeneratorList * fEventGeneratorList;
+  bool fUseSplines;
 };
 
 }      // genie namespace

@@ -46,12 +46,13 @@ EventGeneratorListAssembler::~EventGeneratorListAssembler()
 //___________________________________________________________________________
 EventGeneratorList * EventGeneratorListAssembler::AssembleGeneratorList()
 {
-  SLOG("EvGenListAssembler", pINFO) << "Loading Requested Event Generators";
+  SLOG("EvGenListAssembler", pNOTICE) << "----------------------------------";
+  SLOG("EvGenListAssembler", pNOTICE) << "Loading requested Event Generators";
+  SLOG("EvGenListAssembler", pNOTICE) << "----------------------------------";
 
   EventGeneratorList * evgl = new EventGeneratorList;
 
-  int nproc = fConfig->Exists("n-processes") ?
-                                        fConfig->GetInt("n-processes") : -1;
+  int nproc = fConfig->GetIntDef("n-processes", 0);
   assert(nproc > 0);
 
   //-- Loop over the event generators for all requested processes
@@ -73,14 +74,15 @@ const EventGeneratorI * EventGeneratorListAssembler::LoadGenerator(int ip)
   string alg  = fConfig->GetString( alg_key.str()    );
   string conf = fConfig->GetString( config_key.str() );
 
-  SLOG("EvGenListAssembler", pINFO) << "Loading: " << alg << "/" << conf;
+  SLOG("EvGenListAssembler", pNOTICE) << "Loading: " << alg << "/" << conf;
 
   AlgFactory * algf = AlgFactory::Instance();
 
   const EventGeneratorI * evgen =
       dynamic_cast<const EventGeneratorI *> (algf->GetAlgorithm(alg,conf));
-
   assert(evgen);
+
+  SLOG("EvGenListAssembler", pNOTICE) << "\n";
 
   return evgen;
 }
