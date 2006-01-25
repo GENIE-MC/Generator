@@ -508,7 +508,7 @@ void GEVGDriver::CreateSplines(bool useLogE)
 
          // create a cross section spline for this interaction & store
          LOG("GEVGDriver", pNOTICE)
-             << "\nNeed xsec spline for \n" << interaction->AsString();
+               << "\nNeed xsec spline for " << interaction->AsString();
 
          // only create the spline if it does not already exists
          bool spl_exists = xsl->SplineExists(alg, interaction);
