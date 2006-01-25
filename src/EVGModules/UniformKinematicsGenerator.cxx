@@ -82,14 +82,14 @@ void UniformKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 void UniformKinematicsGenerator::GenerateUnifQELKinematics(
                                                     GHepRecord * evrec) const
 {
-  RandomGen * rnd = RandomGen::Instance();
   Interaction * interaction = evrec->GetInteraction();
 
   // compute physical Q^2 range
   Range1D_t Q2 = utils::kinematics::Q2Range_M(interaction);
 
   // generate/set a Q^2 in available phase space (const probability)
-  double gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random2().Rndm();
+  RandomGen * rnd = RandomGen::Instance();
+  double gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random1().Rndm();
   interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
   LOG("UnifKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
@@ -100,7 +100,6 @@ void UniformKinematicsGenerator::GenerateUnifQELKinematics(
 void UniformKinematicsGenerator::GenerateUnifRESKinematics(
                                                     GHepRecord * evrec) const
 {
-  RandomGen * rnd = RandomGen::Instance();
   Interaction * interaction = evrec->GetInteraction();
 
   // compute physical W range
@@ -110,10 +109,12 @@ void UniformKinematicsGenerator::GenerateUnifRESKinematics(
   register unsigned int iter = 0;
   double gW = -1, gQ2 = -1;
 
+  RandomGen * rnd = RandomGen::Instance();
+
   while(!found) {
 
      // generate/set an invariant mass (const probability)
-     gW = W.min + (W.max - W.min) * rnd->Random2().Rndm();
+     gW = W.min + (W.max - W.min) * rnd->Random1().Rndm();
      interaction->GetKinematicsPtr()->SetW(gW);
 
      // compute physical Q^2 for selected W
@@ -121,7 +122,7 @@ void UniformKinematicsGenerator::GenerateUnifRESKinematics(
 
      if(Q2.min < Q2.max) {
         // generate/set a Q^2 (const probability)
-        gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random2().Rndm();
+        gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random1().Rndm();
         interaction->GetKinematicsPtr()->SetQ2(gQ2);
         found = true;
      }
@@ -144,7 +145,6 @@ void UniformKinematicsGenerator::GenerateUnifRESKinematics(
 void UniformKinematicsGenerator::GenerateUnifDISKinematics(
                                                     GHepRecord * evrec) const
 {
-  RandomGen * rnd = RandomGen::Instance();
   Interaction * interaction = evrec->GetInteraction();
 
   // get initial state information
@@ -161,10 +161,12 @@ void UniformKinematicsGenerator::GenerateUnifDISKinematics(
 
   double gx = -1, gy = -1, gW = -1, gQ2 = -1;
 
+  RandomGen * rnd = RandomGen::Instance();
+
   while(!found) {
      // generate x,y in [0,1]
-     gx = rnd->Random2().Rndm();
-     gy = rnd->Random2().Rndm();
+     gx = rnd->Random1().Rndm();
+     gy = rnd->Random1().Rndm();
 
      interaction->GetKinematicsPtr()->Setx(gx);
      interaction->GetKinematicsPtr()->Sety(gy);
@@ -204,7 +206,6 @@ void UniformKinematicsGenerator::GenerateUnifCOHKinematics(
 {
   LOG("UnifKinematics", pWARN) << "Kinematics generator not implemented!!";
 
-  RandomGen * rnd = RandomGen::Instance();
   Interaction * interaction = evrec->GetInteraction();
 
   double Ev  = interaction->GetInitialState().GetProbeE(kRfLab);
@@ -213,8 +214,9 @@ void UniformKinematicsGenerator::GenerateUnifCOHKinematics(
   double ymin = Mpi/Ev;
   double ymax = 1.;
 
-  double gx = rnd->Random2().Rndm(); // x in [0,1]
-  double gy = ymin + (ymax-ymin)*rnd->Random2().Rndm(); // y in [ymin, ymax]
+  RandomGen * rnd = RandomGen::Instance();
+  double gx = rnd->Random1().Rndm(); // x in [0,1]
+  double gy = ymin + (ymax-ymin)*rnd->Random1().Rndm(); // y in [ymin, ymax]
 
   LOG("UnifKinematics", pINFO) << "Selected: x = " << gx;
   LOG("UnifKinematics", pINFO) << "Selected: y = " << gy;

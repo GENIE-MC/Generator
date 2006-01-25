@@ -83,8 +83,8 @@ EventRecord * PhysInteractionSelector::SelectInteraction
      Interaction * interaction = new Interaction(**intliter);
      interaction->GetInitialStatePtr()->SetProbeP4(p4);
 
-     SLOG("InteractionList", pINFO)
-                     << "Interaction = " << interaction->AsString();
+     SLOG("InteractionSelector", pDEBUG)
+            << "Computing xsec for \n" << interaction->AsString();
 
      // get the cross section for this interaction
      const XSecAlgorithmI * xsec_alg =
@@ -101,13 +101,13 @@ EventRecord * PhysInteractionSelector::SelectInteraction
            const Spline * spl = xssl->GetSpline(xsec_alg,interaction);
            if(spl->ClosestKnotValueIsZero(E,"-")) xsec = 0;
            else xsec = spl->Evaluate(E);
-           SLOG("InteractionList", pINFO)
-             << "Cross Section [**interpolated**] = " << xsec/cm2 << " cm^2";
      } else {
            xsec = xsec_alg->XSec(interaction);
-           SLOG("InteractionList", pINFO)
-               << "Cross Section [**calculated**] = " << xsec/cm2 << " cm^2";
      }
+     SLOG("InteractionSelector", pINFO)
+          << "\n" << interaction->AsString() << "\n --> cross section "
+            << (eval ? "[**interpolated**]" : "[**calculated**]") << " = "
+               << xsec/cm2 << " cm^2";
 
      xseclist[i++] = xsec;
      delete interaction;
@@ -116,18 +116,18 @@ EventRecord * PhysInteractionSelector::SelectInteraction
 
   // select an interaction
 
-  LOG("InteractionList", pINFO)
+  LOG("InteractionSelector", pINFO)
                         << "Selecting an entry from the Interaction List";
   double xsec_sum  = 0;
   for(unsigned int iint = 0; iint < xseclist.size(); iint++) {
      xsec_sum       += xseclist[iint];
      xseclist[iint]  = xsec_sum;
 
-     SLOG("InteractionList", pINFO)
+     SLOG("InteractionSelector", pINFO)
                            << "Sum{xsec}(0->" << iint << ") = " << xsec_sum;
   }
   RandomGen * rnd = RandomGen::Instance();
-  double R = xsec_sum * rnd->Random2().Rndm();
+  double R = xsec_sum * rnd->Random1().Rndm();
 
   LOG("InteractionSelector", pINFO)
                << "Generating Rndm (0. -> max = " << xsec_sum << ") = " << R;
@@ -147,7 +147,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
        double xsec = xseclist[iint] - xsec_pedestal;
        assert(xsec>0);
 
-       LOG("InteractionSelector", pINFO)
+       LOG("InteractionSelector", pNOTICE)
                       << "Selected interaction: \n" << *selected_interaction;
 
        // bootstrap the event record

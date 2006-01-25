@@ -98,10 +98,10 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
   RandomGen * rnd = RandomGen::Instance();
 
   // Generate a random vertex within the nuclear radius
-  double R        = R0 * rnd->Random2().Rndm();
-  double costheta = -1. + 2. * rnd->Random2().Rndm();
+  double R        = R0 * rnd->Random1().Rndm();
+  double costheta = -1. + 2. * rnd->Random1().Rndm();
   double sintheta = TMath::Sqrt(1.-costheta*costheta);
-  double fi       = 2 * kPi * rnd->Random2().Rndm();
+  double fi       = 2 * kPi * rnd->Random1().Rndm();
   double cosfi    = TMath::Cos(fi);
   double sinfi    = TMath::Sin(fi);
 
@@ -177,7 +177,7 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
       // distance d from a exp(-d/L) distribution
       double K = sp->KinE();
       double L = this->MeanFreePath(K);
-      double d = -1.*L * TMath::Log(rnd->Random2().Rndm());
+      double d = -1.*L * TMath::Log(rnd->Random1().Rndm());
 
       LOG("Intranuke", pDEBUG)
                 << "Mean free path = " << L << " m, "
@@ -296,7 +296,7 @@ INukeProc_t Intranuke::ParticleFate(const GHepParticle * p) const
 
   // select rescattering type
   RandomGen * rnd = RandomGen::Instance();
-  double t = rnd->Random2().Rndm();
+  double t = rnd->Random1().Rndm();
 
   INukeProc_t inukp = kINukUndefined;
 

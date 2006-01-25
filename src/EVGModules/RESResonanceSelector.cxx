@@ -123,7 +123,7 @@ Resonance_t RESResonanceSelector::SelectResonance(GHepRecord * evrec) const
 
   //-- Use the computed differential cross sections to select a resonance
   RandomGen * rnd = RandomGen::Instance();
-  double R = xsec_sum * rnd->Random2().Rndm();
+  double R = xsec_sum * rnd->Random1().Rndm();
 
   SLOG("RESSelector", pDEBUG) << "R = " << R;
 

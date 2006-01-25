@@ -37,25 +37,21 @@ public:
   string    CacheBranchKey     (const Algorithm * alg, string subr) const;
   TNtuple * FindCacheBranchPtr (const Algorithm * alg, string subr);
   TNtuple * CreateCacheBranch  (const Algorithm * alg, string subr, string brdef);
-  
+
 private:
 
   //-- singleton instance
-
   static Cache * fInstance;
 
   //-- map of cache buffers
-
   map<string, TNtuple * > * fCacheMap;
 
   //-- singleton class: constructors are private
-
   Cache();
   Cache(const Cache & cache);
   virtual ~Cache();
 
   //-- proper de-allocation of the singleton object
-
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
       ~Cleaner() {

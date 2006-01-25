@@ -86,7 +86,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   while(1) {
      //-- generate a W value within the allowed phase space
-     double gW  = TMath::Exp(logWmin  + dlogW  * rnd->Random2().Rndm());
+     double gW  = TMath::Exp(logWmin  + dlogW  * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->SetW(gW);
 
      //-- Get the physical Q2 range (for current W) taking into account
@@ -98,7 +98,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      double dlogQ2   = logQ2max - logQ2min;
 
      //-- generate a Q2 value within the allowed phase space
-     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random2().Rndm());
+     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("DISKinematics", pINFO) << "Trying: W = "<< gW << ", Q2 = "<< gQ2;
@@ -110,7 +110,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      double xsec = fXSecModel->XSec(interaction);
 
      //-- accept current kinematics?
-     double t = xsec_max * rnd->Random2().Rndm();
+     double t = xsec_max * rnd->Random1().Rndm();
      LOG("DISKinematics", pINFO)
              << "xsec: (computed) = " << xsec << ", (generated) = " << t;
      assert(xsec < xsec_max);

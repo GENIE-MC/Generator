@@ -337,11 +337,8 @@ bool KNOHadronization2::ComputeForwardness(
          WF -= mass;
 
       } else {
-
-          double x = rnd->Random2().Rndm();
-
+          double x = rnd->Random1().Rndm();
           double Pfwd = 0;
-
           if      ( Q < 0 ) Pfwd = fwd_probability_neg;
           else if ( Q > 0 ) Pfwd = fwd_probability_pos;
           else              Pfwd = fwd_probability_0;
@@ -351,7 +348,6 @@ bool KNOHadronization2::ComputeForwardness(
                   WF -= mass;
           }
           else {
-
                 if(WB - mass > 0.010) {
                        p->SetBit(kIsForward, false);
                        WB -= mass;
@@ -360,9 +356,7 @@ bool KNOHadronization2::ComputeForwardness(
                        WF -= mass;
                 }
           }
-
       } // not leading F/B hadrons
-
   } // p
 
   if(WF < 0 || WB < 0) return false;
@@ -607,8 +601,8 @@ void KNOHadronization2::Cooling(TClonesArray * particle_list) const
   double sum_px  = 0.;
   double sum_py  = 0.;
 
-  double sgn_px  = -1. + 2. * rnd->Random2().Rndm();
-  double sgn_py  = -1. + 2. * rnd->Random2().Rndm();
+  double sgn_px  = -1. + 2. * rnd->Random1().Rndm();
+  double sgn_py  = -1. + 2. * rnd->Random1().Rndm();
 
   int j = 0;
   int N = particle_list->GetEntries();
@@ -638,7 +632,7 @@ void KNOHadronization2::Cooling(TClonesArray * particle_list) const
 
     double dpz  = TMath::Sqrt( pz*pz + dpT2 ) - pz;
 
-    double px2  = pT2 * rnd->Random2().Rndm();
+    double px2  = pT2 * rnd->Random1().Rndm();
     double py2  = pT2 - px2;
 
     px   = TMath::Sign( TMath::Sqrt(px2), -sum_px );
@@ -687,8 +681,8 @@ void KNOHadronization2::Cooling2(TClonesArray * particle_list, double W) const
   double sum_py  = 0.;
   double sum_pz  = 0.;
 
-  double sgn_px  = -1. + 2. * rnd->Random2().Rndm();
-  double sgn_py  = -1. + 2. * rnd->Random2().Rndm();
+  double sgn_px  = -1. + 2. * rnd->Random1().Rndm();
+  double sgn_py  = -1. + 2. * rnd->Random1().Rndm();
 
   int j = 0;
   int N = particle_list->GetEntries();
@@ -728,7 +722,7 @@ void KNOHadronization2::Cooling2(TClonesArray * particle_list, double W) const
 
     assert( pT2 >= 0 );
 
-    double px2  = pT2 * rnd->Random2().Rndm();
+    double px2  = pT2 * rnd->Random1().Rndm();
     double py2  = pT2 - px2;
 
     px   = TMath::Sign( TMath::Sqrt(px2), -sum_px );

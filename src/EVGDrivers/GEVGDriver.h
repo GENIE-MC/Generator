@@ -49,19 +49,20 @@ public :
   GEVGDriver();
   ~GEVGDriver();
 
+  //! Set driver options (before calling Configure())
+  void FilterUnphysical       (bool on_off);
+  void UseSplines             (void);
+  //void UseInteractionSelector (string name, string config);
+
   //! Configure the driver
   void Configure (int nu_pdgc, int Z, int A);
   void Configure (const InitialState & init_state);
 
-  //! Set driver options
-  void UseSplines        (void);
-  void FilterUnphysical  (bool on_off);
+  //! Generate single event
+  EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
   //! Instruct the driver to create all the splines it needs
   void CreateSplines (bool useLogE = true);
-
-  //! Generate single event
-  EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
   //! Cross section sum for all interactions that can be generated for
   //! the current init-state.

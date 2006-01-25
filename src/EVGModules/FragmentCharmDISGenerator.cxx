@@ -138,7 +138,7 @@ bool FragmentCharmDISGenerator::GenerateCharmHadronOnly(
   LOG("FragmentCharm", pINFO) << "Generated: charm hadron pT = " << pT;
 
   //-- Compute charm hadron px, py, pz
-  double t   = 2.*kPi*RandomGen::Instance()->Random3().Rndm();
+  double t   = 2.*kPi*RandomGen::Instance()->Random1().Rndm();
   double pxC = pT * TMath::Sin(t);
   double pyC = pT * TMath::Cos(t);
   double pzC = TMath::Sqrt(EC2-pT2-m2);
@@ -363,24 +363,21 @@ int FragmentCharmDISGenerator::CharmedHadronPdgCode(double E) const
 
   RandomGen * rnd = RandomGen::Instance();
 
-  double rndm = rnd->Random3().Rndm();
+  double rndm = rnd->Random1().Rndm();
 
   if(E <= 20) {
-
      if      (rndm <= 0.32)                  return  421; // D^0
      else if (rndm >  0.32 && rndm <= 0.37)  return  411; // D^+
      else if (rndm >  0.37 && rndm <= 0.55)  return  431; // Ds^+
      else                                    return 4122; // Lamda_c^+
 
   } else if (E > 20 && E <=40)  {
-
      if      (rndm <= 0.50)                  return  421;
      else if (rndm >  0.50 && rndm <= 0.60)  return  411;
      else if (rndm >  0.60 && rndm <= 0.82)  return  431;
      else                                    return 4122;
 
   } else {
-
      if      (rndm <= 0.64)                  return  421;
      else if (rndm >  0.64 && rndm <= 0.86)  return  411;
      else if (rndm >  0.86 && rndm <= 0.95)  return  431;
