@@ -84,7 +84,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
      interaction->GetInitialStatePtr()->SetProbeP4(p4);
 
      SLOG("InteractionSelector", pDEBUG)
-            << "Computing xsec for \n" << interaction->AsString();
+           << "Computing xsec for: \n  " << interaction->AsString();
 
      // get the cross section for this interaction
      const XSecAlgorithmI * xsec_alg =
@@ -105,7 +105,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
            xsec = xsec_alg->XSec(interaction);
      }
      SLOG("InteractionSelector", pINFO)
-          << "\n" << interaction->AsString() << "\n --> cross section "
+       << "\n   " << interaction->AsString() << "\n    --> cross section "
             << (eval ? "[**interpolated**]" : "[**calculated**]") << " = "
                << xsec/cm2 << " cm^2";
 
