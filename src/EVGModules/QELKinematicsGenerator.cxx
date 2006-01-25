@@ -79,13 +79,13 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   while(1) {
      // generate a Q2 value within the allowed phase space
-     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random2().Rndm());
+     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("QELKinematics", pINFO) << "Trying: Q^2 = " << gQ2;
 
      double xsec = fXSecModel->XSec(interaction);
-     double t    = xsec_max * rnd->Random2().Rndm();
+     double t    = xsec_max * rnd->Random1().Rndm();
 
      LOG("QELKinematics", pINFO)
              << "xsec: (computed) = " << xsec << ", (generated) = " << t;

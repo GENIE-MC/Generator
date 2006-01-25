@@ -69,12 +69,12 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double dy   = ymax-ymin;
 
   while(1) {
-     double y = ymin + dy * rnd->Random2().Rndm();
+     double y = ymin + dy * rnd->Random1().Rndm();
      interaction->GetKinematicsPtr()->Sety(y);
 
      LOG("IMDKinematics", pINFO) << "Trying: y = " << y;
      double xsec = fXSecModel->XSec(interaction);
-     double t    = xsec_max * rnd->Random2().Rndm();
+     double t    = xsec_max * rnd->Random1().Rndm();
 
      LOG("IMDKinematics", pINFO)
            << "xsec: (computed) = " << xsec << ", (generated) = " << t;

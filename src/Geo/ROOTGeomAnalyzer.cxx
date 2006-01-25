@@ -226,7 +226,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
   //calculate maximum path for each material
 
   RandomGen* rand=RandomGen::Instance();
-  TRandom & r3=rand->Random3();
+  TRandom & rnd=rand->Random1();
 
   LOG("GROOTGeom",pNOTICE)
         << "Will generate [" << fNPoints << "] random points / box surface";
@@ -256,9 +256,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox-dx+2*dx*r3.Rndm(), oy+dy, oz-dz+2*dz*r3.Rndm());
+      pos.SetXYZ(ox-dx+2*dx*rnd.Rndm(), oy+dy, oz-dz+2*dz*rnd.Rndm());
       while (iray++ < maxRays) {
-        dir.SetXYZ(-0.5+r3.Rndm(), -r3.Rndm(), -0.5+r3.Rndm());
+        dir.SetXYZ(-0.5+rnd.Rndm(), -rnd.Rndm(), -0.5+rnd.Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -269,9 +269,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox-dx+2*dx*r3.Rndm(), oy-dy, oz-dz+2*dz*r3.Rndm());
+      pos.SetXYZ(ox-dx+2*dx*rnd.Rndm(), oy-dy, oz-dz+2*dz*rnd.Rndm());
       while (iray++ < maxRays) {
-        dir.SetXYZ(-0.5+r3.Rndm(), r3.Rndm(), -0.5+r3.Rndm());
+        dir.SetXYZ(-0.5+rnd.Rndm(), rnd.Rndm(), -0.5+rnd.Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -282,9 +282,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox-dx, oy-dy+2*dy*r3.Rndm(), oz-dz+2*dz*r3.Rndm());
+      pos.SetXYZ(ox-dx, oy-dy+2*dy*rnd.Rndm(), oz-dz+2*dz*rnd.Rndm());
       while (iray++ < maxRays) {
-        dir.SetXYZ(r3.Rndm(), -0.5+r3.Rndm(), -0.5+r3.Rndm());
+        dir.SetXYZ(rnd.Rndm(), -0.5+rnd.Rndm(), -0.5+rnd.Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -295,9 +295,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox+dx, oy-dy+2*dy*r3.Rndm(), oz-dz+2*dz*r3.Rndm());
+      pos.SetXYZ(ox+dx, oy-dy+2*dy*rnd.Rndm(), oz-dz+2*dz*rnd.Rndm());
       while (iray++ < maxRays) {
-        dir.SetXYZ(-r3.Rndm(), -0.5+r3.Rndm(), -0.5+r3.Rndm());
+        dir.SetXYZ(-rnd.Rndm(), -0.5+rnd.Rndm(), -0.5+rnd.Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -308,9 +308,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox-dx+2*dx*r3.Rndm(), oy-dy+2*dy*r3.Rndm(), oz+dz);
+      pos.SetXYZ(ox-dx+2*dx*rnd.Rndm(), oy-dy+2*dy*rnd.Rndm(), oz+dz);
       while (iray++ < maxRays) {
-        dir.SetXYZ(-0.5+r3.Rndm(), -0.5+r3.Rndm(), -r3.Rndm());
+        dir.SetXYZ(-0.5+rnd.Rndm(), -0.5+rnd.Rndm(), -rnd.Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -321,9 +321,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox-dx+2*dx*r3.Rndm(), oy-dy+2*dy*r3.Rndm(), oz-dz);
+      pos.SetXYZ(ox-dx+2*dx*rnd.Rndm(), oy-dy+2*dy*rnd.Rndm(), oz-dz);
       while (iray++ < maxRays) {
-        dir.SetXYZ(-0.5+r3.Rndm(), -0.5+r3.Rndm(), r3.Rndm());
+        dir.SetXYZ(-0.5+rnd.Rndm(), -0.5+rnd.Rndm(), rnd.Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -494,8 +494,8 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
   // generate random number between 0 and dist
   RandomGen* rand=RandomGen::Instance();
-  TRandom & r3 = rand->Random3();
-  double distVertex(r3.Rndm()*dist);
+  TRandom & rnd = rand->Random1();
+  double distVertex(rnd.Rndm()*dist);
   LOG("GROOTGeom", pNOTICE)
        << "Generated 'distance' in selected material = " << distVertex;
 

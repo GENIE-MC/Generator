@@ -81,15 +81,15 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const double rlogy   = (logymax - logymin);
 
   while(1) {
-     double gx = TMath::Exp(logxmin + rlogx * rnd->Random2().Rndm());
-     double gy = TMath::Exp(logymin + rlogy * rnd->Random2().Rndm());
+     double gx = TMath::Exp(logxmin + rlogx * rnd->Random1().Rndm());
+     double gy = TMath::Exp(logymin + rlogy * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->Setx(gx);
      interaction->GetKinematicsPtr()->Sety(gy);
      LOG("COHKinematics", pINFO)
                    << "Trying: (x = " << gx << ", y = " << gy << ")";
 
      double xsec = fXSecModel->XSec(interaction);
-     double t    = xsec_max * rnd->Random2().Rndm();
+     double t    = xsec_max * rnd->Random1().Rndm();
 
      LOG("COHKinematics", pINFO)
              << "xsec: (computed) = " << xsec << ", (generated) = " << t;

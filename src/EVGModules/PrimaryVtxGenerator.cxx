@@ -80,9 +80,9 @@ void PrimaryVtxGenerator::ProcessEventRecord(GHepRecord * evrec) const
   // generate a random position inside a spherical nucleus with radius R
   RandomGen * rnd = RandomGen::Instance();
 
-  double R      =     Rn*(rnd->Random2().Rndm());  // [0,Rn]
-  double phi    =  2*kPi*(rnd->Random2().Rndm());  // [0,2pi]
-  double cos8   = -1 + 2*(rnd->Random2().Rndm());  // [-1,1]
+  double R      =     Rn*(rnd->Random1().Rndm());  // [0,Rn]
+  double phi    =  2*kPi*(rnd->Random1().Rndm());  // [0,2pi]
+  double cos8   = -1 + 2*(rnd->Random1().Rndm());  // [-1,1]
   double sin8   = TMath::Sqrt(1-cos8*cos8);
   double cosphi = TMath::Cos(phi);
   double sinphi = TMath::Sin(phi);

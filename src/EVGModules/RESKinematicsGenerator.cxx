@@ -80,7 +80,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   while(1) {
      //-- Get a random W within its allowed limits
-     double gW = TMath::Exp(logWmin + dlogW  * rnd->Random2().Rndm());
+     double gW = TMath::Exp(logWmin + dlogW  * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->SetW(gW);
 
      //-- Compute the allowed Q^2 limits for the selected W
@@ -92,8 +92,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      double dlogQ2   = logQ2max - logQ2min;
 
      //-- Get a random Q2 within its allowed limits
-     //double gQ2 = Q2.min + (Q2.max - Q2.min) * rnd->Random2().Rndm();
-     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random2().Rndm());
+     //double gQ2 = Q2.min + (Q2.max - Q2.min) * rnd->Random1().Rndm();
+     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("RESKinematics", pINFO) << "Trying: W = " << gW << ", Q2 = " << gQ2;
@@ -103,7 +103,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //    baryon resonances and returns their sum weighted with the value
      //    of their Breit-Wigner distribution at the current W.
      double xsec = fXSecModel->XSec(interaction);
-     double t    = xsec_max * rnd->Random2().Rndm();
+     double t    = xsec_max * rnd->Random1().Rndm();
 
      LOG("RESKinematics", pINFO)
               << "xsec: (computed) = " << xsec << ", (generated) = " << t;

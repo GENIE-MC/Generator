@@ -24,8 +24,6 @@
 
 #include <cstdlib>
 
-#include <TRandom3.h>
-#include <TRandom2.h>
 #include <TSystem.h>
 
 #include "Conventions/Controls.h"
@@ -82,15 +80,20 @@ void RandomGen::SetSeed(long int seed)
   fRandom1 -> SetSeed (seed);
   fRandom2 -> SetSeed (seed);
   fRandom3 -> SetSeed (seed);
+
+  LOG("Rndm", pINFO) << "gRandom  seed = " << gRandom  -> GetSeed();
+  LOG("Rndm", pINFO) << "fRandom1 seed = " << fRandom1 -> GetSeed();
+  LOG("Rndm", pINFO) << "fRandom2 seed = " << fRandom2 -> GetSeed();
+  LOG("Rndm", pINFO) << "fRandom3 seed = " << fRandom3 -> GetSeed();
 }
 //____________________________________________________________________________
 void RandomGen::InitRandomGenerators(long int seed)
 {
-  gRandom->SetSeed(seed);
+  fRandom1 = new TRandom  ();
+  fRandom2 = new TRandom2 ();
+  fRandom3 = new TRandom3 ();
 
-  fRandom1 = new TRandom  (seed);
-  fRandom2 = new TRandom2 (seed);
-  fRandom3 = new TRandom3 (seed);
+  this->SetSeed(seed);
 }
 //____________________________________________________________________________
 } // genie namespace

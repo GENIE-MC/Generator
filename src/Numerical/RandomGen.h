@@ -26,6 +26,8 @@
 #define _RANDOM_GEN_H_
 
 #include <TRandom.h>
+#include <TRandom2.h>
+#include <TRandom3.h>
 
 namespace genie {
 
@@ -36,33 +38,33 @@ public:
   static RandomGen * Instance();
 
   // Simple random number generator
-  TRandom & Random1 (void) const { return *fRandom1; }
+  TRandom  & Random1 (void) const { return *fRandom1; }
 
   // Generator with periodicity > 10e14
-  TRandom & Random2 (void) const { return *fRandom2; }
+  TRandom2 & Random2 (void) const { return *fRandom2; }
 
   // Mersenne Twistor
-  TRandom & Random3 (void) const { return *fRandom3; }
+  TRandom3 & Random3 (void) const { return *fRandom3; }
 
   long int GetSeed (void)         const { return fCurrSeed; }
   void     SetSeed (long int seed);
 
 private:
 
-  RandomGen(); 
+  RandomGen();
   RandomGen(const RandomGen & rgen);
   virtual ~RandomGen();
 
   static RandomGen * fInstance;
 
-  TRandom * fRandom1; // Simple random number generator
-  TRandom * fRandom2; // Generator with periodicity > 10e14
-  TRandom * fRandom3; // Mersenne Twistor
+  TRandom  * fRandom1; // Simple random number generator
+  TRandom2 * fRandom2; // Generator with periodicity > 10e14
+  TRandom3 * fRandom3; // Mersenne Twistor
 
   long int fCurrSeed;
 
   void InitRandomGenerators(long int seed);
-    
+
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
       ~Cleaner() {

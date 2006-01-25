@@ -76,32 +76,25 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
   if ( ! this->IsHandled(inp.PdgCode) ) return 0;
 
   //-- Find the particle in the PDG library
-
   TParticlePDG * mother = PDGLibrary::Instance()->Find(inp.PdgCode);
 
   if(!mother) {
-
      LOG("Decay", pERROR)
           << "\n *** The particle with PDG-Code = " << inp.PdgCode
                                          << " was not found in PDGLibrary";
      return 0;                               
   }  
-
   LOG("Decay", pINFO)
            << "Decaying resonance = " << mother->GetName()
                         << " with P4 = " << utils::print::P4AsString(inp.P4);
   
   //-- Get the resonance mass W (generally different from the mass associated
   //   with the input pdg_code)
-
   double W = inp.P4->M();
   
   //-- Get all decay channels
-
   TObjArray * decay_list = mother->DecayList();
-  
   unsigned int nch = decay_list->GetEntries();
-
   LOG("Decay", pINFO)
                << mother->GetName() << " has: " << nch << " decay channels";
 
@@ -113,11 +106,9 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
   double BR[nch], tot_BR = 0;    
   
   for(unsigned int ich = 0; ich < nch; ich++) {
-
      TDecayChannel * ch = (TDecayChannel *) decay_list->At(ich);
-     
      double fsmass = this->FinalStateMass(ch);
-     
+
      if(fsmass < W) tot_BR += ch->BranchingRatio();
      else {       
        tot_BR += 0;
@@ -130,15 +121,10 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
   }
 
   //-- Select a resonance based on the branching ratios
-  
   unsigned int ich = 0, sel_ich; // id of selected decay channel
-
   RandomGen * rnd = RandomGen::Instance();
-
-  double x = tot_BR * rnd->Random2().Rndm();
-
+  double x = tot_BR * rnd->Random1().Rndm();
   do {
-    
     sel_ich = ich;
     
   } while (x > BR[ich++]);
@@ -151,7 +137,6 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
   TDecayChannel * ch = (TDecayChannel *) decay_list->At(sel_ich);
 
   //-- Decay the exclusive state and return the particle list
-
   TLorentzVector p4(*inp.P4);
   return ( this->DecayExclusive(inp.PdgCode, p4, ch) );
 }
@@ -165,7 +150,6 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
                    int pdg_code, TLorentzVector & p, TDecayChannel * ch) const
 {
   //-- Get the final state mass spectrum and the particle codes
-
   unsigned int nd = ch->NDaughters();
 
   int    pdgc[nd];
@@ -174,9 +158,7 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   for(unsigned int iparticle = 0; iparticle < nd; iparticle++) {
 
      int daughter_code = ch->DaughterPdgCode(iparticle);
-
      TParticlePDG * daughter = PDGLibrary::Instance()->Find(daughter_code);
-
      assert(daughter);
 
      pdgc[iparticle] = daughter_code;
@@ -192,19 +174,15 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   //   will be boosted back to the original frame.
 
   TGenPhaseSpace phase_space_generator;
-
   bool is_permitted = phase_space_generator.SetDecay(p, nd, mass);
-
   assert(is_permitted);
 
   phase_space_generator.Generate();
 
   //-- Create the event record
-
   TClonesArray * particle_list = new TClonesArray("TMCParticle", 1+nd);
 
   //-- Add the mother particle to the event record (KS=11 as in PYTHIA)
-
   TParticlePDG * mother = PDGLibrary::Instance()->Find(pdg_code);
 
   double px   = p.Px();
@@ -214,14 +192,12 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   double M    = mother->Mass();
 
   new ( (*particle_list)[0] )
-                        TMCParticle(11,pdg_code,0,0,0,px,py,pz,E,M,0,0,0,0,0);
+                    TMCParticle(11,pdg_code,0,0,0,px,py,pz,E,M,0,0,0,0,0);
 
   //-- Add the daughter particles to the event record
-
   for(unsigned int id = 0; id < nd; id++) {
 
        TLorentzVector * p4 = phase_space_generator.GetDecay(id);
-
        LOG("Decay", pDEBUG)
                << "Adding final state particle PDGC = " << pdgc[id]
                                    << " with mass = " << mass[id] << " GeV";
@@ -236,9 +212,7 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   }
 
   //-- Set owner and return
-
   particle_list->SetOwner(true);
-
   return particle_list;
 }
 //____________________________________________________________________________
@@ -247,15 +221,12 @@ double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * channel) const
 // Computes the total mass of the final state system
 
   double mass = 0;
-  
   unsigned int nd = channel->NDaughters();
 
   for(unsigned int iparticle = 0; iparticle < nd; iparticle++) {
 
      int daughter_code = channel->DaughterPdgCode(iparticle);
-
      TParticlePDG * daughter = PDGLibrary::Instance()->Find(daughter_code);
-
      assert(daughter);
 
      mass += ( daughter->Mass() );

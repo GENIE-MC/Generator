@@ -552,7 +552,7 @@ int GMCJDriver::SelectTargetMaterial(void)
         << "Deciding whether the neutrino interacts and on which target";
 
   RandomGen * rnd = RandomGen::Instance();
-  double R = rnd->Random2().Rndm();
+  double R = rnd->Random1().Rndm();
   LOG("GMCJDriver", pDEBUG) << "Rndm [0,1] = " << R;
 
   //-- Check whether the neutrino interacts or not
