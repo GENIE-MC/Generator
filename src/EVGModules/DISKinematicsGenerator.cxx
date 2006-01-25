@@ -280,8 +280,11 @@ double DISKinematicsGenerator::ComputeMaxXSec(
      //   any user cuts
      Range1D_t Q2 = this->Q2Range(interaction);
      LOG("DISKinematics", pDEBUG)
-                << "Q^2 range = (" << Q2.min << ", " << Q2.max << ")";
-     assert(Q2.min>0);
+        << "W = " << gW << ", Q^2 range = ("
+                                 << Q2.min << ", " << Q2.max << ")";
+
+     if(Q2.min<=0 || Q2.max <=0 || Q2.max-Q2.min<= kMinQ2Limit) continue;
+
      const double logQ2min = TMath::Log(Q2.min+e);
      const double logQ2max = TMath::Log(Q2.max-e);
      const double dlogQ2   = (logQ2max - logQ2min)/(NQ2-1);
