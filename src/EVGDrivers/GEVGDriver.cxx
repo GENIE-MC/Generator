@@ -186,8 +186,8 @@ void GEVGDriver::BuildXSecAlgorithmMap(void)
 //! environmental variable (use "Default") if the variable is not set.
 
   LOG("GEVGDriver", pNOTICE)
-     << "Building the `XSecAlgorithmMap` for init-state = " << *fInitState;
-
+     << "Building the `XSecAlgorithmMap` for init-state = " 
+                                                  << fInitState->AsString();
   fXSecAlgorithmMap = new XSecAlgorithmMap;
   fXSecAlgorithmMap->UseGeneratorList(fEvGenList);
   fXSecAlgorithmMap->BuildMap(*fInitState);
