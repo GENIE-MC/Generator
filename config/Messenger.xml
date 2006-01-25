@@ -52,7 +52,7 @@
   <priority msgstream="GMCJDriver">          INFO   </priority>
   <priority msgstream="GEVGPool">            INFO   </priority>
   <priority msgstream="GMCJob">              INFO   </priority>
-  <priority msgstream="GMCMonitor">          WARN   </priority>
+  <priority msgstream="GMCJMonitor">         WARN   </priority>
   <priority msgstream="GROOTGeom">           NOTICE </priority>
   <priority msgstream="GHEP">                NOTICE </priority>
   <priority msgstream="GHepParticle">        INFO   </priority>

@@ -1,23 +1,33 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!--
+
+configuration options       type    description
+*******************************************************************************
+xsec-alg-name               string  differential cross section algorithm name
+xsec-param-set              string  differential cross section algorithm config
+Q2-min                      double  min cut on Q2
+Q2-max                      double  max cut on Q2
+max-xsec-safety-factor      double  rejection method multiplicative safety factor
+
+-->
+
 <alg_conf>
 
   Configuration sets for QELKinematicsGenerator EventRecordVisitorI
 
   <param_set name="CC-Default"> 
-
-     <param type="string" name="xsec-alg-name">   genie::QELPXSec    </param>
-     <param type="string" name="xsec-param-set">  CC-Default         </param>
-     <param type="double" name="Q2-min">          1e-2               </param>
-     <param type="double" name="Q2-max">          5                  </param>
+     <param type="string" name="xsec-alg-name">            genie::QELPXSec    </param>
+     <param type="string" name="xsec-param-set">           CC-Default         </param>
+     <param type="double" name="Q2-min">                   1e-2               </param>
+     <param type="double" name="max-xsec-safety-factor">   1.200              </param>
   </param_set>
 
   <param_set name="NC-Default"> 
-
-     <param type="string" name="xsec-alg-name">   genie::QELPXSec    </param>
-     <param type="string" name="xsec-param-set">  NC-Default         </param>
-     <param type="double" name="Q2-min">          1e-2               </param>
-     <param type="double" name="Q2-max">          5                  </param>
+     <param type="string" name="xsec-alg-name">            genie::QELPXSec    </param>
+     <param type="string" name="xsec-param-set">           NC-Default         </param>
+     <param type="double" name="Q2-min">                   1e-2               </param>
+     <param type="double" name="max-xsec-safety-factor">   1.200              </param>
   </param_set>
 
 </alg_conf>

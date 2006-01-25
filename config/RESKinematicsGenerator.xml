@@ -12,7 +12,7 @@
      <param type="double" name="W-max">                    1.400                     </param>
      <param type="double" name="Q2-min">                   0.001                     </param>
      <param type="double" name="Q2-max">                 100.000                     </param>
-     <param type="double" name="max-xsec-safety-factor">   1.300                     </param>
+     <param type="double" name="max-xsec-safety-factor">   1.200                     </param>
   </param_set>
 
 </alg_conf>
