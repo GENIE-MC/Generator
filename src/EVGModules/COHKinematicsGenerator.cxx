@@ -113,41 +113,39 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   }// iterations
 }
 //___________________________________________________________________________
-Range1D_t COHKinematicsGenerator::yRange(
-                                      const Interaction * interaction) const
+Range1D_t COHKinematicsGenerator::yRange(const Interaction * in) const
 {
-  Range1D_t y;
-
-  double Ev  = interaction->GetInitialState().GetProbeE(kRfLab);
+  double Ev  = in->GetInitialState().GetProbeE(kRfLab);
   double Mpi = kPionMass;
 
+  Range1D_t y;
   y.min = Mpi/Ev;
   y.max = 1.;
 
   LOG("COHKinematics", pDEBUG)
                   << "Physical y range = (" << y.min << ", " << y.max << ")";
-
  return y;
 }
 //___________________________________________________________________________
-double COHKinematicsGenerator::ComputeMaxXSec(
-                                       const Interaction * interaction) const
+double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 {
 // Computes the maximum differential cross section in the requested phase
 // space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
 // method and the value is cached at a circular cache branch for retrieval
 // during subsequent event generation.
 
+  SLOG("COHKinematics", pDEBUG)
+          << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
+
   double max_xsec = 0.;
 
-  const double e = 1E-6;
-  const int    N = 20;
+  const double e = 1E-3;
+  const int    N = 50;
 
   Range1D_t x;
   x.min=0.;
   x.max=1.;
-
-  Range1D_t y = this->yRange(interaction);
+  Range1D_t y = this->yRange(in);
 
   const double logxmin = TMath::Log(x.min+e);
   const double logxmax = TMath::Log(x.max-e);
@@ -156,14 +154,21 @@ double COHKinematicsGenerator::ComputeMaxXSec(
   const double logymax = TMath::Log(y.max-e);
   const double dlogy   = (logymax - logymin) /(N-1);
 
+  double Ev  = in->GetInitialState().GetProbeE(kRfLab);
+
   for(int i=0; i<N; i++) {
    double gx = TMath::Exp(logxmin + i * dlogx);
-   interaction->GetKinematicsPtr()->Setx(gx);
    for(int j=0; j<N; j++) {
      double gy = TMath::Exp(logymin + j * dlogy);
-     interaction->GetKinematicsPtr()->Sety(gy);
 
-     max_xsec = TMath::Max(max_xsec, fXSecModel->XSec(interaction));
+     double Q2 = 2*kNucleonMass*gx*gy*Ev;
+     if(Q2 > 0.5) continue;
+
+     in->GetKinematicsPtr()->Setx(gx);
+     in->GetKinematicsPtr()->Sety(gy);
+
+     double xsec = fXSecModel->XSec(in);
+     max_xsec = TMath::Max(max_xsec, xsec);
    }//y
   }//x
 
@@ -171,7 +176,7 @@ double COHKinematicsGenerator::ComputeMaxXSec(
   // correspond to a slightly different energy.
   max_xsec *= fSafetyFactor;
 
-  SLOG("COHKinematics", pDEBUG) << interaction->AsString();
+  SLOG("COHKinematics", pDEBUG) << in->AsString();
   SLOG("COHKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
   SLOG("COHKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
 
@@ -211,7 +216,7 @@ void COHKinematicsGenerator::LoadSubAlg(void)
 //____________________________________________________________________________
 void COHKinematicsGenerator::LoadConfigData(void)
 {
-  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
+  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.3);
 }
 //____________________________________________________________________________
 

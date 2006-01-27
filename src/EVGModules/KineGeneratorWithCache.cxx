@@ -79,6 +79,7 @@ double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec) const
                   << "Attempting to compute the max{dxsec/dK} value";
   xsec_max = this->ComputeMaxXSec(interaction);
   if(xsec_max>0) {
+     LOG("Kinematics", pINFO) << "max{dxsec/dK} = " << xsec_max;
      this->CacheMaxXSec(interaction, xsec_max);
      return xsec_max;
   }
