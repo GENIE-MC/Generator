@@ -163,27 +163,16 @@ bool AlgConfigPool::LoadMasterConfig(void)
 
   // loop over all xml tree nodes (<alg_config>) that are children of the
   // root node and read the config file name for each registered algorithm
-
   xmlNodePtr xml_ac = xml_root->xmlChildrenNode;
   while (xml_ac != NULL) {
-    if( (!xmlStrcmp(xml_ac->name, (const xmlChar *) "alg_config")) ) {
+    if( (!xmlStrcmp(xml_ac->name, (const xmlChar *) "config")) ) {
 
        string alg_name  = utils::str::TrimSpaces(
-                    XmlParserUtils::GetAttribute(xml_ac, "alg_name"));
+                     XmlParserUtils::GetAttribute(xml_ac, "alg"));
+       string config_file = XmlParserUtils::TrimSpaces(
+                xmlNodeListGetString(xml_doc, xml_ac->xmlChildrenNode, 1));
 
-       // loop over all xml tree nodes that are children of the <alg_config>
-       // node, find the <config_file> node and read the filename.
-       string alg_filename="";
-       xmlNodePtr xml_cf = xml_ac->xmlChildrenNode;
-       while (xml_cf != NULL) {
-          if( (!xmlStrcmp(xml_cf->name, (const xmlChar *) "config_file")) ) {
-             alg_filename = XmlParserUtils::TrimSpaces(
-                xmlNodeListGetString(xml_doc, xml_cf->xmlChildrenNode, 1));
-          }
-          xml_cf = xml_cf->next;
-       }
-       xmlFree(xml_cf);
-       pair<string, string> alg_conf(alg_name, alg_filename);
+       pair<string, string> alg_conf(alg_name, config_file);
        fConfigFiles.insert(alg_conf);
     }
     xml_ac = xml_ac->next;
