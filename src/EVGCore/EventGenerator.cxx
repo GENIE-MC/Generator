@@ -181,7 +181,7 @@ void EventGenerator::Configure(const Registry & config)
   this->Init();
   this->LoadVldContext();
   this->LoadEVGModules();
-  this->LoadIntSelAlg();
+  this->LoadInteractionListGenerator();
 }
 //___________________________________________________________________________
 void EventGenerator::Configure(string param_set)
@@ -191,7 +191,7 @@ void EventGenerator::Configure(string param_set)
   this->Init();
   this->LoadVldContext();
   this->LoadEVGModules();
-  this->LoadIntSelAlg();
+  this->LoadInteractionListGenerator();
 }
 //___________________________________________________________________________
 const GVldContext & EventGenerator::ValidityContext(void) const
@@ -211,6 +211,8 @@ void EventGenerator::Init(void)
 //___________________________________________________________________________
 void EventGenerator::LoadVldContext(void)
 {
+  LOG("EventGenerator", pDEBUG) << "Loading the generator validity context";
+
   fVldContext = new GVldContext;
 
   assert( fConfig->Exists("vld-context") );
@@ -221,6 +223,8 @@ void EventGenerator::LoadVldContext(void)
 //___________________________________________________________________________
 void EventGenerator::LoadEVGModules(void)
 {
+  LOG("EventGenerator", pDEBUG) << "Loading the event generation modules";
+
   fConfig->AssertExistence("n-generator-steps");
   int nsteps = fConfig->GetInt("n-generator-steps");
 
@@ -254,8 +258,10 @@ void EventGenerator::LoadEVGModules(void)
   }
 }
 //___________________________________________________________________________
-void EventGenerator::LoadIntSelAlg(void)
+void EventGenerator::LoadInteractionListGenerator(void)
 {
+  LOG("EventGenerator", pDEBUG) << "Loading the interaction list generator";
+
   fIntListGen = dynamic_cast<const InteractionListGeneratorI *> (
               this->SubAlg("interaction-list-alg", "interaction-list-conf"));
   assert(fIntListGen);
