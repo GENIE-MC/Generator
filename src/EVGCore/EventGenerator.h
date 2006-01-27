@@ -54,10 +54,10 @@ public :
 
 private:
 
-  void Init           (void);
-  void LoadEVGModules (void);
-  void LoadIntSelAlg  (void);
-  void LoadVldContext (void);
+  void Init                          (void);
+  void LoadEVGModules                (void);
+  void LoadInteractionListGenerator  (void);
+  void LoadVldContext                (void);
 
   vector<const EventRecordVisitorI *> * fEVGModuleVec;
   vector<double> *                      fEVGTime;
