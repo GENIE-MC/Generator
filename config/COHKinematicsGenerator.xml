@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+
+configuration options       type    description
+*******************************************************************************
+xsec-alg-name               string  differential cross section algorithm name
+xsec-param-set              string  differential cross section algorithm config
+max-xsec-safety-factor      double  rejection method multiplicative safety factor
+
+-->
+
+<alg_conf>
+
+  Configuration sets for COHKinematicsGenerator EventRecordVisitorI
+
+  <param_set name="NC-Default"> 
+     <param type="string" name="xsec-alg-name">            genie::ReinSeghalCOHPXSec </param>
+     <param type="string" name="xsec-param-set">           Default                   </param>
+     <param type="double" name="max-xsec-safety-factor">   1.200                     </param>
+  </param_set>
+
+</alg_conf>
+

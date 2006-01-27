@@ -46,6 +46,12 @@
      <param type="string" name="event-generator-id-0-param-set">  RES                      </param>
   </param_set>
 
+  <param_set name="COH"> 
+     <param type="int"    name="n-processes">                     1                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  COH-NC                   </param>
+  </param_set>
+
   <param_set name="DIS"> 
      <param type="int"    name="n-processes">                     2                        </param>
      <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
