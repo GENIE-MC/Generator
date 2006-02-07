@@ -22,6 +22,7 @@
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
 
+#include <TFile.h>
 #include <TNtuple.h>
 #include <TTree.h>
 #include <TSQLServer.h>
