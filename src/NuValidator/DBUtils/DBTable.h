@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::DBTable
 
-\brief    NuVld DBase SQL Query Result
+\brief    A NuVld data-base table.
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
