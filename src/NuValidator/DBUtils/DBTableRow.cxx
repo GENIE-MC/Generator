@@ -3,11 +3,12 @@
 
 \class    genie::nuvld::DBTableRow
 
-\brief
+\brief    A NuVld
+data-base table row.
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
-\created  January 2004          
+\created  January 2004
 */
 //_____________________________________________________________________________
 
@@ -25,36 +26,36 @@ DBTableRow::DBTableRow()
 }
 //____________________________________________________________________________
 DBTableRow::DBTableRow(const DBTableFields * fields, TSQLRow * row) :
-_fields(fields)
+fFields(fields)
 {
   for(unsigned int ifield = 0;
-                 ifield < _fields->NFields(); ifield++)
-                                        _row.push_back(row->GetField(ifield));
+                 ifield < fFields->NFields(); ifield++)
+                                        fRow.push_back(row->GetField(ifield));
 }
 //____________________________________________________________________________
 DBTableRow::DBTableRow(const DBTableRow * db_row)
 {
   vector<string>::const_iterator row_iter;
 
-  for(row_iter = db_row->_row.begin();
-                  row_iter != db_row->_row.end(); ++row_iter)
-                                            this->_row.push_back( *row_iter );
-  this->_fields = db_row->_fields;
+  for(row_iter = db_row->fRow.begin();
+                  row_iter != db_row->fRow.end(); ++row_iter)
+                                            this->fRow.push_back( *row_iter );
+  this->fFields = db_row->fFields;
 }
-//____________________________________________________________________________  
+//____________________________________________________________________________
 DBTableRow::~DBTableRow()
 {
-  delete _fields;
+  delete fFields;
 }
 //____________________________________________________________________________
 string DBTableRow::Field(unsigned int field_pos) const
 {
-  return _row[field_pos];
+  return fRow[field_pos];
 }
 //____________________________________________________________________________
 string DBTableRow::Field(string field_name) const
 {
-  unsigned int field_pos = _fields->FieldPos(field_name);
+  unsigned int field_pos = fFields->FieldPos(field_name);
 
   return Field(field_pos);
 }
@@ -63,9 +64,9 @@ void DBTableRow::Print(ostream & stream) const
 {
   vector<string>::const_iterator row_iter;
 
-  for(row_iter = _row.begin(); row_iter != _row.end(); ++row_iter) {
+  for(row_iter = fRow.begin(); row_iter != fRow.end(); ++row_iter) {
        stream << *row_iter << endl;
-  }  
+  }
 }
 //____________________________________________________________________________
 
