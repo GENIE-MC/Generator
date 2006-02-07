@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::DBTable
 
-\brief    NuVld DBase SQL Query Result
+\brief    A NuVld data-base table.
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
@@ -45,7 +45,7 @@ template class DBTable<eDiffXSecTableRow>;
 template class DBTable<SFTableRow>;
 //template ostream & operator
 //                   << (ostream & stream, const DBTable<SFTableRow> & table);
-         
+
 //____________________________________________________________________________
 /*
 template<class T>
@@ -53,95 +53,94 @@ template<class T>
 {
   typename vector<T *>::const_iterator row_iter;
 
-  for(row_iter = table._table.begin();
-             row_iter != table._table.end(); ++row_iter) cout << *(*row_iter);
+  for(row_iter = table.fTable.begin();
+             row_iter != table.fTable.end(); ++row_iter) cout << *(*row_iter);
 
   return stream;
 }*/
 //____________________________________________________________________________
 DBTable<eDiffXSecTableRow>::DBTable()
 {
-  _fields  = new eDiffXSecTableFields(); 
-  _query_string = 0;
-  _id_list = 0;
+  fFields  = new eDiffXSecTableFields();
+  fQueryStr = 0;
+  fIdList = 0;
 }
 //____________________________________________________________________________
 DBTable<vXSecTableRow>::DBTable()
 {
-  _fields  = new vXSecTableFields();  
-  _query_string = 0;
-  _id_list = 0;
+  fFields   = new vXSecTableFields();
+  fQueryStr = 0;
+  fIdList   = 0;
 }
 //____________________________________________________________________________
 DBTable<SFTableRow>::DBTable()
 {
-  _fields  = new SFTableFields();
-  _query_string = 0;
-  _id_list = 0;
+  fFields   = new SFTableFields();
+  fQueryStr = 0;
+  fIdList   = 0;
 }
 //____________________________________________________________________________
 template<class T> DBTable<T>::DBTable(const DBTable<T> * table)
 {
   LOG("NuVld", pDEBUG) << "Copying DBTableFields...";
-  
-  _fields  = new DBTableFields(table->_fields);
+
+  fFields  = new DBTableFields(table->fFields);
 
   LOG("NuVld", pDEBUG) << "Copying DBTableRows...";
-  
+
   typename vector<T *>::const_iterator iter;
-  for(iter = table->_table.begin();
-                   iter != table->_table.end(); ++iter) this->AddRow( *iter );
-                   
+  for(iter = table->fTable.begin();
+                   iter != table->fTable.end(); ++iter) this->AddRow( *iter );
+
   LOG("NuVld", pDEBUG) << "Copying MeasurementIdList...";
-  
-  _id_list = new MeasurementIdList(table->_id_list);
+
+  fIdList = new MeasurementIdList(table->fIdList);
 
   LOG("NuVld", pDEBUG) << "Copying DBQueryString...";
-  
-  if( table->QueryString() )
-     _query_string = new DBQueryString( *(table->QueryString()) );
-  else {
 
-     LOG("NuVld", pWARN) << "No DBQueryString attached - check the DBI";  
-     _query_string = 0;
-  }                    
+  if( table->QueryString() )
+     fQueryStr = new DBQueryString( *(table->QueryString()) );
+  else {
+     LOG("NuVld", pWARN) << "No DBQueryString attached - check the DBI";
+     fQueryStr = 0;
+  }
 
   LOG("NuVld", pDEBUG) << "...successfull";
 }
 //____________________________________________________________________________
 template<class T> DBTable<T>::~DBTable()
 {
-  if( _id_list ) delete _id_list;
+  if(fIdList) delete fIdList;
 }
 //____________________________________________________________________________
 template<class T> int DBTable<T>::NRows(void) const
 {
-  return (int) _table.size();
+  return (int) fTable.size();
 }
 //____________________________________________________________________________
 template<class T> void DBTable<T>::AddRow(DBTableRow * row)
 {
   T * trow = dynamic_cast<T *> (row);
-  
-  _table.push_back( trow );
+  fTable.push_back( trow );
 }
 //____________________________________________________________________________
 template<class T> const DBTableRow * DBTable<T>::Row(int irow) const
 {
    if(irow >=0 && irow < this->NRows())
-                            return dynamic_cast <DBTableRow *> (_table[irow]);
+                            return dynamic_cast <DBTableRow *> (fTable[irow]);
    else return 0;
 }
 //____________________________________________________________________________
 template<class T> void DBTable<T>::MergeWithTable(DBTableBase * xsectb)
 {
    DBTable<T> * xsect = dynamic_cast<DBTable<T> *> (xsectb);
-   
    typename vector<T *>::iterator row_iter;
 
-   for(row_iter = xsect->_table.begin();
-                   row_iter != xsect->_table.end(); ++row_iter)
-                                                          AddRow( *row_iter );
+   for(row_iter = xsect->fTable.begin();
+                             row_iter != xsect->fTable.end(); ++row_iter) {
+       T * row = *row_iter;
+       this->AddRow(row);
+   }
 }
 //____________________________________________________________________________
 template<class T> DBTable<T> * DBTable<T>::Subset(
@@ -157,36 +156,32 @@ template<class T> DBTable<T> * DBTable<T>::Subset(
   DBTable * subset_table = new DBTable<T>();
 
   typename vector<T *>::const_iterator row_iter;
+  for(row_iter = fTable.begin(); row_iter != fTable.end(); ++row_iter) {
 
-  for(row_iter = _table.begin(); row_iter != _table.end(); ++row_iter) {
-
-    if( experiment.compare( (*row_iter)->Experiment() ) == 0 &&
-            measurement_tag.compare( (*row_iter)->MeasurementTag() ) == 0 ) {
-
-                subset_table->AddRow( *row_iter );
+    T * row = *row_iter;
+    if(experiment.compare(row->Experiment()) == 0 &&
+            measurement_tag.compare(row->MeasurementTag() ) == 0 ) {
+                subset_table->AddRow(row);
     }
   }
-
   SLOG("NuVld", pDEBUG)
              << "Sliced DBTable<T> has " << subset_table->NRows() << " rows";
-  
+
   return subset_table;
 }
 //____________________________________________________________________________
 template<class T> void DBTable<T>::SetQueryString (
                                            const DBQueryString & query_string)
 {
-  if(_query_string) delete _query_string;
-
-  _query_string = new DBQueryString( query_string );
+  if(fQueryStr) delete fQueryStr;
+  fQueryStr = new DBQueryString( query_string );
 }
 //____________________________________________________________________________
 template<class T> void DBTable<T>::SetMeasurementIdList(
                                                   MeasurementIdList * id_list)
 {
-  if(_id_list) delete _id_list;
-
-  _id_list = id_list;
+  if(fIdList) delete fIdList;
+  fIdList = id_list;
 }
 //____________________________________________________________________________
 template<class T> void DBTable<T>::SaveQueryStringToFile(
@@ -198,12 +193,9 @@ template<class T> void DBTable<T>::SaveQueryStringToFile(
 
   dir->cd();
 
-  if( _query_string ) {
-
-     LOG("NuVld", pDEBUG) << "\n Writing DBQueryString: " << *_query_string;
-
-     _query_string->Write(name.c_str());
-
+  if( fQueryStr ) {
+     LOG("NuVld", pDEBUG) << "\n Writing DBQueryString: " << *fQueryStr;
+     fQueryStr->Write(name.c_str());
   } else {
      LOG("NuVld", pERROR)
               << "No DBQueryString attached - DBTable Can not be saved";
@@ -242,14 +234,10 @@ TGraphAsymmErrors * DBTable<vXSecTableRow>::GetGraph(
      xsec[ipoint]   = (*row_iter)->XSec();
 
      //---- check if we need to compute the errors on E
-
      if( option.find("noE") != string::npos ) {
-
         e_err_m[ipoint] = 0.;
         e_err_p[ipoint] = 0.;
-
      } else {
-
         e_err_m[ipoint] = E - E_min;
         e_err_p[ipoint] = E_max - E;
      }
@@ -259,40 +247,31 @@ TGraphAsymmErrors * DBTable<vXSecTableRow>::GetGraph(
      //      - stat   : statistical error only
      //      - syst   : systematic error only
      //      - noXsec : show no error
-
      if( option.find("all") != string::npos ) {
-
         xsec_err_m[ipoint] = (*row_iter)->ErrM();
         xsec_err_p[ipoint] = (*row_iter)->ErrP();
 
      } else if ( option.find("stat") != string::npos ) {
-
         xsec_err_m[ipoint] = (*row_iter)->StatErrM();
         xsec_err_p[ipoint] = (*row_iter)->StatErrP();
 
      } else if ( option.find("syst") != string::npos ) {
-
         xsec_err_m[ipoint] = (*row_iter)->SystErrM();
         xsec_err_p[ipoint] = (*row_iter)->SystErrP();
 
      } else {
-
         xsec_err_m[ipoint] = 0.;
         xsec_err_p[ipoint] = 0.;
      }
 
      //------ check if we plot xsec or xsec/E
-
      if( option.find("scale-with-E") != string::npos ) {
-
           xsec[ipoint]       /= e[ipoint];
           xsec_err_m[ipoint] /= e[ipoint];
           xsec_err_p[ipoint] /= e[ipoint];
      }
-
      ipoint++;
   }
-
   return new TGraphAsymmErrors(npoints, e, xsec,
                                     e_err_m, e_err_p, xsec_err_m, xsec_err_p);
 }
@@ -321,14 +300,12 @@ TGraphAsymmErrors * DBTable<eDiffXSecTableRow>::GetGraph(
      dx[ipoint]    = 0;
 
      //y-err
-
-     if( strcmp(opt,"err") == 0)
-              dSigma[ipoint] = (*row_iter)->dSigma();
+     if(strcmp(opt,"err") == 0)
+         dSigma[ipoint] = (*row_iter)->dSigma();
      else
-              dSigma[ipoint] = 0;
+         dSigma[ipoint] = 0;
 
      //x-var
-
      if      ( strcmp(var,"E")       == 0)  x[ipoint] = (*row_iter)->E();
      else if ( strcmp(var,"EP")      == 0)  x[ipoint] = (*row_iter)->EP();
      else if ( strcmp(var,"Theta")   == 0)  x[ipoint] = (*row_iter)->Theta();
@@ -342,7 +319,6 @@ TGraphAsymmErrors * DBTable<eDiffXSecTableRow>::GetGraph(
 
      ipoint++;
   }
-
   return new TGraphAsymmErrors(npoints, x, Sigma, dx, dx, dSigma, dSigma);
 }
 //____________________________________________________________________________
@@ -354,31 +330,26 @@ MultiGraph * DBTable<vXSecTableRow>::GetMultiGraph(
   string option(opt);
 
   MultiGraph * mgraph = new MultiGraph();
-
   const MeasurementIdList * id_list = this->IdList();
 
   for(unsigned int i = 0; i < id_list->NIds(); i++) {
 
     LOG("NuVld", pDEBUG) << "N-IDS = " << id_list->NIds();
 
-    string experiment      = id_list->GetId(i)->Experiment();
-    string measurement_tag = id_list->GetId(i)->MeasurementTag();
+    string exp = id_list->GetId(i)->Experiment();
+    string tag = id_list->GetId(i)->MeasurementTag();
 
     LOG("NuVld", pDEBUG)
-                 << "Getting/Adding graph..." << i << ": "
-                                      << experiment << "/" << measurement_tag;
+             << "Getting/Adding graph..." << i << ": " << exp << "/" << tag;
 
-    DBTable<vXSecTableRow> * subset = this->Subset(experiment, measurement_tag);
-
-    TGraphAsymmErrors * graph = subset->GetGraph(opt, var);
+    DBTable<vXSecTableRow> * subset = this->Subset(exp, tag);
+    TGraphAsymmErrors *      graph  = subset->GetGraph(opt, var);
 
     mgraph->AddGraph(id_list->GetId(i)->Reference().c_str(), graph);
-
     delete subset;
   }
 
   LOG("NuVld", pDEBUG) << "ngraphs = " << mgraph->NGraphs();
-
   return mgraph;
 }
 //____________________________________________________________________________
@@ -386,30 +357,24 @@ MultiGraph * DBTable<eDiffXSecTableRow>::GetMultiGraph(
                                            const char * opt, const char * var)
 {
   MultiGraph * mgraph = new MultiGraph();
-
   const MeasurementIdList * id_list = this->IdList();
 
   for(unsigned int i = 0; i < id_list->NIds(); i++) {
 
-    string experiment      = id_list->GetId(i)->Experiment();
-    string measurement_tag = id_list->GetId(i)->MeasurementTag();
+    string exp = id_list->GetId(i)->Experiment();
+    string tag = id_list->GetId(i)->MeasurementTag();
 
     LOG("NuVld", pDEBUG)
-                 << "Getting/Adding graph..." << i << ": "
-                                      << experiment << "/" << measurement_tag;
+             << "Getting/Adding graph..." << i << ": " << exp << "/" << tag;
 
-    DBTable<eDiffXSecTableRow> * subset =
-                                this->Subset( experiment, measurement_tag );
-
-    TGraphAsymmErrors * graph = subset->GetGraph(opt, var);
+    DBTable<eDiffXSecTableRow> * subset = this->Subset(exp, tag);
+    TGraphAsymmErrors *          graph  = subset->GetGraph(opt, var);
 
     mgraph->AddGraph(id_list->GetId(i)->Reference().c_str(), graph);
-
     delete subset;
   }
 
   LOG("NuVld", pDEBUG) << "ngraphs = " << mgraph->NGraphs();
-
   return mgraph;
 }
 //____________________________________________________________________________
@@ -448,7 +413,7 @@ TGraphAsymmErrors * DBTable<SFTableRow>::GetGraph(
      if( strcmp(opt,"err") == 0) {
           dyp[ipoint] = (*row_iter)->ErrP();
           dym[ipoint] = (*row_iter)->ErrM();
-     }          
+     }
      ipoint++;
   }
   return new TGraphAsymmErrors(npoints, x, y, dx, dx, dym, dyp);
@@ -458,29 +423,24 @@ MultiGraph * DBTable<SFTableRow>::GetMultiGraph(
                                            const char * opt, const char * var)
 {
   MultiGraph * mgraph = new MultiGraph();
-
   const MeasurementIdList * id_list = this->IdList();
 
   for(unsigned int i = 0; i < id_list->NIds(); i++) {
 
-    string experiment      = id_list->GetId(i)->Experiment();
-    string measurement_tag = id_list->GetId(i)->MeasurementTag();
+    string exp = id_list->GetId(i)->Experiment();
+    string tag = id_list->GetId(i)->MeasurementTag();
 
     LOG("NuVld", pDEBUG)
-                 << "Getting/Adding graph..." << i << ": "
-                                     << experiment << "/" << measurement_tag;
+       << "Getting/Adding graph..." << i << ": " << exp << "/" << tag;
 
-    DBTable<SFTableRow> * subset = this->Subset(experiment, measurement_tag);
-
-    TGraphAsymmErrors * graph = subset->GetGraph(opt, var);
+    DBTable<SFTableRow> * subset = this->Subset(exp, tag);
+    TGraphAsymmErrors *   graph  = subset->GetGraph(opt, var);
 
     mgraph->AddGraph(id_list->GetId(i)->Reference().c_str(), graph);
-
     delete subset;
   }
 
   LOG("NuVld", pDEBUG) << "ngraphs = " << mgraph->NGraphs();
-
   return mgraph;
 }
 //____________________________________________________________________________

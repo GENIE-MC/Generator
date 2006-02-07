@@ -41,27 +41,24 @@ public:
 
    friend class DBI;
    //friend ostream & operator << <T>(ostream & stream, const DBTable<T> & table);
-   
+
    DBTable();
    DBTable(const genie::nuvld::DBTable<T> * table);
    ~DBTable();
-   
-   int   NRows            (void)  const;
-   void  MergeWithTable   (DBTableBase * table);
-   
-   const DBTableRow *        Row     (int irow) const;
-   const DBTableFields *     Fields      (void) const { return _fields;      }
-   const vector<T *> &       Rows        (void) const { return _table;       }
-   const MeasurementIdList * IdList      (void) const { return _id_list;     }
-   const DBQueryString *     QueryString (void) const { return _query_string;}
-   
-   DBTable * Subset(string experiment, string measurement_tag) const;
 
-   TGraphAsymmErrors * GetGraph      (const char * opt, const char * var = 0);
-   MultiGraph *        GetMultiGraph (const char * opt, const char * var = 0);
+   const DBTableRow *        Row           (int i) const;
+   const DBTableFields *     Fields        (void)  const { return fFields;   }
+   const vector<T *> &       Rows          (void)  const { return fTable;    }
+   const MeasurementIdList * IdList        (void)  const { return fIdList;   }
+   const DBQueryString *     QueryString   (void)  const { return fQueryStr; }
 
-   void SaveQueryStringToFile (TDirectory * dir, string name) const;
-   //void LoadFromFile (TDirectory * dir, const char * name);
+   TGraphAsymmErrors * GetGraph      (const char* opt, const char* var = 0);
+   MultiGraph *        GetMultiGraph (const char* opt, const char* var = 0);
+
+   int       NRows                 (void)  const;
+   void      MergeWithTable        (DBTableBase * table);
+   DBTable * Subset                (string experiment, string tag) const;
+   void      SaveQueryStringToFile (TDirectory * dir, string name) const;
 
 private:
 
@@ -69,11 +66,10 @@ private:
    void SetQueryString       (const DBQueryString & query_string);
    void SetMeasurementIdList (MeasurementIdList * id_list);
 
-   T *                   _db_table_row;
-   DBTableFields *       _fields;
-   vector<T *>           _table;
-   MeasurementIdList *   _id_list;
-   DBQueryString *       _query_string;
+   DBTableFields *     fFields;
+   vector<T *>         fTable;
+   MeasurementIdList * fIdList;
+   DBQueryString *     fQueryStr;
 };
 
 } // nuvld namespace

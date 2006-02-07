@@ -3,7 +3,7 @@
 
 \class    genie::nuvld::DBTableRow
 
-\brief
+\brief    A NuVld data-base table row.
 
 \author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
 
@@ -35,9 +35,8 @@ class DBTableRow : public TObject
 public:
 
   string Field (unsigned int field_pos) const;
-  string Field (string field_name) const;
-
-  void Print(ostream & stream) const;
+  string Field (string field_name)      const;
+  void   Print (ostream & stream)       const;
 
 protected:
 
@@ -46,8 +45,8 @@ protected:
   DBTableRow(const DBTableRow * row);
   ~DBTableRow();
 
-  vector<string>        _row;
-  const DBTableFields * _fields;
+  vector<string>        fRow;
+  const DBTableFields * fFields;
 
 ClassDef(DBTableRow, 1)
 };
