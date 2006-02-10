@@ -69,9 +69,9 @@ void GMCJDriver::UseSplines(bool useLogE)
 void GMCJDriver::UseMaxPathLengths(string xml_filename)
 {
 // If you supply the maximum path lengths for all materials in your geometry
-// (eg for ROOT/GEANT geometries by running GENIE#s gmxpl application - see
-// $GENIE/src/stdapp/gMaxPathLengths.cxx - ) you can speed up the driver init
-// time (quite a bit for complex geometries).
+// (eg for ROOT/GEANT geometries they can be computed running GENIE's gmxpl 
+// application, see $GENIE/src/stdapp/gMaxPathLengths.cxx ) you can speed up 
+// the driver init phase by quite a bit (especially for complex geometries).
 
   fMaxPlXmlFilename = xml_filename;
 
@@ -112,7 +112,7 @@ void GMCJDriver::Initialize(void)
   fGeomAnalyzer     = 0;  // <-- geometry driver
   fGPool            = 0;  // <-- pool of GEVGDriver event generation drivers
   fEmax             = 0;  // <-- maximum neutrino energy
-  fPmax             = 0;  // <-- (scaled) maximum interaction probability
+  fPmax             = 0;  // <-- maximum interaction probability (prob scale)
   fMaxPlXmlFilename = ""; // <-- XML file with external path lengths
   fUseExtMaxPl      = false;
   fUseSplines       = false;
