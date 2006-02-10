@@ -14,5 +14,6 @@
 #pragma link C++ class genie::QELPXSec;
 #pragma link C++ class genie::DISPXSec;
 #pragma link C++ class genie::RESPXSec;
+#pragma link C++ class genie::NuElectronXSec;
 
 #endif
