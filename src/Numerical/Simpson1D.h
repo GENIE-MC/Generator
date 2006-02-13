@@ -28,6 +28,7 @@ public:
   virtual ~Simpson1D();
 
   double Integrate(FunctionMap & func_map) const;
+  double EvalError(FunctionMap & func_map) const;
 };
 
 }        // namespace

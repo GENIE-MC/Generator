@@ -13,6 +13,8 @@
 */ 
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "Numerical/Simpson1D.h"
 #include "Messenger/Messenger.h"
 
@@ -32,8 +34,7 @@ Simpson1D::~Simpson1D()
 //____________________________________________________________________________
 double Simpson1D::Integrate(FunctionMap & func_map) const
 {
-  const UnifGrid & grid = func_map.GetGrid();
-  
+  const UnifGrid & grid = func_map.GetGrid();  
   assert(grid.GetNDimensions() == 1);
   
   int    N    = grid[0]->npoints;
@@ -48,6 +49,25 @@ double Simpson1D::Integrate(FunctionMap & func_map) const
   sum *= (2.*step/3.);
 
   return sum;
+}
+//____________________________________________________________________________
+double Simpson1D::EvalError(FunctionMap & func_map) const
+{
+// If f(x) is continuous in [a,b], then the error in Simpson's rule is no
+// larger than err = ((b-a)^5 / 180*n^4)*|fmax|
+
+  const UnifGrid & grid = func_map.GetGrid();  
+  assert(grid.GetNDimensions() == 1);
+
+  int    N = grid[0]->npoints;
+  double L = grid[0]->max - grid[0]->min;
+
+  double fmax = 0;
+  for(int i = 0; i < N; i++) 
+      fmax = TMath::Max(fmax, TMath::Abs(func_map.Func(i))); 
+
+  double err = TMath::Power(L,5) * fmax / (180*TMath::Power(N,4));
+  return err;
 }
 //____________________________________________________________________________
 

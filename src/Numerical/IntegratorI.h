@@ -26,6 +26,7 @@ class IntegratorI : public Algorithm
 public:
 
   virtual double Integrate(FunctionMap & func_map) const = 0;
+  virtual double EvalError(FunctionMap & func_map) const = 0;
 
 protected:
 
