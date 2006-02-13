@@ -3,7 +3,10 @@
 
 \class    genie::Simpson1D
 
-\brief
+\brief    The 1-dimensional extended Simpson rule (an open integration formula)
+          of order 1/N^4.
+
+\ref      Numerical Recipes in C, Cambridge Univ. Press, 2002, page 134
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -28,7 +31,7 @@ public:
   virtual ~Simpson1D();
 
   double Integrate(FunctionMap & func_map) const;
-  double EvalError(FunctionMap & func_map) const;
+  double EvalError(FunctionMap & func_map) const { return 0; }
 };
 
 }        // namespace
