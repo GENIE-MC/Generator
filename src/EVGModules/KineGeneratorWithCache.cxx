@@ -191,29 +191,22 @@ TNtuple * KineGeneratorWithCache::AccessCacheBranch(
 
   Cache * cache = Cache::Instance();
 
-  string subbranch = SelectSubBranch(interaction);
-  TNtuple * nt = cache->FindCacheBranchPtr(this, subbranch);
+  // build the cache branch key as: 
+  // namespace::alg-name/alg-config/interaction
+
+  string algkey = this->Id().Key();
+  string intkey = interaction->AsString(); 
+
+  string key = cache->CacheBranchKey(algkey, intkey);
+  TNtuple * nt = cache->FindCacheBranchPtr(key);
 
   if(!nt) {
     //-- create the cache branch at the first pass
     LOG("Kinematics", pINFO) << "Cache branch doesn't exist / creating";
-    LOG("Kinematics", pINFO) << "Branch key = "
-                               << cache->CacheBranchKey(this, subbranch);
-    nt = cache->CreateCacheBranch(this, subbranch, "E:xsec");
+    LOG("Kinematics", pINFO) << "Branch key = " << key;
+    nt = cache->CreateCacheBranch(key, "E:xsec");
   }
   return nt;
-}
-//___________________________________________________________________________
-string KineGeneratorWithCache::SelectSubBranch(
-                                       const Interaction * interaction) const
-{
-// Each algorithm has a main cache branch determined by its name and the name
-// of its configuration set (the same algorithm in different configurations
-// has different cache branches, as it should). The name of the sub-branch is
-// set as the compactified interaction string which encodes initial state,
-// process and final state information).
-
-  return interaction->AsString();
 }
 //___________________________________________________________________________
 
