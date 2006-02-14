@@ -3,7 +3,7 @@
 
 \class    genie::Cache
 
-\brief
+\brief    GENIE Cache Memory
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -18,13 +18,14 @@
 
 #include <map>
 #include <string>
+#include <ostream>
 
+#include <TFile.h>
 #include <TNtuple.h>
-
-#include "Algorithm/Algorithm.h"
 
 using std::map;
 using std::string;
+using std::ostream;
 
 namespace genie {
 
@@ -34,17 +35,27 @@ public:
 
   static Cache * Instance(void);
 
-  string    CacheBranchKey     (const Algorithm * alg, string subr) const;
-  TNtuple * FindCacheBranchPtr (const Algorithm * alg, string subr);
-  TNtuple * CreateCacheBranch  (const Algorithm * alg, string subr, string brdef);
+  TNtuple * FindCacheBranchPtr (string key);
+  TNtuple * CreateCacheBranch  (string key, string brdef);
+  string    CacheBranchKey     (string k0, string k1="", string k2="") const;
+
+  //-- print cache buffers
+  void   Print (ostream & stream) const;
+  friend ostream & operator << (ostream & stream, const Cache & cache);
 
 private:
+
+  //-- auto-load/save
+  void AutoLoad      (void);
+  void AutoSave      (void);
+  void OpenCacheFile (void);
 
   //-- singleton instance
   static Cache * fInstance;
 
-  //-- map of cache buffers
+  //-- map of cache buffers & cache file
   map<string, TNtuple * > * fCacheMap;
+  TFile *                   fCacheFile;
 
   //-- singleton class: constructors are private
   Cache();
