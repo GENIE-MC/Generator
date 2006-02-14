@@ -26,6 +26,8 @@ ifdef GOPT_GEOM_DRIVERS
 endif
 ifndef GOPT_NEUGEN
   BUILD_TARGETS := $(BUILD_TARGETS) dummy-neugen
+else
+  BUILD_TARGETS := $(BUILD_TARGETS) neugen
 endif
 ifdef GOPT_NUVALIDATOR
   BUILD_TARGETS := $(BUILD_TARGETS) nuvld-std
@@ -87,6 +89,9 @@ geom-drivers:
 
 dummy-neugen: 
 	cd NuValidator; make dummy-neugen; cd ..; 
+
+neugen: 
+	cd NuValidator; make neugen; cd ..; 
 
 nuvld-std: 
 	cd NuValidator; make std; cd ..; 
