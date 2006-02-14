@@ -13,6 +13,8 @@
 */
 //_____________________________________________________________________________
 
+#include <TFile.h>
+
 #include "Messenger/Messenger.h"
 #include "NuVldGUI/NuVldUserData.h"
 
