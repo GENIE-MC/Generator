@@ -62,11 +62,11 @@ double COHXSec::XSec(const Interaction * in) const
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //-- Get neutrino energy in the struck nucleon rest frame
+  // Get the neutrino energy in LAB
   const InitialState & init_state = interaction -> GetInitialState();
   double Ev = init_state.GetProbeE(kRfLab);
 
-  //-- Define the integration grid & instantiate a FunctionMap
+  // Define the integration grid & instantiate a FunctionMap
   double Mpi     = kPionMass;
   double e       = 1e-3;
   double ymin    = Mpi/Ev + e;
@@ -86,12 +86,7 @@ double COHXSec::XSec(const Interaction * in) const
 
   FunctionMap xyd2xsec(grid);
 
-  /*
-  LOG("COHXSec", pDEBUG)
-       << "integration limits: x = (" << fXmin << ", " << fXmax << ") "
-                           << "y = (" << fYmin << ", " << fYmax << ")";
-*/
-  //----- Loop over x,y & compute the differential xsec
+  // Loop over x,y & compute the differential cross section
   for(int ix = 0; ix < fNlogx; ix++) {
     double x = TMath::Exp(logxmin + ix * dlogx);
 
@@ -101,13 +96,13 @@ double COHXSec::XSec(const Interaction * in) const
        //-- update the scattering parameters
        interaction->GetKinematicsPtr()->Setx(x);
        interaction->GetKinematicsPtr()->Sety(y);
-
        //-- compute d^2xsec/dxdy
        double pxsec = fPartialXSecAlg->XSec(interaction);
        LOG("COHXSec", pDEBUG)
               << "dxsec/dxdy (x = " << x << ", y = " << y
-                          << ", Ev = " << Ev << ") = " << pxsec;
-
+                                 << ", Ev = " << Ev << ") = " << pxsec;
+       //-- update max differential xsec
+       //max_pxsec = TMath::Max(max_pxsec, pxsec);
        //-- push x*y*(d^2xsec/dxdy) to the FunctionMap
        xyd2xsec.AddPoint(x*y*pxsec, ix, iy);
     } //y
@@ -115,11 +110,11 @@ double COHXSec::XSec(const Interaction * in) const
 
   delete interaction;
 
-  //----- Perform the numerical integration
+  // Perform the numerical integration
   LOG("COHXSec", pDEBUG) << "Performing numerical integration";
   double xsec = fIntegrator->Integrate(xyd2xsec);
 
-  LOG("COHXSec", pDEBUG)  << "xsec_dis (E = " << Ev << " GeV) = " << xsec;
+  LOG("COHXSec", pDEBUG)  << "XSec[COH] (E = " << Ev << " GeV) = " << xsec;
 
   return xsec;
 }

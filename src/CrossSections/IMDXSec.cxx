@@ -15,6 +15,8 @@
 
 #include <iostream>
 
+#include <TMath.h>
+
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/IMDXSec.h"
@@ -48,6 +50,11 @@ double IMDXSec::XSec(const Interaction * interaction) const
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
+  // Get initial & final state information
+  const InitialState & init_state = interaction->GetInitialState();
+  double E  = init_state.GetProbeE(kRfLab);
+
+  // Integration grid
   const double e       = 1e-4;
   const double ymin    = e;
   const double ymax    = 1-e;
@@ -63,17 +70,19 @@ double IMDXSec::XSec(const Interaction * interaction) const
   //-- all kinematical cuts (energy threshold, physical y range) are
   //   applied within the differential cross section algorithm - returns 0
   //   if kinematic params are not valid.
-
   for(int i = 0; i < fNBins; i++) {
     double y = TMath::Exp(logymin + i * dlogy);
+
+    //-- update the scattering parameters
     interaction->GetKinematicsPtr()->Sety(y);
-
+    //-- compute dxsec/dy
     double dsig_dy = fDiffXSecModel->XSec(interaction);
-    fmap.AddPoint(dsig_dy, i);
+    //-- push y*(dxsec/dy) to the FunctionMap
+    fmap.AddPoint(y*dsig_dy, i);
   }
-
+  // Perform the numerical integration
   double xsec = fIntegrator->Integrate(fmap);
-  LOG("IMD", pDEBUG) << "*** xsec[IMD] = " << xsec;
+  LOG("IMD", pDEBUG) << "XSec[IMD] (E = " << E << ") = " << xsec;
   return xsec;
 }
 //____________________________________________________________________________
