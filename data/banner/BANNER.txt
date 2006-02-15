@@ -10,7 +10,7 @@
 **         /               \         @                                             **
 **        /                d\______ @@@                                            **
 **       /                         @@@@@        Universal                          **
-**      /           u  ____________@@@@@               Object-Oriented             **
+**      /           u  ____________@@@@@             Object-Oriented/C++           **
 **     /   jet <===               @@@@@@@                   Neutrino MC Generator  **
 **    /             u  ____________@@@@@                                           **
 **  nu_mu                          @@@@@                                           ** 
@@ -18,12 +18,12 @@
 **                                   @  p                                          **
 **                                                                                 **
 **                                                                                 **
-**      Costas Andreopoulos (Rutherford), Flavio Cavanna (L'Aquila & INFN),        **
-**  Jerome Damet (Annecy), Hugh Gallagher (Tufts), Yoshinari Hayato (ICRR, Tokyo), **
-**   Stefan Kretzer (BNL), Anselmo Meregaglia (ETHZ), Donna Naples (Pittsburgh),   **
-**     Geoff Pearce (Rutherford), Andre Rubbia (ETHZ), Mike Whalley (Durham)       **
+**   C.Andreopoulos (Rutherford), F.Cavanna (L'Aquila U./INFN), J.Damet (Annecy),  ** 
+**    S.Dytman (Pittsburgh U.), H.Gallagher (Tufts U.), Y.Hayato (ICRR, Tokyo),    **
+**         S.Kretzer (BNL), A.Meregaglia (ETHZ), D.Naples (Pittsburgh U.),         **
+**           G.Pearce (Rutherford), A.Rubbia (ETHZ), M.Whalley (Durham)            **
 **                                                                                 **
-**                     home page URL:   http://www.genie-mc.org                    **
+**                    home page URL:   http://www.genie-mc.org                     **
 **                                                                                 **
 *************************************************************************************
 *************************************************************************************
