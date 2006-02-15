@@ -25,6 +25,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -33,9 +35,11 @@
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
+#include "Utils/CacheUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 NuElectronXSec::NuElectronXSec() :
@@ -60,11 +64,11 @@ double NuElectronXSec::XSec(const Interaction * interaction) const
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //----- get initial & final state information
+  // Get initial & final state information
   const InitialState & init_state = interaction->GetInitialState();
-  double E  = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E  = init_state.GetProbeE(kRfLab);
 
-  //----- integrate the differential cross section
+  // Integration grid
   double e    = 1E-6;
   double ymin = e;
   double ymax = 1-e;
@@ -78,14 +82,19 @@ double NuElectronXSec::XSec(const Interaction * interaction) const
 
   FunctionMap fmap(grid);
 
+  // Compute the differential cross section over the allowed phase space
   for(int i = 0; i < fNBins; i++) {
     double y = TMath::Exp(logymin + i * dlogy);
-    interaction->GetKinematicsPtr()->Sety(y);
 
+    //-- update the scattering parameters
+    interaction->GetKinematicsPtr()->Sety(y);
+    //-- compute dsec/dy
     double dsig_dy  = fDiffXSecModel->XSec(interaction);
+    //-- push y*(dxsec/dy) to the FunctionMap
     fmap.AddPoint(y*dsig_dy, i);
   }
 
+  // Do the numerical integration
   double xsec = fIntegrator->Integrate(fmap);
   LOG("Elastic", pDEBUG) << "*** XSec[ve-] (E=" << E << ") = " << xsec;
   return xsec;

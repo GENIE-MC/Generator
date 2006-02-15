@@ -59,11 +59,11 @@ double QELXSec::XSec(const Interaction * in) const
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
-  //----- get initial & final state information
+  // Get initial & final state information
   const InitialState & init_state = interaction->GetInitialState();
   double E = init_state.GetProbeE(kRfStruckNucAtRest);
 
-  //----- estimate the integration limits & step
+  // Estimate the integration limits & step
   Range1D_t  rQ2 = utils::kinematics::Q2Range_M(interaction);
   LOG("QELXSec", pDEBUG) << "Q2 integration range = ("
                                     << rQ2.min << ", " << rQ2.max << ")";
@@ -71,28 +71,30 @@ double QELXSec::XSec(const Interaction * in) const
   double logQ2min = TMath::Log(rQ2.min);
   double dlogQ2   = (logQ2max - logQ2min) / (fNBins - 1);
 
-  //----- define the integration grid & instantiate a FunctionMap
+  // Define the integration grid & instantiate a FunctionMap
   UnifGrid grid;
   grid.AddDimension(fNBins, logQ2min, logQ2max);
 
   FunctionMap Q2dxsec_dQ2(grid);
 
-  //----- loop over logQ2 range, estimate/store Q2*dxsec/dQ2
+  // Loop over logQ2 range, estimate/store Q2*dxsec/dQ2
   for(int iQ2 = 0; iQ2 < fNBins; iQ2++) {
-
      double Q2 = TMath::Exp(logQ2min + iQ2 * dlogQ2);
-     interaction->GetKinematicsPtr()->SetQ2(Q2);
 
-     double partial_xsec = fDiffXSecModel->XSec(interaction);
-     Q2dxsec_dQ2.AddPoint( Q2 * partial_xsec, iQ2 );
+     //-- update the scattering parameters
+     interaction->GetKinematicsPtr()->SetQ2(Q2);
+     //-- compute dxsec/dQ2
+     double pxsec = fDiffXSecModel->XSec(interaction);
+     //-- push Q2*(dxsec/dQ2) to the FunctionMap
+     Q2dxsec_dQ2.AddPoint(Q2*pxsec, iQ2);
 
      LOG("QELXSec", pDEBUG)
           << "point...." << iQ2+1 << "/" << fNBins << " : "
-          << "dxsec/dQ^2 (Q^2 = " << Q2 << " ) = " << partial_xsec;
+                  << "dxsec/dQ^2 (Q^2 = " << Q2 << " ) = " << pxsec;
   }
-
   delete interaction;
 
+  // Do the numerical integration
   double xsec = fIntegrator->Integrate(Q2dxsec_dQ2);
   LOG("QELXSec", pDEBUG) << "XSec[QEL] (E = " << E << ") = " << xsec;
   return xsec;

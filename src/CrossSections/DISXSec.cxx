@@ -62,18 +62,18 @@ double DISXSec::XSec(const Interaction * in) const
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //-- Get neutrino energy in the struck nucleon rest frame
+  // Get neutrino energy in the struck nucleon rest frame
   const InitialState & init_state = interaction -> GetInitialState();
   double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
 
-  //-- Define the integration grid & instantiate a FunctionMap
+  // Define the integration grid & instantiate a FunctionMap
   UnifGrid grid;
   grid.AddDimension(fNlogx, fLogXmin, fLogXmax);
   grid.AddDimension(fNlogy, fLogYmin, fLogYmax);
 
   FunctionMap xyd2xsec(grid);
 
-  //----- Loop over x,y & compute the differential xsec
+  // Loop over x,y & compute the differential xsec
   LOG("DISXSec", pDEBUG)
        << "integration limits: x = (" << fXmin << ", " << fXmax << ") "
                            << "y = (" << fYmin << ", " << fYmax << ")";
@@ -89,13 +89,13 @@ double DISXSec::XSec(const Interaction * in) const
        interaction->GetKinematicsPtr()->Sety(y);
        bool is_physical = this->IsWithinIntegrationRange(interaction);
 
+       //-- compute d^2xsec/dxdy
        double pxsec = 0.;
        if (is_physical) {
-          //-- compute d^2xsec/dxdy
           pxsec = fPartialXSecAlg->XSec(interaction);
           LOG("DISXSec", pDEBUG)
               << "dxsec/dxdy (x = " << x << ", y = " << y
-                          << ", Ev = " << Ev << ") = " << pxsec;
+                               << ", Ev = " << Ev << ") = " << pxsec;
        }
        //-- push x*y*(d^2xsec/dxdy) to the FunctionMap
        xyd2xsec.AddPoint(x*y*pxsec, ix, iy);
@@ -104,11 +104,11 @@ double DISXSec::XSec(const Interaction * in) const
 
   delete interaction;
 
-  //----- Perform the numerical integration
+  // Perform the numerical integration
   LOG("DISXSec", pDEBUG) << "Performing numerical integration";
   double xsec = fIntegrator->Integrate(xyd2xsec);
 
-  LOG("DISXSec", pDEBUG)  << "xsec_dis (E = " << Ev << " GeV) = " << xsec;
+  LOG("DISXSec", pDEBUG)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
 
   return xsec;
 }

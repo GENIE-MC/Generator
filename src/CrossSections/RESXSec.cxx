@@ -60,21 +60,21 @@ double RESXSec::XSec(const Interaction * in) const
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
-  //-- Get neutrino energy in the struck nucleon rest frame
+  // Get neutrino energy in the struck nucleon rest frame
   const InitialState & init_state = interaction -> GetInitialState();
   double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
 
-  //-- Get W integration range
+  // Get W integration range
   Range1D_t rW = this->WRange(interaction);
   double dW = (rW.max - rW.min) / (fNW-1);
 
-  //-- Define the integration grid & instantiate a FunctionMap
+  // Define the integration grid & instantiate a FunctionMap
   UnifGrid gridW;
   gridW.AddDimension(fNW, rW.min, rW.max);
 
   FunctionMap dxsec_dW(gridW); // dxsec/dW vs W
 
-  //-- loop over the phase space points & compute the cross section
+  // Loop over the phase space points & compute the cross section
   for(int i = 0; i < fNW; i++) {
     double W = rW.min + i*dW;
     interaction->GetKinematicsPtr()->SetW(W);
@@ -96,14 +96,14 @@ double RESXSec::XSec(const Interaction * in) const
 
       for(int j = 0; j < fNlogQ2; j++) {
         double Q2 = TMath::Exp(logQ2min + j * dlogQ2);
-        interaction->GetKinematicsPtr()->SetQ2(Q2);
 
+        //-- update the scattering parameters
+        interaction->GetKinematicsPtr()->SetQ2(Q2);
         //-- compute d^2xsec / dW dQ2
         double d2xsec = fPartialXSecAlg->XSec(interaction);
         SLOG("RESXSec", pDEBUG)
               << "d^2xsec[RES]/dQ2dW (Q2 = " << Q2
                     << ", W = " << W << ", Ev = " << Ev << ") = " << d2xsec;
-
         //-- push Q2*(d^2xsec/dWdQ2) to the FunctionMap
         Q2d2xsec_dWdQ2.AddPoint(Q2*d2xsec, j);
       } //Q2
@@ -122,7 +122,7 @@ double RESXSec::XSec(const Interaction * in) const
 
   //----- integrate dxsec/dW over W
   double xsec = fIntegrator->Integrate(dxsec_dW);
-  SLOG("RESXSec", pINFO)  << "xsec[RES] (Ev = " << Ev << " GeV) = " << xsec;
+  SLOG("RESXSec", pINFO)  << "XSec[RES] (Ev = " << Ev << " GeV) = " << xsec;
   return xsec;
 }
 //____________________________________________________________________________
