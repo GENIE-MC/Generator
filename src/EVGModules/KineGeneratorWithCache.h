@@ -30,9 +30,9 @@
 #include "EVGCore/EventRecordVisitorI.h"
 #include "Utils/Range1.h"
 
-using std::string;
-
 class TNtuple;
+
+using std::string;
 
 namespace genie {
 
@@ -47,11 +47,11 @@ protected:
 
   virtual double ComputeMaxXSec (const Interaction * in) const = 0;
 
-  virtual double    MaxXSec           (GHepRecord * evrec) const;
-  virtual double    FindMaxXSec       (const Interaction * in) const;
-  virtual void      CacheMaxXSec      (const Interaction * in, double xsec) const;
-  virtual double    Energy            (const Interaction * in) const;
-  virtual TNtuple * AccessCacheBranch (const Interaction * in) const;
+  virtual double   MaxXSec           (GHepRecord * evrec) const;
+  virtual double   FindMaxXSec       (const Interaction * in) const;
+  virtual void     CacheMaxXSec      (const Interaction * in, double xsec) const;
+  virtual double   Energy            (const Interaction * in) const;
+  virtual TNtuple* AccessCacheBranch (const Interaction * in) const;
 };
 
 }      // genie namespace

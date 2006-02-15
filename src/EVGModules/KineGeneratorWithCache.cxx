@@ -108,13 +108,12 @@ double KineGeneratorWithCache::FindMaxXSec(
 // Find a cached max xsec for the specified xsec algorithm & interaction and
 // close to the specified energy
 
-  //-- get neutrino energy
+  // get neutrino energy
   double E = this->Energy(interaction);
   LOG("Kinematics", pINFO) << "E = " << E;
 
-  //-- access the the cache branch
-  TNtuple * nt = this->AccessCacheBranch(interaction);
-  assert(nt);
+  // access the the cache branch
+  TNtuple * cache_branch = this->AccessCacheBranch(interaction);
 
   // build the search rule
   double dE = TMath::Min(0.25, 0.05*E);
@@ -122,7 +121,7 @@ double KineGeneratorWithCache::FindMaxXSec(
   search << "(E-" << E << " < " << dE << ") && (E>=" << E << ")";
 
   // query for all the entries at a window around the current energy
-  TSQLResult * result = nt->Query("E:xsec", search.str().c_str());
+  TSQLResult * result = cache_branch->Query("E:xsec", search.str().c_str());
   int nrows = result->GetRowCount();
   LOG("Kinematics", pDEBUG)
             << "Found " << nrows << " rows with " << search.str();
@@ -162,14 +161,10 @@ void KineGeneratorWithCache::CacheMaxXSec(
   LOG("Kinematics", pINFO)
                        << "Adding the computed max{dxsec/dK} value to cache";
 
-  //-- access the the cache branch
-  TNtuple * nt = this->AccessCacheBranch(interaction);
-  assert(nt);
+  TNtuple * cache_branch = this->AccessCacheBranch(interaction);
 
-  //-- get neutrino energy
   double E = this->Energy(interaction);
-
-  if(max_xsec>0) nt->Fill(E, max_xsec);
+  if(max_xsec>0) cache_branch->Fill(E, max_xsec);
 }
 //___________________________________________________________________________
 double KineGeneratorWithCache::Energy(const Interaction * interaction) const
@@ -186,27 +181,27 @@ double KineGeneratorWithCache::Energy(const Interaction * interaction) const
 TNtuple * KineGeneratorWithCache::AccessCacheBranch(
                                       const Interaction * interaction) const
 {
-// Returns the cache branch for this algorithm & interaction. If no branch is
-// found then it is created.
+// Returns the cache branch for this algorithm and this interaction. If no
+// branch is found then one is created.
 
   Cache * cache = Cache::Instance();
 
-  // build the cache branch key as: 
-  // namespace::alg-name/alg-config/interaction
-
+  // build the cache branch key as: namespace::algorithm/config/interaction
   string algkey = this->Id().Key();
-  string intkey = interaction->AsString(); 
+  string intkey = interaction->AsString();
+  string key    = cache->CacheBranchKey(algkey, intkey);
 
-  string key = cache->CacheBranchKey(algkey, intkey);
-  TNtuple * nt = cache->FindCacheBranchPtr(key);
-
-  if(!nt) {
+  TNtuple * cache_branch = cache->FindCacheBranchPtr(key);
+  if(!cache_branch) {
     //-- create the cache branch at the first pass
-    LOG("Kinematics", pINFO) << "Cache branch doesn't exist / creating";
-    LOG("Kinematics", pINFO) << "Branch key = " << key;
-    nt = cache->CreateCacheBranch(key, "E:xsec");
+    LOG("Cache", pINFO) << "Max d^nXSec/d{K}^n cache branch doesn't exist";
+    LOG("Cache", pINFO) << "Creating cache branch - key = " << key;
+
+    string brdef = "E:xsec";
+    cache_branch = cache->CreateCacheBranch(key, brdef);
   }
-  return nt;
+
+  assert(cache_branch);
+  return cache_branch;
 }
 //___________________________________________________________________________
-
