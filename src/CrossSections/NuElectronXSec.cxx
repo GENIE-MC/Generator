@@ -35,11 +35,9 @@
 #include "Numerical/UnifGrid.h"
 #include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
-#include "Utils/CacheUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
-using namespace genie::utils;
 
 //____________________________________________________________________________
 NuElectronXSec::NuElectronXSec() :
