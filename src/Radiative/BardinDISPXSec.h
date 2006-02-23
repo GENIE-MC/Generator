@@ -33,7 +33,6 @@
 namespace genie {
 
 class PDFModelI;
-class IntegratorI;
 
 class BardinDISPXSec : public XSecAlgorithmI {
 
@@ -79,7 +78,6 @@ private:
   double PDFFunc       (const PDF & pdf, int pgdc) const;
 
   const PDFModelI *   fPDFModel;
-  const IntegratorI * fIntegrator;
   double fMqf;
 };
 

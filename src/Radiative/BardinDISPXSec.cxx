@@ -24,7 +24,7 @@
 */
 //____________________________________________________________________________
 
-#include <iostream>
+#include <vector>
 
 #include <TMath.h>
 
@@ -34,8 +34,6 @@
 #include "Conventions/Units.h"
 #include "Conventions/Utils.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/UnifGrid.h"
-#include "Numerical/IntegratorI.h"
 #include "PDF/PDFModelI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
@@ -44,6 +42,7 @@
 #include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
 
+using std::vector;
 using namespace genie;
 using namespace genie::constants;
 
@@ -102,7 +101,6 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   double f_x  = PDFFunc( pdf_x,  init_pdgc )  / x;
 
   //----- Compute the differential cross section terms (1-3)
-
   double term1 =  x * f_x * (1 + (kAem/kPi)*DeltaCCi(interaction));
 
   // internal loop : integration over xi for the given (x,y,E) xi e (x,1)
@@ -117,10 +115,11 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   const double xi_max = 0.999;
   const double dxi   = (xi_max-xi_min)/(nxi-1);
 
-  UnifGrid grid;
-  grid.AddDimension(nxi, xi_min, xi_max);
-  FunctionMap term2_vs_xi(grid);
-  FunctionMap term3_vs_xi(grid);
+  // This code here does not followo the standard GENIE numerical integration
+  // techniques and offers no quarantee for the numerical convergence
+  // Need to bring in sync with the rest...
+  vector<double> dterm2_dxi(nxi);
+  vector<double> dterm3_dxi(nxi);
 
   for(int ix = 0; ix < nxi; ix++) {
      double xi = xi_min + ix * dxi;
@@ -129,15 +128,18 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
      pdf_xi.Calculate(xi, Q2);
      double f_xi = PDFFunc( pdf_xi, init_pdgc )  / xi;
 
-     double term2_xi = f_xi * PhiCCi(xi, interaction);
-     double term3_xi = (xi*f_xi*Ii(xi,interaction)-x*f_x*Ii(x, interaction))/(xi-x);
-
-     term2_vs_xi.AddPoint( term2_xi, ix);
-     term3_vs_xi.AddPoint( term3_xi, ix);
+     dterm2_dxi[ix] = f_xi * PhiCCi(xi, interaction);
+     dterm3_dxi[ix] = (xi*f_xi*Ii(xi,interaction)-x*f_x*Ii(x, interaction))/(xi-x);
   }
 
-  double term2 = fIntegrator->Integrate( term2_vs_xi );
-  double term3 = fIntegrator->Integrate( term3_vs_xi );
+  double term2 = (dterm2_dxi[0] + dterm2_dxi[nxi-1])/2;
+  double term3 = (dterm3_dxi[0] + dterm3_dxi[nxi-1])/2;
+  for(unsigned int i = 1; i< nxi-1; i++)  {
+    term2 += (dterm2_dxi[i] * (i%2 + 1));
+    term3 += (dterm3_dxi[i] * (i%2 + 1));
+  }
+  term2 *= (2.*dxi/3.);
+  term3 *= (2.*dxi/3.);
 
   LOG("Bardin", pDEBUG) << "term1 = " << term1;
   LOG("Bardin", pDEBUG) << "term2 = " << term2;
@@ -437,20 +439,8 @@ void BardinDISPXSec::LoadConfigData(void)
 void BardinDISPXSec::LoadSubAlg(void)
 {
   fPDFModel   = 0;
-  fIntegrator = 0;
-
   fPDFModel = dynamic_cast<const PDFModelI *> (
                          this->SubAlg("pdf-alg-name","pdf-param-set"));
   assert(fPDFModel);
-
-  //-- get specified integration algorithm from the config. registry
-  //   or use Simpson1D if no one else is defined
-
-  AlgFactory * algf = AlgFactory::Instance();
-  string integrator =
-                fConfig->GetStringDef("integrator", "genie::Simpson1D");
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                                        algf->GetAlgorithm(integrator));
-  assert(fIntegrator);
 }
 //__________________________________________________________________________
