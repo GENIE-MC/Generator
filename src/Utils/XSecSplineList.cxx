@@ -233,7 +233,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 
   SLOG("XSecSplineList", pINFO)
        << "Loading XSecSplineList from XML file: " << filename
-                   << " with flag to keep existing splines switched "
+                 << ". Keeping existing splines option turned "
                                                  << ( (keep) ? "ON" : "OFF" );
   if(!keep) fSplineMap.clear();
 
