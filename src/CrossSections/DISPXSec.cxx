@@ -24,12 +24,10 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "CrossSections/DISPXSec.h"
+#include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/UnifGrid.h"
-#include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
@@ -62,28 +60,27 @@ double DISPXSec::XSec(const Interaction * interaction) const
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //----- Define the integration grid & instantiate a FunctionMap
-  UnifGrid grid;
-  grid.AddDimension(fNLogt, fLogtmin, fLogtmax); // 1-D
+  GXSecFunc * func = 0;
+  double xsec = 0;
 
-  FunctionMap tdxsec(grid); // t * (dxsec/dt), t = x,y
+  if (fKineVar == "y") {
+    double x = interaction->GetKinematics().x();
+    func = new Integrand_D2XSec_DxDy_Ex(
+                         fPartialXSecAlg, interaction, x);
+    func->SetParam(0,"y",ftmin,ftmax);
+    xsec = fIntegrator->Integrate(*func);
 
-  //----- Loop over t (x or y) and compute dxsec/dt
-  for(int it = 0; it < fNLogt; it++) {
-    double t  = TMath::Exp(fLogtmin + it * fdLogt);
+  } else if (fKineVar == "x") {
 
-    //-- update the "running" scattering parameter
-    if      (fKineVar == "y") interaction->GetKinematicsPtr()->Setx(t);
-    else if (fKineVar == "x") interaction->GetKinematicsPtr()->Sety(t);
-    else    abort();
+    double y = interaction->GetKinematics().y();
+    func = new Integrand_D2XSec_DxDy_Ey(
+                         fPartialXSecAlg, interaction, y);
+    func->SetParam(0,"x",ftmin,ftmax);
+    xsec = fIntegrator->Integrate(*func);
 
-    //-- compute d^2xsec/dxdy
-    double pxsec = fPartialXSecAlg->XSec(interaction);
-    tdxsec.AddPoint(t*pxsec, it); // t * dxsec/dt (t = x or y)
-  } //t
+  } else abort();
 
-  //----- Numerical integration
-  double xsec = fIntegrator->Integrate(tdxsec);
+  delete func;
   return xsec;
 }
 //____________________________________________________________________________
@@ -146,34 +143,24 @@ void DISPXSec::LoadConfigData(void)
   LOG("DISPXSec", pDEBUG) << "XSec is differential over var: " << fKineVar;
 
   //-- Get x or y integration range from config (if exists)
-  int    nlogt;
-  double tmin, tmax;
   double e = 1e-4;
 
   if ( fKineVar == "y" ) {
      //-- it is dxsec/dy, get intergation limits over x
-     nlogt = fConfig->GetIntDef    ("n-log-x", 61 );
-     tmin  = fConfig->GetDoubleDef ("x-min",   e  );
-     tmax  = fConfig->GetDoubleDef ("x-max",   1-e);
+     ftmin  = fConfig->GetDoubleDef ("x-min",   e  );
+     ftmax  = fConfig->GetDoubleDef ("x-max",   1-e);
 
   } else if ( fKineVar == "x" ) {
      //-- it is dxsec/dx, get intergation limits over y
-     nlogt = fConfig->GetIntDef    ("n-log-y", 61 );
-     tmin  = fConfig->GetDoubleDef ("y-min",   e  );
-     tmax  = fConfig->GetDoubleDef ("y-max",   1-e);
+     ftmin  = fConfig->GetDoubleDef ("y-min",   e  );
+     ftmax  = fConfig->GetDoubleDef ("y-max",   1-e);
   }
 
-  LOG("DISPXSec", pDEBUG) << "Integration: n(log)bins = "
-                     << nlogt << ", min = " << tmin << ", max = " << tmax;
+  LOG("DISPXSec", pDEBUG)
+           << "Integration range: " << "(" << ftmin << ", " << ftmax << ")";
 
   //-- Check that t (x or y) range is meaningful
-  assert( nlogt > 1 );
-  assert( tmax > tmin && tmax < 1 && tmin < 1 && tmax > 0 & tmin > 0 );
-
-  fNLogt   = nlogt;
-  fLogtmax = TMath::Log(tmax);
-  fLogtmin = TMath::Log(tmin);
-  fdLogt   = (fLogtmax - fLogtmin) / (fNLogt-1);
+  assert( ftmax > ftmin && ftmax < 1 && ftmin < 1 && ftmax > 0 & ftmin > 0 );
 }
 //____________________________________________________________________________
 void DISPXSec::LoadSubAlg(void)
@@ -181,7 +168,7 @@ void DISPXSec::LoadSubAlg(void)
   fPartialXSecAlg = 0;
   fIntegrator     = 0;
 
-  //-- Get the requested d^2xsec/dxdy xsec algorithm to use
+  //-- get the requested d^2xsec/dxdy xsec algorithm to use
   fPartialXSecAlg =
          dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
                          "partial-xsec-alg-name", "partial-xsec-param-set"));
@@ -189,12 +176,9 @@ void DISPXSec::LoadSubAlg(void)
 
   LOG("DISPXSec", pDEBUG) << *fPartialXSecAlg;
 
-  //-- get specified integration algorithm from the config. registry
-  //   or use Simpson2D if none is defined
-  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson2D");
-
-  AlgFactory * algf = AlgFactory::Instance();
-  fIntegrator = dynamic_cast<const IntegratorI *> (algf->GetAlgorithm(intgr));
+  //-- get the specified integration algorithm
+  fIntegrator = dynamic_cast<const IntegratorI *> (
+                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________

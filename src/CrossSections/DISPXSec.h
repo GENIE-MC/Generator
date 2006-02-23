@@ -57,10 +57,8 @@ private:
   const IntegratorI *    fIntegrator;
 
   string fKineVar;
-  int    fNLogt;
-  double fLogtmax;
-  double fLogtmin;
-  double fdLogt;
+  double ftmax;
+  double ftmin;
 };
 
 }       // genie namespace

@@ -3,9 +3,8 @@
 
 \class    genie::QELPXSec
 
-\brief    Computes the differential Quasi Elastic cross section dxsec/dq^2.
-
-          Is a concrete implementation of the XSecAlgorithmI interface.
+\brief    Computes the differential Quasi Elastic cross section dxsec/dq^2.\n
+          Is a concrete implementation of the XSecAlgorithmI interface. \n
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory

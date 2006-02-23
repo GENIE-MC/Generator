@@ -24,12 +24,10 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "CrossSections/RESPXSec.h"
+#include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/UnifGrid.h"
-#include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
@@ -62,67 +60,44 @@ double RESPXSec::XSec(const Interaction * interaction) const
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //-- Get the physicical t (W or Q2) integration range and apply user
-  //   cuts (if they were specified)
-  double tmin, tmax;
-  if ( fKineVar.find("W") != string::npos ) {
-     //-- it is dxsec/dW, get intergation limits over Q2
+  GXSecFunc * func = 0;
+  double xsec = 0;
 
-     // default is physical Q2 range for input W
-     Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
-     // apply kinematic cuts
-     if ( utils::math::IsWithinLimits(fKineMinCut, rQ2) ) rQ2.min = fKineMinCut;
-     if ( utils::math::IsWithinLimits(fKineMaxCut, rQ2) ) rQ2.max = fKineMaxCut;
-     assert(rQ2.min > 0 && rQ2.max > rQ2.min);
+  if (fKineVar == "W") {
 
-     tmin = rQ2.min;
-     tmax = rQ2.max;
+    double Q2 = interaction->GetKinematics().Q2();
+    func = new Integrand_D2XSec_DWDQ2_EQ2(
+                         fPartialXSecAlg, interaction, Q2);
 
-  } else if ( fKineVar.find("Q2") != string::npos ) {
-     //-- it is dxsec/dQ2, get intergation limits over W
+    // default is physical W range for the given energy
+    Range1D_t rW = utils::kinematics::WRange(interaction);
+    // apply kinematic cuts
+    if ( utils::math::IsWithinLimits(fKineMinCut, rW) ) rW.min = fKineMinCut;
+    if ( utils::math::IsWithinLimits(fKineMaxCut, rW) ) rW.max = fKineMaxCut;
+    assert(rW.min < rW.max);
 
-     // default is physical W range for the given energy
-     Range1D_t rW = utils::kinematics::WRange(interaction);
-     // apply kinematic cuts
-     if ( utils::math::IsWithinLimits(fKineMinCut, rW) ) rW.min = fKineMinCut;
-     if ( utils::math::IsWithinLimits(fKineMaxCut, rW) ) rW.max = fKineMaxCut;
-     assert(rW.min < rW.max);
+    func->SetParam(0,"W",rW);
+    xsec = fIntegrator->Integrate(*func);
 
-     tmin = rW.min;
-     tmax = rW.max;
+  } else if (fKineVar == "Q2") {
+
+    double W = interaction->GetKinematics().W();
+    func = new Integrand_D2XSec_DWDQ2_EW(
+                         fPartialXSecAlg, interaction, W);
+
+    // default is physical Q2 range for input W
+    Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
+    // apply kinematic cuts
+    if ( utils::math::IsWithinLimits(fKineMinCut, rQ2) ) rQ2.min = fKineMinCut;
+    if ( utils::math::IsWithinLimits(fKineMaxCut, rQ2) ) rQ2.max = fKineMaxCut;
+    assert(rQ2.min > 0 && rQ2.max > rQ2.min);
+
+    func->SetParam(0,"Q2",rQ2);
+    xsec = fIntegrator->Integrate(*func);
 
   } else abort();
 
-  LOG("RESPXSec", pDEBUG) << "Integration: n(log)bins = "
-                       << fNLogt << ", min = " << tmin << ", max = " << tmax;
-  assert(tmax > tmin);
-
-  double logtmax = TMath::Log(tmax);
-  double logtmin = TMath::Log(tmin);
-  double dlogt   = (logtmax - logtmin) / (fNLogt-1);
-
-  //-- Define the integration grid & instantiate a FunctionMap
-  //   Do the integration in log(t)
-  UnifGrid grid;
-  grid.AddDimension(fNLogt, logtmin, logtmax); // 1-D
-
-  FunctionMap funcmap(grid); // Q2*(d^2xsec/dlogQ2) or d^2xsec/dW
-
-  //-- Loop over t (W or Q2) and compute dxsec/dt
-  for(int it = 0; it < fNLogt; it++) {
-    double t = TMath::Exp(logtmin + it * dlogt);
-
-    if      (fKineVar == "W" ) interaction->GetKinematicsPtr()->SetQ2(t);
-    else if (fKineVar == "Q2") interaction->GetKinematicsPtr()->SetW(t);
-    else    abort();
-
-    double d2xsec = fPartialXSecAlg->XSec(interaction);
-    funcmap.AddPoint(t*d2xsec, it);
-  } //t
-
-  //-- Numerical integration
-  double xsec = fIntegrator->Integrate(funcmap);
-  LOG("RESPXSec", pDEBUG) << "dxsec[RES]/d" << fKineVar << " = " << xsec;
+  delete func;
   return xsec;
 }
 //____________________________________________________________________________
@@ -178,26 +153,20 @@ void RESPXSec::LoadConfigData(void)
   fKineVar = fConfig->GetString("is-differential-over");
   LOG("RESPXSec", pDEBUG) << "XSec is differential over var: " << fKineVar;
 
-  int    nt;
   double tmin, tmax;
 
   if ( fKineVar.find("W") != string::npos ) {
      //-- it is dxsec/dW, get user cuts over Q2 and integration steps
-     nt    = fConfig -> GetIntDef    ("nLogQ2", 151);
      tmin  = fConfig -> GetDoubleDef ("Q2min",  -1 );
      tmax  = fConfig -> GetDoubleDef ("Q2max",  -1 );
 
   } else if ( fKineVar.find("Q2") != string::npos ) {
      //-- it is dxsec/dQ2, get user cuts over W and integration steps
-     nt   = fConfig -> GetIntDef    ("nW",   51 );
      tmin = fConfig -> GetDoubleDef ("Wmin", -1 );
      tmax = fConfig -> GetDoubleDef ("Wmax", -1 );
 
   } else abort();
 
-  assert(nt > 1);
-
-  fNLogt      = nt;
   fKineMinCut = tmin;
   fKineMaxCut = tmax;
 }
@@ -207,20 +176,16 @@ void RESPXSec::LoadSubAlg(void)
   fPartialXSecAlg = 0;
   fIntegrator     = 0;
 
-  //-- Get the requested d^2xsec/dxdy xsec algorithm to use
+  //-- get the requested d^2xsec/dxdy xsec algorithm to use
   fPartialXSecAlg =
          dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
                          "partial-xsec-alg-name", "partial-xsec-param-set"));
   assert(fPartialXSecAlg);
 
   LOG("DISXSec", pDEBUG) << *fPartialXSecAlg;
-
-  //-- get specified integration algorithm from the config. registry
-  //   or use Simpson2D if none is defined
-  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
-
-  AlgFactory * algf = AlgFactory::Instance();
-  fIntegrator = dynamic_cast<const IntegratorI *> (algf->GetAlgorithm(intgr));
+  //-- get the specified integration algorithm
+  fIntegrator = dynamic_cast<const IntegratorI *> (
+                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________

@@ -44,20 +44,11 @@ public:
 
 private:
 
-  void LoadConfigData           (void);
-  void LoadSubAlg               (void);
+  void LoadConfig (void);
 
   const XSecAlgorithmI * fPartialXSecAlg;
   const IntegratorI *    fIntegrator;
-
-  int    fNlogx;
-  int    fNlogy;
-  double fXmin;
-  double fXmax;
-  double fYmin;
-  double fYmax;
 };
 
 }       // genie namespace
-
 #endif  // _COH_XSEC_H_

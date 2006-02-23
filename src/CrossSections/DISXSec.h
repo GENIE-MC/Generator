@@ -3,9 +3,8 @@
 
 \class    genie::DISXSec
 
-\brief    Computes the DIS Cross Section.
-
-          Is a concrete implementation of the XSecAlgorithmI interface.
+\brief    Computes the DIS Cross Section. \n
+          Is a concrete implementation of the XSecAlgorithmI interface. \n
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -27,7 +26,6 @@ class IntegratorI;
 class DISXSec : public XSecAlgorithmI {
 
 public:
-
   DISXSec();
   DISXSec(string config);
   virtual ~DISXSec();
@@ -44,25 +42,15 @@ public:
 
 private:
 
-  void LoadConfigData           (void);
-  void LoadSubAlg               (void);
-  bool IsWithinIntegrationRange (const Interaction * interaction) const;
+  void LoadConfig (void);
 
   const XSecAlgorithmI * fPartialXSecAlg;
   const IntegratorI *    fIntegrator;
 
-  int    fNlogx;
-  int    fNlogy;
   double fXmin;
   double fXmax;
   double fYmin;
   double fYmax;
-  double fLogXmax;
-  double fLogXmin;
-  double fLogYmax;
-  double fLogYmin;
-  double fdLogX;
-  double fdLogY;
   double fWmin;
   double fWmax;
   double fQ2min;
@@ -70,5 +58,4 @@ private:
 };
 
 }       // genie namespace
-
 #endif  // _DIS_XSEC_H_

@@ -20,9 +20,9 @@
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/IMDXSec.h"
+#include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/UnifGrid.h"
-#include "Numerical/FunctionMap.h"
+#include "Numerical/Simpson1D.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -50,46 +50,24 @@ double IMDXSec::XSec(const Interaction * interaction) const
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  // Get initial & final state information
   const InitialState & init_state = interaction->GetInitialState();
   double E  = init_state.GetProbeE(kRfLab);
 
-  // Integration grid
-  const double e       = 1e-4;
-  const double ymin    = e;
-  const double ymax    = 1-e;
-  const double logymax = TMath::Log(ymax);
-  const double logymin = TMath::Log(ymin);
-  const double dlogy   = (logymax-logymin)/(fNBins-1);
+  double e = 1e-4;
+  Range1D_t y(e, 1.-e);
+  GXSecFunc * func = new Integrand_DXSec_Dy_E(fDiffXSecModel, interaction);
+  func->SetParam(0,"y",y);
+  double xsec = fIntegrator->Integrate(*func);
 
-  UnifGrid grid;
-  grid.AddDimension(fNBins, ymin, ymax);
-
-  FunctionMap fmap(grid);
-
-  //-- all kinematical cuts (energy threshold, physical y range) are
-  //   applied within the differential cross section algorithm - returns 0
-  //   if kinematic params are not valid.
-  for(int i = 0; i < fNBins; i++) {
-    double y = TMath::Exp(logymin + i * dlogy);
-
-    //-- update the scattering parameters
-    interaction->GetKinematicsPtr()->Sety(y);
-    //-- compute dxsec/dy
-    double dsig_dy = fDiffXSecModel->XSec(interaction);
-    //-- push y*(dxsec/dy) to the FunctionMap
-    fmap.AddPoint(y*dsig_dy, i);
-  }
-  // Perform the numerical integration
-  double xsec = fIntegrator->Integrate(fmap);
   LOG("IMD", pDEBUG) << "XSec[IMD] (E = " << E << ") = " << xsec;
+
+  delete func;
   return xsec;
 }
 //____________________________________________________________________________
 bool IMDXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
-
   return true;
 }
 //____________________________________________________________________________
@@ -129,24 +107,16 @@ void IMDXSec::LoadConfig(void)
   fDiffXSecModel = 0;
   fIntegrator    = 0;
 
-  //----- Get an algorithm to calculate differential cross sections dxsec/dQ2
+  //-- get an algorithm to calculate differential cross sections dxsec/dQ2
   fDiffXSecModel =
           dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
                          "partial-xsec-alg-name", "partial-xsec-param-set"));
   assert(fDiffXSecModel);
 
-  //----- Get an integrator
-  fIntegrator =
-          dynamic_cast<const IntegratorI *> (this->SubAlgWithDefault(
-                                 "integrator-name","","genie::Simpson1D",""));
+  //-- get specified integration algorithm
+  fIntegrator = dynamic_cast<const IntegratorI *> (
+                this->SubAlg("integrator-alg-name", "integrator-param-set"));
   assert(fIntegrator);
-
-  //----- get the input number of dxsec/dlogQ2 points for num. integration
-  //      or use a default if no number is specified
-  //      (must be odd number for the Simpson rule)
-  fNBins = fConfig->GetIntDef("N-logQ2-bins", 101);
-  LOG("IMD", pDEBUG) << "Number of integration (logQ2) bins = " << fNBins;
-  assert(fNBins>2);
 }
 //____________________________________________________________________________
 

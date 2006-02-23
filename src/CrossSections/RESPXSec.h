@@ -57,7 +57,6 @@ private:
   const IntegratorI *    fIntegrator;
 
   string fKineVar;
-  int    fNLogt;
   double fKineMinCut;
   double fKineMaxCut;
 };

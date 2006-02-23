@@ -55,11 +55,9 @@ private:
 
   void LoadConfig (void);
 
-  int   fNBins;
   const XSecAlgorithmI * fDiffXSecModel;
   const IntegratorI *    fIntegrator;
 };
 
 }       // genie namespace
-
 #endif  // _NU_ELECTRON_XSEC_H_

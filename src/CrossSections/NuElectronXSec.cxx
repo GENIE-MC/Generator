@@ -27,13 +27,11 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/NuElectronXSec.h"
+#include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/UnifGrid.h"
-#include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
 
 using namespace genie;
@@ -66,35 +64,17 @@ double NuElectronXSec::XSec(const Interaction * interaction) const
   const InitialState & init_state = interaction->GetInitialState();
   double E  = init_state.GetProbeE(kRfLab);
 
-  // Integration grid
   double e    = 1E-6;
   double ymin = e;
   double ymax = 1-e;
 
-  const double logymin = TMath::Log(ymin);
-  const double logymax = TMath::Log(ymax);
-  const double dlogy   = (logymax-logymin)/(fNBins-1);
+  GXSecFunc * func = new Integrand_DXSec_Dy_E(fDiffXSecModel, interaction);
+  func->SetParam(0,"y",ymin,ymax);
+  double xsec = fIntegrator->Integrate(*func);
 
-  UnifGrid grid;
-  grid.AddDimension(fNBins, logymin, logymax);
-
-  FunctionMap fmap(grid);
-
-  // Compute the differential cross section over the allowed phase space
-  for(int i = 0; i < fNBins; i++) {
-    double y = TMath::Exp(logymin + i * dlogy);
-
-    //-- update the scattering parameters
-    interaction->GetKinematicsPtr()->Sety(y);
-    //-- compute dsec/dy
-    double dsig_dy  = fDiffXSecModel->XSec(interaction);
-    //-- push y*(dxsec/dy) to the FunctionMap
-    fmap.AddPoint(y*dsig_dy, i);
-  }
-
-  // Do the numerical integration
-  double xsec = fIntegrator->Integrate(fmap);
   LOG("Elastic", pDEBUG) << "*** XSec[ve-] (E=" << E << ") = " << xsec;
+
+  delete func;
   return xsec;
 }
 //____________________________________________________________________________
@@ -130,26 +110,16 @@ void NuElectronXSec::LoadConfig(void)
 // needed and sets configuration variables to avoid looking up at the Registry
 // all the time.
 
-  //----- Get an algorithm to calculate differential cross sections dxsec/dy
+  //-- get an algorithm to calculate differential cross sections dxsec/dy
   fDiffXSecModel =
           dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
                          "partial-xsec-alg-name", "partial-xsec-param-set"));
   assert(fDiffXSecModel);
 
-  //----- Get an integrator
-  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
-
-  AlgFactory * algf = AlgFactory::Instance();
-  fIntegrator = dynamic_cast<const IntegratorI *>(algf->GetAlgorithm(intgr));
-
+  //-- get the specified integration algorithm
+  fIntegrator = dynamic_cast<const IntegratorI *> (
+                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
   assert(fIntegrator);
-
-  //----- get the input number of dxsec/dlogQ2 points for num. integration
-  //      or use a default if no number is specified
-  //      (must be odd number for the Simpson rule)
-  fNBins = fConfig->GetIntDef("N-logy-bins", 131);
-  LOG("Elastic", pDEBUG) << "Number of integration (logy) bins = " << fNBins;
-  assert(fNBins>2);
 }
 //____________________________________________________________________________
 
