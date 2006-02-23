@@ -15,10 +15,20 @@ srcdir=$GENIE/src
 ########################### GENIE Libraries;
 
 libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
- -lGCrossSections -lGDecay -lGHEP -lGGeo -lGEVGCore -lGEVGModules -lGEVGDrivers \
+ -lGCrossSections -lGDecay -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
  -lGFragmentation -lGInteraction -lGInverseMuDecay -lGLlewellynSmith -lGMessenger\
  -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
  -lGRadiative -lGRegistry -lGReinSeghal -lGViewer -lGUtils -lGValidityDoc"
+
+if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
+  libs="$libs -lGGeo"
+fi
+if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
+  libs="$libs -lGFluxDrivers"
+fi
+if test "$GOPT_ENABLE_GEANT_INTERFACE" = "YES"; then
+  libs="$libs -lGG4I"
+fi
 
 ########################### GENIE Dictionaries;
 
@@ -37,7 +47,6 @@ dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
                 $srcdir/InverseMuonDecay/_ROOT_DICT_InverseMuDecay.o \
                 $srcdir/LlewellynSmith/_ROOT_DICT_LlewellynSmith.o \
                 $srcdir/GHEP/_ROOT_DICT_GHEP.o \
-                $srcdir/Geo/_ROOT_DICT_Geo.o \
                 $srcdir/Ntuple/_ROOT_DICT_Ntuple.o \
                 $srcdir/Nuclear/_ROOT_DICT_Nuclear.o \
                 $srcdir/Numerical/_ROOT_DICT_Numerical.o \
@@ -50,6 +59,13 @@ dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
                 $srcdir/Viewer/_ROOT_DICT_Viewer.o \
                 $srcdir/Utils/_ROOT_DICT_Utils.o \
                 $srcdir/ValidityDoc/_ROOT_DICT_ValidityDoc.o"
+
+if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
+  dictionaries="$dictionaries $srcdir/Geo/_ROOT_DICT_Geo.o"
+fi
+if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
+  dictionaries="$dictionaries $srcdir/FluxDrivers/_ROOT_DICT_FluxDrivers.o"
+fi
 
 usage="\
 Usage: genie-config [--libs] [--dicts] [--libdir] [--topsrcdir]" 
