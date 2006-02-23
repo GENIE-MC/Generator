@@ -31,16 +31,17 @@
 #define _KOVALENKO_QEL_CHARM_PARTIAL_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
+#include "Numerical/GSFunc.h"
 
 namespace genie {
 
+class PDF;
 class PDFModelI;
 class IntegratorI;
 
 class KovalenkoQELCharmPXSec : public XSecAlgorithmI {
 
 public:
-
   KovalenkoQELCharmPXSec();
   KovalenkoQELCharmPXSec(string config);
   virtual ~KovalenkoQELCharmPXSec();
@@ -72,7 +73,6 @@ private:
   const PDFModelI *   fPDFModel;
   const IntegratorI * fIntegrator;
 
-  int    fNBins;
   double fQ2min;
   double fQ2max;
   double fMo;
@@ -83,6 +83,37 @@ private:
   double fResDMSigma;
 };
 
+//____________________________________________________________________________
+/*!
+\class    genie::KovQELCharmIntegrand
+
+\brief    Auxiliary scalar function for the internal integration in Kovalenko
+          QEL charm production cross section algorithm
+
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
+
+\created  February 20, 2006
+*/
+//____________________________________________________________________________
+
+class KovQELCharmIntegrand : public GSFunc
+{
+public:
+  KovQELCharmIntegrand(PDF * pdf, double Q2, int nucleon_pdgc, bool norm);
+  ~KovQELCharmIntegrand();
+
+  double operator () (const vector<double> & x);
+
+private:
+  PDF *  fPDF;
+  double fQ2;
+  int    fPdgC;
+  bool   fNorm;
+};
+
 }       // genie namespace
 
 #endif  // _KOVALENKO_QEL_CHARM_PARTIAL_XSEC_H_
+
+

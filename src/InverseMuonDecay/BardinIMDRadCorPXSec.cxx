@@ -30,13 +30,10 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "InverseMuonDecay/BardinIMDRadCorPXSec.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/UnifGrid.h"
-#include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
 
 using namespace genie;
@@ -78,7 +75,8 @@ double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
   double ymin = r + re;
   double ymax = 1 + re + r*re / (1+re);
 
-  ymax = TMath::Min(ymax,0.9999999); // avoid ymax=1, due to a log(1-y)
+  double e = 1E-5;
+  ymax = TMath::Min(ymax,1-e); // avoid ymax=1, due to a log(1-y)
 
   LOG("BardinIMD", pDEBUG)
            << "sig0 = " << sig0 << ", r = " << r << ", re = " << re;
@@ -174,25 +172,20 @@ double BardinIMDRadCorPXSec::P(int i, double r, double y) const
 //____________________________________________________________________________
 double BardinIMDRadCorPXSec::Li2(double z) const
 {
-  const int    nsteps  = 101;
-  const double epsilon = 1e-2;
-  const double min     = epsilon;
-  const double max     = 1.0 - epsilon;
-  const double step    = (max-min)/(nsteps-1);
+  double epsilon = 1e-2;
+  Range1D_t t(epsilon, 1.0 - epsilon);
 
-  UnifGrid grid;
-  grid.AddDimension(nsteps, min, max);
+  LOG("BardinIMD", pDEBUG)
+    << "Summing BardinIMDRadCorIntegrand in [" << t.min<< ", " << t.max<< "]";
 
-  FunctionMap fmap(grid);
+  BardinIMDRadCorIntegrand * func = new BardinIMDRadCorIntegrand(z);
+  func->SetParam(0,"t",t);
 
-  for(int i = 0; i < nsteps; i++) {
-    double t  = min + i * step;
-    double f  = TMath::Log(1-z*t)/t;
+  double li2 = fIntegrator->Integrate(*func);
 
-    fmap.AddPoint(f, i);
-  }
+  LOG("BardinIMD", pDEBUG) << "Li2(z = " << z << ")" << li2;
 
-  double li2 = fIntegrator->Integrate(fmap);
+  delete func;
   return li2;
 }
 //____________________________________________________________________________
@@ -275,9 +268,35 @@ void BardinIMDRadCorPXSec::Configure(string param_set)
 //____________________________________________________________________________
 void BardinIMDRadCorPXSec::LoadSubAlg(void)
 {
-  AlgFactory * algf = AlgFactory::Instance();
+  fIntegrator = 0;
+
+  //-- get specified integration algorithm
   fIntegrator = dynamic_cast<const IntegratorI *> (
-                                    algf->GetAlgorithm("genie::Simpson1D"));
+                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  assert(fIntegrator);
+}
+//____________________________________________________________________________
+// Auxiliary scalar function for internal integration
+//____________________________________________________________________________
+BardinIMDRadCorIntegrand::BardinIMDRadCorIntegrand(double z) :
+GSFunc(1)
+{
+  fZ = z;
+}
+//____________________________________________________________________________
+BardinIMDRadCorIntegrand::~BardinIMDRadCorIntegrand()
+{
+
+}
+//____________________________________________________________________________
+double BardinIMDRadCorIntegrand::operator() (const vector<double> & param)
+{
+  double t = param[0];
+  if(t==0) return 0.;
+
+  if(t*fZ>=1.) return 0.;
+  double f = TMath::Log(1.-fZ*t)/t;
+  return f;
 }
 //____________________________________________________________________________
 
