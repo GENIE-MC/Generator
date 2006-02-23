@@ -71,7 +71,8 @@ fInhibitItemLocks ( false      )
 
 }
 //____________________________________________________________________________
-Registry::Registry(const Registry & registry)
+Registry::Registry(const Registry & registry) :
+fIsReadOnly(false)
 {
   this->Copy(registry);
 }
@@ -179,26 +180,22 @@ bool Registry::ItemIsLocked(string key) const
 void Registry::LockItem(string key)
 {
   if( this->Exists(key) ) {
-
      map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
      entry->second->Lock();
-
   } else {
      LOG("Registry", pWARN)
-               << "\n ********** Can't lock non-existem item [" << key << "]";
+           << "*** Can't lock non-existem item [" << key << "]";
   }
 }
 //____________________________________________________________________________
 void Registry::UnLockItem(string key)
 {
   if( this->Exists(key) ) {
-
      map<string, RegistryItemI *>::const_iterator entry = fRegistry.find(key);
      entry->second->UnLock();
-
   } else {
     LOG("Registry", pWARN)
-             << "\n ********** Can't unlock non-existem item [" << key << "]";
+       << "*** Can't unlock non-existem item [" << key << "]";
   }
 }
 //____________________________________________________________________________
@@ -222,7 +219,7 @@ void Registry::Set(pair<string, RegistryItemI *> entry)
     fRegistry.insert(entry);
   } else {
      LOG("Registry", pWARN)
-              << "\n ********** Registry item [" << key << "] can not be set";
+             << "*** Registry item [" << key << "] can not be set";
   }
 }
 //____________________________________________________________________________
@@ -487,7 +484,7 @@ void Registry::SetName(string name)
   if(! fIsReadOnly) fName = name;
   else {
      LOG("Registry", pWARN)
-              << "\n ********** Registry is locked - Can not change its name";
+        << "*** Registry is locked - Can not change its name";
   }
 }
 //____________________________________________________________________________
@@ -500,8 +497,8 @@ void Registry::AssertExistence(string key0) const
 {
   if ( ! this->Exists(key0) ) {
      LOG("Registry", pERROR)
-           << "\n ********** Key: " << key0
-                           << " does not exist in registry: " << this->Name();
+           << "*** Key: " << key0
+             << " does not exist in registry: " << this->Name();
   }
   assert( this->Exists(key0) );
 }
@@ -609,26 +606,22 @@ void Registry::Copy(const Registry & registry)
 {
 // copy input registry
 
-  if( this->IsLocked() ) {
-     LOG("Registry", pWARN)
-                << "Registry is locked. Can not copy input entries!";
-     return;
+  if(this->IsLocked()) {
+   LOG("Registry", pWARN) << "Registry is locked. Can't copy input entries!";
+   return;
   }
 
   this->Init();
   this->Clear();
 
-  fName             = registry.fName;
-  fIsReadOnly       = registry.fIsReadOnly;
-  fInhibitItemLocks = registry.fInhibitItemLocks;
+  this->InhibitItemLocks();
 
   map<string, RegistryItemI *>::const_iterator reg_iter;
-
   for(reg_iter = registry.fRegistry.begin();
                       reg_iter != registry.fRegistry.end(); reg_iter++) {
 
-     string name = reg_iter->first;
-     RegistryItemI * ri = reg_iter->second;
+     string         name = reg_iter->first;
+     RegistryItemI * ri  = reg_iter->second;
 
      string var_type  = ri->TypeInfo().name();
      bool   item_lock = ri->IsLocked();
@@ -637,7 +630,6 @@ void Registry::Copy(const Registry & registry)
                 << "Copying [" << var_type << "] item named = " << name;
 
      RegistryItemI * cri = 0; // cloned registry item
-
      if (var_type == "b" )
            cri = new RegistryItem<bool>
                                 (registry.GetBool(name),item_lock);
@@ -684,9 +676,12 @@ void Registry::Copy(const Registry & registry)
      } else {}
 
      pair<string, RegistryItemI *> reg_entry(name, cri);
-
      fRegistry.insert(reg_entry);
    }
+
+  fName             = registry.fName;
+  fIsReadOnly       = registry.fIsReadOnly;
+  fInhibitItemLocks = registry.fInhibitItemLocks;
 }
 //____________________________________________________________________________
 void Registry::Init(void)
@@ -703,17 +698,14 @@ void Registry::Clear(bool force)
 // clean all registry entries
 
   if(!force) {
-    if( this->IsLocked() ) {
-        LOG("Registry", pWARN)
-                    << "Registry is locked. Can not clear its entries!";
-        return;
+   if(this->IsLocked()) {
+      LOG("Registry", pWARN) << "Registry is locked. Can't clear its entries";
+      return;
     }
   }
 
   map<string, RegistryItemI *>::iterator reg_iter;
-
   for(reg_iter = fRegistry.begin(); reg_iter != fRegistry.end(); reg_iter++) {
-
      string          name = reg_iter->first;
      RegistryItemI * item = reg_iter->second;
 
