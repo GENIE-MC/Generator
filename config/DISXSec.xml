@@ -7,11 +7,10 @@
   <param_set name="CC-Charm-Default"> 
      <param type="string" name="partial-xsec-alg-name">  genie::AivazisCharmPXSecLO </param>
      <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
-     <param type="string" name="integrator">             genie::Simpson2D           </param>
-     <param type="int"    name="n-log-x">                71                         </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson2D           </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
      <param type="double" name="x-min">                  0.001                      </param>
      <param type="double" name="x-max">                  0.999                      </param>
-     <param type="int"    name="n-log-y">                101                        </param>
      <param type="double" name="y-min">                  0.001                      </param>
      <param type="double" name="y-max">                  0.999                      </param>
      <param type="double" name="Wmin">                   1.600                      </param>
@@ -23,11 +22,10 @@
   <param_set name="CC-Charm-Slow-Rescaling"> 
      <param type="string" name="partial-xsec-alg-name">  genie::SlowRsclCharmDISPXSecLO </param>
      <param type="string" name="partial-xsec-param-set"> CC-Default                     </param>
-     <param type="string" name="integrator">             genie::Simpson2D               </param>
-     <param type="int"    name="n-log-x">                71                             </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson2D               </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic            </param>
      <param type="double" name="x-min">                  0.001                          </param>
      <param type="double" name="x-max">                  0.999                          </param>
-     <param type="int"    name="n-log-y">                101                            </param>
      <param type="double" name="y-min">                  0.001                          </param>
      <param type="double" name="y-max">                  0.999                          </param>
      <param type="double" name="Wmin">                   1.600                          </param>
@@ -39,11 +37,10 @@
   <param_set name="CC-Bardin-Rad-Corr"> 
      <param type="string" name="partial-xsec-alg-name">  genie::BardinDISPXSec      </param>
      <param type="string" name="partial-xsec-param-set"> CC                         </param>
-     <param type="string" name="integrator">             genie::Simpson2D           </param>
-     <param type="int"    name="n-log-x">                71                         </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson2D           </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
      <param type="double" name="x-min">                  0.001                      </param>
      <param type="double" name="x-max">                  0.999                      </param>
-     <param type="int"    name="n-log-y">                101                        </param>
      <param type="double" name="y-min">                  0.001                      </param>
      <param type="double" name="y-max">                  0.950                      </param>
      <param type="double" name="Wmin">                   1.600                      </param>
@@ -55,11 +52,10 @@
   <param_set name="CC-Parton-Model-Default"> 
      <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>
      <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
-     <param type="string" name="integrator">             genie::Simpson2D           </param>
-     <param type="int"    name="n-log-x">                71                         </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson2D           </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
      <param type="double" name="x-min">                  0.001                      </param>
      <param type="double" name="x-max">                  0.999                      </param>
-     <param type="int"    name="n-log-y">                71                         </param>
      <param type="double" name="y-min">                  0.001                      </param>
      <param type="double" name="y-max">                  0.999                      </param>
      <param type="double" name="Wmin">                   1.600                      </param>
@@ -71,17 +67,15 @@
   <param_set name="NC-Parton-Model-Default"> 
      <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>
      <param type="string" name="partial-xsec-param-set"> NC-Default                 </param>
-     <param type="string" name="integrator">             genie::Simpson2D           </param>
-     <param type="int"    name="n-log-x">                71                         </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson2D           </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
      <param type="double" name="x-min">                  0.001                      </param>
      <param type="double" name="x-max">                  0.999                      </param>
-     <param type="int"    name="n-log-y">                71                         </param>
      <param type="double" name="y-min">                  0.001                      </param>
      <param type="double" name="y-max">                  0.999                      </param>
      <param type="double" name="Wmin">                   1.600                      </param>
      <param type="double" name="Q2min">                  1.000                      </param>
   </param_set>
-
 
 </alg_conf>
 

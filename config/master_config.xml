@@ -65,6 +65,13 @@
    <!-- ****** CONFIGURATION FOR BARYON RESONANCE ALGORITHMS ****** -->
    <config alg="genie::BaryonResDataPDG">            BaryonResDataPDG.xml            </config>
 
+   <!-- ****** CONFIGURATION FOR INTEGRATORS ****** -->
+   <config alg="genie::Simpson1D">                   Simpson1D.xml                   </config>
+   <config alg="genie::Simpson2D">                   Simpson2D.xml                   </config>
+   <config alg="genie::SimMCIntegrator">             SimMCIntegrator.xml             </config>
+   <config alg="genie::VegasMCIntegrator">           VegasMCIntegrator.xml           </config>
+   <config alg="genie::MiserMCIntegrator">           MiserMCIntegrator.xml           </config>
+
    <!--  ****** CONFIGURATION FORM FACTOR and STRUCTURE FUNCTION ALGORITHMS ****** -->
    <config alg="genie::DipoleELFormFactorsModel">    DipoleELFormFactorsModel.xml    </config>
    <config alg="genie::BBA05ELFormFactorsModel">     BBA05ELFormFactorsModel.xml     </config>
