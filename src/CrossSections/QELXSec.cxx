@@ -3,8 +3,7 @@
 
 \class    genie::QELXSec
 
-\brief    Computes the Quasi Elastic (QEL) cross section.
-
+\brief    Computes the Quasi Elastic (QEL) cross section. \n
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -17,13 +16,11 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/QELXSec.h"
+#include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/UnifGrid.h"
-#include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
@@ -67,36 +64,15 @@ double QELXSec::XSec(const Interaction * in) const
   Range1D_t  rQ2 = utils::kinematics::Q2Range_M(interaction);
   LOG("QELXSec", pDEBUG) << "Q2 integration range = ("
                                     << rQ2.min << ", " << rQ2.max << ")";
-  double logQ2max = TMath::Log(rQ2.max);
-  double logQ2min = TMath::Log(rQ2.min);
-  double dlogQ2   = (logQ2max - logQ2min) / (fNBins - 1);
 
-  // Define the integration grid & instantiate a FunctionMap
-  UnifGrid grid;
-  grid.AddDimension(fNBins, logQ2min, logQ2max);
+  GXSecFunc * func = new Integrand_DXSec_DQ2_E(fDiffXSecModel, interaction);
+  func->SetParam(0,"Q2",rQ2);
+  double xsec = fIntegrator->Integrate(*func);
 
-  FunctionMap Q2dxsec_dQ2(grid);
-
-  // Loop over logQ2 range, estimate/store Q2*dxsec/dQ2
-  for(int iQ2 = 0; iQ2 < fNBins; iQ2++) {
-     double Q2 = TMath::Exp(logQ2min + iQ2 * dlogQ2);
-
-     //-- update the scattering parameters
-     interaction->GetKinematicsPtr()->SetQ2(Q2);
-     //-- compute dxsec/dQ2
-     double pxsec = fDiffXSecModel->XSec(interaction);
-     //-- push Q2*(dxsec/dQ2) to the FunctionMap
-     Q2dxsec_dQ2.AddPoint(Q2*pxsec, iQ2);
-
-     LOG("QELXSec", pDEBUG)
-          << "point...." << iQ2+1 << "/" << fNBins << " : "
-                  << "dxsec/dQ^2 (Q^2 = " << Q2 << " ) = " << pxsec;
-  }
-  delete interaction;
-
-  // Do the numerical integration
-  double xsec = fIntegrator->Integrate(Q2dxsec_dQ2);
   LOG("QELXSec", pDEBUG) << "XSec[QEL] (E = " << E << ") = " << xsec;
+
+  delete interaction;
+  delete func;
   return xsec;
 }
 //____________________________________________________________________________
@@ -154,26 +130,16 @@ void QELXSec::Configure(string config)
 //____________________________________________________________________________
 void QELXSec::LoadConfig(void)
 {
-  //----- Get an algorithm to calculate differential cross sections dxsec/dQ2
+  //-- get an algorithm to calculate differential cross sections dxsec/dQ2
   fDiffXSecModel =
           dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
                          "partial-xsec-alg-name", "partial-xsec-param-set"));
   assert(fDiffXSecModel);
 
-  //----- Get an integrator
-  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
-
-  AlgFactory * algf = AlgFactory::Instance();
-  fIntegrator = dynamic_cast<const IntegratorI *>(algf->GetAlgorithm(intgr));
-
+  //-- get the specified integration algorithm
+  fIntegrator = dynamic_cast<const IntegratorI *> (
+                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
   assert(fIntegrator);
-
-  //----- get the input number of dxsec/dlogQ2 points for num. integration
-  //      or use a default if no number is specified
-  //      (must be odd number for the Simpson rule)
-  fNBins = fConfig->GetIntDef("N-logQ2-bins", 101);
-  LOG("QELXSec", pDEBUG) << "Number of integration (logQ2) bins = " << fNBins;
-  assert(fNBins>2);
 }
 //____________________________________________________________________________
 

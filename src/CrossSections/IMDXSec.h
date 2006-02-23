@@ -26,7 +26,6 @@ class IntegratorI;
 class IMDXSec : public XSecAlgorithmI {
 
 public:
-
   IMDXSec();
   IMDXSec(string config);
   virtual ~IMDXSec();
@@ -45,11 +44,9 @@ private:
 
   void LoadConfig (void);
 
-  int   fNBins;
   const XSecAlgorithmI * fDiffXSecModel;
   const IntegratorI *    fIntegrator;
 };
 
 }       // genie namespace
-
 #endif  // _IMD_XSEC_H_

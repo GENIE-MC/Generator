@@ -3,9 +3,8 @@
 
 \class    genie::RESXSec
 
-\brief    Computes the RES Cross Section.
-
-          Is a concrete implementation of the XSecAlgorithmI interface.
+\brief    Computes the RES Cross Section.\n
+          Is a concrete implementation of the XSecAlgorithmI interface.\n
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -44,17 +43,13 @@ public:
 
 private:
 
-  void      LoadConfigData (void);
-  void      LoadSubAlg     (void);
-  Range1D_t WRange         (const Interaction * interaction) const;
-  Range1D_t Q2Range        (const Interaction * interaction) const;
+  void      LoadConfig (void);
+  Range1D_t WRange     (const Interaction * interaction) const;
+  Range1D_t Q2Range    (const Interaction * interaction) const;
 
-  int   fNW;
-  int   fNlogQ2;
   const XSecAlgorithmI * fPartialXSecAlg;
   const IntegratorI *    fIntegrator;
 };
 
 }       // genie namespace
-
 #endif  // _RES_XSEC_H_
