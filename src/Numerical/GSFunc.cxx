@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::IntegratorI
+\class    genie::GSFunc
 
-\brief    Numerical integration algorithm ABC
+\brief    GENIE scalar function ABC
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -13,30 +13,18 @@
 */
 //____________________________________________________________________________
 
-#include "Numerical/IntegratorI.h"
+#include "Numerical/GSFunc.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-IntegratorI::IntegratorI() :
-Algorithm()
+GSFunc::GSFunc(unsigned int ndim) :
+GFunc(ndim)
 {
 
 }
 //____________________________________________________________________________
-IntegratorI::IntegratorI(string name) :
-Algorithm(name)
-{
-
-}
-//____________________________________________________________________________
-IntegratorI::IntegratorI(string name, string config) :
-Algorithm(name, config)
-{
-
-}
-//____________________________________________________________________________
-IntegratorI::~IntegratorI()
+GSFunc::~GSFunc()
 {
 
 }

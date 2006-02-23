@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::IntegratorI
+\class    genie::GVFunc
 
-\brief    Numerical integration algorithm ABC
+\brief    GENIE vector function ABC
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -13,31 +13,20 @@
 */
 //____________________________________________________________________________
 
-#include "Numerical/IntegratorI.h"
+#include "Numerical/GVFunc.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-IntegratorI::IntegratorI() :
-Algorithm()
+GVFunc::GVFunc(unsigned int ndim) :
+GFunc(ndim)
 {
 
 }
 //____________________________________________________________________________
-IntegratorI::IntegratorI(string name) :
-Algorithm(name)
+GVFunc::~GVFunc()
 {
 
 }
 //____________________________________________________________________________
-IntegratorI::IntegratorI(string name, string config) :
-Algorithm(name, config)
-{
 
-}
-//____________________________________________________________________________
-IntegratorI::~IntegratorI()
-{
-
-}
-//____________________________________________________________________________

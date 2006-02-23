@@ -3,7 +3,7 @@
 
 \class    genie::IntegratorI
 
-\brief
+\brief    Numerical integration algorithm ABC
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -17,23 +17,22 @@
 #define _INTEGRATOR_I_H_
 
 #include "Algorithm/Algorithm.h"
-#include "Numerical/FunctionMap.h"
 
 namespace genie {
+
+class GSFunc;
 
 class IntegratorI : public Algorithm
 {
 public:
+  virtual ~IntegratorI();
 
-  virtual double Integrate(FunctionMap & func_map) const = 0;
-  virtual double EvalError(FunctionMap & func_map) const = 0;
+  virtual double Integrate(GSFunc & gsfunc) const = 0;
 
 protected:
-
   IntegratorI();
   IntegratorI(string name);
   IntegratorI(string name, string config);
-  virtual ~IntegratorI();
 };
 
 }        // namespace
