@@ -89,6 +89,27 @@ Range1D_t genie::utils::kinematics::q2Range(const Interaction * const interactio
   return q2;
 }
 //____________________________________________________________________________
+Range1D_t genie::utils::kinematics::Q2Range_W(
+                          const Interaction * const interaction, Range1D_t rW)
+{
+  Range1D_t Q2;
+  Q2.min = 999;
+  Q2.max = -999;
+
+  unsigned int N=100;
+  double dW = (rW.max-rW.min) / (double)(N-1);
+
+  for(unsigned int i=0; i<N; i++) {
+    double W = rW.min + i*dW;
+    interaction->GetKinematicsPtr()->SetW(W);
+    Range1D_t rQ2 = Q2Range_W(interaction);
+
+    if(rQ2.min>=0) Q2.min = TMath::Min(Q2.min, rQ2.min);
+    if(rQ2.max>=0) Q2.max = TMath::Max(Q2.max, rQ2.max);
+  }
+  return Q2;
+}
+//____________________________________________________________________________
 Range1D_t genie::utils::kinematics::Q2Range_W(const Interaction * const interaction)
 {
 // Computes kinematical limits for Q2 (>0) in [RES] v interactions.
@@ -318,7 +339,7 @@ double genie::utils::kinematics::EnergyThreshold(
   double Ethr  = 0;
   double ml    = interaction->GetFSPrimaryLepton()->Mass();
   double ml2   = ml*ml;
-  double Mnuc  = tgt.StruckNucleonIsSet() ? 
+  double Mnuc  = tgt.StruckNucleonIsSet() ?
                            tgt.StruckNucleonMass() : kNucleonMass;
   double Mnuc2 = Mnuc*Mnuc;
 

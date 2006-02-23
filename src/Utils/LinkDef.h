@@ -21,5 +21,8 @@
 
 #pragma link C++ class genie::Cache;
 #pragma link C++ class genie::XSecSplineList;
+#pragma link C++ class genie::Range1D_t;
+#pragma link C++ class genie::Range1F_t;
+#pragma link C++ class genie::Range1I_t;
 
 #endif

@@ -30,6 +30,8 @@ namespace kinematics
   Range1D_t  q2Range     (const Interaction * const interaction);
 
   Range1D_t  Q2Range_W   (const Interaction * const interaction);
+  Range1D_t  Q2Range_W   (const Interaction * const interaction, Range1D_t rW);
+
   Range1D_t  Q2Range_xy  (const Interaction * const interaction);
   Range1D_t  Q2Range_M   (const Interaction * const interaction);
 
