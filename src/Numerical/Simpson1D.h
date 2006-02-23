@@ -3,8 +3,10 @@
 
 \class    genie::Simpson1D
 
-\brief    The 1-dimensional extended Simpson rule (an open integration formula)
-          of order 1/N^4.
+\brief    The 1-D extended Simpson rule (an open integration formula) of order
+          1/N^4. The algorithm evaluates the numerical err and keeps improving
+          its numerical estimate until it converges to the true value within
+          some predefined margin of numerical accuracy.
 
 \ref      Numerical Recipes in C, Cambridge Univ. Press, 2002, page 134
 
@@ -20,20 +22,42 @@
 #define _SIMPSON_1D_H_
 
 #include "Numerical/IntegratorI.h"
+#include "Numerical/GridSpacing.h"
 
 namespace genie {
+
+class GSFunc;
+class FunctionMap;
 
 class Simpson1D: public IntegratorI
 {
 public:
-
   Simpson1D();
+  Simpson1D(string config);
   virtual ~Simpson1D();
 
-  double Integrate(FunctionMap & func_map) const;
-  double EvalError(FunctionMap & func_map) const { return 0; }
+  //! implement the IntegratorI interface
+  double Integrate(GSFunc & gsfunc) const;
+
+  //! override the Algorithm::Configure methods to load configuration
+  //! data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
+
+private:
+
+  //! actual Simpson integration rule
+  double SimpsonRule(FunctionMap & func_map) const;
+
+  //! load config data to private data members
+  void LoadConfigData (void);
+
+  //! actual config data
+  unsigned int  fIMaxConv;   ///< max number of iterations before converging
+  unsigned int  fNo;         ///< 2^No + 1 is the initial number of steps
+  double        fMaxPcntErr; ///< max numerical error allowed (in %)
+  GridSpacing_t fSpacing;    ///< grid points spacing rule
 };
 
-}        // namespace
-
+}        // genie namespace
 #endif   // _SIMPSON_1D_H_

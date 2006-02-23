@@ -3,7 +3,8 @@
 
 \class    genie::FunctionMap
 
-\brief
+\brief    Utility class to hold the values of a scalar function estimated on
+          the points of a multi-dimensional uniform grid.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -19,47 +20,47 @@
 #include <vector>
 #include <map>
 
-#include "Numerical/UnifGrid.h"
-
 using std::vector;
 using std::map;
 
 namespace genie {
 
+class UnifGrid;
+
 class FunctionMap
 {
 public:
-
   FunctionMap();
   FunctionMap(const UnifGrid & grid);
   virtual ~FunctionMap();
 
-  //-- add points to the Function map
-  
-  void AddPoint (double value, const vector<int> & pos);
-  
-  //-- get value at a given point
+  //-- access & modify the grid
+  const UnifGrid & GetGrid (void) const { return *fGrid; }
+  void  IncreaseGridDensity (unsigned int np);
 
-  double Func   (const vector<int> & pos) const;
-  
-  //-- simpler interface for lower dimensions
-  
-  void   AddPoint (double value, int iposx, int iposy, int iposz);
-  void   AddPoint (double value, int iposx, int iposy);
-  void   AddPoint (double value, int iposx);
-  
-  double Func     (int iposx, int iposy, int iposz) const;
-  double Func     (int iposx, int iposy) const;
-  double Func     (int iposx) const;
-  
-  //-- access the grid
+  //-- set the function value for a point at a given grid position
+  //   or coordinate vector
+  void  SetValue (double value, const vector<unsigned int> & pos);
+  void  SetValue (double value, const vector<double> & pos);
 
-  const UnifGrid & GetGrid(void) const { return *fGrid; }
-  
+  //-- get value at the input grid position or coordinate vector
+  double Value (const vector<unsigned int> & pos) const;
+  double Value (const vector<double> & pos) const;
+
+  //-- checks whether the function value for the point or the input
+  //   coordinate vector is already set
+  bool   ValueIsSet (const vector<unsigned int> & pos) const;
+  bool   ValueIsSet (const vector<double> & pos) const;
+
 private:
 
-  UnifGrid * fGrid;
+  void   SetValue   (double value, long int uid);
+  double Value      (long int uid) const;
+  bool   ValueIsSet (long int uid) const;
+
+  UnifGrid *            fGrid;
   map<long int, double> fFuncMap;
+  map<long int, bool>   fIsSet;
 };
 
 }        // namespace

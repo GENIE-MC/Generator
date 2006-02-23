@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::IntegratorI
+\class    genie::GridDimension
 
-\brief    Numerical integration algorithm ABC
+\brief    Grid dimension ABC
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -13,31 +13,39 @@
 */
 //____________________________________________________________________________
 
-#include "Numerical/IntegratorI.h"
+#include <cassert>
+
+#include "Numerical/GridDimension.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-IntegratorI::IntegratorI() :
-Algorithm()
+GridDimension::GridDimension()
 {
 
 }
 //____________________________________________________________________________
-IntegratorI::IntegratorI(string name) :
-Algorithm(name)
+GridDimension::GridDimension(
+                  GridSpacing_t sp, double min, double max, unsigned int np) :
+fSpacing(sp),
+fMin(min),
+fMax(max),
+fNPoints(np)
 {
 
 }
 //____________________________________________________________________________
-IntegratorI::IntegratorI(string name, string config) :
-Algorithm(name, config)
+GridDimension::~GridDimension()
 {
-
 }
 //____________________________________________________________________________
-IntegratorI::~IntegratorI()
+void GridDimension::Set(
+                 GridSpacing_t sp, double min, double max, unsigned int np)
 {
-
+  fSpacing = sp,
+  fMin     = min;
+  fMax     = max;
+  fNPoints = np;
 }
 //____________________________________________________________________________
+
