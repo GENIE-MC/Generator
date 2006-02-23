@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+  <param_set name="Default"> 
+     <param type="int"    name="n-max-allowed-evaluations"> 800000 </param>
+     <param type="int"    name="n-evaluations-per-step">      2000 </param>
+     <param type="double" name="max-error">                    5.0 </param>
+  </param_set>
+</alg_conf>
+

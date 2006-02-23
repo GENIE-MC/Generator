@@ -7,7 +7,8 @@
   <param_set name="CC-Charm-Default-dy"> 
      <param type="string" name="partial-xsec-alg-name">  genie::AivazisCharmPXSecLO </param>
      <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
-     <param type="string" name="integrator">             genie::Simpson1D           </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson1D           </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
      <param type="string" name="is-differential-over">   y                          </param>
      <param type="int"    name="n-log-x">                161                        </param>
      <param type="double" name="x-min">                  0.001                      </param>
@@ -19,7 +20,8 @@
   <param_set name="CC-Charm-Default-dx"> 
      <param type="string" name="partial-xsec-alg-name">  genie::AivazisCharmPXSecLO </param>
      <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
-     <param type="string" name="integrator">             genie::Simpson1D           </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson1D           </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
      <param type="string" name="is-differential-over">   x                          </param>
      <param type="int"    name="n-log-y">                161                        </param>
      <param type="double" name="y-min">                  0.001                      </param>
@@ -31,7 +33,8 @@
   <param_set name="CC-Charm-Slow-Rescaling-Default-dy"> 
      <param type="string" name="partial-xsec-alg-name">  genie::SlowRsclCharmDISPXSecLO </param>
      <param type="string" name="partial-xsec-param-set"> CC-Default                     </param>
-     <param type="string" name="integrator">             genie::Simpson1D               </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson1D               </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic            </param>
      <param type="string" name="is-differential-over">   y                              </param>
      <param type="int"    name="n-log-x">                161                            </param>
      <param type="double" name="x-min">                  0.001                          </param>
@@ -43,7 +46,8 @@
   <param_set name="CC-Charm-Slow-Rescaling-Default-dx"> 
      <param type="string" name="partial-xsec-alg-name">  genie::SlowRsclCharmDISPXSecLO </param>
      <param type="string" name="partial-xsec-param-set"> CC-Default                     </param>
-     <param type="string" name="integrator">             genie::Simpson1D               </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson1D               </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic            </param>
      <param type="string" name="is-differential-over">   x                              </param>
      <param type="int"    name="n-log-y">                161                            </param>
      <param type="double" name="y-min">                  0.001                          </param>
@@ -53,7 +57,8 @@
  <param_set name="CC-Parton-Model-Default-dy">
      <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>
      <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
-     <param type="string" name="integrator">             genie::Simpson1D           </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson1D           </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
      <param type="string" name="is-differential-over">   y                          </param>
      <param type="int"    name="n-log-x">                161                        </param>
      <param type="double" name="x-min">                  0.001                      </param>

@@ -3,10 +3,10 @@
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="string"  name="pdf-alg-name">     genie::PDFLIB    </param>
-     <param type="string"  name="pdf-param-set">    GRVHO            </param>
-     <param type="int"     name="nbins">            101              </param>
-     <param type="string"  name="integrator"  >     genie::Simpson1D </param>
+     <param type="string"  name="pdf-alg-name">         genie::PDFLIB       </param>
+     <param type="string"  name="pdf-param-set">        GRVHO               </param>
+     <param type="string"  name="integrator-alg-name">  genie::Simpson1D    </param>
+     <param type="string"  name="integrator-param-set"> Default-Logarithmic </param>
   </param_set>
 
 </alg_conf>

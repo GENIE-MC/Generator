@@ -7,9 +7,10 @@
 
   <param_set name="Default"> 
 
-    <param type="string" name="integrator-name">        genie::Simpson1D            </param>
     <param type="string" name="partial-xsec-alg-name">  genie::BardinIMDRadCorPXSec </param>
     <param type="string" name="partial-xsec-param-set"> Default                     </param>
+    <param type="string" name="integrator-alg-name">    genie::Simpson1D            </param>
+    <param type="string" name="integrator-param-set">   Default-Logarithmic         </param>
 
   </param_set>
 

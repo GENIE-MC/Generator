@@ -7,7 +7,19 @@
   The actual Rein-Seghal model is coded at ReinSeghalRESPXSec.
   See also the RSSingleRESPXSec and RSListRESPXSec
 
+
   <param_set name="Default"> 
+
+     <param type="string" name="single-res-xsec-alg-name">   genie::RSSingleRESPXSec  </param>
+     <param type="string" name="single-res-xsec-param-set">  Default                  </param>
+
+     <param type="string" name="resonance-name-list">  
+                   P33(1232),S11(1535),D13(1520),S11(1650),D13(1700)
+     </param>
+  </param_set>
+
+
+  <param_set name="AllGoodResonances"> 
 
      In this configuration parameter set we do not include the ambiguous P33(1600), F17(1970)
 
@@ -22,7 +34,7 @@
   </param_set>
 
 
-  <param_set name="All-Resonances"> 
+  <param_set name="AllResonances"> 
 
      <param type="string" name="single-res-xsec-alg-name">   genie::RSSingleRESPXSec  </param>
      <param type="string" name="single-res-xsec-param-set">  Default                  </param>
