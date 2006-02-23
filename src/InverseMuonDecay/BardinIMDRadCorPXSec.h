@@ -30,6 +30,7 @@
 #define _BARDIN_IMD_RADIATIVE_CORRECTIONS_PARTIAL_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
+#include "Numerical/GSFunc.h"
 
 namespace genie {
 
@@ -64,6 +65,30 @@ private:
   double C   (int    i,  int k,    double r) const;
 
   const IntegratorI * fIntegrator;
+};
+
+//____________________________________________________________________________
+/*!
+\class    genie::BardinIMDRadCorIntegrand
+
+\brief    Auxiliary scalar function for the internal integration in Bardin's
+          IMD d2xsec/dxdy cross section algorithm
+
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
+
+\created  February 20, 2006
+*/
+//____________________________________________________________________________
+
+class BardinIMDRadCorIntegrand : public GSFunc
+{
+public:
+  BardinIMDRadCorIntegrand(double z);
+  ~BardinIMDRadCorIntegrand();
+  double operator () (const vector<double> & x);
+private:
+  double fZ;
 };
 
 }       // genie namespace

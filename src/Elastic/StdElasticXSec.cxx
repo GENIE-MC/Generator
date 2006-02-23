@@ -18,13 +18,11 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
+#include "CrossSections/GXSecFunc.h"
 #include "Elastic/StdElasticXSec.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/UnifGrid.h"
-#include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
 #include "Utils/KineUtils.h"
 
@@ -61,26 +59,13 @@ double StdElasticXSec::XSec(const Interaction * interaction) const
   //----- integrate the differential cross section
   Range1D_t rQ2 = utils::kinematics::Q2Range_M(interaction);
 
-  const double logQ2min = TMath::Log(rQ2.min);
-  const double logQ2max = TMath::Log(rQ2.max);
-  const double dlogQ2   = (logQ2max-logQ2min)/(fNBins-1);
+  GXSecFunc * func = new Integrand_DXSec_DQ2_E(fDiffXSecModel, interaction);
+  func->SetParam(0,"Q2",rQ2);
+  double xsec = fIntegrator->Integrate(*func);
 
-  UnifGrid grid;
-  grid.AddDimension(fNBins, logQ2min, logQ2max);
-
-  FunctionMap fmap(grid);
-
-  for(int i = 0; i < fNBins; i++) {
-
-    double Q2  = TMath::Exp(logQ2min + i * dlogQ2);
-    interaction->GetKinematicsPtr()->SetQ2(Q2);
-
-    double dsig_dQ2  = fDiffXSecModel->XSec(interaction);
-    fmap.AddPoint(Q2*dsig_dQ2, i);
-  }
-
-  double xsec = fIntegrator->Integrate(fmap);
   LOG("Elastic", pDEBUG) << "*** XSec[EL] (E=" << E << ") = " << xsec;
+
+  delete func;
   return xsec;
 }
 //____________________________________________________________________________
@@ -116,26 +101,16 @@ void StdElasticXSec::LoadConfig(void)
 // needed and sets configuration variables to avoid looking up at the Registry
 // all the time.
 
-  //----- Get an algorithm to calculate differential cross sections dxsec/dQ2
+  //-- get an algorithm to calculate differential cross sections dxsec/dQ2
   fDiffXSecModel =
           dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
                          "partial-xsec-alg-name", "partial-xsec-param-set"));
   assert(fDiffXSecModel);
 
-  //----- Get an integrator
-  string intgr = fConfig->GetStringDef("integrator", "genie::Simpson1D");
-
-  AlgFactory * algf = AlgFactory::Instance();
-  fIntegrator = dynamic_cast<const IntegratorI *>(algf->GetAlgorithm(intgr));
-
+  //-- get the specified integration algorithm
+  fIntegrator = dynamic_cast<const IntegratorI *> (
+                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
   assert(fIntegrator);
-
-  //----- get the input number of dxsec/dlogQ2 points for num. integration
-  //      or use a default if no number is specified
-  //      (must be odd number for the Simpson rule)
-  fNBins = fConfig->GetIntDef("N-logQ2-bins", 131);
-  LOG("Elastic", pDEBUG) << "Number of integration (logQ2) bins = " << fNBins;
-  assert(fNBins>2);
 }
 //____________________________________________________________________________
 

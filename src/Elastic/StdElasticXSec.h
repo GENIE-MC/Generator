@@ -49,7 +49,6 @@ private:
 
   void LoadConfig (void);
 
-  int   fNBins;
   const XSecAlgorithmI * fDiffXSecModel;
   const IntegratorI *    fIntegrator;
 };

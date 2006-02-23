@@ -31,14 +31,11 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
 #include "Charm/KovalenkoQELCharmPXSec.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/UnifGrid.h"
-#include "Numerical/FunctionMap.h"
 #include "Numerical/IntegratorI.h"
 #include "PDF/PDF.h"
 #include "PDF/PDFModelI.h"
@@ -148,41 +145,14 @@ double KovalenkoQELCharmPXSec::DR(
   LOG("CharmXSec", pDEBUG) << "Integration limits = ["
                              << xi_bar_plus << ", " << xi_bar_minus << "]";
 
-  //----- define the integration grid & instantiate a FunctionMap
-  UnifGrid grid;
-  grid.AddDimension(fNBins, xi_bar_plus, xi_bar_minus);
-
-  FunctionMap fmap(grid);
-
-  //----- auxiliary variables
   const InitialState & init_state = interaction -> GetInitialState();
+  int pdgc = init_state.GetTarget().StruckNucleonPDGCode();
 
-  double delta_xi_bar = (xi_bar_plus - xi_bar_minus) / (fNBins - 1);
+  KovQELCharmIntegrand * func = new KovQELCharmIntegrand(&pdfs,Q2,pdgc,norm);
+  func->SetParam(0,"xi_bar",xi_bar_minus, xi_bar_plus);
+  double D = fIntegrator->Integrate(*func);
 
-  bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
-
-  //----- loop over x range (at fixed Q^2) & compute the function map
-  for(int i = 0; i < fNBins; i++) {
-
-     double t = xi_bar_plus + i * delta_xi_bar;
-
-     if( t<0 || t>1) fmap.AddPoint( 0., i );
-     else {
-       if(norm) pdfs.Calculate(t, 0.);
-       else     pdfs.Calculate(t, Q2);
-
-       double f = (isP) ? ( pdfs.DownValence() + pdfs.DownSea() ):
-                          ( pdfs.UpValence()   + pdfs.UpSea()   );
-       fmap.AddPoint( f, i );
-
-       LOG("CharmXSec", pDEBUG)
-          << "point...." << i+1 << "/" << fNBins << " : "
-          << "x*pdf(Q^2 = " << Q2 << ", x = " << t << ") = " << f;
-    }
-  }
-
-  //----- Numerical integration
-  double D = fIntegrator->Integrate(fmap);
+  delete func;
   return D;
 }
 //____________________________________________________________________________
@@ -376,9 +346,6 @@ void KovalenkoQELCharmPXSec::LoadConfigData(void)
   fQ2min = fConfig->GetDoubleDef("Q2max",  999999);
 
   assert(fQ2min < fQ2max);
-
-  fNBins = fConfig->GetIntDef("nbins", 201);
-  assert(fNBins>1);
 }
 //____________________________________________________________________________
 void KovalenkoQELCharmPXSec::LoadSubAlg(void)
@@ -390,11 +357,42 @@ void KovalenkoQELCharmPXSec::LoadSubAlg(void)
                               this->SubAlg("pdf-alg-name", "pdf-param-set"));
   assert(fPDFModel);
 
-  string integrator = fConfig->GetStringDef("integrator","genie::Simpson1D");
-  AlgFactory * algf = AlgFactory::Instance();
   fIntegrator = dynamic_cast<const IntegratorI *> (
-                                             algf->GetAlgorithm(integrator));
+                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________
+// Auxiliary scalar function for internal integration
+//____________________________________________________________________________
+KovQELCharmIntegrand::KovQELCharmIntegrand(
+                          PDF * pdf, double Q2, int nucleon_pdgc, bool norm) :
+GSFunc(1)
+{
+  fPDF  = pdf;
+  fQ2   = Q2;
+  fPdgC = nucleon_pdgc;
+  fNorm = norm;
+}
+//____________________________________________________________________________
+KovQELCharmIntegrand::~KovQELCharmIntegrand()
+{
+
+}
+//____________________________________________________________________________
+double KovQELCharmIntegrand::operator() (const vector<double> & param)
+{
+  double t = param[0];
+  bool isP = pdg::IsProton(fPdgC);
+
+  if(t<0 || t>1) return 0.;
+  else {
+       if(fNorm) fPDF->Calculate(t, 0.);
+       else      fPDF->Calculate(t, fQ2);
+  }
+  double f = (isP) ? ( fPDF->DownValence() + fPDF->DownSea() ):
+                     ( fPDF->UpValence()   + fPDF->UpSea()   );
+  return f;
+}
+//____________________________________________________________________________
+
 
