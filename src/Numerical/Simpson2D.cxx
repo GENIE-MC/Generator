@@ -66,20 +66,31 @@ double Simpson2D::Integrate(GSFunc & gsfunc) const
   // integral value converges to the real one within the required accuracy
   for(unsigned int iter=0; iter<fIMaxConv; iter++) {
 
-    np = (unsigned int) TMath::Power(2,n) + 1;
-    n++;
+    int idim=-1;
+    if(fFastDensityIncrease) {
+      // increase the grid density fast - all dimensions simultaneously
+      np = (unsigned int) TMath::Power(2,n) + 1;
+      n++;
+      fmap.IncreaseGridDensity(np);
+    } else {
+      // increase the grid density slowly - 1 dimension at a time...
+      if(iter%ndim==0) {
+        np = (unsigned int) TMath::Power(2,n) + 1;
+        n++;
+        idim = 0;
+      }
+      fmap.IncreaseGridDensity(np, idim++);
+    }
 
-    fmap.IncreaseGridDensity(np);
     const UnifGrid & curr_grid = fmap.GetGrid();
-
     LOG("Simpson2D", pINFO)
       << "Integration: iter = " << iter << ", using grid: " << curr_grid;
 
     // populate the function map with the values of the input function
     // computed on the grid points
-    for(unsigned int i=0; i<np; i++) {
+    for(unsigned int i=0; i < curr_grid[0]->NPoints(); i++) {
       x[0] = curr_grid(0, i);
-      for(unsigned int j=0; j<np; j++) {
+      for(unsigned int j=0; j < curr_grid[1]->NPoints(); j++) {
          x[1] = curr_grid(1, j);
 
          if(!fmap.ValueIsSet(x)) {
@@ -91,7 +102,7 @@ double Simpson2D::Integrate(GSFunc & gsfunc) const
             //-- note that if the grid points are distributed uniformly in
             //   ln(x) then the scalar function has to be multiplied by x:
             //   integral { f(x)dx } = integral { x*f(x) dln(x) }
-            if(fSpacing==kGSpLoge) y *= x[0]*x[1];
+            if(fSpacing==kGSpLoge) y *= (x[0]*x[1]);
 
             //-- add the computed point at the function map
             fmap.SetValue(y, x);
@@ -185,6 +196,8 @@ void Simpson2D::LoadConfigData(void)
   bool inloge = fConfig->GetBool("in-loge");
   if(inloge) fSpacing = kGSpLoge;
   else       fSpacing = kGSpLinear;
+
+  fFastDensityIncrease = fConfig->GetBoolDef("fast-density-increase", false);
 }
 //____________________________________________________________________________
 

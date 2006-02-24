@@ -56,6 +56,7 @@ private:
   unsigned int  fNo;         ///< 2^No + 1 is the initial number of steps
   double        fMaxPcntErr; ///< max numerical error allowed (in %)
   GridSpacing_t fSpacing;    ///< grid points spacing rule
+  bool          fFastDensityIncrease;
 };
 
 }        // genie namespace

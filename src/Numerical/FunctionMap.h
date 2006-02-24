@@ -36,7 +36,7 @@ public:
 
   //-- access & modify the grid
   const UnifGrid & GetGrid (void) const { return *fGrid; }
-  void  IncreaseGridDensity (unsigned int np);
+  void  IncreaseGridDensity (unsigned int np, int in_dim=-1);
 
   //-- set the function value for a point at a given grid position
   //   or coordinate vector
