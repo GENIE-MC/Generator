@@ -21,7 +21,6 @@
 #include <ostream>
 
 #include <TFile.h>
-#include <TNtuple.h>
 
 using std::map;
 using std::string;
@@ -29,15 +28,17 @@ using std::ostream;
 
 namespace genie {
 
+class CacheBranchI;
+
 class Cache
 {
 public:
 
   static Cache * Instance(void);
 
-  TNtuple * FindCacheBranchPtr (string key);
-  TNtuple * CreateCacheBranch  (string key, string brdef);
-  string    CacheBranchKey     (string k0, string k1="", string k2="") const;
+  CacheBranchI * FindCacheBranch (string key);
+  void           AddCacheBranch  (string key, CacheBranchI * branch);
+  string         CacheBranchKey  (string k0, string k1="", string k2="") const;
 
   //-- print cache buffers
   void   Print (ostream & stream) const;
@@ -54,8 +55,8 @@ private:
   static Cache * fInstance;
 
   //-- map of cache buffers & cache file
-  map<string, TNtuple * > * fCacheMap;
-  TFile *                   fCacheFile;
+  map<string, CacheBranchI * > * fCacheMap;
+  TFile *                        fCacheFile;
 
   //-- singleton class: constructors are private
   Cache();
@@ -76,5 +77,4 @@ private:
 };
 
 }      // genie namespace
-
 #endif // _CACHE_H_
