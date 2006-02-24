@@ -9,10 +9,8 @@
      <param type="string" name="partial-xsec-param-set"> Default                    </param>
      <param type="string" name="integrator-alg-name">    genie::Simpson2D           </param>
      <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
-     <param type="int"    name="n-log-x">                51                         </param>
      <param type="double" name="x-min">                  0.001                      </param>
      <param type="double" name="x-max">                  0.999                      </param>
-     <param type="int"    name="n-log-y">                51                         </param>
      <param type="double" name="y-min">                  0.001                      </param>
      <param type="double" name="y-max">                  0.999                      </param>
   </param_set>

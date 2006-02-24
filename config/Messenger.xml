@@ -49,7 +49,7 @@
   <priority msgstream="FragmentCharm">       INFO   </priority>
   <priority msgstream="Flux">                NOTICE </priority>
   <priority msgstream="FLUKA">               INFO   </priority>
-  <priority msgstream="FMap">                NOTICE </priority>
+  <priority msgstream="FMap">                WARN   </priority>
   <priority msgstream="GEVGDriver">          NOTICE </priority>
   <priority msgstream="GMCJDriver">          INFO   </priority>
   <priority msgstream="GEVGPool">            INFO   </priority>
@@ -59,6 +59,7 @@
   <priority msgstream="GHEP">                NOTICE </priority>
   <priority msgstream="GHepParticle">        INFO   </priority>
   <priority msgstream="GuiUtils">            INFO   </priority>
+  <priority msgstream="GridDim">             WARN   </priority>
   <priority msgstream="GXSecFunc">           WARN   </priority>
   <priority msgstream="HadronicVertex">      INFO   </priority>
   <priority msgstream="IMD">                 NOTICE </priority>
@@ -94,7 +95,7 @@
   <priority msgstream="QELXSec">             INFO   </priority>
   <priority msgstream="QELHadronicVtx">      INFO   </priority>
   <priority msgstream="QELKinematics">       INFO   </priority>
-  <priority msgstream="RESXSec">             WARN   </priority>
+  <priority msgstream="RESXSec">             INFO   </priority>
   <priority msgstream="RESPXSec">            WARN   </priority>
   <priority msgstream="ReinSeghalCoh">       WARN   </priority>
   <priority msgstream="ReinSeghalRes">       WARN   </priority>
@@ -108,7 +109,7 @@
   <priority msgstream="Schmitz">             INFO   </priority>
   <priority msgstream="SlowRsclCharm">       INFO   </priority>
   <priority msgstream="Simpson1D">           WARN   </priority>
-  <priority msgstream="Simpson2D">           NOTICE </priority>
+  <priority msgstream="Simpson2D">           WARN   </priority>
   <priority msgstream="SimMCIntegrator">     NOTICE </priority>
   <priority msgstream="VegasMCIntegrator">   NOTICE </priority>
   <priority msgstream="MiserMCIntegrator">   NOTICE </priority>
