@@ -93,11 +93,10 @@ int main(int argc, char ** argv)
   vector<string>::const_iterator kiter;
 
   //-- figuring out the energy, xsec range
-  int    A     = pdg::IonPdgCodeToA(gOptTgtPdgCode);
   double Emin  = 0.1;
   double Emax  = gOptNuEnergy;
-  double XSmax = A * 1.2E-38;
-  double XSmin = XSmax/300.;
+  double XSmax = -9999;
+  double XSmin =  9999;
 
   //-- string to match for selecting splines for the input target only
   ostringstream tgtmatch;
@@ -111,13 +110,6 @@ int main(int argc, char ** argv)
   ostringstream filename;
   filename << "xsec-splines-" << gOptTgtPdgCode << ".ps";
   TPostScript * ps = new TPostScript(filename.str().c_str(), 111);
-
-  //-- add its 1st page / canvas for xsec plots
-  c = new TCanvas("c","",20,20,500,500);
-  c->SetBorderMode(0);
-  c->SetFillColor(0);
-  c->Draw();
-  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
 
   //-- create plot legend
   TLegend * legend = new TLegend(0.85,0.2,1.00,0.9);
@@ -150,23 +142,39 @@ int main(int argc, char ** argv)
 
     int icol = TMath::Min( i % kNColors,  kNColors-1  );
     int isty = TMath::Min( i / kNMarkers, kNMarkers-1 );
-
     int col = colors[icol];
     int sty = markers[isty];
 
     LOG("gsplt", pINFO) << "color = " << col << ", marker = " << sty;
 
-    gr[i] = spl->GetAsTGraph(200,true,true,1.,1./units::cm2);
+    int NP=200;
+    gr[i] = spl->GetAsTGraph(NP,true,true,1.,1./units::cm2);
+    double x=0, y=0;
+    for(int j=0; j<NP; j++) {
+       gr[i]->GetPoint(j,x,y);
+       XSmax = TMath::Max(XSmax,y);
+    }
     gr[i]->SetLineColor(col);
     gr[i]->SetMarkerColor(col);
     gr[i]->SetMarkerStyle(sty);
     gr[i]->SetMarkerSize(0.5);
-    gr[i]->Draw("LP");
 
     ostringstream lgentry;
     lgentry << "spl-" << i;
     legend->AddEntry(gr[i], lgentry.str().c_str(),"LP");
   }
+  XSmin = XSmax/300.;
+
+  //-- add the 1st page: xsec plots
+  c = new TCanvas("c","",20,20,500,500);
+  c->SetBorderMode(0);
+  c->SetFillColor(0);
+  c->Draw();
+
+  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+
+  for(int i = 0; i < (int) keyv->size(); i++) gr[i]->Draw("LP");
+  legend->Draw();
 
   h->GetXaxis()->SetTitle("Ev (GeV)");
   h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");

@@ -20,14 +20,20 @@ ifdef GOPT_GEANT_INTERFACE
   LIBRARIES := $(LIBRARIES) $(GEANT4_LIBRARIES) $(CLHEP_LIBRARIES)
 endif
 
-TGT =	gEvGen		\
-	gVldDoc		\
-	gMakeSplines	\
-	gMaxPathLengths	\
-	g2Nuance	\
-	gSplinePlotter	\
-	gMCSampleTest	\
-	gViewer		
+ALLTGT = gEvGen		\
+	 gVldDoc	\
+	 gMakeSplines	\
+	 gMaxPathLengths\
+	 g2Nuance	\
+	 gSplinePlotter	\
+	 gMCSampleTest	\
+	 gViewer		
+
+STDTGT = gEvGen		\
+	 gVldDoc	\
+	 gMakeSplines	\
+	 gMaxPathLengths\
+	 gSplinePlotter	
 
 EXE =	$(GENIE_BIN_PATH)/gevgen   \
 	$(GENIE_BIN_PATH)/gvlddoc  \
@@ -38,7 +44,7 @@ EXE =	$(GENIE_BIN_PATH)/gevgen   \
 	$(GENIE_BIN_PATH)/gmctest  \
 	$(GENIE_BIN_PATH)/gviewer
 
-all: $(TGT)
+all: $(STDTGT)
 
 gEvGen: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gevgen gEvGen.cxx \
