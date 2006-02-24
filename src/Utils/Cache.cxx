@@ -23,6 +23,7 @@
 
 #include "Messenger/Messenger.h"
 #include "Utils/Cache.h"
+#include "Utils/CacheBranchI.h"
 
 using std::ostringstream;
 using std::cout;
@@ -53,9 +54,9 @@ Cache::~Cache()
 
   cout << "Cache singleton dtor: Deleting all cache branches" << endl;
   if(fCacheMap) {
-    map<string, TNtuple * >::iterator citer;
+    map<string, CacheBranchI * >::iterator citer;
     for(citer = fCacheMap->begin(); citer != fCacheMap->end(); ++citer) {
-      TNtuple * branch = citer->second;
+      CacheBranchI * branch = citer->second;
       if(branch) {
         delete branch;
         branch = 0;
@@ -79,29 +80,23 @@ Cache * Cache::Instance()
 
     fInstance = new Cache;
 
-    fInstance->fCacheMap = new map<string, TNtuple * >;
+    fInstance->fCacheMap = new map<string, CacheBranchI * >;
     fInstance->AutoLoad();
   }
   return fInstance;
 }
 //____________________________________________________________________________
-TNtuple * Cache::FindCacheBranchPtr(string key)
+CacheBranchI * Cache::FindCacheBranch(string key)
 {
-  map<string, TNtuple *>::const_iterator map_iter = fCacheMap->find(key);
+  map<string, CacheBranchI *>::const_iterator map_iter = fCacheMap->find(key);
 
   if (map_iter == fCacheMap->end()) return 0;
   return map_iter->second;
 }
 //____________________________________________________________________________
-TNtuple * Cache::CreateCacheBranch(string key, string branchdef)
+void Cache::AddCacheBranch(string key, CacheBranchI * branch)
 {
-  TNtuple * nt = new TNtuple(key.c_str(), "cache branch", branchdef.c_str());
-  nt->SetDirectory(0);
-  nt->SetCircular(1600000);
-
-  fCacheMap->insert( map<string, TNtuple *>::value_type(key,nt) );
-
-  return nt;
+  fCacheMap->insert( map<string, CacheBranchI *>::value_type(key,branch) );
 }
 //____________________________________________________________________________
 string Cache::CacheBranchKey(string k0, string k1, string k2) const
@@ -142,9 +137,9 @@ void Cache::AutoLoad(void)
     ostringstream bname;
     bname << "buffer_" << ib++;
 
-    TNtuple * buffer = (TNtuple*) cache->Get(bname.str().c_str());
+    CacheBranchI * buffer = (CacheBranchI*) cache->Get(bname.str().c_str());
     if(buffer) {
-     fCacheMap->insert( map<string, TNtuple *>::value_type(key,buffer) );
+     fCacheMap->insert( map<string, CacheBranchI *>::value_type(key,buffer) );
     }
   }
 
@@ -172,10 +167,10 @@ void Cache::AutoSave(void)
   TList * keys = new TList;
   keys->SetOwner(true);
 
-  map<string, TNtuple * >::iterator citer;
+  map<string, CacheBranchI * >::iterator citer;
   for(citer = fCacheMap->begin(); citer != fCacheMap->end(); ++citer) {
-    string    key    = citer->first;
-    TNtuple * branch = citer->second;
+    string key = citer->first;
+    CacheBranchI * branch = citer->second;
     if(branch) {
       cout << " saving cache buffer: " << key << endl;
 
@@ -218,14 +213,12 @@ void Cache::Print(ostream & stream) const
 {
   stream << "\n [-] GENIE Cache Buffers:";
   stream << "\n  |";
-  map<string, TNtuple * >::iterator citer;
+  map<string, CacheBranchI * >::iterator citer;
   for(citer = fCacheMap->begin(); citer != fCacheMap->end(); ++citer) {
-    string    key    = citer->first;
-    TNtuple * branch = citer->second;
+    string key = citer->first;
+    CacheBranchI * branch = citer->second;
     stream << "\n  |--o  " << key;
-    if(branch) {
-      stream << ", N = " << branch->GetEntries();
-    } else {
+    if(!branch) {
       stream << " *** NULL *** ";
     }
   }
