@@ -12,43 +12,87 @@
 */
 //____________________________________________________________________________
 
-#include "Numerical/UnifGrid.h"
-#include "Numerical/FunctionMap.h"
+#include "Algorithm/AlgFactory.h"
+#include "Numerical/GSFunc.h"
+#include "Numerical/Spline.h"
+#include "Numerical/IntegratorI.h"
 #include "Messenger/Messenger.h"
+#include "Utils/Range1.h"
 
 using namespace genie;
 
+class GExampleFunc : public GSFunc
+{
+public:
+  GExampleFunc() : GSFunc(1) {}
+  ~GExampleFunc() {}
+
+  double operator() (const vector<double> & p)
+  {
+    double x = p[0];
+    double y = 3*x*x+2*x+7;
+    return y;
+  }
+};
+
 int main(int argc, char ** argv)
 {
-  LOG("Main",pINFO) << "Defining a UnifGrid";
+  //****** NUMERICAL INTEGRATION
 
-  UnifGrid grid2d;
+  // get integrator
+  AlgFactory * algf = AlgFactory::Instance();
+  const IntegratorI * integrator = 
+        dynamic_cast<const IntegratorI *> (
+           algf->GetAlgorithm("genie::Simpson1D","Default-Linear"));
 
-  grid2d.AddDimension(20,  0, 10);
-  grid2d.AddDimension(10, -5,  5);
+  // create function
+  GExampleFunc myfunction;
 
-  vector<int> some_position(2);
+  // set function limits
+  Range1D_t xlimits(0.,10.);
+  myfunction.SetParam(0,"x",xlimits);
 
-  some_position[0] = 1;
-  some_position[1] = 3;
-  
-  LOG("Main",pINFO) << "Creating a FunctionMap";
+  // integrate function
+  double I = integrator->Integrate(myfunction);
 
-  FunctionMap func_map(grid2d);
+  LOG("Main",pINFO) 
+              << "Integral <for given numerical accuracy> = " << I;
 
-  LOG("Main",pINFO) << "Adding points";
+  //****** INTERPOLATION
 
-  for(int p0 = 0; p0 < 20; p0++) {
-    for(int p1 = 0; p1 < 10; p1++) {
+  //evaluate the example function at various points
 
-         LOG("Main",pINFO) << "(" << p0 << ", " << p1 << ") = " << p1+0.5;
+  const int N  = 40;
+  double x[N], y[N];
+  double dx = (xlimits.max - xlimits.min)/(N-1);
+  vector<double> p(1);
 
-         func_map.AddPoint( p1+0.5, p0, p1);
-    }
+  for(int i=0; i<N; i++) {
+
+    p[0] = xlimits.min + i*dx;
+    x[i] = p[0];
+    y[i] = myfunction(p);
   }
 
-  for(int i=0; i<20; i++) 
-       LOG("Main",pINFO) << "......" << func_map.Func(i,9);
+  // create an 1-D spline
+  Spline * spline = new Spline(N,x,y);
+
+  // evaluate the original function and the spline at various points
+
+
+  int M = 100; // != N, otherwise we test only at the spline knots
+  dx = (xlimits.max - xlimits.min)/(M-1);
+
+  for(int i=0; i<M; i++) {
+
+    p[0] = xlimits.min + i*dx;
+    double yfunc = myfunction(p);
+    double yspln = spline->Evaluate(p[0]);
+
+    LOG("Main",pINFO) << "x = " << p[0] 
+               << ", f(x) = " << yfunc << ", spline(x) = " << yspln;
+  }
+  delete spline;
 
   return 0;
 }
