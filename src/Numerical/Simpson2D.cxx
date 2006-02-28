@@ -106,6 +106,11 @@ double Simpson2D::Integrate(GSFunc & gsfunc) const
 
             //-- add the computed point at the function map
             fmap.SetValue(y, x);
+         } else {
+           LOG("Simpson2D", pDEBUG)
+               << "grid point...." << i << "," << j
+                << "/" << np << "," << np << " : " << "func at (x = " 
+                 << x[0] << ", " << x[1] << ") computed at previous step";
          }
       }
     }

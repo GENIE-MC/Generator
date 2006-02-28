@@ -52,7 +52,7 @@ void FunctionMap::SetValue(double value, const vector<double> & pos)
 void FunctionMap::SetValue(double value, long int uid)
 {
   fFuncMap.insert( map<long int, double>::value_type(uid, value) );
-  fIsSet.insert( map<long int, bool>::value_type(uid, true) );
+  //fIsSet.insert( map<long int, bool>::value_type(uid, true) );
 }
 //____________________________________________________________________________
 double FunctionMap::Value(const vector<unsigned int> & pos) const
@@ -90,13 +90,20 @@ bool FunctionMap::ValueIsSet(const vector<double> & pos) const
 //____________________________________________________________________________
 bool FunctionMap::ValueIsSet(long int uid) const
 {
-  map<long int, bool>::const_iterator iter = fIsSet.find(uid);
-  if( iter == fIsSet.end() ) return false;
-  else return iter->second;
+  //  map<long int, bool>::const_iterator iter = fIsSet.find(uid);
+  //  if( iter == fIsSet.end() ) return false;
+  //  else return iter->second;
+
+  map<long int, double>::const_iterator iter = fFuncMap.find(uid);
+  if( iter == fFuncMap.end() ) return false;
+  else return true;
 }
 //____________________________________________________________________________
 void FunctionMap::IncreaseGridDensity(unsigned int np, int in_dim)
 {
+// np must be 2**N+1
+//
+
   unsigned int nd = fGrid->GetNDimensions();
 
   // copy of old grid
@@ -118,10 +125,19 @@ void FunctionMap::IncreaseGridDensity(unsigned int np, int in_dim)
   // new grid
   UnifGrid * new_grid = fGrid;
 
+  LOG("FMap", pDEBUG) << "Old Grid: " << *old_grid;
+  LOG("FMap", pDEBUG) << "New Grid: " << *new_grid;
+
+  if(fFuncMap.size() == 0) {
+    delete old_grid;
+    return;
+  }
+
   // initialize grid position vector
-  vector<unsigned int> pos(nd);
+  vector<unsigned int> old_grid_pos(nd), new_grid_pos(nd);
   for(unsigned int id = 0; id < nd; id++) {
-    pos[id] = 0;
+    old_grid_pos[id] = 0;
+    new_grid_pos[id] = 0;
   }
 
   // number of points in the old grid - where the function was evaluated
@@ -135,9 +151,19 @@ void FunctionMap::IncreaseGridDensity(unsigned int np, int in_dim)
   map<long int, double> func_map;
   for(unsigned int i=0; i<ntot; i++) {
 
-    old_grid->Point(i, pos); // current point
-    long int old_uid = old_grid->UId(pos); // old grid UId
-    long int new_uid = new_grid->UId(pos); // new grid UId
+    old_grid->Point(i, old_grid_pos); // current point
+    long int old_uid = old_grid->UId(old_grid_pos); // old grid UId
+
+    if(in_dim==-1) {
+      for(unsigned int i = 0; i < nd; i++) {
+	int nmult = (np-1) / ((*old_grid)[i]->NPoints() - 1);
+         new_grid_pos[i] = old_grid_pos[i] * nmult;
+      }
+    } else {
+      int nmult = (np-1) / ((*old_grid)[in_dim]->NPoints()-1);
+      new_grid_pos[in_dim] = old_grid_pos[in_dim] * nmult;
+    }
+    long int new_uid = new_grid->UId(new_grid_pos); // new grid UId
 
     LOG("FMap", pDEBUG) << "UId: " << old_uid << " -> " << new_uid;
 
@@ -150,15 +176,13 @@ void FunctionMap::IncreaseGridDensity(unsigned int np, int in_dim)
   // delete old grid
   delete old_grid;
   fFuncMap.clear();
-  fIsSet.clear();
 
   // refresh fFuncMap and fIsSet
   map<long int, double>::iterator iter;
   for(iter = func_map.begin(); iter != func_map.end(); ++iter) {
     long int uid = iter->first;
     double   val = iter->second;
-    fFuncMap.insert( map<long int, double>::value_type(uid, val) );
-    fIsSet.insert( map<long int, double>::value_type(uid, true)  );
+    this->SetValue(val,uid);
   }
 }
 //____________________________________________________________________________
