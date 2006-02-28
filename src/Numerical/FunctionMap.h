@@ -60,7 +60,7 @@ private:
 
   UnifGrid *            fGrid;
   map<long int, double> fFuncMap;
-  map<long int, bool>   fIsSet;
+  //map<long int, bool>   fIsSet;
 };
 
 }        // namespace
