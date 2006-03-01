@@ -6,10 +6,12 @@
 \brief   Minimal interface object for generating neutrino interactions for
          a given initial state.
 
-         When GMC is used, a GEVGDriver object list is assembled for all possible
-         initial states (corresponding to combinations of all neutrino types
-         -declared by the input GFluxI- and all target nuclei types -found
-         in the input ROOT geometry-.
+         If you need to generate events for a given neutrino flux and detector
+         geometry (and therefore for a multitude of possible initial states)
+         then use the GMCJDriver.
+         It is worth noting that GEVGDriver is the piece of code that puts the
+         actual event generation framework into motion, and GMCDriver itself
+         assembles a list of GEVGDrivers (1 / possible initial state).
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
