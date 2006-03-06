@@ -218,7 +218,7 @@ NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
 
 # ROOT headers and libraries
 
-ROOT_INCLUDES  = -I$(ROOTSYS)/include
+ROOT_INCLUDES  = -I$(shell root-config --incdir)
 ROOT_LIBRARIES = $(shell root-config --glibs) \
                         -lMinuit -lGeom -lEG -lEGPythia6
 
@@ -540,11 +540,17 @@ LDFLAGS  := $(LDFLAGS) $(LIBRARIES)
 
 .SUFFIXES : .inc .cxx
 
+#.cc.o:
+#	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
+
+#.cxx.o:
+#	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
+
 .cc.o:
-	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $<
 
 .cxx.o:
-	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $<
 
 .C.o:
 	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
