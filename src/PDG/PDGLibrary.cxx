@@ -67,39 +67,36 @@ TParticlePDG * PDGLibrary::Find(int pdgc)
 //____________________________________________________________________________
 bool PDGLibrary::LoadDBase(void)
 {
-  bool pdg_data_loaded = false;
-
   fDatabasePDG = TDatabasePDG::Instance();
 
-  //-- get base GENIE & ROOT base directory from the environment
-  string genie_base_dir = string( gSystem->Getenv("GENIE") );
-  string root_base_dir  = string( gSystem->Getenv("ROOTSYS") );
+  // loading PDG data from $GENIE/config/
 
-  //-- build the full pathnames for possible pdg data file locations
-  string path_1 = genie_base_dir + string("/data/pdg/genie_pdg_table.txt");
-  string path_2 = root_base_dir  + string("/etc/pdg_table.txt");
+  if(gSystem->Getenv("GENIE")) {
+    string base_dir = string( gSystem->Getenv("GENIE") );
+    string path = base_dir + string("/data/pdg/genie_pdg_table.txt");
 
-  if ( ! (gSystem->AccessPathName( path_1.c_str() ) ) ) {
+    if ( ! (gSystem->AccessPathName(path.c_str()) ) ) {
+        LOG("PDG", pINFO) << "Load PDG data from: " << path;
+        fDatabasePDG->ReadPDGTable( path.c_str() );
+        return true;
+    } 
+  }
 
-     // loading PDG data from $GENIE/config/
-     LOG("PDG", pINFO) << "Load PDG data from: " << path_1;
-     fDatabasePDG->ReadPDGTable( path_1.c_str() );
-     pdg_data_loaded = true;
+  // no PDG data in $GENIE/config/ - Try $ROOTSYS/etc/
 
-  }  else {
-      // no PDG data in $GENIE/config/ - Try $ROOTSYS/etc/
-     if ( ! (gSystem->AccessPathName( path_2.c_str() ) ) ) {
+  if(gSystem->Getenv("ROOTSYS")) {
+    string base_dir  = string( gSystem->Getenv("ROOTSYS") );
+    string path = base_dir  + string("/etc/pdg_table.txt");
 
-        // no PDG data in $ROOTSYS/etc either !!
-        LOG("PDG", pERROR)
-           << "Load PDG data from: " << path_2
-            << "\n ****** The PDG extensions will not be loaded!! ******";
-
-        fDatabasePDG->ReadPDGTable( path_2.c_str() );
-        pdg_data_loaded = true;
+    if ( !(gSystem->AccessPathName(path.c_str())) ) {
+        LOG("PDG", pINFO) << "Load PDG data from: " << path;
+        fDatabasePDG->ReadPDGTable( path.c_str() );
+        return true;
      }
   }
-  return pdg_data_loaded;
+
+  LOG("PDG", pERROR) << " *** The PDG extensions will not be loaded!! ***";
+  return false;
 };
 //____________________________________________________________________________
 
