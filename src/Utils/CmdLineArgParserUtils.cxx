@@ -14,6 +14,8 @@
 */
 //____________________________________________________________________________
 
+#include <cctype>
+
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
 #include "Messenger/Messenger.h"
@@ -28,32 +30,45 @@ char * genie::utils::clap::CmdLineArg(int argc, char ** argv, char op)
 
   char ** argv_keep = argv;
 
+
   while(argc>2)
   {
     LOG("CLAP", pDEBUG) << "Getting next argument in argument-list";
+    LOG("CLAP", pDEBUG) << "Current argc = " << argc;
 
-    if (argv[1][0] == '-') {
-      LOG("CLAP", pDEBUG) << "argv[1][1] = " << argv[1][1];
+    if (argv[1][0] == '-') {      
+      LOG("CLAP", pDEBUG) 
+       << "Got char (argv[1][1]) following argv[1][0]='-' : " << argv[1][1];
+
       if (argv[1][1] == op) {
+  	 LOG("CLAP", pDEBUG) << "Input option: " << op << " was matched";
+
          if (strlen(&argv[1][2]) ) {
             strcpy(argument,&argv[1][2]);
             set = true;
-            LOG("CLAP", pINFO) << "Set opt = [" << op << "] "
-                                  "to value = [" << argument << "]";
-         } else if( (argc>2) && (argv[2][0] != '-') ) {
+            LOG("CLAP", pINFO) 
+               << "Set opt = [" << op << "] to val = [" << argument << "]";
+
+         } else if( (argc>2) && 
+                    !(argv[2][0]=='-' && isalpha(argv[2][1])) ) {
+
+            LOG("CLAP", pDEBUG) 
+              << "argc>2 and next arg not a '-' followed by an alpha char"
+
             argc--;
             argv++;
             strcpy(argument,&argv[1][0]);
             set = true;
-            LOG("CLAP", pINFO) << "Set opt = [" << op << "] "
-                                  "to value = [" << argument << "]";
+            LOG("CLAP", pINFO) 
+               << "Set opt = [" << op << "] to val = [" << argument << "]";
          }
       }
     }
     argc--;
     argv++;
-    LOG("CLAP", pDEBUG) << "Current argc    = " << argc;
-    LOG("CLAP", pDEBUG) << "Next argv[1][0] = " << argv[1][0];
+    if(argc>2) {
+      LOG("CLAP", pDEBUG) << "Next argv[1][0] = " << argv[1][0];
+    }
   }
 
   LOG("CLAP", pINFO) << "Restoring argv pointer";
