@@ -32,20 +32,25 @@ typedef enum ESppChannel {
 
   kSppNull = 0,
 
-          /* [p,n,pi+,pi0, pi-] */
+         /* [p,n,pi+,pi0,pi-] */
 
-  kSpp_vp_cc_10100,
+  kSpp_vp_cc_10100,  /* neutrino  CC */
   kSpp_vn_cc_10010,
   kSpp_vn_cc_01100,
 
-  kSpp_vp_nc_10010,
+  kSpp_vp_nc_10010,  /* neutrino NC */
   kSpp_vp_nc_01100,
   kSpp_vn_nc_01010,
   kSpp_vn_nc_10001,
 
-  // need to add the anti-neutrino SPP channels as well
-  // ...
-  // ...
+  kSpp_vbn_cc_01001,  /* anti-neutrino  CC */
+  kSpp_vbp_cc_01010,
+  kSpp_vbp_cc_10001,
+
+  kSpp_vbp_nc_10010,  /* anti-neutrino NC */
+  kSpp_vbp_nc_01100,
+  kSpp_vbn_nc_01010,
+  kSpp_vbn_nc_10001
 
 } SppChannel_t;
 
@@ -59,14 +64,23 @@ public:
   {
     switch (channel) {
 
-      case (kSpp_vp_cc_10100) : return "v p -> l- p pi+"; break;
-      case (kSpp_vn_cc_10010) : return "v n -> l- p pi0"; break;
-      case (kSpp_vn_cc_01100) : return "v n -> l- n pi+"; break;
+      case (kSpp_vp_cc_10100) : return "v p -> l- p pi+";   break;
+      case (kSpp_vn_cc_10010) : return "v n -> l- p pi0";   break;
+      case (kSpp_vn_cc_01100) : return "v n -> l- n pi+";   break; 
 
-      case (kSpp_vp_nc_10010) : return "v p -> v p pi0";  break;
-      case (kSpp_vp_nc_01100) : return "v p -> v n pi+";  break;
-      case (kSpp_vn_nc_01010) : return "v n -> v n pi0";  break;
-      case (kSpp_vn_nc_10001) : return "v n -> v p pi-";  break;
+      case (kSpp_vp_nc_10010) : return "v p -> v p pi0";    break;
+      case (kSpp_vp_nc_01100) : return "v p -> v n pi+";    break;
+      case (kSpp_vn_nc_01010) : return "v n -> v n pi0";    break;
+      case (kSpp_vn_nc_10001) : return "v n -> v p pi-";    break;
+
+      case (kSpp_vbn_cc_01001): return "vb n -> l+ n pi-";  break;
+      case (kSpp_vbp_cc_01010): return "vb p -> l+ n pi0";  break;
+      case (kSpp_vbp_cc_10001): return "vb p -> l+ p pi-";  break;
+
+      case (kSpp_vbp_nc_10010): return "vb p -> vb p pi0";  break;
+      case (kSpp_vbp_nc_01100): return "vb p -> vb n pi+";  break;
+      case (kSpp_vbn_nc_01010): return "vb n -> vb n pi0";  break;
+      case (kSpp_vbn_nc_10001): return "vb n -> vb p pi-";  break;
 
       default : return "Unknown";  break;
     }
@@ -86,6 +100,15 @@ public:
       case (kSpp_vn_nc_01010) : return kPdgNeutron;  break;
       case (kSpp_vn_nc_10001) : return kPdgNeutron;  break;
 
+      case (kSpp_vbn_cc_01001): return kPdgNeutron;  break;
+      case (kSpp_vbp_cc_01010): return kPdgProton;   break;
+      case (kSpp_vbp_cc_10001): return kPdgProton;   break;
+
+      case (kSpp_vbp_nc_10010): return kPdgProton;   break;
+      case (kSpp_vbp_nc_01100): return kPdgProton;   break;
+      case (kSpp_vbn_nc_01010): return kPdgNeutron;  break;
+      case (kSpp_vbn_nc_10001): return kPdgNeutron;  break;
+
       default : return 0;  break;
     }
     return 0;
@@ -103,6 +126,15 @@ public:
       case (kSpp_vp_nc_01100) : return kPdgNeutron;  break;
       case (kSpp_vn_nc_01010) : return kPdgNeutron;  break;
       case (kSpp_vn_nc_10001) : return kPdgProton;   break;
+
+      case (kSpp_vbn_cc_01001): return kPdgNeutron;  break;
+      case (kSpp_vbp_cc_01010): return kPdgNeutron;  break;
+      case (kSpp_vbp_cc_10001): return kPdgProton;   break;
+
+      case (kSpp_vbp_nc_10010): return kPdgProton;   break;
+      case (kSpp_vbp_nc_01100): return kPdgNeutron;  break;
+      case (kSpp_vbn_nc_01010): return kPdgNeutron;  break;
+      case (kSpp_vbn_nc_10001): return kPdgProton;   break;
 
       default : return 0;  break;
     }
@@ -122,6 +154,15 @@ public:
       case (kSpp_vn_nc_01010) : return kPdgPi0;      break;
       case (kSpp_vn_nc_10001) : return kPdgPiMinus;  break;
 
+      case (kSpp_vbn_cc_01001): return kPdgPiMinus;  break;
+      case (kSpp_vbp_cc_01010): return kPdgPi0;      break;
+      case (kSpp_vbp_cc_10001): return kPdgPiMinus;  break;
+
+      case (kSpp_vbp_nc_10010): return kPdgPi0;      break;
+      case (kSpp_vbp_nc_01100): return kPdgPiPlus;   break;
+      case (kSpp_vbn_nc_01010): return kPdgPi0;      break;
+      case (kSpp_vbn_nc_10001): return kPdgPiMinus;  break;
+
       default : return 0;  break;
     }
     return 0;
@@ -131,14 +172,23 @@ public:
   {
     switch (channel) {
 
-      case (kSpp_vp_cc_10100) : return 2;   break;
-      case (kSpp_vn_cc_10010) : return 1;   break;
-      case (kSpp_vn_cc_01100) : return 1;   break;
+      case (kSpp_vp_cc_10100) : return  2;   break;
+      case (kSpp_vn_cc_10010) : return  1;   break;
+      case (kSpp_vn_cc_01100) : return  1;   break;
 
-      case (kSpp_vp_nc_10010) : return 1;   break;
-      case (kSpp_vp_nc_01100) : return 1;   break;
-      case (kSpp_vn_nc_01010) : return 0;   break;
-      case (kSpp_vn_nc_10001) : return 0;   break;
+      case (kSpp_vp_nc_10010) : return  1;   break;
+      case (kSpp_vp_nc_01100) : return  1;   break;
+      case (kSpp_vn_nc_01010) : return  0;   break;
+      case (kSpp_vn_nc_10001) : return  0;   break;
+
+      case (kSpp_vbn_cc_01001): return -1;   break;
+      case (kSpp_vbp_cc_01010): return  0;   break;
+      case (kSpp_vbp_cc_10001): return  0;   break;
+
+      case (kSpp_vbp_nc_10010): return  1;   break;
+      case (kSpp_vbp_nc_01100): return  1;   break;
+      case (kSpp_vbn_nc_01010): return  0;   break;
+      case (kSpp_vbn_nc_10001): return  0;   break;
 
       default : return 0;  break;
     }
@@ -167,6 +217,19 @@ public:
       case (kSpp_vp_nc_01100) : return (is_delta) ? (iw_1_3) : (iw_2_3); break;
       case (kSpp_vn_nc_01010) : return (is_delta) ? (iw_2_3) : (iw_1_3); break;
       case (kSpp_vn_nc_10001) : return (is_delta) ? (iw_1_3) : (iw_2_3); break;
+
+      //-- same as for neutrinos (? - check)
+
+      //-- vbar CC
+      case (kSpp_vbn_cc_01001): return (is_delta) ? (3.0)    : (0.0);    break;
+      case (kSpp_vbp_cc_01010): return (is_delta) ? (iw_2_3) : (iw_1_3); break;
+      case (kSpp_vbp_cc_10001): return (is_delta) ? (iw_1_3) : (iw_2_3); break;
+
+      //-- vbar NC
+      case (kSpp_vbp_nc_10010): return (is_delta) ? (iw_2_3) : (iw_1_3); break;
+      case (kSpp_vbp_nc_01100): return (is_delta) ? (iw_1_3) : (iw_2_3); break;
+      case (kSpp_vbn_nc_01010): return (is_delta) ? (iw_2_3) : (iw_1_3); break;
+      case (kSpp_vbn_nc_10001): return (is_delta) ? (iw_1_3) : (iw_2_3); break;
 
       default : return 0;  break;
     }
@@ -216,16 +279,12 @@ public:
     if( xcls_tag.NNucleons() != 1 ) return kSppNull;
 
     // get struck nucleon
-
     int hit_nucl_pdgc = init_state.GetTarget().StruckNucleonPDGCode();
-
     if( ! pdg::IsNeutronOrProton(hit_nucl_pdgc) ) return kSppNull;
-
     bool hit_p = pdg::IsProton(hit_nucl_pdgc);
     bool hit_n = !hit_p;
 
     // the final state hadronic sytem has 1 pi and 1 nucleon
-
     bool fs_pi_plus  = ( xcls_tag.NPiPlus()   == 1 );
     bool fs_pi_minus = ( xcls_tag.NPiMinus()  == 1 );
     bool fs_pi_0     = ( xcls_tag.NPi0()      == 1 );
@@ -233,27 +292,39 @@ public:
     bool fs_n        = ( xcls_tag.NNeutrons() == 1 );
 
     // get probe
-
     int probe = init_state.GetProbePDGCode();
 
-    if(! pdg::IsNeutrino(probe) ) return kSppNull;
+    // figure out spp channel
+    if( pdg::IsNeutrino(probe) ) { 
 
-    if ( proc_info.IsWeakCC() ) {
+       if ( proc_info.IsWeakCC() ) {
+          if      (hit_p && fs_p && fs_pi_plus ) return kSpp_vp_cc_10100;
+          else if (hit_n && fs_p && fs_pi_0    ) return kSpp_vn_cc_10010;
+          else if (hit_n && fs_n && fs_pi_plus ) return kSpp_vn_cc_01100;
+          else                                   return kSppNull;
+       } else if ( proc_info.IsWeakNC() ) {
+          if      (hit_p && fs_p && fs_pi_0    ) return kSpp_vp_nc_10010;
+          else if (hit_p && fs_n && fs_pi_plus ) return kSpp_vp_nc_01100;
+          else if (hit_n && fs_n && fs_pi_0    ) return kSpp_vn_nc_01010;
+          else if (hit_n && fs_p && fs_pi_minus) return kSpp_vn_nc_10001;
+          else                                   return kSppNull;
+       } else return kSppNull;
 
-       if      (hit_p && fs_p && fs_pi_plus ) return kSpp_vp_cc_10100;
-       else if (hit_n && fs_p && fs_pi_0    ) return kSpp_vn_cc_10010;
-       else if (hit_n && fs_n && fs_pi_plus ) return kSpp_vn_cc_01100;
-       else                                   return kSppNull;
+    } else if( pdg::IsAntiNeutrino(probe) ) { 
 
-    } else if ( proc_info.IsWeakNC() ) {
-
-       if      (hit_p && fs_p && fs_pi_0    ) return kSpp_vp_nc_10010;
-       else if (hit_p && fs_n && fs_pi_plus ) return kSpp_vp_nc_01100;
-       else if (hit_n && fs_n && fs_pi_0    ) return kSpp_vn_nc_01010;
-       else if (hit_n && fs_p && fs_pi_minus) return kSpp_vn_nc_10001;
-       else                                   return kSppNull;
-
-    } else return kSppNull;
+       if ( proc_info.IsWeakCC() ) {
+          if      (hit_n && fs_n && fs_pi_minus) return kSpp_vbn_cc_01001;
+          else if (hit_p && fs_n && fs_pi_0    ) return kSpp_vbp_cc_01010;
+          else if (hit_p && fs_p && fs_pi_minus) return kSpp_vbp_cc_10001;
+          else                                   return kSppNull;
+       } else if ( proc_info.IsWeakNC() ) {
+          if      (hit_p && fs_p && fs_pi_0    ) return kSpp_vbp_nc_10010;
+          else if (hit_p && fs_n && fs_pi_plus ) return kSpp_vbp_nc_01100;
+          else if (hit_n && fs_n && fs_pi_0    ) return kSpp_vbn_nc_01010;
+          else if (hit_n && fs_p && fs_pi_minus) return kSpp_vbn_nc_10001;
+          else                                   return kSppNull;
+       } else return kSppNull;
+    }
 
     return kSppNull;
   }
