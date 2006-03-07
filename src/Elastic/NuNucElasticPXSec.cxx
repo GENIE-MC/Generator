@@ -1,12 +1,11 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::StdElasticPXSec
+\class    genie::NuNucElasticPXSec
 
-\brief    Standard differential cross section dxsec/dQ^2 for v+N / vbar+N
-          elastic scattering.
-
-          StdElasticPXSec is a concrete implementation of the
+\brief    Differential cross section dxsec/dQ^2 for v+N / vbar+N elastic 
+          scattering. \n
+          NuNucElasticPXSec is a concrete implementation of the
           XSecAlgorithmI interface. \n
 
 \ref      L.A.Ahrens et al., Physical Review D, VOL 35,3:785 (1987)
@@ -24,7 +23,7 @@
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
-#include "Elastic/StdElasticPXSec.h"
+#include "Elastic/NuNucElasticPXSec.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
@@ -34,24 +33,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-StdElasticPXSec::StdElasticPXSec() :
-XSecAlgorithmI("genie::StdElasticPXSec")
+NuNucElasticPXSec::NuNucElasticPXSec() :
+XSecAlgorithmI("genie::NuNucElasticPXSec")
 {
 
 }
 //____________________________________________________________________________
-StdElasticPXSec::StdElasticPXSec(string config) :
-XSecAlgorithmI("genie::StdElasticPXSec", config)
+NuNucElasticPXSec::NuNucElasticPXSec(string config) :
+XSecAlgorithmI("genie::NuNucElasticPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-StdElasticPXSec::~StdElasticPXSec()
+NuNucElasticPXSec::~NuNucElasticPXSec()
 {
 
 }
 //____________________________________________________________________________
-double StdElasticPXSec::XSec(const Interaction * interaction) const
+double NuNucElasticPXSec::XSec(const Interaction * interaction) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -103,14 +102,14 @@ double StdElasticPXSec::XSec(const Interaction * interaction) const
   return dsig_dQ2;
 }
 //____________________________________________________________________________
-bool StdElasticPXSec::ValidProcess(const Interaction * interaction) const
+bool NuNucElasticPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
   return true;
 }
 //____________________________________________________________________________
-bool StdElasticPXSec::ValidKinematics(const Interaction * interaction) const
+bool NuNucElasticPXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
