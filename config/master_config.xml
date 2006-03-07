@@ -90,6 +90,7 @@
    <config alg="genie::QELPXSec">                    QELPXSec.xml                    </config>
    <config alg="genie::DISPXSec">                    DISPXSec.xml                    </config>
    <config alg="genie::RESPXSec">                    RESPXSec.xml                    </config>
+   <config alg="genie::NuElectronXSec">              NuElectronXSec.xml              </config>
    <config alg="genie::NuclearTargetXSec">           NuclearTargetXSec.xml           </config>
 
    <!--  ****** CONFIGURATION FOR REIN-SEGHAL MODEL ALGORITHMS ****** -->
@@ -109,8 +110,8 @@
    <config alg="genie::P33PaschosLalakulichPXSec">   P33PaschosLalakulichPXSec.xml   </config>
    <config alg="genie::BardinDISPXSec">              BardinDISPXSec.xml              </config>
    <config alg="genie::BardinIMDRadCorPXSec">        BardinIMDRadCorPXSec.xml        </config>
-   <config alg="genie::StdElasticPXSec">             StdElasticPXSec.xml             </config>
-   <config alg="genie::StdElasticXSec">              StdElasticXSec.xml              </config>
+   <config alg="genie::NuNucElasticPXSec">           NuNucElasticPXSec.xml           </config>
+   <config alg="genie::NuElectronPXSec">             NuElectronPXSec.xml             </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::BodekRitchie">                BodekRitchie.xml                </config>
