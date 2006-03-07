@@ -13,6 +13,12 @@
            -n specifies the number of events to generate
            -s turns on cross section spline building at job initialization
            -e specifies the neutrino energy
+	      (if what follows the -e option is a comma separated pair of
+               values it will be interpreted as an energy range and neutrino
+               energies will be generated uniformly in this range).
+              Note that this is the energy of an "interacting" neutrino, not 
+              the energy of a "flux" neutrino -- the  neutrino is forced to 
+              interact anyway (see GMCJDriver for how to input fluxes)
            -p specifies the neutrino PDG code
            -t specifies the target PDG code (std format: 1aaazzz000)
            -f specifies the output TTree format. If set to 0 will create a
@@ -86,6 +92,7 @@
 #include <cassert>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -99,13 +106,16 @@
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
 #include "Ntuple/NtpMCFormat.h"
+#include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/XSecSplineList.h"
+#include "Utils/StringUtils.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
 
 using std::string;
+using std::vector;
 using std::ostringstream;
 
 using namespace genie;
@@ -121,7 +131,8 @@ Long_t        kDefOptRunNu     = 0;              // default run number
 //User-specified options:
 int           gOptNevents;      // n-events to generate
 bool          gOptBuildSplines; // spline building option
-double        gOptNuEnergy;     // neutrino energy
+double        gOptMinNuEnergy;  // min neutrino energy 
+double        gOptNuEnergyRange;// max-min neutrino energy 
 int           gOptNuPdgCode;    // neutrino PDG code
 int           gOptTgtPdgCode;   // target PDG code
 NtpMCFormat_t gOptNtpFormat;    // ntuple format
@@ -132,16 +143,23 @@ int main(int argc, char ** argv)
 {
   //-- parse command line arguments
   GetCommandLineArgs(argc,argv);
-
+  
   //-- print the options you got from command line arguments
+
+  string fmts = NtpMCFormat::AsString(gOptNtpFormat);
+
   LOG("gevgen", pINFO) << "Number of events requested = " << gOptNevents;
-  LOG("gevgen", pINFO) << "Building splines at init.  = " << gOptBuildSplines;
-  LOG("gevgen", pINFO) << "Neutrino energy            = " << gOptNuEnergy;
+  LOG("gevgen", pINFO) << "Building splines at init.  = " << gOptBuildSplines; 
   LOG("gevgen", pINFO) << "Neutrino PDG code          = " << gOptNuPdgCode;
   LOG("gevgen", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
   LOG("gevgen", pINFO) << "MC Run Number              = " << gOptRunNu;
-  LOG("gevgen", pINFO) << "Output ntuple format       = "
-                                    << NtpMCFormat::AsString(gOptNtpFormat);
+  LOG("gevgen", pINFO) << "Output ntuple format       = " << fmts;
+  if(gOptNuEnergyRange>0) {
+    LOG("gevgen", pINFO) << "Neutrino energy            = [" 
+        << gOptMinNuEnergy << ", " << gOptMinNuEnergy+gOptNuEnergyRange << "]";
+  } else {
+    LOG("gevgen", pINFO) << "Neutrino energy            = " << gOptMinNuEnergy;
+  }
 
   //-- create the GENIE high level event generation interface object
   //   for the given initial state
@@ -161,18 +179,27 @@ int main(int argc, char ** argv)
   if(gOptBuildSplines) driver.CreateSplines();
 
   //-- this driver produces events for monoenergetic neutrinos
-  TLorentzVector nu_p4 (0., 0., gOptNuEnergy, gOptNuEnergy); // px,py,pz,E (GeV)
+  TLorentzVector nu_p4(0.,0.,gOptMinNuEnergy,gOptMinNuEnergy); // px,py,pz,E (GeV)
 
   //-- initialize an Ntuple Writer
   NtpWriter ntpw(gOptNtpFormat, gOptRunNu);
   ntpw.Initialize();
 
- //-- create an MC Job Monitor
+  //-- create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
+
+  //-- get a random number generator
+  RandomGen * r = RandomGen::Instance();
 
   //-- generate events / print the GHEP record / add it to the ntuple
   int ievent = 0;
   while ( ievent < gOptNevents) {
+
+     // generate neutrino energy (if an energy range was defined)
+     if(gOptNuEnergyRange>0) {
+       double Ev = gOptMinNuEnergy + gOptNuEnergyRange * r->Random1().Rndm();
+       nu_p4.SetPxPyPzE(0,0,Ev,Ev);
+     }
 
      // generate a single event
      EventRecord * event = driver.GenerateEvent(nu_p4);
@@ -244,7 +271,22 @@ void GetCommandLineArgs(int argc, char ** argv)
   //neutrino energy:
   try {
     LOG("gevgen", pINFO) << "Reading neutrino energy";
-    gOptNuEnergy = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'e');
+    string nue = genie::utils::clap::CmdLineArgAsString(argc,argv,'e');
+
+    // is it just a value or a range (comma separated set of values)
+    if(nue.find(",") != string::npos) {
+       // split the comma separated list
+       vector<string> nurange = utils::str::Split(nue, ",");
+       assert(nurange.size() == 2);   
+       double emin = atof(nurange[0].c_str());
+       double emax = atof(nurange[1].c_str());
+       assert(emax>emin && emin>0);
+       gOptMinNuEnergy   = emin;
+       gOptNuEnergyRange = emax-emin;
+    } else {
+       gOptMinNuEnergy   = atof(nue.c_str());
+       gOptNuEnergyRange = -1;
+    }
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gevgen", pFATAL) << "Unspecified neutrino energy - Exiting";
