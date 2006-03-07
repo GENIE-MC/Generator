@@ -96,11 +96,16 @@ bool AlgConfigPool::LoadAlgConfig(void)
   //-- read the MASTER_CONFIG XML file
   if(!this->LoadMasterConfig()) return false;
 
-  //-- get base GENIE directory from $GENIE environmental variable & build
-  //   the GENIE config dir name
-  string config_dir = string( gSystem->Getenv("GENIE") ) + string("/config");
-  SLOG("AlgConfigPool", pINFO)
-                 << "GENIE XML configuration files found in: " << config_dir;
+  //-- get the directory where the GENIE algorithm XML configurations are to
+  //   be found (search for $GALGCONF or use the default: $GENIE/config)
+  string config_dir = (gSystem->Getenv("GALGCONF")) ?
+            string(gSystem->Getenv("GALGCONF")) :
+            string(gSystem->Getenv("GENIE")) + string("/config");
+
+  SLOG("AlgConfigPool", pNOTICE)
+     << "\n*** GENIE XML config files would be loaded from the " 
+     << ( (gSystem->Getenv("GALGCONF")) ? "*custom*" : "*default*")
+     << " dir: " << config_dir;
 
   //-- loop over all XML config files and read all named configuration
   //   sets for each algorithm
@@ -130,8 +135,11 @@ bool AlgConfigPool::LoadMasterConfig(void)
 // Loads the master config XML file: the file that specifies which XML config
 // file to load for each algorithm
 
-  string base_dir = string( gSystem->Getenv("GENIE") );
-  fMasterConfig   = base_dir + string("/config/master_config.xml");
+  //-- get the master config XML file
+  //   (search at $GALGCONF or use the default at: $GENIE/config)
+  fMasterConfig = (gSystem->Getenv("GALGCONF")) ?
+    string(gSystem->Getenv("GALGCONF")) + string("/master_config.xml"):
+    string(gSystem->Getenv("GENIE")) + string("/config/master_config.xml");
 
   bool is_accessible = ! (gSystem->AccessPathName( fMasterConfig.c_str() ));
   if (!is_accessible) {
