@@ -96,7 +96,7 @@ double NuNucElasticPXSec::XSec(const Interaction * interaction) const
 
   double dsig_dQ2 = sig0 * (A + sign*B*su/M2 + C*su2/M4);
 
-  LOG("InverseMuDecay", pDEBUG)
+  LOG("NuNucEl", pDEBUG)
      << "dXSec[el]/dQ2 (Ev = " << E << ", Q2 = " << Q2 << ") = " << dsig_dQ2;
 
   return dsig_dQ2;
