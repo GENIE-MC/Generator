@@ -48,15 +48,30 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
   const int n_nucc_channels = 3;
   const int n_nunc_channels = 4;
 
-  SppChannel_t nucc_channels[n_nucc_channels] = {
-                      kSpp_vp_cc_10100, kSpp_vn_cc_10010, kSpp_vn_cc_01100 };
-
-  SppChannel_t nunc_channels[n_nunc_channels] = {
-    kSpp_vp_nc_10010, kSpp_vp_nc_01100, kSpp_vn_nc_01010, kSpp_vn_nc_10001 };
+  SppChannel_t nucc_channels[n_nucc_channels] = {kSppNull};
+  SppChannel_t nunc_channels[n_nucc_channels] = {kSppNull};
 
   int nupdg  = init_state.GetProbePDGCode();
 
-  if( !pdg::IsNeutrino(nupdg) && !pdg::IsAntiNeutrino(nupdg) ) {
+  if( pdg::IsNeutrino(nupdg) ) {
+    nucc_channels[0] = kSpp_vp_cc_10100;
+    nucc_channels[1] = kSpp_vn_cc_10010;
+    nucc_channels[2] = kSpp_vn_cc_01100;
+    nunc_channels[0] = kSpp_vp_nc_10010;
+    nunc_channels[1] = kSpp_vp_nc_01100;
+    nunc_channels[2] = kSpp_vn_nc_01010;
+    nunc_channels[3] = kSpp_vn_nc_10001;
+  } 
+  else if ( pdg::IsAntiNeutrino(nupdg) ) {
+    nucc_channels[0] = kSpp_vbn_cc_01001;
+    nucc_channels[1] = kSpp_vbp_cc_01010;
+    nucc_channels[2] = kSpp_vbp_cc_10001;
+    nunc_channels[0] = kSpp_vbp_nc_10010;
+    nunc_channels[1] = kSpp_vbp_nc_01100;
+    nunc_channels[2] = kSpp_vbn_nc_01010;
+    nunc_channels[3] = kSpp_vbn_nc_10001;
+  } 
+  else {
      LOG("InteractionList", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
                          << "for init-state: " << init_state.AsString();
