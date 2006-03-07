@@ -42,7 +42,7 @@
 
          Example :
            testMCJobDriver -f ~/mysim/inputs/geometry.root -u cm -r 101 -n 1000
-                           -s -m ~/mysim/inputs/maxpl.xml -d 0,0,1 -b 0,0,100m
+                           -s -m ~/mysim/inputs/maxpl.xml -d 0.,0.,1. -b 0.,0.,-100.
                            -t 0.20
            would use the detector geometry from geometry.root, set the geometry
            units to cm, produce 1000 events marked as mc run 101, enable splines
@@ -312,11 +312,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     double dx = atof( dirv[0].c_str() );
     double dy = atof( dirv[1].c_str() );
     double dz = atof( dirv[2].c_str() );
-    // can not pass negative numbers in command line argument as the -
-    // symbol marks option names - pass negative number by a trailing m
-    dx *= ( (dirv[0].find("m") != string::npos) ? -1. : 1);
-    dy *= ( (dirv[1].find("m") != string::npos) ? -1. : 1);
-    dz *= ( (dirv[2].find("m") != string::npos) ? -1. : 1);
     gOptBeamDirection.SetXYZ(dx,dy,dz);
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
@@ -337,9 +332,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     double x = atof( bsv[0].c_str() );
     double y = atof( bsv[1].c_str() );
     double z = atof( bsv[2].c_str() );
-    x *= ( (bsv[0].find("m") != string::npos) ? -1. : 1);
-    y *= ( (bsv[1].find("m") != string::npos) ? -1. : 1);
-    z *= ( (bsv[2].find("m") != string::npos) ? -1. : 1);
     gOptBeamSpot.SetXYZ(x,y,z);
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
