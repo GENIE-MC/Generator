@@ -180,9 +180,26 @@ LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 #                             CERNLIB
 #-------------------------------------------------------------------
 
+# standard CERNLIBs used by PYTHIA and NeuGEN (and GENIE: pdflib)
+
 CERN_LIB_DIR = $(CERNLIB)
-CERN_LIBRARIES = -L $(CERN_LIB_DIR) -lpdflib804 -lkernlib \
-				-lmathlib -lpacklib -lstdhep -lg2c
+
+# figure out which pdflib to use (name keeps changing)
+
+#-- find all libraries named libpdflib*.a and remove the .a part
+PPDFLIBS = $(subst .a,,$(wildcard $(CERN_LIB_DIR)/libpdflib*.a))
+#-- if many were found use the first one
+PPDFLIB  = $(shell awk 'BEGIN {str="$(PPDFLIBS)"; \
+			split(str, tokens, " "); print tokens[1]}')
+#-- remove the path name
+PDFLIB   = $(shell awk 'BEGIN {str="$(PPDFLIB)"; \
+			n=split(str, tokens, "/"); print tokens[n]}')
+#-- replace the first lib with -l so libpdflib -> -lpdflib
+LPDFLIB  = $(shell awk 'BEGIN { str="$(PDFLIB)"; \
+				sub(/lib/, "-l", str); print str}')
+
+CERN_LIBRARIES = -L $(CERN_LIB_DIR) \
+		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib -lg2c
 
 #-------------------------------------------------------------------
 #                             PYTHIA6
@@ -199,18 +216,23 @@ PYTHIA_LIBRARIES  = -L $(PYTHIA_DIR) -lPythia6 $(PYTHIA_O)
 #                             NEUGEN3
 #-------------------------------------------------------------------
 
-# if NuValidator's NeuGEN facade was not enabled (eg because NeuGEN
-# is not installed) we will build a dummy NeuGEN library so that the
-# NuValidator's facade can compile. In this case, override NEUGEN3PATH
-
 ifndef GOPT_NEUGEN
+
+# if NeuGEN was not enabled a dummy NeuGEN library will be built so 
+# that the NuValidator's NeuGEN facade can compile. In this case, 
+# override NEUGEN3PATH (=GENIE)
+
   NEUGEN3PATH=$(GENIE)
+  NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
+
+else
+
+# In case the actual NeuGEN library is used, add CERNLIB's stdhep
+# which is used by NeuGEN (in addition to the 'std' CERNLIBs)
+
+  NEUGEN_LIBRARIES = -L $(CERN_LIB_DIR) -lstdhep \
+			-L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
 endif
-
-# Set NeuGEN library - This would work for either the proper NeuGEN 
-# library or the dummy library.
-
-NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
 
 #-------------------------------------------------------------------
 #                              ROOT
