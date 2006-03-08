@@ -2,7 +2,7 @@
 
 <alg_conf>
 
-  <!-- REIN-SEGHAL Model Helicity Amplitude Model for vN CC -->
+  <!-- REIN-SEGHAL Helicity Amplitude Model for vN CC -->
 
   <param_set name="Default"> 
   </param_set>

@@ -6,7 +6,7 @@
 
   <param_set name="Default"> 
 
-     <param type="string" name="xsec-alg-name">          genie::RSExclusiveRESPXSec  </param>
+     <param type="string" name="xsec-alg-name">          genie::ReinSeghalSPPPXSec   </param>
      <param type="string" name="xsec-param-set">         Default                     </param>
      <param type="double" name="W-min">                    0.001                     </param>
      <param type="double" name="W-max">                    1.400                     </param>

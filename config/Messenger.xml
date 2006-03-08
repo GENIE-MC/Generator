@@ -100,6 +100,7 @@
   <priority msgstream="RESPXSec">            WARN   </priority>
   <priority msgstream="ReinSeghalCoh">       WARN   </priority>
   <priority msgstream="ReinSeghalRes">       WARN   </priority>
+  <priority msgstream="ReinSeghalSpp">       WARN   </priority>
   <priority msgstream="RSHAmpl">             WARN   </priority>
   <priority msgstream="Registry">            WARN   </priority>
   <priority msgstream="ReWeight">            DEBUG  </priority>

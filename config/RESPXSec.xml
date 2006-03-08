@@ -22,7 +22,7 @@
   </param_set>
 
   <param_set name="Rein-Seghal-dQ2"> 
-     <param type="string" name="partial-xsec-alg-name">    genie::RSExclusiveRESPXSec       </param>
+     <param type="string" name="partial-xsec-alg-name">    genie::ReinSeghalSPPPXSec        </param>
      <param type="string" name="partial-xsec-param-set">   Default                          </param>
      <param type="string" name="integrator-alg-name">      genie::Simpson1D                 </param>
      <param type="string" name="integrator-param-set">     Default-Logarithmic              </param>
@@ -32,7 +32,7 @@
   </param_set>
 
   <param_set name="Rein-Seghal-dW"> 
-     <param type="string" name="partial-xsec-alg-name">    genie::RSExclusiveRESPXSec       </param>
+     <param type="string" name="partial-xsec-alg-name">    genie::ReinSeghalSPPPXSec        </param>
      <param type="string" name="partial-xsec-param-set">   Default                          </param>
      <param type="string" name="integrator-alg-name">      genie::Simpson1D                 </param>
      <param type="string" name="integrator-param-set">     Default-Logarithmic              </param>

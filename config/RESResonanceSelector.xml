@@ -13,8 +13,8 @@
      In this set we do not include the ambiguous P33(1600) and F17(1970).
      This configuration set, uses a single resonance xsec that is Breit-Wigner weighted.
 
-     <param type="string" name="single-res-xsec-alg-name">       genie::RSSingleRESPXSec  </param>
-     <param type="string" name="single-res-xsec-param-set">      Default                  </param>
+     <param type="string" name="single-res-xsec-alg-name">       genie::ReinSeghalSPPPXSec  </param>
+     <param type="string" name="single-res-xsec-param-set">      Default                    </param>
 
      <param type="string" name="resonance-name-list">
                    P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
