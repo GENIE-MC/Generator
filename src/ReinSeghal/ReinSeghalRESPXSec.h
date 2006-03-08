@@ -73,7 +73,9 @@ private:
 
   const BreitWignerI *         fBreitWigner;
   const BaryonResDataSetI *    fBaryonResDataSet;
-  const RSHelicityAmplModelI * fHAmplModel;
+  const RSHelicityAmplModelI * fHAmplModelCC;
+  const RSHelicityAmplModelI * fHAmplModelNCp;
+  const RSHelicityAmplModelI * fHAmplModelNCn;
 };
 
 }       // genie namespace

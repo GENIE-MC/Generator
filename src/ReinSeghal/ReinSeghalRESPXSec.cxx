@@ -31,6 +31,7 @@ ____________________________________________________________________________*/
 
 #include <TMath.h>
 
+#include "Algorithm/AlgFactory.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "BaryonResonance/BaryonResParams.h"
@@ -84,8 +85,14 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double q2   = kinematics.q2();
   double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
 
+  int nucpdgc = init_state.GetTarget().StruckNucleonPDGCode();
+
+  bool is_CC = interaction->GetProcessInfo().IsWeakCC();
+  //bool is_NC = interaction->GetProcessInfo().IsWeakNC();
+  bool is_p  = pdg::IsProton(nucpdgc);
+  //bool is_n  = pdg::IsNeutron(nucpdgc);
+
   //-- Get the input baryon resonance
-  assert(interaction->GetExclusiveTag().KnownResonance());
   Resonance_t resonance = interaction->GetExclusiveTag().Resonance();
 
   //-- Instantiate a Baryon Resonance Params object & attach data-set
@@ -135,8 +142,13 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   LOG("ReinSeghalRes", pDEBUG) << "Computing SPP Helicity Amplitudes";
 
   RSHelicityAmpl hampl;
-  hampl.SetModel(fHAmplModel); // <-- attach algorithm
-  hampl.Calculate(interaction,fkr);    // <-- calculate
+
+  if(is_CC)   { hampl.SetModel(fHAmplModelCC); }
+  else {
+    if (is_p) { hampl.SetModel(fHAmplModelNCp);}
+    else      { hampl.SetModel(fHAmplModelNCn);}
+  }
+  hampl.Calculate(interaction,fkr); 
 
   LOG("ReinSeghalRes", pDEBUG)
          << "\n Helicity Amplitudes for ["
@@ -273,20 +285,15 @@ void ReinSeghalRESPXSec::LoadSubAlg(void)
 // Reads its configuration from its Registry and loads all the sub-algorithms
 // needed
   fBaryonResDataSet = 0;
-  fHAmplModel       = 0;
+  fHAmplModelCC     = 0;
+  fHAmplModelNCp    = 0;
+  fHAmplModelNCn    = 0;
   fBreitWigner      = 0;
 
   //-- Access a "Baryon Resonance data-set" sub-algorithm
-  const Algorithm * alg0 = this->SubAlg(
-                 "baryonres-dataset-alg-name", "baryonres-dataset-param-set");
-  fBaryonResDataSet = dynamic_cast<const BaryonResDataSetI *> (alg0);
+  fBaryonResDataSet = dynamic_cast<const BaryonResDataSetI *> (
+    this->SubAlg("baryonres-dataset-alg-name", "baryonres-dataset-param-set"));
   assert(fBaryonResDataSet);
-
-  //-- Access a "Helicity Amplitudes model" sub-algorithm
-  const Algorithm * alg1 = this->SubAlg(
-             "helicity-amplitudes-alg-name", "helicity-amplitudes-param-set");
-  fHAmplModel = dynamic_cast<const RSHelicityAmplModelI *>  (alg1);
-  assert(fHAmplModel);
 
   if(fWghtBW) {
     //-- Access a "Breit-Wigner" sub-algorithm
@@ -294,6 +301,21 @@ void ReinSeghalRESPXSec::LoadSubAlg(void)
              this->SubAlg("breit-wigner-alg-name", "breit-wigner-param-set"));
     assert(fBreitWigner);
   }
+
+  //-- Access a "Helicity Amplitudes model" sub-algorithms
+
+  AlgFactory * algf = AlgFactory::Instance();
+
+  fHAmplModelCC  = dynamic_cast<const RSHelicityAmplModelI *> (
+	        algf->GetAlgorithm("genie::RSHelicityAmplModelCC","Default"));
+  fHAmplModelNCp = dynamic_cast<const RSHelicityAmplModelI *> (
+	       algf->GetAlgorithm("genie::RSHelicityAmplModelNCp","Default"));
+  fHAmplModelNCn = dynamic_cast<const RSHelicityAmplModelI *> (
+	       algf->GetAlgorithm("genie::RSHelicityAmplModelNCn","Default"));
+
+  assert( fHAmplModelCC  );
+  assert( fHAmplModelNCp );
+  assert( fHAmplModelNCn );
 }
 //____________________________________________________________________________
 void ReinSeghalRESPXSec::LoadConfigData(void)
