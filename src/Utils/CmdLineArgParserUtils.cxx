@@ -53,7 +53,7 @@ char * genie::utils::clap::CmdLineArg(int argc, char ** argv, char op)
                     !(argv[2][0]=='-' && isalpha(argv[2][1])) ) {
 
             LOG("CLAP", pDEBUG) 
-              << "argc>2 and next arg not a '-' followed by an alpha char"
+              << "argc>2 and next arg not a '-' followed by an alpha char";
 
             argc--;
             argv++;
