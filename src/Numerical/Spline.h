@@ -26,7 +26,7 @@
 #include <TObject.h>
 #include <TSpline.h>
 
-class TNtuple;
+class TNtupleD;
 class TTree;
 class TSQLServer;
 class TGraph;
@@ -42,7 +42,7 @@ public:
 
   Spline();
   Spline(string filename, string xtag="", string ytag="", bool is_xml = false);
-  Spline(TNtuple * ntuple, string xy, string cut="");
+  Spline(TNtupleD * ntuple, string xy, string cut="");
   Spline(TTree * tree,     string xy, string cut="");
   Spline(TSQLServer * db, string query);
   Spline(int nentries, double x[], double y[]);
@@ -54,8 +54,8 @@ public:
   // load the Spline from XML, flat ASCII, ROOT ntuple/tree/tspline3, or SQL DB
   bool   LoadFromXmlFile    (string filename, string xtag, string ytag);
   bool   LoadFromAsciiFile  (string filename);
-  bool   LoadFromNtuple     (TNtuple * nt, string xy, string cut = "");
-  bool   LoadFromTree       (TTree *   tr, string xy, string cut = "");
+  bool   LoadFromNtuple     (TNtupleD * nt, string xy, string cut = "");
+  bool   LoadFromTree       (TTree *    tr, string xy, string cut = "");
   bool   LoadFromDBase      (TSQLServer * db,  string query);
   bool   LoadFromTSpline3   (const TSpline3 & spline, int nknots);
 
