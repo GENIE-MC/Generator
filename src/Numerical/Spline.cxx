@@ -23,7 +23,7 @@
 #include "libxml/xmlmemory.h"
 
 #include <TFile.h>
-#include <TNtuple.h>
+#include <TNtupleD.h>
 #include <TTree.h>
 #include <TSQLServer.h>
 #include <TGraph.h>
@@ -65,7 +65,7 @@ Spline::Spline(string filename, string xtag, string ytag, bool is_xml)
      this->LoadFromAsciiFile(filename);
 }
 //___________________________________________________________________________
-Spline::Spline(TNtuple * ntuple, string var, string cut)
+Spline::Spline(TNtupleD * ntuple, string var, string cut)
 {
   LOG("Spline", pDEBUG) << "Constructing spline from data in a TNtuple";
 
@@ -227,26 +227,19 @@ bool Spline::LoadFromAsciiFile(string filename)
 {
   LOG("Spline", pDEBUG) << "Retrieving data from file: " << filename;
 
-  TNtuple nt("ntuple","","x:y");
+  TNtupleD nt("ntuple","","x:y");
   nt.ReadFile(filename.c_str());
 
   this->LoadFromNtuple(&nt, "x:y");
   return true;
 }
 //___________________________________________________________________________
-bool Spline::LoadFromNtuple(TNtuple * nt, string var, string cut)
+bool Spline::LoadFromNtuple(TNtupleD * nt, string var, string cut)
 {
-  LOG("Spline", pDEBUG) << "Retrieving data from ntuple: " << nt->GetName();
+  if(!nt) return false;
 
-  if(!cut.size()) nt->Draw(var.c_str(), "",          "GOFF");
-  else            nt->Draw(var.c_str(), cut.c_str(), "GOFF");
-
-  int      n = nt->GetSelectedRows();
-  double * x = nt->GetV1();
-  double * y = nt->GetV2();
-
-  this->BuildSpline(n, x, y);
-  return true;
+  TTree * tree = dynamic_cast<TTree *> (nt);
+  return this->LoadFromTree(tree,var,cut);
 }
 //___________________________________________________________________________
 bool Spline::LoadFromTree(TTree * tree, string var, string cut)
@@ -256,11 +249,31 @@ bool Spline::LoadFromTree(TTree * tree, string var, string cut)
   if(!cut.size()) tree->Draw(var.c_str(), "",          "GOFF");
   else            tree->Draw(var.c_str(), cut.c_str(), "GOFF");
 
-  int      n = tree->GetSelectedRows();
-  double * x = tree->GetV1();
-  double * y = tree->GetV2();
+  // Now, take into account that the data retrieved from the ntuple would
+  // not be sorted in x and the resulting spline will be bogus...
+  // Sort the x array, use the x-sorting to re-arrange the y array and only
+  // then build the spline..
 
-  this->BuildSpline(n, x, y);
+  int n = tree->GetSelectedRows();
+
+  int *    idx = new int[n];
+  double * x   = new double[n];
+  double * y   = new double[n];
+
+  TMath::Sort(n,tree->GetV1(),idx,false);
+
+  for(int i=0; i<n; i++) {
+     int ii = idx[i];
+     x[i]   = (tree->GetV1())[ii];
+     y[i]   = (tree->GetV2())[ii];
+  }
+
+  this->BuildSpline(n,x,y);
+
+  delete [] idx;
+  delete [] x;
+  delete [] y;
+
   return true;
 }
 //___________________________________________________________________________
