@@ -9,8 +9,8 @@
      <param type="string" name="title">             
                      R/S Resonance Production Diff. Cross Sections (numu+p, 4 GeV) </param>
 
-     <param type="string" name="partial-xsec-alg-name">    genie::RSSingleRESPXSec </param>
-     <param type="string" name="partial-xsec-param-set">   Default                 </param>
+     <param type="string" name="partial-xsec-alg-name">    genie::ReinSeghalRESPXSec </param>
+     <param type="string" name="partial-xsec-param-set">   Default                   </param>
 
      <param type="int"    name="neutrino-pdg-code">   14       </param>
      <param type="double" name="neutrino-energy">     4        </param>
@@ -33,8 +33,8 @@
      <param type="string" name="title">             
                    R/S Resonance Production Diff. Cross Sections (numu+p, 1.2 GeV) </param>
 
-     <param type="string" name="partial-xsec-alg-name">    genie::RSSingleRESPXSec </param>
-     <param type="string" name="partial-xsec-param-set">   Default                 </param>
+     <param type="string" name="partial-xsec-alg-name">    genie::ReinSeghalRESPXSec </param>
+     <param type="string" name="partial-xsec-param-set">   Default                   </param>
 
      <param type="int"    name="neutrino-pdg-code">   14       </param>
      <param type="double" name="neutrino-energy">     1.2      </param>

@@ -33,7 +33,7 @@ Q2max                    double   Yes        ext Q2max - narrows the physical ra
   -- Default configuration for Rein-Seghal RES XSec for Exclusive Reactions
 
   <param_set name="Rein-Seghal"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::RSExclusiveRESPXSec </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::ReinSeghalSPPPXSec </param>
      <param type="string" name="partial-xsec-param-set"> Default </param> 
      <param type="string" name="integrator-alg-name">    genie::Simpson2D </param>
      <param type="string" name="integrator-param-set">   Default-Logarithmic </param>
@@ -43,7 +43,7 @@ Q2max                    double   Yes        ext Q2max - narrows the physical ra
   -- Default configuration for Rein-Seghal RES XSec for Single Resonances
 
   <param_set name="Rein-Seghal-Single"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::RSSingleRESPXSec </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::ReinSeghalRESPXSec </param>
      <param type="string" name="partial-xsec-param-set"> Default </param> 
      <param type="string" name="integrator-alg-name">    genie::Simpson2D </param>
      <param type="string" name="integrator-param-set">   Default-Logarithmic  </param>
@@ -51,8 +51,8 @@ Q2max                    double   Yes        ext Q2max - narrows the physical ra
   </param_set>
 
   <param_set name="Rein-Seghal-Single-NoBreitWigner"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::RSSingleRESPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> No-BreitWigner </param> 
+     <param type="string" name="partial-xsec-alg-name">  genie::ReinSeghalRESPXSec </param>
+     <param type="string" name="partial-xsec-param-set"> No-BW-Weighting </param> 
      <param type="string" name="integrator-alg-name">    genie::Simpson2D </param>
      <param type="string" name="integrator-param-set">   Default-Logarithmic </param>
      <param type="double" name="Wmax">                   1.4 </param>
