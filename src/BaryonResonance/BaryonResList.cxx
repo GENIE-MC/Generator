@@ -13,6 +13,8 @@
 */
 //____________________________________________________________________________
 
+#include <algorithm>
+
 #include "BaryonResonance/BaryonResList.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Messenger/Messenger.h"
@@ -90,6 +92,17 @@ int BaryonResList::ResonancePdgCode(unsigned int ires) const
   return 0;
 }
 //____________________________________________________________________________
+bool BaryonResList::Find(Resonance_t res) const
+{
+  if(!fResVec) {
+    SLOG("BaryonResList", pWARN) << "NULL resonance list!";
+    return false;
+  }
+  int n = count(fResVec->begin(), fResVec->end(), res);
+  if(n!=0) return true;
+  return false;
+}
+//___________________________________________________________________________
 void BaryonResList::DecodeFromNameList(string input_list, string delimiter)
 {
   //-- remove all spaces in the input string coming from the XML config file

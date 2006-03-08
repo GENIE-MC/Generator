@@ -41,6 +41,7 @@ public:
   string       ResonanceName      (unsigned int ires) const;
   Resonance_t  ResonanceId        (unsigned int ires) const;
   int          ResonancePdgCode   (unsigned int ires) const;
+  bool         Find               (Resonance_t res)   const;
 
   void Clear (void);
   void Copy  (const BaryonResList & rl);
