@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::RSExclusiveRESPXSec
+\class    genie::ReinSeghalSPPPXSec
 
 \brief    Computes the differential resonance cross section  for an exclusive
-          resonance reaction.
+          1pi reaction from resonance neutrinoproduction.
 
           The computed xsec is the double differential d^2 xsec/ dQ^2 dW \n
           where \n
@@ -49,7 +49,7 @@
 #include "Conventions/Constants.h"
 #include "Interaction/SppChannel.h"
 #include "Messenger/Messenger.h"
-#include "ReinSeghal/RSExclusiveRESPXSec.h"
+#include "ReinSeghal/ReinSeghalSPPPXSec.h"
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 
@@ -57,103 +57,138 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-RSExclusiveRESPXSec::RSExclusiveRESPXSec() :
-XSecAlgorithmI("genie::RSExclusiveRESPXSec")
+ReinSeghalSPPPXSec::ReinSeghalSPPPXSec() :
+XSecAlgorithmI("genie::ReinSeghalSPPPXSec")
 {
 
 }
 //____________________________________________________________________________
-RSExclusiveRESPXSec::RSExclusiveRESPXSec(string config) :
-XSecAlgorithmI("genie::RSExclusiveRESPXSec", config)
+ReinSeghalSPPPXSec::ReinSeghalSPPPXSec(string config) :
+XSecAlgorithmI("genie::ReinSeghalSPPPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-RSExclusiveRESPXSec::~RSExclusiveRESPXSec()
+ReinSeghalSPPPXSec::~ReinSeghalSPPPXSec()
 {
 
 }
 //____________________________________________________________________________
-double RSExclusiveRESPXSec::XSec(const Interaction * interaction) const
+double ReinSeghalSPPPXSec::XSec(const Interaction * interaction) const
 {
-  LOG("ReinSeghalRes", pINFO) << *fConfig;
+  LOG("ReinSeghalSpp", pINFO) << *fConfig;
 
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
+  //-- Get 1pi exclusive channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
 
+  LOG("ReinSeghalSpp", pINFO)
+                 << "Computing a cross section for " << *interaction;
+  LOG("ReinSeghalSpp", pNOTICE)
+              << "SPP channel " << SppChannel::AsString(spp_channel);
+
+  //-- Check whether a resonance has been specified
+  //   If yes, compute only the contribution of this resonance at the 
+  //   specified exclusive state  
+
+  Resonance_t inpres = interaction->GetExclusiveTag().Resonance();
+  if(inpres != kNoResonance) {
+    LOG("ReinSeghalSpp", pNOTICE) 
+      << "Computing only the contribution from: " 
+                                     << utils::res::AsString(inpres);
+    if(!fResList.Find(inpres)) {
+       LOG("ReinSeghalSpp", pWARN) 
+            << "The resonance: " << utils::res::AsString(inpres)
+                            << " was not found in my resonance list";
+       return 0;
+    }
+    //-- Compute the contribution of this resonance
+    double res_xsec_contrib = this->XSec1RES(interaction);
+    LOG("ReinSeghalSpp", pNOTICE) 
+                       << "d^2 xsec/ dQ^2 dW = " << res_xsec_contrib;
+    return res_xsec_contrib;
+  }
+
   //-- Loop over the specified list of baryon resonances and compute
-  //   the total weighted cross section
+  //   the cross section for the input exlusive channel
 
   unsigned int nres = fResList.NResonances();
-  LOG("ReinSeghalRes", pINFO)
-      << "Computing a weighted cross section for " << *interaction
-      << "using " << nres << " resonances";
+  LOG("ReinSeghalSpp", pNOTICE)
+    << "Computing SPP cross section using " << nres << " resonances";
 
   double xsec = 0;
-
   for(unsigned int ires = 0; ires < nres; ires++) {
 
      //-- Get next resonance from the resonance list
      Resonance_t res = fResList.ResonanceId(ires);
 
-     //-- Find out the charge that the produced resonance should have to
-     //   yield the requested exclusive final state.
-     //   Eg if the resonance is kP33_1232, find out which of the Delta-,
-     //      Delta0, Delta+ or Delta++ is relevant here.
-     //int QRes = SppChannel::ResonanceCharge(spp_channel);
-
      //-- Set current resonance to interaction object
      interaction->GetExclusiveTagPtr()->SetResonance(res);
 
-     //-- Get the Breit-Wigner weighted xsec for the current resonance
-     double rxsec = fSingleResXSecModel->XSec(interaction);
-
-     //-- Get the BR for the (resonance) -> (exclusive final state)
-     double br = SppChannel::BranchingRatio(spp_channel, res);
-
-     //-- Get the Isospin Glebsch-Gordon coefficient for the given resonance
-     //   and exclusive final state
-     double igg = SppChannel::IsospinWeight(spp_channel, res);
-
-     //-- Compute the weighted xsec
-     //  (total weight = Breit-Wigner * BR * isospin Glebsch-Gordon)
-     double res_xsec_contrib = rxsec*br*igg;
-
-     SLOG("ReinSeghalRes", pINFO)
-         << "Contrib. from [" << utils::res::AsString(res) << "] = "
-         << "<Glebsch-Gordon = " << igg
-         << "> * <BR(->1pi) = " << br
-         << "> * <Breit-Wigner * d^2xsec/dQ^2dW = " << rxsec
-         << "> = " << res_xsec_contrib;
+     //-- Compute the contribution of this resonance
+     double res_xsec_contrib = this->XSec1RES(interaction);
 
      //-- Add contribution of this resonance to the cross section
      xsec += res_xsec_contrib;
   }
 
-  LOG("ReinSeghalRes", pINFO) << "d^2 xsec/ dQ^2 dW = " << xsec;
+  //-- delete the resonance from the input interaction
+  interaction->GetExclusiveTagPtr()->SetResonance(kNoResonance);
 
+  LOG("ReinSeghalSpp", pNOTICE) << "d^2 xsec/ dQ^2 dW = " << xsec;
   return xsec;
 }
 //____________________________________________________________________________
-bool RSExclusiveRESPXSec::ValidProcess(const Interaction * interaction) const
+double ReinSeghalSPPPXSec::XSec1RES(const Interaction * interaction) const
+{
+// computes the contribution of a resonance to a 1pi exlusive reaction
+
+  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
+  Resonance_t res = interaction->GetExclusiveTag().Resonance();
+
+  //-- Get the Breit-Wigner weighted xsec for exciting the resonance
+  double rxsec = fSingleResXSecModel->XSec(interaction);
+
+  //-- Get the BR for the (resonance) -> (exclusive final state)
+  double br = SppChannel::BranchingRatio(spp_channel, res);
+
+  //-- Get the Isospin Glebsch-Gordon coefficient for the given resonance
+  //   and exclusive final state
+  double igg = SppChannel::IsospinWeight(spp_channel, res);
+
+  //-- Compute the weighted xsec
+  //  (total weight = Breit-Wigner * BR * isospin Glebsch-Gordon)
+  double res_xsec_contrib = rxsec*br*igg;
+
+  SLOG("ReinSeghalSpp", pINFO)
+     << "Contrib. from [" << utils::res::AsString(res) << "] = "
+     << "<Glebsch-Gordon = " << igg
+     << "> * <BR(->1pi) = " << br
+     << "> * <Breit-Wigner * d^2xsec/dQ^2dW = " << rxsec
+     << "> = " << res_xsec_contrib;
+
+  return res_xsec_contrib;
+}
+//____________________________________________________________________________
+bool ReinSeghalSPPPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
   //-- Get the requested SPP channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
   if( spp_channel == kSppNull ) {
-    LOG("ReinSeghalRes", pERROR)
+    LOG("ReinSeghalSpp", pERROR)
             << "\n *** Insufficient SPP exclusive final state information!";
     return false;
   }
-  LOG("ReinSeghalRes", pINFO)
+  LOG("ReinSeghalSpp", pINFO)
                        << "Reaction: " << SppChannel::AsString(spp_channel);
   return true;
 }
 //____________________________________________________________________________
-bool RSExclusiveRESPXSec::ValidKinematics(const Interaction* interaction) const
+bool ReinSeghalSPPPXSec::ValidKinematics(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
@@ -167,7 +202,7 @@ bool RSExclusiveRESPXSec::ValidKinematics(const Interaction* interaction) const
   //-- Check energy threshold & kinematical limits in q2, W
   double EvThr = utils::kinematics::EnergyThreshold(interaction);
   if(E <= EvThr) {
-    LOG("ReinSeghalRes", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
+    LOG("ReinSeghalSpp", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
     return false;
   }
 
@@ -182,21 +217,21 @@ bool RSExclusiveRESPXSec::ValidKinematics(const Interaction* interaction) const
   return true;
 }
 //____________________________________________________________________________
-void RSExclusiveRESPXSec::Configure(const Registry & config)
+void ReinSeghalSPPPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadSubAlg();
   this->GetResonanceList();
 }
 //____________________________________________________________________________
-void RSExclusiveRESPXSec::Configure(string config)
+void ReinSeghalSPPPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadSubAlg();
   this->GetResonanceList();
 }
 //____________________________________________________________________________
-void RSExclusiveRESPXSec::LoadSubAlg(void)
+void ReinSeghalSPPPXSec::LoadSubAlg(void)
 {
 // load the single resonance cross section algorithm specified in the config.
 
@@ -208,7 +243,7 @@ void RSExclusiveRESPXSec::LoadSubAlg(void)
   assert(fSingleResXSecModel);
 }
 //____________________________________________________________________________
-void RSExclusiveRESPXSec::GetResonanceList(void)
+void ReinSeghalSPPPXSec::GetResonanceList(void)
 {
 // create the baryon resonance list specified in the config.
 

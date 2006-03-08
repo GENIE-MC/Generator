@@ -4,7 +4,7 @@
 \class    genie::RSExclusiveRESPXSec
 
 \brief    Computes the differential resonance cross section  for an exclusive
-          resonance reaction.
+          1pi reaction from resonance neutrinoproduction.
 
           The computed xsec is the double differential d^2 xsec/ dQ^2 dW \n
           where \n
@@ -44,21 +44,21 @@
 */
 //____________________________________________________________________________
 
-#ifndef _RS_EXCLUSIVE_RES_PARTIAL_XSEC_H_
-#define _RS_EXCLUSIVE_RES_PARTIAL_XSEC_H_
+#ifndef _REIN_SEGHAL_EXCLUSIVE_SPP_PARTIAL_XSEC_H_
+#define _REIN_SEGHAL_EXCLUSIVE_SPP_PARTIAL_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResList.h"
 
 namespace genie {
 
-class RSExclusiveRESPXSec : public XSecAlgorithmI {
+class ReinSeghalSPPPXSec : public XSecAlgorithmI {
 
 public:
 
-  RSExclusiveRESPXSec();
-  RSExclusiveRESPXSec(string config);
-  virtual ~RSExclusiveRESPXSec();
+  ReinSeghalSPPPXSec();
+  ReinSeghalSPPPXSec(string config);
+  virtual ~ReinSeghalSPPPXSec();
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * interaction) const;
@@ -72,6 +72,8 @@ public:
 
 private:
 
+  double XSec1RES(const Interaction * interaction) const;
+
   void LoadSubAlg       (void);
   void GetResonanceList (void);
 
@@ -80,5 +82,4 @@ private:
 };
 
 }       // genie namespace
-
-#endif  // _RS_EXCLUSIVE_RES_PARTIAL_XSEC_H_
+#endif  // _REIN_SEGHAL_EXCLUSIVE_SPP_PARTIAL_XSEC_H_
