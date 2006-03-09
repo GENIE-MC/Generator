@@ -3,8 +3,9 @@
 
 \class    genie::RSExclusiveRESPXSec
 
-\brief    Computes the differential resonance cross section  for an exclusive
-          1pi reaction from resonance neutrinoproduction.
+\brief    Computes the differential cross section for an exclusive 1-pion 
+          reaction through resonance neutrinoproduction according to the 
+          Rein-Seghal model.
 
           The computed xsec is the double differential d^2 xsec/ dQ^2 dW \n
           where \n
@@ -72,6 +73,7 @@ public:
 
 private:
 
+  double XSecNRES(const Interaction * interaction) const;
   double XSec1RES(const Interaction * interaction) const;
 
   void LoadSubAlg       (void);
