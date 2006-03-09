@@ -25,9 +25,16 @@
      <param type="string" name="free-particle-xsec-param-set">  NC-Parton-Model-Default     </param>
   </param_set>
 
+<!--
   <param_set name="RES-Default"> 
      <param type="string" name="free-particle-xsec-alg-name">   genie::RESXSec              </param>
      <param type="string" name="free-particle-xsec-param-set">  Rein-Seghal                 </param>
+  </param_set>
+-->
+
+  <param_set name="RES-Default"> 
+     <param type="string" name="free-particle-xsec-alg-name">   genie::ReinSeghalSPPXSec    </param>
+     <param type="string" name="free-particle-xsec-param-set">  Default                     </param>
   </param_set>
 
   <param_set name="DIS-CC-Charm-Default"> 
