@@ -67,7 +67,7 @@
 # GOPT_ENABLE_FLUX_DRIVERS    -> enables GENIE's flux drivers
 # GOPT_ENABLE_GEOM_DRIVERS    -> enables GENIE's geometry drivers
 # GOPT_ENABLE_DOXYGEN_DOC     -> enables GENIE's Doxygen doc
-
+# GOPT_ENABLE_TEST            -> enabled GENIE test programs
 
 #-------------------------------------------------------------------
 #              GENIE build options - Setting defaults
@@ -81,6 +81,7 @@
 # GOPT_ENABLE_FLUX_DRIVERS    -> YES
 # GOPT_ENABLE_GEOM_DRIVERS    -> YES
 # GOPT_ENABLE_DOXYGEN_DOC     -> NO
+# GOPT_ENABLE_TEST            -> NO
 
 ifndef GOPT_ENABLE_PROFILER   
  GOPT_ENABLE_PROFILER=NO
@@ -102,6 +103,9 @@ ifndef GOPT_ENABLE_GEOM_DRIVERS
 endif 
 ifndef GOPT_ENABLE_DOXYGEN_DOC
   GOPT_ENABLE_DOXYGEN_DOC=NO
+endif
+ifndef GOPT_ENABLE_TEST
+  GOPT_ENABLE_TEST=NO
 endif
 
 #-------------------------------------------------------------------
@@ -126,8 +130,11 @@ endif
 ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES) 
   GOPT_GEOM_DRIVERS=1
 endif
-ifeq ($(strip $(GOPT_DOXYGEN_DOC)),YES) 
+ifeq ($(strip $(GOPT_ENABLE_DOXYGEN_DOC)),YES) 
   GOPT_DOXYGEN_DOC=1
+endif
+ifeq ($(strip $(GOPT_ENABLE_TEST)),YES) 
+  GOPT_TEST=1
 endif
 
 #-------------------------------------------------------------------
