@@ -38,6 +38,9 @@ endif
 ifdef GOPT_DOXYGEN_DOC
   BUILD_TARGETS := $(BUILD_TARGETS) doxygen-doc
 endif
+ifdef GOPT_TEST
+  BUILD_TARGETS := $(BUILD_TARGETS) generator-test-exe
+endif
 
 # after all libraries have been build, add some standard 
 # build targets (standalone apps, etc)
