@@ -3,8 +3,9 @@
 
 \class    genie::ReinSeghalSPPPXSec
 
-\brief    Computes the differential resonance cross section  for an exclusive
-          1pi reaction from resonance neutrinoproduction.
+\brief    Computes the differential cross section for an exclusive 1-pion 
+          reaction through resonance neutrinoproduction according to the 
+          Rein-Seghal model.
 
           The computed xsec is the double differential d^2 xsec/ dQ^2 dW \n
           where \n
@@ -112,7 +113,17 @@ double ReinSeghalSPPPXSec::XSec(const Interaction * interaction) const
   }
 
   //-- Loop over the specified list of baryon resonances and compute
-  //   the cross section for the input exlusive channel
+  //   the cross section for the input exclusive channel
+
+  double xsec = this->XSecNRES(interaction);
+  LOG("ReinSeghalSpp", pNOTICE) << "d^2 xsec/ dQ^2 dW = " << xsec;
+  return xsec;
+}
+//____________________________________________________________________________
+double ReinSeghalSPPPXSec::XSecNRES(const Interaction * interaction) const
+{
+// computes the 1pi cros section taking into account the contribution of all
+// specified baryon resonances
 
   unsigned int nres = fResList.NResonances();
   LOG("ReinSeghalSpp", pNOTICE)
@@ -137,7 +148,6 @@ double ReinSeghalSPPPXSec::XSec(const Interaction * interaction) const
   //-- delete the resonance from the input interaction
   interaction->GetExclusiveTagPtr()->SetResonance(kNoResonance);
 
-  LOG("ReinSeghalSpp", pNOTICE) << "d^2 xsec/ dQ^2 dW = " << xsec;
   return xsec;
 }
 //____________________________________________________________________________

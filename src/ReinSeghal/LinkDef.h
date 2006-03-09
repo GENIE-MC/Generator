@@ -9,6 +9,7 @@
 #pragma link C++ class genie::ReinSeghalCOHPXSec;
 #pragma link C++ class genie::ReinSeghalRESPXSec;
 #pragma link C++ class genie::ReinSeghalSPPPXSec;
+#pragma link C++ class genie::ReinSeghalSPPXSec;
 
 #pragma link C++ class genie::RSHelicityAmpl;
 #pragma link C++ class genie::RSHelicityAmplModelI;
