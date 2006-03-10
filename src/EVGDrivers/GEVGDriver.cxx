@@ -542,7 +542,6 @@ Range1D_t GEVGDriver::ValidEnergyRange(void) const
   E.max = -9999;
 
   EventGeneratorList::const_iterator evgliter; // event generator list iter
-  InteractionList::iterator          intliter; // interaction list iter
 
   // loop over all EventGenerator objects used in the current job
   for(evgliter = fEvGenList->begin();
@@ -558,7 +557,6 @@ Range1D_t GEVGDriver::ValidEnergyRange(void) const
      E.min = TMath::Min(E.min, Emin);
      E.max = TMath::Max(E.max, Emax);
   }
-
   assert(E.min<E.max && E.min>=0);
   return E;
 }
