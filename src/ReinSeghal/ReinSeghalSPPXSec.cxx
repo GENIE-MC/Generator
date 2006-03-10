@@ -81,8 +81,8 @@ double ReinSeghalSPPXSec::XSec(const Interaction * interaction) const
 
   //-- Get 1pi exclusive channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-  assert(1);
 
+  //-- Get cache
   Cache * cache = Cache::Instance();
 
   const InitialState & init_state = interaction->GetInitialState();
@@ -140,10 +140,12 @@ double ReinSeghalSPPXSec::XSec(const Interaction * interaction) const
        assert(cache_branch);
      }
 
+     const CacheBranchFx & cbranch = (*cache_branch);
+
      //-- Get cached resonance neutrinoproduction xsec
      //   (If E>Emax, assume xsec = xsec(Emax) - but do not evaluate the
      //    cross section spline at the end of its energy range-)
-     double rxsec = (Ev<fEMax-1) ? (*cache_branch)(Ev) : (*cache_branch)(fEMax-1);
+     double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
 
      //-- Get the BR for the (resonance) -> (exclusive final state)
      double br = SppChannel::BranchingRatio(spp_channel, res);
@@ -169,7 +171,8 @@ double ReinSeghalSPPXSec::XSec(const Interaction * interaction) const
   }//res
 
   SLOG("ReinSeghalSpp", pNOTICE)  
-                         << "XSec[RES] (Ev = " << Ev << " GeV) = " << xsec;
+         << "XSec[SPP/" << SppChannel::AsString(spp_channel)
+                                << "] (Ev = " << Ev << " GeV) = " << xsec;
   return xsec;
 }
 //____________________________________________________________________________
@@ -279,17 +282,8 @@ bool ReinSeghalSPPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
-
-  if(!proc_info.IsResonant()) return false;
-  if(!proc_info.IsWeak())     return false;
-
-  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
-  int  nu  = init_state.GetProbePDGCode();
-
-  if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
-  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
+  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
+  if(spp_channel == kSppNull) return false;
 
   return true;
 }
