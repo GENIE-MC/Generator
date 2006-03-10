@@ -12,7 +12,7 @@
   resonance-name-list           list of resonances to be taken into account
 -->
 
-  <param_set name="Default"> 
+  <param_set name="Fast"> 
      <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec  </param>
      <param type="string" name="single-res-xsec-param-set">  Default                    </param>
      <param type="string" name="resonance-name-list">  
@@ -21,7 +21,7 @@
   </param_set>
 
 
-  <param_set name="AllGoodResonances"> 
+  <param_set name="Default"> 
 <!--
   In this configuration parameter set we do not include the ambiguous P33(1600), F17(1970)
 -->
