@@ -16,9 +16,9 @@ srcdir=$GENIE/src
 
 libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
  -lGCrossSections -lGDecay -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
- -lGFragmentation -lGInteraction -lGInverseMuDecay -lGLlewellynSmith -lGMessenger\
+ -lGFragmentation -lGInteraction -lGInvMuDecay -lGLlewellynSmith -lGMessenger\
  -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
- -lGRadiative -lGRegistry -lGReinSeghal -lGViewer -lGUtils -lGValidityDoc"
+ -lGRadiative -lGRegistry -lGReinSeghal -lGUtils"
 
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
   libs="$libs -lGGeo"
@@ -28,6 +28,15 @@ if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
 fi
 if test "$GOPT_ENABLE_GEANT_INTERFACE" = "YES"; then
   libs="$libs -lGG4I"
+fi
+if test "$GOPT_ENABLE_VALIDITY_DOC" = "YES"; then
+  libs="$libs -lGValidityDoc"
+fi
+if test "$GOPT_ENABLE_VIEWER" = "YES"; then
+  libs="$libs -lGViewer"
+fi
+if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
+  libs="$libs -lGMuELoss"
 fi
 
 ########################### GENIE Dictionaries;
@@ -56,15 +65,22 @@ dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
 		$srcdir/Radiative/_ROOT_DICT_Radiative.o \
                 $srcdir/Registry/_ROOT_DICT_Registry.o \
                 $srcdir/ReinSeghal/_ROOT_DICT_ReinSeghal.o \
-                $srcdir/Viewer/_ROOT_DICT_Viewer.o \
-                $srcdir/Utils/_ROOT_DICT_Utils.o \
-                $srcdir/ValidityDoc/_ROOT_DICT_ValidityDoc.o"
+                $srcdir/Utils/_ROOT_DICT_Utils.o"
 
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
   dictionaries="$dictionaries $srcdir/Geo/_ROOT_DICT_Geo.o"
 fi
 if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
   dictionaries="$dictionaries $srcdir/FluxDrivers/_ROOT_DICT_FluxDrivers.o"
+fi
+if test "$GOPT_ENABLE_VALIDITY_DOC" = "YES"; then
+  dictionaries="$dictionaries $srcdir/ValidityDoc/_ROOT_DICT_ValidityDoc.o"
+fi
+if test "$GOPT_ENABLE_VIEWER" = "YES"; then
+  dictionaries="$dictionaries $srcdir/Viewer/_ROOT_DICT_Viewer.o"
+fi
+if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
+  dictionaries="$dictionaries $srcdir/MuELoss/_ROOT_DICT_MuELoss.o"
 fi
 
 usage="\
