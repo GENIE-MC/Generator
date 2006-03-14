@@ -59,6 +59,18 @@
 //____________________________________________________________________________
 /*!
 
+\namespace  genie::mueloss
+
+\brief      The MuELoss utility package that computes muon energy losses in 
+            the energy range from 1 GeV to 10 TeV due to ionization, direct
+            e-e+ pair production, bremsstrahlung and photonuclear interactions.
+            Very handy in neutrino-induced upgoing-muon calculations.
+*/
+//____________________________________________________________________________
+
+//____________________________________________________________________________
+/*!
+
 \namespace  genie::nuvld
 
 \brief      Contains the NuValidator package for Neutrino Interaction model
@@ -77,4 +89,4 @@
 //____________________________________________________________________________
 
 
-// provides bried namespace definitions for doxygen
+// provides brief namespace definitions for doxygen
