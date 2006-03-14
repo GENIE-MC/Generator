@@ -13,13 +13,28 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 GENIE_DICTS = $(shell $(GENIE)/src/scripts/genie-config --dicts)
-WITH_DICT   = $(GENIE_DICTS)
+GENIE_LIBS  = $(shell $(GENIE)/src/scripts/genie-config --libs)
 
-LIBRARIES := $(GENIE_LIBRARIES) $(LIBRARIES) $(CERN_LIBRARIES)
+LIBRARIES := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 ifdef GOPT_GEANT_INTERFACE
   LIBRARIES := $(LIBRARIES) $(GEANT4_LIBRARIES) $(CLHEP_LIBRARIES)
 endif
+
+EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
+ 	$(GENIE_BIN_PATH)/testConfigPool	\
+ 	$(GENIE_BIN_PATH)/testDecay		\
+	$(GENIE_BIN_PATH)/testMessenger		\
+	$(GENIE_BIN_PATH)/testMuELoss		\
+	$(GENIE_BIN_PATH)/testNumerical		\
+	$(GENIE_BIN_PATH)/testPDFLIB		\
+	$(GENIE_BIN_PATH)/testMCJobDriver	\
+	$(GENIE_BIN_PATH)/testFluxDriver	\
+	$(GENIE_BIN_PATH)/testRegistry		\
+	$(GENIE_BIN_PATH)/testInteraction	\
+	$(GENIE_BIN_PATH)/testReWeight		\
+	$(GENIE_BIN_PATH)/testReadGNtuple	\
+	$(GENIE_BIN_PATH)/testROOTGeometry  
 
 TGT =	testBaryonResDataSet	\
  	testConfigPool		\
@@ -32,22 +47,15 @@ TGT =	testBaryonResDataSet	\
 	testRegistry		\
 	testInteraction		\
 	testReWeight		\
-	testReadGNtuple		\
-	testROOTGeometry
+	testReadGNtuple		
 
-EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
- 	$(GENIE_BIN_PATH)/testConfigPool	\
- 	$(GENIE_BIN_PATH)/testDecay		\
-	$(GENIE_BIN_PATH)/testMessenger		\
-	$(GENIE_BIN_PATH)/testNumerical		\
-	$(GENIE_BIN_PATH)/testPDFLIB		\
-	$(GENIE_BIN_PATH)/testMCJobDriver	\
-	$(GENIE_BIN_PATH)/testFluxDriver	\
-	$(GENIE_BIN_PATH)/testRegistry		\
-	$(GENIE_BIN_PATH)/testInteraction	\
-	$(GENIE_BIN_PATH)/testReWeight		\
-	$(GENIE_BIN_PATH)/testReadGNtuple	\
-	$(GENIE_BIN_PATH)/testROOTGeometry  
+ifdef GOPT_MUELOSS
+  TGT := $(TGT) testMuELoss
+endif
+
+ifdef GOPT_GEOM_DRIVERS
+  TGT := $(TGT) testROOTGeometry
+endif
 
 all: $(TGT)
 
@@ -78,6 +86,10 @@ testFluxDriver: FORCE
 testMessenger: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMessenger \
 			testMessenger.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+
+testMuELoss: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMuELoss \
+			testMuELoss.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testNumerical: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testNumerical \
