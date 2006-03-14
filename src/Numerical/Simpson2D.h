@@ -57,6 +57,9 @@ private:
   double        fMaxPcntErr; ///< max numerical error allowed (in %)
   GridSpacing_t fSpacing;    ///< grid points spacing rule
   bool          fFastDensityIncrease;
+  bool          fForceFixedNBins;
+  unsigned int  fNBinsD0;
+  unsigned int  fNBinsD1;
 };
 
 }        // genie namespace
