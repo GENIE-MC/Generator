@@ -62,6 +62,7 @@
   <priority msgstream="GuiUtils">            INFO   </priority>
   <priority msgstream="GridDim">             WARN   </priority>
   <priority msgstream="GXSecFunc">           WARN   </priority>
+  <priority msgstream="GlashowResXSec">      WARN   </priority>
   <priority msgstream="HadronicVertex">      INFO   </priority>
   <priority msgstream="IMD">                 NOTICE </priority>
   <priority msgstream="IMDTargetRemnant">    INFO   </priority>
@@ -76,6 +77,7 @@
   <priority msgstream="KineLimits">          INFO   </priority>
   <priority msgstream="LeptonicVertex">      INFO   </priority>
   <priority msgstream="Messenger">           INFO   </priority>
+  <priority msgstream="MuELoss">             NOTICE </priority>
   <priority msgstream="MultProb">            INFO   </priority>
   <priority msgstream="NuclXSec">            INFO   </priority>
   <priority msgstream="NucleonP">            INFO   </priority>

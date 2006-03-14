@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+  <param_set name="Default"> 
+     <param type="string" name="integrator-alg-name">    genie::Simpson1D </param>
+     <param type="string" name="integrator-param-set">   Default-Linear   </param>
+  </param_set>
+</alg_conf>
+
