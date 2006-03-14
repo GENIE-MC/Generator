@@ -116,6 +116,7 @@ void GMCJDriver::Initialize(void)
   fMaxPlXmlFilename = ""; // <-- XML file with external path lengths
   fUseExtMaxPl      = false;
   fUseSplines       = false;
+  fNFluxNeutrinos   = 0;  // <-- number of flux neutrinos thrown so far
 
   fSelTgtPdg        = 0;
   fCurEvt           = 0;
@@ -376,6 +377,22 @@ void GMCJDriver::InitEventGeneration(void)
   fCurVtx.SetXYZT(0.,0.,0.,0.);
 }
 //___________________________________________________________________________
+double GMCJDriver::Exposure(bool physical)
+{
+  if(!physical) return fNFluxNeutrinos;
+
+  // Teport the number of neutrinos that would have really thrown if I was
+  // not scaliing the interaction probabilities. This corresponds to the
+  // real number of flux neutrinos...
+  if(fPmax>0) {
+    return (fNFluxNeutrinos/fPmax);
+  }
+
+  LOG("GMCJDriver", pERROR) 
+   << "Fails to report exposure because max interaction probab is not set!";
+  return -1;
+}
+//___________________________________________________________________________
 EventRecord * GMCJDriver::GenerateEvent(void)
 {
   LOG("GMCJDriver", pNOTICE) << "Generating next event...";
@@ -438,6 +455,8 @@ bool GMCJDriver::GenerateFluxNeutrino(void)
               << "*** The flux driver couldn't generate a flux neutrino!!";
      return false;
   }
+
+  fNFluxNeutrinos++;
   int                    nupdg = fFluxDriver -> PdgCode  ();
   const TLorentzVector & nup4  = fFluxDriver -> Momentum ();
   const TLorentzVector & nux4  = fFluxDriver -> Position ();
@@ -513,8 +532,8 @@ int GMCJDriver::SelectTargetMaterial(void)
   PathLengthList::const_iterator pliter;
   for(pliter = fCurPathLengths.begin();
                             pliter != fCurPathLengths.end(); ++pliter) {
-     int    mpdg  = pliter->first;             // material PDG code
-     double pl    = pliter->second;            // density x path-length
+     int    mpdg  = pliter->first;            // material PDG code
+     double pl    = pliter->second;           // density x path-length
      int    A     = pdg::IonPdgCodeToA(mpdg);
      double xsec  = 0.;                       // sum of xsecs for given init state
      double prob  = 0.;                       // interaction probability
@@ -532,12 +551,16 @@ int GMCJDriver::SelectTargetMaterial(void)
      if(pl>0.) {
         xsec  = evgdriver->XSecSum(nup4);
         prob  = this->PInt(xsec,pl,A);
+
+        // scale the interaction probability to the maximum one so as not
+        // to have to throw few billions of flux neutrinos before getting
+        // an interaction...
         probn = prob/fPmax;
      }
 
      LOG("GMCJDriver", pNOTICE)
          << "tgt: " << mpdg << " -> TotXSec = "
-         << xsec/cm2 << " cm^2, Norm.Prob = " << 100*probn << "%";
+         << xsec/units::cm2 << " cm^2, Norm.Prob = " << 100*probn << "%";
 
      probsum += probn;
      probm.insert(map<int,double>::value_type(mpdg,probsum));

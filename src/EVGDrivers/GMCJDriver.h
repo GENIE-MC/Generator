@@ -38,7 +38,7 @@ public :
   GMCJDriver();
   ~GMCJDriver();
 
-  //-- configure MC job: set flux and detector geometry
+  //! configure MC job: set flux and detector geometry
   void UseFluxDriver      (GFluxI * flux);
   void UseGeomAnalyzer    (GeomAnalyzerI * geom);
   void UseSplines         (bool useLogE = true);
@@ -47,8 +47,13 @@ public :
   void FilterUnphysical   (bool filter);
   void Configure          (void);
 
-  //-- generate single neutrino event for input flux & geometry
+  //! generate single neutrino event for input flux & geometry
   EventRecord * GenerateEvent (void);
+
+  //! report 'exposure': the number of flux neutrinos that
+  //! have been thrown so far in order to generate the curent
+  //! number of neutrino interactions
+  double Exposure(bool physical=true);
 
 private:
 
@@ -86,6 +91,7 @@ private:
   bool            fUseLogE;          ///< build splines = f(logE) (rather than f(E)) ?
   bool            fAllowRecursMode;  ///< can enter into recursive mode?
   bool            fFilterUnphysical; ///< should I filter unphysical events?
+  double          fNFluxNeutrinos;   
 };
 
 }      // genie namespace
