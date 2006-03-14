@@ -13,12 +13,22 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 GENIE_DICTS = $(shell $(GENIE)/src/scripts/genie-config --dicts)
+GENIE_LIBS  = $(shell $(GENIE)/src/scripts/genie-config --libs)
 
-LIBRARIES := $(GENIE_LIBRARIES) $(LIBRARIES) $(CERN_LIBRARIES)
+LIBRARIES := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 ifdef GOPT_GEANT_INTERFACE
   LIBRARIES := $(LIBRARIES) $(GEANT4_LIBRARIES) $(CLHEP_LIBRARIES)
 endif
+
+EXE =	$(GENIE_BIN_PATH)/gevgen   \
+	$(GENIE_BIN_PATH)/gvlddoc  \
+	$(GENIE_BIN_PATH)/gmkspl   \
+	$(GENIE_BIN_PATH)/gmxpl    \
+	$(GENIE_BIN_PATH)/g2nuance \
+	$(GENIE_BIN_PATH)/gsplt	   \
+	$(GENIE_BIN_PATH)/gmctest  \
+	$(GENIE_BIN_PATH)/gviewer
 
 ALLTGT = gEvGen		\
 	 gVldDoc	\
@@ -30,19 +40,16 @@ ALLTGT = gEvGen		\
 	 gViewer		
 
 STDTGT = gEvGen		\
-	 gVldDoc	\
 	 gMakeSplines	\
 	 gMaxPathLengths\
 	 gSplinePlotter	
 
-EXE =	$(GENIE_BIN_PATH)/gevgen   \
-	$(GENIE_BIN_PATH)/gvlddoc  \
-	$(GENIE_BIN_PATH)/gmkspl   \
-	$(GENIE_BIN_PATH)/gmxpl    \
-	$(GENIE_BIN_PATH)/g2nuance \
-	$(GENIE_BIN_PATH)/gsplt	   \
-	$(GENIE_BIN_PATH)/gmctest  \
-	$(GENIE_BIN_PATH)/gviewer
+ifdef GOPT_VALIDITY_DOC
+  STDTGT := $(STDTGT) gVldDoc
+endif
+ifdef GOPT_VIEWER
+  STDTGT := $(STDTGT) gViewer
+endif
 
 all: $(STDTGT)
 
