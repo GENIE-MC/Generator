@@ -20,8 +20,6 @@
 
 #include "Conventions/Units.h"
 
-using namespace genie::units;
-
 namespace genie {
 namespace constants {
 
@@ -29,12 +27,21 @@ namespace constants {
 
 static const double kLightSpeed    = 1.;
 static const double kPlankConstant = 1.;
-static const double kPi            = 3.1415927;
-static const double kPi_2          = TMath::Power(kPi,2);
-static const double kPi_3          = TMath::Power(kPi,3);
-static const double kPi_4          = TMath::Power(kPi,4);
-static const double ke             = 2.7182818;
-static const double kNA            = 6.023e23;    // Avogadro's number
+
+//----- pi, e,...
+
+static const double kPi    = 3.1415927;
+static const double kPi_2  = TMath::Power(kPi,2);
+static const double kPi_3  = TMath::Power(kPi,3);
+static const double kPi_4  = TMath::Power(kPi,4);
+static const double ke     = 2.7182818;
+static const double kSqrte = TMath::Sqrt(ke);
+
+//----- Avogadro number, compton wavelength and such...
+
+static const double kNA    = 6.023e23;             
+static const double kLe    = 3.8616E-11 *units::cm;
+static const double kLe_2  = TMath::Power(kLe,2);          
 
 //----- Coupling constants
 
@@ -195,9 +202,9 @@ static const double kGRprime2 = TMath::Power(kGRprime,2);
 //----- Misc constants for empirical formulas
 
 // Ro in nuclear radius formula R=Ro*A^(1/3), in GeV^-1
-static const double kNucRo = 1.2E-15*m;
+static const double kNucRo = 1.2E-15*units::m;
 // Nuclear density (in nuclear core), in GeV^4
-static const double kNucDensity = 2.3E+17 *kg/m3;
+static const double kNucDensity = 2.3E+17 *units::kg/units::m3;
 
 //----- INTRANUKE constants
 
