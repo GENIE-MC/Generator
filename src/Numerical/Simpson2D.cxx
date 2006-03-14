@@ -62,6 +62,44 @@ double Simpson2D::Integrate(GSFunc & gsfunc) const
   unsigned int n  = fNo;     // param controling num of integration steps
   unsigned int np = 0;       // number of integration steps
 
+  // Check whether the use prefers to use a fixed number of integration  
+  // steps. Note that if you do this I won;t give any guarantee for the
+  // convergence of the numerical integration
+
+  if(fForceFixedNBins) {  /* ok, enter in cheat mode */
+
+    fmap.IncreaseGridDensity(fNBinsD0, 0);
+    fmap.IncreaseGridDensity(fNBinsD1, 1);
+    const UnifGrid & curr_grid = fmap.GetGrid();
+    // populate the function map with the values of the input function
+    // computed on the grid points
+    for(unsigned int i=0; i < curr_grid[0]->NPoints(); i++) {
+      x[0] = curr_grid(0, i);
+      for(unsigned int j=0; j < curr_grid[1]->NPoints(); j++) {
+         x[1] = curr_grid(1, j);
+
+         y = gsfunc(x); // f(x)
+         LOG("Simpson2D", pDEBUG)
+               << "grid point...." << i << "," << j
+                 << "/" << np << "," << np << " : "
+                    << "func(x = " << x[0] << ", " << x[1] << ") = " << y;
+         if(fSpacing==kGSpLoge) y *= (x[0]*x[1]);
+         fmap.SetValue(y, x);
+      } //x1
+    } //x0
+
+    // compute the sum using the Simpson method & return
+    sum = this->SimpsonRule(fmap);
+    LOG("Simpson2D", pINFO)
+        << "Integral = " << sum 
+                  << " / Estimated err = *** check disabled by user ***";
+    return sum; 
+
+  } // end-cheat-mode
+
+
+  // Perform integration without fixing the number of integration steps:
+
   // Increase the number of integration steps (2**N+1) until the computed
   // integral value converges to the real one within the required accuracy
   for(unsigned int iter=0; iter<fIMaxConv; iter++) {
@@ -123,7 +161,6 @@ double Simpson2D::Integrate(GSFunc & gsfunc) const
     LOG("Simpson2D", pINFO)
        << "Integral = " << sum << " (prev = " << sum_old
                                   << ") / Estimated err = " << err << " %";
-
     if(err < fMaxPcntErr) {
        LOG("Simpson2D", pNOTICE)
            << "Integral = " << sum << " / Estimated err = " << err << " %";
@@ -194,15 +231,28 @@ void Simpson2D::Configure(string param_set)
 //____________________________________________________________________________
 void Simpson2D::LoadConfigData(void)
 {
-  fIMaxConv   = (unsigned int) fConfig->GetInt("max-iterations");
-  fNo         = (unsigned int) fConfig->GetInt("initial-nstep");
-  fMaxPcntErr = fConfig->GetDouble("max-error");
+  fIMaxConv   = (unsigned int) fConfig->GetIntDef("max-iterations", 20);
+  fNo         = (unsigned int) fConfig->GetIntDef("initial-nstep", 3);
+  fMaxPcntErr = fConfig->GetDoubleDef("max-error", 0.1); //%
 
-  bool inloge = fConfig->GetBool("in-loge");
+  bool inloge = fConfig->GetBoolDef("in-loge", false);
   if(inloge) fSpacing = kGSpLoge;
   else       fSpacing = kGSpLinear;
 
+  // check the preferred grid density increase rate method
   fFastDensityIncrease = fConfig->GetBoolDef("fast-density-increase", false);
+
+  // check whether the user wants to use a fixed number of bins
+  // *** notice that if this is used there is no guarantee for the convergence
+  // *** of the numerical integration
+
+  fForceFixedNBins = fConfig->GetBoolDef("force-fixed-nbins", false);
+  fNBinsD0 = 0;
+  fNBinsD1 = 0;
+  if(fForceFixedNBins) {
+     fNBinsD0 = fConfig->GetIntDef("dimension-0-nbins", 401);
+     fNBinsD1 = fConfig->GetIntDef("dimension-1-nbins", 401);
+  }
 }
 //____________________________________________________________________________
 
