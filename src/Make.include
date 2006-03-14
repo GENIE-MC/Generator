@@ -67,7 +67,10 @@
 # GOPT_ENABLE_FLUX_DRIVERS    -> enables GENIE's flux drivers
 # GOPT_ENABLE_GEOM_DRIVERS    -> enables GENIE's geometry drivers
 # GOPT_ENABLE_DOXYGEN_DOC     -> enables GENIE's Doxygen doc
-# GOPT_ENABLE_TEST            -> enabled GENIE test programs
+# GOPT_ENABLE_TEST            -> enables GENIE test programs
+# GOPT_ENABLE_VALIDITY_DOC    -> enables GENIE validity document
+# GOPT_ENABLE_VIEWER          -> enables GENIE Feynman/GHEP gui 
+# GOPT_ENABLE_MUELOSS         -> enables GENIE MuELoss utility 
 
 #-------------------------------------------------------------------
 #              GENIE build options - Setting defaults
@@ -82,6 +85,9 @@
 # GOPT_ENABLE_GEOM_DRIVERS    -> YES
 # GOPT_ENABLE_DOXYGEN_DOC     -> NO
 # GOPT_ENABLE_TEST            -> NO
+# GOPT_ENABLE_VALIDITY_DOC    -> YES
+# GOPT_ENABLE_VIEWER          -> NO
+# GOPT_ENABLE_MUELOSS         -> NO
 
 ifndef GOPT_ENABLE_PROFILER   
  GOPT_ENABLE_PROFILER=NO
@@ -106,6 +112,15 @@ ifndef GOPT_ENABLE_DOXYGEN_DOC
 endif
 ifndef GOPT_ENABLE_TEST
   GOPT_ENABLE_TEST=NO
+endif
+ifndef GOPT_ENABLE_VALIDITY_DOC
+  GOPT_ENABLE_VALIDITY_DOC=YES
+endif
+ifndef GOPT_ENABLE_VIEWER
+  GOPT_ENABLE_VIEWER=NO
+endif
+ifndef GOPT_ENABLE_MUELOSS
+  GOPT_ENABLE_MUELOSS=NO
 endif
 
 #-------------------------------------------------------------------
@@ -135,6 +150,15 @@ ifeq ($(strip $(GOPT_ENABLE_DOXYGEN_DOC)),YES)
 endif
 ifeq ($(strip $(GOPT_ENABLE_TEST)),YES) 
   GOPT_TEST=1
+endif
+ifeq ($(strip $(GOPT_ENABLE_VALIDITY_DOC)),YES) 
+  GOPT_VALIDITY_DOC=1
+endif
+ifeq ($(strip $(GOPT_ENABLE_VIEWER)),YES) 
+  GOPT_VIEWER=1
+endif
+ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES) 
+  GOPT_MUELOSS=1
 endif
 
 #-------------------------------------------------------------------
@@ -503,7 +527,8 @@ GENIE_REIN_SEGHAL_SHARED_LIB      := $(GENIE_LIB_PATH)/libGReinSeghal.$(DllSuf)
 GENIE_UTILS_SHARED_LIB            := $(GENIE_LIB_PATH)/libGUtils.$(DllSuf)
 GENIE_VIEWER_SHARED_LIB           := $(GENIE_LIB_PATH)/libGViewer.$(DllSuf)
 GENIE_XSEC_SHARED_LIB             := $(GENIE_LIB_PATH)/libGCrossSections.$(DllSuf)
-GENIE_XML_TOOLS_SHARED_LIB        := $(GENIE_LIB_PATH)/libGXML.$(DllSuf)
+GENIE_MUELOSS_SHARED_LIB          := $(GENIE_LIB_PATH)/libGMuELoss.$(DllSuf)
+GENIE_VHE_SHARED_LIB              := $(GENIE_LIB_PATH)/libGVHE.$(DllSuf)
 
 VLD_PARSER_SHARED_LIB             := $(GENIE_LIB_PATH)/libGNuVldXML.$(DllSuf)
 VLD_DBUTIL_SHARED_LIB             := $(GENIE_LIB_PATH)/libGNuVldDBU.$(DllSuf)
@@ -516,15 +541,11 @@ GDUMMY_NEUGEN_STATIC_LIB          := $(GENIE_LIB_PATH)/libneugen3.$(StaticLibSuf
 
 GENIE_LIBRARIES := -L $(GENIE_LIB_PATH) \
   -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
-  -lGDecay -lGElas -lGHEP -lGLlewellynSmith \
-  -lGEVGCore -lGEVGModules -lGEVGDrivers\
+  -lGDecay -lGElas -lGHEP -lGLlewellynSmith -lGEVGCore -lGEVGModules -lGEVGDrivers\
   -lGFragmentation -lGInteraction -lGInvMuDecay -lGMessenger \
-  -lGNtuple -lGNuclear -lGNumerical -lGValidityDoc \
-  -lGEVGCore -lGEVGDrivers -lGEVGModules  \
+  -lGNtuple -lGNuclear -lGNumerical -lGEVGCore -lGEVGDrivers -lGEVGModules  \
   -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
-  -lGReinSeghal -lGUtils -lGViewer -lGCrossSections -lGReWeight
-
-# add the GENIE/GEANT interface library if the interface is enabled
+  -lGReinSeghal -lGUtils -lGCrossSections -lGReWeight
 
 ifdef GOPT_GEANT_INTERFACE
   GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGG4I
@@ -534,6 +555,12 @@ ifdef GOPT_FLUX_DRIVERS
 endif
 ifdef GOPT_GEOM_DRIVERS
   GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGGeo
+endif
+ifdef GOPT_VALIDITY_DOC
+  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGValidityDoc
+endif
+ifdef GOPT_VIEWER
+  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGViewer
 endif
 
 # standard GENIE's NuValidator libraries
