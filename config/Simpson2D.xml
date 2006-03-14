@@ -3,19 +3,24 @@
 <alg_conf>
 
   <param_set name="Default-Linear"> 
-     <param type="int"    name="max-iterations">        20   </param>
-     <param type="int"    name="initial-nstep">         3    </param>
-     <param type="double" name="max-error">             6.0  </param>
-     <param type="bool"   name="in-loge">               true </param>
-     <param type="bool"   name="fast-density-increase"> true </param>
+     <param type="int"    name="max-iterations">        20    </param>
+     <param type="int"    name="initial-nstep">         3     </param>
+     <param type="double" name="max-error">             6.0   </param>
+     <param type="bool"   name="in-loge">               false </param>
+     <param type="bool"   name="fast-density-increase"> true  </param>
   </param_set>
 
   <param_set name="Default-Logarithmic"> 
-     <param type="int"    name="max-iterations">        20   </param>
-     <param type="int"    name="initial-nstep">         5    </param>
-     <param type="double" name="max-error">             5.0  </param>
-     <param type="bool"   name="in-loge">               true </param>
-     <param type="bool"   name="fast-density-increase"> true </param>
+     <param type="int"    name="max-iterations">        20    </param>
+     <param type="int"    name="initial-nstep">         5     </param>
+     <param type="double" name="max-error">             5.0   </param>
+     <param type="bool"   name="in-loge">               true  </param>
+     <param type="bool"   name="fast-density-increase"> true  </param>
+  </param_set>
+
+  <param_set name="Default-Linear-FixedNBins"> 
+     <param type="bool"   name="in-loge">               false </param>
+     <param type="bool"   name="force-fixed-nbins">     true  </param>
   </param_set>
 
 </alg_conf>
