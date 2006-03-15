@@ -42,21 +42,35 @@ $GOPT_ENABLE_MUELOSS         = $ENV{'GOPT_ENABLE_MUELOSS'};
 
 # suppress PERL warnings when using undefined variables
 
-$SRT_ENV_SET   = "" unless defined $SRT_ENV_SET;
-$ROOTSYS       = "" unless defined $ROOTSYS;
-$CERNLIB       = "" unless defined $CERNLIB;
-$PYTHIA6       = "" unless defined $PYTHIA6;
-$LIBXML2_INC   = "" unless defined $LIBXML2_INC;
-$LIBXML2_LIB   = "" unless defined $LIBXML2_LIB;
-$LOG4CPP_INC   = "" unless defined $LOG4CPP_INC;
-$LOG4CPP_LIB   = "" unless defined $LOG4CPP_LIB;
-$NEUGEN3PATH   = "" unless defined $NEUGEN3PATH;
-$GPROFILER_LIB = "" unless defined $GPROFILER_LIB;
-$DOXYGEN       = "" unless defined $DOXYGEN;
-$CLHEP_INC     = "" unless defined $CLHEP_INC;
-$CLHEP_LIB     = "" unless defined $CLHEP_LIB;
-$GEANT4_INC    = "" unless defined $GEANT4_INC;
-$GEANT4_LIB    = "" unless defined $GEANT4_LIB;
+$SRT_ENV_SET                 = "**undefined**" unless defined $SRT_ENV_SET;
+$ROOTSYS                     = "**undefined**" unless defined $ROOTSYS;
+$CERNLIB                     = "**undefined**" unless defined $CERNLIB;
+$PYTHIA6                     = "**undefined**" unless defined $PYTHIA6;
+$LIBXML2_INC                 = "**undefined**" unless defined $LIBXML2_INC;
+$LIBXML2_LIB                 = "**undefined**" unless defined $LIBXML2_LIB;
+$LOG4CPP_INC                 = "**undefined**" unless defined $LOG4CPP_INC;
+$LOG4CPP_LIB                 = "**undefined**" unless defined $LOG4CPP_LIB;
+$NEUGEN3PATH                 = "**undefined**" unless defined $NEUGEN3PATH;
+$GPROFILER_LIB               = "**undefined**" unless defined $GPROFILER_LIB;
+$DOXYGEN                     = "**undefined**" unless defined $DOXYGEN;
+$CLHEP_INC                   = "**undefined**" unless defined $CLHEP_INC;
+$CLHEP_LIB                   = "**undefined**" unless defined $CLHEP_LIB;
+$GEANT4_INC                  = "**undefined**" unless defined $GEANT4_INC;
+$GEANT4_LIB                  = "**undefined**" unless defined $GEANT4_LIB;
+$PATH                        = "**undefined**" unless defined $PATH;
+$LD_LIBRARY_PATH             = "**undefined**" unless defined $LD_LIBRARY_PATH;
+$GENIE                       = "**undefined**" unless defined $GENIE;
+$GOPT_ENABLE_NUVALIDATOR     = "**undefined**" unless defined $GOPT_ENABLE_NUVALIDATOR;
+$GOPT_ENABLE_NEUGEN          = "**undefined**" unless defined $GOPT_ENABLE_NEUGEN;
+$GOPT_ENABLE_GEANT_INTERFACE = "**undefined**" unless defined $GOPT_ENABLE_GEANT_INTERFACE;
+$GOPT_ENABLE_FLUX_DRIVERS    = "**undefined**" unless defined $GOPT_ENABLE_FLUX_DRIVERS;
+$GOPT_ENABLE_GEOM_DRIVERS    = "**undefined**" unless defined $GOPT_ENABLE_GEOM_DRIVERS;
+$GOPT_ENABLE_PROFILER        = "**undefined**" unless defined $GOPT_ENABLE_PROFILER;
+$GOPT_ENABLE_DOXYGEN_DOC     = "**undefined**" unless defined $GOPT_ENABLE_DOXYGEN_DOC;
+$GOPT_ENABLE_TEST            = "**undefined**" unless defined $GOPT_ENABLE_TEST;
+$GOPT_ENABLE_VALIDITY_DOC    = "**undefined**" unless defined $GOPT_ENABLE_VALIDITY_DOC;
+$GOPT_ENABLE_VIEWER          = "**undefined**" unless defined $GOPT_ENABLE_VIEWER;
+$GOPT_ENABLE_MUELOSS         = "**undefined**" unless defined $GOPT_ENABLE_MUELOSS;
 
 # save build options
 
@@ -84,9 +98,9 @@ print OPT "\$GEANT4_INC    -> $GEANT4_INC\n";
 print OPT "\$GEANT4_LIB    -> $GEANT4_LIB\n\n";
 
 print OPT "\$PATH            -> $PATH\n\n";
-
 print OPT "\$LD_LIBRARY_PATH -> $LD_LIBRARY_PATH\n\n";
 
+print OPT "\$GENIE                       -> $GENIE\n";
 print OPT "\$GOPT_ENABLE_NUVALIDATOR     -> $GOPT_ENABLE_NUVALIDATOR\n";
 print OPT "\$GOPT_ENABLE_NEUGEN          -> $GOPT_ENABLE_NEUGEN\n";
 print OPT "\$GOPT_ENABLE_FLUX_DRIVERS    -> $GOPT_ENABLE_FLUX_DRIVERS\n";
