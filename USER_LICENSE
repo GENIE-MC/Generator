@@ -40,7 +40,8 @@ Mike Whalley          M.R.Whalley \at durham.ac.uk        [3]
 [8] Pittsburgh University
 [9] Tufts University
 
-LICENCE
+
+LICENSE
 ................................................................................
 The authors hereby grant permission to use, copy, and distribute this software
 and its documentation for any purpose, provided that existing copyright notices
@@ -58,7 +59,8 @@ original software.
 
 You are granted the right to use GENIE on the explicit understanding that every
 refereed publication, contribution to conference proceedings or publicly
-available internal note describing derivative works should cite GENIE.
+available internal note describing derivative works should include an
+appropriate reference to GENIE.
 
 IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR DIRECT,
 INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF
@@ -69,4 +71,22 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
 NON-INFRINGEMENT. THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS
 AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
+
+
+How to reference GENIE correctly
+................................................................................
+
+For any derivative work based on GENIE:
+
+- (technical paper to be submitted to Comp.Phys.Comm)
+
+Especially, for any derivative work based on GENIE version 2.0.0 or above you
+should add:
+
+- (hep-ex release note)
+
+Especially, for any derivative work based on GENIE's NuValidator you should add:
+
+- C.Andreopoulos and H.Gallagher, Nucl.Phys.Proc.Suppl.139:247-252,2005;
+  M. Whalley, Nucl.Phys.Proc.Suppl.139:241-246,2005
 
