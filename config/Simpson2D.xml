@@ -23,5 +23,12 @@
      <param type="bool"   name="force-fixed-nbins">     true  </param>
   </param_set>
 
+  <param_set name="Default-Logarithmic-FixedNBins-Fast"> 
+     <param type="bool"   name="in-loge">               true  </param>
+     <param type="bool"   name="force-fixed-nbins">     true  </param>
+     <param type="int"    name="dimension-0-nbins">     61    </param>
+     <param type="int"    name="dimension-1-nbins">     61    </param>
+  </param_set>
+
 </alg_conf>
 
