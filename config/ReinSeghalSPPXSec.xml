@@ -21,13 +21,18 @@
   ESplineMax                    Emax in res xsec splines (for E>Emax, xsec = xsec(E=Emax)
 -->
 
+Default-Logarithmic-FixedNBins-Fast
+
   <param_set name="Fast"> 
-     <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec  </param>
-     <param type="string" name="single-res-xsec-param-set">  Default                    </param>
-     <param type="string" name="integrator-alg-name">        genie::Simpson2D           </param>
-     <param type="string" name="integrator-param-set">       Default-Logarithmic        </param>
-     <param type="double" name="Wmax">                       1.4                        </param>
-     <param type="double" name="ESplineMax">                 20                         </param>
+     <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec           </param>
+     <param type="string" name="single-res-xsec-param-set">  Default                             </param>
+     <param type="string" name="integrator-alg-name">        genie::Simpson2D                    </param>
+<!--
+     <param type="string" name="integrator-param-set">       Default-Logarithmic                 </param>
+-->
+     <param type="string" name="integrator-param-set">       Default-Logarithmic-FixedNBins-Fast </param>
+     <param type="double" name="Wmax">                       1.4                                 </param>
+     <param type="double" name="ESplineMax">                 20                                  </param>
      <param type="string" name="resonance-name-list">  
                    P33(1232),S11(1535),D13(1520),S11(1650),D13(1700)
      </param>
@@ -39,12 +44,15 @@
 <!--
   In this configuration parameter set we do not include the ambiguous P33(1600), F17(1970)
 -->
-     <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec  </param>
-     <param type="string" name="single-res-xsec-param-set">  Default                    </param>
-     <param type="string" name="integrator-alg-name">        genie::Simpson2D           </param>
-     <param type="string" name="integrator-param-set">       Default-Logarithmic        </param>
-     <param type="double" name="Wmax">                       1.4                        </param>
-     <param type="double" name="ESplineMax">                 20                         </param>
+     <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec            </param>
+     <param type="string" name="single-res-xsec-param-set">  Default                              </param>
+     <param type="string" name="integrator-alg-name">        genie::Simpson2D                     </param>
+<!--
+     <param type="string" name="integrator-param-set">       Default-Logarithmic                  </param>
+-->
+     <param type="string" name="integrator-param-set">       Default-Logarithmic-FixedNBins-Fast  </param>
+     <param type="double" name="Wmax">                       1.4                                  </param>
+     <param type="double" name="ESplineMax">                 20                                   </param>
      <param type="string" name="resonance-name-list">  
                    P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
                    D33(1700),P11(1440),P13(1720),F15(1680),P31(1910),P33(1920),
@@ -57,12 +65,15 @@
 <!--
   In this configuration parameter set we include all resonances known to GENIE
 -->
-     <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec  </param>
-     <param type="string" name="single-res-xsec-param-set">  Default                    </param>
-     <param type="string" name="integrator-alg-name">        genie::Simpson2D           </param>
-     <param type="string" name="integrator-param-set">       Default-Logarithmic        </param>
-     <param type="double" name="Wmax">                       1.4                        </param>
-     <param type="double" name="ESplineMax">                 20                         </param>
+     <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec           </param>
+     <param type="string" name="single-res-xsec-param-set">  Default                             </param>
+     <param type="string" name="integrator-alg-name">        genie::Simpson2D                    </param>
+<!--
+     <param type="string" name="integrator-param-set">       Default-Logarithmic                 </param>
+-->
+     <param type="string" name="integrator-param-set">       Default-Logarithmic-FixedNBins-Fast </param>
+     <param type="double" name="Wmax">                       1.4                                 </param>
+     <param type="double" name="ESplineMax">                 20                                  </param>
      <param type="string" name="resonance-name-list">  
                    P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
                    D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),P31(1910),P33(1920),
