@@ -48,7 +48,7 @@ public :
                                     double x, double y, double z, double t);
   ~GHepParticle();
 
-  //-- Basic properties
+  //! Basic properties
   bool          IsNucleus      (void) const { return  fIsNucleus;          }
   bool          IsParticle     (void) const { return !fIsNucleus;          }
   bool          IsFake         (void) const { return  fIsFake;             }
@@ -60,15 +60,19 @@ public :
   int           LastDaughter   (void) const { return  fLastDaughter;       }
   bool          HasDaughters   (void) const { return (fFirstDaughter!=-1); }
 
-  //-- Returns the momentum & position 4-vectors
+  string Name   (void) const; // that corresponds to the PDG code
+  double Mass   (void) const; // that corresponds to the PDG code
+  double Charge (void) const; // that corresponds to the PDG code
+
+  //! Returns the momentum & position 4-vectors
   TLorentzVector * P4 (void) const { return  fP4; }
   TLorentzVector * X4 (void) const { return  fX4; }
 
-  //-- Hand over clones of the momentum & position 4-vectors (+ their ownership)
+  //! Hand over clones of the momentum & position 4-vectors (+ their ownership)
   TLorentzVector * GetP4 (void) const;
   TLorentzVector * GetX4 (void) const;
 
-  //-- Returns the momentum & position 4-vectors components
+  //! Returns the momentum & position 4-vectors components
   double Px     (void) const { return (fP4) ? fP4->Px()     : 0; }
   double Py     (void) const { return (fP4) ? fP4->Py()     : 0; }
   double Pz     (void) const { return (fP4) ? fP4->Pz()     : 0; }
@@ -78,23 +82,27 @@ public :
   double Vy     (void) const { return (fX4) ? fX4->Y()      : 0; }
   double Vz     (void) const { return (fX4) ? fX4->Z()      : 0; }
   double Vt     (void) const { return (fX4) ? fX4->T()      : 0; }
-
-  string Name   (void) const; // that corresponds to the PDG code
-  double Mass   (void) const; // that corresponds to the PDG code
-  double Charge (void) const; // that corresponds to the PDG code
   double KinE   (bool mass_from_pdg = false) const; // kinetic energy (E-m)
 
+  //! Compare with another particle
   bool Compare(const GHepParticle * p) const;
 
-  //-- On/Off "shellness" if mass from PDG != mass from 4-P
+  //! On/Off "shellness" if mass from PDG != mass from 4-P
   bool IsOnMassShell  (void) const;
   bool IsOffMassShell (void) const;
 
-  //-- Relevant if entry is nucleus / Else -1 / Decoded from PDG code
+  //! Relevant if entry is nucleus(nucleon), else=-1 / Decoded from PDG code
   int  Z (void) const;
   int  A (void) const;
 
-  //-- Set pdg code / status / parent-children links
+  //! Get the polarization. Most likely it is only the f/s primary lepton
+  //! for which this is usefull and might be set during event generation
+  double PolzPolarAngle   (void) const { return fPolzTheta; }
+  double PolzAzimuthAngle (void) const { return fPolzPhi; }
+  bool   PolzIsSet        (void) const;
+  void   GetPolarization  (TVector3 & polz);
+
+  //! Set pdg code / status / parent-children links
   void SetPdgCode        (int c);
   void SetStatus         (GHepStatus_t s) { fStatus        = s; }
   void SetFirstMother    (int m)          { fFirstMother   = m; }
@@ -102,7 +110,7 @@ public :
   void SetFirstDaughter  (int d)          { fFirstDaughter = d; }
   void SetLastDaughter   (int d)          { fLastDaughter  = d; }
 
-  //-- Set the momentum & position 4-vectors
+  //! Set the momentum & position 4-vectors
   void SetMomentum (const TLorentzVector & p4);
   void SetPosition (const TLorentzVector & v4);
   void SetMomentum (double px, double py, double pz, double E);
@@ -112,6 +120,11 @@ public :
   void SetPy       (double py);
   void SetPz       (double pz);
 
+  //! Set the polarization angles
+  void SetPolarization(double theta, double phi);
+  void SetPolarization(const TVector3 & polz);
+
+  //! Clean-up, reset, copy, print,...
   void CleanUp (void);
   void Reset   (void);
   void Clear   (Option_t * option);
@@ -141,6 +154,8 @@ private:
   int              fLastDaughter;   ///< last daughter idx
   TLorentzVector * fP4;             ///< momentum 4-vector
   TLorentzVector * fX4;             ///< position 4-vector 
+  double           fPolzTheta;      ///< polar polarization angle (rad)
+  double           fPolzPhi;        ///< azimuthal polarization angle (rad)
 
 ClassDef(GHepParticle, 1)
 
