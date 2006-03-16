@@ -19,6 +19,7 @@
 #include <iomanip>
 
 #include <TLorentzVector.h>
+#include <TVector3.h>
 #include <TSystem.h>
 
 #include "GHEP/GHepParticle.h"
@@ -561,8 +562,8 @@ void GHepRecord::Print(ostream & stream) const
   stream << setfill('-') << setw(110) << "|";
 
   GHepParticle * p = 0;
-
   TObjArrayIter piter(this);
+  TVector3 polarization(0,0,0);
 
   unsigned int idx = 0;
 
@@ -588,10 +589,17 @@ void GHepRecord::Print(ostream & stream) const
      stream << setfill(' ') << setw(7)  << p->Pz()             << " | ";
      stream << setfill(' ') << setw(7)  << p->E()              << " | ";
 
-     if( p->IsOnMassShell() )
+     if (p->IsOnMassShell())
         stream << setfill(' ') << setw(7)  << p->Mass()        << " | ";
      else
-        stream << setfill('*') << setw(7)  << p->Mass()        << " | " << p->GetP4()->M();
+        stream << setfill('*') << setw(7)  << p->Mass()        << " | M = " 
+               << p->GetP4()->M() << " ";
+
+     if (p->PolzIsSet()) {
+       p->GetPolarization(polarization);
+       stream << "P = (" << polarization.x() << "," << polarization.y()
+              << "," << polarization.z() << ")";
+     }
 
      // compute P4Final - P4Initial
      //

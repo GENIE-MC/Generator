@@ -460,8 +460,8 @@ void GHepParticle::Copy(const GHepParticle & particle)
   this->SetMomentum (*particle.P4());
   this->SetPosition (*particle.X4());
 
-  if(particle.PolzIsSet())
-        this->SetPolarization(particle.fPolzTheta, particle.fPolzPhi);
+  this->fPolzTheta = particle.fPolzTheta;
+  this->fPolzPhi   = particle.fPolzPhi;
 }
 //___________________________________________________________________________
 void GHepParticle::AssertIsKnownParticle(void) const
