@@ -15,7 +15,7 @@ srcdir=$GENIE/src
 ########################### GENIE Libraries;
 
 libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
- -lGCrossSections -lGDecay -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
+ -lGCrossSections -lGDecay -lGElas -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
  -lGFragmentation -lGInteraction -lGInvMuDecay -lGLlewellynSmith -lGMessenger\
  -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
  -lGRadiative -lGRegistry -lGReinSeghal -lGUtils"
@@ -48,6 +48,7 @@ dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
                 $srcdir/Charm/_ROOT_DICT_Charm.o \
                 $srcdir/CrossSections/_ROOT_DICT_CrossSections.o \
                 $srcdir/Decay/_ROOT_DICT_Decay.o \
+                $srcdir/Elastic/_ROOT_DICT_Elastic.o \
                 $srcdir/EVGCore/_ROOT_DICT_EVGCore.o \
                 $srcdir/EVGModules/_ROOT_DICT_EVGModules.o \
                 $srcdir/EVGDrivers/_ROOT_DICT_EVGDrivers.o \
