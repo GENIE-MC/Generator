@@ -35,14 +35,16 @@ public :
   //-- Common methods for all concrete PrimaryLeptonGenerator-type
   //   EventRecordVisitors
 
-  TVector3 *
-      NucRestFrame2Lab (GHepRecord * ev) const;
-  TLorentzVector *
-      P4InNucRestFrame (GHepRecord * ev, double costh, double El) const;
-  TLorentzVector *
-      Rotate4P (TLorentzVector * p4nu, int pdgc, double cThSc, double El) const;
-  void
-     AddToEventRecord (GHepRecord * ev, int pdgc, const TLorentzVector * p4) const;
+  virtual void       SetPolarization  (GHepRecord * ev) const;
+  virtual TVector3 * NucRestFrame2Lab (GHepRecord * ev) const;
+
+  virtual TLorentzVector * P4InNucRestFrame (
+                             GHepRecord * ev, double costh, double El) const;
+  virtual TLorentzVector * Rotate4P (
+             TLorentzVector * p4nu, int pdgc, double cThSc, double El) const;
+
+  virtual void AddToEventRecord (
+                 GHepRecord * ev, int pdgc, const TLorentzVector * p4) const;
 
 protected:
 
@@ -51,7 +53,7 @@ protected:
   PrimaryLeptonGenerator();
   PrimaryLeptonGenerator(string name);
   PrimaryLeptonGenerator(string name, string config);
-  ~PrimaryLeptonGenerator();
+  virtual ~PrimaryLeptonGenerator();
 };
 
 }      // genie namespace

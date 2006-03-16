@@ -94,5 +94,8 @@ void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   delete p4nu;
   delete p4l;
+
+  // set final state lepton polarization
+  this->SetPolarization(evrec);
 }
 //___________________________________________________________________________

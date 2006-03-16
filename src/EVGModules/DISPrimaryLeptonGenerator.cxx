@@ -88,5 +88,8 @@ void DISPrimaryLeptonGenerator::ProcessEventRecord(
   this->AddToEventRecord(event_rec, pdgc, pl4);
 
   delete pl4;
+
+  // set final state lepton polarization
+  this->SetPolarization(event_rec);
 }
 //___________________________________________________________________________

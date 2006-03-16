@@ -90,5 +90,8 @@ void QELPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   this->AddToEventRecord(evrec, pdgc, p4l);
 
   delete p4l;
+
+  // set final state lepton polarization
+  this->SetPolarization(evrec);
 }
 //___________________________________________________________________________

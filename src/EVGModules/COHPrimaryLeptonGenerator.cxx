@@ -87,5 +87,8 @@ void COHPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   delete p4l;
   delete p4nu;
+
+  // set final state lepton polarization
+  this->SetPolarization(evrec);
 }
 //___________________________________________________________________________

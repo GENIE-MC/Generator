@@ -88,6 +88,9 @@ void RESPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   this->AddToEventRecord(evrec, pdgc, pl4);
 
   delete pl4;
+
+  // set final state lepton polarization
+  this->SetPolarization(evrec);
 }
 //___________________________________________________________________________
 
