@@ -45,7 +45,6 @@ namespace genie {
  ostream & operator<< (ostream& stream, const GHepParticle & particle)
  {
    particle.Print(stream);
-
    return stream;
  }
 }
@@ -69,6 +68,9 @@ fLastDaughter(daughter2)
 
   fP4 = new TLorentzVector(p);
   fX4 = new TLorentzVector(v);
+
+  fPolzTheta = -999; 
+  fPolzPhi   = -999;    
 }
 //___________________________________________________________________________
 // TParticle-like constructor
@@ -86,6 +88,9 @@ fLastDaughter(daughter2)
 
   fP4 = new TLorentzVector(px,py,pz,E);
   fX4 = new TLorentzVector(x,y,z,t);
+
+  fPolzTheta = -999; 
+  fPolzPhi   = -999;    
 }
 //___________________________________________________________________________
 // Copy constructor
