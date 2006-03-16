@@ -55,7 +55,7 @@ endif
 # after all libraries have been build, add some standard 
 # build targets (standalone apps, etc)
 
-BUILD_TARGETS := $(BUILD_TARGETS) generator-std-exe scripts
+BUILD_TARGETS := $(BUILD_TARGETS) generator-std-exe install-scripts
 
 # define build targets
 
@@ -164,10 +164,10 @@ generator-test-exe:
 	cd ${GENIE}/src;\
 	cd test; make all; cd ..; 
 
-scripts:
+install-scripts:
 	@echo "Installing scripts...";\
 	cd ${GENIE}/src;\
-	cd scripts; make install; cd ..;
+	cd ./scripts; make install; cd ..;
 
 all-libs: base-framework physics-models-modules event-generation-modules \
 		flux-drivers geom-drivers validity viewer geanti nuvld-libs
