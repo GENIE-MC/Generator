@@ -12,10 +12,10 @@ MAKEFILE = Makefile
 # Include machine specific flags and locations (inc. files & libs)
 include $(GENIE)/src/Make.include
 
-doxygen:
+doxygen: FORCE
 	$(DOXYGEN) genie_doxygen;
 
-install:
+install: FORCE
 	cp db-bootstrap $(GENIE_BIN_PATH); \
 	cp genie-config $(GENIE_BIN_PATH); \
 	chmod 755 $(GENIE_BIN_PATH)/db-bootstrap; \
