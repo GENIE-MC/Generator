@@ -88,6 +88,26 @@ void PDF::ScaleSea(double kscale)
   fGluon       *= kscale;
 }
 //____________________________________________________________________________
+void PDF::ScaleUpValence(double kscale)
+{
+  fUpValence *= kscale;
+}
+//____________________________________________________________________________
+void PDF::ScaleDownValence(double kscale)
+{
+  fDownValence *= kscale;
+}
+//____________________________________________________________________________
+void PDF::ScaleUpSea(double kscale)
+{
+  fUpSea *= kscale;
+}
+//____________________________________________________________________________
+void PDF::ScaleDownSea(double kscale)
+{
+  fDownSea *= kscale;
+}
+//____________________________________________________________________________
 void PDF::Reset(void)
 {
   fUpValence   = 0.0;

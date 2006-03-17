@@ -54,8 +54,12 @@ public:
 
   //-- methods to scale sea and valence PDFs (eg used to apply 
   //   corrections from non-QCD based fits / etc see Bodek Yang model)
-  void ScaleValence (double kscale);
-  void ScaleSea     (double kscale);
+  void ScaleValence     (double kscale);
+  void ScaleSea         (double kscale);
+  void ScaleUpValence   (double kscale);
+  void ScaleDownValence (double kscale);
+  void ScaleUpSea       (double kscale);
+  void ScaleDownSea     (double kscale);
 
   //-- reseting/copying methods
   void Reset (void);
