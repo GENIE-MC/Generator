@@ -6,6 +6,9 @@
 \brief    Abstract base class. Provides common implementation for concrete
           DISStructureFuncModelI objects
 
+\ref      For a discussion of DIS SF see for eaxample E.A.Paschos and J.Y.Yu, 
+          Phys.Rev.D 65.033002 and R.Devenish and A.Cooper-Sarkar, OUP 2004.
+          
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
@@ -13,6 +16,8 @@
 
 */
 //____________________________________________________________________________
+
+#include <TMath.h>
 
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
@@ -66,7 +71,8 @@ void DISStructureFuncModel::ConfigPDF(void)
   const PDFModelI * pdf_model =
                   dynamic_cast<const PDFModelI *>
                              (this->SubAlg("pdf-alg-name", "pdf-param-set"));
-  fPDF->SetModel(pdf_model);
+  fPDF  -> SetModel(pdf_model);
+  fPDFc -> SetModel(pdf_model);
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::InitPDF(void)
@@ -74,6 +80,8 @@ void DISStructureFuncModel::InitPDF(void)
                      // at each calculation are evaluated at:
   fPDF  = new PDF(); //   x = computed (+/-corrections) scaling var, Q2
   fPDFc = new PDF(); //   x = computed charm slow re-scaling var,    Q2
+
+  fQ2min = 0; // concrete DISStructureFuncModelI can set it at their config
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::Calculate(const Interaction * ) const
@@ -126,7 +134,16 @@ double DISStructureFuncModel::KVal (const Interaction * ) const
 //____________________________________________________________________________
 double DISStructureFuncModel::NuclMod(const Interaction * ) const
 {
+// Nuclear modification to Fi
+
   return 1.;
+}
+//____________________________________________________________________________
+double DISStructureFuncModel::FL(const Interaction * ) const
+{
+// Longitudinal structure function - If set violates the Callan-Gross relation
+
+  return 0.;
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
@@ -139,25 +156,30 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   double x  = this->ScalingVar(interaction);
   double Q2 = this->Q2(interaction);
 
+  //-- apply Q2 cut
+  Q2 = TMath::Max(Q2, fQ2min);
+
+  //-- compute PDFs at (x,Q2)
   fPDF->Calculate(x, Q2);
 
   //-- check whether it is above charm threshold
   bool isAbvCh = utils::kinematics::IsAboveCharmThreshold(interaction, kMc);
-  double xc=0.;
   if(isAbvCh) {
-    xc = utils::kinematics::SlowRescalingVar(interaction, kMc);
-      fPDF->Calculate(xc, Q2);
+    // compute PDFs at (xi,Q2)
+    double xc = utils::kinematics::SlowRescalingVar(interaction, kMc);    
+    if(xc>0 && xc<1) fPDFc->Calculate(xc, Q2);
   }
 
   //-- apply the K factors
-
   double kval = this->KVal(interaction);
   double ksea = this->KSea(interaction);
 
-  fPDF  -> ScaleValence (kval);
-  fPDF  -> ScaleSea     (ksea);
-  fPDFc -> ScaleValence (kval);
-  fPDFc -> ScaleSea     (ksea);
+  fPDF->ScaleValence (kval);
+  fPDF->ScaleSea     (ksea);
+  if(isAbvCh) {
+    fPDFc->ScaleValence (kval);
+    fPDFc->ScaleSea     (ksea);
+  }
 }
 //____________________________________________________________________________
 double DISStructureFuncModel::Q(const Interaction * interaction) const
@@ -179,7 +201,7 @@ double DISStructureFuncModel::Q(const Interaction * interaction) const
   double dv   = fPDF  -> DownValence();
   double ds   = fPDF  -> DownSea();
   double s    = fPDF  -> Strange();
-  double c    = fPDF  -> Charm();
+  //double c    = fPDF  -> Charm();
   double uv_c = fPDFc -> UpValence();   // will be 0 if < charm threshold
   double us_c = fPDFc -> UpSea();       // ...
   double dv_c = fPDFc -> DownValence(); // ...
@@ -187,27 +209,33 @@ double DISStructureFuncModel::Q(const Interaction * interaction) const
   double s_c  = fPDFc -> Strange();     // ...
   double c_c  = fPDFc -> Charm();       // ...
 
-  //-- get CKM constants
-  double Vud2 = kVud_2;
-  double Vus2 = kVus_2;
-  double Vcd2 = kVcd_2;
-  double Vcs2 = kVcs_2;
+  // Rules of thumb for computing Q and QBar
+  // ---------------------------------------
+  // - For W+ exchange use: -1/3|e| quarks and -2/3|e| antiquarks
+  // - For W- exchange use:  2/3|e| quarks and  1/3|e| antiquarks
+  // - For each qi -> qj transition multiply with the (ij CKM element)^2
+  // - Use isospin symmetry to get neutro's u,d from proton's u,d
+  //    -- neutron d = proton u
+  //    -- neutron u = proton d
+  // - Use u = usea + uvalence. Same for d
+  // - For s,c use q=qbar
+  // - For t,b use q=qbar=0
 
   if (isP && isNu)
   {
-     q = (dv+ds)*Vud2 + s*Vus2 + (dv_c+ds_c)*Vcd2 + s_c*Vcs2;
+     q = (dv+ds)*kVud_2 + s*kVus_2 + (dv_c+ds_c)*kVcd_2 + s_c*kVcs_2;
   }
   else if (isP && isNuBar)
   {
-     q = (uv+us)*(Vud2+Vus2) + (c_c)*(Vcd2+Vcs2);
+     q = (uv+us)*(kVud_2+kVus_2) + (c_c)*(kVcd_2+kVcs_2);
   }
   else if (isN && isNu)
   {
-     q = (uv+us)*Vud2 + s*Vus2 + (uv_c+us_c)*Vcd2 + s_c*Vcs2;
+     q = (uv+us)*kVud_2 + s*kVus_2 + (uv_c+us_c)*kVcd_2 + s_c*kVcs_2;
   }
   else if (isN && isNuBar)
   {
-     q = (dv+ds)*(Vud2+Vus2) + (c_c)*(Vcd2+Vcs2);
+     q = (dv+ds)*(kVud_2+kVus_2) + (c_c)*(kVcd_2+kVcs_2);
   }
   else
   {
@@ -230,40 +258,34 @@ double DISStructureFuncModel::QBar(const Interaction * interaction) const
   bool isNuBar = pdg::IsAntiNeutrino ( nu_pdgc  );
 
   //-- get PDFs [should have been computed by calling in CalcPDFs() first]
-  double uv   = fPDF  -> UpValence();
+  //double uv   = fPDF  -> UpValence();
   double us   = fPDF  -> UpSea();
-  double dv   = fPDF  -> DownValence();
+  //double dv   = fPDF  -> DownValence();
   double ds   = fPDF  -> DownSea();
   double s    = fPDF  -> Strange();
-  double c    = fPDF  -> Charm();
-  double uv_c = fPDFc -> UpValence();   // will be 0 if < charm threshold
+  //double c    = fPDF  -> Charm();
+  //double uv_c = fPDFc -> UpValence();   // will be 0 if < charm threshold
   double us_c = fPDFc -> UpSea();       // ...
-  double dv_c = fPDFc -> DownValence(); // ...
+  //double dv_c = fPDFc -> DownValence(); // ...
   double ds_c = fPDFc -> DownSea();     // ...
   double s_c  = fPDFc -> Strange();     // ...
   double c_c  = fPDFc -> Charm();       // ...
 
-  //-- get CKM constants
-  double Vud2 = kVud_2;
-  double Vus2 = kVus_2;
-  double Vcd2 = kVcd_2;
-  double Vcs2 = kVcs_2;
-
   if (isP && isNu)
   {
-     qbar = (us)*(Vud2+Vus2) + (c_c)*(Vcd2+Vcs2);
+     qbar = (us)*(kVud_2+kVus_2) + (c_c)*(kVcd_2+kVcs_2);
   }
   else if (isP && isNuBar)
   {
-     qbar = (ds_c)*(Vcd2) + (ds)*(Vud2) + (s)*(Vus2) + (s_c)*(Vcs2);
+     qbar = (ds_c)*(kVcd_2) + (ds)*(kVud_2) + (s)*(kVus_2) + (s_c)*(kVcs_2);
   }
   else if (isN && isNu)
   {
-     qbar = (ds)*(Vud2+Vus2) + (c_c)*(Vcd2+Vcs2);
+     qbar = (ds)*(kVud_2+kVus_2) + (c_c)*(kVcd_2+kVcs_2);
   }
   else if (isN && isNuBar)
   {
-     qbar = (us_c)*(Vcd2) + (us)*(Vud2) + (s)*(Vus2) + (s_c)*(Vcs2);
+     qbar = (us_c)*(kVcd_2) + (us)*(kVud_2) + (s)*(kVus_2) + (s_c)*(kVcs_2);
   }
   else
   {

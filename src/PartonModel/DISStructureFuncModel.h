@@ -6,6 +6,9 @@
 \brief    Abstract base class. Provides common implementation for concrete
           DISStructureFuncModelI objects
 
+\ref      For a discussion of DIS SF see for eaxample E.A.Paschos and J.Y.Yu, 
+          Phys.Rev.D 65.033002 and R.Devenish and A.Cooper-Sarkar, OUP 2004.
+
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
@@ -62,9 +65,12 @@ protected:
   virtual double Q          (const Interaction * interaction) const;
   virtual double QBar       (const Interaction * interaction) const;
   virtual double NuclMod    (const Interaction * interaction) const;
+  virtual double FL         (const Interaction * interaction) const;
 
   PDF * fPDF;
-  PDF * fPDFc;  // to take into account charm suppression
+  PDF * fPDFc;   ///< to take into account charm contribution
+
+  double fQ2min; ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
 
   mutable double fF1;
   mutable double fF2;
@@ -75,6 +81,5 @@ protected:
 };
 
 }         // genie namespace
-
 #endif    // _DIS_STRUCTURE_FUNCTIONS_MODEL_H_
 

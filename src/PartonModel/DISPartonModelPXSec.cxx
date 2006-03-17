@@ -3,9 +3,9 @@
 
 \class    genie::DISPartonModelPXSec
 
-\brief    Massless Parton Model DIS Partial (d^2xsec/dxdy) Cross Section
+\brief    DIS differential (d^2xsec/dxdy) cross section
 
-\ref
+\ref      E.A.Paschos and J.Y.Yu, Phys.Rev.D 65.033002
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -14,6 +14,8 @@
 
 */
 //____________________________________________________________________________
+
+#include <TMath.h>
 
 #include "Base/DISStructureFunc.h"
 #include "Base/DISStructureFuncModelI.h"
@@ -80,7 +82,7 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
   double F4 = dis_sf.F4();
   double F5 = dis_sf.F5();
 
-  LOG("DISXSec", pDEBUG)  << dis_sf;
+  LOG("DISXSec", pDEBUG)  << "\n" << dis_sf;
 
   //-- calculate auxiliary parameters
   double ml2  = ml    * ml;
@@ -91,22 +93,29 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
   //----- Build all dxsec/dxdy terms
   double term1 = y * ( x*y + ml2/(2*E*Mnuc) );
   double term2 = 1 - y - Mnuc*x*y/(2*E) - ml2/(4*E2);
-  double term3 = x*y*(1-y/2) - y*ml2/(4*Mnuc*E);
+  double term3 = sign*x*y*(1-y/2) - y*ml2/(4*Mnuc*E);
   double term4 = x*y*ml2/(2*Mnuc*E) + ml4/(4*Mnuc2*E2);
-  double term5 = ml2/(2*Mnuc*E);
+  double term5 = -1.*ml2/(2*Mnuc*E);
 
-  term1*=F1;
-  term2*=F2;
-  term3*=(sign*F3);
-  term4*=F4;
-  term5*=(-1*F5);
+  LOG("DISXSec", pDEBUG)  
+    << "\nd^2xsec/dxdy ~ (" << term1 << ")*F1 + (" << term2 
+    << ")*F2 +(" << term3 << ")*F3 + (" << term4 << ")*F4 + ("
+    << term5 << ")*F5";
 
   //----- Compute the differential cross section
+  term1*=F1;
+  term2*=F2;
+  term3*=F3;
+  term4*=F4;
+  term5*=F5;
+
   double xsec = Gfac*(term1 + term2 + term3 + term4 + term5);
+  xsec = TMath::Max(xsec,0.);
 
   LOG("DISXSec", pDEBUG)
       << "d^2xsec/dxdy (E = " << E << ", x = " << x << ", y = " << y << ") = "
       << xsec;
+
   return xsec;
 }
 //____________________________________________________________________________
