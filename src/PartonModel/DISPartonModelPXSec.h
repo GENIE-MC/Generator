@@ -3,9 +3,9 @@
 
 \class    genie::DISPartonModelPXSec
 
-\brief    Massless Parton Model DIS Partial (d^2xsec/dxdy) Cross Section
+\brief    DIS differential (d^2xsec/dxdy) cross section
 
-\ref
+\ref      E.A.Paschos and J.Y.Yu, Phys.Rev.D 65.03300
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -27,7 +27,6 @@ class DISStructureFuncModelI;
 class DISPartonModelPXSec : public XSecAlgorithmI {
 
 public:
-
   DISPartonModelPXSec();
   DISPartonModelPXSec(string config);
   virtual ~DISPartonModelPXSec();
@@ -43,12 +42,9 @@ public:
   void Configure(string config);
 
 private:
-
   void LoadSubAlg (void);
-
   const DISStructureFuncModelI * fDISSFModel;
 };
 
 }       // genie namespace
-
 #endif  // _DIS_PARTON_MODEL_PARTIAL_XSEC_H_

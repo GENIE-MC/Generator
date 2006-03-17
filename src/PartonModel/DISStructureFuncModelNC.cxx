@@ -6,6 +6,8 @@
 \brief    Form Factors for neutrino - free nucleon DIS NC interactions.
           Is a concrete implementation of the DISStructureFuncModelI interface.
 
+\ref      E.A.Paschos and J.Y.Yu, Phys.Rev.D 65.033002
+
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
@@ -53,7 +55,7 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
 
   const Kinematics & kine  = interaction->GetKinematics();
   double x = kine.x();
-  if(x<=0.) {
+  if(x<=0. || x>1) {
      LOG("DISSF", pERROR)
                  << "scaling variable x = " << x << "! Can not compute SFs";
      return;
@@ -98,12 +100,25 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
      return;
   }
 
+  // compute nuclear modification factor (for A>1) and the longitudinal
+  // structure function (scale-breaking QCD corrections)
+
+  double f  = this->NuclMod(interaction);
+  double FL = this->FL(interaction);
+
+  LOG("DISSF", pDEBUG) << "Nucl. Factor = " << f;
+  LOG("DISSF", pDEBUG) << "FL = " << FL;
+
+  // compute the structure functions F1-F6
   fF6 = 0.;
-  fF5 = 0.;
-  fF4 = 0.;
-  fF3 = xF3/x;
-  fF2 = F2;
-  fF1 = 0.5*F2/x;
+
+  fF3 = f * xF3/x;
+  fF2 = f * F2;
+
+  fF1 = 0.5*(fF2-FL)/x; // Callan-Gross holds only if FL=0
+
+  fF5 = fF2/x;          // Albright-Jarlskog relations
+  fF4 = 0.;             // Nucl.Phys.B 84, 467 (1975)
 }
 //____________________________________________________________________________
 
