@@ -35,7 +35,7 @@ using namespace genie;
 GMCJMonitor::GMCJMonitor(Long_t runnu) :
 fRunNu(runnu)
 {
-  this->BuildNames();
+  this->Init();
 }
 //____________________________________________________________________________
 GMCJMonitor::~GMCJMonitor()
@@ -45,29 +45,41 @@ GMCJMonitor::~GMCJMonitor()
 //____________________________________________________________________________
 void GMCJMonitor::Update(int iev, const EventRecord * event)
 {
+  fWatch.Stop();
+  fCpuTime += (fWatch.CpuTime());
+
   ofstream out(fStatusFile.c_str(), ios::out);
 
   ostringstream status;
 
   status << endl;
   status << "Current Event Number: " << iev << endl;
+
+  status << "Approximate total processing time: " 
+                             << fCpuTime << " s" << endl;
+  status << "Approximate processing time/event: " 
+                     << fCpuTime/(iev+1) << " s" << endl;
+
   if(!event) status << "NULL" << endl;
   else       status << *event << endl;
 
   out << status.str();
   out.close();
+
+  fWatch.Start();
 }
 //____________________________________________________________________________
-void GMCJMonitor::BuildNames(void)
+void GMCJMonitor::Init(void)
 {
+  // build the filename of the GENIE status file
   ostringstream filename;
-  ostringstream envvarname;
-
   filename   << "genie-mcjob-" << fRunNu << ".status";
-  envvarname << "GMCSTATUS" << fRunNu;
-
   fStatusFile   = filename.str();
-  fStatusEnvVar = envvarname.str();
+
+  // create a stopwatch
+  TStopwatch fWatch;
+  fWatch.Reset(); 
+  fWatch.Start();
 }
 //____________________________________________________________________________
 
