@@ -18,6 +18,8 @@
 #ifndef _G_MC_JOB_MONITOR_H_
 #define _G_MC_JOB_MONITOR_H_
 
+#include <TStopwatch.h>
+
 namespace genie {
 
 class EventRecord;
@@ -33,11 +35,12 @@ public :
 
 private:
 
-  void BuildNames(void);
+  void Init (void);
 
-  Long_t fRunNu;
-  string fStatusFile;
-  string fStatusEnvVar;
+  Long_t     fRunNu;
+  string     fStatusFile;
+  TStopwatch fWatch;
+  double     fCpuTime;
 };
 
 }      // genie namespace
