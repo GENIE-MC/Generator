@@ -11,7 +11,7 @@
 
          Syntax :
            gmkspl -p nupdg <-t tgtpdg, -f geomfile> [-o output_xml_file]
-
+                  [-n nknots] [-e max_energy]
          Note :
            [] marks optional arguments.
            <> marks a list of arguments out of which only one can be 
@@ -22,6 +22,10 @@
            -t  a comma separated list of tgt PDG codes (format: 1aaazzz000)
            -f  a ROOT file containing a ROOT/GEANT geometry description
            -o  output XML filename [ default: xsec_splines.xml ]
+           -n  number of knots per spline [default: 15 knots per decade of
+               energy range with a minimum of 30 knots totally]
+           -e  max energy in spline [default: the max energy in the validity
+               range of the spline generating thread]
 
          Examples:
 
@@ -99,6 +103,8 @@ string gOptNuPdgCodeList  = "";
 string gOptTgtPdgCodeList = "";
 string gOptGeomFilename   = "";
 string gOptXMLFilename    = "";
+int    gOptNKnots         = -1;
+double gOptMaxE           = -1.;
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -147,7 +153,7 @@ int main(int argc, char ** argv)
       GEVGDriver driver;
 
       driver.Configure(init_state);
-      driver.CreateSplines();
+      driver.CreateSplines(gOptNKnots, gOptMaxE);
     }
   }
 
@@ -180,6 +186,32 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptXMLFilename = kDefOptXMLFilename;
     }
   }
+
+  //number of knots:
+  try {
+    LOG("gmkspl", pINFO) << "Reading number of knots/spline";
+    gOptNKnots = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gmkspl", pINFO)
+            << "Unspecified number of knots - Using default";
+      gOptNKnots = -1;
+    }
+  }
+
+  //max spline energy (if < max of validity range)
+  try {
+    LOG("gmkspl", pINFO) << "Reading maximum spline energy";
+    gOptMaxE = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'e');
+
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gmkspl", pINFO) 
+             << "Unspecified maximum spline energy - Using default";
+      gOptMaxE = -1;
+    }
+  }
+
 
   //-- Required arguments
 
@@ -243,7 +275,8 @@ void PrintSyntax(void)
 {
   LOG("gmkspl", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gmkspl -p nupdg <-t tgtpdg, -f geomfile> [-o output_xml_file]";
+    << "   gmkspl -p nupdg <-t tgtpdg, -f geomfile> [-o output_xml]"
+    << " [-n nknots] [-e max_energy]";
 }
 //____________________________________________________________________________
 PDGCodeList * GetNeutrinoCodes(void)
