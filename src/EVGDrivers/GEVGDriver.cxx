@@ -410,14 +410,16 @@ void GEVGDriver::CreateXSecSumSpline(
 void GEVGDriver::UseSplines(void)
 {
 // Instructs the driver to use cross section splines rather than computing
-// them again and again.
+// cross sections by integrating the differential cross section model which
+// can be very time-consuming.
 // **Note**
 // -- If you called GEVGDriver::CreateSplines() already the driver would
-//    a) assume that you want to use them and b) would know that it has all
-//    the splines it needs, so you do not need to call this method.
-// -- If you populated the XSecSplineList in another way, eg from an external
-//    XML file, this driver has no way to know. So do call this method then.
-//    However, the driver would **explicitly check** that you loaded all the
+//    a) assume that you want to use them and b) would be assured that it 
+//    has all the splines it needs, so you do not need to call this method.
+// -- If you populated the XSecSplineList in another way without this driver
+//    knowing about it, eg from an external XML file, do call this method 
+//    to let the driver know that you want to use the splines. However, note
+//    that the driver would **explicitly check** that you have loaded all the
 //    splines it needs. If not, then its fiery personality will take over and
 //    it will refuse your request, reverting back to not using splines.
 
@@ -462,7 +464,7 @@ void GEVGDriver::UseSplines(void)
   }//use-splines?
 }
 //___________________________________________________________________________
-void GEVGDriver::CreateSplines(bool useLogE)
+void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
 {
 // Creates all the cross section splines that are needed by this driver.
 // It will check for pre-loaded splines and it will skip the creation of the
@@ -501,7 +503,27 @@ void GEVGDriver::CreateSplines(bool useLogE)
      double Emin = TMath::Max(0.01,evgen->ValidityContext().Emin());
      double Emax = evgen->ValidityContext().Emax();
 
-     // loop over all interaction that can be genererated and ask the
+     // if the user set a maximum energy, create the spline up to this
+     // energy - otherwise use the upper limit of the validity range of
+     // the current generator
+     if(emax>0) {
+       if(emax>Emax) {
+	 LOG("GEVGDriver", pWARN) 
+           << "Refusing to exceed validity range: Emax = " << Emax;
+       }
+       emax = TMath::Min(emax,Emax); // don't exceed validity range
+     } else emax = Emax;
+
+     assert(emax>Emin);
+
+     // number of knots: use specified number. If not set, use 15 knots
+     // per decade. Don't use less than 30 knots.
+     if(nknots<0) {
+       nknots = (int) (15 * TMath::Log10(emax-Emin));
+     }
+     nknots = TMath::Max(nknots,30);
+
+     // loop over all interactions that can be generated and ask the
      // appropriate cross section algorithm to compute its cross section
      for(intliter = ilst->begin(); intliter != ilst->end(); ++intliter) {
 
@@ -515,7 +537,7 @@ void GEVGDriver::CreateSplines(bool useLogE)
            LOG("GEVGDriver", pNOTICE)
              << "\n  Need xsec spline for " << code
                                            << " : Computing spline...";
-             xsl->CreateSpline(alg, interaction, 40, Emin, Emax);
+             xsl->CreateSpline(alg, interaction, nknots, Emin, emax);
          } else {
            LOG("GEVGDriver", pNOTICE)
              << "\n  Need xsec spline for " << code

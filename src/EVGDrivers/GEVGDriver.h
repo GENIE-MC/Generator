@@ -63,7 +63,7 @@ public :
   EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
   //! Instruct the driver to create all the splines it needs
-  void CreateSplines (bool useLogE = true);
+  void CreateSplines (int nknots=-1, double emax=-1, bool inLogE=true);
 
   //! Cross section sum for all interactions that can be generated for
   //! the current init-state.
