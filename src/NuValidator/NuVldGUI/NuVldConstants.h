@@ -34,9 +34,9 @@ static const char * kFitters[] =
 };
 
 static const char * kMajorLabel =
-     "GENIE Universal Object-Oriented Neutrino Generator Collaboration";
+     "GENIE Object-Oriented Neutrino MC Generator";
 static const char * kMinorLabel =
-                   "http://hepunx.rl.ac.uk/~candreop/generators/GENIE/";
+     "http://www.genie-mc.org";
 
 
 } // namespace constants
