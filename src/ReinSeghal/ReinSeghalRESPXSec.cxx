@@ -203,6 +203,8 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
         << "<Breit-Wigner(=" << bw << ")> * <d^2 xsec/dQ^2 dW [W=" << W
           << ", q2=" << q2 << ", E=" << E << "](="<< xsec << ")> = " << wxsec;
 
+  delete hamplmod;
+
   return wxsec;
 }
 //____________________________________________________________________________
