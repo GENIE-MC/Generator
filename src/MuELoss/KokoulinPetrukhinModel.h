@@ -52,6 +52,9 @@ private:
   const IntegratorI * fIntegrator;
 };
 
+} // mueloss namespace
+} // genie   namespace
+
 //____________________________________________________________________________
 /*!
 \class    genie::mueloss::KokoulinPetrukhinIntegrand
@@ -66,6 +69,9 @@ private:
 */
 //____________________________________________________________________________
 
+namespace genie   {
+namespace mueloss {
+
 class KokoulinPetrukhinIntegrand : public GSFunc
 {
 public:
@@ -79,7 +85,7 @@ private:
   double fZ;
 };
 
-}         // mueloss namespace
-}         // genie   namespace
+} // mueloss namespace
+} // genie   namespace
 
 #endif  // _KOKOULIN_PETRUKHIN_MODEL_

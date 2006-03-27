@@ -7,11 +7,6 @@
 
 #include "Numerical/GSFunc.h"
 
-namespace genie {
-
-class XSecAlgorithmI;
-class Interaction;
-
 //____________________________________________________________________________
 /*!
 \class    genie::GXSecFunc
@@ -25,6 +20,11 @@ class Interaction;
 */
 //____________________________________________________________________________
 
+namespace genie {
+
+class XSecAlgorithmI;
+class Interaction;
+
 class GXSecFunc : public GSFunc
 {
 public:
@@ -36,6 +36,8 @@ protected:
   const Interaction *    fInteraction;
 };
 
+} // genie namespace
+
 //____________________________________________________________________________
 /*!
 \class    genie::Integrand_D2XSec_DxDy_E
@@ -46,6 +48,8 @@ protected:
 */
 //____________________________________________________________________________
 
+namespace genie {
+
 class Integrand_D2XSec_DxDy_E : public GXSecFunc
 {
 public:
@@ -54,6 +58,8 @@ public:
 
   double operator () (const vector<double> & x);
 };
+
+} // genie namespace
 
 //____________________________________________________________________________
 /*!
@@ -65,6 +71,8 @@ public:
 \created  February 20, 2006
 */
 //____________________________________________________________________________
+
+namespace genie {
 
 class Integrand_D2XSec_DxDy_E_WQ2Cuts : public GXSecFunc
 {
@@ -81,6 +89,8 @@ private:
   Range1D_t fQ2Cuts;
 };
 
+} // genie namespace
+
 //____________________________________________________________________________
 /*!
 \class    genie::Integrand_DXSec_DQ2_E
@@ -91,6 +101,8 @@ private:
 */
 //____________________________________________________________________________
 
+namespace genie {
+
 class Integrand_DXSec_DQ2_E : public GXSecFunc
 {
 public:
@@ -99,6 +111,8 @@ public:
 
   double operator () (const vector<double> & x);
 };
+
+} // genie namespace
 
 //____________________________________________________________________________
 /*!
@@ -110,6 +124,8 @@ public:
 */
 //____________________________________________________________________________
 
+namespace genie {
+
 class Integrand_D2XSec_DWDQ2_E : public GXSecFunc
 {
 public:
@@ -118,6 +134,8 @@ public:
 
   double operator () (const vector<double> & x);
 };
+
+} // genie namespace
 
 //____________________________________________________________________________
 /*!
@@ -129,6 +147,8 @@ public:
 */
 //____________________________________________________________________________
 
+namespace genie {
+
 class Integrand_DXSec_Dy_E : public GXSecFunc
 {
 public:
@@ -137,6 +157,8 @@ public:
 
   double operator () (const vector<double> & x);
 };
+
+} // genie namespace
 
 //____________________________________________________________________________
 /*!
@@ -147,6 +169,8 @@ public:
 \created  February 20, 2006
 */
 //____________________________________________________________________________
+
+namespace genie {
 
 class Integrand_D2XSec_DxDy_Ex : public GXSecFunc
 {
@@ -161,6 +185,8 @@ private:
   double fx;
 };
 
+} // genie namespace
+
 //____________________________________________________________________________
 /*!
 \class    genie::Integrand_D2XSec_DxDy_Ey
@@ -170,6 +196,8 @@ private:
 \created  February 20, 2006
 */
 //____________________________________________________________________________
+
+namespace genie {
 
 class Integrand_D2XSec_DxDy_Ey : public GXSecFunc
 {
@@ -184,6 +212,8 @@ private:
   double fy;
 };
 
+} // genie namespace
+
 //____________________________________________________________________________
 /*!
 \class    genie::Integrand_D2XSec_DWDQ2_EW
@@ -193,6 +223,8 @@ private:
 \created  February 20, 2006
 */
 //____________________________________________________________________________
+
+namespace genie {
 
 class Integrand_D2XSec_DWDQ2_EW : public GXSecFunc
 {
@@ -207,6 +239,8 @@ private:
   double fW;
 };
 
+} // genie namespace
+
 //____________________________________________________________________________
 /*!
 \class    genie::Integrand_D2XSec_DWDQ2_EQ2
@@ -216,6 +250,8 @@ private:
 \created  February 20, 2006
 */
 //____________________________________________________________________________
+
+namespace genie {
 
 class Integrand_D2XSec_DWDQ2_EQ2 : public GXSecFunc
 {
@@ -230,6 +266,7 @@ private:
   double fQ2;
 };
 
-}        // genie namespace
+} // genie namespace
+
 #endif   // _GENIE_XSEC_FUNCTIONS_H_
 

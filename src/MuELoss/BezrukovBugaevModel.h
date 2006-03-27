@@ -51,6 +51,9 @@ private:
   const IntegratorI * fIntegrator;
 };
 
+} // mueloss namespace
+} // genie   namespace
+
 //____________________________________________________________________________
 /*!
 \class    genie::mueloss::BezrukovBugaevIntegrand
@@ -65,6 +68,9 @@ private:
 */
 //____________________________________________________________________________
 
+namespace genie   {
+namespace mueloss {
+
 class BezrukovBugaevIntegrand : public GSFunc
 {
 public:
@@ -78,7 +84,7 @@ private:
   double fA;
 };
 
-}         // mueloss namespace
-}         // genie   namespace
+}  // mueloss namespace
+}  // genie   namespace
 
 #endif // _BEZRUKOV_BUGAEV_MODEL_H_

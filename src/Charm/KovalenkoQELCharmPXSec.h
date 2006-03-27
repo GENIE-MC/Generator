@@ -83,6 +83,8 @@ private:
   double fResDMSigma;
 };
 
+} // genie namespace
+
 //____________________________________________________________________________
 /*!
 \class    genie::KovQELCharmIntegrand
@@ -96,6 +98,8 @@ private:
 \created  February 20, 2006
 */
 //____________________________________________________________________________
+
+namespace genie {
 
 class KovQELCharmIntegrand : public GSFunc
 {
@@ -112,7 +116,7 @@ private:
   bool   fNorm;
 };
 
-}       // genie namespace
+} // genie namespace
 
 #endif  // _KOVALENKO_QEL_CHARM_PARTIAL_XSEC_H_
 
