@@ -67,6 +67,8 @@ private:
   const IntegratorI * fIntegrator;
 };
 
+} // genie namespace
+
 //____________________________________________________________________________
 /*!
 \class    genie::BardinIMDRadCorIntegrand
@@ -81,6 +83,8 @@ private:
 */
 //____________________________________________________________________________
 
+namespace genie {
+
 class BardinIMDRadCorIntegrand : public GSFunc
 {
 public:
@@ -91,6 +95,6 @@ private:
   double fZ;
 };
 
-}       // genie namespace
+} // genie namespace
 
 #endif  // _BARDIN_IMD_RADIATIVE_CORRECTIONS_PARTIAL_XSEC_H_

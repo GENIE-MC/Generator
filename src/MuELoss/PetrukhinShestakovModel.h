@@ -51,6 +51,9 @@ private:
   const IntegratorI * fIntegrator;
 };
 
+} // mueloss namespace
+} // genie   namespace
+
 //____________________________________________________________________________
 /*!
 \class    genie::mueloss::PetrukhinShestakovIntegrand
@@ -65,6 +68,9 @@ private:
 */
 //____________________________________________________________________________
 
+namespace genie   {
+namespace mueloss {
+
 class PetrukhinShestakovIntegrand : public GSFunc
 {
 public:
@@ -78,7 +84,7 @@ private:
   double fZ;
 };
 
-}         // mueloss namespace
-}         // genie   namespace
+} // mueloss namespace
+} // genie   namespace
 
 #endif // _PETRUKHIN_SHESTAKOV_MODEL_H_
