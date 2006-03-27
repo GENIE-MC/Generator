@@ -74,7 +74,7 @@
 
 #-------------------------------------------------------------------
 #              GENIE build options - Setting defaults
-# ------------------------------------------------------------------
+#-------------------------------------------------------------------
 # If variables controlling build options are not set, set defaults:
 #
 # GOPT_ENABLE_PROFILER        -> NO
@@ -159,6 +159,22 @@ ifeq ($(strip $(GOPT_ENABLE_VIEWER)),YES)
 endif
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES) 
   GOPT_MUELOSS=1
+endif
+
+#-------------------------------------------------------------------
+#           GENIE GCC options - read and/or set defaults
+#-------------------------------------------------------------------
+
+ifndef GOPT_CXX_OPTIM_FLAG
+ GOPT_CXX_OPTIM_FLAG=-O2 # can be -O,-O2,-O3,-OO,-Os, see gcc manual
+endif
+
+ifndef GOPT_CXX_DEBUG_FLAG
+ GOPT_CXX_DEBUG_FLAG=-g 
+endif
+
+ifndef GOPT_CXX_USERDEF_FLAGS
+ GOPT_CXX_USERDEF_FLAGS=
 endif
 
 #-------------------------------------------------------------------
@@ -462,7 +478,8 @@ SOMINF =
 # LINUX (with gcc)
 
 CXX           = g++
-CXXFLAGS      = -g -O -Wall -fPIC
+CXXFLAGS      = $(GOPT_CXX_DEBUG_FLAG) $(GOPT_CXX_OPTIM_FLAG) -Wall -fPIC
+CXXFLAGS     += $(GOPT_CXX_USERDEF_FLAGS) 
 LD            = g++
 LDFLAGS       = -g
 SOFLAGS       = -shared
