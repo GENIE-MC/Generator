@@ -160,6 +160,8 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double xsec_scalar = TMath::Power( hampl->Amp0Plus(),  2. ) +
                        TMath::Power( hampl->Amp0Minus(), 2. );
 
+  delete hampl;
+
   double scale_lr = 0.5*(kPi/k)*(Mres/Mnuc);
   double scale_sc = 0.5*(kPi/k)*(Mnuc/Mres);
 
@@ -202,8 +204,6 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
       << "Res[" << utils::res::AsString(resonance) << "]: "
         << "<Breit-Wigner(=" << bw << ")> * <d^2 xsec/dQ^2 dW [W=" << W
           << ", q2=" << q2 << ", E=" << E << "](="<< xsec << ")> = " << wxsec;
-
-  delete hamplmod;
 
   return wxsec;
 }
