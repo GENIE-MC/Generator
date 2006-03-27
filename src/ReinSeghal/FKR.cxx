@@ -3,8 +3,8 @@
 
 \class    genie::FKR
 
-\brief    A class computing the Feynmann-Kislinger-Ravndall (FKR) baryon
-          excitation model parameters.
+\brief    Rein-Seghal package utility class for computing and holding the
+          Feynmann-Kislinger-Ravndall (FKR) baryon excitation model parameters.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -44,18 +44,12 @@ FKR::~FKR()
 
 }
 //____________________________________________________________________________
-void FKR::Calculate(const Interaction * interaction)
+void FKR::Calculate(double q2, double W, int n)
 {
-  //-- get Resonance parameters
+// q2   : momentum transfer < 0
+// W    : hadronic invariant mass
+// nqres: resonance index
 
-  int n = fResParams->ResonanceIndex();
-
-  //-- compute kinematical parameters
-
-  const Kinematics & kine = interaction->GetKinematics();
-
-  double q2  = kine.q2(); // momentum transfer (<0)
-  double W   = kine.W();  // invariant mass of the hadronic system
   double mN  = kNucleonMass;   // or use struck nucleon mass instead?
   double mN2 = TMath::Power(mN, 2);
   double W2  = TMath::Power(W,  2);
@@ -163,7 +157,6 @@ void FKR::Initialize(void)
   fOmega     = 0;
   fMa2       = 0;
   fMv2       = 0;
-  fResParams = 0;
 
   //-- initialize FKR options
 
@@ -225,11 +218,6 @@ void FKR::SetZeta(double zeta )
 void FKR::SetOmega(double omega)
 {
   fOmega = omega;
-}
-//____________________________________________________________________________
-void FKR::SetResParams(const BaryonResParams & rp)
-{
-  fResParams = &rp;
 }
 //____________________________________________________________________________
 void FKR::SetMa2(double ma2)

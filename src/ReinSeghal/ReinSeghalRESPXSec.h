@@ -35,6 +35,7 @@ ____________________________________________________________________________*/
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BreitWignerI.h"
+#include "ReinSeghal/FKR.h"
 
 namespace genie {
 
@@ -70,6 +71,8 @@ private:
   double fOmega;
   double fMa2;
   double fMv2;
+
+  mutable FKR fFKR;
 
   const BreitWignerI *         fBreitWigner;
   const BaryonResDataSetI *    fBaryonResDataSet;

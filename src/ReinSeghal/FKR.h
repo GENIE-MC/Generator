@@ -3,8 +3,8 @@
 
 \class    genie::FKR
 
-\brief    A class holding the Feynmann-Kislinger-Ravndall (FKR) baryon
-          excitation model parameters.
+\brief    Rein-Seghal package utility class for computing and holding the 
+          Feynmann-Kislinger-Ravndall (FKR) baryon excitation model parameters.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -19,10 +19,6 @@
 
 #include <iostream>
 
-#include "BaryonResonance/BaryonResonance.h"
-#include "BaryonResonance/BaryonResParams.h"
-#include "Interaction/Interaction.h"
-
 using std::ostream;
 
 namespace genie {
@@ -34,7 +30,8 @@ public:
   FKR();
   ~FKR();
 
-  void Calculate  (const Interaction * interaction);
+  void Calculate(double q2, double W, int n);
+
   void Initialize (void);
   void Print      (ostream & stream) const;
 
@@ -42,7 +39,6 @@ public:
 
   void SetZeta      (double zeta );
   void SetOmega     (double omega);
-  void SetResParams (const BaryonResParams & rp);
   void SetMa2       (double ma2);
   void SetMv2       (double mv2);
 
@@ -160,7 +156,8 @@ private:
   double fOmega; ///< parameter Omega used in computing the FKRs
   double fMa2;   ///< resonance Ma^2 used
   double fMv2;   ///< resonance Mv^2 used
-  const BaryonResParams * fResParams;
+
+//  const BaryonResParams * fResParams;
 };
 
 }        // genie namespace
