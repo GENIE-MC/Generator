@@ -75,16 +75,18 @@ bool CharmFractionTablePool::LoadTables(void)
 {
   bool loaded = true;
 
-  //-- get base GENIE base directory from the environment
-  string genie_base_dir = string( gSystem->Getenv("GENIE") );
+  //-- get GENIE config directory from the environment
+  //   (search for $GALGCONF or use the default: $GENIE/config)
+  string config_dir = (gSystem->Getenv("GALGCONF")) ?
+            string(gSystem->Getenv("GALGCONF")) :
+            string(gSystem->Getenv("GENIE")) + string("/config");
 
   //-- build the full pathnames for possible pdg data file locations
-  string path = genie_base_dir + string("/config/CharmFractionTables.xml");
+  string path = config_dir + string("/CharmFractionTables.xml");
 
   LOG("CFracTab", pINFO)  << "\n *** Loading charm fractions from " << path;
 
   bool is_accessible = ! (gSystem->AccessPathName( path.c_str() ));
-
   if ( is_accessible ) {
       XmlParserStatus_t status = this->ParseXMLTables(path.c_str());
       if(status != kXmlOK) {
