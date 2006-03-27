@@ -101,11 +101,14 @@ bool FermiMomentumTablePool::LoadTables(void)
 {
   bool loaded = true;
 
-  //-- get base GENIE base directory from the environment & build the full
-  //   path for the XML file where Fermi momenta sets should be stored
+  //-- get base GENIE config directory from the environment
+  //   (search for $GALGCONF or use the default: $GENIE/config)
+  string config_dir = (gSystem->Getenv("GALGCONF")) ?
+            string(gSystem->Getenv("GALGCONF")) :
+            string(gSystem->Getenv("GENIE")) + string("/config");
 
-  string base_dir = string( gSystem->Getenv("GENIE") );
-  string filename = base_dir + string("/config/FermiMomentumTables.xml");
+  //-- Build the path Fermi momenta sets XML file
+  string filename = config_dir + string("/FermiMomentumTables.xml");
 
   LOG("FermiP", pINFO)  << "Loading Fermi momenta from file: " << filename;
 
