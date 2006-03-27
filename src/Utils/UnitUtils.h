@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::utils::unit
+\namespace  genie::utils::units
 
 \brief      Simple unit system utilities
 
