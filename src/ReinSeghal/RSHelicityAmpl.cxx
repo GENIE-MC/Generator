@@ -34,37 +34,17 @@ namespace genie {
 //____________________________________________________________________________
 RSHelicityAmpl::RSHelicityAmpl()
 {
-  fModel = 0;
-  this->InitHelicityAmplitudes();
+  this->Init();
 }
 //____________________________________________________________________________
 RSHelicityAmpl::RSHelicityAmpl(const RSHelicityAmpl & hamp)
 {
-  fModel  = hamp.fModel;
-
   fMinus1 = hamp.AmpMinus1();
   fPlus1  = hamp.AmpPlus1();
   fMinus3 = hamp.AmpMinus3();
   fPlus3  = hamp.AmpPlus3();
   f0Minus = hamp.Amp0Minus();
   f0Plus  = hamp.Amp0Plus();
-}
-//____________________________________________________________________________
-void RSHelicityAmpl::SetModel(const RSHelicityAmplModelI * model)
-{
-  this->InitHelicityAmplitudes();
-
-  fModel = model;
-}
-//____________________________________________________________________________
-void RSHelicityAmpl::Calculate(const Interaction * interaction, const FKR & fkr)
-{
-  fMinus1 = fModel -> AmpMinus1 (interaction, fkr);
-  fPlus1  = fModel -> AmpPlus1  (interaction, fkr);
-  fMinus3 = fModel -> AmpMinus3 (interaction, fkr);
-  fPlus3  = fModel -> AmpPlus3  (interaction, fkr);
-  f0Minus = fModel -> Amp0Minus (interaction, fkr);
-  f0Plus  = fModel -> Amp0Plus  (interaction, fkr);
 }
 //____________________________________________________________________________
 void RSHelicityAmpl::Print(ostream & stream) const
@@ -78,7 +58,7 @@ void RSHelicityAmpl::Print(ostream & stream) const
   stream << " f(0+) = " << f0Plus  << endl;
 }
 //____________________________________________________________________________
-void RSHelicityAmpl::InitHelicityAmplitudes(void)
+void RSHelicityAmpl::Init(void)
 {
   fMinus1 = 0.0;
   fPlus1  = 0.0;

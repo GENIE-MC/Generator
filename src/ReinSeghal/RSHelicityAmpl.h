@@ -33,14 +33,17 @@ namespace genie {
 
 class RSHelicityAmpl {
 
+friend class RSHelicityAmplModelCC;
+friend class RSHelicityAmplModelNCp;
+friend class RSHelicityAmplModelNCn;
+friend class RSHelicityAmplModelEMp;
+friend class RSHelicityAmplModelEMn;
+
 public:
 
   RSHelicityAmpl();
   RSHelicityAmpl(const RSHelicityAmpl & hamp);
-  virtual ~RSHelicityAmpl() { }
-
-  void   SetModel  (const RSHelicityAmplModelI * model);
-  void   Calculate (const Interaction * interaction, const FKR & fkr);
+  ~RSHelicityAmpl() { }
 
   double AmpMinus1 (void) const { return fMinus1; }
   double AmpPlus1  (void) const { return fPlus1;  }
@@ -55,7 +58,7 @@ public:
 
 private:
 
-  void   InitHelicityAmplitudes(void);
+  void   Init(void);
 
   double fMinus1;
   double fPlus1;
@@ -63,11 +66,9 @@ private:
   double fPlus3;
   double f0Minus;
   double f0Plus;
-
-  const RSHelicityAmplModelI * fModel;
 };
 
-}        // namespace
+}        // genie namespace
 
 #endif   // _RS_HELICITY_AMPL_H_
 

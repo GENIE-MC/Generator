@@ -15,28 +15,21 @@ ____________________________________________________________________________*/
 #define _REIN_SEGHAL_HELICITY_AMPL_MODEL_I_H_
 
 #include "Algorithm/Algorithm.h"
-#include "Interaction/Interaction.h"
+#include "BaryonResonance/BaryonResonance.h"
 #include "ReinSeghal/FKR.h"
 
 namespace genie {
 
+class RSHelicityAmpl;
 class RSHelicityAmplModelI : public Algorithm
 {
 public:
-
   virtual ~RSHelicityAmplModelI();
 
   //-- define the RSHelicityAmplModelI interface
-
-  virtual double AmpMinus1 (const Interaction * interaction, const FKR & fkr) const = 0;
-  virtual double AmpPlus1  (const Interaction * interaction, const FKR & fkr) const = 0;
-  virtual double AmpMinus3 (const Interaction * interaction, const FKR & fkr) const = 0;
-  virtual double AmpPlus3  (const Interaction * interaction, const FKR & fkr) const = 0;
-  virtual double Amp0Minus (const Interaction * interaction, const FKR & fkr) const = 0;
-  virtual double Amp0Plus  (const Interaction * interaction, const FKR & fkr) const = 0;
+  virtual RSHelicityAmpl * Compute(Resonance_t res, const FKR & fkr) const = 0;
 
 protected:
-
   RSHelicityAmplModelI();
   RSHelicityAmplModelI(string name);
   RSHelicityAmplModelI(string name, string config);

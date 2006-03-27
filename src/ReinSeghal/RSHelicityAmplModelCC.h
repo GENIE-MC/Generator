@@ -6,7 +6,7 @@
 \brief    The Helicity Amplitudes, for all baryon resonances, for CC neutrino
           interactions on free nucleons, as computed in the Rein-Seghal's paper.
 
-          Concrete implementation of the SPPHelicityAmplModelI interface.
+          Concrete implementation of the RSHelicityAmplModelI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -26,23 +26,15 @@ namespace genie {
 class RSHelicityAmplModelCC : public RSHelicityAmplModelI {
 
 public:
-
   RSHelicityAmplModelCC();
   RSHelicityAmplModelCC(string config);
   virtual ~RSHelicityAmplModelCC();
 
-  //-- SPPHelicityAmplModelI interface implementation
-
-  double AmpMinus1 (const Interaction * interaction, const FKR & fkr) const;
-  double AmpPlus1  (const Interaction * interaction, const FKR & fkr) const;
-  double AmpMinus3 (const Interaction * interaction, const FKR & fkr) const;
-  double AmpPlus3  (const Interaction * interaction, const FKR & fkr) const;
-  double Amp0Minus (const Interaction * interaction, const FKR & fkr) const;
-  double Amp0Plus  (const Interaction * interaction, const FKR & fkr) const;
+  //-- RSHelicityAmplModelI interface implementation
+  RSHelicityAmpl * Compute(Resonance_t res, const FKR & fkr) const;
 };
 
-}        // namespace
-
+}        // genie namespace
 #endif   // _HELICITY_AMPL_MODEL_CC_H_
 
 

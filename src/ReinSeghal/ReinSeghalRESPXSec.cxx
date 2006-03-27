@@ -101,7 +101,8 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   brprm.RetrieveData(resonance);  // <-- get parameters for input res.
 
   //-- Get the resonance mass
-  double Mres = brprm.Mass();
+  double Mres    = brprm.Mass();
+  int    nresidx = brprm.ResonanceIndex();
 
   LOG("ReinSeghalRes", pDEBUG)
         << "Resonance = " << utils::res::AsString(resonance)
@@ -127,47 +128,37 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   //-- Calculate the Feynman-Kislinger-Ravndall parameters
   LOG("ReinSeghalRes", pDEBUG) << "Computing the FKR parameters";
 
-  FKR fkr;
-  fkr.SetZeta(fZeta);
-  fkr.SetOmega(fOmega);
-  fkr.SetMa2(fMa2);
-  fkr.SetMv2(fMv2);
-  fkr.SetResParams(brprm);
-  fkr.Calculate(interaction);
+  fFKR.Calculate(q2,W,nresidx);
 
   LOG("ReinSeghalRes", pDEBUG) << "\n FKR params for ["
-                   << utils::res::AsString(resonance) << "]: " << fkr;
+                   << utils::res::AsString(resonance) << "]: " << fFKR;
 
   //-- Calculate the Rein-Seghal Helicity Amplitudes
   LOG("ReinSeghalRes", pDEBUG) << "Computing SPP Helicity Amplitudes";
 
-  RSHelicityAmpl hampl;
+  const RSHelicityAmplModelI * hamplmod = 0;
 
-  if(is_CC)   { hampl.SetModel(fHAmplModelCC); }
+  if(is_CC)   { hamplmod = fHAmplModelCC; }
   else {
-    if (is_p) { hampl.SetModel(fHAmplModelNCp);}
-    else      { hampl.SetModel(fHAmplModelNCn);}
+    if (is_p) { hamplmod = fHAmplModelNCp;}
+    else      { hamplmod = fHAmplModelNCn;}
   }
-  hampl.Calculate(interaction,fkr); 
+  assert(hamplmod);
+  
+  RSHelicityAmpl * hampl = hamplmod->Compute(resonance, fFKR); 
+  assert(hampl);
 
   LOG("ReinSeghalRes", pDEBUG)
          << "\n Helicity Amplitudes for ["
                 << utils::res::AsString(resonance) << "]: " << hampl;
 
-  double amp_minus_1  = hampl.AmpMinus1 ();
-  double amp_plus_1   = hampl.AmpPlus1  ();
-  double amp_minus_3  = hampl.AmpMinus3 ();
-  double amp_plus_3   = hampl.AmpPlus3  ();
-  double amp_0_minus  = hampl.Amp0Minus ();
-  double amp_0_plus   = hampl.Amp0Plus  ();
-
   //-- Calculate Helicity Cross Sections
-  double xsec_left   = TMath::Power( amp_plus_3,  2. ) +
-                       TMath::Power( amp_plus_1,  2. );
-  double xsec_right  = TMath::Power( amp_minus_3, 2. ) +
-                       TMath::Power( amp_minus_1, 2. );
-  double xsec_scalar = TMath::Power( amp_0_plus,  2. ) +
-                       TMath::Power( amp_0_minus, 2. );
+  double xsec_left   = TMath::Power( hampl->AmpPlus3(),  2. ) +
+                       TMath::Power( hampl->AmpPlus1(),  2. );
+  double xsec_right  = TMath::Power( hampl->AmpMinus3(), 2. ) +
+                       TMath::Power( hampl->AmpMinus1(), 2. );
+  double xsec_scalar = TMath::Power( hampl->Amp0Plus(),  2. ) +
+                       TMath::Power( hampl->Amp0Minus(), 2. );
 
   double scale_lr = 0.5*(kPi/k)*(Mres/Mnuc);
   double scale_sc = 0.5*(kPi/k)*(Mnuc/Mres);
@@ -329,6 +320,11 @@ void ReinSeghalRESPXSec::LoadConfigData(void)
   fMa2    = fConfig->GetDoubleDef( "Ma2",   kResMa2 );
   fMv2    = fConfig->GetDoubleDef( "Mv2",   kResMv2 );
   fWghtBW = fConfig->GetBoolDef("weight-with-breit-wigner", true);
+
+  fFKR.SetZeta(fZeta);
+  fFKR.SetOmega(fOmega);
+  fFKR.SetMa2(fMa2);
+  fFKR.SetMv2(fMv2);
 }
 //____________________________________________________________________________
 
