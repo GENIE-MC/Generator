@@ -41,11 +41,15 @@ public :
   void AddSnapshot  (int step, GHepRecord * record);
   void PurgeHistory       (void);
   void PurgeRecentHistory (int start_step);
+  bool Enabled            (void) const;
 
   void Copy  (const GHepRecordHistory & history);
   void Print (ostream & stream) const;
 
   friend ostream & operator << (ostream & stream, const GHepRecordHistory & history);
+
+private:
+  bool fIsEnabled;
 };
 
 }      // genie namespace
