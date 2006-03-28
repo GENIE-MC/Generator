@@ -166,7 +166,7 @@ endif
 #-------------------------------------------------------------------
 
 ifndef GOPT_CXX_OPTIM_FLAG
- GOPT_CXX_OPTIM_FLAG=-O2 # can be -O,-O2,-O3,-OO,-Os, see gcc manual
+ GOPT_CXX_OPTIM_FLAG=-O # can be -O,-O2,-O3,-OO,-Os, see gcc manual
 endif
 
 ifndef GOPT_CXX_DEBUG_FLAG
