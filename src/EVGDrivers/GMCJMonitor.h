@@ -37,10 +37,11 @@ private:
 
   void Init (void);
 
-  Long_t     fRunNu;
-  string     fStatusFile;
-  TStopwatch fWatch;
-  double     fCpuTime;
+  Long_t     fRunNu;       ///< run number
+  string     fStatusFile;  ///< name of output status file
+  TStopwatch fWatch;       
+  double     fCpuTime;     ///< total cpu time so far
+  int        fRefreshRate; ///< update output every so many events
 };
 
 }      // genie namespace

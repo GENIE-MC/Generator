@@ -17,6 +17,10 @@
 
 #include <sstream>
 #include <fstream>
+#include <cstdlib>
+
+#include <TSystem.h>
+#include <TMath.h>
 
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GMCJMonitor.h"
@@ -45,6 +49,8 @@ GMCJMonitor::~GMCJMonitor()
 //____________________________________________________________________________
 void GMCJMonitor::Update(int iev, const EventRecord * event)
 {
+  if(iev%fRefreshRate) return; // continue only every fRefreshRate events 
+
   fWatch.Stop();
   fCpuTime += (fWatch.CpuTime());
 
@@ -74,12 +80,19 @@ void GMCJMonitor::Init(void)
   // build the filename of the GENIE status file
   ostringstream filename;
   filename   << "genie-mcjob-" << fRunNu << ".status";
-  fStatusFile   = filename.str();
+  fStatusFile = filename.str();
 
   // create a stopwatch
   TStopwatch fWatch;
   fWatch.Reset(); 
   fWatch.Start();
+
+  // get rehreah rate of set default / protect from invalid refresh rates
+  if( gSystem->Getenv("GMCJMONREFRESH") ) {
+   fRefreshRate = atoi( gSystem->Getenv("GMCJMONREFRESH") );
+  } else fRefreshRate = 100;
+
+  fRefreshRate = TMath::Max(1,fRefreshRate);
 }
 //____________________________________________________________________________
 
