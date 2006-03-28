@@ -17,6 +17,8 @@
 */
 //____________________________________________________________________________
 
+#include <TSystem.h>
+
 #include "GHEP/GHepRecordHistory.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
@@ -37,13 +39,15 @@ namespace genie {
 GHepRecordHistory::GHepRecordHistory() :
 map<int, GHepRecord*>()
 {
-
+  fIsEnabled = this->Enabled();
 }
 //___________________________________________________________________________
 GHepRecordHistory::GHepRecordHistory(const GHepRecordHistory & history) :
 map<int, GHepRecord*>()
 {
   this->Copy(history);
+
+  fIsEnabled = this->Enabled();
 }
 //___________________________________________________________________________
 GHepRecordHistory::~GHepRecordHistory()
@@ -54,6 +58,8 @@ GHepRecordHistory::~GHepRecordHistory()
 void GHepRecordHistory::AddSnapshot(int step, GHepRecord * record)
 {
 // Adds a GHepRecord 'snapshot' at the history buffer
+
+  if(!fIsEnabled) return;
 
   if(!record) {
    LOG("GHEP", pWARN)
@@ -168,6 +174,11 @@ void GHepRecordHistory::Print(ostream & stream) const
       stream << *record;
     }
   }
+}
+//___________________________________________________________________________
+bool GHepRecordHistory::Enabled(void) const
+{
+  return (gSystem->Getenv("GHEPHISTENABLE") ? true : false);
 }
 //___________________________________________________________________________
 
