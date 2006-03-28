@@ -119,9 +119,10 @@ double ReinSeghalSPPXSec::XSec(const Interaction * interaction) const
      string ikey   = intk.str();
      string key    = cache->CacheBranchKey(algkey, ikey);
 
-     LOG("Kinematics", pINFO) << "Finding cache branch with key: " << key;
+     LOG("ReinSeghalSpp", pINFO) 
+                           << "Finding cache branch with key: " << key;
      CacheBranchFx * cache_branch =
-              dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+           dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
 
      if(!cache_branch) {
        LOG("ReinSeghalSpp", pWARN)  
