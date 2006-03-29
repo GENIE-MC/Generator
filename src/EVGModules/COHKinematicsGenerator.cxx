@@ -20,6 +20,7 @@
 
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
+#include "EVGCore/EVGThreadException.h"
 #include "EVGModules/COHKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
@@ -81,6 +82,19 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const double rlogy   = (logymax - logymin);
 
   while(1) {
+
+     iter++;
+     if(iter > kRjMaxIterations) {
+        LOG("COHKinematics", pWARN)
+             << "*** Could not select a valid (x,y) pair after "
+                                               << iter << " iterations";
+        evrec->SwitchGenericErrFlag(true);
+        genie::exceptions::EVGThreadException exception;
+        exception.SetReason("Couldn't select kinematics");
+        exception.SwitchOnFastForward();
+        throw exception;
+     }
+
      double gx = TMath::Exp(logxmin + rlogx * rnd->Random1().Rndm());
      double gy = TMath::Exp(logymin + rlogy * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->Setx(gx);
@@ -102,13 +116,6 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);
         return;
-     }
-     iter++;
-     if(iter > kRjMaxIterations) {
-        LOG("COHKinematics", pFATAL)
-             << "*** Could not select a valid (x,y) pair after "
-                                               << iter << " iterations";
-        abort();
      }
   }// iterations
 }

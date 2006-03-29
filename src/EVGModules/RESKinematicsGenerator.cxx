@@ -19,6 +19,7 @@
 
 #include "BaryonResonance/BaryonResonance.h"
 #include "Conventions/Controls.h"
+#include "EVGCore/EVGThreadException.h"
 #include "EVGModules/RESKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
@@ -60,25 +61,48 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
+  //-- Compute the W limits
+  //  (the physically allowed W's, unless an external cut is imposed)
+  Range1D_t W = this->WRange(interaction);
+
+  if(W.max <=0 || W.min>=W.max) {
+     LOG("RESKinematics", pWARN) << "No available phase space";
+     evrec->SwitchGenericErrFlag(true);
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("No available phase space");
+     exception.SwitchOnFastForward();
+     throw exception;
+  }
+
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
   //   cache. Throw an exception and quit the evg thread if a non-positive
   //   value is found.
   double xsec_max = this->MaxXSec(evrec);
 
-  //-- Try to select a valid W, Q2 pair
+  //-- Try to select a valid W, Q2 pair using the rejection method
   register unsigned int iter = 0;
   double e = 1E-6;
 
-  //-- Compute the W limits
-  //  (the physically allowed W's, unless an external cut is imposed)
-  Range1D_t W = this->WRange(interaction);
-  assert(W.min>0.);
+  assert(W.min>=0.);
   double logWmin  = TMath::Log(W.min+e);
   double logWmax  = TMath::Log(W.max);
   double dlogW    = logWmax - logWmin;
 
   while(1) {
+
+     iter++;
+     if(iter > kRjMaxIterations) {
+         LOG("RESKinematics", pWARN)
+              << "*** Could not select a valid (W,Q^2) pair after "
+                                                    << iter << " iterations";
+         evrec->SwitchGenericErrFlag(true);
+         genie::exceptions::EVGThreadException exception;
+         exception.SetReason("Couldn't select kinematics");
+         exception.SwitchOnFastForward();
+         throw exception;
+     }
+
      //-- Get a random W within its allowed limits
      double gW = TMath::Exp(logWmin + dlogW  * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->SetW(gW);
@@ -86,7 +110,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- Compute the allowed Q^2 limits for the selected W
      //   (the physically allowed Q2's, unless an external cut is imposed)
      Range1D_t Q2 = this->Q2Range(interaction);
-     if(Q2.min<=0. || Q2.min>Q2.max) continue;
+     if(Q2.max<=0. || Q2.min>=Q2.max) continue;
      double logQ2min = TMath::Log(Q2.min+e);
      double logQ2max = TMath::Log(Q2.max);
      double dlogQ2   = logQ2max - logQ2min;
@@ -119,14 +143,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         interaction->ResetBit(kISkipProcessChk);
         interaction->ResetBit(kISkipKinematicChk);
         return;
-     }
-
-     iter++;
-     if(iter > kRjMaxIterations) {
-         LOG("RESKinematics", pFATAL)
-              << "*** Could not select a valid (W,Q^2) pair after "
-                                                    << iter << " iterations";
-         abort();
      }
   } // iterations
 }

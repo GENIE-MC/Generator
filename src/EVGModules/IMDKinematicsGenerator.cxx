@@ -17,6 +17,7 @@
 //____________________________________________________________________________
 
 #include "Conventions/Controls.h"
+#include "EVGCore/EVGThreadException.h"
 #include "EVGModules/IMDKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
@@ -69,6 +70,19 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double dy   = ymax-ymin;
 
   while(1) {
+
+     iter++;
+     if(iter > kRjMaxIterations) {
+        LOG("IMDKinematics", pWARN)
+              << "*** Could not select a valid y after "
+                                              << iter << " iterations";
+        evrec->SwitchGenericErrFlag(true);
+        genie::exceptions::EVGThreadException exception;
+        exception.SetReason("Couldn't select kinematics");
+        exception.SwitchOnFastForward();
+        throw exception;
+     }
+
      double y = ymin + dy * rnd->Random1().Rndm();
      interaction->GetKinematicsPtr()->Sety(y);
 
@@ -87,13 +101,6 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);
         return;
-     }
-     iter++;
-     if(iter > kRjMaxIterations) {
-        LOG("IMDKinematics", pFATAL)
-              << "*** Could not select a valid y after "
-                                            << iter << " iterations";
-        abort();
      }
   }// iterations
 }
