@@ -25,7 +25,7 @@ EXE =	$(GENIE_BIN_PATH)/gevgen   \
 	$(GENIE_BIN_PATH)/gvlddoc  \
 	$(GENIE_BIN_PATH)/gmkspl   \
 	$(GENIE_BIN_PATH)/gmxpl    \
-	$(GENIE_BIN_PATH)/g2nuance \
+	$(GENIE_BIN_PATH)/gntpc    \
 	$(GENIE_BIN_PATH)/gsplt	   \
 	$(GENIE_BIN_PATH)/gmctest  \
 	$(GENIE_BIN_PATH)/gviewer
@@ -34,13 +34,14 @@ ALLTGT = gEvGen		\
 	 gVldDoc	\
 	 gMakeSplines	\
 	 gMaxPathLengths\
-	 g2Nuance	\
+	 gNtpConv	\
 	 gSplinePlotter	\
 	 gMCSampleTest	\
 	 gViewer		
 
 STDTGT = gEvGen		\
 	 gMakeSplines	\
+	 gNtpConv	\
 	 gMaxPathLengths\
 	 gSplinePlotter	
 
@@ -69,8 +70,8 @@ gMaxPathLengths: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmxpl gMaxPathLengths.cxx \
 			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
 
-g2Nuance: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/g2nuance g2Nuance.cxx \
+gNtpConv: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gntpc gNtpConv.cxx \
 			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
 
 gSplinePlotter: FORCE
@@ -103,8 +104,8 @@ clean--gMakeSplines: FORCE
 clean--gMaxPathLengths: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmxpl
 
-clean--g2Nuance: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/g2nuance
+clean--gNtpConv: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gntpc
 
 clean--gSplinePlotter: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gsplt
