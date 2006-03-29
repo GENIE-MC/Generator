@@ -19,6 +19,7 @@
 #include <TMath.h>
 
 #include "Conventions/Controls.h"
+#include "EVGCore/EVGThreadException.h"
 #include "EVGModules/QELKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
@@ -60,24 +61,47 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
+  //-- Get the limits for the generated Q2
+  Range1D_t Q2 = this->Q2Range(interaction);
+
+  if(Q2.max <=0 || Q2.min>=Q2.max) {
+     LOG("QELKinematics", pWARN) << "No available phase space";
+     evrec->SwitchGenericErrFlag(true);
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("No available phase space");
+     exception.SwitchOnFastForward();
+     throw exception;
+  }
+
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
   //   cache. Throw an exception and quit the evg thread if a non-positive
   //   value is found.
   double xsec_max = this->MaxXSec(evrec);
 
-  //------ Try to select a valid Q2
+  //-- Try to select a valid Q2 using the rejection method
   register unsigned int iter = 0;
-  double e = 1E-6;
 
-  //-- Get the limits for the generated Q2
-  Range1D_t Q2 = this->Q2Range(interaction);
-  assert(Q2.min>0.);
+  assert(Q2.min>=0.);
+
+  double e = 1E-6;
   double logQ2min = TMath::Log(Q2.min+e);
   double logQ2max = TMath::Log(Q2.max);
   double dlogQ2   = logQ2max - logQ2min;
 
   while(1) {
+
+     iter++;
+     if(iter > kRjMaxIterations) {
+        LOG("QELKinematics", pWARN)
+          << "Couldn't select a valid Q^2 after " << iter << " iterations";
+        evrec->SwitchGenericErrFlag(true);
+        genie::exceptions::EVGThreadException exception;
+        exception.SetReason("Couldn't select kinematics");
+        exception.SwitchOnFastForward();
+        throw exception;
+     }
+
      // generate a Q2 value within the allowed phase space
      double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
@@ -101,14 +125,6 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         interaction->ResetBit(kISkipProcessChk);
         interaction->ResetBit(kISkipKinematicChk);
         return;
-     }
-
-     iter++;
-     if(iter > kRjMaxIterations) {
-        LOG("QELKinematics", pFATAL)
-                  << "*** Could not select a valid (x,y) pair after "
-                                                    << iter << " iterations";
-        abort();
      }
   }// iterations
 }

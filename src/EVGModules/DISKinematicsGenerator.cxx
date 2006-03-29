@@ -66,25 +66,47 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
+  //-- Get the physical W range taking into account any user cuts
+  Range1D_t W  = this->WRange(interaction);
+
+  if(W.max <=0 || W.min>=W.max) {
+     LOG("DISKinematics", pWARN) << "No available phase space";
+     evrec->SwitchGenericErrFlag(true);
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("No available phase space");
+     exception.SwitchOnFastForward();
+     throw exception;
+  }
+
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
   //   cache. Throw an exception and quit the evg thread if a non-positive
   //   value is found.
   double xsec_max = this->MaxXSec(evrec);
 
-  //------ Try to select a valid W,Q2 (=>x,y) pair using the rejection
-  //       method
+  //-- Try to select a valid W,Q2 (=>x,y) pair using the rejection method
   register unsigned int iter = 0;
   double e = 1E-6;
 
-  //-- Get the physical W range taking into account any user cuts
-  Range1D_t W  = this->WRange(interaction);
-  assert(W.min>0.);
+  assert(W.min>=0.);
   double logWmin  = TMath::Log(W.min+e);
   double logWmax  = TMath::Log(W.max);
   double dlogW    = logWmax - logWmin;
 
   while(1) {
+
+     iter++;
+     if(iter > kRjMaxIterations) {
+       LOG("DISKinematics", pWARN)
+        << " Couldn't select kinematics after " << iter << " iterations";
+
+       evrec->SwitchGenericErrFlag(true);
+       genie::exceptions::EVGThreadException exception;
+       exception.SetReason("Couldn't select kinematics");
+       exception.SwitchOnFastForward();
+       throw exception;
+     }
+
      //-- generate a W value within the allowed phase space
      double gW  = TMath::Exp(logWmin  + dlogW  * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->SetW(gW);
@@ -92,7 +114,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- Get the physical Q2 range (for current W) taking into account
      //   any user cuts
      Range1D_t Q2 = this->Q2Range(interaction);
-     if(Q2.min<=0. || Q2.min>Q2.max) continue;
+     if(Q2.max <=0 || Q2.min>Q2.max) continue;
      double logQ2min = TMath::Log(Q2.min+e);
      double logQ2max = TMath::Log(Q2.max);
      double dlogQ2   = logQ2max - logQ2min;
@@ -127,13 +149,6 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          // set the cross section for the selected kinematics
          evrec->SetDiffXSec(xsec);
          return;
-     }
-
-     iter++;
-     if(iter > kRjMaxIterations) {
-       LOG("DISKinematics", pFATAL)
-        << "*** Could not select kinematics after " << iter << " iterations";
-       abort();
      }
   } // iterations
 }
