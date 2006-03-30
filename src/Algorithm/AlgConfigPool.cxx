@@ -117,8 +117,8 @@ bool AlgConfigPool::LoadAlgConfig(void)
     string alg_name    = conf_file_iter->first;
     string file_name   = conf_file_iter->second;
 
-    SLOG("AlgConfigPool", pINFO) << "Load:"
-         << setfill('.') << setw(35) << alg_name << " -> " << file_name;
+    SLOG("AlgConfigPool", pINFO)
+         << setfill('.') << setw(40) << alg_name << " -> " << file_name;
 
     string full_path = config_dir + "/" + file_name;
     bool ok = this->LoadSingleAlgConfig(alg_name, full_path);
