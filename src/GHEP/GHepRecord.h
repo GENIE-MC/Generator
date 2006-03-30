@@ -19,8 +19,9 @@
 #include <ostream>
 
 #include <TClonesArray.h>
+#include <TBits.h>
 
-#include "Interaction/Interaction.h"
+#include "Interaction/Interaction.h" 
 #include "GHEP/GHepStatus.h"
 
 class TLorentzVector;
@@ -81,13 +82,8 @@ public :
 
   //-- methods to switch on/off and ask for event record flags
 
-  virtual void SwitchIsPauliBlocked (bool on_off);
-  virtual void SwitchIsBelowThrNRF  (bool on_off);
-  virtual void SwitchGenericErrFlag (bool on_off);
-  virtual bool IsPauliBlocked       (void) const { return fIsPauliBlocked; }
-  virtual bool IsBelowThrNRF        (void) const { return fIsBelowThrNRF;  }
-  virtual bool GenericErrFlag       (void) const { return fGenericErrFlag; }
-  virtual bool IsUnphysical         (void) const;
+  virtual TBits * EventFlags   (void) const { return fEventFlags; }
+  virtual bool    IsUnphysical (void) const { return (fEventFlags->CountBits()>0); }
 
   //-- methods to set/get the event weight and cross sections
 
@@ -120,9 +116,7 @@ protected:
   TLorentzVector * fVtx;
 
   // Flags for the generated event
-  bool fIsPauliBlocked;   ///< true for Pauli-blocked event
-  bool fIsBelowThrNRF;    ///< true if it is below threshold in the nucleon rest frame
-  bool fGenericErrFlag;   ///< true for etc problems
+  TBits * fEventFlags;    
 
   // Misc info associated with the generated event
   double fWeight;         ///< event weight
