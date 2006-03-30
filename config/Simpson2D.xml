@@ -30,5 +30,26 @@
      <param type="int"    name="dimension-1-nbins">     61    </param>
   </param_set>
 
+  <param_set name="Default-Logarithmic-FixedNBins-101"> 
+     <param type="bool"   name="in-loge">               true  </param>
+     <param type="bool"   name="force-fixed-nbins">     true  </param>
+     <param type="int"    name="dimension-0-nbins">     101   </param>
+     <param type="int"    name="dimension-1-nbins">     101   </param>
+  </param_set>
+
+  <param_set name="Default-Logarithmic-FixedNBins-201"> 
+     <param type="bool"   name="in-loge">               true  </param>
+     <param type="bool"   name="force-fixed-nbins">     true  </param>
+     <param type="int"    name="dimension-0-nbins">     201   </param>
+     <param type="int"    name="dimension-1-nbins">     201   </param>
+  </param_set>
+
+  <param_set name="Default-Logarithmic-FixedNBins-301"> 
+     <param type="bool"   name="in-loge">               true  </param>
+     <param type="bool"   name="force-fixed-nbins">     true  </param>
+     <param type="int"    name="dimension-0-nbins">     301   </param>
+     <param type="int"    name="dimension-1-nbins">     301   </param>
+  </param_set>
+
 </alg_conf>
 
