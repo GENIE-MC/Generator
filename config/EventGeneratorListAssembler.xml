@@ -40,6 +40,18 @@
      <param type="string" name="event-generator-id-1-param-set">  QEL-NC                   </param>
   </param_set>
 
+  <param_set name="QEL-CC"> 
+     <param type="int"    name="n-processes">                     1                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  QEL-CC                   </param>
+  </param_set>
+
+  <param_set name="QEL-NC"> 
+     <param type="int"    name="n-processes">                     1                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  QEL-NC                   </param>
+  </param_set>
+
   <param_set name="RES"> 
      <param type="int"    name="n-processes">                     1                        </param>
      <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
@@ -58,6 +70,18 @@
      <param type="string" name="event-generator-id-0-param-set">  DIS-CC                   </param>
      <param type="string" name="event-generator-id-1-alg-name">   genie::EventGenerator    </param>
      <param type="string" name="event-generator-id-1-param-set">  DIS-NC                   </param>
+  </param_set>
+
+  <param_set name="DIS-CC"> 
+     <param type="int"    name="n-processes">                     1                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  DIS-CC                   </param>
+  </param_set>
+
+  <param_set name="DIS-NC"> 
+     <param type="int"    name="n-processes">                     1                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  DIS-NC                   </param>
   </param_set>
 </alg_conf>
 
