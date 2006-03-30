@@ -26,6 +26,7 @@
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepOrder.h"
+#include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
@@ -422,38 +423,6 @@ void GHepRecord::SetVertex(const TLorentzVector & vtx)
   fVtx->SetXYZT(vtx.X(),vtx.Y(),vtx.Z(),vtx.T());
 }
 //___________________________________________________________________________
-void GHepRecord::SwitchIsPauliBlocked(bool on_off)
-{
-  if(on_off) {
-     LOG("GHEP", pNOTICE) << "Switching Pauli Block flag: ON";
-  }
-  fIsPauliBlocked = on_off;
-}
-//___________________________________________________________________________
-void GHepRecord::SwitchIsBelowThrNRF(bool on_off)
-{
-  if(on_off) {
-     LOG("GHEP", pNOTICE)
-        << "Switching Below Threshold in nucleon rest frame flag: ON";
-  }
-  fIsBelowThrNRF = on_off;
-}
-//___________________________________________________________________________
-void GHepRecord::SwitchGenericErrFlag(bool on_off)
-{
-  if(on_off) {
-     LOG("GHEP", pNOTICE) << "Switching Generic Error Flag: ON";
-  }
-  fGenericErrFlag = on_off;
-}
-//___________________________________________________________________________
-bool GHepRecord::IsUnphysical(void) const
-{
-// Summarizes record flags
-
-  return (fIsPauliBlocked || fIsBelowThrNRF || fGenericErrFlag);
-}
-//___________________________________________________________________________
 void GHepRecord::InitRecord(void)
 {
   LOG("GHEP", pDEBUG) << "Initializing GHepRecord";
@@ -463,10 +432,7 @@ void GHepRecord::InitRecord(void)
   fXSec        = 0.;
   fDiffXSec    = 0.;
   fVtx         = new TLorentzVector(0,0,0,0);
-
-  this -> SwitchIsPauliBlocked (false);
-  this -> SwitchIsBelowThrNRF  (false);
-  this -> SwitchGenericErrFlag (false);
+  fEventFlags  = new TBits(16);
 
   this->SetOwner(true);
 }
@@ -477,6 +443,8 @@ void GHepRecord::CleanRecord(void)
 
   if (fInteraction) delete fInteraction;
   delete fVtx;
+
+  delete fEventFlags;
 
   this->Delete();
 //  this->Clear("C");
@@ -505,14 +473,12 @@ void GHepRecord::Copy(const GHepRecord & record)
   // copy summary
   fInteraction = new Interaction( *record.fInteraction );
 
+  // copy flags
+  *fEventFlags = *(record.EventFlags());
+
   // copy vtx position
   TLorentzVector * v = record.Vertex();
   fVtx->SetXYZT(v->X(),v->Y(),v->Z(),v->T());
-
-  // copy flags
-  fIsPauliBlocked  = record.fIsPauliBlocked;
-  fIsBelowThrNRF   = record.fIsBelowThrNRF;
-  fGenericErrFlag  = record.fGenericErrFlag;
 
   // copy weights & xsecs
   fWeight   = record.fWeight;
@@ -673,15 +639,14 @@ void GHepRecord::Print(ostream & stream) const
   if(printlevel>=1) {
     stream << "\n| ";
     stream << setfill(' ') << setw(17) << "FLAGS:   | "
-           << setfill(' ') << setw(15) << "PauliBlock......"
-           << utils::print::BoolAsIOString(this->IsPauliBlocked()) << " |"
-           << setfill(' ') << setw(15) << " BelowThrNRF...."
-           << utils::print::BoolAsIOString(this->IsBelowThrNRF())  << " |"
-           << setfill(' ') << setw(15) << " GenericErr....."
-           << utils::print::BoolAsIOString(this->GenericErrFlag()) << " |"
-           << setfill(' ') << setw(15) << " UnPhysical....."
-           << utils::print::BoolAsIOString(this->IsUnphysical())   << " |";
-
+           << "UnPhys: " << setfill(' ') << setw(5) 
+           << utils::print::BoolAsIOString(this->IsUnphysical()) << " |"
+           << " ErrBits[" << fEventFlags->GetNbits() << "->0]:" 
+           << *fEventFlags << " |" 
+           << " 1stSet: " << setfill(' ') << setw(33) 
+           << ( this->IsUnphysical() ? 
+                 GHepFlags::Describe(GHepFlag_t(fEventFlags->FirstSetBit())) : 
+                 "none") << "| ";
     stream << "\n|";
     stream << setfill('-') << setw(110) << "|";
   }
