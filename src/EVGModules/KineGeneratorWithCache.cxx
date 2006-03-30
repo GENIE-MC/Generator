@@ -33,7 +33,7 @@
 #include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Utils/Cache.h"
-#include "Utils/CacheBranchNtp.h"
+#include "Utils/CacheBranchFx.h"
 #include "Utils/MathUtils.h"
 
 using std::ostringstream;
@@ -114,16 +114,39 @@ double KineGeneratorWithCache::FindMaxXSec(
   double E = this->Energy(interaction);
   LOG("Kinematics", pINFO) << "E = " << E;
 
+  if(E < fEMin) {
+     LOG("Kinematics", pINFO)
+         << "Below minimum energy - Forcing explicit calculation";
+     return -1.;
+  }
+
   // access the the cache branch
-  CacheBranchNtp * cb = this->AccessCacheBranch(interaction);
+  CacheBranchFx * cb = this->AccessCacheBranch(interaction);
+
+  // if there are enough points stored in the cache buffer to build a
+  // spline, then intepolate
+  if( cb->Spl() ) {
+     if( E > cb->Spl()->XMin()+0.2 && E < cb->Spl()->XMax()-0.2) {
+       double spl_max_xsec = cb->Spl()->Evaluate(E);
+       LOG("Kinematics", pINFO)
+          << "\nInterpolated: max xsec (E=" << E << ") = " << spl_max_xsec;
+       return spl_max_xsec;      
+     }
+     LOG("Kinematics", pINFO)
+          << "Outside spline boundaries - Forcing explicit calculation";
+     return -1.;
+  }
+
+  // if there are not enough points at the cache buffer to have a spline,
+  // look whether there is another point that is sufficiently close
 
   // build the search rule
   double dE = TMath::Min(0.25, 0.05*E);
   ostringstream search;
-  search << "(E-" << E << " < " << dE << ") && (E>=" << E << ")";
+  search << "(x-" << E << " < " << dE << ") && (x>=" << E << ")";
 
   // query for all the entries at a window around the current energy
-  TSQLResult * result = cb->Ntuple()->Query("E:xsec", search.str().c_str());
+  TSQLResult * result = cb->Ntuple()->Query("x:y", search.str().c_str());
   int nrows = result->GetRowCount();
   LOG("Kinematics", pDEBUG)
             << "Found " << nrows << " rows with " << search.str();
@@ -136,8 +159,7 @@ double KineGeneratorWithCache::FindMaxXSec(
   double max_xsec = -1.0;
   double Ep       = 0;
   double dEmin    = 999;
-
-  TSQLRow * row = 0;
+  TSQLRow * row   = 0;
   while( (row = result->Next()) ) {
      double cE    = atof( row->GetField(0) );
      double cxsec = atof( row->GetField(1) );
@@ -162,10 +184,20 @@ void KineGeneratorWithCache::CacheMaxXSec(
 {
   LOG("Kinematics", pINFO)
                        << "Adding the computed max{dxsec/dK} value to cache";
-  CacheBranchNtp * cb = this->AccessCacheBranch(interaction);
+  CacheBranchFx * cb = this->AccessCacheBranch(interaction);
 
   double E = this->Energy(interaction);
-  if(max_xsec>0) cb->Ntuple()->Fill(E, max_xsec);
+  if(max_xsec>0) cb->AddValues(E,max_xsec);
+
+  if(! cb->Spl() ) {
+    if( cb->Ntuple()->GetEntriesFast() > 40 ) cb->CreateSpline();
+  }
+
+  if( cb->Spl() ) {
+     if( E < cb->Spl()->XMin() && E < cb->Spl()->XMax() ) {
+        cb->CreateSpline();
+     }
+  }
 }
 //___________________________________________________________________________
 double KineGeneratorWithCache::Energy(const Interaction * interaction) const
@@ -179,7 +211,7 @@ double KineGeneratorWithCache::Energy(const Interaction * interaction) const
   return E;
 }
 //___________________________________________________________________________
-CacheBranchNtp * KineGeneratorWithCache::AccessCacheBranch(
+CacheBranchFx * KineGeneratorWithCache::AccessCacheBranch(
                                       const Interaction * interaction) const
 {
 // Returns the cache branch for this algorithm and this interaction. If no
@@ -192,16 +224,14 @@ CacheBranchNtp * KineGeneratorWithCache::AccessCacheBranch(
   string intkey = interaction->AsString();
   string key    = cache->CacheBranchKey(algkey, intkey);
 
-  CacheBranchNtp * cache_branch =
-              dynamic_cast<CacheBranchNtp *> (cache->FindCacheBranch(key));
+  CacheBranchFx * cache_branch =
+              dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
   if(!cache_branch) {
     //-- create the cache branch at the first pass
     LOG("Kinematics", pINFO) << "No Max d^nXSec/d{K}^n cache branch found";
     LOG("Kinematics", pINFO) << "Creating cache branch - key = " << key;
 
-    string brdef = "E:xsec";
-    cache_branch = new CacheBranchNtp(
-                           "max[d^nXSec/d^n{K}] over phase space ", brdef);
+    cache_branch = new CacheBranchFx("max[d^nXSec/d^n{K}] over phase space");
     cache->AddCacheBranch(key, cache_branch);
   }
   assert(cache_branch);
@@ -209,3 +239,4 @@ CacheBranchNtp * KineGeneratorWithCache::AccessCacheBranch(
   return cache_branch;
 }
 //___________________________________________________________________________
+

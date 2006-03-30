@@ -192,6 +192,11 @@ void DISKinematicsGenerator::LoadConfigData(void)
 
   //-- Safety factor for the maximum differential cross section
   fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
+
+  //-- Minimum energy for which max xsec would be cached, forcing explicit
+  //   calculation for lower eneries
+  fEMin = fConfig->GetDoubleDef("min-energy-cached", 1.0);
+
 }
 //____________________________________________________________________________
 Range1D_t DISKinematicsGenerator::WRange(
@@ -305,6 +310,9 @@ double DISKinematicsGenerator::ComputeMaxXSec(
      const double logQ2max = TMath::Log(Q2.max-e);
      const double dlogQ2   = (logQ2max - logQ2min)/(NQ2-1);
 
+     double xseclast = -1;
+     bool   increasing;
+
      for(int j=0; j<NQ2; j++) {
          double gQ2 = TMath::Exp(logQ2min + j*dlogQ2);
          interaction->GetKinematicsPtr()->SetQ2(gQ2);
@@ -315,6 +323,10 @@ double DISKinematicsGenerator::ComputeMaxXSec(
          // update maximum xsec
          double xsec = fXSecModel->XSec(interaction);
          max_xsec = TMath::Max(xsec, max_xsec);
+
+         increasing = xsec-xseclast>0;
+         xseclast   = xsec;
+         if(!increasing) break;
      } // Q2
   }// W
 

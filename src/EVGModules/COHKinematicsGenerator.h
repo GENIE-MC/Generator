@@ -24,8 +24,6 @@
 
 namespace genie {
 
-class XSecAlgorithmI;
-
 class COHKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
@@ -54,10 +52,6 @@ public:
   //-- overload KineGeneratorWithCache methods
   double ComputeMaxXSec (const Interaction * in) const;
   double Energy         (const Interaction * in) const;
-
-  //-- private data members
-  double                 fSafetyFactor;
-  const XSecAlgorithmI * fXSecModel;
 };
 
 }      // genie namespace

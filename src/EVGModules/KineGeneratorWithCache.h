@@ -34,7 +34,8 @@ using std::string;
 
 namespace genie {
 
-class CacheBranchNtp;
+class CacheBranchFx;
+class XSecAlgorithmI;
 
 class KineGeneratorWithCache : public EventRecordVisitorI {
 
@@ -49,7 +50,11 @@ protected:
   virtual double FindMaxXSec    (const Interaction * in) const;
   virtual void   CacheMaxXSec   (const Interaction * in, double xsec) const;
   virtual double Energy         (const Interaction * in) const;
-  virtual CacheBranchNtp * AccessCacheBranch (const Interaction * in) const;
+  virtual CacheBranchFx * AccessCacheBranch (const Interaction * in) const;
+
+  const XSecAlgorithmI * fXSecModel;
+  double fSafetyFactor; 
+  double fEMin; 
 };
 
 }      // genie namespace
