@@ -20,6 +20,7 @@
 
 #include <cassert>
 #include <sstream>
+#include <cstdlib>
 
 #include <TStopwatch.h>
 #include <TMCParticle6.h>
@@ -121,7 +122,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
          LOG("EventGenerator", pFATAL)
            << "Caught max allowed number (" << kMaxEVGThreadExceptions
                            << ") of EVGThreadExceptions/thread. Aborting";
-         abort();
+         exit(1);
       }
 
       // make sure we are not asked to go at both directions...
