@@ -114,11 +114,14 @@ void GEVGDriver::Init(void)
   // The sum of all interaction cross sections is used, for example, by
   // GMCJDriver for selecting an initial state.
   fXSecSumSpl = 0;
-  // Default driver behaviour is to filter out unphysical events,
-  // Set this to false to get them if needed, but be warned that the event
-  // record for unphysical events might be incomplete depending on the
+  // Default driver behaviour is to filter out unphysical events (unless
+  // the $GLETUNPHYS environmental variable is set)
+  // Set this property to false to get them if needed (either by calling the 
+  // FilterUnphysical() or by setting the env.var), but be warned that the 
+  // event record for unphysical events might be incomplete depending on the
   // processing step that event generation was stopped.
-  fFilterUnphysical = true;
+  if (gSystem->Getenv("GLETUNPHYS")) fFilterUnphysical = false;
+  else fFilterUnphysical = true;
 }
 //___________________________________________________________________________
 void GEVGDriver::CleanUp(void)
