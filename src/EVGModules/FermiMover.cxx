@@ -26,6 +26,7 @@
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepStatus.h"
+#include "GHEP/GHepFlags.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Nuclear/NuclMomentumGenerator.h"
@@ -101,7 +102,7 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   if(E<=Ethr) {
      LOG("FermiMover", pNOTICE)
                   << "Event below threshold after generation Fermi momentum";
-     event_rec->SwitchIsBelowThrNRF(true);
+     event_rec->EventFlags()->SetBitNumber(kBelowThrNucleonRestFrame, true);
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("E < Ethr after generating nucleon Fermi momentum");
      exception.SwitchOnFastForward();

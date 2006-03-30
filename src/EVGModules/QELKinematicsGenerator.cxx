@@ -22,6 +22,7 @@
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/QELKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
+#include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "Utils/MathUtils.h"
@@ -66,7 +67,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   if(Q2.max <=0 || Q2.min>=Q2.max) {
      LOG("QELKinematics", pWARN) << "No available phase space";
-     evrec->SwitchGenericErrFlag(true);
+     evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("No available phase space");
      exception.SwitchOnFastForward();
@@ -95,7 +96,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      if(iter > kRjMaxIterations) {
         LOG("QELKinematics", pWARN)
           << "Couldn't select a valid Q^2 after " << iter << " iterations";
-        evrec->SwitchGenericErrFlag(true);
+        evrec->EventFlags()->SetBitNumber(kNoValidKinematics, true);
         genie::exceptions::EVGThreadException exception;
         exception.SetReason("Couldn't select kinematics");
         exception.SwitchOnFastForward();

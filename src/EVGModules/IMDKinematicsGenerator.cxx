@@ -20,6 +20,7 @@
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/IMDKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
+#include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "Utils/MathUtils.h"
@@ -76,7 +77,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         LOG("IMDKinematics", pWARN)
               << "*** Could not select a valid y after "
                                               << iter << " iterations";
-        evrec->SwitchGenericErrFlag(true);
+        evrec->EventFlags()->SetBitNumber(kNoValidKinematics, true);
         genie::exceptions::EVGThreadException exception;
         exception.SetReason("Couldn't select kinematics");
         exception.SwitchOnFastForward();

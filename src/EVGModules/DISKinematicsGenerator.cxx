@@ -27,6 +27,7 @@
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/DISKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
+#include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "Utils/MathUtils.h"
@@ -71,7 +72,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   if(W.max <=0 || W.min>=W.max) {
      LOG("DISKinematics", pWARN) << "No available phase space";
-     evrec->SwitchGenericErrFlag(true);
+     evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("No available phase space");
      exception.SwitchOnFastForward();
@@ -100,7 +101,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        LOG("DISKinematics", pWARN)
         << " Couldn't select kinematics after " << iter << " iterations";
 
-       evrec->SwitchGenericErrFlag(true);
+       evrec->EventFlags()->SetBitNumber(kNoValidKinematics, true);
        genie::exceptions::EVGThreadException exception;
        exception.SetReason("Couldn't select kinematics");
        exception.SwitchOnFastForward();

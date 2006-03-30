@@ -22,6 +22,7 @@
 #include "EVGModules/PauliBlocker.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
+#include "GHEP/GHepFlags.h"
 #include "Interaction/Interaction.h"
 #include "Interaction/IUtils.h"
 #include "Messenger/Messenger.h"
@@ -52,7 +53,6 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
 {
   //-- Initialize
   LOG("Nuclear", pINFO) << "Initialize Pauli Block flag";
-  event_rec->SwitchIsPauliBlocked(false);
 
   //-- Get the Interaction & InitialState objects
   Interaction * interaction = event_rec->GetInteraction();
@@ -84,10 +84,9 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
                    << "\n The generated event is Pauli-blocked: "
                           << " |p| = " << p << " < Fermi-Momentum = " << kf;
 
-              event_rec->SwitchIsPauliBlocked(true);
-
+              event_rec->EventFlags()->SetBitNumber(kPauliBlock, true);
               genie::exceptions::EVGThreadException exception;
-              exception.SetReason("Unphysical Event [Pauli-Blocked]");
+              exception.SetReason("Pauli-blocked event");
               exception.SwitchOnFastForward();
               throw exception;
          }
