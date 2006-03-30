@@ -25,6 +25,7 @@
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepOrder.h"
+#include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGLibrary.h"
@@ -101,11 +102,10 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
      LOG("DISHadronicVtx", pWARN) 
                       << "Quitting the current event generation thread";
 
-     evrec->SwitchGenericErrFlag(true);
+     evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
 
      genie::exceptions::EVGThreadException exception;
-     exception.SetReason(
-                "Unphysical Event [Not enough phase space for hadronizer]");
+     exception.SetReason("Not enough phase space for hadronizer");
      exception.SwitchOnFastForward();
      throw exception;
 

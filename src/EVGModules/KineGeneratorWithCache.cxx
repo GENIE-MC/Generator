@@ -30,6 +30,7 @@
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/KineGeneratorWithCache.h"
 #include "GHEP/GHepRecord.h"
+#include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Utils/Cache.h"
 #include "Utils/CacheBranchNtp.h"
@@ -89,8 +90,8 @@ double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec) const
             << "Can not generate event kinematics {K} (max_xsec({K};E)<=0)";
   // xsec for selected kinematics = 0
   event_rec->SetDiffXSec(0);
-  // switch on error flag = 0
-  event_rec->SwitchGenericErrFlag(true);
+  // switch on error flag 
+  event_rec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
   // reset 'trust' bits
   interaction->ResetBit(kISkipProcessChk);
   interaction->ResetBit(kISkipKinematicChk);
