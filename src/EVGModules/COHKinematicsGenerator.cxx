@@ -225,6 +225,7 @@ void COHKinematicsGenerator::LoadSubAlg(void)
 void COHKinematicsGenerator::LoadConfigData(void)
 {
   fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.3);
+  fEMin         = fConfig->GetDoubleDef("min-energy-cached",     -1.0);
 }
 //____________________________________________________________________________
 

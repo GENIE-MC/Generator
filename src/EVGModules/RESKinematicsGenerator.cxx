@@ -186,6 +186,10 @@ void RESKinematicsGenerator::LoadConfigData(void)
 
   //-- Safety factor for the maximum differential cross section
   fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
+
+  //-- Minimum energy for which max xsec would be cached, forcing explicit
+  //   calculation for lower eneries
+  fEMin = fConfig->GetDoubleDef("min-energy-cached", 1.0);
 }
 //____________________________________________________________________________
 Range1D_t RESKinematicsGenerator::WRange(
@@ -258,11 +262,19 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   const double logQ2min = TMath::Log(rQ2.min);
   const double logQ2max = TMath::Log(rQ2.max);
   const double dlogQ2   = (logQ2max - logQ2min) /(NQ2-1);
+
+  double xseclast = -1;
+  bool   increasing;
+
   for(int iq2=0; iq2<NQ2; iq2++) {
      double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
      interaction->GetKinematicsPtr()->SetQ2(Q2);
      double xsec = fXSecModel->XSec(interaction);
      max_xsec = TMath::Max(xsec, max_xsec);
+
+     increasing = xsec-xseclast>0;
+     xseclast=xsec;
+     if(!increasing) break;
   } // Q2
 
   // Apply safety factor, since value retrieved from the cache might

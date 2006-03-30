@@ -178,6 +178,7 @@ void IMDKinematicsGenerator::LoadSubAlg(void)
 void IMDKinematicsGenerator::LoadConfigData(void)
 {
   fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
+  fEMin         = fConfig->GetDoubleDef("min-energy-cached",     -1.00);
 }
 //____________________________________________________________________________
 

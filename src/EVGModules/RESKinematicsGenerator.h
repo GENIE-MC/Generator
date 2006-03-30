@@ -23,8 +23,6 @@
 
 namespace genie {
 
-class XSecAlgorithmI;
-
 class RESKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
@@ -42,7 +40,6 @@ public :
   void Configure(string config);
 
 private:
-
   void      LoadSubAlg      (void);
   void      LoadConfigData  (void);
   Range1D_t WRange          (const Interaction * interaction) const;
@@ -53,9 +50,6 @@ private:
   double fWmax;
   double fQ2min;
   double fQ2max;
-  double fSafetyFactor;
-
-  const XSecAlgorithmI * fXSecModel;
 };
 
 }      // genie namespace

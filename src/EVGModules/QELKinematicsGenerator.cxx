@@ -157,6 +157,10 @@ void QELKinematicsGenerator::LoadConfig(void)
 
   //-- Safety factor for the maximum differential cross section
   fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
+
+  //-- Minimum energy for which max xsec would be cached, forcing explicit
+  //   calculation for lower eneries
+  fEMin = fConfig->GetDoubleDef("min-energy-cached", -1.0);
 }
 //____________________________________________________________________________
 Range1D_t QELKinematicsGenerator::Q2Range(
@@ -188,26 +192,32 @@ double QELKinematicsGenerator::ComputeMaxXSec(
 // safety factor. But it needs to be fast - do not use a very small dQ2 step.
 
   double max_xsec = 0.0;
-  const int N = 20;
+  const int N = 40;
 
   const InitialState & init_state = interaction -> GetInitialState();
   double E = init_state.GetProbeE(kRfStruckNucAtRest);
 
   Range1D_t rQ2 = this->Q2Range(interaction);
   if( rQ2.max < 1e-3 || rQ2.min <=0 ) return 0.;
-  if(E<0.6) utils::kinematics::ApplyCutsToKineLimits(rQ2, E/20., 1.2*E);
+  if(E<0.6) utils::kinematics::ApplyCutsToKineLimits(rQ2, E/200., 1.2*E);
 
   const double logQ2min = TMath::Log(rQ2.min);
   const double logQ2max = TMath::Log(rQ2.max);
   const double dlogQ2   = (logQ2max - logQ2min) /(N-1);
+
+  double xseclast = -1;
+  bool   increasing;
 
   for(int i=0; i<N; i++) {
      double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
      interaction->GetKinematicsPtr()->SetQ2(Q2);
 
      double xsec = fXSecModel->XSec(interaction);
-
      max_xsec = TMath::Max(xsec, max_xsec);
+
+     increasing = xsec-xseclast>0;
+     xseclast   = xsec;
+     if(!increasing) break;
   }//Q^2
 
   // Apply safety factor, since value retrieved from the cache might

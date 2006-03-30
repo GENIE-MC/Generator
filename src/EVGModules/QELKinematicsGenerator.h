@@ -24,8 +24,6 @@
 
 namespace genie {
 
-class XSecAlgorithm;
-
 class QELKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
@@ -50,9 +48,6 @@ private:
 
   double fQ2min;
   double fQ2max;
-  double fSafetyFactor;
-
-  const XSecAlgorithmI * fXSecModel;
 };
 
 }      // genie namespace
