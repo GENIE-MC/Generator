@@ -51,9 +51,6 @@ PauliBlocker::~PauliBlocker()
 //___________________________________________________________________________
 void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
 {
-  //-- Initialize
-  LOG("Nuclear", pINFO) << "Initialize Pauli Block flag";
-
   //-- Get the Interaction & InitialState objects
   Interaction * interaction = event_rec->GetInteraction();
   const InitialState & init_state = interaction->GetInitialState();
@@ -74,13 +71,13 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
        if(nuc) {
          // get the Fermi momentum
          const double kf = fKFTable->FindClosestKF(tgt_pdgc, nuc_pdgc);
-         LOG("Nuclear", pINFO) << "KF = " << kf;
+         LOG("PauliBlock", pINFO) << "KF = " << kf;
 
          double p = nuc->P4()->P(); // |p| for the recoil nucleon
-         LOG("Nuclear", pINFO) << "Recoil nucleon |P| = " << p;
+         LOG("PauliBlock", pINFO) << "Recoil nucleon |P| = " << p;
 
          if(p < kf) {
-              LOG("Nuclear", pINFO)
+              LOG("PauliBlock", pINFO)
                    << "\n The generated event is Pauli-blocked: "
                           << " |p| = " << p << " < Fermi-Momentum = " << kf;
 
