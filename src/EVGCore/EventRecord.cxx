@@ -38,26 +38,24 @@ namespace genie {
 EventRecord::EventRecord() :
 GHepRecord()
 {
-  fInteraction = 0;
 
-  this->SetOwner(true);
 }
 //___________________________________________________________________________
 EventRecord::EventRecord(int size) :
 GHepRecord(size)
 {
-  this->SetOwner(true);
+
 }
 //___________________________________________________________________________
 EventRecord::EventRecord(const EventRecord & record) :
 GHepRecord(record)
 {
-  this->SetOwner(true);
+
 }
 //___________________________________________________________________________
 EventRecord::~EventRecord()
 {
-  this->Delete();
+
 }
 //___________________________________________________________________________
 void EventRecord::AcceptVisitor(EventRecordVisitorI * visitor)
