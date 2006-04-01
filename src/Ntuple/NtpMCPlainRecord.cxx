@@ -104,7 +104,7 @@ void NtpMCPlainRecord::Init(void)
   this->hdr.ievent = 0;
 }
 //____________________________________________________________________________
-void NtpMCPlainRecord::Clear(void)
+void NtpMCPlainRecord::Clear(Option_t * /*opt*/)
 {
   sghep->Delete();
 

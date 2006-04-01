@@ -37,8 +37,9 @@ public :
   NtpMCEventRecord(const NtpMCEventRecord & ntpmcrec);
   virtual ~NtpMCEventRecord();
 
-  void Fill (unsigned int ievent, const EventRecord * ev_rec);
-  void Copy (const NtpMCEventRecord & ntpmcrec);
+  void Fill  (unsigned int ievent, const EventRecord * ev_rec);
+  void Copy  (const NtpMCEventRecord & ntpmcrec);
+  void Clear (Option_t * opt = "");
 
   void PrintToStream(ostream & stream) const;
   friend ostream & operator<< (ostream& stream, const NtpMCEventRecord & rec);
@@ -49,10 +50,7 @@ public :
 
 private:
 
-  void Init  (void);
-  void Clear (void);
-
-  static EventRecord * sevent;
+  void Init (void);
 
   ClassDef(NtpMCEventRecord, 1)
 };

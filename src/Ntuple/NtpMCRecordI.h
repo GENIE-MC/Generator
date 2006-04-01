@@ -40,8 +40,8 @@ protected:
 
   NtpMCRecordI();
 
-  virtual void Init  (void) = 0;
-  virtual void Clear (void) = 0;
+//  virtual void Init  (void) = 0;
+//  virtual void Clear (void) = 0;
 
 ClassDef(NtpMCRecordI, 1)
 };
