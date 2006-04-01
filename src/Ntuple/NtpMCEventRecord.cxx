@@ -75,9 +75,9 @@ void NtpMCEventRecord::Init(void)
   this->hdr.ievent = 0;
 }
 //____________________________________________________________________________
-void NtpMCEventRecord::Clear(void)
+void NtpMCEventRecord::Clear(Option_t * /*opt*/)
 {
-  delete this->event;
+  delete (this->event);
   this->event      = 0;
   this->hdr.ievent = 0;
 }

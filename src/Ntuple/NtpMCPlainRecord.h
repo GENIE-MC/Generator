@@ -38,8 +38,9 @@ public :
   NtpMCPlainRecord(const NtpMCPlainRecord & ntpmcrec);
   virtual ~NtpMCPlainRecord();
 
-  void Fill (unsigned int ievent, const EventRecord * ev_rec);
-  void Copy (const NtpMCPlainRecord & ntpmcrec);
+  void Fill  (unsigned int ievent, const EventRecord * ev_rec);
+  void Copy  (const NtpMCPlainRecord & ntpmcrec);
+  void Clear (Option_t * option = "");
 
   void PrintToStream(ostream & stream) const;
   friend ostream & operator << (ostream & stream, const NtpMCPlainRecord & rec);
@@ -52,8 +53,7 @@ public :
 
 private:
 
-  void Init  (void);
-  void Clear (void);
+  void Init(void);
 
   static TClonesArray * sghep;
 
