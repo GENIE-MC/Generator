@@ -151,6 +151,8 @@ int main(int argc, char ** argv)
     else if (gOptOutFileFormat==1) ConvertToGTab  (output, event);
     else if (gOptOutFileFormat==2) ConvertToGMinos(output, event);
     else if (gOptOutFileFormat==3) ConvertToNuance(output, event);
+
+    mcrec->Clear();
   }
 
   //-- Add a file footer when it is needed
