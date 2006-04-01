@@ -141,6 +141,9 @@ void readNtpEventRecord(TTree * tree)
 
     LOG("Main", pINFO) << rec_header;
     LOG("Main", pINFO) << event;
+
+    event.Clear("C");
+    mcrec->Clear();
   }
 }
 //___________________________________________________________________
