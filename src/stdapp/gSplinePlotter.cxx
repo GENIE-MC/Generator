@@ -8,12 +8,17 @@
          create by themselves at job initialization.
 
          Syntax :
-             gsplt -f xml_file -t target_pdg [-e emax]
+             gsplt -f xml_file -t target_pdg [-e emax] [-o output_root_file]
 
          Options :
            -f  the input XML file containing the cross section spline data
            -t  a target pdg code (format: 1aaazzz000)
            -e  the maximum energy (in plots)
+           -o  if an output ROOT file is specified the splines will be saved
+               there in a hierarchical directory structure.
+               Note that the input ROOT file, if already exists, would not be 
+               recreated and the output splines would be appended to the ones
+               already stored.
 
          Example:
 
@@ -45,13 +50,17 @@
 #include <cassert>
 #include <string>
 #include <sstream>
+#include <vector>
 
 #include <TSystem.h>
+#include <TFile.h>
+#include <TDirectory.h>
 #include <TPostScript.h>
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <TGraph.h>
 #include <TPaveText.h>
+#include <TString.h>
 
 #include "Conventions/XmlParserStatus.h"
 #include "Conventions/Units.h"
@@ -60,10 +69,12 @@
 #include "Numerical/Spline.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/XSecSplineList.h"
+#include "Utils/StringUtils.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
 
 using std::string;
+using std::vector;
 using std::ostringstream;
 
 using namespace genie;
@@ -73,7 +84,8 @@ void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
 
 //User-specified options:
-string gOptXMLFilename;  // splines XML filename
+string gOptXMLFilename;  // input XML filename
+string gOptROOTFilename; // output ROOT filename
 double gOptNuEnergy;     // Ev(max)
 int    gOptTgtPdgCode;   // target PDG code
 
@@ -124,6 +136,40 @@ int main(int argc, char ** argv)
   int markers[kNMarkers] = {20, 28, 29, 27, 3};
   int colors [kNColors]  = {1, 2, 4, 6, 8, 28};
 
+  //-- check whether to append the splines into a ROOT file
+  TFile * froot = 0;
+  bool save_in_root = gOptROOTFilename.size()>0;
+
+  //-- check whether the file already exists in which case open
+  //   it in APPEND mode, otherwise open it in RECREATE mode
+  if(save_in_root) {
+    bool exists = !(gSystem->AccessPathName(gOptROOTFilename.c_str()));
+
+    if(exists) froot = new TFile(gOptROOTFilename.c_str(), "APPEND");
+    else       froot = new TFile(gOptROOTFilename.c_str(), "RECREATE");
+    assert(froot);
+  }
+
+  //-- if the splines are to be saved in an output root file, cd into
+  //   a directory with the nuclear target PDG code (create it if it
+  //   does not exist)
+  TDirectory * dirTgt = 0;
+  if(save_in_root) {
+    ostringstream dptr;
+    dptr << "tgt_" << gOptTgtPdgCode;
+    ostringstream dtitle;
+    dtitle << "Cross section splines for target: " << gOptTgtPdgCode;
+
+    LOG("gsplt", pINFO) 
+                 << "Will store splines in ROOT TDir = " << dptr.str();
+
+    dirTgt = (TDirectory*) froot->Get(dptr.str().c_str());
+    if(!dirTgt) {
+      dirTgt = new TDirectory(dptr.str().c_str(),dtitle.str().c_str());
+      dirTgt->Write();
+    }
+  }
+
   //-- fill all cross section graphs for the input target
   int i=-1;
   for(kiter = keyv->begin(); kiter != keyv->end(); ++kiter) {
@@ -138,8 +184,10 @@ int main(int argc, char ** argv)
 
     LOG("gsplt", pINFO) << "Drawing spline with key = \n" << key;
 
+    //-- access the cross section spline
     const Spline * spl = splist->GetSpline(key);
 
+    //-- set graph color/style
     int icol = TMath::Min( i % kNColors,  kNColors-1  );
     int isty = TMath::Min( i / kNMarkers, kNMarkers-1 );
     int col = colors[icol];
@@ -147,25 +195,56 @@ int main(int argc, char ** argv)
 
     LOG("gsplt", pINFO) << "color = " << col << ", marker = " << sty;
 
-    int NP=200;
+    //-- export Spline as TGraph / set color & stype
+    int NP=300;
     gr[i] = spl->GetAsTGraph(NP,true,true,1.,1./units::cm2);
-    double x=0, y=0;
-    for(int j=0; j<NP; j++) {
-       gr[i]->GetPoint(j,x,y);
-       XSmax = TMath::Max(XSmax,y);
-    }
     gr[i]->SetLineColor(col);
     gr[i]->SetMarkerColor(col);
     gr[i]->SetMarkerStyle(sty);
     gr[i]->SetMarkerSize(0.5);
 
+    //-- update maximum xsec in plot
+    double x=0, y=0;
+    for(int j=0; j<NP; j++) {
+       gr[i]->GetPoint(j,x,y);
+       XSmax = TMath::Max(XSmax,y);
+    }
+
+    //-- create legend entry for current graph
     ostringstream lgentry;
     lgentry << "spl-" << i;
     legend->AddEntry(gr[i], lgentry.str().c_str(),"LP");
+
+    //-- save splines in ROOT file
+    if(save_in_root) {
+
+      dirTgt->cd(); 
+
+      vector<string> keyv = utils::str::Split(key,"/");
+      assert(keyv.size()==3);
+
+      string algkey = keyv[0] + "/" + keyv[1];
+      string intkey = keyv[2];
+
+      //-- get Spline as a ROOT TSpline3 so as the output ROOT file has
+      //   no GENIE dependency
+      TSpline3 * tspl3 = spl->GetAsTSpline();
+      ostringstream splptrn;
+      splptrn << "spl_" << i;
+
+      // replace all ";" from the interaction key with spaces
+      TString spltitle(intkey.c_str());
+      spltitle = spltitle.ReplaceAll(";",1," ",1);
+      spltitle.Prepend(", INT=");
+      spltitle.Prepend(algkey.c_str());
+      spltitle.Prepend("ALG=");
+      tspl3->SetTitle(spltitle.Data());
+      tspl3->Write(splptrn.str().c_str());
+    }
   }
   XSmin = XSmax/300.;
 
-  //-- add the 1st page: xsec plots
+  //-- ps output: add the 1st page with xsec spline plots
   c = new TCanvas("c","",20,20,500,500);
   c->SetBorderMode(0);
   c->SetFillColor(0);
@@ -184,7 +263,7 @@ int main(int argc, char ** argv)
   legend->Draw();
   c->Update();
 
-  //-- create the 2nd page (detailed legend) with spline keys
+  //-- ps output: create the 2nd page (detailed legend) with spline keys
   ps->NewPage();
 
   delete c;
@@ -207,8 +286,9 @@ int main(int argc, char ** argv)
   ptxt->Draw();
   c->Update();
 
-  //-- close the postscript document
+  //-- close the postscript document and output ROOT file
   ps->Close();
+  if(froot) froot->Close();
 
   //-- clean-up
   for(unsigned int j=0; j<keyv->size(); j++) { if(gr[j]) delete gr[j]; }
@@ -216,6 +296,7 @@ int main(int argc, char ** argv)
   delete ps;
   delete keyv;
   delete ptxt;
+  if(froot) delete froot;
 
   return 0;
 }
@@ -230,9 +311,20 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptXMLFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("gsplt", pFATAL) << "Unspecified filename!";
+      LOG("gsplt", pFATAL) << "Unspecified input XML file!";
       PrintSyntax();
       exit(1);
+    }
+  }
+  //output ROOT file name:
+  try {
+    LOG("gsplt", pINFO) << "Reading output ROOT filename";
+    gOptROOTFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gsplt", pDEBUG)  
+                      << "Unspecified ROOT file. Splines will not be saved.";
+      gOptROOTFilename = "";
     }
   }
   //max neutrino energy
@@ -267,7 +359,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 void PrintSyntax(void)
 {
   LOG("gsplt", pNOTICE)
-        << "\n\n" << "Syntax:" << "\n"
-                 << "   gsplt -f xml_file -t target_pdg [-e emax]";
+      << "\n\n" << "Syntax:" << "\n"
+      << "   gsplt -f xml_file -t target_pdg [-e emax] [-o output_root_file]";
 }
 //____________________________________________________________________________
