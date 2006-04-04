@@ -28,6 +28,7 @@
 #include "EVGDrivers/GEVGPool.h"
 #include "EVGDrivers/GFluxI.h"
 #include "EVGDrivers/GeomAnalyzerI.h"
+#include "GHEP/GHepFlags.h"
 #include "Interaction/InitialState.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -89,19 +90,16 @@ void GMCJDriver::AllowRecursiveMode(bool allow)
   fAllowRecursMode = allow;
 }
 //___________________________________________________________________________
-void GMCJDriver::FilterUnphysical(bool filter)
+void GMCJDriver::FilterUnphysical(const TBits & unphysmask)
 {
-  LOG("GMCJDriver", pNOTICE)
-        << "[Filter unphysical] flag is set to: "
-                             << utils::print::BoolAsYNString(filter);
-  fFilterUnphysical = filter;
+  fUnphysMask = unphysmask;
 
   //if Configure() was run first configure all GEVGDrivers now
   if(fGPool) {
     GEVGPool::const_iterator giter;
     for(giter = fGPool->begin(); giter != fGPool->end(); ++giter) {
       GEVGDriver * driver = giter->second;
-      driver->FilterUnphysical(filter);
+      driver->FilterUnphysical(fUnphysMask);
     }
   }
 }
@@ -129,7 +127,9 @@ void GMCJDriver::Initialize(void)
 
   // Allow the selected GEVGDriver to go into recursive mode and regenerate
   // an interaction that turns out to be unphysical.
-  this->FilterUnphysical(true);
+  TBits unphysmask(GHepFlags::NFlags());
+  unphysmask.ResetAllBits(false); 
+  this->FilterUnphysical(unphysmask);
 
   // Force early initialization of singleton objects that are typically
   // would be initialized at their first use later on.
@@ -259,7 +259,7 @@ void GMCJDriver::CreateGEVGDriverPool(void)
 
      GEVGDriver * evgdriver = new GEVGDriver;
      evgdriver->Configure(init_state);
-     evgdriver->FilterUnphysical(fFilterUnphysical);
+     evgdriver->FilterUnphysical(fUnphysMask);
      evgdriver->UseSplines(); // check if all splines needed are loaded
 
      LOG("GMCJDriver", pDEBUG) << "Adding new GEVGDriver object to GEVGPool";
