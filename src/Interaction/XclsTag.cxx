@@ -129,15 +129,33 @@ void XclsTag::Copy(const XclsTag & xcls)
 //___________________________________________________________________________
 string XclsTag::AsString(void) const
 {
-// codifies XclsTag state into a compact string:
-// c=is-charm,charm-pdgc;nucl(p,n)=np,nn;pi(+,-,0)=npi+,npi-,npi0;res=respdg
+// codifies XclsTag state into a compact string
 
   ostringstream tag;
 
-  tag << "c=" << fIsCharmEvent << "," << fCharmedHadronPdg << ";";
-  tag << "nucl(p,n)=" << fNProtons << "," << fNNeutrons << ";";
-  tag << "pi(+,-,0)=" << fNPiPlus << "," << fNPiMinus << "," << fNPi0 << ";";
-  tag << "res=" << fResonance;
+  bool need_separator = false;
+
+  if(fIsCharmEvent) {
+    tag << "charm:";
+    if(fCharmedHadronPdg) tag << fCharmedHadronPdg;
+    else tag << "incl";
+    need_separator = true;
+  }
+
+  bool multset = 
+       fNProtons>0 || fNNeutrons>0 || fNPiPlus>0 || fNPiMinus>0 || fNPi0>0;
+  if(multset) {
+    if(need_separator) tag << ";";
+    tag << "hmult:"
+        << "(p=" << fNProtons << ",n=" << fNNeutrons
+        << ",pi+=" << fNPiPlus << ",pi-=" << fNPiMinus << ",pi0=" << fNPi0 
+        << ")";
+  }
+
+  if(this->KnownResonance()) {
+    if(need_separator) tag << ";";
+    tag << "res:" << fResonance;
+  }
 
   return tag.str();
 }

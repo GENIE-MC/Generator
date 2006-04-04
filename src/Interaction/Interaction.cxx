@@ -162,7 +162,7 @@ string Interaction::AsString(void) const
 // Code-ify the interaction in a string to be used as (part of a) cache
 // branch key.
 // Template:
-// nu:x;tgt:x;N:x;q:x(s/v);intp:x;sctp:x;xclv:x
+// nu:x;tgt:x;N:x;q:x(s/v);proc:x;xclv_tag
 
   const Target & tgt = fInitialState->GetTarget();
 
@@ -179,10 +179,12 @@ string Interaction::AsString(void) const
                 << (tgt.StruckQuarkIsFromSea() ? "(s)" : "(v)") << ";";
   }
 
-  interaction << "intp:" << fProcInfo->InteractionTypeAsString() << ";";
-  interaction << "sctp:" << fProcInfo->ScatteringTypeAsString()  << ";";
+  interaction << "proc:" << fProcInfo->InteractionTypeAsString() 
+              << "," << fProcInfo->ScatteringTypeAsString()  << ";";
 
-  interaction << "xclv:" << fExclusiveTag->AsString() << ";";
+  string xcls = fExclusiveTag->AsString();
+  interaction << xcls;
+  if(xcls.size()>0) interaction << ";";
 
   return interaction.str();
 }
