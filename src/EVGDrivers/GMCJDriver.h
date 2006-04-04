@@ -18,10 +18,12 @@
 
 #include <string>
 
-using std::string;
+#include <TBits.h>
 
 #include "EVGDrivers/PathLengthList.h"
 #include "PDG/PDGCodeList.h"
+
+using std::string;
 
 namespace genie {
 
@@ -38,13 +40,13 @@ public :
   GMCJDriver();
   ~GMCJDriver();
 
-  //! configure MC job: set flux and detector geometry
+  //! configure MC job
   void UseFluxDriver      (GFluxI * flux);
   void UseGeomAnalyzer    (GeomAnalyzerI * geom);
   void UseSplines         (bool useLogE = true);
   void UseMaxPathLengths  (string xml_filename);
   void AllowRecursiveMode (bool allow);
-  void FilterUnphysical   (bool filter);
+  void FilterUnphysical   (const TBits & unphysmask);
   void Configure          (void);
 
   //! generate single neutrino event for input flux & geometry
@@ -90,7 +92,7 @@ private:
   bool            fUseSplines;       ///< compute all needed & not-loaded splines at init
   bool            fUseLogE;          ///< build splines = f(logE) (rather than f(E)) ?
   bool            fAllowRecursMode;  ///< can enter into recursive mode?
-  bool            fFilterUnphysical; ///< should I filter unphysical events?
+  TBits           fUnphysMask;       ///< unphysical events filtering mask
   double          fNFluxNeutrinos;   
 };
 

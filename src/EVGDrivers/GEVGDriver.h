@@ -28,6 +28,8 @@
 #include <string>
 
 #include <TLorentzVector.h>
+#include <TBits.h>
+
 #include "Utils/Range1.h"
 
 using std::ostream;
@@ -52,7 +54,7 @@ public :
   ~GEVGDriver();
 
   //! Set driver options before calling Configure()
-  void FilterUnphysical (bool on_off);
+  void FilterUnphysical (const TBits & unphysmask);
   void UseSplines       (void);
 
   //! Configure the driver
@@ -102,7 +104,7 @@ private:
   EGResponsibilityChain * fChain;           ///< an Event Generator chain of responsibility
   InteractionSelectorI *  fIntSelector;     ///< interaction selector
   XSecAlgorithmMap *      fXSecAlgorithmMap;///< interaction -> xsec alg. assosiative container
-  bool                    fFilterUnphysical;///< controls whether unphysical events are returned
+  TBits *                 fFiltUnphysMask;  ///< controls whether unphysical events are returned
   bool                    fUseSplines;      ///< controls whether xsecs are computed or interpolated
   Spline *                fXSecSumSpl;      ///< sum{xsec(all interactions | this init state)}
   unsigned int            fNRecLevel;       ///< recursive mode depth counter

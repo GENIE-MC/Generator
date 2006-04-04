@@ -42,6 +42,7 @@
 #include "EVGCore/InteractionList.h"
 #include "EVGCore/InteractionListGeneratorI.h"
 #include "EVGCore/XSecAlgorithmMap.h"
+#include "GHEP/GHepFlags.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
@@ -75,53 +76,80 @@ GEVGDriver::~GEVGDriver()
   this->CleanUp();
 }
 //___________________________________________________________________________
-void GEVGDriver::FilterUnphysical(bool on_off)
+void GEVGDriver::FilterUnphysical(const TBits & unphysmask)
 {
-  LOG("GEVGDriver", pNOTICE)
-        << "*** Filtering unphysical events is turned "
-                     << utils::print::BoolAsIOString(on_off) << " ***\n";
-  fFilterUnphysical = on_off;
+  *fFiltUnphysMask = unphysmask;
+
+  LOG("GEVGDriver", pNOTICE) 
+    << "Set unphysical event mask (" << GHepFlags::NFlags() << "->0) = " 
+    << *fFiltUnphysMask;
 }
 //___________________________________________________________________________
 void GEVGDriver::Init(void)
 {
   // initial state for which this driver is configured
   fInitState = 0;
+
   // current event record (ownership is transfered at GenerateEvent())
   fCurrentRecord = 0;
+
   // list of Event Generator objects loaded into the driver
   fEvGenList = 0;
+
   // interaction selector
   fIntSelector = 0;
+
   // chain of responsibility - for selecting the Event Generator object that
   // can generate the selected interaction
   fChain = 0;
+
   // flag instructing the driver whether, for each interaction, to compute
   // cross section by running their corresponding XSecAlgorithm or by evaluating
   // their corresponding xsec spline
   fUseSplines = false;
+
   // 'depth' counter when entering a recursive mode to re-generate a failed/
   // unphysical event - the driver is not allowed to go into arbitrarily large
   // depths
   fNRecLevel = 0;
+
   // an "interaction" -> "xsec algorithm" associative contained built for all
   // simulated interactions (from the loaded Event Generators and for the input
   // initial state)
   fXSecAlgorithmMap = 0;
+
   // A spline describing the sum of all interaction cross sections given an
   // initial state (the init state with which this driver was configured).
   // Create it using the CreateXSecSumSpline() method
   // The sum of all interaction cross sections is used, for example, by
   // GMCJDriver for selecting an initial state.
   fXSecSumSpl = 0;
-  // Default driver behaviour is to filter out unphysical events (unless
-  // the $GLETUNPHYS environmental variable is set)
-  // Set this property to false to get them if needed (either by calling the 
-  // FilterUnphysical() or by setting the env.var), but be warned that the 
-  // event record for unphysical events might be incomplete depending on the
-  // processing step that event generation was stopped.
-  if (gSystem->Getenv("GLETUNPHYS")) fFilterUnphysical = false;
-  else fFilterUnphysical = true;
+
+  // Default driver behaviour is to filter out unphysical events
+  // If needed, set the fFiltUnphysMask bitfield to get pre-selected types of 
+  // unphysical events (just set to 1 the bit you want ignored from the check).
+  // You can do that either by calling the FilterUnphysical() or setting the 
+  // GUNPHYSMASK env.var) but be warned that the event record for unphysical 
+  // events might be incomplete depending on the processing step that event 
+  // generation was stopped.
+
+  fFiltUnphysMask = new TBits(GHepFlags::NFlags());
+  fFiltUnphysMask->ResetAllBits(false); 
+
+  if (gSystem->Getenv("GUNPHYSMASK")) {
+     unsigned int i=0;
+     const char * bitfield = gSystem->Getenv("GUNPHYSMASK");
+
+     while(bitfield[i]) {
+        bool flag = (bitfield[i]=='1');
+
+        if(i<GHepFlags::NFlags()) fFiltUnphysMask->SetBitNumber(i,flag);
+        i++;
+     }
+  }
+  LOG("GEVGDriver", pNOTICE) 
+    << "Initializing unphysical event mask (" << GHepFlags::NFlags() 
+    << "->0) = " << *fFiltUnphysMask;
 }
 //___________________________________________________________________________
 void GEVGDriver::CleanUp(void)
@@ -132,6 +160,7 @@ void GEVGDriver::CleanUp(void)
   if (fChain)            delete fChain;
   if (fXSecAlgorithmMap) delete fXSecAlgorithmMap;
   if (fXSecSumSpl)       delete fXSecSumSpl;
+  if (fFiltUnphysMask)   delete fFiltUnphysMask;
 }
 //___________________________________________________________________________
 void GEVGDriver::Reset(void)
@@ -265,18 +294,29 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
 
   evgen->ProcessEventRecord(fCurrentRecord);
 
-  //-- If the user requested that unphysical events should be returned too,
-  //   return the event record here
-  if (!fFilterUnphysical) return fCurrentRecord;
+  //-- Check whether the generated event flags. The default behaviour is
+  //   to filter out unphysical events and enter in recursive mode to 
+  //   regenerate them.
+  //   If an unphysical event mask has been set, apply it to the event
+  //   flags and allow the requested classes of unphysical events to be 
+  //   returned
 
-  //-- Check whether the generated event is unphysical (eg Pauli-Blocked,
-  //   etc). If the unphysical it will not be returned. This method would
-  //   clean-up the failed event and it will enter into a recursive mode,
-  //   calling itself so as to regenerate the event. It will exit the
-  //   recursive mode when a physical event is generated
   bool unphys = fCurrentRecord->IsUnphysical();
   if(unphys) {
      LOG("GEVGDriver", pWARN) << "I generated an unphysical event!";
+  }
+
+  TBits evflags = *(fCurrentRecord->EventFlags());
+  TBits mask    = *(fFiltUnphysMask);
+
+  TBits flags   = evflags & (~mask);
+  bool  filter  = (flags.CountBits()>0);
+
+  if(!filter) {
+     LOG("GEVGDriver", pNOTICE) << "Returning the current event!";
+     return fCurrentRecord;
+  } else {
+     LOG("GEVGDriver", pWARN) << "I am filtering out the current event!";
      delete fCurrentRecord;
      fCurrentRecord = 0;
      fNRecLevel++; // increase the nested level counter
@@ -609,8 +649,8 @@ void GEVGDriver::Print(ostream & stream) const
 
   stream << "\n  |---o Using cross section splines is turned "
                                 << utils::print::BoolAsIOString(fUseSplines);
-  stream << "\n  |---o Filtering unphysical events is turned "
-                          << utils::print::BoolAsIOString(fFilterUnphysical);
+  stream << "\n  |---o Unphysical event filter mask ("
+         << GHepFlags::NFlags() << "->0) = " << *fFiltUnphysMask;
 
   stream << "\n *********************************************************\n";
 }
