@@ -34,8 +34,9 @@ namespace genie {
 class GHepFlags {
 
  public:
-
-  static char * Describe(GHepFlag_t flag) {
+  //___________________________________________________
+  static char * Describe(GHepFlag_t flag) 
+  {
      switch (flag) {
      case kGenericErr :
             return "Generic error";
@@ -60,6 +61,12 @@ class GHepFlags {
             break;
      }
   }
+  //___________________________________________________
+  static unsigned int NFlags(void) 
+  {
+     return 6;
+  }
+  //___________________________________________________
 };
 
 }        // genie namespace
