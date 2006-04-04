@@ -432,7 +432,7 @@ void GHepRecord::InitRecord(void)
   fXSec        = 0.;
   fDiffXSec    = 0.;
   fVtx         = new TLorentzVector(0,0,0,0);
-  fEventFlags  = new TBits(16);
+  fEventFlags  = new TBits(GHepFlags::NFlags());
 
   this->SetOwner(true);
 }
