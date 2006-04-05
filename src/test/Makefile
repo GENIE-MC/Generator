@@ -21,6 +21,9 @@ ifdef GOPT_GEANT_INTERFACE
   LIBRARIES := $(LIBRARIES) $(GEANT4_LIBRARIES) $(CLHEP_LIBRARIES)
 endif
 
+###LIBRARIES := $(LIBRARIES) -L /usr/local/lib -ltcmalloc
+
+
 EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
  	$(GENIE_BIN_PATH)/testConfigPool	\
  	$(GENIE_BIN_PATH)/testDecay		\
