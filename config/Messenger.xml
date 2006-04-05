@@ -31,7 +31,7 @@
   <priority msgstream="BreitWignet">         INFO   </priority>
   <priority msgstream="Bardin">              INFO   </priority>
   <priority msgstream="BodekYang">           INFO   </priority>
-  <priority msgstream="BodekRitchie">        INFO   </priority>
+  <priority msgstream="BodekRitchie">        WARN   </priority>
   <priority msgstream="Cache">               NOTICE </priority>
   <priority msgstream="CharmQELXSec">        INFO   </priority>
   <priority msgstream="CFracTab">            INFO   </priority>
