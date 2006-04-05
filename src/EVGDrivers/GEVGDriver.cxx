@@ -22,6 +22,7 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <cstdlib>
 #include <sstream>
 
 #include <TSystem.h>
@@ -314,7 +315,9 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
 
   if(!filter) {
      LOG("GEVGDriver", pNOTICE) << "Returning the current event!";
-     return fCurrentRecord;
+     fNRecLevel = 0;     
+     return fCurrentRecord; // The client 'adopts' the event record
+
   } else {
      LOG("GEVGDriver", pWARN) << "I am filtering out the current event!";
      delete fCurrentRecord;
@@ -328,13 +331,9 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
         LOG("GEVGDriver", pFATAL)
              << "Could not produce a physical event after "
                       << kRecursiveModeMaxDepth << " attempts - Aborting!";
-        assert(false);
+        exit(1);
      }
   }
-  fNRecLevel = 0;
-
-  //-- Return a successfully generated event to the user
-  return fCurrentRecord; // The client 'adopts' the event record
 }
 //___________________________________________________________________________
 double GEVGDriver::XSecSum(const TLorentzVector & nup4)
