@@ -105,9 +105,9 @@ EventRecord * PhysInteractionSelector::SelectInteraction
            xsec = xsec_alg->XSec(interaction);
      }
      SLOG("InteractionSelector", pINFO)
-       << "\n   " << interaction->AsString() << "\n    --> cross section "
-            << (eval ? "[**interpolated**]" : "[**calculated**]") << " = "
-               << xsec/cm2 << " cm^2";
+       << "\n " << interaction->AsString() 
+       << " --> xsec " << (eval ? "[**interp**]" : "[**calc**]") 
+       << " = " << xsec/cm2 << " cm^2";
 
      xseclist[i++] = xsec;
      delete interaction;
