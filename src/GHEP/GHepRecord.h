@@ -51,6 +51,7 @@ public :
   virtual void Copy                    (const GHepRecord & record);
   virtual void ResetRecord             (void);
   virtual void CompactifyDaughterLists (void);
+  virtual void Clear                   (Option_t * opt="");
 
   //-- provide a simplified wrapper of the 'new with placement'
   //   TClonesArray object insertion method

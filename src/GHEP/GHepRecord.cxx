@@ -441,13 +441,7 @@ void GHepRecord::CleanRecord(void)
 {
   LOG("GHEP", pDEBUG) << "Cleaning up GHepRecord";
 
-  if (fInteraction) delete fInteraction;
-  delete fVtx;
-
-  delete fEventFlags;
-
-  this->Delete();
-//  this->Clear("C");
+  this->Clear("C");
 }
 //___________________________________________________________________________
 void GHepRecord::ResetRecord(void)
@@ -456,6 +450,27 @@ void GHepRecord::ResetRecord(void)
 
   this->CleanRecord();
   this->InitRecord();
+}
+//___________________________________________________________________________
+void GHepRecord::Clear(Option_t * opt)
+{
+  if (fInteraction) delete fInteraction;
+  fInteraction=0;
+
+  if (fVtx) delete fVtx;
+  fVtx=0;
+
+  if(fEventFlags) delete fEventFlags;
+  fEventFlags=0;
+
+  TClonesArray::Clear(opt);
+
+//  if (fInteraction) delete fInteraction;
+//  delete fVtx;
+//
+//  delete fEventFlags;
+//
+//  TClonesArray::Clear(opt);
 }
 //___________________________________________________________________________
 void GHepRecord::Copy(const GHepRecord & record)
