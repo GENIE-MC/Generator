@@ -79,18 +79,19 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
 
   Interaction * interaction = evrec->GetInteraction();
   const InitialState & init_state = interaction->GetInitialState();
+  const Target & tgt = init_state.GetTarget();
 
-  bool is_nucleus = init_state.GetTarget().IsNucleus();
+  bool is_nucleus = tgt.IsNucleus();
   if (!is_nucleus) {
     LOG("HadronicVtx", pDEBUG)
                << "Initial state not a nucleus - no remnant nucleus to add";
     return;
   }
-  int A = init_state.GetTarget().A();
-  int Z = init_state.GetTarget().Z();
+  int A = tgt.A();
+  int Z = tgt.Z();
 
   //-- compute A,Z for final state nucleus & get its PDG code and its mass
-  int  npdgc = init_state.GetTarget().StruckNucleonPDGCode();
+  int  npdgc = tgt.StruckNucleonPDGCode();
   bool is_p  = pdg::IsProton(npdgc);
   if (is_p) Z--;
   A--;
@@ -106,14 +107,20 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
   }
   double mass = particle->Mass();
 
+  //-- Has opposite momentum from the struck nucleon
+
+  double px = -1. * tgt.StruckNucleonP4()->Px();
+  double py = -1. * tgt.StruckNucleonP4()->Py();
+  double pz = -1. * tgt.StruckNucleonP4()->Pz();
+
   //-- Add the nucleus to the event record
   LOG("HadronicVtx", pINFO)
-          << "Adding nucleus [A = " << A << ", Z = " << Z
-                                            << ", pdgc = " << ipdgc << "]";
+       << "Adding nucleus [A = " << A << ", Z = " << Z
+                                           << ", pdgc = " << ipdgc << "]";
 
   int mom = evrec->TargetNucleusPosition();
   evrec->AddParticle(
-             ipdgc,kIStStableFinalState, mom,-1,-1,-1, 0,0,0,mass, 0,0,0,0);
+        ipdgc,kIStStableFinalState, mom,-1,-1,-1, px,py,pz,mass, 0,0,0,0);
 }
 //___________________________________________________________________________
 TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(
