@@ -18,10 +18,11 @@
 #ifndef _DIS_HADRONIC_SYSTEM_GENERATOR_H_
 #define _DIS_HADRONIC_SYSTEM_GENERATOR_H_
 
-#include <TVector3.h>
 #include "EVGModules/HadronicSystemGenerator.h"
 
 namespace genie {
+
+class HadronizationModelI;
 
 class DISHadronicSystemGenerator : public HadronicSystemGenerator {
 
@@ -32,14 +33,19 @@ public :
   ~DISHadronicSystemGenerator();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
   void AddFragmentationProducts (GHepRecord * event_rec) const;
+  void LoadConfig (void);
 
-  TVector3 HCM2LAB (GHepRecord * event_rec) const;
+  const HadronizationModelI * fHadronizationModel;
 };
 
 }      // genie namespace

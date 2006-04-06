@@ -101,7 +101,7 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
   if(is_nucleus) res_pos = 4;
   else           res_pos = 3;
 
-  GHepParticle * res  = evrec->GetParticle(res_pos);
+  GHepParticle * res  = evrec->Particle(res_pos);
   TLorentzVector * p4 = res->GetP4();
 
   LOG("RESHadronicVtx", pINFO)

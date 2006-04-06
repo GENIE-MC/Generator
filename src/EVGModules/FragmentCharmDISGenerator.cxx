@@ -30,7 +30,6 @@
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
-#include "GHEP/GHepOrder.h"
 #include "Fragmentation/FragmentationFunctionI.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -70,22 +69,21 @@ void FragmentCharmDISGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   nucleus at the EventRecord
   this->AddTargetNucleusRemnant(evrec);
 
+  //-- Add an entry for the DIS Pre-Fragm. Hadronic State
+  this->AddFinalHadronicSyst(evrec);
+
   //-- Add the charm hadron & the hadronic remnants
-
-  bool charm_only = fConfig->Exists("model-charm-only") ?
-                               fConfig->GetBool("model-charm-only") : false;
-
-  if(charm_only) this->GenerateCharmHadronOnly(evrec, true);
+  if(fCharmOnly) this->GenerateCharmHadronOnly(evrec, true);
   else           this->GenerateHadronicSystem(evrec);
 }
 //___________________________________________________________________________
 bool FragmentCharmDISGenerator::GenerateCharmHadronOnly(
-                              GHepRecord * evrec, bool ignore_remnants) const
+                             GHepRecord * evrec, bool ignore_remnants) const
 {
 // Generates the charmed hadron as described in the class documentation.
 // The remnant hadronic system is added as a single 'void' entry (rootino)
 
-  TLorentzVector P4Had = this->HadronicSystemP4(evrec);
+  TLorentzVector P4Had = this->Hadronic4pLAB(evrec);
   LOG("FragmentCharm", pINFO)
                      << "P4Had [LAB] = " << utils::print::P4AsString(&P4Had);
 
@@ -96,11 +94,6 @@ bool FragmentCharmDISGenerator::GenerateCharmHadronOnly(
   double EHad = P4Had.Energy();
   double MHad = P4Had.M();
 
-  //-- Get a fragmentation function
-  const FragmentationFunctionI * fragmf =
-     dynamic_cast<const FragmentationFunctionI *> (this->SubAlg(
-        "fragmentation-func-alg-name", "fragmentation-func-param-set"));
-
   //-- Generate a charmed hadron PDG code
   int itry = 0, pdgc = 0;
   double m = 0, z = 0, EC = 0, m2 = 0, EC2 = 0, p2 = 0;
@@ -108,7 +101,7 @@ bool FragmentCharmDISGenerator::GenerateCharmHadronOnly(
   while(itry<1000 && pdgc==0) {
 
     pdgc = this->CharmedHadronPdgCode(E); // generate hadron type
-    z    = fragmf->GenerateZ(); // generate hadron fract. energy
+    z    = fFragmFunc->GenerateZ();       // generate hadron fract. energy
     m    = PDGLibrary::Instance()->Find(pdgc)->Mass();
     EC   = z*EHad; // charm hadron energy
     m2   = TMath::Power(m, 2);
@@ -172,7 +165,7 @@ bool FragmentCharmDISGenerator::GenerateCharmHadronOnly(
   //-- if selected not to ignore remnants at least check that there is
   //   sufficient mass to hadronize enough pions to conserve charge
   if(!ignore_remnants) {
-    int qhs = this->HadronShowerCharge(interaction);
+    int qhs = this->HadronShowerCharge(evrec);
     int qch   = int (PDGLibrary::Instance()->Find(pdgc)->Charge() / 3.);
     int qremn = qhs - qch;
 
@@ -192,7 +185,8 @@ bool FragmentCharmDISGenerator::GenerateCharmHadronOnly(
 
   //-- add the entries at the event record
 
-  int mom = GHepOrder::StruckNucleonPosition(interaction);
+  int mom = evrec->FinalStateHadronicSystemPosition();
+  assert(mom!=-1);
 
   evrec->AddParticle(
          pdgc, kIStStableFinalState, mom,-1,-1,-1, pxC,pyC,pzC,EC, 0,0,0,0);
@@ -207,8 +201,6 @@ void FragmentCharmDISGenerator::GenerateHadronicSystem(
 {
 // Do not use just yet - not tested.
 //
-  Interaction * interaction = evrec->GetInteraction();
-
   // generate the charm hadron
   int itry = 0;
   while (! this->GenerateCharmHadronOnly(evrec, false) ) {
@@ -216,13 +208,13 @@ void FragmentCharmDISGenerator::GenerateHadronicSystem(
     assert(itry<1000);
   }
 
-  GHepParticle * ch = evrec->GetParticle(5);
+  GHepParticle * ch = evrec->Particle(5);
   int pdgc = ch->PdgCode();
 
   // replace the 'void' remnant hadronic system with something realistic
 
   //-- compute the charge of the remnant system so that charge is conserved
-  int qhs = this->HadronShowerCharge(interaction);
+  int qhs = this->HadronShowerCharge(evrec);
   int qch   = int (PDGLibrary::Instance()->Find(pdgc)->Charge() / 3.);
   int qremn = qhs - qch;
 
@@ -280,7 +272,8 @@ void FragmentCharmDISGenerator::GenerateHadronicSystem(
      //-- generate kinematics in the Center-of-Mass (CM) frame
      phase_space_generator.Generate();
 
-     int mom = GHepOrder::StruckNucleonPosition(interaction);
+     int mom = evrec->FinalStateHadronicSystemPosition();
+     assert(mom!=-1);
 
      //-- insert final state products into a TClonesArray of TMCParticles
      //   and return it
@@ -307,51 +300,6 @@ void FragmentCharmDISGenerator::GenerateHadronicSystem(
   } //permitted decay
 
   delete pR4;
-}
-//___________________________________________________________________________
-TLorentzVector FragmentCharmDISGenerator::HadronicSystemP4(
-                                                    GHepRecord * evrec) const
-{
-// Hadronic System 4P in LAB
-
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
-
-  //incoming v:
-  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfLab);
-  assert(nu_p4);
-
-  //struck nucleon:
-  TLorentzVector * nucl_p4 = init_state.GetTarget().StruckNucleonP4();
-  assert(nucl_p4);
-
-  //final state primary lepton:
-  int fsl_pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
-  GHepParticle * fsl = evrec->FindParticle(fsl_pdgc,kIStStableFinalState,0);
-  assert(fsl);
-
-  TLorentzVector * fsl_p4 = fsl->GetP4();
-
-  LOG("HadronicVertex", pINFO)
-                 << "\n v [LAB]: " << P4AsString( nu_p4   )
-                 << "\n N [LAB]: " << P4AsString( nucl_p4 )
-                 << "\n l [LAB]: " << P4AsString( fsl_p4  );
-
-  //-- Compute the velocity of the LAB frame in the Final State Hadronic
-  //   CM Frame (Pv + Pnuc = Pfsl + Sum{Phad_{i}})
-
-  double PX = nu_p4->Px()     + nucl_p4->Px()     - fsl_p4->Px();
-  double PY = nu_p4->Py()     + nucl_p4->Py()     - fsl_p4->Py();
-  double PZ = nu_p4->Pz()     + nucl_p4->Pz()     - fsl_p4->Pz();
-  double E  = nu_p4->Energy() + nucl_p4->Energy() - fsl_p4->Energy();
-
-  delete fsl_p4;
-  delete nu_p4;
-
-  assert(E>0);
-  TLorentzVector P4( PX, PY, PZ, E );
-
-  return P4;
 }
 //___________________________________________________________________________
 int FragmentCharmDISGenerator::CharmedHadronPdgCode(double E) const
@@ -390,39 +338,42 @@ double FragmentCharmDISGenerator::GeneratePT2(double pT2max) const
 {
 // Generate a charmed hadron pT
 
-  double pT2scale = fConfig->Exists("pT2scale") ?
-                                         fConfig->GetDouble("pT2scale") : 0.6;
   TF1 expo("expo","TMath::Exp(-x/[0])",0,TMath::Sqrt(TMath::Abs(pT2max)));
-  expo.SetParameter(0,pT2scale);
+  expo.SetParameter(0,fpT2scale);
 
   double pT2 = 9999999;
-
   while(pT2 > pT2max) pT2 = expo.GetRandom();
 
   return pT2;
 }
 //____________________________________________________________________________
-int FragmentCharmDISGenerator::HadronShowerCharge(
-                                        const Interaction * interaction) const
+void FragmentCharmDISGenerator::Configure(const Registry & config)
 {
-// Returns the hadron shower charge in units of +e
-// eg in v n -> l- X the hadron shower charge is +1
-
-  int HadronShowerCharge = 0;
-
-  const InitialState & init_state = interaction->GetInitialState();
-
-  int hit_nucleon = init_state.GetTarget().StruckNucleonPDGCode();
-
-  assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
-
-  double qfsl  = interaction->GetFSPrimaryLepton()->Charge() / 3.;
-  double qinit = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
-
-  HadronShowerCharge = (int) (qinit - qfsl);
-
-  return HadronShowerCharge;
+  Algorithm::Configure(config);
+  this->LoadConfig();
 }
 //____________________________________________________________________________
+void FragmentCharmDISGenerator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void FragmentCharmDISGenerator::LoadConfig(void)
+{
+// Load sub-algorithms and config data to reduce the number of registry
+// lookups
+
+  fFragmFunc = 0;
+  fpT2scale  = fConfig->GetDoubleDef("pT2scale", 0.6);
+  fCharmOnly = fConfig->GetBoolDef("model-charm-only", false);
+
+  //-- Get a fragmentation function
+  fFragmFunc = dynamic_cast<const FragmentationFunctionI *> (this->SubAlg(
+              "fragmentation-func-alg-name", "fragmentation-func-param-set"));
+  assert(fFragmFunc);
+}
+//____________________________________________________________________________
+
 
 

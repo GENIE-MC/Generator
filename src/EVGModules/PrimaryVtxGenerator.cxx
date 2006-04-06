@@ -28,7 +28,6 @@
 #include "EVGModules/PrimaryVtxGenerator.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
-#include "GHEP/GHepOrder.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -95,18 +94,12 @@ void PrimaryVtxGenerator::ProcessEventRecord(GHepRecord * evrec) const
   LOG("VtxGenerator", pINFO)
         << "x = " << x/m << " m, y = " << y/m << " m, z = " << z/m << " m";
 
-  // loop over the event record entries and set the interaction vertex
-
-  int ip = GHepOrder::ProbePosition();
-  int in = GHepOrder::StruckNucleonPosition(interaction);
-
-  GHepParticle * probe = evrec->GetParticle(ip);
+  GHepParticle * probe = evrec->Probe();
   assert(probe);
   probe->SetPosition(x, y, z, 0.);
-  GHepParticle * nucleon = evrec->GetParticle(in);
-  if(nucleon) {
-    nucleon->SetPosition(x, y, z, 0.);
-  }
 
+  GHepParticle * nucleon = evrec->StruckNucleon();
+  assert(nucleon);
+  nucleon->SetPosition(x, y, z, 0.);
 }
 //___________________________________________________________________________

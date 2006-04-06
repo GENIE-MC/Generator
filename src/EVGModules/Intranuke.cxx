@@ -25,7 +25,6 @@
 #include "EVGModules/Intranuke.h"
 #include "EVGModules/IntranukeConstants.h"
 #include "GHEP/GHepStatus.h"
-#include "GHEP/GHepOrder.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Interaction/Interaction.h"
@@ -91,7 +90,9 @@ void Intranuke::ProcessEventRecord(GHepRecord * event_rec) const
   double R0 = (fR0>0) ? fR0 : RoDef;
 
   // Get hadronic system's momentum vector
-  TVector3 p3hadronic = this->Hadronic3P(event_rec);
+  GHepParticle * hadronic_system = event_rec->FinalStateHadronicSystem();
+  TVector3 p3hadronic = hadronic_system->P4()->Vect(); // (px,py,pz)
+
   LOG("Intranuke", pINFO) << "P3Hadronic = " << print::P3AsString(&p3hadronic);
 
   // Get the random number generator
@@ -362,43 +363,17 @@ bool Intranuke::IsInNucleus(const GHepParticle * p, double R0) const
   return (p->X4()->Vect().Mag() < R0);
 }
 //___________________________________________________________________________
-TVector3 Intranuke::Hadronic3P(GHepRecord * event_rec) const
-{
-  Interaction * interaction = event_rec->GetInteraction();
-
-  int ipos = GHepOrder::StruckNucleonPosition(interaction);
-  assert(ipos>0);
-
-  GHepParticle * struck_nucleon = event_rec->GetParticle(ipos);
-
-  int daughter1 = struck_nucleon->FirstDaughter();
-  int daughter2 = struck_nucleon->LastDaughter();
-
-  TLorentzVector p4had(0.,0.,0.,0.);
-  for(int i=daughter1; i<=daughter2; i++) {
-    TLorentzVector & p4 = *(event_rec->GetParticle(i)->P4());
-    p4had = p4had + p4;
-  }
-
-  return p4had.Vect();  // (px,py,pz)
-}
-//___________________________________________________________________________
 void Intranuke::SetVtxPosition(GHepRecord * event_rec, TVector3 & v) const
 {
 // set the interaction vtx position in the target nucleus coordinate system
 
-  Interaction * interaction = event_rec->GetInteraction();
-
-  int ip = GHepOrder::ProbePosition();
-  int in = GHepOrder::StruckNucleonPosition(interaction);
-
-  GHepParticle * probe = event_rec->GetParticle(ip);
+  GHepParticle * probe = event_rec->Probe();
   assert(probe);
   probe->SetPosition(v.x(), v.y(), v.z(), 0.);
-  GHepParticle * nucleon = event_rec->GetParticle(in);
-  if(nucleon) {
-    nucleon->SetPosition(v.x(), v.y(), v.z(), 0.);
-  }
+
+  GHepParticle * nucleon = event_rec->StruckNucleon();
+  assert(nucleon);
+  nucleon->SetPosition(v.x(), v.y(), v.z(), 0.);
 }
 //___________________________________________________________________________
 void Intranuke::Configure(const Registry & config)

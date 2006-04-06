@@ -54,7 +54,6 @@ private:
   void        LoadConfigData (void);
   void        SetVtxPosition (GHepRecord * evrec, TVector3 & v) const;
   bool        CanRescatter   (const GHepParticle * p) const;
-  TVector3    Hadronic3P     (GHepRecord * event) const;
   void        StepParticle   (GHepParticle * p, double step) const;
   void        StepParticleMF (GHepParticle * p, double step, int Z) const;
   double      MeanFreePath   (double K) const;

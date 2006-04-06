@@ -24,32 +24,39 @@
 #ifndef _FRAGMENT_CHARM_DIS_GENERATOR_H_
 #define _FRAGMENT_CHARM_DIS_GENERATOR_H_
 
-#include <TLorentzVector.h>
 #include "EVGModules/HadronicSystemGenerator.h"
 
 namespace genie {
 
 class Interaction;
+class FragmentationFunctionI;
+
 class FragmentCharmDISGenerator : public HadronicSystemGenerator {
 
 public :
-
   FragmentCharmDISGenerator();
   FragmentCharmDISGenerator(string config);
   ~FragmentCharmDISGenerator();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * evr) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
-  TLorentzVector HadronicSystemP4 (GHepRecord * evr) const;
   void   GenerateHadronicSystem   (GHepRecord * evr) const;
   bool   GenerateCharmHadronOnly  (GHepRecord * evr, bool ign) const;
   int    CharmedHadronPdgCode     (double E) const;
-  int    HadronShowerCharge       (const Interaction * i) const;
   double GeneratePT2              (double pT2max) const;
+  void   LoadConfig               (void);
+
+  const FragmentationFunctionI * fFragmFunc;
+  double fpT2scale;
+  bool   fCharmOnly;
 };
 
 }      // genie namespace
