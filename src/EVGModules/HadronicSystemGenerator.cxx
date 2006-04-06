@@ -75,24 +75,23 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
 
   LOG("HadronicVtx", pDEBUG) << "Adding final state nucleus";
 
-  //-- get A,Z for initial state nucleus
+  //-- skip for non nuclear targets
 
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
-  const Target & tgt = init_state.GetTarget();
-
-  bool is_nucleus = tgt.IsNucleus();
-  if (!is_nucleus) {
+  GHepParticle * nucleus = evrec->TargetNucleus();
+  if (!nucleus) {
     LOG("HadronicVtx", pDEBUG)
                << "Initial state not a nucleus - no remnant nucleus to add";
     return;
   }
-  int A = tgt.A();
-  int Z = tgt.Z();
 
   //-- compute A,Z for final state nucleus & get its PDG code and its mass
-  int  npdgc = tgt.StruckNucleonPDGCode();
+
+  GHepParticle * nucleon = evrec->StruckNucleon();
+  assert(nucleon);
+  int  npdgc = nucleon->PdgCode();
   bool is_p  = pdg::IsProton(npdgc);
+  int A = nucleus->A();
+  int Z = nucleus->Z();
   if (is_p) Z--;
   A--;
 
@@ -102,16 +101,17 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
   if(!particle) {
       LOG("HadronicVtx", pFATAL)
           << "No particle with [A = " << A << ", Z = " << Z
-                              << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+                            << ", pdgc = " << ipdgc << "] in PDGLibrary!";
       assert(particle);
   }
-  double mass = particle->Mass();
+  double Mf = particle->Mass(); // remnant nucleus rest mass
 
   //-- Has opposite momentum from the struck nucleon
 
-  double px = -1. * tgt.StruckNucleonP4()->Px();
-  double py = -1. * tgt.StruckNucleonP4()->Py();
-  double pz = -1. * tgt.StruckNucleonP4()->Pz();
+  double px = -1.* nucleon->Px();
+  double py = -1.* nucleon->Py();
+  double pz = -1.* nucleon->Pz();
+  double E  = Mf - nucleon->Energy();
 
   //-- Add the nucleus to the event record
   LOG("HadronicVtx", pINFO)
@@ -120,7 +120,7 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
 
   int mom = evrec->TargetNucleusPosition();
   evrec->AddParticle(
-        ipdgc,kIStStableFinalState, mom,-1,-1,-1, px,py,pz,mass, 0,0,0,0);
+           ipdgc,kIStStableFinalState, mom,-1,-1,-1, px,py,pz,E, 0,0,0,0);
 }
 //___________________________________________________________________________
 TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(

@@ -88,27 +88,29 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   assert(nucleon);
   assert(nucleus);
 
-  //-- compute A,Z for final state nucleus & get its PDG code and its mass
+  //-- compute A,Z for final state nucleus & get its PDG code 
   int nucleon_pdgc = nucleon->PdgCode();
   bool is_p  = pdg::IsProton(nucleon_pdgc);
   int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
   int A = nucleus->A() - 1;
 
-  TParticlePDG * pdgp = 0;
+  TParticlePDG * fnucleus = 0;
   int ipdgc = pdg::IonPdgCode(A, Z);
-  pdgp = PDGLibrary::Instance()->Find(ipdgc);
-  if(!pdgp) {
+  fnucleus = PDGLibrary::Instance()->Find(ipdgc);
+  if(!fnucleus) {
       LOG("FermiMover", pFATAL)
           << "No particle with [A = " << A << ", Z = " << Z
                             << ", pdgc = " << ipdgc << "] in PDGLibrary!";
       exit(1);
   }
-  double m_remnant_nucleus = pdgp->Mass();
 
-  //-- compute the mass difference between the two nuclei
+  //-- compute the energy of the struck (off the mass-shell) nucleus
 
-  double m_original_nucleus = nucleus->Mass();
-  double dm = m_original_nucleus - m_remnant_nucleus;
+  double Mf  = fnucleus -> Mass(); // remnant nucleus mass
+  double Mi  = nucleus  -> Mass(); // initial nucleus mass
+  double pF2 = p3.Mag2();          // (fermi momentum)^2
+
+  double EN  = Mi - TMath::Sqrt(pF2 + Mf*Mf);
 
   //-- update the struck nucleon 4p at the interaction summary and at
   //   the GHEP record
@@ -116,9 +118,9 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   p4->SetPx( p3.Px() );
   p4->SetPy( p3.Py() );
   p4->SetPz( p3.Pz() );
-  p4->SetE ( dm      ); // off the mass-shell
+  p4->SetE ( EN      ); // note: off the mass-shell
 
-  nucleon->SetMomentum(*p4);
+  nucleon->SetMomentum(*p4); // update GHEP value
 
   // sometimes, for interactions near threshold, Fermi momentum might bring
   // the neutrino energy in the nucleon rest frame below threshold (for the
