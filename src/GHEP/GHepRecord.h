@@ -17,6 +17,7 @@
 #define _GHEP_RECORD_H_
 
 #include <ostream>
+#include <vector>
 
 #include <TClonesArray.h>
 #include <TBits.h>
@@ -27,6 +28,7 @@
 class TLorentzVector;
 
 using std::ostream;
+using std::vector;
 
 namespace genie {
 
@@ -72,11 +74,30 @@ public :
 
   //-- methods to search the GHEP (STDHEP-like) record
 
-  virtual GHepParticle * GetParticle    (int position) const;
-  virtual GHepParticle * FindParticle   (int pdg, GHepStatus_t ist, int start) const;
+  virtual GHepParticle * Particle     (int position) const;
+  virtual GHepParticle * FindParticle (int pdg, GHepStatus_t ist, int start) const;
 
-  virtual int ParticlePosition(int pdg, GHepStatus_t ist,  int start=0) const;
-  virtual int ParticlePosition(GHepParticle * particle, int start=0) const;
+  virtual int ParticlePosition (int pdg, GHepStatus_t i, int start=0) const;
+  virtual int ParticlePosition (GHepParticle * particle, int start=0) const;
+
+  virtual vector<int> * GetStableDescendants(int position) const;
+
+  //-- easy access methods for the most frequently used GHEP entries
+
+  virtual GHepParticle * Probe                            (void) const;
+  virtual GHepParticle * TargetNucleus                    (void) const;
+  virtual GHepParticle * StruckNucleon                    (void) const;
+  virtual GHepParticle * StruckElectron                   (void) const;
+  virtual GHepParticle * FinalStatePrimaryLepton          (void) const;
+  virtual GHepParticle * FinalStateHadronicSystem         (void) const;
+  virtual int            ProbePosition                    (void) const;
+  virtual int            TargetNucleusPosition            (void) const;
+  virtual int            StruckNucleonPosition            (void) const;
+  virtual int            StruckElectronPosition           (void) const;
+  virtual int            FinalStatePrimaryLeptonPosition  (void) const;
+  virtual int            FinalStateHadronicSystemPosition (void) const; 
+
+  //-- number of GHepParticle occurences in GHEP
 
   virtual unsigned int NEntries (int pdg, GHepStatus_t ist, int start=0) const;
   virtual unsigned int NEntries (int pdg, int start=0) const;
