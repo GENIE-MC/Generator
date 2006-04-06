@@ -71,8 +71,7 @@ void RendererQEL::DrawDiagram(EventRecord * ev_rec)
    // <-- leptons
 
    // incoming neutrino
-
-   GHepParticle * nu = ev_rec->GetParticle(0);
+   GHepParticle * nu = ev_rec->Probe();
 
    l = new TLine(15, 85, 50, 68);
    l->SetLineColor(2);
@@ -81,8 +80,7 @@ void RendererQEL::DrawDiagram(EventRecord * ev_rec)
    tn.DrawLatex(10,90, P4AsString(nu->Energy(),nu->Px(),nu->Py(),nu->Pz()));
 
    // final state primary lepton
-
-   GHepParticle * fsl = ev_rec->GetParticle( nu->FirstDaughter() );
+   GHepParticle * fsl = ev_rec->FinalStatePrimaryLepton();
 
    l = new TLine(50, 68, 85, 85);
    l->SetLineColor(1);
