@@ -75,9 +75,7 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
         // check if it is coming from a nucleus and find it in the record
 
         GHepParticle * nucleus = this->FindMotherNucleus(ipos, event_rec);
-
         if(nucleus) {
-
            //-- ask for the binding energy of the most loose nucleon
            //  (separation energy)
 
@@ -135,14 +133,14 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
 GHepParticle * NucBindEnergyAggregator::FindMotherNucleus(
                                     int ipos, GHepRecord * event_rec) const
 {
-  GHepParticle * p = event_rec->GetParticle(ipos);
+  GHepParticle * p = event_rec->Particle(ipos);
 
   //-- get its mothet
   int mother_pos = p->FirstMother();
 
   //-- if mother is set
   if(mother_pos != -1) {
-     GHepParticle * mother = event_rec->GetParticle(mother_pos);
+     GHepParticle * mother = event_rec->Particle(mother_pos);
 
      //-- check its status
      if( mother->Status() == kIstNucleonTarget ) {
@@ -153,7 +151,7 @@ GHepParticle * NucBindEnergyAggregator::FindMotherNucleus(
         //-- if grandmother is set get its PDG code a check if it is an ion
         if(grandmother_pos != -1) {
              GHepParticle * grandmother =
-                                   event_rec->GetParticle(grandmother_pos);
+                                   event_rec->Particle(grandmother_pos);
 
              int grandmother_pdgc = grandmother->PdgCode();
              if( pdg::IsIon(grandmother_pdgc) ) return grandmother;

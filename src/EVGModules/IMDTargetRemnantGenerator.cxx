@@ -20,7 +20,6 @@
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
-#include "GHEP/GHepOrder.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
@@ -57,31 +56,33 @@ void IMDTargetRemnantGenerator::AddElectronNeutrino(GHepRecord * evrec) const
   //-- Get all initial & final state particles 4-momenta (in the LAB frame)
 
   //incoming v:
-  GHepParticle * nu = evrec->GetParticle( GHepOrder::ProbePosition() );
-  assert(nu);
+  GHepParticle * nu = evrec->Probe();
 
-  //electron:
-  GHepParticle * elec = evrec->FindParticle(kPdgElectron,kIStInitialState,0);
-  assert(elec);
+  //struck nucleon:
+  GHepParticle * el = evrec->StruckElectron();
 
   //final state primary lepton:
-  GHepParticle * fsl = evrec->FindParticle(kPdgMuon, kIStStableFinalState,0);
-  assert(fsl);
+  GHepParticle * l = evrec->FinalStatePrimaryLepton();
+
+  assert(nu);
+  assert(el);
+  assert(l);
 
   //-- Force energy conservation
 
   // Pvmu(Ev,pxv,pyv,pzv) + Pe(En,pxn,pyn,pzn) = Pmu(El,pxl,pyl,pzl) + Pve
-  double E  = nu->E()  + elec->E()  - fsl->E();
-  double px = nu->Px() + elec->Px() - fsl->Px();
-  double py = nu->Py() + elec->Py() - fsl->Py();
-  double pz = nu->Pz() + elec->Pz() - fsl->Pz();
+  double E  = nu->E()  + el->E()  - l->E();
+  double px = nu->Px() + el->Px() - l->Px();
+  double py = nu->Py() + el->Py() - l->Py();
+  double pz = nu->Pz() + el->Pz() - l->Pz();
 
   //-- Add the final state recoil nucleon at the EventRecord
 
   LOG("IMDTargetRemnant", pINFO) << "Adding final state electron neutrino";
 
+  int mom = evrec->StruckElectronPosition();
   evrec->AddParticle(
-            kPdgNuE,kIStStableFinalState, 2,-1,-1,-1, px,py,pz,E, 0,0,0,0);
+          kPdgNuE,kIStStableFinalState, mom,-1,-1,-1, px,py,pz,E, 0,0,0,0);
 }
 //___________________________________________________________________________
 void IMDTargetRemnantGenerator::AddTargetNucleusRemnant(
@@ -92,7 +93,6 @@ void IMDTargetRemnantGenerator::AddTargetNucleusRemnant(
   LOG("IMDTargetRemnant", pDEBUG) << "Adding final state nucleus";
 
   //-- get A,Z for initial state nucleus
-
   Interaction * interaction = evrec->GetInteraction();
   const InitialState & init_state = interaction->GetInitialState();
 
@@ -113,8 +113,7 @@ void IMDTargetRemnantGenerator::AddTargetNucleusRemnant(
           << "Adding nucleus [A = " << A << ", Z = " << Z
                                             << ", pdgc = " << ipdgc << "]";
 
-  int mom = GHepOrder::TargetNucleusPosition(interaction);
-
+  int mom = evrec->TargetNucleusPosition();
   evrec->AddParticle(
              ipdgc,kIStStableFinalState, mom,-1,-1,-1, 0,0,0,mass, 0,0,0,0);
 }

@@ -19,6 +19,9 @@
 #ifndef _HADRONIC_SYSTEM_GENERATOR_H_
 #define _HADRONIC_SYSTEM_GENERATOR_H_
 
+#include <TLorentzVector.h>
+#include <TVector3.h>
+
 #include "EVGCore/EventRecordVisitorI.h"
 
 namespace genie {
@@ -34,6 +37,11 @@ public :
   //   EventRecordVisitors
 
   void AddTargetNucleusRemnant (GHepRecord * event_rec) const;
+  void AddFinalHadronicSyst    (GHepRecord * event_rec) const;
+
+  TLorentzVector Hadronic4pLAB      (GHepRecord * event_rec) const;
+  TVector3       HCM2LAB            (GHepRecord * event_rec) const;
+  int            HadronShowerCharge (GHepRecord * event_rec) const;
 
 protected:
 

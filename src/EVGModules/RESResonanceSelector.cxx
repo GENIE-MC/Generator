@@ -25,7 +25,6 @@
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
-#include "GHEP/GHepOrder.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGLibrary.h"
@@ -181,7 +180,7 @@ void RESResonanceSelector::AddResonance(GHepRecord * evrec) const
 
   //-- Add the resonance at the EventRecord
   GHepStatus_t ist = kIstPreDecayResonantState;
-  int mom = GHepOrder::StruckNucleonPosition(interaction);
+  int mom = evrec->StruckNucleonPosition();
 
   evrec->AddParticle(res_pdgc, ist, mom,-1,-1,-1, px,py,pz,E, 0,0,0,0);
 }

@@ -23,7 +23,6 @@
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepStatus.h"
-#include "GHEP/GHepOrder.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
@@ -196,7 +195,7 @@ void PrimaryLeptonGenerator::AddToEventRecord(
 // Adds the final state primary lepton GHepParticle to the event record.
 // To be called by all concrete PrimaryLeptonGenerators before exiting.
 
-  int mom = GHepOrder::ProbePosition();
+  int mom = evrec->ProbePosition();
   TLorentzVector vdummy(0,0,0,0); // position 4-vector
 
   evrec->AddParticle(pdgc, kIStStableFinalState, mom,-1,-1,-1, *p4, vdummy);
@@ -211,10 +210,7 @@ void PrimaryLeptonGenerator::SetPolarization(GHepRecord * ev) const
 // How? See Kuzmin, Lyubushkin and Naumov, hep-ph/0312107
 
   // get the final state primary lepton
-  GHepParticle * prb = ev->GetParticle( GHepOrder::ProbePosition() );
-  assert(prb);
-  GHepParticle * fsl = ev->GetParticle( prb->FirstDaughter() );
-
+  GHepParticle * fsl = ev->FinalStatePrimaryLepton();
   if(!fsl) {
      LOG("LeptonicVertex", pERROR)
                     << "Final state lepton not set yet! \n" << *ev;

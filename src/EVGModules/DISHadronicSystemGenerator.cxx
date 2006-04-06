@@ -24,7 +24,6 @@
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
-#include "GHEP/GHepOrder.h"
 #include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -63,19 +62,17 @@ void DISHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   nucleus at the EventRecord
   this->AddTargetNucleusRemnant(evrec);
 
-  //-- Add the recoil nucleon
-  //   Its 4-momentum is computed by requiring the energy + momentum to be
-  //   conserved.
+  //-- Add an entry for the DIS Pre-Fragm. Hadronic State
+  this->AddFinalHadronicSyst(evrec);
+
+  //-- Add the fragmentation products
   this->AddFragmentationProducts(evrec);
 }
 //___________________________________________________________________________
 void DISHadronicSystemGenerator::AddFragmentationProducts(
                                                     GHepRecord * evrec) const
 {
-  //-- Get the requested hadronization model
-  const HadronizationModelI * hadr_model =
-            dynamic_cast<const HadronizationModelI *> (this->SubAlg(
-                       "hadronization-alg-name", "hadronization-param-set"));
+// Calls a hadronizer and adds the fragmentation products at the GHEP
 
   //-- Compute the hadronic system invariant mass
   Interaction * interaction = evrec->GetInteraction();
@@ -93,14 +90,14 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   interaction->GetKinematicsPtr()->SetW(W);
 
   //-- Run the hadronization model and get the fragmentation products:
-  //   A collection of ROOT TMCParticles (equivalent to a LUJETS record)
-  TClonesArray * particle_list = hadr_model->Hadronize(interaction);
+  //   A collection of ROOT TMCParticles (equiv. to a LUJETS record)
+  TClonesArray * plist = fHadronizationModel->Hadronize(interaction);
 
-  if(!particle_list) {
+  if(!plist) {
      LOG("DISHadronicVtx", pWARN) 
-                    << "Got an empty particle list. Hadronizer failed!";
+                  << "Got an empty particle list. Hadronizer failed!";
      LOG("DISHadronicVtx", pWARN) 
-                      << "Quitting the current event generation thread";
+                    << "Quitting the current event generation thread";
 
      evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
 
@@ -118,10 +115,11 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   //-- Translate the fragmentation products from TMCParticles to
   //   GHepParticles and copy them to the event record.
 
-  int mom = GHepOrder::StruckNucleonPosition(interaction);
+  int mom = evrec->FinalStateHadronicSystemPosition();
+  assert(mom!=-1);
 
   TMCParticle * p = 0;
-  TIter particle_iter(particle_list);
+  TIter particle_iter(plist);
 
   while( (p = (TMCParticle *) particle_iter.Next()) ) {
 
@@ -139,55 +137,34 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
 
   } // fragmentation-products-iterator
 
-  particle_list->Delete();
-
-  delete particle_list;
+  plist->Delete();
+  delete plist;
 }
 //___________________________________________________________________________
-TVector3 DISHadronicSystemGenerator::HCM2LAB(GHepRecord * evrec) const
+void DISHadronicSystemGenerator::Configure(const Registry & config)
 {
-// Velocity for the Hadronic CM -> LAB active Lorentz transform
-
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
-
-  //incoming v:
-  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfLab);
-  assert(nu_p4);
-
-  //struck nucleon:
-  TLorentzVector * nucl_p4 = init_state.GetTarget().StruckNucleonP4();
-  assert(nucl_p4);
-
-  //final state primary lepton:
-  int fsl_pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
-  GHepParticle * fsl = evrec->FindParticle(
-                                     fsl_pdgc, kIStStableFinalState, 0);
-  assert(fsl);
-
-  TLorentzVector * fsl_p4 = fsl->GetP4();
-
-  LOG("DISHadronicVtx", pINFO)
-                 << "\n v [LAB]: " << P4AsString( nu_p4   )
-                 << "\n N [LAB]: " << P4AsString( nucl_p4 )
-                 << "\n l [LAB]: " << P4AsString( fsl_p4  );
-
-  //-- Compute the velocity of the LAB frame in the Final State Hadronic
-  //   CM Frame (Pv + Pnuc = Pfsl + Sum{Phad_{i}})
-
-  double PX = nu_p4->Px()     + nucl_p4->Px()     - fsl_p4->Px();
-  double PY = nu_p4->Py()     + nucl_p4->Py()     - fsl_p4->Py();
-  double PZ = nu_p4->Pz()     + nucl_p4->Pz()     - fsl_p4->Pz();
-  double E  = nu_p4->Energy() + nucl_p4->Energy() - fsl_p4->Energy();
-
-  delete fsl_p4;
-  delete nu_p4;
-
-  assert(E>0);
-  TVector3 beta( PX/E, PY/E, PZ/E );
-
-  LOG("DISHadronicVtx", pINFO)
-                   << "\n beta (HCM --> LAB): " << Vec3AsString(&beta);
-  return beta;
+  Algorithm::Configure(config);
+  this->LoadConfig();
 }
-//___________________________________________________________________________
+//____________________________________________________________________________
+void DISHadronicSystemGenerator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void DISHadronicSystemGenerator::LoadConfig(void)
+{
+// Load sub-algorithms and config data to reduce the number of registry
+// lookups
+
+  fHadronizationModel = 0;
+
+  //-- Get the requested hadronization model
+  fHadronizationModel = dynamic_cast<const HadronizationModelI *> (
+           this->SubAlg("hadronization-alg-name", "hadronization-param-set"));
+
+  assert(fHadronizationModel);
+}
+//____________________________________________________________________________
+

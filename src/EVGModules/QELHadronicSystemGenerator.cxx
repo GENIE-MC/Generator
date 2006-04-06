@@ -19,7 +19,6 @@
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
-#include "GHEP/GHepOrder.h"
 #include "Interaction/IUtils.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
@@ -62,49 +61,21 @@ void QELHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 void QELHadronicSystemGenerator::AddRecoilNucleon(GHepRecord * evrec) const
 {
-  //-- Get the interaction & initial state objects
-
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
-
   //-- Determine the pdg code of the recoil nucleon
-
+  Interaction * interaction = evrec->GetInteraction();
   int recoil_nuc_pdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
 
   //-- Get all initial & final state particles 4-momenta (in the LAB frame)
-
-  //incoming v:
-  TLorentzVector * nu_p4 = init_state.GetProbeP4(kRfLab);
-  assert(nu_p4);
-
-  //struck nucleon:
-  TLorentzVector * nucl_p4 = init_state.GetTarget().StruckNucleonP4();
-  assert(nucl_p4);
-
-  //final state primary lepton:
-  int fsl_pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
-  GHepParticle * fsl = evrec->FindParticle(fsl_pdgc, kIStStableFinalState, 0);
-  assert(fsl);
-
-  //-- Force energy conservation
-
-  // Pv(Ev,pxv,pyv,pzv) + Pnucl(En,pxn,pyn,pzn) = Pl(El,pxl,pyl,pzl) + Precoil
-
-  double E  = nu_p4->Energy() + nucl_p4->Energy() - fsl->E();
-  double px = nu_p4->Px()     + nucl_p4->Px()     - fsl->Px();
-  double py = nu_p4->Py()     + nucl_p4->Py()     - fsl->Py();
-  double pz = nu_p4->Pz()     + nucl_p4->Pz()     - fsl->Pz();
-
-  delete nu_p4;
+  TLorentzVector p4 = this->Hadronic4pLAB(evrec);
 
   //-- Add the final state recoil nucleon at the EventRecord
-
   LOG("QELHadronicVtx", pINFO)
                      << "Adding nucleon [pdgc = " << recoil_nuc_pdgc << "]";
 
-  int mom = GHepOrder::StruckNucleonPosition(interaction);
+  TLorentzVector v4(0.,0.,0.,0.);
+  int mom = evrec->StruckNucleonPosition();
 
   evrec->AddParticle(recoil_nuc_pdgc,
-                   kIStStableFinalState, mom,-1,-1,-1, px,py,pz,E, 0,0,0,0);
+                   kIStStableFinalState, mom,-1,-1,-1, p4, v4);
 }
 //___________________________________________________________________________

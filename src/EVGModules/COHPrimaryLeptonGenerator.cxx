@@ -16,7 +16,6 @@
 //____________________________________________________________________________
 
 #include "EVGModules/COHPrimaryLeptonGenerator.h"
-#include "GHEP/GHepOrder.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
 #include "Interaction/Interaction.h"
@@ -74,8 +73,9 @@ void COHPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   assert( TMath::Abs(cThSc) <= 1 );
 
   //-- Get the neutrino 4-p in LAB
-  int nupos = GHepOrder::ProbePosition();
-  TLorentzVector * p4nu = evrec->GetParticle(nupos)->GetP4();
+  GHepParticle * neutrino = evrec->Probe();
+  assert(neutrino);
+  TLorentzVector * p4nu = neutrino->GetP4();
 
   //-- Rotate its 4-momentum to the LAB
   //   unit' = R(Theta0,Phi0) * R(ThetaSc,PhiSc) * R^-1(Theta0,Phi0) * unit
