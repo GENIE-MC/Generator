@@ -43,7 +43,8 @@ STDTGT = gEvGen		\
 	 gMakeSplines	\
 	 gNtpConv	\
 	 gMaxPathLengths\
-	 gSplinePlotter	
+	 gSplinePlotter	\
+	 gMCSampleTest	
 
 ifdef GOPT_VALIDITY_DOC
   STDTGT := $(STDTGT) gVldDoc
