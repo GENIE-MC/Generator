@@ -208,31 +208,24 @@ void AnalyzeEvents(
     bool is_unphysical = event.IsUnphysical();
     if(is_unphysical) continue;
 
-    // target (nuclear or free nucleon)
-    GHepParticle * target = event.GetParticle(1);
+    // nuclear target or free nucleon target
+    GHepParticle * target = event.Particle(1);
     assert(target);
 
     // only further only if it matches the requested target
     if(target->PdgCode() != gOptTgtPdgC) continue;
 
     // neutrino
-    GHepParticle * neutrino = event.GetParticle(0);
+    GHepParticle * neutrino = event.Probe();
     assert(neutrino);
     // final state primary lepton
-    GHepParticle * fsl = event.GetParticle(neutrino->FirstDaughter());
+    GHepParticle * fsl = event.FinalStatePrimaryLepton();
     assert(fsl);
     // hit nucleon
-    GHepParticle * hitnucl = 0;
-    if(target->IsNucleus()) {
-        hitnucl = event.GetParticle(2);
-        if(!hitnucl->Status() == kIstNucleonTarget) hitnucl = 0;
-    } 
-    else hitnucl = target;
-
+    GHepParticle * hitnucl = event.StruckNucleon();
     if(!hitnucl) continue;
 
     const Interaction * interaction = event.GetInteraction();
-    //const InitialState & init_state = interaction->GetInitialState();
     const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
 
     double weight = event.GetWeight();
@@ -315,7 +308,7 @@ void HistogramLimits(
     bool is_unphysical = event.IsUnphysical();
     if(is_unphysical) continue;
  
-    double Ev = event.GetParticle(0)->Energy();
+    double Ev = event.Particle(0)->Energy();
 
     TLorentzVector * vtx = event.Vertex();
 
