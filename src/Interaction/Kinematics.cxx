@@ -114,49 +114,49 @@ double Kinematics::W(void) const
   return -99999;
 }
 //____________________________________________________________________________
-double Kinematics::lnx(void) const
+double Kinematics::Logx(void) const
 {
   double x = this->x();
   return (x>0) ? TMath::Log(x) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::lny(void) const
+double Kinematics::Logy(void) const
 {
   double y = this->y();
   return (y>0) ? TMath::Log(y) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::lnQ2(void) const
+double Kinematics::LogQ2(void) const
 {
   double Q2 = this->Q2();
   return (Q2>0) ? TMath::Log(Q2) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::lnW(void) const
+double Kinematics::LogW(void) const
 {
   double W = this->W();
   return (W>0) ? TMath::Log(W) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::logx(void) const
+double Kinematics::Log10x(void) const
 {
   double x = this->x();
   return (x>0) ? TMath::Log10(x) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::logy(void) const
+double Kinematics::Log10y(void) const
 {
   double y = this->y();
   return (y>0) ? TMath::Log10(y) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::logQ2(void) const
+double Kinematics::Log10Q2(void) const
 {
   double Q2 = this->Q2();
   return (Q2>0) ? TMath::Log10(Q2) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::logW(void) const
+double Kinematics::Log10W(void) const
 {
   double W = this->W();
   return (W>0) ? TMath::Log10(W) : -99999;
