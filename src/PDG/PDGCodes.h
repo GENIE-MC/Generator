@@ -69,7 +69,9 @@ const int kPdgGamma        =    22;
 const int kPdgZ0           =    23;
 const int kPdgWPlus        =    24;
 const int kPdgWMinus       =   -24;
+
 const int kPdgBindino      = 1111111001; 
+const int kPdgHadronicSyst = 1111111002; 
 
 }      // genie namespace
 
