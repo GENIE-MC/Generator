@@ -15,7 +15,6 @@
 
 #include <cassert>
 #include <algorithm>
-#include <vector>
 #include <iomanip>
 
 #include <TLorentzVector.h>
@@ -25,13 +24,12 @@
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepStatus.h"
-#include "GHEP/GHepOrder.h"
 #include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
+#include "PDG/PDGCodes.h"
 #include "Utils/PrintUtils.h"
 
-using std::vector;
 using std::endl;
 using std::setw;
 using std::setprecision;
@@ -89,7 +87,7 @@ void GHepRecord::AttachInteraction(Interaction * interaction)
   fInteraction = interaction;
 }
 //___________________________________________________________________________
-GHepParticle * GHepRecord::GetParticle(int position) const
+GHepParticle * GHepRecord::Particle(int position) const
 {
 // Returns the GHepParticle from the specified position of the event record.
 
@@ -110,8 +108,8 @@ GHepParticle * GHepRecord::FindParticle(
 // Returns the first GHepParticle with the input pdg-code and status
 // starting from the specified position of the event record.
 
-  for(int i = start; i < this->GetEntries(); i++) {
-
+  int nentries = this->GetEntries();
+  for(int i = start; i < nentries; i++) {
      GHepParticle * p = (GHepParticle *) (*this)[i];
      if(p->Status() == status && p->PdgCode() == pdg) return p;
   }
@@ -127,12 +125,12 @@ int GHepRecord::ParticlePosition(
 // Returns the position of the first GHepParticle with the input pdg-code
 // and status starting from the specified position of the event record.
 
-  for(int i = start; i < this->GetEntries(); i++) {
-
+  int nentries = this->GetEntries();
+  for(int i = start; i < nentries; i++) {
      GHepParticle * p = (GHepParticle *) (*this)[i];
      if(p->Status() == status && p->PdgCode() == pdg) return i;
   }
-  LOG("GHEP", pWARN) << "Returning Invalid StdHep Record position";
+  LOG("GHEP", pWARN) << "Returning invalid GHEP entry position";
 
   return -1;
 }
@@ -142,16 +140,182 @@ int GHepRecord::ParticlePosition(GHepParticle * particle, int start) const
 // Returns the position of the first match with the specified GHepParticle
 // starting from the specified position of the event record.
 
-  for(int i = start; i < this->GetEntries(); i++) {
-
+  int nentries = this->GetEntries();
+  for(int i = start; i < nentries; i++) {
      GHepParticle * p = (GHepParticle *) (*this)[i];
      if( p->Compare(particle) ) return i;
   }
-  LOG("GHEP", pWARN) << "Returning Invalid StdHep Record position";
+  LOG("GHEP", pWARN) << "Returning invalid GHEP entry position";
 
   return -1;
 }
 //___________________________________________________________________________
+vector<int> * GHepRecord::GetStableDescendants(int position) const
+{
+// Returns a list of all stable descendants of the GHEP entry in the input 
+// slot. The user adopts the output vector.
+
+  vector<int> * descendants = new vector<int>;
+  
+  int nentries = this->GetEntries();
+  for(int i = 0; i < nentries; i++) {
+
+    if(i==position) continue;
+
+    GHepParticle * p = (GHepParticle *) (*this)[i];
+    if(p->Status() != kIStStableFinalState) continue;
+
+    bool is_descendant=false;
+    int mom = p->FirstMother();
+    while(mom>-1) {
+      if(mom==position) is_descendant=true;
+      if(is_descendant) {
+	descendants->push_back(i);
+        break;
+      }
+      mom = this->Particle(mom)->FirstMother();
+    }
+  }
+  return descendants;
+}
+//___________________________________________________________________________
+GHepParticle * GHepRecord::Probe(void) const
+{
+// Returns the GHepParticle representing the probe (neutrino, e,...).
+
+  int ipos = this->ProbePosition();
+  if(ipos>-1) return this->Particle(ipos);
+  return 0;
+}
+//___________________________________________________________________________
+GHepParticle * GHepRecord::TargetNucleus(void) const
+{
+// Returns the GHepParticle representing the target nucleus, or 0 if it does
+// not exist.
+
+  int ipos = this->TargetNucleusPosition();
+  if(ipos>-1) return this->Particle(ipos);
+  return 0;
+}
+//___________________________________________________________________________
+GHepParticle * GHepRecord::StruckNucleon(void) const
+{
+// Returns the GHepParticle representing the struck nucleon, or 0 if it does
+// not exist.
+
+  int ipos = this->StruckNucleonPosition();
+  if(ipos>-1) return this->Particle(ipos);
+  return 0;
+}
+//___________________________________________________________________________
+GHepParticle * GHepRecord::StruckElectron(void) const
+{
+// Returns the GHepParticle representing the struck electron, or 0 if it does
+// not exist.
+
+  int ipos = this->StruckElectronPosition();
+  if(ipos>-1) return this->Particle(ipos);
+  return 0;
+}
+//___________________________________________________________________________
+GHepParticle * GHepRecord::FinalStatePrimaryLepton(void) const
+{
+// Returns the GHepParticle representing the final state primary lepton.
+
+  int ipos = this->FinalStatePrimaryLeptonPosition();
+  if(ipos>-1) return this->Particle(ipos);
+  return 0;
+}
+//___________________________________________________________________________
+GHepParticle * GHepRecord::FinalStateHadronicSystem(void) const
+{
+// Returns the GHepParticle representing the sum of the DIS pre-fragm f/s
+// hadronic system, or 0 if it does not exist.
+
+  int ipos = this->FinalStateHadronicSystemPosition();
+  if(ipos>-1) return this->Particle(ipos);
+  return 0;
+}
+//___________________________________________________________________________ 
+int GHepRecord::ProbePosition(void) const
+{
+// Returns the GHEP position of the GHepParticle representing the probe 
+// (neutrino, e,...).
+
+  return 0; // The probe is *always* at slot 0.
+}
+//___________________________________________________________________________
+int GHepRecord::TargetNucleusPosition(void) const
+{
+// Returns the GHEP position of the GHepParticle representing the target 
+// nucleus - or -1 if the interaction takes place at a free nucleon.
+
+  GHepParticle * p = this->Particle(1); // If exists, it will be at slot 1
+  if(!p) return -1;
+
+  if(p->IsNucleus() && p->Status()==kIStInitialState) return 1; 
+
+  return -1;
+}
+//___________________________________________________________________________
+int GHepRecord::StruckNucleonPosition(void) const
+{
+// Returns the GHEP position of the GHepParticle representing the hit nucleon.
+// If a struck nucleon is set it will be at slot 2 (for scattering off nuclear
+// targets) or at slot 1 (for free nucleon scattering).
+// If the struck nucleon is not set (eg coherent scattering, ve- scattering) 
+// it returns 0.
+
+  GHepParticle * nucleus = this->TargetNucleus();
+
+  int          ipos = (nucleus) ? 2 : 1;
+  GHepStatus_t ist  = (nucleus) ? kIstNucleonTarget : kIStInitialState;
+
+  GHepParticle * p = this->Particle(ipos);
+  if(!p) return -1;
+
+  bool isN = pdg::IsNeutronOrProton(p->PdgCode());
+  if(isN && p->Status()==ist) return ipos; 
+
+  return -1;
+}
+//___________________________________________________________________________
+int GHepRecord::StruckElectronPosition(void) const
+{
+// Returns the GHEP position of the GHepParticle representing a hit electron.
+// Same as above..
+
+  GHepParticle * nucleus = this->TargetNucleus();
+
+  int ipos = (nucleus) ? 2 : 1;
+
+  GHepParticle * p = this->Particle(ipos);
+  if(!p) return -1;
+
+  bool ise = pdg::IsElectron(p->PdgCode());
+  if(ise && p->Status()==kIStInitialState) return ipos; 
+
+  return -1;
+}
+//___________________________________________________________________________
+int GHepRecord::FinalStatePrimaryLeptonPosition(void) const
+{
+// Returns the GHEP position GHepParticle representing the final state 
+// primary lepton.
+
+  GHepParticle * probe = this->Probe();
+  if(!probe) return -1;
+
+  int ifsl = probe->FirstDaughter();
+  return ifsl;
+}
+//___________________________________________________________________________
+int GHepRecord::FinalStateHadronicSystemPosition(void) const
+{
+  return this->ParticlePosition(
+                        kPdgHadronicSyst,kIstDISPreFragmHadronicState,0);
+}
+//___________________________________________________________________________ 
 unsigned int GHepRecord::NEntries(int pdg, GHepStatus_t ist, int start) const
 {
   unsigned int nentries = 0;
@@ -232,13 +396,13 @@ void GHepRecord::UpdateDaughterLists(void)
   LOG("GHEP", pINFO)
      << "Updating the daughter-list for the mother of particle at: " << pos;
 
-  GHepParticle * p = this->GetParticle(pos);
+  GHepParticle * p = this->Particle(pos);
   assert(p);
 
   int mom_pos = p->FirstMother();
   LOG("GHEP", pINFO) << "Mother particle is at slot: " << mom_pos;
   if(mom_pos==-1) return; // may not have mom (eg init state)
-  GHepParticle * mom = this->GetParticle(mom_pos);
+  GHepParticle * mom = this->Particle(mom_pos);
   if(!mom) return; // may not have mom (eg init state)
 
   int dau1 = mom->FirstDaughter();
@@ -288,7 +452,7 @@ void GHepRecord::CompactifyDaughterLists(void)
         int dau1 = start; // 1st daughter position
         int k=start+1;
         for(; k<n; k++) {
-            GHepParticle * p = this->GetParticle(k);
+            GHepParticle * p = this->Particle(k);
             if(p->FirstMother() == i) {
                  ndau++;
                  this->SwapParticles(start,k);
@@ -296,11 +460,11 @@ void GHepRecord::CompactifyDaughterLists(void)
             }
         }
         if(ndau>0) {
-          this->GetParticle(i)->SetFirstDaughter(dau1);
-          this->GetParticle(i)->SetLastDaughter(dau1+ndau);
+          this->Particle(i)->SetFirstDaughter(dau1);
+          this->Particle(i)->SetLastDaughter(dau1+ndau);
         } else {
-          this->GetParticle(i)->SetFirstDaughter(-1);
-          this->GetParticle(i)->SetLastDaughter(-1);
+          this->Particle(i)->SetFirstDaughter(-1);
+          this->Particle(i)->SetLastDaughter(-1);
         }
      } //!compact
      LOG("GHEP", pNOTICE)
@@ -365,8 +529,8 @@ void GHepRecord::SwapParticles(int i, int j)
 
   if(i==j) return;
 
-  GHepParticle * pi  = this->GetParticle(i);
-  GHepParticle * pj  = this->GetParticle(j);
+  GHepParticle * pi  = this->Particle(i);
+  GHepParticle * pj  = this->Particle(j);
   GHepParticle * tmp = new GHepParticle(*pi);
 
   pi->Copy(*pj);
@@ -377,11 +541,11 @@ void GHepRecord::SwapParticles(int i, int j)
   // tell their daughters
   if(pi->HasDaughters()) {
     for(int k=pi->FirstDaughter(); k<=pi->LastDaughter(); k++)
-      this->GetParticle(k)->SetFirstMother(j);
+      this->Particle(k)->SetFirstMother(j);
   }
   if(pj->HasDaughters()) {
     for(int k=pj->FirstDaughter(); k<=pj->LastDaughter(); k++)
-      this->GetParticle(k)->SetFirstMother(i);
+      this->Particle(k)->SetFirstMother(i);
   }
 }
 //___________________________________________________________________________
@@ -630,24 +794,25 @@ void GHepRecord::Print(ostream & stream) const
 
   // Print vertex
 
-  GHepParticle * probe = this->GetParticle(GHepOrder::ProbePosition());
-
-  stream << "\n| ";
-  stream << setfill(' ') << setw(17) << "Vertex:  | ";
-  stream << setfill(' ') << setw(6)
+  GHepParticle * probe = this->Probe();
+  if(probe){
+    stream << "\n| ";
+    stream << setfill(' ') << setw(17) << "Vertex:  | ";
+    stream << setfill(' ') << setw(6)
                        << ((probe) ? probe->Name() : "unknown probe") << " @ (";
 
-  stream << setiosflags(ios::fixed)  << setprecision(5);
-  stream << "x = " << setfill(' ') << setw(11) << this->Vertex()->X() << " m, ";
-  stream << "y = " << setfill(' ') << setw(11) << this->Vertex()->Y() << " m, ";
-  stream << "z = " << setfill(' ') << setw(11) << this->Vertex()->Z() << " m, ";
-  stream << setiosflags(ios::scientific) << setprecision(6);
-  stream << "t = " << setfill(' ') << setw(15) << this->Vertex()->T() << " s) ";
-  stream << setiosflags(ios::fixed)  << setprecision(3);
-  stream << setfill(' ') << setw(2)  << "|";
+    stream << setiosflags(ios::fixed)  << setprecision(5);
+    stream << "x = " << setfill(' ') << setw(11) << this->Vertex()->X() << " m, ";
+    stream << "y = " << setfill(' ') << setw(11) << this->Vertex()->Y() << " m, ";
+    stream << "z = " << setfill(' ') << setw(11) << this->Vertex()->Z() << " m, ";
+    stream << setiosflags(ios::scientific) << setprecision(6);
+    stream << "t = " << setfill(' ') << setw(15) << this->Vertex()->T() << " s) ";
+    stream << setiosflags(ios::fixed)  << setprecision(3);
+    stream << setfill(' ') << setw(2)  << "|";
 
-  stream << "\n|";
-  stream << setfill('-') << setw(110) << "|";
+    stream << "\n|";
+    stream << setfill('-') << setw(110) << "|";
+  }
 
   // Print FLAGS
 

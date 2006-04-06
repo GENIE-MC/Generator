@@ -27,7 +27,6 @@
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepSummaryBuilder.h"
-#include "GHEP/GHepOrder.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
@@ -53,41 +52,30 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
 
   this->CleanUp();
 
-  GHepParticle * probep = evrec.GetParticle(GHepOrder::ProbePosition());
+  GHepParticle * probep   = evrec.Probe();
+  GHepParticle * nucleus  = evrec.TargetNucleus();
+  GHepParticle * fslp     = evrec.FinalStatePrimaryLepton();
+  GHepParticle * hitnuclp = evrec.StruckNucleon();
+
   assert(probep);
-  GHepParticle * targetp = evrec.GetParticle(1);
-  assert(targetp);
-  GHepParticle * fslp = evrec.GetParticle(probep->FirstDaughter());
   assert(fslp);
 
   fProbePdgC = probep  -> PdgCode();
   fFslPdgC   = fslp    -> PdgCode();
-  fTgtPdgC   = targetp -> PdgCode();
+  fTgtPdgC   = (nucleus)  ? nucleus -> PdgCode() : 0;
+  fNuclPdgC  = (hitnuclp) ? hitnuclp->PdgCode()  : 0;
 
   LOG("GHepSummaryBuilder", pINFO)
-           << "PDG Codes: probe = " << fProbePdgC
-                     << ", target = " << fTgtPdgC << ", fsl = " << fFslPdgC;
+    << "PDG Codes: probe = " << fProbePdgC
+    << ", target = " << ", hit nucl = " << fNuclPdgC << fTgtPdgC 
+    << ", fsl = " << fFslPdgC;
 
-  bool tgt_is_nucleus = targetp->IsNucleus();
-  bool tgt_is_nucleon = pdg::IsProton(fTgtPdgC) || pdg::IsNeutron(fTgtPdgC);
-
-  GHepParticle * hitnuclp = 0;
-  if(tgt_is_nucleus) {
-   hitnuclp = evrec.GetParticle(2);
-   if(!hitnuclp->Status() == kIstNucleonTarget) hitnuclp = 0;
-  }
-  if(tgt_is_nucleon) hitnuclp = targetp;
-
-  fNuclPdgC = (hitnuclp) ? hitnuclp->PdgCode() : 0;
-
-  LOG("GHepSummaryBuilder", pINFO)
-                              << "PDG Codes: hit nucleon = " << fNuclPdgC;
   fIQrkPdgC  = 0;
   fFQrkPdgC  = 0;
   fResPdgC   = 0;
   fChHadPdgC = 0;
 
-  if(tgt_is_nucleus || tgt_is_nucleon) {
+  if(nucleus) {
     fTgtZ = pdg::IonPdgCodeToZ(fTgtPdgC);
     fTgtA = pdg::IonPdgCodeToA(fTgtPdgC);;
     fTgtN = fTgtA - fTgtZ;
@@ -119,12 +107,11 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   // - final state (primary) hadronic system has mult >= 2       : DIS event
 
   //COH:
-  if(tgt_is_nucleus) { if(!hitnuclp) fScatType = kScCoherent; }
+  if(nucleus) { if(!hitnuclp) fScatType = kScCoherent; }
 
   //IMD
-  GHepParticle * elec = evrec.GetParticle(2);
-  if(elec->Status()==kIStInitialState &&
-              elec->PdgCode()==kPdgElectron) fScatType = kScInverseMuDecay;
+  GHepParticle * elec = evrec.StruckElectron();
+  if(elec) fScatType = kScInverseMuDecay;
 
   //QEL or DIS
   if(fScatType != kScCoherent && fScatType != kScInverseMuDecay) {
@@ -172,7 +159,6 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   fHadShw4P = new TLorentzVector(0,0,0,0);
 
   // q 4P
-
   TLorentzVector * k1 = probep->GetP4();
   TLorentzVector * k2 = fslp->GetP4();
   (*k1) -= (*k2);
