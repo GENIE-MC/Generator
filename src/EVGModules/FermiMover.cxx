@@ -16,8 +16,11 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
 #include <TLorentzVector.h>
 #include <TVector3.h>
+#include <TParticlePDG.h>
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
@@ -31,6 +34,8 @@
 #include "Messenger/Messenger.h"
 #include "Nuclear/NuclMomentumGenerator.h"
 #include "Nuclear/NuclMomentumModelI.h"
+#include "PDG/PDGLibrary.h"
+#include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;
@@ -76,21 +81,43 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   TVector3 p3 = nucp_gen->RandomMomentum3();
   LOG("FermiMover", pINFO) << "Generated nucleon momentum: ("
                   << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << ")";
+  
+  // access ths hit nucleon and target nucleus at the GHEP record
+  GHepParticle * nucleon = event_rec->StruckNucleon();
+  GHepParticle * nucleus = event_rec->TargetNucleus();
+  assert(nucleon);
+  assert(nucleus);
 
-  //-- update the event record (particle with Ist == kIstNucleonTarget)
-  double M  = tgt->StruckNucleonMass();
-  double M2 = M*M;
-  double P2 = p3.Mag2();
+  //-- compute A,Z for final state nucleus & get its PDG code and its mass
+  int nucleon_pdgc = nucleon->PdgCode();
+  bool is_p  = pdg::IsProton(nucleon_pdgc);
+  int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
+  int A = nucleus->A() - 1;
+
+  TParticlePDG * pdgp = 0;
+  int ipdgc = pdg::IonPdgCode(A, Z);
+  pdgp = PDGLibrary::Instance()->Find(ipdgc);
+  if(!pdgp) {
+      LOG("FermiMover", pFATAL)
+          << "No particle with [A = " << A << ", Z = " << Z
+                            << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+      exit(1);
+  }
+  double m_remnant_nucleus = pdgp->Mass();
+
+  //-- compute the mass difference between the two nuclei
+
+  double m_original_nucleus = nucleus->Mass();
+  double dm = m_original_nucleus - m_remnant_nucleus;
+
+  //-- update the struck nucleon 4p at the interaction summary and at
+  //   the GHEP record
 
   p4->SetPx( p3.Px() );
   p4->SetPy( p3.Py() );
   p4->SetPz( p3.Pz() );
-  p4->SetE ( TMath::Sqrt(P2+M2) ); //?
+  p4->SetE ( dm      ); // off the mass-shell
 
-  int nucleon_pdgc = tgt->StruckNucleonPDGCode();
-
-  GHepParticle * nucleon =
-                event_rec->FindParticle(nucleon_pdgc, kIstNucleonTarget, 0);
   nucleon->SetMomentum(*p4);
 
   // sometimes, for interactions near threshold, Fermi momentum might bring
