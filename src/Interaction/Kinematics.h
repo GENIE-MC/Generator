@@ -36,19 +36,19 @@ public:
   Kinematics(const Kinematics & kv);
   ~Kinematics();
 
-  double x     (void) const;
-  double y     (void) const;
-  double Q2    (void) const;
-  double q2    (void) const;
-  double W     (void) const;
-  double lnx   (void) const;
-  double lny   (void) const;
-  double lnQ2  (void) const;
-  double lnW   (void) const;
-  double logx  (void) const;
-  double logy  (void) const;
-  double logQ2 (void) const;
-  double logW  (void) const;
+  double x       (void) const;
+  double y       (void) const;
+  double Q2      (void) const;
+  double q2      (void) const;
+  double W       (void) const;
+  double Logx    (void) const;
+  double Logy    (void) const;
+  double LogQ2   (void) const;
+  double LogW    (void) const;
+  double Log10x  (void) const;
+  double Log10y  (void) const;
+  double Log10Q2 (void) const;
+  double Log10W  (void) const;
 
   void   Setx  (double x );
   void   Sety  (double y );
