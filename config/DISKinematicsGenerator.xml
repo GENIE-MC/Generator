@@ -16,7 +16,7 @@
 
      <param type="double" name="W-min">           1.6                         </param>
      <param type="double" name="Q2-min">          1.0                         </param>
-     <param type="double" name="max-xsec-safety-factor">   1.200              </param>
+     <param type="double" name="max-xsec-safety-factor">   1.400              </param>
   </param_set>
 
 
@@ -32,7 +32,7 @@
 
      <param type="double" name="W-min">           1.6                         </param>
      <param type="double" name="Q2-min">          1.0                         </param>
-     <param type="double" name="max-xsec-safety-factor">   1.200              </param>
+     <param type="double" name="max-xsec-safety-factor">   1.400              </param>
   </param_set>
 
 
@@ -48,7 +48,7 @@
 
      <param type="double" name="W-min">           1.6                         </param>
      <param type="double" name="Q2-min">          1.0                         </param>
-     <param type="double" name="max-xsec-safety-factor">   1.200              </param>
+     <param type="double" name="max-xsec-safety-factor">   1.400              </param>
   </param_set>
 
 </alg_conf>
