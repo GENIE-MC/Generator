@@ -56,7 +56,7 @@ void QELPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //auxiliary params:
   double Ev   = init_state.GetProbeE(kRfStruckNucAtRest);
   double Q2   = interaction->GetKinematics().Q2();
-  double M    = init_state.GetTarget().StruckNucleonMass();
+  double M    = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
   double M2   = M*M;
   double ml2  = ml*ml;

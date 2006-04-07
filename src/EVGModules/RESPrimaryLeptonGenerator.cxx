@@ -15,6 +15,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "EVGModules/RESPrimaryLeptonGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "Interaction/Interaction.h"
@@ -57,13 +59,13 @@ void RESPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //auxiliary params:
   double Ev   = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M    = init_state.GetTarget().StruckNucleonMass();
+  double M    = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
-  double M2   = M*M;
-  double ml2  = ml*ml;
   double Q2   = interaction->GetKinematics().Q2();
   double W    = interaction->GetKinematics().W();
-  double W2   = W*W;
+  double M2   = TMath::Power(M, 2);
+  double ml2  = TMath::Power(ml,2);
+  double W2   = TMath::Power(W, 2);
 
   //Compute outgoing lepton energy
   double El  = Ev - 0.5 * (W2 - M2 + Q2) / M;

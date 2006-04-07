@@ -45,7 +45,8 @@ private:
 
   void LoadConfig (void);
 
-  const NuclMomentumModelI *  fNuclPModel;
+  const NuclMomentumModelI *  fNuclPModel; ///<
+  bool  fKeepNuclOnMassShell; ///< if true, keeps hit bound nucleon on the mass shell
 };
 
 }      // genie namespace

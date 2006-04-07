@@ -75,18 +75,10 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
 // Calls a hadronizer and adds the fragmentation products at the GHEP
 
   //-- Compute the hadronic system invariant mass
+  TLorentzVector p4Had = this->Hadronic4pLAB(evrec);
+  double W = p4Had.M();
+
   Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
-
-  double E     = init_state.GetProbeE(kRfStruckNucAtRest);
-  double x     = interaction->GetKinematics().x();
-  double y     = interaction->GetKinematics().y();
-  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
-  double Mnuc2 = Mnuc * Mnuc;
-
-  double W2 = TMath::Max(0., Mnuc2 + 2*E*Mnuc*y*(1-x));
-  double W  = TMath::Sqrt(W2);
-
   interaction->GetKinematicsPtr()->SetW(W);
 
   //-- Run the hadronization model and get the fragmentation products:

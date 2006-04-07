@@ -15,6 +15,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "EVGModules/DISPrimaryLeptonGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "Interaction/Interaction.h"
@@ -58,10 +60,10 @@ void DISPrimaryLeptonGenerator::ProcessEventRecord(
   double Ev   = init_state.GetProbeE(kRfStruckNucAtRest);
   double x    = interaction->GetKinematics().x();
   double y    = interaction->GetKinematics().y();
-  double M    = init_state.GetTarget().StruckNucleonMass();
+  double M    = init_state.GetTarget().StruckNucleonP4()->M();
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
-  double M2   = M*M;
-  double ml2  = ml*ml;
+  double M2   = TMath::Power(M, 2);
+  double ml2  = TMath::Power(ml,2);
   double Q2   = 2*x*y*M*Ev;
   double W2   = M2 + 2*M*Ev*y*(1-x);
 

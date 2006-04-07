@@ -104,14 +104,15 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
                             << ", pdgc = " << ipdgc << "] in PDGLibrary!";
       assert(particle);
   }
-  double Mf = particle->Mass(); // remnant nucleus rest mass
+  double Mf  = particle->Mass();   // remnant nucleus rest mass
+  double Mf2 = TMath::Power(Mf,2);
 
   //-- Has opposite momentum from the struck nucleon
 
   double px = -1.* nucleon->Px();
   double py = -1.* nucleon->Py();
   double pz = -1.* nucleon->Pz();
-  double E  = Mf - nucleon->Energy();
+  double E  = TMath::Sqrt(Mf2 + nucleon->P4()->Vect().Mag2());
 
   //-- Add the nucleus to the event record
   LOG("HadronicVtx", pINFO)
