@@ -21,6 +21,7 @@
 #include <cassert>
 #include <sstream>
 #include <cstdlib>
+#include <algorithm>
 
 #include <TStopwatch.h>
 #include <TMCParticle6.h>
@@ -33,7 +34,6 @@
 #include "EVGCore/GVldContext.h"
 #include "GHEP/GHepVirtualListFolder.h"
 #include "GHEP/GHepRecord.h"
-#include "GHEP/GHepRecordHistory.h"
 #include "Messenger/Messenger.h"
 
 using std::ostringstream;
@@ -73,9 +73,9 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   GHepVirtualListFolder * vlfolder = GHepVirtualListFolder::Instance();
   vlfolder->Clear();
 
-  //-- Create a history buffer in case I need to step back
-  GHepRecordHistory rh;
-  rh.AddSnapshot(-1, event_rec);
+  //-- Clean previous history + add the bootstrap record in the buffer
+  fRecHistory.PurgeHistory();
+  fRecHistory.AddSnapshot(-1, event_rec);
 
   //-- Initialize evg thread control flags
   bool ffwd = false;
@@ -107,7 +107,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
       visitor->ProcessEventRecord(event_rec);
       fWatch->Stop();
 
-      rh.AddSnapshot(istep, event_rec);
+      fRecHistory.AddSnapshot(istep, event_rec);
 
       (*fEVGTime)[istep] = fWatch->CpuTime(); // sec
     }
@@ -134,14 +134,22 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
          // get return step (if return_step > current_step just ignore it)
          if(exception.ReturnStep() >= 0 && exception.ReturnStep() <= istep) {
-           istep = exception.ReturnStep();
-           istep--;
+
+           int rstep = exception.ReturnStep();
+
+           LOG("EventGenerator", pNOTICE)
+                                   << "Return at processing step " << rstep;
+           advance(miter, rstep-istep-1);
+           istep = rstep;
 
            // restore the event record as it was just before the processing
            // step we are about to return to
+           LOG("EventGenerator", pNOTICE)
+                  << "Restoring GHEP as it was just before the return step";
            event_rec->ResetRecord();
-           GHepRecord * snapshot = rh[istep];
-           rh.PurgeRecentHistory(istep+1);
+           istep--;
+           GHepRecord * snapshot = fRecHistory[istep];
+           fRecHistory.PurgeRecentHistory(istep+1);
            event_rec->Copy(*snapshot);
          } // valid-return-step
       } // step-back
