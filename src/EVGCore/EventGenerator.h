@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "EVGCore/EventGeneratorI.h"
+#include "GHEP/GHepRecordHistory.h"
 
 class TStopwatch;
 
@@ -65,6 +66,8 @@ private:
   const InteractionListGeneratorI *     fIntListGen;
   GVldContext *                         fVldContext;
   TStopwatch *                          fWatch;
+  mutable GHepRecordHistory             fRecHistory;
+
 };
 
 }      // genie namespace
