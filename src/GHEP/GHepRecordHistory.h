@@ -40,10 +40,10 @@ public :
   GHepRecordHistory(const GHepRecordHistory & history);
   ~GHepRecordHistory();
 
-  void AddSnapshot  (int step, GHepRecord * record);
+  void AddSnapshot        (int step, GHepRecord * r);
   void PurgeHistory       (void);
   void PurgeRecentHistory (int start_step);
-  bool Enabled            (void) const;
+  void ReadFlags          (void);
 
   void Copy  (const GHepRecordHistory & history);
   void Print (ostream & stream) const;
@@ -51,7 +51,9 @@ public :
   friend ostream & operator << (ostream & stream, const GHepRecordHistory & history);
 
 private:
-  bool fIsEnabled;
+
+  bool fEnabledFull;          ///< keep the full GHEP record history
+  bool fEnabledBootstrapStep; ///< keep only the record that bootsrapped the generation cycle
 };
 
 }      // genie namespace
