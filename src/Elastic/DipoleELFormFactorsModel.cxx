@@ -42,48 +42,58 @@ DipoleELFormFactorsModel::~DipoleELFormFactorsModel()
 
 }
 //____________________________________________________________________________
-double DipoleELFormFactorsModel::Gep(double q2) const
+double DipoleELFormFactorsModel::Gep(const Interaction * interaction) const
 {
-  // get Mv2 (vector mass squared) from the configuration registry if it
-  // exists, otherwise use the default value
-  double Mv2 = fConfig->GetDoubleDef("Mv2", kElMv2);
-
   // calculate and return GNE
-  double ge = 1. / TMath::Power(1-q2/Mv2, 2);
+  double q2 = interaction->GetKinematics().q2();
+  double ge = 1. / TMath::Power(1-q2/fMv2, 2);
 
   LOG("ELFormFactors", pDEBUG) << "Gep(q^2 = " << q2 << ") = " << ge;
   return ge;
 }
 //____________________________________________________________________________
-double DipoleELFormFactorsModel::Gen(double /*q2*/) const
+double DipoleELFormFactorsModel::Gen(const Interaction * /*in*/) const
 {
   return 0.;
 }
 //____________________________________________________________________________
-double DipoleELFormFactorsModel::Gmp(double q2) const
+double DipoleELFormFactorsModel::Gmp(const Interaction * interaction) const
 {
-  // get Mv2 (vector mass squared) from the configuration registry if it
-  // exists, otherwise use the default value
-  double Mv2 = fConfig->GetDoubleDef("Mv2", kElMv2);
-
   // calculate & return Gm
-  double gm = kMuP / TMath::Power(1-q2/Mv2, 2);
+  double q2 = interaction->GetKinematics().q2();
+  double gm = kMuP / TMath::Power(1-q2/fMv2, 2);
 
   LOG("ELFormFactors", pDEBUG) << "Gmp(q^2 = " << q2 << ") = " << gm;
   return gm;
 }
 //____________________________________________________________________________
-double DipoleELFormFactorsModel::Gmn(double q2) const
+double DipoleELFormFactorsModel::Gmn(const Interaction * interaction) const
 {
-  // get Mv2 (vector mass squared) from the configuration registry if it
-  // exists, otherwise use the default value
-  double Mv2 = fConfig->GetDoubleDef("Mv2", kElMv2);
-
   // calculate & return Gm
-  double gm = kMuN / TMath::Power(1-q2/Mv2, 2);
+  double q2 = interaction->GetKinematics().q2();
+  double gm = kMuN / TMath::Power(1-q2/fMv2, 2);
 
   LOG("ELFormFactors", pDEBUG) << "Gmn(q^2 = " << q2 << ") = " << gm;
   return gm;
+}
+//____________________________________________________________________________
+void DipoleELFormFactorsModel::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void DipoleELFormFactorsModel::Configure(string param_set)
+{
+  Algorithm::Configure(param_set);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void DipoleELFormFactorsModel::LoadConfig(void)
+{
+  // get Mv2 (vector mass squared) from the configuration registry if it
+  // exists, otherwise use the default value
+  fMv2 = fConfig->GetDoubleDef("Mv2", kElMv2);
 }
 //____________________________________________________________________________
 

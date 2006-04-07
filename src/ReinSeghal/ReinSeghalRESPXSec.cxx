@@ -83,8 +83,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double W    = kinematics.W();
   double q2   = kinematics.q2();
-  double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
-
+  double Mnuc = init_state.GetTarget().StruckNucleonP4()->M(); 
   int nucpdgc = init_state.GetTarget().StruckNucleonPDGCode();
 
   bool is_CC = interaction->GetProcessInfo().IsWeakCC();
@@ -128,7 +127,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   //-- Calculate the Feynman-Kislinger-Ravndall parameters
   LOG("ReinSeghalRes", pDEBUG) << "Computing the FKR parameters";
 
-  fFKR.Calculate(q2,W,nresidx);
+  fFKR.Calculate(q2,W,Mnuc,nresidx);
 
   LOG("ReinSeghalRes", pDEBUG) << "\n FKR params for ["
                    << utils::res::AsString(resonance) << "]: " << fFKR;

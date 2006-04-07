@@ -38,22 +38,22 @@ BBA05ELFormFactorsModel::~BBA05ELFormFactorsModel()
 
 }
 //____________________________________________________________________________
-double BBA05ELFormFactorsModel::Gep(double) const
+double BBA05ELFormFactorsModel::Gep(const Interaction * ) const
 {
   return 0;
 }
 //____________________________________________________________________________
-double BBA05ELFormFactorsModel::Gmp(double) const
+double BBA05ELFormFactorsModel::Gmp(const Interaction * ) const
 {
   return 0;
 }
 //____________________________________________________________________________
-double BBA05ELFormFactorsModel::Gen(double) const
+double BBA05ELFormFactorsModel::Gen(const Interaction * ) const
 {
   return 0;
 }
 //____________________________________________________________________________
-double BBA05ELFormFactorsModel::Gmn(double) const
+double BBA05ELFormFactorsModel::Gmn(const Interaction * ) const
 {
   return 0;
 }

@@ -62,7 +62,7 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
 
   double E     = init_state.GetProbeE(kRfStruckNucAtRest);
   double ml    = interaction->GetFSPrimaryLepton()->Mass();
-  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
+  double Mnuc  = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double x     = kinematics.x();
   double y     = kinematics.y();
@@ -135,7 +135,7 @@ bool DISPartonModelPXSec::ValidKinematics(
   const InitialState & init_state = interaction -> GetInitialState();
 
   double E     = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
+  double Mnuc  = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double x     = kinematics.x();
   double y     = kinematics.y();

@@ -51,10 +51,10 @@ private:
 
   void LoadConfig (void);
 
-  double Pauli   (double Q2, double W) const; ///< Pauli suppression for D2
-  double Nu      (double Q2, double W) const; ///< kinematic variables
-  double NuStar  (double Q2, double W) const; ///< ...
-  double PPiStar (double W)            const; ///< ...
+  double Pauli   (double Q2, double W, double MN) const; ///< Pauli suppression for D2
+  double Nu      (double Q2, double W, double MN) const; ///< kinematic variables
+  double NuStar  (double Q2, double W, double MN) const; ///< ...
+  double PPiStar (double W, double MN) const; ///< ...
 
   const BaryonResDataSetI * fRESDataTable;
 

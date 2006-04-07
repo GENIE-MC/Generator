@@ -29,10 +29,11 @@ public:
   BBA05ELFormFactorsModel(string config);
   virtual ~BBA05ELFormFactorsModel();
 
-  double Gep (double q2) const;
-  double Gmp (double q2) const;
-  double Gen (double q2) const;
-  double Gmn (double q2) const;
+  //! implement the ELFormFactorsModelI interface
+  double Gep (const Interaction * interaction) const;
+  double Gmp (const Interaction * interaction) const;
+  double Gen (const Interaction * interaction) const;
+  double Gmn (const Interaction * interaction) const;
 };
 
 }         // genie namespace

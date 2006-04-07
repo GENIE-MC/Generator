@@ -26,6 +26,8 @@ using std::ostream;
 
 namespace genie {
 
+class Interaction;
+
 class ELFormFactors {
 
 public:
@@ -35,7 +37,7 @@ public:
   virtual ~ELFormFactors() { }
 
   void   SetModel  (const ELFormFactorsModelI * model);
-  void   Calculate (double q2);
+  void   Calculate (const Interaction * interaction);
 
   double Gep (void) const { return fGep; }
   double Gmp (void) const { return fGmp; }

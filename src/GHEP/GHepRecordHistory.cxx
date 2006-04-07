@@ -3,11 +3,11 @@
 
 \class   genie::GHepRecordHistory
 
-\brief   Holds the history of the GHEP event record within a single event
-         generation sequence as a function of its processing step.
-         The event record history is used to step back in the generation
-         sequence if a processing step is to be re-run (the GENIE event
-         generation framework equivalent of 'Undo')
+\brief   Holds the history of the GHEP event record as it being modified by
+         the processing steps of an event generation thread.
+         The event record history can be used to step back in the generation
+         sequence if a processing step is to be re-run (this the GENIE event
+         generation framework equivalent of an 'Undo')
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory

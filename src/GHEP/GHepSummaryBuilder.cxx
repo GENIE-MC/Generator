@@ -150,6 +150,7 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
       << "Interaction Type = " << InteractionType::AsString(fProcType);
   assert(fProcType != kIntNull);
 
+  double MN = (hitnuclp) ? hitnuclp->P4()->M() : 9999999;
 
   fVtx      = new TLorentzVector(*evrec.Vertex());
   fProbe4P  = probep->GetP4();
@@ -166,13 +167,13 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   fq4p = k1;
 
   // nu
-  fNu = (*fq4p)*(*fNucl4P) / kNucleonMass;
+  fNu = (*fq4p)*(*fNucl4P) / MN;
 
   // Q2
   fQ2 = -1. * fq4p->M2();
 
   // x
-  fX = 0.5*fQ2/(kNucleonMass*fNu);
+  fX = 0.5*fQ2/(MN*fNu);
 
   // Inelasticity, y = qP/kP
   float qP = (*fq4p)*(*fNucl4P);

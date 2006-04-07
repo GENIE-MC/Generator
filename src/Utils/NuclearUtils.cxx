@@ -121,10 +121,13 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
   double kFf = (struck_nucleon_pdgc==final_nucleon_pdgc) ? kFi : 
                kft->FindClosestKF(target_pdgc, final_nucleon_pdgc );
 
-  const Kinematics & kine = interaction->GetKinematics();
+  // nucleon mass (can be off m/shell)
+  double Mn  = target.StruckNucleonP4()->M(); 
+  double Mn2 = TMath::Power(Mn,2);
 
+  const Kinematics & kine = interaction->GetKinematics();
   double q2 = kine.q2();
-  double q  = q2 * (0.25*q2/kNucleonMass_2 - 1.);
+  double q  = q2 * (0.25*q2/Mn2 - 1.);
 
   double kfa   = kFi * 2./kPi;
   double kfa2  = TMath::Power(kfa,2);

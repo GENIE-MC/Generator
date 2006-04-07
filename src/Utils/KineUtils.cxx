@@ -29,7 +29,8 @@ using namespace genie::constants;
 using namespace genie::controls;
 
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::WRange(const Interaction * const interaction)
+Range1D_t genie::utils::kinematics::WRange(
+                                        const Interaction * const interaction)
 {
 // Computes kinematical limits for W in DIS and RES v interactions
 //
@@ -38,7 +39,7 @@ Range1D_t genie::utils::kinematics::WRange(const Interaction * const interaction
   const InitialState & init_state = interaction->GetInitialState();
 
   double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M  = init_state.GetTarget().StruckNucleonMass();
+  double M  = init_state.GetTarget().StruckNucleonP4()->M(); //can be off m/shell
   double ml = interaction->GetFSPrimaryLepton()->Mass();
   double M2 = M*M;
   double s  = M2 + 2*M*Ev;
@@ -51,7 +52,8 @@ Range1D_t genie::utils::kinematics::WRange(const Interaction * const interaction
   return W;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::Q2Range(const Interaction * const interaction)
+Range1D_t genie::utils::kinematics::Q2Range(
+                                       const Interaction * const interaction)
 {
 // Computes kinematical limits for Q2 (>0) in QEL, DIS or RES v interactions.
 
@@ -75,7 +77,8 @@ Range1D_t genie::utils::kinematics::Q2Range(const Interaction * const interactio
   return Q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::q2Range(const Interaction * const interaction)
+Range1D_t genie::utils::kinematics::q2Range(
+                                      const Interaction * const interaction)
 {
 // Computes kinematical limits for q2 (<0) in QEL, DIS or RES v interactions.
 
@@ -110,7 +113,8 @@ Range1D_t genie::utils::kinematics::Q2Range_W(
   return Q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::Q2Range_W(const Interaction * const interaction)
+Range1D_t genie::utils::kinematics::Q2Range_W(
+                                        const Interaction * const interaction)
 {
 // Computes kinematical limits for Q2 (>0) in [RES] v interactions.
 // The Q^2 range depends on W which is extracted directly from the input
@@ -128,7 +132,7 @@ Range1D_t genie::utils::kinematics::Q2Range_W(const Interaction * const interact
   TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
 
   double Ev    = p4->Energy();
-  double M     = init_state.GetTarget().StruckNucleonMass();
+  double M     = init_state.GetTarget().StruckNucleonP4()->M(); //can be off m/shell
   double ml    = interaction->GetFSPrimaryLepton()->Mass();
   double M2    = M*M;
   double ml2   = ml*ml;
@@ -194,8 +198,7 @@ Range1D_t genie::utils::kinematics::Q2Range_xy(
 
   double x     = interaction->GetKinematics().x();
   double y     = interaction->GetKinematics().y();
-
-  double M     = init_state.GetTarget().StruckNucleonMass();
+  double M     = init_state.GetTarget().StruckNucleonP4()->M(); // can be off the m/shell
   double ml    = interaction->GetFSPrimaryLepton()->Mass();
   double M2    = M*M;
   double ml2   = ml*ml;
@@ -237,7 +240,8 @@ Range1D_t genie::utils::kinematics::Q2Range_xy(
   return Q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::Q2Range_M(const Interaction * const interaction)
+Range1D_t genie::utils::kinematics::Q2Range_M(
+                                        const Interaction * const interaction)
 {
 // Computes kinematical limits for Q2 (>0) in [QEL] v interactions
 // For QEL events W = M
@@ -253,13 +257,12 @@ Range1D_t genie::utils::kinematics::Q2Range_M(const Interaction * const interact
 
   TLorentzVector * p4 = init_state.GetProbeP4(kRfStruckNucAtRest);
 
-  double Ev    = p4->Energy();
-
-  double M     = init_state.GetTarget().StruckNucleonMass();
-  double ml    = interaction->GetFSPrimaryLepton()->Mass();
-  double M2    = M*M;
-  double ml2   = ml*ml;
-  double s     = M2 + 2*M*Ev;
+  double Ev  = p4->Energy();
+  double M   = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
+  double ml  = interaction->GetFSPrimaryLepton()->Mass();
+  double M2  = M*M;
+  double ml2 = ml*ml;
+  double s   = M2 + 2*M*Ev;
 
   assert (s>0);
 
@@ -282,7 +285,8 @@ Range1D_t genie::utils::kinematics::Q2Range_M(const Interaction * const interact
   return Q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::q2Range_W(const Interaction * const interaction)
+Range1D_t genie::utils::kinematics::q2Range_W(
+                                        const Interaction * const interaction)
 {
 // Computes kinematical limits for q2 (<0) in [RES] v interactions.
 // The q^2 range depends on W which is extracted directly from the input
@@ -305,7 +309,6 @@ Range1D_t genie::utils::kinematics::q2Range_xy(
 // They depend on the W which is computed from the x and y kinematic variables
 // that are extracted from the input interaction
 //
-
   Range1D_t Q2 = utils::kinematics::Q2Range_xy(interaction);
 
   Range1D_t q2;
@@ -340,7 +343,7 @@ double genie::utils::kinematics::EnergyThreshold(
   double ml    = interaction->GetFSPrimaryLepton()->Mass();
   double ml2   = ml*ml;
   double Mnuc  = tgt.StruckNucleonIsSet() ?
-                           tgt.StruckNucleonMass() : kNucleonMass;
+                           tgt.StruckNucleonP4()->M() : kNucleonMass;
   double Mnuc2 = Mnuc*Mnuc;
 
   const ProcessInfo & proc = interaction->GetProcessInfo();
@@ -359,7 +362,6 @@ double genie::utils::kinematics::EnergyThreshold(
       SLOG("KineLimits", pERROR)
              << "Doesn't compute Ethreshold for this interaction";
   }
-
   return Ethr;
 }
 //____________________________________________________________________________
@@ -375,7 +377,7 @@ bool genie::utils::kinematics::IsAboveCharmThreshold(
 
   int lightest_charm_hadron = kPdgDMinus; // c=+/-1, s=0
 
-  double Mn   = init_state.GetTarget().StruckNucleonMass();
+  double Mn   = init_state.GetTarget().StruckNucleonP4()->M();
   double Mn2  = TMath::Power(Mn,2);
   double Q2   = utils::kinematics::CalcQ2(interaction);
   double x    = kinematics.x();
@@ -397,7 +399,7 @@ double genie::utils::kinematics::CalcQ2(const Interaction * const interaction)
   if( kinematics.KVSet(kKVQ2) || kinematics.KVSet(kKVq2)) Q2 = kinematics.Q2();
   else if ( kinematics.KVSet(kKVy)) {
     const InitialState & init_state = interaction->GetInitialState();
-    double Mn = init_state.GetTarget().StruckNucleonMass();
+    double Mn = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
     double x  = kinematics.x();
     double y  = kinematics.y();
     double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
@@ -413,7 +415,7 @@ double genie::utils::kinematics::SlowRescalingVar(
   const Kinematics &   kinematics = interaction -> GetKinematics();
 
   double mc2 = TMath::Power(mc,2);
-  double Mn  = init_state.GetTarget().StruckNucleonMass();
+  double Mn  = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
   double x   = kinematics.x();
   double Q2  = utils::kinematics::CalcQ2(interaction);
   double v   = 0.5*Q2/(Mn*x);

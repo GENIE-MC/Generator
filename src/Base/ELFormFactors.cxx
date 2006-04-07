@@ -18,6 +18,7 @@
 #include <string>
 
 #include "Base/ELFormFactors.h"
+#include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Utils/MathUtils.h"
 
@@ -53,7 +54,7 @@ void ELFormFactors::SetModel(const ELFormFactorsModelI * model)
   this->fModel = model;
 }
 //____________________________________________________________________________
-void ELFormFactors::Calculate(double q2)
+void ELFormFactors::Calculate(const Interaction * interaction)
 {
   if(!this->fModel)
   {
@@ -62,10 +63,10 @@ void ELFormFactors::Calculate(double q2)
     this->Reset("D");
   }
   else {
-    this->fGep = this->fModel->Gep(q2);
-    this->fGmp = this->fModel->Gmp(q2);
-    this->fGen = this->fModel->Gen(q2);
-    this->fGmn = this->fModel->Gmn(q2);
+    this->fGep = this->fModel->Gep(interaction);
+    this->fGmp = this->fModel->Gmp(interaction);
+    this->fGen = this->fModel->Gen(interaction);
+    this->fGmn = this->fModel->Gmn(interaction);
   }
 }
 //____________________________________________________________________________
