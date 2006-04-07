@@ -22,10 +22,12 @@
 #include "GHEP/GHepRecordHistory.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
+#include "Utils/PrintUtils.h"
 
 using std::endl;
 
 using namespace genie;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 namespace genie {
@@ -39,15 +41,14 @@ namespace genie {
 GHepRecordHistory::GHepRecordHistory() :
 map<int, GHepRecord*>()
 {
-  fIsEnabled = this->Enabled();
+  this->ReadFlags();
 }
 //___________________________________________________________________________
 GHepRecordHistory::GHepRecordHistory(const GHepRecordHistory & history) :
 map<int, GHepRecord*>()
 {
   this->Copy(history);
-
-  fIsEnabled = this->Enabled();
+  this->ReadFlags();
 }
 //___________________________________________________________________________
 GHepRecordHistory::~GHepRecordHistory()
@@ -59,7 +60,8 @@ void GHepRecordHistory::AddSnapshot(int step, GHepRecord * record)
 {
 // Adds a GHepRecord 'snapshot' at the history buffer
 
-  if(!fIsEnabled) return;
+  bool go_on = (fEnabledFull || (fEnabledBootstrapStep && step==-1));
+  if(!go_on) return;
 
   if(!record) {
    LOG("GHEP", pWARN)
@@ -76,6 +78,9 @@ void GHepRecordHistory::AddSnapshot(int step, GHepRecord * record)
      this->insert( map<int, GHepRecord*>::value_type(step,snapshot));
 
   } else {
+     // If you have already stepped back and reprocessing, then you should
+     // have purged the 'recent' history (corresponing to 'after the return
+     // processing step')
      LOG("GHEP", pWARN)
       << "GHEP snapshot for processing step: " << step << " already exists!";
   }
@@ -176,9 +181,26 @@ void GHepRecordHistory::Print(ostream & stream) const
   }
 }
 //___________________________________________________________________________
-bool GHepRecordHistory::Enabled(void) const
+void GHepRecordHistory::ReadFlags(void) 
 {
-  return (gSystem->Getenv("GHEPHISTENABLE") ? true : false);
+  if (gSystem->Getenv("GHEPHISTENABLE")) {
+
+     string envvar = string(gSystem->Getenv("GHEPHISTENABLE"));
+
+     fEnabledFull          = (envvar=="FULL")      ? true:false;
+     fEnabledBootstrapStep = (envvar=="BOOTSTRAP") ? true:false;
+
+  } else {
+     // set defaults
+     fEnabledFull          = false;          
+     fEnabledBootstrapStep = true; 
+  }
+
+  LOG("GHEP", pINFO) << "GHEP History Flags: ";
+  LOG("GHEP", pINFO) << "  - Keep Full History:          " 
+                     << utils::print::BoolAsYNString(fEnabledFull);
+  LOG("GHEP", pINFO) << "  - Keep Bootstrap Record Only: " 
+                     << utils::print::BoolAsYNString(fEnabledBootstrapStep);
 }
 //___________________________________________________________________________
 
