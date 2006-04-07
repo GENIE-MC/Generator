@@ -110,15 +110,15 @@ double LlewellynSmithModel::Fp(const Interaction * interaction) const
 void LlewellynSmithModel::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
   this->LoadSubAlg();
+  this->LoadConfigData();
 }
 //____________________________________________________________________________
 void LlewellynSmithModel::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
   this->LoadSubAlg();
+  this->LoadConfigData();
 }
 //____________________________________________________________________________
 void LlewellynSmithModel::LoadSubAlg(void)
@@ -143,6 +143,8 @@ void LlewellynSmithModel::LoadConfigData(void)
   fFA0 = fConfig->GetDoubleDef("fFA0", kQelFA0); // FA(q2=0)
 
   assert(fMa2>0);
+
+  fELFF.SetModel(fElFFModel);  
 }
 //____________________________________________________________________________
 double LlewellynSmithModel::tau(const Interaction * interaction) const
@@ -162,23 +164,19 @@ double LlewellynSmithModel::tau(const Interaction * interaction) const
 //____________________________________________________________________________
 double LlewellynSmithModel::GVE(const Interaction * interaction) const
 {
-  ELFormFactors elff;
-  elff.SetModel(fElFFModel);
-  elff.Calculate(interaction);
-
   //-- compute GVE using CVC
-  double gve = elff.Gep() - elff.Gen();
+
+  fELFF.Calculate(interaction);
+  double gve = fELFF.Gep() - fELFF.Gen();
   return gve;
 }
 //____________________________________________________________________________
 double LlewellynSmithModel::GVM(const Interaction * interaction) const
 {
-  ELFormFactors elff;
-  elff.SetModel(fElFFModel);
-  elff.Calculate(interaction);
-
   //-- compute GVM using CVC
-  double gvm = elff.Gmp() - elff.Gmn();
+
+  fELFF.Calculate(interaction);
+  double gvm = fELFF.Gmp() - fELFF.Gmn();
   return gvm;
 }
 //____________________________________________________________________________
