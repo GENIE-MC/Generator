@@ -49,7 +49,7 @@
   <priority msgstream="EvGenListAssembler">  NOTICE </priority>
   <priority msgstream="ELFormFactors">       INFO   </priority>
   <priority msgstream="FermiMover">          INFO   </priority>
-  <priority msgstream="FermiP">              INFO   </priority>
+  <priority msgstream="FermiP">              NOTICE </priority>
   <priority msgstream="FragmentCharm">       INFO   </priority>
   <priority msgstream="Flux">                NOTICE </priority>
   <priority msgstream="FLUKA">               INFO   </priority>

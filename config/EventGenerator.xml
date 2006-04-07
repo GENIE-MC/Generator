@@ -29,8 +29,8 @@
 
      <param type="string" name="interaction-list-alg">   genie::QELInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  CC-Default                         </param>
-     <param type="string" name="cross-section-alg">      genie::NuclearTargetXSec           </param>
-     <param type="string" name="cross-section-conf">     QEL-CC-Default                     </param>
+     <param type="string" name="cross-section-alg">      genie::QELXSec                     </param>
+     <param type="string" name="cross-section-conf">     CC-Default                         </param>
   </param_set>
 
   <param_set name="QEL-NC"> 
@@ -58,8 +58,8 @@
 
      <param type="string" name="interaction-list-alg">   genie::QELInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  NC-Default                         </param>
-     <param type="string" name="cross-section-alg">      genie::NuclearTargetXSec           </param>
-     <param type="string" name="cross-section-conf">     QEL-NC-Default                     </param>
+     <param type="string" name="cross-section-alg">      genie::QELXSec                     </param>
+     <param type="string" name="cross-section-conf">     NC-Default                         </param>
   </param_set>
 
 
