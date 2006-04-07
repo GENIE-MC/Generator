@@ -1,5 +1,7 @@
 #include <cassert>
 
+#include <TMath.h>
+
 #include "Base/XSecAlgorithmI.h"
 #include "CrossSections/GXSecFunc.h"
 #include "Interaction/Interaction.h"
@@ -98,8 +100,8 @@ double Integrand_D2XSec_DxDy_E_WQ2Cuts::operator() (const vector<double> & p)
   const InitialState & init_state = fInteraction -> GetInitialState();
 
   double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M  = init_state.GetTarget().StruckNucleonMass();
-  double M2 = M*M;
+  double M  = init_state.GetTarget().StruckNucleonP4()->M();
+  double M2 = TMath::Power(M,2);
 
   double currW2 = TMath::Max(0., M2 + 2*Ev*M*y*(1-x));
   double currW  = TMath::Sqrt(currW2);
