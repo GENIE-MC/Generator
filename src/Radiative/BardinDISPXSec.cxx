@@ -115,7 +115,7 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   const double xi_max = 0.999;
   const double dxi   = (xi_max-xi_min)/(nxi-1);
 
-  // This code here does not followo the standard GENIE numerical integration
+  // This code here does not follow the standard GENIE numerical integration
   // techniques and offers no quarantee for the numerical convergence
   // Need to bring in sync with the rest...
   vector<double> dterm2_dxi(nxi);
@@ -162,10 +162,11 @@ double BardinDISPXSec::PhiCCi(double xi, const Interaction * interaction) const
   const Kinematics & kine = interaction->GetKinematics();
   const Target & target = init_state.GetTarget();
 
+  double MN   = target.StruckNucleonP4()->M();
   double x    = kine.x();
   double y    = kine.y();
   int    pdg  = target.StruckQuarkPDGCode();
-  double mqi  = InitQuarkMass(xi);
+  double mqi  = xi*MN;
   double mqf2 = TMath::Power(fMqf,2);
   double mqi2 = TMath::Power(mqi,2);
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
@@ -204,10 +205,11 @@ double BardinDISPXSec::DeltaCCi(const Interaction * interaction) const
   const Kinematics & kine = interaction->GetKinematics();
   const Target & target = init_state.GetTarget();
 
+  double MN   = init_state.GetTarget().StruckNucleonP4()->M();
   double x    = kine.x();
   double y    = kine.y();
   int    pdg  = target.StruckQuarkPDGCode();
-  double mqi  = InitQuarkMass(interaction);
+  double mqi  = x*MN;
   double mqf2 = TMath::Power(fMqf,2);
   double mqi2 = TMath::Power(mqi,2);
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
@@ -259,11 +261,12 @@ double BardinDISPXSec::Ii(double xi, const Interaction * interaction) const
   const Kinematics & kine = interaction->GetKinematics();
   const Target & target = init_state.GetTarget();
 
+  double MN   = target.StruckNucleonP4()->M();
   double x    = kine.x();
   double y    = kine.y();
   int    pdg  = target.StruckQuarkPDGCode();
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
-  double mqi  = InitQuarkMass(xi);
+  double mqi  = xi*MN;
   double st   = St(xi, interaction);
   double u    = U(xi, interaction);
   double su   = Su(xi, interaction);
@@ -290,7 +293,8 @@ double BardinDISPXSec::S(const Interaction * interaction) const
   const InitialState & init_state = interaction->GetInitialState();
 
   double E = init_state.GetProbeE(kRfStruckNucAtRest);
-  double S = 2 * kNucleonMass * E;
+  double M = init_state.GetTarget().StruckNucleonP4()->M();
+  double S = 2*M*E;
   return S;
 }
 //__________________________________________________________________________
@@ -327,17 +331,6 @@ double BardinDISPXSec::Sq(const Interaction * interaction) const
 {
   double x = interaction->GetKinematics().x();
   return S(interaction) * x;
-}
-//__________________________________________________________________________
-double BardinDISPXSec::InitQuarkMass(const Interaction * interaction) const
-{
-  double x = interaction->GetKinematics().x();
-  return x * kNucleonMass;
-}
-//__________________________________________________________________________
-double BardinDISPXSec::InitQuarkMass(double xi) const
-{
-  return xi * kNucleonMass;
 }
 //__________________________________________________________________________
 double BardinDISPXSec::PDFFunc(const PDF & pdf, int pdgc) const
@@ -383,7 +376,7 @@ bool BardinDISPXSec::ValidKinematics(const Interaction * interaction) const
   const InitialState & init_state = interaction -> GetInitialState();
 
   double E     = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Mnuc  = kNucleonMass; // or init_state.TargetMass(); ?
+  double Mnuc  = init_state.GetTarget().StruckNucleonP4()->M();
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double x     = kinematics.x();
   double y     = kinematics.y();

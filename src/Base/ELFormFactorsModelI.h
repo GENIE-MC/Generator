@@ -22,16 +22,17 @@
 
 namespace genie {
 
+class Interaction;
+
 class ELFormFactorsModelI : public Algorithm {
 
 public:
-
   virtual ~ELFormFactorsModelI();
 
-  virtual double Gep (double q2) const = 0;
-  virtual double Gmp (double q2) const = 0;
-  virtual double Gen (double q2) const = 0;
-  virtual double Gmn (double q2) const = 0;
+  virtual double Gep (const Interaction * interaction) const = 0;
+  virtual double Gmp (const Interaction * interaction) const = 0;
+  virtual double Gen (const Interaction * interaction) const = 0;
+  virtual double Gmn (const Interaction * interaction) const = 0;
 
 protected:
 

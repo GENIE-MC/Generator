@@ -94,7 +94,7 @@ double LlewellynSmithModel::Fp(const Interaction * interaction) const
 
   // get struck nucleon mass & set pion mass
   const InitialState & init_state = interaction->GetInitialState();
-  double MN   = init_state.GetTarget().StruckNucleonMass();
+  double MN   = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
   double MN2  = TMath::Power(MN, 2);
   double Mpi  = kPionMass;
   double Mpi2 = TMath::Power(Mpi, 2);
@@ -153,7 +153,7 @@ double LlewellynSmithModel::tau(const Interaction * interaction) const
   const Kinematics &   kinematics = interaction->GetKinematics();
   const InitialState & init_state = interaction->GetInitialState();
   double q2     = kinematics.q2();
-  double Mnucl  = init_state.GetTarget().StruckNucleonMass();
+  double Mnucl  = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
   double Mnucl2 = TMath::Power(Mnucl, 2);
 
   //-- calculate q^2 / (4*Mnuc^2)
@@ -162,13 +162,9 @@ double LlewellynSmithModel::tau(const Interaction * interaction) const
 //____________________________________________________________________________
 double LlewellynSmithModel::GVE(const Interaction * interaction) const
 {
-  //-- get the momentum transfer
-  const Kinematics & kinematics = interaction->GetKinematics();
-  double q2 = kinematics.q2();
-
   ELFormFactors elff;
   elff.SetModel(fElFFModel);
-  elff.Calculate(q2);
+  elff.Calculate(interaction);
 
   //-- compute GVE using CVC
   double gve = elff.Gep() - elff.Gen();
@@ -177,13 +173,9 @@ double LlewellynSmithModel::GVE(const Interaction * interaction) const
 //____________________________________________________________________________
 double LlewellynSmithModel::GVM(const Interaction * interaction) const
 {
-  //-- get the momentum transfer
-  const Kinematics & kinematics = interaction->GetKinematics();
-  double q2 = kinematics.q2();
-
   ELFormFactors elff;
   elff.SetModel(fElFFModel);
-  elff.Calculate(q2);
+  elff.Calculate(interaction);
 
   //-- compute GVM using CVC
   double gvm = elff.Gmp() - elff.Gmn();

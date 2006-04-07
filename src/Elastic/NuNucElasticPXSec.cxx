@@ -60,13 +60,13 @@ double NuNucElasticPXSec::XSec(const Interaction * interaction) const
 
   double E     = init_state.GetProbeE(kRfStruckNucAtRest);
   double Q2    = kinematics.Q2();
-  double M     = init_state.GetTarget().StruckNucleonMass();
-  double M2    = M*M;
-  double M4    = M2*M2;
-  double E2    = E*E;
+  double M     = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
+  double M2    = TMath::Power(M, 2);
+  double M4    = TMath::Power(M2,2);
+  double E2    = TMath::Power(E, 2);
   double sig0  = kGF_2*M2 / (8*kPi*E2);
-  double su    = 4*M*E - Q2; // s-u
-  double su2   = su*su;      // (s-u)^2
+  double su    = 4*M*E - Q2;            // s-u
+  double su2   = TMath::Power(su,2);    
   double qm2   = Q2 / M2;
   double qmf   = TMath::Power(1+qm2,2);
   double alpha = 1.-2.*kSin8w_2;
@@ -80,9 +80,9 @@ double NuNucElasticPXSec::XSec(const Interaction * interaction) const
   double ga    = 0.5 * kElGa0 / qmf;           // El.nucl. form factor GA
   double f2    = alpha*Fv3 + gamma*Fv0;        // El.nucl. form factor F2
   double f1    = alpha*Gv3 + gamma* Gv0 - f2;  // El.nucl. form factor F1
-  double ga2   = ga*ga;
-  double f12   = f1*f1;
-  double f22   = f2*f2;
+  double ga2   = TMath::Power(ga,2);
+  double f12   = TMath::Power(f1,2);
+  double f22   = TMath::Power(f2,2);
 
   double A = qm2 * ( ga2 * (1 + 0.25*qm2)                    +
                      (0.25 * f22*qm2 - f12) * (1 - 0.25*qm2) +
@@ -105,7 +105,6 @@ double NuNucElasticPXSec::XSec(const Interaction * interaction) const
 bool NuNucElasticPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
-
   return true;
 }
 //____________________________________________________________________________

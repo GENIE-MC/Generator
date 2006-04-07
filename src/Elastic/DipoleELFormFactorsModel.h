@@ -28,10 +28,21 @@ public:
   DipoleELFormFactorsModel(string config);
   virtual ~DipoleELFormFactorsModel();
 
-  double Gep (double q2) const;
-  double Gmp (double q2) const;
-  double Gen (double q2) const;
-  double Gmn (double q2) const;
+  //! implement the ELFormFactorsModelI interface
+  double Gep (const Interaction * interaction) const;
+  double Gmp (const Interaction * interaction) const;
+  double Gen (const Interaction * interaction) const;
+  double Gmn (const Interaction * interaction) const;
+
+  // overload Algorithm's Configure() 
+  void   Configure  (const Registry & config);
+  void   Configure  (string param_set);
+
+private:
+
+  void LoadConfig(void);
+
+  double fMv2;
 };
 
 }         // genie namespace

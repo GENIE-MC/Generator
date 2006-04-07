@@ -44,32 +44,36 @@ BBA03ELFormFactorsModel::~BBA03ELFormFactorsModel()
 
 }
 //____________________________________________________________________________
-double BBA03ELFormFactorsModel::Gep(double q2) const
+double BBA03ELFormFactorsModel::Gep(const Interaction * interaction) const
 {
   double gep = 0;
+  double q2  = interaction->GetKinematics().q2();
 
   if( TMath::Abs(q2) > fQ2Max ) {
-
      double gepmx = this->BBA03Fit(-fQ2Max, 1.,   fGep);
      double gmpmx = this->BBA03Fit(-fQ2Max, kMuP, fGmp);
      double gmp   = this->BBA03Fit(q2, kMuP, fGmp);
      gep = gmp * (gepmx/gmpmx);
-
   } else {
      gep = this->BBA03Fit(q2, 1., fGep);
   }
   return gep;
 }
 //____________________________________________________________________________
-double BBA03ELFormFactorsModel::Gmp(double q2) const
+double BBA03ELFormFactorsModel::Gmp(const Interaction * interaction) const
 {
+  double q2  = interaction->GetKinematics().q2();
   double gmp = this->BBA03Fit(q2, kMuP, fGmp);
   return gmp;
 }
 //____________________________________________________________________________
-double BBA03ELFormFactorsModel::Gen(double q2) const
+double BBA03ELFormFactorsModel::Gen(const Interaction * interaction) const
 {
-  double M2  = kNucleonMass_2;               // Mnucl^2
+  double q2  = interaction->GetKinematics().q2();
+
+  const Target & tgt = interaction->GetInitialState().GetTarget();
+
+  double M2  = tgt.StruckNucleonP4()->M2();  // Mnucl^2
   double t   = -q2/(4*M2);                   // q2<0
   double mun = kMuN;                         // neutron magnetic moment
   double a   = fGenA;                        // Krutov et al. parameter a
@@ -81,8 +85,9 @@ double BBA03ELFormFactorsModel::Gen(double q2) const
   return gen;
 }
 //____________________________________________________________________________
-double BBA03ELFormFactorsModel::Gmn(double q2) const
+double BBA03ELFormFactorsModel::Gmn(const Interaction * interaction) const
 {
+  double q2  = interaction->GetKinematics().q2();
   double gmn = this->BBA03Fit(q2, kMuN, fGmn);
   return gmn;
 }

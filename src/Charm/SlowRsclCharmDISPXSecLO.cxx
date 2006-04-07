@@ -69,7 +69,7 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
   const Kinematics &   kinematics = interaction->GetKinematics();
   const InitialState & init_state = interaction->GetInitialState();
 
-  double Mnuc = kNucleonMass; // or init_state.TargetMass(); ?
+  double Mnuc = init_state.GetTarget().StruckNucleonP4()->M();
   double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double x    = kinematics.x();
   double y    = kinematics.y();
@@ -171,7 +171,7 @@ bool SlowRsclCharmDISPXSecLO::ValidKinematics(
     return false;
   }
 
-  double Mnuc  = kNucleonMass; // or use init_state->HitNucleon->Mass; ?
+  double Mnuc  = init_state.GetTarget().StruckNucleonP4()->M();
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double Q2    = 2*Mnuc*E*x*y;
   double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);

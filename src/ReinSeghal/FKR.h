@@ -30,7 +30,7 @@ public:
   FKR();
   ~FKR();
 
-  void Calculate(double q2, double W, int n);
+  void Calculate(double q2, double W, double mN, int n);
 
   void Initialize (void);
   void Print      (ostream & stream) const;

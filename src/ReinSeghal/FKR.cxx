@@ -44,13 +44,12 @@ FKR::~FKR()
 
 }
 //____________________________________________________________________________
-void FKR::Calculate(double q2, double W, int n)
+void FKR::Calculate(double q2, double W, double mN, int n)
 {
 // q2   : momentum transfer < 0
 // W    : hadronic invariant mass
 // nqres: resonance index
 
-  double mN  = kNucleonMass;   // or use struck nucleon mass instead?
   double mN2 = TMath::Power(mN, 2);
   double W2  = TMath::Power(W,  2);
   double k   = 0.5 * (W2 - mN2) / mN;

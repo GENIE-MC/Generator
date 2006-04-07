@@ -52,11 +52,7 @@ double LlewellynSmithModelNC::F1V(const Interaction * interaction) const
 
   ELFormFactors elff;
   elff.SetModel(fElFFModel);
-
-  const Kinematics & kine = interaction->GetKinematics();
-  double q2 = kine.q2();
-
-  elff.Calculate(q2);
+  elff.Calculate(interaction);
 
   //-- calculate F1p (see hep-ph/0107261)
   double t   = LlewellynSmithModel::tau(interaction);
@@ -76,11 +72,7 @@ double LlewellynSmithModelNC::xiF2V(const Interaction * interaction) const
 
   ELFormFactors elff;
   elff.SetModel(fElFFModel);
-
-  const Kinematics & kine = interaction->GetKinematics();
-  double q2 = kine.q2();
-
-  elff.Calculate(q2);
+  elff.Calculate(interaction);
 
   //-- calculate F2p (see hep-ph/0107261)
   double F2p = (elff.Gmp() - elff.Gep()) / kMuP;
@@ -109,7 +101,7 @@ double LlewellynSmithModelNC::Fp(const Interaction * interaction) const
 
   //-- get struck nucleon mass & pion pass
   const InitialState & init_state = interaction->GetInitialState();
-  double MN   = init_state.GetTarget().StruckNucleonMass();
+  double MN   = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
   double MN2  = TMath::Power(MN,        2);
   double Mpi2 = TMath::Power(kPionMass, 2);
 

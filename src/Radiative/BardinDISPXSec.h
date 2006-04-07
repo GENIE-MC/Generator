@@ -68,14 +68,10 @@ private:
   double tau      (double xi, const Interaction * interaction) const;
   double St       (double xi, const Interaction * interaction) const;
   double Su       (double xi, const Interaction * interaction) const;
-
   double S        (const Interaction * interaction) const;
   double DeltaCCi (const Interaction * interaction) const;
   double Sq       (const Interaction * interaction) const;
-
-  double InitQuarkMass (const Interaction * interaction) const;
-  double InitQuarkMass (double xi) const;
-  double PDFFunc       (const PDF & pdf, int pgdc) const;
+  double PDFFunc  (const PDF & pdf, int pgdc) const;
 
   const PDFModelI *   fPDFModel;
   double fMqf;

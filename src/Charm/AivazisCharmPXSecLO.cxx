@@ -77,7 +77,7 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   double x           = kinematics.x();
   double y           = kinematics.y();
   double x2          = TMath::Power(x,    2);
-  double Mnuc        = kNucleonMass; // or use init_state->HitNucleon->Mass; ?
+  double Mnuc        = init_state.GetTarget().StruckNucleonP4()->M();
   double Mnuc2       = TMath::Power(Mnuc, 2);
   double Q2          = 2*Mnuc*E*x*y;
   double W2          = Mnuc2 + 2*Mnuc*E*y*(1-x);
@@ -178,7 +178,7 @@ bool AivazisCharmPXSecLO::ValidKinematics(
     return false;
   }
 
-  double Mnuc  = kNucleonMass; // or use init_state->HitNucleon->Mass; ?
+  double Mnuc  = init_state.GetTarget().StruckNucleonP4()->M();
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double Q2    = 2*Mnuc*E*x*y;
   double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);

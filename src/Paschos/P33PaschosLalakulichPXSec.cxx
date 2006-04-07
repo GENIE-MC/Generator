@@ -69,10 +69,14 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   const InitialState & init_state = interaction -> GetInitialState();
   const Kinematics &   kinematics = interaction -> GetKinematics();
 
-  double E  = init_state.GetProbeE(kRfStruckNucAtRest);
-  double E2 = TMath::Power(E,2);
-  double Q2 = kinematics.Q2();
-  double W  = kinematics.W();
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E2   = TMath::Power(E,2);
+  double Q2   = kinematics.Q2();
+  double W    = kinematics.W();
+  double MN   = init_state.GetTarget().StruckNucleonP4()->M();
+  double MN2  = TMath::Power(MN,2);
+  double Mmu2 = kMuonMass_2;
+  double Mpi2 = kPionMass_2;
 
   LOG("PaschLal", pDEBUG) << "Input kinematics: W = " << W << ", Q2 = " << Q2;
 
@@ -82,16 +86,10 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   res_params.SetDataSet(fRESDataTable);
   res_params.RetrieveData(kP33_1232);
 
-  double MR       = res_params.Mass();
   double Gamma_R0 = res_params.Width();
-
-  //-- Commonly used masses
-  double MN   = kNucleonMass;
-  double MN2  = kNucleonMass_2;
-  double Mmu2 = kMuonMass_2;
-  double Mpi2 = kPionMass_2;
-  double MR2  = TMath::Power(MR,2);
-  double MR3  = TMath::Power(MR,3);
+  double MR       = res_params.Mass();
+  double MR2      = TMath::Power(MR,2);
+  double MR3      = TMath::Power(MR,3);
 
   //-- Auxiliary params
   double MA2    = TMath::Power( fMa, 2 );
@@ -123,7 +121,7 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   //   functions so that they can be directly used here
 
   // model of the running Gamma from Paschos [default]
-  double Gamma_R=Gamma_R0*pow((this->PPiStar(W)/this->PPiStar(MR)),3);
+  double Gamma_R=Gamma_R0*pow((this->PPiStar(W,MN)/this->PPiStar(MR,MN)),3);
 
   // check for other option
   if ( fConfig->Exists("running-gamma") ) {
@@ -133,13 +131,13 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
      if ( gamma_model.find("Hagiwara") != string::npos )
      {
          // model of the running Gamma from Hagiwara et. al.
-         Gamma_R = Gamma_R0*MR/W*pow((this->PPiStar(W)/this->PPiStar(MR)),1);
+         Gamma_R = Gamma_R0*MR/W*pow((this->PPiStar(W,MN)/this->PPiStar(MR,MN)),1);
      } else
      if ( gamma_model.find("Galster") != string::npos )
      {
          // model of the running Gamma similar to Galster-1972
-         double gtmp1 = TMath::Power( this->PPiStar(W) / this->PPiStar(MR), 3);
-         double gtmp2 = TMath::Power( this->PPiStar(W) / this->PPiStar(MR), 2);
+         double gtmp1 = TMath::Power( this->PPiStar(W,MN) / this->PPiStar(MR,MN), 3);
+         double gtmp2 = TMath::Power( this->PPiStar(W,MN) / this->PPiStar(MR,MN), 2);
          Gamma_R = Gamma_R0*gtmp1/(1+gtmp2);
      }
   }
@@ -147,10 +145,10 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
 
   //-- Include Pauli suppression [if the option was turned on by the user]
   double pauli = 1.;
-  if(fTurnOnPauliCorrection) pauli = this->Pauli(Q2,W);
+  if(fTurnOnPauliCorrection) pauli = this->Pauli(Q2,W,MN);
 
   //-- Kinematic variables
-  double nu    = this->Nu(Q2,W);
+  double nu  = this->Nu(Q2,W,MN);
   double pq  = MN*nu;
   double qk  = -(Q2+Mmu2)/2.;
   double pk  = MN*E;
@@ -315,7 +313,7 @@ void P33PaschosLalakulichPXSec::LoadConfig(void)
   assert(fRESDataTable);
 }
 //____________________________________________________________________________
-double P33PaschosLalakulichPXSec::Pauli(double Q2, double W) const
+double P33PaschosLalakulichPXSec::Pauli(double Q2, double W, double MN) const
 {
 // Pauli suppression for deuterium with Fermi momentum 0.160 GeV
 
@@ -324,8 +322,8 @@ double P33PaschosLalakulichPXSec::Pauli(double Q2, double W) const
 
   double Paulii = 0;
 
-  double p_pi_star = this->PPiStar(W);
-  double nu_star   = this->NuStar(Q2,W);
+  double p_pi_star = this->PPiStar(W,MN);
+  double nu_star   = this->NuStar(Q2,W,MN);
 
   double p_pi_star_2 = TMath::Power(p_pi_star,   2);
   double p_pi_star_4 = TMath::Power(p_pi_star_2, 2);
@@ -360,23 +358,23 @@ double P33PaschosLalakulichPXSec::Pauli(double Q2, double W) const
   return Paulii;
 }
 //____________________________________________________________________________
-double P33PaschosLalakulichPXSec::Nu(double Q2, double W) const
+double P33PaschosLalakulichPXSec::Nu(double Q2, double W, double MN) const
 {
-  return (TMath::Power(W,2) - kNucleonMass_2 + Q2)/2/kNucleonMass;
+  return (TMath::Power(W,2) - TMath::Power(MN,2) + Q2)/2/MN;
 }
 //____________________________________________________________________________
-double P33PaschosLalakulichPXSec::PPiStar(double W) const
+double P33PaschosLalakulichPXSec::PPiStar(double W, double MN) const
 {
   double W2 = TMath::Power(W,2);
-  double a  = TMath::Power(kNucleonMass+kPionMass,2);
-  double b  = TMath::Power(kNucleonMass-kPionMass,2);
+  double a  = TMath::Power(MN+kPionMass,2);
+  double b  = TMath::Power(MN-kPionMass,2);
 
   return TMath::Sqrt( (W2-a)*(W2-b) )/2/W;
 }
 //____________________________________________________________________________
-double P33PaschosLalakulichPXSec::NuStar(double Q2, double W) const
+double P33PaschosLalakulichPXSec::NuStar(double Q2, double W, double MN) const
 {
-  return (TMath::Power(W,2) - kNucleonMass_2 - Q2)/2/W;
+  return (TMath::Power(W,2) - TMath::Power(MN,2) - Q2)/2/W;
 }
 //____________________________________________________________________________
 
