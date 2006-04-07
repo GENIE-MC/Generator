@@ -23,6 +23,7 @@
 #define _LLEWELLYN_SMITH_MODEL_H_
 
 #include "Base/QELFormFactorsModelI.h"
+#include "Base/ELFormFactors.h"
 
 namespace genie {
 
@@ -59,6 +60,8 @@ protected:
   virtual double GVM    (const Interaction * interaction) const;
 
   const ELFormFactorsModelI * fElFFModel;
+
+  mutable ELFormFactors fELFF;
 
   double fMa2;
   double fFA0;
