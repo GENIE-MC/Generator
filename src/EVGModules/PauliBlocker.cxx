@@ -81,10 +81,22 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
                    << "\n The generated event is Pauli-blocked: "
                           << " |p| = " << p << " < Fermi-Momentum = " << kf;
 
+              const ProcessInfo & proc = interaction->GetProcessInfo();
+
               event_rec->EventFlags()->SetBitNumber(kPauliBlock, true);
               genie::exceptions::EVGThreadException exception;
               exception.SetReason("Pauli-blocked event");
-              exception.SwitchOnFastForward();
+
+              if(proc.IsQuasiElastic()) {
+                 // nuclear suppression taken into account at the QEL cross
+                 // section - should attempt to regenerate the event as QEL
+                 exception.SwitchOnStepBack();
+                 exception.SetReturnStep(0);
+              } else {
+                 // end this event generation thread and start again at the 
+                 // interaction selection step
+                 exception.SwitchOnFastForward();
+              }
               throw exception;
          }
        }//nuc!=0
