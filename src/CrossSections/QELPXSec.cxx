@@ -27,6 +27,7 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
+#include "Utils/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -63,12 +64,12 @@ double QELPXSec::XSec(const Interaction * interaction) const
 
   double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
-  double Mnuc = init_state.GetTarget().StruckNucleonMass();
+  double Mnuc = init_state.GetTarget().StruckNucleonP4()->M();
   double q2   = kinematics.q2();
 
   //----- one of the xsec terms changes sign for antineutrinos
-  int sign = 1;
-  if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
+  bool is_neutrino = pdg::IsNeutrino(init_state.GetProbePDGCode());
+  int sign = (is_neutrino) ? 1 : -1;
 
   //----- calculate the QEL form factors
   QELFormFactors form_factors;
@@ -106,10 +107,31 @@ double QELPXSec::XSec(const Interaction * interaction) const
   double term7 = sign * FA*(F1V+xiF2V) * q2 * s_u            / Mnuc2;
   double term8 = (F1V_2 - xiF2V*xiF2V*q2/(4*Mnuc2) +FA_2 ) * s_u*s_u / (4*Mnuc2);
 
-  //----- compute differential cross section
+  //----- compute free nucleon differential cross section
   double xsec = Gfactor*(term1+term2+term3-term4+term5-term6+term7+term8);
+
   LOG("QELPXSec", pDEBUG)
-     << "dXSec[QEL]/dQ2 (E = " << E << ", Q2 = " << -q2 << ") = " << xsec;
+     << "dXSec[QEL]/dQ2 [FreeN](E = "<< E << ", Q2 = "<< -q2 << ") = "<< xsec;
+
+  //----- if requested return the free nucleon xsec even for input nuclear tgt 
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+
+  //----- compute nuclear suppression factor
+  double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
+
+  //----- number of scattering centers in the target
+  const Target & tgt = init_state.GetTarget();
+  int nucpdgc = tgt.StruckNucleonPDGCode();
+  int NNucl = (pdg::IsProton(nucpdgc)) ? tgt.Z() : tgt.N(); 
+
+  LOG("QELPXSec", pDEBUG) 
+       << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
+
+  xsec *= (R*NNucl); // nuclear xsec
+
+  LOG("QELPXSec", pDEBUG)
+   << "dXSec[QEL]/dQ2 [Nuclear](E = "<< E << ", Q2 = "<< -q2 << ") = "<< xsec;
+
   return xsec;
 }
 //____________________________________________________________________________
