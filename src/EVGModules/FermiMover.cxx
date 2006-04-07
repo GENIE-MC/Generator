@@ -82,35 +82,48 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   LOG("FermiMover", pINFO) << "Generated nucleon momentum: ("
                   << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << ")";
   
-  // access ths hit nucleon and target nucleus at the GHEP record
+  double pF2 = p3.Mag2(); // (fermi momentum)^2
+
+  // access the hit nucleon and target nucleus at the GHEP record
   GHepParticle * nucleon = event_rec->StruckNucleon();
   GHepParticle * nucleus = event_rec->TargetNucleus();
   assert(nucleon);
   assert(nucleus);
 
-  //-- compute A,Z for final state nucleus & get its PDG code 
-  int nucleon_pdgc = nucleon->PdgCode();
-  bool is_p  = pdg::IsProton(nucleon_pdgc);
-  int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
-  int A = nucleus->A() - 1;
+  // struck nucleon energy:
+  // two possible prescriptions depending on whether you want to force
+  // the sruck nucleon to be on the mass-shell or not...
 
-  TParticlePDG * fnucleus = 0;
-  int ipdgc = pdg::IonPdgCode(A, Z);
-  fnucleus = PDGLibrary::Instance()->Find(ipdgc);
-  if(!fnucleus) {
-      LOG("FermiMover", pFATAL)
-          << "No particle with [A = " << A << ", Z = " << Z
+  double EN=0;
+
+  if(!fKeepNuclOnMassShell) {
+     //-- compute A,Z for final state nucleus & get its PDG code 
+     int nucleon_pdgc = nucleon->PdgCode();
+     bool is_p  = pdg::IsProton(nucleon_pdgc);
+     int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
+     int A = nucleus->A() - 1;
+
+     TParticlePDG * fnucleus = 0;
+     int ipdgc = pdg::IonPdgCode(A, Z);
+     fnucleus = PDGLibrary::Instance()->Find(ipdgc);
+     if(!fnucleus) {
+        LOG("FermiMover", pFATAL)
+             << "No particle with [A = " << A << ", Z = " << Z
                             << ", pdgc = " << ipdgc << "] in PDGLibrary!";
-      exit(1);
+        exit(1);
+     }
+     //-- compute the energy of the struck (off the mass-shell) nucleus
+
+     double Mf  = fnucleus -> Mass(); // remnant nucleus mass
+     double Mi  = nucleus  -> Mass(); // initial nucleus mass
+
+     EN = Mi - TMath::Sqrt(pF2 + Mf*Mf);
+
+  } else {
+     double MN  = nucleon->Mass();
+     double MN2 = TMath::Power(MN,2);
+     EN = TMath::Sqrt(MN2+pF2);
   }
-
-  //-- compute the energy of the struck (off the mass-shell) nucleus
-
-  double Mf  = fnucleus -> Mass(); // remnant nucleus mass
-  double Mi  = nucleus  -> Mass(); // initial nucleus mass
-  double pF2 = p3.Mag2();          // (fermi momentum)^2
-
-  double EN  = Mi - TMath::Sqrt(pF2 + Mf*Mf);
 
   //-- update the struck nucleon 4p at the interaction summary and at
   //   the GHEP record
@@ -118,7 +131,7 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   p4->SetPx( p3.Px() );
   p4->SetPy( p3.Py() );
   p4->SetPz( p3.Pz() );
-  p4->SetE ( EN      ); // note: off the mass-shell
+  p4->SetE ( EN      ); 
 
   nucleon->SetMomentum(*p4); // update GHEP value
 
@@ -158,6 +171,9 @@ void FermiMover::LoadConfig(void)
 
   fNuclPModel = dynamic_cast<const NuclMomentumModelI *>
          (this->SubAlg("nucl-p-distribution-alg","nucl-p-distribution-conf"));
+
+  fKeepNuclOnMassShell = 
+                 fConfig->GetBoolDef("keep-hit-nucleon-on-mass-shell", false);
 }
 //____________________________________________________________________________
 

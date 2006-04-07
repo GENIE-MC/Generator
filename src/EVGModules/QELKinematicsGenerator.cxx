@@ -62,6 +62,15 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
+  //-- Note: The kinematic generator would be using the free nucleon cross
+  //   section (even for nuclear targets) so as not to double-count nuclear
+  //   suppression. This assumes that a) the nuclear suppression was turned
+  //   on when computing the cross sections for selecting the current event 
+  //   and that b) if the event turns out to be unphysical (Pauli-blocked) 
+  //   the next attempted event will be forced to QEL again.
+  //   (discussion with Hugh - GENIE/NeuGEN integration workshop - 07APR2006
+  interaction->SetBit(kIAssumeFreeNucleon);
+
   //-- Get the limits for the generated Q2
   Range1D_t Q2 = this->Q2Range(interaction);
 
@@ -125,6 +134,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         interaction->ResetBit(kISkipProcessChk);
         interaction->ResetBit(kISkipKinematicChk);
+        interaction->ResetBit(kIAssumeFreeNucleon);
         return;
      }
   }// iterations

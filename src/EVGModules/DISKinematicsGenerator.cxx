@@ -244,8 +244,8 @@ void DISKinematicsGenerator::SetKineXY(const Interaction * interaction) const
   //-- get initial state information
   const InitialState & init_state = interaction->GetInitialState();
   double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M   = init_state.GetTarget().StruckNucleonMass();
-  double M2  = M*M;
+  double M   = init_state.GetTarget().StruckNucleonP4()->M();
+  double M2  = TMath::Power(M,2);
 
   //-- get current W,Q2
   double W  = interaction->GetKinematics().W();

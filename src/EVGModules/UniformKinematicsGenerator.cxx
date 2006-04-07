@@ -22,6 +22,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "EVGModules/UniformKinematicsGenerator.h"
@@ -151,8 +153,8 @@ void UniformKinematicsGenerator::GenerateUnifDISKinematics(
   const InitialState & init_state = interaction->GetInitialState();
 
   double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M   = init_state.GetTarget().StruckNucleonMass();
-  double M2  = M*M;
+  double M   = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
+  double M2  = TMath::Power(M,2);
 
   // select kinematics
 
