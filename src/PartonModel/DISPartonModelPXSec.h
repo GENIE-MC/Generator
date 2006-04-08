@@ -19,6 +19,7 @@
 #define _DIS_PARTON_MODEL_PARTIAL_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
+#include "Base/DISStructureFunc.h"
 
 namespace genie {
 
@@ -42,8 +43,10 @@ public:
   void Configure(string config);
 
 private:
-  void LoadSubAlg (void);
+  void LoadConfig (void);
+
   const DISStructureFuncModelI * fDISSFModel;
+  mutable DISStructureFunc fDISSF;
 };
 
 }       // genie namespace
