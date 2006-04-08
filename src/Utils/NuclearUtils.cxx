@@ -95,9 +95,18 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
                 string kftable, double pmax, const Interaction * interaction)
 {
 // Computes the suppression of the EL/QEL differential cross section due to
-// nuclear effects
+// nuclear effects.
+//
 // A direct adaptation of NeuGEN's qelnuc() and r_factor()
-
+//
+// Hugh's comments from the original code: 
+// "This routine is based on an analytic calculation of the rejection factor 
+//  in the Fermi Gas model using the form for the fermi momentum distribution 
+//  given in the  Bodek and Ritchie paper.  [P.R.  D23 (1981) 1070]
+//  R is the ratio of the differential cross section from the nuclear material 
+//  specified by (kf,pf) to the differential cross section for a free nucleon".
+//  (kf,pf = Fermi Gas model Fermi momentum for initial,final nucleons)
+//
   const InitialState & init_state = interaction->GetInitialState();
   const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
   const Target &       target     = init_state.GetTarget();
@@ -117,21 +126,24 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
   FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
   const FermiMomentumTable * kft  = kftp->GetTable(kftable);
 
+  // Fermi Gas model Fermi momentum for initial,final nucleons
+
   double kFi = kft->FindClosestKF(target_pdgc, struck_nucleon_pdgc);
   double kFf = (struck_nucleon_pdgc==final_nucleon_pdgc) ? kFi : 
                kft->FindClosestKF(target_pdgc, final_nucleon_pdgc );
 
-  // nucleon mass (can be off m/shell)
-  double Mn  = target.StruckNucleonP4()->M(); 
-  double Mn2 = TMath::Power(Mn,2);
+  // Compute magnitude of the 3-momentum transfer to the nucleon
+
+  double Mn2 = target.StruckNucleonP4()->M2(); // can be off m/shell
 
   const Kinematics & kine = interaction->GetKinematics();
-  double q2 = kine.q2();
-  double q  = q2 * (0.25*q2/Mn2 - 1.);
+  double q2     = kine.q2();
+  double magq2  = q2 * (0.25*q2/Mn2 - 1.);
+  double q      = TMath::Sqrt(TMath::Max(0.,magq2));
 
   double kfa   = kFi * 2./kPi;
   double kfa2  = TMath::Power(kfa,2);
-  double kFi4  = TMath::Power(kfa,2);
+  double kFi4  = TMath::Power(kFi,4);
   double rkf   = 1./(1. - kFi/4.);
   double alpha = 1. - 6.*kfa2;
   double beta  = 2. * rkf * kfa2 * kFi4;
