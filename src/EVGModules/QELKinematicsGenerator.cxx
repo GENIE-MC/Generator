@@ -170,7 +170,7 @@ void QELKinematicsGenerator::LoadConfig(void)
 
   //-- Minimum energy for which max xsec would be cached, forcing explicit
   //   calculation for lower eneries
-  fEMin = fConfig->GetDoubleDef("min-energy-cached", -1.0);
+  fEMin = fConfig->GetDoubleDef("min-energy-cached", 1.00);
 }
 //____________________________________________________________________________
 Range1D_t QELKinematicsGenerator::Q2Range(
@@ -202,14 +202,10 @@ double QELKinematicsGenerator::ComputeMaxXSec(
 // safety factor. But it needs to be fast - do not use a very small dQ2 step.
 
   double max_xsec = 0.0;
-  const int N = 40;
-
-  const InitialState & init_state = interaction -> GetInitialState();
-  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+  const int N = 60;
 
   Range1D_t rQ2 = this->Q2Range(interaction);
   if( rQ2.max < 1e-3 || rQ2.min <=0 ) return 0.;
-  if(E<0.6) utils::kinematics::ApplyCutsToKineLimits(rQ2, E/200., 1.2*E);
 
   const double logQ2min = TMath::Log(rQ2.min);
   const double logQ2max = TMath::Log(rQ2.max);
