@@ -28,7 +28,7 @@ static const unsigned int kRecursiveModeMaxDepth = 100;
 
 // maximum allowed number of EVGThreadExceptions that is allowed
 // to be caught by EventGenerator at a single event generation thread
-static const unsigned int kMaxEVGThreadExceptions = 5;
+static const unsigned int kMaxEVGThreadExceptions = 350;
 
 // Default random number generator seed number. It can be overriden
 // setting the $GSEED env. var. or by using RandomGen::SetSeed(int)
