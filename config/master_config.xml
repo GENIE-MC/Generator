@@ -24,6 +24,7 @@
    <config alg="genie::IMDKinematicsGenerator">      IMDKinematicsGenerator.xml      </config>
    <config alg="genie::COHKinematicsGenerator">      COHKinematicsGenerator.xml      </config>
    <config alg="genie::QELHadronicSystemGenerator">  QELHadronicSystemGenerator.xml  </config>
+   <config alg="genie::COHHadronicSystemGenerator">  COHHadronicSystemGenerator.xml  </config>
    <config alg="genie::DISHadronicSystemGenerator">  DISHadronicSystemGenerator.xml  </config>
    <config alg="genie::FragmentCharmDISGenerator">   FragmentCharmDISGenerator.xml   </config>
    <config alg="genie::RESHadronicSystemGenerator">  RESHadronicSystemGenerator.xml  </config>
