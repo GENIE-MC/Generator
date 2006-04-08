@@ -17,7 +17,6 @@
 
 #include <TMath.h>
 
-#include "Base/DISStructureFunc.h"
 #include "Base/DISStructureFuncModelI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -72,17 +71,9 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
   if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
 
   //----- Calculate the DIS structure functions
-  DISStructureFunc dis_sf;
-  dis_sf.SetModel(fDISSFModel);   // <-- attach algorithm
-  dis_sf.Calculate(interaction);  // <-- calculate
+  fDISSF.Calculate(interaction); 
 
-  double F1 = dis_sf.F1();
-  double F2 = dis_sf.F2();
-  double F3 = dis_sf.F3();
-  double F4 = dis_sf.F4();
-  double F5 = dis_sf.F5();
-
-  LOG("DISXSec", pDEBUG)  << "\n" << dis_sf;
+  LOG("DISXSec", pDEBUG)  << "\n" << fDISSF;
 
   //-- calculate auxiliary parameters
   double ml2  = ml    * ml;
@@ -103,11 +94,11 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
     << term5 << ")*F5";
 
   //----- Compute the differential cross section
-  term1*=F1;
-  term2*=F2;
-  term3*=F3;
-  term4*=F4;
-  term5*=F5;
+  term1 *= fDISSF.F1();
+  term2 *= fDISSF.F2();
+  term3 *= fDISSF.F3();
+  term4 *= fDISSF.F4();
+  term5 *= fDISSF.F5();
 
   double xsec = Gfac*(term1 + term2 + term3 + term4 + term5);
   xsec = TMath::Max(xsec,0.);
@@ -169,16 +160,16 @@ bool DISPartonModelPXSec::ValidKinematics(
 void DISPartonModelPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void DISPartonModelPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void DISPartonModelPXSec::LoadSubAlg(void)
+void DISPartonModelPXSec::LoadConfig(void)
 {
   fDISSFModel = 0;
 
@@ -186,6 +177,8 @@ void DISPartonModelPXSec::LoadSubAlg(void)
   fDISSFModel = dynamic_cast<const DISStructureFuncModelI *> (
                                 this->SubAlg("sf-alg-name", "sf-param-set"));
   assert(fDISSFModel);
+
+  fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 }
 //____________________________________________________________________________
 
