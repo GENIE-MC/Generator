@@ -78,6 +78,17 @@ InteractionList * COHInteractionListGenerator::CreateInteractionList(
   ProcessInfo proc_info(kScCoherent, inttype);
   Interaction * interaction = new Interaction(init_state, proc_info);
 
+  if(fIsCC) {
+    if(pdg::IsNeutrino(nupdg)) {
+        //v A -> l- A pi+
+        interaction->GetExclusiveTagPtr()->SetNPions(1,0,0);  
+    } else {
+        //vbar A -> l+ A pi-
+        interaction->GetExclusiveTagPtr()->SetNPions(0,0,1); 
+    }
+  }
+  else {interaction->GetExclusiveTagPtr()->SetNPions(0,1,0);} //v A -> v A pi0
+
   intlist->push_back(interaction);
 
   return intlist;
