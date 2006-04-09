@@ -60,7 +60,7 @@ double NuNucElasticPXSec::XSec(const Interaction * interaction) const
 
   double E     = init_state.GetProbeE(kRfStruckNucAtRest);
   double Q2    = kinematics.Q2();
-  double M     = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
+  double M     = init_state.GetTarget().StruckNucleonMass();
   double M2    = TMath::Power(M, 2);
   double M4    = TMath::Power(M2,2);
   double E2    = TMath::Power(E, 2);
