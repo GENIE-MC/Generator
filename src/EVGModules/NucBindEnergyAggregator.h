@@ -38,12 +38,18 @@ public :
   ~NucBindEnergyAggregator();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-private:
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
+private:
+  void LoadConfig (void);
   GHepParticle * FindMotherNucleus(int ipos, GHepRecord * event_rec) const;
+
+  bool fAllowRecombination; 
 };
 
 }      // genie namespace
