@@ -3,15 +3,14 @@
 
 \class    genie::ReinSeghalCOHPXSec
 
-\brief    Computes the double differential cross section for coherent pi0
-          production according to the \b Rein-Seghal model.
+\brief    Computes the double differential cross section for CC & NC coherent
+          pion production according to the \b Rein-Seghal model.
+          v(vbar)A->v(vbar)Api0, vA->l-Api+, vbarA->l+Api-
 
           The computed cross section is the d^3 xsec/ dx dy dt
-
           where \n
             \li \c x : Bjorken x = Q2/2Mv
             \li \c y : Inelasticity y=v/E, v=E-E'
-
           The t dependence is analytically integrated out.
 
           Is a concrete implementation of the XSecAlgorithmI interface.
@@ -36,7 +35,6 @@ namespace genie {
 class ReinSeghalCOHPXSec : public XSecAlgorithmI {
 
 public:
-
   ReinSeghalCOHPXSec();
   ReinSeghalCOHPXSec(string config);
   virtual ~ReinSeghalCOHPXSec();
