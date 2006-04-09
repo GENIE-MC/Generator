@@ -22,10 +22,12 @@
 #pragma link C++ class genie::DISInteractionListGenerator;
 #pragma link C++ class genie::FragmentCharmDISGenerator;
 #pragma link C++ class genie::RESKinematicsGenerator;
-#pragma link C++ class genie::RESResonanceSelector;
 #pragma link C++ class genie::RESPrimaryLeptonGenerator;
 #pragma link C++ class genie::RESHadronicSystemGenerator;
 #pragma link C++ class genie::RESInteractionListGenerator;
+#pragma link C++ class genie::SPPHadronicSystemGenerator;
+#pragma link C++ class genie::SPPInteractionListGenerator;
+#pragma link C++ class genie::SPPResonanceSelector;
 #pragma link C++ class genie::IMDKinematicsGenerator;
 #pragma link C++ class genie::IMDPrimaryLeptonGenerator;
 #pragma link C++ class genie::IMDTargetRemnantGenerator;
