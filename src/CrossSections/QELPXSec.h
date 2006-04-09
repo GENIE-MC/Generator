@@ -18,6 +18,7 @@
 #define _QEL_PARTIAL_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
+#include "Base/QELFormFactors.h"
 
 namespace genie {
 
@@ -46,6 +47,8 @@ private:
   void LoadSubAlg     (void);
 
   const QELFormFactorsModelI * fFormFactorsModel;
+
+  mutable QELFormFactors fFormFactors;
 };
 
 }       // genie namespace
