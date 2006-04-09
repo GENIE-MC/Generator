@@ -27,7 +27,6 @@
 */
 //____________________________________________________________________________
 
-#include <TGenPhaseSpace.h>
 #include <TMCParticle6.h>
 
 #include "BaryonResonance/BaryonResUtils.h"
@@ -62,13 +61,16 @@ bool BaryonResonanceDecayer::IsHandled(int pdg_code) const
 // handles only requests to decay baryon resonances
 
   if( utils::res::IsBaryonResonance(pdg_code) ) {
-
     LOG("Decay", pINFO) 
          << "\n *** The particle with PDG-Code = "
+                           << pdg_code << " can be decayed by this algorithm";
+    return true;    
+  } 
+
+  LOG("Decay", pINFO) 
+         << "\n *** The particle with PDG-Code = "
                            << pdg_code << " is not decayed by this algorithm";
-    return true;
-    
-  } else return false;
+  return false;
 }
 //____________________________________________________________________________
 TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
@@ -173,11 +175,10 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   //   The particle will be decayed in its rest frame and then the daughters
   //   will be boosted back to the original frame.
 
-  TGenPhaseSpace phase_space_generator;
-  bool is_permitted = phase_space_generator.SetDecay(p, nd, mass);
+  bool is_permitted = fPhaseSpaceGenerator.SetDecay(p, nd, mass);
   assert(is_permitted);
 
-  phase_space_generator.Generate();
+  fPhaseSpaceGenerator.Generate();
 
   //-- Create the event record
   TClonesArray * particle_list = new TClonesArray("TMCParticle", 1+nd);
@@ -197,7 +198,7 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   //-- Add the daughter particles to the event record
   for(unsigned int id = 0; id < nd; id++) {
 
-       TLorentzVector * p4 = phase_space_generator.GetDecay(id);
+       TLorentzVector * p4 = fPhaseSpaceGenerator.GetDecay(id);
        LOG("Decay", pDEBUG)
                << "Adding final state particle PDGC = " << pdgc[id]
                                    << " with mass = " << mass[id] << " GeV";
