@@ -86,12 +86,14 @@ public :
 
   virtual GHepParticle * Probe                            (void) const;
   virtual GHepParticle * TargetNucleus                    (void) const;
+  virtual GHepParticle * RemnantNucleus                   (void) const;
   virtual GHepParticle * StruckNucleon                    (void) const;
   virtual GHepParticle * StruckElectron                   (void) const;
   virtual GHepParticle * FinalStatePrimaryLepton          (void) const;
   virtual GHepParticle * FinalStateHadronicSystem         (void) const;
   virtual int            ProbePosition                    (void) const;
   virtual int            TargetNucleusPosition            (void) const;
+  virtual int            RemnantNucleusPosition           (void) const;
   virtual int            StruckNucleonPosition            (void) const;
   virtual int            StruckElectronPosition           (void) const;
   virtual int            FinalStatePrimaryLeptonPosition  (void) const;
