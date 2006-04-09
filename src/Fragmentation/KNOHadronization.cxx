@@ -18,7 +18,6 @@
 */
 //____________________________________________________________________________
 
-#include <TGenPhaseSpace.h>
 #include <TLorentzVector.h>
 #include <TMCParticle6.h>
 #include <TMath.h>
@@ -132,16 +131,13 @@ TClonesArray * KNOHadronization::Hadronize(
 
   LOG("KNOHad", pDEBUG) << "Generating phase space";
 
-  TGenPhaseSpace phase_space_generator;
-
   vector<int>::const_iterator pdg_iter;
-
   double mass[pdgc->size()];
   int i = 0;
   for(pdg_iter = pdgc->begin(); pdg_iter != pdgc->end(); ++pdg_iter)
           mass[i++] = PDGLibrary::Instance()->Find(*pdg_iter)->Mass();
 
-  bool permitted = phase_space_generator.SetDecay(p4, mult, mass);
+  bool permitted = fPhaseSpaceGenerator.SetDecay(p4, mult, mass);
 
   if(!permitted) {
      LOG("KNOHad", pERROR) << "*** Decay forbidden by kinematics! ***";
@@ -159,7 +155,7 @@ TClonesArray * KNOHadronization::Hadronize(
   }
 
   //-- generate kinematics in the Center-of-Mass (CM) frame
-  phase_space_generator.Generate();
+  fPhaseSpaceGenerator.Generate();
 
   //-- insert final state products into a TClonesArray of TMCParticles
   //   and return it
@@ -171,7 +167,7 @@ TClonesArray * KNOHadronization::Hadronize(
   for(unsigned int i = 0; i < pdgc->size(); i++) {
 
      //-- get the 4-momentum of the i-th final state particle
-     TLorentzVector * p4fin = phase_space_generator.GetDecay(i);
+     TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(i);
 
      //-- push TMCParticle in the particle list (TClonesArray)
      LOG("KNOHad", pDEBUG)
