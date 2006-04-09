@@ -34,6 +34,7 @@ ____________________________________________________________________________*/
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
+#include "BaryonResonance/BaryonResParams.h"
 #include "BaryonResonance/BreitWignerI.h"
 #include "ReinSeghal/FKR.h"
 
@@ -73,6 +74,7 @@ private:
   double fMv2;
 
   mutable FKR fFKR;
+  mutable BaryonResParams fBRP;
 
   const BreitWignerI *         fBreitWigner;
   const BaryonResDataSetI *    fBaryonResDataSet;
