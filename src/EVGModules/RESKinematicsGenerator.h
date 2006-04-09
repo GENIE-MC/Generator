@@ -50,6 +50,8 @@ private:
   double fWmax;
   double fQ2min;
   double fQ2max;
+  bool   fRESKinematics;
+  bool   fSPPKinematics;
 };
 
 }      // genie namespace

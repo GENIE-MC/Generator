@@ -5,18 +5,13 @@
 
 \brief   Generates the 'final state' hadronic system in v RES interactions.
 
-         It creates the GHepParticle entries for the target nucleus (if any)
-         and the res. decay products and they are added to the GHEP record. \n
-
-         The resonance decay products should be known at the time this visitor
-         acts on th event record (this visitor should run on event generation
-         threads initiated by selecting an exlusive RES channel).
-
-         It does not handle the propagation of generated hadrons out of the
-         nuclear medium and it does not handle decays of unstable particles
-         (these would be handled by other event record visitors later on the
-         event generation threads). So the 'final state' might not be final
-         after all.
+         It adds the remnant nucleus (if any), the pre-selected resonance
+         and the resonance decay products at the GHEP record. 
+         Unlike the SPP thread, in the RES thread the resonance is specified
+         at the time an interaction is selected but its decay products not
+         (semi-inclusive resonance reactions). The off the mass-shell baryon
+         resonance is decayed using a phase space generator. All kinematically
+         available decay channels are being used (not just 1 pi channels).
 
          Is a concrete implementation of the EventRecordVisitorI interface.
 
@@ -35,21 +30,31 @@
 
 namespace genie {
 
+class DecayModelI;
+
 class RESHadronicSystemGenerator : public HadronicSystemGenerator {
 
 public :
-
   RESHadronicSystemGenerator();
   RESHadronicSystemGenerator(string config);
   ~RESHadronicSystemGenerator();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
-  void AddResonanceDecayProducts (GHepRecord * event_rec) const;
+  void LoadConfig                (void);
+  int  GetResonancePdgCode       (GHepRecord * evrec) const;
+  void AddResonance              (GHepRecord * evrec, int pdgc) const;
+  void AddResonanceDecayProducts (GHepRecord * evrec, int pdgc) const;
+
+  const DecayModelI * fResonanceDecayer;
 };
 
 }      // genie namespace
