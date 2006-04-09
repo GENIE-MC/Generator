@@ -90,6 +90,12 @@ double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
   LOG("BardinIMD", pINFO)
      << "dxsec[1-loop]/dy (Ev = " << E << ", y = " << y << ") = " << dsig_dy;
 
+
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return dsig_dy;
+
+  int NNucl = init_state.GetTarget().Z(); // num of scattering centers
+  dsig_dy *= NNucl; 
+
   return dsig_dy;
 }
 //____________________________________________________________________________
