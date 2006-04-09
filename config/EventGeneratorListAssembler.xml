@@ -5,19 +5,21 @@
   -- Default configuration for EventGeneratorList
 
   <param_set name="Default"> 
-     <param type="int"    name="n-processes">                     6                        </param>
+     <param type="int"    name="n-processes">                     7                        </param>
      <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
      <param type="string" name="event-generator-id-0-param-set">  QEL-CC                   </param>
      <param type="string" name="event-generator-id-1-alg-name">   genie::EventGenerator    </param>
      <param type="string" name="event-generator-id-1-param-set">  DIS-CC                   </param>
      <param type="string" name="event-generator-id-2-alg-name">   genie::EventGenerator    </param>
-     <param type="string" name="event-generator-id-2-param-set">  RES                      </param>
+     <param type="string" name="event-generator-id-2-param-set">  RES-CC                   </param>
      <param type="string" name="event-generator-id-3-alg-name">   genie::EventGenerator    </param>
      <param type="string" name="event-generator-id-3-param-set">  QEL-NC                   </param>
      <param type="string" name="event-generator-id-4-alg-name">   genie::EventGenerator    </param>
      <param type="string" name="event-generator-id-4-param-set">  DIS-NC                   </param>
      <param type="string" name="event-generator-id-5-alg-name">   genie::EventGenerator    </param>
-     <param type="string" name="event-generator-id-5-param-set">  IMD                      </param>
+     <param type="string" name="event-generator-id-5-param-set">  RES-NC                   </param>
+     <param type="string" name="event-generator-id-6-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-6-param-set">  IMD                      </param>
   </param_set>
 
   <param_set name="Dimuons"> 
@@ -53,9 +55,43 @@
   </param_set>
 
   <param_set name="RES"> 
+     <param type="int"    name="n-processes">                     2                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  RES-CC                   </param>
+     <param type="string" name="event-generator-id-1-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-1-param-set">  RES-NC                   </param>
+  </param_set>
+
+  <param_set name="RES-CC"> 
      <param type="int"    name="n-processes">                     1                        </param>
      <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
-     <param type="string" name="event-generator-id-0-param-set">  RES                      </param>
+     <param type="string" name="event-generator-id-0-param-set">  RES-CC                   </param>
+  </param_set>
+
+  <param_set name="RES-NC"> 
+     <param type="int"    name="n-processes">                     1                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  RES-NC                   </param>
+  </param_set>
+
+  <param_set name="SPP"> 
+     <param type="int"    name="n-processes">                     2                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  SPP-CC                   </param>
+     <param type="string" name="event-generator-id-1-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-1-param-set">  SPP-NC                   </param>
+  </param_set>
+
+  <param_set name="SPP-CC"> 
+     <param type="int"    name="n-processes">                     1                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  SPP-CC                   </param>
+  </param_set>
+
+  <param_set name="SPP-NC"> 
+     <param type="int"    name="n-processes">                     1                        </param>
+     <param type="string" name="event-generator-id-0-alg-name">   genie::EventGenerator    </param>
+     <param type="string" name="event-generator-id-0-param-set">  SPP-NC                   </param>
   </param_set>
 
   <param_set name="COH"> 

@@ -5,7 +5,7 @@
   -- Default configuration for NuclearBindingEnergyAggregator EventRecordVisitorI
 
   <param_set name="Default"> 
-
+     <param type="bool" name="allow-nucl-recombination"> false </param>
   </param_set>
 
 </alg_conf>

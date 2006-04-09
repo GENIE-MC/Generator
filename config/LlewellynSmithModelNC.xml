@@ -10,9 +10,9 @@
                                                         (for optional params)
   ***************************************************************************
   Mv2                        Vector Mass squared         kQElMv2
-  Ma2                        Vector Mass squared         kQElMa2
+  Ma2                        Axial  Mass squared         kQElMa2
   FA0                        FA(q2=0)                    kFA0
-  el-form-factors
+  el-form-factors            Elastic form factors model
 -->
 
   <param_set name="Default">
