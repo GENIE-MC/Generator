@@ -30,6 +30,8 @@
 #ifndef _BARYON_RESONANCE_DECAYER_H_
 #define _BARYON_RESONANCE_DECAYER_H_
 
+#include <TGenPhaseSpace.h>
+
 #include "Decay/DecayModelI.h"
 
 namespace genie {
@@ -53,6 +55,7 @@ private:
   TClonesArray * DecayExclusive (int pdgc, TLorentzVector & p, TDecayChannel * ch) const;
   double         FinalStateMass (TDecayChannel * channel) const;
 
+  mutable TGenPhaseSpace fPhaseSpaceGenerator;
 };
 
 }         // genie namespace
