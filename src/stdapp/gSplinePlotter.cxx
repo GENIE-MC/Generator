@@ -14,8 +14,8 @@
            -f  the input XML file containing the cross section spline data
            -t  a target pdg code (format: 1aaazzz000)
            -e  the maximum energy (in plots)
-           -o  if an output ROOT file is specified the splines will be saved
-               there in a hierarchical directory structure.
+           -o  if an output ROOT file is specified the splines data will be 
+               saved there in a hierarchical directory structure.
                Note that the input ROOT file, if already exists, would not be 
                recreated and the output splines would be appended to the ones
                already stored.
@@ -145,7 +145,7 @@ int main(int argc, char ** argv)
   if(save_in_root) {
     bool exists = !(gSystem->AccessPathName(gOptROOTFilename.c_str()));
 
-    if(exists) froot = new TFile(gOptROOTFilename.c_str(), "APPEND");
+    if(exists) froot = new TFile(gOptROOTFilename.c_str(), "UPDATE");
     else       froot = new TFile(gOptROOTFilename.c_str(), "RECREATE");
     assert(froot);
   }
@@ -226,11 +226,10 @@ int main(int argc, char ** argv)
       string algkey = keyv[0] + "/" + keyv[1];
       string intkey = keyv[2];
 
-      //-- get Spline as a ROOT TSpline3 so as the output ROOT file has
-      //   no GENIE dependency
-      TSpline3 * tspl3 = spl->GetAsTSpline();
-      ostringstream splptrn;
-      splptrn << "spl_" << i;
+      TGraph * gr = spl->GetAsTGraph(4000);
+
+      ostringstream grptrn;
+      grptrn << "gr_" << i;
 
       // replace all ";" from the interaction key with spaces
       TString spltitle(intkey.c_str());
@@ -238,8 +237,8 @@ int main(int argc, char ** argv)
       spltitle.Prepend(", INT=");
       spltitle.Prepend(algkey.c_str());
       spltitle.Prepend("ALG=");
-      tspl3->SetTitle(spltitle.Data());
-      tspl3->Write(splptrn.str().c_str());
+      gr->SetTitle(spltitle.Data());
+      gr->Write(grptrn.str().c_str());
     }
   }
   XSmin = XSmax/300.;
