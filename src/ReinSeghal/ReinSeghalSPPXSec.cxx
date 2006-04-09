@@ -89,8 +89,11 @@ double ReinSeghalSPPXSec::XSec(const Interaction * interaction) const
   const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
   const Target &       target     = init_state.GetTarget();
 
+  InteractionType_t it = proc_info.InteractionTypeId();
+  int               iN = target.StruckNucleonPDGCode();
+
   // Get neutrino energy in the struck nucleon rest frame
-  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
 
   double xsec = 0;
 
@@ -100,11 +103,7 @@ double ReinSeghalSPPXSec::XSec(const Interaction * interaction) const
      //-- Get next resonance from the resonance list
      Resonance_t res = fResList.ResonanceId(ires);
 
-     InteractionType_t it = proc_info.InteractionTypeId();
-     int               iN = target.StruckNucleonPDGCode();
-
      //-- Build a unique name for the cache branch
-
      string res_name = utils::res::AsString(res);
      int    nu_code  = init_state.GetProbePDGCode();
      string it_name  = InteractionType::AsString(it);
@@ -173,15 +172,27 @@ double ReinSeghalSPPXSec::XSec(const Interaction * interaction) const
 
   SLOG("ReinSeghalSpp", pNOTICE)  
          << "XSec[SPP/" << SppChannel::AsString(spp_channel)
-                                << "] (Ev = " << Ev << " GeV) = " << xsec;
+                               << "/free] (Ev = " << Ev << " GeV) = " << xsec;
+
+  //-- If requested return the free nucleon xsec even for input nuclear tgt
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+
+  //-- number of scattering centers in the target
+  int NNucl = (pdg::IsProton(iN)) ? target.Z() : target.N();
+
+  xsec*=NNucl; // nuclear xsec 
+
   return xsec;
 }
 //____________________________________________________________________________
 void ReinSeghalSPPXSec::CacheResExcitationXSec(const Interaction * in) const
 {
+// Cache resonance neutrino producrion data from free nucleons
+
   Cache * cache = Cache::Instance();
 
   Interaction * interaction = new Interaction(*in);
+  interaction->TestBit(kIAssumeFreeNucleon);
 
   const int kNSt = 3;
   const InteractionType_t it[kNSt] = {kIntWeakCC, kIntWeakNC, kIntWeakNC };

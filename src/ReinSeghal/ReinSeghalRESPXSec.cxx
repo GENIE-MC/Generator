@@ -34,7 +34,6 @@ ____________________________________________________________________________*/
 #include "Algorithm/AlgFactory.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
 #include "BaryonResonance/BaryonResUtils.h"
-#include "BaryonResonance/BaryonResParams.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/Units.h"
@@ -80,32 +79,30 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   const Kinematics &   kinematics = interaction -> GetKinematics();
   const InitialState & init_state = interaction -> GetInitialState();
 
+  const Target & target = init_state.GetTarget();
+
   double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double W    = kinematics.W();
   double q2   = kinematics.q2();
-  double Mnuc = init_state.GetTarget().StruckNucleonP4()->M(); 
-  int nucpdgc = init_state.GetTarget().StruckNucleonPDGCode();
+  double Mnuc = target.StruckNucleonMass(); 
+  int nucpdgc = target.StruckNucleonPDGCode();
 
   bool is_CC = interaction->GetProcessInfo().IsWeakCC();
-  //bool is_NC = interaction->GetProcessInfo().IsWeakNC();
   bool is_p  = pdg::IsProton(nucpdgc);
-  //bool is_n  = pdg::IsNeutron(nucpdgc);
 
   //-- Get the input baryon resonance
   Resonance_t resonance = interaction->GetExclusiveTag().Resonance();
 
-  //-- Instantiate a Baryon Resonance Params object & attach data-set
-  BaryonResParams brprm;
-  brprm.SetDataSet(fBaryonResDataSet); // <-- attach data set;
-  brprm.RetrieveData(resonance);  // <-- get parameters for input res.
+  //-- Compute Baryon Resonance params 
+  fBRP.RetrieveData(resonance);  
 
   //-- Get the resonance mass
-  double Mres    = brprm.Mass();
-  int    nresidx = brprm.ResonanceIndex();
+  double Mres    = fBRP.Mass();
+  int    nresidx = fBRP.ResonanceIndex();
 
   LOG("ReinSeghalRes", pDEBUG)
         << "Resonance = " << utils::res::AsString(resonance)
-                                      << " with mass = " << Mres << " GeV";
+                                   << " with mass = " << Mres << " GeV";
 
   //-- Compute auxiliary & kinematical factors for the Rein-Seghal model
   double W2     = TMath::Power(W, 2);
@@ -201,8 +198,16 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
 
   SLOG("ReinSeghalRes", pDEBUG)
       << "Res[" << utils::res::AsString(resonance) << "]: "
-        << "<Breit-Wigner(=" << bw << ")> * <d^2 xsec/dQ^2 dW [W=" << W
+        << "<Breit-Wigner(=" << bw << ")> * <d^2xsec/dQ^2dW(free) [W=" << W
           << ", q2=" << q2 << ", E=" << E << "](="<< xsec << ")> = " << wxsec;
+
+  //-- If requested return the free nucleon xsec even for input nuclear tgt
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return wxsec;
+
+  //-- number of scattering centers in the target
+  int NNucl = (is_p) ? target.Z() : target.N();
+
+  wxsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
 
   return wxsec;
 }
@@ -286,6 +291,8 @@ void ReinSeghalRESPXSec::LoadSubAlg(void)
   fBaryonResDataSet = dynamic_cast<const BaryonResDataSetI *> (
     this->SubAlg("baryonres-dataset-alg-name", "baryonres-dataset-param-set"));
   assert(fBaryonResDataSet);
+
+  fBRP.SetDataSet(fBaryonResDataSet); // <-- attach data set;
 
   if(fWghtBW) {
     //-- Access a "Breit-Wigner" sub-algorithm
