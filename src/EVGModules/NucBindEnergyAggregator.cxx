@@ -31,6 +31,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "PDG/PDGLibrary.h"
 #include "Utils/MathUtils.h"
 #include "Utils/NuclearUtils.h"
 
@@ -91,37 +92,69 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
            double M  = p->Mass();
            double En = p->Energy() - bindE;
 
-           double pmag_old = p->P4()->P();
-           double pmag_new = TMath::Sqrt(utils::math::NonNegative(En*En-M*M));
+           if (En>M || !fAllowRecombination) { 
+             double pmag_old = p->P4()->P();
+             double pmag_new = TMath::Sqrt(utils::math::NonNegative(En*En-M*M));
 
-           double scale = pmag_new / pmag_old;
+             double scale = pmag_new / pmag_old;
 
-           double pxn = scale * p->Px();
-           double pyn = scale * p->Py();
-           double pzn = scale * p->Pz();
+             double pxn = scale * p->Px();
+             double pyn = scale * p->Py();
+             double pzn = scale * p->Pz();
 
-           double pxb = (1-scale) * p->Px();
-           double pyb = (1-scale) * p->Py();
-           double pzb = (1-scale) * p->Pz();
+             double pxb = (1-scale) * p->Px();
+             double pyb = (1-scale) * p->Py();
+             double pzb = (1-scale) * p->Pz();
 
-           p->SetEnergy ( En  );
-           p->SetPx     ( pxn );
-           p->SetPy     ( pyn );
-           p->SetPz     ( pzn );
+             p->SetEnergy ( En  );
+             p->SetPx     ( pxn );
+             p->SetPy     ( pyn );
+             p->SetPz     ( pzn );
 
-           //-- and add a BINDINO to record this in the event record and
-           //   conserve energy/momentum
+             //-- and add a GHEP entry to record this in the event record and
+             //   conserve energy/momentum
 
-           LOG("Nuclear", pINFO)
-               << "Adding a BINDINO to account for nuclear binding energy";
+             LOG("Nuclear", pINFO)
+               << "Adding a [BindingE] to account for nuclear binding energy";
 
-           TLorentzVector v4(0,0,0,0);             // dummy position 4-vector
-           TLorentzVector p4(pxb,pyb,pzb,bindE);   // momentum 4-vector
+             event_rec->AddParticle(kPdgBindino, kIStStableFinalState, 
+  				       -1,-1,-1,-1, pxb,pyb,pzb,bindE, 0,0,0,0);
+          }
+          else {
+             LOG("Nuclear", pNOTICE)
+               << "Nucleon is above the Fermi sea but can't escape the nucleus";
+             LOG("Nuclear", pNOTICE)
+               << "Recombining remnant nucleus + f/s nucleon";
 
-           int          bpdgc = kPdgBindino;
-           GHepStatus_t bist  = kIStStableFinalState;
+             LOG("Nuclear", pNOTICE) << *event_rec;
 
-           event_rec->AddParticle(bpdgc, bist, -1,-1,-1,-1, p4, v4);
+             // find the remnant nucleus
+             int rnucpos = event_rec->RemnantNucleusPosition();
+             assert(rnucpos);
+
+             GHepParticle * rnucl = event_rec->Particle(rnucpos);
+
+             // mark both the remnant nucleus and the final state nucleon as 
+             // intermediate states
+             rnucl -> SetStatus(kIstIntermediateState);
+             p     -> SetStatus(kIstIntermediateState);
+
+             // figure out the recombined nucleus PDG code
+             int Z = rnucl->Z();
+             int A = rnucl->A();
+             if(pdg::IsProton(p->PdgCode())) Z++;
+             A++;
+             int ipdgc = pdg::IonPdgCode(A,Z);
+
+             // add-up their 4-momenta
+             double pxnuc = rnucl->Px() + p->Px();
+             double pynuc = rnucl->Py() + p->Py();
+             double pznuc = rnucl->Pz() + p->Pz();
+             double Enuc  = rnucl->E()  + p->E();
+
+             event_rec->AddParticle(ipdgc, kIStStableFinalState,
+                          rnucpos,-1,-1,-1, pxnuc,pynuc,pznuc,Enuc, 0,0,0,0);
+          }
 
         } // nucleus != 0
      }  // if is a final state p,n
@@ -163,3 +196,21 @@ GHepParticle * NucBindEnergyAggregator::FindMotherNucleus(
   return 0;
 }
 //___________________________________________________________________________
+void NucBindEnergyAggregator::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void NucBindEnergyAggregator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void NucBindEnergyAggregator::LoadConfig(void)
+{
+  fAllowRecombination = fConfig->GetBoolDef("allow-nucl-recombination", true);
+}
+//____________________________________________________________________________
+
