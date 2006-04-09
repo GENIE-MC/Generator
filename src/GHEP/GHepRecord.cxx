@@ -198,6 +198,16 @@ GHepParticle * GHepRecord::TargetNucleus(void) const
   return 0;
 }
 //___________________________________________________________________________
+GHepParticle * GHepRecord::RemnantNucleus(void) const
+{
+// Returns the GHepParticle representing the remnant nucleus, or 0 if it does
+// not exist.
+
+  int ipos = this->RemnantNucleusPosition();
+  if(ipos>-1) return this->Particle(ipos);
+  return 0;
+}
+//___________________________________________________________________________
 GHepParticle * GHepRecord::StruckNucleon(void) const
 {
 // Returns the GHepParticle representing the struck nucleon, or 0 if it does
@@ -255,6 +265,26 @@ int GHepRecord::TargetNucleusPosition(void) const
 
   if(p->IsNucleus() && p->Status()==kIStInitialState) return 1; 
 
+  return -1;
+}
+//___________________________________________________________________________
+int GHepRecord::RemnantNucleusPosition(void) const
+{
+// Returns the GHEP position of the GHepParticle representing the remnant
+// nucleus - or -1 if the interaction takes place at a free nucleon.
+
+  GHepParticle * p = this->TargetNucleus();
+  if(!p) return -1;
+
+  int dau1 = p->FirstDaughter();
+  int dau2 = p->LastDaughter();
+
+  if(dau1==-1 && dau2==-1) return -1;
+
+  for(int i=dau1; i<=dau2; i++) {
+    GHepParticle * dp = this->Particle(i);
+    if(dp->IsNucleus() && dp->Status()==kIStStableFinalState) return i; 
+  }
   return -1;
 }
 //___________________________________________________________________________
