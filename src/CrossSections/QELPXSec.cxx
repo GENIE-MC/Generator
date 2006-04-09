@@ -61,10 +61,11 @@ double QELPXSec::XSec(const Interaction * interaction) const
   //----- get kinematics & init-state parameters
   const Kinematics &   kinematics = interaction -> GetKinematics();
   const InitialState & init_state = interaction -> GetInitialState();
+  const Target & target = init_state.GetTarget();
 
   double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double ml   = interaction->GetFSPrimaryLepton()->Mass();
-  double Mnuc = init_state.GetTarget().StruckNucleonP4()->M();
+  double Mnuc = target.StruckNucleonMass();
   double q2   = kinematics.q2();
 
   //----- one of the xsec terms changes sign for antineutrinos
@@ -72,16 +73,14 @@ double QELPXSec::XSec(const Interaction * interaction) const
   int sign = (is_neutrino) ? 1 : -1;
 
   //----- calculate the QEL form factors
-  QELFormFactors form_factors;
-  form_factors.SetModel(fFormFactorsModel); // <-- attach algorithm
-  form_factors.Calculate(interaction);      // <-- calculate
+  fFormFactors.Calculate(interaction);    
 
-  double F1V   = form_factors.F1V();
-  double xiF2V = form_factors.xiF2V();
-  double FA    = form_factors.FA();
-  double Fp    = form_factors.Fp();
+  double F1V   = fFormFactors.F1V();
+  double xiF2V = fFormFactors.xiF2V();
+  double FA    = fFormFactors.FA();
+  double Fp    = fFormFactors.Fp();
 
-  LOG("QELPXSec", pDEBUG) << ENDL << form_factors;
+  LOG("QELPXSec", pDEBUG) << ENDL << fFormFactors;
 
   //-- calculate auxiliary parameters
   double ml2     = ml    * ml;
@@ -120,9 +119,8 @@ double QELPXSec::XSec(const Interaction * interaction) const
   double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
 
   //----- number of scattering centers in the target
-  const Target & tgt = init_state.GetTarget();
-  int nucpdgc = tgt.StruckNucleonPDGCode();
-  int NNucl = (pdg::IsProton(nucpdgc)) ? tgt.Z() : tgt.N(); 
+  int nucpdgc = target.StruckNucleonPDGCode();
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
 
   LOG("QELPXSec", pDEBUG) 
        << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
@@ -210,5 +208,7 @@ void QELPXSec::LoadSubAlg(void)
   fFormFactorsModel = dynamic_cast<const QELFormFactorsModelI *> (
              this->SubAlg("form-factors-alg-name", "form-factors-param-set"));
   assert(fFormFactorsModel);
+
+  fFormFactors.SetModel(fFormFactorsModel); // <-- attach algorithm
 }
 //____________________________________________________________________________
