@@ -73,7 +73,8 @@ double BBA03ELFormFactorsModel::Gen(const Interaction * interaction) const
 
   const Target & tgt = interaction->GetInitialState().GetTarget();
 
-  double M2  = tgt.StruckNucleonP4()->M2();  // Mnucl^2
+  double M   = tgt.StruckNucleonMass();      // Mnucl
+  double M2  = TMath::Power(M,2);            // Mnucl^2
   double t   = -q2/(4*M2);                   // q2<0
   double mun = kMuN;                         // neutron magnetic moment
   double a   = fGenA;                        // Krutov et al. parameter a

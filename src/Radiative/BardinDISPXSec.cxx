@@ -162,7 +162,7 @@ double BardinDISPXSec::PhiCCi(double xi, const Interaction * interaction) const
   const Kinematics & kine = interaction->GetKinematics();
   const Target & target = init_state.GetTarget();
 
-  double MN   = target.StruckNucleonP4()->M();
+  double MN   = target.StruckNucleonMass();
   double x    = kine.x();
   double y    = kine.y();
   int    pdg  = target.StruckQuarkPDGCode();
@@ -205,7 +205,7 @@ double BardinDISPXSec::DeltaCCi(const Interaction * interaction) const
   const Kinematics & kine = interaction->GetKinematics();
   const Target & target = init_state.GetTarget();
 
-  double MN   = init_state.GetTarget().StruckNucleonP4()->M();
+  double MN   = init_state.GetTarget().StruckNucleonMass();
   double x    = kine.x();
   double y    = kine.y();
   int    pdg  = target.StruckQuarkPDGCode();
@@ -261,7 +261,7 @@ double BardinDISPXSec::Ii(double xi, const Interaction * interaction) const
   const Kinematics & kine = interaction->GetKinematics();
   const Target & target = init_state.GetTarget();
 
-  double MN   = target.StruckNucleonP4()->M();
+  double MN   = target.StruckNucleonMass();
   double x    = kine.x();
   double y    = kine.y();
   int    pdg  = target.StruckQuarkPDGCode();
@@ -293,7 +293,7 @@ double BardinDISPXSec::S(const Interaction * interaction) const
   const InitialState & init_state = interaction->GetInitialState();
 
   double E = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M = init_state.GetTarget().StruckNucleonP4()->M();
+  double M = init_state.GetTarget().StruckNucleonMass();
   double S = 2*M*E;
   return S;
 }
@@ -376,7 +376,7 @@ bool BardinDISPXSec::ValidKinematics(const Interaction * interaction) const
   const InitialState & init_state = interaction -> GetInitialState();
 
   double E     = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Mnuc  = init_state.GetTarget().StruckNucleonP4()->M();
+  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double x     = kinematics.x();
   double y     = kinematics.y();
