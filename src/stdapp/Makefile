@@ -40,12 +40,14 @@ ALLTGT = gEvGen		\
 	 gViewer		
 
 STDTGT = gEvGen		\
-	 gMakeSplines	\
 	 gNtpConv	\
 	 gMaxPathLengths\
 	 gSplinePlotter	\
 	 gMCSampleTest	
 
+ifdef GOPT_FLUX_DRIVERS
+  STDTGT := $(STDTGT) gMakeSplines
+endif
 ifdef GOPT_VALIDITY_DOC
   STDTGT := $(STDTGT) gVldDoc
 endif
