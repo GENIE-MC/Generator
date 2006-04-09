@@ -3,10 +3,7 @@
 
 \namespace genie::utils::res
 
-\brief     Utilities for the using the Baryon Resonance enumeration.
-
-           Contains various translation methods between Resonance_t, resonance
-           name and resonance PDF code.
+\brief     Baryon Resonance utilities.
 
 \author    Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
            CCLRC, Rutherford Appleton Laboratory
@@ -17,6 +14,8 @@
 //____________________________________________________________________________
 
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Interaction/Interaction.h"
+#include "PDG/PDGLibrary.h"
 
 using namespace genie;
 
@@ -45,6 +44,32 @@ char * genie::utils::res::AsString(Resonance_t res)
     default: break;
   }
   return "unknown resonance!";
+}
+//____________________________________________________________________________
+double genie::utils::res::Mass(Resonance_t res)
+{
+  switch(res) {
+    case kP33_1232  : return 1.232 ; break;
+    case kS11_1535  : return 1.535 ; break;
+    case kD13_1520  : return 1.520 ; break;
+    case kS11_1650  : return 1.650 ; break;
+    case kD13_1700  : return 1.700 ; break;
+    case kD15_1675  : return 1.675 ; break;
+    case kS31_1620  : return 1.620 ; break;
+    case kD33_1700  : return 1.700 ; break;
+    case kP11_1440  : return 1.440 ; break;
+    case kP33_1600  : return 1.600 ; break;
+    case kP13_1720  : return 1.720 ; break;
+    case kF15_1680  : return 1.680 ; break;
+    case kP31_1910  : return 1.910 ; break;
+    case kP33_1920  : return 1.920 ; break;
+    case kF35_1905  : return 1.905 ; break;
+    case kF37_1950  : return 1.950 ; break;
+    case kP11_1710  : return 1.710 ; break;
+    case kF17_1970  : return 1.970 ; break;
+    default: break;
+  }
+  return -1;
 }
 //____________________________________________________________________________
 Resonance_t genie::utils::res::FromString(const char * res)
@@ -425,4 +450,21 @@ bool genie::utils::res::IsN(Resonance_t res)
   return (! utils::res::IsDelta(res) );
 }
 //____________________________________________________________________________
+int genie::utils::res::ResonanceCharge(const Interaction * interaction) 
+{
+// Figure out what the resonance charge should be to conserve the charge in
+// RES interactions 
+
+  const InitialState & init_state = interaction->GetInitialState();
+
+  int nuc_pdgc = init_state.GetTarget().StruckNucleonPDGCode();
+  int fsl_pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
+
+  int q_nuc    = int( PDGLibrary::Instance()->Find(nuc_pdgc)->Charge() );
+  int q_fsl    = int( PDGLibrary::Instance()->Find(fsl_pdgc)->Charge() );
+  int q_res    = (q_nuc - q_fsl) /3;
+
+  return q_res;
+}
+//___________________________________________________________________________
 
