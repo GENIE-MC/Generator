@@ -23,6 +23,8 @@
 
 #include <vector>
 
+#include <TGenPhaseSpace.h>
+
 #include "Fragmentation/HadronizationModelI.h"
 
 using std::vector;
@@ -60,6 +62,8 @@ private:
 
   const MultiplicityProbModelI * fMultProbModel;
   const DecayModelI *            fDecayer;
+
+  mutable TGenPhaseSpace fPhaseSpaceGenerator;
 
   bool   fForceDecays; ///< force decays of unstable hadrons produced?
   double fPpi0;        ///< pi0 pi0 production probability
