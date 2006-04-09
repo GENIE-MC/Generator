@@ -3,10 +3,7 @@
 
 \namespace genie::utils::res
 
-\brief     Utilities for the using the Baryon Resonance enumeration.
-
-           Contains various translation methods between Resonance_t, resonance
-           name and resonance PDF code.
+\brief     Baryon Resonance utilities.
 
 \author    Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
            CCLRC, Rutherford Appleton Laboratory
@@ -26,20 +23,24 @@
 using std::string;
 
 namespace genie {
-namespace utils {
 
+class Interaction;
+
+namespace utils {
 namespace res {
 
   char *      AsString          (Resonance_t res);
+  double      Mass              (Resonance_t res);
   Resonance_t FromString        (const char * res);
   Resonance_t FromPdgCode       (int pdgc);
   int         PdgCode           (Resonance_t res, int Q);
   bool        IsBaryonResonance (int pdgc);
   bool        IsDelta           (Resonance_t res);
   bool        IsN               (Resonance_t res);
+  int         ResonanceCharge   (const Interaction * interaction);
 
 }        // res   namespace
 }        // utils namespace
 }        // genie namespace
 
-#endif   // _BARYON_RESONANCE_H_
+#endif   // _BARYON_RESONANCE_UTILS_H_

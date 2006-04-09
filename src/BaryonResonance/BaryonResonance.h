@@ -6,10 +6,6 @@
 \brief    An enumeration of Baryon Resonances more frequently used in 
           resonance neutrino-nucleon/nucleus models.
 
-          A set of utility functions for handling this enumeration and for
-          translating between (Resonance_t, string name, PDG code) is provided
-          in BaryonResUtils.
-
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
