@@ -4,8 +4,18 @@
 
   Configuration sets for RESKinematicsGenerator EventRecordVisitorI
 
-  <param_set name="Default"> 
+  <param_set name="RES"> 
+     <param type="string" name="xsec-alg-name">          genie::ReinSeghalRESPXSec   </param>
+     <param type="string" name="xsec-param-set">         Default                     </param>
+     <param type="double" name="W-min">                    0.001                     </param>
+     <param type="double" name="W-max">                    1.400                     </param>
+     <param type="double" name="Q2-min">                   0.001                     </param>
+     <param type="double" name="Q2-max">                 100.000                     </param>
+     <param type="double" name="max-xsec-safety-factor">   1.200                     </param>
+     <param type="bool"   name="generate-res-kinematics">   true                     </param>
+  </param_set>
 
+  <param_set name="SPP"> 
      <param type="string" name="xsec-alg-name">          genie::ReinSeghalSPPPXSec   </param>
      <param type="string" name="xsec-param-set">         Default                     </param>
      <param type="double" name="W-min">                    0.001                     </param>
@@ -13,6 +23,7 @@
      <param type="double" name="Q2-min">                   0.001                     </param>
      <param type="double" name="Q2-max">                 100.000                     </param>
      <param type="double" name="max-xsec-safety-factor">   1.200                     </param>
+     <param type="bool"   name="generate-spp-kinematics">   true                     </param>
   </param_set>
 
 </alg_conf>

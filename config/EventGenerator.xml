@@ -119,9 +119,58 @@
   </param_set>
 
 
-  <param_set name="RES"> 
+  <param_set name="RES-CC"> 
      <param type="string" name="vld-context">   
-        proc:RES;curr:CC,NC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+        proc:RES;curr:CC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+
+     <param type="int"    name="n-generator-steps">      6                                  </param>
+     <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
+     <param type="string" name="generator-step-0-conf">  Default                            </param>
+     <param type="string" name="generator-step-1-alg">   genie::FermiMover                  </param>
+     <param type="string" name="generator-step-1-conf">  Default                            </param>
+     <param type="string" name="generator-step-2-alg">   genie::RESKinematicsGenerator      </param>
+     <param type="string" name="generator-step-2-conf">  RES                                </param>
+     <param type="string" name="generator-step-3-alg">   genie::RESPrimaryLeptonGenerator   </param>
+     <param type="string" name="generator-step-3-conf">  Default                            </param>
+     <param type="string" name="generator-step-4-alg">   genie::RESHadronicSystemGenerator  </param>
+     <param type="string" name="generator-step-4-conf">  Default                            </param>
+     <param type="string" name="generator-step-5-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-conf">  Default                            </param>
+
+     <param type="string" name="interaction-list-alg">   genie::RESInteractionListGenerator </param>
+     <param type="string" name="interaction-list-conf">  CC-Default                         </param>
+     <param type="string" name="cross-section-alg">      genie::RESXSec                     </param>
+     <param type="string" name="cross-section-conf">     Rein-Seghal-Single                 </param>
+  </param_set>
+
+  <param_set name="RES-NC"> 
+     <param type="string" name="vld-context">   
+        proc:RES;curr:NC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+
+     <param type="int"    name="n-generator-steps">      6                                  </param>
+     <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
+     <param type="string" name="generator-step-0-conf">  Default                            </param>
+     <param type="string" name="generator-step-1-alg">   genie::FermiMover                  </param>
+     <param type="string" name="generator-step-1-conf">  Default                            </param>
+     <param type="string" name="generator-step-2-alg">   genie::RESKinematicsGenerator      </param>
+     <param type="string" name="generator-step-2-conf">  RES                                </param>
+     <param type="string" name="generator-step-3-alg">   genie::RESPrimaryLeptonGenerator   </param>
+     <param type="string" name="generator-step-3-conf">  Default                            </param>
+     <param type="string" name="generator-step-4-alg">   genie::RESHadronicSystemGenerator  </param>
+     <param type="string" name="generator-step-4-conf">  Default                            </param>
+     <param type="string" name="generator-step-5-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-conf">  Default                            </param>
+
+     <param type="string" name="interaction-list-alg">   genie::RESInteractionListGenerator </param>
+     <param type="string" name="interaction-list-conf">  NC-Default                         </param>
+     <param type="string" name="cross-section-alg">      genie::RESXSec                     </param>
+     <param type="string" name="cross-section-conf">     Rein-Seghal-Single                 </param>
+  </param_set>
+
+
+  <param_set name="SPP-CC"> 
+     <param type="string" name="vld-context">   
+        proc:RES;curr:CC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
 
      <param type="int"    name="n-generator-steps">      7                                  </param>
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
@@ -129,21 +178,48 @@
      <param type="string" name="generator-step-1-alg">   genie::FermiMover                  </param>
      <param type="string" name="generator-step-1-conf">  Default                            </param>
      <param type="string" name="generator-step-2-alg">   genie::RESKinematicsGenerator      </param>
-     <param type="string" name="generator-step-2-conf">  Default                            </param>
+     <param type="string" name="generator-step-2-conf">  SPP                                </param>
      <param type="string" name="generator-step-3-alg">   genie::RESPrimaryLeptonGenerator   </param>
      <param type="string" name="generator-step-3-conf">  Default                            </param>
-     <param type="string" name="generator-step-4-alg">   genie::RESResonanceSelector        </param>
+     <param type="string" name="generator-step-4-alg">   genie::SPPResonanceSelector        </param>
      <param type="string" name="generator-step-4-conf">  Default                            </param>
-     <param type="string" name="generator-step-5-alg">   genie::RESHadronicSystemGenerator  </param>
+     <param type="string" name="generator-step-5-alg">   genie::SPPHadronicSystemGenerator  </param>
      <param type="string" name="generator-step-5-conf">  Default                            </param>
      <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
 
-     <param type="string" name="interaction-list-alg">   genie::RESInteractionListGenerator </param>
-     <param type="string" name="interaction-list-conf">  Default                            </param>
-     <param type="string" name="cross-section-alg">      genie::NuclearTargetXSec           </param>
-     <param type="string" name="cross-section-conf">     RES-Default                        </param>
+     <param type="string" name="interaction-list-alg">   genie::SPPInteractionListGenerator </param>
+     <param type="string" name="interaction-list-conf">  CC-Default                         </param>
+     <param type="string" name="cross-section-alg">      genie::ReinSeghalSPPXSec           </param>
+     <param type="string" name="cross-section-conf">     Default                            </param>
   </param_set>
+
+  <param_set name="SPP-NC"> 
+     <param type="string" name="vld-context">   
+        proc:RES;curr:NC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+
+     <param type="int"    name="n-generator-steps">      7                                  </param>
+     <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
+     <param type="string" name="generator-step-0-conf">  Default                            </param>
+     <param type="string" name="generator-step-1-alg">   genie::FermiMover                  </param>
+     <param type="string" name="generator-step-1-conf">  Default                            </param>
+     <param type="string" name="generator-step-2-alg">   genie::RESKinematicsGenerator      </param>
+     <param type="string" name="generator-step-2-conf">  SPP                                </param>
+     <param type="string" name="generator-step-3-alg">   genie::RESPrimaryLeptonGenerator   </param>
+     <param type="string" name="generator-step-3-conf">  Default                            </param>
+     <param type="string" name="generator-step-4-alg">   genie::SPPResonanceSelector        </param>
+     <param type="string" name="generator-step-4-conf">  Default                            </param>
+     <param type="string" name="generator-step-5-alg">   genie::SPPHadronicSystemGenerator  </param>
+     <param type="string" name="generator-step-5-conf">  Default                            </param>
+     <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-6-conf">  Default                            </param>
+
+     <param type="string" name="interaction-list-alg">   genie::SPPInteractionListGenerator </param>
+     <param type="string" name="interaction-list-conf">  NC-Default                         </param>
+     <param type="string" name="cross-section-alg">      genie::ReinSeghalSPPXSec           </param>
+     <param type="string" name="cross-section-conf">     Default                            </param>
+  </param_set>
+
 
   <param_set name="DIS-CC-CHARM"> 
      <param type="string" name="vld-context">   

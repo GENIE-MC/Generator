@@ -5,7 +5,8 @@
   Configuration sets for RESHadronSystemGenerator EventRecordVisitorI
 
   <param_set name="Default"> 
-
+     <param type="string" name="decayer-alg-name">    genie::BaryonResonanceDecayer </param>
+     <param type="string" name="decayer-param-set">   Default                       </param>
   </param_set>
 
 </alg_conf>

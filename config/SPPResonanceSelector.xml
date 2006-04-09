@@ -2,19 +2,15 @@
 
 <alg_conf>
 
-  Configuration sets for RESResonanceSelector EventRecordVisitorI
-
-  The resonances can be passed as a list of names (use resonance-name-list key),
-  as a list of PDG codes (use resonance-pdgc-list key) or as a list of Resonance_t
-  enumerations (use resonance-id-list key)
+  Configuration sets for SPPResonanceSelector EventRecordVisitorI
 
   <param_set name="Default">
 
      In this set we do not include the ambiguous P33(1600) and F17(1970).
      This configuration set, uses a single resonance xsec that is Breit-Wigner weighted.
 
-     <param type="string" name="single-res-xsec-alg-name">       genie::ReinSeghalSPPPXSec  </param>
-     <param type="string" name="single-res-xsec-param-set">      Default                    </param>
+     <param type="string" name="spp-xsec-alg-name">   genie::ReinSeghalSPPPXSec  </param>
+     <param type="string" name="spp-xsec-param-set">  Default                    </param>
 
      <param type="string" name="resonance-name-list">
                    P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
