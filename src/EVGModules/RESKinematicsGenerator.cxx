@@ -18,6 +18,7 @@
 #include <TMath.h>
 
 #include "BaryonResonance/BaryonResonance.h"
+#include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Controls.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/RESKinematicsGenerator.h"
@@ -244,20 +245,32 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   const InitialState & init_state = interaction -> GetInitialState();
   double E = init_state.GetProbeE(kRfStruckNucAtRest);
 
+  double md;
+  if(!interaction->GetExclusiveTag().KnownResonance()) md=1.23;
+  else {
+    Resonance_t res = interaction->GetExclusiveTag().Resonance();
+    md=utils::res::Mass(res);
+  }
+
   const int    NQ2 = 15;
   const double e   = 1e-4;
-  const double MD  = 1.23;
+  const double MD  = md;
 
   // Set W around the value where d^2xsec/dWdQ^2 peaks
   Range1D_t rW = this->WRange(interaction);
-  const double W = (utils::math::IsWithinLimits(MD, rW)) ? MD : rW.max-e;
+  double W;
+  if(utils::math::IsWithinLimits(MD, rW))  W = MD;
+  else {
+    if (MD>=rW.max) W = rW.max-e;
+    else            W = rW.min+e;
+  }
   interaction->GetKinematicsPtr()->SetW(W);
 
   // Set a Q2 range, within the allowed region (inclusing user cuts), in
   // which d^2xsec/dWdQ^2 peaks
   Range1D_t rQ2 = this->Q2Range(interaction);
   if( rQ2.max < kMinQ2Limit || rQ2.min <=0 ) return 0.;
-  if(E<0.6) utils::kinematics::ApplyCutsToKineLimits(rQ2, 0.05*E, 1.5*E);
+  //if(E<0.6) utils::kinematics::ApplyCutsToKineLimits(rQ2, 0.05*E, 1.5*E);
 
   const double logQ2min = TMath::Log(rQ2.min);
   const double logQ2max = TMath::Log(rQ2.max);

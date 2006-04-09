@@ -5,18 +5,13 @@
 
 \brief   Generates the 'final state' hadronic system in v RES interactions.
 
-         It creates the GHepParticle entries for the target nucleus (if any)
-         and the res. decay products and they are added to the GHEP record. \n
-
-         The resonance decay products should be known at the time this visitor
-         acts on th event record (this visitor should run on event generation
-         threads initiated by selecting an exlusive RES channel).
-
-         It does not handle the propagation of generated hadrons out of the
-         nuclear medium and it does not handle decays of unstable particles
-         (these would be handled by other event record visitors later on the
-         event generation threads). So the 'final state' might not be final
-         after all.
+         It adds the remnant nucleus (if any), the pre-selected resonance
+         and the resonance decay products at the GHEP record. 
+         Unlike the SPP thread, in the RES thread the resonance is specified
+         at the time an interaction is selected but its decay products not
+         (semi-inclusive resonance reactions). The off the mass-shell baryon
+         resonance is decayed using a phase space generator. All kinematically
+         available decay channels are being used (not just 1 pi channels).
 
          Is a concrete implementation of the EventRecordVisitorI interface.
 
@@ -28,11 +23,12 @@
 */
 //____________________________________________________________________________
 
-#include <TGenPhaseSpace.h>
+#include <TMCParticle6.h>
 
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
+#include "Decay/DecayModelI.h"
 #include "EVGModules/RESHadronicSystemGenerator.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepRecord.h"
@@ -70,68 +66,131 @@ void RESHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // This method generates the final state hadronic system
 
+  //-- Get the right resonance PDG code so that the selected resonance
+  //   conserves charge
+  int pdgc = GetResonancePdgCode(evrec);
+
+  //-- Add the selected resonance
+  this->AddResonance(evrec,pdgc);
+
   //-- If the struck nucleon was within a nucleus, then add the final state
   //   nucleus at the EventRecord
   this->AddTargetNucleusRemnant(evrec);
 
   //-- Add the baryon resonance decay products at the event record
-  this->AddResonanceDecayProducts(evrec);
+  this->AddResonanceDecayProducts(evrec,pdgc);
+}
+//___________________________________________________________________________
+int RESHadronicSystemGenerator::GetResonancePdgCode(GHepRecord * evrec) const
+{
+// In the RES thread the resonance is specifed when selecting interaction 
+// This method adds it to the GHEP record.
+
+  //-- Determine the RES pdg code (from the selected Resonance_t & charge)
+  Interaction * interaction = evrec->GetInteraction();
+  const XclsTag & xcls = interaction->GetExclusiveTag();
+  assert(xcls.KnownResonance());
+  Resonance_t res = xcls.Resonance();
+  int charge = utils::res::ResonanceCharge(interaction);
+  int pdgc   = utils::res::PdgCode(res,charge);
+
+  LOG("RESHadronicVtx", pNOTICE)
+      << "Selected event has RES with PDGC = " << pdgc << ", Q = " << charge;
+
+  return pdgc;
+}
+//___________________________________________________________________________
+void RESHadronicSystemGenerator::AddResonance(
+                                         GHepRecord * evrec, int pdgc) const
+{
+  // compute RES p4 = p4(neutrino) + p4(hit nucleon) - p4(primary lepton)
+  TLorentzVector p4 = this->Hadronic4pLAB(evrec);
+
+  //-- Add the resonance at the EventRecord
+  GHepStatus_t ist = kIstPreDecayResonantState;
+  int mom = evrec->StruckNucleonPosition();
+
+  evrec->AddParticle(
+        pdgc, ist, mom,-1,-1,-1, p4.Px(),p4.Py(),p4.Pz(),p4.E(), 0,0,0,0);
 }
 //___________________________________________________________________________
 void RESHadronicSystemGenerator::AddResonanceDecayProducts(
-                                                   GHepRecord * evrec) const
+   				         GHepRecord * evrec, int pdgc) const
 {
-// generate momenta for the baryon resonance decay products and add them at
-// the event record
+// Decay the baryon resonance, take the decay products, boost them in the LAB
+// and add them in the GHEP record.
+// Unlike the SPP thread where the resonance decay products are determined
+// from the selected SPP channel, in the RES thread we can any of the the
+// resonance's kinematically available(the RES is not on the mass shell)decay 
+// channels
 
-  //-- find out which SPP channel we are generating
-  Interaction * interaction = evrec->GetInteraction();
-  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
+  // find the resonance position
+  int irpos = evrec->ParticlePosition(pdgc, kIstPreDecayResonantState, 0);
+  assert(irpos>0);
 
-  //-- get the final state nucleon and pion
-  int nuc_pdgc = SppChannel::FinStateNucleon (spp_channel);
-  int pi_pdgc  = SppChannel::FinStatePion    (spp_channel);
+  // access the GHEP entry
+  GHepParticle * resonance = evrec->Particle(irpos);
+  assert(resonance);
 
-  //-- get the total 4-p for the two-hadron system (= parent resonance 4-p)
+  // do the decay
+  DecayerInputs_t dinp;
+  dinp.PdgCode = pdgc;
+  dinp.P4      = resonance->P4();
+  TClonesArray * decay_products = fResonanceDecayer->Decay(dinp);
 
-  const InitialState & init_state = interaction->GetInitialState();
-  bool is_nucleus = init_state.GetTarget().IsNucleus();
+  // if the list is not empty, boost and copy the decay products in GHEP
+  if(decay_products) {
 
-  int res_pos = 0;
-  if(is_nucleus) res_pos = 4;
-  else           res_pos = 3;
+     // first, mark the resonance as decayed
+     resonance->SetStatus(kIstDecayedState);
 
-  GHepParticle * res  = evrec->Particle(res_pos);
-  TLorentzVector * p4 = res->GetP4();
+     // loop over the daughter and add them to the event record
+     TMCParticle * dpmc = 0;
+     TObjArrayIter decay_iter(decay_products);
 
-  LOG("RESHadronicVtx", pINFO)
-                 << "\n RES 4-P = " << utils::print::P4AsString(p4);
+     while( (dpmc = (TMCParticle *) decay_iter.Next()) ) {
 
-  //-- generate 4-p for the two-hadron system
-  double mnuc = PDGLibrary::Instance() -> Find(nuc_pdgc) -> Mass();
-  double mpi  = PDGLibrary::Instance() -> Find(pi_pdgc)  -> Mass();
+        int          dppdg = dpmc->GetKF();
+        GHepStatus_t dpist = GHepStatus_t (dpmc->GetKS());
 
-  double mass[2] = { mnuc, mpi };
+        double px = dpmc->GetPx();
+        double py = dpmc->GetPy();
+        double pz = dpmc->GetPz();
+        double E  = dpmc->GetEnergy();
 
-  TGenPhaseSpace phase_space_generator;
+       //-- Only add the decay products - the mother particle already exists
+       if(dpist == kIStStableFinalState) {
+         evrec->AddParticle(dppdg,dpist,irpos,-1,-1,-1, px,py,pz,E, 0,0,0,0);
+       }
+     }
+         
+     // done, release the original list
+     decay_products->Delete();
+     delete decay_products;
+  }// !=0
+}
+//___________________________________________________________________________
+void RESHadronicSystemGenerator::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//___________________________________________________________________________
+void RESHadronicSystemGenerator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//___________________________________________________________________________
+void RESHadronicSystemGenerator::LoadConfig(void)
+{
+  fResonanceDecayer = 0;
 
-  bool is_permitted = phase_space_generator.SetDecay(*p4, 2, mass);
-  assert(is_permitted);
+  //-- Get the specified baryon resonance decayer
+  fResonanceDecayer = dynamic_cast<const DecayModelI *>
+                      (this->SubAlg("decayer-alg-name","decayer-param-set"));
 
-  phase_space_generator.Generate();
-
-  //-- add the two hadrons at the event record
-  TLorentzVector & p4_nuc = *phase_space_generator.GetDecay(0);
-  TLorentzVector & p4_pi  = *phase_space_generator.GetDecay(1);
-  TLorentzVector vdummy(0,0,0,0); // dummy 'vertex'
-
-  int mom = res_pos;
-  evrec->AddParticle(
-               nuc_pdgc,kIStStableFinalState, mom,-1,-1,-1, p4_nuc, vdummy);
-  evrec->AddParticle(
-               pi_pdgc, kIStStableFinalState, mom,-1,-1,-1, p4_pi,  vdummy);
-
-  delete p4;
+  assert(fResonanceDecayer);
 }
 //___________________________________________________________________________
 
