@@ -111,6 +111,8 @@
   <priority msgstream="RESPXSec">            WARN   </priority>
   <priority msgstream="ReinSeghalCoh">       WARN   </priority>
   <priority msgstream="ReinSeghalRes">       WARN   </priority>
+  <priority msgstream="ReinSeghalResT">      NOTICE </priority>
+  <priority msgstream="ReinSeghalResC">      NOTICE </priority>
   <priority msgstream="ReinSeghalSpp">       NOTICE </priority>
   <priority msgstream="RSHAmpl">             WARN   </priority>
   <priority msgstream="Registry">            WARN   </priority>

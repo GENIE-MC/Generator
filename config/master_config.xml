@@ -100,6 +100,7 @@
    <config alg="genie::ReinSeghalCOHPXSec">          ReinSeghalCOHPXSec.xml          </config>
    <config alg="genie::ReinSeghalRESPXSec">          ReinSeghalRESPXSec.xml          </config>
    <config alg="genie::ReinSeghalSPPPXSec">          ReinSeghalSPPPXSec.xml          </config>
+   <config alg="genie::ReinSeghalRESXSec">           ReinSeghalRESXSec.xml           </config>
    <config alg="genie::ReinSeghalSPPXSec">           ReinSeghalSPPXSec.xml           </config>
    <config alg="genie::RSHelicityAmplModelCC">       RSHelicityAmplModelCC.xml       </config>
    <config alg="genie::RSHelicityAmplModelNCp">      RSHelicityAmplModelNCp.xml      </config>

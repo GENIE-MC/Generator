@@ -5,14 +5,14 @@
   -- Default configuration for COH NC XSec
 
   <param_set name="NC-Default"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::ReinSeghalCOHPXSec  </param>
-     <param type="string" name="partial-xsec-param-set"> Default                    </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson2D           </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
-     <param type="double" name="x-min">                  0.001                      </param>
-     <param type="double" name="x-max">                  0.999                      </param>
-     <param type="double" name="y-min">                  0.001                      </param>
-     <param type="double" name="y-max">                  0.999                      </param>
+     <param type="string" name="partial-xsec-alg-name">  genie::ReinSeghalCOHPXSec           </param>
+     <param type="string" name="partial-xsec-param-set"> Default                             </param>
+     <param type="string" name="integrator-alg-name">    genie::Simpson2D                    </param>
+     <param type="string" name="integrator-param-set">   Default-Logarithmic-FixedNBins-101  </param>
+     <param type="double" name="x-min">                  0.001                               </param>
+     <param type="double" name="x-max">                  0.999                               </param>
+     <param type="double" name="y-min">                  0.001                               </param>
+     <param type="double" name="y-max">                  0.999                               </param>
   </param_set>
 
 </alg_conf>
