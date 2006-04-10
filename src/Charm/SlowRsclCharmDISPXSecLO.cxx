@@ -69,7 +69,7 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
   const Kinematics &   kinematics = interaction->GetKinematics();
   const InitialState & init_state = interaction->GetInitialState();
 
-  double Mnuc = init_state.GetTarget().StruckNucleonP4()->M();
+  double Mnuc = init_state.GetTarget().StruckNucleonMass();
   double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double x    = kinematics.x();
   double y    = kinematics.y();
@@ -105,7 +105,7 @@ double SlowRsclCharmDISPXSecLO::XSec(const Interaction * interaction) const
   s /= xi;
 
   //----- Calculate cross section
-  double Gw  = (kGF/kSqrt2) * (1 + Q2/kMw_2);
+  double Gw  = (kGF/kSqrt2) * (1 + Q2/kMw2);
   double Gw2 = TMath::Power(Gw, 2);
   double tmp = Gw2 * 2*Q2/(y*kPi) * (y + xi*(1-y)/x);
 
@@ -171,7 +171,7 @@ bool SlowRsclCharmDISPXSecLO::ValidKinematics(
     return false;
   }
 
-  double Mnuc  = init_state.GetTarget().StruckNucleonP4()->M();
+  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double Q2    = 2*Mnuc*E*x*y;
   double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);

@@ -124,7 +124,7 @@ double BezrukovBugaevIntegrand::operator () (const vector<double> & input)
 
   double a    = kAem;
   double pi   = kPi;
-  double mmu2 = kMuonMass_2;
+  double mmu2 = kMuonMass2;
   double v2   = TMath::Power(v,2.);
   double t    = mmu2 *v2/(1-v);
   double k    = 1. - 2./v + 2./v2;

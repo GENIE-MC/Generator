@@ -64,13 +64,13 @@ double NuNucElasticPXSec::XSec(const Interaction * interaction) const
   double M2    = TMath::Power(M, 2);
   double M4    = TMath::Power(M2,2);
   double E2    = TMath::Power(E, 2);
-  double sig0  = kGF_2*M2 / (8*kPi*E2);
+  double sig0  = kGF2*M2 / (8*kPi*E2);
   double su    = 4*M*E - Q2;            // s-u
   double su2   = TMath::Power(su,2);    
   double qm2   = Q2 / M2;
   double qmf   = TMath::Power(1+qm2,2);
-  double alpha = 1.-2.*kSin8w_2;
-  double gamma = -0.66666667*kSin8w_2;
+  double alpha = 1.-2.*kSin8w2;
+  double gamma = -0.66666667*kSin8w2;
   double df1   = TMath::Power( 1.+qm2, 2.);
   double Gv3   = 0.5 * (1+kMuP-kMuN) / df1;
   double Gv0   = 1.5 * (1+kMuP+kMuN) / df1;

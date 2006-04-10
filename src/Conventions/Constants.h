@@ -31,9 +31,9 @@ static const double kPlankConstant = 1.;
 //----- pi, e,...
 
 static const double kPi    = 3.1415927;
-static const double kPi_2  = TMath::Power(kPi,2);
-static const double kPi_3  = TMath::Power(kPi,3);
-static const double kPi_4  = TMath::Power(kPi,4);
+static const double kPi2   = TMath::Power(kPi,2);
+static const double kPi3   = TMath::Power(kPi,3);
+static const double kPi4   = TMath::Power(kPi,4);
 static const double ke     = 2.7182818;
 static const double kSqrte = TMath::Sqrt(ke);
 
@@ -41,15 +41,15 @@ static const double kSqrte = TMath::Sqrt(ke);
 
 static const double kNA    = 6.023e23;             
 static const double kLe    = 3.8616E-11 *units::cm;
-static const double kLe_2  = TMath::Power(kLe,2);          
+static const double kLe2   = TMath::Power(kLe,2);          
 
 //----- Coupling constants
 
 static const double kAem   = 1./137.03599976; // dimensionless - EM coupling const
-static const double kAem_2 = TMath::Power(kAem,2);
+static const double kAem2  = TMath::Power(kAem,2);
 
 static const double kGF    = 1.16639E-5;      // GeV^-2 - Fermi const from b-decay
-static const double kGF_2  = TMath::Power(kGF,2);
+static const double kGF2   = TMath::Power(kGF,2);
 
 //----- Masses
 
@@ -68,18 +68,18 @@ static const double kProtonMass     =  0.9382720;           // GeV
 static const double kNeutronMass    =  0.9395653;           // GeV
 static const double kNucleonMass    =  (kProtonMass+kNeutronMass)/2.;
 
-static const double kElectronMass_2 =  TMath::Power(kElectronMass,2); // GeV^2
-static const double kMuonMass_2     =  TMath::Power(kMuonMass,2);     // GeV^2
-static const double kTauMass_2      =  TMath::Power(kTauMass,2);      // GeV^2
-static const double kPionMass_2     =  TMath::Power(kPionMass,2);     // GeV^2
-static const double kProtonMass_2   =  TMath::Power(kProtonMass,2);   // GeV^2
-static const double kNeutronMass_2  =  TMath::Power(kNeutronMass,2);  // GeV^2
-static const double kNucleonMass_2  =  TMath::Power(kNucleonMass,2);  // GeV^2
+static const double kElectronMass2  =  TMath::Power(kElectronMass,2); // GeV^2
+static const double kMuonMass2      =  TMath::Power(kMuonMass,2);     // GeV^2
+static const double kTauMass2       =  TMath::Power(kTauMass,2);      // GeV^2
+static const double kPionMass2      =  TMath::Power(kPionMass,2);     // GeV^2
+static const double kProtonMass2    =  TMath::Power(kProtonMass,2);   // GeV^2
+static const double kNeutronMass2   =  TMath::Power(kNeutronMass,2);  // GeV^2
+static const double kNucleonMass2   =  TMath::Power(kNucleonMass,2);  // GeV^2
 
 static const double kMw             =  80.14;                // GeV - W boson mass
 static const double kMz             =  91.19;                // GeV - Z boson mass
-static const double kMw_2           =  TMath::Power(kMw,2);  // GeV^2
-static const double kMz_2           =  TMath::Power(kMz,2);  // GeV^2
+static const double kMw2            =  TMath::Power(kMw,2);  // GeV^2
+static const double kMz2            =  TMath::Power(kMz,2);  // GeV^2
 
 // caution on consistency:
 // the charm mass scale can be configurable parameter in some algorithms
@@ -88,14 +88,14 @@ static const double kMc             =  1.3; // charm mass, GeV
 //----- Cabbibo & Weinberg angles angles
 
 static const double kCos8c    =  0.97437;                 // cos   (Cabbibo angle)
-static const double kCos8c_2  =  TMath::Power(kCos8c,2);  // cos^2 (Cabbibo angle)
-static const double kSin8c_2  =  1-kCos8c_2;              // sin^2 (Cabbibo angle)
-static const double kSin8c    =  TMath::Sqrt(kSin8c_2);   // sin   (Cabbibo angle)
+static const double kCos8c2   =  TMath::Power(kCos8c,2);  // cos^2 (Cabbibo angle)
+static const double kSin8c2   =  1-kCos8c2;               // sin^2 (Cabbibo angle)
+static const double kSin8c    =  TMath::Sqrt(kSin8c2);    // sin   (Cabbibo angle)
 
-static const double kSin8w_2  =  0.23117;          // sin^2 (Weinberg angle)
-static const double kCos8w_2  =  1-kSin8w_2;       // cos^2 (Weinberg angle)
-static const double kSin8w    =  TMath::Sqrt(kSin8w_2);   // sin   (Weinberg angle)
-static const double kCos8w    =  TMath::Sqrt(kCos8w_2);   // cos   (Weinberg angle)
+static const double kSin8w2   =  0.23117;                 // sin^2 (Weinberg angle)
+static const double kCos8w2   =  1-kSin8w2;               // cos^2 (Weinberg angle)
+static const double kSin8w    =  TMath::Sqrt(kSin8w2);    // sin   (Weinberg angle)
+static const double kCos8w    =  TMath::Sqrt(kCos8w2);    // cos   (Weinberg angle)
 
 //----- CKM elements
 
@@ -103,10 +103,10 @@ static const double kVud    =  0.9738;      // +/-0.0005
 static const double kVus    =  0.2200;      // +/-0.0026
 static const double kVcd    =  0.224;       // +/-0.012
 static const double kVcs    =  0.996;       // +/-0.013
-static const double kVud_2  =  TMath::Power(kVud,2);
-static const double kVus_2  =  TMath::Power(kVus,2);
-static const double kVcd_2  =  TMath::Power(kVcd,2);
-static const double kVcs_2  =  TMath::Power(kVcs,2);
+static const double kVud2   =  TMath::Power(kVud,2);
+static const double kVus2   =  TMath::Power(kVus,2);
+static const double kVcd2   =  TMath::Power(kVcd,2);
+static const double kVcs2   =  TMath::Power(kVcs,2);
 
 //----- Proton & Neutron Anomalous Magnetic Moments
 
@@ -190,10 +190,10 @@ static const double kSqrt35 = TMath::Sqrt( 35.0 );
 
 //----- Standard model constants used in Parton Model
 
-static const double kGL       =  (1./2.) - (2./3.)* kSin8w_2;
-static const double kGR       =          - (2./3.)* kSin8w_2;
-static const double kGLprime  = -(1./2.) + (1./3.)* kSin8w_2;
-static const double kGRprime  =            (1./3.)* kSin8w_2;
+static const double kGL       =  (1./2.) - (2./3.)* kSin8w2;
+static const double kGR       =          - (2./3.)* kSin8w2;
+static const double kGLprime  = -(1./2.) + (1./3.)* kSin8w2;
+static const double kGRprime  =            (1./3.)* kSin8w2;
 static const double kGL2      = TMath::Power(kGL,2);
 static const double kGR2      = TMath::Power(kGR,2);
 static const double kGLprime2 = TMath::Power(kGLprime,2);

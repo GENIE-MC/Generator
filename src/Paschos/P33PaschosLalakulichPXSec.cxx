@@ -73,10 +73,10 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   double E2   = TMath::Power(E,2);
   double Q2   = kinematics.Q2();
   double W    = kinematics.W();
-  double MN   = init_state.GetTarget().StruckNucleonP4()->M();
+  double MN   = init_state.GetTarget().StruckNucleonMass();
   double MN2  = TMath::Power(MN,2);
-  double Mmu2 = kMuonMass_2;
-  double Mpi2 = kPionMass_2;
+  double Mmu2 = kMuonMass2;
+  double Mpi2 = kPionMass2;
 
   LOG("PaschLal", pDEBUG) << "Input kinematics: W = " << W << ", Q2 = " << Q2;
 
@@ -244,7 +244,7 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
                + W4 * Mmu2*(Q2+Mmu2)/2.
                - W5 * 2*Mmu2*pk;
 
-  double xsec = kGF_2/4./kPi*kCos8c_2/MN2/E2*W*MR*Gamma_R/kPi/Breit_Wigner*pauli*s1;
+  double xsec = kGF2/4./kPi*kCos8c2/MN2/E2*W*MR*Gamma_R/kPi/Breit_Wigner*pauli*s1;
 
   return xsec;
 }

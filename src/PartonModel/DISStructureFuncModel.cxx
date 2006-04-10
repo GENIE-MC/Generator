@@ -223,19 +223,19 @@ double DISStructureFuncModel::Q(const Interaction * interaction) const
 
   if (isP && isNu)
   {
-     q = (dv+ds)*kVud_2 + s*kVus_2 + (dv_c+ds_c)*kVcd_2 + s_c*kVcs_2;
+     q = (dv+ds)*kVud2 + s*kVus2 + (dv_c+ds_c)*kVcd2 + s_c*kVcs2;
   }
   else if (isP && isNuBar)
   {
-     q = (uv+us)*(kVud_2+kVus_2) + (c_c)*(kVcd_2+kVcs_2);
+     q = (uv+us)*(kVud2+kVus2) + (c_c)*(kVcd2+kVcs2);
   }
   else if (isN && isNu)
   {
-     q = (uv+us)*kVud_2 + s*kVus_2 + (uv_c+us_c)*kVcd_2 + s_c*kVcs_2;
+     q = (uv+us)*kVud2 + s*kVus2 + (uv_c+us_c)*kVcd2 + s_c*kVcs2;
   }
   else if (isN && isNuBar)
   {
-     q = (dv+ds)*(kVud_2+kVus_2) + (c_c)*(kVcd_2+kVcs_2);
+     q = (dv+ds)*(kVud2+kVus2) + (c_c)*(kVcd2+kVcs2);
   }
   else
   {
@@ -273,19 +273,19 @@ double DISStructureFuncModel::QBar(const Interaction * interaction) const
 
   if (isP && isNu)
   {
-     qbar = (us)*(kVud_2+kVus_2) + (c_c)*(kVcd_2+kVcs_2);
+     qbar = (us)*(kVud2+kVus2) + (c_c)*(kVcd2+kVcs2);
   }
   else if (isP && isNuBar)
   {
-     qbar = (ds_c)*(kVcd_2) + (ds)*(kVud_2) + (s)*(kVus_2) + (s_c)*(kVcs_2);
+     qbar = (ds_c)*(kVcd2) + (ds)*(kVud2) + (s)*(kVus2) + (s_c)*(kVcs2);
   }
   else if (isN && isNu)
   {
-     qbar = (ds)*(kVud_2+kVus_2) + (c_c)*(kVcd_2+kVcs_2);
+     qbar = (ds)*(kVud2+kVus2) + (c_c)*(kVcd2+kVcs2);
   }
   else if (isN && isNuBar)
   {
-     qbar = (us_c)*(kVcd_2) + (us)*(kVud_2) + (s)*(kVus_2) + (s_c)*(kVcs_2);
+     qbar = (us_c)*(kVcd2) + (us)*(kVud2) + (s)*(kVus2) + (s_c)*(kVcs2);
   }
   else
   {

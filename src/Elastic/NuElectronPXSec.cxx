@@ -68,9 +68,9 @@ double NuElectronPXSec::XSec(const Interaction * interaction) const
   double ca    = fCa;
   double y     = kinematics.y();
   double ydep  = TMath::Power(1.-y,2.);
-  double C     = 0.25 * (kGF_2*s/kPi);
-  double m2    = kElectronMass_2;
-  double mterm = -0.5*s*kGF_2*m2*y*(cv*cv-ca*ca)/kPi; // small if m2/s<<1
+  double C     = 0.25 * (kGF2*s/kPi);
+  double m2    = kElectronMass2;
+  double mterm = -0.5*s*kGF2*m2*y*(cv*cv-ca*ca)/kPi; // small if m2/s<<1
 
   double xsec = 0; // <-- dxsec/dy
 
@@ -96,7 +96,7 @@ double NuElectronPXSec::XSec(const Interaction * interaction) const
   if( (pdg::IsNuMu(inu)||pdg::IsNuTau(inu)) && proc_info.IsWeakCC() ) {
     double ml  = (pdg::IsNuMu(inu)) ? kMuonMass : kTauMass;
     double ml2 = TMath::Power(ml,2);
-    xsec = (kGF_2*s/kPi)*(1-ml2/s);
+    xsec = (kGF2*s/kPi)*(1-ml2/s);
     xsec = TMath::Max(0.,xsec); // if s<ml2 => xsec<0 : force to xsec=0
   }
 

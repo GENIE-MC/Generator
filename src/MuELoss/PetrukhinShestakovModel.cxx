@@ -129,10 +129,9 @@ double PetrukhinShestakovIntegrand::operator () (const vector<double> & x)
   double Zm13  = TMath::Power(fZ,-1./3.);
   double Zm23  = TMath::Power(fZ,-2./3.);
   double a3    = TMath::Power(kAem,3.); // (e/m coupling const)^3
-  double Le2   = kLe_2;                 // (e- compton wevelength)^2
   double me    = kElectronMass;
   double mmu   = kMuonMass;
-  double mmu2  = kMuonMass_2;
+  double mmu2  = kMuonMass2;
   double mmue  = mmu/me;
   double memu  = me/mmu;
   double memu2 = TMath::Power(memu,2);
@@ -147,7 +146,7 @@ double PetrukhinShestakovIntegrand::operator () (const vector<double> & x)
   double fi = TMath::Log(a/b);
 
   // Calculate the Bethe-Heitler cross section ds/dv for muon bremsstrahlung
-  double ds_dv  = (a3*memu2*Le2) * (4*Z2) * (fi) * (4/3.-4*v/3.+v2)/v;
+  double ds_dv  = (a3*memu2*kLe2) * (4*Z2) * (fi) * (4/3.-4*v/3.+v2)/v;
   double vds_dv = v*ds_dv;
   return vds_dv; // in GeV^-2
 }

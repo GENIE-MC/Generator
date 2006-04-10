@@ -129,7 +129,7 @@ double KokoulinPetrukhinIntegrand::operator () (const vector<double> & x)
   if (  v >1) return 0;
   if (! fE>0) return 0;
 
-  double pmax_v = (1. - 6.*kMuonMass_2 / (fE*fE*(1.-v)) ) * 
+  double pmax_v = (1. - 6.*kMuonMass2 / (fE*fE*(1.-v)) ) * 
                                  TMath::Sqrt(1.-4.*kElectronMass/(fE*v));
   if(p>pmax_v) return 0;
 
@@ -143,9 +143,9 @@ double KokoulinPetrukhinIntegrand::operator () (const vector<double> & x)
   double Zm23    = TMath::Power(fZ,-2./3.);
   double Z13     = TMath::Power(fZ,1./3.);
   double me      = kElectronMass;
-  double me2     = kElectronMass_2;
+  double me2     = kElectronMass2;
   double mmu     = kMuonMass;
-  double mmu2    = kMuonMass_2;
+  double mmu2    = kMuonMass2;
   double memu2   = me2/mmu2;
   double memu    = me/mmu;
   double mume    = mmu/me;

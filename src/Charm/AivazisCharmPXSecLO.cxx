@@ -77,7 +77,7 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   double x           = kinematics.x();
   double y           = kinematics.y();
   double x2          = TMath::Power(x,    2);
-  double Mnuc        = init_state.GetTarget().StruckNucleonP4()->M();
+  double Mnuc        = init_state.GetTarget().StruckNucleonMass();
   double Mnuc2       = TMath::Power(Mnuc, 2);
   double Q2          = 2*Mnuc*E*x*y;
   double W2          = Mnuc2 + 2*Mnuc*E*y*(1-x);
@@ -112,7 +112,7 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   s /= xi;
 
   //----- Calculate cross section
-  double Gw  = (kGF/kSqrt2) * (1 + Q2/kMw_2);
+  double Gw  = (kGF/kSqrt2) * (1 + Q2/kMw2);
   double Gw2 = TMath::Power(Gw, 2);
   double tmp = Gw2 * (y*Q2/kPi) *
                    (TMath::Power((1+coshpsi)/2, 2) + (0.5*fMc2/Q2)*sinh2psi/2);
@@ -178,7 +178,7 @@ bool AivazisCharmPXSecLO::ValidKinematics(
     return false;
   }
 
-  double Mnuc  = init_state.GetTarget().StruckNucleonP4()->M();
+  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double Q2    = 2*Mnuc*E*x*y;
   double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);

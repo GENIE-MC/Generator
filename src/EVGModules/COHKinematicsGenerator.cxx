@@ -95,7 +95,6 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         exception.SwitchOnFastForward();
         throw exception;
      }
-
      double gx = TMath::Exp(logxmin + rlogx * rnd->Random1().Rndm());
      double gy = TMath::Exp(logymin + rlogy * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->Setx(gx);
@@ -103,19 +102,51 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      LOG("COHKinematics", pINFO)
                    << "Trying: (x = " << gx << ", y = " << gy << ")";
 
-     double xsec = fXSecModel->XSec(interaction);
-     double t    = xsec_max * rnd->Random1().Rndm();
+     double xsec    = fXSecModel->XSec(interaction);
+     double tryxsec = xsec_max * rnd->Random1().Rndm();
 
      LOG("COHKinematics", pINFO)
-             << "xsec: (computed) = " << xsec << ", (generated) = " << t;
+          << "xsec: (computed) = " << xsec << ", (generated) = " << tryxsec;
      assert(xsec < xsec_max);
 
-     if(t < xsec) {
+     if(tryxsec < xsec) {
         // kinematical selection done.
         LOG("COHKinematics", pINFO)
                              << "Selected: x = " << gx << ", y = " << gy;
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);
+
+        // the COH cross section should be a triple differential cross section
+        // d^2xsec/dxdydt where t is the the square of the 4p transfer to the
+        // nucleus. The cross section used for kinematical selection should have
+        // the t-dependence integrated out. The t-dependence is of the form
+        // ~exp(-bt). Now that the x,y kinematical variables have been selected
+        // we can generate a t using the t-dependence as a PDF.
+        const InitialState & init_state = interaction->GetInitialState();
+        double Ev    = init_state.GetProbeE(kRfLab);
+        double Epi   = gy*Ev; // pion energy
+        double Epi2  = TMath::Power(Epi,2);
+        double pme2  = kPionMass2/Epi2;   
+        double xME   = kNucleonMass*gx/Epi;
+        double tA    = 1. + xME - 0.5*pme2;
+        double tB    = TMath::Sqrt(1.+ 2*xME) * TMath::Sqrt(1.-pme2);
+        double tmin  = 2*Epi2 * (tA-tB);
+        double tmax  = 2*Epi2 * (tA+tB);
+        double A     = (double) init_state.GetTarget().A(); 
+        double A13   = TMath::Power(A,1./3.);
+        double R     = fRo * A13; // nuclear radius
+        double R2    = TMath::Power(R,2.);
+        double b     = 0.33333 * R2;
+        double tsum  = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; 
+        double rt    = tsum * rnd->Random1().Rndm();
+        double gt    = -1.*TMath::Log(-1.*b*rt + TMath::Exp(-1.*b*tmin))/b;
+
+        // lock selected kinematics & clear running values
+        interaction->GetKinematicsPtr()->Setx(gx, true);
+        interaction->GetKinematicsPtr()->Sety(gy, true);
+        interaction->GetKinematicsPtr()->Sett(gt, true);
+        interaction->GetKinematicsPtr()->ClearRunningValues();
+
         return;
      }
   }// iterations
@@ -226,6 +257,7 @@ void COHKinematicsGenerator::LoadConfigData(void)
 {
   fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.3);
   fEMin         = fConfig->GetDoubleDef("min-energy-cached",     -1.0);
+  fRo           = fConfig->GetDoubleDef("Ro",                     kCohR0);
 }
 //____________________________________________________________________________
 

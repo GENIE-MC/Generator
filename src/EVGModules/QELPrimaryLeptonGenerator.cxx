@@ -50,6 +50,9 @@ void QELPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Figure out the Final State Lepton PDG Code
   int pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
 
+  //-- Use selected kinematics
+  interaction->GetKinematicsPtr()->UseSelectedKinematics();
+
   //-- QEL Kinematics: Compute the lepton energy and the scattering
   //   angle with respect to the incoming neutrino
 
@@ -91,7 +94,10 @@ void QELPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   delete p4l;
 
-  // set final state lepton polarization
+  //-- Set final state lepton polarization
   this->SetPolarization(evrec);
+
+  //-- Reset running kinematics
+  interaction->GetKinematicsPtr()->ClearRunningValues();
 }
 //___________________________________________________________________________

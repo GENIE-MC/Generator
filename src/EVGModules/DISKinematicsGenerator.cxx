@@ -128,6 +128,8 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      //-- W,Q2 => x,y
      this->SetKineXY(interaction);
+     double gx = interaction->GetKinematics().x();
+     double gy = interaction->GetKinematics().y();
 
      //-- compute the cross section for current kinematics
      double xsec = fXSecModel->XSec(interaction);
@@ -140,15 +142,22 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      if(t < xsec) {
          // kinematical selection done.
          LOG("DISKinematics", pINFO)
-               << "Selected: W = "<< gW << ", Q2 = "<< gQ2
-                  << " (=> x = " << interaction->GetKinematics().x()
-                      << ", y = " << interaction->GetKinematics().y() << ")";
+                  << "Selected: W = "<< gW << ", Q2 = "<< gQ2
+                           << " (=> x = " << gx << ", y = " << gy << ")";
 
          interaction->ResetBit(kISkipProcessChk);
          interaction->ResetBit(kISkipKinematicChk);
 
          // set the cross section for the selected kinematics
          evrec->SetDiffXSec(xsec);
+
+         // lock selected kinematics & clear running values
+         interaction->GetKinematicsPtr()->SetW (gW,  true);
+         interaction->GetKinematicsPtr()->SetQ2(gQ2, true);
+         interaction->GetKinematicsPtr()->Setx (gx,  true);
+         interaction->GetKinematicsPtr()->Sety (gy,  true);
+         interaction->GetKinematicsPtr()->ClearRunningValues();
+
          return;
      }
   } // iterations

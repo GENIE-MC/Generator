@@ -78,13 +78,13 @@ bool IMDXSec::ValidKinematics(const Interaction * interaction) const
   const InitialState & init_state = interaction -> GetInitialState();
 
   double E = init_state.GetProbeE(kRfLab);
-  double s = kElectronMass_2 + 2*kElectronMass*E;
+  double s = kElectronMass2 + 2*kElectronMass*E;
 
   //-- check if it is kinematically allowed
-  if(s < kMuonMass_2) {
+  if(s < kMuonMass2) {
      LOG("IMD", pINFO)
         << "Ev = " << E << " (s = " << s << ") is below threshold (s-min = "
-        << kMuonMass_2 << ") for IMD";
+        << kMuonMass2 << ") for IMD";
      return false;
   }
   return true;

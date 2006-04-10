@@ -93,6 +93,26 @@ int main(int argc, char ** argv)
   LOG("test", pINFO) << "Printing kinematics after modifying x,y and adding W";
   LOG("test", pINFO) << "\n" << *wkine;
 
+  //-- now set "selected" kinematics
+  wkine->Setx(0.25, true);
+  wkine->Sety(0.21, true);
+  wkine->SetW(2.89, true);
+
+  LOG("test", pINFO) << "Printing kinematics after setting 'selected'";
+  LOG("test", pINFO) << "\n" << *wkine;
+
+  //-- now delete 'running' kinematics
+  wkine->ClearRunningValues();
+
+  LOG("test", pINFO) << "Printing kinematics after deleting 'running'";
+  LOG("test", pINFO) << "\n" << *wkine;
+
+  //-- copy the 'selected' kinematics to the 'running' ones
+  wkine->UseSelectedKinematics();
+
+  LOG("test", pINFO) << "Printing kinematics after copying 'selected'";
+  LOG("test", pINFO) << "\n" << *wkine;
+
   //-- see that the interaction was updated
 
   LOG("test", pINFO) << "Printing the interaction object after all changes";

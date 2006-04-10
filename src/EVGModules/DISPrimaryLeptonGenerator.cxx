@@ -53,6 +53,9 @@ void DISPrimaryLeptonGenerator::ProcessEventRecord(
   //-- Figure out the Final State Lepton PDG Code
   int pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
 
+  //-- Use selected kinematics
+  interaction->GetKinematicsPtr()->UseSelectedKinematics();
+
   //-- DIS Kinematics: Compute the lepton energy and the scattering
   //   angle with respect to the incoming neutrino
 
@@ -91,7 +94,10 @@ void DISPrimaryLeptonGenerator::ProcessEventRecord(
 
   delete pl4;
 
-  // set final state lepton polarization
+  //-- Set final state lepton polarization
   this->SetPolarization(event_rec);
+
+  //-- Reset running kinematics
+  interaction->GetKinematicsPtr()->ClearRunningValues();
 }
 //___________________________________________________________________________

@@ -94,7 +94,7 @@ double LlewellynSmithModel::Fp(const Interaction * interaction) const
 
   // get struck nucleon mass & set pion mass
   const InitialState & init_state = interaction->GetInitialState();
-  double MN   = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
+  double MN   = init_state.GetTarget().StruckNucleonMass();
   double MN2  = TMath::Power(MN, 2);
   double Mpi  = kPionMass;
   double Mpi2 = TMath::Power(Mpi, 2);
@@ -155,7 +155,7 @@ double LlewellynSmithModel::tau(const Interaction * interaction) const
   const Kinematics &   kinematics = interaction->GetKinematics();
   const InitialState & init_state = interaction->GetInitialState();
   double q2     = kinematics.q2();
-  double Mnucl  = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
+  double Mnucl  = init_state.GetTarget().StruckNucleonMass();
   double Mnucl2 = TMath::Power(Mnucl, 2);
 
   //-- calculate q^2 / (4*Mnuc^2)
