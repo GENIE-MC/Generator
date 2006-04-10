@@ -94,7 +94,7 @@ void FKR::Calculate(double q2, double W, double mN, int n)
   fTplus  = - (fTv + fTa);
   fTminus = - (fTv - fTa);
 
-  double w = - kSin8w_2; // 8w = theta-weinberg
+  double w = - kSin8w2; // 8w = theta-weinberg
 
   fLamdaRminus  = fLamda  * fRminus;
   fLamdaRplus   = fLamda  * fRplus;

@@ -47,7 +47,7 @@ RSHelicityAmpl * RSHelicityAmplModelNCp::Compute(
                                        Resonance_t res, const FKR & fkr) const
 {
   RSHelicityAmpl * hampl = new RSHelicityAmpl;
-  double xi = kSin8w_2;
+  double xi = kSin8w2;
 
   switch(res) {
 

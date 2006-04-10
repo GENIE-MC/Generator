@@ -78,7 +78,7 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
   double A      = (double) init_state.GetTarget().A(); // mass number
   double A2     = TMath::Power(A,2.);
   double A_3    = TMath::Power(A,1./3.);
-  double Gf     = kGF_2 * Mnuc / (32 * kPi_3);
+  double Gf     = kGF2 * Mnuc / (32 * kPi3);
   double fp     = 0.93 * Mpi; // pion decay constant
   double fp2    = TMath::Power(fp,2.);
   double Epi    = y*E; // pion energy
@@ -96,7 +96,7 @@ double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
   // the xsec in Nucl.Phys.B223:29-144 (1983) is d^3xsec/dxdydt but the only
   // t-dependent factor is an exp(-bt) so it can be integrated analyticaly
   double Epi2   = TMath::Power(Epi,2.);
-  double Mpi2   = kPionMass_2;
+  double Mpi2   = kPionMass2;
   double R      = fRo * A_3; // nuclear radius
   double R2     = TMath::Power(R,2.);
   double b      = 0.33333 * R2;
