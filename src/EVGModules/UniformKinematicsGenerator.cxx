@@ -92,7 +92,8 @@ void UniformKinematicsGenerator::GenerateUnifQELKinematics(
   // generate/set a Q^2 in available phase space (const probability)
   RandomGen * rnd = RandomGen::Instance();
   double gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random1().Rndm();
-  interaction->GetKinematicsPtr()->SetQ2(gQ2);
+
+  interaction->GetKinematicsPtr()->SetQ2(gQ2,true);
 
   LOG("UnifKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
 
@@ -117,7 +118,7 @@ void UniformKinematicsGenerator::GenerateUnifRESKinematics(
 
      // generate/set an invariant mass (const probability)
      gW = W.min + (W.max - W.min) * rnd->Random1().Rndm();
-     interaction->GetKinematicsPtr()->SetW(gW);
+     interaction->GetKinematicsPtr()->SetW(gW,true);
 
      // compute physical Q^2 for selected W
      Range1D_t Q2 = utils::kinematics::Q2Range_W(interaction);
@@ -125,7 +126,7 @@ void UniformKinematicsGenerator::GenerateUnifRESKinematics(
      if(Q2.min < Q2.max) {
         // generate/set a Q^2 (const probability)
         gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random1().Rndm();
-        interaction->GetKinematicsPtr()->SetQ2(gQ2);
+        interaction->GetKinematicsPtr()->SetQ2(gQ2,true);
         found = true;
      }
 
@@ -157,21 +158,15 @@ void UniformKinematicsGenerator::GenerateUnifDISKinematics(
   double M2  = TMath::Power(M,2);
 
   // select kinematics
-
   bool found = false;
   register unsigned int iter = 0;
-
   double gx = -1, gy = -1, gW = -1, gQ2 = -1;
-
   RandomGen * rnd = RandomGen::Instance();
 
   while(!found) {
      // generate x,y in [0,1]
      gx = rnd->Random1().Rndm();
      gy = rnd->Random1().Rndm();
-
-     interaction->GetKinematicsPtr()->Setx(gx);
-     interaction->GetKinematicsPtr()->Sety(gy);
 
      // check whether generated x,y correspond to valid kinematics
      gW  = TMath::Sqrt( utils::math::NonNegative(M2+2*Ev*M*gy*(1-gx)) );
@@ -194,6 +189,10 @@ void UniformKinematicsGenerator::GenerateUnifDISKinematics(
          exit(1);
      }
   }
+  interaction->GetKinematicsPtr()->Setx (gx,  true);
+  interaction->GetKinematicsPtr()->Sety (gy,  true);
+  interaction->GetKinematicsPtr()->SetW (gW,  true);
+  interaction->GetKinematicsPtr()->SetQ2(gQ2, true);
 
   LOG("UnifKinematics", pINFO) << "Selected: x   = " << gx;
   LOG("UnifKinematics", pINFO) << "Selected: y   = " << gy;
@@ -210,21 +209,33 @@ void UniformKinematicsGenerator::GenerateUnifCOHKinematics(
 
   Interaction * interaction = evrec->GetInteraction();
 
-  double Ev  = interaction->GetInitialState().GetProbeE(kRfLab);
-  double Mpi = kPionMass;
-
-  double ymin = Mpi/Ev;
+  double Ev   = interaction->GetInitialState().GetProbeE(kRfLab);
+  double ymin = kPionMass/Ev;
   double ymax = 1.;
 
   RandomGen * rnd = RandomGen::Instance();
   double gx = rnd->Random1().Rndm(); // x in [0,1]
-  double gy = ymin + (ymax-ymin)*rnd->Random1().Rndm(); // y in [ymin, ymax]
+  double gy = ymin + (ymax-ymin)*rnd->Random1().Rndm(); // y in [ymin,ymax]
+
+  double Epi  = gy*Ev; // pion energy
+  double Epi2 = TMath::Power(Epi,2);
+  double pme2 = kPionMass2/Epi2;   
+  double xME  = kNucleonMass*gx/Epi;
+  double tA   = 1. + xME - 0.5*pme2;
+  double tB   = TMath::Sqrt(1.+ 2*xME) * TMath::Sqrt(1.-pme2);
+  double tmin = 2*Epi2 * (tA-tB);
+  double tmax = 2*Epi2 * (tA+tB);
+
+  double gt = tmin + (tmax-tmin)*rnd->Random1().Rndm(); // t in [tmin,tmax]
 
   LOG("UnifKinematics", pINFO) << "Selected: x = " << gx;
   LOG("UnifKinematics", pINFO) << "Selected: y = " << gy;
+  LOG("UnifKinematics", pINFO) << "Selected: t = " << gt;
 
-  interaction->GetKinematicsPtr()->Setx(gx);
-  interaction->GetKinematicsPtr()->Sety(gy);
+  interaction->GetKinematicsPtr()->Setx(gx,true);
+  interaction->GetKinematicsPtr()->Sety(gy,true);
+  interaction->GetKinematicsPtr()->Sett(gt,true);
+
   evrec->SetDiffXSec(0);
 }
 //___________________________________________________________________________

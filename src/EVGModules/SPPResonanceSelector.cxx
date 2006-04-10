@@ -78,6 +78,9 @@ Resonance_t SPPResonanceSelector::SelectResonance(GHepRecord * evrec) const
   Interaction * interaction = evrec->GetInteraction();
   int q_res = utils::res::ResonanceCharge(interaction);
 
+  //-- Use selected kinematics
+  interaction->GetKinematicsPtr()->UseSelectedKinematics();
+
   //-- Trust kinematics and process type already set.
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
@@ -121,6 +124,9 @@ Resonance_t SPPResonanceSelector::SelectResonance(GHepRecord * evrec) const
   //-- Reset 'trust' bits
   interaction->ResetBit(kISkipProcessChk);
   interaction->ResetBit(kISkipKinematicChk);
+
+  //-- Reset running kinematics
+  interaction->GetKinematicsPtr()->ClearRunningValues();
 
   //-- Use the computed differential cross sections to select a resonance
   RandomGen * rnd = RandomGen::Instance();

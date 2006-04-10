@@ -62,6 +62,9 @@ void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   // Final state primary lepton PDG code
   int pdgc = kPdgMuon;
 
+  //-- Use selected kinematics
+  interaction->GetKinematicsPtr()->UseSelectedKinematics();
+
   //-- Kinematics: Compute the lepton energy and the scattering angle with
   //   respect to the incoming neutrino
 
@@ -69,7 +72,7 @@ void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double Emu   = (1-y)*Ev;
   double Emu2  = TMath::Power(Emu,2);
   double me    = kElectronMass;
-  double mmu2  = kMuonMass_2;
+  double mmu2  = kMuonMass2;
   double pmu   = TMath::Sqrt(Emu2-mmu2);      assert(Emu2>=mmu2);
   double Q2    = 2*(Ev-Emu)*me;
   double cThSc = (Emu-0.5*(Q2+mmu2)/Ev)/pmu;
@@ -95,7 +98,10 @@ void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   delete p4nu;
   delete p4l;
 
-  // set final state lepton polarization
+  //-- Set final state lepton polarization
   this->SetPolarization(evrec);
+
+  //-- Reset running kinematics
+  interaction->GetKinematicsPtr()->ClearRunningValues();
 }
 //___________________________________________________________________________

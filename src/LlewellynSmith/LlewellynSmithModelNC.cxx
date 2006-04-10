@@ -19,6 +19,8 @@
 
 #include <iostream>
 
+#include <TMath.h>
+
 #include "Base/ELFormFactors.h"
 #include "Base/ELFormFactorsModelI.h"
 #include "Conventions/Constants.h"
@@ -56,7 +58,7 @@ double LlewellynSmithModelNC::F1V(const Interaction * interaction) const
   double F1p = fELFF.Gep() - t * fELFF.Gmp();
 
   //-- calculate F1V-NC
-  double w2 = kSin8w_2; // sin^2(weinberg-angle)
+  double w2 = kSin8w2; // sin^2(weinberg-angle)
   double F1V_NC = 0.5*F1V_CC - 2*w2*F1p;
   return F1V_NC;
 }
@@ -71,7 +73,7 @@ double LlewellynSmithModelNC::xiF2V(const Interaction * interaction) const
   double F2p = (fELFF.Gmp() - fELFF.Gep()) / kMuP;
 
   //-- calculate xiF2-NC
-  double w2 = kSin8w_2; // sin^2(weinberg-angle)
+  double w2 = kSin8w2; // sin^2(weinberg-angle)
   double xiF2V_NC = 0.5*xiF2V_CC - 2*w2*(kMuP-1)*F2p;
   return xiF2V_NC;
 }
@@ -94,7 +96,7 @@ double LlewellynSmithModelNC::Fp(const Interaction * interaction) const
 
   //-- get struck nucleon mass & pion pass
   const InitialState & init_state = interaction->GetInitialState();
-  double MN   = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
+  double MN   = init_state.GetTarget().StruckNucleonMass();
   double MN2  = TMath::Power(MN,        2);
   double Mpi2 = TMath::Power(kPionMass, 2);
 

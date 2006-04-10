@@ -52,6 +52,8 @@ public:
   //-- overload KineGeneratorWithCache methods
   double ComputeMaxXSec (const Interaction * in) const;
   double Energy         (const Interaction * in) const;
+
+  double fRo;
 };
 
 }      // genie namespace

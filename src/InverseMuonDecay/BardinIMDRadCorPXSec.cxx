@@ -26,8 +26,6 @@
 */
 //____________________________________________________________________________
 
-#include <iostream>
-
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
@@ -65,9 +63,9 @@ double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
   const InitialState & init_state = interaction -> GetInitialState();
 
   double E    = init_state.GetProbeE(kRfLab);
-  double sig0 = kGF_2 * kElectronMass * E / kPi;
+  double sig0 = kGF2 * kElectronMass * E / kPi;
   double re   = 0.5 * kElectronMass / E;
-  double r    = (kMuonMass_2 / kElectronMass_2) * re;
+  double r    = (kMuonMass2 / kElectronMass2) * re;
   double y    = interaction->GetKinematics().y();
 
   y = 1-y;  //Note: y = (Ev-El)/Ev but in Bardin's paper y=El/Ev.
@@ -90,11 +88,10 @@ double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
   LOG("BardinIMD", pINFO)
      << "dxsec[1-loop]/dy (Ev = " << E << ", y = " << y << ") = " << dsig_dy;
 
-
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return dsig_dy;
 
-  int NNucl = init_state.GetTarget().Z(); // num of scattering centers
-  dsig_dy *= NNucl; 
+  int Ne = init_state.GetTarget().Z(); // num of scattering centers
+  dsig_dy *= Ne; 
 
   return dsig_dy;
 }
@@ -113,13 +110,13 @@ bool BardinIMDRadCorPXSec::ValidKinematics(
 
   const InitialState & init_state = interaction -> GetInitialState();
   double E = init_state.GetProbeE(kRfLab);
-  double s = kElectronMass_2 + 2*kElectronMass*E;
+  double s = kElectronMass2 + 2*kElectronMass*E;
 
   //-- check if it is kinematically allowed
-  if(s < kMuonMass_2) {
+  if(s < kMuonMass2) {
      LOG("BardinIMD", pINFO)
         << "Ev = " << E << " (s = " << s << ") is below threshold (s-min = "
-        << kMuonMass_2 << ") for IMD";
+        << kMuonMass2 << ") for IMD";
      return false;
   }
   return true;

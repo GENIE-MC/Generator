@@ -59,13 +59,13 @@ double BetheBlochModel::dE_dx(double E, MuELMaterial_t mt) const
    double Z       = MuELMaterial::Z(mt);
    double A       = MuELMaterial::A(mt);
    double Z_A     = Z/A;              // in mol/gr
-   double a2      = kAem_2;           // (em coupling const)^2
+   double a2      = kAem2;            // (em coupling const)^2
    double Na      = kNA;              // Avogadro's number
-   double lamda2 =  kLe_2/units::cm2; // (e compton wavelength)^2 in cm^2
+   double lamda2 =  kLe2/units::cm2;  // (e compton wavelength)^2 in cm^2
    double me      = kElectronMass;    // in GeV
-   double me2     = kElectronMass_2; 
+   double me2     = kElectronMass2; 
    double mmu     = kMuonMass;        // in GeV
-   double mmu2    = kMuonMass_2;
+   double mmu2    = kMuonMass2;
    double E2      = TMath::Power(E,2);
    double beta    = TMath::Sqrt(E2-mmu2)/E;
    double beta2   = TMath::Power(beta,2);

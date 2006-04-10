@@ -87,7 +87,7 @@ double KovalenkoQELCharmPXSec::XSec(const Interaction * interaction) const
   double Mnuc2 = TMath::Power(Mnuc,2);
 
   //----- Calculate the differential cross section dxsec/dQ^2
-  double Gf        = kGF_2 / (2*kPi);
+  double Gf        = kGF2 / (2*kPi);
   double vR        = (MR2 - Mnuc2 + Q2) / (2*Mnuc);
   double xiR       = this->xiBar(interaction, vR);
   double vR2       = vR*vR;
@@ -109,13 +109,14 @@ double KovalenkoQELCharmPXSec::ZR(const Interaction * interaction) const
   const InitialState & init_state  = interaction->GetInitialState();
 
   double Mo2   = fMo*fMo;
-  double Mnuc2 = init_state.GetTarget().StruckNucleonP4()->M2();
+  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
+  double Mnuc2 = TMath::Power(Mnuc,2);
   double MR    = this->MRes(interaction);
   double MR2   = TMath::Power(MR,2.);
   double D0    = this->DR(interaction, true); // D^R(Q^2=0)
   double sumF2 = this->SumF2(interaction);    // FA^2+F1^2
 
-  double Z  = 2*Mo2*kSin8c_2 * sumF2 / (D0 * (MR2-Mnuc2));
+  double Z  = 2*Mo2*kSin8c2 * sumF2 / (D0 * (MR2-Mnuc2));
   return Z;
 }
 //____________________________________________________________________________
@@ -132,7 +133,7 @@ double KovalenkoQELCharmPXSec::DR(
   const Kinematics & kinematics = interaction->GetKinematics();
 
   double Q2     = kinematics.Q2();
-  double Mnuc   = init_state.GetTarget().StruckNucleonP4()->M();
+  double Mnuc   = init_state.GetTarget().StruckNucleonMass();
   double Mnuc2  = TMath::Power(Mnuc,2);
   double MR     = this->MRes(interaction);
   double DeltaR = this->ResDM(interaction);
@@ -166,7 +167,7 @@ double KovalenkoQELCharmPXSec::xiBar(
   const Kinematics &   kinematics = interaction -> GetKinematics();
 
   double Q2     = kinematics.Q2();
-  double Mnuc   = init_state.GetTarget().StruckNucleonP4()->M();
+  double Mnuc   = init_state.GetTarget().StruckNucleonMass();
   double Mo2    = fMo*fMo;
   double v2     = v *v;
 
@@ -277,7 +278,7 @@ bool KovalenkoQELCharmPXSec::ValidProcess(
   if(!is_exclusive_charm) return false;
 
   if(!proc_info.IsQuasiElastic()) return false;
-  if(!proc_info.IsWeak())          return false;
+  if(!proc_info.IsWeak())         return false;
 
   bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
   bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );

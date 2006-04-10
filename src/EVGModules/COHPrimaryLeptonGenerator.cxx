@@ -50,6 +50,9 @@ void COHPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const InitialState & init_state = interaction->GetInitialState();
   const Kinematics &   kinematics = interaction->GetKinematics();
 
+  //-- Use selected kinematics
+  interaction->GetKinematicsPtr()->UseSelectedKinematics();
+
   //-- Coherent Scattering Kinematics: Compute the lepton energy and the
   //   scattering angle with respect to the incoming neutrino
 

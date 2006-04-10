@@ -139,11 +139,19 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // kinematical selection done.
         LOG("RESKinematics", pINFO)
                             << "Selected: W = " << gW << ", Q2 = " << gQ2;
+
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);
+
         // reset 'trust' bits
         interaction->ResetBit(kISkipProcessChk);
         interaction->ResetBit(kISkipKinematicChk);
+
+        // lock selected kinematics & clear running values
+        interaction->GetKinematicsPtr()->SetQ2(gQ2, true);
+        interaction->GetKinematicsPtr()->SetW (gW,  true);
+        interaction->GetKinematicsPtr()->ClearRunningValues();
+
         return;
      }
   } // iterations

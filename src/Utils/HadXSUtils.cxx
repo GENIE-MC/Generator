@@ -28,7 +28,7 @@ double genie::utils::hadxs::InelasticPionNucleonXSec(double Epion)
 // Actually, the following is a simple data interpolation:
 
   double Epion2 = TMath::Power(Epion,2);
-  double P      = TMath::Sqrt( TMath::Max(0.,Epion2-kPionMass_2) );
+  double P      = TMath::Sqrt( TMath::Max(0.,Epion2-kPionMass2) );
 
   double log10P = 0;
   if(P>0) log10P = TMath::Log10(P);
@@ -54,7 +54,7 @@ double genie::utils::hadxs::TotalPionNucleonXSec(double Epion)
 // Actually, the following is a simple data interpolation:
 
   double Epion2 = TMath::Power(Epion,2);
-  double P      = TMath::Sqrt( TMath::Max(0.,Epion2-kPionMass_2) );
+  double P      = TMath::Sqrt( TMath::Max(0.,Epion2-kPionMass2) );
 
   double log10P = 0;
   if(P>0) log10P = TMath::Log10(P);

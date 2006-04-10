@@ -64,7 +64,7 @@ double GlashowResXSec::XSec(const Interaction * interaction) const
   double Gw2  = TMath::Power(Gw,  2);
   double s    = 2*me*E;
   double bw   = Mw4 / (TMath::Power(s-Mw2,2) + Gw2*Mw2);
-  double xsec = kGF_2*s*bw / (3*kPi);
+  double xsec = kGF2*s*bw / (3*kPi);
 
   LOG("GlashowResXSec", pDEBUG) << "XSec (E = " << E << ") = " << xsec;
   return xsec;

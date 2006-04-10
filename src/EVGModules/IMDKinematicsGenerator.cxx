@@ -101,6 +101,11 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);
+
+        // lock selected kinematics & clear running values
+        interaction->GetKinematicsPtr()->Sety(y, true);
+        interaction->GetKinematicsPtr()->ClearRunningValues();
+
         return;
      }
   }// iterations

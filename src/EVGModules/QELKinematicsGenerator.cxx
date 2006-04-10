@@ -132,9 +132,15 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);
 
+        // reset bits
         interaction->ResetBit(kISkipProcessChk);
         interaction->ResetBit(kISkipKinematicChk);
         interaction->ResetBit(kIAssumeFreeNucleon);
+
+        // lock selected kinematics & clear running values
+        interaction->GetKinematicsPtr()->SetQ2(gQ2, true);
+        interaction->GetKinematicsPtr()->ClearRunningValues();
+
         return;
      }
   }// iterations

@@ -220,7 +220,7 @@ double BardinDISPXSec::DeltaCCi(const Interaction * interaction) const
   double Iixx    = Ii(x, interaction);
   double sq_mqf2 = sq / mqf2;
   double sq_ml2  = sq / ml2;
-  double sq_mZ2  = sq / kMz_2;
+  double sq_mZ2  = sq / kMz2;
   double Q2      = S(interaction) * x * y;
 
   double f       = Utils::QuarkCharge(pdg);
