@@ -1,24 +1,20 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::ReinSeghalSPPXSec
+\class    genie::ReinSeghalRESXSec
 
 \brief    Computes the cross section for an exclusive 1pi reaction through
           resonance neutrinoproduction according to the Rein-Seghal model.
 
           This algorithm produces in principle what you could also get from 
           the genie::RESXSec algorithm (RES cross section integrator) by 
-          specifying the genie::ReinSeghalSPPPXSec as the differential 
-          (d2xsec/fQ2dW) cross section model. However, ReinSeghalSPPXSec
-          offers a faster alternative. Before computing any SPP cross section
+          specifying the genie::ReinSeghalRESPXSec as the differential 
+          (d2xsec/dQ2dW) cross section model. However, ReinSeghalRESXSec
+          offers a faster alternative. Before computing any RES cross section
           this algorithm computes and caches splines for resonance neutrino-
-          production cross sections. This improves the speed since it is 
-          reducing the number of calculations (the generic algorithm needs to
-          recompute resonance production xsec for every exclusive channel).
-
-          In this algorithm we follow the non-coherent approach: we sum
-          the weighted resonance production cross sections rather than the
-          resonance production amplitudes.
+          production cross sections. This improves the speed of the GENIE
+          spline construction phase if splines for multiple nuclear targets
+          are to be computed.
 
           Is a concrete implementation of the XSecAlgorithmI interface.\n
 
@@ -33,19 +29,19 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REIN_SEGHAL_SPP_XSEC_H_
-#define _REIN_SEGHAL_SPP_XSEC_H_
+#ifndef _REIN_SEGHAL_RES_XSEC_H_
+#define _REIN_SEGHAL_RES_XSEC_H_
 
 #include "ReinSeghal/ReinSeghalRESXSecWithCache.h"
 
 namespace genie {
 
-class ReinSeghalSPPXSec : public ReinSeghalRESXSecWithCache {
+class ReinSeghalRESXSec : public ReinSeghalRESXSecWithCache {
 
 public:
-  ReinSeghalSPPXSec();
-  ReinSeghalSPPXSec(string param_set);
-  virtual ~ReinSeghalSPPXSec();
+  ReinSeghalRESXSec();
+  ReinSeghalRESXSec(string param_set);
+  virtual ~ReinSeghalRESXSec();
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * interaction) const;
@@ -63,5 +59,5 @@ private:
 
 }       // genie namespace
 
-#endif  // _REIN_SEGHAL_SPP_XSEC_H_
+#endif  // _REIN_SEGHAL_RES_XSEC_H_
 

@@ -112,7 +112,7 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   double v2     = TMath::Power(v, 2);
   double Q2     = v2 - q2;
   double Q      = TMath::Sqrt(Q2);
-  double Gf     = kGF_2 / ( 4 * kPi_2 );
+  double Gf     = kGF2 / (4*kPi2);
   double Wf     = (-q2/Q2) * (W/Mnuc) * k;
   double Eprime = E - v;
   double U      = 0.5 * (E + Eprime + Q) / E;

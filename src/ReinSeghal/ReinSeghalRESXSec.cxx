@@ -1,24 +1,20 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::ReinSeghalSPPXSec
+\class    genie::ReinSeghalRESXSec
 
 \brief    Computes the cross section for an exclusive 1pi reaction through
           resonance neutrinoproduction according to the Rein-Seghal model.
 
           This algorithm produces in principle what you could also get from 
           the genie::RESXSec algorithm (RES cross section integrator) by 
-          specifying the genie::ReinSeghalSPPPXSec as the differential 
-          (d2xsec/dQ2dW) cross section model. However, ReinSeghalSPPXSec
-          offers a faster alternative. Before computing any SPP cross section
+          specifying the genie::ReinSeghalRESPXSec as the differential 
+          (d2xsec/dQ2dW) cross section model. However, ReinSeghalRESXSec
+          offers a faster alternative. Before computing any RES cross section
           this algorithm computes and caches splines for resonance neutrino-
-          production cross sections. This improves the speed since it is 
-          reducing the number of calculations (the generic algorithm needs to
-          recompute resonance production xsec for every exclusive channel).
-
-          In this algorithm we follow the non-coherent approach: we sum
-          the weighted resonance production cross sections rather than the
-          resonance production amplitudes.
+          production cross sections. This improves the speed of the GENIE
+          spline construction phase if splines for multiple nuclear targets
+          are to be computed.
 
           Is a concrete implementation of the XSecAlgorithmI interface.\n
 
@@ -37,11 +33,10 @@
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
-#include "Interaction/SppChannel.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
-#include "ReinSeghal/ReinSeghalSPPXSec.h"
+#include "ReinSeghal/ReinSeghalRESXSec.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Cache.h"
@@ -51,34 +46,32 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-ReinSeghalSPPXSec::ReinSeghalSPPXSec() :
-ReinSeghalRESXSecWithCache("genie::ReinSeghalSPPXSec")
+ReinSeghalRESXSec::ReinSeghalRESXSec() :
+ReinSeghalRESXSecWithCache("genie::ReinSeghalRESXSec")
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalSPPXSec::ReinSeghalSPPXSec(string config) :
-ReinSeghalRESXSecWithCache("genie::ReinSeghalSPPXSec", config)
+ReinSeghalRESXSec::ReinSeghalRESXSec(string config) :
+ReinSeghalRESXSecWithCache("genie::ReinSeghalRESXSec", config)
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalSPPXSec::~ReinSeghalSPPXSec()
+ReinSeghalRESXSec::~ReinSeghalRESXSec()
 {
 
 }
 //____________________________________________________________________________
-double ReinSeghalSPPXSec::XSec(const Interaction * interaction) const
+double ReinSeghalRESXSec::XSec(const Interaction * interaction) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //-- Get 1pi exclusive channel
-  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-
   //-- Get cache
   Cache * cache = Cache::Instance();
 
+  //-- Get init state and process information
   const InitialState & init_state = interaction->GetInitialState();
   const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
   const Target &       target     = init_state.GetTarget();
@@ -87,96 +80,65 @@ double ReinSeghalSPPXSec::XSec(const Interaction * interaction) const
   int nucleon_pdgc = target.StruckNucleonPDGCode();
   int nu_pdgc      = init_state.GetProbePDGCode();
 
-  // Get neutrino energy in the struck nucleon rest frame
+  //-- Get neutrino energy in the struck nucleon rest frame
   double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
 
-  double xsec = 0;
+  //-- Get the requested resonance
+  Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
-  unsigned int nres = fResList.NResonances();
-  for(unsigned int ires = 0; ires < nres; ires++) {
+  //-- Build a unique name for the cache branch
+  string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
 
-     //-- Get next resonance from the resonance list
-     Resonance_t res = fResList.ResonanceId(ires);
+  LOG("ReinSeghalResT", pINFO) << "Finding cache branch with key: " << key;
 
-     //-- Build a unique name for the cache branch
-     string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
-     LOG("ReinSeghalSpp", pINFO) 
-                            << "Finding cache branch with key: " << key;
-     CacheBranchFx * cache_branch =
-            dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+  CacheBranchFx * cache_branch =
+              dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
 
-     if(!cache_branch) {
-       LOG("ReinSeghalSpp", pWARN)  
+  if(!cache_branch) {
+     LOG("ReinSeghalResT", pWARN)  
          << "No cached RES v-production data for input neutrino"
          << " (pdgc: " << nu_pdgc << ")";
-       LOG("ReinSeghalSpp", pWARN)  
+     LOG("ReinSeghalResT", pWARN)  
          << "Wait while computing/caching RES production xsec first...";
 
-       this->CacheResExcitationXSec(interaction); 
+     this->CacheResExcitationXSec(interaction); 
 
-       LOG("ReinSeghalSpp", pINFO) << "Done caching resonance xsec data";
-       LOG("ReinSeghalSpp", pINFO) 
+     LOG("ReinSeghalResT", pINFO) << "Done caching resonance xsec data";
+     LOG("ReinSeghalResT", pINFO) 
                << "Finding newly created cache branch with key: " << key;
-       cache_branch =
+     cache_branch =
               dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
-       assert(cache_branch);
-     }
-     const CacheBranchFx & cbranch = (*cache_branch);
+     assert(cache_branch);
+  }
+  const CacheBranchFx & cbranch = (*cache_branch);
+  
+  //-- Get cached resonance neutrinoproduction xsec
+  //   (If E>Emax, assume xsec = xsec(Emax) - but do not evaluate the
+  //    cross section spline at the end of its energy range-)
+  double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
 
-     //-- Get cached resonance neutrinoproduction xsec
-     //   (If E>Emax, assume xsec = xsec(Emax) - but do not evaluate the
-     //    cross section spline at the end of its energy range-)
-     double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
-
-     //-- Get the BR for the (resonance) -> (exclusive final state)
-     double br = SppChannel::BranchingRatio(spp_channel, res);
-
-     //-- Get the Isospin Glebsch-Gordon coefficient for the given resonance
-     //   and exclusive final state
-     double igg = SppChannel::IsospinWeight(spp_channel, res);
-
-     //-- Compute the weighted xsec
-     //  (total weight = Breit-Wigner * BR * isospin Glebsch-Gordon)
-     double res_xsec_contrib = rxsec*br*igg;
-
-     SLOG("ReinSeghalSpp", pINFO)
-       << "Contrib. from [" << utils::res::AsString(res) << "] = "
-       << "<Glebsch-Gordon = " << igg
-       << "> * <BR(->1pi) = " << br
-       << "> * <Breit-Wigner * d^2xsec/dQ^2dW = " << rxsec
-       << "> = " << res_xsec_contrib;
-   
-     //-- Add contribution of this resonance to the cross section
-     xsec += res_xsec_contrib;
-
-  }//res
-
-  SLOG("ReinSeghalSpp", pNOTICE)  
-         << "XSec[SPP/" << SppChannel::AsString(spp_channel)
-                               << "/free] (Ev = " << Ev << " GeV) = " << xsec;
+  SLOG("ReinSeghalResT", pNOTICE)  
+    << "XSec[RES/" << utils::res::AsString(res)
+                             << "/free] (Ev = " << Ev << " GeV) = " << rxsec;
 
   //-- If requested return the free nucleon xsec even for input nuclear tgt
-  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return rxsec;
 
   //-- number of scattering centers in the target
   int NNucl = (pdg::IsProton(nucleon_pdgc)) ? target.Z() : target.N();
 
-  xsec*=NNucl; // nuclear xsec 
+  rxsec*=NNucl; // nuclear xsec 
 
-  return xsec;
+  return rxsec;
 }
 //____________________________________________________________________________
-bool ReinSeghalSPPXSec::ValidProcess(const Interaction * interaction) const
+bool ReinSeghalRESXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
-
-  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-  if(spp_channel == kSppNull) return false;
-
-  return true;
+  return fSingleResXSecModel->ValidProcess(interaction);
 }
 //____________________________________________________________________________
-bool ReinSeghalSPPXSec::ValidKinematics(const Interaction * interaction) const
+bool ReinSeghalRESXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
@@ -189,19 +151,19 @@ bool ReinSeghalSPPXSec::ValidKinematics(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
-void ReinSeghalSPPXSec::Configure(const Registry & config)
+void ReinSeghalRESXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalSPPXSec::Configure(string config)
+void ReinSeghalRESXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalSPPXSec::LoadConfig(void)
+void ReinSeghalRESXSec::LoadConfig(void)
 {
   fSingleResXSecModel = 0;
   fIntegrator = 0;
@@ -234,3 +196,4 @@ void ReinSeghalSPPXSec::LoadConfig(void)
   fResList.DecodeFromNameList(resonances);
 }
 //____________________________________________________________________________
+
