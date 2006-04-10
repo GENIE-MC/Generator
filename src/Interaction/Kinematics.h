@@ -36,34 +36,39 @@ public:
   Kinematics(const Kinematics & kv);
   ~Kinematics();
 
-  double x       (void) const;
-  double y       (void) const;
-  double Q2      (void) const;
-  double q2      (void) const;
-  double W       (void) const;
-  double Logx    (void) const;
-  double Logy    (void) const;
-  double LogQ2   (void) const;
-  double LogW    (void) const;
-  double Log10x  (void) const;
-  double Log10y  (void) const;
-  double Log10Q2 (void) const;
-  double Log10W  (void) const;
+  double x       (bool selected=false) const;
+  double y       (bool selected=false) const;
+  double Q2      (bool selected=false) const;
+  double q2      (bool selected=false) const;
+  double W       (bool selected=false) const;
+  double t       (bool selected=false) const;
+  double Logx    (bool selected=false) const;
+  double Logy    (bool selected=false) const;
+  double LogQ2   (bool selected=false) const;
+  double LogW    (bool selected=false) const;
+  double Log10x  (bool selected=false) const;
+  double Log10y  (bool selected=false) const;
+  double Log10Q2 (bool selected=false) const;
+  double Log10W  (bool selected=false) const;
 
-  void   Setx  (double x );
-  void   Sety  (double y );
-  void   SetQ2 (double Q2);
-  void   Setq2 (double q2);
-  void   SetW  (double W );
+  void   Setx  (double x,  bool selected=false);
+  void   Sety  (double y,  bool selected=false);
+  void   SetQ2 (double Q2, bool selected=false);
+  void   Setq2 (double q2, bool selected=false);
+  void   SetW  (double W,  bool selected=false);
+  void   Sett  (double t,  bool selected=false);
 
   bool   KVSet(KineVar_t kv) const;
   double GetKV(KineVar_t kv) const;
   void   SetKV(KineVar_t kv, double value);
 
+  void ClearRunningValues    (void);
+  void UseSelectedKinematics (void);
+
   //! Copy, reset, compare and print itself
-  void Reset    (void);
-  void Copy     (const Kinematics & kine);
-  void Print    (ostream & stream) const;
+  void Reset (void);
+  void Copy  (const Kinematics & kine);
+  void Print (ostream & stream) const;
 
   Kinematics &     operator =  (const Kinematics & kine);
   friend ostream & operator << (ostream & stream, const Kinematics & kine);
