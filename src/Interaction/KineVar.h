@@ -30,7 +30,14 @@ typedef enum EKineVar {
   kKVy,
   kKVQ2,
   kKVq2,
-  kKVW
+  kKVW,
+  kKVt,
+  kKVSelx,
+  kKVSely,
+  kKVSelQ2,
+  kKVSelq2,
+  kKVSelW,
+  kKVSelt
 
 } KineVar_t;
 
@@ -42,16 +49,22 @@ public:
   static string AsString(KineVar_t kv)
   {
     switch (kv) {
-
-      case(kKVNull) : return "[Undefined kinematic variable]"; break;
-      case(kKVx)    : return "[Bjorken x]";                    break;
-      case(kKVy)    : return "[Inelasticity y]";               break;
-      case(kKVQ2)   : return "[Momentum transfer Q2 (>0)]";    break;
-      case(kKVq2)   : return "[Momentum transfer q2 (<0)]";    break;
-      case(kKVW)    : return "[Hadronic invariant mass W]";    break;
-      default       : return "[Unknown kinematic variable]";   break;
+      case(kKVNull) : return "** Undefined kinematic variable **";    break;
+      case(kKVx)    : return " *Running* Bjorken x";                  break;
+      case(kKVy)    : return " *Running* Inelasticity y";             break;
+      case(kKVQ2)   : return " *Running* Momentum transfer Q2 (>0)";  break;
+      case(kKVq2)   : return " *Running* Momentum transfer q2 (<0)";  break;
+      case(kKVW)    : return " *Running* Hadronic invariant mass W";  break;
+      case(kKVt)    : return " *Running* COH 4p transfer to nucleus"; break;
+      case(kKVSelx) : return "*Selected* Bjorken x";                  break;
+      case(kKVSely) : return "*Selected* Inelasticity y";             break;
+      case(kKVSelQ2): return "*Selected* Momentum transfer Q2 (>0)";  break;
+      case(kKVSelq2): return "*Selected* Momentum transfer q2 (<0)";  break;
+      case(kKVSelW) : return "*Selected* Hadronic invariant mass W";  break;
+      case(kKVSelt) : return "*Selected* COH 4p transfer to nucleus"; break;
+      default       : return "** Unknown kinematic variable **";      break;
     }
-    return "[Unknown kinematic variable]";
+    return "** Unknown kinematic variable **";
   }
   //__________________________________________________________________________
 };

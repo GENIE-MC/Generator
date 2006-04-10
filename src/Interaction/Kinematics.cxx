@@ -67,144 +67,202 @@ void Kinematics::Copy(const Kinematics & kinematics)
   }
 }
 //____________________________________________________________________________
-double Kinematics::x(void) const
+double Kinematics::x(bool selected) const
 {
-  if(this->KVSet(kKVx)) { return this->GetKV(kKVx); }
+// returns the running or selected value of Bjorken scaling variable x
+
+  KineVar_t kvar = (selected) ? kKVSelx : kKVx;
+
+  if(this->KVSet(kvar)) { return this->GetKV(kvar); }
   else {
     LOG("Interaction", pWARN) << "Kinematic variable x was not set";
   }
   return -99999;
 }
 //____________________________________________________________________________
-double Kinematics::y(void) const
+double Kinematics::y(bool selected) const
 {
-  if(this->KVSet(kKVy)) { return this->GetKV(kKVy); }
+// returns the running or selected value of inelasticity y
+
+  KineVar_t kvar = (selected) ? kKVSely : kKVy;
+
+  if(this->KVSet(kvar)) { return this->GetKV(kvar); }
   else {
     LOG("Interaction", pWARN) << "Kinematic variable y was not set";
   }
   return -99999;
 }
 //____________________________________________________________________________
-double Kinematics::Q2(void) const
+double Kinematics::Q2(bool selected) const
 {
-  if      (this->KVSet(kKVQ2) ) { return     this->GetKV(kKVQ2); }
-  else if (this->KVSet(kKVq2) ) { return -1* this->GetKV(kKVq2); }
-  else {
-    LOG("Interaction", pWARN) << "Kinematic variable Q2 was not set";
-  }
+// returns the running or selected value of momentum transfer Q2 (>0)
+
+  if(selected) {
+    if      (this->KVSet(kKVSelQ2) ) { return     this->GetKV(kKVSelQ2); }
+    else if (this->KVSet(kKVSelq2) ) { return -1* this->GetKV(kKVSelq2); }
+  } else {
+    if      (this->KVSet(kKVQ2) )    { return     this->GetKV(kKVQ2); }
+    else if (this->KVSet(kKVq2) )    { return -1* this->GetKV(kKVq2); }
+  }  
+
+  LOG("Interaction", pWARN) << "Kinematic variable Q2 was not set";
   return -99999;
 }
 //____________________________________________________________________________
-double Kinematics::q2(void) const
+double Kinematics::q2(bool selected) const
 {
-  if      (this->KVSet(kKVQ2) ) { return -1* this->GetKV(kKVQ2); }
-  else if (this->KVSet(kKVq2) ) { return     this->GetKV(kKVq2); }
-  else {
-    LOG("Interaction", pWARN) << "Kinematic variable q2 was not set";
+// returns the running or selected value of momentum transfer q2 (<0)
+
+  if(selected) {
+    if      (this->KVSet(kKVSelQ2) ) { return -1* this->GetKV(kKVSelQ2); }
+    else if (this->KVSet(kKVSelq2) ) { return     this->GetKV(kKVSelq2); }
+  } else {
+    if      (this->KVSet(kKVQ2) )    { return -1* this->GetKV(kKVQ2); }
+    else if (this->KVSet(kKVq2) )    { return     this->GetKV(kKVq2); }
   }
+
+  LOG("Interaction", pWARN) << "Kinematic variable q2 was not set";
   return -99999;
 }
 //____________________________________________________________________________
-double Kinematics::W(void) const
+double Kinematics::W(bool selected) const
 {
-  if(this->KVSet(kKVW)) { return this->GetKV(kKVW); }
+// returns the running or selected value of invariant hadronic mass W
+
+  KineVar_t kvar = (selected) ? kKVSelW : kKVW;
+
+  if(this->KVSet(kvar)) { return this->GetKV(kvar); }
   else {
     LOG("Interaction", pWARN) << "Kinematic variable W was not set";
   }
   return -99999;
 }
 //____________________________________________________________________________
-double Kinematics::Logx(void) const
+double Kinematics::t(bool selected) const
 {
-  double x = this->x();
+// returns the running or selected value of invariant hadronic mass W
+
+  KineVar_t kvar = (selected) ? kKVSelt : kKVt;
+
+  if(this->KVSet(kvar)) { return this->GetKV(kvar); }
+  else {
+    LOG("Interaction", pWARN) << "Kinematic variable t was not set";
+  }
+  return -99999;
+}
+//____________________________________________________________________________
+double Kinematics::Logx(bool selected) const
+{
+  double x = this->x(selected);
   return (x>0) ? TMath::Log(x) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::Logy(void) const
+double Kinematics::Logy(bool selected) const
 {
-  double y = this->y();
+  double y = this->y(selected);
   return (y>0) ? TMath::Log(y) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::LogQ2(void) const
+double Kinematics::LogQ2(bool selected) const
 {
-  double Q2 = this->Q2();
+  double Q2 = this->Q2(selected);
   return (Q2>0) ? TMath::Log(Q2) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::LogW(void) const
+double Kinematics::LogW(bool selected) const
 {
-  double W = this->W();
+  double W = this->W(selected);
   return (W>0) ? TMath::Log(W) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::Log10x(void) const
+double Kinematics::Log10x(bool selected) const
 {
-  double x = this->x();
+  double x = this->x(selected);
   return (x>0) ? TMath::Log10(x) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::Log10y(void) const
+double Kinematics::Log10y(bool selected) const
 {
-  double y = this->y();
+  double y = this->y(selected);
   return (y>0) ? TMath::Log10(y) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::Log10Q2(void) const
+double Kinematics::Log10Q2(bool selected) const
 {
-  double Q2 = this->Q2();
+  double Q2 = this->Q2(selected);
   return (Q2>0) ? TMath::Log10(Q2) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::Log10W(void) const
+double Kinematics::Log10W(bool selected) const
 {
-  double W = this->W();
+  double W = this->W(selected);
   return (W>0) ? TMath::Log10(W) : -99999;
 }
 //____________________________________________________________________________
-void Kinematics::Setx(double x)
+void Kinematics::Setx(double x, bool selected)
 {
+// sets the running or selected value of Bjorken scaling variable x
+
   if(x<0 || x>1) {
      LOG("Interaction", pWARN)
                       << "Setting unphysical value for x (x = " << x << ")";
   }
-  this->SetKV(kKVx, x);
+  KineVar_t kvar = (selected) ? kKVSelx : kKVx;
+  this->SetKV(kvar, x);
 }
 //____________________________________________________________________________
-void Kinematics::Sety(double y)
+void Kinematics::Sety(double y, bool selected)
 {
+// sets the running or selected value of inelasticity y
+
   if(y<0 || y>1) {
      LOG("Interaction", pWARN)
                      << "Setting unphysical value for y (y = " << y << ")";
   }
-  this->SetKV(kKVy, y);
+  KineVar_t kvar = (selected) ? kKVSely : kKVy;
+  this->SetKV(kvar, y);
 }
 //____________________________________________________________________________
-void Kinematics::SetQ2(double Q2)
+void Kinematics::SetQ2(double Q2, bool selected)
 {
+// sets the running or selected value of momentum transfer Q2 (>0)
+
   if(Q2<0) {
      LOG("Interaction", pWARN)
                  << "Setting unphysical value for Q2 (Q2 = " << Q2 << ")";
   }
-  this->SetKV(kKVQ2, Q2);
+  KineVar_t kvar = (selected) ? kKVSelQ2 : kKVQ2;
+  this->SetKV(kvar, Q2);
 }
 //____________________________________________________________________________
-void Kinematics::Setq2(double q2)
+void Kinematics::Setq2(double q2, bool selected)
 {
+// sets the running or selected value of momentum transfer q2 (<0)
+
   if(q2>0) {
      LOG("Interaction", pWARN)
                  << "Setting unphysical value for q2 (q2 = " << q2 << ")";
   }
-  this->SetKV(kKVq2, q2);
+  KineVar_t kvar = (selected) ? kKVSelq2 : kKVq2;
+  this->SetKV(kvar, q2);
 }
 //____________________________________________________________________________
-void Kinematics::SetW(double W)
+void Kinematics::SetW(double W, bool selected)
 {
+// sets the running or selected value of invariant hadronic mass W
+
   if(W<0) {
      LOG("Interaction", pWARN)
                    << "Setting unphysical value for W (W = " << W << ")";
   }
-  this->SetKV(kKVW, W);
+  KineVar_t kvar = (selected) ? kKVSelW : kKVW;
+  this->SetKV(kvar, W);
+}
+//____________________________________________________________________________
+void Kinematics::Sett(double t, bool selected)
+{
+  KineVar_t kvar = (selected) ? kKVSelt : kKVt;
+  this->SetKV(kvar, t);
 }
 //____________________________________________________________________________
 bool Kinematics::KVSet(KineVar_t kv) const
@@ -235,6 +293,37 @@ void Kinematics::SetKV(KineVar_t kv, double value)
   } else {
      fKV.insert( map<KineVar_t, double>::value_type(kv,value) );
   }
+}
+//____________________________________________________________________________
+void Kinematics::ClearRunningValues(void)
+{
+// clear the running values (leave the selected ones)
+//
+  fKV.erase( kKVx  );
+  fKV.erase( kKVy  );
+  fKV.erase( kKVQ2 );
+  fKV.erase( kKVq2 );
+  fKV.erase( kKVW  );
+  fKV.erase( kKVt  );
+}
+//____________________________________________________________________________
+void Kinematics::UseSelectedKinematics(void)
+{
+// copy the selected kinematics into the running ones
+//
+  map<KineVar_t, double>::const_iterator iter;
+  iter = fKV.find(kKVSelx);
+  if(iter != fKV.end()) this->Setx(iter->second);
+  iter = fKV.find(kKVSely);
+  if(iter != fKV.end()) this->Sety(iter->second);
+  iter = fKV.find(kKVSelQ2);
+  if(iter != fKV.end()) this->SetQ2(iter->second);
+  iter = fKV.find(kKVSelq2);
+  if(iter != fKV.end()) this->Setq2(iter->second);
+  iter = fKV.find(kKVSelW);
+  if(iter != fKV.end()) this->SetW(iter->second);
+  iter = fKV.find(kKVSelt);
+  if(iter != fKV.end()) this->Sett(iter->second);
 }
 //____________________________________________________________________________
 void Kinematics::Print(ostream & stream) const
