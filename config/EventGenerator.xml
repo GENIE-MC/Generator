@@ -270,14 +270,14 @@
 
   <param_set name="COH-NC"> 
      <param type="string" name="vld-context">       
-      proc:COH;curr:NC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0-100 </param>
+      proc:COH;curr:NC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
 
      <param type="int"    name="n-generator-steps">      4                                  </param>
 
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
      <param type="string" name="generator-step-1-alg">   genie::COHKinematicsGenerator      </param>
-     <param type="string" name="generator-step-1-conf">  NC-Default                         </param>
+     <param type="string" name="generator-step-1-conf">  Default                            </param>
      <param type="string" name="generator-step-2-alg">   genie::COHPrimaryLeptonGenerator   </param>
      <param type="string" name="generator-step-2-conf">  Default                            </param>
      <param type="string" name="generator-step-3-alg">   genie::COHHadronicSystemGenerator  </param>
@@ -286,7 +286,28 @@
      <param type="string" name="interaction-list-alg">   genie::COHInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  NC-Default                         </param>
      <param type="string" name="cross-section-alg">      genie::COHXSec                     </param>
-     <param type="string" name="cross-section-conf">     NC-Default                         </param>
+     <param type="string" name="cross-section-conf">     Default                            </param>
+  </param_set>
+
+  <param_set name="COH-CC"> 
+     <param type="string" name="vld-context">       
+      proc:COH;curr:CC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+
+     <param type="int"    name="n-generator-steps">      4                                  </param>
+
+     <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
+     <param type="string" name="generator-step-0-conf">  Default                            </param>
+     <param type="string" name="generator-step-1-alg">   genie::COHKinematicsGenerator      </param>
+     <param type="string" name="generator-step-1-conf">  Default                            </param>
+     <param type="string" name="generator-step-2-alg">   genie::COHPrimaryLeptonGenerator   </param>
+     <param type="string" name="generator-step-2-conf">  Default                            </param>
+     <param type="string" name="generator-step-3-alg">   genie::COHHadronicSystemGenerator  </param>
+     <param type="string" name="generator-step-3-conf">  Default                            </param>
+
+     <param type="string" name="interaction-list-alg">   genie::COHInteractionListGenerator </param>
+     <param type="string" name="interaction-list-conf">  CC-Default                         </param>
+     <param type="string" name="cross-section-alg">      genie::COHXSec                     </param>
+     <param type="string" name="cross-section-conf">     Default                            </param>
   </param_set>
 
 
