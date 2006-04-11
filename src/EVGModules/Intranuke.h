@@ -51,17 +51,34 @@ public :
 
 private:
 
-  void        LoadConfigData (void);
-  void        SetVtxPosition (GHepRecord * evrec, TVector3 & v) const;
-  bool        CanRescatter   (const GHepParticle * p) const;
-  void        StepParticle   (GHepParticle * p, double step) const;
-  void        StepParticleMF (GHepParticle * p, double step, int Z) const;
-  double      MeanFreePath   (double K) const;
-  bool        IsInNucleus    (const GHepParticle * p, double R0) const;
-  INukeProc_t ParticleFate   (const GHepParticle * p) const;
+  void   LoadConfigData (void);
 
-  bool   fIsOpaque; // is opaque nucleus?
-  double fct0;      // formation zone (c * formation time)
+  void   TransportInPhysicalNucleus    (GHepRecord * ev) const;
+  void   TransportInTransparentNucleus (GHepRecord * ev) const;
+
+  void   GenerateVertex         (GHepRecord * ev)       const;
+  bool   NeedsRescattering      (const GHepParticle* p) const;
+  bool   CanRescatter           (const GHepParticle* p) const;
+  bool   IsInNucleus            (const GHepParticle* p) const;
+  void   SetNuclearRadius       (const GHepParticle* p) const;
+  void   StepParticle           (GHepParticle * p, double dr) const;
+  bool   IsFreshHadron          (GHepRecord* ev, GHepParticle* p) const;
+  double FormationZone          (GHepRecord* ev, GHepParticle* p) const;
+  void   AdvanceFreshHadron     (GHepRecord* ev, GHepParticle* p) const;
+  double GenerateStep           (GHepRecord* ev, GHepParticle* p) const;
+  double MeanFreePath           (GHepRecord* ev, GHepParticle* p) const;
+  void   SimHadronicInteraction (GHepRecord* ev, GHepParticle* p) const;
+  void   SimAbsorption          (GHepRecord* ev, GHepParticle* p) const;
+  void   SimChargeExchange      (GHepRecord* ev, GHepParticle* p) const;
+  void   SimInelasticScattering (GHepRecord* ev, GHepParticle* p) const;
+  void   SimElasticScattering   (GHepRecord* ev, GHepParticle* p) const;
+
+  INukeProc_t ParticleFate (const GHepParticle * p) const;
+
+  mutable double fNuclRadius;
+
+  bool   fIsTransparent; // in transparent mode?
+  double fct0;           // formation zone (c * formation time)
   double fK;
   double fR0;
 };
