@@ -110,8 +110,14 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   int mom = evrec->FinalStateHadronicSystemPosition();
   assert(mom!=-1);
 
+  TLorentzVector v4(0,0,0,0); // dummy position 4-vector
+ 
   TMCParticle * p = 0;
   TIter particle_iter(plist);
+
+  bool is_nucleus  = interaction->GetInitialState().GetTarget().IsNucleus();
+  GHepStatus_t ist = (is_nucleus) ? 
+                           kIstHadronInTheNucleus : kIStStableFinalState;
 
   while( (p = (TMCParticle *) particle_iter.Next()) ) {
 
@@ -120,13 +126,11 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
      TLorentzVector p4(p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy());
      p4.Boost(beta);
 
-     // copy the particle to the event record
-     int          pdgc   = p->GetKF();
-     GHepStatus_t status = GHepStatus_t(p->GetKS());
-     TLorentzVector v4(0,0,0,0); // dummy position 4-vector
-
-     evrec->AddParticle(pdgc, status, mom,-1,-1,-1, p4, v4);
-
+     // copy final state particles to the event record
+     if(p->GetKS()==1) {
+         int pdgc = p->GetKF();
+         evrec->AddParticle(pdgc, ist, mom,-1,-1,-1, p4,v4);
+     }
   } // fragmentation-products-iterator
 
   plist->Delete();
