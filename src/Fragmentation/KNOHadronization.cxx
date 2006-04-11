@@ -106,19 +106,14 @@ TClonesArray * KNOHadronization::Hadronize(
   //      (All energy = final state invariant mass)
   double W = interaction->GetKinematics().W();
   LOG("KNOHad", pINFO) << "W = " << W << " GeV";
-
   assert(W > kNucleonMass+kPionMass);
-
   TLorentzVector p4(0,0,0,W);
 
   //----- Determine what kind of particles we have in the final state
-
-  // This section was translated / adapted from NeuGEN.
-  // Original author: H.Gallagher
   vector<int> * pdgc = GenerateFSHadronCodes(mult, maxQ, W);
 
   LOG("KNOHad", pDEBUG)
-             << "Generated multiplicity: " << pdgc->size();
+              << "Generated multiplicity: " << pdgc->size();
 
   // muliplicity might have been forced to smaller value if the invariant
   // mass of the hadronic system was not sufficient
