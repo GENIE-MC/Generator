@@ -17,7 +17,7 @@ max-xsec-safety-factor      double  rejection method multiplicative safety facto
   <param_set name="NC-Default"> 
      <param type="string" name="xsec-alg-name">            genie::ReinSeghalCOHPXSec </param>
      <param type="string" name="xsec-param-set">           Default                   </param>
-     <param type="double" name="max-xsec-safety-factor">   1.200                     </param>
+     <param type="double" name="max-xsec-safety-factor">   1.350                     </param>
   </param_set>
 
 </alg_conf>
