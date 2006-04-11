@@ -91,9 +91,10 @@ bool COHXSec::ValidProcess(const Interaction * interaction) const
 
   const InitialState & init_state = interaction->GetInitialState();
   const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const Target &       target     = init_state.GetTarget();
 
   if (!proc_info.IsCoherent()) return false;
-  if (!proc_info.IsWeakNC())   return false;
+  if (!target.A()>1)           return false;
 
   int  nu = init_state.GetProbePDGCode();
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
