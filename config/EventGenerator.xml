@@ -80,7 +80,7 @@
      <param type="string" name="generator-step-4-alg">   genie::DISHadronicSystemGenerator  </param>
      <param type="string" name="generator-step-4-conf">  Default                            </param>
      <param type="string" name="generator-step-5-alg">   genie::Intranuke                   </param>
-     <param type="string" name="generator-step-5-conf">  Default                            </param>
+     <param type="string" name="generator-step-5-conf">  TransparentNucleus                 </param>
      <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
 
@@ -108,7 +108,7 @@
      <param type="string" name="generator-step-4-alg">   genie::DISHadronicSystemGenerator  </param>
      <param type="string" name="generator-step-4-conf">  Default                            </param>
      <param type="string" name="generator-step-5-alg">   genie::Intranuke                   </param>
-     <param type="string" name="generator-step-5-conf">  Default                            </param>
+     <param type="string" name="generator-step-5-conf">  TransparentNucleus                 </param>
      <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
 

@@ -4,8 +4,13 @@
 
   Configuration sets for the Intranuke EventRecordVisitorI
 
-  <param_set name="Default"> 
+  <param_set name="TransparentNucleus"> 
+      <param type="bool" name="transparent-mode"> true  </param>
+  </param_set>
 
+
+  <param_set name="Default"> 
+      <param type="bool" name="transparent-mode"> false </param>
   </param_set>
 
 </alg_conf>
