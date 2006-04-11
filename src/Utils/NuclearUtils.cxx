@@ -83,11 +83,17 @@ double genie::utils::nuclear::Radius(const Target & target)
 // Compute the nuclear radius (in GeV^-1)
 // (to get it in F, for example, use: Radius(target)/genie::units::fermi)
 
-  if(!target.IsNucleus()) return 0;
+  return Radius(target.A());
+}
+//___________________________________________________________________________
+double genie::utils::nuclear::Radius(int A)
+{
+// Compute the nuclear radius (in GeV^-1)
+// (to get it in F, for example, use: Radius(target)/genie::units::fermi)
 
-  double A  = (double) target.A();
-  double Rn = kNucRo * TMath::Power(A, 0.3333); // in GeV^-1
+  if(A<1) return 0;
 
+  double Rn = kNucRo * TMath::Power(A, 0.3333333); // in GeV^-1
   return Rn;
 }
 //___________________________________________________________________________

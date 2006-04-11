@@ -32,6 +32,7 @@ namespace nuclear
   double BindEnergyPerNucleon   (const Target & target);
   double BindEnergyLastNucleon  (const Target & target);
   double Radius                 (const Target & target);
+  double Radius                 (int A);
 
   double NuclQELXSecSuppression (string kftable, double pmax, const Interaction * in);
 
