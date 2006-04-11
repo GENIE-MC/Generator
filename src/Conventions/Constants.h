@@ -208,7 +208,7 @@ static const double kNucDensity = 2.3E+17 *units::kg/units::m3;
 
 //----- INTRANUKE constants
 
-static const double kInukeFormationL = 2.0*units::fermi; //c*t0, in GeV^-1
+static const double kInukeFormationL = 2.0; //c*t0, in fermi
 static const double kInukeKpt2       = 1.0;
 
 } // namespace constants
