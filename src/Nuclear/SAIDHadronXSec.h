@@ -3,8 +3,8 @@
 
 \class    genie::SAIDHadronXSec
 
-\brief    Singleton class to load & serve SAID cross section splines.
-          Data provided by S.Dytmnan.
+\brief    Singleton class to load & serve SAID hadron cross section splines.
+          Data and corrections provided by S.Dytmnan.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
