@@ -3,7 +3,7 @@
 
 \class   genie::GHepRecord
 
-\brief   Generated Event Record: STDHEP-like record and Summary Information.
+\brief   GENIE's GHEP MC event record.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -21,6 +21,7 @@
 #include <TVector3.h>
 #include <TSystem.h>
 
+#include "Conventions/Units.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepStatus.h"
@@ -698,43 +699,56 @@ void GHepRecord::Copy(const GHepRecord & record)
 void GHepRecord::Print(ostream & stream) const
 {
   // Check $GHEPPRINTLEVEL for the preferred GHEP printout detail level
-  // 0 -> prints particle list
-  // 1 -> prints particle list + event flags
-  // 2 -> prints particle list + event flags + weights/xsecs
-  // 3 -> prints particle list + event flags + weights/xsecs + summary
+  //  0 -> prints particle list
+  //  1 -> prints particle list + event flags
+  //  2 -> prints particle list + event flags + wght/xsec
+  //  3 -> prints particle list + event flags + wght/xsec + summary
+  // 10 -> as in level 0 but showing particle positions too
+  // 11 -> as in level 1 but showing particle positions too
+  // 12 -> as in level 2 but showing particle positions too
+  // 13 -> as in level 3 but showing particle positions too
 
-  int printlevel = 1;
+  int  printlevel = 1;
+  bool showpos    = false; 
   if( gSystem->Getenv("GHEPPRINTLEVEL") ) {
      printlevel = atoi( gSystem->Getenv("GHEPPRINTLEVEL") );
+
+     bool accept = (printlevel>= 0 && printlevel<= 3) ||
+                   (printlevel>=10 && printlevel<=13);
+     if(accept) {
+       if(printlevel>=10) {
+          printlevel-=10;
+          showpos=true;
+       }
+     }
   }
-  if(printlevel < 0 || printlevel > 3) printlevel = 1;
 
   // start printing the record
 
   stream << "\n\n|";
-  stream << setfill('-') << setw(110) << "|";
+  stream << setfill('-') << setw(115) << "|";
 
   stream << "\n|GENIE GHEP Event Record [shown using $GHEPPRINTLEVEL = "
-         << printlevel << "]" << setfill(' ') << setw(53) << "|";
+         << printlevel << "]" << setfill(' ') << setw(58) << "|";
 
   stream << "\n|";
-  stream << setfill('-') << setw(110) << "|";
+  stream << setfill('-') << setw(115) << "|";
 
   stream << "\n| ";
   stream << setfill(' ') << setw(6)  << "Idx | "
-         << setfill(' ') << setw(11) << "Name | "
+         << setfill(' ') << setw(16) << "Name | "
          << setfill(' ') << setw(6)  << "Ist | "
          << setfill(' ') << setw(13) << "PDG | "
          << setfill(' ') << setw(12) << "Mother  | "
          << setfill(' ') << setw(12) << "Daughter  | "
-         << setfill(' ') << setw(10) << "Px | "
-         << setfill(' ') << setw(10) << "Py | "
-         << setfill(' ') << setw(10) << "Pz | "
-         << setfill(' ') << setw(10) << "E  | "
+         << setfill(' ') << setw(10) << ((showpos) ? "Px(x) |" : "Px | ")
+         << setfill(' ') << setw(10) << ((showpos) ? "Py(y) |" : "Py | ")
+         << setfill(' ') << setw(10) << ((showpos) ? "Pz(z) |" : "Pz | ")
+         << setfill(' ') << setw(10) << ((showpos) ?  "E(t) |" :  "E | ")
          << setfill(' ') << setw(10) << "m  | ";
 
   stream << "\n|";
-  stream << setfill('-') << setw(110) << "|";
+  stream << setfill('-') << setw(115) << "|";
 
   GHepParticle * p = 0;
   TObjArrayIter piter(this);
@@ -751,7 +765,7 @@ void GHepRecord::Print(ostream & stream) const
 
      stream << "\n| ";
      stream << setfill(' ') << setw(3)  << idx++               << " | ";
-     stream << setfill(' ') << setw(8)  << p->Name()           << " | ";
+     stream << setfill(' ') << setw(13) << p->Name()           << " | ";
      stream << setfill(' ') << setw(3)  << p->Status()         << " | ";
      stream << setfill(' ') << setw(10) << p->PdgCode()        << " | ";
      stream << setfill(' ') << setw(3)  << p->FirstMother()    << " | ";
@@ -774,6 +788,25 @@ void GHepRecord::Print(ostream & stream) const
        p->GetPolarization(polarization);
        stream << "P = (" << polarization.x() << "," << polarization.y()
               << "," << polarization.z() << ")";
+     }
+
+     // plot particle position if requested
+     if(showpos) {
+       stream << "\n| ";
+       stream << setfill(' ') << setw(6)  << " | ";
+       stream << setfill(' ') << setw(16) << " | ";
+       stream << setfill(' ') << setw(6)  << " | ";
+       stream << setfill(' ') << setw(13) << " | ";
+       stream << setfill(' ') << setw(6)  << " | ";
+       stream << setfill(' ') << setw(6)  << " | ";
+       stream << setfill(' ') << setw(6)  << " | ";
+       stream << setfill(' ') << setw(6)  << " | ";
+       stream << setiosflags(ios::fixed)  << setprecision(3);
+       stream << setfill(' ') << setw(7)  << p->Vx()  << " | ";
+       stream << setfill(' ') << setw(7)  << p->Vy()  << " | ";
+       stream << setfill(' ') << setw(7)  << p->Vz()  << " | ";
+       stream << setfill(' ') << setw(7)  << p->Vt()  << " | ";
+       stream << setfill(' ') << setw(10) << " | ";
      }
 
      // compute P4Final - P4Initial
@@ -803,16 +836,16 @@ void GHepRecord::Print(ostream & stream) const
   } // loop over particles
 
   stream << "\n|";
-  stream << setfill('-') << setw(110) << "|";
+  stream << setfill('-') << setw(115) << "|";
 
   // Print SUMS
   stream << "\n| ";
   stream << setfill(' ') << setw(17) << "Fin-Init:| "
          << setfill(' ') << setw(6)  << "    | "
-         << setfill(' ') << setw(13) << "    | "
+         << setfill(' ') << setw(18) << "    | "
          << setfill(' ') << setw(12) << "        | "
          << setfill(' ') << setw(12) << "          | ";
-  stream << setiosflags(ios::fixed) << setprecision(3);
+  stream << setiosflags(ios::fixed)  << setprecision(3);
   stream << setfill(' ') << setw(7)  << sum_px  << " | ";
   stream << setfill(' ') << setw(7)  << sum_py  << " | ";
   stream << setfill(' ') << setw(7)  << sum_pz  << " | ";
@@ -820,7 +853,7 @@ void GHepRecord::Print(ostream & stream) const
   stream << setfill(' ') << setw(10)  << "   | ";
 
   stream << "\n|";
-  stream << setfill('-') << setw(110) << "|";
+  stream << setfill('-') << setw(115) << "|";
 
   // Print vertex
 
@@ -828,7 +861,7 @@ void GHepRecord::Print(ostream & stream) const
   if(probe){
     stream << "\n| ";
     stream << setfill(' ') << setw(17) << "Vertex:  | ";
-    stream << setfill(' ') << setw(6)
+    stream << setfill(' ') << setw(11)
                        << ((probe) ? probe->Name() : "unknown probe") << " @ (";
 
     stream << setiosflags(ios::fixed)  << setprecision(5);
@@ -841,7 +874,7 @@ void GHepRecord::Print(ostream & stream) const
     stream << setfill(' ') << setw(2)  << "|";
 
     stream << "\n|";
-    stream << setfill('-') << setw(110) << "|";
+    stream << setfill('-') << setw(115) << "|";
   }
 
   // Print FLAGS
@@ -853,29 +886,29 @@ void GHepRecord::Print(ostream & stream) const
            << utils::print::BoolAsIOString(this->IsUnphysical()) << " |"
            << " ErrBits[" << fEventFlags->GetNbits() << "->0]:" 
            << *fEventFlags << " |" 
-           << " 1stSet: " << setfill(' ') << setw(33) 
+           << " 1stSet: " << setfill(' ') << setw(38) 
            << ( this->IsUnphysical() ? 
                  GHepFlags::Describe(GHepFlag_t(fEventFlags->FirstSetBit())) : 
                  "none") << "| ";
     stream << "\n|";
-    stream << setfill('-') << setw(110) << "|";
+    stream << setfill('-') << setw(115) << "|";
   }
 
-  if(printlevel==3) {
+  if(printlevel>=2) {
     stream << "\n| ";
     stream << setiosflags(ios::scientific) << setprecision(5);
 
     stream << setfill(' ') << setw(17) << "XSC/WGT: | "
-           << setfill(' ') << setw(15) << "XSec (Event)...."
-           << fXSec << " |"
-           << setfill(' ') << setw(15) << " XSec (Event Kinematics)...."
-           << fDiffXSec << " |"
-           << setfill(' ') << setw(15) << " Event weight..."
+           << setfill(' ') << setw(17) << "XSec[Event] = "
+           << fXSec/units::cm2 << " cm^2  |"
+           << setfill(' ') << setw(17) << " XSec[Kinematics] = "
+           << fDiffXSec/units::cm2 << " cm^2/{K}  |"
+           << setfill(' ') << setw(17) << " Weight = "
            << setiosflags(ios::fixed) << setprecision(5)
            << fWeight   << " |";
 
     stream << "\n|";
-    stream << setfill('-') << setw(110) << "|";
+    stream << setfill('-') << setw(115) << "|";
   }
 
   stream << "\n";
