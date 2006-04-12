@@ -66,7 +66,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double xsec_max = this->MaxXSec(evrec);
 
   //------ Try to select a valid x,y pair
-  const double e = 1E-6;
+  const double e = 1E-3;
   register unsigned int iter = 0;
 
   //-- Get the kinematical limits for the generated x,y
@@ -113,8 +113,6 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // kinematical selection done.
         LOG("COHKinematics", pINFO)
                              << "Selected: x = " << gx << ", y = " << gy;
-        // set the cross section for the selected kinematics
-        evrec->SetDiffXSec(xsec);
 
         // the COH cross section should be a triple differential cross section
         // d^2xsec/dxdydt where t is the the square of the 4p transfer to the
@@ -141,11 +139,19 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double rt    = tsum * rnd->Random1().Rndm();
         double gt    = -1.*TMath::Log(-1.*b*rt + TMath::Exp(-1.*b*tmin))/b;
 
+        LOG("COHKinematics", pINFO)
+          << "Selected: t = "<< gt << ", from ["<< tmin << ", "<< tmax << "]";
+
         // lock selected kinematics & clear running values
         interaction->GetKinematicsPtr()->Setx(gx, true);
         interaction->GetKinematicsPtr()->Sety(gy, true);
         interaction->GetKinematicsPtr()->Sett(gt, true);
+        interaction->GetKinematicsPtr()->SetW(kPionMass, true);
+        interaction->GetKinematicsPtr()->SetQ2(2*kNucleonMass*gx*gy*Ev, true);
         interaction->GetKinematicsPtr()->ClearRunningValues();
+
+        // set the cross section for the selected kinematics
+        evrec->SetDiffXSec(xsec);
 
         return;
      }
@@ -179,7 +185,7 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
   double max_xsec = 0.;
 
   const double e = 1E-3;
-  const int    N = 50;
+  const int    N = 75;
 
   Range1D_t x;
   x.min=0.;

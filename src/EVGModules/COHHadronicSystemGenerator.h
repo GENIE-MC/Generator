@@ -31,10 +31,6 @@ public :
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
-
-private:
-  void AddTargetNucleusRemnant (GHepRecord * event_rec) const;
-  void AddFinalStatePion       (GHepRecord * event_rec) const;
 };
 
 }      // genie namespace
