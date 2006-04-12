@@ -25,9 +25,9 @@
 #pragma link C++ class genie::RESPrimaryLeptonGenerator;
 #pragma link C++ class genie::RESHadronicSystemGenerator;
 #pragma link C++ class genie::RESInteractionListGenerator;
-#pragma link C++ class genie::SPPHadronicSystemGenerator;
-#pragma link C++ class genie::SPPInteractionListGenerator;
-#pragma link C++ class genie::SPPResonanceSelector;
+#pragma link C++ class genie::RSPPHadronicSystemGenerator;
+#pragma link C++ class genie::RSPPInteractionListGenerator;
+#pragma link C++ class genie::RSPPResonanceSelector;
 #pragma link C++ class genie::IMDKinematicsGenerator;
 #pragma link C++ class genie::IMDPrimaryLeptonGenerator;
 #pragma link C++ class genie::IMDTargetRemnantGenerator;
