@@ -102,7 +102,7 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   // Find the scattering type (QEL,DIS,RES,COH) using the following 'logic':
   // - has nuclear target && no struck nucleon                   : COH event
   // - has nuclear target && no struck nucleon + e in init state : IMD event
-  // - has a baryon res. with status = kIstPreDecayResonantState : RES event
+  // - has a baryon res. with status = kIStPreDecayResonantState : RES event
   // - final state (primary) hadronic system has mult = 1        : QEL event
   // - final state (primary) hadronic system has mult >= 2       : DIS event
 
@@ -128,7 +128,7 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   TIter piter(&evrec);
   while ( (p = (GHepParticle *) piter.Next()) ) {
      bool is_res_pdg = utils::res::IsBaryonResonance(p->PdgCode());
-     bool is_res_Ist = p->Status() == kIstPreDecayResonantState;
+     bool is_res_Ist = p->Status() == kIStPreDecayResonantState;
      if( is_res_Ist && is_res_pdg ) fScatType = kScResonant;
   }
   LOG("GHepSummaryBuilder", pINFO)
