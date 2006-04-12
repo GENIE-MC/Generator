@@ -134,7 +134,7 @@ bool Intranuke::NeedsRescattering(const GHepParticle * p) const
 // checks whether the particle should be rescattered
 
   assert(p);
-  return (p->Status() == kIstHadronInTheNucleus);
+  return (p->Status() == kIStHadronInTheNucleus);
 }
 //___________________________________________________________________________
 bool Intranuke::CanRescatter(const GHepParticle * p) const

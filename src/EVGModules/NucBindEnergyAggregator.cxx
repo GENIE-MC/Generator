@@ -136,8 +136,8 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
 
              // mark both the remnant nucleus and the final state nucleon as 
              // intermediate states
-             rnucl -> SetStatus(kIstIntermediateState);
-             p     -> SetStatus(kIstIntermediateState);
+             rnucl -> SetStatus(kIStIntermediateState);
+             p     -> SetStatus(kIStIntermediateState);
 
              // figure out the recombined nucleus PDG code
              int Z = rnucl->Z();
@@ -176,7 +176,7 @@ GHepParticle * NucBindEnergyAggregator::FindMotherNucleus(
      GHepParticle * mother = event_rec->Particle(mother_pos);
 
      //-- check its status
-     if( mother->Status() == kIstNucleonTarget ) {
+     if( mother->Status() == kIStNucleonTarget ) {
 
         //-- get the mother's mother
         int grandmother_pos = mother->FirstMother();

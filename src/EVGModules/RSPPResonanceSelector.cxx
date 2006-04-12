@@ -164,7 +164,7 @@ void RSPPResonanceSelector::AddResonance(GHepRecord * evrec) const
                << "Adding RES with PDGC = " << pdgc << ", Q = " << charge;
 
   //-- Add the resonance at the EventRecord
-  GHepStatus_t ist = kIstPreDecayResonantState;
+  GHepStatus_t ist = kIStPreDecayResonantState;
   int mom = evrec->StruckNucleonPosition();
 
   evrec->AddParticle(

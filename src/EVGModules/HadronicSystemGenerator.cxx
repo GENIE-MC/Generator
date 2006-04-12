@@ -65,7 +65,7 @@ void HadronicSystemGenerator::AddFinalHadronicSyst(GHepRecord * evrec) const
   int mom = evrec->StruckNucleonPosition();
 
   evrec->AddParticle(
-        kPdgHadronicSyst, kIstDISPreFragmHadronicState, mom,-1,-1,-1, p4, v4);
+        kPdgHadronicSyst, kIStDISPreFragmHadronicState, mom,-1,-1,-1, p4, v4);
 }
 //___________________________________________________________________________
 void HadronicSystemGenerator::AddTargetNucleusRemnant(

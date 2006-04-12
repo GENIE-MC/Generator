@@ -94,7 +94,7 @@ void RSPPHadronicSystemGenerator::AddResonanceDecayProducts(
   GHepParticle * res  = evrec->Particle(res_pos);
   
   //-- mark the resonance as decayed
-  res->SetStatus(kIstDecayedState);
+  res->SetStatus(kIStDecayedState);
 
   //-- generate 4-p for the two-hadron system
   double mnuc = PDGLibrary::Instance() -> Find(nuc_pdgc) -> Mass();
@@ -117,11 +117,12 @@ void RSPPHadronicSystemGenerator::AddResonanceDecayProducts(
   TLorentzVector & p4_pi  = *fPhaseSpaceGenerator.GetDecay(1);
   TLorentzVector vdummy(0,0,0,0); // dummy 'vertex'
 
+  // decide the particle status
+  GHepStatus_t ist = (is_nucleus) ? 
+                              kIStHadronInTheNucleus : kIStStableFinalState;
   int mom = res_pos;
-  evrec->AddParticle(
-               nuc_pdgc,kIStStableFinalState, mom,-1,-1,-1, p4_nuc, vdummy);
-  evrec->AddParticle(
-               pi_pdgc, kIStStableFinalState, mom,-1,-1,-1, p4_pi,  vdummy);
+  evrec->AddParticle(nuc_pdgc, ist, mom,-1,-1,-1, p4_nuc, vdummy);
+  evrec->AddParticle(pi_pdgc,  ist, mom,-1,-1,-1, p4_pi,  vdummy);
   delete p4;
 }
 //___________________________________________________________________________

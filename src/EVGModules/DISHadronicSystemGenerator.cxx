@@ -117,7 +117,7 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
 
   bool is_nucleus  = interaction->GetInitialState().GetTarget().IsNucleus();
   GHepStatus_t ist = (is_nucleus) ? 
-                           kIstHadronInTheNucleus : kIStStableFinalState;
+                           kIStHadronInTheNucleus : kIStStableFinalState;
 
   while( (p = (TMCParticle *) particle_iter.Next()) ) {
 
