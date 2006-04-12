@@ -397,7 +397,7 @@ void ConvertToNuance(ofstream & output, EventRecord & event)
 
      GHepStatus_t gist = (GHepStatus_t) p->Status();
      bool is_init =
-             (gist == kIStInitialState || gist == kIstNucleonTarget);
+             (gist == kIStInitialState || gist == kIStNucleonTarget);
 
      if(!is_init && !info_added) {
        // Add nuance obsolete and flux info (not filled in by
@@ -426,12 +426,12 @@ int GHepToNuanceIst(GHepParticle * p)
   switch (ghep_ist) {
    case kIStInitialState:             nuance_ist = -1;   break;
    case kIStStableFinalState:         nuance_ist =  0;   break;
-   case kIstIntermediateState:        nuance_ist = -2;   break;
-   case kIstDecayedState:             nuance_ist = -2;   break;
-   case kIstNucleonTarget:            nuance_ist = -1;   break;
-   case kIstDISPreFragmHadronicState: nuance_ist = -2;   break;
-   case kIstPreDecayResonantState:    nuance_ist = -2;   break;
-   case kIstHadronInTheNucleus:       nuance_ist = -2;   break;
+   case kIStIntermediateState:        nuance_ist = -2;   break;
+   case kIStDecayedState:             nuance_ist = -2;   break;
+   case kIStNucleonTarget:            nuance_ist = -1;   break;
+   case kIStDISPreFragmHadronicState: nuance_ist = -2;   break;
+   case kIStPreDecayResonantState:    nuance_ist = -2;   break;
+   case kIStHadronInTheNucleus:       nuance_ist = -2;   break;
    case kIStUndefined:                nuance_ist = -999; break;
    default:                           nuance_ist = -999; break;
   }
