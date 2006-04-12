@@ -94,7 +94,7 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
            LOG("ParticleDecayer", pINFO) << "The particle was decayed";
 
            //-- Mark it as a 'decayed state' & add its daughter links
-           p->SetStatus(kIstDecayedState);
+           p->SetStatus(kIStDecayedState);
 
            //-- Loop over the daughter and add them to the event record
            this->CopyToEventRecord(decay_products, evrec, ipos);

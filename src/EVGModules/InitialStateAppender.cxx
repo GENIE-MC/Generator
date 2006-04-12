@@ -131,7 +131,7 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
 
     bool is_nucleus = init_state.GetTarget().IsNucleus();
 
-    GHepStatus_t ist   = (is_nucleus) ? kIstNucleonTarget : kIStInitialState;
+    GHepStatus_t ist   = (is_nucleus) ? kIStNucleonTarget : kIStInitialState;
     int          imom1 = (is_nucleus) ? 1 : -1;
     int          imom2 = -1;
 

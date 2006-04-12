@@ -107,7 +107,7 @@ void RESHadronicSystemGenerator::AddResonance(
   TLorentzVector p4 = this->Hadronic4pLAB(evrec);
 
   //-- Add the resonance at the EventRecord
-  GHepStatus_t ist = kIstPreDecayResonantState;
+  GHepStatus_t ist = kIStPreDecayResonantState;
   int mom = evrec->StruckNucleonPosition();
 
   evrec->AddParticle(
@@ -125,7 +125,7 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
 // channels
 
   // find the resonance position
-  int irpos = evrec->ParticlePosition(pdgc, kIstPreDecayResonantState, 0);
+  int irpos = evrec->ParticlePosition(pdgc, kIStPreDecayResonantState, 0);
   assert(irpos>0);
 
   // access the GHEP entry
@@ -138,11 +138,15 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
   dinp.P4      = resonance->P4();
   TClonesArray * decay_products = fResonanceDecayer->Decay(dinp);
 
+  // decide istatus of decay products
+  GHepParticle * nuc = evrec->TargetNucleus();
+  GHepStatus_t dpist = (nuc) ? kIStHadronInTheNucleus : kIStStableFinalState;
+
   // if the list is not empty, boost and copy the decay products in GHEP
   if(decay_products) {
 
      // first, mark the resonance as decayed
-     resonance->SetStatus(kIstDecayedState);
+     resonance->SetStatus(kIStDecayedState);
 
      // loop over the daughter and add them to the event record
      TMCParticle * dpmc = 0;
@@ -150,16 +154,14 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
 
      while( (dpmc = (TMCParticle *) decay_iter.Next()) ) {
 
-        int          dppdg = dpmc->GetKF();
-        GHepStatus_t dpist = GHepStatus_t (dpmc->GetKS());
-
+        int dppdg = dpmc->GetKF();
         double px = dpmc->GetPx();
         double py = dpmc->GetPy();
         double pz = dpmc->GetPz();
         double E  = dpmc->GetEnergy();
 
        //-- Only add the decay products - the mother particle already exists
-       if(dpist == kIStStableFinalState) {
+       if(dpmc->GetKS()==1) {
          evrec->AddParticle(dppdg,dpist,irpos,-1,-1,-1, px,py,pz,E, 0,0,0,0);
        }
      }

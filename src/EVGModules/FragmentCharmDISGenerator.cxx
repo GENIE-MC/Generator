@@ -294,8 +294,8 @@ void FragmentCharmDISGenerator::GenerateHadronicSystem(
     }//add remnants
 
     //-- change the 'rootino' status from kIStStableFinalState to
-    //   kIstDISPreFragmHadronicState
-    remnants->SetStatus(kIstDISPreFragmHadronicState);
+    //   kIStDISPreFragmHadronicState
+    remnants->SetStatus(kIStDISPreFragmHadronicState);
 
   } //permitted decay
 
