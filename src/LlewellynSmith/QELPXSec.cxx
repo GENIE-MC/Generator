@@ -6,6 +6,9 @@
 \brief    Computes the differential Quasi Elastic cross section dxsec/dq^2.\n
           Is a concrete implementation of the XSecAlgorithmI interface.\n
 
+\ref      C.H.Llewellyn Smith, Physics Reports (Sect. C of Physics Letters) 3,
+          No. 5  (1972) 261-379
+
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
@@ -21,7 +24,7 @@
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/Units.h"
-#include "CrossSections/QELPXSec.h"
+#include "LlewellynSmith/QELPXSec.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
@@ -63,14 +66,15 @@ double QELPXSec::XSec(const Interaction * interaction) const
   const InitialState & init_state = interaction -> GetInitialState();
   const Target & target = init_state.GetTarget();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
-  double ml   = interaction->GetFSPrimaryLepton()->Mass();
-  double Mnuc = target.StruckNucleonMass();
-  double q2   = kinematics.q2();
+  double E  = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E2 = TMath::Power(E,2);
+  double ml = interaction->GetFSPrimaryLepton()->Mass();
+  double M  = target.StruckNucleonMass();
+  double q2 = kinematics.q2();
 
   //----- one of the xsec terms changes sign for antineutrinos
   bool is_neutrino = pdg::IsNeutrino(init_state.GetProbePDGCode());
-  int sign = (is_neutrino) ? 1 : -1;
+  int sign = (is_neutrino) ? -1 : 1;
 
   //----- calculate the QEL form factors
   fFormFactors.Calculate(interaction);    
@@ -83,39 +87,37 @@ double QELPXSec::XSec(const Interaction * interaction) const
   LOG("QELPXSec", pDEBUG) << ENDL << fFormFactors;
 
   //-- calculate auxiliary parameters
-  double ml2     = ml    * ml;
-  double ml4     = ml2   * ml2;
-  double Mnuc2   = Mnuc  * Mnuc;
-  double Mnuc4   = Mnuc2 * Mnuc2;
-  double q4      = q2   * q2;
-  double s_u     = 4*E*Mnuc + q2 - ml2;
-  double FA_2    = FA    * FA;
-  double Fp_2    = Fp    * Fp;
-  double F1V_2   = F1V   * F1V;
-  double xiF2V_2 = xiF2V * xiF2V;
-  double Gfactor = TMath::Power( (kGF*kCos8c)/E, 2.) / (8.*kPi);
-  double ml2_q2  = ml2 - q2;
-
-  //----- start building all dsigmaQE / dQ2 terms
-  double term1 = F1V_2     * (q4 - 4*Mnuc2*ml2_q2 - ml4)     / (4*Mnuc2);
-  double term2 = xiF2V_2   * (4*Mnuc2*(q4-ml4) - q4*ml2_q2 ) / (16*Mnuc4);
-  double term3 = FA_2      * (q4 + 4*Mnuc2*ml2_q2 - ml4)     / (4*Mnuc2);
-  double term4 = Fp_2      * ml2*q2 * ml2_q2                 / (4*Mnuc4);
-  double term5 = F1V*xiF2V * (2*q4 + q2*ml2 + ml4)           / (2*Mnuc2);
-  double term6 = FA*Fp     * ml2 * ml2_q2                    / (2*Mnuc2);
-  double term7 = sign * FA*(F1V+xiF2V) * q2 * s_u            / Mnuc2;
-  double term8 = (F1V_2 - xiF2V*xiF2V*q2/(4*Mnuc2) +FA_2 ) * s_u*s_u / (4*Mnuc2);
+  double ml2     = TMath::Power(ml,    2);
+  double M2      = TMath::Power(M,     2);
+  double M4      = TMath::Power(M2,    2);
+  double FA2     = TMath::Power(FA,    2);
+  double Fp2     = TMath::Power(Fp,    2);
+  double F1V2    = TMath::Power(F1V,   2);
+  double xiF2V2  = TMath::Power(xiF2V, 2);
+  double Gfactor = M2*kGF2*kCos8c2 / (8*kPi*E2);
+  double s_u     = 4*E*M + q2 - ml2;
+  double q2_M2   = q2/M2;
 
   //----- compute free nucleon differential cross section
-  double xsec = Gfactor*(term1+term2+term3-term4+term5-term6+term7+term8);
+  double A = (0.25*(ml2-q2)/M2) * (
+	      (4-q2_M2)*FA2 - (4+q2_M2)*F1V2 - q2_M2*xiF2V2*(1+0.25*q2_M2)
+              -4*q2_M2*F1V*xiF2V - (ml2/M2)*( 
+               (F1V2+xiF2V2+2*F1V*xiF2V)+(FA2+4*Fp2+4*FA*Fp)+(q2_M2-4)*Fp2));
+  double B = -1 * q2_M2 * FA*(F1V+xiF2V);
+  double C = 0.25*(FA2 + F1V2 - 0.25*q2_M2*xiF2V2);
+
+  double xsec = Gfactor * (A + sign*B*s_u/M2 + C*s_u*s_u/M4);
 
   LOG("QELPXSec", pDEBUG)
      << "dXSec[QEL]/dQ2 [FreeN](E = "<< E << ", Q2 = "<< -q2 << ") = "<< xsec;
+  LOG("QELPXSec", pDEBUG) 
+                 << "A(Q2) = " << A << ", B(Q2) = " << B << ", C(Q2) = " << C;
 
   //----- if requested return the free nucleon xsec even for input nuclear tgt 
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //----- compute nuclear suppression factor
+  //      (R(Q2) is adapted from NeuGEN - see comments therein)
   double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
 
   //----- number of scattering centers in the target
