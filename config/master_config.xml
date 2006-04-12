@@ -28,13 +28,13 @@
    <config alg="genie::DISHadronicSystemGenerator">  DISHadronicSystemGenerator.xml  </config>
    <config alg="genie::FragmentCharmDISGenerator">   FragmentCharmDISGenerator.xml   </config>
    <config alg="genie::RESHadronicSystemGenerator">  RESHadronicSystemGenerator.xml  </config>
-   <config alg="genie::SPPHadronicSystemGenerator">  SPPHadronicSystemGenerator.xml  </config>
+   <config alg="genie::RSPPHadronicSystemGenerator"> RSPPHadronicSystemGenerator.xml </config>
    <config alg="genie::IMDTargetRemnantGenerator">   IMDTargetRemnantGenerator.xml   </config>
-   <config alg="genie::SPPResonanceSelector">        SPPResonanceSelector.xml        </config>
+   <config alg="genie::RSPPResonanceSelector">       RSPPResonanceSelector.xml       </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator"> QELInteractionListGenerator.xml </config>
-   <config alg="genie::SPPInteractionListGenerator"> SPPInteractionListGenerator.xml </config>
+   <config alg="genie::RSPPInteractionListGenerator">RSPPInteractionListGenerator.xml</config>
    <config alg="genie::RESInteractionListGenerator"> RESInteractionListGenerator.xml </config>
    <config alg="genie::DISInteractionListGenerator"> DISInteractionListGenerator.xml </config>
    <config alg="genie::IMDInteractionListGenerator"> IMDInteractionListGenerator.xml </config>
