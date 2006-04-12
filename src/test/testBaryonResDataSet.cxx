@@ -25,34 +25,25 @@ using namespace genie;
 int main(int argc, char ** argv)
 {
  //-- Get a baryon resonance
-
  Resonance_t resonance = kP33_1232;
 
- //-- Get an instance of the algorithm factory
-
+ //-- Get a concrete implementation of the BaryonResDataSetI interface.
  AlgFactory * algf = AlgFactory::Instance();
 
- //-- Get a concrete implementation of the BaryonResDataSetI interface.
-
- const Algorithm * algbase =
-                    algf->GetAlgorithm("genie::BaryonResDataPDG","Default");
-
  const BaryonResDataSetI * dataset =
-                          dynamic_cast<const BaryonResDataSetI *> (algbase);
+       dynamic_cast<const BaryonResDataSetI *> (
+             algf->GetAlgorithm("genie::BaryonResDataPDG","Default"));
 
  //-- Instantiate a BaryonResParams object 
-
  BaryonResParams res_params;
 
  //-- Set a baryon resonance data set
-
  res_params.SetDataSet(dataset);
 
  //-- Retrieve data for the input resonance
-
  res_params.RetrieveData(resonance);
 
  //-- Print the data
-
  LOG("Main", pINFO) << ENDL << res_params;
 }
+
