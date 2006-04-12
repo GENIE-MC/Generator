@@ -4,6 +4,7 @@
 \program testSAIDHadronXSec
 
 \brief   test program used for testing the SAID hadron cross section data
+         and corrections provided by S.Dytman.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
