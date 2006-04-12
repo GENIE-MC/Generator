@@ -6,7 +6,7 @@
 \brief    The KNO hadronization model.
 
           This hadronization scheme is similar to the one originally used
-          in NeuGEN by G.Barr, G.F.Pearce, H.Gallagher. \n
+          in NeuGEN by G.Barr, G.F.Pearce, H.Gallagher et al. \n
 
           Is a concrete implementation of the HadronizationModelI interface.
 
@@ -81,8 +81,7 @@ TClonesArray * KNOHadronization::Hadronize(
 
   //----- Get a random multiplicity based of their probability distribution
   unsigned int min_mult = 2;
-  unsigned int max_mult = 20;
-  unsigned int mult = mult_prob.RandomMultiplicity(min_mult, max_mult);
+  unsigned int mult = mult_prob.RandomMultiplicity(min_mult, fMaxMult);
 
   //----- Get the charge that the hadron shower needs to have so as to
   //      conserve charge in the interaction
@@ -96,9 +95,18 @@ TClonesArray * KNOHadronization::Hadronize(
   LOG("KNOHad", pINFO) << "Hadron multiplicity  = " << mult;
   LOG("KNOHad", pINFO) << "Hadron Shower Charge = " << maxQ;
 
-  if(mult < min_mult || mult > max_mult) {
+  if(mult < min_mult) {
+   if(fForceMinMult) {
+     LOG("KNOHad", pWARN) 
+          << "Low generated multiplicity: " << mult 
+          << ". Forcing to minimum accepted multiplicity: " << min_mult;
+     mult = min_mult;
+   }
+  }
+
+  if(mult < min_mult || mult > fMaxMult) {
      LOG("KNOHad", pERROR) 
-                      << "Multiplicity out of bounds. Return NULL list";
+                     << "Multiplicity out of bounds. Return NULL list";
      return 0;
   }
 
@@ -235,7 +243,15 @@ void KNOHadronization::LoadSubAlg(void)
 //____________________________________________________________________________
 void KNOHadronization::LoadConfigData(void)
 {
-  fForceDecays = fConfig->GetBoolDef("force-decays", false);
+  // Force decays of unstable hadronization products?
+  fForceDecays  = fConfig->GetBoolDef("force-decays", false);
+
+  // Force minimum multiplicity (if generated less than that) or abort?
+  fForceMinMult = fConfig->GetBoolDef("force-min-multiplicity", true);
+
+  // Maximum allowed multiplicity
+  fMaxMult = (unsigned int) fConfig->GetIntDef("max-multiplicity", 20);
+  assert(fMaxMult>2);
 
   // Probability for producing hadron each pairs
   fPpi0 = fConfig->GetDoubleDef("prob-fs-pi0-pair",       0.30); // pi0 pi0

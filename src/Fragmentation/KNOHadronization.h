@@ -6,7 +6,7 @@
 \brief    The KNO hadronization model.
 
           This hadronization scheme is similar to the one originally used
-          in NeuGEN by G.Barr, G.F.Pearce, H.Gallagher. \n
+          in NeuGEN by G.Barr, G.F.Pearce, H.Gallagher et al. \n
 
           Is a concrete implementation of the HadronizationModelI interface.
 
@@ -65,11 +65,13 @@ private:
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
 
-  bool   fForceDecays; ///< force decays of unstable hadrons produced?
-  double fPpi0;        ///< pi0 pi0 production probability
-  double fPpic;        ///< pi+ pi- production probability
-  double fPKc;         ///< K+  K- production probability
-  double fPK0;         ///< K0  K0bar production probability
+  double       fPpi0;         ///< pi0 pi0 production probability
+  double       fPpic;         ///< pi+ pi- production probability
+  double       fPKc;          ///< K+  K- production probability
+  double       fPK0;          ///< K0  K0bar production probability
+  bool         fForceDecays;  ///< force decays of unstable hadrons produced?
+  bool         fForceMinMult; ///< force minimum multiplicity if (at low W) generated less
+  unsigned int fMaxMult;      ///< maximum allowed multiplicity
 };
 
 }         // genie namespace
