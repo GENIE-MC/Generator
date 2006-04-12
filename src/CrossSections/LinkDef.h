@@ -11,7 +11,6 @@
 #pragma link C++ class genie::DISXSec;
 #pragma link C++ class genie::IMDXSec;
 #pragma link C++ class genie::COHXSec;
-#pragma link C++ class genie::QELPXSec;
 #pragma link C++ class genie::DISPXSec;
 #pragma link C++ class genie::RESPXSec;
 #pragma link C++ class genie::NuElectronXSec;

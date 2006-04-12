@@ -6,6 +6,9 @@
 \brief    Computes the differential Quasi Elastic cross section dxsec/dq^2.\n
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
+\ref      C.H.Llewellyn Smith, Physics Reports (Sect. C of Physics Letters) 3,
+          No. 5  (1972) 261-379
+
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
