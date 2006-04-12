@@ -299,7 +299,7 @@ int GHepRecord::StruckNucleonPosition(void) const
   GHepParticle * nucleus = this->TargetNucleus();
 
   int          ipos = (nucleus) ? 2 : 1;
-  GHepStatus_t ist  = (nucleus) ? kIstNucleonTarget : kIStInitialState;
+  GHepStatus_t ist  = (nucleus) ? kIStNucleonTarget : kIStInitialState;
 
   GHepParticle * p = this->Particle(ipos);
   if(!p) return -1;
@@ -343,7 +343,7 @@ int GHepRecord::FinalStatePrimaryLeptonPosition(void) const
 int GHepRecord::FinalStateHadronicSystemPosition(void) const
 {
   return this->ParticlePosition(
-                        kPdgHadronicSyst,kIstDISPreFragmHadronicState,0);
+                        kPdgHadronicSyst,kIStDISPreFragmHadronicState,0);
 }
 //___________________________________________________________________________ 
 unsigned int GHepRecord::NEntries(int pdg, GHepStatus_t ist, int start) const
@@ -544,7 +544,7 @@ int GHepRecord::FirstNonInitStateEntry(void)
   int pos = 0;
   while( (p = (GHepParticle *)iter.Next()) ) {
     int ist = p->Status();
-    if(ist != kIStInitialState && ist != kIstNucleonTarget) return pos;
+    if(ist != kIStInitialState && ist != kIStNucleonTarget) return pos;
     pos++;
   }
   return pos;
@@ -791,7 +791,7 @@ void GHepRecord::Print(ostream & stream) const
           sum_py += p->Py();
           sum_pz += p->Pz();
        }
-       else if(p->Status() == kIStInitialState || p->Status() == kIstNucleonTarget) {
+       else if(p->Status() == kIStInitialState || p->Status() == kIStNucleonTarget) {
 
           sum_E  -= p->E();
           sum_px -= p->Px();

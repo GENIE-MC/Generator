@@ -27,12 +27,12 @@ typedef enum EGHepStatus {
    kIStUndefined                  = -1, 
    kIStInitialState               =  0,
    kIStStableFinalState           =  1,
-   kIstIntermediateState          =  2,
-   kIstDecayedState               =  3,
-   kIstNucleonTarget              = 11,
-   kIstDISPreFragmHadronicState   = 12,
-   kIstPreDecayResonantState      = 13,
-   kIstHadronInTheNucleus         = 14
+   kIStIntermediateState          =  2,
+   kIStDecayedState               =  3,
+   kIStNucleonTarget              = 11,
+   kIStDISPreFragmHadronicState   = 12,
+   kIStPreDecayResonantState      = 13,
+   kIStHadronInTheNucleus         = 14
 
 } GHepStatus_t; 
   
@@ -51,17 +51,17 @@ class GHepStatus {
                             return  "<Initial State>"; break;
      case kIStStableFinalState:         
                             return  "<Stable Final State>"; break;
-     case kIstIntermediateState:       
+     case kIStIntermediateState:       
                             return  "<Intermediate State>"; break;
-     case kIstDecayedState:            
+     case kIStDecayedState:            
                             return  "<Decayed State>"; break;
-     case kIstNucleonTarget:            
+     case kIStNucleonTarget:            
                             return  "<Nucleon Target>"; break;
-     case kIstDISPreFragmHadronicState: 
+     case kIStDISPreFragmHadronicState: 
                             return  "<DIS Pre-Fragm. Hadronic State>"; break;
-     case kIstPreDecayResonantState:   
+     case kIStPreDecayResonantState:   
                             return  "<Resonant Pre-Decayed State>"; break;
-     case kIstHadronInTheNucleus:     
+     case kIStHadronInTheNucleus:     
                             return  "<Hadron in the Nucleus>"; break;
 
      default:  break;
