@@ -102,7 +102,7 @@ Resonance_t genie::utils::res::FromPdgCode(int pdgc)
 
   switch(pdgc) {
 
-    case (-1214) : /* Delta-  */
+    case (-2214) : /* Delta-  */
     case  (2114) : /* Delta0  */
     case  (2214) : /* Delta+  */
     case  (2224) : /* Delta++ */
@@ -144,9 +144,6 @@ Resonance_t genie::utils::res::FromPdgCode(int pdgc)
     case (12212) : /* N+  */
                    return kP11_1440; break;
 
-//                   return kP33_1600; break; ?
-
-
     case (31214) : /* N0  */
     case (32124) : /* N+  */
                    return kP13_1720; break;
@@ -182,8 +179,6 @@ Resonance_t genie::utils::res::FromPdgCode(int pdgc)
     case (42112) : /* N0  */
     case (42212) : /* N+  */
                    return kP11_1710; break;
-
-//                   return kF17_1970; break; ?
   }
 
   return kNoResonance;
@@ -197,7 +192,7 @@ int genie::utils::res::PdgCode(Resonance_t res, int Q)
   switch(res) {
 
     case kP33_1232:
-        if(Q == -1) return -1214; /* Delta-  */
+        if(Q == -1) return -2214; /* Delta-  */
         if(Q ==  0) return  2114; /* Delta0  */
         if(Q ==  1) return  2214; /* Delta+  */
         if(Q ==  2) return  2224; /* Delta++ */
@@ -313,7 +308,7 @@ bool genie::utils::res::IsBaryonResonance(int pdgc)
 
     /* ------ P33(1232) ------*/
 
-    case (-1214) : /* Delta-  */
+    case (-2214) : /* Delta-  */
     case  (2114) : /* Delta0  */
     case  (2214) : /* Delta+  */
     case  (2224) : /* Delta++ */
