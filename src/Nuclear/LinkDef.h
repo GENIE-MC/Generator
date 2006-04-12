@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::SAIDHadronXSec;
 #pragma link C++ class genie::SpectralFunctionI;
 #pragma link C++ class genie::SpectralFunctionLDA;
 #pragma link C++ class genie::SpectralFunctionFG;
