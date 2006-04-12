@@ -3,7 +3,7 @@
 
 \class   genie::GHepRecord
 
-\brief   Generated Event Record: STDHEP-like record and Summary Information.
+\brief   GENIE's GHEP MC event record.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
