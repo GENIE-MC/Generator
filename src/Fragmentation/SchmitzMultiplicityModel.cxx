@@ -71,7 +71,9 @@ TH1D * SchmitzMultiplicityModel::ProbabilityDistribution(
 
   for(int n = 0; n < kMaxMultiplicity; n++) {
      // KNO distribution is <n>*P(n) vs n/<n>
-     double n_avn = (double)n / avn;      // n/<n>
+
+     double xn    = n + 0.5;              // bin centre
+     double n_avn = xn / avn;             // n/<n>
      double avnP  = fKNO->Value(n_avn);   // <n>*P(n)
      double P     = avnP / avn;           // P(n)
 
@@ -79,7 +81,7 @@ TH1D * SchmitzMultiplicityModel::ProbabilityDistribution(
           << "W = " << W << ", <n> = " << avn << ", n/<n> = " << n_avn
           << ", <n>*P = " << avnP << ", P = " << P;
 
-     prob->Fill( (double)n, P);
+     prob->Fill(xn,P);
   }
   //----- Normalize the probability distribution
   prob->Scale( 1.0 / prob->Integral("width") );
