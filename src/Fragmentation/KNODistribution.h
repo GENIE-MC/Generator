@@ -17,16 +17,15 @@
 #ifndef _KNO_DISTRIBUTION_H_
 #define _KNO_DISTRIBUTION_H_
 
-#include <TSpline.h>
-
 #include "Algorithm/Algorithm.h"
 
 namespace genie {
 
+class Spline;
+
 class KNODistribution : public Algorithm {
 
 public:
-
   KNODistribution();
   KNODistribution(string config);
   virtual ~KNODistribution();
@@ -36,19 +35,15 @@ public:
   //-- Overload Algorithm's Configure() to make sure that the configuration
   //   registry (which is read by its config XML file) is translated to the
   //   KNO spline, when the algorithm is served by the AlgFactory
-  
   void   Configure  (const Registry & config);
   void   Configure  (string param_set);
   
-public:
+private:
+  void LoadKNO(void);
 
-  void KNOFromXmlConfig2Spline(void);
-
-  TSpline * fKNOSpline;
-  double    fMaxScaledMultiplicity; // n/<n>
+  Spline * fKNOSpline;
 };
 
 }         // genie namespace
-
 #endif    // _KNO_DISTRIBUTION_H_
 
