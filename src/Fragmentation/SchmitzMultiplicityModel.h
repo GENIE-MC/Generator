@@ -4,7 +4,6 @@
 \class    genie::SchmitzMultiplicityModel
 
 \brief    The 'Schmitz' multiplicity probability model as used in NeuGEN.
-
           Is a concerete implementation of the MultiplicityProbModelI interface.
 
 \ref      N. Schmitz, Proc. Intl. Symp. on Lepton & Photon Interactions at
@@ -25,20 +24,33 @@
 
 namespace genie {
 
+class KNODistribution;
+
 class SchmitzMultiplicityModel : public MultiplicityProbModelI {
 
 public:
-
   SchmitzMultiplicityModel();
   SchmitzMultiplicityModel(string config);
   virtual ~SchmitzMultiplicityModel();
 
   TH1D * ProbabilityDistribution(const Interaction * interaction) const;
 
-private:
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
-  double SelectOffset(const Interaction * interaction) const;
-  
+private:
+  void   LoadConfig   (void);
+  double SelectOffset (const Interaction * interaction) const;
+
+  double fAvp;
+  double fAvn;
+  double fAvbp;
+  double fAvbn;
+  double fB;
+  string fKNOParamSet;
+  const KNODistribution * fKNO;
 };
 
 }         // genie namespace

@@ -4,7 +4,6 @@
 \class    genie::SchmitzMultiplicityModel
 
 \brief    The 'Schmitz' multiplicity probability model as used in NeuGEN.
-
           Is a concerete implementation of the MultiplicityProbModelI interface.
           
 \ref      N. Schmitz, Proc. Intl. Symp. on Lepton & Photon Interactions at
@@ -17,6 +16,8 @@
 
 */
 //____________________________________________________________________________
+
+#include <TMath.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
@@ -50,74 +51,37 @@ SchmitzMultiplicityModel::~SchmitzMultiplicityModel()
 TH1D * SchmitzMultiplicityModel::ProbabilityDistribution(
                                         const Interaction * interaction) const
 {
-  //----- Make sure it has the configuration parameters for computing an
-  //      average multiplicity
-
-  assert(
-         fConfig->Exists("beta")      &&
-         fConfig->Exists("alpha-vp")  && fConfig->Exists("alpha-vn")  &&
-         fConfig->Exists("alpha-vbp") && fConfig->Exists("alpha-vbn") 
-        );
+  // Compute the average multiplicity for the given interaction:
+  // <n> = a + b * ln(W^2)
   
-  //----- Make sure it knows which parameter set to use for the KNO
-  //      distribution and get its name
+  double alpha = this->SelectOffset(interaction);
+  double W     = interaction->GetKinematics().W();
+
+  assert(W>kNeutronMass+kPionMass);
   
-  assert( fConfig->Exists("kno-param-set") );
-
-  string kno_param_set = fConfig->GetString("kno-param-set");
-
-  //----- Get the KNO Distribution
-
-  //-- Get an instance of the AlgFactory
-
-  AlgFactory * algf = AlgFactory::Instance();
-
-  //-- Request the specified KNO distribution algorithm
-
-  const Algorithm * algbase =
-                 algf->GetAlgorithm("genie::KNODistribution", kno_param_set);
-
-  const KNODistribution * kno =
-                             dynamic_cast<const KNODistribution *> (algbase);
-
-  //----- Compute the average multiplicity for the given interaction:
-  //      <n> = a + b * ln(W^2)
-  
-  double beta  = fConfig->GetDouble("beta");
-  double alpha = SelectOffset(interaction);
-
-  double W = interaction->GetKinematics().W();
-
-  assert( W > 0 );
-  
-  double avn   = alpha + beta * 2 * log(W);
-
+  double avn = alpha + fB * 2*TMath::Log(W);
   if(avn < 1) {
       LOG("Schmitz", pWARN) << "Average multiplicity too small: " << avn;
       return 0;
   }
 
-  //----- Create a multiplicity probability distribution
+  // Create a multiplicity probability distribution
 
   TH1D * prob = new TH1D("", "", kMaxMultiplicity, 0, kMaxMultiplicity);
 
   for(int n = 0; n < kMaxMultiplicity; n++) {
-
      // KNO distribution is <n>*P(n) vs n/<n>
-
-     double n_avn = n / avn;              // n/<n>
-     double avnP  = kno->Value(n_avn);    // <n>*P(n)
+     double n_avn = (double)n / avn;      // n/<n>
+     double avnP  = fKNO->Value(n_avn);   // <n>*P(n)
      double P     = avnP / avn;           // P(n)
 
      LOG("Schmitz", pDEBUG)
-             << "W = " << W << ", <n> = " << avn << ", n/<n> = " << n_avn
-             << ", <n>*P = " << avnP << ", P = " << P;
+          << "W = " << W << ", <n> = " << avn << ", n/<n> = " << n_avn
+          << ", <n>*P = " << avnP << ", P = " << P;
 
-     prob->Fill(n, P);
+     prob->Fill( (double)n, P);
   }
-
   //----- Normalize the probability distribution
-
   prob->Scale( 1.0 / prob->Integral("width") );
 
   return prob; // Note: The calling function adopts the object
@@ -126,35 +90,56 @@ TH1D * SchmitzMultiplicityModel::ProbabilityDistribution(
 double SchmitzMultiplicityModel::SelectOffset(
                                         const Interaction * interaction) const
 {
-  //----- Make sure we know which nucleon type was hit
-
   const InitialState & init_state = interaction->GetInitialState();
-  
   int nu_pdg  = init_state.GetProbePDGCode();
   int nuc_pdg = init_state.GetTarget().StruckNucleonPDGCode();
 
   if( pdg::IsNeutrino( nu_pdg ) ) {
-
-      if ( pdg::IsProton(nuc_pdg)  )    return fConfig->GetDouble("alpha-vp");
-      if ( pdg::IsNeutron(nuc_pdg) )    return fConfig->GetDouble("alpha-vn");
+      if ( pdg::IsProton(nuc_pdg)  )  return fAvp;
+      if ( pdg::IsNeutron(nuc_pdg) )  return fAvn;
       else {
          LOG("Schmitz", pERROR)
                           << "PDG-Code = " << nuc_pdg << " is not a nucleon!";
       }
-
   } else  if (  pdg::IsAntiNeutrino(nu_pdg) ) {
-
-      if ( pdg::IsProton(nuc_pdg)  )   return fConfig->GetDouble("alpha-vbp");
-      if ( pdg::IsNeutron(nuc_pdg) )   return fConfig->GetDouble("alpha-vbn");
+      if ( pdg::IsProton(nuc_pdg)  )  return fAvbp;
+      if ( pdg::IsNeutron(nuc_pdg) )  return fAvbn;
       else {
          LOG("Schmitz", pERROR)
                           << "PDG-Code = " << nuc_pdg << " is not a nucleon!";
       }
   } else {
-    LOG("Schmitz", pERROR) << "PDG-Code = " << nu_pdg << " is not a neutrino!";
+    LOG("Schmitz", pERROR)<< "PDG-Code = " << nu_pdg << " is not a neutrino!";
   }
-
   return 0;        
+}
+//____________________________________________________________________________
+void SchmitzMultiplicityModel::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void SchmitzMultiplicityModel::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void SchmitzMultiplicityModel::LoadConfig(void)
+{
+  // Load config parameters
+  fAvp  = fConfig->GetDouble("alpha-vp");
+  fAvn  = fConfig->GetDouble("alpha-vn");
+  fAvbp = fConfig->GetDouble("alpha-vbp");
+  fAvbn = fConfig->GetDouble("alpha-vbn");
+  fB    = fConfig->GetDouble("beta");
+  fKNOParamSet = fConfig->GetString("kno-param-set");
+
+  // Get the KNO Distribution
+  AlgFactory * algf = AlgFactory::Instance();
+  fKNO = dynamic_cast<const KNODistribution *> (
+                 algf->GetAlgorithm("genie::KNODistribution", fKNOParamSet));
 }
 //____________________________________________________________________________
 

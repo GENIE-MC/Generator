@@ -16,8 +16,11 @@
 
 #include <sstream>
 
+#include <TSystem.h>
+
 #include "Fragmentation/KNODistribution.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/Spline.h"
 
 using std::ostringstream;
 using namespace genie;
@@ -27,14 +30,12 @@ KNODistribution::KNODistribution() :
 Algorithm("genie::KNODistribution")
 {
   fKNOSpline = 0;
-  fMaxScaledMultiplicity = 0;
 }
 //____________________________________________________________________________
 KNODistribution::KNODistribution(string config) :
 Algorithm("genie::KNODistribution", config)
 {
   fKNOSpline = 0;
-  fMaxScaledMultiplicity = 0;
 }
 //____________________________________________________________________________
 KNODistribution::~KNODistribution()
@@ -45,73 +46,42 @@ KNODistribution::~KNODistribution()
 double KNODistribution::Value(double n_avn) const
 {
   if (fKNOSpline) {
-
-      if(n_avn < fMaxScaledMultiplicity) return fKNOSpline->Eval(n_avn);
-
+      bool inrange = n_avn<fKNOSpline->XMax() && n_avn>fKNOSpline->XMin();
+      if(inrange) 
+          return fKNOSpline->Evaluate(n_avn);
       else {        
           LOG("KNO", pDEBUG) 
-                  << "n/<n> = " << n_avn << " > maximum scaled multiplicity";
+             << "n/<n> = " << n_avn << " > maximum scaled multiplicity";
           return 0;
       }
-
   } else {
-
       LOG("KNO", pERROR) << "KNO spline is not built!";
       return 0;
   }
-
   return 0;
-}
-//____________________________________________________________________________
-void KNODistribution::KNOFromXmlConfig2Spline(void)
-{
-  LOG("KNO", pDEBUG) << "Loading KNO data";
-
-  if (fKNOSpline) delete fKNOSpline;
-
-  assert( fConfig->Exists("n-bins") );
-  
-  int nbins = fConfig->GetInt("n-bins");
-
-  double x[nbins], y[nbins], xmax = -1;
-
-  for(int ibin = 0; ibin < nbins; ibin++) {
-
-     ostringstream x_key, y_key;
-
-     x_key << "n/avn--bin="    << ibin;
-     y_key << "P(n)*avn--bin=" << ibin;
-  
-     assert( fConfig->Exists(x_key.str()) && fConfig->Exists(y_key.str()) );
-
-     x[ibin] = fConfig->GetDouble(x_key.str());
-     y[ibin] = fConfig->GetDouble(y_key.str());
-
-     xmax = TMath::Max(xmax, x[ibin]);
-
-     LOG("KNO", pINFO)
-                  << "n/<n> = " << x[ibin] << " --> <n>*P(n) = " << y[ibin];
-  }
-
-  fKNOSpline = new TSpline3("fKNOSpline", x, y, nbins, "0", 0, xmax);
-
-  fMaxScaledMultiplicity = xmax;
-
-  LOG("KNO", pINFO)
-                << "Maximum scaled multiplicity = " << fMaxScaledMultiplicity;
 }
 //____________________________________________________________________________
 void KNODistribution::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-
-  KNOFromXmlConfig2Spline();
+  this->LoadKNO();
 }
 //____________________________________________________________________________
 void KNODistribution::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-
-  KNOFromXmlConfig2Spline();
+  this->LoadKNO();
 }
 //____________________________________________________________________________
+void KNODistribution::LoadKNO(void)
+{
+  assert(gSystem->Getenv("GENIE"));
+
+  string basedir    = gSystem->Getenv("GENIE");
+  string defknodata = basedir + "/data/kno/KNO.dat";
+  string knodata    = fConfig->GetStringDef("kno-data",defknodata);
+
+  fKNOSpline = new Spline(knodata);
+}
+//____________________________________________________________________________
+
