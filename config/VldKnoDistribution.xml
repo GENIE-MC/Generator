@@ -8,7 +8,7 @@
 
      <param type="string" name="title"> 
              KNO Distribution and Schmitz Multiplicity Probabilities  </param>
-     <param type="string" name="kno-param-set">     NeuGEN-KNO-Data   </param>
+     <param type="string" name="kno-param-set">     Default           </param>
      <param type="string" name="schmitz-param-set"> Default           </param>
 
   </param_set>

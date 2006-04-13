@@ -1,68 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <alg_conf>
-
-  -- Default configuration for CC QEL XSec
-
-  <param_set name="NeuGEN-KNO-Data"> 
-
-     <param type="int"    name="n-bins">            26       </param>
-
-     <param type="double" name="P(n)*avn--bin=0">   0.13     </param>
-     <param type="double" name="P(n)*avn--bin=1">   0.26     </param>
-     <param type="double" name="P(n)*avn--bin=2">   0.40     </param>
-     <param type="double" name="P(n)*avn--bin=3">   0.57     </param>
-     <param type="double" name="P(n)*avn--bin=4">   0.76     </param>
-     <param type="double" name="P(n)*avn--bin=5">   0.95     </param>
-     <param type="double" name="P(n)*avn--bin=6">   1.10     </param>
-     <param type="double" name="P(n)*avn--bin=7">   1.24     </param>
-     <param type="double" name="P(n)*avn--bin=8">   1.33     </param>
-     <param type="double" name="P(n)*avn--bin=9">   1.38     </param>
-     <param type="double" name="P(n)*avn--bin=10">  1.40     </param>
-     <param type="double" name="P(n)*avn--bin=11">  1.39     </param>
-     <param type="double" name="P(n)*avn--bin=12">  1.32     </param>
-     <param type="double" name="P(n)*avn--bin=13">  1.20     </param>
-     <param type="double" name="P(n)*avn--bin=14">  1.05     </param>
-     <param type="double" name="P(n)*avn--bin=15">  0.89     </param>
-     <param type="double" name="P(n)*avn--bin=16">  0.69     </param>
-     <param type="double" name="P(n)*avn--bin=17">  0.49     </param>
-     <param type="double" name="P(n)*avn--bin=18">  0.34     </param>
-     <param type="double" name="P(n)*avn--bin=19">  0.25     </param>
-     <param type="double" name="P(n)*avn--bin=20">  0.18     </param>
-     <param type="double" name="P(n)*avn--bin=21">  0.12     </param>
-     <param type="double" name="P(n)*avn--bin=22">  0.07     </param>
-     <param type="double" name="P(n)*avn--bin=23">  0.04     </param>
-     <param type="double" name="P(n)*avn--bin=24">  0.02     </param>
-     <param type="double" name="P(n)*avn--bin=25">  0.01     </param>
-
-     <param type="double" name="n/avn--bin=0">      0.10     </param>
-     <param type="double" name="n/avn--bin=1">      0.20     </param>
-     <param type="double" name="n/avn--bin=2">      0.30     </param>
-     <param type="double" name="n/avn--bin=3">      0.40     </param>
-     <param type="double" name="n/avn--bin=4">      0.50     </param>
-     <param type="double" name="n/avn--bin=5">      0.60     </param>
-     <param type="double" name="n/avn--bin=6">      0.70     </param>
-     <param type="double" name="n/avn--bin=7">      0.80     </param>
-     <param type="double" name="n/avn--bin=8">      0.90     </param>
-     <param type="double" name="n/avn--bin=9">      1.00     </param>
-     <param type="double" name="n/avn--bin=10">     1.10     </param>
-     <param type="double" name="n/avn--bin=11">     1.20     </param>
-     <param type="double" name="n/avn--bin=12">     1.30     </param>
-     <param type="double" name="n/avn--bin=13">     1.40     </param>
-     <param type="double" name="n/avn--bin=14">     1.50     </param>
-     <param type="double" name="n/avn--bin=15">     1.60     </param>
-     <param type="double" name="n/avn--bin=16">     1.70     </param>
-     <param type="double" name="n/avn--bin=17">     1.80     </param>
-     <param type="double" name="n/avn--bin=18">     1.90     </param>
-     <param type="double" name="n/avn--bin=19">     2.00     </param>
-     <param type="double" name="n/avn--bin=20">     2.10     </param>
-     <param type="double" name="n/avn--bin=21">     2.20     </param>
-     <param type="double" name="n/avn--bin=22">     2.30     </param>
-     <param type="double" name="n/avn--bin=23">     2.40     </param>
-     <param type="double" name="n/avn--bin=24">     2.50     </param>
-     <param type="double" name="n/avn--bin=25">     2.60     </param>
-
+  <param_set name="Default"> 
   </param_set>
-
 </alg_conf>
 
