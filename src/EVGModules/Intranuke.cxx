@@ -78,11 +78,11 @@ void Intranuke::ProcessEventRecord(GHepRecord * evrec) const
 
   // If in transparent mode, take all particle outside the nucleus and exit
   if(fIsTransparent) {
-    this->TransportInTransparentNucleus(evrec);
+    this->TransportInTransparentNuc(evrec);
     return;
   }
 
-  this->TransportInPhysicalNucleus(evrec);
+  this->TransportInPhysicalNuc(evrec);
 
   LOG("Intranuke", pINFO) << "Done with this event";
 }
@@ -154,7 +154,7 @@ bool Intranuke::IsInNucleus(const GHepParticle * p) const
   return (p->X4()->Vect().Mag() < fNuclRadius);
 }
 //___________________________________________________________________________
-void Intranuke::TransportInTransparentNucleus(GHepRecord * evrec) const
+void Intranuke::TransportInTransparentNuc(GHepRecord * evrec) const
 {
 // transport all hadrons assuming a transparent nucleus
 
@@ -186,7 +186,7 @@ void Intranuke::TransportInTransparentNucleus(GHepRecord * evrec) const
   }
 }
 //___________________________________________________________________________
-void Intranuke::TransportInPhysicalNucleus(GHepRecord * evrec) const
+void Intranuke::TransportInPhysicalNuc(GHepRecord * evrec) const
 {
 // transport all hadrons 
 
@@ -359,24 +359,24 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
 void Intranuke::SimHadronicInteraction(
                                     GHepRecord* evrec, GHepParticle* p) const
 {
-  INukeProc_t inukp = this->ParticleFate(p);
+  HadroProc_t proc = this->HadronFate(p);
 
-  switch (inukp) {
-    case kINukAbsorption:
-           this->SimAbsorption(evrec, p);
-           break;
-    case kINukChargeExchange:
-           this->SimChargeExchange(evrec, p);
-           break;
-    case kINukInelastic:
-           this->SimInelasticScattering(evrec, p);
-           break;
-    case kINukElastic:
-           this->SimElasticScattering(evrec, p);
-           break;
+  switch (proc) {
+    case kHPcAbsorption:
+        this->SimAbsorption(evrec, p);
+        break;
+    case kHPcChargeExchange:
+        this->SimChargeExchange(evrec, p);
+        break;
+    case kHPcInelastic:
+        this->SimInelasticScattering(evrec, p);
+        break;
+    case kHPcElastic:
+        this->SimElasticScattering(evrec, p);
+        break;
     default:
-           LOG("Intranuke", pFATAL) << "Unknown INTRANUKE interaction type.";
-           exit(1);
+        LOG("Intranuke", pFATAL) << "Unknown INTRANUKE interaction type.";
+        exit(1);
   }
 }
 //___________________________________________________________________________
@@ -403,7 +403,7 @@ void Intranuke::SimElasticScattering(
    LOG("Intranuke", pWARN) << "Can not do elastic scatering yet.";
 }
 //___________________________________________________________________________
-INukeProc_t Intranuke::ParticleFate(const GHepParticle * p) const
+HadroProc_t Intranuke::HadronFate(const GHepParticle * p) const
 {
 // Selects interaction type for the particle that is currently rescaterred.
 // Adapted from NeuGEN's intranuke_pifate
@@ -418,17 +418,17 @@ INukeProc_t Intranuke::ParticleFate(const GHepParticle * p) const
   RandomGen * rnd = RandomGen::Instance();
   double t = rnd->Random1().Rndm();
 
-  INukeProc_t inukp = kINukUndefined;
+  HadroProc_t proc = kHPcUndefined;
 
-  if      ( t < intranuke::kPElastic[Kbin]    ) inukp = kINukElastic;
-  else if ( t < intranuke::kPInelastic[Kbin]  ) inukp = kINukInelastic;
-  else if ( t < intranuke::kPAbsorption[Kbin] ) inukp = kINukAbsorption;
-  else                                          inukp = kINukChargeExchange;
+  if      ( t < intranuke::kPElastic[Kbin]    ) proc = kHPcElastic;
+  else if ( t < intranuke::kPInelastic[Kbin]  ) proc = kHPcInelastic;
+  else if ( t < intranuke::kPAbsorption[Kbin] ) proc = kHPcAbsorption;
+  else                                          proc = kHPcChargeExchange;
 
   LOG("Intranuke", pINFO)
-           << "Selected intranuke interaction for " << p->Name()
-                                     << ": " << INukeProc::AsString(inukp);
-  return inukp;
+        << "Selected hadronic process for " 
+                        << p->Name() << ": " << HadroProc::AsString(proc);
+  return proc;
 }
 //___________________________________________________________________________
 void Intranuke::StepParticle(GHepParticle * p, double step) const
