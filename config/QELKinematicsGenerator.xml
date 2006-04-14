@@ -24,10 +24,10 @@ min-energy-cached           double  def: 1
   </param_set>
 
   <param_set name="NC-Default"> 
-     <param type="string" name="xsec-alg-name">            genie::QELPXSec    </param>
-     <param type="string" name="xsec-param-set">           NC-Default         </param>
-     <param type="double" name="Q2-min">                   1e-2               </param>
-     <param type="double" name="max-xsec-safety-factor">   1.250              </param>
+     <param type="string" name="xsec-alg-name">            genie::NuNucElasticPXSec </param>
+     <param type="string" name="xsec-param-set">           Default                  </param>
+     <param type="double" name="Q2-min">                   1e-2                     </param>
+     <param type="double" name="max-xsec-safety-factor">   1.250                    </param>
   </param_set>
 
 </alg_conf>

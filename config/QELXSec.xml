@@ -25,8 +25,12 @@
   -- Default configuration for NC QEL XSec
 
   <param_set name="NC-Default"> 
+<!--
      <param type="string" name="partial-xsec-alg-name">  genie::QELPXSec       </param>
      <param type="string" name="partial-xsec-param-set"> NC-Default            </param>
+-->
+     <param type="string" name="partial-xsec-alg-name">  genie::NuNucElasticPXSec   </param>
+     <param type="string" name="partial-xsec-param-set"> Default            </param>
      <param type="string" name="integrator-alg-name">    genie::Simpson1D      </param>
      <param type="string" name="integrator-param-set">   Default-Logarithmic   </param>
   </param_set>
