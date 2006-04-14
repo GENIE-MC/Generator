@@ -28,7 +28,6 @@ namespace genie {
 class NuNucElasticPXSec : public XSecAlgorithmI {
 
 public:
-
   NuNucElasticPXSec();
   NuNucElasticPXSec(string config);
   virtual ~NuNucElasticPXSec();
@@ -37,6 +36,23 @@ public:
   double XSec            (const Interaction * interaction) const;
   bool   ValidProcess    (const Interaction * interaction) const;
   bool   ValidKinematics (const Interaction * interaction) const;
+
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string param_set);
+
+private:
+
+  void LoadConfig(void);
+
+  double fkAlpha;
+  double fkGamma;
+  
+  double fEta;
+  double fFa0;
+  double fMa2;
+  double fMv2;
 };
 
 }       // genie namespace
