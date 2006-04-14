@@ -124,9 +124,10 @@ static const double kElMv2        =  TMath::Power(kElMv,2);
 static const double kElMa2        =  TMath::Power(kElMa,2);
 
 //Quasi-Elastic:
+static const double kElAxialEta   =  0.12;
 static const double kQelMv        =  0.840;  // Quasi-Elastic 'vector mass' in GeV
 static const double kQelMa        =  1.032;  // Quasi-Elastic 'axial mass' in GeV
-static const double kQelFA0       = -1.25;   // Quasi-Elastic Axial Form Factor FA(q2=0)
+static const double kQelFA0       = -1.26;   // Quasi-Elastic Axial Form Factor FA(q2=0)
 static const double kQelMv2       =  TMath::Power(kQelMv,2);
 static const double kQelMa2       =  TMath::Power(kQelMa,2);
 
