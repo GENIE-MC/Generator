@@ -28,9 +28,11 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
+#include "Utils/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 NuNucElasticPXSec::NuNucElasticPXSec() :
@@ -64,42 +66,63 @@ double NuNucElasticPXSec::XSec(const Interaction * interaction) const
   double M2    = TMath::Power(M, 2);
   double M4    = TMath::Power(M2,2);
   double E2    = TMath::Power(E, 2);
-  double sig0  = kGF2*M2 / (8*kPi*E2);
-  double su    = 4*M*E - Q2;            // s-u
-  double su2   = TMath::Power(su,2);    
-  double qm2   = Q2 / M2;
-  double qmf   = TMath::Power(1+qm2,2);
-  double alpha = 1.-2.*kSin8w2;
-  double gamma = -0.66666667*kSin8w2;
-  double df1   = TMath::Power( 1.+qm2, 2.);
-  double Gv3   = 0.5 * (1+kMuP-kMuN) / df1;
-  double Gv0   = 1.5 * (1+kMuP+kMuN) / df1;
-  double df2   = (1. + 0.25*qm2) * TMath::Power( 1.+qm2, 2.);
-  double Fv3   = 0.5 * (kMuP-kMuN) / df2;
-  double Fv0   = 1.5 * (kMuP+kMuN) / df2;
-  double ga    = 0.5 * kElGa0 / qmf;           // El.nucl. form factor GA
-  double f2    = alpha*Fv3 + gamma*Fv0;        // El.nucl. form factor F2
-  double f1    = alpha*Gv3 + gamma* Gv0 - f2;  // El.nucl. form factor F1
+
+  //----- compute the form factors
+
+  double qmv2  = TMath::Power(1 + Q2/fMv2, 2);
+  double qma2  = TMath::Power(1 + Q2/fMa2, 2);
+  double tau   = 0.25 * Q2/M2;
+
+  double Gv3   = 0.5 * (1+kMuP-kMuN) / qmv2;
+  double Gv0   = 1.5 * (1+kMuP+kMuN) / qmv2;
+  double Fv3   = 0.5 * (kMuP-kMuN) / ((1+tau)*qmv2);
+  double Fv0   = 1.5 * (kMuP+kMuN) / ((1+tau)*qmv2);
+  double ga    = -0.5 * fFa0 * (1+fEta)/ qma2;    // El.nucl. form factor GA
+  double f2    = fkAlpha*Fv3 + fkGamma*Fv0;       // El.nucl. form factor F2
+  double f1    = fkAlpha*Gv3 + fkGamma* Gv0 - f2; // El.nucl. form factor F1
   double ga2   = TMath::Power(ga,2);
   double f12   = TMath::Power(f1,2);
   double f22   = TMath::Power(f2,2);
 
-  double A = qm2 * ( ga2 * (1 + 0.25*qm2)                    +
-                     (0.25 * f22*qm2 - f12) * (1 - 0.25*qm2) +
-                     f1*f2*qm2
-                   );
-  double B = qm2 * ga * (f1+f2);
-  double C = 0.25 * (ga2 + f12 + 0.25*f22*qm2);
+  //----- compute the free nucleon cross section
+
+  double sig0  = kGF2*M2 / (8*kPi*E2);
+  double su    = 4*M*E - Q2;  // s-u
+  double su2   = TMath::Power(su,2);    
+
+  double A = 4*tau*(ga2*(1+tau) - f12*(1-tau) + f22*tau*(1-tau) + 4*tau*f1*f2);
+  double B = 4*tau*ga*(f1+f2);
+  double C = 0.25*(ga2 + f12 + f22*tau);
 
   int sign = 1;
   if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
 
-  double dsig_dQ2 = sig0 * (A + sign*B*su/M2 + C*su2/M4);
+  double xsec = sig0 * (A + sign*B*su/M2 + C*su2/M4);
 
   LOG("NuNucEl", pDEBUG)
-     << "dXSec[el]/dQ2 (Ev = " << E << ", Q2 = " << Q2 << ") = " << dsig_dQ2;
+    << "dXSec[vN,El]/dQ2 [FreeN](Ev = "<< E<< ", Q2 = "<< Q2 << ") = "<< xsec;
 
-  return dsig_dQ2;
+  //----- if requested return the free nucleon xsec even for input nuclear tgt
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+
+  //----- compute nuclear suppression factor
+  //      (R(Q2) is adapted from NeuGEN - see comments therein)
+  double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
+
+  //----- number of scattering centers in the target
+  const Target & target = init_state.GetTarget();
+  int nucpdgc = target.StruckNucleonPDGCode();
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
+
+  LOG("NuNucEl", pDEBUG)
+       << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
+
+  xsec *= (R*NNucl); // nuclear xsec
+
+  LOG("NuNucEl", pDEBUG)
+   << "dXSec[vN,El]/dQ2 [Nuclear](Ev = "<< E<< ", Q2 = "<< Q2<< ") = "<< xsec;
+
+  return xsec;
 }
 //____________________________________________________________________________
 bool NuNucElasticPXSec::ValidProcess(const Interaction * interaction) const
@@ -120,4 +143,30 @@ bool NuNucElasticPXSec::ValidKinematics(const Interaction * interaction) const
   return (utils::math::IsWithinLimits(Q2, rQ2));
 }
 //____________________________________________________________________________
+void NuNucElasticPXSec::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void NuNucElasticPXSec::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void NuNucElasticPXSec::LoadConfig(void)
+{
+  fkAlpha = 1.-2.*kSin8w2;
+  fkGamma = -0.66666667*kSin8w2;
 
+  fEta = fConfig->GetDoubleDef("eta", kElAxialEta);
+  fFa0 = fConfig->GetDoubleDef("Fa0", kQelFA0);
+
+  double ma = fConfig->GetDoubleDef("Ma",kQelMa);
+  double mv = fConfig->GetDoubleDef("Ma",kQelMv);
+
+  fMa2 = TMath::Power(ma,2);
+  fMv2 = TMath::Power(mv,2);
+}
+//____________________________________________________________________________
