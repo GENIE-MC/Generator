@@ -21,7 +21,7 @@
 
 #include <TObject.h>
 
-#include "Interaction/KineVar.h"
+#include "Conventions/KineVar.h"
 
 using std::map;
 using std::ostream;
