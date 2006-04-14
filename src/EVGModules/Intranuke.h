@@ -24,8 +24,8 @@
 #ifndef _INTRANUKE_H_
 #define _INTRANUKE_H_
 
+#include "Conventions/HadroProc.h"
 #include "EVGCore/EventRecordVisitorI.h"
-#include "EVGModules/IntranukeProc.h"
 
 class TLorentzVector;
 class TVector3;
@@ -51,29 +51,27 @@ public :
 
 private:
 
-  void   LoadConfigData (void);
+  void        LoadConfigData            (void);
+  void        TransportInPhysicalNuc    (GHepRecord * ev) const;
+  void        TransportInTransparentNuc (GHepRecord * ev) const;
+  void        GenerateVertex            (GHepRecord * ev) const;
+  bool        NeedsRescattering         (const GHepParticle* p) const;
+  bool        CanRescatter              (const GHepParticle* p) const;
+  bool        IsInNucleus               (const GHepParticle* p) const;
+  void        SetNuclearRadius          (const GHepParticle* p) const;
+  HadroProc_t HadronFate                (const GHepParticle* p) const;
+  void        StepParticle              (GHepParticle * p, double dr) const;
+  bool        IsFreshHadron             (GHepRecord* ev, GHepParticle* p) const;
+  double      FormationZone             (GHepRecord* ev, GHepParticle* p) const;
+  void        AdvanceFreshHadron        (GHepRecord* ev, GHepParticle* p) const;
+  double      GenerateStep              (GHepRecord* ev, GHepParticle* p) const;
+  double      MeanFreePath              (GHepRecord* ev, GHepParticle* p) const;
+  void        SimHadronicInteraction    (GHepRecord* ev, GHepParticle* p) const;
+  void        SimAbsorption             (GHepRecord* ev, GHepParticle* p) const;
+  void        SimChargeExchange         (GHepRecord* ev, GHepParticle* p) const;
+  void        SimInelasticScattering    (GHepRecord* ev, GHepParticle* p) const;
+  void        SimElasticScattering      (GHepRecord* ev, GHepParticle* p) const;
 
-  void   TransportInPhysicalNucleus    (GHepRecord * ev) const;
-  void   TransportInTransparentNucleus (GHepRecord * ev) const;
-
-  void   GenerateVertex         (GHepRecord * ev)       const;
-  bool   NeedsRescattering      (const GHepParticle* p) const;
-  bool   CanRescatter           (const GHepParticle* p) const;
-  bool   IsInNucleus            (const GHepParticle* p) const;
-  void   SetNuclearRadius       (const GHepParticle* p) const;
-  void   StepParticle           (GHepParticle * p, double dr) const;
-  bool   IsFreshHadron          (GHepRecord* ev, GHepParticle* p) const;
-  double FormationZone          (GHepRecord* ev, GHepParticle* p) const;
-  void   AdvanceFreshHadron     (GHepRecord* ev, GHepParticle* p) const;
-  double GenerateStep           (GHepRecord* ev, GHepParticle* p) const;
-  double MeanFreePath           (GHepRecord* ev, GHepParticle* p) const;
-  void   SimHadronicInteraction (GHepRecord* ev, GHepParticle* p) const;
-  void   SimAbsorption          (GHepRecord* ev, GHepParticle* p) const;
-  void   SimChargeExchange      (GHepRecord* ev, GHepParticle* p) const;
-  void   SimInelasticScattering (GHepRecord* ev, GHepParticle* p) const;
-  void   SimElasticScattering   (GHepRecord* ev, GHepParticle* p) const;
-
-  INukeProc_t ParticleFate (const GHepParticle * p) const;
 
   mutable double fNuclRadius;
 

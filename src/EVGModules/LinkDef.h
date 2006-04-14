@@ -35,7 +35,6 @@
 #pragma link C++ class genie::PrimaryVtxGenerator;
 #pragma link C++ class genie::FLUKA;
 #pragma link C++ class genie::Intranuke;
-#pragma link C++ class genie::INukeProc;
 #pragma link C++ class genie::UnstableParticleDecayer;
 #pragma link C++ class genie::NucBindEnergyAggregator;
 #pragma link C++ class genie::PauliBlocker;
