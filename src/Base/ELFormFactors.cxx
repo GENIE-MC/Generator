@@ -1,16 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::ELFormFactors
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - April 20, 2004
 
-\brief    A class holding the Elastic Form Factors Ge,Gm
+ For the class documentation see the corresponding header file.
 
-          This class is using the \b Strategy Pattern. \n
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  April 20, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
