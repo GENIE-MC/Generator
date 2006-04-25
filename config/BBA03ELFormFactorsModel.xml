@@ -3,33 +3,36 @@
 <alg_conf>
 
 <!--
-  Configuration sets for the BBA2005 elastic form factors parameterization.
-  You can set the folowing configuration parameters 
+Configuration sets for the BBA2005 elastic form factors parameterization.
 
-  Name        Description                 Default (for optional params)
-  *********************************************************************
-  Gep-a2     BBA2003 fit param for Gep    bba2003::kGep_a2
-  Gep-a4             -//-                 bba2003::kGep_a4 
-  Gep-a6             -//-                 bba2003::kGep_a6 
-  Gep-a8             -//-                 bba2003::kGep_a8 
-  Gep-a10            -//-                 bba2003::kGep_a10
-  Gep-a12            -//-                 bba2003::kGep_a12
-  Gmp-a2     BBA2003 fit param for Gmp    bba2003::kGmp_a2
-  Gmp-a4             -//-                 bba2003::kGmp_a4 
-  Gmp-a6             -//-                 bba2003::kGmp_a6 
-  Gmp-a8             -//-                 bba2003::kGmp_a8 
-  Gmp-a10            -//-                 bba2003::kGmp_a10
-  Gmp-a12            -//-                 bba2003::kGmp_a12
-  Gmn-a2     BBA2003 fit param for Gmn    bba2003::kGmn_a2
-  Gmn-a4             -//-                 bba2003::kGmn_a4 
-  Gmn-a6             -//-                 bba2003::kGmn_a6 
-  Gmn-a8             -//-                 bba2003::kGmn_a8 
-  Gmn-a10            -//-                 bba2003::kGmn_a10
-  Gmn-a12            -//-                 bba2003::kGmn_a12
-  Gen-a      Krutov param a for Gen       bba2003::kGen_a 
-  Gen-a      Krutov param b for Gen       bba2003::kGen_b
-  Q2Max      Q2>Q2max :Gep/Gmp is const   bba2003::kQ2Max
-  Mv2        elastic axiam mass squared   kElMv2
+Algorithm Configurable Parameters:
+.........................................................................................
+Name        Type    Optional   Comment                      Default
+.........................................................................................
+Mv          double  Yes        Vector Mass                  GPL value: EL-Mv
+MuP         double  Yes        p Anomalous Magn Moment      GPL value: AnomMagnMoment-P
+MuN         double  Yes        n Anomalous Magn Moment      GPL value: AnomMagnMoment-N
+Gep-a2      double  Yes        BBA2003 fit param for Gep    bba2003::kGep_a2
+Gep-a4      double  Yes                -//-                 bba2003::kGep_a4 
+Gep-a6      double  Yes               -//-                  bba2003::kGep_a6 
+Gep-a8      double  Yes               -//-                  bba2003::kGep_a8 
+Gep-a10     double  Yes               -//-                  bba2003::kGep_a10
+Gep-a12     double  Yes               -//-                  bba2003::kGep_a12
+Gmp-a2      double  Yes        BBA2003 fit param for Gmp    bba2003::kGmp_a2
+Gmp-a4      double  Yes               -//-                  bba2003::kGmp_a4 
+Gmp-a6      double  Yes               -//-                  bba2003::kGmp_a6 
+Gmp-a8      double  Yes               -//-                  bba2003::kGmp_a8 
+Gmp-a10     double  Yes               -//-                  bba2003::kGmp_a10
+Gmp-a12     double  Yes               -//-                  bba2003::kGmp_a12
+Gmn-a2      double  Yes        BBA2003 fit param for Gmn    bba2003::kGmn_a2
+Gmn-a4      double  Yes               -//-                  bba2003::kGmn_a4 
+Gmn-a6      double  Yes               -//-                  bba2003::kGmn_a6 
+Gmn-a8      double  Yes               -//-                  bba2003::kGmn_a8 
+Gmn-a10     double  Yes               -//-                  bba2003::kGmn_a10
+Gmn-a12     double  Yes               -//-                  bba2003::kGmn_a12
+Gen-a       double  Yes        Krutov param a for Gen       bba2003::kGen_a 
+Gen-a       double  Yes        Krutov param b for Gen       bba2003::kGen_b
+Q2Max       double  Yes        Q2>Q2max :Gep/Gmp is const   bba2003::kQ2Max
 -->
 
   <param_set name="Default"> 

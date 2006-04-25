@@ -3,16 +3,15 @@
 <alg_conf>
 
 <!--
-  Configuration sets for Llewellyn-Smith QEL CC form factors
-  You can set the folowing configuration parameters
+Configuration sets for Llewellyn-Smith QEL CC form factors
 
-  Name                       Description                 Default 
-                                                        (for optional params)
-  ***************************************************************************
-  Mv2                        Vector Mass squared         kQElMv2
-  Ma2                        Axial  Mass squared         kQElMa2
-  FA0                        FA(q2=0)                    kFA0
-  el-form-factors            Elastic form factors model
+Algorithm Configurable Parameters:
+....................................................................................
+Name            Type     Optional   Comment                     Default
+....................................................................................
+Ma              double   Yes        Axial  Mass squared         GPL value: QEl-Ma
+FA0             double   Yes        FA(q2=0)                    GPL value: QEL-FA0
+el-form-factors double   No         Elastic form factors model
 -->
 
   <param_set name="Default"> 

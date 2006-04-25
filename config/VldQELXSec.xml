@@ -25,7 +25,7 @@
   </param_set>
 
   <param_set name="NC-Default"> 
-     <param type="string" name="title"> Llewellyn-Smith NC QEL Cross Section </param>
+     <param type="string" name="title"> Ahrens et al. vN EL Cross Section </param>
      <param type="string" name="xsec-alg-name">   genie::QELXSec       </param>
      <param type="string" name="xsec-param-set">  NC-Default           </param>
      <param type="int"    name="n-E-bins">        80                   </param>

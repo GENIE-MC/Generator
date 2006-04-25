@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!--
+Configuration sets for the SlowRsclCharmDISPXSecLO cross section algorithm.
+
+Algorithm Configurable Parameters:
+.........................................................................................
+Name             Type    Optional   Comment                    Default
+.........................................................................................
+c-quark-mass     double  Yes        charm quark mass      GPL value: Charm-Mass
+Vcd              double  Yes        CKM element Vcd       GPL-Value: CKM-Vcd
+Vcs              double  Yes        CKM element Vcd       GPL-Value: CKM-Vcs
+pdf-alg-name     string  No         PDFModelI algorithm
+pdf-param-set    string  No         ... and its config
+d-contrib-switch bool    Yes        Enable d contrib?     true
+s-contrib-switch bool    Yes        Enable s contrib?     true
+-->
+
 <alg_conf>
 
   <param_set name="CC-Default"> 
