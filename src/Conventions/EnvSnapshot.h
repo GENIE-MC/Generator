@@ -1,5 +1,20 @@
-// Names of environmental variables to keep track of when saving
-// the job configuration in TFolders along with the output event tree
+
+//____________________________________________________________________________
+/*!
+
+Names of environmental variables to keep track of when saving the job config 
+in TFolders along with the output event tree
+
+\author    Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+           CCLRC, Rutherford Appleton Laboratory
+
+\created   May 03, 2004
+
+\cpright   Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+           All rights reserved.
+           For the licensing terms see $GENIE/USER_LICENSE.
+*/
+//____________________________________________________________________________
 
 #ifndef _ENV_SNAPSHOT_H_
 #define _ENV_SNAPSHOT_H_
