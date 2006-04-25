@@ -3,46 +3,34 @@
 <alg_conf>
 
 <!--
-  Configuration for the Rein-Seghal RES excitation d^xsec / dQ^2 dW xsec algorithm
+Configuration for the Rein-Seghal RES excitation d^xsec / dQ^2 dW xsec algorithm
 
-  parameter                       comment
-  **********************************************************************************
-  Zeta                            Z parameter used in FKR model (optional) [*]
-  Omega                           Omega parameter used in FKR model (optional)
-  Ma2                             RES Ma^2 (optional)
-  Mv2                             RES Mv^2 (optional)
-  baryonres-dataset-alg-name      algorithm used for retrieving resonance data
-  baryonres-dataset-param-set     ... and its config set
-  weight-with-breit-wigner        set true to weight xsec with breit-wigner
-  breit-wigner-alg-name           breit-wigner algorithm
-  breit-wigner-param-set          ... and its config set
-
-  [*]  Optional parameters are set to some default value at initialization
-
+Algorithm Configurable Parameters:
+.........................................................................................
+Name                        Type    Optional   Comment                      Default
+.........................................................................................
+Zeta                        double  Yes   FKR's Z parameter                 GPL value: RS-Zeta
+Omega                       double  Yes   FKR's Omega parameter             GPL value: RS-Omega
+Ma                          double  Yes   RES axial mass                    GPL value  RES-Max
+Mv                          double  Yes   RES vector mass                   GPL-value: RES-Mv
+weight-with-breit-wigner    bool    Yes   weight xsec with breit-wigner?    true
+baryonres-dataset-alg-name  string  No    algorithm used for resonance data
+baryonres-dataset-param-set string  No    ... and its config set
+breit-wigner-alg-name       string  No    breit-wigner algorithm
+breit-wigner-param-set      string  No    ... and its config set
 -->
 
-  <!-- REIN-SEGHAL Model: RES production d^xsec / dQ^2 dW -->
-
   <param_set name="Default"> 
-     <param type="double"  name="Zeta" >                         0.75                         </param>
-     <param type="double"  name="Omega">                         1.05                         </param>
-     <param type="double"  name="Ma2" >                          1.01                         </param>
-     <param type="double"  name="Mv2">                           0.71                         </param>
      <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG      </param>
      <param type="string"  name="baryonres-dataset-param-set">   Default                      </param>
-     <param type="bool"    name="weight-with-breit-wigner">      true                         </param>
      <param type="string"  name="breit-wigner-alg-name">         genie::BreitWignerLRes       </param>
      <param type="string"  name="breit-wigner-param-set">        Default                      </param>
   </param_set>
 
   <param_set name="No-BW-Weighting"> 
-     <param type="double"  name="Zeta" >                         0.75                         </param>
-     <param type="double"  name="Omega">                         1.05                         </param>
-     <param type="double"  name="Ma2" >                          1.01                         </param>
-     <param type="double"  name="Mv2">                           0.71                         </param>
+     <param type="bool"    name="weight-with-breit-wigner">      false                        </param>
      <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG      </param>
      <param type="string"  name="baryonres-dataset-param-set">   Default                      </param>
-     <param type="bool"    name="weight-with-breit-wigner">      false                        </param>
   </param_set>
 
 </alg_conf>

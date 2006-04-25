@@ -3,17 +3,18 @@
 <alg_conf>
 
 <!--
-  Configuration sets for the Dipole elastic form factors model.
-  You can set the folowing configuration parameters 
+Configuration sets for the Dipole elastic form factors model.
 
-  Name        Description                 Default (for optional params)
-  *********************************************************************
-  Mv2         Vector Mass squared         kElMv2
-
+Algorithm Configurable Parameters:
+.........................................................................................
+Name        Type    Optional   Comment                    Default
+.........................................................................................
+Mv          double  Yes        Vector Mass                GPL value: EL-Mv
+MuP         double  Yes        p Anomalous Magn Moment    GPL value: AnomMagnMoment-P
+MuN         double  Yes        n Anomalous Magn Moment    GPL value: AnomMagnMoment-N
 -->
 
   <param_set name="Default"> 
-
   </param_set>
 
 </alg_conf>
