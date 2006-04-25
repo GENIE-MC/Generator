@@ -1,17 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::AlgConfigPool
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 06, 2004
 
-\brief    A singleton class which holds all configuration registries assembled
-          from XML configuration files for all (agorithm-name, parameter-set)
-          pairs. Any algorithmic object can get an instance of the algorithm
-          config. pool and query it to learn its configuration parameters.
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 06, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
