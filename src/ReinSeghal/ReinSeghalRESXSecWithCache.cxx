@@ -1,20 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::ReinSeghalRESXSecWithCache
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - March 09, 2006
 
-\brief    An ABC that caches resonance neutrinoproduction cross sections on free 
-          nucleons according to the Rein-Seghal model. This significantly speeds 
-          the cross section calculation for multiple nuclear targets (eg at the
-          spline construction phase)
+ For the class documentation see the corresponding header file.
 
-\ref      D.Rein and L.M.Seghal, Neutrino Excitation of Baryon Resonances
-          and Single Pion Production, Ann.Phys.133, 79 (1981)
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  March 09, 2006
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

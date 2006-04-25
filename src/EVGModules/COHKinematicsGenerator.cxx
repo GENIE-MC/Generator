@@ -1,23 +1,22 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::COHKinematicsGenerator
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - October 03, 2004
 
-\brief   Generates values for the kinematic variables describing QEL neutrino
-         interaction events.
+ For the class documentation see the corresponding header file.
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created October 03, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "EVGCore/EVGThreadException.h"
@@ -241,29 +240,28 @@ double COHKinematicsGenerator::Energy(const Interaction * interaction) const
 void COHKinematicsGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void COHKinematicsGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHKinematicsGenerator::LoadSubAlg(void)
+void COHKinematicsGenerator::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  fRo = fConfig->GetDoubleDef("Ro", gc->GetDouble("COH-Ro"));
+
+  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.3);
+  fEMin         = fConfig->GetDoubleDef("min-energy-cached",     -1.0);
+
   fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
                             this->SubAlg("xsec-alg-name", "xsec-param-set"));
   assert(fXSecModel);
-}
-//____________________________________________________________________________
-void COHKinematicsGenerator::LoadConfigData(void)
-{
-  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.3);
-  fEMin         = fConfig->GetDoubleDef("min-energy-cached",     -1.0);
-  fRo           = fConfig->GetDoubleDef("Ro",                     kCohR0);
 }
 //____________________________________________________________________________
 

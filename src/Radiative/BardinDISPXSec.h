@@ -59,8 +59,7 @@ private:
   //   xi is the running variable in the integration for computing
   //   the differential cross section d^2(xsec) / dy dx
 
-  void LoadConfigData (void);
-  void LoadSubAlg     (void);
+  void LoadConfig (void);
 
   double PhiCCi   (double xi, const Interaction * interaction) const;
   double Ii       (double xi, const Interaction * interaction) const;
@@ -73,8 +72,10 @@ private:
   double Sq       (const Interaction * interaction) const;
   double PDFFunc  (const PDF & pdf, int pgdc) const;
 
-  const PDFModelI *   fPDFModel;
+  const PDFModelI * fPDFModel;
   double fMqf;
+  double fVud;
+  double fVud2;
 };
 
 }       // genie namespace

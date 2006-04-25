@@ -20,10 +20,9 @@
 */
 //____________________________________________________________________________
 
-#include <string>
-
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResParams.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
@@ -34,8 +33,6 @@
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
-
-using std::string;
 
 using namespace genie;
 using namespace genie::constants;
@@ -92,6 +89,15 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   double MR3      = TMath::Power(MR,3);
 
   //-- Auxiliary params
+
+  const double kPlRes_f3_P1232_V =  1.95/MN;
+  const double kPlRes_f4_P1232_V = -1.95/MN;
+  const double kPlRes_f5_P1232_V =  0;
+  const double kPlRes_f5_P1232_A =  1.2;
+  const double kPlRes_f4_P1232_A = -0.3/MN2;
+  const double kPlRes_f3_P1232_A =  0;
+  const double kPlRes_f6_P1232_A =  kPlRes_f5_P1232_A;
+
   double MA2    = TMath::Power( fMa, 2 );
   double MV2    = TMath::Power( fMv, 2 );
   double ftmp1a = TMath::Power( 1 + Q2/MA2, 2 );
@@ -244,7 +250,7 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
                + W4 * Mmu2*(Q2+Mmu2)/2.
                - W5 * 2*Mmu2*pk;
 
-  double xsec = kGF2/4./kPi*kCos8c2/MN2/E2*W*MR*Gamma_R/kPi/Breit_Wigner*pauli*s1;
+  double xsec = kGF2/4./kPi*fCos28c/MN2/E2*W*MR*Gamma_R/kPi/Breit_Wigner*pauli*s1;
 
   return xsec;
 }
@@ -301,8 +307,15 @@ void P33PaschosLalakulichPXSec::Configure(string config)
 //____________________________________________________________________________
 void P33PaschosLalakulichPXSec::LoadConfig(void)
 {
-  fMa = fConfig->GetDoubleDef("Ma", kPlResMa);
-  fMv = fConfig->GetDoubleDef("Mv", kPlResMv);
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  fMa  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
+  fMv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
+
+  double thc = fConfig->GetDoubleDef(
+                            "cabibbo-angle", gc->GetDouble("CabibboAngle"));
+  fCos28c = TMath::Power( TMath::Cos(thc), 2 );
 
   fTurnOnPauliCorrection =
          fConfig->GetBoolDef("turn-on-pauli-suppression", false);

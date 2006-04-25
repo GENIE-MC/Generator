@@ -582,11 +582,10 @@ endif
 
 # standard GENIE's NuValidator libraries
 
-NUVLD_LIBRARIES := -L $(GENIE_LIB_PATH) \
-  -lGNuVldXML -lGNuVldDBU -lGNuVldNeugen -lGNuVldGUI
-
 NUVLD_CORE_LIBRARIES := -L $(GENIE_LIB_PATH) \
   -lGNuVldXML -lGNuVldDBU -lGNuVldGUI
+
+NUVLD_LIBRARIES := $(NUVLD_CORE_LIBRARIES) -lGNuVldNeugen 
 
 #-------------------------------------------------------------------
 #                            SUMMING-UP

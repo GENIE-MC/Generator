@@ -1,21 +1,22 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::RSHelicityAmplModelNCn
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 03, 2004
 
-\brief    The Helicity Amplitudes, for all baryon resonances, for NC neutrino
-          interactions on free neutrons, as computed in the Rein-Seghal's paper.
+ For the class documentation see the corresponding header file.
 
-          Concrete implementation of the RSHelicityAmplModelI interface.
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 03, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
+#include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
 #include "ReinSeghal/RSHelicityAmplModelNCn.h"
@@ -47,7 +48,7 @@ RSHelicityAmpl * RSHelicityAmplModelNCn::Compute(
                                        Resonance_t res, const FKR & fkr) const
 {
   RSHelicityAmpl * hampl = new RSHelicityAmpl;
-  double xi = kSin8w2;
+  double xi = fSin28w;
 
   switch(res) {
 
@@ -240,6 +241,29 @@ RSHelicityAmpl * RSHelicityAmplModelNCn::Compute(
      break;
    }
   return hampl;
+}
+//____________________________________________________________________________
+void RSHelicityAmplModelNCn::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void RSHelicityAmplModelNCn::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void RSHelicityAmplModelNCn::LoadConfig(void)
+{
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  double thw = fConfig->GetDoubleDef(
+                        "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+
+  fSin28w = TMath::Power( TMath::Sin(thw), 2 );
 }
 //____________________________________________________________________________
 

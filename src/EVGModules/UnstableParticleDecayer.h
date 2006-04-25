@@ -1,22 +1,23 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::UnstableParticleDecayer
+\class    genie::UnstableParticleDecayer
 
-\brief   Decays unstable particles found in the generated event record.
+\brief    Decays unstable particles found in the generated event record.
+          After the interaction vertex generation it visits the event record
+          and it decays the unstable particles using an externally specified
+          particle decay model. The decay products are added to the event
+          record and the status of parent particle is toggled. \n
+          Is a concerete implementation of the EventRecordVisitorI interface.
 
-         After the interaction vertex generation it visits the event record
-         and it decays the unstable particles using an externally specified
-         particle decay model. The decay products are added to the event
-         record and the status of parent particle is toggled. \n
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-         Is a concerete implementation of the EventRecordVisitorI interface.
+\created  November 17, 2004
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created November 17, 2004
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

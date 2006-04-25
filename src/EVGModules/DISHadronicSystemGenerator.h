@@ -1,17 +1,19 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::DISHadronicSystemGenerator
+\class    genie::DISHadronicSystemGenerator
 
-\brief   Generates the final state hadronic system in v DIS interactions.
+\brief    Generates the final state hadronic system in v DIS interactions.
+          Is a concrete implementation of the EventRecordVisitorI interface.
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+\created  October 03, 2004
 
-\created October 03, 2004
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

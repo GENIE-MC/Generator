@@ -1,24 +1,25 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::UniformKinematicsGenerator
+\class    genie::UniformKinematicsGenerator
 
-\brief   Generates values for the kinematic variables describing QEL,RES,DIS
-         or COH neutrino interaction events (depending on the interaction
-         already found at the event record it visits) using a flat probability
-         distribution.
+\brief    Generates values for the kinematic variables describing QEL,RES,DIS
+          or COH neutrino interaction events (depending on the interaction
+          already found at the event record it visits) using a flat probability
+          distribution.
+          Only use this one if you want to generate samples with many events
+          from improbable phase space regions without having to generate very
+          large statistics.
+          Is a concrete implementation of the EventRecordVisitorI interface.
 
-         Only use this one if you want to generate samples with many events
-         from improbable phase space regions without having to generate very
-         large statistics.
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
+\created  September 29, 2005
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created September 29, 2005
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

@@ -35,7 +35,9 @@ static const unsigned int kMaxEVGThreadExceptions = 350;
 static const unsigned int kDefaultRandSeed = 65539;
 
 //----- Misc hard limits, cuts
-static const double kMinQ2Limit = 1e-5;  // GeV^2
+static const double kMinQ2Limit   = 1e-5;  // GeV^2
+static const int kMaxMultiplicity = 35;    // for KNO hadronization model
+
 
 } // namespace controls
 } // namespace genie

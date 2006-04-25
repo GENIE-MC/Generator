@@ -1,22 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::FragmentCharmDISGenerator
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - June 22, 2005
 
-\brief   Generates the final state hadronic system in v DIS charm production
-         interactions. The charm hadron is generated according to the input
-         charm fractions, its longitudinal momentum is generated from the
-         input fragmentation function, its transverse momentum is generated
-         from an exponential function for the input pT^2 scale. The hadronic
-         remnants are generated so as to conserve the hadronic shower charge
-         and are distributed uniformly in the remaining phase space.
+ For the class documentation see the corresponding header file.
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created June 22, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

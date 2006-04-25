@@ -21,6 +21,7 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Base/ELFormFactors.h"
 #include "Base/ELFormFactorsModelI.h"
 #include "Conventions/Constants.h"
@@ -110,41 +111,46 @@ double LlewellynSmithModel::Fp(const Interaction * interaction) const
 void LlewellynSmithModel::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
-  this->LoadConfigData();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void LlewellynSmithModel::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
-  this->LoadConfigData();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void LlewellynSmithModel::LoadSubAlg(void)
+void LlewellynSmithModel::LoadConfig(void)
 {
-// Reads its configuration from its Registry and loads all the sub-algorithms
-// needed
+// Load configuration data from its configuration Registry (or global defaults)
+// to private data members
+	
   fElFFModel = 0;
 
-  //-- load elastic form factors model
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  // load elastic form factors model
   fElFFModel = dynamic_cast<const ELFormFactorsModelI *>
                                           (this->SubAlg("el-form-factors"));
   assert(fElFFModel);
-}
-//____________________________________________________________________________
-void LlewellynSmithModel::LoadConfigData(void)
-{
-// Reads its configuration data from its configuration Registry and loads them
-// in private data members to avoid looking up at the Registry all the time.
-// Sets defaults for configuration options that were not specified
-
-  fMa2 = fConfig->GetDoubleDef("fMa2", kQelMa2); // fMa2 (axial mass^2)
-  fFA0 = fConfig->GetDoubleDef("fFA0", kQelFA0); // FA(q2=0)
-
-  assert(fMa2>0);
 
   fELFF.SetModel(fElFFModel);  
+
+  // axial mass and Fa(q2=0)
+  fMa  = fConfig->GetDoubleDef("Ma",  gc->GetDouble("QEL-Ma"));  // Axial mass
+  fFA0 = fConfig->GetDoubleDef("FA0", gc->GetDouble("QEL-FA0")); // FA(q2=0)
+
+  fMa2 = TMath::Power(fMa,2);
+
+  // anomalous magnetic moments
+  fMuP = fConfig->GetDoubleDef("MuP", gc->GetDouble("AnomMagnMoment-P"));
+  fMuN = fConfig->GetDoubleDef("MuN", gc->GetDouble("AnomMagnMoment-N"));
+
+  // weinberg angle
+  double thw = fConfig->GetDoubleDef(
+                          "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+  fSin28w = TMath::Power(TMath::Sin(thw), 2);
 }
 //____________________________________________________________________________
 double LlewellynSmithModel::tau(const Interaction * interaction) const

@@ -1,17 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::IMDTargetRemnantGenerator
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - July 17, 2005
 
-\brief   Generates all the non - primarly lepton final state particles in v
-         IMD interactions.
+ For the class documentation see the corresponding header file.
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created July 17, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

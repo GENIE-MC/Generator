@@ -1,18 +1,20 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::IMDTargetRemnantGenerator
+\class    genie::IMDTargetRemnantGenerator
 
-\brief   Generates all the non - primarly lepton final state particles in v
-         IMD interactions.
+\brief    Generates all the non - primarly lepton final state particles in v
+          IMD interactions.
+          Is a concrete implementation of the EventRecordVisitorI interface.
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+\created  July 17, 2005
 
-\created July 17, 2005
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

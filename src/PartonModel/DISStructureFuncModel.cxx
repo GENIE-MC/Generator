@@ -19,6 +19,7 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
 #include "PartonModel/DISStructureFuncModel.h"
@@ -57,22 +58,41 @@ DISStructureFuncModel::~DISStructureFuncModel()
 void DISStructureFuncModel::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->ConfigPDF();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-  this->ConfigPDF();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void DISStructureFuncModel::ConfigPDF(void)
+void DISStructureFuncModel::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  //-- pdf
   const PDFModelI * pdf_model =
                   dynamic_cast<const PDFModelI *>
                              (this->SubAlg("pdf-alg-name", "pdf-param-set"));
   fPDF  -> SetModel(pdf_model);
   fPDFc -> SetModel(pdf_model);
+
+  //-- get CKM elements
+  fVcd  = fConfig->GetDoubleDef("Vcd", gc->GetDouble("CKM-Vcd"));
+  fVcs  = fConfig->GetDoubleDef("Vcs", gc->GetDouble("CKM-Vcs"));
+  fVud  = fConfig->GetDoubleDef("Vud", gc->GetDouble("CKM-Vud"));
+  fVus  = fConfig->GetDoubleDef("Vus", gc->GetDouble("CKM-Vus"));
+
+  fVcd2 = TMath::Power( fVcd, 2 );
+  fVcs2 = TMath::Power( fVcs, 2 );
+  fVud2 = TMath::Power( fVud, 2 );
+  fVus2 = TMath::Power( fVus, 2 );
+
+  //--charm mass
+  fMc  = fConfig->GetDoubleDef("c-quark-mass", gc->GetDouble("Charm-Mass"));
+
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::InitPDF(void)
@@ -163,10 +183,10 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   fPDF->Calculate(x, Q2);
 
   //-- check whether it is above charm threshold
-  bool isAbvCh = utils::kinematics::IsAboveCharmThreshold(interaction, kMc);
+  bool isAbvCh = utils::kinematics::IsAboveCharmThreshold(interaction, fMc);
   if(isAbvCh) {
     // compute PDFs at (xi,Q2)
-    double xc = utils::kinematics::SlowRescalingVar(interaction, kMc);    
+    double xc = utils::kinematics::SlowRescalingVar(interaction, fMc);    
     if(xc>0 && xc<1) fPDFc->Calculate(xc, Q2);
   }
 
@@ -223,19 +243,19 @@ double DISStructureFuncModel::Q(const Interaction * interaction) const
 
   if (isP && isNu)
   {
-     q = (dv+ds)*kVud2 + s*kVus2 + (dv_c+ds_c)*kVcd2 + s_c*kVcs2;
+     q = (dv+ds)*fVud2 + s*fVus2 + (dv_c+ds_c)*fVcd2 + s_c*fVcs2;
   }
   else if (isP && isNuBar)
   {
-     q = (uv+us)*(kVud2+kVus2) + (c_c)*(kVcd2+kVcs2);
+     q = (uv+us)*(fVud2+fVus2) + (c_c)*(fVcd2+fVcs2);
   }
   else if (isN && isNu)
   {
-     q = (uv+us)*kVud2 + s*kVus2 + (uv_c+us_c)*kVcd2 + s_c*kVcs2;
+     q = (uv+us)*fVud2 + s*fVus2 + (uv_c+us_c)*fVcd2 + s_c*fVcs2;
   }
   else if (isN && isNuBar)
   {
-     q = (dv+ds)*(kVud2+kVus2) + (c_c)*(kVcd2+kVcs2);
+     q = (dv+ds)*(fVud2+fVus2) + (c_c)*(fVcd2+fVcs2);
   }
   else
   {
@@ -273,19 +293,19 @@ double DISStructureFuncModel::QBar(const Interaction * interaction) const
 
   if (isP && isNu)
   {
-     qbar = (us)*(kVud2+kVus2) + (c_c)*(kVcd2+kVcs2);
+     qbar = (us)*(fVud2+fVus2) + (c_c)*(fVcd2+fVcs2);
   }
   else if (isP && isNuBar)
   {
-     qbar = (ds_c)*(kVcd2) + (ds)*(kVud2) + (s)*(kVus2) + (s_c)*(kVcs2);
+     qbar = (ds_c)*(fVcd2) + (ds)*(fVud2) + (s)*(fVus2) + (s_c)*(fVcs2);
   }
   else if (isN && isNu)
   {
-     qbar = (ds)*(kVud2+kVus2) + (c_c)*(kVcd2+kVcs2);
+     qbar = (ds)*(fVud2+fVus2) + (c_c)*(fVcd2+fVcs2);
   }
   else if (isN && isNuBar)
   {
-     qbar = (us_c)*(kVcd2) + (us)*(kVud2) + (s)*(kVus2) + (s_c)*(kVcs2);
+     qbar = (us_c)*(fVcd2) + (us)*(fVud2) + (s)*(fVus2) + (s_c)*(fVcs2);
   }
   else
   {

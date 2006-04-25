@@ -1,37 +1,23 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::ReinSeghalRESPXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 05, 2004
 
-\brief    Computes the double differential cross section for production of a
-          single baryon resonance according to the \b Rein-Seghal model.
+ For the class documentation see the corresponding header file.
 
-          The computed cross section is the d^2 xsec/ dQ^2 dW \n
+ Important revisions after version 2.0.0 :
 
-          where \n
-            \li \c Q^2 : momentum transfer ^ 2
-            \li \c W   : invariant mass of the final state hadronic system
-
-          If it is specified (at the external XML configuration) the cross
-          section can weighted with the value of the resonance's Breit-Wigner
-          distribution at the given W. The Breit-Wigner distribution type can
-          be externally specified. \n
-
-          Is a concrete implementation of the XSecAlgorithmI interface.
-
-\ref      D.Rein and L.M.Seghal, Neutrino Excitation of Baryon Resonances
-          and Single Pion Production, Ann.Phys.133, 79 (1981)
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 05, 2004
-
-____________________________________________________________________________*/
+*/
+//____________________________________________________________________________
 
 #include <TMath.h>
 
 #include "Algorithm/AlgFactory.h"
+#include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
@@ -266,21 +252,40 @@ bool ReinSeghalRESPXSec::ValidKinematics(const Interaction* interaction) const
 void ReinSeghalRESPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void ReinSeghalRESPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalRESPXSec::LoadSubAlg(void)
+void ReinSeghalRESPXSec::LoadConfig(void)
 {
-// Reads its configuration from its Registry and loads all the sub-algorithms
-// needed
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  // Load all configuration data or set defaults
+
+  fZeta  = fConfig->GetDoubleDef( "Zeta",  gc->GetDouble("RS-Zeta")  );
+  fOmega = fConfig->GetDoubleDef( "Omega", gc->GetDouble("RS-Omega") );
+
+  double ma  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
+  double mv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
+
+  fMa2    = TMath::Power(ma,2);
+  fMv2    = TMath::Power(mv,2);
+
+  fWghtBW = fConfig->GetBoolDef("weight-with-breit-wigner", true);
+
+  double thw = fConfig->GetDoubleDef(
+                        "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+
+  fFKR.Configure(fZeta, fOmega, ma, mv, thw);
+
+  // Load all the sub-algorithms needed
+
   fBaryonResDataSet = 0;
   fHAmplModelCC     = 0;
   fHAmplModelNCp    = 0;
@@ -315,24 +320,6 @@ void ReinSeghalRESPXSec::LoadSubAlg(void)
   assert( fHAmplModelCC  );
   assert( fHAmplModelNCp );
   assert( fHAmplModelNCn );
-}
-//____________________________________________________________________________
-void ReinSeghalRESPXSec::LoadConfigData(void)
-{
-// Reads its configuration data from its configuration Registry and loads them
-// in private data members to avoid looking up at the Registry all the time.
-// Sets defaults for configuration options that were not specified
-
-  fZeta   = fConfig->GetDoubleDef( "Zeta",  kZeta   );
-  fOmega  = fConfig->GetDoubleDef( "Omega", kOmega  );
-  fMa2    = fConfig->GetDoubleDef( "Ma2",   kResMa2 );
-  fMv2    = fConfig->GetDoubleDef( "Mv2",   kResMv2 );
-  fWghtBW = fConfig->GetBoolDef("weight-with-breit-wigner", true);
-
-  fFKR.SetZeta(fZeta);
-  fFKR.SetOmega(fOmega);
-  fFKR.SetMa2(fMa2);
-  fFKR.SetMv2(fMv2);
 }
 //____________________________________________________________________________
 

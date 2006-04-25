@@ -1,14 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::GHepVirtualListFolder
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - July 16, 2005
 
-\brief    A singleton class to manage all named GHepVirtualLists
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  July 16, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

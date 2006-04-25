@@ -16,6 +16,7 @@
 */
 //____________________________________________________________________________
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
 #include "PartonModel/DISStructureFuncModelNC.h"
@@ -85,16 +86,16 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
   double xF3 = 0.;
 
   if(isP) {
-      F2  = 2*( (kGL2 + kGR2) * (u + c + ubar + cbar) +
-                            (kGLprime2 + kGRprime2) * (d + s + dbar + sbar) );
-      xF3 = 2*( (kGL2 - kGR2) * (u + c - ubar - cbar) +
-                            (kGLprime2 - kGRprime2) * (d + s - dbar - sbar) );
+      F2  = 2*( (fGL2 + fGR2) * (u + c + ubar + cbar) +
+                            (fGLprime2 + fGRprime2) * (d + s + dbar + sbar) );
+      xF3 = 2*( (fGL2 - fGR2) * (u + c - ubar - cbar) +
+                            (fGLprime2 - fGRprime2) * (d + s - dbar - sbar) );
 
   } else if (isN) {
-      F2  = 2*( (kGL2 + kGR2) * (d + c + dbar + cbar) +
-                            (kGLprime2 + kGRprime2) * (u + s + ubar + sbar) );
-      xF3 = 2*( (kGL2 - kGR2) * (d + c - dbar - cbar) +
-                            (kGLprime2 - kGRprime2) * (u + s - ubar - sbar) );
+      F2  = 2*( (fGL2 + fGR2) * (d + c + dbar + cbar) +
+                            (fGLprime2 + fGRprime2) * (u + s + ubar + sbar) );
+      xF3 = 2*( (fGL2 - fGR2) * (d + c - dbar - cbar) +
+                            (fGLprime2 - fGRprime2) * (u + s - ubar - sbar) );
   } else {
      LOG("DISSF", pWARN) << "N type is not handled" << *interaction;
      return;
@@ -119,6 +120,24 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
 
   fF5 = fF2/x;          // Albright-Jarlskog relations
   fF4 = 0.;             // Nucl.Phys.B 84, 467 (1975)
+}
+//____________________________________________________________________________
+void DISStructureFuncModelNC::LoadConfig(void) 
+{
+  DISStructureFuncModel::LoadConfig();
+
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  fGL       = fConfig->GetDoubleDef( "GL",      gc->GetDouble("GL")      );
+  fGR       = fConfig->GetDoubleDef( "GR",      gc->GetDouble("GR")      );
+  fGLprime  = fConfig->GetDoubleDef( "GLprime", gc->GetDouble("GLprime") );  
+  fGRprime  = fConfig->GetDoubleDef( "GRprime", gc->GetDouble("GRprime") ); 
+
+  fGL2      = TMath::Power(fGL,      2);
+  fGR2      = TMath::Power(fGR,      2);
+  fGLprime2 = TMath::Power(fGLprime, 2);
+  fGRprime2 = TMath::Power(fGRprime, 2);
 }
 //____________________________________________________________________________
 

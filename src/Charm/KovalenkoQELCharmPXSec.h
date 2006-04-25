@@ -58,8 +58,7 @@ public:
 
 private:
 
-  void  LoadConfigData (void);
-  void  LoadSubAlg     (void);
+  void  LoadConfig (void);
 
   double ZR       (const Interaction * interaction) const;
   double DR       (const Interaction * interaction, bool norm = false) const;
@@ -81,6 +80,7 @@ private:
   double fF2SigmaPP;
   double fResDMLambda;
   double fResDMSigma;
+  double fSin8c2;
 };
 
 } // genie namespace

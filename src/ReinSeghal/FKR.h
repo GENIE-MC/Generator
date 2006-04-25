@@ -11,6 +11,9 @@
 
 \created  May 03, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
@@ -37,10 +40,7 @@ public:
 
   //-- options that need to be set by the Rein-Seghal xsec algorithm
 
-  void SetZeta      (double zeta );
-  void SetOmega     (double omega);
-  void SetMa2       (double ma2);
-  void SetMv2       (double mv2);
+  void Configure(double z, double o, double ma, double mv, double thw);
 
   //-- Feynmann-Kislinger-Ravndall (FKR) parameters
 
@@ -152,12 +152,12 @@ private:
   double fTplus_4wTv;
 
   //-- options
-  double fZeta;  ///< parameter Z used in computing the FKRs
-  double fOmega; ///< parameter Omega used in computing the FKRs
-  double fMa2;   ///< resonance Ma^2 used
-  double fMv2;   ///< resonance Mv^2 used
+  double fZeta;   ///< parameter Z used in computing the FKRs
+  double fOmega;  ///< parameter Omega used in computing the FKRs
+  double fMa2;    ///< resonance Ma^2 used
+  double fMv2;    ///< resonance Mv^2 used
+  double fSin28w; ///< sin^2(theta-weinberg)
 
-//  const BaryonResParams * fResParams;
 };
 
 }        // genie namespace

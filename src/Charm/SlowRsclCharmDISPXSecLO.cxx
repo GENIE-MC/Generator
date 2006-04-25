@@ -23,6 +23,7 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Charm/SlowRsclCharmDISPXSecLO.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -199,26 +200,24 @@ bool SlowRsclCharmDISPXSecLO::ValidKinematics(
 void SlowRsclCharmDISPXSecLO::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void SlowRsclCharmDISPXSecLO::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void SlowRsclCharmDISPXSecLO::LoadConfigData(void)
+void SlowRsclCharmDISPXSecLO::LoadConfig(void)
 {
-  // default charm mass
-  double mcdef = PDGLibrary::Instance()->Find(kPdgCQuark)->Mass();
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
 
   // read mc, Vcd, Vcs from config or set defaults
-  fMc    = fConfig->GetDoubleDef("c-quark-mass", mcdef);
-  fVcd   = fConfig->GetDoubleDef("Vcd", kVcd);
-  fVcs   = fConfig->GetDoubleDef("Vcs", kVcs);
+  fMc    = fConfig->GetDoubleDef("c-quark-mass", gc->GetDouble("Charm-Mass"));
+  fVcd   = fConfig->GetDoubleDef("Vcd", gc->GetDouble("CKM-Vcd"));
+  fVcs   = fConfig->GetDoubleDef("Vcs", gc->GetDouble("CKM-Vcs"));
 
   fMc2   = TMath::Power(fMc,  2);
   fVcd2  = TMath::Power(fVcd, 2);
@@ -227,10 +226,7 @@ void SlowRsclCharmDISPXSecLO::LoadConfigData(void)
   // check if we compute contributions from both d and s quarks
   fDContributes = fConfig->GetBoolDef("d-contrib-switch", true);
   fSContributes = fConfig->GetBoolDef("s-contrib-switch", true);
-}
-//____________________________________________________________________________
-void SlowRsclCharmDISPXSecLO::LoadSubAlg(void)
-{
+
   // load PDF set
   fPDFModel = 0;
   fPDFModel = dynamic_cast<const PDFModelI *> (

@@ -1,17 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::RSHelicityAmplModelCC
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 03, 2004
 
-\brief    The Helicity Amplitudes, for all baryon resonances, for CC neutrino
-          interactions on free nucleons, as computed in the Rein-Seghal's paper.
+ For the class documentation see the corresponding header file.
 
-          Concrete implementation of the RSHelicityAmplModelI interface.
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 03, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

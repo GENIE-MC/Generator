@@ -42,7 +42,10 @@ private:
 
   void LoadConfig(void);
 
+  double fMv;
   double fMv2;
+  double fMuP;
+  double fMuN;
 };
 
 }         // genie namespace

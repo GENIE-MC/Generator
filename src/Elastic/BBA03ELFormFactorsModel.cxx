@@ -18,10 +18,11 @@
 
 #include <TMath.h>
 
-#include "Conventions/Constants.h"
+#include "Algorithm/AlgConfigPool.h"
 #include "Elastic/BBA03Constants.h"
 #include "Elastic/BBA03ELFormFactorsModel.h"
 #include "Interaction/Interaction.h"
+#include "Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -51,8 +52,8 @@ double BBA03ELFormFactorsModel::Gep(const Interaction * interaction) const
 
   if( TMath::Abs(q2) > fQ2Max ) {
      double gepmx = this->BBA03Fit(-fQ2Max, 1.,   fGep);
-     double gmpmx = this->BBA03Fit(-fQ2Max, kMuP, fGmp);
-     double gmp   = this->BBA03Fit(q2, kMuP, fGmp);
+     double gmpmx = this->BBA03Fit(-fQ2Max, fMuP, fGmp);
+     double gmp   = this->BBA03Fit(q2, fMuP, fGmp);
      gep = gmp * (gepmx/gmpmx);
   } else {
      gep = this->BBA03Fit(q2, 1., fGep);
@@ -63,7 +64,7 @@ double BBA03ELFormFactorsModel::Gep(const Interaction * interaction) const
 double BBA03ELFormFactorsModel::Gmp(const Interaction * interaction) const
 {
   double q2  = interaction->GetKinematics().q2();
-  double gmp = this->BBA03Fit(q2, kMuP, fGmp);
+  double gmp = this->BBA03Fit(q2, fMuP, fGmp);
   return gmp;
 }
 //____________________________________________________________________________
@@ -76,39 +77,58 @@ double BBA03ELFormFactorsModel::Gen(const Interaction * interaction) const
   double M   = tgt.StruckNucleonMass();      // Mnucl
   double M2  = TMath::Power(M,2);            // Mnucl^2
   double t   = -q2/(4*M2);                   // q2<0
-  double mun = kMuN;                         // neutron magnetic moment
   double a   = fGenA;                        // Krutov et al. parameter a
   double b   = fGenB;                        // Krutov et al. parameter b
   double mv2 = fMv2;                         // elastic vector mass^2
   double GD  = 1./TMath::Power(1-q2/mv2,2.); // dipole form factor
 
-  double gen = -1. * mun * a * t * GD / (1 + b*t);
+  double gen = -1. * fMuN * a * t * GD / (1 + b*t);
   return gen;
 }
 //____________________________________________________________________________
 double BBA03ELFormFactorsModel::Gmn(const Interaction * interaction) const
 {
   double q2  = interaction->GetKinematics().q2();
-  double gmn = this->BBA03Fit(q2, kMuN, fGmn);
+  double gmn = this->BBA03Fit(q2, fMuN, fGmn);
   return gmn;
 }
 //____________________________________________________________________________
 void BBA03ELFormFactorsModel::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadBBA2003Params();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void BBA03ELFormFactorsModel::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void BBA03ELFormFactorsModel::LoadConfig(void)
+{
+  //-- load BBA03 model parameters
+
   this->LoadBBA2003Params();
+
+  //-- get config options from the configuration registry or set defaults
+  //   from the global parameter list
+
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  // vector mass
+  fMv  = fConfig->GetDoubleDef("Mv", gc->GetDouble("EL-Mv"));
+  fMv2 = TMath::Power(fMv,2);
+
+  // anomalous magnetic moments
+  fMuP = fConfig->GetDoubleDef("MuP", gc->GetDouble("AnomMagnMoment-P"));
+  fMuN = fConfig->GetDoubleDef("MuN", gc->GetDouble("AnomMagnMoment-N"));
 }
 //____________________________________________________________________________
 void BBA03ELFormFactorsModel::LoadBBA2003Params(void)
 {
-// Fill priavte data members holding BBA2003 model parameters from the
-// configuration Registry (loaded from the config XML files).
+// Fill private data members holding BBA2003 model parameters.
 // Use defaults for all configuration parameters not given in the config file.
 
   // BBA2003 fit coefficients
@@ -139,9 +159,6 @@ void BBA03ELFormFactorsModel::LoadBBA2003Params(void)
 
   // Q2max
   fQ2Max   = fConfig->GetDoubleDef("Q2Max",   bba2003::kQ2Max  );
-
-  // Mv2 (vector mass squared)
-  fMv2    = fConfig->GetDoubleDef("Mv2", kElMv2);
 }
 //____________________________________________________________________________
 double BBA03ELFormFactorsModel::BBA03Fit(

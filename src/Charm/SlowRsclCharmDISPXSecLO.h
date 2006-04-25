@@ -50,8 +50,7 @@ public:
 
 private:
 
-  void LoadConfigData (void);
-  void LoadSubAlg     (void);
+  void LoadConfig (void);
 
   const PDFModelI * fPDFModel;
 

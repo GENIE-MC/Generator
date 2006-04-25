@@ -18,6 +18,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
 #include "libxml/xmlmemory.h"
 #include "libxml/parser.h"
@@ -36,6 +37,7 @@ using std::setw;
 using std::setfill;
 using std::cout;
 using std::endl;
+using std::ostringstream;
 
 using namespace genie;
 
@@ -92,6 +94,9 @@ bool AlgConfigPool::LoadAlgConfig(void)
 
   SLOG("AlgConfigPool", pINFO)
         << "AlgConfigPool late initialization: Loading all XML config. files";
+
+  //-- read the global parameter lists
+  if(!this->LoadGlobalParamLists()) return false;
 
   //-- read the MASTER_CONFIG XML file
   if(!this->LoadMasterConfig()) return false;
@@ -190,17 +195,48 @@ bool AlgConfigPool::LoadMasterConfig(void)
   return true;
 }
 //____________________________________________________________________________
+bool AlgConfigPool::LoadGlobalParamLists(void)
+{
+// Load the global parameter list (a list of physics constants at a given MC
+// job, that is allowed to be modified to fine tune the generator output)
+//
+  SLOG("AlgConfigPool", pINFO) << "Loading global parameter lists";
+
+  // search at $GALGCONF or use the default at: $GENIE/config)
+  string glob_params = (gSystem->Getenv("GALGCONF")) ?
+    string(gSystem->Getenv("GALGCONF")) + string("/GlobalParameterList.xml"):
+    string(gSystem->Getenv("GENIE")) + string("/config/GlobalParameterList.xml");
+
+  // fixed key prefix
+  string key_prefix = "GlobalParameterList";
+
+  // load and report status
+  return this->LoadRegistries(key_prefix, glob_params, "global_param_list");
+}
+//____________________________________________________________________________
 bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
 {
-// Loads all configuration sets for the input algorithm using the input XML
-// file
+// Loads all configuration sets for the input algorithm that can be found in 
+// the input XML file
 
-  SLOG("AlgConfigPool", pDEBUG) << "[-] Loaded configuration sets:";
+  // use the algorithm name as the key prefix
+  string key_prefix = alg_name;
 
-  bool is_accessible = ! (gSystem->AccessPathName( fMasterConfig.c_str() ));
+  // load and report status
+  return this->LoadRegistries(key_prefix, file_name, "alg_conf");
+}
+//____________________________________________________________________________
+bool AlgConfigPool::LoadRegistries(
+                             string key_prefix, string file_name, string root)
+{
+// Loads all the configuration registries from the input XML file
+
+  SLOG("AlgConfigPool", pDEBUG) << "[-] Loading registries:";
+
+  bool is_accessible = ! (gSystem->AccessPathName(file_name.c_str()));
   if (!is_accessible) {
      SLOG("AlgConfigPool", pERROR)
-       << "The XML doc doesn't exist! (filename : " << fMasterConfig << ")";
+       << "The XML doc doesn't exist! (filename : " << file_name << ")";
      return false;
   }
 
@@ -217,7 +253,7 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
              << "The XML document is empty! (filename : " << file_name << ")";
      return false;
   }
-  if( xmlStrcmp(xml_cur->name, (const xmlChar *) "alg_conf") ) {
+  if( xmlStrcmp(xml_cur->name, (const xmlChar *) root.c_str()) ) {
      SLOG("AlgConfigPool", pERROR)
               << "The XML document has invalid root element! "
                                         << "(filename : " << file_name << ")";
@@ -233,12 +269,12 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
       string param_set  = utils::str::TrimSpaces(
                            XmlParserUtils::GetAttribute(xml_cur, "name"));
 
-      // build the config key
-      AlgId id(alg_name,param_set);
-      string config_key = id.Key();
+      // build the registry key
+      ostringstream key;
+      key << key_prefix << "/" << param_set;
 
       // store the key in the key list
-      fConfigKeyList.push_back(config_key);
+      fConfigKeyList.push_back(key.str());
 
       // create a new Registry and fill it with the configuration params
       Registry * config = new Registry();
@@ -267,10 +303,10 @@ bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
       config->SetName(param_set);
       config->Lock();
 
-      pair<string, Registry *> alg_single_conf(config_key, config);
-      fRegistryPool.insert(alg_single_conf);
+      pair<string, Registry *> single_reg(key.str(), config);
+      fRegistryPool.insert(single_reg);
 
-      SLOG("AlgConfigPool", pDEBUG) << " |---o " << config_key;
+      SLOG("AlgConfigPool", pDEBUG) << " |---o " << key.str();
     }
     xml_cur = xml_cur->next;
   }
@@ -422,6 +458,16 @@ Registry * AlgConfigPool::FindRegistry(string key) const
      return 0;
   }
   return 0;
+}
+//____________________________________________________________________________
+const Registry * AlgConfigPool::GlobalParameterList(void) const
+{
+  string glob_param_set = (gSystem->Getenv("GGLOBPARAMSET")) ?
+                        string(gSystem->Getenv("GGLOBPARAMSET")) : "Default";
+  ostringstream key;
+  key << "GlobalParameterList/" << glob_param_set;
+
+  return this->FindRegistry(key.str());
 }
 //____________________________________________________________________________
 const vector<string> & AlgConfigPool::ConfigKeyList(void) const

@@ -25,6 +25,7 @@
 */
 //____________________________________________________________________________
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Elastic/NuElectronPXSec.h"
@@ -64,13 +65,11 @@ double NuElectronPXSec::XSec(const Interaction * interaction) const
 
   double E     = init_state.GetProbeE(kRfLab);
   double s     = 2*kElectronMass*E;
-  double cv    = fCv;
-  double ca    = fCa;
   double y     = kinematics.y();
   double ydep  = TMath::Power(1.-y,2.);
   double C     = 0.25 * (kGF2*s/kPi);
   double m2    = kElectronMass2;
-  double mterm = -0.5*s*kGF2*m2*y*(cv*cv-ca*ca)/kPi; // small if m2/s<<1
+  double mterm = -0.5*s*kGF2*m2*y*(fCv*fCv-fCa*fCa)/kPi; // small if m2/s<<1
 
   double xsec = 0; // <-- dxsec/dy
 
@@ -78,19 +77,23 @@ double NuElectronPXSec::XSec(const Interaction * interaction) const
 
   // nue + e- -> nue + e- [CC + NC + interference]
   if(pdg::IsNuE(inu))
-    xsec = C*(TMath::Power(cv+ca+2,2) + TMath::Power(cv-ca,2) * ydep) + mterm;
+    xsec = C*(TMath::Power(fCv+fCa+2,2) + 
+                                   TMath::Power(fCv-fCa,2) * ydep) + mterm;
 
   // nuebar + e- -> nue + e- [CC + NC + interference]
   if(pdg::IsAntiNuE(inu))
-    xsec = C*(TMath::Power(cv-ca,2) + TMath::Power(cv+ca+2,2) * ydep) + mterm;
+    xsec = C*(TMath::Power(fCv-fCa,2) + 
+                                 TMath::Power(fCv+fCa+2,2) * ydep) + mterm;
 
   // numu/nutau + e- -> numu/nutau + e- [NC]
   if( (pdg::IsNuMu(inu)||pdg::IsNuTau(inu)) && proc_info.IsWeakNC() )
-    xsec = C*(TMath::Power(cv+ca,2) + TMath::Power(cv-ca,2) * ydep) + mterm;
+    xsec = C*(TMath::Power(fCv+fCa,2) + 
+                                   TMath::Power(fCv-fCa,2) * ydep) + mterm;
 
   // numubar/nutaubar + e- -> numubar/nutaubar + e- [NC]
   if( (pdg::IsAntiNuMu(inu)||pdg::IsAntiNuTau(inu)) && proc_info.IsWeakNC() )
-    xsec = C*(TMath::Power(cv-ca,2) + TMath::Power(cv+ca,2) * ydep) + mterm;
+    xsec = C*(TMath::Power(fCv-fCa,2) + 
+                                   TMath::Power(fCv+fCa,2) * ydep) + mterm;
 
   // numu/nutau + e- -> l- + nu_e [CC}
   if( (pdg::IsNuMu(inu)||pdg::IsNuTau(inu)) && proc_info.IsWeakCC() ) {
@@ -131,10 +134,11 @@ void NuElectronPXSec::Configure(string config)
 //____________________________________________________________________________
 void NuElectronPXSec::LoadConfig(void)
 {
-// Reads its configuration from its Registry
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
 
-  fCv = fConfig->GetDoubleDef("cv", -0.52);
-  fCa = fConfig->GetDoubleDef("ca",  0.06);
+  fCv = fConfig->GetDoubleDef("cv", gc->GetDouble("NuElecEL-CV"));
+  fCa = fConfig->GetDoubleDef("ca", gc->GetDouble("NuElecEL-CA"));
 }
 //____________________________________________________________________________
 

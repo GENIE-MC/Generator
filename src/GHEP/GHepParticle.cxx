@@ -1,14 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::GHepParticle
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - November 18, 2004
 
-\brief   STDHEP-like event record entry that can fit a particle or a nucleus.
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created November 18, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

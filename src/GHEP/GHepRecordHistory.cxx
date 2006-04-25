@@ -1,18 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::GHepRecordHistory
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - September 23, 2005
 
-\brief   Holds the history of the GHEP event record as it being modified by
-         the processing steps of an event generation thread.
-         The event record history can be used to step back in the generation
-         sequence if a processing step is to be re-run (this the GENIE event
-         generation framework equivalent of an 'Undo')
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created September 23, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

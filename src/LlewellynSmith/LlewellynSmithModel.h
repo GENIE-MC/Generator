@@ -52,8 +52,7 @@ protected:
   LlewellynSmithModel(string name);
   LlewellynSmithModel(string name, string config);
 
-  virtual void LoadSubAlg     (void);
-  virtual void LoadConfigData (void);
+  virtual void LoadConfig (void);
 
   virtual double tau    (const Interaction * interaction) const;
   virtual double GVE    (const Interaction * interaction) const;
@@ -63,8 +62,12 @@ protected:
 
   mutable ELFormFactors fELFF;
 
+  double fMa;  ///< axial mass
   double fMa2;
-  double fFA0;
+  double fFA0; ///< Fa(q2=0)
+  double fMuP;
+  double fMuN;
+  double fSin28w;
 };
 
 }       // genie namespace

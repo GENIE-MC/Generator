@@ -58,8 +58,7 @@ double LlewellynSmithModelNC::F1V(const Interaction * interaction) const
   double F1p = fELFF.Gep() - t * fELFF.Gmp();
 
   //-- calculate F1V-NC
-  double w2 = kSin8w2; // sin^2(weinberg-angle)
-  double F1V_NC = 0.5*F1V_CC - 2*w2*F1p;
+  double F1V_NC = 0.5*F1V_CC - 2*fSin28w*F1p;
   return F1V_NC;
 }
 //____________________________________________________________________________
@@ -70,11 +69,10 @@ double LlewellynSmithModelNC::xiF2V(const Interaction * interaction) const
 
   //-- calculate F2p (see hep-ph/0107261)
   fELFF.Calculate(interaction);
-  double F2p = (fELFF.Gmp() - fELFF.Gep()) / kMuP;
+  double F2p = (fELFF.Gmp() - fELFF.Gep()) / fMuP;
 
   //-- calculate xiF2-NC
-  double w2 = kSin8w2; // sin^2(weinberg-angle)
-  double xiF2V_NC = 0.5*xiF2V_CC - 2*w2*(kMuP-1)*F2p;
+  double xiF2V_NC = 0.5*xiF2V_CC - 2*fSin28w*(fMuP-1)*F2p;
   return xiF2V_NC;
 }
 //____________________________________________________________________________

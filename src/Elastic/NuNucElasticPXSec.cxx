@@ -20,9 +20,9 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
-#include "Conventions/Constants.h"
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/RefFrame.h"
+#include "Conventions/Constants.h"
 #include "Elastic/NuNucElasticPXSec.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
@@ -31,8 +31,8 @@
 #include "Utils/NuclearUtils.h"
 
 using namespace genie;
-using namespace genie::constants;
 using namespace genie::utils;
+using namespace genie::constants;
 
 //____________________________________________________________________________
 NuNucElasticPXSec::NuNucElasticPXSec() :
@@ -73,10 +73,10 @@ double NuNucElasticPXSec::XSec(const Interaction * interaction) const
   double qma2  = TMath::Power(1 + Q2/fMa2, 2);
   double tau   = 0.25 * Q2/M2;
 
-  double Gv3   = 0.5 * (1+kMuP-kMuN) / qmv2;
-  double Gv0   = 1.5 * (1+kMuP+kMuN) / qmv2;
-  double Fv3   = 0.5 * (kMuP-kMuN) / ((1+tau)*qmv2);
-  double Fv0   = 1.5 * (kMuP+kMuN) / ((1+tau)*qmv2);
+  double Gv3   = 0.5 * (1+fMuP-fMuN) / qmv2;
+  double Gv0   = 1.5 * (1+fMuP+fMuN) / qmv2;
+  double Fv3   = 0.5 * (fMuP-fMuN) / ((1+tau)*qmv2);
+  double Fv0   = 1.5 * (fMuP+fMuN) / ((1+tau)*qmv2);
   double ga    = -0.5 * fFa0 * (1+fEta)/ qma2;    // El.nucl. form factor GA
   double f2    = fkAlpha*Fv3 + fkGamma*Fv0;       // El.nucl. form factor F2
   double f1    = fkAlpha*Gv3 + fkGamma* Gv0 - f2; // El.nucl. form factor F1
@@ -157,16 +157,30 @@ void NuNucElasticPXSec::Configure(string config)
 //____________________________________________________________________________
 void NuNucElasticPXSec::LoadConfig(void)
 {
-  fkAlpha = 1.-2.*kSin8w2;
-  fkGamma = -0.66666667*kSin8w2;
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
 
-  fEta = fConfig->GetDoubleDef("eta", kElAxialEta);
-  fFa0 = fConfig->GetDoubleDef("Fa0", kQelFA0);
+  // alpha and gamma
+  double thw = fConfig->GetDoubleDef(
+                          "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+  double sin2thw = TMath::Power(TMath::Sin(thw), 2);
 
-  double ma = fConfig->GetDoubleDef("Ma",kQelMa);
-  double mv = fConfig->GetDoubleDef("Ma",kQelMv);
+  fkAlpha = 1.-2.*sin2thw;
+  fkGamma = -0.66666667*sin2thw;
+
+  // eta and Fa(q2=0)
+  fEta = fConfig->GetDoubleDef("eta", gc->GetDouble("EL-Axial-Eta"));
+  fFa0 = fConfig->GetDoubleDef("Fa0", gc->GetDouble("QEL-FA0"));
+
+  // axial and vector masses
+  double ma = fConfig->GetDoubleDef("Ma", gc->GetDouble("QEL-Ma"));
+  double mv = fConfig->GetDoubleDef("Mv", gc->GetDouble("QEL-Mv"));
 
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
+
+  // anomalous magnetic moments
+  fMuP = fConfig->GetDoubleDef("MuP", gc->GetDouble("AnomMagnMoment-P"));
+  fMuN = fConfig->GetDoubleDef("MuN", gc->GetDouble("AnomMagnMoment-N"));
 }
 //____________________________________________________________________________

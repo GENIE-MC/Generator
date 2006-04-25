@@ -172,8 +172,6 @@ void DISPartonModelPXSec::Configure(string config)
 void DISPartonModelPXSec::LoadConfig(void)
 {
   fDISSFModel = 0;
-
-  //-- get the specified DISStructureFuncModelI algorithm
   fDISSFModel = dynamic_cast<const DISStructureFuncModelI *> (
                                 this->SubAlg("sf-alg-name", "sf-param-set"));
   assert(fDISSFModel);

@@ -1,18 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::RSHelicityAmplModelEMn
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - March 30, 2005
 
-\brief    The Helicity Amplitudes, for all baryon resonances, for Electro-
-          Magnetic (EM) interactions on free neutrons, as computed in the
-          Rein-Seghal's paper.
+ For the class documentation see the corresponding header file.
 
-          Concrete implementation of the RSHelicityAmplModelI interface.
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  March 30, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

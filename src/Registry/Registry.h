@@ -11,6 +11,9 @@
 
 \created  May 04, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
@@ -100,10 +103,10 @@ public:
   TH1F * GetTH1F      (string key) const;
   TH2F * GetTH2F      (string key) const;
   TTree* GetTTree     (string key) const;
-  bool   GetBoolDef   (string key, bool   def_opt) const;
-  int    GetIntDef    (string key, int    def_opt) const;
-  double GetDoubleDef (string key, double def_opt) const;
-  string GetStringDef (string key, string def_opt) const;
+  bool   GetBoolDef   (string key, bool   def_opt, bool set_def=true);
+  int    GetIntDef    (string key, int    def_opt, bool set_def=true);
+  double GetDoubleDef (string key, double def_opt, bool set_def=true);
+  string GetStringDef (string key, string def_opt, bool set_def=true);
 
   int    NEntries     (void) const;
   bool   Exists       (string key) const;
@@ -137,6 +140,8 @@ private:
 };
 
 template<class T> void SetRegistryItem(Registry * r, string key, T item);
+template<class T> T GetValueOrUseDefault(
+                     Registry * r, string key, T def, bool set_def=true);
 
 }        // namespace
 

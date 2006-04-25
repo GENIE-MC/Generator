@@ -27,7 +27,11 @@
 
 \created  May 05, 2004
 
-____________________________________________________________________________*/
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
+*/
+//____________________________________________________________________________
 
 #ifndef _REIN_SEGHAL_RES_PARTIAL_XSEC_H_
 #define _REIN_SEGHAL_RES_PARTIAL_XSEC_H_
@@ -64,8 +68,7 @@ public:
 
 private:
 
-  void LoadSubAlg     (void);
-  void LoadConfigData (void);
+  void LoadConfig (void);
 
   bool   fWghtBW;
   double fZeta;

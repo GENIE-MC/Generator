@@ -36,11 +36,9 @@ ifdef GOPT_MUELOSS
 endif
 ifndef GOPT_NEUGEN
   BUILD_TARGETS := $(BUILD_TARGETS) dummy-neugen
-else
-  BUILD_TARGETS := $(BUILD_TARGETS) neugen
 endif
 ifdef GOPT_NUVALIDATOR
-  BUILD_TARGETS := $(BUILD_TARGETS) nuvld-std
+  BUILD_TARGETS := $(BUILD_TARGETS) nuvld-libs neugen nuvld-exe
 endif
 ifdef GOPT_GEANT_INTERFACE
   BUILD_TARGETS := $(BUILD_TARGETS) geanti
@@ -121,10 +119,6 @@ dummy-neugen:
 neugen: 
 	cd ${GENIE}/src;\
 	cd NuValidator; make neugen; cd ..; 
-
-nuvld-std: 
-	cd ${GENIE}/src;\
-	cd NuValidator; make std; cd ..; 
 
 nuvld-libs:
 	cd ${GENIE}/src;\
