@@ -5,8 +5,6 @@
   Configuration sets for PYTHIA hadronization algorithm
 
   <param_set name="Default"> 
-     <param type="string" name="pdf-alg-name">   genie::PDFLIB    </param>
-     <param type="string" name="pdf-param-set">  GRVLO            </param>
   </param_set>
 
 </alg_conf>
