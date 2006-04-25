@@ -1,17 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::ProcessInfo
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 04, 2004
 
-\brief    A class encapsulating an enumeration of interaction types (EM,
-          Weak-CC, Weak-NC) and scattering types (Elastic, Quasi Elastic,
-          Deep Inelastic, Resonant Single Pion Production, Coherent Pion
-          Production).
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 04, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
