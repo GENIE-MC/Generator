@@ -1,22 +1,23 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::NucBindEnergyAggregator
+\class    genie::NucBindEnergyAggregator
 
-\brief   A nuclear binding energy 'collector' which visits the event record,
-         finds nucleons originating from within a nuclei and subtracts the
-         binding energy they had in the nucleus.
+\brief    A nuclear binding energy 'collector' which visits the event record,
+          finds nucleons originating from within a nuclei and subtracts the
+          binding energy they had in the nucleus.
+          To record this action in the event record a hypothetical BINDINO is
+          added to the event record.
+          Is a concerete implementation of the EventRecordVisitorI interface.
 
-         To record this action in the event record a hypothetical BINDINO is
-         added to the event record.
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-         Is a concerete implementation of the EventRecordVisitorI interface.
+\created  November 19, 2004
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created November 19, 2004
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

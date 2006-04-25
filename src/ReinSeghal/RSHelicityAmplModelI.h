@@ -1,5 +1,5 @@
-/*!___________________________________________________________________________
-
+//____________________________________________________________________________
+/*!
 \class    genie::RSHelicityAmplModelI
 
 \brief    Pure abstract base class. Defines the RSHelicityAmplModelI interface.
@@ -9,7 +9,11 @@
 
 \created  July 10, 2004
 
-____________________________________________________________________________*/
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
+*/
+//____________________________________________________________________________
 
 #ifndef _REIN_SEGHAL_HELICITY_AMPL_MODEL_I_H_
 #define _REIN_SEGHAL_HELICITY_AMPL_MODEL_I_H_

@@ -1,18 +1,20 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::FKR
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 03, 2004
 
-\brief    Rein-Seghal package utility class for computing and holding the
-          Feynmann-Kislinger-Ravndall (FKR) baryon excitation model parameters.
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 03, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
+
+#include <TMath.h>
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
@@ -94,7 +96,7 @@ void FKR::Calculate(double q2, double W, double mN, int n)
   fTplus  = - (fTv + fTa);
   fTminus = - (fTv - fTa);
 
-  double w = - kSin8w2; // 8w = theta-weinberg
+  double w = - fSin28w; // 8w = theta-weinberg
 
   fLamdaRminus  = fLamda  * fRminus;
   fLamdaRplus   = fLamda  * fRplus;
@@ -209,24 +211,12 @@ void FKR::Initialize(void)
   fTplus_4wTv   = 0.0;
 }
 //____________________________________________________________________________
-void FKR::SetZeta(double zeta )
+void FKR::Configure(double z, double o, double ma, double mv, double thw)
 {
-  fZeta = zeta;
+  fZeta   = z;
+  fOmega  = o;
+  fMa2    = TMath::Power(ma, 2);
+  fMv2    = TMath::Power(mv, 2);
+  fSin28w = TMath::Power( TMath::Sin(thw), 2 );
 }
 //____________________________________________________________________________
-void FKR::SetOmega(double omega)
-{
-  fOmega = omega;
-}
-//____________________________________________________________________________
-void FKR::SetMa2(double ma2)
-{
-  fMa2 = ma2;
-}
-//____________________________________________________________________________
-void FKR::SetMv2(double mv2)
-{
-  fMv2 = mv2;
-}
-//____________________________________________________________________________
-

@@ -55,7 +55,7 @@ protected:
 
   //-- commom code for SF calculation for all DISFormFactorsModelI
   //   interface implementations inheriting DISFormFactorsModel
-  virtual void   ConfigPDF  (void);
+  virtual void   LoadConfig (void);
   virtual void   InitPDF    (void);
   virtual double Q2         (const Interaction * interaction) const;
   virtual double ScalingVar (const Interaction * interaction) const;
@@ -78,6 +78,16 @@ protected:
   mutable double fF4;
   mutable double fF5;
   mutable double fF6;
+
+  double fMc;
+  double fVcd;
+  double fVcs;
+  double fVud;
+  double fVus;
+  double fVcd2;
+  double fVcs2;
+  double fVud2;
+  double fVus2;
 };
 
 }         // genie namespace

@@ -39,6 +39,10 @@ if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
   libs="$libs -lGMuELoss"
 fi
 
+########################### GENIE's NuValidator Libraries;
+
+nvldlibs="-L $libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
+
 ########################### GENIE Dictionaries;
 
 dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
@@ -85,7 +89,7 @@ if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
 fi
 
 usage="\
-Usage: genie-config [--libs] [--dicts] [--libdir] [--topsrcdir]" 
+Usage: genie-config [--libs] [--dicts] [--libdir] [--topsrcdir] [-nuvldlibs]" 
 
 if test $# -eq 0; then
    echo "${usage}" 1>&2
@@ -116,6 +120,10 @@ while test $# -gt 0; do
     --topsrcdir)
       ### Output GENIE top level src directory
       out="$out $srcdir"
+      ;;
+    --nuvldlibs)
+      ### Output GENIE's NuValidator libraries
+      out="$out $nvldlibs"
       ;;
   esac
   shift

@@ -46,12 +46,12 @@ public:
 
 private:
 
-  void LoadConfigData (void);
-  void LoadSubAlg     (void);
+  void LoadConfig (void);
 
   const QELFormFactorsModelI * fFormFactorsModel;
 
   mutable QELFormFactors fFormFactors;
+  double fCos8c2;
 };
 
 }       // genie namespace

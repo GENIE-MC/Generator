@@ -13,6 +13,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "Fragmentation/MultiplicityProb.h"
 #include "Messenger/Messenger.h"
 
@@ -21,15 +23,14 @@ using namespace genie;
 //____________________________________________________________________________
 MultiplicityProb::MultiplicityProb()
 {
-  Init();
+  this->Init();
 }
 //____________________________________________________________________________
 MultiplicityProb::MultiplicityProb(const MultiplicityProb & mpd)
 {
-  Init();
+  this->Init();
 
   fMultProbModel    = mpd.fMultProbModel;
-
   fProbDistribution = new TH1D( *(mpd.fProbDistribution) );
 }
 //____________________________________________________________________________
@@ -45,7 +46,6 @@ void MultiplicityProb::AttachModel(const MultiplicityProbModelI * model)
   if (fProbDistribution) delete fProbDistribution;
 
   fProbDistribution = 0;
-  
   fMultProbModel    = model;
 }
 //____________________________________________________________________________
@@ -66,7 +66,6 @@ double MultiplicityProb::Probability(int n) const
   } else {
      LOG("MultProb", pERROR) << "Probability distribution is not built yet";
   }
-
   return -1;
 }
 //____________________________________________________________________________
@@ -76,8 +75,8 @@ unsigned int MultiplicityProb::RandomMultiplicity(
   assert(min < max);
   
   if (fProbDistribution) {
-
-     unsigned int mult = (unsigned int) fProbDistribution->GetRandom();
+     unsigned int mult = (unsigned int) 
+                              TMath::Nint( fProbDistribution->GetRandom() );
 
      // re-try if multiplicity is not at the requested range     
      if(mult < min || mult > max) return RandomMultiplicity(min, max);
@@ -87,14 +86,12 @@ unsigned int MultiplicityProb::RandomMultiplicity(
   } else {
      LOG("MultProb", pERROR) << "Probability distribution is not built yet";
   }
-
   return 0;
 }
 //____________________________________________________________________________
 void MultiplicityProb::Init(void) 
 {
   fMultProbModel    = 0;
-
   fProbDistribution = 0;
 }
 //____________________________________________________________________________

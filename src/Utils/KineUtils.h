@@ -39,6 +39,8 @@ namespace kinematics
   Range1D_t  q2Range_xy  (const Interaction * const interaction);
   Range1D_t  q2Range_M   (const Interaction * const interaction);
 
+//  Range1D_t  WQ2PhaseSpaceVolume   (const Interaction * const interaction);
+
   double     EnergyThreshold       (const Interaction * const interaction);
   bool       IsAboveCharmThreshold (const Interaction * const interaction, double mc);
   void       ApplyCutsToKineLimits (Range1D_t & r, double min, double max);

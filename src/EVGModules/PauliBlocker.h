@@ -1,17 +1,19 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::PauliBlocker
+\class    genie::PauliBlocker
 
-\brief   Examines whether the generated event should be Pauli blocked.
+\brief    Examines whether the generated event should be Pauli blocked.
+          Is a concerete implementation of the EventRecordVisitorI interface.
 
-         Is a concerete implementation of the EventRecordVisitorI interface.
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+\created  October 08, 2004
 
-\created October 08, 2004
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

@@ -1,15 +1,18 @@
-/*!___________________________________________________________________________
+//____________________________________________________________________________
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::RSHelicityAmplModel
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - July 10, 2004
 
-\brief    Pure abstract base class. Defines the RSHelicityAmplModelI interface.
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+ Important revisions after version 2.0.0 :
 
-\created  July 10, 2004
-
-____________________________________________________________________________*/
+*/
+//____________________________________________________________________________
 
 #include "ReinSeghal/RSHelicityAmplModelI.h"
 

@@ -1,22 +1,16 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::Intranuke
+ Author: Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
+         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, CCLRC, Rutherford Lab
+         September 20, 2005
 
-\brief   The INTRANUKE cascading MC for intranuclear rescattering.
+ For the class documentation see the corresponding header file.
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
-
-\ref     R.Merenyi et al., Phys.Rev.D45 (1992)
-         R.D.Ransome, Nucl.Phys.B 139 (2005)
-
-         The original INTRANUKE cascade MC was developed (in fortran) for the
-         NeuGEN MC by G.F.Pearce, R.Edgecock, W.A.Mann and H.Gallagher.
-
-\author  Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
-         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> CCLRC, Rutherford Lab
-
-\created September 20, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
@@ -25,6 +19,7 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "EVGModules/Intranuke.h"
 #include "EVGModules/IntranukeConstants.h"
@@ -465,22 +460,25 @@ void Intranuke::StepParticle(GHepParticle * p, double step) const
 void Intranuke::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
+  this->LoadConfig();
 }
 //___________________________________________________________________________
 void Intranuke::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-  this->LoadConfigData();
+  this->LoadConfig();
 }
 //___________________________________________________________________________
-void Intranuke::LoadConfigData(void)
+void Intranuke::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   fIsTransparent = fConfig->GetBoolDef("transparent-mode", false);
 
-  fct0 = fConfig->GetDoubleDef ("ct0",    kInukeFormationL); // fermi
-  fK   = fConfig->GetDoubleDef ("Kpt2",   kInukeKpt2);
-  fR0  = fConfig->GetDoubleDef ("R0",     -1.);              // fermi
+  fct0 = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("INUKE-FormationZone")); // fermi
+  fK   = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("INUKE-KPt2"));
+  fR0  = fConfig->GetDoubleDef ("R0",   gc->GetDouble("INUKE-Ro")); // fermi
 
   LOG("Intranuke", pDEBUG) << "IsTransparent = " << fIsTransparent;
   LOG("Intranuke", pDEBUG) << "ct0           = " << fct0 << " fermi";

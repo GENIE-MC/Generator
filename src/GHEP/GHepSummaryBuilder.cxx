@@ -1,18 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::GHepSummaryBuilder
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - July 10, 2005
 
-\brief   An object that knows how to look at the GHEP event record and extract
-         summary information.
-         The summary builder is used for building the plain (PR) ntuple which
-         can also be generated for GHEP records converted from other generator
-         outputs.
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created July 10, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

@@ -33,17 +33,13 @@ public:
   virtual ~PythiaHadronization();
 
   //-- define PythiaHadronization interface
-
   void           Initialize   (void)                 const;
   TClonesArray * Hadronize    (const Interaction * ) const;
 
-
   //-- tmp - std interface violoating method for PYTHIA config
-
   TPythia6 * PYTHIA(void) const { return fPythia; }
 
 private:
-
   TPythia6 * fPythia;
   
 };

@@ -26,6 +26,7 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Charm/AivazisCharmPXSecLO.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -206,26 +207,24 @@ bool AivazisCharmPXSecLO::ValidKinematics(
 void AivazisCharmPXSecLO::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void AivazisCharmPXSecLO::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void AivazisCharmPXSecLO::LoadConfigData(void)
+void AivazisCharmPXSecLO::LoadConfig(void)
 {
-  // default charm mass
-  double mcdef = PDGLibrary::Instance()->Find(kPdgCQuark)->Mass();
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
 
   // read mc, Vcd, Vcs from config or set defaults
-  fMc    = fConfig->GetDoubleDef("c-quark-mass", mcdef);
-  fVcd   = fConfig->GetDoubleDef("Vcd", kVcd);
-  fVcs   = fConfig->GetDoubleDef("Vcs", kVcs);
+  fMc    = fConfig->GetDoubleDef("c-quark-mass", gc->GetDouble("Charm-Mass"));
+  fVcd   = fConfig->GetDoubleDef("Vcd", gc->GetDouble("CKM-Vcd"));
+  fVcs   = fConfig->GetDoubleDef("Vcs", gc->GetDouble("CKM-Vcs"));
 
   fMc2   = TMath::Power(fMc,  2);
   fVcd2  = TMath::Power(fVcd, 2);
@@ -234,10 +233,7 @@ void AivazisCharmPXSecLO::LoadConfigData(void)
   // check if we compute contributions from both d and s quarks
   fDContributes = fConfig->GetBoolDef("d-contrib-switch", true);
   fSContributes = fConfig->GetBoolDef("s-contrib-switch", true);
-}
-//____________________________________________________________________________
-void AivazisCharmPXSecLO::LoadSubAlg(void)
-{
+
   // load PDF set
   fPDFModel = 0;
   fPDFModel = dynamic_cast<const PDFModelI *> (
@@ -245,4 +241,3 @@ void AivazisCharmPXSecLO::LoadSubAlg(void)
   assert(fPDFModel);
 }
 //____________________________________________________________________________
-

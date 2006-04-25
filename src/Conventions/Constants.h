@@ -81,96 +81,6 @@ static const double kMz             =  91.19;                // GeV - Z boson ma
 static const double kMw2            =  TMath::Power(kMw,2);  // GeV^2
 static const double kMz2            =  TMath::Power(kMz,2);  // GeV^2
 
-// caution on consistency:
-// the charm mass scale can be configurable parameter in some algorithms
-static const double kMc             =  1.3; // charm mass, GeV
-
-//----- Cabbibo & Weinberg angles angles
-
-static const double kCos8c    =  0.97437;                 // cos   (Cabbibo angle)
-static const double kCos8c2   =  TMath::Power(kCos8c,2);  // cos^2 (Cabbibo angle)
-static const double kSin8c2   =  1-kCos8c2;               // sin^2 (Cabbibo angle)
-static const double kSin8c    =  TMath::Sqrt(kSin8c2);    // sin   (Cabbibo angle)
-
-static const double kSin8w2   =  0.23117;                 // sin^2 (Weinberg angle)
-static const double kCos8w2   =  1-kSin8w2;               // cos^2 (Weinberg angle)
-static const double kSin8w    =  TMath::Sqrt(kSin8w2);    // sin   (Weinberg angle)
-static const double kCos8w    =  TMath::Sqrt(kCos8w2);    // cos   (Weinberg angle)
-
-//----- CKM elements
-
-static const double kVud    =  0.9738;      // +/-0.0005
-static const double kVus    =  0.2200;      // +/-0.0026
-static const double kVcd    =  0.224;       // +/-0.012
-static const double kVcs    =  0.996;       // +/-0.013
-static const double kVud2   =  TMath::Power(kVud,2);
-static const double kVus2   =  TMath::Power(kVus,2);
-static const double kVcd2   =  TMath::Power(kVcd,2);
-static const double kVcs2   =  TMath::Power(kVcs,2);
-
-//----- Proton & Neutron Anomalous Magnetic Moments
-
-static const double kMuP =  2.7928473; // proton : anomalous magnetic moment
-static const double kMuN = -1.913042;  // neutron: anomalous magnetic moment
-
-//----- Axial-vector & Vector Masses & Axial Form Factor at Q^2 = 0
-
-//Elastic:
-static const double kElMv         =  0.840;  // Elastic 'vector mass' in GeV
-static const double kElMa         =  1.032;  // Elastic 'axial mass' in GeV
-static const double kElEta        =  0.;     // Elastic factor eta
-static const double kElGa0        =  1.26;   // Elastic factor ga(0)
-static const double kElMv2        =  TMath::Power(kElMv,2);
-static const double kElMa2        =  TMath::Power(kElMa,2);
-
-//Quasi-Elastic:
-static const double kElAxialEta   =  0.12;
-static const double kQelMv        =  0.840;  // Quasi-Elastic 'vector mass' in GeV
-static const double kQelMa        =  1.032;  // Quasi-Elastic 'axial mass' in GeV
-static const double kQelFA0       = -1.26;   // Quasi-Elastic Axial Form Factor FA(q2=0)
-static const double kQelMv2       =  TMath::Power(kQelMv,2);
-static const double kQelMa2       =  TMath::Power(kQelMa,2);
-
-//Resonance:
-static const double kResMv        =  0.840;  // Resonanve 'vector mass' in GeV
-static const double kResMa        =  1.032;  // Resonance 'axial mass' in GeV
-static const double kResMv2       =  TMath::Power(kResMv,2);
-static const double kResMa2       =  TMath::Power(kResMa,2);
-
-//Coherent:
-static const double kCohMa        =  1.032;  // Coherent 'axial mass' in GeV
-static const double kCohMa2       =  TMath::Power(kCohMa,2);
-static const double kCohR0        =  1.000;  // Nuclear size scale in COH model
-static const double kCohReImAmpl  =  0.300;  // Re/Im of forward pion scattering amplitude
-
-//----- constants in Feynman-Kislinger-Ravndal model for baryon excitation
-
-static const double kOmega = 1.05;
-static const double kZeta  = 0.75;
-
-//----- constants in Rein-Seghal model for Resonant Single Pion Production
-
-static const double kReinSeghalWCut = 1.4; // GeV (can be overriden in RS Alg)
-
-//----- constants used in Paschos-Lalakulich v RES model for P33(1232)
-//
-const double kPlResMa          = 1.05; // 'axial mass' in GeV
-const double kPlResMv          = 0.84; // 'vector mass' in GeV
-
-const double kPlRes_f_pi       = 0.97*kPionMass;   // f_pi, GeV
-
-const double kPlRes_f3_P1232_V =  1.95/kNucleonMass;
-const double kPlRes_f4_P1232_V = -1.95/kNucleonMass;
-const double kPlRes_f5_P1232_V =  0;
-const double kPlRes_f5_P1232_A =  1.2;
-const double kPlRes_f4_P1232_A = -0.3/kNucleonMass/kNucleonMass;
-const double kPlRes_f3_P1232_A =  0;
-const double kPlRes_f6_P1232_A =  kPlRes_f5_P1232_A;
-
-//----- Constants used in hadronization methods
-
-static const int kMaxMultiplicity = 15;
-
 //----- sqrts frequently encountered in Helicity Amplitude calculations
 
 static const double kSqrt2  = TMath::Sqrt(  2.0 );
@@ -189,28 +99,12 @@ static const double kSqrt27 = TMath::Sqrt( 27.0 );
 static const double kSqrt30 = TMath::Sqrt( 30.0 );
 static const double kSqrt35 = TMath::Sqrt( 35.0 );
 
-//----- Standard model constants used in Parton Model
-
-static const double kGL       =  (1./2.) - (2./3.)* kSin8w2;
-static const double kGR       =          - (2./3.)* kSin8w2;
-static const double kGLprime  = -(1./2.) + (1./3.)* kSin8w2;
-static const double kGRprime  =            (1./3.)* kSin8w2;
-static const double kGL2      = TMath::Power(kGL,2);
-static const double kGR2      = TMath::Power(kGR,2);
-static const double kGLprime2 = TMath::Power(kGLprime,2);
-static const double kGRprime2 = TMath::Power(kGRprime,2);
-
 //----- Misc constants for empirical formulas
 
 // Ro in nuclear radius formula R=Ro*A^(1/3), in GeV^-1
 static const double kNucRo = 1.2E-15*units::m;
 // Nuclear density (in nuclear core), in GeV^4
 static const double kNucDensity = 2.3E+17 *units::kg/units::m3;
-
-//----- INTRANUKE constants
-
-static const double kInukeFormationL = 2.0; //c*t0, in fermi
-static const double kInukeKpt2       = 1.0;
 
 } // namespace constants
 } // namespace genie

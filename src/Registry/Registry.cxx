@@ -1,15 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::Registry
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 04, 2004
 
-\brief    A registry. Provides the container for algorithm configuration
-          parameters.
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 04, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
@@ -49,11 +49,32 @@ namespace genie {
     pair<string, RegistryItemI *> config_entry(key, reg_item);
     r->Set(config_entry);
  }
+ //...........................................................................
+ template<class T> T GetValueOrUseDefault(
+                          Registry * r, string key, T def, bool set_def)
+ {
+  // Return the requested registry item. If it does not exist return
+  // the input default value (in this case, if set_def is true it can 
+  // override a lock and add the input default as a new registry item)
 
+   T value;
+   if(r->Exists(key)) { 
+      r->Get(key,value); return value;
+   }
+
+   value = def;
+   bool was_locked = r->IsLocked();
+   if(was_locked) r->UnLock();
+
+   if(set_def) r->Set(key, value);
+   if(was_locked) r->Lock();
+
+   return value;
+ }
+ //...........................................................................
  ostream & operator << (ostream & stream, const Registry & registry)
  {
    registry.Print(stream);
-
    return stream;
  }
 }
@@ -417,40 +438,24 @@ TTree * Registry::GetTTree(string key) const
   return item;
 }
 //____________________________________________________________________________
-bool Registry::GetBoolDef(string key, bool def_opt) const
+bool Registry::GetBoolDef(string key, bool def_opt, bool set_def) 
 {
-// Return the requested boolean registry item. If it does not exist return
-// the input default value
-
-  if(this->Exists(key)) return this->GetBool(key);
-  else return def_opt;
+  return GetValueOrUseDefault(this, key, def_opt, set_def);
 }
 //____________________________________________________________________________
-int Registry::GetIntDef(string key, int def_opt) const
+int Registry::GetIntDef(string key, int def_opt, bool set_def)
 {
-// Return the requested integer registry item. If it does not exist return
-// the input default value
-
-  if(this->Exists(key)) return this->GetInt(key);
-  else return def_opt;
+  return GetValueOrUseDefault(this, key, def_opt, set_def);
 }
 //____________________________________________________________________________
-double Registry::GetDoubleDef(string key, double def_opt) const
+double Registry::GetDoubleDef(string key, double def_opt, bool set_def) 
 {
-// Return the requested double registry item. If it does not exist return
-// the input default value
-
-  if(this->Exists(key)) return this->GetDouble(key);
-  else return def_opt;
+  return GetValueOrUseDefault(this, key, def_opt, set_def);
 }
 //____________________________________________________________________________
-string Registry::GetStringDef(string key, string def_opt) const
+string Registry::GetStringDef(string key, string def_opt, bool set_def) 
 {
-// Return the requested string registry item. If it does not exist return
-// the input default value
-
-  if(this->Exists(key)) return this->GetString(key);
-  else return def_opt;
+  return GetValueOrUseDefault(this, key, def_opt, set_def);
 }
 //____________________________________________________________________________
 bool Registry::Exists(string key) const

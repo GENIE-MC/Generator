@@ -53,6 +53,8 @@ private:
   double fFa0;
   double fMa2;
   double fMv2;
+  double fMuP;
+  double fMuN;
 };
 
 }       // genie namespace

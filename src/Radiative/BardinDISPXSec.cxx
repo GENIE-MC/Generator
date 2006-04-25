@@ -28,15 +28,15 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/Units.h"
-#include "Conventions/Utils.h"
 #include "Messenger/Messenger.h"
 #include "PDF/PDFModelI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "PDG/PDGLibrary.h"
 #include "Radiative/BardinDISPXSec.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
@@ -81,14 +81,6 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   double y  = kinematics.y();
   double Q2 = S(interaction) * x * y;
 
-  //----- get init & final quarks (only handle v/vbar CC) & CKM element
-  int    init_pdgc = target.StruckQuarkPDGCode();
-  int    fin_pdgc  = pdg::IsUQuark(init_pdgc) ? kPdgDQuark : kPdgUQuark;
-  double Vckm      = Utils::CkmElement(init_pdgc, fin_pdgc);
-  double Vckm2     = TMath::Power(Vckm,2.);
-
-  LOG("Bardin", pDEBUG) << "Vckm = " << Vckm;
-
   //----- Create PDF objects & attach PDFModels
   PDF pdf_x, pdf_xi;
 
@@ -98,6 +90,7 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   //----- Get init quark PDF at (x,Q2)
   pdf_x.Calculate(x, Q2);
   LOG("Bardin", pDEBUG) << pdf_x;
+  int init_pdgc = target.StruckQuarkPDGCode();
   double f_x  = PDFFunc( pdf_x,  init_pdgc )  / x;
 
   //----- Compute the differential cross section terms (1-3)
@@ -146,7 +139,7 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   LOG("Bardin", pDEBUG) << "term3 = " << term3;
 
   //----- Compute the differential cross section d^2xsec/dxdy
-  double Gfac = TMath::Power(kGF,2) * S(interaction) * Vckm2 / kPi;
+  double Gfac = TMath::Power(kGF,2) * S(interaction) * fVud2 / kPi;
   double xsec = Gfac * ( term1 + (kAem/kPi) * (term2 + term3) );
 
   LOG("Bardin", pINFO)
@@ -175,7 +168,7 @@ double BardinDISPXSec::PhiCCi(double xi, const Interaction * interaction) const
   double st   = St(xi, interaction);
   double u    = U(xi, interaction);
   double su   = Su(xi, interaction);
-  double f    = Utils::QuarkCharge(pdg);
+  double f    = PDGLibrary::Instance()->Find(pdg)->Charge();
   double ml2  = ml * ml;
   double st2  = st * st;
   double u2   = u  * u;
@@ -223,7 +216,7 @@ double BardinDISPXSec::DeltaCCi(const Interaction * interaction) const
   double sq_mZ2  = sq / kMz2;
   double Q2      = S(interaction) * x * y;
 
-  double f       = Utils::QuarkCharge(pdg);
+  double f       = PDGLibrary::Instance()->Find(pdg)->Charge();
   double f2      = f*f;
 
   LOG("Bardin", pDEBUG) << "ml      = " << ml;
@@ -271,7 +264,7 @@ double BardinDISPXSec::Ii(double xi, const Interaction * interaction) const
   double u    = U(xi, interaction);
   double su   = Su(xi, interaction);
   double t    = tau(xi, interaction);
-  double f    = Utils::QuarkCharge(pdg);
+  double f    = PDGLibrary::Instance()->Find(pdg)->Charge();
   double ml2  = ml  * ml;
   double mqi2 = mqi * mqi;
   double st2  = st  * st;
@@ -413,25 +406,26 @@ bool BardinDISPXSec::ValidKinematics(const Interaction * interaction) const
 void BardinDISPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //__________________________________________________________________________
 void BardinDISPXSec::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //__________________________________________________________________________
-void BardinDISPXSec::LoadConfigData(void)
+void BardinDISPXSec::LoadConfig(void)
 {
-  fMqf = fConfig->GetDoubleDef("final-quark-mass", 0.1);
-}
-//__________________________________________________________________________
-void BardinDISPXSec::LoadSubAlg(void)
-{
-  fPDFModel   = 0;
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  fVud  = fConfig->GetDoubleDef("Vud", gc->GetDouble("CKM-Vud"));
+  fVud2 = TMath::Power(fVud,2);
+
+  fMqf  = fConfig->GetDoubleDef("final-quark-mass", 0.1);
+
+  fPDFModel = 0;
   fPDFModel = dynamic_cast<const PDFModelI *> (
                          this->SubAlg("pdf-alg-name","pdf-param-set"));
   assert(fPDFModel);

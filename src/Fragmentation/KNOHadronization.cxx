@@ -211,37 +211,16 @@ TClonesArray * KNOHadronization::Hadronize(
 void KNOHadronization::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void KNOHadronization::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void KNOHadronization::LoadSubAlg(void)
-{
-// Reads its configuration from its Registry and loads all the sub-algorithms
-// needed
-
-  fMultProbModel = 0;
-  fDecayer       = 0;
-
-  fMultProbModel = dynamic_cast<const MultiplicityProbModelI *> (
-    this->SubAlg("multiplicity-prob-alg-name", "multiplicity-prob-param-set"));
-  assert(fMultProbModel);
-
-  if(fForceDecays) {
-      fDecayer = dynamic_cast<const DecayModelI *> (
-                       this->SubAlg("decayer-alg-name", "decayer-param-set"));
-      assert(fDecayer);
-  }
-}
-//____________________________________________________________________________
-void KNOHadronization::LoadConfigData(void)
+void KNOHadronization::LoadConfig(void)
 {
   // Force decays of unstable hadronization products?
   fForceDecays  = fConfig->GetBoolDef("force-decays", false);
@@ -258,6 +237,19 @@ void KNOHadronization::LoadConfigData(void)
   fPpic = fConfig->GetDoubleDef("prob-fs-piplus-piminus", 0.60); // pi+ pi-
   fPKc  = fConfig->GetDoubleDef("prob-fs-Kplus-Kminus",   0.05); // K+  K-
   fPK0  = fConfig->GetDoubleDef("prob-fs-K0-K0bar",       0.05); // K0  K0bar
+
+  fMultProbModel = 0;
+  fDecayer       = 0;
+
+  fMultProbModel = dynamic_cast<const MultiplicityProbModelI *> (
+    this->SubAlg("multiplicity-prob-alg-name", "multiplicity-prob-param-set"));
+  assert(fMultProbModel);
+
+  if(fForceDecays) {
+      fDecayer = dynamic_cast<const DecayModelI *> (
+                       this->SubAlg("decayer-alg-name", "decayer-param-set"));
+      assert(fDecayer);
+  }
 }
 //____________________________________________________________________________
 vector<int> * KNOHadronization::GenerateFSHadronCodes(

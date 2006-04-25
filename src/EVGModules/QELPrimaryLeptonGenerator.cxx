@@ -1,16 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::QELPrimaryLeptonGenerator
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - October 03, 2004
 
-\brief   Generates the final state primary lepton in v QEL interactions.
+ For the class documentation see the corresponding header file.
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created October 03, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

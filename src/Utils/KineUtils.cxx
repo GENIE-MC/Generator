@@ -17,7 +17,7 @@
 
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
-#include "Interaction/KineVar.h"
+#include "Conventions/KineVar.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
@@ -364,6 +364,34 @@ double genie::utils::kinematics::EnergyThreshold(
   }
   return Ethr;
 }
+//____________________________________________________________________________
+/*
+Range1D_t genie::utils::kinematics::WQ2PhaseSpaceVolume(
+                                                 const Interaction * const in)
+{
+  double vol = 0;
+
+  Range1D_t WR = WRange(in);
+  if(W.max==0) return 0;
+
+  const int kNW  = 100;  
+  const int kNQ2 = 100;  
+
+  double dW = (WR.max-WR.min)/(kNW-1);	
+
+  Interaction interaction(*in);
+
+  for(iw=0; iw<kNW; iw++) {
+    double W = W.min + iw*dW;
+    interaction.GetKinematicsPtr().SetW(W);
+    Range1D_t Q2R = Q2Range_W(interaction);
+    double dQ2 = (Q2R.max-Q2R.min)/(kNQ2-1);	
+    for(iq=0; iq<kNQ2; iq++) {
+      vol += (dW*dQ2);
+    } 
+  }
+  return vol;
+}*/
 //____________________________________________________________________________
 bool genie::utils::kinematics::IsAboveCharmThreshold(
                              const Interaction * const interaction, double mc)

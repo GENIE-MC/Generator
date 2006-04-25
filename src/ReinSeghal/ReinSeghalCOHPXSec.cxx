@@ -1,33 +1,22 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::ReinSeghalCOHPXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - March 11, 2005
 
-\brief    Computes the double differential cross section for CC & NC coherent 
-          pion production according to the \b Rein-Seghal model.
-          v(vbar)A->v(vbar)Api0, vA->l-Api+, vbarA->l+Api-
-        
-          The computed cross section is the d^3 xsec/ dx dy dt
-          where \n
-            \li \c x : Bjorken x = Q2/2Mv
-            \li \c y : Inelasticity y=v/E, v=E-E'
-          The t dependence is analytically integrated out.
+ For the class documentation see the corresponding header file.
 
-          Is a concrete implementation of the XSecAlgorithmI interface.
+ Important revisions after version 2.0.0 :
 
-\ref      D.Rein and L.M.Seghal, Coherent pi0 production in neutrino
-          reactions, Nucl.Phys.B223:29-144 (1983)
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  March 11, 2005
-
-____________________________________________________________________________*/
+*/
+//____________________________________________________________________________
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Messenger/Messenger.h"
@@ -175,24 +164,23 @@ bool ReinSeghalCOHPXSec::ValidKinematics(const Interaction* interaction) const
 void ReinSeghalCOHPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void ReinSeghalCOHPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalCOHPXSec::LoadConfigData(void)
+void ReinSeghalCOHPXSec::LoadConfig(void)
 {
-// at algorithm instantiation/configuration fill private data members with the
-// configuration data from its Registry (or set defaults) to avoid looking-up
-// the Registry all the time...
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
 
-  fMa   = fConfig->GetDoubleDef("Ma",         kCohMa      );
-  fReIm = fConfig->GetDoubleDef("Re-Im-Ampl", kCohReImAmpl);
-  fRo   = fConfig->GetDoubleDef("Ro",         kCohR0      );
+  fMa   = fConfig->GetDoubleDef("Ma",         gc->GetDouble("COH-Ma"));
+  fReIm = fConfig->GetDoubleDef("Re-Im-Ampl", gc->GetDouble("COH-ReImAmpl"));
+  fRo   = fConfig->GetDoubleDef("Ro",         gc->GetDouble("COH-Ro"));
 }
 //____________________________________________________________________________
 

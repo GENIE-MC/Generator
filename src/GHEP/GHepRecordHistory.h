@@ -1,19 +1,22 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::GHepRecordHistory
+\class    genie::GHepRecordHistory
 
-\brief   Holds the history of the GHEP event record as it being modified by 
-         the processing steps of an event generation thread.
-         The event record history can be used to step back in the generation
-         sequence if a processing step is to be re-run (this the GENIE event
-         generation framework equivalent of an 'Undo')
+\brief    Holds the history of the GHEP event record as it being modified by 
+          the processing steps of an event generation thread.
+          The event record history can be used to step back in the generation
+          sequence if a processing step is to be re-run (this the GENIE event
+          generation framework equivalent of an 'Undo')
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-\created September 23, 2005
+\created  September 23, 2005
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

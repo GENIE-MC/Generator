@@ -1,18 +1,20 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::COHKinematicsGenerator
+\class    genie::COHKinematicsGenerator
 
-\brief   Generates values for the kinematic variables describing coherent NC
-         neutrino interaction events.
+\brief    Generates values for the kinematic variables describing coherent NC
+          neutrino interaction events.
+          Is a concrete implementation of the EventRecordVisitorI interface.
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+\created  October 03, 2004
 
-\created October 03, 2004
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
@@ -43,8 +45,7 @@ public :
 public:
 
   //-- methods to load sub-algorithms and config data from the Registry
-  void LoadSubAlg     (void);
-  void LoadConfigData (void);
+  void LoadConfig (void);
 
   //-- compute kinematical limits
   Range1D_t yRange (const Interaction * in) const;

@@ -1,17 +1,19 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::RESKinematicsGenerator
+\class    genie::RESKinematicsGenerator
 
-\brief   Generates resonance event (v+N->l+Resonance) kinematics.
+\brief    Generates resonance event (v+N->l+Resonance) kinematics.
+          Is a concrete implementation of the EventRecordVisitorI interface.
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+\created  November 18, 2004
 
-\created November 18, 2004
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

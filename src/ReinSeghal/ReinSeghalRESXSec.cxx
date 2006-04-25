@@ -1,31 +1,13 @@
 //____________________________________________________________________________
-/*!
+/*
+ See the corresponding header file for the class documentation.
 
-\class    genie::ReinSeghalRESXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - March 09, 2006
 
-\brief    Computes the cross section for an exclusive 1pi reaction through
-          resonance neutrinoproduction according to the Rein-Seghal model.
-
-          This algorithm produces in principle what you could also get from 
-          the genie::RESXSec algorithm (RES cross section integrator) by 
-          specifying the genie::ReinSeghalRESPXSec as the differential 
-          (d2xsec/dQ2dW) cross section model. However, ReinSeghalRESXSec
-          offers a faster alternative. Before computing any RES cross section
-          this algorithm computes and caches splines for resonance neutrino-
-          production cross sections. This improves the speed of the GENIE
-          spline construction phase if splines for multiple nuclear targets
-          are to be computed.
-
-          Is a concrete implementation of the XSecAlgorithmI interface.\n
-
-\ref      D.Rein and L.M.Seghal, Neutrino Excitation of Baryon Resonances
-          and Single Pion Production, Ann.Phys.133, 79 (1981)
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  March 09, 2006
-
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

@@ -16,13 +16,12 @@
 
 #include <TMath.h>
 
-#include "Conventions/Constants.h"
+#include "Algorithm/AlgConfigPool.h"
 #include "Elastic/DipoleELFormFactorsModel.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;
-using namespace genie::constants;
 
 //____________________________________________________________________________
 DipoleELFormFactorsModel::DipoleELFormFactorsModel() :
@@ -61,7 +60,7 @@ double DipoleELFormFactorsModel::Gmp(const Interaction * interaction) const
 {
   // calculate & return Gm
   double q2 = interaction->GetKinematics().q2();
-  double gm = kMuP / TMath::Power(1-q2/fMv2, 2);
+  double gm = fMuP / TMath::Power(1-q2/fMv2, 2);
 
   LOG("ELFormFactors", pDEBUG) << "Gmp(q^2 = " << q2 << ") = " << gm;
   return gm;
@@ -71,7 +70,7 @@ double DipoleELFormFactorsModel::Gmn(const Interaction * interaction) const
 {
   // calculate & return Gm
   double q2 = interaction->GetKinematics().q2();
-  double gm = kMuN / TMath::Power(1-q2/fMv2, 2);
+  double gm = fMuN / TMath::Power(1-q2/fMv2, 2);
 
   LOG("ELFormFactors", pDEBUG) << "Gmn(q^2 = " << q2 << ") = " << gm;
   return gm;
@@ -91,9 +90,19 @@ void DipoleELFormFactorsModel::Configure(string param_set)
 //____________________________________________________________________________
 void DipoleELFormFactorsModel::LoadConfig(void)
 {
-  // get Mv2 (vector mass squared) from the configuration registry if it
-  // exists, otherwise use the default value
-  fMv2 = fConfig->GetDoubleDef("Mv2", kElMv2);
+// get config options from the configuration registry or set defaults 
+// from the global parameter list
+
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  // vector mass
+  fMv  = fConfig->GetDoubleDef("Mv", gc->GetDouble("EL-Mv"));
+  fMv2 = TMath::Power(fMv,2);
+
+  // anomalous magnetic moments
+  fMuP = fConfig->GetDoubleDef("MuP", gc->GetDouble("AnomMagnMoment-P"));
+  fMuN = fConfig->GetDoubleDef("MuN", gc->GetDouble("AnomMagnMoment-N"));
 }
 //____________________________________________________________________________
 

@@ -1,25 +1,26 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::RESHadronicSystemGenerator
+\class    genie::RESHadronicSystemGenerator
 
-\brief   Generates the 'final state' hadronic system in v RES interactions.
+\brief    Generates the 'final state' hadronic system in v RES interactions.
+          It adds the remnant nucleus (if any), the pre-selected resonance
+          and the resonance decay products at the GHEP record. 
+          Unlike the SPP thread, in the RES thread the resonance is specified
+          at the time an interaction is selected but its decay products not
+          (semi-inclusive resonance reactions). The off the mass-shell baryon
+          resonance is decayed using a phase space generator. All kinematically
+          available decay channels are being used (not just 1 pi channels).
+          Is a concrete implementation of the EventRecordVisitorI interface.
 
-         It adds the remnant nucleus (if any), the pre-selected resonance
-         and the resonance decay products at the GHEP record. 
-         Unlike the SPP thread, in the RES thread the resonance is specified
-         at the time an interaction is selected but its decay products not
-         (semi-inclusive resonance reactions). The off the mass-shell baryon
-         resonance is decayed using a phase space generator. All kinematically
-         available decay channels are being used (not just 1 pi channels).
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
+\created  November 23, 2004
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created November 23, 2004
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

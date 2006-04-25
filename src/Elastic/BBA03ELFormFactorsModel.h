@@ -49,22 +49,24 @@ public:
 
 private:
 
+  // fill data members from the configuration Registry
+  void LoadConfig(void);
+  void LoadBBA2003Params(void);
+
   // the actual BBA2003 inverse polynomial fit function
   double BBA03Fit(double q2, double g0, const BBA2003Fit_t & fp) const;
 
-  // fill data members from the configuration Registry
-  void LoadBBA2003Params(void);
-
-  // BBA2003 model parameters.
-  // These are filled in by the configuration Registry entries
-  // or are set to defaults.
+  // model parameters.
   BBA2003Fit_t fGep;   ///< BBA2003 fit coefficients for Gep
   BBA2003Fit_t fGmp;   ///< BBA2003 fit coefficients for Gmp
   BBA2003Fit_t fGmn;   ///< BBA2003 fit coefficients for Gmn
   double       fGenA;  ///< Krutov parameterization for Gen
   double       fGenB;  ///< Krutov parameterization for Gen
   double       fQ2Max; ///< Gep/Gmp assummed const for Q2 > Q2Max
-  double       fMv2;   ///< Elactic vector mass ^ 2
+  double       fMv;    ///< Elactic vector mass 
+  double       fMv2;   ///< Elactic vector mass 
+  double       fMuP;   ///< Anomalous proton magnetic moment
+  double       fMuN;   ///< Anomalous neutron magnetic moment
 };
 
 }         // genie namespace

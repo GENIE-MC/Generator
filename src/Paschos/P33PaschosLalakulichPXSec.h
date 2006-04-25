@@ -61,6 +61,7 @@ private:
   bool   fTurnOnPauliCorrection;
   double fMa;
   double fMv;
+  double fCos28c;
 };
 
 }       // genie namespace

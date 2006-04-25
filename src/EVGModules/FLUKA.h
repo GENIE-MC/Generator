@@ -1,31 +1,33 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::FLUKA
+\class    genie::FLUKA
 
-\brief   A GENIE interface to the FLUKA hadron transport code.
+\brief    A GENIE interface to the FLUKA hadron transport code.
+          Is a concerete implementation of the EventRecordVisitorI interface.
 
-         Is a concerete implementation of the EventRecordVisitorI interface.
+          Note: the FLUKA code is *not included* in your GENIE installation.
+          You need to obtain FLUKA from its official distribution point.
 
-         Note: the FLUKA code is *not included* in your GENIE installation.
-         You need to obtain FLUKA from its official distribution point.
+\ref      More information at: http://www.fluka.org
 
-\ref     More information at: http://www.fluka.org
+          FLUKA Authors:
+          G.Battistoni, A.Ferrari, P.R.Sala (INFN & Univ. Milano, CERN)
 
-         FLUKA Authors:
-         G.Battistoni, A.Ferrari, P.R.Sala (INFN & Univ. Milano, CERN)
+          The FLUKA code is maintained and developed under INFN-CERN agreement
+          and copyright 1989-2005.
 
-         The FLUKA code is maintained and developed under INFN-CERN agreement
-         and copyright 1989-2005.
+          Please cite FLUKA separately if you include this event generation
+          module in your event generation threads.
 
-         Please cite FLUKA separately if you include this event generation
-         module in your event generation threads.
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+\created  December 13, 2005
 
-\created December 13, 2005
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

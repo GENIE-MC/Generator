@@ -53,8 +53,7 @@ public:
 
 private:
 
-  void          LoadConfigData        (void);
-  void          LoadSubAlg            (void);
+  void          LoadConfig            (void);
   vector<int> * GenerateFSHadronCodes (int mult, int maxQ, double W) const;
   int           GenerateBaryonPdgCode (int mult, int maxQ)           const;
   int           HadronShowerCharge    (const Interaction * proc)     const;

@@ -1,30 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::FLUKA
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - December 13, 2005
 
-\brief   A GENIE interface to the FLUKA hadron transport code.
+ For the class documentation see the corresponding header file.
 
-         Is a concerete implementation of the EventRecordVisitorI interface.
-
-         Note: the FLUKA code is *not included* in your GENIE installation.
-         You need to obtain FLUKA from its official distribution point.
-
-\ref     More information at: http://www.fluka.org
-
-         FLUKA Authors:
-         G.Battistoni, A.Ferrari, P.R.Sala (INFN & Univ. Milano, CERN)
-
-         The FLUKA code is maintained and developed under INFN-CERN agreement
-         and copyright 1989-2005.
-
-         Please cite FLUKA separately if you include this event generation
-         module in your event generation threads.
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created December 13, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

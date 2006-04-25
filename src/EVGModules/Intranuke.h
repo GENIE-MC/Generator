@@ -1,23 +1,25 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::Intranuke
+\class    genie::Intranuke
 
-\brief   The INTRANUKE cascading MC for intranuclear rescattering.
+\brief    The INTRANUKE cascading MC for intranuclear rescattering.
+          Is a concrete implementation of the EventRecordVisitorI interface.
 
-         Is a concrete implementation of the EventRecordVisitorI interface.
+\ref      R.Merenyi et al., Phys.Rev.D45 (1992)
+          R.D.Ransome, Nucl.Phys.B 139 (2005)
 
-\ref     R.Merenyi et al., Phys.Rev.D45 (1992)
-         R.D.Ransome, Nucl.Phys.B 139 (2005)
+          The original INTRANUKE cascade MC was developed (in fortran) for the
+          NeuGEN MC by G.F.Pearce, R.Edgecock, W.A.Mann and H.Gallagher.
 
-         The original INTRANUKE cascade MC was developed (in fortran) for the
-         NeuGEN MC by G.F.Pearce, R.Edgecock, W.A.Mann and H.Gallagher.
+\author   Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
+          Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> CCLRC, Rutherford Lab
 
-\author  Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
-         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> CCLRC, Rutherford Lab
+\created  September 20, 2005
 
-\created September 20, 2005
-
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
@@ -51,7 +53,7 @@ public :
 
 private:
 
-  void        LoadConfigData            (void);
+  void        LoadConfig                (void);
   void        TransportInPhysicalNuc    (GHepRecord * ev) const;
   void        TransportInTransparentNuc (GHepRecord * ev) const;
   void        GenerateVertex            (GHepRecord * ev) const;

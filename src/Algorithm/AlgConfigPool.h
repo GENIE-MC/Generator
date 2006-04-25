@@ -45,6 +45,8 @@ public:
   Registry * FindRegistry (const Algorithm * algorithm)       const;
   Registry * FindRegistry (const AlgId & algid)               const;
 
+  const Registry * GlobalParameterList(void) const;
+
   const vector<string> & ConfigKeyList (void) const;
 
   void Print(ostream & stream) const;
@@ -62,7 +64,9 @@ private:
   string BuildConfigKey      (const Algorithm * algorithm) const;
   bool   LoadAlgConfig       (void);
   bool   LoadMasterConfig    (void);
+  bool   LoadGlobalParamLists(void);
   bool   LoadSingleAlgConfig (string alg_name, string file_name);
+  bool   LoadRegistries      (string key_base, string file_name, string root);
   void   AddConfigParameter  (Registry * r, string pt, string pn, string pv);
   void   AddBasicParameter   (Registry * r, string pt, string pn, string pv);
   void   AddRootObjParameter (Registry * r, string pt, string pn, string pv);

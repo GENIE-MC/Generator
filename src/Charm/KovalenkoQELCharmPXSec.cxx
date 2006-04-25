@@ -27,10 +27,9 @@
 */
 //____________________________________________________________________________
 
-#include <iostream>
-
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Charm/KovalenkoQELCharmPXSec.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -116,7 +115,7 @@ double KovalenkoQELCharmPXSec::ZR(const Interaction * interaction) const
   double D0    = this->DR(interaction, true); // D^R(Q^2=0)
   double sumF2 = this->SumF2(interaction);    // FA^2+F1^2
 
-  double Z  = 2*Mo2*kSin8c2 * sumF2 / (D0 * (MR2-Mnuc2));
+  double Z  = 2*Mo2*fSin8c2 * sumF2 / (D0 * (MR2-Mnuc2));
   return Z;
 }
 //____________________________________________________________________________
@@ -324,19 +323,20 @@ bool KovalenkoQELCharmPXSec::ValidKinematics(
 void KovalenkoQELCharmPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void KovalenkoQELCharmPXSec::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void KovalenkoQELCharmPXSec::LoadConfigData(void)
+void KovalenkoQELCharmPXSec::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   // Get config values or set defaults
   fF2LambdaP   = fConfig->GetDoubleDef("F1^2+FA^2-LambdaP", 2.07);
   fF2SigmaP    = fConfig->GetDoubleDef("F1^2+FA^2-SigmaP",  0.71);
@@ -353,10 +353,13 @@ void KovalenkoQELCharmPXSec::LoadConfigData(void)
   fQ2min = fConfig->GetDoubleDef("Q2max",  999999);
 
   assert(fQ2min < fQ2max);
-}
-//____________________________________________________________________________
-void KovalenkoQELCharmPXSec::LoadSubAlg(void)
-{
+
+  // cabbibo angle
+  double thc = fConfig->GetDoubleDef(
+                             "cabbibo-angle", gc->GetDouble("CabbiboAngle"));
+  fSin8c2 = TMath::Power(TMath::Sin(thc), 2);
+
+  // PDF model and integrator
   fPDFModel   = 0;
   fIntegrator = 0;
 

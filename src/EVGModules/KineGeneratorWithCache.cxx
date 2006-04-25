@@ -1,22 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::KineGeneratorWithCache
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - December 15, 2004
 
-\brief   Abstract class. Provides a data caching mechanism for for concrete
-         implementations of the EventRecordVisitorI interface, generating
-         kinematics and wishing to cache maximum differential xsecs.
+ For the class documentation see the corresponding header file.
 
-         This class provides some common implementation for handling
-         (retrieving, creating, searching, adding to) the cache.
-         The various super-classes should implement the ComputeMaxXSec(...)
-         method for computing the maximum xsec in case it has not already
-         being pushed into the cache at a previous iteration.
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created December 15, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

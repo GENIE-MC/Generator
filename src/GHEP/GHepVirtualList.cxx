@@ -1,20 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::GHepVirtualList
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - July 16, 2005
 
-\brief   A GHepVirtualList is a 'virtual' collection of GHepParticles.
-         Is virtual because it does not own but only points to GHepParticles
-         owned by the generated GHepRecord.
-         Use it if in your event generation algorithm you need to define & use
-         a GHepRecord subset (without duplicating the GHepParticle entries)
-         All 'named' lists are managed by the GHepVirtualListFolder singleton
-         and get cleared after the generation of each event is completed.
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created July 16, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

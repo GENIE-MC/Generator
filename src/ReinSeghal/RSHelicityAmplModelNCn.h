@@ -13,6 +13,9 @@
 
 \created  May 03, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
@@ -32,6 +35,16 @@ public:
 
   //-- RSHelicityAmplModelI interface implementation
   RSHelicityAmpl * Compute(Resonance_t res, const FKR & fkr) const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
+
+private:
+  void LoadConfig(void);
+
+  double fSin28w;
 };
 
 }        // genie namespace

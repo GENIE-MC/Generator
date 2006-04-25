@@ -1,19 +1,22 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::GHepSummaryBuilder
+\class    genie::GHepSummaryBuilder
 
-\brief   An object that knows how to look at the GHEP event record and extract
-         summary information.
-         The summary builder is used for building the plain (PR) ntuple which
-         can also be generated for GHEP records converted from other generator
-         outputs.
+\brief    An object that knows how to look at the GHEP event record and extract
+          summary information.
+          The summary builder is used for building the plain (PR) ntuple which
+          can also be generated for GHEP records converted from other generator
+          outputs.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-\created July 10, 2005
+\created  July 10, 2005
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

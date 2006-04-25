@@ -19,6 +19,7 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Base/QELFormFactors.h"
 #include "Base/QELFormFactorsModelI.h"
 #include "Conventions/Constants.h"
@@ -94,7 +95,7 @@ double QELPXSec::XSec(const Interaction * interaction) const
   double Fp2     = TMath::Power(Fp,    2);
   double F1V2    = TMath::Power(F1V,   2);
   double xiF2V2  = TMath::Power(xiF2V, 2);
-  double Gfactor = M2*kGF2*kCos8c2 / (8*kPi*E2);
+  double Gfactor = M2*kGF2*fCos8c2 / (8*kPi*E2);
   double s_u     = 4*E*M + q2 - ml2;
   double q2_M2   = q2/M2;
 
@@ -152,9 +153,7 @@ bool QELPXSec::ValidProcess(const Interaction * interaction) const
   bool isnu  = pdg::IsNeutrino(nu);
   bool isnub = pdg::IsAntiNeutrino(nu);
 
-  bool ccprcok = proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu));
-  bool ncprcok = proc_info.IsWeakNC() && (isP||isN) && (isnu||isnub);
-  bool prcok   = ccprcok || ncprcok;
+  bool prcok = proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu));
   if(!prcok) return false;
 
   return true;
@@ -194,19 +193,25 @@ bool QELPXSec::ValidKinematics(const Interaction * interaction) const
 void QELPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void QELPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void QELPXSec::LoadSubAlg(void)
+void QELPXSec::LoadConfig(void)
 {
-  fFormFactorsModel = 0;
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+  
+  double thc = fConfig->GetDoubleDef(
+                              "cabbibo-angle", gc->GetDouble("CabbiboAngle"));
+  fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
+  fFormFactorsModel = 0;
   fFormFactorsModel = dynamic_cast<const QELFormFactorsModelI *> (
              this->SubAlg("form-factors-alg-name", "form-factors-param-set"));
   assert(fFormFactorsModel);

@@ -13,10 +13,8 @@ include $(GENIE)/src/Make.include
 
 ifndef GOPT_NEUGEN
   BUILD_TARGETS := dummy-neugen
-else
-  BUILD_TARGETS := neugen
 endif
-BUILD_TARGETS := $(BUILD_TARGETS) std
+BUILD_TARGETS := $(BUILD_TARGETS) all
 
 all: $(BUILD_TARGETS)
 
@@ -27,11 +25,10 @@ all:
 	cd NuVldGUI;           make; cd ..;    \
 	cd app;                make; cd ..; 
 
-std:
+std-libs:
 	cd XmlParser;          make; cd ..;    \
 	cd DBUtils;            make; cd ..;    \
 	cd NuVldGUI;           make; cd ..;    \
-	cd app;                make; cd ..; 
 
 dummy-neugen:
 	cd Facades/dummy/;     make; cd ../..;  

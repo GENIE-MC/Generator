@@ -20,8 +20,6 @@
 #include "Fragmentation/PythiaHadronization.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
-#include "PDF/PDF.h"
-#include "PDF/PDFModelI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
@@ -69,6 +67,8 @@ TClonesArray * PythiaHadronization::Hadronize(
 
   double W = kinematics.W();
 
+  assert( target.StruckQuarkIsSet() ); 
+
   int  probe       = init_state.GetProbePDGCode();
   int  hit_nucleon = target.StruckNucleonPDGCode();
   int  hit_quark   = target.StruckQuarkPDGCode();
@@ -76,11 +76,9 @@ TClonesArray * PythiaHadronization::Hadronize(
 
   LOG("PythiaHad", pINFO)
           << "Hit nucleon pdgc = " << hit_nucleon << ", W = " << W;
-  if(target.StruckQuarkIsSet()) {
-     LOG("PythiaHad", pINFO)
+  LOG("PythiaHad", pINFO)
             << "Selected hit quark pdgc = " << hit_quark
                            << ((from_sea) ? "[sea]" : "[valence]");
-  }
 
   //-- check hit-nucleon assignment, input neutrino & weak current
   bool isp  = pdg::IsProton(hit_nucleon);
@@ -103,89 +101,7 @@ TClonesArray * PythiaHadronization::Hadronize(
     exit(1);
   }
 
-  //-- if there is no hit quark in the input interaction, then generate
-  //   one using the specified PDF set
-  if(!target.StruckQuarkIsSet()) {
-     LOG("PythiaHad", pINFO)
-        << "No input hit quark. Selecting one based on specified PDF set";
-
-     const PDFModelI * pdf_model =
-               dynamic_cast<const PDFModelI *>
-                          (this->SubAlg("pdf-alg-name", "pdf-param-set"));
-     double x  = kinematics.x();
-     double Q2 = utils::kinematics::CalcQ2(interaction);
-
-     assert(x>0 && x<1);
-
-     PDF pdf;
-     pdf.SetModel(pdf_model);
-     pdf.Calculate(x,Q2);
-
-     double xuv  = pdf.UpValence();
-     double xus  = pdf.UpSea();
-     double xdv  = pdf.DownValence();
-     double xds  = pdf.DownSea();
-
-     // modify pdfs so an not to select quarks that can not
-     // give the specified interaction with the input quark
-     // (CC: only v+d, v+bar{u}, bar{v}+bar{d}, bar{v}+u allowed)
-     if(iscc) {
-       if(isv)  xuv = 0.; // for v CC set u valence -> 0
-       if(isvb) xdv = 0.; // for bar{v} CC set d valence -> 0
-     }
-
-     double xu   = xuv + xus;
-     double xd   = xdv + xds;
-     double sum  = xu  + xd;
-
-     RandomGen * rnd = RandomGen::Instance();
-
-     // select struck quark & whether it comes from the sea
-     hit_quark = 0;
-     double t1 = sum * (rnd->Random1().Rndm());
-     double t2 = 0;
-     if(t1 > xu/sum) {
-       hit_quark = kPdgDQuark;
-       t2 = (xdv+xds) * (rnd->Random1().Rndm());
-       from_sea = true;
-       if (t2 > xds/(xdv+xds)) from_sea = false;
-     }
-     else {
-       hit_quark = kPdgUQuark;
-       t2 = (xuv+xus) * (rnd->Random1().Rndm());
-       from_sea = true;
-       if (t2 > xus/(xuv+xus)) from_sea = false;
-     }
-     // the above selection is ok for protons - for neutrons u<->d
-     if(isn) {
-       if      (hit_quark == kPdgUQuark) hit_quark = kPdgDQuark;
-       else if (hit_quark == kPdgDQuark) hit_quark = kPdgUQuark;
-       else {
-         LOG("PythiaHad", pERROR)
-               << "I was only expecting to see u,d quarks here";
-         exit(1);
-       }
-     }
-     // for sea quarks, turn a q to qbar with 50% probability
-     // (be careful not to create a quark not seen by the input
-     //  neutrino for the specified interaction)
-     if(from_sea) {
-       if(isnc) {
-         double t3 = rnd->Random1().Rndm();
-         if(t3 > 0.5) hit_quark *= (-1);
-       }
-       if(iscc && isv)
-          if(hit_quark == kPdgUQuark) hit_quark = kPdgUQuarkBar;
-       if(iscc && isvb)
-          if(hit_quark == kPdgDQuark) hit_quark = kPdgDQuarkBar;
-     }
-
-     LOG("PythiaHad", pINFO)
-         << "Selected hit quark pdgc = " << hit_quark
-                        << ((from_sea) ? "[sea]" : "[valence]");
-  }
-
-  //-- assert that the generated interaction mode is allowed
+  //-- assert that the interaction mode is allowed
   bool isu  = pdg::IsUQuark     (hit_quark);
   bool isd  = pdg::IsDQuark     (hit_quark);
   bool isub = pdg::IsUAntiQuark (hit_quark);
