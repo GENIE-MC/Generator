@@ -1,23 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::DISPXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - July 01, 2004
 
-\brief    Computes single differential DIS cross section.
+ For the class documentation see the corresponding header file.
 
-          It can be configured to compute either
-            \li dxsec / dx  where \c x is the Bjorken scaling variable, or
-            \li dxsec / dy  where \c y is the Inelasticity
-
-          This is a model-independent algorithm. It merely integrates the
-          specified double differential cross section.
-
-          Is a concrete implementation of the XSecAlgorithmI interface.
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  July 01, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

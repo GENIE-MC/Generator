@@ -1,23 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::RESPXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - March 03, 2005
 
-\brief    Computes single differential RES cross section.
+ For the class documentation see the corresponding header file.
 
-          It can be configured to compute either
-            \li dxsec / dQ2  where \c Q2 is the momentum transfer, or
-            \li dxsec / dW   where \c W is the hadronic invariant mass
-
-          This is a model-independent algorithm. It merely integrates the
-          specified double differential cross section.
-
-          Is a concrete implementation of the XSecAlgorithmI interface.
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  March 03, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

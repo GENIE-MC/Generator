@@ -1,15 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::BreitWignerLRes
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - November 22, 2004
 
-\brief    Concrete implementation of the BreitWignerI interface:
-          A realistic Breit-Wigner distribution with L-dependent width.
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  November 22, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

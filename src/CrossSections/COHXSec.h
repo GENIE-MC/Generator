@@ -3,8 +3,7 @@
 
 \class    genie::COHXSec
 
-\brief    Computes the cross section for COH neutrino-nucleus scattering.
-
+\brief    Computes the cross section for COH neutrino-nucleus scattering.\n
           Is a concrete implementation of the XSecAlgorithmI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -12,6 +11,9 @@
 
 \created  May 04, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

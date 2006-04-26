@@ -1,20 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::SchmitzMultiplicityModel
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - August 21, 2004
 
-\brief    The 'Schmitz' multiplicity probability model as used in NeuGEN.
-          Is a concerete implementation of the MultiplicityProbModelI interface.
-          
-\ref      N. Schmitz, Proc. Intl. Symp. on Lepton & Photon Interactions at
-          High Energies, Bonn 1981 p.527
-          The probability scaling factors for low multiplicity states (m=2,3)
-          have been taken from NeuGEN (H.Gallagher et al.)
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  August 21, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

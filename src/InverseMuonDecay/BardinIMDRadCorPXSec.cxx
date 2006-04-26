@@ -1,27 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::BardinIMDRadCorPXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - February 14, 2005
 
-\brief    Computes the Inverse Muon Decay (IMD) diff. cross section, dxsec/dy,
-          where y is the interaction inelasticity, using the Bardin -
-          Dokuchaeva model which includes all 1-loop radiative corrections. \n
+ For the class documentation see the corresponding header file.
 
-          This is a 'trully' inclusive IMD cross section, i.e. the brem. cross
-          section (dxsec_brem/dy)|w>w0 [see Bardin paper, cited below] is not
-          subtracted from the IMD cross section and therefore it is not suitable
-          for experimental situations where a photon energy trigger threshold
-          is applied.
-
-          BardinIMDRadCorPXSec is a concrete implementation of the
-          XSecAlgorithmI interface. \n
-
-\ref      D.Yu.Bardin and V.A.Dokuchaeva, Nucl.Phys.B287:839 (1987)
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  Fabruary 14, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

@@ -1,18 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::EGResponsibilityChain
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - October 04, 2004
 
-\brief   A chain of EventGenerators.
+ For the class documentation see the corresponding header file.
 
-         It implements a 'Chain of Responsibility' design pattern. \n
-         The appropriate EventGenerator is selected based on the compatibility
-         between its ModelValidityContext and the input Interaction.
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created October 04, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

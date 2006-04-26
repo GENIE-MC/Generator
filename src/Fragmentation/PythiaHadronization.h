@@ -3,8 +3,7 @@
 
 \class    genie::PythiaHadronization
 
-\brief    Provides access to the PYTHIA hadronization models.
-
+\brief    Provides access to the PYTHIA hadronization models. \n
           Is a concrete implementation of the HadronizationModelI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -12,6 +11,9 @@
 
 \created  August 17, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

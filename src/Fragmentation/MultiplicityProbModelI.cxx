@@ -1,20 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::MultiplicityProbModelI
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - August 21, 2004
 
-\brief    Pure abstract base class.
-          Defines the MultiplicityProbModelI interface to be implemented by
-          any algorithmic class computing multiplicity probability
-          distributions for a hadronization model.
+ For the class documentation see the corresponding header file.
 
-          Used in a Strategy Pattern together with the MultProbDistribution
-          class.
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  August 21, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

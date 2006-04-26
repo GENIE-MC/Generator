@@ -1,28 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::KovalenkoQELCharmPXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - June 10, 2004
 
-\brief    Computes the QEL Charm Production Differential Cross Section
-          using \b Kovalenko's duality model approach.
+ For the class documentation see the corresponding header file.
 
-          The computed differential cross section is the Dxsec = dxsec/dQ^2
-          where \n
-            \li \c Q2 is the momentum transfer.
-
-          It models the differential cross sections for: \n
-             \li v + n \rightarrow mu- + Lambda_{c}^{+} (2285)
-             \li v + n \rightarrow mu- + Sigma_{c}^{+}  (2455)
-             \li v + p \rightarrow mu- + Sigma_{c}^{++} (2455)
-
-          Is a concrete implementation of the XSecAlgorithmI interface.
-
-\ref      S.G.Kovalenko, Sov.J.Nucl.Phys.52:934 (1990)
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  June 10, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

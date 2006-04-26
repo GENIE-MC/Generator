@@ -239,6 +239,7 @@ GENERATE_BUGLIST       = YES
 ALIASES                = "created=\par Created:\n"
 ALIASES               += "package=\par Package:\n"
 ALIASES               += "ref=\par References:\n"
+ALIASES               += "cpright=\par License:\n"
 
 # The ENABLED_SECTIONS tag can be used to enable conditional 
 # documentation sections, marked by \if sectionname ... \endif.

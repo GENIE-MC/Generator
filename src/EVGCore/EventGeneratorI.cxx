@@ -1,22 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::EventGeneratorI
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - November 22, 2004
 
-\brief   Defines the EventGeneratorI interface.
+ For the class documentation see the corresponding header file.
 
-         The concrete implementations of this interface are Event Record
-         Visitors (subclasses of the EventRecordVisitorI pABC) that,
-         additionally, declare a 'Validity Context'. \n
-
-         The declared validity context is used for selecting the appropriate
-         concrete EventGeneratorI to generate the interacion at hand using
-         the 'chain-of-responsibility' design pattern.
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created November 22, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

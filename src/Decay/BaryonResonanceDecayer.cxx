@@ -1,28 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::BaryonResonanceDecayer
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - November 27, 2004
 
-\brief    Baryon resonance decayer.
+ For the class documentation see the corresponding header file.
 
-          A simple decayer based on resonance's branching fractions (BRs) and
-          an N-body phase space generator. Since the resonance can be produced
-          off-shell, decay channels with total-mass > W are suppressed. \n
-
-          Unlike PythiaDecayer, which relies on PYTHIA, this algorithm is not
-          based on any rich underlying model. Should be used for decaying
-          baryon resonances only. \n
-
-          The baryon resonance PDG codes follow the MINOS extensions to
-          PDG tables. \n
-
-          The BaryonResonanceDecayer is a concrete implementation of the
-          DecayModelI interface.
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  November 27, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

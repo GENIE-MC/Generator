@@ -3,8 +3,7 @@
 
 \class    genie::PythiaDecayer
 
-\brief    Interface to PYTHIA particle decayers.
-
+\brief    Interface to PYTHIA particle decayer. \n
           The PythiaDecayer is a concrete implementation of the DecayModelI
           interface.
 
@@ -13,6 +12,9 @@
 
 \created  June 20, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

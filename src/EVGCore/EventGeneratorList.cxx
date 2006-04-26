@@ -1,18 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::EventGeneratorList
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - January 25, 2004
 
-\brief   An abstract algorithmic class which can load a list of EventGenerator
-         objects specified by its XML configuration file. \n
-         To be subclassed by concrete algorithmic objects operating on a list
-         of EventGenerators, like an Interaction Selector or the EventGenerator
-         Chain of Responsibility.
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created January 25, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
@@ -29,7 +26,6 @@ namespace genie {
  ostream & operator << (ostream & stream, const EventGeneratorList & evgl)
  {
    evgl.Print(stream);
-
    return stream;
  }
 }

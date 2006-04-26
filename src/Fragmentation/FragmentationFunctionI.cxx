@@ -1,18 +1,17 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::FragmentationFunctionI
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - June 15, 2004
 
-\brief    Pure abstract base class.
-          Defines the FragmentationFunctionI interface to be implemented by
-          any algorithmic class implementing a fragmentation function.
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+ Important revisions after version 2.0.0 :
 
-\created  June 15, 2004
-
-*/ 
+*/
 //____________________________________________________________________________
 
 #include "Fragmentation/FragmentationFunctionI.h"

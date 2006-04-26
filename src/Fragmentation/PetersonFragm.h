@@ -4,7 +4,6 @@
 \class    genie::PetersonFragm
 
 \brief    The Peterson fragmentation function.
-
           Is a concrete implementation of the FragmentationFunctionI interface.
 
 \ref      C.Peterson et al., Phys.Rev.D23, 56 (1981)
@@ -14,6 +13,9 @@
 
 \created  June 15, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
