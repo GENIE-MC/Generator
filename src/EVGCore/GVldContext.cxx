@@ -1,14 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::GVldContext
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - November 20, 2004
 
-\brief   Validity Context for an Event Generator
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created November 20, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
@@ -29,19 +30,18 @@ namespace genie {
  ostream & operator<< (ostream& stream, const GVldContext & vldc)
  {
    vldc.Print(stream);
-
    return stream;
  }
 }
 //___________________________________________________________________________
 GVldContext::GVldContext()
 {
-  Init();
+  this->Init();
 }
 //___________________________________________________________________________
 GVldContext::GVldContext(const GVldContext & validity_context)
 {
-  Init();
+  this->Init();
 }
 //___________________________________________________________________________
 GVldContext::~GVldContext()
@@ -118,9 +118,7 @@ void GVldContext::DecodePROC(string encoded_proc)
   SLOG("VldContext", pDEBUG) << "Decoding PROC: " << encoded_proc;
 
   ScatteringType_t type = ScatteringType::FromString(encoded_proc);
-
   assert( type != kScNull );
-
   fProc = type;
 }
 //___________________________________________________________________________
@@ -131,19 +129,15 @@ void GVldContext::DecodeCURR(string encoded_curr)
   SLOG("VldContext", pDEBUG) << "Decoding CURR: " << encoded_curr;
 
   vector<string> curr = utils::str::Split(encoded_curr, ",");
-
   vector<string>::const_iterator curr_iter;
 
   if(fCurr) delete fCurr;
-
   fCurr = new vector<InteractionType_t>;
 
   for(curr_iter = curr.begin(); curr_iter != curr.end(); ++curr_iter) {
 
      InteractionType_t type = InteractionType::FromString(*curr_iter);
-
      assert( type != kIntNull );
-
      fCurr->push_back(type);
   }
 }
@@ -191,7 +185,6 @@ void GVldContext::Print(ostream & stream) const
            int_iter != fProbes->end(); ++int_iter)
                          stream << InteractionType::AsString(
                                       (InteractionType_t) *int_iter) << "  ";
-
 
   stream << "\n Energy range:......." << "[" << fEmin << ", " << fEmax << "]";
 

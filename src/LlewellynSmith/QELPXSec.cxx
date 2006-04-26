@@ -1,18 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::QELPXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 05, 2004
 
-\brief    Computes the differential Quasi Elastic cross section dxsec/dq^2.\n
-          Is a concrete implementation of the XSecAlgorithmI interface.\n
+ For the class documentation see the corresponding header file.
 
-\ref      C.H.Llewellyn Smith, Physics Reports (Sect. C of Physics Letters) 3,
-          No. 5  (1972) 261-379
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 05, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

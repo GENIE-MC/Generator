@@ -1,20 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::geometry::PointGeomAnalyzer
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - July 14, 2005
 
-\brief   The PointGeomAnalyzer class is the simplest implementation of the
-         GeomAnalyserI interface and defines a simple 'point-like' geometry.
+ For the class documentation see the corresponding header file.
 
-         Use this geometry analyzer to generate events when you do not want
-         to use a detailed GEANT/ROOT geometry description but you only need
-         to generate events for a 'single' nuclear target while you still want
-         to use the GENIE MC job driver 'loaded' with a GENIE flux driver.
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created July 14, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

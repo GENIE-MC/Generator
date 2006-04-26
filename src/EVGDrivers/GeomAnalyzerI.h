@@ -1,15 +1,18 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::GeomAnalyzerI
+\class    genie::GeomAnalyzerI
 
-\brief   Defines the GENIE Geometry Analyzer Interface
+\brief    Defines the GENIE Geometry Analyzer Interface
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
-\created July 13, 2005
+\created  July 13, 2005
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
@@ -28,7 +31,7 @@ class GeomAnalyzerI {
 
 public :
 
-  virtual ~GeomAnalyzerI() {}
+  virtual ~GeomAnalyzerI();
 
   // define the GeomAnalyzerI interface
 

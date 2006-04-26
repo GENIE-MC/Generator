@@ -18,6 +18,9 @@
 
 \created  November 25, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

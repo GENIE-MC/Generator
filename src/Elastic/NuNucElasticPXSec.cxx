@@ -1,19 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::NuNucElasticPXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - February 15, 2005
 
-\brief    Differential cross section dxsec/dQ^2 for v+N / vbar+N elastic 
-          scattering. \n
-          NuNucElasticPXSec is a concrete implementation of the
-          XSecAlgorithmI interface. \n
+ For the class documentation see the corresponding header file.
 
-\ref      L.A.Ahrens et al., Physical Review D, VOL 35,3:785 (1987)
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  Fabruary 15, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

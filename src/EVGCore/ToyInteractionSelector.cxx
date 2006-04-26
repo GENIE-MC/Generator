@@ -1,20 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::ToyInteractionSelector
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - December 05, 2004
 
-\brief   Generates random interactions.
+ For the class documentation see the corresponding header file.
 
-         This is a 'toy' InteractionSelectorI to be used in event generation
-         testing / debugging. Not to be used in event generation for physics
-         purposes.
-
-         Is a concrete implementation of the InteractionSelectorI interface.
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created December 05, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

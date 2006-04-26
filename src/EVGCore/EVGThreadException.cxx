@@ -1,15 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::exceptions::EVGThreadException
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - September 27, 2005
 
-\brief   An exception thrown by EventRecordVisitorI when the normal processing
-         sequence has to be disrupted (fast-fwd at the end or step-back)
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created September 27, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

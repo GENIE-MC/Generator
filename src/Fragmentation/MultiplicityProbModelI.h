@@ -8,14 +8,14 @@
           any algorithmic class computing multiplicity probability
           distributions for a hadronization model.
 
-          Used in a Strategy Pattern together with the MultProbDistribution
-          class.
-
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
 \created  August 21, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

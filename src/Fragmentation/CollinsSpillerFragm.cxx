@@ -1,20 +1,17 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::CollinsSpillerFragm
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - June 15, 2004
 
-\brief    The Collins-Spiller fragmentation function.
+ For the class documentation see the corresponding header file.
 
-          Is a concrete implementation of the FragmentationFunctionI interface.
-          
-\ref      P.D.B.Collins and T.P.Spiller, J.Phys.G11, 1289 (1984)
+ Important revisions after version 2.0.0 :
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  June 15, 2004
-
-*/ 
+*/
 //____________________________________________________________________________
 
 #include "Fragmentation/CollinsSpillerFragm.h"

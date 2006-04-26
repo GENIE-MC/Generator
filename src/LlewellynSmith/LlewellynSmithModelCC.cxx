@@ -1,18 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::LlewellynSmithModelCC
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 03, 2004
 
-\brief    Is a concrete implementation of the QELFormFactorsModelI:
-          Form Factors for Quasi Elastic CC vN scattering according to
-          Llewellyn-Smith model.
+ For the class documentation see the corresponding header file.
 
-\ref      H.Budd, A.Bodek, J.Arrington, NuINT02 proceedings
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 03, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

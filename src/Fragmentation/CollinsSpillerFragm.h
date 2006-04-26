@@ -3,8 +3,7 @@
 
 \class    genie::CollinsSpillerFragm
 
-\brief    The Collins-Spiller fragmentation function.
-
+\brief    The Collins-Spiller fragmentation function. \n
           Is a concrete implementation of the FragmentationFunctionI interface.
 
 \ref      P.D.B.Collins and T.P.Spiller, J.Phys.G11, 1289 (1984)
@@ -14,6 +13,9 @@
 
 \created  June 15, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

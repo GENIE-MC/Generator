@@ -1,14 +1,16 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::geometry::ROOTGeomAnalyzer
+ Author: Anselmo Meregaglia <anselmo.meregaglia@cern.ch>, ETH Zurich
+         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, CCLRC - Rutherford Lab
+         May 24, 2005
 
-\brief   A ROOT/GEANT Geometry Analyzer
+ For the class documentation see the corresponding header file.
 
-\author  Anselmo Meregaglia <anselmo.meregaglia@cern.ch>
-         ETH Zurich
-
-\created May 24, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

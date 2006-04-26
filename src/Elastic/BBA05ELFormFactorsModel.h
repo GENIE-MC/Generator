@@ -8,10 +8,14 @@
 
 \ref
 
-\author
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          CCLRC, Rutherford Appleton Laboratory
 
 \created  October 19, 2005
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 

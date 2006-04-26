@@ -1,26 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::NuElectronXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - February 10, 2006
 
-\brief    nu/nubar + e- scattering cross section. Integrates the loaded
-          differential cross section model. An analytical cross section
-          model also exists, so you cal also use that if you do not apply
-          any kinematical cuts.
+ For the class documentation see the corresponding header file.
 
-          The cross section algorithm handles:
-             - nue/nuebar + e- -> nue/nuebar + e- [CC + NC + interference]
-             - numu/nutau + e- -> numu/nutau + e- [NC]
-             - numubar/nutaubar + e- -> numubar/nutaubar + e- [NC]
-             - numu/nutau + e- -> l- + nu_e [CC]
-
-          NuElectronXSec is a concrete implementation of the XSecAlgorithmI
-          interface. \n
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  February 10, 2006
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

@@ -1,25 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::AivazisCharmPXSecLO
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - June 10, 2004
 
-\brief    Computes, at Leading Order (LO), the differential cross section for
-          neutrino charm production using the \b Aivazis,Olness,Tung model.
+ For the class documentation see the corresponding header file.
 
-          The computed cross section is the D2xsec = d^2(xsec) / dy dx \n
-          where \n
-            \li \c y is the inelasticity, and
-            \li \c x is the Bjorken scaling variable \c x
-
-          Is a concrete implementation of the XSecAlgorithmI interface.
-
-\ref      M.A.G.Aivazis, F.I.Olness and W.K.Tung
-          Phys.Rev.D50, 3085-3101 (1994)
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  June 10, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

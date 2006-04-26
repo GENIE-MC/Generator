@@ -1,23 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::flux::GFlukaAtmo3DFlux
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - July 03, 2005
 
-\brief   A flux driver for the FLUKA 3-D Atmospheric Neutrino Flux
+ For the class documentation see the corresponding header file.
 
-\ref     Astrop.Phys.19 (2003) p.269; hep-ph/0207035; hep-ph/9907408
-         Alfredo.Ferrari     <Alfredo.Ferrari@cern.ch>
-         Paola.Sala          <Paola.Sala@cern.ch>
-         Giuseppe Battistoni <Giuseppe.Battistoni@mi.infn.it>
-         Teresa Montaruli    <Teresa.Montaruli@ba.infn.it>
-
-         To be able to use this flux driver you will need to download the
-         flux data from:  http://lxmi.mi.infn.it/~battist/neutrino.html
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created July 3, 2005 [during the most boring MINOS shift ever!]
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
