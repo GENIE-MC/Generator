@@ -1,21 +1,16 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::P33PaschosLalakulichPXSec
+ Author: This class is based on code written by the model authors (Olga
+         Lalakulich, 17.02.2005). The code was modified to fit into the
+         GENIE framework by Costas Andreopoulos.
 
-\brief    Double differential resonance cross section d^2xsec / dQ^2 dW
-          for P33 according to the Paschos, Lalakuich model.
+ For the class documentation see the corresponding header file.
 
-          Is a concrete implementation of the XSecAlgorithmI interface.
-
-\ref      O.Lalakulich and E.A.Paschos, Resonance Production by Neutrinos:
-          I. J=3/2 Resonances, hep-ph/0501109
-
-\author   This class is based on code written by the model authors (Olga
-          Lalakulich, 17.02.2005). The code was modified to fit into the
-          GENIE framework by Costas Andreopoulos.
-
-\created  February 22, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

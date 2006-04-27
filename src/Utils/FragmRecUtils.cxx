@@ -1,17 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\namespace  genie::utils::fragmrec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - November 26, 2004
 
-\brief      Simple utilities for the Fragmentation Event Record.
+ For documentation see the corresponding header file.
 
-            The Fragmentation event record is a TClonesArray of TMCParticles -
-            equivalent to PYTHIA's PYJETS.
-
-\author     Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-            CCLRC, Rutherford Appleton Laboratory
-
-\created    November 26, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

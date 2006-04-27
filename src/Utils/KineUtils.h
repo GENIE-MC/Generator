@@ -10,6 +10,9 @@
 
 \created    Novemner 26, 2004
 
+\cpright    Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+            All rights reserved.
+            For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
@@ -39,7 +42,7 @@ namespace kinematics
   Range1D_t  q2Range_xy  (const Interaction * const interaction);
   Range1D_t  q2Range_M   (const Interaction * const interaction);
 
-//  Range1D_t  WQ2PhaseSpaceVolume   (const Interaction * const interaction);
+//  double  WQ2PhaseSpaceVolume   (const Interaction * const interaction);
 
   double     EnergyThreshold       (const Interaction * const interaction);
   bool       IsAboveCharmThreshold (const Interaction * const interaction, double mc);

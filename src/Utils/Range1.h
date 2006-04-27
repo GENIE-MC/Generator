@@ -1,4 +1,4 @@
-//_________________________________________________________
+//__________________________________________________________________________
 /*!
 
 \class    genie::Range1F_t
@@ -15,8 +15,11 @@
 
 \created  May 06, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
-//_________________________________________________________
+//__________________________________________________________________________
 
 #ifndef _RANGE_1_T_H_
 #define _RANGE_1_T_H_

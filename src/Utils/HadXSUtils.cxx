@@ -1,14 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\namespace  genie::utils::hadxs
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - March 11, 2004
 
-\brief      Simple functions and data for computing hadron interaction xsecs
+ For documentation see the corresponding header file.
 
-\author     Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-            CCLRC, Rutherford Appleton Laboratory
-
-\created    March 11, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
