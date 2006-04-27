@@ -1,17 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::GlashowResXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 04, 2005
 
-\brief    Nuebar cross section at the Glashow resonance (nuebar + e- -> W-).\n
-          Is a concrete implementation of the XSecAlgorithmI interface. \n
+ For the class documentation see the corresponding header file.
 
-\ref      T.K.Gaisser, F.Halzen and T.Stanev, Physics Reports 258:173 (1995)
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 04, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

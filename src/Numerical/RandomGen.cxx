@@ -1,23 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::RandomGen
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - September 22, 2004
 
-\brief    A singleton holding ROOT's random number generator classes
-          (TRandom, TRandom2, TRandom3).
+ For the class documentation see the corresponding header file.
 
-          All random number generation in GENIE should take place through
-          this class. \n
-
-          It prevents random number generator objects from being created (and
-          therefore re-initialized) by the different GENIE event generation
-          objects. In that case, one could end-up using the same few numbers
-          of a random number sequence again and again... \n
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  September 22, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

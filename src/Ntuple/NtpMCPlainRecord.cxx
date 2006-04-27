@@ -1,19 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::NtpMCPlainRecord
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - October 01, 2004
 
-\brief   MINOS-style ntuple record. Each such ntuple record holds an MC event
-         summary and a simplified version of the GHEP event record (as a
-         TClones array of NtpMCGHepEntry objects). Ntuples of this type are
-         intended for analysis in bare ROOT sessions.
+ For the class documentation see the corresponding header file.
 
-\brief   MINOS-style Ntuple Class to a single generated MC event
-
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created October 1, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

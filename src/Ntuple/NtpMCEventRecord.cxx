@@ -1,18 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::NtpMCEventRecord
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - October 01, 2004
 
-\brief   MINOS-style ntuple record. Each such ntuple record holds a generated
-         EventRecord object. Ntuples of this type are intended for feeding
-         GENIE events into other applications (for example the GEANT4 based
-         MC generation framework of an experiment) if no direct interface
-         exists.
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created October 1, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
