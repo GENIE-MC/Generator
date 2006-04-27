@@ -1,16 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::SimMCIntegrator
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 03, 2004
 
-\brief    A simple MC integrator for scalar functions in a multi-dimensional
-          parameter space. Note that the accuracy in simple MC integration
-          increases only as the sqrt(N).
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 03, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

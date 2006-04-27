@@ -1,22 +1,17 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::PDFModelI
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 04, 2004
 
-\brief    Pure abstract base class. Defines the PDFModelI interface to be
-          implemented by any algorithmic class computing Parton Density
-          Functions.
+ For the class documentation see the corresponding header file.
 
-          Wrapper classes to existing Parton Density Function
-          libraries (PDFLIB, LHAPDF) should also adopt this interface so as
-          to be integrated into the GENIE framework.
+ Important revisions after version 2.0.0 :
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 04, 2004
-
-*/ 
+*/
 //____________________________________________________________________________
 
 #include "PDF/PDFModelI.h"

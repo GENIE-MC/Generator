@@ -1,15 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::NtpWriter
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - October 01, 2004
 
-\brief   A utility class to facilitate creating the GENIE MC Ntuple from the
-         output GENIE GHEP event records.
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created October 1, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

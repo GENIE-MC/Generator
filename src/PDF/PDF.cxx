@@ -1,19 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::PDF
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 04, 2004
 
-\brief    A class to store PDFs.
+ For the class documentation see the corresponding header file.
 
-          This class is using the \b Strategy Pattern. \n
-          It can accept requests to calculate itself, for a given (x,q^2) pair,
-          that it then delegates to the algorithmic object, implementing the
-          PDFModelI interface, that it finds attached to itself.
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 04, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

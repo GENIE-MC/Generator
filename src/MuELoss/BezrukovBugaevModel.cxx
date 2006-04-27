@@ -1,24 +1,18 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::mueloss::BezrukovBugaevModel
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - December 10, 2003
 
-\brief    Bezrukov-Bugaev model for the energy loss of high energy muons due
-          to photonuclear interactions.
-          Concrete implementation of the MuELossI interface.
+ For the class documentation see the corresponding header file.
 
-\ref      W.Lohmann, R.Kopp and R.Voss,
-          Energy Loss of Muons in the Energy Range 1-10000 GeV, CERN 85-03
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  December 10, 2003
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
-
-#include <cassert>
 
 #include <TMath.h>
 

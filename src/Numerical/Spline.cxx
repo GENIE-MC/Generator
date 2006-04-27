@@ -1,18 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::Spline
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 04, 2004
 
-\brief    A numeric analysis tool class for interpolating 1-D functions.
+ For the class documentation see the corresponding header file.
 
-          Uses ROOT's TSpline3 for the actual interpolation and can retrieve
-          function (x,y(x)) pairs from an XML file, a flat ascii file, a
-          TNtuple, a TTree or an SQL database.
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 04, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

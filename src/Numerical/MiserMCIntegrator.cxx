@@ -1,17 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::MiserMCIntegrator
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - February 23, 2006
 
-\brief    The MISER adaptive MC integration algorithm based on recursive
-          stratified sampling.
+ For the class documentation see the corresponding header file.
 
-\ref      Numerical Recipes in C, Cambridge Univ. Press, 2002, page 316-328
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  February 23, 2006
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

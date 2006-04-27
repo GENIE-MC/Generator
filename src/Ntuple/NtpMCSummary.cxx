@@ -1,17 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class   genie::NtpMCSummary
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - October 01, 2004
 
-\brief   MINOS-style Ntuple class to hold a MC Summary Information.
-         The Ntuple class is treated as a C-struct with public member data of
-         basic-only types so that the ntuple can be easily analyzed in bare
-         ROOT sessions (without loading the GENIE libraries).
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
-
-\created October 1, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
