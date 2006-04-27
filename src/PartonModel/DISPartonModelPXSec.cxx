@@ -20,6 +20,7 @@
 #include "Base/DISStructureFuncModelI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
+#include "Conventions/KineVar.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
 #include "PartonModel/DISPartonModelPXSec.h"
@@ -136,11 +137,11 @@ bool DISPartonModelPXSec::ValidKinematics(
 
   //----- Get the physical W and Q2 range and check whether the current W,Q2
   //      pair is allowed
-  Range1D_t rW  = utils::kinematics::WRange     (interaction);
-  Range1D_t rQ2 = utils::kinematics::Q2Range_xy (interaction);
+  Range1D_t rW  = utils::kinematics::KineRange (interaction, kKVW);
+  Range1D_t rQ2 = utils::kinematics::KineRange (interaction, kKVQ2);
 
   bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
-                                        && utils::math::IsWithinLimits(W, rW);
+                                      && utils::math::IsWithinLimits(W, rW);
   if(!in_range) {
        LOG("DISXSec", pDEBUG)
              << "\n *** point (W = " << W

@@ -19,6 +19,7 @@
 #include <TMath.h>
 
 #include "Base/XSecAlgorithmI.h"
+#include "Conventions/KineVar.h"
 #include "CrossSections/GXSecFunc.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -95,8 +96,8 @@ double Integrand_D2XSec_DxDy_E_WQ2Cuts::operator() (const vector<double> & p)
   fInteraction->GetKinematicsPtr()->Sety(y);
 
   // get physical integration range for W and Q2
-  Range1D_t rW  = utils::kinematics::WRange     (fInteraction);
-  Range1D_t rQ2 = utils::kinematics::Q2Range_xy (fInteraction);
+  Range1D_t rW  = utils::kinematics::KineRange(fInteraction, kKVW);
+  Range1D_t rQ2 = utils::kinematics::KineRange(fInteraction, kKVQ2);
 
   LOG("GXSecFunc", pDEBUG)
        << "\n Physical integration range: "

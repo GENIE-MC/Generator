@@ -18,6 +18,7 @@
 
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
+#include "Conventions/KineVar.h"
 #include "EVGModules/UniformKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
@@ -79,7 +80,7 @@ void UniformKinematicsGenerator::GenerateUnifQELKinematics(
   Interaction * interaction = evrec->GetInteraction();
 
   // compute physical Q^2 range
-  Range1D_t Q2 = utils::kinematics::Q2Range_M(interaction);
+  Range1D_t Q2 = utils::kinematics::KineRange(interaction,kKVQ2);
 
   // generate/set a Q^2 in available phase space (const probability)
   RandomGen * rnd = RandomGen::Instance();
@@ -98,7 +99,7 @@ void UniformKinematicsGenerator::GenerateUnifRESKinematics(
   Interaction * interaction = evrec->GetInteraction();
 
   // compute physical W range
-  Range1D_t W  = utils::kinematics::WRange(interaction);
+  Range1D_t W  = utils::kinematics::KineRange(interaction,kKVW);
 
   bool found = false;
   register unsigned int iter = 0;
@@ -113,7 +114,7 @@ void UniformKinematicsGenerator::GenerateUnifRESKinematics(
      interaction->GetKinematicsPtr()->SetW(gW,true);
 
      // compute physical Q^2 for selected W
-     Range1D_t Q2 = utils::kinematics::Q2Range_W(interaction);
+     Range1D_t Q2 = utils::kinematics::KineRange(interaction,kKVQ2);
 
      if(Q2.min < Q2.max) {
         // generate/set a Q^2 (const probability)
@@ -165,8 +166,8 @@ void UniformKinematicsGenerator::GenerateUnifDISKinematics(
      gQ2 = 2*gx*gy*M*Ev;
 
      //-- get the physical W, Q^2 range
-     Range1D_t W  = utils::kinematics::WRange(interaction);
-     Range1D_t Q2 = utils::kinematics::Q2Range_xy(interaction);
+     Range1D_t W  = utils::kinematics::KineRange(interaction,kKVW);
+     Range1D_t Q2 = utils::kinematics::KineRange(interaction,kKVQ2);
 
      bool valid_W  = utils::math::IsWithinLimits( gW, W  );
      bool valid_Q2 = utils::math::IsWithinLimits( gQ2,Q2 );

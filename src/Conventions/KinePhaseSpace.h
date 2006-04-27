@@ -55,7 +55,7 @@ public:
       case(kPSW)    : return "1-D Phase Space: {W}";                  break;
       case(kPSWQ2)  : return "2-D Phase Space: {W,Q2}";               break;
       case(kPSWq2)  : return "2-D Phase Space: {W,q2}";               break;
-      case(kPSWxyt) : return "3-D Phase Space: {x,y,t}";              break;
+      case(kPSxyt)  : return "3-D Phase Space: {x,y,t}";              break;
     }
     return "** Undefined kinematic phase space **";
   }

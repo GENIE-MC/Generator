@@ -18,6 +18,7 @@
 
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/Controls.h"
+#include "Conventions/KineVar.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/DISKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
@@ -206,7 +207,7 @@ Range1D_t DISKinematicsGenerator::WRange(
                                        const Interaction * interaction) const
 {
   //-- Get the physically allowed kinematical region for this interaction
-  Range1D_t W = utils::kinematics::WRange(interaction);
+  Range1D_t W = utils::kinematics::KineRange(interaction,kKVW);
   LOG("DISKinematics", pDEBUG)
        << "\n Physical W integration range: "
                                  << "[" << W.min << ", " << W.max << "] GeV";
@@ -225,7 +226,7 @@ Range1D_t DISKinematicsGenerator::Q2Range(
                                        const Interaction * interaction) const
 {
   //-- Get the physically allowed kinematical region for this interaction
-  Range1D_t Q2 = utils::kinematics::Q2Range_W(interaction);
+  Range1D_t Q2 = utils::kinematics::KineRange(interaction, kKVQ2);
   LOG("DISKinematics", pDEBUG)
        << "\n Physical Q2 integration range: "
                             << "[" << Q2.min << ", " << Q2.max << "] GeV^2";

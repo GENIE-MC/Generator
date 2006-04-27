@@ -21,6 +21,7 @@
 #include "Base/QELFormFactorsModelI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
+#include "Conventions/KineVar.h"
 #include "Conventions/Units.h"
 #include "LlewellynSmith/QELPXSec.h"
 #include "Messenger/Messenger.h"
@@ -175,7 +176,7 @@ bool QELPXSec::ValidKinematics(const Interaction * interaction) const
   }
 
   double     Q2  = kinematics.Q2();
-  Range1D_t  rQ2 = utils::kinematics::Q2Range_M(interaction);
+  Range1D_t  rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
 
   LOG("QELPXSec", pDEBUG) << "Q2 integration range = ("
                                     << rQ2.min << ", " << rQ2.max << ")";
