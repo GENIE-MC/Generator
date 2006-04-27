@@ -1,25 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::BardinDISPXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - July 06, 2004
 
-\brief    Computes, the differential cross section for neutrino DIS including
-          radiative corrections according to the \b Bardin-Dokuchaeva model.
+ For the class documentation see the corresponding header file.
 
-          The computed xsec is the double differential d^2(xsec) / dy dx \n
-          where \n
-           \li \c y is the inelasticity, and
-           \li \c x is the Bjorken scaling variable \c x
-
-          Is a concrete implementation of the XSecAlgorithmI interface.
-
-\ref      D.Yu.Bardin, V.A.Dokuchaeva, "On the radiative corrections to the
-          Neutrino Deep Inelastic Scattering", JINR-E2-86-260, Apr. 1986
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  July 06, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

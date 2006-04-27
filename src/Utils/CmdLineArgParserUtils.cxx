@@ -1,15 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\namespace  genie::utils::clap
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - October 03, 2005
 
-\brief      Simple utility methods for Command Line Argument Parsing in GENIE
-            standalone applications
+ For documentation see the corresponding header file.
 
-\author     Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-            CCLRC, Rutherford Appleton Laboratory
-
-\created    October 3, 2005
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
@@ -25,11 +25,9 @@ using namespace genie::exceptions;
 //____________________________________________________________________________
 char * genie::utils::clap::CmdLineArg(int argc, char ** argv, char op)
 {
-  bool   set      = false;
-  char * argument = new char[1024];
-
+  bool    set       = false;
+  char *  argument  = new char[1024];
   char ** argv_keep = argv;
-
 
   while(argc>2)
   {

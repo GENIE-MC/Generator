@@ -4,7 +4,6 @@
 \namespace genie::pdg
 
 \brief     Utilities for improving the code readability when using PDG codes.
-
            E.g. a ..............................if( pdg::IsProton(pdg_code) )
            is much easier to read/check than....if( pdgc_code == 2212 )
 
@@ -13,6 +12,9 @@
 
 \created   May 06, 2004
 
+\cpright   Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+           All rights reserved.
+           For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
