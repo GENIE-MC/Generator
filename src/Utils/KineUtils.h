@@ -8,7 +8,7 @@
 \author     Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
             CCLRC, Rutherford Appleton Laboratory
 
-\created    Novemner 26, 2004
+\created    November 26, 2004
 
 \cpright    Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
             All rights reserved.
@@ -19,6 +19,8 @@
 #ifndef _KINE_UTILS_H_
 #define _KINE_UTILS_H_
 
+#include "Conventions/KineVar.h"
+#include "Conventions/KinePhaseSpace.h"
 #include "Interaction/Interaction.h"
 #include "Utils/Range1.h"
 
@@ -27,28 +29,24 @@ namespace utils {
 
 namespace kinematics
 {
-  Range1D_t  WRange      (const Interaction * const interaction);
+  Range1D_t  KineRange             (const Interaction * const i, KineVar_t k);
+  double     PhaseSpaceVolume      (const Interaction * const i, KinePhaseSpace_t ps);
 
-  Range1D_t  Q2Range     (const Interaction * const interaction);
-  Range1D_t  q2Range     (const Interaction * const interaction);
+  Range1D_t  WRange                (const Interaction * const i);
+  Range1D_t  Q2Range               (const Interaction * const i);
+  Range1D_t  q2Range               (const Interaction * const i);
 
-  Range1D_t  Q2Range_W   (const Interaction * const interaction);
-  Range1D_t  Q2Range_W   (const Interaction * const interaction, Range1D_t rW);
+  Range1D_t  Q2Range_W             (const Interaction * const i, Range1D_t rW);
 
-  Range1D_t  Q2Range_xy  (const Interaction * const interaction);
-  Range1D_t  Q2Range_M   (const Interaction * const interaction);
+  double     CalcQ2                (const Interaction * const i);
+  double     CalcW                 (const Interaction * const i);
 
-  Range1D_t  q2Range_W   (const Interaction * const interaction);
-  Range1D_t  q2Range_xy  (const Interaction * const interaction);
-  Range1D_t  q2Range_M   (const Interaction * const interaction);
-
-//  double  WQ2PhaseSpaceVolume   (const Interaction * const interaction);
-
-  double     EnergyThreshold       (const Interaction * const interaction);
-  bool       IsAboveCharmThreshold (const Interaction * const interaction, double mc);
   void       ApplyCutsToKineLimits (Range1D_t & r, double min, double max);
-  double     CalcQ2                (const Interaction * const interaction);
-  double     SlowRescalingVar      (const Interaction * const interaction, double mc);
+
+  double     EnergyThreshold       (const Interaction * const i);
+
+  bool       IsAboveCharmThreshold (const Interaction * const i, double mc);
+  double     SlowRescalingVar      (const Interaction * const i, double mc);
 
 } // kinematics namespace
 } // utils namespace

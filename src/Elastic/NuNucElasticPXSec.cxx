@@ -17,8 +17,9 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
-#include "Conventions/RefFrame.h"
 #include "Conventions/Constants.h"
+#include "Conventions/RefFrame.h"
+#include "Conventions/KineVar.h"
 #include "Elastic/NuNucElasticPXSec.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
@@ -134,7 +135,7 @@ bool NuNucElasticPXSec::ValidKinematics(const Interaction * interaction) const
   const Kinematics & kinematics = interaction -> GetKinematics();
   double Q2 = kinematics.Q2();
 
-  Range1D_t rQ2 = utils::kinematics::Q2Range_M(interaction);
+  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
 
   return (utils::math::IsWithinLimits(Q2, rQ2));
 }

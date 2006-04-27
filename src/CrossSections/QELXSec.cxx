@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/KineVar.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/QELXSec.h"
 #include "CrossSections/GXSecFunc.h"
@@ -61,7 +62,7 @@ double QELXSec::XSec(const Interaction * in) const
   double E = init_state.GetProbeE(kRfStruckNucAtRest);
 
   // Estimate the integration limits & step
-  Range1D_t  rQ2 = utils::kinematics::Q2Range_M(interaction);
+  Range1D_t  rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
   LOG("QELXSec", pDEBUG) << "Q2 integration range = ("
                                     << rQ2.min << ", " << rQ2.max << ")";
 

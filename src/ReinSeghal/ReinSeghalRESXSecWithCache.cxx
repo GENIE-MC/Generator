@@ -20,6 +20,7 @@
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
+#include "Conventions/KineVar.h"
 #include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
@@ -191,10 +192,9 @@ Range1D_t ReinSeghalRESXSecWithCache::WRange(
 {
   //-- Get the physically allowed W range for this interaction and allow the
   //   user inputs (if any) to narrow it
-  Range1D_t rW = utils::kinematics::WRange(interaction); // physical 
+  Range1D_t rW = utils::kinematics::KineRange(interaction, kKVW);
   LOG("ReinSeghalResC", pDEBUG)
       << "Physical W range: " << "[" << rW.min << ", " << rW.max << "] GeV";
-
   // apply user cuts
   utils::kinematics::ApplyCutsToKineLimits(rW, fWminCut,  fWmaxCut );
   LOG("ReinSeghalResC", pDEBUG)
@@ -208,7 +208,7 @@ Range1D_t ReinSeghalRESXSecWithCache::Q2Range(
 {
   //-- Get the physically allowed Q2 range for this interaction and allow the
   //   user inputs (if any) to narrow it
-  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction); // physical 
+  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2); 
   LOG("ReinSeghalResC", pDEBUG) << "Physical Q2 range: "
                          << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
   // apply user cuts

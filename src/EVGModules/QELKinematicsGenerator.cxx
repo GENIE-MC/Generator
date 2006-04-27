@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "Conventions/Controls.h"
+#include "Conventions/KineVar.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/QELKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
@@ -181,7 +182,7 @@ Range1D_t QELKinematicsGenerator::Q2Range(
                                        const Interaction * interaction) const
 {
   //-- Get the physically allowed kinematical region for this interaction
-  Range1D_t Q2 = utils::kinematics::Q2Range_M(interaction);
+  Range1D_t Q2 = utils::kinematics::KineRange(interaction, kKVQ2);
   LOG("QELKinematics", pDEBUG)
                << "Physical Q2 range = (" << Q2.min << ", " << Q2.max << ")";
 

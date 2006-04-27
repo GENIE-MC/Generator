@@ -17,6 +17,7 @@
 #include "Algorithm/AlgFactory.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
+#include "Conventions/KineVar.h"
 #include "Interaction/SppChannel.h"
 #include "Messenger/Messenger.h"
 #include "ReinSeghal/ReinSeghalSPPPXSec.h"
@@ -186,8 +187,8 @@ bool ReinSeghalSPPPXSec::ValidKinematics(const Interaction* interaction) const
   }
 
   //-- Check against physical range in W and Q2
-  Range1D_t rW  = utils::kinematics::WRange(interaction);
-  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
+  Range1D_t rW  = utils::kinematics::KineRange(interaction, kKVW);
+  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
 
   bool in_physical_range = utils::math::IsWithinLimits(W, rW) &&
                            utils::math::IsWithinLimits(-q2, rQ2);

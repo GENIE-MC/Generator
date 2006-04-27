@@ -23,6 +23,7 @@
 #include "BaryonResonance/BaryonResDataSetI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
+#include "Conventions/KineVar.h"
 #include "Messenger/Messenger.h"
 #include "Paschos/P33PaschosLalakulichPXSec.h"
 #include "Utils/KineUtils.h"
@@ -273,8 +274,8 @@ bool P33PaschosLalakulichPXSec::ValidKinematics(
   double Q2 = kinematics.Q2();
   double W  = kinematics.W();
 
-  Range1D_t rW  = utils::kinematics::WRange(interaction);
-  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
+  Range1D_t rW  = utils::kinematics::KineRange(interaction, kKVW);
+  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
 
   LOG("PaschLal", pDEBUG) << "\n Physical W range: "
                          << "["<< rW.min   << ", " << rW.max  << "] GeV";

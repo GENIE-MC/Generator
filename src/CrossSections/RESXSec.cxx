@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/KineVar.h"
 #include "CrossSections/RESXSec.h"
 #include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
@@ -144,8 +145,7 @@ Range1D_t RESXSec::WRange(const Interaction * interaction) const
   //-- Get the physically allowed W range for this interaction and allow the
   //   user inputs (if any) to narrow it
 
-  Range1D_t rW = utils::kinematics::WRange(interaction); // physical range
-
+  Range1D_t rW = utils::kinematics::KineRange(interaction, kKVW); 
   LOG("RESXSec", pDEBUG)
        << "Physical W range: " << "[" << rW.min << ", " << rW.max << "] GeV";
 
@@ -166,10 +166,9 @@ Range1D_t RESXSec::Q2Range(const Interaction * interaction) const
   //-- Get the physically allowed Q2 range for this interaction and allow the
   //   user inputs (if any) to narrow it
 
-  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction); // physical range
-
+  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2); 
   LOG("RESXSec", pDEBUG) << "Physical Q2 range: "
-                         << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
+                 << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
 
   // user cuts
   double Q2min = fConfig->GetDoubleDef("Q2min", -1.0);
@@ -179,7 +178,7 @@ Range1D_t RESXSec::Q2Range(const Interaction * interaction) const
 
   LOG("RESXSec", pDEBUG)
        << "Physical & User Q2 range: "
-                         << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
+                << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
   return rQ2;
 }
 //___________________________________________________________________________

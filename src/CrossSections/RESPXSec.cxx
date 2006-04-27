@@ -14,9 +14,12 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/KineVar.h"
 #include "CrossSections/RESPXSec.h"
 #include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
@@ -62,7 +65,7 @@ double RESPXSec::XSec(const Interaction * interaction) const
                          fPartialXSecAlg, interaction, Q2);
 
     // default is physical W range for the given energy
-    Range1D_t rW = utils::kinematics::WRange(interaction);
+    Range1D_t rW = utils::kinematics::KineRange(interaction, kKVW);
     // apply kinematic cuts
     if ( utils::math::IsWithinLimits(fKineMinCut, rW) ) rW.min = fKineMinCut;
     if ( utils::math::IsWithinLimits(fKineMaxCut, rW) ) rW.max = fKineMaxCut;
@@ -78,7 +81,7 @@ double RESPXSec::XSec(const Interaction * interaction) const
                          fPartialXSecAlg, interaction, W);
 
     // default is physical Q2 range for input W
-    Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction);
+    Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
     // apply kinematic cuts
     if ( utils::math::IsWithinLimits(fKineMinCut, rQ2) ) rQ2.min = fKineMinCut;
     if ( utils::math::IsWithinLimits(fKineMaxCut, rQ2) ) rQ2.max = fKineMaxCut;
@@ -87,7 +90,7 @@ double RESPXSec::XSec(const Interaction * interaction) const
     func->SetParam(0,"Q2",rQ2);
     xsec = fIntegrator->Integrate(*func);
 
-  } else abort();
+  } else exit(1);
 
   delete func;
   return xsec;
