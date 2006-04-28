@@ -22,7 +22,6 @@ ifdef GOPT_GEANT_INTERFACE
 endif
 
 EXE =	$(GENIE_BIN_PATH)/gevgen   \
-	$(GENIE_BIN_PATH)/gvlddoc  \
 	$(GENIE_BIN_PATH)/gmkspl   \
 	$(GENIE_BIN_PATH)/gmxpl    \
 	$(GENIE_BIN_PATH)/gntpc    \
@@ -31,7 +30,6 @@ EXE =	$(GENIE_BIN_PATH)/gevgen   \
 	$(GENIE_BIN_PATH)/gviewer
 
 ALLTGT = gEvGen		\
-	 gVldDoc	\
 	 gMakeSplines	\
 	 gMaxPathLengths\
 	 gNtpConv	\
@@ -48,9 +46,6 @@ STDTGT = gEvGen		\
 ifdef GOPT_FLUX_DRIVERS
   STDTGT := $(STDTGT) gMakeSplines
 endif
-ifdef GOPT_VALIDITY_DOC
-  STDTGT := $(STDTGT) gVldDoc
-endif
 ifdef GOPT_VIEWER
   STDTGT := $(STDTGT) gViewer
 endif
@@ -59,10 +54,6 @@ all: $(STDTGT)
 
 gEvGen: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gevgen gEvGen.cxx \
-			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
-
-gVldDoc: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gvlddoc gVldDoc.cxx \
 			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
 
 gMakeSplines: FORCE
@@ -97,9 +88,6 @@ clean: FORCE
 
 clean--gEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen
-
-clean--gVldDoc: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gvlddoc
 
 clean--gMakeSplines: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmkspl
