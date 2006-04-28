@@ -271,8 +271,8 @@
 
      <param type="string" name="interaction-list-alg">   genie::IMDInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  Default                            </param>
-     <param type="string" name="cross-section-alg">      genie::NuclearTargetXSec           </param>
-     <param type="string" name="cross-section-conf">     IMD-Default                        </param>
+     <param type="string" name="cross-section-alg">      genie::IMDXSec                     </param>
+     <param type="string" name="cross-section-conf">     Default                            </param>
   </param_set>
 
 

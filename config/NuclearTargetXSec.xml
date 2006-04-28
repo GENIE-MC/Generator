@@ -19,10 +19,5 @@
      <param type="string" name="free-particle-xsec-param-set">  CC-Charm-Default            </param>
   </param_set>
 
-  <param_set name="IMD-Default"> 
-     <param type="string" name="free-particle-xsec-alg-name">   genie::IMDXSec              </param>
-     <param type="string" name="free-particle-xsec-param-set">  Default                     </param>
-  </param_set>
-
 </alg_conf>
 
