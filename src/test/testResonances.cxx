@@ -27,7 +27,6 @@
 #include <TH1F.h>
 #include <TPad.h>
 #include <TPaveLabel.h>
-#include <TLatex.h>
 
 #include "Algorithm/Algorithm.h"
 #include "Algorithm/AlgFactory.h"
