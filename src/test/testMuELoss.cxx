@@ -3,7 +3,16 @@
 
 \program testMuELoss
 
-\brief   test program for the MuELoss utility package
+\brief   Test program for the MuELoss utility package. The program saves the
+         computed data in an output ROOT ntuple. 
+        
+         Syntax :
+           testMuELoss -m materials
+
+         Options :
+           -m specifies a comma seperated list of materials 
+              (the material ids correspond to the enumeration that can be seen
+               in $GENIE/src/MuELoss/MuELMaterial.h)
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -17,7 +26,12 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <cstdlib>
 #include <string>
+#include <vector>
+
+#include <TFile.h>
+#include <TNtuple.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Units.h"
@@ -25,18 +39,32 @@
 #include "MuELoss/MuELMaterial.h"
 #include "MuELoss/MuELProcess.h"
 #include "Messenger/Messenger.h"
+#include "Utils/StringUtils.h"
+#include "Utils/CmdLineArgParserUtils.h"
+#include "Utils/CmdLineArgParserException.h"
 
 using std::string;
+using std::vector;
 using namespace genie;
+using namespace genie::utils;
 using namespace genie::mueloss;
 
+void GetCommandLineArgs (int argc, char ** argv);
+
+string gOptMaterials;
+
+//____________________________________________________________________________
 int main(int argc, char ** argv)
 {
+  GetCommandLineArgs(argc, argv);
+
   const int N = 14;
   double E[N] = {1,5,10,15,20,30,50,100,200,500, 1000,2000, 5000, 9000}; //GeV
 
-  MuELMaterial_t mt = eMuIron;
-
+  // split the comma separated list of materials
+  vector<string> mtv = utils::str::Split(gOptMaterials,  ",");
+  
+  // get muon energy loss algorithms
   AlgFactory * algf = AlgFactory::Instance();
 
   const MuELossI * betheBloch = 
@@ -63,41 +91,78 @@ int main(int argc, char ** argv)
   double myunits_conversion = units::GeV/(units::g/units::cm2); 
   string myunits_name       = " GeV/(gr/cm^2)";
 
-  LOG("Main", pINFO) 
-     << "---------- Computing/Printing muon energy losses in "
+  // open a ROOT file and define the output ntuple.
+  TFile froot("./genie-mueloss.root", "RECREATE");
+  TNtuple muntp("muntp","muon dE/dx", "material:E:ion:brem:pair:pnucl");
+  
+  //loop over materials
+  vector<string>::iterator iter;
+  for(iter = mtv.begin(); iter != mtv.end(); ++iter) {
+
+    MuELMaterial_t mt = (MuELMaterial_t) atoi(iter->c_str());
+
+     LOG("Main", pINFO) 
+        << "---------- Computing/Printing muon energy losses in "
                        << MuELMaterial::AsString(mt) << " ----------";
 
-  for(int i=0; i<N; i++)  {
+     //loop over energies
+     for(int i=0; i<N; i++)  {
       
-     //-------- due to: ionization 
-     LOG("Main", pINFO) 
-       << "Process: " << MuELProcess::AsString(betheBloch->Process())
-       << ", Model: " << betheBloch->Id().Key() 
-       << " : \n -dE/dx(E=" << E[i] << ") = " 
-       << betheBloch->dE_dx(E[i],mt) / myunits_conversion << myunits_name;
+       //-------- due to: ionization 
+       double ion = betheBloch->dE_dx(E[i],mt) / myunits_conversion;
 
-     //-------- due to: bremsstrahlung
-     LOG("Main", pINFO) 
-       << "Process: " << MuELProcess::AsString(petrukhinShestakov->Process())
-       << ", Model: " << petrukhinShestakov->Id().Key() 
-       << " : \n -dE/dx(E=" << E[i] << ") = " 
-       << petrukhinShestakov->dE_dx(E[i],mt) / myunits_conversion << myunits_name;
+       LOG("Main", pINFO) 
+         << "Process: " << MuELProcess::AsString(betheBloch->Process())
+         << ", Model: " << betheBloch->Id().Key() 
+         << " : \n -dE/dx(E=" << E[i] << ") = " << ion << myunits_name;
 
-     //-------- due to: e-e+ pair production
-     LOG("Main", pINFO) 
-       << "Process: " << MuELProcess::AsString(kokoulinPetroukhin->Process())
-       << ", Model: " << kokoulinPetroukhin->Id().Key() 
-       << " : \n -dE/dx(E=" << E[i] << ") = " 
-       << kokoulinPetroukhin->dE_dx(E[i],mt) / myunits_conversion << myunits_name;
+       //-------- due to: bremsstrahlung
+       double brem = petrukhinShestakov->dE_dx(E[i],mt) / myunits_conversion;
 
-     //-------- due to: photonuclear interactions
-     LOG("Main", pINFO) 
-       << "Process: " << MuELProcess::AsString(bezroukovBugaev->Process())
-       << ", Model: " << bezroukovBugaev->Id().Key() 
-       << " : \n -dE/dx(E=" << E[i] << ") = " 
-       << bezroukovBugaev->dE_dx(E[i],mt) / myunits_conversion << myunits_name
-       << "\n\n";
-  }
+       LOG("Main", pINFO) 
+         << "Process: " << MuELProcess::AsString(petrukhinShestakov->Process())
+         << ", Model: " << petrukhinShestakov->Id().Key() 
+         << " : \n -dE/dx(E=" << E[i] << ") = " << brem << myunits_name;
+
+       //-------- due to: e-e+ pair production
+       double pair = kokoulinPetroukhin->dE_dx(E[i],mt) / myunits_conversion;
+
+       LOG("Main", pINFO) 
+         << "Process: " << MuELProcess::AsString(kokoulinPetroukhin->Process())
+         << ", Model: " << kokoulinPetroukhin->Id().Key() 
+         << " : \n -dE/dx(E=" << E[i] << ") = " << pair << myunits_name;
+
+       //-------- due to: photonuclear interactions
+       double pnucl = bezroukovBugaev->dE_dx(E[i],mt) / myunits_conversion;
+
+       LOG("Main", pINFO) 
+         << "Process: " << MuELProcess::AsString(bezroukovBugaev->Process())
+         << ", Model: " << bezroukovBugaev->Id().Key() 
+         << " : \n -dE/dx(E=" << E[i] << ") = " << pnucl << myunits_name
+         << "\n\n";
+
+       muntp.Fill( (int)mt,E[i],ion,brem,pair,pnucl);
+    }//e
+  }//m
+
+  muntp.Write();
+  froot.Close();
+
   return 0;
 }
+//____________________________________________________________________________
+void GetCommandLineArgs(int argc, char ** argv)
+{
+  LOG("Main", pNOTICE) << "Parsing command line arguments";
+  try {
+    LOG("Main", pINFO) << "Reading material ids";
+    gOptMaterials = genie::utils::clap::CmdLineArgAsString(argc,argv,'m');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("Main", pINFO) << "Unspecified material ids - Exiting";
+      exit(1);
+    }
+  }
+}
+//____________________________________________________________________________
 

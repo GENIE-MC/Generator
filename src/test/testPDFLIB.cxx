@@ -35,7 +35,6 @@ int main(int argc, char ** argv)
   //-- Q^2 for which I extract PDFs
 
   const int nq2 = 3;
-
   double q2[nq2] = { 1, 2, 4 };
 
   //-- PDF sets / check PDFLIB definitions
@@ -50,16 +49,14 @@ int main(int argc, char ** argv)
                           "uv:dv:us:ds:s:g:x:Q2:nptype:ngroup:nset");
 
   for(int ipdf = 0; ipdf < npdfs; ipdf++) {
-     for(int iq2 = 0; iq2 < nq2; iq2++) 
-           fill_ntuple(ntuple, q2[iq2], nptype[ipdf], ngroup[ipdf], nset[ipdf]);
+   for(int iq2 = 0; iq2 < nq2; iq2++) 
+     fill_ntuple(ntuple, q2[iq2], nptype[ipdf], ngroup[ipdf], nset[ipdf]);
   }
 
-  TFile f("./pdflib.root","recreate");
-
+  TFile f("./genie-pdflib.root","recreate");
   ntuple->Write("pdflib");
 
   f.Close();
-
   delete ntuple;
 
   return 0;
@@ -79,20 +76,17 @@ void fill_ntuple(TNtuple * nt,
   pdfmodel->Configure(*conf);
 
   PDF pdf;
-
   pdf.SetModel(pdfmodel);
 
   const int nx = 300;
 
   const double xmin_idx = -2;
   const double xmax_idx =  0;
-
-  const double dx_idx = (xmax_idx-xmin_idx)/(nx-1);
+  const double dx_idx   = (xmax_idx-xmin_idx)/(nx-1);
 
   for(int ix=0; ix<nx; ix++) {
 
       double x = pow(10, xmin_idx + ix * dx_idx);
-
       pdf.Calculate(x, Q2);
 
       LOG("Main", pINFO) << ENDL << pdf;

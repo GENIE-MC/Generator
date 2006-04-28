@@ -49,7 +49,7 @@ int main(int argc, char ** argv)
 
   LOG("Main", pINFO) << "Saving flux ntuples";
 
-  TFile f("./gfluxnt.root","recreate");
+  TFile f("./genie-flux-drivers.root","recreate");
   ntcylf  -> Write("ntcylf");
   ntflk3d -> Write("ntflk3d");
   f.Close();

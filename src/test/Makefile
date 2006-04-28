@@ -27,6 +27,7 @@ endif
 EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
  	$(GENIE_BIN_PATH)/testConfigPool	\
  	$(GENIE_BIN_PATH)/testDecay		\
+ 	$(GENIE_BIN_PATH)/testHadronization	\
 	$(GENIE_BIN_PATH)/testMessenger		\
 	$(GENIE_BIN_PATH)/testMuELoss		\
 	$(GENIE_BIN_PATH)/testNumerical		\
@@ -37,17 +38,19 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testInteraction	\
 	$(GENIE_BIN_PATH)/testReWeight		\
 	$(GENIE_BIN_PATH)/testReadGNtuple	\
+	$(GENIE_BIN_PATH)/testXSec		\
 	$(GENIE_BIN_PATH)/testROOTGeometry      \
 	$(GENIE_BIN_PATH)/testSAIDHadronXSec
 
 TGT =	testBaryonResDataSet	\
  	testConfigPool		\
  	testDecay		\
+ 	testHadronization	\
+ 	testXSec		\
 	testMessenger		\
 	testNumerical		\
 	testPDFLIB		\
 	testMCJobDriver		\
-	testFluxDriver		\
 	testRegistry		\
 	testInteraction		\
 	testReWeight		\
@@ -59,6 +62,9 @@ endif
 
 ifdef GOPT_GEOM_DRIVERS
   TGT := $(TGT) testROOTGeometry
+endif
+ifdef GOPT_FLUX_DRIVERS
+  TGT := $(TGT) testFluxDriver
 endif
 
 all: $(TGT)
@@ -74,6 +80,14 @@ testConfigPool: FORCE
 testDecay: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDecay \
 			testDecay.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+
+testHadronization: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testHadronization \
+		testHadronization.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+
+testXSec: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testXSec \
+   		testXSec.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testPDFLIB: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testPDFLIB \
@@ -136,6 +150,12 @@ clean--testConfigPool: FORCE
 
 clean--testDecay: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testDecay
+
+clean--testHadronization: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testHadronization
+
+clean--testXSec: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testXSec
 
 clean--testMessenger: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testMessenger
