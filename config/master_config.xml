@@ -131,31 +131,5 @@
    <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml </config>
    <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml</config>
 
-   <!--  ****** CONFIGURATION FOR VLD-DOCUMENT ALGORITHMS ****** -->
-   <config alg="genie::VldDocument">                 VldDocument.xml                 </config>
-   <config alg="genie::VldCoverPage">                VldCoverPage.xml                </config>
-   <config alg="genie::VldQELXSec">                  VldQELXSec.xml                  </config>
-   <config alg="genie::VldELFormFactors">            VldELFormFactors.xml            </config>
-   <config alg="genie::VldQELFormFactors">           VldQELFormFactors.xml           </config>
-   <config alg="genie::VldDISXSec">                  VldDISXSec.xml                  </config>
-   <config alg="genie::VldDISStrucFunctions">        VldDISStrucFunctions.xml        </config>
-   <config alg="genie::VldCharmDISXSec">             VldCharmDISXSec.xml             </config>
-   <config alg="genie::VldCharmQELXSec">             VldCharmQELXSec.xml             </config>
-   <config alg="genie::VldResonances">               VldResonances.xml               </config>
-   <config alg="genie::VldBodekYangPDF">             VldBodekYangPDF.xml             </config>
-   <config alg="genie::VldReinSeghalPXSecRes">       VldReinSeghalPXSecRes.xml       </config>
-   <config alg="genie::VldReinSeghalXSecRes">        VldReinSeghalXSecRes.xml        </config>
-   <config alg="genie::VldReinSeghalExclusiveXSec">  VldReinSeghalExclusiveXSec.xml  </config>
-   <config alg="genie::VldRadiativeCorr">            VldRadiativeCorr.xml            </config>
-   <config alg="genie::VldRadiativeCorrPXSec">       VldRadiativeCorrPXSec.xml       </config>
-   <config alg="genie::VldHadronMultiplicities">     VldHadronMultiplicities.xml     </config>
-   <config alg="genie::VldHadronP4Distributions">    VldHadronP4Distributions.xml    </config>
-   <config alg="genie::VldKnoDistribution">          VldKnoDistribution.xml          </config>
-   <config alg="genie::VldIMDXSec">                  VldIMDXSec.xml                  </config>
-   <config alg="genie::VldElasticXSec">              VldElasticXSec.xml              </config>
-   <config alg="genie::VldD1232ResXSec">             VldD1232ResXSec.xml             </config>
-   <config alg="genie::VldFermiMotion">              VldFermiMotion.xml              </config>
-   <config alg="genie::VldPiNucXSec">                VldPiNucXSec.xml                </config>
-
 </genie_config>
 

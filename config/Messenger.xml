@@ -134,25 +134,13 @@
   <priority msgstream="Utils">               INFO   </priority>
   <priority msgstream="VtxGenerator">        INFO   </priority>
   <priority msgstream="VldContext">          INFO   </priority>
-  <priority msgstream="VldBodekYang">        INFO   </priority>
-  <priority msgstream="VldCharm">            INFO   </priority>
-  <priority msgstream="VldDis">              INFO   </priority>
-  <priority msgstream="VldFermiM">           INFO   </priority>
-  <priority msgstream="VldSpp">              INFO   </priority>
-  <priority msgstream="VldQel">              INFO   </priority>
-  <priority msgstream="VldEl">               INFO   </priority>
-  <priority msgstream="VldElas">             INFO   </priority>
-  <priority msgstream="VldIMD">              INFO   </priority>
-  <priority msgstream="VldRdC">              INFO   </priority>
-  <priority msgstream="VldKno">              INFO   </priority>
-  <priority msgstream="VldHadrMult">         INFO   </priority>
-  <priority msgstream="VldPiNucXSec">        INFO   </priority>
   <priority msgstream="XSecAlgMap">          NOTICE </priority>
   <priority msgstream="XSecSplineList">      INFO   </priority>
 
   <priority msgstream="gevgen">              INFO   </priority>
   <priority msgstream="ngevgen">             INFO   </priority>
-  <priority msgstream="g2nuance">            INFO   </priority>
+  <priority msgstream="gmctest">             INFO   </priority>
+  <priority msgstream="gntpc">               INFO   </priority>
   <priority msgstream="gmkspl">              INFO   </priority>
 
 </messenger_config>
