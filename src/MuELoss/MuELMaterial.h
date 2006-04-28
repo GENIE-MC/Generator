@@ -30,71 +30,67 @@ typedef enum EMuELMaterial {
 
   eMuUndefined = 0,
 
-  // ---- compound materials 
-
-  eMuBariumFluoride,
-  eMuBismuthGermanate,
-  eMuPyrex,
-      /* <-- SiO2(80%),B2O3(12%),Na2O(5%) */
-  eMuCalciumCarbonate,
-  eMuConcrete,
-      /* <-- O2(52.9%),Si(33.7%),Ca(4.4%),Al(3.4%),Na(1.6%),Fe(1.4%),K(1.3%),H2(1%) */
-  eMuFreon12,
-  eMuFreon13B1,
-  eMuLeadGlassSF5,
-      /* <-- PbO(55%),SiO2 (38%),K2O(5%),Na2O(1%) */
-  eMuLeadOxide,
-  eMuLithiumFluoride,
-  eMuLucite,
-  eMuPolyethylene,
-  eMuPolystyrene,
-  eMuLiquidPropane,
-  eMuSiliconDioxide,
-  eMuSodiumIodide,
-  eMuStandardRock,
-  eMuUraniumOxide,
-  eMuWater,
-
   // ---- elements
 
-  eMuHydrogen,
-  eMuDeuterium,
-  eMuHelium,
-  eMuLithium,
-  eMuBeryllium,
-  eMuBoron,
-  eMuCarbon,
-  eMuNitrogen,
-  eMuOxygen,
-  eMuFluorine,
-  eMuNeon,
-  eMuSodium,
-  eMuMagnesium,
-  eMuAluminium,
-  eMuSilicon,
-  eMuSulphur,
-  eMuChlorine,
-  eMuArgon,
-  eMuPotassium,
-  eMuCalcium,
-  eMuChromium,
-  eMuManganese,
-  eMuIron,
-  eMuNickel,
-  eMuCopper,
-  eMuZinc,
-  eMuGermanium,
-  eMuBromine,
-  eMuTin,
-  eMuIodine,
-  eMuBarium,
-  eMuTungsten,
-  eMuLead,
-  eMuBismuth,
-  eMuUranium
+  eMuHydrogen         = 101,
+  eMuDeuterium        = 102,
+  eMuHelium           = 103,
+  eMuLithium          = 104,
+  eMuBeryllium        = 105,
+  eMuBoron            = 106,
+  eMuCarbon           = 107,
+  eMuNitrogen         = 108,
+  eMuOxygen           = 109,
+  eMuFluorine         = 110,
+  eMuNeon             = 111,
+  eMuSodium           = 112,
+  eMuMagnesium        = 113,
+  eMuAluminium        = 114,
+  eMuSilicon          = 115,
+  eMuSulphur          = 116,
+  eMuChlorine         = 117,
+  eMuArgon            = 118,
+  eMuPotassium        = 119,
+  eMuCalcium          = 120,
+  eMuChromium         = 121,
+  eMuManganese        = 122,
+  eMuIron             = 123,
+  eMuNickel           = 124,
+  eMuCopper           = 125,
+  eMuZinc             = 126,
+  eMuGermanium        = 127,
+  eMuBromine          = 128,
+  eMuTin              = 129,
+  eMuIodine           = 130,
+  eMuBarium           = 131,
+  eMuTungsten         = 132,
+  eMuLead             = 133,
+  eMuBismuth          = 134,
+  eMuUranium          = 135,
+
+  // ---- compound materials 
+
+  eMuBariumFluoride   = 201,
+  eMuBismuthGermanate = 202,
+  eMuPyrex            = 203, /* <-- SiO2(80%),B2O3(12%),Na2O(5%) */
+  eMuCalciumCarbonate = 204,
+  eMuConcrete         = 205, /* <-- O2(52.9%),Si(33.7%),Ca(4.4%),Al(3.4%),Na(1.6%),Fe(1.4%),K(1.3%),H2(1%) */
+  eMuFreon12          = 206,
+  eMuFreon13B1        = 207,
+  eMuLeadGlassSF5     = 208, /* <-- PbO(55%),SiO2 (38%),K2O(5%),Na2O(1%) */
+  eMuLeadOxide        = 209,
+  eMuLithiumFluoride  = 210,
+  eMuLucite           = 211,
+  eMuPolyethylene     = 212,
+  eMuPolystyrene      = 213,
+  eMuLiquidPropane    = 214,
+  eMuSiliconDioxide   = 215,
+  eMuSodiumIodide     = 216,
+  eMuStandardRock     = 217,
+  eMuUraniumOxide     = 218,
+  eMuWater            = 219
 
 } MuELMaterial_t;
-
 
 class MuELMaterial
 {
