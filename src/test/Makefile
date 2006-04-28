@@ -36,6 +36,7 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testFluxDriver	\
 	$(GENIE_BIN_PATH)/testRegistry		\
 	$(GENIE_BIN_PATH)/testInteraction	\
+	$(GENIE_BIN_PATH)/testResonances	\
 	$(GENIE_BIN_PATH)/testReWeight		\
 	$(GENIE_BIN_PATH)/testReadGNtuple	\
 	$(GENIE_BIN_PATH)/testXSec		\
@@ -53,6 +54,7 @@ TGT =	testBaryonResDataSet	\
 	testMCJobDriver		\
 	testRegistry		\
 	testInteraction		\
+	testResonances		\
 	testReWeight		\
 	testReadGNtuple		
 
@@ -121,6 +123,10 @@ testInteraction: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testInteraction \
 			testInteraction.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
+testResonances: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testResonances \
+			testResonances.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+
 testReWeight: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testReWeight \
 			testReWeight.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
@@ -176,6 +182,9 @@ clean--testRegistry: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testRegistry
 
 clean--testInteraction: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testInteraction
+
+clean--testResonances: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testInteraction
 
 clean--testReWeight: FORCE
