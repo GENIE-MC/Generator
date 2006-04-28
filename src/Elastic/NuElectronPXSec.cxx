@@ -93,7 +93,13 @@ double NuElectronPXSec::XSec(const Interaction * interaction) const
   }
 
   LOG("Elastic", pDEBUG)
-         << "*** dxsec[ve-]/dy (E=" << E << ", y = " << y << ") = " << xsec;
+     << "*** dxsec(ve-)/dy [free e-](E="<< E << ", y= "<< y<< ") = "<< xsec;
+
+  if( interaction->TestBit(kIAssumeFreeElectron) ) return xsec;
+
+  int Ne = init_state.GetTarget().Z(); // num of scattering centers
+  xsec *= Ne;
+
   return xsec;
 }
 //____________________________________________________________________________
