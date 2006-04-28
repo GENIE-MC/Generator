@@ -32,6 +32,7 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testMuELoss		\
 	$(GENIE_BIN_PATH)/testNumerical		\
 	$(GENIE_BIN_PATH)/testPDFLIB		\
+	$(GENIE_BIN_PATH)/testFermiP		\
 	$(GENIE_BIN_PATH)/testMCJobDriver	\
 	$(GENIE_BIN_PATH)/testFluxDriver	\
 	$(GENIE_BIN_PATH)/testRegistry		\
@@ -51,6 +52,7 @@ TGT =	testBaryonResDataSet	\
 	testMessenger		\
 	testNumerical		\
 	testPDFLIB		\
+	testFermiP		\
 	testMCJobDriver		\
 	testRegistry		\
 	testInteraction		\
@@ -94,6 +96,10 @@ testXSec: FORCE
 testPDFLIB: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testPDFLIB \
 			testPDFLIB.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+
+testFermiP: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testFermiP \
+			testFermiP.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testMCJobDriver: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMCJobDriver \
@@ -171,6 +177,9 @@ clean--testNumerical: FORCE
 
 clean--testPDFLIB: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testPDFLIB
+
+clean--testFermiP: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testFermiP
 
 clean--testMCJobDriver: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testMCJobDriver
