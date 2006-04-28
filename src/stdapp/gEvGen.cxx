@@ -228,7 +228,7 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gevgen", pNOTICE) << "Parsing commad line arguments";
+  LOG("gevgen", pNOTICE) << "Parsing command line arguments";
 
   //-- Optional arguments
 
