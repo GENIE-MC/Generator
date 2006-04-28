@@ -65,7 +65,6 @@ export GOPT_ENABLE_GEOM_DRIVERS=YES
 export GOPT_ENABLE_GEANT_INTERFACE=NO 
 export GOPT_ENABLE_DOXYGEN_DOC=NO 
 export GOPT_ENABLE_TEST=NO 
-export GOPT_ENABLE_VALIDITY_DOC=YES
 export GOPT_ENABLE_VIEWER=NO
 export GOPT_ENABLE_MUELOSS=NO
 
@@ -107,7 +106,6 @@ echo "Enabling GENIE/GEANT interface     -> " ${GOPT_ENABLE_GEANT_INTERFACE}
 echo "Enabling Google profiler           -> " ${GOPT_ENABLE_PROFILER}
 echo "Enabling Doxygen doc generation    -> " ${GOPT_ENABLE_DOXYGEN_DOC}
 echo "Enabling GENIE test programs       -> " ${GOPT_ENABLE_TEST}
-echo "Enabling GENIE validity doc        -> " ${GOPT_ENABLE_VALIDITY_DOC}
 echo "Enabling GENIE Feynman/GHEP viewer -> " ${GOPT_ENABLE_VIEWER}
 echo "Enabling MuELoss utility package   -> " ${GOPT_ENABLE_MUELOSS}
 

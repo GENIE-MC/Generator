@@ -25,9 +25,6 @@ endif
 ifdef GOPT_GEOM_DRIVERS
   BUILD_TARGETS := $(BUILD_TARGETS) geom-drivers
 endif
-ifdef GOPT_VALIDITY_DOC
-  BUILD_TARGETS := $(BUILD_TARGETS) validity
-endif
 ifdef GOPT_VIEWER
   BUILD_TARGETS := $(BUILD_TARGETS) viewer
 endif
@@ -132,10 +129,6 @@ geanti:
 	cd ${GENIE}/src;\
 	cd GeantInterface; make; cd ..; 
 
-validity:
-	cd ${GENIE}/src;\
-	cd ValidityDoc; make; cd ..; 
-
 viewer:
 	cd ${GENIE}/src;\
 	cd Viewer; make; cd ..; 
@@ -164,7 +157,7 @@ install-scripts:
 	cd ./scripts; make install; cd ..;
 
 all-libs: base-framework physics-models-modules event-generation-modules \
-		flux-drivers geom-drivers validity viewer geanti nuvld-libs
+		flux-drivers geom-drivers viewer geanti nuvld-libs
 
 save-build-options:
 	@echo "Logging configuration options...";\
@@ -197,7 +190,6 @@ purge: FORCE
 	cd GHEP;               make purge; cd ..; \
 	cd GeantInterface;     make purge; cd ..; \
 	cd Geo;                make purge; cd ..; \
-	cd ValidityDoc;        make purge; cd ..; \
 	cd Interaction;        make purge; cd ..; \
 	cd InverseMuonDecay;   make purge; cd ..; \
 	cd LlewellynSmith;     make purge; cd ..; \
@@ -239,7 +231,6 @@ clean-files: FORCE
 	cd GHEP;               make clean; cd ..; \
 	cd GeantInterface;     make clean; cd ..; \
 	cd Geo;                make clean; cd ..; \
-	cd ValidityDoc;        make clean; cd ..; \
 	cd Interaction;        make clean; cd ..; \
 	cd InverseMuonDecay;   make clean; cd ..; \
 	cd LlewellynSmith;     make clean; cd ..; \
