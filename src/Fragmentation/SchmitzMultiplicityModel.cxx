@@ -17,6 +17,7 @@
 #include <TMath.h>
 #include <TSystem.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Fragmentation/SchmitzMultiplicityModel.h"
 #include "Messenger/Messenger.h"
@@ -195,7 +196,11 @@ void SchmitzMultiplicityModel::LoadConfig(void)
 {
 // Load config parameters
 
-  // Get the KNO Distribution
+  // access global defaults to use in case of missing parameters
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  // delete the KNO spline from previous configuration of this instance
   if(fKNO) delete fKNO;
 
   assert(gSystem->Getenv("GENIE"));
@@ -207,34 +212,51 @@ void SchmitzMultiplicityModel::LoadConfig(void)
   LOG("Schmitz", pNOTICE) << "Loading KNO data from: " << knodata;
 
   fKNO = new Spline(knodata);
-  // Load parameters determining the average multiplicity
-  fAvp  = fConfig->GetDouble("alpha-vp");
-  fAvn  = fConfig->GetDouble("alpha-vn");
-  fAvbp = fConfig->GetDouble("alpha-vbp");
-  fAvbn = fConfig->GetDouble("alpha-vbn");
-  fB    = fConfig->GetDouble("beta");
 
-  // Force NEUGEN upper limit in hadronic multiplicity (to be used only
+  // load parameters determining the average multiplicity
+  fAvp  = fConfig->GetDoubleDef("alpha-vp",  gc->GetDouble("KNO-Alpha-vp") );
+  fAvn  = fConfig->GetDoubleDef("alpha-vn",  gc->GetDouble("KNO-Alpha-vn") ); 
+  fAvbp = fConfig->GetDoubleDef("alpha-vbp", gc->GetDouble("KNO-Alpha-vbp")); 
+  fAvbn = fConfig->GetDoubleDef("alpha-vbn", gc->GetDouble("KNO-Alpha-vbn"));
+  fB    = fConfig->GetDoubleDef("beta",      gc->GetDouble("KNO-Beta")     );
+
+  // force NEUGEN upper limit in hadronic multiplicity (to be used only
   // NEUGEN/GENIE comparisons)
   fForceNeuGenLimit = fConfig->GetBoolDef("force-neugen-mult-limit", false);
 
-  // Load NEUGEN multiplicity probability scaling parameters Rijk
-  fRvpCCm1  = fConfig->GetDoubleDef("R-vp-CC-m1", 1.0);
-  fRvpCCm2  = fConfig->GetDoubleDef("R-vp-CC-m2", 1.0);
-  fRvpNCm1  = fConfig->GetDoubleDef("R-vp-NC-m1", 1.0);
-  fRvpNCm2  = fConfig->GetDoubleDef("R-vp-NC-m2", 1.0);
-  fRvnCCm1  = fConfig->GetDoubleDef("R-vn-CC-m1", 1.0);
-  fRvnCCm2  = fConfig->GetDoubleDef("R-vn-CC-m2", 1.0);
-  fRvnNCm1  = fConfig->GetDoubleDef("R-vn-NC-m1", 1.0);
-  fRvnNCm2  = fConfig->GetDoubleDef("R-vn-NC-m2", 1.0);
-  fRvbpCCm1 = fConfig->GetDoubleDef("R-vbp-CC-m1",1.0);
-  fRvbpCCm2 = fConfig->GetDoubleDef("R-vbp-CC-m2",1.0);
-  fRvbpNCm1 = fConfig->GetDoubleDef("R-vbp-NC-m1",1.0);
-  fRvbpNCm2 = fConfig->GetDoubleDef("R-vbp-NC-m2",1.0);
-  fRvbnCCm1 = fConfig->GetDoubleDef("R-vbn-CC-m1",1.0);
-  fRvbnCCm2 = fConfig->GetDoubleDef("R-vbn-CC-m2",1.0);
-  fRvbnNCm1 = fConfig->GetDoubleDef("R-vbn-NC-m1",1.0);
-  fRvbnNCm2 = fConfig->GetDoubleDef("R-vbn-NC-m2",1.0);
+  // load NEUGEN multiplicity probability scaling parameters Rijk
+  fRvpCCm1  = fConfig->GetDoubleDef(
+                      "R-vp-CC-m1", gc->GetDouble("DIS-HMultWgt-vp-CC-m1"));
+  fRvpCCm2  = fConfig->GetDoubleDef(
+                      "R-vp-CC-m2", gc->GetDouble("DIS-HMultWgt-vp-CC-m2"));
+  fRvpNCm1  = fConfig->GetDoubleDef(
+                      "R-vp-NC-m1", gc->GetDouble("DIS-HMultWgt-vp-NC-m1"));
+  fRvpNCm2  = fConfig->GetDoubleDef(
+                      "R-vp-NC-m2", gc->GetDouble("DIS-HMultWgt-vp-NC-m2"));
+  fRvnCCm1  = fConfig->GetDoubleDef(
+                      "R-vn-CC-m1", gc->GetDouble("DIS-HMultWgt-vn-CC-m1"));
+  fRvnCCm2  = fConfig->GetDoubleDef(
+                      "R-vn-CC-m2", gc->GetDouble("DIS-HMultWgt-vn-CC-m2"));
+  fRvnNCm1  = fConfig->GetDoubleDef(
+                      "R-vn-NC-m1", gc->GetDouble("DIS-HMultWgt-vn-NC-m1"));
+  fRvnNCm2  = fConfig->GetDoubleDef(
+                      "R-vn-NC-m2", gc->GetDouble("DIS-HMultWgt-vn-NC-m2"));
+  fRvbpCCm1 = fConfig->GetDoubleDef(
+                     "R-vbp-CC-m1",gc->GetDouble("DIS-HMultWgt-vbp-CC-m1"));
+  fRvbpCCm2 = fConfig->GetDoubleDef(
+                     "R-vbp-CC-m2",gc->GetDouble("DIS-HMultWgt-vbp-CC-m2"));
+  fRvbpNCm1 = fConfig->GetDoubleDef(
+                     "R-vbp-NC-m1",gc->GetDouble("DIS-HMultWgt-vbp-NC-m1"));
+  fRvbpNCm2 = fConfig->GetDoubleDef(
+                     "R-vbp-NC-m2",gc->GetDouble("DIS-HMultWgt-vbp-NC-m2"));
+  fRvbnCCm1 = fConfig->GetDoubleDef(
+                     "R-vbn-CC-m1",gc->GetDouble("DIS-HMultWgt-vbn-CC-m1"));
+  fRvbnCCm2 = fConfig->GetDoubleDef(
+                     "R-vbn-CC-m2",gc->GetDouble("DIS-HMultWgt-vbn-CC-m2"));
+  fRvbnNCm1 = fConfig->GetDoubleDef(
+                     "R-vbn-NC-m1",gc->GetDouble("DIS-HMultWgt-vbn-NC-m1"));
+  fRvbnNCm2 = fConfig->GetDoubleDef(
+                     "R-vbn-NC-m2",gc->GetDouble("DIS-HMultWgt-vbn-NC-m2"));
 }
 //____________________________________________________________________________
 
