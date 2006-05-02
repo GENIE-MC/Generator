@@ -15,6 +15,5 @@
 #pragma link C++ class genie::BodekRitchie;
 #pragma link C++ class genie::FermiMomentumTable;
 #pragma link C++ class genie::FermiMomentumTablePool;
-#pragma link C++ class genie::NuclearTargetXSec;
 
 #endif
