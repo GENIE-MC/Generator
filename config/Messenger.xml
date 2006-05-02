@@ -25,7 +25,6 @@
   <priority msgstream="AlgFactory">          INFO   </priority>
   <priority msgstream="Algorithm">           INFO   </priority>
   <priority msgstream="AlgConfigPool">       INFO   </priority>
-  <priority msgstream="AivazisCharm">        INFO   </priority>
   <priority msgstream="BardinIMD">           NOTICE </priority>
   <priority msgstream="BaryonResList">       WARN   </priority>
   <priority msgstream="BreitWignet">         INFO   </priority>
@@ -33,7 +32,6 @@
   <priority msgstream="BodekYang">           INFO   </priority>
   <priority msgstream="BodekRitchie">        WARN   </priority>
   <priority msgstream="Cache">               NOTICE </priority>
-  <priority msgstream="CharmQELXSec">        INFO   </priority>
   <priority msgstream="CFracTab">            INFO   </priority>
   <priority msgstream="COHXSec">             INFO   </priority>
   <priority msgstream="CLAP">                NOTICE </priority>
@@ -41,6 +39,7 @@
   <priority msgstream="Decay">               INFO   </priority>
   <priority msgstream="DISSF">               INFO   </priority>
   <priority msgstream="DISXSec">             INFO   </priority>
+  <priority msgstream="DISCharmXSec">        INFO   </priority>
   <priority msgstream="DISPXSec">            INFO   </priority>
   <priority msgstream="DISHadronicVtx">      INFO   </priority>
   <priority msgstream="DISKinematics">       INFO   </priority>
@@ -103,6 +102,7 @@
   <priority msgstream="PDG">                 INFO   </priority>
   <priority msgstream="PathL">               NOTICE </priority>
   <priority msgstream="QELXSec">             INFO   </priority>
+  <priority msgstream="QELCharmXSec">        INFO   </priority>
   <priority msgstream="QELPXSec">            NOTICE </priority>
   <priority msgstream="QELHadronicVtx">      INFO   </priority>
   <priority msgstream="QELKinematics">       INFO   </priority>
@@ -121,7 +121,6 @@
   <priority msgstream="RESSelector">         NOTICE </priority>
   <priority msgstream="Rndm">                INFO   </priority>
   <priority msgstream="Schmitz">             INFO   </priority>
-  <priority msgstream="SlowRsclCharm">       INFO   </priority>
   <priority msgstream="Simpson1D">           WARN   </priority>
   <priority msgstream="Simpson2D">           WARN   </priority>
   <priority msgstream="SimMCIntegrator">     NOTICE </priority>
