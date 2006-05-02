@@ -62,17 +62,28 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //----- Get kinematical & init-state parameters
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
+  //----- Get kinematical parameters
+  const Kinematics & kinematics = interaction -> GetKinematics();
+  double W  = kinematics.W();
+  double q2 = kinematics.q2();
 
+  //----- Under the DIS/RES joining scheme, xsec(RES)=0 for W>=Wcut
+  if(fUsingDisResJoin) {
+    if(W>=fWcut) {
+       LOG("ReinSeghalRes", pDEBUG)
+         << "RES/DIS Join Scheme: XSec[RES, W=" << W 
+                                << " >= Wcut=" << fWcut << "] = 0";
+       return 0;
+    }
+  }
+
+  //----- Get needed initial state params
+  const InitialState & init_state = interaction -> GetInitialState();
   const Target & target = init_state.GetTarget();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
-  double W    = kinematics.W();
-  double q2   = kinematics.q2();
-  double Mnuc = target.StruckNucleonMass(); 
-  int nucpdgc = target.StruckNucleonPDGCode();
+  double E       = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Mnuc    = target.StruckNucleonMass(); 
+  int    nucpdgc = target.StruckNucleonPDGCode();
 
   bool is_CC = interaction->GetProcessInfo().IsWeakCC();
   bool is_p  = pdg::IsProton(nucpdgc);
@@ -321,6 +332,12 @@ void ReinSeghalRESPXSec::LoadConfig(void)
   assert( fHAmplModelCC  );
   assert( fHAmplModelNCp );
   assert( fHAmplModelNCn );
+
+  fUsingDisResJoin = fConfig->GetBoolDef("use-dis-res-joining-scheme", false);
+  fWcut = 999999;
+  if(fUsingDisResJoin) {
+    fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+  }
 }
 //____________________________________________________________________________
 

@@ -56,13 +56,13 @@ public:
   ReinSeghalRESPXSec(string config);
   virtual ~ReinSeghalRESPXSec();
 
-  //-- XSecAlgorithmI interface implementation
+  //! XSecAlgorithmI interface implementation
   double XSec            (const Interaction * interaction) const;
   bool   ValidProcess    (const Interaction * interaction) const;
   bool   ValidKinematics (const Interaction * interaction) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  //! overload the Algorithm::Configure() methods to load private data
+  //! members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
@@ -70,20 +70,25 @@ private:
 
   void LoadConfig (void);
 
+  mutable FKR fFKR;
+  mutable BaryonResParams fBRP;
+
+  //! configuration data
+
   bool   fWghtBW;
   double fZeta;
   double fOmega;
   double fMa2;
   double fMv2;
 
-  mutable FKR fFKR;
-  mutable BaryonResParams fBRP;
-
   const BreitWignerI *         fBreitWigner;
   const BaryonResDataSetI *    fBaryonResDataSet;
   const RSHelicityAmplModelI * fHAmplModelCC;
   const RSHelicityAmplModelI * fHAmplModelNCp;
   const RSHelicityAmplModelI * fHAmplModelNCn;
+
+  bool   fUsingDisResJoin;  ///< use a DIS/RES joining scheme?
+  double fWcut;             ///< apply DIS/RES joining scheme < Wcut
 };
 
 }       // genie namespace
