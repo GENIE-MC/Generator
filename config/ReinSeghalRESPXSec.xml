@@ -12,15 +12,18 @@ Name                        Type    Optional   Comment                      Defa
 Zeta                        double  Yes   FKR's Z parameter                 GPL value: RS-Zeta
 Omega                       double  Yes   FKR's Omega parameter             GPL value: RS-Omega
 Ma                          double  Yes   RES axial mass                    GPL value  RES-Max
-Mv                          double  Yes   RES vector mass                   GPL-value: RES-Mv
+Mv                          double  Yes   RES vector mass                   GPL value: RES-Mv
 weight-with-breit-wigner    bool    Yes   weight xsec with breit-wigner?    true
 baryonres-dataset-alg-name  string  No    algorithm used for resonance data
 baryonres-dataset-param-set string  No    ... and its config set
 breit-wigner-alg-name       string  No    breit-wigner algorithm
 breit-wigner-param-set      string  No    ... and its config set
+use-dis-res-joining-scheme  bool    Yes   Use DIS/RES joining scheme?       false
+Wcut                        double  Yes   Param used in DIS/RES joining     GPL value: Wcut
 -->
 
   <param_set name="Default"> 
+     <param type="bool"    name="use-dis-res-joining-scheme">    true                         </param>
      <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG      </param>
      <param type="string"  name="baryonres-dataset-param-set">   Default                      </param>
      <param type="string"  name="breit-wigner-alg-name">         genie::BreitWignerLRes       </param>
@@ -28,6 +31,7 @@ breit-wigner-param-set      string  No    ... and its config set
   </param_set>
 
   <param_set name="No-BW-Weighting"> 
+     <param type="bool"    name="use-dis-res-joining-scheme">    true                         </param>
      <param type="bool"    name="weight-with-breit-wigner">      false                        </param>
      <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG      </param>
      <param type="string"  name="baryonres-dataset-param-set">   Default                      </param>
