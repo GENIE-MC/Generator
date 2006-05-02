@@ -1,27 +1,29 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::DISPartonModelPXSec
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 05, 2004
 
-\brief    DIS differential (d^2xsec/dxdy) cross section
+ For the class documentation see the corresponding header file.
 
-\ref      E.A.Paschos and J.Y.Yu, Phys.Rev.D 65.033002
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  May 05, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <TH1D.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Base/DISStructureFuncModelI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
 #include "Conventions/Units.h"
+#include "Fragmentation/MultiplicityProbModelI.h"
 #include "Messenger/Messenger.h"
 #include "PartonModel/DISPartonModelPXSec.h"
 #include "PDG/PDGCodes.h"
@@ -29,6 +31,9 @@
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
+#include "Utils/KineUtils.h"
+#include "Utils/Cache.h"
+#include "Utils/CacheBranchFx.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -108,6 +113,16 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
         << "d2xsec/dxdy[FreeN] (E = " << E 
                     << ", x = " << x << ", y = " << y << ") = " << xsec;
 
+  //----- If the DIS/RES joining scheme is enabled, modify the xsec accordingly
+  if(fUsingDisResJoin) {
+     double R = this->DISRESJoinSuppressionFactor(interaction);
+     xsec*=R;
+
+     LOG("DISXSec", pDEBUG)
+        << "d2xsec/dxdy[FreeN, D/R Join] (E = " << E 
+                    << ", x = " << x << ", y = " << y << ") = " << xsec;
+  }
+
   //----- If requested return the free nucleon xsec even for input nuclear tgt 
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
@@ -166,9 +181,76 @@ bool DISPartonModelPXSec::ValidKinematics(
              << "\n Physical Q2 range: "
                            << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
        return false;
-   }
-
+  }
   return true;
+}
+//____________________________________________________________________________
+double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
+                                                const Interaction * in) const
+{
+// Computes suppression factors for the DIS xsec under the used DIS/RES join
+// scheme. Since this is a 'low-level' algorithm that is being called many
+// times per generated event or computed cross section spline, the suppression
+// factors would be cached to avoid calling the hadronic multiplicity model
+// too often.
+//
+  double R;
+
+  const double Wmin = kNeutronMass + kPionMass + 1E-2;
+  const double Wmax = fWcut;
+
+  //-- Access the cache branch 
+  Cache * cache = Cache::Instance();
+
+  const InitialState & ist = in->GetInitialState();
+  const ProcessInfo &  pi  = in->GetProcessInfo();
+
+  string algkey = this->Id().Key() + "/DIS-RES-Join";
+  string ikey   = ist.AsString() + ";" + pi.InteractionTypeAsString();
+
+  string key = cache->CacheBranchKey(algkey, ikey);
+
+  CacheBranchFx * cbr =
+          dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+
+  //-- If it does not exist create a new one and cache DIS xsec suppression
+  //   factors
+  if(!cbr) {
+      LOG("DISXSec", pNOTICE) 
+                        << "\n ** Creating cache branch - key = " << key;
+
+      cbr = new CacheBranchFx("DIS Suppr. Factors in DIS/RES Join Scheme");
+      Interaction interaction(*in);
+      const int    kN = 50;
+      const double dW = (Wmax-Wmin)/(kN-1);
+      for(int i=0; i<kN; i++) {
+        double W = Wmin+i*dW;
+        interaction.GetKinematicsPtr()->SetW(W);
+        const TH1D & mprob = 
+                    fMultProbModel->ProbabilityDistribution(&interaction);
+        R = mprob.Integral("width");
+
+        LOG("DISXSec", pNOTICE) 
+	    << "Cached DIS XSec Suppr. factor (@ W=" << W << ") = " << R;
+
+        cbr->AddValues(W,R);
+      }
+      cbr->CreateSpline();
+
+      cache->AddCacheBranch(key, cbr);
+      assert(cbr);
+  } // cache data
+
+  const CacheBranchFx & cache_branch = (*cbr);
+
+  //-- Now return the suppression factor
+  double Wo = utils::kinematics::CalcW(in);
+  if(Wo > Wmin && Wo < Wmax) R = cache_branch(Wo);
+  else R=1.0;
+  LOG("DISXSec", pDEBUG) 
+          << "DIS/RES Join: DIS xsec suppresion (W=" << Wo << ") = " << R;
+
+  return R;
 }
 //____________________________________________________________________________
 void DISPartonModelPXSec::Configure(const Registry & config)
@@ -185,12 +267,31 @@ void DISPartonModelPXSec::Configure(string config)
 //____________________________________________________________________________
 void DISPartonModelPXSec::LoadConfig(void)
 {
+  // Access global defaults to use in case of missing parameters
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   fDISSFModel = 0;
   fDISSFModel = dynamic_cast<const DISStructureFuncModelI *> (
                                 this->SubAlg("sf-alg-name", "sf-param-set"));
   assert(fDISSFModel);
 
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
+
+  fUsingDisResJoin = fConfig->GetBoolDef("use-dis-res-joining-scheme", false);
+
+  fMultProbModel = 0;
+  fWcut=0;
+
+  if(fUsingDisResJoin) {
+    fMultProbModel = dynamic_cast<const MultiplicityProbModelI *> (
+      this->SubAlg("multiplicity-prob-alg-name", "multiplicity-prob-param-set"));
+    assert(fMultProbModel);
+
+    // Load Wcut determining the phase space area where the multiplicity prob.
+    // scaling factors would be applied -if requested-
+    fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+  }
 }
 //____________________________________________________________________________
 
