@@ -25,6 +25,7 @@
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::controls;
@@ -59,8 +60,8 @@ const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
 
   // Compute the average charged hadron multiplicity as: <n> = a + b*ln(W^2)
   double alpha = this->SelectOffset(interaction);
-  double W     = interaction->GetKinematics().W();
-  double avn = alpha + fB * 2*TMath::Log(W);
+  double W     = utils::kinematics::CalcW(interaction);
+  double avn   = alpha + fB * 2*TMath::Log(W);
  
   assert(W>kNeutronMass+kPionMass);
 
@@ -198,7 +199,8 @@ void SchmitzMultiplicityModel::CreateProbHist(double maxmult) const
   double minmult = 2;
   int    nbins   = TMath::Nint(maxmult-minmult+1);
 
-  fMultProb = new TH1D("multprob", "", nbins, minmult-0.5, maxmult+0.5);
+  fMultProb = new TH1D("multprob", 
+      "hadronic multiplicity distribution", nbins, minmult-0.5, maxmult+0.5);
 }
 //____________________________________________________________________________
 void SchmitzMultiplicityModel::Configure(const Registry & config)
