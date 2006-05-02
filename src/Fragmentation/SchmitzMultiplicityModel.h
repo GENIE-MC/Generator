@@ -40,7 +40,7 @@ public:
   SchmitzMultiplicityModel(string config);
   virtual ~SchmitzMultiplicityModel();
 
-  TH1D * ProbabilityDistribution(const Interaction * interaction) const;
+  const TH1D & ProbabilityDistribution(const Interaction * interaction) const;
 
   //! overload the Algorithm::Configure() methods to load private data
   //! members from configuration options
@@ -48,9 +48,14 @@ public:
   void Configure(string config);
 
 private:
-  void   LoadConfig   (void);
-  double SelectOffset (const Interaction * i) const;
-  void   ApplyRijk    (const Interaction * i, TH1D * p, bool norm=true) const;
+
+  void   LoadConfig    (void);
+  void   CreateProbHist(double maxmult) const;
+  double SelectOffset  (const Interaction * i) const;
+  void   ApplyRijk     (const Interaction * i, bool norm=true) const;
+
+  // computed multiplicity probability distribution
+  mutable TH1D * fMultProb;
 
   //! configuration data
 
@@ -64,32 +69,34 @@ private:
   double fAvbn;
   double fB;
 
-  // NEUGEN's Rijk parameters for controling reductions in the
-  // probabilities for low multiplicity states (m=2,3) needed
-  // to avoid double-counting with resonance channels
-  double fRvpCCm1;
-  double fRvpCCm2;
-  double fRvpNCm1;
-  double fRvpNCm2;
-  double fRvnCCm1;
-  double fRvnCCm2;
-  double fRvnNCm1;
-  double fRvnNCm2;
-  double fRvbpCCm1;
-  double fRvbpCCm2;
-  double fRvbpNCm1;
-  double fRvbpNCm2;
-  double fRvbnCCm1;
-  double fRvbnCCm2;
-  double fRvbnNCm1;
-  double fRvbnNCm2;
+  // flags
+  bool fForceNeuGenLimit; ///< force upper hadronic multiplicity to NeuGEN limit
+  bool fApplyRijk;        ///< apply multiplicity probability scaling factors
+  bool fRenormalize;      ///< re-normalize after applying scaling factors
 
-  // If true forces a hard upper limit in hadronic multiplicity equal
-  // to 10, to be consistent with NEUGEN
-  bool fForceNeuGenLimit;
+  // under the DIS/RES joining scheme, multiplicity probability scaling 
+  // factors would be applied for W<Wcut
+  double fWcut;
+
+  // NEUGEN's low-multiplicity probability scaling parameters
+  double fRvpCCm2;   ///< vp,  CC, multiplicity = 2
+  double fRvpCCm3;   ///< vp,  CC, multiplicity = 3
+  double fRvpNCm2;   ///< vp,  NC, multiplicity = 2
+  double fRvpNCm3;   ///< vp,  NC, multiplicity = 3
+  double fRvnCCm2;   ///< vn,  CC, multiplicity = 2
+  double fRvnCCm3;   ///< vn,  CC, multiplicity = 3
+  double fRvnNCm2;   ///< vn,  NC, multiplicity = 2
+  double fRvnNCm3;   ///< vn,  NC, multiplicity = 3
+  double fRvbpCCm2;  ///< vbp, CC, multiplicity = 2
+  double fRvbpCCm3;  ///< vbp, CC, multiplicity = 3
+  double fRvbpNCm2;  ///< vbp, NC, multiplicity = 2
+  double fRvbpNCm3;  ///< vbp, NC, multiplicity = 3
+  double fRvbnCCm2;  ///< vbn, CC, multiplicity = 2
+  double fRvbnCCm3;  ///< vbn, CC, multiplicity = 3
+  double fRvbnNCm2;  ///< vbn, NC, multiplicity = 2
+  double fRvbnNCm3;  ///< vbn, NC, multiplicity = 3
 };
 
 }         // genie namespace
-
 #endif    // _SCHMITZ_MULTIPLICITY_MODEL_H_
 

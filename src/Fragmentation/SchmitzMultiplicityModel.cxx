@@ -18,6 +18,7 @@
 #include <TSystem.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/Controls.h"
 #include "Conventions/Constants.h"
 #include "Fragmentation/SchmitzMultiplicityModel.h"
 #include "Messenger/Messenger.h"
@@ -26,62 +27,66 @@
 #include "PDG/PDGUtils.h"
 
 using namespace genie;
+using namespace genie::controls;
 using namespace genie::constants;
 
 //____________________________________________________________________________
 SchmitzMultiplicityModel::SchmitzMultiplicityModel() :
 MultiplicityProbModelI("genie::SchmitzMultiplicityModel")
 {                
-  fKNO=0;
+  fKNO      = 0;
+  fMultProb = 0;
 }
 //____________________________________________________________________________
 SchmitzMultiplicityModel::SchmitzMultiplicityModel(string config) :
 MultiplicityProbModelI("genie::SchmitzMultiplicityModel", config)
-{                 
-  fKNO=0;
+{ 
+  fKNO      = 0;
+  fMultProb = 0;  
 }
 //____________________________________________________________________________
 SchmitzMultiplicityModel::~SchmitzMultiplicityModel()
 {
-  if(fKNO) delete fKNO;
+  if(fKNO)      delete fKNO;
+  if(fMultProb) delete fMultProb;
 }
 //____________________________________________________________________________
-TH1D * SchmitzMultiplicityModel::ProbabilityDistribution(
+const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
                                         const Interaction * interaction) const
 {
-  // Compute the average multiplicity for the given interaction:
-  // <n> = a + b * ln(W^2)
-  
+  // Reset previously computed multiplicity distribution
+  fMultProb->Reset();
+
+  // Compute the average charged hadron multiplicity as: <n> = a + b*ln(W^2)
   double alpha = this->SelectOffset(interaction);
   double W     = interaction->GetKinematics().W();
-
-  assert(W>kNeutronMass+kPionMass);
-  
-  // calculate average charged hadron multiplcity 
   double avn = alpha + fB * 2*TMath::Log(W);
  
-  // calculate avergage hadron multiplicity (1.5 x charged)
+  assert(W>kNeutronMass+kPionMass);
+
+  // Calculate avergage hadron multiplicity (= 1.5 x charged hadron mult.)
   avn *= 1.5;
 
-  if(avn <1) {
-      LOG("Schmitz", pWARN) << "Average multiplicity too small: " << avn;
-      return 0;
-  }
-
-  // Create a multiplicity probability distribution
-
-  // set the maximum multiplicity as W = Mneutron + (maxmult-1)*Mpion
+  // Find the maximum multiplicity as W = Mneutron + (maxmult-1)*Mpion
   double maxmult = (fForceNeuGenLimit) ?
                     10 : TMath::Floor(1 + (W-kNeutronMass)/kPionMass);
-  double minmult = 2;
-  int    nbins   = TMath::Nint(maxmult-minmult+1);
 
-  TH1D * prob = new TH1D("", "", nbins, minmult-0.5, maxmult+0.5);
+  // If it exceeds the upper end at the existing TH1D then recreate it
+  if(maxmult + 0.5 > fMultProb->GetXaxis()->GetXmax()) {
+    SLOG("Schmitz", pNOTICE)  
+      << "Increasing the maximum  multiplicity from "
+             <<  fMultProb->GetXaxis()->GetXmax() << " to " << maxmult;
+    this->CreateProbHist(maxmult);
+  }
+
+  // Compute the multiplicity probabilities values up to the bin corresponding 
+  // to the computed maximum multiplicity
+
+  int nbins = fMultProb->FindBin(maxmult);
 
   for(int i = 1; i <= nbins; i++) {
-
      // KNO distribution is <n>*P(n) vs n/<n>
-     double n       = prob->GetBinCenter(i); // bin centre
+     double n       = fMultProb->GetBinCenter(i); // bin centre
      double n_avn   = n/avn; // n/<n>
      bool   inrange = n_avn > fKNO->XMin() && n_avn < fKNO->XMax();
      double avnP    = (inrange) ? fKNO->Evaluate(n_avn) : 0; // <n>*P(n)
@@ -91,24 +96,29 @@ TH1D * SchmitzMultiplicityModel::ProbabilityDistribution(
           << "W = " << W << ", <n> = " << avn << ", n/<n> = " << n_avn
           << ", <n>*P = " << avnP << ", P = " << P;
 
-     prob->Fill(n,P);
+     fMultProb->Fill(n,P);
   }
-  //----- Normalize the probability distribution
-  prob->Scale( 1.0 / prob->Integral("width") );
+  // Normalize the probability distribution
+  fMultProb->Scale( 1.0 / fMultProb->Integral("width") );
 
-  this->ApplyRijk(interaction, prob, true);
+  // Apply the NeuGEN probability scaling factors -if requested-
+  if(fApplyRijk) {
+    SLOG("Schmitz", pDEBUG) << "Applying NeuGEN scaling factors";
+    // Only do so for W<Wcut
+    if(W<fWcut) {
+      this->ApplyRijk(interaction, fRenormalize);
+    } else {
+      SLOG("Schmitz", pDEBUG)  
+            << "W = " << W << " < Wcut = " << fWcut 
+                         << " - Will not apply scaling factors";
+    }//<wcut?
+  }//apply?
 
-  for(int i = 1; i <= nbins; i++) {
-     double n = prob->GetBinCenter(i); 
-     double P = prob->GetBinContent(i);
-     SLOG("Schmitz", pDEBUG)  << "n = " << n << ", P = " << P;
-  }
-
-  return prob; // Note: The calling function adopts the object
+  return *fMultProb;
 }
 //____________________________________________________________________________
 void SchmitzMultiplicityModel::ApplyRijk(
-                const Interaction * interaction, TH1D * prob, bool norm) const
+                            const Interaction * interaction, bool norm) const
 {
 // Apply the NEUGEN multiplicity probability scaling factors
 //
@@ -116,40 +126,41 @@ void SchmitzMultiplicityModel::ApplyRijk(
   int nu_pdg  = init_state.GetProbePDGCode();
   int nuc_pdg = init_state.GetTarget().StruckNucleonPDGCode();
 
-  double R1=1., R2=1.;
+  double R2=1., R3=1.;
 
   const ProcessInfo & proc_info = interaction->GetProcessInfo();
   bool isCC = proc_info.IsWeakCC();
 
   if(pdg::IsNeutrino(nu_pdg) && pdg::IsProton(nuc_pdg))  {
-    R1 = (isCC) ? fRvpCCm1 : fRvpNCm1;
     R2 = (isCC) ? fRvpCCm2 : fRvpNCm2;
+    R3 = (isCC) ? fRvpCCm3 : fRvpNCm3;
   } else 
   if(pdg::IsNeutrino(nu_pdg) && pdg::IsNeutron(nuc_pdg)) {
-    R1 = (isCC) ? fRvnCCm1 : fRvnNCm1;
     R2 = (isCC) ? fRvnCCm2 : fRvnNCm2;
+    R3 = (isCC) ? fRvnCCm3 : fRvnNCm3;
   } else 
   if(pdg::IsAntiNeutrino(nu_pdg) && pdg::IsProton(nuc_pdg))  {
-    R1 = (isCC) ? fRvbpCCm1 :   fRvbpNCm1;
     R2 = (isCC) ? fRvbpCCm2 :   fRvbpNCm2;
+    R3 = (isCC) ? fRvbpCCm3 :   fRvbpNCm3;
   } else 
   if(pdg::IsAntiNeutrino(nu_pdg) && pdg::IsNeutron(nuc_pdg)) {
-    R1 = (isCC) ? fRvbnCCm1 : fRvbnNCm1;
     R2 = (isCC) ? fRvbnCCm2 : fRvbnNCm2;
+    R3 = (isCC) ? fRvbnCCm3 : fRvbnNCm3;
   } else {
     LOG("Schmitz", pERROR) << "Invalid initial state: " << init_state;
   }
 
-  int nbins = prob->GetNbinsX();
+  int nbins = fMultProb->GetNbinsX();
   for(int i = 1; i <= nbins; i++) {
-     int n = TMath::Nint( prob->GetBinCenter(i) ); 
-     if(n==1) prob->SetBinContent(i, R1 * prob->GetBinContent(i));
-     if(n==2) prob->SetBinContent(i, R2 * prob->GetBinContent(i));
+     int n = TMath::Nint( fMultProb->GetBinCenter(i) ); 
+     if(n==2) fMultProb->SetBinContent(i, R2 * fMultProb->GetBinContent(i));
+     if(n==3) fMultProb->SetBinContent(i, R3 * fMultProb->GetBinContent(i));
+     if(n>3) break;
   }
 
   // renormalize the histogram?
   if(norm) {
-     prob->Scale( 1.0 / prob->Integral("width") );
+     fMultProb->Scale( 1.0 / fMultProb->Integral("width") );
   }
 }
 //____________________________________________________________________________
@@ -180,27 +191,39 @@ double SchmitzMultiplicityModel::SelectOffset(
   return 0;        
 }
 //____________________________________________________________________________
+void SchmitzMultiplicityModel::CreateProbHist(double maxmult) const
+{
+  if(fMultProb) delete fMultProb;
+
+  double minmult = 2;
+  int    nbins   = TMath::Nint(maxmult-minmult+1);
+
+  fMultProb = new TH1D("multprob", "", nbins, minmult-0.5, maxmult+0.5);
+}
+//____________________________________________________________________________
 void SchmitzMultiplicityModel::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
+  this->CreateProbHist(kMaxMultiplicity);
 }
 //____________________________________________________________________________
 void SchmitzMultiplicityModel::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
+  this->CreateProbHist(kMaxMultiplicity);
 }
 //____________________________________________________________________________
 void SchmitzMultiplicityModel::LoadConfig(void)
 {
 // Load config parameters
 
-  // access global defaults to use in case of missing parameters
+  // Access global defaults to use in case of missing parameters
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  // delete the KNO spline from previous configuration of this instance
+  // Delete the KNO spline from previous configuration of this instance
   if(fKNO) delete fKNO;
 
   assert(gSystem->Getenv("GENIE"));
@@ -213,50 +236,62 @@ void SchmitzMultiplicityModel::LoadConfig(void)
 
   fKNO = new Spline(knodata);
 
-  // load parameters determining the average multiplicity
+  // Load parameters determining the average multiplicity
   fAvp  = fConfig->GetDoubleDef("alpha-vp",  gc->GetDouble("KNO-Alpha-vp") );
   fAvn  = fConfig->GetDoubleDef("alpha-vn",  gc->GetDouble("KNO-Alpha-vn") ); 
   fAvbp = fConfig->GetDoubleDef("alpha-vbp", gc->GetDouble("KNO-Alpha-vbp")); 
   fAvbn = fConfig->GetDoubleDef("alpha-vbn", gc->GetDouble("KNO-Alpha-vbn"));
   fB    = fConfig->GetDoubleDef("beta",      gc->GetDouble("KNO-Beta")     );
 
-  // force NEUGEN upper limit in hadronic multiplicity (to be used only
+  // Force NEUGEN upper limit in hadronic multiplicity (to be used only
   // NEUGEN/GENIE comparisons)
   fForceNeuGenLimit = fConfig->GetBoolDef("force-neugen-mult-limit", false);
 
-  // load NEUGEN multiplicity probability scaling parameters Rijk
-  fRvpCCm1  = fConfig->GetDoubleDef(
-                      "R-vp-CC-m1", gc->GetDouble("DIS-HMultWgt-vp-CC-m1"));
+  // Check whether to apply NEUGEN multiplicity probability scaling params
+  // Rijk and whether to re-normalize the probability distribution 
+  // (note that when called from a DIS cross section algorithm under a DIS
+  // RES joining scheme the reduction in the integral of the multiplicity
+  // probability distribution would be interpreted as a DIS reduction factor
+  // so the distribution should not be re-normalized)
+  fApplyRijk   = fConfig->GetBoolDef("apply-neugen-scaling-factors", true);
+  fRenormalize = fConfig->GetBoolDef("renormalize-after-scaling",    true);
+
+  // Load Wcut determining the phase space area where the multiplicity prob.
+  // scaling factors would be applied -if requested-
+  fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+
+  // Load NEUGEN multiplicity probability scaling parameters Rijk
   fRvpCCm2  = fConfig->GetDoubleDef(
                       "R-vp-CC-m2", gc->GetDouble("DIS-HMultWgt-vp-CC-m2"));
-  fRvpNCm1  = fConfig->GetDoubleDef(
-                      "R-vp-NC-m1", gc->GetDouble("DIS-HMultWgt-vp-NC-m1"));
+  fRvpCCm3  = fConfig->GetDoubleDef(
+                      "R-vp-CC-m3", gc->GetDouble("DIS-HMultWgt-vp-CC-m3"));
   fRvpNCm2  = fConfig->GetDoubleDef(
                       "R-vp-NC-m2", gc->GetDouble("DIS-HMultWgt-vp-NC-m2"));
-  fRvnCCm1  = fConfig->GetDoubleDef(
-                      "R-vn-CC-m1", gc->GetDouble("DIS-HMultWgt-vn-CC-m1"));
+  fRvpNCm3  = fConfig->GetDoubleDef(
+                      "R-vp-NC-m3", gc->GetDouble("DIS-HMultWgt-vp-NC-m3"));
   fRvnCCm2  = fConfig->GetDoubleDef(
                       "R-vn-CC-m2", gc->GetDouble("DIS-HMultWgt-vn-CC-m2"));
-  fRvnNCm1  = fConfig->GetDoubleDef(
-                      "R-vn-NC-m1", gc->GetDouble("DIS-HMultWgt-vn-NC-m1"));
+  fRvnCCm3  = fConfig->GetDoubleDef(
+                      "R-vn-CC-m3", gc->GetDouble("DIS-HMultWgt-vn-CC-m3"));
   fRvnNCm2  = fConfig->GetDoubleDef(
                       "R-vn-NC-m2", gc->GetDouble("DIS-HMultWgt-vn-NC-m2"));
-  fRvbpCCm1 = fConfig->GetDoubleDef(
-                     "R-vbp-CC-m1",gc->GetDouble("DIS-HMultWgt-vbp-CC-m1"));
+  fRvnNCm3  = fConfig->GetDoubleDef(
+                      "R-vn-NC-m3", gc->GetDouble("DIS-HMultWgt-vn-NC-m3"));
   fRvbpCCm2 = fConfig->GetDoubleDef(
                      "R-vbp-CC-m2",gc->GetDouble("DIS-HMultWgt-vbp-CC-m2"));
-  fRvbpNCm1 = fConfig->GetDoubleDef(
-                     "R-vbp-NC-m1",gc->GetDouble("DIS-HMultWgt-vbp-NC-m1"));
+  fRvbpCCm3 = fConfig->GetDoubleDef(
+                     "R-vbp-CC-m3",gc->GetDouble("DIS-HMultWgt-vbp-CC-m3"));
   fRvbpNCm2 = fConfig->GetDoubleDef(
                      "R-vbp-NC-m2",gc->GetDouble("DIS-HMultWgt-vbp-NC-m2"));
-  fRvbnCCm1 = fConfig->GetDoubleDef(
-                     "R-vbn-CC-m1",gc->GetDouble("DIS-HMultWgt-vbn-CC-m1"));
+  fRvbpNCm3 = fConfig->GetDoubleDef(
+                     "R-vbp-NC-m3",gc->GetDouble("DIS-HMultWgt-vbp-NC-m3"));
   fRvbnCCm2 = fConfig->GetDoubleDef(
                      "R-vbn-CC-m2",gc->GetDouble("DIS-HMultWgt-vbn-CC-m2"));
-  fRvbnNCm1 = fConfig->GetDoubleDef(
-                     "R-vbn-NC-m1",gc->GetDouble("DIS-HMultWgt-vbn-NC-m1"));
+  fRvbnCCm3 = fConfig->GetDoubleDef(
+                     "R-vbn-CC-m3",gc->GetDouble("DIS-HMultWgt-vbn-CC-m3"));
   fRvbnNCm2 = fConfig->GetDoubleDef(
                      "R-vbn-NC-m2",gc->GetDouble("DIS-HMultWgt-vbn-NC-m2"));
+  fRvbnNCm3 = fConfig->GetDoubleDef(
+                     "R-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
 }
 //____________________________________________________________________________
-

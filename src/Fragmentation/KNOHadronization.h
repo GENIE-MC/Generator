@@ -71,10 +71,8 @@ private:
   double       fPK0;          ///< K0  K0bar production probability
   bool         fForceDecays;  ///< force decays of unstable hadrons produced?
   bool         fForceMinMult; ///< force minimum multiplicity if (at low W) generated less
-  unsigned int fMaxMult;      ///< maximum allowed multiplicity
 };
 
 }         // genie namespace
-
 #endif    // _KNO_HADRONIZATION_H_
 

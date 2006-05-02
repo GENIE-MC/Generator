@@ -32,19 +32,16 @@ namespace genie {
 class MultiplicityProbModelI : public Algorithm {
 
 public:
-
   virtual ~MultiplicityProbModelI();
 
-  virtual TH1D * ProbabilityDistribution(const Interaction * inter) const = 0;
+  virtual const TH1D & ProbabilityDistribution(const Interaction * i) const = 0;
 
 protected:
-
   MultiplicityProbModelI();
   MultiplicityProbModelI(string name);
   MultiplicityProbModelI(string name, string config);
 };
 
 }         // genie namespace
-
 #endif    // _MULTIPLICITY_PROBABILITY_MODEL_I_H_
 
