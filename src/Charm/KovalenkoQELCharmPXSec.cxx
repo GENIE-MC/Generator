@@ -52,14 +52,13 @@ KovalenkoQELCharmPXSec::~KovalenkoQELCharmPXSec()
 //____________________________________________________________________________
 double KovalenkoQELCharmPXSec::XSec(const Interaction * interaction) const
 {
-  LOG("CharmXSec", pDEBUG) << *fConfig;
-
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   //----- get kinematics & init state - compute auxiliary vars
   const Kinematics &   kinematics  = interaction->GetKinematics();
   const InitialState & init_state  = interaction->GetInitialState();
+  const Target &       target      = init_state.GetTarget();
 
   //neutrino energy & momentum transfer
   double E   = init_state.GetProbeE(kRfStruckNucAtRest);
@@ -69,7 +68,7 @@ double KovalenkoQELCharmPXSec::XSec(const Interaction * interaction) const
   //resonance mass & nucleon mass
   double MR    = this->MRes  (interaction);
   double MR2   = TMath::Power(MR,2);
-  double Mnuc  = init_state.GetTarget().StruckNucleonP4()->M();
+  double Mnuc  = target.StruckNucleonMass();
   double Mnuc2 = TMath::Power(Mnuc,2);
 
   //----- Calculate the differential cross section dxsec/dQ^2
@@ -83,10 +82,22 @@ double KovalenkoQELCharmPXSec::XSec(const Interaction * interaction) const
   double Z         = this->ZR(interaction);
   double D         = this->DR(interaction);
 
-  LOG("CharmXSec", pDEBUG) << "Z = " << Z << ", D = " << D;
+  LOG("QELCharmXSec", pDEBUG) << "Z = " << Z << ", D = " << D;
 
   double xsec = Gf*Z*D * (1 - vR_E + Q2_4E2 + Q2_2MExiR) *
                                      TMath::Sqrt(vR2 + Q2) / (vR*xiR);
+
+  LOG("QELCharmXSec", pDEBUG) 
+    << "dxsec/dQ^2[QELCharm,FreeN] (E="<< E << ", Q2=" << Q2<< ") = "<< xsec;
+
+  //----- If requested return the free nucleon xsec even for input nuclear tgt
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+
+  //----- Nuclear cross section (simple scaling here)
+  int nuc   = target.StruckNucleonPDGCode();
+  int NNucl = (pdg::IsProton(nuc)) ? target.Z() : target.N();
+  xsec *= NNucl;
+
   return xsec;
 }
 //____________________________________________________________________________
@@ -127,13 +138,13 @@ double KovalenkoQELCharmPXSec::DR(
   double vR_minus  = ( TMath::Power(MR-DeltaR,2) - Mnuc2 + Q2 ) / (2*Mnuc);
   double vR_plus   = ( TMath::Power(MR+DeltaR,2) - Mnuc2 + Q2 ) / (2*Mnuc);
 
-  LOG("CharmXSec", pDEBUG)
+  LOG("QELCharmXSec", pDEBUG)
             << "vR = [plus: " << vR_plus << ", minus: " << vR_minus << "]";
 
   double xi_bar_minus = this->xiBar(interaction, vR_minus);
   double xi_bar_plus  = this->xiBar(interaction, vR_plus);
 
-  LOG("CharmXSec", pDEBUG) << "Integration limits = ["
+  LOG("QELCharmXSec", pDEBUG) << "Integration limits = ["
                              << xi_bar_plus << ", " << xi_bar_minus << "]";
 
   int pdgc = init_state.GetTarget().StruckNucleonPDGCode();
@@ -157,7 +168,7 @@ double KovalenkoQELCharmPXSec::xiBar(
   double Mo2    = fMo*fMo;
   double v2     = v *v;
 
-  LOG("CharmXSec", pDEBUG)
+  LOG("QELCharmXSec", pDEBUG)
                      << "Q2 = " << Q2 << ", Mo = " << fMo << ", v = " << v;
 
   double xi  = (Q2/Mnuc) / (v + TMath::Sqrt(v2+Q2));

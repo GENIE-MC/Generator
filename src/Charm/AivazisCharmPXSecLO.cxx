@@ -55,21 +55,20 @@ AivazisCharmPXSecLO::~AivazisCharmPXSecLO()
 //____________________________________________________________________________
 double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
 {
-  LOG("AivazisCharm", pDEBUG) << *fConfig;
-
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   //----- get init-state & kinematical parameters
   const Kinematics &   kinematics = interaction -> GetKinematics();
   const InitialState & init_state = interaction -> GetInitialState();
+  const Target &       target     = init_state.GetTarget();
 
   //----- compute kinematic & auxiliary parameters
   double E           = init_state.GetProbeE(kRfStruckNucAtRest);
   double x           = kinematics.x();
   double y           = kinematics.y();
   double x2          = TMath::Power(x,    2);
-  double Mnuc        = init_state.GetTarget().StruckNucleonMass();
+  double Mnuc        = target.StruckNucleonMass();
   double Mnuc2       = TMath::Power(Mnuc, 2);
   double Q2          = 2*Mnuc*E*x*y;
   double W2          = Mnuc2 + 2*Mnuc*E*y*(1-x);
@@ -88,7 +87,7 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
   pdfs.SetModel(fPDFModel);  // <-- attach algorithm
   pdfs.Calculate(xi, Q2);    // <-- calculate
 
-  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
+  int  nuc = target.StruckNucleonPDGCode();
   bool isP = pdg::IsProton (nuc);
   bool isN = pdg::IsNeutron(nuc);
 
@@ -119,10 +118,18 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
       xsec += xsec_s;
   }
 
-  LOG("AivazisCharm", pDEBUG)
-    << "\n dxsec[DIS-Charm]/dxdy (E= " << E
+  LOG("DISCharmXSec", pDEBUG)
+    << "\n dxsec[DISCharm,FreeN]/dxdy (E= " << E
                  << ", x= " << x << ", y= " << y
                          << ", W= " << W << ", Q2 = " << Q2 << ") = " << xsec;
+
+  //----- If requested return the free nucleon xsec even for input nuclear tgt
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+
+  //----- Nuclear cross section (simple scaling here)
+  int NNucl = (isP) ? target.Z() : target.N();
+  xsec *= NNucl;
+
   return xsec;
 }
 //____________________________________________________________________________
@@ -162,11 +169,11 @@ bool AivazisCharmPXSecLO::ValidKinematics(
   double y    = kinematics.y();
 
   if(x<=0 || x>=1) {
-    LOG("AivazisCharm", pDEBUG) << "x is unphysical or at limit, x = " << x;
+    LOG("DISCharmXSec", pDEBUG) << "x is unphysical or at limit, x = " << x;
     return false;
   }
   if(y<=0 || y>=1) {
-    LOG("AivazisCharm", pDEBUG) << "x is unphysical or at limit, x = " << y;
+    LOG("DISCharmXSec", pDEBUG) << "x is unphysical or at limit, x = " << y;
     return false;
   }
 
@@ -184,10 +191,10 @@ bool AivazisCharmPXSecLO::ValidKinematics(
   bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
                                         && utils::math::IsWithinLimits(W, rW);
   if(!in_range) {
-    LOG("AivazisCharm", pDEBUG)
+    LOG("DISCharmXSec", pDEBUG)
         << "\n W: " << "[" << rW.min << ", " << rW.max << "] GeV"
                  << " Q2: "<< "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-    LOG("AivazisCharm", pDEBUG)
+    LOG("DISCharmXSec", pDEBUG)
         << "\n (W = " << W << ", Q2 = " << Q2 << " is not in physical range"
         << " - returning 0";
     return false;
