@@ -12,6 +12,9 @@
 
 \created  May 05, 2004
 
+\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
@@ -24,6 +27,7 @@
 namespace genie {
 
 class DISStructureFuncModelI;
+class MultiplicityProbModelI;
 
 class DISPartonModelPXSec : public XSecAlgorithmI {
 
@@ -43,10 +47,18 @@ public:
   void Configure(string config);
 
 private:
-  void LoadConfig (void);
+  void   LoadConfig                  (void);
+  double DISRESJoinSuppressionFactor (const Interaction * in) const;
 
-  const DISStructureFuncModelI * fDISSFModel;
   mutable DISStructureFunc fDISSF;
+
+  //! configuration data
+
+  bool   fUsingDisResJoin;  ///< use a DIS/RES joining scheme?
+  double fWcut;             ///< apply DIS/RES joining scheme < Wcut
+
+  const DISStructureFuncModelI * fDISSFModel;    ///< SF model
+  const MultiplicityProbModelI * fMultProbModel; ///< hadronic multip. model
 };
 
 }       // genie namespace
