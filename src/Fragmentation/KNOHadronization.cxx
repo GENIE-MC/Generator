@@ -22,7 +22,6 @@
 #include "Conventions/Constants.h"
 #include "Decay/DecayModelI.h"
 #include "Fragmentation/KNOHadronization.h"
-//#include "Fragmentation/MultiplicityProb.h"
 #include "Fragmentation/MultiplicityProbModelI.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
