@@ -3,53 +3,47 @@
 <alg_conf>
 
 <!--
-  Configuration for the ReinSeghaSPPXSec exclusive 1pi xsec algorithm.
-  A fast alternative to RESXSec algorithm which precomputes and caches resonance
-  neutrinoproduction cross sections.
+Configuration for the Rein-Seghal exclusive SPP (1pi) xsec algorithm.
+This algorithm offers a fast alternative to RESXSec algorithm as it precomputes and
+caches free nucleon resonance neutrinoproduction cross sections.
 
-  parameter                     comment
-  **********************************************************************************
-  single-res-xsec-alg-name      algorithm used for computing res excitation xsec
-  single-res-xsec-param-set     ... and its config set
-  integrator-alg-name           algorithm used for integrating res excitation xsec 
-  integrator-param-set          ... and its config set
-  resonance-name-list           list of resonances to be taken into account
-  Wmin                          W  kinematic cut (min of allowed region)
-  Wmax                          W  kinematic cut (max of allowed region)
-  Q2min                         Q2 kinematic cut (min of allowed region)
-  Q2max                         Q2 kinematic cut (max of allowed region)
-  ESplineMax                    Emax in res xsec splines (for E>Emax, xsec = xsec(E=Emax)
+Algorithm Configurable Parameters:
+..........................................................................................................................
+Name                        Type    Opt  Comment                                               Default
+..........................................................................................................................
+single-res-xsec-alg-name    string  No   algorithm used for computing res excitation xsec
+single-res-xsec-param-set   string  No   ... and its config set
+integrator-alg-name         string  No   algorithm used for integrating res excitation xsec
+integrator-param-set        string  No   ... and its config set
+resonance-name-list         string  No   list of resonances to be taken into account
+Wmin                        double  Yes  W  kinematic cut (min of allowed region)              using physical range
+Wmax                        double  Yes  W  kinematic cut (max of allowed region)              using physical range
+Q2min                       double  Yes  Q2 kinematic cut (min of allowed region)              using physical range
+Q2max                       double  Yes  Q2 kinematic cut (max of allowed region)              using physical range
+ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(E=Emax)
 -->
 
+<!--
+  In this configuration set we include only the first two resonances
+-->
   <param_set name="Fast"> 
      <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec           </param>
      <param type="string" name="single-res-xsec-param-set">  Default                             </param>
      <param type="string" name="integrator-alg-name">        genie::Simpson2D                    </param>
-<!--
-     <param type="string" name="integrator-param-set">       Default-Logarithmic                 </param>
--->
      <param type="string" name="integrator-param-set">       Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="Wmax">                       1.4                                 </param>
      <param type="double" name="ESplineMax">                 20                                  </param>
-     <param type="string" name="resonance-name-list">  
-                   P33(1232),S11(1535),D13(1520),S11(1650),D13(1700)
-     </param>
-
+     <param type="string" name="resonance-name-list">        P33(1232),P11(1440)                 </param>
   </param_set>
 
 
-  <param_set name="Default"> 
 <!--
-  In this configuration parameter set we do not include the ambiguous P33(1600), F17(1970)
+  In this configuration set we include all the resonances apart from the ambiguous P33(1600), F17(1970)
 -->
+  <param_set name="Default"> 
      <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec            </param>
      <param type="string" name="single-res-xsec-param-set">  Default                              </param>
      <param type="string" name="integrator-alg-name">        genie::Simpson2D                     </param>
-<!--
-     <param type="string" name="integrator-param-set">       Default-Logarithmic                  </param>
--->
      <param type="string" name="integrator-param-set">       Default-Logarithmic-FixedNBins-Fast  </param>
-     <param type="double" name="Wmax">                       1.4                                  </param>
      <param type="double" name="ESplineMax">                 20                                   </param>
      <param type="string" name="resonance-name-list">  
                    P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
@@ -58,19 +52,14 @@
      </param>
   </param_set>
 
-
-  <param_set name="AllResonances"> 
 <!--
-  In this configuration parameter set we include all resonances known to GENIE
+  In this configuration set we include all resonances known to GENIE
 -->
+  <param_set name="AllResonances"> 
      <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec           </param>
      <param type="string" name="single-res-xsec-param-set">  Default                             </param>
      <param type="string" name="integrator-alg-name">        genie::Simpson2D                    </param>
-<!--
-     <param type="string" name="integrator-param-set">       Default-Logarithmic                 </param>
--->
      <param type="string" name="integrator-param-set">       Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="Wmax">                       1.4                                 </param>
      <param type="double" name="ESplineMax">                 20                                  </param>
      <param type="string" name="resonance-name-list">  
                    P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
