@@ -22,7 +22,7 @@
 #include "Conventions/Constants.h"
 #include "Decay/DecayModelI.h"
 #include "Fragmentation/KNOHadronization.h"
-#include "Fragmentation/MultiplicityProb.h"
+//#include "Fragmentation/MultiplicityProb.h"
 #include "Fragmentation/MultiplicityProbModelI.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -61,23 +61,15 @@ void KNOHadronization::Initialize(void) const
 TClonesArray * KNOHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
-  //----- Create a multiplicity probability object & attach the requested model
-
-  LOG("KNOHad", pDEBUG) << "Creating MultiplicityProb & attaching model";
-
-  MultiplicityProb mult_prob;
-  mult_prob.AttachModel(fMultProbModel);
-
   //----- Build the multiplicity probabilities for the input interaction
 
   LOG("KNOHad", pDEBUG) << "Building Multiplicity Probability distribution";
   LOG("KNOHad", pDEBUG) << *interaction;
 
-  mult_prob.BuildProbDistribution(interaction);
+  const TH1D & mprob = fMultProbModel->ProbabilityDistribution(interaction);
 
-  //----- Get a random multiplicity based of their probability distribution
-  unsigned int min_mult = 2;
-  unsigned int mult = mult_prob.RandomMultiplicity(min_mult, fMaxMult);
+  //----- Generate a hadronic multiplicity
+  unsigned int mult = TMath::Nint( mprob.GetRandom() );
 
   //----- Get the charge that the hadron shower needs to have so as to
   //      conserve charge in the interaction
@@ -91,6 +83,7 @@ TClonesArray * KNOHadronization::Hadronize(
   LOG("KNOHad", pINFO) << "Hadron multiplicity  = " << mult;
   LOG("KNOHad", pINFO) << "Hadron Shower Charge = " << maxQ;
 
+  unsigned int min_mult = 2;
   if(mult < min_mult) {
    if(fForceMinMult) {
      LOG("KNOHad", pWARN) 
@@ -98,12 +91,6 @@ TClonesArray * KNOHadronization::Hadronize(
           << ". Forcing to minimum accepted multiplicity: " << min_mult;
      mult = min_mult;
    }
-  }
-
-  if(mult < min_mult || mult > fMaxMult) {
-     LOG("KNOHad", pERROR) 
-                     << "Multiplicity out of bounds. Return NULL list";
-     return 0;
   }
 
   //----- Initial particle 4-momentum
@@ -223,10 +210,6 @@ void KNOHadronization::LoadConfig(void)
 
   // Force minimum multiplicity (if generated less than that) or abort?
   fForceMinMult = fConfig->GetBoolDef("force-min-multiplicity", true);
-
-  // Maximum allowed multiplicity
-  fMaxMult = (unsigned int) fConfig->GetIntDef("max-multiplicity", 20);
-  assert(fMaxMult>2);
 
   // Probability for producing hadron each pairs
   fPpi0 = fConfig->GetDoubleDef("prob-fs-pi0-pair",       0.30); // pi0 pi0
