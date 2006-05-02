@@ -5,15 +5,21 @@
   <!-- Parton Model / CC DIS d^xsec/dxdy - below charm threshold -->
 
   <param_set name="CC-Default"> 
-     <param type="string" name="sf-alg-name">   genie::DISStructureFuncModelCC </param>
-     <param type="string" name="sf-param-set">  Default                        </param>
+     <param type="bool"   name="use-dis-res-joining-scheme">  true                            </param>
+     <param type="string" name="sf-alg-name">                 genie::DISStructureFuncModelCC  </param>
+     <param type="string" name="sf-param-set">                Default                         </param>
+     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
+     <param type="string" name="multiplicity-prob-param-set"> NoRenorm                        </param>
   </param_set>
 
   <!-- Parton Model / NC DIS d^xsec/dxdy -->
 
   <param_set name="NC-Default"> 
-     <param type="string" name="sf-alg-name">   genie::DISStructureFuncModelNC </param>
-     <param type="string" name="sf-param-set">  Default                        </param>
+     <param type="bool"   name="use-dis-res-joining-scheme">  true                            </param>
+     <param type="string" name="sf-alg-name">                 genie::DISStructureFuncModelNC  </param>
+     <param type="string" name="sf-param-set">                Default                         </param>
+     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
+     <param type="string" name="multiplicity-prob-param-set"> NoRenorm                        </param>
   </param_set>
 
 </alg_conf>
