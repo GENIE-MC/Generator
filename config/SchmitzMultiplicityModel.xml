@@ -2,15 +2,45 @@
 
 <alg_conf>
 
-  -- Default configuration for the SchmitzMultiplicityModel MultiplityProbModelI
+<!--
+Configuration for the Schmitz multiplicity probability model
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                         Type    Opt   Comment                                       Default
+.......................................................................................................................
+beta                         double  Yes   b in <mult> = a + 2blnW                       GPL value: KNO-Beta
+alpha-vp                     double  Yes   a for vp                                      GPL value: KNO-Alpha-vp
+alpha-vn                     double  Yes   a for vn                                      GPL value: KNO-Alpha-vn
+alpha-vbp                    double  Yes   a for vbp                                     GPL value: KNO-Alpha-vbp
+alpha-vbn                    double  Yes   a for vbn                                     GPL value: KNO-Alpha-vbn
+force-neugen-mult-limit      bool    Yes   force neugen upper multiplicity limit (10)    false
+apply-neugen-scaling-factors bool    Yes   apply NeuGEN multiplicity scaling factors     true
+renormalize-after-scaling    bool    Yes   renormalize mult distribution after scaling   true
+Wcut                         double  Yes   W cut in DIS/RES join scheme                  GPL value: Wcut
+R-vp-CC-m2                   double  Yes   scaling factor, vp  CC, multiplicity=2        GPL value: DIS-HMultWgt-vp-CC-m2
+R-vp-CC-m3                   double  Yes   scaling factor, vp  CC, multiplicity=3        GPL value: DIS-HMultWgt-vp-CC-m3
+R-vp-NC-m2                   double  Yes   scaling factor, vp  NC, multiplicity=2        GPL value: DIS-HMultWgt-vp-NC-m2
+R-vp-NC-m3                   double  Yes   scaling factor, vp  NC, multiplicity=3        GPL value: DIS-HMultWgt-vp-NC-m3
+R-vn-CC-m2                   double  Yes   scaling factor, vn  CC, multiplicity=2        GPL value: DIS-HMultWgt-vn-CC-m2
+R-vn-CC-m3                   double  Yes   scaling factor, vn  CC, multiplicity=3        GPL value: DIS-HMultWgt-vn-CC-m3
+R-vn-NC-m2                   double  Yes   scaling factor, vn  NC, multiplicity=2        GPL value: DIS-HMultWgt-vn-NC-m2
+R-vn-NC-m3                   double  Yes   scaling factor, vn  NC, multiplicity=3        GPL value: DIS-HMultWgt-vn-NC-m3
+R-vbp-CC-m2                  double  Yes   scaling factor, vbp CC, multiplicity=2        GPL value: DIS-HMultWgt-vbp-CC-m2
+R-vbp-CC-m3                  double  Yes   scaling factor, vbp CC, multiplicity=3        GPL value: DIS-HMultWgt-vbp-CC-m3
+R-vbp-NC-m2                  double  Yes   scaling factor, vbp NC, multiplicity=2        GPL value: DIS-HMultWgt-vbp-NC-m2
+R-vbp-NC-m3                  double  Yes   scaling factor, vbp NC, multiplicity=3        GPL value: DIS-HMultWgt-vbp-NC-m3
+R-vbn-CC-m2                  double  Yes   scaling factor, vbn CC, multiplicity=2        GPL value: DIS-HMultWgt-vbn-CC-m2
+R-vbn-CC-m3                  double  Yes   scaling factor, vbn CC, multiplicity=3        GPL value: DIS-HMultWgt-vbn-CC-m3
+R-vbn-NC-m2                  double  Yes   scaling factor, vbn NC, multiplicity=2        GPL value: DIS-HMultWgt-vbn-NC-m2
+R-vbn-NC-m3                  double  Yes   scaling factor, vbn NC, multiplicity=3        GPL value: DIS-HMultWgt-vbn-NC-m3
+-->
 
   <param_set name="Default"> 
-     <param type="double" name="beta">             1.30       </param>
-     <param type="double" name="alpha-vp">         0.50       </param>
-     <param type="double" name="alpha-vn">         0.00       </param>
-     <param type="double" name="alpha-vbp" >       0.20       </param>
-     <param type="double" name="alpha-vbn">        0.20       </param>
-     <param type="bool" name="force-neugen-mult-limit">     true </param>
+  </param_set>
+
+  <param_set name="NoRenorm"> 
+     <param type="bool" name="renormalize-after-scaling"> false </param>
   </param_set>
 
 </alg_conf>

@@ -76,22 +76,22 @@
      <param type="double" name="KNO-Alpha-vbn"> 0.20 </param> 
      
      <!-- NEUGEN parameters weighting the DIS hadronic multiplicity distributions to avoid 2-ble counting -->
-     <param type="double" name="DIS-HMultWgt-vp-CC-m1">  1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vp-CC-m2">  1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vp-NC-m1">  1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vp-NC-m2">  1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vn-CC-m1">  1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vn-CC-m2">  1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vn-NC-m1">  1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vn-NC-m2">  1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vbp-CC-m1"> 1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vbp-NC-m1"> 1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vbn-CC-m1"> 1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vbn-NC-m1"> 1.0  </param>
-     <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 1.0  </param>
+     <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.000  </param>
+     <param type="double" name="DIS-HMultWgt-vp-CC-m3">  1.000  </param>
+     <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.000  </param>
+     <param type="double" name="DIS-HMultWgt-vp-NC-m3">  0.387  </param>
+     <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.080  </param>
+     <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.000  </param>
+     <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.000  </param>
+     <param type="double" name="DIS-HMultWgt-vn-NC-m3">  0.387  </param>
+     <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.240  </param>
+     <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 0.874  </param>
+     <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.000  </param>
+     <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 0.133  </param>
+     <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.000  </param>
+     <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 0.874  </param>
+     <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.000  </param>
+     <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 0.133  </param>
 
      <!-- RES/DIS joining parameter Wcut -->
      <param type="double" name="Wcut"> 1.4 </param>
