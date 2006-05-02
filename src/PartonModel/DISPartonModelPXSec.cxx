@@ -105,9 +105,22 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
   xsec = TMath::Max(xsec,0.);
 
   LOG("DISXSec", pDEBUG)
-      << "d^2xsec/dxdy (E = " << E << ", x = " << x << ", y = " << y << ") = "
-      << xsec;
+        << "d2xsec/dxdy[FreeN] (E = " << E 
+                    << ", x = " << x << ", y = " << y << ") = " << xsec;
 
+  //----- If requested return the free nucleon xsec even for input nuclear tgt 
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+
+  //----- Compute nuclear cross section (simple scaling here, corrections must
+  //      have been included in the structure functions)
+
+  const Target & target = init_state.GetTarget();
+  int nucpdgc = target.StruckNucleonPDGCode();
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
+  xsec *= NNucl; 
+  LOG("DISXSec", pDEBUG)
+        << "d2xsec/dxdy[Nuclear] (E = " << E 
+                    << ", x = " << x << ", y = " << y << ") = " << xsec;
   return xsec;
 }
 //____________________________________________________________________________
