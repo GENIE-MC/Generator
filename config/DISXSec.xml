@@ -24,7 +24,6 @@
      <param type="string" name="partial-xsec-param-set"> CC-Default                          </param>
      <param type="string" name="integrator-alg-name">    genie::Simpson2D                    </param>
      <param type="string" name="integrator-param-set">   Default-Logarithmic-FixedNBins-101  </param>
-     <param type="double" name="Wmin">                   1.600                               </param>
      <param type="double" name="Q2min">                  1.000                               </param>
   </param_set>
 
@@ -33,7 +32,6 @@
      <param type="string" name="partial-xsec-param-set"> NC-Default                          </param>
      <param type="string" name="integrator-alg-name">    genie::Simpson2D                    </param>
      <param type="string" name="integrator-param-set">   Default-Logarithmic-FixedNBins-101  </param>
-     <param type="double" name="Wmin">                   1.600                               </param>
      <param type="double" name="Q2min">                  1.000                               </param>
   </param_set>
 
