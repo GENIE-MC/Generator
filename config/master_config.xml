@@ -94,7 +94,6 @@
    <config alg="genie::DISPXSec">                    DISPXSec.xml                    </config>
    <config alg="genie::RESPXSec">                    RESPXSec.xml                    </config>
    <config alg="genie::NuElectronXSec">              NuElectronXSec.xml              </config>
-   <config alg="genie::NuclearTargetXSec">           NuclearTargetXSec.xml           </config>
 
    <!--  ****** CONFIGURATION FOR REIN-SEGHAL MODEL ALGORITHMS ****** -->
    <config alg="genie::ReinSeghalCOHPXSec">          ReinSeghalCOHPXSec.xml          </config>

@@ -86,8 +86,8 @@
 
      <param type="string" name="interaction-list-alg">   genie::DISInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  CC-Default                         </param>
-     <param type="string" name="cross-section-alg">      genie::NuclearTargetXSec           </param>
-     <param type="string" name="cross-section-conf">     DIS-CC-Default                     </param>
+     <param type="string" name="cross-section-alg">      genie::DISXSec                     </param>
+     <param type="string" name="cross-section-conf">     CC-Parton-Model-Default            </param>
   </param_set>
 
 
@@ -114,8 +114,8 @@
 
      <param type="string" name="interaction-list-alg">   genie::DISInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  NC-Default                         </param>
-     <param type="string" name="cross-section-alg">      genie::NuclearTargetXSec           </param>
-     <param type="string" name="cross-section-conf">     DIS-NC-Default                     </param>
+     <param type="string" name="cross-section-alg">      genie::DISXSec                     </param>
+     <param type="string" name="cross-section-conf">     NC-Parton-Model-Default            </param>
   </param_set>
 
 
@@ -250,8 +250,8 @@
 
      <param type="string" name="interaction-list-alg">   genie::DISInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  CC-Charm-Default                   </param>
-     <param type="string" name="cross-section-alg">      genie::NuclearTargetXSec           </param>
-     <param type="string" name="cross-section-conf">     DIS-CC-Charm-Default               </param>
+     <param type="string" name="cross-section-alg">      genie::DISXSec                     </param>
+     <param type="string" name="cross-section-conf">     CC-Charm-Default                   </param>
   </param_set>
 
   <param_set name="IMD"> 
