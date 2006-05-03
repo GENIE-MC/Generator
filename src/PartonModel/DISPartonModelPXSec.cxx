@@ -200,8 +200,7 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
 //
   double R;
 
-  const double Wmin = kNeutronMass + kPionMass + 1E-2;
-  const double Wmax = fWcut;
+  const double Wmin = kNeutronMass + kPionMass + 1E-3;
 
   //-- Access the cache branch. The branch key is formed as:
   //   algid/DIS-RES-Join/nu-pdg:N;hit-nuc-pdg:N/inttype
@@ -225,21 +224,35 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
 
   //-- If it does not exist create a new one and cache DIS xsec suppression
   //   factors
+  bool non_zero=false;
   if(!cbr) {
       LOG("DISXSec", pNOTICE) 
                         << "\n ** Creating cache branch - key = " << key;
 
       cbr = new CacheBranchFx("DIS Suppr. Factors in DIS/RES Join Scheme");
       Interaction interaction(*in);
-      const int    kN = 50;
-      const double dW = (Wmax-Wmin)/(kN-1);
+
+      const int kN   = 300;
+      double WminSpl = Wmin;
+      double WmaxSpl = fWcut + 0.1; // well into the area where scaling factor = 1
+      double dW      = (WmaxSpl-WminSpl)/(kN-1);
+
       for(int i=0; i<kN; i++) {
-        double W = Wmin+i*dW;
+        double W = WminSpl+i*dW;
         interaction.GetKinematicsPtr()->SetW(W);
         const TH1D & mprob = 
                     fMultProbModel->ProbabilityDistribution(&interaction);
         R = mprob.Integral("width");
 
+        // make sure that it takes enough samples where it is non-zero:
+        // modify the step and the sample counter once I've hit the first
+        // non-zero value
+        if(!non_zero && R>0) {
+	  non_zero=true;
+          WminSpl=W;
+          i = 0;
+          dW = (WmaxSpl-WminSpl)/(kN-1);
+        }
         LOG("DISXSec", pNOTICE) 
 	    << "Cached DIS XSec Suppr. factor (@ W=" << W << ") = " << R;
 
@@ -255,8 +268,10 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
 
   //-- Now return the suppression factor
   double Wo = utils::kinematics::CalcW(in);
-  if(Wo > Wmin && Wo < Wmax) R = cache_branch(Wo);
-  else R=1.0;
+  if      (Wo > Wmin && Wo < fWcut-1E-2) R = cache_branch(Wo);
+  else if (Wo <= Wmin)                   R = 0.0;
+  else                                   R = 1.0;
+
   LOG("DISXSec", pDEBUG) 
             << "DIS/RES Join: DIS xsec suppr. (W=" << Wo << ") = " << R;
   return R;

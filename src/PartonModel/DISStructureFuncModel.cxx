@@ -149,10 +149,14 @@ double DISStructureFuncModel::KVal (const Interaction * ) const
   return 1.;
 }
 //____________________________________________________________________________
-double DISStructureFuncModel::NuclMod(const Interaction * ) const
+double DISStructureFuncModel::NuclMod(const Interaction * interaction) const
 {
 // Nuclear modification to Fi
 
+  // if requested switch off nuclear corrections even for input nuclear tgt
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return 1.0;
+
+  // compute nuclear correction
   return 1.;
 }
 //____________________________________________________________________________
