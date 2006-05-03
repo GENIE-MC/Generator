@@ -56,21 +56,27 @@ const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
                                         const Interaction * interaction) const
 {
   // Reset previously computed multiplicity distribution
+  SLOG("Schmitz", pDEBUG)<< "Resetting multiplicity probability distribution";
   fMultProb->Reset();
 
   // Compute the average charged hadron multiplicity as: <n> = a + b*ln(W^2)
-  double alpha = this->SelectOffset(interaction);
-  double W     = utils::kinematics::CalcW(interaction);
-  double avn   = alpha + fB * 2*TMath::Log(W);
- 
+  // Calculate avergage hadron multiplicity (= 1.5 x charged hadron mult.)
+
+  double W = utils::kinematics::CalcW(interaction);
   assert(W>kNeutronMass+kPionMass);
 
-  // Calculate avergage hadron multiplicity (= 1.5 x charged hadron mult.)
+  double alpha = this->SelectOffset(interaction);
+  double avn   = alpha + fB * 2*TMath::Log(W);
   avn *= 1.5;
+
+  SLOG("Schmitz", pINFO) 
+             << "Average hadronic multiplicity (W=" << W << ") = " << avn;
 
   // Find the maximum multiplicity as W = Mneutron + (maxmult-1)*Mpion
   double maxmult = (fForceNeuGenLimit) ?
                     10 : TMath::Floor(1 + (W-kNeutronMass)/kPionMass);
+
+  SLOG("Schmitz", pDEBUG) << "Computed maximum multiplicity = " << maxmult;
 
   // If it exceeds the upper end at the existing TH1D then recreate it
   if(maxmult + 0.5 > fMultProb->GetXaxis()->GetXmax()) {
@@ -94,26 +100,32 @@ const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
      double P       = avnP / avn; // P(n)
 
      SLOG("Schmitz", pDEBUG)
-          << "W = " << W << ", <n> = " << avn << ", n/<n> = " << n_avn
-          << ", <n>*P = " << avnP << ", P = " << P;
-
+          << "n = " << n << " (n/<n> = " << n_avn
+                            << ", <n>*P = " << avnP << ") => P = " << P;
      fMultProb->Fill(n,P);
   }
-  // Normalize the probability distribution
-  fMultProb->Scale( 1.0 / fMultProb->Integral("width") );
 
-  // Apply the NeuGEN probability scaling factors -if requested-
-  if(fApplyRijk) {
-    SLOG("Schmitz", pDEBUG) << "Applying NeuGEN scaling factors";
-    // Only do so for W<Wcut
-    if(W<fWcut) {
-      this->ApplyRijk(interaction, fRenormalize);
-    } else {
-      SLOG("Schmitz", pDEBUG)  
-            << "W = " << W << " < Wcut = " << fWcut 
-                         << " - Will not apply scaling factors";
-    }//<wcut?
-  }//apply?
+  double integral = fMultProb->Integral("width");
+
+  if(integral>0) {
+    // Normalize the probability distribution
+    fMultProb->Scale( 1.0 / fMultProb->Integral("width") );
+
+    // Apply the NeuGEN probability scaling factors -if requested-
+    if(fApplyRijk) {
+      SLOG("Schmitz", pDEBUG) << "Applying NeuGEN scaling factors";
+      // Only do so for W<Wcut
+      if(W<fWcut) {
+        this->ApplyRijk(interaction, fRenormalize);
+      } else {
+        SLOG("Schmitz", pDEBUG)  
+              << "W = " << W << " < Wcut = " << fWcut 
+                                << " - Will not apply scaling factors";
+      }//<wcut?
+    }//apply?
+  } else {
+     SLOG("Schmitz", pDEBUG) << "probability distribution integral = 0";
+  }
 
   return *fMultProb;
 }
@@ -154,8 +166,19 @@ void SchmitzMultiplicityModel::ApplyRijk(
   int nbins = fMultProb->GetNbinsX();
   for(int i = 1; i <= nbins; i++) {
      int n = TMath::Nint( fMultProb->GetBinCenter(i) ); 
-     if(n==2) fMultProb->SetBinContent(i, R2 * fMultProb->GetBinContent(i));
-     if(n==3) fMultProb->SetBinContent(i, R3 * fMultProb->GetBinContent(i));
+
+     double R=1;
+     if      (n==2) R=R2;
+     else if (n==3) R=R3;
+
+     if(n==2 || n==3) {
+        double P   = fMultProb->GetBinContent(i);
+        double Psc = R*P;
+        LOG("Schmitz", pDEBUG) 
+          << "n=" << n << "/ Scaling factor R = " 
+                              << R << "/ P " << P << " --> " << Psc;
+        fMultProb->SetBinContent(i, Psc);
+     }
      if(n>3) break;
   }
 
