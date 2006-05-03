@@ -14,6 +14,8 @@
 */
 //____________________________________________________________________________
 
+#include <sstream>
+
 #include <TMath.h>
 #include <TH1D.h>
 
@@ -34,6 +36,8 @@
 #include "Utils/KineUtils.h"
 #include "Utils/Cache.h"
 #include "Utils/CacheBranchFx.h"
+
+using std::ostringstream;
 
 using namespace genie;
 using namespace genie::constants;
@@ -199,16 +203,22 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
   const double Wmin = kNeutronMass + kPionMass + 1E-2;
   const double Wmax = fWcut;
 
-  //-- Access the cache branch 
+  //-- Access the cache branch. The branch key is formed as:
+  //   algid/DIS-RES-Join/nu-pdg:N;hit-nuc-pdg:N/inttype
+
   Cache * cache = Cache::Instance();
 
   const InitialState & ist = in->GetInitialState();
   const ProcessInfo &  pi  = in->GetProcessInfo();
-
+  
   string algkey = this->Id().Key() + "/DIS-RES-Join";
-  string ikey   = ist.AsString() + ";" + pi.InteractionTypeAsString();
 
-  string key = cache->CacheBranchKey(algkey, ikey);
+  ostringstream ikey;
+  ikey << "nu-pdgc:" << ist.GetProbePDGCode() 
+       << ";hit-nuc-pdg:" << ist.GetTarget().StruckNucleonPDGCode() << "/"
+       << pi.InteractionTypeAsString();
+
+  string key = cache->CacheBranchKey(algkey, ikey.str());
 
   CacheBranchFx * cbr =
           dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
@@ -248,8 +258,7 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
   if(Wo > Wmin && Wo < Wmax) R = cache_branch(Wo);
   else R=1.0;
   LOG("DISXSec", pDEBUG) 
-          << "DIS/RES Join: DIS xsec suppresion (W=" << Wo << ") = " << R;
-
+            << "DIS/RES Join: DIS xsec suppr. (W=" << Wo << ") = " << R;
   return R;
 }
 //____________________________________________________________________________
