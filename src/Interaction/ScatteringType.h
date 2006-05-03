@@ -34,6 +34,7 @@ typedef enum EScatteringType {
   kScDeepInelastic,
   kScResonant,
   kScCoherent,
+  kScDiffractive,
   kScInverseMuDecay
 
 } ScatteringType_t;
@@ -52,12 +53,14 @@ public:
       case(kScDeepInelastic) :  return "DIS";      break;
       case(kScResonant) :       return "RES";      break;
       case(kScCoherent) :       return "COH";      break;
+      case(kScDiffractive) :    return "DFR";      break;
       case(kScInverseMuDecay) : return "IMD";      break;
       default :                 return "Unknown";  break;
     }
     return "Unknown";
   }
   //__________________________________________________________________________
+/*
   static ScatteringType_t FromString(string type)
   {
     //-- Make uppercase/lowercase irrelevant
@@ -97,6 +100,7 @@ public:
 
     else return kScNull;
   }
+*/
   //__________________________________________________________________________
 };
 
