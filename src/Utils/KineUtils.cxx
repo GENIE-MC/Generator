@@ -97,6 +97,12 @@ double genie::utils::kinematics::PhaseSpaceVolume(
   }
 }
 //____________________________________________________________________________
+double genie::utils::kinematics::Jacobian(
+  const Interaction * const i, KinePhaseSpace_t fromps, KinePhaseSpace_t tops)
+{
+  return 1;
+}
+//____________________________________________________________________________
 Range1D_t genie::utils::kinematics::WRange(
                                         const Interaction * const interaction)
 {
@@ -330,6 +336,45 @@ double genie::utils::kinematics::CalcW(const Interaction * const interaction)
   return 0;
 }
 //____________________________________________________________________________
+void genie::utils::kinematics::WQ2toXY(
+            double Ev, double M, double W, double Q2, double & x, double & y)
+{
+// Converts (W,Q2) => (x,y)
+// Uses the system: a) W^2 - M^2 = 2*Ev*M*y*(1-x) and b) Q^2 = 2*x*y*M*Ev
+// Ev is the neutrino energy at the struck nucleon rest frame
+// M is the nucleon mass - it does not need to be on the mass shell
+
+  double M2  = TMath::Power(M,2);
+  double W2  = TMath::Power(W,2);
+
+  x = Q2 / (W2-M2+Q2);
+  y = (W2-M2+Q2) / (2*M*Ev);
+
+  assert(x>0. and x<1.);
+  assert(y>0. and y<1.);
+
+  LOG("KineLimits", pDEBUG) 
+        << "(W=" << W << ",Q2=" << Q2 << ") => (x="<< x << ", y=" << y<< ")";
+}
+//___________________________________________________________________________
+void genie::utils::kinematics::XYtoWQ2(
+            double Ev, double M, double & W, double & Q2, double x, double y)
+{
+// Converts (x,y) => (W,Q2)
+// Uses the system: a) W^2 - M^2 = 2*Ev*M*y*(1-x) and b) Q^2 = 2*x*y*M*Ev
+// Ev is the neutrino energy at the struck nucleon rest frame
+// M is the nucleon mass - it does not need to be on the mass shell
+
+  double M2  = TMath::Power(M,2);
+  double W2  = M2 + 2*Ev*M*y*(1-x);
+
+  W  = TMath::Sqrt(TMath::Max(0., W2));
+  Q2 = 2*x*y*M*Ev;
+
+  LOG("KineLimits", pDEBUG) 
+      << "(x=" << x << ",y=" << y << " => (W=" << W << ",Q2=" << Q2 << ")";
+}
+//___________________________________________________________________________
 double genie::utils::kinematics::SlowRescalingVar(
                              const Interaction * const interaction, double mc)
 {
