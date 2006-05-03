@@ -17,7 +17,6 @@
 
 #pragma link C++ class genie::MultiplicityProbModelI;
 #pragma link C++ class genie::SchmitzMultiplicityModel;
-//#pragma link C++ class genie::MultiplicityProb;
 
 #pragma link C++ class genie::CharmFractionTablePool;
 #pragma link C++ class genie::CharmFractionTable;
