@@ -104,15 +104,42 @@ double genie::utils::kinematics::Jacobian(
 {
   double J=0;
   bool handled=true;
+  const Kinematics & kine = i->GetKinematics();
 
   switch(fromps) {
 
-  // ** handle {Q2} -> X
+  // ** handle {Q2}|E -> X
   case(kPSQ2fE):
      switch(tops) {
-        // ****** transformation: {Q2} -> {lnQ2}
+        // ****** transformation: {Q2}|E -> {lnQ2}|E
         case(kPSlogQ2fE):
-           J = i->GetKinematics().Q2();
+           J = kine.Q2();
+           break;
+        default:
+           handled=false;
+           break;
+     }
+     break;
+
+  // ** handle {x,y}|E -> X
+  case(kPSxyfE):
+     switch(tops) {
+        // ****** transformation: {x,y}|E -> {lnx,lny}|E
+        case(kPSlogxlogyfE):
+           J = kine.x() * kine.y();
+           break;
+        default:
+           handled=false;
+           break;
+     }
+     break;
+
+  // ** handle {W,Q2}|E -> X
+  case(kPSWQ2fE):
+     switch(tops) {
+        // ****** transformation: {W,Q2}|E -> {W,lnQ2}|E
+        case(kPSWlogQ2fE):
+           J = kine.Q2();
            break;
         default:
            handled=false;
