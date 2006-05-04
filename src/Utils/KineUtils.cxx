@@ -14,6 +14,8 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
@@ -52,28 +54,28 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 
   switch(ps) {
 
-  case(kPSQ2):
+  case(kPSQ2fE):
   {
     Range1D_t Q2 = KineRange(in, kKVQ2);
     vol = Q2.max - Q2.min;
     return vol;
     break;
   }
-  case(kPSq2):
+  case(kPSq2fE):
   {
     Range1D_t q2 = KineRange(in, kKVq2);
     vol = q2.min - q2.max;
     return vol;
     break;
   }
-  case(kPSW):
+  case(kPSWfE):
   {
     Range1D_t W = KineRange(in, kKVW);
     vol = W.max - W.min;
     return vol;
     break;
   }
-  case(kPSWQ2):
+  case(kPSWQ2fE):
   {
     Range1D_t W = KineRange(in, kKVW);
     if(W.max<0) return 0;
@@ -92,7 +94,7 @@ double genie::utils::kinematics::PhaseSpaceVolume(
   default:
    SLOG("KineLimits", pERROR) 
      << "Couldn't compute phase space volume for " 
-                    << KinePhaseSpace::AsString(ps) << "using \n"<< *in;
+                    << KinePhaseSpace::AsString(ps) << "using \n" << *in;
    return 0;
   }
 }
@@ -100,7 +102,38 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 double genie::utils::kinematics::Jacobian(
   const Interaction * const i, KinePhaseSpace_t fromps, KinePhaseSpace_t tops)
 {
-  return 1;
+  double J=0;
+  bool handled=true;
+
+  switch(fromps) {
+
+  // ** handle {Q2} -> X
+  case(kPSQ2fE):
+     switch(tops) {
+        // ****** transformation: {Q2} -> {lnQ2}
+        case(kPSlogQ2fE):
+           J = i->GetKinematics().Q2();
+           break;
+        default:
+           handled=false;
+           break;
+     }
+     break;
+
+  default:
+     handled=false;
+     break;
+  }
+
+  if(!handled) {
+     SLOG("KineLimits", pFATAL) 
+       << "*** Can not compute Jacobian for transforming: \n"
+                     << KinePhaseSpace::AsString(fromps) << " --> " 
+                                            << KinePhaseSpace::AsString(tops);
+     exit(1);
+  }
+
+  return J;
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::WRange(
@@ -182,7 +215,7 @@ Range1D_t genie::utils::kinematics::Q2Range(
 
   // limit the minimum Q2
   if(Q2.min < kMinQ2Limit) Q2.min = kMinQ2Limit;
-  if(Q2.max < kMinQ2Limit) Q2.max = kMinQ2Limit;
+  if(Q2.max < Q2.min) {Q2.min = -1; Q2.max = -1;}
 
   return Q2;
 }
