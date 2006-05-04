@@ -75,6 +75,7 @@
   <priority msgstream="Interaction">         INFO   </priority>
   <priority msgstream="Intranuke">           INFO   </priority>
   <priority msgstream="ISApp">               INFO   </priority>
+  <priority msgstream="IntGenMap">           INFO   </priority>
   <priority msgstream="KNO">                 INFO   </priority>
   <priority msgstream="KNOHad">              INFO   </priority>
   <priority msgstream="KNOHad2">             INFO   </priority>
@@ -120,7 +121,7 @@
   <priority msgstream="RESKinematics">       INFO   </priority>
   <priority msgstream="RESSelector">         NOTICE </priority>
   <priority msgstream="Rndm">                INFO   </priority>
-  <priority msgstream="Schmitz">             INFO   </priority>
+  <priority msgstream="Schmitz">             NOTICE </priority>
   <priority msgstream="Simpson1D">           WARN   </priority>
   <priority msgstream="Simpson2D">           WARN   </priority>
   <priority msgstream="SimMCIntegrator">     NOTICE </priority>

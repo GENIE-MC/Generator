@@ -5,8 +5,7 @@
   -- Default configuration for the EventGenerator EventRecordVisitorI
 
   <param_set name="QEL-CC"> 
-     <param type="string" name="vld-context">       
-        proc:QEL;curr:CC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      8                                  </param>
 
@@ -34,8 +33,7 @@
   </param_set>
 
   <param_set name="QEL-NC"> 
-     <param type="string" name="vld-context">       
-         proc:QEL;curr:NC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      8                                  </param>
 
@@ -64,8 +62,7 @@
 
 
   <param_set name="DIS-CC"> 
-     <param type="string" name="vld-context">   
-       proc:DIS;curr:CC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      7                                  </param>
 
@@ -92,8 +89,7 @@
 
 
   <param_set name="DIS-NC"> 
-     <param type="string" name="vld-context">   
-        proc:DIS;curr:NC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      7                                  </param>
 
@@ -120,8 +116,7 @@
 
 
   <param_set name="RES-CC"> 
-     <param type="string" name="vld-context">   
-        proc:RES;curr:CC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      7                                  </param>
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
@@ -146,8 +141,7 @@
   </param_set>
 
   <param_set name="RES-NC"> 
-     <param type="string" name="vld-context">   
-        proc:RES;curr:NC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      7                                  </param>
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
@@ -173,8 +167,7 @@
 
 
   <param_set name="RSPP-CC"> 
-     <param type="string" name="vld-context">   
-        proc:RES;curr:CC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      8                                  </param>
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
@@ -201,8 +194,7 @@
   </param_set>
 
   <param_set name="RSPP-NC"> 
-     <param type="string" name="vld-context">   
-        proc:RES;curr:NC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      8                                  </param>
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
@@ -230,8 +222,7 @@
 
 
   <param_set name="DIS-CC-CHARM"> 
-     <param type="string" name="vld-context">   
-         proc:DIS;curr:CC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      6                                  </param>
 
@@ -255,8 +246,7 @@
   </param_set>
 
   <param_set name="IMD"> 
-     <param type="string" name="vld-context">       
-                                    proc:IMD;curr:CC;probe:numu;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      4                                  </param>
 
@@ -277,8 +267,7 @@
 
 
   <param_set name="COH-NC"> 
-     <param type="string" name="vld-context">       
-      proc:COH;curr:NC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      4                                  </param>
 
@@ -298,8 +287,7 @@
   </param_set>
 
   <param_set name="COH-CC"> 
-     <param type="string" name="vld-context">       
-      proc:COH;curr:CC;probe:nue,nuebar,numu,numubar,nutau,nutaubar;target:all;energy:0.010-200 </param>
+     <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
      <param type="int"    name="n-generator-steps">      4                                  </param>
 
@@ -317,7 +305,6 @@
      <param type="string" name="cross-section-alg">      genie::COHXSec                     </param>
      <param type="string" name="cross-section-conf">     Default                            </param>
   </param_set>
-
 
 </alg_conf>
 
