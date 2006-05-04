@@ -38,6 +38,7 @@ typedef enum EKinePhaseSpace {
   kPSyfEx,
   kPSlogyfEx,
   kPSxyfE,
+  kPSlogxlogyfE,
   kPSQ2fE,
   kPSlogQ2fE,
   kPSQ2fEW,
@@ -48,6 +49,7 @@ typedef enum EKinePhaseSpace {
   kPSWfEQ2,
   kPSWfEq2,
   kPSWQ2fE,
+  kPSWlogQ2fE,
   kPSWq2fE,
   kPSxytfE
 } KinePhaseSpace_t;
@@ -89,6 +91,9 @@ public:
       case(kPSlogyfEx) : 
         return "1-D Phase Space: {logy}|E,x";  
         break;
+      case(kPSlogxlogyfE) : 
+        return "2-D Phase Space: {logx,logy}|E";  
+        break;
       case(kPSxyfE) : 
         return "2-D Phase Space: {x,y}|E";  
         break;
@@ -121,6 +126,9 @@ public:
         break;
       case(kPSWQ2fE) :
         return "2-D Phase Space: {W,Q2}|E"; 
+        break;
+      case(kPSWlogQ2fE) :
+        return "2-D Phase Space: {W,logQ2}|E"; 
         break;
       case(kPSWq2fE) :
         return "2-D Phase Space: {W,q2}|E";  
