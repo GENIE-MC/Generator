@@ -26,21 +26,19 @@ class TLorentzVector;
 
 namespace genie {
 
-class XSecAlgorithmMap;
+class InteractionGeneratorMap;
 class EventRecord;
 
 class InteractionSelectorI : public Algorithm {
 
 public :
-
   virtual ~InteractionSelectorI();
 
   //!  Define the InteractionSelectorI interface
   virtual EventRecord * SelectInteraction
-     (const XSecAlgorithmMap * xsmp, const TLorentzVector & p4) const = 0;
+    (const InteractionGeneratorMap * igmp, const TLorentzVector & p4) const = 0;
 
 protected:
-
   InteractionSelectorI();
   InteractionSelectorI(string name);
   InteractionSelectorI(string name, string config);

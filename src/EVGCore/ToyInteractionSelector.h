@@ -32,14 +32,13 @@ namespace genie {
 class ToyInteractionSelector : public InteractionSelectorI {
 
 public :
-
   ToyInteractionSelector();
   ToyInteractionSelector(string config);
   ~ToyInteractionSelector();
 
   //! implement the InteractionSelectorI interface
   EventRecord * SelectInteraction
-          (const XSecAlgorithmMap * xsmp, const TLorentzVector & p4) const;
+    (const InteractionGeneratorMap * igmp, const TLorentzVector & p4) const;
 };
 
 }      // genie namespace

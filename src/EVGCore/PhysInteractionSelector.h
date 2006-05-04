@@ -28,14 +28,13 @@ namespace genie {
 class PhysInteractionSelector : public InteractionSelectorI {
 
 public :
-
   PhysInteractionSelector();
   PhysInteractionSelector(string config);
   ~PhysInteractionSelector();
 
   //! implement the InteractionSelectorI interface
   EventRecord * SelectInteraction
-          (const XSecAlgorithmMap * xsmp, const TLorentzVector & p4) const;
+     (const InteractionGeneratorMap * igmp, const TLorentzVector & p4) const;
 
   //! override the Algorithm::Configure methods to load configuration
   //! data to private data members
@@ -43,7 +42,6 @@ public :
   void Configure (string param_set);
 
 private:
-
   void LoadConfigData (void);
 
   bool fUseSplines;

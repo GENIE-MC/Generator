@@ -22,8 +22,9 @@
 #include "Conventions/Units.h"
 #include "EVGCore/PhysInteractionSelector.h"
 #include "EVGCore/EventRecord.h"
+#include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/InteractionList.h"
-#include "EVGCore/XSecAlgorithmMap.h"
+#include "EVGCore/InteractionGeneratorMap.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "Numerical/Spline.h"
@@ -52,16 +53,16 @@ PhysInteractionSelector::~PhysInteractionSelector()
 }
 //___________________________________________________________________________
 EventRecord * PhysInteractionSelector::SelectInteraction
-          (const XSecAlgorithmMap * xscmap, const TLorentzVector & p4) const
+     (const InteractionGeneratorMap * igmap, const TLorentzVector & p4) const
 {
-  if(!xscmap) {
+  if(!igmap) {
      LOG("InteractionSelector", pERROR)
-               << "\n*** NULL XSecAlgorithmMap! Can't select interaction";
+            << "\n*** NULL InteractionGeneratorMap! Can't select interaction";
      return 0;
   }
-  if(xscmap->size() <= 0) {
+  if(igmap->size() <= 0) {
      LOG("InteractionSelector", pERROR)
-              << "\n*** Empty XSecAlgorithmMap! Can't select interaction";
+           << "\n*** Empty InteractionGeneratorMap! Can't select interaction";
      return 0;
   }
 
@@ -70,7 +71,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
   XSecSplineList * xssl = 0;
   if (fUseSplines) xssl = XSecSplineList::Instance();
 
-  const InteractionList & ilst = xscmap->GetInteractionList();
+  const InteractionList & ilst = igmap->GetInteractionList();
 
   vector<double> xseclist(ilst.size());
 
@@ -87,7 +88,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
 
      // get the cross section for this interaction
      const XSecAlgorithmI * xsec_alg =
-                             xscmap->FindXSecAlgorithm(interaction);
+               igmap->FindGenerator(interaction)->CrossSectionAlg();
      assert(xsec_alg);
 
      double xsec = 0; // cross section for this interaction

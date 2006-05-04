@@ -19,7 +19,7 @@
 #include "EVGCore/ToyInteractionSelector.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGCore/InteractionList.h"
-#include "EVGCore/XSecAlgorithmMap.h"
+#include "EVGCore/InteractionGeneratorMap.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -47,23 +47,23 @@ ToyInteractionSelector::~ToyInteractionSelector()
 }
 //___________________________________________________________________________
 EventRecord * ToyInteractionSelector::SelectInteraction
-          (const XSecAlgorithmMap * xscmap, const TLorentzVector & p4) const
+     (const InteractionGeneratorMap * igmap, const TLorentzVector & p4) const
 {
-  if(!xscmap) {
+  if(!igmap) {
      LOG("InteractionSelector", pERROR)
-               << "\n*** NULL XSecAlgorithmMap! Can't select interaction";
+           << "\n*** NULL InteractionGeneratorMap! Can't select interaction";
      return 0;
   }
-  if(xscmap->size() <= 0) {
+  if(igmap->size() <= 0) {
      LOG("InteractionSelector", pERROR)
-              << "\n*** Empty XSecAlgorithmMap! Can't select interaction";
+          << "\n*** Empty InteractionGeneratorMap! Can't select interaction";
      return 0;
   }
 
   // select a random event generator
   RandomGen * rnd = RandomGen::Instance();
 
-  const InteractionList & ilst = xscmap->GetInteractionList();
+  const InteractionList & ilst = igmap->GetInteractionList();
 
   unsigned int nint = ilst.size();
   unsigned int iint = (unsigned int) rnd->Random1().Integer(nint);
