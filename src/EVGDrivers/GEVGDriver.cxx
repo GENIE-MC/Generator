@@ -28,14 +28,13 @@
 #include "EVGDrivers/GEVGDriver.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGCore/EventGeneratorList.h"
-#include "EVGCore/EGResponsibilityChain.h"
 #include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/ToyInteractionSelector.h"
 #include "EVGCore/PhysInteractionSelector.h"
 #include "EVGCore/EventGeneratorListAssembler.h"
 #include "EVGCore/InteractionList.h"
 #include "EVGCore/InteractionListGeneratorI.h"
-#include "EVGCore/XSecAlgorithmMap.h"
+#include "EVGCore/InteractionGeneratorMap.h"
 #include "GHEP/GHepFlags.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -93,13 +92,9 @@ void GEVGDriver::Init(void)
   // interaction selector
   fIntSelector = 0;
 
-  // chain of responsibility - for selecting the Event Generator object that
-  // can generate the selected interaction
-  fChain = 0;
-
   // flag instructing the driver whether, for each interaction, to compute
-  // cross section by running their corresponding XSecAlgorithm or by evaluating
-  // their corresponding xsec spline
+  // cross section by running their corresponding XSecAlgorithm or by 
+  // evaluating their corresponding xsec spline
   fUseSplines = false;
 
   // 'depth' counter when entering a recursive mode to re-generate a failed/
@@ -107,10 +102,10 @@ void GEVGDriver::Init(void)
   // depths
   fNRecLevel = 0;
 
-  // an "interaction" -> "xsec algorithm" associative contained built for all
-  // simulated interactions (from the loaded Event Generators and for the input
-  // initial state)
-  fXSecAlgorithmMap = 0;
+  // an "interaction" -> "generator" associative contained built for all
+  // simulated interactions (from the loaded Event Generators and for the 
+  // input initial state)
+  fIntGenMap = 0;
 
   // A spline describing the sum of all interaction cross sections given an
   // initial state (the init state with which this driver was configured).
@@ -151,8 +146,7 @@ void GEVGDriver::CleanUp(void)
   if (fInitState)        delete fInitState;
   if (fEvGenList)        delete fEvGenList;
   if (fIntSelector)      delete fIntSelector;
-  if (fChain)            delete fChain;
-  if (fXSecAlgorithmMap) delete fXSecAlgorithmMap;
+  if (fIntGenMap)        delete fIntGenMap;
   if (fXSecSumSpl)       delete fXSecSumSpl;
   if (fFiltUnphysMask)   delete fFiltUnphysMask;
 }
@@ -175,11 +169,11 @@ void GEVGDriver::Configure(const InitialState & init_state)
 {
   LOG("GEVGDriver", pNOTICE) << "Configuring a GEVGDriver object";
 
-  this -> BuildInitialState        (init_state);
-  this -> BuildGeneratorList       ();
-  this -> BuildXSecAlgorithmMap    ();
-  this -> BuildResponsibilityChain ();
-  this -> BuildInteractionSelector ();
+  this -> BuildInitialState            (init_state);
+  this -> BuildGeneratorList           ();
+  this -> BuildInteractionGeneratorMap ();
+//  this -> BuildResponsibilityChain     ();
+  this -> BuildInteractionSelector     ();
 }
 //___________________________________________________________________________
 void GEVGDriver::BuildInitialState(const InitialState & init_state)
@@ -208,29 +202,19 @@ void GEVGDriver::BuildGeneratorList(void)
   fEvGenList = evglist_assembler.AssembleGeneratorList();
 }
 //___________________________________________________________________________
-void GEVGDriver::BuildXSecAlgorithmMap(void)
+void GEVGDriver::BuildInteractionGeneratorMap(void)
 {
 //! figure out which list of event generators to use from the $GEVGL
 //! environmental variable (use "Default") if the variable is not set.
 
   LOG("GEVGDriver", pNOTICE)
-     << "Building the `XSecAlgorithmMap` for init-state = " 
+     << "Building the `InteractionGeneratorMap` for init-state = " 
                                                   << fInitState->AsString();
-  fXSecAlgorithmMap = new XSecAlgorithmMap;
-  fXSecAlgorithmMap->UseGeneratorList(fEvGenList);
-  fXSecAlgorithmMap->BuildMap(*fInitState);
+  fIntGenMap = new InteractionGeneratorMap;
+  fIntGenMap->UseGeneratorList(fEvGenList);
+  fIntGenMap->BuildMap(*fInitState);
 
-  LLOG("GEVGDriver", pNOTICE) << *fXSecAlgorithmMap;
-}
-//___________________________________________________________________________
-void GEVGDriver::BuildResponsibilityChain(void)
-{
-  LOG("GEVGDriver", pNOTICE)
-               << "Building the `Generator Chain of Responsibility`";
-
-  if(fChain) delete fChain;
-  fChain = new EGResponsibilityChain;
-  fChain->SetGeneratorList(fEvGenList);
+  LLOG("GEVGDriver", pNOTICE) << *fIntGenMap;
 }
 //___________________________________________________________________________
 void GEVGDriver::BuildInteractionSelector(void)
@@ -252,8 +236,8 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   //   InteractionList assembled by the EventGenerators) and bootstrap the
   //   event record
   LOG("GEVGDriver", pINFO)
-               << "Selecting an Interaction & Bootstraping the EventRecord";
-  fCurrentRecord = fIntSelector->SelectInteraction(fXSecAlgorithmMap, nu4p);
+             << "Selecting an Interaction & Bootstraping the EventRecord";
+  fCurrentRecord = fIntSelector->SelectInteraction(fIntGenMap, nu4p);
 
   assert(fCurrentRecord); // abort if no interaction could be selected!
 
@@ -272,7 +256,7 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
 
   LOG("GEVGDriver", pINFO) << "Finding an appropriate EventGenerator";
 
-  const EventGeneratorI * evgen = fChain->FindGenerator(interaction);
+  const EventGeneratorI * evgen = fIntGenMap->FindGenerator(interaction);
   assert(evgen);
 
   //-- Generate the selected event
@@ -343,7 +327,7 @@ double GEVGDriver::XSecSum(const TLorentzVector & nup4)
   XSecSplineList * xssl = XSecSplineList::Instance();
 
   // Get the list of all interactions that can be generated by this driver
-  const InteractionList & ilst = fXSecAlgorithmMap->GetInteractionList();
+  const InteractionList & ilst = fIntGenMap->GetInteractionList();
 
   // Loop over all interactions & compute cross sections
   InteractionList::const_iterator intliter;
@@ -359,7 +343,7 @@ double GEVGDriver::XSecSum(const TLorentzVector & nup4)
 
      // get corresponding cross section algorithm
      const XSecAlgorithmI * xsec_alg =
-                  fXSecAlgorithmMap->FindXSecAlgorithm(interaction);
+               fIntGenMap->FindGenerator(interaction)->CrossSectionAlg();
      assert(xsec_alg);
 
      // compute (or evaluate) the cross section
@@ -469,7 +453,7 @@ void GEVGDriver::UseSplines(void)
   if(fUseSplines) {
 
     // Get the list of all interactions that can be generated by this driver
-    const InteractionList & ilst = fXSecAlgorithmMap->GetInteractionList();
+    const InteractionList & ilst = fIntGenMap->GetInteractionList();
 
     // Loop over all interactions & check that all splines have been loaded
     InteractionList::const_iterator intliter;
@@ -480,7 +464,7 @@ void GEVGDriver::UseSplines(void)
 
        // corresponding cross section algorithm
        const XSecAlgorithmI * xsec_alg =
-                   fXSecAlgorithmMap->FindXSecAlgorithm(interaction);
+                 fIntGenMap->FindGenerator(interaction)->CrossSectionAlg();
        assert(xsec_alg);
 
        // spline exists in spline list?

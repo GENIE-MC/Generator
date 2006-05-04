@@ -43,16 +43,14 @@ namespace genie {
 class EventRecord;
 class EventGeneratorList;
 class InteractionSelectorI;
-class EGResponsibilityChain;
 class InitialState;
 class Target;
 class Spline;
-class XSecAlgorithmMap;
+class InteractionGeneratorMap;
 
 class GEVGDriver {
 
 public :
-
   GEVGDriver();
   ~GEVGDriver();
 
@@ -91,26 +89,24 @@ public :
 private:
 
   //! Private initialization, configuration & input validation methods
-  void Init                     (void);
-  void CleanUp                  (void);
-  void BuildInitialState        (const InitialState & init_state);
-  void BuildGeneratorList       (void);
-  void BuildXSecAlgorithmMap    (void);
-  void BuildResponsibilityChain (void);
-  void BuildInteractionSelector (void);
-  void AssertIsValidInitState   (void) const;
+  void Init                         (void);
+  void CleanUp                      (void);
+  void BuildInitialState            (const InitialState & init_state);
+  void BuildGeneratorList           (void);
+  void BuildInteractionGeneratorMap (void);
+  void BuildInteractionSelector     (void);
+  void AssertIsValidInitState       (void) const;
 
   //! Private data members
-  InitialState *          fInitState;       ///< initial state information for driver instance
-  EventRecord *           fCurrentRecord;   ///< ptr to the event record being processed
-  EventGeneratorList *    fEvGenList;       ///< all Event Generators available at this job
-  EGResponsibilityChain * fChain;           ///< an Event Generator chain of responsibility
-  InteractionSelectorI *  fIntSelector;     ///< interaction selector
-  XSecAlgorithmMap *      fXSecAlgorithmMap;///< interaction -> xsec alg. assosiative container
-  TBits *                 fFiltUnphysMask;  ///< controls whether unphysical events are returned
-  bool                    fUseSplines;      ///< controls whether xsecs are computed or interpolated
-  Spline *                fXSecSumSpl;      ///< sum{xsec(all interactions | this init state)}
-  unsigned int            fNRecLevel;       ///< recursive mode depth counter
+  InitialState *            fInitState;       ///< initial state information for driver instance
+  EventRecord *             fCurrentRecord;   ///< ptr to the event record being processed
+  EventGeneratorList *      fEvGenList;       ///< all Event Generators available at this job
+  InteractionSelectorI *    fIntSelector;     ///< interaction selector
+  InteractionGeneratorMap * fIntGenMap;       ///< interaction -> generator assosiative container
+  TBits *                   fFiltUnphysMask;  ///< controls whether unphysical events are returned
+  bool                      fUseSplines;      ///< controls whether xsecs are computed or interpolated
+  Spline *                  fXSecSumSpl;      ///< sum{xsec(all interactions | this init state)}
+  unsigned int              fNRecLevel;       ///< recursive mode depth counter
 };
 
 }      // genie namespace
