@@ -67,6 +67,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Compute the W limits
   //  (the physically allowed W's, unless an external cut is imposed)
   Range1D_t W = this->WRange(interaction);
+  assert(W.min>=0. && W.min<W.max);
 
   if(W.max <=0 || W.min>=W.max) {
      LOG("RESKinematics", pWARN) << "No available phase space";
@@ -85,12 +86,10 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- Try to select a valid W, Q2 pair using the rejection method
   register unsigned int iter = 0;
-  double e = 1E-6;
 
-  assert(W.min>=0.);
-  double logWmin  = TMath::Log(W.min+e);
-  double logWmax  = TMath::Log(W.max);
-  double dlogW    = logWmax - logWmin;
+  double Wmin = W.min + kASmallNum;
+  double Wmax = W.max - kASmallNum;
+  double dW   = Wmax - Wmin;
 
   while(1) {
      iter++;
@@ -106,19 +105,18 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      }
 
      //-- Get a random W within its allowed limits
-     double gW = TMath::Exp(logWmin + dlogW  * rnd->Random1().Rndm());
+     double gW = Wmin + dW  * rnd->Random1().Rndm();
      interaction->GetKinematicsPtr()->SetW(gW);
 
      //-- Compute the allowed Q^2 limits for the selected W
      //   (the physically allowed Q2's, unless an external cut is imposed)
      Range1D_t Q2 = this->Q2Range(interaction);
      if(Q2.max<=0. || Q2.min>=Q2.max) continue;
-     double logQ2min = TMath::Log(Q2.min+e);
-     double logQ2max = TMath::Log(Q2.max);
+     double logQ2min = TMath::Log(Q2.min+kASmallNum);
+     double logQ2max = TMath::Log(Q2.max-kASmallNum);
      double dlogQ2   = logQ2max - logQ2min;
 
      //-- Get a random Q2 within its allowed limits
-     //double gQ2 = Q2.min + (Q2.max - Q2.min) * rnd->Random1().Rndm();
      double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
@@ -128,7 +126,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //    compute d^2xsec /dW dQ^2 for the *list* of currently considered
      //    baryon resonances and returns their sum weighted with the value
      //    of their Breit-Wigner distribution at the current W.
-     double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+     double xsec = fXSecModel->XSec(interaction, kPSWlogQ2fE);
      double t    = xsec_max * rnd->Random1().Rndm();
 
      LOG("RESKinematics", pINFO)
@@ -147,9 +145,19 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         interaction->ResetBit(kISkipProcessChk);
         interaction->ResetBit(kISkipKinematicChk);
 
+        // compute x,y for selected W,Q2
+        // note: hit nucleon can be off the mass-shell
+        double gx=-1, gy=-1;
+        const InitialState & init_state = interaction->GetInitialState();
+        double E = init_state.GetProbeE(kRfStruckNucAtRest);
+        double M = init_state.GetTarget().StruckNucleonP4()->M(); 
+        utils::kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
+
         // lock selected kinematics & clear running values
         interaction->GetKinematicsPtr()->SetQ2(gQ2, true);
         interaction->GetKinematicsPtr()->SetW (gW,  true);
+        interaction->GetKinematicsPtr()->Setx (gx,  true);
+        interaction->GetKinematicsPtr()->Sety (gy,  true);
         interaction->GetKinematicsPtr()->ClearRunningValues();
 
         return;
@@ -261,7 +269,6 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   }
 
   const int    NQ2 = 15;
-  const double e   = 1e-4;
   const double MD  = md;
 
   // Set W around the value where d^2xsec/dWdQ^2 peaks
@@ -269,8 +276,8 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   double W;
   if(utils::math::IsWithinLimits(MD, rW))  W = MD;
   else {
-    if (MD>=rW.max) W = rW.max-e;
-    else            W = rW.min+e;
+    if (MD>=rW.max) W = rW.max-kASmallNum;
+    else            W = rW.min+kASmallNum;
   }
   interaction->GetKinematicsPtr()->SetW(W);
 
@@ -278,7 +285,6 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   // which d^2xsec/dWdQ^2 peaks
   Range1D_t rQ2 = this->Q2Range(interaction);
   if( rQ2.max < kMinQ2Limit || rQ2.min <=0 ) return 0.;
-  //if(E<0.6) utils::kinematics::ApplyCutsToKineLimits(rQ2, 0.05*E, 1.5*E);
 
   const double logQ2min = TMath::Log(rQ2.min);
   const double logQ2max = TMath::Log(rQ2.max);
@@ -290,7 +296,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   for(int iq2=0; iq2<NQ2; iq2++) {
      double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
      interaction->GetKinematicsPtr()->SetQ2(Q2);
-     double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+     double xsec = fXSecModel->XSec(interaction, kPSWlogQ2fE);
      max_xsec = TMath::Max(xsec, max_xsec);
 
      increasing = xsec-xseclast>0;

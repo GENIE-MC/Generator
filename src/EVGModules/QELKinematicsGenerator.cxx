@@ -118,7 +118,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      LOG("QELKinematics", pINFO) << "Trying: Q^2 = " << gQ2;
 
-     double xsec = fXSecModel->XSec(interaction, kPSQ2fE);
+     double xsec = fXSecModel->XSec(interaction, kPSlogQ2fE);
      double t    = xsec_max * rnd->Random1().Rndm();
 
      LOG("QELKinematics", pINFO)
@@ -224,7 +224,7 @@ double QELKinematicsGenerator::ComputeMaxXSec(
      double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
      interaction->GetKinematicsPtr()->SetQ2(Q2);
 
-     double xsec = fXSecModel->XSec(interaction, kPSQ2fE);
+     double xsec = fXSecModel->XSec(interaction, kPSlogQ2fE);
      max_xsec = TMath::Max(xsec, max_xsec);
 
      increasing = xsec-xseclast>0;

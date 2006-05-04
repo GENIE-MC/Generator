@@ -65,25 +65,19 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   value is found.
   double xsec_max = this->MaxXSec(evrec);
 
+  //-- Get the kinematical limits for the generated x,y
+  Range1D_t y = this->yRange(interaction);
+  const double logxmin = TMath::Log(kASmallNum);
+  const double logxmax = TMath::Log(1.-kASmallNum);
+  const double logymin = TMath::Log(y.min+kASmallNum);
+  const double logymax = TMath::Log(y.max-kASmallNum);
+  const double dlogx   = (logxmax - logxmin);
+  const double dlogy   = (logymax - logymin);
+
   //------ Try to select a valid x,y pair
-  const double e = 1E-3;
   register unsigned int iter = 0;
 
-  //-- Get the kinematical limits for the generated x,y
-  Range1D_t x;
-  x.min=0;
-  x.max=1;
-  Range1D_t y = this->yRange(interaction);
-
-  const double logxmin = TMath::Log(x.min+e);
-  const double logxmax = TMath::Log(x.max-e);
-  const double rlogx   = (logxmax - logxmin);
-  const double logymin = TMath::Log(y.min+e);
-  const double logymax = TMath::Log(y.max-e);
-  const double rlogy   = (logymax - logymin);
-
   while(1) {
-
      iter++;
      if(iter > kRjMaxIterations) {
         LOG("COHKinematics", pWARN)
@@ -95,14 +89,14 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         exception.SwitchOnFastForward();
         throw exception;
      }
-     double gx = TMath::Exp(logxmin + rlogx * rnd->Random1().Rndm());
-     double gy = TMath::Exp(logymin + rlogy * rnd->Random1().Rndm());
+     double gx = TMath::Exp(logxmin + dlogx * rnd->Random1().Rndm());
+     double gy = TMath::Exp(logymin + dlogy * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->Setx(gx);
      interaction->GetKinematicsPtr()->Sety(gy);
      LOG("COHKinematics", pINFO)
                    << "Trying: (x = " << gx << ", y = " << gy << ")";
 
-     double xsec    = fXSecModel->XSec(interaction, kPSxyfE);
+     double xsec    = fXSecModel->XSec(interaction, kPSlogxlogyfE);
      double tryxsec = xsec_max * rnd->Random1().Rndm();
 
      LOG("COHKinematics", pINFO)
@@ -184,19 +178,14 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
   double max_xsec = 0.;
 
-  const double e = 1E-3;
-  const int    N = 75;
-
-  Range1D_t x;
-  x.min=0.;
-  x.max=1.;
+  const int N = 75;
   Range1D_t y = this->yRange(in);
 
-  const double logxmin = TMath::Log(x.min+e);
-  const double logxmax = TMath::Log(x.max-e);
+  const double logxmin = TMath::Log(kASmallNum);
+  const double logxmax = TMath::Log(1.-kASmallNum);
+  const double logymin = TMath::Log(y.min+kASmallNum);
+  const double logymax = TMath::Log(y.max-kASmallNum);
   const double dlogx   = (logxmax - logxmin) /(N-1);
-  const double logymin = TMath::Log(y.min+e);
-  const double logymax = TMath::Log(y.max-e);
   const double dlogy   = (logymax - logymin) /(N-1);
 
   double Ev  = in->GetInitialState().GetProbeE(kRfLab);
@@ -212,7 +201,7 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
      in->GetKinematicsPtr()->Setx(gx);
      in->GetKinematicsPtr()->Sety(gy);
 
-     double xsec = fXSecModel->XSec(in, kPSxyfE);
+     double xsec = fXSecModel->XSec(in, kPSlogxlogyfE);
      max_xsec = TMath::Max(max_xsec, xsec);
    }//y
   }//x

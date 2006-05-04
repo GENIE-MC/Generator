@@ -102,6 +102,10 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 double genie::utils::kinematics::Jacobian(
   const Interaction * const i, KinePhaseSpace_t fromps, KinePhaseSpace_t tops)
 {
+  SLOG("KineLimits", pDEBUG) 
+       << "Computing Jacobian for transformation: "
+                << KinePhaseSpace::AsString(fromps) << " --> " 
+                                            << KinePhaseSpace::AsString(tops);
   double J=0;
   bool handled=true;
   const Kinematics & kine = i->GetKinematics();
@@ -154,7 +158,7 @@ double genie::utils::kinematics::Jacobian(
 
   if(!handled) {
      SLOG("KineLimits", pFATAL) 
-       << "*** Can not compute Jacobian for transforming: \n"
+       << "*** Can not compute Jacobian for transforming: "
                      << KinePhaseSpace::AsString(fromps) << " --> " 
                                             << KinePhaseSpace::AsString(tops);
      exit(1);
