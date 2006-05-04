@@ -139,7 +139,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      }
 
      //-- compute the cross section for current kinematics
-     double xsec = fXSecModel->XSec(interaction, kPSxyfE);
+     double xsec = fXSecModel->XSec(interaction, kPSlogxlogyfE);
 
      //-- accept current kinematics?
      double t = xsec_max * rnd->Random1().Rndm();
@@ -316,7 +316,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
         if(!in) continue;
 
         // update maximum xsec
-        double xsec = fXSecModel->XSec(interaction, kPSxyfE);
+        double xsec = fXSecModel->XSec(interaction, kPSlogxlogyfE);
         max_xsec = TMath::Max(xsec, max_xsec);
 
         increasing = xsec-xseclast>0;
