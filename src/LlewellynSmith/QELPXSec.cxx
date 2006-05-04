@@ -53,7 +53,8 @@ QELPXSec::~QELPXSec()
 
 }
 //____________________________________________________________________________
-double QELPXSec::XSec(const Interaction * interaction) const
+double QELPXSec::XSec(
+          const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   LOG("QELPXSec", pDEBUG) << *fConfig;
 
@@ -112,6 +113,13 @@ double QELPXSec::XSec(const Interaction * interaction) const
   LOG("QELPXSec", pDEBUG) 
                  << "A(Q2) = " << A << ", B(Q2) = " << B << ", C(Q2) = " << C;
 
+  //----- The algorithm computes dxsec/dQ2
+  //      Check whether variable tranformation is needed
+  if(kps!=kPSQ2fE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSQ2fE,kps);
+    xsec *= J;
+  }
+
   //----- if requested return the free nucleon xsec even for input nuclear tgt 
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
@@ -127,9 +135,6 @@ double QELPXSec::XSec(const Interaction * interaction) const
        << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
 
   xsec *= (R*NNucl); // nuclear xsec
-
-  LOG("QELPXSec", pDEBUG)
-   << "dXSec[QEL]/dQ2 [Nuclear](E = "<< E << ", Q2 = "<< -q2 << ") = "<< xsec;
 
   return xsec;
 }

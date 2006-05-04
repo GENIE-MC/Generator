@@ -3,9 +3,8 @@
 
 \class    genie::BardinIMDRadCorPXSec
 
-\brief    Computes the Inverse Muon Decay (IMD) diff. cross section, dxsec/dy,
-          where y is the interaction inelasticity, using the Bardin -
-          Dokuchaeva model which includes all 1-loop radiative corrections. \n
+\brief    Computes the Inverse Muon Decay (IMD) diff. cross section using the 
+          Bardin-Dokuchaeva including all 1-loop radiative corrections. \n
 
           This is a 'trully' inclusive IMD cross section, i.e. the brem. cross
           section (dxsec_brem/dy)|w>w0 [see Bardin paper, cited below] is not
@@ -13,8 +12,7 @@
           for experimental situations where a photon energy trigger threshold
           is applied.
 
-          BardinIMDRadCorPXSec is a concrete implementation of the
-          XSecAlgorithmI interface. \n
+          Is a concrete implementation of the XSecAlgorithmI interface. \n
 
 \ref      D.Yu.Bardin and V.A.Dokuchaeva, Nucl.Phys.B287:839 (1987)
 
@@ -48,9 +46,9 @@ public:
   virtual ~BardinIMDRadCorPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members

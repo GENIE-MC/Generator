@@ -3,8 +3,8 @@
 
 \class    genie::P33PaschosLalakulichPXSec
 
-\brief    Double differential resonance cross section d^2xsec / dQ^2 dW
-          for P33 according to the Paschos, Lalakuich model.
+\brief    Double differential resonance cross section for P33 according to the 
+          Paschos, Lalakulich model.
 
           Is a concrete implementation of the XSecAlgorithmI interface.
 
@@ -41,9 +41,9 @@ public:
   virtual ~P33PaschosLalakulichPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options

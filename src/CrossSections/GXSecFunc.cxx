@@ -20,6 +20,7 @@
 
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/KineVar.h"
+#include "Conventions/KinePhaseSpace.h"
 #include "CrossSections/GXSecFunc.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -68,7 +69,7 @@ double Integrand_D2XSec_DxDy_E::operator() (const vector<double> & p)
   fInteraction->GetKinematicsPtr()->Sety(y);
 
   //-- compute the cross section
-  double xsec = fModel->XSec(fInteraction);
+  double xsec = fModel->XSec(fInteraction, kPSxyfE);
   return xsec;
 }
 //____________________________________________________________________________
@@ -136,7 +137,7 @@ double Integrand_D2XSec_DxDy_E_WQ2Cuts::operator() (const vector<double> & p)
           << "x = " << x << ", y = " << y << ", Q2 = " << currQ2
                                 << ", W = " << currW << ", Ev = " << Ev;
   //-- compute the cross section
-  double xsec = fModel->XSec(fInteraction);
+  double xsec = fModel->XSec(fInteraction, kPSxyfE);
   return xsec;
 }
 //____________________________________________________________________________
@@ -160,7 +161,7 @@ double Integrand_DXSec_DQ2_E::operator() (const vector<double> & p)
   fInteraction->GetKinematicsPtr()->SetQ2(Q2);
 
   //-- compute the cross section
-  double xsec = fModel->XSec(fInteraction);
+  double xsec = fModel->XSec(fInteraction, kPSQ2fE);
 
   LOG("GXSecFunc", pDEBUG) << "xsec(Q2 = " << Q2 << ") = " << xsec;
   return xsec;
@@ -188,7 +189,7 @@ double Integrand_D2XSec_DWDQ2_E::operator() (const vector<double> & p)
   fInteraction->GetKinematicsPtr()->SetQ2(Q2);
 
   //-- compute the cross section
-  double xsec = fModel->XSec(fInteraction);
+  double xsec = fModel->XSec(fInteraction, kPSWQ2fE);
   return xsec;
 }
 //____________________________________________________________________________
@@ -212,7 +213,7 @@ double Integrand_DXSec_Dy_E::operator() (const vector<double> & p)
   fInteraction->GetKinematicsPtr()->Sety(y);
 
   //-- compute the cross section
-  double xsec = fModel->XSec(fInteraction);
+  double xsec = fModel->XSec(fInteraction, kPSyfE);
 
   LOG("GXSecFunc", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
 
@@ -241,7 +242,7 @@ double Integrand_D2XSec_DxDy_Ex::operator() (const vector<double> & p)
   fInteraction->GetKinematicsPtr()->Sety(y);
 
   //-- compute the cross section
-  double xsec = fModel->XSec(fInteraction);
+  double xsec = fModel->XSec(fInteraction, kPSxyfE);
   return xsec;
 }
 //____________________________________________________________________________
@@ -267,7 +268,7 @@ double Integrand_D2XSec_DxDy_Ey::operator() (const vector<double> & p)
   fInteraction->GetKinematicsPtr()->Sety(fy);
 
   //-- compute the cross section
-  double xsec = fModel->XSec(fInteraction);
+  double xsec = fModel->XSec(fInteraction, kPSxyfE);
   return xsec;
 }
 //____________________________________________________________________________
@@ -293,7 +294,7 @@ double Integrand_D2XSec_DWDQ2_EW::operator() (const vector<double> & p)
   fInteraction->GetKinematicsPtr()->SetQ2(Q2);
 
   //-- compute the cross section
-  double xsec = fModel->XSec(fInteraction);
+  double xsec = fModel->XSec(fInteraction, kPSWQ2fE);
   return xsec;
 }
 //____________________________________________________________________________
@@ -319,7 +320,7 @@ double Integrand_D2XSec_DWDQ2_EQ2::operator() (const vector<double> & p)
   fInteraction->GetKinematicsPtr()->SetQ2(fQ2);
 
   //-- compute the cross section
-  double xsec = fModel->XSec(fInteraction);
+  double xsec = fModel->XSec(fInteraction,kPSWQ2fE);
   return xsec;
 }
 //____________________________________________________________________________

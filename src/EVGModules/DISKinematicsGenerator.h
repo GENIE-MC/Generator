@@ -54,7 +54,6 @@ private:
   Range1D_t YRange          (void) const;
   Range1D_t WRange          (const Interaction * interaction) const;
   Range1D_t Q2Range         (const Interaction * interaction) const;
-  void      SetKineXY       (const Interaction * interaction) const;
   double    ComputeMaxXSec  (const Interaction * interaction) const;
 
   double fWmin;

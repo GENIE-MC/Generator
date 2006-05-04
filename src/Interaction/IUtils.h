@@ -56,7 +56,6 @@ namespace interaction {
   Interaction * GetResNC(int Z, int A, int probe);
 
   Interaction * GetIMD (int Z, int A, int probe, const TLorentzVector & p4probe);
-  Interaction * GetEl  (int Z, int A, int probe, const TLorentzVector & p4probe);
 
 } // interaction namespace
 

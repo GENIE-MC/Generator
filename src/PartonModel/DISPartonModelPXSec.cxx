@@ -60,7 +60,8 @@ DISPartonModelPXSec::~DISPartonModelPXSec()
 
 }
 //____________________________________________________________________________
-double DISPartonModelPXSec::XSec(const Interaction * interaction) const
+double DISPartonModelPXSec::XSec(
+                const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -127,6 +128,13 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
                     << ", x = " << x << ", y = " << y << ") = " << xsec;
   }
 
+  //----- The algorithm computes d^2xsec/dxdy
+  //      Check whether variable tranformation is needed
+  if(kps!=kPSxyfE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSxyfE,kps);
+    xsec *= J;
+  }
+
   //----- If requested return the free nucleon xsec even for input nuclear tgt 
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
@@ -137,9 +145,7 @@ double DISPartonModelPXSec::XSec(const Interaction * interaction) const
   int nucpdgc = target.StruckNucleonPDGCode();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
   xsec *= NNucl; 
-  LOG("DISXSec", pDEBUG)
-        << "d2xsec/dxdy[Nuclear] (E = " << E 
-                    << ", x = " << x << ", y = " << y << ") = " << xsec;
+
   return xsec;
 }
 //____________________________________________________________________________

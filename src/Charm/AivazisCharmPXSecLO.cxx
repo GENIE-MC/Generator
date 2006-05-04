@@ -53,7 +53,8 @@ AivazisCharmPXSecLO::~AivazisCharmPXSecLO()
 
 }
 //____________________________________________________________________________
-double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
+double AivazisCharmPXSecLO::XSec(
+                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -122,6 +123,13 @@ double AivazisCharmPXSecLO::XSec(const Interaction * interaction) const
     << "\n dxsec[DISCharm,FreeN]/dxdy (E= " << E
                  << ", x= " << x << ", y= " << y
                          << ", W= " << W << ", Q2 = " << Q2 << ") = " << xsec;
+
+  //----- The algorithm computes d^2xsec/dxdy
+  //      Check whether variable tranformation is needed
+  if(kps!=kPSxyfE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSxyfE,kps);
+    xsec *= J;
+  }
 
   //----- If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;

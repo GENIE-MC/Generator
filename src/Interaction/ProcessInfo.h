@@ -48,16 +48,16 @@ public:
   void Set(ScatteringType_t sc_type, InteractionType_t  int_type);
 
   //! query for process information
-  bool IsElastic        (void) const;
-  bool IsQuasiElastic   (void) const;
-  bool IsDeepInelastic  (void) const;
-  bool IsResonant       (void) const;
-  bool IsCoherent       (void) const;
-  bool IsInverseMuDecay (void) const;
-  bool IsEM             (void) const;
-  bool IsWeak           (void) const;
-  bool IsWeakCC         (void) const;
-  bool IsWeakNC         (void) const;
+  bool IsNuElectronElastic (void) const;
+  bool IsQuasiElastic      (void) const;
+  bool IsDeepInelastic     (void) const;
+  bool IsResonant          (void) const;
+  bool IsCoherent          (void) const;
+  bool IsInverseMuDecay    (void) const;
+  bool IsEM                (void) const;
+  bool IsWeak              (void) const;
+  bool IsWeakCC            (void) const;
+  bool IsWeakNC            (void) const;
 
   //! get scattering and interaction type enumerations
   ScatteringType_t  ScatteringTypeId  (void) const;

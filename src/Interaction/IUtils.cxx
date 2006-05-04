@@ -203,19 +203,6 @@ Interaction * genie::utils::interaction::GetIMD(
   return interaction;
 }
 //____________________________________________________________________________
-Interaction * genie::utils::interaction::GetEl(int Z, int A,
-                                     int probe, const TLorentzVector & p4probe)
-{	
-  Target target(Z,A);
-  InitialState init_state(target, probe);
-  init_state.SetProbeP4(p4probe);
-
-  ProcessInfo proc(kScElastic, kIntWeakNC);
-
-  Interaction * interaction = new Interaction(init_state, proc);
-  return interaction;
-}
-//____________________________________________________________________________
 
 
 

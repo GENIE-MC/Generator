@@ -49,8 +49,11 @@ ReinSeghalSPPXSec::~ReinSeghalSPPXSec()
 
 }
 //____________________________________________________________________________
-double ReinSeghalSPPXSec::XSec(const Interaction * interaction) const
+double ReinSeghalSPPXSec::XSec(
+                 const Interaction * interaction, KinePhaseSpace_t kps) const
 {
+  assert(kps==kPSfE);
+
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 

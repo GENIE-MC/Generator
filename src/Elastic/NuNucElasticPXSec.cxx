@@ -49,7 +49,8 @@ NuNucElasticPXSec::~NuNucElasticPXSec()
 
 }
 //____________________________________________________________________________
-double NuNucElasticPXSec::XSec(const Interaction * interaction) const
+double NuNucElasticPXSec::XSec(
+                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -99,6 +100,13 @@ double NuNucElasticPXSec::XSec(const Interaction * interaction) const
   LOG("NuNucEl", pDEBUG)
     << "dXSec[vN,El]/dQ2 [FreeN](Ev = "<< E<< ", Q2 = "<< Q2 << ") = "<< xsec;
 
+  //----- The algorithm computes dxsec/dQ2
+  //      Check whether variable tranformation is needed
+  if(kps!=kPSQ2fE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSQ2fE,kps);
+    xsec *= J;
+  }
+
   //----- if requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
@@ -115,9 +123,6 @@ double NuNucElasticPXSec::XSec(const Interaction * interaction) const
        << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
 
   xsec *= (R*NNucl); // nuclear xsec
-
-  LOG("NuNucEl", pDEBUG)
-   << "dXSec[vN,El]/dQ2 [Nuclear](Ev = "<< E<< ", Q2 = "<< Q2<< ") = "<< xsec;
 
   return xsec;
 }

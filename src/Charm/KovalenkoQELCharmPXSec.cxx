@@ -28,6 +28,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -50,7 +51,8 @@ KovalenkoQELCharmPXSec::~KovalenkoQELCharmPXSec()
 
 }
 //____________________________________________________________________________
-double KovalenkoQELCharmPXSec::XSec(const Interaction * interaction) const
+double KovalenkoQELCharmPXSec::XSec(
+                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -89,6 +91,13 @@ double KovalenkoQELCharmPXSec::XSec(const Interaction * interaction) const
 
   LOG("QELCharmXSec", pDEBUG) 
     << "dxsec/dQ^2[QELCharm,FreeN] (E="<< E << ", Q2=" << Q2<< ") = "<< xsec;
+
+  //----- The algorithm computes dxsec/dQ2
+  //      Check whether variable tranformation is needed
+  if(kps!=kPSQ2fE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSQ2fE,kps);
+    xsec *= J;
+  }
 
   //----- If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;

@@ -7,11 +7,8 @@
           pion production according to the \b Rein-Seghal model.
           v(vbar)A->v(vbar)Api0, vA->l-Api+, vbarA->l+Api-
 
-          The computed cross section is the d^3 xsec/ dx dy dt
-          where \n
-            \li \c x : Bjorken x = Q2/2Mv
-            \li \c y : Inelasticity y=v/E, v=E-E'
-          The t dependence is analytically integrated out.
+          The t-dependence of the triple differential cross (d^3xsec/dxdydt)
+          is analytically integrated out.
 
           Is a concrete implementation of the XSecAlgorithmI interface.
 
@@ -44,9 +41,9 @@ public:
   virtual ~ReinSeghalCOHPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options

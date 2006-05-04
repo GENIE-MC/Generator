@@ -21,6 +21,7 @@
 #include "InverseMuonDecay/BardinIMDRadCorPXSec.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -43,7 +44,8 @@ BardinIMDRadCorPXSec::~BardinIMDRadCorPXSec()
 
 }
 //____________________________________________________________________________
-double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
+double BardinIMDRadCorPXSec::XSec(
+                 const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -71,17 +73,26 @@ double BardinIMDRadCorPXSec::XSec(const Interaction * interaction) const
 
   if(y<ymin || y>ymax) return 0;
 
-  double dsig_dy = 2 * sig0 * ( 1 - r + (kAem/kPi) * Fa(re,r,y) );
+  double xsec = 2 * sig0 * ( 1 - r + (kAem/kPi) * Fa(re,r,y) );
 
   LOG("BardinIMD", pINFO)
-     << "dxsec[1-loop]/dy (Ev = " << E << ", y = " << y << ") = " << dsig_dy;
+     << "dxsec[1-loop]/dy (Ev = " << E << ", y = " << y << ") = " << xsec;
 
-  if( interaction->TestBit(kIAssumeFreeElectron) ) return dsig_dy;
+  //----- The algorithm computes dxsec/dy
+  //      Check whether variable tranformation is needed
+  if(kps!=kPSyfE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSyfE,kps);
+    xsec *= J;
+  }
 
+  //----- If requested return the free electron xsec even for nuclear target
+  if( interaction->TestBit(kIAssumeFreeElectron) ) return xsec;
+
+  //----- Scale for the number of scattering centers at the target
   int Ne = init_state.GetTarget().Z(); // num of scattering centers
-  dsig_dy *= Ne; 
+  xsec *= Ne; 
 
-  return dsig_dy;
+  return xsec;
 }
 //____________________________________________________________________________
 bool BardinIMDRadCorPXSec::ValidProcess(const Interaction * interaction) const

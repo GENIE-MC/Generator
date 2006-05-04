@@ -19,6 +19,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
+#include "Conventions/KinePhaseSpace.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/COHKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
@@ -101,7 +102,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      LOG("COHKinematics", pINFO)
                    << "Trying: (x = " << gx << ", y = " << gy << ")";
 
-     double xsec    = fXSecModel->XSec(interaction);
+     double xsec    = fXSecModel->XSec(interaction, kPSxyfE);
      double tryxsec = xsec_max * rnd->Random1().Rndm();
 
      LOG("COHKinematics", pINFO)
@@ -211,7 +212,7 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
      in->GetKinematicsPtr()->Setx(gx);
      in->GetKinematicsPtr()->Sety(gy);
 
-     double xsec = fXSecModel->XSec(in);
+     double xsec = fXSecModel->XSec(in, kPSxyfE);
      max_xsec = TMath::Max(max_xsec, xsec);
    }//y
   }//x

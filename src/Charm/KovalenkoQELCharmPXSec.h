@@ -5,16 +5,10 @@
 
 \brief    Computes the QEL Charm Production Differential Cross Section
           using \b Kovalenko's duality model approach.
-
-          The computed differential cross section is the Dxsec = dxsec/dQ^2
-          where \n
-            \li \c Q2 is the momentum transfer.
-
           It models the differential cross sections for: \n
              \li v + n \rightarrow mu- + Lambda_{c}^{+} (2285)
              \li v + n \rightarrow mu- + Sigma_{c}^{+}  (2455)
              \li v + p \rightarrow mu- + Sigma_{c}^{++} (2455)
-
           Is a concrete implementation of the XSecAlgorithmI interface.
 
 \ref      S.G.Kovalenko, Sov.J.Nucl.Phys.52:934 (1990)
@@ -50,9 +44,9 @@ public:
   virtual ~KovalenkoQELCharmPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members

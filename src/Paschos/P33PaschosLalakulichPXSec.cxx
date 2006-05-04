@@ -26,6 +26,7 @@
 #include "Conventions/KineVar.h"
 #include "Messenger/Messenger.h"
 #include "Paschos/P33PaschosLalakulichPXSec.h"
+#include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
@@ -51,7 +52,8 @@ P33PaschosLalakulichPXSec::~P33PaschosLalakulichPXSec()
 
 }
 //____________________________________________________________________________
-double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
+double P33PaschosLalakulichPXSec::XSec(
+                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   LOG("PaschLal", pDEBUG) << *fConfig;
 
@@ -61,12 +63,13 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
   //-- Get initial state and kinematic variables
   const InitialState & init_state = interaction -> GetInitialState();
   const Kinematics &   kinematics = interaction -> GetKinematics();
+  const Target &       target     = init_state.GetTarget();
 
   double E    = init_state.GetProbeE(kRfStruckNucAtRest);
   double E2   = TMath::Power(E,2);
   double Q2   = kinematics.Q2();
   double W    = kinematics.W();
-  double MN   = init_state.GetTarget().StruckNucleonMass();
+  double MN   = target.StruckNucleonMass();
   double MN2  = TMath::Power(MN,2);
   double Mmu2 = kMuonMass2;
   double Mpi2 = kPionMass2;
@@ -247,6 +250,22 @@ double P33PaschosLalakulichPXSec::XSec(const Interaction * interaction) const
                - W5 * 2*Mmu2*pk;
 
   double xsec = kGF2/4./kPi*fCos28c/MN2/E2*W*MR*Gamma_R/kPi/Breit_Wigner*pauli*s1;
+
+  //-- The algorithm computes d^2xsec/dWdQ2
+  //   Check whether variable tranformation is needed
+  if(kps!=kPSWQ2fE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
+    xsec *= J;
+  }
+
+  //-- If requested return the free nucleon xsec even for input nuclear tgt
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+
+  //-- number of scattering centers in the target
+  bool isp = pdg::IsProton(target.StruckNucleonPDGCode());
+  int NNucl = (isp) ? target.Z() : target.N();
+
+  xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
 
   return xsec;
 }

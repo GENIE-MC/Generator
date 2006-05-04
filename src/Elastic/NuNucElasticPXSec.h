@@ -3,10 +3,8 @@
 
 \class    genie::NuNucElasticPXSec
 
-\brief    Differential cross section dxsec/dQ^2 for v+N / vbar+N elastic 
-          scattering. \n
-          NuNucElasticPXSec is a concrete implementation of the
-          XSecAlgorithmI interface. \n
+\brief    Differential cross section for v+N / vbar+N elastic scattering. \n
+          Is a concrete implementation of the XSecAlgorithmI interface. \n
 
 \ref      L.A.Ahrens et al., Physical Review D, VOL 35,3:785 (1987)
 
@@ -36,9 +34,9 @@ public:
   virtual ~NuNucElasticPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members

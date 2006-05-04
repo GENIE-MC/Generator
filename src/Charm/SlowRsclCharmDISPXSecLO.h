@@ -5,12 +5,6 @@
 
 \brief    Computes, at Leading Order (LO), the differential cross section for
           neutrino charm production using a slow rescaling model.
-
-          The computed cross section is the D2xsec = d^2(xsec) / dy dx \n
-          where \n
-            \li \c y is the inelasticity, and
-            \li \c x is the Bjorken scaling variable \c x
-
           Is a concrete implementation of the XSecAlgorithmI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -42,9 +36,9 @@ public:
   virtual ~SlowRsclCharmDISPXSecLO();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
