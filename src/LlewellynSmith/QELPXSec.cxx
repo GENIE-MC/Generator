@@ -117,6 +117,9 @@ double QELPXSec::XSec(
   //      Check whether variable tranformation is needed
   if(kps!=kPSQ2fE) {
     double J = utils::kinematics::Jacobian(interaction,kPSQ2fE,kps);
+    LOG("QELPXSec", pDEBUG)
+     << "Jacobian for transformation to: " 
+                  << KinePhaseSpace::AsString(kps) << ", J = " << J;
     xsec *= J;
   }
 
