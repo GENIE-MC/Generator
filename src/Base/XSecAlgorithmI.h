@@ -20,6 +20,7 @@
 #define _XSEC_ALGORITHM_I_H_
 
 #include "Algorithm/Algorithm.h"
+#include "Conventions/KinePhaseSpace.h"
 #include "Interaction/Interaction.h"
 
 namespace genie {
@@ -27,15 +28,16 @@ namespace genie {
 class XSecAlgorithmI : public Algorithm {
 
 public:
-
   virtual ~XSecAlgorithmI();
 
-  virtual double XSec            (const Interaction * in) const = 0;
-  virtual bool   ValidProcess    (const Interaction * in) const = 0;
-  virtual bool   ValidKinematics (const Interaction * in) const = 0;
+  //! the XSecAlgorithmI algorithm
+
+  virtual double XSec (const Interaction* i, KinePhaseSpace_t k=kPSfE) const = 0;
+
+  virtual bool ValidProcess    (const Interaction* i) const = 0;
+  virtual bool ValidKinematics (const Interaction* i) const = 0;
 
 protected:
-
   XSecAlgorithmI();
   XSecAlgorithmI(string name);
   XSecAlgorithmI(string name, string config);
