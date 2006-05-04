@@ -14,9 +14,12 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "CrossSections/DISPXSec.h"
 #include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
@@ -26,6 +29,7 @@
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::controls;
 
 //____________________________________________________________________________
 DISPXSec::DISPXSec() :
@@ -45,8 +49,11 @@ DISPXSec::~DISPXSec()
 
 }
 //____________________________________________________________________________
-double DISPXSec::XSec(const Interaction * interaction) const
+double DISPXSec::XSec(
+                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
+  assert(kps==kPSxfE || kps==kPSyfE);
+
   LOG("DISPXSec", pDEBUG) << *fConfig;
 
   if(! this -> ValidProcess    (interaction) ) return 0.;
@@ -55,23 +62,27 @@ double DISPXSec::XSec(const Interaction * interaction) const
   GXSecFunc * func = 0;
   double xsec = 0;
 
-  if (fKineVar == "y") {
+  if (kps==kPSxfE) {
+
     double x = interaction->GetKinematics().x();
     func = new Integrand_D2XSec_DxDy_Ex(
                          fPartialXSecAlg, interaction, x);
-    func->SetParam(0,"y",ftmin,ftmax);
+    func->SetParam(0,"y",kMinY,kMaxY);
     xsec = fIntegrator->Integrate(*func);
 
-  } else if (fKineVar == "x") {
+  } else if (kps==kPSyfE) {
 
     double y = interaction->GetKinematics().y();
     func = new Integrand_D2XSec_DxDy_Ey(
                          fPartialXSecAlg, interaction, y);
-    func->SetParam(0,"x",ftmin,ftmax);
+    func->SetParam(0,"x",kMinX,kMaxX);
     xsec = fIntegrator->Integrate(*func);
 
-  } else abort();
-
+  } else {
+    LOG("DISPXSec", pFATAL) 
+         << "Can not handle phase space = "  << KinePhaseSpace::AsString(kps);
+    exit(1);
+  }
   delete func;
   return xsec;
 }
@@ -115,47 +126,16 @@ bool DISPXSec::ValidKinematics(const Interaction * interaction) const
 void DISPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void DISPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void DISPXSec::LoadConfigData(void)
-{
-  //-- Make sure it knows what kind of partial (dxsec/d?) xsec algorithm it is
-
-  assert( fConfig->Exists("is-differential-over") );
-  fKineVar = fConfig->GetString("is-differential-over");
-  LOG("DISPXSec", pDEBUG) << "XSec is differential over var: " << fKineVar;
-
-  //-- Get x or y integration range from config (if exists)
-  double e = 1e-4;
-
-  if ( fKineVar == "y" ) {
-     //-- it is dxsec/dy, get intergation limits over x
-     ftmin  = fConfig->GetDoubleDef ("x-min",   e  );
-     ftmax  = fConfig->GetDoubleDef ("x-max",   1-e);
-
-  } else if ( fKineVar == "x" ) {
-     //-- it is dxsec/dx, get intergation limits over y
-     ftmin  = fConfig->GetDoubleDef ("y-min",   e  );
-     ftmax  = fConfig->GetDoubleDef ("y-max",   1-e);
-  }
-
-  LOG("DISPXSec", pDEBUG)
-           << "Integration range: " << "(" << ftmin << ", " << ftmax << ")";
-
-  //-- Check that t (x or y) range is meaningful
-  assert( ftmax > ftmin && ftmax < 1 && ftmin < 1 && ftmax > 0 & ftmin > 0 );
-}
-//____________________________________________________________________________
-void DISPXSec::LoadSubAlg(void)
+void DISPXSec::LoadConfig(void)
 {
   fPartialXSecAlg = 0;
   fIntegrator     = 0;

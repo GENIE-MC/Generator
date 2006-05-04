@@ -37,9 +37,9 @@ public:
   virtual ~GlashowResXSec();
 
   //! XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 };
 
 }       // genie namespace

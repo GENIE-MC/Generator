@@ -45,7 +45,8 @@ ReinSeghalSPPPXSec::~ReinSeghalSPPPXSec()
 
 }
 //____________________________________________________________________________
-double ReinSeghalSPPPXSec::XSec(const Interaction * interaction) const
+double ReinSeghalSPPPXSec::XSec(
+                 const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   LOG("ReinSeghalSpp", pINFO) << *fConfig;
 
@@ -66,31 +67,32 @@ double ReinSeghalSPPPXSec::XSec(const Interaction * interaction) const
 
   Resonance_t inpres = interaction->GetExclusiveTag().Resonance();
   if(inpres != kNoResonance) {
+
+    string rname = utils::res::AsString(inpres);
+
     LOG("ReinSeghalSpp", pNOTICE) 
-      << "Computing only the contribution from: " 
-                                     << utils::res::AsString(inpres);
+               << "Computing only the contribution from: " << rname;
     if(!fResList.Find(inpres)) {
        LOG("ReinSeghalSpp", pWARN) 
-            << "The resonance: " << utils::res::AsString(inpres)
-                            << " was not found in my resonance list";
+           << "Resonance: " << rname << " was not found in my list";
        return 0;
     }
     //-- Compute the contribution of this resonance
-    double res_xsec_contrib = this->XSec1RES(interaction);
-    LOG("ReinSeghalSpp", pNOTICE) 
-                       << "d^2 xsec/ dQ^2 dW = " << res_xsec_contrib;
-    return res_xsec_contrib;
+    double xsec1 = this->XSec1RES(interaction,kps);
+    LOG("ReinSeghalSpp", pNOTICE) << "d^nxsec/ dK^n = " << xsec1;
+    return xsec1;
   }
 
   //-- Loop over the specified list of baryon resonances and compute
   //   the cross section for the input exclusive channel
 
-  double xsec = this->XSecNRES(interaction);
-  LOG("ReinSeghalSpp", pNOTICE) << "d^2 xsec/ dQ^2 dW = " << xsec;
-  return xsec;
+  double xsecN = this->XSecNRES(interaction,kps);
+  LOG("ReinSeghalSpp", pNOTICE) << "d^nxsec/ dK^n = " << xsecN;
+  return xsecN;
 }
 //____________________________________________________________________________
-double ReinSeghalSPPPXSec::XSecNRES(const Interaction * interaction) const
+double ReinSeghalSPPPXSec::XSecNRES(
+                const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 // computes the 1pi cros section taking into account the contribution of all
 // specified baryon resonances
@@ -109,7 +111,7 @@ double ReinSeghalSPPPXSec::XSecNRES(const Interaction * interaction) const
      interaction->GetExclusiveTagPtr()->SetResonance(res);
 
      //-- Compute the contribution of this resonance
-     double res_xsec_contrib = this->XSec1RES(interaction);
+     double res_xsec_contrib = this->XSec1RES(interaction,kps);
 
      //-- Add contribution of this resonance to the cross section
      xsec += res_xsec_contrib;
@@ -121,7 +123,8 @@ double ReinSeghalSPPPXSec::XSecNRES(const Interaction * interaction) const
   return xsec;
 }
 //____________________________________________________________________________
-double ReinSeghalSPPPXSec::XSec1RES(const Interaction * interaction) const
+double ReinSeghalSPPPXSec::XSec1RES(
+               const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 // computes the contribution of a resonance to a 1pi exlusive reaction
 
@@ -129,7 +132,7 @@ double ReinSeghalSPPPXSec::XSec1RES(const Interaction * interaction) const
   Resonance_t res = interaction->GetExclusiveTag().Resonance();
 
   //-- Get the Breit-Wigner weighted xsec for exciting the resonance
-  double rxsec = fSingleResXSecModel->XSec(interaction);
+  double rxsec = fSingleResXSecModel->XSec(interaction,kps);
 
   //-- Get the BR for the (resonance) -> (exclusive final state)
   double br = SppChannel::BranchingRatio(spp_channel, res);
@@ -146,7 +149,7 @@ double ReinSeghalSPPPXSec::XSec1RES(const Interaction * interaction) const
      << "Contrib. from [" << utils::res::AsString(res) << "] = "
      << "<Glebsch-Gordon = " << igg
      << "> * <BR(->1pi) = " << br
-     << "> * <Breit-Wigner * d^2xsec/dQ^2dW = " << rxsec
+     << "> * <Breit-Wigner * d^nxsec/dK^n = " << rxsec
      << "> = " << res_xsec_contrib;
 
   return res_xsec_contrib;

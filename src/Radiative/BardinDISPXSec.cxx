@@ -55,7 +55,8 @@ BardinDISPXSec::~BardinDISPXSec()
 
 }
 //____________________________________________________________________________
-double BardinDISPXSec::XSec(const Interaction * interaction) const
+double BardinDISPXSec::XSec(
+                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   LOG("Bardin", pDEBUG) << *fConfig;
 
@@ -134,9 +135,25 @@ double BardinDISPXSec::XSec(const Interaction * interaction) const
   double xsec = Gfac * ( term1 + (kAem/kPi) * (term2 + term3) );
 
   LOG("Bardin", pINFO)
-     << "d2xsec/dxdy (E = " << E << ", x = " << x
+     << "d2xsec/dxdy [DIS,FreeN](E = " << E << ", x = " << x
                                    << ", y = " << y << ") = " << xsec;
   assert(xsec >= 0);
+ 
+  //----- The algorithm computes d^2xsec/dxdy
+  //      Check whether variable tranformation is needed
+  if(kps!=kPSxyfE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSxyfE,kps);
+    xsec *= J;
+  }
+
+  //----- If requested return the free nucleon xsec even for input nuclear tgt
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+
+  //----- Compute nuclear cross section (simple scaling here)
+  int nucpdgc = target.StruckNucleonPDGCode();
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
+  xsec *= NNucl;
+
   return xsec;
 }
 //____________________________________________________________________________

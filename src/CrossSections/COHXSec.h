@@ -34,13 +34,13 @@ public:
   COHXSec(string config);
   virtual ~COHXSec();
 
-  //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  //! XSecAlgorithmI interface implementation
+  double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  //! overload the Algorithm::Configure() methods to load private data
+  //!  members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 

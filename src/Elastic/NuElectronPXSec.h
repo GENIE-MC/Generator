@@ -3,16 +3,14 @@
 
 \class    genie::NuElectronPXSec
 
-\brief    nu/nubar + e- scattering differential cross section (dxsec/dy) \n
-
+\brief    nu/nubar + e- scattering differential cross section \n
           The cross section algorithm handles:
              - nue/nuebar + e- -> nue/nuebar + e- [CC + NC + interference]
              - numu/nutau + e- -> numu/nutau + e- [NC]
              - numubar/nutaubar + e- -> numubar/nutaubar + e- [NC]
              - numu/nutau + e- -> l- + nu_e [CC]
 
-          NuElectronPXSec is a concrete implementation of the XSecAlgorithmI
-          interface. \n
+          Is a concrete implementation of the XSecAlgorithmI interface. \n
 
 \ref      W.Greiner and B.Muller, Gauge Theory of Weak  Interactions, Springer
           F.Halzen and A.Martin, Quarks and Leptons, J.Wiley
@@ -46,9 +44,9 @@ public:
   virtual ~NuElectronPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options

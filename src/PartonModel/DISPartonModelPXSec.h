@@ -3,7 +3,8 @@
 
 \class    genie::DISPartonModelPXSec
 
-\brief    DIS differential (d^2xsec/dxdy) cross section
+\brief    Computes DIS differential cross sections.
+          Is a concrete implementation of the XSecAlgorithmI interface.
 
 \ref      E.A.Paschos and J.Y.Yu, Phys.Rev.D 65.03300
 
@@ -37,9 +38,9 @@ public:
   virtual ~DISPartonModelPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options

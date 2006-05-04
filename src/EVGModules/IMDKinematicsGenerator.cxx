@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include "Conventions/Controls.h"
+#include "Conventions/KinePhaseSpace.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/IMDKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
@@ -86,7 +87,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      interaction->GetKinematicsPtr()->Sety(y);
 
      LOG("IMDKinematics", pINFO) << "Trying: y = " << y;
-     double xsec = fXSecModel->XSec(interaction);
+     double xsec = fXSecModel->XSec(interaction, kPSyfE);
      double t    = xsec_max * rnd->Random1().Rndm();
 
      LOG("IMDKinematics", pINFO)
@@ -132,7 +133,7 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
      double y = ymin + i * dy;
      interaction->GetKinematicsPtr()->Sety(y);
 
-     double xsec = fXSecModel->XSec(interaction);
+     double xsec = fXSecModel->XSec(interaction, kPSyfE);
      max_xsec = TMath::Max(xsec, max_xsec);
   }//y
 

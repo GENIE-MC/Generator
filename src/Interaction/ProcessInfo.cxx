@@ -63,9 +63,9 @@ void ProcessInfo::Reset(void)
   fInteractionType = kIntNull;
 }
 //____________________________________________________________________________
-bool ProcessInfo::IsElastic(void) const
+bool ProcessInfo::IsNuElectronElastic(void) const
 {
-  return (fScatteringType == kScElastic);
+  return (fScatteringType == kScNuElectronElastic);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsQuasiElastic(void) const

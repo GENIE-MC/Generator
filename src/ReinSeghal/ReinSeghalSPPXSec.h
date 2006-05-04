@@ -9,12 +9,12 @@
           This algorithm produces in principle what you could also get from 
           the genie::RESXSec algorithm (RES cross section integrator) by 
           specifying the genie::ReinSeghalSPPPXSec as the differential 
-          (d2xsec/fQ2dW) cross section model. However, ReinSeghalSPPXSec
-          offers a faster alternative. Before computing any SPP cross section
-          this algorithm computes and caches splines for resonance neutrino-
-          production cross sections. This improves the speed since it is 
-          reducing the number of calculations (the generic algorithm needs to
-          recompute resonance production xsec for every exclusive channel).
+          cross section model. However, ReinSeghalSPPXSec offers a faster 
+          alternative. Before computing any SPP cross section this algorithm 
+          computes and caches splines for resonance neutrino-production cross 
+          sections. This improves the speed since it is reducing the number of 
+          calculations (the generic algorithm needs to recompute resonance 
+          production xsec for every exclusive channel).
 
           In this algorithm we follow the non-coherent approach: we sum
           the weighted resonance production cross sections rather than the
@@ -51,9 +51,9 @@ public:
   virtual ~ReinSeghalSPPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options

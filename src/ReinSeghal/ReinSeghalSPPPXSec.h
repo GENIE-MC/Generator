@@ -7,11 +7,6 @@
           reaction through resonance neutrinoproduction according to the 
           Rein-Seghal model.
 
-          The computed xsec is the double differential d^2 xsec/ dQ^2 dW \n
-          where \n
-          \li Q^2 : momentum transfer ^ 2
-          \li W   : invariant mass of the final state hadronic system
-
           The cross section is computed for an input list of resonances
           as the sum of the Rein-Seghal single resonance cross sections
           weighted:
@@ -32,7 +27,7 @@
           the weighted resonance production cross sections rather than the
           resonance production amplitudes.
 
-          Is a concrete implementation of the XSecAlgorithmI initerface.
+          Is a concrete implementation of the XSecAlgorithmI interface.
 
 \ref      D.Rein and L.M.Seghal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
@@ -65,9 +60,9 @@ public:
   virtual ~ReinSeghalSPPPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
@@ -76,8 +71,8 @@ public:
 
 private:
 
-  double XSecNRES(const Interaction * interaction) const;
-  double XSec1RES(const Interaction * interaction) const;
+  double XSecNRES(const Interaction * i, KinePhaseSpace_t k) const;
+  double XSec1RES(const Interaction * i, KinePhaseSpace_t k) const;
 
   void LoadSubAlg       (void);
   void GetResonanceList (void);

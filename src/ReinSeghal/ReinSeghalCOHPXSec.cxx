@@ -46,7 +46,8 @@ ReinSeghalCOHPXSec::~ReinSeghalCOHPXSec()
 
 }
 //____________________________________________________________________________
-double ReinSeghalCOHPXSec::XSec(const Interaction * interaction) const
+double ReinSeghalCOHPXSec::XSec(
+                 const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   LOG("ReinSeghalCoh", pDEBUG) << *fConfig;
 

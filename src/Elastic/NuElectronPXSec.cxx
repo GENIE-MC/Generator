@@ -20,6 +20,7 @@
 #include "Elastic/NuElectronPXSec.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -42,7 +43,8 @@ NuElectronPXSec::~NuElectronPXSec()
 
 }
 //____________________________________________________________________________
-double NuElectronPXSec::XSec(const Interaction * interaction) const
+double NuElectronPXSec::XSec(
+                 const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -95,8 +97,17 @@ double NuElectronPXSec::XSec(const Interaction * interaction) const
   LOG("Elastic", pDEBUG)
      << "*** dxsec(ve-)/dy [free e-](E="<< E << ", y= "<< y<< ") = "<< xsec;
 
+  //----- The algorithm computes dxsec/dy
+  //      Check whether variable tranformation is needed
+  if(kps!=kPSyfE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSyfE,kps);
+    xsec *= J;
+  }
+
+  //----- If requested return the free electron xsec even for nuclear target
   if( interaction->TestBit(kIAssumeFreeElectron) ) return xsec;
 
+  //----- Scale for the number of scattering centers at the target
   int Ne = init_state.GetTarget().Z(); // num of scattering centers
   xsec *= Ne;
 

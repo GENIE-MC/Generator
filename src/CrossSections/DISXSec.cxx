@@ -47,8 +47,10 @@ DISXSec::~DISXSec()
 
 }
 //____________________________________________________________________________
-double DISXSec::XSec(const Interaction * in) const
+double DISXSec::XSec(const Interaction * in, KinePhaseSpace_t kps) const
 {
+  assert(kps==kPSfE);
+
   if(! this -> ValidProcess    (in) ) return 0.;
   if(! this -> ValidKinematics (in) ) return 0.;
 

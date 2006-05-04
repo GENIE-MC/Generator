@@ -19,6 +19,7 @@
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Base/XSecAlgorithmI.h"
+#include "Conventions/KinePhaseSpace.h"
 #include "EVGModules/RSPPResonanceSelector.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
@@ -102,7 +103,7 @@ Resonance_t RSPPResonanceSelector::SelectResonance(GHepRecord * evrec) const
      double xsec = 0;
      bool   skip = (q_res==2 && !utils::res::IsDelta(res));
 
-     if(!skip) xsec = fXSecAlg->XSec(interaction);
+     if(!skip) xsec = fXSecAlg->XSec(interaction,kPSWQ2fE);
      else {
        SLOG("RESSelector", pNOTICE)
                  << "RES: " << utils::res::AsString(res)

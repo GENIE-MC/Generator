@@ -55,7 +55,8 @@ ReinSeghalRESPXSec::~ReinSeghalRESPXSec()
 
 }
 //____________________________________________________________________________
-double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
+double ReinSeghalRESPXSec::XSec(
+                 const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   LOG("ReinSeghalRes", pDEBUG) << *fConfig;
 
@@ -198,6 +199,13 @@ double ReinSeghalRESPXSec::XSec(const Interaction * interaction) const
       << "Res[" << utils::res::AsString(resonance) << "]: "
         << "<Breit-Wigner(=" << bw << ")> * <d^2xsec/dQ^2dW(free) [W=" << W
           << ", q2=" << q2 << ", E=" << E << "](="<< xsec << ")> = " << wxsec;
+
+  //-- The algorithm computes d^2xsec/dWdQ2
+  //   Check whether variable tranformation is needed
+  if(kps!=kPSWQ2fE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
+    xsec *= J;
+  }
 
   //-- If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return wxsec;

@@ -3,7 +3,7 @@
 
 \class    genie::QELPXSec
 
-\brief    Computes the differential Quasi Elastic cross section dxsec/dq^2.\n
+\brief    Computes neutrino-nucleon(nucleus) QEL differential cross sections
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
 \ref      C.H.Llewellyn Smith, Physics Reports (Sect. C of Physics Letters) 3,
@@ -38,9 +38,9 @@ public:
   virtual ~QELPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members

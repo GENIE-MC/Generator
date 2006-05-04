@@ -47,8 +47,10 @@ RESXSec::~RESXSec()
 
 }
 //____________________________________________________________________________
-double RESXSec::XSec(const Interaction * in) const
+double RESXSec::XSec(const Interaction * in, KinePhaseSpace_t kps) const
 {
+  assert(kps==kPSfE);
+
   LOG("RESXSec", pDEBUG) << *fConfig;
 
   if(! this -> ValidProcess    (in) ) return 0.;

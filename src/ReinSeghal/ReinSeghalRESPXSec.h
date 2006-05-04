@@ -57,9 +57,9 @@ public:
   virtual ~ReinSeghalRESPXSec();
 
   //! XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //! overload the Algorithm::Configure() methods to load private data
   //! members from configuration options

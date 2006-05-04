@@ -123,7 +123,7 @@ nuvld-libs:
 
 nuvld-exe:
 	cd ${GENIE}/src;\
-	cd NuValidator; make applications; cd ..; 
+	cd NuValidator; make exe; cd ..; 
 
 geanti:
 	cd ${GENIE}/src;\

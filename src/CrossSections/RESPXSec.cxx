@@ -50,48 +50,46 @@ RESPXSec::~RESPXSec()
 
 }
 //____________________________________________________________________________
-double RESPXSec::XSec(const Interaction * interaction) const
+double RESPXSec::XSec(
+                 const Interaction * interaction, KinePhaseSpace_t kps) const
 {
+  assert(kps==kPSWfE || kps==kPSQ2fE || kps==kPSq2fE);
+
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   GXSecFunc * func = 0;
   double xsec = 0;
 
-  if (fKineVar == "W") {
+  if (kps==kPSQ2fE || kps==kPSq2fE) {
 
     double Q2 = interaction->GetKinematics().Q2();
     func = new Integrand_D2XSec_DWDQ2_EQ2(
                          fPartialXSecAlg, interaction, Q2);
 
-    // default is physical W range for the given energy
     Range1D_t rW = utils::kinematics::KineRange(interaction, kKVW);
-    // apply kinematic cuts
-    if ( utils::math::IsWithinLimits(fKineMinCut, rW) ) rW.min = fKineMinCut;
-    if ( utils::math::IsWithinLimits(fKineMaxCut, rW) ) rW.max = fKineMaxCut;
-    assert(rW.min < rW.max);
+    assert(rW.min < rW.max && rW.min>0);
 
     func->SetParam(0,"W",rW);
     xsec = fIntegrator->Integrate(*func);
 
-  } else if (fKineVar == "Q2") {
+  } else if (kps==kPSWfE) {
 
     double W = interaction->GetKinematics().W();
     func = new Integrand_D2XSec_DWDQ2_EW(
                          fPartialXSecAlg, interaction, W);
 
-    // default is physical Q2 range for input W
     Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
-    // apply kinematic cuts
-    if ( utils::math::IsWithinLimits(fKineMinCut, rQ2) ) rQ2.min = fKineMinCut;
-    if ( utils::math::IsWithinLimits(fKineMaxCut, rQ2) ) rQ2.max = fKineMaxCut;
     assert(rQ2.min > 0 && rQ2.max > rQ2.min);
 
     func->SetParam(0,"Q2",rQ2);
     xsec = fIntegrator->Integrate(*func);
 
-  } else exit(1);
-
+  } else {
+   LOG("DISPXSec", pFATAL)
+         << "Can not handle phase space = "  << KinePhaseSpace::AsString(kps);
+    exit(1);
+  }
   delete func;
   return xsec;
 }
@@ -131,42 +129,16 @@ bool RESPXSec::ValidKinematics(const Interaction * interaction) const
 void RESPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void RESPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void RESPXSec::LoadConfigData(void)
-{
-  assert( fConfig->Exists("is-differential-over") );
-  fKineVar = fConfig->GetString("is-differential-over");
-  LOG("RESPXSec", pDEBUG) << "XSec is differential over var: " << fKineVar;
-
-  double tmin, tmax;
-
-  if ( fKineVar.find("W") != string::npos ) {
-     //-- it is dxsec/dW, get user cuts over Q2 and integration steps
-     tmin  = fConfig -> GetDoubleDef ("Q2min",  -1 );
-     tmax  = fConfig -> GetDoubleDef ("Q2max",  -1 );
-
-  } else if ( fKineVar.find("Q2") != string::npos ) {
-     //-- it is dxsec/dQ2, get user cuts over W and integration steps
-     tmin = fConfig -> GetDoubleDef ("Wmin", -1 );
-     tmax = fConfig -> GetDoubleDef ("Wmax", -1 );
-
-  } else abort();
-
-  fKineMinCut = tmin;
-  fKineMaxCut = tmax;
-}
-//____________________________________________________________________________
-void RESPXSec::LoadSubAlg(void)
+void RESPXSec::LoadConfig(void)
 {
   fPartialXSecAlg = 0;
   fIntegrator     = 0;
@@ -180,7 +152,7 @@ void RESPXSec::LoadSubAlg(void)
   LOG("DISXSec", pDEBUG) << *fPartialXSecAlg;
   //-- get the specified integration algorithm
   fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+                this->SubAlg("integrator-alg-name", "integrator-param-set"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________

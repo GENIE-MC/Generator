@@ -41,10 +41,8 @@ libs:
 	cd DBUtils;            make; cd ..;    \
 	cd Facades;            make; cd ..;    \
 	cd NuVldGUI;           make; cd ..;    
-
 exe:
 	cd app;                make; cd ..; 
-
 
 purge: FORCE
 	cd XmlParser;          make purge; cd ..;    \

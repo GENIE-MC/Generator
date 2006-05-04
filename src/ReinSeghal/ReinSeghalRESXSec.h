@@ -9,12 +9,11 @@
           This algorithm produces in principle what you could also get from 
           the genie::RESXSec algorithm (RES cross section integrator) by 
           specifying the genie::ReinSeghalRESPXSec as the differential 
-          (d2xsec/dQ2dW) cross section model. However, ReinSeghalRESXSec
-          offers a faster alternative. Before computing any RES cross section
-          this algorithm computes and caches splines for resonance neutrino-
-          production cross sections. This improves the speed of the GENIE
-          spline construction phase if splines for multiple nuclear targets
-          are to be computed.
+          cross section model. However, ReinSeghalRESXSec offers a faster 
+          alternative. Before computing any RES cross section this algorithm 
+          computes and caches splines for resonance neutrino-production cross 
+          sections. This improves the speed of the GENIE spline construction 
+          phase if splines for multiple nuclear targets are to be computed.
 
           Is a concrete implementation of the XSecAlgorithmI interface.\n
 
@@ -47,9 +46,9 @@ public:
   virtual ~ReinSeghalRESXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options

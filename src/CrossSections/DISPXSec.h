@@ -41,27 +41,22 @@ public:
   DISPXSec(string config);
   virtual ~DISPXSec();
 
-  //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * interaction) const;
-  bool   ValidProcess    (const Interaction * interaction) const;
-  bool   ValidKinematics (const Interaction * interaction) const;
+  //! XSecAlgorithmI interface implementation
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  bool   ValidProcess    (const Interaction * i) const;
+  bool   ValidKinematics (const Interaction * i) const;
 
-  //-- override the Algorithm::Configure methods to load configuration
-  //   data to private data members
+  //! override the Algorithm::Configure methods to load configuration
+  //! data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
 private:
 
-  void LoadConfigData (void);
-  void LoadSubAlg     (void);
+  void LoadConfig (void);
 
   const XSecAlgorithmI * fPartialXSecAlg;
   const IntegratorI *    fIntegrator;
-
-  string fKineVar;
-  double ftmax;
-  double ftmin;
 };
 
 }       // genie namespace

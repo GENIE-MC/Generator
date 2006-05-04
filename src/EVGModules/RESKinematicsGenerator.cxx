@@ -20,6 +20,7 @@
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Controls.h"
 #include "Conventions/KineVar.h"
+#include "Conventions/KinePhaseSpace.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/RESKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
@@ -92,7 +93,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double dlogW    = logWmax - logWmin;
 
   while(1) {
-
      iter++;
      if(iter > kRjMaxIterations) {
          LOG("RESKinematics", pWARN)
@@ -128,7 +128,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //    compute d^2xsec /dW dQ^2 for the *list* of currently considered
      //    baryon resonances and returns their sum weighted with the value
      //    of their Breit-Wigner distribution at the current W.
-     double xsec = fXSecModel->XSec(interaction);
+     double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
      double t    = xsec_max * rnd->Random1().Rndm();
 
      LOG("RESKinematics", pINFO)
@@ -290,7 +290,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   for(int iq2=0; iq2<NQ2; iq2++) {
      double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
      interaction->GetKinematicsPtr()->SetQ2(Q2);
-     double xsec = fXSecModel->XSec(interaction);
+     double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
      max_xsec = TMath::Max(xsec, max_xsec);
 
      increasing = xsec-xseclast>0;
