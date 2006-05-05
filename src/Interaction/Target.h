@@ -36,7 +36,6 @@ namespace genie {
 class Target : public TObject {
 
 public:
-
   Target();
   Target(int pdgc);
   Target(int Z, int A);
@@ -45,12 +44,13 @@ public:
   ~Target();
 
   //! Set target properties
-  void SetId                   (int pdgc);
-  void SetId                   (int Z, int A);
-  void SetStruckNucleonPDGCode (int pdgc);
-  void SetStruckNucleonP4      (const TLorentzVector & p4);
-  void SetStruckQuarkPDGCode   (int pdgc);
-  void SetStruckSeaQuark       (bool tf);
+  void SetId                         (int pdgc);
+  void SetId                         (int Z, int A);
+  void SetStruckNucleonPDGCode       (int pdgc);
+  void SetStruckNucleonP4            (const TLorentzVector & p4);
+  void SetStruckQuarkPDGCode         (int pdgc);
+  void SetStruckSeaQuark             (bool tf);
+  void ForceStruckNucleonOnMassShell (void);
 
   //! Get atomic number, mass number & number of neutrons,
   //! nucleus PDG code according to the MINOS PDG extensions
