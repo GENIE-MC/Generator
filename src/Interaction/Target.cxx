@@ -169,6 +169,16 @@ void Target::SetStruckSeaQuark(bool tf)
   fStruckSeaQuark = tf;
 }
 //___________________________________________________________________________
+void Target::ForceStruckNucleonOnMassShell(void)
+{
+  if(this->StruckNucleonIsSet()) {
+     double m = this->StruckNucleonMass();
+     double p = this->StruckNucleonP4()->P();
+     double e = TMath::Sqrt(p*p+m*m);
+     this->StruckNucleonP4()->SetE(e);     
+  }
+}
+//___________________________________________________________________________
 double Target::Charge(void) const
 {
 // Shortcut for commonly used code for extracting the nucleus charge from PDG
