@@ -49,8 +49,11 @@ typedef enum EKinePhaseSpace {
   kPSWfEQ2,
   kPSWfEq2,
   kPSWQ2fE,
+  kPSW2Q2fE,
   kPSWlogQ2fE,
+  kPSW2logQ2fE,
   kPSWq2fE,
+  kPSW2q2fE,
   kPSxytfE
 } KinePhaseSpace_t;
 
@@ -86,8 +89,11 @@ public:
       case(kPSWfEQ2)      : return "<{W}|E,Q2>";      break;
       case(kPSWfEq2)      : return "<{W}|E,q2>";      break;
       case(kPSWQ2fE)      : return "<{W,Q2}|E>";      break;
+      case(kPSW2Q2fE)     : return "<{W2,Q2}|E>";     break;
       case(kPSWlogQ2fE)   : return "<{W,logQ2}|E>";   break;
+      case(kPSW2logQ2fE)  : return "<{W2,logQ2}|E>";  break;
       case(kPSWq2fE)      : return "<{W,q2}|E>";      break;
+      case(kPSW2q2fE)     : return "<{W2,q2}|E>";     break;
       case(kPSxytfE)      : return "<{x,y,t}|E>";     break;
     }
     return "** Undefined kinematic phase space **";
