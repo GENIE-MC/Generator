@@ -73,8 +73,11 @@ const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
              << "Average hadronic multiplicity (W=" << W << ") = " << avn;
 
   // Find the maximum multiplicity as W = Mneutron + (maxmult-1)*Mpion
-  double maxmult = (fForceNeuGenLimit) ?
-                    10 : TMath::Floor(1 + (W-kNeutronMass)/kPionMass);
+  double maxmult = TMath::Floor(1 + (W-kNeutronMass)/kPionMass);
+
+  // If required force the NeuGEN maximum multiplicity limit
+  // Note: use for NEUGEN/GENIE comparisons, not physics MC production
+  if(fForceNeuGenLimit & maxmult>10) maxmult=10;
 
   SLOG("Schmitz", pDEBUG) << "Computed maximum multiplicity = " << maxmult;
 

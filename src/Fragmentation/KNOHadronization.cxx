@@ -486,8 +486,8 @@ int KNOHadronization::GenerateBaryonPdgCode(int multiplicity, int maxQ) const
      }
   }
 
-  LOG("KNOHad", pDEBUG) <<
-        "\n ---> Adding a " << (( pdgc == kPdgProton ) ? "proton" : "neutron");
+  LOG("KNOHad", pDEBUG) 
+       << " -> Adding a " << (( pdgc == kPdgProton ) ? "proton" : "neutron");
 
   return pdgc;
 }
