@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
+Configuration for the COHKinematicsGenerator EventRecordVisitorI
 
-configuration options       type    description
-*******************************************************************************
-xsec-alg-name               string  differential cross section algorithm name
-xsec-param-set              string  differential cross section algorithm config
-max-xsec-safety-factor      double  rejection method multiplicative safety factor
-
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                     Type    Opt   Comment                                       Default
+.......................................................................................................................
+xsec-alg-name            string  No    cross section algorithm...
+xsec-param-set           string  No    ... and its config set
+Q2-min                   double  Yes   kinematic limit                               use physical phase space
+Q2-max                   double  Yes   kinematic limit                               use physical phase space
+uniform-over-phase-space bool    Yes   kinematics uniformly over allowd phase space  false
+                                       wgt = (phase_space_volume)*(diff_xsec)/(xsec)
+max-xsec-safety-factor   double  Yes   multiplies max xsec in rejection method       1.25
+min-energy-cached        double  Yes   minimum energy for which max xsec is cached   1.00
+max-xsec-diff-tolerance  double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax) 0.00
+                                       if xsec>xsecmax
 -->
 
 <alg_conf>
-
-  Configuration sets for COHKinematicsGenerator EventRecordVisitorI
 
   <param_set name="Default"> 
      <param type="string" name="xsec-alg-name">            genie::ReinSeghalCOHPXSec </param>

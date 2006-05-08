@@ -76,7 +76,6 @@
   <priority msgstream="Intranuke">           INFO   </priority>
   <priority msgstream="ISApp">               INFO   </priority>
   <priority msgstream="IntGenMap">           INFO   </priority>
-  <priority msgstream="KNO">                 INFO   </priority>
   <priority msgstream="KNOHad">              INFO   </priority>
   <priority msgstream="KNOHad2">             INFO   </priority>
   <priority msgstream="KineLimits">          INFO   </priority>
@@ -129,7 +128,6 @@
   <priority msgstream="MiserMCIntegrator">   NOTICE </priority>
   <priority msgstream="Spline">              INFO   </priority>
   <priority msgstream="Target">              INFO   </priority>
-  <priority msgstream="UnifKinematics">      INFO   </priority>
   <priority msgstream="Utils">               INFO   </priority>
   <priority msgstream="VtxGenerator">        INFO   </priority>
   <priority msgstream="VldContext">          INFO   </priority>
