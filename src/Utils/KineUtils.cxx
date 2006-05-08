@@ -91,6 +91,43 @@ double genie::utils::kinematics::PhaseSpaceVolume(
     return vol;
     break;
   }
+  case(kPSxyfE):
+  {
+    Range1D_t W = KineRange(in, kKVW);
+    if(W.max<0) return 0;
+
+    const InitialState & init_state = in->GetInitialState();
+    double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+    double M  = init_state.GetTarget().StruckNucleonP4()->M(); 
+
+    const int    kNx = 100;  
+    const int    kNy = 100;  
+    const double kdx = (kMaxX-kMinX)/(kNx-1);	
+    const double kdy = (kMaxY-kMinY)/(kNy-1);	
+    const double kdV = kdx*kdy;
+
+    double cW=-1, cQ2 = -1;
+   
+    Interaction interaction(*in);
+
+    for(int ix=0; ix<kNx; ix++) {
+      double x = kMinX+ix*kdx;
+      for(int iy=0; iy<kNy; iy++) {
+         double y = kMinY+iy*kdy;
+
+         XYtoWQ2(Ev, M, cW, cQ2, x, y);
+         if(!math::IsWithinLimits(cW, W)) continue;
+
+         interaction.GetKinematicsPtr()->SetW(cW);
+         Range1D_t Q2 = KineRange(&interaction, kKVQ2);
+         if(!math::IsWithinLimits(cQ2, Q2)) continue;
+
+         vol += kdV;
+      }
+    }
+    return vol;
+    break;
+  }
   default:
    SLOG("KineLimits", pERROR) 
      << "Couldn't compute phase space volume for " 
@@ -100,71 +137,73 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 }
 //____________________________________________________________________________
 double genie::utils::kinematics::Jacobian(
-  const Interaction * const i, KinePhaseSpace_t fromps, KinePhaseSpace_t tops)
+            const Interaction * const i, 
+                              KinePhaseSpace_t fromps, KinePhaseSpace_t tops)
 {
+// returns the Jacobian for the transformation: fromps -> tops
+//
   SLOG("KineLimits", pDEBUG) 
        << "Computing Jacobian for transformation: "
                 << KinePhaseSpace::AsString(fromps) << " --> " 
                                             << KinePhaseSpace::AsString(tops);
   double J=0;
-  bool handled=true;
+  bool forward;
   const Kinematics & kine = i->GetKinematics();
 
-  switch(fromps) {
-
-  // ** handle {Q2}|E -> X
-  case(kPSQ2fE):
-     switch(tops) {
-        // ****** transformation: {Q2}|E -> {lnQ2}|E
-        case(kPSlogQ2fE):
-           J = kine.Q2();
-           break;
-        default:
-           handled=false;
-           break;
-     }
-     break;
-
-  // ** handle {x,y}|E -> X
-  case(kPSxyfE):
-     switch(tops) {
-        // ****** transformation: {x,y}|E -> {lnx,lny}|E
-        case(kPSlogxlogyfE):
-           J = kine.x() * kine.y();
-           break;
-        default:
-           handled=false;
-           break;
-     }
-     break;
-
-  // ** handle {W,Q2}|E -> X
-  case(kPSWQ2fE):
-     switch(tops) {
-        // ****** transformation: {W,Q2}|E -> {W,lnQ2}|E
-        case(kPSWlogQ2fE):
-           J = kine.Q2();
-           break;
-        default:
-           handled=false;
-           break;
-     }
-     break;
-
-  default:
-     handled=false;
-     break;
-  }
-
-  if(!handled) {
+  // ****** transformation: {Q2}|E -> {lnQ2}|E
+  if ( TransformMatched(fromps,tops,kPSQ2fE,kPSlogQ2fE,forward) ) 
+  {
+    J = kine.Q2();
+  } 
+  // ****** transformation: {x,y}|E -> {lnx,lny}|E
+  else if ( TransformMatched(fromps,tops,kPSxyfE,kPSlogxlogyfE,forward) ) 
+  {
+    J = kine.x() * kine.y();
+  } 
+  // ****** transformation: {W,Q2}|E -> {W,lnQ2}|E
+  else if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSWlogQ2fE,forward) ) 
+  {
+    J = kine.Q2();
+  } 
+  // ****** transformation: {W2,Q2}|E -> {x,y}|E
+  else if ( TransformMatched(fromps,tops,kPSW2Q2fE,kPSxyfE,forward) ) 
+  {
+    const InitialState & init_state = i->GetInitialState();
+    double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+    double M  = init_state.GetTarget().StruckNucleonP4()->M(); 
+    double y  = kine.y();
+    J = TMath::Power(2*M*Ev,2) * y;
+  } 
+  // ****** transformation: {W2,logQ2}|E -> {x,y}|E
+  else if ( TransformMatched(fromps,tops,kPSW2logQ2fE,kPSxyfE,forward) ) 
+  {
+    J = Jacobian(i,kPSW2Q2fE,kPSxyfE)/kine.Q2();
+  } 
+  else {
      SLOG("KineLimits", pFATAL) 
        << "*** Can not compute Jacobian for transforming: "
-                     << KinePhaseSpace::AsString(fromps) << " --> " 
+                     << KinePhaseSpace::AsString(fromps) << " <--> " 
                                             << KinePhaseSpace::AsString(tops);
      exit(1);
   }
 
+  // if any of the above transforms was reverse, invert the jacobian
+  if(!forward) J = 1./J;
+
   return J;
+}
+//____________________________________________________________________________
+bool genie::utils::kinematics::TransformMatched(
+	       KinePhaseSpace_t inpa, KinePhaseSpace_t inpb,
+                           KinePhaseSpace_t a, KinePhaseSpace_t b, bool & fwd)
+{
+  
+  bool matched = (a==inpa&&b==inpb || a==inpb&&b==inpa); // match a->b or b->a
+  if(matched) {
+    if(a==inpa&&b==inpb) fwd = true;  // matched forward transform: a->b
+    else                 fwd = false; // matched reverse transform: b->a
+  }
+  return matched;
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::WRange(

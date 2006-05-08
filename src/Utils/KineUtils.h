@@ -29,21 +29,27 @@ namespace utils {
 
 namespace kinematics
 {
-  Range1D_t  KineRange             (const Interaction * const i, KineVar_t k);
-  double     PhaseSpaceVolume      (const Interaction * const i, KinePhaseSpace_t ps);
-  double     Jacobian              (const Interaction * const i, KinePhaseSpace_t fromps, KinePhaseSpace_t tops);
-  Range1D_t  WRange                (const Interaction * const i);
-  Range1D_t  Q2Range               (const Interaction * const i);
-  Range1D_t  q2Range               (const Interaction * const i);
-  Range1D_t  Q2Range_W             (const Interaction * const i, Range1D_t rW);
-  double     CalcQ2                (const Interaction * const i);
-  double     CalcW                 (const Interaction * const i);
-  void       WQ2toXY               (double Ev, double M, double W, double Q2, double & x, double & y);
-  void       XYtoWQ2               (double Ev, double M, double & W, double & Q2, double x, double y);
+  Range1D_t  KineRange        (const Interaction * const i, KineVar_t k);
+  double     PhaseSpaceVolume (const Interaction * const i, KinePhaseSpace_t ps);
+  double     Jacobian         (const Interaction * const i, KinePhaseSpace_t f, KinePhaseSpace_t t);
+  bool       TransformMatched (KinePhaseSpace_t ia, KinePhaseSpace_t ib,
+                               KinePhaseSpace_t a, KinePhaseSpace_t b, bool & fwd);
+
+  Range1D_t  WRange    (const Interaction * const i);
+  Range1D_t  Q2Range   (const Interaction * const i);
+  Range1D_t  q2Range   (const Interaction * const i);
+  Range1D_t  Q2Range_W (const Interaction * const i, Range1D_t rW);
+  double     CalcQ2    (const Interaction * const i);
+  double     CalcW     (const Interaction * const i);
+  void       WQ2toXY   (double Ev, double M, double W, double Q2, double & x, double & y);
+  void       XYtoWQ2   (double Ev, double M, double & W, double & Q2, double x, double y);
+
   void       ApplyCutsToKineLimits (Range1D_t & r, double min, double max);
   double     EnergyThreshold       (const Interaction * const i);
   bool       IsAboveCharmThreshold (const Interaction * const i, double mc);
   double     SlowRescalingVar      (const Interaction * const i, double mc);
+
+
 
 } // kinematics namespace
 } // utils namespace
