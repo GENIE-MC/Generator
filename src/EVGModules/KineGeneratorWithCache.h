@@ -53,11 +53,17 @@ protected:
   virtual double FindMaxXSec    (const Interaction * in) const;
   virtual void   CacheMaxXSec   (const Interaction * in, double xsec) const;
   virtual double Energy         (const Interaction * in) const;
+
   virtual CacheBranchFx * AccessCacheBranch (const Interaction * in) const;
 
+  virtual void AssertXSecLimits (const Interaction * in, double xsec, double xsec_max) const;
+
   const XSecAlgorithmI * fXSecModel;
-  double fSafetyFactor; 
-  double fEMin; 
+
+  double fSafetyFactor;         ///< maxxsec -> maxxsec * safety_factor
+  double fMaxXSecDiffTolerance; ///< max{100*(xsec-maxxsec)/.5*(xsec+maxxsec)} if xsec>maxxsec
+  double fEMin;                 ///< min E for which maxxsec is cached - forcing explicit calc.
+  bool   fGenerateUniformly;    ///< uniform over allowed phase space + event weight?
 };
 
 }      // genie namespace

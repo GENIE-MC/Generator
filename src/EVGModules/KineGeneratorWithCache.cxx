@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include <sstream>
+#include <cstdlib>
 
 #include <TSQLResult.h>
 #include <TSQLRow.h>
@@ -232,4 +233,34 @@ CacheBranchFx * KineGeneratorWithCache::AccessCacheBranch(
   return cache_branch;
 }
 //___________________________________________________________________________
+void KineGeneratorWithCache::AssertXSecLimits(
+         const Interaction * interaction, double xsec, double xsec_max) const
+{
+  // check the computed cross section for the current kinematics against the
+  // maximum cross section used in the rejection MC method for the current
+  // interaction at the current energy.
+  if(xsec>xsec_max) {
+    double f = 200*(xsec-xsec_max)/(xsec_max+xsec);
+    if(f>fMaxXSecDiffTolerance) {
+       LOG("Kinematics", pFATAL) 
+    	  << "xsec: (curr) = " << xsec 
+      	         << " > (max) = " << xsec_max << "\n for " << *interaction;
+       LOG("Kinematics", pFATAL) 
+ 	  << "*** Exceeding estimated maximum differential cross section";
+       exit(1);
+    } else {
+       LOG("Kinematics", pWARN) 
+    	  << "xsec: (curr) = " << xsec 
+      	         << " > (max) = " << xsec_max << "\n for " << *interaction;
+       LOG("Kinematics", pWARN) 
+  	    << "*** The fractional deviation of " << f << " % was allowed";
+    }
+  }
 
+  // this should never happen - print an error mesg just in case...
+  if(xsec<0) {
+    LOG("Kinematics", pERROR) 
+     << "Negative cross section for current kinematics!! \n" << *interaction;
+  }
+}
+//___________________________________________________________________________

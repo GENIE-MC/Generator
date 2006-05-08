@@ -26,10 +26,12 @@
 #include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::controls;
+using namespace genie::utils;
 
 //___________________________________________________________________________
 COHKinematicsGenerator::COHKinematicsGenerator() :
@@ -54,7 +56,10 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 // Selects kinematic variables using the 'Rejection' method and adds them to
 // the event record's summary
 
-  Interaction * interaction = evrec->GetInteraction();
+  if(fGenerateUniformly) {
+    LOG("COHKinematics", pNOTICE)
+          << "Generating kinematics uniformly over the allowed phase space";
+  }
 
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
@@ -63,9 +68,12 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   Calculate the max differential cross section or retrieve it from the
   //   cache. Throw an exception and quit the evg thread if a non-positive
   //   value is found.
-  double xsec_max = this->MaxXSec(evrec);
+  //   If the kinematics are generated uniformly over the allowed phase
+  //   space the max xsec is irrelevant
+  double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
 
   //-- Get the kinematical limits for the generated x,y
+  Interaction * interaction = evrec->GetInteraction();
   Range1D_t y = this->yRange(interaction);
   const double logxmin = TMath::Log(kASmallNum);
   const double logxmax = TMath::Log(1.-kASmallNum);
@@ -75,8 +83,10 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const double dlogy   = (logymax - logymin);
 
   //------ Try to select a valid x,y pair
-  register unsigned int iter = 0;
 
+  register unsigned int iter = 0;
+  bool accept=false;
+  double xsec=-1;
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
@@ -93,20 +103,30 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      double gy = TMath::Exp(logymin + dlogy * rnd->Random1().Rndm());
      interaction->GetKinematicsPtr()->Setx(gx);
      interaction->GetKinematicsPtr()->Sety(gy);
-     LOG("COHKinematics", pINFO)
-                   << "Trying: (x = " << gx << ", y = " << gy << ")";
+     LOG("COHKinematics", pINFO) << "Trying: x= "<< gx<< ", y= "<< gy;
 
-     double xsec    = fXSecModel->XSec(interaction, kPSlogxlogyfE);
-     double tryxsec = xsec_max * rnd->Random1().Rndm();
+     // computing cross section for the current kinematics
+     xsec = fXSecModel->XSec(interaction, kPSxyfE);
 
-     LOG("COHKinematics", pINFO)
-          << "xsec: (computed) = " << xsec << ", (generated) = " << tryxsec;
-     assert(xsec < xsec_max);
+     //-- decide whether to accept the current kinematics
+     if(!fGenerateUniformly) {
+        this->AssertXSecLimits(interaction, xsec, xsec_max);
 
-     if(tryxsec < xsec) {
-        // kinematical selection done.
-        LOG("COHKinematics", pINFO)
-                             << "Selected: x = " << gx << ", y = " << gy;
+        double t = xsec_max * rnd->Random1().Rndm();
+        double J = kinematics::Jacobian(interaction,kPSxyfE,kPSlogxlogyfE);
+
+        LOG("COHKinematics", pDEBUG)
+                     << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
+        accept = (t < J*xsec);
+     }
+     else {
+       accept = (xsec>0);
+     }
+
+     if(accept) {
+         // ----------------- KINEMATICAL SELECTION DONE -------------------
+
+        LOG("COHKinematics", pINFO) << "Selected: x= "<< gx << ", y= "<< gy;
 
         // the COH cross section should be a triple differential cross section
         // d^2xsec/dxdydt where t is the the square of the 4p transfer to the
@@ -135,6 +155,20 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         LOG("COHKinematics", pINFO)
           << "Selected: t = "<< gt << ", from ["<< tmin << ", "<< tmax << "]";
+
+        // for uniform kinematics, compute an event weight as
+        // wght = (phase space volume)*(differential xsec)/(event total xsec)
+        if(fGenerateUniformly) {
+          double vol     = y.max-y.min; // dx=1, dt: irrelevant
+          double totxsec = evrec->GetXSec();
+          double wght    = (vol/totxsec)*xsec;
+          LOG("COHKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
+
+          // apply computed weight to the current event weight
+          wght *= evrec->GetWeight();
+          LOG("COHKinematics", pNOTICE) << "Current event wght = " << wght;
+          evrec->SetWeight(wght);
+        }
 
         // lock selected kinematics & clear running values
         interaction->GetKinematicsPtr()->Setx(gx, true);
@@ -201,7 +235,7 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
      in->GetKinematicsPtr()->Setx(gx);
      in->GetKinematicsPtr()->Sety(gy);
 
-     double xsec = fXSecModel->XSec(in, kPSlogxlogyfE);
+     double xsec = fXSecModel->XSec(in, kPSxyfE);
      max_xsec = TMath::Max(max_xsec, xsec);
    }//y
   }//x

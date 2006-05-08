@@ -28,7 +28,6 @@ namespace genie {
 class RESKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
-
   RESKinematicsGenerator();
   RESKinematicsGenerator(string config);
   ~RESKinematicsGenerator();
@@ -50,10 +49,9 @@ private:
 
   double fWmin;
   double fWmax;
+  double fWcut;
   double fQ2min;
   double fQ2max;
-  bool   fRESKinematics;
-  bool   fSPPKinematics;
 };
 
 }      // genie namespace
