@@ -247,15 +247,20 @@ int main(int argc, char ** argv)
   }
   XSmin = XSmax/300.;
 
+  LOG("gsplt", pINFO) << "Saving plots in a postscript document";
+
   //-- ps output: add the 1st page with xsec spline plots
   c = new TCanvas("c","",20,20,500,500);
   c->SetBorderMode(0);
   c->SetFillColor(0);
   c->Draw();
 
+  LOG("gsplt", pINFO) << "Drawing frame: E    = (" << Emin  << ", " << Emax  << ")";
+  LOG("gsplt", pINFO) << "Drawing frame: XSec = (" << XSmin << ", " << XSmax << ")";
+
   h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
 
-  for(int i = 0; i < (int) keyv->size(); i++) gr[i]->Draw("LP");
+  for(int i = 0; i < (int) keyv->size(); i++) if(gr[i]) gr[i]->Draw("LP");
   legend->Draw();
 
   h->GetXaxis()->SetTitle("Ev (GeV)");
@@ -267,6 +272,9 @@ int main(int argc, char ** argv)
   c->Update();
 
   //-- ps output: create the 2nd page (detailed legend) with spline keys
+
+  LOG("gsplt", pINFO) << "Creating legend page";
+
   ps->NewPage();
 
   delete c;
