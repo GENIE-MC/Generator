@@ -23,9 +23,11 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "Utils/MathUtils.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::controls;
+using namespace genie::utils;
 
 //___________________________________________________________________________
 IMDKinematicsGenerator::IMDKinematicsGenerator() :
@@ -50,7 +52,10 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 // Selects kinematic variables using the 'Rejection' method and adds them to
 // the event record's summary
 
-  Interaction * interaction = evrec->GetInteraction();
+  if(fGenerateUniformly) {
+    LOG("IMDKinematics", pNOTICE)
+          << "Generating kinematics uniformly over the allowed phase space";
+  }
 
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
@@ -59,18 +64,22 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   Calculate the max differential cross section or retrieve it from the
   //   cache. Throw an exception and quit the evg thread if a non-positive
   //   value is found.
-  double xsec_max = this->MaxXSec(evrec);
+  //   If the kinematics are generated uniformly over the allowed phase
+  //   space the max xsec is irrelevant
+  double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
 
-  //------ Try to select a valid inelastisity y
-  register unsigned int iter = 0;
-  const double e = 1E-6;
-
-  double ymin = 0.0 + e; // the xsec algorithm would internally compute the
-  double ymax = 1.0 - e; // kinematically allowd range, and return 0 if outside
+  //-- y range
+  double ymin = kMinY; // the xsec algorithm would internally compute the
+  double ymax = kMaxY; // kinematically allowd range, and return 0 if outside
   double dy   = ymax-ymin;
 
-  while(1) {
+  double xsec = -1;
+  Interaction * interaction = evrec->GetInteraction();
 
+  //-- Try to select a valid inelastisity y
+  register unsigned int iter = 0;
+  bool accept = false;
+  while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
         LOG("IMDKinematics", pWARN)
@@ -87,19 +96,42 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      interaction->GetKinematicsPtr()->Sety(y);
 
      LOG("IMDKinematics", pINFO) << "Trying: y = " << y;
-     double xsec = fXSecModel->XSec(interaction, kPSyfE);
-     double t    = xsec_max * rnd->Random1().Rndm();
 
-     LOG("IMDKinematics", pINFO)
-           << "xsec: (computed) = " << xsec << ", (generated) = " << t;
-     assert(xsec < xsec_max);
+     //-- computing cross section for the current kinematics
+     xsec = fXSecModel->XSec(interaction, kPSyfE);
 
-     if(t < xsec) {
-        // kinematical selection done.
+     //-- decide whether to accept the current kinematics
+     if(!fGenerateUniformly) {
+        this->AssertXSecLimits(interaction, xsec, xsec_max);
+
+        double t = xsec_max * rnd->Random1().Rndm();
+        LOG("IMDKinematics", pDEBUG) << "xsec= "<< xsec<< ", J= 1, Rnd= "<< t;
+
+        accept = (t<xsec);
+     } else {
+       accept = (xsec>0);
+     }
+
+     if(accept) {
+        // -------------- KINEMATICAL SELECTION DONE ----------------
         LOG("IMDKinematics", pINFO) << "Selected: y = " << y;
 
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);
+
+        // for uniform kinematics, compute an event weight as
+        // wght = (phase space volume)*(differential xsec)/(event total xsec)
+         if(fGenerateUniformly) {
+           double vol     = kinematics::PhaseSpaceVolume(interaction,kPSyfE);
+           double totxsec = evrec->GetXSec();
+           double wght    = (vol/totxsec)*xsec;
+           LOG("IMDKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
+
+           // apply computed weight to the current event weight
+           wght *= evrec->GetWeight();
+           LOG("IMDKinematics", pNOTICE) << "Current event wght = " << wght;
+           evrec->SetWeight(wght);
+        }
 
         // lock selected kinematics & clear running values
         interaction->GetKinematicsPtr()->Sety(y, true);
@@ -121,20 +153,44 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
 // maximum. The number used in the rejection method will be scaled up by a
 // safety factor. But it needs to be fast - do not use a very small y step.
 
-  const int N = 20;
+  const int N  = 10;
+  const int Nb =  6;
+
+  const double ymin = kMinY;
+  const double ymax = kMaxY;
+
   double max_xsec = -1.0;
 
-  const double ymin = 0.;
-  const double ymax = 1.;
-  const double dy   = (ymax-ymin)/(N-1);
+  double dy = (ymax-ymin)/(N-1);
+  double xseclast = -1;
+  bool   increasing;
 
   for(int i=0; i<N; i++) {
+    double y = ymin + i * dy;
+    interaction->GetKinematicsPtr()->Sety(y);
+    double xsec = fXSecModel->XSec(interaction, kPSyfE);
 
-     double y = ymin + i * dy;
-     interaction->GetKinematicsPtr()->Sety(y);
+    SLOG("IMDKinematics", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
+    max_xsec = TMath::Max(xsec, max_xsec);
 
-     double xsec = fXSecModel->XSec(interaction, kPSyfE);
-     max_xsec = TMath::Max(xsec, max_xsec);
+    increasing = xsec-xseclast>=0;
+    xseclast   = xsec;
+
+    // once the cross section stops increasing, I reduce the step size and
+    // step backwards a little bit to handle cases that the max cross section
+    // is grossly underestimated (very peaky distribution & large step)
+    if(!increasing) {
+       dy/=(Nb+1);
+       for(int ib=0; ib<Nb; ib++) {
+	 y = y-dy;
+         if(y<ymin) break;
+         interaction->GetKinematicsPtr()->Sety(y);
+         xsec = fXSecModel->XSec(interaction, kPSyfE);
+         SLOG("IMDKinematics", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
+         max_xsec = TMath::Max(xsec, max_xsec);
+       }
+       break;
+    }
   }//y
 
   // Apply safety factor, since value retrieved from the cache might
@@ -183,6 +239,12 @@ void IMDKinematicsGenerator::LoadConfigData(void)
 {
   fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
   fEMin         = fConfig->GetDoubleDef("min-energy-cached",     -1.00);
+
+  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("max-xsec-diff-tolerance",0.);
+  assert(fMaxXSecDiffTolerance>=0);
+
+  //-- Generate kinematics uniformly over allowed phase space and compute
+  //   an event weight?
+  fGenerateUniformly = fConfig->GetBoolDef("uniform-over-phase-space", false);
 }
 //____________________________________________________________________________
-

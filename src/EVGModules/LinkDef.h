@@ -42,7 +42,6 @@
 #pragma link C++ class genie::IMDInteractionListGenerator;
 
 #pragma link C++ class genie::KineGeneratorWithCache;
-#pragma link C++ class genie::UniformKinematicsGenerator;
 #pragma link C++ class genie::QELKinematicsGenerator;
 #pragma link C++ class genie::DISKinematicsGenerator;
 #pragma link C++ class genie::RESKinematicsGenerator;
