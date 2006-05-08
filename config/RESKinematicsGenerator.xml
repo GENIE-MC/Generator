@@ -2,28 +2,38 @@
 
 <alg_conf>
 
-  Configuration sets for RESKinematicsGenerator EventRecordVisitorI
+<!--
+Configuration for the RESKinematicsGenerator EventRecordVisitorI
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                     Type    Opt   Comment                                   Default
+.......................................................................................................................
+xsec-alg-name            string  No    cross section algorithm...
+xsec-param-set           string  No    ... and its config set
+W-min                    double  Yes   kinematic limit                               use physical phase space
+W-max                    double  Yes   kinematic limit                               use physical phase space
+Q2-min                   double  Yes   kinematic limit                               use physical phase space
+Q2-max                   double  Yes   kinematic limit                               use physical phase space
+uniform-over-phase-space bool    Yes   kinematics uniformly over allowd phase space  false
+                                       wgt = (phase_space_volume)*(diff_xsec)/(xsec)
+max-xsec-safety-factor   double  Yes   multiplies max xsec in rejection method       1.25
+min-energy-cached        double  Yes   minimum energy for which max xsec is cached   1.00
+max-xsec-diff-tolerance  double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax) 0.00
+                                       if xsec>xsecmax
+-->
 
   <param_set name="RES"> 
-     <param type="string" name="xsec-alg-name">          genie::ReinSeghalRESPXSec   </param>
-     <param type="string" name="xsec-param-set">         Default                     </param>
-     <param type="double" name="W-min">                    0.001                     </param>
-     <param type="double" name="W-max">                    1.400                     </param>
-     <param type="double" name="Q2-min">                   0.001                     </param>
-     <param type="double" name="Q2-max">                 100.000                     </param>
-     <param type="double" name="max-xsec-safety-factor">   1.200                     </param>
-     <param type="bool"   name="generate-res-kinematics">   true                     </param>
+     <param type="string" name="xsec-alg-name">            genie::ReinSeghalRESPXSec   </param>
+     <param type="string" name="xsec-param-set">           Default                     </param>
+     <param type="double" name="max-xsec-safety-factor">   1.400                       </param>
+     <param type="double" name="min-energy-cached">        0.900                       </param>
   </param_set>
 
   <param_set name="SPP"> 
-     <param type="string" name="xsec-alg-name">          genie::ReinSeghalSPPPXSec   </param>
-     <param type="string" name="xsec-param-set">         Default                     </param>
-     <param type="double" name="W-min">                    0.001                     </param>
-     <param type="double" name="W-max">                    1.400                     </param>
-     <param type="double" name="Q2-min">                   0.001                     </param>
-     <param type="double" name="Q2-max">                 100.000                     </param>
-     <param type="double" name="max-xsec-safety-factor">   1.200                     </param>
-     <param type="bool"   name="generate-spp-kinematics">   true                     </param>
+     <param type="string" name="xsec-alg-name">            genie::ReinSeghalSPPPXSec   </param>
+     <param type="string" name="xsec-param-set">           Default                     </param>
+     <param type="double" name="max-xsec-safety-factor">   1.400                       </param>
   </param_set>
 
 </alg_conf>
