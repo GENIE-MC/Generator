@@ -37,13 +37,12 @@ static const unsigned int kMaxEVGThreadExceptions = 350;
 // setting the $GSEED env. var. or by using RandomGen::SetSeed(int)
 static const unsigned int kDefaultRandSeed = 65539;
 
-
-static const double kASmallNum    = 1e-5;  
-static const double kMinQ2Limit   = kASmallNum;
-static const double kMinX         = kASmallNum;
-static const double kMaxX         = 1. - kASmallNum;
-static const double kMinY         = kASmallNum;
-static const double kMaxY         = 1. - kASmallNum;
+static const double kASmallNum    = 1E-6;  
+static const double kMinQ2Limit   = 1E-4;
+static const double kMinX         = 1E-4;
+static const double kMaxX         = 1.-kASmallNum;
+static const double kMinY         = 1E-4;
+static const double kMaxY         = 1.-kASmallNum;
 
 static const int kMaxMultiplicity = 35;  
 
