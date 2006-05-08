@@ -14,12 +14,15 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
 #include <TLorentzVector.h>
 #include <TMCParticle6.h>
 #include <TMath.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "Decay/DecayModelI.h"
 #include "Fragmentation/KNOHadronization.h"
 #include "Fragmentation/MultiplicityProbModelI.h"
@@ -32,6 +35,7 @@
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::controls;
 using namespace genie::utils::print;
 
 //____________________________________________________________________________
@@ -99,44 +103,70 @@ TClonesArray * KNOHadronization::Hadronize(
   assert(W > kNucleonMass+kPionMass);
   TLorentzVector p4(0,0,0,W);
 
-  //----- Determine what kind of particles we have in the final state
-  vector<int> * pdgc = GenerateFSHadronCodes(mult, maxQ, W);
+  vector<int> * pdgcv = 0;
+  double * mass = 0;
 
-  LOG("KNOHad", pDEBUG)
-              << "Generated multiplicity: " << pdgc->size();
+  register int itry=0;
+  bool allowed_hadronic_state=false;
 
-  // muliplicity might have been forced to smaller value if the invariant
-  // mass of the hadronic system was not sufficient
-  mult = pdgc->size(); // update for potential change
+  while(!allowed_hadronic_state) 
+  {
+    itry++;
 
-  //----- DECAY INCLUSIVES
+    //-- Determine what kind of particles we have in the final state
+    pdgcv = GenerateFSHadronCodes(mult, maxQ, W);
 
-  // Determine the kinematics of the final state particles using
-  // ROOT's Phase Space Generator
+    LOG("KNOHad", pDEBUG) << "Generated multiplicity: " << pdgcv->size();
 
-  LOG("KNOHad", pDEBUG) << "Generating phase space";
+    // muliplicity might have been forced to smaller value if the invariant
+    // mass of the hadronic system was not sufficient
+    mult = pdgcv->size(); // update for potential change
 
-  vector<int>::const_iterator pdg_iter;
-  double mass[pdgc->size()];
-  int i = 0;
-  for(pdg_iter = pdgc->begin(); pdg_iter != pdgc->end(); ++pdg_iter)
-          mass[i++] = PDGLibrary::Instance()->Find(*pdg_iter)->Mass();
+    // Determine the kinematics of the final state particles using a phase
+    // space decay
 
-  bool permitted = fPhaseSpaceGenerator.SetDecay(p4, mult, mass);
+    LOG("KNOHad", pDEBUG) << "Generating phase space";
 
-  if(!permitted) {
-     LOG("KNOHad", pERROR) << "*** Decay forbidden by kinematics! ***";
-     LOG("KNOHad", pERROR) << "This should not have happened";
-     LOG("KNOHad", pERROR) << "Initial State: ";
-     LOG("KNOHad", pERROR)
-            << "P4 = (" << p4.Px() << ", " << p4.Py()
-            <<     ", " << p4.Pz() << ", " << p4.Energy() << ")";
-     LOG("KNOHad", pERROR) << "Final State: ";
-     for(unsigned int i = 0; i < pdgc->size(); i++) {
-       LOG("KNOHad", pERROR)
-        << " -PDGC = " << (*pdgc)[i] << ", m = " << mass[i] << " GeV";
+    vector<int>::const_iterator pdg_iter;
+    mass = new double[pdgcv->size()];
+    int i = 0;
+    for(pdg_iter = pdgcv->begin(); pdg_iter != pdgcv->end(); ++pdg_iter) {
+      int pdgc = *pdg_iter;
+      mass[i++] = PDGLibrary::Instance()->Find(pdgc)->Mass();
+    }
+
+    bool permitted = fPhaseSpaceGenerator.SetDecay(p4, mult, mass);
+    if(!permitted) {
+       LOG("KNOHad", pWARN) << "*** Decay forbidden by kinematics! ***";
+       LOG("KNOHad", pWARN) << "Current hadronic state (W=" << W << "):";
+       for(unsigned int i = 0; i < pdgcv->size(); i++) {
+          int pdgc = (*pdgcv)[i];
+          LOG("KNOHad", pWARN)
+            << "Name: " << PDGLibrary::Instance()->Find(pdgc)->GetName()
+            << ", PDG = " << pdgc << ", mass = " << mass[i] << " GeV";
      }
-     return 0;
+     LOG("KNOHad", pWARN) << "Discarding hadronic system & re-trying!";
+     delete pdgcv;
+     delete [] mass;
+    }
+    else {
+      allowed_hadronic_state=true;
+      LOG("KNOHad", pNOTICE) 
+                << " Found an allowed hadronic state (W=" << W << "):";
+      for(unsigned int i = 0; i < pdgcv->size(); i++) {
+        int pdgc = (*pdgcv)[i];
+        LOG("KNOHad", pWARN)
+          << "Name: " << PDGLibrary::Instance()->Find(pdgc)->GetName()
+          << ", PDG = " << pdgc << ", mass = " << mass[i] << " GeV";
+      }
+    }
+
+    if(itry>kMaxKNOHadSystIterations) {
+       LOG("KNOHad", pERROR) 
+         << "Could not find a valid f/s hadronic system after: " 
+                                               << itry << " attempts!";
+       return 0;
+    }
   }
 
   //-- generate kinematics in the Center-of-Mass (CM) frame
@@ -149,20 +179,22 @@ TClonesArray * KNOHadronization::Hadronize(
 
   TClonesArray * particle_list = new TClonesArray("TMCParticle", mult);
 
-  for(unsigned int i = 0; i < pdgc->size(); i++) {
+  for(unsigned int i = 0; i < pdgcv->size(); i++) {
+
+     int pdgc = (*pdgcv)[i];
 
      //-- get the 4-momentum of the i-th final state particle
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(i);
 
      //-- push TMCParticle in the particle list (TClonesArray)
      LOG("KNOHad", pDEBUG)
-               << "Adding final state particle PDGC = " << (*pdgc)[i]
+            << "Adding final state particle PDGC = " << pdgc
                << " with mass = " << mass[i] << " GeV";
 
      new ( (*particle_list)[i] ) TMCParticle
         (
            1,               /* KS Code                          */
-           (*pdgc)[i],      /* PDG Code                         */
+           pdgc,            /* PDG Code                         */
            0,               /* parent particle                  */
            0,               /* first child particle             */
            0,               /* last child particle              */
@@ -185,7 +217,8 @@ TClonesArray * KNOHadronization::Hadronize(
   // the container 'owns' its elements
   particle_list->SetOwner(true);
 
-  delete pdgc;
+  delete pdgcv;
+  delete [] mass;
 
   return particle_list;
 }
@@ -260,8 +293,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
 
      if (maxQ < 0) {
         // Need more negative charge
-        LOG("KNOHad", pDEBUG)
-                  << "\n Need more negative charge ---> Adding a pi-";
+        LOG("KNOHad", pDEBUG) << "Need more negative charge -> Adding a pi-";
         pdgc->push_back( kPdgPiMinus );
 
         // update n-of-hadrons to add, avail. shower charge & invariant mass
@@ -272,8 +304,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
 
      } else if (maxQ > 0) {
         // Need more positive charge
-        LOG("KNOHad", pDEBUG)
-                  << "\n Need more positive charge ---> Adding a pi+";
+        LOG("KNOHad", pDEBUG) << "Need more positive charge -> Adding a pi+";
         pdgc->push_back( kPdgPiPlus );
 
         // update n-of-hadrons to add, avail. shower charge & invariant mass
@@ -287,8 +318,8 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
   //-- Add remaining neutrals or pairs up to the generated multiplicity
   if(maxQ == 0) {
 
-     LOG("KNOHad", pDEBUG) <<
-      "\n Final state has correct Q - Now adding only neutrals or +- pairs";
+     LOG("KNOHad", pDEBUG) 
+       << "Hadronic charge balanced. Now adding only neutrals or +- pairs";
 
      // Final state has correct charge.
      // Now add pi0 or pairs (pi0 pi0 / pi+ pi- / K+ K- / K0 K0bar) only
@@ -308,7 +339,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
      if( hadrons_to_add > 0 && hadrons_to_add % 2 == 1 ) {
 
         LOG("KNOHad", pDEBUG)
-               << "\n Odd number of hadrons left to add ---> Adding a pi0";
+                  << "Odd number of hadrons left to add -> Adding a pi0";
         pdgc->push_back( kPdgPi0 );
 
         // update n-of-hadrons to add & available invariant mass
@@ -330,7 +361,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
          if (x >= 0 && x < fPpi0) {
             //-------------------------------------------------------------
             // Add a pi0-pair
-            LOG("KNOHad", pDEBUG) << "\n ---> Adding a pi0pi0 pair";
+            LOG("KNOHad", pDEBUG) << " -> Adding a pi0pi0 pair";
 
             pdgc->push_back( kPdgPi0 );
             pdgc->push_back( kPdgPi0 );
@@ -344,7 +375,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
             // Add a piplus - piminus pair if there is enough W
             if(W >= M2pic) {
 
-                LOG("KNOHad", pDEBUG) << "\n ---> Adding a pi+pi- pair";
+                LOG("KNOHad", pDEBUG) << " -> Adding a pi+pi- pair";
 
                 pdgc->push_back( kPdgPiPlus  );
                 pdgc->push_back( kPdgPiMinus );
@@ -352,8 +383,8 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2pic; // update the available invariant mass
             } else {
-                LOG("KNOHad", pDEBUG) <<
-                  "\n Not enough mass for a pi+pi-: trying something else";
+                LOG("KNOHad", pDEBUG) 
+                  << "Not enough mass for a pi+pi-: trying something else";
             }
             //-------------------------------------------------------------
 
@@ -362,7 +393,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
             // Add a Kplus - Kminus pair if there is enough W
             if(W >= M2Kc) {
 
-                LOG("KNOHad", pDEBUG) << "\n ---> Adding a K+K- pair";
+                LOG("KNOHad", pDEBUG) << " -> Adding a K+K- pair";
 
                 pdgc->push_back( kPdgKPlus  );
                 pdgc->push_back( kPdgKMinus );
@@ -370,8 +401,8 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2Kc; // update the available invariant mass
             } else {
-                LOG("KNOHad", pDEBUG) <<
-                    "\n Not enough mass for a K+K-: trying something else";
+                LOG("KNOHad", pDEBUG) 
+                     << "Not enough mass for a K+K-: trying something else";
             }
             //-------------------------------------------------------------
 
@@ -379,7 +410,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
             //-------------------------------------------------------------
             // Add a K0 - K0bar pair if there is enough W
             if( W >= M2K0 ) {
-                LOG("KNOHad", pDEBUG) << "\n ---> Adding a K0 K0bar pair";
+                LOG("KNOHad", pDEBUG) << " -> Adding a K0 K0bar pair";
 
                 pdgc->push_back( kPdgK0 );
                 pdgc->push_back( kPdgK0 );
@@ -387,14 +418,15 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2K0; // update the available invariant mass
             } else {
-                LOG("KNOHad", pDEBUG) <<
-                 "\n Not enough mass for a K0 K0bar: trying something else";
+                LOG("KNOHad", pDEBUG) 
+                 << "Not enough mass for a K0 K0bar: trying something else";
             }
             //-------------------------------------------------------------
 
          } else {
             LOG("KNOHad", pERROR)
-                 << "FS Hadron Assignment Probabilities do not add up to 1!!";
+                 << "Hadron Assignment Probabilities do not add up to 1!!";
+            exit(1);
          }
 
          // make sure it has enough invariant mass to reach the
