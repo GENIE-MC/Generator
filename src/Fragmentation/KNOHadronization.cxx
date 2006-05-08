@@ -142,8 +142,7 @@ TClonesArray * KNOHadronization::Hadronize(
        for(unsigned int i = 0; i < pdgcv->size(); i++) {
           int pdgc = (*pdgcv)[i];
           LOG("KNOHad", pWARN)
-            << "Name: " << PDGLibrary::Instance()->Find(pdgc)->GetName()
-            << ", PDG = " << pdgc << ", mass = " << mass[i] << " GeV";
+                << "PDGC = " << pdgc << ", mass = " << mass[i] << " GeV";
      }
      LOG("KNOHad", pWARN) << "Discarding hadronic system & re-trying!";
      delete pdgcv;
@@ -156,8 +155,7 @@ TClonesArray * KNOHadronization::Hadronize(
       for(unsigned int i = 0; i < pdgcv->size(); i++) {
         int pdgc = (*pdgcv)[i];
         LOG("KNOHad", pWARN)
-          << "Name: " << PDGLibrary::Instance()->Find(pdgc)->GetName()
-          << ", PDG = " << pdgc << ", mass = " << mass[i] << " GeV";
+              << "PDGC = " << pdgc << ", mass = " << mass[i] << " GeV";
       }
     }
 
