@@ -77,7 +77,6 @@
   <priority msgstream="ISApp">               INFO   </priority>
   <priority msgstream="IntGenMap">           INFO   </priority>
   <priority msgstream="KNOHad">              INFO   </priority>
-  <priority msgstream="KNOHad2">             INFO   </priority>
   <priority msgstream="KineLimits">          INFO   </priority>
   <priority msgstream="Kinematics">          INFO   </priority>
   <priority msgstream="LeptonicVertex">      INFO   </priority>

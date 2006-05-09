@@ -52,7 +52,6 @@
    <!-- ****** CONFIGURATION FOR FRAGMENTATION ALGORITHMS ****** -->
    <config alg="genie::PythiaHadronization">         PythiaHadronization.xml         </config>
    <config alg="genie::KNOHadronization">            KNOHadronization.xml            </config>
-   <config alg="genie::KNOHadronization2">           KNOHadronization2.xml           </config>
    <config alg="genie::SchmitzMultiplicityModel">    SchmitzMultiplicityModel.xml    </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->

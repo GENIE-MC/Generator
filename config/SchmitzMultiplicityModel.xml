@@ -37,6 +37,8 @@ R-vbn-NC-m3                  double  Yes   scaling factor, vbn NC, multiplicity=
 -->
 
   <param_set name="Default"> 
+     <param type="bool" name="force-neugen-mult-limit"> true </param>
+     <param type="bool" name="apply-neugen-scaling-factors"> false </param>
   </param_set>
 
   <param_set name="NoRenorm"> 

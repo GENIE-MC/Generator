@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!--
+Configuration for the KNOHadronization HadronizationModelI
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                         Type    Opt   Comment                                       Default
+.......................................................................................................................
+multiplicity-prob-alg-name   string  No    multiplicity probability algorithm...
+multiplicity-prob-param-set  string  No    ...and its config set
+prob-fs-pi0-pair             double  Yes   probability for pi0 pair                      0.30
+prob-fs-piplus-piminus       double  Yes   probability for pi+pi- pair                   0.60 
+prob-fs-Kplus-Kminus         double  Yes   probability for K+K- pair                     0.05 
+prob-fs-K0-K0bar             double  Yes   probability for K0 K0bar pair                 0.05  
+force-decays                 bool    Yes   force decays of unstable particles            false   
+force-min-multiplicity       bool    Yes   force a minimum multiplicity of 2             true
+generate-weighted            bool    Yes   generate weighted events                      false
+
+-->
+
 <alg_conf>
-
-  -- Default configuration for KNOHadronization HadronizationModelI
-
   <param_set name="Default"> 
      <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
      <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
