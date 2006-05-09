@@ -22,14 +22,14 @@
 namespace genie {
 namespace controls {
 
-// maximum allowed number of iterations in rejection MC method
+// Maximum allowed number of iterations in rejection MC method
 // before selecting a valid number
 static const unsigned int kRjMaxIterations = 1000;
 
-// maximum allowed depth when GENIE is running in recursive mode
+// Maximum allowed depth when GENIE is running in recursive mode
 static const unsigned int kRecursiveModeMaxDepth = 100;
 
-// maximum allowed number of EVGThreadExceptions that is allowed
+// Maximum allowed number of EVGThreadExceptions that is allowed
 // to be caught by EventGenerator at a single event generation thread
 static const unsigned int kMaxEVGThreadExceptions = 350;
 
@@ -44,8 +44,16 @@ static const double kMaxX         = 1.-kASmallNum;
 static const double kMinY         = 1E-4;
 static const double kMaxY         = 1.-kASmallNum;
 
+// KNO Hadronization model control parameters
+
+// Default 'maximum' multiplicity for multiplicity probability distributions.
+// This is not a 'hard limit'. If it is needed it will be extended internally
+// by the KNO hadronization model.
 static const int kMaxMultiplicity = 35;  
 
+// Maximum number of attempts by the KNO hadronizer for finding a valid f/s
+// hadronic system before going in error and quiting
+static const int kMaxKNOHadSystIterations = 400;  
 
 } // namespace controls
 } // namespace genie
