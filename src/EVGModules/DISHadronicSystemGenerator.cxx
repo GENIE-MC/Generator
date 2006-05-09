@@ -82,8 +82,8 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
 
   //-- Run the hadronization model and get the fragmentation products:
   //   A collection of ROOT TMCParticles (equiv. to a LUJETS record)
-  TClonesArray * plist = fHadronizationModel->Hadronize(interaction);
 
+  TClonesArray * plist = fHadronizationModel->Hadronize(interaction);
   if(!plist) {
      LOG("DISHadronicVtx", pWARN) 
                   << "Got an empty particle list. Hadronizer failed!";
@@ -99,6 +99,10 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
 
      return;
   }
+
+  //-- Take the hadronic system weight to handle cases that the hadronizer
+  //   was asked to produce weighted events
+  double wght = fHadronizationModel->Weight();
 
   //-- Velocity for the [Hadronic CM] -> [LAB] active Lorentz transform
   TVector3 beta = this->HCM2LAB(evrec);
@@ -131,6 +135,10 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
          evrec->AddParticle(pdgc, ist, mom,-1,-1,-1, p4,v4);
      }
   } // fragmentation-products-iterator
+
+  //-- Handle the case that the hadronizer produced weighted events and
+  //   take into account that the current event might be already weighted
+  evrec->SetWeight (wght * evrec->GetWeight());
 
   plist->Delete();
   delete plist;
