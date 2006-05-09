@@ -46,6 +46,7 @@ public:
   //-- implement the HadronizationModelI interface
   void           Initialize   (void)                 const;
   TClonesArray * Hadronize    (const Interaction * ) const;
+  double         Weight       (void)                 const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
@@ -64,13 +65,15 @@ private:
   const DecayModelI *            fDecayer;
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
+  mutable double         fWeight;
 
-  double       fPpi0;         ///< pi0 pi0 production probability
-  double       fPpic;         ///< pi+ pi- production probability
-  double       fPKc;          ///< K+  K- production probability
-  double       fPK0;          ///< K0  K0bar production probability
-  bool         fForceDecays;  ///< force decays of unstable hadrons produced?
-  bool         fForceMinMult; ///< force minimum multiplicity if (at low W) generated less
+  double fPpi0;             ///< pi0 pi0 production probability
+  double fPpic;             ///< pi+ pi- production probability
+  double fPKc;              ///< K+  K- production probability
+  double fPK0;              ///< K0  K0bar production probability
+  bool   fForceDecays;      ///< force decays of unstable hadrons produced?
+  bool   fForceMinMult;     ///< force minimum multiplicity if (at low W) generated less?
+  bool   fGenerateWeighted; ///< generate weighted events?
 };
 
 }         // genie namespace

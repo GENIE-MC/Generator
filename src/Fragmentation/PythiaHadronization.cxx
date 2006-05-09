@@ -209,4 +209,8 @@ TClonesArray * PythiaHadronization::Hadronize(
   return particle_list;
 }
 //____________________________________________________________________________
-
+double PythiaHadronization::Weight(void) const
+{
+  return 1.; // does not generate weighted events
+}
+//____________________________________________________________________________
