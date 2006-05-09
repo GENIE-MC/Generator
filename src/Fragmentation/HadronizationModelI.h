@@ -39,6 +39,7 @@ public:
 
   virtual void           Initialize   (void)                 const = 0;
   virtual TClonesArray * Hadronize    (const Interaction * ) const = 0;
+  virtual double         Weight       (void)                 const = 0;
 
 protected:
 

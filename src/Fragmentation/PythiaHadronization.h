@@ -37,6 +37,7 @@ public:
   //-- define PythiaHadronization interface
   void           Initialize   (void)                 const;
   TClonesArray * Hadronize    (const Interaction * ) const;
+  double         Weight       (void)                 const;
 
   //-- tmp - std interface violoating method for PYTHIA config
   TPythia6 * PYTHIA(void) const { return fPythia; }

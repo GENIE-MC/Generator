@@ -64,111 +64,148 @@ void KNOHadronization::Initialize(void) const
 TClonesArray * KNOHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
-  //----- Build the multiplicity probabilities for the input interaction
-
-  LOG("KNOHad", pDEBUG) << "Building Multiplicity Probability distribution";
-  LOG("KNOHad", pDEBUG) << *interaction;
-
-  const TH1D & mprob = fMultProbModel->ProbabilityDistribution(interaction);
-
-  //----- Generate a hadronic multiplicity
-  unsigned int mult = TMath::Nint( mprob.GetRandom() );
-
-  //----- Get the charge that the hadron shower needs to have so as to
-  //      conserve charge in the interaction
-  int maxQ = HadronShowerCharge(interaction);
-
-  //----- force generated multiplicty to be consistent with the
-  //      hadron shower charge needed to be generated
-  //      eg. if mult = 1 but maxQ = 2, force mult = 2
-  mult = TMath::Max(mult, (unsigned int) TMath::Abs(maxQ));
-
-  LOG("KNOHad", pINFO) << "Hadron multiplicity  = " << mult;
-  LOG("KNOHad", pINFO) << "Hadron Shower Charge = " << maxQ;
-
+  RandomGen * rnd = RandomGen::Instance();
+  register int itry     = 0;
+  vector<int> * pdgcv   = 0;
+  double * mass         = 0;
   unsigned int min_mult = 2;
-  if(mult < min_mult) {
-   if(fForceMinMult) {
-     LOG("KNOHad", pWARN) 
-          << "Low generated multiplicity: " << mult 
-          << ". Forcing to minimum accepted multiplicity: " << min_mult;
-     mult = min_mult;
-   }
-  }
+  unsigned int mult     = 0;
 
-  //----- Initial particle 4-momentum
-  //      (All energy = final state invariant mass)
+  //----- Available invariant mass
   double W = interaction->GetKinematics().W();
   LOG("KNOHad", pINFO) << "W = " << W << " GeV";
   assert(W > kNucleonMass+kPionMass);
+ 
+  //----- Init event weight (to be set if producing weighted events)
+  fWeight = 1.;
+
+  //----- Get the charge that the hadron shower needs to have so as to
+  //      conserve charge in the interaction
+
+  int maxQ = this->HadronShowerCharge(interaction);
+
+  LOG("KNOHad", pINFO) << "Hadron Shower Charge = " << maxQ;
+
+ //----- Build the multiplicity probabilities for the input interaction
+
+  LOG("KNOHad", pDEBUG) << "Building Multiplicity Probability distribution";
+  LOG("KNOHad", pDEBUG) << *interaction;
+  const TH1D & mprob = fMultProbModel->ProbabilityDistribution(interaction);
+
+  //----- FIND AN ALLOWED SOLUTION FOR THE HADRONIC FINAL STATE
+
   TLorentzVector p4(0,0,0,W);
 
-  vector<int> * pdgcv = 0;
-  double * mass = 0;
+  bool allowed_state=false;
+  itry=0;
 
-  register int itry=0;
-  bool allowed_hadronic_state=false;
-
-  while(!allowed_hadronic_state) 
+  while(!allowed_state) 
   {
     itry++;
 
-    //-- Determine what kind of particles we have in the final state
-    pdgcv = GenerateFSHadronCodes(mult, maxQ, W);
+    //-- Go in error if a solution has not been found after many attempts
+    if(itry>kMaxKNOHadSystIterations) {
+       LOG("KNOHad", pERROR) 
+         << "Couldn't generate hadronic multiplicities after: " 
+                                               << itry << " attempts!";
+       return 0;
+    }
 
-    LOG("KNOHad", pDEBUG) << "Generated multiplicity: " << pdgcv->size();
+    //-- Generate a hadronic multiplicity 
+    mult = TMath::Nint( mprob.GetRandom() );
+
+    LOG("KNOHad", pINFO) << "Hadron multiplicity  = " << mult;
+
+    //-- Check that the generated multiplicity is consistent with the charge
+    //   thet the hadronic shower is required to have - else retry
+    if(mult < (unsigned int) TMath::Abs(maxQ)) {
+       LOG("KNOHad", pWARN) 
+        << "Multiplicity not enough to generate hadronic charge! Retrying.";
+      allowed_state = false;
+      continue;
+    }
+
+    //-- Force a minimum multiplicity of 2 - not really needed....
+    if(mult < min_mult) {
+      if(fForceMinMult) {
+        LOG("KNOHad", pWARN) 
+           << "Low generated multiplicity: " << mult 
+              << ". Forcing to minimum accepted multiplicity: " << min_mult;
+       mult = min_mult;
+      }
+    }
+
+    //-- Determine what kind of particles we have in the final state
+    pdgcv = this->GenerateFSHadronCodes(mult, maxQ, W);
+
+    LOG("KNOHad", pINFO) 
+         << "Generated multiplicity (@ W = " << W << "): " << pdgcv->size();
 
     // muliplicity might have been forced to smaller value if the invariant
     // mass of the hadronic system was not sufficient
     mult = pdgcv->size(); // update for potential change
 
-    // Determine the kinematics of the final state particles using a phase
-    // space decay
-
-    LOG("KNOHad", pDEBUG) << "Generating phase space";
-
+    //-- Set requested decay to a phase space generator
     vector<int>::const_iterator pdg_iter;
     mass = new double[pdgcv->size()];
     int i = 0;
+    double msum=0;
+    LOG("KNOHad", pDEBUG) << "Current hadronic system:";
     for(pdg_iter = pdgcv->begin(); pdg_iter != pdgcv->end(); ++pdg_iter) {
       int pdgc = *pdg_iter;
-      mass[i++] = PDGLibrary::Instance()->Find(pdgc)->Mass();
+      double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
+      msum += m;
+      mass[i++] = m;
+      LOG("KNOHad", pDEBUG) << "- PDGC=" << pdgc << ", m=" << m << " GeV";
     }
 
+    //-- Check that the requested decay is permitted
     bool permitted = fPhaseSpaceGenerator.SetDecay(p4, mult, mass);
     if(!permitted) {
        LOG("KNOHad", pWARN) << "*** Decay forbidden by kinematics! ***";
-       LOG("KNOHad", pWARN) << "Current hadronic state (W=" << W << "):";
-       for(unsigned int i = 0; i < pdgcv->size(); i++) {
-          int pdgc = (*pdgcv)[i];
-          LOG("KNOHad", pWARN)
-                << "PDGC = " << pdgc << ", mass = " << mass[i] << " GeV";
-     }
-     LOG("KNOHad", pWARN) << "Discarding hadronic system & re-trying!";
-     delete pdgcv;
-     delete [] mass;
-    }
-    else {
-      allowed_hadronic_state=true;
-      LOG("KNOHad", pNOTICE) 
-                << " Found an allowed hadronic state (W=" << W << "):";
-      for(unsigned int i = 0; i < pdgcv->size(); i++) {
-        int pdgc = (*pdgcv)[i];
-        LOG("KNOHad", pWARN)
-              << "PDGC = " << pdgc << ", mass = " << mass[i] << " GeV";
-      }
+       LOG("KNOHad", pWARN) << "sum{mass} = " << msum << ", W = " << W;
+       LOG("KNOHad", pWARN) << "Discarding hadronic system & re-trying!";
+       delete pdgcv;
+       delete [] mass;
+       allowed_state = false;
+       continue;
     }
 
-    if(itry>kMaxKNOHadSystIterations) {
-       LOG("KNOHad", pERROR) 
-         << "Could not find a valid f/s hadronic system after: " 
-                                               << itry << " attempts!";
-       return 0;
-    }
+    allowed_state = true;
+    LOG("KNOHad", pNOTICE) 
+             << "Found an allowed hadronic state @ W=" << W 
+                                              << " multiplicity=" << mult;
+  } // attempts
+
+  //----- DECAY HADRONIC FINAL STATE
+
+  double wmax = fPhaseSpaceGenerator.GetWtMax();
+  LOG("KNOHad", pINFO) 
+     << "Max phase space gen. weight @ current hadronic system: " << wmax;
+
+  if(fGenerateWeighted) 
+  {
+    // *** generating weighted decays ***
+    double w = fPhaseSpaceGenerator.Generate();   
+    fWeight *= (w/wmax);
   }
-
-  //-- generate kinematics in the Center-of-Mass (CM) frame
-  fPhaseSpaceGenerator.Generate();
+  else 
+  {
+    // *** generating un-weighted decays ***
+     fWeight = 1.;
+     bool accept_decay=false;
+     itry=0;
+     double ws=0;
+     while(!accept_decay) 
+     {
+       itry++;
+       double w  = fPhaseSpaceGenerator.Generate();   
+       double gw = wmax * rnd->Random1().Rndm();
+       LOG("KNOHad", pINFO) << "Decay weight = " << w << " / R = " << gw;
+       ws+=w;
+       accept_decay = (gw<=w || (itry>100 && ws/itry<1E-4*wmax));
+     }
+  }
 
   //-- insert final state products into a TClonesArray of TMCParticles
   //   and return it
@@ -221,6 +258,11 @@ TClonesArray * KNOHadronization::Hadronize(
   return particle_list;
 }
 //____________________________________________________________________________
+double KNOHadronization::Weight(void) const
+{
+  return fWeight;
+}
+//____________________________________________________________________________
 void KNOHadronization::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -259,6 +301,8 @@ void KNOHadronization::LoadConfig(void)
                        this->SubAlg("decayer-alg-name", "decayer-param-set"));
       assert(fDecayer);
   }
+
+  fGenerateWeighted = fConfig->GetBoolDef("generate-weighted", false);
 }
 //____________________________________________________________________________
 vector<int> * KNOHadronization::GenerateFSHadronCodes(
