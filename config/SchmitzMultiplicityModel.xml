@@ -42,6 +42,5 @@ R-vbn-NC-m3                  double  Yes   scaling factor, vbn NC, multiplicity=
   <param_set name="NoRenorm"> 
      <param type="bool" name="renormalize-after-scaling"> false </param>
   </param_set>
-
 </alg_conf>
 
