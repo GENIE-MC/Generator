@@ -92,22 +92,25 @@ const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
   // Compute the multiplicity probabilities values up to the bin corresponding 
   // to the computed maximum multiplicity
 
-  int nbins = fMultProb->FindBin(maxmult);
+  if(maxmult>2) {
+    int nbins = fMultProb->FindBin(maxmult);
 
-  for(int i = 1; i <= nbins; i++) {
-     // KNO distribution is <n>*P(n) vs n/<n>
-     double n       = fMultProb->GetBinCenter(i); // bin centre
-     double n_avn   = n/avn; // n/<n>
-     bool   inrange = n_avn > fKNO->XMin() && n_avn < fKNO->XMax();
-     double avnP    = (inrange) ? fKNO->Evaluate(n_avn) : 0; // <n>*P(n)
-     double P       = avnP / avn; // P(n)
+    for(int i = 1; i <= nbins; i++) {
+       // KNO distribution is <n>*P(n) vs n/<n>
+       double n       = fMultProb->GetBinCenter(i); // bin centre
+       double n_avn   = n/avn; // n/<n>
+       bool   inrange = n_avn > fKNO->XMin() && n_avn < fKNO->XMax();
+       double avnP    = (inrange) ? fKNO->Evaluate(n_avn) : 0; // <n>*P(n)
+       double P       = avnP / avn; // P(n)
 
-     SLOG("Schmitz", pDEBUG)
+       SLOG("Schmitz", pDEBUG)
           << "n = " << n << " (n/<n> = " << n_avn
                             << ", <n>*P = " << avnP << ") => P = " << P;
-     fMultProb->Fill(n,P);
+       fMultProb->Fill(n,P);
+    }
+  } else {
+       fMultProb->Fill(2,1.);
   }
-
   double integral = fMultProb->Integral("width");
 
   if(integral>0) {
