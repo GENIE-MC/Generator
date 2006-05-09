@@ -125,7 +125,7 @@ TClonesArray * KNOHadronization::Hadronize(
       continue;
     }
 
-    //-- Force a minimum multiplicity of 2 - not really needed....
+    //-- Force a min multiplicity (although it should never need to do that)
     if(mult < min_mult) {
       if(fForceMinMult) {
         LOG("KNOHad", pWARN) 
