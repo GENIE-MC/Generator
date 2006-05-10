@@ -68,7 +68,6 @@ TClonesArray * KNOHadronization::Hadronize(
 // model. 
 
   RandomGen * rnd = RandomGen::Instance();
-  register int itry     = 0;
   vector<int> * pdgcv   = 0;
   double * mass         = 0;
   unsigned int min_mult = 2;
@@ -99,7 +98,7 @@ TClonesArray * KNOHadronization::Hadronize(
   TLorentzVector p4(0,0,0,W);
 
   bool allowed_state=false;
-  itry=0;
+  register unsigned int itry = 0;
 
   while(!allowed_state) 
   {
@@ -187,7 +186,15 @@ TClonesArray * KNOHadronization::Hadronize(
 
   //----- DECAY HADRONIC FINAL STATE
 
-  double wmax = fPhaseSpaceGenerator.GetWtMax();
+  //-- get the maximum weight
+  //double wmax = fPhaseSpaceGenerator.GetWtMax();
+  double wmax = -1;
+  for(int i=0; i<200; i++) {
+     double w = fPhaseSpaceGenerator.Generate();   
+     wmax = TMath::Max(wmax,w);
+  }
+  assert(wmax>0);
+
   LOG("KNOHad", pINFO) 
      << "Max phase space gen. weight @ current hadronic system: " << wmax;
 
@@ -195,23 +202,26 @@ TClonesArray * KNOHadronization::Hadronize(
   {
     // *** generating weighted decays ***
     double w = fPhaseSpaceGenerator.Generate();   
-    fWeight *= (w/wmax);
+    fWeight *= TMath::Max(w/wmax, 1.);
   }
   else 
   {
     // *** generating un-weighted decays ***
-     fWeight = 1.;
+     wmax *= 1.2;
      bool accept_decay=false;
      itry=0;
-     double ws=0;
+
      while(!accept_decay) 
      {
        itry++;
+       assert(itry<kMaxUnweightDecayIterations);
+
        double w  = fPhaseSpaceGenerator.Generate();   
        double gw = wmax * rnd->Random1().Rndm();
+
        LOG("KNOHad", pINFO) << "Decay weight = " << w << " / R = " << gw;
-       ws+=w;
-       accept_decay = (gw<=w || (itry>100 && ws/itry<1E-4*wmax));
+
+       accept_decay = (gw<=w);
      }
   }
 
