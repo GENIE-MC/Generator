@@ -64,6 +64,9 @@ void KNOHadronization::Initialize(void) const
 TClonesArray * KNOHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
+// Generate the hadronic system in a neutrino interaction using a KNO-based 
+// model. 
+
   RandomGen * rnd = RandomGen::Instance();
   register int itry     = 0;
   vector<int> * pdgcv   = 0;
@@ -83,7 +86,6 @@ TClonesArray * KNOHadronization::Hadronize(
   //      conserve charge in the interaction
 
   int maxQ = this->HadronShowerCharge(interaction);
-
   LOG("KNOHad", pINFO) << "Hadron Shower Charge = " << maxQ;
 
  //----- Build the multiplicity probabilities for the input interaction
@@ -125,13 +127,19 @@ TClonesArray * KNOHadronization::Hadronize(
       continue;
     }
 
-    //-- Force a min multiplicity (although it should never need to do that)
+    //-- Force a min multiplicity
+    //   This should never happen if the multiplicity probability distribution
+    //   was properly built
     if(mult < min_mult) {
       if(fForceMinMult) {
         LOG("KNOHad", pWARN) 
            << "Low generated multiplicity: " << mult 
               << ". Forcing to minimum accepted multiplicity: " << min_mult;
        mult = min_mult;
+      } else {
+        LOG("KNOHad", pFATAL) 
+           << "Generated multiplicity: " << mult << " is too low - Quitting";
+        return 0;
       }
     }
 
@@ -158,9 +166,9 @@ TClonesArray * KNOHadronization::Hadronize(
       mass[i++] = m;
       LOG("KNOHad", pDEBUG) << "- PDGC=" << pdgc << ", m=" << m << " GeV";
     }
+    bool permitted = fPhaseSpaceGenerator.SetDecay(p4, mult, mass);
 
     //-- Check that the requested decay is permitted
-    bool permitted = fPhaseSpaceGenerator.SetDecay(p4, mult, mass);
     if(!permitted) {
        LOG("KNOHad", pWARN) << "*** Decay forbidden by kinematics! ***";
        LOG("KNOHad", pWARN) << "sum{mass} = " << msum << ", W = " << W;
@@ -277,6 +285,11 @@ void KNOHadronization::Configure(string config)
 //____________________________________________________________________________
 void KNOHadronization::LoadConfig(void)
 {
+// Read configuration options or set defaults
+
+  fMultProbModel = 0;
+  fDecayer       = 0;
+
   // Force decays of unstable hadronization products?
   fForceDecays  = fConfig->GetBoolDef("force-decays", false);
 
@@ -289,19 +302,19 @@ void KNOHadronization::LoadConfig(void)
   fPKc  = fConfig->GetDoubleDef("prob-fs-Kplus-Kminus",   0.05); // K+  K-
   fPK0  = fConfig->GetDoubleDef("prob-fs-K0-K0bar",       0.05); // K0  K0bar
 
-  fMultProbModel = 0;
-  fDecayer       = 0;
-
+  // Multiplicity probability model
   fMultProbModel = dynamic_cast<const MultiplicityProbModelI *> (
     this->SubAlg("multiplicity-prob-alg-name", "multiplicity-prob-param-set"));
   assert(fMultProbModel);
 
+  // Decay unstable particles now or leave it for later? Which decayer to use?
   if(fForceDecays) {
       fDecayer = dynamic_cast<const DecayModelI *> (
                        this->SubAlg("decayer-alg-name", "decayer-param-set"));
       assert(fDecayer);
   }
 
+  // Generated weighted or un-weighted hadronic systems
   fGenerateWeighted = fConfig->GetBoolDef("generate-weighted", false);
 }
 //____________________________________________________________________________
