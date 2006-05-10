@@ -35,19 +35,27 @@ public:
   PythiaDecayer(string config);
   virtual ~PythiaDecayer();
 
-  //-- implement the DecayModelI interface
+  //! implement the DecayModelI interface
   
   bool           IsHandled  (int pdgc)                    const;
   void           Initialize (void)                        const;
   TClonesArray * Decay      (const DecayerInputs_t & inp) const;
-  
+  double         Weight     (void)                        const;
+
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
+
 private:
 
+  void LoadConfig                 (void);
   void SwitchOnAllChannels        (int pdgc) const;
   void SwitchOffInhibitedChannels (int pdgc, const TClonesArray * inhibited) const;
   bool MatchDecayChannel          (int ichannel, TDecayChannel & dc) const;
 
   TPythia6 * fPythia;
+  bool       fForceDecay;
 };
 
 }         // genie namespace

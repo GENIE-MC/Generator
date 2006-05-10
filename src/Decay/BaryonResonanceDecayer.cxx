@@ -15,8 +15,10 @@
 //____________________________________________________________________________
 
 #include <TMCParticle6.h>
+#include <TMath.h>
 
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/Controls.h"
 #include "Decay/BaryonResonanceDecayer.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
@@ -24,6 +26,7 @@
 #include "Utils/PrintUtils.h"
 
 using namespace genie;
+using namespace genie::controls;
 
 //____________________________________________________________________________
 BaryonResonanceDecayer::BaryonResonanceDecayer() :
@@ -64,7 +67,7 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
 {  
   if ( ! this->IsHandled(inp.PdgCode) ) return 0;
 
-  //-- Find the particle in the PDG library
+  //-- Find the particle in the PDG library & quit if it does not exist
   TParticlePDG * mother = PDGLibrary::Instance()->Find(inp.PdgCode);
 
   if(!mother) {
@@ -77,6 +80,9 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
            << "Decaying resonance = " << mother->GetName()
                         << " with P4 = " << utils::print::P4AsString(inp.P4);
   
+  //-- Reset previous weight
+  fWeight = 1.;
+
   //-- Get the resonance mass W (generally different from the mass associated
   //   with the input pdg_code)
   double W = inp.P4->M();
@@ -95,13 +101,13 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
   double BR[nch], tot_BR = 0;    
   
   for(unsigned int ich = 0; ich < nch; ich++) {
+
      TDecayChannel * ch = (TDecayChannel *) decay_list->At(ich);
      double fsmass = this->FinalStateMass(ch);
 
      if(fsmass < W) tot_BR += ch->BranchingRatio();
      else {       
        tot_BR += 0;
-
        SLOG("Decay", pINFO)
                << "Suppresing channel: " << ich 
                         << " with final state mass = " << fsmass << " GeV";         
@@ -113,7 +119,7 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
   unsigned int ich = 0, sel_ich; // id of selected decay channel
   RandomGen * rnd = RandomGen::Instance();
   double x = tot_BR * rnd->Random1().Rndm();
-  do {
+  do { 
     sel_ich = ich;
     
   } while (x > BR[ich++]);
@@ -165,7 +171,42 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   bool is_permitted = fPhaseSpaceGenerator.SetDecay(p, nd, mass);
   assert(is_permitted);
 
-  fPhaseSpaceGenerator.Generate();
+  //double wmax = fPhaseSpaceGenerator.GetWtMax();
+  double wmax = -1;
+  for(int i=0; i<200; i++) {
+     double w = fPhaseSpaceGenerator.Generate();
+     wmax = TMath::Max(wmax,w);
+  }
+  LOG("Decay", pINFO)
+              << "Max phase space gen. weight for current decay: " << wmax;
+
+  if(fGenerateWeighted)
+  {
+     // *** generating weighted decays ***
+     double w = fPhaseSpaceGenerator.Generate();
+     fWeight *= TMath::Max(w/wmax, 1.);
+  }
+  else
+  {
+     // *** generating un-weighted decays ***
+     RandomGen * rnd = RandomGen::Instance();
+     wmax *= 1.2;
+     bool accept_decay=false;
+     register unsigned int itry=0;
+
+     while(!accept_decay)
+     {
+       itry++;
+       assert(itry<kMaxUnweightDecayIterations);
+
+       double w  = fPhaseSpaceGenerator.Generate();
+       double gw = wmax * rnd->Random1().Rndm();
+
+       LOG("Decay", pINFO) << "Decay weight = " << w << " / R = " << gw;
+
+       accept_decay = (gw<=w);
+     }
+  }
 
   //-- Create the event record
   TClonesArray * particle_list = new TClonesArray("TMCParticle", 1+nd);
@@ -204,6 +245,11 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   return particle_list;
 }
 //____________________________________________________________________________
+double BaryonResonanceDecayer::Weight(void) const
+{
+  return fWeight;
+}
+//____________________________________________________________________________
 double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * channel) const
 {
 // Computes the total mass of the final state system
@@ -220,5 +266,25 @@ double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * channel) const
      mass += ( daughter->Mass() );
   }  
   return mass;
+}
+//____________________________________________________________________________
+void BaryonResonanceDecayer::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void BaryonResonanceDecayer::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void BaryonResonanceDecayer::LoadConfig(void)
+{
+// Read configuration options or set defaults
+
+  //-- Generated weighted or un-weighted hadronic systems
+  fGenerateWeighted = fConfig->GetBoolDef("generate-weighted", false);
 }
 //____________________________________________________________________________

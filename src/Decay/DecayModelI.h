@@ -36,11 +36,12 @@ public:
 
   virtual ~DecayModelI();
 
-  //-- define DecayModelI interface
+  //! define DecayModelI interface
 
   virtual bool           IsHandled  (int pdgc)                    const = 0;
   virtual void           Initialize (void)                        const = 0;  
   virtual TClonesArray * Decay      (const DecayerInputs_t & inp) const = 0;
+  virtual double         Weight     (void)                        const = 0;
 
 protected:
 

@@ -54,11 +54,10 @@ bool PythiaDecayer::IsHandled(int pdg_code) const
 // does not handle requests to decay baryon resonances
   
   if( utils::res::IsBaryonResonance(pdg_code) ) {
-
-    LOG("Decay", pINFO)
+     LOG("Decay", pINFO)
          << "\n *** The particle with PDG-Code = "
                            << pdg_code << " is not decayed by this algorithm";
-    return false;
+     return false;
 
   } else return true;
 }
@@ -71,15 +70,12 @@ void PythiaDecayer::Initialize(void) const
 TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
 {
   if ( ! this->IsHandled(inp.PdgCode) ) return 0;
-
   
-  // check whether we should inhibit some channels
-
+  //-- check whether we should inhibit some channels
   if(inp.InhibitedChannels)
        this->SwitchOffInhibitedChannels(inp.PdgCode, inp.InhibitedChannels);
 
-  int ip = 0;
-
+  int    ip    = 0;
   int    pdgc  = inp.PdgCode;
   double E     = inp.P4->Energy();
   double Theta = inp.P4->Theta();
@@ -89,51 +85,40 @@ TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
 
   py1ent_(&ip, &pdgc, &E, &Theta, &Phi);
 
-  // check whether we are asked to force the decay / default = false
- 
-  bool force_decay = (fConfig->Exists("force-decay")) ? 
-                                    fConfig->GetBool("force-decay") : false;
-  if(force_decay) {
+  //-- check whether we are asked to force the decay 
+  if(fForceDecay) {
     int F = 1;
     pydecy_(&F); // FORCE DECAY
   }
-
   
-  // get decay products
-
+  //-- get decay products
   fPythia->GetPrimaries();
-  
-  TClonesArray * pythia_particles =
-                           (TClonesArray *) fPythia->ImportParticles("All");
+  TClonesArray * impl = (TClonesArray *) fPythia->ImportParticles("All");
 
-                           
   //-- if we switched of some channels, now we should restore TPythia's state
-
   if(inp.InhibitedChannels) this->SwitchOnAllChannels(inp.PdgCode);
   
-
-  // copy PYTHIA container to a new TClonesArray so as to transfer ownership
-  // of the container and of its elements to the calling method
-
-  TClonesArray * particle_list = new TClonesArray(
-                             "TMCParticle", pythia_particles->GetEntries() );
+  //-- copy PYTHIA container to a new TClonesArray so as to transfer ownership
+  //   of the container and of its elements to the calling method
+  TClonesArray * pl = new TClonesArray("TMCParticle", impl->GetEntries());
 
   register unsigned int i = 0;
-  TMCParticle * particle = 0;
+  TMCParticle * p = 0;
+  TIter particle_iter(impl);
 
-  TIter particle_iter(pythia_particles);
-
-  while( (particle = (TMCParticle *) particle_iter.Next()) ) {
-
-       LOG("Decay", pINFO)
-               << "Adding decay product with PDGC = " << particle->GetKF();
-
-       new ( (*particle_list)[i++] ) TMCParticle(*particle);
+  while( (p = (TMCParticle *) particle_iter.Next()) ) {
+    LOG("Decay", pINFO) << "Adding decay product with PDG = " << p->GetKF();
+    new ( (*pl)[i++] ) TMCParticle(*p);
   }
 
-  particle_list->SetOwner(true);
-    
-  return particle_list;
+  //-- transfer ownership and return
+  pl->SetOwner(true);    
+  return pl;
+}
+//____________________________________________________________________________
+double PythiaDecayer::Weight(void) const 
+{
+  return 1; // does not generate weighted decays
 }
 //____________________________________________________________________________
 void PythiaDecayer::SwitchOnAllChannels(int pdgc) const
@@ -222,5 +207,25 @@ bool PythiaDecayer::MatchDecayChannel(int ichannel, TDecayChannel & dc) const
   if( channel_matched ) { LOG("Decay", pINFO) << " *** channels matched"; }
   
   return channel_matched;
+}
+//____________________________________________________________________________
+void PythiaDecayer::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void PythiaDecayer::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void PythiaDecayer::LoadConfig(void)
+{
+// Read configuration options or set defaults
+
+  //-- check whether we are asked to force the decay / default = false
+  fForceDecay = fConfig->GetBoolDef("force-decay", false);
 }
 //____________________________________________________________________________
