@@ -42,23 +42,31 @@ namespace genie {
 class BaryonResonanceDecayer : public DecayModelI {
 
 public:
-
   BaryonResonanceDecayer();
   BaryonResonanceDecayer(string config);
   virtual ~BaryonResonanceDecayer();
 
-  //-- implement the DecayModelI interface
-
+  //! implement the DecayModelI interface
   bool           IsHandled  (int pdgc)                    const;
   void           Initialize (void)                        const;
   TClonesArray * Decay      (const DecayerInputs_t & inp) const;
+  double         Weight     (void)                        const;
+
+  //! overload the Algorithm::Configure() methods to load private data
+  //!  members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
+  void           LoadConfig     (void);
   TClonesArray * DecayExclusive (int pdgc, TLorentzVector & p, TDecayChannel * ch) const;
   double         FinalStateMass (TDecayChannel * channel) const;
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
+  mutable double         fWeight;
+
+  bool fGenerateWeighted;
 };
 
 }         // genie namespace
