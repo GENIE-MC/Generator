@@ -53,7 +53,11 @@ static const int kMaxMultiplicity = 35;
 
 // Maximum number of attempts by the KNO hadronizer for finding a valid f/s
 // hadronic system before going in error and quiting
-static const int kMaxKNOHadSystIterations = 400;  
+static const unsigned int kMaxKNOHadSystIterations = 400;  
+
+// Maximum number of attempts before producing an unweighted decay using the
+// TGenPhaseSpace phase space generator
+static const unsigned int kMaxUnweightDecayIterations = 1000;  
 
 } // namespace controls
 } // namespace genie
