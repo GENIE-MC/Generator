@@ -42,8 +42,8 @@ public:
   TClonesArray * Decay      (const DecayerInputs_t & inp) const;
   double         Weight     (void)                        const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  //! overload the Algorithm::Configure() methods to load private data
+  //!  members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
