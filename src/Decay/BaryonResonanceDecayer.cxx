@@ -177,6 +177,7 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
      double w = fPhaseSpaceGenerator.Generate();
      wmax = TMath::Max(wmax,w);
   }
+  assert(wmax>0);
   LOG("Decay", pINFO)
               << "Max phase space gen. weight for current decay: " << wmax;
 
