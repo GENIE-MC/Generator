@@ -19,16 +19,16 @@
      <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
 
      <!-- Axial and vector masses for elastic scattering  -->
-     <param type="double" name="EL-Ma">  0.840  </param> 
-     <param type="double" name="EL-Mv">  1.032  </param>
+     <param type="double" name="EL-Ma">  1.032  </param>
+     <param type="double" name="EL-Mv">  0.840  </param> 
 
      <!-- Axial and vector masses for quasi-elastic scattering  -->
-     <param type="double" name="QEL-Ma"> 0.840 </param>
-     <param type="double" name="QEL-Mv"> 1.032 </param>
+     <param type="double" name="QEL-Ma"> 1.032 </param>
+     <param type="double" name="QEL-Mv"> 0.840 </param>
 
      <!-- Axial and vector masses for resonance production  -->
-     <param type="double" name="RES-Ma"> 0.840 </param>
-     <param type="double" name="RES-Mv"> 1.032 </param>
+     <param type="double" name="RES-Ma"> 1.032 </param>
+     <param type="double" name="RES-Mv"> 0.840 </param>
 
      <!-- Axial mass for coherent scattering -->
      <param type="double" name="COH-Ma"> 1.032 </param>
