@@ -57,72 +57,77 @@ double NuNucElasticPXSec::XSec(
 
   const InitialState & init_state = interaction -> GetInitialState();
   const Kinematics &   kinematics = interaction -> GetKinematics();
+  const Target &       target     = init_state.GetTarget();
 
-  double E     = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Q2    = kinematics.Q2();
-  double M     = init_state.GetTarget().StruckNucleonMass();
-  double M2    = TMath::Power(M, 2);
-  double M4    = TMath::Power(M2,2);
-  double E2    = TMath::Power(E, 2);
+  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Q2   = kinematics.Q2();
+  double M    = init_state.GetTarget().StruckNucleonMass();
+  double M2   = TMath::Power(M, 2.);
+  double E2   = TMath::Power(E, 2.);
+  double qmv2 = TMath::Power(1 + Q2/fMv2, 2);
+  double qma2 = TMath::Power(1 + Q2/fMa2, 2);
 
-  //----- compute the form factors
+  //-- handle terms changing sign for antineutrinos and isospin rotations
+  int nusign  = 1;
+  int nucsign = 1;
+  int nupdgc  = init_state.GetProbePDGCode();
+  int nucpdgc = target.StruckNucleonPDGCode();
+  if( pdg::IsAntiNeutrino(nupdgc) ) nusign  = -1;
+  if( pdg::IsNeutron(nucpdgc)     ) nucsign = -1;
 
-  double qmv2  = TMath::Power(1 + Q2/fMv2, 2);
-  double qma2  = TMath::Power(1 + Q2/fMa2, 2);
+  //-- compute isoscalar form factor terms
+  double Ge0 = 1.5 * fkGamma / qmv2;
+  double Gm0 = 1.5 * fkGamma * (fMuP+fMuN) / qmv2;
+
+  //-- compute isovector form factor terms
+  double Ge1 = 0.5 * fkAlpha / qmv2;
+  double Gm1 = 0.5 * fkAlpha * (fMuP-fMuN) / qmv2;
+  double Ga1 = -0.5 * fFa0 * (1+fEta)/ qma2;  
+
+  //-- compute form factors
+  double Ge  = Ge0 + (nucsign) * Ge1;
+  double Gm  = Gm0 + (nucsign) * Gm1;
+  double Ga  = (nucsign) * Ga1;
+  double Ge2 = TMath::Power(Ge,2);
+  double Gm2 = TMath::Power(Gm,2);
+  double Ga2 = TMath::Power(Ga,2);
+
+  //-- compute the free nucleon cross section
   double tau   = 0.25 * Q2/M2;
-
-  double Gv3   = 0.5 * (1+fMuP-fMuN) / qmv2;
-  double Gv0   = 1.5 * (1+fMuP+fMuN) / qmv2;
-  double Fv3   = 0.5 * (fMuP-fMuN) / ((1+tau)*qmv2);
-  double Fv0   = 1.5 * (fMuP+fMuN) / ((1+tau)*qmv2);
-  double ga    = -0.5 * fFa0 * (1+fEta)/ qma2;    // El.nucl. form factor GA
-  double f2    = fkAlpha*Fv3 + fkGamma*Fv0;       // El.nucl. form factor F2
-  double f1    = fkAlpha*Gv3 + fkGamma* Gv0 - f2; // El.nucl. form factor F1
-  double ga2   = TMath::Power(ga,2);
-  double f12   = TMath::Power(f1,2);
-  double f22   = TMath::Power(f2,2);
-
-  //----- compute the free nucleon cross section
-
-  double sig0  = kGF2*M2 / (8*kPi*E2);
-  double su    = 4*M*E - Q2;  // s-u
-  double su2   = TMath::Power(su,2);    
-
-  double A = 4*tau*(ga2*(1+tau) - f12*(1-tau) + f22*tau*(1-tau) + 4*tau*f1*f2);
-  double B = 4*tau*ga*(f1+f2);
-  double C = 0.25*(ga2 + f12 + f22*tau);
-
-  int sign = 1;
-  if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
-
-  double xsec = sig0 * (A + sign*B*su/M2 + C*su2/M4);
+  double fa    = 1-M*tau/E;
+  double fa2   = TMath::Power(fa,2);
+  double fb    = tau*(tau+1)*M2/E2; 
+  double A     = (Ge2/(1+tau))           * (fa2-fb);
+  double B     = (Ga2 + tau*Gm2/(1+tau)) * (fa2+fb);
+  double C     = 4*tau*(M/E)*Gm*Ga       * fa;
+  double xsec0 = 0.5*kGF2/kPi;
+  double xsec  = xsec0 * (A + B + (nusign)*C);
 
   LOG("NuNucEl", pDEBUG)
     << "dXSec[vN,El]/dQ2 [FreeN](Ev = "<< E<< ", Q2 = "<< Q2 << ") = "<< xsec;
 
-  //----- The algorithm computes dxsec/dQ2
-  //      Check whether variable tranformation is needed
+  //-- The algorithm computes dxsec/dQ2
+  //   Check whether variable tranformation is needed
   if(kps!=kPSQ2fE) {
     double J = utils::kinematics::Jacobian(interaction,kPSQ2fE,kps);
     xsec *= J;
   }
 
-  //----- if requested return the free nucleon xsec even for input nuclear tgt
+  //-- if requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-  //----- compute nuclear suppression factor
-  //      (R(Q2) is adapted from NeuGEN - see comments therein)
+  //-- compute nuclear suppression factor
+  //   (R(Q2) is adapted from NeuGEN - see comments therein)
   double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
 
-  //----- number of scattering centers in the target
-  const Target & target = init_state.GetTarget();
-  int nucpdgc = target.StruckNucleonPDGCode();
+  //-- number of scattering centers in the target
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
   LOG("NuNucEl", pDEBUG)
        << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
 
-  xsec *= (R*NNucl); // nuclear xsec
+  //-- compute nuclear cross section
+  xsec *= (R*NNucl); 
 
   return xsec;
 }

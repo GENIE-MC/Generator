@@ -6,7 +6,8 @@
 \brief    Differential cross section for v+N / vbar+N elastic scattering. \n
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
-\ref      L.A.Ahrens et al., Physical Review D, VOL 35,3:785 (1987)
+\ref      R.E.Hendrick and L.Li, Phys.Rev.D 19:779 (1979)
+          L.A.Ahrens et al., Phys.Rev.D 35:785 (1987)
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
