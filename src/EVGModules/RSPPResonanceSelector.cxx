@@ -17,6 +17,7 @@
 #include <vector>
 #include <sstream>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/KinePhaseSpace.h"
@@ -188,11 +189,14 @@ void RSPPResonanceSelector::LoadConfigData(void)
   // Create the list with all the baryon resonances that the user wants me to
   // consider (from this algorithm's config file).
 
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   LOG("RESSelector", pDEBUG) << "Getting the baryon resonance list";
 
   fResList.Clear();
-  assert( fConfig->Exists("resonance-name-list") );
-  string resonances = fConfig->GetString("resonance-name-list");
+  string resonances = fConfig->GetStringDef(
+                   "resonance-name-list", gc->GetString("ResonanceNameList"));
   SLOG("RESSelector", pDEBUG) << "Resonance list: " << resonances;
 
   fResList.DecodeFromNameList(resonances);

@@ -14,6 +14,7 @@
 */
 //____________________________________________________________________________
 
+#include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "EVGModules/RESInteractionListGenerator.h"
 #include "EVGCore/InteractionList.h"
@@ -159,6 +160,9 @@ void RESInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void RESInteractionListGenerator::LoadConfigData(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   fIsCC = fConfig->GetBoolDef("is-CC", false);
   fIsNC = fConfig->GetBoolDef("is-NC", false);
 
@@ -168,8 +172,8 @@ void RESInteractionListGenerator::LoadConfigData(void)
   LOG("InteractionList", pDEBUG) << "Getting the baryon resonance list";
 
   fResList.Clear();
-  assert( fConfig->Exists("resonance-name-list") );
-  string resonances = fConfig->GetString("resonance-name-list");
+  string resonances = fConfig->GetStringDef(
+                   "resonance-name-list", gc->GetString("ResonanceNameList"));
   SLOG("InteractionList", pDEBUG) << "Resonance list: " << resonances;
 
   fResList.DecodeFromNameList(resonances);
