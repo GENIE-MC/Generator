@@ -45,17 +45,21 @@ public:
   InitialState(const InitialState & initial_state);
   ~InitialState();
 
-  const Target &   GetTarget       (void) const { return *fTarget;    }
-  int              GetProbePDGCode (void) const { return  fProbePdgC; }
-  Target *         GetTargetPtr    (void) const { return  fTarget;    }
-  TParticlePDG *   GetProbe        (void) const;
+  TParticlePDG *   GetProbe         (void) const;
+  const Target &   GetTarget        (void) const { return *fTarget;    }
+  Target *         GetTargetPtr     (void) const { return  fTarget;    }
+  int              GetProbePDGCode  (void) const { return  fProbePdgC; }
+  int              GetTargetPDGCode (void) const;
+
   TLorentzVector * GetTargetP4 (RefFrame_t ref_frame = kRfLab) const;
   TLorentzVector * GetProbeP4  (RefFrame_t ref_frame = kRfStruckNucAtRest) const;
   double           GetProbeE   (RefFrame_t ref_frame) const;
 
-  void SetProbePDGCode (int pdg_code);
-  void SetTargetP4     (const TLorentzVector & P4); // in LAB-frame
-  void SetProbeP4      (const TLorentzVector & P4); // in LAB-frame
+  void SetPDGCodes      (int tgt_pdgc, int probe_pdgc);
+  void SetProbePDGCode  (int pdg_code);
+  void SetTargetPDGCode (int pdg_code);
+  void SetTargetP4      (const TLorentzVector & P4); // in LAB-frame
+  void SetProbeP4       (const TLorentzVector & P4); // in LAB-frame
 
   //! Copy, reset, compare, print itself and build string code
   void   Reset    (void);

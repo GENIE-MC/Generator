@@ -84,8 +84,13 @@ void InitialState::Init(void)
 //___________________________________________________________________________
 void InitialState::Init(int target_pdgc, int probe_pdgc)
 {
-  double m = PDGLibrary::Instance() -> Find (probe_pdgc ) -> Mass();
-  double M = PDGLibrary::Instance() -> Find (target_pdgc) -> Mass();
+  TParticlePDG * t = PDGLibrary::Instance()->Find(target_pdgc);
+  TParticlePDG * p = PDGLibrary::Instance()->Find(probe_pdgc );
+
+  assert(t && p);
+
+  double m = p->Mass();
+  double M = t->Mass();
 
   fProbePdgC  = probe_pdgc;
   fTarget     = new Target(target_pdgc);
@@ -116,20 +121,38 @@ void InitialState::Copy(const InitialState & init_state)
   this -> SetTargetP4 ( *init_state.fTargetP4 );
 }
 //___________________________________________________________________________
+int InitialState::GetTargetPDGCode(void) const
+{
+  assert(fTarget);
+  return fTarget->PDGCode();
+}
+//___________________________________________________________________________
 TParticlePDG * InitialState::GetProbe(void) const
 {
   TParticlePDG * p = PDGLibrary::Instance()->Find(fProbePdgC);
   return p;
 }
 //___________________________________________________________________________
-void InitialState::SetProbePDGCode(int pdg_code)
+void InitialState::SetPDGCodes(int tgt_pdgc, int probe_pdgc)
 {
-  TParticlePDG * p = PDGLibrary::Instance()->Find(pdg_code);
-  if(p) fProbePdgC = pdg_code;
-  else {
-    LOG("Interaction", pERROR)
-        << "Can not set non-existent particle code: " << pdg_code;
-  }
+  this->CleanUp();
+  this->Init(tgt_pdgc, probe_pdgc);
+}
+//___________________________________________________________________________
+void InitialState::SetTargetPDGCode(int tgt_pdgc)
+{
+  int probe_pdgc = this->GetProbePDGCode();
+
+  this->CleanUp();
+  this->Init(tgt_pdgc, probe_pdgc);
+}
+//___________________________________________________________________________
+void InitialState::SetProbePDGCode(int probe_pdgc)
+{
+  int tgt_pdgc = this->GetTargetPDGCode();
+
+  this->CleanUp();
+  this->Init(tgt_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
 void InitialState::SetProbeP4(const TLorentzVector & P4)
