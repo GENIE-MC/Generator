@@ -75,12 +75,13 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Get the kinematical limits for the generated x,y
   Interaction * interaction = evrec->GetInteraction();
   Range1D_t y = this->yRange(interaction);
-  const double logxmin = TMath::Log(kASmallNum);
-  const double logxmax = TMath::Log(1.-kASmallNum);
-  const double logymin = TMath::Log(y.min+kASmallNum);
-  const double logymax = TMath::Log(y.max-kASmallNum);
-  const double dlogx   = (logxmax - logxmin);
-  const double dlogy   = (logymax - logymin);
+
+  const double xmin = kASmallNum;
+  const double xmax = 1.- kASmallNum;
+  const double ymin = y.min + kASmallNum;
+  const double ymax = y.max - kASmallNum;
+  const double dx   = xmax - xmin;
+  const double dy   = ymax - ymin;
 
   //------ Try to select a valid x,y pair
 
@@ -99,11 +100,11 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         exception.SwitchOnFastForward();
         throw exception;
      }
-     double gx = TMath::Exp(logxmin + dlogx * rnd->Random1().Rndm());
-     double gy = TMath::Exp(logymin + dlogy * rnd->Random1().Rndm());
+     double gx = xmin + dx * rnd->Random1().Rndm();
+     double gy = ymin + dy * rnd->Random1().Rndm();
      interaction->GetKinematicsPtr()->Setx(gx);
      interaction->GetKinematicsPtr()->Sety(gy);
-     LOG("COHKinematics", pINFO) << "Trying: x= "<< gx<< ", y= "<< gy;
+     LOG("COHKinematics", pINFO) << "Trying: x = " << gx << ", y = " << gy;
 
      // computing cross section for the current kinematics
      xsec = fXSecModel->XSec(interaction, kPSxyfE);
@@ -113,20 +114,18 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
         double t = xsec_max * rnd->Random1().Rndm();
-        double J = kinematics::Jacobian(interaction,kPSxyfE,kPSlogxlogyfE);
-
-        LOG("COHKinematics", pDEBUG)
-                     << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
-        accept = (t < J*xsec);
+        LOG("COHKinematics", pINFO)
+                              << "xsec= " << xsec << ", J= 1, Rnd= " << t;
+        accept = (t<xsec);
      }
-     else {
-       accept = (xsec>0);
+     else { 
+        accept = (xsec>0);
      }
 
      if(accept) {
          // ----------------- KINEMATICAL SELECTION DONE -------------------
 
-        LOG("COHKinematics", pINFO) << "Selected: x= "<< gx << ", y= "<< gy;
+        LOG("COHKinematics", pNOTICE) << "Selected: x = "<< gx << ", y = "<< gy;
 
         // the COH cross section should be a triple differential cross section
         // d^2xsec/dxdydt where t is the the square of the 4p transfer to the
@@ -153,7 +152,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double rt    = tsum * rnd->Random1().Rndm();
         double gt    = -1.*TMath::Log(-1.*b*rt + TMath::Exp(-1.*b*tmin))/b;
 
-        LOG("COHKinematics", pINFO)
+        LOG("COHKinematics", pNOTICE)
           << "Selected: t = "<< gt << ", from ["<< tmin << ", "<< tmax << "]";
 
         // for uniform kinematics, compute an event weight as
@@ -212,31 +211,59 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
   double max_xsec = 0.;
 
-  const int N = 75;
+  const int Nx  =  80;
+  const int Ny  =  25;
+  const int Nyb =  15;
+
   Range1D_t y = this->yRange(in);
 
   const double logxmin = TMath::Log(kASmallNum);
   const double logxmax = TMath::Log(1.-kASmallNum);
   const double logymin = TMath::Log(y.min+kASmallNum);
   const double logymax = TMath::Log(y.max-kASmallNum);
-  const double dlogx   = (logxmax - logxmin) /(N-1);
-  const double dlogy   = (logymax - logymin) /(N-1);
+  const double dlogx   = (logxmax - logxmin) /(Nx-1);
+  const double dlogy   = (logymax - logymin) /(Ny-1);
 
   double Ev  = in->GetInitialState().GetProbeE(kRfLab);
 
-  for(int i=0; i<N; i++) {
+  double xseclast = -1;
+  bool   increasing;
+
+  for(int i=0; i<Nx; i++) {
    double gx = TMath::Exp(logxmin + i * dlogx);
-   for(int j=0; j<N; j++) {
+   for(int j=0; j<Ny; j++) {
      double gy = TMath::Exp(logymin + j * dlogy);
 
      double Q2 = 2*kNucleonMass*gx*gy*Ev;
-     if(Q2 > 0.5) continue;
+     if(Q2 > 0.1) continue;
 
      in->GetKinematicsPtr()->Setx(gx);
      in->GetKinematicsPtr()->Sety(gy);
 
      double xsec = fXSecModel->XSec(in, kPSxyfE);
+     LOG("COHKinematics", pDEBUG)  
+     	              << "xsec(x= " << gx << ", y= " << gy << ") = " << xsec;
+
      max_xsec = TMath::Max(max_xsec, xsec);
+     increasing = xsec-xseclast>=0;
+     xseclast   = xsec;
+
+     // once the xsec stops increasing, I reduce the step size and
+     // step backwards a little bit to handle cases that the max xsec
+     // is grossly underestimated (very peaky distribution & large step)
+     if(!increasing) {
+       double dlogyb = dlogy/(Nyb+1);
+       for(int jb=0; jb<Nyb; jb++) {
+	 gy = TMath::Exp(TMath::Log(gy) - dlogyb);
+         if(gy < y.min) continue;
+         in->GetKinematicsPtr()->Sety(gy);
+         xsec = fXSecModel->XSec(in, kPSxyfE);
+         LOG("COHKinematics", pDEBUG)  
+     	              << "xsec(x= " << gx << ", y= " << gy << ") = " << xsec;
+         max_xsec = TMath::Max(xsec, max_xsec);
+       }
+       break;
+     }
    }//y
   }//x
 
@@ -278,13 +305,21 @@ void COHKinematicsGenerator::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
+  //-- COH model parameter Ro
   fRo = fConfig->GetDoubleDef("Ro", gc->GetDouble("COH-Ro"));
 
-  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.3);
+  //-- max xsec safety factor (for rejection method) and min cached energy
+  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.2);
   fEMin         = fConfig->GetDoubleDef("min-energy-cached",     -1.0);
 
+  //-- Differential cross section model
   fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
                             this->SubAlg("xsec-alg-name", "xsec-param-set"));
+
+  //-- Generate kinematics uniformly over allowed phase space and compute
+  //   an event weight?
+  fGenerateUniformly = fConfig->GetBoolDef("uniform-over-phase-space", false);
+
   assert(fXSecModel);
 }
 //____________________________________________________________________________
