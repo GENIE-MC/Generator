@@ -73,6 +73,13 @@ const int kPdgZ0           =    23;
 const int kPdgWPlus        =    24;
 const int kPdgWMinus       =   -24;
 
+// note: PDG codes for nuclear targets can be computed using pdg::IonPdgCode(A,Z);
+const int kPdgTgtFreeP     = 1001001000;
+const int kPdgTgtFreeN     = 1001000000;
+const int kPdgTgtFe56      = 1056026000;
+const int kPdgTgtC12       = 1012006000;
+const int kPdgTgtO16       = 1016008000;
+
 const int kPdgBindino      = 1111111001; 
 const int kPdgHadronicSyst = 1111111002; 
 
