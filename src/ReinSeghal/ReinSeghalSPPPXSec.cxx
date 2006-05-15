@@ -48,8 +48,6 @@ ReinSeghalSPPPXSec::~ReinSeghalSPPPXSec()
 double ReinSeghalSPPPXSec::XSec(
                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  LOG("ReinSeghalSpp", pINFO) << *fConfig;
-
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 

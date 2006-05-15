@@ -58,8 +58,6 @@ ReinSeghalRESPXSec::~ReinSeghalRESPXSec()
 double ReinSeghalRESPXSec::XSec(
                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  LOG("ReinSeghalRes", pDEBUG) << *fConfig;
-
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
@@ -78,30 +76,23 @@ double ReinSeghalRESPXSec::XSec(
     }
   }
 
-  //----- Get needed initial state params
   const InitialState & init_state = interaction -> GetInitialState();
+  const ProcessInfo &  proc_info  = interaction -> GetProcessInfo();
   const Target & target = init_state.GetTarget();
 
   double E       = init_state.GetProbeE(kRfStruckNucAtRest);
   double Mnuc    = target.StruckNucleonMass(); 
   int    nucpdgc = target.StruckNucleonPDGCode();
 
-  bool is_CC = interaction->GetProcessInfo().IsWeakCC();
-  bool is_p  = pdg::IsProton(nucpdgc);
-
   //-- Get the input baryon resonance
   Resonance_t resonance = interaction->GetExclusiveTag().Resonance();
+  string      resname   = utils::res::AsString(resonance);
 
   //-- Compute Baryon Resonance params 
   fBRP.RetrieveData(resonance);  
 
-  //-- Get the resonance mass
   double Mres    = fBRP.Mass();
   int    nresidx = fBRP.ResonanceIndex();
-
-  LOG("ReinSeghalRes", pDEBUG)
-        << "Resonance = " << utils::res::AsString(resonance)
-                                   << " with mass = " << Mres << " GeV";
 
   //-- Compute auxiliary & kinematical factors for the Rein-Seghal model
   double W2     = TMath::Power(W, 2);
@@ -124,14 +115,16 @@ double ReinSeghalRESPXSec::XSec(
   LOG("ReinSeghalRes", pDEBUG) << "Computing the FKR parameters";
 
   fFKR.Calculate(q2,W,Mnuc,nresidx);
-
-  LOG("ReinSeghalRes", pDEBUG) << "\n FKR params for ["
-                   << utils::res::AsString(resonance) << "]: " << fFKR;
+  LOG("FKR", pDEBUG) 
+           << "FKR params for RES=" << resname << " : " << fFKR;
 
   //-- Calculate the Rein-Seghal Helicity Amplitudes
-  LOG("ReinSeghalRes", pDEBUG) << "Computing SPP Helicity Amplitudes";
+  LOG("ReinSeghalRes", pDEBUG) << "Computing Helicity Amplitudes";
 
   const RSHelicityAmplModelI * hamplmod = 0;
+
+  bool is_CC = proc_info.IsWeakCC();
+  bool is_p  = pdg::IsProton(nucpdgc);
 
   if(is_CC)   { hamplmod = fHAmplModelCC; }
   else {
@@ -143,9 +136,8 @@ double ReinSeghalRESPXSec::XSec(
   RSHelicityAmpl * hampl = hamplmod->Compute(resonance, fFKR); 
   assert(hampl);
 
-  LOG("ReinSeghalRes", pDEBUG)
-         << "\n Helicity Amplitudes for ["
-                << utils::res::AsString(resonance) << "]: " << hampl;
+  LOG("RSHAmpl", pDEBUG)
+     << "Helicity Ampl for RES=" << resname << " : " << *hampl;
 
   //-- Calculate Helicity Cross Sections
   double xsec_left   = TMath::Power( hampl->AmpPlus3(),  2. ) +
@@ -154,7 +146,6 @@ double ReinSeghalRESPXSec::XSec(
                        TMath::Power( hampl->AmpMinus1(), 2. );
   double xsec_scalar = TMath::Power( hampl->Amp0Plus(),  2. ) +
                        TMath::Power( hampl->Amp0Minus(), 2. );
-
   delete hampl;
 
   double scale_lr = 0.5*(kPi/k)*(Mres/Mnuc);
@@ -165,23 +156,18 @@ double ReinSeghalRESPXSec::XSec(
   xsec_scalar *= (scale_sc*(-Q2/q2));
 
   LOG("ReinSeghalRes", pDEBUG)
-      << "\n Helicity XSecs for ["<< utils::res::AsString(resonance) << "]: "
-      << "\n   Sigma-Left   = " << xsec_left
-      << "\n   Sigma-Right  = " << xsec_right
-      << "\n   Sigma-Scalar = " << xsec_scalar;
+          << "SL = " << xsec_left << ", SR = " 
+                             << xsec_right << " SSC = " << xsec_scalar;
 
   //-- Compute the cross section
-  double xsec     = 0;
-  bool   is_nu    = pdg::IsNeutrino     (init_state.GetProbePDGCode());
-  bool   is_nubar = pdg::IsAntiNeutrino (init_state.GetProbePDGCode());
+  int  nupdgc  = init_state.GetProbePDGCode();
+  bool is_nu   = pdg::IsNeutrino(nupdgc);
 
+  double xsec = 0;
   if (is_nu) {
      xsec = Gf*Wf*(U2 * xsec_left + V2 * xsec_right + 2*UV*xsec_scalar);
-  } else if (is_nubar) {
-     xsec = Gf*Wf*(V2 * xsec_left + U2 * xsec_right + 2*UV*xsec_scalar);
   } else {
-     LOG("ReinSeghalRes", pERROR) << "Probe is not (anti-)neutrino!";
-     return 0;
+     xsec = Gf*Wf*(V2 * xsec_left + U2 * xsec_right + 2*UV*xsec_scalar);
   }
 
   //-- Check whether the cross section is to be weighted with a
@@ -189,16 +175,17 @@ double ReinSeghalRESPXSec::XSec(
   double bw = 1.0;
   if(fWghtBW) {
      bw = fBreitWigner->Eval(resonance, W);
+     LOG("ReinSeghalRes", pDEBUG) 
+       << "BreitWigner(RES=" << resname << ", W=" << W << ") = " << bw;
   } else {
-      LOG("ReinSeghalRes", pINFO) << "Breit-Wigner weighting is turned-off";
+      LOG("ReinSeghalRes", pDEBUG) << "Breit-Wigner wght is turned-off";
   }
 
   double wxsec = bw * xsec; // weighted-xsec
 
-  SLOG("ReinSeghalRes", pDEBUG)
-      << "Res[" << utils::res::AsString(resonance) << "]: "
-        << "<Breit-Wigner(=" << bw << ")> * <d^2xsec/dQ^2dW(free) [W=" << W
-          << ", q2=" << q2 << ", E=" << E << "](="<< xsec << ")> = " << wxsec;
+  LOG("ReinSeghalRes", pINFO) 
+    << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
+          << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << wxsec;
 
   //-- The algorithm computes d^2xsec/dWdQ2
   //   Check whether variable tranformation is needed

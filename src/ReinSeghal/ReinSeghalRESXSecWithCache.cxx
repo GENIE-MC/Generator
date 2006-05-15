@@ -20,6 +20,7 @@
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Conventions/KineVar.h"
 #include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
@@ -33,8 +34,10 @@
 #include "Utils/CacheBranchFx.h"
 
 using std::ostringstream;
+
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::units;
 
 //____________________________________________________________________________
 ReinSeghalRESXSecWithCache::ReinSeghalRESXSecWithCache() :
@@ -71,14 +74,10 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
   assert(fSingleResXSecModel);
   assert(fIntegrator);
 
-  Interaction * interaction = new Interaction(*in);
-  interaction->TestBit(kIAssumeFreeNucleon);
-
-  const int kNSt = 3;
-  const InteractionType_t it[kNSt] = {kIntWeakCC, kIntWeakNC, kIntWeakNC };
-  const int iN[kNSt] = {kPdgProton, kPdgProton, kPdgNeutron};
-
-  int nu_code  = interaction->GetInitialState().GetProbePDGCode();
+  const int kNTgt = 2;
+  const int kNWkC = 2;
+  const int               tgtc[kNTgt] = { kPdgTgtFreeP, kPdgTgtFreeN };
+  const InteractionType_t wkcc[kNWkC] = { kIntWeakCC, kIntWeakNC     };
 
   // at the splines use at least 10 knots per decade but at least 40 knots
   // in the full energy range
@@ -89,78 +88,91 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
   const int    kNSplineKnots = TMath::Max(40, kMinNKnots); 
   const double kdLogE        = (kLogEmax-kLogEmin)/(kNSplineKnots-1);
 
+  TLorentzVector p4(0,0,0,0);
+
+  int nu_code = in->GetInitialState().GetProbePDGCode();
+
+  Interaction * interaction = new Interaction(*in);
+  interaction->TestBit(kIAssumeFreeNucleon);
+
+  InitialState * init_state = interaction->GetInitialStatePtr();
+  ProcessInfo *  proc_info  = interaction->GetProcessInfoPtr();
+
   unsigned int nres = fResList.NResonances();
-  for(int i=0; i<kNSt; i++) {
 
-    interaction->GetInitialStatePtr()->GetTargetPtr()->SetStruckNucleonPDGCode(iN[i]);
-    interaction->GetProcessInfoPtr()->Set(kScResonant, it[i]);
+  for(int iwkc=0; iwkc<kNWkC; iwkc++) {
+    for(int itgt=0; itgt<kNTgt; itgt++) {
 
-    for(unsigned int ires = 0; ires < nres; ires++) {
+      init_state -> SetPDGCodes(tgtc[itgt], nu_code);
+      proc_info  -> Set(kScResonant, wkcc[iwkc]);
 
-      //-- Get next resonance from the resonance list
-      Resonance_t res = fResList.ResonanceId(ires);
+      for(unsigned int ires = 0; ires < nres; ires++) {
 
-      interaction->GetExclusiveTagPtr()->SetResonance(res);
+         //-- Get next resonance from the resonance list
+         Resonance_t res = fResList.ResonanceId(ires);
 
-      //-- Get a unique cache branch name
-      string key = this->CacheBranchName(res, it[i], nu_code, iN[i]);
+         interaction->GetExclusiveTagPtr()->SetResonance(res);
 
-      //-- Make sure the cache branch does not already exists
-      CacheBranchFx * cache_branch =
-              dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
-      assert(!cache_branch);
+         //-- Get a unique cache branch name
+         int nuc_code = init_state->GetTarget().StruckNucleonPDGCode();
+         string key = this->CacheBranchName(
+                                   res, wkcc[iwkc], nu_code, nuc_code);
 
-      //-- Create the new cache branch
-      LOG("ReinSeghalResC", pNOTICE) 
+         //-- Make sure the cache branch does not already exists
+         CacheBranchFx * cache_branch =
+             dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+         assert(!cache_branch);
+
+         //-- Create the new cache branch
+         LOG("ReinSeghalResC", pNOTICE) 
                         << "\n ** Creating cache branch - key = " << key;
-      cache_branch = new CacheBranchFx("RES Excitation XSec");
-      cache->AddCacheBranch(key, cache_branch);
-      assert(cache_branch);
+         cache_branch = new CacheBranchFx("RES Excitation XSec");
+         cache->AddCacheBranch(key, cache_branch);
+         assert(cache_branch);
 
-      TLorentzVector p4(0,0,0,0);
+         for(int ie=0; ie<kNSplineKnots; ie++) {
 
-      for(int ie=0; ie<kNSplineKnots; ie++) {
+             double Ev = TMath::Exp(kLogEmin + ie*kdLogE);
+             p4.SetPxPyPzE(0,0,Ev,Ev);
+             interaction->GetInitialStatePtr()->SetProbeP4(p4);
 
-        double Ev = TMath::Exp(kLogEmin + ie*kdLogE);
-        p4.SetPxPyPzE(0,0,Ev,Ev);
-        interaction->GetInitialStatePtr()->SetProbeP4(p4);
+             // Get W integration range
+             Range1D_t rW = this->WRange(interaction);
+             // Get the wider possible Q2 range for the input W range
+             Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction, rW);
 
-        // Get W integration range
-        Range1D_t rW = this->WRange(interaction);
-        // Get the wider possible Q2 range for the input W range
-        Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction, rW);
+             LOG("ReinSeghalResC", pINFO) 
+	       << "*** Integrating d^2 XSec/dWdQ^2 for R: " 
+     	                 << utils::res::AsString(res) << " at Ev = " << Ev;
+             LOG("ReinSeghalResC", pINFO) 
+                                << "{W}   = " << rW.min  << ", " << rW.max;
+      	     LOG("ReinSeghalResC", pINFO) 
+                               << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
 
-        LOG("ReinSeghalResC", pINFO) 
-	  << "*** Integrating d^2 XSec/dWdQ^2 for R: " 
-     	      << utils::res::AsString(res) << " at Ev = " << Ev;
-        LOG("ReinSeghalResC", pINFO) 
-                     << "{W}   = " << rW.min  << ", " << rW.max;
-	LOG("ReinSeghalResC", pINFO) 
-                    << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
+             double xsec = 0;
 
-        double xsec = 0;
-
-        if(rW.max<rW.min || rQ2.max<rQ2.min || rW.min<0 || rQ2.min<0) {
-	  LOG("ReinSeghalResC", pINFO) 
+             if(rW.max<rW.min || rQ2.max<rQ2.min || rW.min<0 || rQ2.min<0) {
+     	          LOG("ReinSeghalResC", pINFO) 
                               << "** Not allowed kinematically, xsec=0";
-        } else {
-          GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(
+             } else {
+                  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(
                                       fSingleResXSecModel, interaction);
-          func->SetParam(0,"W",  rW);
-          func->SetParam(1,"Q2", rQ2);
-          xsec = fIntegrator->Integrate(*func);
-          delete func;
-        }
-        cache_branch->AddValues(Ev,xsec);
-        LOG("ReinSeghalResC", pNOTICE) 
-            << "RES XSec (R:" << utils::res::AsString(res)
-                                       << ", E=" << Ev << ")= " << xsec;
-      }//ie
+                  func->SetParam(0,"W",  rW);
+                  func->SetParam(1,"Q2", rQ2);
+                  xsec = fIntegrator->Integrate(*func);
+                  delete func;
+             }
+             cache_branch->AddValues(Ev,xsec);
+             SLOG("ReinSeghalResC", pNOTICE) 
+               << "RES XSec (R:" << utils::res::AsString(res)
+    	       << ", E="<< Ev << ") = "<< xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
+         }//spline knots
 
-      cache_branch->CreateSpline();
+         cache_branch->CreateSpline();
 
-    }//ires
-  }//i
+      }//ires
+    }//hit nucleon
+  }//weak current
 
   delete interaction;
 }
@@ -173,8 +185,9 @@ string ReinSeghalRESXSecWithCache::CacheBranchName(
   Cache * cache = Cache::Instance();
   string res_name = utils::res::AsString(res);
   string it_name  = InteractionType::AsString(it);
-  string nc_nuc   = "";
-  if(it == kIntWeakNC) { nc_nuc = ((nucleonpdgc==kPdgProton) ? "p" : "n"); }
+  string nc_nuc   = ((nucleonpdgc==kPdgProton) ? "p" : "n"); 
+  //  string nc_nuc   = "";
+  // if(it == kIntWeakNC) { nc_nuc = ((nucleonpdgc==kPdgProton) ? "p" : "n"); }
 
   ostringstream intk;
   intk << "ResExcitationXSec/R:" << res_name << ";nu:"  << nupdgc

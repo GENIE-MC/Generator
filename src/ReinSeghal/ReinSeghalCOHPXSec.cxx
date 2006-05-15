@@ -49,8 +49,6 @@ ReinSeghalCOHPXSec::~ReinSeghalCOHPXSec()
 double ReinSeghalCOHPXSec::XSec(
                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  LOG("ReinSeghalCoh", pDEBUG) << *fConfig;
-
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
@@ -60,16 +58,14 @@ double ReinSeghalCOHPXSec::XSec(
   //----- Compute the coherent NC pi0 production d2xsec/dxdy
   //      see page 34 in Nucl.Phys.B223:29-144 (1983)
   double E      = init_state.GetProbeE(kRfLab); // neutrino energy
-  double Mnuc   = kNucleonMass;
-  double Mpi    = kPionMass;
   double x      = kinematics.x(); // bjorken x
   double y      = kinematics.y(); // inelasticity y
-  double Q2     = 2.*x*y*Mnuc*E;  // momentum transfer Q2>0
+  double Q2     = 2.*x*y*kNucleonMass*E;  // momentum transfer Q2>0
   double A      = (double) init_state.GetTarget().A(); // mass number
   double A2     = TMath::Power(A,2.);
   double A_3    = TMath::Power(A,1./3.);
-  double Gf     = kGF2 * Mnuc / (32 * kPi3);
-  double fp     = 0.93 * Mpi; // pion decay constant
+  double Gf     = kGF2 * kNucleonMass / (32 * kPi3);
+  double fp     = 0.93 * kPionMass; // pion decay constant
   double fp2    = TMath::Power(fp,2.);
   double Epi    = y*E; // pion energy
   double ma2    = TMath::Power(fMa,2);
@@ -86,31 +82,31 @@ double ReinSeghalCOHPXSec::XSec(
   // the xsec in Nucl.Phys.B223:29-144 (1983) is d^3xsec/dxdydt but the only
   // t-dependent factor is an exp(-bt) so it can be integrated analyticaly
   double Epi2   = TMath::Power(Epi,2.);
-  double Mpi2   = kPionMass2;
   double R      = fRo * A_3; // nuclear radius
   double R2     = TMath::Power(R,2.);
   double b      = 0.33333 * R2;
-  double tA     = 1. + Mnuc*x/Epi - 0.5*Mpi2/Epi2;
-  double tB     = TMath::Sqrt(1. + 2*Mnuc*x/Epi) * TMath::Sqrt(1.-Mpi2/Epi2);
+  double MxEpi  = kNucleonMass*x/Epi;
+  double mEpi2  = kPionMass2/Epi2;
+  double tA     = 1. + MxEpi - 0.5*mEpi2;
+  double tB     = TMath::Sqrt(1. + 2*MxEpi) * TMath::Sqrt(1.-mEpi2);
   double tmin   = 2*Epi2 * (tA-tB);
   double tmax   = 2*Epi2 * (tA+tB);
+  double tint   = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; // t integral
 
-  double tint   = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; // t integration factor
-
-  double xsec = Gf * fp2 * A2 * E * (1-y) * sTot2 * (1+r2) * propg * Fabs * tint;
+  double xsec = Gf*fp2 * A2 * E*(1-y) * sTot2 * (1+r2)*propg * Fabs*tint;
 
   LOG("ReinSeghalCoh", pDEBUG)
-      << "\n momentum transfer ................ Q2    = " << Q2
-      << "\n mass number ...................... A     = " << A
-      << "\n pion energy ...................... Epi   = " << Epi
-      << "\n propagator term .................. propg = " << propg
-      << "\n Re/Im of fwd pion scat. ampl. .... Re/Im = " << fRo
-      << "\n total pi+N cross section ......... sigT  = " << sTot
-      << "\n inelastic pi+N cross section ..... sigI  = " << sInel
-      << "\n nuclear size scale ............... Ro    = " << fRo
-      << "\n pion absorption factor ........... Fabs  = " << Fabs
-      << "\n t integration range .............. [" << tmin << "," << tmax << "]"
-      << "\n t integration factor ............. tint  =" << tint;
+      << "\n momentum transfer .............. Q2    = " << Q2
+      << "\n mass number .................... A     = " << A
+      << "\n pion energy .................... Epi   = " << Epi
+      << "\n propagator term ................ propg = " << propg
+      << "\n Re/Im of fwd pion scat. ampl. .. Re/Im = " << fRo
+      << "\n total pi+N cross section ....... sigT  = " << sTot
+      << "\n inelastic pi+N cross section ... sigI  = " << sInel
+      << "\n nuclear size scale ............. Ro    = " << fRo
+      << "\n pion absorption factor ......... Fabs  = " << Fabs
+      << "\n t integration range ............ [" << tmin << "," << tmax << "]"
+      << "\n t integration factor ........... tint  =" << tint;
 
   // (CC COH xsec) = 2 * (NC COH XSEC)
   if(interaction->GetProcessInfo().IsWeakCC()) { xsec *= 2.; }
@@ -148,11 +144,10 @@ bool ReinSeghalCOHPXSec::ValidKinematics(const Interaction* interaction) const
   const InitialState & init_state = interaction -> GetInitialState();
 
   double E   = init_state.GetProbeE(kRfLab); // neutrino energy
-  double Mpi = kPionMass;
   double x   = kinematics.x(); // bjorken x
   double y   = kinematics.y(); // inelasticity y
 
-  if (E<=Mpi || x<=0 || x>=1 || y<=Mpi/E || y>=1) {
+  if (E<=kPionMass || x<=0 || x>=1 || y<=kPionMass/E || y>=1) {
 
     LOG("ReinSeghalCoh", pINFO)
              << "d2xsec/dxdy[COH] (x= " << x << ", y="
