@@ -816,23 +816,22 @@ void GHepRecord::Print(ostream & stream) const
      // particles (rootino, bindino, ...) used to record non-fake physics.
      // Ignore initial & final state ions (if any).
 
-     if( p->IsParticle() || p->IsFake() ) {
-
-       if(p->Status() == kIStStableFinalState) {
+     if(p->Status() == kIStStableFinalState) {
 
           sum_E  += p->E();
           sum_px += p->Px();
           sum_py += p->Py();
           sum_pz += p->Pz();
-       }
-       else if(p->Status() == kIStInitialState || p->Status() == kIStNucleonTarget) {
-
+     } else 
+     if(p->Status() == kIStInitialState) {
+       /*
+     if(p->Status() == kIStInitialState || p->Status() == kIStNucleonTarget) {
+       */
           sum_E  -= p->E();
           sum_px -= p->Px();
           sum_py -= p->Py();
           sum_pz -= p->Pz();
-       }
-     }// !nucleus
+     }
 
   } // loop over particles
 
