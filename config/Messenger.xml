@@ -35,7 +35,8 @@
   <priority msgstream="CFracTab">            INFO   </priority>
   <priority msgstream="COHXSec">             INFO   </priority>
   <priority msgstream="CLAP">                NOTICE </priority>
-  <priority msgstream="COHHadronicVtx">      NOTICE </priority>
+  <priority msgstream="COHHadronicVtx">      INFO   </priority>
+  <priority msgstream="COHKinematics">       NOTICE </priority>
   <priority msgstream="Decay">               INFO   </priority>
   <priority msgstream="DISSF">               INFO   </priority>
   <priority msgstream="DISXSec">             INFO   </priority>

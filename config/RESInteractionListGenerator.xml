@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!--
+
+Algorithm Configurable Parameters:
+..........................................................................................................................
+Name                        Type    Opt  Comment                                               Default
+..........................................................................................................................
+resonance-name-list         string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
+is-CC                       bool    Yes  set true for CC list                                  false
+is-NC                       bool    Yes  set true for NC list                                  false
+-->
+
 <alg_conf>
 
   <param_set name="CC-Default">
-    <param type="bool" name="is-CC"> true  </param>
-    <param type="string" name="resonance-name-list">
-                   P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
-                   D33(1700),P11(1440),P13(1720),F15(1680),P31(1910),P33(1920),
-                   F35(1905),F37(1950),P11(1710)
-     </param>
+    <param type="bool" name="is-CC"> true </param>
   </param_set>
-
 
   <param_set name="NC-Default">
     <param type="bool" name="is-NC"> true </param>
-    <param type="string" name="resonance-name-list">
-                   P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
-                   D33(1700),P11(1440),P13(1720),F15(1680),P31(1910),P33(1920),
-                   F35(1905),F37(1950),P11(1710)
-     </param> 
  </param_set>
 
 </alg_conf>

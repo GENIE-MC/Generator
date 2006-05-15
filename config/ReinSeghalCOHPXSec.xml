@@ -15,13 +15,6 @@ Re-Im-Ampl     double   Yes        Re/Im of fwd amplitude  GPL value: COH-ReImAm
 <alg_conf>
 
   <param_set name="Default"> 
-
-  </param_set>
-
-  <param_set name="Tweaked"> 
-     <param type="double"  name="Ma">          0.9   </param>
-     <param type="double"  name="Ro">          0.7   </param>
-     <param type="double"  name="Re-Im-Ampl">  0.4   </param>
   </param_set>
 
 </alg_conf>
