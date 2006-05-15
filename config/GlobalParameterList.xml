@@ -4,78 +4,112 @@
 
   <param_set name="Default"> 
 
-     <!-- CKM quark mixing parameters -->
+     <!-- 
+       CKM quark mixing parameters 
+     -->
      <param type="double" name="CKM-Vud">  0.9738  </param>
      <param type="double" name="CKM-Vus">  0.2200  </param>
      <param type="double" name="CKM-Vcd">  0.2240  </param>
      <param type="double" name="CKM-Vcs">  0.9960  </param>
 
-     <!-- Constants in Feynman-Kislinger-Ravndal model for baryon excitation -->
+     <!-- 
+       Constants in Feynman-Kislinger-Ravndal model for baryon excitation 
+     -->
      <param type="double" name="RS-Omega"> 1.05 </param>
      <param type="double" name="RS-Zeta">  0.75 </param>
 
-     <!-- Proton and neutron anomalous magnetic moments -->
+     <!-- 
+       Proton and neutron anomalous magnetic moments 
+     -->
      <param type="double" name="AnomMagnMoment-P">   2.7928473  </param>
      <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
 
-     <!-- Axial and vector masses for elastic scattering  -->
+     <!-- 
+       Axial and vector masses for elastic scattering  
+     -->
      <param type="double" name="EL-Ma">  1.032  </param>
      <param type="double" name="EL-Mv">  0.840  </param> 
 
-     <!-- Axial and vector masses for quasi-elastic scattering  -->
+     <!-- 
+       Axial and vector masses for quasi-elastic scattering  
+     -->
      <param type="double" name="QEL-Ma"> 1.032 </param>
      <param type="double" name="QEL-Mv"> 0.840 </param>
 
-     <!-- Axial and vector masses for resonance production  -->
+     <!-- 
+       Axial and vector masses for resonance production  
+     -->
      <param type="double" name="RES-Ma"> 1.032 </param>
      <param type="double" name="RES-Mv"> 0.840 </param>
 
-     <!-- Axial mass for coherent scattering -->
+     <!-- 
+       Axial mass for coherent scattering 
+      -->
      <param type="double" name="COH-Ma"> 1.032 </param>
 
-     <!-- Value of axial form factor at Q2=0  -->
+     <!-- 
+       Value of axial form factor at Q2=0  
+     -->
      <param type="double" name="QEL-FA0"> -1.260 </param>
 
-     <!-- Parameter eta controlling the strange axial form factor -->
+     <!-- 
+       Parameter eta controlling the strange axial form factor 
+     -->
      <param type="double" name="EL-Axial-Eta"> 0.12 </param>
 
-     <!-- Nuclear scale parameter in coherent scattering  -->
+     <!-- 
+       Nuclear scale parameter in coherent scattering  
+     -->
      <param type="double" name="COH-Ro"> 1.000 </param>
 
-     <!-- Real over imaginary fwd scattering amplitude in coherent interactions -->
+     <!-- 
+       Real over imaginary fwd scattering amplitude in coherent interactions 
+     -->
      <param type="double" name="COH-ReImAmpl"> 0.300 </param>
 
-     <!-- Cv and Ca parameters for neutrino-electron elastic scattering -->
+     <!-- 
+       Cv and Ca parameters for neutrino-electron elastic scattering 
+     -->
      <param type="double" name="NuElecEL-CV"> -0.52 </param>
      <param type="double" name="NuElecEL-CA">  0.06 </param>
 
-     <!-- Cabbibo and Weinberg angles -->
+     <!-- 
+       Cabbibo and Weinberg angles 
+     -->
      <param type="double" name="CabbiboAngle">  0.226893 </param> 
      <param type="double" name="WeinbergAngle"> 0.501568 </param> 
 
-     <!-- Charm mass -->
+     <!-- 
+       Charm mass 
+     -->
      <param type="double" name="Charm-Mass"> 1.300 </param>
 
-     <!-- Default list of baryon resonances included in xsec models and generation threads -->
+     <!-- 
+       Default list of baryon resonances included in xsec models and generation threads 
+     -->
      <param type="string" name="ResonanceNameList">
          P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
          D33(1700),P11(1440),P13(1720),F15(1680),P31(1910),P33(1920),
          F35(1905),F37(1950),P11(1710)
      </param>
 
-     <!-- Data for building the KNO spline -->
-     <param type="string" name="KNO-Distribution">
-         data/kno/KNO.dat
-     </param>
+     <!-- 
+       Data for building the KNO spline 
+     -->
+     <param type="string" name="KNO-Distribution"> data/kno/KNO.dat </param>
 
-     <!-- Parameters controlling the hadronic multiplicities in the KNO hadronizer -->
+     <!-- 
+       Parameters controlling the hadronic multiplicities in the KNO hadronizer 
+     -->
      <param type="double" name="KNO-Beta">      1.30 </param> 
      <param type="double" name="KNO-Alpha-vp">  0.50 </param> 
      <param type="double" name="KNO-Alpha-vn">  0.00 </param> 
      <param type="double" name="KNO-Alpha-vbp"> 0.20 </param> 
      <param type="double" name="KNO-Alpha-vbn"> 0.20 </param> 
      
-     <!-- NEUGEN parameters weighting the DIS hadronic multiplicity distributions to avoid 2-ble counting -->
+     <!-- 
+       NEUGEN parameters weighting the DIS hadronic multiplicity distributions to avoid 2-ble counting 
+     -->
      <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.000  </param>
      <param type="double" name="DIS-HMultWgt-vp-CC-m3">  1.000  </param>
      <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.000  </param>
@@ -93,19 +127,23 @@
      <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.000  </param>
      <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 0.133  </param>
 
-     <!-- RES/DIS joining parameter Wcut -->
+     <!-- 
+       RES/DIS joining parameter Wcut 
+     -->
      <param type="double" name="Wcut"> 1.4 </param>
 
-     <!-- INTRANUKE parameters -->
+     <!-- 
+       INTRANUKE parameters 
+     -->
      <param type="double" name="INUKE-FormationZone"> 2.0  </param>
      <param type="double" name="INUKE-KPt2">          1.0  </param>
      <param type="double" name="INUKE-Ro">            1.2  </param>
 
      <!--
-         GL       =  (1./2.) - (2./3.)* sin8w^2 
-         GR       =          - (2./3.)* sin8w^2
-         GLprime  = -(1./2.) + (1./3.)* sin8w^2
-         GRprime  =            (1./3.)* sin8w^2
+       GL       =  (1./2.) - (2./3.)* sin8w^2 
+       GR       =          - (2./3.)* sin8w^2
+       GLprime  = -(1./2.) + (1./3.)* sin8w^2
+       GRprime  =            (1./3.)* sin8w^2
      -->
      <param type="double" name="GL">       0.345887  </param> 
      <param type="double" name="GR">      -0.154113  </param> 

@@ -11,7 +11,7 @@ Name                        Type    Opt  Comment                                
 ..........................................................................................................................
 single-res-xsec-alg-name    string  No   algorithm used for computing res excitation xsec
 single-res-xsec-param-set   string  No   ... and its config set
-resonance-name-list         string  No   list of resonances to be taken into account
+resonance-name-list         string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
 -->
 
 <!--
@@ -24,20 +24,15 @@ resonance-name-list         string  No   list of resonances to be taken into acc
   </param_set>
 
 <!--
-  In this configuration set we include all the resonances apart from the ambiguous P33(1600), F17(1970)
+  In this configuration set we include all the resonances defined in GlobalParameterList
 -->
   <param_set name="Default"> 
      <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec  </param>
      <param type="string" name="single-res-xsec-param-set">  Default                    </param>
-     <param type="string" name="resonance-name-list">  
-                   P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
-                   D33(1700),P11(1440),P13(1720),F15(1680),P31(1910),P33(1920),
-                   F35(1905),F37(1950),P11(1710)
-     </param>
   </param_set>
 
 <!--
-  In this configuration set we include all resonances known to GENIE
+  In this configuration set we include all resonances known to GENIE including the the ambiguous P33(1600), F17(1970)
 -->
   <param_set name="AllResonances"> 
      <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec  </param>
