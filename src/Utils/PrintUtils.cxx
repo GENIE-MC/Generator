@@ -36,9 +36,13 @@ string genie::utils::print::P4AsString(const TLorentzVector * p)
   fmt << "(E = " << p->Energy()
       << ", px = " << p->Px()
       << ", py = " << p->Py()
-      << ", pz = " << p->Pz() << ")"
-      << " / M = " << TMath::Sqrt( TMath::Max(0., p->Mag2()) )
-      << " / P = " << p->P();
+      << ", pz = " << p->Pz() << ")";
+
+  double m2 = p->Mag2();
+  if(m2>0.) fmt << " / M = " << TMath::Sqrt(m2);
+  else      fmt << " / M^2 = " << m2;
+
+  fmt << " / P = " << p->P();
 
   return fmt.str();
 }
