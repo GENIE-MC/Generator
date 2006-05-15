@@ -13,8 +13,10 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
@@ -26,6 +28,7 @@
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::units;
 
 //____________________________________________________________________________
 ReinSeghalRESXSec::ReinSeghalRESXSec() :
@@ -103,8 +106,8 @@ double ReinSeghalRESXSec::XSec(
   double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
 
   SLOG("ReinSeghalResT", pNOTICE)  
-    << "XSec[RES/" << utils::res::AsString(res)
-                             << "/free] (Ev = " << Ev << " GeV) = " << rxsec;
+    << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
+               << Ev << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
 
   //-- If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return rxsec;
@@ -150,6 +153,9 @@ void ReinSeghalRESXSec::Configure(string config)
 //____________________________________________________________________________
 void ReinSeghalRESXSec::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   fSingleResXSecModel = 0;
   fIntegrator = 0;
 
@@ -165,8 +171,8 @@ void ReinSeghalRESXSec::LoadConfig(void)
   assert (fIntegrator);
 
   // user cuts in W,Q2
-  fWminCut  = fConfig->GetDoubleDef("Wmin", -1.0);
-  fWmaxCut  = fConfig->GetDoubleDef("Wmax",  1e9);
+  fWminCut  = fConfig->GetDoubleDef("Wmin", - 1.0);
+  fWmaxCut  = fConfig->GetDoubleDef("Wmax",   1e9);
   fQ2minCut = fConfig->GetDoubleDef("Q2min", -1.0);
   fQ2maxCut = fConfig->GetDoubleDef("Q2max",  1e9);
 
@@ -176,8 +182,8 @@ void ReinSeghalRESXSec::LoadConfig(void)
 
   // create the baryon resonance list specified in the config.
   fResList.Clear();
-  assert( fConfig->Exists("resonance-name-list") );
-  string resonances = fConfig->GetString("resonance-name-list");
+  string resonances = fConfig->GetStringDef(
+                   "resonance-name-list", gc->GetString("ResonanceNameList"));
   fResList.DecodeFromNameList(resonances);
 }
 //____________________________________________________________________________
