@@ -3,10 +3,8 @@
 
 \class    genie::AlgConfigPool
 
-\brief    A singleton class which holds all configuration registries assembled
-          from XML configuration files for all (agorithm-name, parameter-set)
-          pairs. Any algorithmic object can get an instance of the algorithm
-          config. pool and query it to learn its configuration parameters.
+\brief    A singleton class holding all configuration registries built while
+          parsing all loaded XML configuration files. 
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
