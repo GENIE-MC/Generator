@@ -61,6 +61,10 @@ double ReinSeghalRESPXSec::XSec(
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
+  const InitialState & init_state = interaction -> GetInitialState();
+  const ProcessInfo &  proc_info  = interaction -> GetProcessInfo();
+  const Target & target = init_state.GetTarget();
+
   //----- Get kinematical parameters
   const Kinematics & kinematics = interaction -> GetKinematics();
   double W  = kinematics.W();
@@ -76,25 +80,36 @@ double ReinSeghalRESPXSec::XSec(
     }
   }
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  const ProcessInfo &  proc_info  = interaction -> GetProcessInfo();
-  const Target & target = init_state.GetTarget();
-
-  double E       = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Mnuc    = target.StruckNucleonMass(); 
-  int    nucpdgc = target.StruckNucleonPDGCode();
-
   //-- Get the input baryon resonance
   Resonance_t resonance = interaction->GetExclusiveTag().Resonance();
   string      resname   = utils::res::AsString(resonance);
+  bool        is_delta  = utils::res::IsDelta (resonance);
+
+  //-- Get the neutrino & hit nucleon 
+  int  nucpdgc = target.StruckNucleonPDGCode();
+  int  nupdgc  = init_state.GetProbePDGCode();
+  bool is_nu    = pdg::IsNeutrino     (nupdgc);
+  bool is_nubar = pdg::IsAntiNeutrino (nupdgc);
+  bool is_p     = pdg::IsProton       (nucpdgc);
+  bool is_n     = pdg::IsNeutron      (nucpdgc);
+
+  if(!is_delta) {
+    if((is_nu && is_p) || (is_nubar && is_n)) return 0;
+  }
+
+  double mult = 1.0;
+  if(is_delta) {
+    if((is_nu && is_p) || (is_nubar && is_n)) mult=3.0;
+  }
 
   //-- Compute Baryon Resonance params 
   fBRP.RetrieveData(resonance);  
-
   double Mres    = fBRP.Mass();
   int    nresidx = fBRP.ResonanceIndex();
 
-  //-- Compute auxiliary & kinematical factors for the Rein-Seghal model
+  //-- Compute auxiliary & kinematical factors 
+  double E      = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Mnuc   = target.StruckNucleonMass(); 
   double W2     = TMath::Power(W, 2);
   double Mnuc2  = TMath::Power(Mnuc, 2);
   double k      = 0.5 * (W2 - Mnuc2)/Mnuc;
@@ -124,8 +139,6 @@ double ReinSeghalRESPXSec::XSec(
   const RSHelicityAmplModelI * hamplmod = 0;
 
   bool is_CC = proc_info.IsWeakCC();
-  bool is_p  = pdg::IsProton(nucpdgc);
-
   if(is_CC)   { hamplmod = fHAmplModelCC; }
   else {
     if (is_p) { hamplmod = fHAmplModelNCp;}
@@ -160,15 +173,13 @@ double ReinSeghalRESPXSec::XSec(
                              << xsec_right << " SSC = " << xsec_scalar;
 
   //-- Compute the cross section
-  int  nupdgc  = init_state.GetProbePDGCode();
-  bool is_nu   = pdg::IsNeutrino(nupdgc);
-
   double xsec = 0;
   if (is_nu) {
      xsec = Gf*Wf*(U2 * xsec_left + V2 * xsec_right + 2*UV*xsec_scalar);
   } else {
      xsec = Gf*Wf*(V2 * xsec_left + U2 * xsec_right + 2*UV*xsec_scalar);
   }
+  xsec *= mult;
 
   //-- Check whether the cross section is to be weighted with a
   //   Breit-Wigner distribution (default: true)
