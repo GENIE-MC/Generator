@@ -211,7 +211,7 @@ public:
     switch (channel) {
 
       //-- v CC
-      case (kSpp_vp_cc_10100) : return (is_delta) ? (3.0)    : (0.0);    break;
+      case (kSpp_vp_cc_10100) : return (is_delta) ? (1.0)    : (0.0);    break;
       case (kSpp_vn_cc_10010) : return (is_delta) ? (iw_2_3) : (iw_1_3); break;
       case (kSpp_vn_cc_01100) : return (is_delta) ? (iw_1_3) : (iw_2_3); break;
 
@@ -224,7 +224,7 @@ public:
       //-- same as for neutrinos (? - check)
 
       //-- vbar CC
-      case (kSpp_vbn_cc_01001): return (is_delta) ? (3.0)    : (0.0);    break;
+      case (kSpp_vbn_cc_01001): return (is_delta) ? (1.0)    : (0.0);    break;
       case (kSpp_vbp_cc_01010): return (is_delta) ? (iw_2_3) : (iw_1_3); break;
       case (kSpp_vbp_cc_10001): return (is_delta) ? (iw_1_3) : (iw_2_3); break;
 
