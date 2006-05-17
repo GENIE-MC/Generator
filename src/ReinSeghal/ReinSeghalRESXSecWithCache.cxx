@@ -130,37 +130,44 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
          cache->AddCacheBranch(key, cache_branch);
          assert(cache_branch);
 
+         double EvThr = utils::kinematics::EnergyThreshold(interaction);
+         LOG("ReinSeghalResC", pNOTICE) << "E threshold = " << EvThr;
+
          for(int ie=0; ie<kNSplineKnots; ie++) {
 
-             double Ev = TMath::Exp(kLogEmin + ie*kdLogE);
+             double xsec = 0.;
+             double Ev   = TMath::Exp(kLogEmin + ie*kdLogE);
              p4.SetPxPyPzE(0,0,Ev,Ev);
              interaction->GetInitialStatePtr()->SetProbeP4(p4);
 
-             // Get W integration range
-             Range1D_t rW = this->WRange(interaction);
-             // Get the wider possible Q2 range for the input W range
-             Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction, rW);
+             if(Ev>EvThr) {
+               // Get W integration range
+               Range1D_t rW = this->WRange(interaction);
+               // Get the wider possible Q2 range for the input W range
+               Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction, rW);
 
-             LOG("ReinSeghalResC", pINFO) 
-	       << "*** Integrating d^2 XSec/dWdQ^2 for R: " 
+               LOG("ReinSeghalResC", pINFO) 
+	         << "*** Integrating d^2 XSec/dWdQ^2 for R: " 
      	                 << utils::res::AsString(res) << " at Ev = " << Ev;
-             LOG("ReinSeghalResC", pINFO) 
+               LOG("ReinSeghalResC", pINFO) 
                                 << "{W}   = " << rW.min  << ", " << rW.max;
-      	     LOG("ReinSeghalResC", pINFO) 
+      	       LOG("ReinSeghalResC", pINFO) 
                                << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
 
-             double xsec = 0;
-
-             if(rW.max<rW.min || rQ2.max<rQ2.min || rW.min<0 || rQ2.min<0) {
+               if(rW.max<rW.min || rQ2.max<rQ2.min || rW.min<0 || rQ2.min<0) {
      	          LOG("ReinSeghalResC", pINFO) 
                               << "** Not allowed kinematically, xsec=0";
-             } else {
+               } else {
                   GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(
                                       fSingleResXSecModel, interaction);
                   func->SetParam(0,"W",  rW);
                   func->SetParam(1,"Q2", rQ2);
                   xsec = fIntegrator->Integrate(*func);
                   delete func;
+               }
+             } else {
+                 LOG("ReinSeghalResC", pINFO) 
+ 		       << "** Below threshold E = " << Ev << " <= " << EvThr;
              }
              cache_branch->AddValues(Ev,xsec);
              SLOG("ReinSeghalResC", pNOTICE) 

@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <TSystem.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
@@ -25,6 +26,7 @@
 #include "Conventions/KineVar.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "ReinSeghal/ReinSeghalRESPXSec.h"
@@ -41,13 +43,15 @@ using namespace genie::constants;
 ReinSeghalRESPXSec::ReinSeghalRESPXSec() :
 XSecAlgorithmI("genie::ReinSeghalRESPXSec")
 {
-
+  fNuTauRdSpl    = 0;
+  fNuTauBarRdSpl = 0;
 }
 //____________________________________________________________________________
 ReinSeghalRESPXSec::ReinSeghalRESPXSec(string config) :
 XSecAlgorithmI("genie::ReinSeghalRESPXSec", config)
 {
-
+  fNuTauRdSpl    = 0;
+  fNuTauBarRdSpl = 0;
 }
 //____________________________________________________________________________
 ReinSeghalRESPXSec::~ReinSeghalRESPXSec()
@@ -97,15 +101,15 @@ double ReinSeghalRESPXSec::XSec(
     if((is_nu && is_p) || (is_nubar && is_n)) return 0;
   }
 
-  double mult = 1.0;
-  if(is_delta) {
-    if((is_nu && is_p) || (is_nubar && is_n)) mult=3.0;
-  }
-
-  //-- Compute Baryon Resonance params 
+  //-- Get baryon resonance parameters
   fBRP.RetrieveData(resonance);  
-  double Mres    = fBRP.Mass();
-  int    nresidx = fBRP.ResonanceIndex();
+  double Mres = fBRP.Mass();
+  double Gres = fBRP.Width();
+  int    Nres = fBRP.ResonanceIndex();
+
+  //-- Following NeuGEN, for n=2 resonances be restrictive in
+  //   the allowed W range to avoid nad resonance behaviour
+  if(Nres == 2 && W > Mres * fMaxN2ResAllowedWidth * Gres) return 0.;
 
   //-- Compute auxiliary & kinematical factors 
   double E      = init_state.GetProbeE(kRfStruckNucAtRest);
@@ -129,7 +133,7 @@ double ReinSeghalRESPXSec::XSec(
   //-- Calculate the Feynman-Kislinger-Ravndall parameters
   LOG("ReinSeghalRes", pDEBUG) << "Computing the FKR parameters";
 
-  fFKR.Calculate(q2,W,Mnuc,nresidx);
+  fFKR.Calculate(q2,W,Mnuc,Nres);
   LOG("FKR", pDEBUG) 
            << "FKR params for RES=" << resname << " : " << fFKR;
 
@@ -173,11 +177,15 @@ double ReinSeghalRESPXSec::XSec(
                              << xsec_right << " SSC = " << xsec_scalar;
 
   //-- Compute the cross section
-  double xsec = 0;
+  double xsec = 0.0;
+  double mult = 1.0;
   if (is_nu) {
      xsec = Gf*Wf*(U2 * xsec_left + V2 * xsec_right + 2*UV*xsec_scalar);
   } else {
      xsec = Gf*Wf*(V2 * xsec_left + U2 * xsec_right + 2*UV*xsec_scalar);
+  }
+  if(is_delta) {
+    if((is_nu && is_p) || (is_nubar && is_n)) mult=3.0;
   }
   xsec *= mult;
 
@@ -191,12 +199,19 @@ double ReinSeghalRESPXSec::XSec(
   } else {
       LOG("ReinSeghalRes", pDEBUG) << "Breit-Wigner wght is turned-off";
   }
+  xsec *= bw; 
 
-  double wxsec = bw * xsec; // weighted-xsec
+  //-- Apply NeuGEN nutau cross section reduction factors
+  double rf = 1.0;
+  if (fUsingNuTauScaling) {
+    if      (pdg::IsNuTau(nupdgc)    ) rf = fNuTauRdSpl   ->Evaluate(E);
+    else if (pdg::IsAntiNuTau(nupdgc)) rf = fNuTauBarRdSpl->Evaluate(E);
+  }
+  xsec *= rf;
 
   LOG("ReinSeghalRes", pINFO) 
     << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
-          << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << wxsec;
+          << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
 
   //-- The algorithm computes d^2xsec/dWdQ2
   //   Check whether variable tranformation is needed
@@ -206,14 +221,14 @@ double ReinSeghalRESPXSec::XSec(
   }
 
   //-- If requested return the free nucleon xsec even for input nuclear tgt
-  if( interaction->TestBit(kIAssumeFreeNucleon) ) return wxsec;
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //-- number of scattering centers in the target
   int NNucl = (is_p) ? target.Z() : target.N();
 
-  wxsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
+  xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
 
-  return wxsec;
+  return xsec;
 }
 //____________________________________________________________________________
 bool ReinSeghalRESPXSec::ValidProcess(const Interaction * interaction) const
@@ -339,10 +354,37 @@ void ReinSeghalRESPXSec::LoadConfig(void)
   assert( fHAmplModelNCp );
   assert( fHAmplModelNCn );
 
+  //-- Use algorithm within a DIS/RES join scheme. If yes get Wcut
   fUsingDisResJoin = fConfig->GetBoolDef("use-dis-res-joining-scheme", false);
   fWcut = 999999;
   if(fUsingDisResJoin) {
     fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+  }
+
+  //-- NeuGEN limit in allowed phase space avoiding bad behaviour of n=2 
+  //   resonances: W < min{ Wmin(physical), (res mass) + x * (res width) }
+  //   where x is the following parameter:
+  fMaxN2ResAllowedWidth = fConfig->GetDoubleDef("max-widths-for-n2-res", 2.0);
+
+  //-- NeuGEN reduction factors for nu_tau: a gross estimate of the effect of
+  //   neglected form factors in the R/S model
+  fUsingNuTauScaling = fConfig->GetBoolDef("use-nutau-scaling-factors", true);
+  if(fUsingNuTauScaling) {
+     if(fNuTauRdSpl)    delete fNuTauRdSpl;
+     if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
+
+     assert(gSystem->Getenv("GENIE"));
+     string base = gSystem->Getenv("GENIE");
+
+     string filename = base + "/data/etc/rs-res-xsec-scaling-nutau.dat";
+     LOG("ReinSeghalRes", pNOTICE) 
+                << "Loading nu_tau xsec reduction spline from: " << filename;
+     fNuTauRdSpl = new Spline(filename);
+
+     filename = base + "/data/etc/rs-res-xsec-scaling-nutaubar.dat";
+     LOG("ReinSeghalRes", pNOTICE) 
+           << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
+     fNuTauBarRdSpl = new Spline(filename);
   }
 }
 //____________________________________________________________________________

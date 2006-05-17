@@ -47,6 +47,7 @@ namespace genie {
 class BreitWignerI;
 class BaryonResDataSetI;
 class RSHelicityAmplModelI;
+class Spline;
 
 class ReinSeghalRESPXSec : public XSecAlgorithmI {
 
@@ -87,8 +88,13 @@ private:
   const RSHelicityAmplModelI * fHAmplModelNCp;
   const RSHelicityAmplModelI * fHAmplModelNCn;
 
-  bool   fUsingDisResJoin;  ///< use a DIS/RES joining scheme?
-  double fWcut;             ///< apply DIS/RES joining scheme < Wcut
+  bool   fUsingDisResJoin;      ///< use a DIS/RES joining scheme?
+  bool   fUsingNuTauScaling;    ///< use NeuGEN nutau xsec reduction factors?
+  double fWcut;                 ///< apply DIS/RES joining scheme < Wcut
+  double fMaxN2ResAllowedWidth; ///< limits allowed phase space for n=2 resonances
+
+  Spline * fNuTauRdSpl;    ///< xsec reduction spline for nu_tau
+  Spline * fNuTauBarRdSpl; ///< xsec reduction spline for nu_tau_bar
 };
 
 }       // genie namespace
