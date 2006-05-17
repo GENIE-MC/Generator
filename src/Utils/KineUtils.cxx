@@ -226,6 +226,11 @@ Range1D_t genie::utils::kinematics::WRange(
   W.min  = kNeutronMass + kPionMass;
   W.max  = TMath::Sqrt(s)-ml;
 
+  if(W.max<=W.min) {
+    W.min = -1;
+    W.max = -1;
+  }
+
   return W;
 }
 //____________________________________________________________________________
@@ -329,31 +334,33 @@ Range1D_t genie::utils::kinematics::Q2Range_W(
 double genie::utils::kinematics::EnergyThreshold(
                                         const Interaction * const interaction)
 {
-  const Target & tgt = interaction->GetInitialState().GetTarget();
-
-  double Ethr  = 0;
-  double ml    = interaction->GetFSPrimaryLepton()->Mass();
-  double ml2   = ml*ml;
-  double Mnuc  = tgt.StruckNucleonIsSet() ?
-                           tgt.StruckNucleonP4()->M() : kNucleonMass;
-  double Mnuc2 = Mnuc*Mnuc;
-
+  const Target &      tgt  = interaction->GetInitialState().GetTarget();
   const ProcessInfo & proc = interaction->GetProcessInfo();
 
-  if(proc.IsResonant() || proc.IsDeepInelastic()) {
-      Range1D_t rW    = utils::kinematics::WRange(interaction);
-      double    Wmin  = rW.min;
-      double    Wmin2 = Wmin*Wmin;
+  double ml    = interaction->GetFSPrimaryLepton()->Mass();
+  double Mnuc  = tgt.StruckNucleonIsSet() ?
+                                 tgt.StruckNucleonP4()->M() : kNucleonMass;
+  double Mnuc2 = TMath::Power(Mnuc,2);
 
-      Ethr = (ml2 + Wmin2 + 2*ml*Wmin - Mnuc2) / (2*Mnuc);
+
+  double Wmin = 0;
+  if (proc.IsQuasiElastic()) 
+  {
+    Wmin = Mnuc;
   }
-  else if (proc.IsQuasiElastic()) {
-      Ethr = (ml2 + 2*ml*Mnuc) / (2*Mnuc);
-  }
+  else if (proc.IsResonant() || proc.IsDeepInelastic()) 
+  {
+    Wmin = kNeutronMass+kPionMass;
+  } 
   else {
-      SLOG("KineLimits", pERROR)
-	<< "Couldn't compute threshold for \n" << *interaction;
+     SLOG("KineLimits", pERROR)
+      	               << "Can't compute threshold for \n" << *interaction;
+     exit(1);
   }
+
+  double smin = TMath::Power(Wmin+ml,2.);
+  double Ethr = 0.5*(smin-Mnuc2)/Mnuc;
+
   return Ethr;
 }
 //____________________________________________________________________________
