@@ -123,13 +123,21 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
   GHepParticle * resonance = evrec->Particle(irpos);
   assert(resonance);
 
-  // do the decay
+  // prepare the decayer inputs
   DecayerInputs_t dinp;
   dinp.PdgCode = pdgc;
   dinp.P4      = resonance->P4();
+
+  // do the decay
   TClonesArray * decay_products = fResonanceDecayer->Decay(dinp);
 
-  // decide istatus of decay products
+  // get the decay weight (if any)
+  double wght = fResonanceDecayer->Weight();
+
+  // update the event weight
+  evrec->SetWeight(wght * evrec->GetWeight());
+
+  // decide the istatus of decay products
   GHepParticle * nuc = evrec->TargetNucleus();
   GHepStatus_t dpist = (nuc) ? kIStHadronInTheNucleus : kIStStableFinalState;
 
