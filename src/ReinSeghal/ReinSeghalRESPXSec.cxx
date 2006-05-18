@@ -56,7 +56,8 @@ XSecAlgorithmI("genie::ReinSeghalRESPXSec", config)
 //____________________________________________________________________________
 ReinSeghalRESPXSec::~ReinSeghalRESPXSec()
 {
-
+  if(fNuTauRdSpl)    delete fNuTauRdSpl;
+  if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
 }
 //____________________________________________________________________________
 double ReinSeghalRESPXSec::XSec(
@@ -117,15 +118,13 @@ double ReinSeghalRESPXSec::XSec(
   //-- Compute auxiliary & kinematical factors 
   double E      = init_state.GetProbeE(kRfStruckNucAtRest);
   double Mnuc   = target.StruckNucleonMass(); 
-  double W2     = TMath::Power(W, 2);
+  double W2     = TMath::Power(W,    2);
   double Mnuc2  = TMath::Power(Mnuc, 2);
   double k      = 0.5 * (W2 - Mnuc2)/Mnuc;
   double v      = k - 0.5 * q2/Mnuc;
   double v2     = TMath::Power(v, 2);
   double Q2     = v2 - q2;
   double Q      = TMath::Sqrt(Q2);
-  double Gf     = kGF2 / (4*kPi2);
-  double Wf     = (-q2/Q2) * (W/Mnuc) * k;
   double Eprime = E - v;
   double U      = 0.5 * (E + Eprime + Q) / E;
   double V      = 0.5 * (E + Eprime - Q) / E;
@@ -157,36 +156,28 @@ double ReinSeghalRESPXSec::XSec(
   assert(hampl);
 
   LOG("RSHAmpl", pDEBUG)
-     << "Helicity Ampl for RES=" << resname << " : " << *hampl;
-
-  //-- Calculate Helicity Cross Sections
-  double xsec_left   = TMath::Power( hampl->AmpPlus3(),  2. ) +
-                       TMath::Power( hampl->AmpPlus1(),  2. );
-  double xsec_right  = TMath::Power( hampl->AmpMinus3(), 2. ) +
-                       TMath::Power( hampl->AmpMinus1(), 2. );
-  double xsec_scalar = TMath::Power( hampl->Amp0Plus(),  2. ) +
-                       TMath::Power( hampl->Amp0Minus(), 2. );
-  delete hampl;
-
-  double scale_lr = 0.5*(kPi/k)*(Mres/Mnuc);
-  double scale_sc = 0.5*(kPi/k)*(Mnuc/Mres);
-
-  xsec_left   *=  scale_lr;
-  xsec_right  *=  scale_lr;
-  xsec_scalar *= (scale_sc*(-Q2/q2));
-
-  LOG("ReinSeghalRes", pDEBUG)
-          << "SL = " << xsec_left << ", SR = " 
-                             << xsec_right << " SSC = " << xsec_scalar;
+    << "Helicity Ampl for RES=" << resname << " : " << *hampl;
 
   //-- Compute the cross section
+
+  double sig0 = 0.125*(kGF2/kPi)*(-q2/Q2)*(W/Mnuc);
+  double scLR = W/Mnuc;
+  double scS  = (Mnuc/W)*(-Q2/q2);
+  double sigL = scLR* (hampl->Amp2Plus3 () + hampl->Amp2Plus1 ());
+  double sigR = scLR* (hampl->Amp2Minus3() + hampl->Amp2Minus1());
+  double sigS = scS * (hampl->Amp20Plus () + hampl->Amp20Minus());
+
+  delete hampl;
+
   double xsec = 0.0;
-  double mult = 1.0;
   if (is_nu) {
-     xsec = Gf*Wf*(U2 * xsec_left + V2 * xsec_right + 2*UV*xsec_scalar);
+     xsec = sig0*(V2*sigR + U2*sigL + 2*UV*sigS);
   } else {
-     xsec = Gf*Wf*(V2 * xsec_left + U2 * xsec_right + 2*UV*xsec_scalar);
+     xsec = sig0*(U2*sigR + V2*sigL + 2*UV*sigS);
   }
+  xsec = TMath::Max(0.,xsec);
+
+  double mult = 1.0;
   if(is_delta) {
     if((is_nu && is_p) || (is_nubar && is_n)) mult=3.0;
   }
@@ -206,9 +197,14 @@ double ReinSeghalRESPXSec::XSec(
 
   //-- Apply NeuGEN nutau cross section reduction factors
   double rf = 1.0;
+  Spline * spl = 0;
   if (fUsingNuTauScaling) {
-    if      (pdg::IsNuTau(nupdgc)    ) rf = fNuTauRdSpl   ->Evaluate(E);
-    else if (pdg::IsAntiNuTau(nupdgc)) rf = fNuTauBarRdSpl->Evaluate(E);
+    if      (pdg::IsNuTau(nupdgc)    ) spl = fNuTauRdSpl;
+    else if (pdg::IsAntiNuTau(nupdgc)) spl = fNuTauBarRdSpl;
+
+    if(spl) {
+      if(E <spl->XMax()) rf = spl->Evaluate(E);
+    }
   }
   xsec *= rf;
 
