@@ -20,17 +20,17 @@
        <param type="bool"   name="P33(1232)-IsN">             false    </param>
        <param type="double" name="P33(1232)-Mass">            1.232    </param>
        <param type="double" name="P33(1232)-Width">           0.120    </param>
-       <param type="double" name="P33(1232)-BreitWignerNorm"> 0.917258 </param>
+       <param type="double" name="P33(1232)-BreitWignerNorm"> 0.869104 </param>
 
        <!-- Resonance: S11(1535) -->
        
-       <param type="int"    name="S11(1535)-ResIndex">        2        </param>
+       <param type="int"    name="S11(1535)-ResIndex">        1        </param>
        <param type="int"    name="S11(1535)-L">               0        </param>
        <param type="bool"   name="S11(1535)-IsDelta">         false    </param>
        <param type="bool"   name="S11(1535)-IsN">             true     </param>
        <param type="double" name="S11(1535)-Mass">            1.535    </param>
        <param type="double" name="S11(1535)-Width">           0.150    </param>
-       <param type="double" name="S11(1535)-BreitWignerNorm"> 0.951802 </param>
+       <param type="double" name="S11(1535)-BreitWignerNorm"> 0.934836 </param>
 
        <!-- Resonance: D13(1520) -->
        
@@ -40,7 +40,7 @@
        <param type="bool"   name="D13(1520)-IsN">             true     </param>
        <param type="double" name="D13(1520)-Mass">            1.520    </param>
        <param type="double" name="D13(1520)-Width">           0.120    </param>
-       <param type="double" name="D13(1520)-BreitWignerNorm"> 0.991749 </param>
+       <param type="double" name="D13(1520)-BreitWignerNorm"> 0.920773 </param>
 
        <!-- Resonance: S11(1650) -->
 
@@ -50,7 +50,7 @@
        <param type="bool"   name="S11(1650)-IsN">             true     </param>
        <param type="double" name="S11(1650)-Mass">            1.650    </param>
        <param type="double" name="S11(1650)-Width">           0.150    </param>
-       <param type="double" name="S11(1650)-BreitWignerNorm"> 0.950768 </param>
+       <param type="double" name="S11(1650)-BreitWignerNorm"> 0.933974 </param>
 
        <!-- Resonance: D13(1700) -->
        
@@ -60,7 +60,7 @@
        <param type="bool"   name="D13(1700)-IsN">             true     </param>
        <param type="double" name="D13(1700)-Mass">            1.700    </param>
        <param type="double" name="D13(1700)-Width">           0.100    </param>
-       <param type="double" name="D13(1700)-BreitWignerNorm"> 1.108320 </param>
+       <param type="double" name="D13(1700)-BreitWignerNorm"> 0.954652 </param>
 
        <!-- Resonance: D15(1675) -->
 
@@ -70,17 +70,17 @@
        <param type="bool"   name="D15(1675)-IsN">             true     </param>
        <param type="double" name="D15(1675)-Mass">            1.675    </param>
        <param type="double" name="D15(1675)-Width">           0.150    </param>
-       <param type="double" name="D15(1675)-BreitWignerNorm"> 0.989927 </param>
+       <param type="double" name="D15(1675)-BreitWignerNorm"> 0.924617 </param>
 
        <!-- Resonance: S31(1620) -->
        
-       <param type="int"    name="S31(1620)-ResIndex">        9        </param>
+       <param type="int"    name="S31(1620)-ResIndex">        1        </param>
        <param type="int"    name="S31(1620)-L">               0        </param>
        <param type="bool"   name="S31(1620)-IsDelta">         true     </param>
        <param type="bool"   name="S31(1620)-IsN">             false    </param>
        <param type="double" name="S31(1620)-Mass">            1.620    </param>
        <param type="double" name="S31(1620)-Width">           0.150    </param>
-       <param type="double" name="S31(1620)-BreitWignerNorm"> 0.951072 </param>
+       <param type="double" name="S31(1620)-BreitWignerNorm"> 0.934124 </param>
 
        <!-- Resonance: D33(1700) -->
        
@@ -90,7 +90,7 @@
        <param type="bool"   name="D33(1700)-IsN">             false    </param>
        <param type="double" name="D33(1700)-Mass">            1.700    </param>
        <param type="double" name="D33(1700)-Width">           0.300    </param>
-       <param type="double" name="D33(1700)-BreitWignerNorm"> 0.729923 </param>
+       <param type="double" name="D33(1700)-BreitWignerNorm"> 0.747914 </param>
 
        <!-- Resonance: P11(1440) -->
        
@@ -100,17 +100,17 @@
        <param type="bool"   name="P11(1440)-IsN">             true     </param>
        <param type="double" name="P11(1440)-Mass">            1.440    </param>
        <param type="double" name="P11(1440)-Width">           0.350    </param>
-       <param type="double" name="P11(1440)-BreitWignerNorm"> 0.724670 </param>
+       <param type="double" name="P11(1440)-BreitWignerNorm"> 0.762679 </param>
 
        <!-- Resonance: P33(1600) -->
        
-       <param type="int"    name="P33(1600)-ResIndex">        2        </param>
+       <param type="int"    name="P33(1600)-ResIndex">        9        </param>
        <param type="int"    name="P33(1600)-L">               1        </param>       
        <param type="bool"   name="P33(1600)-IsDelta">         true     </param>
        <param type="bool"   name="P33(1600)-IsN">             false    </param>
        <param type="double" name="P33(1600)-Mass">            1.600    </param>
        <param type="double" name="P33(1600)-Width">           0.350    </param>
-       <param type="double" name="P33(1600)-BreitWignerNorm"> 0.816016 </param>
+       <param type="double" name="P33(1600)-BreitWignerNorm"> 0.852495 </param>
 
        <!-- Resonance: P13(1720) -->
        
@@ -120,17 +120,17 @@
        <param type="bool"   name="P13(1720)-IsN">             true     </param>
        <param type="double" name="P13(1720)-Mass">            1.720    </param>
        <param type="double" name="P13(1720)-Width">           0.150    </param>
-       <param type="double" name="P13(1720)-BreitWignerNorm"> 1.029180 </param>
+       <param type="double" name="P13(1720)-BreitWignerNorm"> 0.857668 </param>
 
        <!-- Resonance: F15(1680) -->
 
-       <param type="int"    name="F15(1680)-ResIndex">        1        </param>
+       <param type="int"    name="F15(1680)-ResIndex">        2        </param>
        <param type="int"    name="F15(1680)-L">               3        </param>       
        <param type="bool"   name="F15(1680)-IsDelta">         false    </param>
        <param type="bool"   name="F15(1680)-IsN">             true     </param>
        <param type="double" name="F15(1680)-Mass">            1.680    </param>
        <param type="double" name="F15(1680)-Width">           0.130    </param>
-       <param type="double" name="F15(1680)-BreitWignerNorm"> 0.905846 </param>
+       <param type="double" name="F15(1680)-BreitWignerNorm"> 0.789636 </param>
 
        <!-- Resonance: P31(1910) -->
        
@@ -140,7 +140,7 @@
        <param type="bool"   name="P31(1910)-IsN">             false    </param>
        <param type="double" name="P31(1910)-Mass">            1.910    </param>
        <param type="double" name="P31(1910)-Width">           0.250    </param>
-       <param type="double" name="P31(1910)-BreitWignerNorm"> 0.933062 </param>
+       <param type="double" name="P31(1910)-BreitWignerNorm"> 0.838467 </param>
 
        <!-- Resonance: P33(1920) -->
        
@@ -150,7 +150,7 @@
        <param type="bool"   name="P33(1920)-IsN">             false    </param>
        <param type="double" name="P33(1920)-Mass">            1.920    </param>
        <param type="double" name="P33(1920)-Width">           0.200    </param>
-       <param type="double" name="P33(1920)-BreitWignerNorm"> 0.965439 </param>
+       <param type="double" name="P33(1920)-BreitWignerNorm"> 0.850868 </param>
 
        <!-- Resonance: F35(1905) -->
        
@@ -160,7 +160,7 @@
        <param type="bool"   name="F35(1905)-IsN">             false    </param>
        <param type="double" name="F35(1905)-Mass">            1.905    </param>
        <param type="double" name="F35(1905)-Width">           0.350    </param>
-       <param type="double" name="F35(1905)-BreitWignerNorm"> 0.625806 </param>
+       <param type="double" name="F35(1905)-BreitWignerNorm"> 0.622885 </param>
 
        <!-- Resonance: F37(1950) -->
 
@@ -170,7 +170,7 @@
        <param type="bool"   name="F37(1950)-IsN">             false    </param>
        <param type="double" name="F37(1950)-Mass">            1.950    </param>
        <param type="double" name="F37(1950)-Width">           0.300    </param>
-       <param type="double" name="F37(1950)-BreitWignerNorm"> 0.695797 </param>
+       <param type="double" name="F37(1950)-BreitWignerNorm"> 0.677866 </param>
 
        <!-- Resonance: P11(1710) -->
        
@@ -180,17 +180,17 @@
        <param type="bool"   name="P11(1710)-IsN">             true     </param>
        <param type="double" name="P11(1710)-Mass">            1.710    </param>
        <param type="double" name="P11(1710)-Width">           0.100    </param>
-       <param type="double" name="P11(1710)-BreitWignerNorm"> 1.049810 </param>
+       <param type="double" name="P11(1710)-BreitWignerNorm"> 0.872677 </param>
 
        <!-- Resonance: F17(1970) -->
        
        <param type="int"    name="F17(1970)-ResIndex">        0        </param>
-       <param type="int"    name="F17(1970)-L">               3        </param>       
+       <param type="int"    name="F17(1970)-L">               0        </param>       
        <param type="bool"   name="F17(1970)-IsDelta">         false    </param>
        <param type="bool"   name="F17(1970)-IsN">             true     </param>
        <param type="double" name="F17(1970)-Mass">            1.970    </param>
        <param type="double" name="F17(1970)-Width">           0.325    </param>
-       <param type="double" name="F17(1970)-BreitWignerNorm"> 0.672704 </param>
+       <param type="double" name="F17(1970)-BreitWignerNorm"> 0.950272 </param>
 
   </param_set>
 
