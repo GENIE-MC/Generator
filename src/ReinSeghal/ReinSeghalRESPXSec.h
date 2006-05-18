@@ -76,25 +76,25 @@ private:
 
   //! configuration data
 
-  bool   fWghtBW;
-  double fZeta;
-  double fOmega;
-  double fMa2;
-  double fMv2;
-
   const BreitWignerI *         fBreitWigner;
   const BaryonResDataSetI *    fBaryonResDataSet;
   const RSHelicityAmplModelI * fHAmplModelCC;
   const RSHelicityAmplModelI * fHAmplModelNCp;
   const RSHelicityAmplModelI * fHAmplModelNCn;
 
-  bool   fUsingDisResJoin;      ///< use a DIS/RES joining scheme?
-  bool   fUsingNuTauScaling;    ///< use NeuGEN nutau xsec reduction factors?
-  double fWcut;                 ///< apply DIS/RES joining scheme < Wcut
-  double fMaxN2ResAllowedWidth; ///< limits allowed phase space for n=2 resonances
-
-  Spline * fNuTauRdSpl;    ///< xsec reduction spline for nu_tau
-  Spline * fNuTauBarRdSpl; ///< xsec reduction spline for nu_tau_bar
+  bool     fWghtBW;            ///< weight with resonance breit-wigner?
+  double   fZeta;              ///< FKR parameter Zeta
+  double   fOmega;             ///< FKR parameter Omega
+  double   fMa2;               ///< (axial mass)^2
+  double   fMv2;               ///< (vector mass)^2
+  bool     fUsingDisResJoin;   ///< use a DIS/RES joining scheme?
+  bool     fUsingNuTauScaling; ///< use NeuGEN nutau xsec reduction factors?
+  double   fWcut;              ///< apply DIS/RES joining scheme < Wcut
+  double   fN2ResMaxNWidths;   ///< limits allowed phase space for n=2 res
+  double   fN0ResMaxNWidths;   ///< limits allowed phase space for n=0 res
+  double   fGnResMaxNWidths;   ///< limits allowed phase space for other res
+  Spline * fNuTauRdSpl;        ///< xsec reduction spline for nu_tau
+  Spline * fNuTauBarRdSpl;     ///< xsec reduction spline for nu_tau_bar
 };
 
 }       // genie namespace

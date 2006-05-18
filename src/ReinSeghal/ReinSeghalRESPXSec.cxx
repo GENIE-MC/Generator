@@ -107,9 +107,12 @@ double ReinSeghalRESPXSec::XSec(
   double Gres = fBRP.Width();
   int    Nres = fBRP.ResonanceIndex();
 
-  //-- Following NeuGEN, for n=2 resonances be restrictive in
-  //   the allowed W range to avoid nad resonance behaviour
-  if(Nres == 2 && W > Mres * fMaxN2ResAllowedWidth * Gres) return 0.;
+  //-- Following NeuGEN, avoid problems with underlying unphysical
+  //   model assumptions by restricting the allowed W phase space
+  //   around the resonance peak
+  if      (W > Mres + fN0ResMaxNWidths * Gres && Nres==0) return 0.;
+  else if (W > Mres + fN2ResMaxNWidths * Gres && Nres==2) return 0.;
+  else if (W > Mres + fGnResMaxNWidths * Gres)            return 0.;
 
   //-- Compute auxiliary & kinematical factors 
   double E      = init_state.GetProbeE(kRfStruckNucAtRest);
@@ -361,10 +364,15 @@ void ReinSeghalRESPXSec::LoadConfig(void)
     fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
   }
 
-  //-- NeuGEN limit in allowed phase space avoiding bad behaviour of n=2 
-  //   resonances: W < min{ Wmin(physical), (res mass) + x * (res width) }
-  //   where x is the following parameter:
-  fMaxN2ResAllowedWidth = fConfig->GetDoubleDef("max-widths-for-n2-res", 2.0);
+  //-- NeuGEN limits in the allowed resonance phase space:
+  //           W < min{ Wmin(physical), (res mass) + x * (res width) }
+  //   This limits the integration area around the peak and avoids the
+  //   problem with huge xsec increase at low Q2 and high W.
+  //   In correspondence with Hugh, Rein said that the underlying problem
+  //   are unphysical assumptions in the model. 
+  fN2ResMaxNWidths = fConfig->GetDoubleDef("max-widths-for-n2-res", 2.0);
+  fN0ResMaxNWidths = fConfig->GetDoubleDef("max-widths-for-n0-res", 6.0);
+  fGnResMaxNWidths = fConfig->GetDoubleDef("max-widths-for-gn-res", 4.0);
 
   //-- NeuGEN reduction factors for nu_tau: a gross estimate of the effect of
   //   neglected form factors in the R/S model
