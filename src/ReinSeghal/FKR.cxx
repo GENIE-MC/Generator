@@ -52,40 +52,26 @@ void FKR::Calculate(double q2, double W, double mN, int n)
 // W    : hadronic invariant mass
 // nqres: resonance index
 
-  double mN2 = TMath::Power(mN, 2);
-  double W2  = TMath::Power(W,  2);
-  double k   = 0.5 * (W2 - mN2) / mN;
-  double v   = k - 0.5*q2 / mN;
-  double Q2  = TMath::Power(v, 2) - q2; // note: in RS Q2 does not denote -q2
-  double Q   = TMath::Sqrt(TMath::Abs(Q2));
+  double mN2    = TMath::Power(mN, 2);
+  double W2     = TMath::Power(W,  2);
+  double k      = 0.5 * (W2 - mN2) / mN;
+  double v      = k - 0.5*q2 / mN;
+  double Q2     = TMath::Power(v, 2) - q2; 
+  double Q      = TMath::Sqrt(TMath::Abs(Q2));
+  double d      = TMath::Power(W+mN,2.) - q2;
+  double osc    = TMath::Power(1 - 0.25 * q2/mN2, 0.5-n);
+  double GV     = osc * TMath::Power( 1./(1-q2/fMv2), 2);
+  double GA     = osc * TMath::Power( 1./(1-q2/fMa2), 2);
+  double sq2omg = TMath::Sqrt(2./fOmega);
 
-  LOG("FKR", pDEBUG)
-         << ENDL
-         <<  "q2 = " << q2 << ENDL
-         <<  "W  = " << W  << ENDL
-         <<  "mN = " << mN << ENDL
-         <<  "k  = " << k  << ENDL
-         <<  "v  = " << v  << ENDL
-         <<  "Q2 = " << Q2 << ENDL
-         <<  "Q  = " << Q  << ENDL;
-
-  double omega = fOmega;
-  double zeta  = fZeta;
-  double ma2   = fMa2;
-  double mv2   = fMv2;
-  double d     = TMath::Power(W+mN,2.) - q2;
-  double osc   = TMath::Power(1 - 0.25 * q2/mN2, 0.5-n);
-  double GV    = osc * TMath::Power( 1./(1-q2/mv2), 2);
-  double GA    = osc * TMath::Power( 1./(1-q2/ma2), 2);
-
-  fLamda = TMath::Sqrt(2./omega) * mN * Q / W;
-  fTv    = TMath::Sqrt(omega/2.) * GV / (3*W);
+  fLamda = sq2omg * mN * Q / W;
+  fTv    = GV / (3*W*sq2omg);
   fRv    = kSqrt2 * (mN/W)*(W+mN)*Q*GV / d;
   fS     = (-q2/Q2) * (3*W*mN + q2 - mN2) * GV / (6*mN2);
-  fTa    = (2./3.) *zeta * TMath::Sqrt(omega/2.) * (mN/W) * Q * GA / d;
-  fRa    = (kSqrt2/6.) * zeta * (GA/W) * ( (W+mN) + 2*n*omega*W/ d );
-  fB     = (1./3.) * (zeta/W) * TMath::Sqrt(omega/2.) * ( 1 + (W2-mN2+q2) / d ) * GA;
-  fC     = (1./6.) * (zeta/Q) * ( W2 - mN2 + n*omega*(W2-mN2+q2) /d) * (GA/mN);
+  fTa    = (2./3.) * fZeta * sq2omg * (mN/W) * Q * GA / d;
+  fRa    = (kSqrt2/6.) * fZeta * (GA/W) * ( (W+mN) + 2*n*fOmega*W/ d );
+  fB     = fZeta/(3.*W*sq2omg) * (1 + (W2-mN2+q2)/ d) * GA;
+  fC     = fZeta/(6.*Q) * (W2 - mN2 + n*fOmega*(W2-mN2+q2)/d) * (GA/mN);
 
   //-- compute frequently used combinations of FKR params
 

@@ -26,6 +26,8 @@
 
 #include <iostream>
 
+#include <TMath.h>
+
 #include "Interaction/Interaction.h"
 #include "ReinSeghal/FKR.h"
 #include "ReinSeghal/RSHelicityAmplModelI.h"
@@ -48,12 +50,21 @@ public:
   RSHelicityAmpl(const RSHelicityAmpl & hamp);
   ~RSHelicityAmpl() { }
 
-  double AmpMinus1 (void) const { return fMinus1; }
-  double AmpPlus1  (void) const { return fPlus1;  }
-  double AmpMinus3 (void) const { return fMinus3; }
-  double AmpPlus3  (void) const { return fPlus3;  }
-  double Amp0Minus (void) const { return f0Minus; }
-  double Amp0Plus  (void) const { return f0Plus;  }
+  //! return helicity amplitude
+  double AmpMinus1 (void) const  { return fMinus1; } /* f(-1) */
+  double AmpPlus1  (void) const  { return fPlus1;  } /* f(+1) */
+  double AmpMinus3 (void) const  { return fMinus3; } /* f(-3) */
+  double AmpPlus3  (void) const  { return fPlus3;  } /* f(+3) */
+  double Amp0Minus (void) const  { return f0Minus; } /* f(0-) */
+  double Amp0Plus  (void) const  { return f0Plus;  } /* f(0+) */
+
+  //! return |helicity amplitude|^2
+  double Amp2Minus1 (void) const { return TMath::Power(fMinus1, 2.); } /* |f(-1)|^2 */
+  double Amp2Plus1  (void) const { return TMath::Power(fPlus1,  2.); } /* |f(+1)|^2 */
+  double Amp2Minus3 (void) const { return TMath::Power(fMinus3, 2.); } /* |f(-3)|^2 */
+  double Amp2Plus3  (void) const { return TMath::Power(fPlus3,  2.); } /* |f(+3)|^2 */
+  double Amp20Minus (void) const { return TMath::Power(f0Minus, 2.); } /* |f(0-)|^2 */
+  double Amp20Plus  (void) const { return TMath::Power(f0Plus,  2.); } /* |f(0+)|^2 */
 
   friend ostream & operator<< (ostream & stream, const RSHelicityAmpl & hamp);
 
