@@ -308,19 +308,20 @@ void DISPartonModelPXSec::LoadConfig(void)
 
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 
-  fUsingDisResJoin = fConfig->GetBoolDef("use-dis-res-joining-scheme", false);
-
+  fUsingDisResJoin = fConfig->GetBoolDef(
+		"use-dis-res-joining-scheme", gc->GetBool("UseDRJoinScheme"));
   fMultProbModel = 0;
   fWcut=0;
 
   if(fUsingDisResJoin) {
-    fMultProbModel = dynamic_cast<const MultiplicityProbModelI *> (
-      this->SubAlg("multiplicity-prob-alg-name", "multiplicity-prob-param-set"));
-    assert(fMultProbModel);
+     fMultProbModel = 
+         dynamic_cast<const MultiplicityProbModelI *> (this->SubAlg(
+                 "multiplicity-prob-alg-name","multiplicity-prob-param-set"));
+     assert(fMultProbModel);
 
-    // Load Wcut determining the phase space area where the multiplicity prob.
-    // scaling factors would be applied -if requested-
-    fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+     // Load Wcut determining the phase space area where the multiplicity prob.
+     // scaling factors would be applied -if requested-
+     fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
   }
 }
 //____________________________________________________________________________
