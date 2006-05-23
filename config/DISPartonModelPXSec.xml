@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!--
+Configuration for the Rein-Seghal RES excitation d^xsec / dQ^2 dW xsec algorithm
+
+Algorithm Configurable Parameters:
+.....................................................................................................................
+Name                        Type    Opt   Comment                                      Default
+.....................................................................................................................
+sf-alg-name                 string  No    Structure functions algorithm 
+sf-param-set                string  No    ... and its config set
+multiplicity-prob-alg-name  string  Dep   Multiplicity probability model. Set if
+                                          use-dis-res-joining-scheme=true
+multiplicity-prob-param-set string  Dep   ... and its condig set
+use-dis-res-joining-scheme  bool    Yes   Use DIS/RES joining scheme?                  GPL value: UseDRJoinScheme
+Wcut                        double  Yes   Param used in DIS/RES joining                GPL value: Wcut
+-->
+
 <alg_conf>
 
   <param_set name="CC-Default"> 
-     <param type="bool"   name="use-dis-res-joining-scheme">  true                            </param>
      <param type="string" name="sf-alg-name">                 genie::DISStructureFuncModelCC  </param>
      <param type="string" name="sf-param-set">                Default                         </param>
      <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
@@ -11,7 +26,6 @@
   </param_set>
 
   <param_set name="NC-Default"> 
-     <param type="bool"   name="use-dis-res-joining-scheme">  true                            </param>
      <param type="string" name="sf-alg-name">                 genie::DISStructureFuncModelNC  </param>
      <param type="string" name="sf-param-set">                Default                         </param>
      <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
