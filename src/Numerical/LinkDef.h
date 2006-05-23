@@ -17,6 +17,7 @@
 #pragma link C++ class genie::IntegratorI;
 #pragma link C++ class genie::Simpson1D;
 #pragma link C++ class genie::Simpson2D;
+#pragma link C++ class genie::Simpson2DFixN;
 #pragma link C++ class genie::SimMCIntegrator;
 #pragma link C++ class genie::VegasMCIntegrator;
 #pragma link C++ class genie::MiserMCIntegrator;
