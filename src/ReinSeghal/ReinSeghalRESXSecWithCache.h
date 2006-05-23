@@ -51,10 +51,12 @@ protected:
   Range1D_t WRange (const Interaction * interaction) const;
   Range1D_t Q2Range(const Interaction * interaction) const;
 
-  double fWminCut;
-  double fWmaxCut;
-  double fQ2minCut;
-  double fQ2maxCut;
+  bool   fUsingDisResJoin;
+  double fWcut;
+  double fWmin;
+  double fWmax;
+  double fQ2min;
+  double fQ2max;
   double fEMax;
 
   const XSecAlgorithmI * fSingleResXSecModel;

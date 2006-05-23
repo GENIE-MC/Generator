@@ -171,10 +171,10 @@ void ReinSeghalRESXSec::LoadConfig(void)
   assert (fIntegrator);
 
   // user cuts in W,Q2
-  fWminCut  = fConfig->GetDoubleDef("Wmin", - 1.0);
-  fWmaxCut  = fConfig->GetDoubleDef("Wmax",   1e9);
-  fQ2minCut = fConfig->GetDoubleDef("Q2min", -1.0);
-  fQ2maxCut = fConfig->GetDoubleDef("Q2max",  1e9);
+  fWmin  = fConfig->GetDoubleDef("Wmin", - 1.0);
+  fWmax  = fConfig->GetDoubleDef("Wmax",   1e9);
+  fQ2min = fConfig->GetDoubleDef("Q2min", -1.0);
+  fQ2max = fConfig->GetDoubleDef("Q2max",  1e9);
 
   // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   fEMax = fConfig->GetDoubleDef("ESplineMax", 40);
@@ -185,6 +185,13 @@ void ReinSeghalRESXSec::LoadConfig(void)
   string resonances = fConfig->GetStringDef(
                    "resonance-name-list", gc->GetString("ResonanceNameList"));
   fResList.DecodeFromNameList(resonances);
+
+  //-- Use algorithm within a DIS/RES join scheme. If yes get Wcut
+  fUsingDisResJoin = fConfig->GetBoolDef("use-dis-res-joining-scheme", false);
+  fWcut = 999999;
+  if(fUsingDisResJoin) {
+    fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+  }
 }
 //____________________________________________________________________________
 

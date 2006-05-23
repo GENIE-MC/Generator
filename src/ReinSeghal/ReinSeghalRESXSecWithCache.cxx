@@ -193,8 +193,6 @@ string ReinSeghalRESXSecWithCache::CacheBranchName(
   string res_name = utils::res::AsString(res);
   string it_name  = InteractionType::AsString(it);
   string nc_nuc   = ((nucleonpdgc==kPdgProton) ? "p" : "n"); 
-  //  string nc_nuc   = "";
-  // if(it == kIntWeakNC) { nc_nuc = ((nucleonpdgc==kPdgProton) ? "p" : "n"); }
 
   ostringstream intk;
   intk << "ResExcitationXSec/R:" << res_name << ";nu:"  << nupdgc
@@ -215,11 +213,25 @@ Range1D_t ReinSeghalRESXSecWithCache::WRange(
   Range1D_t rW = utils::kinematics::KineRange(interaction, kKVW);
   LOG("ReinSeghalResC", pDEBUG)
       << "Physical W range: " << "[" << rW.min << ", " << rW.max << "] GeV";
+
   // apply user cuts
-  utils::kinematics::ApplyCutsToKineLimits(rW, fWminCut,  fWmaxCut );
+  utils::kinematics::ApplyCutsToKineLimits(rW, fWmin,  fWmax);
   LOG("ReinSeghalResC", pDEBUG)
        << "Physical & User W range: "
                               << "[" << rW.min << ", " << rW.max << "] GeV";
+
+  // apply Wcut in current DIS/JOIN scheme
+  if(fUsingDisResJoin) {
+    if(fWcut > rW.min) {
+      rW.max = TMath::Min(fWcut, rW.max);
+    } else {
+      rW.min = -1;
+      rW.max = -1;
+    }
+    LOG("ReinSeghalResC", pDEBUG)
+      << "W range (incl Wcut): " << "["<< rW.min << ", "<< rW.max << "] GeV";
+  }
+
   return rW;
 }
 //___________________________________________________________________________
@@ -232,7 +244,7 @@ Range1D_t ReinSeghalRESXSecWithCache::Q2Range(
   LOG("ReinSeghalResC", pDEBUG) << "Physical Q2 range: "
                          << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
   // apply user cuts
-  utils::kinematics::ApplyCutsToKineLimits(rQ2, fQ2minCut, fQ2maxCut);
+  utils::kinematics::ApplyCutsToKineLimits(rQ2, fQ2min, fQ2max);
   LOG("ReinSeghalResC", pDEBUG)
        << "Physical & User Q2 range: "
                          << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
