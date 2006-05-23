@@ -16,6 +16,8 @@ single-res-xsec-param-set   string  No   ... and its config set
 integrator-alg-name         string  No   algorithm used for integrating res excitation xsec 
 integrator-param-set        string  No   ... and its config set
 resonance-name-list         string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
+use-dis-res-joining-scheme  bool    Yes  Use DIS/RES joining scheme?                           GPL: UseDRJoinScheme
+Wcut                        double  Yes  Param used in DIS/RES joining                         GPL: Wcut
 Wmin                        double  Yes  W  kinematic cut (min of allowed region)              using physical range
 Wmax                        double  Yes  W  kinematic cut (max of allowed region)              using physical range
 Q2min                       double  Yes  Q2 kinematic cut (min of allowed region)              using physical range
@@ -52,11 +54,11 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
   In this configuration set we include all resonances known to GENIE including the the ambiguous P33(1600), F17(1970)
 -->
   <param_set name="AllResonances"> 
-     <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec           </param>
-     <param type="string" name="single-res-xsec-param-set">  Default                             </param>
-     <param type="string" name="integrator-alg-name">        genie::Simpson2D                    </param>
-     <param type="string" name="integrator-param-set">       Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="ESplineMax">                 20                                  </param>
+     <param type="string" name="single-res-xsec-alg-name">    genie::ReinSeghalRESPXSec           </param>
+     <param type="string" name="single-res-xsec-param-set">   Default                             </param>
+     <param type="string" name="integrator-alg-name">         genie::Simpson2D                    </param>
+     <param type="string" name="integrator-param-set">        Default-Logarithmic-FixedNBins-Fast </param>
+     <param type="double" name="ESplineMax">                  20                                  </param>
      <param type="string" name="resonance-name-list">  
                    P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
                    D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),P31(1910),P33(1920),

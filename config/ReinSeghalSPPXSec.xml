@@ -16,6 +16,8 @@ single-res-xsec-param-set   string  No   ... and its config set
 integrator-alg-name         string  No   algorithm used for integrating res excitation xsec
 integrator-param-set        string  No   ... and its config set
 resonance-name-list         string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
+use-dis-res-joining-scheme  bool    Yes  Use DIS/RES joining scheme?                           GPL: UseDRJoinScheme
+Wcut                        double  Yes  Param used in DIS/RES joining                         GPL: Wcut
 Wmin                        double  Yes  W  kinematic cut (min of allowed region)              using physical range
 Wmax                        double  Yes  W  kinematic cut (max of allowed region)              using physical range
 Q2min                       double  Yes  Q2 kinematic cut (min of allowed region)              using physical range

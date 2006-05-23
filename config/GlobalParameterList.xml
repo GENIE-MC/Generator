@@ -130,7 +130,8 @@
      <!-- 
        RES/DIS joining parameter Wcut 
      -->
-     <param type="double" name="Wcut"> 1.4 </param>
+     <param type="bool"   name="UseDRJoinScheme"> true </param>
+     <param type="double" name="Wcut">            1.7  </param>
 
      <!-- 
        INTRANUKE parameters 
