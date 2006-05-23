@@ -135,20 +135,23 @@ double ReinSeghalRESPXSec::XSec(
   //-- Calculate the Feynman-Kislinger-Ravndall parameters
   LOG("ReinSeghalRes", pDEBUG) << "Computing the FKR parameters";
 
-  double d      = TMath::Power(W+Mnuc,2.) - q2;
-  double osc    = TMath::Power(1 - 0.25 * q2/Mnuc2, 0.5-Nres);
-  double GV     = osc * TMath::Power( 1./(1-q2/fMv2), 2);
-  double GA     = osc * TMath::Power( 1./(1-q2/fMa2), 2);
-  double sq2omg = TMath::Sqrt(2./fOmega);
+  double Go     = TMath::Power(1 - 0.25 * q2/Mnuc2, 0.5-Nres);
+  double GV     = Go * TMath::Power( 1./(1-q2/fMv2), 2);
+  double GA     = Go * TMath::Power( 1./(1-q2/fMa2), 2);
 
-  fFKR.Lamda  = sq2omg * Mnuc * Q / W;
+  double d      = TMath::Power(W+Mnuc,2.) - q2;
+  double sq2omg = TMath::Sqrt(2./fOmega);
+  double nomg   = Nres * fOmega;
+  double mq_w   = Mnuc*Q/W;
+
+  fFKR.Lamda  = sq2omg * mq_w;
   fFKR.Tv     = GV / (3.*W*sq2omg);
-  fFKR.Rv     = kSqrt2 * (Mnuc/W)*(W+Mnuc)*Q*GV / d;
+  fFKR.Rv     = kSqrt2 * mq_w*(W+Mnuc)*GV / d;
   fFKR.S      = (-q2/Q2) * (3*W*Mnuc + q2 - Mnuc2) * GV / (6*Mnuc2);
-  fFKR.Ta     = (2./3.) * fZeta * sq2omg * (Mnuc/W) * Q * GA / d;
-  fFKR.Ra     = (kSqrt2/6.) * fZeta * (GA/W) * (W+Mnuc + 2*Nres*fOmega*W/d );
+  fFKR.Ta     = (2./3.) * fZeta * sq2omg * mq_w * GA / d;
+  fFKR.Ra     = (kSqrt2/6.) * fZeta * (GA/W) * (W+Mnuc + 2*nomg*W/d );
   fFKR.B      = fZeta/(3.*W*sq2omg) * (1 + (W2-Mnuc2+q2)/ d) * GA;
-  fFKR.C      = fZeta/(6.*Q) * (W2 - Mnuc2 + Nres*fOmega*(W2-Mnuc2+q2)/d) * (GA/Mnuc);
+  fFKR.C      = fZeta/(6.*Q) * (W2 - Mnuc2 + nomg*(W2-Mnuc2+q2)/d) * (GA/Mnuc);
   fFKR.R      = fFKR.Rv;
   fFKR.Rplus  = - (fFKR.Rv + fFKR.Ra);
   fFKR.Rminus = - (fFKR.Rv - fFKR.Ra);
