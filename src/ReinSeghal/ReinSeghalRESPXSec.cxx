@@ -90,15 +90,16 @@ double ReinSeghalRESPXSec::XSec(
   string      resname   = utils::res::AsString(resonance);
   bool        is_delta  = utils::res::IsDelta (resonance);
 
-  //-- Get the neutrino & hit nucleon 
+  //-- Get the neutrino, hit nucleon & weak current
   int  nucpdgc = target.StruckNucleonPDGCode();
   int  nupdgc  = init_state.GetProbePDGCode();
   bool is_nu    = pdg::IsNeutrino     (nupdgc);
   bool is_nubar = pdg::IsAntiNeutrino (nupdgc);
   bool is_p     = pdg::IsProton       (nucpdgc);
   bool is_n     = pdg::IsNeutron      (nucpdgc);
+  bool is_CC    = proc_info.IsWeakCC();
 
-  if(!is_delta) {
+  if(is_CC && !is_delta) {
     if((is_nu && is_p) || (is_nubar && is_n)) return 0;
   }
 
@@ -167,7 +168,6 @@ double ReinSeghalRESPXSec::XSec(
 
   const RSHelicityAmplModelI * hamplmod = 0;
 
-  bool is_CC = proc_info.IsWeakCC();
   if(is_CC)   { hamplmod = fHAmplModelCC; }
   else {
     if (is_p) { hamplmod = fHAmplModelNCp;}
@@ -201,7 +201,7 @@ double ReinSeghalRESPXSec::XSec(
   xsec = TMath::Max(0.,xsec);
 
   double mult = 1.0;
-  if(is_delta) {
+  if(is_CC && is_delta) {
     if((is_nu && is_p) || (is_nubar && is_n)) mult=3.0;
   }
   xsec *= mult;
@@ -221,7 +221,7 @@ double ReinSeghalRESPXSec::XSec(
   //-- Apply NeuGEN nutau cross section reduction factors
   double rf = 1.0;
   Spline * spl = 0;
-  if (fUsingNuTauScaling) {
+  if (is_CC && fUsingNuTauScaling) {
     if      (pdg::IsNuTau(nupdgc)    ) spl = fNuTauRdSpl;
     else if (pdg::IsAntiNuTau(nupdgc)) spl = fNuTauBarRdSpl;
 
@@ -372,7 +372,8 @@ void ReinSeghalRESPXSec::LoadConfig(void)
   assert( fHAmplModelNCn );
 
   //-- Use algorithm within a DIS/RES join scheme. If yes get Wcut
-  fUsingDisResJoin = fConfig->GetBoolDef("use-dis-res-joining-scheme", false);
+  fUsingDisResJoin = fConfig->GetBoolDef(
+		"use-dis-res-joining-scheme", gc->GetBool("UseDRJoinScheme"));
   fWcut = 999999;
   if(fUsingDisResJoin) {
     fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
