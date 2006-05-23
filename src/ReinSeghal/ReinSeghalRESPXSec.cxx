@@ -135,7 +135,27 @@ double ReinSeghalRESPXSec::XSec(
   //-- Calculate the Feynman-Kislinger-Ravndall parameters
   LOG("ReinSeghalRes", pDEBUG) << "Computing the FKR parameters";
 
-  fFKR.Calculate(q2,W,Mnuc,Nres);
+  double d      = TMath::Power(W+Mnuc,2.) - q2;
+  double osc    = TMath::Power(1 - 0.25 * q2/Mnuc2, 0.5-Nres);
+  double GV     = osc * TMath::Power( 1./(1-q2/fMv2), 2);
+  double GA     = osc * TMath::Power( 1./(1-q2/fMa2), 2);
+  double sq2omg = TMath::Sqrt(2./fOmega);
+
+  fFKR.Lamda  = sq2omg * Mnuc * Q / W;
+  fFKR.Tv     = GV / (3.*W*sq2omg);
+  fFKR.Rv     = kSqrt2 * (Mnuc/W)*(W+Mnuc)*Q*GV / d;
+  fFKR.S      = (-q2/Q2) * (3*W*Mnuc + q2 - Mnuc2) * GV / (6*Mnuc2);
+  fFKR.Ta     = (2./3.) * fZeta * sq2omg * (Mnuc/W) * Q * GA / d;
+  fFKR.Ra     = (kSqrt2/6.) * fZeta * (GA/W) * (W+Mnuc + 2*Nres*fOmega*W/d );
+  fFKR.B      = fZeta/(3.*W*sq2omg) * (1 + (W2-Mnuc2+q2)/ d) * GA;
+  fFKR.C      = fZeta/(6.*Q) * (W2 - Mnuc2 + Nres*fOmega*(W2-Mnuc2+q2)/d) * (GA/Mnuc);
+  fFKR.R      = fFKR.Rv;
+  fFKR.Rplus  = - (fFKR.Rv + fFKR.Ra);
+  fFKR.Rminus = - (fFKR.Rv - fFKR.Ra);
+  fFKR.T      = fFKR.Tv;
+  fFKR.Tplus  = - (fFKR.Tv + fFKR.Ta);
+  fFKR.Tminus = - (fFKR.Tv - fFKR.Ta);
+
   LOG("FKR", pDEBUG) 
            << "FKR params for RES=" << resname << " : " << fFKR;
 
@@ -306,15 +326,10 @@ void ReinSeghalRESPXSec::LoadConfig(void)
   double ma  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
   double mv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
 
-  fMa2    = TMath::Power(ma,2);
-  fMv2    = TMath::Power(mv,2);
+  fMa2 = TMath::Power(ma,2);
+  fMv2 = TMath::Power(mv,2);
 
   fWghtBW = fConfig->GetBoolDef("weight-with-breit-wigner", true);
-
-  double thw = fConfig->GetDoubleDef(
-                        "weinberg-angle", gc->GetDouble("WeinbergAngle"));
-
-  fFKR.Configure(fZeta, fOmega, ma, mv, thw);
 
   // Load all the sub-algorithms needed
 

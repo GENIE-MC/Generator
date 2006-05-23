@@ -49,177 +49,252 @@ RSHelicityAmpl * RSHelicityAmplModelCC::Compute(
   switch(res) {
 
    case (kP33_1232) :
-     hampl->fMinus1 =    kSqrt2 * fkr.Rminus();
-     hampl->fPlus1  =   -kSqrt2 * fkr.Rplus();
-     hampl->fMinus3 =    kSqrt6 * fkr.Rminus();
-     hampl->fPlus3  =   -kSqrt6 * fkr.Rplus();
-     hampl->f0Minus = -2*kSqrt2 * fkr.C();
+   {
+     hampl->fMinus1 =    kSqrt2 * fkr.Rminus;
+     hampl->fPlus1  =   -kSqrt2 * fkr.Rplus;
+     hampl->fMinus3 =    kSqrt6 * fkr.Rminus;
+     hampl->fPlus3  =   -kSqrt6 * fkr.Rplus;
+     hampl->f0Minus = -2*kSqrt2 * fkr.C;
      hampl->f0Plus  =    hampl->f0Minus;
      break;
-
+   }
    case (kS11_1535) :
-     hampl->fMinus1 =  2.*kSqrt3 * fkr.Tminus() + (4./kSqrt6) * fkr.LRminus();
-     hampl->fPlus1  = -2.*kSqrt3 * fkr.Tplus()  - (4./kSqrt6) * fkr.LRplus();
+   {
+     double c = 4./kSqrt6;
+     double d = 2.*kSqrt3;
+     double a = kSqrt6 * fkr.Lamda * fkr.S;
+     double b = 2 * kSqrt2_3 * (fkr.Lamda * fkr.C - 3.* fkr.B);
+     
+     hampl->fMinus1 =  d * fkr.Tminus + c * fkr.Lamda * fkr.Rminus;
+     hampl->fPlus1  = -d * fkr.Tplus  - c * fkr.Lamda * fkr.Rplus;
      hampl->fMinus3 =  0;
      hampl->fPlus3  =  0;
-     hampl->f0Minus = -kSqrt6 * fkr.LS() + (2.*kSqrt2/kSqrt6) * fkr.LC_3B();
-     hampl->f0Plus  =  kSqrt6 * fkr.LS() + (2.*kSqrt2/kSqrt6) * fkr.LC_3B();
+     hampl->f0Minus = -a+b;
+     hampl->f0Plus  =  a+b;
      break;
-
+   }
    case (kD13_1520) :
-     hampl->fMinus1 =  kSqrt6 * fkr.Tminus() - (4./kSqrt3) * fkr.LRminus();
-     hampl->fPlus1  =  kSqrt6 * fkr.Tplus()  - (4./kSqrt3) * fkr.Rplus();
-     hampl->fMinus3 = (2.*kSqrt9/kSqrt2) * fkr.Tminus();
-     hampl->fPlus3  = (2.*kSqrt9/kSqrt2) * fkr.Tplus();
-     hampl->f0Minus = -2.*kSqrt3 * fkr.LS() + (4./kSqrt3) * fkr.LC();
-     hampl->f0Plus  = -2.*kSqrt3 * fkr.LS() - (4./kSqrt3) * fkr.LC();
-     break;
+   {
+     double c = 4./kSqrt3;
+     double d = 6./kSqrt2;
+     double a = 2.* kSqrt3 * fkr.Lamda * fkr.S;
+     double b = (4./kSqrt3)* fkr.Lamda * fkr.C;
 
+     hampl->fMinus1 =  kSqrt6 * fkr.Tminus - c * fkr.Lamda * fkr.Rminus;
+     hampl->fPlus1  =  kSqrt6 * fkr.Tplus  - c * fkr.Lamda * fkr.Rplus;
+     hampl->fMinus3 =  d * fkr.Tminus;
+     hampl->fPlus3  =  d * fkr.Tplus;
+     hampl->f0Minus =  -a+b;
+     hampl->f0Plus  =  -a-b;
+     break;
+   }
    case (kS11_1650) :
-     hampl->fMinus1 =  (1./kSqrt6) * fkr.LRminus();
-     hampl->fPlus1  = -(1./kSqrt6) * fkr.LRplus();
+   {
+     hampl->fMinus1 =  k1_Sqrt6 * fkr.Lamda * fkr.Rminus;
+     hampl->fPlus1  = -k1_Sqrt6 * fkr.Lamda * fkr.Rplus;
      hampl->fMinus3 =  0;
      hampl->fPlus3  =  0;
-     hampl->f0Minus = -(kSqrt2/kSqrt3) * fkr.LC_3B();
+     hampl->f0Minus = -kSqrt2_3 * (fkr.Lamda * fkr.C - 3.* fkr.B);
      hampl->f0Plus  =  hampl->f0Minus;
      break;
-
+   }
    case (kD13_1700) :
-     hampl->fMinus1 =  (1./kSqrt30) * fkr.LRminus();
-     hampl->fPlus1  =  (1./kSqrt30) * fkr.LRplus();
-     hampl->fMinus3 =  (3./kSqrt10) * fkr.LRminus();
-     hampl->fPlus3  =  (3./kSqrt10) * fkr.Lamda() * fkr.Rplus();
-     hampl->f0Minus =  (kSqrt2/kSqrt15) * fkr.LC();
-     hampl->f0Plus  = -1. * hampl->f0Minus;
-     break;
+   {
+     double LRm = fkr.Lamda * fkr.Rminus;
+     double LRp = fkr.Lamda * fkr.Rplus;
 
-   case (kD15_1675) :
-     hampl->fMinus1 = -(kSqrt3/kSqrt10) * fkr.LRminus();
-     hampl->fPlus1  =  (kSqrt3/kSqrt10) * fkr.LRplus();
-     hampl->fMinus3 = -(kSqrt3/kSqrt5)  * fkr.LRminus();
-     hampl->fPlus3  =  (kSqrt3/kSqrt5)  * fkr.Lamda() * fkr.Rplus();
-     hampl->f0Minus =  (kSqrt6/kSqrt5)  * fkr.LC();
-     hampl->f0Plus  =  hampl->f0Minus;
-     break;
-
-   case (kS31_1620) :
-     hampl->fMinus1 =  -kSqrt3 * fkr.Tminus() + (1./kSqrt6) * fkr.LRminus();
-     hampl->fPlus1  =   kSqrt3 * fkr.Tplus()  + (1./kSqrt6) * fkr.LRplus();
-     hampl->fMinus3 =  0;
-     hampl->fPlus3  =  0;
-     hampl->f0Minus =  (kSqrt3/kSqrt2) * fkr.LS() + (1./kSqrt6) * fkr.LC_3B();
-     hampl->f0Plus  = -(kSqrt3/kSqrt2) * fkr.LS() + (1./kSqrt6) * fkr.LC_3B();
-     break;
-
-   case (kD33_1700) :
-     hampl->fMinus1 = -(kSqrt3/kSqrt2) * fkr.Tminus() -
-                       (1./kSqrt3) * fkr.LRminus();
-     hampl->fPlus1  = -(kSqrt3/kSqrt2) * fkr.Tplus()  -
-                       (1./kSqrt3)  * fkr.LRplus();
-     hampl->fMinus3 = -(3./kSqrt2) * fkr.Tminus();
-     hampl->fPlus3  = -(3./kSqrt2) * fkr.Tplus();
-     hampl->f0Minus = (kSqrt3) * fkr.LS() + (1./kSqrt3) * fkr.LC();
-     hampl->f0Plus  = (kSqrt3) * fkr.LS() - (1./kSqrt3) * fkr.LC();
-     break;
-
-   case (kP11_1440) :
-     hampl->fMinus1 = -(5.*kSqrt3/6.) * fkr.L2Rminus();
-     hampl->fPlus1  = -(5.*kSqrt3/6.) * fkr.L2Rplus();
-     hampl->fMinus3 =  0;
-     hampl->fPlus3  =  0;
-     hampl->f0Minus = -(kSqrt3/2.) * fkr.L2S() + (5.*kSqrt3/6.) * fkr.Lamda() * fkr.LC_2B();
-     hampl->f0Plus  = -(kSqrt3/2.) * fkr.L2S() - (5.*kSqrt3/6.) * fkr.Lamda() * fkr.LC_2B();
-     break;
-
-   case (kP33_1600) :
-     hampl->fMinus1 = -(1./kSqrt6) * fkr.L2Rminus();
-     hampl->fPlus1  =  (1./kSqrt6) * fkr.L2Rplus();
-     hampl->fMinus3 = -(1./kSqrt2) * fkr.Lamda() * fkr.Lamda() * fkr.Rminus();
-     hampl->fPlus3  =  (1./kSqrt2) * fkr.L2Rplus();
-     hampl->f0Minus =  (kSqrt2/kSqrt3) * fkr.Lamda() * fkr.LC_2B();
-     hampl->f0Plus  =  hampl->f0Minus;
-     break;
-
-   case (kP13_1720) :
-     hampl->fMinus1 =  -(3.*kSqrt3/kSqrt10)  * fkr.Lamda() * fkr.Tminus() -
-                        (kSqrt5/kSqrt3) * fkr.L2Rminus();
-     hampl->fPlus1  =   (3.*kSqrt3/kSqrt10 ) * fkr.Lamda() * fkr.Tminus() +
-                        (kSqrt5/kSqrt3) * fkr.L2Rminus();
-     hampl->fMinus3 =   (3./kSqrt10) * fkr.Lamda() * fkr.Tminus();
-     hampl->fPlus3  =  -(3./kSqrt10) * fkr.Lamda() * fkr.Tplus();
-     hampl->f0Minus =   (kSqrt3/kSqrt5) * fkr.L2S() -
-                        (kSqrt5/kSqrt3) * fkr.Lamda() * fkr.LC_5B();
-     hampl->f0Plus  =  -(kSqrt3/kSqrt5) * fkr.L2S() -
-                        (kSqrt5/kSqrt3) * fkr.Lamda() * fkr.LC_5B();
-     break;
-
-   case (kF15_1680) :
-     hampl->fMinus1 = -(3./kSqrt5) * fkr.Lamda() * fkr.Tminus() +
-                       (kSqrt5/kSqrt2) * fkr.L2Rminus();
-     hampl->fPlus1  = -(3./kSqrt5) * fkr.Lamda() * fkr.Tplus()  +
-                       (kSqrt5/kSqrt2) * fkr.L2Rplus();
-     hampl->fMinus3 = -(3.*kSqrt2/kSqrt5) * fkr.Lamda() * fkr.Tminus();
-     hampl->fPlus3  = -(3.*kSqrt2/kSqrt5) * fkr.Lamda() * fkr.Tplus();
-     hampl->f0Minus =  (3./kSqrt10) * fkr.L2S() - (kSqrt5/kSqrt2) * fkr.L2C();
-     hampl->f0Plus  =  (3./kSqrt10) * fkr.L2S() + (kSqrt5/kSqrt2) * fkr.L2C();
-     break;
-
-   case (kP31_1910) :
-     hampl->fMinus1 =  (1./kSqrt15) * fkr.L2Rminus();
-     hampl->fPlus1  =  (1./kSqrt15) * fkr.L2Rplus();
-     hampl->fMinus3 =  0;
-     hampl->fPlus3  =  0;
-     hampl->f0Minus =  (2./kSqrt15) * fkr.Lamda() * fkr.LC_5B();
-     hampl->f0Plus  = -1. * hampl->f0Minus;
-     break;
-
-   case (kP33_1920) :
-     hampl->fMinus1 = -(1./kSqrt15) * fkr.L2Rminus();
-     hampl->fPlus1  =  (1./kSqrt15) * fkr.L2Rplus();
-     hampl->fMinus3 =  (1./kSqrt5)  * fkr.L2Rminus();
-     hampl->fPlus3  = -(1./kSqrt5)  * fkr.L2Rplus();
-     hampl->f0Minus =  (2./kSqrt15) * fkr.Lamda() * fkr.LC_5B();
-     hampl->f0Plus  =  hampl->f0Minus;
-     break;
-
-   case (kF35_1905) :
-     hampl->fMinus1 =  -(1./kSqrt35) * fkr.L2Rminus();
-     hampl->fPlus1  =  -(1./kSqrt35) * fkr.L2Rplus();
-     hampl->fMinus3 =  -(3.*kSqrt2/kSqrt35) * fkr.L2Rminus();
-     hampl->fPlus3  =  -(3.*kSqrt2/kSqrt35) * fkr.L2Rplus();
-     hampl->f0Minus =  -(2./kSqrt35) * fkr.L2C();
+     hampl->fMinus1 =  k1_Sqrt30 * LRm;
+     hampl->fPlus1  =  k1_Sqrt30 * LRp;
+     hampl->fMinus3 =  k3_Sqrt10 * LRm;
+     hampl->fPlus3  =  k3_Sqrt10 * LRp;
+     hampl->f0Minus =  kSqrt2_15 * fkr.Lamda * fkr.C;
      hampl->f0Plus  =  -1. * hampl->f0Minus;
      break;
+   }
+   case (kD15_1675) :
+   {
+     double LRm = fkr.Lamda * fkr.Rminus;
+     double LRp = fkr.Lamda * fkr.Rplus;
 
-   case (kF37_1950) :
-     hampl->fMinus1 =  (kSqrt6/kSqrt35)    * fkr.L2Rminus();
-     hampl->fPlus1  = -(kSqrt6/kSqrt35)    * fkr.L2Rplus();
-     hampl->fMinus3 =  (kSqrt2/kSqrt7)     * fkr.L2Rminus();
-     hampl->fPlus3  = -(kSqrt2/kSqrt7)     * fkr.L2Rplus();
-     hampl->f0Minus = -(2.*kSqrt6/kSqrt35) * fkr.L2C();
-     hampl->f0Plus  = hampl->f0Minus;
+     hampl->fMinus1 = -kSqrt3_10 * LRm;
+     hampl->fPlus1  =  kSqrt3_10 * LRp;
+     hampl->fMinus3 = -kSqrt3_5  * LRm;
+     hampl->fPlus3  =  kSqrt3_5  * LRp;
+     hampl->f0Minus =  kSqrt6_5  * fkr.Lamda * fkr.C;
+     hampl->f0Plus  =  hampl->f0Minus;
      break;
+   }
+   case (kS31_1620) :
+   {
+     double a = kSqrt3_2 * fkr.Lamda * fkr.S;
+     double b = k1_Sqrt6 * (fkr.Lamda * fkr.C - 3.* fkr.B);
 
+     hampl->fMinus1 = -kSqrt3 * fkr.Tminus + k1_Sqrt6 * fkr.Lamda * fkr.Rminus;
+     hampl->fPlus1  =  kSqrt3 * fkr.Tplus  - k1_Sqrt6 * fkr.Lamda * fkr.Rplus;
+     hampl->fMinus3 =  0;
+     hampl->fPlus3  =  0;
+     hampl->f0Minus =  a+b;
+     hampl->f0Plus  = -a+b;
+     break;
+   }
+   case (kD33_1700) :
+   {
+     double a = kSqrt3   * fkr.Lamda * fkr.S;
+     double b = k1_Sqrt3 * fkr.Lamda * fkr.C;
+
+     hampl->fMinus1 = -kSqrt3_2 * fkr.Tminus - k1_Sqrt3 * fkr.Lamda * fkr.Rminus;
+     hampl->fPlus1  = -kSqrt3_2 * fkr.Tplus  - k1_Sqrt3 * fkr.Lamda * fkr.Rplus;
+     hampl->fMinus3 = -k3_Sqrt2 * fkr.Tminus;
+     hampl->fPlus3  = -k3_Sqrt2 * fkr.Tplus;
+     hampl->f0Minus =  a + b;
+     hampl->f0Plus  =  a - b;
+     break;
+   }
+   case (kP11_1440) :
+   {
+     double L2 = TMath::Power(fkr.Lamda, 2);
+     double c  = 5.*kSqrt3/6.;
+     double a  = kSqrt3_4 * L2 * fkr.S;
+     double b  = c * (L2 * fkr.C - 2 * fkr.Lamda * fkr.B);
+
+     hampl->fMinus1 =  -c * L2 * fkr.Rminus;
+     hampl->fPlus1  =  -c * L2 * fkr.Rplus;
+     hampl->fMinus3 =   0;
+     hampl->fPlus3  =   0;
+     hampl->f0Minus =  -a+b;
+     hampl->f0Plus  =  -a-b;
+     break;
+   }
+   case (kP33_1600) :
+   {
+     double L2      = TMath::Power(fkr.Lamda, 2);
+     double L2Rm    = L2 * fkr.Rminus;
+     double L2Rp    = L2 * fkr.Rplus;
+
+     hampl->fMinus1 = -k1_Sqrt6 * L2Rm;
+     hampl->fPlus1  =  k1_Sqrt6 * L2Rp;
+     hampl->fMinus3 = -k1_Sqrt2 * L2Rm;
+     hampl->fPlus3  =  k1_Sqrt2 * L2Rp;
+     hampl->f0Minus =  kSqrt2_3 * (L2 * fkr.C - 2 * fkr.Lamda * fkr.B);
+     hampl->f0Plus  =  hampl->f0Minus;
+     break;
+   }
+   case (kP13_1720) :
+   {
+     double L2      = TMath::Power(fkr.Lamda, 2);
+     double L2Rm    = L2 * fkr.Rminus;
+     double L2Rp    = L2 * fkr.Rplus;
+     double LTm     = fkr.Lamda * fkr.Tminus;
+     double LTp     = fkr.Lamda * fkr.Tplus;
+     double a       = kSqrt3_5 * L2 * fkr.S;
+     double b       = kSqrt5_3 * (L2 * fkr.C - 5 * fkr.Lamda * fkr.B);
+
+     hampl->fMinus1 =  -kSqrt27_10 * LTm - kSqrt5_3 * L2Rm;
+     hampl->fPlus1  =   kSqrt27_10 * LTm + kSqrt5_3 * L2Rp;
+     hampl->fMinus3 =   k3_Sqrt10 * LTm;
+     hampl->fPlus3  =  -k3_Sqrt10 * LTp;
+     hampl->f0Minus =   a-b;
+     hampl->f0Plus  =  -a-b;
+     break;
+   }
+   case (kF15_1680) :
+   {
+     double L2  = TMath::Power(fkr.Lamda, 2);
+     double LTm = fkr.Lamda * fkr.Tminus;
+     double LTp = fkr.Lamda * fkr.Tplus;
+     double a   = kSqrt9_10 * L2 * fkr.S;
+     double b   = kSqrt5_2  * L2 * fkr.C;
+
+     hampl->fMinus1 = -k3_Sqrt5  * LTm + kSqrt5_2 * L2 * fkr.Rminus;
+     hampl->fPlus1  = -k3_Sqrt5  * LTp + kSqrt5_2 * L2 * fkr.Rplus;
+     hampl->fMinus3 = -kSqrt18_5 * LTm;
+     hampl->fPlus3  = -kSqrt18_5 * LTp;
+     hampl->f0Minus =  a - b;
+     hampl->f0Plus  =  a + b;
+     break;
+   }
+   case (kP31_1910) :
+   {
+     double L2 = TMath::Power(fkr.Lamda, 2);
+
+     hampl->fMinus1 =  k1_Sqrt15 * L2 * fkr.Rminus;
+     hampl->fPlus1  =  k1_Sqrt15 * L2 * fkr.Rplus;
+     hampl->fMinus3 =  0;
+     hampl->fPlus3  =  0;
+     hampl->f0Minus =  k2_Sqrt15 * (L2 * fkr.C - 5 * fkr.Lamda * fkr.B);
+     hampl->f0Plus  = -1.* hampl->f0Minus;
+     break;
+   }
+   case (kP33_1920) :
+   {
+     double L2   = TMath::Power(fkr.Lamda, 2);
+     double L2Rm = L2 * fkr.Rminus;
+     double L2Rp = L2 * fkr.Rplus;
+
+     hampl->fMinus1 = -k1_Sqrt15 * L2Rm;
+     hampl->fPlus1  =  k1_Sqrt15 * L2Rp;
+     hampl->fMinus3 =  k1_Sqrt5  * L2Rm;
+     hampl->fPlus3  = -k1_Sqrt5  * L2Rp;
+     hampl->f0Minus =  k2_Sqrt15 * (L2 * fkr.C - 5 * fkr.Lamda * fkr.B);
+     hampl->f0Plus  =  hampl->f0Minus;
+     break;
+   }
+   case (kF35_1905) :
+   {
+     double L2      = TMath::Power(fkr.Lamda, 2);
+     double L2Rm    = L2 * fkr.Rminus;
+     double L2Rp    = L2 * fkr.Rplus;
+
+     hampl->fMinus1 =  -k1_Sqrt35  * L2Rm;
+     hampl->fPlus1  =  -k1_Sqrt35  * L2Rp;
+     hampl->fMinus3 =  -kSqrt18_35 * L2Rm;
+     hampl->fPlus3  =  -kSqrt18_35 * L2Rp;
+     hampl->f0Minus =  -k2_Sqrt35  * L2 * fkr.C;
+     hampl->f0Plus  =  -1.* hampl->f0Minus;
+     break;
+   }
+   case (kF37_1950) :
+   {
+     double L2      = TMath::Power(fkr.Lamda, 2);
+     double L2Rm    = L2 * fkr.Rminus;
+     double L2Rp    = L2 * fkr.Rplus;
+
+     hampl->fMinus1 =  kSqrt6_35  * L2Rm;
+     hampl->fPlus1  = -kSqrt6_35  * L2Rp;
+     hampl->fMinus3 =  kSqrt2_7   * L2Rm;
+     hampl->fPlus3  = -kSqrt2_7   * L2Rp;
+     hampl->f0Minus = -kSqrt24_35 * L2 * fkr.C;
+     hampl->f0Plus  =  hampl->f0Minus;
+     break;
+   }
    case (kP11_1710) :
-     hampl->fMinus1 = (kSqrt2/kSqrt3) * fkr.L2Rminus();
-     hampl->fPlus1  = (kSqrt2/kSqrt3) * fkr.L2Rplus();
+   {
+     double L2 = TMath::Power(fkr.Lamda, 2);
+     double a  = kSqrt3_2 * L2 * fkr.S;
+     double b  = kSqrt2_3 * (L2 * fkr.C - 2 * fkr.Lamda * fkr.B);
+
+     hampl->fMinus1 = kSqrt2_3 * L2 * fkr.Rminus;
+     hampl->fPlus1  = kSqrt2_3 * L2 * fkr.Rplus;
      hampl->fMinus3 = 0;
      hampl->fPlus3  = 0;
-     hampl->f0Minus = (kSqrt3/kSqrt2) * fkr.L2S() -
-                               (kSqrt2/kSqrt3) * fkr.Lamda() * fkr.LC_2B();
-     hampl->f0Plus  = (kSqrt3/kSqrt2) * fkr.L2S() +
-                               (kSqrt2/kSqrt3) * fkr.Lamda() * fkr.LC_2B();
+     hampl->f0Minus = a - b;
+     hampl->f0Plus  = a + b;
      break;
-
+   }
    case (kF17_1970) :
-     hampl->fMinus1 =  -(kSqrt3/kSqrt35) * fkr.L2Rminus();
-     hampl->fPlus1  =   (kSqrt3/kSqrt35) * fkr.L2Rplus();
-     hampl->fMinus3 =  -(1./kSqrt7)      * fkr.L2Rminus();
-     hampl->fPlus3  =   (1./kSqrt7)      * fkr.L2Rplus();
-     hampl->f0Minus =   (kSqrt6/kSqrt35) * fkr.L2C();
+   {
+     double L2   = TMath::Power(fkr.Lamda, 2);
+     double L2Rm = L2 * fkr.Rminus;
+     double L2Rp = L2 * fkr.Rplus;
+
+     hampl->fMinus1 =  -kSqrt3_35 * L2Rm;
+     hampl->fPlus1  =   kSqrt3_35 * L2Rp;
+     hampl->fMinus3 =  -k1_Sqrt7  * L2Rm;
+     hampl->fPlus3  =   k1_Sqrt7  * L2Rp;
+     hampl->f0Minus =   kSqrt6_35 * L2 * fkr.C;
      hampl->f0Plus  =   hampl->f0Minus;
      break;
-
+   }
    default:
      LOG("RSHAmpl", pWARN) << "*** UNRECOGNIZED RESONANCE!";
      delete hampl;
