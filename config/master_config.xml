@@ -68,6 +68,7 @@
    <!-- ****** CONFIGURATION FOR INTEGRATORS ****** -->
    <config alg="genie::Simpson1D">                   Simpson1D.xml                   </config>
    <config alg="genie::Simpson2D">                   Simpson2D.xml                   </config>
+   <config alg="genie::Simpson2DFixN">               Simpson2DFixN.xml               </config>
    <config alg="genie::SimMCIntegrator">             SimMCIntegrator.xml             </config>
    <config alg="genie::VegasMCIntegrator">           VegasMCIntegrator.xml           </config>
    <config alg="genie::MiserMCIntegrator">           MiserMCIntegrator.xml           </config>
