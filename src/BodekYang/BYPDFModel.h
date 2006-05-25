@@ -30,8 +30,7 @@ public:
   BYPDFModel(string config);
   virtual ~BYPDFModel();
 
-  //-- impement PDFModelI interface
-
+  //! PDFModelI interface implementation
   double UpValence   (double x, double q2) const;
   double DownValence (double x, double q2) const;
   double UpSea       (double x, double q2) const;
@@ -43,8 +42,24 @@ public:
   double Gluon       (double x, double q2) const;
   PDF_t  AllPDFs     (double x, double q2) const;
 
+  //! overload the Algorithm::Configure() methods to load private data
+  //! members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
+
 private:
-  double DeltaDU (double x) const;
+
+  void   LoadConfig (void);
+  double DeltaDU    (double x) const;
+
+  //! configuration parameters
+
+  const PDFModelI * fBasePDFModel; ///< base (uncorrected) PDF model
+
+  double fX0;    ///< correction param X0
+  double fX1;    ///< correction param X1
+  double fX2;    ///< correction param X2
+  double fQ2min; ///< min. Q2 for PDF evaluation
 };
 
 }         // genie namespace

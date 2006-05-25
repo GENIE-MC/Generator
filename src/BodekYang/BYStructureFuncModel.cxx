@@ -20,6 +20,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgFactory.h"
+#include "Algorithm/AlgConfigPool.h"
 #include "BodekYang/BYStructureFuncModel.h"
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
@@ -31,13 +32,13 @@ using namespace genie::constants;
 BYStructureFuncModel::BYStructureFuncModel(string name) :
 DISStructureFuncModel(name)
 {
-
+  this->Init();
 }
 //____________________________________________________________________________
 BYStructureFuncModel::BYStructureFuncModel(string name, string config):
 DISStructureFuncModel(name, config)
 {
-
+  this->Init();
 }
 //____________________________________________________________________________
 BYStructureFuncModel::~BYStructureFuncModel()
@@ -54,16 +55,12 @@ void BYStructureFuncModel::Configure(const Registry & config)
 // For the ReadBYParams() method see below
 
   DISStructureFuncModel::Configure(config);
-
-  this->Init();
   this->ReadBYParams();
 }
 //____________________________________________________________________________
 void BYStructureFuncModel::Configure(string param_set)
 {
   DISStructureFuncModel::Configure(param_set);
-
-  this->Init();
   this->ReadBYParams();
 }
 //____________________________________________________________________________
@@ -73,32 +70,29 @@ void BYStructureFuncModel::ReadBYParams(void)
 // registry and set some private data members so as not to accessing the
 // registry at every calculation.
 //
-  assert( fConfig->Exists("A"  ) );
-  assert( fConfig->Exists("B"  ) );
-  assert( fConfig->Exists("Cs" ) );
-  assert( fConfig->Exists("Cv1") );
-  assert( fConfig->Exists("Cv2") );
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
 
-  fA   = fConfig->GetDouble("A"  );
-  fB   = fConfig->GetDouble("B"  );
-  fCs  = fConfig->GetDouble("Cs" );
-  fCv1 = fConfig->GetDouble("Cv1");
-  fCv2 = fConfig->GetDouble("Cv2");
-
-  LOG("BodekYang", pDEBUG) << "Using Bodek-Yang param A   = " << fA;
-  LOG("BodekYang", pDEBUG) << "Using Bodek-Yang param B   = " << fB;
-  LOG("BodekYang", pDEBUG) << "Using Bodek-Yang param Cs  = " << fCs;
-  LOG("BodekYang", pDEBUG) << "Using Bodek-Yang param Cv1 = " << fCv1;
-  LOG("BodekYang", pDEBUG) << "Using Bodek-Yang param Cv2 = " << fCv2;
+  fA    = fConfig->GetDoubleDef( "A",    gc->GetDouble("BY-A")    );
+  fB    = fConfig->GetDoubleDef( "B",    gc->GetDouble("BY-B")    );
+  fCsU  = fConfig->GetDoubleDef( "CsU",  gc->GetDouble("BY-CsU")  );
+  fCsD  = fConfig->GetDoubleDef( "CsU",  gc->GetDouble("BY-CsD")  );
+  fCv1U = fConfig->GetDoubleDef( "Cv1U", gc->GetDouble("BY-Cv1U") );
+  fCv2U = fConfig->GetDoubleDef( "Cv2U", gc->GetDouble("BY-Cv2U") );
+  fCv1D = fConfig->GetDoubleDef( "Cv1D", gc->GetDouble("BY-Cv1D") );
+  fCv2D = fConfig->GetDoubleDef( "Cv2D", gc->GetDouble("BY-Cv2D") );
 }
 //____________________________________________________________________________
 void BYStructureFuncModel::Init(void)
 {
-  fA   = 0;
-  fB   = 0;
-  fCs  = 0;
-  fCv1 = 0;
-  fCv2 = 0;
+  fA    = 0;
+  fB    = 0;
+  fCsU  = 0;
+  fCsD  = 0;
+  fCv1U = 0;
+  fCv2U = 0;
+  fCv1D = 0;
+  fCv2D = 0;
 }
 //____________________________________________________________________________
 double BYStructureFuncModel::ScalingVar(const Interaction * interaction) const
@@ -108,30 +102,24 @@ double BYStructureFuncModel::ScalingVar(const Interaction * interaction) const
   const Kinematics & kine  = interaction->GetKinematics();
   double x  = kine.x();
   double Q2 = this->Q2(interaction);
-
-  double xw = x * (Q2 + fB) / (Q2 + fA*x);
+  double a  = TMath::Power( 2*kProtonMass*x, 2 ) / Q2;
+  double xw =  2*x*(Q2+fB) / (Q2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
   return xw;
 }
 //____________________________________________________________________________
-double BYStructureFuncModel::KSea(const Interaction * interaction) const
+void BYStructureFuncModel::KFactors(const Interaction * interaction, 
+	         double & kuv, double & kdv, double & kus, double & kds) const
 {
-// Overrides DISStructureFuncModel::KSea() to compute the BY KSea factor
+// Overrides DISStructureFuncModel::KFactors() to compute the BY K factors for
+// u(valence), d(valence), u(sea), d(sea);
 
-  double Q2   = this->Q2(interaction);
+  double Q2  = this->Q2(interaction);
+  double GD  = 1. / TMath::Power(1.+Q2/0.71, 2); // p elastic form factor
+  double GD2 = TMath::Power(GD,2);
 
-  double ksea = Q2/(Q2+fCs);
-  return ksea;
-}
-//____________________________________________________________________________
-double BYStructureFuncModel::KVal(const Interaction * interaction) const
-{
-// Overrides DISStructureFuncModel::KSea() to compute the BY KVal factor
-
-  double Q2   = this->Q2(interaction);
-  double GD   = 1. / TMath::Power(1.+Q2/0.71, 2); // p elastic form factor
-  double GD2  = TMath::Power(GD,2);
-
-  double kval = (1.-GD2)*(Q2+fCv2)/(Q2+fCv1);
-  return kval;
+  kuv = (1.-GD2)*(Q2+fCv2U)/(Q2+fCv1U); // K - u(valence)
+  kdv = (1.-GD2)*(Q2+fCv2D)/(Q2+fCv1D); // K - d(valence)
+  kus = Q2/(Q2+fCsU);                   // K - u(sea)
+  kds = Q2/(Q2+fCsU);                   // K - d(sea)
 }
 //____________________________________________________________________________
