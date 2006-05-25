@@ -94,7 +94,7 @@
 
        <!-- Resonance: P11(1440) -->
        
-       <param type="int"    name="P11(1440)-ResIndex">        1        </param>
+       <param type="int"    name="P11(1440)-ResIndex">        2        </param>
        <param type="int"    name="P11(1440)-L">               1        </param>       
        <param type="bool"   name="P11(1440)-IsDelta">         false    </param>
        <param type="bool"   name="P11(1440)-IsN">             true     </param>

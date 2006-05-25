@@ -19,7 +19,7 @@ Wcut                        double  Yes   Param used in DIS/RES joining         
 <alg_conf>
 
   <param_set name="CC-Default"> 
-     <param type="string" name="sf-alg-name">                 genie::DISStructureFuncModelCC  </param>
+     <param type="string" name="sf-alg-name">                 genie::BYStructureFuncModelCC   </param>
      <param type="string" name="sf-param-set">                Default                         </param>
      <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
      <param type="string" name="multiplicity-prob-param-set"> NoRenorm                        </param>

@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+
+<!--
+Configuration for the BYPDFModel PDFModelI
+
+Algorithm Configurable Parameters:
+....................................................................................................
+Name                       Type    Opt   Comment                                Default
+....................................................................................................
+X0                         double  Yes   Bodek-Yang param X0                    GPL: BY-X0
+X1                         double  Yes   Bodek-Yang param X1                    GPL: BY-X1
+X2                         double  Yes   Bodek-Yang param X2                    GPL: BY-X2
+Q2min                      double  Yes   Min Q2 for PDF evaluation              GPL: PDF-Q2min
+base-pdf-model-alg-name    string  No    Uncorrected PDF model 
+base-pdf-model-param-set   string  No    ... and its config set
+-->
+
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="string"  name="base-pdf-model-alg-name">  genie::PDFLIB  </param>
-     <param type="string"  name="base-pdf-model-param-set"> GRVLO          </param>
-     <param type="double"  name="correction-const-X0">     -0.0161        </param>
-     <param type="double"  name="correction-const-X1">      0.0549        </param>
-     <param type="double"  name="correction-const-X2">      0.3550        </param>
-     <param type="double"  name="correction-const-X3">     -0.1930        </param>
+     <param type="string" name="base-pdf-model-alg-name">   genie::PDFLIB  </param>
+     <param type="string" name="base-pdf-model-param-set">  GRVLO          </param>
   </param_set>
-  
+
 </alg_conf>
 

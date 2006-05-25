@@ -41,7 +41,7 @@
   <priority msgstream="DISSF">               INFO   </priority>
   <priority msgstream="DISXSec">             INFO   </priority>
   <priority msgstream="DISCharmXSec">        INFO   </priority>
-  <priority msgstream="DISPXSec">            INFO   </priority>
+  <priority msgstream="DISPXSec">            NOTICE </priority>
   <priority msgstream="DISHadronicVtx">      INFO   </priority>
   <priority msgstream="DISKinematics">       INFO   </priority>
   <priority msgstream="EventGenerator">      NOTICE </priority>

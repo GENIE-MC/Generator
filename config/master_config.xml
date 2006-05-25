@@ -81,6 +81,7 @@
    <config alg="genie::LlewellynSmithModelNC">       LlewellynSmithModelNC.xml       </config>
    <config alg="genie::DISStructureFuncModelCC">     DISStructureFuncModelCC.xml     </config>
    <config alg="genie::DISStructureFuncModelNC">     DISStructureFuncModelNC.xml     </config>
+   <config alg="genie::BYStructureFuncModelCC">      BYStructureFuncModelCC.xml      </config>
 
    <!--  ****** CONFIGURATION FOR MODEL-INDEPENDENT CROSS SECTION ALGORITHMS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
