@@ -77,6 +77,9 @@ double DISPartonModelPXSec::XSec(
   double x     = kinematics.x();
   double y     = kinematics.y();
 
+  LOG("DISPXSec", pDEBUG)  
+   << "Computing d2xsec/dxdy @ E = " << E << ", x = " << x << ", y = " << y;
+
   //----- One of the xsec terms changes sign for antineutrinos
   int sign = 1;
   if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
@@ -84,7 +87,7 @@ double DISPartonModelPXSec::XSec(
   //----- Calculate the DIS structure functions
   fDISSF.Calculate(interaction); 
 
-  LOG("DISXSec", pDEBUG)  << "\n" << fDISSF;
+  LOG("DISPXSec", pDEBUG) << fDISSF;
 
   //-- calculate auxiliary parameters
   double ml2  = ml    * ml;
@@ -95,14 +98,13 @@ double DISPartonModelPXSec::XSec(
   //----- Build all dxsec/dxdy terms
   double term1 = y * ( x*y + ml2/(2*E*Mnuc) );
   double term2 = 1 - y - Mnuc*x*y/(2*E) - ml2/(4*E2);
-  double term3 = sign*x*y*(1-y/2) - y*ml2/(4*Mnuc*E);
+  double term3 = sign * (x*y*(1-y/2) - y*ml2/(4*Mnuc*E));
   double term4 = x*y*ml2/(2*Mnuc*E) + ml4/(4*Mnuc2*E2);
   double term5 = -1.*ml2/(2*Mnuc*E);
 
-  LOG("DISXSec", pDEBUG)  
-    << "\nd^2xsec/dxdy ~ (" << term1 << ")*F1 + (" << term2 
-    << ")*F2 +(" << term3 << ")*F3 + (" << term4 << ")*F4 + ("
-    << term5 << ")*F5";
+  LOG("DISPXSec", pDEBUG)  
+    << "\nd2xsec/dxdy ~ (" << term1 << ")*F1+(" << term2 << ")*F2+(" 
+                  << term3 << ")*F3+(" << term4 << ")*F4+(" << term5 << ")*F5";
 
   //----- Compute the differential cross section
   term1 *= fDISSF.F1();
@@ -114,18 +116,15 @@ double DISPartonModelPXSec::XSec(
   double xsec = Gfac*(term1 + term2 + term3 + term4 + term5);
   xsec = TMath::Max(xsec,0.);
 
-  LOG("DISXSec", pDEBUG)
-        << "d2xsec/dxdy[FreeN] (E = " << E 
-                    << ", x = " << x << ", y = " << y << ") = " << xsec;
+  LOG("DISPXSec", pINFO)
+        << "d2xsec/dxdy[FreeN] (E= " << E 
+                      << ", x= " << x << ", y= " << y << ") = " << xsec;
 
   //----- If the DIS/RES joining scheme is enabled, modify the xsec accordingly
   if(fUsingDisResJoin) {
      double R = this->DISRESJoinSuppressionFactor(interaction);
      xsec*=R;
-
-     LOG("DISXSec", pDEBUG)
-        << "d2xsec/dxdy[FreeN, D/R Join] (E = " << E 
-                    << ", x = " << x << ", y = " << y << ") = " << xsec;
+     LOG("DISPXSec", pINFO) << "d2xsec/dxdy[FreeN, D/R Join] " << xsec;
   }
 
   //----- The algorithm computes d^2xsec/dxdy

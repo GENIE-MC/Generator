@@ -27,16 +27,9 @@ namespace genie {
 class DISStructureFuncModelCC : public DISStructureFuncModel {
 
 public:
-
   DISStructureFuncModelCC();
   DISStructureFuncModelCC(string config);
   virtual ~DISStructureFuncModelCC();
-
-  //-- DISStructureFuncModelI interface implementation
-
-  // override just this interface method and take any other implementation
-  // from DISStructureFuncModel
-  void Calculate(const Interaction * interaction) const;
 };
 
 }         // genie namespace

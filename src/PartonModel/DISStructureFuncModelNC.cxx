@@ -99,14 +99,10 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
      return;
   }
 
-  // compute nuclear modification factor (for A>1) and the longitudinal
-  // structure function (scale-breaking QCD corrections)
-
+  // compute nuclear modification factor 
   double f  = this->NuclMod(interaction);
-  double FL = this->FL(interaction);
 
   LOG("DISSF", pDEBUG) << "Nucl. Factor = " << f;
-  LOG("DISSF", pDEBUG) << "FL = " << FL;
 
   // compute the structure functions F1-F6
   fF6 = 0.;
@@ -114,7 +110,7 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
   fF3 = f * xF3/x;
   fF2 = f * F2;
 
-  fF1 = 0.5*(fF2-FL)/x; // Callan-Gross holds only if FL=0
+  fF1 = 0.5*fF2/x; 
 
   fF5 = fF2/x;          // Albright-Jarlskog relations
   fF4 = 0.;             // Nucl.Phys.B 84, 467 (1975)
