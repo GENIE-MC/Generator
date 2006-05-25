@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the BYStructureFuncModelCC DISStructureFuncModelI
+
+Algorithm Configurable Parameters:
+....................................................................................................
+Name                       Type    Opt   Comment                                Default
+....................................................................................................
+A                          double  Yes   Bodek-Yang scaling var param A         GPL: BY-A
+B                          double  Yes   Bodek-Yang scaling var param B         GPL: BY-B
+CsU                        double  Yes   Bodek-Yang u sea K factor param        GPL: BY-CsU
+CsD                        double  Yes   Bodek-Yang d sea K factor param        GPL: BY-CsD
+Cv1U                       double  Yes   Bodek-Yang u val K factor param        GPL: BY-Cv1U
+Cv2U                       double  Yes   Bodek-Yang u val K factor param        GPL: BY-Cv2U
+Cv1D                       double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv1D
+Cv2D                       double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv2D
+pdf-alg-name               string  No    PDF model
+pdf-param-set              string  No    ... and its config set
+-->
+
+<alg_conf>
+
+  <param_set name="Default"> 
+     <param type="string" name="pdf-alg-name">   genie::BYPDFModel </param>
+     <param type="string" name="pdf-param-set">  Default           </param>
+  </param_set>
+
+</alg_conf>
+
