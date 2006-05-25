@@ -113,12 +113,18 @@ bool DISStructureFunc::Compare(const DISStructureFunc & sf) const
 //____________________________________________________________________________
 void DISStructureFunc::Print(ostream & stream) const
 {
+  stream << "(F1-F6) = (" 
+         << this->fF1 << ", " << this->fF2 << ", "
+         << this->fF3 << ", " << this->fF4 << ", "
+         << this->fF5 << ", " << this->fF6 << ")" << endl;
+/*
   stream << "F1  = " << this->fF1 << endl;
   stream << "F2  = " << this->fF2 << endl;
   stream << "F3  = " << this->fF3 << endl;
   stream << "F4  = " << this->fF4 << endl;
   stream << "F5  = " << this->fF5 << endl;
   stream << "F6  = " << this->fF6 << endl;
+*/
 }
 //____________________________________________________________________________
 bool DISStructureFunc::operator == (const DISStructureFunc & sf) const
