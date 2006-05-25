@@ -133,17 +133,16 @@ double PDFLIB::Gluon(double x, double q2) const
 //____________________________________________________________________________
 PDF_t PDFLIB::AllPDFs(double x, double q2) const
 {
-  double scale = TMath::Sqrt( TMath::Abs(q2) ); // QCD scale
-
-  // call structm from the fortran PDFLIB library
-
+  PDF_t pdf;
   double uval, dval, usea, dsea, str, chm, bot, top, gl;
 
-  structm_(&x, &scale, &uval, &dval, &usea, &dsea, 
-                                                &str, &chm, &bot, &top, &gl);
+  // QCD scale
+  double sc = TMath::Sqrt( TMath::Abs(q2) ); 
 
-  PDF_t pdf;
+  // call structm from the fortran PDFLIB library
+  structm_(&x, &sc, &uval, &dval, &usea, &dsea, &str, &chm, &bot, &top, &gl);
 
+  // set PDF_t
   pdf.uval = uval;
   pdf.dval = dval;
   pdf.usea = usea;
