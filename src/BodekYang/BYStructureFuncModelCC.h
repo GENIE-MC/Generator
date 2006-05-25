@@ -29,16 +29,9 @@ namespace genie {
 class BYStructureFuncModelCC : public BYStructureFuncModel {
 
 public:
-
   BYStructureFuncModelCC();
   BYStructureFuncModelCC(string config);
   ~BYStructureFuncModelCC();
-
-  //-- DISStructureFuncModelI interface implementation
-
-  // override just this interface method and take any other implementation
-  // from DISStructureFuncModel
-  void Calculate(const Interaction * interaction) const;
 };
 
 }         // genie namespace

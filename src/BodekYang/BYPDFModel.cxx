@@ -15,6 +15,9 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
+#include "Algorithm/AlgConfigPool.h"
 #include "BodekYang/BYPDFModel.h"
 #include "Messenger/Messenger.h"
 
@@ -85,36 +88,33 @@ double BYPDFModel::Gluon(double x, double q2) const
 //____________________________________________________________________________
 PDF_t BYPDFModel::AllPDFs(double x, double q2) const
 {
-  LOG("BodekYang", pDEBUG) << "x = " << x << ", |q2| = " << q2;
+  LOG("BodekYang", pDEBUG) << "x = " << x << ", |q2| = " << TMath::Abs(q2);
 
-  // get the base PDF model (typically GRV9* LO)
-  const PDFModelI * base_pdf_model = dynamic_cast<const PDFModelI *>
-        (this->SubAlg("base-pdf-model-alg-name","base-pdf-model-param-set"));
+  if(TMath::Abs(q2) < fQ2min) q2=fQ2min;
 
-  // delegate the calculation request and get the uncorrected PDFs
-  PDF_t uncorrected_pdfs = base_pdf_model->AllPDFs(x, q2);
-
-  //--------- Correction to GRV9* LO up+down / valence+sea PDFs --------
-  double uv  = uncorrected_pdfs.uval;
-  double us  = uncorrected_pdfs.usea;
-  double dv  = uncorrected_pdfs.dval;
-  double ds  = uncorrected_pdfs.dsea;
+  // get the uncorrected PDFs
+  PDF_t uncorrected_pdfs = fBasePDFModel->AllPDFs(x, q2);
+  double uv = uncorrected_pdfs.uval;
+  double us = uncorrected_pdfs.usea;
+  double dv = uncorrected_pdfs.dval;
+  double ds = uncorrected_pdfs.dsea;
 
   // compute correction factor delta(d/u)
   double delta = this->DeltaDU(x);
   LOG("BodekYang", pDEBUG) << "delta(d/u) = " << delta;
 
   // compute u/(u+d) ratios for both valence & sea quarks
-  double rv = uv / (uv+dv);
-  double rs = us / (us+ds);
-  LOG("BodekYang", pDEBUG)
-                 << "val[u/(u+d)] = " << rv << ", sea[u/(u+d)] = " << rs;
+  double val = uv+dv;
+  double sea = us+ds;
+  double rv  = (val==0) ? 0. : uv/val;
+  double rs  = (sea==0) ? 0. : us/sea;
 
-  // correct valence quark PDFs:
+  LOG("BodekYang", pDEBUG)
+      << "val[u/(u+d)] = " << rv << ", sea[u/(u+d)] = " << rs;
+
+  // compute the corrected valence and sea quark PDFs:
   double uv_c =       uv        / ( 1 + delta*rv);
   double dv_c = (dv + uv*delta) / ( 1 + delta*rv);
-
-  // correct valence quark PDFs:
   double us_c =       us        / ( 1 + delta*rs);
   double ds_c = (ds + us*delta) / ( 1 + delta*rs);
 
@@ -141,29 +141,39 @@ PDF_t BYPDFModel::AllPDFs(double x, double q2) const
 //____________________________________________________________________________
 double BYPDFModel::DeltaDU(double x) const
 {
-// Computes correction factor delta(d/u) u+d / valence+sea PDFs
-// The correction factor is computed as
-//           delta(d/u) = cX0 + cX1 * x + cX2 * x^2 + cX3 * x^3
-// where cX0,...cX3 are parameters that the algorithm finds from its XML
-// configuration file.
+// Computes the BY correction factor delta(d/u) 
 
-  assert(
-      fConfig->Exists("correction-const-X0") &&
-              fConfig->Exists("correction-const-X1") &&
-                      fConfig->Exists("correction-const-X2") &&
-                               fConfig->Exists("correction-const-X3")
-  );
-
-  double cX0 = fConfig->GetDouble("correction-const-X0");
-  double cX1 = fConfig->GetDouble("correction-const-X1");
-  double cX2 = fConfig->GetDouble("correction-const-X2");
-  double cX3 = fConfig->GetDouble("correction-const-X3");
-
-  double x2 = x * x;
-  double x3 = x * x2;
-
-  double delta_d_u = cX0 + cX1*x + cX2*x2 + cX3*x3;
-
-  return delta_d_u;
+  double d = fX0 + fX1 * x + fX2 * TMath::Power(x,2); 
+  return d;
 }
 //____________________________________________________________________________
+void BYPDFModel::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void BYPDFModel::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void BYPDFModel::LoadConfig(void)
+{
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  fX0 = fConfig->GetDoubleDef("X0", gc->GetDouble("BY-X0"));
+  fX1 = fConfig->GetDoubleDef("X1", gc->GetDouble("BY-X1"));
+  fX2 = fConfig->GetDoubleDef("X2", gc->GetDouble("BY-X2"));
+
+  fQ2min = fConfig->GetDoubleDef("Q2min", gc->GetDouble("PDF-Q2min"));
+
+  // get the base PDF model (typically GRV9* LO)
+  fBasePDFModel = dynamic_cast<const PDFModelI *>
+        (this->SubAlg("base-pdf-model-alg-name","base-pdf-model-param-set"));
+}
+//____________________________________________________________________________
+
+

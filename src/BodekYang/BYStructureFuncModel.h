@@ -29,34 +29,38 @@ namespace genie {
 class BYStructureFuncModel : public DISStructureFuncModel {
 
 public:
-
   virtual ~BYStructureFuncModel();
 
-  // Overload Algorithm::Configure() to read the config. registry
-  // at the algorithm initialization and set private data members
+  //! Overload Algorithm::Configure() to read the config. registry
+  //! at the algorithm initialization and set private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
 protected:
 
-  // protected constructors - abstract class
+  void Init         (void);
+  void ReadBYParams (void);
+
+  //! protected constructors - abstract class
   BYStructureFuncModel(string name);
   BYStructureFuncModel(string name, string config);
 
-  // override part of the DISStructureFuncModel implementation
-  // to compute all the corrections applied by the Bodek-Yang model.
-  double ScalingVar (const Interaction * interaction) const;
-  double KSea       (const Interaction * interaction) const;
-  double KVal       (const Interaction * interaction) const;
+  //! override part of the DISStructureFuncModel implementation
+  //! to compute all the corrections applied by the Bodek-Yang model.
+  double ScalingVar (const Interaction * i) const;
+  void   KFactors   (const Interaction * i, double & kuv, 
+                         double & kdv, double & kus, double & kds) const;
 
-  // Bodek-Yang model-specific parameters A,B,Csea,Cv1,Cv2
-  void   Init(void);
-  void   ReadBYParams(void);
-  double fA;
-  double fB;
-  double fCs;
-  double fCv1;
-  double fCv2;
+  //! Bodek-Yang model-specific parameters
+
+  double fA;     ///< better scaling var parameter A
+  double fB;     ///< better scaling var parameter B
+  double fCsU;   ///< U-sea K factor parameter 
+  double fCsD;   ///< D-sea K factor parameter 
+  double fCv1U;  ///< U-val K factor parameter 
+  double fCv2U;  ///< U-val K factor parameter 
+  double fCv1D;  ///< D-val K factor parameter 
+  double fCv2D;  ///< D-val K factor parameter 
 };
 
 }         // genie namespace
