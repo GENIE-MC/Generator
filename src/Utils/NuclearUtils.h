@@ -45,6 +45,9 @@ namespace nuclear
                   double a, double b,  double kFi, double kFf, double q);
   double FmArea (double alpha, double beta, double kf, double pmax);
 
+  double DISNuclFactor (double x, int A);
+  double RModelMod     (double x, double Q2);
+
 } // nuclear namespace
 } // utils   namespace
 } // genie   namespace
