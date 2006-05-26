@@ -414,7 +414,8 @@ void AlgConfigPool::AddRootObjParameter(
   {
     TTree * t  = (TTree*) f.Get(rootobj.c_str());
     if(t) {
-      TTree * ct = new TTree(*t); // clone
+      //TTree * ct = new TTree(*t); // clone
+      TTree * ct = t->CopyTree("1");
       r->Set(pname,ct);
     } else {
       SLOG("AlgConfigPool", pERROR)
