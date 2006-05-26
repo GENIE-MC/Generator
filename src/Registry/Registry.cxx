@@ -670,7 +670,8 @@ void Registry::Copy(const Registry & registry)
      } else if (var_type == "P4TTree") {
            TTree * tree = registry.GetTTree(name);
            if(tree) {
-               TTree * ctree = new TTree(*tree);
+               //TTree * ctree = new TTree(*tree);
+               TTree * ctree = tree->CopyTree("1");
                LOG("Registry", pDEBUG) << ctree->GetName();
                cri = new RegistryItem<TTree*>(ctree,item_lock);
            } else {
