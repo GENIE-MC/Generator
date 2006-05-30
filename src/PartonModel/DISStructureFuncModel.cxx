@@ -163,8 +163,8 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
     fF1 = fF2 * 0.5*c/x;
   }
 
-  fF5 = fF2/x; // Albright-Jarlskog relations
-  fF4 = 0.;    // Nucl.Phys.B 84, 467 (1975)
+//  fF5 = fF2/x; // Albright-Jarlskog relations
+//  fF4 = 0.;    // Nucl.Phys.B 84, 467 (1975)
 }
 //____________________________________________________________________________
 double DISStructureFuncModel::Q2(const Interaction * interaction) const
@@ -246,8 +246,9 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   fPDF->Calculate(x, Q2);
 
   //-- check whether it is above charm threshold
-  bool isAbvCh = utils::kinematics::IsAboveCharmThreshold(interaction, fMc);
-  if(isAbvCh) {
+  bool above_charm_thr = 
+           utils::kinematics::IsAboveCharmThreshold(interaction, fMc);
+  if(above_charm_thr) {
     // compute PDFs at (xi,Q2)
     double xc = utils::kinematics::SlowRescalingVar(interaction, fMc);    
     if(xc>0 && xc<1) fPDFc->Calculate(xc, Q2);
@@ -265,15 +266,43 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   LOG("DISSF", pDEBUG) << "D: Kval = " << kval_d << ", Ksea = " << ksea_d;
 
   //-- apply the K factors
-  fPDF->ScaleUpValence   (kval_u);
-  fPDF->ScaleDownValence (kval_d);
-  fPDF->ScaleUpSea       (ksea_u);
-  fPDF->ScaleDownSea     (ksea_d);
-  if(isAbvCh) {
-    fPDFc->ScaleUpValence   (kval_u);
-    fPDFc->ScaleDownValence (kval_d);
-    fPDFc->ScaleUpSea       (ksea_u);
-    fPDFc->ScaleDownSea     (ksea_d);
+  const InitialState & init_state = interaction->GetInitialState();
+  int nuc_pdgc = init_state.GetTarget().StruckNucleonPDGCode();
+  bool isP = pdg::IsProton  ( nuc_pdgc );
+  bool isN = pdg::IsNeutron ( nuc_pdgc );
+
+  fPDF->ScaleStrange (ksea_d);
+  fPDF->ScaleCharm   (ksea_u);
+  if(above_charm_thr) {
+     fPDFc->ScaleStrange (ksea_d);
+     fPDFc->ScaleCharm   (ksea_u);
+  }
+
+  if(isP)
+  {
+     fPDF->ScaleUpValence   (kval_u);
+     fPDF->ScaleDownValence (kval_d);
+     fPDF->ScaleUpSea       (ksea_u);
+     fPDF->ScaleDownSea     (ksea_d);
+     if(above_charm_thr) {
+        fPDFc->ScaleUpValence   (kval_u);
+        fPDFc->ScaleDownValence (kval_d);
+        fPDFc->ScaleUpSea       (ksea_u);
+        fPDFc->ScaleDownSea     (ksea_d);
+     }
+  } 
+  else if(isN) 
+  {
+     fPDF->ScaleUpValence   (kval_d);
+     fPDF->ScaleDownValence (kval_u);
+     fPDF->ScaleUpSea       (ksea_d);
+     fPDF->ScaleDownSea     (ksea_u);
+     if(above_charm_thr) {
+        fPDFc->ScaleUpValence   (kval_d);
+        fPDFc->ScaleDownValence (kval_u);
+        fPDFc->ScaleUpSea       (ksea_d);
+        fPDFc->ScaleDownSea     (ksea_u);
+     }
   }
 }
 //____________________________________________________________________________
