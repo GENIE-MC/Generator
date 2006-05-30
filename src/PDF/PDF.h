@@ -63,6 +63,8 @@ public:
   void ScaleDownValence (double kscale);
   void ScaleUpSea       (double kscale);
   void ScaleDownSea     (double kscale);
+  void ScaleStrange     (double kscale);
+  void ScaleCharm       (double kscale);
 
   //-- reseting/copying methods
   void Reset (void);

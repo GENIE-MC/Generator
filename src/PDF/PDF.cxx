@@ -104,6 +104,16 @@ void PDF::ScaleDownSea(double kscale)
   fDownSea *= kscale;
 }
 //____________________________________________________________________________
+void PDF::ScaleStrange(double kscale)
+{
+  fStrange *= kscale;
+}
+//____________________________________________________________________________
+void PDF::ScaleCharm(double kscale)
+{
+  fCharm *= kscale;
+}
+//____________________________________________________________________________
 void PDF::Reset(void)
 {
   fUpValence   = 0.0;
