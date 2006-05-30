@@ -7,7 +7,7 @@
   <param_set name="Default"> 
      <param type="int"  name="Nptype">  1  </param>
      <param type="int"  name="Ngroup">  5  </param>
-     <param type="int"  name="Nset">    4  </param>
+     <param type="int"  name="Nset">   12  </param>
   </param_set>
   
   GRVHO PDF set:
@@ -23,7 +23,7 @@
   <param_set name="GRVLO"> 
      <param type="int"  name="Nptype">  1  </param>
      <param type="int"  name="Ngroup">  5  </param>
-     <param type="int"  name="Nset">    4  </param>
+     <param type="int"  name="Nset">   12  </param>
   </param_set>
 
   GRV94HO PDF set:
