@@ -14,6 +14,9 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+#include <TVector3.h>
+
 #include "Conventions/Constants.h"
 #include "EVGModules/IMDPrimaryLeptonGenerator.h"
 #include "GHEP/GHepStatus.h"
@@ -21,6 +24,7 @@
 #include "GHEP/GHepRecord.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
 
 using namespace genie;
@@ -46,60 +50,70 @@ IMDPrimaryLeptonGenerator::~IMDPrimaryLeptonGenerator()
 //___________________________________________________________________________
 void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// This method generates the final state primary lepton
+// This method generates the final state primary lepton for IMD events
 
-  //-- Get the interaction & initial state objects & get the neutrino 4P and
-  //   the kinematical variable
   Interaction * interaction = evrec->GetInteraction();
   const InitialState & init_state = interaction->GetInitialState();
 
-  TLorentzVector * p4nu = init_state.GetProbeP4(kRfLab); //ignore e velocity
-  double y = interaction->GetKinematics().y();
+  // Get selected kinematics
+  double y = interaction->GetKinematics().y(true);
   assert(y>0 && y<1);
 
   // Final state primary lepton PDG code
   int pdgc = kPdgMuon;
 
-  //-- Use selected kinematics
-  interaction->GetKinematicsPtr()->UseSelectedKinematics();
-
-  //-- Kinematics: Compute the lepton energy and the scattering angle with
-  //   respect to the incoming neutrino
-
-  double Ev    = p4nu->Energy();
+  // Compute the neutrino and muon energy
+  double Ev    = init_state.GetProbeE(kRfLab); 
   double Emu   = (1-y)*Ev;
+
+  // Compute the momentum transfer and scattering angle
   double Emu2  = TMath::Power(Emu,2);
   double me    = kElectronMass;
   double mmu2  = kMuonMass2;
-  double pmu   = TMath::Sqrt(Emu2-mmu2);      assert(Emu2>=mmu2);
+  double pmu   = TMath::Sqrt(Emu2-mmu2);   
+  
+  assert(Emu2>=mmu2);
+
   double Q2    = 2*(Ev-Emu)*me;
-  double cThSc = (Emu-0.5*(Q2+mmu2)/Ev)/pmu;
+  double costh = (Emu-0.5*(Q2+mmu2)/Ev)/pmu;
+  double sinth = TMath::Sqrt( TMath::Max(0., 1-TMath::Power(costh,2.)) );
 
   //warn about overflow in costheta and ignore it if it is small or abort
-  if( TMath::Abs(cThSc)>1 ) {
+  if( TMath::Abs(costh)>1 ) {
      LOG("LeptonicVertex", pWARN)
-       << "El = " << Emu << ", Ev = " << Ev << ", cos(theta) = " << cThSc;
-     //if(TMath::Abs(cThSc)-1<0.01) cThSc = 1.0;
-     if(TMath::Abs(cThSc)-1<0.3) cThSc = 1.0; //why?
+       << "El = " << Emu << ", Ev = " << Ev << ", cos(theta) = " << costh;
+     if(TMath::Abs(costh)-1<0.3) costh = 1.0; //why?
   }
-  assert(TMath::Abs(cThSc)<=1);
+  assert(TMath::Abs(costh)<=1);
 
-  //-- The computed scattering angle is with respect to the incoming neutrino
-  //   direction. Rotate the lepton 4-momentum to the LAB according to
-  //   unit' = R(Theta0,Phi0) * R(ThetaSc,PhiSc) * R^-1(Theta0,Phi0) * unit
-  TLorentzVector * p4l = this->Rotate4P(p4nu, pdgc, cThSc, Emu);
+  // Compute the p components along and perpendicular the v direction 
+  double plp = pmu * costh; // p(//)
+  double plt = pmu * sinth; // p(-|)
 
-  //-- Create a GHepParticle and add it to the event record
-  //   (use the insertion method at the base PrimaryLeptonGenerator visitor)
+  LOG("LeptonicVertex", pNOTICE)
+        << "fsl: E = " << Emu << ", |p//| = " << plp << "[pT] = " << plt;
+
+  // Randomize transverse components
+  RandomGen * rnd = RandomGen::Instance();
+  double phi  = 2 * kPi * (rnd->Random1().Rndm());
+  double pltx = plt * TMath::Cos(phi);
+  double plty = plt * TMath::Sin(phi);
+
+  // Take a unit vector along the neutrino direction
+  TVector3 unit_nudir = evrec->Probe()->P4()->Vect().Unit();
+
+  // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+  // {z':(neutrino direction), z'x':(theta plane)} to the LAB
+  TVector3 p3l(pltx,plty,plp);
+  p3l.RotateUz(unit_nudir);
+
+  // Lepton 4-momentum in the LAB
+  TLorentzVector p4l(p3l,Emu);
+
+  // Create a GHepParticle and add it to the event record
   this->AddToEventRecord(evrec, pdgc, p4l);
 
-  delete p4nu;
-  delete p4l;
-
-  //-- Set final state lepton polarization
+  // Set final state lepton polarization
   this->SetPolarization(evrec);
-
-  //-- Reset running kinematics
-  interaction->GetKinematicsPtr()->ClearRunningValues();
 }
 //___________________________________________________________________________

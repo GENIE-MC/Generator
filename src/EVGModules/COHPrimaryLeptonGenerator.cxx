@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <TVector3.h>
 
 #include "Conventions/Constants.h"
 #include "EVGModules/COHPrimaryLeptonGenerator.h"
@@ -22,6 +23,7 @@
 #include "GHEP/GHepRecord.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -46,63 +48,53 @@ COHPrimaryLeptonGenerator::~COHPrimaryLeptonGenerator()
 //___________________________________________________________________________
 void COHPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// This method generates the final state primary lepton
+// This method generates the final state primary lepton in COH events
 
-  //-- Get the attached interaction & get initial state & kinematics objects
   Interaction * interaction = evrec->GetInteraction();
-
   const InitialState & init_state = interaction->GetInitialState();
-  const Kinematics &   kinematics = interaction->GetKinematics();
 
-  //-- Use selected kinematics
-  interaction->GetKinematicsPtr()->UseSelectedKinematics();
+  // Look-up selected kinematics
+  double Q2 = interaction->GetKinematics().Q2(true);
+  double y  = interaction->GetKinematics().y(true);
 
-  //-- Coherent Scattering Kinematics: Compute the lepton energy and the
-  //   scattering angle with respect to the incoming neutrino
+  // Auxiliary params
+  double Ev  = init_state.GetProbeE(kRfLab);
+  double ml  = interaction->GetFSPrimaryLepton()->Mass();
+  double ml2 = TMath::Power(ml,2);
 
-  //auxiliary vars
-  TParticlePDG * fsl = interaction->GetFSPrimaryLepton();
-  int    pdgc = fsl->PdgCode();
-  double Ev   = init_state.GetProbeE(kRfLab);
-  double x    = kinematics.x();
-  double y    = kinematics.y();
-  double ml   = fsl->Mass();
-  double ml2  = ml*ml;
-  double Q2   = 2*x*y*kNucleonMass*Ev;
+  // Compute the final state primary lepton energy and momentum components
+  // along and perpendicular the neutrino direction 
+  double El  = (1-y)*Ev;
+  double plp = El - 0.5*(Q2+ml2)/Ev;                          // p(//)
+  double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
 
-  //Compute outgoing lepton energy & momentum
-  double El = (1-y)*Ev;
-  double pl = TMath::Sqrt( TMath::Max(0., El*El-ml2) );
+  LOG("LeptonicVertex", pNOTICE)
+          << "fsl: E = " << El << ", |p//| = " << plp << "[pT] = " << plt;
 
-  //Compute outgoing lepton scat. angle with respect to the incoming v
-  double costheta = (El - 0.5*(Q2+ml2)/Ev) / pl; 
+  // Randomize transverse components
+  RandomGen * rnd = RandomGen::Instance();
+  double phi  = 2 * kPi * (rnd->Random1().Rndm());
+  double pltx = plt * TMath::Cos(phi);
+  double plty = plt * TMath::Sin(phi);
 
-  LOG("LeptonicVertex", pDEBUG) << "cos(neutrino, fsl) = " << costheta;
+  // Take a unit vector along the neutrino direction
+  TVector3 unit_nudir = evrec->Probe()->P4()->Vect().Unit();
 
-  if(TMath::Abs(costheta) >= 1) {
-     LOG("LeptonicVertex", pWARN) 
-                  << "|cos(neutrino, fsl)| = " << costheta << " >= 1";
-     costheta = TMath::Min(costheta,  1.);
-     costheta = TMath::Max(costheta, -1.);
-  }
-  
-  //-- Get the neutrino 4-p in LAB
-  GHepParticle * neutrino = evrec->Probe();
-  assert(neutrino);
-  TLorentzVector * p4nu = neutrino->GetP4();
+  // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+  // {z':(neutrino direction), z'x':(theta plane)} to the LAB
+  TVector3 p3l(pltx,plty,plp);
+  p3l.RotateUz(unit_nudir);
 
-  //-- Rotate its 4-momentum to the LAB
-  //   unit' = R(Theta0,Phi0) * R(ThetaSc,PhiSc) * R^-1(Theta0,Phi0) * unit
-  TLorentzVector * p4l = this->Rotate4P(p4nu, pdgc, costheta, El);
+  // Lepton 4-momentum in LAB
+  TLorentzVector p4l(p3l,El);
 
-  //-- Create a GHepParticle and add it to the event record
-  //   (use the insertion method at the base PrimaryLeptonGenerator visitor)
+  // Figure out the Final State Lepton PDG Code
+  int pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
+
+  // Create a GHepParticle and add it to the event record
   this->AddToEventRecord(evrec, pdgc, p4l);
 
-  delete p4l;
-  delete p4nu;
-
-  // set final state lepton polarization
+  // Set final state lepton polarization
   this->SetPolarization(evrec);
 }
 //___________________________________________________________________________
