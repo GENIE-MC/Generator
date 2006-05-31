@@ -18,6 +18,7 @@
 		1 : GENIE's GHEP in tabular text format
 		2 : GMINOS-style text file
 		3 : NUANCE-style text file
+		4 : NEUGEN/GENIE cross generator test-style text file
 
            -o specifies the output filename. 
               If not specified a the default filename is constructed by the 
@@ -26,6 +27,7 @@
                 1 -> *.gtab
                 2 -> *.gminos
                 3 -> *.nuance
+                4 -> *.gneugen
 		
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -79,6 +81,7 @@ void   AddGXMLFooter      (ofstream & out);
 void   ConvertToGTab      (ofstream & out, EventRecord & event);
 void   ConvertToGMinos    (ofstream & out, EventRecord & event);
 void   ConvertToNuance    (ofstream & out, EventRecord & event);
+void   ConvertToGNeugen   (ofstream & out, EventRecord & event);
 int    GHepToNuanceIst    (GHepParticle * p);
 int    GHep2NuancePDGC    (GHepParticle * p);
 void   GetCommandLineArgs (int argc, char ** argv);
@@ -101,6 +104,7 @@ int main(int argc, char ** argv)
   else if (gOptOutFileFormat==1) out_format = "GTAB";
   else if (gOptOutFileFormat==2) out_format = "GMINOS";
   else if (gOptOutFileFormat==3) out_format = "NUANCE";
+  else if (gOptOutFileFormat==4) out_format = "GNEUGEN";
 
   LOG("gntpc", pNOTICE)
    << "\n\n Converting:...\n"
@@ -151,10 +155,11 @@ int main(int argc, char ** argv)
     LOG("gntpc", pINFO) << rec_header;
     LOG("gntpc", pINFO) << event;
 
-    if      (gOptOutFileFormat==0) ConvertToGXML  (output, event);
-    else if (gOptOutFileFormat==1) ConvertToGTab  (output, event);
-    else if (gOptOutFileFormat==2) ConvertToGMinos(output, event);
-    else if (gOptOutFileFormat==3) ConvertToNuance(output, event);
+    if      (gOptOutFileFormat==0) ConvertToGXML   (output, event);
+    else if (gOptOutFileFormat==1) ConvertToGTab   (output, event);
+    else if (gOptOutFileFormat==2) ConvertToGMinos (output, event);
+    else if (gOptOutFileFormat==3) ConvertToNuance (output, event);
+    else if (gOptOutFileFormat==4) ConvertToGNeugen(output, event);
 
     mcrec->Clear();
   }
@@ -460,6 +465,83 @@ int GHep2NuancePDGC(GHepParticle * p)
   return nuance_pdgc;
 }
 //___________________________________________________________________
+// FUNCTIONS FOR CONVERTING:
+// ***** GENIE ER ROOT TREE -> NEUGEN/GENIE TEST-STYLE TEXT FILE ****
+//___________________________________________________________________
+void ConvertToGNeugen(ofstream & output, EventRecord & event)
+{
+  // format --
+  // CCNC PROC NU NUC TGT q2 W x y p4nu p4nuc p4fsl p4had
+  // 
+  // notes --
+  // CCNC    : 1->CC, 2->NC
+  // PROC    : 1->QEL
+  // NU,NUC  : std PDG codes for neutrino and hit nucleon
+  // TGT     : MINOS PDG code for target (1AAAZZZ000)
+  // q2      : selected momentum transfer (q2<0, in GeV^2)
+  // W       : selected hadronic invariant mass (in GeV)
+  // x       : selected Bjorken scaling var
+  // y       : selected inelasticity
+  // q2,W,x,y: are the kinematic variables selected by the kinematic
+  //           generators using *off-shell* kinematics, not the ones
+  //           that can be computed by the generated particle 4-vectors.
+  //           To avoid the ambiguity caused by the value of the 
+  //           (off-shell) nucleon mass when translating between 
+  //           kinematic variables, only the ones actually selected
+  //           would be non-zero (QEL:q2, RES:q2,W, DIS:x,y)
+  // p4      : all 4-momentum vector in this order = (px,py,pz,E)
+
+  Interaction * interaction = event.GetInteraction();
+
+  const ProcessInfo & proc_info = interaction->GetProcessInfo();
+
+  int ccnc=-1;
+  if      (proc_info.IsWeakCC()) ccnc=1;
+  else if (proc_info.IsWeakNC()) ccnc=2;
+
+  int proc=-1;
+  if (proc_info.IsQuasiElastic()) proc=1;
+
+  const Kinematics & kinematics = interaction->GetKinematics();
+
+  double q2=0, W=0, x=0, y=0;
+
+  if(proc==1) q2 = kinematics.q2(true);
+
+  GHepParticle * neutrino = event.Probe();
+  GHepParticle * nucleon  = event.StruckNucleon();
+  GHepParticle * target   = event.TargetNucleus();
+  GHepParticle * lepton   = event.FinalStatePrimaryLepton();
+  
+  int neu_pdg = neutrino -> PdgCode();
+  int nuc_pdg = nucleon  -> PdgCode();
+  int tgt_pdg = 0;
+
+  TLorentzVector * p4neu = neutrino -> P4();
+  TLorentzVector * p4nuc = nucleon  -> P4();
+  TLorentzVector * p4lep = lepton   -> P4();
+ 
+  TLorentzVector pnull(0,0,0,0);
+
+  output << ccnc << " " << proc << " "
+         << neu_pdg << " " 
+         << nuc_pdg << " " 
+         << tgt_pdg << " "
+         << q2 << " " 
+         << W  << " " 
+         << x  << " " 
+         << y  << " " 
+         << p4neu->Px() << " "  << p4neu->Py() << " " 
+         << p4neu->Pz() << " "  << p4neu->E()  << " "
+         << p4nuc->Px() << " "  << p4nuc->Py() << " " 
+         << p4nuc->Pz() << "\n" << p4nuc->E()  << " "
+         << p4lep->Px() << " "  << p4lep->Py() << " " 
+         << p4lep->Pz() << " "  << p4lep->E()  << " "
+         << pnull.Px()  << "\n" << pnull.Py()  << " " 
+         << pnull.Pz()  << " "  << pnull.E()   << " "
+         << endl;
+}
+//___________________________________________________________________
 // FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS & PRINTING SYNTAX ON ERR
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -499,7 +581,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   // check output file format
-  bool fmtok = (gOptOutFileFormat>=0 && gOptOutFileFormat<=3);
+  bool fmtok = (gOptOutFileFormat>=0 && gOptOutFileFormat<=4);
   if (!fmtok) {
     LOG("gntpc", pFATAL)
         << "Invalid output format [" << gOptOutFileFormat << "]";
@@ -527,6 +609,7 @@ string DefaultOutputFile(void)
   else if (gOptOutFileFormat==1) ext = "gtab";
   else if (gOptOutFileFormat==2) ext = "gminos";
   else if (gOptOutFileFormat==3) ext = "nuance";
+  else if (gOptOutFileFormat==4) ext = "gneugen";
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
@@ -557,13 +640,16 @@ void PrintSyntax(void)
     << "	        0 : GENIE-style XML file \n"
     << "		1 : GENIE's GHEP in tabular text format \n"
     << "		2 : GMINOS-style text file \n"
-    << "		3 : NUANCE-style text file \n\n"
+    << "		3 : NUANCE-style text file \n"
+    << "                4:  NEUGEN/GENIE cross generator test-style text file\n\n"
     << "       -o specifies the output filename. \n"
     << "          If not specified a the default filename is constructed by the  \n"
     << "          input base name and an extension depending on the file format: \n"
     << "                0 -> *.gxml \n"
     << "                1 -> *.gtab \n"
     << "                2 -> *.gminos \n"
-    << "                3 -> *.nuance \n" << ENDL;
+    << "                3 -> *.nuance \n" 
+    << "                4 -> *.gneugen \n" 
+    << ENDL;
 }
 //___________________________________________________________________
