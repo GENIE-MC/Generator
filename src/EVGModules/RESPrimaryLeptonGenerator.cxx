@@ -42,61 +42,10 @@ RESPrimaryLeptonGenerator::~RESPrimaryLeptonGenerator()
 //___________________________________________________________________________
 void RESPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// This method generates the final state primary lepton
+// This method generates the final state primary lepton in RES events
 
-  //-- Get the interaction & initial state objects
-
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
-
-  //-- Figure out the Final State Lepton PDG Code
-  int pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
-
-  //-- Use selected kinematics
-  interaction->GetKinematicsPtr()->UseSelectedKinematics();
-
-  //-- RES Kinematics: Compute the lepton energy and the scattering
-  //   angle with respect to the incoming neutrino
-
-  //auxiliary params:
-  double Ev   = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M    = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
-  double ml   = interaction->GetFSPrimaryLepton()->Mass();
-  double Q2   = interaction->GetKinematics().Q2();
-  double W    = interaction->GetKinematics().W();
-  double M2   = TMath::Power(M, 2);
-  double ml2  = TMath::Power(ml,2);
-  double W2   = TMath::Power(W, 2);
-
-  //Compute outgoing lepton energy
-  double El  = Ev - 0.5 * (W2 - M2 + Q2) / M;
-
-  //Compute outgoing lepton scat. angle with respect to the incoming v
-  double pl  = TMath::Sqrt( TMath::Max(0., El*El-ml2) );
-  assert (pl > 0);
-  double cThSc = (El - 0.5*(Q2+ml2)/Ev) / pl; // cos(theta-scat) [-1,1]
-  assert( TMath::Abs(cThSc) <= 1 );
-
-  //-- Rotate its 4-momentum to the nucleon rest frame
-  //   unit' = R(Theta0,Phi0) * R(ThetaSc,PhiSc) * R^-1(Theta0,Phi0) * unit
-  TLorentzVector * pl4 = P4InNucRestFrame(evrec, cThSc, El);
-
-  //-- Boost it to the lab frame
-  TVector3 * beta = NucRestFrame2Lab(evrec);
-  pl4->Boost(*beta); // active Lorentz transform
-  delete beta;
-
-  //-- Create a GHepParticle and add it to the event record
-  //   (use the insertion method at the base PrimaryLeptonGenerator visitor)
-  this->AddToEventRecord(evrec, pdgc, pl4);
-
-  delete pl4;
-
-  //-- Set final state lepton polarization
-  this->SetPolarization(evrec);
-
-  //-- Reset running kinematics
-  interaction->GetKinematicsPtr()->ClearRunningValues();
+  // no modification is required to the std implementation
+  PrimaryLeptonGenerator::ProcessEventRecord(evrec);
 }
 //___________________________________________________________________________
 

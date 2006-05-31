@@ -18,7 +18,6 @@
 
 #include "EVGModules/DISPrimaryLeptonGenerator.h"
 #include "GHEP/GHepRecord.h"
-#include "Interaction/Interaction.h"
 
 using namespace genie;
 
@@ -40,63 +39,11 @@ DISPrimaryLeptonGenerator::~DISPrimaryLeptonGenerator()
 
 }
 //___________________________________________________________________________
-void DISPrimaryLeptonGenerator::ProcessEventRecord(
-                                              GHepRecord * event_rec) const
+void DISPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// This method generates the final state primary lepton
+// This method generates the final state primary lepton in DIS events
 
-  //-- Get the interaction & initial state objects
-  Interaction * interaction = event_rec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
-
-  //-- Figure out the Final State Lepton PDG Code
-  int pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
-
-  //-- Use selected kinematics
-  interaction->GetKinematicsPtr()->UseSelectedKinematics();
-
-  //-- DIS Kinematics: Compute the lepton energy and the scattering
-  //   angle with respect to the incoming neutrino
-
-  //auxiliary params:
-  double Ev   = init_state.GetProbeE(kRfStruckNucAtRest);
-  double x    = interaction->GetKinematics().x();
-  double y    = interaction->GetKinematics().y();
-  double M    = init_state.GetTarget().StruckNucleonP4()->M();
-  double ml   = interaction->GetFSPrimaryLepton()->Mass();
-  double M2   = TMath::Power(M, 2);
-  double ml2  = TMath::Power(ml,2);
-  double Q2   = 2*x*y*M*Ev;
-  double W2   = M2 + 2*M*Ev*y*(1-x);
-
-  //Compute outgoing lepton energy
-  double El  = Ev - 0.5 * (W2 - M2 + Q2) / M;
-
-  //Compute outgoing lepton scat. angle with respect to the incoming v
-  double pl  = TMath::Sqrt( TMath::Max(0., El*El-ml2) );
-  assert(pl > 0);
-  double cThSc = (El - 0.5*(Q2+ml2)/Ev) / pl; // cos(theta-scat) [-1,1]
-  assert( TMath::Abs(cThSc) <= 1 );
-
-  //-- Rotate its 4-momentum to the nucleon rest frame
-  //   unit' = R(Theta0,Phi0) * R(ThetaSc,PhiSc) * R^-1(Theta0,Phi0) * unit
-  TLorentzVector * pl4 = P4InNucRestFrame(event_rec, cThSc, El);
-
-  //-- Boost it to the lab frame
-  TVector3 * beta = NucRestFrame2Lab(event_rec);
-  pl4->Boost(*beta); // active Lorentz transform
-  delete beta;
-
-  //-- Create a GHepParticle and add it to the event record
-  //   (use the insertion method at the base PrimaryLeptonGenerator visitor)
-  this->AddToEventRecord(event_rec, pdgc, pl4);
-
-  delete pl4;
-
-  //-- Set final state lepton polarization
-  this->SetPolarization(event_rec);
-
-  //-- Reset running kinematics
-  interaction->GetKinematicsPtr()->ClearRunningValues();
+  // no modification is required to the std implementation
+  PrimaryLeptonGenerator::ProcessEventRecord(evrec);
 }
 //___________________________________________________________________________
