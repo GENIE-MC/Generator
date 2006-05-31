@@ -152,12 +152,11 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         interaction->ResetBit(kIAssumeFreeNucleon);
 
         // compute the rest of the kinematical variables
-        double gW = kNucleonMass;
-        double gx=-1, gy=-1;
         const InitialState & init_state = interaction->GetInitialState();
-        double E = init_state.GetProbeE(kRfStruckNucAtRest);
-        double M = init_state.GetTarget().StruckNucleonP4()->M(); 
-        kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
+        double E  = init_state.GetProbeE(kRfStruckNucAtRest);
+        double gW = kNucleonMass;
+        double gx = 1.; 
+        double gy = (gW*gW - kNucleonMass2 + gQ2) / (2*kNucleonMass*E);
 
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);

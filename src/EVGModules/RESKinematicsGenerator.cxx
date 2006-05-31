@@ -165,7 +165,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double gx=-1, gy=-1;
         const InitialState & init_state = interaction->GetInitialState();
         double E = init_state.GetProbeE(kRfStruckNucAtRest);
-        double M = init_state.GetTarget().StruckNucleonP4()->M(); 
+        double M = init_state.GetTarget().StruckNucleonMass();
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
         // set the cross section for the selected kinematics
