@@ -24,8 +24,10 @@
 #include "EVGModules/QELKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
+#include "Interaction/IUtils.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+#include "PDG/PDGLibrary.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 
@@ -152,11 +154,22 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         interaction->ResetBit(kIAssumeFreeNucleon);
 
         // compute the rest of the kinematical variables
+
+        // get neutrino energy at struck nucleon rest frame and the
+        // struck nucleon mass (can be off the mass shell)
         const InitialState & init_state = interaction->GetInitialState();
         double E  = init_state.GetProbeE(kRfStruckNucAtRest);
-        double gW = kNucleonMass;
-        double gx = 1.; 
-        double gy = (gW*gW - kNucleonMass2 + gQ2) / (2*kNucleonMass*E);
+        double M = init_state.GetTarget().StruckNucleonP4()->M();
+        LOG("QELKinematics", pNOTICE) << "E = " << E << ", M = "<< M;
+
+        // hadronic inv. mass is equal to the recoil nucleon on-shell mass
+        int    rpdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
+        double gW = PDGLibrary::Instance()->Find(rpdgc)->Mass();
+        LOG("QELKinematics", pNOTICE) << "Selected: W = "<< gW;
+
+        // (W,Q2) -> (x,y)
+        double gx=0, gy=0;
+        kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);
