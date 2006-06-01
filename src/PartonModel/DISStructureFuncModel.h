@@ -74,17 +74,17 @@ protected:
   mutable double fF5;
   mutable double fF6;
 
-  PDF *  fPDF;           ///<
-  PDF *  fPDFc;          ///< to take into account charm contribution
+  PDF *  fPDF;           ///< computed PDFs @ (x,Q2)
+  PDF *  fPDFc;          ///< computed PDFs @ (slow-rescaling-var,Q2)
   double fQ2min;         ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
-  bool   fIncludeFL;     ///<
-  bool   fIncludeNuclMod;///<
-  bool   fCorrectF3;     ///<
-  double fMc;            ///<
-  double fVcd;           ///<
-  double fVcs;           ///<
-  double fVud;           ///<
-  double fVus;           ///<
+  bool   fIncludeR;      ///< include R (~FL) in DIS SF calculation?
+  bool   fIncludeNuclMod;///< include nuclear factor (shadowing, anti-shadowing,...)?
+  bool   fCorrectF3;     ///< correct F3 using the computed R?
+  double fMc;            ///< charm mass used
+  double fVcd;           ///< CKM element Vcd used
+  double fVcs;           ///< CKM element Vcs used
+  double fVud;           ///< CKM element Vud used
+  double fVus;           ///< CKM element Vcs used
   double fVcd2;          ///<
   double fVcs2;          ///<
   double fVud2;          ///<
