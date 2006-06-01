@@ -89,15 +89,23 @@ void DISStructureFuncModel::LoadConfig(void)
   fVus2 = TMath::Power( fVus, 2 );
 
   //-- charm mass
-  fMc = fConfig->GetDoubleDef("c-quark-mass", gc->GetDouble("Charm-Mass"));
+  fMc = fConfig->GetDoubleDef(
+                         "c-quark-mass", gc->GetDouble("Charm-Mass"));
 
   //-- min Q2 for PDF evaluation
   fQ2min = fConfig->GetDoubleDef("Q2min", gc->GetDouble("PDF-Q2min"));
 
+  //-- include R (~FL)?
+  fIncludeR = fConfig->GetBoolDef(
+                          "include-R", gc->GetBool("DISSF-IncludeR"));
 
-  fIncludeFL      = true;
-  fIncludeNuclMod = true;
-  fCorrectF3      = true;
+  //-- include nuclear factor (shadowing / anti-shadowing / ...)
+  fIncludeNuclMod = fConfig->GetBoolDef(
+              "include-nuc-mod", gc->GetBool("DISSF-IncludeNuclMod"));
+
+  //-- correct F3 using the computed R
+  fCorrectF3 = fConfig->GetBoolDef(
+                   "correct-F3", gc->GetBool("DISSF-CorrectF3WithR"));
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::InitPDF(void)
@@ -221,7 +229,7 @@ double DISStructureFuncModel::R(const Interaction * interaction) const
 
   double R = 0;
 
-  if(fIncludeFL) {
+  if(fIncludeR) {
     double x  = interaction->GetKinematics().x();
     double Q2 = this->Q2(interaction);//Q2 from kinematics or compute from x,y
     R = utils::nuclear::RModelMod(x, Q2);
