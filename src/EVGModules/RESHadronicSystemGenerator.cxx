@@ -20,10 +20,12 @@
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
 #include "Decay/DecayModelI.h"
+#include "EVGCore/EVGThreadException.h"
 #include "EVGModules/RESHadronicSystemGenerator.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
+#include "GHEP/GHepFlags.h"
 #include "Interaction/Interaction.h"
 #include "Interaction/SppChannel.h"
 #include "Messenger/Messenger.h"
@@ -130,6 +132,20 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
 
   // do the decay
   TClonesArray * decay_products = fResonanceDecayer->Decay(dinp);
+  if(!decay_products) {
+     LOG("RESHadronicVtx", pWARN) << "Got an empty decay product list!";
+     LOG("RESHadronicVtx", pWARN) 
+                      << "Quitting the current event generation thread";
+
+     evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
+
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("Not enough phase space for hadronizer");
+     exception.SwitchOnFastForward();
+     throw exception;
+
+     return;
+  }
 
   // get the decay weight (if any)
   double wght = fResonanceDecayer->Weight();
