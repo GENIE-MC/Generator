@@ -460,8 +460,10 @@ void genie::utils::kinematics::WQ2toXY(
   x = Q2 / (W2-M2+Q2);
   y = (W2-M2+Q2) / (2*M*Ev);
 
-  assert(x>=0. and x<=1.);
-  assert(y>=0. and y<=1.);
+  x = TMath::Min(1.,x);
+  y = TMath::Min(1.,y);
+  x = TMath::Max(0.,x);
+  y = TMath::Max(0.,y);
 
   LOG("KineLimits", pDEBUG) 
         << "(W=" << W << ",Q2=" << Q2 << ") => (x="<< x << ", y=" << y<< ")";
