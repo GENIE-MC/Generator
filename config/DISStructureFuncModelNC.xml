@@ -1,11 +1,28 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!--
+Configuration for the DISStructureFuncModelNC DISStructureFuncModelI
+
+Algorithm Configurable Parameters:
+....................................................................................................
+Name                       Type    Opt   Comment                                Default
+....................................................................................................
+pdf-alg-name               string  No    PDF model
+pdf-param-set              string  No    ... and its config set
+c-quark-mass               double  Yes   charm mass                             GPL: Charm-Mass
+Q2min                      double  Yes   min Q2 for PDF evaluation              GPL: PDF-Q2min
+include-R                  bool    Yes   include R factor?                      GPL: DISSF-IncludeR
+include-nuc-mod            bool    Yes   include nuclear factor?                GPL: DISSF-IncludeNuclMod
+correct-F3                 bool    Yes   correct F3?                            GPL: DISSF-CorrectF3WithR
+GL                         double  Yes                                          GPL: GL
+GR                         double  Yes                                          GPL: GR
+GLprime                    double  Yes                                          GPL: GLprime
+GRprime                    double  Yes                                          GPL: GRprime
+-->
+
 <alg_conf>
 
-  Configuration sets for DIS NC Structure Functions
-
   <param_set name="Default"> 
-
      <param type="string" name="pdf-alg-name">   genie::PDFLIB </param>
      <param type="string" name="pdf-param-set">  GRVLO         </param>
   </param_set>

@@ -17,6 +17,11 @@ Cv1D                       double  Yes   Bodek-Yang d val K factor param        
 Cv2D                       double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv2D
 pdf-alg-name               string  No    PDF model
 pdf-param-set              string  No    ... and its config set
+c-quark-mass               double  Yes   charm mass                             GPL: Charm-Mass
+Q2min                      double  Yes   min Q2 for PDF evaluation              GPL: PDF-Q2min
+include-R                  bool    Yes   include R factor?                      GPL: DISSF-IncludeR
+include-nuc-mod            bool    Yes   include nuclear factor?                GPL: DISSF-IncludeNuclMod
+correct-F3                 bool    Yes   correct F3?                            GPL: DISSF-CorrectF3WithR
 -->
 
 <alg_conf>
