@@ -84,8 +84,9 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
   fWeight = 1.;
 
   //-- Get the resonance mass W (generally different from the mass associated
-  //   with the input pdg_code)
+  //   with the input pdg_code, since the it is produced off the mass shell)
   double W = inp.P4->M();
+  LOG("Decay", pINFO) << " Available mass W = " << W;
   
   //-- Get all decay channels
   TObjArray * decay_list = mother->DecayList();
@@ -105,14 +106,23 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
      TDecayChannel * ch = (TDecayChannel *) decay_list->At(ich);
      double fsmass = this->FinalStateMass(ch);
 
-     if(fsmass < W) tot_BR += ch->BranchingRatio();
-     else {       
-       tot_BR += 0;
+     if(fsmass < W) {
+       SLOG("Decay", pDEBUG)
+               << "Using channel: " << ich 
+                        << " with final state mass = " << fsmass << " GeV";         
+       tot_BR += ch->BranchingRatio();
+     } else {       
        SLOG("Decay", pINFO)
                << "Suppresing channel: " << ich 
                         << " with final state mass = " << fsmass << " GeV";         
      }
      BR[ich] = tot_BR;
+  }
+
+  if(tot_BR==0) {
+    SLOG("Decay", pWARN) 
+      << "None of the " << nch << " decay chans is available @ W = " << W;
+    return 0;    
   }
 
   //-- Select a resonance based on the branching ratios
