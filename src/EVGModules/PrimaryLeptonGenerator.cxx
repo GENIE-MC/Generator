@@ -78,7 +78,7 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
 
   LOG("LeptonicVertex", pNOTICE)
-          << "fsl: E = " << El << ", |p//| = " << plp << "[pT] = " << plt;
+        << "fsl: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
 
   // Randomize transverse components
   RandomGen * rnd = RandomGen::Instance();
