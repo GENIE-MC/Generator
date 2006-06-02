@@ -169,7 +169,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      if(accept) {
          // -------------- KINEMATICAL SELECTION DONE ----------------         
          LOG("DISKinematics", pNOTICE) 
-                << "Trying: x=" << gx << ", y=" << gy 
+                << "Selected: x=" << gx << ", y=" << gy 
                              << " (-> W=" << gW << ", Q2=" << gQ2 << ")";
 
          interaction->ResetBit(kISkipProcessChk);

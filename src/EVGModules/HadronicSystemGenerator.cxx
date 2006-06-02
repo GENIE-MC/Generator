@@ -141,9 +141,9 @@ TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(
   assert(l);
 
   LOG("HadronicVtx", pINFO)
-                 << "\n v [LAB]: " << P4AsString( nu->P4() )
-                 << "\n N [LAB]: " << P4AsString( N->P4()  )
-                 << "\n l [LAB]: " << P4AsString( l->P4()  );
+      << "\n v [LAB]: " << P4AsString( nu->P4() )
+      << "\n N [LAB]: " << P4AsString( N->P4()  )
+      << "\n l [LAB]: " << P4AsString( l->P4()  );
 
   //-- Compute the Final State Hadronic System 4p (PX = Pv + PN - Pl)
 
@@ -155,6 +155,9 @@ TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(
   //TLorentzVector pX4 = (*nu->P4()) + (*N->P4()) - (*l->P4())
 
   TLorentzVector pX4(PX,PY,PZ,E);
+
+  LOG("HadronicVtx", pNOTICE) << "\n HadrSyst [LAB]: " << P4AsString(&pX4);
+
   return pX4; 
 }
 //___________________________________________________________________________
@@ -169,8 +172,8 @@ TVector3 HadronicSystemGenerator::HCM2LAB(GHepRecord * evrec) const
 
   TVector3 beta = pH.BoostVector();
 
-  LOG("HadronicVtx", pINFO)
-                   << "\n beta (HCM --> LAB): " << Vec3AsString(&beta);
+  LOG("HadronicVtx", pINFO) << "beta (HCM->LAB): " << Vec3AsString(&beta);
+
   return beta;
 }
 //___________________________________________________________________________
