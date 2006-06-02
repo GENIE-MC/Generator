@@ -76,8 +76,13 @@ TClonesArray * KNOHadronization::Hadronize(
   //----- Available invariant mass
   double W = interaction->GetKinematics().W();
   LOG("KNOHad", pINFO) << "W = " << W << " GeV";
-  assert(W > kNucleonMass+kPionMass);
- 
+
+  if(W <= kNucleonMass+kPionMass) {
+     LOG("KNOHad", pWARN) 
+        << "Low invariant mass, W = " << W << " GeV! Returning a null list";
+     return 0;
+  }
+
   //----- Init event weight (to be set if producing weighted events)
   fWeight = 1.;
 
