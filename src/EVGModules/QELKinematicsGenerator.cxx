@@ -103,10 +103,13 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- Try to select a valid Q2 using the rejection method
 
-  double logQ2min = TMath::Log(Q2.min+kASmallNum);
-  double logQ2max = TMath::Log(Q2.max-kASmallNum);
-  double dlogQ2   = logQ2max - logQ2min;
-  double xsec     = -1;
+  // kinematical limits
+  double Q2min  = Q2.min+kASmallNum;
+  double Q2max  = Q2.max-kASmallNum;
+  double QD2min = utils::kinematics::Q2toQD2(Q2min);
+  double QD2max = utils::kinematics::Q2toQD2(Q2max);
+  double dQD2   = QD2max - QD2min;
+  double xsec   = -1;
 
   register unsigned int iter = 0;
   bool accept = false;
@@ -123,7 +126,8 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      }
 
      // generate a Q2 value within the allowed phase space
-     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random1().Rndm());
+     double gQD2 = QD2min + dQD2 * rnd->Random1().Rndm();
+     double gQ2  = utils::kinematics::QD2toQ2(gQD2);
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("QELKinematics", pINFO) << "Trying: Q^2 = " << gQ2;
@@ -136,7 +140,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
         double t = xsec_max * rnd->Random1().Rndm();
-        double J = kinematics::Jacobian(interaction,kPSQ2fE,kPSlogQ2fE);
+        double J = kinematics::Jacobian(interaction,kPSQ2fE,kPSQD2fE);
         LOG("QELKinematics", pDEBUG)
                      << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
         accept = (t < J*xsec);
@@ -160,11 +164,13 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         const InitialState & init_state = interaction->GetInitialState();
         double E  = init_state.GetProbeE(kRfStruckNucAtRest);
         double M = init_state.GetTarget().StruckNucleonP4()->M();
+
         LOG("QELKinematics", pNOTICE) << "E = " << E << ", M = "<< M;
 
         // hadronic inv. mass is equal to the recoil nucleon on-shell mass
         int    rpdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
         double gW = PDGLibrary::Instance()->Find(rpdgc)->Mass();
+
         LOG("QELKinematics", pNOTICE) << "Selected: W = "<< gW;
 
         // (W,Q2) -> (x,y)
