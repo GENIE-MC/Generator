@@ -39,6 +39,8 @@ namespace kinematics
   Range1D_t  Q2Range   (const Interaction * const i);
   Range1D_t  q2Range   (const Interaction * const i);
   Range1D_t  Q2Range_W (const Interaction * const i, Range1D_t rW);
+  double     QD2toQ2   (double QD2);
+  double     Q2toQD2   (double Q2);
   double     CalcQ2    (const Interaction * const i);
   double     CalcW     (const Interaction * const i);
   void       WQ2toXY   (double Ev, double M, double W, double Q2, double & x, double & y);

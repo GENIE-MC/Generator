@@ -20,6 +20,7 @@
 
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
+#include "Interaction/IUtils.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
@@ -154,6 +155,11 @@ double genie::utils::kinematics::Jacobian(
   if ( TransformMatched(fromps,tops,kPSQ2fE,kPSlogQ2fE,forward) ) 
   {
     J = kine.Q2();
+  } 
+  // ****** transformation: {Q2}|E -> {QD2}|E
+  else if ( TransformMatched(fromps,tops,kPSQD2fE,kPSQ2fE,forward) ) 
+  {
+    J = TMath::Power(1+kine.Q2()/kMQD2,-2)/kMQD2;
   } 
   // ****** transformation: {x,y}|E -> {lnx,lny}|E
   else if ( TransformMatched(fromps,tops,kPSxyfE,kPSlogxlogyfE,forward) ) 
@@ -391,6 +397,22 @@ bool genie::utils::kinematics::IsAboveCharmThreshold(
   else                 return true;
 }
 //____________________________________________________________________________
+double genie::utils::kinematics::Q2toQD2(double Q2)
+{
+// Q2 -> QD2 transformation. QD2 takes out the dipole form of the form factors
+// making the differential cross section to be flatter and speeding up the
+// kinematical selection.
+
+  assert(Q2>0);
+  return TMath::Power(1+Q2/kMQD2, -1);
+}
+//____________________________________________________________________________
+double genie::utils::kinematics::QD2toQ2(double QD2)
+{
+  assert(QD2>0);
+  return kMQD2*(1/QD2-1);
+}
+//____________________________________________________________________________
 double genie::utils::kinematics::CalcQ2(const Interaction * const interaction)
 {
   const Kinematics & kinematics = interaction->GetKinematics();
@@ -418,8 +440,13 @@ double genie::utils::kinematics::CalcW(const Interaction * const interaction)
   const ProcessInfo & process_info = interaction->GetProcessInfo();
 
   if(process_info.IsQuasiElastic()) {
-    const InitialState & init_state  = interaction->GetInitialState();
-    double M  = init_state.GetTarget().StruckNucleonP4()->M(); 
+    //    const InitialState & init_state  = interaction->GetInitialState();
+    //    double M  = init_state.GetTarget().StruckNucleonP4()->M(); 
+    //    return M;
+
+    // hadronic inv. mass is equal to the recoil nucleon on-shell mass
+    int    rpdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
+    double M = PDGLibrary::Instance()->Find(rpdgc)->Mass();
     return M;
   }
 
