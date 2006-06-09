@@ -59,6 +59,10 @@ static const unsigned int kMaxKNOHadSystIterations = 400;
 // TGenPhaseSpace phase space generator
 static const unsigned int kMaxUnweightDecayIterations = 1000;  
 
+// Ma-like parameter used in variable transformations taking out the dipole 
+// form factor form speeding up kinematical selection for QEL and RES events
+static const double kMQD2 = 0.7;  
+
 } // namespace controls
 } // namespace genie
 

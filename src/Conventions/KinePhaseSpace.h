@@ -40,6 +40,7 @@ typedef enum EKinePhaseSpace {
   kPSxyfE,
   kPSlogxlogyfE,
   kPSQ2fE,
+  kPSQD2fE,
   kPSlogQ2fE,
   kPSQ2fEW,
   kPSlogQ2fEW,
@@ -80,6 +81,7 @@ public:
       case(kPSlogxlogyfE) : return "<{logx,logy}|E>"; break;
       case(kPSxyfE)       : return "<{x,y}|E>";       break;
       case(kPSQ2fE)       : return "<{Q2}|E>";        break;
+      case(kPSQD2fE)      : return "<{QD2}|E>";       break;
       case(kPSlogQ2fE)    : return "<{logQ2}|E>";     break;
       case(kPSQ2fEW)      : return "<{Q2}|E,W>";      break;
       case(kPSlogQ2fEW)   : return "<{logQ2}|E,W>";   break;
