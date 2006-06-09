@@ -108,8 +108,8 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double Q2max  = Q2.max-kASmallNum;
   double QD2min = utils::kinematics::Q2toQD2(Q2min);
   double QD2max = utils::kinematics::Q2toQD2(Q2max);
-  double dQD2   = QD2max - QD2min;
-  double xsec   = -1;
+  double xsec   = -1.;
+  double gQ2    =  0.;
 
   register unsigned int iter = 0;
   bool accept = false;
@@ -126,8 +126,12 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      }
 
      // generate a Q2 value within the allowed phase space
-     double gQD2 = QD2min + dQD2 * rnd->Random1().Rndm();
-     double gQ2  = utils::kinematics::QD2toQ2(gQD2);
+     if(fGenerateUniformly) {
+         gQ2 = Q2min + (Q2max-Q2min) * rnd->Random1().Rndm();
+     } else {
+       double gQD2 = QD2min + (QD2max-QD2min) * rnd->Random1().Rndm();
+         gQ2  = utils::kinematics::QD2toQ2(gQD2);
+     }
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("QELKinematics", pINFO) << "Trying: Q^2 = " << gQ2;
