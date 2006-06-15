@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include <iostream>
+#include <cstdlib>
 
 #include <TROOT.h>
 #include <TClass.h>
@@ -81,7 +82,7 @@ const Algorithm * AlgFactory::GetAlgorithm(string alg_name, string param_set)
      return alg_iter->second;
 
   } else {
-     Algorithm * alg_base = InstantiateAlgorithm(alg_name, param_set);
+     Algorithm * alg_base = this->InstantiateAlgorithm(alg_name, param_set);
 
      //-- cache the algorithm for future use
      if(alg_base) {
@@ -89,8 +90,8 @@ const Algorithm * AlgFactory::GetAlgorithm(string alg_name, string param_set)
         fAlgPool.insert(key_alg_pair);
      } else {
         LOG("AlgFactory", pFATAL)
-                               << key << " could not be instantiated" << ENDL;
-        assert(false);
+                        "Algorithm " << key << " could not be instantiated";
+        exit(1);
      }
      return alg_base;
   }
@@ -104,7 +105,6 @@ Algorithm * AlgFactory::AdoptAlgorithm(string alg_name, string param_set) const
 //! not keep track of it and the client is responsible for deleting it.
 
    Algorithm * alg_base = InstantiateAlgorithm(alg_name, param_set);
-
    return alg_base;
 }
 //____________________________________________________________________________
@@ -119,14 +119,20 @@ Algorithm * AlgFactory::InstantiateAlgorithm(
 
   // Get object through gROOT->GetClass() and cast it to the Algorithm base
   // class (ABC)
-  void * base = gROOT->GetClass(alg_name.c_str())->New();
-  Algorithm * alg_base = (Algorithm *) base;
+  TClass * tclass = gROOT->GetClass(alg_name.c_str());
+  if(!tclass) {
+     LOG("AlgFactory", pERROR) 
+             << "Failed instantiating algorithm = " << alg_name;
+     return 0;
+  }
+  void * vd_base = tclass->New();
+  Algorithm * alg_base = (Algorithm *) (vd_base);
 
   LOG("AlgFactory", pDEBUG) << "Setting Configuration Set = " << param_set;
 
-  // Set the configuration Registry that corresonds to the input param_set
-  if( strcmp(param_set.c_str(),"NoConfig") != 0)
-                                     alg_base->Configure(param_set);
+  // Set the configuration Registry that corresponds to the input param_set
+  if(strcmp(param_set.c_str(),"NoConfig")!=0) alg_base->Configure(param_set);
+
   return alg_base;
 }
 //____________________________________________________________________________
