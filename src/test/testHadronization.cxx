@@ -69,7 +69,7 @@ int main(int argc, char ** argv)
   testMultiplicities(1000, KNO, "kno_mult", "KNO model multiplicities");
 
   //-- test KNO model phase space decayer
-  testPhaseSpaceDecayer(100, KNO, "kno_decay"", "KNO phase space decayer");
+  testPhaseSpaceDecayer(100, KNO, "kno_decay", "KNO phase space decayer");
 
   gOutFile->Close();
 
@@ -168,7 +168,7 @@ void testPhaseSpaceDecayer(
    int nevents, const HadronizationModelI * model, string dname, string dtitle)
 {
   const int kNW = 2;  // n W values
-   double W[kNW] = { 1.5, 4.0 };
+  double W[kNW] = { 1.5, 4.0 };
 
   gOutFile->cd();
 
