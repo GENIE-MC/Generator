@@ -5,6 +5,17 @@
 
 \brief   test program used for testing/debugging the KNO & PYTHIA hadronizers
 
+        Syntax :
+           testHadronization -n nevents -t test -a hadronizer -c config
+
+         Options :
+           -n  number of events
+           -t  test type 
+                 0: multiplicities
+                 1: multiplicities + phase space decay
+           -a  hadronizer (algorithm name, eg genie::KNOHadrinization)
+           -c  hadronizer config set
+
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
 
@@ -18,6 +29,7 @@
 
 #include <sstream>
 #include <cassert>
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -41,6 +53,8 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/FragmRecUtils.h"
+#include "Utils/CmdLineArgParserUtils.h"
+#include "Utils/CmdLineArgParserException.h"
 
 using std::string;
 using std::vector;
@@ -49,50 +63,54 @@ using std::ostringstream;
 
 using namespace genie;
 
-void testMultiplicities   (int n, const HadronizationModelI * m, string dn, string dt);
-void testPhaseSpaceDecayer(int n, const HadronizationModelI * m, string dn, string dt);
+void PrintSyntax        (void);
+void GetCommandLineArgs (int argc, char ** argv);
 
-TFile * gOutFile = 0;
+void testMultiplicities   (int n, const HadronizationModelI * m);
+void testPhaseSpaceDecayer(int n, const HadronizationModelI * m);
 
+TFile * gOutFile   = 0;
+int     gNEvents   = -1;
+int     gTestId    = -1;
+string  gHadAlg    = "";
+string  gHadConfig = "";
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
+  GetCommandLineArgs(argc, argv);
+
   AlgFactory * algf = AlgFactory::Instance();
 
-  const HadronizationModelI * KNO = 
-     dynamic_cast<const HadronizationModelI *> (algf->GetAlgorithm(
-                                     "genie::KNOHadronization", "Default"));
+  const HadronizationModelI * model = 
+          dynamic_cast<const HadronizationModelI *> (
+                                  algf->GetAlgorithm(gHadAlg, gHadConfig));
+  assert(model);
 
   gOutFile = new TFile("./genie-hadronization.root","recreate");
 
-  //-- test KNO model multiplicities
-  testMultiplicities(1000, KNO, "kno_mult", "KNO model multiplicities");
+  //-- test hadronization model model multiplicities
+  if(gTestId==0) testMultiplicities(gNEvents, model);
 
-  //-- test KNO model phase space decayer
-  testPhaseSpaceDecayer(100, KNO, "kno_decay", "KNO phase space decayer");
+  //-- test hadronization model (full events)
+  if(gTestId==1) testPhaseSpaceDecayer(gNEvents, model);
 
   gOutFile->Close();
 
   return 0;
 }
 //____________________________________________________________________________
-void testMultiplicities(
-  int nevents, const HadronizationModelI * model, string dname, string dtitle)
+void testMultiplicities(int nevents, const HadronizationModelI * model)
 {
   const int kNNu   = 2;
   const int kNNuc  = 2;
-  const int kNW    = 8;
+  const int kNW    = 9;
 
   int    CcNc[2]        = { 1, 2       };
   int    NuCode[kNNu]   = { 14, -14    };
   int    NucCode[kNNuc] = { 2212, 2112 };
-  double W[kNW]         = { 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 };
-  //  double W[kNW]         = { 1.2, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 };
+  double W[kNW]         = { 1.2, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 };
 
   gOutFile->cd();
-
-  TDirectory * dmult = new TDirectory(dname.c_str(), dtitle.c_str());
-  dmult->cd();
 
   TTree * hmult = new TTree("hmult","hadronizer multiplicities");
 
@@ -164,18 +182,14 @@ void testMultiplicities(
   hmult->Write("hmult");
 }
 //____________________________________________________________________________
-void testPhaseSpaceDecayer(
-   int nevents, const HadronizationModelI * model, string dname, string dtitle)
+void testPhaseSpaceDecayer(int nevents, const HadronizationModelI * model)
 {
   const int kNW = 2;  // n W values
   double W[kNW] = { 1.5, 4.0 };
 
   gOutFile->cd();
 
-  TDirectory * dps = new TDirectory(dname.c_str(), dtitle.c_str());
-  dps->cd();
-
-  TTree * hps = new TTree("hps","hadronizer phase space decay");
+  TTree * hps = new TTree("hps","hadronizer events");
 
   int   br_nuc, br_neut, br_qrk, br_ccnc, br_hpdgc;
   float br_W, br_px, br_py, br_pz, br_KE;
@@ -238,4 +252,64 @@ void testPhaseSpaceDecayer(
   hps->Write("hps");
 }
 //____________________________________________________________________________
+void GetCommandLineArgs(int argc, char ** argv)
+{
+// Parse the command line arguments
+
+  //number of events:
+  try {
+    LOG("Main", pINFO) << "Reading number of events to generate";
+    gNEvents = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("Main", pFATAL) << "Number of events was not specified";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+
+  //test id:
+  try {
+    LOG("Main", pINFO) << "Reading hadronizer test id";
+    gTestId = genie::utils::clap::CmdLineArgAsInt(argc,argv,'t');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("Main", pFATAL) << "No test id was specified";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+
+  try {
+    LOG("Main", pINFO) << "Reading hadronization algorithm name";
+    gHadAlg = genie::utils::clap::CmdLineArgAsString(argc,argv,'a');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("Main", pINFO) << "No hadronization algorithm was specified";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+
+  try {
+    LOG("Main", pINFO) << "Reading hadronization algorithm config name";
+    gHadConfig = genie::utils::clap::CmdLineArgAsString(argc,argv,'c');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("Main", pINFO) << "No hadronization algorithm config was specified";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+}
+//____________________________________________________________________________
+void PrintSyntax(void)
+{
+  LOG("Main", pNOTICE)
+    << "\n\n" << "Syntax:" << "\n"
+    << "  testHadronization -n nevents -t test -a hadronizer -c config\n";
+}
+//____________________________________________________________________________
+
+
 
