@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <algorithm>
 
+#include <TMath.h>
 #include <TStopwatch.h>
 #include <TMCParticle6.h>
 
@@ -164,8 +165,8 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
     const EventRecordVisitorI * visitor = *miter;
 
     SLOG("EventGenerator", pINFO)
-      << "EventRecordVisitorI: " << visitor->Id().Key() << " -> "
-                                          << (*fEVGTime)[istep++] << " sec";
+      << "EventRecordVisitorI: " << visitor->Id().Key() << " -> ~"
+                      << TMath::Max(0.,(*fEVGTime)[istep++]) << " sec";
   }
 }
 //___________________________________________________________________________
