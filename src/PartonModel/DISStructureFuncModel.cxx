@@ -72,8 +72,8 @@ void DISStructureFuncModel::LoadConfig(void)
 
   //-- pdf
   const PDFModelI * pdf_model =
-                  dynamic_cast<const PDFModelI *>
-                             (this->SubAlg("pdf-alg-name", "pdf-param-set"));
+         dynamic_cast<const PDFModelI *>
+                 (this->SubAlg("pdf-alg-name", "pdf-param-set"));
   fPDF  -> SetModel(pdf_model);
   fPDFc -> SetModel(pdf_model);
 
@@ -143,7 +143,7 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
   double Q2 = this->Q2(interaction);
 
   const Kinematics & kine = interaction->GetKinematics();
-  double x = kine.x();
+  double x = (fCorrectF3) ? this->ScalingVar(interaction) : kine.x();
   if(x<=0.) {
      LOG("DISSF", pERROR)
              << "scaling variable x = " << x << " < 0. Can not compute SFs";
@@ -216,7 +216,7 @@ double DISStructureFuncModel::NuclMod(const Interaction * interaction) const
   if(fIncludeNuclMod) {
      const Kinematics & kine = interaction->GetKinematics();
      const Target &     tgt  = interaction->GetInitialState().GetTarget();
-     double x = kine.x();
+     double x = (fCorrectF3) ? this->ScalingVar(interaction) : kine.x();
      int    A = tgt.A();
      f = utils::nuclear::DISNuclFactor(x,A);
   }
@@ -230,8 +230,9 @@ double DISStructureFuncModel::R(const Interaction * interaction) const
   double R = 0;
 
   if(fIncludeR) {
-    double x  = interaction->GetKinematics().x();
-    double Q2 = this->Q2(interaction);//Q2 from kinematics or compute from x,y
+    const Kinematics & kine = interaction->GetKinematics();
+    double x = (fCorrectF3) ? this->ScalingVar(interaction) : kine.x();
+    double Q2 = this->Q2(interaction);
     R = utils::nuclear::RModelMod(x, Q2);
   }
   return R;

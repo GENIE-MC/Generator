@@ -181,14 +181,12 @@ bool DISPartonModelPXSec::ValidKinematics(
                                       && utils::math::IsWithinLimits(W, rW);
   if(!in_range) {
        LOG("DISXSec", pDEBUG)
-             << "\n *** point (W = " << W
-                           << ", Q2 = " << Q2 << " is not in physical range";
+             << "*** (W = " << W
+                           << ", Q2 = " << Q2 << " isn't in physical range";
        LOG("DISXSec", pDEBUG)
-             << "\n Physical W range: "
-                               << "[" << rW.min << ", " << rW.max << "] GeV";
+                << "Phys W: " << "[" << rW.min << ", " << rW.max << "] GeV";
        LOG("DISXSec", pDEBUG)
-             << "\n Physical Q2 range: "
-                           << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
+           << "Phys Q2: " << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
        return false;
   }
   return true;
@@ -272,7 +270,13 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
   const CacheBranchFx & cache_branch = (*cbr);
 
   //-- Now return the suppression factor
-  double Wo = utils::kinematics::CalcW(in);
+
+  double E     = ist.GetProbeE(kRfStruckNucAtRest);
+  double Mnuc  = ist.GetTarget().StruckNucleonMass();
+  double x     = in->GetKinematics().x(); 
+  double y     = in->GetKinematics().y();
+  double Wo = utils::kinematics::XYtoW(E,Mnuc,x,y);
+
   if      (Wo > Wmin && Wo < fWcut-1E-2) R = cache_branch(Wo);
   else if (Wo <= Wmin)                   R = 0.0;
   else                                   R = 1.0;

@@ -80,20 +80,38 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
   bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
   bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );
 
+  bool isNu    = pdg::IsNeutrino    ( init_state.GetProbePDGCode() );
+  bool isNuBar = pdg::IsAntiNeutrino( init_state.GetProbePDGCode() );
+
+  if(!isNu && !isNuBar) {
+     LOG("DISSF", pWARN) << "v type is not handled" << *interaction;
+     return;
+  }
+
+  double GL   = (isNu) ? ( 0.5 - (2./3.)*fSin2thw ) : (     - (2./3.)*fSin2thw);
+  double GR   = (isNu) ? (     - (2./3.)*fSin2thw ) : ( 0.5 - (2./3.)*fSin2thw);
+  double GLp  = (isNu) ? (-0.5 + (1./3.)*fSin2thw ) : (       (1./3.)*fSin2thw);
+  double GRp  = (isNu) ? (       (1./3.)*fSin2thw ) : (-0.5 + (1./3.)*fSin2thw);
+
+  double GL2  =  TMath::Power(GL,  2.);
+  double GR2  =  TMath::Power(GR,  2.);
+  double GLp2 =  TMath::Power(GLp, 2.);
+  double GRp2 =  TMath::Power(GRp, 2.);
+
   double F2  = 0.;
   double xF3 = 0.;
 
   if(isP) {
-      F2  = 2*( (fGL2 + fGR2) * (u + c + ubar + cbar) +
-                            (fGLprime2 + fGRprime2) * (d + s + dbar + sbar) );
-      xF3 = 2*( (fGL2 - fGR2) * (u + c - ubar - cbar) +
-                            (fGLprime2 - fGRprime2) * (d + s - dbar - sbar) );
+      F2  = 2*( (GL2 + GR2) * (u + c + ubar + cbar) +
+                            (GLp2 + GRp2) * (d + s + dbar + sbar) );
+      xF3 = 2*( (GL2 - GR2) * (u + c - ubar - cbar) +
+                            (GLp2 - GRp2) * (d + s - dbar - sbar) );
 
   } else if (isN) {
-      F2  = 2*( (fGL2 + fGR2) * (d + c + dbar + cbar) +
-                            (fGLprime2 + fGRprime2) * (u + s + ubar + sbar) );
-      xF3 = 2*( (fGL2 - fGR2) * (d + c - dbar - cbar) +
-                            (fGLprime2 - fGRprime2) * (u + s - ubar - sbar) );
+      F2  = 2*( (GL2 + GR2) * (d + c + dbar + cbar) +
+                            (GLp2 + GRp2) * (u + s + ubar + sbar) );
+      xF3 = 2*( (GL2 - GR2) * (d + c - dbar - cbar) +
+                            (GLp2 - GRp2) * (u + s - ubar - sbar) );
   } else {
      LOG("DISSF", pWARN) << "N type is not handled" << *interaction;
      return;
@@ -105,15 +123,9 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
   LOG("DISSF", pDEBUG) << "Nucl. Factor = " << f;
 
   // compute the structure functions F1-F6
-  fF6 = 0.;
-
   fF3 = f * xF3/x;
   fF2 = f * F2;
-
-  fF1 = 0.5*fF2/x; 
-
-  fF5 = fF2/x;          // Albright-Jarlskog relations
-  fF4 = 0.;             // Nucl.Phys.B 84, 467 (1975)
+  fF1 = 0.5 * fF2/x; 
 }
 //____________________________________________________________________________
 void DISStructureFuncModelNC::LoadConfig(void) 
@@ -123,15 +135,9 @@ void DISStructureFuncModelNC::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fGL       = fConfig->GetDoubleDef( "GL",      gc->GetDouble("GL")      );
-  fGR       = fConfig->GetDoubleDef( "GR",      gc->GetDouble("GR")      );
-  fGLprime  = fConfig->GetDoubleDef( "GLprime", gc->GetDouble("GLprime") );  
-  fGRprime  = fConfig->GetDoubleDef( "GRprime", gc->GetDouble("GRprime") ); 
-
-  fGL2      = TMath::Power(fGL,      2);
-  fGR2      = TMath::Power(fGR,      2);
-  fGLprime2 = TMath::Power(fGLprime, 2);
-  fGRprime2 = TMath::Power(fGRprime, 2);
+  double thw = fConfig->GetDoubleDef(
+                          "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+  fSin2thw = TMath::Power(TMath::Sin(thw), 2);
 }
 //____________________________________________________________________________
 
