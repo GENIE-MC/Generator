@@ -98,6 +98,11 @@ TClonesArray * KNOHadronization::Hadronize(
   LOG("KNOHad", pDEBUG) << *interaction;
   const TH1D & mprob = fMultProbModel->ProbabilityDistribution(interaction);
 
+  if(mprob.Integral("width")<=0) {
+    LOG("KNOHad", pERROR) << "Empty multiplicity probability distribution!";
+    return 0;
+  }
+
   //----- FIND AN ALLOWED SOLUTION FOR THE HADRONIC FINAL STATE
 
   TLorentzVector p4(0,0,0,W);
