@@ -56,10 +56,17 @@ private:
   Range1D_t Q2Range         (const Interaction * interaction) const;
   double    ComputeMaxXSec  (const Interaction * interaction) const;
 
-  double fWmin;
-  double fWmax;
-  double fQ2min;
-  double fQ2max;
+  //! physical range including kinematical cuts
+  mutable double fXmin;  
+  mutable double fXmax;  
+  mutable double fYmin;  
+  mutable double fYmax;  
+
+  //! user-defined kinematical cuts (from algorithm config)
+  double fWminCut;   
+  double fWmaxCut;   
+  double fQ2minCut;  
+  double fQ2maxCut;  
 };
 
 }      // genie namespace

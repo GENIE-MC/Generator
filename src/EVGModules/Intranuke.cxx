@@ -177,7 +177,7 @@ void Intranuke::TransportInTransparentNuc(GHepRecord * evrec) const
 
     evrec->AddParticle(*cp); // add it at the event record
 
-    LOG("Intranuke", pNOTICE) << *evrec;
+    //LOG("Intranuke", pDEBUG) << *evrec;
   }
 }
 //___________________________________________________________________________

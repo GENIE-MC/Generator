@@ -23,6 +23,8 @@
 #include "EVGModules/KineGeneratorWithCache.h"
 #include "Utils/Range1.h"
 
+class TF2;
+
 namespace genie {
 
 class RESKinematicsGenerator : public KineGeneratorWithCache {
@@ -46,6 +48,8 @@ private:
   Range1D_t WRange          (const Interaction * interaction) const;
   Range1D_t Q2Range         (const Interaction * interaction) const;
   double    ComputeMaxXSec  (const Interaction * interaction) const;
+
+  mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
 
   double fWmin;
   double fWmax;

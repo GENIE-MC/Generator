@@ -61,6 +61,9 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
     int tgt_pdgc = init_state.GetTarget().PDGCode();
     int nuc_pdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
 
+    GHepParticle * hit = event_rec->StruckNucleon();
+    TVector3 beta = hit->P4()->BoostVector();
+  
     if(nuc_pdgc != 0) {
        // Find the recoil nucleon in the EventRecord
 
@@ -70,9 +73,15 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
        if(nuc) {
          // get the Fermi momentum
          const double kf = fKFTable->FindClosestKF(tgt_pdgc, nuc_pdgc);
+
          LOG("PauliBlock", pINFO) << "KF = " << kf;
 
-         double p = nuc->P4()->P(); // |p| for the recoil nucleon
+         //TLorentzVector * p4 = nuc->GetP4();
+         //p4->Boost(-beta);
+         //double p = p4->P(); // |p| for the recoil nucleon         
+         //delete p4;
+
+	 double p = nuc->P4()->P(); // |p| for the recoil nucleon
          LOG("PauliBlock", pINFO) << "Recoil nucleon |P| = " << p;
 
          if(p < kf) {

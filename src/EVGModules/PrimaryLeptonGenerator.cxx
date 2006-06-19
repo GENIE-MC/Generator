@@ -27,6 +27,7 @@
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGUtils.h"
 #include "Numerical/RandomGen.h"
+#include "Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -71,6 +72,9 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double ml  = interaction->GetFSPrimaryLepton()->Mass();
   double ml2 = TMath::Power(ml,2);
 
+  LOG("LeptonicVertex", pNOTICE)
+             << "Ev = " << Ev << ", Q2 = " << Q2 << ", y = " << y;
+
   // Compute the final state primary lepton energy and momentum components
   // along and perpendicular the neutrino direction 
   double El  = (1-y)*Ev;
@@ -101,6 +105,9 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   TVector3 * beta = NucRestFrame2Lab(evrec);
   p4l.Boost(*beta); // active Lorentz transform
   delete beta;
+
+  LOG("LeptonicVertex", pNOTICE)
+       << "fsl @ LAB: " << utils::print::P4AsString(&p4l);
 
   // Figure out the Final State Lepton PDG Code
   int pdgc = interaction->GetFSPrimaryLepton()->PdgCode();

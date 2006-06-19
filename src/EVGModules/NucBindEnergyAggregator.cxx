@@ -52,6 +52,8 @@ NucBindEnergyAggregator::~NucBindEnergyAggregator()
 //___________________________________________________________________________
 void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
 {
+  LOG("Nuclear", pINFO) << *event_rec;
+
   Interaction * interaction = event_rec->GetInteraction();
   const InitialState & init_state = interaction->GetInitialState();
 
@@ -84,13 +86,29 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
               << "Subtracting the binding energy from the escaped nucleon";
 
            double M  = p->Mass();
-           double En = p->Energy() - bindE;
+           double En = p->Energy();
+           double KE = En-M;
+
+           LOG("Nuclear", pINFO) 
+                  << "Kinetic energy before subtraction = " << KE;
+
+           KE -= bindE;
+           KE = TMath::Max(0.,KE);
+
+           LOG("Nuclear", pINFO) 
+                   << "Kinetic energy after subtraction = " << KE;
+
+           En = KE+M;
 
            if (En>M || !fAllowRecombination) { 
              double pmag_old = p->P4()->P();
              double pmag_new = TMath::Sqrt(utils::math::NonNegative(En*En-M*M));
 
              double scale = pmag_new / pmag_old;
+
+             LOG("Nuclear", pINFO) 
+	       << "|pnew| = " << pmag_new << ", |pold| = " << pmag_old
+                                                       << ", scale = " << scale;
 
              double pxn = scale * p->Px();
              double pyn = scale * p->Py();

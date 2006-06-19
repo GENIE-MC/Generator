@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <TF2.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResonance.h"
@@ -39,18 +40,18 @@ using namespace genie::utils;
 RESKinematicsGenerator::RESKinematicsGenerator() :
 KineGeneratorWithCache("genie::RESKinematicsGenerator")
 {
-
+  fEnvelope = 0;
 }
 //___________________________________________________________________________
 RESKinematicsGenerator::RESKinematicsGenerator(string config) :
 KineGeneratorWithCache("genie::RESKinematicsGenerator", config)
 {
-
+  fEnvelope = 0;
 }
 //___________________________________________________________________________
 RESKinematicsGenerator::~RESKinematicsGenerator()
 {
-
+  if(fEnvelope) delete fEnvelope;
 }
 //___________________________________________________________________________
 void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
@@ -66,10 +67,9 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
-  //-- Get the interaction and set the 'trust' bits
+  //-- Get the interaction from the GHEP record
   Interaction * interaction = evrec->GetInteraction();
   interaction->SetBit(kISkipProcessChk);
-  interaction->SetBit(kISkipKinematicChk);
 
   //-- Compute the W limits
   //  (the physically allowed W's, unless an external cut is imposed)
@@ -115,33 +115,89 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          throw exception;
      }
 
-     //-- Get a random W within its allowed limits
-     double gW = Wmin + dW  * rnd->Random1().Rndm();
-     interaction->GetKinematicsPtr()->SetW(gW);
+     double gW   = 0; // current hadronic invariant mass
+     double gQ2  = 0; // current momentum transfer
+     double gQD2 = 0; // tranformed Q2 to take out dipole form
 
-     //-- Compute the allowed Q^2 limits for the selected W
-     //   (the physically allowed Q2's, unless an external cut is imposed)
-     Range1D_t Q2 = this->Q2Range(interaction);
-     if(Q2.max<=0. || Q2.min>=Q2.max) continue;
-     double logQ2min = TMath::Log(Q2.min+kASmallNum);
-     double logQ2max = TMath::Log(Q2.max-kASmallNum);
-     double dlogQ2   = logQ2max - logQ2min;
+     if(fGenerateUniformly) {
 
-     //-- Get a random Q2 within its allowed limits
-     double gQ2 = TMath::Exp(logQ2min + dlogQ2 * rnd->Random1().Rndm());
-     interaction->GetKinematicsPtr()->SetQ2(gQ2);
+       //-- Generate a W uniformly in the kinematically allowed range.
+       //   For the generated W, compute the Q2 range and generate a value
+       //   uniformly over that range
+       gW  = Wmin + dW  * rnd->Random1().Rndm();
+       Range1D_t Q2 = this->Q2Range(interaction);
+       if(Q2.max<=0. || Q2.min>=Q2.max) continue;
+       gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random1().Rndm();
+
+       interaction->SetBit(kISkipKinematicChk);
+
+     } else {
+
+       //-- Selecting unweighted event kinematics using an importance sampling
+       //   method. Q2 with be transformed to QD2 to take out the dipole form.
+       //   An importance sampling envelope will be constructed for W.
+
+       //-- Build the envelope
+       if(iter==1) {
+	 //         Range1D_t Q2 = kinematics::Q2Range_W(interaction,W);
+	 //         double Q2min  = Q2.min+kASmallNum;
+	 //         double Q2max  = Q2.max-kASmallNum;
+
+         interaction->GetKinematicsPtr()->SetW(Wmin);
+         Range1D_t Q2 = this->Q2Range(interaction);
+	 double Q2min  = 0 + kASmallNum;
+	 double Q2max  = Q2.max - kASmallNum;         
+
+         // In unweighted mode - use transform that takes out the dipole form
+         double QD2min = utils::kinematics::Q2toQD2(Q2max);
+         double QD2max = utils::kinematics::Q2toQD2(Q2min);
+
+         double mR, gR;
+         if(!interaction->GetExclusiveTag().KnownResonance()) { mR=1.2; gR = 0.6; }
+         else {
+           Resonance_t res = interaction->GetExclusiveTag().Resonance();
+           mR=res::Mass(res);
+           gR=0.220;
+         }
+
+         fEnvelope->SetRange(QD2min,Wmin,QD2max,Wmax); // range
+         fEnvelope->SetParameter(0,  mR);              // resonance mass
+         fEnvelope->SetParameter(1,  gR);              // resonance width
+         fEnvelope->SetParameter(2,  xsec_max);        // max differential xsec
+         fEnvelope->SetParameter(3,  Wmax);            // kinematically allowed Wmax
+	 //envelope->SetNpy(150); 
+       }
+
+       // Generate W,QD2 using the 2-D envelope as PDF
+       fEnvelope->GetRandom2(gQD2,gW);
+
+       // QD2 -> Q2
+       gQ2 = utils::kinematics::QD2toQ2(gQD2);
+     }
 
      LOG("RESKinematics", pINFO) << "Trying: W = " << gW << ", Q2 = " << gQ2;
 
-     // computing cross section for the current kinematics
+     //-- Set kinematics for current trial
+     interaction->GetKinematicsPtr()->SetW(gW);
+     interaction->GetKinematicsPtr()->SetQ2(gQ2);
+
+     //-- Computing cross section for the current kinematics
      xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
 
-     //-- decide whether to accept the current kinematics
+     //-- Decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
-        double t = xsec_max * rnd->Random1().Rndm();
-        double J = kinematics::Jacobian(interaction,kPSWQ2fE,kPSWlogQ2fE);
+        double max = fEnvelope->Eval(gQD2, gW);
+        double t   = max * rnd->Random1().Rndm();
+        double J   = kinematics::Jacobian(interaction,kPSWQ2fE,kPSWQD2fE);
+
+        if(max<xsec) {
+	  LOG("RESKinematics", pFATAL) 
+            << "Envelope = " << max << ", xsec = " << xsec 
+          	                            << " for \n" << *interaction;
+          exit(1);
+        }
 
         LOG("RESKinematics", pDEBUG)
                      << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
@@ -151,11 +207,10 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         accept = (xsec>0);
      }
 
-     if(accept) {
-        // -------------- KINEMATICAL SELECTION DONE ----------------       
+     //-- If the generated kinematics are accepted, finish-up module's job
+     if(accept) {        
         LOG("RESKinematics", pINFO)
                             << "Selected: W = " << gW << ", Q2 = " << gQ2;
-
         // reset 'trust' bits
         interaction->ResetBit(kISkipProcessChk);
         interaction->ResetBit(kISkipKinematicChk);
@@ -194,7 +249,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         interaction->GetKinematicsPtr()->ClearRunningValues();
 
         return;
-     }
+     } // accept
   } // iterations
 }
 //___________________________________________________________________________
@@ -255,6 +310,12 @@ void RESKinematicsGenerator::LoadConfigData(void)
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
   fGenerateUniformly = fConfig->GetBoolDef("uniform-over-phase-space", false);
+
+  //-- Envelope employed when importance sampling is used 
+  //   (initialize with dummy range)
+  if(fEnvelope) delete fEnvelope;
+  fEnvelope = new TF2("envelope",
+   	             kinematics::RESImportanceSamplingEnvelope,0.1,1,0.1,1,4);
 }
 //____________________________________________________________________________
 Range1D_t RESKinematicsGenerator::WRange(
@@ -320,8 +381,8 @@ double RESKinematicsGenerator::ComputeMaxXSec(
     md=res::Mass(res);
   }
 
-  const int    NQ2   = 10;
-  const int    kNQ2b = 5;
+  const int    NQ2   = 15;
+  const int    kNQ2b = 3;
   const double MD    = md;
 
   // Set W around the value where d^2xsec/dWdQ^2 peaks
@@ -348,6 +409,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
   for(int iq2=0; iq2<NQ2; iq2++) {
      double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
+     //double Q2 = TMath::Exp(logQ2max - iq2 * dlogQ2);
      interaction->GetKinematicsPtr()->SetQ2(Q2);
      double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
      LOG("RESKinematics", pDEBUG) 
@@ -381,9 +443,8 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
   LOG("RESKinematics", pDEBUG) << interaction->AsString();
   LOG("RESKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  LOG("RESKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
+  LOG("RESKinematics", pDEBUG) << "Computed using " << fXSecModel->Id();
 
   return max_xsec;
 }
 //___________________________________________________________________________
-

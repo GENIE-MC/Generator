@@ -28,6 +28,7 @@
 #include "Numerical/RandomGen.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
+#include "PDG/PDGUtils.h"
 
 using namespace genie;
 using namespace genie::controls;
@@ -64,14 +65,17 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
-  //-- Get the interaction and set the 'trust' bits
+  //-- Get the interaction 
   Interaction * interaction = evrec->GetInteraction();
   interaction->SetBit(kISkipProcessChk);
-  interaction->SetBit(kISkipKinematicChk);
+
+  //-- Get neutrino energy and hit 'nucleon mass' 
+  const InitialState & init_state = interaction->GetInitialState();
+  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
+  double M   = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m-shell
 
   //-- Get the physical W range taking into account any user cuts
   Range1D_t W  = this->WRange(interaction);
-
   if(W.max <=0 || W.min>=W.max) {
      LOG("DISKinematics", pWARN) << "No available phase space";
      evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
@@ -81,6 +85,22 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      throw exception;
   }
 
+  //-- Get the minimum Q^2 (corresponding to W = Wmin)
+  interaction->GetKinematicsPtr()->SetW(W.min);
+  Range1D_t Q2  = this->Q2Range(interaction);
+
+  //-- Set the corresponding x,y limits
+  fXmax = 1. - kASmallNum;
+  fYmax = 1. - kASmallNum;
+  fXmin = 0;
+  fYmin = 0;
+  kinematics::WQ2toXY(Ev,M,W.min,Q2.min,fXmin, fYmin);
+
+  LOG("DISKinematics", pINFO) << "x: [" << fXmin << ", " << fXmax << "]";
+  LOG("DISKinematics", pINFO) << "y: [" << fYmin << ", " << fYmax << "]";
+
+  assert(fXmin>0 && fYmin>0);
+
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
   //   cache. Throw an exception and quit the evg thread if a non-positive
@@ -89,19 +109,17 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   space the max xsec is irrelevant
   double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
 
-  //-- get energy and 'nucleon mass' needed for W,Q2->x,y conversion
-  const InitialState & init_state = interaction->GetInitialState();
-  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M   = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m-shell
-
   //-- Try to select a valid (x,y) pair using the rejection method
 
-  double xmin  = kMinX;
-  double xmax  = kMaxX;
-  double ymin  = kMinY;
-  double ymax  = kMaxY;
-  double dx    = xmax - xmin;
-  double dy    = ymax - ymin;
+  //double dx = fXmax - fXmin;
+  //double dy = fYmax - fYmin;
+
+  double logxmin = TMath::Log(fXmin);
+  double logxmax = TMath::Log(fXmax);
+  double logymin = TMath::Log(fYmin);
+  double logymax = TMath::Log(fYmax);
+  double dlogx   = logxmax-logxmin;
+  double dlogy   = logymax-logymin;
 
   double gx=-1, gy=-1, gW=-1, gQ2=-1, xsec=-1;
 
@@ -121,31 +139,17 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      }
 
      //-- random x,y
-     gx = xmin  + dx  * rnd->Random1().Rndm();
-     gy = ymin  + dy  * rnd->Random1().Rndm();
+     //     gx = fXmin  + dx  * rnd->Random1().Rndm();
+     //     gy = fYmin  + dy  * rnd->Random1().Rndm();
 
-     //-- (x,y) => (W,Q2)
-     kinematics::XYtoWQ2(Ev,M,gW,gQ2,gx,gy);
+     gx = TMath::Exp(logxmin + dlogx * rnd->Random1().Rndm());
+     gy = TMath::Exp(logymin + dlogy * rnd->Random1().Rndm());
+
+     LOG("DISKinematics", pINFO) 
+                           << "Trying: x = " << gx << ", y = " << gy;
 
      interaction->GetKinematicsPtr()->Setx(gx);
      interaction->GetKinematicsPtr()->Sety(gy);
-     interaction->GetKinematicsPtr()->SetW(gW);
-     interaction->GetKinematicsPtr()->SetQ2(gQ2);
-
-     LOG("DISKinematics", pINFO) 
-             << "Trying: x=" << gx << ", y=" << gy 
-                             << " (-> W=" << gW << ", Q2=" << gQ2 << ")";
-
-     //-- check whether we are in the allowed phase space
-     Range1D_t Q2 = this->Q2Range(interaction);
-     bool inW  = math::IsWithinLimits(gW, W );
-     bool inQ2 = math::IsWithinLimits(gQ2,Q2);
-     bool in   = inW && inQ2;
-
-     if(!in) {
-       LOG("DISKinematics", pINFO) << "*** Not in allowed phase space ";
-       continue;
-     }
 
      //-- compute the cross section for current kinematics
      xsec = fXSecModel->XSec(interaction, kPSxyfE);
@@ -155,8 +159,8 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
         double t = xsec_max * rnd->Random1().Rndm();
-//      double J = kinematics::Jacobian(interaction,kPSxyfE,kPSlogxlogyfE);
-        double J = 1;
+        double J = kinematics::Jacobian(interaction,kPSxyfE,kPSlogxlogyfE);
+	//        double J = 1;
 
         LOG("DISKinematics", pDEBUG)
               << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
@@ -166,12 +170,13 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         accept = (xsec>0);
      }
 
+     //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {
-         // -------------- KINEMATICAL SELECTION DONE ----------------         
          LOG("DISKinematics", pNOTICE) 
                 << "Selected: x=" << gx << ", y=" << gy 
                              << " (-> W=" << gW << ", Q2=" << gQ2 << ")";
 
+         // reset trust bits
          interaction->ResetBit(kISkipProcessChk);
          interaction->ResetBit(kISkipKinematicChk);
 
@@ -191,6 +196,9 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
             LOG("DISKinematics", pNOTICE) << "Current event wght = " << wght;
             evrec->SetWeight(wght);
          }
+
+         // compute W,Q2 for selected x,y
+         kinematics::XYtoWQ2(Ev,M,gW,gQ2,gx,gy);
 
          // lock selected kinematics & clear running values
          interaction->GetKinematicsPtr()->SetW (gW,  true);
@@ -233,12 +241,12 @@ void DISKinematicsGenerator::LoadConfigData(void)
 // in private data members to avoid looking up at the Registry all the time.
 
   //-- Get the user kinematical limits on W
-  fWmin = fConfig->GetDoubleDef("W-min", -999999);
-  fWmax = fConfig->GetDoubleDef("W-max",  999999);
+  fWminCut = fConfig->GetDoubleDef("W-min", -999999);
+  fWmaxCut = fConfig->GetDoubleDef("W-max",  999999);
 
   //-- Get the user kinematical limits on Q2
-  fQ2min = fConfig->GetDoubleDef("Q2-min", -999999);
-  fQ2max = fConfig->GetDoubleDef("Q2-max",  999999);
+  fQ2minCut = fConfig->GetDoubleDef("Q2-min", -999999);
+  fQ2maxCut = fConfig->GetDoubleDef("Q2-max",  999999);
 
   //-- Safety factor for the maximum differential cross section
   fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
@@ -267,8 +275,8 @@ Range1D_t DISKinematicsGenerator::WRange(
 
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if(fWmin>0 && fWmax>0) 
-         kinematics::ApplyCutsToKineLimits(W, fWmin, fWmax);
+  if(fWminCut>0 && fWmaxCut>0) 
+         kinematics::ApplyCutsToKineLimits(W, fWminCut, fWmaxCut);
   LOG("DISKinematics", pDEBUG)
     << "W range (including cuts): " << "[" << W.min << ", " << W.max << "]";
 
@@ -285,8 +293,8 @@ Range1D_t DISKinematicsGenerator::Q2Range(
 
   //-- Define the W range: the user selection (if any) is not allowed to
   //   extend it to an unphysical region but is allowed to narrow it down.
-  if(fQ2min>0 && fQ2max>0)
-         kinematics::ApplyCutsToKineLimits(Q2, fQ2min, fQ2max);
+  if(fQ2minCut>0 && fQ2maxCut>0)
+         kinematics::ApplyCutsToKineLimits(Q2, fQ2minCut, fQ2maxCut);
   LOG("DISKinematics", pDEBUG)
      << "Q2 range (including cuts): " << "["<< Q2.min<< ", "<< Q2.max<< "]";
 
@@ -308,98 +316,108 @@ double DISKinematicsGenerator::ComputeMaxXSec(
 
   double max_xsec = 0.0;
 
-  const int NW   = 20;
-  const int NQ2  = 15;
-  const int NQ2b =  5;
-
-  const InitialState & init_state = interaction -> GetInitialState();
+  const InitialState & init_state = interaction->GetInitialState();
   double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M  = init_state.GetTarget().StruckNucleonMass(); 
 
-  //-- Get the physical W range taking into account any user cuts
-  Range1D_t W = this->WRange(interaction);
-  assert(W.min>0 && W.max>W.min);
+  const ProcessInfo & proc = interaction->GetProcessInfo();
+  const Target & tgt = init_state.GetTarget();
 
-  double Wmin = W.min + kASmallNum;
-  double Wmax = W.max - kASmallNum;
-  double dW   = (Wmax-Wmin)/(NW-1);
-  double gx=-1, gy=-1;
+  // guess the approximate position of the maximum differential xsec to avoid
+  // an extensive (time-consuming) phase space search
 
-  double xseclast_w = -1;
-  bool increasing_w;
+  double xpeak=-1, ypeak=-1;
 
-  for(int i=0; i<NW; i++) {
-     double gW = Wmin + i*dW;
-     interaction->GetKinematicsPtr()->SetW(gW);
+  double log10Ev = TMath::Log10(Ev);
 
-     LOG("DISKinematics", pDEBUG) << "W = " << gW;
+  if(proc.IsWeakCC()) {
+    if( pdg::IsProton(tgt.StruckNucleonPDGCode()) ) {
+      xpeak = 0.18 - 0.055 * log10Ev;
+      ypeak = 0.95 - 0.670 * log10Ev + 0.145 * TMath::Power(log10Ev,2);
+    } else {
+      xpeak = 0.26 - 0.060 * log10Ev;
+      ypeak = 0.85 - 0.680 * log10Ev + 0.145 * TMath::Power(log10Ev,2);
+    }
+  }
 
-     //-- get allowed Q2 range taking into account any user cuts
-     Range1D_t Q2 = this->Q2Range(interaction);
-     if(Q2.min<0 || Q2.max<Q2.min) continue;
-     double logQ2min = TMath::Log(Q2.min+kASmallNum);
-     double logQ2max = TMath::Log(Q2.max-kASmallNum);
-     double dlogQ2   = (logQ2max-logQ2min)/(NQ2-1);
+  const int Ny  = 10;
+  const int Nx  = 10;
+  const int Nxb =  3;
+ 
+  double xmin    = TMath::Max(xpeak-0.15, fXmin);
+  double xmax    = TMath::Min(xpeak+0.15, fXmax);
+  double ymin    = TMath::Max(ypeak-0.15, fYmin);
+  double ymax    = TMath::Min(ypeak+0.15, fYmax);
+  double dx      = (xmax-xmin)/(Nx-1);
+  double dy      = (ymax-ymin)/(Ny-1);
+  /*
+  double logxmin = TMath::Log10(xmin);
+  double logxmax = TMath::Log10(xmax);
+  double logymin = TMath::Log10(ymin);
+  double logymax = TMath::Log10(ymax);
+  double dlogx   = (logxmax-logxmin)/(Nx-1);
+  double dlogy   = (logymax-logymin)/(Ny-1);
+  */
+  double xseclast_y = -1;
+  bool increasing_y;
 
-     double xseclast_q2 = -1;
-     bool increasing_q2;
+  for(int i=0; i<Ny; i++) {
+     double gy = ymin + i*dy;
+     //     double gy = TMath::Power(10., logymin + i*dlogy);
+     interaction->GetKinematicsPtr()->Sety(gy);
 
-     for(int j=0; j<NQ2; j++) {
-        double gQ2 = TMath::Exp(logQ2min + j*dlogQ2);
-        interaction->GetKinematicsPtr()->SetQ2(gQ2);
+     LOG("DISKinematics", pDEBUG) << "y = " << gy;
 
-        //-- (W,Q2) => (x,y)
-        kinematics::WQ2toXY(Ev,M,gW,gQ2,gx,gy);
+     double xseclast_x = -1;
+     bool increasing_x;
+
+     for(int j=0; j<Nx; j++) {
+        double gx = xmin + j*dx;
+	//        double gx = TMath::Power(10., logxmin + j*dlogx);
         interaction->GetKinematicsPtr()->Setx(gx);
-        interaction->GetKinematicsPtr()->Sety(gy);
 
         double xsec = fXSecModel->XSec(interaction, kPSxyfE);
         LOG("DISKinematics", pINFO) 
-                << "xsec(W=" << gW << ",Q2=" << gQ2 
-   	                  << ",x=" << gx << ",y=" << gy << ")=" << xsec;
+                << "xsec(y=" << gy << ", x=" << gx << ") = " << xsec;
 
         // update maximum xsec
         max_xsec = TMath::Max(xsec, max_xsec);
 
-        increasing_q2 = xsec-xseclast_q2>=0;
-        xseclast_q2   = xsec;
+        increasing_x = xsec-xseclast_x>=0;
+        xseclast_x   = xsec;
 
         // once the cross section stops increasing, I reduce the step size and
         // step backwards a little bit to handle cases that the max cross section
         // is grossly underestimated (very peaky distribution & large step)
-        if(!increasing_q2) {
+        if(!increasing_x) {
           LOG("DISKinematics", pDEBUG) 
-           << "d2xsec/dxdy|W stopped increasing. Stepping back & exiting Q2 loop";
-          dlogQ2/=(NQ2b+1);
-          for(int ik=0; ik<NQ2b; ik++) {
-   	     gQ2 = TMath::Exp(TMath::Log(gQ2) - dlogQ2);
-             if(gQ2 < Q2.min) continue;
-             interaction->GetKinematicsPtr()->SetQ2(gQ2);
-             kinematics::WQ2toXY(Ev,M,gW,gQ2,gx,gy);
+           << "d2xsec/dxdy|x stopped increasing. Stepping back & exiting x loop";
+          double dxn = dx/(Nxb+1);
+          for(int ik=0; ik<Nxb; ik++) {
+	    //   	     gx = TMath::Exp(TMath::Log(gx) - dlogxn);
+   	     gx = gx - dxn;
              interaction->GetKinematicsPtr()->Setx(gx);
-             interaction->GetKinematicsPtr()->Sety(gy);
 
              xsec = fXSecModel->XSec(interaction, kPSxyfE);
+
              LOG("DISKinematics", pINFO) 
-                << "xsec(W=" << gW << ",Q2=" << gQ2 
-   	                      << ",x=" << gx << ",y=" << gy << ")=" << xsec;
+                << "xsec(y=" << gy << ", x=" << gx << ") = " << xsec;
 	  }
           break;
         } // stepping back within last bin
-     } // Q2
-     increasing_w = max_xsec-xseclast_w>=0;
-     xseclast_w   = max_xsec;
-     if(!increasing_w) {
+     } // x
+     increasing_y = max_xsec-xseclast_y>=0;
+     xseclast_y   = max_xsec;
+     if(!increasing_y) {
        LOG("DISKinematics", pDEBUG) 
-                          << "d2xsec/dxdy stopped increasing. Exiting W loop";
+                          << "d2xsec/dxdy stopped increasing. Exiting y loop";
        break;
      }
-  }// W
+  }// y
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy
   //  max_xsec *= fSafetyFactor;
-  max_xsec *= ( (Ev<2.5) ? 2. : fSafetyFactor);
+  max_xsec *= ( (Ev<3.5) ? 2. : fSafetyFactor);
 
   SLOG("DISKinematics", pDEBUG) << interaction->AsString();
   SLOG("DISKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
