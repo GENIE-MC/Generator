@@ -152,12 +152,17 @@ double genie::utils::kinematics::Jacobian(
   const Kinematics & kine = i->GetKinematics();
 
   // ****** transformation: {Q2}|E -> {lnQ2}|E
-  if ( TransformMatched(fromps,tops,kPSQ2fE,kPSlogQ2fE,forward) ) 
+  if ( TransformMatched(fromps,tops,kPSQ2fE,kPSlogQ2fE,forward) )
   {
     J = kine.Q2();
   } 
   // ****** transformation: {Q2}|E -> {QD2}|E
   else if ( TransformMatched(fromps,tops,kPSQD2fE,kPSQ2fE,forward) ) 
+  {
+    J = TMath::Power(1+kine.Q2()/kMQD2,-2)/kMQD2;
+  } 
+  // ****** transformation: {W,Q2}|E -> {W,QD2}|E
+  else if ( TransformMatched(fromps,tops,kPSWQD2fE,kPSWQ2fE,forward) ) 
   {
     J = TMath::Power(1+kine.Q2()/kMQD2,-2)/kMQD2;
   } 
@@ -337,6 +342,26 @@ Range1D_t genie::utils::kinematics::Q2Range_W(
   return Q2;
 }
 //____________________________________________________________________________
+void genie::utils::kinematics::MinXY(
+                        const Interaction * const in, double & x, double & y)
+{
+// Compute the minimum x,y for the current interaction (calculated as the x,y
+// at the minimum W,Q2)
+
+  Interaction interaction(*in);
+
+  Range1D_t W = KineRange(&interaction,kKVW);
+  interaction.GetKinematicsPtr()->SetW(W.min);
+
+  Range1D_t Q2 = KineRange(&interaction,kKVQ2);
+
+  const InitialState & init_state =  interaction.GetInitialState();
+  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+  double M  = init_state.GetTarget().StruckNucleonP4()->M(); //can be off m/shell
+
+  WQ2toXY(Ev,M,W.min,Q2.min,x,y);
+}
+//____________________________________________________________________________
 double genie::utils::kinematics::EnergyThreshold(
                                         const Interaction * const interaction)
 {
@@ -514,6 +539,36 @@ void genie::utils::kinematics::XYtoWQ2(
       << "(x=" << x << ",y=" << y << " => (W=" << W << ",Q2=" << Q2 << ")";
 }
 //___________________________________________________________________________
+double genie::utils::kinematics::XYtoW(
+                                     double Ev, double M, double x, double y)
+{
+// Converts (x,y) => W
+// Ev is the neutrino energy at the struck nucleon rest frame
+// M is the nucleon mass - it does not need to be on the mass shell
+
+  double M2  = TMath::Power(M,2);
+  double W2  = M2 + 2*Ev*M*y*(1-x);
+  double W  = TMath::Sqrt(TMath::Max(0., W2));
+
+  LOG("KineLimits", pDEBUG) << "(x=" << x << ",y=" << y << ") => W=" << W;
+
+  return W;
+}
+//___________________________________________________________________________
+double genie::utils::kinematics::XYtoQ2(
+                                     double Ev, double M, double x, double y)
+{
+// Converts (x,y) => Q2
+// Ev is the neutrino energy at the struck nucleon rest frame
+// M is the nucleon mass - it does not need to be on the mass shell
+
+  double Q2 = 2*x*y*M*Ev;
+
+  LOG("KineLimits", pDEBUG) << "(x=" << x << ",y=" << y << ") => Q2=" << Q2;
+
+  return Q2;
+}
+//___________________________________________________________________________
 double genie::utils::kinematics::SlowRescalingVar(
                              const Interaction * const interaction, double mc)
 {
@@ -549,4 +604,89 @@ void genie::utils::kinematics::ApplyCutsToKineLimits(
   }
 }
 //____________________________________________________________________________
+double genie::utils::kinematics::RESImportanceSamplingEnvelope(
+                                                     double * x, double * par)
+{
+  //-- inputs
+  double QD2   = x[0];   // QD2 (Q2 transformed to take out the dipole form)
+  double W     = x[1];   // invariant mass
+
+  //-- parameters
+  double mD    = par[0]; // resonance mass
+  double gD    = par[1]; // resonance width
+  double xsmax = par[2]; // safety factor * max cross section in (W,Q2)
+  double Wmax  = par[3]; // kinematically allowed Wmax
+
+  double func = 0;
+
+  if(Wmax > mD) {
+     // -- if the resonance mass is within the kinematical range then
+     // -- the envelope is defined as a plateau above the resonance peak,
+     // -- a steeply falling leading edge (low-W side) and a more slowly
+     // -- falling trailing edge (high-W side)
+     if(W < mD-gD/2) {
+       //low-W falling edge
+       double plateau_edge = mD-gD/2;
+       func = xsmax / (1 + 5* TMath::Power((W-plateau_edge)/gD,2));
+     } else if (W > mD+gD/2) {
+       //high-W falling edge
+       double plateau_edge = mD+gD/2;
+       func = xsmax / (1 + 2 * TMath::Power((W-plateau_edge)/gD,2));
+     } else {
+       // plateau
+       func = xsmax;
+     }
+  } else {
+     // -- if the resonance mass is above the kinematical range then the
+     // -- envelope is a small plateau just bellow Wmax and a falling edge
+     // -- at lower W
+     if (W > Wmax-0.1) {
+       // plateau
+       func = xsmax;
+     } else {
+       //low-W falling edge
+       double plateau_edge = Wmax-0.1;
+       func = xsmax / (1 + TMath::Power((W-plateau_edge)/gD,2));
+     } 
+  }
+
+  if(QD2<0.5) {
+    func *= (1 - (0.5-QD2));
+  }
+
+  return func;
+}
+//___________________________________________________________________________
+double genie::utils::kinematics::DISImportanceSamplingEnvelope(
+                                                     double * x, double * par)
+{
+  //-- inputs
+  double xb = x[0];   // scaling variable x brorken
+  //double y  = x[1];   // inelasticity y
+
+  //-- parameters
+  double xpeak = par[0]; // x peak
+  double xmin  = par[1]; // min x
+  double xmax  = 1.;     // max x
+  double xsmax = par[2]; // safety factor * max cross section in (x,y)
+
+  double func = 0;
+
+  if(xb < xpeak/20.) {
+       //low-x falling edge
+       double plateau_edge = xpeak/20.;
+       double slope = xsmax/(xmin - plateau_edge);
+       func = xsmax - slope * (xb - plateau_edge);
+  } else if (xb > 2*xpeak) {
+       //high-x falling edge
+       double plateau_edge = 2*xpeak;
+       double slope = xsmax/(xmax - plateau_edge);
+       func = xsmax - slope * (xb - plateau_edge);
+  } else {
+       // plateau
+       func = xsmax;
+  } 
+  return func;
+}
+//___________________________________________________________________________
 
