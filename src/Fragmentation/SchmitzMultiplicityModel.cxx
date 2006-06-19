@@ -63,7 +63,12 @@ const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
   // Calculate avergage hadron multiplicity (= 1.5 x charged hadron mult.)
 
   double W = utils::kinematics::CalcW(interaction);
-  assert(W>kNeutronMass+kPionMass);
+  if(W<kNeutronMass+kPionMass) {
+    SLOG("Schmitz", pWARN) 
+        << "Low mass, W=" << W 
+               << "! Returning empty multiplicity probability distribution";
+    return *fMultProb;
+  }
 
   double alpha = this->SelectOffset(interaction);
   double avn   = alpha + fB * 2*TMath::Log(W);
