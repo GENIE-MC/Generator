@@ -501,28 +501,39 @@ void ConvertToGNeugen(ofstream & output, EventRecord & event)
 
   int proc=-1;
   if (proc_info.IsQuasiElastic()) proc=1;
+  if (proc_info.IsResonant())     proc=2;
+
+  //-- get kinematics as selected by the corresponding kinematics
+  //   generator, ignore other variables to avoid possible definition
+  //   incosnsistencies due to the off-shell kinematics
 
   const Kinematics & kinematics = interaction->GetKinematics();
-
   double q2=0, W=0, x=0, y=0;
 
-  if(proc==1) q2 = kinematics.q2(true);
+  if(proc==1) {
+    q2 = kinematics.q2(true);
+  }
+  if(proc==2) {
+    q2 = kinematics.q2(true);
+    W  = kinematics.W(true);
+  }
 
   GHepParticle * neutrino = event.Probe();
   GHepParticle * nucleon  = event.StruckNucleon();
   GHepParticle * target   = event.TargetNucleus();
   GHepParticle * lepton   = event.FinalStatePrimaryLepton();
-  
+  GHepParticle * hadsyst  = event.FinalStateHadronicSystem();
+
+  if(proc==1) hadsyst=event.Particle(nucleon->FirstDaughter());
+
   int neu_pdg = neutrino -> PdgCode();
   int nuc_pdg = nucleon  -> PdgCode();
-  int tgt_pdg = 0;
+  int tgt_pdg = (target) ? nucleon  -> PdgCode() : 0;
 
   TLorentzVector * p4neu = neutrino -> P4();
   TLorentzVector * p4nuc = nucleon  -> P4();
   TLorentzVector * p4lep = lepton   -> P4();
  
-  TLorentzVector pnull(0,0,0,0);
-
   output << ccnc << " " << proc << " "
          << neu_pdg << " " 
          << nuc_pdg << " " 
@@ -530,16 +541,22 @@ void ConvertToGNeugen(ofstream & output, EventRecord & event)
          << q2 << " " 
          << W  << " " 
          << x  << " " 
-         << y  << " " 
-         << p4neu->Px() << " "  << p4neu->Py() << " " 
-         << p4neu->Pz() << " "  << p4neu->E()  << " "
-         << p4nuc->Px() << " "  << p4nuc->Py() << " " 
-         << p4nuc->Pz() << "\n" << p4nuc->E()  << " "
-         << p4lep->Px() << " "  << p4lep->Py() << " " 
-         << p4lep->Pz() << " "  << p4lep->E()  << " "
-         << pnull.Px()  << "\n" << pnull.Py()  << " " 
-         << pnull.Pz()  << " "  << pnull.E()   << " "
-         << endl;
+         << y  << " "; 
+  output << p4neu->Px() << " "  << p4neu->Py() << " " 
+         << p4neu->Pz() << " "  << p4neu->E()  << " ";
+  output << p4nuc->Px() << " "  << p4nuc->Py() << " " 
+         << p4nuc->Pz() << "\n" << p4nuc->E()  << " ";
+  output << p4lep->Px() << " "  << p4lep->Py() << " " 
+         << p4lep->Pz() << " "  << p4lep->E()  << " ";
+
+  if(hadsyst) {
+     TLorentzVector * p4had = hadsyst->P4();
+     output << p4had->Px()  << "\n" << p4had->Py()  << " " 
+            << p4had->Pz()  << " "  << p4had->E()   << " ";
+  } else {
+    output << "0.0 \n 0.0  0.0  0.0";
+  }
+  output << endl;
 }
 //___________________________________________________________________
 // FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS & PRINTING SYNTAX ON ERR
