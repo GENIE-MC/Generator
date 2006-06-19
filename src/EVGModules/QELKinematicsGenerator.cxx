@@ -125,21 +125,22 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         throw exception;
      }
 
-     // generate a Q2 value within the allowed phase space
+     //-- Generate a Q2 value within the allowed phase space
+     //   In unweighted mode - use transform that takes out the dipole form
      if(fGenerateUniformly) {
          gQ2 = Q2min + (Q2max-Q2min) * rnd->Random1().Rndm();
      } else {
-       double gQD2 = QD2min + (QD2max-QD2min) * rnd->Random1().Rndm();
+         double gQD2 = QD2min + (QD2max-QD2min) * rnd->Random1().Rndm();
          gQ2  = utils::kinematics::QD2toQ2(gQD2);
      }
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
 
      LOG("QELKinematics", pINFO) << "Trying: Q^2 = " << gQ2;
 
-     // computing cross section for the current kinematics
+     //-- Computing cross section for the current kinematics
      xsec = fXSecModel->XSec(interaction, kPSQ2fE);
 
-     //-- decide whether to accept the current kinematics
+     //-- Decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
@@ -149,7 +150,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
                      << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
         accept = (t < J*xsec);
      } else {
-       accept = (xsec>0);
+        accept = (xsec>0);
      }
 
      if(accept) {
