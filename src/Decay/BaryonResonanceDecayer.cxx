@@ -183,7 +183,7 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
 
   //double wmax = fPhaseSpaceGenerator.GetWtMax();
   double wmax = -1;
-  for(int i=0; i<200; i++) {
+  for(int i=0; i<50; i++) {
      double w = fPhaseSpaceGenerator.Generate();
      wmax = TMath::Max(wmax,w);
   }
