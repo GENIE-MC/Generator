@@ -44,14 +44,7 @@ private:
 
   void LoadConfig();
 
-  double fGL;
-  double fGR;
-  double fGLprime;
-  double fGRprime;
-  double fGL2;
-  double fGR2;
-  double fGLprime2;
-  double fGRprime2;
+  double fSin2thw;
 };
 
 }         // genie namespace
