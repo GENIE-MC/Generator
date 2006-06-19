@@ -111,16 +111,16 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- Try to select a valid (x,y) pair using the rejection method
 
-  //double dx = fXmax - fXmin;
-  //double dy = fYmax - fYmin;
-
+  double dx = fXmax - fXmin;
+  double dy = fYmax - fYmin;
+  /*
   double logxmin = TMath::Log(fXmin);
   double logxmax = TMath::Log(fXmax);
   double logymin = TMath::Log(fYmin);
   double logymax = TMath::Log(fYmax);
   double dlogx   = logxmax-logxmin;
   double dlogy   = logymax-logymin;
-
+  */
   double gx=-1, gy=-1, gW=-1, gQ2=-1, xsec=-1;
 
   register unsigned int iter = 0;
@@ -139,11 +139,10 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      }
 
      //-- random x,y
-     //     gx = fXmin  + dx  * rnd->Random1().Rndm();
-     //     gy = fYmin  + dy  * rnd->Random1().Rndm();
-
-     gx = TMath::Exp(logxmin + dlogx * rnd->Random1().Rndm());
-     gy = TMath::Exp(logymin + dlogy * rnd->Random1().Rndm());
+     gx = fXmin  + dx  * rnd->Random1().Rndm();
+     gy = fYmin  + dy  * rnd->Random1().Rndm();
+     //gx = TMath::Exp(logxmin + dlogx * rnd->Random1().Rndm());
+     //gy = TMath::Exp(logymin + dlogy * rnd->Random1().Rndm());
 
      LOG("DISKinematics", pINFO) 
                            << "Trying: x = " << gx << ", y = " << gy;
@@ -159,8 +158,8 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
         double t = xsec_max * rnd->Random1().Rndm();
-        double J = kinematics::Jacobian(interaction,kPSxyfE,kPSlogxlogyfE);
-	//        double J = 1;
+        //double J = kinematics::Jacobian(interaction,kPSxyfE,kPSlogxlogyfE);
+	double J = 1;
 
         LOG("DISKinematics", pDEBUG)
               << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
@@ -173,8 +172,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {
          LOG("DISKinematics", pNOTICE) 
-                << "Selected: x=" << gx << ", y=" << gy 
-                             << " (-> W=" << gW << ", Q2=" << gQ2 << ")";
+         	             << "Selected:  x = " << gx << ", y = " << gy;
 
          // reset trust bits
          interaction->ResetBit(kISkipProcessChk);
@@ -199,6 +197,9 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
          // compute W,Q2 for selected x,y
          kinematics::XYtoWQ2(Ev,M,gW,gQ2,gx,gy);
+
+         LOG("DISKinematics", pNOTICE) 
+                        << "Selected x,y => W = " << gW << ", Q2 = " << gQ2;
 
          // lock selected kinematics & clear running values
          interaction->GetKinematicsPtr()->SetW (gW,  true);
@@ -319,15 +320,16 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   const InitialState & init_state = interaction->GetInitialState();
   double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
 
+  double log10Ev = TMath::Log10(Ev);
+
   const ProcessInfo & proc = interaction->GetProcessInfo();
   const Target & tgt = init_state.GetTarget();
 
   // guess the approximate position of the maximum differential xsec to avoid
   // an extensive (time-consuming) phase space search
 
-  double xpeak=-1, ypeak=-1;
-
-  double log10Ev = TMath::Log10(Ev);
+  double xpeak=-1, ypeak=-1, xwindow=-1, ywindow=-1;
+  int Ny=100, Nx=100, Nxb=10;
 
   if(proc.IsWeakCC()) {
     if( pdg::IsProton(tgt.StruckNucleonPDGCode()) ) {
@@ -337,32 +339,38 @@ double DISKinematicsGenerator::ComputeMaxXSec(
       xpeak = 0.26 - 0.060 * log10Ev;
       ypeak = 0.85 - 0.680 * log10Ev + 0.145 * TMath::Power(log10Ev,2);
     }
+    xwindow = .2;
+    ywindow = .2;
+    Ny  = 10;
+    Nx  = 10;
+    Nxb =  3;
+  } else {
+    xpeak   = .1;
+    ypeak   = .5;
+    xwindow = .2;
+    ywindow = .5;
+    Ny  = 20;
+    Nx  = 80;
+    Nxb = 10;
   }
-
-  const int Ny  = 10;
-  const int Nx  = 10;
-  const int Nxb =  3;
  
-  double xmin    = TMath::Max(xpeak-0.15, fXmin);
-  double xmax    = TMath::Min(xpeak+0.15, fXmax);
-  double ymin    = TMath::Max(ypeak-0.15, fYmin);
-  double ymax    = TMath::Min(ypeak+0.15, fYmax);
-  double dx      = (xmax-xmin)/(Nx-1);
-  double dy      = (ymax-ymin)/(Ny-1);
-  /*
+  double xmin    = TMath::Max(xpeak-xwindow, fXmin);
+  double xmax    = TMath::Min(xpeak+xwindow, fXmax);
+  double ymin    = TMath::Max(ypeak-ywindow, fYmin);
+  double ymax    = TMath::Min(ypeak+ywindow, fYmax);
   double logxmin = TMath::Log10(xmin);
   double logxmax = TMath::Log10(xmax);
   double logymin = TMath::Log10(ymin);
   double logymax = TMath::Log10(ymax);
   double dlogx   = (logxmax-logxmin)/(Nx-1);
   double dlogy   = (logymax-logymin)/(Ny-1);
-  */
+
   double xseclast_y = -1;
   bool increasing_y;
 
   for(int i=0; i<Ny; i++) {
-     double gy = ymin + i*dy;
-     //     double gy = TMath::Power(10., logymin + i*dlogy);
+    //double gy = ymin + i*dy;
+     double gy = TMath::Power(10., logymin + i*dlogy);
      interaction->GetKinematicsPtr()->Sety(gy);
 
      LOG("DISKinematics", pDEBUG) << "y = " << gy;
@@ -371,8 +379,8 @@ double DISKinematicsGenerator::ComputeMaxXSec(
      bool increasing_x;
 
      for(int j=0; j<Nx; j++) {
-        double gx = xmin + j*dx;
-	//        double gx = TMath::Power(10., logxmin + j*dlogx);
+        //double gx = xmin + j*dx;
+	double gx = TMath::Power(10., logxmin + j*dlogx);
         interaction->GetKinematicsPtr()->Setx(gx);
 
         double xsec = fXSecModel->XSec(interaction, kPSxyfE);
@@ -391,10 +399,11 @@ double DISKinematicsGenerator::ComputeMaxXSec(
         if(!increasing_x) {
           LOG("DISKinematics", pDEBUG) 
            << "d2xsec/dxdy|x stopped increasing. Stepping back & exiting x loop";
-          double dxn = dx/(Nxb+1);
+          double dlogxn = dlogx/(Nxb+1);
+          //double dxn = dx/(Nxb+1);
           for(int ik=0; ik<Nxb; ik++) {
-	    //   	     gx = TMath::Exp(TMath::Log(gx) - dlogxn);
-   	     gx = gx - dxn;
+	     gx = TMath::Exp(TMath::Log(gx) - dlogxn);
+   	     //gx = gx - dxn;
              interaction->GetKinematicsPtr()->Setx(gx);
 
              xsec = fXSecModel->XSec(interaction, kPSxyfE);
