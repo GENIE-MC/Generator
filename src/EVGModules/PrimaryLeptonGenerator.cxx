@@ -61,14 +61,18 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 // This method generates the final state primary lepton
 
   Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
 
-  // Look-up selected kinematics
-  double Q2 = interaction->GetKinematics().Q2(true);
-  double y  = interaction->GetKinematics().y(true);
+  // Boost vector for [LAB] <-> [Nucleon Rest Frame] transforms
+  TVector3 beta = this->NucRestFrame2Lab(evrec);
 
-  // Auxiliary params
-  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
+  // Neutrino 4p
+  TLorentzVector * p4v = evrec->Probe()->GetP4(); // v 4p @ LAB
+  p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
+
+  // Look-up selected kinematics & other needed kinematical params
+  double Q2  = interaction->GetKinematics().Q2(true);
+  double y   = interaction->GetKinematics().y(true);
+  double Ev  = p4v->E(); 
   double ml  = interaction->GetFSPrimaryLepton()->Mass();
   double ml2 = TMath::Power(ml,2);
 
@@ -90,8 +94,8 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double pltx = plt * TMath::Cos(phi);
   double plty = plt * TMath::Sin(phi);
 
-  // Take a unit vector along the neutrino direction
-  TVector3 unit_nudir = evrec->Probe()->P4()->Vect().Unit();
+  // Take a unit vector along the neutrino direction @ the nucleon rest frame
+  TVector3 unit_nudir = p4v->Vect().Unit(); 
 
   // Rotate lepton momentum vector from the reference frame (x'y'z') where 
   // {z':(neutrino direction), z'x':(theta plane)} to the nucleon rest frame
@@ -101,10 +105,11 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   // Lepton 4-momentum in the nucleon rest frame
   TLorentzVector p4l(p3l,El);
 
-  // Boost it to the lab frame
-  TVector3 * beta = NucRestFrame2Lab(evrec);
-  p4l.Boost(*beta); // active Lorentz transform
-  delete beta;
+  LOG("LeptonicVertex", pNOTICE)
+       << "fsl @ NRF: " << utils::print::P4AsString(&p4l);
+
+  // Boost final state primary lepton to the lab frame
+  p4l.Boost(beta); // active Lorentz transform
 
   LOG("LeptonicVertex", pNOTICE)
        << "fsl @ LAB: " << utils::print::P4AsString(&p4l);
@@ -117,9 +122,11 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   // Set final state lepton polarization
   this->SetPolarization(evrec);
+
+  delete p4v;
 }
 //___________________________________________________________________________
-TVector3 * PrimaryLeptonGenerator::NucRestFrame2Lab(GHepRecord * evrec) const
+TVector3 PrimaryLeptonGenerator::NucRestFrame2Lab(GHepRecord * evrec) const
 {
 // Velocity for an active Lorentz transform taking the final state primary
 // lepton from the [nucleon rest frame] --> [LAB]
@@ -133,8 +140,8 @@ TVector3 * PrimaryLeptonGenerator::NucRestFrame2Lab(GHepRecord * evrec) const
   double by = pnuc4->Py() / pnuc4->Energy();
   double bz = pnuc4->Pz() / pnuc4->Energy();
 
-  TVector3 * b = new TVector3(bx,by,bz);
-  return b;
+  TVector3 beta(bx,by,bz);
+  return beta;
 }
 //___________________________________________________________________________
 void PrimaryLeptonGenerator::AddToEventRecord(

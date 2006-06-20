@@ -52,8 +52,6 @@ NucBindEnergyAggregator::~NucBindEnergyAggregator()
 //___________________________________________________________________________
 void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
 {
-  LOG("Nuclear", pINFO) << *event_rec;
-
   Interaction * interaction = event_rec->GetInteraction();
   const InitialState & init_state = interaction->GetInitialState();
 
@@ -75,7 +73,6 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
         if(nucleus) {
            //-- ask for the binding energy of the most loose nucleon
            //  (separation energy)
-
            const Target & target = init_state.GetTarget();
            double bindE = utils::nuclear::BindEnergyLastNucleon(target);
 

@@ -32,21 +32,18 @@ class PrimaryLeptonGenerator : public EventRecordVisitorI {
 
 public :
 
-  //-- Std EventRecordVisitorI interface implementation
-
+  //! Standard EventRecordVisitorI interface implementation
   virtual void ProcessEventRecord(GHepRecord * evrec) const;
 
-  //-- Common methods for all concrete PrimaryLeptonGenerator-type
-  //   EventRecordVisitors
-
-  virtual void       SetPolarization  (GHepRecord * ev) const;
-  virtual TVector3 * NucRestFrame2Lab (GHepRecord * ev) const;
-  virtual void       AddToEventRecord (
+  //! Common methods for all concrete PrimaryLeptonGenerator-type
+  //! EventRecordVisitors
+  virtual void     SetPolarization  (GHepRecord * ev) const;
+  virtual TVector3 NucRestFrame2Lab (GHepRecord * ev) const;
+  virtual void     AddToEventRecord (
               GHepRecord * ev, int pdgc, const TLorentzVector & p4) const;
 protected:
 
-  //-- Abstract class - Can only be instantiated by its children.
-
+  //! Abstract class - Can only be instantiated by its children.
   PrimaryLeptonGenerator();
   PrimaryLeptonGenerator(string name);
   PrimaryLeptonGenerator(string name, string config);
