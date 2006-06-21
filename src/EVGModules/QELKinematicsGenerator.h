@@ -29,21 +29,19 @@ namespace genie {
 class QELKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
-
   QELKinematicsGenerator();
   QELKinematicsGenerator(string config);
   ~QELKinematicsGenerator();
 
-  //-- implement the EventRecordVisitorI interface
+  //! implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  //! overload the Algorithm::Configure() methods to load private data
+  //! members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
 private:
-
   void      LoadConfig     (void);
   Range1D_t Q2Range        (const Interaction * in) const;
   double    ComputeMaxXSec (const Interaction * in) const;

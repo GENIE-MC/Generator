@@ -33,21 +33,19 @@ namespace genie {
 class DISKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
-
   DISKinematicsGenerator();
   DISKinematicsGenerator(string config);
   ~DISKinematicsGenerator();
 
-  //-- implement the EventRecordVisitorI interface
+  //! implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  //! overload the Algorithm::Configure() methods to load private data
+  //! members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
 private:
-
   void      LoadSubAlg      (void);
   void      LoadConfigData  (void);
   Range1D_t XRange          (void) const;

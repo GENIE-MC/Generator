@@ -49,9 +49,6 @@ IMDKinematicsGenerator::~IMDKinematicsGenerator()
 //___________________________________________________________________________
 void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// Selects kinematic variables using the 'Rejection' method and adds them to
-// the event record's summary
-
   if(fGenerateUniformly) {
     LOG("IMDKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
@@ -112,8 +109,8 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        accept = (xsec>0);
      }
 
+     //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {
-        // -------------- KINEMATICAL SELECTION DONE ----------------
         LOG("IMDKinematics", pINFO) << "Selected: y = " << y;
 
         // set the cross section for the selected kinematics

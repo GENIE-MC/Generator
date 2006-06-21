@@ -14,7 +14,10 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
 #include <TMath.h>
+#include <TF2.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
@@ -37,29 +40,30 @@ using namespace genie::utils;
 COHKinematicsGenerator::COHKinematicsGenerator() :
 KineGeneratorWithCache("genie::COHKinematicsGenerator")
 {
-
+  fEnvelope = 0;
 }
 //___________________________________________________________________________
 COHKinematicsGenerator::COHKinematicsGenerator(string config) :
 KineGeneratorWithCache("genie::COHKinematicsGenerator", config)
 {
-
+  fEnvelope = 0;
 }
 //___________________________________________________________________________
 COHKinematicsGenerator::~COHKinematicsGenerator()
 {
-
+  if(fEnvelope) delete fEnvelope;
 }
 //___________________________________________________________________________
 void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// Selects kinematic variables using the 'Rejection' method and adds them to
-// the event record's summary
-
   if(fGenerateUniformly) {
     LOG("COHKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
   }
+
+  Interaction * interaction = evrec->GetInteraction();
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
 
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
@@ -73,8 +77,8 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
 
   //-- Get the kinematical limits for the generated x,y
-  Interaction * interaction = evrec->GetInteraction();
   Range1D_t y = this->yRange(interaction);
+  assert(y.min>0. && y.max>0. && y.min<1. && y.max<1. && y.min<y.max);
 
   const double xmin = kASmallNum;
   const double xmax = 1.- kASmallNum;
@@ -87,7 +91,8 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   register unsigned int iter = 0;
   bool accept=false;
-  double xsec=-1;
+  double xsec=-1, gx=-1, gy=-1;
+
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
@@ -100,31 +105,52 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         exception.SwitchOnFastForward();
         throw exception;
      }
-     double gx = xmin + dx * rnd->Random1().Rndm();
-     double gy = ymin + dy * rnd->Random1().Rndm();
+
+     if(fGenerateUniformly) {
+        //-- Generate a x,y pair uniformly in the kinematically allowed range.
+        gx = xmin + dx * rnd->Random1().Rndm();
+        gy = ymin + dy * rnd->Random1().Rndm();
+
+     } else {
+        //-- Select unweighted kinematics using importance sampling method. 
+
+        if(iter==1) {
+         // initialize the sampling envelope
+         double Ev = interaction->GetInitialState().GetProbeE(kRfLab);
+         fEnvelope->SetRange(xmin,ymin,xmax,ymax);
+         fEnvelope->SetParameter(0, ymin);      
+         fEnvelope->SetParameter(1, ymax);      
+         fEnvelope->SetParameter(2, xsec_max);  
+         fEnvelope->SetParameter(3, Ev);        
+       }
+
+       // Generate W,QD2 using the 2-D envelope as PDF
+       fEnvelope->GetRandom2(gx,gy);
+     }
+
+     LOG("COHKinematics", pINFO) << "Trying: x = " << gx << ", y = " << gy;
+
      interaction->GetKinematicsPtr()->Setx(gx);
      interaction->GetKinematicsPtr()->Sety(gy);
-     LOG("COHKinematics", pINFO) << "Trying: x = " << gx << ", y = " << gy;
 
      // computing cross section for the current kinematics
      xsec = fXSecModel->XSec(interaction, kPSxyfE);
 
      //-- decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
-        this->AssertXSecLimits(interaction, xsec, xsec_max);
+        double max = fEnvelope->Eval(gx, gy);
+        double t   = max * rnd->Random1().Rndm();
 
-        double t = xsec_max * rnd->Random1().Rndm();
-        LOG("COHKinematics", pINFO)
-                              << "xsec= " << xsec << ", J= 1, Rnd= " << t;
+        this->AssertXSecLimits(interaction, xsec, max);
+        LOG("COHKinematics", pINFO) << "xsec= " << xsec << ", J= 1, Rnd= " << t;
         accept = (t<xsec);
      }
      else { 
         accept = (xsec>0);
      }
 
+     //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {
-         // ----------------- KINEMATICAL SELECTION DONE -------------------
-
         LOG("COHKinematics", pNOTICE) << "Selected: x = "<< gx << ", y = "<< gy;
 
         // the COH cross section should be a triple differential cross section
@@ -169,6 +195,10 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           evrec->SetWeight(wght);
         }
 
+        // reset bits
+        interaction->ResetBit(kISkipProcessChk);
+        interaction->ResetBit(kISkipKinematicChk);
+
         // lock selected kinematics & clear running values
         interaction->GetKinematicsPtr()->Setx(gx, true);
         interaction->GetKinematicsPtr()->Sety(gy, true);
@@ -189,14 +219,18 @@ Range1D_t COHKinematicsGenerator::yRange(const Interaction * in) const
 {
   double Ev  = in->GetInitialState().GetProbeE(kRfLab);
   double Mpi = kPionMass;
+  double ml  = in->GetFSPrimaryLepton()->Mass();
 
-  Range1D_t y;
-  y.min = Mpi/Ev;
-  y.max = 1.;
+  Range1D_t y(-1,-1);
+
+  if(Ev<=0) return y;
+
+  y.min = (Mpi/Ev)  + kASmallNum;
+  y.max = (1-ml/Ev) - kASmallNum;
 
   LOG("COHKinematics", pDEBUG)
                   << "Physical y range = (" << y.min << ", " << y.max << ")";
- return y;
+  return y;
 }
 //___________________________________________________________________________
 double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
@@ -211,59 +245,39 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
   double max_xsec = 0.;
 
-  const int Nx  =  80;
-  const int Ny  =  25;
-  const int Nyb =  15;
+  const int Nx  =  100;
+  const int Ny  =  100;
 
   Range1D_t y = this->yRange(in);
 
-  const double logxmin = TMath::Log(kASmallNum);
-  const double logxmax = TMath::Log(1.-kASmallNum);
-  const double logymin = TMath::Log(y.min+kASmallNum);
-  const double logymax = TMath::Log(y.max-kASmallNum);
-  const double dlogx   = (logxmax - logxmin) /(Nx-1);
+  const double xmin    = kASmallNum;
+  const double xmax    = 1.-kASmallNum;
+  const double logymin = TMath::Log10(y.min);
+  const double logymax = TMath::Log10( TMath::Min(y.max, 2*y.min) );
+  const double dx      = (xmax - xmin) /(Nx-1);
   const double dlogy   = (logymax - logymin) /(Ny-1);
 
   double Ev  = in->GetInitialState().GetProbeE(kRfLab);
 
-  double xseclast = -1;
-  bool   increasing;
-
   for(int i=0; i<Nx; i++) {
-   double gx = TMath::Exp(logxmin + i * dlogx);
+   double gx = xmin + i * dx;
    for(int j=0; j<Ny; j++) {
-     double gy = TMath::Exp(logymin + j * dlogy);
+     double gy = TMath::Power(10, logymin + j * dlogy);
 
-     double Q2 = 2*kNucleonMass*gx*gy*Ev;
-     if(Q2 > 0.1) continue;
+     double Epi = gy*Ev;
+     double Q2  = 2*kNucleonMass*gx*gy*Ev;
+
+     if(Epi>0.275) continue;
+     if(Q2 >0.125) continue;
 
      in->GetKinematicsPtr()->Setx(gx);
      in->GetKinematicsPtr()->Sety(gy);
 
      double xsec = fXSecModel->XSec(in, kPSxyfE);
      LOG("COHKinematics", pDEBUG)  
-     	              << "xsec(x= " << gx << ", y= " << gy << ") = " << xsec;
-
+     	                << "xsec(x= " << gx << ", y= " << gy << ") = " << xsec;
      max_xsec = TMath::Max(max_xsec, xsec);
-     increasing = xsec-xseclast>=0;
-     xseclast   = xsec;
 
-     // once the xsec stops increasing, I reduce the step size and
-     // step backwards a little bit to handle cases that the max xsec
-     // is grossly underestimated (very peaky distribution & large step)
-     if(!increasing) {
-       double dlogyb = dlogy/(Nyb+1);
-       for(int jb=0; jb<Nyb; jb++) {
-	 gy = TMath::Exp(TMath::Log(gy) - dlogyb);
-         if(gy < y.min) continue;
-         in->GetKinematicsPtr()->Sety(gy);
-         xsec = fXSecModel->XSec(in, kPSxyfE);
-         LOG("COHKinematics", pDEBUG)  
-     	              << "xsec(x= " << gx << ", y= " << gy << ") = " << xsec;
-         max_xsec = TMath::Max(xsec, max_xsec);
-       }
-       break;
-     }
    }//y
   }//x
 
@@ -273,7 +287,7 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
   SLOG("COHKinematics", pDEBUG) << in->AsString();
   SLOG("COHKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  SLOG("COHKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
+  SLOG("COHKinematics", pDEBUG) << "Computed using alg = " << fXSecModel->Id();
 
   return max_xsec;
 }
@@ -321,6 +335,12 @@ void COHKinematicsGenerator::LoadConfig(void)
   fGenerateUniformly = fConfig->GetBoolDef("uniform-over-phase-space", false);
 
   assert(fXSecModel);
+
+  //-- Envelope employed when importance sampling is used 
+  //   (initialize with dummy range)
+  if(fEnvelope) delete fEnvelope;
+  fEnvelope = new TF2("envelope",
+    	               kinematics::COHImportanceSamplingEnvelope,0.,1,0.,1,4);
 }
 //____________________________________________________________________________
 
