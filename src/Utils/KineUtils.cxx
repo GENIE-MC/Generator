@@ -368,31 +368,34 @@ double genie::utils::kinematics::EnergyThreshold(
   const Target &      tgt  = interaction->GetInitialState().GetTarget();
   const ProcessInfo & proc = interaction->GetProcessInfo();
 
-  double ml    = interaction->GetFSPrimaryLepton()->Mass();
-  double Mnuc  = tgt.StruckNucleonIsSet() ?
-                                 tgt.StruckNucleonP4()->M() : kNucleonMass;
-  double Mnuc2 = TMath::Power(Mnuc,2);
+  double ml = interaction->GetFSPrimaryLepton()->Mass();
 
+  if (proc.IsCoherent()) {
 
-  double Wmin = 0;
-  if (proc.IsQuasiElastic()) 
-  {
-    Wmin = Mnuc;
-  }
-  else if (proc.IsResonant() || proc.IsDeepInelastic()) 
-  {
-    Wmin = kNeutronMass+kPionMass;
-  } 
-  else {
-     SLOG("KineLimits", pERROR)
-      	               << "Can't compute threshold for \n" << *interaction;
-     exit(1);
+    int tgtpdgc = tgt.PDGCode(); // nuclear target PDG code (1AAAZZZ000)
+    double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass(); 
+    double m    = ml + kPionMass;
+    double m2   = TMath::Power(m,2);
+    double Ethr = m + 0.5*m2/MA;
+    return Ethr;
   }
 
-  double smin = TMath::Power(Wmin+ml,2.);
-  double Ethr = 0.5*(smin-Mnuc2)/Mnuc;
+  if(proc.IsQuasiElastic() || proc.IsResonant() || proc.IsDeepInelastic()) {
 
-  return Ethr;
+    assert( tgt.StruckNucleonIsSet() );
+    double Mn   = tgt.StruckNucleonP4()->M();
+    double Mn2  = TMath::Power(Mn,2);
+    double Wmin = (proc.IsQuasiElastic()) ? Mn : kNeutronMass+kPionMass;
+    double smin = TMath::Power(Wmin+ml,2.);
+    double Ethr = 0.5*(smin-Mn2)/Mn;
+    return Ethr;
+  }
+
+  SLOG("KineLimits", pERROR)
+      	      << "Can't compute threshold for \n" << *interaction;
+  exit(1);
+
+  return 99999999;
 }
 //____________________________________________________________________________
 bool genie::utils::kinematics::IsAboveCharmThreshold(
