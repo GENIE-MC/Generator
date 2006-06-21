@@ -268,7 +268,7 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
      double Q2  = 2*kNucleonMass*gx*gy*Ev;
 
      if(Epi>0.275) continue;
-     if(Q2 >0.125) continue;
+     if(Q2 >0.050) continue;
 
      in->GetKinematicsPtr()->Setx(gx);
      in->GetKinematicsPtr()->Sety(gy);
