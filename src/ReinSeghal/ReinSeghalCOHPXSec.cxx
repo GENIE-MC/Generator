@@ -24,9 +24,11 @@
 #include "PDG/PDGUtils.h"
 #include "ReinSeghal/ReinSeghalCOHPXSec.h"
 #include "Utils/HadXSUtils.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 ReinSeghalCOHPXSec::ReinSeghalCOHPXSec() :
@@ -144,10 +146,12 @@ bool ReinSeghalCOHPXSec::ValidKinematics(const Interaction* interaction) const
   const InitialState & init_state = interaction -> GetInitialState();
 
   double E   = init_state.GetProbeE(kRfLab); // neutrino energy
+  double Eth = kinematics::EnergyThreshold(interaction);
+  double ml  = interaction->GetFSPrimaryLepton()->Mass();
   double x   = kinematics.x(); // bjorken x
   double y   = kinematics.y(); // inelasticity y
 
-  if (E<=kPionMass || x<=0 || x>=1 || y<=kPionMass/E || y>=1) {
+  if (E<=Eth || x<=0. || x>=1. || y<=kPionMass/E || y>=1.-ml/E) {
 
     LOG("ReinSeghalCoh", pINFO)
              << "d2xsec/dxdy[COH] (x= " << x << ", y="
