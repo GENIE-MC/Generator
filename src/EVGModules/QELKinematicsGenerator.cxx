@@ -56,9 +56,6 @@ QELKinematicsGenerator::~QELKinematicsGenerator()
 //___________________________________________________________________________
 void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// Selects kinematic variables using the 'Rejection' method and adds them to
-// the event record's summary
-
   if(fGenerateUniformly) {
     LOG("QELKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
@@ -153,8 +150,8 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         accept = (xsec>0);
      }
 
+     //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {
-        // -------------- KINEMATICAL SELECTION DONE ----------------
         LOG("QELKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
 
         // reset bits

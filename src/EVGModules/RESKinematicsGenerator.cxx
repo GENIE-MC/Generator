@@ -56,9 +56,6 @@ RESKinematicsGenerator::~RESKinematicsGenerator()
 //___________________________________________________________________________
 void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// Selects kinematic variables using the 'Rejection' method and adds them to
-// the event record's summary
-
   if(fGenerateUniformly) {
     LOG("RESKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
@@ -120,7 +117,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      double gQD2 = 0; // tranformed Q2 to take out dipole form
 
      if(fGenerateUniformly) {
-
        //-- Generate a W uniformly in the kinematically allowed range.
        //   For the generated W, compute the Q2 range and generate a value
        //   uniformly over that range
@@ -137,11 +133,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        //   method. Q2 with be transformed to QD2 to take out the dipole form.
        //   An importance sampling envelope will be constructed for W.
 
-       //-- Build the envelope
        if(iter==1) {
-	 //         Range1D_t Q2 = kinematics::Q2Range_W(interaction,W);
-	 //         double Q2min  = Q2.min+kASmallNum;
-	 //         double Q2max  = Q2.max-kASmallNum;
+         // initialize the sampling envelope
 
          interaction->GetKinematicsPtr()->SetW(Wmin);
          Range1D_t Q2 = this->Q2Range(interaction);
@@ -186,18 +179,11 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      //-- Decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
-        this->AssertXSecLimits(interaction, xsec, xsec_max);
-
         double max = fEnvelope->Eval(gQD2, gW);
         double t   = max * rnd->Random1().Rndm();
         double J   = kinematics::Jacobian(interaction,kPSWQ2fE,kPSWQD2fE);
 
-        if(max<xsec) {
-	  LOG("RESKinematics", pFATAL) 
-            << "Envelope = " << max << ", xsec = " << xsec 
-          	                            << " for \n" << *interaction;
-          exit(1);
-        }
+        this->AssertXSecLimits(interaction, xsec, max);
 
         LOG("RESKinematics", pDEBUG)
                      << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;

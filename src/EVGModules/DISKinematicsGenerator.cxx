@@ -54,9 +54,6 @@ DISKinematicsGenerator::~DISKinematicsGenerator()
 //___________________________________________________________________________
 void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// Selects kinematic variables using the 'Rejection' method and adds them to
-// the event record's summary
-
   if(fGenerateUniformly) {
     LOG("DISKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";

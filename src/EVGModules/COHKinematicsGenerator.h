@@ -24,36 +24,39 @@
 #include "EVGModules/KineGeneratorWithCache.h"
 #include "Utils/Range1.h"
 
+class TF2;
+
 namespace genie {
 
 class COHKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
-
   COHKinematicsGenerator();
   COHKinematicsGenerator(string config);
   ~COHKinematicsGenerator();
 
-  //-- implement the EventRecordVisitorI interface
+  //! implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  //! overload the Algorithm::Configure() methods to load private data
+  //! members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
 public:
-
-  //-- methods to load sub-algorithms and config data from the Registry
+  //! methods to load sub-algorithms and config data from the Registry
   void LoadConfig (void);
 
-  //-- compute kinematical limits
+  //! compute kinematical limits
   Range1D_t yRange (const Interaction * in) const;
 
-  //-- overload KineGeneratorWithCache methods
+  //! overload KineGeneratorWithCache methods
   double ComputeMaxXSec (const Interaction * in) const;
   double Energy         (const Interaction * in) const;
 
+  mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
+
+  //! config parameters
   double fRo;
 };
 
