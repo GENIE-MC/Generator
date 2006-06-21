@@ -68,6 +68,7 @@ namespace kinematics
   //! for importance sampling in kinematical selection modules
   double RESImportanceSamplingEnvelope(double * x, double * par);
   double DISImportanceSamplingEnvelope(double * x, double * par);
+  double COHImportanceSamplingEnvelope(double * x, double * par);
 
 } // kinematics namespace
 } // utils namespace
