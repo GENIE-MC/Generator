@@ -708,14 +708,13 @@ double genie::utils::kinematics::COHImportanceSamplingEnvelope(
   if(y<=ymin || y>=ymax) return 0.;
   if(xb<=0.  || xb>=1.)  return 0.;
 
-  double EpiP = 0.25;
+  double EpiP = 0.26;
   double yP   = EpiP/Ev;
 
   double func = 0;
-
   if(y>yP) {
     // falling edge
-    double d = TMath::Power( (y-yP)/0.01, 2);
+    double d = TMath::Power( (y-yP)/0.015, 2);
     func = xsmax / (1 + d);
   } else {
     // plateau
