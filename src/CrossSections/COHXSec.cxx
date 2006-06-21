@@ -28,6 +28,7 @@
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 COHXSec::COHXSec() :
@@ -112,7 +113,7 @@ bool COHXSec::ValidKinematics(const Interaction * interaction) const
 
   const InitialState & init_state = interaction -> GetInitialState();
   double Ev   = init_state.GetProbeE(kRfLab);
-  double Ethr = kPionMass;
+  double Ethr = kinematics::EnergyThreshold(interaction);
 
   if(Ev <= Ethr) {
      LOG("COHXSec", pINFO) << "E = " << Ev << " <= Ethreshold = " << Ethr;
