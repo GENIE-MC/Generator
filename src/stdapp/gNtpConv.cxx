@@ -502,6 +502,7 @@ void ConvertToGNeugen(ofstream & output, EventRecord & event)
   int proc=-1;
   if (proc_info.IsQuasiElastic()) proc=1;
   if (proc_info.IsResonant())     proc=2;
+  if (proc_info.IsCoherent())     proc=4;
 
   //-- get kinematics as selected by the corresponding kinematics
   //   generator, ignore other variables to avoid possible definition
@@ -517,6 +518,11 @@ void ConvertToGNeugen(ofstream & output, EventRecord & event)
     q2 = kinematics.q2(true);
     W  = kinematics.W(true);
   }
+  if(proc==4) {
+    x  = kinematics.x(true);
+    y  = kinematics.y(true);
+    q2 = kinematics.q2(true);
+  }
 
   GHepParticle * neutrino = event.Probe();
   GHepParticle * nucleon  = event.StruckNucleon();
@@ -527,13 +533,9 @@ void ConvertToGNeugen(ofstream & output, EventRecord & event)
   if(proc==1) hadsyst=event.Particle(nucleon->FirstDaughter());
 
   int neu_pdg = neutrino -> PdgCode();
-  int nuc_pdg = nucleon  -> PdgCode();
-  int tgt_pdg = (target) ? nucleon  -> PdgCode() : 0;
+  int nuc_pdg = (nucleon) ? nucleon -> PdgCode() : 0;
+  int tgt_pdg = (target)  ? target  -> PdgCode() : 0;
 
-  TLorentzVector * p4neu = neutrino -> P4();
-  TLorentzVector * p4nuc = nucleon  -> P4();
-  TLorentzVector * p4lep = lepton   -> P4();
- 
   output << ccnc << " " << proc << " "
          << neu_pdg << " " 
          << nuc_pdg << " " 
@@ -542,10 +544,20 @@ void ConvertToGNeugen(ofstream & output, EventRecord & event)
          << W  << " " 
          << x  << " " 
          << y  << " "; 
+
+  TLorentzVector * p4neu = neutrino->P4();
   output << p4neu->Px() << " "  << p4neu->Py() << " " 
          << p4neu->Pz() << " "  << p4neu->E()  << " ";
-  output << p4nuc->Px() << " "  << p4nuc->Py() << " " 
-         << p4nuc->Pz() << "\n" << p4nuc->E()  << " ";
+
+  if(nucleon) {
+    TLorentzVector * p4nuc = nucleon->P4();
+    output << p4nuc->Px() << " "  << p4nuc->Py() << " " 
+           << p4nuc->Pz() << "\n" << p4nuc->E()  << " ";
+  } else {
+    output << "0.0 0.0 0.0 \n 0.0 ";
+  }
+
+  TLorentzVector * p4lep = lepton->P4();
   output << p4lep->Px() << " "  << p4lep->Py() << " " 
          << p4lep->Pz() << " "  << p4lep->E()  << " ";
 
@@ -554,7 +566,7 @@ void ConvertToGNeugen(ofstream & output, EventRecord & event)
      output << p4had->Px()  << "\n" << p4had->Py()  << " " 
             << p4had->Pz()  << " "  << p4had->E()   << " ";
   } else {
-    output << "0.0 \n 0.0  0.0  0.0";
+    output << "0.0 \n 0.0  0.0  0.0 ";
   }
   output << endl;
 }
