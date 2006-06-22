@@ -18,6 +18,7 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Conventions/RefFrame.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
@@ -76,7 +77,7 @@ double ReinSeghalCOHPXSec::XSec(
   double sTot   = utils::hadxs::TotalPionNucleonXSec(Epi); // tot. pi+N xsec
   double sTot2  = TMath::Power(sTot,2.);
   double sInel  = utils::hadxs::InelasticPionNucleonXSec(Epi); // inel. pi+N xsec
-  double Ro2    = TMath::Power(fRo,2.);
+  double Ro2    = TMath::Power(fRo*units::fermi,2.);
 
   // effect of pion absorption in the nucleus
   double Fabs   = TMath::Exp( -9.*A_3*sInel / (16.*kPi*Ro2) );
@@ -84,7 +85,7 @@ double ReinSeghalCOHPXSec::XSec(
   // the xsec in Nucl.Phys.B223:29-144 (1983) is d^3xsec/dxdydt but the only
   // t-dependent factor is an exp(-bt) so it can be integrated analyticaly
   double Epi2   = TMath::Power(Epi,2.);
-  double R      = fRo * A_3; // nuclear radius
+  double R      = fRo * A_3 * units::fermi; // nuclear radius
   double R2     = TMath::Power(R,2.);
   double b      = 0.33333 * R2;
   double MxEpi  = kNucleonMass*x/Epi;
@@ -102,13 +103,13 @@ double ReinSeghalCOHPXSec::XSec(
       << "\n mass number .................... A     = " << A
       << "\n pion energy .................... Epi   = " << Epi
       << "\n propagator term ................ propg = " << propg
-      << "\n Re/Im of fwd pion scat. ampl. .. Re/Im = " << fRo
+      << "\n Re/Im of fwd pion scat. ampl. .. Re/Im = " << fReIm
       << "\n total pi+N cross section ....... sigT  = " << sTot
       << "\n inelastic pi+N cross section ... sigI  = " << sInel
       << "\n nuclear size scale ............. Ro    = " << fRo
       << "\n pion absorption factor ......... Fabs  = " << Fabs
       << "\n t integration range ............ [" << tmin << "," << tmax << "]"
-      << "\n t integration factor ........... tint  =" << tint;
+      << "\n t integration factor ........... tint  = " << tint;
 
   // (CC COH xsec) = 2 * (NC COH XSEC)
   if(interaction->GetProcessInfo().IsWeakCC()) { xsec *= 2.; }
