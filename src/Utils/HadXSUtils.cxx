@@ -14,63 +14,61 @@
 */
 //____________________________________________________________________________
 
-#include "Conventions/Constants.h"
-#include "Utils/HadXSUtils.h"
-
 #include <TMath.h>
+
+#include "Conventions/Constants.h"
+#include "Conventions/Units.h"
+#include "Utils/HadXSUtils.h"
 
 using namespace genie::constants;
 
 //____________________________________________________________________________
 double genie::utils::hadxs::InelasticPionNucleonXSec(double Epion)
 {
-// Returns the inelastic pion-nucleon cross section.
-// C++ adaptation of Hugh Gallagher's NeuGEN inel() function.
-// Actually, the following is a simple data interpolation:
+// Returns the interpolated inelastic pion-nucleon cross section.
+// C++ adaptation of Hugh Gallagher's NeuGEN inel() function
 
   double Epion2 = TMath::Power(Epion,2);
   double P      = TMath::Sqrt( TMath::Max(0.,Epion2-kPionMass2) );
 
-  double log10P = 0;
-  if(P>0) log10P = TMath::Log10(P);
-  else return 0.;
+  if(P<=0) return 0;
 
-  int N = (int) ((log10P - kInelMinLog10P)/kIneldLog10P);
+  double log10P  = TMath::Log10(P);
+  int    N = (int) ((log10P - kInelMinLog10P)/kIneldLog10P);
 
-  double log10Pn = kInelMinLog10P +  N * kIneldLog10P;
-
-  if      (N<0)                  return (P/0.1059)*kInelSig[0];
-  else if (N>kInelNDataPoints-2) return kInelSig[kInelNDataPoints-1];
+  double xs=0.;
+  if      (N<1)                  xs = (P/0.1059)*kInelSig[0];
+  else if (N>kInelNDataPoints-2) xs = kInelSig[kInelNDataPoints-1];
   else {
-   double d  = (kInelSig[N+1]-kInelSig[N])/kIneldLog10P;
-   double xs = kInelSig[N] + d * (log10P-log10Pn);
-   return xs;
+   double log10Pn = kInelMinLog10P +  (N-1) * kIneldLog10P;
+   double delta   = (kInelSig[N]-kInelSig[N-1])/kIneldLog10P;
+   xs = kInelSig[N-1] + delta * (log10P-log10Pn);
   }
+  return (xs * units::mb);
 }
 //____________________________________________________________________________
 double genie::utils::hadxs::TotalPionNucleonXSec(double Epion)
 {
-// Returns the total pion-nucleon cross section.
+// Returns the interpolated total pion-nucleon cross section.
 // C++ adaptation of Hugh Gallagher's NeuGEN total() function.
-// Actually, the following is a simple data interpolation:
 
   double Epion2 = TMath::Power(Epion,2);
   double P      = TMath::Sqrt( TMath::Max(0.,Epion2-kPionMass2) );
 
-  double log10P = 0;
-  if(P>0) log10P = TMath::Log10(P);
-  else    return 0.;
+  if(P<=0) return 0;
 
-  int N = (int) ((log10P - kTotMinLog10P)/kTotdLog10P);
-  double log10Pn = kTotMinLog10P +  N * kTotdLog10P;
+  double log10P  = TMath::Log10(P);
+  int    N = (int) ((log10P - kTotMinLog10P)/kTotdLog10P);
 
-  if      (N<0)                  return (P/0.1059)*kTotSig[0];
-  else if (N>kInelNDataPoints-2) return kTotSig[kInelNDataPoints-1];
+  double xs=0.;
+  if      (N<1)                  xs = (P/0.1059)*kTotSig[0];
+  else if (N>kInelNDataPoints-2) xs = kTotSig[kInelNDataPoints-1];
   else {
-   double d  = (kTotSig[N+1]-kTotSig[N])/kTotdLog10P;
-   double xs = kTotSig[N] + d * (log10P-log10Pn);
-   return xs;
+   double log10Pn = kTotMinLog10P +  (N-1) * kTotdLog10P;
+   double delta   = (kTotSig[N]-kTotSig[N-1])/kTotdLog10P;
+   xs = kTotSig[N-1] + delta * (log10P-log10Pn);
   }
+  return (xs * units::mb);
 }
 //____________________________________________________________________________
 
