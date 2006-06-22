@@ -22,6 +22,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
+#include "Conventions/Units.h"
 #include "Conventions/KinePhaseSpace.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/COHKinematicsGenerator.h"
@@ -118,10 +119,8 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          // initialize the sampling envelope
          double Ev = interaction->GetInitialState().GetProbeE(kRfLab);
          fEnvelope->SetRange(xmin,ymin,xmax,ymax);
-         fEnvelope->SetParameter(0, ymin);      
-         fEnvelope->SetParameter(1, ymax);      
-         fEnvelope->SetParameter(2, xsec_max);  
-         fEnvelope->SetParameter(3, Ev);        
+         fEnvelope->SetParameter(0, xsec_max);  
+         fEnvelope->SetParameter(1, Ev);        
        }
 
        // Generate W,QD2 using the 2-D envelope as PDF
@@ -171,7 +170,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double tmax  = 2*Epi2 * (tA+tB);
         double A     = (double) init_state.GetTarget().A(); 
         double A13   = TMath::Power(A,1./3.);
-        double R     = fRo * A13; // nuclear radius
+        double R     = fRo * A13 * units::fermi; // nuclear radius
         double R2    = TMath::Power(R,2.);
         double b     = 0.33333 * R2;
         double tsum  = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; 
@@ -245,30 +244,29 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
   double max_xsec = 0.;
 
-  const int Nx  =  100;
-  const int Ny  =  100;
+  double Ev = in->GetInitialState().GetProbeE(kRfLab);
 
-  Range1D_t y = this->yRange(in);
+  const int Nx = 40;
+  const int Ny = 50;
+  Range1D_t y  = this->yRange(in);
 
-  const double xmin    = kASmallNum;
-  const double xmax    = 1.-kASmallNum;
+  if(Ev>3)  y.max = TMath::Min(y.max, 0.25);
+  if(Ev>30) y.max = TMath::Min(y.max, 0.10);
+
+  const double logxmin = TMath::Log10(1E-5);
+  const double logxmax = TMath::Log10(1E-1);
   const double logymin = TMath::Log10(y.min);
-  const double logymax = TMath::Log10( TMath::Min(y.max, 2*y.min) );
-  const double dx      = (xmax - xmin) /(Nx-1);
+  const double logymax = TMath::Log10(y.max);
+  const double dlogx   = (logxmax - logxmin) /(Nx-1);
   const double dlogy   = (logymax - logymin) /(Ny-1);
 
-  double Ev  = in->GetInitialState().GetProbeE(kRfLab);
-
   for(int i=0; i<Nx; i++) {
-   double gx = xmin + i * dx;
+   double gx = TMath::Power(10, logxmin + i * dlogx);
    for(int j=0; j<Ny; j++) {
      double gy = TMath::Power(10, logymin + j * dlogy);
 
-     double Epi = gy*Ev;
-     double Q2  = 2*kNucleonMass*gx*gy*Ev;
-
-     if(Epi>0.275) continue;
-     if(Q2 >0.050) continue;
+     double Q2 = 2*kNucleonMass*gx*gy*Ev;
+     if(Q2 >0.04) continue;
 
      in->GetKinematicsPtr()->Setx(gx);
      in->GetKinematicsPtr()->Sety(gy);
@@ -323,7 +321,7 @@ void COHKinematicsGenerator::LoadConfig(void)
   fRo = fConfig->GetDoubleDef("Ro", gc->GetDouble("COH-Ro"));
 
   //-- max xsec safety factor (for rejection method) and min cached energy
-  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.2);
+  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.6);
   fEMin         = fConfig->GetDoubleDef("min-energy-cached",     -1.0);
 
   //-- Differential cross section model
@@ -336,11 +334,16 @@ void COHKinematicsGenerator::LoadConfig(void)
 
   assert(fXSecModel);
 
+  //-- Maximum allowed fractional cross section deviation from maxim cross
+  //   section used in rejection method
+  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("max-xsec-diff-tolerance",0.);
+  assert(fMaxXSecDiffTolerance>=0);
+
   //-- Envelope employed when importance sampling is used 
   //   (initialize with dummy range)
   if(fEnvelope) delete fEnvelope;
   fEnvelope = new TF2("envelope",
-    	               kinematics::COHImportanceSamplingEnvelope,0.,1,0.,1,4);
+    	               kinematics::COHImportanceSamplingEnvelope,0.,1,0.,1,2);
 }
 //____________________________________________________________________________
 
