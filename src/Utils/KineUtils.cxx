@@ -697,29 +697,35 @@ double genie::utils::kinematics::COHImportanceSamplingEnvelope(
 {
   //-- inputs
   double xb = x[0];   // x
-  double y  = x[1];   // y
+  double yb = x[1];   // y
 
   //-- parameters
-  double ymin  = par[0]; // min y
-  double ymax  = par[1]; // max y
-  double xsmax = par[2]; // safety factor * max cross section in (x,y)
-  double Ev    = par[3]; // neutrino energy;
+  double xsmax = par[0]; // safety factor * max cross section in (x,y)
+  double Ev    = par[1]; // neutrino energy;
 
-  if(y<=ymin || y>=ymax) return 0.;
-  if(xb<=0.  || xb>=1.)  return 0.;
-
-  double EpiP = 0.26;
-  double yP   = EpiP/Ev;
+  if(yb<0.|| yb>1.) return 0.;
+  if(xb<0.|| xb>1.) return 0.;
 
   double func = 0;
-  if(y>yP) {
-    // falling edge
-    double d = TMath::Power( (y-yP)/0.015, 2);
-    func = xsmax / (1 + d);
+  double xp   = 0.1;
+  double yp   = (Ev>2.5) ? 1.75/Ev : 0.5;
+
+  if(xb>xp) {
+    double xs0=0;
+    if(yb<yp) {
+      xs0 = xsmax;
+    } else {
+      xs0 = xsmax - (yb-yp)*xsmax;
+    }
+    double d = TMath::Power( (xb-xp)/0.075, 2);
+    func = xs0/(1 + d);
   } else {
-    // plateau
-    func = xsmax;
-  } 
+    if(yb>yp) {
+       func = xsmax - (yb-yp)*xsmax;
+    } else {
+       func = xsmax;
+    }
+  }
   return func;
 }
 //___________________________________________________________________________
