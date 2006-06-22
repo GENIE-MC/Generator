@@ -13,8 +13,8 @@ Q2-min                   double  Yes   kinematic limit                          
 Q2-max                   double  Yes   kinematic limit                               use physical phase space
 uniform-over-phase-space bool    Yes   kinematics uniformly over allowd phase space  false
                                        wgt = (phase_space_volume)*(diff_xsec)/(xsec)
-max-xsec-safety-factor   double  Yes   multiplies max xsec in rejection method       1.20
-min-energy-cached        double  Yes   minimum energy for which max xsec is cached   1.00
+max-xsec-safety-factor   double  Yes   multiplies max xsec in rejection method       1.40
+min-energy-cached        double  Yes   minimum energy for which max xsec is cached   0.00
 max-xsec-diff-tolerance  double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax) 0.00
                                        if xsec>xsecmax
 -->
@@ -24,6 +24,7 @@ max-xsec-diff-tolerance  double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsec
   <param_set name="Default"> 
      <param type="string" name="xsec-alg-name">            genie::ReinSeghalCOHPXSec </param>
      <param type="string" name="xsec-param-set">           Default                   </param>
+     <param type="double" name="max-xsec-diff-tolerance">  0.500                     </param>
   </param_set>
 
 </alg_conf>
