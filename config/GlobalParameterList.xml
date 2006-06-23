@@ -98,7 +98,7 @@
        Axial mass for coherent scattering 
        *********************************************************************       
       -->
-     <param type="double" name="COH-Ma"> 1.032 </param>
+     <param type="double" name="COH-Ma"> 1.000 </param>
 
      <!-- 
        *********************************************************************       
@@ -116,7 +116,7 @@
 
      <!-- 
        *********************************************************************       
-       Nuclear scale parameter in coherent scattering  
+       Nuclear scale parameter in coherent scattering (in fm)
        *********************************************************************       
      -->
      <param type="double" name="COH-Ro"> 1.000 </param>
@@ -215,24 +215,12 @@
      <!-- 
        *********************************************************************       
        INTRANUKE parameters 
+       Ro (in fm)
        *********************************************************************       
      -->
      <param type="double" name="INUKE-FormationZone"> 2.0  </param>
      <param type="double" name="INUKE-KPt2">          1.0  </param>
      <param type="double" name="INUKE-Ro">            1.2  </param>
-
-     <!--
-       *********************************************************************       
-       GL       =  (1./2.) - (2./3.)* sin8w^2 
-       GR       =          - (2./3.)* sin8w^2
-       GLprime  = -(1./2.) + (1./3.)* sin8w^2
-       GRprime  =            (1./3.)* sin8w^2
-       *********************************************************************       
-     -->
-     <param type="double" name="GL">       0.345887  </param> 
-     <param type="double" name="GR">      -0.154113  </param> 
-     <param type="double" name="GLprime"> -0.422943  </param> 
-     <param type="double" name="GRprime">  0.0770565 </param> 
 
   </param_set>
 
