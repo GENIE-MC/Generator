@@ -9,10 +9,10 @@ Name                         Type    Opt   Comment                              
 .......................................................................................................................
 multiplicity-prob-alg-name   string  No    multiplicity probability algorithm...
 multiplicity-prob-param-set  string  No    ...and its config set
-prob-fs-pi0-pair             double  Yes   probability for pi0 pair                      0.30
-prob-fs-piplus-piminus       double  Yes   probability for pi+pi- pair                   0.60 
-prob-fs-Kplus-Kminus         double  Yes   probability for K+K- pair                     0.05 
-prob-fs-K0-K0bar             double  Yes   probability for K0 K0bar pair                 0.05  
+prob-fs-pi0-pair             double  Yes   probability for pi0 pair                      GPL KNO-ProbPi0Pi0
+prob-fs-piplus-piminus       double  Yes   probability for pi+pi- pair                   GPL KNO-ProbPiplusPiminus
+prob-fs-Kplus-Kminus         double  Yes   probability for K+K- pair                     GPL KNO-ProbKplusKminus
+prob-fs-K0-K0bar             double  Yes   probability for K0 K0bar pair                 GPL KNO-ProbK0K0bar
 force-decays                 bool    Yes   force decays of unstable particles            false   
 force-min-multiplicity       bool    Yes   force a minimum multiplicity of 2             true
 generate-weighted            bool    Yes   generate weighted events                      false
@@ -23,20 +23,11 @@ generate-weighted            bool    Yes   generate weighted events             
   <param_set name="Default"> 
      <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
      <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
-     <param type="double" name="prob-fs-pi0-pair">            0.30                            </param>
-     <param type="double" name="prob-fs-piplus-piminus">      0.60                            </param>
-     <param type="double" name="prob-fs-Kplus-Kminus">        0.05                            </param>
-     <param type="double" name="prob-fs-K0-K0bar">            0.05                            </param>
-     <param type="bool"   name="force-decays">                false                           </param>
   </param_set>
 
   <param_set name="Default-Decaying"> 
      <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
      <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
-     <param type="double" name="prob-fs-pi0-pair">            0.30                            </param>
-     <param type="double" name="prob-fs-piplus-piminus">      0.60                            </param>
-     <param type="double" name="prob-fs-Kplus-Kminus">        0.05                            </param>
-     <param type="double" name="prob-fs-K0-K0bar">            0.05                            </param>
      <param type="bool"   name="force-decays">                true                            </param>
      <param type="string" name="decayer-alg-name">            genie::PythiaDecayer            </param>
      <param type="string" name="decayer-param-set">           Default                         </param>
