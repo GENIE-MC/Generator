@@ -43,13 +43,13 @@ public:
   KNOHadronization(string config);
   virtual ~KNOHadronization();
 
-  //-- implement the HadronizationModelI interface
+  //! implement the HadronizationModelI interface
   void           Initialize   (void)                 const;
   TClonesArray * Hadronize    (const Interaction * ) const;
   double         Weight       (void)                 const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  //! overload the Algorithm::Configure() methods to load private data
+  //! members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
@@ -61,11 +61,13 @@ private:
   int           HadronShowerCharge    (const Interaction * proc)     const;
   void          HandleDecays          (TClonesArray * particle_list) const;
 
-  const MultiplicityProbModelI * fMultProbModel;
-  const DecayModelI *            fDecayer;
-
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
   mutable double         fWeight;
+
+  //! configuration parameters
+
+  const MultiplicityProbModelI * fMultProbModel;
+  const DecayModelI *            fDecayer;
 
   double fPpi0;             ///< pi0 pi0 production probability
   double fPpic;             ///< pi+ pi- production probability

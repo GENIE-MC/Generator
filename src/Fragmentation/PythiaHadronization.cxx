@@ -16,6 +16,7 @@
 
 #include <TMCParticle6.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Fragmentation/PythiaHadronization.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -55,7 +56,7 @@ void PythiaHadronization::Initialize(void) const
 TClonesArray * PythiaHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
-  LOG("PythiaHad", pINFO) << "Running PYTHIA hadronizer";
+  LOG("PythiaHad", pNOTICE) << "Running PYTHIA hadronizer";
 
   //-- get kinematics / init-state / process-info
 
@@ -73,9 +74,9 @@ TClonesArray * PythiaHadronization::Hadronize(
   int  hit_quark   = target.StruckQuarkPDGCode();
   bool from_sea    = target.StruckQuarkIsFromSea();
 
-  LOG("PythiaHad", pINFO)
+  LOG("PythiaHad", pNOTICE)
           << "Hit nucleon pdgc = " << hit_nucleon << ", W = " << W;
-  LOG("PythiaHad", pINFO)
+  LOG("PythiaHad", pNOTICE)
             << "Selected hit quark pdgc = " << hit_quark
                            << ((from_sea) ? "[sea]" : "[valence]");
 
@@ -188,7 +189,7 @@ TClonesArray * PythiaHadronization::Hadronize(
 
   //-- PYTHIA->HADRONIZE:
 
-  LOG("PythiaHad", pINFO)
+  LOG("PythiaHad", pNOTICE)
         << "Fragmentation / Init System: "
                       << "q = " << final_quark << ", qq = " << diquark;
   int ip = 0;
@@ -224,4 +225,40 @@ double PythiaHadronization::Weight(void) const
   return 1.; // does not generate weighted events
 }
 //____________________________________________________________________________
+void PythiaHadronization::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void PythiaHadronization::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void PythiaHadronization::LoadConfig(void)
+{
+  // the configurable PYTHIA parameters used here are the ones used by NUX 
+  // (see A.Rubbia's talk @ NuINT-01)
+  // The defaults are the values used by PYTHIA
+  // Use the NUX config set to set the tuned values as used in NUX.
 
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  fSSBarSuppression = fConfig->GetDoubleDef(
+              "ssbar-suppression", gc->GetDouble("PYTHIA-SSBarSuppression"));
+  fGaussianPt2 = fConfig->GetDoubleDef(
+                        "gaussian-pt2", gc->GetDouble("PYTHIA-GaussianPt2"));
+  fNonGaussianPt2Tail = fConfig->GetDoubleDef(
+        "non-gaussian-pt2-tail", gc->GetDouble("PYTHIA-NonGaussianPt2Tail"));
+  fRemainingECutoff = fConfig->GetDoubleDef(
+   "remaining-energy-cutoff", gc->GetDouble("PYTHIA-RemainingEnergyCutoff"));
+
+  fPythia->SetPARJ(2,  fSSBarSuppression);
+  fPythia->SetPARJ(21, fGaussianPt2);
+  fPythia->SetPARJ(23, fNonGaussianPt2Tail);
+  fPythia->SetPARJ(33, fRemainingECutoff);
+}
+//____________________________________________________________________________
