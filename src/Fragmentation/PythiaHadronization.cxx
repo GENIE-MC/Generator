@@ -64,9 +64,9 @@ TClonesArray * PythiaHadronization::Hadronize(
   const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
   const Target &       target     = init_state.GetTarget();
 
-  double W = kinematics.W();
+  assert(target.StruckQuarkIsSet()); 
 
-  assert( target.StruckQuarkIsSet() ); 
+  double W = kinematics.W();
 
   int  probe       = init_state.GetProbePDGCode();
   int  hit_nucleon = target.StruckNucleonPDGCode();
@@ -112,12 +112,12 @@ TClonesArray * PythiaHadronization::Hadronize(
   assert(allowed);
 
   //-- generate the quark system (q + qq) initiating the hadronization
-  int  final_quark = 0; // hit quark after the interaction
+
+  int  final_quark = 0; // leading quark (hit quark after the interaction)
   int  diquark     = 0; // remnant diquark (xF<0 at hadronic CMS)
 
   //-- figure out the what happens to the hit quark after the interaction
 
-  assert(proc_info.IsWeak());
   if (proc_info.IsWeakNC()) final_quark = hit_quark;
   else {
     if      (isv  && isd ) final_quark = kPdgUQuark;
@@ -126,12 +126,16 @@ TClonesArray * PythiaHadronization::Hadronize(
     else if (isvb && isdb) final_quark = kPdgUQuarkBar;
     else {
       LOG("PythiaHad", pERROR)
-        << "Not allowed mode. Refuse to make a final quark assignment!";
+        << "Not allowed mode. Refused to make a final quark assignment!";
       exit(1);
     }
   }//CC
 
   //-- figure out what the remnant diquark is
+
+  //   Note from Hugh, following a conversation with his local HEP theorist 
+  //   (Gary Goldstein): "I am told that the probability of finding the diquark 
+  //   in the singlet vs. triplet states is 50-50."  
 
   // hit quark = valence quark
   if(!from_sea) {
@@ -148,11 +152,10 @@ TClonesArray * PythiaHadronization::Hadronize(
     if(isn && isu) diquark = kPdgDDDiquarkS1; /* u(->q) + bar{u} udd (=dd) */
     if(isn && isd) diquark = kPdgUDDiquarkS1; /* d(->q) + bar{d} udd (=ud) */
 
-    // Oh, crap!
+    // This section needs revisiting.
     // The neutrino is scattered off a sea antiquark, materializing its quark
     // partner and leaving me with a 5q system ( <qbar + q> + qqq(valence) )
-    // I will force few qbar+q annhilations below to get my quark/diquark
-    // system back but it does not feel right...
+    // I will force few qbar+q annhilations below to get my quark/diquark system
     // Probably it is best to leave the qqq system in the final state and then
     // just do the fragmentation of the qbar q system? But how do I figure out
     // how to split the available energy?
@@ -173,6 +176,13 @@ TClonesArray * PythiaHadronization::Hadronize(
     if(isn && isdb && iscc) {final_quark = kPdgDQuark; diquark = kPdgDDDiquarkS1;}
     /* bar{d} (-> bar{d}) + d udd => d + ud */
     if(isn && isdb && isnc) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
+
+    // if the diquark is a ud, switch it to the singlet state with 50% probability
+    if(diquark == kPdgUDDiquarkS1) {
+      RandomGen * rnd = RandomGen::Instance();
+      double Rqq = rnd->Random1().Rndm();
+      if(Rqq<0.5) diquark = kPdgUDDiquarkS0;
+    }
   }
   assert(diquark!=0);
 
@@ -214,3 +224,4 @@ double PythiaHadronization::Weight(void) const
   return 1.; // does not generate weighted events
 }
 //____________________________________________________________________________
+
