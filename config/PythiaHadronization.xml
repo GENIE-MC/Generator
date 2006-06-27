@@ -2,9 +2,35 @@
 
 <alg_conf>
 
-  Configuration sets for PYTHIA hadronization algorithm
+<!--
+Configuration for the PYTHIA hadronization model
 
+Algorithm Configurable Parameters:
+................................................................................................................................
+Name                         Type    Opt   Comment (see PYTHIA manual)                              Default
+................................................................................................................................
+ssbar-suppression        double  Yes   PYTHIA's PARJ(2): the suppression of s quark pair        GPL PYTHIA-SSBarSuppression
+                                       production in the field compared with u,d production
+gaussian-pt2             double  Yes   PYTHIA's PARJ(21): corresponds to the width sigma in     GPL PYTHIA-GaussianPt2
+                                       the gaussian transverse momentum distribution for
+                                       primary hadrons
+non-gaussian-pt2-tail    double  Yes   PYTHIA's PARJ(23): param used to model non-gaussian      GPL PYTHIA-NonGaussianPt2Tail
+                                       pt2 tails
+remaining-energy-cutoff  double  Yes   PYTHIA's PARJ(33): param used to define the remaining    GPL PYTHIA-RemainingEnergyCutoff
+                                       energy below which the fragmentation of a parton system
+                                       is stopped and two final hadrons formed
+-->
+
+  <!-- Default PYTHIA -->
   <param_set name="Default"> 
+  </param_set>
+
+  <!-- Tuned parameters as used by NUX (see A.Rubbia's talk @ NuINT01) -->
+  <param_set name="NUX"> 
+    <param type="double" name="ssbar-suppression">       0.21 </param> 
+    <param type="double" name="gaussian-pt2">            0.44 </param> 
+    <param type="double" name="non-gaussian-pt2-tail">   0.01 </param> 
+    <param type="double" name="remaining-energy-cutoff"> 0.20 </param> 
   </param_set>
 
 </alg_conf>
