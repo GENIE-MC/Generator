@@ -47,10 +47,10 @@ const int kPdgBQuark       =   5;
 const int kPdgBQuarkBar    =  -5;
 const int kPdgTQuark       =   6;
 const int kPdgTQuarkBar    =  -6;
-const int kPdgUUDiquarkS1  =  2203; // uu, spin = 1
-const int kPdgUDDiquarkS0  =  2101; // ud, spin = 0
-const int kPdgUDDiquarkS1  =  2103; // us, spin = 1
-const int kPdgDDDiquarkS1  =  1103; // dd, spin = 1
+const int kPdgUUDiquarkS1  =  2203; // uu, spin = 1 - triplet
+const int kPdgUDDiquarkS0  =  2101; // ud, spin = 0 - singlet
+const int kPdgUDDiquarkS1  =  2103; // ud, spin = 1 - triplet
+const int kPdgDDDiquarkS1  =  1103; // dd, spin = 1 - triplet
 const int kPdgProton       =  2212;
 const int kPdgNeutron      =  2112;
 const int kPdgPiPlus       =   211;
