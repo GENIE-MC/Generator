@@ -6,7 +6,7 @@
 \brief   test program used for testing/debugging the KNO & PYTHIA hadronizers
 
         Syntax :
-           testHadronization -n nevents -t test -a hadronizer -c config
+           testHadronization -n nevents -t test -a hadronizer -c config [-q]
 
          Options :
            -n  number of events
@@ -15,6 +15,7 @@
                  1: multiplicities + phase space decay
            -a  hadronizer (algorithm name, eg genie::KNOHadrinization)
            -c  hadronizer config set
+           -q  set hit quark (needed for PYTHIA, not needed for KNO)
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -69,9 +70,13 @@ void GetCommandLineArgs (int argc, char ** argv);
 void testMultiplicities   (int n, const HadronizationModelI * m);
 void testPhaseSpaceDecayer(int n, const HadronizationModelI * m);
 
+void FillQrkArray(InteractionType_t it, int nu, 
+             int * QrkCode, bool * SeaQrk, int nmax, int & nqrk);
+
 TFile * gOutFile   = 0;
 int     gNEvents   = -1;
 int     gTestId    = -1;
+bool    gSetHitQrk = false;
 string  gHadAlg    = "";
 string  gHadConfig = "";
 //____________________________________________________________________________
@@ -101,27 +106,44 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void testMultiplicities(int nevents, const HadronizationModelI * model)
 {
-  const int kNNu   = 2;
-  const int kNNuc  = 2;
-  const int kNW    = 9;
+  const int kNNu     = 2;
+  const int kNNuc    = 2;
+  const int kNQrkMax = 4;
+  const int kNW      = 8;
 
-  int    CcNc[2]        = { 1, 2       };
-  int    NuCode[kNNu]   = { 14, -14    };
-  int    NucCode[kNNuc] = { 2212, 2112 };
-  double W[kNW]         = { 1.2, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 };
+  int    CcNc[2]        = { 1, 2 };
+  int    NuCode[kNNu]   = { kPdgNuMu, kPdgNuMuBar };
+  int    NucCode[kNNuc] = { kPdgProton, kPdgNeutron };
+  double W[kNW] = { 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 };
+
+  int  QrkCode[kNQrkMax];
+  bool SeaQrk [kNQrkMax];
 
   gOutFile->cd();
 
   TTree * hmult = new TTree("hmult","hadronizer multiplicities");
 
-  int   br_iev, br_nuc, br_neut, br_qrk, br_ccnc;
-  int   br_np, br_nn, br_npip, br_npim, br_npi0, br_nKp, br_nKm, br_nK0;
-  float br_W;
+  int   br_iev;    // event number
+  int   br_nuc;    // hit nucleon PDG code
+  int   br_neut;   // neutrino PDG code
+  int   br_qrk;    // hit quark PDG code
+  int   br_sea;    // hit quark is from the sea=1 (valence=0)
+  int   br_ccnc;   // CC=1, NC=2
+  float br_W;      // hadronic invariant mass
+  int   br_np;     // number of generated p
+  int   br_nn;     // number of generated n
+  int   br_npip;   // number of generated pi+
+  int   br_npim;   // number of generated pi-
+  int   br_npi0;   // number of generated pi0
+  int   br_nKp;    // number of generated K+
+  int   br_nKm;    // number of generated K-
+  int   br_nK0;    // number of generated K0
 
-  hmult->Branch("iev",   &br_iev,   "iev/I");
+  hmult->Branch("iev",   &br_iev,   "iev/I"); 
   hmult->Branch("nuc",   &br_nuc,   "nuc/I");
   hmult->Branch("neut",  &br_neut,  "neut/I");
   hmult->Branch("qrk",   &br_qrk,   "qrk/I");
+  hmult->Branch("sea",   &br_sea,   "sea/I");
   hmult->Branch("ccnc",  &br_ccnc,  "ccnc/I");
   hmult->Branch("W",     &br_W,     "W/F");
   hmult->Branch("np",    &br_np,    "np/I");
@@ -133,9 +155,11 @@ void testMultiplicities(int nevents, const HadronizationModelI * model)
   hmult->Branch("nKm",   &br_nKm,   "nKm/I");
   hmult->Branch("nK0",   &br_nK0,   "nK0/I");
 
+  // CC/NC loop
   for(int iccnc=0; iccnc<2; iccnc++) { 
     InteractionType_t it = (CcNc[iccnc]==1) ? kIntWeakCC : kIntWeakNC;
 
+    // neutrino & hit nucleon loops
     for(int inu=0; inu<kNNu; inu++) {
       for(int inuc=0; inuc<kNNuc; inuc++) {
 
@@ -145,36 +169,49 @@ void testMultiplicities(int nevents, const HadronizationModelI * model)
 
         intr.GetInitialStatePtr()->GetTargetPtr()->SetStruckNucleonPDGCode(NucCode[inuc]);
 
-        LOG("main",pNOTICE) << "hadronizing: " << intr.AsString();
+        // hit quark loop (if requested)
+        int nqrk=1;
+        if(gSetHitQrk) {
+	  FillQrkArray(it, NuCode[inu], QrkCode, SeaQrk, kNQrkMax, nqrk);
+        }
+	for(int iqrk=0; iqrk<nqrk; iqrk++) {
+           if(gSetHitQrk) {
+             intr.GetInitialStatePtr()->GetTargetPtr()->SetStruckQuarkPDGCode(QrkCode[iqrk]);
+             intr.GetInitialStatePtr()->GetTargetPtr()->SetStruckSeaQuark(SeaQrk[iqrk]);
+           }
 
-        for(int iw=0; iw<kNW; iw++) {
-           intr.GetKinematicsPtr()->SetW(W[iw]);
+           LOG("main",pNOTICE) << "hadronizing: " << intr.AsString();
 
-           for(int in=0; in<nevents; in++) {
-              TClonesArray * plist = model->Hadronize(&intr);
-              assert(plist);
+           for(int iw=0; iw<kNW; iw++) {
+             intr.GetKinematicsPtr()->SetW(W[iw]);
 
-              br_iev  = in;
-              br_nuc  = NucCode[inuc];
-              br_neut = NuCode[inuc];
-              br_qrk  = 0;
-              br_ccnc = CcNc[iccnc];
-              br_W    = W[iw];
-              br_np   = utils::fragmrec::NParticles(kPdgProton,  plist);
-              br_nn   = utils::fragmrec::NParticles(kPdgNeutron, plist);
-              br_npip = utils::fragmrec::NParticles(kPdgPiPlus,  plist);
-              br_npim = utils::fragmrec::NParticles(kPdgPiMinus, plist);
-              br_npi0 = utils::fragmrec::NParticles(kPdgPi0,     plist);
-              br_nKp  = utils::fragmrec::NParticles(kPdgKPlus,   plist);
-              br_nKm  = utils::fragmrec::NParticles(kPdgKMinus,  plist);
-              br_nK0  = utils::fragmrec::NParticles(kPdgK0,      plist);
+             for(int in=0; in<nevents; in++) {
+                TClonesArray * plist = model->Hadronize(&intr);
+                assert(plist);
 
-              hmult->Fill();
+                br_iev  = in;
+                br_nuc  = NucCode[inuc];
+                br_neut = NuCode[inuc];
+                br_qrk  = (gSetHitQrk) ? QrkCode[iqrk] : 0;
+                br_sea  = (gSetHitQrk) ? SeaQrk[iqrk]  : 0;
+                br_ccnc = CcNc[iccnc];
+                br_W    = W[iw];
+                br_np   = utils::fragmrec::NParticles(kPdgProton,  plist);
+                br_nn   = utils::fragmrec::NParticles(kPdgNeutron, plist);
+                br_npip = utils::fragmrec::NParticles(kPdgPiPlus,  plist);
+                br_npim = utils::fragmrec::NParticles(kPdgPiMinus, plist);
+                br_npi0 = utils::fragmrec::NParticles(kPdgPi0,     plist);
+                br_nKp  = utils::fragmrec::NParticles(kPdgKPlus,   plist);
+                br_nKm  = utils::fragmrec::NParticles(kPdgKMinus,  plist);
+                br_nK0  = utils::fragmrec::NParticles(kPdgK0,      plist);
 
-              plist->Delete();
-              delete plist;
-           }//n
-        }//w
+                hmult->Fill();
+
+                plist->Delete();
+                delete plist;
+             }//n
+          }//w
+        }//qrk
       }//inuc
     }//inu
   }//cc/nc
@@ -184,28 +221,44 @@ void testMultiplicities(int nevents, const HadronizationModelI * model)
 //____________________________________________________________________________
 void testPhaseSpaceDecayer(int nevents, const HadronizationModelI * model)
 {
-  const int kNW = 2;  // n W values
+  const int npmax = 100; // max number of particles
+  const int kNW   = 2;   // n W values
+
   double W[kNW] = { 1.5, 4.0 };
 
   gOutFile->cd();
 
   TTree * hps = new TTree("hps","hadronizer events");
 
-  int   br_nuc, br_neut, br_qrk, br_ccnc, br_hpdgc;
-  float br_W, br_px, br_py, br_pz, br_KE;
+  int   br_iev;         // event number
+  int   br_nuc;         // hit nucleon PDG code
+  int   br_neut;        // neutrino PDG code
+  int   br_qrk;         // hit quark PDG code
+  int   br_ccnc;        // CC=1, NC=2
+  float br_W;           // hadronic invariant mass
+  int   br_np;          // number of particles in the fragmentation record
+  int   br_pdg[npmax];  // PDG code of each particle
+  int   br_ist[npmax];  // Status code of each particle
+  float br_px [npmax];  // px of each particle
+  float br_py [npmax];  // py of each particle
+  float br_pz [npmax];  // pz of each particle
+  float br_KE [npmax];  // kinematic energy of each particle
 
+  hps->Branch("iev",   &br_iev,   "iev/I");
   hps->Branch("nuc",   &br_nuc,   "nuc/I");
   hps->Branch("neut",  &br_neut,  "neut/I");
   hps->Branch("qrk",   &br_qrk,   "qrk/I");
   hps->Branch("ccnc",  &br_ccnc,  "ccnc/I");
   hps->Branch("W",     &br_W,     "W/F");
-  hps->Branch("hpdgc", &br_hpdgc, "hpdgc/I");
-  hps->Branch("px",    &br_px,    "px/F");
-  hps->Branch("py",    &br_py,    "py/F");
-  hps->Branch("pz",    &br_pz,    "pz/F");
-  hps->Branch("KE",    &br_KE,    "KE/F");
+  hps->Branch("np",    &br_np,    "np/I");
+  hps->Branch("pdg",    br_pdg,   "pdg[np]/I");
+  hps->Branch("ist",    br_ist,   "ist[np]/I");
+  hps->Branch("px",     br_px,    "px[np]/F");
+  hps->Branch("py",     br_py,    "py[np]/F");
+  hps->Branch("pz",     br_pz,    "pz[np]/F");
+  hps->Branch("KE",     br_KE,    "KE[np]/F");
 
-  InitialState init (1056026000,kPdgNuMu);
+  InitialState init (1056026000, kPdgNuMu);
   ProcessInfo  proc (kScDeepInelastic, kIntWeakCC);
   Interaction  intr (init, proc);
 
@@ -217,32 +270,39 @@ void testPhaseSpaceDecayer(int nevents, const HadronizationModelI * model)
 
     for(int in=0; in<nevents; in++) {
 
+       //rest prev branch
+       for(int k=0; k<npmax; k++) {
+	 br_pdg[k]=0; br_ist[k]=0;
+         br_px[k]=0; br_py[k]=0; br_pz[k]=0; br_KE[k]=0;  
+       }
+
+       // hadronize
        TClonesArray * plist = model->Hadronize(&intr);
        assert(plist);
+
+       br_iev   = in;
+       br_nuc   = kPdgProton;
+       br_neut  = kPdgNuMu;
+       br_qrk   = 0;
+       br_ccnc  = 1;
+       br_W     = W[iw];
+       br_np    = plist->GetEntries();
 
        TMCParticle * particle = 0;
        TIter particle_iter(plist);
 
-       while( (particle = (TMCParticle *) particle_iter.Next()) ) {
-           double E    = particle->GetEnergy();
-           double Px   = particle->GetPx();
-           double Py   = particle->GetPy();
-           double Pz   = particle->GetPz();
-           double m    = particle->GetMass();
-           int    pdgc = particle->GetKF();
+       unsigned int i=0;
 
-           br_nuc   = kPdgProton;
-           br_neut  = kPdgNuMu;
-           br_qrk   = 0;
-           br_ccnc  = 1;
-           br_hpdgc = pdgc;
-           br_W     = W[iw];
-           br_px    = Px;
-           br_py    = Py;  
-           br_pz    = Pz;
-           br_KE    = E-m;
+       while( (particle = (TMCParticle *) particle_iter.Next()) ) {
+           br_pdg[i] = particle->GetKF();
+           br_ist[i] = particle->GetKS();
+           br_px[i]  = particle->GetPx();
+           br_py[i]  = particle->GetPy();
+           br_pz[i]  = particle->GetPz();
+           br_KE[i]  = particle->GetEnergy() - particle->GetMass();
 
            hps->Fill();
+           i++;
        } // particle-iterator
 
        plist->Delete();
@@ -250,6 +310,40 @@ void testPhaseSpaceDecayer(int nevents, const HadronizationModelI * model)
     }
   }
   hps->Write("hps");
+}
+//____________________________________________________________________________
+void FillQrkArray(InteractionType_t it, int nu, 
+                           int * QrkCode, bool * SeaQrk, int nmax, int & nqrk)
+{
+// utility method: create/fill array with all possible hit quarks
+//
+
+  for(int i=0; i<nmax; i++) {
+    QrkCode[i] = -1;
+  }
+  if(it==kIntWeakNC) {
+      nqrk=4;
+      assert(nqrk<=nmax);
+      QrkCode[0] = kPdgUQuark;  SeaQrk[0] = false;
+      QrkCode[1] = kPdgUQuark;  SeaQrk[1] = true;
+      QrkCode[2] = kPdgDQuark;  SeaQrk[2] = false;
+      QrkCode[3] = kPdgDQuark;  SeaQrk[3] = true;
+  }
+  else if (it==kIntWeakCC) {
+      nqrk=2;
+      assert(nqrk<=nmax);
+      if(pdg::IsNeutrino(nu)) {
+         QrkCode[0] = kPdgDQuark;  SeaQrk[0] = false;
+         QrkCode[1] = kPdgDQuark;  SeaQrk[1] = true;
+      } else if(pdg::IsAntiNeutrino(nu)) {
+         QrkCode[0] = kPdgUQuark;  SeaQrk[0] = false;
+         QrkCode[1] = kPdgUQuark;  SeaQrk[1] = true;
+      } else {
+  	 exit(1);
+      }
+  } else {
+      exit(1);
+  }
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -280,6 +374,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
+  // hadronizer:
   try {
     LOG("Main", pINFO) << "Reading hadronization algorithm name";
     gHadAlg = genie::utils::clap::CmdLineArgAsString(argc,argv,'a');
@@ -291,6 +386,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
+  // hadronizer config:
   try {
     LOG("Main", pINFO) << "Reading hadronization algorithm config name";
     gHadConfig = genie::utils::clap::CmdLineArgAsString(argc,argv,'c');
@@ -301,13 +397,21 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(1);
     }
   }
+
+  // set struck quark?
+  try {
+    LOG("Main", pINFO) << "reading struck quark option";
+    gSetHitQrk = genie::utils::clap::CmdLineArgAsBool(argc,argv,'q');
+  } catch(exceptions::CmdLineArgParserException e) {
+      LOG("Main", pINFO) << "Using default option for setting hit quark";
+  }
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("Main", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "  testHadronization -n nevents -t test -a hadronizer -c config\n";
+    << "  testHadronization -n nevents -t test -a hadronizer -c config [-q]\n";
 }
 //____________________________________________________________________________
 
