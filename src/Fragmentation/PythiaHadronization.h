@@ -34,17 +34,27 @@ public:
   PythiaHadronization(string config);
   virtual ~PythiaHadronization();
 
-  //-- define PythiaHadronization interface
+  //! define PythiaHadronization interface
   void           Initialize   (void)                 const;
   TClonesArray * Hadronize    (const Interaction * ) const;
   double         Weight       (void)                 const;
 
-  //-- tmp - std interface violoating method for PYTHIA config
-  TPythia6 * PYTHIA(void) const { return fPythia; }
+  //! overload the Algorithm::Configure() methods to load private data
+  //! members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
-  TPythia6 * fPythia;
-  
+
+  void LoadConfig (void);
+
+  TPythia6 * fPythia; ///< PYTHIA6 wrapper class
+
+  //! configuration parameters
+  double fSSBarSuppression;   ///< ssbar suppression
+  double fGaussianPt2;        ///< gaussian pt2 distribution width
+  double fNonGaussianPt2Tail; ///< non gaussian pt2 tail parameterization
+  double fRemainingECutoff;   ///< remaining E cutoff for stopping fragmentation
 };
 
 }         // genie namespace

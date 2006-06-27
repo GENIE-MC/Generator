@@ -20,6 +20,7 @@
 #include <TMCParticle6.h>
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
@@ -155,7 +156,7 @@ TClonesArray * KNOHadronization::Hadronize(
     //-- Determine what kind of particles we have in the final state
     pdgcv = this->GenerateFSHadronCodes(mult, maxQ, W);
 
-    LOG("KNOHad", pINFO) 
+    LOG("KNOHad", pNOTICE) 
          << "Generated multiplicity (@ W = " << W << "): " << pdgcv->size();
 
     // muliplicity might have been forced to smaller value if the invariant
@@ -205,7 +206,7 @@ TClonesArray * KNOHadronization::Hadronize(
   }
   assert(wmax>0);
 
-  LOG("KNOHad", pINFO) 
+  LOG("KNOHad", pNOTICE) 
      << "Max phase space gen. weight @ current hadronic system: " << wmax;
 
   if(fGenerateWeighted) 
@@ -307,6 +308,9 @@ void KNOHadronization::LoadConfig(void)
 {
 // Read configuration options or set defaults
 
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   fMultProbModel = 0;
   fDecayer       = 0;
 
@@ -316,11 +320,22 @@ void KNOHadronization::LoadConfig(void)
   // Force minimum multiplicity (if generated less than that) or abort?
   fForceMinMult = fConfig->GetBoolDef("force-min-multiplicity", true);
 
-  // Probability for producing hadron each pairs
-  fPpi0 = fConfig->GetDoubleDef("prob-fs-pi0-pair",       0.30); // pi0 pi0
-  fPpic = fConfig->GetDoubleDef("prob-fs-piplus-piminus", 0.60); // pi+ pi-
-  fPKc  = fConfig->GetDoubleDef("prob-fs-Kplus-Kminus",   0.05); // K+  K-
-  fPK0  = fConfig->GetDoubleDef("prob-fs-K0-K0bar",       0.05); // K0  K0bar
+  // Probabilities for producing hadron pairs
+
+  //-- pi0 pi0
+  fPpi0 = fConfig->GetDoubleDef(
+                         "prob-fs-pi0-pair", gc->GetDouble("KNO-ProbPi0Pi0")); 
+  //-- pi+ pi-
+  fPpic = fConfig->GetDoubleDef(
+            "prob-fs-piplus-piminus", gc->GetDouble("KNO-ProbPiplusPiminus")); 
+
+  //-- K+  K-
+  fPKc  = fConfig->GetDoubleDef(
+                "prob-fs-Kplus-Kminus", gc->GetDouble("KNO-ProbKplusKminus")); 
+
+  //-- K0 K0bar
+  fPK0  = fConfig->GetDoubleDef(
+                        "prob-fs-K0-K0bar", gc->GetDouble("KNO-ProbK0K0bar")); 
 
   // Multiplicity probability model
   fMultProbModel = dynamic_cast<const MultiplicityProbModelI *> (
