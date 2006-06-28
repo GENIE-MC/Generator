@@ -1,0 +1,59 @@
+#------------------------------------------------------------------
+# GENIE Hadronization Tuning Data:
+#      Disperison over Average Multiplicity vs W^2
+# Source:
+#      [1] D.Zieminska et al., Phys.Rev. D27, 47 (1983)  
+#          Charged-particle multiplicity distributions in vn and vp 
+#          CC interactions.
+#          Fermilab D2-filled 15-foot bubble chamber, a wide-band 
+#          v beam produced by 350-GeV/c protons 
+#          <Ev> = 50GeV, 1<W<15GeV
+# Digitizer:
+#      Data copied from T.Yang's [1] plots digitization files
+# Conventions:
+#      nu  : 1->neutrino, -1->antineutrino
+#      nuc : hit nucleon PDG code
+#      tgt : nuclear target A 
+#            (0->free nucleon target, 1->unspecified nuclear target)
+#      DN  : D/<N>
+#      nt  : which multiplicity do D and <N> refer to.
+#            1->n+, -1->n-, 0->n0, 2->nch, 3->ntot, 
+#            for specific particles (p,n,pi0,pi_,pi-) nt=pdgc
+#
+# -----------------------------------------------------------------
+# vp ([1], FIG.5)
+# -----------------------------------------------------------------
+# nu nuc   tgt  W2      DN     dDN     nt
+  1  2212  0      1.56  0.026  0.012   2
+  1  2212  0      2.42  0.280  0.020   2  
+  1  2212  0      3.44  0.332  0.012   2
+  1  2212  0      4.89  0.372  0.007   2
+  1  2212  0      6.97  0.363  0.018   2
+  1  2212  0      9.66  0.363  0.012   2
+  1  2212  0     13.75  0.368  0.013   2
+  1  2212  0     19.07  0.361  0.013   2
+  1  2212  0     26.44  0.352  0.018   2
+  1  2212  0     37.65  0.352  0.015   2
+  1  2212  0     50.79  0.347  0.018   2
+  1  2212  0     72.36  0.338  0.019   2
+  1  2212  0    105.74  0.369  0.021   2
+  1  2212  0    158.82  0.395  0.031   2
+# -----------------------------------------------------------------
+# vn ([1], FIG.5)
+# -----------------------------------------------------------------
+# nu nuc   tgt  W2      DN     dDN     nt
+  1  2112  0      1.42  0.127  0.018   2
+  1  2112  0      2.46  0.563  0.008   2
+  1  2112  0      3.41  0.551  0.012   2
+  1  2112  0      4.86  0.504  0.015   2 
+  1  2112  0      6.92  0.509  0.015   2 
+  1  2112  0      9.88  0.467  0.013   2
+  1  2112  0     13.70  0.457  0.014   2
+  1  2112  0     18.50  0.425  0.012   2
+  1  2112  0     26.35  0.425  0.013   2
+  1  2112  0     36.50  0.434  0.014   2
+  1  2112  0     52.01  0.425  0.013   2
+  1  2112  0     72.07  0.427  0.021   2
+  1  2112  0    105.57  0.404  0.021   2
+  1  2112  0    154.32  0.428  0.021   2
+

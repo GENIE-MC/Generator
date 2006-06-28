@@ -17,8 +17,8 @@
 #      <nPi0> : average pi0 multiplicity
 #      n      : hadron multiplicity
 #      nt     : defines which hadron multiplicity
-#               [1->n+, -1->n-, 2->nch, 3->ntot,
-#                for specific particles (p,pi+,pi-,...) mult=pdgc]
+#                1->n+, -1->n-, 2->nch, 3->ntot,
+#                for specific particles (p,pi+,pi-,...) nt=pdgc
 #
 # -----------------------------------------------------------------
 # vp data
