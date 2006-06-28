@@ -127,7 +127,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
                            << "Sum{xsec}(0->" << iint << ") = " << xsec_sum;
   }
   RandomGen * rnd = RandomGen::Instance();
-  double R = xsec_sum * rnd->Random1().Rndm();
+  double R = xsec_sum * rnd->RndISel().Rndm();
 
   LOG("InteractionSelector", pINFO)
                << "Generating Rndm (0. -> max = " << xsec_sum << ") = " << R;

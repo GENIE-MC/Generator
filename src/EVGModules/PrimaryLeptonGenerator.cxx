@@ -90,7 +90,7 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   // Randomize transverse components
   RandomGen * rnd = RandomGen::Instance();
-  double phi  = 2 * kPi * (rnd->Random1().Rndm());
+  double phi  = 2*kPi * rnd->RndLep().Rndm();
   double pltx = plt * TMath::Cos(phi);
   double plty = plt * TMath::Sin(phi);
 

@@ -136,10 +136,8 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      }
 
      //-- random x,y
-     gx = fXmin  + dx  * rnd->Random1().Rndm();
-     gy = fYmin  + dy  * rnd->Random1().Rndm();
-     //gx = TMath::Exp(logxmin + dlogx * rnd->Random1().Rndm());
-     //gy = TMath::Exp(logymin + dlogy * rnd->Random1().Rndm());
+     gx = fXmin  + dx  * rnd->RndKine().Rndm();
+     gy = fYmin  + dy  * rnd->RndKine().Rndm();
 
      LOG("DISKinematics", pINFO) 
                            << "Trying: x = " << gx << ", y = " << gy;
@@ -154,7 +152,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      if(!fGenerateUniformly) {
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
-        double t = xsec_max * rnd->Random1().Rndm();
+        double t = xsec_max * rnd->RndKine().Rndm();
         //double J = kinematics::Jacobian(interaction,kPSxyfE,kPSlogxlogyfE);
 	double J = 1;
 

@@ -128,7 +128,7 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
   //-- Select a resonance based on the branching ratios
   unsigned int ich = 0, sel_ich; // id of selected decay channel
   RandomGen * rnd = RandomGen::Instance();
-  double x = tot_BR * rnd->Random1().Rndm();
+  double x = tot_BR * rnd->RndDec().Rndm();
   do { 
     sel_ich = ich;
     
@@ -211,7 +211,7 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
        assert(itry<kMaxUnweightDecayIterations);
 
        double w  = fPhaseSpaceGenerator.Generate();
-       double gw = wmax * rnd->Random1().Rndm();
+       double gw = wmax * rnd->RndDec().Rndm();
 
        LOG("Decay", pINFO) << "Decay weight = " << w << " / R = " << gw;
 

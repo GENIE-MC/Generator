@@ -125,9 +125,9 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- Generate a Q2 value within the allowed phase space
      //   In unweighted mode - use transform that takes out the dipole form
      if(fGenerateUniformly) {
-         gQ2 = Q2min + (Q2max-Q2min) * rnd->Random1().Rndm();
+         gQ2 = Q2min + (Q2max-Q2min) * rnd->RndKine().Rndm();
      } else {
-         double gQD2 = QD2min + (QD2max-QD2min) * rnd->Random1().Rndm();
+         double gQD2 = QD2min + (QD2max-QD2min) * rnd->RndKine().Rndm();
          gQ2  = utils::kinematics::QD2toQ2(gQD2);
      }
      interaction->GetKinematicsPtr()->SetQ2(gQ2);
@@ -141,7 +141,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      if(!fGenerateUniformly) {
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
-        double t = xsec_max * rnd->Random1().Rndm();
+        double t = xsec_max * rnd->RndKine().Rndm();
         double J = kinematics::Jacobian(interaction,kPSQ2fE,kPSQD2fE);
         LOG("QELKinematics", pDEBUG)
                      << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;

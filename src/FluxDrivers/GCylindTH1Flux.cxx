@@ -249,7 +249,7 @@ int GCylindTH1Flux::SelectNeutrino(double Ev)
   }
 
   RandomGen * rnd = RandomGen::Instance();
-  double R = sum * rnd->Random1().Rndm();
+  double R = sum * rnd->RndFlux().Rndm();
 
   LOG("Flux", pDEBUG) << "R e [0,SUM] = " << R;
 
@@ -264,7 +264,7 @@ int GCylindTH1Flux::SelectNeutrino(double Ev)
 double GCylindTH1Flux::GeneratePhi(void) const
 {
   RandomGen * rnd = RandomGen::Instance();
-  double phi = 2.*kPi*(rnd->Random1().Rndm()); // [0,2pi]
+  double phi = 2.*kPi * rnd->RndFlux().Rndm(); // [0,2pi]
   return phi;
 }
 //___________________________________________________________________________

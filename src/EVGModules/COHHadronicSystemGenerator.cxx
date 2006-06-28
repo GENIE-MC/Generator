@@ -133,7 +133,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double ppiL = ppi*costheta;
   double ppiT = ppi*sintheta;
 
-  double phi = 2*kPi* rnd->Random1().Rndm();
+  double phi = 2*kPi* rnd->RndHadro().Rndm();
 
   TVector3 ppi3(0,ppiT,ppiL);
 

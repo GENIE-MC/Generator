@@ -140,9 +140,9 @@ TVector3 NuclMomentumGenerator::RandomMomentum3(void) const
 
   RandomGen * rnd = RandomGen::Instance();
 
-  double costheta = -1. + 2. * rnd->Random1().Rndm();
+  double costheta = -1. + 2. * rnd->RndGen().Rndm();
   double sintheta = TMath::Sqrt(1.-costheta*costheta);
-  double fi       = 2 * kPi * rnd->Random1().Rndm();
+  double fi       = 2 * kPi * rnd->RndGen().Rndm();
   double cosfi    = TMath::Cos(fi);
   double sinfi    = TMath::Sin(fi);
 
