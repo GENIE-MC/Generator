@@ -6,9 +6,14 @@
 #      of leptons with nucleons and nuclei, MPI-PAE/Exp.El.180
 # Digitizer:    
 #      C.Andreopoulos
+# Conventions:
+#      nu  : 1->neutrino, -1->antineutrino
+#      nuc : hit nucleon PDG code
+#      W   : min,max - invariant mass kinematical cut
+#      nF  : forward (xF>0) multiplicity
+#      <nB>: average backward (xF<0) multiplicity
+#
 #------------------------------------------------------------------
-#
-#
 # vp data
 # -----------------------------------------------------------------
 # nu  nuc    Wmin Wmax  nF  <nB>  d<nB>
