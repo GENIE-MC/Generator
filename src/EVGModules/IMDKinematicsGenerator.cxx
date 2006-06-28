@@ -89,7 +89,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         throw exception;
      }
 
-     double y = ymin + dy * rnd->Random1().Rndm();
+     double y = ymin + dy * rnd->RndKine().Rndm();
      interaction->GetKinematicsPtr()->Sety(y);
 
      LOG("IMDKinematics", pINFO) << "Trying: y = " << y;
@@ -101,7 +101,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      if(!fGenerateUniformly) {
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
-        double t = xsec_max * rnd->Random1().Rndm();
+        double t = xsec_max * rnd->RndKine().Rndm();
         LOG("IMDKinematics", pDEBUG) << "xsec= "<< xsec<< ", J= 1, Rnd= "<< t;
 
         accept = (t<xsec);

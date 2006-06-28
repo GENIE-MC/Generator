@@ -181,7 +181,7 @@ TClonesArray * PythiaHadronization::Hadronize(
     // if the diquark is a ud, switch it to the singlet state with 50% probability
     if(diquark == kPdgUDDiquarkS1) {
       RandomGen * rnd = RandomGen::Instance();
-      double Rqq = rnd->Random1().Rndm();
+      double Rqq = rnd->RndHadro().Rndm();
       if(Rqq<0.5) diquark = kPdgUDDiquarkS0;
     }
   }

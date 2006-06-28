@@ -224,11 +224,10 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
   LOG("GROOTGeom",pNOTICE) << "Box origin (GU) :"
                << " x = " << ox   << ", y = " << oy   << ", z = " <<   oz;
 
-  //generate 200 random points on each surface, use 200 rays to
-  //calculate maximum path for each material
+  // generate 200 random points on each surface, use 200 rays to
+  // calculate maximum path for each material
 
-  RandomGen* rand=RandomGen::Instance();
-  TRandom & rnd=rand->Random1();
+  RandomGen * rnd = RandomGen::Instance();
 
   LOG("GROOTGeom",pNOTICE)
         << "Will generate [" << fNPoints << "] random points / box surface";
@@ -258,9 +257,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox-dx+2*dx*rnd.Rndm(), oy+dy, oz-dz+2*dz*rnd.Rndm());
+      pos.SetXYZ(ox-dx+2*dx*rnd->RndGeom().Rndm(), oy+dy, oz-dz+2*dz*rnd->RndGeom().Rndm());
       while (iray++ < maxRays) {
-        dir.SetXYZ(-0.5+rnd.Rndm(), -rnd.Rndm(), -0.5+rnd.Rndm());
+        dir.SetXYZ(-0.5+rnd->RndGeom().Rndm(), -rnd->RndGeom().Rndm(), -0.5+rnd->RndGeom().Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -271,9 +270,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox-dx+2*dx*rnd.Rndm(), oy-dy, oz-dz+2*dz*rnd.Rndm());
+      pos.SetXYZ(ox-dx+2*dx*rnd->RndGeom().Rndm(), oy-dy, oz-dz+2*dz*rnd->RndGeom().Rndm());
       while (iray++ < maxRays) {
-        dir.SetXYZ(-0.5+rnd.Rndm(), rnd.Rndm(), -0.5+rnd.Rndm());
+        dir.SetXYZ(-0.5+rnd->RndGeom().Rndm(), rnd->RndGeom().Rndm(), -0.5+rnd->RndGeom().Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -284,9 +283,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox-dx, oy-dy+2*dy*rnd.Rndm(), oz-dz+2*dz*rnd.Rndm());
+      pos.SetXYZ(ox-dx, oy-dy+2*dy*rnd->RndGeom().Rndm(), oz-dz+2*dz*rnd->RndGeom().Rndm());
       while (iray++ < maxRays) {
-        dir.SetXYZ(rnd.Rndm(), -0.5+rnd.Rndm(), -0.5+rnd.Rndm());
+        dir.SetXYZ(rnd->RndGeom().Rndm(), -0.5+rnd->RndGeom().Rndm(), -0.5+rnd->RndGeom().Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -297,9 +296,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox+dx, oy-dy+2*dy*rnd.Rndm(), oz-dz+2*dz*rnd.Rndm());
+      pos.SetXYZ(ox+dx, oy-dy+2*dy*rnd->RndGeom().Rndm(), oz-dz+2*dz*rnd->RndGeom().Rndm());
       while (iray++ < maxRays) {
-        dir.SetXYZ(-rnd.Rndm(), -0.5+rnd.Rndm(), -0.5+rnd.Rndm());
+        dir.SetXYZ(-rnd->RndGeom().Rndm(), -0.5+rnd->RndGeom().Rndm(), -0.5+rnd->RndGeom().Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -310,9 +309,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox-dx+2*dx*rnd.Rndm(), oy-dy+2*dy*rnd.Rndm(), oz+dz);
+      pos.SetXYZ(ox-dx+2*dx*rnd->RndGeom().Rndm(), oy-dy+2*dy*rnd->RndGeom().Rndm(), oz+dz);
       while (iray++ < maxRays) {
-        dir.SetXYZ(-0.5+rnd.Rndm(), -0.5+rnd.Rndm(), -rnd.Rndm());
+        dir.SetXYZ(-0.5+rnd->RndGeom().Rndm(), -0.5+rnd->RndGeom().Rndm(), -rnd->RndGeom().Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -323,9 +322,9 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
-      pos.SetXYZ(ox-dx+2*dx*rnd.Rndm(), oy-dy+2*dy*rnd.Rndm(), oz-dz);
+      pos.SetXYZ(ox-dx+2*dx*rnd->RndGeom().Rndm(), oy-dy+2*dy*rnd->RndGeom().Rndm(), oz-dz);
       while (iray++ < maxRays) {
-        dir.SetXYZ(-0.5+rnd.Rndm(), -0.5+rnd.Rndm(), rnd.Rndm());
+        dir.SetXYZ(-0.5+rnd->RndGeom().Rndm(), -0.5+rnd->RndGeom().Rndm(), rnd->RndGeom().Rndm());
         maxPath = TMath::Max(maxPath,
                    this->ComputePathLengthPDG(pos,dir.Unit(),pdgc));
       }
@@ -495,9 +494,8 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   }
 
   // generate random number between 0 and dist
-  RandomGen* rand=RandomGen::Instance();
-  TRandom & rnd = rand->Random1();
-  double distVertex(rnd.Rndm()*dist);
+  RandomGen * rnd = RandomGen::Instance();
+  double distVertex(dist * rnd->RndGeom().Rndm());
   LOG("GROOTGeom", pNOTICE)
        << "Generated 'distance' in selected material = " << distVertex;
 

@@ -122,7 +122,7 @@ TClonesArray * KNOPythiaHadronization::LinearTransitionWindowMethod(
 
   } else {
     // Transition window
-    double R = rnd->Random1().Rndm();
+    double R = rnd->RndHadro().Rndm();
     double f = (W-fWminTrWindow)/(fWmaxTrWindow-fWminTrWindow);
     if(R<f) {
        particle_list = fKNOHadronizer->Hadronize(interaction);

@@ -109,8 +109,8 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      if(fGenerateUniformly) {
         //-- Generate a x,y pair uniformly in the kinematically allowed range.
-        gx = xmin + dx * rnd->Random1().Rndm();
-        gy = ymin + dy * rnd->Random1().Rndm();
+        gx = xmin + dx * rnd->RndKine().Rndm();
+        gy = ymin + dy * rnd->RndKine().Rndm();
 
      } else {
         //-- Select unweighted kinematics using importance sampling method. 
@@ -138,7 +138,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
         double max = fEnvelope->Eval(gx, gy);
-        double t   = max * rnd->Random1().Rndm();
+        double t   = max * rnd->RndKine().Rndm();
 
         this->AssertXSecLimits(interaction, xsec, max);
         LOG("COHKinematics", pINFO) << "xsec= " << xsec << ", J= 1, Rnd= " << t;
@@ -174,7 +174,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double R2    = TMath::Power(R,2.);
         double b     = 0.33333 * R2;
         double tsum  = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; 
-        double rt    = tsum * rnd->Random1().Rndm();
+        double rt    = tsum * rnd->RndKine().Rndm();
         double gt    = -1.*TMath::Log(-1.*b*rt + TMath::Exp(-1.*b*tmin))/b;
 
         LOG("COHKinematics", pNOTICE)

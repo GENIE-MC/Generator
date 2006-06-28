@@ -92,10 +92,10 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
 
   RandomGen * rnd = RandomGen::Instance();
 
-  double R     = fNuclRadius * rnd->Random1().Rndm();
-  double cos9  = -1. + 2. * rnd->Random1().Rndm();    
+  double R     = fNuclRadius * rnd->RndFsi().Rndm();
+  double cos9  = -1. + 2. * rnd->RndFsi().Rndm();    
   double sin9  = TMath::Sqrt(1.-cos9*cos9);   
-  double fi    = 2 * kPi * rnd->Random1().Rndm();
+  double fi    = 2 * kPi * rnd->RndFsi().Rndm();
   double cosfi = TMath::Cos(fi);
   double sinfi = TMath::Sin(fi);
 
@@ -312,7 +312,7 @@ double Intranuke::GenerateStep(GHepRecord* evrec, GHepParticle* p) const
   RandomGen * rnd = RandomGen::Instance();
 
   double L = this->MeanFreePath(evrec, p);
-  double d = -1.*L * TMath::Log(rnd->Random1().Rndm());
+  double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 
   LOG("Intranuke", pDEBUG)
             << "Mean free path = " << L << " fm, "
@@ -411,7 +411,7 @@ HadroProc_t Intranuke::HadronFate(const GHepParticle * p) const
 
   // select rescattering type
   RandomGen * rnd = RandomGen::Instance();
-  double t = rnd->Random1().Rndm();
+  double t = rnd->RndFsi().Rndm();
 
   HadroProc_t proc = kHPcUndefined;
 

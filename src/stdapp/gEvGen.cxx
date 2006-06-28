@@ -201,7 +201,7 @@ int main(int argc, char ** argv)
 
      // generate neutrino energy (if an energy range was defined)
      if(gOptNuEnergyRange>0) {
-       double Ev = gOptMinNuEnergy + gOptNuEnergyRange * r->Random1().Rndm();
+       double Ev = gOptMinNuEnergy + gOptNuEnergyRange * r->RndEvg().Rndm();
        nu_p4.SetPxPyPzE(0,0,Ev,Ev);
      }
 

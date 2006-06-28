@@ -120,10 +120,10 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        //-- Generate a W uniformly in the kinematically allowed range.
        //   For the generated W, compute the Q2 range and generate a value
        //   uniformly over that range
-       gW  = Wmin + dW  * rnd->Random1().Rndm();
+       gW  = Wmin + dW  * rnd->RndKine().Rndm();
        Range1D_t Q2 = this->Q2Range(interaction);
        if(Q2.max<=0. || Q2.min>=Q2.max) continue;
-       gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->Random1().Rndm();
+       gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->RndKine().Rndm();
 
        interaction->SetBit(kISkipKinematicChk);
 
@@ -180,7 +180,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- Decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
         double max = fEnvelope->Eval(gQD2, gW);
-        double t   = max * rnd->Random1().Rndm();
+        double t   = max * rnd->RndKine().Rndm();
         double J   = kinematics::Jacobian(interaction,kPSWQ2fE,kPSWQD2fE);
 
         this->AssertXSecLimits(interaction, xsec, max);

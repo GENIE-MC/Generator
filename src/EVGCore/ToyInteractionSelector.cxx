@@ -66,7 +66,7 @@ EventRecord * ToyInteractionSelector::SelectInteraction
   const InteractionList & ilst = igmap->GetInteractionList();
 
   unsigned int nint = ilst.size();
-  unsigned int iint = (unsigned int) rnd->Random1().Integer(nint);
+  unsigned int iint = (unsigned int) rnd->RndISel().Integer(nint);
 
   Interaction * interaction = ilst[iint];
 

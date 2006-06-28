@@ -228,7 +228,7 @@ TClonesArray * KNOHadronization::Hadronize(
        assert(itry<kMaxUnweightDecayIterations);
 
        double w  = fPhaseSpaceGenerator.Generate();   
-       double gw = wmax * rnd->Random1().Rndm();
+       double gw = wmax * rnd->RndHadro().Rndm();
 
        LOG("KNOHad", pINFO) << "Decay weight = " << w << " / R = " << gw;
 
@@ -445,7 +445,7 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
 
      while(hadrons_to_add > 0 && W >= M2pi0) {
 
-         double x = rnd->Random1().Rndm();
+         double x = rnd->RndHadro().Rndm();
          LOG("KNOHad", pDEBUG) << "rndm = " << x;
 
          if (x >= 0 && x < fPpi0) {
@@ -541,7 +541,7 @@ int KNOHadronization::GenerateBaryonPdgCode(int multiplicity, int maxQ) const
 
   // initialize to neutron & then change it to proton if you must
   int pdgc = kPdgNeutron;
-  double x = rnd->Random1().Rndm();
+  double x = rnd->RndHadro().Rndm();
 
   //-- available hadronic system charge = 2
   if(maxQ == 2) {

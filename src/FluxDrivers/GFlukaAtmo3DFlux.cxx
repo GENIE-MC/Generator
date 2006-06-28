@@ -69,7 +69,7 @@ bool GFlukaAtmo3DFlux::GenerateNext(void)
   fFluxSum2D->GetRandom2( aEv, aCos8);
   double Ev   = (double)aEv;
   double cos8 = (double)aCos8;
-  double phi  = 2.*kPi*(rnd->Random1().Rndm());
+  double phi  = 2.*kPi* rnd->RndFlux().Rndm();
 
   //-- etc trigonometric numbers
   double sin8   = TMath::Sqrt(1-cos8*cos8);
@@ -104,8 +104,8 @@ bool GFlukaAtmo3DFlux::GenerateNext(void)
   TVector3 vec(x,y,z);              // vector towards selected point
   TVector3 dvec = vec.Orthogonal(); // orthogonal vector
 
-  double psi = 2.*kPi*(rnd->Random1().Rndm()); // rndm angle [0,2pi]
-  double Rt  = fRt * rnd->Random1().Rndm();    // rndm norm  [0,Rtransverse]
+  double psi = 2.*kPi* rnd->RndFlux().Rndm(); // rndm angle [0,2pi]
+  double Rt  = fRt* rnd->RndFlux().Rndm();    // rndm norm  [0,Rtransverse]
 
   dvec.Rotate(psi,vec); // rotate around original vector
   dvec.SetMag(Rt);      // set new norm
@@ -304,7 +304,7 @@ int GFlukaAtmo3DFlux::SelectNeutrino(double Ev, double costheta)
   }
 
   RandomGen * rnd = RandomGen::Instance();
-  double R = flux_sum * rnd->Random1().Rndm();
+  double R = flux_sum * rnd->RndFlux().Rndm();
 
   LOG("Flux", pINFO) << "R = " << R;
 

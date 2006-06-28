@@ -124,7 +124,7 @@ bool FragmentCharmDISGenerator::GenerateCharmHadronOnly(
   LOG("FragmentCharm", pINFO) << "Generated: charm hadron pT = " << pT;
 
   //-- Compute charm hadron px, py, pz
-  double t   = 2.*kPi*RandomGen::Instance()->Random1().Rndm();
+  double t   = 2.*kPi*RandomGen::Instance()->RndHadro().Rndm();
   double pxC = pT * TMath::Sin(t);
   double pyC = pT * TMath::Cos(t);
   double pzC = TMath::Sqrt(EC2-pT2-m2);
@@ -304,7 +304,7 @@ int FragmentCharmDISGenerator::CharmedHadronPdgCode(double E) const
 
   RandomGen * rnd = RandomGen::Instance();
 
-  double rndm = rnd->Random1().Rndm();
+  double rndm = rnd->RndHadro().Rndm();
 
   if(E <= 20) {
      if      (rndm <= 0.32)                  return  421; // D^0
