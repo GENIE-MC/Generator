@@ -50,12 +50,15 @@ public:
 private:
 
   void LoadConfig                 (void);
+  void SyncSeeds                  (void) const;
   void SwitchOnAllChannels        (int pdgc) const;
   void SwitchOffInhibitedChannels (int pdgc, const TClonesArray * inhibited) const;
   bool MatchDecayChannel          (int ichannel, TDecayChannel & dc) const;
 
-  TPythia6 * fPythia;
-  bool       fForceDecay;
+  mutable TPythia6 * fPythia;     ///< PYTHIA6 wrapper class
+  mutable long int   fCurrSeed;   ///< always keep PYTHIA's & GENIE's seeds in sync
+
+  bool fForceDecay;
 };
 
 }         // genie namespace
