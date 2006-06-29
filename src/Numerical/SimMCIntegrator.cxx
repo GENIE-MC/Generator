@@ -83,7 +83,7 @@ double SimMCIntegrator::Integrate(GSFunc & gsfunc) const
   while(err>fMaxPcntErr) {
     // Generate an input parameter vector and evaluate the function
     for(unsigned int id=0; id<ndim; id++) {
-          x[id] = xmin[id] + dx[id] * rnd->RndMCIntg().Rndm();
+          x[id] = xmin[id] + dx[id] * rnd->RndNum().Rndm();
     }
     y = gsfunc(x);
 

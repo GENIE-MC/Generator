@@ -268,7 +268,7 @@ bool GuiFitKernel::MCParamScanning(void)
 
            assert(max>min);
 
-           float x     = rnd->Random1().Rndm();
+           float x     = rnd->RndGen().Rndm();
            float param = min + x*(max-min);
 
            LOG("NuVld", pDEBUG) << "Rndm = " << x << ", Param(" << ip << ")=" << param;
