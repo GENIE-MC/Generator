@@ -34,13 +34,13 @@ extern "C" void py2ent_(int *,  int *, int *, double *);
 PythiaHadronization::PythiaHadronization() :
 HadronizationModelI("genie::PythiaHadronization")
 {
-  fPythia = new TPythia6();
+  this->Initialize();
 }
 //____________________________________________________________________________
 PythiaHadronization::PythiaHadronization(string config) :
 HadronizationModelI("genie::PythiaHadronization", config)
 {
-  fPythia = new TPythia6();
+  this->Initialize();
 }
 //____________________________________________________________________________
 PythiaHadronization::~PythiaHadronization()
@@ -50,13 +50,15 @@ PythiaHadronization::~PythiaHadronization()
 //____________________________________________________________________________
 void PythiaHadronization::Initialize(void) const
 {
-
+  fPythia = TPythia6::Instance();
 }
 //____________________________________________________________________________
 TClonesArray * PythiaHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
   LOG("PythiaHad", pNOTICE) << "Running PYTHIA hadronizer";
+
+  this->SyncSeeds();
 
   //-- get kinematics / init-state / process-info
 
@@ -262,3 +264,16 @@ void PythiaHadronization::LoadConfig(void)
   fPythia->SetPARJ(33, fRemainingECutoff);
 }
 //____________________________________________________________________________
+void PythiaHadronization::SyncSeeds(void) const
+{
+// Keep PYTHIA6 random number seed in sync with GENIE's random number seed
+//
+  long int cs = RandomGen::Instance()->GetSeed();
+  if(fCurrSeed != cs) {
+     fCurrSeed = cs;
+     fPythia->SetMRPY(1,fCurrSeed);
+  }
+}
+//____________________________________________________________________________
+
+

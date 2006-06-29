@@ -21,6 +21,7 @@
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Decay/PythiaDecayer.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 
 using std::vector;
 
@@ -35,18 +36,18 @@ extern "C" void pydecy_(int *);
 PythiaDecayer::PythiaDecayer() :
 DecayModelI("genie::PythiaDecayer")
 {
-  fPythia = new TPythia6();
+  this->Initialize();
 }
 //____________________________________________________________________________
 PythiaDecayer::PythiaDecayer(string config) :
 DecayModelI("genie::PythiaDecayer", config)
 {
-  fPythia = new TPythia6();
+  this->Initialize();
 }
 //____________________________________________________________________________
 PythiaDecayer::~PythiaDecayer() 
 { 
-  delete fPythia;
+  //delete fPythia;
 }
 //____________________________________________________________________________
 bool PythiaDecayer::IsHandled(int pdg_code) const
@@ -64,13 +65,15 @@ bool PythiaDecayer::IsHandled(int pdg_code) const
 //____________________________________________________________________________
 void PythiaDecayer::Initialize(void) const
 {
-
+  fPythia = TPythia6::Instance();
 }
 //____________________________________________________________________________
 TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
 {
   if ( ! this->IsHandled(inp.PdgCode) ) return 0;
   
+  this->SyncSeeds();
+
   //-- check whether we should inhibit some channels
   if(inp.InhibitedChannels)
        this->SwitchOffInhibitedChannels(inp.PdgCode, inp.InhibitedChannels);
@@ -229,3 +232,15 @@ void PythiaDecayer::LoadConfig(void)
   fForceDecay = fConfig->GetBoolDef("force-decay", false);
 }
 //____________________________________________________________________________
+void PythiaDecayer::SyncSeeds(void) const
+{
+// Keep PYTHIA6 random number seed in sync with GENIE's random number seed
+//
+  long int cs = RandomGen::Instance()->GetSeed();
+  if(fCurrSeed != cs) {
+     fCurrSeed = cs;
+     fPythia->SetMRPY(1,fCurrSeed);
+  }
+}
+//____________________________________________________________________________
+
