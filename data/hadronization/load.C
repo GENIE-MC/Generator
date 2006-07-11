@@ -1,17 +1,62 @@
+// --------------------------------------------------------------
+// ROOT macro to load hadronization model tuning data to ntuples.
+// See the data files for description of the ntuple fields.
+//
+// C.Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+// --------------------------------------------------------------
 {
-  TTree bfc;
-  bfc.ReadFile("./hBkwFwdCorrelation.data","nu/I:nuc/I:Wmin/F:Wmax/F:nF/F:nB/F:dnB/F");
+  //
+  // Define input files and formats
+  //
 
-  TTree mult;
-  mult.ReadFile("./hMultiplicityVsW2.data","nu/I:nuc/I:tgt/I:W2/F:n/F:dn/F:nt/I:xfh/I");
+  TString genie    = gSystem->Getenv("GENIE");
+  TString basedir  = genie + "/data/hadronization/";
 
-  TTree pi0c;
-  pi0c.ReadFile("./hPi0HCorrelation.data","nu/I:nuc/I:Wmin/F:Wmax/F:n/I:npi0/F:dnpi0/F:nt/I");
+  // -- backward - forward multiplicity correlation data
+  TTree   bfc;
+  TString bfcFile = basedir + "./hBkwFwdCorrelation.data";
+  TString bfcFmt  = "nu/I:nuc/I:Wmin/F:Wmax/F:nF/F:nB/F:dnB/F";
 
-  TTree dn;
-  dn.ReadFile("./hDispersionVsMult.data","nu/I:nuc/I:tgt/I:n/F:D/F:dD/F:nt/I");
+  // -- multiplicity vs hadronic invariant mass data
+  TTree   mult;
+  TString multFile = basedir + "./hMultiplicityVsW2.data";
+  TString multFmt  = "nu/I:nuc/I:tgt/I:W2/F:n/F:dn/F:nt/I:xfh/I";
 
-  TTree dnw;
-  dnw.ReadFile("./hRDispersionVsW2.data","nu/I:nuc/I:tgt/I:W2/F:DN/F:dDN/F:nt/I");
+  // -- pi0 - charged hadron multiplicity correlation data
+  TTree   pi0c;
+  TString pi0cFile = basedir + "./hPi0HCorrelation.data";
+  TString pi0cFmt  = "nu/I:nuc/I:Wmin/F:Wmax/F:n/I:npi0/F:dnpi0/F:nt/I";
+
+  // -- dispersion vs multiplicity data
+  TTree   dn;
+  TString dnFile = basedir + "./hDispersionVsMult.data";
+  TString dnFmt  = "nu/I:nuc/I:tgt/I:n/F:D/F:dD/F:nt/I";
+
+  // -- disperison over average multiplicity vs hadronic invariant mass
+  TTree   dnw;
+  TString dnwFile = basedir + "./hRDispersionVsW2.data";
+  TString dnwFmt  = "nu/I:nuc/I:tgt/I:W2/F:DN/F:dDN/F:nt/I";
+
+  // -- corrected normalized invariant xf distributions
+  TTree   cnixf;
+  TString cnixfFile = basedir + "./hCorrNormInvXFDistr.data";
+  TString cnixfFmt  = "nu/I:nuc/I:Wmin/F:xBmin/F:xF/F:F/F:dF/F:nt/I";
+
+  // -- corrected normalized xf distributions
+  TTree   cnxf;
+  TString cnxfFile = basedir + "./hCorrNormXFDistr.data";
+  TString cnxfFmt  = "nu/I:nuc/I:Wmin/F:xBmin/F:xF/F:F/F:dF/F:nt/I";
+
+  //
+  // Load all ntuples
+  //
+
+  bfc.  ReadFile( bfcFile.  Data(), bfcFmt.  Data() );
+  mult. ReadFile( multFile. Data(), multFmt. Data() );
+  pi0c. ReadFile( pi0cFile. Data(), pi0cFmt. Data() );
+  dn.   ReadFile( dnFile.   Data(), dnFmt.   Data() );
+  dnw.  ReadFile( dnwFile.  Data(), dnwFmt.  Data() );
+  cnixf.ReadFile( cnixfFile.Data(), cnixfFmt.Data() );
+  cnxf. ReadFile( cnxfFile. Data(), cnxfFmt. Data() );
 }
 
