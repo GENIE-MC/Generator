@@ -147,18 +147,43 @@ TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(
 
   //-- Compute the Final State Hadronic System 4p (PX = Pv + PN - Pl)
 
-  double PX = nu->Px()     + N->Px()     - l->Px();
-  double PY = nu->Py()     + N->Py()     - l->Py();
-  double PZ = nu->Pz()     + N->Pz()     - l->Pz();
-  double E  = nu->Energy() + N->Energy() - l->Energy();
+  //double PX = nu->Px()     + N->Px()     - l->Px();
+  //double PY = nu->Py()     + N->Py()     - l->Py();
+  //double PZ = nu->Pz()     + N->Pz()     - l->Pz();
+  //double E  = nu->Energy() + N->Energy() - l->Energy();
+  //TLorentzVector pX4(PX,PY,PZ,E);
 
-  //TLorentzVector pX4 = (*nu->P4()) + (*N->P4()) - (*l->P4())
+  const TLorentzVector & p4nu = *(nu->P4());
+  const TLorentzVector & p4N  = *(N ->P4());
+  const TLorentzVector & p4l  = *(l ->P4());
 
-  TLorentzVector pX4(PX,PY,PZ,E);
+  TLorentzVector pX4 = p4nu + p4N - p4l;
 
   LOG("HadronicVtx", pNOTICE) << "\n HadrSyst [LAB]: " << P4AsString(&pX4);
 
   return pX4; 
+}
+//___________________________________________________________________________
+TLorentzVector HadronicSystemGenerator::MomentumTransferLAB(
+                                                    GHepRecord * evrec) const
+{
+  //incoming v:
+  GHepParticle * nu = evrec->Probe();
+
+  //final state primary lepton:
+  GHepParticle * l = evrec->FinalStatePrimaryLepton();
+
+  assert(nu);
+  assert(l);
+
+  const TLorentzVector & p4nu = *(nu->P4());
+  const TLorentzVector & p4l  = *(l ->P4());
+
+  TLorentzVector pq4 = p4nu - p4l; // q
+
+  LOG("HadronicVtx", pNOTICE) 
+                      << "\n Momentum Transfer [LAB]: " << P4AsString(&pq4);
+  return pq4; 
 }
 //___________________________________________________________________________
 TVector3 HadronicSystemGenerator::HCM2LAB(GHepRecord * evrec) const
