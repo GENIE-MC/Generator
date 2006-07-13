@@ -43,6 +43,7 @@ public :
   void AddFinalHadronicSyst    (GHepRecord * event_rec) const;
 
   TLorentzVector Hadronic4pLAB      (GHepRecord * event_rec) const;
+  TLorentzVector MomentumTransferLAB(GHepRecord * event_rec) const;
   TVector3       HCM2LAB            (GHepRecord * event_rec) const;
   int            HadronShowerCharge (GHepRecord * event_rec) const;
 

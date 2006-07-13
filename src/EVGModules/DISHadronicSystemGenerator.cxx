@@ -122,12 +122,25 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   GHepStatus_t ist = (is_nucleus) ? 
                            kIStHadronInTheNucleus : kIStStableFinalState;
 
+  //-- Get a unit momentum along the momentum transfer direction \vec{q}
+  //   at the [Hadronic CM] 
+  TLorentzVector pq4 = this->MomentumTransferLAB(evrec);
+  pq4.Boost(-beta);
+  TVector3 unitvq = pq4.Vect().Unit();
+
   while( (p = (TMCParticle *) particle_iter.Next()) ) {
 
-     // the fragmentation products are generated in the final state
-     // hadronic CM Frame - take each particle back to the LAB frame
-     TLorentzVector p4(p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy());
-     p4.Boost(beta);
+     // The fragmentation products are generated in the final state
+     // hadronic CM Frame (with the z>0 axis being the \vec{q} direction).
+     // For each particle returned by the hadronizer:
+     // - rotate its 3-momentum so that z := \vec{q} at hadronic CM frame
+     // - boost it back to LAB frame
+
+     TVector3 p3(p->GetPx(), p->GetPy(), p->GetPz());
+     p3.RotateUz(unitvq); 
+
+     TLorentzVector p4(p3, p->GetEnergy());
+     p4.Boost(beta); 
 
      // copy final state particles to the event record
      if(p->GetKS()==1) {
