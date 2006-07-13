@@ -235,6 +235,7 @@ void SchmitzMultiplicityModel::CreateProbHist(double maxmult) const
 
   fMultProb = new TH1D("multprob", 
       "hadronic multiplicity distribution", nbins, minmult-0.5, maxmult+0.5);
+  fMultProb->SetDirectory(0);
 }
 //____________________________________________________________________________
 void SchmitzMultiplicityModel::Configure(const Registry & config)
