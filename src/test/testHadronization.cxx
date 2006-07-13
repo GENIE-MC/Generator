@@ -191,7 +191,7 @@ void testMultiplicities(int nevents, const HadronizationModelI * model)
 
                 br_iev  = in;
                 br_nuc  = NucCode[inuc];
-                br_neut = NuCode[inuc];
+                br_neut = NuCode[inu];
                 br_qrk  = (gSetHitQrk) ? QrkCode[iqrk] : 0;
                 br_sea  = (gSetHitQrk) ? SeaQrk[iqrk]  : 0;
                 br_ccnc = CcNc[iccnc];
