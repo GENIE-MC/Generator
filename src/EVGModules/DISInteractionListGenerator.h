@@ -21,9 +21,15 @@
 #ifndef _DIS_INTERACTION_LIST_GENERATOR_H_
 #define _DIS_INTERACTION_LIST_GENERATOR_H_
 
+#include <map>
+
 #include "EVGCore/InteractionListGeneratorI.h"
 
+using std::multimap;
+
 namespace genie {
+
+class Interaction;
 
 class DISInteractionListGenerator : public InteractionListGeneratorI {
 
@@ -45,8 +51,11 @@ private:
 
   void LoadConfigData(void);
 
+  multimap<int,bool> GetHitQuarks(const Interaction * interaction) const;
+
   bool fIsCC;
   bool fIsNC;
+  bool fSetHitQuark;
   bool fIsCharm;
 };
 

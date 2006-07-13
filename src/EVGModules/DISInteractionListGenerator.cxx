@@ -47,7 +47,6 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
   LOG("InteractionList", pINFO)
                           << "InitialState = " << init_state.AsString();
 
-
   InteractionType_t inttype;
   if      (fIsCC) inttype = kIntWeakCC;
   else if (fIsNC) inttype = kIntWeakNC;
@@ -82,11 +81,10 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
     if( (struck_nucleon == kPdgProton  && hasP) ||
         (struck_nucleon == kPdgNeutron && hasN) ) {
 
-      ProcessInfo   proc_info(kScDeepInelastic, inttype);
+      ProcessInfo proc_info(kScDeepInelastic, inttype);
 
       Interaction * interaction = new Interaction(init_state, proc_info);
       Target * target = interaction->GetInitialStatePtr()->GetTargetPtr();
-
       target->SetStruckNucleonPDGCode(struck_nucleon);
 
       if(fIsCharm) {
@@ -94,9 +92,32 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
          exclusive_tag.SetCharm();
          interaction->SetExclusiveTag(exclusive_tag);
       }
-      intlist->push_back(interaction);
-    }
-  }
+
+      if(fSetHitQuark) {
+        // Add interactions for all possible hit (valence or sea) quarks
+
+        multimap<int,bool> hq = this->GetHitQuarks(interaction);
+        multimap<int,bool>::const_iterator hqi = hq.begin();
+
+        for( ; hqi != hq.end(); ++hqi) {
+
+          int  quark_code = hqi->first;
+          bool from_sea   = hqi->second;
+
+          target->SetStruckQuarkPDGCode(quark_code);
+          target->SetStruckSeaQuark(from_sea);
+
+          Interaction * intq = new Interaction(*interaction);
+          intlist->push_back(intq);  
+        }
+        delete interaction; 
+      }
+      else {
+        intlist->push_back(interaction);
+      }//set hit quark?
+
+    }//current N exists in nuclear target
+  }//N
 
   if(intlist->size() == 0) {
      LOG("InteractionList", pERROR)
@@ -122,9 +143,56 @@ void DISInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void DISInteractionListGenerator::LoadConfigData(void)
 {
-  fIsCC    = fConfig->GetBoolDef("is-CC",    false);
-  fIsNC    = fConfig->GetBoolDef("is-NC",    false);
-  fIsCharm = fConfig->GetBoolDef("is-Charm", false);
+  fIsCC        = fConfig->GetBoolDef("is-CC",         false);
+  fIsNC        = fConfig->GetBoolDef("is-NC",         false);
+  fIsCharm     = fConfig->GetBoolDef("is-Charm",      false);
+  fSetHitQuark = fConfig->GetBoolDef("set-hit-quark", false);
+}
+//____________________________________________________________________________
+multimap<int,bool> DISInteractionListGenerator::GetHitQuarks(
+                                        const Interaction * interaction) const
+{
+// Set (PDG code, from-sea flag) for all possible hit quarks for the input
+// interaction
+
+  multimap<int,bool> hq;
+
+  const ProcessInfo & proc = interaction->GetProcessInfo();
+
+  if(proc.IsWeakNC()) {
+    //
+    // NC - includes both v+N, vbar+N
+    //
+    hq.insert(pair<int,bool>(kPdgUQuark,    false));
+    hq.insert(pair<int,bool>(kPdgUQuark,    true ));
+    hq.insert(pair<int,bool>(kPdgUQuarkBar, true ));
+    hq.insert(pair<int,bool>(kPdgDQuark,    false));
+    hq.insert(pair<int,bool>(kPdgDQuark,    true ));
+    hq.insert(pair<int,bool>(kPdgDQuarkBar, true ));
+    hq.insert(pair<int,bool>(kPdgSQuark,    true ));
+    hq.insert(pair<int,bool>(kPdgSQuarkBar, true ));
+
+  } else if (proc.IsWeakCC()) {
+    //
+    // CC - only I=-1/2 quarks for v+N & I=1/2 quarks for vbar+N
+    //
+    int nupdg = interaction->GetInitialState().GetProbePDGCode();
+
+    if (pdg::IsNeutrino(nupdg)){
+       hq.insert(pair<int,bool>(kPdgUQuarkBar, true ));
+       hq.insert(pair<int,bool>(kPdgDQuark,    false));
+       hq.insert(pair<int,bool>(kPdgDQuark,    true ));
+       hq.insert(pair<int,bool>(kPdgSQuark,    true ));
+    } 
+    else if (pdg::IsAntiNeutrino(nupdg)){
+       hq.insert(pair<int,bool>(kPdgUQuark,    false));
+       hq.insert(pair<int,bool>(kPdgUQuark,    true ));
+       hq.insert(pair<int,bool>(kPdgDQuarkBar, true ));
+       hq.insert(pair<int,bool>(kPdgSQuarkBar, true ));
+    }
+  }//CC or NC
+
+  return hq;
 }
 //____________________________________________________________________________
 
