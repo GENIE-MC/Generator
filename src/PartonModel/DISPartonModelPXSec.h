@@ -52,10 +52,12 @@ private:
   double DISRESJoinSuppressionFactor (const Interaction * in) const;
 
   mutable DISStructureFunc fDISSF;
+  bool                     fInInitPhase;
 
   //! configuration data
 
   bool   fUsingDisResJoin;  ///< use a DIS/RES joining scheme?
+  bool   fUseCache;         ///< cache reduction factors used in joining scheme
   double fWcut;             ///< apply DIS/RES joining scheme < Wcut
 
   const DISStructureFuncModelI * fDISSFModel;    ///< SF model

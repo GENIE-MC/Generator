@@ -322,8 +322,9 @@ void DISStructureFuncModel::QQBar(
   qbar  = -1;
 
   const InitialState & init_state = interaction->GetInitialState();
+  const Target & target = init_state.GetTarget();
 
-  int nuc_pdgc = init_state.GetTarget().StruckNucleonPDGCode();
+  int nuc_pdgc = target.StruckNucleonPDGCode();
   int nu_pdgc  = init_state.GetProbePDGCode();
   bool isP     = pdg::IsProton       ( nuc_pdgc );
   bool isN     = pdg::IsNeutron      ( nuc_pdgc );
@@ -347,6 +348,42 @@ void DISStructureFuncModel::QQBar(
   double d    = dv   + ds;
   double u_c  = uv_c + us_c;
   double d_c  = dv_c + ds_c;
+
+  //-- The above can be used to compute vN->lX cross sections
+  //   taking into account the contribution from all quarks.
+  //   Check whether a struck quark has been set: in this case
+  //   the conributions from all other quarks will be set to 0
+  //   as as this algorithm can be used from computing vq->lq 
+  //   cross sections as well.
+
+  if(target.StruckQuarkIsSet()) {
+
+    bool qpdg = target.StruckQuarkPDGCode();
+    bool sea  = target.StruckQuarkIsFromSea();
+
+    bool isu  = pdg::IsUQuark(qpdg);
+    bool isub = pdg::IsUAntiQuark(qpdg);
+    bool isd  = pdg::IsDQuark(qpdg);
+    bool isdb = pdg::IsDAntiQuark(qpdg);
+    bool iss  = pdg::IsSQuark(qpdg);
+    bool issb = pdg::IsSAntiQuark(qpdg);
+
+    uv   = ( isu        && !sea) ? uv   : 0.;
+    us   = ((isu||isub) &&  sea) ? us   : 0.; 
+    dv   = ( isd        && !sea) ? dv   : 0.;
+    ds   = ((isd||isdb) &&  sea) ? ds   : 0.;
+    s    = ((iss||issb) &&  sea) ? s    : 0.;
+    uv_c = ( isu        && !sea) ? uv_c : 0.;
+    us_c = ((isu||isub) &&  sea) ? us_c : 0.;
+    dv_c = ( isd        && !sea) ? dv_c : 0.;
+    ds_c = ((isd||isdb) &&  sea) ? ds_c : 0.;
+    s_c  = ((iss||issb) &&  sea) ? s_c  : 0.;
+    c_c  = 0;
+    u    = uv   + us;
+    d    = dv   + ds;
+    u_c  = uv_c + us_c;
+    d_c  = dv_c + ds_c;
+  }
 
   // Rules of thumb for computing Q and QBar
   // ---------------------------------------
