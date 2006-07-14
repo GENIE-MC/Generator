@@ -80,8 +80,15 @@ const int kPdgTgtFe56      = 1056026000;
 const int kPdgTgtC12       = 1012006000;
 const int kPdgTgtO16       = 1016008000;
 
+// GENIE special particles
 const int kPdgBindino      = 1111111001; 
 const int kPdgHadronicSyst = 1111111002; 
+
+// PYTHIA special particles
+const int kPdgCluster      = 91; 
+const int kPdgString       = 92; 
+const int kPdgIndep        = 93; 
+
 
 }      // genie namespace
 
