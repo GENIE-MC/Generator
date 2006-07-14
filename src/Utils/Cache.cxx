@@ -111,6 +111,35 @@ string Cache::CacheBranchKey(string k0, string k1, string k2) const
   return key.str();
 }
 //____________________________________________________________________________
+void Cache::RmCacheBranch(string key)
+{
+  LOG("Cache", pNOTICE) << "Removing cache branch: " << key;
+
+}
+//____________________________________________________________________________
+void Cache::RmAllCacheBranches(void)
+{
+  LOG("Cache", pNOTICE) << "Removing cache branches";
+
+  if(fCacheMap) {
+    map<string, CacheBranchI * >::iterator citer;
+    for(citer = fCacheMap->begin(); citer != fCacheMap->end(); ++citer) {
+      CacheBranchI * branch = citer->second;
+      if(branch) {
+        delete branch;
+        branch = 0;
+      }
+    }
+    fCacheMap->clear();
+  }
+}
+//____________________________________________________________________________
+void Cache::RmMatchedCacheBranches(string key_substring)
+{
+  LOG("Cache", pNOTICE) << "Removing cache branches: *"<< key_substring<< "*";
+
+}
+//____________________________________________________________________________
 void Cache::AutoLoad(void)
 {
   LOG("Cache", pNOTICE) << "AutoLoading Cache";

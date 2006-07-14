@@ -39,34 +39,40 @@ public:
 
   static Cache * Instance(void);
 
+  //! finding/adding cache branches
   CacheBranchI * FindCacheBranch (string key);
   void           AddCacheBranch  (string key, CacheBranchI * branch);
   string         CacheBranchKey  (string k0, string k1="", string k2="") const;
 
-  //-- print cache buffers
+  //! removing cache branches
+  void RmCacheBranch         (string key);
+  void RmAllCacheBranches    (void);
+  void RmMatchedCacheBranches(string key_substring);
+
+  //! print cache buffers
   void   Print (ostream & stream) const;
   friend ostream & operator << (ostream & stream, const Cache & cache);
 
 private:
 
-  //-- auto-load/save
+  //! auto-load/save
   void AutoLoad      (void);
   void AutoSave      (void);
   void OpenCacheFile (void);
 
-  //-- singleton instance
+  //! singleton instance
   static Cache * fInstance;
 
-  //-- map of cache buffers & cache file
+  //! map of cache buffers & cache file
   map<string, CacheBranchI * > * fCacheMap;
   TFile *                        fCacheFile;
 
-  //-- singleton class: constructors are private
+  //! singleton class: constructors are private
   Cache();
   Cache(const Cache & cache);
   virtual ~Cache();
 
-  //-- proper de-allocation of the singleton object
+  //! proper de-allocation of the singleton object
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
       ~Cleaner() {
