@@ -23,6 +23,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
+#include "Utils/FragmRecUtils.h"
 
 using namespace genie;
 
@@ -106,12 +107,14 @@ TClonesArray * PythiaHadronization::Hadronize(
   //-- assert that the interaction mode is allowed
   bool isu  = pdg::IsUQuark     (hit_quark);
   bool isd  = pdg::IsDQuark     (hit_quark);
+  bool iss  = pdg::IsSQuark     (hit_quark);
   bool isub = pdg::IsUAntiQuark (hit_quark);
   bool isdb = pdg::IsDAntiQuark (hit_quark);
+  bool issb = pdg::IsSAntiQuark (hit_quark);
 
-  bool allowed = (iscc && isv  && (isd||isub)) ||
-                 (iscc && isvb && (isu||isdb)) ||
-                 (isnc && (isv||isvb) && (isu||isd||isub||isdb));
+  bool allowed = (iscc && isv  && (isd||isub||iss))  ||
+                 (iscc && isvb && (isu||isdb||issb)) ||
+                 (isnc && (isv||isvb) && (isu||isd||isub||isdb||iss||issb));
   assert(allowed);
 
   //-- generate the quark system (q + qq) initiating the hadronization
@@ -124,9 +127,11 @@ TClonesArray * PythiaHadronization::Hadronize(
   if (proc_info.IsWeakNC()) final_quark = hit_quark;
   else {
     if      (isv  && isd ) final_quark = kPdgUQuark;
+    else if (isv  && iss ) final_quark = kPdgUQuark;
     else if (isv  && isub) final_quark = kPdgDQuarkBar;
     else if (isvb && isu ) final_quark = kPdgDQuark;
     else if (isvb && isdb) final_quark = kPdgUQuarkBar;
+    else if (isvb && issb) final_quark = kPdgUQuarkBar;
     else {
       LOG("PythiaHad", pERROR)
         << "Not allowed mode. Refused to make a final quark assignment!";
@@ -149,7 +154,6 @@ TClonesArray * PythiaHadronization::Hadronize(
   }
   // hit quark = sea quark
   else {
-
     if(isp && isu) diquark = kPdgUDDiquarkS1; /* u(->q) + bar{u} uud (=ud) */
     if(isp && isd) diquark = kPdgUUDiquarkS1; /* d(->q) + bar{d} uud (=uu) */
     if(isn && isu) diquark = kPdgDDDiquarkS1; /* u(->q) + bar{u} udd (=dd) */
@@ -179,6 +183,13 @@ TClonesArray * PythiaHadronization::Hadronize(
     if(isn && isdb && iscc) {final_quark = kPdgDQuark; diquark = kPdgDDDiquarkS1;}
     /* bar{d} (-> bar{d}) + d udd => d + ud */
     if(isn && isdb && isnc) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
+
+    // Cases where I don't know what to do :
+    // The neutrino is scatterred off s or sbar sea quarks 
+    if(iss || issb) {
+       LOG("PythiaHad", pERROR) << "Can not handle a hit s or sbar quark";
+       return 0;
+    }
 
     // if the diquark is a ud, switch it to the singlet state with 50% probability
     if(diquark == kPdgUDDiquarkS1) {
@@ -213,10 +224,19 @@ TClonesArray * PythiaHadronization::Hadronize(
   TIter particle_iter(pythia_particles);
 
   while( (particle = (TMCParticle *) particle_iter.Next()) ) {
-       LOG("PythiaHad", pINFO)
+     LOG("PythiaHad", pINFO)
                << "Adding final state particle pdgc = " << particle->GetKF();
-       new ( (*particle_list)[i++] ) TMCParticle(*particle);
+
+     // fix numbering scheme used for mother/daughter assignments
+     particle->SetParent     (particle->GetParent()     - 1);
+     particle->SetFirstChild (particle->GetFirstChild() - 1);
+     particle->SetLastChild  (particle->GetLastChild()  - 1);
+
+     // insert the particle in the list
+     new ( (*particle_list)[i++] ) TMCParticle(*particle);
   }
+
+  utils::fragmrec::Print(particle_list);
 
   particle_list->SetOwner(true);
   return particle_list;

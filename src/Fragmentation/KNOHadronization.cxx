@@ -259,9 +259,9 @@ TClonesArray * KNOHadronization::Hadronize(
         (
            1,               /* KS Code                          */
            pdgc,            /* PDG Code                         */
-           0,               /* parent particle                  */
-           0,               /* first child particle             */
-           0,               /* last child particle              */
+          -1,               /* parent particle                  */
+          -1,               /* first child particle             */
+          -1,               /* last child particle              */
            p4fin->Px(),     /* 4-momentum: px component         */
            p4fin->Py(),     /* 4-momentum: py component         */
            p4fin->Pz(),     /* 4-momentum: pz component         */
