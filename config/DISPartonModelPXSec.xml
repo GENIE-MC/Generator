@@ -14,6 +14,7 @@ multiplicity-prob-alg-name  string  Dep   Multiplicity probability model. Set if
 multiplicity-prob-param-set string  Dep   ... and its condig set
 use-dis-res-joining-scheme  bool    Yes   Use DIS/RES joining scheme?                  GPL value: UseDRJoinScheme
 Wcut                        double  Yes   Param used in DIS/RES joining                GPL value: Wcut
+use-cache                   bool    Yes   Cache suppression factors?                   true
 -->
 
 <alg_conf>
