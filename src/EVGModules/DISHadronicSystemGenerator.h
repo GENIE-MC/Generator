@@ -48,6 +48,8 @@ private:
   void LoadConfig (void);
 
   const HadronizationModelI * fHadronizationModel;
+
+  bool fFilterPreFragmEntries;
 };
 
 }      // genie namespace

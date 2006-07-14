@@ -118,9 +118,9 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   TMCParticle * p = 0;
   TIter particle_iter(plist);
 
-  bool is_nucleus  = interaction->GetInitialState().GetTarget().IsNucleus();
-  GHepStatus_t ist = (is_nucleus) ? 
-                           kIStHadronInTheNucleus : kIStStableFinalState;
+  bool is_nucleus = interaction->GetInitialState().GetTarget().IsNucleus();
+  GHepStatus_t istfin = (is_nucleus) ? 
+                             kIStHadronInTheNucleus : kIStStableFinalState;
 
   //-- Get a unit momentum along the momentum transfer direction \vec{q}
   //   at the [Hadronic CM] 
@@ -129,6 +129,11 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   TVector3 unitvq = pq4.Vect().Unit();
 
   while( (p = (TMCParticle *) particle_iter.Next()) ) {
+
+     int pdgc = p->GetKF();
+     int ks   = p->GetKS();
+
+     if(fFilterPreFragmEntries && ks!=1) continue;
 
      // The fragmentation products are generated in the final state
      // hadronic CM Frame (with the z>0 axis being the \vec{q} direction).
@@ -143,10 +148,14 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
      p4.Boost(beta); 
 
      // copy final state particles to the event record
-     if(p->GetKS()==1) {
-         int pdgc = p->GetKF();
-         evrec->AddParticle(pdgc, ist, mom,-1,-1,-1, p4,v4);
-     }
+     GHepStatus_t ist = (ks==1) ? istfin : kIStDISPreFragmHadronicState;
+
+     int im  = mom + 1 + p->GetParent();
+     int ifc = mom + 1 + p->GetFirstChild();
+     int ilc = mom + 1 + p->GetLastChild();
+
+     evrec->AddParticle(pdgc, ist, im,-1, ifc, ilc, p4,v4);
+
   } // fragmentation-products-iterator
 
   //-- Handle the case that the hadronizer produced weighted events and
@@ -178,9 +187,14 @@ void DISHadronicSystemGenerator::LoadConfig(void)
 
   //-- Get the requested hadronization model
   fHadronizationModel = dynamic_cast<const HadronizationModelI *> (
-           this->SubAlg("hadronization-alg-name", "hadronization-param-set"));
+        this->SubAlg("hadronization-alg-name", "hadronization-param-set"));
 
   assert(fHadronizationModel);
+
+  //-- flag to determine whether we copy all fragmentation record entries
+  //   into the GHEP record or just the ones marked with kf=1
+  fFilterPreFragmEntries = 
+                     fConfig->GetBoolDef("filter-pre-fragm-entries",false);
 }
 //____________________________________________________________________________
 
