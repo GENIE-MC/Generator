@@ -28,14 +28,12 @@ int genie::utils::fragmrec::NParticles(
                        int pdg_code, const TClonesArray * const particle_list)
 {
   int nparticles = 0;
-
-  TMCParticle * p = 0;
+  TMCParticle* p = 0;
 
   TObjArrayIter particle_iter(particle_list);
 
   while( (p = (TMCParticle *) particle_iter.Next()) )
                                      if(p->GetKF() == pdg_code)  nparticles++;
-
   return nparticles;
 }
 //____________________________________________________________________________
@@ -43,8 +41,7 @@ int genie::utils::fragmrec::NParticles(
            int pdg_code, int status, const TClonesArray * const particle_list)
 {
   int nparticles = 0;
-
-  TMCParticle * p = 0;
+  TMCParticle* p = 0;
 
   TObjArrayIter particle_iter(particle_list);
 
@@ -61,7 +58,6 @@ int genie::utils::fragmrec::NPositives(const TClonesArray * const part_list)
   TIter piter(part_list);
 
   TMCParticle * p = 0;
-
   int npos = 0;
 
   while( (p = (TMCParticle *) piter.Next()) )
@@ -77,7 +73,6 @@ int genie::utils::fragmrec::NNegatives(const TClonesArray * const part_list)
   TIter piter(part_list);
 
   TMCParticle * p = 0;
-
   int nneg = 0;
 
   while( (p = (TMCParticle *) piter.Next()) )
@@ -90,10 +85,12 @@ void genie::utils::fragmrec::Print(const TClonesArray * const part_list)
 {
   TIter piter(part_list);
 
+  unsigned int i=0;
   TMCParticle * particle = 0;
 
   double sum_px = 0, sum_py = 0, sum_pz = 0, sum_E = 0;
 
+  
   while( (particle = (TMCParticle *) piter.Next()) ) {
 
     sum_E  += (particle->GetEnergy());
@@ -102,13 +99,16 @@ void genie::utils::fragmrec::Print(const TClonesArray * const part_list)
     sum_pz += (particle->GetPz());
 
     SLOG("FragmResUtils", pINFO)
-            << " Name = " << particle->GetName()
-            << " KF = "   << particle->GetKF()
-            << " KS = "   << particle->GetKS()
-            << "(E = "    << particle->GetEnergy()
-            << ",Px = "   << particle->GetPx()
-            << ",Py = "   << particle->GetPy()
-            << ",Pz = "   << particle->GetPz() << ")";
+        << "-> " << i++ << " " << particle->GetName()
+        << " KF = " << particle->GetKF()
+        << " KS = " << particle->GetKS()
+        << " mom = " << particle->GetParent()
+        << " kids = {" 
+        << particle->GetFirstChild() << ", " << particle->GetLastChild() 
+        << "}(E = "  << particle->GetEnergy()
+        << ",Px = "  << particle->GetPx()
+        << ",Py = "  << particle->GetPy()
+        << ",Pz = "  << particle->GetPz() << ")";
   }
 
   SLOG("FragmResUtils", pINFO)
