@@ -46,13 +46,13 @@ using namespace genie::constants;
 DISPartonModelPXSec::DISPartonModelPXSec() :
 XSecAlgorithmI("genie::DISPartonModelPXSec")
 {
-
+  fInInitPhase = true;
 }
 //____________________________________________________________________________
 DISPartonModelPXSec::DISPartonModelPXSec(string config) :
 XSecAlgorithmI("genie::DISPartonModelPXSec", config)
 {
-
+  fInInitPhase = true;
 }
 //____________________________________________________________________________
 DISPartonModelPXSec::~DISPartonModelPXSec()
@@ -201,34 +201,50 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
 // factors would be cached to avoid calling the hadronic multiplicity model
 // too often.
 //
-  double R;
+  double R=0, Ro=0;
 
   const double Wmin = kNeutronMass + kPionMass + 1E-3;
 
-  //-- Access the cache branch. The branch key is formed as:
-  //   algid/DIS-RES-Join/nu-pdg:N;hit-nuc-pdg:N/inttype
-
-  Cache * cache = Cache::Instance();
-
   const InitialState & ist = in->GetInitialState();
   const ProcessInfo &  pi  = in->GetProcessInfo();
-  
-  string algkey = this->Id().Key() + "/DIS-RES-Join";
 
-  ostringstream ikey;
-  ikey << "nu-pdgc:" << ist.GetProbePDGCode() 
-       << ";hit-nuc-pdg:" << ist.GetTarget().StruckNucleonPDGCode() << "/"
-       << pi.InteractionTypeAsString();
+  double E    = ist.GetProbeE(kRfStruckNucAtRest);
+  double Mnuc = ist.GetTarget().StruckNucleonMass();
+  double x    = in->GetKinematics().x(); 
+  double y    = in->GetKinematics().y();
+  double Wo   = utils::kinematics::XYtoW(E,Mnuc,x,y);
 
-  string key = cache->CacheBranchKey(algkey, ikey.str());
+  if(!fUseCache) {
+    // ** Compute the reduction factor at each call - no caching 
+    //
+    const TH1D & mprob = fMultProbModel->ProbabilityDistribution(in);
+    R = mprob.Integral("width");
+  }
+  else {
+    // ** Precompute/cache the reduction factors and then use the 
+    // ** cache to evaluate these factors
+    //
 
-  CacheBranchFx * cbr =
+    //-- Access the cache branch. The branch key is formed as:
+    //   algid/DIS-RES-Join/nu-pdg:N;hit-nuc-pdg:N/inttype
+
+    Cache * cache = Cache::Instance();
+    string algkey = this->Id().Key() + "/DIS-RES-Join";
+
+    ostringstream ikey;
+    ikey << "nu-pdgc:" << ist.GetProbePDGCode() 
+         << ";hit-nuc-pdg:"<< ist.GetTarget().StruckNucleonPDGCode() << "/"
+         << pi.InteractionTypeAsString();
+
+    string key = cache->CacheBranchKey(algkey, ikey.str());
+
+    CacheBranchFx * cbr =
           dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
 
-  //-- If it does not exist create a new one and cache DIS xsec suppression
-  //   factors
-  bool non_zero=false;
-  if(!cbr) {
+    //-- If it does not exist create a new one and cache DIS xsec suppression
+    //   factors
+    bool non_zero=false;
+    if(!cbr) {
       LOG("DISXSec", pNOTICE) 
                         << "\n ** Creating cache branch - key = " << key;
 
@@ -265,25 +281,23 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
 
       cache->AddCacheBranch(key, cbr);
       assert(cbr);
-  } // cache data
+    } // cache data
 
-  const CacheBranchFx & cache_branch = (*cbr);
+    //-- get the reduction factor from the cache branch
+
+    const CacheBranchFx & cache_branch = (*cbr);
+    R = cache_branch(Wo);
+  }
 
   //-- Now return the suppression factor
 
-  double E     = ist.GetProbeE(kRfStruckNucAtRest);
-  double Mnuc  = ist.GetTarget().StruckNucleonMass();
-  double x     = in->GetKinematics().x(); 
-  double y     = in->GetKinematics().y();
-  double Wo = utils::kinematics::XYtoW(E,Mnuc,x,y);
-
-  if      (Wo > Wmin && Wo < fWcut-1E-2) R = cache_branch(Wo);
-  else if (Wo <= Wmin)                   R = 0.0;
-  else                                   R = 1.0;
+  if      (Wo > Wmin && Wo < fWcut-1E-2) Ro = R;
+  else if (Wo <= Wmin)                   Ro = 0.0;
+  else                                   Ro = 1.0;
 
   LOG("DISXSec", pDEBUG) 
-            << "DIS/RES Join: DIS xsec suppr. (W=" << Wo << ") = " << R;
-  return R;
+            << "DIS/RES Join: DIS xsec suppr. (W=" << Wo << ") = " << Ro;
+  return Ro;
 }
 //____________________________________________________________________________
 void DISPartonModelPXSec::Configure(const Registry & config)
@@ -324,8 +338,28 @@ void DISPartonModelPXSec::LoadConfig(void)
 
      // Load Wcut determining the phase space area where the multiplicity prob.
      // scaling factors would be applied -if requested-
-     fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+     fWcut = fConfig->GetDoubleDef("Wcut", gc->GetDouble("Wcut"));
   }
+
+  //-- Caching the reduction factors used in the DIS/RES joing scheme?
+  //   In normal event generation (1 config -> many calls) it is worth caching
+  //   these suppression factors.
+  //   Depending on the way this algorithm is used during event reweighting,
+  //   precomputing (for all W's) & caching these factors might not be efficient.
+  //   Here we provide the option to turn the caching off (default: on)
+
+  fUseCache = fConfig->GetBoolDef("use-cache", true);
+
+  //-- Since this method would be called every time the current algorithm is 
+  //   reconfigured at run-time, remove all the data cached by this algorithm
+  //   since they depend on the previous configuration
+
+  if(!fInInitPhase) {
+     Cache * cache = Cache::Instance();
+     string keysubstr = this->Id().Key() + "/DIS-RES-Join";
+     cache->RmMatchedCacheBranches(keysubstr);
+  }
+  fInInitPhase = false;
 }
 //____________________________________________________________________________
 
