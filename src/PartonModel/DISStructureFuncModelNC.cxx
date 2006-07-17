@@ -60,6 +60,24 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
      return;
   }
 
+  const InitialState & init_state = interaction->GetInitialState();
+  const Target &       target     = init_state.GetTarget();
+
+  bool isP = pdg::IsProton ( target.StruckNucleonPDGCode() );
+  bool isN = pdg::IsNeutron( target.StruckNucleonPDGCode() );
+
+  bool isNu    = pdg::IsNeutrino    ( init_state.GetProbePDGCode() );
+  bool isNuBar = pdg::IsAntiNeutrino( init_state.GetProbePDGCode() );
+
+  if(!isNu && !isNuBar) {
+     LOG("DISSF", pWARN) << "v type is not handled" << *interaction;
+     return;
+  }
+  if(!isN && !isP) {
+     LOG("DISSF", pWARN) << "N type is not handled" << *interaction;
+     return;
+  }
+
   // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
   // Here all corrections to computing the slow rescaling variable and the
   // K factors are applied
@@ -75,47 +93,57 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
   double c    = fPDF->Charm();
   double cbar = fPDF->Charm();
 
-  const InitialState & init_state = interaction->GetInitialState();
+  // The above are the proton parton density function. Get the PDFs for the 
+  // hit nucleon (p or n) by swapping u<->d if needed
 
-  bool isP = pdg::IsProton ( init_state.GetTarget().StruckNucleonPDGCode() );
-  bool isN = pdg::IsNeutron( init_state.GetTarget().StruckNucleonPDGCode() );
+  double tmp;
 
-  bool isNu    = pdg::IsNeutrino    ( init_state.GetProbePDGCode() );
-  bool isNuBar = pdg::IsAntiNeutrino( init_state.GetProbePDGCode() );
-
-  if(!isNu && !isNuBar) {
-     LOG("DISSF", pWARN) << "v type is not handled" << *interaction;
-     return;
+  if (isN) {  
+    tmp = u;    u    = d;     d    = tmp;
+    tmp = ubar; ubar = dbar;  dbar = tmp;
   }
 
-  double GL   = (isNu) ? ( 0.5 - (2./3.)*fSin2thw ) : (     - (2./3.)*fSin2thw);
-  double GR   = (isNu) ? (     - (2./3.)*fSin2thw ) : ( 0.5 - (2./3.)*fSin2thw);
-  double GLp  = (isNu) ? (-0.5 + (1./3.)*fSin2thw ) : (       (1./3.)*fSin2thw);
-  double GRp  = (isNu) ? (       (1./3.)*fSin2thw ) : (-0.5 + (1./3.)*fSin2thw);
+  // In case we are asked to compute a vq->lq cross section rather than a
+  // vN->lX cross sections, switch off non-contributing quarks
+
+  if(target.StruckQuarkIsSet()) {
+
+    bool qpdg = target.StruckQuarkPDGCode();
+    bool sea  = target.StruckQuarkIsFromSea();
+
+    bool isu  = pdg::IsUQuark     (qpdg);
+    bool isub = pdg::IsUAntiQuark (qpdg);
+    bool isd  = pdg::IsDQuark     (qpdg);
+    bool isdb = pdg::IsDAntiQuark (qpdg);
+    bool iss  = pdg::IsSQuark     (qpdg);
+    bool issb = pdg::IsSAntiQuark (qpdg);
+    bool isc  = pdg::IsCQuark     (qpdg);
+    bool iscb = pdg::IsCAntiQuark (qpdg);
+
+    u    = ( isu        && !sea) ? u    : 0.;
+    ubar = ((isu||isub) &&  sea) ? ubar : 0.; 
+    d    = ( isd        && !sea) ? d    : 0.;
+    dbar = ((isd||isdb) &&  sea) ? dbar : 0.;
+    s    = (iss         &&  sea) ? s    : 0.;
+    sbar = (issb        &&  sea) ? sbar : 0.;
+    c    = (isc         &&  sea) ? c    : 0.;
+    cbar = (iscb        &&  sea) ? cbar : 0.;
+  }
+
+  // Compute the structure functions
+
+  double GL   = (isNu) ? ( 0.5 - (2./3.)*fSin2thw) : (     - (2./3.)*fSin2thw);
+  double GR   = (isNu) ? (     - (2./3.)*fSin2thw) : ( 0.5 - (2./3.)*fSin2thw);
+  double GLp  = (isNu) ? (-0.5 + (1./3.)*fSin2thw) : (       (1./3.)*fSin2thw);
+  double GRp  = (isNu) ? (       (1./3.)*fSin2thw) : (-0.5 + (1./3.)*fSin2thw);
 
   double GL2  =  TMath::Power(GL,  2.);
   double GR2  =  TMath::Power(GR,  2.);
   double GLp2 =  TMath::Power(GLp, 2.);
   double GRp2 =  TMath::Power(GRp, 2.);
 
-  double F2  = 0.;
-  double xF3 = 0.;
-
-  if(isP) {
-      F2  = 2*( (GL2 + GR2) * (u + c + ubar + cbar) +
-                            (GLp2 + GRp2) * (d + s + dbar + sbar) );
-      xF3 = 2*( (GL2 - GR2) * (u + c - ubar - cbar) +
-                            (GLp2 - GRp2) * (d + s - dbar - sbar) );
-
-  } else if (isN) {
-      F2  = 2*( (GL2 + GR2) * (d + c + dbar + cbar) +
-                            (GLp2 + GRp2) * (u + s + ubar + sbar) );
-      xF3 = 2*( (GL2 - GR2) * (d + c - dbar - cbar) +
-                            (GLp2 - GRp2) * (u + s - ubar - sbar) );
-  } else {
-     LOG("DISSF", pWARN) << "N type is not handled" << *interaction;
-     return;
-  }
+  double F2  = 2*( (GL2+GR2)*(u+c+ubar+cbar) + (GLp2+GRp2)*(d+s+dbar+sbar) );
+  double xF3 = 2*( (GL2-GR2)*(u+c-ubar-cbar) + (GLp2-GRp2)*(d+s-dbar-sbar) );
 
   // compute nuclear modification factor 
   double f  = this->NuclMod(interaction);

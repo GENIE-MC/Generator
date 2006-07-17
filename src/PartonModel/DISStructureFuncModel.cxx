@@ -240,21 +240,21 @@ double DISStructureFuncModel::R(const Interaction * interaction) const
 //____________________________________________________________________________
 void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
 {
-  //-- Clean-up previous calculation
+  // Clean-up previous calculation
   fPDF  -> Reset();
   fPDFc -> Reset();
 
-  //-- Get the kinematical variables (x,Q2)
+  // Get the kinematical variables (x,Q2)
   double x  = this->ScalingVar(interaction);
   double Q2 = this->Q2(interaction);
 
-  //-- apply Q2 cut
+  // Apply Q2 cut
   Q2 = TMath::Max(Q2, fQ2min);
 
-  //-- compute PDFs at (x,Q2)
+  // Compute PDFs at (x,Q2)
   fPDF->Calculate(x, Q2);
 
-  //-- check whether it is above charm threshold
+  // Check whether it is above charm threshold
   bool above_charm_thr = 
            utils::kinematics::IsAboveCharmThreshold(interaction, fMc);
   if(above_charm_thr) {
@@ -263,7 +263,7 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
     if(xc>0 && xc<1) fPDFc->Calculate(xc, Q2);
   }
 
-  //-- compute the K factors
+  // Compute the K factors
   double kval_u = 1.;
   double kval_d = 1.;
   double ksea_u = 1.;
@@ -274,7 +274,7 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   LOG("DISSF", pDEBUG) << "U: Kval = " << kval_u << ", Ksea = " << ksea_u;
   LOG("DISSF", pDEBUG) << "D: Kval = " << kval_d << ", Ksea = " << ksea_d;
 
-  //-- apply the K factors
+  // Apply the K factors
   const InitialState & init_state = interaction->GetInitialState();
   int nuc_pdgc = init_state.GetTarget().StruckNucleonPDGCode();
   bool isP = pdg::IsProton  ( nuc_pdgc );
@@ -326,12 +326,28 @@ void DISStructureFuncModel::QQBar(
 
   int nuc_pdgc = target.StruckNucleonPDGCode();
   int nu_pdgc  = init_state.GetProbePDGCode();
+
   bool isP     = pdg::IsProton       ( nuc_pdgc );
   bool isN     = pdg::IsNeutron      ( nuc_pdgc );
   bool isNu    = pdg::IsNeutrino     ( nu_pdgc  );
   bool isNuBar = pdg::IsAntiNeutrino ( nu_pdgc  );
 
-  //-- get PDFs [should have been computed by calling in CalcPDFs() first]
+  assert(isP  || isN);
+  assert(isNu || isNuBar);
+
+  // Rules of thumb for computing Q and QBar
+  // ---------------------------------------
+  // - For W+ exchange use: -1/3|e| quarks and -2/3|e| antiquarks
+  // - For W- exchange use:  2/3|e| quarks and  1/3|e| antiquarks
+  // - For each qi -> qj transition multiply with the (ij CKM element)^2
+  // - Use isospin symmetry to get neutron's u,d from proton's u,d
+  //    -- neutron d = proton u
+  //    -- neutron u = proton d
+  // - Use u = usea + uvalence. Same for d
+  // - For s,c use q=qbar
+  // - For t,b use q=qbar=0
+
+  // Get PDFs [should have been computed by calling in CalcPDFs() first]
 
   double uv   = fPDF  -> UpValence();
   double us   = fPDF  -> UpSea();
@@ -349,24 +365,34 @@ void DISStructureFuncModel::QQBar(
   double u_c  = uv_c + us_c;
   double d_c  = dv_c + ds_c;
 
-  //-- The above can be used to compute vN->lX cross sections
-  //   taking into account the contribution from all quarks.
-  //   Check whether a struck quark has been set: in this case
-  //   the conributions from all other quarks will be set to 0
-  //   as as this algorithm can be used from computing vq->lq 
-  //   cross sections as well.
+  // The above are the proton parton density function. Get the PDFs for the 
+  // hit nucleon (p or n) by swapping u<->d if necessary
+
+  double tmp;
+
+  if (isN) {  // swap u <-> d
+    tmp = uv;   uv   = dv;   dv   = tmp;
+    tmp = us;   us   = ds;   ds   = tmp;
+    tmp = uv_c; uv_c = dv_c; dv_c = tmp;
+    tmp = us_c; us_c = ds_c; ds_c = tmp;
+  }
+
+  // The above can be used to compute vN->lX cross sections taking into account 
+  // the contribution from all quarks. Check whether a struck quark has been set: 
+  // in this case the conributions from all other quarks will be set to 0 as as 
+  // this algorithm can be used from computing vq->lq cross sections as well.
 
   if(target.StruckQuarkIsSet()) {
 
     bool qpdg = target.StruckQuarkPDGCode();
     bool sea  = target.StruckQuarkIsFromSea();
 
-    bool isu  = pdg::IsUQuark(qpdg);
-    bool isub = pdg::IsUAntiQuark(qpdg);
-    bool isd  = pdg::IsDQuark(qpdg);
-    bool isdb = pdg::IsDAntiQuark(qpdg);
-    bool iss  = pdg::IsSQuark(qpdg);
-    bool issb = pdg::IsSAntiQuark(qpdg);
+    bool isu  = pdg::IsUQuark     (qpdg);
+    bool isub = pdg::IsUAntiQuark (qpdg);
+    bool isd  = pdg::IsDQuark     (qpdg);
+    bool isdb = pdg::IsDAntiQuark (qpdg);
+    bool iss  = pdg::IsSQuark     (qpdg);
+    bool issb = pdg::IsSAntiQuark (qpdg);
 
     uv   = ( isu        && !sea) ? uv   : 0.;
     us   = ((isu||isub) &&  sea) ? us   : 0.; 
@@ -385,37 +411,17 @@ void DISStructureFuncModel::QQBar(
     d_c  = dv_c + ds_c;
   }
 
-  // Rules of thumb for computing Q and QBar
-  // ---------------------------------------
-  // - For W+ exchange use: -1/3|e| quarks and -2/3|e| antiquarks
-  // - For W- exchange use:  2/3|e| quarks and  1/3|e| antiquarks
-  // - For each qi -> qj transition multiply with the (ij CKM element)^2
-  // - Use isospin symmetry to get neutron's u,d from proton's u,d
-  //    -- neutron d = proton u
-  //    -- neutron u = proton d
-  // - Use u = usea + uvalence. Same for d
-  // - For s,c use q=qbar
-  // - For t,b use q=qbar=0
+  // Compute q, qbar for the contributing quarks
 
-  if (isP && isNu)
+  if (isNu)
   {
     q    = (d  * fVud2) + (s  * fVus2) + (d_c * fVcd2) + (s_c * fVcs2);
     qbar = (us * fVud2) + (us * fVus2) + (c_c * fVcd2) + (c_c * fVcs2);
   }
-  else if (isP && isNuBar)
+  else if (isNuBar)
   {
     q    = (u    * fVud2) + (u  * fVus2) + (c_c * fVcd2) + (c_c * fVcs2);
     qbar = (ds_c * fVcd2) + (ds * fVud2) + (s   * fVus2) + (s_c * fVcs2);
-  }
-  else if (isN && isNu)
-  {
-    q    = (u  * fVud2) + (s  * fVus2) + (u_c * fVcd2) + (s_c * fVcs2);
-    qbar = (ds * fVud2) + (ds * fVus2) + (c_c * fVcd2) + (c_c * fVcs2);
-  }
-  else if (isN && isNuBar)
-  {
-     q   = (d    * fVud2) + (d  * fVus2) + (c_c * fVcd2) + (c_c * fVcs2);
-    qbar = (us_c * fVcd2) + (us * fVud2) + (s   * fVus2) + (s_c * fVcs2);  
   }
   else
   {
