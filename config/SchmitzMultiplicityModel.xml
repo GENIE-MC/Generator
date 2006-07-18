@@ -14,6 +14,11 @@ alpha-vp                     double  Yes   a for vp                             
 alpha-vn                     double  Yes   a for vn                                      GPL value: KNO-Alpha-vn
 alpha-vbp                    double  Yes   a for vbp                                     GPL value: KNO-Alpha-vbp
 alpha-vbn                    double  Yes   a for vbn                                     GPL value: KNO-Alpha-vbn
+levy-c-vp                    double  Yes   Levy function param c for vp                  GPL value: KNO-LevyC-vp
+levy-c-vn                    double  Yes   Levy function param c for vn                  GPL value: KNO-LevyC-vn
+levy-c-vbp                   double  Yes   Levy function param c for vbp                 GPL value: KNO-LevyC-vbp
+levy-c-vbn                   double  Yes   Levy function param c for vbn                 GPL value: KNO-LevyC-vbn
+use-legacy-kno-spline        bool    Yes   Uses the legacy KNO instead of the Levy func  false
 force-neugen-mult-limit      bool    Yes   force neugen upper multiplicity limit (10)    false
 apply-neugen-scaling-factors bool    Yes   apply NeuGEN multiplicity scaling factors     true
 renormalize-after-scaling    bool    Yes   renormalize mult distribution after scaling   true
