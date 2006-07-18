@@ -16,7 +16,8 @@ prob-fs-K0-K0bar             double  Yes   probability for K0 K0bar pair        
 force-decays                 bool    Yes   force decays of unstable particles            false   
 force-min-multiplicity       bool    Yes   force a minimum multiplicity of 2             true
 generate-weighted            bool    Yes   generate weighted events                      false
-
+use-baryon-xF-pT2-parm       bool    Yes   use a baryon pT^2, xF parameterization        true
+reweight-phase-space-decays  bool    Yes   reweight decays to to reproduce exp pT2       true
 -->
 
 <alg_conf>
@@ -31,6 +32,23 @@ generate-weighted            bool    Yes   generate weighted events             
      <param type="bool"   name="force-decays">                true                            </param>
      <param type="string" name="decayer-alg-name">            genie::PythiaDecayer            </param>
      <param type="string" name="decayer-param-set">           Default                         </param>
+  </param_set>
+
+  <param_set name="Old"> 
+     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
+     <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
+     <param type="bool"   name="use-baryon-xF-pT2-parm">      false                           </param>
+     <param type="bool"   name="reweight-phase-space-decays"> false                           </param>
+  </param_set>
+
+  <param_set name="Old-Decaying"> 
+     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
+     <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
+     <param type="bool"   name="force-decays">                true                            </param>
+     <param type="string" name="decayer-alg-name">            genie::PythiaDecayer            </param>
+     <param type="string" name="decayer-param-set">           Default                         </param>
+     <param type="bool"   name="use-baryon-xF-pT2-parm">      false                           </param>
+     <param type="bool"   name="reweight-phase-space-decays"> false                           </param>
   </param_set>
 
 </alg_conf>
