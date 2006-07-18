@@ -73,7 +73,7 @@ private:
   TClonesArray* DecayMethod2    (double W, const vector<int> & pdgv) const;
   TClonesArray* DecayBackToBack (double W, const vector<int> & pdgv) const;
 
-  void PhaseSpaceDecay(
+  bool PhaseSpaceDecay(
              TClonesArray & pl, TLorentzVector & pd, 
 	                     const vector<int> & pdgv, int offset=0) const;
 
@@ -85,6 +85,7 @@ private:
   const MultiplicityProbModelI * fMultProbModel;
   const DecayModelI *            fDecayer;
 
+  double fPhSpRwA;             ///< parameter for phase space decay reweighting
   double fPpi0;                ///< pi0 pi0 production probability
   double fPpic;                ///< pi+ pi- production probability
   double fPKc;                 ///< K+  K- production probability
