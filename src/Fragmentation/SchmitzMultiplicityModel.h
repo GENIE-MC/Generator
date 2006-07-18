@@ -49,10 +49,12 @@ public:
 
 private:
 
-  void   LoadConfig    (void);
-  void   CreateProbHist(double maxmult) const;
-  double SelectOffset  (const Interaction * i) const;
-  void   ApplyRijk     (const Interaction * i, bool norm=true) const;
+  void   LoadConfig     (void);
+  void   CreateProbHist (double maxmult) const;
+  double AverageChMult  (int nu_pdg, int nuc_pdg, double W) const;
+  double KNO            (int nu_pdg, int nuc_pdg, double z) const;
+  double SelectOffset   (const Interaction * i) const;
+  void   ApplyRijk      (const Interaction * i, bool norm=true) const;
 
   // computed multiplicity probability distribution
   mutable TH1D * fMultProb;
@@ -62,23 +64,30 @@ private:
   // KNO distribution
   Spline * fKNO;
 
-  // parameters controling the average multiplicity for given W
+  //! flags
+  bool fForceNeuGenLimit;   ///< force upper hadronic multiplicity to NeuGEN limit
+  bool fApplyRijk;          ///< apply multiplicity probability scaling factors
+  bool fRenormalize;        ///< re-normalize after applying scaling factors
+  bool fUseLegacyKNOSpline; ///< use legacy spline instead of Levy
+
+  //! parameters controling the average multiplicity for given W
   double fAvp;
   double fAvn;
   double fAvbp;
   double fAvbn;
   double fB;
 
-  // flags
-  bool fForceNeuGenLimit; ///< force upper hadronic multiplicity to NeuGEN limit
-  bool fApplyRijk;        ///< apply multiplicity probability scaling factors
-  bool fRenormalize;      ///< re-normalize after applying scaling factors
+  //! Levy function parameter c
+  double fCvp;
+  double fCvn;
+  double fCvbp;
+  double fCvbn;
 
-  // under the DIS/RES joining scheme, multiplicity probability scaling 
-  // factors would be applied for W<Wcut
+  //! under the DIS/RES joining scheme, multiplicity probability scaling 
+  //! factors would be applied for W<Wcut
   double fWcut;
 
-  // NEUGEN's low-multiplicity probability scaling parameters
+  //! NEUGEN's low-multiplicity probability scaling parameters
   double fRvpCCm2;   ///< vp,  CC, multiplicity = 2
   double fRvpCCm3;   ///< vp,  CC, multiplicity = 3
   double fRvpNCm2;   ///< vp,  NC, multiplicity = 2
