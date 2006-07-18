@@ -164,6 +164,9 @@ int main(int argc, char ** argv)
   hadnt->Branch("xF",     br_xF,    "xF[n]/F");
   hadnt->Branch("z",      br_z,     "z[n]/F");
 
+  const int nnull_max=100;
+  int nnull=0;
+
   // CC/NC loop
   for(int iccnc=0; iccnc<2; iccnc++) { 
     InteractionType_t it = (CcNc[iccnc]==1) ? kIntWeakCC : kIntWeakNC;
@@ -196,8 +199,14 @@ int main(int argc, char ** argv)
 
              for(int in=0; in<gNEvents; in++) {
                 TClonesArray * plist = model->Hadronize(&intr);
-                assert(plist);
 
+                if(!plist) {
+                 // don't count the current event and repeat
+                 in--;
+                 nnull++;
+                 if(nnull>nnull_max) exit(1);
+                 continue;
+                }
                 br_iev  = in;
                 br_nuc  = NucCode[inuc];
                 br_neut = NuCode[inu];
