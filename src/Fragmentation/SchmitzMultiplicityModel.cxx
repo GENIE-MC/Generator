@@ -59,6 +59,10 @@ const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
   SLOG("Schmitz", pDEBUG)<< "Resetting multiplicity probability distribution";
   fMultProb->Reset();
 
+  const InitialState & init_state = interaction->GetInitialState();
+  int nu_pdg  = init_state.GetProbePDGCode();
+  int nuc_pdg = init_state.GetTarget().StruckNucleonPDGCode();
+
   // Compute the average charged hadron multiplicity as: <n> = a + b*ln(W^2)
   // Calculate avergage hadron multiplicity (= 1.5 x charged hadron mult.)
 
@@ -70,9 +74,8 @@ const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
     return *fMultProb;
   }
 
-  double alpha = this->SelectOffset(interaction);
-  double avn   = alpha + fB * 2*TMath::Log(W);
-  avn *= 1.5;
+  double avnch = this->AverageChMult(nu_pdg, nuc_pdg, W);
+  double avn   = 1.5*avnch;
 
   SLOG("Schmitz", pINFO) 
              << "Average hadronic multiplicity (W=" << W << ") = " << avn;
@@ -80,9 +83,14 @@ const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
   // Find the maximum multiplicity as W = Mneutron + (maxmult-1)*Mpion
   double maxmult = TMath::Floor(1 + (W-kNeutronMass)/kPionMass);
 
-  // If required force the NeuGEN maximum multiplicity limit
+  // If required force the NeuGEN maximum multiplicity limit (10)
   // Note: use for NEUGEN/GENIE comparisons, not physics MC production
   if(fForceNeuGenLimit & maxmult>10) maxmult=10;
+
+  // Set maximum multiplicity so that it does not exceed the max number of
+  // particles accepted by the ROOT phase space decayer (18)
+  // Change this if ROOT authors remove the TGenPhaseSpace limitation.
+  if(maxmult>18) maxmult=18;
 
   SLOG("Schmitz", pDEBUG) << "Computed maximum multiplicity = " << maxmult;
 
@@ -102,14 +110,13 @@ const TH1D & SchmitzMultiplicityModel::ProbabilityDistribution(
 
     for(int i = 1; i <= nbins; i++) {
        // KNO distribution is <n>*P(n) vs n/<n>
-       double n       = fMultProb->GetBinCenter(i); // bin centre
-       double n_avn   = n/avn; // n/<n>
-       bool   inrange = n_avn > fKNO->XMin() && n_avn < fKNO->XMax();
-       double avnP    = (inrange) ? fKNO->Evaluate(n_avn) : 0; // <n>*P(n)
-       double P       = avnP / avn; // P(n)
+       double n    = fMultProb->GetBinCenter(i);  // bin centre
+       double z    = n/avn;                       // z=n/<n>
+       double avnP = this->KNO(nu_pdg,nuc_pdg,z); // <n>*P(n)
+       double P    = avnP / avn;                  // P(n)
 
        SLOG("Schmitz", pDEBUG)
-          << "n = " << n << " (n/<n> = " << n_avn
+          << "n = " << n << " (n/<n> = " << z
                             << ", <n>*P = " << avnP << ") => P = " << P;
        fMultProb->Fill(n,P);
     }
@@ -199,31 +206,49 @@ void SchmitzMultiplicityModel::ApplyRijk(
   }
 }
 //____________________________________________________________________________
-double SchmitzMultiplicityModel::SelectOffset(
-                                        const Interaction * interaction) const
+double SchmitzMultiplicityModel::KNO(int nu_pdg, int nuc_pdg, double z) const
 {
-  const InitialState & init_state = interaction->GetInitialState();
-  int nu_pdg  = init_state.GetProbePDGCode();
-  int nuc_pdg = init_state.GetTarget().StruckNucleonPDGCode();
+// Computes <n>P(n) for the input reduced multiplicity z=n/<n>
 
-  if( pdg::IsNeutrino( nu_pdg ) ) {
-      if ( pdg::IsProton(nuc_pdg)  )  return fAvp;
-      if ( pdg::IsNeutron(nuc_pdg) )  return fAvn;
-      else {
-         LOG("Schmitz", pERROR)
-                          << "PDG-Code = " << nuc_pdg << " is not a nucleon!";
-      }
-  } else  if (  pdg::IsAntiNeutrino(nu_pdg) ) {
-      if ( pdg::IsProton(nuc_pdg)  )  return fAvbp;
-      if ( pdg::IsNeutron(nuc_pdg) )  return fAvbn;
-      else {
-         LOG("Schmitz", pERROR)
-                          << "PDG-Code = " << nuc_pdg << " is not a nucleon!";
-      }
-  } else {
-    LOG("Schmitz", pERROR)<< "PDG-Code = " << nu_pdg << " is not a neutrino!";
+  if(fUseLegacyKNOSpline) {
+     bool inrange = z > fKNO->XMin() && z < fKNO->XMax();
+     return (inrange) ? fKNO->Evaluate(z) : 0.;
   }
-  return 0;        
+  assert( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) );
+  assert( pdg::IsNeutronOrProton(nuc_pdg) );
+
+  double c=0; // Levy function parameter
+
+  if      ( pdg::IsProton (nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) c=fCvp;
+  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) c=fCvn;
+  else if ( pdg::IsProton (nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) c=fCvbp;
+  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) c=fCvbn;
+  else return 0;
+
+  double x   = c*z+1;
+  double kno = 2*TMath::Exp(-c)*TMath::Power(c,x)/TMath::Gamma(x);
+
+  return kno;
+}
+//____________________________________________________________________________
+double SchmitzMultiplicityModel::AverageChMult(
+                                      int nu_pdg, int nuc_pdg, double W) const
+{
+// computes the average charged multiplicity
+//
+  assert( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) );
+  assert( pdg::IsNeutronOrProton(nuc_pdg) );
+
+  double a=0, b=fB;
+
+  if      ( pdg::IsProton (nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) a=fAvp;
+  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) a=fAvn;
+  else if ( pdg::IsProton (nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) a=fAvbp;
+  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) a=fAvbn;
+  else return 0;
+
+  double av_nch = a + b * 2*TMath::Log(W);
+  return av_nch;        
 }
 //____________________________________________________________________________
 void SchmitzMultiplicityModel::CreateProbHist(double maxmult) const
@@ -265,13 +290,18 @@ void SchmitzMultiplicityModel::LoadConfig(void)
 
   assert(gSystem->Getenv("GENIE"));
 
-  string basedir    = gSystem->Getenv("GENIE");
-  string defknodata = basedir + "/data/kno/KNO.dat";
-  string knodata    = fConfig->GetStringDef("kno-data",defknodata);
+  // Use legacy KNO spline
+  fUseLegacyKNOSpline = fConfig->GetBoolDef("use-legacy-kno-spline", false);
 
-  LOG("Schmitz", pNOTICE) << "Loading KNO data from: " << knodata;
+  if(fUseLegacyKNOSpline) {
+     string basedir    = gSystem->Getenv("GENIE");
+     string defknodata = basedir + "/data/kno/KNO.dat";
+     string knodata    = fConfig->GetStringDef("kno-data",defknodata);
 
-  fKNO = new Spline(knodata);
+     LOG("Schmitz", pNOTICE) << "Loading KNO data from: " << knodata;
+
+     fKNO = new Spline(knodata);
+  }
 
   // Load parameters determining the average multiplicity
   fAvp  = fConfig->GetDoubleDef("alpha-vp",  gc->GetDouble("KNO-Alpha-vp") );
@@ -279,6 +309,12 @@ void SchmitzMultiplicityModel::LoadConfig(void)
   fAvbp = fConfig->GetDoubleDef("alpha-vbp", gc->GetDouble("KNO-Alpha-vbp")); 
   fAvbn = fConfig->GetDoubleDef("alpha-vbn", gc->GetDouble("KNO-Alpha-vbn"));
   fB    = fConfig->GetDoubleDef("beta",      gc->GetDouble("KNO-Beta")     );
+
+  // Load the Levy function parameter
+  fCvp  = fConfig->GetDoubleDef("levy-c-vp",  gc->GetDouble("KNO-LevyC-vp") );
+  fCvn  = fConfig->GetDoubleDef("levy-c-vn",  gc->GetDouble("KNO-LevyC-vn") ); 
+  fCvbp = fConfig->GetDoubleDef("levy-c-vbp", gc->GetDouble("KNO-LevyC-vbp")); 
+  fCvbn = fConfig->GetDoubleDef("levy-c-vbn", gc->GetDouble("KNO-LevyC-vbn"));
 
   // Force NEUGEN upper limit in hadronic multiplicity (to be used only
   // NEUGEN/GENIE comparisons)
