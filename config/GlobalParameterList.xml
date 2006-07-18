@@ -146,12 +146,6 @@
 
  <!-- 
   *********************************************************************       
-  Data for building the KNO spline 
-  ********************************************************************* -->
-  <param type="string" name="KNO-Distribution"> data/kno/KNO.dat </param>
-
- <!-- 
-  *********************************************************************       
   Parameters controlling the hadronic multiplicities in the KNO model
   ********************************************************************* -->
   <param type="double" name="KNO-Beta">      1.30 </param> 
@@ -159,6 +153,20 @@
   <param type="double" name="KNO-Alpha-vn">  0.00 </param> 
   <param type="double" name="KNO-Alpha-vbp"> 0.20 </param> 
   <param type="double" name="KNO-Alpha-vbn"> 0.20 </param> 
+
+ <!-- 
+  *********************************************************************       
+  Levy function (KNO parameterization) parameter c
+  kno(z) = 2*exp(-c)*pow(c,cz+1)/Gamma(cz+1)
+  v+p    : 7.93 +/- 0.34 source: Tingjun's fit
+  v+n    : 5.22 +/- 0.15 source: Tingjun's fit
+  vbar+p : 6.25 +/- 0.17 source: N.Schmitz
+  vbar+n : 5.2           source: guess
+  ********************************************************************* -->
+  <param type="double" name="KNO-LevyC-vp">  7.93 </param> 
+  <param type="double" name="KNO-LevyC-vn">  5.22 </param> 
+  <param type="double" name="KNO-LevyC-vbp"> 6.25 </param> 
+  <param type="double" name="KNO-LevyC-vbn"> 5.20 </param> 
      
  <!-- 
   *********************************************************************       
