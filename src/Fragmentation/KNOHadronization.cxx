@@ -437,7 +437,13 @@ void KNOHadronization::PhaseSpaceDecay(
 
   // Set the decay
   bool permitted = fPhaseSpaceGenerator.SetDecay(pd, pdgv.size(), mass);
-  assert(permitted);
+  if(!permitted) {
+     LOG("KNOHad", pFATAL) 
+       << " *** Phase space decay is not permitted \n"
+       << " Total particle mass = " << sum << "\n"
+       << " Decaying system p4 = " << utils::print::P4AsString(&pd);
+     exit(1);
+  }
 
   // Get the maximum weight
   //double wmax = fPhaseSpaceGenerator.GetWtMax();
