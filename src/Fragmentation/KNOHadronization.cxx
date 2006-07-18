@@ -212,6 +212,10 @@ TClonesArray * KNOHadronization::Hadronize(
     LOG("KNOHad", pNOTICE) 
         << "Failed decaying a hadronic system @ W=" << W 
                                              << "with  multiplicity=" << mult;
+
+    // clean-up and exit
+    delete pdgcv;
+    return 0;
   }
 
   // handle unstable particle decays (if requested)
@@ -219,8 +223,6 @@ TClonesArray * KNOHadronization::Hadronize(
 
   // the container 'owns' its elements
   particle_list->SetOwner(true);
-
-  delete pdgcv;
 
   return particle_list;
 }
@@ -236,8 +238,14 @@ TClonesArray * KNOHadronization::DecayMethod1(
   TLorentzVector p4had(0,0,0,W);
   TClonesArray * plist = new TClonesArray("TMCParticle", pdgv.size());
 
-  this->PhaseSpaceDecay(*plist, p4had, pdgv); // do the decay
+  bool ok = this->PhaseSpaceDecay(*plist, p4had, pdgv); // do the decay
 
+  // clean-up and return NULL
+  if(!ok) {
+     plist->Delete();
+     delete plist;
+     return 0;
+  }
   return plist;
 }
 //____________________________________________________________________________
@@ -329,8 +337,14 @@ TClonesArray * KNOHadronization::DecayMethod2(
     1,baryon,-1,-1,-1, p4N.Px(),p4N.Py(),p4N.Pz(),p4N.Energy(),MN, 0,0,0,0,0);
 
   // Do a phase space decay for the N-1 particles and add them to the list
-  this->PhaseSpaceDecay(*plist, p4d, pdgv_stripped, 1);
+  bool ok = this->PhaseSpaceDecay(*plist, p4d, pdgv_stripped, 1);
 
+  // clean-up and return NULL
+  if(!ok) {
+     plist->Delete();
+     delete plist;
+     return 0;
+  }
   return plist;
 }
 //____________________________________________________________________________
@@ -408,7 +422,7 @@ TClonesArray * KNOHadronization::DecayBackToBack(
   return plist;
 }
 //____________________________________________________________________________
-void KNOHadronization::PhaseSpaceDecay(
+bool KNOHadronization::PhaseSpaceDecay(
 	   TClonesArray & plist, TLorentzVector & pd, 
        	                          const vector<int> & pdgv, int offset) const
 {
@@ -438,11 +452,14 @@ void KNOHadronization::PhaseSpaceDecay(
   // Set the decay
   bool permitted = fPhaseSpaceGenerator.SetDecay(pd, pdgv.size(), mass);
   if(!permitted) {
-     LOG("KNOHad", pFATAL) 
+     LOG("KNOHad", pERROR) 
        << " *** Phase space decay is not permitted \n"
        << " Total particle mass = " << sum << "\n"
        << " Decaying system p4 = " << utils::print::P4AsString(&pd);
-     exit(1);
+
+     // clean-up and return
+     delete [] mass;
+     return false;
   }
 
   // Get the maximum weight
@@ -479,7 +496,15 @@ void KNOHadronization::PhaseSpaceDecay(
      while(!accept_decay) 
      {
        itry++;
-       assert(itry<kMaxUnweightDecayIterations);
+
+       if(itry>kMaxUnweightDecayIterations) {
+         // report, clean-up and return
+         LOG("KNOHad", pWARN) 
+             << "Couldn't generate an unweighted phase space decay after " 
+             << itry << " attempts";
+         delete [] mass;
+         return false;
+       }
 
        double w  = fPhaseSpaceGenerator.Generate();   
        w *= this->ReWeightPt2(pdgv); 
@@ -524,10 +549,19 @@ void KNOHadronization::PhaseSpaceDecay(
 
   // Clean-up
   delete [] mass;
+
+  return true;
 }
 //____________________________________________________________________________
 double KNOHadronization::ReWeightPt2(const vector<int> & pdgcv) const
 {
+// Phase Space Decay re-weighting to reproduce exp(-pT2/<pT2>) pion pT2 
+// distributions.
+// See: A.B.Clegg, A.Donnachie, A Description of Jet Structure by pT-limited
+// Phase Space.
+
+  if(!fReWeightDecays) return 1.;
+
   double w = 1;
 
   for(unsigned int i = 0; i < pdgcv.size(); i++) {
@@ -538,8 +572,10 @@ double KNOHadronization::ReWeightPt2(const vector<int> & pdgcv) const
 
      TLorentzVector * p4 = fPhaseSpaceGenerator.GetDecay(i); 
      double pt2 = TMath::Power(p4->Px(),2) + TMath::Power(p4->Py(),2);
+     double wi  = TMath::Exp(-fPhSpRwA*TMath::Sqrt(pt2));
+     //double wi = (9.41 * TMath::Landau(pt2,0.24,0.12));
 
-     w *= (9.41 * TMath::Landau(pt2,0.24,0.12));
+     w *= wi;
   }
   return w;
 }
@@ -632,6 +668,10 @@ void KNOHadronization::LoadConfig(void)
                    "0.049889-0.116769*x-0.033949*x*x+0.146209*x*x*x",-1,0.5);  
   fBaryonPT2pdf = new TF1("fBaryonPT2pdf", "exp(-0.213362-6.62464*x)",0,0.6);  
 
+  // Parameter for phase space re-weighting. See ReWeightPt2()
+
+  fPhSpRwA = fConfig->GetDoubleDef(
+           "phase-space-reweighting-param", gc->GetDouble("KNO-PhSpRwParm")); 
 
   LOG("KNOHad", pINFO) << *fConfig;
 }
