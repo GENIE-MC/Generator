@@ -5,19 +5,20 @@ Configuration for the KNOHadronization HadronizationModelI
 
 Algorithm Configurable Parameters:
 .......................................................................................................................
-Name                         Type    Opt   Comment                                       Default
+Name                          Type    Opt   Comment                                       Default
 .......................................................................................................................
-multiplicity-prob-alg-name   string  No    multiplicity probability algorithm...
-multiplicity-prob-param-set  string  No    ...and its config set
-prob-fs-pi0-pair             double  Yes   probability for pi0 pair                      GPL KNO-ProbPi0Pi0
-prob-fs-piplus-piminus       double  Yes   probability for pi+pi- pair                   GPL KNO-ProbPiplusPiminus
-prob-fs-Kplus-Kminus         double  Yes   probability for K+K- pair                     GPL KNO-ProbKplusKminus
-prob-fs-K0-K0bar             double  Yes   probability for K0 K0bar pair                 GPL KNO-ProbK0K0bar
-force-decays                 bool    Yes   force decays of unstable particles            false   
-force-min-multiplicity       bool    Yes   force a minimum multiplicity of 2             true
-generate-weighted            bool    Yes   generate weighted events                      false
-use-baryon-xF-pT2-parm       bool    Yes   use a baryon pT^2, xF parameterization        true
-reweight-phase-space-decays  bool    Yes   reweight decays to to reproduce exp pT2       true
+multiplicity-prob-alg-name    string  No    multiplicity probability algorithm...
+multiplicity-prob-param-set   string  No    ...and its config set
+prob-fs-pi0-pair              double  Yes   probability for pi0 pair                      GPL KNO-ProbPi0Pi0
+prob-fs-piplus-piminus        double  Yes   probability for pi+pi- pair                   GPL KNO-ProbPiplusPiminus
+prob-fs-Kplus-Kminus          double  Yes   probability for K+K- pair                     GPL KNO-ProbKplusKminus
+prob-fs-K0-K0bar              double  Yes   probability for K0 K0bar pair                 GPL KNO-ProbK0K0bar
+force-decays                  bool    Yes   force decays of unstable particles            false   
+force-min-multiplicity        bool    Yes   force a minimum multiplicity of 2             true
+generate-weighted             bool    Yes   generate weighted events                      false
+use-baryon-xF-pT2-parm        bool    Yes   use a baryon pT^2, xF parameterization        true
+reweight-phase-space-decays   bool    Yes   reweight decays to to reproduce exp pT2       true
+phase-space-reweighting-param double  Yes   parameter controlling the reweight function   GPL KNO-PhSpRwParm
 -->
 
 <alg_conf>

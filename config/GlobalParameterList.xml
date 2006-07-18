@@ -179,6 +179,14 @@
 
  <!-- 
   *********************************************************************       
+  Parameter controlling the KNO phase space decay reweighting. See:
+  A.B.Clegg, A.Donnachie, A Description of Jet Structure by pT-limited
+  Phase Space.
+  ********************************************************************* -->
+  <param type="double" name="KNO-PhSpRwParm"> 3.5 </param>
+
+ <!-- 
+  *********************************************************************       
   Parameters controlling the PYTHIA hadronization model    
   ssbar:   [PYTHIA def:0.30    ] [NUX tune:0.21    ]
   pt2:     [PYTHIA def:0.36 GeV] [NUX tune:0.44 GeV]
