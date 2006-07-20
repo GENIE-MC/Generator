@@ -619,6 +619,7 @@ double genie::utils::kinematics::RESImportanceSamplingEnvelope(
   double gD    = par[1]; // resonance width
   double xsmax = par[2]; // safety factor * max cross section in (W,Q2)
   double Wmax  = par[3]; // kinematically allowed Wmax
+  double E     = par[4]; // neutrino energy
 
   double func = 0;
 
@@ -627,14 +628,16 @@ double genie::utils::kinematics::RESImportanceSamplingEnvelope(
      // -- the envelope is defined as a plateau above the resonance peak,
      // -- a steeply falling leading edge (low-W side) and a more slowly
      // -- falling trailing edge (high-W side)
-     if(W < mD-gD/2) {
+
+     double hwfe = mD+gD/2; // high W falling edge
+     double lwfe = mD-gD/2; // low  W falling edge
+
+     if(W < lwfe) {
        //low-W falling edge
-       double plateau_edge = mD-gD/2;
-       func = xsmax / (1 + 5* TMath::Power((W-plateau_edge)/gD,2));
-     } else if (W > mD+gD/2) {
+       func = xsmax / (1 + 5* TMath::Power((W-lwfe)/gD,2));
+     } else if (W > hwfe) {
        //high-W falling edge
-       double plateau_edge = mD+gD/2;
-       func = xsmax / (1 + 2 * TMath::Power((W-plateau_edge)/gD,2));
+       func = xsmax / (1 + 2 * TMath::Power((W-hwfe)/gD,2));
      } else {
        // plateau
        func = xsmax;
@@ -643,12 +646,14 @@ double genie::utils::kinematics::RESImportanceSamplingEnvelope(
      // -- if the resonance mass is above the kinematical range then the
      // -- envelope is a small plateau just bellow Wmax and a falling edge
      // -- at lower W
-     if (W > Wmax-0.1) {
+
+     double plateau_edge = Wmax-0.1;
+
+     if (W > plateau_edge) {
        // plateau
        func = xsmax;
      } else {
        //low-W falling edge
-       double plateau_edge = Wmax-0.1;
        func = xsmax / (1 + TMath::Power((W-plateau_edge)/gD,2));
      } 
   }
