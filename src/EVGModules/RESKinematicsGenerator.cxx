@@ -82,6 +82,9 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      throw exception;
   }
 
+  const InitialState & init_state = interaction -> GetInitialState();
+  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
   //   cache. Throw an exception and quit the evg thread if a non-positive
@@ -150,7 +153,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          else {
            Resonance_t res = interaction->GetExclusiveTag().Resonance();
            mR=res::Mass(res);
-           gR=0.220;
+           gR= (E>mR) ? 0.220 : 0.400;
          }
 
          fEnvelope->SetRange(QD2min,Wmin,QD2max,Wmax); // range
@@ -158,6 +161,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          fEnvelope->SetParameter(1,  gR);              // resonance width
          fEnvelope->SetParameter(2,  xsec_max);        // max differential xsec
          fEnvelope->SetParameter(3,  Wmax);            // kinematically allowed Wmax
+         fEnvelope->SetParameter(4,  E);       
 	 //envelope->SetNpy(150); 
        }
 
@@ -204,8 +208,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // compute x,y for selected W,Q2
         // note: hit nucleon can be off the mass-shell
         double gx=-1, gy=-1;
-        const InitialState & init_state = interaction->GetInitialState();
-        double E = init_state.GetProbeE(kRfStruckNucAtRest);
         double M = init_state.GetTarget().StruckNucleonP4()->M();
         //double M = init_state.GetTarget().StruckNucleonMass();
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
@@ -353,79 +355,139 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 // maximum. The number used in the rejection method will be scaled up by a
 // safety factor. But this needs to be fast - do not use a very fine grid.
 
-  double max_xsec = 0.;
+  double max_xsec   = 0.;
 
   const InitialState & init_state = interaction -> GetInitialState();
   double E = init_state.GetProbeE(kRfStruckNucAtRest);
 
   LOG("RESKinematics", pDEBUG) << "Scanning phase space for E= " << E;
 
+  double scan1d = (E>0.8);
+
   double md;
   if(!interaction->GetExclusiveTag().KnownResonance()) md=1.23;
   else {
-    Resonance_t res = interaction->GetExclusiveTag().Resonance();
-    md=res::Mass(res);
+     Resonance_t res = interaction->GetExclusiveTag().Resonance();
+     md=res::Mass(res);
   }
 
-  const int    NQ2   = 15;
-  const int    kNQ2b = 3;
-  const double MD    = md;
+  if(scan1d) {
 
-  // Set W around the value where d^2xsec/dWdQ^2 peaks
-  Range1D_t rW = this->WRange(interaction);
-  double W;
-  if(math::IsWithinLimits(MD, rW))  W = MD;
-  else {
-    if (MD>=rW.max) W = rW.max-kASmallNum;
-    else            W = rW.min+kASmallNum;
-  }
-  interaction->GetKinematicsPtr()->SetW(W);
+    // ** 1-D Scan
+    //
 
-  // Set a Q2 range, within the allowed region (inclusing user cuts), in
-  // which d^2xsec/dWdQ^2 peaks
-  Range1D_t rQ2 = this->Q2Range(interaction);
-  if( rQ2.max < kMinQ2Limit || rQ2.min <=0 ) return 0.;
+    LOG("RESKinematics", pDEBUG) 
+              << "Will search for max{xsec} along W(=MRes) = " << md;
 
-  const double logQ2min = TMath::Log(rQ2.min+kASmallNum);
-  const double logQ2max = TMath::Log(rQ2.max-kASmallNum);
-  double dlogQ2 = (logQ2max - logQ2min) /(NQ2-1);
+    // Set W around the value where d^2xsec/dWdQ^2 peaks
+    interaction->GetKinematicsPtr()->SetW(md);
 
-  double xseclast = -1;
-  bool   increasing;
+    Range1D_t rQ2 = this->Q2Range(interaction);
+    if( rQ2.max < kMinQ2Limit || rQ2.min <=0 ) return 0.;
 
-  for(int iq2=0; iq2<NQ2; iq2++) {
-     double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
-     //double Q2 = TMath::Exp(logQ2max - iq2 * dlogQ2);
-     interaction->GetKinematicsPtr()->SetQ2(Q2);
-     double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
-     LOG("RESKinematics", pDEBUG) 
+    int    NQ2      = 25;
+    int    NQ2b     = 5;
+    double logQ2min = TMath::Log(rQ2.min+kASmallNum);
+    double logQ2max = TMath::Log(rQ2.max-kASmallNum);
+    double dlogQ2 = (logQ2max - logQ2min) /(NQ2-1);
+
+    double xseclast   = -1;
+    bool   increasing = true;
+
+    for(int iq2=0; iq2<NQ2; iq2++) {
+      double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
+      interaction->GetKinematicsPtr()->SetQ2(Q2);
+      double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+      LOG("RESKinematics", pDEBUG) 
+                << "xsec(W= " << md << ", Q2= " << Q2 << ") = " << xsec;
+      max_xsec = TMath::Max(xsec, max_xsec);
+      increasing = xsec-xseclast>=0;
+      xseclast=xsec;
+
+      // once the cross section stops increasing, I reduce the step size and
+      // step backwards a little bit to handle cases that the max cross section
+      // is grossly underestimated (very peaky distribution & large step)
+      if(!increasing) {
+        dlogQ2/=NQ2b;
+        for(int iq2b=0; iq2b<NQ2b; iq2b++) {
+	  Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
+          if(Q2 < rQ2.min) continue;
+          interaction->GetKinematicsPtr()->SetQ2(Q2);
+          xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+          LOG("RESKinematics", pDEBUG) 
+                 << "xsec(W= " << md << ", Q2= " << Q2 << ") = " << xsec;
+          max_xsec = TMath::Max(xsec, max_xsec);
+        }
+        break;
+      }
+    } // Q2
+
+  } else {
+
+    // ** 2-D Scan
+    //
+
+    Range1D_t rW = this->WRange(interaction);
+
+    int    NW   = 10;
+    double Wmin = rW.min + kASmallNum;
+    double Wmax = rW.max - kASmallNum;
+    double dW   = (Wmax-Wmin)/(NW-1);
+
+    if(Wmax-Wmin<0.05) { NW=1; Wmin=Wmax; }
+
+    for(int iw=0; iw<NW; iw++) {
+      double W = Wmin + iw*dW;
+      interaction->GetKinematicsPtr()->SetW(W);
+
+      int NQ2  = 15;
+      int NQ2b =  4;
+
+      Range1D_t rQ2 = this->Q2Range(interaction);
+
+      if( rQ2.max < kMinQ2Limit || rQ2.min <=0 ) continue;
+      if( rQ2.max-rQ2.min<0.02 ) {NQ2=5; NQ2b=3;}
+
+      double logQ2min   = TMath::Log(rQ2.min+kASmallNum);
+      double logQ2max   = TMath::Log(rQ2.max-kASmallNum);
+      double dlogQ2     = (logQ2max - logQ2min) /(NQ2-1);
+      double xseclast   = -1;
+      bool   increasing = true;
+
+      for(int iq2=0; iq2<NQ2; iq2++) {
+        double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
+        interaction->GetKinematicsPtr()->SetQ2(Q2);
+        double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+        LOG("RESKinematics", pDEBUG) 
                 << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
-     max_xsec = TMath::Max(xsec, max_xsec);
-     increasing = xsec-xseclast>=0;
-     xseclast=xsec;
+        max_xsec = TMath::Max(xsec, max_xsec);
+        increasing = xsec-xseclast>=0;
+        xseclast=xsec;
 
-     // once the cross section stops increasing, I reduce the step size and
-     // step backwards a little bit to handle cases that the max cross section
-     // is grossly underestimated (very peaky distribution & large step)
-     if(!increasing) {
-       dlogQ2/=kNQ2b;
-       for(int iq2b=0; iq2b<kNQ2b; iq2b++) {
-	 Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
-         if(Q2 < rQ2.min) continue;
-         interaction->GetKinematicsPtr()->SetQ2(Q2);
-         xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
-         LOG("RESKinematics", pDEBUG) 
-                << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
-         max_xsec = TMath::Max(xsec, max_xsec);
-       }
-       break;
-     }
-  } // Q2
+        // once the cross section stops increasing, I reduce the step size and
+        // step backwards a little bit to handle cases that the max cross section
+        // is grossly underestimated (very peaky distribution & large step)
+        if(!increasing) {
+         dlogQ2/=NQ2b;
+         for(int iq2b=0; iq2b<NQ2b; iq2b++) {
+	   Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
+           if(Q2 < rQ2.min) continue;
+           interaction->GetKinematicsPtr()->SetQ2(Q2);
+           xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+           LOG("RESKinematics", pDEBUG) 
+                 << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
+           max_xsec = TMath::Max(xsec, max_xsec);
+         }
+         break;
+	}
+      } // Q2
+    }//W
+  }//2d scan
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy
   // Apply larger safety factor for smaller energies.
-  max_xsec *= ( (E<0.8) ? 2. : fSafetyFactor);
+  max_xsec *= ( (E<md) ? 2. : fSafetyFactor);
 
   LOG("RESKinematics", pDEBUG) << interaction->AsString();
   LOG("RESKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
