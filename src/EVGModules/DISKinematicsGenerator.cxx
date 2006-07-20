@@ -348,7 +348,12 @@ double DISKinematicsGenerator::ComputeMaxXSec(
     Nx  = 80;
     Nxb = 10;
   }
- 
+
+  if(tgt.StruckQuarkIsSet() && tgt.StruckQuarkIsFromSea()) {
+    xpeak    = .1;
+    xwindow  = .1;
+  }
+
   double xmin    = TMath::Max(xpeak-xwindow, fXmin);
   double xmax    = TMath::Min(xpeak+xwindow, fXmax);
   double ymin    = TMath::Max(ypeak-ywindow, fYmin);
