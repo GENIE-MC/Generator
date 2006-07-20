@@ -28,6 +28,7 @@ max-xsec-diff-tolerance  double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsec
      <param type="string" name="xsec-param-set">           Default                     </param>
      <param type="double" name="max-xsec-safety-factor">   1.400                       </param>
      <param type="double" name="min-energy-cached">        0.900                       </param>
+     <param type="double" name="max-xsec-diff-tolerance">  5.000                       </param>
   </param_set>
 
   <param_set name="SPP"> 
