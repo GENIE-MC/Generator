@@ -31,20 +31,21 @@ namespace genie {
 class CollinsSpillerFragm : public FragmentationFunctionI {
 
 public:
-
   CollinsSpillerFragm();
   CollinsSpillerFragm(string config);
   ~CollinsSpillerFragm();
 
-  //-- implements the FragmentationFunctionI interface
-
+  //! implements the FragmentationFunctionI interface
   double Value     (double z) const;
   double GenerateZ (void)     const;
 
+  //! methods overloading the Algorithm() interface implementation
+  //! to build the fragmentation function from configuration data
+  void Configure(const Registry & config);
+  void Configure(string config);
+
 private:
-
   void BuildFunction (void);
-
   TF1 * fFunc;
 };
 

@@ -35,9 +35,11 @@ public:
   virtual ~KNOPythiaHadronization();
 
   //! implement the HadronizationModelI interface
-  void           Initialize   (void)                 const;
-  TClonesArray * Hadronize    (const Interaction * ) const;
-  double         Weight       (void)                 const;
+  void           Initialize       (void)                                 const;
+  TClonesArray * Hadronize        (const Interaction* )                  const;
+  double         Weight           (void)                                 const;
+  PDGCodeList *  SelectParticles  (const Interaction*)                   const;
+  TH1D *         MultiplicityProb (const Interaction*, Option_t* opt="") const;
 
   //! overload the Algorithm::Configure() methods to load private data
   //! members from configuration options
@@ -48,8 +50,7 @@ private:
 
   void LoadConfig (void);
 
-  //! methods for specific transition methods
-  TClonesArray * LinearTransitionWindowMethod(const Interaction *) const;
+  const HadronizationModelI * SelectHadronizer(const Interaction *) const;
 
   mutable double fWeight;
 

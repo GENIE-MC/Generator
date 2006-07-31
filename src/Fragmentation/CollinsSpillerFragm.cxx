@@ -15,7 +15,7 @@
 //____________________________________________________________________________
 
 #include "Fragmentation/CollinsSpillerFragm.h"
-#include "Fragmentation/fragmentation_functions.h"
+#include "Fragmentation/FragmentationFunctions.h"
 
 using namespace genie;
 
@@ -39,41 +39,50 @@ CollinsSpillerFragm::~CollinsSpillerFragm()
 //___________________________________________________________________________
 double CollinsSpillerFragm::Value(double z) const
 {
-  //-- get fragmentation function parameters from the config. registry
+// Evaluate the fragmentation function
 
-  double N = (fConfig->Exists("norm"))    ? fConfig->GetDouble("norm")    : 0;
-  double e = (fConfig->Exists("epsilon")) ? fConfig->GetDouble("epsilon") : 0;
-
-  //-- evaluate the fragmentation function
-
-  assert( z > 0 && z < 1);
-
-  fFunc->SetParameters(N,e);
-
-  double D = fFunc->Eval(z);
-
-  return D;
+  if(z<0 || z>1) return 0;
+  return fFunc->Eval(z);
 }
 //___________________________________________________________________________
 double CollinsSpillerFragm::GenerateZ(void) const
 {
-  //-- get fragmentation function parameters from the config. registry
+// Return a random number using the fragmentation function as PDF
 
-  double N = (fConfig->Exists("norm"))    ? fConfig->GetDouble("norm")    : 0;
-  double e = (fConfig->Exists("epsilon")) ? fConfig->GetDouble("epsilon") : 0;
-
-  fFunc->SetParameters(N,e);
-
-  double Rndm = fFunc->GetRandom();
-
-  return Rndm;
+  return fFunc->GetRandom();
+}
+//___________________________________________________________________________
+void CollinsSpillerFragm::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->BuildFunction();
+}
+//___________________________________________________________________________
+void CollinsSpillerFragm::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->BuildFunction();
 }
 //___________________________________________________________________________
 void CollinsSpillerFragm::BuildFunction(void)
 {
-  fFunc = new TF1("fFunc",genie::collins_spiller_fragmentation_function,0,1,2);
+  fFunc = new TF1("fFunc",genie::utils::frgmfunc::collins_spiller_func,0,1,2);
 
   fFunc->SetParNames("Norm","Epsilon");
+
+  double N = fConfig->GetDoubleDef("norm",   -1);
+  double e = fConfig->GetDoubleDef("epsilon", 0);
+
+  // if the normalization parameter was left negative, explicitly normalize
+  // the fragmentation function
+  if(N<0) {
+    N=1;
+    fFunc->SetParameters(N,e);
+    double I = fFunc->Integral(0,1);
+    assert(I>0);
+    N = 1./I;
+  } 
+  fFunc->SetParameters(N,e);
 }
 //___________________________________________________________________________
 

@@ -16,8 +16,11 @@
 
 #include <cstdlib>
 
+#include <TSystem.h>
 #include <TLorentzVector.h>
+#include <TClonesArray.h>
 #include <TMCParticle6.h>
+#include <TH1D.h>
 #include <TMath.h>
 #include <TF1.h>
 
@@ -27,12 +30,15 @@
 #include "Conventions/Controls.h"
 #include "Decay/DecayModelI.h"
 #include "Fragmentation/KNOHadronization.h"
-#include "Fragmentation/MultiplicityProbModelI.h"
+#include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+#include "Numerical/Spline.h"
 #include "PDG/PDGLibrary.h"
+#include "PDG/PDGCodeList.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Utils/KineUtils.h"
 #include "Utils/PrintUtils.h"
 
 using namespace genie;
@@ -42,24 +48,29 @@ using namespace genie::utils::print;
 
 //____________________________________________________________________________
 KNOHadronization::KNOHadronization() :
-HadronizationModelI("genie::KNOHadronization")
+HadronizationModelBase("genie::KNOHadronization")
 {
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
+  fKNO          = 0;
 }
 //____________________________________________________________________________
 KNOHadronization::KNOHadronization(string config) :
-HadronizationModelI("genie::KNOHadronization", config)
+HadronizationModelBase("genie::KNOHadronization", config)
 {
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
+  fKNO          = 0;
 }
 //____________________________________________________________________________
 KNOHadronization::~KNOHadronization()
 {
   if (fBaryonXFpdf ) delete fBaryonXFpdf;
   if (fBaryonPT2pdf) delete fBaryonPT2pdf;
+  if (fKNO         ) delete fKNO;
 }
+//____________________________________________________________________________
+// HadronizationModelI interface implementation:
 //____________________________________________________________________________
 void KNOHadronization::Initialize(void) const
 {
@@ -72,43 +83,88 @@ TClonesArray * KNOHadronization::Hadronize(
 // Generate the hadronic system in a neutrino interaction using a KNO-based 
 // model. 
 
-  unsigned int min_mult = 2;
-  unsigned int mult     = 0;
-  vector<int> * pdgcv   = 0;
-
-  //----- Available invariant mass
-  double W = interaction->GetKinematics().W();
-  LOG("KNOHad", pINFO) << "W = " << W << " GeV";
-
-  if(W <= kNucleonMass+kPionMass) {
-     LOG("KNOHad", pWARN) 
-        << "Low invariant mass, W = " << W << " GeV! Returning a null list";
+  if(!this->AssertWMin(interaction)) {
+     LOG("KNOHad", pWARN) << "Returning a null particle list!";
      return 0;
   }
 
-  //----- Init event weight (to be set if producing weighted events)
-  fWeight = 1.;
+  double W = interaction->GetKinematics().W();
+  LOG("KNOHad", pINFO) << "W = " << W << " GeV";
 
-  //----- Get the charge that the hadron shower needs to have so as to
-  //      conserve charge in the interaction
+  //-- Select hadronic shower particles
+  PDGCodeList * pdgcv = this->SelectParticles(interaction);
 
+  //-- Decay the hadronic final state
+  //   Two stratefies are considered (for N particles):
+  //   1- N (>=2) particles get passed to the phase space decayer. This is the
+  //      old NeuGEN strategy.
+  //   2- The generated baryon P4 gets selected from from experimental xF and 
+  //      pT^2 distributions and the remaining N-1 particles are passed to the
+  //      phase space decayer, with P4 = P4(Sum_Hadronic) - P4(Baryon).
+  //      For N=2, the meson P4 would be generated from the baryon P4 and 
+  //      energy/momentrum conservation only. This is decay strategy adopted
+  //      at the July-2006 hadronization model mini-workshop (C.Andreopoulos,
+  //      H.Gallagher, T.Yang)
+
+  TClonesArray * particle_list = 0;
+  if(fUseBaryonXfPt2Param) particle_list = this->DecayMethod2(W,*pdgcv);
+  else                     particle_list = this->DecayMethod1(W,*pdgcv);
+
+  if(!particle_list) {
+    LOG("KNOHad", pNOTICE) 
+        << "Failed decaying a hadronic system @ W=" << W 
+        	                    << "with  multiplicity=" << pdgcv->size();
+
+    // clean-up and exit
+    delete pdgcv;
+    return 0;
+  }
+
+  //-- Handle unstable particle decays (if requested)
+  this->HandleDecays(particle_list);
+
+  //-- The container 'owns' its elements
+  particle_list->SetOwner(true);
+
+  return particle_list;
+}
+//____________________________________________________________________________
+PDGCodeList * KNOHadronization::SelectParticles(
+                                       const Interaction * interaction) const
+{
+  if(!this->AssertWMin(interaction)) {
+     LOG("KNOHad", pWARN) << "Returning a null particle list!";
+     return 0;
+  }
+
+  unsigned int min_mult = 2;
+  unsigned int mult     = 0;
+  PDGCodeList * pdgcv   = 0;
+
+  double W = interaction->GetKinematics().W();
+
+  //-- Get the charge that the hadron shower needs to have so as to
+  //   conserve charge in the interaction
   int maxQ = this->HadronShowerCharge(interaction);
   LOG("KNOHad", pINFO) << "Hadron Shower Charge = " << maxQ;
 
- //----- Build the multiplicity probabilities for the input interaction
-
+   //-- Build the multiplicity probabilities for the input interaction
   LOG("KNOHad", pDEBUG) << "Building Multiplicity Probability distribution";
   LOG("KNOHad", pDEBUG) << *interaction;
-  const TH1D & mprob = fMultProbModel->ProbabilityDistribution(interaction);
+  Option_t * opt = "+LowMultSuppr+Renormalize";
+  TH1D * mprob = this->MultiplicityProb(interaction,opt);
 
-  if(mprob.Integral("width")<=0) {
+  if(!mprob) {
+    LOG("KNOHad", pERROR) << "Null multiplicity probability distribution!";
+    return 0;
+  }
+  if(mprob->Integral("width")<=0) {
     LOG("KNOHad", pERROR) << "Empty multiplicity probability distribution!";
+    delete mprob;
     return 0;
   }
 
   //----- FIND AN ALLOWED SOLUTION FOR THE HADRONIC FINAL STATE
-
-  TLorentzVector p4(0,0,0,W);
 
   bool allowed_state=false;
   register unsigned int itry = 0;
@@ -120,13 +176,14 @@ TClonesArray * KNOHadronization::Hadronize(
     //-- Go in error if a solution has not been found after many attempts
     if(itry>kMaxKNOHadSystIterations) {
        LOG("KNOHad", pERROR) 
-         << "Couldn't generate hadronic multiplicities after: " 
-                                               << itry << " attempts!";
+         << "Couldn't select hadronic shower particles after: " 
+                                                 << itry << " attempts!";
+       delete mprob;
        return 0;
     }
 
     //-- Generate a hadronic multiplicity 
-    mult = TMath::Nint( mprob.GetRandom() );
+    mult = TMath::Nint( mprob->GetRandom() );
 
     LOG("KNOHad", pINFO) << "Hadron multiplicity  = " << mult;
 
@@ -151,6 +208,7 @@ TClonesArray * KNOHadronization::Hadronize(
       } else {
         LOG("KNOHad", pFATAL) 
            << "Generated multiplicity: " << mult << " is too low - Quitting";
+        delete mprob;
         return 0;
       }
     }
@@ -175,7 +233,8 @@ TClonesArray * KNOHadronization::Hadronize(
       msum += m;
       LOG("KNOHad", pDEBUG) << "- PDGC=" << pdgc << ", m=" << m << " GeV";
     }
-    bool permitted = (p4.Mag() > msum);
+    //    bool permitted = (p4.Mag() > msum);
+    bool permitted = (W > msum);
 
     if(!permitted) {
        LOG("KNOHad", pWARN) << "*** Decay forbidden by kinematics! ***";
@@ -192,46 +251,358 @@ TClonesArray * KNOHadronization::Hadronize(
                                               << " multiplicity=" << mult;
   } // attempts
 
+  delete mprob;
 
-  //----- DECAY HADRONIC FINAL STATE
+  return pdgcv;
+}
+//____________________________________________________________________________
+TH1D * KNOHadronization::MultiplicityProb(
+		        const Interaction * interaction, Option_t * opt) const
+{
+// Returns a multiplicity probability distribution for the input interaction.
+// The input option (Default: "") can contain (combinations) of these strings:
+//  - "+LowMultSuppr": applies NeuGEN Rijk factors suppresing the low multipl.
+//    (1-pion and 2-pion) states as part of the DIS/RES joining scheme.
+//  - "+Renormalize": renormalizes the probability distribution after applying
+//    the NeuGEN scaling factors: Eg, when used as a hadronic multiplicity pdf 
+//    the output hadronic multiplicity probability histogram needs to be re-
+//    normalized. But, when this method is called from a DIS cross section 
+//    algorithm using the integrated probability reduction as a cross section 
+//    section reduction factor then the output histogram should not be re-
+//    normalized after applying the scaling factors.
 
-  //-- Decide the hadronic system decay strategy
-  //   Options considered for N particles:
-  //   1- N (>=2) particles get passed to the phase space decayer
-  //   2- The generated baryon P4 gets selected from from experimental xF and pT^2 
-  //      distributions and the remaining N-1 particles are passed to the phase
-  //      space decayer, with P4 = P4(Sum_Hadronic) - P4(Baryon)
-  //      For N=2, the meson P4 would be generated from the baryon P4 and energy/
-  //      momentrum conservation only.
-
-  TClonesArray * particle_list = 0;
-  if(fUseBaryonXfPt2Param) particle_list = this->DecayMethod2(W,*pdgcv);
-  else                     particle_list = this->DecayMethod1(W,*pdgcv);
-
-  if(!particle_list) {
-    LOG("KNOHad", pNOTICE) 
-        << "Failed decaying a hadronic system @ W=" << W 
-                                             << "with  multiplicity=" << mult;
-
-    // clean-up and exit
-    delete pdgcv;
-    return 0;
+  if(!this->AssertWMin(interaction)) {
+     LOG("KNOHad", pWARN) 
+                << "Returning a null multiplicity probability distribution!";
+     return 0;
   }
 
-  // handle unstable particle decays (if requested)
-  this->HandleDecays(particle_list);
+  const InitialState & init_state = interaction->GetInitialState();
+  int nu_pdg  = init_state.GetProbePDGCode();
+  int nuc_pdg = init_state.GetTarget().StruckNucleonPDGCode();
 
-  // the container 'owns' its elements
-  particle_list->SetOwner(true);
+  // Compute the average charged hadron multiplicity as: <n> = a + b*ln(W^2)
+  // Calculate avergage hadron multiplicity (= 1.5 x charged hadron mult.)
 
-  return particle_list;
+  double W     = utils::kinematics::CalcW(interaction);
+  double avnch = this->AverageChMult(nu_pdg, nuc_pdg, W);
+  double avn   = 1.5*avnch;
+
+  SLOG("Schmitz", pINFO) 
+             << "Average hadronic multiplicity (W=" << W << ") = " << avn;
+
+  // Find the max possible multiplicity as W = Mneutron + (maxmult-1)*Mpion
+  double maxmult = this->MaxMult(interaction);;
+
+  // If required force the NeuGEN maximum multiplicity limit (10)
+  // Note: use for NEUGEN/GENIE comparisons, not physics MC production
+  if(fForceNeuGenLimit & maxmult>10) maxmult=10;
+
+  // Set maximum multiplicity so that it does not exceed the max number of
+  // particles accepted by the ROOT phase space decayer (18)
+  // Change this if ROOT authors remove the TGenPhaseSpace limitation.
+  if(maxmult>18) maxmult=18;
+
+  SLOG("KNOHad", pDEBUG) << "Computed maximum multiplicity = " << maxmult;
+
+  // Create multiplicity probability histogram
+  TH1D * mult_prob = this->CreateMultProbHist(maxmult);
+
+  // Compute the multiplicity probabilities values up to the bin corresponding 
+  // to the computed maximum multiplicity
+
+  if(maxmult>2) {
+    int nbins = mult_prob->FindBin(maxmult);
+
+    for(int i = 1; i <= nbins; i++) {
+       // KNO distribution is <n>*P(n) vs n/<n>
+       double n    = mult_prob->GetBinCenter(i);  // bin centre
+       double z    = n/avn;                       // z=n/<n>
+       double avnP = this->KNO(nu_pdg,nuc_pdg,z); // <n>*P(n)
+       double P    = avnP / avn;                  // P(n)
+
+       SLOG("KNOHad", pDEBUG)
+          << "n = " << n << " (n/<n> = " << z
+                            << ", <n>*P = " << avnP << ") => P = " << P;
+       mult_prob->Fill(n,P);
+    }
+  } else {
+       mult_prob->Fill(2,1.);
+  }
+
+  double integral = mult_prob->Integral("width");
+  if(integral>0) {
+    // Normalize the probability distribution
+    mult_prob->Scale(1.0/integral);
+  } else {
+    SLOG("KNOHad", pWARN) << "probability distribution integral = 0";
+    return mult_prob;
+  }
+
+  string option(opt);
+
+  bool apply_neugen_Rijk = option.find("+LowMultSuppr") != string::npos;
+  bool renormalize       = option.find("+Renormalize")  != string::npos;
+
+  // Apply the NeuGEN probability scaling factors -if requested-
+  if(apply_neugen_Rijk) {
+    SLOG("KNOHad", pINFO) << "Applying NeuGEN scaling factors";
+     // Only do so for W<Wcut
+     if(W<fWcut) {
+       this->ApplyRijk(interaction, renormalize, mult_prob);
+     } else {
+        SLOG("KNOHad", pDEBUG)  
+              << "W = " << W << " < Wcut = " << fWcut 
+                                << " - Will not apply scaling factors";
+     }//<wcut?
+  }//apply?
+
+  return mult_prob;
+}
+//____________________________________________________________________________
+double KNOHadronization::Weight(void) const
+{
+  return fWeight;
+}
+//____________________________________________________________________________
+// methods overloading the default Algorithm interface implementation:
+//____________________________________________________________________________
+void KNOHadronization::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void KNOHadronization::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+// private methods:
+//____________________________________________________________________________
+void KNOHadronization::LoadConfig(void)
+{
+// Read configuration options or set defaults
+
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  // Delete the KNO spline from previous configuration of this instance
+  if(fKNO) delete fKNO;
+
+  // Force decays of unstable hadronization products?
+  fForceDecays  = fConfig->GetBoolDef("force-decays", false);
+
+  // Force minimum multiplicity (if generated less than that) or abort?
+  fForceMinMult = fConfig->GetBoolDef("force-min-multiplicity", true);
+
+  // Generate the baryon xF and pT^2 using experimental data as PDFs? 
+  // In this case, only the N-1 other particles would be fed into the phase
+  // space decayer. This seems to improve hadronic system features such as 
+  // bkw/fwd xF hemisphere average multiplicities.
+  // Note: not in the legacy KNO model (NeuGEN). Switch this feature off for 
+  // comparisons or for reproducing old simulations.
+  fUseBaryonXfPt2Param = fConfig->GetBoolDef("use-baryon-xF-pT2-parm", true);
+
+  // Reweight the phase space decayer events to reproduce the experimentally
+  // measured pT^2 distributions.
+  // Note: not in the legacy KNO model (NeuGEN). Switch this feature off for 
+  // comparisons or for reproducing old simulations.
+  fReWeightDecays = fConfig->GetBoolDef("reweight-phase-space-decays", true);
+
+  // Generated weighted or un-weighted hadronic systems?
+  fGenerateWeighted = fConfig->GetBoolDef("generate-weighted", false);
+
+  // Probabilities for producing hadron pairs
+
+  //-- pi0 pi0
+  fPpi0 = fConfig->GetDoubleDef(
+                         "prob-fs-pi0-pair", gc->GetDouble("KNO-ProbPi0Pi0")); 
+  //-- pi+ pi-
+  fPpic = fConfig->GetDoubleDef(
+            "prob-fs-piplus-piminus", gc->GetDouble("KNO-ProbPiplusPiminus")); 
+
+  //-- K+  K-
+  fPKc  = fConfig->GetDoubleDef(
+                "prob-fs-Kplus-Kminus", gc->GetDouble("KNO-ProbKplusKminus")); 
+
+  //-- K0 K0bar
+  fPK0  = fConfig->GetDoubleDef(
+                        "prob-fs-K0-K0bar", gc->GetDouble("KNO-ProbK0K0bar")); 
+
+  // Decay unstable particles now or leave it for later? Which decayer to use?
+  fDecayer = 0;
+  if(fForceDecays) {
+      fDecayer = dynamic_cast<const DecayModelI *> (
+                       this->SubAlg("decayer-alg-name", "decayer-param-set"));
+      assert(fDecayer);
+  }
+
+  // Baryon pT^2 and xF parameterizations used as PDFs
+
+  if (fBaryonXFpdf ) delete fBaryonXFpdf;
+  if (fBaryonPT2pdf) delete fBaryonPT2pdf;
+
+  fBaryonXFpdf  = new TF1("fBaryonXFpdf",
+                   "0.049889-0.116769*x-0.033949*x*x+0.146209*x*x*x",-1,0.5);  
+  fBaryonPT2pdf = new TF1("fBaryonPT2pdf", "exp(-0.213362-6.62464*x)",0,0.6);  
+
+  // Parameter for phase space re-weighting. See ReWeightPt2()
+
+  fPhSpRwA = fConfig->GetDoubleDef(
+           "phase-space-reweighting-param", gc->GetDouble("KNO-PhSpRwParm")); 
+
+  // load legacy KNO spline
+  fUseLegacyKNOSpline = fConfig->GetBoolDef("use-legacy-kno-spline", false);
+
+  if(fUseLegacyKNOSpline) {
+     assert(gSystem->Getenv("GENIE"));
+     string basedir    = gSystem->Getenv("GENIE");
+     string defknodata = basedir + "/data/kno/KNO.dat";
+     string knodata    = fConfig->GetStringDef("kno-data",defknodata);
+
+     LOG("Schmitz", pNOTICE) << "Loading KNO data from: " << knodata;
+
+     fKNO = new Spline(knodata);
+  }
+
+  // Load parameters determining the average multiplicity
+  fAvp  = fConfig->GetDoubleDef("alpha-vp",  gc->GetDouble("KNO-Alpha-vp") );
+  fAvn  = fConfig->GetDoubleDef("alpha-vn",  gc->GetDouble("KNO-Alpha-vn") ); 
+  fAvbp = fConfig->GetDoubleDef("alpha-vbp", gc->GetDouble("KNO-Alpha-vbp")); 
+  fAvbn = fConfig->GetDoubleDef("alpha-vbn", gc->GetDouble("KNO-Alpha-vbn"));
+  fB    = fConfig->GetDoubleDef("beta",      gc->GetDouble("KNO-Beta")     );
+
+  // Load the Levy function parameter
+  fCvp  = fConfig->GetDoubleDef("levy-c-vp",  gc->GetDouble("KNO-LevyC-vp") );
+  fCvn  = fConfig->GetDoubleDef("levy-c-vn",  gc->GetDouble("KNO-LevyC-vn") ); 
+  fCvbp = fConfig->GetDoubleDef("levy-c-vbp", gc->GetDouble("KNO-LevyC-vbp")); 
+  fCvbn = fConfig->GetDoubleDef("levy-c-vbn", gc->GetDouble("KNO-LevyC-vbn"));
+
+  // Force NEUGEN upper limit in hadronic multiplicity (to be used only
+  // NEUGEN/GENIE comparisons)
+  fForceNeuGenLimit = fConfig->GetBoolDef("force-neugen-mult-limit", false);
+
+  // Load Wcut determining the phase space area where the multiplicity prob.
+  // scaling factors would be applied -if requested-
+  fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+
+  // Load NEUGEN multiplicity probability scaling parameters Rijk
+  fRvpCCm2  = fConfig->GetDoubleDef(
+                      "R-vp-CC-m2", gc->GetDouble("DIS-HMultWgt-vp-CC-m2"));
+  fRvpCCm3  = fConfig->GetDoubleDef(
+                      "R-vp-CC-m3", gc->GetDouble("DIS-HMultWgt-vp-CC-m3"));
+  fRvpNCm2  = fConfig->GetDoubleDef(
+                      "R-vp-NC-m2", gc->GetDouble("DIS-HMultWgt-vp-NC-m2"));
+  fRvpNCm3  = fConfig->GetDoubleDef(
+                      "R-vp-NC-m3", gc->GetDouble("DIS-HMultWgt-vp-NC-m3"));
+  fRvnCCm2  = fConfig->GetDoubleDef(
+                      "R-vn-CC-m2", gc->GetDouble("DIS-HMultWgt-vn-CC-m2"));
+  fRvnCCm3  = fConfig->GetDoubleDef(
+                      "R-vn-CC-m3", gc->GetDouble("DIS-HMultWgt-vn-CC-m3"));
+  fRvnNCm2  = fConfig->GetDoubleDef(
+                      "R-vn-NC-m2", gc->GetDouble("DIS-HMultWgt-vn-NC-m2"));
+  fRvnNCm3  = fConfig->GetDoubleDef(
+                      "R-vn-NC-m3", gc->GetDouble("DIS-HMultWgt-vn-NC-m3"));
+  fRvbpCCm2 = fConfig->GetDoubleDef(
+                     "R-vbp-CC-m2",gc->GetDouble("DIS-HMultWgt-vbp-CC-m2"));
+  fRvbpCCm3 = fConfig->GetDoubleDef(
+                     "R-vbp-CC-m3",gc->GetDouble("DIS-HMultWgt-vbp-CC-m3"));
+  fRvbpNCm2 = fConfig->GetDoubleDef(
+                     "R-vbp-NC-m2",gc->GetDouble("DIS-HMultWgt-vbp-NC-m2"));
+  fRvbpNCm3 = fConfig->GetDoubleDef(
+                     "R-vbp-NC-m3",gc->GetDouble("DIS-HMultWgt-vbp-NC-m3"));
+  fRvbnCCm2 = fConfig->GetDoubleDef(
+                     "R-vbn-CC-m2",gc->GetDouble("DIS-HMultWgt-vbn-CC-m2"));
+  fRvbnCCm3 = fConfig->GetDoubleDef(
+                     "R-vbn-CC-m3",gc->GetDouble("DIS-HMultWgt-vbn-CC-m3"));
+  fRvbnNCm2 = fConfig->GetDoubleDef(
+                     "R-vbn-NC-m2",gc->GetDouble("DIS-HMultWgt-vbn-NC-m2"));
+  fRvbnNCm3 = fConfig->GetDoubleDef(
+                     "R-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
+
+  LOG("KNOHad", pINFO) << *fConfig;
+}
+//____________________________________________________________________________
+double KNOHadronization::KNO(int nu_pdg, int nuc_pdg, double z) const
+{
+// Computes <n>P(n) for the input reduced multiplicity z=n/<n>
+
+  if(fUseLegacyKNOSpline) {
+     bool inrange = z > fKNO->XMin() && z < fKNO->XMax();
+     return (inrange) ? fKNO->Evaluate(z) : 0.;
+  }
+  assert( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) );
+  assert( pdg::IsNeutronOrProton(nuc_pdg) );
+
+  double c=0; // Levy function parameter
+
+  if      ( pdg::IsProton (nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) c=fCvp;
+  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) c=fCvn;
+  else if ( pdg::IsProton (nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) c=fCvbp;
+  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) c=fCvbn;
+  else return 0;
+
+  double x   = c*z+1;
+  double kno = 2*TMath::Exp(-c)*TMath::Power(c,x)/TMath::Gamma(x);
+
+  return kno;
+}
+//____________________________________________________________________________
+double KNOHadronization::AverageChMult(int nu_pdg,int nuc_pdg, double W) const
+{
+// computes the average charged multiplicity
+//
+  assert( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) );
+  assert( pdg::IsNeutronOrProton(nuc_pdg) );
+
+  double a=0, b=fB;
+
+  if      ( pdg::IsProton (nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) a=fAvp;
+  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) a=fAvn;
+  else if ( pdg::IsProton (nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) a=fAvbp;
+  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) a=fAvbn;
+  else return 0;
+
+  double av_nch = a + b * 2*TMath::Log(W);
+  return av_nch;        
+}
+//____________________________________________________________________________
+int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
+{
+// Returns the hadron shower charge in units of +e
+// HadronShowerCharge = Q{initial} - Q{final state primary lepton}
+// eg in v p -> l- X the hadron shower charge is +2
+//    in v n -> l- X the hadron shower charge is +1
+//    in v n -> v  X the hadron shower charge is  0
+//
+  int HadronShowerCharge = 0;
+
+  // find out the charge of the final state lepton
+  double ql = interaction->GetFSPrimaryLepton()->Charge() / 3.;
+
+  // get the initial state, ask for the hit-nucleon and get
+  // its charge ( = initial state charge for vN interactions)
+  const InitialState & init_state = interaction->GetInitialState();
+  int hit_nucleon = init_state.GetTarget().StruckNucleonPDGCode();
+
+  assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
+
+  // Ask PDGLibrary for the nucleon charge
+  double qinit = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
+
+  // calculate the hadron shower charge
+  HadronShowerCharge = (int) ( qinit - ql );
+
+  return HadronShowerCharge;
 }
 //____________________________________________________________________________
 TClonesArray * KNOHadronization::DecayMethod1(
-                                     double W, const vector<int> & pdgv) const
+                                     double W, const PDGCodeList & pdgv) const
 {
-// Simple phase space decay including all generated particles
-//
+// Simple phase space decay including all generated particles.
+// The old NeuGEN decay strategy.
 
   LOG("KNOHad", pINFO) << "** Using Hadronic System Decay method 1";
 
@@ -250,10 +621,11 @@ TClonesArray * KNOHadronization::DecayMethod1(
 }
 //____________________________________________________________________________
 TClonesArray * KNOHadronization::DecayMethod2(
-                                     double W, const vector<int> & pdgv) const
+                                     double W, const PDGCodeList & pdgv) const
 {
 // Generate the baryon based on experimental pT^2 and xF distributions
-// Then pass the remaining system of N-1 particles to a phase space decayer
+// Then pass the remaining system of N-1 particles to a phase space decayer.
+// The strategy adopted at the July-2006 hadronization model mini-workshop.
 
   LOG("KNOHad", pINFO) << "** Using Hadronic System Decay method 2";
 
@@ -270,7 +642,8 @@ TClonesArray * KNOHadronization::DecayMethod2(
   assert(pdg::IsNeutronOrProton(baryon));
 
   // Strip the PDG list from the baryon
-  vector<int> pdgv_stripped(pdgv.size()-1);
+  bool allowdup = true;
+  PDGCodeList pdgv_stripped(pdgv.size()-1, allowdup);
   for(unsigned int i=1; i<pdgv.size(); i++) pdgv_stripped[i-1] = pdgv[i];
   
   // Get the sum of all masses for the particles in the stripped list
@@ -349,7 +722,7 @@ TClonesArray * KNOHadronization::DecayMethod2(
 }
 //____________________________________________________________________________
 TClonesArray * KNOHadronization::DecayBackToBack(
-                                     double W, const vector<int> & pdgv) const
+                                     double W, const PDGCodeList & pdgv) const
 {
 // Handles a special case (only two particles) of the 2nd decay method 
 //
@@ -424,8 +797,12 @@ TClonesArray * KNOHadronization::DecayBackToBack(
 //____________________________________________________________________________
 bool KNOHadronization::PhaseSpaceDecay(
 	   TClonesArray & plist, TLorentzVector & pd, 
-       	                          const vector<int> & pdgv, int offset) const
+        	                   const PDGCodeList & pdgv, int offset) const
 {
+// General method decaying the input particle system 'pdgv' with available 4-p
+// given by 'pd'. The decayed system is used to populate the input TMCParticle 
+// array starting from the slot 'offset'.
+//
   LOG("KNOHad", pINFO) << "*** Performing a Phase Space Decay";
 
   assert ( offset      >= 0);
@@ -553,7 +930,7 @@ bool KNOHadronization::PhaseSpaceDecay(
   return true;
 }
 //____________________________________________________________________________
-double KNOHadronization::ReWeightPt2(const vector<int> & pdgcv) const
+double KNOHadronization::ReWeightPt2(const PDGCodeList & pdgcv) const
 {
 // Phase Space Decay re-weighting to reproduce exp(-pT2/<pT2>) pion pT2 
 // distributions.
@@ -580,114 +957,17 @@ double KNOHadronization::ReWeightPt2(const vector<int> & pdgcv) const
   return w;
 }
 //____________________________________________________________________________
-double KNOHadronization::Weight(void) const
-{
-  return fWeight;
-}
-//____________________________________________________________________________
-void KNOHadronization::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void KNOHadronization::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void KNOHadronization::LoadConfig(void)
-{
-// Read configuration options or set defaults
-
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  fMultProbModel = 0;
-  fDecayer       = 0;
-
-  // Force decays of unstable hadronization products?
-  fForceDecays  = fConfig->GetBoolDef("force-decays", false);
-
-  // Force minimum multiplicity (if generated less than that) or abort?
-  fForceMinMult = fConfig->GetBoolDef("force-min-multiplicity", true);
-
-  // Generate the baryon xF and pT^2 using experimental data as PDFs? 
-  // In this case, only the N-1 other particles would be fed into the phase
-  // space decayer. This seems to improve hadronic system features such as 
-  // bkw/fwd xF hemisphere average multiplicities.
-  // Note: not in the legacy KNO model (NeuGEN). Switch this feature off for 
-  // comparisons or for reproducing old simulations.
-  fUseBaryonXfPt2Param = fConfig->GetBoolDef("use-baryon-xF-pT2-parm", true);
-
-  // Reweight the phase space decayer events to reproduce the experimentally
-  // measured pT^2 distributions.
-  // Note: not in the legacy KNO model (NeuGEN). Switch this feature off for 
-  // comparisons or for reproducing old simulations.
-  fReWeightDecays = fConfig->GetBoolDef("reweight-phase-space-decays", true);
-
-  // Generated weighted or un-weighted hadronic systems?
-  fGenerateWeighted = fConfig->GetBoolDef("generate-weighted", false);
-
-  // Probabilities for producing hadron pairs
-
-  //-- pi0 pi0
-  fPpi0 = fConfig->GetDoubleDef(
-                         "prob-fs-pi0-pair", gc->GetDouble("KNO-ProbPi0Pi0")); 
-  //-- pi+ pi-
-  fPpic = fConfig->GetDoubleDef(
-            "prob-fs-piplus-piminus", gc->GetDouble("KNO-ProbPiplusPiminus")); 
-
-  //-- K+  K-
-  fPKc  = fConfig->GetDoubleDef(
-                "prob-fs-Kplus-Kminus", gc->GetDouble("KNO-ProbKplusKminus")); 
-
-  //-- K0 K0bar
-  fPK0  = fConfig->GetDoubleDef(
-                        "prob-fs-K0-K0bar", gc->GetDouble("KNO-ProbK0K0bar")); 
-
-  // Multiplicity probability model
-  fMultProbModel = dynamic_cast<const MultiplicityProbModelI *> (
-    this->SubAlg("multiplicity-prob-alg-name", "multiplicity-prob-param-set"));
-  assert(fMultProbModel);
-
-  // Decay unstable particles now or leave it for later? Which decayer to use?
-  if(fForceDecays) {
-      fDecayer = dynamic_cast<const DecayModelI *> (
-                       this->SubAlg("decayer-alg-name", "decayer-param-set"));
-      assert(fDecayer);
-  }
-
-  // Baryon pT^2 and xF parameterizations used as PDFs
-
-  if (fBaryonXFpdf ) delete fBaryonXFpdf;
-  if (fBaryonPT2pdf) delete fBaryonPT2pdf;
-
-  fBaryonXFpdf  = new TF1("fBaryonXFpdf",
-                   "0.049889-0.116769*x-0.033949*x*x+0.146209*x*x*x",-1,0.5);  
-  fBaryonPT2pdf = new TF1("fBaryonPT2pdf", "exp(-0.213362-6.62464*x)",0,0.6);  
-
-  // Parameter for phase space re-weighting. See ReWeightPt2()
-
-  fPhSpRwA = fConfig->GetDoubleDef(
-           "phase-space-reweighting-param", gc->GetDouble("KNO-PhSpRwParm")); 
-
-  LOG("KNOHad", pINFO) << *fConfig;
-}
-//____________________________________________________________________________
-vector<int> * KNOHadronization::GenerateFSHadronCodes(
+PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
                                    int multiplicity, int maxQ, double W) const
 {
-  // Code translated & adapted from NeuGEN. Original author: H.Gallagher
-  // Non-trival changes -- needs validation against original code & data
-  // Generate final state hadrons
+// Selection of fragments (identical as in NeuGEN).
 
   // PDG Library
   PDGLibrary * pdg = PDGLibrary::Instance();
 
   // vector to add final state hadron PDG codes
-  vector<int> * pdgc = new vector<int>;
+  bool allowdup=true;
+  PDGCodeList * pdgc = new PDGCodeList(allowdup);
   pdgc->reserve(multiplicity);
   int hadrons_to_add = multiplicity;
 
@@ -858,9 +1138,8 @@ vector<int> * KNOHadronization::GenerateFSHadronCodes(
 //____________________________________________________________________________
 int KNOHadronization::GenerateBaryonPdgCode(int multiplicity, int maxQ) const
 {
-  // Code translated & adapted from NeuGEN. Original author: H.Gallagher
-  // Assign baryon as p or n.
-  // Force it for ++ and - I=3/2 at mult. = 2
+// Selection of main target fragment (identical as in NeuGEN).
+// Assign baryon as p or n. Force it for ++ and - I=3/2 at mult. = 2
 
   RandomGen * rnd = RandomGen::Instance();
 
@@ -907,35 +1186,6 @@ int KNOHadronization::GenerateBaryonPdgCode(int multiplicity, int maxQ) const
        << " -> Adding a " << (( pdgc == kPdgProton ) ? "proton" : "neutron");
 
   return pdgc;
-}
-//____________________________________________________________________________
-int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
-{
-// Returns the hadron shower charge in units of +e
-// HadronShowerCharge = Q{initial} - Q{final state primary lepton}
-// eg in v p -> l- X the hadron shower charge is +2
-//    in v n -> l- X the hadron shower charge is +1
-//    in v n -> v  X the hadron shower charge is  0
-//
-  int HadronShowerCharge = 0;
-
-  // find out the charge of the final state lepton
-  double ql = interaction->GetFSPrimaryLepton()->Charge() / 3.;
-
-  // get the initial state, ask for the hit-nucleon and get
-  // its charge ( = initial state charge for vN interactions)
-  const InitialState & init_state = interaction->GetInitialState();
-  int hit_nucleon = init_state.GetTarget().StruckNucleonPDGCode();
-
-  assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
-
-  // Ask PDGLibrary for the nucleon charge
-  double qinit = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
-
-  // calculate the hadron shower charge
-  HadronShowerCharge = (int) ( qinit - ql );
-
-  return HadronShowerCharge;
 }
 //____________________________________________________________________________
 void KNOHadronization::HandleDecays(TClonesArray * plist) const

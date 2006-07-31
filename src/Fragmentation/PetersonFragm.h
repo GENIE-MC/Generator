@@ -31,20 +31,21 @@ namespace genie {
 class PetersonFragm : public FragmentationFunctionI {
 
 public:
-
   PetersonFragm();
   PetersonFragm(string config);
   ~PetersonFragm();
 
-  //-- implements the FragmentationFunctionI interface
-
+  //! implement the FragmentationFunctionI interface
   double Value     (double z) const;
   double GenerateZ (void)     const;
 
+  //! methods overloading the Algorithm() interface implementation
+  //! to build the fragmentation function from configuration data
+  void Configure(const Registry & config);
+  void Configure(string config);
+
 private:
-
   void BuildFunction (void);
-
   TF1 * fFunc;
 };
 
