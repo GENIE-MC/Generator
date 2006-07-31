@@ -17,12 +17,17 @@
 #include <cstdlib>
 
 #include <TLorentzVector.h>
+#include <TClonesArray.h>
+#include <TH1D.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Fragmentation/KNOPythiaHadronization.h"
+#include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+#include "PDG/PDGCodeList.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -65,27 +70,83 @@ TClonesArray * KNOPythiaHadronization::Hadronize(
      return 0;
   }
 
-  TClonesArray * particle_list = 0;
+  //-- Init event weight (to be set if producing weighted events)
+  fWeight = 1.;
+
+  //-- Select hadronizer
+  const HadronizationModelI * hadronizer = this->SelectHadronizer(interaction);
+
+  //-- Run the selected hadronizer
+  TClonesArray * particle_list = hadronizer->Hadronize(interaction);
+
+  //-- Update the weight
+  fWeight = hadronizer->Weight();
+
+  return particle_list;
+}
+//____________________________________________________________________________
+PDGCodeList * KNOPythiaHadronization::SelectParticles(
+                                        const Interaction * interaction) const
+{
+  //-- Select hadronizer
+  const HadronizationModelI * hadronizer = this->SelectHadronizer(interaction);
+
+  //-- Run the selected hadronizer
+  PDGCodeList * pdgv = hadronizer->SelectParticles(interaction);
+
+  return pdgv;
+}
+//____________________________________________________________________________
+TH1D * KNOPythiaHadronization::MultiplicityProb(
+ 		       const Interaction * interaction, Option_t * opt) const
+{
+  //-- Select hadronizer
+  const HadronizationModelI * hadronizer = this->SelectHadronizer(interaction);
+
+  //-- Run the selected hadronizer
+  TH1D * mprob = hadronizer->MultiplicityProb(interaction,opt);
+
+  return mprob;
+}
+//____________________________________________________________________________
+double KNOPythiaHadronization::Weight(void) const
+{
+  return fWeight;
+}
+//____________________________________________________________________________
+const HadronizationModelI * KNOPythiaHadronization::SelectHadronizer(
+                                        const Interaction * interaction) const
+{
+  const HadronizationModelI * hadronizer = 0;
+
+  RandomGen * rnd = RandomGen::Instance();
 
   switch(fMethod) {
 
   // ** KNO-only
   case(0) :
-    particle_list = fKNOHadronizer->Hadronize(interaction);
-    fWeight =  fKNOHadronizer->Weight();
+    hadronizer = fKNOHadronizer;
     break;
 
   // ** PYTHIA/JETSET-only
   case(1) :
-    particle_list = fPythiaHadronizer->Hadronize(interaction);
-    fWeight =  fPythiaHadronizer->Weight();
+    hadronizer = fPythiaHadronizer;
     break;
 
   // ** KNO-only           @ W < Wmin
   // ** PYTHIA/JETSET-only @ W > Wmax
   // ** Smooth linear transition in [Wmin,Wmax]
   case(2) :
-    particle_list = this->LinearTransitionWindowMethod(interaction);
+    double W = interaction->GetKinematics().W();
+    if      (W <= fWminTrWindow) hadronizer = fKNOHadronizer;
+    else if (W >  fWmaxTrWindow) hadronizer = fPythiaHadronizer;
+    else {
+      // Transition window
+      double R = rnd->RndHadro().Rndm();
+      double f = (W-fWminTrWindow)/(fWmaxTrWindow-fWminTrWindow);
+      if(R<f) hadronizer = fKNOHadronizer;
+      else    hadronizer = fPythiaHadronizer;
+    }
     break;
 
   default :
@@ -94,50 +155,13 @@ TClonesArray * KNOPythiaHadronization::Hadronize(
     exit(1);
   }
 
-  return particle_list;
-}
-//____________________________________________________________________________
-TClonesArray * KNOPythiaHadronization::LinearTransitionWindowMethod(
-                                        const Interaction * interaction) const
-{
-  TClonesArray * particle_list = 0;
-
-  RandomGen * rnd = RandomGen::Instance();
-
-  //----- Init event weight (to be set if producing weighted events)
-  fWeight = 1.;
-
-  double W = interaction->GetKinematics().W();
-
-  if(W <= fWminTrWindow) {
-    // KNO-only
-    particle_list = fKNOHadronizer->Hadronize(interaction);
-    fWeight =  fKNOHadronizer->Weight();
-  } 
-
-  else if (W > fWminTrWindow) {
-    // PYTHIA/JETSET-only
-    particle_list = fPythiaHadronizer->Hadronize(interaction);
-    fWeight =  fPythiaHadronizer->Weight();
-
-  } else {
-    // Transition window
-    double R = rnd->RndHadro().Rndm();
-    double f = (W-fWminTrWindow)/(fWmaxTrWindow-fWminTrWindow);
-    if(R<f) {
-       particle_list = fKNOHadronizer->Hadronize(interaction);
-       fWeight =  fKNOHadronizer->Weight();
-    } else {
-       particle_list = fPythiaHadronizer->Hadronize(interaction);
-       fWeight =  fPythiaHadronizer->Weight();
-    }
+  if(!hadronizer) {
+    LOG("HybridHad", pFATAL) << "Null hadronizer!!";
+    exit(1);
   }
-  return particle_list;
-}
-//____________________________________________________________________________
-double KNOPythiaHadronization::Weight(void) const
-{
-  return fWeight;
+
+  LOG("HybridHad", pINFO) << "Selected hadronizer: " << hadronizer->Id();
+  return hadronizer;
 }
 //____________________________________________________________________________
 void KNOPythiaHadronization::Configure(const Registry & config)
@@ -156,9 +180,12 @@ void KNOPythiaHadronization::LoadConfig(void)
 {
 // Read configuration options or set defaults
 
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   // Get config sets for KNO and PYTHIA hadonizers
-  string kno_config    = fConfig->GetString("kno-model-param-set");
-  string pythia_config = fConfig->GetString("pythia-model-param-set");
+  string kno_config    = fConfig->GetString("kno-hadronization-config");
+  string pythia_config = fConfig->GetString("pythia-hadronization-config");
 
   // Load the requested hadronizers
   AlgFactory * algf = AlgFactory::Instance();
@@ -171,12 +198,14 @@ void KNOPythiaHadronization::LoadConfig(void)
   assert(fKNOHadronizer && fPythiaHadronizer);
 
   // Get transition method
-  fMethod = fConfig->GetIntDef("transition-method", -1);
+  fMethod = fConfig->GetIntDef("transition-method", 2);
 
   // Get transition scheme specific config
   if(fMethod==2) {
-    fWminTrWindow = fConfig->GetDouble("transition-window-Wmin");
-    fWmaxTrWindow = fConfig->GetDouble("transition-window-Wmax");
+    fWminTrWindow = fConfig->GetDoubleDef(
+                "transition-window-Wmin", gc->GetDouble("KNO2PYTHIA-Wmin"));
+    fWmaxTrWindow = fConfig->GetDoubleDef(
+                "transition-window-Wmax", gc->GetDouble("KNO2PYTHIA-Wmax"));
   }
 }
 //____________________________________________________________________________

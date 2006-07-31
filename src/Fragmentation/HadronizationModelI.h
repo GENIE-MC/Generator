@@ -21,13 +21,15 @@
 #ifndef _HADRONIZATION_MODEL_I_H_
 #define _HADRONIZATION_MODEL_I_H_
 
-#include <TClonesArray.h>
-#include <TLorentzVector.h>
-
 #include "Algorithm/Algorithm.h"
-#include "Interaction/Interaction.h"
+
+class TClonesArray;
+class TH1D;
 
 namespace genie {
+
+class Interaction;
+class PDGCodeList;
 
 class HadronizationModelI : public Algorithm {
 
@@ -35,11 +37,13 @@ public:
 
   virtual ~HadronizationModelI();
 
-  //-- define HadronizationModelI interface
+  //! define the HadronizationModelI interface
 
-  virtual void           Initialize   (void)                 const = 0;
-  virtual TClonesArray * Hadronize    (const Interaction * ) const = 0;
-  virtual double         Weight       (void)                 const = 0;
+  virtual void           Initialize       (void)                                 const = 0;
+  virtual TClonesArray * Hadronize        (const Interaction * )                 const = 0;
+  virtual double         Weight           (void)                                 const = 0;
+  virtual PDGCodeList *  SelectParticles  (const Interaction*)                   const = 0;
+  virtual TH1D *         MultiplicityProb (const Interaction*, Option_t* opt="") const = 0;
 
 protected:
 

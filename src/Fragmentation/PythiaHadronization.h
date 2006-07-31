@@ -22,11 +22,11 @@
 
 #include <TPythia6.h>
 
-#include "Fragmentation/HadronizationModelI.h"
+#include "Fragmentation/HadronizationModelBase.h"
 
 namespace genie {
 
-class PythiaHadronization : public HadronizationModelI {
+class PythiaHadronization : public HadronizationModelBase {
 
 public:
 
@@ -34,10 +34,12 @@ public:
   PythiaHadronization(string config);
   virtual ~PythiaHadronization();
 
-  //! define PythiaHadronization interface
-  void           Initialize   (void)                 const;
-  TClonesArray * Hadronize    (const Interaction * ) const;
-  double         Weight       (void)                 const;
+  //! implement the HadronizationModelI interface
+  void           Initialize       (void)                                  const;
+  TClonesArray * Hadronize        (const Interaction*)                    const;
+  double         Weight           (void)                                  const;
+  PDGCodeList *  SelectParticles  (const Interaction*)                    const;
+  TH1D *         MultiplicityProb (const Interaction*, Option_t* opt="")  const;
 
   //! overload the Algorithm::Configure() methods to load private data
   //! members from configuration options
@@ -53,6 +55,8 @@ private:
   mutable long int   fCurrSeed; ///< always keep PYTHIA's & GENIE's seeds in sync
 
   //! configuration parameters
+  //! Note: additional configuration parameters common to all hadronizers 
+  //! (Wcut,Rijk,...) are declared one layer down in the inheritance tree
   double fSSBarSuppression;   ///< ssbar suppression
   double fGaussianPt2;        ///< gaussian pt2 distribution width
   double fNonGaussianPt2Tail; ///< non gaussian pt2 tail parameterization

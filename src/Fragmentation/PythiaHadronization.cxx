@@ -15,17 +15,24 @@
 //____________________________________________________________________________
 
 #include <TMCParticle6.h>
+#include <TClonesArray.h>
+#include <TMath.h>
+#include <TH1D.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/Constants.h"
 #include "Fragmentation/PythiaHadronization.h"
+#include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+#include "PDG/PDGCodeList.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/FragmRecUtils.h"
 
 using namespace genie;
+using namespace genie::constants;
 
 //-- the actual PYTHIA call
 
@@ -33,13 +40,13 @@ extern "C" void py2ent_(int *,  int *, int *, double *);
 
 //____________________________________________________________________________
 PythiaHadronization::PythiaHadronization() :
-HadronizationModelI("genie::PythiaHadronization")
+HadronizationModelBase("genie::PythiaHadronization")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
 PythiaHadronization::PythiaHadronization(string config) :
-HadronizationModelI("genie::PythiaHadronization", config)
+HadronizationModelBase("genie::PythiaHadronization", config)
 {
   this->Initialize();
 }
@@ -58,6 +65,11 @@ TClonesArray * PythiaHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
   LOG("PythiaHad", pNOTICE) << "Running PYTHIA hadronizer";
+
+  if(!this->AssertWMin(interaction)) {
+     LOG("PythiaHad", pWARN) << "Returning a null particle list!";
+     return 0;
+  }
 
   this->SyncSeeds();
 
@@ -242,6 +254,106 @@ TClonesArray * PythiaHadronization::Hadronize(
   return particle_list;
 }
 //____________________________________________________________________________
+PDGCodeList * PythiaHadronization::SelectParticles(
+                                       const Interaction * interaction) const
+{
+// Works the opposite way (compared with the KNO hadronization model)
+// Rather than having this method as one of the hadronization model components,
+// we extract the list of particles from the fragmentation record after the
+// hadronization has been completed.
+
+  if(!this->AssertWMin(interaction)) {
+     LOG("PythiaHad", pWARN) << "Returning a null particle list!";
+     return 0;
+  }
+
+  TClonesArray * particle_list = this->Hadronize(interaction);
+
+  if(!particle_list) return 0;
+
+  bool allowdup=true;
+  PDGCodeList * pdgcv = new PDGCodeList(allowdup);
+  pdgcv->reserve(particle_list->GetEntries());
+
+  TMCParticle * particle = 0;
+  TIter particle_iter(particle_list);
+
+  while ((particle = (TMCParticle *) particle_iter.Next())) 
+  {
+    if (particle->GetKS()==1) pdgcv->push_back(particle->GetKF());
+  }
+  particle_list->Delete();
+  delete particle_list;
+
+  return pdgcv;
+}
+//____________________________________________________________________________
+TH1D * PythiaHadronization::MultiplicityProb(
+                       const Interaction * interaction, Option_t * opt) const
+{
+// Similar comments apply as in SelectParticles()
+
+  if(!this->AssertWMin(interaction)) {
+     LOG("PythiaHad", pWARN) 
+                << "Returning a null multipicity probability distribution!";
+     return 0;
+  }
+  double maxmult   = this->MaxMult(interaction);
+  TH1D * mult_prob = this->CreateMultProbHist(maxmult);
+
+  const int nev=500;
+  TMCParticle * particle = 0;
+
+  for(int iev=0; iev<nev; iev++) {
+
+     TClonesArray * particle_list = this->Hadronize(interaction);
+     double         weight        = this->Weight();
+
+     if(!particle_list) { iev--; continue; }
+
+     int n = 0;
+     TIter particle_iter(particle_list);
+     while ((particle = (TMCParticle *) particle_iter.Next())) 
+     {
+       if (particle->GetKS()==1) n++;
+     }   
+     particle_list->Delete();
+     delete particle_list;
+     mult_prob->Fill( (double)n, weight);
+  }
+
+  double integral = mult_prob->Integral("width");
+  if(integral>0) {
+    // Normalize the probability distribution
+    mult_prob->Scale(1.0/integral);
+  } else {
+    SLOG("PythiaHad", pWARN) << "probability distribution integral = 0";
+    return mult_prob;
+  }
+
+  string option(opt);
+
+  bool apply_neugen_Rijk = option.find("+LowMultSuppr") != string::npos;
+  bool renormalize       = option.find("+Renormalize")  != string::npos;
+
+  // Apply the NeuGEN probability scaling factors -if requested-
+  if(apply_neugen_Rijk) {
+    SLOG("KNOHad", pINFO) << "Applying NeuGEN scaling factors";
+     // Only do so for W<Wcut
+     const Kinematics &   kinematics = interaction->GetKinematics();
+     double W = kinematics.W();
+     if(W<fWcut) {
+       this->ApplyRijk(interaction, renormalize, mult_prob);
+     } else {
+        SLOG("PythiaHad", pDEBUG)
+              << "W = " << W << " < Wcut = " << fWcut
+                                << " - Will not apply scaling factors";
+     }//<wcut?
+  }//apply?
+
+  return mult_prob;
+}
+//____________________________________________________________________________
 double PythiaHadronization::Weight(void) const
 {
   return 1.; // does not generate weighted events
@@ -282,6 +394,46 @@ void PythiaHadronization::LoadConfig(void)
   fPythia->SetPARJ(21, fGaussianPt2);
   fPythia->SetPARJ(23, fNonGaussianPt2Tail);
   fPythia->SetPARJ(33, fRemainingECutoff);
+
+  // Load Wcut determining the phase space area where the multiplicity prob.
+  // scaling factors would be applied -if requested-
+  fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+
+  // Load NEUGEN multiplicity probability scaling parameters Rijk
+  fRvpCCm2  = fConfig->GetDoubleDef(
+                      "R-vp-CC-m2", gc->GetDouble("DIS-HMultWgt-vp-CC-m2"));
+  fRvpCCm3  = fConfig->GetDoubleDef(
+                      "R-vp-CC-m3", gc->GetDouble("DIS-HMultWgt-vp-CC-m3"));
+  fRvpNCm2  = fConfig->GetDoubleDef(
+                      "R-vp-NC-m2", gc->GetDouble("DIS-HMultWgt-vp-NC-m2"));
+  fRvpNCm3  = fConfig->GetDoubleDef(
+                      "R-vp-NC-m3", gc->GetDouble("DIS-HMultWgt-vp-NC-m3"));
+  fRvnCCm2  = fConfig->GetDoubleDef(
+                      "R-vn-CC-m2", gc->GetDouble("DIS-HMultWgt-vn-CC-m2"));
+  fRvnCCm3  = fConfig->GetDoubleDef(
+                      "R-vn-CC-m3", gc->GetDouble("DIS-HMultWgt-vn-CC-m3"));
+  fRvnNCm2  = fConfig->GetDoubleDef(
+                      "R-vn-NC-m2", gc->GetDouble("DIS-HMultWgt-vn-NC-m2"));
+  fRvnNCm3  = fConfig->GetDoubleDef(
+                      "R-vn-NC-m3", gc->GetDouble("DIS-HMultWgt-vn-NC-m3"));
+  fRvbpCCm2 = fConfig->GetDoubleDef(
+                     "R-vbp-CC-m2",gc->GetDouble("DIS-HMultWgt-vbp-CC-m2"));
+  fRvbpCCm3 = fConfig->GetDoubleDef(
+                     "R-vbp-CC-m3",gc->GetDouble("DIS-HMultWgt-vbp-CC-m3"));
+  fRvbpNCm2 = fConfig->GetDoubleDef(
+                     "R-vbp-NC-m2",gc->GetDouble("DIS-HMultWgt-vbp-NC-m2"));
+  fRvbpNCm3 = fConfig->GetDoubleDef(
+                     "R-vbp-NC-m3",gc->GetDouble("DIS-HMultWgt-vbp-NC-m3"));
+  fRvbnCCm2 = fConfig->GetDoubleDef(
+                     "R-vbn-CC-m2",gc->GetDouble("DIS-HMultWgt-vbn-CC-m2"));
+  fRvbnCCm3 = fConfig->GetDoubleDef(
+                     "R-vbn-CC-m3",gc->GetDouble("DIS-HMultWgt-vbn-CC-m3"));
+  fRvbnNCm2 = fConfig->GetDoubleDef(
+                     "R-vbn-NC-m2",gc->GetDouble("DIS-HMultWgt-vbn-NC-m2"));
+  fRvbnNCm3 = fConfig->GetDoubleDef(
+                     "R-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
+
+  LOG("PythiaHad", pINFO) << *fConfig;
 }
 //____________________________________________________________________________
 void PythiaHadronization::SyncSeeds(void) const
