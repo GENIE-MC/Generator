@@ -25,7 +25,7 @@
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
 #include "Conventions/Units.h"
-#include "Fragmentation/MultiplicityProbModelI.h"
+#include "Fragmentation/HadronizationModelI.h"
 #include "Messenger/Messenger.h"
 #include "PartonModel/DISPartonModelPXSec.h"
 #include "PDG/PDGCodes.h"
@@ -198,8 +198,7 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
 // Computes suppression factors for the DIS xsec under the used DIS/RES join
 // scheme. Since this is a 'low-level' algorithm that is being called many
 // times per generated event or computed cross section spline, the suppression
-// factors would be cached to avoid calling the hadronic multiplicity model
-// too often.
+// factors would be cached to avoid calling the hadronization model too often.
 //
   double R=0, Ro=0;
 
@@ -214,11 +213,17 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
   double y    = in->GetKinematics().y();
   double Wo   = utils::kinematics::XYtoW(E,Mnuc,x,y);
 
+  TH1D * mprob = 0;
+
   if(!fUseCache) {
     // ** Compute the reduction factor at each call - no caching 
     //
-    const TH1D & mprob = fMultProbModel->ProbabilityDistribution(in);
-    R = mprob.Integral("width");
+    mprob = fHadronizationModel->MultiplicityProb(in,"+LowMultSuppr");
+    R = 1;
+    if(mprob) {
+       R = mprob->Integral("width");
+       delete mprob;
+    }
   }
   else {
     // ** Precompute/cache the reduction factors and then use the 
@@ -259,10 +264,12 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
       for(int i=0; i<kN; i++) {
         double W = WminSpl+i*dW;
         interaction.GetKinematicsPtr()->SetW(W);
-        const TH1D & mprob = 
-                    fMultProbModel->ProbabilityDistribution(&interaction);
-        R = mprob.Integral("width");
-
+        mprob = fHadronizationModel->MultiplicityProb(in,"+LowMultSuppr");
+        R = 1;
+        if(mprob) {
+           R = mprob->Integral("width");
+           delete mprob;
+        }
         // make sure that it takes enough samples where it is non-zero:
         // modify the step and the sample counter once I've hit the first
         // non-zero value
@@ -327,14 +334,14 @@ void DISPartonModelPXSec::LoadConfig(void)
 
   fUsingDisResJoin = fConfig->GetBoolDef(
 		"use-dis-res-joining-scheme", gc->GetBool("UseDRJoinScheme"));
-  fMultProbModel = 0;
-  fWcut=0;
+  fHadronizationModel = 0;
+  fWcut = 0.;
 
   if(fUsingDisResJoin) {
-     fMultProbModel = 
-         dynamic_cast<const MultiplicityProbModelI *> (this->SubAlg(
-                 "multiplicity-prob-alg-name","multiplicity-prob-param-set"));
-     assert(fMultProbModel);
+     fHadronizationModel = 
+         dynamic_cast<const HadronizationModelI *> (this->SubAlg(
+                   "hadronization-model-name","hadronization-model-config"));
+     assert(fHadronizationModel);
 
      // Load Wcut determining the phase space area where the multiplicity prob.
      // scaling factors would be applied -if requested-

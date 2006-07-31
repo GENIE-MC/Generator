@@ -28,7 +28,7 @@
 namespace genie {
 
 class DISStructureFuncModelI;
-class MultiplicityProbModelI;
+class HadronizationModelI;
 
 class DISPartonModelPXSec : public XSecAlgorithmI {
 
@@ -60,8 +60,8 @@ private:
   bool   fUseCache;         ///< cache reduction factors used in joining scheme
   double fWcut;             ///< apply DIS/RES joining scheme < Wcut
 
-  const DISStructureFuncModelI * fDISSFModel;    ///< SF model
-  const MultiplicityProbModelI * fMultProbModel; ///< hadronic multip. model
+  const DISStructureFuncModelI * fDISSFModel;         ///< SF model
+  const HadronizationModelI *    fHadronizationModel; ///< hadronic multip. model
 };
 
 }       // genie namespace
