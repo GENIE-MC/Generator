@@ -31,28 +31,35 @@ class PDGCodeList : public vector<int> {
 
 public :
 
-  PDGCodeList();
-  PDGCodeList(size_type n);
+  PDGCodeList(bool allowdup=false);
+  PDGCodeList(size_type n, bool allowdup=false);
   PDGCodeList(const PDGCodeList & list);
   ~PDGCodeList();
 
-  //-- override the vector<int> insertion methods to explicitly check for
-  //   PDG code validity and that no PDG code is listed more than once
+  //! override the vector<int> insertion methods to explicitly check for
+  //! PDG code validity and that no PDG code is listed more than once
   void push_back  (int pdg_code);
   void insert     (iterator pos, size_type n, const int& x);
 
-  //-- PDG code checks used by PDGCodeList
+  //! PDG code checks used by PDGCodeList
   bool CheckPDGCode        (int pdg_code);
   bool ExistsInPDGLibrary  (int pdg_code);
   bool ExistsInPDGCodeList (int pdg_code);
 
-  //-- copy / print
+  //! copy / print
   void Copy  (const PDGCodeList & list);
   void Print (ostream & stream) const;
 
+  //! check state
+  bool DuplEntriesAllowed(void) const { return fAllowDuplicateEntries; }
+
+  //! overloaded operators
   PDGCodeList &    operator =  (const PDGCodeList & list);
   friend ostream & operator << (ostream & stream, const PDGCodeList & list);
 
+private:
+
+  bool fAllowDuplicateEntries; ///< allow duplicate entries in the list?
 };
 
 }      // genie namespace

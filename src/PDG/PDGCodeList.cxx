@@ -38,14 +38,16 @@ namespace genie {
  }
 }
 //___________________________________________________________________________
-PDGCodeList::PDGCodeList() : vector<int>()
+PDGCodeList::PDGCodeList(bool allowdup) : 
+vector<int>()
 {
-
+  fAllowDuplicateEntries = allowdup;
 }
 //___________________________________________________________________________
-PDGCodeList::PDGCodeList(size_type n) : vector<int>(n)
+PDGCodeList::PDGCodeList(size_type n, bool allowdup) : 
+vector<int>(n)
 {
-
+  fAllowDuplicateEntries = allowdup;
 }
 //___________________________________________________________________________
 PDGCodeList::PDGCodeList(const PDGCodeList & list) :
@@ -74,6 +76,8 @@ void PDGCodeList::insert(iterator pos, size_type n, const int& pdg_code)
 //___________________________________________________________________________
 bool PDGCodeList::CheckPDGCode(int pdg_code)
 {
+// check whether the PDG code can be inserted
+
   bool exists = this->ExistsInPDGLibrary(pdg_code);
   if(!exists) {
     LOG("PDG", pERROR)
@@ -81,17 +85,21 @@ bool PDGCodeList::CheckPDGCode(int pdg_code)
     return false;
   }
 
-  bool added = this->ExistsInPDGCodeList(pdg_code);
-  if(added) {
-    LOG("PDG", pDEBUG)
+  if(!fAllowDuplicateEntries) {
+    bool added = this->ExistsInPDGCodeList(pdg_code);
+    if(added) {
+      LOG("PDG", pDEBUG)
                 << "Particle [pdgc = " << pdg_code << "] was already added";
-    return false;
+      return false;
+    }
   }
   return true;
 }
 //___________________________________________________________________________
 bool PDGCodeList::ExistsInPDGLibrary(int pdg_code)
 {
+// check whether the PDG code is a valid one (exists in PDGLibrary)
+
   PDGLibrary * pdglib = PDGLibrary::Instance();
   TParticlePDG * particle = pdglib->Find(pdg_code);
   if(!particle) return false;
@@ -100,6 +108,8 @@ bool PDGCodeList::ExistsInPDGLibrary(int pdg_code)
 //___________________________________________________________________________
 bool PDGCodeList::ExistsInPDGCodeList(int pdg_code)
 {
+// check whether the PDG code already exists in the list
+
   int n = count(this->begin(), this->end(), pdg_code);
   if(n!=0) return true;
   return false;
@@ -138,6 +148,8 @@ void PDGCodeList::Copy(const PDGCodeList & list)
     int code = *iter;
     this->push_back(code);
   }
+
+  fAllowDuplicateEntries = list.fAllowDuplicateEntries;
 }
 //___________________________________________________________________________
 PDGCodeList & PDGCodeList::operator = (const PDGCodeList & list)
