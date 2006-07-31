@@ -53,7 +53,6 @@
    <config alg="genie::KNOHadronization">            KNOHadronization.xml            </config>
    <config alg="genie::KNOPythiaHadronization">      KNOPythiaHadronization.xml      </config>
    <config alg="genie::PythiaHadronization">         PythiaHadronization.xml         </config>
-   <config alg="genie::SchmitzMultiplicityModel">    SchmitzMultiplicityModel.xml    </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
    <config alg="genie::PDFLIB">                      PDFLIB.xml                      </config>

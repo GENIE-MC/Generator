@@ -5,23 +5,23 @@ Configuration for the KNOPythiaHadronization HadronizationModelI
 
 Algorithm Configurable Parameters:
 ......................................................................................................
-Name                    Type    Opt   Comment                        Default
+Name                        Type    Opt   Comment                                     Default
 ......................................................................................................
-kno-param-set           string  No    config for KNO hadronizer
-pythia-param-set        string  No    config for PYTHIA hadronizer
-transition-method       int     No    
-transition-window-Wmin  double  No    relevant only for method=2
-transition-window-Wmax  double  No    relevant only for method=2
+kno-hadronization-config     string  No    config for KNO hadronizer
+pythia-hadronization-config  string  No    config for PYTHIA hadronizer
+transition-method            int     Yes   0: KNO only                                 2
+                                           1: PYTHIA only
+                                           2: linear transition from KNO->PYTHIA in
+                                           [Wmin,Wmax] invariant mass window
+transition-window-Wmin       double  Yes   relevant only for method=2                  GPL KNO2PYTHIA-Wmin
+transition-window-Wmax       double  Yes   relevant only for method=2                  GPL KNO2PYTHIA-Wmax
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="string" name="kno-param-set">            Default-Decaying    </param>
-     <param type="string" name="pythia-param-set">         Default             </param>
-     <param type="double" name="transition-window-Wmin">   4.0                 </param>
-     <param type="double" name="transition-window-Wmax">   4.5                 </param>
-     <param type="int"    name="transition-method">        2                   </param>
+     <param type="string" name="kno-hadronization-config">      Default-Decaying    </param>
+     <param type="string" name="pythia-hadronization-config">   Default             </param>
   </param_set>
 
 </alg_conf>

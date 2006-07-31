@@ -200,6 +200,13 @@
 
  <!-- 
   *********************************************************************       
+  Invariant mass window for thetransition from KNO model to PYTHIA
+  ********************************************************************* -->
+  <param type="double" name="KNO2PYTHIA-Wmin">  1.70 </param>
+  <param type="double" name="KNO2PYTHIA-Wmax">  2.00 </param>
+
+ <!-- 
+  *********************************************************************       
   NEUGEN parameters applied to DIS hadronic multiplicity distributions 
   to avoid 2-ble counting with RES
   *********************************************************************  -->
