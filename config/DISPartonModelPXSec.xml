@@ -4,17 +4,17 @@
 Configuration for the Rein-Seghal RES excitation d^xsec / dQ^2 dW xsec algorithm
 
 Algorithm Configurable Parameters:
-.....................................................................................................................
-Name                        Type    Opt   Comment                                      Default
-.....................................................................................................................
+..........................................................................................................................
+Name                        Type    Opt   Comment                                             Default
+..........................................................................................................................
 sf-alg-name                 string  No    Structure functions algorithm 
 sf-param-set                string  No    ... and its config set
-multiplicity-prob-alg-name  string  Dep   Multiplicity probability model. Set if
-                                          use-dis-res-joining-scheme=true
-multiplicity-prob-param-set string  Dep   ... and its condig set
-use-dis-res-joining-scheme  bool    Yes   Use DIS/RES joining scheme?                  GPL value: UseDRJoinScheme
-Wcut                        double  Yes   Param used in DIS/RES joining                GPL value: Wcut
-use-cache                   bool    Yes   Cache suppression factors?                   true
+hadronization-model-name    string  Dep   Hadronization model used for computing suppression
+                                          factors. Set if use-dis-res-joining-scheme=true
+hadronization-model-config  string  Dep   ... and its condig set
+use-dis-res-joining-scheme  bool    Yes   Use DIS/RES joining scheme?                         GPL UseDRJoinScheme
+Wcut                        double  Yes   Param used in DIS/RES joining                       GPL Wcut
+use-cache                   bool    Yes   Cache suppression factors?                          true
 -->
 
 <alg_conf>
@@ -22,15 +22,15 @@ use-cache                   bool    Yes   Cache suppression factors?            
   <param_set name="CC-Default"> 
      <param type="string" name="sf-alg-name">                 genie::BYStructureFuncModelCC   </param>
      <param type="string" name="sf-param-set">                Default                         </param>
-     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
-     <param type="string" name="multiplicity-prob-param-set"> NoRenorm                        </param>
+     <param type="string" name="hadronization-model-name">    genie::KNOHadronization         </param>
+     <param type="string" name="hadronization-model-config">  Default                         </param>
   </param_set>
 
   <param_set name="NC-Default"> 
      <param type="string" name="sf-alg-name">                 genie::DISStructureFuncModelNC  </param>
      <param type="string" name="sf-param-set">                Default                         </param>
-     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
-     <param type="string" name="multiplicity-prob-param-set"> NoRenorm                        </param>
+     <param type="string" name="hadronization-model-name">    genie::KNOHadronization         </param>
+     <param type="string" name="hadronization-model-config">  Default                         </param>
   </param_set>
 
 </alg_conf>

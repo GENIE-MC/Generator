@@ -7,8 +7,34 @@ Algorithm Configurable Parameters:
 .......................................................................................................................
 Name                          Type    Opt   Comment                                       Default
 .......................................................................................................................
-multiplicity-prob-alg-name    string  No    multiplicity probability algorithm...
-multiplicity-prob-param-set   string  No    ...and its config set
+beta                          double  Yes   b in <mult> = a + 2blnW                       GPL KNO-Beta
+alpha-vp                      double  Yes   a for vp                                      GPL KNO-Alpha-vp
+alpha-vn                      double  Yes   a for vn                                      GPL KNO-Alpha-vn
+alpha-vbp                     double  Yes   a for vbp                                     GPL KNO-Alpha-vbp
+alpha-vbn                     double  Yes   a for vbn                                     GPL KNO-Alpha-vbn
+levy-c-vp                     double  Yes   Levy function param c for vp                  GPL KNO-LevyC-vp
+levy-c-vn                     double  Yes   Levy function param c for vn                  GPL KNO-LevyC-vn
+levy-c-vbp                    double  Yes   Levy function param c for vbp                 GPL KNO-LevyC-vbp
+levy-c-vbn                    double  Yes   Levy function param c for vbn                 GPL KNO-LevyC-vbn
+use-legacy-kno-spline         bool    Yes   Uses the legacy KNO instead of the Levy func  false
+force-neugen-mult-limit       bool    Yes   force neugen upper multiplicity limit (10)    false
+Wcut                          double  Yes   W cut in DIS/RES join scheme                  GPL Wcut
+R-vp-CC-m2                    double  Yes   scaling factor, vp  CC, multiplicity=2        GPL DIS-HMultWgt-vp-CC-m2
+R-vp-CC-m3                    double  Yes   scaling factor, vp  CC, multiplicity=3        GPL DIS-HMultWgt-vp-CC-m3
+R-vp-NC-m2                    double  Yes   scaling factor, vp  NC, multiplicity=2        GPL DIS-HMultWgt-vp-NC-m2
+R-vp-NC-m3                    double  Yes   scaling factor, vp  NC, multiplicity=3        GPL DIS-HMultWgt-vp-NC-m3
+R-vn-CC-m2                    double  Yes   scaling factor, vn  CC, multiplicity=2        GPL DIS-HMultWgt-vn-CC-m2
+R-vn-CC-m3                    double  Yes   scaling factor, vn  CC, multiplicity=3        GPL DIS-HMultWgt-vn-CC-m3
+R-vn-NC-m2                    double  Yes   scaling factor, vn  NC, multiplicity=2        GPL DIS-HMultWgt-vn-NC-m2
+R-vn-NC-m3                    double  Yes   scaling factor, vn  NC, multiplicity=3        GPL DIS-HMultWgt-vn-NC-m3
+R-vbp-CC-m2                   double  Yes   scaling factor, vbp CC, multiplicity=2        GPL DIS-HMultWgt-vbp-CC-m2
+R-vbp-CC-m3                   double  Yes   scaling factor, vbp CC, multiplicity=3        GPL DIS-HMultWgt-vbp-CC-m3
+R-vbp-NC-m2                   double  Yes   scaling factor, vbp NC, multiplicity=2        GPL DIS-HMultWgt-vbp-NC-m2
+R-vbp-NC-m3                   double  Yes   scaling factor, vbp NC, multiplicity=3        GPL DIS-HMultWgt-vbp-NC-m3
+R-vbn-CC-m2                   double  Yes   scaling factor, vbn CC, multiplicity=2        GPL DIS-HMultWgt-vbn-CC-m2
+R-vbn-CC-m3                   double  Yes   scaling factor, vbn CC, multiplicity=3        GPL DIS-HMultWgt-vbn-CC-m3
+R-vbn-NC-m2                   double  Yes   scaling factor, vbn NC, multiplicity=2        GPL DIS-HMultWgt-vbn-NC-m2
+R-vbn-NC-m3                   double  Yes   scaling factor, vbn NC, multiplicity=3        GPL DIS-HMultWgt-vbn-NC-m3
 prob-fs-pi0-pair              double  Yes   probability for pi0 pair                      GPL KNO-ProbPi0Pi0
 prob-fs-piplus-piminus        double  Yes   probability for pi+pi- pair                   GPL KNO-ProbPiplusPiminus
 prob-fs-Kplus-Kminus          double  Yes   probability for K+K- pair                     GPL KNO-ProbKplusKminus
@@ -23,28 +49,20 @@ phase-space-reweighting-param double  Yes   parameter controlling the reweight f
 
 <alg_conf>
   <param_set name="Default"> 
-     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
-     <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
   </param_set>
 
   <param_set name="Default-Decaying"> 
-     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
-     <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
      <param type="bool"   name="force-decays">                true                            </param>
      <param type="string" name="decayer-alg-name">            genie::PythiaDecayer            </param>
      <param type="string" name="decayer-param-set">           Default                         </param>
   </param_set>
 
   <param_set name="Old"> 
-     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
-     <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
      <param type="bool"   name="use-baryon-xF-pT2-parm">      false                           </param>
      <param type="bool"   name="reweight-phase-space-decays"> false                           </param>
   </param_set>
 
   <param_set name="Old-Decaying"> 
-     <param type="string" name="multiplicity-prob-alg-name">  genie::SchmitzMultiplicityModel </param>
-     <param type="string" name="multiplicity-prob-param-set"> Default                         </param>
      <param type="bool"   name="force-decays">                true                            </param>
      <param type="string" name="decayer-alg-name">            genie::PythiaDecayer            </param>
      <param type="string" name="decayer-param-set">           Default                         </param>
