@@ -31,9 +31,12 @@ using namespace genie::geometry;
 PointGeomAnalyzer::PointGeomAnalyzer(int tgtpdgc) :
 GeomAnalyzerI()
 {
+  PathLengthList::size_type ntgt=1;
+  PDGCodeList::size_type    nneu=1;
+
   fCurrVertex         = new TVector3(0,0,0);
-  fCurrPathLengthList = new PathLengthList(1);
-  fCurrPDGCodeList    = new PDGCodeList(1);
+  fCurrPathLengthList = new PathLengthList(ntgt);
+  fCurrPDGCodeList    = new PDGCodeList(nneu);
 
   (*fCurrPDGCodeList)[0]    = tgtpdgc;
   (*fCurrPathLengthList)[0] = 1.;

@@ -145,9 +145,12 @@ void GFlukaAtmo3DFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing GFlukaAtmo3DFlux driver";
 
-  // setting maximum energy in flux files & list of neutrinos
-  fMaxEv    = kGFlk3DEv[kNGFlk3DEv-1];
-  fPdgCList = new PDGCodeList(4);
+  // setting maximum energy in Battistoni et al. flux files 
+  fMaxEv = kGFlk3DEv[kNGFlk3DEv-1];
+
+  // setting neutrino-types in Battistoni et al. flux files
+  PDGCodeList::size_type nnu = 4;
+  fPdgCList = new PDGCodeList(nnu);
   (*fPdgCList)[0]= kPdgNuMu;
   (*fPdgCList)[1]= kPdgNuMuBar;
   (*fPdgCList)[2]= kPdgNuE;
