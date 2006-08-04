@@ -154,6 +154,9 @@ void PrimaryLeptonGenerator::AddToEventRecord(
   TLorentzVector vdummy(0,0,0,0); // position 4-vector
 
   evrec->AddParticle(pdgc, kIStStableFinalState, mom,-1,-1,-1, p4, vdummy);
+
+  // update the interaction summary
+  evrec->GetInteraction()->GetKinematicsPtr()->SetFSLeptonP4(p4);
 }
 //___________________________________________________________________________
 void PrimaryLeptonGenerator::SetPolarization(GHepRecord * ev) const

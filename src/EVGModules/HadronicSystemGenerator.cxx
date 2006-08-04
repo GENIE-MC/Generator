@@ -55,7 +55,7 @@ HadronicSystemGenerator::~HadronicSystemGenerator()
 void HadronicSystemGenerator::AddFinalHadronicSyst(GHepRecord * evrec) const
 {
 // Adds a GHEP entry for the sum of the f/s hadronic system.
-// INtended for DIS hadronic system generators.
+// Intended for DIS hadronic system generators.
 
   TLorentzVector p4 = this->Hadronic4pLAB(evrec);
   TLorentzVector v4(0,0,0,0);
@@ -64,6 +64,9 @@ void HadronicSystemGenerator::AddFinalHadronicSyst(GHepRecord * evrec) const
 
   evrec->AddParticle(
         kPdgHadronicSyst, kIStDISPreFragmHadronicState, mom,-1,-1,-1, p4, v4);
+
+  // update the interaction summary
+  evrec->GetInteraction()->GetKinematicsPtr()->SetHadSystP4(p4);
 }
 //___________________________________________________________________________
 void HadronicSystemGenerator::AddTargetNucleusRemnant(

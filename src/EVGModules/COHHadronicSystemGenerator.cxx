@@ -23,7 +23,6 @@
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
-#include "Interaction/IUtils.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGLibrary.h"

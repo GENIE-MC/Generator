@@ -23,7 +23,6 @@
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepFlags.h"
 #include "Interaction/Interaction.h"
-#include "Interaction/IUtils.h"
 #include "Messenger/Messenger.h"
 #include "Nuclear/FermiMomentumTablePool.h"
 #include "Nuclear/FermiMomentumTable.h"
@@ -59,7 +58,7 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
   if( init_state.GetTarget().IsNucleus() ) {
 
     int tgt_pdgc = init_state.GetTarget().PDGCode();
-    int nuc_pdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
+    int nuc_pdgc = interaction->RecoilNuclPDGCode();
 
     GHepParticle * hit = event_rec->StruckNucleon();
     TVector3 beta = hit->P4()->BoostVector();

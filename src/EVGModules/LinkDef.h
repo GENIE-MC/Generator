@@ -31,7 +31,6 @@
 #pragma link C++ class genie::RESHadronicSystemGenerator;
 #pragma link C++ class genie::RSPPHadronicSystemGenerator;
 #pragma link C++ class genie::IMDTargetRemnantGenerator;
-#pragma link C++ class genie::FragmentCharmDISGenerator;
 #pragma link C++ class genie::RSPPResonanceSelector;
 
 #pragma link C++ class genie::COHInteractionListGenerator;

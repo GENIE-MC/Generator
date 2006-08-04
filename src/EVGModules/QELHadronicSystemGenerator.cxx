@@ -18,7 +18,6 @@
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
-#include "Interaction/IUtils.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
@@ -62,7 +61,7 @@ void QELHadronicSystemGenerator::AddRecoilNucleon(GHepRecord * evrec) const
 {
   //-- Determine the pdg code of the recoil nucleon
   Interaction * interaction = evrec->GetInteraction();
-  int recoil_nuc_pdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
+  int recoil_nuc_pdgc = interaction->RecoilNuclPDGCode();
 
   //-- Get all initial & final state particles 4-momenta (in the LAB frame)
   TLorentzVector p4 = this->Hadronic4pLAB(evrec);
