@@ -20,8 +20,8 @@ transition-window-Wmax       double  Yes   relevant only for method=2           
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="string" name="kno-hadronization-config">      Default-Decaying    </param>
-     <param type="string" name="pythia-hadronization-config">   Default             </param>
+     <param type="string" name="kno-hadronization-config">      Default    </param>
+     <param type="string" name="pythia-hadronization-config">   Default    </param>
   </param_set>
 
 </alg_conf>

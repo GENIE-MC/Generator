@@ -25,7 +25,6 @@
    <config alg="genie::QELHadronicSystemGenerator">  QELHadronicSystemGenerator.xml  </config>
    <config alg="genie::COHHadronicSystemGenerator">  COHHadronicSystemGenerator.xml  </config>
    <config alg="genie::DISHadronicSystemGenerator">  DISHadronicSystemGenerator.xml  </config>
-   <config alg="genie::FragmentCharmDISGenerator">   FragmentCharmDISGenerator.xml   </config>
    <config alg="genie::RESHadronicSystemGenerator">  RESHadronicSystemGenerator.xml  </config>
    <config alg="genie::RSPPHadronicSystemGenerator"> RSPPHadronicSystemGenerator.xml </config>
    <config alg="genie::IMDTargetRemnantGenerator">   IMDTargetRemnantGenerator.xml   </config>
@@ -53,6 +52,7 @@
    <config alg="genie::KNOHadronization">            KNOHadronization.xml            </config>
    <config alg="genie::KNOPythiaHadronization">      KNOPythiaHadronization.xml      </config>
    <config alg="genie::PythiaHadronization">         PythiaHadronization.xml         </config>
+   <config alg="genie::CharmHadronization">          CharmHadronization.xml          </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
    <config alg="genie::PDFLIB">                      PDFLIB.xml                      </config>

@@ -12,8 +12,6 @@ Vcd              double  Yes        CKM element Vcd       GPL-Value: CKM-Vcd
 Vcs              double  Yes        CKM element Vcd       GPL-Value: CKM-Vcs
 pdf-alg-name     string  No         PDFModelI algorithm
 pdf-param-set    string  No         ... and its config
-d-contrib-switch bool    Yes        Enable d contrib?     true
-s-contrib-switch bool    Yes        Enable s contrib?     true
 -->
 
 <alg_conf>
@@ -21,22 +19,6 @@ s-contrib-switch bool    Yes        Enable s contrib?     true
   <param_set name="CC-Default"> 
      <param type="string"  name="pdf-alg-name">     genie::PDFLIB  </param>
      <param type="string"  name="pdf-param-set">    GRVLO          </param>
-     <param type="bool"    name="d-contrib-switch"> true           </param>
-     <param type="bool"    name="s-contrib-switch"> true           </param>
-  </param_set>
-
-  <param_set name="CC-d-contrib-OFF"> 
-     <param type="string"  name="pdf-alg-name">     genie::PDFLIB  </param>
-     <param type="string"  name="pdf-param-set">    GRVLO          </param>
-     <param type="bool"    name="d-contrib-switch"> false          </param>
-     <param type="bool"    name="s-contrib-switch"> true           </param>
-  </param_set>
-
-  <param_set name="CC-s-contrib-off"> 
-     <param type="string"  name="pdf-alg-name">     genie::PDFLIB  </param>
-     <param type="string"  name="pdf-param-set">    GRVLO          </param>
-     <param type="bool"    name="d-contrib-switch"> true           </param>
-     <param type="bool"    name="s-contrib-switch"> false          </param>
   </param_set>
 
   <param_set name="CC-Tweak-Consts"> 
@@ -45,8 +27,6 @@ s-contrib-switch bool    Yes        Enable s contrib?     true
      <param type="double"  name="Vcs">              0.996          </param>
      <param type="string"  name="pdf-alg-name">     genie::PDFLIB  </param>
      <param type="string"  name="pdf-param-set">    GRVLO          </param>
-     <param type="bool"    name="d-contrib-switch"> true           </param>
-     <param type="bool"    name="s-contrib-switch"> true           </param>
   </param_set>
 
 </alg_conf>
