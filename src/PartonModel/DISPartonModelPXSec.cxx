@@ -264,7 +264,7 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
       for(int i=0; i<kN; i++) {
         double W = WminSpl+i*dW;
         interaction.GetKinematicsPtr()->SetW(W);
-        mprob = fHadronizationModel->MultiplicityProb(in,"+LowMultSuppr");
+        mprob = fHadronizationModel->MultiplicityProb(&interaction,"+LowMultSuppr");
         R = 1;
         if(mprob) {
            R = mprob->Integral("width");
