@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <TLorentzVector.h>
 
 #include "Interaction/Kinematics.h"
 #include "Messenger/Messenger.h"
@@ -36,23 +37,42 @@ namespace genie {
 //___________________________________________________________________________
 Kinematics::Kinematics()
 {
-  this->Reset();
+  this->Init();
 }
 //____________________________________________________________________________
 Kinematics::Kinematics(const Kinematics & kinematics)
 {
-  this->Reset();
+  this->Init();
   this->Copy(kinematics);
 }
 //____________________________________________________________________________
 Kinematics::~Kinematics()
 {
-  this->Reset();
+  this->CleanUp();
+}
+//____________________________________________________________________________
+void Kinematics::Init(void)
+{
+  fKV.clear();
+
+  fP4Fsl     = new TLorentzVector;
+  fP4HadSyst = new TLorentzVector; 
+}
+//____________________________________________________________________________
+void Kinematics::CleanUp(void)
+{
+  fKV.clear();
+
+  delete fP4Fsl;
+  delete fP4HadSyst; 
 }
 //____________________________________________________________________________
 void Kinematics::Reset(void)
 {
   fKV.clear();
+
+  this->SetFSLeptonP4 (0,0,0,0);
+  this->SetHadSystP4  (0,0,0,0);
 }
 //____________________________________________________________________________
 void Kinematics::Copy(const Kinematics & kinematics)
@@ -66,6 +86,9 @@ void Kinematics::Copy(const Kinematics & kinematics)
     double    val = iter->second;
     this->SetKV(kv,val);
   }
+
+  this->SetFSLeptonP4 (*kinematics.fP4Fsl);
+  this->SetHadSystP4  (*kinematics.fP4HadSyst);
 }
 //____________________________________________________________________________
 double Kinematics::x(bool selected) const
@@ -264,6 +287,26 @@ void Kinematics::Sett(double t, bool selected)
 {
   KineVar_t kvar = (selected) ? kKVSelt : kKVt;
   this->SetKV(kvar, t);
+}
+//____________________________________________________________________________
+void Kinematics::SetFSLeptonP4(const TLorentzVector & p4)
+{
+  fP4Fsl->SetPxPyPzE(p4.Px(), p4.Py(), p4.Pz(), p4.E());
+}
+//____________________________________________________________________________
+void Kinematics::SetFSLeptonP4(double px, double py, double pz, double E)
+{
+  fP4Fsl->SetPxPyPzE(px,py,pz,E);
+}
+//____________________________________________________________________________
+void Kinematics::SetHadSystP4(const TLorentzVector & p4)
+{
+  fP4HadSyst->SetPxPyPzE(p4.Px(), p4.Py(), p4.Pz(), p4.E());
+}
+//____________________________________________________________________________
+void Kinematics::SetHadSystP4(double px, double py, double pz, double E)
+{
+  fP4HadSyst->SetPxPyPzE(px,py,pz,E);
 }
 //____________________________________________________________________________
 bool Kinematics::KVSet(KineVar_t kv) const

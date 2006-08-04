@@ -5,7 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
-#pragma link C++ namespace genie::utils::interaction;
 
 #pragma link C++ class genie::InitialState;
 #pragma link C++ class genie::Interaction;
