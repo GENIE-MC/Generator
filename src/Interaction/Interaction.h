@@ -47,6 +47,7 @@ class Interaction : public TObject {
 
 public:
 
+  //! ctors & dtor
   Interaction();
   Interaction(const InitialState & init, const ProcessInfo & proc);
   Interaction(const Interaction & i);
@@ -73,14 +74,38 @@ public:
   //! Get final state primary lepton / uniquely determined from the inputs
   TParticlePDG * GetFSPrimaryLepton (void) const;
 
+  //! Get recoil nucleon if it is uniquely determined from the inputs
+  int RecoilNuclPDGCode (void) const;
+
   //! Copy, reset, print itself and build string code
   void   Reset    (void);
   void   Copy     (const Interaction & i);
   string AsString (void) const;
   void   Print    (ostream & stream) const;
 
+  //! Overloaded operators
   Interaction &    operator =  (const Interaction & i);
   friend ostream & operator << (ostream & stream, const Interaction & i);
+
+  //! Use the "Named Constructor" C++ idiom for fast creation of typical interactions
+  static Interaction * DISCC (int tgt, int nuc, int probe, double E=0);
+  static Interaction * DISCC (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
+  static Interaction * DISCC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * DISCC (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
+  static Interaction * DISNC (int tgt, int nuc, int probe, double E=0);
+  static Interaction * DISNC (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
+  static Interaction * DISNC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * DISNC (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
+  static Interaction * QELCC (int tgt, int nuc, int probe, double E=0);
+  static Interaction * QELCC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * QELNC (int tgt, int nuc, int probe, double E=0);
+  static Interaction * QELNC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * RESCC (int tgt, int nuc, int probe, double E=0);
+  static Interaction * RESCC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * RESNC (int tgt, int nuc, int probe, double E=0);
+  static Interaction * RESNC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * IMD   (int tgt, double E=0);
+  static Interaction * IMD   (int tgt, const TLorentzVector & p4probe);
 
 private:
 
@@ -88,12 +113,15 @@ private:
   void Init    (void);
   void CleanUp (void);
 
+  //! Utility method for "named ctor"
+  static Interaction * Create(int tgt, int probe, ScatteringType_t st, InteractionType_t it);
+
   //! Private data members
   InitialState * fInitialState;  ///< Initial State info
   ProcessInfo *  fProcInfo;      ///< Process info (scattering, weak current,...)
   Kinematics *   fKinematics;    ///< kinematical variables
   XclsTag *      fExclusiveTag;  ///< Additional info for exclusive channels
-
+  
 ClassDef(Interaction,1)
 };
 

@@ -155,6 +155,14 @@ void InitialState::SetProbePDGCode(int probe_pdgc)
   this->Init(tgt_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
+void InitialState::SetProbeE(double E)
+{
+  fProbeP4 -> SetE  ( E );
+  fProbeP4 -> SetPx ( 0.);
+  fProbeP4 -> SetPy ( 0.);
+  fProbeP4 -> SetPz ( E );
+}
+//___________________________________________________________________________
 void InitialState::SetProbeP4(const TLorentzVector & P4)
 {
   fProbeP4 -> SetE  ( P4.E()  );
@@ -171,17 +179,48 @@ void InitialState::SetTargetP4(const TLorentzVector & P4)
   fTargetP4 -> SetPz ( P4.Pz() );
 }
 //___________________________________________________________________________
+bool InitialState::IsNuP(void) const
+{
+  int  prob = fProbePdgC;
+  int  nucl = fTarget->StruckNucleonPDGCode();
+  bool isvp = pdg::IsNeutrino(prob) && pdg::IsProton(nucl);
+
+  return isvp;
+}
+//___________________________________________________________________________
+bool InitialState::IsNuN(void) const
+{
+  int  prob = fProbePdgC;
+  int  nucl = fTarget->StruckNucleonPDGCode();
+  bool isvn = pdg::IsNeutrino(prob) && pdg::IsNeutron(nucl);
+
+  return isvn;
+}
+//___________________________________________________________________________
+bool InitialState::IsNuBarP(void) const
+{
+  int  prob  = fProbePdgC;
+  int  nucl  = fTarget->StruckNucleonPDGCode();
+  bool isvbp = pdg::IsAntiNeutrino(prob) && pdg::IsProton(nucl);
+
+  return isvbp;
+}
+//___________________________________________________________________________
+bool InitialState::IsNuBarN(void) const
+{
+  int  prob  = fProbePdgC;
+  int  nucl  = fTarget->StruckNucleonPDGCode();
+  bool isvbn = pdg::IsAntiNeutrino(prob) && pdg::IsNeutron(nucl);
+
+  return isvbn;
+}
+//___________________________________________________________________________
 TLorentzVector * InitialState::GetTargetP4(RefFrame_t ref_frame) const
 {
 // Return the target 4-momentum in the specified reference frame
 // Note: the caller adopts the TLorentzVector object
 
   switch (ref_frame) {
-
-       //------------------ CENTER OF MOMENTUM FRAME:
-       case (kRfCenterOfMass) :
-             return 0;
-             break;
 
        //------------------ NUCLEAR TARGET REST FRAME:
        case (kRfTargetAtRest) :
@@ -232,11 +271,6 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
 // Note: the caller adopts the TLorentzVector object
 
   switch (ref_frame) {
-
-       //------------------ CENTER OF MOMENTUM FRAME:
-       case (kRfCenterOfMass) :
-             return 0;
-             break;
 
        //------------------ NUCLEAR TARGET REST FRAME:
        case (kRfTargetAtRest) :

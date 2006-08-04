@@ -37,7 +37,6 @@ namespace genie {
 class InitialState : public TObject {
 
 public:
-
   InitialState();
   InitialState(int tgt_pdgc, int probe_pdgc);
   InitialState(int Z, int A, int probe_pdgc);
@@ -50,16 +49,21 @@ public:
   Target *         GetTargetPtr     (void) const { return  fTarget;    }
   int              GetProbePDGCode  (void) const { return  fProbePdgC; }
   int              GetTargetPDGCode (void) const;
-
-  TLorentzVector * GetTargetP4 (RefFrame_t ref_frame = kRfLab) const;
-  TLorentzVector * GetProbeP4  (RefFrame_t ref_frame = kRfStruckNucAtRest) const;
-  double           GetProbeE   (RefFrame_t ref_frame) const;
+  TLorentzVector * GetTargetP4      (RefFrame_t rf = kRfLab) const;
+  TLorentzVector * GetProbeP4       (RefFrame_t rf = kRfStruckNucAtRest) const;
+  double           GetProbeE        (RefFrame_t rf) const;
 
   void SetPDGCodes      (int tgt_pdgc, int probe_pdgc);
   void SetProbePDGCode  (int pdg_code);
   void SetTargetPDGCode (int pdg_code);
   void SetTargetP4      (const TLorentzVector & P4); // in LAB-frame
   void SetProbeP4       (const TLorentzVector & P4); // in LAB-frame
+  void SetProbeE        (double E);                  // in LAB-frame (0,0,E,E)
+
+  bool IsNuP    (void) const; ///< is neutrino      + proton?
+  bool IsNuN    (void) const; ///< is neutrino      + neutron?
+  bool IsNuBarP (void) const; ///< is anti-neutrino + proton?
+  bool IsNuBarN (void) const; ///< is anti-neutrino + neutron?
 
   //! Copy, reset, compare, print itself and build string code
   void   Reset    (void);
@@ -68,6 +72,7 @@ public:
   string AsString (void) const;
   void   Print    (ostream & stream) const;
 
+  //! Overloaded operators
   bool             operator == (const InitialState & i) const;
   InitialState &   operator =  (const InitialState & i);
   friend ostream & operator << (ostream & stream, const InitialState & i);
