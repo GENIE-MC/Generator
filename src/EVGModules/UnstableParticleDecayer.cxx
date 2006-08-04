@@ -65,8 +65,8 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
   while( (p = (GHepParticle *) piter.Next()) ) {
 
      if( this->ToBeDecayed(p) ) {
-        LOG("ParticleDecayer", pINFO)
-              << "\n Attempt to decay unstable particle: " << p->GetName();
+        LOG("ParticleDecayer", pNOTICE)
+              << "Decaying unstable particle: " << p->GetName();
 
         //-- Get the parent particle 4-momentum
 

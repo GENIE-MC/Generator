@@ -24,7 +24,6 @@
 #include "EVGModules/QELKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
-#include "Interaction/IUtils.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGLibrary.h"
@@ -170,7 +169,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         LOG("QELKinematics", pNOTICE) << "E = " << E << ", M = "<< M;
 
         // hadronic inv. mass is equal to the recoil nucleon on-shell mass
-        int    rpdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
+        int rpdgc = interaction->RecoilNuclPDGCode();
         double gW = PDGLibrary::Instance()->Find(rpdgc)->Mass();
 
         LOG("QELKinematics", pNOTICE) << "Selected: W = "<< gW;
