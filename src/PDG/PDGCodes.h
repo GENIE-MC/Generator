@@ -83,6 +83,7 @@ const int kPdgTgtO16       = 1016008000;
 // GENIE special particles
 const int kPdgBindino      = 1111111001; 
 const int kPdgHadronicSyst = 1111111002; 
+const int kPdgHadronicBlob = 1111111003; // not explicitly hadronized fraction of hadronic system
 
 // PYTHIA special particles
 const int kPdgCluster      = 91; 
