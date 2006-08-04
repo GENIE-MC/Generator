@@ -83,12 +83,12 @@ TClonesArray * KNOHadronization::Hadronize(
 // Generate the hadronic system in a neutrino interaction using a KNO-based 
 // model. 
 
-  if(!this->AssertWMin(interaction)) {
+  if(!this->AssertValidity(interaction)) {
      LOG("KNOHad", pWARN) << "Returning a null particle list!";
      return 0;
   }
 
-  double W = interaction->GetKinematics().W();
+  double W = utils::kinematics::CalcW(interaction);
   LOG("KNOHad", pINFO) << "W = " << W << " GeV";
 
   //-- Select hadronic shower particles
@@ -132,7 +132,7 @@ TClonesArray * KNOHadronization::Hadronize(
 PDGCodeList * KNOHadronization::SelectParticles(
                                        const Interaction * interaction) const
 {
-  if(!this->AssertWMin(interaction)) {
+  if(!this->AssertValidity(interaction)) {
      LOG("KNOHad", pWARN) << "Returning a null particle list!";
      return 0;
   }
@@ -141,7 +141,7 @@ PDGCodeList * KNOHadronization::SelectParticles(
   unsigned int mult     = 0;
   PDGCodeList * pdgcv   = 0;
 
-  double W = interaction->GetKinematics().W();
+  double W = utils::kinematics::CalcW(interaction);
 
   //-- Get the charge that the hadron shower needs to have so as to
   //   conserve charge in the interaction
@@ -271,7 +271,7 @@ TH1D * KNOHadronization::MultiplicityProb(
 //    section reduction factor then the output histogram should not be re-
 //    normalized after applying the scaling factors.
 
-  if(!this->AssertWMin(interaction)) {
+  if(!this->AssertValidity(interaction)) {
      LOG("KNOHad", pWARN) 
                 << "Returning a null multiplicity probability distribution!";
      return 0;
@@ -288,7 +288,7 @@ TH1D * KNOHadronization::MultiplicityProb(
   double avnch = this->AverageChMult(nu_pdg, nuc_pdg, W);
   double avn   = 1.5*avnch;
 
-  SLOG("Schmitz", pINFO) 
+  SLOG("KNOHad", pINFO) 
              << "Average hadronic multiplicity (W=" << W << ") = " << avn;
 
   // Find the max possible multiplicity as W = Mneutron + (maxmult-1)*Mpion
@@ -462,7 +462,7 @@ void KNOHadronization::LoadConfig(void)
      string defknodata = basedir + "/data/kno/KNO.dat";
      string knodata    = fConfig->GetStringDef("kno-data",defknodata);
 
-     LOG("Schmitz", pNOTICE) << "Loading KNO data from: " << knodata;
+     LOG("KNOHad", pNOTICE) << "Loading KNO data from: " << knodata;
 
      fKNO = new Spline(knodata);
   }
@@ -1258,4 +1258,20 @@ void KNOHadronization::HandleDecays(TClonesArray * plist) const
   } // force decay
 }
 //____________________________________________________________________________
+bool KNOHadronization::AssertValidity(const Interaction * interaction) const
+{
+  if(interaction->GetExclusiveTag().IsCharmEvent()) {
+     LOG("KNOHad", pWARN) << "Can't hadronize charm events";
+     return false;
+  }
+
+  double W = utils::kinematics::CalcW(interaction);
+  if(W < this->Wmin()) {
+     LOG("KNOHad", pWARN) << "Low invariant mass, W = " << W << " GeV!!";
+     return false;
+  }
+  return true;
+}
+//____________________________________________________________________________
+
 

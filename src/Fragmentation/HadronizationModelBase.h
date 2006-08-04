@@ -46,7 +46,7 @@ protected:
 
   //! Various utility methods common to hadronization models
 
-  bool   AssertWMin         (const Interaction * i) const;
+  double Wmin               (void) const;
   double MaxMult            (const Interaction * i) const;
   void   ApplyRijk          (const Interaction * i, bool norm, TH1D * mp) const;
   TH1D * CreateMultProbHist (double maxmult) const;

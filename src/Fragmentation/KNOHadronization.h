@@ -62,6 +62,7 @@ private:
   //! private methods & mutable parameters
 
   void          LoadConfig            (void);
+  bool          AssertValidity        (const Interaction * i)        const;
   PDGCodeList * GenerateFSHadronCodes (int mult, int maxQ, double W) const;
   int           GenerateBaryonPdgCode (int mult, int maxQ)           const;
   int           HadronShowerCharge    (const Interaction * )         const;

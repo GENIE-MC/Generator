@@ -16,35 +16,19 @@
 
 #include <cstdlib>
 
-//#include <TSystem.h>
 #include <TLorentzVector.h>
-//#include <TClonesArray.h>
-//#include <TMCParticle6.h>
 #include <TH1D.h>
 #include <TMath.h>
-//#include <TF1.h>
 
-//#include "Algorithm/AlgConfigPool.h"
-//#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
-//#include "Conventions/Controls.h"
-//#include "Decay/DecayModelI.h"
 #include "Fragmentation/HadronizationModelBase.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
-//#include "Numerical/RandomGen.h"
-//#include "Numerical/Spline.h"
-//#include "PDG/PDGLibrary.h"
-//#include "PDG/PDGCodeList.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
-//#include "Utils/KineUtils.h"
-//#include "Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
-//using namespace genie::controls;
-//using namespace genie::utils::print;
 
 //____________________________________________________________________________
 HadronizationModelBase::HadronizationModelBase(void) :
@@ -70,15 +54,9 @@ HadronizationModelBase::~HadronizationModelBase()
 
 }
 //____________________________________________________________________________
-bool HadronizationModelBase::AssertWMin(const Interaction * interaction) const
+double HadronizationModelBase::Wmin(void) const
 {
-  double W = interaction->GetKinematics().W();
-
-  if(W <= kNucleonMass+kPionMass) {
-     LOG("KNOHad", pWARN)  << "Low invariant mass, W = " << W << " GeV!!";
-     return false;
-  }
-  return true;
+  return (kNucleonMass+kPionMass);
 }
 //____________________________________________________________________________
 double HadronizationModelBase::MaxMult(const Interaction * interaction) const
@@ -133,7 +111,7 @@ void HadronizationModelBase::ApplyRijk(
     R2 = (isCC) ? fRvbnCCm2 : fRvbnNCm2;
     R3 = (isCC) ? fRvbnCCm3 : fRvbnNCm3;
   } else {
-    LOG("KNOHad", pERROR) << "Invalid initial state: " << init_state;
+    LOG("BaseHad", pERROR) << "Invalid initial state: " << init_state;
   }
 
   int nbins = mp->GetNbinsX();
@@ -147,7 +125,7 @@ void HadronizationModelBase::ApplyRijk(
      if(n==2 || n==3) {
         double P   = mp->GetBinContent(i);
         double Psc = R*P;
-        LOG("KNOHad", pDEBUG) 
+        LOG("BaseHad", pDEBUG) 
           << "n=" << n << "/ Scaling factor R = " 
                               << R << "/ P " << P << " --> " << Psc;
         mp->SetBinContent(i, Psc);

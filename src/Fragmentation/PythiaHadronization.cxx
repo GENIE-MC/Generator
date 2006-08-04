@@ -66,11 +66,10 @@ TClonesArray * PythiaHadronization::Hadronize(
 {
   LOG("PythiaHad", pNOTICE) << "Running PYTHIA hadronizer";
 
-  if(!this->AssertWMin(interaction)) {
+  if(!this->AssertValidity(interaction)) {
      LOG("PythiaHad", pWARN) << "Returning a null particle list!";
      return 0;
   }
-
   this->SyncSeeds();
 
   //-- get kinematics / init-state / process-info
@@ -217,8 +216,12 @@ TClonesArray * PythiaHadronization::Hadronize(
   LOG("PythiaHad", pNOTICE)
         << "Fragmentation / Init System: "
                       << "q = " << final_quark << ", qq = " << diquark;
-  int ip = 0;
-  py2ent_(&ip, &final_quark, &diquark, &W);
+  int ip     = 0;
+  int mstj21 = fPythia->GetMSTJ(21);
+
+  fPythia->SetMSTJ(21,0);                   // inhibit decays at this stage
+  py2ent_(&ip, &final_quark, &diquark, &W); // hadronizer
+  fPythia->SetMSTJ(21,mstj21);              // restore 
 
   //-- get LUJETS record
   fPythia->GetPrimaries();
@@ -262,11 +265,6 @@ PDGCodeList * PythiaHadronization::SelectParticles(
 // we extract the list of particles from the fragmentation record after the
 // hadronization has been completed.
 
-  if(!this->AssertWMin(interaction)) {
-     LOG("PythiaHad", pWARN) << "Returning a null particle list!";
-     return 0;
-  }
-
   TClonesArray * particle_list = this->Hadronize(interaction);
 
   if(!particle_list) return 0;
@@ -293,7 +291,7 @@ TH1D * PythiaHadronization::MultiplicityProb(
 {
 // Similar comments apply as in SelectParticles()
 
-  if(!this->AssertWMin(interaction)) {
+  if(!this->AssertValidity(interaction)) {
      LOG("PythiaHad", pWARN) 
                 << "Returning a null multipicity probability distribution!";
      return 0;
@@ -445,6 +443,21 @@ void PythiaHadronization::SyncSeeds(void) const
      fCurrSeed = cs;
      fPythia->SetMRPY(1,fCurrSeed);
   }
+}
+//____________________________________________________________________________
+bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
+{
+  if(interaction->GetExclusiveTag().IsCharmEvent()) {
+     LOG("PythiaHad", pWARN) << "Can't hadronize charm events";
+     return false;
+  }
+
+  double W = utils::kinematics::CalcW(interaction);
+  if(W < this->Wmin()) {
+     LOG("PythiaHad", pWARN) << "Low invariant mass, W = " << W << " GeV!!";
+     return false;
+  }
+  return true;
 }
 //____________________________________________________________________________
 
