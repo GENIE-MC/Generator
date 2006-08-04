@@ -98,6 +98,8 @@ TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
   fPythia->GetPrimaries();
   TClonesArray * impl = (TClonesArray *) fPythia->ImportParticles("All");
 
+  if(!impl) return 0;
+
   //-- if we switched of some channels, now we should restore TPythia's state
   if(inp.InhibitedChannels) this->SwitchOnAllChannels(inp.PdgCode);
   
