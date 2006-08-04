@@ -92,32 +92,41 @@ double AivazisCharmPXSecLO::XSec(
   bool isP = pdg::IsProton (nuc);
   bool isN = pdg::IsNeutron(nuc);
 
-  double d = 0;
-
   if(!isP && !isN) return 0;
-  else if(isP) d = pdfs.DownValence() + pdfs.DownSea();
-  else         d = pdfs.UpValence()   + pdfs.UpSea();
 
-  double s = pdfs.Strange();
+  //----- proton pdfs
+  double us = pdfs.UpSea()/xi;
+  double uv = pdfs.UpValence()/xi;
+  double ds = pdfs.DownSea()/xi;
+  double dv = pdfs.DownValence()/xi;
+  double s  = pdfs.Strange()/xi;
 
-  d /= xi;
-  s /= xi;
-
-  //----- Calculate cross section
-  double Gw  = (kGF/kSqrt2) * (1 + Q2/kMw2);
-  double Gw2 = TMath::Power(Gw, 2);
-  double tmp = Gw2 * (y*Q2/kPi) *
-                   (TMath::Power((1+coshpsi)/2, 2) + (0.5*fMc2/Q2)*sinh2psi/2);
-  double xsec = 0;
-
-  if(fDContributes) {
-      double xsec_d = 2 * fVcd2 * d * tmp;
-      xsec += xsec_d;
+  //----- if the hit nucleon is a neutron, swap u<->d
+  double tmp;
+  if (isN) { 
+    tmp = uv; uv = dv; dv = tmp;
+    tmp = us; us = ds; ds = tmp;
   }
-  if(fSContributes) {
-      double xsec_s = 2 * fVcs2 * s * tmp;
-      xsec += xsec_s;
+
+  //----- if a hit quark has been set then switch off other contributions
+  if(target.StruckQuarkIsSet()) {
+    bool qpdg = target.StruckQuarkPDGCode();
+    bool sea  = target.StruckQuarkIsFromSea();
+    bool isd  = pdg::IsDQuark (qpdg);
+    bool iss  = pdg::IsSQuark (qpdg);
+    dv   = ( isd && !sea) ? dv   : 0.;
+    ds   = ( isd &&  sea) ? ds   : 0.;
+    s    = ( iss &&  sea) ? s    : 0.;
   }
+
+  //----- calculate the cross section
+  double Gw2    = TMath::Power((kGF/kSqrt2)*(1+Q2/kMw2), 2);
+  double f1     = TMath::Power( (1+coshpsi)/2, 2);
+  double f2     = 0.25 * (fMc2/Q2) * sinh2psi;
+  double xsec_0 = 2 * Gw2 * (y*Q2/kPi) * (f1+f2);
+  double xsec_d = xsec_0 * fVcd2 * (dv+ds);
+  double xsec_s = xsec_0 * fVcs2 * s;
+  double xsec   = xsec_d + xsec_s;
 
   LOG("DISCharmXSec", pDEBUG)
     << "\n dxsec[DISCharm,FreeN]/dxdy (E= " << E
@@ -236,14 +245,9 @@ void AivazisCharmPXSecLO::LoadConfig(void)
   fVcd2  = TMath::Power(fVcd, 2);
   fVcs2  = TMath::Power(fVcs, 2);
 
-  // check if we compute contributions from both d and s quarks
-  fDContributes = fConfig->GetBoolDef("d-contrib-switch", true);
-  fSContributes = fConfig->GetBoolDef("s-contrib-switch", true);
-
   // load PDF set
-  fPDFModel = 0;
   fPDFModel = dynamic_cast<const PDFModelI *> (
-                           this->SubAlg("pdf-alg-name", "pdf-param-set"));
+                              this->SubAlg("pdf-alg-name", "pdf-param-set"));
   assert(fPDFModel);
 }
 //____________________________________________________________________________
