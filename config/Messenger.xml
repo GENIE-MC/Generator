@@ -32,6 +32,7 @@
   <priority msgstream="BodekYang">           INFO   </priority>
   <priority msgstream="BodekRitchie">        WARN   </priority>
   <priority msgstream="Cache">               NOTICE </priority>
+  <priority msgstream="CharmHad">            DEBUG  </priority>
   <priority msgstream="CFracTab">            INFO   </priority>
   <priority msgstream="COHXSec">             INFO   </priority>
   <priority msgstream="CLAP">                NOTICE </priority>
@@ -51,7 +52,6 @@
   <priority msgstream="ELFormFactors">       INFO   </priority>
   <priority msgstream="FermiMover">          INFO   </priority>
   <priority msgstream="FermiP">              NOTICE </priority>
-  <priority msgstream="FragmentCharm">       INFO   </priority>
   <priority msgstream="Flux">                NOTICE </priority>
   <priority msgstream="FLUKA">               INFO   </priority>
   <priority msgstream="FMap">                WARN   </priority>

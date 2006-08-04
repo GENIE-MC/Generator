@@ -224,7 +224,7 @@
   <param_set name="DIS-CC-CHARM"> 
      <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
-     <param type="int"    name="n-generator-steps">      6                                  </param>
+     <param type="int"    name="n-generator-steps">      7                                  </param>
 
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
@@ -234,10 +234,12 @@
      <param type="string" name="generator-step-2-conf">  CC-Charm-Default                   </param>
      <param type="string" name="generator-step-3-alg">   genie::DISPrimaryLeptonGenerator   </param>
      <param type="string" name="generator-step-3-conf">  Default                            </param>
-     <param type="string" name="generator-step-4-alg">   genie::FragmentCharmDISGenerator   </param>
-     <param type="string" name="generator-step-4-conf">  CharmHadronOnly                    </param>
-     <param type="string" name="generator-step-5-alg">   genie::UnstableParticleDecayer     </param>
-     <param type="string" name="generator-step-5-conf">  Default                            </param>
+     <param type="string" name="generator-step-4-alg">   genie::DISHadronicSystemGenerator  </param>
+     <param type="string" name="generator-step-4-conf">  Charm                              </param>
+     <param type="string" name="generator-step-5-alg">   genie::Intranuke                   </param>
+     <param type="string" name="generator-step-5-conf">  TransparentNucleus                 </param>
+     <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-6-conf">  Default                            </param>
 
      <param type="string" name="interaction-list-alg">   genie::DISInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  CC-Charm-Default                   </param>
