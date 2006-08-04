@@ -12,6 +12,7 @@
 #pragma link C++ class genie::PythiaHadronization;
 #pragma link C++ class genie::KNOHadronization;
 #pragma link C++ class genie::KNOPythiaHadronization;
+#pragma link C++ class genie::CharmHadronization;
 
 #pragma link C++ class genie::FragmentationFunctionI;
 #pragma link C++ class genie::PetersonFragm;
