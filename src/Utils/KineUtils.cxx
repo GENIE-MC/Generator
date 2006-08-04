@@ -20,7 +20,6 @@
 
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
-#include "Interaction/IUtils.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
@@ -468,12 +467,8 @@ double genie::utils::kinematics::CalcW(const Interaction * const interaction)
   const ProcessInfo & process_info = interaction->GetProcessInfo();
 
   if(process_info.IsQuasiElastic()) {
-    //    const InitialState & init_state  = interaction->GetInitialState();
-    //    double M  = init_state.GetTarget().StruckNucleonP4()->M(); 
-    //    return M;
-
     // hadronic inv. mass is equal to the recoil nucleon on-shell mass
-    int    rpdgc = utils::interaction::RecoilNucleonPdgCode(interaction);
+    int rpdgc = interaction->RecoilNuclPDGCode();
     double M = PDGLibrary::Instance()->Find(rpdgc)->Mass();
     return M;
   }
@@ -619,7 +614,7 @@ double genie::utils::kinematics::RESImportanceSamplingEnvelope(
   double gD    = par[1]; // resonance width
   double xsmax = par[2]; // safety factor * max cross section in (W,Q2)
   double Wmax  = par[3]; // kinematically allowed Wmax
-  double E     = par[4]; // neutrino energy
+  //double E     = par[4]; // neutrino energy
 
   double func = 0;
 
