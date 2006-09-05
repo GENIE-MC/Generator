@@ -16,7 +16,7 @@ Name                          Type    Opt   Comment                             
      <param type="string" name="fragmentation-func-alg-name">  genie::PetersonFragm    </param>
      <param type="string" name="fragmentation-func-param-set"> Default                 </param>
      <param type="double" name="pT2scale">                     0.6                     </param>
-     <param type="bool"   name="model-charm-only">             true                  </param>
+     <param type="bool"   name="model-charm-only">             false                   </param>
   </param_set>
 
 </alg_conf>
