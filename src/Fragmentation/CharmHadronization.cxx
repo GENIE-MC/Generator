@@ -81,7 +81,9 @@ TClonesArray * CharmHadronization::Hadronize(
 
   LOG("CharmHad", pNOTICE) << "Ehad (LAB) = " << Eh << ", W = " << W;
 
-  //-- Generate a charmed hadron PDG code
+  //-- Generate a charmed hadron PDG code and generate its energy
+  //   based on the input fragmentation function
+
   int cpdgc = 0;
   double mC=0., mC2=0., EC=0., EC2=0., z=0., pC2=0.;
 
@@ -111,7 +113,9 @@ TClonesArray * CharmHadronization::Hadronize(
   LOG("CharmHad", pNOTICE) 
          << "Generated charm hadron z = " << z << ", E = " << EC;
 
-  //-- Generate the charm hadron pT^2 and pL^2
+  //-- Generate the charm hadron pT^2 and pL^2 (with respect to the
+  //   hadronic system direction @ the LAB)
+
   double plC2=0., ptC2=0.;
   found = false;
   while(!found) {
@@ -125,7 +129,8 @@ TClonesArray * CharmHadronization::Hadronize(
      return 0;
   }
 
-  //-- generate the charm hadron momentum components
+  //-- Generate the charm hadron momentum components (with respect to
+  //   the hadronic system direction @ the LAB)
   double ptC = TMath::Sqrt(ptC2);
   double plC = TMath::Sqrt(plC2);   
   double phi = (2*kPi) * rnd->RndHadro().Rndm();
@@ -134,16 +139,26 @@ TClonesArray * CharmHadronization::Hadronize(
   double pzC = plC; 
 
   LOG("CharmHad", pNOTICE) 
-      << "Generated charm hadron pT = " << ptC << ", pL = " << plC;
+           << "Generated charm hadron pT (tranv to pHad) = " << ptC;
+  LOG("CharmHad", pNOTICE) 
+           << "Generated charm hadron pL (along to pHad) = " << plC;
 
-  //-- Charm hadron 4p at LAB
-  TLorentzVector p4C(pxC,pyC,pzC,EC);
+  //-- Rotate charm hadron 3-momentum from the system with z' along
+  //   the hadronic momentum to the LAB
+
+  TVector3 unitvq = p4Had.Vect().Unit();
+
+  TVector3 p3C(pxC, pyC, pzC);
+  p3C.RotateUz(unitvq);
+
+  //-- Boost charm hadron 4-momentum from the LAB to the HCM frame
+
+  TLorentzVector p4C(p3C,EC);
 
   LOG("CharmHad", pNOTICE) 
     << "Charm hadron p4 (LAB) = " << utils::print::P4AsString(&p4C);
 
-  //-- Charm hadron 4p at HCM
-  TVector3 beta = -1 * p4Had.BoostVector(); // LAB -> HCM
+  TVector3 beta = -1 * p4Had.BoostVector();
   p4C.Boost(beta);
 
   LOG("CharmHad", pNOTICE) 
@@ -156,12 +171,11 @@ TClonesArray * CharmHadronization::Hadronize(
   double WR = p4R.M();
 
   LOG("CharmHad", pNOTICE) 
-              << "Hadronic-blob (remnant) invariant mass = " << WR;
+             << "Hadronic-blob (remnant) invariant mass = " << WR;
 
   //-- Check whether I was only asked to generate the charm hadron and the
   //   hadronic blob and notto hadronize the blob as well
   if(fCharmOnly) {
-
     // Create particle list (fragmentation record)
     TClonesArray * particle_list = new TClonesArray("TMCParticle", 2);
     particle_list->SetOwner(true);
@@ -169,7 +183,7 @@ TClonesArray * CharmHadronization::Hadronize(
     // insert the generated charm hadron & the hadronic (non-charm) blob
 
     new ((*particle_list)[0]) TMCParticle (1,cpdgc,
-                                 -1,-1,-1, pxC,pyC,pzC,EC,mC, 0,0,0,0,0);
+	     -1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),mC, 0,0,0,0,0);
     new ((*particle_list)[1]) TMCParticle (11,kPdgHadronicBlob,
              -1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
 
@@ -251,9 +265,9 @@ TClonesArray * CharmHadronization::Hadronize(
   //   In this case the hadronic blob is entered as a pre-fragm. state.
 
   new ((*particle_list)[0]) TMCParticle (1,cpdgc,
-                                     0,0,0, pxC,pyC,pzC,EC,mC, 0,0,0,0,0);
+                  -1,-1,-1,  p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),mC, 0,0,0,0,0);
   new ((*particle_list)[1]) TMCParticle (11,kPdgHadronicBlob,
-        0,1,nhadrons-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
+       -1,2,3, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
 
   //-- Velocity for boosting fragments from the remnant hadrons CM frame
   //   to the hadronic -all hadrons- CM frame
@@ -287,22 +301,18 @@ TClonesArray * CharmHadronization::Hadronize(
     boosted_remnant -> SetPz     (p4.Pz());
     boosted_remnant -> SetEnergy (p4.E() );
 
-    // handle insertion of charmed hadron ..... ......... .........
+    // handle insertion of charmed hadron 
     int ip  = boosted_remnant->GetParent();
     int ifc = boosted_remnant->GetFirstChild();
     int ilc = boosted_remnant->GetLastChild();
 
-    boosted_remnant -> SetParent     ( (ip  == 0 ? 1   : ip +2) );
-    boosted_remnant -> SetFirstChild ( (ifc == 0 ? ifc : ifc+2) );
-    boosted_remnant -> SetLastChild  ( (ilc == 0 ? ilc : ilc+2) );
+    boosted_remnant -> SetParent     ( (ip  == 0 ?  1 : ip +1) );
+    boosted_remnant -> SetFirstChild ( (ifc == 0 ? -1 : ifc+1) );
+    boosted_remnant -> SetLastChild  ( (ilc == 0 ? -1 : ilc+1) );
   }
 
-  //-- Delete remnants
-  remnants->Delete();
-  delete remnants;
-
   //-- Print & return the fragmentation record
-  utils::fragmrec::Print(particle_list);
+  //utils::fragmrec::Print(particle_list);
   return particle_list;
 }
 //____________________________________________________________________________
