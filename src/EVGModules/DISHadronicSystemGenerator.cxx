@@ -29,6 +29,7 @@
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Utils/FragmRecUtils.h"
 #include "Utils/PrintUtils.h"
 
 using namespace genie;
@@ -151,8 +152,8 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
      GHepStatus_t ist = (ks==1) ? istfin : kIStDISPreFragmHadronicState;
 
      int im  = mom + 1 + p->GetParent();
-     int ifc = mom + 1 + p->GetFirstChild();
-     int ilc = mom + 1 + p->GetLastChild();
+     int ifc = (p->GetFirstChild() == -1) ? -1 : mom + 1 + p->GetFirstChild();
+     int ilc = (p->GetLastChild()  == -1) ? -1 : mom + 1 + p->GetLastChild();
 
      evrec->AddParticle(pdgc, ist, im,-1, ifc, ilc, p4,v4);
 
