@@ -66,7 +66,7 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
 
      if( this->ToBeDecayed(p) ) {
         LOG("ParticleDecayer", pNOTICE)
-              << "Decaying unstable particle: " << p->GetName();
+              << "Decaying unstable particle: " << p->Name();
 
         //-- Get the parent particle 4-momentum
 
@@ -116,7 +116,7 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
 
   TParticlePDG * ppdg = PDGLibrary::Instance()->Find(pdg_code);
 
-   if( ppdg->Lifetime() < fMaxLifetime ) { /*return true*/ };
+  if( ppdg->Lifetime() < fMaxLifetime ) { /*return true*/ };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - temporary/
   // ROOT's TParticlepdg::Lifetim e() does not work properly
