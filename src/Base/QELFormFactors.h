@@ -41,14 +41,25 @@ public:
   QELFormFactors(const QELFormFactors & form_factors);
   virtual ~QELFormFactors() { }
 
+  //! Attach an algorithm
   void   SetModel  (const QELFormFactorsModelI * model);
+
+  //! Compute the form factors for the input interaction using the attached model
   void   Calculate (const Interaction * interaction);
 
+  //! Get the computed form factor F1V
   double F1V    (void) const { return fF1V;   }
+
+  //! Get the computed form factor xi*F2V
   double xiF2V  (void) const { return fxiF2V; }
+
+  //! Get the computed form factor FA
   double FA     (void) const { return fFA;    }
+
+  //! Get the computed form factor Fp
   double Fp     (void) const { return fFp;    }
 
+  //! Get the attached model
   const QELFormFactorsModelI * Model (void) const {return fModel;}
 
   void   Reset    (Option_t * opt="");

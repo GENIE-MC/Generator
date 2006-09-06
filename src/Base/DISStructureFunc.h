@@ -37,21 +37,35 @@ namespace genie {
 class DISStructureFunc {
 
 public:
-
   DISStructureFunc();
   DISStructureFunc(const DISStructureFunc & form_factors);
   virtual ~DISStructureFunc() { }
 
-  void   SetModel  (const DISStructureFuncModelI * model);
-  void   Calculate (const Interaction * interaction);
+  //! Attach an algorithm
+  void SetModel  (const DISStructureFuncModelI * model);
 
+  //! Calculate the S/F's for the input interaction using the attached algorithm
+  void Calculate (const Interaction * interaction);
+
+  //! Get the computed structure function F1
   double F1 (void) const { return fF1; }
+
+  //! Get the computed structure function F2
   double F2 (void) const { return fF2; }
+
+  //! Get the computed structure function F3
   double F3 (void) const { return fF3; }
+
+  //! Get the computed structure function F4
   double F4 (void) const { return fF4; }
+
+  //! Get the computed structure function F5
   double F5 (void) const { return fF5; }
+
+  //! Get the computed structure function F6
   double F6 (void) const { return fF6; }
 
+  //! Get the attached model
   const DISStructureFuncModelI * Model (void) const {return fModel;}
 
   void   Reset    (Option_t * opt="");

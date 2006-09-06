@@ -29,21 +29,25 @@ namespace genie {
 class QELFormFactorsModelI : public Algorithm {
 
 public:
-
   virtual ~QELFormFactorsModelI();
 
+  //! Compute the form factor F1V for the input interaction
   virtual double F1V   (const Interaction * interaction) const = 0;
+
+  //! Compute the form factor xi*F2V for the input interaction
   virtual double xiF2V (const Interaction * interaction) const = 0;
+
+  //! Compute the form factor FA for the input interaction
   virtual double FA    (const Interaction * interaction) const = 0;
+
+  //! Compute the form factor Fp for the input interaction
   virtual double Fp    (const Interaction * interaction) const = 0;
 
 protected:
-
   QELFormFactorsModelI();
   QELFormFactorsModelI(string name);
   QELFormFactorsModelI(string name, string config);
 };
 
 }         // genie namespace 
-
 #endif    // _QEL_FORM_FACTORS_MODEL_I_H_

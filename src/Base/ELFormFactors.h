@@ -34,19 +34,29 @@ class Interaction;
 class ELFormFactors {
 
 public:
-
   ELFormFactors();
   ELFormFactors(const ELFormFactors & form_factors);
   virtual ~ELFormFactors() { }
 
+  //! Attach an algorithm
   void   SetModel  (const ELFormFactorsModelI * model);
+
+  //! Calculate the form factors for the input interaction using the attached algorithm
   void   Calculate (const Interaction * interaction);
 
+  //! Get the computed form factor Gep
   double Gep (void) const { return fGep; }
+
+  //! Get the computed form factor Gmp
   double Gmp (void) const { return fGmp; }
+
+  //! Get the computed form factor Gen
   double Gen (void) const { return fGen; }
+
+  //! Get the computed form factor Gmn
   double Gmn (void) const { return fGmn; }
 
+  //! Get the attached model
   const ELFormFactorsModelI * Model (void) const {return fModel;}
 
   void   Reset    (Option_t * opt="");
