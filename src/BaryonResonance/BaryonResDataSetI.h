@@ -29,7 +29,6 @@ namespace genie {
 class BaryonResDataSetI : public Algorithm {
 
 public:
-
   virtual ~BaryonResDataSetI();
 
   //-- define the BaryonResDataSetI interface
@@ -43,12 +42,10 @@ public:
   virtual double BreitWignerNorm   (Resonance_t res) const = 0;
 
 protected:
-
   BaryonResDataSetI();
   BaryonResDataSetI(string name);
   BaryonResDataSetI(string name, string config);
 };
 
 }         // genie namespace 
-
 #endif    // _BARYON_RES_DATA_SET_I_H_

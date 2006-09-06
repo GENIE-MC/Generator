@@ -32,6 +32,7 @@ class BreitWignerI : public Algorithm {
 public:
   virtual ~BreitWignerI();
 
+  //! Evaluate the Breit-Wigner function for the input resonance at the input mass
   virtual double Eval(Resonance_t res, double W) const = 0;
 
 protected:
