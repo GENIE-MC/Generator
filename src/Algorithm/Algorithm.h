@@ -36,26 +36,44 @@ namespace genie {
 class Algorithm {
 
 public:
-
   virtual ~Algorithm();
 
-  //-- define the Algorithm interface
+  //-- Define the Algorithm interface
 
-  virtual void             Configure  (const Registry & config);
-  virtual void             Configure  (string config);
-  virtual void             FindConfig (void);
-  virtual const Registry & GetConfig  (void) const { return *fConfig; }
-  virtual const AlgId &    Id         (void) const { return  fID;     }
-  virtual AlgStatus_t      GetStatus  (void) const { return  fStatus; }
-  virtual AlgCmp_t         Compare    (const Algorithm * alg) const;
-  virtual void             SetId      (const AlgId & id);
-  virtual void             SetId      (string name,  string config);
-  virtual void             Print      (ostream & stream) const;
+  //! Configure the algorithm
+  virtual void Configure(const Registry & config);
 
+  //! Configure the algorithm
+  virtual void Configure(string config);
+
+  //! Lookup configuration from the algorithm configuration pool
+  virtual void FindConfig(void);
+
+  //! Get configuration registry
+  virtual const Registry & GetConfig(void) const { return *fConfig; }
+
+  //! Get algorithm ID
+  virtual const AlgId & Id(void) const { return fID; }
+
+  //! Get algorithm status
+  virtual AlgStatus_t GetStatus(void) const { return fStatus; }
+
+  //! Compare with input algorithm
+  virtual AlgCmp_t Compare(const Algorithm * alg) const;
+
+  //! Set algorithm ID
+  virtual void SetId(const AlgId & id);
+
+  //! Set algorithm ID
+  virtual void SetId(string name,  string config);
+
+  //! Print algorithm info
+  virtual void Print(ostream & stream) const;
+
+  //! Print algorithm info
   friend ostream & operator << (ostream & stream, const Algorithm & alg);
 
 protected:
-
   Algorithm();
   Algorithm(string name);
   Algorithm(string name, string config);
@@ -74,5 +92,4 @@ protected:
 };
 
 }       // genie namespace
-
 #endif  // _ALGORITHM_H_
