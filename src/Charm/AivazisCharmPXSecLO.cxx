@@ -63,6 +63,22 @@ double AivazisCharmPXSecLO::XSec(
   const Kinematics &   kinematics = interaction -> GetKinematics();
   const InitialState & init_state = interaction -> GetInitialState();
   const Target &       target     = init_state.GetTarget();
+  
+  //----- get target information (hit nucleon and quark)
+  int  nuc = target.StruckNucleonPDGCode();
+  bool isP = pdg::IsProton (nuc);
+  bool isN = pdg::IsNeutron(nuc);
+
+  if(!isP && !isN) return 0;
+
+  bool qset = target.StruckQuarkIsSet();
+
+  int  qpdg = (qset) ? target.StruckQuarkPDGCode()   : 0;
+  bool sea  = (qset) ? target.StruckQuarkIsFromSea() : false;
+  bool isd  = (qset) ? pdg::IsDQuark (qpdg)          : false;
+  bool iss  = (qset) ? pdg::IsSQuark (qpdg)          : false;
+
+  if (pdg::IsAntiQuark(qpdg)) return 0.; // prevent qbar -> charm
 
   //----- compute kinematic & auxiliary parameters
   double E           = init_state.GetProbeE(kRfStruckNucAtRest);
@@ -88,12 +104,6 @@ double AivazisCharmPXSecLO::XSec(
   pdfs.SetModel(fPDFModel);  // <-- attach algorithm
   pdfs.Calculate(xi, Q2);    // <-- calculate
 
-  int  nuc = target.StruckNucleonPDGCode();
-  bool isP = pdg::IsProton (nuc);
-  bool isN = pdg::IsNeutron(nuc);
-
-  if(!isP && !isN) return 0;
-
   //----- proton pdfs
   double us = pdfs.UpSea()/xi;
   double uv = pdfs.UpValence()/xi;
@@ -109,14 +119,10 @@ double AivazisCharmPXSecLO::XSec(
   }
 
   //----- if a hit quark has been set then switch off other contributions
-  if(target.StruckQuarkIsSet()) {
-    bool qpdg = target.StruckQuarkPDGCode();
-    bool sea  = target.StruckQuarkIsFromSea();
-    bool isd  = pdg::IsDQuark (qpdg);
-    bool iss  = pdg::IsSQuark (qpdg);
-    dv   = ( isd && !sea) ? dv   : 0.;
-    ds   = ( isd &&  sea) ? ds   : 0.;
-    s    = ( iss &&  sea) ? s    : 0.;
+  if(qset) {
+    dv = ( isd && !sea) ? dv : 0.;
+    ds = ( isd &&  sea) ? ds : 0.;
+    s  = ( iss &&  sea) ? s  : 0.;
   }
 
   //----- calculate the cross section

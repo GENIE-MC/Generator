@@ -69,6 +69,22 @@ double SlowRsclCharmDISPXSecLO::XSec(
   double x    = kinematics.x();
   double y    = kinematics.y();
 
+  //----- get target information (hit nucleon and quark)
+  int  nuc = target.StruckNucleonPDGCode();
+  bool isP = pdg::IsProton (nuc);
+  bool isN = pdg::IsNeutron(nuc);
+
+  if(!isP && !isN) return 0;
+
+  bool qset = target.StruckQuarkIsSet();
+
+  int  qpdg = (qset) ? target.StruckQuarkPDGCode()   : 0;
+  bool sea  = (qset) ? target.StruckQuarkIsFromSea() : false;
+  bool isd  = (qset) ? pdg::IsDQuark (qpdg)          : false;
+  bool iss  = (qset) ? pdg::IsSQuark (qpdg)          : false;
+
+  if (pdg::IsAntiQuark(qpdg)) return 0.; // prevent qbar -> charm
+
   //----- compute kinematic & auxiliary parameters
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double Q2    = 2*Mnuc*E*x*y;
@@ -83,12 +99,6 @@ double SlowRsclCharmDISPXSecLO::XSec(
   PDF pdfs;
   pdfs.SetModel(fPDFModel);   // <-- attach algorithm
   pdfs.Calculate(xi, Q2);     // <-- calculate
-
-  int  nuc = target.StruckNucleonPDGCode();
-  bool isP = pdg::IsProton (nuc);
-  bool isN = pdg::IsNeutron(nuc);
- 
-  if(!isP && !isN) return 0;
 
   //----- proton pdfs
   double us = pdfs.UpSea()/xi;
@@ -105,14 +115,10 @@ double SlowRsclCharmDISPXSecLO::XSec(
   }
 
   //----- if a hit quark has been set then switch off other contributions
-  if(target.StruckQuarkIsSet()) {
-    bool qpdg = target.StruckQuarkPDGCode();
-    bool sea  = target.StruckQuarkIsFromSea();
-    bool isd  = pdg::IsDQuark (qpdg);
-    bool iss  = pdg::IsSQuark (qpdg);
-    dv   = ( isd && !sea) ? dv   : 0.;
-    ds   = ( isd &&  sea) ? ds   : 0.;
-    s    = ( iss &&  sea) ? s    : 0.;
+  if(qset) {
+    dv = ( isd && !sea) ? dv : 0.;
+    ds = ( isd &&  sea) ? ds : 0.;
+    s  = ( iss &&  sea) ? s  : 0.;
   }
 
   //----- calculate cross section
@@ -121,7 +127,6 @@ double SlowRsclCharmDISPXSecLO::XSec(
   double xsec_d = xsec_0 * fVcd2 * (dv+ds);
   double xsec_s = xsec_0 * fVcs2 * s;
   double xsec   = xsec_d + xsec_s;
-
 
   LOG("DISCharmXSec", pDEBUG)
     << "\n dxsec[DISCharm,FreeN]/dxdy (E= " << E
