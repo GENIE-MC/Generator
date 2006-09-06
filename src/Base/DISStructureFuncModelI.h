@@ -29,27 +29,34 @@ namespace genie {
 class DISStructureFuncModelI : public Algorithm {
 
 public:
-
   virtual ~DISStructureFuncModelI();
 
-  //-- define DISStructureFuncModelI interface
-
+  //! Calculate the structure functions F1-F6 for the input interaction
   virtual void Calculate (const Interaction * interaction) const = 0;
 
+  //! Get the computed structure function F1
   virtual double F1 (void) const = 0;
+
+  //! Get the computed structure function F2
   virtual double F2 (void) const = 0;
+
+  //! Get the computed structure function F3
   virtual double F3 (void) const = 0;
+
+  //! Get the computed structure function F4
   virtual double F4 (void) const = 0;
+
+  //! Get the computed structure function F5
   virtual double F5 (void) const = 0;
+
+  //! Get the computed structure function F6
   virtual double F6 (void) const = 0;
 
 protected:
-
   DISStructureFuncModelI();
   DISStructureFuncModelI(string name);
   DISStructureFuncModelI(string name, string config);
 };
 
 }         // genie namespace
-
 #endif    // _DIS_STRUCTURE_FUNCTIONS_MODEL_I_H_

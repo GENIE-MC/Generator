@@ -30,11 +30,13 @@ class XSecAlgorithmI : public Algorithm {
 public:
   virtual ~XSecAlgorithmI();
 
-  //! the XSecAlgorithmI algorithm
-
+  //! Compute the cross section for the input interaction
   virtual double XSec (const Interaction* i, KinePhaseSpace_t k=kPSfE) const = 0;
 
+  //! Can this cross section algorithm handle the input process?
   virtual bool ValidProcess    (const Interaction* i) const = 0;
+
+  //! Is the input kinematical point a physically allowed one?
   virtual bool ValidKinematics (const Interaction* i) const = 0;
 
 protected:
@@ -44,5 +46,4 @@ protected:
 };
 
 }       // genie namespace
-
 #endif  // _XSEC_ALGORITHM_I_H_
