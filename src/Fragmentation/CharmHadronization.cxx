@@ -173,6 +173,13 @@ TClonesArray * CharmHadronization::Hadronize(
   LOG("CharmHad", pNOTICE) 
              << "Hadronic-blob (remnant) invariant mass = " << WR;
 
+  //-- If the remnant mass is too low then return a null record so
+  //   as to re-try.
+  if(WR < kNucleonMass + kPionMass) {
+     LOG("CharmHad", pWARN) << "Too small hadronic remnant mass!";
+     return 0;
+  }
+
   //-- Check whether I was only asked to generate the charm hadron and the
   //   hadronic blob and not to hadronize the blob as well
   if(fCharmOnly) {
