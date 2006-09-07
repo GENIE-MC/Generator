@@ -361,47 +361,6 @@ void genie::utils::kinematics::MinXY(
   WQ2toXY(Ev,M,W.min,Q2.min,x,y);
 }
 //____________________________________________________________________________
-/*
-
-double genie::utils::kinematics::EnergyThreshold(
-                                        const Interaction * const interaction)
-{
-  const Target &      tgt  = interaction->InitState().Tgt();
-  const ProcessInfo & proc = interaction->ProcInfo();
-
-  double ml = interaction->FSPrimLepton()->Mass();
-
-  if (proc.IsCoherent()) {
-
-    int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (1AAAZZZ000)
-    double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass(); 
-    double m    = ml + kPionMass;
-    double m2   = TMath::Power(m,2);
-    double Ethr = m + 0.5*m2/MA;
-    return Ethr;
-  }
-
-  if(proc.IsQuasiElastic() || proc.IsResonant() || proc.IsDeepInelastic()) {
-
-    assert(tgt.HitNucIsSet());
-    double Mn   = tgt.HitNucP4Ptr()->M();
-    double Mn2  = TMath::Power(Mn,2);
-    double Wmin = (proc.IsQuasiElastic()) ? Mn : kNeutronMass+kPionMass;
-    double smin = TMath::Power(Wmin+ml,2.);
-    double Ethr = 0.5*(smin-Mn2)/Mn;
-    return Ethr;
-  }
-
-  SLOG("KineLimits", pERROR)
-      	      << "Can't compute threshold for \n" << *interaction;
-  exit(1);
-
-  return 99999999;
-}
-
-*/
-
-//____________________________________________________________________________
 bool genie::utils::kinematics::IsAboveCharmThreshold(
                              const Interaction * const interaction, double mc)
 {

@@ -38,7 +38,6 @@ namespace kinematics
                                     KinePhaseSpace_t a, KinePhaseSpace_t b, bool & fwd);
 
   //-- methods used for figuring out the physical range of kinematical variables
-////////////  double     EnergyThreshold (const Interaction * const i);
   Range1D_t  KineRange       (const Interaction * const i, KineVar_t k);
   Range1D_t  WRange          (const Interaction * const i);
   Range1D_t  Q2Range         (const Interaction * const i);
