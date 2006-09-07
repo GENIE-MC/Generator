@@ -60,19 +60,19 @@ double ReinSeghalRESXSec::XSec(
   Cache * cache = Cache::Instance();
 
   //-- Get init state and process information
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
-  const Target &       target     = init_state.GetTarget();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+  const Target &       target     = init_state.Tgt();
 
   InteractionType_t it = proc_info.InteractionTypeId();
-  int nucleon_pdgc = target.StruckNucleonPDGCode();
-  int nu_pdgc      = init_state.GetProbePDGCode();
+  int nucleon_pdgc = target.HitNucPdg();
+  int nu_pdgc      = init_state.ProbePdg();
 
   //-- Get neutrino energy in the struck nucleon rest frame
-  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Ev = init_state.ProbeE(kRfHitNucRest);
 
   //-- Get the requested resonance
-  Resonance_t res = interaction->GetExclusiveTag().Resonance();
+  Resonance_t res = interaction->ExclTag().Resonance();
 
   //-- Build a unique name for the cache branch
   string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
@@ -130,10 +130,10 @@ bool ReinSeghalRESXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> InitState();
+  double Ev  = init_state.ProbeE(kRfHitNucRest);
 
-  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  double EvThr = interaction->EnergyThreshold();
   if(Ev <= EvThr) return false;
 
   return true;

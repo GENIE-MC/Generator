@@ -59,14 +59,14 @@ FermiMover::~FermiMover()
 //___________________________________________________________________________
 void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
 {
-  Interaction *  interaction = event_rec   -> GetInteraction();
-  InitialState * init_state  = interaction -> GetInitialStatePtr();
-  Target *       tgt         = init_state  -> GetTargetPtr();
+  Interaction *  interaction = event_rec   -> Summary();
+  InitialState * init_state  = interaction -> InitStatePtr();
+  Target *       tgt         = init_state  -> TgtPtr();
 
   // do nothing for non-nuclear targets
   if(!tgt->IsNucleus()) return;
 
-  TLorentzVector * p4 = tgt->StruckNucleonP4();
+  TLorentzVector * p4 = tgt->HitNucP4Ptr();
 
   // do nothing if the struct nucleon 4-momentum was set (eg as part of the
   // initial state selection)
@@ -83,7 +83,7 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   double pF2 = p3.Mag2(); // (fermi momentum)^2
 
   // access the hit nucleon and target nucleus at the GHEP record
-  GHepParticle * nucleon = event_rec->StruckNucleon();
+  GHepParticle * nucleon = event_rec->HitNucleon();
   GHepParticle * nucleus = event_rec->TargetNucleus();
   assert(nucleon);
   assert(nucleus);
@@ -96,7 +96,7 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
 
   if(!fKeepNuclOnMassShell) {
      //-- compute A,Z for final state nucleus & get its PDG code 
-     int nucleon_pdgc = nucleon->PdgCode();
+     int nucleon_pdgc = nucleon->Pdg();
      bool is_p  = pdg::IsProton(nucleon_pdgc);
      int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
      int A = nucleus->A() - 1;
@@ -137,8 +137,8 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   // the neutrino energy in the nucleon rest frame below threshold (for the
   // selected interaction). In this case mark the event as unphysical and
   // abort the current thread.
-  double E    = init_state->GetProbeE(kRfStruckNucAtRest);
-  double Ethr = utils::kinematics::EnergyThreshold(interaction);
+  double E    = init_state->ProbeE(kRfHitNucRest);
+  double Ethr = interaction->EnergyThreshold();
   if(E<=Ethr) {
      LOG("FermiMover", pNOTICE)
                   << "Event below threshold after generation Fermi momentum";

@@ -50,11 +50,11 @@ double NuElectronPXSec::XSec(
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   //----- get initial state & kinematics
-  const InitialState & init_state = interaction -> GetInitialState ();
-  const Kinematics &   kinematics = interaction -> GetKinematics   ();
-  const ProcessInfo &  proc_info  = interaction -> GetProcessInfo  ();
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const ProcessInfo &  proc_info  = interaction -> ProcInfo();
 
-  double E     = init_state.GetProbeE(kRfLab);
+  double E     = init_state.ProbeE(kRfLab);
   double s     = 2*kElectronMass*E;
   double y     = kinematics.y();
   double ydep  = TMath::Power(1.-y,2.);
@@ -64,7 +64,7 @@ double NuElectronPXSec::XSec(
 
   double xsec = 0; // <-- dxsec/dy
 
-  int inu = init_state.GetProbePDGCode();
+  int inu = init_state.ProbePdg();
 
   // nue + e- -> nue + e- [CC + NC + interference]
   if(pdg::IsNuE(inu))
@@ -108,7 +108,7 @@ double NuElectronPXSec::XSec(
   if( interaction->TestBit(kIAssumeFreeElectron) ) return xsec;
 
   //----- Scale for the number of scattering centers at the target
-  int Ne = init_state.GetTarget().Z(); // num of scattering centers
+  int Ne = init_state.Tgt().Z(); // num of scattering centers
   xsec *= Ne;
 
   return xsec;

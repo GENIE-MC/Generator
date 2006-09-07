@@ -96,7 +96,7 @@ void RendererQEL::DrawDiagram(EventRecord * ev_rec)
    while( (p = (GHepParticle *) rec_iter.Next()) ) {
 
       //-- if particle = nucleon
-      if( p->PdgCode() == 2112 || p->PdgCode() == 2212 ) {
+      if( p->Pdg() == 2112 || p->Pdg() == 2212 ) {
 
          // initial state
          if( p->Status() == 0 || p->Status() == 11) {
@@ -126,7 +126,7 @@ void RendererQEL::DrawDiagram(EventRecord * ev_rec)
    while( (p = (GHepParticle *) rec_iter.Next()) ) {
 
       //-- if particle = nucleus
-      if( p->PdgCode() == 0 ) {
+      if( p->Pdg() == 0 ) {
 
          // initial state
          if( p->Status() == 0 ) {

@@ -55,13 +55,13 @@ double NuNucElasticPXSec::XSec(
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const Target &       target     = init_state.GetTarget();
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const Target &       target     = init_state.Tgt();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E    = init_state.ProbeE(kRfHitNucRest);
   double Q2   = kinematics.Q2();
-  double M    = init_state.GetTarget().StruckNucleonMass();
+  double M    = target.HitNucMass();
   double M2   = TMath::Power(M, 2.);
   double E2   = TMath::Power(E, 2.);
   double qmv2 = TMath::Power(1 + Q2/fMv2, 2);
@@ -70,8 +70,8 @@ double NuNucElasticPXSec::XSec(
   //-- handle terms changing sign for antineutrinos and isospin rotations
   int nusign  = 1;
   int nucsign = 1;
-  int nupdgc  = init_state.GetProbePDGCode();
-  int nucpdgc = target.StruckNucleonPDGCode();
+  int nupdgc  = init_state.ProbePdg();
+  int nucpdgc = target.HitNucPdg();
   if( pdg::IsAntiNeutrino(nupdgc) ) nusign  = -1;
   if( pdg::IsNeutron(nucpdgc)     ) nucsign = -1;
 
@@ -142,7 +142,7 @@ bool NuNucElasticPXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const Kinematics & kinematics = interaction -> GetKinematics();
+  const Kinematics & kinematics = interaction -> Kine();
   double Q2 = kinematics.Q2();
 
   Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);

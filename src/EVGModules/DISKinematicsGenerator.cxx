@@ -63,13 +63,13 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   RandomGen * rnd = RandomGen::Instance();
 
   //-- Get the interaction 
-  Interaction * interaction = evrec->GetInteraction();
+  Interaction * interaction = evrec->Summary();
   interaction->SetBit(kISkipProcessChk);
 
   //-- Get neutrino energy and hit 'nucleon mass' 
-  const InitialState & init_state = interaction->GetInitialState();
-  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M   = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m-shell
+  const InitialState & init_state = interaction->InitState();
+  double Ev  = init_state.ProbeE(kRfHitNucRest);
+  double M   = init_state.Tgt().HitNucP4().M(); // can be off m-shell
 
   //-- Get the physical W range taking into account any user cuts
   Range1D_t W  = this->WRange(interaction);
@@ -83,7 +83,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   }
 
   //-- Get the minimum Q^2 (corresponding to W = Wmin)
-  interaction->GetKinematicsPtr()->SetW(W.min);
+  interaction->KinePtr()->SetW(W.min);
   Range1D_t Q2  = this->Q2Range(interaction);
 
   //-- Set the corresponding x,y limits
@@ -142,8 +142,8 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      LOG("DISKinematics", pINFO) 
                            << "Trying: x = " << gx << ", y = " << gy;
 
-     interaction->GetKinematicsPtr()->Setx(gx);
-     interaction->GetKinematicsPtr()->Sety(gy);
+     interaction->KinePtr()->Setx(gx);
+     interaction->KinePtr()->Sety(gy);
 
      //-- compute the cross section for current kinematics
      xsec = fXSecModel->XSec(interaction, kPSxyfE);
@@ -180,12 +180,12 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          // wght = (phase space volume)*(differential xsec)/(event total xsec)
          if(fGenerateUniformly) {
             double vol     = kinematics::PhaseSpaceVolume(interaction,kPSxyfE);
-            double totxsec = evrec->GetXSec();
+            double totxsec = evrec->XSec();
             double wght    = (vol/totxsec)*xsec;
             LOG("DISKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
 
             // apply computed weight to the current event weight
-            wght *= evrec->GetWeight();
+            wght *= evrec->Weight();
             LOG("DISKinematics", pNOTICE) << "Current event wght = " << wght;
             evrec->SetWeight(wght);
          }
@@ -197,11 +197,11 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
                         << "Selected x,y => W = " << gW << ", Q2 = " << gQ2;
 
          // lock selected kinematics & clear running values
-         interaction->GetKinematicsPtr()->SetW (gW,  true);
-         interaction->GetKinematicsPtr()->SetQ2(gQ2, true);
-         interaction->GetKinematicsPtr()->Setx (gx,  true);
-         interaction->GetKinematicsPtr()->Sety (gy,  true);
-         interaction->GetKinematicsPtr()->ClearRunningValues();
+         interaction->KinePtr()->SetW (gW,  true);
+         interaction->KinePtr()->SetQ2(gQ2, true);
+         interaction->KinePtr()->Setx (gx,  true);
+         interaction->KinePtr()->Sety (gy,  true);
+         interaction->KinePtr()->ClearRunningValues();
 
          return;
      }
@@ -312,13 +312,13 @@ double DISKinematicsGenerator::ComputeMaxXSec(
 
   double max_xsec = 0.0;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction->InitState();
+  double Ev = init_state.ProbeE(kRfHitNucRest);
 
   double log10Ev = TMath::Log10(Ev);
 
-  const ProcessInfo & proc = interaction->GetProcessInfo();
-  const Target & tgt = init_state.GetTarget();
+  const ProcessInfo & proc = interaction->ProcInfo();
+  const Target & tgt = init_state.Tgt();
 
   // guess the approximate position of the maximum differential xsec to avoid
   // an extensive (time-consuming) phase space search
@@ -327,7 +327,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   int Ny=100, Nx=100, Nxb=10;
 
   if(proc.IsWeakCC()) {
-    if( pdg::IsProton(tgt.StruckNucleonPDGCode()) ) {
+    if( pdg::IsProton(tgt.HitNucPdg()) ) {
       xpeak = 0.18 - 0.055 * log10Ev;
       ypeak = 0.95 - 0.670 * log10Ev + 0.145 * TMath::Power(log10Ev,2);
     } else {
@@ -349,7 +349,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
     Nxb = 10;
   }
 
-  if(tgt.StruckQuarkIsSet() && tgt.StruckQuarkIsFromSea()) {
+  if(tgt.HitQrkIsSet() && tgt.HitSeaQrk()) {
     xpeak    = .1;
     xwindow  = .1;
   }
@@ -371,7 +371,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   for(int i=0; i<Ny; i++) {
     //double gy = ymin + i*dy;
      double gy = TMath::Power(10., logymin + i*dlogy);
-     interaction->GetKinematicsPtr()->Sety(gy);
+     interaction->KinePtr()->Sety(gy);
 
      LOG("DISKinematics", pDEBUG) << "y = " << gy;
 
@@ -381,7 +381,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
      for(int j=0; j<Nx; j++) {
         //double gx = xmin + j*dx;
 	double gx = TMath::Power(10., logxmin + j*dlogx);
-        interaction->GetKinematicsPtr()->Setx(gx);
+        interaction->KinePtr()->Setx(gx);
 
         double xsec = fXSecModel->XSec(interaction, kPSxyfE);
         LOG("DISKinematics", pINFO) 
@@ -404,7 +404,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
           for(int ik=0; ik<Nxb; ik++) {
 	     gx = TMath::Exp(TMath::Log(gx) - dlogxn);
    	     //gx = gx - dxn;
-             interaction->GetKinematicsPtr()->Setx(gx);
+             interaction->KinePtr()->Setx(gx);
 
              xsec = fXSecModel->XSec(interaction, kPSxyfE);
 

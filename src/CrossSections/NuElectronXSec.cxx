@@ -53,8 +53,8 @@ double NuElectronXSec::XSec(
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   // Get initial & final state information
-  const InitialState & init_state = interaction->GetInitialState();
-  double E  = init_state.GetProbeE(kRfLab);
+  const InitialState & init_state = interaction->InitState();
+  double E  = init_state.ProbeE(kRfLab);
 
   double e    = 1E-6;
   double ymin = e;

@@ -57,7 +57,7 @@ TH1D * BodekRitchie::ProbabilityDistribution(const Target & target) const
 
   //-- get information for the nuclear target
   int target_pdgc  = pdg::IonPdgCode(target.A(), target.Z());
-  int nucleon_pdgc = target.StruckNucleonPDGCode();
+  int nucleon_pdgc = target.HitNucPdg();
   assert( pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc) );
   double Z = (double) target.Z();
   double N = (double) target.N();
@@ -70,7 +70,7 @@ TH1D * BodekRitchie::ProbabilityDistribution(const Target & target) const
   LOG("BodekRitchie", pNOTICE) << "KF = " << KF;
 
   //-- correct the Fermi momentum for the struck nucleon
-  assert(target.StruckNucleonIsSet());
+  assert(target.HitNucIsSet());
   bool is_p = pdg::IsProton(nucleon_pdgc);
   if(is_p) KF *= TMath::Power( 2*Z/A, 1./3.);
   else     KF *= TMath::Power( 2*N/A, 1./3.);

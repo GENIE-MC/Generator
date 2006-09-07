@@ -74,19 +74,19 @@ TClonesArray * PythiaHadronization::Hadronize(
 
   //-- get kinematics / init-state / process-info
 
-  const Kinematics &   kinematics = interaction->GetKinematics();
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
-  const Target &       target     = init_state.GetTarget();
+  const Kinematics &   kinematics = interaction->Kine();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+  const Target &       target     = init_state.Tgt();
 
-  assert(target.StruckQuarkIsSet()); 
+  assert(target.HitQrkIsSet()); 
 
   double W = kinematics.W();
 
-  int  probe       = init_state.GetProbePDGCode();
-  int  hit_nucleon = target.StruckNucleonPDGCode();
-  int  hit_quark   = target.StruckQuarkPDGCode();
-  bool from_sea    = target.StruckQuarkIsFromSea();
+  int  probe       = init_state.ProbePdg();
+  int  hit_nucleon = target.HitNucPdg();
+  int  hit_quark   = target.HitQrkPdg();
+  bool from_sea    = target.HitSeaQrk();
 
   LOG("PythiaHad", pNOTICE)
           << "Hit nucleon pdgc = " << hit_nucleon << ", W = " << W;
@@ -338,7 +338,7 @@ TH1D * PythiaHadronization::MultiplicityProb(
   if(apply_neugen_Rijk) {
     SLOG("KNOHad", pINFO) << "Applying NeuGEN scaling factors";
      // Only do so for W<Wcut
-     const Kinematics &   kinematics = interaction->GetKinematics();
+     const Kinematics & kinematics = interaction->Kine();
      double W = kinematics.W();
      if(W<fWcut) {
        this->ApplyRijk(interaction, renormalize, mult_prob);
@@ -447,7 +447,7 @@ void PythiaHadronization::SyncSeeds(void) const
 //____________________________________________________________________________
 bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
 {
-  if(interaction->GetExclusiveTag().IsCharmEvent()) {
+  if(interaction->ExclTag().IsCharmEvent()) {
      LOG("PythiaHad", pWARN) << "Can't hadronize charm events";
      return false;
   }

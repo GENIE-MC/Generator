@@ -80,8 +80,8 @@ int RESHadronicSystemGenerator::GetResonancePdgCode(GHepRecord * evrec) const
 // This method adds it to the GHEP record.
 
   //-- Determine the RES pdg code (from the selected Resonance_t & charge)
-  Interaction * interaction = evrec->GetInteraction();
-  const XclsTag & xcls = interaction->GetExclusiveTag();
+  Interaction * interaction = evrec->Summary();
+  const XclsTag & xcls = interaction->ExclTag();
   assert(xcls.KnownResonance());
   Resonance_t res = xcls.Resonance();
   int charge = utils::res::ResonanceCharge(interaction);
@@ -101,7 +101,7 @@ void RESHadronicSystemGenerator::AddResonance(
 
   //-- Add the resonance at the EventRecord
   GHepStatus_t ist = kIStPreDecayResonantState;
-  int mom = evrec->StruckNucleonPosition();
+  int mom = evrec->HitNucleonPosition();
 
   evrec->AddParticle(
         pdgc, ist, mom,-1,-1,-1, p4.Px(),p4.Py(),p4.Pz(),p4.E(), 0,0,0,0);
@@ -151,7 +151,7 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
   double wght = fResonanceDecayer->Weight();
 
   // update the event weight
-  evrec->SetWeight(wght * evrec->GetWeight());
+  evrec->SetWeight(wght * evrec->Weight());
 
   // decide the istatus of decay products
   GHepParticle * nuc = evrec->TargetNucleus();

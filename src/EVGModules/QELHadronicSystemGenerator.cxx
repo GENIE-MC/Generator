@@ -60,8 +60,8 @@ void QELHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 void QELHadronicSystemGenerator::AddRecoilNucleon(GHepRecord * evrec) const
 {
   //-- Determine the pdg code of the recoil nucleon
-  Interaction * interaction = evrec->GetInteraction();
-  int recoil_nuc_pdgc = interaction->RecoilNuclPDGCode();
+  Interaction * interaction = evrec->Summary();
+  int recoil_nuc_pdgc = interaction->RecoilNucleonPdg();
 
   //-- Get all initial & final state particles 4-momenta (in the LAB frame)
   TLorentzVector p4 = this->Hadronic4pLAB(evrec);
@@ -71,7 +71,7 @@ void QELHadronicSystemGenerator::AddRecoilNucleon(GHepRecord * evrec) const
                      << "Adding nucleon [pdgc = " << recoil_nuc_pdgc << "]";
 
   TLorentzVector v4(0.,0.,0.,0.);
-  int mom = evrec->StruckNucleonPosition();
+  int mom = evrec->HitNucleonPosition();
 
   evrec->AddParticle(recoil_nuc_pdgc,
                    kIStStableFinalState, mom,-1,-1,-1, p4, v4);

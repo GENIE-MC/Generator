@@ -60,32 +60,32 @@ double AivazisCharmPXSecLO::XSec(
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   //----- get init-state & kinematical parameters
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Target &       target     = init_state.GetTarget();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
+  const Target &       target     = init_state.Tgt();
   
   //----- get target information (hit nucleon and quark)
-  int  nuc = target.StruckNucleonPDGCode();
+  int  nuc = target.HitNucPdg();
   bool isP = pdg::IsProton (nuc);
   bool isN = pdg::IsNeutron(nuc);
 
   if(!isP && !isN) return 0;
 
-  bool qset = target.StruckQuarkIsSet();
+  bool qset = target.HitQrkIsSet();
 
-  int  qpdg = (qset) ? target.StruckQuarkPDGCode()   : 0;
-  bool sea  = (qset) ? target.StruckQuarkIsFromSea() : false;
-  bool isd  = (qset) ? pdg::IsDQuark (qpdg)          : false;
-  bool iss  = (qset) ? pdg::IsSQuark (qpdg)          : false;
+  int  qpdg = (qset) ? target.HitQrkPdg()   : 0;
+  bool sea  = (qset) ? target.HitSeaQrk()   : false;
+  bool isd  = (qset) ? pdg::IsDQuark (qpdg) : false;
+  bool iss  = (qset) ? pdg::IsSQuark (qpdg) : false;
 
   if (pdg::IsAntiQuark(qpdg)) return 0.; // prevent qbar -> charm
 
   //----- compute kinematic & auxiliary parameters
-  double E           = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E           = init_state.ProbeE(kRfHitNucRest);
   double x           = kinematics.x();
   double y           = kinematics.y();
   double x2          = TMath::Power(x,    2);
-  double Mnuc        = target.StruckNucleonMass();
+  double Mnuc        = target.HitNucMass();
   double Mnuc2       = TMath::Power(Mnuc, 2);
   double Q2          = 2*Mnuc*E*x*y;
   double W2          = Mnuc2 + 2*Mnuc*E*y*(1-x);
@@ -160,9 +160,9 @@ bool AivazisCharmPXSecLO::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const XclsTag &      xcls       = interaction->GetExclusiveTag();
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const XclsTag &      xcls       = interaction->ExclTag();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
   if(!proc_info.IsDeepInelastic()) return false;
   if(!proc_info.IsWeak())          return false;
@@ -170,8 +170,8 @@ bool AivazisCharmPXSecLO::ValidProcess(const Interaction * interaction) const
   bool is_inclusive_charm = (xcls.IsCharmEvent() && xcls.IsInclusiveCharm());
   if(!is_inclusive_charm) return false;
 
-  int  nu  = init_state.GetProbePDGCode();
-  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
+  int  nu  = init_state.ProbePdg();
+  int  nuc = init_state.Tgt().HitNucPdg();
 
   if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
@@ -184,10 +184,10 @@ bool AivazisCharmPXSecLO::ValidKinematics(
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E    = init_state.ProbeE(kRfHitNucRest);
   double x    = kinematics.x();
   double y    = kinematics.y();
 
@@ -200,7 +200,7 @@ bool AivazisCharmPXSecLO::ValidKinematics(
     return false;
   }
 
-  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
+  double Mnuc  = init_state.Tgt().HitNucMass();
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double Q2    = 2*Mnuc*E*x*y;
   double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);

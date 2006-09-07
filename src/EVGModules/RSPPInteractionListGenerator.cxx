@@ -73,7 +73,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
   SppChannel_t nucc_channels[n_nucc_channels] = {kSppNull};
   SppChannel_t nunc_channels[n_nucc_channels] = {kSppNull};
 
-  int nupdg  = init_state.GetProbePDGCode();
+  int nupdg  = init_state.ProbePdg();
 
   if( pdg::IsNeutrino(nupdg) ) {
     nucc_channels[0] = kSpp_vp_cc_10100;
@@ -100,7 +100,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
      return 0;
   }
 
-  Target * inp_target = init_state.GetTargetPtr();
+  Target * inp_target = init_state.TgtPtr();
   bool hasP = (inp_target->Z() > 0);
   bool hasN = (inp_target->N() > 0);
 
@@ -118,9 +118,9 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
           ProcessInfo proc_info(kScResonant, kIntWeakCC);
           Interaction * interaction = new Interaction(init_state, proc_info);
 
-          Target * target = interaction->GetInitialStatePtr()->GetTargetPtr();
+          Target * target = interaction->InitStatePtr()->TgtPtr();
 
-          target->SetStruckNucleonPDGCode(struck_nucleon);
+          target->SetHitNucPdg(struck_nucleon);
           this->AddFinalStateInfo(interaction, nucc_channels[i]);
 
           intlist->push_back(interaction);
@@ -139,9 +139,9 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
           ProcessInfo proc_info(kScResonant, kIntWeakNC);
           Interaction * interaction = new Interaction(init_state, proc_info);
 
-          Target * target = interaction->GetInitialStatePtr()->GetTargetPtr();
+          Target * target = interaction->InitStatePtr()->TgtPtr();
 
-          target->SetStruckNucleonPDGCode(struck_nucleon);
+          target->SetHitNucPdg(struck_nucleon);
           this->AddFinalStateInfo(interaction, nunc_channels[i]);
 
           intlist->push_back(interaction);
@@ -194,7 +194,7 @@ void RSPPInteractionListGenerator::AddFinalStateInfo(
   exclusive_tag.SetNNucleons (nproton, nneutron);
   exclusive_tag.SetNPions    (npiplus, npi0, npiminus);
 
-  interaction->SetExclusiveTag(exclusive_tag);
+  interaction->SetExclTag(exclusive_tag);
 }
 //___________________________________________________________________________
 void RSPPInteractionListGenerator::Configure(const Registry & config)

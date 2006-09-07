@@ -179,7 +179,7 @@ int main(int argc, char ** argv)
         ProcessInfo  proc (kScDeepInelastic, it);
         Interaction  intr (init, proc);
 
-        intr.GetInitialStatePtr()->GetTargetPtr()->SetStruckNucleonPDGCode(NucCode[inuc]);
+        intr.InitStatePtr()->TgtPtr()->SetHitNucPdg(NucCode[inuc]);
 
         // hit quark loop (if requested)
         int nqrk=1;
@@ -188,14 +188,14 @@ int main(int argc, char ** argv)
         }
 	for(int iqrk=0; iqrk<nqrk; iqrk++) {
            if(gSetHitQrk) {
-             intr.GetInitialStatePtr()->GetTargetPtr()->SetStruckQuarkPDGCode(QrkCode[iqrk]);
-             intr.GetInitialStatePtr()->GetTargetPtr()->SetStruckSeaQuark(SeaQrk[iqrk]);
+             intr.InitStatePtr()->TgtPtr()->SetHitQrkPdg(QrkCode[iqrk]);
+             intr.InitStatePtr()->TgtPtr()->SetHitSeaQrk(SeaQrk[iqrk]);
            }
 
            LOG("main",pNOTICE) << "hadronizing: " << intr.AsString();
 
            for(int iw=0; iw<kNW; iw++) {
-             intr.GetKinematicsPtr()->SetW(W[iw]);
+             intr.KinePtr()->SetW(W[iw]);
 
              for(int in=0; in<gNEvents; in++) {
                 TClonesArray * plist = model->Hadronize(&intr);

@@ -69,13 +69,13 @@ void InitialStateAppender::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 void InitialStateAppender::AddNeutrino(GHepRecord * evrec) const
 {
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
+  Interaction * interaction = evrec->Summary();
+  const InitialState & init_state = interaction->InitState();
 
   TLorentzVector * p4 = init_state.GetProbeP4(kRfLab);
   const TLorentzVector v4(0.,0.,0.,0.);
 
-  int pdgc = init_state.GetProbePDGCode();
+  int pdgc = init_state.ProbePdg();
 
   LOG("ISApp", pINFO) << "Adding neutrino [pdgc = " << pdgc << "]";
 
@@ -86,17 +86,17 @@ void InitialStateAppender::AddNeutrino(GHepRecord * evrec) const
 //___________________________________________________________________________
 void InitialStateAppender::AddNucleus(GHepRecord * evrec) const
 {
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
+  Interaction * interaction = evrec->Summary();
+  const InitialState & init_state = interaction->InitState();
 
-  bool is_nucleus = init_state.GetTarget().IsNucleus();
+  bool is_nucleus = init_state.Tgt().IsNucleus();
   if(!is_nucleus) {
     LOG("ISApp", pINFO)
          << "Not an interaction with a nuclear target - no nucleus to add";
     return;
   }
-  int    A    = init_state.GetTarget().A();
-  int    Z    = init_state.GetTarget().Z();
+  int    A    = init_state.Tgt().A();
+  int    Z    = init_state.Tgt().Z();
   int    pdgc = pdg::IonPdgCode(A, Z);
   double M    = PDGLibrary::Instance()->Find(pdgc)->Mass();
 
@@ -109,9 +109,9 @@ void InitialStateAppender::AddNucleus(GHepRecord * evrec) const
 //___________________________________________________________________________
 void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
 {
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo & proc_info   = interaction->GetProcessInfo();
+  Interaction * interaction = evrec->Summary();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo & proc_info   = interaction->ProcInfo();
 
   if(proc_info.IsInverseMuDecay()) {
     int    pdgc = kPdgElectron;
@@ -124,17 +124,17 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
     return;
   }
 
-  int pdgc = init_state.GetTarget().StruckNucleonPDGCode();
+  int pdgc = init_state.Tgt().HitNucPdg();
 
   if(pdgc != 0) {
 
-    bool is_nucleus = init_state.GetTarget().IsNucleus();
+    bool is_nucleus = init_state.Tgt().IsNucleus();
 
     GHepStatus_t ist   = (is_nucleus) ? kIStNucleonTarget : kIStInitialState;
     int          imom1 = (is_nucleus) ? 1 : -1;
     int          imom2 = -1;
 
-    const TLorentzVector p4(*init_state.GetTarget().StruckNucleonP4());
+    const TLorentzVector p4(init_state.Tgt().HitNucP4());
     const TLorentzVector v4(0.,0.,0.,0.);
 
     LOG("ISApp", pINFO)<< "Adding struck nucleon [pdgc = " << pdgc << "]";

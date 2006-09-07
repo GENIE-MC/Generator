@@ -71,7 +71,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double dy   = ymax-ymin;
 
   double xsec = -1;
-  Interaction * interaction = evrec->GetInteraction();
+  Interaction * interaction = evrec->Summary();
 
   //-- Try to select a valid inelastisity y
   register unsigned int iter = 0;
@@ -90,7 +90,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      }
 
      double y = ymin + dy * rnd->RndKine().Rndm();
-     interaction->GetKinematicsPtr()->Sety(y);
+     interaction->KinePtr()->Sety(y);
 
      LOG("IMDKinematics", pINFO) << "Trying: y = " << y;
 
@@ -120,19 +120,19 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // wght = (phase space volume)*(differential xsec)/(event total xsec)
          if(fGenerateUniformly) {
            double vol     = kinematics::PhaseSpaceVolume(interaction,kPSyfE);
-           double totxsec = evrec->GetXSec();
+           double totxsec = evrec->XSec();
            double wght    = (vol/totxsec)*xsec;
            LOG("IMDKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
 
            // apply computed weight to the current event weight
-           wght *= evrec->GetWeight();
+           wght *= evrec->Weight();
            LOG("IMDKinematics", pNOTICE) << "Current event wght = " << wght;
            evrec->SetWeight(wght);
         }
 
         // lock selected kinematics & clear running values
-        interaction->GetKinematicsPtr()->Sety(y, true);
-        interaction->GetKinematicsPtr()->ClearRunningValues();
+        interaction->KinePtr()->Sety(y, true);
+        interaction->KinePtr()->ClearRunningValues();
 
         return;
      }
@@ -164,7 +164,7 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
 
   for(int i=0; i<N; i++) {
     double y = ymin + i * dy;
-    interaction->GetKinematicsPtr()->Sety(y);
+    interaction->KinePtr()->Sety(y);
     double xsec = fXSecModel->XSec(interaction, kPSyfE);
 
     SLOG("IMDKinematics", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
@@ -181,7 +181,7 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
        for(int ib=0; ib<Nb; ib++) {
 	 y = y-dy;
          if(y<ymin) break;
-         interaction->GetKinematicsPtr()->Sety(y);
+         interaction->KinePtr()->Sety(y);
          xsec = fXSecModel->XSec(interaction, kPSyfE);
          SLOG("IMDKinematics", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
          max_xsec = TMath::Max(xsec, max_xsec);
@@ -206,8 +206,8 @@ double IMDKinematicsGenerator::Energy(const Interaction * interaction) const
 // Override the base class Energy() method to cache the max xsec for the
 // neutrino energy in the LAB rather than in the hit nucleon rest frame.
 
-  const InitialState & init_state = interaction->GetInitialState();
-  double E = init_state.GetProbeE(kRfLab);
+  const InitialState & init_state = interaction->InitState();
+  double E = init_state.ProbeE(kRfLab);
   return E;
 }
 //___________________________________________________________________________

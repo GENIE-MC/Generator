@@ -69,7 +69,7 @@ void RSPPHadronicSystemGenerator::AddResonanceDecayProducts(
 // the event record
 
   //-- find out which SPP channel we are generating
-  Interaction * interaction = evrec->GetInteraction();
+  Interaction * interaction = evrec->Summary();
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
 
   //-- get the final state nucleon and pion
@@ -78,8 +78,8 @@ void RSPPHadronicSystemGenerator::AddResonanceDecayProducts(
 
   //-- get the total 4-p for the two-hadron system (= parent resonance 4-p)
 
-  const InitialState & init_state = interaction->GetInitialState();
-  bool is_nucleus = init_state.GetTarget().IsNucleus();
+  const InitialState & init_state = interaction->InitState();
+  bool is_nucleus = init_state.Tgt().IsNucleus();
 
   //-- access the resonance entry at the GHEP record
   int res_pos = 0;

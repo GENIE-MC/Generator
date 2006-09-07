@@ -52,15 +52,15 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   GHepParticle * probep   = evrec.Probe();
   GHepParticle * nucleus  = evrec.TargetNucleus();
   GHepParticle * fslp     = evrec.FinalStatePrimaryLepton();
-  GHepParticle * hitnuclp = evrec.StruckNucleon();
+  GHepParticle * hitnuclp = evrec.HitNucleon();
 
   assert(probep);
   assert(fslp);
 
-  fProbePdgC = probep  -> PdgCode();
-  fFslPdgC   = fslp    -> PdgCode();
-  fTgtPdgC   = (nucleus)  ? nucleus -> PdgCode() : 0;
-  fNuclPdgC  = (hitnuclp) ? hitnuclp->PdgCode()  : 0;
+  fProbePdgC = probep->Pdg();
+  fFslPdgC   = fslp->Pdg();
+  fTgtPdgC   = (nucleus)  ? nucleus->Pdg()  : 0;
+  fNuclPdgC  = (hitnuclp) ? hitnuclp->Pdg() : 0;
 
   LOG("GHepSummaryBuilder", pINFO)
     << "PDG Codes: probe = " << fProbePdgC
@@ -107,7 +107,7 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   if(nucleus) { if(!hitnuclp) fScatType = kScCoherent; }
 
   //IMD
-  GHepParticle * elec = evrec.StruckElectron();
+  GHepParticle * elec = evrec.HitElectron();
   if(elec) fScatType = kScInverseMuDecay;
 
   //QEL or DIS
@@ -124,7 +124,7 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   GHepParticle * p = 0;
   TIter piter(&evrec);
   while ( (p = (GHepParticle *) piter.Next()) ) {
-     bool is_res_pdg = utils::res::IsBaryonResonance(p->PdgCode());
+     bool is_res_pdg = utils::res::IsBaryonResonance(p->Pdg());
      bool is_res_Ist = p->Status() == kIStPreDecayResonantState;
      if( is_res_Ist && is_res_pdg ) fScatType = kScResonant;
   }
@@ -138,7 +138,7 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   if (dQ != 0) fProcType = kIntWeakCC;
   else {
     // no charge change (either a weak NC or E/M)
-    int  pdgc = probep->PdgCode();
+    int  pdgc = probep->Pdg();
     bool isnu = pdg::IsNeutrino(pdgc) || pdg::IsAntiNeutrino(pdgc);
     if (isnu) fProcType = kIntWeakNC;
     else      fProcType = kIntEM;

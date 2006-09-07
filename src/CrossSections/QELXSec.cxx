@@ -60,8 +60,8 @@ double QELXSec::XSec(const Interaction * in, KinePhaseSpace_t kps) const
   interaction->SetBit(kISkipKinematicChk);
 
   // Get initial & final state information
-  const InitialState & init_state = interaction->GetInitialState();
-  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction->InitState();
+  double E = init_state.ProbeE(kRfHitNucRest);
 
   // Estimate the integration limits & step
   Range1D_t  rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
@@ -83,13 +83,13 @@ bool QELXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
   if(!proc_info.IsQuasiElastic()) return false;
 
-  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
-  int  nu  = init_state.GetProbePDGCode();
+  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nu  = init_state.ProbePdg();
 
   bool isP   = pdg::IsProton(nuc);
   bool isN   = pdg::IsNeutron(nuc);
@@ -108,10 +108,10 @@ bool QELXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
+  const InitialState & init_state = interaction->InitState();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Ethr = utils::kinematics::EnergyThreshold(interaction);
+  double E    = init_state.ProbeE(kRfHitNucRest);
+  double Ethr = interaction->EnergyThreshold();
   if(E <= Ethr) {
      LOG("QELXSec", pINFO) << "Ev = " << E << " <= Ethreshold = "<< Ethr;
      return false;

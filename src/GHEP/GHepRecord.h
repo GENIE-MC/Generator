@@ -40,7 +40,6 @@ class GHepParticle;
 class GHepRecord : public TClonesArray {
 
 public :
-
   GHepRecord();
   GHepRecord(int size);
   GHepRecord(const GHepRecord & record);
@@ -48,8 +47,8 @@ public :
 
   //-- methods to attach / get summary information
 
-  virtual Interaction * GetInteraction    (void) const;
-  virtual void          AttachInteraction (Interaction * interaction);
+  virtual Interaction * Summary       (void) const;
+  virtual void          AttachSummary (Interaction * interaction);
 
   //-- common record operations
 
@@ -90,15 +89,15 @@ public :
   virtual GHepParticle * Probe                            (void) const;
   virtual GHepParticle * TargetNucleus                    (void) const;
   virtual GHepParticle * RemnantNucleus                   (void) const;
-  virtual GHepParticle * StruckNucleon                    (void) const;
-  virtual GHepParticle * StruckElectron                   (void) const;
+  virtual GHepParticle * HitNucleon                       (void) const;
+  virtual GHepParticle * HitElectron                      (void) const;
   virtual GHepParticle * FinalStatePrimaryLepton          (void) const;
   virtual GHepParticle * FinalStateHadronicSystem         (void) const;
   virtual int            ProbePosition                    (void) const;
   virtual int            TargetNucleusPosition            (void) const;
   virtual int            RemnantNucleusPosition           (void) const;
-  virtual int            StruckNucleonPosition            (void) const;
-  virtual int            StruckElectronPosition           (void) const;
+  virtual int            HitNucleonPosition               (void) const;
+  virtual int            HitElectronPosition              (void) const;
   virtual int            FinalStatePrimaryLeptonPosition  (void) const;
   virtual int            FinalStateHadronicSystemPosition (void) const; 
 
@@ -114,9 +113,9 @@ public :
 
   //-- methods to set/get the event weight and cross sections
 
-  virtual double GetWeight   (void) const  { return fWeight;   }
-  virtual double GetXSec     (void) const  { return fXSec;     }
-  virtual double GetDiffXSec (void) const  { return fDiffXSec; }
+  virtual double Weight      (void) const  { return fWeight;   }
+  virtual double XSec        (void) const  { return fXSec;     }
+  virtual double DiffXSec    (void) const  { return fDiffXSec; }
   virtual void   SetWeight   (double wght) { fWeight   = (wght>0) ? wght : 0.; }
   virtual void   SetXSec     (double xsec) { fXSec     = (xsec>0) ? xsec : 0.; }
   virtual void   SetDiffXSec (double xsec) { fDiffXSec = (xsec>0) ? xsec : 0.; }
@@ -136,14 +135,14 @@ public :
 
 protected:
 
-  // Summary information for the Initial State, Process Type & Kinematics
-  Interaction * fInteraction;
+  // Attached interaction
+  Interaction * fInteraction; ///< attached summary information
 
-  // Vertex position (in the detector coordinate system)
-  TLorentzVector * fVtx;
+  // Vertex position
+  TLorentzVector * fVtx;  ///< vertex in the detector coordinate system
 
   // Flags for the generated event
-  TBits * fEventFlags;    
+  TBits * fEventFlags;    ///< event flags
 
   // Misc info associated with the generated event
   double fWeight;         ///< event weight

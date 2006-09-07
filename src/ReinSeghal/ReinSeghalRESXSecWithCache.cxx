@@ -90,20 +90,20 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
 
   TLorentzVector p4(0,0,0,0);
 
-  int nu_code = in->GetInitialState().GetProbePDGCode();
+  int nu_code = in->InitState().ProbePdg();
 
   Interaction * interaction = new Interaction(*in);
   interaction->TestBit(kIAssumeFreeNucleon);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
-  ProcessInfo *  proc_info  = interaction->GetProcessInfoPtr();
+  InitialState * init_state = interaction->InitStatePtr();
+  ProcessInfo *  proc_info  = interaction->ProcInfoPtr();
 
   unsigned int nres = fResList.NResonances();
 
   for(int iwkc=0; iwkc<kNWkC; iwkc++) {
     for(int itgt=0; itgt<kNTgt; itgt++) {
 
-      init_state -> SetPDGCodes(tgtc[itgt], nu_code);
+      init_state -> SetPdgs(tgtc[itgt], nu_code);
       proc_info  -> Set(kScResonant, wkcc[iwkc]);
 
       for(unsigned int ires = 0; ires < nres; ires++) {
@@ -111,10 +111,10 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
          //-- Get next resonance from the resonance list
          Resonance_t res = fResList.ResonanceId(ires);
 
-         interaction->GetExclusiveTagPtr()->SetResonance(res);
+         interaction->ExclTagPtr()->SetResonance(res);
 
          //-- Get a unique cache branch name
-         int nuc_code = init_state->GetTarget().StruckNucleonPDGCode();
+         int nuc_code = init_state->Tgt().HitNucPdg();
          string key = this->CacheBranchName(
                                    res, wkcc[iwkc], nu_code, nuc_code);
 
@@ -130,7 +130,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
          cache->AddCacheBranch(key, cache_branch);
          assert(cache_branch);
 
-         double EvThr = utils::kinematics::EnergyThreshold(interaction);
+         double EvThr = interaction->EnergyThreshold();
          LOG("ReinSeghalResC", pNOTICE) << "E threshold = " << EvThr;
 
          for(int ie=0; ie<kNSplineKnots; ie++) {
@@ -138,7 +138,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
              double xsec = 0.;
              double Ev   = TMath::Exp(kLogEmin + ie*kdLogE);
              p4.SetPxPyPzE(0,0,Ev,Ev);
-             interaction->GetInitialStatePtr()->SetProbeP4(p4);
+             interaction->InitStatePtr()->SetProbeP4(p4);
 
              if(Ev>EvThr) {
                // Get W integration range

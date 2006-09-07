@@ -50,15 +50,15 @@ int main(int argc, char ** argv)
 
   TLorentzVector pnucl(0,0,0,kNucleonMass);
 
-  interaction.GetInitialStatePtr()->GetTargetPtr()->SetStruckNucleonP4(pnucl);
-  interaction.GetInitialStatePtr()->GetTargetPtr()->SetStruckNucleonPDGCode(kPdgProton);
-  interaction.GetInitialStatePtr()->GetTargetPtr()->SetStruckQuarkPDGCode(kPdgUQuark);
+  interaction.InitStatePtr()->TgtPtr()->SetHitNucP4(pnucl);
+  interaction.InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgProton);
+  interaction.InitStatePtr()->TgtPtr()->SetHitQrkPdg(kPdgUQuark);
 
   //-- get a 'read-only' InitialState and print it (check that struck nucleon
   //   and quark were set) 
   //   note: using the methods not ending in Ptr to get a 'read-only' object
 
-  const InitialState & cinit = interaction.GetInitialState();
+  const InitialState & cinit = interaction.InitState();
 
   LOG("test", pINFO) << "Printing initial state after setting struck nucl/qrk";
   LOG("test", pINFO) << "\n" << cinit;
@@ -66,21 +66,21 @@ int main(int argc, char ** argv)
   //-- take just the Target from the initial state and print it
 
   LOG("test", pINFO) << "Printing target after setting struck nucl/qrk";
-  const Target & ctgt = interaction.GetInitialState().GetTarget();
+  const Target & ctgt = interaction.InitState().Tgt();
   LOG("test", pINFO) << "\n" <<ctgt;
 
   //-- change the struck nucleon
   //-- instead of using the long syntax above, get a writable Target object first
 
-  Target * wtgt = interaction.GetInitialStatePtr()->GetTargetPtr();
-  wtgt->SetStruckNucleonPDGCode(kPdgProton);
+  Target * wtgt = interaction.InitStatePtr()->TgtPtr();
+  wtgt->SetHitNucPdg(kPdgProton);
 
   LOG("test", pINFO) << "Printing target after changing struck nucl";
   LOG("test", pINFO) << "\n" << *wtgt;
 
   //-- take the Kinematics object and set some
 
-  Kinematics * wkine = interaction.GetKinematicsPtr();
+  Kinematics * wkine = interaction.KinePtr();
  
   wkine->Setx(0.1781);
   wkine->Sety(0.6892);

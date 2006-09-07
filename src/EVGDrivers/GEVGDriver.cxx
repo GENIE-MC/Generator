@@ -243,7 +243,7 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
 
   //-- Get a ptr to the interaction summary
   LOG("GEVGDriver", pDEBUG) << "Getting the selected interaction";
-  Interaction * interaction = fCurrentRecord->GetInteraction();
+  Interaction * interaction = fCurrentRecord->Summary();
 
   //-- Find the appropriate concrete EventGeneratorI implementation
   //   for generating this event.
@@ -335,7 +335,7 @@ double GEVGDriver::XSecSum(const TLorentzVector & nup4)
 
      // get current interaction
      Interaction * interaction = new Interaction(**intliter);
-     interaction->GetInitialStatePtr()->SetProbeP4(nup4);
+     interaction->InitStatePtr()->SetProbeP4(nup4);
 
      string code = interaction->AsString();
      SLOG("GEVGDriver", pDEBUG)
@@ -369,8 +369,8 @@ double GEVGDriver::XSecSum(const TLorentzVector & nup4)
   PDGLibrary * pdglib = PDGLibrary::Instance();
   LOG("GEVGDriver", pINFO)
     << "SumXSec("
-    << pdglib->Find(fInitState->GetProbePDGCode())->GetName() << "+"
-    << pdglib->Find(fInitState->GetTarget().PDGCode())->GetName() << "->X, "
+    << pdglib->Find(fInitState->ProbePdg())->GetName() << "+"
+    << pdglib->Find(fInitState->Tgt().Pdg())->GetName() << "->X, "
     << "E = " << nup4.Energy() << " GeV)"
     << (fUseSplines ? "*interpolated*" : "*computed*")
     << " = " << (xsec_sum/units::cm2) << " cm2";
@@ -606,7 +606,7 @@ void GEVGDriver::AssertIsValidInitState(void) const
 {
   assert(fInitState);
 
-  int nu_pdgc = fInitState->GetProbePDGCode();
+  int nu_pdgc = fInitState->ProbePdg();
 
   bool isnu = pdg::IsNeutrino(nu_pdgc) || pdg::IsAntiNeutrino(nu_pdgc);
   assert(isnu);
@@ -617,8 +617,8 @@ void GEVGDriver::Print(ostream & stream) const
   stream
     << "\n\n *********************** GEVGDriver ***************************";
 
-  int nupdg  = fInitState->GetProbePDGCode();
-  int tgtpdg = fInitState->GetTarget().PDGCode();
+  int nupdg  = fInitState->ProbePdg();
+  int tgtpdg = fInitState->Tgt().Pdg();
 
   stream << "\n  |---o Neutrino PDG-code .........: " << nupdg;
   stream << "\n  |---o Nuclear Target PDG-code ...: " << tgtpdg;

@@ -57,7 +57,7 @@ void IMDTargetRemnantGenerator::AddElectronNeutrino(GHepRecord * evrec) const
   GHepParticle * nu = evrec->Probe();
 
   //struck nucleon:
-  GHepParticle * el = evrec->StruckElectron();
+  GHepParticle * el = evrec->HitElectron();
 
   //final state primary lepton:
   GHepParticle * l = evrec->FinalStatePrimaryLepton();
@@ -78,7 +78,7 @@ void IMDTargetRemnantGenerator::AddElectronNeutrino(GHepRecord * evrec) const
 
   LOG("IMDTargetRemnant", pINFO) << "Adding final state electron neutrino";
 
-  int mom = evrec->StruckElectronPosition();
+  int mom = evrec->HitElectronPosition();
   evrec->AddParticle(
           kPdgNuE,kIStStableFinalState, mom,-1,-1,-1, px,py,pz,E, 0,0,0,0);
 }
@@ -91,17 +91,17 @@ void IMDTargetRemnantGenerator::AddTargetNucleusRemnant(
   LOG("IMDTargetRemnant", pDEBUG) << "Adding final state nucleus";
 
   //-- get A,Z for initial state nucleus
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
+  Interaction * interaction = evrec->Summary();
+  const InitialState & init_state = interaction->InitState();
 
-  bool is_nucleus = init_state.GetTarget().IsNucleus();
+  bool is_nucleus = init_state.Tgt().IsNucleus();
   if (!is_nucleus) {
     LOG("IMDTargetRemnant", pDEBUG)
                << "Initial state not a nucleus - no remnant nucleus to add";
     return;
   }
-  int A = init_state.GetTarget().A();
-  int Z = init_state.GetTarget().Z();
+  int A = init_state.Tgt().A();
+  int Z = init_state.Tgt().Z();
 
   int    ipdgc = pdg::IonPdgCode(A, Z);
   double mass  = PDGLibrary::Instance()->Find(ipdgc)->Mass();

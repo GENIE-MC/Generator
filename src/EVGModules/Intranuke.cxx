@@ -138,9 +138,9 @@ bool Intranuke::CanRescatter(const GHepParticle * p) const
 // rescattered by this cascade MC
 
   assert(p);
-  return  ( p->PdgCode() == kPdgPiPlus  || 
-            p->PdgCode() == kPdgPiMinus || 
-            p->PdgCode() == kPdgPi0
+  return  ( p->Pdg() == kPdgPiPlus  || 
+            p->Pdg() == kPdgPiMinus || 
+            p->Pdg() == kPdgPi0
           );
 }
 //___________________________________________________________________________
@@ -264,7 +264,7 @@ bool Intranuke::IsFreshHadron(GHepRecord* evrec, GHepParticle* p) const
   int imom = p->FirstMother();
   assert(imom>0);
 
-  if(evrec->Particle(imom)->PdgCode() == kPdgHadronicSyst) return true;
+  if(evrec->Particle(imom)->Pdg() == kPdgHadronicSyst) return true;
 
   return false;
 }

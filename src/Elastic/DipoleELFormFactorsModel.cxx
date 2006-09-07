@@ -44,7 +44,7 @@ DipoleELFormFactorsModel::~DipoleELFormFactorsModel()
 double DipoleELFormFactorsModel::Gep(const Interaction * interaction) const
 {
   // calculate and return GNE
-  double q2 = interaction->GetKinematics().q2();
+  double q2 = interaction->Kine().q2();
   double ge = 1. / TMath::Power(1-q2/fMv2, 2);
 
   LOG("ELFormFactors", pDEBUG) << "Gep(q^2 = " << q2 << ") = " << ge;
@@ -59,7 +59,7 @@ double DipoleELFormFactorsModel::Gen(const Interaction * /*in*/) const
 double DipoleELFormFactorsModel::Gmp(const Interaction * interaction) const
 {
   // calculate & return Gm
-  double q2 = interaction->GetKinematics().q2();
+  double q2 = interaction->Kine().q2();
   double gm = fMuP / TMath::Power(1-q2/fMv2, 2);
 
   LOG("ELFormFactors", pDEBUG) << "Gmp(q^2 = " << q2 << ") = " << gm;
@@ -69,7 +69,7 @@ double DipoleELFormFactorsModel::Gmp(const Interaction * interaction) const
 double DipoleELFormFactorsModel::Gmn(const Interaction * interaction) const
 {
   // calculate & return Gm
-  double q2 = interaction->GetKinematics().q2();
+  double q2 = interaction->Kine().q2();
   double gm = fMuN / TMath::Power(1-q2/fMv2, 2);
 
   LOG("ELFormFactors", pDEBUG) << "Gmn(q^2 = " << q2 << ") = " << gm;

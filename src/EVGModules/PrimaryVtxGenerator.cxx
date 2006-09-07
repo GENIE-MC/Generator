@@ -51,10 +51,10 @@ void PrimaryVtxGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
   LOG("VtxGenerator", pDEBUG) << "Generating an interaction vertex";
 
-  Interaction * interaction = evrec->GetInteraction();
+  Interaction * interaction = evrec->Summary();
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const Target &       target     = init_state.GetTarget();
+  const InitialState & init_state = interaction->InitState();
+  const Target & target = init_state.Tgt();
 
   if (!target.IsNucleus()) {
     LOG("VtxGenerator", pINFO) << "No nuclear target found - Vtx = (0,0,0)";
@@ -89,7 +89,7 @@ void PrimaryVtxGenerator::ProcessEventRecord(GHepRecord * evrec) const
   assert(probe);
   probe->SetPosition(x, y, z, 0.);
 
-  GHepParticle * nucleon = evrec->StruckNucleon();
+  GHepParticle * nucleon = evrec->HitNucleon();
   assert(nucleon);
   nucleon->SetPosition(x, y, z, 0.);
 }

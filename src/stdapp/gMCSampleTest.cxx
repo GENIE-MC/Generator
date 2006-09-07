@@ -217,7 +217,7 @@ void AnalyzeEvents(
     assert(target);
 
     // only further only if it matches the requested target
-    if(target->PdgCode() != gOptTgtPdgC) continue;
+    if(target->Pdg() != gOptTgtPdgC) continue;
 
     // neutrino
     GHepParticle * neutrino = event.Probe();
@@ -226,13 +226,13 @@ void AnalyzeEvents(
     GHepParticle * fsl = event.FinalStatePrimaryLepton();
     assert(fsl);
     // hit nucleon
-    GHepParticle * hitnucl = event.StruckNucleon();
+    GHepParticle * hitnucl = event.HitNucleon();
     if(!hitnucl) continue;
 
-    const Interaction * interaction = event.GetInteraction();
-    const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+    const Interaction * interaction = event.Summary();
+    const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
-    double weight = event.GetWeight();
+    double weight = event.Weight();
     double Ev     = neutrino->Energy();
     double El     = fsl->Energy();
 
@@ -264,7 +264,7 @@ void AnalyzeEvents(
 
     int iproc = IProc(proc_info);
     int icurr = ICurr(proc_info);
-    int ineut = INeut(neutrino->PdgCode());
+    int ineut = INeut(neutrino->Pdg());
 
     if (iproc<0) continue;
     if (icurr<0) continue;

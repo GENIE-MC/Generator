@@ -23,11 +23,13 @@ namespace genie {
 
 typedef enum ERefFrame {
 
-  kNullRefFrame = 0,
-  kRfCenterOfMass,
-  kRfTargetAtRest,
-  kRfStruckNucAtRest,
-  kRfLab  
+  kRfUndefined = 0,
+  kRfLab,  
+  kRfCM,
+  kRfHCM,
+  kRfTgtRest,
+  kRfHitNucRest,
+  kRfHitElRest
 
 } RefFrame_t;
 
@@ -38,16 +40,16 @@ public:
   static char * AsString(RefFrame_t rf) 
   {
     switch (rf) {
-       case (kRfCenterOfMass) :     return "CENTER-OF-MASS-FRAME";      break;
-       case (kRfTargetAtRest) :     return "TARGET-REST-FRAME";         break;
-       case (kRfStruckNucAtRest) :  return "STRUCK-NUCLEON-REST-FRAME"; break;
-       case (kRfLab) :              return "LAB-FRAME";                 break;       
-       case (kNullRefFrame) :
-       default :  
-                return "Undefined REF-FRAME";
+       case (kRfLab)        : return "[LAB]";                     break;       
+       case (kRfCM)         : return "[Center of mass]";          break;
+       case (kRfHCM)        : return "[Hadronic center of mass]"; break;
+       case (kRfTgtRest)    : return "[Nuclear target @ rest]";   break;
+       case (kRfHitNucRest) : return "[Hit nucleon @ rest]";      break;
+       case (kRfHitElRest)  : return "[Hit electron@ rest]";      break;
+       case (kRfUndefined)  :
+       default :              return "** Undefined reference frame ** ";
     }
   }
-
 };
 
 }        // genie namespace

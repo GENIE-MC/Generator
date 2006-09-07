@@ -46,48 +46,48 @@ const UInt_t kIAssumeFreeElectron = 1<<15;
 class Interaction : public TObject {
 
 public:
-
-  //! ctors & dtor
   Interaction();
   Interaction(const InitialState & init, const ProcessInfo & proc);
   Interaction(const Interaction & i);
   ~Interaction();
 
-  //! Get read-only interaction information
-  const InitialState & GetInitialState (void) const { return *fInitialState; }
-  const ProcessInfo &  GetProcessInfo  (void) const { return *fProcInfo;     }
-  const Kinematics &   GetKinematics   (void) const { return *fKinematics;   }
-  const XclsTag &      GetExclusiveTag (void) const { return *fExclusiveTag; }
+  //-- Methods accessing aggregate/owned objects holding interaction information
+  const InitialState & InitState    (void) const { return *fInitialState; }
+  const ProcessInfo &  ProcInfo     (void) const { return *fProcInfo;     }
+  const Kinematics &   Kine         (void) const { return *fKinematics;   }
+  const XclsTag &      ExclTag      (void) const { return *fExclusiveTag; }
+  InitialState *       InitStatePtr (void) const { return fInitialState;  }
+  ProcessInfo *        ProcInfoPtr  (void) const { return fProcInfo;      }
+  Kinematics *         KinePtr      (void) const { return fKinematics;    }
+  XclsTag *            ExclTagPtr   (void) const { return fExclusiveTag;  }
 
-  //! Get read/write interaction information
-  InitialState * GetInitialStatePtr (void) const { return fInitialState; }
-  ProcessInfo *  GetProcessInfoPtr  (void) const { return fProcInfo;     }
-  Kinematics *   GetKinematicsPtr   (void) const { return fKinematics;   }
-  XclsTag *      GetExclusiveTagPtr (void) const { return fExclusiveTag; }
+  //-- Methods to set interaction's properties
+  void SetInitState (const InitialState & init);
+  void SetProcInfo  (const ProcessInfo &  proc);
+  void SetKine      (const Kinematics &   kine);
+  void SetExclTag   (const XclsTag &      xcls);
 
-  //! Methods to 'block' set interaction's properties
-  void SetInitialState (const InitialState & init);
-  void SetProcessInfo  (const ProcessInfo &  proc);
-  void SetKinematics   (const Kinematics &   kine);
-  void SetExclusiveTag (const XclsTag &      xcls);
+  //-- Get the final state primary lepton and recoil nucleon (if) uniquely
+  //   determined for the specified interaction
+  int            FSPrimLeptonPdg  (void) const; ///< final state primary lepton pdg
+  int            RecoilNucleonPdg (void) const; ///< recoil nucleon pdg
+  TParticlePDG * FSPrimLepton     (void) const; ///< final state primaru lepton
+  TParticlePDG * RecoilNucleon    (void) const; ///< recoil nucleon 
 
-  //! Get final state primary lepton / uniquely determined from the inputs
-  TParticlePDG * GetFSPrimaryLepton (void) const;
+  //-- Kinematical limits
+  double EnergyThreshold(void) const;
 
-  //! Get recoil nucleon if it is uniquely determined from the inputs
-  int RecoilNuclPDGCode (void) const;
-
-  //! Copy, reset, print itself and build string code
+  //-- Copy, reset, print itself and build string code
   void   Reset    (void);
   void   Copy     (const Interaction & i);
   string AsString (void) const;
   void   Print    (ostream & stream) const;
 
-  //! Overloaded operators
-  Interaction &    operator =  (const Interaction & i);
-  friend ostream & operator << (ostream & stream, const Interaction & i);
+  //-- Overloaded operators
+  Interaction &    operator =  (const Interaction & i);                   ///< copy
+  friend ostream & operator << (ostream & stream, const Interaction & i); ///< print
 
-  //! Use the "Named Constructor" C++ idiom for fast creation of typical interactions
+  //-- Use the "Named Constructor" C++ idiom for fast creation of typical interactions
   static Interaction * DISCC (int tgt, int nuc, int probe, double E=0);
   static Interaction * DISCC (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
   static Interaction * DISCC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
@@ -109,14 +109,14 @@ public:
 
 private:
 
-  //! Methods for Interaction initialization and clean up
+  //-- Methods for Interaction initialization and clean up
   void Init    (void);
   void CleanUp (void);
 
-  //! Utility method for "named ctor"
+  //-- Utility method for "named ctor"
   static Interaction * Create(int tgt, int probe, ScatteringType_t st, InteractionType_t it);
 
-  //! Private data members
+  //-- Private data members
   InitialState * fInitialState;  ///< Initial State info
   ProcessInfo *  fProcInfo;      ///< Process info (scattering, weak current,...)
   Kinematics *   fKinematics;    ///< kinematical variables

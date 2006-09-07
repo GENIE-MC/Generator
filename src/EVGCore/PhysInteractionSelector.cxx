@@ -81,7 +81,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
   for(intliter = ilst.begin(); intliter != ilst.end(); ++intliter) {
 
      Interaction * interaction = new Interaction(**intliter);
-     interaction->GetInitialStatePtr()->SetProbeP4(p4);
+     interaction->InitStatePtr()->SetProbeP4(p4);
 
      SLOG("InteractionSelector", pDEBUG)
            << "Computing xsec for: \n  " << interaction->AsString();
@@ -96,8 +96,8 @@ EventRecord * PhysInteractionSelector::SelectInteraction
      bool spline_computed = xssl->SplineExists(xsec_alg, interaction);
      bool eval = fUseSplines && spline_computed;
      if (eval) {
-           const InitialState & init = interaction->GetInitialState();
-           double E = init.GetProbeE(kRfStruckNucAtRest);
+           const InitialState & init = interaction->InitState();
+           double E = init.ProbeE(kRfHitNucRest);
            const Spline * spl = xssl->GetSpline(xsec_alg,interaction);
            if(spl->ClosestKnotValueIsZero(E,"-")) xsec = 0;
            else xsec = spl->Evaluate(E);
@@ -139,7 +139,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
 
      if( R < xseclist[iint] ) {
        Interaction * selected_interaction = new Interaction (*ilst[iint]);
-       selected_interaction->GetInitialStatePtr()->SetProbeP4(p4);
+       selected_interaction->InitStatePtr()->SetProbeP4(p4);
 
        // set the cross section for the selected interaction (just extract it
        // from the array of summed xsecs rather than recomputing it)
@@ -152,7 +152,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
 
        // bootstrap the event record
        EventRecord * evrec = new EventRecord;
-       evrec->AttachInteraction(selected_interaction);
+       evrec->AttachSummary(selected_interaction);
        evrec->SetXSec(xsec);
 
        return evrec;

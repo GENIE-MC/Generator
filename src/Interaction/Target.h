@@ -5,7 +5,7 @@
 
 \brief    A Neutrino Interaction Target. Is a transparent encapsulation of
           quite different physical systems such as a nuclear target, a
-          'spectator' nuclear target with a struck nucleon, a free nucleon or
+          'spectator' nuclear target with a Hit nucleon, a free nucleon or
           a free particle (eg a e- target in the inverse muon decay reaction)
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -39,77 +39,77 @@ public:
   Target();
   Target(int pdgc);
   Target(int Z, int A);
-  Target(int Z, int A, int struck_nucleon_pdgc);
+  Target(int Z, int A, int hit_nucleon_pdgc);
   Target(const Target & tgt);
   ~Target();
 
-  //! Set target properties
-  void SetId                         (int pdgc);
-  void SetId                         (int Z, int A);
-  void SetStruckNucleonPDGCode       (int pdgc);
-  void SetStruckNucleonP4            (const TLorentzVector & p4);
-  void SetStruckQuarkPDGCode         (int pdgc);
-  void SetStruckSeaQuark             (bool tf);
-  void ForceStruckNucleonOnMassShell (void);
+  //-- Set target properties
 
-  //! Get atomic number, mass number & number of neutrons,
-  //! nucleus PDG code according to the MINOS PDG extensions
-  //! and provide shortcuts for getting the mass/charge
-  int    Z       (void) const { return fZ;      }
-  int    N       (void) const { return fA-fZ;   }
-  int    A       (void) const { return fA;      }
-  int    PDGCode (void) const { return fTgtPDG; }
+  void SetId                  (int pdgc);
+  void SetId                  (int Z, int A);
+  void SetHitNucPdg           (int pdgc);
+  void SetHitNucP4            (const TLorentzVector & p4);
+  void SetHitQrkPdg           (int pdgc);
+  void SetHitSeaQrk           (bool tf);
+  void ForceHitNucOnMassShell (void);
 
-  //! Query for target information
-  double Mass                 (void) const;
-  double Charge               (void) const;
-  bool   IsFreeNucleon        (void) const;
-  bool   IsProton             (void) const;
-  bool   IsNeutron            (void) const;
-  bool   IsNucleus            (void) const;
-  bool   IsParticle           (void) const;
-  bool   IsValidNucleus       (void) const;
-  bool   StruckNucleonIsSet   (void) const;
-  bool   StruckQuarkIsSet     (void) const;
-  bool   StruckQuarkIsFromSea (void) const;
-  bool   IsEvenEven           (void) const;
-  bool   IsEvenOdd            (void) const;
-  bool   IsOddOdd             (void) const;
-  int    StruckNucleonPDGCode (void) const;
-  int    StruckQuarkPDGCode   (void) const;
-  double StruckNucleonMass    (void) const;
-  TLorentzVector * StruckNucleonP4 (void) const;
+  //-- Query target information
 
-  //! Copy, reset, compare, print itself and build string code
+  int    Z              (void) const { return fZ;      }
+  int    N              (void) const { return fA-fZ;   }
+  int    A              (void) const { return fA;      }
+  int    Pdg            (void) const { return fTgtPDG; }
+  double Mass           (void) const;
+  double Charge         (void) const;
+  bool   IsFreeNucleon  (void) const;
+  bool   IsProton       (void) const;
+  bool   IsNeutron      (void) const;
+  bool   IsNucleus      (void) const;
+  bool   IsParticle     (void) const;
+  bool   IsValidNucleus (void) const;
+  bool   HitNucIsSet    (void) const;
+  bool   HitQrkIsSet    (void) const;
+  bool   HitSeaQrk      (void) const;
+  bool   IsEvenEven     (void) const;
+  bool   IsEvenOdd      (void) const;
+  bool   IsOddOdd       (void) const;
+  int    HitNucPdg      (void) const;
+  int    HitQrkPdg      (void) const;
+  double HitNucMass     (void) const;
+
+  const TLorentzVector & HitNucP4    (void) const { return *this->HitNucP4Ptr(); }
+  TLorentzVector *       HitNucP4Ptr (void) const;
+  
+  //-- Copy, reset, compare, print itself and build string code
   void   Reset    (void);
   void   Copy     (const Target & t);
   bool   Compare  (const Target & t) const;
   string AsString (void) const;
   void   Print    (ostream & stream) const;
 
-  bool             operator == (const Target & t) const;
-  Target &         operator =  (const Target & t);
-  friend ostream & operator << (ostream & stream, const Target & t);
+  bool             operator == (const Target & t) const;             ///< equal?
+  Target &         operator =  (const Target & t);                   ///< copy
+  friend ostream & operator << (ostream & stream, const Target & t); ///< print
 
 private:
 
-  //! Methods for Target initialization and clean up
+  //-- Methods for Target initialization and clean up
   void Init    (void);
   void CleanUp (void);
 
-  //! Methods assuring nucleus & struck nucleon validity
-  void ForceNucleusValidity       (void);
-  bool ForceStruckNucleonValidity (void);
-  void AutoSetStruckNucleon       (void);
+  //-- Methods assuring nucleus & hit nucleon validity
+  void ForceNucleusValidity (void);
+  bool ForceHitNucValidity  (void);
+  void AutoSetHitNuc        (void);
 
-  //! Private data members
-  int  fZ;
-  int  fA;
-  int  fTgtPDG;
-  int  fStruckNucPDG;
-  int  fStruckQuarkPDG;
-  bool fStruckSeaQuark;
-  TLorentzVector * fStruckNucP4;
+  //-- Private data members
+  int  fZ;                    ///< nuclear target Z
+  int  fA;                    ///< nuclear target A
+  int  fTgtPDG;               ///< nuclear target PDG code
+  int  fHitNucPDG;            ///< hit nucleon PDG code
+  int  fHitQrkPDG;            ///< hit quark PDG code
+  bool fHitSeaQrk;            ///< hit quark from sea?
+  TLorentzVector * fHitNucP4; ///< hit nucleon 4p
 
 ClassDef(Target,1)
 };

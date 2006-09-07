@@ -52,8 +52,8 @@ double IMDXSec::XSec(
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  double E  = init_state.GetProbeE(kRfLab);
+  const InitialState & init_state = interaction->InitState();
+  double E  = init_state.ProbeE(kRfLab);
 
   double e = 1e-4;
   Range1D_t y(e, 1.-e);
@@ -77,9 +77,9 @@ bool IMDXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const InitialState & init_state = interaction -> GetInitialState();
+  const InitialState & init_state = interaction -> InitState();
 
-  double E = init_state.GetProbeE(kRfLab);
+  double E = init_state.ProbeE(kRfLab);
   double s = kElectronMass2 + 2*kElectronMass*E;
 
   //-- check if it is kinematically allowed

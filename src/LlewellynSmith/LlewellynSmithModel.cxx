@@ -73,7 +73,7 @@ double LlewellynSmithModel::xiF2V(const Interaction * interaction) const
 double LlewellynSmithModel::FA(const Interaction * interaction) const
 {
   // get scattering parameters
-  const Kinematics & kine = interaction->GetKinematics();
+  const Kinematics & kine = interaction->Kine();
   double q2 = kine.q2();
 
   // calculate FA(q2)
@@ -85,12 +85,12 @@ double LlewellynSmithModel::FA(const Interaction * interaction) const
 double LlewellynSmithModel::Fp(const Interaction * interaction) const
 {
   // get momentum transfer
-  const Kinematics & kine = interaction->GetKinematics();
+  const Kinematics & kine = interaction->Kine();
   double q2 = kine.q2();
 
   // get struck nucleon mass & set pion mass
-  const InitialState & init_state = interaction->GetInitialState();
-  double MN   = init_state.GetTarget().StruckNucleonMass();
+  const InitialState & init_state = interaction->InitState();
+  double MN   = init_state.Tgt().HitNucMass();
   double MN2  = TMath::Power(MN, 2);
   double Mpi  = kPionMass;
   double Mpi2 = TMath::Power(Mpi, 2);
@@ -153,10 +153,10 @@ double LlewellynSmithModel::tau(const Interaction * interaction) const
 // computes q^2 / (4 * MNucl^2)
 
   //-- get kinematics & initial state parameters
-  const Kinematics &   kinematics = interaction->GetKinematics();
-  const InitialState & init_state = interaction->GetInitialState();
+  const Kinematics &   kinematics = interaction->Kine();
+  const InitialState & init_state = interaction->InitState();
   double q2     = kinematics.q2();
-  double Mnucl  = init_state.GetTarget().StruckNucleonMass();
+  double Mnucl  = init_state.Tgt().HitNucMass();
   double Mnucl2 = TMath::Power(Mnucl, 2);
 
   //-- calculate q^2 / (4*Mnuc^2)

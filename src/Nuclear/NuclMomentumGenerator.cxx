@@ -79,7 +79,7 @@ void NuclMomentumGenerator::UseProbDistribution(
                         const NuclMomentumModelI * model, const Target & tgt)
 {
   assert(model);
-  assert(tgt.StruckNucleonIsSet());
+  assert(tgt.HitNucIsSet());
 
   fCurrProbDistribution = 0;
   string key = this->BuildProbDistributionKey(model, tgt);

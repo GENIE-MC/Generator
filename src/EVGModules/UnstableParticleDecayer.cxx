@@ -78,7 +78,7 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
 
         DecayerInputs_t dinp;
 
-        dinp.PdgCode = p->PdgCode();
+        dinp.PdgCode = p->Pdg();
         dinp.P4      = &p4;
 
         TClonesArray * decay_products = fDecayer->Decay(dinp);
@@ -104,7 +104,7 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 bool UnstableParticleDecayer::ToBeDecayed(GHepParticle * particle) const
 {
-   if( particle->PdgCode() != 0 &&
+   if( particle->Pdg() != 0 &&
                 particle->Status() == kIStStableFinalState)
                                            return this->IsUnstable(particle);
    return false;
@@ -112,7 +112,7 @@ bool UnstableParticleDecayer::ToBeDecayed(GHepParticle * particle) const
 //___________________________________________________________________________
 bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
 {
-  int pdg_code = particle->PdgCode();
+  int pdg_code = particle->Pdg();
 
   TParticlePDG * ppdg = PDGLibrary::Instance()->Find(pdg_code);
 

@@ -25,7 +25,6 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
-#include "Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -62,17 +61,15 @@ double DISPXSec::XSec(
 
   if (kps==kPSxfE) {
 
-    double x = interaction->GetKinematics().x();
-    func = new Integrand_D2XSec_DxDy_Ex(
-                         fPartialXSecAlg, interaction, x);
+    double x = interaction->Kine().x();
+    func = new Integrand_D2XSec_DxDy_Ex(fPartialXSecAlg, interaction, x);
     func->SetParam(0,"y",kMinY,kMaxY);
     xsec = fIntegrator->Integrate(*func);
 
   } else if (kps==kPSyfE) {
 
-    double y = interaction->GetKinematics().y();
-    func = new Integrand_D2XSec_DxDy_Ey(
-                         fPartialXSecAlg, interaction, y);
+    double y = interaction->Kine().y();
+    func = new Integrand_D2XSec_DxDy_Ey(fPartialXSecAlg, interaction, y);
     func->SetParam(0,"x",kMinX,kMaxX);
     xsec = fIntegrator->Integrate(*func);
 
@@ -89,11 +86,11 @@ bool DISPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
-  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
-  int  nu  = init_state.GetProbePDGCode();
+  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nu  = init_state.ProbePdg();
 
   if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
@@ -108,11 +105,11 @@ bool DISPXSec::ValidKinematics(const Interaction * interaction) const
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
   //-- Get neutrino energy in the struck nucleon rest frame
-  const InitialState & init_state = interaction -> GetInitialState();
-  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> InitState();
+  double Ev = init_state.ProbeE(kRfHitNucRest);
 
   //-- Check the energy threshold
-  double Ethr = utils::kinematics::EnergyThreshold(interaction);
+  double Ethr = interaction->EnergyThreshold();
   if(Ev <= Ethr) {
      LOG("DISXSec", pINFO) << "E = " << Ev << " <= Ethreshold = " << Ethr;
      return false;

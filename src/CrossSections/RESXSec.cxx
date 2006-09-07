@@ -59,8 +59,8 @@ double RESXSec::XSec(const Interaction * in, KinePhaseSpace_t kps) const
   //interaction->SetBit(kISkipKinematicChk);
 
   // Get neutrino energy in the struck nucleon rest frame
-  const InitialState & init_state = interaction -> GetInitialState();
-  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> InitState();
+  double Ev  = init_state.ProbeE(kRfHitNucRest);
 
   // Get W integration range
   Range1D_t rW = this->WRange(interaction);
@@ -82,14 +82,14 @@ bool RESXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
   if(!proc_info.IsResonant()) return false;
   if(!proc_info.IsWeak())     return false;
 
-  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
-  int  nu  = init_state.GetProbePDGCode();
+  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nu  = init_state.ProbePdg();
 
   if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
@@ -101,10 +101,10 @@ bool RESXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> InitState();
+  double Ev  = init_state.ProbeE(kRfHitNucRest);
 
-  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  double EvThr = interaction->EnergyThreshold();
   if(Ev <= EvThr) return false;
 
   return true;

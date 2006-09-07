@@ -57,14 +57,14 @@ InteractionList * COHInteractionListGenerator::CreateInteractionList(
      return 0;
   }
 
-  int nupdg = init_state.GetProbePDGCode();
+  int nupdg = init_state.ProbePdg();
   if( !pdg::IsNeutrino(nupdg) && !pdg::IsAntiNeutrino(nupdg) ) {
      LOG("InteractionList", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
                          << "for init-state: " << init_state.AsString();
      return 0;
   }
-  const Target & target = init_state.GetTarget();
+  const Target & target = init_state.Tgt();
   if(!target.IsNucleus()) {
      LOG("InteractionList", pWARN)
        << "Not a nuclear target! Returning NULL InteractionList "
@@ -80,13 +80,13 @@ InteractionList * COHInteractionListGenerator::CreateInteractionList(
   if(fIsCC) {
     if(pdg::IsNeutrino(nupdg)) {
         //v A -> l- A pi+
-        interaction->GetExclusiveTagPtr()->SetNPions(1,0,0);  
+        interaction->ExclTagPtr()->SetNPions(1,0,0);  
     } else {
         //vbar A -> l+ A pi-
-        interaction->GetExclusiveTagPtr()->SetNPions(0,0,1); 
+        interaction->ExclTagPtr()->SetNPions(0,0,1); 
     }
   }
-  else {interaction->GetExclusiveTagPtr()->SetNPions(0,1,0);} //v A -> v A pi0
+  else {interaction->ExclTagPtr()->SetNPions(0,1,0);} //v A -> v A pi0
 
   intlist->push_back(interaction);
 

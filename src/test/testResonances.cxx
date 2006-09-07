@@ -36,7 +36,6 @@
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
-#include "ValidityDoc/VldResonances.h"
 
 using std::string;
 

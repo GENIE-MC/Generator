@@ -66,20 +66,20 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
   ProcessInfo   proc_info(kScQuasiElastic, kIntWeakCC);
   Interaction * interaction = new Interaction(init_state, proc_info);
 
-  int      nupdg   = init_state.GetProbePDGCode();
+  int      nupdg   = init_state.ProbePdg();
   bool     isnu    = pdg::IsNeutrino     (nupdg);
   bool     isnubar = pdg::IsAntiNeutrino (nupdg);
 
-  Target * target  = interaction->GetInitialStatePtr()->GetTargetPtr();
+  Target * target  = interaction->InitStatePtr()->TgtPtr();
   bool     hasP    = (target->Z() > 0);
   bool     hasN    = (target->N() > 0);
 
   if (isnu && hasN) {
-     target->SetStruckNucleonPDGCode(kPdgNeutron);
+     target->SetHitNucPdg(kPdgNeutron);
      intlist->push_back(interaction);
 
   } else if (isnubar && hasP) {
-     target->SetStruckNucleonPDGCode(kPdgProton);
+     target->SetHitNucPdg(kPdgProton);
      intlist->push_back(interaction);
 
   } else {
@@ -100,7 +100,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
 
   int nuclpdg[2] = { kPdgProton, kPdgNeutron };
 
-  int      nupdg   = init_state.GetProbePDGCode();
+  int      nupdg   = init_state.ProbePdg();
   bool     isnu    = pdg::IsNeutrino     (nupdg);
   bool     isnubar = pdg::IsAntiNeutrino (nupdg);
 
@@ -117,7 +117,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
      ProcessInfo   proc_info(kScQuasiElastic, kIntWeakNC);
      Interaction * interaction = new Interaction(init_state, proc_info);
 
-     Target * target  = interaction->GetInitialStatePtr()->GetTargetPtr();
+     Target * target  = interaction->InitStatePtr()->TgtPtr();
      bool     hasP    = (target->Z() > 0);
      bool     hasN    = (target->N() > 0);
 
@@ -129,7 +129,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
        delete interaction;
        continue;
      }
-     target->SetStruckNucleonPDGCode(nuclpdg[i]);
+     target->SetHitNucPdg(nuclpdg[i]);
      intlist->push_back(interaction);
   }
 

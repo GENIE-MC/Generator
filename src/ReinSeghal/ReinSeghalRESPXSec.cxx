@@ -66,12 +66,12 @@ double ReinSeghalRESPXSec::XSec(
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  const ProcessInfo &  proc_info  = interaction -> GetProcessInfo();
-  const Target & target = init_state.GetTarget();
+  const InitialState & init_state = interaction -> InitState();
+  const ProcessInfo &  proc_info  = interaction -> ProcInfo();
+  const Target & target = init_state.Tgt();
 
   //----- Get kinematical parameters
-  const Kinematics & kinematics = interaction -> GetKinematics();
+  const Kinematics & kinematics = interaction -> Kine();
   double W  = kinematics.W();
   double q2 = kinematics.q2();
 
@@ -86,13 +86,13 @@ double ReinSeghalRESPXSec::XSec(
   }
 
   //-- Get the input baryon resonance
-  Resonance_t resonance = interaction->GetExclusiveTag().Resonance();
+  Resonance_t resonance = interaction->ExclTag().Resonance();
   string      resname   = utils::res::AsString(resonance);
   bool        is_delta  = utils::res::IsDelta (resonance);
 
   //-- Get the neutrino, hit nucleon & weak current
-  int  nucpdgc = target.StruckNucleonPDGCode();
-  int  nupdgc  = init_state.GetProbePDGCode();
+  int  nucpdgc = target.HitNucPdg();
+  int  nupdgc  = init_state.ProbePdg();
   bool is_nu    = pdg::IsNeutrino     (nupdgc);
   bool is_nubar = pdg::IsAntiNeutrino (nupdgc);
   bool is_p     = pdg::IsProton       (nucpdgc);
@@ -117,8 +117,8 @@ double ReinSeghalRESPXSec::XSec(
   else if (W > Mres + fGnResMaxNWidths * Gres)            return 0.;
 
   //-- Compute auxiliary & kinematical factors 
-  double E      = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Mnuc   = target.StruckNucleonMass(); 
+  double E      = init_state.ProbeE(kRfHitNucRest);
+  double Mnuc   = target.HitNucMass(); 
   double W2     = TMath::Power(W,    2);
   double Mnuc2  = TMath::Power(Mnuc, 2);
   double k      = 0.5 * (W2 - Mnuc2)/Mnuc;
@@ -257,15 +257,15 @@ bool ReinSeghalRESPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
-  const XclsTag &      xcls       = interaction->GetExclusiveTag();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+  const XclsTag &      xcls       = interaction->ExclTag();
 
   if(!proc_info.IsResonant()) return false;
   if(!proc_info.IsWeak())     return false;
 
-  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
-  int  nu  = init_state.GetProbePDGCode();
+  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nu  = init_state.ProbePdg();
 
   if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
@@ -279,15 +279,15 @@ bool ReinSeghalRESPXSec::ValidKinematics(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E    = init_state.ProbeE(kRfHitNucRest);
   double W    = kinematics.W();
   double q2   = kinematics.q2();
 
   //-- Check energy threshold & kinematical limits in q2, W
-  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  double EvThr = interaction->EnergyThreshold();
   if(E <= EvThr) {
     LOG("ReinSeghalRes", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
     return false;

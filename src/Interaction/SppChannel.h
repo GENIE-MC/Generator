@@ -274,15 +274,15 @@ public:
   //__________________________________________________________________________
   static SppChannel_t FromInteraction(const Interaction * interaction)
   {
-    const InitialState & init_state = interaction->GetInitialState();
-    const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
-    const XclsTag &      xcls_tag   = interaction->GetExclusiveTag();
+    const InitialState & init_state = interaction->InitState();
+    const ProcessInfo &  proc_info  = interaction->ProcInfo();
+    const XclsTag &      xcls_tag   = interaction->ExclTag();
 
     if( xcls_tag.NPions()    != 1 ) return kSppNull;
     if( xcls_tag.NNucleons() != 1 ) return kSppNull;
 
     // get struck nucleon
-    int hit_nucl_pdgc = init_state.GetTarget().StruckNucleonPDGCode();
+    int hit_nucl_pdgc = init_state.Tgt().HitNucPdg();
     if( ! pdg::IsNeutronOrProton(hit_nucl_pdgc) ) return kSppNull;
     bool hit_p = pdg::IsProton(hit_nucl_pdgc);
     bool hit_n = !hit_p;
@@ -295,7 +295,7 @@ public:
     bool fs_n        = ( xcls_tag.NNeutrons() == 1 );
 
     // get probe
-    int probe = init_state.GetProbePDGCode();
+    int probe = init_state.ProbePdg();
 
     // figure out spp channel
     if( pdg::IsNeutrino(probe) ) { 

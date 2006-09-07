@@ -23,7 +23,6 @@
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
-#include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
 
 using namespace genie;
@@ -62,8 +61,8 @@ double DISXSec::XSec(const Interaction * in, KinePhaseSpace_t kps) const
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   // Get neutrino energy in the struck nucleon rest frame
-  const InitialState & init_state = interaction -> GetInitialState();
-  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> InitState();
+  double Ev = init_state.ProbeE(kRfHitNucRest);
 
   Range1D_t WCuts (fWmin, fWmax );
   Range1D_t Q2Cuts(fQ2min,fQ2max);
@@ -86,11 +85,11 @@ bool DISXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
-  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
-  int  nu  = init_state.GetProbePDGCode();
+  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nu  = init_state.ProbePdg();
 
   if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
@@ -105,11 +104,11 @@ bool DISXSec::ValidKinematics(const Interaction * interaction) const
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
   //-- Get neutrino energy in the struck nucleon rest frame
-  const InitialState & init_state = interaction -> GetInitialState();
-  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> InitState();
+  double Ev = init_state.ProbeE(kRfHitNucRest);
 
   //-- Check the energy threshold
-  double Ethr = utils::kinematics::EnergyThreshold(interaction);
+  double Ethr = interaction->EnergyThreshold();
   if(Ev <= Ethr) {
      LOG("DISXSec", pINFO) << "E = " << Ev << " <= Ethreshold = " << Ethr;
      return false;

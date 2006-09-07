@@ -36,7 +36,6 @@
 #include "Nuclear/NuclMomentumModelI.h"
 #include "PDG/PDGCodes.h"
 #include "Utils/PrintUtils.h"
-#include "ValidityDoc/VldFermiMotion.h"
 
 using namespace genie;
 
@@ -82,7 +81,7 @@ int main(int argc, char ** argv)
 
   for(unsigned int i = 0; i < kNTargets; i++) {
 
-     nucltgt[i]->SetStruckNucleonPDGCode(kPdgProton);
+     nucltgt[i]->SetHitNucPdg(kPdgProton);
 
      const Target & target = *nucltgt[i];
 

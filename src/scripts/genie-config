@@ -18,7 +18,7 @@ libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
  -lGCrossSections -lGDecay -lGElas -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
  -lGFragmentation -lGInteraction -lGInvMuDecay -lGLlewellynSmith -lGMessenger\
  -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
- -lGRadiative -lGRegistry -lGReinSeghal -lGUtils"
+ -lGRadiative -lGRegistry -lGReinSeghal -lGReWeight -lGUtils"
 
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
   libs="$libs -lGGeo"

@@ -84,12 +84,12 @@ double LlewellynSmithModelNC::FA(const Interaction * interaction) const
 double LlewellynSmithModelNC::Fp(const Interaction * interaction) const
 {
   //-- get the momentum transfer
-  const Kinematics & kine = interaction->GetKinematics();
+  const Kinematics & kine = interaction->Kine();
   double q2 = kine.q2();
 
   //-- get struck nucleon mass & pion pass
-  const InitialState & init_state = interaction->GetInitialState();
-  double MN   = init_state.GetTarget().StruckNucleonMass();
+  const InitialState & init_state = interaction->InitState();
+  double MN   = init_state.Tgt().HitNucMass();
   double MN2  = TMath::Power(MN,        2);
   double Mpi2 = TMath::Power(kPionMass, 2);
 
