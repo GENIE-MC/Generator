@@ -24,6 +24,7 @@
 #include <TLorentzVector.h>
 
 #include "Base/XSecAlgorithmI.h"
+#include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 #include "Utils/StringUtils.h"
@@ -160,7 +161,9 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 
     xsec[i] = alg->XSec(interaction);
 
-    SLOG("XSecSplineList", pINFO)<< "xsec(E = " << E[i] << ") = " << xsec[i];
+    SLOG("XSecSplineList", pINFO)
+            << "xsec(E = " << E[i] << ") = " 
+                       << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2";
   }
   Spline * spline = new Spline(nknots, E, xsec);
 
