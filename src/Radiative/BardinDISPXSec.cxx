@@ -62,11 +62,11 @@ double BardinDISPXSec::XSec(
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   //----- get kinematical & init-state parameters
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Target & target = init_state.GetTarget();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
+  const Target & target = init_state.Tgt();
 
-  double E  = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E  = init_state.ProbeE(kRfHitNucRest);
   double x  = kinematics.x();
   double y  = kinematics.y();
   double Q2 = S(interaction) * x * y;
@@ -80,7 +80,7 @@ double BardinDISPXSec::XSec(
   //----- Get init quark PDF at (x,Q2)
   pdf_x.Calculate(x, Q2);
   LOG("Bardin", pDEBUG) << pdf_x;
-  int init_pdgc = target.StruckQuarkPDGCode();
+  int init_pdgc = target.HitQrkPdg();
   double f_x  = PDFFunc( pdf_x,  init_pdgc )  / x;
 
   //----- Compute the differential cross section terms (1-3)
@@ -148,7 +148,7 @@ double BardinDISPXSec::XSec(
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //----- Compute nuclear cross section (simple scaling here)
-  int nucpdgc = target.StruckNucleonPDGCode();
+  int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
   xsec *= NNucl;
 
@@ -157,18 +157,18 @@ double BardinDISPXSec::XSec(
 //____________________________________________________________________________
 double BardinDISPXSec::PhiCCi(double xi, const Interaction * interaction) const
 {
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Kinematics & kine = interaction->GetKinematics();
-  const Target & target = init_state.GetTarget();
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics & kine = interaction->Kine();
+  const Target & target = init_state.Tgt();
 
-  double MN   = target.StruckNucleonMass();
+  double MN   = target.HitNucMass();
   double x    = kine.x();
   double y    = kine.y();
-  int    pdg  = target.StruckQuarkPDGCode();
+  int    pdg  = target.HitQrkPdg();
   double mqi  = xi*MN;
   double mqf2 = TMath::Power(fMqf,2);
   double mqi2 = TMath::Power(mqi,2);
-  double ml   = interaction->GetFSPrimaryLepton()->Mass();
+  double ml   = interaction->FSPrimLepton()->Mass();
   double Q2   = S(interaction) * x * y;
   double t    = tau(xi, interaction);
   double st   = St(xi, interaction);
@@ -200,18 +200,18 @@ double BardinDISPXSec::PhiCCi(double xi, const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::DeltaCCi(const Interaction * interaction) const
 {
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Kinematics & kine = interaction->GetKinematics();
-  const Target & target = init_state.GetTarget();
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics & kine = interaction->Kine();
+  const Target & target = init_state.Tgt();
 
-  double MN   = init_state.GetTarget().StruckNucleonMass();
+  double MN   = init_state.Tgt().HitNucMass();
   double x    = kine.x();
   double y    = kine.y();
-  int    pdg  = target.StruckQuarkPDGCode();
+  int    pdg  = target.HitQrkPdg();
   double mqi  = x*MN;
   double mqf2 = TMath::Power(fMqf,2);
   double mqi2 = TMath::Power(mqi,2);
-  double ml   = interaction->GetFSPrimaryLepton()->Mass();
+  double ml   = interaction->FSPrimLepton()->Mass();
   double ml2  = ml*ml;
 
   double s       = S(interaction);
@@ -256,15 +256,15 @@ double BardinDISPXSec::DeltaCCi(const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::Ii(double xi, const Interaction * interaction) const
 {
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Kinematics & kine = interaction->GetKinematics();
-  const Target & target = init_state.GetTarget();
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics & kine = interaction->Kine();
+  const Target & target = init_state.Tgt();
 
-  double MN   = target.StruckNucleonMass();
+  double MN   = target.HitNucMass();
   double x    = kine.x();
   double y    = kine.y();
-  int    pdg  = target.StruckQuarkPDGCode();
-  double ml   = interaction->GetFSPrimaryLepton()->Mass();
+  int    pdg  = target.HitQrkPdg();
+  double ml   = interaction->FSPrimLepton()->Mass();
   double mqi  = xi*MN;
   double st   = St(xi, interaction);
   double u    = U(xi, interaction);
@@ -289,24 +289,24 @@ double BardinDISPXSec::Ii(double xi, const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::S(const Interaction * interaction) const
 {
-  const InitialState & init_state = interaction->GetInitialState();
+  const InitialState & init_state = interaction->InitState();
 
-  double E = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M = init_state.GetTarget().StruckNucleonMass();
+  double E = init_state.ProbeE(kRfHitNucRest);
+  double M = init_state.Tgt().HitNucMass();
   double S = 2*M*E;
   return S;
 }
 //__________________________________________________________________________
 double BardinDISPXSec::U(double xi, const Interaction * interaction) const
 {
-  double y = interaction->GetKinematics().y();
+  double y = interaction->Kine().y();
   return S(interaction) * y * xi;
 }
 //__________________________________________________________________________
 double BardinDISPXSec::tau(double xi, const Interaction * interaction) const
 {
-  double x    = interaction->GetKinematics().x();
-  double y    = interaction->GetKinematics().y();
+  double x    = interaction->Kine().x();
+  double y    = interaction->Kine().y();
   double mqf2 = TMath::Power(fMqf,2);
 
   return S(interaction) * y * (xi-x) + mqf2;
@@ -314,21 +314,21 @@ double BardinDISPXSec::tau(double xi, const Interaction * interaction) const
 //__________________________________________________________________________
 double BardinDISPXSec::St(double xi, const Interaction * interaction) const
 {
-  double x = interaction->GetKinematics().x();
-  double y = interaction->GetKinematics().y();
+  double x = interaction->Kine().x();
+  double y = interaction->Kine().y();
 
   return S(interaction) * (xi - y*(xi-x));
 }
 //__________________________________________________________________________
 double BardinDISPXSec::Su(double xi, const Interaction * interaction) const
 {
-  double y = interaction->GetKinematics().y();
+  double y = interaction->Kine().y();
   return S(interaction) * xi * (1-y);
 }
 //__________________________________________________________________________
 double BardinDISPXSec::Sq(const Interaction * interaction) const
 {
-  double x = interaction->GetKinematics().x();
+  double x = interaction->Kine().x();
   return S(interaction) * x;
 }
 //__________________________________________________________________________
@@ -347,14 +347,14 @@ bool BardinDISPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  const ProcessInfo &  proc_info  = interaction -> GetProcessInfo();
+  const InitialState & init_state = interaction -> InitState();
+  const ProcessInfo &  proc_info  = interaction -> ProcInfo();
 
-  const Target & target = init_state.GetTarget();
-  if(!target.StruckQuarkIsSet()) return false;
+  const Target & target = init_state.Tgt();
+  if(!target.HitQrkIsSet()) return false;
 
-  int nu  = init_state.GetProbePDGCode();
-  int qrk = target.StruckQuarkPDGCode();
+  int nu  = init_state.ProbePdg();
+  int qrk = target.HitQrkPdg();
 
   bool nqok = ( pdg::IsNeutrino(nu)     && pdg::IsDQuark(qrk) ) ||
               ( pdg::IsAntiNeutrino(nu) && pdg::IsUQuark(qrk) );
@@ -371,11 +371,11 @@ bool BardinDISPXSec::ValidKinematics(const Interaction * interaction) const
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
   //----- get kinematical & init-state parameters
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
 
-  double E     = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
+  double E     = init_state.ProbeE(kRfHitNucRest);
+  double Mnuc  = init_state.Tgt().HitNucMass();
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double x     = kinematics.x();
   double y     = kinematics.y();

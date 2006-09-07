@@ -58,7 +58,7 @@ XclsTag::~XclsTag()
 //___________________________________________________________________________
 bool XclsTag::IsInclusiveCharm(void) const
 {
-  return ( this->IsCharmEvent() && (this->CharmHadronPDGCode() == 0) );
+  return ( this->IsCharmEvent() && (this->CharmHadronPdg() == 0) );
 }
 //___________________________________________________________________________
 void XclsTag::SetCharm(int charm_pdgc)

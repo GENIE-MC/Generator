@@ -60,13 +60,13 @@ void HadronicSystemGenerator::AddFinalHadronicSyst(GHepRecord * evrec) const
   TLorentzVector p4 = this->Hadronic4pLAB(evrec);
   TLorentzVector v4(0,0,0,0);
 
-  int mom = evrec->StruckNucleonPosition();
+  int mom = evrec->HitNucleonPosition();
 
   evrec->AddParticle(
-        kPdgHadronicSyst, kIStDISPreFragmHadronicState, mom,-1,-1,-1, p4, v4);
+       kPdgHadronicSyst, kIStDISPreFragmHadronicState, mom,-1,-1,-1, p4, v4);
 
   // update the interaction summary
-  evrec->GetInteraction()->GetKinematicsPtr()->SetHadSystP4(p4);
+  evrec->Summary()->KinePtr()->SetHadSystP4(p4);
 }
 //___________________________________________________________________________
 void HadronicSystemGenerator::AddTargetNucleusRemnant(
@@ -87,9 +87,9 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
 
   //-- compute A,Z for final state nucleus & get its PDG code and its mass
 
-  GHepParticle * nucleon = evrec->StruckNucleon();
+  GHepParticle * nucleon = evrec->HitNucleon();
   assert(nucleon);
-  int  npdgc = nucleon->PdgCode();
+  int  npdgc = nucleon->Pdg();
   bool is_p  = pdg::IsProton(npdgc);
   int A = nucleus->A();
   int Z = nucleus->Z();
@@ -134,7 +134,7 @@ TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(
   GHepParticle * nu = evrec->Probe();
 
   //struck nucleon:
-  GHepParticle * N = evrec->StruckNucleon();
+  GHepParticle * N = evrec->HitNucleon();
 
   //final state primary lepton:
   GHepParticle * l = evrec->FinalStatePrimaryLepton();
@@ -212,14 +212,14 @@ int HadronicSystemGenerator::HadronShowerCharge(GHepRecord * evrec) const
 
   int HadronShowerCharge = 0;
 
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
+  Interaction * interaction = evrec->Summary();
+  const InitialState & init_state = interaction->InitState();
 
-  int hit_nucleon = init_state.GetTarget().StruckNucleonPDGCode();
+  int hit_nucleon = init_state.Tgt().HitNucPdg();
 
   assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
 
-  double qfsl  = interaction->GetFSPrimaryLepton()->Charge() / 3.;
+  double qfsl  = interaction->FSPrimLepton()->Charge() / 3.;
   double qinit = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
 
   HadronShowerCharge = (int) (qinit - qfsl);

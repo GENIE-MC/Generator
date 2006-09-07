@@ -23,7 +23,6 @@
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
-#include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
 
 using namespace genie;
@@ -63,8 +62,8 @@ double COHXSec::XSec(const Interaction * in, KinePhaseSpace_t kps) const
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   // Get the neutrino energy in LAB
-  const InitialState & init_state = interaction -> GetInitialState();
-  double Ev = init_state.GetProbeE(kRfLab);
+  const InitialState & init_state = interaction -> InitState();
+  double Ev = init_state.ProbeE(kRfLab);
 
   // Define the integration grid & instantiate a FunctionMap
   double Mpi     = kPionMass;
@@ -91,17 +90,17 @@ bool COHXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
-  const Target &       target     = init_state.GetTarget();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+  const Target &       target     = init_state.Tgt();
 
   if (!proc_info.IsCoherent()) return false;
   if (!target.A()>1)           return false;
 
-  int  nu = init_state.GetProbePDGCode();
+  int  nu = init_state.ProbePdg();
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
 
-  bool hitnuc = init_state.GetTarget().StruckNucleonIsSet();
+  bool hitnuc = init_state.Tgt().HitNucIsSet();
   if(hitnuc) return false;
 
   return true;
@@ -111,9 +110,9 @@ bool COHXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  double Ev   = init_state.GetProbeE(kRfLab);
-  double Ethr = kinematics::EnergyThreshold(interaction);
+  const InitialState & init_state = interaction -> InitState();
+  double Ev   = init_state.ProbeE(kRfLab);
+  double Ethr = interaction->EnergyThreshold();
 
   if(Ev <= Ethr) {
      LOG("COHXSec", pINFO) << "E = " << Ev << " <= Ethreshold = " << Ethr;

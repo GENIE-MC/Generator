@@ -62,7 +62,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           << "Generating kinematics uniformly over the allowed phase space";
   }
 
-  Interaction * interaction = evrec->GetInteraction();
+  Interaction * interaction = evrec->Summary();
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
@@ -117,7 +117,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         if(iter==1) {
          // initialize the sampling envelope
-         double Ev = interaction->GetInitialState().GetProbeE(kRfLab);
+         double Ev = interaction->InitState().ProbeE(kRfLab);
          fEnvelope->SetRange(xmin,ymin,xmax,ymax);
          fEnvelope->SetParameter(0, xsec_max);  
          fEnvelope->SetParameter(1, Ev);        
@@ -129,8 +129,8 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      LOG("COHKinematics", pINFO) << "Trying: x = " << gx << ", y = " << gy;
 
-     interaction->GetKinematicsPtr()->Setx(gx);
-     interaction->GetKinematicsPtr()->Sety(gy);
+     interaction->KinePtr()->Setx(gx);
+     interaction->KinePtr()->Sety(gy);
 
      // computing cross section for the current kinematics
      xsec = fXSecModel->XSec(interaction, kPSxyfE);
@@ -158,8 +158,8 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // the t-dependence integrated out. The t-dependence is of the form
         // ~exp(-bt). Now that the x,y kinematical variables have been selected
         // we can generate a t using the t-dependence as a PDF.
-        const InitialState & init_state = interaction->GetInitialState();
-        double Ev    = init_state.GetProbeE(kRfLab);
+        const InitialState & init_state = interaction->InitState();
+        double Ev    = init_state.ProbeE(kRfLab);
         double Epi   = gy*Ev; // pion energy
         double Epi2  = TMath::Power(Epi,2);
         double pme2  = kPionMass2/Epi2;   
@@ -168,7 +168,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double tB    = TMath::Sqrt(1.+ 2*xME) * TMath::Sqrt(1.-pme2);
         double tmin  = 2*Epi2 * (tA-tB);
         double tmax  = 2*Epi2 * (tA+tB);
-        double A     = (double) init_state.GetTarget().A(); 
+        double A     = (double) init_state.Tgt().A(); 
         double A13   = TMath::Power(A,1./3.);
         double R     = fRo * A13 * units::fermi; // nuclear radius
         double R2    = TMath::Power(R,2.);
@@ -184,12 +184,12 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // wght = (phase space volume)*(differential xsec)/(event total xsec)
         if(fGenerateUniformly) {
           double vol     = y.max-y.min; // dx=1, dt: irrelevant
-          double totxsec = evrec->GetXSec();
+          double totxsec = evrec->XSec();
           double wght    = (vol/totxsec)*xsec;
           LOG("COHKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
 
           // apply computed weight to the current event weight
-          wght *= evrec->GetWeight();
+          wght *= evrec->Weight();
           LOG("COHKinematics", pNOTICE) << "Current event wght = " << wght;
           evrec->SetWeight(wght);
         }
@@ -199,12 +199,12 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         interaction->ResetBit(kISkipKinematicChk);
 
         // lock selected kinematics & clear running values
-        interaction->GetKinematicsPtr()->Setx(gx, true);
-        interaction->GetKinematicsPtr()->Sety(gy, true);
-        interaction->GetKinematicsPtr()->Sett(gt, true);
-        interaction->GetKinematicsPtr()->SetW(kPionMass, true);
-        interaction->GetKinematicsPtr()->SetQ2(2*kNucleonMass*gx*gy*Ev, true);
-        interaction->GetKinematicsPtr()->ClearRunningValues();
+        interaction->KinePtr()->Setx(gx, true);
+        interaction->KinePtr()->Sety(gy, true);
+        interaction->KinePtr()->Sett(gt, true);
+        interaction->KinePtr()->SetW(kPionMass, true);
+        interaction->KinePtr()->SetQ2(2*kNucleonMass*gx*gy*Ev, true);
+        interaction->KinePtr()->ClearRunningValues();
 
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);
@@ -216,9 +216,9 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 Range1D_t COHKinematicsGenerator::yRange(const Interaction * in) const
 {
-  double Ev  = in->GetInitialState().GetProbeE(kRfLab);
+  double Ev  = in->InitState().ProbeE(kRfLab);
   double Mpi = kPionMass;
-  double ml  = in->GetFSPrimaryLepton()->Mass();
+  double ml  = in->FSPrimLepton()->Mass();
 
   Range1D_t y(-1,-1);
 
@@ -244,7 +244,7 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
   double max_xsec = 0.;
 
-  double Ev = in->GetInitialState().GetProbeE(kRfLab);
+  double Ev = in->InitState().ProbeE(kRfLab);
 
   const int Nx = 40;
   const int Ny = 50;
@@ -268,8 +268,8 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
      double Q2 = 2*kNucleonMass*gx*gy*Ev;
      if(Q2 >0.04) continue;
 
-     in->GetKinematicsPtr()->Setx(gx);
-     in->GetKinematicsPtr()->Sety(gy);
+     in->KinePtr()->Setx(gx);
+     in->KinePtr()->Sety(gy);
 
      double xsec = fXSecModel->XSec(in, kPSxyfE);
      LOG("COHKinematics", pDEBUG)  
@@ -295,8 +295,8 @@ double COHKinematicsGenerator::Energy(const Interaction * interaction) const
 // Override the base class Energy() method to cache the max xsec for the
 // neutrino energy in the LAB rather than in the hit nucleon rest frame.
 
-  const InitialState & init_state = interaction->GetInitialState();
-  double E = init_state.GetProbeE(kRfLab);
+  const InitialState & init_state = interaction->InitState();
+  double E = init_state.ProbeE(kRfLab);
   return E;
 }
 //___________________________________________________________________________

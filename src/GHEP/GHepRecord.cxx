@@ -75,16 +75,15 @@ GHepRecord::~GHepRecord()
   this->CleanRecord();
 }
 //___________________________________________________________________________
-Interaction * GHepRecord::GetInteraction(void) const
+Interaction * GHepRecord::Summary(void) const
 {
-  if(!fInteraction)
-  {
+  if(!fInteraction) {
     LOG("GHEP", pWARN) << "Returning NULL interaction";
   }
   return fInteraction;
 }
 //___________________________________________________________________________
-void GHepRecord::AttachInteraction(Interaction * interaction)
+void GHepRecord::AttachSummary(Interaction * interaction)
 {
   fInteraction = interaction;
 }
@@ -113,7 +112,7 @@ GHepParticle * GHepRecord::FindParticle(
   int nentries = this->GetEntries();
   for(int i = start; i < nentries; i++) {
      GHepParticle * p = (GHepParticle *) (*this)[i];
-     if(p->Status() == status && p->PdgCode() == pdg) return p;
+     if(p->Status() == status && p->Pdg() == pdg) return p;
   }
   LOG("GHEP", pWARN)
         << "No GHepParticle found with: (pos >= " << start
@@ -130,7 +129,7 @@ int GHepRecord::ParticlePosition(
   int nentries = this->GetEntries();
   for(int i = start; i < nentries; i++) {
      GHepParticle * p = (GHepParticle *) (*this)[i];
-     if(p->Status() == status && p->PdgCode() == pdg) return i;
+     if(p->Status() == status && p->Pdg() == pdg) return i;
   }
   LOG("GHEP", pWARN) << "Returning invalid GHEP entry position";
 
@@ -210,22 +209,22 @@ GHepParticle * GHepRecord::RemnantNucleus(void) const
   return 0;
 }
 //___________________________________________________________________________
-GHepParticle * GHepRecord::StruckNucleon(void) const
+GHepParticle * GHepRecord::HitNucleon(void) const
 {
 // Returns the GHepParticle representing the struck nucleon, or 0 if it does
 // not exist.
 
-  int ipos = this->StruckNucleonPosition();
+  int ipos = this->HitNucleonPosition();
   if(ipos>-1) return this->Particle(ipos);
   return 0;
 }
 //___________________________________________________________________________
-GHepParticle * GHepRecord::StruckElectron(void) const
+GHepParticle * GHepRecord::HitElectron(void) const
 {
 // Returns the GHepParticle representing the struck electron, or 0 if it does
 // not exist.
 
-  int ipos = this->StruckElectronPosition();
+  int ipos = this->HitElectronPosition();
   if(ipos>-1) return this->Particle(ipos);
   return 0;
 }
@@ -290,7 +289,7 @@ int GHepRecord::RemnantNucleusPosition(void) const
   return -1;
 }
 //___________________________________________________________________________
-int GHepRecord::StruckNucleonPosition(void) const
+int GHepRecord::HitNucleonPosition(void) const
 {
 // Returns the GHEP position of the GHepParticle representing the hit nucleon.
 // If a struck nucleon is set it will be at slot 2 (for scattering off nuclear
@@ -306,13 +305,13 @@ int GHepRecord::StruckNucleonPosition(void) const
   GHepParticle * p = this->Particle(ipos);
   if(!p) return -1;
 
-  bool isN = pdg::IsNeutronOrProton(p->PdgCode());
+  bool isN = pdg::IsNeutronOrProton(p->Pdg());
   if(isN && p->Status()==ist) return ipos; 
 
   return -1;
 }
 //___________________________________________________________________________
-int GHepRecord::StruckElectronPosition(void) const
+int GHepRecord::HitElectronPosition(void) const
 {
 // Returns the GHEP position of the GHepParticle representing a hit electron.
 // Same as above..
@@ -324,7 +323,7 @@ int GHepRecord::StruckElectronPosition(void) const
   GHepParticle * p = this->Particle(ipos);
   if(!p) return -1;
 
-  bool ise = pdg::IsElectron(p->PdgCode());
+  bool ise = pdg::IsElectron(p->Pdg());
   if(ise && p->Status()==kIStInitialState) return ipos; 
 
   return -1;
@@ -354,7 +353,7 @@ unsigned int GHepRecord::NEntries(int pdg, GHepStatus_t ist, int start) const
 
   for(int i = start; i < this->GetEntries(); i++) {
      GHepParticle * p = (GHepParticle *) (*this)[i];
-     if(p->PdgCode()==pdg && p->Status()==ist) nentries++;
+     if(p->Pdg()==pdg && p->Status()==ist) nentries++;
   }
   return nentries;
 }
@@ -365,7 +364,7 @@ unsigned int GHepRecord::NEntries(int pdg, int start) const
 
   for(int i = start; i < this->GetEntries(); i++) {
      GHepParticle * p = (GHepParticle *) (*this)[i];
-     if(p->PdgCode()==pdg) nentries++;
+     if(p->Pdg()==pdg) nentries++;
   }
   return nentries;
 }
@@ -376,7 +375,7 @@ void GHepRecord::AddParticle(const GHepParticle & p)
 
   unsigned int pos = this->GetEntries();
   LOG("GHEP", pNOTICE)
-    << "Adding particle with pdgc = " << p.PdgCode() << " at slot = " << pos;
+    << "Adding particle with pdgc = " << p.Pdg() << " at slot = " << pos;
 
   new ((*this)[pos]) GHepParticle(p);
 
@@ -499,7 +498,7 @@ void GHepRecord::CompactifyDaughterLists(void)
           this->Particle(i)->SetLastDaughter(-1);
         }
      } //!compact
-     LOG("GHEP", pNOTICE)
+     LOG("GHEP", pINFO)
           << "Compactifying daughter-list for particle at slot: "
                                                     << i << " - Done!";
   }
@@ -768,7 +767,7 @@ void GHepRecord::Print(ostream & stream) const
      stream << setfill(' ') << setw(3)  << idx++               << " | ";
      stream << setfill(' ') << setw(13) << p->Name()           << " | ";
      stream << setfill(' ') << setw(3)  << p->Status()         << " | ";
-     stream << setfill(' ') << setw(10) << p->PdgCode()        << " | ";
+     stream << setfill(' ') << setw(10) << p->Pdg()            << " | ";
      stream << setfill(' ') << setw(3)  << p->FirstMother()    << " | ";
      stream << setfill(' ') << setw(3)  << p->LastMother()     << " | ";
      stream << setfill(' ') << setw(3)  << p->FirstDaughter()  << " | ";

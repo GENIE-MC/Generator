@@ -64,7 +64,7 @@ double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec) const
                 << "Getting max. differential xsec for the rejection method";
 
   double xsec_max = -1;
-  Interaction * interaction = event_rec->GetInteraction();
+  Interaction * interaction = event_rec->Summary();
 
   LOG("Kinematics", pINFO)
                   << "Attempting to find a cached max{dxsec/dK} value";
@@ -200,8 +200,8 @@ double KineGeneratorWithCache::Energy(const Interaction * interaction) const
 // generators should override this method if they need to cache the max-xsec
 // values for another energy value (eg kinematic generators for IMD or COH)
 
-  const InitialState & init_state = interaction->GetInitialState();
-  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction->InitState();
+  double E = init_state.ProbeE(kRfHitNucRest);
   return E;
 }
 //___________________________________________________________________________

@@ -61,7 +61,7 @@ TClonesArray * KNOPythiaHadronization::Hadronize(
 // Generate the hadronic system using either the KNO-based or PYTHIA/JETSET 
 // hadronization models according to the specified transition scheme
 
-  double W = interaction->GetKinematics().W();
+  double W = interaction->Kine().W();
   LOG("HybridHad", pINFO) << "W = " << W << " GeV";
 
   if(W <= kNucleonMass+kPionMass) {
@@ -137,7 +137,7 @@ const HadronizationModelI * KNOPythiaHadronization::SelectHadronizer(
   // ** PYTHIA/JETSET-only @ W > Wmax
   // ** Smooth linear transition in [Wmin,Wmax]
   case(2) :
-    double W = interaction->GetKinematics().W();
+    double W = interaction->Kine().W();
     if      (W <= fWminTrWindow) hadronizer = fKNOHadronizer;
     else if (W >  fWmaxTrWindow) hadronizer = fPythiaHadronizer;
     else {

@@ -65,7 +65,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   RandomGen * rnd = RandomGen::Instance();
 
   //-- Get the interaction from the GHEP record
-  Interaction * interaction = evrec->GetInteraction();
+  Interaction * interaction = evrec->Summary();
   interaction->SetBit(kISkipProcessChk);
 
   //-- Compute the W limits
@@ -82,8 +82,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      throw exception;
   }
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> InitState();
+  double E = init_state.ProbeE(kRfHitNucRest);
 
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
@@ -139,7 +139,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        if(iter==1) {
          // initialize the sampling envelope
 
-         interaction->GetKinematicsPtr()->SetW(Wmin);
+         interaction->KinePtr()->SetW(Wmin);
          Range1D_t Q2 = this->Q2Range(interaction);
 	 double Q2min  = 0 + kASmallNum;
 	 double Q2max  = Q2.max - kASmallNum;         
@@ -149,9 +149,9 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          double QD2max = utils::kinematics::Q2toQD2(Q2min);
 
          double mR, gR;
-         if(!interaction->GetExclusiveTag().KnownResonance()) { mR=1.2; gR = 0.6; }
+         if(!interaction->ExclTag().KnownResonance()) { mR=1.2; gR = 0.6; }
          else {
-           Resonance_t res = interaction->GetExclusiveTag().Resonance();
+           Resonance_t res = interaction->ExclTag().Resonance();
            mR=res::Mass(res);
            gR= (E>mR) ? 0.220 : 0.400;
          }
@@ -175,8 +175,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      LOG("RESKinematics", pINFO) << "Trying: W = " << gW << ", Q2 = " << gQ2;
 
      //-- Set kinematics for current trial
-     interaction->GetKinematicsPtr()->SetW(gW);
-     interaction->GetKinematicsPtr()->SetQ2(gQ2);
+     interaction->KinePtr()->SetW(gW);
+     interaction->KinePtr()->SetQ2(gQ2);
 
      //-- Computing cross section for the current kinematics
      xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
@@ -208,8 +208,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // compute x,y for selected W,Q2
         // note: hit nucleon can be off the mass-shell
         double gx=-1, gy=-1;
-        double M = init_state.GetTarget().StruckNucleonP4()->M();
-        //double M = init_state.GetTarget().StruckNucleonMass();
+        double M = init_state.Tgt().HitNucP4().M();
+        //double M = init_state.Tgt().HitNucMass();
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
         // set the cross section for the selected kinematics
@@ -219,22 +219,22 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // wght = (phase space volume)*(differential xsec)/(event total xsec)
         if(fGenerateUniformly) {
           double vol     = kinematics::PhaseSpaceVolume(interaction,kPSWQ2fE);
-          double totxsec = evrec->GetXSec();
+          double totxsec = evrec->XSec();
           double wght    = (vol/totxsec)*xsec;
           LOG("RESKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
 
           // apply computed weight to the current event weight
-          wght *= evrec->GetWeight();
+          wght *= evrec->Weight();
           LOG("RESKinematics", pNOTICE) << "Current event wght = " << wght;
           evrec->SetWeight(wght);
         }
 
         // lock selected kinematics & clear running values
-        interaction->GetKinematicsPtr()->SetQ2(gQ2, true);
-        interaction->GetKinematicsPtr()->SetW (gW,  true);
-        interaction->GetKinematicsPtr()->Setx (gx,  true);
-        interaction->GetKinematicsPtr()->Sety (gy,  true);
-        interaction->GetKinematicsPtr()->ClearRunningValues();
+        interaction->KinePtr()->SetQ2(gQ2, true);
+        interaction->KinePtr()->SetW (gW,  true);
+        interaction->KinePtr()->Setx (gx,  true);
+        interaction->KinePtr()->Sety (gy,  true);
+        interaction->KinePtr()->ClearRunningValues();
 
         return;
      } // accept
@@ -357,17 +357,17 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
   double max_xsec   = 0.;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  double E = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> InitState();
+  double E = init_state.ProbeE(kRfHitNucRest);
 
   LOG("RESKinematics", pDEBUG) << "Scanning phase space for E= " << E;
 
   double scan1d = (E>0.8);
 
   double md;
-  if(!interaction->GetExclusiveTag().KnownResonance()) md=1.23;
+  if(!interaction->ExclTag().KnownResonance()) md=1.23;
   else {
-     Resonance_t res = interaction->GetExclusiveTag().Resonance();
+     Resonance_t res = interaction->ExclTag().Resonance();
      md=res::Mass(res);
   }
 
@@ -375,12 +375,11 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
     // ** 1-D Scan
     //
-
     LOG("RESKinematics", pDEBUG) 
               << "Will search for max{xsec} along W(=MRes) = " << md;
 
     // Set W around the value where d^2xsec/dWdQ^2 peaks
-    interaction->GetKinematicsPtr()->SetW(md);
+    interaction->KinePtr()->SetW(md);
 
     Range1D_t rQ2 = this->Q2Range(interaction);
     if( rQ2.max < kMinQ2Limit || rQ2.min <=0 ) return 0.;
@@ -396,7 +395,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
     for(int iq2=0; iq2<NQ2; iq2++) {
       double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
-      interaction->GetKinematicsPtr()->SetQ2(Q2);
+      interaction->KinePtr()->SetQ2(Q2);
       double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
       LOG("RESKinematics", pDEBUG) 
                 << "xsec(W= " << md << ", Q2= " << Q2 << ") = " << xsec;
@@ -412,7 +411,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
         for(int iq2b=0; iq2b<NQ2b; iq2b++) {
 	  Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
           if(Q2 < rQ2.min) continue;
-          interaction->GetKinematicsPtr()->SetQ2(Q2);
+          interaction->KinePtr()->SetQ2(Q2);
           xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
           LOG("RESKinematics", pDEBUG) 
                  << "xsec(W= " << md << ", Q2= " << Q2 << ") = " << xsec;
@@ -426,7 +425,6 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
     // ** 2-D Scan
     //
-
     Range1D_t rW = this->WRange(interaction);
 
     int    NW   = 10;
@@ -438,7 +436,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
     for(int iw=0; iw<NW; iw++) {
       double W = Wmin + iw*dW;
-      interaction->GetKinematicsPtr()->SetW(W);
+      interaction->KinePtr()->SetW(W);
 
       int NQ2  = 15;
       int NQ2b =  4;
@@ -456,7 +454,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
       for(int iq2=0; iq2<NQ2; iq2++) {
         double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
-        interaction->GetKinematicsPtr()->SetQ2(Q2);
+        interaction->KinePtr()->SetQ2(Q2);
         double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
         LOG("RESKinematics", pDEBUG) 
                 << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
@@ -472,7 +470,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
          for(int iq2b=0; iq2b<NQ2b; iq2b++) {
 	   Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
            if(Q2 < rQ2.min) continue;
-           interaction->GetKinematicsPtr()->SetQ2(Q2);
+           interaction->KinePtr()->SetQ2(Q2);
            xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
            LOG("RESKinematics", pDEBUG) 
                  << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;

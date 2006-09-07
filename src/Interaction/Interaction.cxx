@@ -104,26 +104,30 @@ void Interaction::Copy(const Interaction & interaction)
   fExclusiveTag -> Copy (xcls);
 }
 //___________________________________________________________________________
-TParticlePDG * Interaction::GetFSPrimaryLepton(void) const
+TParticlePDG * Interaction::FSPrimLepton(void) const
 {
-  const ProcessInfo &  proc_info  = this -> GetProcessInfo();
-  const InitialState & init_state = this -> GetInitialState();
+  int pdgc = this->FSPrimLeptonPdg();
 
-  int pdgc = init_state.GetProbePDGCode();
+  if(pdgc) return PDGLibrary::Instance()->Find(pdgc);
+  else     return 0;
+}
+//___________________________________________________________________________
+int Interaction::FSPrimLeptonPdg(void) const
+{
+  const ProcessInfo &  proc_info  = this -> ProcInfo();
+  const InitialState & init_state = this -> InitState();
+
+  int pdgc = init_state.ProbePdg();
 
   LOG("Interaction", pDEBUG) << "Probe PDG code: " << pdgc;
 
-  // -- vN (Weak-NC) or eN (EM)
-  if ( proc_info.IsWeakNC() || proc_info.IsEM() )
-  {
-     return PDGLibrary::Instance()->Find(pdgc);
-  }
+  // vN (Weak-NC) or eN (EM)
+  if (proc_info.IsWeakNC() || proc_info.IsEM()) return pdgc;
 
-  // -- vN (Weak-CC)
-  else if ( proc_info.IsWeakCC() )
-  {
+  // vN (Weak-CC)
+  else if (proc_info.IsWeakCC()) {
      int clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
-     return PDGLibrary::Instance()->Find(clpdgc);
+     return clpdgc;
   }
   LOG("Interaction", pWARN)
         << "Could not figure out the final state primary lepton pdg code!!";
@@ -131,14 +135,22 @@ TParticlePDG * Interaction::GetFSPrimaryLepton(void) const
   return 0;
 }
 //___________________________________________________________________________
-int Interaction::RecoilNuclPDGCode(void) const
+TParticlePDG * Interaction::RecoilNucleon(void) const
+{
+  int rnuc = this->RecoilNucleonPdg();
+
+  if(rnuc) return PDGLibrary::Instance()->Find(rnuc);
+  else     return 0;
+}
+//___________________________________________________________________________
+int Interaction::RecoilNucleonPdg(void) const
 {
 // Determine the recoil nucleon PDG code
 
-  const Target & target = fInitialState->GetTarget();
+  const Target & target = fInitialState->Tgt();
 
   int recoil_nuc = 0;
-  int struck_nuc = target.StruckNucleonPDGCode();
+  int struck_nuc = target.HitNucPdg();
 
   if(fProcInfo->IsQuasiElastic()) {
     assert(pdg::IsNeutronOrProton(struck_nuc) && fProcInfo->IsWeak());
@@ -152,25 +164,25 @@ int Interaction::RecoilNuclPDGCode(void) const
   return recoil_nuc;
 }
 //___________________________________________________________________________
-void Interaction::SetInitialState(const InitialState & init_state)
+void Interaction::SetInitState(const InitialState & init_state)
 {
   if (!fInitialState) fInitialState = new InitialState();
   fInitialState->Copy(init_state);
 }
 //___________________________________________________________________________
-void Interaction::SetProcessInfo(const ProcessInfo & proc_info)
+void Interaction::SetProcInfo(const ProcessInfo & proc_info)
 {
   if (!fProcInfo) fProcInfo = new ProcessInfo();
   fProcInfo->Copy(proc_info);
 }
 //___________________________________________________________________________
-void Interaction::SetKinematics(const Kinematics & kinematics)
+void Interaction::SetKine(const Kinematics & kinematics)
 {
   if (!fKinematics) fKinematics = new Kinematics();
   fKinematics->Copy(kinematics);
 }
 //___________________________________________________________________________
-void Interaction::SetExclusiveTag(const XclsTag & xcls_tag)
+void Interaction::SetExclTag(const XclsTag & xcls_tag)
 {
   if (!fExclusiveTag) fExclusiveTag = new XclsTag();
   fExclusiveTag->Copy(xcls_tag);
@@ -183,19 +195,19 @@ string Interaction::AsString(void) const
 // Template:
 // nu:x;tgt:x;N:x;q:x(s/v);proc:x;xclv_tag
 
-  const Target & tgt = fInitialState->GetTarget();
+  const Target & tgt = fInitialState->Tgt();
 
   ostringstream interaction;
 
-  interaction << "nu:"  << fInitialState->GetProbePDGCode() << ";";
-  interaction << "tgt:" << tgt.PDGCode() << ";";
+  interaction << "nu:"  << fInitialState->ProbePdg() << ";";
+  interaction << "tgt:" << tgt.Pdg() << ";";
 
-  if(tgt.StruckNucleonIsSet()) {
-    interaction << "N:" << tgt.StruckNucleonPDGCode() << ";";
+  if(tgt.HitNucIsSet()) {
+    interaction << "N:" << tgt.HitNucPdg() << ";";
   }
-  if(tgt.StruckQuarkIsSet()) {
-    interaction << "q:" << tgt.StruckQuarkPDGCode()
-                << (tgt.StruckQuarkIsFromSea() ? "(s)" : "(v)") << ";";
+  if(tgt.HitQrkIsSet()) {
+    interaction << "q:" << tgt.HitQrkPdg()
+                << (tgt.HitSeaQrk() ? "(s)" : "(v)") << ";";
   }
 
   interaction << "proc:" << fProcInfo->InteractionTypeAsString() 
@@ -251,9 +263,9 @@ Interaction * Interaction::DISCC(int target, int hitnuc, int probe, double E)
   Interaction * interaction = 
              Interaction::Create(target,probe,kScDeepInelastic, kIntWeakCC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -263,9 +275,9 @@ Interaction * Interaction::DISCC(
 {
   Interaction* interaction = Interaction::DISCC(target,hitnuc,probe,E);
 
-  Target * tgt = interaction->GetInitialStatePtr()->GetTargetPtr();
-  tgt -> SetStruckQuarkPDGCode (hitqrk);
-  tgt -> SetStruckSeaQuark     (fromsea);
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk     (fromsea);
 
   return interaction;
 }
@@ -276,9 +288,9 @@ Interaction * Interaction::DISCC(
   Interaction * interaction = 
              Interaction::Create(target,probe,kScDeepInelastic, kIntWeakCC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -289,9 +301,9 @@ Interaction * Interaction::DISCC(
 {
   Interaction* interaction = Interaction::DISCC(target,hitnuc,probe,p4probe);
 
-  Target * tgt = interaction->GetInitialStatePtr()->GetTargetPtr();
-  tgt -> SetStruckQuarkPDGCode (hitqrk);
-  tgt -> SetStruckSeaQuark     (fromsea);
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk     (fromsea);
 
   return interaction;
 }
@@ -301,9 +313,9 @@ Interaction * Interaction::DISNC(int target, int hitnuc, int probe, double E)
   Interaction * interaction = 
              Interaction::Create(target,probe,kScDeepInelastic, kIntWeakNC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -313,9 +325,9 @@ Interaction * Interaction::DISNC(
 {
   Interaction* interaction = Interaction::DISNC(target,hitnuc,probe,E);
 
-  Target * tgt = interaction->GetInitialStatePtr()->GetTargetPtr();
-  tgt -> SetStruckQuarkPDGCode (hitqrk);
-  tgt -> SetStruckSeaQuark     (fromsea);
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk     (fromsea);
 
   return interaction;
 }
@@ -326,9 +338,9 @@ Interaction * Interaction::DISNC(
   Interaction * interaction = 
              Interaction::Create(target,probe,kScDeepInelastic, kIntWeakNC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -339,9 +351,9 @@ Interaction * Interaction::DISNC(
 {
   Interaction * interaction = Interaction::DISNC(target,hitnuc,probe,p4probe);
 
-  Target * tgt = interaction->GetInitialStatePtr()->GetTargetPtr();
-  tgt -> SetStruckQuarkPDGCode (hitqrk);
-  tgt -> SetStruckSeaQuark     (fromsea);
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk     (fromsea);
 
   return interaction;
 }
@@ -351,9 +363,9 @@ Interaction * Interaction::QELCC(int target, int hitnuc, int probe, double E)
   Interaction * interaction = 
               Interaction::Create(target,probe,kScQuasiElastic, kIntWeakCC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -364,9 +376,9 @@ Interaction * Interaction::QELCC(
   Interaction * interaction = 
               Interaction::Create(target,probe,kScQuasiElastic, kIntWeakCC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -376,9 +388,9 @@ Interaction * Interaction::QELNC(int target, int hitnuc, int probe, double E)
   Interaction * interaction = 
               Interaction::Create(target,probe,kScQuasiElastic, kIntWeakNC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -389,9 +401,9 @@ Interaction * Interaction::QELNC(
   Interaction * interaction = 
               Interaction::Create(target,probe,kScQuasiElastic, kIntWeakNC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -401,9 +413,9 @@ Interaction * Interaction::RESCC(int target, int hitnuc, int probe, double E)
   Interaction * interaction = 
                   Interaction::Create(target,probe,kScResonant, kIntWeakCC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -414,9 +426,9 @@ Interaction * Interaction::RESCC(
   Interaction * interaction = 
               Interaction::Create(target,probe,kScResonant, kIntWeakCC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -426,9 +438,9 @@ Interaction * Interaction::RESNC(int target, int hitnuc, int probe, double E)
   Interaction * interaction = 
                    Interaction::Create(target,probe,kScResonant, kIntWeakNC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -439,9 +451,9 @@ Interaction * Interaction::RESNC(
   Interaction * interaction = 
                    Interaction::Create(target,probe,kScResonant, kIntWeakNC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->GetTargetPtr()->SetStruckNucleonPDGCode(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -451,7 +463,7 @@ Interaction * Interaction::IMD(int target, double E)
   Interaction * interaction = 
           Interaction::Create(target,kPdgNuMu,kScInverseMuDecay, kIntWeakCC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
 
   return interaction;
@@ -462,13 +474,44 @@ Interaction * Interaction::IMD(int target, const TLorentzVector & p4probe)
   Interaction * interaction = 
           Interaction::Create(target,kPdgNuMu,kScInverseMuDecay, kIntWeakCC);
 
-  InitialState * init_state = interaction->GetInitialStatePtr();
+  InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
 
   return interaction;
 }
 //___________________________________________________________________________
+double Interaction::EnergyThreshold(void) const
+{
+  double ml = this->FSPrimLepton()->Mass();
 
+  const Target & tgt = fInitialState->Tgt();
 
+  if (fProcInfo->IsCoherent()) {
 
+    int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (1AAAZZZ000)
+    double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass();
+    double m    = ml + kPionMass;
+    double m2   = TMath::Power(m,2);
+    double Ethr = m + 0.5*m2/MA;
+    return Ethr;
+  }
+
+  if(fProcInfo->IsQuasiElastic() || 
+         fProcInfo->IsResonant() || fProcInfo->IsDeepInelastic()) {
+
+    assert(tgt.HitNucIsSet());
+    double Mn   = tgt.HitNucP4Ptr()->M();
+    double Mn2  = TMath::Power(Mn,2);
+    double Wmin = (fProcInfo->IsQuasiElastic()) ? Mn : kNeutronMass+kPionMass;
+    double smin = TMath::Power(Wmin+ml,2.);
+    double Ethr = 0.5*(smin-Mn2)/Mn;
+    return Ethr;
+  }
+
+  SLOG("Interaction", pERROR) << "Can't compute threshold for \n" << *this;
+  exit(1);
+
+  return 99999999;
+}
+//___________________________________________________________________________
 

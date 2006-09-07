@@ -46,7 +46,7 @@ BBA03ELFormFactorsModel::~BBA03ELFormFactorsModel()
 double BBA03ELFormFactorsModel::Gep(const Interaction * interaction) const
 {
   double gep = 0;
-  double q2  = interaction->GetKinematics().q2();
+  double q2  = interaction->Kine().q2();
 
   if( TMath::Abs(q2) > fQ2Max ) {
      double gepmx = this->BBA03Fit(-fQ2Max, 1.,   fGep);
@@ -61,18 +61,18 @@ double BBA03ELFormFactorsModel::Gep(const Interaction * interaction) const
 //____________________________________________________________________________
 double BBA03ELFormFactorsModel::Gmp(const Interaction * interaction) const
 {
-  double q2  = interaction->GetKinematics().q2();
+  double q2  = interaction->Kine().q2();
   double gmp = this->BBA03Fit(q2, fMuP, fGmp);
   return gmp;
 }
 //____________________________________________________________________________
 double BBA03ELFormFactorsModel::Gen(const Interaction * interaction) const
 {
-  double q2  = interaction->GetKinematics().q2();
+  double q2  = interaction->Kine().q2();
 
-  const Target & tgt = interaction->GetInitialState().GetTarget();
+  const Target & tgt = interaction->InitState().Tgt();
 
-  double M   = tgt.StruckNucleonMass();      // Mnucl
+  double M   = tgt.HitNucMass();             // Mnucl
   double M2  = TMath::Power(M,2);            // Mnucl^2
   double t   = -q2/(4*M2);                   // q2<0
   double a   = fGenA;                        // Krutov et al. parameter a
@@ -86,7 +86,7 @@ double BBA03ELFormFactorsModel::Gen(const Interaction * interaction) const
 //____________________________________________________________________________
 double BBA03ELFormFactorsModel::Gmn(const Interaction * interaction) const
 {
-  double q2  = interaction->GetKinematics().q2();
+  double q2  = interaction->Kine().q2();
   double gmn = this->BBA03Fit(q2, fMuN, fGmn);
   return gmn;
 }

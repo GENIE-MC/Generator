@@ -277,9 +277,9 @@ TH1D * KNOHadronization::MultiplicityProb(
      return 0;
   }
 
-  const InitialState & init_state = interaction->GetInitialState();
-  int nu_pdg  = init_state.GetProbePDGCode();
-  int nuc_pdg = init_state.GetTarget().StruckNucleonPDGCode();
+  const InitialState & init_state = interaction->InitState();
+  int nu_pdg  = init_state.ProbePdg();
+  int nuc_pdg = init_state.Tgt().HitNucPdg();
 
   // Compute the average charged hadron multiplicity as: <n> = a + b*ln(W^2)
   // Calculate avergage hadron multiplicity (= 1.5 x charged hadron mult.)
@@ -580,12 +580,12 @@ int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
   int HadronShowerCharge = 0;
 
   // find out the charge of the final state lepton
-  double ql = interaction->GetFSPrimaryLepton()->Charge() / 3.;
+  double ql = interaction->FSPrimLepton()->Charge() / 3.;
 
   // get the initial state, ask for the hit-nucleon and get
   // its charge ( = initial state charge for vN interactions)
-  const InitialState & init_state = interaction->GetInitialState();
-  int hit_nucleon = init_state.GetTarget().StruckNucleonPDGCode();
+  const InitialState & init_state = interaction->InitState();
+  int hit_nucleon = init_state.Tgt().HitNucPdg();
 
   assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
 
@@ -1260,7 +1260,7 @@ void KNOHadronization::HandleDecays(TClonesArray * plist) const
 //____________________________________________________________________________
 bool KNOHadronization::AssertValidity(const Interaction * interaction) const
 {
-  if(interaction->GetExclusiveTag().IsCharmEvent()) {
+  if(interaction->ExclTag().IsCharmEvent()) {
      LOG("KNOHad", pWARN) << "Can't hadronize charm events";
      return false;
   }

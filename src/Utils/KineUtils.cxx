@@ -83,7 +83,7 @@ double genie::utils::kinematics::PhaseSpaceVolume(
     double dW = (W.max-W.min)/(kNW-1);	
     Interaction interaction(*in);
     for(int iw=0; iw<kNW; iw++) {
-      interaction.GetKinematicsPtr()->SetW(W.min + iw*dW);
+      interaction.KinePtr()->SetW(W.min + iw*dW);
       Range1D_t Q2 = KineRange(&interaction, kKVQ2);
       double dQ2 = (Q2.max-Q2.min);	
       vol += (dW*dQ2);
@@ -96,9 +96,9 @@ double genie::utils::kinematics::PhaseSpaceVolume(
     Range1D_t W = KineRange(in, kKVW);
     if(W.max<0) return 0;
 
-    const InitialState & init_state = in->GetInitialState();
-    double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-    double M  = init_state.GetTarget().StruckNucleonP4()->M(); 
+    const InitialState & init_state = in->InitState();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double M  = init_state.Tgt().HitNucP4Ptr()->M(); 
 
     const int    kNx = 100;  
     const int    kNy = 100;  
@@ -118,7 +118,7 @@ double genie::utils::kinematics::PhaseSpaceVolume(
          XYtoWQ2(Ev, M, cW, cQ2, x, y);
          if(!math::IsWithinLimits(cW, W)) continue;
 
-         interaction.GetKinematicsPtr()->SetW(cW);
+         interaction.KinePtr()->SetW(cW);
          Range1D_t Q2 = KineRange(&interaction, kKVQ2);
          if(!math::IsWithinLimits(cQ2, Q2)) continue;
 
@@ -148,7 +148,7 @@ double genie::utils::kinematics::Jacobian(
                                             << KinePhaseSpace::AsString(tops);
   double J=0;
   bool forward;
-  const Kinematics & kine = i->GetKinematics();
+  const Kinematics & kine = i->Kine();
 
   // ****** transformation: {Q2}|E -> {lnQ2}|E
   if ( TransformMatched(fromps,tops,kPSQ2fE,kPSlogQ2fE,forward) )
@@ -178,9 +178,9 @@ double genie::utils::kinematics::Jacobian(
   // ****** transformation: {W2,Q2}|E -> {x,y}|E
   else if ( TransformMatched(fromps,tops,kPSW2Q2fE,kPSxyfE,forward) ) 
   {
-    const InitialState & init_state = i->GetInitialState();
-    double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-    double M  = init_state.GetTarget().StruckNucleonP4()->M(); 
+    const InitialState & init_state = i->InitState();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double M  = init_state.Tgt().HitNucP4Ptr()->M(); 
     double y  = kine.y();
     J = TMath::Power(2*M*Ev,2) * y;
   } 
@@ -223,11 +223,11 @@ Range1D_t genie::utils::kinematics::WRange(
 //
   Range1D_t W;
 
-  const InitialState & init_state = interaction->GetInitialState();
+  const InitialState & init_state = interaction->InitState();
 
-  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M  = init_state.GetTarget().StruckNucleonP4()->M(); //can be off m/shell
-  double ml = interaction->GetFSPrimaryLepton()->Mass();
+  double Ev = init_state.ProbeE(kRfHitNucRest);
+  double M  = init_state.Tgt().HitNucP4Ptr()->M(); //can be off m/shell
+  double ml = interaction->FSPrimLepton()->Mass();
   double M2 = M*M;
   double s  = M2 + 2*M*Ev;
 
@@ -253,17 +253,17 @@ Range1D_t genie::utils::kinematics::Q2Range(
   Q2.min = -1;
   Q2.max = -1;
 
-  const ProcessInfo & pi = interaction->GetProcessInfo();
+  const ProcessInfo & pi = interaction->ProcInfo();
 
   bool handle = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsQuasiElastic();
 
   if(!handle) return Q2;
 
-  const InitialState & init_state  = interaction->GetInitialState();
+  const InitialState & init_state  = interaction->InitState();
 
-  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M   = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
-  double ml  = interaction->GetFSPrimaryLepton()->Mass();
+  double Ev  = init_state.ProbeE(kRfHitNucRest);
+  double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
+  double ml  = interaction->FSPrimLepton()->Mass();
   double M2  = M*M;
   double ml2 = ml*ml;
   double s   = M2 + 2*M*Ev;
@@ -332,7 +332,7 @@ Range1D_t genie::utils::kinematics::Q2Range_W(
 
   for(unsigned int i=0; i<N; i++) {
     double W = rW.min + i*dW;
-    interaction->GetKinematicsPtr()->SetW(W);
+    interaction->KinePtr()->SetW(W);
     Range1D_t rQ2 = Q2Range(interaction);
 
     if(rQ2.min>=0) Q2.min = TMath::Min(Q2.min, rQ2.min);
@@ -350,28 +350,30 @@ void genie::utils::kinematics::MinXY(
   Interaction interaction(*in);
 
   Range1D_t W = KineRange(&interaction,kKVW);
-  interaction.GetKinematicsPtr()->SetW(W.min);
+  interaction.KinePtr()->SetW(W.min);
 
   Range1D_t Q2 = KineRange(&interaction,kKVQ2);
 
-  const InitialState & init_state =  interaction.GetInitialState();
-  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M  = init_state.GetTarget().StruckNucleonP4()->M(); //can be off m/shell
+  const InitialState & init_state =  interaction.InitState();
+  double Ev = init_state.ProbeE(kRfHitNucRest);
+  double M  = init_state.Tgt().HitNucP4Ptr()->M(); //can be off m/shell
 
   WQ2toXY(Ev,M,W.min,Q2.min,x,y);
 }
 //____________________________________________________________________________
+/*
+
 double genie::utils::kinematics::EnergyThreshold(
                                         const Interaction * const interaction)
 {
-  const Target &      tgt  = interaction->GetInitialState().GetTarget();
-  const ProcessInfo & proc = interaction->GetProcessInfo();
+  const Target &      tgt  = interaction->InitState().Tgt();
+  const ProcessInfo & proc = interaction->ProcInfo();
 
-  double ml = interaction->GetFSPrimaryLepton()->Mass();
+  double ml = interaction->FSPrimLepton()->Mass();
 
   if (proc.IsCoherent()) {
 
-    int tgtpdgc = tgt.PDGCode(); // nuclear target PDG code (1AAAZZZ000)
+    int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (1AAAZZZ000)
     double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass(); 
     double m    = ml + kPionMass;
     double m2   = TMath::Power(m,2);
@@ -381,8 +383,8 @@ double genie::utils::kinematics::EnergyThreshold(
 
   if(proc.IsQuasiElastic() || proc.IsResonant() || proc.IsDeepInelastic()) {
 
-    assert( tgt.StruckNucleonIsSet() );
-    double Mn   = tgt.StruckNucleonP4()->M();
+    assert(tgt.HitNucIsSet());
+    double Mn   = tgt.HitNucP4Ptr()->M();
     double Mn2  = TMath::Power(Mn,2);
     double Wmin = (proc.IsQuasiElastic()) ? Mn : kNeutronMass+kPionMass;
     double smin = TMath::Power(Wmin+ml,2.);
@@ -396,6 +398,9 @@ double genie::utils::kinematics::EnergyThreshold(
 
   return 99999999;
 }
+
+*/
+
 //____________________________________________________________________________
 bool genie::utils::kinematics::IsAboveCharmThreshold(
                              const Interaction * const interaction, double mc)
@@ -404,12 +409,12 @@ bool genie::utils::kinematics::IsAboveCharmThreshold(
 // mc is the input charm mass - make sure that a mc scale is used consistently
 // throughtout GENIE
 //
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
 
   int lightest_charm_hadron = kPdgDMinus; // c=+/-1, s=0
 
-  double Mn   = init_state.GetTarget().StruckNucleonP4()->M();
+  double Mn   = init_state.Tgt().HitNucP4Ptr()->M();
   double Mn2  = TMath::Power(Mn,2);
   double Q2   = utils::kinematics::CalcQ2(interaction);
   double x    = kinematics.x();
@@ -442,18 +447,18 @@ double genie::utils::kinematics::QD2toQ2(double QD2)
 //____________________________________________________________________________
 double genie::utils::kinematics::CalcQ2(const Interaction * const interaction)
 {
-  const Kinematics & kinematics = interaction->GetKinematics();
+  const Kinematics & kinematics = interaction->Kine();
 
   if (kinematics.KVSet(kKVQ2) || kinematics.KVSet(kKVq2)) {
     double Q2 = kinematics.Q2();
     return Q2;
   }
   if (kinematics.KVSet(kKVy)) {
-    const InitialState & init_state = interaction->GetInitialState();
-    double Mn = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
+    const InitialState & init_state = interaction->InitState();
+    double Mn = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
     double x  = kinematics.x();
     double y  = kinematics.y();
-    double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+    double Ev = init_state.ProbeE(kRfHitNucRest);
     double Q2 = 2*Mn*Ev*x*y;
     return Q2;
   }
@@ -464,16 +469,16 @@ double genie::utils::kinematics::CalcQ2(const Interaction * const interaction)
 //____________________________________________________________________________
 double genie::utils::kinematics::CalcW(const Interaction * const interaction)
 {
-  const ProcessInfo & process_info = interaction->GetProcessInfo();
+  const ProcessInfo & process_info = interaction->ProcInfo();
 
   if(process_info.IsQuasiElastic()) {
     // hadronic inv. mass is equal to the recoil nucleon on-shell mass
-    int rpdgc = interaction->RecoilNuclPDGCode();
+    int rpdgc = interaction->RecoilNucleonPdg();
     double M = PDGLibrary::Instance()->Find(rpdgc)->Mass();
     return M;
   }
 
-  const Kinematics & kinematics = interaction->GetKinematics();
+  const Kinematics & kinematics = interaction->Kine();
 
   if(kinematics.KVSet(kKVW)) {
     double W = kinematics.W();
@@ -481,9 +486,9 @@ double genie::utils::kinematics::CalcW(const Interaction * const interaction)
   }
 
   if(kinematics.KVSet(kKVx) && kinematics.KVSet(kKVy)) {
-    const InitialState & init_state = interaction->GetInitialState();
-    double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-    double M  = init_state.GetTarget().StruckNucleonP4()->M(); 
+    const InitialState & init_state = interaction->InitState();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double M  = init_state.Tgt().HitNucP4Ptr()->M(); 
     double M2 = M*M;
     double x  = kinematics.x();
     double y  = kinematics.y();
@@ -570,11 +575,11 @@ double genie::utils::kinematics::XYtoQ2(
 double genie::utils::kinematics::SlowRescalingVar(
                              const Interaction * const interaction, double mc)
 {
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics &   kinematics = interaction -> Kine();
 
   double mc2 = TMath::Power(mc,2);
-  double Mn  = init_state.GetTarget().StruckNucleonP4()->M(); // can be off m/shell
+  double Mn  = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
   double x   = kinematics.x();
   double Q2  = utils::kinematics::CalcQ2(interaction);
   double v   = 0.5*Q2/(Mn*x);

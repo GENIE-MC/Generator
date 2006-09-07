@@ -44,51 +44,51 @@ public:
   InitialState(const InitialState & initial_state);
   ~InitialState();
 
-  TParticlePDG *   GetProbe         (void) const;
-  const Target &   GetTarget        (void) const { return *fTarget;    }
-  Target *         GetTargetPtr     (void) const { return  fTarget;    }
-  int              GetProbePDGCode  (void) const { return  fProbePdgC; }
-  int              GetTargetPDGCode (void) const;
-  TLorentzVector * GetTargetP4      (RefFrame_t rf = kRfLab) const;
-  TLorentzVector * GetProbeP4       (RefFrame_t rf = kRfStruckNucAtRest) const;
-  double           GetProbeE        (RefFrame_t rf) const;
+  TParticlePDG *   Probe      (void) const;
+  int              ProbePdg   (void) const { return fProbePdg; }
+  int              TgtPdg     (void) const;
+  const Target &   Tgt        (void) const { return *fTgt; }
+  Target *         TgtPtr     (void) const { return  fTgt; }
+  TLorentzVector * GetTgtP4   (RefFrame_t rf = kRfLab) const;
+  TLorentzVector * GetProbeP4 (RefFrame_t rf = kRfHitNucRest) const;
+  double           ProbeE     (RefFrame_t rf) const;
 
-  void SetPDGCodes      (int tgt_pdgc, int probe_pdgc);
-  void SetProbePDGCode  (int pdg_code);
-  void SetTargetPDGCode (int pdg_code);
-  void SetTargetP4      (const TLorentzVector & P4); // in LAB-frame
-  void SetProbeP4       (const TLorentzVector & P4); // in LAB-frame
-  void SetProbeE        (double E);                  // in LAB-frame (0,0,E,E)
+  void SetPdgs     (int tgt_pdgc, int probe_pdgc);
+  void SetProbePdg (int pdg_code);
+  void SetTgtPdg   (int pdg_code);
+  void SetTgtP4    (const TLorentzVector & P4); // in LAB-frame
+  void SetProbeP4  (const TLorentzVector & P4); // in LAB-frame
+  void SetProbeE   (double E);                  // in LAB-frame (0,0,E,E)
 
   bool IsNuP    (void) const; ///< is neutrino      + proton?
   bool IsNuN    (void) const; ///< is neutrino      + neutron?
   bool IsNuBarP (void) const; ///< is anti-neutrino + proton?
   bool IsNuBarN (void) const; ///< is anti-neutrino + neutron?
 
-  //! Copy, reset, compare, print itself and build string code
+  //-- Copy, reset, compare, print itself and build string code
   void   Reset    (void);
   void   Copy     (const InitialState & init_state);
   bool   Compare  (const InitialState & init_state) const;
   string AsString (void) const;
   void   Print    (ostream & stream) const;
 
-  //! Overloaded operators
-  bool             operator == (const InitialState & i) const;
-  InitialState &   operator =  (const InitialState & i);
-  friend ostream & operator << (ostream & stream, const InitialState & i);
+  //-- Overloaded operators
+  bool             operator == (const InitialState & i) const;             ///< equal?
+  InitialState &   operator =  (const InitialState & i);                   ///< copy
+  friend ostream & operator << (ostream & stream, const InitialState & i); ///< print
 
 private:
 
-  //! Methods for InitialState initialization and clean up
+  //-- Methods for InitialState initialization and clean up
   void Init       (void);
   void Init       (int target_pdgc, int probe_pdgc);
   void CleanUp    (void);
 
-  //! Private data members
-  int              fProbePdgC; ///< probe PDG code
-  Target *         fTarget;    ///< nuclear target
-  TLorentzVector * fProbeP4;   ///< probe 4-momentum in LAB-frame
-  TLorentzVector * fTargetP4;  ///< nuclear target 4-momentum in LAB-frame
+  //-- Private data members
+  int              fProbePdg; ///< probe PDG code
+  Target *         fTgt;      ///< nuclear target
+  TLorentzVector * fProbeP4;  ///< probe 4-momentum in LAB-frame
+  TLorentzVector * fTgtP4;    ///< nuclear target 4-momentum in LAB-frame
 
 ClassDef(InitialState,1)
 };

@@ -52,18 +52,18 @@ void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // This method generates the final state primary lepton for IMD events
 
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
+  Interaction * interaction = evrec->Summary();
+  const InitialState & init_state = interaction->InitState();
 
   // Get selected kinematics
-  double y = interaction->GetKinematics().y(true);
+  double y = interaction->Kine().y(true);
   assert(y>0 && y<1);
 
   // Final state primary lepton PDG code
   int pdgc = kPdgMuon;
 
   // Compute the neutrino and muon energy
-  double Ev    = init_state.GetProbeE(kRfLab); 
+  double Ev    = init_state.ProbeE(kRfLab); 
   double Emu   = (1-y)*Ev;
 
   // Compute the momentum transfer and scattering angle

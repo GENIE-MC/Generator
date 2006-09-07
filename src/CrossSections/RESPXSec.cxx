@@ -63,7 +63,7 @@ double RESPXSec::XSec(
 
   if (kps==kPSQ2fE || kps==kPSq2fE) {
 
-    double Q2 = interaction->GetKinematics().Q2();
+    double Q2 = interaction->Kine().Q2();
     func = new Integrand_D2XSec_DWDQ2_EQ2(
                          fPartialXSecAlg, interaction, Q2);
 
@@ -75,7 +75,7 @@ double RESPXSec::XSec(
 
   } else if (kps==kPSWfE) {
 
-    double W = interaction->GetKinematics().W();
+    double W = interaction->Kine().W();
     func = new Integrand_D2XSec_DWDQ2_EW(
                          fPartialXSecAlg, interaction, W);
 
@@ -98,14 +98,14 @@ bool RESPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
   if(!proc_info.IsResonant()) return false;
   if(!proc_info.IsWeak())     return false;
 
-  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
-  int  nu  = init_state.GetProbePDGCode();
+  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nu  = init_state.ProbePdg();
 
   if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
@@ -117,10 +117,10 @@ bool RESPXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> InitState();
+  double Ev  = init_state.ProbeE(kRfHitNucRest);
 
-  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  double EvThr = interaction->EnergyThreshold();
   if(Ev <= EvThr) return false;
 
   return true;

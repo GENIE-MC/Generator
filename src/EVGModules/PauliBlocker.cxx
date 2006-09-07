@@ -50,17 +50,17 @@ PauliBlocker::~PauliBlocker()
 void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
 {
   //-- Get the Interaction & InitialState objects
-  Interaction * interaction = event_rec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
+  Interaction * interaction = event_rec->Summary();
+  const InitialState & init_state = interaction->InitState();
 
   //-- Pauli Blocking is only relevant for nucleon bound in a nucleus
 
-  if( init_state.GetTarget().IsNucleus() ) {
+  if( init_state.Tgt().IsNucleus() ) {
 
-    int tgt_pdgc = init_state.GetTarget().PDGCode();
-    int nuc_pdgc = interaction->RecoilNuclPDGCode();
+    int tgt_pdgc = init_state.Tgt().Pdg();
+    int nuc_pdgc = interaction->RecoilNucleonPdg();
 
-    GHepParticle * hit = event_rec->StruckNucleon();
+    GHepParticle * hit = event_rec->HitNucleon();
     TVector3 beta = hit->P4()->BoostVector();
   
     if(nuc_pdgc != 0) {
@@ -88,7 +88,7 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
                    << "\n The generated event is Pauli-blocked: "
                           << " |p| = " << p << " < Fermi-Momentum = " << kf;
 
-              const ProcessInfo & proc = interaction->GetProcessInfo();
+              const ProcessInfo & proc = interaction->ProcInfo();
 
               event_rec->EventFlags()->SetBitNumber(kPauliBlock, true);
               genie::exceptions::EVGThreadException exception;

@@ -99,7 +99,7 @@ double BYStructureFuncModel::ScalingVar(const Interaction * interaction) const
 {
 // Overrides DISStructureFuncModel::ScalingVar() to compute the BY scaling var
 
-  const Kinematics & kine  = interaction->GetKinematics();
+  const Kinematics & kine  = interaction->Kine();
   double x  = kine.x();
   double Q2 = this->Q2(interaction);
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / Q2;

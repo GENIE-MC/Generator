@@ -61,15 +61,15 @@ double P33PaschosLalakulichPXSec::XSec(
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   //-- Get initial state and kinematic variables
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const Target &       target     = init_state.GetTarget();
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const Target &       target     = init_state.Tgt();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E    = init_state.ProbeE(kRfHitNucRest);
   double E2   = TMath::Power(E,2);
   double Q2   = kinematics.Q2();
   double W    = kinematics.W();
-  double MN   = target.StruckNucleonMass();
+  double MN   = target.HitNucMass();
   double MN2  = TMath::Power(MN,2);
   double Mmu2 = kMuonMass2;
   double Mpi2 = kPionMass2;
@@ -262,7 +262,7 @@ double P33PaschosLalakulichPXSec::XSec(
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //-- number of scattering centers in the target
-  bool isp = pdg::IsProton(target.StruckNucleonPDGCode());
+  bool isp = pdg::IsProton(target.HitNucPdg());
   int NNucl = (isp) ? target.Z() : target.N();
 
   xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
@@ -283,11 +283,11 @@ bool P33PaschosLalakulichPXSec::ValidKinematics(
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
 
-  double E  = init_state.GetProbeE(kRfStruckNucAtRest);
-  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  double E  = init_state.ProbeE(kRfHitNucRest);
+  double EvThr = interaction->EnergyThreshold();
   if(E <= EvThr) return false;
 
   double Q2 = kinematics.Q2();

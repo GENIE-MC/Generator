@@ -64,16 +64,16 @@ double ReinSeghalSPPXSec::XSec(
   //-- Get cache
   Cache * cache = Cache::Instance();
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
-  const Target &       target     = init_state.GetTarget();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+  const Target &       target     = init_state.Tgt();
 
   InteractionType_t it = proc_info.InteractionTypeId();
-  int nucleon_pdgc = target.StruckNucleonPDGCode();
-  int nu_pdgc      = init_state.GetProbePDGCode();
+  int nucleon_pdgc = target.HitNucPdg();
+  int nu_pdgc      = init_state.ProbePdg();
 
   // Get neutrino energy in the struck nucleon rest frame
-  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
+  double Ev = init_state.ProbeE(kRfHitNucRest);
 
   double xsec = 0;
 
@@ -165,10 +165,10 @@ bool ReinSeghalSPPXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  double Ev  = init_state.GetProbeE(kRfStruckNucAtRest);
+  const InitialState & init_state = interaction -> InitState();
+  double Ev  = init_state.ProbeE(kRfHitNucRest);
 
-  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  double EvThr = interaction->EnergyThreshold();
   if(Ev <= EvThr) return false;
 
   return true;

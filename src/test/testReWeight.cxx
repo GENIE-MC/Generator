@@ -100,7 +100,7 @@ int main(int argc, char ** argv)
 
     double wght = wcalc.ReWeight(event);
 
-    LOG("test", pINFO)  << "Old weight = " << event.GetWeight();
+    LOG("test", pINFO)  << "Old weight = " << event.Weight();
     LOG("test", pINFO)  << "New weight = " << wght;
   }
 

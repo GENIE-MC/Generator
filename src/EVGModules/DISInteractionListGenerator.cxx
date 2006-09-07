@@ -57,8 +57,8 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
      return 0;
   }
 
-  int      nupdg  = init_state.GetProbePDGCode();
-  Target * target = init_state.GetTargetPtr();
+  int      nupdg  = init_state.ProbePdg();
+  Target * target = init_state.TgtPtr();
 
   if( !pdg::IsNeutrino(nupdg) && !pdg::IsAntiNeutrino(nupdg) ) {
      LOG("InteractionList", pWARN)
@@ -84,13 +84,13 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
       ProcessInfo proc_info(kScDeepInelastic, inttype);
 
       Interaction * interaction = new Interaction(init_state, proc_info);
-      Target * target = interaction->GetInitialStatePtr()->GetTargetPtr();
-      target->SetStruckNucleonPDGCode(struck_nucleon);
+      Target * target = interaction->InitStatePtr()->TgtPtr();
+      target->SetHitNucPdg(struck_nucleon);
 
       if(fIsCharm) {
          XclsTag exclusive_tag;
          exclusive_tag.SetCharm();
-         interaction->SetExclusiveTag(exclusive_tag);
+         interaction->SetExclTag(exclusive_tag);
       }
 
       if(fSetHitQuark) {
@@ -104,8 +104,8 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
           int  quark_code = hqi->first;
           bool from_sea   = hqi->second;
 
-          target->SetStruckQuarkPDGCode(quark_code);
-          target->SetStruckSeaQuark(from_sea);
+          target->SetHitQrkPdg(quark_code);
+          target->SetHitSeaQrk(from_sea);
 
           Interaction * intq = new Interaction(*interaction);
           intlist->push_back(intq);  
@@ -157,7 +157,7 @@ multimap<int,bool> DISInteractionListGenerator::GetHitQuarks(
 
   multimap<int,bool> hq;
 
-  const ProcessInfo & proc = interaction->GetProcessInfo();
+  const ProcessInfo & proc = interaction->ProcInfo();
 
   if(proc.IsWeakNC()) {
     //
@@ -176,7 +176,7 @@ multimap<int,bool> DISInteractionListGenerator::GetHitQuarks(
     //
     // CC - only I=-1/2 quarks for v+N & I=1/2 quarks for vbar+N
     //
-    int nupdg = interaction->GetInitialState().GetProbePDGCode();
+    int nupdg = interaction->InitState().ProbePdg();
 
     if (pdg::IsNeutrino(nupdg)){
        hq.insert(pair<int,bool>(kPdgUQuarkBar, true ));

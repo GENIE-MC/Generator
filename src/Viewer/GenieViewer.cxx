@@ -379,17 +379,17 @@ void GenieViewer::ShowEvent(EventRecord * ev_rec)
 
   fGHepPrinter->Print(ev_rec);
 
-  Interaction * interaction = ev_rec->GetInteraction();
+  Interaction * interaction = ev_rec->Summary();
 
-  if (interaction->GetProcessInfo().IsQuasiElastic())
+  if (interaction->ProcInfo().IsQuasiElastic())
   {
     fQELRenderer->DrawDiagram(ev_rec);
   }
-  else if (interaction->GetProcessInfo().IsDeepInelastic())
+  else if (interaction->ProcInfo().IsDeepInelastic())
   {
 
   }
-  else if (interaction->GetProcessInfo().IsResonant())
+  else if (interaction->ProcInfo().IsResonant())
   {
 
   }

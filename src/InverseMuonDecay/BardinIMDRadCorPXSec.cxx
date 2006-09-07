@@ -50,13 +50,13 @@ double BardinIMDRadCorPXSec::XSec(
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  const InitialState & init_state = interaction -> GetInitialState();
+  const InitialState & init_state = interaction -> InitState();
 
-  double E    = init_state.GetProbeE(kRfLab);
+  double E    = init_state.ProbeE(kRfLab);
   double sig0 = kGF2 * kElectronMass * E / kPi;
   double re   = 0.5 * kElectronMass / E;
   double r    = (kMuonMass2 / kElectronMass2) * re;
-  double y    = interaction->GetKinematics().y();
+  double y    = interaction->Kine().y();
 
   y = 1-y;  //Note: y = (Ev-El)/Ev but in Bardin's paper y=El/Ev.
 
@@ -89,7 +89,7 @@ double BardinIMDRadCorPXSec::XSec(
   if( interaction->TestBit(kIAssumeFreeElectron) ) return xsec;
 
   //----- Scale for the number of scattering centers at the target
-  int Ne = init_state.GetTarget().Z(); // num of scattering centers
+  int Ne = init_state.Tgt().Z(); // num of scattering centers
   xsec *= Ne; 
 
   return xsec;
@@ -107,8 +107,8 @@ bool BardinIMDRadCorPXSec::ValidKinematics(
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  double E = init_state.GetProbeE(kRfLab);
+  const InitialState & init_state = interaction -> InitState();
+  double E = init_state.ProbeE(kRfLab);
   double s = kElectronMass2 + 2*kElectronMass*E;
 
   //-- check if it is kinematically allowed

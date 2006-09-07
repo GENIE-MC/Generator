@@ -60,7 +60,7 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // This method generates the final state primary lepton
 
-  Interaction * interaction = evrec->GetInteraction();
+  Interaction * interaction = evrec->Summary();
 
   // Boost vector for [LAB] <-> [Nucleon Rest Frame] transforms
   TVector3 beta = this->NucRestFrame2Lab(evrec);
@@ -70,10 +70,10 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
 
   // Look-up selected kinematics & other needed kinematical params
-  double Q2  = interaction->GetKinematics().Q2(true);
-  double y   = interaction->GetKinematics().y(true);
+  double Q2  = interaction->Kine().Q2(true);
+  double y   = interaction->Kine().y(true);
   double Ev  = p4v->E(); 
-  double ml  = interaction->GetFSPrimaryLepton()->Mass();
+  double ml  = interaction->FSPrimLepton()->Mass();
   double ml2 = TMath::Power(ml,2);
 
   LOG("LeptonicVertex", pNOTICE)
@@ -115,7 +115,7 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
        << "fsl @ LAB: " << utils::print::P4AsString(&p4l);
 
   // Figure out the Final State Lepton PDG Code
-  int pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
+  int pdgc = interaction->FSPrimLepton()->PdgCode();
 
   // Create a GHepParticle and add it to the event record
   this->AddToEventRecord(evrec, pdgc, p4l);
@@ -131,16 +131,18 @@ TVector3 PrimaryLeptonGenerator::NucRestFrame2Lab(GHepRecord * evrec) const
 // Velocity for an active Lorentz transform taking the final state primary
 // lepton from the [nucleon rest frame] --> [LAB]
 
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
+  Interaction * interaction = evrec->Summary();
+  const InitialState & init_state = interaction->InitState();
 
-  TLorentzVector * pnuc4 = init_state.GetTarget().StruckNucleonP4(); //[LAB]
+  const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[LAB]
 
-  double bx = pnuc4->Px() / pnuc4->Energy();
-  double by = pnuc4->Py() / pnuc4->Energy();
-  double bz = pnuc4->Pz() / pnuc4->Energy();
-
-  TVector3 beta(bx,by,bz);
+  TVector3 beta = pnuc4.BoostVector();
+  
+  //double bx = pnuc4.Px() / pnuc4.Energy();
+  //double by = pnuc4.Py() / pnuc4.Energy();
+  //double bz = pnuc4.Pz() / pnuc4.Energy();
+  //TVector3 beta(bx,by,bz);
+  
   return beta;
 }
 //___________________________________________________________________________
@@ -156,7 +158,7 @@ void PrimaryLeptonGenerator::AddToEventRecord(
   evrec->AddParticle(pdgc, kIStStableFinalState, mom,-1,-1,-1, p4, vdummy);
 
   // update the interaction summary
-  evrec->GetInteraction()->GetKinematicsPtr()->SetFSLeptonP4(p4);
+  evrec->Summary()->KinePtr()->SetFSLeptonP4(p4);
 }
 //___________________________________________________________________________
 void PrimaryLeptonGenerator::SetPolarization(GHepRecord * ev) const
@@ -180,7 +182,7 @@ void PrimaryLeptonGenerator::SetPolarization(GHepRecord * ev) const
 
   // in the limit m/E->0: leptons are left-handed and their anti-particles
   // are right-handed
-  int pdgc = fsl->PdgCode();
+  int pdgc = fsl->Pdg();
   if(pdg::IsNeutrino(pdgc) || pdg::IsElectron(pdgc) ||
                     pdg::IsMuon(pdgc) || pdg::IsTau(pdgc) ) {
     plab *= -1; // left-handed

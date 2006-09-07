@@ -52,7 +52,7 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
   fF5 = 0;
   fF6 = 0;
 
-  const Kinematics & kine  = interaction->GetKinematics();
+  const Kinematics & kine  = interaction->Kine();
   double x = kine.x();
   if(x<=0. || x>1) {
      LOG("DISSF", pERROR)
@@ -60,14 +60,14 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
      return;
   }
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const Target &       target     = init_state.GetTarget();
+  const InitialState & init_state = interaction->InitState();
+  const Target &       target     = init_state.Tgt();
 
-  bool isP = pdg::IsProton ( target.StruckNucleonPDGCode() );
-  bool isN = pdg::IsNeutron( target.StruckNucleonPDGCode() );
+  bool isP = pdg::IsProton ( target.HitNucPdg() );
+  bool isN = pdg::IsNeutron( target.HitNucPdg() );
 
-  bool isNu    = pdg::IsNeutrino    ( init_state.GetProbePDGCode() );
-  bool isNuBar = pdg::IsAntiNeutrino( init_state.GetProbePDGCode() );
+  bool isNu    = pdg::IsNeutrino    ( init_state.ProbePdg() );
+  bool isNuBar = pdg::IsAntiNeutrino( init_state.ProbePdg() );
 
   if(!isNu && !isNuBar) {
      LOG("DISSF", pWARN) << "v type is not handled" << *interaction;
@@ -106,10 +106,10 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
   // In case we are asked to compute a vq->lq cross section rather than a
   // vN->lX cross sections, switch off non-contributing quarks
 
-  if(target.StruckQuarkIsSet()) {
+  if(target.HitQrkIsSet()) {
 
-    bool qpdg = target.StruckQuarkPDGCode();
-    bool sea  = target.StruckQuarkIsFromSea();
+    bool qpdg = target.HitQrkPdg();
+    bool sea  = target.HitSeaQrk();
 
     bool isu  = pdg::IsUQuark     (qpdg);
     bool isub = pdg::IsUAntiQuark (qpdg);

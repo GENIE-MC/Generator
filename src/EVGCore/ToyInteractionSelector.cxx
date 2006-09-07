@@ -72,13 +72,13 @@ EventRecord * ToyInteractionSelector::SelectInteraction
 
   // clone interaction
   Interaction * selected_interaction = new Interaction( *interaction );
-  selected_interaction->GetInitialStatePtr()->SetProbeP4(p4);
+  selected_interaction->InitStatePtr()->SetProbeP4(p4);
   LOG("InteractionSelector", pINFO)
                    << "Interaction to generate: \n" << *selected_interaction;
 
   // bootstrap the event record
   EventRecord * evrec = new EventRecord;
-  evrec->AttachInteraction(selected_interaction);
+  evrec->AttachSummary(selected_interaction);
 
   return evrec;
 }

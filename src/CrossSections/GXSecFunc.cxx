@@ -65,8 +65,8 @@ double Integrand_D2XSec_DxDy_E::operator() (const vector<double> & p)
   //-- set the kinematical peters
   double x = p[0];
   double y = p[1];
-  fInteraction->GetKinematicsPtr()->Setx(x);
-  fInteraction->GetKinematicsPtr()->Sety(y);
+  fInteraction->KinePtr()->Setx(x);
+  fInteraction->KinePtr()->Sety(y);
 
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSxyfE);
@@ -93,8 +93,8 @@ double Integrand_D2XSec_DxDy_E_WQ2Cuts::operator() (const vector<double> & p)
   //-- set the kinematical peters
   double x = p[0];
   double y = p[1];
-  fInteraction->GetKinematicsPtr()->Setx(x);
-  fInteraction->GetKinematicsPtr()->Sety(y);
+  fInteraction->KinePtr()->Setx(x);
+  fInteraction->KinePtr()->Sety(y);
 
   // get physical integration range for W and Q2
   Range1D_t rW  = utils::kinematics::KineRange(fInteraction, kKVW);
@@ -115,10 +115,10 @@ double Integrand_D2XSec_DxDy_E_WQ2Cuts::operator() (const vector<double> & p)
                  << "Q2 = [" << rQ2.min << ", " << rQ2.max << "] GeV^2";
 
   // current W, Q2
-  const InitialState & init_state = fInteraction -> GetInitialState();
+  const InitialState & init_state = fInteraction -> InitState();
 
-  double Ev = init_state.GetProbeE(kRfStruckNucAtRest);
-  double M  = init_state.GetTarget().StruckNucleonMass();
+  double Ev = init_state.ProbeE(kRfHitNucRest);
+  double M  = init_state.Tgt().HitNucMass();
   double M2 = TMath::Power(M,2);
 
   double currW2 = TMath::Max(0., M2 + 2*Ev*M*y*(1-x));
@@ -158,7 +158,7 @@ double Integrand_DXSec_DQ2_E::operator() (const vector<double> & p)
 {
   //-- set the kinematical peters
   double Q2 = p[0];
-  fInteraction->GetKinematicsPtr()->SetQ2(Q2);
+  fInteraction->KinePtr()->SetQ2(Q2);
 
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSQ2fE);
@@ -185,8 +185,8 @@ double Integrand_D2XSec_DWDQ2_E::operator() (const vector<double> & p)
   //-- set the kinematical peters
   double W  = p[0];
   double Q2 = p[1];
-  fInteraction->GetKinematicsPtr()->SetW(W);
-  fInteraction->GetKinematicsPtr()->SetQ2(Q2);
+  fInteraction->KinePtr()->SetW(W);
+  fInteraction->KinePtr()->SetQ2(Q2);
 
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSWQ2fE);
@@ -210,7 +210,7 @@ double Integrand_DXSec_Dy_E::operator() (const vector<double> & p)
 {
   //-- set the kinematical peters
   double y = p[0];
-  fInteraction->GetKinematicsPtr()->Sety(y);
+  fInteraction->KinePtr()->Sety(y);
 
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSyfE);
@@ -238,8 +238,8 @@ double Integrand_D2XSec_DxDy_Ex::operator() (const vector<double> & p)
   //-- set the kinematical peters
   double y = p[0];
 
-  fInteraction->GetKinematicsPtr()->Setx(fx);
-  fInteraction->GetKinematicsPtr()->Sety(y);
+  fInteraction->KinePtr()->Setx(fx);
+  fInteraction->KinePtr()->Sety(y);
 
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSxyfE);
@@ -264,8 +264,8 @@ double Integrand_D2XSec_DxDy_Ey::operator() (const vector<double> & p)
   //-- set the kinematical peters
   double x = p[0];
 
-  fInteraction->GetKinematicsPtr()->Setx(x);
-  fInteraction->GetKinematicsPtr()->Sety(fy);
+  fInteraction->KinePtr()->Setx(x);
+  fInteraction->KinePtr()->Sety(fy);
 
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSxyfE);
@@ -290,8 +290,8 @@ double Integrand_D2XSec_DWDQ2_EW::operator() (const vector<double> & p)
   //-- set the kinematical peters
   double Q2 = p[0];
 
-  fInteraction->GetKinematicsPtr()->SetW(fW);
-  fInteraction->GetKinematicsPtr()->SetQ2(Q2);
+  fInteraction->KinePtr()->SetW(fW);
+  fInteraction->KinePtr()->SetQ2(Q2);
 
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSWQ2fE);
@@ -316,8 +316,8 @@ double Integrand_D2XSec_DWDQ2_EQ2::operator() (const vector<double> & p)
   //-- set the kinematical peters
   double W = p[0];
 
-  fInteraction->GetKinematicsPtr()->SetW(W);
-  fInteraction->GetKinematicsPtr()->SetQ2(fQ2);
+  fInteraction->KinePtr()->SetW(W);
+  fInteraction->KinePtr()->SetQ2(fQ2);
 
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction,kPSWQ2fE);

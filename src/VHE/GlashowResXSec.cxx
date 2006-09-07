@@ -54,8 +54,8 @@ double GlashowResXSec::XSec(
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   //----- get initial & final state information
-  const InitialState & init_state = interaction->GetInitialState();
-  double E = init_state.GetProbeE(kRfLab);
+  const InitialState & init_state = interaction->InitState();
+  double E = init_state.ProbeE(kRfLab);
 
   double me   = kElectronMass;
   double Mw   = kMw;
@@ -75,11 +75,11 @@ bool GlashowResXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
-  bool nuok    = pdg::IsAntiNuE( init_state.GetProbePDGCode() );
-  bool nucok   = !(init_state.GetTarget().StruckNucleonIsSet());
+  bool nuok    = pdg::IsAntiNuE(init_state.ProbePdg());
+  bool nucok   = !(init_state.Tgt().HitNucIsSet());
   bool ccprcok = proc_info.IsWeakCC();
 
   if ( !nuok    ) return false;

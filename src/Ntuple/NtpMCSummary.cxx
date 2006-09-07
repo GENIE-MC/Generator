@@ -174,9 +174,9 @@ void NtpMCSummary::Copy(const EventRecord & evrec)
   this->nKp  = sbld.NKPlus();
   this->nKm  = sbld.NKMinus();
 
-  this->xsec  = evrec.GetXSec();
-  this->dxsec = evrec.GetDiffXSec();
-  this->wght  = evrec.GetWeight();
+  this->xsec  = evrec.XSec();
+  this->dxsec = evrec.DiffXSec();
+  this->wght  = evrec.Weight();
 }
 //____________________________________________________________________________
 void NtpMCSummary::Copy(const NtpMCSummary & mcs)

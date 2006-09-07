@@ -114,16 +114,16 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
 //  specified by (kf,pf) to the differential cross section for a free nucleon".
 //  (kf,pf = Fermi Gas model Fermi momentum for initial,final nucleons)
 //
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
-  const Target &       target     = init_state.GetTarget();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+  const Target &       target     = init_state.Tgt();
 
   if (!target.IsNucleus()) return 1.0; // no suppression for free nucleon tgt
 
   double R = 1; // computed suppression factor
 
-  int target_pdgc         = target.PDGCode();
-  int struck_nucleon_pdgc = target.StruckNucleonPDGCode();
+  int target_pdgc         = target.Pdg();
+  int struck_nucleon_pdgc = target.HitNucPdg();
   int final_nucleon_pdgc  = struck_nucleon_pdgc;
 
   if(proc_info.IsWeakCC()) 
@@ -141,9 +141,9 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
 
   // Compute magnitude of the 3-momentum transfer to the nucleon
 
-  double Mn2 = target.StruckNucleonP4()->M2(); // can be off m/shell
+  double Mn2 = target.HitNucP4Ptr()->M2(); // can be off m/shell
 
-  const Kinematics & kine = interaction->GetKinematics();
+  const Kinematics & kine = interaction->Kine();
   double q2     = kine.q2();
   double magq2  = q2 * (0.25*q2/Mn2 - 1.);
   double q      = TMath::Sqrt(TMath::Max(0.,magq2));

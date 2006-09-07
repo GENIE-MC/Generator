@@ -78,8 +78,8 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   TLorentzVector p4Had = this->Hadronic4pLAB(evrec);
   double W = p4Had.M();
 
-  Interaction * interaction = evrec->GetInteraction();
-  interaction->GetKinematicsPtr()->SetW(W);
+  Interaction * interaction = evrec->Summary();
+  interaction->KinePtr()->SetW(W);
 
   //-- Run the hadronization model and get the fragmentation products:
   //   A collection of ROOT TMCParticles (equiv. to a LUJETS record)
@@ -119,9 +119,9 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   TMCParticle * p = 0;
   TIter particle_iter(plist);
 
-  bool is_nucleus = interaction->GetInitialState().GetTarget().IsNucleus();
-  GHepStatus_t istfin = (is_nucleus) ? 
-                             kIStHadronInTheNucleus : kIStStableFinalState;
+  bool is_nucleus = interaction->InitState().Tgt().IsNucleus();
+  GHepStatus_t istfin = (is_nucleus) ?       
+                 kIStHadronInTheNucleus : kIStStableFinalState;
 
   //-- Get a unit momentum along the momentum transfer direction \vec{q}
   //   at the [Hadronic CM] 
@@ -161,7 +161,7 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
 
   //-- Handle the case that the hadronizer produced weighted events and
   //   take into account that the current event might be already weighted
-  evrec->SetWeight (wght * evrec->GetWeight());
+  evrec->SetWeight (wght * evrec->Weight());
 
   plist->Delete();
   delete plist;

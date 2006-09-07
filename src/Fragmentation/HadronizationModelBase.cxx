@@ -61,7 +61,7 @@ double HadronizationModelBase::Wmin(void) const
 //____________________________________________________________________________
 double HadronizationModelBase::MaxMult(const Interaction * interaction) const
 {
-  double W = interaction->GetKinematics().W();
+  double W = interaction->Kine().W();
 
   double maxmult = TMath::Floor(1 + (W-kNeutronMass)/kPionMass);
   return maxmult;
@@ -86,13 +86,13 @@ void HadronizationModelBase::ApplyRijk(
 //
   if(!mp) return;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  int nu_pdg  = init_state.GetProbePDGCode();
-  int nuc_pdg = init_state.GetTarget().StruckNucleonPDGCode();
+  const InitialState & init_state = interaction->InitState();
+  int nu_pdg  = init_state.ProbePdg();
+  int nuc_pdg = init_state.Tgt().HitNucPdg();
 
   double R2=1., R3=1.;
 
-  const ProcessInfo & proc_info = interaction->GetProcessInfo();
+  const ProcessInfo & proc_info = interaction->ProcInfo();
   bool isCC = proc_info.IsWeakCC();
 
   if(pdg::IsNeutrino(nu_pdg) && pdg::IsProton(nuc_pdg))  {

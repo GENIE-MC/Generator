@@ -85,7 +85,7 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
   ProcessInfo proc_info(kScResonant, inttype);
 
   // learn whether the input nuclear or free target has avail. p and n
-  const Target & inp_target = init_state.GetTarget();
+  const Target & inp_target = init_state.Tgt();
   bool hasP = (inp_target.Z() > 0);
   bool hasN = (inp_target.N() > 0);
 
@@ -113,7 +113,7 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
        // (the only problematic case is when the RES charge has to be +2
        //  because then only Delta resonances are possible)
        bool skip_res =  proc_info.IsWeakCC() &&
-                        pdg::IsNeutrino(init_state.GetProbePDGCode()) &&
+                        pdg::IsNeutrino(init_state.ProbePdg()) &&
                         (hit_nucleon[i]==kPdgProton) &&
                         (!utils::res::IsDelta(res));
        if(skip_res) continue;
@@ -122,11 +122,11 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
        Interaction * interaction = new Interaction(init_state, proc_info);
     
        // add the struck nucleon
-       Target * target = interaction->GetInitialStatePtr()->GetTargetPtr();
-       target->SetStruckNucleonPDGCode(hit_nucleon[i]);
+       Target * target = interaction->InitStatePtr()->TgtPtr();
+       target->SetHitNucPdg(hit_nucleon[i]);
 
        // add the baryon resonance in the exclusive tag
-       XclsTag * xcls = interaction->GetExclusiveTagPtr();
+       XclsTag * xcls = interaction->ExclTagPtr();
        xcls->SetResonance(res);
 
        // add the interaction at the interaction list

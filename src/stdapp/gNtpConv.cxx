@@ -201,13 +201,13 @@ void ConvertToGXML(ofstream & output, EventRecord & event)
 
   output << "   ";
   output << "  <!-- event weight   -->";
-  output << " <wgt> " << event.GetWeight()   << " </wgt>";
+  output << " <wgt> " << event.Weight()   << " </wgt>";
   output << endl;
 
   output << "   ";
   output << "  <!-- cross sections -->";
-  output << " <xsec_evnt> " << event.GetXSec()     << " </xsec_evnt>";
-  output << " <xsec_kine> " << event.GetDiffXSec() << " </xsec_kine>";
+  output << " <xsec_evnt> " << event.XSec()     << " </xsec_evnt>";
+  output << " <xsec_kine> " << event.DiffXSec() << " </xsec_kine>";
   output << endl;
 
   output << "   ";
@@ -233,7 +233,7 @@ void ConvertToGXML(ofstream & output, EventRecord & event)
     output << "     <entry idx=\"" << i << "\" type=\"" 
                                          << type << "\">" << endl;
     output << "        ";
-    output << " <pdg> " << p->PdgCode()       << " </pdg>";
+    output << " <pdg> " << p->Pdg()       << " </pdg>";
     output << " <ist> " << p->Status()        << " </ist>";
     output << endl;
 
@@ -300,9 +300,9 @@ void ConvertToGTab(ofstream & output, EventRecord & event)
   output << setiosflags(ios::scientific);
 
   //-- write-out the event-wide properties
-  output << "$weight : " << event.GetWeight()   << endl;
-  output << "$xsec-ev: " << event.GetXSec()     << endl;
-  output << "$xsec-kn: " << event.GetDiffXSec() << endl;
+  output << "$weight : " << event.Weight()   << endl;
+  output << "$xsec-ev: " << event.XSec()     << endl;
+  output << "$xsec-kn: " << event.DiffXSec() << endl;
   output << "$ev-vtx : "; 
   output << event.Vertex()->X();
   output << setfill(' ') << setw(16) << event.Vertex()->Y();
@@ -322,7 +322,7 @@ void ConvertToGTab(ofstream & output, EventRecord & event)
     }
     output << "$entry  : "; 
     output << setfill(' ') << setw(4)  << i;
-    output << setfill(' ') << setw(12) << p->PdgCode();
+    output << setfill(' ') << setw(12) << p->Pdg();
     output << setfill(' ') << setw(3)  << type;
     output << setfill(' ') << setw(4)  << p->Status();
     output << setfill(' ') << setw(4)  << p->FirstMother();
@@ -453,7 +453,7 @@ int GHep2NuancePDGC(GHepParticle * p)
 // For nuclei GHEP PDGC follows the MINOS-convention: 1AAAZZZ000
 // NUANCE is using: ZZZAAA
 
-  int ghep_pdgc   = p->PdgCode();
+  int ghep_pdgc   = p->Pdg();
   int nuance_pdgc = ghep_pdgc;
 
   if ( p->IsNucleus() ) {
@@ -491,9 +491,9 @@ void ConvertToGNeugen(ofstream & output, EventRecord & event)
   //           would be non-zero (QEL:q2, RES:q2,W, DIS:x,y)
   // p4      : all 4-momentum vector in this order = (px,py,pz,E)
 
-  Interaction * interaction = event.GetInteraction();
+  Interaction * interaction = event.Summary();
 
-  const ProcessInfo & proc_info = interaction->GetProcessInfo();
+  const ProcessInfo & proc_info = interaction->ProcInfo();
 
   int ccnc=-1;
   if      (proc_info.IsWeakCC()) ccnc=1;
@@ -508,7 +508,7 @@ void ConvertToGNeugen(ofstream & output, EventRecord & event)
   //   generator, ignore other variables to avoid possible definition
   //   incosnsistencies due to the off-shell kinematics
 
-  const Kinematics & kinematics = interaction->GetKinematics();
+  const Kinematics & kinematics = interaction->Kine();
   double q2=0, W=0, x=0, y=0;
 
   if(proc==1) {
@@ -525,16 +525,16 @@ void ConvertToGNeugen(ofstream & output, EventRecord & event)
   }
 
   GHepParticle * neutrino = event.Probe();
-  GHepParticle * nucleon  = event.StruckNucleon();
+  GHepParticle * nucleon  = event.HitNucleon();
   GHepParticle * target   = event.TargetNucleus();
   GHepParticle * lepton   = event.FinalStatePrimaryLepton();
   GHepParticle * hadsyst  = event.FinalStateHadronicSystem();
 
   if(proc==1) hadsyst=event.Particle(nucleon->FirstDaughter());
 
-  int neu_pdg = neutrino -> PdgCode();
-  int nuc_pdg = (nucleon) ? nucleon -> PdgCode() : 0;
-  int tgt_pdg = (target)  ? target  -> PdgCode() : 0;
+  int neu_pdg = neutrino -> Pdg();
+  int nuc_pdg = (nucleon) ? nucleon -> Pdg() : 0;
+  int tgt_pdg = (target)  ? target  -> Pdg() : 0;
 
   output << ccnc << " " << proc << " "
          << neu_pdg << " " 

@@ -50,16 +50,16 @@ void COHPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // This method generates the final state primary lepton in COH events
 
-  Interaction * interaction = evrec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
+  Interaction * interaction = evrec->Summary();
+  const InitialState & init_state = interaction->InitState();
 
   // Look-up selected kinematics
-  double Q2 = interaction->GetKinematics().Q2(true);
-  double y  = interaction->GetKinematics().y(true);
+  double Q2 = interaction->Kine().Q2(true);
+  double y  = interaction->Kine().y(true);
 
   // Auxiliary params
-  double Ev  = init_state.GetProbeE(kRfLab);
-  double ml  = interaction->GetFSPrimaryLepton()->Mass();
+  double Ev  = init_state.ProbeE(kRfLab);
+  double ml  = interaction->FSPrimLepton()->Mass();
   double ml2 = TMath::Power(ml,2);
 
   // Compute the final state primary lepton energy and momentum components
@@ -89,7 +89,7 @@ void COHPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   TLorentzVector p4l(p3l,El);
 
   // Figure out the Final State Lepton PDG Code
-  int pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
+  int pdgc = interaction->FSPrimLepton()->PdgCode();
 
   // Create a GHepParticle and add it to the event record
   this->AddToEventRecord(evrec, pdgc, p4l);

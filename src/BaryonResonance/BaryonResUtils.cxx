@@ -451,14 +451,14 @@ int genie::utils::res::ResonanceCharge(const Interaction * interaction)
 // Figure out what the resonance charge should be to conserve the charge in
 // RES interactions 
 
-  const InitialState & init_state = interaction->GetInitialState();
+  const InitialState & init_state = interaction->InitState();
 
-  int nuc_pdgc = init_state.GetTarget().StruckNucleonPDGCode();
-  int fsl_pdgc = interaction->GetFSPrimaryLepton()->PdgCode();
+  int nuc_pdgc = init_state.Tgt().HitNucPdg();
+  int fsl_pdgc = interaction->FSPrimLeptonPdg();
 
-  int q_nuc    = int( PDGLibrary::Instance()->Find(nuc_pdgc)->Charge() );
-  int q_fsl    = int( PDGLibrary::Instance()->Find(fsl_pdgc)->Charge() );
-  int q_res    = (q_nuc - q_fsl) /3;
+  int q_nuc = int( PDGLibrary::Instance()->Find(nuc_pdgc)->Charge() );
+  int q_fsl = int( PDGLibrary::Instance()->Find(fsl_pdgc)->Charge() );
+  int q_res = (q_nuc - q_fsl) /3;
 
   return q_res;
 }

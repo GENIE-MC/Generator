@@ -58,8 +58,8 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //
   RandomGen * rnd = RandomGen::Instance();
 
-  Interaction * interaction = evrec->GetInteraction();
-  const XclsTag & xcls_tag  = interaction->GetExclusiveTag();
+  Interaction * interaction = evrec->Summary();
+  const XclsTag & xcls_tag  = interaction->ExclTag();
 
   //-- Access neutrino, initial nucleus and final state prim. lepton entries
   GHepParticle * nu  = evrec->Probe();
@@ -73,7 +73,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const TLorentzVector & p4fsl = *(fsl->P4());
 
   //-- Determine the pdg code of the final state pion & nucleus
-  int nucl_pdgc = Ni->PdgCode(); // same as the initial nucleus
+  int nucl_pdgc = Ni->Pdg(); // same as the initial nucleus
   int pion_pdgc = 0;
   if      (xcls_tag.NPi0()     == 1) pion_pdgc = kPdgPi0;
   else if (xcls_tag.NPiPlus()  == 1) pion_pdgc = kPdgPiPlus;
@@ -89,9 +89,9 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double M    = kNucleonMass;
   double mpi  = PDGLibrary::Instance()->Find(pion_pdgc)->Mass();
   double mpi2 = TMath::Power(mpi,2);
-  double xo   = interaction->GetKinematics().x(true); 
-  double yo   = interaction->GetKinematics().y(true); 
-  double to   = interaction->GetKinematics().t(true); 
+  double xo   = interaction->Kine().x(true); 
+  double yo   = interaction->Kine().y(true); 
+  double to   = interaction->Kine().t(true); 
 
   SLOG("COHHadronicVtx", pINFO) 
          << "Ev = "<< E << ", xo = " << xo 

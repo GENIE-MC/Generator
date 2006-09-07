@@ -59,7 +59,7 @@ InitialState::InitialState(int Z, int A, int probe_pdgc)
 //___________________________________________________________________________
 InitialState::InitialState(const Target & tgt, int probe_pdgc)
 {
-  int target_pdgc = tgt.PDGCode();
+  int target_pdgc = tgt.Pdg();
   this->Init(target_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
@@ -76,10 +76,10 @@ InitialState::~InitialState()
 //___________________________________________________________________________
 void InitialState::Init(void)
 {
-  fProbePdgC  = 0;
-  fTarget     = new Target();
-  fProbeP4    = new TLorentzVector(0, 0, 0, 0);
-  fTargetP4   = new TLorentzVector(0, 0, 0, 0);
+  fProbePdg  = 0;
+  fTgt       = new Target();
+  fProbeP4   = new TLorentzVector(0, 0, 0, 0);
+  fTgtP4     = new TLorentzVector(0, 0, 0, 0);
 }
 //___________________________________________________________________________
 void InitialState::Init(int target_pdgc, int probe_pdgc)
@@ -92,17 +92,17 @@ void InitialState::Init(int target_pdgc, int probe_pdgc)
   double m = p->Mass();
   double M = t->Mass();
 
-  fProbePdgC  = probe_pdgc;
-  fTarget     = new Target(target_pdgc);
-  fProbeP4    = new TLorentzVector(0, 0, 0, m);
-  fTargetP4   = new TLorentzVector(0, 0, 0, M);
+  fProbePdg  = probe_pdgc;
+  fTgt       = new Target(target_pdgc);
+  fProbeP4   = new TLorentzVector(0, 0, 0, m);
+  fTgtP4     = new TLorentzVector(0, 0, 0, M);
 }
 //___________________________________________________________________________
 void InitialState::CleanUp(void)
 {
-  delete fTarget;
+  delete fTgt;
   delete fProbeP4;
-  delete fTargetP4;
+  delete fTgtP4;
 }
 //___________________________________________________________________________
 void InitialState::Reset(void)
@@ -113,43 +113,43 @@ void InitialState::Reset(void)
 //___________________________________________________________________________
 void InitialState::Copy(const InitialState & init_state)
 {
-  fProbePdgC = init_state.fProbePdgC;
+  fProbePdg = init_state.fProbePdg;
 
-  fTarget->Copy( *init_state.fTarget );
+  fTgt->Copy(*init_state.fTgt);
 
-  this -> SetProbeP4  ( *init_state.fProbeP4  );
-  this -> SetTargetP4 ( *init_state.fTargetP4 );
+  this -> SetProbeP4 ( *init_state.fProbeP4 );
+  this -> SetTgtP4   ( *init_state.fTgtP4   );
 }
 //___________________________________________________________________________
-int InitialState::GetTargetPDGCode(void) const
+int InitialState::TgtPdg(void) const
 {
-  assert(fTarget);
-  return fTarget->PDGCode();
+  assert(fTgt);
+  return fTgt->Pdg();
 }
 //___________________________________________________________________________
-TParticlePDG * InitialState::GetProbe(void) const
+TParticlePDG * InitialState::Probe(void) const
 {
-  TParticlePDG * p = PDGLibrary::Instance()->Find(fProbePdgC);
+  TParticlePDG * p = PDGLibrary::Instance()->Find(fProbePdg);
   return p;
 }
 //___________________________________________________________________________
-void InitialState::SetPDGCodes(int tgt_pdgc, int probe_pdgc)
+void InitialState::SetPdgs(int tgt_pdgc, int probe_pdgc)
 {
   this->CleanUp();
   this->Init(tgt_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
-void InitialState::SetTargetPDGCode(int tgt_pdgc)
+void InitialState::SetTgtPdg(int tgt_pdgc)
 {
-  int probe_pdgc = this->GetProbePDGCode();
+  int probe_pdgc = this->ProbePdg();
 
   this->CleanUp();
   this->Init(tgt_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
-void InitialState::SetProbePDGCode(int probe_pdgc)
+void InitialState::SetProbePdg(int probe_pdgc)
 {
-  int tgt_pdgc = this->GetTargetPDGCode();
+  int tgt_pdgc = this->TgtPdg();
 
   this->CleanUp();
   this->Init(tgt_pdgc, probe_pdgc);
@@ -171,18 +171,18 @@ void InitialState::SetProbeP4(const TLorentzVector & P4)
   fProbeP4 -> SetPz ( P4.Pz() );
 }
 //___________________________________________________________________________
-void InitialState::SetTargetP4(const TLorentzVector & P4)
+void InitialState::SetTgtP4(const TLorentzVector & P4)
 {
-  fTargetP4 -> SetE  ( P4.E()  );
-  fTargetP4 -> SetPx ( P4.Px() );
-  fTargetP4 -> SetPy ( P4.Py() );
-  fTargetP4 -> SetPz ( P4.Pz() );
+  fTgtP4 -> SetE  ( P4.E()  );
+  fTgtP4 -> SetPx ( P4.Px() );
+  fTgtP4 -> SetPy ( P4.Py() );
+  fTgtP4 -> SetPz ( P4.Pz() );
 }
 //___________________________________________________________________________
 bool InitialState::IsNuP(void) const
 {
-  int  prob = fProbePdgC;
-  int  nucl = fTarget->StruckNucleonPDGCode();
+  int  prob = fProbePdg;
+  int  nucl = fTgt->HitNucPdg();
   bool isvp = pdg::IsNeutrino(prob) && pdg::IsProton(nucl);
 
   return isvp;
@@ -190,8 +190,8 @@ bool InitialState::IsNuP(void) const
 //___________________________________________________________________________
 bool InitialState::IsNuN(void) const
 {
-  int  prob = fProbePdgC;
-  int  nucl = fTarget->StruckNucleonPDGCode();
+  int  prob = fProbePdg;
+  int  nucl = fTgt->HitNucPdg();
   bool isvn = pdg::IsNeutrino(prob) && pdg::IsNeutron(nucl);
 
   return isvn;
@@ -199,8 +199,8 @@ bool InitialState::IsNuN(void) const
 //___________________________________________________________________________
 bool InitialState::IsNuBarP(void) const
 {
-  int  prob  = fProbePdgC;
-  int  nucl  = fTarget->StruckNucleonPDGCode();
+  int  prob  = fProbePdg;
+  int  nucl  = fTgt->HitNucPdg();
   bool isvbp = pdg::IsAntiNeutrino(prob) && pdg::IsProton(nucl);
 
   return isvbp;
@@ -208,14 +208,14 @@ bool InitialState::IsNuBarP(void) const
 //___________________________________________________________________________
 bool InitialState::IsNuBarN(void) const
 {
-  int  prob  = fProbePdgC;
-  int  nucl  = fTarget->StruckNucleonPDGCode();
+  int  prob  = fProbePdg;
+  int  nucl  = fTgt->HitNucPdg();
   bool isvbn = pdg::IsAntiNeutrino(prob) && pdg::IsNeutron(nucl);
 
   return isvbn;
 }
 //___________________________________________________________________________
-TLorentzVector * InitialState::GetTargetP4(RefFrame_t ref_frame) const
+TLorentzVector * InitialState::GetTgtP4(RefFrame_t ref_frame) const
 {
 // Return the target 4-momentum in the specified reference frame
 // Note: the caller adopts the TLorentzVector object
@@ -223,22 +223,22 @@ TLorentzVector * InitialState::GetTargetP4(RefFrame_t ref_frame) const
   switch (ref_frame) {
 
        //------------------ NUCLEAR TARGET REST FRAME:
-       case (kRfTargetAtRest) :
+       case (kRfTgtRest) :
        {
              // for now make sure that the target nucleus is always at
              // rest and it is only the struck nucleons that can move:
              // so the [target rest frame] = [LAB frame]
 
-             return this->GetTargetP4(kRfLab);
+             return this->GetTgtP4(kRfLab);
        }
 
        //------------------ STRUCK NUCLEON REST FRAME:
-       case (kRfStruckNucAtRest) :
+       case (kRfHitNucRest) :
        {
              // make sure that 'struck nucleon' properties were set in
              // the nuclear target object
-             assert( fTarget->StruckNucleonP4() != 0 );
-             TLorentzVector * pnuc4 = fTarget->StruckNucleonP4();
+             assert( fTgt->HitNucP4Ptr() != 0 );
+             TLorentzVector * pnuc4 = fTgt->HitNucP4Ptr();
 
              // compute velocity vector (px/E, py/E, pz/E)
              double bx = pnuc4->Px() / pnuc4->Energy();
@@ -246,7 +246,7 @@ TLorentzVector * InitialState::GetTargetP4(RefFrame_t ref_frame) const
              double bz = pnuc4->Pz() / pnuc4->Energy();
 
              // BOOST
-             TLorentzVector * p4 = new TLorentzVector(*fTargetP4);
+             TLorentzVector * p4 = new TLorentzVector(*fTgtP4);
              p4->Boost(-bx,-by,-bz);
 
              return p4;
@@ -255,7 +255,7 @@ TLorentzVector * InitialState::GetTargetP4(RefFrame_t ref_frame) const
        //------------------ LAB:
        case (kRfLab) :
        {
-             TLorentzVector * p4 = new TLorentzVector(*fTargetP4);
+             TLorentzVector * p4 = new TLorentzVector(*fTgtP4);
              return p4;
              break;
        }
@@ -273,7 +273,7 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
   switch (ref_frame) {
 
        //------------------ NUCLEAR TARGET REST FRAME:
-       case (kRfTargetAtRest) :
+       case (kRfTgtRest) :
        {
              // for now assure that the target nucleus is always at rest
              // and it is only the struck nucleons that can move:
@@ -284,14 +284,14 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
        }
 
        //------------------ STRUCK NUCLEON REST FRAME:
-       case (kRfStruckNucAtRest) :
+       case (kRfHitNucRest) :
        {
              // make sure that 'struck nucleon' properties were set in
              // the nuclear target object
 
-             assert( fTarget->StruckNucleonP4() != 0 );
+             assert( fTgt->HitNucP4Ptr() != 0 );
 
-             TLorentzVector * pnuc4 = fTarget->StruckNucleonP4();
+             TLorentzVector * pnuc4 = fTgt->HitNucP4Ptr();
 
              // compute velocity vector (px/E, py/E, pz/E)
 
@@ -324,7 +324,7 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
   return 0;
 }
 //___________________________________________________________________________
-double InitialState::GetProbeE(RefFrame_t ref_frame) const
+double InitialState::ProbeE(RefFrame_t ref_frame) const
 {
   TLorentzVector * p4 = this->GetProbeP4(ref_frame);
   double E = p4->Energy();
@@ -341,8 +341,8 @@ string InitialState::AsString(void) const
 
   ostringstream init_state;
 
-  init_state << "nu-pdg:"  << this->GetProbePDGCode()     << ";";
-  init_state << "tgt-pdg:" << this->GetTarget().PDGCode() << ";";
+  init_state << "nu-pdg:"  << this->ProbePdg()  << ";";
+  init_state << "tgt-pdg:" << this->Tgt().Pdg() << ";";
 
   return init_state.str();
 }
@@ -352,22 +352,22 @@ void InitialState::Print(ostream & stream) const
   stream << "[-] [Init-State] " << endl;
 
   stream << " |--> probe        : "
-         << "PDG-code = " << fProbePdgC
-         << " (" << this->GetProbe()->GetName() << ")" << endl;
+         << "PDG-code = " << fProbePdg
+         << " (" << this->Probe()->GetName() << ")" << endl;
 
   stream << " |--> nucl. target : "
-         << "Z = "          << fTarget->Z()
-         << ", A = "        << fTarget->A()
-         << ", PDG-Code = " << fTarget->PDGCode();
+         << "Z = "          << fTgt->Z()
+         << ", A = "        << fTgt->A()
+         << ", PDG-Code = " << fTgt->Pdg();
 
-  TParticlePDG * tgt = PDGLibrary::Instance()->Find( fTarget->PDGCode() );
+  TParticlePDG * tgt = PDGLibrary::Instance()->Find( fTgt->Pdg() );
   if(tgt) {
     stream << " (" << tgt->GetName() << ")";
   }
   stream << endl;
 
   stream << " |--> hit nucleon  : ";
-  int nuc_pdgc = fTarget->StruckNucleonPDGCode();
+  int nuc_pdgc = fTgt->HitNucPdg();
 
   if ( pdg::IsNeutronOrProton(nuc_pdgc) ) {
     TParticlePDG * p = PDGLibrary::Instance()->Find(nuc_pdgc);
@@ -378,12 +378,12 @@ void InitialState::Print(ostream & stream) const
   stream << endl;
 
   stream << " |--> hit quark    : ";
-  int qrk_pdgc = fTarget->StruckQuarkPDGCode();
+  int qrk_pdgc = fTgt->HitQrkPdg();
 
   if ( pdg::IsQuark(qrk_pdgc) || pdg::IsAntiQuark(qrk_pdgc)) {
     TParticlePDG * p = PDGLibrary::Instance()->Find(qrk_pdgc);
     stream << "PDC-Code = " << qrk_pdgc << " (" << p->GetName() << ") ";
-    stream << (fTarget->StruckQuarkIsFromSea() ? "[sea]" : "[valence]");
+    stream << (fTgt->HitSeaQrk() ? "[sea]" : "[valence]");
   } else {
     stream << "no set";
   }
@@ -397,16 +397,16 @@ void InitialState::Print(ostream & stream) const
          << ")"
          << endl;
   stream << " |--> target 4P    : "
-         << "(E = "   << setw(12) << setprecision(6) << fTargetP4->E()
-         << ", Px = " << setw(12) << setprecision(6) << fTargetP4->Px()
-         << ", Py = " << setw(12) << setprecision(6) << fTargetP4->Py()
-         << ", Pz = " << setw(12) << setprecision(6) << fTargetP4->Pz()
+         << "(E = "   << setw(12) << setprecision(6) << fTgtP4->E()
+         << ", Px = " << setw(12) << setprecision(6) << fTgtP4->Px()
+         << ", Py = " << setw(12) << setprecision(6) << fTgtP4->Py()
+         << ", Pz = " << setw(12) << setprecision(6) << fTgtP4->Pz()
          << ")"
          << endl;
 
   if ( pdg::IsNeutronOrProton(nuc_pdgc) ) {
 
-    TLorentzVector * nuc_p4 = fTarget->StruckNucleonP4();
+    TLorentzVector * nuc_p4 = fTgt->HitNucP4Ptr();
 
     stream << " |--> nucleon 4P   : "
            << "(E = "   << setw(12) << setprecision(6) << nuc_p4->E()
@@ -419,10 +419,10 @@ void InitialState::Print(ostream & stream) const
 //___________________________________________________________________________
 bool InitialState::Compare(const InitialState & init_state) const
 {
-  int            probe  = init_state.GetProbePDGCode();
-  const Target & target = init_state.GetTarget();
+  int            probe  = init_state.ProbePdg();
+  const Target & target = init_state.Tgt();
 
-  bool equal = (fProbePdgC == probe) && (*fTarget == target);
+  bool equal = (fProbePdg == probe) && (*fTgt == target);
 
   return equal;
 }

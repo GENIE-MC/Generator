@@ -67,12 +67,12 @@ double DISPartonModelPXSec::XSec(
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   //----- Get kinematical & init-state parameters
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
 
-  double E     = init_state.GetProbeE(kRfStruckNucAtRest);
-  double ml    = interaction->GetFSPrimaryLepton()->Mass();
-  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
+  double E     = init_state.ProbeE(kRfHitNucRest);
+  double ml    = interaction->FSPrimLepton()->Mass();
+  double Mnuc  = init_state.Tgt().HitNucMass();
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double x     = kinematics.x();
   double y     = kinematics.y();
@@ -82,7 +82,7 @@ double DISPartonModelPXSec::XSec(
 
   //----- One of the xsec terms changes sign for antineutrinos
   int sign = 1;
-  if( pdg::IsAntiNeutrino(init_state.GetProbePDGCode()) ) sign = -1;
+  if( pdg::IsAntiNeutrino(init_state.ProbePdg()) ) sign = -1;
 
   //----- Calculate the DIS structure functions
   fDISSF.Calculate(interaction); 
@@ -140,8 +140,8 @@ double DISPartonModelPXSec::XSec(
   //----- Compute nuclear cross section (simple scaling here, corrections must
   //      have been included in the structure functions)
 
-  const Target & target = init_state.GetTarget();
-  int nucpdgc = target.StruckNucleonPDGCode();
+  const Target & target = init_state.Tgt();
+  int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
   xsec *= NNucl; 
 
@@ -160,11 +160,11 @@ bool DISPartonModelPXSec::ValidKinematics(
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
 
-  double E     = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Mnuc  = init_state.GetTarget().StruckNucleonMass();
+  double E     = init_state.ProbeE(kRfHitNucRest);
+  double Mnuc  = init_state.Tgt().HitNucMass();
   double Mnuc2 = TMath::Power(Mnuc, 2);
   double x     = kinematics.x();
   double y     = kinematics.y();
@@ -204,13 +204,13 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
 
   const double Wmin = kNeutronMass + kPionMass + 1E-3;
 
-  const InitialState & ist = in->GetInitialState();
-  const ProcessInfo &  pi  = in->GetProcessInfo();
+  const InitialState & ist = in->InitState();
+  const ProcessInfo &  pi  = in->ProcInfo();
 
-  double E    = ist.GetProbeE(kRfStruckNucAtRest);
-  double Mnuc = ist.GetTarget().StruckNucleonMass();
-  double x    = in->GetKinematics().x(); 
-  double y    = in->GetKinematics().y();
+  double E    = ist.ProbeE(kRfHitNucRest);
+  double Mnuc = ist.Tgt().HitNucMass();
+  double x    = in->Kine().x(); 
+  double y    = in->Kine().y();
   double Wo   = utils::kinematics::XYtoW(E,Mnuc,x,y);
 
   TH1D * mprob = 0;
@@ -237,8 +237,8 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
     string algkey = this->Id().Key() + "/DIS-RES-Join";
 
     ostringstream ikey;
-    ikey << "nu-pdgc:" << ist.GetProbePDGCode() 
-         << ";hit-nuc-pdg:"<< ist.GetTarget().StruckNucleonPDGCode() << "/"
+    ikey << "nu-pdgc:" << ist.ProbePdg() 
+         << ";hit-nuc-pdg:"<< ist.Tgt().HitNucPdg() << "/"
          << pi.InteractionTypeAsString();
 
     string key = cache->CacheBranchKey(algkey, ikey.str());
@@ -263,7 +263,7 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
 
       for(int i=0; i<kN; i++) {
         double W = WminSpl+i*dW;
-        interaction.GetKinematicsPtr()->SetW(W);
+        interaction.KinePtr()->SetW(W);
         mprob = fHadronizationModel->MultiplicityProb(&interaction,"+LowMultSuppr");
         R = 1;
         if(mprob) {

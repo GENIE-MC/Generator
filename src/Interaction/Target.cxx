@@ -60,11 +60,11 @@ Target::Target(int Z, int A)
   this->SetId(Z,A);
 }
 //___________________________________________________________________________
-Target::Target(int Z, int A, int struck_nucleon_pdgc)
+Target::Target(int Z, int A, int hit_nucleon_pdgc)
 {
   this->Init();
   this->SetId(Z,A);
-  this->SetStruckNucleonPDGCode(struck_nucleon_pdgc);
+  this->SetHitNucPdg(hit_nucleon_pdgc);
 }
 //___________________________________________________________________________
 Target::Target(const Target & tgt)
@@ -86,18 +86,18 @@ void Target::Reset(void)
 //___________________________________________________________________________
 void Target::Init(void)
 {
-  fZ              = 0;
-  fA              = 0;
-  fTgtPDG         = 0;
-  fStruckNucPDG   = 0;
-  fStruckQuarkPDG = 0;
-  fStruckSeaQuark = false;
-  fStruckNucP4    = new TLorentzVector(0,0,0,kNucleonMass);
+  fZ         = 0;
+  fA         = 0;
+  fTgtPDG    = 0;
+  fHitNucPDG = 0;
+  fHitQrkPDG = 0;
+  fHitSeaQrk = false;
+  fHitNucP4  = new TLorentzVector(0,0,0,kNucleonMass);
 }
 //___________________________________________________________________________
 void Target::CleanUp(void)
 {
-  delete fStruckNucP4;
+  delete fHitNucP4;
 }
 //___________________________________________________________________________
 void Target::Copy(const Target & tgt)
@@ -106,15 +106,15 @@ void Target::Copy(const Target & tgt)
 
   if( pdg::IsIon(fTgtPDG) ) {
 
-     fZ              = tgt.fZ; // copy A,Z
-     fA              = tgt.fA;
-     fStruckNucPDG   = tgt.fStruckNucPDG;   // struck nucleon PDG
-     fStruckQuarkPDG = tgt.fStruckQuarkPDG; // struck quark PDG
-     fStruckSeaQuark = tgt.fStruckSeaQuark; // struck quark is from sea?
-     (*fStruckNucP4) = (*tgt.fStruckNucP4);
+     fZ         = tgt.fZ; // copy A,Z
+     fA         = tgt.fA;
+     fHitNucPDG = tgt.fHitNucPDG; // struck nucleon PDG
+     fHitQrkPDG = tgt.fHitQrkPDG; // struck quark PDG
+     fHitSeaQrk = tgt.fHitSeaQrk; // struck quark is from sea?
+     (*fHitNucP4) = (*tgt.fHitNucP4);
 
      this->ForceNucleusValidity(); // look it up at the isotopes chart
-     this->ForceStruckNucleonValidity(); // must be p or n
+     this->ForceHitNucValidity();  // must be p or n
   }
 }
 //___________________________________________________________________________
@@ -127,7 +127,7 @@ void Target::SetId(int pdgc)
   }
 
   this->ForceNucleusValidity(); // search at the isotopes chart
-  this->AutoSetStruckNucleon(); // struck nuc := tgt for free nucleon tgt
+  this->AutoSetHitNuc();        // struck nuc := tgt for free nucleon tgt
 }
 //___________________________________________________________________________
 void Target::SetId(int Z, int A)
@@ -137,45 +137,45 @@ void Target::SetId(int Z, int A)
   fA = A;
 
   this->ForceNucleusValidity(); // search at the isotopes chart
-  this->AutoSetStruckNucleon(); // struck nuc := tgt for free nucleon tgt
+  this->AutoSetHitNuc();        // struck nuc := tgt for free nucleon tgt
 }
 //___________________________________________________________________________
-void Target::SetStruckNucleonPDGCode(int nucl_pdgc)
+void Target::SetHitNucPdg(int nucl_pdgc)
 {
-  fStruckNucPDG = nucl_pdgc;
-  bool is_valid = this->ForceStruckNucleonValidity();  // must be p or n
+  fHitNucPDG = nucl_pdgc;
+  bool is_valid = this->ForceHitNucValidity();  // must be p or n
 
   // If it is a valid struck nucleon pdg code, initialize its 4P:
   // at-rest + on-mass-shell
   if(is_valid) {
     double M = PDGLibrary::Instance()->Find(nucl_pdgc)->Mass();
-    fStruckNucP4->SetPxPyPzE(0,0,0,M);
+    fHitNucP4->SetPxPyPzE(0,0,0,M);
   }
 }
 //___________________________________________________________________________
-void Target::SetStruckQuarkPDGCode(int pdgc)
+void Target::SetHitQrkPdg(int pdgc)
 {
-  if(pdg::IsQuark(pdgc) || pdg::IsAntiQuark(pdgc)) fStruckQuarkPDG = pdgc;
+  if(pdg::IsQuark(pdgc) || pdg::IsAntiQuark(pdgc)) fHitQrkPDG = pdgc;
 }
 //___________________________________________________________________________
-void Target::SetStruckNucleonP4(const TLorentzVector & p4)
+void Target::SetHitNucP4(const TLorentzVector & p4)
 {
-  if(fStruckNucP4) delete fStruckNucP4;
-  fStruckNucP4 = new TLorentzVector(p4);
+  if(fHitNucP4) delete fHitNucP4;
+  fHitNucP4 = new TLorentzVector(p4);
 }
 //___________________________________________________________________________
-void Target::SetStruckSeaQuark(bool tf)
+void Target::SetHitSeaQrk(bool tf)
 {
-  fStruckSeaQuark = tf;
+  fHitSeaQrk = tf;
 }
 //___________________________________________________________________________
-void Target::ForceStruckNucleonOnMassShell(void)
+void Target::ForceHitNucOnMassShell(void)
 {
-  if(this->StruckNucleonIsSet()) {
-     double m = this->StruckNucleonMass();
-     double p = this->StruckNucleonP4()->P();
+  if(this->HitNucIsSet()) {
+     double m = this->HitNucMass();
+     double p = this->HitNucP4Ptr()->P();
      double e = TMath::Sqrt(p*p+m*m);
-     this->StruckNucleonP4()->SetE(e);     
+     this->HitNucP4Ptr()->SetE(e);     
   }
 }
 //___________________________________________________________________________
@@ -197,28 +197,28 @@ double Target::Mass(void) const
   return 0.;
 }
 //___________________________________________________________________________
-double Target::StruckNucleonMass(void) const
+double Target::HitNucMass(void) const
 {
-  if(!fStruckNucPDG) {
+  if(!fHitNucPDG) {
     LOG("Target", pWARN) << "Returning struck nucleon mass = 0";
     return 0;
   }
-  return PDGLibrary::Instance()->Find(fStruckNucPDG)->Mass();
+  return PDGLibrary::Instance()->Find(fHitNucPDG)->Mass();
 }
 //___________________________________________________________________________
-int Target::StruckQuarkPDGCode(void) const
+int Target::HitQrkPdg(void) const
 {
-  return fStruckQuarkPDG;
+  return fHitQrkPDG;
 }
 //___________________________________________________________________________
-TLorentzVector * Target::StruckNucleonP4(void) const
+TLorentzVector * Target::HitNucP4Ptr(void) const
 {
-  if(!fStruckNucP4) {
+  if(!fHitNucP4) {
     LOG("Target", pWARN) << "Returning NULL struck nucleon 4-momentum";
     return 0;
   }
 
-  return fStruckNucP4;
+  return fHitNucP4;
 }
 //___________________________________________________________________________
 bool Target::IsFreeNucleon(void) const
@@ -247,26 +247,26 @@ bool Target::IsParticle(void) const
   return (p && fA==0 && fZ==0);
 }
 //___________________________________________________________________________
-bool Target::StruckNucleonIsSet(void) const
+bool Target::HitNucIsSet(void) const
 {
-  return pdg::IsNeutronOrProton(fStruckNucPDG);
+  return pdg::IsNeutronOrProton(fHitNucPDG);
 }
 //___________________________________________________________________________
-bool Target::StruckQuarkIsSet(void) const
+bool Target::HitQrkIsSet(void) const
 {
   return (
-     pdg::IsQuark(fStruckQuarkPDG) || pdg::IsAntiQuark(fStruckQuarkPDG)
+     pdg::IsQuark(fHitQrkPDG) || pdg::IsAntiQuark(fHitQrkPDG)
   );
 }
 //___________________________________________________________________________
-bool Target::StruckQuarkIsFromSea(void) const
+bool Target::HitSeaQrk(void) const
 {
-  return fStruckSeaQuark;
+  return fHitSeaQrk;
 }
 //___________________________________________________________________________
-int Target::StruckNucleonPDGCode(void) const
+int Target::HitNucPdg(void) const
 {
-  return fStruckNucPDG;
+  return fHitNucPDG;
 }
 //___________________________________________________________________________
 bool Target::IsValidNucleus(void) const
@@ -310,15 +310,15 @@ bool Target::IsOddOdd(void) const
   return false;
 }
 //___________________________________________________________________________
-bool Target::ForceStruckNucleonValidity(void)
+bool Target::ForceHitNucValidity(void)
 {
 // resets the struck nucleon pdg-code if it is found not to be a valid one
 
-  bool valid = pdg::IsProton(fStruckNucPDG) || pdg::IsNeutron(fStruckNucPDG);
+  bool valid = pdg::IsProton(fHitNucPDG) || pdg::IsNeutron(fHitNucPDG);
 
   if(!valid) {
     LOG("Target", pDEBUG) << "Reseting to struck nucleon to 'Rootino'";
-    fStruckNucPDG = 0;
+    fHitNucPDG = 0;
   }
   return valid;
 }
@@ -334,13 +334,13 @@ void Target::ForceNucleusValidity(void)
   }
 }
 //___________________________________________________________________________
-void Target::AutoSetStruckNucleon(void)
+void Target::AutoSetHitNuc(void)
 {
 // for free nucleon targets -> (auto)set struck nucleon = target
 
   if( this->IsFreeNucleon() ) {
-    if( this->IsProton() ) this->SetStruckNucleonPDGCode(kPdgProton);
-    else                   this->SetStruckNucleonPDGCode(kPdgNeutron);
+    if( this->IsProton() ) this->SetHitNucPdg(kPdgProton);
+    else                   this->SetHitNucPdg(kPdgNeutron);
   }
 }
 //___________________________________________________________________________
@@ -348,12 +348,12 @@ string Target::AsString(void) const
 {
   ostringstream s;
 
-  s << this->PDGCode();
-  if(this->StruckNucleonIsSet())
-     s << "[N=" << this->StruckNucleonPDGCode() << "]";
-  if(this->StruckQuarkIsSet()) {
-     s << "[q=" << this->StruckQuarkPDGCode();
-     s << (this->StruckQuarkIsFromSea() ? "(s)" : "(v)");
+  s << this->Pdg();
+  if(this->HitNucIsSet())
+     s << "[N=" << this->HitNucPdg() << "]";
+  if(this->HitQrkIsSet()) {
+     s << "[q=" << this->HitQrkPdg();
+     s << (this->HitSeaQrk() ? "(s)" : "(v)");
      s << "]";
   }
 
@@ -368,32 +368,32 @@ void Target::Print(ostream & stream) const
       stream << " Z = " << fZ << ", A = " << fA << endl;
   }
 
-  if( this->StruckNucleonIsSet() ) {
-    TParticlePDG * p = PDGLibrary::Instance()->Find(fStruckNucPDG);
+  if( this->HitNucIsSet() ) {
+    TParticlePDG * p = PDGLibrary::Instance()->Find(fHitNucPDG);
     stream << " struck nucleon = " << p->GetName()
-              << ", P4 = " << utils::print::P4AsString(fStruckNucP4) << endl;
+              << ", P4 = " << utils::print::P4AsString(fHitNucP4) << endl;
   }
 
-  if( this->StruckQuarkIsSet() ) {
-    TParticlePDG * q = PDGLibrary::Instance()->Find(fStruckQuarkPDG);
+  if( this->HitQrkIsSet() ) {
+    TParticlePDG * q = PDGLibrary::Instance()->Find(fHitQrkPDG);
     stream << " struck quark = " << q->GetName()
            << " (from sea: "
-           << utils::print::BoolAsYNString(this->StruckQuarkIsFromSea())
+           << utils::print::BoolAsYNString(this->HitSeaQrk())
            << ")";
   }
 }
 //___________________________________________________________________________
 bool Target::Compare(const Target & target) const
 {
-  int  tgt_pdg        = target.PDGCode();
-  int  struck_nuc_pdg = target.StruckNucleonPDGCode();
-  int  struck_qrk_pdg = target.StruckQuarkPDGCode();
-  bool struck_sea_qrk = target.StruckQuarkIsFromSea();
+  int  tgt_pdg        = target.Pdg();
+  int  struck_nuc_pdg = target.HitNucPdg();
+  int  struck_qrk_pdg = target.HitQrkPdg();
+  bool struck_sea_qrk = target.HitSeaQrk();
 
-  bool equal = ( fTgtPDG         == tgt_pdg        ) &&
-               ( fStruckNucPDG   == struck_nuc_pdg ) &&
-               ( fStruckQuarkPDG == struck_qrk_pdg ) &&
-               ( fStruckSeaQuark == struck_sea_qrk );
+  bool equal = ( fTgtPDG    == tgt_pdg        ) &&
+               ( fHitNucPDG == struck_nuc_pdg ) &&
+               ( fHitQrkPDG == struck_qrk_pdg ) &&
+               ( fHitSeaQrk == struck_sea_qrk );
   return equal;
 }
 //___________________________________________________________________________

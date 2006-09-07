@@ -62,18 +62,18 @@ double QELPXSec::XSec(
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   //----- get kinematics & init-state parameters
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Target & target = init_state.GetTarget();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
+  const Target & target = init_state.Tgt();
 
-  double E  = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E  = init_state.ProbeE(kRfHitNucRest);
   double E2 = TMath::Power(E,2);
-  double ml = interaction->GetFSPrimaryLepton()->Mass();
-  double M  = target.StruckNucleonMass();
+  double ml = interaction->FSPrimLepton()->Mass();
+  double M  = target.HitNucMass();
   double q2 = kinematics.q2();
 
   //----- one of the xsec terms changes sign for antineutrinos
-  bool is_neutrino = pdg::IsNeutrino(init_state.GetProbePDGCode());
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   int sign = (is_neutrino) ? -1 : 1;
 
   //----- calculate the QEL form factors
@@ -131,7 +131,7 @@ double QELPXSec::XSec(
   double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
 
   //----- number of scattering centers in the target
-  int nucpdgc = target.StruckNucleonPDGCode();
+  int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
 
   LOG("QELPXSec", pDEBUG) 
@@ -146,13 +146,13 @@ bool QELPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const ProcessInfo &  proc_info  = interaction->GetProcessInfo();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
   if(!proc_info.IsQuasiElastic()) return false;
 
-  int  nuc = init_state.GetTarget().StruckNucleonPDGCode();
-  int  nu  = init_state.GetProbePDGCode();
+  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nu  = init_state.ProbePdg();
 
   bool isP   = pdg::IsProton(nuc);
   bool isN   = pdg::IsNeutron(nuc);
@@ -169,11 +169,11 @@ bool QELPXSec::ValidKinematics(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Kinematics &   kinematics = interaction -> GetKinematics();
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics &   kinematics = interaction -> Kine();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
-  double Ethr = utils::kinematics::EnergyThreshold(interaction);
+  double E    = init_state.ProbeE(kRfHitNucRest);
+  double Ethr = interaction->EnergyThreshold();
 
   LOG("QELPXSec", pDEBUG)
        << "Computing QEL dXSec/dQ2 for Ev = " << E

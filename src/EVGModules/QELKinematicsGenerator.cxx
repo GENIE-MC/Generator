@@ -64,7 +64,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   RandomGen * rnd = RandomGen::Instance();
 
   //-- Get the interaction and set the 'trust' bits
-  Interaction * interaction = evrec->GetInteraction();
+  Interaction * interaction = evrec->Summary();
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
@@ -129,7 +129,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          double gQD2 = QD2min + (QD2max-QD2min) * rnd->RndKine().Rndm();
          gQ2  = utils::kinematics::QD2toQ2(gQD2);
      }
-     interaction->GetKinematicsPtr()->SetQ2(gQ2);
+     interaction->KinePtr()->SetQ2(gQ2);
 
      LOG("QELKinematics", pINFO) << "Trying: Q^2 = " << gQ2;
 
@@ -162,14 +162,14 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         // get neutrino energy at struck nucleon rest frame and the
         // struck nucleon mass (can be off the mass shell)
-        const InitialState & init_state = interaction->GetInitialState();
-        double E  = init_state.GetProbeE(kRfStruckNucAtRest);
-        double M = init_state.GetTarget().StruckNucleonP4()->M();
+        const InitialState & init_state = interaction->InitState();
+        double E  = init_state.ProbeE(kRfHitNucRest);
+        double M = init_state.Tgt().HitNucP4().M();
 
         LOG("QELKinematics", pNOTICE) << "E = " << E << ", M = "<< M;
 
         // hadronic inv. mass is equal to the recoil nucleon on-shell mass
-        int rpdgc = interaction->RecoilNuclPDGCode();
+        int rpdgc = interaction->RecoilNucleonPdg();
         double gW = PDGLibrary::Instance()->Find(rpdgc)->Mass();
 
         LOG("QELKinematics", pNOTICE) << "Selected: W = "<< gW;
@@ -185,22 +185,22 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // wght = (phase space volume)*(differential xsec)/(event total xsec)
         if(fGenerateUniformly) {
           double vol     = kinematics::PhaseSpaceVolume(interaction,kPSQ2fE);
-          double totxsec = evrec->GetXSec();
+          double totxsec = evrec->XSec();
           double wght    = (vol/totxsec)*xsec;
           LOG("QELKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
 
           // apply computed weight to the current event weight
-          wght *= evrec->GetWeight();
+          wght *= evrec->Weight();
           LOG("QELKinematics", pNOTICE) << "Current event wght = " << wght;
           evrec->SetWeight(wght);
         }
 
         // lock selected kinematics & clear running values
-        interaction->GetKinematicsPtr()->SetQ2(gQ2, true);
-        interaction->GetKinematicsPtr()->SetW (gW,  true);
-        interaction->GetKinematicsPtr()->Setx (gx,  true);
-        interaction->GetKinematicsPtr()->Sety (gy,  true);
-        interaction->GetKinematicsPtr()->ClearRunningValues();
+        interaction->KinePtr()->SetQ2(gQ2, true);
+        interaction->KinePtr()->SetW (gW,  true);
+        interaction->KinePtr()->Setx (gx,  true);
+        interaction->KinePtr()->Sety (gy,  true);
+        interaction->KinePtr()->ClearRunningValues();
 
         return;
      }
@@ -294,7 +294,7 @@ double QELKinematicsGenerator::ComputeMaxXSec(
 
   for(int i=0; i<N; i++) {
      double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
-     interaction->GetKinematicsPtr()->SetQ2(Q2);
+     interaction->KinePtr()->SetQ2(Q2);
      double xsec = fXSecModel->XSec(interaction, kPSQ2fE);
      LOG("QELKinematics", pDEBUG)  << "xsec(Q2= " << Q2 << ") = " << xsec;
 
@@ -310,7 +310,7 @@ double QELKinematicsGenerator::ComputeMaxXSec(
        for(int ib=0; ib<Nb; ib++) {
 	 Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
          if(Q2 < rQ2.min) continue;
-         interaction->GetKinematicsPtr()->SetQ2(Q2);
+         interaction->KinePtr()->SetQ2(Q2);
          xsec = fXSecModel->XSec(interaction, kPSQ2fE);
          LOG("QELKinematics", pDEBUG)  << "xsec(Q2= " << Q2 << ") = " << xsec;
          max_xsec = TMath::Max(xsec, max_xsec);

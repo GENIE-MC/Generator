@@ -46,7 +46,7 @@ InteractionList * IMDInteractionListGenerator::CreateInteractionList(
 {
   LOG("InteractionList", pINFO) << "InitialState = " << init_state.AsString();
 
-  if(init_state.GetProbePDGCode() != kPdgNuMu) {
+  if(init_state.ProbePdg() != kPdgNuMu) {
      LOG("InteractionList", pDEBUG) 
           << "Return *null* interaction list (non nu_mu probe in IMD thread)";
      return 0;
@@ -56,7 +56,7 @@ InteractionList * IMDInteractionListGenerator::CreateInteractionList(
 
   // clone init state and de-activate the struck nucleon info
   InitialState init(init_state);
-  init_state.GetTargetPtr()->SetStruckNucleonPDGCode(0);
+  init_state.TgtPtr()->SetHitNucPdg(0);
 
   ProcessInfo   proc_info(kScInverseMuDecay, kIntWeakCC);
   Interaction * interaction = new Interaction(init, proc_info);

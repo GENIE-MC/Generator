@@ -52,8 +52,8 @@ NucBindEnergyAggregator::~NucBindEnergyAggregator()
 //___________________________________________________________________________
 void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
 {
-  Interaction * interaction = event_rec->GetInteraction();
-  const InitialState & init_state = interaction->GetInitialState();
+  Interaction * interaction = event_rec->Summary();
+  const InitialState & init_state = interaction->InitState();
 
   TIter stdhep_iter(event_rec);
   GHepParticle * p = 0;
@@ -62,7 +62,7 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
 
   while( (p = (GHepParticle * ) stdhep_iter.Next()) ) {
 
-     bool is_nucleon        =  pdg::IsNeutronOrProton(p->PdgCode());
+     bool is_nucleon        =  pdg::IsNeutronOrProton(p->Pdg());
      bool is_in_final_state =  p->Status() == kIStStableFinalState;
 
      if( is_nucleon && is_in_final_state ) {
@@ -73,7 +73,7 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
         if(nucleus) {
            //-- ask for the binding energy of the most loose nucleon
            //  (separation energy)
-           const Target & target = init_state.GetTarget();
+           const Target & target = init_state.Tgt();
            double bindE = utils::nuclear::BindEnergyLastNucleon(target);
 
            LOG("Nuclear", pINFO) << "Binding energy = " << bindE;
@@ -151,7 +151,7 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
              // figure out the recombined nucleus PDG code
              int Z = rnucl->Z();
              int A = rnucl->A();
-             if(pdg::IsProton(p->PdgCode())) Z++;
+             if(pdg::IsProton(p->Pdg())) Z++;
              A++;
              int ipdgc = pdg::IonPdgCode(A,Z);
 
@@ -195,7 +195,7 @@ GHepParticle * NucBindEnergyAggregator::FindMotherNucleus(
              GHepParticle * grandmother =
                                    event_rec->Particle(grandmother_pos);
 
-             int grandmother_pdgc = grandmother->PdgCode();
+             int grandmother_pdgc = grandmother->Pdg();
              if( pdg::IsIon(grandmother_pdgc) ) return grandmother;
 
         } // gmpos != -1

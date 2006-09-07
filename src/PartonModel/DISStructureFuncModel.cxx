@@ -142,7 +142,7 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
 
   double Q2 = this->Q2(interaction);
 
-  const Kinematics & kine = interaction->GetKinematics();
+  const Kinematics & kine = interaction->Kine();
   double x = (fCorrectF3) ? this->ScalingVar(interaction) : kine.x();
   if(x<=0.) {
      LOG("DISSF", pERROR)
@@ -188,7 +188,7 @@ double DISStructureFuncModel::ScalingVar(
 // The scaling variable is set to the normal Bjorken x.
 // Override DISStructureFuncModel::ScalingVar() to compute corrections
 
-  return interaction->GetKinematics().x();
+  return interaction->Kine().x();
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::KFactors(const Interaction *, 
@@ -214,8 +214,8 @@ double DISStructureFuncModel::NuclMod(const Interaction * interaction) const
   double f = 1.;
 
   if(fIncludeNuclMod) {
-     const Kinematics & kine = interaction->GetKinematics();
-     const Target &     tgt  = interaction->GetInitialState().GetTarget();
+     const Kinematics & kine = interaction->Kine();
+     const Target &     tgt  = interaction->InitState().Tgt();
      double x = (fCorrectF3) ? this->ScalingVar(interaction) : kine.x();
      int    A = tgt.A();
      f = utils::nuclear::DISNuclFactor(x,A);
@@ -230,7 +230,7 @@ double DISStructureFuncModel::R(const Interaction * interaction) const
   double R = 0;
 
   if(fIncludeR) {
-    const Kinematics & kine = interaction->GetKinematics();
+    const Kinematics & kine = interaction->Kine();
     double x = (fCorrectF3) ? this->ScalingVar(interaction) : kine.x();
     double Q2 = this->Q2(interaction);
     R = utils::nuclear::RModelMod(x, Q2);
@@ -275,8 +275,8 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   LOG("DISSF", pDEBUG) << "D: Kval = " << kval_d << ", Ksea = " << ksea_d;
 
   // Apply the K factors
-  const InitialState & init_state = interaction->GetInitialState();
-  int nuc_pdgc = init_state.GetTarget().StruckNucleonPDGCode();
+  const InitialState & init_state = interaction->InitState();
+  int nuc_pdgc = init_state.Tgt().HitNucPdg();
   bool isP = pdg::IsProton  ( nuc_pdgc );
   bool isN = pdg::IsNeutron ( nuc_pdgc );
 
@@ -321,11 +321,11 @@ void DISStructureFuncModel::QQBar(
   q     = -1;
   qbar  = -1;
 
-  const InitialState & init_state = interaction->GetInitialState();
-  const Target & target = init_state.GetTarget();
+  const InitialState & init_state = interaction->InitState();
+  const Target & target = init_state.Tgt();
 
-  int nuc_pdgc = target.StruckNucleonPDGCode();
-  int nu_pdgc  = init_state.GetProbePDGCode();
+  int nuc_pdgc = target.HitNucPdg();
+  int nu_pdgc  = init_state.ProbePdg();
 
   bool isP     = pdg::IsProton       ( nuc_pdgc );
   bool isN     = pdg::IsNeutron      ( nuc_pdgc );
@@ -382,10 +382,10 @@ void DISStructureFuncModel::QQBar(
   // in this case the conributions from all other quarks will be set to 0 as as 
   // this algorithm can be used from computing vq->lq cross sections as well.
 
-  if(target.StruckQuarkIsSet()) {
+  if(target.HitQrkIsSet()) {
 
-    bool qpdg = target.StruckQuarkPDGCode();
-    bool sea  = target.StruckQuarkIsFromSea();
+    bool qpdg = target.HitQrkPdg();
+    bool sea  = target.HitSeaQrk();
 
     bool isu  = pdg::IsUQuark     (qpdg);
     bool isub = pdg::IsUAntiQuark (qpdg);

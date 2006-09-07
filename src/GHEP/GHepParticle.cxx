@@ -385,7 +385,7 @@ void GHepParticle::Print(ostream & stream) const
 {
   stream << "\n |";
   stream << setfill(' ') << setw(14) << this->Name()           << " | ";
-  stream << setfill(' ') << setw(14) << this->PdgCode()        << " | ";
+  stream << setfill(' ') << setw(14) << this->Pdg()            << " | ";
   stream << setfill(' ') << setw(6)  << this->Status()         << " | ";
   stream << setfill(' ') << setw(3)  << this->FirstMother()    << " | ";
   stream << setfill(' ') << setw(3)  << this->LastMother()     << " | ";
@@ -451,7 +451,7 @@ bool GHepParticle::CompareMomentum(const GHepParticle * p) const
 void GHepParticle::Copy(const GHepParticle & particle)
 {
   this->SetStatus  (particle.Status());
-  this->SetPdgCode (particle.PdgCode());
+  this->SetPdgCode (particle.Pdg());
 
   this->SetFirstMother   (particle.FirstMother());
   this->SetLastMother    (particle.LastMother());

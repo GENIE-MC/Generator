@@ -59,8 +59,8 @@ void RSPPResonanceSelector::ProcessEventRecord(GHepRecord * evrec) const
   assert(res != kNoResonance);
 
   //-- add the resonance at the event summary
-  Interaction * interaction = evrec->GetInteraction();
-  interaction->GetExclusiveTagPtr()->SetResonance(res);
+  Interaction * interaction = evrec->Summary();
+  interaction->ExclTagPtr()->SetResonance(res);
 
   //-- add an entry at the GHep event record & the event summary
   this->AddResonance(evrec);
@@ -74,11 +74,11 @@ Resonance_t RSPPResonanceSelector::SelectResonance(GHepRecord * evrec) const
   LOG("RESSelector", pNOTICE) << "Selecting a baryon resonance";
 
   //-- Figure out what the resonance charge should be.
-  Interaction * interaction = evrec->GetInteraction();
+  Interaction * interaction = evrec->Summary();
   int q_res = utils::res::ResonanceCharge(interaction);
 
   //-- Use selected kinematics
-  interaction->GetKinematicsPtr()->UseSelectedKinematics();
+  interaction->KinePtr()->UseSelectedKinematics();
 
   //-- Trust kinematics and process type already set.
   interaction->SetBit(kISkipProcessChk);
@@ -99,7 +99,7 @@ Resonance_t RSPPResonanceSelector::SelectResonance(GHepRecord * evrec) const
      //-- Set the current resonance at the interaction summary
      //   compute the differential cross section d^2xsec/dWdQ^2
      //   (do it only for resonances that can conserve charge)
-     interaction->GetExclusiveTagPtr()->SetResonance(res);
+     interaction->ExclTagPtr()->SetResonance(res);
 
      double xsec = 0;
      bool   skip = (q_res==2 && !utils::res::IsDelta(res));
@@ -125,7 +125,7 @@ Resonance_t RSPPResonanceSelector::SelectResonance(GHepRecord * evrec) const
   interaction->ResetBit(kISkipKinematicChk);
 
   //-- Reset running kinematics
-  interaction->GetKinematicsPtr()->ClearRunningValues();
+  interaction->KinePtr()->ClearRunningValues();
 
   //-- Use the computed differential cross sections to select a resonance
   RandomGen * rnd = RandomGen::Instance();
@@ -154,8 +154,8 @@ void RSPPResonanceSelector::AddResonance(GHepRecord * evrec) const
   TLorentzVector p4 = this->Hadronic4pLAB(evrec);
 
   //-- Determine the RES pdg code (from the selected Resonance_t & charge)
-  Interaction * interaction = evrec->GetInteraction();
-  Resonance_t res = interaction->GetExclusiveTag().Resonance();
+  Interaction * interaction = evrec->Summary();
+  Resonance_t res = interaction->ExclTag().Resonance();
   int charge = utils::res::ResonanceCharge(interaction);
   int pdgc   = utils::res::PdgCode(res,charge);
 
@@ -164,7 +164,7 @@ void RSPPResonanceSelector::AddResonance(GHepRecord * evrec) const
 
   //-- Add the resonance at the EventRecord
   GHepStatus_t ist = kIStPreDecayResonantState;
-  int mom = evrec->StruckNucleonPosition();
+  int mom = evrec->HitNucleonPosition();
 
   evrec->AddParticle(
         pdgc, ist, mom,-1,-1,-1, p4.Px(),p4.Py(),p4.Pz(),p4.E(), 0,0,0,0);

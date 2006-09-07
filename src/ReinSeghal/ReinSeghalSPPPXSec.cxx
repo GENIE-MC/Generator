@@ -63,7 +63,7 @@ double ReinSeghalSPPPXSec::XSec(
   //   If yes, compute only the contribution of this resonance at the 
   //   specified exclusive state  
 
-  Resonance_t inpres = interaction->GetExclusiveTag().Resonance();
+  Resonance_t inpres = interaction->ExclTag().Resonance();
   if(inpres != kNoResonance) {
 
     string rname = utils::res::AsString(inpres);
@@ -106,7 +106,7 @@ double ReinSeghalSPPPXSec::XSecNRES(
      Resonance_t res = fResList.ResonanceId(ires);
 
      //-- Set current resonance to interaction object
-     interaction->GetExclusiveTagPtr()->SetResonance(res);
+     interaction->ExclTagPtr()->SetResonance(res);
 
      //-- Compute the contribution of this resonance
      double res_xsec_contrib = this->XSec1RES(interaction,kps);
@@ -116,7 +116,7 @@ double ReinSeghalSPPPXSec::XSecNRES(
   }
 
   //-- delete the resonance from the input interaction
-  interaction->GetExclusiveTagPtr()->SetResonance(kNoResonance);
+  interaction->ExclTagPtr()->SetResonance(kNoResonance);
 
   return xsec;
 }
@@ -127,7 +127,7 @@ double ReinSeghalSPPPXSec::XSec1RES(
 // computes the contribution of a resonance to a 1pi exlusive reaction
 
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-  Resonance_t res = interaction->GetExclusiveTag().Resonance();
+  Resonance_t res = interaction->ExclTag().Resonance();
 
   //-- Get the Breit-Wigner weighted xsec for exciting the resonance
   double rxsec = fSingleResXSecModel->XSec(interaction,kps);
@@ -173,15 +173,15 @@ bool ReinSeghalSPPPXSec::ValidKinematics(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const InitialState & init_state = interaction -> GetInitialState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
 
-  double E    = init_state.GetProbeE(kRfStruckNucAtRest);
+  double E    = init_state.ProbeE(kRfHitNucRest);
   double W    = kinematics.W();
   double q2   = kinematics.q2();
 
   //-- Check energy threshold & kinematical limits in q2, W
-  double EvThr = utils::kinematics::EnergyThreshold(interaction);
+  double EvThr = interaction->EnergyThreshold();
   if(E <= EvThr) {
     LOG("ReinSeghalSpp", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
     return false;

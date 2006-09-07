@@ -102,8 +102,8 @@ const XSecAlgorithmI * MCModel::XSecAlg (
   LOG("ReWeight", pDEBUG)
      << "Finding cross section algorithm for: \n" << interaction->AsString();
 
-  const ProcessInfo &  proc = interaction->GetProcessInfo();
-  const InitialState & init = interaction->GetInitialState();
+  const ProcessInfo &  proc = interaction->ProcInfo();
+  const InitialState & init = interaction->InitState();
 
   const XSecAlgorithmI * alg = 0;
 

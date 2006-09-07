@@ -69,13 +69,13 @@ TClonesArray * CharmHadronization::Hadronize(
   PDGLibrary * pdglib = PDGLibrary::Instance();
   RandomGen *  rnd    = RandomGen::Instance();
   
-  const InitialState & init_state = interaction -> GetInitialState();
-  const Kinematics &   kinematics = interaction -> GetKinematics();
-  const Target &       target     = init_state.GetTarget();
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const Target &       target     = init_state.Tgt();
 
   const TLorentzVector & p4Had = kinematics.HadSystP4();
 
-  double Ev = init_state.GetProbeE(kRfLab);
+  double Ev = init_state.ProbeE(kRfLab);
   double W  = kinematics.W(true);
   double Eh = p4Had.Energy();
 
@@ -174,7 +174,7 @@ TClonesArray * CharmHadronization::Hadronize(
              << "Hadronic-blob (remnant) invariant mass = " << WR;
 
   //-- Check whether I was only asked to generate the charm hadron and the
-  //   hadronic blob and notto hadronize the blob as well
+  //   hadronic blob and not to hadronize the blob as well
   if(fCharmOnly) {
     // Create particle list (fragmentation record)
     TClonesArray * particle_list = new TClonesArray("TMCParticle", 2);
@@ -195,13 +195,10 @@ TClonesArray * CharmHadronization::Hadronize(
   //-- Figure out the quark systems to input to PYTHIA based on simple
   //   quark model arguments
 
-  int  nuc  = target.StruckNucleonPDGCode();
-  bool qpdg = target.StruckQuarkPDGCode();
-  bool sea  = target.StruckQuarkIsFromSea();
+  int  nuc  = target.HitNucPdg();
+  //bool qpdg = target.HitQrkPdg();
+  bool sea  = target.HitSeaQrk();
   bool isP  = pdg::IsProton (nuc);
-  //bool isN  = pdg::IsNeutron(nuc);
-  //bool isd  = pdg::IsDQuark (qpdg);
-  //bool iss  = pdg::IsSQuark (qpdg);
 
   int  qrkSyst1 = 0;
   int  qrkSyst2 = 0;

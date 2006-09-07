@@ -57,7 +57,7 @@ void NtpMCGHepEntry::Copy(const GHepParticle & particle)
 {
   this->idx    = -1;
   this->ist    = particle.Status();
-  this->pdgc   = particle.PdgCode();
+  this->pdgc   = particle.Pdg();
   this->mom[0] = particle.FirstMother();
   this->mom[1] = particle.LastMother();
   this->dtr[0] = particle.FirstDaughter();
