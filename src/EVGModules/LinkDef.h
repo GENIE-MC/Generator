@@ -12,10 +12,8 @@
 
 #pragma link C++ class genie::InitialStateAppender;
 #pragma link C++ class genie::PrimaryVtxGenerator;
+#pragma link C++ class genie::HadronTransporter;
 #pragma link C++ class genie::UnstableParticleDecayer;
-
-#pragma link C++ class genie::FLUKA;
-#pragma link C++ class genie::Intranuke;
 
 #pragma link C++ class genie::PrimaryLeptonGenerator;
 #pragma link C++ class genie::COHPrimaryLeptonGenerator;
