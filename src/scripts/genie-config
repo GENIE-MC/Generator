@@ -16,8 +16,8 @@ srcdir=$GENIE/src
 
 libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
  -lGCrossSections -lGDecay -lGElas -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
- -lGFragmentation -lGInteraction -lGInvMuDecay -lGLlewellynSmith -lGMessenger\
- -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
+ -lGHadronTransp -lGFragmentation -lGInteraction -lGInvMuDecay -lGLlewellynSmith\
+ -lGMessenger -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
  -lGRadiative -lGRegistry -lGReinSeghal -lGReWeight -lGUtils"
 
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
@@ -53,6 +53,7 @@ dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
                 $srcdir/EVGCore/_ROOT_DICT_EVGCore.o \
                 $srcdir/EVGModules/_ROOT_DICT_EVGModules.o \
                 $srcdir/EVGDrivers/_ROOT_DICT_EVGDrivers.o \
+                $srcdir/EVGDrivers/_ROOT_DICT_HadronTransport.o \
                 $srcdir/Fragmentation/_ROOT_DICT_Fragmentation.o \
                 $srcdir/Interaction/_ROOT_DICT_Interaction.o \
                 $srcdir/InverseMuonDecay/_ROOT_DICT_InverseMuDecay.o \

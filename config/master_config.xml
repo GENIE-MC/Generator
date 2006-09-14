@@ -5,6 +5,7 @@
    <!-- ****** CONFIGURATION FOR EV-REC VISITORS ****** -->
    <config alg="genie::EventGenerator">              EventGenerator.xml              </config>
    <config alg="genie::FermiMover">                  FermiMover.xml                  </config>
+   <config alg="genie::HadronTransporter">           HadronTransporter.xml           </config>
    <config alg="genie::Intranuke">                   Intranuke.xml                   </config>
    <config alg="genie::FLUKA">                       FLUKA.xml                       </config>
    <config alg="genie::UnstableParticleDecayer">     UnstableParticleDecayer.xml     </config>

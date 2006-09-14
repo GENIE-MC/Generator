@@ -515,6 +515,7 @@ GENIE_EVGMODULES_SHARED_LIB       := $(GENIE_LIB_PATH)/libGEVGModules.$(DllSuf)
 GENIE_GEANT_INTERFACE_SHARED_LIB  := $(GENIE_LIB_PATH)/libGG4I.$(DllSuf)
 GENIE_GEO_SHARED_LIB              := $(GENIE_LIB_PATH)/libGGeo.$(DllSuf)
 GENIE_GHEP_SHARED_LIB             := $(GENIE_LIB_PATH)/libGHEP.$(DllSuf)
+GENIE_HADRON_TRANSPORT_SHARED_LIB := $(GENIE_LIB_PATH)/libGHadronTransp.$(DllSuf)
 GENIE_LLEWELLYN_SMITH_SHARED_LIB  := $(GENIE_LIB_PATH)/libGLlewellynSmith.$(DllSuf)
 GENIE_FLUX_DRIVERS_SHARED_LIB     := $(GENIE_LIB_PATH)/libGFluxDrivers.$(DllSuf)
 GENIE_FRAGMENTATION_SHARED_LIB    := $(GENIE_LIB_PATH)/libGFragmentation.$(DllSuf)
@@ -552,7 +553,7 @@ GENIE_LIBRARIES := -L $(GENIE_LIB_PATH) \
   -lGDecay -lGElas -lGHEP -lGLlewellynSmith -lGEVGCore -lGEVGModules -lGEVGDrivers\
   -lGFragmentation -lGInteraction -lGInvMuDecay -lGMessenger \
   -lGNtuple -lGNuclear -lGNumerical -lGEVGCore -lGEVGDrivers -lGEVGModules  \
-  -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
+  -lGHadronTransp -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
   -lGReinSeghal -lGUtils -lGCrossSections -lGReWeight
 
 ifdef GOPT_GEANT_INTERFACE
