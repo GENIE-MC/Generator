@@ -62,10 +62,10 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
 
   while( (p = (GHepParticle * ) stdhep_iter.Next()) ) {
 
-     bool is_nucleon        =  pdg::IsNeutronOrProton(p->Pdg());
-     bool is_in_final_state =  p->Status() == kIStStableFinalState;
+     bool is_nucleon = pdg::IsNeutronOrProton(p->Pdg());
+     bool in_nucleus = p->Status() == kIStHadronInTheNucleus;
 
-     if( is_nucleon && is_in_final_state ) {
+     if(is_nucleon && in_nucleus) {
 
         // check if it is coming from a nucleus and find it in the record
 
