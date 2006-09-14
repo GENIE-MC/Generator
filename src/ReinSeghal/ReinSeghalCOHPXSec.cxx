@@ -111,8 +111,24 @@ double ReinSeghalCOHPXSec::XSec(
       << "\n t integration range ............ [" << tmin << "," << tmax << "]"
       << "\n t integration factor ........... tint  = " << tint;
 
-  // (CC COH xsec) = 2 * (NC COH XSEC)
-  if(interaction->ProcInfo().IsWeakCC()) { xsec *= 2.; }
+  // compute the cross section for the CC case
+
+  if(interaction->ProcInfo().IsWeakCC()) { 
+     // Check whether a modification to Adler's PCAC theorem is applied for
+     // including the effect of the muon mass. 
+     // See Rein and Sehgal, PCAC and the Deficit of Forward Muons in pi+ 
+     // Production by Neutrinos, hep-ph/0606185
+     double C = 1.;
+     if(fModPCAC) {
+        double ml    = interaction->FSPrimLepton()->Mass();
+        double ml2   = TMath::Power(ml,2);
+        double Q2min = ml2 * y/(1-y);
+        double C1    = TMath::Power(1-0.5*Q2min/(Q2+kPionMass2), 2);
+        double C2    = 0.25*y*Q2min*(Q2-Q2min)/ TMath::Power(Q2+kPionMass,2);
+        C= C1+C2;
+     }
+     xsec *= (2.*C); 
+  }
 
   LOG("ReinSeghalCoh", pINFO)
                 << "d2xsec/dxdy[COH] (x= " << x << ", y="
@@ -179,9 +195,10 @@ void ReinSeghalCOHPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fMa   = fConfig->GetDoubleDef("Ma",         gc->GetDouble("COH-Ma"));
-  fReIm = fConfig->GetDoubleDef("Re-Im-Ampl", gc->GetDouble("COH-ReImAmpl"));
-  fRo   = fConfig->GetDoubleDef("Ro",         gc->GetDouble("COH-Ro"));
+  fMa    = fConfig->GetDoubleDef("Ma",         gc->GetDouble("COH-Ma"));
+  fReIm  = fConfig->GetDoubleDef("Re-Im-Ampl", gc->GetDouble("COH-ReImAmpl"));
+  fRo    = fConfig->GetDoubleDef("Ro",         gc->GetDouble("COH-Ro"));
+  fModPCAC = fConfig->GetBoolDef("UseModifiedPCAC", gc->GetBool("COH-UseModifiedPCAC"));
 }
 //____________________________________________________________________________
 

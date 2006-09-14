@@ -4,12 +4,13 @@
 Configurations for the Rein-Seghal Coherent pi production d2xsec/dxdy algorithm
 
 Algorithm Configurable Parameters:
-....................................................................................
-Name           Type     Optional   Comment                 Default
-....................................................................................
-Ma             double   Yes        Coherent Axial Mass     GPL value: COH-Ma
-Ro             double   Yes        Nuclear Size Scale      GPL value: COH-Ro
-Re-Im-Ampl     double   Yes        Re/Im of fwd amplitude  GPL value: COH-ReImAmpl
+....................................................................................................
+Name             Type     Optional   Comment                 Default
+....................................................................................................
+Ma               double   Yes        Coherent Axial Mass                   GPL: COH-Ma
+Ro               double   Yes        Nuclear Size Scale                    GPL: COH-Ro
+Re-Im-Ampl       double   Yes        Re/Im of fwd amplitude                GPL: COH-ReImAmpl
+UseModifiedPCAC  bool     Yes        Inc. f/s lepton mass to Adler's PCAC  GPL: COH-UseModifiedPCAC
 -->
 
 <alg_conf>

@@ -116,6 +116,14 @@
 
  <!-- 
   *********************************************************************       
+  Use a modification to Adler's PCAC theorem that includes the final
+  state lepton mass. See Rein-Seghal, hep-ph/0606185. 
+  Affects the COH CC cross section.
+  ********************************************************************* -->
+  <param type="bool" name="COH-UseModifiedPCAC"> true </param>
+
+ <!-- 
+  *********************************************************************       
   Cv and Ca parameters for neutrino-electron elastic scattering 
   ********************************************************************* -->
   <param type="double" name="NuElecEL-CV"> -0.52 </param>

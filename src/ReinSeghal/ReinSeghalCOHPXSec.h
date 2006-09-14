@@ -15,6 +15,9 @@
 \ref      D.Rein and L.M.Seghal, Coherent pi0 production in neutrino
           reactions, Nucl.Phys.B223:29-144 (1983)
 
+          D.Rein and L.M.Sehgal, PCAC and the Deficit of Forward Muons in pi+ 
+          Production by Neutrinos, hep-ph/0606185
+
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
@@ -55,9 +58,10 @@ private:
   void LoadConfig(void);
 
   //-- private data members loaded from config Registry or set to defaults
-  double fMa;   ///< axial mass
-  double fReIm; ///< Re/Im {forward pion scattering amplitude}
-  double fRo;   ///< nuclear size scale parameter
+  double fMa;      ///< axial mass
+  double fReIm;    ///< Re/Im {forward pion scattering amplitude}
+  double fRo;      ///< nuclear size scale parameter
+  bool   fModPCAC; ///< use modified PCAC (including f/s lepton mass)
 };
 
 }       // genie namespace
