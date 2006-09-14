@@ -94,6 +94,7 @@ event-generation-modules:
 	cd EVGCore;            make; cd ..; \
 	cd EVGModules;         make; cd ..; \
 	cd EVGDrivers;         make; cd ..; \
+	cd HadronTransport;    make; cd ..; \
 	cd GHEP;               make; cd ..; \
 	cd Ntuple;             make; cd ..; \
 	cd ReWeight;           make; cd ..; 

@@ -244,12 +244,26 @@
 
  <!-- 
   *********************************************************************       
-  INTRANUKE parameters 
+  Intranuclear rescattering 
+  *********************************************************************  -->
+
+  <param type="bool"   name="InuclRescat-On">          false  </param>
+  <param type="string" name="InuclRescat-ModelName">   none   </param>
+  <param type="string" name="InuclRescat-ModelConfig"> none   </param>
+
+ <!-- 
+  *********************************************************************       
+  INTRANUKE-specific parameters 
   Ro (in fm)
   *********************************************************************  -->
   <param type="double" name="INUKE-FormationZone"> 2.0  </param>
   <param type="double" name="INUKE-KPt2">          1.0  </param>
   <param type="double" name="INUKE-Ro">            1.2  </param>
+
+ <!-- 
+  *********************************************************************       
+  FLUKA-specific parameters 
+  *********************************************************************  -->
 
  </param_set>
 
