@@ -94,6 +94,12 @@ TClonesArray * KNOHadronization::Hadronize(
   //-- Select hadronic shower particles
   PDGCodeList * pdgcv = this->SelectParticles(interaction);
 
+  if(!pdgcv) {
+    LOG("KNOHad", pNOTICE) 
+              << "Failed selecting particles for " << *interaction;
+    return 0;
+  }
+
   //-- Decay the hadronic final state
   //   Two stratefies are considered (for N particles):
   //   1- N (>=2) particles get passed to the phase space decayer. This is the
@@ -155,11 +161,11 @@ PDGCodeList * KNOHadronization::SelectParticles(
   TH1D * mprob = this->MultiplicityProb(interaction,opt);
 
   if(!mprob) {
-    LOG("KNOHad", pERROR) << "Null multiplicity probability distribution!";
+    LOG("KNOHad", pWARN) << "Null multiplicity probability distribution!";
     return 0;
   }
   if(mprob->Integral("width")<=0) {
-    LOG("KNOHad", pERROR) << "Empty multiplicity probability distribution!";
+    LOG("KNOHad", pWARN) << "Empty multiplicity probability distribution!";
     delete mprob;
     return 0;
   }
@@ -204,9 +210,9 @@ PDGCodeList * KNOHadronization::SelectParticles(
         LOG("KNOHad", pWARN) 
            << "Low generated multiplicity: " << mult 
               << ". Forcing to minimum accepted multiplicity: " << min_mult;
-       mult = min_mult;
+        mult = min_mult;
       } else {
-        LOG("KNOHad", pFATAL) 
+        LOG("KNOHad", pWARN) 
            << "Generated multiplicity: " << mult << " is too low - Quitting";
         delete mprob;
         return 0;
@@ -233,7 +239,6 @@ PDGCodeList * KNOHadronization::SelectParticles(
       msum += m;
       LOG("KNOHad", pDEBUG) << "- PDGC=" << pdgc << ", m=" << m << " GeV";
     }
-    //    bool permitted = (p4.Mag() > msum);
     bool permitted = (W > msum);
 
     if(!permitted) {
@@ -292,7 +297,7 @@ TH1D * KNOHadronization::MultiplicityProb(
              << "Average hadronic multiplicity (W=" << W << ") = " << avn;
 
   // Find the max possible multiplicity as W = Mneutron + (maxmult-1)*Mpion
-  double maxmult = this->MaxMult(interaction);;
+  double maxmult = this->MaxMult(interaction);
 
   // If required force the NeuGEN maximum multiplicity limit (10)
   // Note: use for NEUGEN/GENIE comparisons, not physics MC production
@@ -304,6 +309,11 @@ TH1D * KNOHadronization::MultiplicityProb(
   if(maxmult>18) maxmult=18;
 
   SLOG("KNOHad", pDEBUG) << "Computed maximum multiplicity = " << maxmult;
+
+  if(maxmult<2) {
+     LOG("KNOHad", pWARN) << "Low maximum multiplicity! Quiting.";
+     return 0;
+  }
 
   // Create multiplicity probability histogram
   TH1D * mult_prob = this->CreateMultProbHist(maxmult);
@@ -327,6 +337,7 @@ TH1D * KNOHadronization::MultiplicityProb(
        mult_prob->Fill(n,P);
     }
   } else {
+       SLOG("KNOHad", pDEBUG) << "Fixing multiplicity to 2";
        mult_prob->Fill(2,1.);
   }
 
@@ -609,7 +620,8 @@ TClonesArray * KNOHadronization::DecayMethod1(
   TLorentzVector p4had(0,0,0,W);
   TClonesArray * plist = new TClonesArray("TMCParticle", pdgv.size());
 
-  bool ok = this->PhaseSpaceDecay(*plist, p4had, pdgv); // do the decay
+  // do the decay
+  bool ok = this->PhaseSpaceDecay(*plist, p4had, pdgv, 0, fReWeightDecays); 
 
   // clean-up and return NULL
   if(!ok) {
@@ -643,15 +655,15 @@ TClonesArray * KNOHadronization::DecayMethod2(
 
   // Strip the PDG list from the baryon
   bool allowdup = true;
-  PDGCodeList pdgv_stripped(pdgv.size()-1, allowdup);
-  for(unsigned int i=1; i<pdgv.size(); i++) pdgv_stripped[i-1] = pdgv[i];
+  PDGCodeList pdgv_strip(pdgv.size()-1, allowdup);
+  for(unsigned int i=1; i<pdgv.size(); i++) pdgv_strip[i-1] = pdgv[i];
   
   // Get the sum of all masses for the particles in the stripped list
 
   double mass_sum = 0;
-  vector<int>::const_iterator pdg_iter = pdgv_stripped.begin();
+  vector<int>::const_iterator pdg_iter = pdgv_strip.begin();
 
-  for( ; pdg_iter != pdgv_stripped.end(); ++pdg_iter) {
+  for( ; pdg_iter != pdgv_strip.end(); ++pdg_iter) {
     int pdgc = *pdg_iter;
     mass_sum += PDGLibrary::Instance()->Find(pdgc)->Mass();
   }
@@ -670,7 +682,7 @@ TClonesArray * KNOHadronization::DecayMethod2(
   while(!allowed) {
 
     //-- generate baryon xF and pT2
-    double xf  = fBaryonXFpdf->GetRandom();               
+    double xf  = fBaryonXFpdf ->GetRandom();               
     double pt2 = fBaryonPT2pdf->GetRandom();               
 
     //-- generate baryon px,py,pz
@@ -710,10 +722,11 @@ TClonesArray * KNOHadronization::DecayMethod2(
     1,baryon,-1,-1,-1, p4N.Px(),p4N.Py(),p4N.Pz(),p4N.Energy(),MN, 0,0,0,0,0);
 
   // Do a phase space decay for the N-1 particles and add them to the list
-  bool ok = this->PhaseSpaceDecay(*plist, p4d, pdgv_stripped, 1);
+  bool ok = this->PhaseSpaceDecay(*plist, p4d, pdgv_strip, 1,fReWeightDecays); 
 
   // clean-up and return NULL
   if(!ok) {
+     LOG("KNOHad", pERROR) << "*** Decay forbidden by kinematics! ***";
      plist->Delete();
      delete plist;
      return 0;
@@ -726,78 +739,70 @@ TClonesArray * KNOHadronization::DecayBackToBack(
 {
 // Handles a special case (only two particles) of the 2nd decay method 
 //
+
   LOG("KNOHad", pINFO) << "Generating two particles back-to-back";
 
   assert(pdgv.size()==2);
 
-  // Get the particle PDG codes and masses
-  int    baryon = pdgv[0]; 
-  int    meson  = pdgv[1]; 
-  double MN     = PDGLibrary::Instance()->Find(baryon)->Mass();
-  double Mpi    = PDGLibrary::Instance()->Find(meson)->Mass();
-  double MN2    = TMath::Power(MN, 2);
- 
-  assert(pdg::IsNeutronOrProton(baryon));
+  RandomGen * rnd = RandomGen::Instance();
 
   // Create the particle list
-
   TClonesArray * plist = new TClonesArray("TMCParticle", pdgv.size());
 
-  // Do the decay
+  // Get xF,pT2 distribution (y-) maxima for the rejection method
+  double xFo  = 1.1 * fBaryonXFpdf ->GetMaximum(-1,1);
+  double pT2o = 1.1 * fBaryonPT2pdf->GetMaximum( 0,1);
 
-  RandomGen * rnd = RandomGen::Instance();
+  TLorentzVector p4(0,0,0,W); // 2-body hadronic system 4p
+
+  // Do the 2-body decay
   bool accepted = false;
- 
-  double Ro = 1.2 * fBaryonPT2pdf->GetMaximum(0,1);
-
   while(!accepted) {
 
-    //-- generate baryon xF and pT2
-    double xfN = fBaryonXFpdf->GetRandom();
+    // Find an allowed (unweighted) phase space decay for the 2 particles 
+    // and add them to the list
+    bool ok = this->PhaseSpaceDecay(*plist, p4, pdgv, 0, false);
 
-    //-- compute pL (=pz)
-    double pz  = xfN*W/2;
-    double pz2 = TMath::Power(pz,2);
-
-    //-- generate EN in (0,W)
-    double EN  = W * rnd->RndHadro().Rndm();
-    double EN2 = TMath::Power(EN,2);
-
-    //-- is it allowed? (pT2>=0)
-    double pT2  = EN2 - MN2 - pz2; 
-
-    if(pT2<=0) continue; // reject current selection
-
-    //-- use the rejection method to decide whether to accept the pT2 value
-
-    double Rrnd = Ro * rnd->RndHadro().Rndm();
-    double Rpdf = fBaryonPT2pdf->Eval(pT2);               
-
-    accepted = (Rrnd < Rpdf);
-
-    if(accepted) {
-      // Finish up & insert the particles at the particle list
-
-      double pT  = TMath::Sqrt(pT2);            
-      double phi = (2*kPi) * rnd->RndHadro().Rndm();
-      double px  = pT * TMath::Cos(phi);
-      double py  = pT * TMath::Sin(phi);
-      double Epi = W-EN;
-
-      TClonesArray & particle_list = *plist;
-
-      new (particle_list[0]) 
-                TMCParticle (1,baryon,-1,-1,-1, px, py, pz,EN, MN, 0,0,0,0,0);
-      new (particle_list[1]) 
-                TMCParticle (1,meson, -1,-1,-1,-px,-py,-pz,Epi,Mpi,0,0,0,0,0);
+    // If the decay isn't allowed clean-up and return NULL
+    if(!ok) {
+      LOG("KNOHad", pERROR) << "*** Decay forbidden by kinematics! ***";
+      plist->Delete();
+      delete plist;
+      return 0;
     }
+
+    // If the decay was allowed, then compute the baryon xF,pT2 and accept/
+    // reject the phase space decays so as to reproduce the xF,pT2 PDFs
+
+    TMCParticle * baryon = (TMCParticle *) (*plist)[0];
+    assert(pdg::IsNeutronOrProton(baryon->GetKF()));
+
+    double px  = baryon->GetPx();
+    double py  = baryon->GetPy();
+    double pz  = baryon->GetPz();
+
+    double pT2 = px*px + py*py;
+    double pL  = pz;
+    double xF  = pL/(W/2);
+
+    double pT2rnd = pT2o * rnd->RndHadro().Rndm();
+    double xFrnd  = xFo  * rnd->RndHadro().Rndm();
+
+    double pT2pdf = fBaryonPT2pdf->Eval(pT2);
+    double xFpdf  = fBaryonXFpdf ->Eval(xF );
+
+    LOG("KNOHad", pINFO) << "baryon xF = " << xF << ", pT2 = " << pT2;
+
+    accepted = (xFrnd < xFpdf && pT2rnd < pT2pdf);
+
+    LOG("KNOHad", pINFO) << ((accepted) ? "Decay accepted":"Decay rejected");
   }
   return plist;
 }
 //____________________________________________________________________________
 bool KNOHadronization::PhaseSpaceDecay(
-	   TClonesArray & plist, TLorentzVector & pd, 
-        	                   const PDGCodeList & pdgv, int offset) const
+         TClonesArray & plist, TLorentzVector & pd, 
+                   const PDGCodeList & pdgv, int offset, bool reweight) const
 {
 // General method decaying the input particle system 'pdgv' with available 4-p
 // given by 'pd'. The decayed system is used to populate the input TMCParticle 
@@ -860,7 +865,7 @@ bool KNOHadronization::PhaseSpaceDecay(
   {
     // *** generating weighted decays ***
     double w = fPhaseSpaceGenerator.Generate();   
-    w *= this->ReWeightPt2(pdgv); 
+    if(reweight) { w *= this->ReWeightPt2(pdgv); }
     fWeight *= TMath::Max(w/wmax, 1.);
   }
   else 
@@ -884,7 +889,7 @@ bool KNOHadronization::PhaseSpaceDecay(
        }
 
        double w  = fPhaseSpaceGenerator.Generate();   
-       w *= this->ReWeightPt2(pdgv); 
+       if(reweight) { w *= this->ReWeightPt2(pdgv); }
        double gw = wmax * rnd->RndHadro().Rndm();
 
        LOG("KNOHad", pINFO) << "Decay weight = " << w << " / R = " << gw;
@@ -936,8 +941,6 @@ double KNOHadronization::ReWeightPt2(const PDGCodeList & pdgcv) const
 // distributions.
 // See: A.B.Clegg, A.Donnachie, A Description of Jet Structure by pT-limited
 // Phase Space.
-
-  if(!fReWeightDecays) return 1.;
 
   double w = 1;
 
