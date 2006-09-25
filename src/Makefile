@@ -191,6 +191,7 @@ purge: FORCE
 	cd GHEP;               make purge; cd ..; \
 	cd GeantInterface;     make purge; cd ..; \
 	cd Geo;                make purge; cd ..; \
+	cd HadronTransport;    make purge; cd ..; \
 	cd Interaction;        make purge; cd ..; \
 	cd InverseMuonDecay;   make purge; cd ..; \
 	cd LlewellynSmith;     make purge; cd ..; \
@@ -232,6 +233,7 @@ clean-files: FORCE
 	cd GHEP;               make clean; cd ..; \
 	cd GeantInterface;     make clean; cd ..; \
 	cd Geo;                make clean; cd ..; \
+	cd HadronTransport;    make clean; cd ..; \
 	cd Interaction;        make clean; cd ..; \
 	cd InverseMuonDecay;   make clean; cd ..; \
 	cd LlewellynSmith;     make clean; cd ..; \
