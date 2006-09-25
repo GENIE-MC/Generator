@@ -76,8 +76,8 @@ private:
   TClonesArray* DecayBackToBack (double W, const PDGCodeList & pdgv) const;
 
   bool PhaseSpaceDecay(
-             TClonesArray & pl, TLorentzVector & pd, 
-	                     const PDGCodeList & pdgv, int offset=0) const;
+         TClonesArray & pl, TLorentzVector & pd, 
+	   const PDGCodeList & pdgv, int offset=0, bool reweight=false) const;
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
   mutable double         fWeight;

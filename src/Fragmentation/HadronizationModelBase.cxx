@@ -135,7 +135,8 @@ void HadronizationModelBase::ApplyRijk(
 
   // renormalize the histogram?
   if(norm) {
-     mp->Scale( 1.0 / mp->Integral("width") );
+     double histo_norm = mp->Integral("width");
+     if(histo_norm>0) mp->Scale(1.0/histo_norm);
   }
 }
 //____________________________________________________________________________
