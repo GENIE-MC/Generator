@@ -137,7 +137,7 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
      LOG("RESHadronicVtx", pWARN) 
                       << "Quitting the current event generation thread";
 
-     evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
+     evrec->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
 
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("Not enough phase space for hadronizer");

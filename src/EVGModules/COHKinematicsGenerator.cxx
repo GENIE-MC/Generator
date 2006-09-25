@@ -100,7 +100,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         LOG("COHKinematics", pWARN)
              << "*** Could not select a valid (x,y) pair after "
                                                << iter << " iterations";
-        evrec->EventFlags()->SetBitNumber(kNoValidKinematics, true);
+        evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
         genie::exceptions::EVGThreadException exception;
         exception.SetReason("Couldn't select kinematics");
         exception.SwitchOnFastForward();

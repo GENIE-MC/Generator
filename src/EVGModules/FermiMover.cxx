@@ -142,7 +142,7 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   if(E<=Ethr) {
      LOG("FermiMover", pNOTICE)
                   << "Event below threshold after generation Fermi momentum";
-     event_rec->EventFlags()->SetBitNumber(kBelowThrNucleonRestFrame, true);
+     event_rec->EventFlags()->SetBitNumber(kBelowThrNRF, true);
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("E < Ethr after generating nucleon Fermi momentum");
      exception.SwitchOnFastForward();

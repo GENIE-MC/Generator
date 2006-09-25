@@ -85,7 +85,7 @@ double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec) const
   // xsec for selected kinematics = 0
   event_rec->SetDiffXSec(0);
   // switch on error flag 
-  event_rec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
+  event_rec->EventFlags()->SetBitNumber(kKineGenErr, true);
   // reset 'trust' bits
   interaction->ResetBit(kISkipProcessChk);
   interaction->ResetBit(kISkipKinematicChk);

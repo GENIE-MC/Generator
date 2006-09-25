@@ -16,8 +16,12 @@
 
 #include <TMath.h>
 
+#include "EVGCore/EVGThreadException.h"
 #include "EVGModules/DISPrimaryLeptonGenerator.h"
 #include "GHEP/GHepRecord.h"
+#include "GHEP/GHepParticle.h"
+#include "GHEP/GHepFlags.h"
+#include "Messenger/Messenger.h"
 
 using namespace genie;
 
@@ -45,5 +49,15 @@ void DISPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   // no modification is required to the std implementation
   PrimaryLeptonGenerator::ProcessEventRecord(evrec);
+
+  if(evrec->FinalStatePrimaryLepton()->IsOffMassShell()) {
+    LOG("LeptonicVertex", pERROR)
+               << "*** Selected kinematics lead to off mass shell lepton!";
+     evrec->EventFlags()->SetBitNumber(kLeptoGenErr, true);
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("E<m for final state lepton");
+     exception.SwitchOnFastForward();
+     throw exception;
+  }
 }
 //___________________________________________________________________________
