@@ -5,15 +5,15 @@
   Configuration sets for DISHadronSystemGenerator EventRecordVisitorI
 
   <param_set name="Default"> 
-     <param type="string" name="hadronization-alg-name">   genie::KNOHadronization   </param>
-     <param type="string" name="hadronization-param-set">  Default                   </param>
-     <param type="bool"   name="filter-pre-fragm-entries"> false                     </param>
+     <param type="string" name="hadronization-alg-name">   genie::KNOPythiaHadronization   </param>
+     <param type="string" name="hadronization-param-set">  Default                         </param>
+     <param type="bool"   name="filter-pre-fragm-entries"> false                           </param>
   </param_set>
 
   <param_set name="Charm"> 
-     <param type="string" name="hadronization-alg-name">   genie::CharmHadronization </param>
-     <param type="string" name="hadronization-param-set">  Default                   </param>
-     <param type="bool"   name="filter-pre-fragm-entries"> false                     </param>
+     <param type="string" name="hadronization-alg-name">   genie::CharmHadronization       </param>
+     <param type="string" name="hadronization-param-set">  Default                         </param>
+     <param type="bool"   name="filter-pre-fragm-entries"> false                           </param>
   </param_set>
 
 </alg_conf>
