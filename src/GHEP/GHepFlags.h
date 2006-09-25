@@ -25,19 +25,21 @@ namespace genie {
 
   typedef enum EGHepFlag {
 
-     kGenericErr               = 0,
-     kPauliBlock               = 1,
-     kBelowThrNucleonRestFrame = 2,
-     kBelowThrElecRestFrame    = 3,
-     kNoAvailablePhaseSpace    = 4,
-     kNoValidKinematics        = 5
+     kGenericErr      = 0,
+     kPauliBlock      = 1,
+     kBelowThrNRF     = 2,
+     kBelowThrERF     = 3,
+     kKineGenErr      = 4,
+     kHadroSysGenErr  = 5,
+     kLeptoGenErr     = 6,
+     kDecayErr        = 7
 
   } GHepFlag_t;
 
 class GHepFlags {
 
  public:
-  //___________________________________________________
+  //__________________________________________________________________________
   static char * Describe(GHepFlag_t flag) 
   {
      switch (flag) {
@@ -45,31 +47,34 @@ class GHepFlags {
             return "Generic error";
             break;
      case kPauliBlock :
-            return "Pauli-blocking";
+            return "Pauli-blocked event";
             break;
-     case kBelowThrNucleonRestFrame :
-            return "E<Ethr in N rest frame";
+     case kBelowThrNRF :
+            return "E<Ethr in hit nucleon rest frame";
             break;
-     case kBelowThrElecRestFrame :
-            return "E<Ethr in e- rest frame";
+     case kBelowThrERF :
+            return "E<Ethr in hit e- rest frame";
             break;
-     case kNoAvailablePhaseSpace :
-            return "No available phase space";
+     case kKineGenErr :
+            return "Generic error in kinematic generation";
             break;
-     case kNoValidKinematics : 
-            return "No kinematics selection";
+     case kHadroSysGenErr : 
+            return "Generic error in f/s hadronic system generation";
+            break;
+     case kLeptoGenErr : 
+            return "Generic error in f/s lepton generation";
+            break;
+     case kDecayErr : 
+            return "Generic error during unstable particle decay";
             break;
      default:
             return "Unknown GHEP flag";
             break;
      }
   }
-  //___________________________________________________
-  static unsigned int NFlags(void) 
-  {
-     return 16;
-  }
-  //___________________________________________________
+  //__________________________________________________________________________
+  static unsigned int NFlags(void) { return 16; }
+  //__________________________________________________________________________
 };
 
 }        // genie namespace
