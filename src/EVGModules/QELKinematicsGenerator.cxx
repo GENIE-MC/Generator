@@ -82,7 +82,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   if(Q2.max <=0 || Q2.min>=Q2.max) {
      LOG("QELKinematics", pWARN) << "No available phase space";
-     evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
+     evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("No available phase space");
      exception.SwitchOnFastForward();
@@ -114,7 +114,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      if(iter > kRjMaxIterations) {
         LOG("QELKinematics", pWARN)
           << "Couldn't select a valid Q^2 after " << iter << " iterations";
-        evrec->EventFlags()->SetBitNumber(kNoValidKinematics, true);
+        evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
         genie::exceptions::EVGThreadException exception;
         exception.SetReason("Couldn't select kinematics");
         exception.SwitchOnFastForward();

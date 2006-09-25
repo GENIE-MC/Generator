@@ -75,7 +75,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   if(W.max <=0 || W.min>=W.max) {
      LOG("RESKinematics", pWARN) << "No available phase space";
-     evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
+     evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("No available phase space");
      exception.SwitchOnFastForward();
@@ -108,7 +108,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          LOG("RESKinematics", pWARN)
               << "*** Could not select a valid (W,Q^2) pair after "
                                                     << iter << " iterations";
-         evrec->EventFlags()->SetBitNumber(kNoValidKinematics, true);
+         evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
          genie::exceptions::EVGThreadException exception;
          exception.SetReason("Couldn't select kinematics");
          exception.SwitchOnFastForward();

@@ -75,7 +75,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   Range1D_t W  = this->WRange(interaction);
   if(W.max <=0 || W.min>=W.max) {
      LOG("DISKinematics", pWARN) << "No available phase space";
-     evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
+     evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("No available phase space");
      exception.SwitchOnFastForward();
@@ -128,7 +128,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        LOG("DISKinematics", pWARN)
         << " Couldn't select kinematics after " << iter << " iterations";
 
-       evrec->EventFlags()->SetBitNumber(kNoValidKinematics, true);
+       evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
        genie::exceptions::EVGThreadException exception;
        exception.SetReason("Couldn't select kinematics");
        exception.SwitchOnFastForward();

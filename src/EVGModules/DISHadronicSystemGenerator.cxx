@@ -91,10 +91,10 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
      LOG("DISHadronicVtx", pWARN) 
                     << "Quitting the current event generation thread";
 
-     evrec->EventFlags()->SetBitNumber(kNoAvailablePhaseSpace, true);
+     evrec->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
 
      genie::exceptions::EVGThreadException exception;
-     exception.SetReason("Not enough phase space for hadronizer");
+     exception.SetReason("Could not simulate the hadronic system");
      exception.SwitchOnFastForward();
      throw exception;
 
