@@ -60,14 +60,15 @@ namespace pdg
   bool IsAntiSQuark    (int pdgc);
   bool IsAntiCQuark    (int pdgc);
   
-  bool IsProton        (int pdgc);
-  bool IsNeutron       (int pdgc);
+  bool IsProton          (int pdgc);
+  bool IsNeutron         (int pdgc);
+  bool IsNeutronOrProton (int pdgc);
+  bool IsHadron          (int pdgc);
+  bool IsBaryonResonance (int pdgc);
   
-  bool IsNeutronOrProton      (int pdgc);
   int  SwitchProtonNeutron    (int pdgc);
   int  Neutrino2ChargedLepton (int pdgc);
 
-  bool IsBaryonResonance      (int pdgc);
 
 }      // pdg namespace
 
