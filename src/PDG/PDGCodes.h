@@ -105,6 +105,7 @@ const int kPdgEtaPrm       =   331; // eta' (prime)
 const int kPdgEtac         =   441; // eta_{c}
 const int kPdgEtab         =   551; // eta_{b}
 const int kPdgRhoP         =   213; // rho+
+const int kPdgRhoM         =  -213; // rho-
 const int kPdgRho0         =   113; // rho0
 const int kPdgomega        =   223; // omega (the meson, not Omega the baryon)
 const int kPdgPhi          =   333; // phi
