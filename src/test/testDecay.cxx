@@ -86,7 +86,7 @@ int main(int argc, char ** argv)
 
   DecayerInputs_t dinp;
 
-  dinp.PdgCode = kPdgPiPlus;
+  dinp.PdgCode = kPdgPiP;
   dinp.P4      = &p4;
 
   TClonesArray * particle_list = pythia_decayer->Decay(dinp);

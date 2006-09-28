@@ -94,7 +94,7 @@ int main(int argc, char ** argv)
   const int kNW      = 8;
 
   int    CcNc[2]        = { 1, 2 };
-  int    NuCode[kNNu]   = { kPdgNuMu, kPdgNuMuBar };
+  int    NuCode[kNNu]   = { kPdgNuMu, kPdgAntiNuMu };
   int    NucCode[kNNuc] = { kPdgProton, kPdgNeutron };
 
   double W[kNW] = { 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 };
@@ -216,11 +216,11 @@ int main(int argc, char ** argv)
                 br_W    = W[iw];
                 br_np   = utils::fragmrec::NParticles(kPdgProton,  plist);
                 br_nn   = utils::fragmrec::NParticles(kPdgNeutron, plist);
-                br_npip = utils::fragmrec::NParticles(kPdgPiPlus,  plist);
-                br_npim = utils::fragmrec::NParticles(kPdgPiMinus, plist);
+                br_npip = utils::fragmrec::NParticles(kPdgPiP,     plist);
+                br_npim = utils::fragmrec::NParticles(kPdgPiM,     plist);
                 br_npi0 = utils::fragmrec::NParticles(kPdgPi0,     plist);
-                br_nKp  = utils::fragmrec::NParticles(kPdgKPlus,   plist);
-                br_nKm  = utils::fragmrec::NParticles(kPdgKMinus,  plist);
+                br_nKp  = utils::fragmrec::NParticles(kPdgKP,      plist);
+                br_nKm  = utils::fragmrec::NParticles(kPdgKM,      plist);
                 br_nK0  = utils::fragmrec::NParticles(kPdgK0,      plist);
                 br_n    = plist->GetEntries();
 
