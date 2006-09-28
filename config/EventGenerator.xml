@@ -7,7 +7,7 @@
   <param_set name="QEL-CC"> 
      <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
-     <param type="int"    name="n-generator-steps">      9                                  </param>
+     <param type="int"    name="n-generator-steps">      10                                 </param>
 
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
@@ -23,10 +23,12 @@
      <param type="string" name="generator-step-5-conf">  Default                            </param>
      <param type="string" name="generator-step-6-alg">   genie::NucBindEnergyAggregator     </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
-     <param type="string" name="generator-step-7-alg">   genie::HadronTransporter           </param>
-     <param type="string" name="generator-step-7-conf">  Default                            </param>
-     <param type="string" name="generator-step-8-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-7-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-7-conf">  BeforeHadronTransport              </param>
+     <param type="string" name="generator-step-8-alg">   genie::HadronTransporter           </param>
      <param type="string" name="generator-step-8-conf">  Default                            </param>
+     <param type="string" name="generator-step-9-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-9-conf">  AfterHadronTransport               </param>
 
      <param type="string" name="interaction-list-alg">   genie::QELInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  CC-Default                         </param>
@@ -37,7 +39,7 @@
   <param_set name="QEL-NC"> 
      <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
-     <param type="int"    name="n-generator-steps">      9                                  </param>
+     <param type="int"    name="n-generator-steps">      10                                 </param>
 
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
@@ -53,10 +55,12 @@
      <param type="string" name="generator-step-5-conf">  Default                            </param>
      <param type="string" name="generator-step-6-alg">   genie::NucBindEnergyAggregator     </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
-     <param type="string" name="generator-step-7-alg">   genie::HadronTransporter           </param>
-     <param type="string" name="generator-step-7-conf">  Default                            </param>
-     <param type="string" name="generator-step-8-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-7-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-7-conf">  BeforeHadronTransport              </param>
+     <param type="string" name="generator-step-8-alg">   genie::HadronTransporter           </param>
      <param type="string" name="generator-step-8-conf">  Default                            </param>
+     <param type="string" name="generator-step-9-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-9-conf">  AfterHadronTransport               </param>
 
      <param type="string" name="interaction-list-alg">   genie::QELInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  NC-Default                         </param>
@@ -68,7 +72,7 @@
   <param_set name="DIS-CC"> 
      <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
-     <param type="int"    name="n-generator-steps">      7                                  </param>
+     <param type="int"    name="n-generator-steps">      8                                  </param>
 
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
@@ -80,10 +84,12 @@
      <param type="string" name="generator-step-3-conf">  Default                            </param>
      <param type="string" name="generator-step-4-alg">   genie::DISHadronicSystemGenerator  </param>
      <param type="string" name="generator-step-4-conf">  Default                            </param>
-     <param type="string" name="generator-step-5-alg">   genie::HadronTransporter           </param>
-     <param type="string" name="generator-step-5-conf">  Default                            </param>
-     <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-conf">  BeforeHadronTransport              </param>
+     <param type="string" name="generator-step-6-alg">   genie::HadronTransporter           </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
+     <param type="string" name="generator-step-7-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-7-conf">  AfterHadronTransport               </param>
 
      <param type="string" name="interaction-list-alg">   genie::DISInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  CC-Default                         </param>
@@ -95,7 +101,7 @@
   <param_set name="DIS-NC"> 
      <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
-     <param type="int"    name="n-generator-steps">      7                                  </param>
+     <param type="int"    name="n-generator-steps">      8                                  </param>
 
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
@@ -107,10 +113,12 @@
      <param type="string" name="generator-step-3-conf">  Default                            </param>
      <param type="string" name="generator-step-4-alg">   genie::DISHadronicSystemGenerator  </param>
      <param type="string" name="generator-step-4-conf">  Default                            </param>
-     <param type="string" name="generator-step-5-alg">   genie::HadronTransporter           </param>
-     <param type="string" name="generator-step-5-conf">  Default                            </param>
-     <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-conf">  BeforeHadronTransport              </param>
+     <param type="string" name="generator-step-6-alg">   genie::HadronTransporter           </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
+     <param type="string" name="generator-step-7-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-7-conf">  AfterHadronTransport               </param>
 
      <param type="string" name="interaction-list-alg">   genie::DISInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  NC-Default                         </param>
@@ -122,7 +130,7 @@
   <param_set name="RES-CC"> 
      <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
-     <param type="int"    name="n-generator-steps">      7                                  </param>
+     <param type="int"    name="n-generator-steps">      8                                  </param>
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
      <param type="string" name="generator-step-1-alg">   genie::FermiMover                  </param>
@@ -133,10 +141,12 @@
      <param type="string" name="generator-step-3-conf">  Default                            </param>
      <param type="string" name="generator-step-4-alg">   genie::RESHadronicSystemGenerator  </param>
      <param type="string" name="generator-step-4-conf">  Default                            </param>
-     <param type="string" name="generator-step-5-alg">   genie::HadronTransporter           </param>
-     <param type="string" name="generator-step-5-conf">  Default                            </param>
-     <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-conf">  BeforeHadronTransport              </param>
+     <param type="string" name="generator-step-6-alg">   genie::HadronTransporter           </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
+     <param type="string" name="generator-step-7-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-7-conf">  AfterHadronTransport               </param>
 
      <param type="string" name="interaction-list-alg">   genie::RESInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  CC-Default                         </param>
@@ -147,7 +157,7 @@
   <param_set name="RES-NC"> 
      <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
-     <param type="int"    name="n-generator-steps">      7                                  </param>
+     <param type="int"    name="n-generator-steps">      8                                  </param>
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
      <param type="string" name="generator-step-1-alg">   genie::FermiMover                  </param>
@@ -158,10 +168,12 @@
      <param type="string" name="generator-step-3-conf">  Default                            </param>
      <param type="string" name="generator-step-4-alg">   genie::RESHadronicSystemGenerator  </param>
      <param type="string" name="generator-step-4-conf">  Default                            </param>
-     <param type="string" name="generator-step-5-alg">   genie::HadronTransporter           </param>
-     <param type="string" name="generator-step-5-conf">  Default                            </param>
-     <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-conf">  BeforeHadronTransport              </param>
+     <param type="string" name="generator-step-6-alg">   genie::HadronTransporter           </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
+     <param type="string" name="generator-step-7-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-7-conf">  AfterHadronTransport               </param>
 
      <param type="string" name="interaction-list-alg">   genie::RESInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  NC-Default                         </param>
@@ -173,7 +185,7 @@
   <param_set name="RSPP-CC"> 
      <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
-     <param type="int"    name="n-generator-steps">      8                                  </param>
+     <param type="int"    name="n-generator-steps">      9                                  </param>
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
      <param type="string" name="generator-step-1-alg">   genie::FermiMover                  </param>
@@ -186,10 +198,12 @@
      <param type="string" name="generator-step-4-conf">  Default                            </param>
      <param type="string" name="generator-step-5-alg">   genie::RSPPHadronicSystemGenerator </param>
      <param type="string" name="generator-step-5-conf">  Default                            </param>
-     <param type="string" name="generator-step-6-alg">   genie::HadronTransporter           </param>
-     <param type="string" name="generator-step-6-conf">  Default                            </param>
-     <param type="string" name="generator-step-7-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-6-conf">  BeforeHadronTransport              </param>
+     <param type="string" name="generator-step-7-alg">   genie::HadronTransporter           </param>
      <param type="string" name="generator-step-7-conf">  Default                            </param>
+     <param type="string" name="generator-step-8-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-8-conf">  AfterHadronTransport               </param>
 
      <param type="string" name="interaction-list-alg">   genie::RSPPInteractionListGenerator</param>
      <param type="string" name="interaction-list-conf">  CC-Default                         </param>
@@ -200,7 +214,7 @@
   <param_set name="RSPP-NC"> 
      <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
-     <param type="int"    name="n-generator-steps">      8                                  </param>
+     <param type="int"    name="n-generator-steps">      9                                  </param>
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
      <param type="string" name="generator-step-1-alg">   genie::FermiMover                  </param>
@@ -213,10 +227,12 @@
      <param type="string" name="generator-step-4-conf">  Default                            </param>
      <param type="string" name="generator-step-5-alg">   genie::RSPPHadronicSystemGenerator </param>
      <param type="string" name="generator-step-5-conf">  Default                            </param>
-     <param type="string" name="generator-step-6-alg">   genie::HadronTransporter           </param>
-     <param type="string" name="generator-step-6-conf">  Default                            </param>
-     <param type="string" name="generator-step-7-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-6-conf">  BeforeHadronTransport              </param>
+     <param type="string" name="generator-step-7-alg">   genie::HadronTransporter           </param>
      <param type="string" name="generator-step-7-conf">  Default                            </param>
+     <param type="string" name="generator-step-8-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-8-conf">  AfterHadronTransport               </param>
 
      <param type="string" name="interaction-list-alg">   genie::RSPPInteractionListGenerator</param>
      <param type="string" name="interaction-list-conf">  NC-Default                         </param>
@@ -228,7 +244,7 @@
   <param_set name="DIS-CC-CHARM"> 
      <param type="string" name="vld-context">            energy:0.010-200                   </param>
 
-     <param type="int"    name="n-generator-steps">      7                                  </param>
+     <param type="int"    name="n-generator-steps">      8                                  </param>
 
      <param type="string" name="generator-step-0-alg">   genie::InitialStateAppender        </param>
      <param type="string" name="generator-step-0-conf">  Default                            </param>
@@ -240,10 +256,12 @@
      <param type="string" name="generator-step-3-conf">  Default                            </param>
      <param type="string" name="generator-step-4-alg">   genie::DISHadronicSystemGenerator  </param>
      <param type="string" name="generator-step-4-conf">  Charm                              </param>
-     <param type="string" name="generator-step-5-alg">   genie::HadronTransporter           </param>
-     <param type="string" name="generator-step-5-conf">  Default                            </param>
-     <param type="string" name="generator-step-6-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-5-conf">  BeforeHadronTransport              </param>
+     <param type="string" name="generator-step-6-alg">   genie::HadronTransporter           </param>
      <param type="string" name="generator-step-6-conf">  Default                            </param>
+     <param type="string" name="generator-step-7-alg">   genie::UnstableParticleDecayer     </param>
+     <param type="string" name="generator-step-7-conf">  AfterHadronTransport               </param>
 
      <param type="string" name="interaction-list-alg">   genie::DISInteractionListGenerator </param>
      <param type="string" name="interaction-list-conf">  CC-Charm-Default                   </param>
