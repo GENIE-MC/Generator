@@ -4,16 +4,24 @@
 
   -- Default configuration for UnstableParticleDecayer EventRecordVisitorI
 
-  <param_set name="Default"> 
-     <param type="string" name="decayer-alg-name">            genie::PythiaDecayer             </param>
-     <param type="string" name="decayer-param-set">           Default                          </param>
+  <param_set name="BeforeHadronTransport"> 
+     <param type="int"    name="n-decayers">                  2                                </param>
+     <param type="string" name="decayer-0-alg-name">          genie::PythiaDecayer             </param>
+     <param type="string" name="decayer-0-config-name">       Default                          </param>
+     <param type="string" name="decayer-1-alg-name">          genie::BaryonResonanceDecayer    </param>
+     <param type="string" name="decayer-1-config-name">       Default                          </param>
      <param type="double" name="max-lifetime-for-unstables">  1e-10                            </param>
+     <param type="bool"   name="run-before-hadron-transport"> true                             </param>
   </param_set>
 
-  <param_set name="Resonances"> 
-     <param type="string" name="decayer-alg-name">            genie::BaryonResonanceDecayer    </param>
-     <param type="string" name="decayer-param-set">           Default                          </param>
+  <param_set name="AfterHadronTransport"> 
+     <param type="int"    name="n-decayers">                  2                                </param>
+     <param type="string" name="decayer-0-alg-name">          genie::PythiaDecayer             </param>
+     <param type="string" name="decayer-0-config-name">       Default                          </param>
+     <param type="string" name="decayer-1-alg-name">          genie::BaryonResonanceDecayer    </param>
+     <param type="string" name="decayer-1-config-name">       Default                          </param>
      <param type="double" name="max-lifetime-for-unstables">  1e-10                            </param>
+     <param type="bool"   name="run-before-hadron-transport"> false                            </param>
   </param_set>
 
 </alg_conf>

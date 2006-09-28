@@ -24,7 +24,11 @@
 #ifndef _UNSTABLE_PARTICLE_DECAYER_H_
 #define _UNSTABLE_PARTICLE_DECAYER_H_
 
+#include <vector>
+
 #include "EVGCore/EventRecordVisitorI.h"
+
+using std::vector;
 
 namespace genie {
 
@@ -52,11 +56,16 @@ private:
   void  LoadConfig        (void);
   bool  ToBeDecayed       (GHepParticle * particle) const;
   bool  IsUnstable        (GHepParticle * particle) const;
-  void  CopyToEventRecord (TClonesArray * dp,
-                   GHepRecord * ev, int mother_pos) const;
+  void  CopyToEventRecord (TClonesArray * dp, GHepRecord * ev, 
+                           int mother_pos, bool in_nucleus) const;
 
-  double fMaxLifetime;
-  const DecayModelI * fDecayer;
+  double fMaxLifetime;       ///< define "unstable" particle?
+  bool   fRunBefHadroTransp; ///< is being run before or after hadron transport?
+
+  vector<const DecayModelI *> * fDecayers; ///< list of all specified decayers
+
+  mutable const DecayModelI * fCurrDecayer; ///< current selected decayer
+
 };
 
 }      // genie namespace

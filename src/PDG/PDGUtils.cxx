@@ -243,7 +243,7 @@ int genie::pdg::SwitchProtonNeutron(int pdgc)
 //____________________________________________________________________________
 bool genie::pdg::IsHadron(int pdgc)
 {
-  return (pdgc>=100 && pdgc<=9999);
+  return ((pdgc>=100 && pdgc<=9999) || (pdgc>=-9999 && pdgc<=-100));
 }
 //____________________________________________________________________________
 bool genie::pdg::IsBaryonResonance(int pdgc)
