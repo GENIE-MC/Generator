@@ -388,11 +388,11 @@ void DISStructureFuncModel::QQBar(
     bool sea  = target.HitSeaQrk();
 
     bool isu  = pdg::IsUQuark     (qpdg);
-    bool isub = pdg::IsUAntiQuark (qpdg);
+    bool isub = pdg::IsAntiUQuark (qpdg);
     bool isd  = pdg::IsDQuark     (qpdg);
-    bool isdb = pdg::IsDAntiQuark (qpdg);
+    bool isdb = pdg::IsAntiDQuark (qpdg);
     bool iss  = pdg::IsSQuark     (qpdg);
-    bool issb = pdg::IsSAntiQuark (qpdg);
+    bool issb = pdg::IsAntiSQuark (qpdg);
 
     uv   = ( isu        && !sea) ? uv   : 0.;
     us   = ((isu||isub) &&  sea) ? us   : 0.; 

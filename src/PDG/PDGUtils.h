@@ -34,7 +34,7 @@ namespace pdg
   bool IsAntiNeutrino  (int pdgc);
   bool IsNeutralLepton (int pdgc);
   bool IsChargedLepton (int pdgc);
-  
+
   bool IsNuE           (int pdgc);
   bool IsNuMu          (int pdgc);
   bool IsNuTau         (int pdgc);
@@ -55,10 +55,10 @@ namespace pdg
   bool IsSQuark        (int pdgc);
   bool IsCQuark        (int pdgc);
   bool IsAntiQuark     (int pdgc);
-  bool IsUAntiQuark    (int pdgc);
-  bool IsDAntiQuark    (int pdgc);
-  bool IsSAntiQuark    (int pdgc);
-  bool IsCAntiQuark    (int pdgc);
+  bool IsAntiUQuark    (int pdgc);
+  bool IsAntiDQuark    (int pdgc);
+  bool IsAntiSQuark    (int pdgc);
+  bool IsAntiCQuark    (int pdgc);
   
   bool IsProton        (int pdgc);
   bool IsNeutron       (int pdgc);

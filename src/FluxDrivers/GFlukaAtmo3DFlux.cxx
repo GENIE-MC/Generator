@@ -152,9 +152,9 @@ void GFlukaAtmo3DFlux::Initialize(void)
   PDGCodeList::size_type nnu = 4;
   fPdgCList = new PDGCodeList(nnu);
   (*fPdgCList)[0]= kPdgNuMu;
-  (*fPdgCList)[1]= kPdgNuMuBar;
+  (*fPdgCList)[1]= kPdgAntiNuMu;
   (*fPdgCList)[2]= kPdgNuE;
-  (*fPdgCList)[3]= kPdgNuEBar;
+  (*fPdgCList)[3]= kPdgAntiNuE;
 
   // Filenames for flux files [you need to get them from Battistoni's web
   // page - see class documentation]

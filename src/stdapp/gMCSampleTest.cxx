@@ -259,8 +259,8 @@ void AnalyzeEvents(
     int np   = (!isDIS) ? 0 : event.NEntries(kPdgProton,  kIStStableFinalState);
     int nn   = (!isDIS) ? 0 : event.NEntries(kPdgNeutron, kIStStableFinalState);
     int npi0 = (!isDIS) ? 0 : event.NEntries(kPdgPi0,     kIStStableFinalState);
-    int npip = (!isDIS) ? 0 : event.NEntries(kPdgPiPlus,  kIStStableFinalState);
-    int npim = (!isDIS) ? 0 : event.NEntries(kPdgPiMinus, kIStStableFinalState);
+    int npip = (!isDIS) ? 0 : event.NEntries(kPdgPiP,     kIStStableFinalState);
+    int npim = (!isDIS) ? 0 : event.NEntries(kPdgPiM,     kIStStableFinalState);
 
     int iproc = IProc(proc_info);
     int icurr = ICurr(proc_info);

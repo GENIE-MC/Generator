@@ -119,9 +119,9 @@ TClonesArray * PythiaHadronization::Hadronize(
   bool isu  = pdg::IsUQuark     (hit_quark);
   bool isd  = pdg::IsDQuark     (hit_quark);
   bool iss  = pdg::IsSQuark     (hit_quark);
-  bool isub = pdg::IsUAntiQuark (hit_quark);
-  bool isdb = pdg::IsDAntiQuark (hit_quark);
-  bool issb = pdg::IsSAntiQuark (hit_quark);
+  bool isub = pdg::IsAntiUQuark (hit_quark);
+  bool isdb = pdg::IsAntiDQuark (hit_quark);
+  bool issb = pdg::IsAntiSQuark (hit_quark);
 
   bool allowed = (iscc && isv  && (isd||isub||iss))  ||
                  (iscc && isvb && (isu||isdb||issb)) ||
@@ -139,10 +139,10 @@ TClonesArray * PythiaHadronization::Hadronize(
   else {
     if      (isv  && isd ) final_quark = kPdgUQuark;
     else if (isv  && iss ) final_quark = kPdgUQuark;
-    else if (isv  && isub) final_quark = kPdgDQuarkBar;
+    else if (isv  && isub) final_quark = kPdgAntiDQuark;
     else if (isvb && isu ) final_quark = kPdgDQuark;
-    else if (isvb && isdb) final_quark = kPdgUQuarkBar;
-    else if (isvb && issb) final_quark = kPdgUQuarkBar;
+    else if (isvb && isdb) final_quark = kPdgAntiUQuark;
+    else if (isvb && issb) final_quark = kPdgAntiUQuark;
     else {
       LOG("PythiaHad", pERROR)
         << "Not allowed mode. Refused to make a final quark assignment!";

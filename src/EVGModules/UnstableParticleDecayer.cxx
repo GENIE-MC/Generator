@@ -119,12 +119,13 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
   if( ppdg->Lifetime() < fMaxLifetime ) { /*return true*/ };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - temporary/
-  // ROOT's TParticlepdg::Lifetim e() does not work properly
+  // ROOT's TParticlepdg::Lifetime() does not work properly
   // do something else instead (temporarily)
 
   int particles_to_decay[] = {
-          kPdgPi0, kPdgLambdacP, kPdgSigmacP, kPdgSigmacPP, kPdgDPlus,
-          kPdgDMinus, kPdgD0, kPdgD0Bar, kPdgDsPlus, kPdgDsMinus};
+          kPdgPi0, 
+          kPdgDP, kPdgDM, kPdgD0, kPdgAntiD0, kPdgDPs, kPdgDMs,
+          kPdgLambdaPc, kPdgSigmaPc, kPdgSigmaPPc };
 
   const int N = sizeof(particles_to_decay) / sizeof(int);
 

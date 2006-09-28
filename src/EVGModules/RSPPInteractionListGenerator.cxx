@@ -181,9 +181,9 @@ void RSPPInteractionListGenerator::AddFinalStateInfo(
                                                              << nucpdg <<")";
   }
 
-  if       ( pipdg == kPdgPiPlus  ) npiplus  = 1;
-  else if  ( pipdg == kPdgPi0     ) npi0     = 1;
-  else if  ( pipdg == kPdgPiMinus ) npiminus = 1;
+  if       ( pipdg == kPdgPiP  ) npiplus  = 1;
+  else if  ( pipdg == kPdgPi0  ) npi0     = 1;
+  else if  ( pipdg == kPdgPiM  ) npiminus = 1;
   else {
      LOG("InteractionGenerator", pERROR)
               << "Final state pion not a pi+/pi-/pi0! (pdg=" << pipdg <<")";

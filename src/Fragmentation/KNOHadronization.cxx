@@ -948,7 +948,7 @@ double KNOHadronization::ReWeightPt2(const PDGCodeList & pdgcv) const
 
      int pdgc = pdgcv[i];
 
-     if(pdgc!=kPdgPiPlus&&pdgc!=kPdgPiMinus) continue;
+     if(pdgc!=kPdgPiP&&pdgc!=kPdgPiM) continue;
 
      TLorentzVector * p4 = fPhaseSpaceGenerator.GetDecay(i); 
      double pt2 = TMath::Power(p4->Px(),2) + TMath::Power(p4->Py(),2);
@@ -992,24 +992,24 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
      if (maxQ < 0) {
         // Need more negative charge
         LOG("KNOHad", pDEBUG) << "Need more negative charge -> Adding a pi-";
-        pdgc->push_back( kPdgPiMinus );
+        pdgc->push_back( kPdgPiM );
 
         // update n-of-hadrons to add, avail. shower charge & invariant mass
         maxQ += 1;
         hadrons_to_add--;
 
-        W -= pdg->Find(kPdgPiMinus)->Mass();
+        W -= pdg->Find(kPdgPiM)->Mass();
 
      } else if (maxQ > 0) {
         // Need more positive charge
         LOG("KNOHad", pDEBUG) << "Need more positive charge -> Adding a pi+";
-        pdgc->push_back( kPdgPiPlus );
+        pdgc->push_back( kPdgPiP );
 
         // update n-of-hadrons to add, avail. shower charge & invariant mass
         maxQ -= 1;
         hadrons_to_add--;
 
-        W -= pdg->Find(kPdgPiPlus)->Mass();
+        W -= pdg->Find(kPdgPiP)->Mass();
      }
   }
 
@@ -1023,12 +1023,12 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
      // Now add pi0 or pairs (pi0 pi0 / pi+ pi- / K+ K- / K0 K0bar) only
 
      // Masses of particle pairs
-     double M2pi0 = 2 * pdg -> Find (kPdgPi0    ) -> Mass();
-     double M2pic =     pdg -> Find (kPdgPiPlus ) -> Mass() +
-                        pdg -> Find (kPdgPiMinus) -> Mass();
-     double M2Kc  =     pdg -> Find (kPdgKPlus  ) -> Mass() +
-                        pdg -> Find (kPdgKMinus ) -> Mass();
-     double M2K0  = 2 * pdg -> Find (kPdgK0     ) -> Mass();
+     double M2pi0 = 2 * pdg -> Find (kPdgPi0) -> Mass();
+     double M2pic =     pdg -> Find (kPdgPiP) -> Mass() +
+                        pdg -> Find (kPdgPiM) -> Mass();
+     double M2Kc  =     pdg -> Find (kPdgKP ) -> Mass() +
+                        pdg -> Find (kPdgKM ) -> Mass();
+     double M2K0  = 2 * pdg -> Find (kPdgK0 ) -> Mass();
 
      // Prevent multiplicity overflow.
      // Check if we have an odd number of hadrons to add.
@@ -1075,8 +1075,8 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
 
                 LOG("KNOHad", pDEBUG) << " -> Adding a pi+pi- pair";
 
-                pdgc->push_back( kPdgPiPlus  );
-                pdgc->push_back( kPdgPiMinus );
+                pdgc->push_back( kPdgPiP );
+                pdgc->push_back( kPdgPiM );
 
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2pic; // update the available invariant mass
@@ -1093,8 +1093,8 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
 
                 LOG("KNOHad", pDEBUG) << " -> Adding a K+K- pair";
 
-                pdgc->push_back( kPdgKPlus  );
-                pdgc->push_back( kPdgKMinus );
+                pdgc->push_back( kPdgKP );
+                pdgc->push_back( kPdgKM );
 
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2Kc; // update the available invariant mass

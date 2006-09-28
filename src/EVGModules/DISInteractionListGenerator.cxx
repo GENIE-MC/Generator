@@ -163,14 +163,14 @@ multimap<int,bool> DISInteractionListGenerator::GetHitQuarks(
     //
     // NC - includes both v+N, vbar+N
     //
-    hq.insert(pair<int,bool>(kPdgUQuark,    false));
-    hq.insert(pair<int,bool>(kPdgUQuark,    true ));
-    hq.insert(pair<int,bool>(kPdgUQuarkBar, true ));
-    hq.insert(pair<int,bool>(kPdgDQuark,    false));
-    hq.insert(pair<int,bool>(kPdgDQuark,    true ));
-    hq.insert(pair<int,bool>(kPdgDQuarkBar, true ));
-    hq.insert(pair<int,bool>(kPdgSQuark,    true ));
-    hq.insert(pair<int,bool>(kPdgSQuarkBar, true ));
+    hq.insert(pair<int,bool>(kPdgUQuark,     false));
+    hq.insert(pair<int,bool>(kPdgUQuark,     true ));
+    hq.insert(pair<int,bool>(kPdgAntiUQuark, true ));
+    hq.insert(pair<int,bool>(kPdgDQuark,     false));
+    hq.insert(pair<int,bool>(kPdgDQuark,     true ));
+    hq.insert(pair<int,bool>(kPdgAntiDQuark, true ));
+    hq.insert(pair<int,bool>(kPdgSQuark,     true ));
+    hq.insert(pair<int,bool>(kPdgAntiSQuark, true ));
 
   } else if (proc.IsWeakCC()) {
     //
@@ -179,16 +179,16 @@ multimap<int,bool> DISInteractionListGenerator::GetHitQuarks(
     int nupdg = interaction->InitState().ProbePdg();
 
     if (pdg::IsNeutrino(nupdg)){
-       hq.insert(pair<int,bool>(kPdgUQuarkBar, true ));
-       hq.insert(pair<int,bool>(kPdgDQuark,    false));
-       hq.insert(pair<int,bool>(kPdgDQuark,    true ));
-       hq.insert(pair<int,bool>(kPdgSQuark,    true ));
+       hq.insert(pair<int,bool>(kPdgAntiUQuark, true ));
+       hq.insert(pair<int,bool>(kPdgDQuark,     false));
+       hq.insert(pair<int,bool>(kPdgDQuark,     true ));
+       hq.insert(pair<int,bool>(kPdgSQuark,     true ));
     } 
     else if (pdg::IsAntiNeutrino(nupdg)){
-       hq.insert(pair<int,bool>(kPdgUQuark,    false));
-       hq.insert(pair<int,bool>(kPdgUQuark,    true ));
-       hq.insert(pair<int,bool>(kPdgDQuarkBar, true ));
-       hq.insert(pair<int,bool>(kPdgSQuarkBar, true ));
+       hq.insert(pair<int,bool>(kPdgUQuark,     false));
+       hq.insert(pair<int,bool>(kPdgUQuark,     true ));
+       hq.insert(pair<int,bool>(kPdgAntiDQuark, true ));
+       hq.insert(pair<int,bool>(kPdgAntiSQuark, true ));
     }
   }//CC or NC
 
