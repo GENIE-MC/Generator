@@ -88,8 +88,8 @@ TNtuple * runGCylindTH1FluxDriver(void)
   flux -> SetNuDirection      (direction);
   flux -> SetBeamSpot         (beam_spot);
   flux -> SetTransverseRadius (Rtransverse);
-  flux -> AddEnergySpectrum   (kPdgNuMu,    spectrum1);
-  flux -> AddEnergySpectrum   (kPdgNuMuBar, spectrum2);
+  flux -> AddEnergySpectrum   (kPdgNuMu,     spectrum1);
+  flux -> AddEnergySpectrum   (kPdgAntiNuMu, spectrum2);
 
   LOG("Main", pINFO) << "Creating flux ntuple";
   GFluxI * fluxi = dynamic_cast<GFluxI*>(flux);
