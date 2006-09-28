@@ -228,9 +228,9 @@ TClonesArray * CharmHadronization::Hadronize(
      // was left outside the meson so that it can go on hadronizing...
      
      if      (cpdgc == kPdgD0      ) qrkSyst1 = kPdgUQuark; // D0 (c ubar),      
-     else if (cpdgc == kPdgDPlus   ) qrkSyst1 = kPdgDQuark; // D^+ (c dbar)
-     else if (cpdgc == kPdgDsPlus  ) qrkSyst1 = kPdgSQuark; // Ds^+ (c sbar)
-     else if (cpdgc == kPdgLambdacP) qrkSyst1 = -2101;      // Lamda_c^+ (c ud)
+     else if (cpdgc == kPdgDP      ) qrkSyst1 = kPdgDQuark; // D^+ (c dbar)
+     else if (cpdgc == kPdgDPs     ) qrkSyst1 = kPdgSQuark; // Ds^+ (c sbar)
+     else if (cpdgc == kPdgLambdaPc) qrkSyst1 = -2101;      // Lamda_c^+ (c ud)
   }
   else {
     LOG("CharmHad", pWARN) 
@@ -378,21 +378,21 @@ int CharmHadronization::GenerateCharmHadron(double Ev) const
 
   if(Ev <= 20) {
      if      (rndm <= 0.32)                  return kPdgD0;       // D^0
-     else if (rndm >  0.32 && rndm <= 0.37)  return kPdgDPlus;    // D^+
-     else if (rndm >  0.37 && rndm <= 0.55)  return kPdgDsPlus;   // Ds^+
-     else                                    return kPdgLambdacP; // Lamda_c^+
+     else if (rndm >  0.32 && rndm <= 0.37)  return kPdgDP;       // D^+
+     else if (rndm >  0.37 && rndm <= 0.55)  return kPdgDPs;      // Ds^+
+     else                                    return kPdgLambdaPc; // Lamda_c^+
 
   } else if (Ev > 20 && Ev <=40)  {
      if      (rndm <= 0.50)                  return kPdgD0;
-     else if (rndm >  0.50 && rndm <= 0.60)  return kPdgDPlus;
-     else if (rndm >  0.60 && rndm <= 0.82)  return kPdgDsPlus;
-     else                                    return kPdgLambdacP;
+     else if (rndm >  0.50 && rndm <= 0.60)  return kPdgDP;
+     else if (rndm >  0.60 && rndm <= 0.82)  return kPdgDPs;
+     else                                    return kPdgLambdaPc;
 
   } else {
      if      (rndm <= 0.64)                  return kPdgD0;
-     else if (rndm >  0.64 && rndm <= 0.86)  return kPdgDPlus;
-     else if (rndm >  0.86 && rndm <= 0.95)  return kPdgDsPlus;
-     else                                    return kPdgLambdacP;
+     else if (rndm >  0.64 && rndm <= 0.86)  return kPdgDP;
+     else if (rndm >  0.86 && rndm <= 0.95)  return kPdgDPs;
+     else                                    return kPdgLambdaPc;
   }
   return 0;
 }

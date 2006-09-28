@@ -62,9 +62,9 @@ bool genie::pdg::IsNeutrino(int pdgc)
 //____________________________________________________________________________
 bool genie::pdg::IsAntiNeutrino(int pdgc)
 {
-  bool is_nubar = (pdgc == kPdgNuEBar)  ||
-                  (pdgc == kPdgNuMuBar) ||
-                  (pdgc == kPdgNuTauBar);
+  bool is_nubar = (pdgc == kPdgAntiNuE)  ||
+                  (pdgc == kPdgAntiNuMu) ||
+                  (pdgc == kPdgAntiNuTau);
 
   return is_nubar;
 }
@@ -106,17 +106,17 @@ bool genie::pdg::IsNuTau(int pdgc)
 //____________________________________________________________________________
 bool genie::pdg::IsAntiNuE(int pdgc)
 {
-  return (pdgc == kPdgNuEBar);
+  return (pdgc == kPdgAntiNuE);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsAntiNuMu(int pdgc)
 {
-  return (pdgc == kPdgNuMuBar);
+  return (pdgc == kPdgAntiNuMu);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsAntiNuTau(int pdgc)
 {
-  return (pdgc == kPdgNuTauBar);
+  return (pdgc == kPdgAntiNuTau);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsElectron(int pdgc)
@@ -153,11 +153,11 @@ int genie::pdg::Neutrino2ChargedLepton(int pdgc)
 {
   switch(pdgc) {
        case (kPdgNuE)      : return kPdgElectron; break;
-       case (kPdgNuEBar)   : return kPdgPositron; break;
+       case (kPdgAntiNuE)  : return kPdgPositron; break;
        case (kPdgNuMu)     : return kPdgMuon;     break;
-       case (kPdgNuMuBar)  : return kPdgAntiMuon; break;
+       case (kPdgAntiNuMu) : return kPdgAntiMuon; break;
        case (kPdgNuTau)    : return kPdgTau;      break;
-       case (kPdgNuTauBar) : return kPdgAntiTau;  break;
+       case (kPdgAntiNuTau): return kPdgAntiTau;  break;
   }
   return -1;
 }
@@ -172,9 +172,9 @@ bool genie::pdg::IsQuark(int pdgc)
 //____________________________________________________________________________
 bool genie::pdg::IsAntiQuark(int pdgc)
 {
-  return ( pdgc == kPdgDQuarkBar || pdgc == kPdgUQuarkBar ||
-           pdgc == kPdgSQuarkBar || pdgc == kPdgCQuarkBar ||
-           pdgc == kPdgBQuarkBar || pdgc == kPdgTQuarkBar
+  return ( pdgc == kPdgAntiDQuark || pdgc == kPdgAntiUQuark ||
+           pdgc == kPdgAntiSQuark || pdgc == kPdgAntiCQuark ||
+           pdgc == kPdgAntiBQuark || pdgc == kPdgAntiTQuark
          );
 }
 //____________________________________________________________________________
@@ -198,24 +198,24 @@ bool genie::pdg::IsCQuark(int pdgc)
   return (pdgc == kPdgCQuark);
 }
 //____________________________________________________________________________
-bool genie::pdg::IsUAntiQuark(int pdgc)
+bool genie::pdg::IsAntiUQuark(int pdgc)
 {
-  return (pdgc == kPdgUQuarkBar);
+  return (pdgc == kPdgAntiUQuark);
 }
 //____________________________________________________________________________
-bool genie::pdg::IsDAntiQuark(int pdgc)
+bool genie::pdg::IsAntiDQuark(int pdgc)
 {
-  return (pdgc == kPdgDQuarkBar);
+  return (pdgc == kPdgAntiDQuark);
 }
 //____________________________________________________________________________
-bool genie::pdg::IsSAntiQuark(int pdgc)
+bool genie::pdg::IsAntiSQuark(int pdgc)
 {
-  return (pdgc == kPdgSQuarkBar);
+  return (pdgc == kPdgAntiSQuark);
 }
 //____________________________________________________________________________
-bool genie::pdg::IsCAntiQuark(int pdgc)
+bool genie::pdg::IsAntiCQuark(int pdgc)
 {
-  return (pdgc == kPdgCQuarkBar);
+  return (pdgc == kPdgAntiCQuark);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsProton(int pdgc)

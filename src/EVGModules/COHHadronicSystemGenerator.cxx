@@ -76,8 +76,8 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   int nucl_pdgc = Ni->Pdg(); // same as the initial nucleus
   int pion_pdgc = 0;
   if      (xcls_tag.NPi0()     == 1) pion_pdgc = kPdgPi0;
-  else if (xcls_tag.NPiPlus()  == 1) pion_pdgc = kPdgPiPlus;
-  else if (xcls_tag.NPiMinus() == 1) pion_pdgc = kPdgPiMinus;
+  else if (xcls_tag.NPiPlus()  == 1) pion_pdgc = kPdgPiP;
+  else if (xcls_tag.NPiMinus() == 1) pion_pdgc = kPdgPiM;
   else {
      LOG("COHHadronicVtx", pFATAL)
                << "No final state pion information in XclsTag!";

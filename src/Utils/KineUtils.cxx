@@ -371,7 +371,7 @@ bool genie::utils::kinematics::IsAboveCharmThreshold(
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
 
-  int lightest_charm_hadron = kPdgDMinus; // c=+/-1, s=0
+  int lightest_charm_hadron = kPdgDM; // c=+/-1, s=0
 
   double Mn   = init_state.Tgt().HitNucP4Ptr()->M();
   double Mn2  = TMath::Power(Mn,2);

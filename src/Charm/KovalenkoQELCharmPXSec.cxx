@@ -197,8 +197,8 @@ double KovalenkoQELCharmPXSec::ResDM(const Interaction * interaction) const
 
   int pdgc = xcls.CharmHadronPdg();
 
-  bool isLambda = (pdgc == kPdgLambdacP);
-  bool isSigma  = (pdgc == kPdgSigmacP || pdgc == kPdgSigmacPP);
+  bool isLambda = (pdgc == kPdgLambdaPc);
+  bool isSigma  = (pdgc == kPdgSigmaPc || pdgc == kPdgSigmaPPc);
 
   if      ( isLambda ) return fResDMLambda;
   else if ( isSigma  ) return fResDMSigma;
@@ -257,9 +257,9 @@ double KovalenkoQELCharmPXSec::SumF2(const Interaction * interaction) const
   bool isP = pdg::IsProton ( init_state.Tgt().HitNucPdg() );
   bool isN = pdg::IsNeutron( init_state.Tgt().HitNucPdg() );
 
-  if      ( pdgc == kPdgLambdacP && isN ) return fF2LambdaP;
-  else if ( pdgc == kPdgSigmacP  && isN ) return fF2SigmaP;
-  else if ( pdgc == kPdgSigmacPP && isP ) return fF2SigmaPP;
+  if      ( pdgc == kPdgLambdaPc && isN ) return fF2LambdaP;
+  else if ( pdgc == kPdgSigmaPc  && isN ) return fF2SigmaP;
+  else if ( pdgc == kPdgSigmaPPc && isP ) return fF2SigmaPP;
   else                                    abort();
 
   return 0;
@@ -292,9 +292,9 @@ bool KovalenkoQELCharmPXSec::ValidProcess(
   int pdgc = xcls.CharmHadronPdg();
 
   bool can_handle = (
-         (pdgc == kPdgLambdacP && isN) || /* v + n -> l + #Lambda_{c}^{+} */
-         (pdgc == kPdgSigmacP  && isN) || /* v + n -> l + #Sigma_{c}^{+}  */
-         (pdgc == kPdgSigmacPP && isP)    /* v + p -> l + #Sigma_{c}^{++} */
+         (pdgc == kPdgLambdaPc && isN) || /* v + n -> l + #Lambda_{c}^{+} */
+         (pdgc == kPdgSigmaPc  && isN) || /* v + n -> l + #Sigma_{c}^{+}  */
+         (pdgc == kPdgSigmaPPc && isP)    /* v + p -> l + #Sigma_{c}^{++} */
   );
   return can_handle;
 }

@@ -81,8 +81,8 @@ void GHepSummaryBuilder::AnalyzeEventRecord(const GHepRecord & evrec)
   fNProton  = evrec.NEntries(kPdgProton,  kIStStableFinalState);
   fNNeutron = evrec.NEntries(kPdgNeutron, kIStStableFinalState);
   fNPi0     = evrec.NEntries(kPdgPi0,     kIStStableFinalState);
-  fNPiPlus  = evrec.NEntries(kPdgPiPlus,  kIStStableFinalState);
-  fNPiMinus = evrec.NEntries(kPdgPiMinus, kIStStableFinalState);
+  fNPiPlus  = evrec.NEntries(kPdgPiP,     kIStStableFinalState);
+  fNPiMinus = evrec.NEntries(kPdgPiM,     kIStStableFinalState);
   fNK0      = evrec.NEntries(0,           kIStStableFinalState);
   fNKPlus   = evrec.NEntries(0,           kIStStableFinalState);
   fNKMinus  = evrec.NEntries(0,           kIStStableFinalState);

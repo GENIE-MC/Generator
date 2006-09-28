@@ -59,7 +59,7 @@ double GlashowResXSec::XSec(
 
   double me   = kElectronMass;
   double Mw   = kMw;
-  double Gw   = PDGLibrary::Instance()->Find(kPdgWMinus)->Width();
+  double Gw   = PDGLibrary::Instance()->Find(kPdgWM)->Width();
   double Mw2  = TMath::Power(Mw,  2);
   double Mw4  = TMath::Power(Mw2, 2);
   double Gw2  = TMath::Power(Gw,  2);

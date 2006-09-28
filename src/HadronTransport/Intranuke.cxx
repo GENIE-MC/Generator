@@ -134,8 +134,8 @@ bool Intranuke::CanRescatter(const GHepParticle * p) const
 // rescattered by this cascade MC
 
   assert(p);
-  return  ( p->Pdg() == kPdgPiPlus  || 
-            p->Pdg() == kPdgPiMinus || 
+  return  ( p->Pdg() == kPdgPiP  || 
+            p->Pdg() == kPdgPiM || 
             p->Pdg() == kPdgPi0
           );
 }

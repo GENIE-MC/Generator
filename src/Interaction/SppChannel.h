@@ -148,23 +148,23 @@ public:
   {
     switch (channel) {
 
-      case (kSpp_vp_cc_10100) : return kPdgPiPlus;   break;
-      case (kSpp_vn_cc_10010) : return kPdgPi0;      break;
-      case (kSpp_vn_cc_01100) : return kPdgPiPlus;   break;
+      case (kSpp_vp_cc_10100) : return kPdgPiP;  break;
+      case (kSpp_vn_cc_10010) : return kPdgPi0;  break;
+      case (kSpp_vn_cc_01100) : return kPdgPiP;  break;
 
-      case (kSpp_vp_nc_10010) : return kPdgPi0;      break;
-      case (kSpp_vp_nc_01100) : return kPdgPiPlus;   break;
-      case (kSpp_vn_nc_01010) : return kPdgPi0;      break;
-      case (kSpp_vn_nc_10001) : return kPdgPiMinus;  break;
+      case (kSpp_vp_nc_10010) : return kPdgPi0;  break;
+      case (kSpp_vp_nc_01100) : return kPdgPiP;  break;
+      case (kSpp_vn_nc_01010) : return kPdgPi0;  break;
+      case (kSpp_vn_nc_10001) : return kPdgPiM;  break;
 
-      case (kSpp_vbn_cc_01001): return kPdgPiMinus;  break;
-      case (kSpp_vbp_cc_01010): return kPdgPi0;      break;
-      case (kSpp_vbp_cc_10001): return kPdgPiMinus;  break;
+      case (kSpp_vbn_cc_01001): return kPdgPiM;  break;
+      case (kSpp_vbp_cc_01010): return kPdgPi0;  break;
+      case (kSpp_vbp_cc_10001): return kPdgPiM;  break;
 
-      case (kSpp_vbp_nc_10010): return kPdgPi0;      break;
-      case (kSpp_vbp_nc_01100): return kPdgPiPlus;   break;
-      case (kSpp_vbn_nc_01010): return kPdgPi0;      break;
-      case (kSpp_vbn_nc_10001): return kPdgPiMinus;  break;
+      case (kSpp_vbp_nc_10010): return kPdgPi0;  break;
+      case (kSpp_vbp_nc_01100): return kPdgPiP;  break;
+      case (kSpp_vbn_nc_01010): return kPdgPi0;  break;
+      case (kSpp_vbn_nc_10001): return kPdgPiM;  break;
 
       default : return 0;  break;
     }
