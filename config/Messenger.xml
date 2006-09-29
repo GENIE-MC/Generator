@@ -74,8 +74,8 @@
   <priority msgstream="IMD">                 NOTICE </priority>
   <priority msgstream="IMDTargetRemnant">    INFO   </priority>
   <priority msgstream="IMDKinematics">       INFO   </priority>
-  <priority msgstream="InteractionSelector"> INFO   </priority>
-  <priority msgstream="InteractionList">     NOTICE </priority>
+  <priority msgstream="IntSel">              NOTICE </priority>
+  <priority msgstream="IntLst">              NOTICE </priority>
   <priority msgstream="Interaction">         INFO   </priority>
   <priority msgstream="Intranuke">           INFO   </priority>
   <priority msgstream="ISApp">               INFO   </priority>
@@ -132,9 +132,9 @@
   <priority msgstream="Target">              INFO   </priority>
   <priority msgstream="Utils">               INFO   </priority>
   <priority msgstream="VtxGenerator">        INFO   </priority>
-  <priority msgstream="VldContext">          INFO   </priority>
+  <priority msgstream="VldContext">          NOTICE </priority>
   <priority msgstream="XSecAlgMap">          NOTICE </priority>
-  <priority msgstream="XSecSplineList">      INFO   </priority>
+  <priority msgstream="XSecSplLst">          NOTICE </priority>
 
   <priority msgstream="gevgen">              INFO   </priority>
   <priority msgstream="ngevgen">             INFO   </priority>

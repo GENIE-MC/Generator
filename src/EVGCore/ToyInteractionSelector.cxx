@@ -50,12 +50,12 @@ EventRecord * ToyInteractionSelector::SelectInteraction
      (const InteractionGeneratorMap * igmap, const TLorentzVector & p4) const
 {
   if(!igmap) {
-     LOG("InteractionSelector", pERROR)
+     LOG("IntSel", pERROR)
            << "\n*** NULL InteractionGeneratorMap! Can't select interaction";
      return 0;
   }
   if(igmap->size() <= 0) {
-     LOG("InteractionSelector", pERROR)
+     LOG("IntSel", pERROR)
           << "\n*** Empty InteractionGeneratorMap! Can't select interaction";
      return 0;
   }
@@ -73,8 +73,8 @@ EventRecord * ToyInteractionSelector::SelectInteraction
   // clone interaction
   Interaction * selected_interaction = new Interaction( *interaction );
   selected_interaction->InitStatePtr()->SetProbeP4(p4);
-  LOG("InteractionSelector", pINFO)
-                   << "Interaction to generate: \n" << *selected_interaction;
+  LOG("IntSel", pINFO)
+             << "Interaction to generate: \n" << *selected_interaction;
 
   // bootstrap the event record
   EventRecord * evrec = new EventRecord;

@@ -533,7 +533,7 @@ void KNOHadronization::LoadConfig(void)
   fRvbnNCm3 = fConfig->GetDoubleDef(
                      "R-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
 
-  LOG("KNOHad", pINFO) << *fConfig;
+  LOG("KNOHad", pDEBUG) << *fConfig;
 }
 //____________________________________________________________________________
 double KNOHadronization::KNO(int nu_pdg, int nuc_pdg, double z) const

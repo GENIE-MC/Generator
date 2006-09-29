@@ -141,12 +141,18 @@ void genie::utils::print::PrintBanner(void)
   }
 }
 //___________________________________________________________________________
-string genie::utils::print::PrintFramedMesg(string mesg)
+string genie::utils::print::PrintFramedMesg(
+                                  string mesg, unsigned int nl, const char f)
 {
-  string frame(4+mesg.size(), '*');
+  string frame(4+mesg.size(),f);
 
-  string framed_mesg = string("\n") + frame + string("\n* ") +
-                               mesg + string(" *\n") + frame + string("\n");
+  string framed_mesg = string("\n") + 
+                       frame + string("\n") + 
+                       string("  ") + mesg + string("  ") + string("\n") + 
+                       frame;
+
+  for(unsigned il=0; il<nl; il++) { framed_mesg += string("\n"); }
+
   return framed_mesg;
 }
 //___________________________________________________________________________
