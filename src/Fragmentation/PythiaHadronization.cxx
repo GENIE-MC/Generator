@@ -431,7 +431,7 @@ void PythiaHadronization::LoadConfig(void)
   fRvbnNCm3 = fConfig->GetDoubleDef(
                      "R-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
 
-  LOG("PythiaHad", pINFO) << *fConfig;
+  LOG("PythiaHad", pDEBUG) << *fConfig;
 }
 //____________________________________________________________________________
 void PythiaHadronization::SyncSeeds(void) const

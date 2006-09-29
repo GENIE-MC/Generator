@@ -14,6 +14,10 @@
 */
 //____________________________________________________________________________
 
+#include <iomanip>
+
+#include <TMath.h>
+
 #include "EVGCore/InteractionList.h"
 #include "EVGCore/EventGeneratorList.h"
 #include "EVGCore/InteractionGeneratorMap.h"
@@ -22,6 +26,8 @@
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 
+using std::setw;
+using std::setfill;
 using std::endl;
 using namespace genie;
 
@@ -100,11 +106,11 @@ void InteractionGeneratorMap::UseGeneratorList(const EventGeneratorList * l)
 //___________________________________________________________________________
 void InteractionGeneratorMap::BuildMap(const InitialState & init_state)
 {
-  LOG("IntGenMap", pNOTICE)
-               << "Building 'interaction' -> 'event generator' associations";
-  LOG("IntGenMap", pNOTICE)
+  SLOG("IntGenMap", pDEBUG)
+               << "Building 'interaction' -> 'generator' associations";
+  SLOG("IntGenMap", pNOTICE)
          << "Using all simulated interactions for init-state: "
-                                                    << init_state.AsString();
+                                              << init_state.AsString();
   if(!fEventGeneratorList) {
      LOG("IntGenMap", pWARN) << "No EventGeneratorList was loaded!!";
      return;
@@ -124,7 +130,7 @@ void InteractionGeneratorMap::BuildMap(const InitialState & init_state)
 
      // ask the event generator to produce a list of all interaction it can
      // generate for the input initial state
-     LOG("IntGenMap", pNOTICE)
+     SLOG("IntGenMap", pNOTICE)
         << "Querying [" << evgen->Id().Key() << "] for its InteractionList";
 
      const InteractionListGeneratorI * ilstgen = evgen->IntListGenerator();
@@ -144,7 +150,7 @@ void InteractionGeneratorMap::BuildMap(const InitialState & init_state)
         Interaction * interaction = *intliter;
         string code = interaction->AsString();
 
-        SLOG("IntGenMap", pINFO)
+        SLOG("IntGenMap", pDEBUG)
               << "\nLinking: " << code << " --> to: " << evgen->Id().Key();
         this->insert(
              map<string, const EventGeneratorI *>::value_type(code,evgen));
@@ -179,18 +185,21 @@ const InteractionList & InteractionGeneratorMap::GetInteractionList(void) const
 //___________________________________________________________________________
 void InteractionGeneratorMap::Print(ostream & stream) const
 {
+  stream << endl;
+
   InteractionGeneratorMap::const_iterator iter;
 
-  stream<< "Printing 'interaction' -> 'event generator' associations" << endl;
+  unsigned int maxlen = 0;
+  for(iter = this->begin(); iter != this->end(); ++iter) 
+                         maxlen=TMath::Max(maxlen,(iter->first).size());
 
   for(iter = this->begin(); iter != this->end(); ++iter) {
-    string code = iter->first;
     const EventGeneratorI * evg = iter->second;
-    if(evg) {
-       stream << code << "  -> " << evg->Id().Key() << endl;
-    } else {
-       stream << code << "  ->  **** NULL EVENT GENERATOR ****" << endl;
-    }
+    string intstr = iter->first;
+    string evgstr = (evg) ? evg->Id().Key() : "** NULL EVENT GENERATOR **";
+
+    stream << setfill(' ') << setw(maxlen) 
+           << intstr << " --> " << evgstr << endl;
   }
 }
 //___________________________________________________________________________

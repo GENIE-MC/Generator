@@ -94,10 +94,10 @@ bool XSecSplineList::SplineExists(
 //____________________________________________________________________________
 bool XSecSplineList::SplineExists(string key) const
 {
-  SLOG("XSecSplineList", pDEBUG) << "Checking for spline with key = " << key;
+  SLOG("XSecSplLst", pDEBUG) << "Checking for spline with key = " << key;
 
   bool exists = (fSplineMap.count(key) == 1);
-  SLOG("XSecSplineList", pDEBUG)
+  SLOG("XSecSplLst", pDEBUG)
                << "Spline found?...." << utils::print::BoolAsYNString(exists);
   return exists;
 }
@@ -115,7 +115,7 @@ const Spline * XSecSplineList::GetSpline(string key) const
      map<string, Spline *>::const_iterator iter = fSplineMap.find(key);
      return iter->second;
   } else {
-    SLOG("XSecSplineList", pWARN) << "Couldn't find spline for key = " << key;
+    SLOG("XSecSplLst", pWARN) << "Couldn't find spline for key = " << key;
     return 0;
   }
   return 0;
@@ -129,7 +129,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 // For building this specific entry of the spline list, the user is allowed
 // to override the list-wide nknots,Emin,Emax
 
-  SLOG("XSecSplineList", pINFO)
+  SLOG("XSecSplLst", pNOTICE)
              << "Creating cross section spline using the algorithm: " << *alg;
 
   string key = this->BuildSplineKey(alg,interaction);
@@ -161,7 +161,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 
     xsec[i] = alg->XSec(interaction);
 
-    SLOG("XSecSplineList", pINFO)
+    SLOG("XSecSplLst", pNOTICE)
             << "xsec(E = " << E[i] << ") = " 
                        << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2";
   }
@@ -197,12 +197,12 @@ void XSecSplineList::SaveAsXml(string filename) const
 {
 //! Save XSecSplineList to XML file
 
-  SLOG("XSecSplineList", pINFO)
-                     << "Saving XSecSplineList as XML in file: " << filename;
+  SLOG("XSecSplLst", pNOTICE)
+       << "Saving XSecSplineList as XML in file: " << filename;
 
   ofstream outxml(filename.c_str());
   if(!outxml.is_open()) {
-    SLOG("XSecSplineList", pERROR) << "Couldn't create file = " << filename;
+    SLOG("XSecSplLst", pERROR) << "Couldn't create file = " << filename;
     return;
   }
   outxml << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>";
@@ -236,16 +236,16 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 //! are added to the existing list. If false, then the existing list is reseted
 //! before loading the splines.
 
-  SLOG("XSecSplineList", pINFO)
-       << "Loading XSecSplineList from XML file: " << filename
-                 << ". Keeping existing splines option turned "
-                                                 << ( (keep) ? "ON" : "OFF" );
+  SLOG("XSecSplLst", pNOTICE) << "Loading splines from: " << filename;
+  SLOG("XSecSplLst", pNOTICE)
+          << "Option to keep existing splines is switched "
+                                         << ( (keep) ? "ON" : "OFF" );
   if(!keep) fSplineMap.clear();
 
   xmlDocPtr xml_doc = xmlParseFile(filename.c_str() );
 
   if(xml_doc==NULL) {
-    LOG("XSecSplineList", pERROR)
+    LOG("XSecSplLst", pERROR)
           << "\nXML file could not be parsed! [filename: " << filename << "]";
     return kXmlNotParsed;
   }
@@ -253,18 +253,18 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
   xmlNodePtr xmlCur = xmlDocGetRootElement(xml_doc);
 
   if(xmlCur==NULL) {
-    LOG("XSecSplineList", pERROR)
+    LOG("XSecSplLst", pERROR)
         << "\nXML doc. has null root element! [filename: " << filename << "]";
     return kXmlEmpty;
   }
   if( xmlStrcmp(xmlCur->name,
                  (const xmlChar *) "genie_xsec_spline_list") ) {
-    LOG("XSecSplineList", pERROR)
+    LOG("XSecSplLst", pERROR)
      << "\nXML doc. has invalid root element! [filename: " << filename << "]";
     return kXmlInvalidRoot;
   }
 
-  SLOG("XSecSplineList", pINFO) << "XML file was successfully parsed";
+  SLOG("XSecSplLst", pNOTICE) << "XML file was successfully parsed";
 
   // read/set the uselog attribute
   string uselog = utils::str::TrimSpaces(
@@ -286,9 +286,9 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                            XmlParserUtils::GetAttribute(xmlCur, "nknots"));
        int nknots = atoi( snkn.c_str() );
 
-       LOG("XSecSplineList", pINFO)
-             << "Parsing XML spline (# of knots = " << nknots << ")"
-                                               << " with key: \n " << name;
+       BLOG("XSecSplLst", pNOTICE) << "Loading spline: " << name;
+       SLOG("XSecSplLst", pDEBUG)  << "Number ok knots = " << nknots;
+
        int      iknot = 0;
        double * E     = new double[nknots];
        double * xsec  = new double[nknots];
@@ -297,7 +297,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 
        // loop over all xml tree nodes that are children of the <spline> node
        while (xmlSplChild != NULL) {
-         LOG("XSecSplineList", pDEBUG)
+         LOG("XSecSplLst", pDEBUG)
                       << "Got <spline> children node: " << xmlSplChild->name;
 
          // enter everytime you find a <knot> tag
@@ -307,7 +307,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 
             // loop over all xml tree nodes that are children of this <knot>
             while (xmlKnotChild != NULL) {
-               LOG("XSecSplineList", pDEBUG)
+               LOG("XSecSplLst", pDEBUG)
                        << "Got <knot> children node: "  << xmlKnotChild->name;
 
               // enter everytime you find a <E> or a <xsec> tag
@@ -323,7 +323,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                  if (is_xsec) xsec[iknot] = atof(val.c_str());
 
                 xmlFree(xmlValTagChild);
-                LOG("XSecSplineList", pDEBUG)
+                LOG("XSecSplLst", pDEBUG)
                                        << "tag: " << tag << ", value: " << val;
               }//if current tag is <E>,<xsec>
 
@@ -354,13 +354,13 @@ string XSecSplineList::BuildSplineKey(
             const XSecAlgorithmI * alg, const Interaction * interaction) const
 {
   if(!alg) {
-    LOG("XSecSplineList", pWARN)
+    LOG("XSecSplLst", pWARN)
             << "Null XSecAlgorithmI - Returning empty spline key";
     return "";
   }
 
   if(!interaction) {
-    LOG("XSecSplineList", pWARN)
+    LOG("XSecSplLst", pWARN)
             << "Null Interaction - Returning empty spline key";
     return "";
   }
@@ -383,23 +383,23 @@ bool XSecSplineList::AutoLoad(void)
   if( gSystem->Getenv("GSPLOAD") ) {
 
      string xmlfile = gSystem->Getenv("GSPLOAD");
-     LOG("XSecSplineList", pNOTICE) << "$GSPLOAD env.var = " << xmlfile;
+     SLOG("XSecSplLst", pINFO) << "$GSPLOAD env.var = " << xmlfile;
 
      bool is_accessible = ! (gSystem->AccessPathName(xmlfile.c_str()));
 
      if(is_accessible) {
-       LOG("XSecSplineList", pINFO) << "Loading cross section splines";
+       SLOG("XSecSplLst", pINFO) << "Loading cross section splines";
        XmlParserStatus_t status = this->LoadFromXml(xmlfile);
        assert(status==kXmlOK);
        return true;
      } else {
-       LOG("XSecSplineList", pWARN)
+       SLOG("XSecSplLst", pWARN)
               << "Specified XML file [" << xmlfile << "] is not accessible!";
        return false;
      }
   }
-  LOG("XSecSplineList", pNOTICE)
-                      << "No cross section splines will be loaded";
+  SLOG("XSecSplLst", pNOTICE)
+      << "$GSPLOAD was not defined! No cross section splines will be loaded";
   return false;
 }
 //____________________________________________________________________________

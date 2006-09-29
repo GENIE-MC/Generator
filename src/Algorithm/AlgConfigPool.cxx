@@ -60,7 +60,11 @@ AlgConfigPool::AlgConfigPool()
 AlgConfigPool::~AlgConfigPool()
 {
   cout << "AlgConfigPool singleton dtor: "
-                          << "Deleting all algorithm configurations" << endl;
+       << "Reporting algorithms configurations used during the last job: " 
+       << *this;
+
+  cout << "AlgConfigPool singleton dtor: "
+       << "Deleting all algorithm configurations" << endl;
   map<string, Registry *>::iterator citer;
   for(citer = fRegistryPool.begin(); citer != fRegistryPool.end(); ++citer) {
     Registry * config = citer->second;

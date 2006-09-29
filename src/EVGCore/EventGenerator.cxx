@@ -253,12 +253,11 @@ void EventGenerator::LoadEVGModules(void)
      string alg    = fConfig->GetString( alg_key.str()    );
      string config = fConfig->GetString( config_key.str() );
      SLOG("EventGenerator", pNOTICE)
-           << "Processing step: " << istep
-               << "-> loading EventRecordVisitorI: " << alg << "/" << config;
+        << "Loading module " << istep << " : " << alg << "/" << config;
 
      const EventRecordVisitorI * visitor =
                 dynamic_cast<const EventRecordVisitorI *> (
-                              this->SubAlg(alg_key.str(), config_key.str()));
+                         this->SubAlg(alg_key.str(), config_key.str()));
      (*fEVGModuleVec)[istep] = visitor;
      (*fEVGTime)[istep]      = 0;
   }

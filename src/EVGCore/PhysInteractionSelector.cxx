@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include <vector>
+#include <sstream>
 
 #include <TLorentzVector.h>
 
@@ -29,8 +30,10 @@
 #include "Numerical/RandomGen.h"
 #include "Numerical/Spline.h"
 #include "Utils/XSecSplineList.h"
+#include "Utils/PrintUtils.h"
 
 using std::vector;
+using std::ostringstream;
 using namespace genie;
 using namespace genie::units;
 
@@ -56,13 +59,13 @@ EventRecord * PhysInteractionSelector::SelectInteraction
      (const InteractionGeneratorMap * igmap, const TLorentzVector & p4) const
 {
   if(!igmap) {
-     LOG("InteractionSelector", pERROR)
-            << "\n*** NULL InteractionGeneratorMap! Can't select interaction";
+     LOG("IntSel", pERROR)
+        << "\n*** NULL InteractionGeneratorMap! Can't select interaction";
      return 0;
   }
   if(igmap->size() <= 0) {
-     LOG("InteractionSelector", pERROR)
-           << "\n*** Empty InteractionGeneratorMap! Can't select interaction";
+     LOG("IntSel", pERROR)
+       << "\n*** Empty InteractionGeneratorMap! Can't select interaction";
      return 0;
   }
 
@@ -72,18 +75,27 @@ EventRecord * PhysInteractionSelector::SelectInteraction
   if (fUseSplines) xssl = XSecSplineList::Instance();
 
   const InteractionList & ilst = igmap->GetInteractionList();
-
   vector<double> xseclist(ilst.size());
 
-  unsigned int i=0;
-  InteractionList::const_iterator intliter; // interaction list iter
+  string istate = ilst[0]->InitState().AsString();
+  ostringstream msg;
+  msg << "Selecting an interaction for initial state = "
+                << istate << " at E = " << p4.E() << " GeV";
 
-  for(intliter = ilst.begin(); intliter != ilst.end(); ++intliter) {
+  LOG("IntSel", pNOTICE)
+             << utils::print::PrintFramedMesg(msg.str(), 0, '~');
+  LOG("IntSel", pNOTICE)
+     << "Computing xsecs for all relevant modeled interactions:";
+
+  unsigned int i=0;
+  InteractionList::const_iterator intliter = ilst.begin(); 
+
+  for( ; intliter != ilst.end(); ++intliter) {
 
      Interaction * interaction = new Interaction(**intliter);
      interaction->InitStatePtr()->SetProbeP4(p4);
 
-     SLOG("InteractionSelector", pDEBUG)
+     SLOG("IntSel", pDEBUG)
            << "Computing xsec for: \n  " << interaction->AsString();
 
      // get the cross section for this interaction
@@ -104,8 +116,8 @@ EventRecord * PhysInteractionSelector::SelectInteraction
      } else {
            xsec = xsec_alg->XSec(interaction);
      }
-     SLOG("InteractionSelector", pINFO)
-       << "\n " << interaction->AsString() 
+     BLOG("IntSel", pNOTICE)
+       << interaction->AsString() 
        << " --> xsec " << (eval ? "[**interp**]" : "[**calc**]") 
        << " = " << xsec/cm2 << " cm^2";
 
@@ -116,26 +128,26 @@ EventRecord * PhysInteractionSelector::SelectInteraction
 
   // select an interaction
 
-  LOG("InteractionSelector", pINFO)
-                        << "Selecting an entry from the Interaction List";
+  LOG("IntSel", pINFO)
+            << "Selecting an entry from the Interaction List";
   double xsec_sum  = 0;
   for(unsigned int iint = 0; iint < xseclist.size(); iint++) {
      xsec_sum       += xseclist[iint];
      xseclist[iint]  = xsec_sum;
 
-     SLOG("InteractionSelector", pINFO)
-                           << "Sum{xsec}(0->" << iint << ") = " << xsec_sum;
+     SLOG("IntSel", pINFO)
+             << "Sum{xsec}(0->" << iint << ") = " << xsec_sum;
   }
   RandomGen * rnd = RandomGen::Instance();
   double R = xsec_sum * rnd->RndISel().Rndm();
 
-  LOG("InteractionSelector", pINFO)
-               << "Generating Rndm (0. -> max = " << xsec_sum << ") = " << R;
+  LOG("IntSel", pINFO)
+      << "Generating Rndm (0. -> max = " << xsec_sum << ") = " << R;
 
   for(unsigned int iint = 0; iint < xseclist.size(); iint++) {
 
-     SLOG("InteractionSelector", pDEBUG)
-                       << "Sum{xsec}(0->" << iint <<") = " << xseclist[iint];
+     SLOG("IntSel", pDEBUG)
+               << "Sum{xsec}(0->" << iint <<") = " << xseclist[iint];
 
      if( R < xseclist[iint] ) {
        Interaction * selected_interaction = new Interaction (*ilst[iint]);
@@ -147,8 +159,8 @@ EventRecord * PhysInteractionSelector::SelectInteraction
        double xsec = xseclist[iint] - xsec_pedestal;
        assert(xsec>0);
 
-       LOG("InteractionSelector", pNOTICE)
-                      << "Selected interaction: \n" << *selected_interaction;
+       LOG("IntSel", pNOTICE)
+                << "\nSelected interaction: " << *selected_interaction;
 
        // bootstrap the event record
        EventRecord * evrec = new EventRecord;
@@ -158,7 +170,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
        return evrec;
      }
   }
-  LOG("InteractionSelector", pERROR) << "\nCould not select interaction";
+  LOG("IntSel", pERROR) << "Could not select interaction";
   return 0;
 }
 //___________________________________________________________________________

@@ -21,6 +21,7 @@
 #include "EVGCore/EventGeneratorList.h"
 #include "EVGCore/EventGeneratorI.h"
 #include "Messenger/Messenger.h"
+#include "Utils/PrintUtils.h"
 
 using std::ostringstream;
 
@@ -46,9 +47,9 @@ EventGeneratorListAssembler::~EventGeneratorListAssembler()
 //___________________________________________________________________________
 EventGeneratorList * EventGeneratorListAssembler::AssembleGeneratorList()
 {
-  SLOG("EvGenListAssembler", pNOTICE) << "----------------------------------";
-  SLOG("EvGenListAssembler", pNOTICE) << "Loading requested Event Generators";
-  SLOG("EvGenListAssembler", pNOTICE) << "----------------------------------";
+  SLOG("EvGenListAssembler", pNOTICE) 
+            << utils::print::PrintFramedMesg(
+                           "Loading requested Event Generators", 0, '-');
 
   EventGeneratorList * evgl = new EventGeneratorList;
 
@@ -60,7 +61,6 @@ EventGeneratorList * EventGeneratorListAssembler::AssembleGeneratorList()
     const EventGeneratorI * evgen = this->LoadGenerator(ip);
     evgl->push_back(evgen);
   }
-
   return evgl;
 }
 //___________________________________________________________________________
@@ -74,7 +74,8 @@ const EventGeneratorI * EventGeneratorListAssembler::LoadGenerator(int ip)
   string alg  = fConfig->GetString( alg_key.str()    );
   string conf = fConfig->GetString( config_key.str() );
 
-  SLOG("EvGenListAssembler", pNOTICE) << "Loading: " << alg << "/" << conf;
+  SLOG("EvGenListAssembler", pNOTICE) 
+        << "Loading generator: " << alg << "/" << conf;
 
   AlgFactory * algf = AlgFactory::Instance();
 

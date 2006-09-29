@@ -41,7 +41,7 @@ namespace print
   string BoolAsIOString  (bool b);
   string BoolAsYNString  (bool b);
   void   PrintBanner     (void);
-  string PrintFramedMesg (string mesg);
+  string PrintFramedMesg (string mesg, unsigned int nl=1, const char f='*');
 
 }      // print namespace
 }      // utils namespace

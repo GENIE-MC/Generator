@@ -178,6 +178,15 @@ using std::string;
                << log4cpp::Priority::DEBUG << "[l] <" \
                << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")> : "
 
+/*!
+  \def   BLOG(stream, priority)
+  \brief A macro that returns the requested log4cpp::Category appending no 
+         additional information
+*/
+
+#define BLOG(stream, priority) \
+	  (*Messenger::Instance())(stream) << priority
+
 namespace genie {
 
 class Messenger

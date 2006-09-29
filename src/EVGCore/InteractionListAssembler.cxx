@@ -51,7 +51,7 @@ InteractionList * InteractionListAssembler::AssembleInteractionList(
                                        const InitialState & init_state) const
 {
   if(!fEventGeneratorList) {
-     LOG("InteractionList", pERROR)
+     LOG("IntLst", pERROR)
            << "\n*** NULL Generator List! "
              << "Can not assemble the Interaction List for \n" << init_state;
      return 0;
@@ -67,7 +67,7 @@ InteractionList * InteractionListAssembler::AssembleInteractionList(
 
      const EventGeneratorI * evgen = *evgliter;
 
-     LOG("InteractionList", pINFO)
+     LOG("IntLst", pINFO)
             << "\nQuerying EventGenerator: " << evgen->Id().Key()
                                             << " for its Interaction List";
 
@@ -78,7 +78,7 @@ InteractionList * InteractionListAssembler::AssembleInteractionList(
 
      InteractionList * intlist = intlistgen->CreateInteractionList(init_state); // should delete ?
 
-     LOG("InteractionList", pINFO) << "\nGot list:\n" << *intlist;
+     LOG("IntLst", pINFO) << "\nGot list:\n" << *intlist;
 
      // add them to the combined interaction list
      for(intliter = intlist->begin();
