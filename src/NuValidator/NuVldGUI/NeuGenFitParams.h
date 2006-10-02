@@ -25,7 +25,7 @@ using std::string;
 namespace genie {
 namespace nuvld {
 
-const int kNNGFitParams = 22;
+const int kNNGFitParams = 24;
 
 typedef enum ENeuGenFitParam {
 
@@ -50,7 +50,9 @@ typedef enum ENeuGenFitParam {
   kNgfDisResM2vbp,
   kNgfDisResM3vbp,
   kNgfDisResM2vbn,
-  kNgfDisResM3vbn
+  kNgfDisResM3vbn,
+  kNgfNuDisScale, 
+  kNgfNuBarDisScale
 
 } NeuGenFitParam_t;
 

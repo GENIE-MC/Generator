@@ -21,14 +21,23 @@
 #include <TClass.h>
 
 #include "Algorithm/AlgFactory.h"
+#include "Algorithm/AlgConfigPool.h"
 #include "Algorithm/Algorithm.h"
 #include "Messenger/Messenger.h"
 
 using std::cout;
 using std::endl;
 
-namespace genie {
+using namespace genie;
 
+//____________________________________________________________________________
+namespace genie {
+  ostream & operator<<(ostream & stream, const AlgFactory & algf)
+  {
+    algf.Print(stream);
+    return stream;
+  }
+}
 //____________________________________________________________________________
 AlgFactory * AlgFactory::fInstance = 0;
 //____________________________________________________________________________
@@ -39,6 +48,14 @@ AlgFactory::AlgFactory()
 //____________________________________________________________________________
 AlgFactory::~AlgFactory()
 {
+  string frame(100,'~');
+  cout << endl << frame;
+  cout << "\nAlgFactory singleton dtor: "
+       << "Reporting on algorithms/configurations used during the last job: "
+       << endl << frame;
+  cout << *this;
+  cout << frame << endl;
+
   cout << "AlgFactory singleton dtor: "
                           << "Deleting all owned algorithmic objects" << endl;
   map<string, Algorithm *>::iterator alg_iter;
@@ -136,5 +153,26 @@ Algorithm * AlgFactory::InstantiateAlgorithm(
   return alg_base;
 }
 //____________________________________________________________________________
+void AlgFactory::Print(ostream & stream) const
+{
+  string frame(100,'.');
 
-} // genie namespace
+  stream << endl;
+  map<string, Algorithm *>::const_iterator alg_iter;
+  for(alg_iter = fAlgPool.begin(); alg_iter != fAlgPool.end(); ++alg_iter) {
+    const Algorithm * alg = alg_iter->second;
+    stream << frame << endl;
+    stream << "Used algorithm: " << alg->Id() << endl;
+    stream << "Printing config:";
+    stream << alg->GetConfig();
+  }
+
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry & gc = *(confp->GlobalParameterList());
+
+  stream << frame << endl;
+  stream << "Printing global parameters list:";
+  stream << gc;
+}
+//____________________________________________________________________________
+

@@ -101,6 +101,14 @@ void NeuGenWrapper::Reconfigure(const NeuGenConfig * config)
   val = _config->EtaQel();
   set_parameters_("QEL_ETA",&seven,&val);
 
+  //! Neutrino DIS Scale Factor
+  val = _config->NuDisFF();
+  set_parameters_("NU_DISFF",&eight,&val);
+
+  //! Anti-Neutrino DIS Scale Factor
+  val = _config->ANuDisFF();
+  set_parameters_("ANU_DISFF",&nine,&val);
+
   //! Set R-S Model parameter Omega
   val = _config->OmegaRes();
   set_parameters_("RES_OMEGA",&nine,&val);
@@ -160,12 +168,14 @@ void NeuGenWrapper::Reconfigure(const NeuGenConfig * config)
   LOG("NeuGen", pINFO) << "Reconfiguring: pdfgroup [" << pdfgroup <<
   "], pdset [" << pdfset <<"]";
   set_pdfset_(&pdfgroup,&pdfset,&q2min);   
+
+  //print_configuration_();
 }  
 //____________________________________________________________________________
 void NeuGenWrapper::SetDefaultConfig(void)
 {
   int  nchar = 0;
-  int  nver = 2;
+  int  nver = 4;
   bool ok    = false;
  
   // Get the user-prefered NeuGEN configuration set from the GNEUGENCONF env. 
@@ -180,7 +190,7 @@ void NeuGenWrapper::SetDefaultConfig(void)
 
   string gneugenconfv =
               ( gSystem->Getenv("GNEUGENCONFV") ? 
-                                gSystem->Getenv("GNEUGENCONFV") : "2");
+                                gSystem->Getenv("GNEUGENCONFV") : "4");
 
   LOG("NeuGen", pINFO)
           << "Using NeuGEN configuration set: [" << gneugenconf << "]" << " version: ["
@@ -192,7 +202,7 @@ void NeuGenWrapper::SetDefaultConfig(void)
 
   initialize_configuration_(conf, &nchar, &nver, &ok);
   assert(ok);
-  print_configuration_();
+//  print_configuration_();
 
 //  set_default_parameters_();
 }

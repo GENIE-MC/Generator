@@ -176,7 +176,7 @@ void GEVGDriver::Configure(const InitialState & init_state)
   this -> BuildInteractionGeneratorMap ();
   this -> BuildInteractionSelector     ();
 
-  LOG("GEVGDriver", pNOTICE) << "Done configuring GEVGDriver!";
+  LOG("GEVGDriver", pNOTICE) << "Done configuring GEVGDriver! \n";
 }
 //___________________________________________________________________________
 void GEVGDriver::BuildInitialState(const InitialState & init_state)
@@ -275,7 +275,11 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   //
   //   (note: use of the 'Visitor' Design Pattern)
 
-  LOG("GEVGDriver", pINFO) << "Generating Event:";
+  string mesg = "Requesting from event generation thread: " + 
+         evgen->Id().Key() + " to generate the selected interaction";
+
+  LOG("GEVGDriver", pNOTICE) 
+         << utils::print::PrintFramedMesg(mesg,1,'=');
 
   evgen->ProcessEventRecord(fCurrentRecord);
 

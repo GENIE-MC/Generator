@@ -79,11 +79,11 @@ EventRecord * PhysInteractionSelector::SelectInteraction
 
   string istate = ilst[0]->InitState().AsString();
   ostringstream msg;
-  msg << "Selecting an interaction for initial state = "
-                << istate << " at E = " << p4.E() << " GeV";
+  msg << "Selecting an interaction for the given initial state = "
+      << istate << " at E = " << p4.E() << " GeV";
 
   LOG("IntSel", pNOTICE)
-             << utils::print::PrintFramedMesg(msg.str(), 0, '~');
+             << utils::print::PrintFramedMesg(msg.str(), 0, '=');
   LOG("IntSel", pNOTICE)
      << "Computing xsecs for all relevant modeled interactions:";
 

@@ -68,7 +68,9 @@ void NeuGenConfig::SetBestParameters(void)
   fR0Coh    =  kNGDefR0Coh;
   fREICoh   =  kNGDefREICoh;
   fKnoB     =  kNGDefKnoB;
-  
+  fNuDisFF  =  kNGDefNuDisFF;
+  fANuDisFF =  kNGDefANuDisFF;
+    
   for(unsigned int istate = 0; istate < kNInSt; istate++)
                                           fKnoA[istate] = kNGDefKnoA[istate];
 
@@ -145,7 +147,9 @@ void NeuGenConfig::Copy(const NeuGenConfig * config)
   fR0Coh    = config->fR0Coh;    
   fREICoh   = config->fREICoh;   
   fKnoB     = config->fKnoB;
-    
+  fNuDisFF  = config->fNuDisFF;
+  fANuDisFF = config->fANuDisFF;
+ 
   for(unsigned int istate = 0; istate < kNInSt; istate++)
                                       fKnoA[istate] = config->fKnoA[istate];
 
@@ -165,7 +169,8 @@ void NeuGenConfig::Print(ostream & stream) const
   stream << "R-S Model parameter Z:..................." << fZRes     << endl;
   stream << "Nuclear size scale param:................" << fR0Coh    << endl;
   stream << "Re/Im for pion scattering amplitude:....." << fREICoh   << endl;
-
+  stream << "Neutrino DIS Scale Factor:..............." << fNuDisFF  << endl;
+  stream << "Anti-Neutrino DIS Scale Factor:.........." << fANuDisFF << endl;
   stream << "KNO Hadronization Param B ..............." << fKnoB     << endl;
   stream << "KNO Hadronization Param A / vp .........."
                                << fKnoA[this->InitState2IPos(e_vp)]  << endl;
