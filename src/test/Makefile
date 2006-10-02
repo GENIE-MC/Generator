@@ -41,7 +41,6 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testResonances	\
 	$(GENIE_BIN_PATH)/testReWeight		\
 	$(GENIE_BIN_PATH)/testReadGNtuple	\
-#	$(GENIE_BIN_PATH)/testXSec		\
 	$(GENIE_BIN_PATH)/testROOTGeometry      \
 	$(GENIE_BIN_PATH)/testSAIDHadronXSec
 
@@ -49,7 +48,6 @@ TGT =	testBaryonResDataSet	\
  	testConfigPool		\
  	testDecay		\
  	testHadronization	\
-# 	testXSec		\
 	testMessenger		\
 	testNumerical		\
 	testPDFLIB		\
