@@ -32,10 +32,12 @@
 #include "GHEP/GHepVirtualListFolder.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
+#include "Utils/PrintUtils.h"
 
 using std::ostringstream;
 
 using namespace genie;
+using namespace genie::utils;
 using namespace genie::controls;
 using namespace genie::exceptions;
 
@@ -63,7 +65,7 @@ EventGenerator::~EventGenerator()
 //___________________________________________________________________________
 void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 {
-  SLOG("EventGenerator", pNOTICE) << "Generating Event:";
+  LOG("EventGenerator", pNOTICE) << "Generating Event...";
 
   //-- Clear previous virtual list folder
   LOG("EventGenerator", pNOTICE) << "Clearing the GHepVirtualListFolder";
@@ -81,6 +83,9 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   //-- Reset stop-watch
   fWatch->Reset();
 
+  string mesgh = "Event generation thread: " + this->Id().Key() + 
+                 ": running event generation module: ";
+
   //-- Loop over the event record processing steps
   int istep=0;
   vector<const EventRecordVisitorI *>::const_iterator miter;
@@ -90,9 +95,10 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
     const EventRecordVisitorI * visitor = *miter; // generation module
 
-    SLOG("EventGenerator", pNOTICE)
-      << "\n\n---------- Running EventRecordVisitorI: "
-                             << visitor->Id().Key() << " ----------\n";
+    string mesg = mesgh + visitor->Id().Key();
+    LOG("EventGenerator", pNOTICE)
+                 << utils::print::PrintFramedMesg(mesg,0,'~');
+
     if(ffwd) {
       LOG("EventGenerator", pNOTICE)
            << "Fast Forward flag was set - Skipping processing step!";
@@ -156,7 +162,9 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   }
 
   LOG("EventGenerator", pNOTICE)
-         << "The EventRecord was visited by all EventRecordVisitors\n";
+              << utils::print::PrintFramedMesg("Thread Summary",0,'~');
+  LOG("EventGenerator", pNOTICE)
+           << "The EventRecord was visited by all EventRecordVisitors";
 
   LOG("EventGenerator", pINFO) << "** Event generation timing info **";
   istep=0;
@@ -164,10 +172,11 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
                                miter != fEVGModuleVec->end(); ++miter){
     const EventRecordVisitorI * visitor = *miter;
 
-    SLOG("EventGenerator", pINFO)
-      << "EventRecordVisitorI: " << visitor->Id().Key() << " -> ~"
-                      << TMath::Max(0.,(*fEVGTime)[istep++]) << " sec";
+    BLOG("EventGenerator", pINFO)
+       << "module " << visitor->Id().Key() << " -> ~"
+                        << TMath::Max(0.,(*fEVGTime)[istep++]) << " s";
   }
+  LOG("EventGenerator", pNOTICE) << "Done generating event!";
 }
 //___________________________________________________________________________
 const InteractionListGeneratorI * EventGenerator::IntListGenerator(void) const

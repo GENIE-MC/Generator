@@ -570,7 +570,7 @@ void Registry::CopyToFolder(TFolder * folder) const
 void Registry::Print(ostream & stream) const
 {
    stream << endl;
-   stream << "[-] REGISTRY: [" << Name() << "]";
+   stream << "[-] Registry name: [" << Name() << "]";
 
    stream << " - Write Status: ";
    if(fIsReadOnly)       { stream << "[locked]";   }

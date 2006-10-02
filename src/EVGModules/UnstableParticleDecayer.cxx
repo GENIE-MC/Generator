@@ -132,6 +132,9 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
      ipos++;
 
   } // loop over particles
+
+  LOG("ParticleDecayer", pNOTICE) 
+          << "Done finding unstable particles & decaying them!";
 }
 //___________________________________________________________________________
 bool UnstableParticleDecayer::ToBeDecayed(GHepParticle * particle) const

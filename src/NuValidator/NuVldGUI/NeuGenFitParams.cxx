@@ -104,28 +104,30 @@ string NeuGenFitParams::ParamAsString(int iparam) const
   
      switch(param) {
 
-     case ( kNgfMaQel       ): return "Ma-QEL (GeV)"; break;
-     case ( kNgfMaRes       ): return "Ma-RES (GeV)"; break;
-     case ( kNgfMaCoh       ): return "Ma-COH (GeV)"; break;
-     case ( kNgfQelFa0      ): return "QEL-FA(Q2=0)"; break;
-     case ( kNgfQelEta      ): return "QEL-ETA     "; break;
-     case ( kNgfResOmega    ): return "RES-OMEGA   "; break;
-     case ( kNgfResZ        ): return "RES-Z       "; break;
-     case ( kNgfCohR0       ): return "COH Nucl. R0"; break;
-     case ( kNgfCohREI      ): return "COH pi Re/Im"; break;
-     case ( kNgfKnoB        ): return "KNO B       "; break;
-     case ( kNgfKnoAvp      ): return "KNO A (v+p) "; break;
-     case ( kNgfKnoAvn      ): return "KNO A (v+n) "; break;
-     case ( kNgfKnoAvbp     ): return "KNO A (vb+p)"; break;
-     case ( kNgfKnoAvbn     ): return "KNO A (vb+n)"; break;
-     case ( kNgfDisResM2vp  ): return "D/R (v+p /2)"; break;
-     case ( kNgfDisResM3vp  ): return "D/R (v+p /3)"; break;
-     case ( kNgfDisResM2vn  ): return "D/R (v+n /2)"; break;
-     case ( kNgfDisResM3vn  ): return "D/R (v+n /3)"; break;
-     case ( kNgfDisResM2vbp ): return "D/R (vb+p/2)"; break;
-     case ( kNgfDisResM3vbp ): return "D/R (vb+p/3)"; break;
-     case ( kNgfDisResM2vbn ): return "D/R (vb+n/2)"; break;
-     case ( kNgfDisResM3vbn ): return "D/R (vb+n/3)"; break;
+     case ( kNgfMaQel        ): return "Ma-QEL (GeV)"; break;
+     case ( kNgfMaRes        ): return "Ma-RES (GeV)"; break;
+     case ( kNgfMaCoh        ): return "Ma-COH (GeV)"; break;
+     case ( kNgfQelFa0       ): return "QEL-FA(Q2=0)"; break;
+     case ( kNgfQelEta       ): return "QEL-ETA     "; break;
+     case ( kNgfResOmega     ): return "RES-OMEGA   "; break;
+     case ( kNgfResZ         ): return "RES-Z       "; break;
+     case ( kNgfCohR0        ): return "COH Nucl. R0"; break;
+     case ( kNgfCohREI       ): return "COH pi Re/Im"; break;
+     case ( kNgfKnoB         ): return "KNO B       "; break;
+     case ( kNgfKnoAvp       ): return "KNO A (v+p) "; break;
+     case ( kNgfKnoAvn       ): return "KNO A (v+n) "; break;
+     case ( kNgfKnoAvbp      ): return "KNO A (vb+p)"; break;
+     case ( kNgfKnoAvbn      ): return "KNO A (vb+n)"; break;
+     case ( kNgfDisResM2vp   ): return "D/R (v+p /2)"; break;
+     case ( kNgfDisResM3vp   ): return "D/R (v+p /3)"; break;
+     case ( kNgfDisResM2vn   ): return "D/R (v+n /2)"; break;
+     case ( kNgfDisResM3vn   ): return "D/R (v+n /3)"; break;
+     case ( kNgfDisResM2vbp  ): return "D/R (vb+p/2)"; break;
+     case ( kNgfDisResM3vbp  ): return "D/R (vb+p/3)"; break;
+     case ( kNgfDisResM2vbn  ): return "D/R (vb+n/2)"; break;
+     case ( kNgfDisResM3vbn  ): return "D/R (vb+n/3)"; break;
+     case ( kNgfNuDisScale   ): return "Neutrino DIS scale factor";      break;
+     case ( kNgfNuBarDisScale): return "Anti-Neutrino DIS scale factor"; break;
      }
      
   } else {

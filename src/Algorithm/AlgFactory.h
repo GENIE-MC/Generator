@@ -21,10 +21,12 @@
 
 #include <map>
 #include <string>
+#include <iostream>
 
 using std::map;
 using std::pair;
 using std::string;
+using std::ostream;
 
 namespace genie {
 
@@ -33,13 +35,14 @@ class Algorithm;
 class AlgFactory {
 
 public:
-
   static AlgFactory * Instance();
 
-  const Algorithm * GetAlgorithm(
-                         string alg_name, string param_set="NoConfig");
-  Algorithm * AdoptAlgorithm(
-                   string alg_name, string param_set="NoConfig") const;
+  const Algorithm * GetAlgorithm   (string name, string conf="NoConfig");
+  Algorithm *       AdoptAlgorithm (string name, string conf="NoConfig") const;
+
+  void Print(ostream & stream) const;
+
+  friend ostream & operator << (ostream & stream, const AlgFactory & algf);
 
 private:
   AlgFactory();

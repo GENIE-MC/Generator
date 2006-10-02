@@ -374,7 +374,7 @@ void GHepRecord::AddParticle(const GHepParticle & p)
 // Provides a simplified method for inserting entries in the TClonesArray
 
   unsigned int pos = this->GetEntries();
-  LOG("GHEP", pNOTICE)
+  LOG("GHEP", pINFO)
     << "Adding particle with pdgc = " << p.Pdg() << " at slot = " << pos;
 
   new ((*this)[pos]) GHepParticle(p);
@@ -391,7 +391,7 @@ void GHepRecord::AddParticle(
 // Provides a 'simplified' method for inserting entries in the TClonesArray
 
   unsigned int pos = this->GetEntries();
-  LOG("GHEP", pNOTICE)
+  LOG("GHEP", pINFO)
            << "Adding particle with pdgc = " << pdg << " at slot = " << pos;
 
   new ((*this)[pos]) GHepParticle(pdg,status, mom1,mom2,dau1,dau2, p, v);
@@ -409,7 +409,7 @@ void GHepRecord::AddParticle(
 // Provides a 'simplified' method for inserting entries in the TClonesArray
 
   unsigned int pos = this->GetEntries();
-  LOG("GHEP", pNOTICE)
+  LOG("GHEP", pINFO)
            << "Adding particle with pdgc = " << pdg << " at slot = " << pos;
 
   new ( (*this)[pos] ) GHepParticle (
