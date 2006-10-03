@@ -42,7 +42,7 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testReWeight		\
 	$(GENIE_BIN_PATH)/testReadGNtuple	\
 	$(GENIE_BIN_PATH)/testROOTGeometry      \
-	$(GENIE_BIN_PATH)/testSAIDHadronXSec
+	$(GENIE_BIN_PATH)/testINukeHadroData
 
 TGT =	testBaryonResDataSet	\
  	testConfigPool		\
@@ -144,9 +144,9 @@ testROOTGeometry: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testROOTGeometry \
 			testROOTGeometry.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
-testSAIDHadronXSec: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testSAIDHadronXSec \
-	              testSAIDHadronXSec.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+testINukeHadroData: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testINukeHadroData \
+	              testINukeHadroData.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 #################### CLEANING
 
@@ -204,7 +204,7 @@ clean--testReadGNtuple: FORCE
 clean--testROOTGeometry: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testROOTGeometry
 
-clean--testSAIDHadronXSec: FORCE
+clean--testINukeHadroData: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testSAIDHadronXSec
 
 FORCE:
