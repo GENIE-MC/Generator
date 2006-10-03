@@ -162,7 +162,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   }
 
   LOG("EventGenerator", pNOTICE)
-              << utils::print::PrintFramedMesg("Thread Summary",0,'~');
+              << utils::print::PrintFramedMesg("Thread Summary",0,'*');
   LOG("EventGenerator", pNOTICE)
            << "The EventRecord was visited by all EventRecordVisitors";
 
