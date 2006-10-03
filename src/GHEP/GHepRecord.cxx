@@ -471,6 +471,38 @@ void GHepRecord::UpdateDaughterLists(void)
   this->CompactifyDaughterLists();
 }
 //___________________________________________________________________________
+void GHepRecord::RemoveIntermediateParticles(void)
+{
+  LOG("GHEP", pNOTICE) << "Removing all intermediate particles from GHEP";
+  this->Compress(); 
+
+  int i=0;
+  GHepParticle * p = 0;
+
+  TIter iter(this);
+  while( (p = (GHepParticle *)iter.Next()) ) {
+
+    if(!p) continue;
+    GHepStatus_t ist = p->Status();
+
+    bool keep = (ist==kIStInitialState) || 
+                (ist==kIStStableFinalState) || (ist==kIStNucleonTarget);
+    if(keep) {
+       p->SetFirstDaughter(-1);
+       p->SetLastDaughter(-1);
+       p->SetFirstMother(-1);
+       p->SetLastMother(-1);
+    } else {
+       LOG("GHEP", pNOTICE) 
+                   << "Removing: " << p->Name() << " from slot: " << i;
+       this->RemoveAt(i);
+    }
+    i++;
+  }
+  LOG("GHEP", pDEBUG) << "Compressing GHEP record to remove empty slots";
+  this->Compress(); 
+}
+//___________________________________________________________________________
 void GHepRecord::CompactifyDaughterLists(void)
 {
   int n     = this->GetEntries();
