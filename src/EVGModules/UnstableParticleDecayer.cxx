@@ -86,6 +86,8 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
         fCurrDecayer=0;
         for( ; dec_iter != fDecayers->end(); ++dec_iter) {
           const DecayModelI * decayer = *dec_iter;
+          LOG("ParticleDecayer", pNOTICE)
+                 << "Requesting decay from " << decayer->Id().Key();
           if(decayer->IsHandled(p->Pdg())) {
             fCurrDecayer = decayer;
             break;
@@ -225,7 +227,7 @@ void UnstableParticleDecayer::CopyToEventRecord(
      //-- and now add the decay products
      if(ist == kIStStableFinalState) { 
 
-        LOG("ParticleDecayer", pINFO) << "Adding daughter... PDG=" << pdg;
+        LOG("ParticleDecayer", pDEBUG) << "Adding daughter... PDG=" << pdg;
 
         // figure out the right status code for the current daughter
         bool is_hadron = pdg::IsHadron(pdg);
