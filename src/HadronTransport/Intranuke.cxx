@@ -4,9 +4,9 @@
  All rights reserved.
  For the licensing terms see $GENIE/USER_LICENSE.
 
- Author: Steve Dytman <dytman+@pitt.edu>, Pittsburgh University
-         Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
-         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, CCLRC, Rutherford Lab
+ Author: Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
+         Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts Univ.
+         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
          September 20, 2005
 
  For the class documentation see the corresponding header file.
@@ -26,7 +26,7 @@
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "HadronTransport/Intranuke.h"
-#include "HadronTransport/IntranukeConstants.h"
+#include "HadronTransport/INukeHadroData.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -318,19 +318,19 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
 void Intranuke::SimHadronicInteraction(
                                     GHepRecord* evrec, GHepParticle* p) const
 {
-  HadroProc_t proc = this->HadronFate(p);
+  INukeProc_t proc = this->HadronFate(p);
 
   switch (proc) {
-    case kHPcAbsorption:
+    case kIPcAbsorption:
         this->SimAbsorption(evrec, p);
         break;
-    case kHPcChargeExchange:
+    case kIPcChargeExchange:
         this->SimChargeExchange(evrec, p);
         break;
-    case kHPcInelastic:
+    case kIPcInelastic:
         this->SimInelasticScattering(evrec, p);
         break;
-    case kHPcElastic:
+    case kIPcElastic:
         this->SimElasticScattering(evrec, p);
         break;
     default:
@@ -354,6 +354,49 @@ void Intranuke::SimInelasticScattering(
 			   GHepRecord* /*evrec*/, GHepParticle* /*p*/) const
 {
    LOG("Intranuke", pWARN) << "Can not do inelastic scatering yet.";
+
+
+  //++++ I have to get the final state for the selected fate somehow...
+  //++++ Set to something
+   /*
+  int nparticles = 2;
+  PDGCodeList pdgcv(nparticles);
+
+  pdgcv[0] = kPdgProton;
+  pdgcv[1] = kPdgNeutron;
+
+  // Get the decay product masses
+
+  vector<int>::const_iterator pdg_iter;
+  int i = 0;
+  double * mass = new double[pdgv.size()];
+  double   sum  = 0;
+  for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
+    int pdgc = *pdg_iter;
+    double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
+    mass[i++] = m;
+    sum += m;
+  }
+
+  LOG("KNOHad", pINFO)  
+    << "Decaying N = " << pdgv.size() << " particles / total mass = " << sum;
+  LOG("KNOHad", pINFO) 
+    << "Decaying system p4 = " << utils::print::P4AsString(&pd);
+
+  // Set the decay
+  bool permitted = fPhaseSpaceGenerator.SetDecay(pd, pdgv.size(), mass);
+  if(!permitted) {
+     LOG("KNOHad", pERROR) 
+       << " *** Phase space decay is not permitted \n"
+       << " Total particle mass = " << sum << "\n"
+       << " Decaying system p4 = " << utils::print::P4AsString(&pd);
+
+     // clean-up and return
+     delete [] mass;
+     return false;
+  }   
+   */
+
 }
 //___________________________________________________________________________
 void Intranuke::SimElasticScattering(
@@ -362,11 +405,13 @@ void Intranuke::SimElasticScattering(
    LOG("Intranuke", pWARN) << "Can not do elastic scatering yet.";
 }
 //___________________________________________________________________________
-HadroProc_t Intranuke::HadronFate(const GHepParticle * p) const
+INukeProc_t Intranuke::HadronFate(const GHepParticle * p) const
 {
 // Selects interaction type for the particle that is currently rescaterred.
 // Adapted from NeuGEN's intranuke_pifate
 
+  INukeProc_t proc = kIPcUndefined;
+  /*
   // compute pion kinetic energy K in MeV
   double K = (p->KinE() / units::MeV);
 
@@ -377,16 +422,14 @@ HadroProc_t Intranuke::HadronFate(const GHepParticle * p) const
   RandomGen * rnd = RandomGen::Instance();
   double t = rnd->RndFsi().Rndm();
 
-  HadroProc_t proc = kHPcUndefined;
-
   if      ( t < intranuke::kPElastic[Kbin]    ) proc = kHPcElastic;
   else if ( t < intranuke::kPInelastic[Kbin]  ) proc = kHPcInelastic;
   else if ( t < intranuke::kPAbsorption[Kbin] ) proc = kHPcAbsorption;
   else                                          proc = kHPcChargeExchange;
-
+  */
   LOG("Intranuke", pINFO)
         << "Selected hadronic process for " 
-                        << p->Name() << ": " << HadroProc::AsString(proc);
+                        << p->Name() << ": " << INukeProc::AsString(proc);
   return proc;
 }
 //___________________________________________________________________________
@@ -438,13 +481,22 @@ void Intranuke::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
+  //-- load hadronic cross sections
+  fHadroData = INukeHadroData::Instance();
+
+  //-- intranuke mode (h+N or h+A)
+  bool hAmd = fConfig->GetBoolDef ("hA-mode",gc->GetBool("INUKE-hA-mode"));
+  fMode = (hAmd) ? kIMdhA : kIMdhN;
+
   fct0 = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("INUKE-FormationZone")); // fermi
   fK   = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("INUKE-KPt2"));
   fR0  = fConfig->GetDoubleDef ("R0",   gc->GetDouble("INUKE-Ro")); // fermi
 
-  LOG("Intranuke", pDEBUG) << "ct0           = " << fct0 << " fermi";
-  LOG("Intranuke", pDEBUG) << "K(pt^2)       = " << fK;
-  LOG("Intranuke", pDEBUG) << "R0            = " << fR0  << " fermi";
+  //-- report
+  LOG("Intranuke", pDEBUG) << "mode    = " << INukeMode::AsString(fMode);
+  LOG("Intranuke", pDEBUG) << "ct0     = " << fct0 << " fermi";
+  LOG("Intranuke", pDEBUG) << "K(pt^2) = " << fK;
+  LOG("Intranuke", pDEBUG) << "R0      = " << fR0  << " fermi";
 }
 //___________________________________________________________________________
 
