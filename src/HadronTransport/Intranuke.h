@@ -29,8 +29,11 @@
 #ifndef _INTRANUKE_H_
 #define _INTRANUKE_H_
 
-#include "Conventions/HadroProc.h"
+#include <TGenPhaseSpace.h>
+
 #include "EVGCore/EventRecordVisitorI.h"
+#include "HadronTransport/INukeProc.h"
+#include "HadronTransport/INukeMode.h"
 
 class TLorentzVector;
 class TVector3;
@@ -38,6 +41,7 @@ class TVector3;
 namespace genie {
 
 class GHepParticle;
+class INukeHadroData;
 
 class Intranuke : public EventRecordVisitorI {
 
@@ -56,6 +60,7 @@ public :
 
 private:
 
+  //-- private methods
   void        LoadConfig             (void);
   void        TransportHadrons       (GHepRecord * ev) const;
   void        GenerateVertex         (GHepRecord * ev) const;
@@ -63,7 +68,7 @@ private:
   bool        CanRescatter           (const GHepParticle* p) const;
   bool        IsInNucleus            (const GHepParticle* p) const;
   void        SetNuclearRadius       (const GHepParticle* p) const;
-  HadroProc_t HadronFate             (const GHepParticle* p) const;
+  INukeProc_t HadronFate             (const GHepParticle* p) const;
   void        StepParticle           (GHepParticle * p, double dr) const;
   bool        IsFreshHadron          (GHepRecord* ev, GHepParticle* p) const;
   double      FormationZone          (GHepRecord* ev, GHepParticle* p) const;
@@ -76,12 +81,17 @@ private:
   void        SimInelasticScattering (GHepRecord* ev, GHepParticle* p) const;
   void        SimElasticScattering   (GHepRecord* ev, GHepParticle* p) const;
 
-
   mutable double fNuclRadius;
 
-  double fct0; ///< formation zone (c * formation time)
-  double fK;
-  double fR0;
+  //-- utility objects
+  TGenPhaseSpace   fGenPhaseSp; ///< a phase space generator
+  INukeHadroData * fHadroData;  ///< a collection of h+N,h+A data & calculations
+
+  //-- configuration parameters
+  INukeMode_t  fMode;  ///< h+A, h+N
+  double       fct0;   ///< formation zone (c * formation time)
+  double       fK;
+  double       fR0;
 };
 
 }      // genie namespace
