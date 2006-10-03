@@ -256,9 +256,10 @@
   INTRANUKE-specific parameters 
   Ro (in fm)
   *********************************************************************  -->
-  <param type="double" name="INUKE-FormationZone"> 2.0  </param>
-  <param type="double" name="INUKE-KPt2">          1.0  </param>
-  <param type="double" name="INUKE-Ro">            1.2  </param>
+  <param type="bool"   name="INUKE-hA-mode">       true  </param>
+  <param type="double" name="INUKE-FormationZone"> 2.0   </param>
+  <param type="double" name="INUKE-KPt2">          1.0   </param>
+  <param type="double" name="INUKE-Ro">            1.2   </param>
 
  <!-- 
   *********************************************************************       
