@@ -50,13 +50,6 @@ public :
   virtual Interaction * Summary       (void) const;
   virtual void          AttachSummary (Interaction * interaction);
 
-  //-- common record operations
-
-  virtual void Copy                    (const GHepRecord & record);
-  virtual void ResetRecord             (void);
-  virtual void CompactifyDaughterLists (void);
-  virtual void Clear                   (Option_t * opt="");
-
   //-- provide a simplified wrapper of the 'new with placement'
   //   TClonesArray object insertion method
 
@@ -126,6 +119,14 @@ public :
 
   virtual void SetVertex (double x, double y, double z, double t);
   virtual void SetVertex (const TLorentzVector & vtx);
+
+  //-- common record operations
+
+  virtual void Copy        (const GHepRecord & record);
+  virtual void Clear       (Option_t * opt="");
+  virtual void ResetRecord (void);
+  virtual void CompactifyDaughterLists     (void);
+  virtual void RemoveIntermediateParticles (void);
 
   //-- methods & operators to print the record
 
