@@ -50,16 +50,14 @@ PythiaDecayer::~PythiaDecayer()
   //delete fPythia;
 }
 //____________________________________________________________________________
-bool PythiaDecayer::IsHandled(int pdg_code) const
+bool PythiaDecayer::IsHandled(int code) const
 {
 // does not handle requests to decay baryon resonances
   
-  if( utils::res::IsBaryonResonance(pdg_code) ) {
+  if( utils::res::IsBaryonResonance(code) ) {
      LOG("Decay", pINFO)
-         << "\n *** The particle with PDG-Code = "
-                           << pdg_code << " is not decayed by this algorithm";
+       << "This algorithm can not decay particles with PDG code = " << code;
      return false;
-
   } else return true;
 }
 //____________________________________________________________________________
@@ -112,7 +110,13 @@ TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
   TIter particle_iter(impl);
 
   while( (p = (TMCParticle *) particle_iter.Next()) ) {
-    LOG("Decay", pINFO) << "Adding decay product with PDG = " << p->GetKF();
+
+    string type = (p->GetKS()==11) ? "mother: " : "+ daughter: ";
+    SLOG("Decay", pINFO)
+       << type << p->GetName() << " (pdg-code = "
+          << p->GetKF() << ", m = " << p->GetMass() 
+             << ", E = " << p->GetEnergy() << ")";
+
     new ( (*pl)[i++] ) TMCParticle(*p);
   }
 
