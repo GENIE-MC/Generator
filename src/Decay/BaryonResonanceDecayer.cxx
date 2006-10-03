@@ -46,20 +46,15 @@ BaryonResonanceDecayer::~BaryonResonanceDecayer()
 
 }
 //____________________________________________________________________________
-bool BaryonResonanceDecayer::IsHandled(int pdg_code) const
+bool BaryonResonanceDecayer::IsHandled(int code) const
 {
 // handles only requests to decay baryon resonances
 
-  if( utils::res::IsBaryonResonance(pdg_code) ) {
-    LOG("Decay", pINFO) 
-         << "\n *** The particle with PDG-Code = "
-                           << pdg_code << " can be decayed by this algorithm";
-    return true;    
-  } 
+  if( utils::res::IsBaryonResonance(code) ) return true;
 
   LOG("Decay", pINFO) 
-         << "\n *** The particle with PDG-Code = "
-                           << pdg_code << " is not decayed by this algorithm";
+      << "This algorithm can not decay particles with PDG code = " << code;
+
   return false;
 }
 //____________________________________________________________________________
@@ -77,7 +72,7 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
      return 0;                               
   }  
   LOG("Decay", pINFO)
-           << "Decaying resonance = " << mother->GetName()
+       << "Decaying a " << mother->GetName()
                         << " with P4 = " << utils::print::P4AsString(inp.P4);
   
   //-- Reset previous weight
@@ -86,7 +81,7 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
   //-- Get the resonance mass W (generally different from the mass associated
   //   with the input pdg_code, since the it is produced off the mass shell)
   double W = inp.P4->M();
-  LOG("Decay", pINFO) << " Available mass W = " << W;
+  LOG("Decay", pINFO) << "Available mass W = " << W;
   
   //-- Get all decay channels
   TObjArray * decay_list = mother->DecayList();
@@ -134,12 +129,11 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
     
   } while (x > BR[ich++]);
 
-  LOG("Decay", pDEBUG)
-       << "\n Selected decay channel: " << sel_ich
-               << "\n rnd = " << x << ", SumBR(RES : 0 -> "
-                                       << sel_ich << ") = " << BR[sel_ich];
-
   TDecayChannel * ch = (TDecayChannel *) decay_list->At(sel_ich);
+
+  LOG("Decay", pINFO) 
+    << "Selected " << ch->NDaughters() << "-particle decay chan (" 
+    << sel_ich << ") has BR = " << ch->BranchingRatio();
 
   //-- Decay the exclusive state and return the particle list
   TLorentzVector p4(*inp.P4);
@@ -170,8 +164,9 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
      mass[iparticle] = daughter->Mass();
 
      SLOG("Decay", pINFO)
-           << "Adding daughter[" << iparticle << "]: PDGC = "
-                     << pdgc[iparticle] << ", mass = " << mass[iparticle];
+       << "+ daughter[" << iparticle << "]: "
+        << daughter->GetName() << " (pdg-code = "
+          << pdgc[iparticle] << ", mass = " << mass[iparticle] << ")";
   }
 
   //-- Decay the resonance using an N-body phase space generator
@@ -189,7 +184,7 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   }
   assert(wmax>0);
   LOG("Decay", pINFO)
-              << "Max phase space gen. weight for current decay: " << wmax;
+     << "Max phase space gen. weight for current decay: " << wmax;
 
   if(fGenerateWeighted)
   {
@@ -213,7 +208,8 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
        double w  = fPhaseSpaceGenerator.Generate();
        double gw = wmax * rnd->RndDec().Rndm();
 
-       LOG("Decay", pINFO) << "Decay weight = " << w << " / R = " << gw;
+       LOG("Decay", pINFO) 
+          << "Current decay weight = " << w << " / R = " << gw;
 
        accept_decay = (gw<=w);
      }
