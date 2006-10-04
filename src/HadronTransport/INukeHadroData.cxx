@@ -21,6 +21,7 @@
 #include <iostream>
 
 #include <TSystem.h>
+#include <TNtupleD.h>
 #include <TTree.h>
 
 #include "HadronTransport/INukeHadroData.h"
@@ -37,8 +38,10 @@ INukeHadroData * INukeHadroData::fInstance = 0;
 //____________________________________________________________________________
 INukeHadroData::INukeHadroData()
 {
-  this->LoadData();
-  this->CalcData();
+  this->LoadXsData();
+  this->CalcXsData();
+  this->CalcFractions();
+
   fInstance = 0;
 }
 //____________________________________________________________________________
@@ -84,6 +87,51 @@ INukeHadroData::~INukeHadroData()
   delete fXsPiFeNNP;  
   delete fXsPiFeNNPP; 
   delete fXsPiFePi0;  
+
+  //-- delete x-sections from data (Ash/Carrol)
+  delete fXsAshPiFeAbs; 
+  delete fXsAshPiFeReac;
+  delete fXsCarPiFeTot; 
+
+  //-- delete total x-sections 
+  delete fXsPipTot;   
+  delete fXsPimTot;   
+  delete fXsPi0Tot;   
+  delete fXsPTot;     
+  delete fXsNTot;     
+
+  //-- delete x-section fractions
+  delete fFrPipCEx;   
+  delete fFrPipElas;  
+  delete fFrPipReac;  
+  delete fFrPipAbs;   
+  delete fFrPimCEx;   
+  delete fFrPimElas;  
+  delete fFrPimReac;  
+  delete fFrPimAbs;   
+  delete fFrPi0CEx;    
+  delete fFrPi0Elas;   
+  delete fFrPi0Reac;   
+  delete fFrPi0Abs;    
+  delete fFrPReac;     
+  delete fFrNReac;     
+  delete fFrPiAElas;   
+  delete fFrPiAInel;   
+  delete fFrPiACEx;    
+  delete fFrPiAAbs;    
+  delete fFrPiAPP;     
+  delete fFrPiANPP;    
+  delete fFrPiANNP;    
+  delete fFrPiA4N4P;   
+  delete fFrPiAPiProd; 
+  delete fFrPAElas;    
+  delete fFrPAInel;    
+  delete fFrPAAbs;     
+  delete fFrPAPP;      
+  delete fFrPANPP;     
+  delete fFrPANNP;     
+  delete fFrPA4N4P;    
+  delete fFrPAPiProd;  
 }
 //____________________________________________________________________________
 INukeHadroData * INukeHadroData::Instance()
@@ -99,11 +147,12 @@ INukeHadroData * INukeHadroData::Instance()
   return fInstance;
 }
 //____________________________________________________________________________
-void INukeHadroData::LoadData(void)
+void INukeHadroData::LoadXsData(void)
 {
+// Loads hadronic x-section data
+
   //-- Get the directory with the SAID hadron cross section data (search for
   //   $GINUKEHADRONDATA or use default: $GENIE/data/hadron_xsec)
-
   string data_dir = (gSystem->Getenv("GINUKEHADRONDATA")) ?
              string(gSystem->Getenv("GINUKEHADRONDATA")) :
              string(gSystem->Getenv("GENIE")) + string("/data/hadron_xsec");
@@ -125,6 +174,9 @@ void INukeHadroData::LoadData(void)
   string fnm_said_pp_reac    = data_dir + "/pp-xsreac-said.dat";
   string fnm_mashnik_pFe     = data_dir + "/mashnik-pfe-xs.dat";
   string fnm_mashnik_piFe    = data_dir + "/mashnik-pife-xs.dat";
+  string fnm_ash_piFe_abs    = data_dir + "/exp-ash-pife-xsabs.dat";
+  string fnm_ash_piFe_reac   = data_dir + "/exp-ash-pife-xsreac.dat";
+  string fnm_carrol_piFe_tot = data_dir + "/exp-carrol-pife-xstot.dat";
 
   //-- Make sure that all data files are available
 
@@ -140,6 +192,9 @@ void INukeHadroData::LoadData(void)
   assert( ! gSystem->AccessPathName(fnm_said_pp_reac.c_str())    );
   assert( ! gSystem->AccessPathName(fnm_mashnik_pFe.c_str())     );
   assert( ! gSystem->AccessPathName(fnm_mashnik_piFe.c_str())    );
+  assert( ! gSystem->AccessPathName(fnm_ash_piFe_abs.c_str())    );
+  assert( ! gSystem->AccessPathName(fnm_ash_piFe_reac.c_str())   );
+  assert( ! gSystem->AccessPathName(fnm_carrol_piFe_tot.c_str()) );
 
   LOG("INukeData", pNOTICE)  << "Found all necessary data files...";
 
@@ -213,10 +268,130 @@ void INukeHadroData::LoadData(void)
 
   LOG("INukeData", pNOTICE) 
       << "... Done loading Mashnik hadron cross section data";
+
+  fXsAshPiFeAbs  = new Spline( fnm_ash_piFe_abs    );
+  fXsAshPiFeReac = new Spline( fnm_ash_piFe_reac   );
+  fXsCarPiFeTot  = new Spline( fnm_carrol_piFe_tot );
+
+  LOG("INukeData", pNOTICE) 
+      << "... Done loading Ash & Carrol hadron cross section data";
 };
 //____________________________________________________________________________
-void INukeHadroData::CalcData(void)
+void INukeHadroData::CalcXsData(void)
 {
+// Calculates hadronic x-sections 
 
+  LOG("INukeData", pNOTICE) 
+      << "Computing missing x-sections & applying corrections...";
+
+  TNtupleD * ntxs = new TNtupleD("tot","total x-sec","ke:pip:pim:pi0:p:n");
+
+  int nknots = fXsPipPElas->NKnots();
+
+  for(int i=0; i<nknots; i++) {
+
+    double ke, tmp;
+    fXsPipPElas->GetAsTSpline()->GetKnot(i,ke,tmp);
+
+    double xspipelas = fXsPipPElas->Evaluate(ke);
+    double xspipreac = fXsPipPReac->Evaluate(ke);
+    double xspiabs   = fXsPipDAbs ->Evaluate(ke);
+
+    LOG("INukeData", pDEBUG) 
+      << "pi+ @ ke = " << ke << ": elas =  " <<  xspipelas 
+      << ", reac = " << xspipreac << ", abs = " <<  xspiabs;
+
+    double xspimelas = fXsPimPElas->Evaluate(ke);
+    double xspimreac = fXsPimPReac->Evaluate(ke);
+    double xspimcex  = fXsPimPCEx ->Evaluate(ke);
+
+    LOG("INukeData", pDEBUG) 
+      << "pi- @ at ke = " << ke << ": elas =  " <<  xspimelas 
+      << ", reac = " << xspimreac << ", cex = " <<  xspimcex;
+
+    double xszepelas = (5./18.)*xspipelas - (1./6.)*xspimelas + (5./6.)*xspimcex;
+    double xszenelas = (1./2. )*xspipelas + (1./2.)*xspimelas - (1./2.)*xspimcex;
+    double xszereac  = (xspimreac+xspipreac)/2.;
+    double xszecex   =  xspimcex;
+    double xszeabs   =  xspiabs;
+
+    double xsppelas  = fXsPPElas->Evaluate(ke);
+    double xsnpelas  = fXsNPElas->Evaluate(ke);
+    double xsppreac  = fXsPPReac->Evaluate(ke);
+    double xsnpreac  = fXsNPReac->Evaluate(ke);
+
+    LOG("INukeData", pDEBUG) 
+      << "pp @ ke = " << ke << ": elas =  " <<  xsppelas 
+      << ", reac = " << xsppreac;
+    LOG("INukeData", pDEBUG) 
+      << "np @ ke = " << ke << ": elas =  " <<  xsnpelas 
+      << ", reac = " << xsnpreac;
+
+    double xsplptot  = xspipelas + xspipreac +  xspiabs;
+    double xsplntot  = xspimelas + xspimreac +  xspiabs;
+    double xszeptot  = xszepelas + xszecex + xszereac + xszeabs;
+    double xszentot  = xszenelas + xszecex + xszereac + xszeabs;
+
+    double xspip = (xsplptot + xsplntot)/2.;
+    double xspim = (xsplptot + xsplntot)/2.;
+    double xspi0 = (xszeptot + xszentot)/2.;
+    double xsp   = (xsppelas + xsnpelas + xsppreac + xsnpreac)/2.;
+    double xsn   =  xsnpelas + xsnpreac;
+
+    ntxs->Fill(ke,xspip,xspim,xspi0,xsp,xsn);
+  }
+
+  fXsPipTot = new Spline(ntxs,"ke:pip");
+  fXsPimTot = new Spline(ntxs,"ke:pim");
+  fXsPi0Tot = new Spline(ntxs,"ke:pi0");
+  fXsPTot   = new Spline(ntxs,"ke:p");
+  fXsNTot   = new Spline(ntxs,"ke:n");
+
+  delete ntxs;
+
+  LOG("INukeData", pNOTICE) 
+       << "... Done computing total hadron cross section data";
+}
+//____________________________________________________________________________
+void INukeHadroData::CalcFractions(void)
+{
+// Calculates x-section fractions and builds splines needed for deciding the
+// re-scattered particle fates.
+
+  LOG("INukeData", pNOTICE) << "Computing total x-section fractions...";
+
+  fFrPipCEx    = new Spline; 
+  fFrPipElas   = new Spline; 
+  fFrPipReac   = new Spline; 
+  fFrPipAbs    = new Spline; 
+  fFrPimCEx    = new Spline; 
+  fFrPimElas   = new Spline; 
+  fFrPimReac   = new Spline; 
+  fFrPimAbs    = new Spline; 
+  fFrPi0CEx    = new Spline; 
+  fFrPi0Elas   = new Spline; 
+  fFrPi0Reac   = new Spline; 
+  fFrPi0Abs    = new Spline; 
+  fFrPReac     = new Spline; 
+  fFrNReac     = new Spline; 
+  fFrPiAElas   = new Spline; 
+  fFrPiAInel   = new Spline; 
+  fFrPiACEx    = new Spline; 
+  fFrPiAAbs    = new Spline; 
+  fFrPiAPP     = new Spline; 
+  fFrPiANPP    = new Spline; 
+  fFrPiANNP    = new Spline; 
+  fFrPiA4N4P   = new Spline; 
+  fFrPiAPiProd = new Spline; 
+  fFrPAElas    = new Spline; 
+  fFrPAInel    = new Spline; 
+  fFrPAAbs     = new Spline; 
+  fFrPAPP      = new Spline; 
+  fFrPANPP     = new Spline; 
+  fFrPANNP     = new Spline; 
+  fFrPA4N4P    = new Spline; 
+  fFrPAPiProd  = new Spline; 
+
+  LOG("INukeData", pNOTICE) << "... Done computing fractions";
 }
 //____________________________________________________________________________
