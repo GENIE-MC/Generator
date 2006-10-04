@@ -1,0 +1,18 @@
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+# Experimental data from Ash on pi+Fe ABS x-section
+#
+# Taken from S.Dytman (inc/hadron_data.inc in fortran INTRANUKE)
+# Hadron kinetic energy (KE) in MeV, x-section in millibarns
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+# KE  x-section
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   0.     0.
+  50.   443.
+  85.   421.
+ 125.   527.
+ 165.   577.
+ 205.   607.
+ 245.   411.
+ 315.   320.
+ 600.   350.
+1000.   350.

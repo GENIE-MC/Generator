@@ -1,0 +1,19 @@
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+# Experimental data from Ash on pi+Fe REAC x-section
+#
+# Taken from S.Dytman (inc/hadron_data.inc in fortran INTRANUKE)
+# Steve notes that the point at 50 MeV is a guess
+# Hadron kinetic energy (KE) in MeV, x-section in millibarns
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+# KE  x-section
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   0.     0.
+  50.  1070.
+  85.  1284.
+ 125.  1254.
+ 165.  1154.
+ 205.  1050.
+ 245.   936.
+ 315.   807.
+ 600.   820.
+1000.   880.
