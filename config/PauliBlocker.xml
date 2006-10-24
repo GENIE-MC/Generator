@@ -2,10 +2,16 @@
 
 <alg_conf>
 
-  -- Default configuration for PauliBlocker EventRecordVisitorI
+<!--
+Configuration sets for the PauliBlocker EventRecordVisitorI
+
+Configurable Parameters:
+................................................................................................
+Name             Type     Optional   Comment                        Default
+................................................................................................
+-->
 
   <param_set name="Default"> 
-
   </param_set>
 
 </alg_conf>

@@ -41,7 +41,7 @@ public:
 
 protected:
 
-  RegistryItemI()          { }
+  RegistryItemI() { }
 };
 
 }      // genie namespace

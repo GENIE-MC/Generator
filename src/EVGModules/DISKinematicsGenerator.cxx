@@ -226,8 +226,8 @@ void DISKinematicsGenerator::LoadSubAlg(void)
 {
 // Reads its configuration from its Registry and loads all the sub-algorithms
 // needed
-  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
-                            this->SubAlg("xsec-alg-name", "xsec-param-set"));
+  fXSecModel = 
+        dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
   assert(fXSecModel);
 }
 //____________________________________________________________________________
@@ -237,28 +237,28 @@ void DISKinematicsGenerator::LoadConfigData(void)
 // in private data members to avoid looking up at the Registry all the time.
 
   //-- Get the user kinematical limits on W
-  fWminCut = fConfig->GetDoubleDef("W-min", -999999);
-  fWmaxCut = fConfig->GetDoubleDef("W-max",  999999);
+  fWminCut = fConfig->GetDoubleDef("Kine-Wmin", -999999);
+  fWmaxCut = fConfig->GetDoubleDef("Kine-Wmax",  999999);
 
   //-- Get the user kinematical limits on Q2
-  fQ2minCut = fConfig->GetDoubleDef("Q2-min", -999999);
-  fQ2maxCut = fConfig->GetDoubleDef("Q2-max",  999999);
+  fQ2minCut = fConfig->GetDoubleDef("Kine-Q2min", -999999);
+  fQ2maxCut = fConfig->GetDoubleDef("Kine-Q2max",  999999);
 
   //-- Safety factor for the maximum differential cross section
-  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
+  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
 
   //-- Minimum energy for which max xsec would be cached, forcing explicit
   //   calculation for lower eneries
-  fEMin = fConfig->GetDoubleDef("min-energy-cached", 1.0);
+  fEMin = fConfig->GetDoubleDef("Cache-MinEnergy", 1.0);
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("max-xsec-diff-tolerance",0.);
+  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("MaxXSec-DiffTolerance",0.);
   assert(fMaxXSecDiffTolerance>=0);
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("uniform-over-phase-space", false);
+  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
 }
 //____________________________________________________________________________
 Range1D_t DISKinematicsGenerator::WRange(

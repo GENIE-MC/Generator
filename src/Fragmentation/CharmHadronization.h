@@ -39,15 +39,17 @@ public:
   CharmHadronization(string config);
   virtual ~CharmHadronization();
 
-  //! implement the HadronizationModelI interface
+  // Implement the HadronizationModelI interface
+  //
   void           Initialize       (void)                                    const;
   TClonesArray * Hadronize        (const Interaction* )                     const;
   double         Weight           (void)                                    const;
   PDGCodeList *  SelectParticles  (const Interaction*)                      const;
   TH1D *         MultiplicityProb (const Interaction*, Option_t* opt = "")  const;
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //! members from configuration options
+  // Overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
+  //
   void Configure(const Registry & config);
   void Configure(string config);
 
@@ -56,9 +58,9 @@ private:
   void LoadConfig          (void);
   int  GenerateCharmHadron (double Ev) const;
 
-  //! configuration parameters
-
-  bool                           fCharmOnly;   ///< don;t hadronize non-charm blob
+  // Configuration parameters
+  //
+  bool                           fCharmOnly;   ///< don't hadronize non-charm blob
   TF1 *                          fCharmPT2pdf; ///< charm hadron pT^2 pdf
   const FragmentationFunctionI * fFragmFunc;   ///< charm hadron fragmentation func
   mutable TPythia6 *             fPythia;      ///< remnant (non-charm) hadronizer

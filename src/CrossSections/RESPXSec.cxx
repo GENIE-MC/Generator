@@ -145,14 +145,13 @@ void RESPXSec::LoadConfig(void)
 
   //-- get the requested d^2xsec/dxdy xsec algorithm to use
   fPartialXSecAlg =
-         dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                         "partial-xsec-alg-name", "partial-xsec-param-set"));
-  assert(fPartialXSecAlg);
+         dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
 
-  LOG("DISXSec", pDEBUG) << *fPartialXSecAlg;
   //-- get the specified integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fIntegrator = 
+         dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
+
+  assert(fPartialXSecAlg);
   assert(fIntegrator);
 }
 //____________________________________________________________________________

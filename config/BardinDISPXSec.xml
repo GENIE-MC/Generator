@@ -2,12 +2,18 @@
 
 <alg_conf>
 
-  Bardin-Dokuchaeva model configuration for v+d(->u) CC and v-bar+u(->d) CC
+<!--
+Configuration for the Bardin-Dokuchaeva v+d(->u) CC and v-bar+u(->d) CC x-section model
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
 
   <param_set name="CC"> 
-     <param type="string" name="pdf-alg-name">         genie::PDFLIB    </param>
-     <param type="string" name="pdf-param-set">        GRVLO            </param>
-     <param type="double" name="final-quark-mass">     0.2              </param>
+     <param type="alg"    name="PDF-Set">           genie::PDFLIB/GRVLO    </param>
+     <param type="double" name="Final-Quark-Mass">  0.2                    </param>
   </param_set>
 
 </alg_conf>

@@ -332,7 +332,7 @@ void ReinSeghalRESPXSec::LoadConfig(void)
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
-  fWghtBW = fConfig->GetBoolDef("weight-with-breit-wigner", true);
+  fWghtBW = fConfig->GetBoolDef("BreitWignerWeight", true);
 
   // Load all the sub-algorithms needed
 
@@ -343,8 +343,9 @@ void ReinSeghalRESPXSec::LoadConfig(void)
   fBreitWigner      = 0;
 
   //-- Access a "Baryon Resonance data-set" sub-algorithm
-  fBaryonResDataSet = dynamic_cast<const BaryonResDataSetI *> (
-    this->SubAlg("baryonres-dataset-alg-name", "baryonres-dataset-param-set"));
+  fBaryonResDataSet = 
+         dynamic_cast<const BaryonResDataSetI *> (
+                           this->SubAlg("BaryonResData"));
   assert(fBaryonResDataSet);
 
   fBRP.SetDataSet(fBaryonResDataSet); // <-- attach data set;
@@ -352,7 +353,7 @@ void ReinSeghalRESPXSec::LoadConfig(void)
   if(fWghtBW) {
     //-- Access a "Breit-Wigner" sub-algorithm
     fBreitWigner = dynamic_cast<const BreitWignerI *> (
-             this->SubAlg("breit-wigner-alg-name", "breit-wigner-param-set"));
+                             this->SubAlg("BreitWignerAlg"));
     assert(fBreitWigner);
   }
 
@@ -373,7 +374,7 @@ void ReinSeghalRESPXSec::LoadConfig(void)
 
   //-- Use algorithm within a DIS/RES join scheme. If yes get Wcut
   fUsingDisResJoin = fConfig->GetBoolDef(
-		"use-dis-res-joining-scheme", gc->GetBool("UseDRJoinScheme"));
+                           "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
   fWcut = 999999;
   if(fUsingDisResJoin) {
     fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
@@ -385,13 +386,13 @@ void ReinSeghalRESPXSec::LoadConfig(void)
   //   problem with huge xsec increase at low Q2 and high W.
   //   In correspondence with Hugh, Rein said that the underlying problem
   //   are unphysical assumptions in the model. 
-  fN2ResMaxNWidths = fConfig->GetDoubleDef("max-widths-for-n2-res", 2.0);
-  fN0ResMaxNWidths = fConfig->GetDoubleDef("max-widths-for-n0-res", 6.0);
-  fGnResMaxNWidths = fConfig->GetDoubleDef("max-widths-for-gn-res", 4.0);
+  fN2ResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForN2Res", 2.0);
+  fN0ResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForN0Res", 6.0);
+  fGnResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForGNRes", 4.0);
 
   //-- NeuGEN reduction factors for nu_tau: a gross estimate of the effect of
   //   neglected form factors in the R/S model
-  fUsingNuTauScaling = fConfig->GetBoolDef("use-nutau-scaling-factors", true);
+  fUsingNuTauScaling = fConfig->GetBoolDef("UseNuTauScalingFactors", true);
   if(fUsingNuTauScaling) {
      if(fNuTauRdSpl)    delete fNuTauRdSpl;
      if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;

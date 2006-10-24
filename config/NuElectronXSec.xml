@@ -2,11 +2,20 @@
 
 <alg_conf>
 
+<!--
+Configuration for the NuElectronXSec xsec algorithm.
+
+Configurable Parameters:
+....................................................................................
+Name           Type     Optional   Comment                 Default
+....................................................................................
+DiffXSecAlg    alg      No
+Integrator     alg      No
+-->
+
   <param_set name="Default"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::NuElectronPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> Default                </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D       </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic    </param>
+     <param type="alg" name="DiffXSecAlg">  genie::NuElectronPXSec/Default        </param>
+     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
   </param_set>
 
 </alg_conf>

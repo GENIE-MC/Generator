@@ -2,40 +2,49 @@
 
 <alg_conf>
 
+<!--
+Configuration for the Simpson2DFixN integrator
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
+
   <param_set name="LinLin-61"> 
-     <param type="int"    name="dimension-0-nbins">     61    </param>
-     <param type="int"    name="dimension-1-nbins">     61    </param>
+     <param type="int"    name="NBinsDim0">     61    </param>
+     <param type="int"    name="NBinsDim1">     61    </param>
   </param_set>
 
   <param_set name="LinLin-101"> 
-     <param type="int"    name="dimension-0-nbins">     101   </param>
-     <param type="int"    name="dimension-1-nbins">     101   </param>
+     <param type="int"    name="NBinsDim0">     101   </param>
+     <param type="int"    name="NBinsDim1">     101   </param>
   </param_set>
 
   <param_set name="LinLin-201"> 
-     <param type="int"    name="dimension-0-nbins">     201   </param>
-     <param type="int"    name="dimension-1-nbins">     201   </param>
+     <param type="int"    name="NBinsDim0">     201   </param>
+     <param type="int"    name="NBinsDim1">     201   </param>
   </param_set>
 
   <param_set name="LogLog-61"> 
-     <param type="bool"   name="dimension-0-in-loge">   true  </param>
-     <param type="bool"   name="dimension-1-in-loge">   true  </param>
-     <param type="int"    name="dimension-0-nbins">     61    </param>
-     <param type="int"    name="dimension-1-nbins">     61    </param>
+     <param type="bool"   name="InLogeDim0">   true  </param>
+     <param type="bool"   name="InLogeDim1">   true  </param>
+     <param type="int"    name="NBinsDim0">     61    </param>
+     <param type="int"    name="NBinsDim1">     61    </param>
   </param_set>
 
   <param_set name="LogLog-101"> 
-     <param type="bool"   name="dimension-0-in-loge">   true  </param>
-     <param type="bool"   name="dimension-1-in-loge">   true  </param>
-     <param type="int"    name="dimension-0-nbins">     101   </param>
-     <param type="int"    name="dimension-1-nbins">     101   </param>
+     <param type="bool"   name="InLogeDim0">   true  </param>
+     <param type="bool"   name="InLogeDim1">   true  </param>
+     <param type="int"    name="NBinsDim0">     101   </param>
+     <param type="int"    name="NBinsDim1">     101   </param>
   </param_set>
 
   <param_set name="LogLog-201"> 
-     <param type="bool"   name="dimension-0-in-loge">   true  </param>
-     <param type="bool"   name="dimension-1-in-loge">   true  </param>
-     <param type="int"    name="dimension-0-nbins">     201   </param>
-     <param type="int"    name="dimension-1-nbins">     201   </param>
+     <param type="bool"   name="InLogeDim0">   true  </param>
+     <param type="bool"   name="InLogeDim1">   true  </param>
+     <param type="int"    name="NBinsDim0">     201   </param>
+     <param type="int"    name="NBinsDim1">     201   </param>
   </param_set>
 
 </alg_conf>

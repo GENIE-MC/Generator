@@ -257,7 +257,7 @@ void UnstableParticleDecayer::LoadConfig(void)
 {
   //-- Get the specified maximum lifetime tmax (decay with lifetime < tmax)
   //
-  fMaxLifetime = fConfig->GetDoubleDef("max-lifetime-for-unstables", 1e-9);
+  fMaxLifetime = fConfig->GetDoubleDef("MaxLifetime", 1e-9);
 
   //-- Check whether the module is being run before or after the hadron
   //   transport (intranuclear rescattering) module.
@@ -271,13 +271,13 @@ void UnstableParticleDecayer::LoadConfig(void)
   //   at that stage as they need to be handled by the hadron transport code 
   //   first.
   //   
-  fRunBefHadroTransp = fConfig->GetBool("run-before-hadron-transport");
+  fRunBefHadroTransp = fConfig->GetBool("RunBeforeHadronTransport");
 
   //-- Load particle decayers
   //   Order is important if both decayers can handle a specific particle
   //   as only the first would get the chance to decay it
 
-  int ndec = fConfig->GetIntDef("n-decayers",0);
+  int ndec = fConfig->GetIntDef("NDecayers",0);
   assert(ndec>0);
 
   if(fDecayers) {
@@ -287,12 +287,10 @@ void UnstableParticleDecayer::LoadConfig(void)
   fDecayers = new vector<const DecayModelI *>(ndec);
 
   for(int idec = 0; idec < ndec; idec++) {
-     ostringstream alg_key, config_key;
-     alg_key     << "decayer-" << idec << "-alg-name";
-     config_key  << "decayer-" << idec << "-config-name";
+     ostringstream alg_key;
+     alg_key     << "Decayer-" << idec;
      const DecayModelI * decayer = 
-                 dynamic_cast<const DecayModelI *> (
-                              this->SubAlg(alg_key.str(), config_key.str()));
+              dynamic_cast<const DecayModelI *> (this->SubAlg(alg_key.str()));
      (*fDecayers)[idec] = decayer;
   }
 }

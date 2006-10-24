@@ -140,15 +140,13 @@ void COHXSec::LoadConfig(void)
 
   //-- Get the requested d^2xsec/dxdy xsec algorithm to use
   fPartialXSecAlg =
-         dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                         "partial-xsec-alg-name", "partial-xsec-param-set"));
+         dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
   assert(fPartialXSecAlg);
 
   LOG("COHXSec", pDEBUG) << *fPartialXSecAlg;
 
   //-- get specified integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________

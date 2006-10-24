@@ -27,19 +27,15 @@ namespace genie {
 class QELHadronicSystemGenerator : public HadronicSystemGenerator {
 
 public :
-
   QELHadronicSystemGenerator();
   QELHadronicSystemGenerator(string config);
   ~QELHadronicSystemGenerator();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord (GHepRecord * event_rec) const;
 
 private:
-
   void AddRecoilNucleon (GHepRecord * event_rec) const;
-
 };
 
 }      // genie namespace

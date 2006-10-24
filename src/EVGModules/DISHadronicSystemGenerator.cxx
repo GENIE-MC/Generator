@@ -187,15 +187,14 @@ void DISHadronicSystemGenerator::LoadConfig(void)
   fHadronizationModel = 0;
 
   //-- Get the requested hadronization model
-  fHadronizationModel = dynamic_cast<const HadronizationModelI *> (
-        this->SubAlg("hadronization-alg-name", "hadronization-param-set"));
+  fHadronizationModel = 
+     dynamic_cast<const HadronizationModelI *> (this->SubAlg("Hadronizer"));
 
   assert(fHadronizationModel);
 
   //-- flag to determine whether we copy all fragmentation record entries
   //   into the GHEP record or just the ones marked with kf=1
-  fFilterPreFragmEntries = 
-                     fConfig->GetBoolDef("filter-pre-fragm-entries",false);
+  fFilterPreFragmEntries = fConfig->GetBoolDef("FilterPreFragm",false);
 }
 //____________________________________________________________________________
 

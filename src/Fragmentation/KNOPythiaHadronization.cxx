@@ -21,7 +21,6 @@
 #include <TH1D.h>
 
 #include "Algorithm/AlgConfigPool.h"
-#include "Algorithm/AlgFactory.h"
 #include "Conventions/Constants.h"
 #include "Fragmentation/KNOPythiaHadronization.h"
 #include "Interaction/Interaction.h"
@@ -183,29 +182,25 @@ void KNOPythiaHadronization::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  // Get config sets for KNO and PYTHIA hadonizers
-  string kno_config    = fConfig->GetString("kno-hadronization-config");
-  string pythia_config = fConfig->GetString("pythia-hadronization-config");
-
   // Load the requested hadronizers
-  AlgFactory * algf = AlgFactory::Instance();
-
-  fKNOHadronizer = dynamic_cast<const HadronizationModelI *> (
-                  algf->GetAlgorithm("genie::KNOHadronization", kno_config));
-  fPythiaHadronizer = dynamic_cast<const HadronizationModelI *> (
-            algf->GetAlgorithm("genie::PythiaHadronization", pythia_config));
+  fKNOHadronizer = 
+     dynamic_cast<const HadronizationModelI *> (
+                              this->SubAlg("KNO-Hadronizer"));
+  fPythiaHadronizer = 
+     dynamic_cast<const HadronizationModelI *> (
+                              this->SubAlg("PYTHIA-Hadronizer"));
 
   assert(fKNOHadronizer && fPythiaHadronizer);
 
   // Get transition method
-  fMethod = fConfig->GetIntDef("transition-method", 2);
+  fMethod = fConfig->GetIntDef("TransMethod", 2);
 
   // Get transition scheme specific config
   if(fMethod==2) {
     fWminTrWindow = fConfig->GetDoubleDef(
-                "transition-window-Wmin", gc->GetDouble("KNO2PYTHIA-Wmin"));
+                "KNO2PYTHIA-Wmin", gc->GetDouble("KNO2PYTHIA-Wmin"));
     fWmaxTrWindow = fConfig->GetDoubleDef(
-                "transition-window-Wmax", gc->GetDouble("KNO2PYTHIA-Wmax"));
+                "KNO2PYTHIA-Wmax", gc->GetDouble("KNO2PYTHIA-Wmax"));
   }
 }
 //____________________________________________________________________________

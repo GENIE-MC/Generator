@@ -2,9 +2,22 @@
 
 <alg_conf>
 
+<!--
+Configuration sets for the Pascos Lalakulich P33 RES differential xsec model
+
+Configurable Parameters:
+................................................................................................
+Name             Type     Optional   Comment                        Default
+................................................................................................
+Ma               double   Yes        RES axial mass                 GPL: RES-Ma
+Mv               double   Yes        RES vector mass                GPL: RES-Mv
+BaryonResData    alg      No         Baryon resonanace dt=ata
+CabbiboAngle     double   Yes        Cabbibo angle                  GPL: CabiboAngle
+TurnOnPauliSuppr bool     Yes        Use Pauli suppression factor   false
+-->
+
   <param_set name="Default"> 
-     <param type="string"  name="baryon-res-alg-name">    genie::BaryonResDataPDG    </param>
-     <param type="string"  name="baryon-res-param-set">   Default                    </param>
+     <param type="alg" name="BaryonResData"> genie::BaryonResDataPDG/Default </param>
   </param_set>
 
 </alg_conf>

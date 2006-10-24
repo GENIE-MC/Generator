@@ -2,49 +2,44 @@
 
 <alg_conf>
 
-  -- Aivazis Charm DIS dxsec/dy
-
+  <!--
+     Aivazis Charm DIS dxsec/dy
+  -->
   <param_set name="CC-Charm-Default-dy"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::AivazisCharmPXSecLO </param>
-     <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D           </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
+     <param type="alg" name="DiffXSecAlg">  genie::AivazisCharmPXSecLO/CC-Default </param>
+     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
   </param_set>
 
-  -- Aivazis Charm DIS dxsec/dx
-
+  <!--
+     Aivazis Charm DIS dxsec/dx
+  -->
   <param_set name="CC-Charm-Default-dx"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::AivazisCharmPXSecLO </param>
-     <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D           </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
+     <param type="alg" name="DiffXSecAlg">  genie::AivazisCharmPXSecLO/CC-Default </param>
+     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
   </param_set>
 
-  -- Slow Rescaling Charm DIS dxsec/dy
-
+  <!--
+     Slow Rescaling Charm DIS dxsec/dy
+  -->
   <param_set name="CC-Charm-Slow-Rescaling-Default-dy"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::SlowRsclCharmDISPXSecLO </param>
-     <param type="string" name="partial-xsec-param-set"> CC-Default                     </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D               </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic            </param>
+     <param type="alg" name="DiffXSecAlg">  genie::SlowRsclCharmDISPXSecLO/CC-Default </param>
+     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic      </param>
   </param_set>
 
-  -- Slow Rescaling Charm DIS dxsec/dy
-
+  <!--
+     Slow Rescaling Charm DIS dxsec/dy
+  -->
   <param_set name="CC-Charm-Slow-Rescaling-Default-dx"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::SlowRsclCharmDISPXSecLO </param>
-     <param type="string" name="partial-xsec-param-set"> CC-Default                     </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D               </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic            </param>
+     <param type="alg" name="DiffXSecAlg">  genie::SlowRsclCharmDISPXSecLO/CC-Default </param>
+     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic      </param>
   </param_set>
 
- <param_set name="CC-Parton-Model-Default-dy">
-     <param type="string" name="partial-xsec-alg-name">  genie::DISPartonModelPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> CC-Default                 </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D           </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic        </param>
+  <!--
+  -->
+  <param_set name="CC-Parton-Model-Default-dy">
+     <param type="alg" name="DiffXSecAlg">  genie::DISPartonModelPXSec/CC-Default </param>
+     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
   </param_set>
-
 
 </alg_conf>
 

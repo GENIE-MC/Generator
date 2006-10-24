@@ -143,9 +143,9 @@ void SimMCIntegrator::Configure(string param_set)
 //____________________________________________________________________________
 void SimMCIntegrator::LoadConfigData(void)
 {
-  fNMax       = (unsigned int) fConfig->GetInt("n-max-allowed-evaluations");
-  fNMin       = (unsigned int) fConfig->GetInt("n-evaluations-per-step");
-  fMaxPcntErr = fConfig->GetDouble("max-error");
+  fNMax       = (unsigned int) fConfig->GetInt("NMaxAllowedEval");
+  fNMin       = (unsigned int) fConfig->GetInt("NEvalPerStep");
+  fMaxPcntErr = fConfig->GetDouble("MaxErr");
 }
 //____________________________________________________________________________
 

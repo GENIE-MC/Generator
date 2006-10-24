@@ -22,6 +22,8 @@
 #include <string>
 #include <iostream>
 
+#include "Registry/RegistryTypesDef.h"
+
 using std::string;
 using std::ostream;
 
@@ -34,7 +36,8 @@ public:
   AlgId();
   AlgId(string name, string config);
   AlgId(const AlgId & id);
-  ~AlgId();
+  AlgId(const RgAlg & registry_item);
+ ~AlgId();
 
   string Name   (void) const { return fName;   }
   string Config (void) const { return fConfig; }
@@ -44,6 +47,7 @@ public:
   void   SetName   (string name);
   void   SetConfig (string config);
   void   Copy      (const AlgId & id);
+  void   Copy      (const RgAlg & registry_item);
   void   Print     (ostream & stream) const;
 
   friend ostream & operator << (ostream & stream, const AlgId & alg);

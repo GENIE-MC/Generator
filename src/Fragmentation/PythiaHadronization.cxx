@@ -380,13 +380,13 @@ void PythiaHadronization::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   fSSBarSuppression = fConfig->GetDoubleDef(
-              "ssbar-suppression", gc->GetDouble("PYTHIA-SSBarSuppression"));
+              "SSBarSuppression", gc->GetDouble("PYTHIA-SSBarSuppression"));
   fGaussianPt2 = fConfig->GetDoubleDef(
-                        "gaussian-pt2", gc->GetDouble("PYTHIA-GaussianPt2"));
+                        "GaussianPt2", gc->GetDouble("PYTHIA-GaussianPt2"));
   fNonGaussianPt2Tail = fConfig->GetDoubleDef(
-        "non-gaussian-pt2-tail", gc->GetDouble("PYTHIA-NonGaussianPt2Tail"));
+          "NonGaussianPt2Tail", gc->GetDouble("PYTHIA-NonGaussianPt2Tail"));
   fRemainingECutoff = fConfig->GetDoubleDef(
-   "remaining-energy-cutoff", gc->GetDouble("PYTHIA-RemainingEnergyCutoff"));
+    "RemainingEnergyCutoff", gc->GetDouble("PYTHIA-RemainingEnergyCutoff"));
 
   fPythia->SetPARJ(2,  fSSBarSuppression);
   fPythia->SetPARJ(21, fGaussianPt2);

@@ -2,10 +2,23 @@
 
 <alg_conf>
 
-  -- Default configuration for NuclearBindingEnergyAggregator EventRecordVisitorI
+<!--
+Configuration sets for NuclearBindingEnergyAggregator EventRecordVisitorI
+
+Configurable Parameters:
+............................................................................................
+Name                    Type     Optional   Comment                     Default
+............................................................................................
+AllowNuclRecombination  bool     Yes        See [1]                     true
+
+
+[1] If the final state nucleon (in QEL events on nuclear targets) has a momentum above the 
+    Fermi level but an energy less than the binding energy of the most loose nucleon (for 
+    the given nucleus), then the final state nucleon and nucleus are recombined.
+-->
 
   <param_set name="Default"> 
-     <param type="bool" name="allow-nucl-recombination"> false </param>
+     <param type="bool" name="AllowNuclRecombination"> false </param>
   </param_set>
 
 </alg_conf>

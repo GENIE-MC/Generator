@@ -403,10 +403,10 @@ void KNOHadronization::LoadConfig(void)
   if(fKNO) delete fKNO;
 
   // Force decays of unstable hadronization products?
-  fForceDecays  = fConfig->GetBoolDef("force-decays", false);
+  fForceDecays  = fConfig->GetBoolDef("ForceDecays", false);
 
   // Force minimum multiplicity (if generated less than that) or abort?
-  fForceMinMult = fConfig->GetBoolDef("force-min-multiplicity", true);
+  fForceMinMult = fConfig->GetBoolDef("ForceMinMultiplicity", true);
 
   // Generate the baryon xF and pT^2 using experimental data as PDFs? 
   // In this case, only the N-1 other particles would be fed into the phase
@@ -414,39 +414,36 @@ void KNOHadronization::LoadConfig(void)
   // bkw/fwd xF hemisphere average multiplicities.
   // Note: not in the legacy KNO model (NeuGEN). Switch this feature off for 
   // comparisons or for reproducing old simulations.
-  fUseBaryonXfPt2Param = fConfig->GetBoolDef("use-baryon-xF-pT2-parm", true);
+  fUseBaryonXfPt2Param = fConfig->GetBoolDef("UseBaryon-xF-PT2", true);
 
   // Reweight the phase space decayer events to reproduce the experimentally
   // measured pT^2 distributions.
   // Note: not in the legacy KNO model (NeuGEN). Switch this feature off for 
   // comparisons or for reproducing old simulations.
-  fReWeightDecays = fConfig->GetBoolDef("reweight-phase-space-decays", true);
+  fReWeightDecays = fConfig->GetBoolDef("PhaseSpace-RewDecays", true);
 
   // Generated weighted or un-weighted hadronic systems?
-  fGenerateWeighted = fConfig->GetBoolDef("generate-weighted", false);
+  fGenerateWeighted = fConfig->GetBoolDef("GenerateWeighted", false);
 
   // Probabilities for producing hadron pairs
 
   //-- pi0 pi0
-  fPpi0 = fConfig->GetDoubleDef(
-                         "prob-fs-pi0-pair", gc->GetDouble("KNO-ProbPi0Pi0")); 
+  fPpi0 = fConfig->GetDoubleDef("ProbPi0Pi0", 
+                                gc->GetDouble("KNO-ProbPi0Pi0")); 
   //-- pi+ pi-
-  fPpic = fConfig->GetDoubleDef(
-            "prob-fs-piplus-piminus", gc->GetDouble("KNO-ProbPiplusPiminus")); 
-
+  fPpic = fConfig->GetDoubleDef("ProbPiplusPiminus", 
+                                gc->GetDouble("KNO-ProbPiplusPiminus")); 
   //-- K+  K-
-  fPKc  = fConfig->GetDoubleDef(
-                "prob-fs-Kplus-Kminus", gc->GetDouble("KNO-ProbKplusKminus")); 
-
+  fPKc  = fConfig->GetDoubleDef("ProbKplusKminus", 
+                                gc->GetDouble("KNO-ProbKplusKminus")); 
   //-- K0 K0bar
-  fPK0  = fConfig->GetDoubleDef(
-                        "prob-fs-K0-K0bar", gc->GetDouble("KNO-ProbK0K0bar")); 
+  fPK0  = fConfig->GetDoubleDef("ProbK0K0bar", 
+                                gc->GetDouble("KNO-ProbK0K0bar")); 
 
   // Decay unstable particles now or leave it for later? Which decayer to use?
   fDecayer = 0;
   if(fForceDecays) {
-      fDecayer = dynamic_cast<const DecayModelI *> (
-                       this->SubAlg("decayer-alg-name", "decayer-param-set"));
+      fDecayer = dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
       assert(fDecayer);
   }
 
@@ -462,10 +459,10 @@ void KNOHadronization::LoadConfig(void)
   // Parameter for phase space re-weighting. See ReWeightPt2()
 
   fPhSpRwA = fConfig->GetDoubleDef(
-           "phase-space-reweighting-param", gc->GetDouble("KNO-PhSpRwParm")); 
+              "PhaseSpace-RewParm", gc->GetDouble("KNO-PhaseSpace-RewParm")); 
 
   // load legacy KNO spline
-  fUseLegacyKNOSpline = fConfig->GetBoolDef("use-legacy-kno-spline", false);
+  fUseLegacyKNOSpline = fConfig->GetBoolDef("UseLegacyKNOSpl", false);
 
   if(fUseLegacyKNOSpline) {
      assert(gSystem->Getenv("GENIE"));
@@ -474,26 +471,25 @@ void KNOHadronization::LoadConfig(void)
      string knodata    = fConfig->GetStringDef("kno-data",defknodata);
 
      LOG("KNOHad", pNOTICE) << "Loading KNO data from: " << knodata;
-
      fKNO = new Spline(knodata);
   }
 
   // Load parameters determining the average multiplicity
-  fAvp  = fConfig->GetDoubleDef("alpha-vp",  gc->GetDouble("KNO-Alpha-vp") );
-  fAvn  = fConfig->GetDoubleDef("alpha-vn",  gc->GetDouble("KNO-Alpha-vn") ); 
-  fAvbp = fConfig->GetDoubleDef("alpha-vbp", gc->GetDouble("KNO-Alpha-vbp")); 
-  fAvbn = fConfig->GetDoubleDef("alpha-vbn", gc->GetDouble("KNO-Alpha-vbn"));
-  fB    = fConfig->GetDoubleDef("beta",      gc->GetDouble("KNO-Beta")     );
+  fAvp  = fConfig->GetDoubleDef("Alpha-vp",  gc->GetDouble("KNO-Alpha-vp") );
+  fAvn  = fConfig->GetDoubleDef("Alpha-vn",  gc->GetDouble("KNO-Alpha-vn") ); 
+  fAvbp = fConfig->GetDoubleDef("Alpha-vbp", gc->GetDouble("KNO-Alpha-vbp")); 
+  fAvbn = fConfig->GetDoubleDef("Alpha-vbn", gc->GetDouble("KNO-Alpha-vbn"));
+  fB    = fConfig->GetDoubleDef("Beta",      gc->GetDouble("KNO-Beta")     );
 
   // Load the Levy function parameter
-  fCvp  = fConfig->GetDoubleDef("levy-c-vp",  gc->GetDouble("KNO-LevyC-vp") );
-  fCvn  = fConfig->GetDoubleDef("levy-c-vn",  gc->GetDouble("KNO-LevyC-vn") ); 
-  fCvbp = fConfig->GetDoubleDef("levy-c-vbp", gc->GetDouble("KNO-LevyC-vbp")); 
-  fCvbn = fConfig->GetDoubleDef("levy-c-vbn", gc->GetDouble("KNO-LevyC-vbn"));
+  fCvp  = fConfig->GetDoubleDef("LevyC-vp",  gc->GetDouble("KNO-LevyC-vp") );
+  fCvn  = fConfig->GetDoubleDef("LevyC-vn",  gc->GetDouble("KNO-LevyC-vn") ); 
+  fCvbp = fConfig->GetDoubleDef("LevyC-vbp", gc->GetDouble("KNO-LevyC-vbp")); 
+  fCvbn = fConfig->GetDoubleDef("LevyC-vbn", gc->GetDouble("KNO-LevyC-vbn"));
 
   // Force NEUGEN upper limit in hadronic multiplicity (to be used only
   // NEUGEN/GENIE comparisons)
-  fForceNeuGenLimit = fConfig->GetBoolDef("force-neugen-mult-limit", false);
+  fForceNeuGenLimit = fConfig->GetBoolDef("ForceNeugenMultLimit", false);
 
   // Load Wcut determining the phase space area where the multiplicity prob.
   // scaling factors would be applied -if requested-
@@ -532,8 +528,6 @@ void KNOHadronization::LoadConfig(void)
                      "R-vbn-NC-m2",gc->GetDouble("DIS-HMultWgt-vbn-NC-m2"));
   fRvbnNCm3 = fConfig->GetDoubleDef(
                      "R-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
-
-  LOG("KNOHad", pDEBUG) << *fConfig;
 }
 //____________________________________________________________________________
 double KNOHadronization::KNO(int nu_pdg, int nuc_pdg, double z) const

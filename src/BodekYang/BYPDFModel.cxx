@@ -171,8 +171,8 @@ void BYPDFModel::LoadConfig(void)
   fQ2min = fConfig->GetDoubleDef("Q2min", gc->GetDouble("PDF-Q2min"));
 
   // get the base PDF model (typically GRV9* LO)
-  fBasePDFModel = dynamic_cast<const PDFModelI *>
-        (this->SubAlg("base-pdf-model-alg-name","base-pdf-model-param-set"));
+  fBasePDFModel = dynamic_cast<const PDFModelI *>(
+                                      this->SubAlg("Uncorr-PDF-Set"));
 }
 //____________________________________________________________________________
 

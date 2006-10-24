@@ -148,8 +148,8 @@ void BaryonResDataPDG::LoadResonanceData(void)
   fResWidth.clear();
   fResNorm.clear();
 
-  assert( fConfig->Exists("resonance-name-list") );
-  string resonanes = fConfig->GetString("resonance-name-list");
+  assert( fConfig->Exists("ResonanceNameList") );
+  string resonanes = fConfig->GetString("ResonanceNameList");
 
   fResList.DecodeFromNameList(resonanes);
 

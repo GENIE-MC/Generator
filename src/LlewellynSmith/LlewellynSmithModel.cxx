@@ -126,8 +126,8 @@ void LlewellynSmithModel::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   // load elastic form factors model
-  fElFFModel = dynamic_cast<const ELFormFactorsModelI *>
-                                          (this->SubAlg("el-form-factors"));
+  fElFFModel = dynamic_cast<const ELFormFactorsModelI *> (
+                                      this->SubAlg("ElFormFactorsAlg"));
   assert(fElFFModel);
 
   fELFF.SetModel(fElFFModel);  
@@ -144,7 +144,7 @@ void LlewellynSmithModel::LoadConfig(void)
 
   // weinberg angle
   double thw = fConfig->GetDoubleDef(
-                          "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+                          "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
 }
 //____________________________________________________________________________

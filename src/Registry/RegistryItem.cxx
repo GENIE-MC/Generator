@@ -21,7 +21,7 @@
 #include <TH2F.h>
 #include <TTree.h>
 
-#include "RegistryItem.h"
+#include "Registry/RegistryItem.h"
 
 using std::string;
 using std::endl;
@@ -30,29 +30,32 @@ using namespace genie;
 
 //____________________________________________________________________________
 
-template class RegistryItem<bool>;
-template class RegistryItem<int>;
-template class RegistryItem<double>;
-template class RegistryItem<string>;
-template class RegistryItem<TH1F*>;
-template class RegistryItem<TH2F*>;
-template class RegistryItem<TTree*>;
+template class RegistryItem<RgBool>;
+template class RegistryItem<RgInt>;
+template class RegistryItem<RgDbl>;
+template class RegistryItem<RgStr>;
+template class RegistryItem<RgAlg>;
+template class RegistryItem<RgH1F>;
+template class RegistryItem<RgH2F>;
+template class RegistryItem<RgTree>;
 
 namespace genie {
  template ostream & operator << 
-               (ostream & stream, const RegistryItem<bool> &    rb);
+               (ostream & stream, const RegistryItem<RgBool> & r);
  template ostream & operator << 
-               (ostream & stream, const RegistryItem<int> &     ri);
+               (ostream & stream, const RegistryItem<RgInt>  & r);
  template ostream & operator << 
-               (ostream & stream, const RegistryItem<double> &  rd);
+               (ostream & stream, const RegistryItem<RgDbl>  & r);
  template ostream & operator << 
-               (ostream & stream, const RegistryItem<string> &  rs);
+               (ostream & stream, const RegistryItem<RgStr>  & r);
  template ostream & operator << 
-               (ostream & stream, const RegistryItem<TH1F*> &   rh);
+               (ostream & stream, const RegistryItem<RgAlg>  & r);
  template ostream & operator << 
-               (ostream & stream, const RegistryItem<TH2F*> &   rh);
+               (ostream & stream, const RegistryItem<RgH1F>  & r);
  template ostream & operator << 
-               (ostream & stream, const RegistryItem<TTree*> &  rt);
+               (ostream & stream, const RegistryItem<RgH2F>  & r);
+ template ostream & operator << 
+               (ostream & stream, const RegistryItem<RgTree> & r);
 }
 //____________________________________________________________________________
 namespace genie {
@@ -81,48 +84,57 @@ template<class T> RegistryItem<T>::~RegistryItem()
 
 }
 //____________________________________________________________________________
-RegistryItem<TH1F*>::~RegistryItem()
+RegistryItem<RgH1F*>::~RegistryItem()
 {
   if (fItem) delete fItem;
 }
 //____________________________________________________________________________
-RegistryItem<TH2F*>::~RegistryItem()
+RegistryItem<RgH2F*>::~RegistryItem()
 {
   if (fItem) delete fItem;
 }
 //____________________________________________________________________________
-RegistryItem<TTree*>::~RegistryItem()
+RegistryItem<RgTree*>::~RegistryItem()
 {
   if (fItem) delete fItem;
 }
 //____________________________________________________________________________
 template<class T> void RegistryItem<T>::Print(ostream & stream) const
 {
-  if(fIsLocked) stream << "[  locked] : " << fItem << endl;
-  else          stream << "[unlocked] : " << fItem << endl;
+  if(fIsLocked) stream << "[  locked] : " << fItem;
+  else          stream << "[unlocked] : " << fItem;
 }
 //____________________________________________________________________________
-void RegistryItem<TH1F*>::Print(ostream & stream) const
+void RegistryItem<RgAlg>::Print(ostream & stream) const
 {
-  if(fIsLocked) stream << "[  locked] : TH1F = "
-                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
-  else          stream << "[unlocked] : TH1F = "
-                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
+  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]")
+         << " : alg = " << (fItem);
 }
 //____________________________________________________________________________
-void RegistryItem<TH2F*>::Print(ostream & stream) const
+void RegistryItem<RgH1F>::Print(ostream & stream) const
 {
-  if(fIsLocked) stream << "[  locked] : TH2F = "
-                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
-  else          stream << "[unlocked] : TH2F = "
-                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
+  TH1F * histo = dynamic_cast<TH1F *>(fItem);
+  if(!histo) stream << "*** NULL RgH1F ***";
+
+  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]")
+         << " : h1f = " << fItem->GetName();
 }
 //____________________________________________________________________________
-void RegistryItem<TTree*>::Print(ostream & stream) const
+void RegistryItem<RgH2F>::Print(ostream & stream) const
 {
-  if(fIsLocked) stream << "[  locked] : TTree = "
-                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
-  else          stream << "[unlocked] : TTree = "
-                            << ( (fItem) ? fItem->GetName() : "NULL") << endl;
+  TH2F * histo = dynamic_cast<TH2F *>(fItem);
+  if(!histo) stream << "*** NULL RgH2F ***";
+
+  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]")
+         << " : h2f = " << fItem->GetName();
+}
+//____________________________________________________________________________
+void RegistryItem<RgTree>::Print(ostream & stream) const
+{
+  TTree * tree = dynamic_cast<TTree *>(fItem);
+  if(!tree) stream << "*** NULL RgTree ***";
+
+  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]")
+         << " : tree = " << fItem->GetName();
 }
 //____________________________________________________________________________

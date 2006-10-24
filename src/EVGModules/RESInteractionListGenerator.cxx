@@ -173,11 +173,11 @@ void RESInteractionListGenerator::LoadConfigData(void)
 
   fResList.Clear();
   string resonances = fConfig->GetStringDef(
-                   "resonance-name-list", gc->GetString("ResonanceNameList"));
+                   "ResonanceNameList", gc->GetString("ResonanceNameList"));
   SLOG("InteractionList", pDEBUG) << "Resonance list: " << resonances;
 
   fResList.DecodeFromNameList(resonances);
-  LOG("InteractionList", pINFO) << fResList;
+  LOG("InteractionList", pDEBUG) << fResList;
 }
 //____________________________________________________________________________
 

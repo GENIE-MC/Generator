@@ -237,17 +237,16 @@ void SlowRsclCharmDISPXSecLO::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   // read mc, Vcd, Vcs from config or set defaults
-  fMc    = fConfig->GetDoubleDef("c-quark-mass", gc->GetDouble("Charm-Mass"));
-  fVcd   = fConfig->GetDoubleDef("Vcd", gc->GetDouble("CKM-Vcd"));
-  fVcs   = fConfig->GetDoubleDef("Vcs", gc->GetDouble("CKM-Vcs"));
+  fMc    = fConfig->GetDoubleDef("charm-Mass", gc->GetDouble("Charm-Mass"));
+  fVcd   = fConfig->GetDoubleDef("CKM-Vcd", gc->GetDouble("CKM-Vcd"));
+  fVcs   = fConfig->GetDoubleDef("CKM-Vcs", gc->GetDouble("CKM-Vcs"));
 
   fMc2   = TMath::Power(fMc,  2);
   fVcd2  = TMath::Power(fVcd, 2);
   fVcs2  = TMath::Power(fVcs, 2);
 
   // load PDF set
-  fPDFModel = dynamic_cast<const PDFModelI *> (
-                           this->SubAlg("pdf-alg-name", "pdf-param-set"));
+  fPDFModel = dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
   assert(fPDFModel);
 }
 //____________________________________________________________________________

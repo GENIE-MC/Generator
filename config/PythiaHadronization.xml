@@ -5,18 +5,18 @@
 <!--
 Configuration for the PYTHIA hadronization model
 
-Algorithm Configurable Parameters:
+Configurable Parameters:
 ................................................................................................................................
-Name                         Type    Opt   Comment (see PYTHIA manual)                              Default
+Name                     Type    Opt   Comment (see PYTHIA manual)                              Default
 ................................................................................................................................
-ssbar-suppression        double  Yes   PYTHIA's PARJ(2): the suppression of s quark pair        GPL PYTHIA-SSBarSuppression
+SSBarSuppression         double  Yes   PYTHIA's PARJ(2): the suppression of s quark pair        GPL PYTHIA-SSBarSuppression
                                        production in the field compared with u,d production
-gaussian-pt2             double  Yes   PYTHIA's PARJ(21): corresponds to the width sigma in     GPL PYTHIA-GaussianPt2
+GaussianPt2              double  Yes   PYTHIA's PARJ(21): corresponds to the width sigma in     GPL PYTHIA-GaussianPt2
                                        the gaussian transverse momentum distribution for
                                        primary hadrons
-non-gaussian-pt2-tail    double  Yes   PYTHIA's PARJ(23): param used to model non-gaussian      GPL PYTHIA-NonGaussianPt2Tail
+NonGaussianPt2Tail       double  Yes   PYTHIA's PARJ(23): param used to model non-gaussian      GPL PYTHIA-NonGaussianPt2Tail
                                        pt2 tails
-remaining-energy-cutoff  double  Yes   PYTHIA's PARJ(33): param used to define the remaining    GPL PYTHIA-RemainingEnergyCutoff
+RemainingEnergyCutoff    double  Yes   PYTHIA's PARJ(33): param used to define the remaining    GPL PYTHIA-RemainingEnergyCutoff
                                        energy below which the fragmentation of a parton system
                                        is stopped and two final hadrons formed
 Wcut                     double  Yes   W cut in DIS/RES join scheme                             GPL Wcut
@@ -36,19 +36,32 @@ R-vbn-CC-m2              double  Yes   scaling factor, vbn CC, multiplicity=2   
 R-vbn-CC-m3              double  Yes   scaling factor, vbn CC, multiplicity=3                   GPL DIS-HMultWgt-vbn-CC-m3
 R-vbn-NC-m2              double  Yes   scaling factor, vbn NC, multiplicity=2                   GPL DIS-HMultWgt-vbn-NC-m2
 R-vbn-NC-m3              double  Yes   scaling factor, vbn NC, multiplicity=3                   GPL DIS-HMultWgt-vbn-NC-m3
-
 -->
 
-  <!-- Default PYTHIA -->
+<!-- 
+  Default PYTHIA 
+-->
   <param_set name="Default"> 
   </param_set>
 
-  <!-- Tuned parameters as used by NUX (see A.Rubbia's talk @ NuINT01) -->
+<!-- 
+  Standard PYTHIA
+-->
+  <param_set name="Standard"> 
+    <param type="double" name="SSBarSuppression">      0.30 </param> 
+    <param type="double" name="GaussianPt2">           0.36 </param> 
+    <param type="double" name="NonGaussianPt2Tail">    0.01 </param> 
+    <param type="double" name="RemainingEnergyCutoff"> 0.20 </param> 
+  </param_set>
+
+<!-- 
+  Tuned parameters as used by NUX (see A.Rubbia's talk @ NuINT01) 
+-->
   <param_set name="NUX"> 
-    <param type="double" name="ssbar-suppression">       0.21 </param> 
-    <param type="double" name="gaussian-pt2">            0.44 </param> 
-    <param type="double" name="non-gaussian-pt2-tail">   0.01 </param> 
-    <param type="double" name="remaining-energy-cutoff"> 0.20 </param> 
+    <param type="double" name="SSBarSuppression">      0.21 </param> 
+    <param type="double" name="GaussianPt2">           0.44 </param> 
+    <param type="double" name="NonGaussianPt2Tail">    0.01 </param> 
+    <param type="double" name="RemainingEnergyCutoff"> 0.20 </param> 
   </param_set>
 
 </alg_conf>

@@ -5,17 +5,17 @@
 <!--
 Configuration for the NuNucElasticPXSec xsec algorithm.
 
-Algorithm Configurable Parameters:
+Configurable Parameters:
 ....................................................................................
 Name           Type     Optional   Comment                     Default
 ....................................................................................
 Ma             double   Yes        Axial Mass                  GPL value: QEL-Ma
 Mv             double   Yes        Vector Mass                 GPL value: QEL-Mv
-eta            double   Yes        Strange Axial form factor   GPL value: EL-Axial-Eta
+Eta            double   Yes        Strange Axial form factor   GPL value: EL-Axial-Eta
 Fa0            double   Yes        Fa(q2=0)                    GPL value: QEL-FA0
 MuP            double   Yes        p Anomalous Magn Moment     GPL value: AnomMagnMoment-P
 MuN            double   Yes        n Anomalous Magn Moment     GPL value: AnomMagnMoment-N
-weinberg-angle double   Yes        Weinberg angle              GPL value: WeinbergAngle
+WeinbergAngle  double   Yes        Weinberg angle              GPL value: WeinbergAngle
 -->
 
   <param_set name="Default"> 

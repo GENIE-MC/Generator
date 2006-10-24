@@ -354,15 +354,14 @@ void CharmHadronization::LoadConfig(void)
   //AlgConfigPool * confp = AlgConfigPool::Instance();
   //const Registry * gc = confp->GlobalParameterList();
 
-  //  fpT2scale  = fConfig->GetDoubleDef("pT2scale", 0.6);
-  fCharmOnly = fConfig->GetBoolDef("model-charm-only", false);
+  fCharmOnly = ! fConfig->GetBoolDef("HadronizeRemnants", true);
 
   //-- Get a fragmentation function
-  fFragmFunc = dynamic_cast<const FragmentationFunctionI *> (this->SubAlg(
-              "fragmentation-func-alg-name", "fragmentation-func-param-set"));
+  fFragmFunc = dynamic_cast<const FragmentationFunctionI *> (
+                                         this->SubAlg("FragmentationFunc"));
   assert(fFragmFunc);
 
-  fCharmPT2pdf = new TF1("fBaryonPT2pdf", "exp(-0.213362-6.62464*x)",0,0.6);
+  fCharmPT2pdf = new TF1("fCharmPT2pdf", "exp(-0.213362-6.62464*x)",0,0.6);
 }
 //____________________________________________________________________________
 int CharmHadronization::GenerateCharmHadron(double Ev) const

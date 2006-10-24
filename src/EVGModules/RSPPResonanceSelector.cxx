@@ -173,18 +173,16 @@ void RSPPResonanceSelector::AddResonance(GHepRecord * evrec) const
 void RSPPResonanceSelector::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
-  this->LoadConfigData();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void RSPPResonanceSelector::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-  this->LoadSubAlg();
-  this->LoadConfigData();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void RSPPResonanceSelector::LoadConfigData(void)
+void RSPPResonanceSelector::LoadConfig(void)
 {
   // Create the list with all the baryon resonances that the user wants me to
   // consider (from this algorithm's config file).
@@ -193,28 +191,22 @@ void RSPPResonanceSelector::LoadConfigData(void)
   const Registry * gc = confp->GlobalParameterList();
 
   LOG("RESSelector", pDEBUG) << "Getting the baryon resonance list";
-
   fResList.Clear();
   string resonances = fConfig->GetStringDef(
-                   "resonance-name-list", gc->GetString("ResonanceNameList"));
+                   "ResonanceNameList", gc->GetString("ResonanceNameList"));
   SLOG("RESSelector", pDEBUG) << "Resonance list: " << resonances;
 
   fResList.DecodeFromNameList(resonances);
   LOG("RESSelector", pINFO) << fResList;
-}
-//____________________________________________________________________________
-void RSPPResonanceSelector::LoadSubAlg(void)
-{
+
   fXSecAlg = 0;
 
   //-- Get a d^2xsec/dWdQ^2|SPP cross section calculator 
   //   The algorithm should be able to compute xsec for SPP channels and also
   //   allow one to compute the contribution of specific resonances
   LOG("RESSelector", pDEBUG) << "Getting the differential xsec algorithm";
-  fXSecAlg = dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                              "spp-xsec-alg-name", "spp-xsec-param-set"));
-
+  fXSecAlg = dynamic_cast<const XSecAlgorithmI *> 
+                                 (this->SubAlg("RESContribXSecAlg"));
   assert(fXSecAlg);
 }
 //____________________________________________________________________________
-

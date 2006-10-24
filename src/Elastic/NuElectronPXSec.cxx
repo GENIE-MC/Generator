@@ -143,8 +143,8 @@ void NuElectronPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fCv = fConfig->GetDoubleDef("cv", gc->GetDouble("NuElecEL-CV"));
-  fCa = fConfig->GetDoubleDef("ca", gc->GetDouble("NuElecEL-CA"));
+  fCv = fConfig->GetDoubleDef("CV", gc->GetDouble("NuElecEL-CV"));
+  fCa = fConfig->GetDoubleDef("CA", gc->GetDouble("NuElecEL-CA"));
 }
 //____________________________________________________________________________
 

@@ -6,8 +6,7 @@
   decay differential xsec algorithm with 1-loop radiative corrections
 
   <param_set name="Default"> 
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D      </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic   </param>
+     <param type="alg" name="Integrator"> genie::Simpson1D/Default-Logarithmic </param>
   </param_set>
 
 </alg_conf>

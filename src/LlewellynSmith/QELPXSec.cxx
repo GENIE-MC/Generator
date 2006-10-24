@@ -214,12 +214,12 @@ void QELPXSec::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
   
   double thc = fConfig->GetDoubleDef(
-                              "cabbibo-angle", gc->GetDouble("CabbiboAngle"));
+                              "CabbiboAngle", gc->GetDouble("CabbiboAngle"));
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
   fFormFactorsModel = 0;
   fFormFactorsModel = dynamic_cast<const QELFormFactorsModelI *> (
-             this->SubAlg("form-factors-alg-name", "form-factors-param-set"));
+                                             this->SubAlg("FormFactorsAlg"));
   assert(fFormFactorsModel);
 
   fFormFactors.SetModel(fFormFactorsModel); // <-- attach algorithm

@@ -167,11 +167,11 @@ void Simpson1D::Configure(string param_set)
 //____________________________________________________________________________
 void Simpson1D::LoadConfigData(void)
 {
-  fIMaxConv   = (unsigned int) fConfig->GetInt("max-iterations");
-  fNo         = (unsigned int) fConfig->GetInt("initial-nstep");
-  fMaxPcntErr = fConfig->GetDouble("max-error");
+  fIMaxConv   = (unsigned int) fConfig->GetInt("MaxNIter");
+  fNo         = (unsigned int) fConfig->GetInt("InitNStep");
+  fMaxPcntErr = fConfig->GetDouble("MaxErr");
 
-  bool inloge = fConfig->GetBool("in-loge");
+  bool inloge = fConfig->GetBool("InLoge");
   if(inloge) fSpacing = kGSpLoge;
   else       fSpacing = kGSpLinear;
 }

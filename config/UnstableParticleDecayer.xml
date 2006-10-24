@@ -2,26 +2,27 @@
 
 <alg_conf>
 
-  -- Default configuration for UnstableParticleDecayer EventRecordVisitorI
+<!--
+Configuration sets for the UnstableParticleDecayer EventRecordVisitorI
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
 
   <param_set name="BeforeHadronTransport"> 
-     <param type="int"    name="n-decayers">                  2                                </param>
-     <param type="string" name="decayer-0-alg-name">          genie::PythiaDecayer             </param>
-     <param type="string" name="decayer-0-config-name">       Default                          </param>
-     <param type="string" name="decayer-1-alg-name">          genie::BaryonResonanceDecayer    </param>
-     <param type="string" name="decayer-1-config-name">       Default                          </param>
-     <param type="double" name="max-lifetime-for-unstables">  1e-10                            </param>
-     <param type="bool"   name="run-before-hadron-transport"> true                             </param>
+     <param type="int"    name="NDecayers">                2                                        </param>
+     <param type="alg"    name="Decayer-0">                genie::PythiaDecayer/Default             </param>
+     <param type="alg"    name="Decayer-1">                genie::BaryonResonanceDecayer/Default    </param>
+     <param type="bool"   name="RunBeforeHadronTransport"> true                                     </param>
   </param_set>
 
   <param_set name="AfterHadronTransport"> 
-     <param type="int"    name="n-decayers">                  2                                </param>
-     <param type="string" name="decayer-0-alg-name">          genie::PythiaDecayer             </param>
-     <param type="string" name="decayer-0-config-name">       Default                          </param>
-     <param type="string" name="decayer-1-alg-name">          genie::BaryonResonanceDecayer    </param>
-     <param type="string" name="decayer-1-config-name">       Default                          </param>
-     <param type="double" name="max-lifetime-for-unstables">  1e-10                            </param>
-     <param type="bool"   name="run-before-hadron-transport"> false                            </param>
+     <param type="int"    name="NDecayers">                2                                        </param>
+     <param type="alg"    name="Decayer-0">                genie::PythiaDecayer/Default             </param>
+     <param type="alg"    name="Decayer-1">                genie::BaryonResonanceDecayer/Default    </param>
+     <param type="bool"   name="RunBeforeHadronTransport"> false                                    </param>
   </param_set>
 
 </alg_conf>

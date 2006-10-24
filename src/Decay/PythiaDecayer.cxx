@@ -235,7 +235,7 @@ void PythiaDecayer::LoadConfig(void)
 // Read configuration options or set defaults
 
   //-- check whether we are asked to force the decay / default = false
-  fForceDecay = fConfig->GetBoolDef("force-decay", false);
+  fForceDecay = fConfig->GetBoolDef("ForceDecay", false);
 }
 //____________________________________________________________________________
 void PythiaDecayer::SyncSeeds(void) const

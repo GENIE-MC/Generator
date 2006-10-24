@@ -5,17 +5,18 @@
 <!--
 Configuration sets for Llewellyn-Smith QEL NC form factors
 
-Algorithm Configurable Parameters:
-....................................................................................
-Name            Type     Optional   Comment                     Default
-....................................................................................
-Ma              double   Yes        Axial  Mass squared         GPL value: QEl-Ma
-FA0             double   Yes        FA(q2=0)                    GPL value: QEL-FA0
-el-form-factors double   No         Elastic form factors model
+Configurable Parameters:
+..............................................................................................
+Name             Type     Optional   Comment                     Default
+..............................................................................................
+Ma               double   Yes        Axial  Mass squared         GPL: QEl-Ma
+FA0              double   Yes        FA(q2=0)                    GPL: QEL-FA0
+ElFormFactorsAlg alg      No         Elastic form factors model
+WeinbergAngle    double   Yes        Weinberg angle              GPL: WeinbergAngle
 -->
 
   <param_set name="Default">
-     <param type="string" name="el-form-factors"> genie::DipoleELFormFactorsModel/Default </param>
+     <param type="alg" name="ElFormFactorsAlg"> genie::DipoleELFormFactorsModel/Default </param>
   </param_set>
 
 </alg_conf>

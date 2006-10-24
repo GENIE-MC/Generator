@@ -2,17 +2,22 @@
 
 <alg_conf>
 
-  -- Default configuration for COH XSec
+!--
+Configuration for the coherent pi production cross section algorithm
+
+Configurable Parameters:
+....................................................................................................
+Name             Type     Optional   Comment                 Default
+....................................................................................................
+-->
 
   <param_set name="Default"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::ReinSeghalCOHPXSec           </param>
-     <param type="string" name="partial-xsec-param-set"> Default                             </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson2D                    </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic-FixedNBins-101  </param>
-     <param type="double" name="x-min">                  0.001                               </param>
-     <param type="double" name="x-max">                  0.999                               </param>
-     <param type="double" name="y-min">                  0.001                               </param>
-     <param type="double" name="y-max">                  0.999                               </param>
+     <param type="alg"    name="DiffXSecAlg">  genie::ReinSeghalCOHPXSec/Default                   </param>
+     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param>
+     <param type="double" name="Kine-Xmin">    0.001                                               </param>
+     <param type="double" name="Kine-Xmax">    0.999                                               </param>
+     <param type="double" name="Kine-Ymin">    0.001                                               </param>
+     <param type="double" name="Kine-Ymax">    0.999                                               </param>
   </param_set>
 
 </alg_conf>

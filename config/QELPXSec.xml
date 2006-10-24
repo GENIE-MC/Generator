@@ -5,23 +5,26 @@
 <!--
 Configuration for the QELPXSec xsec algorithm.
 
-Algorithm Configurable Parameters:
+Configurable Parameters:
 .....................................................................................................
-Name                    Type     Optional   Comment                          Default
+Name               Type     Optional   Comment                          Default
 .....................................................................................................
-form-factors-alg-name   string   No         QEL form factors algorithm
-form-factors-param-set  string   No         ... and its consifuration set
-cabbibo-angle           double   Yes        Cabbibo angle                    GPL value: CabbiboAngle
+FormFactorsAlg     alg      No         QEL form factors algorithm
+CabbiboAngle       double   Yes        Cabbibo angle                    GPL value: CabbiboAngle
 -->
 
   <param_set name="CC-Default"> 
-     <param type="string"  name="form-factors-alg-name">  genie::LlewellynSmithModelCC </param>
-     <param type="string"  name="form-factors-param-set"> Default                      </param>
+     <param type="alg"  name="FormFactorsAlg">  genie::LlewellynSmithModelCC/Default </param>
   </param_set>
 
-  <param_set name="CC-Default-BBA2003"> 
-     <param type="string"  name="form-factors-alg-name">  genie::LlewellynSmithModelCC </param>
-     <param type="string"  name="form-factors-param-set"> Default-BBA2003              </param>
+  <param_set name="CC-Dipole"> 
+     <param type="alg"  name="FormFactorsAlg">  genie::LlewellynSmithModelCC/Dipole  </param>
+  </param_set>
+  <param_set name="CC-BBA2003"> 
+     <param type="alg"  name="FormFactorsAlg">  genie::LlewellynSmithModelCC/BBA2003 </param>
+  </param_set>
+  <param_set name="CC-BBA2005"> 
+     <param type="alg"  name="FormFactorsAlg">  genie::LlewellynSmithModelCC/BBA2005 </param>
   </param_set>
 
 </alg_conf>

@@ -45,8 +45,7 @@ public :
 public:
 
   //-- methods to load sub-algorithms and config data from the Registry
-  void   LoadSubAlg     (void);
-  void   LoadConfigData (void);
+  void   LoadConfig (void);
 
   //-- overload KineGeneratorWithCache methods
   double ComputeMaxXSec (const Interaction * in) const;

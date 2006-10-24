@@ -104,13 +104,11 @@ void NuElectronXSec::LoadConfig(void)
 
   //-- get an algorithm to calculate differential cross sections dxsec/dy
   fDiffXSecModel =
-          dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                         "partial-xsec-alg-name", "partial-xsec-param-set"));
+       dynamic_cast<const XSecAlgorithmI *>(this->SubAlg("DiffXSecAlg"));
   assert(fDiffXSecModel);
 
   //-- get the specified integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________

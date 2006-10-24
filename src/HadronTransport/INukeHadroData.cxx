@@ -38,9 +38,8 @@ INukeHadroData * INukeHadroData::fInstance = 0;
 //____________________________________________________________________________
 INukeHadroData::INukeHadroData()
 {
-  this->LoadXsData();
-  this->CalcXsData();
-  this->CalcFractions();
+  this->LoadData();
+  this->CalcData();
 
   fInstance = 0;
 }
@@ -147,7 +146,7 @@ INukeHadroData * INukeHadroData::Instance()
   return fInstance;
 }
 //____________________________________________________________________________
-void INukeHadroData::LoadXsData(void)
+void INukeHadroData::LoadData(void)
 {
 // Loads hadronic x-section data
 
@@ -277,14 +276,18 @@ void INukeHadroData::LoadXsData(void)
       << "... Done loading Ash & Carrol hadron cross section data";
 };
 //____________________________________________________________________________
-void INukeHadroData::CalcXsData(void)
+void INukeHadroData::CalcData(void)
 {
 // Calculates hadronic x-sections 
 
   LOG("INukeData", pNOTICE) 
       << "Computing missing x-sections & applying corrections...";
 
+  //total x-sections
   TNtupleD * ntxs = new TNtupleD("tot","total x-sec","ke:pip:pim:pi0:p:n");
+
+  //pi0 fractions
+  TNtupleD * ntfrpi0 = new TNtupleD("ntfrpi0","","ke:cex:elas:reac:abs");
 
   int nknots = fXsPipPElas->NKnots();
 
@@ -309,11 +312,11 @@ void INukeHadroData::CalcXsData(void)
       << "pi- @ at ke = " << ke << ": elas =  " <<  xspimelas 
       << ", reac = " << xspimreac << ", cex = " <<  xspimcex;
 
-    double xszepelas = (5./18.)*xspipelas - (1./6.)*xspimelas + (5./6.)*xspimcex;
-    double xszenelas = (1./2. )*xspipelas + (1./2.)*xspimelas - (1./2.)*xspimcex;
-    double xszereac  = (xspimreac+xspipreac)/2.;
-    double xszecex   =  xspimcex;
-    double xszeabs   =  xspiabs;
+    double xspi0pelas = (5./18.)*xspipelas - (1./6.)*xspimelas + (5./6.)*xspimcex;
+    double xspi0nelas = (1./2. )*xspipelas + (1./2.)*xspimelas - (1./2.)*xspimcex;
+    double xspi0reac  = (xspimreac+xspipreac)/2.;
+    double xspi0cex   =  xspimcex;
+    double xspi0abs   =  xspiabs;
 
     double xsppelas  = fXsPPElas->Evaluate(ke);
     double xsnpelas  = fXsNPElas->Evaluate(ke);
@@ -329,36 +332,43 @@ void INukeHadroData::CalcXsData(void)
 
     double xsplptot  = xspipelas + xspipreac +  xspiabs;
     double xsplntot  = xspimelas + xspimreac +  xspiabs;
-    double xszeptot  = xszepelas + xszecex + xszereac + xszeabs;
-    double xszentot  = xszenelas + xszecex + xszereac + xszeabs;
+    double xspi0ptot = xspi0pelas + xspi0cex + xspi0reac + xspi0abs;
+    double xspi0ntot = xspi0nelas + xspi0cex + xspi0reac + xspi0abs;
 
-    double xspip = (xsplptot + xsplntot)/2.;
-    double xspim = (xsplptot + xsplntot)/2.;
-    double xspi0 = (xszeptot + xszentot)/2.;
-    double xsp   = (xsppelas + xsnpelas + xsppreac + xsnpreac)/2.;
-    double xsn   =  xsnpelas + xsnpreac;
+    double xspip = (xsplptot  + xsplntot)/2.;
+    double xspim = (xsplptot  + xsplntot)/2.;
+    double xspi0 = (xspi0ptot + xspi0ntot)/2.;
+    double xsp   = (xsppelas  + xsnpelas + xsppreac + xsnpreac)/2.;
+    double xsn   =  xsnpelas  + xsnpreac;
 
     ntxs->Fill(ke,xspip,xspim,xspi0,xsp,xsn);
+
+    //-- pi0 fractions
+    if(xspi0>0) {
+      double frpi0cex  = xspi0cex/xspi0;
+      double frpi0elas = 1 - frpi0cex;
+      double frpi0reac = frpi0elas - 0.5*(xspi0pelas+xspi0nelas)/xspi0;
+      double frpi0abs  = frpi0reac - xspi0reac/xspi0;
+
+      ntfrpi0->Fill(ke,frpi0cex,frpi0elas,frpi0reac,frpi0abs);
+    }
   }
 
-  fXsPipTot = new Spline(ntxs,"ke:pip");
-  fXsPimTot = new Spline(ntxs,"ke:pim");
-  fXsPi0Tot = new Spline(ntxs,"ke:pi0");
-  fXsPTot   = new Spline(ntxs,"ke:p");
-  fXsNTot   = new Spline(ntxs,"ke:n");
+  fXsPipTot    = new Spline(ntxs,"ke:pip");
+  fXsPimTot    = new Spline(ntxs,"ke:pim");
+  fXsPi0Tot    = new Spline(ntxs,"ke:pi0");
+  fXsPTot      = new Spline(ntxs,"ke:p");
+  fXsNTot      = new Spline(ntxs,"ke:n");
+
+  fFrPi0CEx    = new Spline(ntfrpi0,"ke:cex");
+  fFrPi0Elas   = new Spline(ntfrpi0,"ke:elas");
+  fFrPi0Reac   = new Spline(ntfrpi0,"ke:reac");
+  fFrPi0Abs    = new Spline(ntfrpi0,"ke:abs");
 
   delete ntxs;
+  delete ntfrpi0;
 
-  LOG("INukeData", pNOTICE) 
-       << "... Done computing total hadron cross section data";
-}
-//____________________________________________________________________________
-void INukeHadroData::CalcFractions(void)
-{
-// Calculates x-section fractions and builds splines needed for deciding the
-// re-scattered particle fates.
 
-  LOG("INukeData", pNOTICE) << "Computing total x-section fractions...";
 
   fFrPipCEx    = new Spline; 
   fFrPipElas   = new Spline; 
@@ -368,10 +378,7 @@ void INukeHadroData::CalcFractions(void)
   fFrPimElas   = new Spline; 
   fFrPimReac   = new Spline; 
   fFrPimAbs    = new Spline; 
-  fFrPi0CEx    = new Spline; 
-  fFrPi0Elas   = new Spline; 
-  fFrPi0Reac   = new Spline; 
-  fFrPi0Abs    = new Spline; 
+
   fFrPReac     = new Spline; 
   fFrNReac     = new Spline; 
   fFrPiAElas   = new Spline; 
@@ -392,6 +399,9 @@ void INukeHadroData::CalcFractions(void)
   fFrPA4N4P    = new Spline; 
   fFrPAPiProd  = new Spline; 
 
-  LOG("INukeData", pNOTICE) << "... Done computing fractions";
+
+
+  LOG("INukeData", pNOTICE) 
+       << "... Done computing total hadron cross section data";
 }
 //____________________________________________________________________________

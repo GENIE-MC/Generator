@@ -169,14 +169,14 @@ void NuNucElasticPXSec::LoadConfig(void)
 
   // alpha and gamma
   double thw = fConfig->GetDoubleDef(
-                          "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+                       "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
   double sin2thw = TMath::Power(TMath::Sin(thw), 2);
 
   fkAlpha = 1.-2.*sin2thw;
   fkGamma = -0.66666667*sin2thw;
 
   // eta and Fa(q2=0)
-  fEta = fConfig->GetDoubleDef("eta", gc->GetDouble("EL-Axial-Eta"));
+  fEta = fConfig->GetDoubleDef("Eta", gc->GetDouble("EL-Axial-Eta"));
   fFa0 = fConfig->GetDoubleDef("Fa0", gc->GetDouble("QEL-FA0"));
 
   // axial and vector masses

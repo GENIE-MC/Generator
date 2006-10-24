@@ -19,6 +19,7 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
 #include "Nuclear/BodekRitchie.h"
@@ -128,9 +129,13 @@ void BodekRitchie::Configure(string param_set)
 //____________________________________________________________________________
 void BodekRitchie::LoadConfigData(void)
 {
-  fNPBins  = fConfig->GetIntDef("n-momentum-bins", 250);
-  fPMax    = fConfig->GetDoubleDef("p-max",     10.0);
-  fPCutOff = fConfig->GetDoubleDef("p-cut-off",  0.5);
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  fNPBins  = fConfig->GetIntDef    ("Momentum-NumBins",  400);
+  fPMax    = fConfig->GetDoubleDef ("Momentum-Max",     10.0);
+  fPCutOff = fConfig->GetDoubleDef ("Momentum-CutOff",  
+                        gc->GetDouble("RFG-Momentum-CutOff"));
 
   assert(fNPBins > 1 && fPMax > 0 && fPCutOff > 0 && fPCutOff < fPMax);
 }

@@ -228,27 +228,27 @@ void Simpson2D::Configure(string param_set)
 //____________________________________________________________________________
 void Simpson2D::LoadConfigData(void)
 {
-  fIMaxConv   = (unsigned int) fConfig->GetIntDef("max-iterations", 20);
-  fNo         = (unsigned int) fConfig->GetIntDef("initial-nstep", 3);
-  fMaxPcntErr = fConfig->GetDoubleDef("max-error", 0.1); //%
+  fIMaxConv   = (unsigned int) fConfig->GetIntDef("MaxNIter", 20);
+  fNo         = (unsigned int) fConfig->GetIntDef("InitNStep", 3);
+  fMaxPcntErr = fConfig->GetDoubleDef("MaxErr", 0.1); //%
 
-  bool inloge = fConfig->GetBoolDef("in-loge", false);
+  bool inloge = fConfig->GetBoolDef("InLoge", false);
   if(inloge) fSpacing = kGSpLoge;
   else       fSpacing = kGSpLinear;
 
   // check the preferred grid density increase rate method
-  fFastDensityIncrease = fConfig->GetBoolDef("fast-density-increase", false);
+  fFastDensityIncrease = fConfig->GetBoolDef("FastDensityIncrease", false);
 
   // check whether the user wants to use a fixed number of bins
   // *** notice that if this is used there is no guarantee for the convergence
   // *** of the numerical integration
 
-  fForceFixedNBins = fConfig->GetBoolDef("force-fixed-nbins", false);
+  fForceFixedNBins = fConfig->GetBoolDef("ForceFixedNBins", false);
   fNBinsD0 = 0;
   fNBinsD1 = 0;
   if(fForceFixedNBins) {
-     fNBinsD0 = fConfig->GetIntDef("dimension-0-nbins", 401);
-     fNBinsD1 = fConfig->GetIntDef("dimension-1-nbins", 401);
+     fNBinsD0 = fConfig->GetIntDef("NBinsDim0", 401);
+     fNBinsD1 = fConfig->GetIntDef("NBinsDim1", 401);
   }
 }
 //____________________________________________________________________________

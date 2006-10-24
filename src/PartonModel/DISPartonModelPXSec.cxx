@@ -326,21 +326,20 @@ void DISPartonModelPXSec::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   fDISSFModel = 0;
-  fDISSFModel = dynamic_cast<const DISStructureFuncModelI *> (
-                                this->SubAlg("sf-alg-name", "sf-param-set"));
+  fDISSFModel = 
+     dynamic_cast<const DISStructureFuncModelI *> (this->SubAlg("SFAlg"));
   assert(fDISSFModel);
 
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 
   fUsingDisResJoin = fConfig->GetBoolDef(
-		"use-dis-res-joining-scheme", gc->GetBool("UseDRJoinScheme"));
+                       "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
   fHadronizationModel = 0;
   fWcut = 0.;
 
   if(fUsingDisResJoin) {
      fHadronizationModel = 
-         dynamic_cast<const HadronizationModelI *> (this->SubAlg(
-                   "hadronization-model-name","hadronization-model-config"));
+       dynamic_cast<const HadronizationModelI *> (this->SubAlg("Hadronizer"));
      assert(fHadronizationModel);
 
      // Load Wcut determining the phase space area where the multiplicity prob.
@@ -355,7 +354,7 @@ void DISPartonModelPXSec::LoadConfig(void)
   //   precomputing (for all W's) & caching these factors might not be efficient.
   //   Here we provide the option to turn the caching off (default: on)
 
-  fUseCache = fConfig->GetBoolDef("use-cache", true);
+  fUseCache = fConfig->GetBoolDef("UseCache", true);
 
   //-- Since this method would be called every time the current algorithm is 
   //   reconfigured at run-time, remove all the data cached by this algorithm

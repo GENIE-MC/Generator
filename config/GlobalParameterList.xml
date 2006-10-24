@@ -154,6 +154,12 @@
 
  <!-- 
   *********************************************************************       
+  Parameters related with GENIE's Fermi Gas (RFG) model implementation
+  ********************************************************************* -->
+  <param type="double" name="RFG-Momentum-CutOff"> 0.5 </param>
+
+ <!-- 
+  *********************************************************************       
   Parameters controlling the hadronic multiplicities in the KNO model
   ********************************************************************* -->
   <param type="double" name="KNO-Beta">      1.30 </param> 
@@ -191,7 +197,7 @@
   A.B.Clegg, A.Donnachie, A Description of Jet Structure by pT-limited
   Phase Space.
   ********************************************************************* -->
-  <param type="double" name="KNO-PhSpRwParm"> 3.5 </param>
+  <param type="double" name="KNO-PhaseSpace-RewParm"> 3.5 </param>
 
  <!-- 
   *********************************************************************       

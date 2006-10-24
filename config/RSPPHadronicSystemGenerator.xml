@@ -2,7 +2,14 @@
 
 <alg_conf>
 
-  Configuration sets for SPPHadronSystemGenerator EventRecordVisitorI
+<!--
+Configuration sets for the RSPPHadronicSystemGenerator EventRecordVisitorI
+
+Configurable Parameters:
+..........................................................................................................................
+Name                        Type    Opt  Comment                                               Default
+..........................................................................................................................
+-->
 
   <param_set name="Default"> 
   </param_set>

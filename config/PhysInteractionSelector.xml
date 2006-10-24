@@ -2,12 +2,22 @@
 
 <alg_conf>
 
+<!--
+Configuration for the PhysInteractionSelector InteractionSelectorI
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+UseStoredXSecs   bool     Yes        Very slow             false
+-->
+
   <param_set name="Default"> 
-       <param type="bool" name="use-stored-xsecs"> true  </param>
+       <param type="bool" name="UseStoredXSecs"> true  </param>
   </param_set>
 
   <param_set name="BruteForce"> 
-       <param type="bool" name="use-stored-xsecs"> false </param>
+       <param type="bool" name="UseStoredXSecs"> false </param>
   </param_set>
 
 </alg_conf>

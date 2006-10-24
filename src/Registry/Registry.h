@@ -40,109 +40,132 @@ using std::ostream;
 
 namespace genie {
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Type definitions
+//
+typedef map <RgKey, RegistryItemI *>                 RgIMap;
+typedef pair<RgKey, RegistryItemI *>                 RgIMapPair;
+typedef map <RgKey, RegistryItemI *>::size_type      RgIMapSizeType;
+typedef map <RgKey, RegistryItemI *>::iterator       RgIMapIter;
+typedef map <RgKey, RegistryItemI *>::const_iterator RgIMapConstIter;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Templated utility methods to set/get registry items
+//
+class Registry;
+template<class T> 
+  void SetRegistryItem(Registry * r, RgKey key, T item);
+template<class T> 
+  T GetValueOrUseDefault(
+     Registry * r, RgKey key, T def, bool set_def=true);
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 class Registry {
 
 public:
-
+  // Ctor's & dtor
+  //
   Registry();
   Registry(string name, bool isReadOnly = true);
   Registry(const Registry &);
   virtual ~Registry();
 
+  // Overloaded registry operators (<<, (), = , +=)
+  //
   friend ostream & operator << (ostream & stream, const Registry & registry);
 
   Registry & operator =  (const Registry & reg);
   Registry & operator += (const Registry & reg);
 
-  void operator () (string key,  int          item);
-  void operator () (string key,  bool         item);
-  void operator () (string key,  double       item);
-  void operator () (string key,  const char * item);
-  void operator () (string key,  string       item);
+  void operator () (RgKey key,  int          item);
+  void operator () (RgKey key,  bool         item);
+  void operator () (RgKey key,  double       item);
+  void operator () (RgKey key,  const char * item);
+  void operator () (RgKey key,  string       item);
 
-  //! Registry locks
+  // Registry locks
 
   void   Lock      (void);       ///< locks the registry
   void   UnLock    (void);       ///< unlocks the registry (doesn't unlock items)
   bool   IsLocked  (void) const; ///< checks registry lock
 
-  //! Registry item locks
+  // Registry item locks
 
-  void   InhibitItemLocks   (void);             ///< override individual item locks
-  void   RestoreItemLocks   (void);             ///< restore individual item locks
-  bool   ItemLocksAreActive (void) const;       ///< check if item locks are active
-  void   LockItem           (string key);       ///< locks the registry item
-  void   UnLockItem         (string key);       ///< unlocks the registry item
-  bool   ItemIsLocked       (string key) const; ///< check item lock
+  void   InhibitItemLocks   (void);            ///< override individual item locks
+  void   RestoreItemLocks   (void);            ///< restore individual item locks
+  bool   ItemLocksAreActive (void) const;      ///< check if item locks are active
+  void   LockItem           (RgKey key);       ///< locks the registry item
+  void   UnLockItem         (RgKey key);       ///< unlocks the registry item
+  bool   ItemIsLocked       (RgKey key) const; ///< check item lock
 
-  //! Methods to set/retrieve Registry values
+  // Methods to set/retrieve Registry values
 
-  void   Set (pair<string, genie::RegistryItemI *> entry);
-  void   Get (string key, const RegistryItemI * item) const;
+  void   Set (RgIMapPair entry);
+  void   Set (RgKey key, RgBool  item);
+  void   Set (RgKey key, RgInt   item);
+  void   Set (RgKey key, RgDbl   item);
+  void   Set (RgKey key, RgStr   item);
+  void   Set (RgKey key, RgAlg   item);
+  void   Set (RgKey key, RgCChAr item);
+  void   Set (RgKey key, RgH1F   item);
+  void   Set (RgKey key, RgH2F   item);
+  void   Set (RgKey key, RgTree  item);
 
-  void   Set (string key, bool         item);
-  void   Set (string key, int          item);
-  void   Set (string key, double       item);
-  void   Set (string key, string       item);
-  void   Set (string key, const char * item);
-  void   Set (string key, TH1F *       item);
-  void   Set (string key, TH2F *       item);
-  void   Set (string key, TTree *      item);
-  void   Get (string key, bool &       item) const;
-  void   Get (string key, int &        item) const;
-  void   Get (string key, double &     item) const;
-  void   Get (string key, string &     item) const;
-  void   Get (string key, TH1F *       item) const;
-  void   Get (string key, TH2F *       item) const;
-  void   Get (string key, TTree *      item) const;
+  void   Get (RgKey key, const RegistryItemI * item) const;
+  void   Get (RgKey key, RgBool & item) const;
+  void   Get (RgKey key, RgInt &  item) const;
+  void   Get (RgKey key, RgDbl &  item) const;
+  void   Get (RgKey key, RgStr &  item) const;
+  void   Get (RgKey key, RgAlg &  item) const;
+  void   Get (RgKey key, RgH1F &  item) const;
+  void   Get (RgKey key, RgH2F &  item) const;
+  void   Get (RgKey key, RgTree & item) const;
 
-  bool   GetBool      (string key) const;
-  int    GetInt       (string key) const;
-  double GetDouble    (string key) const;
-  string GetString    (string key) const;
-  TH1F * GetTH1F      (string key) const;
-  TH2F * GetTH2F      (string key) const;
-  TTree* GetTTree     (string key) const;
-  bool   GetBoolDef   (string key, bool   def_opt, bool set_def=true);
-  int    GetIntDef    (string key, int    def_opt, bool set_def=true);
-  double GetDoubleDef (string key, double def_opt, bool set_def=true);
-  string GetStringDef (string key, string def_opt, bool set_def=true);
+  RgBool GetBool      (RgKey key) const;
+  RgInt  GetInt       (RgKey key) const;
+  RgDbl  GetDouble    (RgKey key) const;
+  RgStr  GetString    (RgKey key) const;
+  RgAlg  GetAlg       (RgKey key) const;
+  RgH1F  GetH1F       (RgKey key) const;
+  RgH2F  GetH2F       (RgKey key) const;
+  RgTree GetTree      (RgKey key) const;
+  RgBool GetBoolDef   (RgKey key, RgBool def_opt, bool set_def=true);
+  RgInt  GetIntDef    (RgKey key, RgInt  def_opt, bool set_def=true);
+  RgDbl  GetDoubleDef (RgKey key, RgDbl  def_opt, bool set_def=true);
+  RgStr  GetStringDef (RgKey key, RgStr  def_opt, bool set_def=true);
 
   int    NEntries     (void) const;
-  bool   Exists       (string key) const;
-  bool   CanSetItem   (string key) const;
-  bool   DeleteEntry  (string key);
+  bool   Exists       (RgKey key) const;
+  bool   CanSetItem   (RgKey key) const;
+  bool   DeleteEntry  (RgKey key);
   void   SetName      (string name);
   string Name         (void) const;
   void   Print        (ostream & stream) const;
   void   Copy         (const Registry &);
+  void   Append       (const Registry &);
   void   Clear        (bool force = false);
   void   Init         (void);
 
-  //! Convert to TFolder (this is the primary mechanism for saving the
-  //! GENIE configuration in a ROOT file, along with its generated events)
+  // Convert to TFolder (this is the primary mechanism for saving the
+  // GENIE configuration in a ROOT file, along with its generated events)
 
   void   CopyToFolder (TFolder * folder) const;
 
-  //! Assert the existence or registry items
+  // Assert the existence or registry items
 
-  void   AssertExistence (string key0) const;
-  void   AssertExistence (string key0, string key1) const;
-  void   AssertExistence (string key0, string key1, string key2) const;
+  void   AssertExistence (RgKey key0) const;
+  void   AssertExistence (RgKey key0, RgKey key1) const;
+  void   AssertExistence (RgKey key0, RgKey key1, RgKey key2) const;
 
 private:
 
-  string fName;
-  bool   fIsReadOnly;
-  bool   fInhibitItemLocks;
-
-  map<string, RegistryItemI *> fRegistry;
+  // Registry's private data members
+  //
+  string fName;              ///< registry's name
+  bool   fIsReadOnly;        ///< is read only?
+  bool   fInhibitItemLocks;  ///<
+  RgIMap fRegistry;          ///< 'key' -> 'value' map
 };
 
-template<class T> void SetRegistryItem(Registry * r, string key, T item);
-template<class T> T GetValueOrUseDefault(
-                     Registry * r, string key, T def, bool set_def=true);
-
-}        // namespace
+}        // genie namespace
 
 #endif   // _REGISTRY_H_

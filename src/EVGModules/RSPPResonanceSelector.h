@@ -47,8 +47,7 @@ public :
   void Configure (string param_set);
 
 private:
-  void LoadSubAlg     (void);
-  void LoadConfigData (void);
+  void LoadConfig (void);
 
   Resonance_t SelectResonance   (GHepRecord * event_rec) const;
   void        AddResonance      (GHepRecord * event_rec) const;

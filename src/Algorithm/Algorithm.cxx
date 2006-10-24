@@ -168,7 +168,7 @@ void Algorithm::Initialize()
   fConfig        = 0;
 }
 //____________________________________________________________________________
-const Algorithm * Algorithm::SubAlg(string key) const
+const Algorithm * Algorithm::SubAlg(const RgKey & registry_key) const
 {
 // Returns the sub-algorithm pointed to this algorithm's XML config file using
 // the the values of the key.
@@ -180,28 +180,32 @@ const Algorithm * Algorithm::SubAlg(string key) const
   LOG("Algorithm", pDEBUG)
           << "Fetching sub-algorithm within algorithm: " << this->Id().Key();
   LOG("Algorithm", pDEBUG)
-               << "Asserting existence of key: [" << key << "]";
+               << "Asserting existence of key: [" << registry_key << "]";
 
-  fConfig->AssertExistence(key);
-  string alg = fConfig->GetString(key);
+  // assert key existence 
+  fConfig->AssertExistence(registry_key);
+
+  // retrieve the algorithm item corresponding to key
+  RgAlg alg = fConfig->GetAlg(registry_key);
   LOG("Algorithm", pDEBUG)
-                   << "Input key [" << key << "] points to value: " << alg;
+     << "Registry key: " << registry_key << " points to algorithm: " << alg;
 
-  vector<string> algv = str::Split(alg,"/");
-  assert(algv.size()==2);
-  string alg_name  = algv[0];
-  string param_set = algv[1];
-  LOG("Algorithm", pDEBUG) << "Key value split, alg-name  : " << alg_name;
-  LOG("Algorithm", pDEBUG) << "Key value split, param_set : " << param_set;
+  //vector<string> algv = str::Split(alg,"/");
+  //assert(algv.size()==2);
+  //string alg_name  = algv[0];
+  //string param_set = algv[1];
+  //LOG("Algorithm", pDEBUG) << "Key value split, alg-name  : " << alg_name;
+  //LOG("Algorithm", pDEBUG) << "Key value split, param_set : " << param_set;
 
+  // retrieve the Algorithm object from the the Algorithm factory
   AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algbase = algf->GetAlgorithm(alg_name, param_set);
+  const Algorithm * algbase = algf->GetAlgorithm(alg.name, alg.config);
   assert(algbase);
 
   return algbase;
 }
 //____________________________________________________________________________
+/*
 const Algorithm * Algorithm::SubAlg(string alg_key, string config_key) const
 {
 // Returns the sub-algorithm pointed to this algorithm's XML config file using
@@ -277,4 +281,4 @@ const Algorithm * Algorithm::SubAlgWithDefault(string alg_key,
   return defalgbase;
 }
 //____________________________________________________________________________
-
+*/

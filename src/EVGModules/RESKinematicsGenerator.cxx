@@ -137,8 +137,12 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        //   An importance sampling envelope will be constructed for W.
 
        if(iter==1) {
-         // initialize the sampling envelope
+         LOG("RESKinematics", pINFO) << "Initializing the sampling envelope";
 
+         if(!fEnvelope) {
+            LOG("RESKinematics", pFATAL) << "Null sampling envelope!";
+            exit(1);
+         }
          interaction->KinePtr()->SetW(Wmin);
          Range1D_t Q2 = this->Q2Range(interaction);
 	 double Q2min  = 0 + kASmallNum;
@@ -148,6 +152,10 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          double QD2min = utils::kinematics::Q2toQD2(Q2max);
          double QD2max = utils::kinematics::Q2toQD2(Q2min);
 
+         LOG("RESKinematics", pDEBUG) 
+             <<  "Q^2: [" << Q2min  << ", " << Q2max  << "] => "
+             << "QD^2: [" << QD2min << ", " << QD2max << "]";
+
          double mR, gR;
          if(!interaction->ExclTag().KnownResonance()) { mR=1.2; gR = 0.6; }
          else {
@@ -155,16 +163,17 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
            mR=res::Mass(res);
            gR= (E>mR) ? 0.220 : 0.400;
          }
+         LOG("RESKinematics", pDEBUG) 
+            <<  "(m,g) = (" << mR << ", " << gR 
+            << "), max(xsec,W) = (" << xsec_max << ", " << Wmax << ")";
 
          fEnvelope->SetRange(QD2min,Wmin,QD2max,Wmax); // range
          fEnvelope->SetParameter(0,  mR);              // resonance mass
          fEnvelope->SetParameter(1,  gR);              // resonance width
          fEnvelope->SetParameter(2,  xsec_max);        // max differential xsec
          fEnvelope->SetParameter(3,  Wmax);            // kinematically allowed Wmax
-         fEnvelope->SetParameter(4,  E);       
 	 //envelope->SetNpy(150); 
        }
-
        // Generate W,QD2 using the 2-D envelope as PDF
        fEnvelope->GetRandom2(gQD2,gW);
 
@@ -244,27 +253,16 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 void RESKinematicsGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void RESKinematicsGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void RESKinematicsGenerator::LoadSubAlg(void)
-{
-// Reads its configuration from its Registry and loads all the sub-algorithms
-// needed
-  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
-                            this->SubAlg("xsec-alg-name", "xsec-param-set"));
-  assert(fXSecModel);
-}
-//____________________________________________________________________________
-void RESKinematicsGenerator::LoadConfigData(void)
+void RESKinematicsGenerator::LoadConfig(void)
 {
 // Reads its configuration data from its configuration Registry and loads them
 // in private data members to avoid looking up at the Registry all the time.
@@ -272,38 +270,43 @@ void RESKinematicsGenerator::LoadConfigData(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
+  //-- Get differential cross section model
+  fXSecModel = 
+       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
+  assert(fXSecModel);
+
   //-- Get the user kinematical limits on W
-  fWmin = fConfig->GetDoubleDef("W-min", -999999);
-  fWmax = fConfig->GetDoubleDef("W-max",  999999);
+  fWmin = fConfig->GetDoubleDef("Kine-Wmin", -999999);
+  fWmax = fConfig->GetDoubleDef("Kine-Wmax",  999999);
 
   //-- Get the user kinematical limits on Q2
-  fQ2min = fConfig->GetDoubleDef("Q2-min", -999999);
-  fQ2max = fConfig->GetDoubleDef("Q2-max",  999999);
+  fQ2min = fConfig->GetDoubleDef("Kine-Q2min", -999999);
+  fQ2max = fConfig->GetDoubleDef("Kine-Q2max",  999999);
 
   //-- Safety factor for the maximum differential cross section
-  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
+  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
 
   //-- Minimum energy for which max xsec would be cached, forcing explicit
   //   calculation for lower eneries
-  fEMin = fConfig->GetDoubleDef("min-energy-cached", 1.0);
+  fEMin = fConfig->GetDoubleDef("Cache-MinEnergy", 1.0);
 
   //-- Load Wcut used in DIS/RES join scheme
   fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("max-xsec-diff-tolerance",0.);
+  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("MaxXSec-DiffTolerance",0.);
   assert(fMaxXSecDiffTolerance>=0);
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("uniform-over-phase-space", false);
+  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
 
   //-- Envelope employed when importance sampling is used 
   //   (initialize with dummy range)
   if(fEnvelope) delete fEnvelope;
-  fEnvelope = new TF2("envelope",
-   	             kinematics::RESImportanceSamplingEnvelope,0.1,1,0.1,1,4);
+  fEnvelope = new TF2("res-envelope",
+        kinematics::RESImportanceSamplingEnvelope,0.01,1,0.01,1,4);
 }
 //____________________________________________________________________________
 Range1D_t RESKinematicsGenerator::WRange(

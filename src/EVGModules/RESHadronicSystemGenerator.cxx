@@ -204,9 +204,8 @@ void RESHadronicSystemGenerator::LoadConfig(void)
   fResonanceDecayer = 0;
 
   //-- Get the specified baryon resonance decayer
-  fResonanceDecayer = dynamic_cast<const DecayModelI *>
-                      (this->SubAlg("decayer-alg-name","decayer-param-set"));
-
+  fResonanceDecayer = 
+         dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
   assert(fResonanceDecayer);
 }
 //___________________________________________________________________________

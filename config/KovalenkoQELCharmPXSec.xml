@@ -2,11 +2,29 @@
 
 <alg_conf>
 
+<!--
+Configuration for the Kovalenko QEL charm production cross section algorithm.
+
+Algorithm Configurable Parameters:
+......................................................................................................
+Name               Type    Optional   Comment                       Default
+......................................................................................................
+PDF-Set            alg     No         PDFModelI algorithm
+Integrator         alg     No         1D integration algorithm
+Kine-Q2min         double  Yes        kinematical cut               use all allowed phase space
+Kine-Q2max         double  Yes        kinematical cut               use all allowed phase space
+CabbiboAngle       double  Yes        Cabbibo angle                 GPL: CabbiboAngle
+F1^2+FA^2-LambdaP  double  Yes                                      2.07
+F1^2+FA^2-SigmaP   double  Yes                                      0.71
+F1^2+FA^2-SigmaPP  double  Yes                                      1.42
+Res-DeltaM-Lambda  double  Yes                                      0.56 GeV
+Res-DeltaM-Sigma   double  Yes                                      0.20 GeV
+Mo                 double  Yes                                      0.08 GeV
+-->
+
   <param_set name="Default"> 
-     <param type="string"  name="pdf-alg-name">         genie::PDFLIB       </param>
-     <param type="string"  name="pdf-param-set">        GRVHO               </param>
-     <param type="string"  name="integrator-alg-name">  genie::Simpson1D    </param>
-     <param type="string"  name="integrator-param-set"> Default-Logarithmic </param>
+     <param type="alg"  name="PDF-Set">     genie::PDFLIB/GRVHO                  </param>
+     <param type="alg"  name="Integrator">  genie::Simpson1D/Default-Logarithmic </param>
   </param_set>
 
 </alg_conf>

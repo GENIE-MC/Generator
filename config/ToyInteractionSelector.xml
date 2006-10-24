@@ -2,8 +2,16 @@
 
 <alg_conf>
 
-  <param_set name="Default"> 
+<!--
+Configuration for the PhysInteractionSelector InteractionSelectorI
 
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
+
+  <param_set name="Default"> 
   </param_set>
 
 </alg_conf>

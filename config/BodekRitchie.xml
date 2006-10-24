@@ -2,13 +2,19 @@
 
 <alg_conf>
 
-   Bodek-Ritche nucleon probability distribution models
+<!--
+Configuration for the Bodek-Ritche RFG model
+
+Configurable Parameters:
+.........................................................................................
+Name               Type    Optional   Comment                      Default
+.........................................................................................
+Momentum-NumBins   int      Yes       n bins in prob. distribution 400
+Momentum-Max       double   Yes       max p in prob distribution   10 GeV
+Momentum-CutOff    double   Yes       momentum cut off value       GPL: RFG-Momentum-CutOff
+-->
 
   <param_set name="Default"> 
-
-     <param type="int"    name="n-momentum-bins">    400     </param>
-     <param type="double" name="p-max">               10.0   </param>
-     <param type="double" name="p-cut-off">            0.5   </param>
   </param_set>
 
 </alg_conf>

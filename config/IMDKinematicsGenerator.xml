@@ -7,21 +7,20 @@ Algorithm Configurable Parameters:
 .......................................................................................................................
 Name                     Type    Opt   Comment                                       Default
 .......................................................................................................................
-xsec-alg-name            string  No    cross section algorithm...
-xsec-param-set           string  No    ... and its config set
-uniform-over-phase-space bool    Yes   kinematics uniformly over allowd phase space  false
+DiffXSecAlg              alg     No    difrerential IMD cross section algorithm
+UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase space   false
                                        wgt = (phase_space_volume)*(diff_xsec)/(xsec)
-max-xsec-safety-factor   double  Yes   multiplies max xsec in rejection method       1.25
-min-energy-cached        double  Yes   minimum energy for which max xsec is cached   1.00
-max-xsec-diff-tolerance  double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax) 0.00
+MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method        1.25
+MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)  0.00
+                                       if xsec>xsecmax
+Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached   -1.00
                                        if xsec>xsecmax
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="string" name="xsec-alg-name">   genie::BardinIMDRadCorPXSec  </param>
-     <param type="string" name="xsec-param-set">  Default                      </param>
+     <param type="alg" name="DiffXSecAlg">   genie::BardinIMDRadCorPXSec/Default  </param>
   </param_set>
 
 </alg_conf>

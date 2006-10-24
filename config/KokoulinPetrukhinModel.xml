@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <alg_conf>
+
+<!--
+Configuration for the Kokulin Petrukhin muon energy loss model
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+Integrator       alg      No
+-->
+
   <param_set name="Default"> 
-     <param type="string" name="integrator-alg-name">   genie::Simpson2D </param>
-     <param type="string" name="integrator-param-set">  Default-Linear-FixedNBins </param>
+     <param type="alg" name="Integrator"> genie::Simpson2D/Default-Linear-FixedNBins </param>
   </param_set>
 </alg_conf>
 

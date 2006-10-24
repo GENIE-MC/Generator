@@ -5,12 +5,12 @@
 <!--
 Configuration for the NuElectronPXSec xsec algorithm.
 
-Algorithm Configurable Parameters:
+Configurable Parameters:
 ....................................................................................
 Name           Type     Optional   Comment                 Default
 ....................................................................................
-ca             double   Yes                                GPL value: NuElecEL-CA
-cv             double   Yes                                GPL value: NuElecEL-CV
+CA             double   Yes                                GPL: NuElecEL-CA
+CV             double   Yes                                GPL: NuElecEL-CV
 -->
 
   <param_set name="Default"> 

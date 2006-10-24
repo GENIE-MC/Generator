@@ -5,23 +5,23 @@ Configuration for the KNOPythiaHadronization HadronizationModelI
 
 Algorithm Configurable Parameters:
 ......................................................................................................
-Name                        Type    Opt   Comment                                     Default
+Name                        Type    Opt    Comment                                     Default
 ......................................................................................................
-kno-hadronization-config     string  No    config for KNO hadronizer
-pythia-hadronization-config  string  No    config for PYTHIA hadronizer
-transition-method            int     Yes   0: KNO only                                 2
+KNO-Hadronizer              alg     No
+PYTHIA-Hadronizer           alg     No
+TransMethod                 int     Yes    0: KNO only                                 2
                                            1: PYTHIA only
                                            2: linear transition from KNO->PYTHIA in
                                            [Wmin,Wmax] invariant mass window
-transition-window-Wmin       double  Yes   relevant only for method=2                  GPL KNO2PYTHIA-Wmin
-transition-window-Wmax       double  Yes   relevant only for method=2                  GPL KNO2PYTHIA-Wmax
+KNO2PYTHIA-Wmin             double  Yes    relevant only for method=2                  GPL KNO2PYTHIA-Wmin
+KNO2PYTHIA-Wmax             double  Yes    relevant only for method=2                  GPL KNO2PYTHIA-Wmax
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="string" name="kno-hadronization-config">      Default    </param>
-     <param type="string" name="pythia-hadronization-config">   Default    </param>
+     <param type="alg" name="KNO-Hadronizer">      genie::KNOHadronization/Default    </param>
+     <param type="alg" name="PYTHIA-Hadronizer">   genie::PythiaHadronization/Default </param>
   </param_set>
 
 </alg_conf>

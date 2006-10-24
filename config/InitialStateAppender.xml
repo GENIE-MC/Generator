@@ -5,7 +5,6 @@
  Configuration sets for the InitialStateAppender EventRecordVisitorI
 
   <param_set name="Default"> 
-
   </param_set>
 
 </alg_conf>

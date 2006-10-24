@@ -61,23 +61,23 @@ double BreitWignerRes::Eval(Resonance_t res, double W) const
 void BreitWignerRes::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void BreitWignerRes::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void BreitWignerRes::LoadSubAlg(void)
+void BreitWignerRes::LoadConfig(void)
 {
 // Load the "baryon resonance table" sub-algorithm specified at the algorithm
 // configuration
 
   fBaryonResDataSet =
-         dynamic_cast<const BaryonResDataSetI *> (this->SubAlg(
-                              "baryon-res-alg-name", "baryon-res-param-set"));
+     dynamic_cast<const BaryonResDataSetI *> (this->SubAlg("BaryonResData"));
+  assert(fBaryonResDataSet);
 }
 //____________________________________________________________________________
 

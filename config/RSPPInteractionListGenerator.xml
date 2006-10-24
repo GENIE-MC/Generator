@@ -2,6 +2,15 @@
 
 <alg_conf>
 
+<!--
+Configuration sets for the RSPPInteractionListGenerator InteractionListGeneratorI
+
+Configurable Parameters:
+..........................................................................................................................
+Name                        Type    Opt  Comment                                               Default
+..........................................................................................................................
+-->
+
   <param_set name="CC-Default">
         <param type="bool" name="is-CC">    true  </param>
   </param_set>

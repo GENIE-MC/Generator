@@ -71,12 +71,13 @@ public:
 
 private:
 
+  //-- load algorithm configuration when Algorithm::Configure() 
+  void LoadConfig (void);
+
   double XSecNRES(const Interaction * i, KinePhaseSpace_t k) const;
   double XSec1RES(const Interaction * i, KinePhaseSpace_t k) const;
 
-  void LoadSubAlg       (void);
-  void GetResonanceList (void);
-
+  //-- private data members
   BaryonResList          fResList;
   const XSecAlgorithmI * fSingleResXSecModel;
 };
