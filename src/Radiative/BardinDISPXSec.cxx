@@ -426,14 +426,13 @@ void BardinDISPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fVud  = fConfig->GetDoubleDef("Vud", gc->GetDouble("CKM-Vud"));
+  fVud  = fConfig->GetDoubleDef("CKM-Vud", gc->GetDouble("CKM-Vud"));
   fVud2 = TMath::Power(fVud,2);
 
-  fMqf  = fConfig->GetDoubleDef("final-quark-mass", 0.1);
+  fMqf  = fConfig->GetDoubleDef("Final-Quark-Mass", 0.1);
 
   fPDFModel = 0;
-  fPDFModel = dynamic_cast<const PDFModelI *> (
-                         this->SubAlg("pdf-alg-name","pdf-param-set"));
+  fPDFModel = dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
   assert(fPDFModel);
 }
 //__________________________________________________________________________

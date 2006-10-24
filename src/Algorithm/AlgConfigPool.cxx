@@ -17,6 +17,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
 
 #include "libxml/xmlmemory.h"
 #include "libxml/parser.h"
@@ -29,6 +30,7 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Messenger/Messenger.h"
+#include "Registry/RegistryTypesDef.h"
 #include "Utils/XmlParserUtils.h"
 
 using std::setw;
@@ -322,13 +324,14 @@ void AlgConfigPool::AddConfigParameter(
           << "Adding Parameter [" << ptype << "]: Key = "
                                          << pname << " -> Value = " << pvalue;
 
-  bool isRootObjParam = (strcmp(ptype.c_str(), "TH1F")   == 0) ||
-                        (strcmp(ptype.c_str(), "TH2F")   == 0) ||
-                        (strcmp(ptype.c_str(), "TTree")  == 0);
+  bool isRootObjParam = (strcmp(ptype.c_str(), "h1f")    == 0) ||
+                        (strcmp(ptype.c_str(), "Th2f")   == 0) ||
+                        (strcmp(ptype.c_str(), "tree")   == 0);
   bool isBasicParam   = (strcmp(ptype.c_str(), "int")    == 0) ||
                         (strcmp(ptype.c_str(), "bool")   == 0) ||
                         (strcmp(ptype.c_str(), "double") == 0) ||
-                        (strcmp(ptype.c_str(), "string") == 0);
+                        (strcmp(ptype.c_str(), "string") == 0) ||
+                        (strcmp(ptype.c_str(), "alg")    == 0);
 
   if     (isBasicParam)   this->AddBasicParameter  (r, ptype, pname, pvalue);
   else if(isRootObjParam) this->AddRootObjParameter(r, ptype, pname, pvalue);
@@ -342,29 +345,55 @@ void AlgConfigPool::AddConfigParameter(
 void AlgConfigPool::AddBasicParameter(
                      Registry * r, string ptype, string pname, string pvalue)
 {
-  if (strcmp(ptype.c_str(), "double") == 0)
-  {
-    r->Set(pname, (double) atof(pvalue.c_str()));
+  RgKey key = pname;
+
+  if (ptype=="double") {
+    RgDbl item = (double) atof(pvalue.c_str());
+    r->Set(key, item);
   }
-  else if (strcmp(ptype.c_str(), "int") == 0)
-  {
-    r->Set(pname, (int) atoi(pvalue.c_str()));
+  else if (ptype=="int") {
+    RgInt item = (int) atoi(pvalue.c_str());
+    r->Set(key, item);
   }
-  else if (strcmp(ptype.c_str(), "bool") == 0)
-  {
-    if      (strcmp(pvalue.c_str(), "true" ) == 0) r->Set(pname, true );
-    else if (strcmp(pvalue.c_str(), "TRUE" ) == 0) r->Set(pname, true );
-    else if (strcmp(pvalue.c_str(), "1"    ) == 0) r->Set(pname, true );
-    else if (strcmp(pvalue.c_str(), "false") == 0) r->Set(pname, false);
-    else if (strcmp(pvalue.c_str(), "FALSE") == 0) r->Set(pname, false);
-    else if (strcmp(pvalue.c_str(), "0"    ) == 0) r->Set(pname, false);
-    else { }
+  else if (ptype=="bool") {
+    if      (pvalue=="true" ) r->Set(key, true );
+    else if (pvalue=="TRUE" ) r->Set(key, true );
+    else if (pvalue=="1"    ) r->Set(key, true );
+    else if (pvalue=="false") r->Set(key, false);
+    else if (pvalue=="FALSE") r->Set(key, false);
+    else if (pvalue=="0"    ) r->Set(key, false);
+    else { 
+      LOG("AlgConfigPool", pERROR)
+        << "Could not set bool param: " << key;
+    }
   }
-  else if (strcmp(ptype.c_str(), "string") == 0)
-  {
-    r->Set(pname, pvalue);
+  else if (ptype=="string") {
+    RgStr item = pvalue;
+    r->Set(key, item);
   }
-  else {}
+  else if (ptype=="alg") {
+    string name, config;
+    vector<string> algv = utils::str::Split(pvalue, "/");
+    if (algv.size()==2) {
+      name   = algv[0];
+      config = algv[1];
+    } 
+    else if (algv.size()==1) {
+      name   = algv[0];
+      config = "Default";
+    } else {
+       LOG("AlgConfigPool", pFATAL)
+             << "Unrecognized algorithm id: " << pvalue;
+       exit(1);
+    }
+    RgAlg item(name,config);
+    r->Set(key, item);
+  }
+  else {
+   LOG("AlgConfigPool", pERROR)
+        << "Config. parameter: " << key 
+                 << "has unrecognized type: " << ptype;
+  }
 }
 //____________________________________________________________________________
 void AlgConfigPool::AddRootObjParameter(
@@ -388,8 +417,7 @@ void AlgConfigPool::AddRootObjParameter(
 
   TFile f(rootfile.c_str(), "read");
 
-  if (strcmp(ptype.c_str(), "TH1F") == 0)
-  {
+  if (ptype=="h1f") {
     TH1F * h  = (TH1F*) f.Get(rootobj.c_str());
     if(h) {
       TH1F * ch = new TH1F(*h); // clone
@@ -398,9 +426,7 @@ void AlgConfigPool::AddRootObjParameter(
       SLOG("AlgConfigPool", pERROR)
          << "No TH1F named = " << rootobj << " in ROOT file = " << rootfile;
     }
-  }
-  else if (strcmp(ptype.c_str(), "TH2F") == 0)
-  {
+  } else if (ptype=="h2f") {
     TH2F * h2  = (TH2F*) f.Get(rootobj.c_str());
     if(h2) {
       TH2F * ch2 = new TH2F(*h2); // clone
@@ -409,9 +435,7 @@ void AlgConfigPool::AddRootObjParameter(
       SLOG("AlgConfigPool", pERROR)
          << "No TH2F named = " << rootobj << " in ROOT file = " << rootfile;
     }
-  }
-  else if (strcmp(ptype.c_str(), "TTree") == 0)
-  {
+  } else if (ptype=="tree") {
     TTree * t  = (TTree*) f.Get(rootobj.c_str());
     if(t) {
       //TTree * ct = new TTree(*t); // clone

@@ -40,7 +40,6 @@ class IntegratorI;
 class BardinIMDRadCorPXSec : public XSecAlgorithmI {
 
 public:
-
   BardinIMDRadCorPXSec();
   BardinIMDRadCorPXSec(string config);
   virtual ~BardinIMDRadCorPXSec();
@@ -57,14 +56,17 @@ public:
 
 private:
 
-  void LoadSubAlg(void);
+  //-- load configuration when Algorithm::Configure() is called
+  void LoadConfig(void);
 
-  // symbols follow the notation in Bardin-Dokuchaeva paper
+  //-- Private functions
+  //   (symbols follow the notation in Bardin-Dokuchaeva paper)
   double Li2 (double z)                      const;
   double Fa  (double re, double r, double y) const;
   double P   (int    i,  double r, double y) const;
   double C   (int    i,  int k,    double r) const;
 
+  //-- data members
   const IntegratorI * fIntegrator;
 };
 

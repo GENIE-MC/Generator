@@ -167,11 +167,10 @@ void FermiMover::LoadConfig(void)
 // Reads its configuration from its Registry and loads all the sub-algorithms
 // needed
 
-  fNuclPModel = dynamic_cast<const NuclMomentumModelI *>
-         (this->SubAlg("nucl-p-distribution-alg","nucl-p-distribution-conf"));
-
+  fNuclPModel = 
+     dynamic_cast<const NuclMomentumModelI *>(this->SubAlg("NuclearModel"));
   fKeepNuclOnMassShell = 
-                 fConfig->GetBoolDef("keep-hit-nucleon-on-mass-shell", false);
+     fConfig->GetBoolDef("KeepHitNuclOnMassShell", false);
 }
 //____________________________________________________________________________
 

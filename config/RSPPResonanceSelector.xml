@@ -3,20 +3,18 @@
 <alg_conf>
 
 <!--
-Configuration sets for SPPResonanceSelector EventRecordVisitorI
+Configuration sets for the RSPPResonanceSelector EventRecordVisitorI
 
-Algorithm Configurable Parameters:
+Configurable Parameters:
 ..........................................................................................................................
 Name                        Type    Opt  Comment                                               Default
 ..........................................................................................................................
-spp-xsec-alg-name           string  No   algorithm used for computing res contrib to spp
-spp-xsec-param-set          string  No   ... and its config set
-resonance-name-list         string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
+RESContribXSecAlg           alg     No   algorithm used for computing res contrib to spp
+ResonanceNameList           string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
 -->
 
   <param_set name="Default">
-     <param type="string" name="spp-xsec-alg-name">   genie::ReinSeghalSPPPXSec  </param>
-     <param type="string" name="spp-xsec-param-set">  Default                    </param>
+     <param type="alg" name="RESContribXSecAlg">  genie::ReinSeghalSPPPXSec/Default  </param>
   </param_set>
 
 </alg_conf>

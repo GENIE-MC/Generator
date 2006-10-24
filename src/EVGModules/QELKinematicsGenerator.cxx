@@ -224,29 +224,29 @@ void QELKinematicsGenerator::LoadConfig(void)
 // Load sub-algorithms and config data to reduce the number of registry
 // lookups
 
-  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
-                            this->SubAlg("xsec-alg-name", "xsec-param-set"));
+  fXSecModel = 
+      dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
   assert(fXSecModel);
 
   //-- Get the user kinematical limits on Q2
-  fQ2min = fConfig->GetDoubleDef("Q2-min", -999999);
-  fQ2max = fConfig->GetDoubleDef("Q2-max",  999999);
+  fQ2min = fConfig->GetDoubleDef("Kine-Q2min", -999999);
+  fQ2max = fConfig->GetDoubleDef("Kine-Q2max",  999999);
 
   //-- Safety factor for the maximum differential cross section
-  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
+  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
 
   //-- Minimum energy for which max xsec would be cached, forcing explicit
   //   calculation for lower eneries
-  fEMin = fConfig->GetDoubleDef("min-energy-cached", 1.00);
+  fEMin = fConfig->GetDoubleDef("Cache-MinEnergy", 1.00);
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("max-xsec-diff-tolerance",0.);
+  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("MaxXSec-DiffTolerance",0.);
   assert(fMaxXSecDiffTolerance>=0);
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("uniform-over-phase-space", false);
+  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
 }
 //____________________________________________________________________________
 Range1D_t QELKinematicsGenerator::Q2Range(

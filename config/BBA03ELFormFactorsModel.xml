@@ -3,9 +3,9 @@
 <alg_conf>
 
 <!--
-Configuration sets for the BBA2005 elastic form factors parameterization.
+Configuration for the BBA2003 elastic form factors model	
 
-Algorithm Configurable Parameters:
+Configurable Parameters:
 .........................................................................................
 Name        Type    Optional   Comment                      Default
 .........................................................................................
@@ -36,7 +36,6 @@ Q2Max       double  Yes        Q2>Q2max :Gep/Gmp is const   bba2003::kQ2Max
 -->
 
   <param_set name="Default"> 
-
   </param_set>
 
 </alg_conf>

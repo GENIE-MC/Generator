@@ -201,37 +201,22 @@ bool ReinSeghalSPPPXSec::ValidKinematics(const Interaction* interaction) const
 void ReinSeghalSPPPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
-  this->GetResonanceList();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void ReinSeghalSPPPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
-  this->GetResonanceList();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalSPPPXSec::LoadSubAlg(void)
+void ReinSeghalSPPPXSec::LoadConfig(void)
 {
 // load the single resonance cross section algorithm specified in the config.
 
-  fSingleResXSecModel = 0;
-
   fSingleResXSecModel =
-       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                    "single-res-xsec-alg-name", "single-res-xsec-param-set"));
+   dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("SingleRESDiffXSecAlg"));
   assert(fSingleResXSecModel);
-}
-//____________________________________________________________________________
-void ReinSeghalSPPPXSec::GetResonanceList(void)
-{
-// create the baryon resonance list specified in the config.
-
-  fResList.Clear();
-
-  assert( fConfig->Exists("resonance-name-list") );
-  string resonanes = fConfig->GetString("resonance-name-list");
 
   //-- Create a BaryonResList by decoding the resonance list from
   //   the XML input
@@ -241,7 +226,9 @@ void ReinSeghalSPPPXSec::GetResonanceList(void)
   //   resonance-ids (Resonance_t enumerations).
   //   Support for this will be added here as well.
 
+  fResList.Clear();
+  assert( fConfig->Exists("ResonanceNameList") );
+  string resonanes = fConfig->GetString("ResonanceNameList");
   fResList.DecodeFromNameList(resonanes);
 }
 //____________________________________________________________________________
-

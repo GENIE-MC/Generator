@@ -214,34 +214,29 @@ double IMDKinematicsGenerator::Energy(const Interaction * interaction) const
 void IMDKinematicsGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void IMDKinematicsGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void IMDKinematicsGenerator::LoadSubAlg(void)
+void IMDKinematicsGenerator::LoadConfig(void)
 {
-  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
-                            this->SubAlg("xsec-alg-name", "xsec-param-set"));
+  fXSecModel = 
+      dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
   assert(fXSecModel);
-}
-//____________________________________________________________________________
-void IMDKinematicsGenerator::LoadConfigData(void)
-{
-  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.25);
-  fEMin         = fConfig->GetDoubleDef("min-energy-cached",     -1.00);
 
-  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("max-xsec-diff-tolerance",0.);
+  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
+  fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",     -1.00);
+
+  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("MaxXSec-DiffTolerance",0.);
   assert(fMaxXSecDiffTolerance>=0);
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("uniform-over-phase-space", false);
+  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
 }
 //____________________________________________________________________________

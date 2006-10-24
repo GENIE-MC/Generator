@@ -27,6 +27,7 @@
 #include "Algorithm/AlgCmp.h"
 #include "Algorithm/AlgId.h"
 #include "Registry/Registry.h"
+#include "Registry/RegistryTypesDef.h"
 
 using std::string;
 using std::ostream;
@@ -80,11 +81,12 @@ protected:
 
   void Initialize();
 
-  const Algorithm * SubAlg(string key) const;
-  const Algorithm * SubAlg(string alg_key, string config_key) const;
+  const Algorithm * SubAlg(const RgKey & registry_key) const;
+/*
+  const Algorithm * SubAlg(const AlgId & aid_id)       const;
   const Algorithm * SubAlgWithDefault(string alg_key, string config_key,
                                 string def_alg_name, string def_config_name) const;
-
+*/
   bool         fConfigIsOwned; ///< true if the algorithm owns its config. registry
   AlgId        fID;            ///< algorithm name and configuration set
   Registry *   fConfig;        ///< config. (either owned or pointing to config pool)

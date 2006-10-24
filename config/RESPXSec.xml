@@ -2,34 +2,25 @@
 
 <alg_conf>
 
-  -- Configurations for RES dxsec/dt, where t=Q2,W
+<!--
+Configuration for the RESPXSec RES dxsec/dt (where t=Q2,W) cross section algorithm
 
-  <param_set name="Paschos-Lalakulich-dQ2"> 
-     <param type="string" name="partial-xsec-alg-name">    genie::P33PaschosLalakulichPXSec </param>
-     <param type="string" name="partial-xsec-param-set">   Default                          </param>
-     <param type="string" name="integrator-alg-name">      genie::Simpson1D                 </param>
-     <param type="string" name="integrator-param-set">     Default-Logarithmic              </param>
+Configurable Parameters:
+..........................................................................................................................
+Name              Type     Opt   Comment                                      Default
+..........................................................................................................................
+DiffXSecAlg       alg      No    Differential xsec algorithm name
+Integrator        alg      No    Integration algorithm
+-->
+
+  <param_set name="PaschosLalakulich-P33"> 
+     <param type="alg" name="DiffXSecAlg"> genie::P33PaschosLalakulichPXSec/Default </param>
+     <param type="alg" name="Integrator">  genie::Simpson1D/Default-Logarithmic     </param>
   </param_set>
 
-  <param_set name="Paschos-Lalakulich-dW"> 
-     <param type="string" name="partial-xsec-alg-name">    genie::P33PaschosLalakulichPXSec </param>
-     <param type="string" name="partial-xsec-param-set">   Default                          </param>
-     <param type="string" name="integrator-alg-name">      genie::Simpson1D                 </param>
-     <param type="string" name="integrator-param-set">     Default-Logarithmic              </param>
-  </param_set>
-
-  <param_set name="Rein-Seghal-dQ2"> 
-     <param type="string" name="partial-xsec-alg-name">    genie::ReinSeghalSPPPXSec        </param>
-     <param type="string" name="partial-xsec-param-set">   Default                          </param>
-     <param type="string" name="integrator-alg-name">      genie::Simpson1D                 </param>
-     <param type="string" name="integrator-param-set">     Default-Logarithmic              </param>
-  </param_set>
-
-  <param_set name="Rein-Seghal-dW"> 
-     <param type="string" name="partial-xsec-alg-name">    genie::ReinSeghalSPPPXSec        </param>
-     <param type="string" name="partial-xsec-param-set">   Default                          </param>
-     <param type="string" name="integrator-alg-name">      genie::Simpson1D                 </param>
-     <param type="string" name="integrator-param-set">     Default-Logarithmic              </param>
+  <param_set name="ReinSeghal-RSPP"> 
+     <param type="alg" name="DiffXSecAlg"> genie::ReinSeghalSPPPXSec/Default        </param>
+     <param type="alg" name="Integrator">  genie::Simpson1D/Default-Logarithmic     </param>
   </param_set>
 
 </alg_conf>

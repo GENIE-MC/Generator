@@ -2,32 +2,48 @@
 
 <alg_conf>
 
-  default pdf set (=GRVLO) :
+<!--
+Configuration sets for the PDFLIB PDFModelI
 
+Configurable Parameters:
+................................................................................................
+Name             Type     Optional   Comment                        Default
+................................................................................................
+Nptype           int      No         PDFLIB PDF type
+Ngroup           int      No         PDFLIB PDF group
+Nset             int      No         PDFLIB PDF set
+-->
+
+<!--
+  default pdf set (=GRVLO) :
+-->
   <param_set name="Default"> 
      <param type="int"  name="Nptype">  1  </param>
      <param type="int"  name="Ngroup">  5  </param>
      <param type="int"  name="Nset">   12  </param>
   </param_set>
   
+<!--
   GRVHO PDF set:
-
+-->
   <param_set name="GRVHO"> 
      <param type="int"  name="Nptype">  1  </param>
      <param type="int"  name="Ngroup">  5  </param>
      <param type="int"  name="Nset">    3  </param>
   </param_set>
 
+<!--
   GRVLO PDF set:
-
+-->
   <param_set name="GRVLO"> 
      <param type="int"  name="Nptype">  1  </param>
      <param type="int"  name="Ngroup">  5  </param>
      <param type="int"  name="Nset">   12  </param>
   </param_set>
 
+<!--
   GRV94HO PDF set:
-
+-->
   <param_set name="GRV94HO"> 
      <param type="int"  name="Nptype">  1  </param>
      <param type="int"  name="Ngroup">  5  </param>

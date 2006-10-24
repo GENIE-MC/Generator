@@ -34,27 +34,28 @@ public :
   RESKinematicsGenerator(string config);
   ~RESKinematicsGenerator();
 
-  //! implement the EventRecordVisitorI interface
+  //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //! members from configuration options
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
 private:
-  void      LoadSubAlg      (void);
-  void      LoadConfigData  (void);
+  void      LoadConfig      (void);
   Range1D_t WRange          (const Interaction * interaction) const;
   Range1D_t Q2Range         (const Interaction * interaction) const;
   double    ComputeMaxXSec  (const Interaction * interaction) const;
 
+  //-- private data members
+
   mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
 
-  double fWmin;
-  double fWmax;
-  double fWcut;
-  double fQ2min;
+  double fWcut;   ///< Wcut parameter in DIS/RES join scheme
+  double fWmin;   
+  double fWmax;   
+  double fQ2min; 
   double fQ2max;
 };
 

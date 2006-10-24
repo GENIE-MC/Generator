@@ -47,6 +47,11 @@ AlgId::AlgId(const AlgId & id)
   this->Copy(id);
 }
 //____________________________________________________________________________
+AlgId::AlgId(const RgAlg & registry_item)
+{
+  this->Copy(registry_item);
+}
+//____________________________________________________________________________
 AlgId::~AlgId()
 {
 
@@ -74,7 +79,16 @@ void AlgId::Copy(const AlgId & id)
 {
   this->fName   = id.Name();
   this->fConfig = id.Config();
-  this->fKey    = id.Key();
+
+  this->UpdateKey();
+}
+//____________________________________________________________________________
+void AlgId::Copy(const RgAlg & registry_item)
+{
+  this->fName   = registry_item.name;
+  this->fConfig = registry_item.config;
+
+  this->UpdateKey();
 }
 //____________________________________________________________________________
 void AlgId::Print(ostream & stream) const

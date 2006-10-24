@@ -9,32 +9,29 @@ Algorithm Configurable Parameters:
 .......................................................................................................................
 Name                     Type    Opt   Comment                                   Default
 .......................................................................................................................
-xsec-alg-name            string  No    cross section algorithm...
-xsec-param-set           string  No    ... and its config set
-W-min                    double  Yes   kinematic limit                               use physical phase space
-W-max                    double  Yes   kinematic limit                               use physical phase space
-Q2-min                   double  Yes   kinematic limit                               use physical phase space
-Q2-max                   double  Yes   kinematic limit                               use physical phase space
-uniform-over-phase-space bool    Yes   kinematics uniformly over allowd phase space  false
+DiffXSecAlg              alg     No    cross section algorithm...
+Kine-Wmin                double  Yes   kinematic limit                               use physical phase space
+Kine-Wmax                double  Yes   kinematic limit                               use physical phase space
+Kine-Q2min               double  Yes   kinematic limit                               use physical phase space
+Kine-Q2max               double  Yes   kinematic limit                               use physical phase space
+UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase space  false
                                        wgt = (phase_space_volume)*(diff_xsec)/(xsec)
-max-xsec-safety-factor   double  Yes   multiplies max xsec in rejection method       1.25
-min-energy-cached        double  Yes   minimum energy for which max xsec is cached   1.00
-max-xsec-diff-tolerance  double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax) 0.00
+MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method       1.25
+MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax) 0.00
                                        if xsec>xsecmax
+Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached   1.00
 -->
 
   <param_set name="RES"> 
-     <param type="string" name="xsec-alg-name">            genie::ReinSeghalRESPXSec   </param>
-     <param type="string" name="xsec-param-set">           Default                     </param>
-     <param type="double" name="max-xsec-safety-factor">   1.400                       </param>
-     <param type="double" name="min-energy-cached">        0.900                       </param>
-     <param type="double" name="max-xsec-diff-tolerance">  5.000                       </param>
+     <param type="alg"    name="DiffXSecAlg">            genie::ReinSeghalRESPXSec/Default   </param>
+     <param type="double" name="MaxXSec-SafetyFactor">   1.400                               </param>
+     <param type="double" name="MaxXSec-DiffTolerance">  5.000                               </param>
+     <param type="double" name="Cache-MinEnergy">        0.900                               </param>
   </param_set>
 
   <param_set name="SPP"> 
-     <param type="string" name="xsec-alg-name">            genie::ReinSeghalSPPPXSec   </param>
-     <param type="string" name="xsec-param-set">           Default                     </param>
-     <param type="double" name="max-xsec-safety-factor">   1.400                       </param>
+     <param type="alg"    name="DiffXSecAlg">            genie::ReinSeghalSPPPXSec/Default   </param>
+     <param type="double" name="MaxXSec-SafetyFactor">   1.400                               </param>
   </param_set>
 
 </alg_conf>

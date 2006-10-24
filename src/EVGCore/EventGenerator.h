@@ -38,7 +38,6 @@ namespace genie {
 class EventGenerator: public EventGeneratorI {
 
 public :
-
   EventGenerator();
   EventGenerator(string config);
   ~EventGenerator();
@@ -58,19 +57,17 @@ public :
 
 private:
 
-  void Init                          (void);
-  void LoadEVGModules                (void);
-  void LoadInteractionListGenerator  (void);
-  void LoadVldContext                (void);
+  void Init       (void);
+  void LoadConfig (void);
 
-  vector<const EventRecordVisitorI *> * fEVGModuleVec;
-  vector<double> *                      fEVGTime;
-  const XSecAlgorithmI *                fXSecModel;
-  const InteractionListGeneratorI *     fIntListGen;
-  GVldContext *                         fVldContext;
-  TStopwatch *                          fWatch;
-  mutable GHepRecordHistory             fRecHistory;
-
+  //-- private data members
+  vector<const EventRecordVisitorI *> * fEVGModuleVec; ///< list of modules
+  vector<double> *                      fEVGTime;      ///< module timing info
+  const XSecAlgorithmI *                fXSecModel;    ///< xsec model for events handled by thread
+  const InteractionListGeneratorI *     fIntListGen;   ///< generates list of handled interactions
+  GVldContext *                         fVldContext;   ///< validity context
+  TStopwatch *                          fWatch;        ///< stopwatch for module timing
+  mutable GHepRecordHistory             fRecHistory;   ///< event record history 
 };
 
 }      // genie namespace

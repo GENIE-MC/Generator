@@ -116,7 +116,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //-- Select unweighted kinematics using importance sampling method. 
 
         if(iter==1) {
-         // initialize the sampling envelope
+         LOG("COHKinematics", pNOTICE) << "Initializing the sampling envelope";
          double Ev = interaction->InitState().ProbeE(kRfLab);
          fEnvelope->SetRange(xmin,ymin,xmax,ymax);
          fEnvelope->SetParameter(0, xsec_max);  
@@ -321,22 +321,22 @@ void COHKinematicsGenerator::LoadConfig(void)
   fRo = fConfig->GetDoubleDef("Ro", gc->GetDouble("COH-Ro"));
 
   //-- max xsec safety factor (for rejection method) and min cached energy
-  fSafetyFactor = fConfig->GetDoubleDef("max-xsec-safety-factor", 1.6);
-  fEMin         = fConfig->GetDoubleDef("min-energy-cached",     -1.0);
+  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.6);
+  fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",     -1.0);
 
   //-- Differential cross section model
-  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
-                            this->SubAlg("xsec-alg-name", "xsec-param-set"));
+  fXSecModel = 
+       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("uniform-over-phase-space", false);
+  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
 
   assert(fXSecModel);
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("max-xsec-diff-tolerance",0.);
+  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("MaxXSec-DiffTolerance",0.);
   assert(fMaxXSecDiffTolerance>=0);
 
   //-- Envelope employed when importance sampling is used 

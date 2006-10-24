@@ -129,12 +129,11 @@ void RESXSec::LoadConfig(void)
 
   //-- get the requested d^2xsec/dxdy xsec algorithm to use
   fPartialXSecAlg =
-          dynamic_cast<const XSecAlgorithmI *> (SubAlg(
-                          "partial-xsec-alg-name", "partial-xsec-param-set"));
+      dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
 
   //-- get the specified integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fIntegrator = 
+       dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
 
   assert( fPartialXSecAlg );
   assert( fIntegrator     );
@@ -150,8 +149,8 @@ Range1D_t RESXSec::WRange(const Interaction * interaction) const
        << "Physical W range: " << "[" << rW.min << ", " << rW.max << "] GeV";
 
   // user cuts
-  double Wmin = fConfig->GetDoubleDef("Wmin", -1.0);
-  double Wmax = fConfig->GetDoubleDef("Wmax",  1e9);
+  double Wmin = fConfig->GetDoubleDef("Kine-Wmin", -1.0);
+  double Wmax = fConfig->GetDoubleDef("Kine-Wmax",  1e9);
 
   utils::kinematics::ApplyCutsToKineLimits(rW,  Wmin,  Wmax );
 
@@ -171,8 +170,8 @@ Range1D_t RESXSec::Q2Range(const Interaction * interaction) const
                  << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
 
   // user cuts
-  double Q2min = fConfig->GetDoubleDef("Q2min", -1.0);
-  double Q2max = fConfig->GetDoubleDef("Q2max",  1e9);
+  double Q2min = fConfig->GetDoubleDef("Kine-Q2min", -1.0);
+  double Q2max = fConfig->GetDoubleDef("Kine-Q2max",  1e9);
 
   utils::kinematics::ApplyCutsToKineLimits(rQ2, Q2min, Q2max );
 

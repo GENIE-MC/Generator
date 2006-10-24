@@ -341,6 +341,9 @@ void KovalenkoQELCharmPXSec::Configure(string param_set)
 //____________________________________________________________________________
 void KovalenkoQELCharmPXSec::LoadConfig(void)
 {
+  fPDFModel   = 0;
+  fIntegrator = 0;
+
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
@@ -356,26 +359,21 @@ void KovalenkoQELCharmPXSec::LoadConfig(void)
   fMo = fConfig->GetDoubleDef("Mo", 0.1);
 
   // read kinematic cuts from config
-  fQ2min = fConfig->GetDoubleDef("Q2min", -999999);
-  fQ2min = fConfig->GetDoubleDef("Q2max",  999999);
+  fQ2min = fConfig->GetDoubleDef("Kine-Q2min", -999999);
+  fQ2min = fConfig->GetDoubleDef("Kine-Q2max",  999999);
 
   assert(fQ2min < fQ2max);
 
   // cabbibo angle
   double thc = fConfig->GetDoubleDef(
-                             "cabbibo-angle", gc->GetDouble("CabbiboAngle"));
+                       "CabbiboAngle", gc->GetDouble("CabbiboAngle"));
   fSin8c2 = TMath::Power(TMath::Sin(thc), 2);
 
-  // PDF model and integrator
-  fPDFModel   = 0;
-  fIntegrator = 0;
+  // get PDF model and integrator
 
-  fPDFModel = dynamic_cast<const PDFModelI *> (
-                              this->SubAlg("pdf-alg-name", "pdf-param-set"));
+  fPDFModel = dynamic_cast<const PDFModelI *>(this->SubAlg("PDF-Set"));
   assert(fPDFModel);
-
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________

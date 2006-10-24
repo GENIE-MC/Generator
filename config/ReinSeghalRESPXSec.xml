@@ -5,40 +5,29 @@
 <!--
 Configuration for the Rein-Seghal RES excitation d^xsec / dQ^2 dW xsec algorithm
 
-Algorithm Configurable Parameters:
+Configurable Parameters:
 ......................................................................................................................................
 Name                        Type    Optional   Comment                                                    Default
 ......................................................................................................................................
-Zeta                        double  Yes   FKR's Z parameter                                               GPL value: RS-Zeta
-Omega                       double  Yes   FKR's Omega parameter                                           GPL value: RS-Omega
-Ma                          double  Yes   RES axial mass                                                  GPL value  RES-Max
-Mv                          double  Yes   RES vector mass                                                 GPL value: RES-Mv
-weight-with-breit-wigner    bool    Yes   Weight xsec with breit-wigner?                                  true
-baryonres-dataset-alg-name  string  No    Algorithm used for resonance data
-baryonres-dataset-param-set string  No    ... and its config set
-breit-wigner-alg-name       string  No    Breit-Wigner alg. Not set if weight-with-breit-wigner=true
-breit-wigner-param-set      string  No    Breit-Wigner config. Not set if weight-with-breit-wigner=true
-use-nutau-scaling-factors   bool    Yes   Load/Use NEUGEN reduction factor splines for nutaus             true
-use-dis-res-joining-scheme  bool    Yes   Use DIS/RES joining scheme?                                     GPL value: UseDRJoinScheme
-Wcut                        double  Yes   Param used in DIS/RES joining                                   GPL value: Wcut
-max-widths-for-n2-res       double  Yes   x in limiting allowed W phase space for n=2 res according to    2.0
+Zeta                        double  Yes   FKR's Z parameter                                               GPL: RS-Zeta
+Omega                       double  Yes   FKR's Omega parameter                                           GPL: RS-Omega
+Ma                          double  Yes   RES axial mass                                                  GPL: RES-Max
+Mv                          double  Yes   RES vector mass                                                 GPL: RES-Mv
+BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
+BaryonResData               alg     No    Algorithm used for resonance data
+BreitWignerAlg              alg     No    Breit-Wigner alg. Not set if weight-with-breit-wigner=true
+UseNuTauScalingFactors      bool    Yes   Load/Use NEUGEN reduction factor splines for nutaus             true
+UseDRJoinScheme             bool    Yes   Use DIS/RES joining scheme?                                     GPL: UseDRJoinScheme
+Wcut                        double  Yes   Param used in DIS/RES joining                                   GPL: Wcut
+MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space for n=2 res according to    2.0
                                           W < min{ Wmin(physical), MassRes + x * WidthRes }
-max-widths-for-n0-res       double  Yes   As above for n=0 resonances                                     4.0
-max-widths-for-gn-res       double  Yes   As above for the remaining resonances                           6.0
+MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     4.0
+MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           6.0
 -->
 
   <param_set name="Default"> 
-     <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG      </param>
-     <param type="string"  name="baryonres-dataset-param-set">   Default                      </param>
-     <param type="string"  name="breit-wigner-alg-name">         genie::BreitWignerLRes       </param>
-     <param type="string"  name="breit-wigner-param-set">        Default                      </param>
-  </param_set>
-
-  <param_set name="No-BW-Weighting"> 
-     <param type="bool"    name="use-dis-res-joining-scheme">    true                         </param>
-     <param type="bool"    name="weight-with-breit-wigner">      false                        </param>
-     <param type="string"  name="baryonres-dataset-alg-name">    genie::BaryonResDataPDG      </param>
-     <param type="string"  name="baryonres-dataset-param-set">   Default                      </param>
+     <param type="alg"  name="BaryonResData">    genie::BaryonResDataPDG/Default     </param>
+     <param type="alg"  name="BreitWignerAlg">   genie::BreitWignerLRes/Default      </param>
   </param_set>
 
 </alg_conf>

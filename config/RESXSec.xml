@@ -2,60 +2,38 @@
 
 <!--
 
-RESXSec Algorithm Configurable Parameters:
-...................................................................................
-Name                     Type     Optional   Comment
+Configuration for the RESXSec cross section algorithm
 
-partial-xsec-alg-name    string   No         d2xsec/dQ2 dW algorithm name
-partial-xsec-param-set   string   No         d2xsec/dQ2 dW algorithm config
-integrator-alg-name      string   No         2-D integration alg. for integrations
-integrator-param-set     string   No         2-D integrator param set
-Wmin                     double   Yes        ext Wmin - narrows the physical range
-Wmax                     double   Yes        ext Wmax - narrows the physical range
-Q2min                    double   Yes        ext Q2min - narrows the physical range
-Q2max                    double   Yes        ext Q2max - narrows the physical range
-
+Configurable Parameters:
+..........................................................................................................................
+Name              Type     Opt   Comment                                      Default
+..........................................................................................................................
+DiffXSecAlg       alg      No    Differential xsec algorithm name
+Integrator        alg      No    Integration algorithm
+Kine-Wmin         double   Yes   Kinematical cut                              Use physical range
+Kine-Wmax         double   Yes   Kinematical cut                              Use physical range     
+Kine-Q2min        double   Yes   Kinematical cut                              Use physical range   
+Kine-Q2max        double   Yes   Kinematical cut                              Use physical range    
 -->
 
 <alg_conf>
 
-  -- Default configuration for Paschos-Lalakulich RES XSec
-
-  <param_set name="Paschos-Lalakulich"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::P33PaschosLalakulichPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> Default </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson2D </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="Wmax">                   1.4 </param>
+  <param_set name="PaschosLalakulich-P33"> 
+     <param type="alg"    name="DiffXSecAlg">  genie::P33PaschosLalakulichPXSec/Default             </param>
+     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast </param>
+     <param type="double" name="Kine-Wmax">    1.4   </param>
   </param_set>
 
-
-  -- Default configuration for Rein-Seghal RES XSec for Exclusive Reactions
-
-  <param_set name="Rein-Seghal"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::ReinSeghalSPPPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> Default </param> 
-     <param type="string" name="integrator-alg-name">    genie::Simpson2D </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="Wmax">                   1.4 </param>
+  <param_set name="ReinSeghal-RSPP"> 
+     <param type="alg"    name="DiffXSecAlg">  genie::ReinSeghalSPPPXSec/Default                    </param>
+     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast </param>
+     <param type="double" name="Wmax">         1.4 </param>
   </param_set>
 
-  -- Default configuration for Rein-Seghal RES XSec for Single Resonances
-
-  <param_set name="Rein-Seghal-Single"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::ReinSeghalRESPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> Default </param> 
-     <param type="string" name="integrator-alg-name">    genie::Simpson2D </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic-FixedNBins-Fast  </param>
-     <param type="double" name="Wmax">                   1.4 </param>
-  </param_set>
-
-  <param_set name="Rein-Seghal-Single-NoBreitWigner"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::ReinSeghalRESPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> No-BW-Weighting </param> 
-     <param type="string" name="integrator-alg-name">    genie::Simpson2D </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="Wmax">                   1.4 </param>
+  <param_set name="ReinSeghal-RES"> 
+     <param type="alg"    name="DiffXSecAlg">  genie::ReinSeghalRESPXSec/Default                    </param>
+     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast </param>
+     <param type="double" name="Wmax">         1.4 </param>
   </param_set>
 
 </alg_conf>

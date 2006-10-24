@@ -2,10 +2,16 @@
 
 <alg_conf>
 
-  Configuration sets for QELHadronSystemGenerator EventRecordVisitorI
+<!--
+Configuration sets for the QELHadronSystemGenerator EventRecordVisitorI
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
 
   <param_set name="Default"> 
-
   </param_set>
 
 </alg_conf>

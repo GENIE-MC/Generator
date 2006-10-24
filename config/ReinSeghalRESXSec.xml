@@ -11,17 +11,15 @@ Algorithm Configurable Parameters:
 ..........................................................................................................................
 Name                        Type    Opt  Comment                                               Default
 ..........................................................................................................................
-single-res-xsec-alg-name    string  No   algorithm used for computing res excitation xsec
-single-res-xsec-param-set   string  No   ... and its config set
-integrator-alg-name         string  No   algorithm used for integrating res excitation xsec 
-integrator-param-set        string  No   ... and its config set
-resonance-name-list         string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
-use-dis-res-joining-scheme  bool    Yes  Use DIS/RES joining scheme?                           GPL: UseDRJoinScheme
+DiffXSecAlg                 alg     No   algorithm used for computing res excitation xsec
+Integrator                  alg     No   algorithm used for integrating res excitation xsec 
+ResonanceNameList           string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
+UseDRJoinScheme             bool    Yes  Use DIS/RES joining scheme?                           GPL: UseDRJoinScheme
 Wcut                        double  Yes  Param used in DIS/RES joining                         GPL: Wcut
-Wmin                        double  Yes  W  kinematic cut (min of allowed region)              using physical range
-Wmax                        double  Yes  W  kinematic cut (max of allowed region)              using physical range
-Q2min                       double  Yes  Q2 kinematic cut (min of allowed region)              using physical range
-Q2max                       double  Yes  Q2 kinematic cut (max of allowed region)              using physical range
+Kine-Wmin                   double  Yes  W  kinematic cut (min of allowed region)              using physical range
+Kine-Wmax                   double  Yes  W  kinematic cut (max of allowed region)              using physical range
+Kine-Q2min                  double  Yes  Q2 kinematic cut (min of allowed region)              using physical range
+Kine-Q2max                  double  Yes  Q2 kinematic cut (max of allowed region)              using physical range
 ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(E=Emax)
 -->
 
@@ -30,12 +28,10 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
   In this configuration set we include only the first two resonances
 -->
   <param_set name="Fast"> 
-     <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec           </param>
-     <param type="string" name="single-res-xsec-param-set">  Default                             </param>
-     <param type="string" name="integrator-alg-name">        genie::Simpson2D                    </param>
-     <param type="string" name="integrator-param-set">       Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="ESplineMax">                 20                                  </param>
-     <param type="string" name="resonance-name-list">        P33(1232),P11(1440)                 </param>
+     <param type="alg"    name="DiffXSecAlg">            genie::ReinSeghalRESPXSec/Default                     </param>
+     <param type="alg"    name="Integrator">             genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast  </param>
+     <param type="double" name="ESplineMax">             20                    </param>
+     <param type="string" name="ResonanceNameList">      P33(1232),P11(1440)   </param>
   </param_set>
 
 
@@ -43,23 +39,19 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
   In this configuration set we include all the resonances defined in GlobalParameterList
 -->
   <param_set name="Default"> 
-     <param type="string" name="single-res-xsec-alg-name">   genie::ReinSeghalRESPXSec            </param>
-     <param type="string" name="single-res-xsec-param-set">  Default                              </param>
-     <param type="string" name="integrator-alg-name">        genie::Simpson2D                     </param>
-     <param type="string" name="integrator-param-set">       Default-Logarithmic-FixedNBins-Fast  </param>
-     <param type="double" name="ESplineMax">                 20                                   </param>
+     <param type="alg"    name="DiffXSecAlg">            genie::ReinSeghalRESPXSec/Default                     </param>
+     <param type="alg"    name="Integrator">             genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast  </param>
+     <param type="double" name="ESplineMax">             20      </param>
   </param_set>
 
 <!--
   In this configuration set we include all resonances known to GENIE including the the ambiguous P33(1600), F17(1970)
 -->
   <param_set name="AllResonances"> 
-     <param type="string" name="single-res-xsec-alg-name">    genie::ReinSeghalRESPXSec           </param>
-     <param type="string" name="single-res-xsec-param-set">   Default                             </param>
-     <param type="string" name="integrator-alg-name">         genie::Simpson2D                    </param>
-     <param type="string" name="integrator-param-set">        Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="ESplineMax">                  20                                  </param>
-     <param type="string" name="resonance-name-list">  
+     <param type="alg"    name="DiffXSecAlg">            genie::ReinSeghalRESPXSec/Default                     </param>
+     <param type="alg"    name="Integrator">             genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast  </param>
+     <param type="double" name="ESplineMax">             20   </param>
+     <param type="string" name="ResonanceNameList">  
                    P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
                    D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),P31(1910),P33(1920),
                    F35(1905),F37(1950),P11(1710),F17(1970)

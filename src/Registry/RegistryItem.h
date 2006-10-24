@@ -21,7 +21,12 @@
 #ifndef _REGISTRY_ITEM_H_
 #define _REGISTRY_ITEM_H_
 
-#include "RegistryItemI.h"
+#include <map>
+#include <string>
+#include <ostream>
+
+#include "Registry/RegistryItemI.h"
+#include "Registry/RegistryTypesDef.h"
 
 namespace genie {
 

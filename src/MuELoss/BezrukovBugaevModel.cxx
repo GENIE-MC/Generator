@@ -86,11 +86,8 @@ void BezrukovBugaevModel::Configure(string config)
 //____________________________________________________________________________
 void BezrukovBugaevModel::LoadConfig(void)
 {
-  fIntegrator = 0;
-
-  //-- get the specified integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fIntegrator = 
+       dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________

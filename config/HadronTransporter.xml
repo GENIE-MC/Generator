@@ -2,7 +2,14 @@
 
 <alg_conf>
 
-  Configuration sets for the HadronTransporter EventRecordVisitorI
+<!--
+Configuration sets for the HadronTransporter EventRecordVisitorI
+
+Configurable Parameters:
+............................................................................................
+Name                    Type     Optional   Comment                     Default
+............................................................................................
+-->
 
   <param_set name="Default"> 
   </param_set>

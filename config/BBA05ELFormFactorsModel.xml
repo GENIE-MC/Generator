@@ -3,16 +3,15 @@
 <alg_conf>
 
 <!--
-  Configuration sets for the BBA2005 elastic form factors parameterization.
-  You can set the folowing configuration parameters 
+Configuration for the BBA2005 elastic form factors model
 
-  Name        Description                 Default (for optional params)
-  *********************************************************************
-
+Configurable Parameters:
+.........................................................................................
+Name        Type    Optional   Comment                      Default
+.........................................................................................
 -->
 
   <param_set name="Default"> 
-
   </param_set>
 
 </alg_conf>

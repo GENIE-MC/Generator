@@ -127,9 +127,8 @@ private:
   INukeHadroData(const INukeHadroData & shx);
   ~INukeHadroData();
 
-  void LoadXsData    (void);
-  void CalcXsData    (void);
-  void CalcFractions (void);
+  void LoadData (void); ///< adapted from neugen3's read_hadron_data.F 
+  void CalcData (void); ///< adapted from neugen3's calc_hadron_data.F 
 
   static INukeHadroData * fInstance;
 

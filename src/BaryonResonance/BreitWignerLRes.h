@@ -45,8 +45,9 @@ public:
 private:
 
   //-- load sub-algorithm specified by configuration option
-  void LoadSubAlg(void);
-
+  void LoadConfig(void);
+ 
+  //-- private data members
   const BaryonResDataSetI * fBaryonResDataSet;
 };
 

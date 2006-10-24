@@ -55,8 +55,6 @@ P33PaschosLalakulichPXSec::~P33PaschosLalakulichPXSec()
 double P33PaschosLalakulichPXSec::XSec(
                   const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  LOG("PaschLal", pDEBUG) << *fConfig;
-
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
@@ -329,15 +327,13 @@ void P33PaschosLalakulichPXSec::LoadConfig(void)
   fMv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
 
   double thc = fConfig->GetDoubleDef(
-                            "cabibbo-angle", gc->GetDouble("CabibboAngle"));
+                            "CabibboAngle", gc->GetDouble("CabibboAngle"));
   fCos28c = TMath::Power( TMath::Cos(thc), 2 );
 
-  fTurnOnPauliCorrection =
-         fConfig->GetBoolDef("turn-on-pauli-suppression", false);
+  fTurnOnPauliCorrection = fConfig->GetBoolDef("TurnOnPauliSuppr", false);
 
   fRESDataTable =
-           dynamic_cast<const BaryonResDataSetI *> (this->SubAlg(
-                          "baryon-res-alg-name", "baryon-res-param-set"));
+    dynamic_cast<const BaryonResDataSetI *> (this->SubAlg("BaryonResData"));
   assert(fRESDataTable);
 }
 //____________________________________________________________________________

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<alg_conf>
 
 <!--
 Configuration for the BYPDFModel PDFModelI
 
-Algorithm Configurable Parameters:
+Configurable Parameters:
 ....................................................................................................
 Name                       Type    Opt   Comment                                Default
 ....................................................................................................
@@ -12,15 +13,11 @@ X0                         double  Yes   Bodek-Yang param X0                    
 X1                         double  Yes   Bodek-Yang param X1                    GPL: BY-X1
 X2                         double  Yes   Bodek-Yang param X2                    GPL: BY-X2
 Q2min                      double  Yes   Min Q2 for PDF evaluation              GPL: PDF-Q2min
-base-pdf-model-alg-name    string  No    Uncorrected PDF model 
-base-pdf-model-param-set   string  No    ... and its config set
+Uncorr-PDF-Set             alg     No    Uncorrected PDF model 
 -->
 
-<alg_conf>
-
   <param_set name="Default"> 
-     <param type="string" name="base-pdf-model-alg-name">   genie::PDFLIB  </param>
-     <param type="string" name="base-pdf-model-param-set">  GRVLO          </param>
+     <param type="alg" name="Uncorr-PDF-Set">  genie::PDFLIB/GRVLO  </param>
   </param_set>
 
 </alg_conf>

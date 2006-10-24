@@ -15,20 +15,22 @@ Cv1U                       double  Yes   Bodek-Yang u val K factor param        
 Cv2U                       double  Yes   Bodek-Yang u val K factor param        GPL: BY-Cv2U
 Cv1D                       double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv1D
 Cv2D                       double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv2D
-pdf-alg-name               string  No    PDF model
-pdf-param-set              string  No    ... and its config set
-c-quark-mass               double  Yes   charm mass                             GPL: Charm-Mass
+PDF-Set                    alg     No    PDF model
+Charm-Mass                 double  Yes   charm mass                             GPL: Charm-Mass
 Q2min                      double  Yes   min Q2 for PDF evaluation              GPL: PDF-Q2min
-include-R                  bool    Yes   include R factor?                      GPL: DISSF-IncludeR
-include-nuc-mod            bool    Yes   include nuclear factor?                GPL: DISSF-IncludeNuclMod
-correct-F3                 bool    Yes   correct F3?                            GPL: DISSF-CorrectF3WithR
+IncludeR                   bool    Yes   include R factor?                      GPL: DISSF-IncludeR
+IncludeNuclMod             bool    Yes   include nuclear factor?                GPL: DISSF-IncludeNuclMod
+CorrectF3                  bool    Yes   correct F3?                            GPL: DISSF-CorrectF3WithR
+CKM-Vcd                    double  Yes                                          GPL: CKM-Vcd
+CKM-Vcs                    double  Yes                                          GPL: CKM-Vcs
+CKM-Vud                    double  Yes                                          GPL: CKM-Vud
+CKM-Vcs                    double  Yes                                          GPL: CKM-Vus
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="string" name="pdf-alg-name">   genie::BYPDFModel </param>
-     <param type="string" name="pdf-param-set">  Default           </param>
+     <param type="alg" name="PDF-Set"> genie::BYPDFModel/Default </param>
   </param_set>
 
 </alg_conf>

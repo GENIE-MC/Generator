@@ -2,12 +2,17 @@
 
 <alg_conf>
 
-  Configuration sets for PYTHIA decayer
+<!--
+Configuration sets for the PYTHIA DecayModelI
 
-  -- Default configuration
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+ForceDecays      bool     Yes                              false
+-->
 
   <param_set name="Default"> 
-     <param type="int"    name="N-logQ2-bins">           101                   </param>
   </param_set>
 
 </alg_conf>

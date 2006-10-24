@@ -133,33 +133,29 @@ void DISXSec::LoadConfig(void)
   //-- Get the requested d^2xsec/dxdy xsec algorithm to use
   fPartialXSecAlg = 0;
   fPartialXSecAlg =
-         dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                         "partial-xsec-alg-name", "partial-xsec-param-set"));
+         dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
   assert(fPartialXSecAlg);
 
-  LOG("DISXSec", pDEBUG) << *fPartialXSecAlg;
-
   //-- get specified integration algorithm
-  fIntegrator     = 0;
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fIntegrator = 0;
+  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
 
   double e=1E-3;
-  fXmin = fConfig -> GetDoubleDef ("x-min", e);
-  fXmax = fConfig -> GetDoubleDef ("x-max", 1-e);
-  fYmin = fConfig -> GetDoubleDef ("y-min", e);
-  fYmax = fConfig -> GetDoubleDef ("y-max", 1-e);
+  fXmin = fConfig -> GetDoubleDef ("Kine-Xmin", e);
+  fXmax = fConfig -> GetDoubleDef ("Kine-Xmax", 1-e);
+  fYmin = fConfig -> GetDoubleDef ("Kine-Ymin", e);
+  fYmax = fConfig -> GetDoubleDef ("Kine-Ymax", 1-e);
 
   //-- Check that x,y range is meaningful
   assert(fXmax > fXmin && fXmax < 1 && fXmin < 1 && fXmax > 0 & fXmin > 0);
   assert(fYmax > fYmin && fYmax < 1 && fYmin < 1 && fYmax > 0 & fYmin > 0);
 
   // check whether the user imposes kinematic cuts
-  fWmin  = fConfig->GetDoubleDef( "Wmin",  -1  );
-  fWmax  = fConfig->GetDoubleDef( "Wmax",  1e9 );
-  fQ2min = fConfig->GetDoubleDef( "Q2min", -1  );
-  fQ2max = fConfig->GetDoubleDef( "Q2max", 1e9 );
+  fWmin  = fConfig->GetDoubleDef( "Kine-Wmin",  -1  );
+  fWmax  = fConfig->GetDoubleDef( "Kine-Wmax",  1e9 );
+  fQ2min = fConfig->GetDoubleDef( "Kine-Q2min", -1  );
+  fQ2max = fConfig->GetDoubleDef( "Kine-Q2max", 1e9 );
 }
 //____________________________________________________________________________
 

@@ -3,8 +3,7 @@
 <alg_conf>
 
   <param_set name="Default">
-          <param type="string" name="baryon-res-alg-name">   genie::BaryonResDataPDG  </param>
-          <param type="string" name="baryon-res-param-set">  Default                  </param>
+     <param type="alg" name="BaryonResData"> genie::BaryonResDataPDG/Default  </param>
   </param_set>
 
 </alg_conf>

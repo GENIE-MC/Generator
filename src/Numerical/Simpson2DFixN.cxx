@@ -121,8 +121,8 @@ void Simpson2DFixN::Configure(string param_set)
 //____________________________________________________________________________
 void Simpson2DFixN::LoadConfigData(void)
 {
-  bool inloge0 = fConfig->GetBoolDef("dimension-0-in-loge", false);
-  bool inloge1 = fConfig->GetBoolDef("dimension-1-in-loge", false);
+  bool inloge0 = fConfig->GetBoolDef("InLogeDim0", false);
+  bool inloge1 = fConfig->GetBoolDef("InLogeDim1", false);
 
   if(inloge0) fSpacingD0 = kGSpLoge;
   else        fSpacingD0 = kGSpLinear;
@@ -130,8 +130,8 @@ void Simpson2DFixN::LoadConfigData(void)
   if(inloge1) fSpacingD1 = kGSpLoge;
   else        fSpacingD1 = kGSpLinear;
 
-  fNBinsD0 = fConfig->GetIntDef("dimension-0-nbins", 401);
-  fNBinsD1 = fConfig->GetIntDef("dimension-1-nbins", 401);
+  fNBinsD0 = fConfig->GetIntDef("NBinsDim0", 401);
+  fNBinsD1 = fConfig->GetIntDef("NBinsDim1", 401);
 }
 //____________________________________________________________________________
 

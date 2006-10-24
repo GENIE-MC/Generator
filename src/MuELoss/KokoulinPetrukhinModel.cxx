@@ -77,7 +77,7 @@ double KokoulinPetrukhinModel::dE_dx(double E, MuELMaterial_t material) const
   double de_dx = bpair*E;
   return de_dx;
 }
-//_________________________________________________________________________________________
+//____________________________________________________________________________
 void KokoulinPetrukhinModel::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -92,11 +92,7 @@ void KokoulinPetrukhinModel::Configure(string config)
 //____________________________________________________________________________
 void KokoulinPetrukhinModel::LoadConfig(void)
 {
-  fIntegrator = 0;
-
-  //-- get the specified integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________

@@ -219,7 +219,7 @@ void NucBindEnergyAggregator::Configure(string config)
 //____________________________________________________________________________
 void NucBindEnergyAggregator::LoadConfig(void)
 {
-  fAllowRecombination = fConfig->GetBoolDef("allow-nucl-recombination", true);
+  fAllowRecombination = fConfig->GetBoolDef("AllowNuclRecombination", true);
 }
 //____________________________________________________________________________
 

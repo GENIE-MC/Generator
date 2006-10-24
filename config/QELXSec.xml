@@ -2,43 +2,30 @@
 
 <alg_conf>
 
-  Configuration sets for QEL XSec Algorithm
+<!--
+Configuration for the QELXSec xsec algorithm.
 
-
-  -- Default configuration for CC QEL XSec
+Configurable Parameters:
+.....................................................................................................
+Name               Type     Optional   Comment                          Default
+.....................................................................................................
+DiffXSecAlg        alg      No
+Integrator         alg      No
+-->
 
   <param_set name="CC-Default"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::QELPXSec       </param>
-     <param type="string" name="partial-xsec-param-set"> CC-Default            </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D      </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic   </param>
+     <param type="alg" name="DiffXSecAlg">  genie::QELPXSec/CC-Default            </param>
+     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
   </param_set>
-
-  <param_set name="CC-Default-BBA2003"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::QELPXSec       </param>
-     <param type="string" name="partial-xsec-param-set"> CC-Default-BBA2003    </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D      </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic   </param>
-  </param_set>
-
-
-  -- Default configuration for NC QEL XSec
 
   <param_set name="NC-Default"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::NuNucElasticPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> Default                  </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D         </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic      </param>
+     <param type="alg" name="DiffXSecAlg">  genie::NuNucElasticPXSec/Default      </param>
+     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
   </param_set>
 
-
-  -- Configuration for QEL Charm Production XSec calculation using Kovalenko's model
-
   <param_set name="Charm-Kovalenko"> 
-     <param type="string" name="partial-xsec-alg-name">  genie::KovalenkoQELCharmPXSec </param>
-     <param type="string" name="partial-xsec-param-set"> Default                       </param>
-     <param type="string" name="integrator-alg-name">    genie::Simpson1D              </param>
-     <param type="string" name="integrator-param-set">   Default-Logarithmic           </param>
+     <param type="alg" name="DiffXSecAlg">  genie::KovalenkoQELCharmPXSec/Default </param>
+     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
   </param_set>
 
 </alg_conf>

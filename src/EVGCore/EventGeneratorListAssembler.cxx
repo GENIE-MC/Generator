@@ -53,7 +53,7 @@ EventGeneratorList * EventGeneratorListAssembler::AssembleGeneratorList()
 
   EventGeneratorList * evgl = new EventGeneratorList;
 
-  int nproc = fConfig->GetIntDef("n-processes", 0);
+  int nproc = fConfig->GetIntDef("NGenerators", 0);
   assert(nproc > 0);
 
   //-- Loop over the event generators for all requested processes
@@ -66,22 +66,15 @@ EventGeneratorList * EventGeneratorListAssembler::AssembleGeneratorList()
 //___________________________________________________________________________
 const EventGeneratorI * EventGeneratorListAssembler::LoadGenerator(int ip)
 {
-  ostringstream alg_key, config_key;
-
-  alg_key    << "event-generator-id-" << ip << "-alg-name";
-  config_key << "event-generator-id-" << ip << "-param-set";
-
-  string alg  = fConfig->GetString( alg_key.str()    );
-  string conf = fConfig->GetString( config_key.str() );
-
-  SLOG("EvGenListAssembler", pNOTICE) 
-        << "Loading generator: " << alg << "/" << conf;
-
-  AlgFactory * algf = AlgFactory::Instance();
+  ostringstream alg_key;
+  alg_key << "Generator-" << ip;
 
   const EventGeneratorI * evgen =
-      dynamic_cast<const EventGeneratorI *> (algf->GetAlgorithm(alg,conf));
+      dynamic_cast<const EventGeneratorI *> (this->SubAlg(alg_key.str()));
   assert(evgen);
+
+  SLOG("EvGenListAssembler", pNOTICE) 
+        << "Loaded generator: " << evgen->Id().Key();
 
   SLOG("EvGenListAssembler", pNOTICE) << "\n";
 

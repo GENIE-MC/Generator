@@ -72,16 +72,15 @@ void DISStructureFuncModel::LoadConfig(void)
 
   //-- pdf
   const PDFModelI * pdf_model =
-         dynamic_cast<const PDFModelI *>
-                 (this->SubAlg("pdf-alg-name", "pdf-param-set"));
+         dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
   fPDF  -> SetModel(pdf_model);
   fPDFc -> SetModel(pdf_model);
 
   //-- get CKM elements
-  fVcd  = fConfig->GetDoubleDef("Vcd", gc->GetDouble("CKM-Vcd"));
-  fVcs  = fConfig->GetDoubleDef("Vcs", gc->GetDouble("CKM-Vcs"));
-  fVud  = fConfig->GetDoubleDef("Vud", gc->GetDouble("CKM-Vud"));
-  fVus  = fConfig->GetDoubleDef("Vus", gc->GetDouble("CKM-Vus"));
+  fVcd  = fConfig->GetDoubleDef("CKM-Vcd", gc->GetDouble("CKM-Vcd"));
+  fVcs  = fConfig->GetDoubleDef("CKM-Vcs", gc->GetDouble("CKM-Vcs"));
+  fVud  = fConfig->GetDoubleDef("CKM-Vud", gc->GetDouble("CKM-Vud"));
+  fVus  = fConfig->GetDoubleDef("CKM-Vus", gc->GetDouble("CKM-Vus"));
 
   fVcd2 = TMath::Power( fVcd, 2 );
   fVcs2 = TMath::Power( fVcs, 2 );
@@ -89,23 +88,22 @@ void DISStructureFuncModel::LoadConfig(void)
   fVus2 = TMath::Power( fVus, 2 );
 
   //-- charm mass
-  fMc = fConfig->GetDoubleDef(
-                         "c-quark-mass", gc->GetDouble("Charm-Mass"));
+  fMc = fConfig->GetDoubleDef("Charm-Mass", gc->GetDouble("Charm-Mass"));
 
   //-- min Q2 for PDF evaluation
-  fQ2min = fConfig->GetDoubleDef("Q2min", gc->GetDouble("PDF-Q2min"));
+  fQ2min = fConfig->GetDoubleDef("PDF-Q2min", gc->GetDouble("PDF-Q2min"));
 
   //-- include R (~FL)?
   fIncludeR = fConfig->GetBoolDef(
-                          "include-R", gc->GetBool("DISSF-IncludeR"));
+                           "IncludeR", gc->GetBool("DISSF-IncludeR"));
 
   //-- include nuclear factor (shadowing / anti-shadowing / ...)
   fIncludeNuclMod = fConfig->GetBoolDef(
-              "include-nuc-mod", gc->GetBool("DISSF-IncludeNuclMod"));
+               "IncludeNuclMod", gc->GetBool("DISSF-IncludeNuclMod"));
 
   //-- correct F3 using the computed R
   fCorrectF3 = fConfig->GetBoolDef(
-                   "correct-F3", gc->GetBool("DISSF-CorrectF3WithR"));
+                    "CorrectF3", gc->GetBool("DISSF-CorrectF3WithR"));
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::InitPDF(void)

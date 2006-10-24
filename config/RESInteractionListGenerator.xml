@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
+Configuration for the RESInteractionListGenerator InteractionListGeneratorI
 
-Algorithm Configurable Parameters:
+Configurable Parameters:
 ..........................................................................................................................
 Name                        Type    Opt  Comment                                               Default
 ..........................................................................................................................
-resonance-name-list         string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
+ResonanceNameList           string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
 is-CC                       bool    Yes  set true for CC list                                  false
 is-NC                       bool    Yes  set true for NC list                                  false
 -->

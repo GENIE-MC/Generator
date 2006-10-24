@@ -5,29 +5,25 @@ Configuration sets for the SlowRsclCharmDISPXSecLO cross section algorithm.
 
 Algorithm Configurable Parameters:
 .........................................................................................
-Name             Type    Optional   Comment                    Default
+Name          Type    Optional   Comment               Default
 .........................................................................................
-c-quark-mass     double  Yes        charm quark mass      GPL value: Charm-Mass
-Vcd              double  Yes        CKM element Vcd       GPL-Value: CKM-Vcd
-Vcs              double  Yes        CKM element Vcd       GPL-Value: CKM-Vcs
-pdf-alg-name     string  No         PDFModelI algorithm
-pdf-param-set    string  No         ... and its config
+Charm-Mass    double  Yes        charm quark mass      GPL value: Charm-Mass
+CKM-Vcd       double  Yes        CKM element Vcd       GPL-Value: CKM-Vcd
+CKM-Vcs       double  Yes        CKM element Vcd       GPL-Value: CKM-Vcs
+PDF-Set       alg     No         PDFModelI algorithm
 -->
 
 <alg_conf>
 
-  <param_set name="CC-Default"> 
-     <param type="string"  name="pdf-alg-name">     genie::PDFLIB  </param>
-     <param type="string"  name="pdf-param-set">    GRVLO          </param>
+  <param_set name="CC-Default">
+     <param type="alg" name="PDF-Set">        genie::PDFLIB/GRVLO  </param>
   </param_set>
 
-  <param_set name="CC-Tweak-Consts"> 
-     <param type="double"  name="c-quark-mass">     1.4            </param>
-     <param type="double"  name="Vcd">              0.224          </param>
-     <param type="double"  name="Vcs">              0.996          </param>
-     <param type="string"  name="pdf-alg-name">     genie::PDFLIB  </param>
-     <param type="string"  name="pdf-param-set">    GRVLO          </param>
+  <param_set name="CC-Tweak-Consts">
+     <param type="double"  name="Charm-Mass"> 1.4                  </param>
+     <param type="double"  name="Vcd">        0.224                </param>
+     <param type="double"  name="Vcs">        0.996                </param>
+     <param type="alg"     name="PDF-Set">    genie::PDFLIB/GRVLO  </param>
   </param_set>
 
 </alg_conf>
-

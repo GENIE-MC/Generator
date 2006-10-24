@@ -137,15 +137,13 @@ void DISPXSec::LoadConfig(void)
 
   //-- get the requested d^2xsec/dxdy xsec algorithm to use
   fPartialXSecAlg =
-         dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                         "partial-xsec-alg-name", "partial-xsec-param-set"));
+         dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
   assert(fPartialXSecAlg);
 
   LOG("DISPXSec", pDEBUG) << *fPartialXSecAlg;
 
   //-- get the specified integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________

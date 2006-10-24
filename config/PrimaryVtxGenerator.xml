@@ -2,6 +2,15 @@
 
 <alg_conf>
 
+<!--
+Configuration for the PrimaryVtxGenerator EventRecordVisitorI
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
+
   <param_set name="Default"> 
   </param_set>
 	

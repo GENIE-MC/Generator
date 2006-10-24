@@ -45,13 +45,13 @@ using namespace genie::exceptions;
 EventGenerator::EventGenerator() :
 EventGeneratorI("genie::EventGenerator")
 {
-
+  this->Init();
 }
 //___________________________________________________________________________
 EventGenerator::EventGenerator(string config) :
 EventGeneratorI("genie::EventGenerator", config)
 {
-
+  this->Init();
 }
 //___________________________________________________________________________
 EventGenerator::~EventGenerator()
@@ -192,21 +192,13 @@ const XSecAlgorithmI * EventGenerator::CrossSectionAlg(void) const
 void EventGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-
-  this->Init();
-  this->LoadVldContext();
-  this->LoadEVGModules();
-  this->LoadInteractionListGenerator();
+  this->LoadConfig();
 }
 //___________________________________________________________________________
 void EventGenerator::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-
-  this->Init();
-  this->LoadVldContext();
-  this->LoadEVGModules();
-  this->LoadInteractionListGenerator();
+  this->LoadConfig();
 }
 //___________________________________________________________________________
 const GVldContext & EventGenerator::ValidityContext(void) const
@@ -224,25 +216,23 @@ void EventGenerator::Init(void)
   fIntListGen   = 0;
 }
 //___________________________________________________________________________
-void EventGenerator::LoadVldContext(void)
+void EventGenerator::LoadConfig(void)
 {
+  if(fEVGModuleVec) delete fEVGModuleVec;
+  if(fEVGTime)      delete fEVGTime;
+  if(fVldContext)   delete fVldContext;
+
   LOG("EventGenerator", pDEBUG) << "Loading the generator validity context";
 
   fVldContext = new GVldContext;
-
-  assert( fConfig->Exists("vld-context") );
-  string encoded_vld_context = fConfig->GetString("vld-context");
-
+  assert( fConfig->Exists("VldContext") );
+  string encoded_vld_context = fConfig->GetString("VldContext");
   fVldContext->Decode( encoded_vld_context );
-}
-//___________________________________________________________________________
-void EventGenerator::LoadEVGModules(void)
-{
+
   LOG("EventGenerator", pDEBUG) << "Loading the event generation modules";
 
-  fConfig->AssertExistence("n-generator-steps");
-  int nsteps = fConfig->GetInt("n-generator-steps");
-
+  fConfig->AssertExistence("NModules");
+  int nsteps = fConfig->GetInt("NModules");
   if(nsteps == 0) {
     LOG("EventGenerator", pFATAL)
          << "EventGenerator configuration declares null visitor list!";
@@ -254,34 +244,37 @@ void EventGenerator::LoadEVGModules(void)
 
   for(int istep = 0; istep < nsteps; istep++) {
 
-     ostringstream alg_key, config_key;
+    ostringstream keystream;
+    keystream << "Module-" << istep;
+    RgKey key = keystream.str();
 
-     alg_key    << "generator-step-" << istep << "-alg";
-     config_key << "generator-step-" << istep << "-conf";
+    fConfig->AssertExistence(key);
+    SLOG("EventGenerator", pNOTICE)
+             << "Loading module " << istep << " : " << fConfig->GetAlg(key);
 
-     string alg    = fConfig->GetString( alg_key.str()    );
-     string config = fConfig->GetString( config_key.str() );
-     SLOG("EventGenerator", pNOTICE)
-        << "Loading module " << istep << " : " << alg << "/" << config;
+    const EventRecordVisitorI * visitor =
+               dynamic_cast<const EventRecordVisitorI *>(this->SubAlg(key));
 
-     const EventRecordVisitorI * visitor =
-                dynamic_cast<const EventRecordVisitorI *> (
-                         this->SubAlg(alg_key.str(), config_key.str()));
-     (*fEVGModuleVec)[istep] = visitor;
-     (*fEVGTime)[istep]      = 0;
+    (*fEVGModuleVec)[istep] = visitor;
+    (*fEVGTime)[istep]      = 0;
   }
-}
-//___________________________________________________________________________
-void EventGenerator::LoadInteractionListGenerator(void)
-{
-  LOG("EventGenerator", pDEBUG) << "Loading the interaction list generator";
 
-  fIntListGen = dynamic_cast<const InteractionListGeneratorI *> (
-              this->SubAlg("interaction-list-alg", "interaction-list-conf"));
+  RgKey ilstgen = "ILstGen";
+  RgKey xsecalg = "XSecAlg";
+
+  fConfig->AssertExistence(ilstgen);
+  fConfig->AssertExistence(xsecalg);
+
+  LOG("EventGenerator", pNOTICE) 
+    << "Loading the interaction list generator: " << fConfig->GetAlg(ilstgen);
+  fIntListGen = 
+      dynamic_cast<const InteractionListGeneratorI *> (this->SubAlg(ilstgen));
   assert(fIntListGen);
 
-  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
-                    this->SubAlg("cross-section-alg", "cross-section-conf"));
+  LOG("EventGenerator", pNOTICE) 
+        << "Loading the cross section model: " << fConfig->GetAlg(xsecalg);
+  fXSecModel = 
+       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(xsecalg));
   assert(fXSecModel);
 }
 //___________________________________________________________________________

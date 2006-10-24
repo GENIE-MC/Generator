@@ -2,10 +2,16 @@
 
 <alg_conf>
 
-  Configuration sets for RESPrimaryLeptonGenerator EventRecordVisitorI
+<!--
+Configuration for the RESPrimaryLeptonGenerator EventRecordVisitorI
+
+Configurable Parameters:
+.......................................................................................................................
+Name                     Type    Opt   Comment                                       Default
+.......................................................................................................................
+-->
 
   <param_set name="Default"> 
-
   </param_set>
 
 </alg_conf>

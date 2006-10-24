@@ -159,14 +159,10 @@ double BardinIMDRadCorPXSec::P(int i, double r, double y) const
 {
   int kmin = -3;
   int kmax =  2;
-
   double p = 0;
-
   for(int k = kmin; k <= kmax; k++) {
-
      double c  = this->C(i,k,r);
      double yk = TMath::Power(y,k);
-
      p += (c*yk);
   }
   return p;
@@ -259,22 +255,19 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
 void BardinIMDRadCorPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
 void BardinIMDRadCorPXSec::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-  this->LoadSubAlg();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void BardinIMDRadCorPXSec::LoadSubAlg(void)
+void BardinIMDRadCorPXSec::LoadConfig(void)
 {
-  fIntegrator = 0;
-
-  //-- get specified integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fIntegrator = 
+      dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
 }
 //____________________________________________________________________________

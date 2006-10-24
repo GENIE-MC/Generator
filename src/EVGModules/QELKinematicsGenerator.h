@@ -33,11 +33,11 @@ public :
   QELKinematicsGenerator(string config);
   ~QELKinematicsGenerator();
 
-  //! implement the EventRecordVisitorI interface
+  //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //! members from configuration options
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 

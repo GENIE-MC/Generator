@@ -195,21 +195,21 @@ void ReinSeghalSPPXSec::LoadConfig(void)
   fIntegrator = 0;
 
   //-- get the requested d^2xsec/dxdy xsec algorithm to use
-  fSingleResXSecModel =
-       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(
-                    "single-res-xsec-alg-name", "single-res-xsec-param-set"));
-
-  fIntegrator = dynamic_cast<const IntegratorI *> (
-                 this->SubAlg("integrator-alg-name", "integrator-param-set"));
+  fSingleResXSecModel = 
+       dynamic_cast<const XSecAlgorithmI *> (
+                               this->SubAlg("SingleRESDiffXSecAlg"));
+  fIntegrator = 
+       dynamic_cast<const IntegratorI *> (
+                               this->SubAlg("Integrator"));
 
   assert (fSingleResXSecModel);
   assert (fIntegrator);
 
   // user cuts in W,Q2
-  fWmin  = fConfig->GetDoubleDef("Wmin",  -1.0);
-  fWmax  = fConfig->GetDoubleDef("Wmax",   1e9);
-  fQ2min = fConfig->GetDoubleDef("Q2min", -1.0);
-  fQ2max = fConfig->GetDoubleDef("Q2max",  1e9);
+  fWmin  = fConfig->GetDoubleDef("Kine-Wmin",  -1.0);
+  fWmax  = fConfig->GetDoubleDef("Kine-Wmax",   1e9);
+  fQ2min = fConfig->GetDoubleDef("Kine-Q2min", -1.0);
+  fQ2max = fConfig->GetDoubleDef("Kine-Q2max",  1e9);
 
   // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   fEMax = fConfig->GetDoubleDef("ESplineMax", 40);
@@ -217,14 +217,13 @@ void ReinSeghalSPPXSec::LoadConfig(void)
 
   // create the baryon resonance list specified in the config.
   fResList.Clear();
-  assert( fConfig->Exists("resonance-name-list") );
   string resonances = fConfig->GetStringDef(
-                   "resonance-name-list", gc->GetString("ResonanceNameList"));
+                     "ResonanceNameList", gc->GetString("ResonanceNameList"));
   fResList.DecodeFromNameList(resonances);
 
   //-- Use algorithm within a DIS/RES join scheme. If yes get Wcut
   fUsingDisResJoin = fConfig->GetBoolDef(
-		"use-dis-res-joining-scheme", gc->GetBool("UseDRJoinScheme"));
+                           "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
   fWcut = 999999;
   if(fUsingDisResJoin) {
     fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
