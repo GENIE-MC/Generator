@@ -1,16 +1,14 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::RegistryItem
+\class    genie::RegistryItemTypeDef
 
-\brief    A templated concrete implementation of the RegistryItemI interface.
-          Provides an arbitrary basic type (bool, int, double, string) value
-          for RegistryI-type containers.
+\brief    Definition of Registry item types
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
-\created  May 06, 2004
+\created  October 20, 2006
 
 \cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
           All rights reserved.
@@ -18,8 +16,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REGISTRY_TYPES_H_
-#define _REGISTRY_TYPES_H_
+#ifndef _REGISTRY_ITEM_TYPE_DEF_H_
+#define _REGISTRY_ITEM_TYPE_DEF_H_
 
 #include <map>
 #include <string>
@@ -54,4 +52,4 @@ public:
   string  config;
 };
 
-#endif // _REGISTRY_TYPES_H_
+#endif // _REGISTRY_ITEM_TYPE_DEF_H_

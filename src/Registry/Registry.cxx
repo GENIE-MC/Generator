@@ -27,6 +27,7 @@
 
 #include "Messenger/Messenger.h"
 #include "Registry/Registry.h"
+#include "Registry/RegistryItemTypeId.h"
 
 using namespace genie;
 
@@ -468,8 +469,8 @@ string Registry::GetStringDef(RgKey key, string def_opt, bool set_def)
 //____________________________________________________________________________
 bool Registry::Exists(RgKey key) const
 {
-  if (fRegistry.count(key) == 1) return true;
-  else                           return false;
+  RgIMapConstIter entry = fRegistry.find(key);
+  return (entry!=fRegistry.end());
 }
 //____________________________________________________________________________
 bool Registry::DeleteEntry(RgKey key)
@@ -543,39 +544,41 @@ void Registry::CopyToFolder(TFolder * folder) const
      ostringstream   entry;
      string          key   = reg_iter->first;
      RegistryItemI * ritem = reg_iter->second;
-     string          type  = string(ritem->TypeInfo().name());
 
-     entry << "key:" << key << ";type:" << type;
+     RgType_t type  = ritem->TypeInfo();
+     string   stype = RgType::AsString(type);
 
-     if(type == "b") {
+     entry << "key:" << key << ";type:" << stype;
+
+     if(type == kRgBool) {
         entry << ";value: " << this->GetBool(key);
         LOG("Registry", pINFO) << "entry = " << entry.str();
         folder->Add(new TObjString(entry.str().c_str()));
      }
-     else if (type == "d") {
+     else if (type == kRgDbl) {
         entry << ";value: " << this->GetDouble(key);
         LOG("Registry", pINFO) << "entry = " << entry.str();
         folder->Add(new TObjString(entry.str().c_str()));
      }
-     else if (type == "i") {
+     else if (type == kRgInt) {
         entry << ";value: " << this->GetInt(key);
         LOG("Registry", pINFO) << "entry = " << entry.str();
         folder->Add(new TObjString(entry.str().c_str()));
      }
-     else if (type == "Ss") {
+     else if (type == kRgStr) {
         entry << ";value: " << this->GetString(key);
         LOG("Registry", pINFO) << "entry = " << entry.str();
         folder->Add(new TObjString(entry.str().c_str()));
      }
-     else if (type == "5RgAlg") {
-//        entry << ";value: " << this->GetString(key);
-//        LOG("Registry", pINFO) << "entry = " << entry.str();
-//        folder->Add(new TObjString(entry.str().c_str()));
-     }
-     else if (type == "P4TH1F")
-     {
-     } else if (type == "P4TH2F") {
-     } else if (type == "P4TTree") {
+     else if (type == kRgAlg) {
+        entry << ";value: " << this->GetAlg(key).name 
+              << "/" << this->GetAlg(key).config;
+        LOG("Registry", pINFO) << "entry = " << entry.str();
+        folder->Add(new TObjString(entry.str().c_str()));
+
+     } else if (type == kRgH1F) {
+     } else if (type == kRgH2F) {
+     } else if (type == kRgTree) {
      } else {}
   }// registry iterator
 }
@@ -604,13 +607,15 @@ void Registry::Print(ostream & stream) const
      RgKey           key   = rcit->first;
      RegistryItemI * ritem = rcit->second;
      if(ritem) {
-        string var_name = string("> ") + key;
-        string var_type = string("[") + string(ritem->TypeInfo().name())
-                        + string("] ");
+        RgType_t type  = ritem->TypeInfo();
+        string   stype = RgType::AsString(type);
+
+        string key_lbl  = string("> ") + key;
+        string type_lbl = string("[") + stype + string("] ");
         LOG("Registry", pDEBUG)
-                    << "Printing " << var_type << " item named = " << key;
-        stream << " |" << setfill('-') << setw(45) << var_name
-               << setfill('.') << setw(12) << var_type;
+                    << "Printing " << stype << " item named = " << key;
+        stream << " |" << setfill('-') << setw(45) << key_lbl
+               << setfill('.') << setw(12) << type_lbl;
         ritem->Print(stream);
         stream << endl;
      } else {
@@ -656,55 +661,51 @@ void Registry::Append(const Registry & registry)
      RgKey          name = reg_iter->first;
      RegistryItemI * ri  = reg_iter->second;
 
-     string var_type  = ri->TypeInfo().name();
-     bool   item_lock = ri->IsLocked();
+     bool     ilk   = ri->IsLocked();
+     RgType_t type  = ri->TypeInfo();
+     string   stype = RgType::AsString(type);
 
      LOG("Registry", pDEBUG)
-                << "Copying [" << var_type << "] item named = " << name;
+                   << "Copying [" << stype << "] item named = " << name;
 
      RegistryItemI * cri = 0; // cloned registry item
-     if (var_type == "b" )
-           cri = new RegistryItem<RgBool>
-                                (registry.GetBool(name),item_lock);
-     else if (var_type == "d" )
-           cri = new RegistryItem<RgDbl>
-                                (registry.GetDouble(name),item_lock);
-     else if (var_type == "i" )
-           cri = new RegistryItem<RgInt>
-                                (registry.GetInt(name),item_lock);
-     else if (var_type == "Ss")
-           cri = new RegistryItem<RgStr>
-                                (registry.GetString(name),item_lock);
-     else if (var_type == "5RgAlg")
-           cri = new RegistryItem<RgAlg>
-                                (registry.GetAlg(name),item_lock);
-     else if (var_type == "P4TH1F") {
+     if (type == kRgBool)
+           cri = new RegistryItem<RgBool>(registry.GetBool(name),ilk);
+     else if (type == kRgDbl)
+           cri = new RegistryItem<RgDbl> (registry.GetDouble(name),ilk);
+     else if (type == kRgInt)
+           cri = new RegistryItem<RgInt> (registry.GetInt(name),ilk);
+     else if (type == kRgStr)
+           cri = new RegistryItem<RgStr> (registry.GetString(name),ilk);
+     else if (type == kRgAlg)
+           cri = new RegistryItem<RgAlg> (registry.GetAlg(name),ilk);
+     else if (type == kRgH1F) {
            RgH1F histo = registry.GetH1F(name);
            if(histo) {
                RgH1F chisto = new TH1F(*histo);
                LOG("Registry", pDEBUG) << chisto->GetName();
-               cri = new RegistryItem<RgH1F>(chisto,item_lock);
+               cri = new RegistryItem<RgH1F>(chisto,ilk);
            } else {
              LOG("Registry", pERROR)
                << "Null TH1F with key = " << name << " - not copied";
            }
-     } else if (var_type == "P4TH2F") {
+     } else if (type == kRgH2F) {
            RgH2F histo = registry.GetH2F(name);
            if(histo) {
                RgH2F chisto = new TH2F(*histo);
                LOG("Registry", pDEBUG) << chisto->GetName();
-               cri = new RegistryItem<RgH2F>(chisto,item_lock);
+               cri = new RegistryItem<RgH2F>(chisto,ilk);
            } else {
              LOG("Registry", pERROR)
                << "Null TH2F with key = " << name << " - not copied";
            }
-     } else if (var_type == "P4TTree") {
+     } else if (type == kRgTree) {
            RgTree tree = registry.GetTree(name);
            if(tree) {
                //TTree * ctree = new TTree(*tree);
                TTree * ctree = tree->CopyTree("1");
                LOG("Registry", pDEBUG) << ctree->GetName();
-               cri = new RegistryItem<RgTree>(ctree,item_lock);
+               cri = new RegistryItem<RgTree>(ctree,ilk);
            } else {
              LOG("Registry", pERROR)
                << "Null TTree with key = " << name << " - not copied";
