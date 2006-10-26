@@ -76,7 +76,7 @@ void BYStructureFuncModel::ReadBYParams(void)
   fA    = fConfig->GetDoubleDef( "A",    gc->GetDouble("BY-A")    );
   fB    = fConfig->GetDoubleDef( "B",    gc->GetDouble("BY-B")    );
   fCsU  = fConfig->GetDoubleDef( "CsU",  gc->GetDouble("BY-CsU")  );
-  fCsD  = fConfig->GetDoubleDef( "CsU",  gc->GetDouble("BY-CsD")  );
+  fCsD  = fConfig->GetDoubleDef( "CsD",  gc->GetDouble("BY-CsD")  );
   fCv1U = fConfig->GetDoubleDef( "Cv1U", gc->GetDouble("BY-Cv1U") );
   fCv2U = fConfig->GetDoubleDef( "Cv2U", gc->GetDouble("BY-Cv2U") );
   fCv1D = fConfig->GetDoubleDef( "Cv1D", gc->GetDouble("BY-Cv1D") );
@@ -120,6 +120,6 @@ void BYStructureFuncModel::KFactors(const Interaction * interaction,
   kuv = (1.-GD2)*(Q2+fCv2U)/(Q2+fCv1U); // K - u(valence)
   kdv = (1.-GD2)*(Q2+fCv2D)/(Q2+fCv1D); // K - d(valence)
   kus = Q2/(Q2+fCsU);                   // K - u(sea)
-  kds = Q2/(Q2+fCsU);                   // K - d(sea)
+  kds = Q2/(Q2+fCsD);                   // K - d(sea)
 }
 //____________________________________________________________________________
