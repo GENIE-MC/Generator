@@ -29,7 +29,7 @@
   <param type="double" name="BY-A">     0.538   </param>
   <param type="double" name="BY-B">     0.305   </param>
   <param type="double" name="BY-CsU">   0.363   </param>
-  <param type="double" name="BY-CsD">   0.255   </param>
+  <param type="double" name="BY-CsD">   0.621   </param>
   <param type="double" name="BY-Cv1U">  0.291   </param>
   <param type="double" name="BY-Cv2U">  0.189   </param>
   <param type="double" name="BY-Cv1D">  0.202   </param>
