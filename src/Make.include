@@ -40,13 +40,6 @@
 # .................................................................
 #  DOXYGEN        -> your doxygen exe (with full path if needed)
 #
-# Optional [needed if you enable GENIE/GEANT interface]
-# .................................................................
-#  CLHEP_INC      -> where CLHEP includes are [CLHEP dir]
-#  CLHEP_LIB      -> where CLHEP libraries are 
-#  GEANT4_INC     -> top level GEANT4 source directory 
-#  GEANT4_LIB     -> top level GEANT4 source directory 
-#
 # Notes:
 # ------
 # - If you enable GENIE's NuValidator then you must also have the 
@@ -63,7 +56,6 @@
 # GOPT_ENABLE_PROFILER        -> enables Google profiler
 # GOPT_ENABLE_NUVALIDATOR     -> enables GENIE's NuValidator
 # GOPT_ENABLE_NEUGEN          -> enables NuValidator's NeuGEN facade
-# GOPT_ENABLE_GEANT_INTERFACE -> enables GENIE/GEANT interface
 # GOPT_ENABLE_FLUX_DRIVERS    -> enables GENIE's flux drivers
 # GOPT_ENABLE_GEOM_DRIVERS    -> enables GENIE's geometry drivers
 # GOPT_ENABLE_DOXYGEN_DOC     -> enables GENIE's Doxygen doc
@@ -79,7 +71,6 @@
 # GOPT_ENABLE_PROFILER        -> NO
 # GOPT_ENABLE_NUVALIDATOR     -> YES
 # GOPT_ENABLE_NEUGEN          -> YES
-# GOPT_ENABLE_GEANT_INTERFACE -> NO
 # GOPT_ENABLE_FLUX_DRIVERS    -> YES
 # GOPT_ENABLE_GEOM_DRIVERS    -> YES
 # GOPT_ENABLE_DOXYGEN_DOC     -> NO
@@ -95,9 +86,6 @@ ifndef GOPT_ENABLE_NUVALIDATOR
 endif 
 ifndef GOPT_ENABLE_NEUGEN
   GOPT_ENABLE_NEUGEN=YES
-endif 
-ifndef GOPT_ENABLE_GEANT_INTERFACE
-  GOPT_ENABLE_GEANT_INTERFACE=NO
 endif 
 ifndef GOPT_ENABLE_FLUX_DRIVERS
   GOPT_ENABLE_FLUX_DRIVERS=YES
@@ -130,9 +118,6 @@ ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
 endif
 ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),YES) 
   GOPT_NEUGEN=1
-endif
-ifeq ($(strip $(GOPT_ENABLE_GEANT_INTERFACE)),YES) 
-  GOPT_GEANT_INTERFACE=1
 endif
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES) 
   GOPT_FLUX_DRIVERS=1
@@ -299,140 +284,8 @@ ifdef GOPT_PROFILER
 endif
 
 #-------------------------------------------------------------------
-#                             CLHEP
-#-------------------------------------------------------------------
-
-CLHEP_INCLUDES=
-CLHEP_LIBRARIES=
-
-ifdef GOPT_GEANT_INTERFACE
-  CLHEP_INCLUDES  = -I$(CLHEP_INC)
-  CLHEP_LIBRARIES = -L$(CLHEP_LIB) -lCLHEP
-endif
-
-#-------------------------------------------------------------------
-#                             GEANT4
-#-------------------------------------------------------------------
-
-# Type all GEANT libraries...
-# There is nothing like "ROOT_LIBRARIES = $(shell root-config --glibs)" 
-# for GEANT?
-
-GEANT4_LIBRARIES=
-GEANT4_INCLUDES=
-
-ifdef GOPT_GEANT_INTERFACE
-
- GEANT4_LIBRARIES := -L $(GEANT4_LIB) \
-  -lG4baryons -lG4graphics_reps -lG4hadronic_deex_photon_evaporation \
-  -lG4had_theo_max -lG4run -lG4bosons -lG4had_im_r_matrix  \
-  -lG4hadronic_deex_util -lG4hepnumerics -lG4shortlived -lG4brep \
-  -lG4had_mod_man -lG4hadronic_em_dissociation -lG4hits -lG4specsolids \
-  -lG4csg -lG4had_mod_util -lG4hadronic_HE -lG4intercoms -lG4tracking \
-  -lG4cuts -lG4had_muon_nuclear -lG4hadronic_hetcpp_evaporation -lG4ions \
-  -lG4track -lG4decay -lG4had_neu_hp -lG4hadronic_hetcpp_utils -lG4leptons \
-  -lG4transportation -lG4detector -lG4had_preequ_exciton -lG4hadronic_interface_ci \
-  -lG4magneticfield -lG4trdmodels -lG4digits -lG4hadronic_ablation -lG4hadronic_iso \
-  -lG4materials -lG4Tree -lG4emhighenergy -lG4hadronic_abrasion \
-  -lG4hadronic_leading_particle -lG4mesons -lG4UIbasic -lG4emlowenergy \
-  -lG4hadronic_bert_cascade -lG4hadronic_LE -lG4modeling -lG4UIcommon \
-  -lG4emstandard -lG4hadronic_binary -lG4hadronic_mgt -lG4muons -lG4UIGAG \
-  -lG4emutils -lG4hadronic_body_ci -lG4hadronic_proc -lG4navigation -lG4visHepRep \
-  -lG4event -lG4hadronic_coherent_elastic -lG4hadronic_qgstring -lG4optical \
-  -lG4vis_management -lG4FR -lG4hadronic_deex_evaporation -lG4hadronic_radioactivedecay \
-  -lG4parameterisation -lG4visXXX -lG4geombias -lG4hadronic_deex_fermi_breakup \
-  -lG4hadronic_stop -lG4partman -lG4volumes -lG4geomBoolean -lG4hadronic_deex_fission \
-  -lG4hadronic_util -lG4partutils -lG4VRML -lG4geomdivision \
-  -lG4hadronic_deex_gem_evaporation -lG4hadronic_xsect -lG4persistency -lG4xrays \
-  -lG4geometrymng -lG4hadronic_deex_handler -lG4had_string_diff -lG4procman \
-  -lG4gflash -lG4hadronic_deex_management -lG4had_string_frag -lG4RayTracer \
-  -lG4globman -lG4hadronic_deex_multifragmentation -lG4had_string_man -lG4readout
-
- GEANT4_INCLUDES := \
-  -I$(GEANT4_INC)/global/management/include \
-  -I$(GEANT4_INC)/global/HEPRandom/include \
-  -I$(GEANT4_INC)/global/HEPGeometry/include \
-  -I$(GEANT4_INC)/global/HEPNumerics/include \
-  -I$(GEANT4_INC)/run/include \
-  -I$(GEANT4_INC)/materials/include \
-  -I$(GEANT4_INC)/parameterisations/include \
-  -I$(GEANT4_INC)/particles/management/include \
-  -I$(GEANT4_INC)/particles/bosons/include \
-  -I$(GEANT4_INC)/particles/leptons/include \
-  -I$(GEANT4_INC)/particles/hadrons/barions/include \
-  -I$(GEANT4_INC)/particles/hadrons/ions/include \
-  -I$(GEANT4_INC)/particles/hadrons/mesons/include \
-  -I$(GEANT4_INC)/particles/shortlived/include \
-  -I$(GEANT4_INC)/processes/management/include \
-  -I$(GEANT4_INC)/processes/cuts/include \
-  -I$(GEANT4_INC)/processes/decay/include \
-  -I$(GEANT4_INC)/processes/optical/include \
-  -I$(GEANT4_INC)/processes/transportation/include \
-  -I$(GEANT4_INC)/processes/parameterisation/include \
-  -I$(GEANT4_INC)/processes/electromagnetic/standard/include \
-  -I$(GEANT4_INC)/processes/electromagnetic/muons/include \
-  -I$(GEANT4_INC)/processes/electromagnetic/utils/include \
-  -I$(GEANT4_INC)/processes/electromagnetic/xrays/include \
-  -I$(GEANT4_INC)/processes/electromagnetic/lowenergy/include \
-  -I$(GEANT4_INC)/processes/hadronic/cross_sections/include \
-  -I$(GEANT4_INC)/processes/hadronic/management/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/cascade/cascade/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/cascade/evaporation/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/cascade/utils/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/chiral_inv_phase_space/body/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/chiral_inv_phase_space/interface/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/coherent_elastic/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/high_energy/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/isotope_production/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/leading_particle/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/low_energy/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/neutron_hp/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/binary_cascade/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/de_excitation/evaporation/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/de_excitation/fermi_breakup/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/de_excitation/fission/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/de_excitation/gem_evaporation/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/de_excitation/handler/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/de_excitation/management/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/parton_string/diffraction/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/parton_string/hadronization/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/parton_string/management/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/parton_string/qgsm/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/theo_high_energy/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/util/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/general_finalstate/include \
-  -I$(GEANT4_INC)/processes/hadronic/models/radioactive_decay/include \
-  -I$(GEANT4_INC)/processes/hadronic/processes/include \
-  -I$(GEANT4_INC)/processes/hadronic/stopping/include \
-  -I$(GEANT4_INC)/processes/hadronic/util/include \
-  -I$(GEANT4_INC)/geometry/management/include \
-  -I$(GEANT4_INC)/geometry/solids/CSG/include \
-  -I$(GEANT4_INC)/geometry/solids/specific/include \
-  -I$(GEANT4_INC)/geometry/solids/BREPS/include \
-  -I$(GEANT4_INC)/geometry/solids/Boolean/include \
-  -I$(GEANT4_INC)/geometry/divisions/include \
-  -I$(GEANT4_INC)/geometry/volumes/include \
-  -I$(GEANT4_INC)/geometry/navigation/include \
-  -I$(GEANT4_INC)/geometry/magneticfield/include \
-  -I$(GEANT4_INC)/geometry/biasing/include \
-  -I$(GEANT4_INC)/track/include \
-  -I$(GEANT4_INC)/tracking/include \
-  -I$(GEANT4_INC)/digits_hits/detector/include \
-  -I$(GEANT4_INC)/digits_hits/hits/include \
-  -I$(GEANT4_INC)/digits_hits/digits/include \
-  -I$(GEANT4_INC)/persistency/include \
-  -I$(GEANT4_INC)/readout/include \
-  -I$(GEANT4_INC)/event/include \
-  -I$(GEANT4_INC)/graphics_reps/include \
-  -I$(GEANT4_INC)/intercoms/include \
-  -I$(GEANT4_INC)/g3tog4/include
-
-endif
-
-#-------------------------------------------------------------------
 #                               DOXYGEN
 #-------------------------------------------------------------------
-
 # if doc was enabled but DOXYGEN was not set, try a default
 
 ifdef GOPT_DOXYGEN_DOC
@@ -512,7 +365,6 @@ GENIE_EVENT_GENERATION_SHARED_LIB := $(GENIE_LIB_PATH)/libGEventGen.$(DllSuf)
 GENIE_EVGCORE_SHARED_LIB          := $(GENIE_LIB_PATH)/libGEVGCore.$(DllSuf)
 GENIE_EVGDRIVERS_SHARED_LIB       := $(GENIE_LIB_PATH)/libGEVGDrivers.$(DllSuf)
 GENIE_EVGMODULES_SHARED_LIB       := $(GENIE_LIB_PATH)/libGEVGModules.$(DllSuf)
-GENIE_GEANT_INTERFACE_SHARED_LIB  := $(GENIE_LIB_PATH)/libGG4I.$(DllSuf)
 GENIE_GEO_SHARED_LIB              := $(GENIE_LIB_PATH)/libGGeo.$(DllSuf)
 GENIE_GHEP_SHARED_LIB             := $(GENIE_LIB_PATH)/libGHEP.$(DllSuf)
 GENIE_HADRON_TRANSPORT_SHARED_LIB := $(GENIE_LIB_PATH)/libGHadronTransp.$(DllSuf)
@@ -556,9 +408,6 @@ GENIE_LIBRARIES := -L $(GENIE_LIB_PATH) \
   -lGHadronTransp -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
   -lGReinSeghal -lGUtils -lGCrossSections -lGReWeight
 
-ifdef GOPT_GEANT_INTERFACE
-  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGG4I
-endif
 ifdef GOPT_FLUX_DRIVERS
   GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGFluxDrivers
 endif

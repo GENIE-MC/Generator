@@ -16,8 +16,8 @@ include $(GENIE)/src/Make.include
 BUILD_TARGETS = make-bin-lib-dir save-build-options \
 		base-framework physics-models-modules event-generation-modules
 
-# build targets to be enabled by the user (nu-validator, 
-# genie/geant interface, flux/geometry drivers doxygen documentation)
+# build targets to be enabled by the user 
+# (nu-validator, flux/geometry drivers doxygen documentation)
 
 ifdef GOPT_FLUX_DRIVERS
   BUILD_TARGETS := $(BUILD_TARGETS) flux-drivers
@@ -36,9 +36,6 @@ ifndef GOPT_NEUGEN
 endif
 ifdef GOPT_NUVALIDATOR
   BUILD_TARGETS := $(BUILD_TARGETS) nuvld-libs neugen nuvld-exe
-endif
-ifdef GOPT_GEANT_INTERFACE
-  BUILD_TARGETS := $(BUILD_TARGETS) geanti
 endif
 ifdef GOPT_DOXYGEN_DOC
   BUILD_TARGETS := $(BUILD_TARGETS) doxygen-doc
@@ -126,10 +123,6 @@ nuvld-exe:
 	cd ${GENIE}/src;\
 	cd NuValidator; make exe; cd ..; 
 
-geanti:
-	cd ${GENIE}/src;\
-	cd GeantInterface; make; cd ..; 
-
 viewer:
 	cd ${GENIE}/src;\
 	cd Viewer; make; cd ..; 
@@ -158,7 +151,7 @@ install-scripts:
 	cd ./scripts; make install; cd ..;
 
 all-libs: base-framework physics-models-modules event-generation-modules \
-		flux-drivers geom-drivers viewer geanti nuvld-libs
+		flux-drivers geom-drivers viewer nuvld-libs
 
 save-build-options:
 	@echo "Logging configuration options...";\
@@ -189,7 +182,6 @@ purge: FORCE
 	cd FluxDrivers;        make purge; cd ..; \
 	cd Fragmentation;      make purge; cd ..; \
 	cd GHEP;               make purge; cd ..; \
-	cd GeantInterface;     make purge; cd ..; \
 	cd Geo;                make purge; cd ..; \
 	cd HadronTransport;    make purge; cd ..; \
 	cd Interaction;        make purge; cd ..; \
@@ -231,7 +223,6 @@ clean-files: FORCE
 	cd FluxDrivers;        make clean; cd ..; \
 	cd Fragmentation;      make clean; cd ..; \
 	cd GHEP;               make clean; cd ..; \
-	cd GeantInterface;     make clean; cd ..; \
 	cd Geo;                make clean; cd ..; \
 	cd HadronTransport;    make clean; cd ..; \
 	cd Interaction;        make clean; cd ..; \
