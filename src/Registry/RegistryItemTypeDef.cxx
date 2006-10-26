@@ -1,24 +1,20 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::RegistryItem
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - May 04, 2004
 
-\brief    A templated concrete implementation of the RegistryItemI interface.
-          Provides an arbitrary basic type (bool, int, double, string) value
-          for RegistryI-type containers.
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+ Important revisions after version 2.0.0 :
 
-\created  May 06, 2004
-
-\cpright  Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
-          All rights reserved.
-          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
-#include "Registry/RegistryTypesDef.h"
+#include "Registry/RegistryItemTypeDef.h"
 
 using std::endl;
 

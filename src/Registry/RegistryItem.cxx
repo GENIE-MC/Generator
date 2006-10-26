@@ -84,20 +84,29 @@ template<class T> RegistryItem<T>::~RegistryItem()
 
 }
 //____________________________________________________________________________
-RegistryItem<RgH1F*>::~RegistryItem()
+RegistryItem<RgH1F>::~RegistryItem()
 {
   if (fItem) delete fItem;
 }
 //____________________________________________________________________________
-RegistryItem<RgH2F*>::~RegistryItem()
+RegistryItem<RgH2F>::~RegistryItem()
 {
   if (fItem) delete fItem;
 }
 //____________________________________________________________________________
-RegistryItem<RgTree*>::~RegistryItem()
+RegistryItem<RgTree>::~RegistryItem()
 {
   if (fItem) delete fItem;
 }
+//____________________________________________________________________________
+RgType_t RegistryItem<RgBool>::TypeInfo(void) const { return kRgBool; }
+RgType_t RegistryItem<RgInt>::TypeInfo (void) const { return kRgInt;  }
+RgType_t RegistryItem<RgDbl>::TypeInfo (void) const { return kRgDbl;  }
+RgType_t RegistryItem<RgStr>::TypeInfo (void) const { return kRgStr;  }
+RgType_t RegistryItem<RgAlg>::TypeInfo (void) const { return kRgAlg;  }
+RgType_t RegistryItem<RgH1F>::TypeInfo (void) const { return kRgH1F;  }
+RgType_t RegistryItem<RgH2F>::TypeInfo (void) const { return kRgH2F;  }
+RgType_t RegistryItem<RgTree>::TypeInfo(void) const { return kRgTree; }
 //____________________________________________________________________________
 template<class T> void RegistryItem<T>::Print(ostream & stream) const
 {

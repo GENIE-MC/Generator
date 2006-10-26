@@ -19,11 +19,13 @@
 #ifndef _REGISTRY_ITEM_I_H_
 #define _REGISTRY_ITEM_I_H_
 
-#include <typeinfo>
+//#include <typeinfo>
 #include <iostream>
 
+#include "Registry/RegistryItemTypeId.h"
+
 using std::ostream;
-using std::type_info;
+//using std::type_info;
 
 namespace genie {
 
@@ -33,11 +35,13 @@ public:
 
   virtual ~RegistryItemI() { }
 
-  virtual const type_info & TypeInfo (void)             const = 0;
-  virtual void              Lock     (void)                   = 0;
-  virtual void              UnLock   (void)                   = 0;
-  virtual bool              IsLocked (void)             const = 0;
-  virtual void              Print    (ostream & stream) const = 0;
+  //virtual const type_info & TypeInfo (void) const = 0;
+
+  virtual RgType_t TypeInfo (void)      const = 0;
+  virtual void     Lock     (void)            = 0;
+  virtual void     UnLock   (void)            = 0;
+  virtual bool     IsLocked (void)      const = 0;
+  virtual void     Print    (ostream &) const = 0;
 
 protected:
 

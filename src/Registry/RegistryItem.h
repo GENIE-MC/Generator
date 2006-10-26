@@ -26,7 +26,7 @@
 #include <ostream>
 
 #include "Registry/RegistryItemI.h"
-#include "Registry/RegistryTypesDef.h"
+#include "Registry/RegistryItemTypeDef.h"
 
 namespace genie {
 
@@ -37,17 +37,16 @@ template<class T>
 template<class T> class RegistryItem : public RegistryItemI {
 
 public:
-
   RegistryItem() { };
   RegistryItem(T item, bool locked = false);
   RegistryItem(const RegistryItem * ri);
   ~RegistryItem();
 
-  const type_info & TypeInfo (void) const { return typeid(fItem); }
-  const T &         Data     (void) const { return fItem;         }
-  void              Lock     (void)       { fIsLocked = true;     }
-  void              UnLock   (void)       { fIsLocked = false;    }
-  bool              IsLocked (void) const { return fIsLocked;     }
+  RgType_t  TypeInfo (void) const;
+  const T & Data     (void) const { return fItem;         }
+  void      Lock     (void)       { fIsLocked = true;     }
+  void      UnLock   (void)       { fIsLocked = false;    }
+  bool      IsLocked (void) const { return fIsLocked;     }
 
   void Print(ostream& stream) const;
 

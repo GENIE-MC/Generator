@@ -26,6 +26,7 @@
 #include <iostream>
 
 #include "Registry/RegistryItem.h"
+#include "Registry/RegistryItemTypeDef.h"
 
 class TH1F;
 class TH2F;
@@ -82,14 +83,11 @@ public:
   void operator () (RgKey key,  const char * item);
   void operator () (RgKey key,  string       item);
 
-  // Registry locks
-
-  void   Lock      (void);       ///< locks the registry
-  void   UnLock    (void);       ///< unlocks the registry (doesn't unlock items)
-  bool   IsLocked  (void) const; ///< checks registry lock
-
-  // Registry item locks
-
+  // Registry & registry item locks
+  //
+  void   Lock               (void);            ///< locks the registry
+  void   UnLock             (void);            ///< unlocks the registry (doesn't unlock items)
+  bool   IsLocked           (void) const;      ///< checks registry lock
   void   InhibitItemLocks   (void);            ///< override individual item locks
   void   RestoreItemLocks   (void);            ///< restore individual item locks
   bool   ItemLocksAreActive (void) const;      ///< check if item locks are active
@@ -98,7 +96,7 @@ public:
   bool   ItemIsLocked       (RgKey key) const; ///< check item lock
 
   // Methods to set/retrieve Registry values
-
+  //
   void   Set (RgIMapPair entry);
   void   Set (RgKey key, RgBool  item);
   void   Set (RgKey key, RgInt   item);
@@ -133,28 +131,32 @@ public:
   RgDbl  GetDoubleDef (RgKey key, RgDbl  def_opt, bool set_def=true);
   RgStr  GetStringDef (RgKey key, RgStr  def_opt, bool set_def=true);
 
-  int    NEntries     (void) const;
-  bool   Exists       (RgKey key) const;
-  bool   CanSetItem   (RgKey key) const;
-  bool   DeleteEntry  (RgKey key);
-  void   SetName      (string name);
-  string Name         (void) const;
-  void   Print        (ostream & stream) const;
-  void   Copy         (const Registry &);
-  void   Append       (const Registry &);
-  void   Clear        (bool force = false);
-  void   Init         (void);
+  int    NEntries     (void) const;              ///< get number of items
+  bool   Exists       (RgKey key) const;         ///< item with input key exists?
+  bool   CanSetItem   (RgKey key) const;         ///< can I set the specifed item?
+  bool   DeleteEntry  (RgKey key);               ///< delete the spcified item
+  void   SetName      (string name);             ///< set the registry name
+  string Name         (void) const;              ///< get the registry name
+  void   Print        (ostream & stream) const;  ///< print the registry to stream
+  void   Copy         (const Registry &);        ///< copy the input registry
+  void   Append       (const Registry &);        ///< append the input registry
+  void   Clear        (bool force = false);      ///< clear the registry
+  void   Init         (void);                    ///< initialize the registry
+
+  // Access key->item map
+  //
+  const RgIMap & GetItemMap(void) const { return fRegistry; }
 
   // Convert to TFolder (this is the primary mechanism for saving the
   // GENIE configuration in a ROOT file, along with its generated events)
-
-  void   CopyToFolder (TFolder * folder) const;
+  //
+  void CopyToFolder (TFolder * folder) const;
 
   // Assert the existence or registry items
-
-  void   AssertExistence (RgKey key0) const;
-  void   AssertExistence (RgKey key0, RgKey key1) const;
-  void   AssertExistence (RgKey key0, RgKey key1, RgKey key2) const;
+  //
+  void AssertExistence (RgKey key0) const;
+  void AssertExistence (RgKey key0, RgKey key1) const;
+  void AssertExistence (RgKey key0, RgKey key1, RgKey key2) const;
 
 private:
 
