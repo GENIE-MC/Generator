@@ -30,7 +30,7 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Messenger/Messenger.h"
-#include "Registry/RegistryTypesDef.h"
+#include "Registry/RegistryItemTypeDef.h"
 #include "Utils/XmlParserUtils.h"
 
 using std::setw;

@@ -27,7 +27,7 @@
 #include "Algorithm/AlgCmp.h"
 #include "Algorithm/AlgId.h"
 #include "Registry/Registry.h"
-#include "Registry/RegistryTypesDef.h"
+#include "Registry/RegistryItemTypeDef.h"
 
 using std::string;
 using std::ostream;
