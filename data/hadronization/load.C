@@ -47,6 +47,21 @@
   TString cnxfFile = basedir + "./hCorrNormXFDistr.data";
   TString cnxfFmt  = "nu/I:nuc/I:Wmin/F:xBmin/F:xF/F:F/F:dF/F:nt/I";
 
+  // -- normalized topological cross sections
+  TTree   ntxs;
+  TString ntxsFile = basedir + "./hNormTopologicalXSec.data";
+  TString ntxsFmt  = "nu/I:nuc/I:n/I:W2/F:P/F:Pp/F:Pm";
+
+  // -- nucleon xF
+  TTree   nucxf;
+  TString nucxfFile = basedir + "./hNucleonXF.data";
+  TString nucxfFmt  = "xF/F:P/F:dxFm/F:dxFp/F:dPm/F:dPp/F";
+
+  // -- nucleon pT2
+  TTree   nucpt;
+  TString nucptFile = basedir + "./hNucleonPT2.data";
+  TString nucptFmt  = "pT2/F:P/F:dP/F";
+
   //
   // Load all ntuples
   //
@@ -58,5 +73,8 @@
   dnw.  ReadFile( dnwFile.  Data(), dnwFmt.  Data() );
   cnixf.ReadFile( cnixfFile.Data(), cnixfFmt.Data() );
   cnxf. ReadFile( cnxfFile. Data(), cnxfFmt. Data() );
+  ntxs. ReadFile( ntxsFile. Data(), ntxsFmt. Data() );
+  nucxf.ReadFile( nucxfFile.Data(), nucxfFmt.Data() );
+  nucpt.ReadFile( nucptFile.Data(), nucptFmt.Data() );
 }
 
