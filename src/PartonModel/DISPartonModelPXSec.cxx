@@ -85,6 +85,7 @@ double DISPartonModelPXSec::XSec(
   if( pdg::IsAntiNeutrino(init_state.ProbePdg()) ) sign = -1;
 
   //----- Calculate the DIS structure functions
+
   fDISSF.Calculate(interaction); 
 
   LOG("DISPXSec", pDEBUG) << fDISSF;
