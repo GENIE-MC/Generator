@@ -100,10 +100,6 @@ void DISStructureFuncModel::LoadConfig(void)
   //-- include nuclear factor (shadowing / anti-shadowing / ...)
   fIncludeNuclMod = fConfig->GetBoolDef(
                "IncludeNuclMod", gc->GetBool("DISSF-IncludeNuclMod"));
-
-  //-- correct F3 using the computed R
-  fCorrectF3 = fConfig->GetBoolDef(
-                    "CorrectF3", gc->GetBool("DISSF-CorrectF3WithR"));
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::InitPDF(void)
@@ -137,51 +133,58 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
      LOG("DISSF", pERROR) << "Negative q and/or q{bar}! Can not compute SFs";
      return;
   }
-
   double Q2 = this->Q2(interaction);
-
-  const Kinematics & kine = interaction->Kine();
-  double x = (fCorrectF3) ? this->ScalingVar(interaction) : kine.x();
-  if(x<=0.) {
-     LOG("DISSF", pERROR)
-             << "scaling variable x = " << x << " < 0. Can not compute SFs";
-     return;
-  }
-
-  double f = this->NuclMod (interaction); // nuclear modification
-  double r = this->R       (interaction); // R ~ FL
+  double x  = this->ScalingVar(interaction);
+  double f  = this->NuclMod (interaction); // nuclear modification
+  double r  = this->R       (interaction); // R ~ FL
 
   LOG("DISSF", pDEBUG) << "Nucl. mod   = " << f;
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
 
+  double a = TMath::Power(x,2.) / TMath::Max(Q2, 0.8);
+  double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
+
+  //double a = TMath::Power(x,2.) / Q2;
+  //double c = (1. + 4. * kNucleonMass * a) / (1.+r);
+
   fF3 = f * 2*(q-qbar)/x;
   fF2 = f * 2*(q+qbar);
+  fF1 = fF2 * 0.5*c/x;
+  fF5 = fF2/x;           // Albright-Jarlskog relation
+  fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
 
-  if(fCorrectF3) {
-    double a = TMath::Power(x,2.) / TMath::Max(Q2, 0.8);
-    double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
-    fF3 = fF3 * c;
-    fF1 = fF2 * 0.5*c/x;
-  }
-  else {
-    double a = TMath::Power(x,2.) / Q2;
-    double c = (1. + 4. * kNucleonMass * a) / (1.+r);
-    fF1 = fF2 * 0.5*c/x;
-  }
-
-//  fF5 = fF2/x; // Albright-Jarlskog relations
-//  fF4 = 0.;    // Nucl.Phys.B 84, 467 (1975)
+  LOG("DISSF", pDEBUG) 
+     << "F1-F5 = " 
+     << fF1 << ", " << fF2 << ", " << fF3 << ", " << fF4 << ", " << fF5;
 }
 //____________________________________________________________________________
 double DISStructureFuncModel::Q2(const Interaction * interaction) const
 {
 // Return Q2 from the kinematics or, if not set, compute it from x,y
+// The x might be corrected
 
-  return utils::kinematics::CalcQ2(interaction);
+  const Kinematics & kinematics = interaction->Kine();
+
+  // if Q2 (or q2) is set then prefer this value
+  if (kinematics.KVSet(kKVQ2) || kinematics.KVSet(kKVq2)) {
+    double Q2 = kinematics.Q2();
+    return Q2;
+  }
+  // if Q2 was not set, then compute it from x,y,Ev,Mnucleon
+  if (kinematics.KVSet(kKVy)) {
+    const InitialState & init_state = interaction->InitState();
+    double Mn = init_state.Tgt().HitNucP4Ptr()->M(); // could be off-shell
+    double x  = this->ScalingVar(interaction);       // could be redefined
+    double y  = kinematics.y();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double Q2 = 2*Mn*Ev*x*y;
+    return Q2;
+  }
+  LOG("DISSF", pERROR) << "Could not compute Q2!";
+  return 0;
 }
 //____________________________________________________________________________
-double DISStructureFuncModel::ScalingVar(
-                                        const Interaction * interaction) const
+double DISStructureFuncModel::ScalingVar(const Interaction* interaction) const
 {
 // The scaling variable is set to the normal Bjorken x.
 // Override DISStructureFuncModel::ScalingVar() to compute corrections
@@ -205,16 +208,15 @@ void DISStructureFuncModel::KFactors(const Interaction *,
 double DISStructureFuncModel::NuclMod(const Interaction * interaction) const
 {
 // Nuclear modification to Fi
+// The scaling variable can be overwritten to include corrections
 
   // if requested switch off nuclear corrections even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return 1.0;
 
   double f = 1.;
-
   if(fIncludeNuclMod) {
-     const Kinematics & kine = interaction->Kine();
-     const Target &     tgt  = interaction->InitState().Tgt();
-     double x = (fCorrectF3) ? this->ScalingVar(interaction) : kine.x();
+     const Target & tgt  = interaction->InitState().Tgt();
+     double x = this->ScalingVar(interaction);
      int    A = tgt.A();
      f = utils::nuclear::DISNuclFactor(x,A);
   }
@@ -224,16 +226,15 @@ double DISStructureFuncModel::NuclMod(const Interaction * interaction) const
 double DISStructureFuncModel::R(const Interaction * interaction) const
 {
 // Computes R ( ~ longitudinal structure function FL = R * 2xF1)
-
-  double R = 0;
+// The scaling variable can be overwritten to include corrections
 
   if(fIncludeR) {
-    const Kinematics & kine = interaction->Kine();
-    double x = (fCorrectF3) ? this->ScalingVar(interaction) : kine.x();
+    double x  = this->ScalingVar(interaction);
     double Q2 = this->Q2(interaction);
-    R = utils::nuclear::RModelMod(x, Q2);
+    double R = utils::nuclear::RModelMod(x, Q2);
+    return R;
   }
-  return R;
+  return 0;
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
@@ -242,9 +243,13 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   fPDF  -> Reset();
   fPDFc -> Reset();
 
-  // Get the kinematical variables (x,Q2)
+  // Get the kinematical variables x,Q2 (could include corrections)
   double x  = this->ScalingVar(interaction);
   double Q2 = this->Q2(interaction);
+
+  // Get the hit nucleon mass (could be off-shell)
+  const Target & tgt = interaction->InitState().Tgt();
+  double M = tgt.HitNucP4().M(); 
 
   // Apply Q2 cut
   Q2 = TMath::Max(Q2, fQ2min);
@@ -253,11 +258,11 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   fPDF->Calculate(x, Q2);
 
   // Check whether it is above charm threshold
-  bool above_charm_thr = 
-           utils::kinematics::IsAboveCharmThreshold(interaction, fMc);
-  if(above_charm_thr) {
+  bool above_charm = 
+           utils::kinematics::IsAboveCharmThreshold(x,Q2,M,fMc);
+  if(above_charm) {
     // compute PDFs at (xi,Q2)
-    double xc = utils::kinematics::SlowRescalingVar(interaction, fMc);    
+    double xc = utils::kinematics::SlowRescalingVar(x,Q2,M,fMc);    
     if(xc>0 && xc<1) fPDFc->Calculate(xc, Q2);
   }
 
@@ -273,43 +278,25 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   LOG("DISSF", pDEBUG) << "D: Kval = " << kval_d << ", Ksea = " << ksea_d;
 
   // Apply the K factors
-  const InitialState & init_state = interaction->InitState();
-  int nuc_pdgc = init_state.Tgt().HitNucPdg();
-  bool isP = pdg::IsProton  ( nuc_pdgc );
-  bool isN = pdg::IsNeutron ( nuc_pdgc );
-
-  fPDF->ScaleStrange (ksea_d);
-  fPDF->ScaleCharm   (ksea_u);
-  if(above_charm_thr) {
-     fPDFc->ScaleStrange (ksea_d);
-     fPDFc->ScaleCharm   (ksea_u);
-  }
-
-  if(isP)
-  {
-     fPDF->ScaleUpValence   (kval_u);
-     fPDF->ScaleDownValence (kval_d);
-     fPDF->ScaleUpSea       (ksea_u);
-     fPDF->ScaleDownSea     (ksea_d);
-     if(above_charm_thr) {
-        fPDFc->ScaleUpValence   (kval_u);
-        fPDFc->ScaleDownValence (kval_d);
-        fPDFc->ScaleUpSea       (ksea_u);
-        fPDFc->ScaleDownSea     (ksea_d);
-     }
-  } 
-  else if(isN) 
-  {
-     fPDF->ScaleUpValence   (kval_d);
-     fPDF->ScaleDownValence (kval_u);
-     fPDF->ScaleUpSea       (ksea_d);
-     fPDF->ScaleDownSea     (ksea_u);
-     if(above_charm_thr) {
-        fPDFc->ScaleUpValence   (kval_d);
-        fPDFc->ScaleDownValence (kval_u);
-        fPDFc->ScaleUpSea       (ksea_d);
-        fPDFc->ScaleDownSea     (ksea_u);
-     }
+  //
+  // Always scale d pdfs with d kfactors and u pdfs with u kfactors.
+  // Don't swap the applied kfactors for neutrons.
+  // Debdatta & Donna noted (Sep.2006) that a similar swap in the neugen
+  // implementation was the cause of the difference in nu and nubar F2
+  //
+  fPDF->ScaleUpValence   (kval_u);
+  fPDF->ScaleDownValence (kval_d);
+  fPDF->ScaleUpSea       (ksea_u);
+  fPDF->ScaleDownSea     (ksea_d);
+  fPDF->ScaleStrange     (ksea_d);
+  fPDF->ScaleCharm       (ksea_u);
+  if(above_charm) {
+     fPDFc->ScaleUpValence   (kval_u);
+     fPDFc->ScaleDownValence (kval_d);
+     fPDFc->ScaleUpSea       (ksea_u);
+     fPDFc->ScaleDownSea     (ksea_d);
+     fPDFc->ScaleStrange     (ksea_d);
+     fPDFc->ScaleCharm       (ksea_u);
   }
 }
 //____________________________________________________________________________
@@ -318,6 +305,8 @@ void DISStructureFuncModel::QQBar(
 {
   q     = -1;
   qbar  = -1;
+
+  double tmp = 0;
 
   const InitialState & init_state = interaction->InitState();
   const Target & target = init_state.Tgt();
@@ -358,15 +347,9 @@ void DISStructureFuncModel::QQBar(
   double ds_c = fPDFc -> DownSea();     // ...
   double s_c  = fPDFc -> Strange();     // ...
   double c_c  = fPDFc -> Charm();       // ...
-  double u    = uv   + us;
-  double d    = dv   + ds;
-  double u_c  = uv_c + us_c;
-  double d_c  = dv_c + ds_c;
 
   // The above are the proton parton density function. Get the PDFs for the 
   // hit nucleon (p or n) by swapping u<->d if necessary
-
-  double tmp;
 
   if (isN) {  // swap u <-> d
     tmp = uv;   uv   = dv;   dv   = tmp;
@@ -375,13 +358,18 @@ void DISStructureFuncModel::QQBar(
     tmp = us_c; us_c = ds_c; ds_c = tmp;
   }
 
+  // Take the sums of valence & sea pdfs
+  double u    = uv   + us;
+  double d    = dv   + ds;
+  double u_c  = uv_c + us_c;
+  double d_c  = dv_c + ds_c;
+
   // The above can be used to compute vN->lX cross sections taking into account 
   // the contribution from all quarks. Check whether a struck quark has been set: 
   // in this case the conributions from all other quarks will be set to 0 as as 
   // this algorithm can be used from computing vq->lq cross sections as well.
 
   if(target.HitQrkIsSet()) {
-
     bool qpdg = target.HitQrkPdg();
     bool sea  = target.HitSeaQrk();
 
@@ -410,19 +398,15 @@ void DISStructureFuncModel::QQBar(
   }
 
   // Compute q, qbar for the contributing quarks
-
-  if (isNu)
-  {
+  if (isNu) {
     q    = (d  * fVud2) + (s  * fVus2) + (d_c * fVcd2) + (s_c * fVcs2);
     qbar = (us * fVud2) + (us * fVus2) + (c_c * fVcd2) + (c_c * fVcs2);
   }
-  else if (isNuBar)
-  {
+  else if (isNuBar) {
     q    = (u    * fVud2) + (u  * fVus2) + (c_c * fVcd2) + (c_c * fVcs2);
     qbar = (ds_c * fVcd2) + (ds * fVud2) + (s   * fVus2) + (s_c * fVcs2);
   }
-  else
-  {
+  else {
      LOG("DISSF", pWARN) << "v/N types are not handled" << *interaction;
   }
 

@@ -79,7 +79,6 @@ protected:
   double fQ2min;         ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
   bool   fIncludeR;      ///< include R (~FL) in DIS SF calculation?
   bool   fIncludeNuclMod;///< include nuclear factor (shadowing, anti-shadowing,...)?
-  bool   fCorrectF3;     ///< correct F3 using the computed R?
   double fMc;            ///< charm mass used
   double fVcd;           ///< CKM element Vcd used
   double fVcs;           ///< CKM element Vcs used
