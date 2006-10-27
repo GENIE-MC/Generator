@@ -67,6 +67,8 @@ void DISStructureFuncModel::Configure(string param_set)
 //____________________________________________________________________________
 void DISStructureFuncModel::LoadConfig(void)
 {
+  LOG("DISSF", pDEBUG) << "Loading configuration...";
+
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
@@ -100,6 +102,8 @@ void DISStructureFuncModel::LoadConfig(void)
   //-- include nuclear factor (shadowing / anti-shadowing / ...)
   fIncludeNuclMod = fConfig->GetBoolDef(
                "IncludeNuclMod", gc->GetBool("DISSF-IncludeNuclMod"));
+
+  LOG("DISSF", pDEBUG) << "Done loading configuration";
 }
 //____________________________________________________________________________
 void DISStructureFuncModel::InitPDF(void)
@@ -174,7 +178,8 @@ double DISStructureFuncModel::Q2(const Interaction * interaction) const
   if (kinematics.KVSet(kKVy)) {
     const InitialState & init_state = interaction->InitState();
     double Mn = init_state.Tgt().HitNucP4Ptr()->M(); // could be off-shell
-    double x  = this->ScalingVar(interaction);       // could be redefined
+    //double x  = this->ScalingVar(interaction);       // could be redefined
+    double x  = kinematics.x();
     double y  = kinematics.y();
     double Ev = init_state.ProbeE(kRfHitNucRest);
     double Q2 = 2*Mn*Ev*x*y;
@@ -246,6 +251,8 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   // Get the kinematical variables x,Q2 (could include corrections)
   double x  = this->ScalingVar(interaction);
   double Q2 = this->Q2(interaction);
+
+  LOG("DISSF", pDEBUG) << "x = " << x << ", Q2 = " << Q2;
 
   // Get the hit nucleon mass (could be off-shell)
   const Target & tgt = interaction->InitState().Tgt();
