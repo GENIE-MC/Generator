@@ -361,33 +361,6 @@ void genie::utils::kinematics::MinXY(
   WQ2toXY(Ev,M,W.min,Q2.min,x,y);
 }
 //____________________________________________________________________________
-bool genie::utils::kinematics::IsAboveCharmThreshold(
-                             const Interaction * const interaction, double mc)
-{
-// check along the lines of the NeuGEN check in nu_dissf
-// mc is the input charm mass - make sure that a mc scale is used consistently
-// throughtout GENIE
-//
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
-
-  int lightest_charm_hadron = kPdgDM; // c=+/-1, s=0
-
-  double Mn   = init_state.Tgt().HitNucP4Ptr()->M();
-  double Mn2  = TMath::Power(Mn,2);
-  double Q2   = utils::kinematics::CalcQ2(interaction);
-  double x    = kinematics.x();
-  double v    = 0.5*Q2/(Mn*x);
-  double W2   = TMath::Max(0., Mn2+2*Mn*v-Q2);
-  double W    = TMath::Sqrt(W2);
-  double mD   = PDGLibrary::Instance()->Find(lightest_charm_hadron)->Mass();
-  double Wmin = Mn+mD;
-  double xc   = utils::kinematics::SlowRescalingVar(interaction,mc);
-
-  if(xc>=1 || W<=Wmin) return false;
-  else                 return true;
-}
-//____________________________________________________________________________
 double genie::utils::kinematics::Q2toQD2(double Q2)
 {
 // Q2 -> QD2 transformation. QD2 takes out the dipole form of the form factors
@@ -531,19 +504,39 @@ double genie::utils::kinematics::XYtoQ2(
   return Q2;
 }
 //___________________________________________________________________________
-double genie::utils::kinematics::SlowRescalingVar(
-                             const Interaction * const interaction, double mc)
+bool genie::utils::kinematics::IsAboveCharmThreshold(
+                                   double x, double Q2, double M, double mc)
 {
-  const InitialState & init_state = interaction -> InitState();
-  const Kinematics &   kinematics = interaction -> Kine();
+// x : scaling variable (plain or modified)
+// Q2: momentum transfer
+// M : hit nucleon "mass" (nucleon can be off the mass shell)
+// mc: charm mass
+//
+  int lightest_charm_hadron = kPdgDM; // c=+/-1, s=0
+
+  double M2   = TMath::Power(M,2);
+  double v    = 0.5*Q2/(M*x);
+  double W2   = TMath::Max(0., M2+2*M*v-Q2);
+  double W    = TMath::Sqrt(W2);
+  double mD   = PDGLibrary::Instance()->Find(lightest_charm_hadron)->Mass();
+  double Wmin = M+mD;
+  double xc   = utils::kinematics::SlowRescalingVar(x,Q2,M,mc);
+
+  if(xc>=1 || W<=Wmin) return false;
+  else                 return true;
+}
+//____________________________________________________________________________
+double genie::utils::kinematics::SlowRescalingVar(
+                                   double x, double Q2, double M, double mc)
+{
+// x : scaling variable (plain or modified)
+// Q2: momentum transfer
+// M : hit nucleon "mass" (nucleon can be off the mass shell)
+// mc: charm mass
 
   double mc2 = TMath::Power(mc,2);
-  double Mn  = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
-  double x   = kinematics.x();
-  double Q2  = utils::kinematics::CalcQ2(interaction);
-  double v   = 0.5*Q2/(Mn*x);
-  double xc  = x + 0.5*mc2/(Mn*v);
-
+  double v   = 0.5*Q2/(M*x);
+  double xc  = x + 0.5*mc2/(M*v);
   return xc;
 }
 //____________________________________________________________________________
