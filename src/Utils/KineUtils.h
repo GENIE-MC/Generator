@@ -60,8 +60,8 @@ namespace kinematics
   double CalcW   (const Interaction * const i);
 
   //-- charm threshold and slow rescaling variable
-  bool   IsAboveCharmThreshold (const Interaction * const i, double mc);
-  double SlowRescalingVar      (const Interaction * const i, double mc);
+  bool   IsAboveCharmThreshold (double x, double Q2, double M, double mc);
+  double SlowRescalingVar      (double x, double Q2, double M, double mc);
 
   //-- Functions used to define differential cross section distribution envelopes 
   //-- for importance sampling in kinematical selection modules
