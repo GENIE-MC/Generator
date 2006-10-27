@@ -20,7 +20,6 @@ Charm-Mass                 double  Yes   charm mass                             
 Q2min                      double  Yes   min Q2 for PDF evaluation              GPL: PDF-Q2min
 IncludeR                   bool    Yes   include R factor?                      GPL: DISSF-IncludeR
 IncludeNuclMod             bool    Yes   include nuclear factor?                GPL: DISSF-IncludeNuclMod
-CorrectF3                  bool    Yes   correct F3?                            GPL: DISSF-CorrectF3WithR
 CKM-Vcd                    double  Yes                                          GPL: CKM-Vcd
 CKM-Vcs                    double  Yes                                          GPL: CKM-Vcs
 CKM-Vud                    double  Yes                                          GPL: CKM-Vud
