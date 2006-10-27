@@ -7,11 +7,12 @@
  <!-- 
   *********************************************************************       
   CKM quark mixing parameters 
+  Use values listed at the July 2006 particle physics booklet
   *********************************************************************  -->
-  <param type="double" name="CKM-Vud">  0.9738  </param>
-  <param type="double" name="CKM-Vus">  0.2200  </param>
-  <param type="double" name="CKM-Vcd">  0.2240  </param>
-  <param type="double" name="CKM-Vcs">  0.9960  </param>
+  <param type="double" name="CKM-Vud">  0.97377  </param>
+  <param type="double" name="CKM-Vus">  0.2257   </param>
+  <param type="double" name="CKM-Vcd">  0.2239   </param>
+  <param type="double" name="CKM-Vcs">  0.957    </param>
 
  <!-- 
   *********************************************************************       
@@ -50,11 +51,9 @@
   Those switches specify whether to:
   - include an R (~FL) factor into the calculation
   - include a nuclear factor (accounting for shadowing/anti-shadowing)
-  - correct the computed F3 using the estimated R factor
   ********************************************************************* -->
   <param type="bool" name="DISSF-IncludeR">       true </param>
   <param type="bool" name="DISSF-IncludeNuclMod"> true </param>
-  <param type="bool" name="DISSF-CorrectF3WithR"> true </param>
 
  <!-- 
   *********************************************************************       
