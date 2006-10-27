@@ -25,92 +25,92 @@ Name                        Type    Opt  Comment                                
   </param_set>
 
   <param_set name="Charm"> 
-     <param type="int" name="n-processes">   1                                  </param>
+     <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DIS-CC-CHARM </param>
   </param_set>
 
   <param_set name="IMD"> 
-     <param type="int" name="n-processes">   1                         </param>
+     <param type="int" name="NGenerators">   1                         </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/IMD </param>
   </param_set>
 
   <param_set name="QEL"> 
-     <param type="int" name="n-processes">   2                             </param>
+     <param type="int" name="NGenerators">   2                             </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC  </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC  </param>
   </param_set>
 
   <param_set name="QEL-CC"> 
-     <param type="int" name="n-processes">   1                             </param>
+     <param type="int" name="NGenerators">   1                             </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC  </param>
   </param_set>
 
   <param_set name="QEL-NC"> 
-     <param type="int" name="n-processes">   1                              </param>
+     <param type="int" name="NGenerators">   1                              </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-NC   </param>
   </param_set>
 
   <param_set name="RES"> 
-     <param type="int" name="n-processes">   2                               </param>
+     <param type="int" name="NGenerators">   2                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/RES-CC    </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/RES-NC    </param>
   </param_set>
 
   <param_set name="RES-CC"> 
-     <param type="int" name="n-processes">    1                               </param>
+     <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/RES-CC    </param>
   </param_set>
 
   <param_set name="RES-NC"> 
-     <param type="int" name="n-processes">   1                               </param>
+     <param type="int" name="NGenerators">   1                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/RES-NC    </param>
   </param_set>
 
   <param_set name="RSPP"> 
-     <param type="int" name="n-processes">   2                                </param>
+     <param type="int" name="NGenerators">   2                                </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/RSPP-CC    </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/RSPP-NC    </param>
   </param_set>
 
   <param_set name="RSPP-CC"> 
-     <param type="int" name="n-processes">   1                                </param>
+     <param type="int" name="NGenerators">   1                                </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/RSPP-CC    </param>
   </param_set>
 
   <param_set name="RSPP-NC"> 
-     <param type="int" name="n-processes">   1                                </param>
+     <param type="int" name="NGenerators">   1                                </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/RSPP-NC    </param>
   </param_set>
 
   <param_set name="COH"> 
-     <param type="int" name="n-processes">    2                               </param>
+     <param type="int" name="NGenerators">    2                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/COH-CC    </param>
      <param type="alg" name="Generator-1 ">   genie::EventGenerator/COH-NC    </param>
   </param_set>
 
   <param_set name="COH-CC"> 
-     <param type="int" name="n-processes">    1                               </param>
+     <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/COH-CC    </param>
   </param_set>
 
   <param_set name="COH-NC"> 
-     <param type="int" name="n-processes">    1                               </param>
+     <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/COH-NC    </param>
   </param_set>
 
   <param_set name="DIS"> 
-     <param type="int" name="n-processes">    2                               </param>
+     <param type="int" name="NGenerators">    2                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DIS-CC    </param>
      <param type="alg" name="Generator-1 ">   genie::EventGenerator/DIS-NC    </param>
   </param_set>
 
   <param_set name="DIS-CC"> 
-     <param type="int" name="n-processes">    1                               </param>
+     <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DIS-CC    </param>
   </param_set>
 
   <param_set name="DIS-NC"> 
-     <param type="int" name="n-processes">    1                               </param>
+     <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DIS-NC    </param>
   </param_set>
 </alg_conf>
