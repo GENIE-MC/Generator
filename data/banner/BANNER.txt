@@ -18,7 +18,7 @@
 **                                   @  p                                          **
 **                                                                                 **
 **                                                                                 **
-**   C.Andreopoulos (Rutherford), F.Cavanna (L'Aquila U./INFN), J.Damet (Annecy),  ** 
+**           C.Andreopoulos (Rutherford), F.Cavanna (L'Aquila U./INFN),            ** 
 **    S.Dytman (Pittsburgh U.), H.Gallagher (Tufts U.), Y.Hayato (ICRR, Tokyo),    **
 **         S.Kretzer (BNL), A.Meregaglia (ETHZ), D.Naples (Pittsburgh U.),         **
 **           G.Pearce (Rutherford), A.Rubbia (ETHZ), M.Whalley (Durham)            **
