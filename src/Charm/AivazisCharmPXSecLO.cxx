@@ -65,14 +65,10 @@ double AivazisCharmPXSecLO::XSec(
   const Target &       target     = init_state.Tgt();
   
   //----- get target information (hit nucleon and quark)
-  int  nuc = target.HitNucPdg();
-  bool isP = pdg::IsProton (nuc);
-  bool isN = pdg::IsNeutron(nuc);
-
-  if(!isP && !isN) return 0;
-
+  int  nuc  = target.HitNucPdg();
+  bool isP  = pdg::IsProton (nuc);
+  bool isN  = pdg::IsNeutron(nuc);
   bool qset = target.HitQrkIsSet();
-
   int  qpdg = (qset) ? target.HitQrkPdg()   : 0;
   bool sea  = (qset) ? target.HitSeaQrk()   : false;
   bool isd  = (qset) ? pdg::IsDQuark (qpdg) : false;
@@ -244,8 +240,8 @@ void AivazisCharmPXSecLO::LoadConfig(void)
 
   // read mc, Vcd, Vcs from config or set defaults
   fMc    = fConfig->GetDoubleDef("Charm-Mass", gc->GetDouble("Charm-Mass"));
-  fVcd   = fConfig->GetDoubleDef("CKM-Vcd", gc->GetDouble("CKM-Vcd"));
-  fVcs   = fConfig->GetDoubleDef("CKM-Vcs", gc->GetDouble("CKM-Vcs"));
+  fVcd   = fConfig->GetDoubleDef("CKM-Vcd",    gc->GetDouble("CKM-Vcd"));
+  fVcs   = fConfig->GetDoubleDef("CKM-Vcs",    gc->GetDouble("CKM-Vcs"));
 
   fMc2   = TMath::Power(fMc,  2);
   fVcd2  = TMath::Power(fVcd, 2);
