@@ -123,6 +123,16 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
   fF5 = 0;
   fF6 = 0;
 
+  // Some tests in case it is called directly & not from an XSecAlgorithmI
+  // which has validated the input interaction
+  if(!interaction->TestBit(kISkipProcessChk)) {
+    const Target & tgt = interaction->InitState().Tgt();
+    if(!tgt.HitNucIsSet()) return;
+    int nuc = tgt.HitNucPdg();
+    if(tgt.N()==0 && pdg::IsNeutron(nuc)) return;
+    if(tgt.Z()==0 && pdg::IsProton(nuc) ) return;
+  }
+
   // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
   // Here all corrections to computing the rescaling variable and the
   // K factors are applied
@@ -137,10 +147,10 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
      LOG("DISSF", pERROR) << "Negative q and/or q{bar}! Can not compute SFs";
      return;
   }
-  double Q2 = this->Q2(interaction);
+  double Q2 = this->Q2        (interaction);
   double x  = this->ScalingVar(interaction);
-  double f  = this->NuclMod (interaction); // nuclear modification
-  double r  = this->R       (interaction); // R ~ FL
+  double f  = this->NuclMod   (interaction); // nuclear modification
+  double r  = this->R         (interaction); // R ~ FL
 
   LOG("DISSF", pDEBUG) << "Nucl. mod   = " << f;
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
