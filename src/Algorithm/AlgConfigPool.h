@@ -38,7 +38,6 @@ namespace genie {
 class AlgConfigPool {
 
 public:
-
   static AlgConfigPool * Instance();
 
   Registry * FindRegistry (string key)                        const;
@@ -51,11 +50,9 @@ public:
   const vector<string> & ConfigKeyList (void) const;
 
   void Print(ostream & stream) const;
-
   friend ostream & operator << (ostream & stream, const AlgConfigPool & cp);
 
 private:
-
   AlgConfigPool();
   AlgConfigPool(const AlgConfigPool & config_pool);
   virtual ~AlgConfigPool();
@@ -88,7 +85,6 @@ private:
          }
       }
   };
-
   friend struct Cleaner;
 };
 
