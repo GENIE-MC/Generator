@@ -24,10 +24,11 @@ endif
 
 ###LIBRARIES := $(LIBRARIES) -L /usr/local/lib -ltcmalloc
 
-
-EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
+EXE =	$(GENIE_BIN_PATH)/testAlgorithms	\
+ 	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
  	$(GENIE_BIN_PATH)/testConfigPool	\
  	$(GENIE_BIN_PATH)/testDecay		\
+ 	$(GENIE_BIN_PATH)/testDISSF		\
  	$(GENIE_BIN_PATH)/testHadronization	\
 	$(GENIE_BIN_PATH)/testMessenger		\
 	$(GENIE_BIN_PATH)/testMuELoss		\
@@ -44,9 +45,11 @@ EXE =	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
 	$(GENIE_BIN_PATH)/testROOTGeometry      \
 	$(GENIE_BIN_PATH)/testINukeHadroData
 
-TGT =	testBaryonResDataSet	\
+TGT =	testAlgorithms 		\
+ 	testBaryonResDataSet	\
  	testConfigPool		\
  	testDecay		\
+ 	testDISSF		\
  	testHadronization	\
 	testMessenger		\
 	testNumerical		\
@@ -72,6 +75,10 @@ endif
 
 all: $(TGT)
 
+testAlgorithms: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testAlgorithms \
+			testAlgorithms.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+
 testBaryonResDataSet: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testBaryonResDataSet \
 			testBaryonResDataSet.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
@@ -83,6 +90,10 @@ testConfigPool: FORCE
 testDecay: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDecay \
 			testDecay.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+
+testDISSF: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDISSF \
+			testDISSF.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 testHadronization: FORCE
 	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testHadronization \
@@ -153,6 +164,9 @@ testINukeHadroData: FORCE
 clean: FORCE
 	$(RM) *.o *~ core $(EXE)
 
+clean--testAlgorithms: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testAlgorithms
+
 clean--testBaryonResDataSet: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testBaryonResDataSet
 
@@ -161,6 +175,9 @@ clean--testConfigPool: FORCE
 
 clean--testDecay: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testDecay
+
+clean--testDISSF: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testDISSF
 
 clean--testHadronization: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testHadronization
