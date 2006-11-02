@@ -17,6 +17,7 @@ Cv1D                       double  Yes   Bodek-Yang d val K factor param        
 Cv2D                       double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv2D
 PDF-Set                    alg     No    PDF model
 Charm-Mass                 double  Yes   charm mass                             GPL: Charm-Mass
+Charm-Prod-Off             bool    Yes   charm production is turned off         false
 Q2min                      double  Yes   min Q2 for PDF evaluation              GPL: PDF-Q2min
 IncludeR                   bool    Yes   include R factor?                      GPL: DISSF-IncludeR
 IncludeNuclMod             bool    Yes   include nuclear factor?                GPL: DISSF-IncludeNuclMod
