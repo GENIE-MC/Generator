@@ -3,7 +3,19 @@
 
 \program testDISSF
 
-\brief   tprogram used for testing / debugging the GENIE DIS SF models
+\brief   program used for testing / debugging the GENIE DIS SF models
+
+       Syntax :
+           testDISSF -a model -c config [-m mode] [-x x] [-q Q2]
+
+         Options :
+           -a  DIS SF model (algorithm name, eg genie::BYStructureFuncModel)
+           -c  DIS SF model configuration
+           -m  mode (1: make std SF ntuple, 2: vertical slice)
+               [default:1]
+           -x  Specify Bjorken x to be used at the vertical slice
+           -q  Specify mom. transfer Q2(>0) to be used at the vertical slice
+         
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -37,6 +49,12 @@ using std::string;
 void GetCommandLineArgs(int argc, char ** argv);
 void PrintSyntax(void);
 
+void BuildStdNtuple (void);
+void VerticalSlice  (void);
+
+int    gMode        = 1;
+double gX           = 0;
+double gQ2          = 0;
 string gDISSFAlg    = "";
 string gDISSFConfig = "";
 
@@ -46,6 +64,14 @@ int main(int argc, char ** argv)
   // -- parse the command line arguments (model choice,...)
   GetCommandLineArgs(argc,argv);
 
+  if(gMode==1) BuildStdNtuple();
+  if(gMode==2) VerticalSlice ();
+
+  return 0;
+}
+//__________________________________________________________________________
+void BuildStdNtuple(void)
+{
   // -- define initial states & x,Q2 values to compute the DIS SFs 
   const int kNNu   = 6;
   const int kNNuc  = 2;
@@ -149,8 +175,61 @@ int main(int argc, char ** argv)
   TFile f("./dissf.root","recreate");
   dissf_nt->Write();
   f.Close();
+}
+//__________________________________________________________________________
+void VerticalSlice(void)
+{
+  // manual override of Registry mesg level for more verbose output
+  Messenger * msg = Messenger::Instance();
+  msg->SetPriorityLevel("DISSF",     pDEBUG);
+  msg->SetPriorityLevel("BodekYang", pDEBUG);
+  msg->SetPriorityLevel("PDFLIB",    pDEBUG);
 
-  return 0;
+  // -- request the specified DIS SF model
+  AlgFactory * algf = AlgFactory::Instance();
+  const DISStructureFuncModelI * dissf_model =
+      dynamic_cast<const DISStructureFuncModelI *> (
+                              algf->GetAlgorithm(gDISSFAlg, gDISSFConfig));
+  assert(dissf_model);
+
+  // -- create a structure functions objects and attach the specified model
+  DISStructureFunc dissf;
+  dissf.SetModel(dissf_model);
+
+  const int kNNu   = 2;
+  const int kNNuc  = 2;
+  const int kNTgt  = 1;
+
+  int neutrino    [kNNu]   = { 14,  -14   };
+  int hit_nucleon [kNNuc]  = { 2212, 2112 };
+  int target      [kNTgt]  = { 1056026000 };
+
+  for(int inu=0; inu<kNNu; inu++) {
+     for(int inuc=0; inuc<kNNuc; inuc++) {
+        for(int itgt=0; itgt<kNTgt; itgt++) {
+
+           // -- get a DIS interaction object & access its kinematics
+           Interaction * interaction = Interaction::DISCC(
+                              target[itgt],hit_nucleon[inuc],neutrino[inu]);
+           Kinematics * kine = interaction->KinePtr();
+           kine->Setx(gX);
+           kine->SetQ2(gQ2);
+
+           LOG("Main", pNOTICE) << "*** Vertical SF slice for: ";
+           LOG("Main", pNOTICE) << *interaction;
+
+           // calculate the structure functions for the input interaction
+           dissf.Calculate(interaction);
+
+           LOG("Main", pNOTICE) << dissf;
+
+           delete interaction;
+        }
+     }
+  }
+
+  // print algorithms & heir configurations
+  LOG("Main", pNOTICE) << *algf;
 }
 //__________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -180,13 +259,49 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(1);
     }
   }
+
+  // testDISSF mode:
+  try {
+    LOG("Main", pINFO) << "Reading testDISSF mode";
+    gMode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'m');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("Main", pINFO) << "No testDISSF was specified. Using default";
+    }
+  }
+
+  // x,Q2 for vertical slice mode
+  if(gMode==2) {
+    // DIS SF config:
+    try {
+      LOG("Main", pINFO) << "Reading x";
+      gX = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'x');
+    } catch(exceptions::CmdLineArgParserException e) {
+      if(!e.ArgumentFound()) {
+        LOG("Main", pINFO) << "No Bjorken x was specified for vertical slice";
+        PrintSyntax();
+        exit(1);
+      }
+    }
+    try {
+      LOG("Main", pINFO) << "Reading Q2";
+      gQ2 = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'q');
+    } catch(exceptions::CmdLineArgParserException e) {
+      if(!e.ArgumentFound()) {
+        LOG("Main", pINFO) 
+              << "No momentum transfer Q2 was specified for vertical slice";
+        PrintSyntax();
+        exit(1);
+      }
+    }
+  }
 }
 //__________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("Main", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-          << "  testDISSF -a model -c config\n";
+          << "  testDISSF -a model -c config [-m mode] [-x x] [-q Q2]\n";
 }
 //____________________________________________________________________________
 
