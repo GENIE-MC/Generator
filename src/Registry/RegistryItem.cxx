@@ -99,6 +99,12 @@ RegistryItem<RgTree>::~RegistryItem()
   if (fItem) delete fItem;
 }
 //____________________________________________________________________________
+template<class T> RegistryItemI * RegistryItem<T>::Clone(void) const
+{
+  RegistryItemI * item = new RegistryItem<T>(fItem,fIsLocked);
+  return item;
+}
+//____________________________________________________________________________
 RgType_t RegistryItem<RgBool>::TypeInfo(void) const { return kRgBool; }
 RgType_t RegistryItem<RgInt>::TypeInfo (void) const { return kRgInt;  }
 RgType_t RegistryItem<RgDbl>::TypeInfo (void) const { return kRgDbl;  }
@@ -116,8 +122,7 @@ template<class T> void RegistryItem<T>::Print(ostream & stream) const
 //____________________________________________________________________________
 void RegistryItem<RgAlg>::Print(ostream & stream) const
 {
-  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]")
-         << " : alg = " << (fItem);
+  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") << " : " << (fItem);
 }
 //____________________________________________________________________________
 void RegistryItem<RgH1F>::Print(ostream & stream) const
@@ -125,8 +130,8 @@ void RegistryItem<RgH1F>::Print(ostream & stream) const
   TH1F * histo = dynamic_cast<TH1F *>(fItem);
   if(!histo) stream << "*** NULL RgH1F ***";
 
-  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]")
-         << " : h1f = " << fItem->GetName();
+  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") 
+         << " : " << fItem->GetName();
 }
 //____________________________________________________________________________
 void RegistryItem<RgH2F>::Print(ostream & stream) const
@@ -134,8 +139,8 @@ void RegistryItem<RgH2F>::Print(ostream & stream) const
   TH2F * histo = dynamic_cast<TH2F *>(fItem);
   if(!histo) stream << "*** NULL RgH2F ***";
 
-  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]")
-         << " : h2f = " << fItem->GetName();
+  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") 
+          << " : " << fItem->GetName();
 }
 //____________________________________________________________________________
 void RegistryItem<RgTree>::Print(ostream & stream) const
@@ -143,7 +148,7 @@ void RegistryItem<RgTree>::Print(ostream & stream) const
   TTree * tree = dynamic_cast<TTree *>(fItem);
   if(!tree) stream << "*** NULL RgTree ***";
 
-  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]")
-         << " : tree = " << fItem->GetName();
+  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") 
+         << " : " << fItem->GetName();
 }
 //____________________________________________________________________________

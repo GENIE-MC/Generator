@@ -32,16 +32,16 @@ namespace genie {
 class RegistryItemI 
 {
 public:
-
   virtual ~RegistryItemI() { }
 
   //virtual const type_info & TypeInfo (void) const = 0;
 
-  virtual RgType_t TypeInfo (void)      const = 0;
-  virtual void     Lock     (void)            = 0;
-  virtual void     UnLock   (void)            = 0;
-  virtual bool     IsLocked (void)      const = 0;
-  virtual void     Print    (ostream &) const = 0;
+  virtual RegistryItemI * Clone    (void)      const = 0;
+  virtual RgType_t        TypeInfo (void)      const = 0;
+  virtual void            Lock     (void)            = 0;
+  virtual void            UnLock   (void)            = 0;
+  virtual bool            IsLocked (void)      const = 0;
+  virtual void            Print    (ostream &) const = 0;
 
 protected:
 

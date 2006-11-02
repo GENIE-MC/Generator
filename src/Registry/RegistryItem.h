@@ -42,11 +42,12 @@ public:
   RegistryItem(const RegistryItem * ri);
   ~RegistryItem();
 
-  RgType_t  TypeInfo (void) const;
-  const T & Data     (void) const { return fItem;         }
-  void      Lock     (void)       { fIsLocked = true;     }
-  void      UnLock   (void)       { fIsLocked = false;    }
-  bool      IsLocked (void) const { return fIsLocked;     }
+  RegistryItemI * Clone    (void) const;
+  RgType_t        TypeInfo (void) const;
+  const T &       Data     (void) const { return fItem;         }
+  void            Lock     (void)       { fIsLocked = true;     }
+  void            UnLock   (void)       { fIsLocked = false;    }
+  bool            IsLocked (void) const { return fIsLocked;     }
 
   void Print(ostream& stream) const;
 
