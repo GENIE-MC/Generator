@@ -44,7 +44,7 @@ namespace genie {
  template<class T> void SetRegistryItem(Registry * r, RgKey key, T item)
  {
     string itemtype = typeid(item).name();
-    LOG("Registry", pDEBUG)
+    LOG("Registry", pINFO)
              << "Set item [" << itemtype << "]: key = "
                                       << key << " --> value = " << item;
     bool lock = r->ItemIsLocked(key); // store, could be true but inhibited
@@ -613,9 +613,9 @@ void Registry::Print(ostream & stream) const
         string key_lbl  = string("> ") + key;
         string type_lbl = string("[") + stype + string("] ");
         LOG("Registry", pDEBUG)
-                    << "Printing " << stype << " item named = " << key;
-        stream << " |" << setfill('-') << setw(45) << key_lbl
-               << setfill('.') << setw(12) << type_lbl;
+                      << "Printing [" << stype << "] item named = " << key;
+        stream << " |" << setfill('-') << setw(50) << key_lbl
+               << setfill(' ') << setw(10) << type_lbl;
         ritem->Print(stream);
         stream << endl;
      } else {
@@ -628,6 +628,8 @@ void Registry::Copy(const Registry & registry)
 {
 // Copies the input registry
 //
+  LOG("Registry", pINFO) 
+         << "Copying registry " << registry.Name() << " to " << this->Name();
 
   if(this->IsLocked()) {
    LOG("Registry", pWARN) << "Registry is locked. Can't copy input entries!";
@@ -643,9 +645,12 @@ void Registry::Copy(const Registry & registry)
   fInhibitItemLocks = registry.fInhibitItemLocks;
 }
 //____________________________________________________________________________
-void Registry::Append(const Registry & registry)
+void Registry::Append(const Registry & registry, RgKey prefix)
 {
 // Appends the input registry entries (& their locks)
+
+  LOG("Registry", pINFO) 
+       << "Appending registry " << registry.Name() << " to " << this->Name();
 
   if(this->IsLocked()) {
    LOG("Registry", pWARN) << "Registry is locked. Can't copy input entries!";
@@ -658,15 +663,18 @@ void Registry::Append(const Registry & registry)
   for(reg_iter = registry.fRegistry.begin();
                       reg_iter != registry.fRegistry.end(); reg_iter++) {
 
-     RgKey          name = reg_iter->first;
+     RgKey name     = reg_iter->first;
+     RgKey new_name = prefix + name;
+
      RegistryItemI * ri  = reg_iter->second;
 
      bool     ilk   = ri->IsLocked();
      RgType_t type  = ri->TypeInfo();
      string   stype = RgType::AsString(type);
 
-     LOG("Registry", pDEBUG)
-                   << "Copying [" << stype << "] item named = " << name;
+     LOG("Registry", pINFO)
+         << "Copying [" << stype << "] item named = " 
+                                         << name << " as " << new_name;
 
      RegistryItemI * cri = 0; // cloned registry item
      if (type == kRgBool)
@@ -712,7 +720,7 @@ void Registry::Append(const Registry & registry)
            }
      } else {}
 
-     RgIMapPair reg_entry(name, cri);
+     RgIMapPair reg_entry(new_name, cri);
      fRegistry.insert(reg_entry);
    }
 }
@@ -721,7 +729,7 @@ void Registry::Init(void)
 {
 // initialize registry properties
 
-  fName              = "unnamed";
+  fName              = "NoName";
   fIsReadOnly        = false;
   fInhibitItemLocks  = false;
 }
@@ -730,6 +738,9 @@ void Registry::Clear(bool force)
 {
 // clean all registry entries
 
+  LOG("Registry", pINFO) 
+      << "Cleaning-up [force unlock = " << ((force)?"true":"false")
+      << "] registry: " << this->Name();
   if(!force) {
    if(this->IsLocked()) {
       LOG("Registry", pWARN) << "Registry is locked. Can't clear its entries";
@@ -740,6 +751,9 @@ void Registry::Clear(bool force)
   for(rit = fRegistry.begin(); rit != fRegistry.end(); rit++) {
      RgKey           name = rit->first;
      RegistryItemI * item = rit->second;
+     if(!item) {
+       LOG("Registry", pWARN) << "Item with key = " << name << " is null!";
+     }
      delete item;
      item = 0;
   }

@@ -131,17 +131,17 @@ public:
   RgDbl  GetDoubleDef (RgKey key, RgDbl  def_opt, bool set_def=true);
   RgStr  GetStringDef (RgKey key, RgStr  def_opt, bool set_def=true);
 
-  int    NEntries     (void) const;              ///< get number of items
-  bool   Exists       (RgKey key) const;         ///< item with input key exists?
-  bool   CanSetItem   (RgKey key) const;         ///< can I set the specifed item?
-  bool   DeleteEntry  (RgKey key);               ///< delete the spcified item
-  void   SetName      (string name);             ///< set the registry name
-  string Name         (void) const;              ///< get the registry name
-  void   Print        (ostream & stream) const;  ///< print the registry to stream
-  void   Copy         (const Registry &);        ///< copy the input registry
-  void   Append       (const Registry &);        ///< append the input registry
-  void   Clear        (bool force = false);      ///< clear the registry
-  void   Init         (void);                    ///< initialize the registry
+  int    NEntries     (void) const;                     ///< get number of items
+  bool   Exists       (RgKey key) const;                ///< item with input key exists?
+  bool   CanSetItem   (RgKey key) const;                ///< can I set the specifed item?
+  bool   DeleteEntry  (RgKey key);                      ///< delete the spcified item
+  void   SetName      (string name);                    ///< set the registry name
+  string Name         (void) const;                     ///< get the registry name
+  void   Print        (ostream & stream) const;         ///< print the registry to stream
+  void   Copy         (const Registry &);               ///< copy the input registry
+  void   Append       (const Registry &, RgKey pfx=""); ///< append the input registry
+  void   Clear        (bool force = false);             ///< clear the registry
+  void   Init         (void);                           ///< initialize the registry
 
   // Access key->item map
   //
