@@ -243,6 +243,9 @@
  <!-- 
   *********************************************************************       
   RES/DIS joining parameter Wcut 
+  DRJoinScheme:
+   - ...
+   - ...
   *********************************************************************  -->
   <param type="bool"   name="UseDRJoinScheme"> true </param>
   <param type="double" name="Wcut">            1.7  </param>
