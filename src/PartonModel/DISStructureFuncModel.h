@@ -77,6 +77,7 @@ protected:
   PDF *  fPDF;           ///< computed PDFs @ (x,Q2)
   PDF *  fPDFc;          ///< computed PDFs @ (slow-rescaling-var,Q2)
   double fQ2min;         ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
+  bool   fCharmOff;      ///< turn charm production off?
   bool   fIncludeR;      ///< include R (~FL) in DIS SF calculation?
   bool   fIncludeNuclMod;///< include nuclear factor (shadowing, anti-shadowing,...)?
   double fMc;            ///< charm mass used

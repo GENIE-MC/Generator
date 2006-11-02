@@ -103,6 +103,9 @@ void DISStructureFuncModel::LoadConfig(void)
   fIncludeNuclMod = fConfig->GetBoolDef(
                "IncludeNuclMod", gc->GetBool("DISSF-IncludeNuclMod"));
 
+  //-- turn charm production off?
+  fCharmOff  = fConfig->GetBoolDef("Charm-Prod-Off", false);
+
   LOG("DISSF", pDEBUG) << "Done loading configuration";
 }
 //____________________________________________________________________________
@@ -262,8 +265,6 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   double x  = this->ScalingVar(interaction);
   double Q2 = this->Q2(interaction);
 
-  LOG("DISSF", pDEBUG) << "x = " << x << ", Q2 = " << Q2;
-
   // Get the hit nucleon mass (could be off-shell)
   const Target & tgt = interaction->InitState().Tgt();
   double M = tgt.HitNucP4().M(); 
@@ -272,16 +273,32 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   Q2 = TMath::Max(Q2, fQ2min);
 
   // Compute PDFs at (x,Q2)
+  LOG("DISSF", pDEBUG) << "Calculating PDFs @ x = " << x << ", Q2 = " << Q2;
   fPDF->Calculate(x, Q2);
 
   // Check whether it is above charm threshold
   bool above_charm = 
            utils::kinematics::IsAboveCharmThreshold(x,Q2,M,fMc);
   if(above_charm) {
-    // compute PDFs at (xi,Q2)
-    double xc = utils::kinematics::SlowRescalingVar(x,Q2,M,fMc);    
-    if(xc>0 && xc<1) fPDFc->Calculate(xc, Q2);
-  }
+    LOG("DISSF", pDEBUG) 
+      << "The event is above the charm threshold (mcharm = " << fMc << ")";
+
+    if(fCharmOff) {
+       LOG("DISSF", pNOTICE) << "Charm production is turned off";
+    } else {
+       // compute the slow rescaling var
+       double xc = utils::kinematics::SlowRescalingVar(x,Q2,M,fMc);    
+       if(xc<0 || xc>1) {
+          LOG("DISSF", pINFO) << "Unphys. slow rescaling var: xc = " << xc;
+       } else {
+          // compute PDFs at (xc,Q2)
+          LOG("DISSF", pDEBUG) 
+              << "Calculating PDFs @ xc (slow rescaling) = " 
+              << x << ", Q2 = " << Q2;
+          fPDFc->Calculate(xc, Q2);
+       }
+    }// charm off?
+  }//above charm thr?
 
   // Compute the K factors
   double kval_u = 1.;
@@ -291,6 +308,7 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
 
   this->KFactors(interaction, kval_u, kval_d, ksea_u, ksea_d);
 
+  LOG("DISSF", pDEBUG) << "K-Factors:";
   LOG("DISSF", pDEBUG) << "U: Kval = " << kval_u << ", Ksea = " << ksea_u;
   LOG("DISSF", pDEBUG) << "D: Kval = " << kval_d << ", Ksea = " << ksea_d;
 

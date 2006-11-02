@@ -88,7 +88,8 @@ double BYPDFModel::Gluon(double x, double q2) const
 //____________________________________________________________________________
 PDF_t BYPDFModel::AllPDFs(double x, double q2) const
 {
-  LOG("BodekYang", pDEBUG) << "x = " << x << ", |q2| = " << TMath::Abs(q2);
+  LOG("BodekYang", pDEBUG) 
+       << "Inputs: x = " << x << ", |q2| = " << TMath::Abs(q2);
 
   if(TMath::Abs(q2) < fQ2min) q2=fQ2min;
 
@@ -110,7 +111,7 @@ PDF_t BYPDFModel::AllPDFs(double x, double q2) const
   double rs  = (sea==0) ? 0. : us/sea;
 
   LOG("BodekYang", pDEBUG)
-      << "val[u/(u+d)] = " << rv << ", sea[u/(u+d)] = " << rs;
+   << "valence[u/(u+d)] = " << rv << ", sea[u/(u+d)] = " << rs;
 
   // compute the corrected valence and sea quark PDFs:
   double uv_c =       uv        / ( 1 + delta*rv);
@@ -118,6 +119,7 @@ PDF_t BYPDFModel::AllPDFs(double x, double q2) const
   double us_c =       us        / ( 1 + delta*rs);
   double ds_c = (ds + us*delta) / ( 1 + delta*rs);
 
+  LOG("BodekYang", pDEBUG) << "Bodek-Yang PDF correction:";
   LOG("BodekYang", pDEBUG) << "uv: " << uv << " --> " << uv_c;
   LOG("BodekYang", pDEBUG) << "dv: " << dv << " --> " << dv_c;
   LOG("BodekYang", pDEBUG) << "us: " << us << " --> " << us_c;
