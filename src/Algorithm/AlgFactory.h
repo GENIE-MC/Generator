@@ -23,6 +23,8 @@
 #include <string>
 #include <iostream>
 
+#include "Algorithm/AlgId.h"
+
 using std::map;
 using std::pair;
 using std::string;
@@ -37,11 +39,24 @@ class AlgFactory {
 public:
   static AlgFactory * Instance();
 
-  const Algorithm * GetAlgorithm   (string name, string conf="NoConfig");
-  Algorithm *       AdoptAlgorithm (string name, string conf="NoConfig") const;
+  //! Instantiates, configures and returns a pointer to the specified algorithm.
+  //! The algorithm is placed at the AlgFactory pool (is owned by the factory)
+  //! from where it will be looked up at subsequent calls.
+  const Algorithm * GetAlgorithm (const AlgId & algid);
+  const Algorithm * GetAlgorithm (string name, string conf="Default");
 
+  //! Like GetAlgorithm() but the algorithm is not placed at the AlgFactory pool
+  //! and its ownership is transfered to the caller
+  Algorithm * AdoptAlgorithm (const AlgId & algid) const;
+  Algorithm * AdoptAlgorithm (string name, string conf="Default") const;
+
+  //! Forces a reconfiguration of all algorithms kept at the factory pool.
+  //! The algorithms look up their nominal configuration from the config pool.
+  //! Use that to propagate modifications made directly at the config pool.
+  void ForceReconfiguration(void);
+
+  //! print algorithm factory
   void Print(ostream & stream) const;
-
   friend ostream & operator << (ostream & stream, const AlgFactory & algf);
 
 private:
@@ -49,12 +64,17 @@ private:
   AlgFactory(const AlgFactory & alg_factory);
   virtual ~AlgFactory();
 
-  Algorithm * InstantiateAlgorithm(string alg_name, string param_set) const;
+  //! method instantiating (based on TClass * TROOT::GetClass(name)) 
+  //! & configuring algorithmic objects
+  Algorithm * InstantiateAlgorithm(string name, string config) const;
 
+  //! sinleton's self
   static AlgFactory * fInstance;
 
-  map<string, Algorithm *> fAlgPool; ///< alg_name/param_set -> Algorithm
+  //! 'algorithm key' (namespace::name/config) -> 'algorithmic object' map
+  map<string, Algorithm *> fAlgPool;
 
+  //! singleton cleaner
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
       ~Cleaner() {
@@ -64,7 +84,6 @@ private:
          }
       }
   };
-
   friend struct Cleaner;
 };
 

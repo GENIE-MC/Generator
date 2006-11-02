@@ -62,9 +62,10 @@ AlgConfigPool::AlgConfigPool()
 AlgConfigPool::~AlgConfigPool()
 {
   cout << "AlgConfigPool singleton dtor: "
-       << "Deleting all algorithm configurations" << endl;
+       << "Deleting all owned algorithm configurations" << endl;
   map<string, Registry *>::iterator citer;
   for(citer = fRegistryPool.begin(); citer != fRegistryPool.end(); ++citer) {
+    string key = citer->first;
     Registry * config = citer->second;
     if(config) {
       delete config;
@@ -500,18 +501,24 @@ const vector<string> & AlgConfigPool::ConfigKeyList(void) const
 //____________________________________________________________________________
 void AlgConfigPool::Print(ostream & stream) const
 {
-  stream << "\n[-] ALGORITHM CONFIGURATION POOL: ";
+  string frame(100,'~');
 
   typedef map<string, Registry *>::const_iterator  sregIter;
   typedef map<string, Registry *>::size_type       sregSize;
 
   sregSize size = fRegistryPool.size();
 
-  stream << size << " configuration sets found" << endl;
-  for(sregIter iter = fRegistryPool.begin();
-                                       iter != fRegistryPool.end(); iter++) {
-     stream << iter->first     << endl;
-     stream << *(iter->second) << endl;
+  stream << frame 
+         << endl << "Algorithm Configuration Pool ("
+         << size << " configuration sets found)"
+         << endl << frame << endl;
+
+  sregIter iter = fRegistryPool.begin();
+  for( ; iter != fRegistryPool.end(); iter++) {
+     const Registry & reg = *(iter->second);
+     stream << iter->first;
+     stream << reg;
+     stream << frame << endl;
   }
 }
 //____________________________________________________________________________

@@ -22,6 +22,7 @@
 #include <string>
 #include <iostream>
 #include <cassert>
+#include <map>
 
 #include "Algorithm/AlgStatus.h"
 #include "Algorithm/AlgCmp.h"
@@ -31,27 +32,35 @@
 
 using std::string;
 using std::ostream;
+using std::map;
 
 namespace genie {
+
+class Algorithm;
+typedef map <string, Algorithm *>                 AlgMap;
+typedef map <string, Algorithm *>::iterator       AlgMapIter;
+typedef map <string, Algorithm *>::const_iterator AlgMapConstIter;
+typedef pair<string, Algorithm *>                 AlgMapPair;
 
 class Algorithm {
 
 public:
   virtual ~Algorithm();
 
-  //-- Define the Algorithm interface
-
   //! Configure the algorithm
-  virtual void Configure(const Registry & config);
+  virtual void Configure (const Registry & config);  
 
-  //! Configure the algorithm
-  virtual void Configure(string config);
+  //! Configure the algorithm 
+  virtual void Configure (string config);            
 
-  //! Lookup configuration from the algorithm configuration pool
-  virtual void FindConfig(void);
+  //! Lookup configuration from the config pool
+  virtual void FindConfig (void);   
 
   //! Get configuration registry
   virtual const Registry & GetConfig(void) const { return *fConfig; }
+
+  //! Get a writeable version of an owned configuration Registry.
+  Registry * GetOwnedConfig(void);
 
   //! Get algorithm ID
   virtual const AlgId & Id(void) const { return fID; }
@@ -64,14 +73,29 @@ public:
 
   //! Set algorithm ID
   virtual void SetId(const AlgId & id);
-
-  //! Set algorithm ID
   virtual void SetId(string name,  string config);
+
+  //! Access the sub-algorithm pointed to by the input key, either from the 
+  //! local pool or from AlgFactory's pool
+  const Algorithm * SubAlg(const RgKey & registry_key) const;
+
+  //! Clone the configuration registry looked up from the configuration pool
+  //! and take its ownership
+  void AdoptConfig (void);
+
+  //! Take ownership of the algorithms subtructure (sub-algorithms,...)
+  //! by copying them from the AlgFactory pool to the local pool
+  //! Also bring all the configuration variables to the top level.
+  //! This can be used to group together a series of algorithms & their
+  //! configurations and extract (a clone of) this group from the shared 
+  //! pools. Having a series of algorithms/configurations behaving as a
+  //! monolithic block, with a single point of configuration (the top level)
+  //! is to be used when bits & pieces of GENIE are used in isolation for
+  //! data fitting or reweighting
+  void AdoptSubstructure (void);
 
   //! Print algorithm info
   virtual void Print(ostream & stream) const;
-
-  //! Print algorithm info
   friend ostream & operator << (ostream & stream, const Algorithm & alg);
 
 protected:
@@ -79,18 +103,16 @@ protected:
   Algorithm(string name);
   Algorithm(string name, string config);
 
-  void Initialize();
+  void Initialize         (void);
+  void DeleteConfig       (void);
+  void DeleteSubstructure (void);
 
-  const Algorithm * SubAlg(const RgKey & registry_key) const;
-/*
-  const Algorithm * SubAlg(const AlgId & aid_id)       const;
-  const Algorithm * SubAlgWithDefault(string alg_key, string config_key,
-                                string def_alg_name, string def_config_name) const;
-*/
-  bool         fConfigIsOwned; ///< true if the algorithm owns its config. registry
-  AlgId        fID;            ///< algorithm name and configuration set
-  Registry *   fConfig;        ///< config. (either owned or pointing to config pool)
-  AlgStatus_t  fStatus;        ///< algorithm execution status
+  bool         fOwnsConfig;   ///< true if it owns its config. registry
+  bool         fOwnsSubstruc; ///< true if it owns its substructure (sub-algs,...)
+  AlgId        fID;           ///< algorithm name and configuration set
+  Registry *   fConfig;       ///< config. (either owned or pointing to config pool)
+  AlgStatus_t  fStatus;       ///< algorithm execution status
+  AlgMap *     fOwnedSubAlgMp;///< local pool for owned sub-algs (taken out of the factory pool)
 };
 
 }       // genie namespace
