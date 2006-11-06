@@ -3,7 +3,7 @@
 
 \class    genie::GFunc
 
-\brief    ABC for GENIE scalar & vector functions
+\brief    GENIE function ABC
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory

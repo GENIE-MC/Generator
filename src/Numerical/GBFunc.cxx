@@ -14,21 +14,19 @@
 */
 //____________________________________________________________________________
 
-#include "Numerical/GVFunc.h"
+#include "Numerical/GBFunc.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-GVFunc::GVFunc(unsigned int ndim) :
+GBFunc::GBFunc(unsigned int ndim) :
 GFunc(ndim)
 {
-  assert(ndim>=1);
-  fOutV.resize(ndim);
+
 }
 //____________________________________________________________________________
-GVFunc::~GVFunc()
+GBFunc::~GBFunc()
 {
 
 }
 //____________________________________________________________________________
-

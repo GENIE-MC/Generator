@@ -10,6 +10,7 @@
 #pragma link C++ class genie::GridDimension;
 #pragma link C++ class genie::UnifGridDimension;
 #pragma link C++ class genie::UnifGrid;
+#pragma link C++ class genie::GBFunc;
 #pragma link C++ class genie::GSFunc;
 #pragma link C++ class genie::GVFunc;
 #pragma link C++ class genie::FunctionMap;
