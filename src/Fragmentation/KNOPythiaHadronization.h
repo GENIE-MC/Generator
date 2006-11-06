@@ -34,27 +34,28 @@ public:
   KNOPythiaHadronization(string config);
   virtual ~KNOPythiaHadronization();
 
-  //! implement the HadronizationModelI interface
+  //-- implement the HadronizationModelI interface
   void           Initialize       (void)                                 const;
   TClonesArray * Hadronize        (const Interaction* )                  const;
   double         Weight           (void)                                 const;
   PDGCodeList *  SelectParticles  (const Interaction*)                   const;
   TH1D *         MultiplicityProb (const Interaction*, Option_t* opt="") const;
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //! members from configuration options
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
 private:
 
-  void LoadConfig (void);
+ //-- private methods & mutable parameters
 
+  void LoadConfig (void);
   const HadronizationModelI * SelectHadronizer(const Interaction *) const;
 
-  mutable double fWeight;
+  mutable double fWeight; ///< weight for generated event
 
-  //! configuration
+  //-- configuration
 
   const HadronizationModelI * fKNOHadronizer;    ///< KNO Hadronizer
   const HadronizationModelI * fPythiaHadronizer; ///< PYTHIA Hadronizer

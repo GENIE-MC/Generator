@@ -45,21 +45,21 @@ public:
   KNOHadronization(string config);
   virtual ~KNOHadronization();
 
-  //! implement the HadronizationModelI interface
+  //-- implement the HadronizationModelI interface
   void           Initialize       (void)                                    const;
   TClonesArray * Hadronize        (const Interaction* )                     const;
   double         Weight           (void)                                    const;
   PDGCodeList *  SelectParticles  (const Interaction*)                      const;
   TH1D *         MultiplicityProb (const Interaction*, Option_t* opt = "")  const;
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //! members from configuration options
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
 private:
 
-  //! private methods & mutable parameters
+  //-- private methods & mutable parameters
 
   void          LoadConfig            (void);
   bool          AssertValidity        (const Interaction * i)        const;
@@ -79,12 +79,12 @@ private:
          TClonesArray & pl, TLorentzVector & pd, 
 	   const PDGCodeList & pdgv, int offset=0, bool reweight=false) const;
 
-  mutable TGenPhaseSpace fPhaseSpaceGenerator;
-  mutable double         fWeight;
+  mutable TGenPhaseSpace fPhaseSpaceGenerator; ///< a phase space generator
+  mutable double         fWeight;              ///< weight for generated event
 
-  //! Configuration parameters
-  //! Note: additional configuration parameters common to all hadronizers
-  //! (Wcut,Rijk,...) are declared one layer down in the inheritance tree
+  //-- Configuration parameters
+  //   Note: additional configuration parameters common to all hadronizers
+  //   (Wcut,Rijk,...) are declared one layer down in the inheritance tree
 
   const DecayModelI * fDecayer;  ///< decay algorithm
   bool     fForceNeuGenLimit;    ///< force upper hadronic multiplicity to NeuGEN limit
