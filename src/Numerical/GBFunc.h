@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::GVFunc
+\class    genie::GBFunc
 
-\brief    GENIE vector function ABC
+\brief    GENIE boolean function ABC
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -16,8 +16,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _GENIE_VECTOR_FUNCTION_H_
-#define _GENIE_VECTOR_FUNCTION_H_
+#ifndef _GENIE_BOOL_FUNCTION_H_
+#define _GENIE_BOOL_FUNCTION_H_
 
 #include <vector>
 
@@ -27,18 +27,15 @@ using std::vector;
 
 namespace genie {
 
-class GVFunc : public GFunc
+class GBFunc : public GFunc
 {
 public:
-  virtual ~GVFunc();
-  virtual const vector<double> & operator () (const vector<double> & x) = 0;
+  virtual ~GBFunc();
+  virtual bool operator () (const vector<double> & x) = 0;
 
 protected:
-  GVFunc(unsigned int nds);
-
-  vector<double> fOutV;
+  GBFunc(unsigned int nds);
 };
 
 }        // genie namespace
-#endif   // _GENIE_VECTOR_FUNCTION_H_
-
+#endif   // _GENIE_BOOL_FUNCTION_H_
