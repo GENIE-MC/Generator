@@ -88,7 +88,7 @@ TClonesArray * KNOHadronization::Hadronize(
      return 0;
   }
 
-  double W = utils::kinematics::CalcW(interaction);
+  double W = utils::kinematics::W(interaction);
   LOG("KNOHad", pINFO) << "W = " << W << " GeV";
 
   //-- Select hadronic shower particles
@@ -147,7 +147,7 @@ PDGCodeList * KNOHadronization::SelectParticles(
   unsigned int mult     = 0;
   PDGCodeList * pdgcv   = 0;
 
-  double W = utils::kinematics::CalcW(interaction);
+  double W = utils::kinematics::W(interaction);
 
   //-- Get the charge that the hadron shower needs to have so as to
   //   conserve charge in the interaction
@@ -289,7 +289,7 @@ TH1D * KNOHadronization::MultiplicityProb(
   // Compute the average charged hadron multiplicity as: <n> = a + b*ln(W^2)
   // Calculate avergage hadron multiplicity (= 1.5 x charged hadron mult.)
 
-  double W     = utils::kinematics::CalcW(interaction);
+  double W     = utils::kinematics::W(interaction);
   double avnch = this->AverageChMult(nu_pdg, nuc_pdg, W);
   double avn   = 1.5*avnch;
 
@@ -1261,8 +1261,7 @@ bool KNOHadronization::AssertValidity(const Interaction * interaction) const
      LOG("KNOHad", pWARN) << "Can't hadronize charm events";
      return false;
   }
-
-  double W = utils::kinematics::CalcW(interaction);
+  double W = utils::kinematics::W(interaction);
   if(W < this->Wmin()) {
      LOG("KNOHad", pWARN) << "Low invariant mass, W = " << W << " GeV!!";
      return false;

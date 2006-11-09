@@ -262,9 +262,8 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
 
   double W = 0;
   if(is_qel) W = fInteraction->RecoilNucleon()->Mass();
-  else {
-    W = 1;//////////////HERE
-  } 
+  else       W = kinematics::W(fInteraction);
+
   Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);  
   return Q2l;
 }
