@@ -32,6 +32,7 @@
 #include "Interaction/ProcessInfo.h"
 #include "Interaction/Kinematics.h"
 #include "Interaction/XclsTag.h"
+#include "Interaction/KPhaseSpace.h"
 
 using std::ostream;
 using std::string;
@@ -52,14 +53,16 @@ public:
   ~Interaction();
 
   //-- Methods accessing aggregate/owned objects holding interaction information
-  const InitialState & InitState    (void) const { return *fInitialState; }
-  const ProcessInfo &  ProcInfo     (void) const { return *fProcInfo;     }
-  const Kinematics &   Kine         (void) const { return *fKinematics;   }
-  const XclsTag &      ExclTag      (void) const { return *fExclusiveTag; }
-  InitialState *       InitStatePtr (void) const { return fInitialState;  }
-  ProcessInfo *        ProcInfoPtr  (void) const { return fProcInfo;      }
-  Kinematics *         KinePtr      (void) const { return fKinematics;    }
-  XclsTag *            ExclTagPtr   (void) const { return fExclusiveTag;  }
+  const InitialState & InitState     (void) const { return *fInitialState; }
+  const ProcessInfo &  ProcInfo      (void) const { return *fProcInfo;     }
+  const Kinematics &   Kine          (void) const { return *fKinematics;   }
+  const XclsTag &      ExclTag       (void) const { return *fExclusiveTag; }
+  const KPhaseSpace &  PhaseSpace    (void) const { return *fKinePhSp;     }
+  InitialState *       InitStatePtr  (void) const { return fInitialState;  }
+  ProcessInfo *        ProcInfoPtr   (void) const { return fProcInfo;      }
+  Kinematics *         KinePtr       (void) const { return fKinematics;    }
+  XclsTag *            ExclTagPtr    (void) const { return fExclusiveTag;  }
+  KPhaseSpace *        PhaseSpacePtr (void) const { return fKinePhSp;      }
 
   //-- Methods to set interaction's properties
   void SetInitState (const InitialState & init);
@@ -73,9 +76,6 @@ public:
   int            RecoilNucleonPdg (void) const; ///< recoil nucleon pdg
   TParticlePDG * FSPrimLepton     (void) const; ///< final state primaru lepton
   TParticlePDG * RecoilNucleon    (void) const; ///< recoil nucleon 
-
-  //-- Kinematical limits
-  double EnergyThreshold(void) const;
 
   //-- Copy, reset, print itself and build string code
   void   Reset    (void);
@@ -121,6 +121,7 @@ private:
   ProcessInfo *  fProcInfo;      ///< Process info (scattering, weak current,...)
   Kinematics *   fKinematics;    ///< kinematical variables
   XclsTag *      fExclusiveTag;  ///< Additional info for exclusive channels
+  KPhaseSpace *  fKinePhSp;      ///< Kinematic phase space
   
 ClassDef(Interaction,1)
 };

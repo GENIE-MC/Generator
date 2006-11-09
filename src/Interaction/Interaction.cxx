@@ -76,6 +76,7 @@ void Interaction::Init(void)
   fProcInfo     = new ProcessInfo  ();
   fKinematics   = new Kinematics   ();
   fExclusiveTag = new XclsTag      ();
+  fKinePhSp     = new KPhaseSpace  (this);
 }
 //___________________________________________________________________________
 void Interaction::CleanUp(void)
@@ -84,11 +85,13 @@ void Interaction::CleanUp(void)
   if ( fProcInfo     ) delete fProcInfo;
   if ( fKinematics   ) delete fKinematics;
   if ( fExclusiveTag ) delete fExclusiveTag;
+  if ( fKinePhSp     ) delete fKinePhSp;
 
   fInitialState = 0;
   fProcInfo     = 0;
   fKinematics   = 0;
   fExclusiveTag = 0;
+  fKinePhSp     = 0;
 }
 //___________________________________________________________________________
 void Interaction::Copy(const Interaction & interaction)
@@ -480,6 +483,7 @@ Interaction * Interaction::IMD(int target, const TLorentzVector & p4probe)
   return interaction;
 }
 //___________________________________________________________________________
+/*
 double Interaction::EnergyThreshold(void) const
 {
   double ml = this->FSPrimLepton()->Mass();
@@ -515,3 +519,4 @@ double Interaction::EnergyThreshold(void) const
 }
 //___________________________________________________________________________
 
+*/
