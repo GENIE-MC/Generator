@@ -8,6 +8,7 @@ Algorithm Configurable Parameters:
 Name                        Type    Opt   Comment                                             Default
 ..........................................................................................................................
 SFAlg                       alg     No    Structure functions algorithm 
+XSec-Integrator             alg     No
 Hadronizer                  alg     Dep   Hadronization model used for computing suppression
                                           factors. Set if use-dis-res-joining-scheme=true
 UseDRJoinScheme             bool    Yes   Use DIS/RES joining scheme?                         GPL UseDRJoinScheme
@@ -18,13 +19,15 @@ UseCache                    bool    Yes   Cache suppression factors?            
 <alg_conf>
 
   <param_set name="CC-Default"> 
-     <param type="alg" name="SFAlg">        genie::BYStructureFuncModelCC/Default   </param>
-     <param type="alg" name="Hadronizer">   genie::KNOHadronization/Default         </param>
+     <param type="alg" name="SFAlg">           genie::BYStructureFuncModelCC/Default   </param>
+     <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default                  </param>
+     <param type="alg" name="Hadronizer">      genie::KNOHadronization/Default         </param>
   </param_set>
 
   <param_set name="NC-Default"> 
-     <param type="alg" name="SFAlg">        genie::DISStructureFuncModelNC/Default  </param>
-     <param type="alg" name="Hadronizer">   genie::KNOHadronization/Default         </param>
+     <param type="alg" name="SFAlg">           genie::DISStructureFuncModelNC/Default  </param>
+     <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default                  </param>
+     <param type="alg" name="Hadronizer">      genie::KNOHadronization/Default         </param>
   </param_set>
 
 </alg_conf>

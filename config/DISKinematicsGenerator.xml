@@ -9,11 +9,6 @@ Algorithm Configurable Parameters:
 .......................................................................................................................
 Name                     Type    Opt   Comment                                        Default
 .......................................................................................................................
-DiffXSecAlg              alg     No    cross section algorithm
-Kine-Wmin                double  Yes   kinematic limit                                use physical phase space
-Kine-Wmax                double  Yes   kinematic limit                                use physical phase space
-Kine-Q2min               double  Yes   kinematic limit                                use physical phase space
-Kine-Q2max               double  Yes   kinematic limit                                use physical phase space
 UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase space   false
                                        wgt = (phase_space_volume)*(diff_xsec)/(xsec) 
 
@@ -25,21 +20,16 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
 -->
 
   <param_set name="CC-Default"> 
-     <param type="alg"    name="DiffXSecAlg">            genie::DISPartonModelPXSec/CC-Default  </param>
      <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
      <param type="double" name="MaxXSec-DiffTolerance">  1.000                                  </param>
   </param_set>
 
   <param_set name="NC-Default"> 
-     <param type="alg"    name="DiffXSecAlg">            genie::DISPartonModelPXSec/NC-Default  </param>
      <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
      <param type="double" name="MaxXSec-DiffTolerance">  1.000                                  </param>
   </param_set>
 
   <param_set name="CC-Charm-Default"> 
-     <param type="alg"    name="DiffXSecAlg">            genie::AivazisCharmPXSecLO/CC-Default  </param>
-     <param type="double" name="Kine-Wmin">              1.6                                    </param>
-     <param type="double" name="Kine-Q2min">             1.0                                    </param>
      <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
      <param type="double" name="MaxXSec-DiffTolerance">  1.000                                  </param>
   </param_set>

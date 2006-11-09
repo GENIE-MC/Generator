@@ -9,11 +9,6 @@ Algorithm Configurable Parameters:
 .......................................................................................................................
 Name                     Type    Opt   Comment                                   Default
 .......................................................................................................................
-DiffXSecAlg              alg     No    cross section algorithm...
-Kine-Wmin                double  Yes   kinematic limit                               use physical phase space
-Kine-Wmax                double  Yes   kinematic limit                               use physical phase space
-Kine-Q2min               double  Yes   kinematic limit                               use physical phase space
-Kine-Q2max               double  Yes   kinematic limit                               use physical phase space
 UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase space  false
                                        wgt = (phase_space_volume)*(diff_xsec)/(xsec)
 MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method       1.25
@@ -23,14 +18,12 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
 -->
 
   <param_set name="RES"> 
-     <param type="alg"    name="DiffXSecAlg">            genie::ReinSeghalRESPXSec/Default   </param>
      <param type="double" name="MaxXSec-SafetyFactor">   1.400                               </param>
      <param type="double" name="MaxXSec-DiffTolerance">  5.000                               </param>
      <param type="double" name="Cache-MinEnergy">        0.900                               </param>
   </param_set>
 
   <param_set name="SPP"> 
-     <param type="alg"    name="DiffXSecAlg">            genie::ReinSeghalSPPPXSec/Default   </param>
      <param type="double" name="MaxXSec-SafetyFactor">   1.400                               </param>
   </param_set>
 

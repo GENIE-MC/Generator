@@ -6,19 +6,21 @@
 Configuration for the NuNucElasticPXSec xsec algorithm.
 
 Configurable Parameters:
-....................................................................................
-Name           Type     Optional   Comment                     Default
-....................................................................................
-Ma             double   Yes        Axial Mass                  GPL value: QEL-Ma
-Mv             double   Yes        Vector Mass                 GPL value: QEL-Mv
-Eta            double   Yes        Strange Axial form factor   GPL value: EL-Axial-Eta
-Fa0            double   Yes        Fa(q2=0)                    GPL value: QEL-FA0
-MuP            double   Yes        p Anomalous Magn Moment     GPL value: AnomMagnMoment-P
-MuN            double   Yes        n Anomalous Magn Moment     GPL value: AnomMagnMoment-N
-WeinbergAngle  double   Yes        Weinberg angle              GPL value: WeinbergAngle
+..........................................................................................
+Name             Type     Optional   Comment                     Default
+..........................................................................................
+Ma               double   Yes        Axial Mass                  GPL value: QEL-Ma
+Mv               double   Yes        Vector Mass                 GPL value: QEL-Mv
+Eta              double   Yes        Strange Axial form factor   GPL value: EL-Axial-Eta
+Fa0              double   Yes        Fa(q2=0)                    GPL value: QEL-FA0
+MuP              double   Yes        p Anomalous Magn Moment     GPL value: AnomMagnMoment-P
+MuN              double   Yes        n Anomalous Magn Moment     GPL value: AnomMagnMoment-N
+WeinbergAngle    double   Yes        Weinberg angle              GPL value: WeinbergAngle
+XSec-Integrator  alg      No
 -->
 
   <param_set name="Default"> 
+     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default </param>
   </param_set>
 </alg_conf>
 

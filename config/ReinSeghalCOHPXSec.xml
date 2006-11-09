@@ -11,11 +11,13 @@ Ma               double   Yes        Coherent Axial Mass                   GPL: 
 Ro               double   Yes        Nuclear Size Scale                    GPL: COH-Ro
 Re-Im-Ampl       double   Yes        Re/Im of fwd amplitude                GPL: COH-ReImAmpl
 UseModifiedPCAC  bool     Yes        Inc. f/s lepton mass to Adler's PCAC  GPL: COH-UseModifiedPCAC
+XSec-Integrator  alg      No
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
+      <param type="alg" name="XSec-Integrator"> genie::COHXSec/Default </param>
   </param_set>
 
 </alg_conf>
