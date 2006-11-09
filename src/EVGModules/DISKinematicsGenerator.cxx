@@ -131,7 +131,12 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      gy = yl.min + dy * rnd->RndKine().Rndm();
      interaction->KinePtr()->Setx(gx);
      interaction->KinePtr()->Sety(gy);
-     LOG("DISKinematics", pINFO) << "Trying: x = " << gx << ", y = " << gy;
+     kinematics::UpdateWQ2FromXY(interaction);
+
+     LOG("DISKinematics", pINFO) 
+        << "Trying: x = " << gx << ", y = " << gy 
+        << " (W  = " << interaction->KinePtr()->W()  << ","
+        << " (Q2 = " << interaction->KinePtr()->Q2() << ")";
 
      //-- compute the cross section for current kinematics
      xsec = fXSecModel->XSec(interaction, kPSxyfE);
@@ -154,7 +159,9 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {
          LOG("DISKinematics", pNOTICE) 
-         	             << "Selected:  x = " << gx << ", y = " << gy;
+            << "Selected:  x = " << gx << ", y = " << gy
+            << " (W  = " << interaction->KinePtr()->W()  << ","
+            << " (Q2 = " << interaction->KinePtr()->Q2() << ")";
 
          // reset trust bits
          interaction->ResetBit(kISkipProcessChk);
@@ -317,6 +324,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
         //double gx = xmin + j*dx;
 	double gx = TMath::Power(10., logxmin + j*dlogx);
         interaction->KinePtr()->Setx(gx);
+        kinematics::UpdateWQ2FromXY(interaction);
 
         double xsec = fXSecModel->XSec(interaction, kPSxyfE);
         LOG("DISKinematics", pINFO) 
@@ -340,6 +348,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
 	     gx = TMath::Exp(TMath::Log(gx) - dlogxn);
    	     //gx = gx - dxn;
              interaction->KinePtr()->Setx(gx);
+             kinematics::UpdateWQ2FromXY(interaction);
 
              xsec = fXSecModel->XSec(interaction, kPSxyfE);
 
