@@ -28,13 +28,13 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 IMDXSec::IMDXSec() :
-XSecAlgorithmI("genie::IMDXSec")
+XSecIntegratorI("genie::IMDXSec")
 {
 
 }
 //____________________________________________________________________________
 IMDXSec::IMDXSec(string config) :
-XSecAlgorithmI("genie::IMDXSec", config)
+XSecIntegratorI("genie::IMDXSec", config)
 {
 
 }
@@ -44,52 +44,31 @@ IMDXSec::~IMDXSec()
 
 }
 //____________________________________________________________________________
-double IMDXSec::XSec(
-              const Interaction * interaction, KinePhaseSpace_t kps) const
+double IMDXSec::Integrate(
+                 const XSecAlgorithmI * model, const Interaction * in) const
 {
-  assert(kps==kPSfE);
+  if(! model->ValidProcess(in) ) return 0.;
 
-  if(! this -> ValidProcess    (interaction) ) return 0.;
-  if(! this -> ValidKinematics (interaction) ) return 0.;
+  const KPhaseSpace & kps = in->PhaseSpace();
+  if(!kps.IsAboveThreshold()) {
+     LOG("IMDXSec", pDEBUG)  << "*** below energy threshold";
+     return 0;
+  }
+  Range1D_t yl = kps.Limits(kKVy);
 
-  const InitialState & init_state = interaction->InitState();
-  double E  = init_state.ProbeE(kRfLab);
+  Interaction * interaction = new Interaction(*in);
+  interaction->SetBit(kISkipProcessChk);
+  //interaction->SetBit(kISkipKinematicChk);
 
-  double e = 1e-4;
-  Range1D_t y(e, 1.-e);
-  GXSecFunc * func = new Integrand_DXSec_Dy_E(fDiffXSecModel, interaction);
-  func->SetParam(0,"y",y);
+  GXSecFunc * func = new Integrand_DXSec_Dy_E(model, interaction);
+  func->SetParam(0,"y",yl);
   double xsec = fIntegrator->Integrate(*func);
 
-  LOG("IMD", pDEBUG) << "XSec[IMD] (E = " << E << ") = " << xsec;
+  //LOG("IMDXSec", pDEBUG) << "XSec[IMD] (E = " << E << ") = " << xsec;
 
+  delete interaction;
   delete func;
   return xsec;
-}
-//____________________________________________________________________________
-bool IMDXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-  return true;
-}
-//____________________________________________________________________________
-bool IMDXSec::ValidKinematics(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const InitialState & init_state = interaction -> InitState();
-
-  double E = init_state.ProbeE(kRfLab);
-  double s = kElectronMass2 + 2*kElectronMass*E;
-
-  //-- check if it is kinematically allowed
-  if(s < kMuonMass2) {
-     LOG("IMD", pINFO)
-        << "Ev = " << E << " (s = " << s << ") is below threshold (s-min = "
-        << kMuonMass2 << ") for IMD";
-     return false;
-  }
-  return true;
 }
 //____________________________________________________________________________
 void IMDXSec::Configure(const Registry & config)
@@ -106,14 +85,6 @@ void IMDXSec::Configure(string config)
 //____________________________________________________________________________
 void IMDXSec::LoadConfig(void)
 {
-  fDiffXSecModel = 0;
-  fIntegrator    = 0;
-
-  //-- get an algorithm to calculate differential cross sections dxsec/dQ2
-  fDiffXSecModel =
-      dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
-  assert(fDiffXSecModel);
-
   //-- get specified integration algorithm
   fIntegrator = 
      dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));

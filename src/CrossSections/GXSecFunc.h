@@ -76,7 +76,7 @@ public:
 \created  February 20, 2006
 */
 //____________________________________________________________________________
-
+/*
 namespace genie {
 
 class Integrand_D2XSec_DxDy_E_WQ2Cuts : public GXSecFunc
@@ -95,7 +95,7 @@ private:
 };
 
 } // genie namespace
-
+*/
 //____________________________________________________________________________
 /*!
 \class    genie::Integrand_DXSec_DQ2_E

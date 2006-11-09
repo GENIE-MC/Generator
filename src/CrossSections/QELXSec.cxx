@@ -32,13 +32,13 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 QELXSec::QELXSec() :
-XSecAlgorithmI("genie::QELXSec")
+XSecIntegratorI("genie::QELXSec")
 {
 
 }
 //____________________________________________________________________________
 QELXSec::QELXSec(string config) :
-XSecAlgorithmI("genie::QELXSec", config)
+XSecIntegratorI("genie::QELXSec", config)
 {
 
 }
@@ -48,75 +48,33 @@ QELXSec::~QELXSec()
 
 }
 //____________________________________________________________________________
-double QELXSec::XSec(const Interaction * in, KinePhaseSpace_t kps) const
+double QELXSec::Integrate(
+                  const XSecAlgorithmI * model, const Interaction * in) const
 {
-  assert(kps==kPSfE);
+  if(! model->ValidProcess(in)) return 0.;
 
-  if(! this -> ValidProcess    (in) ) return 0.;
-  if(! this -> ValidKinematics (in) ) return 0.;
+  const KPhaseSpace & kps = in->PhaseSpace();
+  if(!kps.IsAboveThreshold()) {
+     LOG("QELXSec", pDEBUG)  << "*** Below energy threshold";
+     return 0;
+  }
+  Range1D_t rQ2 = kps.Limits(kKVQ2);
+  LOG("QELXSec", pDEBUG) 
+          << "Q2 integration range = (" << rQ2.min << ", " << rQ2.max << ")";
 
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
-  // Get initial & final state information
-  const InitialState & init_state = interaction->InitState();
-  double E = init_state.ProbeE(kRfHitNucRest);
-
-  // Estimate the integration limits & step
-  Range1D_t  rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
-  LOG("QELXSec", pDEBUG) << "Q2 integration range = ("
-                                    << rQ2.min << ", " << rQ2.max << ")";
-
-  GXSecFunc * func = new Integrand_DXSec_DQ2_E(fDiffXSecModel, interaction);
+  GXSecFunc * func = new Integrand_DXSec_DQ2_E(model, interaction);
   func->SetParam(0,"Q2",rQ2);
   double xsec = fIntegrator->Integrate(*func);
 
-  LOG("QELXSec", pDEBUG) << "XSec[QEL] (E = " << E << ") = " << xsec;
+  //LOG("QELXSec", pDEBUG) << "XSec[QEL] (E = " << E << ") = " << xsec;
 
   delete interaction;
   delete func;
   return xsec;
-}
-//____________________________________________________________________________
-bool QELXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-
-  const InitialState & init_state = interaction->InitState();
-  const ProcessInfo &  proc_info  = interaction->ProcInfo();
-
-  if(!proc_info.IsQuasiElastic()) return false;
-
-  int  nuc = init_state.Tgt().HitNucPdg();
-  int  nu  = init_state.ProbePdg();
-
-  bool isP   = pdg::IsProton(nuc);
-  bool isN   = pdg::IsNeutron(nuc);
-  bool isnu  = pdg::IsNeutrino(nu);
-  bool isnub = pdg::IsAntiNeutrino(nu);
-
-  bool ccprcok = proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu));
-  bool ncprcok = proc_info.IsWeakNC() && (isP||isN) && (isnu||isnub);
-  bool prcok   = ccprcok || ncprcok;
-  if(!prcok) return false;
-
-  return true;
-}
-//____________________________________________________________________________
-bool QELXSec::ValidKinematics(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const InitialState & init_state = interaction->InitState();
-
-  double E    = init_state.ProbeE(kRfHitNucRest);
-  double Ethr = interaction->EnergyThreshold();
-  if(E <= Ethr) {
-     LOG("QELXSec", pINFO) << "Ev = " << E << " <= Ethreshold = "<< Ethr;
-     return false;
-  }
-  return true;
 }
 //____________________________________________________________________________
 void QELXSec::Configure(const Registry & config)
@@ -133,11 +91,6 @@ void QELXSec::Configure(string config)
 //____________________________________________________________________________
 void QELXSec::LoadConfig(void)
 {
-  //-- get an algorithm to calculate differential cross sections dxsec/dQ2
-  fDiffXSecModel =
-            dynamic_cast<const XSecAlgorithmI *>(this->SubAlg("DiffXSecAlg"));
-  assert(fDiffXSecModel);
-
   //-- get the specified integration algorithm
   fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
   assert(fIntegrator);

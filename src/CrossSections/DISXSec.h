@@ -4,7 +4,7 @@
 \class    genie::DISXSec
 
 \brief    Computes the DIS Cross Section. \n
-          Is a concrete implementation of the XSecAlgorithmI interface. \n
+          Is a concrete implementation of the XSecIntegratorI interface. \n
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -20,23 +20,19 @@
 #ifndef _DIS_XSEC_H_
 #define _DIS_XSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Base/XSecIntegratorI.h"
 
 namespace genie {
 
-class IntegratorI;
-
-class DISXSec : public XSecAlgorithmI {
+class DISXSec : public XSecIntegratorI {
 
 public:
   DISXSec();
   DISXSec(string config);
   virtual ~DISXSec();
 
-  //! XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
-  bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
+  //! XSecIntegratorI interface implementation
+  double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
 
   //! overload the Algorithm::Configure() methods to load private data
   //! members from configuration options
@@ -44,20 +40,7 @@ public:
   void Configure(string config);
 
 private:
-
   void LoadConfig (void);
-
-  const XSecAlgorithmI * fPartialXSecAlg;
-  const IntegratorI *    fIntegrator;
-
-  double fXmin;
-  double fXmax;
-  double fYmin;
-  double fYmax;
-  double fWmin;
-  double fWmax;
-  double fQ2min;
-  double fQ2max;
 };
 
 }       // genie namespace

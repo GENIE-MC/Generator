@@ -31,13 +31,13 @@ using namespace genie::utils;
 
 //____________________________________________________________________________
 COHXSec::COHXSec() :
-XSecAlgorithmI("genie::COHXSec")
+XSecIntegratorI("genie::COHXSec")
 {
 
 }
 //____________________________________________________________________________
 COHXSec::COHXSec(string config) :
-XSecAlgorithmI("genie::COHXSec", config)
+XSecIntegratorI("genie::COHXSec", config)
 {
 
 }
@@ -47,78 +47,40 @@ COHXSec::~COHXSec()
 
 }
 //____________________________________________________________________________
-double COHXSec::XSec(const Interaction * in, KinePhaseSpace_t kps) const
+double COHXSec::Integrate(
+                 const XSecAlgorithmI * model, const Interaction * in) const
 {
-  assert(kps==kPSfE);
+  if(! model->ValidProcess(in) ) return 0.;
 
-  if(! this -> ValidProcess    (in) ) return 0.;
-  if(! this -> ValidKinematics (in) ) return 0.;
+  const KPhaseSpace & kps = in->PhaseSpace();
+  if(!kps.IsAboveThreshold()) {
+     LOG("COHXSec", pDEBUG)  << "*** Below energy threshold";
+     return 0;
+  }
+  Range1D_t xl = kps.Limits(kKVx);
+  Range1D_t yl = kps.Limits(kKVy);
+
+  LOG("COHXSec", pINFO)
+            << "x integration range = [" << xl.min << ", " << xl.max << "]";
+  LOG("COHXSec", pINFO)
+            << "y integration range = [" << yl.min << ", " << yl.max << "]";
 
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
-  interaction->SetBit(kISkipKinematicChk);
+  //interaction->SetBit(kISkipKinematicChk);
 
-  if(! this -> ValidProcess    (interaction) ) return 0.;
-  if(! this -> ValidKinematics (interaction) ) return 0.;
-
-  // Get the neutrino energy in LAB
-  const InitialState & init_state = interaction -> InitState();
-  double Ev = init_state.ProbeE(kRfLab);
-
-  // Define the integration grid & instantiate a FunctionMap
-  double Mpi     = kPionMass;
-  double e       = 1e-3;
-  double ymin    = Mpi/Ev + e;
-  double ymax    = 1. - e;
-  double xmin    = 0. + e;
-  double xmax    = 1. - e;
-
-  GXSecFunc * func =
-       new Integrand_D2XSec_DxDy_E(fPartialXSecAlg, interaction);
-  func->SetParam(0,"x",xmin,xmax);
-  func->SetParam(1,"y",ymin,ymax);
+  GXSecFunc * func = new Integrand_D2XSec_DxDy_E(model, interaction);
+  func->SetParam(0,"x",xl);
+  func->SetParam(1,"y",yl);
   double xsec = fIntegrator->Integrate(*func);
 
-  LOG("COHXSec", pDEBUG)  << "XSec[COH] (E = " << Ev << " GeV) = " << xsec;
+  const InitialState & init_state = in->InitState();
+  double Ev = init_state.ProbeE(kRfLab);
+  LOG("COHXSec", pINFO)  << "XSec[COH] (E = " << Ev << " GeV) = " << xsec;
 
   delete interaction;
   delete func;
   return xsec;
-}
-//____________________________________________________________________________
-bool COHXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-
-  const InitialState & init_state = interaction->InitState();
-  const ProcessInfo &  proc_info  = interaction->ProcInfo();
-  const Target &       target     = init_state.Tgt();
-
-  if (!proc_info.IsCoherent()) return false;
-  if (!target.A()>1)           return false;
-
-  int  nu = init_state.ProbePdg();
-  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
-
-  bool hitnuc = init_state.Tgt().HitNucIsSet();
-  if(hitnuc) return false;
-
-  return true;
-}
-//____________________________________________________________________________
-bool COHXSec::ValidKinematics(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const InitialState & init_state = interaction -> InitState();
-  double Ev   = init_state.ProbeE(kRfLab);
-  double Ethr = interaction->EnergyThreshold();
-
-  if(Ev <= Ethr) {
-     LOG("COHXSec", pINFO) << "E = " << Ev << " <= Ethreshold = " << Ethr;
-     return false;
-  }
-  return true;
 }
 //____________________________________________________________________________
 void COHXSec::Configure(const Registry & config)
@@ -135,16 +97,6 @@ void COHXSec::Configure(string config)
 //____________________________________________________________________________
 void COHXSec::LoadConfig(void)
 {
-  fPartialXSecAlg = 0;
-  fIntegrator     = 0;
-
-  //-- Get the requested d^2xsec/dxdy xsec algorithm to use
-  fPartialXSecAlg =
-         dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
-  assert(fPartialXSecAlg);
-
-  LOG("COHXSec", pDEBUG) << *fPartialXSecAlg;
-
   //-- get specified integration algorithm
   fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
