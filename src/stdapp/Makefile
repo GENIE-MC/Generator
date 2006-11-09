@@ -18,9 +18,7 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/genie-config --libs)
 
 LIBRARIES := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-ifdef GOPT_GEANT_INTERFACE
-  LIBRARIES := $(LIBRARIES) $(GEANT4_LIBRARIES) $(CLHEP_LIBRARIES)
-endif
+LIBS_AND_HDRS := $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 EXE =	$(GENIE_BIN_PATH)/gevgen   \
 	$(GENIE_BIN_PATH)/gmkspl   \
@@ -45,7 +43,7 @@ STDTGT = gEvGen		\
 	 gMCSampleTest	
 
 ifdef GOPT_FLUX_DRIVERS
-  STDTGT := $(STDTGT) gMakeSplines
+  STDTGT := $(STDTGT) gMaxPathLengths
 endif
 ifdef GOPT_VIEWER
   STDTGT := $(STDTGT) gViewer
@@ -54,32 +52,25 @@ endif
 all: $(STDTGT)
 
 gEvGen: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gevgen gEvGen.cxx \
-			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gevgen gEvGen.cxx $(LIBS_AND_HDRS)
 
 gMakeSplines: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmkspl gMakeSplines.cxx \
-			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmkspl gMakeSplines.cxx $(LIBS_AND_HDRS)
 
 gMaxPathLengths: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmxpl gMaxPathLengths.cxx \
-			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmxpl gMaxPathLengths.cxx $(LIBS_AND_HDRS)
 
 gNtpConv: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gntpc gNtpConv.cxx \
-			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gntpc gNtpConv.cxx $(LIBS_AND_HDRS)
 
 gSplinePlotter: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gsplt gSplinePlotter.cxx \
-			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gsplt gSplinePlotter.cxx $(LIBS_AND_HDRS)
 
 gMCSampleTest: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmctest gMCSampleTest.cxx \
-			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmctest gMCSampleTest.cxx $(LIBS_AND_HDRS)
 
 gViewer: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gviewer gViewer.cxx \
-			$(GENIE_DICTS) $(LIBRARIES) $(INCLUDES) 
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gviewer gViewer.cxx $(LIBS_AND_HDRS)
 
 
 #################### CLEANING
