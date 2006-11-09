@@ -13,7 +13,7 @@
 #pragma link C++ class genie::EventGeneratorI;
 #pragma link C++ class genie::EventGeneratorList;
 #pragma link C++ class genie::EventGeneratorListAssembler;
-//#pragma link C++ class genie::EGResponsibilityChain;
+#pragma link C++ class genie::RunningThreadInfo;
 #pragma link C++ class genie::ToyInteractionSelector;
 #pragma link C++ class genie::PhysInteractionSelector;
 #pragma link C++ class genie::InteractionList;

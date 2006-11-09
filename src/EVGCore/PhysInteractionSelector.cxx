@@ -114,7 +114,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
            if(spl->ClosestKnotValueIsZero(E,"-")) xsec = 0;
            else xsec = spl->Evaluate(E);
      } else {
-           xsec = xsec_alg->XSec(interaction);
+           xsec = xsec_alg->Integral(interaction);
      }
      BLOG("IntSel", pNOTICE)
        << interaction->AsString() 
