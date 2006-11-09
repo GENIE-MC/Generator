@@ -18,20 +18,6 @@ Use the "Default" one to get the best GENIE physics & tuning.
  <param_set name="Default"> 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Cross section model to be used by each event generation thread
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <param type="alg" name="XSecModel-QEL-CC">  genie::QELPXSec/CC-Default            </param>
-  <param type="alg" name="XSecModel-QEL-NC">  genie::NuNucElasticPXSec/Default      </param>
-  <param type="alg" name="XSecModel-RES-CC">  genie::ReinSeghalRESPXSec/Default     </param>
-  <param type="alg" name="XSecModel-RES-NC">  genie::ReinSeghalRESPXSec/Default     </param>
-  <param type="alg" name="XSecModel-DIS-CC">  genie::DISPartonModelPXSec/CC-Default </param>
-  <param type="alg" name="XSecModel-DIS-NC">  genie::DISPartonModelPXSec/NC-Default </param>
-  <param type="alg" name="XSecModel-COH-CC">  genie::ReinSeghalCOHPXSec/Default     </param>
-  <param type="alg" name="XSecModel-COH-NC">  genie::ReinSeghalCOHPXSec/Default     </param>
-  <param type="alg" name="XSecModel-IMD">     genie::BardinIMDRadCorPXSec/Default   </param>
-  <param type="alg" name="XSecModel-Charm">   genie::AivazisCharmPXSecLO/CC-Default </param>
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   CKM quark mixing parameters 
   Use values listed at the July 2006 particle physics booklet
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -272,6 +258,33 @@ Use the "Default" one to get the best GENIE physics & tuning.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   GIBUU-specific parameters 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Specify which cross section model is to be used by each GENIE event 
+  generation thread.
+  The parameter name is build as: "XSecModel@[name of thread]"
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">       
+      genie::QELPXSec/CC-Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">       
+      genie::NuNucElasticPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">   
+      genie::ReinSeghalRESPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">  
+      genie::ReinSeghalRESPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">  
+      genie::DISPartonModelPXSec/CC-Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">  
+      genie::DISPartonModelPXSec/NC-Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">  
+      genie::ReinSeghalCOHPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC"> 
+      genie::ReinSeghalCOHPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/IMD">         
+      genie::BardinIMDRadCorPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM"> 
+      genie::AivazisCharmPXSecLO/CC-Default </param>
+
  </param_set>
 
 </global_param_list>
