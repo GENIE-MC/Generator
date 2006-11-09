@@ -159,7 +159,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
     TLorentzVector p4(0,0,E[i],E[i]);
     interaction->InitStatePtr()->SetProbeP4(p4);
 
-    xsec[i] = alg->XSec(interaction);
+    xsec[i] = alg->Integral(interaction);
 
     SLOG("XSecSplLst", pNOTICE)
             << "xsec(E = " << E[i] << ") = " 

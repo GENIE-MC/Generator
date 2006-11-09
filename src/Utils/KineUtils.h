@@ -37,16 +37,17 @@ namespace kinematics
   bool   TransformMatched (KinePhaseSpace_t ia, KinePhaseSpace_t ib,
                                     KinePhaseSpace_t a, KinePhaseSpace_t b, bool & fwd);
 
-  //-- methods used for figuring out the physical range of kinematical variables
-  Range1D_t  KineRange       (const Interaction * const i, KineVar_t k);
-  Range1D_t  WRange          (const Interaction * const i);
-  Range1D_t  Q2Range         (const Interaction * const i);
-  Range1D_t  q2Range         (const Interaction * const i);
-  Range1D_t  Q2Range_W       (const Interaction * const i, Range1D_t rW);
-  void       MinXY           (const Interaction * const i, double & x, double & y);
-
-  //-- methods used to apply cuts to kinematical limits
-  void ApplyCutsToKineLimits (Range1D_t & r, double min, double max);
+  //-- kinematical limits
+  Range1D_t  InelWLim    (double Ev, double M, double ml);
+  Range1D_t  InelQ2Lim_W (double Ev, double M, double ml, double W);
+  Range1D_t  Inelq2Lim_W (double Ev, double M, double ml, double W);
+  Range1D_t  InelQ2Lim   (double Ev, double M, double ml);
+  Range1D_t  Inelq2Lim   (double Ev, double M, double ml);
+  Range1D_t  InelXLim    (double Ev, double M, double ml);
+  Range1D_t  InelYLim    (double Ev, double M, double ml);
+  Range1D_t  InelYLim_X  (double Ev, double M, double ml, double x);
+  Range1D_t  CohYLim     (double EvL, double ml);
+  Range1D_t  CohXLim     (void);
 
   //-- kinematical variable transforms
   double QD2toQ2 (double QD2);
@@ -55,6 +56,12 @@ namespace kinematics
   void   XYtoWQ2 (double Ev, double M, double & W, double & Q2, double x, double y);
   double XYtoW   (double Ev, double M, double x, double y);
   double XYtoQ2  (double Ev, double M, double x, double y);
+
+  void  UpdateWQ2FromXY(const Interaction * in);
+  void  UpdateXYFromWQ2(const Interaction * in);
+
+  //-- methods used to apply cuts to kinematical limits
+  void ApplyCutsToKineLimits (Range1D_t & r, double min, double max);
 
   double CalcQ2  (const Interaction * const i);
   double CalcW   (const Interaction * const i);

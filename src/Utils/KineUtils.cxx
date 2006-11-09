@@ -31,60 +31,46 @@ using namespace genie::constants;
 using namespace genie::controls;
 
 //____________________________________________________________________________
-Range1D_t  genie::utils::kinematics::KineRange(
-                                   const Interaction * const i, KineVar_t k)
-{
-  switch(k) {
-  case(kKVW)  : return WRange(i);  break;
-  case(kKVQ2) : return Q2Range(i); break;
-  case(kKVq2) : return q2Range(i); break;
-  default:
-   SLOG("KineLimits", pERROR) 
-              << "Couldn't compute limits for " 
-                                << KineVar::AsString(k) << "using \n"<< *i;
-   Range1D_t R(-1.,-1);
-   return R;
-  }
-}
-//____________________________________________________________________________
 double genie::utils::kinematics::PhaseSpaceVolume(
                           const Interaction * const in, KinePhaseSpace_t ps)
 {
   double vol = 0;
 
+  const KPhaseSpace & phase_space = in->PhaseSpace();
+
   switch(ps) {
 
   case(kPSQ2fE):
   {
-    Range1D_t Q2 = KineRange(in, kKVQ2);
+    Range1D_t Q2 = phase_space.Limits(kKVQ2);
     vol = Q2.max - Q2.min;
     return vol;
     break;
   }
   case(kPSq2fE):
   {
-    Range1D_t q2 = KineRange(in, kKVq2);
+    Range1D_t q2 = phase_space.Limits(kKVq2);
     vol = q2.min - q2.max;
     return vol;
     break;
   }
   case(kPSWfE):
   {
-    Range1D_t W = KineRange(in, kKVW);
+    Range1D_t W = phase_space.Limits(kKVW);
     vol = W.max - W.min;
     return vol;
     break;
   }
   case(kPSWQ2fE):
   {
-    Range1D_t W = KineRange(in, kKVW);
+    Range1D_t W = phase_space.Limits(kKVW);
     if(W.max<0) return 0;
     const int kNW = 100;  
     double dW = (W.max-W.min)/(kNW-1);	
     Interaction interaction(*in);
     for(int iw=0; iw<kNW; iw++) {
       interaction.KinePtr()->SetW(W.min + iw*dW);
-      Range1D_t Q2 = KineRange(&interaction, kKVQ2);
+      Range1D_t Q2 = interaction.PhaseSpace().Q2Lim_W();
       double dQ2 = (Q2.max-Q2.min);	
       vol += (dW*dQ2);
     }
@@ -93,7 +79,7 @@ double genie::utils::kinematics::PhaseSpaceVolume(
   }
   case(kPSxyfE):
   {
-    Range1D_t W = KineRange(in, kKVW);
+    Range1D_t W = phase_space.Limits(kKVW);
     if(W.max<0) return 0;
 
     const InitialState & init_state = in->InitState();
@@ -119,7 +105,7 @@ double genie::utils::kinematics::PhaseSpaceVolume(
          if(!math::IsWithinLimits(cW, W)) continue;
 
          interaction.KinePtr()->SetW(cW);
-         Range1D_t Q2 = KineRange(&interaction, kKVQ2);
+         Range1D_t Q2 = interaction.PhaseSpace().Q2Lim_W();
          if(!math::IsWithinLimits(cQ2, Q2)) continue;
 
          vol += kdV;
@@ -216,74 +202,46 @@ bool genie::utils::kinematics::TransformMatched(
   return matched;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::WRange(
-                                        const Interaction * const interaction)
+// Kinematical Limits:
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::InelWLim(double Ev, double M, double ml)
 {
-// Computes kinematical limits for W in DIS and RES v interactions
+// Computes W limits for inelastic v interactions
 //
-  Range1D_t W;
-
-  const InitialState & init_state = interaction->InitState();
-
-  double Ev = init_state.ProbeE(kRfHitNucRest);
-  double M  = init_state.Tgt().HitNucP4Ptr()->M(); //can be off m/shell
-  double ml = interaction->FSPrimLepton()->Mass();
-  double M2 = M*M;
+  double M2 = TMath::Power(M,2);
   double s  = M2 + 2*M*Ev;
-
   assert (s>0);
 
+  Range1D_t W;
   W.min  = kNeutronMass + kPionMass;
-  W.max  = TMath::Sqrt(s)-ml;
-
+  W.max  = TMath::Sqrt(s) - ml;
   if(W.max<=W.min) {
     W.min = -1;
     W.max = -1;
+    return W;
   }
-
+  W.min  += kASmallNum;
+  W.max  -= kASmallNum;
   return W;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::Q2Range(
-                                       const Interaction * const interaction)
+Range1D_t genie::utils::kinematics::InelQ2Lim_W(
+                                 double Ev, double M, double ml, double W)
 {
-// Computes kinematical limits for Q2 (>0)
+// Computes Q2 limits (>0) @ the input W for inelastic v interactions
 
   Range1D_t Q2;
   Q2.min = -1;
   Q2.max = -1;
 
-  const ProcessInfo & pi = interaction->ProcInfo();
-
-  bool handle = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsQuasiElastic();
-
-  if(!handle) return Q2;
-
-  const InitialState & init_state  = interaction->InitState();
-
-  double Ev  = init_state.ProbeE(kRfHitNucRest);
-  double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
-  double ml  = interaction->FSPrimLepton()->Mass();
-  double M2  = M*M;
-  double ml2 = ml*ml;
+  double M2  = TMath::Power(M,  2.);
+  double ml2 = TMath::Power(ml, 2.);
+  double W2  = TMath::Power(W,  2.);
   double s   = M2 + 2*M*Ev;
 
   SLOG("KineLimits", pDEBUG) << "s  = " << s;
   SLOG("KineLimits", pDEBUG) << "Ev = " << Ev;
-
   assert (s>0);
-
-  double W  = CalcW(interaction);
-  double W2 = W*W;
-
-  if(pi.IsDeepInelastic() || pi.IsResonant()) {
-
-    Range1D_t rW = WRange(interaction);
-    SLOG("KineLimits", pDEBUG)
-                 << "W  = " << W << ", [Wmin = " << rW.min
-                                            << ", Wmax = " << rW.max << "]";
-    if(W < rW.min || W > rW.max) return Q2;
-  }
 
   double auxC = 0.5*(s-M2)/s;
   double aux1 = s + ml2 - W2;
@@ -305,61 +263,149 @@ Range1D_t genie::utils::kinematics::Q2Range(
   return Q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::q2Range(
-                                      const Interaction * const interaction)
+Range1D_t genie::utils::kinematics::Inelq2Lim_W(
+                                 double Ev, double M, double ml, double W)
 {
-// Computes kinematical limits for q2 (<0) 
+// Computes q2 (<0) limits @ the input W for inelastic v interactions
 
-  Range1D_t Q2 = utils::kinematics::Q2Range(interaction);
-
+  Range1D_t Q2 = utils::kinematics::InelQ2Lim_W(Ev,M,ml,W);
   Range1D_t q2;
-
   q2.min = - Q2.max;
   q2.max = - Q2.min;
-
   return q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::Q2Range_W(
-                          const Interaction * const interaction, Range1D_t rW)
+Range1D_t genie::utils::kinematics::InelQ2Lim(double Ev, double M, double ml)
 {
+// Computes Q2 (>0) limits irrespective of W for inelastic v interactions
+
   Range1D_t Q2;
-  Q2.min = 999;
-  Q2.max = -999;
+  Q2.min = -1;
+  Q2.max = -1;
 
-  unsigned int N=100;
-  double dW = (rW.max-rW.min) / (double)(N-1);
+  Range1D_t W  = utils::kinematics::InelWLim(Ev,M,ml);
+  if(W.min<0) return Q2;
 
-  for(unsigned int i=0; i<N; i++) {
-    double W = rW.min + i*dW;
-    interaction->KinePtr()->SetW(W);
-    Range1D_t rQ2 = Q2Range(interaction);
-
-    if(rQ2.min>=0) Q2.min = TMath::Min(Q2.min, rQ2.min);
-    if(rQ2.max>=0) Q2.max = TMath::Max(Q2.max, rQ2.max);
-  }
+  Q2 = utils::kinematics::InelQ2Lim_W(Ev,M,ml,W.min);
   return Q2;
 }
 //____________________________________________________________________________
-void genie::utils::kinematics::MinXY(
-                        const Interaction * const in, double & x, double & y)
+Range1D_t genie::utils::kinematics::Inelq2Lim(double Ev, double M, double ml)
 {
-// Compute the minimum x,y for the current interaction (calculated as the x,y
-// at the minimum W,Q2)
+// Computes Q2 (>0) limits irrespective of W for inelastic v interactions
 
-  Interaction interaction(*in);
-
-  Range1D_t W = KineRange(&interaction,kKVW);
-  interaction.KinePtr()->SetW(W.min);
-
-  Range1D_t Q2 = KineRange(&interaction,kKVQ2);
-
-  const InitialState & init_state =  interaction.InitState();
-  double Ev = init_state.ProbeE(kRfHitNucRest);
-  double M  = init_state.Tgt().HitNucP4Ptr()->M(); //can be off m/shell
-
-  WQ2toXY(Ev,M,W.min,Q2.min,x,y);
+  Range1D_t Q2 = utils::kinematics::InelQ2Lim(Ev,M,ml);
+  Range1D_t q2;
+  q2.min = - Q2.max;
+  q2.max = - Q2.min;
+  return q2;
 }
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::InelXLim(double Ev, double M, double ml)
+
+{
+// Computes Bjorken x limits for inelastic v interactions
+
+  double M2  = TMath::Power(M, 2.);
+  double ml2 = TMath::Power(ml,2.);
+  double s   = M2 + 2*M*Ev;
+
+  SLOG("KineLimits", pDEBUG) << "s  = " << s;
+  SLOG("KineLimits", pDEBUG) << "Ev = " << Ev;
+  assert (s>M2);
+
+  Range1D_t x;
+  x.min = ml2/(s-M2) + kASmallNum;
+  x.max = 1.         - kASmallNum;  
+
+  return x;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::InelYLim(double Ev, double M, double ml)
+{
+// Computes y limits for inelastic v interactions
+
+  Range1D_t y;
+  y.min =  999;
+  y.max = -999;  
+
+  Range1D_t xl = kinematics::InelXLim(Ev,M,ml);
+  assert(xl.min>0 && xl.max>0);
+
+  const unsigned int N=100;
+  const double logxmin = TMath::Log10(xl.min);
+  const double logxmax = TMath::Log10(xl.max);
+  const double dlogx   = (logxmax-logxmin) / (double)(N-1);
+
+  for(unsigned int i=0; i<N; i++) {
+    double x = TMath::Power(10, logxmin + i*dlogx);
+
+    Range1D_t y_x = kinematics::InelYLim_X(Ev,M,ml,x);
+    if(y_x.min>=0 && y_x.min<=1) y.min = TMath::Min(y.min, y_x.min);
+    if(y_x.max>=0 && y_x.max<=1) y.max = TMath::Max(y.max, y_x.max);
+  }
+
+  if(y.max >= 0 && y.max <= 1 && y.min >= 0 && y.min <= 1) {
+    y.min = TMath::Max(y.min,     kASmallNum);
+    y.max = TMath::Min(y.max, 1 - kASmallNum);  
+  } else {
+    y.min = -1;
+    y.max = -1;
+  }
+  SLOG("KineLimits", pDEBUG) << "y  = [" << y.min << ", " << y.max << "]";
+  return y;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::InelYLim_X(
+                                 double Ev, double M, double ml, double x)
+
+{
+// Computes y limits @ the input x for inelastic v interactions
+
+  Range1D_t y;
+  y.min = -1;
+  y.max = -1;
+
+  double Ev2 = TMath::Power(Ev,2);
+  double ml2 = TMath::Power(ml,2);
+
+  SLOG("KineLimits", pDEBUG) << "x  = " << x;
+  SLOG("KineLimits", pDEBUG) << "Ev = " << Ev;
+
+  assert (Ev>0);
+  assert (x>0&&x<1);
+
+  double a = 0.5 * ml2/(M*Ev*x);
+  double b = ml2/Ev2;
+  double c = 1 + 0.5*x*M/Ev;
+  double d = TMath::Max(0., TMath::Power(1-a,2.) - b);
+
+  double A = 0.5 * (1-a-0.5*b)/c;
+  double B = 0.5 * TMath::Sqrt(d)/c;
+
+  y.min = TMath::Max(0., A-B) + kASmallNum;
+  y.max = TMath::Min(1., A+B) - kASmallNum;
+
+  return y;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::CohXLim(void)
+{
+// Computes x limits for coherent v interactions
+
+  Range1D_t x(kASmallNum, 1.-kASmallNum);
+  return x;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::CohYLim(double EvL, double ml)
+{
+// Computes y limits for coherent v interactions
+
+  Range1D_t y(kPionMass/EvL + kASmallNum, 1.-ml/EvL - kASmallNum);
+  return y;
+}
+//____________________________________________________________________________
+// Kinematical Transformations:
 //____________________________________________________________________________
 double genie::utils::kinematics::Q2toQD2(double Q2)
 {
@@ -432,7 +478,7 @@ double genie::utils::kinematics::CalcW(const Interaction * const interaction)
   SLOG("KineLimits", pERROR) << "Couldn't compute W for \n"<< *interaction;
   return 0;
 }
-//____________________________________________________________________________
+//___________________________________________________________________________
 void genie::utils::kinematics::WQ2toXY(
             double Ev, double M, double W, double Q2, double & x, double & y)
 {
@@ -556,6 +602,42 @@ void genie::utils::kinematics::ApplyCutsToKineLimits(
 
     range.min = 0;
     range.max = 0;
+  }
+}
+//___________________________________________________________________________
+void genie::utils::kinematics::UpdateWQ2FromXY(const Interaction * in)
+{
+  Kinematics * kine = in->KinePtr();
+
+  if(kine->KVSet(kKVx) && kine->KVSet(kKVy)) {
+    const InitialState & init_state = in->InitState();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double M  = init_state.Tgt().HitNucP4Ptr()->M(); // can be off mass shell
+    double x  = kine->x();
+    double y  = kine->y();
+
+    double Q2=-1,W=-1; 
+    kinematics::XYtoWQ2(Ev,M,W,Q2,x,y);
+    kine->SetQ2(Q2);
+    kine->SetW(W);
+  }
+}
+//___________________________________________________________________________
+void genie::utils::kinematics::UpdateXYFromWQ2(const Interaction * in)
+{
+  Kinematics * kine = in->KinePtr();
+
+  if(kine->KVSet(kKVW) && kine->KVSet(kKVQ2)) {
+    const InitialState & init_state = in->InitState();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double M  = init_state.Tgt().HitNucP4Ptr()->M(); // can be off mass shell
+    double W  = kine->W();
+    double Q2 = kine->Q2();
+
+    double x=-1,y=-1; 
+    kinematics::WQ2toXY(Ev,M,W,Q2,x,y);
+    kine->Setx(x);
+    kine->Sety(y);
   }
 }
 //____________________________________________________________________________
