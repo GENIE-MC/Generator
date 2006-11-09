@@ -125,7 +125,6 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
 
   //-- update the struck nucleon 4p at the interaction summary and at
   //   the GHEP record
-
   p4->SetPx( p3.Px() );
   p4->SetPy( p3.Py() );
   p4->SetPz( p3.Pz() );
@@ -137,9 +136,8 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   // the neutrino energy in the nucleon rest frame below threshold (for the
   // selected interaction). In this case mark the event as unphysical and
   // abort the current thread.
-  double E    = init_state->ProbeE(kRfHitNucRest);
-  double Ethr = interaction->EnergyThreshold();
-  if(E<=Ethr) {
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  if(kps.IsAboveThreshold()) {
      LOG("FermiMover", pNOTICE)
                   << "Event below threshold after generation Fermi momentum";
      event_rec->EventFlags()->SetBitNumber(kBelowThrNRF, true);

@@ -17,6 +17,8 @@
 #include "Conventions/Controls.h"
 #include "Conventions/KinePhaseSpace.h"
 #include "EVGCore/EVGThreadException.h"
+#include "EVGCore/EventGeneratorI.h"
+#include "EVGCore/RunningThreadInfo.h"
 #include "EVGModules/IMDKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
@@ -56,6 +58,11 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
+
+  //-- Access cross section algorithm for running thread
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  fXSecModel = evg->CrossSectionAlg();
 
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
@@ -225,10 +232,11 @@ void IMDKinematicsGenerator::Configure(string config)
 //____________________________________________________________________________
 void IMDKinematicsGenerator::LoadConfig(void)
 {
+/*
   fXSecModel = 
       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
   assert(fXSecModel);
-
+*/
   fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
   fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",     -1.00);
 

@@ -42,12 +42,8 @@ public :
   void Configure(string config);
 
 private:
-  void      LoadConfig     (void);
-  Range1D_t Q2Range        (const Interaction * in) const;
-  double    ComputeMaxXSec (const Interaction * in) const;
-
-  double fQ2min;
-  double fQ2max;
+  void   LoadConfig     (void);
+  double ComputeMaxXSec (const Interaction * in) const;
 };
 
 }      // genie namespace

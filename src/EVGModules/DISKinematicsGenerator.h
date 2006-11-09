@@ -46,25 +46,8 @@ public :
   void Configure(string config);
 
 private:
-  void      LoadSubAlg      (void);
-  void      LoadConfigData  (void);
-  Range1D_t XRange          (void) const;
-  Range1D_t YRange          (void) const;
-  Range1D_t WRange          (const Interaction * interaction) const;
-  Range1D_t Q2Range         (const Interaction * interaction) const;
-  double    ComputeMaxXSec  (const Interaction * interaction) const;
-
-  //! physical range including kinematical cuts
-  mutable double fXmin;  
-  mutable double fXmax;  
-  mutable double fYmin;  
-  mutable double fYmax;  
-
-  //! user-defined kinematical cuts (from algorithm config)
-  double fWminCut;   
-  double fWmaxCut;   
-  double fQ2minCut;  
-  double fQ2maxCut;  
+  void   LoadConfig      (void);
+  double ComputeMaxXSec  (const Interaction * interaction) const;
 };
 
 }      // genie namespace

@@ -21,6 +21,8 @@
 #include "Conventions/KineVar.h"
 #include "Conventions/KinePhaseSpace.h"
 #include "EVGCore/EVGThreadException.h"
+#include "EVGCore/EventGeneratorI.h"
+#include "EVGCore/RunningThreadInfo.h"
 #include "EVGModules/QELKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
@@ -63,6 +65,11 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
+  //-- Access cross section algorithm for running thread
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  fXSecModel = evg->CrossSectionAlg();
+
   //-- Get the interaction and set the 'trust' bits
   Interaction * interaction = evrec->Summary();
   interaction->SetBit(kISkipProcessChk);
@@ -78,7 +85,8 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   interaction->SetBit(kIAssumeFreeNucleon);
 
   //-- Get the limits for the generated Q2
-  Range1D_t Q2 = this->Q2Range(interaction);
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  Range1D_t Q2 = kps.Limits(kKVQ2);
 
   if(Q2.max <=0 || Q2.min>=Q2.max) {
      LOG("QELKinematics", pWARN) << "No available phase space";
@@ -224,14 +232,6 @@ void QELKinematicsGenerator::LoadConfig(void)
 // Load sub-algorithms and config data to reduce the number of registry
 // lookups
 
-  fXSecModel = 
-      dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
-  assert(fXSecModel);
-
-  //-- Get the user kinematical limits on Q2
-  fQ2min = fConfig->GetDoubleDef("Kine-Q2min", -999999);
-  fQ2max = fConfig->GetDoubleDef("Kine-Q2max",  999999);
-
   //-- Safety factor for the maximum differential cross section
   fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
 
@@ -249,23 +249,6 @@ void QELKinematicsGenerator::LoadConfig(void)
   fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
 }
 //____________________________________________________________________________
-Range1D_t QELKinematicsGenerator::Q2Range(
-                                       const Interaction * interaction) const
-{
-  //-- Get the physically allowed kinematical region for this interaction
-  Range1D_t Q2 = kinematics::KineRange(interaction, kKVQ2);
-  LOG("QELKinematics", pDEBUG)
-               << "Physical Q2 range = (" << Q2.min << ", " << Q2.max << ")";
-
-  //-- Define the W range: the user selection (if any) is not allowed to
-  //   extend it to an unphysical region but is allowed to narrow it down.
-  kinematics::ApplyCutsToKineLimits(Q2, fQ2min, fQ2max);
-  LOG("QELKinematics", pDEBUG)
-       << "Q2 range (including cuts) = (" << Q2.min << ", " << Q2.max << ")";
-
-  return Q2;
-}
-//___________________________________________________________________________
 double QELKinematicsGenerator::ComputeMaxXSec(
                                        const Interaction * interaction) const
 {
@@ -279,7 +262,8 @@ double QELKinematicsGenerator::ComputeMaxXSec(
 
   double max_xsec = 0.0;
 
-  Range1D_t rQ2 = this->Q2Range(interaction);
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  Range1D_t rQ2 = kps.Limits(kKVQ2);
   if(rQ2.min <=0 || rQ2.max <= rQ2.min) return 0.;
 
   const double logQ2min = TMath::Log(rQ2.min + kASmallNum);

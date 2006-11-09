@@ -58,7 +58,7 @@ protected:
 
   virtual void AssertXSecLimits (const Interaction * in, double xsec, double xsec_max) const;
 
-  const XSecAlgorithmI * fXSecModel;
+  mutable const XSecAlgorithmI * fXSecModel;
 
   double fSafetyFactor;         ///< maxxsec -> maxxsec * safety_factor
   double fMaxXSecDiffTolerance; ///< max{100*(xsec-maxxsec)/.5*(xsec+maxxsec)} if xsec>maxxsec
