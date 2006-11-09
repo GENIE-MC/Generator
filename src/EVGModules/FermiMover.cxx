@@ -137,9 +137,15 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   // selected interaction). In this case mark the event as unphysical and
   // abort the current thread.
   const KPhaseSpace & kps = interaction->PhaseSpace();
-  if(kps.IsAboveThreshold()) {
+  if(!kps.IsAboveThreshold()) {
      LOG("FermiMover", pNOTICE)
-                  << "Event below threshold after generation Fermi momentum";
+                  << "Event below threshold after generating Fermi momentum";
+
+     double Ethr = kps.Threshold();
+     double Ev   = init_state->ProbeE(kRfHitNucRest);
+     LOG("FermiMover", pNOTICE)
+              << "Ev (@ nucleon rest frame) = " << Ev << ", Ethr = " << Ethr;
+
      event_rec->EventFlags()->SetBitNumber(kBelowThrNRF, true);
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("E < Ethr after generating nucleon Fermi momentum");
