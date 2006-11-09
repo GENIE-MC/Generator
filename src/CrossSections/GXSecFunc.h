@@ -68,36 +68,6 @@ public:
 
 //____________________________________________________________________________
 /*!
-\class    genie::Integrand_D2XSec_DxDy_E_WQ2Cuts
-\brief    A 2-D cross section function: d2xsec/dxdy = f(x,y)|(fixed E)
-          with cuts on W and Q2
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-\created  February 20, 2006
-*/
-//____________________________________________________________________________
-/*
-namespace genie {
-
-class Integrand_D2XSec_DxDy_E_WQ2Cuts : public GXSecFunc
-{
-public:
-  Integrand_D2XSec_DxDy_E_WQ2Cuts(
-            const XSecAlgorithmI * m, const Interaction * i,
-                                          Range1D_t WCuts, Range1D_t Q2Cuts);
-  ~Integrand_D2XSec_DxDy_E_WQ2Cuts();
-
-  double operator () (const vector<double> & x);
-
-private:
-  Range1D_t fWCuts;
-  Range1D_t fQ2Cuts;
-};
-
-} // genie namespace
-*/
-//____________________________________________________________________________
-/*!
 \class    genie::Integrand_DXSec_DQ2_E
 \brief    A 1-D cross section function: dxsec/dQ2 = f(Q2)|(fixed E)
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
