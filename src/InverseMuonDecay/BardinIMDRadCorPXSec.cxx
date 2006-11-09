@@ -16,6 +16,7 @@
 
 #include <TMath.h>
 
+#include "Base/XSecIntegratorI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "InverseMuonDecay/BardinIMDRadCorPXSec.h"
@@ -95,29 +96,16 @@ double BardinIMDRadCorPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
+double BardinIMDRadCorPXSec::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool BardinIMDRadCorPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  return true;
-}
-//____________________________________________________________________________
-bool BardinIMDRadCorPXSec::ValidKinematics(
-                                        const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const InitialState & init_state = interaction -> InitState();
-  double E = init_state.ProbeE(kRfLab);
-  double s = kElectronMass2 + 2*kElectronMass*E;
-
-  //-- check if it is kinematically allowed
-  if(s < kMuonMass2) {
-     LOG("BardinIMD", pINFO)
-        << "Ev = " << E << " (s = " << s << ") is below threshold (s-min = "
-        << kMuonMass2 << ") for IMD";
-     return false;
-  }
   return true;
 }
 //____________________________________________________________________________
@@ -269,6 +257,10 @@ void BardinIMDRadCorPXSec::LoadConfig(void)
   fIntegrator = 
       dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
+
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
 // Auxiliary scalar function for internal integration

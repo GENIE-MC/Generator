@@ -27,6 +27,8 @@
 
 namespace genie {
 
+class XSecIntegratorI;
+
 class NuNucElasticPXSec : public XSecAlgorithmI {
 
 public:
@@ -36,8 +38,8 @@ public:
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
@@ -45,12 +47,12 @@ public:
   void Configure (string param_set);
 
 private:
-
   void LoadConfig(void);
 
+  const XSecIntegratorI * fXSecIntegrator;
+
   double fkAlpha;
-  double fkGamma;
-  
+  double fkGamma; 
   double fEta;
   double fFa0;
   double fMa2;

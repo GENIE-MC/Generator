@@ -31,13 +31,13 @@ class IntegratorI;
 class GlashowResXSec : public XSecAlgorithmI {
 
 public:
-
   GlashowResXSec();
   GlashowResXSec(string config);
   virtual ~GlashowResXSec();
 
-  //! XSecAlgorithmI interface implementation
+  //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   bool   ValidKinematics (const Interaction * i) const;
 };

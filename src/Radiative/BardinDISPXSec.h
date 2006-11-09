@@ -30,19 +30,19 @@
 namespace genie {
 
 class PDFModelI;
+class XSecIntegratorI;
 
 class BardinDISPXSec : public XSecAlgorithmI {
 
 public:
-
   BardinDISPXSec();
   BardinDISPXSec(string config);
   virtual ~BardinDISPXSec();
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
@@ -50,14 +50,11 @@ public:
   void Configure (string param_set);
 
 private:
-
-  //-- Auxiliary methods used for the Bardin-Dokuchaeva xsec calculation.
-
-  //   xi is the running variable in the integration for computing
-  //   the differential cross section d^2(xsec) / dy dx
-
   void LoadConfig (void);
 
+  //-- Auxiliary methods used for the Bardin-Dokuchaeva xsec calculation.
+  //   xi is the running variable in the integration for computing
+  //   the differential cross section d^2(xsec) / dy dx
   double PhiCCi   (double xi, const Interaction * interaction) const;
   double Ii       (double xi, const Interaction * interaction) const;
   double U        (double xi, const Interaction * interaction) const;
@@ -69,12 +66,13 @@ private:
   double Sq       (const Interaction * interaction) const;
   double PDFFunc  (const PDF & pdf, int pgdc) const;
 
-  const PDFModelI * fPDFModel;
   double fMqf;
   double fVud;
   double fVud2;
+
+  const PDFModelI *       fPDFModel;
+  const XSecIntegratorI * fXSecIntegrator;
 };
 
 }       // genie namespace
-
 #endif  // _BARDIN_DIS_PARTIAL_XSEC_H_

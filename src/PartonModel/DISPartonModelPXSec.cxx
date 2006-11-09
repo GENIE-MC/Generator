@@ -21,6 +21,7 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/DISStructureFuncModelI.h"
+#include "Base/XSecIntegratorI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
@@ -149,47 +150,16 @@ double DISPartonModelPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
+double DISPartonModelPXSec::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool DISPartonModelPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  return true;
-}
-//____________________________________________________________________________
-bool DISPartonModelPXSec::ValidKinematics(
-                                       const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
-
-  double E     = init_state.ProbeE(kRfHitNucRest);
-  double Mnuc  = init_state.Tgt().HitNucMass();
-  double Mnuc2 = TMath::Power(Mnuc, 2);
-  double x     = kinematics.x();
-  double y     = kinematics.y();
-  double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
-  double W     = TMath::Sqrt(W2);
-  double Q2    = 2*Mnuc*E*x*y;
-
-  //----- Get the physical W and Q2 range and check whether the current W,Q2
-  //      pair is allowed
-  Range1D_t rW  = utils::kinematics::KineRange (interaction, kKVW);
-  Range1D_t rQ2 = utils::kinematics::KineRange (interaction, kKVQ2);
-
-  bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
-                                      && utils::math::IsWithinLimits(W, rW);
-  if(!in_range) {
-       LOG("DISXSec", pDEBUG)
-             << "*** (W = " << W
-                           << ", Q2 = " << Q2 << " isn't in physical range";
-       LOG("DISXSec", pDEBUG)
-                << "Phys W: " << "[" << rW.min << ", " << rW.max << "] GeV";
-       LOG("DISXSec", pDEBUG)
-           << "Phys Q2: " << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-       return false;
-  }
   return true;
 }
 //____________________________________________________________________________
@@ -367,6 +337,11 @@ void DISPartonModelPXSec::LoadConfig(void)
      cache->RmMatchedCacheBranches(keysubstr);
   }
   fInInitPhase = false;
+
+  //-- load the differential cross section integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
 

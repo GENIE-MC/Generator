@@ -19,6 +19,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
@@ -343,6 +344,12 @@ double BardinDISPXSec::PDFFunc(const PDF & pdf, int pdgc) const
   return 0;
 }
 //__________________________________________________________________________
+double BardinDISPXSec::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool BardinDISPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
@@ -363,49 +370,6 @@ bool BardinDISPXSec::ValidProcess(const Interaction * interaction) const
   bool prcok = proc_info.IsDeepInelastic() && proc_info.IsWeakCC();
   if(!prcok) return false;
 
-  return true;
-}
-//__________________________________________________________________________
-bool BardinDISPXSec::ValidKinematics(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  //----- get kinematical & init-state parameters
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
-
-  double E     = init_state.ProbeE(kRfHitNucRest);
-  double Mnuc  = init_state.Tgt().HitNucMass();
-  double Mnuc2 = TMath::Power(Mnuc, 2);
-  double x     = kinematics.x();
-  double y     = kinematics.y();
-  double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
-  double Q2    = S(interaction) * x * y;
-  double W     = TMath::Max(0., TMath::Sqrt(W2));
-
-  // make sure that x, y are in the physically acceptable region
-  if(x<=0 || x>=1) return false;
-  if(y<=0 || y>=1) return false;
-
-  //----- Get the physical W and Q2 range and check whether the current W,Q2
-  //      pair is allowed
-  Range1D_t rW  = utils::kinematics::KineRange(interaction, kKVW);
-  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
-
-  bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
-                                       && utils::math::IsWithinLimits(W, rW);
-  if(!in_range) {
-       LOG("DISXSec", pDEBUG)
-             << "\n *** point (W = " << W
-                           << ", Q2 = " << Q2 << " is not in physical range";
-       LOG("DISXSec", pDEBUG)
-             << "\n Physical W range: "
-                               << "[" << rW.min << ", " << rW.max << "] GeV";
-       LOG("DISXSec", pDEBUG)
-             << "\n Physical Q2 range: "
-                           << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-       return false;
-  }
   return true;
 }
 //__________________________________________________________________________
@@ -431,8 +395,13 @@ void BardinDISPXSec::LoadConfig(void)
 
   fMqf  = fConfig->GetDoubleDef("Final-Quark-Mass", 0.1);
 
-  fPDFModel = 0;
+  //-- load the PDF model
   fPDFModel = dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
   assert(fPDFModel);
+
+  //-- load the differential cross section integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //__________________________________________________________________________

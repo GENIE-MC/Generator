@@ -29,6 +29,7 @@
 namespace genie {
 
 class QELFormFactorsModelI;
+class XSecIntegratorI;
 
 class QELPXSec : public XSecAlgorithmI {
 
@@ -39,8 +40,8 @@ public:
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
@@ -48,15 +49,15 @@ public:
   void Configure (string param_set);
 
 private:
-
   void LoadConfig (void);
 
-  const QELFormFactorsModelI * fFormFactorsModel;
-
   mutable QELFormFactors fFormFactors;
-  double fCos8c2;
+
+  const QELFormFactorsModelI * fFormFactorsModel;
+  const XSecIntegratorI *      fXSecIntegrator;
+
+  double fCos8c2; ///< cos^2(cabbibo angle)
 };
 
 }       // genie namespace
-
 #endif  // _QEL_PARTIAL_XSEC_H_
