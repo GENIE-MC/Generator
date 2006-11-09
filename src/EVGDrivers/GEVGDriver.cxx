@@ -35,6 +35,7 @@
 #include "EVGCore/InteractionList.h"
 #include "EVGCore/InteractionListGeneratorI.h"
 #include "EVGCore/InteractionGeneratorMap.h"
+#include "EVGCore/RunningThreadInfo.h"
 #include "GHEP/GHepFlags.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -266,6 +267,9 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   const EventGeneratorI * evgen = fIntGenMap->FindGenerator(interaction);
   assert(evgen);
 
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  rtinfo->UpdateRunningThread(evgen);
+
   //-- Generate the selected event
   //
   //   The selected EventGeneratorI subclass will start processing the
@@ -364,7 +368,7 @@ double GEVGDriver::XSecSum(const TLorentzVector & nup4)
         double E = nup4.Energy();
         xsec = xssl->GetSpline(xsec_alg,interaction)->Evaluate(E);
      } else
-        xsec = xsec_alg->XSec(interaction);
+        xsec = xsec_alg->Integral(interaction);
 
      // sum-up and report
      xsec_sum += xsec;
@@ -424,9 +428,7 @@ void GEVGDriver::CreateXSecSumSpline(
   TLorentzVector p4(0,0,0,0);
 
   for(int i=0; i<nk; i++) {
-
     double e = (inlogE) ? TMath::Exp(logEmin + i*dE) : Emin + i*dE;
-
     p4.SetPxPyPzE(0.,0.,e,e);
     double xs = this->XSecSum(p4);
 
