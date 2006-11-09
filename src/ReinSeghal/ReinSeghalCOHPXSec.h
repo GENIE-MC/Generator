@@ -36,6 +36,8 @@
 
 namespace genie {
 
+class XSecIntegratorI;
+
 class ReinSeghalCOHPXSec : public XSecAlgorithmI {
 
 public:
@@ -45,8 +47,9 @@ public:
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
+  //////bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
@@ -54,7 +57,6 @@ public:
   void Configure(string config);
 
 private:
-
   void LoadConfig(void);
 
   //-- private data members loaded from config Registry or set to defaults
@@ -62,6 +64,8 @@ private:
   double fReIm;    ///< Re/Im {forward pion scattering amplitude}
   double fRo;      ///< nuclear size scale parameter
   bool   fModPCAC; ///< use modified PCAC (including f/s lepton mass)
+
+  const XSecIntegratorI * fXSecIntegrator;
 };
 
 }       // genie namespace

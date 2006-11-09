@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "Conventions/RefFrame.h"
@@ -136,6 +137,12 @@ double ReinSeghalCOHPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
+double ReinSeghalCOHPXSec::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool ReinSeghalCOHPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
@@ -155,6 +162,7 @@ bool ReinSeghalCOHPXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
+/*
 bool ReinSeghalCOHPXSec::ValidKinematics(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
@@ -176,7 +184,7 @@ bool ReinSeghalCOHPXSec::ValidKinematics(const Interaction* interaction) const
     return false;
   }
   return true;
-}
+}*/
 //____________________________________________________________________________
 void ReinSeghalCOHPXSec::Configure(const Registry & config)
 {
@@ -195,10 +203,15 @@ void ReinSeghalCOHPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fMa    = fConfig->GetDoubleDef("Ma",         gc->GetDouble("COH-Ma"));
-  fReIm  = fConfig->GetDoubleDef("Re-Im-Ampl", gc->GetDouble("COH-ReImAmpl"));
-  fRo    = fConfig->GetDoubleDef("Ro",         gc->GetDouble("COH-Ro"));
+  fMa      = fConfig->GetDoubleDef("Ma",            gc->GetDouble("COH-Ma"));
+  fReIm    = fConfig->GetDoubleDef("Re-Im-Ampl",    gc->GetDouble("COH-ReImAmpl"));
+  fRo      = fConfig->GetDoubleDef("Ro",            gc->GetDouble("COH-Ro"));
   fModPCAC = fConfig->GetBoolDef("UseModifiedPCAC", gc->GetBool("COH-UseModifiedPCAC"));
+
+  //-- load the differential cross section integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
 

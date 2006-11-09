@@ -41,20 +41,19 @@ using namespace genie::units;
 
 //____________________________________________________________________________
 ReinSeghalRESXSecWithCache::ReinSeghalRESXSecWithCache() :
-XSecAlgorithmI()
+XSecIntegratorI()
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalRESXSecWithCache::ReinSeghalRESXSecWithCache(string name) :
-XSecAlgorithmI(name)
+ReinSeghalRESXSecWithCache::ReinSeghalRESXSecWithCache(string nm) :
+XSecIntegratorI(nm)
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalRESXSecWithCache::ReinSeghalRESXSecWithCache(
-                                                 string name, string config) :
-XSecAlgorithmI(name,config)
+ReinSeghalRESXSecWithCache::ReinSeghalRESXSecWithCache(string nm,string conf):
+XSecIntegratorI(nm,conf)
 {
 
 }
@@ -130,7 +129,9 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
          cache->AddCacheBranch(key, cache_branch);
          assert(cache_branch);
 
-         double EvThr = interaction->EnergyThreshold();
+         const KPhaseSpace & kps = interaction->PhaseSpace();
+         double EvThr = kps.Threshold();
+         //double EvThr = interaction->EnergyThreshold();
          LOG("ReinSeghalResC", pNOTICE) << "E threshold = " << EvThr;
 
          for(int ie=0; ie<kNSplineKnots; ie++) {
@@ -141,10 +142,10 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
              interaction->InitStatePtr()->SetProbeP4(p4);
 
              if(Ev>EvThr) {
-               // Get W integration range
-               Range1D_t rW = this->WRange(interaction);
-               // Get the wider possible Q2 range for the input W range
-               Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction, rW);
+               // Get W integration range and the wider possible Q2 range 
+               // (for all W)
+               Range1D_t rW  = kps.Limits(kKVW);
+               Range1D_t rQ2 = kps.Limits(kKVQ2);
 
                LOG("ReinSeghalResC", pINFO) 
 	         << "*** Integrating d^2 XSec/dWdQ^2 for R: " 
@@ -205,6 +206,7 @@ string ReinSeghalRESXSecWithCache::CacheBranchName(
   return key;
 }
 //____________________________________________________________________________
+/*
 Range1D_t ReinSeghalRESXSecWithCache::WRange(
                                       const Interaction * interaction) const
 {
@@ -251,5 +253,5 @@ Range1D_t ReinSeghalRESXSecWithCache::Q2Range(
   return rQ2;
 }
 //___________________________________________________________________________
-
+*/
 

@@ -25,16 +25,14 @@
 #ifndef _REIN_SEGHAL_RES_XSEC_WITH_CACHE_H_
 #define _REIN_SEGHAL_RES_XSEC_WITH_CACHE_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Base/XSecIntegratorI.h"
 #include "BaryonResonance/BaryonResList.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "Utils/Range1.h"
 
 namespace genie {
 
-class IntegratorI;
-
-class ReinSeghalRESXSecWithCache : public XSecAlgorithmI {
+class ReinSeghalRESXSecWithCache : public XSecIntegratorI {
 
 protected:
   ReinSeghalRESXSecWithCache();
@@ -42,25 +40,28 @@ protected:
   ReinSeghalRESXSecWithCache(string name, string config);
   virtual ~ReinSeghalRESXSecWithCache();
 
-  // Don't implement the XSecAlgorithmI interface - leave it for the concrete
+  // Don't implement the XSecIntegratorI interface - leave it for the concrete
   // subclasses. Just define utility methods and data
 
   void   CacheResExcitationXSec (const Interaction * interaction) const;
   string CacheBranchName(Resonance_t r, InteractionType_t it, int nu, int nuc) const;
 
+/*
   Range1D_t WRange (const Interaction * interaction) const;
   Range1D_t Q2Range(const Interaction * interaction) const;
-
+*/
   bool   fUsingDisResJoin;
   double fWcut;
+  double fEMax;
+/*
   double fWmin;
   double fWmax;
   double fQ2min;
   double fQ2max;
-  double fEMax;
 
-  const XSecAlgorithmI * fSingleResXSecModel;
   const IntegratorI *    fIntegrator;
+*/
+  mutable const XSecAlgorithmI * fSingleResXSecModel;
   BaryonResList          fResList;
 };
 
