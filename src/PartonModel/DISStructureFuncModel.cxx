@@ -269,12 +269,12 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   const Target & tgt = interaction->InitState().Tgt();
   double M = tgt.HitNucP4().M(); 
 
-  // Apply Q2 cut
-  Q2 = TMath::Max(Q2, fQ2min);
+  // Get the Q2 for which PDFs will be evaluated
+  double Q2pdf = TMath::Max(Q2, fQ2min);
 
   // Compute PDFs at (x,Q2)
-  LOG("DISSF", pDEBUG) << "Calculating PDFs @ x = " << x << ", Q2 = " << Q2;
-  fPDF->Calculate(x, Q2);
+  LOG("DISSF", pDEBUG) << "Calculating PDFs @ x = " << x << ", Q2 = " << Q2pdf;
+  fPDF->Calculate(x, Q2pdf);
 
   // Check whether it is above charm threshold
   bool above_charm = 
@@ -284,7 +284,7 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
       << "The event is above the charm threshold (mcharm = " << fMc << ")";
 
     if(fCharmOff) {
-       LOG("DISSF", pNOTICE) << "Charm production is turned off";
+       LOG("DISSF", pINFO) << "Charm production is turned off";
     } else {
        // compute the slow rescaling var
        double xc = utils::kinematics::SlowRescalingVar(x,Q2,M,fMc);    
@@ -295,10 +295,14 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
           LOG("DISSF", pDEBUG) 
               << "Calculating PDFs @ xc (slow rescaling) = " 
               << x << ", Q2 = " << Q2;
-          fPDFc->Calculate(xc, Q2);
+          fPDFc->Calculate(xc, Q2pdf);
        }
     }// charm off?
   }//above charm thr?
+  else {
+    LOG("DISSF", pDEBUG) 
+     << "The event is below the charm threshold (mcharm = " << fMc << ")";
+  }
 
   // Compute the K factors
   double kval_u = 1.;
