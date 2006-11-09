@@ -18,11 +18,9 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/genie-config --libs)
 
 LIBRARIES := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-ifdef GOPT_GEANT_INTERFACE
-  LIBRARIES := $(LIBRARIES) $(GEANT4_LIBRARIES) $(CLHEP_LIBRARIES)
-endif
-
 ###LIBRARIES := $(LIBRARIES) -L /usr/local/lib -ltcmalloc
+
+LIBS_AND_HDRS := $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 EXE =	$(GENIE_BIN_PATH)/testAlgorithms	\
  	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
@@ -41,6 +39,7 @@ EXE =	$(GENIE_BIN_PATH)/testAlgorithms	\
 	$(GENIE_BIN_PATH)/testInteraction	\
 	$(GENIE_BIN_PATH)/testResonances	\
 	$(GENIE_BIN_PATH)/testReWeight		\
+	$(GENIE_BIN_PATH)/testKPhaseSpace	\
 	$(GENIE_BIN_PATH)/testReadGNtuple	\
 	$(GENIE_BIN_PATH)/testROOTGeometry      \
 	$(GENIE_BIN_PATH)/testINukeHadroData
@@ -60,6 +59,7 @@ TGT =	testAlgorithms 		\
 	testInteraction		\
 	testResonances		\
 	testReWeight		\
+	testKPhaseSpace		\
 	testReadGNtuple		
 
 ifdef GOPT_MUELOSS
@@ -76,88 +76,70 @@ endif
 all: $(TGT)
 
 testAlgorithms: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testAlgorithms \
-			testAlgorithms.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testAlgorithms testAlgorithms.cxx $(LIBS_AND_HDRS)
 
 testBaryonResDataSet: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testBaryonResDataSet \
-			testBaryonResDataSet.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testBaryonResDataSet testBaryonResDataSet.cxx $(LIBS_AND_HDRS) 
 
 testConfigPool: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testConfigPool \
-			testConfigPool.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testConfigPool testConfigPool.cxx $(LIBS_AND_HDRS) 
 
 testDecay: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDecay \
-			testDecay.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDecay testDecay.cxx $(LIBS_AND_HDRS) 
 
 testDISSF: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDISSF \
-			testDISSF.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDISSF testDISSF.cxx $(LIBS_AND_HDRS) 
 
 testHadronization: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testHadronization \
-		testHadronization.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testHadronization testHadronization.cxx $(LIBS_AND_HDRS) 
 
 testXSec: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testXSec \
-   		testXSec.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testXSec testXSec.cxx $(LIBS_AND_HDRS) 
 
 testPDFLIB: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testPDFLIB \
-			testPDFLIB.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testPDFLIB testPDFLIB.cxx $(LIBS_AND_HDRS) 
 
 testFermiP: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testFermiP \
-			testFermiP.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testFermiP testFermiP.cxx $(LIBS_AND_HDRS)
 
 testMCJobDriver: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMCJobDriver \
-			testMCJobDriver.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMCJobDriver testMCJobDriver.cxx $(LIBS_AND_HDRS)
 
 testFluxDriver: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testFluxDriver \
-			testFluxDriver.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testFluxDriver testFluxDriver.cxx $(LIBS_AND_HDRS) 
 
 testMessenger: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMessenger \
-			testMessenger.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMessenger testMessenger.cxx $(LIBS_AND_HDRS) 
 
 testMuELoss: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMuELoss \
-			testMuELoss.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMuELoss testMuELoss.cxx $(LIBS_AND_HDRS) 
 
 testNumerical: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testNumerical \
-			testNumerical.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testNumerical testNumerical.cxx $(LIBS_AND_HDRS) 
 
 testRegistry: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testRegistry \
-			testRegistry.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testRegistry testRegistry.cxx $(LIBS_AND_HDRS)
 
 testInteraction: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testInteraction \
-			testInteraction.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testInteraction testInteraction.cxx $(LIBS_AND_HDRS) 
 
 testResonances: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testResonances \
-			testResonances.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testResonances testResonances.cxx $(LIBS_AND_HDRS) 
 
 testReWeight: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testReWeight \
-			testReWeight.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testReWeight testReWeight.cxx $(LIBS_AND_HDRS) 
+
+testKPhaseSpace: FORCE
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testKPhaseSpace testKPhaseSpace.cxx $(LIBS_AND_HDRS) 
 
 testReadGNtuple: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testReadGNtuple \
-			testReadGNtuple.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testReadGNtuple testReadGNtuple.cxx $(LIBS_AND_HDRS)
 
 testROOTGeometry: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testROOTGeometry \
-			testROOTGeometry.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testROOTGeometry testROOTGeometry.cxx $(LIBS_AND_HDRS)
 
 testINukeHadroData: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testINukeHadroData \
-	              testINukeHadroData.cxx $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testINukeHadroData testINukeHadroData.cxx $(LIBS_AND_HDRS) 
 
 #################### CLEANING
 
@@ -214,6 +196,9 @@ clean--testResonances: FORCE
 
 clean--testReWeight: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testReWeight
+
+clean--testKPhaseSpace: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testKPhaseSpace
 
 clean--testReadGNtuple: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testReadGNtuple
