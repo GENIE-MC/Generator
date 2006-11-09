@@ -21,6 +21,8 @@
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/KinePhaseSpace.h"
+#include "EVGCore/EventGeneratorI.h"
+#include "EVGCore/RunningThreadInfo.h"
 #include "EVGModules/RSPPResonanceSelector.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
@@ -84,6 +86,13 @@ Resonance_t RSPPResonanceSelector::SelectResonance(GHepRecord * evrec) const
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
+  //-- Access cross section algorithm for running thread
+  //   The algorithm must be able to compute the RES contribution to
+  //   the specified RES/SPP channel
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  const XSecAlgorithmI * xsecalg = evg->CrossSectionAlg();
+
   //-- Loop over all considered baryon resonances and compute the double
   //   differential cross section for the selected kinematical variables
 
@@ -104,7 +113,7 @@ Resonance_t RSPPResonanceSelector::SelectResonance(GHepRecord * evrec) const
      double xsec = 0;
      bool   skip = (q_res==2 && !utils::res::IsDelta(res));
 
-     if(!skip) xsec = fXSecAlg->XSec(interaction,kPSWQ2fE);
+     if(!skip) xsec = xsecalg->XSec(interaction,kPSWQ2fE);
      else {
        SLOG("RESSelector", pNOTICE)
                  << "RES: " << utils::res::AsString(res)
@@ -198,15 +207,5 @@ void RSPPResonanceSelector::LoadConfig(void)
 
   fResList.DecodeFromNameList(resonances);
   LOG("RESSelector", pINFO) << fResList;
-
-  fXSecAlg = 0;
-
-  //-- Get a d^2xsec/dWdQ^2|SPP cross section calculator 
-  //   The algorithm should be able to compute xsec for SPP channels and also
-  //   allow one to compute the contribution of specific resonances
-  LOG("RESSelector", pDEBUG) << "Getting the differential xsec algorithm";
-  fXSecAlg = dynamic_cast<const XSecAlgorithmI *> 
-                                 (this->SubAlg("RESContribXSecAlg"));
-  assert(fXSecAlg);
 }
 //____________________________________________________________________________
