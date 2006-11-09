@@ -29,8 +29,6 @@
 
 namespace genie {
 
-class XSecAlgorithmI;
-
 class RSPPResonanceSelector : public HadronicSystemGenerator {
 
 public :
@@ -52,10 +50,8 @@ private:
   Resonance_t SelectResonance   (GHepRecord * event_rec) const;
   void        AddResonance      (GHepRecord * event_rec) const;
 
-  BaryonResList          fResList;
-  const XSecAlgorithmI * fXSecAlg;
+  BaryonResList fResList; ///< baryon resonances taken into account
 };
 
 }      // genie namespace
-
 #endif // _RSPP_RESONANCE_SELECTOR_H_
