@@ -50,11 +50,14 @@ public:
   ReinSeghalSPPXSec(string param_set);
   virtual ~ReinSeghalSPPXSec();
 
-  //-- XSecAlgorithmI interface implementation
+  //-- XSecIntegratorI interface implementation
+  double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
+
+/*
   double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
   bool   ValidProcess    (const Interaction * i) const;
   bool   ValidKinematics (const Interaction * i) const;
-
+*/
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
   void Configure(const Registry & config);
@@ -65,6 +68,5 @@ private:
 };
 
 }       // genie namespace
-
 #endif  // _REIN_SEGHAL_SPP_XSEC_H_
 

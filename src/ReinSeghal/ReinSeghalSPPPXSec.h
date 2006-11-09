@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::RSExclusiveRESPXSec
+\class    genie::ReinSeghalSPPPXSec
 
 \brief    Computes the differential cross section for an exclusive 1-pion 
           reaction through resonance neutrinoproduction according to the 
@@ -51,18 +51,20 @@
 
 namespace genie {
 
+class XSecIntegratorI;
+
 class ReinSeghalSPPPXSec : public XSecAlgorithmI {
 
 public:
-
   ReinSeghalSPPPXSec();
   ReinSeghalSPPPXSec(string config);
   virtual ~ReinSeghalSPPPXSec();
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
+  /////////bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
@@ -78,8 +80,9 @@ private:
   double XSec1RES(const Interaction * i, KinePhaseSpace_t k) const;
 
   //-- private data members
-  BaryonResList          fResList;
-  const XSecAlgorithmI * fSingleResXSecModel;
+  BaryonResList           fResList;
+  const XSecAlgorithmI *  fSingleResXSecModel;
+  const XSecIntegratorI * fXSecIntegrator;
 };
 
 }       // genie namespace

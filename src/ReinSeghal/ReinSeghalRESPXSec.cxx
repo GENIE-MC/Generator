@@ -19,6 +19,7 @@
 
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
@@ -253,6 +254,12 @@ double ReinSeghalRESPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
+double ReinSeghalRESPXSec::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool ReinSeghalRESPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
@@ -275,6 +282,7 @@ bool ReinSeghalRESPXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
+/*
 bool ReinSeghalRESPXSec::ValidKinematics(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
@@ -302,7 +310,7 @@ bool ReinSeghalRESPXSec::ValidKinematics(const Interaction* interaction) const
   if(!in_physical_range) return false;
 
   return true;
-}
+}*/
 //____________________________________________________________________________
 void ReinSeghalRESPXSec::Configure(const Registry & config)
 {
@@ -410,6 +418,11 @@ void ReinSeghalRESPXSec::LoadConfig(void)
            << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
      fNuTauBarRdSpl = new Spline(filename);
   }
+
+  //-- load the differential cross section integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
 

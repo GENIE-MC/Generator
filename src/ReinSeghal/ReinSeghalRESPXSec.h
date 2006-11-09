@@ -48,19 +48,20 @@ class BreitWignerI;
 class BaryonResDataSetI;
 class RSHelicityAmplModelI;
 class Spline;
+class XSecIntegratorI;
 
 class ReinSeghalRESPXSec : public XSecAlgorithmI {
 
 public:
-
   ReinSeghalRESPXSec();
   ReinSeghalRESPXSec(string config);
   virtual ~ReinSeghalRESPXSec();
 
   //! XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
+  ///////////bool   ValidKinematics (const Interaction * i) const;
 
   //! overload the Algorithm::Configure() methods to load private data
   //! members from configuration options
@@ -95,6 +96,8 @@ private:
   double   fGnResMaxNWidths;   ///< limits allowed phase space for other res
   Spline * fNuTauRdSpl;        ///< xsec reduction spline for nu_tau
   Spline * fNuTauBarRdSpl;     ///< xsec reduction spline for nu_tau_bar
+
+  const XSecIntegratorI * fXSecIntegrator;
 };
 
 }       // genie namespace

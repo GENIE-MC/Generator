@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include "Algorithm/AlgFactory.h"
+#include "Base/XSecIntegratorI.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
 #include "Conventions/KineVar.h"
@@ -153,6 +154,12 @@ double ReinSeghalSPPPXSec::XSec1RES(
   return res_xsec_contrib;
 }
 //____________________________________________________________________________
+double ReinSeghalSPPPXSec::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool ReinSeghalSPPPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
@@ -169,6 +176,7 @@ bool ReinSeghalSPPPXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
+/*
 bool ReinSeghalSPPPXSec::ValidKinematics(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
@@ -196,7 +204,7 @@ bool ReinSeghalSPPPXSec::ValidKinematics(const Interaction* interaction) const
   if(!in_physical_range) return false;
 
   return true;
-}
+}*/
 //____________________________________________________________________________
 void ReinSeghalSPPPXSec::Configure(const Registry & config)
 {
@@ -230,5 +238,10 @@ void ReinSeghalSPPPXSec::LoadConfig(void)
   assert( fConfig->Exists("ResonanceNameList") );
   string resonanes = fConfig->GetString("ResonanceNameList");
   fResList.DecodeFromNameList(resonanes);
+
+  //-- load the differential cross section integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________

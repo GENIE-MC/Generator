@@ -48,13 +48,18 @@ ReinSeghalRESXSec::~ReinSeghalRESXSec()
 
 }
 //____________________________________________________________________________
-double ReinSeghalRESXSec::XSec(
-                 const Interaction * interaction, KinePhaseSpace_t kps) const
+double ReinSeghalRESXSec::Integrate(
+          const XSecAlgorithmI * model, const Interaction * interaction) const
 {
-  assert(kps==kPSfE);
+  if(! model->ValidProcess(interaction) ) return 0.;
 
-  if(! this -> ValidProcess    (interaction) ) return 0.;
-  if(! this -> ValidKinematics (interaction) ) return 0.;
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  if(!kps.IsAboveThreshold()) {
+     LOG("COHXSec", pDEBUG)  << "*** Below energy threshold";
+     return 0;
+  }
+
+  fSingleResXSecModel = model;
 
   //-- Get cache
   Cache * cache = Cache::Instance();
@@ -120,6 +125,7 @@ double ReinSeghalRESXSec::XSec(
   return rxsec;
 }
 //____________________________________________________________________________
+/*
 bool ReinSeghalRESXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
@@ -137,7 +143,7 @@ bool ReinSeghalRESXSec::ValidKinematics(const Interaction * interaction) const
   if(Ev <= EvThr) return false;
 
   return true;
-}
+}*/
 //____________________________________________________________________________
 void ReinSeghalRESXSec::Configure(const Registry & config)
 {
@@ -156,25 +162,24 @@ void ReinSeghalRESXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fSingleResXSecModel = 0;
-  fIntegrator = 0;
-
-  //-- get the requested d^2xsec/dxdy xsec algorithm to use
-  fSingleResXSecModel =
-       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
-
   fIntegrator = 
        dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-
-  assert (fSingleResXSecModel);
   assert (fIntegrator);
-
+/*
+  fIntegrator = 0;
+  //-- get the requested d^2xsec/dxdy xsec algorithm to use
+  fSingleResXSecModel = 0;
+  fSingleResXSecModel =
+       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
+  assert (fSingleResXSecModel);
+*/
+/*
   // user cuts in W,Q2
   fWmin  = fConfig->GetDoubleDef("Kine-Wmin", - 1.0);
   fWmax  = fConfig->GetDoubleDef("Kine-Wmax",   1e9);
   fQ2min = fConfig->GetDoubleDef("Kine-Q2min", -1.0);
   fQ2max = fConfig->GetDoubleDef("Kine-Q2max",  1e9);
-
+*/
   // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   fEMax = fConfig->GetDoubleDef("ESplineMax", 40);
   fEMax = TMath::Max(fEMax,10.); // don't accept user Emax if less than 10 GeV
