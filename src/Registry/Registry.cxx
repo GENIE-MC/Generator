@@ -467,6 +467,11 @@ string Registry::GetStringDef(RgKey key, string def_opt, bool set_def)
   return GetValueOrUseDefault(this, key, def_opt, set_def);
 }
 //____________________________________________________________________________
+RgAlg Registry::GetAlgDef(RgKey key, RgAlg  def_opt, bool set_def)
+{
+  return GetValueOrUseDefault(this, key, def_opt, set_def);
+}
+//____________________________________________________________________________
 bool Registry::Exists(RgKey key) const
 {
   RgIMapConstIter entry = fRegistry.find(key);
