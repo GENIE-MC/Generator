@@ -56,7 +56,6 @@ public:
   void Configure (string param_set);
 
 private:
-
   void  LoadConfig (void);
 
   double ZR       (const Interaction * interaction) const;
@@ -72,8 +71,6 @@ private:
   const IntegratorI *     fIntegrator;
   const XSecIntegratorI * fXSecIntegrator;
 
-  double fQ2min;
-  double fQ2max;
   double fMo;
   double fF2LambdaP;
   double fF2SigmaP;
