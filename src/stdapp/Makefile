@@ -38,7 +38,7 @@ ALLTGT = gEvGen		\
 
 STDTGT = gEvGen		\
 	 gNtpConv	\
-	 gMaxPathLengths\
+	 gMakeSplines   \
 	 gSplinePlotter	\
 	 gMCSampleTest	
 
