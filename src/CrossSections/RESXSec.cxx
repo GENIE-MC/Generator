@@ -31,13 +31,13 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 RESXSec::RESXSec() :
-XSecAlgorithmI("genie::RESXSec")
+XSecIntegratorI("genie::RESXSec")
 {
 
 }
 //____________________________________________________________________________
 RESXSec::RESXSec(string config) :
-XSecAlgorithmI("genie::RESXSec", config)
+XSecIntegratorI("genie::RESXSec", config)
 {
 
 }
@@ -47,67 +47,33 @@ RESXSec::~RESXSec()
 
 }
 //____________________________________________________________________________
-double RESXSec::XSec(const Interaction * in, KinePhaseSpace_t kps) const
+double RESXSec::Integrate(
+                 const XSecAlgorithmI * model, const Interaction * in) const
 {
-  assert(kps==kPSfE);
+  if(! model->ValidProcess(in) ) return 0.;
 
-  if(! this -> ValidProcess    (in) ) return 0.;
-  if(! this -> ValidKinematics (in) ) return 0.;
+  const KPhaseSpace & kps = in->PhaseSpace();
+  if(!kps.IsAboveThreshold()) {
+     LOG("COHXSec", pDEBUG)  << "*** Below energy threshold";
+     return 0;
+  }
+  Range1D_t Q2l = kps.Limits(kKVQ2);
+  Range1D_t Wl  = kps.Limits(kKVW);
 
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
 
-  // Get neutrino energy in the struck nucleon rest frame
-  const InitialState & init_state = interaction -> InitState();
-  double Ev  = init_state.ProbeE(kRfHitNucRest);
-
-  // Get W integration range
-  Range1D_t rW = this->WRange(interaction);
-  // Get the wider possible Q2 range for the input W range
-  Range1D_t rQ2 = utils::kinematics::Q2Range_W(interaction, rW);
-
-  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(fPartialXSecAlg, interaction);
-  func->SetParam(0,"W",  rW);
-  func->SetParam(1,"Q2", rQ2);
+  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
+  func->SetParam(0,"W",  Wl);
+  func->SetParam(1,"Q2", Q2l);
   double xsec = fIntegrator->Integrate(*func);
 
-  SLOG("RESXSec", pINFO)  << "XSec[RES] (Ev = " << Ev << " GeV) = " << xsec;
+  //SLOG("RESXSec", pINFO)  << "XSec[RES] (Ev = " << Ev << " GeV) = " << xsec;
 
+  delete interaction;
   delete func;
   return xsec;
-}
-//____________________________________________________________________________
-bool RESXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-
-  const InitialState & init_state = interaction->InitState();
-  const ProcessInfo &  proc_info  = interaction->ProcInfo();
-
-  if(!proc_info.IsResonant()) return false;
-  if(!proc_info.IsWeak())     return false;
-
-  int  nuc = init_state.Tgt().HitNucPdg();
-  int  nu  = init_state.ProbePdg();
-
-  if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
-  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
-
-  return true;
-}
-//____________________________________________________________________________
-bool RESXSec::ValidKinematics(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const InitialState & init_state = interaction -> InitState();
-  double Ev  = init_state.ProbeE(kRfHitNucRest);
-
-  double EvThr = interaction->EnergyThreshold();
-  if(Ev <= EvThr) return false;
-
-  return true;
 }
 //____________________________________________________________________________
 void RESXSec::Configure(const Registry & config)
@@ -124,62 +90,9 @@ void RESXSec::Configure(string config)
 //____________________________________________________________________________
 void RESXSec::LoadConfig(void)
 {
-  fPartialXSecAlg = 0;
-  fIntegrator     = 0;
-
-  //-- get the requested d^2xsec/dxdy xsec algorithm to use
-  fPartialXSecAlg =
-      dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
-
   //-- get the specified integration algorithm
   fIntegrator = 
        dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-
-  assert( fPartialXSecAlg );
-  assert( fIntegrator     );
+  assert(fIntegrator);
 }
 //____________________________________________________________________________
-Range1D_t RESXSec::WRange(const Interaction * interaction) const
-{
-  //-- Get the physically allowed W range for this interaction and allow the
-  //   user inputs (if any) to narrow it
-
-  Range1D_t rW = utils::kinematics::KineRange(interaction, kKVW); 
-  LOG("RESXSec", pDEBUG)
-       << "Physical W range: " << "[" << rW.min << ", " << rW.max << "] GeV";
-
-  // user cuts
-  double Wmin = fConfig->GetDoubleDef("Kine-Wmin", -1.0);
-  double Wmax = fConfig->GetDoubleDef("Kine-Wmax",  1e9);
-
-  utils::kinematics::ApplyCutsToKineLimits(rW,  Wmin,  Wmax );
-
-  LOG("RESXSec", pDEBUG)
-       << "Physical & User W range: "
-                               << "[" << rW.min << ", " << rW.max << "] GeV";
-  return rW;
-}
-//___________________________________________________________________________
-Range1D_t RESXSec::Q2Range(const Interaction * interaction) const
-{
-  //-- Get the physically allowed Q2 range for this interaction and allow the
-  //   user inputs (if any) to narrow it
-
-  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2); 
-  LOG("RESXSec", pDEBUG) << "Physical Q2 range: "
-                 << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-
-  // user cuts
-  double Q2min = fConfig->GetDoubleDef("Kine-Q2min", -1.0);
-  double Q2max = fConfig->GetDoubleDef("Kine-Q2max",  1e9);
-
-  utils::kinematics::ApplyCutsToKineLimits(rQ2, Q2min, Q2max );
-
-  LOG("RESXSec", pDEBUG)
-       << "Physical & User Q2 range: "
-                << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-  return rQ2;
-}
-//___________________________________________________________________________
-
-

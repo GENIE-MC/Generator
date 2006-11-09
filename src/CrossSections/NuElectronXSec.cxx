@@ -28,13 +28,13 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 NuElectronXSec::NuElectronXSec() :
-XSecAlgorithmI("genie::NuElectronXSec")
+XSecIntegratorI("genie::NuElectronXSec")
 {
 
 }
 //____________________________________________________________________________
 NuElectronXSec::NuElectronXSec(string config) :
-XSecAlgorithmI("genie::NuElectronXSec", config)
+XSecIntegratorI("genie::NuElectronXSec", config)
 {
 
 }
@@ -44,44 +44,31 @@ NuElectronXSec::~NuElectronXSec()
 
 }
 //____________________________________________________________________________
-double NuElectronXSec::XSec(
-                const Interaction * interaction, KinePhaseSpace_t kps) const
+double NuElectronXSec::Integrate(
+                 const XSecAlgorithmI * model, const Interaction * in) const
 {
-  assert(kps==kPSfE);
+  if(! model->ValidProcess(in) ) return 0.;
 
-  if(! this -> ValidProcess    (interaction) ) return 0.;
-  if(! this -> ValidKinematics (interaction) ) return 0.;
+  const KPhaseSpace & kps = in->PhaseSpace();
+  if(!kps.IsAboveThreshold()) {
+     LOG("NuEXSec", pDEBUG)  << "*** Below energy threshold";
+     return 0;
+  }
+  Range1D_t yl = kps.Limits(kKVy);
 
-  // Get initial & final state information
-  const InitialState & init_state = interaction->InitState();
-  double E  = init_state.ProbeE(kRfLab);
+  Interaction * interaction = new Interaction(*in);
+  interaction->SetBit(kISkipProcessChk);
+  //interaction->SetBit(kISkipKinematicChk);
 
-  double e    = 1E-6;
-  double ymin = e;
-  double ymax = 1-e;
-
-  GXSecFunc * func = new Integrand_DXSec_Dy_E(fDiffXSecModel, interaction);
-  func->SetParam(0,"y",ymin,ymax);
+  GXSecFunc * func = new Integrand_DXSec_Dy_E(model, interaction);
+  func->SetParam(0,"y",yl);
   double xsec = fIntegrator->Integrate(*func);
 
-  LOG("Elastic", pDEBUG) << "*** XSec[ve-] (E=" << E << ") = " << xsec;
+  //LOG("NuEXSec", pDEBUG) << "*** XSec[ve-] (E=" << E << ") = " << xsec;
 
+  delete interaction;
   delete func;
   return xsec;
-}
-//____________________________________________________________________________
-bool NuElectronXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-
-  return fDiffXSecModel->ValidProcess(interaction);
-}
-//____________________________________________________________________________
-bool NuElectronXSec::ValidKinematics(const Interaction* interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  return true;
 }
 //____________________________________________________________________________
 void NuElectronXSec::Configure(const Registry & config)
@@ -98,15 +85,6 @@ void NuElectronXSec::Configure(string config)
 //____________________________________________________________________________
 void NuElectronXSec::LoadConfig(void)
 {
-// Reads its configuration from its Registry and loads all the sub-algorithms
-// needed and sets configuration variables to avoid looking up at the Registry
-// all the time.
-
-  //-- get an algorithm to calculate differential cross sections dxsec/dy
-  fDiffXSecModel =
-       dynamic_cast<const XSecAlgorithmI *>(this->SubAlg("DiffXSecAlg"));
-  assert(fDiffXSecModel);
-
   //-- get the specified integration algorithm
   fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
   assert(fIntegrator);

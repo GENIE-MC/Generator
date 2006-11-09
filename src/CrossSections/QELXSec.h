@@ -4,7 +4,7 @@
 \class    genie::QELXSec
 
 \brief    Computes the Quasi Elastic (QEL) cross section. \n
-          Is a concrete implementation of the XSecAlgorithmI interface. \n
+          Is a concrete implementation of the XSecIntegratorI interface. \n
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -20,23 +20,19 @@
 #ifndef _QEL_XSEC_H_
 #define _QEL_XSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Base/XSecIntegratorI.h"
 
 namespace genie {
 
-class IntegratorI;
-
-class QELXSec : public XSecAlgorithmI {
+class QELXSec : public XSecIntegratorI {
 
 public:
   QELXSec();
   QELXSec(string config);
   virtual ~QELXSec();
 
-  //! XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
-  bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
+  //! XSecIntegratorI interface implementation
+  double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
 
   //! overload the Algorithm::Configure() methods to load private data
   //! members from configuration options
@@ -45,9 +41,6 @@ public:
 
 private:
   void LoadConfig (void);
-
-  const XSecAlgorithmI * fDiffXSecModel;
-  const IntegratorI *    fIntegrator;
 };
 
 }       // genie namespace

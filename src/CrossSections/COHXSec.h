@@ -4,7 +4,7 @@
 \class    genie::COHXSec
 
 \brief    Computes the cross section for COH neutrino-nucleus scattering.\n
-          Is a concrete implementation of the XSecAlgorithmI interface.
+          Is a concrete implementation of the XSecIntegratorI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -20,24 +20,18 @@
 #ifndef _COH_XSEC_H_
 #define _COH_XSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Base/XSecIntegratorI.h"
 
 namespace genie {
 
-class IntegratorI;
-
-class COHXSec : public XSecAlgorithmI {
-
+class COHXSec : public XSecIntegratorI {
 public:
-
   COHXSec();
   COHXSec(string config);
   virtual ~COHXSec();
 
-  //! XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
-  bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
+  //! XSecIntegratorI interface implementation
+  double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
 
   //! overload the Algorithm::Configure() methods to load private data
   //!  members from configuration options
@@ -45,11 +39,7 @@ public:
   void Configure(string config);
 
 private:
-
   void LoadConfig (void);
-
-  const XSecAlgorithmI * fPartialXSecAlg;
-  const IntegratorI *    fIntegrator;
 };
 
 }       // genie namespace

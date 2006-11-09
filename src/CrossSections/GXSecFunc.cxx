@@ -28,6 +28,7 @@
 #include "Utils/KineUtils.h"
 
 using namespace genie;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 //____________________________________________________________________________
@@ -68,12 +69,15 @@ double Integrand_D2XSec_DxDy_E::operator() (const vector<double> & p)
   fInteraction->KinePtr()->Setx(x);
   fInteraction->KinePtr()->Sety(y);
 
+  kinematics::UpdateWQ2FromXY(fInteraction);
+
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSxyfE);
   return xsec;
 }
 //____________________________________________________________________________
 //____________________________________________________________________________
+/*
 Integrand_D2XSec_DxDy_E_WQ2Cuts::Integrand_D2XSec_DxDy_E_WQ2Cuts(
             const XSecAlgorithmI * m, const Interaction * i,
                                          Range1D_t WCuts, Range1D_t Q2Cuts) :
@@ -142,6 +146,7 @@ double Integrand_D2XSec_DxDy_E_WQ2Cuts::operator() (const vector<double> & p)
 }
 //____________________________________________________________________________
 //____________________________________________________________________________
+*/
 Integrand_DXSec_DQ2_E::Integrand_DXSec_DQ2_E(
                       const XSecAlgorithmI * m, const Interaction * i) :
 GXSecFunc(m,i,1)
