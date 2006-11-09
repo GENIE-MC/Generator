@@ -569,10 +569,11 @@ void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
          bool spl_exists = xsl->SplineExists(alg, interaction);
          if(!spl_exists) {
              SLOG("GEVGDriver", pNOTICE) 
-               << "Spline was not found!" 
-                     << "I'll create it but this might take a while...";
+               << "The spline wasn't loaded at initialization. "
+               << "I can build it now but it might take a while..."; 
              SLOG("GEVGDriver", pNOTICE) 
-                     << "Next time consider pre-computing the splines!";
+               << "(Consider recycling the splines! "
+               << "See the GENIE FAQ/HOWTO at http://www.genie-mc.org)";
              xsl->CreateSpline(alg, interaction, nknots, Emin, emax);
          } else {
              SLOG("GEVGDriver", pNOTICE) << "Spline was found";
