@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
 #include "Charm/KovalenkoQELCharmPXSec.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -265,6 +266,12 @@ double KovalenkoQELCharmPXSec::SumF2(const Interaction * interaction) const
   return 0;
 }
 //____________________________________________________________________________
+double KovalenkoQELCharmPXSec::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool KovalenkoQELCharmPXSec::ValidProcess(
                                         const Interaction * interaction) const
 {
@@ -373,6 +380,13 @@ void KovalenkoQELCharmPXSec::LoadConfig(void)
 
   fPDFModel = dynamic_cast<const PDFModelI *>(this->SubAlg("PDF-Set"));
   assert(fPDFModel);
+
+  // load XSec Integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
+
+  // load numerical integrator for integrand in diff x-section calc.
   fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
   assert(fIntegrator);
 }

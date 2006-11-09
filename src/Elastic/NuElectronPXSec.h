@@ -34,17 +34,18 @@
 namespace genie {
 
 class IntegratorI;
+class XSecIntegratorI;
 
 class NuElectronPXSec : public XSecAlgorithmI {
 
 public:
-
   NuElectronPXSec();
   NuElectronPXSec(string config);
   virtual ~NuElectronPXSec();
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   bool   ValidKinematics (const Interaction * i) const;
 
@@ -54,13 +55,13 @@ public:
   void Configure(string config);
 
 private:
-
   void LoadConfig (void);
+
+  const XSecIntegratorI * fXSecIntegrator;
 
   double fCv;
   double fCa;
 };
 
 }       // genie namespace
-
 #endif  // _NU_ELECTRON_PARTIAL_XSEC_H_

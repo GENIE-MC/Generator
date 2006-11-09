@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
 #include "Base/QELFormFactors.h"
 #include "Base/QELFormFactorsModelI.h"
 #include "Conventions/Constants.h"
@@ -56,8 +57,6 @@ QELPXSec::~QELPXSec()
 double QELPXSec::XSec(
           const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  LOG("QELPXSec", pDEBUG) << *fConfig;
-
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
@@ -142,6 +141,12 @@ double QELPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
+double QELPXSec::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool QELPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
@@ -162,37 +167,6 @@ bool QELPXSec::ValidProcess(const Interaction * interaction) const
   bool prcok = proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu));
   if(!prcok) return false;
 
-  return true;
-}
-//____________________________________________________________________________
-bool QELPXSec::ValidKinematics(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const InitialState & init_state = interaction -> InitState();
-  const Kinematics &   kinematics = interaction -> Kine();
-
-  double E    = init_state.ProbeE(kRfHitNucRest);
-  double Ethr = interaction->EnergyThreshold();
-
-  LOG("QELPXSec", pDEBUG)
-       << "Computing QEL dXSec/dQ2 for Ev = " << E
-                            << " / Neutrino Energy Threshold = " << Ethr;
-  if(E <= Ethr) {
-     LOG("QELPXSec", pINFO) << "Ev = " << E << " <= Ethreshold = "<< Ethr;
-     return false;
-  }
-
-  double     Q2  = kinematics.Q2();
-  Range1D_t  rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
-
-  LOG("QELPXSec", pDEBUG) << "Q2 integration range = ("
-                                    << rQ2.min << ", " << rQ2.max << ")";
-  bool in_range = utils::math::IsWithinLimits(Q2, rQ2);
-  if(!in_range) {
-     LOG("QELPXSec", pDEBUG) << "Q2 = " << Q2 << ", not in allowed range";
-     return false;
-  }
   return true;
 }
 //____________________________________________________________________________
@@ -217,11 +191,15 @@ void QELPXSec::LoadConfig(void)
                               "CabbiboAngle", gc->GetDouble("CabbiboAngle"));
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
-  fFormFactorsModel = 0;
+   // load QEL form factors model
   fFormFactorsModel = dynamic_cast<const QELFormFactorsModelI *> (
                                              this->SubAlg("FormFactorsAlg"));
   assert(fFormFactorsModel);
-
   fFormFactors.SetModel(fFormFactorsModel); // <-- attach algorithm
+
+   // load XSec Integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________

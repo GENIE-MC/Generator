@@ -26,19 +26,19 @@
 namespace genie {
 
 class PDFModelI;
+class XSecIntegrator;
 
 class SlowRsclCharmDISPXSecLO : public XSecAlgorithmI {
 
 public:
-
   SlowRsclCharmDISPXSecLO();
   SlowRsclCharmDISPXSecLO(string config);
   virtual ~SlowRsclCharmDISPXSecLO();
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
@@ -49,7 +49,8 @@ private:
 
   void LoadConfig (void);
 
-  const PDFModelI * fPDFModel;
+  const PDFModelI *       fPDFModel;
+  const XSecIntegratorI * fXSecIntegrator;
 
   bool   fDContributes;
   bool   fSContributes;
@@ -62,5 +63,4 @@ private:
 };
 
 }       // genie namespace
-
 #endif  // _SLOW_RESCALING_CHARM_DIS_PARTIAL_XSEC_LO_H_

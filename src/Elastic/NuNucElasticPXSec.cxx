@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
@@ -132,22 +133,16 @@ double NuNucElasticPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
+double NuNucElasticPXSec::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool NuNucElasticPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
   return true;
-}
-//____________________________________________________________________________
-bool NuNucElasticPXSec::ValidKinematics(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const Kinematics & kinematics = interaction -> Kine();
-  double Q2 = kinematics.Q2();
-
-  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
-
-  return (utils::math::IsWithinLimits(Q2, rQ2));
 }
 //____________________________________________________________________________
 void NuNucElasticPXSec::Configure(const Registry & config)
@@ -189,5 +184,10 @@ void NuNucElasticPXSec::LoadConfig(void)
   // anomalous magnetic moments
   fMuP = fConfig->GetDoubleDef("MuP", gc->GetDouble("AnomMagnMoment-P"));
   fMuN = fConfig->GetDoubleDef("MuN", gc->GetDouble("AnomMagnMoment-N"));
+
+  // load XSec Integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________

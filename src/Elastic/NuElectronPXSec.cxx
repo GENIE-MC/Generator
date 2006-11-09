@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Elastic/NuElectronPXSec.h"
@@ -114,6 +115,12 @@ double NuElectronPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
+double NuElectronPXSec::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool NuElectronPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
@@ -145,6 +152,11 @@ void NuElectronPXSec::LoadConfig(void)
 
   fCv = fConfig->GetDoubleDef("CV", gc->GetDouble("NuElecEL-CV"));
   fCa = fConfig->GetDoubleDef("CA", gc->GetDouble("NuElecEL-CA"));
+
+  // load XSec Integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
 

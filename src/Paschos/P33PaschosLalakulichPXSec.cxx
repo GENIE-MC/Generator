@@ -18,6 +18,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResParams.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
@@ -268,41 +269,17 @@ double P33PaschosLalakulichPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
+double P33PaschosLalakulichPXSec::Integral(
+                                        const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool P33PaschosLalakulichPXSec::ValidProcess(
                                         const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
-
-  return true;
-}
-//____________________________________________________________________________
-bool P33PaschosLalakulichPXSec::ValidKinematics(
-                                        const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
-
-  double E  = init_state.ProbeE(kRfHitNucRest);
-  double EvThr = interaction->EnergyThreshold();
-  if(E <= EvThr) return false;
-
-  double Q2 = kinematics.Q2();
-  double W  = kinematics.W();
-
-  Range1D_t rW  = utils::kinematics::KineRange(interaction, kKVW);
-  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
-
-  LOG("PaschLal", pDEBUG) << "\n Physical W range: "
-                         << "["<< rW.min   << ", " << rW.max  << "] GeV";
-  LOG("PaschLal", pDEBUG) << "\n Physical Q2 range: "
-                         << "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-  bool is_within_limits =
-               utils::math::IsWithinLimits(W, rW) &&
-                                     utils::math::IsWithinLimits(Q2, rQ2);
-  if( !is_within_limits ) return false;
-
   return true;
 }
 //____________________________________________________________________________
@@ -332,9 +309,15 @@ void P33PaschosLalakulichPXSec::LoadConfig(void)
 
   fTurnOnPauliCorrection = fConfig->GetBoolDef("TurnOnPauliSuppr", false);
 
+  //-- load the baruon resonance data
   fRESDataTable =
     dynamic_cast<const BaryonResDataSetI *> (this->SubAlg("BaryonResData"));
   assert(fRESDataTable);
+
+  //-- load the differential cross section integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
 double P33PaschosLalakulichPXSec::Pauli(double Q2, double W, double MN) const

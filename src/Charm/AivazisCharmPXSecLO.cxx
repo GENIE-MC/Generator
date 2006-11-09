@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
 #include "Charm/AivazisCharmPXSecLO.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -152,6 +153,12 @@ double AivazisCharmPXSecLO::XSec(
   return xsec;
 }
 //____________________________________________________________________________
+double AivazisCharmPXSecLO::Integral(const Interaction * interaction) const
+{
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  return xsec;
+}
+//____________________________________________________________________________
 bool AivazisCharmPXSecLO::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
@@ -172,52 +179,6 @@ bool AivazisCharmPXSecLO::ValidProcess(const Interaction * interaction) const
   if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
 
-  return true;
-}
-//____________________________________________________________________________
-bool AivazisCharmPXSecLO::ValidKinematics(
-                                        const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
-
-  double E    = init_state.ProbeE(kRfHitNucRest);
-  double x    = kinematics.x();
-  double y    = kinematics.y();
-
-  if(x<=0 || x>=1) {
-    LOG("DISCharmXSec", pDEBUG) << "x is unphysical or at limit, x = " << x;
-    return false;
-  }
-  if(y<=0 || y>=1) {
-    LOG("DISCharmXSec", pDEBUG) << "x is unphysical or at limit, x = " << y;
-    return false;
-  }
-
-  double Mnuc  = init_state.Tgt().HitNucMass();
-  double Mnuc2 = TMath::Power(Mnuc, 2);
-  double Q2    = 2*Mnuc*E*x*y;
-  double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
-  double W     = TMath::Max(0., TMath::Sqrt(W2));
-
-  //----- Get the physical W and Q2 range and check whether the current W,Q2
-  //      pair is allowed
-  Range1D_t rW  = utils::kinematics::KineRange(interaction, kKVW);
-  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
-
-  bool in_range = utils::math::IsWithinLimits(Q2, rQ2)
-                                        && utils::math::IsWithinLimits(W, rW);
-  if(!in_range) {
-    LOG("DISCharmXSec", pDEBUG)
-        << "\n W: " << "[" << rW.min << ", " << rW.max << "] GeV"
-                 << " Q2: "<< "[" << rQ2.min << ", " << rQ2.max << "] GeV^2";
-    LOG("DISCharmXSec", pDEBUG)
-        << "\n (W = " << W << ", Q2 = " << Q2 << " is not in physical range"
-        << " - returning 0";
-    return false;
-  }
   return true;
 }
 //____________________________________________________________________________
@@ -250,5 +211,10 @@ void AivazisCharmPXSecLO::LoadConfig(void)
   // load PDF set
   fPDFModel = dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
   assert(fPDFModel);
+
+  // load XSec Integrator
+  fXSecIntegrator =
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________

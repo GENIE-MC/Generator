@@ -29,6 +29,7 @@ namespace genie {
 
 class DISStructureFuncModelI;
 class HadronizationModelI;
+class XSecIntegratorI;
 
 class DISPartonModelPXSec : public XSecAlgorithmI {
 
@@ -39,8 +40,8 @@ public:
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
@@ -54,14 +55,13 @@ private:
   mutable DISStructureFunc fDISSF;
   bool                     fInInitPhase;
 
-  //! configuration data
+  const DISStructureFuncModelI * fDISSFModel;         ///< SF model
+  const HadronizationModelI *    fHadronizationModel; ///< hadronic multip. model
+  const XSecIntegratorI *        fXSecIntegrator;     ///< diff. xsec integrator
 
   bool   fUsingDisResJoin;  ///< use a DIS/RES joining scheme?
   bool   fUseCache;         ///< cache reduction factors used in joining scheme
   double fWcut;             ///< apply DIS/RES joining scheme < Wcut
-
-  const DISStructureFuncModelI * fDISSFModel;         ///< SF model
-  const HadronizationModelI *    fHadronizationModel; ///< hadronic multip. model
 };
 
 }       // genie namespace

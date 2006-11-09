@@ -35,6 +35,7 @@ namespace genie {
 class PDF;
 class PDFModelI;
 class IntegratorI;
+class XSecIntegratorI;
 
 class KovalenkoQELCharmPXSec : public XSecAlgorithmI {
 
@@ -45,6 +46,7 @@ public:
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   bool   ValidKinematics (const Interaction * i) const;
 
@@ -66,8 +68,9 @@ private:
   double ResDM    (const Interaction * interaction) const;
   double xiBar    (const Interaction * interaction, double v) const;
 
-  const PDFModelI *   fPDFModel;
-  const IntegratorI * fIntegrator;
+  const PDFModelI *       fPDFModel;
+  const IntegratorI *     fIntegrator;
+  const XSecIntegratorI * fXSecIntegrator;
 
   double fQ2min;
   double fQ2max;

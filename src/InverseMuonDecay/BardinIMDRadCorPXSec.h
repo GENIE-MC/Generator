@@ -36,6 +36,7 @@
 namespace genie {
 
 class IntegratorI;
+class XSecIntegratorI;
 
 class BardinIMDRadCorPXSec : public XSecAlgorithmI {
 
@@ -46,8 +47,8 @@ public:
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
@@ -67,7 +68,8 @@ private:
   double C   (int    i,  int k,    double r) const;
 
   //-- data members
-  const IntegratorI * fIntegrator;
+  const IntegratorI *      fIntegrator;     ///< num integrator for BardinIMDRadCorIntegrand
+  const XSecIntegratorI *  fXSecIntegrator; ///< differential x-sec integrator
 };
 
 } // genie namespace
