@@ -317,7 +317,7 @@ bool KovalenkoQELCharmPXSec::ValidKinematics(
 
   //neutrino energy & momentum transfer
   double E   = init_state.ProbeE(kRfHitNucRest);
-  double Q2  = kinematics.Q2();
+  //double Q2  = kinematics.Q2();
 
   //resonance, final state primary lepton & nucleon mass
   double MR    = this -> MRes  (interaction);
@@ -328,8 +328,7 @@ bool KovalenkoQELCharmPXSec::ValidKinematics(
   //resonance threshold
   double ER = ( TMath::Power(MR+ml,2) - Mnuc2 ) / (2*Mnuc);
 
-  if(Q2 >= fQ2max || Q2 <= fQ2min) return false;
-  if(E <= ER)                      return false;
+  if(E <= ER) return false;
 
   return true;
 }
@@ -364,12 +363,6 @@ void KovalenkoQELCharmPXSec::LoadConfig(void)
   // 'proper scale of internal nucleon dynamics'.
   // In the original paper Mo = 0.08 +/- 0.02 GeV.
   fMo = fConfig->GetDoubleDef("Mo", 0.1);
-
-  // read kinematic cuts from config
-  fQ2min = fConfig->GetDoubleDef("Kine-Q2min", -999999);
-  fQ2min = fConfig->GetDoubleDef("Kine-Q2max",  999999);
-
-  assert(fQ2min < fQ2max);
 
   // cabbibo angle
   double thc = fConfig->GetDoubleDef(
