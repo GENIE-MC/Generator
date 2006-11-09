@@ -23,6 +23,7 @@
 #include <TStopwatch.h>
 #include <TMCParticle6.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/Controls.h"
 #include "EVGCore/EventGenerator.h"
@@ -218,6 +219,9 @@ void EventGenerator::Init(void)
 //___________________________________________________________________________
 void EventGenerator::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   if(fEVGModuleVec) delete fEVGModuleVec;
   if(fEVGTime)      delete fEVGTime;
   if(fVldContext)   delete fVldContext;
@@ -250,7 +254,7 @@ void EventGenerator::LoadConfig(void)
 
     fConfig->AssertExistence(key);
     SLOG("EventGenerator", pNOTICE)
-             << "Loading module " << istep << " : " << fConfig->GetAlg(key);
+        << "Loading module " << istep << " : " << fConfig->GetAlg(key);
 
     const EventRecordVisitorI * visitor =
                dynamic_cast<const EventRecordVisitorI *>(this->SubAlg(key));
@@ -259,22 +263,23 @@ void EventGenerator::LoadConfig(void)
     (*fEVGTime)[istep]      = 0;
   }
 
-  RgKey ilstgen = "ILstGen";
-  RgKey xsecalg = "XSecAlg";
-
-  fConfig->AssertExistence(ilstgen);
-  fConfig->AssertExistence(xsecalg);
-
+  //-- load the interaction list generator
+  RgKey ikey = "ILstGen";
+  fConfig->AssertExistence(ikey);
+  RgAlg ialg = fConfig->GetAlg(ikey);
   LOG("EventGenerator", pNOTICE) 
-    << "Loading the interaction list generator: " << fConfig->GetAlg(ilstgen);
+      << "Loading the interaction list generator: " << ialg;
   fIntListGen = 
-      dynamic_cast<const InteractionListGeneratorI *> (this->SubAlg(ilstgen));
+      dynamic_cast<const InteractionListGeneratorI *> (this->SubAlg(ikey));
   assert(fIntListGen);
 
+  //-- load the cross section model
+  RgKey xkey    = "XSecModel";
+  RgKey xdefkey = "XSecModel@" + this->Id().Key();
+  RgAlg xalg    = fConfig->GetAlgDef(xkey, gc->GetAlg(xdefkey));
   LOG("EventGenerator", pNOTICE) 
-        << "Loading the cross section model: " << fConfig->GetAlg(xsecalg);
-  fXSecModel = 
-       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(xsecalg));
+     << "Loading the cross section model: " << xalg;
+  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(xkey));
   assert(fXSecModel);
 }
 //___________________________________________________________________________
