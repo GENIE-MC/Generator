@@ -25,6 +25,8 @@
 #include "Conventions/Units.h"
 #include "Conventions/KinePhaseSpace.h"
 #include "EVGCore/EVGThreadException.h"
+#include "EVGCore/EventGeneratorI.h"
+#include "EVGCore/RunningThreadInfo.h"
 #include "EVGModules/COHKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
@@ -69,6 +71,11 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
+  //-- Access cross section algorithm for running thread
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  fXSecModel = evg->CrossSectionAlg();
+
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
   //   cache. Throw an exception and quit the evg thread if a non-positive
@@ -78,7 +85,8 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
 
   //-- Get the kinematical limits for the generated x,y
-  Range1D_t y = this->yRange(interaction);
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  Range1D_t y = kps.YLim();
   assert(y.min>0. && y.max>0. && y.min<1. && y.max<1. && y.min<y.max);
 
   const double xmin = kASmallNum;
@@ -214,24 +222,6 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   }// iterations
 }
 //___________________________________________________________________________
-Range1D_t COHKinematicsGenerator::yRange(const Interaction * in) const
-{
-  double Ev  = in->InitState().ProbeE(kRfLab);
-  double Mpi = kPionMass;
-  double ml  = in->FSPrimLepton()->Mass();
-
-  Range1D_t y(-1,-1);
-
-  if(Ev<=0) return y;
-
-  y.min = (Mpi/Ev)  + kASmallNum;
-  y.max = (1-ml/Ev) - kASmallNum;
-
-  LOG("COHKinematics", pDEBUG)
-                  << "Physical y range = (" << y.min << ", " << y.max << ")";
-  return y;
-}
-//___________________________________________________________________________
 double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 {
 // Computes the maximum differential cross section in the requested phase
@@ -248,8 +238,9 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
   const int Nx = 40;
   const int Ny = 50;
-  Range1D_t y  = this->yRange(in);
 
+  const KPhaseSpace & kps = in->PhaseSpace();
+  Range1D_t y = kps.YLim();
   if(Ev>3)  y.max = TMath::Min(y.max, 0.25);
   if(Ev>30) y.max = TMath::Min(y.max, 0.10);
 
@@ -324,15 +315,16 @@ void COHKinematicsGenerator::LoadConfig(void)
   fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.6);
   fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",     -1.0);
 
+/*
   //-- Differential cross section model
   fXSecModel = 
        dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
+  assert(fXSecModel);
+*/
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
   fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
-
-  assert(fXSecModel);
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method

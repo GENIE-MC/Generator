@@ -24,6 +24,8 @@
 #include "Conventions/KineVar.h"
 #include "Conventions/KinePhaseSpace.h"
 #include "EVGCore/EVGThreadException.h"
+#include "EVGCore/EventGeneratorI.h"
+#include "EVGCore/RunningThreadInfo.h"
 #include "EVGModules/RESKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
@@ -64,13 +66,19 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
 
+  //-- Access cross section algorithm for running thread
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  fXSecModel = evg->CrossSectionAlg();  
+
   //-- Get the interaction from the GHEP record
   Interaction * interaction = evrec->Summary();
   interaction->SetBit(kISkipProcessChk);
 
   //-- Compute the W limits
   //  (the physically allowed W's, unless an external cut is imposed)
-  Range1D_t W = this->WRange(interaction);
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  Range1D_t W = kps.Limits(kKVW);
   assert(W.min>=0. && W.min<W.max);
 
   if(W.max <=0 || W.min>=W.max) {
@@ -94,10 +102,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
 
   //-- Try to select a valid W, Q2 pair using the rejection method
-
-  double Wmin = W.min + kASmallNum;
-  double Wmax = W.max - kASmallNum;
-  double dW   = Wmax - Wmin;
+  double dW   = W.max - W.min;
   double xsec = -1;
 
   register unsigned int iter = 0;
@@ -123,15 +128,14 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        //-- Generate a W uniformly in the kinematically allowed range.
        //   For the generated W, compute the Q2 range and generate a value
        //   uniformly over that range
-       gW  = Wmin + dW  * rnd->RndKine().Rndm();
-       Range1D_t Q2 = this->Q2Range(interaction);
+       gW  = W.min + dW  * rnd->RndKine().Rndm();
+       Range1D_t Q2 = kps.Q2Lim_W();
        if(Q2.max<=0. || Q2.min>=Q2.max) continue;
        gQ2 = Q2.min + (Q2.max-Q2.min) * rnd->RndKine().Rndm();
 
        interaction->SetBit(kISkipKinematicChk);
 
      } else {
-
        //-- Selecting unweighted event kinematics using an importance sampling
        //   method. Q2 with be transformed to QD2 to take out the dipole form.
        //   An importance sampling envelope will be constructed for W.
@@ -143,8 +147,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
             LOG("RESKinematics", pFATAL) << "Null sampling envelope!";
             exit(1);
          }
-         interaction->KinePtr()->SetW(Wmin);
-         Range1D_t Q2 = this->Q2Range(interaction);
+         interaction->KinePtr()->SetW(W.min);
+         Range1D_t Q2 = kps.Q2Lim_W();
 	 double Q2min  = 0 + kASmallNum;
 	 double Q2max  = Q2.max - kASmallNum;         
 
@@ -165,13 +169,13 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          }
          LOG("RESKinematics", pDEBUG) 
             <<  "(m,g) = (" << mR << ", " << gR 
-            << "), max(xsec,W) = (" << xsec_max << ", " << Wmax << ")";
+            << "), max(xsec,W) = (" << xsec_max << ", " << W.max << ")";
 
-         fEnvelope->SetRange(QD2min,Wmin,QD2max,Wmax); // range
-         fEnvelope->SetParameter(0,  mR);              // resonance mass
-         fEnvelope->SetParameter(1,  gR);              // resonance width
-         fEnvelope->SetParameter(2,  xsec_max);        // max differential xsec
-         fEnvelope->SetParameter(3,  Wmax);            // kinematically allowed Wmax
+         fEnvelope->SetRange(QD2min,W.min,QD2max,W.max); // range
+         fEnvelope->SetParameter(0,  mR);                // resonance mass
+         fEnvelope->SetParameter(1,  gR);                // resonance width
+         fEnvelope->SetParameter(2,  xsec_max);          // max differential xsec
+         fEnvelope->SetParameter(3,  W.max);             // kinematically allowed Wmax
 	 //envelope->SetNpy(150); 
        }
        // Generate W,QD2 using the 2-D envelope as PDF
@@ -270,19 +274,6 @@ void RESKinematicsGenerator::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  //-- Get differential cross section model
-  fXSecModel = 
-       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
-  assert(fXSecModel);
-
-  //-- Get the user kinematical limits on W
-  fWmin = fConfig->GetDoubleDef("Kine-Wmin", -999999);
-  fWmax = fConfig->GetDoubleDef("Kine-Wmax",  999999);
-
-  //-- Get the user kinematical limits on Q2
-  fQ2min = fConfig->GetDoubleDef("Kine-Q2min", -999999);
-  fQ2max = fConfig->GetDoubleDef("Kine-Q2max",  999999);
-
   //-- Safety factor for the maximum differential cross section
   fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
 
@@ -309,44 +300,6 @@ void RESKinematicsGenerator::LoadConfig(void)
         kinematics::RESImportanceSamplingEnvelope,0.01,1,0.01,1,4);
 }
 //____________________________________________________________________________
-Range1D_t RESKinematicsGenerator::WRange(
-                                       const Interaction * interaction) const
-{
-  //-- Get the physically allowed kinematical region for this interaction
-  Range1D_t W = kinematics::KineRange(interaction, kKVW);
-  LOG("RESKinematics", pDEBUG)
-          << "Physical W range: " << "[" << W.min << ", " << W.max << "]";
-
-  //-- Define the W range: the user selection (if any) is not allowed to
-  //   extend it to an unphysical region but is allowed to narrow it down.
-  kinematics::ApplyCutsToKineLimits(W, fWmin, fWmax);
-
-  //-- Apply Wcut
-  W.max = TMath::Min(fWcut, W.max);
-
-  LOG("RESKinematics", pDEBUG)
-      << "W range (including cuts): " << "["<< W.min<< ", "<< W.max << "]";
-
-  return W;
-}
-//___________________________________________________________________________
-Range1D_t RESKinematicsGenerator::Q2Range(
-                                       const Interaction * interaction) const
-{
-  //-- Get the physically allowed kinematical region for this interaction
-  Range1D_t Q2 = kinematics::KineRange(interaction, kKVQ2);
-  LOG("RESKinematics", pDEBUG)
-        << "Physical Q2 range: " << "[" << Q2.min << ", " << Q2.max << "]";
-
-  //-- Define the W range: the user selection (if any) is not allowed to
-  //   extend it to an unphysical region but is allowed to narrow it down.
-  kinematics::ApplyCutsToKineLimits(Q2, fQ2min, fQ2max);
-  LOG("RESKinematics", pDEBUG)
-     << "Q2 range (including cuts): "<< "["<< Q2.min<< ", "<< Q2.max<< "]";
-
-  return Q2;
-}
-//___________________________________________________________________________
 double RESKinematicsGenerator::ComputeMaxXSec(
                                        const Interaction * interaction) const
 {
@@ -358,7 +311,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 // maximum. The number used in the rejection method will be scaled up by a
 // safety factor. But this needs to be fast - do not use a very fine grid.
 
-  double max_xsec   = 0.;
+  double max_xsec = 0.;
 
   const InitialState & init_state = interaction -> InitState();
   double E = init_state.ProbeE(kRfHitNucRest);
@@ -375,7 +328,6 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   }
 
   if(scan1d) {
-
     // ** 1-D Scan
     //
     LOG("RESKinematics", pDEBUG) 
@@ -384,7 +336,8 @@ double RESKinematicsGenerator::ComputeMaxXSec(
     // Set W around the value where d^2xsec/dWdQ^2 peaks
     interaction->KinePtr()->SetW(md);
 
-    Range1D_t rQ2 = this->Q2Range(interaction);
+    const KPhaseSpace & kps = interaction->PhaseSpace();
+    Range1D_t rQ2 = kps.Q2Lim_W();
     if( rQ2.max < kMinQ2Limit || rQ2.min <=0 ) return 0.;
 
     int    NQ2      = 25;
@@ -428,7 +381,8 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
     // ** 2-D Scan
     //
-    Range1D_t rW = this->WRange(interaction);
+    const KPhaseSpace & kps = interaction->PhaseSpace();
+    Range1D_t rW = kps.WLim();
 
     int    NW   = 10;
     double Wmin = rW.min + kASmallNum;
@@ -444,7 +398,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
       int NQ2  = 15;
       int NQ2b =  4;
 
-      Range1D_t rQ2 = this->Q2Range(interaction);
+      Range1D_t rQ2 = kps.Q2Lim_W();
 
       if( rQ2.max < kMinQ2Limit || rQ2.min <=0 ) continue;
       if( rQ2.max-rQ2.min<0.02 ) {NQ2=5; NQ2b=3;}

@@ -47,17 +47,14 @@ public:
   //! methods to load sub-algorithms and config data from the Registry
   void LoadConfig (void);
 
-  //! compute kinematical limits
-  Range1D_t yRange (const Interaction * in) const;
-
-  //! overload KineGeneratorWithCache methods
+  //! overload KineGeneratorWithCache method to compute max xsec
   double ComputeMaxXSec (const Interaction * in) const;
+
+  //! overload KineGeneratorWithCache method to get energy
   double Energy         (const Interaction * in) const;
 
   mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
-
-  //! config parameters
-  double fRo;
+  double fRo;              ///< nuclear scale parameter
 };
 
 }      // genie namespace

@@ -43,22 +43,12 @@ public :
   void Configure(string config);
 
 private:
-  void      LoadConfig      (void);
-  Range1D_t WRange          (const Interaction * interaction) const;
-  Range1D_t Q2Range         (const Interaction * interaction) const;
-  double    ComputeMaxXSec  (const Interaction * interaction) const;
-
-  //-- private data members
+  void   LoadConfig      (void);
+  double ComputeMaxXSec  (const Interaction * interaction) const;
 
   mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
-
-  double fWcut;   ///< Wcut parameter in DIS/RES join scheme
-  double fWmin;   
-  double fWmax;   
-  double fQ2min; 
-  double fQ2max;
+  double fWcut;            ///< Wcut parameter in DIS/RES join scheme
 };
 
 }      // genie namespace
-
 #endif // _RES_KINEMATICS_GENERATOR_H_
