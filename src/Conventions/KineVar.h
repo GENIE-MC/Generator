@@ -16,8 +16,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _KINE_VAR_H_
-#define _KINE_VAR_H_
+#ifndef _KINEMATIC_VAR_ENUM_H_
+#define _KINEMATIC_VAR_ENUM_H_
 
 #include <cassert>
 #include <string>
@@ -74,4 +74,4 @@ public:
 
 }      // genie namespace
 
-#endif // _KINE_VAR_H_
+#endif // _KINEMATIC_VAR_ENUM_H_

@@ -16,8 +16,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _KINE_PHASE_SPACE_H_
-#define _KINE_PHASE_SPACE_H_
+#ifndef _KINEMATIC_PHASE_SPACE_ENUM_H_
+#define _KINEMATIC_PHASE_SPACE_ENUM_H_
 
 #include <cassert>
 #include <string>
@@ -107,4 +107,4 @@ public:
 
 }      // genie namespace
 
-#endif // _KINE_PHASE_SPACE_H_
+#endif // _KINEMATIC_PHASE_SPACE_ENUM_H_
