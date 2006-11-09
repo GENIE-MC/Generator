@@ -12,7 +12,6 @@ Name             Type     Optional   Comment                 Default
 -->
 
   <param_set name="Default"> 
-    <param type="alg" name="DiffXSecAlg">   genie::BardinIMDRadCorPXSec/Default  </param>
     <param type="alg" name="Integrator">    genie::Simpson1D/Default-Logarithmic </param>
   </param_set>
 

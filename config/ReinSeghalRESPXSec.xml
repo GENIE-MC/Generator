@@ -23,11 +23,13 @@ MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space fo
                                           W < min{ Wmin(physical), MassRes + x * WidthRes }
 MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     4.0
 MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           6.0
+XSec-Integrator             alg
 -->
 
   <param_set name="Default"> 
      <param type="alg"  name="BaryonResData">    genie::BaryonResDataPDG/Default     </param>
      <param type="alg"  name="BreitWignerAlg">   genie::BreitWignerLRes/Default      </param>
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSeghalRESXSec/Default    </param>
   </param_set>
 
 </alg_conf>

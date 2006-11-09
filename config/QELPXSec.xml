@@ -10,21 +10,26 @@ Configurable Parameters:
 Name               Type     Optional   Comment                          Default
 .....................................................................................................
 FormFactorsAlg     alg      No         QEL form factors algorithm
+XSec-Integrator    alg      No
 CabbiboAngle       double   Yes        Cabbibo angle                    GPL value: CabbiboAngle
 -->
 
   <param_set name="CC-Default"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LlewellynSmithModelCC/Default </param>
+     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default               </param>
   </param_set>
 
   <param_set name="CC-Dipole"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LlewellynSmithModelCC/Dipole  </param>
+     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default               </param>
   </param_set>
   <param_set name="CC-BBA2003"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LlewellynSmithModelCC/BBA2003 </param>
+     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default               </param>
   </param_set>
   <param_set name="CC-BBA2005"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LlewellynSmithModelCC/BBA2005 </param>
+     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default               </param>
   </param_set>
 
 </alg_conf>

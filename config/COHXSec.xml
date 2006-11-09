@@ -12,12 +12,7 @@ Name             Type     Optional   Comment                 Default
 -->
 
   <param_set name="Default"> 
-     <param type="alg"    name="DiffXSecAlg">  genie::ReinSeghalCOHPXSec/Default                   </param>
-     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param>
-     <param type="double" name="Kine-Xmin">    0.001                                               </param>
-     <param type="double" name="Kine-Xmax">    0.999                                               </param>
-     <param type="double" name="Kine-Ymin">    0.001                                               </param>
-     <param type="double" name="Kine-Ymax">    0.999                                               </param>
+     <param type="alg" name="Integrator"> genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param>
   </param_set>
 
 </alg_conf>

@@ -35,13 +35,13 @@
   <priority msgstream="Cache">               NOTICE </priority>
   <priority msgstream="CharmHad">            NOTICE </priority>
   <priority msgstream="CFracTab">            INFO   </priority>
-  <priority msgstream="COHXSec">             INFO   </priority>
+  <priority msgstream="COHXSec">             NOTICE </priority>
   <priority msgstream="CLAP">                NOTICE </priority>
   <priority msgstream="COHHadronicVtx">      INFO   </priority>
   <priority msgstream="COHKinematics">       NOTICE </priority>
   <priority msgstream="Decay">               INFO   </priority>
   <priority msgstream="DISSF">               INFO   </priority>
-  <priority msgstream="DISXSec">             INFO   </priority>
+  <priority msgstream="DISXSec">             NOTICE  </priority>
   <priority msgstream="DISCharmXSec">        INFO   </priority>
   <priority msgstream="DISPXSec">            NOTICE </priority>
   <priority msgstream="DISHadronicVtx">      INFO   </priority>
@@ -71,7 +71,7 @@
   <priority msgstream="HadTransp">           INFO   </priority>
   <priority msgstream="HadronicVtx">         INFO   </priority>
   <priority msgstream="HybridHad">           INFO   </priority>
-  <priority msgstream="IMD">                 NOTICE </priority>
+  <priority msgstream="IMDXSec">             NOTICE </priority>
   <priority msgstream="IMDTargetRemnant">    INFO   </priority>
   <priority msgstream="IMDKinematics">       INFO   </priority>
   <priority msgstream="IntSel">              NOTICE </priority>
@@ -90,6 +90,7 @@
   <priority msgstream="NucleonP">            INFO   </priority>
   <priority msgstream="Nuclear">             INFO   </priority>
   <priority msgstream="Numerical">           INFO   </priority>
+  <priority msgstream="NuEXSec">             INFO   </priority>
   <priority msgstream="NtpGHepAnalyzer">     INFO   </priority>
   <priority msgstream="NtpMCConfig">         NOTICE </priority>
   <priority msgstream="NtpMCEnv">            NOTICE </priority>
@@ -133,6 +134,7 @@
   <priority msgstream="Utils">               INFO   </priority>
   <priority msgstream="VtxGenerator">        INFO   </priority>
   <priority msgstream="VldContext">          NOTICE </priority>
+  <priority msgstream="XSecBase">            NOTICE </priority>
   <priority msgstream="XSecAlgMap">          NOTICE </priority>
   <priority msgstream="XSecSplLst">          NOTICE </priority>
 

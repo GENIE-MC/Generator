@@ -9,22 +9,10 @@ Configurable Parameters:
 .....................................................................................................
 Name               Type     Optional   Comment                          Default
 .....................................................................................................
-DiffXSecAlg        alg      No
 Integrator         alg      No
 -->
 
-  <param_set name="CC-Default"> 
-     <param type="alg" name="DiffXSecAlg">  genie::QELPXSec/CC-Default            </param>
-     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
-  </param_set>
-
-  <param_set name="NC-Default"> 
-     <param type="alg" name="DiffXSecAlg">  genie::NuNucElasticPXSec/Default      </param>
-     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
-  </param_set>
-
-  <param_set name="Charm-Kovalenko"> 
-     <param type="alg" name="DiffXSecAlg">  genie::KovalenkoQELCharmPXSec/Default </param>
+  <param_set name="Default"> 
      <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
   </param_set>
 

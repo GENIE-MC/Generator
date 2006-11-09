@@ -8,7 +8,6 @@ Configurable Parameters:
 ..........................................................................................................................
 Name              Type     Opt   Comment                                      Default
 ..........................................................................................................................
-DiffXSecAlg       alg      No    Differential xsec algorithm name
 Integrator        alg      No    Integration algorithm
 Kine-Wmin         double   Yes   Kinematical cut                              Use physical range
 Kine-Wmax         double   Yes   Kinematical cut                              Use physical range     
@@ -18,22 +17,8 @@ Kine-Q2max        double   Yes   Kinematical cut                              Us
 
 <alg_conf>
 
-  <param_set name="PaschosLalakulich-P33"> 
-     <param type="alg"    name="DiffXSecAlg">  genie::P33PaschosLalakulichPXSec/Default             </param>
-     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="Kine-Wmax">    1.4   </param>
-  </param_set>
-
-  <param_set name="ReinSeghal-RSPP"> 
-     <param type="alg"    name="DiffXSecAlg">  genie::ReinSeghalSPPPXSec/Default                    </param>
-     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="Wmax">         1.4 </param>
-  </param_set>
-
-  <param_set name="ReinSeghal-RES"> 
-     <param type="alg"    name="DiffXSecAlg">  genie::ReinSeghalRESPXSec/Default                    </param>
-     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast </param>
-     <param type="double" name="Wmax">         1.4 </param>
+  <param_set name="Default"> 
+     <param type="alg" name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast </param>
   </param_set>
 
 </alg_conf>

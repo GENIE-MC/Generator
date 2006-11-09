@@ -19,35 +19,8 @@
   Q2min                         kinematical cut in Q^2
 -->
 
-  <param_set name="CC-Parton-Model-Default"> 
-     <param type="alg" name="DiffXSecAlg">  genie::DISPartonModelPXSec/CC-Default               </param>
+  <param_set name="Default"> 
      <param type="alg" name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param>
-  </param_set>
-
-  <param_set name="NC-Parton-Model-Default"> 
-     <param type="alg" name="DiffXSecAlg">   genie::DISPartonModelPXSec/NC-Default                </param>
-     <param type="alg" name="Integrator">    genie::Simpson2D/Default-Logarithmic-FixedNBins-101  </param>
-  </param_set>
-
-  <param_set name="CC-Charm-Default"> 
-     <param type="alg"    name="DiffXSecAlg">  genie::AivazisCharmPXSecLO/CC-Default               </param>
-     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param>
-     <param type="double" name="Kine-Wmin">    1.600                                               </param>
-     <param type="double" name="Kine-Q2min">   1.000                                               </param>
-  </param_set>
-
-  <param_set name="CC-Charm-Slow-Rescaling"> 
-     <param type="alg"    name="DiffXSecAlg">  genie::SlowRsclCharmDISPXSecLO/CC-Default           </param>
-     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param>
-     <param type="double" name="Kine-Wmin">    1.600                                               </param>
-     <param type="double" name="Kine-Q2min">   1.000                                               </param>
-  </param_set>
-
-  <param_set name="CC-Bardin-Rad-Corr"> 
-     <param type="alg"    name="DiffXSecAlg">  genie::BardinDISPXSec/CC                             </param>
-     <param type="alg"    name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-101  </param>
-     <param type="double" name="Kine-Wmin">    1.600                                                </param>
-     <param type="double" name="Kine-Q2min">   1.000                                                </param>
   </param_set>
 
 </alg_conf>
