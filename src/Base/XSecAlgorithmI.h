@@ -33,11 +33,15 @@ public:
   //! Compute the cross section for the input interaction
   virtual double XSec (const Interaction* i, KinePhaseSpace_t k=kPSfE) const = 0;
 
+  //! Integrate the model over the kinematic phase space available to the
+  //! input interaction (kinematical cuts can be included)
+  virtual double Integral (const Interaction* i) const = 0;
+
   //! Can this cross section algorithm handle the input process?
   virtual bool ValidProcess    (const Interaction* i) const = 0;
 
   //! Is the input kinematical point a physically allowed one?
-  virtual bool ValidKinematics (const Interaction* i) const = 0;
+  virtual bool ValidKinematics (const Interaction* i) const;
 
 protected:
   XSecAlgorithmI();

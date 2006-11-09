@@ -13,5 +13,6 @@
 #pragma link C++ class genie::QELFormFactors;
 #pragma link C++ class genie::QELFormFactorsModelI;
 #pragma link C++ class genie::XSecAlgorithmI;
+#pragma link C++ class genie::XSecIntegratorI;
 
 #endif

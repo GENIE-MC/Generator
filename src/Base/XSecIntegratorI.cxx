@@ -14,53 +14,31 @@
 */
 //____________________________________________________________________________
 
-#include "Base/XSecAlgorithmI.h"
-#include "Messenger/Messenger.h"
+#include "Base/XSecIntegratorI.h"
 
 using namespace genie;
 
 //___________________________________________________________________________
-XSecAlgorithmI::XSecAlgorithmI() :
+XSecIntegratorI::XSecIntegratorI() :
 Algorithm()
 {
 
 }
 //___________________________________________________________________________
-XSecAlgorithmI::XSecAlgorithmI(string name) :
+XSecIntegratorI::XSecIntegratorI(string name) :
 Algorithm(name)
 {
 
 }
 //___________________________________________________________________________
-XSecAlgorithmI::XSecAlgorithmI(string name, string config) :
+XSecIntegratorI::XSecIntegratorI(string name, string config) :
 Algorithm(name, config)
 {
 
 }
 //___________________________________________________________________________
-XSecAlgorithmI::~XSecAlgorithmI()
+XSecIntegratorI::~XSecIntegratorI()
 {
 
 }
 //___________________________________________________________________________
-bool XSecAlgorithmI::ValidKinematics(const Interaction* interaction) const
-{
-// can offer common implementation for all concrete x-section models because
-// the input interaction is aware of its kinematic limits
-
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  KPhaseSpace kps = interaction->PhaseSpace();
-
-  if(!kps.IsAboveThreshold()) {
-     LOG("XSecBase", pINFO)  << "*** Below energy threshold";
-     return false;
-  }
-  if(!kps.IsAllowed()) {
-     LOG("XSecBase", pINFO)  << "*** Not in allowed kinematical space";
-     return false;
-  }
-  return true;
-}
-//___________________________________________________________________________
-
