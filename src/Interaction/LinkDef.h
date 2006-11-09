@@ -12,5 +12,6 @@
 #pragma link C++ class genie::ProcessInfo;
 #pragma link C++ class genie::Kinematics;
 #pragma link C++ class genie::XclsTag;
+#pragma link C++ class genie::KPhaseSpace;
 
 #endif

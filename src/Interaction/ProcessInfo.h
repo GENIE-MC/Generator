@@ -38,7 +38,6 @@ namespace genie {
 class ProcessInfo : public TObject {
 
 public:
-
   ProcessInfo();
   ProcessInfo(ScatteringType_t sc_type, InteractionType_t  int_type);
   ProcessInfo(const ProcessInfo & proc);
