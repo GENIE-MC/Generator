@@ -451,8 +451,7 @@ bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
      LOG("PythiaHad", pWARN) << "Can't hadronize charm events";
      return false;
   }
-
-  double W = utils::kinematics::CalcW(interaction);
+  double W = utils::kinematics::W(interaction);
   if(W < this->Wmin()) {
      LOG("PythiaHad", pWARN) << "Low invariant mass, W = " << W << " GeV!!";
      return false;

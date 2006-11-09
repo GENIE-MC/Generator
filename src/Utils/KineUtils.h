@@ -63,8 +63,8 @@ namespace kinematics
   //-- methods used to apply cuts to kinematical limits
   void ApplyCutsToKineLimits (Range1D_t & r, double min, double max);
 
-  double CalcQ2  (const Interaction * const i);
-  double CalcW   (const Interaction * const i);
+  double Q2 (const Interaction * const i);
+  double W  (const Interaction * const i);
 
   //-- charm threshold and slow rescaling variable
   bool   IsAboveCharmThreshold (double x, double Q2, double M, double mc);

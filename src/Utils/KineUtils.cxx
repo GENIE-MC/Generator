@@ -423,8 +423,11 @@ double genie::utils::kinematics::QD2toQ2(double QD2)
   return kMQD2*(1/QD2-1);
 }
 //____________________________________________________________________________
-double genie::utils::kinematics::CalcQ2(const Interaction * const interaction)
+double genie::utils::kinematics::Q2(const Interaction * const interaction)
 {
+// Get Q^2 from kinematics object
+// If Q^2 is not set but x,y are, then compute Q2 from x,y
+
   const Kinematics & kinematics = interaction->Kine();
 
   if (kinematics.KVSet(kKVQ2) || kinematics.KVSet(kKVq2)) {
@@ -440,12 +443,11 @@ double genie::utils::kinematics::CalcQ2(const Interaction * const interaction)
     double Q2 = 2*Mn*Ev*x*y;
     return Q2;
   }
-
   SLOG("KineLimits", pERROR) << "Couldn't compute Q^2 for \n"<< *interaction;
   return 0;
 }
 //____________________________________________________________________________
-double genie::utils::kinematics::CalcW(const Interaction * const interaction)
+double genie::utils::kinematics::W(const Interaction * const interaction)
 {
   const ProcessInfo & process_info = interaction->ProcInfo();
 
@@ -457,12 +459,10 @@ double genie::utils::kinematics::CalcW(const Interaction * const interaction)
   }
 
   const Kinematics & kinematics = interaction->Kine();
-
   if(kinematics.KVSet(kKVW)) {
     double W = kinematics.W();
     return W;
   }
-
   if(kinematics.KVSet(kKVx) && kinematics.KVSet(kKVy)) {
     const InitialState & init_state = interaction->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
@@ -474,7 +474,6 @@ double genie::utils::kinematics::CalcW(const Interaction * const interaction)
     double W  = TMath::Sqrt(W2);
     return W;
   }
-
   SLOG("KineLimits", pERROR) << "Couldn't compute W for \n"<< *interaction;
   return 0;
 }
