@@ -21,6 +21,8 @@
 
 #include <cassert>
 
+#include <TObject.h>
+
 #include "Conventions/KineVar.h"
 //#include "Interaction/KPhaseSpaceCut.h"
 #include "Utils/Range1.h"
@@ -29,7 +31,7 @@ namespace genie {
 
 class Interaction;
 
-class KPhaseSpace {
+class KPhaseSpace : public TObject {
 
 public:
   KPhaseSpace (void);
