@@ -30,6 +30,8 @@ using namespace genie::utils;
 using namespace genie::constants;
 using namespace genie::controls;
 
+ClassImp(KPhaseSpace)
+
 //____________________________________________________________________________
 KPhaseSpace::KPhaseSpace(void)
 {
@@ -234,7 +236,13 @@ Range1D_t KPhaseSpace::WLim(void) const
     double Ev = init_state.ProbeE(kRfHitNucRest);
     double M  = init_state.Tgt().HitNucP4Ptr()->M(); //can be off m/shell
     double ml = fInteraction->FSPrimLepton()->Mass();
-    return kinematics::InelWLim(Ev,M,ml);  
+    Wl = kinematics::InelWLim(Ev,M,ml);  
+    if(fInteraction->ExclTag().IsCharmEvent()) {
+      //Wl.min = TMath::Max(Wl.min, kNeutronMass+kPionMass+kLightestChmHad);
+      Wl.min = TMath::Max(Wl.min, kNeutronMass+kLightestChmHad);
+      if(Wl.min>Wl.max) {Wl.min=-1; Wl.max=-1;}
+    }
+    return Wl;
   }
   return Wl;
 }

@@ -71,6 +71,8 @@ public:
 private:
   void Init(void);
   const Interaction * fInteraction;
+
+ClassDef(KPhaseSpace,1)
 };
 
 }      // genie namespace
