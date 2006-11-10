@@ -8,7 +8,7 @@
          create by themselves at job initialization.
 
          Syntax :
-             gsplt -f xml_file -t target_pdg [-e emax] [-o output_root_file]
+             gsplt -f xml_file -t target_pdg [-e emax] [-o root_file] [-k key]
 
          Options :
            -f  the input XML file containing the cross section spline data

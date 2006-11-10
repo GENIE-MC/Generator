@@ -557,14 +557,11 @@ bool genie::utils::kinematics::IsAboveCharmThreshold(
 // M : hit nucleon "mass" (nucleon can be off the mass shell)
 // mc: charm mass
 //
-  int lightest_charm_hadron = kPdgDM; // c=+/-1, s=0
-
   double M2   = TMath::Power(M,2);
   double v    = 0.5*Q2/(M*x);
   double W2   = TMath::Max(0., M2+2*M*v-Q2);
   double W    = TMath::Sqrt(W2);
-  double mD   = PDGLibrary::Instance()->Find(lightest_charm_hadron)->Mass();
-  double Wmin = M+mD;
+  double Wmin = M + kLightestChmHad;
   double xc   = utils::kinematics::SlowRescalingVar(x,Q2,M,mc);
 
   if(xc>=1 || W<=Wmin) return false;
