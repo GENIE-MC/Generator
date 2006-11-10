@@ -85,7 +85,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   fWatch->Reset();
 
   string mesgh = "Event generation thread: " + this->Id().Key() + 
-                 ": running event generation module: ";
+                 " -> Running module: ";
 
   //-- Loop over the event record processing steps
   int istep=0;
