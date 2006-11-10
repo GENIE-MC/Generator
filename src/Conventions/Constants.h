@@ -70,6 +70,7 @@ static const double kPionMass       =  0.140;               // GeV
 static const double kProtonMass     =  0.9382720;           // GeV
 static const double kNeutronMass    =  0.9395653;           // GeV
 static const double kNucleonMass    =  (kProtonMass+kNeutronMass)/2.;
+static const double kLightestChmHad =  1.870;               // GeV ~lightest charm hadron+
 
 static const double kElectronMass2  =  TMath::Power(kElectronMass,2); // GeV^2
 static const double kMuonMass2      =  TMath::Power(kMuonMass,2);     // GeV^2
