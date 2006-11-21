@@ -68,7 +68,7 @@ void testReconfigInCommonPool(void)
 
   LOG("Main", pINFO) << "Access its configuration at the config pool";
   Registry * r = cnfp->FindRegistry(alg);
-  registry->UnLock();
+  r->UnLock();
   LOG("Main", pINFO) << *r;
 
   // modify configuration 
