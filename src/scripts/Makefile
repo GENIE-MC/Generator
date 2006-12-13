@@ -13,16 +13,21 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 doxygen: FORCE
-	$(DOXYGEN) genie_doxygen;
+	$(DOXYGEN) dox/genie-doxygen;
 
 install: FORCE
-	cp db-bootstrap $(GENIE_BIN_PATH); \
-	cp genie-config $(GENIE_BIN_PATH); \
+	cp setup/db-bootstrap $(GENIE_BIN_PATH); \
+	cp setup/genie-config $(GENIE_BIN_PATH); \
+	cp gcint/genie $(GENIE_BIN_PATH); \
 	chmod 755 $(GENIE_BIN_PATH)/db-bootstrap; \
-	chmod 755 $(GENIE_BIN_PATH)/genie-config; 
+	chmod 755 $(GENIE_BIN_PATH)/genie-config; \
+	chmod 755 $(GENIE_BIN_PATH)/genie; 
 
 clean: FORCE
-	$(RM) $(GENIE_BIN_PATH)/db-bootstrap $(GENIE_BIN_PATH)/genie-config
+	$(RM) \
+	$(GENIE_BIN_PATH)/db-bootstrap \
+	$(GENIE_BIN_PATH)/genie-config \
+	$(GENIE_BIN_PATH)/genie
 
 FORCE:
 
