@@ -2,7 +2,7 @@
  // PYTHIA 6 lib
  gSystem->Load("libPythia6.so");
 
- // ROOT libs
+ // extra ROOT libs
  gSystem->Load("libPhysics");
  gSystem->Load("libEG");
  gSystem->Load("libEGPythia6");
@@ -12,7 +12,7 @@
  gSystem->Load("libxml2.so");
  gSystem->Load("liblog4cpp.so");
 
- // GENIE libs
+ // std GENIE libs
  gSystem->Load("libGMessenger.so");
  gSystem->Load("libGRegistry.so");
  gSystem->Load("libGAlgorithm.so");
@@ -41,6 +41,8 @@
  gSystem->Load("libGEVGCore.so");
  gSystem->Load("libGEVGModules.so");
  gSystem->Load("libGEVGDrivers.so");
+ gSystem->Load("libGNtuple.so");
+
  gSystem->Load("libGGeo.so");
  gSystem->Load("libGFluxDrivers.so");
 }

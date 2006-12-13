@@ -1,0 +1,3 @@
+#!/bin/sh
+
+root $GENIE/src/scripts/gcint/genie.C

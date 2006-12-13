@@ -31,7 +31,6 @@ $GOPT_ENABLE_GEOM_DRIVERS    = $ENV{'GOPT_ENABLE_GEOM_DRIVERS'};
 $GOPT_ENABLE_PROFILER        = $ENV{'GOPT_ENABLE_PROFILER'};
 $GOPT_ENABLE_DOXYGEN_DOC     = $ENV{'GOPT_ENABLE_DOXYGEN_DOC'};
 $GOPT_ENABLE_TEST            = $ENV{'GOPT_ENABLE_TEST'};
-$GOPT_ENABLE_VALIDITY_DOC    = $ENV{'GOPT_ENABLE_VALIDITY_DOC'};
 $GOPT_ENABLE_VIEWER          = $ENV{'GOPT_ENABLE_VIEWER'};
 $GOPT_ENABLE_MUELOSS         = $ENV{'GOPT_ENABLE_MUELOSS'};
 
@@ -58,7 +57,6 @@ $GOPT_ENABLE_GEOM_DRIVERS    = "**undefined**" unless defined $GOPT_ENABLE_GEOM_
 $GOPT_ENABLE_PROFILER        = "**undefined**" unless defined $GOPT_ENABLE_PROFILER;
 $GOPT_ENABLE_DOXYGEN_DOC     = "**undefined**" unless defined $GOPT_ENABLE_DOXYGEN_DOC;
 $GOPT_ENABLE_TEST            = "**undefined**" unless defined $GOPT_ENABLE_TEST;
-$GOPT_ENABLE_VALIDITY_DOC    = "**undefined**" unless defined $GOPT_ENABLE_VALIDITY_DOC;
 $GOPT_ENABLE_VIEWER          = "**undefined**" unless defined $GOPT_ENABLE_VIEWER;
 $GOPT_ENABLE_MUELOSS         = "**undefined**" unless defined $GOPT_ENABLE_MUELOSS;
 
@@ -71,22 +69,18 @@ open(OPT, ">$BLD_OPT")
 print OPT "[The GENIE spy reports]\n\n";
 print OPT "This was your environment last time you typed 'gmake' in $GENIE/src:\n\n";
 
-print OPT "\$SRT_ENV_SET   -> $SRT_ENV_SET\n";
-print OPT "\$ROOTSYS       -> $ROOTSYS\n";
-print OPT "\$CERNLIB       -> $CERNLIB\n";
-print OPT "\$PYTHIA6       -> $PYTHIA6\n";
-print OPT "\$LIBXML2_INC   -> $LIBXML2_INC\n";
-print OPT "\$LIBXML2_LIB   -> $LIBXML2_LIB\n";
-print OPT "\$LOG4CPP_INC   -> $LOG4CPP_INC\n";
-print OPT "\$LOG4CPP_LIB   -> $LOG4CPP_LIB\n";
-print OPT "\$NEUGEN3PATH   -> $NEUGEN3PATH\n";
-print OPT "\$GPROFILER_LIB -> $GPROFILER_LIB\n";
-print OPT "\$DOXYGEN       -> $DOXYGEN\n";
-
-print OPT "\$PATH            -> $PATH\n\n";
-print OPT "\$LD_LIBRARY_PATH -> $LD_LIBRARY_PATH\n\n";
-
 print OPT "\$GENIE                       -> $GENIE\n";
+print OPT "\$SRT_ENV_SET                 -> $SRT_ENV_SET\n";
+print OPT "\$ROOTSYS                     -> $ROOTSYS\n";
+print OPT "\$CERNLIB                     -> $CERNLIB\n";
+print OPT "\$PYTHIA6                     -> $PYTHIA6\n";
+print OPT "\$LIBXML2_INC                 -> $LIBXML2_INC\n";
+print OPT "\$LIBXML2_LIB                 -> $LIBXML2_LIB\n";
+print OPT "\$LOG4CPP_INC                 -> $LOG4CPP_INC\n";
+print OPT "\$LOG4CPP_LIB                 -> $LOG4CPP_LIB\n";
+print OPT "\$NEUGEN3PATH                 -> $NEUGEN3PATH\n";
+print OPT "\$GPROFILER_LIB               -> $GPROFILER_LIB\n";
+print OPT "\$DOXYGEN                     -> $DOXYGEN\n\n";
 print OPT "\$GOPT_ENABLE_NUVALIDATOR     -> $GOPT_ENABLE_NUVALIDATOR\n";
 print OPT "\$GOPT_ENABLE_NEUGEN          -> $GOPT_ENABLE_NEUGEN\n";
 print OPT "\$GOPT_ENABLE_FLUX_DRIVERS    -> $GOPT_ENABLE_FLUX_DRIVERS\n";
@@ -94,9 +88,10 @@ print OPT "\$GOPT_ENABLE_GEOM_DRIVERS    -> $GOPT_ENABLE_GEOM_DRIVERS\n";
 print OPT "\$GOPT_ENABLE_PROFILER        -> $GOPT_ENABLE_PROFILER\n";
 print OPT "\$GOPT_ENABLE_DOXYGEN_DOC     -> $GOPT_ENABLE_DOXYGEN_DOC\n";
 print OPT "\$GOPT_ENABLE_TEST            -> $GOPT_ENABLE_TEST\n";
-print OPT "\$GOPT_ENABLE_VALIDITY_DOC    -> $GOPT_ENABLE_VALIDITY_DOC\n";
 print OPT "\$GOPT_ENABLE_VIEWER          -> $GOPT_ENABLE_VIEWER\n";
 print OPT "\$GOPT_ENABLE_MUELOSS         -> $GOPT_ENABLE_MUELOSS\n";
+print OPT "\$PATH                        -> $PATH\n\n";
+print OPT "\$LD_LIBRARY_PATH             -> $LD_LIBRARY_PATH\n\n";
 
 close(OPT);
 
