@@ -156,7 +156,7 @@ all-libs: base-framework physics-models-modules event-generation-modules \
 save-build-options:
 	@echo "Logging configuration options...";\
 	cd ${GENIE}/src;\
-	perl scripts/save-build-env;
+	perl scripts/setup/save-build-env;
 
 make-bin-lib-dir:
 	@echo "Creating GENIE lib and bin directories...";\
