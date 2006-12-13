@@ -50,10 +50,9 @@ void FLUKA::ProcessEventRecord(GHepRecord * event) const
   //   If not, do not call FLUKA
   Interaction * interaction = event->Summary();
   const InitialState & init_state = interaction->InitState();
-
   if( ! init_state.Tgt().IsNucleus() ) {
     LOG("FLUKA", pDEBUG)
-        << "Not an interaction with a nuclear target. Skipping call FLUKA";
+        << "Not an interaction with a nuclear target. Skipping FLUKA call";
     return;
   }
 
@@ -83,3 +82,21 @@ void FLUKA::ProcessEventRecord(GHepRecord * event) const
 
 }
 //___________________________________________________________________________
+void FLUKA::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//___________________________________________________________________________
+void FLUKA::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//___________________________________________________________________________
+void FLUKA::LoadConfig (void)
+{
+
+}
+//___________________________________________________________________________
+
