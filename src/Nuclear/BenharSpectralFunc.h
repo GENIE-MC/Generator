@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::SpectralFunctionLDA
+\class    genie::BenharSpectralFunc
 
 \brief    A realistic spectral function computed using the Local Density
           Aproximation.
-
           Is a concrete implementation of the SpectralFunctionI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -16,26 +15,24 @@
 */
 //____________________________________________________________________________
 
-#ifndef _SPECTRAL_FUNCTION_LDA_H_
-#define _SPECTRAL_FUNCTION_LDA_H_
+#ifndef _BENHAR_SPECTRAL_FUNCTION_H_
+#define _BENHAR_SPECTRAL_FUNCTION_H_
 
-#include "Nuclear/SpectralFunctionI.h"
+#include "Nuclear/NuclearModelI.h"
 
 namespace genie {
 
-class SpectralFunctionLDA : public SpectralFunctionI {
+class BenharSpectralFunc : public NuclearModelI {
 
 public:
+  BenharSpectralFunc();
+  BenharSpectralFunc(string config);
+  virtual ~BenharSpectralFunc();
 
-  SpectralFunctionLDA();
-  SpectralFunctionLDA(string config);
-  ~SpectralFunctionLDA();
-
-  //-- SpectralFunctionI interface implementation
-  
-  double Prob(double P_nucleon, double E_nucleus);
+  //-- implement the NuclearModelI interface
+  bool     GenerateNucleon (const Target & t) const;
+  double   Prob            (double p, double w, const Target & t) const;
 };
 
 }      // genie namespace
-
-#endif // _SPECTRAL_FUNCTION_LDA_H_
+#endif // _BENHAR_SPECTRAL_FUNCTION_H_
