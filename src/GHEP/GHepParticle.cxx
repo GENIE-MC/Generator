@@ -70,8 +70,10 @@ fLastDaughter(daughter2)
   fP4 = new TLorentzVector(p);
   fX4 = new TLorentzVector(v);
 
-  fPolzTheta = -999; 
-  fPolzPhi   = -999;    
+  fPolzTheta      = -999; 
+  fPolzPhi        = -999;    
+  fIsBound        = false;
+  fRemovalEnergy  = 0.;
 }
 //___________________________________________________________________________
 // TParticle-like constructor
@@ -90,8 +92,10 @@ fLastDaughter(daughter2)
   fP4 = new TLorentzVector(px,py,pz,E);
   fX4 = new TLorentzVector(x,y,z,t);
 
-  fPolzTheta = -999; 
-  fPolzPhi   = -999;    
+  fPolzTheta      = -999; 
+  fPolzPhi        = -999;   
+  fIsBound        = false;
+  fRemovalEnergy  = 0.; 
 }
 //___________________________________________________________________________
 // Copy constructor
@@ -334,6 +338,26 @@ void GHepParticle::SetPolarization(const TVector3 & polz)
   this->SetPolarization(theta,phi);
 }
 //___________________________________________________________________________
+void GHepParticle::SetBound(bool bound)
+{
+  bool is_nucleon = pdg::IsNeutronOrProton(fPdgCode);
+
+  if(!is_nucleon && bound) {
+    LOG("GHepParticle", pERROR) 
+       << "Refusing to set the bound flag for particles other than nucleons";
+    LOG("GHepParticle", pERROR) 
+       << "(Requested for pdg = " << fPdgCode << ")";
+    return;
+  }
+  fIsBound = bound;
+}
+//___________________________________________________________________________
+void GHepParticle::SetRemovalEnergy(double Erm)
+{
+  fRemovalEnergy = Erm;
+  if(fRemovalEnergy>0) this->SetBound(true);
+}
+//___________________________________________________________________________
 void GHepParticle::Init(void)
 {
   fIsNucleus = false;
@@ -349,6 +373,9 @@ void GHepParticle::Init(void)
 
   fPolzTheta = -999; 
   fPolzPhi   = -999;    
+
+  fIsBound        = false;
+  fRemovalEnergy  = 0.;
 
   fP4 = new TLorentzVector(0,0,0,0);
   fX4 = new TLorentzVector(0,0,0,0);
@@ -463,6 +490,9 @@ void GHepParticle::Copy(const GHepParticle & particle)
 
   this->fPolzTheta = particle.fPolzTheta;
   this->fPolzPhi   = particle.fPolzPhi;
+
+  this->fIsBound       = particle.fIsBound;
+  this->fRemovalEnergy = particle.fRemovalEnergy;
 }
 //___________________________________________________________________________
 void GHepParticle::AssertIsKnownParticle(void) const
