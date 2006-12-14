@@ -35,7 +35,6 @@ namespace genie {
 class GHepParticle : public TObject {
 
 public :
-
   GHepParticle();
   GHepParticle(const GHepParticle & particle);
 
@@ -49,12 +48,13 @@ public :
          int mother1, int mother2, int daughter1, int daughter2,
                            double px, double py, double pz, double E,
                                     double x, double y, double z, double t);
-  ~GHepParticle();
+ ~GHepParticle();
 
   //-- Basic properties
   bool          IsNucleus      (void) const { return  fIsNucleus;          }
   bool          IsParticle     (void) const { return !fIsNucleus;          }
   bool          IsFake         (void) const { return  fIsFake;             }
+  bool          IsBound        (void) const { return  fIsBound;            }
   int           Pdg            (void) const { return  fPdgCode;            }
   GHepStatus_t  Status         (void) const { return  fStatus;             }
   int           FirstMother    (void) const { return  fFirstMother;        }
@@ -86,6 +86,9 @@ public :
   double Vy     (void) const { return (fX4) ? fX4->Y()      : 0; } ///< Get production y
   double Vz     (void) const { return (fX4) ? fX4->Z()      : 0; } ///< Get production z
   double Vt     (void) const { return (fX4) ? fX4->T()      : 0; } ///< Get production time
+
+  //-- Return removal energy /set only for bound nucleons/
+  double RemovalEnergy (void) const { return fRemovalEnergy; } ///< Get removal energy 
 
   //-- Compare with another particle
   bool Compare(const GHepParticle * p) const;
@@ -127,6 +130,11 @@ public :
   void SetPolarization(double theta, double phi);
   void SetPolarization(const TVector3 & polz);
 
+  //-- Set the bould flag & removal energy (bound flag set automatically 
+  //   if a positive removal energy is set)
+  void SetBound         (bool bound);
+  void SetRemovalEnergy (double Erm);
+
   //-- Clean-up, reset, copy, print,...
   void CleanUp (void);
   void Reset   (void);
@@ -150,6 +158,7 @@ private:
 
   bool             fIsNucleus;      ///< nucleus flag
   bool             fIsFake;         ///< fake particle flag (rootino etc)
+  bool             fIsBound;        ///< nucleon-specific flag 
   int              fPdgCode;        ///< particle PDG code
   GHepStatus_t     fStatus;         ///< particle status
   int              fFirstMother;    ///< first mother idx
@@ -157,7 +166,8 @@ private:
   int              fFirstDaughter;  ///< first daughter idx
   int              fLastDaughter;   ///< last daughter idx
   TLorentzVector * fP4;             ///< momentum 4-vector
-  TLorentzVector * fX4;             ///< position 4-vector 
+  TLorentzVector * fX4;             ///< position 4-vector
+  double           fRemovalEnergy;  ///< removal energy for bound nucleons 
   double           fPolzTheta;      ///< polar polarization angle (rad)
   double           fPolzPhi;        ///< azimuthal polarization angle (rad)
 
