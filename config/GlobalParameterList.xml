@@ -146,7 +146,14 @@ Use the "Default" one to get the best GENIE physics & tuning.
          P33(1920),F35(1905),F37(1950),P11(1710) </param>
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters related with GENIE's Fermi Gas (RFG) model implementation
+  Nuclear model selection. Options:
+   - genie::FGMBodekRitchie/Default
+   - genie::BenharSpectralFunc1D/Default
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <param type="alg" name="NuclearModel"> 
+                        genie::FGMBodekRitchie/Default </param>
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters related with GENIE's Fermi Gas (FGM) model implementation
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <param type="double" name="RFG-Momentum-CutOff"> 0.5 </param>
  <!-- 
@@ -194,10 +201,10 @@ Use the "Default" one to get the best GENIE physics & tuning.
   pt2tail: [PYTHIA def:0.01    ] [NUX tune:0.01    ]
   cutoff:  [PYTHIA def:0.80 GeV] [NUX tune:0.20 GeV]
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <param type="double" name="PYTHIA-SSBarSuppression">      0.30 </param>
-  <param type="double" name="PYTHIA-GaussianPt2">           0.36 </param>
+  <param type="double" name="PYTHIA-SSBarSuppression">      0.21 </param>
+  <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param>
   <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param>
-  <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.80 </param>
+  <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.20 </param>
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Invariant mass window for the transition from KNO model to PYTHIA
