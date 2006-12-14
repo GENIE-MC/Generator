@@ -1,56 +1,107 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::BodekRitchie
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - June 20, 2004
 
-\brief    The Bodek-Ritchie model for the probability distribution of nucleon
-          momenta within a nucleus.
-          Implements the NuclMomentumModelI interface.
+ For the class documentation see the corresponding header file.
 
-\ref      Bodek and Ritchie, Phys.Rev.D23:1070 (1981)
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  October 09, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/BodekRitchie.h"
+#include "Nuclear/FGMBodekRitchie.h"
 #include "Nuclear/FermiMomentumTablePool.h"
 #include "Nuclear/FermiMomentumTable.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Numerical/RandomGen.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-BodekRitchie::BodekRitchie() :
-NuclMomentumModelI("genie::BodekRitchie")
+FGMBodekRitchie::FGMBodekRitchie() :
+NuclearModelI("genie::FGMBodekRitchie")
 {
 
 }
 //____________________________________________________________________________
-BodekRitchie::BodekRitchie(string config) :
-NuclMomentumModelI("genie::BodekRitchie", config)
+FGMBodekRitchie::FGMBodekRitchie(string config) :
+NuclearModelI("genie::FGMBodekRitchie", config)
 {
 
 }
 //____________________________________________________________________________
-BodekRitchie::~BodekRitchie()
+FGMBodekRitchie::~FGMBodekRitchie()
 {
 
 }
 //____________________________________________________________________________
-TH1D * BodekRitchie::ProbabilityDistribution(const Target & target) const
+bool FGMBodekRitchie::GenerateNucleon(const Target & target) const
 {
+  assert(target.HitNucIsSet());
+
+  fCurrRemovalEnergy = 0;
+  fCurrMomentum.SetXYZ(0,0,0);
+
+  TH1D * prob = this->ProbDistro(target);
+  if(!prob) {
+    LOG("BodekRitchie", pFATAL)
+              << "Null nucleon momentum probability distribution";
+    exit(1);
+  }
+
+  double p = prob->GetRandom();
+  LOG("BodekRitchie", pINFO) << "|p,nucleon| = " << p;
+
+  RandomGen * rnd = RandomGen::Instance();
+
+  double costheta = -1. + 2. * rnd->RndGen().Rndm();
+  double sintheta = TMath::Sqrt(1.-costheta*costheta);
+  double fi       = 2 * kPi * rnd->RndGen().Rndm();
+  double cosfi    = TMath::Cos(fi);
+  double sinfi    = TMath::Sin(fi);
+
+  double px = p*sintheta*cosfi;
+  double py = p*sintheta*sinfi;
+  double pz = p*costheta;  
+
+  fCurrRemovalEnergy = 0.025;
+  fCurrMomentum.SetXYZ(px,py,pz);
+
+  return true;
+}
+//____________________________________________________________________________
+double FGMBodekRitchie::Prob(double p, double w, const Target & target) const
+{
+  if(w<0) {
+     TH1D * prob = this->ProbDistro(target);
+     int bin = prob->FindBin(p);
+     double y  = prob->GetBinContent(bin);
+     double dx = prob->GetBinWidth(bin);
+     double p  = y*dx;
+     return p;
+  }
+  return 1;
+}
+//____________________________________________________________________________
+TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
+{
+  //-- return stored /if already computed/
+  map<string, TH1D*>::iterator it = fProbDistroMap.find(target.AsString());
+  if(it != fProbDistroMap.end()) return it->second;
+
   LOG("BodekRitchie", pNOTICE)
              << "Computing P = f(p_nucleon) for: " << target.AsString();
   LOG("BodekRitchie", pNOTICE)
@@ -112,22 +163,26 @@ TH1D * BodekRitchie::ProbabilityDistribution(const Target & target) const
   //-- normalize the probability distribution
   prob->Scale( 1.0 / prob->Integral("width") );
 
+  //-- store
+  fProbDistroMap.insert(
+      map<string, TH1D*>::value_type(target.AsString(),prob));
+
   return prob; // Note: The calling function adopts the object
 }
 //____________________________________________________________________________
-void BodekRitchie::Configure(const Registry & config)
+void FGMBodekRitchie::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfigData();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void BodekRitchie::Configure(string param_set)
+void FGMBodekRitchie::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-  this->LoadConfigData();
+  this->LoadConfig();
 }
 //____________________________________________________________________________
-void BodekRitchie::LoadConfigData(void)
+void FGMBodekRitchie::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
