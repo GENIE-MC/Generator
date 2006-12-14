@@ -32,8 +32,7 @@
 #include "Algorithm/AlgFactory.h"
 #include "Interaction/Target.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/NuclMomentumGenerator.h"
-#include "Nuclear/NuclMomentumModelI.h"
+#include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGCodes.h"
 #include "Utils/PrintUtils.h"
 
@@ -42,12 +41,9 @@ using namespace genie;
 int main(int argc, char ** argv)
 {
   AlgFactory * algf = AlgFactory::Instance();
-  const NuclMomentumModelI * nucl_p_model =
-       dynamic_cast<const NuclMomentumModelI *> (algf->GetAlgorithm(
-				       "genie::BodekRitchie","Default"));
-
-  NuclMomentumGenerator * nucp_gen = NuclMomentumGenerator::Instance();
-
+  const NuclearModelI * nuclmodel =
+       dynamic_cast<const NuclearModelI *> (algf->GetAlgorithm(
+			     "genie::FGMBodekRitchie","Default"));
   //-- Declare targets
   const unsigned int kNTargets = 4;
 
@@ -82,13 +78,9 @@ int main(int argc, char ** argv)
   for(unsigned int i = 0; i < kNTargets; i++) {
 
      nucltgt[i]->SetHitNucPdg(kPdgProton);
-
      const Target & target = *nucltgt[i];
 
      LOG("Main", pINFO) << "Current nuclear target: " << target;
-
-     //-- ask the generator to use(/build) the right probability distribution
-     nucp_gen->UseProbDistribution(nucl_p_model, target);
 
      //-- create histograms
      hnucpx[i] = new TH1F(Form("px%d",i),"", 40, -1.,1.);
@@ -101,7 +93,8 @@ int main(int argc, char ** argv)
 
      for(unsigned int iev = 0; iev < 2000; iev++) {
 
-         TVector3 p3 = nucp_gen->RandomMomentum3();
+         nuclmodel->GenerateNucleon(target);
+         TVector3 p3 = nuclmodel->Momentum3();
          LOG("Main", pDEBUG)
                       << "Nucleon 4-P = " << utils::print::Vec3AsString(&p3);
          hnucpx[i]->Fill(p3.Px());
@@ -115,7 +108,7 @@ int main(int argc, char ** argv)
      for(int ibin = 1; ibin < hpprob[i]->GetNbinsX(); ibin++) {
 
          double p    = double (hpprob[i]->GetBinCenter(ibin));
-         double Prob = nucp_gen->Probability(p);
+         double Prob = nuclmodel->Prob(p,-1,target);
 
          LOG("Main", pDEBUG)
                     << "Nucleon |P| = " << p << " -> Probability = " << Prob;
@@ -227,6 +220,10 @@ int main(int argc, char ** argv)
 
   TFile f("./genie-fermi-motion.root","recreate");
   c->Write("plot");
+  hpprob[0]->Write("C12p");
+  hpprob[1]->Write("O16p");
+  hpprob[2]->Write("Fe56p");
+  hpprob[3]->Write("Pb208p");
   f.Close();
 
   for(unsigned int i=0; i<kNTargets; i++) {
