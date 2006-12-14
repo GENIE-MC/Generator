@@ -63,7 +63,7 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
   while( (p = (GHepParticle * ) stdhep_iter.Next()) ) {
 
      bool is_nucleon = pdg::IsNeutronOrProton(p->Pdg());
-     bool in_nucleus = p->Status() == kIStHadronInTheNucleus;
+     bool in_nucleus = (p->Status() == kIStHadronInTheNucleus);
 
      if(is_nucleon && in_nucleus) {
 
@@ -71,11 +71,8 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
 
         GHepParticle * nucleus = this->FindMotherNucleus(ipos, event_rec);
         if(nucleus) {
-           //-- ask for the binding energy of the most loose nucleon
-           //  (separation energy)
-           const Target & target = init_state.Tgt();
-           double bindE = utils::nuclear::BindEnergyLastNucleon(target);
-
+           //-- ask for the binding energy set by the nuclear model
+           double bindE = p->RemovalEnergy();
            LOG("Nuclear", pINFO) << "Binding energy = " << bindE;
 
            //-- subtract this energy from the final state nucleon

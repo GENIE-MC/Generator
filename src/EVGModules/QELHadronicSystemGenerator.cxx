@@ -76,6 +76,8 @@ void QELHadronicSystemGenerator::AddRecoilNucleon(GHepRecord * evrec) const
   //-- Add the final state recoil nucleon at the EventRecord
   LOG("QELHadronicVtx", pINFO) << "Adding nucleon [pdgc = " << pdgc << "]";
 
-  evrec->AddParticle(pdgc, ist, mom,-1,-1,-1, p4, v4);
+  GHepParticle p(pdgc, ist, mom,-1,-1,-1, p4, v4);
+  p.SetRemovalEnergy(evrec->Particle(mom)->RemovalEnergy());
+  evrec->AddParticle(p);
 }
 //___________________________________________________________________________
