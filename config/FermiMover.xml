@@ -5,8 +5,17 @@
  Configuration sets for the FermiMover EventRecordVisitorI
 
   <param_set name="Default"> 
-     <param type="alg"    name="NuclearModel">           genie::BodekRitchie/Default </param>
-     <param type="bool"   name="KeepHitNuclOnMassShell"> false                       </param>
+     <param type="bool"   name="KeepHitNuclOnMassShell"> false </param>
+  </param_set>
+
+  <param_set name="FGM"> 
+     <param type="alg"    name="NuclearModel">           genie::FGMBodekRitchie/Default </param>
+     <param type="bool"   name="KeepHitNuclOnMassShell"> false                          </param>
+  </param_set>
+
+  <param_set name="Benhar1D"> 
+     <param type="alg"    name="NuclearModel">           genie::BenharSpectralFunc1D/Default </param>
+     <param type="bool"   name="KeepHitNuclOnMassShell"> false                               </param>
   </param_set>
 
 </alg_conf>
