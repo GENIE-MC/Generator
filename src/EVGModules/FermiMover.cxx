@@ -21,6 +21,7 @@
 #include <TParticlePDG.h>
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "EVGModules/FermiMover.h"
 #include "EVGCore/EVGThreadException.h"
@@ -30,8 +31,7 @@
 #include "GHEP/GHepFlags.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/NuclMomentumGenerator.h"
-#include "Nuclear/NuclMomentumModelI.h"
+#include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
@@ -72,13 +72,16 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   // initial state selection)
   if(p4->Px()>0 || p4->Py()>0 || p4->Pz()>0) return;
 
-  // generate a Fermi momentum
-  assert(fNuclPModel);
-  NuclMomentumGenerator * nucp_gen = NuclMomentumGenerator::Instance();
-  nucp_gen->UseProbDistribution(fNuclPModel, *tgt);
-  TVector3 p3 = nucp_gen->RandomMomentum3();
-  LOG("FermiMover", pINFO) << "Generated nucleon momentum: ("
-                  << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << ")";
+  // generate a Fermi momentum & removal energy
+  fNuclModel->GenerateNucleon(*tgt);
+  TVector3 p3 = fNuclModel->Momentum3();
+  double w    = fNuclModel->RemovalEnergy();
+
+  LOG("FermiMover", pINFO) 
+     << "Generated nucleon momentum: ("
+     << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << ")";
+  LOG("FermiMover", pINFO) 
+     << "Generated nucleon removal energy: w = " << w;
   
   double pF2 = p3.Mag2(); // (fermi momentum)^2
 
@@ -87,6 +90,8 @@ void FermiMover::ProcessEventRecord(GHepRecord * event_rec) const
   GHepParticle * nucleus = event_rec->TargetNucleus();
   assert(nucleon);
   assert(nucleus);
+
+  nucleon->SetRemovalEnergy(w);
 
   // struck nucleon energy:
   // two possible prescriptions depending on whether you want to force
@@ -171,10 +176,20 @@ void FermiMover::LoadConfig(void)
 // Reads its configuration from its Registry and loads all the sub-algorithms
 // needed
 
-  fNuclPModel = 
-     dynamic_cast<const NuclMomentumModelI *>(this->SubAlg("NuclearModel"));
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  fNuclModel = 0;
+
+  RgKey nuclkey = "NuclearModel";
+  RgAlg nuclalg = fConfig->GetAlgDef(nuclkey, gc->GetAlg(nuclkey));
+  LOG("FermiMover", pINFO) << "Loading nuclear model: " << nuclalg;
+
+  fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
+  assert(fNuclModel);
+
   fKeepNuclOnMassShell = 
-     fConfig->GetBoolDef("KeepHitNuclOnMassShell", false);
+         fConfig->GetBoolDef("KeepHitNuclOnMassShell", false);
 }
 //____________________________________________________________________________
 

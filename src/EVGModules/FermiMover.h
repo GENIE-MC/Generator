@@ -25,15 +25,14 @@
 
 namespace genie {
 
-class NuclMomentumModelI;
+class NuclearModelI;
 
 class FermiMover : public EventRecordVisitorI {
 
 public :
-
   FermiMover();
   FermiMover(string config);
-  ~FermiMover();
+ ~FermiMover();
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -44,13 +43,11 @@ public :
   void Configure(string config);
 
 private:
-
   void LoadConfig (void);
 
-  const NuclMomentumModelI *  fNuclPModel; ///<
-  bool  fKeepNuclOnMassShell; ///< if true, keeps hit bound nucleon on the mass shell
+  const NuclearModelI *  fNuclModel; ///< loaded nuclear model
+  bool  fKeepNuclOnMassShell;        ///< if true, keeps hit bound nucleon on the mass shell
 };
 
 }      // genie namespace
-
 #endif // _FERMI_MOVER_H_
