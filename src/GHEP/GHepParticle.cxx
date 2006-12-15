@@ -340,8 +340,8 @@ void GHepParticle::SetPolarization(const TVector3 & polz)
 //___________________________________________________________________________
 void GHepParticle::SetBound(bool bound)
 {
+  // only set it for p or n
   bool is_nucleon = pdg::IsNeutronOrProton(fPdgCode);
-
   if(!is_nucleon && bound) {
     LOG("GHepParticle", pERROR) 
        << "Refusing to set the bound flag for particles other than nucleons";
@@ -349,12 +349,19 @@ void GHepParticle::SetBound(bool bound)
        << "(Requested for pdg = " << fPdgCode << ")";
     return;
   }
+  // if the particles isn't bound then make sure that its removal energy = 0
+  if(!bound) {
+   fRemovalEnergy = 0;
+  }
+  // set the flag
   fIsBound = bound;
 }
 //___________________________________________________________________________
 void GHepParticle::SetRemovalEnergy(double Erm)
 {
-  fRemovalEnergy = Erm;
+  fRemovalEnergy = TMath::Max(Erm, 0.); // non-negative
+
+  // if a value was set, make sure that the IsBound flag is turned on
   if(fRemovalEnergy>0) this->SetBound(true);
 }
 //___________________________________________________________________________
