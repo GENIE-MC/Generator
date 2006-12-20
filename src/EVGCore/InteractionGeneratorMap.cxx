@@ -190,8 +190,11 @@ void InteractionGeneratorMap::Print(ostream & stream) const
   InteractionGeneratorMap::const_iterator iter;
 
   unsigned int maxlen = 0;
-  for(iter = this->begin(); iter != this->end(); ++iter) 
-                         maxlen=TMath::Max(maxlen,(iter->first).size());
+  for(iter = this->begin(); iter != this->end(); ++iter) {
+    string icode = iter->first;
+    unsigned int isz = (unsigned int) icode.size();
+    maxlen=TMath::Max(maxlen,isz);
+  }
 
   for(iter = this->begin(); iter != this->end(); ++iter) {
     const EventGeneratorI * evg = iter->second;
