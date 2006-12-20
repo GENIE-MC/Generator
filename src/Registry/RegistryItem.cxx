@@ -84,17 +84,17 @@ template<class T> RegistryItem<T>::~RegistryItem()
 
 }
 //____________________________________________________________________________
-RegistryItem<RgH1F>::~RegistryItem()
+template<> RegistryItem<RgH1F>::~RegistryItem()
 {
   if (fItem) delete fItem;
 }
 //____________________________________________________________________________
-RegistryItem<RgH2F>::~RegistryItem()
+template<> RegistryItem<RgH2F>::~RegistryItem()
 {
   if (fItem) delete fItem;
 }
 //____________________________________________________________________________
-RegistryItem<RgTree>::~RegistryItem()
+template<> RegistryItem<RgTree>::~RegistryItem()
 {
   if (fItem) delete fItem;
 }
@@ -105,14 +105,45 @@ template<class T> RegistryItemI * RegistryItem<T>::Clone(void) const
   return item;
 }
 //____________________________________________________________________________
-RgType_t RegistryItem<RgBool>::TypeInfo(void) const { return kRgBool; }
-RgType_t RegistryItem<RgInt>::TypeInfo (void) const { return kRgInt;  }
-RgType_t RegistryItem<RgDbl>::TypeInfo (void) const { return kRgDbl;  }
-RgType_t RegistryItem<RgStr>::TypeInfo (void) const { return kRgStr;  }
-RgType_t RegistryItem<RgAlg>::TypeInfo (void) const { return kRgAlg;  }
-RgType_t RegistryItem<RgH1F>::TypeInfo (void) const { return kRgH1F;  }
-RgType_t RegistryItem<RgH2F>::TypeInfo (void) const { return kRgH2F;  }
-RgType_t RegistryItem<RgTree>::TypeInfo(void) const { return kRgTree; }
+template<> RgType_t RegistryItem<RgBool>::TypeInfo(void) const 
+{ 
+  return kRgBool; 
+}
+//____________________________________________________________________________
+template<> RgType_t RegistryItem<RgInt>::TypeInfo (void) const 
+{ 
+  return kRgInt;  
+}
+//____________________________________________________________________________
+template<> RgType_t RegistryItem<RgDbl>::TypeInfo (void) const 
+{ 
+  return kRgDbl;  
+}
+//____________________________________________________________________________
+template<> RgType_t RegistryItem<RgStr>::TypeInfo (void) const 
+{ 
+  return kRgStr;  
+}
+//____________________________________________________________________________
+template<> RgType_t RegistryItem<RgAlg>::TypeInfo (void) const 
+{ 
+  return kRgAlg;  
+}
+//____________________________________________________________________________
+template<> RgType_t RegistryItem<RgH1F>::TypeInfo (void) const 
+{ 
+  return kRgH1F;  
+}
+//____________________________________________________________________________
+template<> RgType_t RegistryItem<RgH2F>::TypeInfo (void) const 
+{ 
+  return kRgH2F;  
+}
+//____________________________________________________________________________
+template<> RgType_t RegistryItem<RgTree>::TypeInfo(void) const 
+{ 
+  return kRgTree; 
+}
 //____________________________________________________________________________
 template<class T> void RegistryItem<T>::Print(ostream & stream) const
 {
@@ -120,12 +151,12 @@ template<class T> void RegistryItem<T>::Print(ostream & stream) const
   else          stream << "[unlocked] : " << fItem;
 }
 //____________________________________________________________________________
-void RegistryItem<RgAlg>::Print(ostream & stream) const
+template<> void RegistryItem<RgAlg>::Print(ostream & stream) const
 {
   stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") << " : " << (fItem);
 }
 //____________________________________________________________________________
-void RegistryItem<RgH1F>::Print(ostream & stream) const
+template<> void RegistryItem<RgH1F>::Print(ostream & stream) const
 {
   TH1F * histo = dynamic_cast<TH1F *>(fItem);
   if(!histo) stream << "*** NULL RgH1F ***";
@@ -134,7 +165,7 @@ void RegistryItem<RgH1F>::Print(ostream & stream) const
          << " : " << fItem->GetName();
 }
 //____________________________________________________________________________
-void RegistryItem<RgH2F>::Print(ostream & stream) const
+template<> void RegistryItem<RgH2F>::Print(ostream & stream) const
 {
   TH2F * histo = dynamic_cast<TH2F *>(fItem);
   if(!histo) stream << "*** NULL RgH2F ***";
@@ -143,7 +174,7 @@ void RegistryItem<RgH2F>::Print(ostream & stream) const
           << " : " << fItem->GetName();
 }
 //____________________________________________________________________________
-void RegistryItem<RgTree>::Print(ostream & stream) const
+template<> void RegistryItem<RgTree>::Print(ostream & stream) const
 {
   TTree * tree = dynamic_cast<TTree *>(fItem);
   if(!tree) stream << "*** NULL RgTree ***";
