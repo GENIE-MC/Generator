@@ -35,12 +35,14 @@ namespace genie {
  }
 }
 //___________________________________________________________________________
-Kinematics::Kinematics()
+Kinematics::Kinematics() :
+TObject()
 {
   this->Init();
 }
 //____________________________________________________________________________
-Kinematics::Kinematics(const Kinematics & kinematics)
+Kinematics::Kinematics(const Kinematics & kinematics) :
+TObject()
 {
   this->Init();
   this->Copy(kinematics);

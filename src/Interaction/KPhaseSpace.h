@@ -40,22 +40,22 @@ public:
 
   void UseInteraction(const Interaction * in);
 
-  //! Energy threshold
+  //-- Energy threshold
   double Threshold(void) const;
 
-  //! Checks whether the interaction is above the energy threshold
+  //-- Checks whether the interaction is above the energy threshold
   bool IsAboveThreshold(void) const;
 
-  //! Check whether the running kinematics for the specified interaction
-  //! are allowed. Takes into account all applied cuts.
+  //-- Check whether the running kinematics for the specified interaction
+  //-- are allowed. Takes into account all applied cuts.
   bool IsAllowed (void) const;
 
-  //! Return the kinematical variable limits
+  //-- Return the kinematical variable limits
   Range1D_t Limits  (KineVar_t kvar) const;
   double    Minimum (KineVar_t kvar) const;
   double    Maximum (KineVar_t kvar) const;
 
-  //! Apply kinematical cuts
+  //-- Apply kinematical cuts
   //void ApplyCut (const KPhaseSpaceCut & cut);
   //void ApplyCut (KineVar_t kvar, Range1D_t narrower_range);
 

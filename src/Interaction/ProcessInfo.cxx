@@ -34,20 +34,23 @@ namespace genie {
  }
 }
 //____________________________________________________________________________
-ProcessInfo::ProcessInfo()
+ProcessInfo::ProcessInfo() :
+TObject()
 {
   this->Reset();
 }
 //____________________________________________________________________________
 ProcessInfo::ProcessInfo(
-                      ScatteringType_t sc_type, InteractionType_t  int_type) :
-fScatteringType  (sc_type),
-fInteractionType (int_type)
+              ScatteringType_t sc_type, InteractionType_t  int_type) :
+TObject(),
+fScatteringType(sc_type),
+fInteractionType(int_type)
 {
 
 }
 //____________________________________________________________________________
-ProcessInfo::ProcessInfo(const ProcessInfo & proc)
+ProcessInfo::ProcessInfo(const ProcessInfo & proc) :
+TObject()
 {
   this->Copy(proc);
 }

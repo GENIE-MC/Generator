@@ -50,7 +50,7 @@ public:
   Interaction();
   Interaction(const InitialState & init, const ProcessInfo & proc);
   Interaction(const Interaction & i);
-  ~Interaction();
+ ~Interaction();
 
   //-- Methods accessing aggregate/owned objects holding interaction information
   const InitialState & InitState     (void) const { return *fInitialState; }

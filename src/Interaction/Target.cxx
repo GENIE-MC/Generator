@@ -43,31 +43,36 @@ namespace genie {
  }
 }
 //___________________________________________________________________________
-Target::Target()
+Target::Target() :
+TObject()
 {
   this->Init();
 }
 //___________________________________________________________________________
-Target::Target(int pdgc)
+Target::Target(int pdgc) :
+TObject()
 {
   this->Init();
   this->SetId(pdgc);
 }
 //___________________________________________________________________________
-Target::Target(int Z, int A)
+Target::Target(int Z, int A) :
+TObject()
 {
   this->Init();
   this->SetId(Z,A);
 }
 //___________________________________________________________________________
-Target::Target(int Z, int A, int hit_nucleon_pdgc)
+Target::Target(int Z, int A, int hit_nucleon_pdgc) :
+TObject()
 {
   this->Init();
   this->SetId(Z,A);
   this->SetHitNucPdg(hit_nucleon_pdgc);
 }
 //___________________________________________________________________________
-Target::Target(const Target & tgt)
+Target::Target(const Target & tgt) :
+TObject()
 {
   this->Init();
   this->Copy(tgt);

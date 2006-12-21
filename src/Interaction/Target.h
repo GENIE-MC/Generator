@@ -41,7 +41,7 @@ public:
   Target(int Z, int A);
   Target(int Z, int A, int hit_nucleon_pdgc);
   Target(const Target & tgt);
-  ~Target();
+ ~Target();
 
   //-- Set target properties
 

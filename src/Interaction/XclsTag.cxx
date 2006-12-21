@@ -39,15 +39,16 @@ namespace genie {
  }
 }
 //___________________________________________________________________________
-XclsTag::XclsTag()
+XclsTag::XclsTag() :
+TObject()
 {
   this->Reset();
 }
 //___________________________________________________________________________
-XclsTag::XclsTag(const XclsTag & xcls)
+XclsTag::XclsTag(const XclsTag & xcls) :
+TObject()
 {
   this->Reset();
-
   this->Copy(xcls);
 }
 //___________________________________________________________________________

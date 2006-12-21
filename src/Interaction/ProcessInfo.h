@@ -41,12 +41,12 @@ public:
   ProcessInfo();
   ProcessInfo(ScatteringType_t sc_type, InteractionType_t  int_type);
   ProcessInfo(const ProcessInfo & proc);
-  ~ProcessInfo();
+ ~ProcessInfo();
 
-  //! set process information
+  //-- set process information
   void Set(ScatteringType_t sc_type, InteractionType_t  int_type);
 
-  //! query for process information
+  //-- query for process information
   bool IsNuElectronElastic (void) const;
   bool IsQuasiElastic      (void) const;
   bool IsDeepInelastic     (void) const;
@@ -58,15 +58,15 @@ public:
   bool IsWeakCC            (void) const;
   bool IsWeakNC            (void) const;
 
-  //! get scattering and interaction type enumerations
+  //-- get scattering and interaction type enumerations
   ScatteringType_t  ScatteringTypeId  (void) const;
   InteractionType_t InteractionTypeId (void) const;
 
-  //! get scattering and interaction types as strings
+  //-- get scattering and interaction types as strings
   string ScatteringTypeAsString  (void) const;
   string InteractionTypeAsString (void) const;
 
-  //! Copy, reset, compare, print itself and build string code
+  //-- Copy, reset, compare, print itself and build string code
   void   Reset    (void);
   void   Copy     (const ProcessInfo & proc);
   bool   Compare  (const ProcessInfo & proc) const;
@@ -79,7 +79,7 @@ public:
 
 private:
 
-  //! Private data members
+  //-- Private data members
   ScatteringType_t  fScatteringType;  ///< scattering type  (QEL, RES, DIS, ...)
   InteractionType_t fInteractionType; ///< interaction type (Weak CC/NC, E/M, ...)
 

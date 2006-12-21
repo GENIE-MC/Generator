@@ -38,7 +38,7 @@ class Kinematics : public TObject {
 public:
   Kinematics();
   Kinematics(const Kinematics & kv);
-  ~Kinematics();
+ ~Kinematics();
 
   double x       (bool selected=false) const;
   double y       (bool selected=false) const;
@@ -77,7 +77,7 @@ public:
   void ClearRunningValues    (void);
   void UseSelectedKinematics (void);
 
-  //! Copy, reset, compare and print itself
+  //-- Copy, reset, compare and print itself
   void Reset (void);
   void Copy  (const Kinematics & kine);
   void Print (ostream & stream) const;
@@ -90,7 +90,7 @@ private:
   void Init    (void); ///< initialize 
   void CleanUp (void); ///< clean-up 
 
-  // Private data members
+  //-- Private data members
 
   map<KineVar_t, double> fKV;        ///< selected kinematics
   TLorentzVector *       fP4Fsl;     ///< generated final state primary lepton 4-p  (LAB)
