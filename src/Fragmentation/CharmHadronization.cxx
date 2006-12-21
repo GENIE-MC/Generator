@@ -326,13 +326,13 @@ double CharmHadronization::Weight(void) const
 }
 //____________________________________________________________________________
 PDGCodeList * CharmHadronization::SelectParticles(
-                                        const Interaction * interaction) const
+                               const Interaction * /*interaction*/) const
 {
   return 0;
 }
 //____________________________________________________________________________
 TH1D * CharmHadronization::MultiplicityProb(
-                       const Interaction * interaction, Option_t * opt)  const
+           const Interaction * /*interaction*/, Option_t * /*opt*/)  const
 {
   return 0;
 }
