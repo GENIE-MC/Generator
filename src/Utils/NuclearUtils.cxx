@@ -233,8 +233,8 @@ double genie::utils::nuclear::FmI1(double alpha, double beta,
   return integral1;
 }
 //___________________________________________________________________________
-double genie::utils::nuclear::FmI2(double alpha, double beta, 
-                       double a, double b,  double kFi, double kFf, double q)
+double genie::utils::nuclear::FmI2(double alpha, double beta,
+               double a, double b,  double kFi, double /*kFf*/, double /*q*/)
 {
 // Adapted from NeuGEN's fm_integral2() used in r_factor()
 

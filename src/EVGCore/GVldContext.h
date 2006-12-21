@@ -36,8 +36,7 @@ class GVldContext {
 
 public :
   GVldContext();
-  GVldContext(const GVldContext & validity_context);
-  ~GVldContext();
+ ~GVldContext();
 
   void   Decode  (string encoded_values);
 

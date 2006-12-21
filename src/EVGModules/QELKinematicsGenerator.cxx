@@ -115,7 +115,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double xsec   = -1.;
   double gQ2    =  0.;
 
-  register unsigned int iter = 0;
+  unsigned int iter = 0;
   bool accept = false;
   while(1) {
      iter++;

@@ -35,9 +35,7 @@ typedef enum EXmlParseStatus {
 class XmlParserStatus {
 
   public:
-
      static char * AsString(XmlParserStatus_t status) {
-
        switch(status) {
          case kXmlUndefined:   return "Undefined state";                       break;
          case kXmlOK:          return "XML document succesfully parsed";       break;
@@ -46,6 +44,7 @@ class XmlParserStatus {
          case kXmlInvalidRoot: return "XML document has invalid root element"; break;
          default:              return "unrecognized XMLParseStatus_t enum";    break;
        }
+       return "unrecognized XMLParseStatus_t enum";  
      }
 };
 

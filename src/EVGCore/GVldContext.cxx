@@ -39,11 +39,6 @@ GVldContext::GVldContext()
   this->Init();
 }
 //___________________________________________________________________________
-GVldContext::GVldContext(const GVldContext & validity_context)
-{
-  this->Init();
-}
-//___________________________________________________________________________
 GVldContext::~GVldContext()
 {
 

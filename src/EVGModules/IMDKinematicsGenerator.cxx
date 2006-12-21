@@ -81,7 +81,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   Interaction * interaction = evrec->Summary();
 
   //-- Try to select a valid inelastisity y
-  register unsigned int iter = 0;
+  unsigned int iter = 0;
   bool accept = false;
   while(1) {
      iter++;

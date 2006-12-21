@@ -105,7 +105,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double dW   = W.max - W.min;
   double xsec = -1;
 
-  register unsigned int iter = 0;
+  unsigned int iter = 0;
   bool accept = false;
   while(1) {
      iter++;
