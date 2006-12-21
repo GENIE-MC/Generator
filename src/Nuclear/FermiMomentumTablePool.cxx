@@ -114,13 +114,12 @@ bool FermiMomentumTablePool::LoadTables(void)
 
   bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
 
-  if ( is_accessible ) {
+  if(is_accessible) {
       XmlParserStatus_t status = this->ParseXMLTables(filename);
       if(status != kXmlOK) {
-         string sst = XmlParserStatus::AsString(status);
          LOG("FermiP", pWARN)
-                  << "XML parser status: " << sst
-                                 << " - Couldn't read file: " << filename;
+            << "XML parser status: " << XmlParserStatus::AsString(status)
+            << " - Couldn't read file: " << filename;
          loaded = false;
       }
   } else {
