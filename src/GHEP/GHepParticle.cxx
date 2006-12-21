@@ -50,7 +50,8 @@ namespace genie {
  }
 }
 //___________________________________________________________________________
-GHepParticle::GHepParticle()
+GHepParticle::GHepParticle() :
+TObject()
 {
   this->Init();
 }
@@ -59,6 +60,7 @@ GHepParticle::GHepParticle()
 GHepParticle::GHepParticle(int pdg, GHepStatus_t status,
             int mother1, int mother2, int daughter1, int daughter2,
                         const TLorentzVector & p, const TLorentzVector & v) :
+TObject(),
 fStatus(status),
 fFirstMother(mother1),
 fLastMother(mother2),
@@ -81,6 +83,7 @@ GHepParticle::GHepParticle(int pdg, GHepStatus_t status,
          int mother1, int mother2, int daughter1, int daughter2,
                            double px, double py, double pz, double E,
                                     double x, double y, double z, double t) :
+TObject(),
 fStatus(status),
 fFirstMother(mother1),
 fLastMother(mother2),
@@ -99,7 +102,8 @@ fLastDaughter(daughter2)
 }
 //___________________________________________________________________________
 // Copy constructor
-GHepParticle::GHepParticle(const GHepParticle & particle)
+GHepParticle::GHepParticle(const GHepParticle & particle) :
+TObject()
 {
   this->Init();
   this->Copy(particle);

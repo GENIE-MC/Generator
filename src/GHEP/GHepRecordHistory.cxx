@@ -145,8 +145,8 @@ void GHepRecordHistory::Copy(const GHepRecordHistory & history)
   this->PurgeHistory();
 
   GHepRecordHistory::const_iterator history_iter;
-  for(history_iter = this->begin();
-                              history_iter != this->end(); ++history_iter) {
+  for(history_iter = history.begin();
+                           history_iter != history.end(); ++history_iter) {
 
     unsigned int step   = history_iter->first;
     GHepRecord * record = history_iter->second;
