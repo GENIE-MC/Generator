@@ -33,7 +33,7 @@ ELFormFactorsModelI("genie::BBA03ELFormFactorsModel")
 }
 //____________________________________________________________________________
 BBA03ELFormFactorsModel::BBA03ELFormFactorsModel(string config) :
-ELFormFactorsModelI("genie::BBA03ELFormFactorsModel")
+ELFormFactorsModelI("genie::BBA03ELFormFactorsModel", config)
 {
 
 }
