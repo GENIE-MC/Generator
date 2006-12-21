@@ -71,6 +71,7 @@ class GHepFlags {
             return "Unknown GHEP flag";
             break;
      }
+     return "Unknown GHEP flag";
   }
   //__________________________________________________________________________
   static unsigned int NFlags(void) { return 16; }
