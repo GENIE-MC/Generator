@@ -98,7 +98,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //------ Try to select a valid x,y pair
 
-  register unsigned int iter = 0;
+  unsigned int iter = 0;
   bool accept=false;
   double xsec=-1, gx=-1, gy=-1;
 

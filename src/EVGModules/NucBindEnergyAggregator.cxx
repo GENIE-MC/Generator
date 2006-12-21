@@ -52,12 +52,8 @@ NucBindEnergyAggregator::~NucBindEnergyAggregator()
 //___________________________________________________________________________
 void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
 {
-  Interaction * interaction = event_rec->Summary();
-  const InitialState & init_state = interaction->InitState();
-
   TIter stdhep_iter(event_rec);
   GHepParticle * p = 0;
-
   int ipos = 0;
 
   while( (p = (GHepParticle * ) stdhep_iter.Next()) ) {
@@ -66,9 +62,7 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
      bool in_nucleus = (p->Status() == kIStHadronInTheNucleus);
 
      if(is_nucleon && in_nucleus) {
-
         // check if it is coming from a nucleus and find it in the record
-
         GHepParticle * nucleus = this->FindMotherNucleus(ipos, event_rec);
         if(nucleus) {
            //-- ask for the binding energy set by the nuclear model

@@ -46,7 +46,7 @@ GlashowResXSec::~GlashowResXSec()
 }
 //____________________________________________________________________________
 double GlashowResXSec::XSec(
-                  const Interaction * interaction, KinePhaseSpace_t kps) const
+          const Interaction * /*interaction*/, KinePhaseSpace_t /*kps*/) const
 {
   return 0;
 }

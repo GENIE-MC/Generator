@@ -112,7 +112,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double dy = yl.max - yl.min;
   double gx=-1, gy=-1, gW=-1, gQ2=-1, xsec=-1;
 
-  register unsigned int iter = 0;
+  unsigned int iter = 0;
   bool accept = false;
   while(1) {
      iter++;

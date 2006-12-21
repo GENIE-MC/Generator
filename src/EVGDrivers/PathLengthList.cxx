@@ -64,7 +64,8 @@ map<int, double>()
   }
 }
 //___________________________________________________________________________
-PathLengthList::PathLengthList(const PathLengthList & plist)
+PathLengthList::PathLengthList(const PathLengthList & plist) :
+map<int, double>()
 {
   this->Copy(plist);
 }

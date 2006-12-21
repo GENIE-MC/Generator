@@ -240,7 +240,7 @@ public:
     return 0;
   }
   //__________________________________________________________________________
-  static double BranchingRatio(SppChannel_t channel, Resonance_t res)
+  static double BranchingRatio(SppChannel_t /*channel*/, Resonance_t res)
   {
     // return the BR for the decay of the input resonance to the final state
     // hadronic system of the input exclusive channel.
