@@ -30,15 +30,15 @@
 #
 # Optional [needed if you enable NuValidator]
 # .................................................................
-#  NEUGEN3PATH    -> top level NEUGEN-3 directory
+#  NEUGEN3PATH -> top level NEUGEN-3 directory
 #
 # Optional [needed if you enable Google profiler]
 # .................................................................
-#  GPROFILER_LIB  -> location of libprofiler.so
+#  GPROFILER_LIB -> location of libprofiler.so
 #
 # Optional [needed if you enable GENIE docs]
 # .................................................................
-#  DOXYGEN        -> your doxygen exe (with full path if needed)
+#  DOXYGEN -> your doxygen exe (with full path if needed)
 #
 # Notes:
 # ------
@@ -145,14 +145,18 @@ endif
 ifndef GOPT_CXX_OPTIM_FLAG
  GOPT_CXX_OPTIM_FLAG=-O # can be -O,-O2,-O3,-OO,-Os, see gcc manual
 endif
-
 ifndef GOPT_CXX_DEBUG_FLAG
  GOPT_CXX_DEBUG_FLAG=-g 
 endif
-
 ifndef GOPT_CXX_USERDEF_FLAGS
  GOPT_CXX_USERDEF_FLAGS=
 endif
+
+#-------------------------------------------------------------------
+#                           ARCHITECTURE 
+#-------------------------------------------------------------------
+# as defined by ROOT
+ARCH = $(shell root-config --arch)  
 
 #-------------------------------------------------------------------
 #                             libxml2
@@ -222,8 +226,12 @@ PDFLIB   = $(shell awk 'BEGIN {str="$(PPDFLIB)"; \
 LPDFLIB  = $(shell awk 'BEGIN { str="$(PDFLIB)"; \
 				sub(/lib/, "-l", str); print str}')
 
-CERN_LIBRARIES = -L $(CERN_LIB_DIR) \
+CERN_LIBRARIES = -L$(CERN_LIB_DIR) \
 		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib -lg2c
+ifeq ($(strip $(ARCH)),macosx) 
+CERN_LIBRARIES = -L$(CERN_LIB_DIR) \
+		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib /usr/local/lib/libgfortran.dylib
+endif
 
 #-------------------------------------------------------------------
 #                             PYTHIA6
@@ -234,7 +242,11 @@ CERN_LIBRARIES = -L $(CERN_LIB_DIR) \
 PYTHIA_DIR = $(PYTHIA6)
 PYTHIA_O   = $(wildcard $(PYTHIA_DIR)/pythia*.o) # match all vrs
 
-PYTHIA_LIBRARIES  = -L $(PYTHIA_DIR) -lPythia6 $(PYTHIA_O)
+PYTHIA_LIBRARIES  = -L$(PYTHIA_DIR) -lPythia6 $(PYTHIA_O)
+
+ifeq ($(strip $(ARCH)),macosx) 
+PYTHIA_LIBRARIES  = -L$(PYTHIA_DIR) -lPythia6 
+endif
 
 #-------------------------------------------------------------------
 #                             NEUGEN3
@@ -245,7 +257,6 @@ ifndef GOPT_NEUGEN
 # if NeuGEN was not enabled a dummy NeuGEN library will be built so 
 # that the NuValidator's NeuGEN facade can compile. In this case, 
 # override NEUGEN3PATH (=GENIE)
-
   NEUGEN3PATH=$(GENIE)
   NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
 
@@ -253,7 +264,6 @@ else
 
 # In case the actual NeuGEN library is used, add CERNLIB's stdhep
 # which is used by NeuGEN (in addition to the 'std' CERNLIBs)
-
   NEUGEN_LIBRARIES = -L $(CERN_LIB_DIR) -lstdhep \
 			-L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
 endif
@@ -261,9 +271,7 @@ endif
 #-------------------------------------------------------------------
 #                              ROOT
 #-------------------------------------------------------------------
-
 # ROOT headers and libraries
-
 ROOT_INCLUDES  = -I$(shell root-config --incdir)
 ROOT_LIBRARIES = $(shell root-config --glibs) \
                         -lMinuit -lGeom -lEG -lEGPythia6
@@ -271,9 +279,8 @@ ROOT_LIBRARIES = $(shell root-config --glibs) \
 #-------------------------------------------------------------------
 #                   PROFILING / DEBUGING OPTIONS
 #-------------------------------------------------------------------
-
-###### Linking in the Google Profiling Tool library
-
+# Linking in the Google Profiling Tool library
+#
 GPROF_LIBRARIES = 
 ifdef GOPT_PROFILER
   ifdef GPROFILER_LIB
@@ -287,7 +294,7 @@ endif
 #                               DOXYGEN
 #-------------------------------------------------------------------
 # if doc was enabled but DOXYGEN was not set, try a default
-
+#
 ifdef GOPT_DOXYGEN_DOC
   ifndef DOXYGEN
     DOXYGEN=doxygen
@@ -295,15 +302,8 @@ ifdef GOPT_DOXYGEN_DOC
 endif
 
 #-------------------------------------------------------------------
-#                  ARCHITECTURE DEPENDENT OPTIONS
+#                       Some global variables
 #-------------------------------------------------------------------
-
-# Architecture 
-
-ARCH = $(shell uname -s)  # your system's architecture
-
-# Define some global variables.
-
 MAKE   := gmake
 RM      = rm -f
 MKDIR   = mkdir -p
@@ -311,17 +311,17 @@ CAT     = cat
 INSTALL = @INSTALL@
 
 # AR, ARFLAGS and RANLIB are for manipulating an archive
-
 AR        = ar
 ARFLAGS   = rv
 RANLIB    = ranlib
 
-# Extra flags to make specific SO libraries 
-
-SOMINF =
+#-------------------------------------------------------------------
+#                        COMPILER OPTIONS
+#-------------------------------------------------------------------
 
 # LINUX (with gcc)
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ifeq ($(strip $(ARCH)),linux) 
 CXX           = g++
 CXXFLAGS      = $(GOPT_CXX_DEBUG_FLAG) $(GOPT_CXX_OPTIM_FLAG) -Wall -fPIC
 CXXFLAGS     += $(GOPT_CXX_USERDEF_FLAGS) 
@@ -337,9 +337,32 @@ FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
 RANLIB       := ranlib
 SOCMD         = $(LD)
 OutPutOpt     = -o
+SOMINF =
+endif
+
+# MAC OS X (with gcc)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ifeq ($(strip $(ARCH)),macosx) 
+CXX           = g++
+CXXFLAGS      = $(GOPT_CXX_DEBUG_FLAG) $(GOPT_CXX_OPTIM_FLAG) -pipe -W -Wall -Wno-long-double -fsigned-char -fno-common
+CXXFLAGS     += $(GOPT_CXX_USERDEF_FLAGS) 
+LD            = g++
+LDFLAGS       = -bind_at_load
+SOFLAGS       = -dynamiclib -single_module -undefined dynamic_lookup
+DllSuf       := dylib
+StaticLibSuf := a
+ObjSuf       := o
+SrcSuf       := cxx
+FORT         := g77
+FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
+RANLIB       := ranlib
+SOCMD         = $(LD)
+OutPutOpt     = -o
+SOMINF =
+endif
 
 #-------------------------------------------------------------------
-#                                GENIE
+#                              GENIE
 #-------------------------------------------------------------------
 
 # GENIE & NuValidator header files base dir
@@ -433,6 +456,12 @@ NUVLD_LIBRARIES := $(NUVLD_CORE_LIBRARIES) -lGNuVldNeugen
 
 LIBRARIES := $(SYSLIBS) $(ROOT_LIBRARIES) $(PYTHIA_LIBRARIES) \
              $(XML_LIBRARIES) $(LOG_LIBRARIES) $(GPROF_LIBRARIES) -lnsl 
+
+ifeq ($(strip $(ARCH)),macosx) 
+LIBRARIES := $(SYSLIBS) $(ROOT_LIBRARIES) $(PYTHIA_LIBRARIES) \
+             $(XML_LIBRARIES) $(LOG_LIBRARIES) $(GPROF_LIBRARIES) 
+endif
+
 INCLUDES  = $(ROOT_INCLUDES) $(XML_INCLUDES) $(LOG_INCLUDES) \
             $(GENIE_INCLUDES) $(NUVLD_INCLUDES)
 INCLUDES := $(INCLUDES) $(LINUX_SYS_INCLUDES)
