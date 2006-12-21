@@ -410,7 +410,7 @@ void GHepParticle::Reset(void)
   this->Init();
 }
 //___________________________________________________________________________
-void GHepParticle::Clear(Option_t * option)
+void GHepParticle::Clear(Option_t * /*option*/)
 {
 // implement the Clear(Option_t *) method so that the GHepParticle when is a
 // member of a GHepRecord, gets deleted properly when calling TClonesArray's
