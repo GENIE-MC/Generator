@@ -42,7 +42,7 @@ public:
   InitialState(int Z, int A, int probe_pdgc);
   InitialState(const Target & tgt, int probe_pdgc);
   InitialState(const InitialState & initial_state);
-  ~InitialState();
+ ~InitialState();
 
   TParticlePDG *   Probe      (void) const;
   int              ProbePdg   (void) const { return fProbePdg; }

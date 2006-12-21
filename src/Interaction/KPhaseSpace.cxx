@@ -33,12 +33,14 @@ using namespace genie::controls;
 ClassImp(KPhaseSpace)
 
 //____________________________________________________________________________
-KPhaseSpace::KPhaseSpace(void)
+KPhaseSpace::KPhaseSpace(void) :
+TObject()
 {
   this->UseInteraction(0);
 }
 //___________________________________________________________________________
-KPhaseSpace::KPhaseSpace(const Interaction * in)
+KPhaseSpace::KPhaseSpace(const Interaction * in) :
+TObject()
 {
   this->UseInteraction(in);
 }

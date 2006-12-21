@@ -40,12 +40,14 @@ namespace genie {
  }
 }
 //___________________________________________________________________________
-Interaction::Interaction()
+Interaction::Interaction() :
+TObject()
 {
   this->Init();
 }
 //___________________________________________________________________________
-Interaction::Interaction(const InitialState & ist, const ProcessInfo & prc)
+Interaction::Interaction(const InitialState & ist, const ProcessInfo & prc) :
+TObject()
 {
   this->Init();
 
@@ -53,7 +55,8 @@ Interaction::Interaction(const InitialState & ist, const ProcessInfo & prc)
   fProcInfo     -> Copy (prc);
 }
 //___________________________________________________________________________
-Interaction::Interaction(const Interaction & interaction)
+Interaction::Interaction(const Interaction & interaction) :
+TObject()
 {
   this->Init();
   this->Copy(interaction);

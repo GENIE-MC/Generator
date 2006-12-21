@@ -34,10 +34,9 @@ namespace genie {
 class XclsTag : public TObject {
 
 public:
-
   XclsTag();
   XclsTag(const XclsTag & xcls);
-  ~XclsTag();
+ ~XclsTag();
 
   //-- Getting exclusive intermediate and/or final state information
   bool IsCharmEvent     (void) const { return fIsCharmEvent;     }
@@ -75,7 +74,7 @@ public:
 
 private:
 
-  //! Private data members
+  //-- Private data members
   bool        fIsCharmEvent;     ///< true if we have charm production
   int         fCharmedHadronPdg; ///< charmed hadron pdg-code
   int         fNProtons;         ///< # of p's in the f/s hadronic system

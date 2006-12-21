@@ -41,29 +41,34 @@ namespace genie {
  }
 }
 //___________________________________________________________________________
-InitialState::InitialState()
+InitialState::InitialState() :
+TObject()
 {
   this->Init();
 }
 //___________________________________________________________________________
-InitialState::InitialState(int target_pdgc, int probe_pdgc)
+InitialState::InitialState(int target_pdgc, int probe_pdgc) :
+TObject()
 {
   this->Init(target_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
-InitialState::InitialState(int Z, int A, int probe_pdgc)
+InitialState::InitialState(int Z, int A, int probe_pdgc) :
+TObject()
 {
   int target_pdgc = pdg::IonPdgCode(A,Z);
   this->Init(target_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
-InitialState::InitialState(const Target & tgt, int probe_pdgc)
+InitialState::InitialState(const Target & tgt, int probe_pdgc) :
+TObject()
 {
   int target_pdgc = tgt.Pdg();
   this->Init(target_pdgc, probe_pdgc);
 }
 //___________________________________________________________________________
-InitialState::InitialState(const InitialState & init_state)
+InitialState::InitialState(const InitialState & init_state) :
+TObject()
 {
   this->Init();
   this->Copy(init_state);
