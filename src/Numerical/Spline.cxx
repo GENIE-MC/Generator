@@ -47,7 +47,8 @@ Spline::Spline()
   this->InitSpline();
 }
 //___________________________________________________________________________
-Spline::Spline(string filename, string xtag, string ytag, bool is_xml)
+Spline::Spline(string filename, string xtag, string ytag, bool is_xml) :
+TObject()
 {
   string fmt = (is_xml) ? "XML" : "ASCII";
 
@@ -62,7 +63,8 @@ Spline::Spline(string filename, string xtag, string ytag, bool is_xml)
      this->LoadFromAsciiFile(filename);
 }
 //___________________________________________________________________________
-Spline::Spline(TNtupleD * ntuple, string var, string cut)
+Spline::Spline(TNtupleD * ntuple, string var, string cut) :
+TObject()
 {
   LOG("Spline", pDEBUG) << "Constructing spline from data in a TNtuple";
 
@@ -70,7 +72,8 @@ Spline::Spline(TNtupleD * ntuple, string var, string cut)
   this->LoadFromNtuple(ntuple, var, cut);
 }
 //___________________________________________________________________________
-Spline::Spline(TTree * tree, string var, string cut)
+Spline::Spline(TTree * tree, string var, string cut) :
+TObject()
 {
   LOG("Spline", pDEBUG) << "Constructing spline from data in a TTree";
 
@@ -78,7 +81,8 @@ Spline::Spline(TTree * tree, string var, string cut)
   this->LoadFromTree(tree, var, cut);
 }
 //___________________________________________________________________________
-Spline::Spline(TSQLServer * db, string query)
+Spline::Spline(TSQLServer * db, string query) :
+TObject()
 {
   LOG("Spline", pDEBUG) << "Constructing spline from data in a MySQL server";
 
@@ -86,7 +90,8 @@ Spline::Spline(TSQLServer * db, string query)
   this->LoadFromDBase(db, query);
 }
 //___________________________________________________________________________
-Spline::Spline(int nentries, double x[], double y[])
+Spline::Spline(int nentries, double x[], double y[]) :
+TObject()
 {
   LOG("Spline", pDEBUG)
                  << "Constructing spline from the arrays passed to the ctor";
@@ -95,7 +100,8 @@ Spline::Spline(int nentries, double x[], double y[])
   this->BuildSpline(nentries, x, y);
 }
 //___________________________________________________________________________
-Spline::Spline(int nentries, float x[], float y[])
+Spline::Spline(int nentries, float x[], float y[]) :
+TObject()
 {
   LOG("Spline", pDEBUG)
                  << "Constructing spline from the arrays passed to the ctor";
@@ -115,14 +121,16 @@ Spline::Spline(int nentries, float x[], float y[])
   delete [] y;
 }
 //___________________________________________________________________________
-Spline::Spline(const Spline & spline)
+Spline::Spline(const Spline & spline) :
+TObject()
 {
   LOG("Spline", pDEBUG) << "Spline copy constructor";
 
   this->LoadFromTSpline3( *spline.GetAsTSpline(), spline.NKnots() );
 }
 //___________________________________________________________________________
-Spline::Spline(const TSpline3 & spline, int nknots)
+Spline::Spline(const TSpline3 & spline, int nknots) :
+TObject()
 {
   LOG("Spline", pDEBUG)
                     << "Constructing spline from the input TSpline3 object";
@@ -274,10 +282,10 @@ bool Spline::LoadFromTree(TTree * tree, string var, string cut)
   return true;
 }
 //___________________________________________________________________________
-bool Spline::LoadFromDBase(TSQLServer * db,  string query)
+bool Spline::LoadFromDBase(TSQLServer * /*db*/,  string /*query*/)
 {
   LOG("Spline", pDEBUG) << "Retrieving data from data-base: ";
-  return true;
+  return false;
 }
 //___________________________________________________________________________
 bool Spline::LoadFromTSpline3(const TSpline3 & spline, int nknots)

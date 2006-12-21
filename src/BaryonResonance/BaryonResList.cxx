@@ -88,7 +88,7 @@ Resonance_t BaryonResList::ResonanceId(unsigned int ires) const
   return (*fResVec)[ires];
 }
 //____________________________________________________________________________
-int BaryonResList::ResonancePdgCode(unsigned int ires) const
+int BaryonResList::ResonancePdgCode(unsigned int /*ires*/) const
 {
   return 0;
 }

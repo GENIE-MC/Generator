@@ -78,13 +78,13 @@ unsigned int UnifGrid::GetNDimensions(void) const
 //____________________________________________________________________________
 UnifGridDimension * UnifGrid::GridDimension(unsigned int idim)
 {
-  if( idim >= 0 && idim < this->GetNDimensions() ) return fGrid[idim];
+  if(idim < this->GetNDimensions()) return fGrid[idim];
   else return 0;
 }
 //____________________________________________________________________________
 const UnifGridDimension * UnifGrid::operator[] (unsigned int idim) const
 {
-  if( idim >= 0 && idim < this->GetNDimensions() ) return fGrid[idim];
+  if(idim < this->GetNDimensions()) return fGrid[idim];
   else return 0;
 }
 //____________________________________________________________________________

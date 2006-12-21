@@ -39,7 +39,6 @@ namespace genie {
 class Spline : public TObject {
 
 public:
-
   Spline();
   Spline(string filename, string xtag="", string ytag="", bool is_xml = false);
   Spline(TNtupleD * ntuple, string xy, string cut="");
