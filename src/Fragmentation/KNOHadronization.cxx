@@ -173,7 +173,7 @@ PDGCodeList * KNOHadronization::SelectParticles(
   //----- FIND AN ALLOWED SOLUTION FOR THE HADRONIC FINAL STATE
 
   bool allowed_state=false;
-  register unsigned int itry = 0;
+  unsigned int itry = 0;
 
   while(!allowed_state) 
   {
