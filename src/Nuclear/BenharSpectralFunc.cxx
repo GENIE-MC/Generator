@@ -36,12 +36,13 @@ BenharSpectralFunc::~BenharSpectralFunc()
 
 }
 //____________________________________________________________________________
-bool BenharSpectralFunc::GenerateNucleon(const Target & t) const
+bool BenharSpectralFunc::GenerateNucleon(const Target & /*target*/) const
 {
   return false;
 }
 //____________________________________________________________________________
-double BenharSpectralFunc::Prob(double p, double w, const Target & t) const
+double BenharSpectralFunc::Prob(
+             double /*p*/, double /*w*/, const Target & /*target*/) const
 {
   return 0;
 }

@@ -36,12 +36,13 @@ FGMSpectralFunc::~FGMSpectralFunc()
 
 }
 //____________________________________________________________________________
-bool FGMSpectralFunc::GenerateNucleon(const Target & t) const
+bool FGMSpectralFunc::GenerateNucleon(const Target & /*target*/) const
 {
   return false;
 }
 //____________________________________________________________________________
-double FGMSpectralFunc::Prob(double p, double w, const Target & t) const
+double FGMSpectralFunc::Prob(
+          double /*p*/, double /*w*/, const Target & /*target*/) const
 {
   return 0;
 }
