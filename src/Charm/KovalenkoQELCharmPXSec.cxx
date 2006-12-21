@@ -311,13 +311,8 @@ bool KovalenkoQELCharmPXSec::ValidKinematics(
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  //----- get kinematics & init state - compute auxiliary vars
-  const Kinematics &   kinematics  = interaction->Kine();
   const InitialState & init_state  = interaction->InitState();
-
-  //neutrino energy & momentum transfer
-  double E   = init_state.ProbeE(kRfHitNucRest);
-  //double Q2  = kinematics.Q2();
+  double E = init_state.ProbeE(kRfHitNucRest);
 
   //resonance, final state primary lepton & nucleon mass
   double MR    = this -> MRes  (interaction);
