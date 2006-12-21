@@ -35,7 +35,6 @@ class GHepParticle;
 class NtpMCGHepEntry : public TObject {
 
 public :
-
   NtpMCGHepEntry();
   NtpMCGHepEntry(const NtpMCGHepEntry & particle);
   virtual ~NtpMCGHepEntry();

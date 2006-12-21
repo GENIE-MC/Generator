@@ -40,12 +40,14 @@ namespace genie {
   }
 }
 //____________________________________________________________________________
-NtpMCSummary::NtpMCSummary()
+NtpMCSummary::NtpMCSummary() :
+TObject()
 {
   this->Init();
 }
 //____________________________________________________________________________
-NtpMCSummary::NtpMCSummary(const NtpMCSummary & mcs)
+NtpMCSummary::NtpMCSummary(const NtpMCSummary & mcs) :
+TObject()
 {
   this->Copy(mcs);
 }

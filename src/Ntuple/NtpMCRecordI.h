@@ -30,7 +30,6 @@ class EventRecord;
 class NtpMCRecordI : public TObject {
 
 public :
-
   virtual ~NtpMCRecordI();
 
   virtual void Fill(unsigned int ievent, const EventRecord * ev_rec) = 0;

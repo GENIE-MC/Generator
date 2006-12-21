@@ -123,7 +123,8 @@ void NtpWriter::OpenFile(string filename_prefix)
 
   // modify the filename to add the run number & the ntuple format
   ostringstream filename;
-  filename << "GNtp-" << NtpMCFormat::FilenameTag(fNtpFormat)
+  filename << filename_prefix << "-" 
+           << NtpMCFormat::FilenameTag(fNtpFormat)
            << "-" << fRunNu << ".root";
 
   LOG("NtpWriter", pINFO) << "Opening the output ROOT file: " << filename;

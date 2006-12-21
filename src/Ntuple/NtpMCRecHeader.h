@@ -30,7 +30,6 @@ namespace genie {
 class NtpMCRecHeader : public TObject {
 
 public :
-
   NtpMCRecHeader();
   NtpMCRecHeader(const NtpMCRecHeader & hdr);
   virtual ~NtpMCRecHeader();

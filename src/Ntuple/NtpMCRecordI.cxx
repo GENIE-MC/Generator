@@ -21,7 +21,8 @@ using namespace genie;
 ClassImp(NtpMCRecordI)
 
 //____________________________________________________________________________
-NtpMCRecordI::NtpMCRecordI()
+NtpMCRecordI::NtpMCRecordI() :
+TObject()
 {
 
 }

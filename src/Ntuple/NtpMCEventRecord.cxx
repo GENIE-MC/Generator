@@ -33,12 +33,14 @@ namespace genie {
   }
 }
 //____________________________________________________________________________
-NtpMCEventRecord::NtpMCEventRecord()
+NtpMCEventRecord::NtpMCEventRecord() :
+NtpMCRecordI()
 {
   this->Init();
 }
 //____________________________________________________________________________
-NtpMCEventRecord::NtpMCEventRecord(const NtpMCEventRecord & ntpmcrec)
+NtpMCEventRecord::NtpMCEventRecord(const NtpMCEventRecord & ntpmcrec) :
+NtpMCRecordI()
 {
   this->Copy(ntpmcrec);
 }

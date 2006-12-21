@@ -33,12 +33,14 @@ namespace genie {
   }
 }
 //____________________________________________________________________________
-NtpMCDTime::NtpMCDTime()
+NtpMCDTime::NtpMCDTime() :
+TObject()
 {
   this->Init();
 }
 //____________________________________________________________________________
-NtpMCDTime::NtpMCDTime(const NtpMCDTime & dt)
+NtpMCDTime::NtpMCDTime(const NtpMCDTime & dt) :
+TObject()
 {
   this->Copy(dt);
 }

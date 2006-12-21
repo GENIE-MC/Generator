@@ -35,7 +35,6 @@ namespace genie {
 class NtpMCEventRecord : public NtpMCRecordI {
 
 public :
-
   NtpMCEventRecord();
   NtpMCEventRecord(const NtpMCEventRecord & ntpmcrec);
   virtual ~NtpMCEventRecord();
