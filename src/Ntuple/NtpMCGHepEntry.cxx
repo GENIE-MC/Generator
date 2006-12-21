@@ -38,12 +38,14 @@ namespace genie {
   }
 }
 //____________________________________________________________________________
-NtpMCGHepEntry::NtpMCGHepEntry()
+NtpMCGHepEntry::NtpMCGHepEntry() :
+TObject()
 {
   this->Init();
 }
 //____________________________________________________________________________
-NtpMCGHepEntry::NtpMCGHepEntry(const NtpMCGHepEntry & particle)
+NtpMCGHepEntry::NtpMCGHepEntry(const NtpMCGHepEntry & particle) :
+TObject()
 {
   this->Copy(particle);
 }

@@ -35,7 +35,6 @@ class EventRecord;
 class NtpMCSummary : public TObject {
 
 public :
-
   NtpMCSummary();
   NtpMCSummary(const NtpMCSummary & mcs);
   virtual ~NtpMCSummary();

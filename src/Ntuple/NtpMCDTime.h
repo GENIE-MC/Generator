@@ -31,7 +31,6 @@ namespace genie {
 class NtpMCDTime : public TObject {
 
 public :
-
   NtpMCDTime();
   NtpMCDTime(const NtpMCDTime & dt);
   virtual ~NtpMCDTime();

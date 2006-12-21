@@ -29,12 +29,14 @@ namespace genie {
   }
 }
 //____________________________________________________________________________
-NtpMCRecHeader::NtpMCRecHeader()
+NtpMCRecHeader::NtpMCRecHeader() :
+TObject()
 {
   this->Init();
 }
 //____________________________________________________________________________
-NtpMCRecHeader::NtpMCRecHeader(const NtpMCRecHeader & hdr)
+NtpMCRecHeader::NtpMCRecHeader(const NtpMCRecHeader & hdr) :
+TObject()
 {
   this->Copy(hdr);
 }

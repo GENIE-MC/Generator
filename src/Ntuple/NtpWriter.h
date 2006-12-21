@@ -51,7 +51,7 @@ public :
 
 private:
 
-  void      OpenFile           (string filename_prefix);
+  void      OpenFile           (string filename_prefix="GNtp");
   void      CreateTree         (void);
   void      CreateTreeHeader   (void);
   TBranch * CreateTreeBranch   (void);
