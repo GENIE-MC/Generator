@@ -29,10 +29,9 @@ class FermiMomentumTable;
 class PauliBlocker : public EventRecordVisitorI {
 
 public :
-
   PauliBlocker();
   PauliBlocker(string config);
-  ~PauliBlocker();
+ ~PauliBlocker();
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -47,6 +46,7 @@ private:
    void LoadKFTable(void);
 
    const FermiMomentumTable * fKFTable;
+   string fKFTableName;
 };
 
 }      // genie namespace

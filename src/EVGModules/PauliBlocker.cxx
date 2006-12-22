@@ -17,6 +17,7 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/PauliBlocker.h"
 #include "GHEP/GHepRecord.h"
@@ -125,12 +126,16 @@ void PauliBlocker::Configure(string param_set)
 //___________________________________________________________________________
 void PauliBlocker::LoadKFTable(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  fKFTableName = fConfig->GetStringDef ("FermiMomentumTable",
+                                    gc->GetString("FermiMomentumTable"));
   fKFTable = 0;
 
   // get the Fermi momentum table
   FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-  fKFTable = kftp->GetTable("Default");
-
+  fKFTable = kftp->GetTable(fKFTableName);
   assert(fKFTable);
 }
 //___________________________________________________________________________
