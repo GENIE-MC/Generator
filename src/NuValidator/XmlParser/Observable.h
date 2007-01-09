@@ -75,6 +75,7 @@ public:
         default:                    return "unknown Observable";      
                                     break;  
         }
+        return "unknown Observable";      
     }
     //_____________________________________________________________________________________
     static const char * Code(Observable_t obs) {
@@ -106,6 +107,7 @@ public:
         default:                    return "unknown Observable";      
                                     break;  
         }
+        return "unknown Observable";      
     }
     //_____________________________________________________________________________________
     static Observable_t GetObservable(string str_observable) {

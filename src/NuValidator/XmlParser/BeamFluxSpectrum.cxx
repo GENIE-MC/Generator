@@ -42,7 +42,7 @@ BeamFluxSpectrum::BeamFluxSpectrum()
   _spectrum = new vector<BeamFluxBin *>;
 }
 //______________________________________________________________________________________
-BeamFluxSpectrum::BeamFluxSpectrum(const BeamFluxSpectrum & spectrum)
+BeamFluxSpectrum::BeamFluxSpectrum(const BeamFluxSpectrum & /*spectrum*/)
 {
 
 }

@@ -24,7 +24,7 @@ ExperimentMeasurements::ExperimentMeasurements()
 }
 //_______________________________________________________________________________
 ExperimentMeasurements::ExperimentMeasurements(
-                                        const ExperimentMeasurements & meas_list)
+                                  const ExperimentMeasurements & /*meas_list*/)
 {
 
 }
