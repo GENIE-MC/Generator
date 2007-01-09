@@ -55,7 +55,7 @@ ExperimentInfo::ExperimentInfo()
   _energy_frame   = "";
 }
 //______________________________________________________________________________________
-ExperimentInfo::ExperimentInfo(const ExperimentInfo & info)
+ExperimentInfo::ExperimentInfo(const ExperimentInfo & /*info*/)
 {
 
 }

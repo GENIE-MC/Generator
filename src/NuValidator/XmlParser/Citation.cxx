@@ -35,7 +35,7 @@ _year(string(""))
 
 }
 //___________________________________________________________________________
-Citation::Citation(const Citation & ref)
+Citation::Citation(const Citation & /*ref*/)
 {
 
 }

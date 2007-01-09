@@ -37,8 +37,9 @@ class ParserStatus {
          case eXml_NOT_PARSED:   return "XML document parsing failed";           break;
          case eXml_EMPTY:        return "XML document is empty";                 break;
          case eXml_INVALID_ROOT: return "XML document has invalid root element"; break;
-         default:                return "unrecognized XMLParseStatus_t enum";    break;
+         default:                return "unrecognized XML parser status";        break;
        }
+       return "unrecognized XML parser status";  
      }
 };
 
