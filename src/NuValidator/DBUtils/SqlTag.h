@@ -62,6 +62,7 @@ class SqlTag {
          case kGetXSec_nubarDIS:                  return "querying for vbar+N DIS XSec"; break;
          default:                                 return "unrecognized default sql query"; break;
        }
+       return "unrecognized default sql query";
      }
      
      char * filename(SqlEnum_t sql) {     
@@ -80,6 +81,7 @@ class SqlTag {
          case kGetXSec_nubarDIS:                  return "getXSec_nubarDIS.sql"; break;
          default:                                 return "??"; break;
        }
+       return "??"; 
      }
 };
 
