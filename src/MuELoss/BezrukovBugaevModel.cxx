@@ -31,7 +31,7 @@ MuELossI("genie::mueloss::BezrukovBugaevModel")
 }
 //____________________________________________________________________________
 BezrukovBugaevModel::BezrukovBugaevModel(string config) :
-MuELossI("genie::mueloss::BezrukovBugaevModel")
+MuELossI("genie::mueloss::BezrukovBugaevModel", config)
 {
 
 }

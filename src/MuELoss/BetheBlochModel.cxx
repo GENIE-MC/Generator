@@ -32,7 +32,7 @@ MuELossI("genie::mueloss::BetheBlochModel")
 }
 //____________________________________________________________________________
 BetheBlochModel::BetheBlochModel(string config) :
-MuELossI("genie::mueloss::BetheBlochModel")
+MuELossI("genie::mueloss::BetheBlochModel", config)
 {
 
 }

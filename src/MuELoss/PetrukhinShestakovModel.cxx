@@ -31,7 +31,7 @@ MuELossI("genie::mueloss::PetrukhinShestakovModel")
 }
 //____________________________________________________________________________
 PetrukhinShestakovModel::PetrukhinShestakovModel(string config) :
-MuELossI("genie::mueloss::PetrukhinShestakovModel")
+MuELossI("genie::mueloss::PetrukhinShestakovModel", config)
 {
 
 }
