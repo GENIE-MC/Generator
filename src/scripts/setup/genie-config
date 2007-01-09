@@ -14,7 +14,7 @@ srcdir=$GENIE/src
 
 ########################### GENIE Libraries;
 
-libs="-L $libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
+libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
  -lGCrossSections -lGDecay -lGElas -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
  -lGHadronTransp -lGFragmentation -lGInteraction -lGInvMuDecay -lGLlewellynSmith\
  -lGMessenger -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
@@ -35,7 +35,7 @@ fi
 
 ########################### GENIE's NuValidator Libraries;
 
-nvldlibs="-L $libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
+nvldlibs="-L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
 
 ########################### GENIE Dictionaries;
 
