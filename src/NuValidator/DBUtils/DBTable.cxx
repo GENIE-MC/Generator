@@ -59,21 +59,21 @@ template<class T>
   return stream;
 }*/
 //____________________________________________________________________________
-DBTable<eDiffXSecTableRow>::DBTable()
+template<> DBTable<eDiffXSecTableRow>::DBTable()
 {
   fFields  = new eDiffXSecTableFields();
   fQueryStr = 0;
   fIdList = 0;
 }
 //____________________________________________________________________________
-DBTable<vXSecTableRow>::DBTable()
+template<> DBTable<vXSecTableRow>::DBTable()
 {
   fFields   = new vXSecTableFields();
   fQueryStr = 0;
   fIdList   = 0;
 }
 //____________________________________________________________________________
-DBTable<SFTableRow>::DBTable()
+template<> DBTable<SFTableRow>::DBTable()
 {
   fFields   = new SFTableFields();
   fQueryStr = 0;
@@ -202,7 +202,7 @@ template<class T> void DBTable<T>::SaveQueryStringToFile(
   }
 }
 //____________________________________________________________________________
-TGraphAsymmErrors * DBTable<vXSecTableRow>::GetGraph(
+template<> TGraphAsymmErrors * DBTable<vXSecTableRow>::GetGraph(
                                            const char * opt, const char * var)
 {
   string option(opt);
@@ -276,7 +276,7 @@ TGraphAsymmErrors * DBTable<vXSecTableRow>::GetGraph(
                                     e_err_m, e_err_p, xsec_err_m, xsec_err_p);
 }
 //____________________________________________________________________________
-TGraphAsymmErrors * DBTable<eDiffXSecTableRow>::GetGraph(
+template<> TGraphAsymmErrors * DBTable<eDiffXSecTableRow>::GetGraph(
                                            const char * opt, const char * var)
 {
   const vector<eDiffXSecTableRow *> & rows = this->Rows();
@@ -322,7 +322,7 @@ TGraphAsymmErrors * DBTable<eDiffXSecTableRow>::GetGraph(
   return new TGraphAsymmErrors(npoints, x, Sigma, dx, dx, dSigma, dSigma);
 }
 //____________________________________________________________________________
-MultiGraph * DBTable<vXSecTableRow>::GetMultiGraph(
+template<> MultiGraph * DBTable<vXSecTableRow>::GetMultiGraph(
                                            const char * opt, const char * var)
 {
   LOG("NuVld", pDEBUG) << "Getting multi-graph";
@@ -353,7 +353,7 @@ MultiGraph * DBTable<vXSecTableRow>::GetMultiGraph(
   return mgraph;
 }
 //____________________________________________________________________________
-MultiGraph * DBTable<eDiffXSecTableRow>::GetMultiGraph(
+template<> MultiGraph * DBTable<eDiffXSecTableRow>::GetMultiGraph(
                                            const char * opt, const char * var)
 {
   MultiGraph * mgraph = new MultiGraph();
@@ -378,7 +378,7 @@ MultiGraph * DBTable<eDiffXSecTableRow>::GetMultiGraph(
   return mgraph;
 }
 //____________________________________________________________________________
-TGraphAsymmErrors * DBTable<SFTableRow>::GetGraph(
+template<> TGraphAsymmErrors * DBTable<SFTableRow>::GetGraph(
                                            const char * opt, const char * var)
 {
   const vector<SFTableRow *> & rows = this->Rows();
@@ -419,7 +419,7 @@ TGraphAsymmErrors * DBTable<SFTableRow>::GetGraph(
   return new TGraphAsymmErrors(npoints, x, y, dx, dx, dym, dyp);
 }
 //____________________________________________________________________________
-MultiGraph * DBTable<SFTableRow>::GetMultiGraph(
+template<> MultiGraph * DBTable<SFTableRow>::GetMultiGraph(
                                            const char * opt, const char * var)
 {
   MultiGraph * mgraph = new MultiGraph();
