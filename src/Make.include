@@ -284,9 +284,9 @@ ROOT_LIBRARIES = $(shell root-config --glibs) \
 GPROF_LIBRARIES = 
 ifdef GOPT_PROFILER
   ifdef GPROFILER_LIB
-    GPROF_LIBRARIES += -L $(GPROFILER_LIB) -lprofiler
+    GPROF_LIBRARIES += -L$(GPROFILER_LIB) -lprofiler
   else
-    GPROF_LIBRARIES += -L /usr/local/lib -lprofiler
+    GPROF_LIBRARIES += -L/usr/local/lib -lprofiler
   endif
 endif
 
@@ -423,7 +423,7 @@ GDUMMY_NEUGEN_STATIC_LIB          := $(GENIE_LIB_PATH)/libneugen3.$(StaticLibSuf
 
 # standard GENIE's Neutrino Generator libraries
 
-GENIE_LIBRARIES := -L $(GENIE_LIB_PATH) \
+GENIE_LIBRARIES := -L$(GENIE_LIB_PATH) \
   -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
   -lGDecay -lGElas -lGHEP -lGLlewellynSmith -lGEVGCore -lGEVGModules -lGEVGDrivers\
   -lGFragmentation -lGInteraction -lGInvMuDecay -lGMessenger \
@@ -443,7 +443,7 @@ endif
 
 # standard GENIE's NuValidator libraries
 
-NUVLD_CORE_LIBRARIES := -L $(GENIE_LIB_PATH) \
+NUVLD_CORE_LIBRARIES := -L$(GENIE_LIB_PATH) \
   -lGNuVldXML -lGNuVldDBU -lGNuVldGUI
 
 NUVLD_LIBRARIES := $(NUVLD_CORE_LIBRARIES) -lGNuVldNeugen 
