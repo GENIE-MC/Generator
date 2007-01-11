@@ -43,6 +43,8 @@ class NGKineVar {
 
   public:
 
+     virtual ~NGKineVar() { }
+
      static const char * AsString(NGKineVar_t kid) 
      {
        switch(kid) {
@@ -56,8 +58,9 @@ class NGKineVar {
 
          case e_undefined_kinematic_variable:
          default:            
-          return "unknown kinematic variable"; break;
+            return "Unknown kinematic variable"; break;
        }
+       return "Unknown kinematic variable";
      }
      
      static NGKineVar_t GetKineVarFromCode(int code)

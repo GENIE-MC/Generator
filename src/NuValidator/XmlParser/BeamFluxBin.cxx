@@ -49,7 +49,7 @@ _Flux_nerr(dFn)
 
 }
 //______________________________________________________________________________________
-BeamFluxBin::BeamFluxBin(const BeamFluxBin & bin)
+BeamFluxBin::BeamFluxBin(const BeamFluxBin & /*bin*/)
 {
 
 }

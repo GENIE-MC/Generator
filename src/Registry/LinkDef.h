@@ -14,6 +14,9 @@
 #pragma link C++ class genie::RegistryItem<RgDbl>+;
 #pragma link C++ class genie::RegistryItem<RgStr>+;
 #pragma link C++ class genie::RegistryItem<RgAlg>+;
+#pragma link C++ class genie::RegistryItem<RgH1F>+;
+#pragma link C++ class genie::RegistryItem<RgH2F>+;
+#pragma link C++ class genie::RegistryItem<RgTree>+;
 #pragma link C++ class genie::RegistryItemI;
 
 #endif

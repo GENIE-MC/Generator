@@ -28,22 +28,26 @@ rootcint: _ROOT_DICT_LlewellynSmith.o
 _ROOT_DICT_LlewellynSmith.cc: LinkDef.h $(CINTLISTO)
 	$(RM) _ROOT_DICT_LlewellynSmith.*
 	@echo "Generating ROOT dictionary ..."
-	rootcint -f _ROOT_DICT_LlewellynSmith.cc -c	\
+	rootcint -f _ROOT_DICT_LlewellynSmith.cc -c \
 		-I$(ROOTSYS)/include -I$(GENIE)/src $(CINTLIST) LinkDef.h
 
-lib: FORCE
+lib: $(GENIEO) FORCE
 	@echo "Generating shared library ..."
-	@$(MAKE) -f $(MAKEFILE) $(GENIESO)
+	$(SOCMD) $(SOFLAGS) $(SOMINF) \
+		$(GENIEO) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).$(DllSuf)
 
-$(GENIESO): $(GENIEO)
-	$(SOCMD) $(SOFLAGS) $(SOMINF)				\
-		$(GENIEO) $(OutPutOpt) $(GENIESO)
+link: FORCE
+ifeq ($(strip $(ARCH)),macosx)
+	@echo "Creating symbolic link to shared library ..."
+	ln -sf $(GENIE_LLEWELLYN_SMITH_LIBNAME).$(DllSuf) $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).$(DllLinkSuf)
+else
+endif
 
 purge: FORCE
 	$(RM) $(GENIEbO) *~ core a.out Makefile.temp
 
 clean: FORCE
-	$(RM) *.o *~ core a.out $(GENIESO)		        \
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).* \
 		_ROOT_DICT_LlewellynSmith.* Makefile.temp
 
 FORCE:

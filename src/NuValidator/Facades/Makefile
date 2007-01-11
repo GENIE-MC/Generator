@@ -22,7 +22,7 @@ PROJECT_O   = $(addsuffix .$(ObjSuf), $(basename $(PROJECT_S)))
 PROJECT_bS := $(wildcard *.$(SrcSuf))
 PROJECT_bO  = $(addsuffix .$(ObjSuf), $(basename $(PROJECT_bS)))
 
-all:	rootcint lib
+all: rootcint lib link
 
 rootcint: _ROOT_DICT_NeuGen.o
 
@@ -32,18 +32,22 @@ _ROOT_DICT_NeuGen.cc: LinkDef.h $(CINTLIST_O)
 	rootcint -f _ROOT_DICT_NeuGen.cc -c \
 	  $(ROOT_INCLUDES) $(NUVLD_INCLUDES) $(GENIE_INCLUDES) $(CINTLIST_H) LinkDef.h
 
-lib: FORCE
+lib: $(PROJECT_O)
 	@echo "Generating shared library ..."
-	@$(MAKE) -f $(MAKEFILE) $(VLD_NEUGEN_INTERFACE_SHARED_LIB)
+	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PROJECT_O) $(NEUGEN_LIBS) $(CERN_LIBS) $(OutPutOpt) $(GENIE_LIB_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME).$(DllSuf)
 
-$(VLD_NEUGEN_INTERFACE_SHARED_LIB): $(PROJECT_O)
-	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PROJECT_O) $(NEUGEN_LIBS) $(CERN_LIBS) $(OutPutOpt) $(VLD_NEUGEN_INTERFACE_SHARED_LIB)
+link: FORCE
+ifeq ($(strip $(ARCH)),macosx)
+	@echo "Creating symbolic link to shared library ..."
+	ln -sf $(VLD_NEUGEN_INTERFACE_LIBNAME).$(DllSuf) $(GENIE_LIB_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME).$(DllLinkSuf)
+else
+endif
 
 purge: FORCE
 	$(RM) *.o *~ core a.out _ROOT_DICT_NeuGen.*
 
 clean: FORCE
-	$(RM) *.o *~ core a.out $(VLD_NEUGEN_INTERFACE_SHARED_LIB) _ROOT_DICT_NeuGen.* 
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME).* _ROOT_DICT_NeuGen.* 
 
 FORCE:
 

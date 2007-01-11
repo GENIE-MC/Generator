@@ -39,6 +39,8 @@ class NGNucleus {
 
   public:
 
+     virtual ~NGNucleus() { }
+
      static const char * AsString(NGNucleus_t nucleus) {
        
        switch(nucleus) {
@@ -49,8 +51,9 @@ class NGNucleus {
 
          case e_undefined_nucleus:
          default:            
-                      return "unknown Nucleus"; break;
+               return "Unknown Nucleus"; break;
        }
+       return "Unknown Nucleus"; 
      }
      
 ClassDef(NGNucleus, 0)

@@ -22,7 +22,7 @@ Measurement::Measurement()
   _data = new vector<RecordBase *>;
 } 
 //_______________________________________________________________________________
-Measurement::Measurement(const Measurement & meas)
+Measurement::Measurement(const Measurement & /*meas*/)
 {
 
 }

@@ -13,56 +13,51 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 # std build targets
-BUILD_TARGETS = make-bin-lib-dir save-build-options \
-		base-framework physics-models-modules event-generation-modules
-
-# build targets to be enabled by the user 
-# (nu-validator, flux/geometry drivers doxygen documentation)
-
-ifdef GOPT_FLUX_DRIVERS
-  BUILD_TARGETS := $(BUILD_TARGETS) flux-drivers
-endif
-ifdef GOPT_GEOM_DRIVERS
-  BUILD_TARGETS := $(BUILD_TARGETS) geom-drivers
-endif
-ifdef GOPT_VIEWER
-  BUILD_TARGETS := $(BUILD_TARGETS) viewer
-endif
-ifdef GOPT_MUELOSS
-  BUILD_TARGETS := $(BUILD_TARGETS) mueloss
-endif
-ifndef GOPT_NEUGEN
-  BUILD_TARGETS := $(BUILD_TARGETS) dummy-neugen
-endif
-ifdef GOPT_NUVALIDATOR
-  BUILD_TARGETS := $(BUILD_TARGETS) nuvld-libs neugen nuvld-exe
-endif
-ifdef GOPT_DOXYGEN_DOC
-  BUILD_TARGETS := $(BUILD_TARGETS) doxygen-doc
-endif
-ifdef GOPT_TEST
-  BUILD_TARGETS := $(BUILD_TARGETS) generator-test-exe
-endif
-
-# after all libraries have been build, add some standard 
-# build targets (standalone apps, etc)
-
-BUILD_TARGETS := $(BUILD_TARGETS) generator-std-exe install-scripts
+BUILD_TARGETS = print-targets \
+		make-bin-lib-dir \
+		save-build-options \
+		base-framework \
+		utils \
+		physics-models-modules \
+		event-generation-modules \
+		flux-drivers \
+		geom-drivers \
+		viewer \
+		mueloss \
+		dummy-neugen \
+		nuvld-libs \
+		neugen \
+		nuvld-exe \
+		doxygen-doc \
+		generator-test-exe \
+		generator-std-exe \
+		install-scripts
 
 # define build targets
 
 all: $(BUILD_TARGETS)
 
-base-framework:
-	@echo "Building base-framework...";\
+print-targets: FORCE
+	@echo "** Build targets: "
+	@echo $(BUILD_TARGETS)
+
+base-framework: FORCE
+	@echo " "
+	@echo "** Building base-framework..."
 	cd ${GENIE}/src;\
 	cd Algorithm;  make; cd ..; \
 	cd Messenger;  make; cd ..; \
-	cd Registry;   make; cd ..; \
-	cd Numerical;  make; cd ..; 
+	cd Registry;   make; cd ..; 
 
-physics-models-modules:
-	@echo "Building physics-models-modules...";\
+utils: FORCE
+	@echo " "
+	@echo "** Building utility libraries..."
+	cd Numerical;  make; cd ..; 
+	cd Utils;      make; cd ..; 
+
+physics-models-modules: FORCE
+	@echo " "
+	@echo "** Building physics-models-modules..."
 	cd ${GENIE}/src;\
 	cd BaryonResonance;    make; cd ..; \
 	cd Base;               make; cd ..; \
@@ -82,11 +77,11 @@ physics-models-modules:
 	cd PDG;                make; cd ..; \
 	cd Radiative;          make; cd ..; \
 	cd ReinSeghal;         make; cd ..; \
-	cd VHE;                make; cd ..; \
-	cd Utils;              make; cd ..; 
+	cd VHE;                make; cd ..; 
 
-event-generation-modules:
-	@echo "Building event-generation-modules...";\
+event-generation-modules: FORCE
+	@echo " "
+	@echo "** Building event-generation-modules..."
 	cd ${GENIE}/src;\
 	cd EVGCore;            make; cd ..; \
 	cd EVGModules;         make; cd ..; \
@@ -96,77 +91,146 @@ event-generation-modules:
 	cd Ntuple;             make; cd ..; \
 	cd ReWeight;           make; cd ..; 
 
-flux-drivers:
-	@echo "Building flux-drivers...";\
+flux-drivers: FORCE
+ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
+	@echo " "
+	@echo "** Building flux-drivers..."
 	cd ${GENIE}/src;\
 	cd FluxDrivers; make; cd ..;
+else
+	@echo " "
+	@echo "** Building flux-drivers was not enabled. Skipping..."
+endif
 
-geom-drivers:
-	@echo "Building geometry-drivers...";\
+geom-drivers: FORCE
+ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
+	@echo " "
+	@echo "** Building geometry-drivers..."
 	cd ${GENIE}/src;\
 	cd Geo; make; cd ..; 
+else
+	@echo " "
+	@echo "** Building geometry-drivers was not enabled. Skipping..."
+endif
 
-dummy-neugen: 
-	@echo "Building dummy-neugen...";\
-	cd ${GENIE}/src;\
-	cd NuValidator; make dummy-neugen; cd ..; 
-
-neugen: 
-	cd ${GENIE}/src;\
-	cd NuValidator; make neugen; cd ..; 
-
-nuvld-libs:
-	cd ${GENIE}/src;\
-	cd NuValidator; make libs; cd ..; 
-
-nuvld-exe:
-	cd ${GENIE}/src;\
-	cd NuValidator; make exe; cd ..; 
-
-viewer:
+viewer: FORCE
+ifeq ($(strip $(GOPT_ENABLE_VIEWER)),YES)
+	@echo " "
+	@echo "** Buidling viewer..."
 	cd ${GENIE}/src;\
 	cd Viewer; make; cd ..; 
+else
+	@echo " "
+	@echo "** Viewer was not enabled. Skipping..."
+endif
 
-mueloss:
-	@echo "Building mueloss utility package...";\
+mueloss: FORCE
+ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
+	@echo " "
+	@echo "** Building mueloss utility package..."
 	cd ${GENIE}/src;\
 	cd MuELoss; make; cd ..; 
+else
+	@echo "** Mueloss was not enabled. Skipping..."
+endif
 
-doxygen-doc:
-	@echo "Building doxygen documentation...";\
+dummy-neugen: FORCE
+ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),NO)
+	@echo " "
+	@echo "** Neugen was not enabled. Building dummy-neugen..."
+	cd ${GENIE}/src;\
+	cd NuValidator; make dummy-neugen; cd ..; 
+else
+	@echo " "
+	@echo "** Neugen was enabled. Will not build dummy version...""
+endif
+
+neugen: FORCE
+ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
+	@echo " "
+	@echo "** Building nuvalidator's neugen interface..."
+	cd ${GENIE}/src;\
+	cd NuValidator; make neugen; cd ..; 
+else
+endif
+
+nuvld-libs: FORCE
+ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
+	@echo " "
+	@echo "** Building nuvalidator libraries..."
+	cd ${GENIE}/src;\
+	cd NuValidator; make libs; cd ..; 
+else
+	@echo " "
+	@echo "** Nuvalidator was not enabled. Skipping..."
+endif
+
+nuvld-exe: FORCE
+ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
+	@echo " "
+	@echo "** Building nuvalidator executables..."
+	cd ${GENIE}/src;\
+	cd NuValidator; make exe; cd ..; 
+else
+endif
+
+doxygen-doc: FORCE
+ifeq ($(strip $(GOPT_ENABLE_DOXYGEN_DOC)),YES)
+	@echo " "
+	@echo "** Building doxygen documentation..."
 	cd ${GENIE}/src;\
 	cd ./scripts; make doxygen; cd ..;
+else
+endif
 
-generator-std-exe:
+generator-std-exe: FORCE
+	@echo " "
+	@echo "** Building GENIE applications..."
 	cd ${GENIE}/src;\
 	cd stdapp; make all; cd ..; 
 
-generator-test-exe:
+generator-test-exe: FORCE
+ifeq ($(strip $(GOPT_ENABLE_TEST)),YES)
+	@echo " "
+	@echo "** Building test applications..."
 	cd ${GENIE}/src;\
 	cd test; make all; cd ..; 
+else
+endif
 
-install-scripts:
-	@echo "Installing scripts...";\
+install-scripts: FORCE
+	@echo " "
+	@echo "** Installing scripts..."
 	cd ${GENIE}/src;\
 	cd ./scripts; make install; cd ..;
 
-all-libs: base-framework physics-models-modules event-generation-modules \
-		flux-drivers geom-drivers viewer nuvld-libs
+all-libs: base-framework \
+	  utils \
+	  physics-models-modules \
+	  event-generation-modules \
+	  flux-drivers \
+	  geom-drivers \
+	  viewer \
+	  mueloss \
+	  nuvld-libs
 
-save-build-options:
-	@echo "Logging configuration options...";\
+save-build-options: FORCE
+	@echo " "
+	@echo "** Logging configuration options..."
 	cd ${GENIE}/src;\
 	perl scripts/setup/save-build-env;
 
-make-bin-lib-dir:
-	@echo "Creating GENIE lib and bin directories...";\
+make-bin-lib-dir: FORCE
+	@echo " "
+	@echo "** Creating GENIE lib and bin directories..."
 	cd $(GENIE); \
 	mkdir bin; chmod 755 bin;\
 	mkdir lib; chmod 755 lib;\
 	cd ${GENIE}/src;
 
 purge: FORCE
-	@echo "Purging...";\
+	@echo " "
+	@echo "** Purging..."
 	cd ${GENIE}/src;\
 	cd Algorithm;          make purge; cd ..; \
 	cd BaryonResonance;    make purge; cd ..; \
@@ -206,7 +270,8 @@ purge: FORCE
 clean: clean-files clean-dir
 
 clean-files: FORCE
-	@echo "Cleaning...";\
+	@echo " "
+	@echo "** Cleaning..."
 	cd ${GENIE}/src;\
 	rm build.options; \
 	cd Algorithm;          make clean; cd ..; \

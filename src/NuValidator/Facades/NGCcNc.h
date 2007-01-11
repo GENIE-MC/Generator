@@ -38,6 +38,8 @@ class NGCcNc {
 
   public:
 
+     virtual ~NGCcNc() { }
+
      static const char * AsString(NGCcNc_t ccnc) 
      {
        switch(ccnc) {
@@ -47,8 +49,9 @@ class NGCcNc {
 
          case e_undefined_ccnc:
          default:            
-                      return "unknown CCNC"; break;
+             return "Unknown CCNC"; break;
        }
+       return "Unknown CCNC"; 
      }
 
      static NGCcNc_t GetFromCode(int code) 
