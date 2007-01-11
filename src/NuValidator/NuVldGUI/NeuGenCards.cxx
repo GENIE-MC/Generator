@@ -27,7 +27,8 @@ NeuGenCards * NeuGenCards::Instance(void)
   return _self;
 }
 //_____________________________________________________________________________
-NeuGenCards::NeuGenCards()
+NeuGenCards::NeuGenCards() :
+TObject()
 {
   _self = 0;
 
@@ -35,7 +36,8 @@ NeuGenCards::NeuGenCards()
   _inputs = new NeuGenInputs;
 }
 //_____________________________________________________________________________
-NeuGenCards::NeuGenCards(const NeuGenCards & cards)
+NeuGenCards::NeuGenCards(const NeuGenCards & /*cards*/) :
+TObject()
 {
 
 }

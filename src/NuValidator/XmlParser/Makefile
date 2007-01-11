@@ -18,20 +18,16 @@ PROJECT_O   = $(addsuffix .$(ObjSuf), $(basename $(PROJECT_S)))
 
 all: lib
 
-lib: FORCE
-	@echo $(XML_INC_DIR)
+lib: $(PROJECT_O)
 	@echo "Generating shared library ..."
-	@$(MAKE) -f $(MAKEFILE) $(VLD_PARSER_SHARED_LIB)
-
-$(VLD_PARSER_SHARED_LIB): $(PROJECT_O)
-	$(SOCMD) $(SOFLAGS) $(SOMINF)				\
-		$(PROJECT_O) $(OutPutOpt) $(VLD_PARSER_SHARED_LIB)
+	$(SOCMD) $(SOFLAGS) $(SOMINF) \
+		$(PROJECT_O) $(OutPutOpt) $(GENIE_LIB_PATH)/$(VLD_PARSER_LIBNAME).$(DllSuf)
 
 purge: FORCE
 	$(RM) *.o *~ core a.out 
 
 clean: FORCE
-	$(RM) *.o *~ core a.out $(VLD_PARSER_SHARED_LIB)
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_PARSER_LIBNAME).*
 
 FORCE:
 

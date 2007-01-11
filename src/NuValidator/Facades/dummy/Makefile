@@ -15,10 +15,10 @@ all: neugen3_dummy_lib
 
 neugen3_dummy_lib: FORCE
 	@echo "Generating NeuGEN dummy static library ..."
-	$(FORT) $(FORTOPTS) -o $(GDUMMY_NEUGEN_STATIC_LIB) NeuGenDUMMY.f
+	$(FORT) $(FORTOPTS) -o $(GENIE_LIB_PATH)/$(GDUMMY_NEUGEN_LIBNAME).$(StaticLibSuf) NeuGenDUMMY.f
 
 clean: FORCE
-	$(RM) *.o *~ core a.out $(GDUMMY_NEUGEN_STATIC_LIB) 
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GDUMMY_NEUGEN_LIBNAME).* 
 
 FORCE:
 

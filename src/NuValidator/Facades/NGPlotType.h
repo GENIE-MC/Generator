@@ -38,6 +38,8 @@ class NGPlotType {
 
   public:
 
+     virtual ~NGPlotType() { }
+
      static const char * AsString(NGPlotType_t plot_type) 
      {  
        switch(plot_type) {
@@ -47,8 +49,9 @@ class NGPlotType {
   
          case e_UndefinedPlotType:
          default:            
-                      return "unknown plot type"; break;
+            return "Unknown plot type"; break;
        }
+       return "Unknown plot type"; 
      }
      
      static NGPlotType_t GetPlotTypeFromCode(int code)

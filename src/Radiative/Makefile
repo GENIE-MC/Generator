@@ -19,9 +19,8 @@ GENIES 	  := $(GENIES) _ROOT_DICT_Radiative.cc $(wildcard *.cpp)
 GENIEO 	   = $(addsuffix .$(ObjSuf), $(basename $(GENIES)))
 GENIEbS   := $(wildcard *.cxx)
 GENIEbO    = $(addsuffix .$(ObjSuf), $(basename $(GENIEbS)))
-GENIESO   := $(GENIE_RADIATIVE_SHARED_LIB)
 
-all:	rootcint lib
+all: rootcint lib link
 
 rootcint: _ROOT_DICT_Radiative.o
 
@@ -31,19 +30,23 @@ _ROOT_DICT_Radiative.cc: LinkDef.h $(CINTLISTO)
 	rootcint -f _ROOT_DICT_Radiative.cc -c	\
 		-I$(ROOTSYS)/include -I$(GENIE)/src $(CINTLIST) LinkDef.h
 
-lib: FORCE
+lib: $(GENIEO) FORCE
 	@echo "Generating shared library ..."
-	@$(MAKE) -f $(MAKEFILE) $(GENIESO)
+	$(SOCMD) $(SOFLAGS) $(SOMINF) \
+		$(GENIEO) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_RADIATIVE_LIBNAME).$(DllSuf)
 
-$(GENIESO): $(GENIEO)
-	$(SOCMD) $(SOFLAGS) $(SOMINF)				\
-		$(GENIEO) $(OutPutOpt) $(GENIESO)
+link: FORCE
+ifeq ($(strip $(ARCH)),macosx)
+	@echo "Creating symbolic link to shared library ..."
+	ln -sf $(GENIE_RADIATIVE_LIBNAME).$(DllSuf) $(GENIE_LIB_PATH)/$(GENIE_RADIATIVE_LIBNAME).$(DllLinkSuf)
+else
+endif
 
 purge: FORCE
 	$(RM) $(GENIEbO) *~ core a.out Makefile.temp
 
 clean: FORCE
-	$(RM) *.o *~ core a.out $(GENIESO)		        \
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_RADIATIVE_LIBNAME).* \
 		_ROOT_DICT_Radiative.* Makefile.temp
 
 FORCE:

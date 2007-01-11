@@ -46,6 +46,8 @@ class NGInitState {
 
   public:
 
+     virtual ~NGInitState(){}
+
      static const char * AsString(NGInitState_t initial_state) 
      {  
        switch(initial_state) {
@@ -63,8 +65,9 @@ class NGInitState {
 
          case e_undefined_init_state:
          default:            
-                      return "unknown initial state"; break;
+            return "Unknown initial state"; break;
        }
+       return "Unknown initial state"; 
      }
      
      static NGInitState_t GetInitStateFromCode(int code)

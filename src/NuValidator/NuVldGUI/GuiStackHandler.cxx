@@ -468,7 +468,7 @@ string GuiStackHandler::StackedDBTableName(unsigned int id) const
   string dbtname = "";
 
   if(names) {
-     if(id>=0 && id<names->size()) dbtname = (*names)[id];
+     if(id<names->size()) dbtname = (*names)[id];
      delete names;
   }
 
@@ -484,7 +484,7 @@ string GuiStackHandler::StackedConfigName(unsigned int id) const
   string cfgname = "";
 
   if(names) {
-     if(id>=0 && id<names->size()) cfgname = (*names)[id];
+     if(id<names->size()) cfgname = (*names)[id];
      delete names;
   }
 

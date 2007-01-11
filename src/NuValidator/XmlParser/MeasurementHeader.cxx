@@ -60,7 +60,7 @@ _comment("")
   _refs = new vector<Citation *>;
 }
 //___________________________________________________________________________
-MeasurementHeader::MeasurementHeader(const MeasurementHeader & header)
+MeasurementHeader::MeasurementHeader(const MeasurementHeader & /*header*/)
 {
 
 }

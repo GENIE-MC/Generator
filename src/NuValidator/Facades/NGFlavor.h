@@ -38,6 +38,8 @@ class NGFlavor {
 
   public:
 
+     virtual ~NGFlavor() { }
+
      static const char * AsString(NGFlavor_t flavor) 
      {
        switch(flavor) {
@@ -46,8 +48,9 @@ class NGFlavor {
          case e_tau:              return "Tau Flavor";       break;
          case e_undefined_flavor:
          default:            
-                                  return "Unknown Flavor";   break;
+              return "Unknown Flavor";   break;
        }
+       return "Unknown Flavor"; 
      }
 
      static NGFlavor_t GetFromCode(int pdgc) 

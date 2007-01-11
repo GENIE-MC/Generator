@@ -42,6 +42,8 @@ class NGSF {
 
   public:
 
+     virtual ~NGSF() { }
+
      static const char * AsString(NGSF_t sf) 
      {  
        switch(sf) {
@@ -55,8 +57,9 @@ class NGSF {
 
          case e_UndefinedSF:
          default:            
-                  return "unknown structure function"; break;
+             return "Unknown structure function"; break;
        }
+       return "Unknown structure function"; 
      }
      
      static NGSF_t GetSFFromCode(int code)

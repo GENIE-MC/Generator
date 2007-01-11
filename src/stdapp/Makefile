@@ -28,49 +28,99 @@ EXE =	$(GENIE_BIN_PATH)/gevgen   \
 	$(GENIE_BIN_PATH)/gmctest  \
 	$(GENIE_BIN_PATH)/gviewer
 
-ALLTGT = gEvGen		\
+TGT =    gEvGen		\
 	 gMakeSplines	\
 	 gMaxPathLengths\
 	 gNtpConv	\
 	 gSplinePlotter	\
 	 gMCSampleTest	\
-	 gViewer		
+	 gViewer	\
+	 gMaxPathLengths\
+	 gViewer
 
-STDTGT = gEvGen		\
-	 gNtpConv	\
-	 gMakeSplines   \
-	 gSplinePlotter	\
-	 gMCSampleTest	
+all: $(TGT)
 
-ifdef GOPT_FLUX_DRIVERS
-  STDTGT := $(STDTGT) gMaxPathLengths
-endif
-ifdef GOPT_VIEWER
-  STDTGT := $(STDTGT) gViewer
-endif
+DEPLTGT = MACOSX_DEPLOYMENT_TARGET=10.4 c++
 
-all: $(STDTGT)
-
+# gevgen event generation driver
+#
 gEvGen: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gevgen gEvGen.cxx $(LIBS_AND_HDRS)
+ifeq ($(strip $(ARCH)),macosx)
+	$(CXX) $(CXXFLAGS) -c gEvGen.cxx $(INCLUDES)
+	$(DEPLTGT) $(LDFLAGS) gEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen 
+else
+	$(CXX) $(CXXFLAGS) -o $(GENIE_BIN_PATH)/gmkspl gMakeSplines.cxx $(LIBS_AND_HDRS)
+endif
 
+# gmkspl x-section spline building utility
+#
 gMakeSplines: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmkspl gMakeSplines.cxx $(LIBS_AND_HDRS)
+ifeq ($(strip $(ARCH)),macosx)
+	$(CXX) $(CXXFLAGS) -c gMakeSplines.cxx $(INCLUDES)
+	$(DEPLTGT) $(LDFLAGS) gMakeSplines.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkspl 
+else
+	$(CXX) $(CXXFLAGS) -o $(GENIE_BIN_PATH)/gmkspl gMakeSplines.cxx $(LIBS_AND_HDRS)
+endif
 
+
+# gmxpl utility computing maximum path lengths for a given root geometry
+#
 gMaxPathLengths: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmxpl gMaxPathLengths.cxx $(LIBS_AND_HDRS)
+ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
+ifeq ($(strip $(ARCH)),macosx)
+	$(CXX) $(CXXFLAGS) -c gMaxPathLengths.cxx $(INCLUDES)
+	$(DEPLTGT) $(LDFLAGS) gMaxPathLengths.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmxpl
+else
+	$(CXX) $(CXXFLAGS) -o $(GENIE_BIN_PATH)/gmxpl gMaxPathLengths.cxx $(LIBS_AND_HDRS)
+endif
+else
+	@echo "You need to enable the flux drivers to build the gmxpl utility"
+endif
 
+
+# gntpc ntuple conversion utility
+#
 gNtpConv: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gntpc gNtpConv.cxx $(LIBS_AND_HDRS)
+ifeq ($(strip $(ARCH)),macosx)
+	$(CXX) $(CXXFLAGS) -c gNtpConv.cxx $(INCLUDES)
+	$(DEPLTGT) $(LDFLAGS) gNtpConv.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gntpc 
+else
+	$(CXX) $(CXXFLAGS) -o $(GENIE_BIN_PATH)/gntpc gNtpConv.cxx $(LIBS_AND_HDRS)
+endif
 
+# gsplt spline plotter utility
+#
 gSplinePlotter: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gsplt gSplinePlotter.cxx $(LIBS_AND_HDRS)
+ifeq ($(strip $(ARCH)),macosx)
+	$(CXX) $(CXXFLAGS) -c gSplinePlotter.cxx $(INCLUDES)
+	$(DEPLTGT) $(LDFLAGS) gSplinePlotter.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsplt
+else
+	$(CXX) $(CXXFLAGS) -o $(GENIE_BIN_PATH)/gsplt gSplinePlotter.cxx $(LIBS_AND_HDRS)
+endif
 
+# gmctest MC sample testing utility
+#
 gMCSampleTest: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gmctest gMCSampleTest.cxx $(LIBS_AND_HDRS)
+ifeq ($(strip $(ARCH)),macosx)
+	$(CXX) $(CXXFLAGS) -c gMCSampleTest.cxx $(INCLUDES)
+	$(DEPLTGT) $(LDFLAGS) gMCSampleTest.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmctest
+else
+	$(CXX) $(CXXFLAGS) -o $(GENIE_BIN_PATH)/gmctest gMCSampleTest.cxx $(LIBS_AND_HDRS)
+endif
 
+# gviewer MC event viewing utility
+#
 gViewer: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/gviewer gViewer.cxx $(LIBS_AND_HDRS)
+ifeq ($(strip $(GOPT_ENABLE_VIEWER)),YES)
+ifeq ($(strip $(ARCH)),macosx)
+	$(CXX) $(CXXFLAGS) -c gViewer.cxx $(INCLUDES)
+	$(DEPLTGT) $(LDFLAGS) gViewer.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gviewer
+else
+	$(CXX) $(CXXFLAGS) -o $(GENIE_BIN_PATH)/gviewer gViewer.cxx $(LIBS_AND_HDRS)
+endif
+else
+	@echo "You need to enable the viewer to build the gviewer utility"
+endif
 
 
 #################### CLEANING

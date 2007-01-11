@@ -22,7 +22,7 @@ PROJECT_O   = $(addsuffix .$(ObjSuf), $(basename $(PROJECT_S)))
 PROJECT_bS := $(wildcard *.$(SrcSuf))
 PROJECT_bO  = $(addsuffix .$(ObjSuf), $(basename $(PROJECT_bS)))
 
-all:	rootcint lib
+all: rootcint lib link
 
 rootcint: _ROOT_DICT_DBUtils.o
 
@@ -32,18 +32,22 @@ _ROOT_DICT_DBUtils.cc: LinkDef.h $(CINTLIST_O)
 	rootcint -f _ROOT_DICT_DBUtils.cc -c \
 	    $(ROOT_INCLUDES) $(NUVLD_INCLUDES) $(CINTLIST_H) LinkDef.h
 
-lib: FORCE
+lib: $(PROJECT_O) FORCE
 	@echo "Generating shared library ..."
-	@$(MAKE) -f $(MAKEFILE) $(VLD_DBUTIL_SHARED_LIB)
+	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PROJECT_O) $(OutPutOpt) $(GENIE_LIB_PATH)/$(VLD_DBUTIL_LIBNAME).$(DllSuf)
 
-$(VLD_DBUTIL_SHARED_LIB): $(PROJECT_O)
-	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PROJECT_O) $(OutPutOpt) $(VLD_DBUTIL_SHARED_LIB)
+link: FORCE
+ifeq ($(strip $(ARCH)),macosx)
+	@echo "Creating symbolic link to shared library ..."
+	ln -sf $(VLD_DBUTIL_LIBNAME).$(DllSuf) $(GENIE_LIB_PATH)/$(VLD_DBUTIL_LIBNAME).$(DllLinkSuf)
+else
+endif
 
 purge: FORCE
 	$(RM) *.o *~ core a.out _ROOT_DICT_DBUtils.*
 
 clean: FORCE
-	$(RM) *.o *~ core a.out $(VLD_DBUTIL_SHARED_LIB) _ROOT_DICT_DBUtils.* 
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_DBUTIL_LIBNAME).* _ROOT_DICT_DBUtils.* 
 
 FORCE:
 

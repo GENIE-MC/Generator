@@ -70,7 +70,7 @@
 #
 # GOPT_ENABLE_PROFILER        -> NO
 # GOPT_ENABLE_NUVALIDATOR     -> YES
-# GOPT_ENABLE_NEUGEN          -> YES
+# GOPT_ENABLE_NEUGEN          -> NO
 # GOPT_ENABLE_FLUX_DRIVERS    -> YES
 # GOPT_ENABLE_GEOM_DRIVERS    -> YES
 # GOPT_ENABLE_DOXYGEN_DOC     -> NO
@@ -85,7 +85,7 @@ ifndef GOPT_ENABLE_NUVALIDATOR
   GOPT_ENABLE_NUVALIDATOR=YES
 endif 
 ifndef GOPT_ENABLE_NEUGEN
-  GOPT_ENABLE_NEUGEN=YES
+  GOPT_ENABLE_NEUGEN=NO
 endif 
 ifndef GOPT_ENABLE_FLUX_DRIVERS
   GOPT_ENABLE_FLUX_DRIVERS=YES
@@ -104,38 +104,6 @@ ifndef GOPT_ENABLE_VIEWER
 endif
 ifndef GOPT_ENABLE_MUELOSS
   GOPT_ENABLE_MUELOSS=NO
-endif
-
-#-------------------------------------------------------------------
-#         GENIE build options - Read user-specified options
-# ------------------------------------------------------------------
-
-ifeq ($(strip $(GOPT_ENABLE_PROFILER)),YES) 
-  GOPT_PROFILER=1
-endif
-ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES) 
-  GOPT_NUVALIDATOR=1
-endif
-ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),YES) 
-  GOPT_NEUGEN=1
-endif
-ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES) 
-  GOPT_FLUX_DRIVERS=1
-endif
-ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES) 
-  GOPT_GEOM_DRIVERS=1
-endif
-ifeq ($(strip $(GOPT_ENABLE_DOXYGEN_DOC)),YES) 
-  GOPT_DOXYGEN_DOC=1
-endif
-ifeq ($(strip $(GOPT_ENABLE_TEST)),YES) 
-  GOPT_TEST=1
-endif
-ifeq ($(strip $(GOPT_ENABLE_VIEWER)),YES) 
-  GOPT_VIEWER=1
-endif
-ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES) 
-  GOPT_MUELOSS=1
 endif
 
 #-------------------------------------------------------------------
@@ -329,6 +297,7 @@ LD            = g++
 LDFLAGS       = -g
 SOFLAGS       = -shared
 DllSuf       := so
+DllLinkSuf   := 
 StaticLibSuf := a
 ObjSuf       := o
 SrcSuf       := cxx
@@ -344,12 +313,13 @@ endif
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ifeq ($(strip $(ARCH)),macosx) 
 CXX           = g++
-CXXFLAGS      = $(GOPT_CXX_DEBUG_FLAG) $(GOPT_CXX_OPTIM_FLAG) -pipe -W -Wall -Wno-long-double -fsigned-char -fno-common
+CXXFLAGS      = $(GOPT_CXX_DEBUG_FLAG) $(GOPT_CXX_OPTIM_FLAG) -pipe -W -Wall -Wno-long-double -fsigned-char -fno-common -flat_namespace
 CXXFLAGS     += $(GOPT_CXX_USERDEF_FLAGS) 
 LD            = g++
 LDFLAGS       = -bind_at_load
-SOFLAGS       = -dynamiclib -single_module -undefined dynamic_lookup
+SOFLAGS       = -dynamiclib -flat_namespace -single_module -undefined dynamic_lookup
 DllSuf       := dylib
+DllLinkSuf   := so
 StaticLibSuf := a
 ObjSuf       := o
 SrcSuf       := cxx
@@ -377,49 +347,49 @@ GENIE_BIN_PATH := $(GENIE)/bin
 
 # GENIE & NuValidator libraries
 
-GENIE_ALGORITHM_SHARED_LIB        := $(GENIE_LIB_PATH)/libGAlgorithm.$(DllSuf)
-GENIE_BARYONRES_SHARED_LIB        := $(GENIE_LIB_PATH)/libGBaryonResonance.$(DllSuf)
-GENIE_BASE_SHARED_LIB             := $(GENIE_LIB_PATH)/libGBase.$(DllSuf)
-GENIE_BODEK_YANG_SHARED_LIB       := $(GENIE_LIB_PATH)/libGBodekYang.$(DllSuf)
-GENIE_CHARM_SHARED_LIB            := $(GENIE_LIB_PATH)/libGCharm.$(DllSuf)
-GENIE_DECAY_SHARED_LIB            := $(GENIE_LIB_PATH)/libGDecay.$(DllSuf)
-GENIE_ELASTIC_SHARED_LIB          := $(GENIE_LIB_PATH)/libGElas.$(DllSuf)
-GENIE_EVENT_GENERATION_SHARED_LIB := $(GENIE_LIB_PATH)/libGEventGen.$(DllSuf)
-GENIE_EVGCORE_SHARED_LIB          := $(GENIE_LIB_PATH)/libGEVGCore.$(DllSuf)
-GENIE_EVGDRIVERS_SHARED_LIB       := $(GENIE_LIB_PATH)/libGEVGDrivers.$(DllSuf)
-GENIE_EVGMODULES_SHARED_LIB       := $(GENIE_LIB_PATH)/libGEVGModules.$(DllSuf)
-GENIE_GEO_SHARED_LIB              := $(GENIE_LIB_PATH)/libGGeo.$(DllSuf)
-GENIE_GHEP_SHARED_LIB             := $(GENIE_LIB_PATH)/libGHEP.$(DllSuf)
-GENIE_HADRON_TRANSPORT_SHARED_LIB := $(GENIE_LIB_PATH)/libGHadronTransp.$(DllSuf)
-GENIE_LLEWELLYN_SMITH_SHARED_LIB  := $(GENIE_LIB_PATH)/libGLlewellynSmith.$(DllSuf)
-GENIE_FLUX_DRIVERS_SHARED_LIB     := $(GENIE_LIB_PATH)/libGFluxDrivers.$(DllSuf)
-GENIE_FRAGMENTATION_SHARED_LIB    := $(GENIE_LIB_PATH)/libGFragmentation.$(DllSuf)
-GENIE_INTERACTION_SHARED_LIB      := $(GENIE_LIB_PATH)/libGInteraction.$(DllSuf)
-GENIE_INVERSE_MU_DECAY_SHARED_LIB := $(GENIE_LIB_PATH)/libGInvMuDecay.$(DllSuf)
-GENIE_MSG_SHARED_LIB              := $(GENIE_LIB_PATH)/libGMessenger.$(DllSuf)
-GENIE_NTUPLE_SHARED_LIB           := $(GENIE_LIB_PATH)/libGNtuple.$(DllSuf)
-GENIE_NUCLEAR_SHARED_LIB          := $(GENIE_LIB_PATH)/libGNuclear.$(DllSuf)
-GENIE_NUMERICAL_SHARED_LIB        := $(GENIE_LIB_PATH)/libGNumerical.$(DllSuf)
-GENIE_REWEIGHT_SHARED_LIB         := $(GENIE_LIB_PATH)/libGReWeight.$(DllSuf)
-GENIE_PARTON_MODEL_SHARED_LIB     := $(GENIE_LIB_PATH)/libGPartonModel.$(DllSuf)
-GENIE_PASCHOS_SHARED_LIB          := $(GENIE_LIB_PATH)/libGPaschos.$(DllSuf)
-GENIE_PDG_SHARED_LIB              := $(GENIE_LIB_PATH)/libGPDG.$(DllSuf)
-GENIE_PDF_SHARED_LIB              := $(GENIE_LIB_PATH)/libGPDF.$(DllSuf)
-GENIE_RADIATIVE_SHARED_LIB        := $(GENIE_LIB_PATH)/libGRadiative.$(DllSuf)
-GENIE_REGISTRY_SHARED_LIB         := $(GENIE_LIB_PATH)/libGRegistry.$(DllSuf)
-GENIE_REIN_SEGHAL_SHARED_LIB      := $(GENIE_LIB_PATH)/libGReinSeghal.$(DllSuf)
-GENIE_UTILS_SHARED_LIB            := $(GENIE_LIB_PATH)/libGUtils.$(DllSuf)
-GENIE_VIEWER_SHARED_LIB           := $(GENIE_LIB_PATH)/libGViewer.$(DllSuf)
-GENIE_XSEC_SHARED_LIB             := $(GENIE_LIB_PATH)/libGCrossSections.$(DllSuf)
-GENIE_MUELOSS_SHARED_LIB          := $(GENIE_LIB_PATH)/libGMuELoss.$(DllSuf)
-GENIE_VHE_SHARED_LIB              := $(GENIE_LIB_PATH)/libGVHE.$(DllSuf)
+GENIE_ALGORITHM_LIBNAME        := libGAlgorithm
+GENIE_BARYONRES_LIBNAME        := libGBaryonResonance
+GENIE_BASE_LIBNAME             := libGBase
+GENIE_BODEK_YANG_LIBNAME       := libGBodekYang
+GENIE_CHARM_LIBNAME            := libGCharm
+GENIE_DECAY_LIBNAME            := libGDecay
+GENIE_ELASTIC_LIBNAME          := libGElas
+GENIE_EVENT_GENERATION_LIBNAME := libGEventGen
+GENIE_EVGCORE_LIBNAME          := libGEVGCore
+GENIE_EVGDRIVERS_LIBNAME       := libGEVGDrivers
+GENIE_EVGMODULES_LIBNAME       := libGEVGModules
+GENIE_GEO_LIBNAME              := libGGeo
+GENIE_GHEP_LIBNAME             := libGHEP
+GENIE_HADRON_TRANSPORT_LIBNAME := libGHadronTransp
+GENIE_LLEWELLYN_SMITH_LIBNAME  := libGLlewellynSmith
+GENIE_FLUX_DRIVERS_LIBNAME     := libGFluxDrivers
+GENIE_FRAGMENTATION_LIBNAME    := libGFragmentation
+GENIE_INTERACTION_LIBNAME      := libGInteraction
+GENIE_INVERSE_MU_DECAY_LIBNAME := libGInvMuDecay
+GENIE_MSG_LIBNAME              := libGMessenger
+GENIE_NTUPLE_LIBNAME           := libGNtuple
+GENIE_NUCLEAR_LIBNAME          := libGNuclear
+GENIE_NUMERICAL_LIBNAME        := libGNumerical
+GENIE_REWEIGHT_LIBNAME         := libGReWeight
+GENIE_PARTON_MODEL_LIBNAME     := libGPartonModel
+GENIE_PASCHOS_LIBNAME          := libGPaschos
+GENIE_PDG_LIBNAME              := libGPDG
+GENIE_PDF_LIBNAME              := libGPDF
+GENIE_RADIATIVE_LIBNAME        := libGRadiative
+GENIE_REGISTRY_LIBNAME         := libGRegistry
+GENIE_REIN_SEGHAL_LIBNAME      := libGReinSeghal
+GENIE_UTILS_LIBNAME            := libGUtils
+GENIE_VIEWER_LIBNAME           := libGViewer
+GENIE_XSEC_LIBNAME             := libGCrossSections
+GENIE_MUELOSS_LIBNAME          := libGMuELoss
+GENIE_VHE_LIBNAME              := libGVHE
 
-VLD_PARSER_SHARED_LIB             := $(GENIE_LIB_PATH)/libGNuVldXML.$(DllSuf)
-VLD_DBUTIL_SHARED_LIB             := $(GENIE_LIB_PATH)/libGNuVldDBU.$(DllSuf)
-VLD_GUI_WIDGETS_SHARED_LIB        := $(GENIE_LIB_PATH)/libGNuVldGUI.$(DllSuf)
-VLD_NEUGEN_INTERFACE_SHARED_LIB   := $(GENIE_LIB_PATH)/libGNuVldNeugen.$(DllSuf)
+VLD_PARSER_LIBNAME             := libGNuVldXML
+VLD_DBUTIL_LIBNAME             := libGNuVldDBU
+VLD_GUI_WIDGETS_LIBNAME        := libGNuVldGUI
+VLD_NEUGEN_INTERFACE_LIBNAME   := libGNuVldNeugen
 
-GDUMMY_NEUGEN_STATIC_LIB          := $(GENIE_LIB_PATH)/libneugen3.$(StaticLibSuf)
+GDUMMY_NEUGEN_LIBNAME          := libneugen3
 
 # standard GENIE's Neutrino Generator libraries
 
