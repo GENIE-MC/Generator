@@ -117,8 +117,8 @@ const HadronizationModelI * KNOPythiaHadronization::SelectHadronizer(
                                         const Interaction * interaction) const
 {
   const HadronizationModelI * hadronizer = 0;
-
   RandomGen * rnd = RandomGen::Instance();
+  double W = 0;
 
   switch(fMethod) {
 
@@ -136,7 +136,7 @@ const HadronizationModelI * KNOPythiaHadronization::SelectHadronizer(
   // ** PYTHIA/JETSET-only @ W > Wmax
   // ** Smooth linear transition in [Wmin,Wmax]
   case(2) :
-    double W = interaction->Kine().W();
+    W = interaction->Kine().W();
     if      (W <= fWminTrWindow) hadronizer = fKNOHadronizer;
     else if (W >  fWmaxTrWindow) hadronizer = fPythiaHadronizer;
     else {
