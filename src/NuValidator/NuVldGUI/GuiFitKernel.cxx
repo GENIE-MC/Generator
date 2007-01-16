@@ -19,6 +19,7 @@
 #include <TGraph.h>
 #include <TGraphAsymmErrors.h>
 #include <TH2F.h>
+#include <TMath.h>
 
 #include "Facades/NeuGenWrapper.h"
 #include "Messenger/Messenger.h"
