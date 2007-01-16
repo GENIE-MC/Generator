@@ -15,6 +15,7 @@
 #include <TLegend.h>
 #include <TCanvas.h>
 #include <TGProgressBar.h>
+#include <TMath.h>
 
 #include "Messenger/Messenger.h"
 #include "DBUtils/vXSecTableRow.h"
