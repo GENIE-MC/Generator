@@ -30,11 +30,11 @@
 
 namespace genie {
 
-template<class T> class RegistryItem;
-template<class T>
+template<typename T> class RegistryItem;
+template<typename T>
        ostream & operator << (ostream & stream, const RegistryItem<T> & rec);
 
-template<class T> class RegistryItem : public RegistryItemI {
+template<typename T> class RegistryItem : public RegistryItemI {
 
 public:
   RegistryItem() { };

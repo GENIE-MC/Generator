@@ -17,69 +17,51 @@
 #include <string>
 #include <iostream>
 
-//#include <TH1F.h>
-//#include <TH2F.h>
-//#include <TTree.h>
-
 #include "Registry/RegistryItem.h"
 
 using std::string;
 using std::endl;
 
-using namespace genie;
+namespace genie {
 
 //____________________________________________________________________________
-
-template class RegistryItem<RgBool>;
-template class RegistryItem<RgInt>;
-template class RegistryItem<RgDbl>;
-template class RegistryItem<RgStr>;
-template class RegistryItem<RgAlg>;
-template class RegistryItem<RgH1F>;
-template class RegistryItem<RgH2F>;
-template class RegistryItem<RgTree>;
-
-namespace genie {
- template ostream & operator << 
+template ostream & operator << 
                (ostream & stream, const RegistryItem<RgBool> & r);
- template ostream & operator << 
+template ostream & operator << 
                (ostream & stream, const RegistryItem<RgInt>  & r);
- template ostream & operator << 
+template ostream & operator << 
                (ostream & stream, const RegistryItem<RgDbl>  & r);
- template ostream & operator << 
+template ostream & operator << 
                (ostream & stream, const RegistryItem<RgStr>  & r);
- template ostream & operator << 
+template ostream & operator << 
                (ostream & stream, const RegistryItem<RgAlg>  & r);
- template ostream & operator << 
+template ostream & operator << 
                (ostream & stream, const RegistryItem<RgH1F>  & r);
- template ostream & operator << 
+template ostream & operator << 
                (ostream & stream, const RegistryItem<RgH2F>  & r);
- template ostream & operator << 
+template ostream & operator << 
                (ostream & stream, const RegistryItem<RgTree> & r);
+//____________________________________________________________________________
+template <typename T>
+   ostream & operator << (ostream & stream, const RegistryItem<T> & rec)
+{
+   rec.Print(stream);
+   return stream;
 }
 //____________________________________________________________________________
-namespace genie {
- template <class T>
-    ostream & operator << (ostream & stream, const RegistryItem<T> & rec)
-    {
-      rec.Print(stream);
-      return stream;
-    }
-}
-//____________________________________________________________________________
-template<class T> RegistryItem<T>::RegistryItem(T item, bool locked)
+template<typename T> RegistryItem<T>::RegistryItem(T item, bool locked)
 {
   fItem     = item;
   fIsLocked = locked;
 }
 //____________________________________________________________________________
-template<class T> RegistryItem<T>::RegistryItem(const RegistryItem * ri)
+template<typename T> RegistryItem<T>::RegistryItem(const RegistryItem * ri)
 {
   fItem     = ri->fItem;
   fIsLocked = ri->fIsLocked;
 }
 //____________________________________________________________________________
-template<class T> RegistryItem<T>::~RegistryItem()
+template<typename T> RegistryItem<T>::~RegistryItem()
 {
 
 }
@@ -99,7 +81,7 @@ template<> RegistryItem<RgTree>::~RegistryItem()
   if (fItem) delete fItem;
 }
 //____________________________________________________________________________
-template<class T> RegistryItemI * RegistryItem<T>::Clone(void) const
+template<typename T> RegistryItemI * RegistryItem<T>::Clone(void) const
 {
   RegistryItemI * item = new RegistryItem<T>(fItem,fIsLocked);
   return item;
@@ -145,7 +127,7 @@ template<> RgType_t RegistryItem<RgTree>::TypeInfo(void) const
   return kRgTree; 
 }
 //____________________________________________________________________________
-template<class T> void RegistryItem<T>::Print(ostream & stream) const
+template<typename T> void RegistryItem<T>::Print(ostream & stream) const
 {
   if(fIsLocked) stream << "[  locked] : " << fItem;
   else          stream << "[unlocked] : " << fItem;
@@ -183,3 +165,22 @@ template<> void RegistryItem<RgTree>::Print(ostream & stream) const
          << " : " << fItem->GetName();
 }
 //____________________________________________________________________________
+
+// Declare all template specializations.
+// They need to be added at the end of the implementation file as described at
+// http://www.comeaucomputing.com/techtalk/templates/#whylinkerror
+// The need for them arises from the export C++ keyword not being properly 
+// implemented at most C++ compilers. See http://gcc.gnu.org/bugs.html#known
+// 
+template class RegistryItem<RgBool>;
+template class RegistryItem<RgInt>;
+template class RegistryItem<RgDbl>;
+template class RegistryItem<RgStr>;
+template class RegistryItem<RgAlg>;
+template class RegistryItem<RgH1F>;
+template class RegistryItem<RgH2F>;
+template class RegistryItem<RgTree>;
+
+//____________________________________________________________________________
+
+} // genie namespace
