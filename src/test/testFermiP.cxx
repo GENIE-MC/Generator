@@ -38,7 +38,7 @@
 
 using namespace genie;
 
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
   AlgFactory * algf = AlgFactory::Instance();
   const NuclearModelI * nuclmodel =

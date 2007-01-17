@@ -25,7 +25,7 @@
 using namespace genie;
 using namespace genie::constants;
 
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
   //-- build an initial state
   Target         Fe(26,56);

@@ -43,7 +43,7 @@ using namespace genie;
 using namespace genie::constants;
 using namespace genie::units;
 
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
  AlgFactory * algf = AlgFactory::Instance();
 

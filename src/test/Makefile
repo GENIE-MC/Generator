@@ -13,201 +13,224 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 #GENIE_DICTS = $(shell $(GENIE)/src/scripts/setup/genie-config --dicts)
-GENIE_DICTS =
+#GENIE_DICTS =
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-
 LIBRARIES := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+#LIBRARIES := $(LIBRARIES) -L /usr/local/lib -ltcmalloc
+#LIBS_AND_HDRS := $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
-###LIBRARIES := $(LIBRARIES) -L /usr/local/lib -ltcmalloc
+EXE =	$(GENIE_BIN_PATH)/gtestAlgorithms	\
+ 	$(GENIE_BIN_PATH)/gtestBaryonResDataSet	\
+ 	$(GENIE_BIN_PATH)/gtestConfigPool	\
+ 	$(GENIE_BIN_PATH)/gtestDecay		\
+ 	$(GENIE_BIN_PATH)/gtestDISSF		\
+ 	$(GENIE_BIN_PATH)/gtestHadronization	\
+	$(GENIE_BIN_PATH)/gtestMessenger	\
+	$(GENIE_BIN_PATH)/gtestMuELoss		\
+	$(GENIE_BIN_PATH)/gtestNumerical	\
+	$(GENIE_BIN_PATH)/gtestPDFLIB		\
+	$(GENIE_BIN_PATH)/gtestFermiP		\
+	$(GENIE_BIN_PATH)/gtestMCJobDriver	\
+	$(GENIE_BIN_PATH)/gtestFluxDriver	\
+	$(GENIE_BIN_PATH)/gtestRegistry		\
+	$(GENIE_BIN_PATH)/gtestInteraction	\
+	$(GENIE_BIN_PATH)/gtestResonances	\
+	$(GENIE_BIN_PATH)/gtestReWeight		\
+	$(GENIE_BIN_PATH)/gtestKPhaseSpace	\
+	$(GENIE_BIN_PATH)/gtestReadGNtuple	\
+	$(GENIE_BIN_PATH)/gtestROOTGeometry     \
+	$(GENIE_BIN_PATH)/gtestINukeHadroData
 
-LIBS_AND_HDRS := $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
-
-EXE =	$(GENIE_BIN_PATH)/testAlgorithms	\
- 	$(GENIE_BIN_PATH)/testBaryonResDataSet	\
- 	$(GENIE_BIN_PATH)/testConfigPool	\
- 	$(GENIE_BIN_PATH)/testDecay		\
- 	$(GENIE_BIN_PATH)/testDISSF		\
- 	$(GENIE_BIN_PATH)/testHadronization	\
-	$(GENIE_BIN_PATH)/testMessenger		\
-	$(GENIE_BIN_PATH)/testMuELoss		\
-	$(GENIE_BIN_PATH)/testNumerical		\
-	$(GENIE_BIN_PATH)/testPDFLIB		\
-	$(GENIE_BIN_PATH)/testFermiP		\
-	$(GENIE_BIN_PATH)/testMCJobDriver	\
-	$(GENIE_BIN_PATH)/testFluxDriver	\
-	$(GENIE_BIN_PATH)/testRegistry		\
-	$(GENIE_BIN_PATH)/testInteraction	\
-	$(GENIE_BIN_PATH)/testResonances	\
-	$(GENIE_BIN_PATH)/testReWeight		\
-	$(GENIE_BIN_PATH)/testKPhaseSpace	\
-	$(GENIE_BIN_PATH)/testReadGNtuple	\
-	$(GENIE_BIN_PATH)/testROOTGeometry      \
-	$(GENIE_BIN_PATH)/testINukeHadroData
-
-TGT =	testAlgorithms 		\
- 	testBaryonResDataSet	\
- 	testConfigPool		\
- 	testDecay		\
- 	testDISSF		\
- 	testHadronization	\
-	testMessenger		\
-	testNumerical		\
-	testPDFLIB		\
-	testFermiP		\
-	testMCJobDriver		\
-	testRegistry		\
-	testInteraction		\
-	testResonances		\
-	testReWeight		\
-	testKPhaseSpace		\
-	testReadGNtuple		
-
-ifdef GOPT_MUELOSS
-  TGT := $(TGT) testMuELoss
-endif
-
-ifdef GOPT_GEOM_DRIVERS
-  TGT := $(TGT) testROOTGeometry
-endif
-ifdef GOPT_FLUX_DRIVERS
-  TGT := $(TGT) testFluxDriver
-endif
+TGT =	gtestAlgorithms 	\
+ 	gtestBaryonResDataSet	\
+ 	gtestConfigPool		\
+ 	gtestDecay		\
+ 	gtestDISSF		\
+ 	gtestHadronization	\
+	gtestMessenger		\
+	gtestNumerical		\
+	gtestPDFLIB		\
+	gtestFermiP		\
+	gtestMCJobDriver	\
+	gtestRegistry		\
+	gtestInteraction	\
+	gtestResonances		\
+	gtestReWeight		\
+	gtestKPhaseSpace	\
+	gtestReadGNtuple		
 
 all: $(TGT)
 
-testAlgorithms: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testAlgorithms testAlgorithms.cxx $(LIBS_AND_HDRS)
+gtestAlgorithms: FORCE
+	$(CXX) $(CXXFLAGS) -c testAlgorithms.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testAlgorithms.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestAlgorithms
 
-testBaryonResDataSet: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testBaryonResDataSet testBaryonResDataSet.cxx $(LIBS_AND_HDRS) 
+gtestBaryonResDataSet: FORCE
+	$(CXX) $(CXXFLAGS) -c testBaryonResDataSet.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testBaryonResDataSet.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestBaryonResDataSet
 
-testConfigPool: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testConfigPool testConfigPool.cxx $(LIBS_AND_HDRS) 
+gtestConfigPool: FORCE
+	$(CXX) $(CXXFLAGS) -c testConfigPool.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testConfigPool.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestConfigPool
 
-testDecay: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDecay testDecay.cxx $(LIBS_AND_HDRS) 
+gtestDecay: FORCE
+	$(CXX) $(CXXFLAGS) -c testDecay.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testDecay.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestDecay
 
-testDISSF: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testDISSF testDISSF.cxx $(LIBS_AND_HDRS) 
+gtestDISSF: FORCE
+	$(CXX) $(CXXFLAGS) -c testDISSF.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testDISSF.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestDISSF
 
-testHadronization: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testHadronization testHadronization.cxx $(LIBS_AND_HDRS) 
+gtestHadronization: FORCE
+	$(CXX) $(CXXFLAGS) -c testHadronization.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testHadronization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestHadronization
 
-testXSec: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testXSec testXSec.cxx $(LIBS_AND_HDRS) 
+gtestXSec: FORCE
+	$(CXX) $(CXXFLAGS) -c testXSec.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testXSec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestXSec
 
-testPDFLIB: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testPDFLIB testPDFLIB.cxx $(LIBS_AND_HDRS) 
+gtestPDFLIB: FORCE
+	$(CXX) $(CXXFLAGS) -c testPDFLIB.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testPDFLIB.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPDFLIB
 
-testFermiP: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testFermiP testFermiP.cxx $(LIBS_AND_HDRS)
+gtestFermiP: FORCE
+	$(CXX) $(CXXFLAGS) -c testFermiP.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testFermiP.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFermiP
 
-testMCJobDriver: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMCJobDriver testMCJobDriver.cxx $(LIBS_AND_HDRS)
+gtestMCJobDriver: FORCE
+	$(CXX) $(CXXFLAGS) -c testMCJobDriver.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testMCJobDriver.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestMCJobDriver
 
-testFluxDriver: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testFluxDriver testFluxDriver.cxx $(LIBS_AND_HDRS) 
+gtestFluxDriver: FORCE
+ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
+	$(CXX) $(CXXFLAGS) -c testFluxDriver.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testFluxDriver.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxDriver
+else
+	@echo "You need to enable the flux drivers to build the gtestFluxDriver program"
+endif
 
-testMessenger: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMessenger testMessenger.cxx $(LIBS_AND_HDRS) 
+gtestMessenger: FORCE
+	$(CXX) $(CXXFLAGS) -c testMessenger.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testMessenger.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestMessenger
 
-testMuELoss: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testMuELoss testMuELoss.cxx $(LIBS_AND_HDRS) 
+gtestMuELoss: FORCE
+ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
+	$(CXX) $(CXXFLAGS) -c testMuELoss.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testMuELoss.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestMuELoss
+else
+	@echo "You need to enable the MuELoss package to build the gtestMuELoss program"
+endif
 
-testNumerical: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testNumerical testNumerical.cxx $(LIBS_AND_HDRS) 
+gtestNumerical: FORCE
+	$(CXX) $(CXXFLAGS) -c testNumerical.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testNumerical.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNumerical
 
-testRegistry: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testRegistry testRegistry.cxx $(LIBS_AND_HDRS)
+gtestRegistry: FORCE
+	$(CXX) $(CXXFLAGS) -c testRegistry.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testRegistry.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRegistry
 
-testInteraction: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testInteraction testInteraction.cxx $(LIBS_AND_HDRS) 
+gtestInteraction: FORCE
+	$(CXX) $(CXXFLAGS) -c testInteraction.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testInteraction.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestInteraction
 
-testResonances: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testResonances testResonances.cxx $(LIBS_AND_HDRS) 
+gtestResonances: FORCE
+	$(CXX) $(CXXFLAGS) -c testResonances.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testResonances.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestResonances
 
-testReWeight: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testReWeight testReWeight.cxx $(LIBS_AND_HDRS) 
+gtestReWeight: FORCE
+	$(CXX) $(CXXFLAGS) -c testReWeight.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testReWeight.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestReWeight
 
-testKPhaseSpace: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testKPhaseSpace testKPhaseSpace.cxx $(LIBS_AND_HDRS) 
+gtestKPhaseSpace: FORCE
+	$(CXX) $(CXXFLAGS) -c testKPhaseSpace.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testKPhaseSpace.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestKPhaseSpace
 
-testReadGNtuple: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testReadGNtuple testReadGNtuple.cxx $(LIBS_AND_HDRS)
+gtestReadGNtuple: FORCE
+	$(CXX) $(CXXFLAGS) -c testReadGNtuple.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testReadGNtuple.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestReadGNtuple
 
-testROOTGeometry: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testROOTGeometry testROOTGeometry.cxx $(LIBS_AND_HDRS)
+gtestROOTGeometry: FORCE
+ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
+	$(CXX) $(CXXFLAGS) -c testROOTGeometry.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testROOTGeometry.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestROOTGeometry
+else
+	@echo "You need to enable the geometry drivers to build the gtestROOTGeometry program"
+endif
 
-testINukeHadroData: FORCE
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/testINukeHadroData testINukeHadroData.cxx $(LIBS_AND_HDRS) 
+gtestINukeHadroData: FORCE
+	$(CXX) $(CXXFLAGS) -c testINukeHadroData.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testINukeHadroData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestINukeHadroData
 
 #################### CLEANING
+
+purge: FORCE
+	$(RM) *.o *~ core 
 
 clean: FORCE
 	$(RM) *.o *~ core $(EXE)
 
-clean--testAlgorithms: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testAlgorithms
+clean--gtestAlgorithms: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestAlgorithms
 
-clean--testBaryonResDataSet: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testBaryonResDataSet
+clean--gtestBaryonResDataSet: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestBaryonResDataSet
 
-clean--testConfigPool: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testConfigPool
+clean--gtestConfigPool: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestConfigPool
 
-clean--testDecay: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testDecay
+clean--gtestDecay: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestDecay
 
-clean--testDISSF: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testDISSF
+clean--gtestDISSF: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestDISSF
 
-clean--testHadronization: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testHadronization
+clean--gtestHadronization: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestHadronization
 
-clean--testXSec: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testXSec
+clean--gtestXSec: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestXSec
 
-clean--testMessenger: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testMessenger
+clean--gtestMessenger: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestMessenger
 
-clean--testNumerical: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testNumerical
+clean--gtestNumerical: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestNumerical
 
-clean--testPDFLIB: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testPDFLIB
+clean--gtestPDFLIB: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestPDFLIB
 
-clean--testFermiP: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testFermiP
+clean--gtestFermiP: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestFermiP
 
-clean--testMCJobDriver: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testMCJobDriver
+clean--gtestMCJobDriver: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestMCJobDriver
 
-clean--testFluxDriver: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testFluxDriver
+clean--gtestFluxDriver: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestFluxDriver
 
-clean--testRegistry: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testRegistry
+clean--gtestRegistry: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestRegistry
 
-clean--testInteraction: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testInteraction
+clean--gtestInteraction: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestInteraction
 
-clean--testResonances: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testInteraction
+clean--gtestResonances: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestInteraction
 
-clean--testReWeight: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testReWeight
+clean--gtestReWeight: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestReWeight
 
-clean--testKPhaseSpace: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testKPhaseSpace
+clean--gtestKPhaseSpace: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestKPhaseSpace
 
-clean--testReadGNtuple: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testReadGNtuple
+clean--gtestReadGNtuple: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestReadGNtuple
 
-clean--testROOTGeometry: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testROOTGeometry
+clean--gtestROOTGeometry: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestROOTGeometry
 
-clean--testINukeHadroData: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/testSAIDHadronXSec
+clean--gtestINukeHadroData: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestSAIDHadronXSec
 
 FORCE:
 

@@ -26,7 +26,7 @@
 
 using namespace genie;
 
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
  //-- Get a baryon resonance
  Resonance_t resonance = kP33_1232;

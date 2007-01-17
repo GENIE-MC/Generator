@@ -28,7 +28,7 @@ using namespace genie;
 void PrintLimits(const Interaction * interaction);
 
 //__________________________________________________________________________
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
   // -- get a DIS interaction object & access its kinematics
 

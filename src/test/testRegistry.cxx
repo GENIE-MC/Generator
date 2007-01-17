@@ -23,7 +23,7 @@
 
 using namespace genie;
 
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
  // manual override of Registry mesg level
  //Messenger * msg = Messenger::Instance();
