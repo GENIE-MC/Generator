@@ -39,7 +39,7 @@ ostream & operator<< (ostream & stream, const TClonesArray * particle_list);
 ostream & operator<< (ostream & stream, const TMCParticle * particle);
 
 //__________________________________________________________________________
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
   //-- get an instance of the algorithm factory
 

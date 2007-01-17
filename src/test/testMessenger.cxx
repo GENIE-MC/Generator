@@ -20,7 +20,7 @@
 
 using namespace genie;
 
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
   LOG("Stream-Name", pFATAL)  << "this is a message with priority: FATAL" ;
   LOG("Stream-Name", pALERT)  << "this is a message with priority: ALERT" ;

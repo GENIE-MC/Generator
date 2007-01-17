@@ -29,7 +29,7 @@ using namespace genie;
 void testReconfigInCommonPool   (void);
 void testReconfigInOwnedModules (void);
 
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
   testReconfigInCommonPool();
   testReconfigInOwnedModules();

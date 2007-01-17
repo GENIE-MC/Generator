@@ -25,7 +25,7 @@
 
 using namespace genie;
 
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
   //-- Get an instance of the ConfigPool
 

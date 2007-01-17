@@ -30,7 +30,7 @@ void fill_ntuple(TNtuple * nt, double q2,
                                    int nptype, int ngroup, int nset);
 
 //___________________________________________________________________
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
   //-- Q^2 for which I extract PDFs
 
