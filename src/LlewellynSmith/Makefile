@@ -31,7 +31,7 @@ _ROOT_DICT_LlewellynSmith.cc: LinkDef.h $(CINTLISTO)
 	rootcint -f _ROOT_DICT_LlewellynSmith.cc -c \
 		-I$(ROOTSYS)/include -I$(GENIE)/src $(CINTLIST) LinkDef.h
 
-lib: $(GENIEO) FORCE
+lib: $(GENIEO) 
 	@echo "Generating shared library ..."
 	$(SOCMD) $(SOFLAGS) $(SOMINF) \
 		$(GENIEO) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).$(DllSuf)

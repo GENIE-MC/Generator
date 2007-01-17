@@ -31,15 +31,10 @@ using std::ostringstream;
 namespace genie {
 namespace nuvld {
 
-template class DBTableStack<vXSecTableRow>;
 //template ostream & operator
 //           << (ostream & stream, const DBTableStack<vXSecTableRow> & table);
-
-template class DBTableStack<eDiffXSecTableRow>;
 //template ostream & operator
 //       << (ostream & stream, const DBTableStack<eDiffXSecTableRow> & table);
-
-template class DBTableStack<SFTableRow>;
 //template ostream & operator
 //              << (ostream & stream, const DBTableStack<SFTableRow> & table);
 
@@ -165,6 +160,14 @@ template<class T> void DBTableStack<T>::SaveQueryStringsToFile(
     iter->second->SaveQueryStringToFile(top_dir, iter->first);
   }
 }
+//____________________________________________________________________________
+
+// template specializations:
+//
+template class DBTableStack<vXSecTableRow>;
+template class DBTableStack<eDiffXSecTableRow>;
+template class DBTableStack<SFTableRow>;
+
 //____________________________________________________________________________
 
 } // nuvld namespace

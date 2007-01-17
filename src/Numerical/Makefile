@@ -30,7 +30,7 @@ _ROOT_DICT_Numerical.cc: LinkDef.h $(CINTLISTO)
 	rootcint -f _ROOT_DICT_Numerical.cc -c	\
 		-I$(ROOTSYS)/include -I$(GENIE)/src $(CINTLIST) LinkDef.h
 
-lib: $(GENIEO) FORCE
+lib: $(GENIEO) 
 	@echo "Generating shared library ..."
 	$(SOCMD) $(SOFLAGS) $(SOMINF)	\
 		$(GENIEO) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_NUMERICAL_LIBNAME).$(DllSuf)
