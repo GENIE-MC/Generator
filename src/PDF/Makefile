@@ -30,7 +30,7 @@ _ROOT_DICT_PDF.cc: LinkDef.h $(CINTLISTO)
 	rootcint -f _ROOT_DICT_PDF.cc -c	\
 		-I$(ROOTSYS)/include -I$(GENIE)/src $(CINTLIST) LinkDef.h
 
-lib: $(GENIEO) FORCE
+lib: $(GENIEO) 
 	@echo "Generating shared library ..."
 	$(SOCMD) $(SOFLAGS) $(SOMINF) \
 		$(GENIEO) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_PDF_LIBNAME).$(DllSuf)

@@ -226,14 +226,20 @@ ifndef GOPT_NEUGEN
 # that the NuValidator's NeuGEN facade can compile. In this case, 
 # override NEUGEN3PATH (=GENIE)
   NEUGEN3PATH=$(GENIE)
-  NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
+  NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 
 
 else
 
 # In case the actual NeuGEN library is used, add CERNLIB's stdhep
 # which is used by NeuGEN (in addition to the 'std' CERNLIBs)
   NEUGEN_LIBRARIES = -L $(CERN_LIB_DIR) -lstdhep \
-			-L$(NEUGEN3PATH)/lib -lneugen3 -lg2c
+			-L$(NEUGEN3PATH)/lib -lneugen3 
+endif
+
+ifeq ($(strip $(ARCH)),macosx) 
+  NEUGEN_LIBRARIES := $(NEUGEN_LIBRARIES) /usr/local/lib/libgfortran.dylib
+else
+  NEUGEN_LIBRARIES := $(NEUGEN_LIBRARIES) -lg2c
 endif
 
 #-------------------------------------------------------------------

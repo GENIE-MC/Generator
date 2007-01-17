@@ -13,8 +13,7 @@ MAKEFILE = Makefile
 include $(GENIE)/src/Make.include
 
 # std build targets
-BUILD_TARGETS = print-targets \
-		make-bin-lib-dir \
+BUILD_TARGETS = make-bin-lib-dir \
 		save-build-options \
 		base-framework \
 		utils \
@@ -36,10 +35,6 @@ BUILD_TARGETS = print-targets \
 # define build targets
 
 all: $(BUILD_TARGETS)
-
-print-targets: FORCE
-	@echo "** Build targets: "
-	@echo $(BUILD_TARGETS)
 
 base-framework: FORCE
 	@echo " "
@@ -218,7 +213,7 @@ save-build-options: FORCE
 	@echo " "
 	@echo "** Logging configuration options..."
 	cd ${GENIE}/src;\
-	perl scripts/setup/save-build-env;
+	perl scripts/setup/genie-save-build-env;
 
 make-bin-lib-dir: FORCE
 	@echo " "

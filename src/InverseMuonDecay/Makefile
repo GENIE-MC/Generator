@@ -30,7 +30,7 @@ _ROOT_DICT_InverseMuDecay.cc: LinkDef.h $(CINTLISTO)
 	rootcint -f _ROOT_DICT_InverseMuDecay.cc -c	\
 		-I$(ROOTSYS)/include -I$(GENIE)/src $(CINTLIST) LinkDef.h
 
-lib: $(GENIEO) FORCE
+lib: $(GENIEO) 
 	@echo "Generating shared library ..."
 	$(SOCMD) $(SOFLAGS) $(SOMINF) \
 		$(GENIEO) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_INVERSE_MU_DECAY_LIBNAME).$(DllSuf)

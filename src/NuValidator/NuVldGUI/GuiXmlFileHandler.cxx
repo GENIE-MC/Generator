@@ -137,7 +137,7 @@ void GuiXmlFileHandler::ParseFile(void)
     
       ostringstream cmd;
       cmd  << gSystem->Getenv("GENIE")
-                               << "/bin/parsexml -f " << _current_file.c_str();
+                       << "/bin/gnuvld-parsexml -f " << _current_file.c_str();
       ostringstream cmd2;
       cmd2  << "Executing: " << cmd.str().c_str();
       
@@ -168,7 +168,7 @@ void GuiXmlFileHandler::SendToDBase(void)
 
          ostringstream cmd;
 
-         cmd  << gSystem->Getenv("GENIE") << "/bin/filldbase "
+         cmd  << gSystem->Getenv("GENIE") << "/bin/gnuvld-dbupload "
               << " -f " <<  _current_file.c_str()
               << " -h " <<  _dbc->Host()
               << " -d " <<  _dbc->DataBase()

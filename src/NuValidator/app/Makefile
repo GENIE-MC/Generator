@@ -15,28 +15,28 @@ include $(GENIE)/src/Make.include
 LIBRARIES := $(GENIE_LIBRARIES) $(NUVLD_LIBRARIES) \
              $(LIBRARIES) $(NEUGEN_LIBRARIES) $(CERN_LIBRARIES) 
 
-EXE = $(GENIE_BIN_PATH)/parsexml \
-      $(GENIE_BIN_PATH)/filldbase \
-      $(GENIE_BIN_PATH)/nuvld \
-      $(GENIE_BIN_PATH)/ngevgen 
+EXE = $(GENIE_BIN_PATH)/gnuvld-parsexml \
+      $(GENIE_BIN_PATH)/gnuvld-dbupload \
+      $(GENIE_BIN_PATH)/gnuvld-gui \
+      $(GENIE_BIN_PATH)/gneugen-evgen
 
-all: parsexml filldbase nuvld neugen_evgen
+all: parse_xml upload_dbase gui 
 
-parsexml:
+parse_xml:
 	$(CXX) $(CXXFLAGS) -c parsexml.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) parsexml.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/parsexml
+	$(LD) $(LDFLAGS) parsexml.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gnuvld-parsexml
 
-filldbase:
+upload_dbase:
 	$(CXX) $(CXXFLAGS) -c filldbase.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) filldbase.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/filldbase
+	$(LD) $(LDFLAGS) filldbase.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gnuvld-dbupload
 
-nuvld:
+gui:
 	$(CXX) $(CXXFLAGS) -c nuvld_gui.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) nuvld_gui.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/nuvld_gui
+	$(LD) $(LDFLAGS) nuvld_gui.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gnuvld-gui
 
 neugen_evgen:
 	$(CXX) $(CXXFLAGS) -c neugen_evgen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) neugen_evgen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ngevgen
+	$(LD) $(LDFLAGS) neugen_evgen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gneugen-evgen
 
 clean: FORCE
 	$(RM) *.o *~ core $(EXE)
