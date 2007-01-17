@@ -23,16 +23,20 @@ EXE = $(GENIE_BIN_PATH)/parsexml \
 all: parsexml filldbase nuvld neugen_evgen
 
 parsexml:
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/parsexml parsexml.cxx $(LIBRARIES) $(INCLUDES) 
+	$(CXX) $(CXXFLAGS) -c parsexml.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) parsexml.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/parsexml
 
 filldbase:
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/filldbase filldbase.cxx $(LIBRARIES) $(INCLUDES) 
+	$(CXX) $(CXXFLAGS) -c filldbase.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) filldbase.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/filldbase
 
 nuvld:
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/nuvld nuvld_gui.cxx $(LIBRARIES) $(INCLUDES) 
+	$(CXX) $(CXXFLAGS) -c nuvld_gui.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) nuvld_gui.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/nuvld_gui
 
 neugen_evgen:
-	g++ -Wall -O2 -o $(GENIE_BIN_PATH)/ngevgen neugen_evgen.cxx $(LIBRARIES) $(INCLUDES) 
+	$(CXX) $(CXXFLAGS) -c neugen_evgen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) neugen_evgen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ngevgen
 
 clean: FORCE
 	$(RM) *.o *~ core $(EXE)

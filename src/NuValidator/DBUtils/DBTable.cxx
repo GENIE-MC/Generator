@@ -34,15 +34,10 @@ using std::ostringstream;
 namespace genie {
 namespace nuvld {
 
-template class DBTable<vXSecTableRow>;
 //template ostream & operator
 //                << (ostream & stream, const DBTable<vXSecTableRow> & table);
-
-template class DBTable<eDiffXSecTableRow>;
 //template ostream & operator
 //            << (ostream & stream, const DBTable<eDiffXSecTableRow> & table);
-
-template class DBTable<SFTableRow>;
 //template ostream & operator
 //                   << (ostream & stream, const DBTable<SFTableRow> & table);
 
@@ -444,6 +439,12 @@ template<> MultiGraph * DBTable<SFTableRow>::GetMultiGraph(
   return mgraph;
 }
 //____________________________________________________________________________
+
+// template specializations:
+//
+template class DBTable<vXSecTableRow>;
+template class DBTable<eDiffXSecTableRow>;
+template class DBTable<SFTableRow>;
 
 } // nuvld namespace
 } // genie namespace
