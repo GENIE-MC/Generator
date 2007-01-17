@@ -51,7 +51,8 @@ system($command);
                     "createTable_Reference.sql",
                     "createTable_MeasurementHeader.sql",
                     "createTable_CrossSection.sql",
-                    "createTable_eDiffCrossSection.sql"   );
+                    "createTable_eDiffCrossSection.sql",
+                    "createTable_StructureFunction.sql" );
 
 $auth = "mysql -A -h ".$hostname." -u ".$username." --password=".$password." ".$dbase;
 
