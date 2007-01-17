@@ -23,15 +23,10 @@ using std::endl;
 namespace genie {
 namespace nuvld {
   
-template class Record<vXSecRecord>;
 template ostream & operator 
                    << (ostream & stream, const Record<vXSecRecord> & rec);
-
-template class Record<eDiffXSecRecord>;
 template ostream & operator 
                << (ostream & stream, const Record<eDiffXSecRecord> & rec);
-
-template class Record<SFRecord>;
 template ostream & operator 
                       << (ostream & stream, const Record<SFRecord> & rec);
 
@@ -107,6 +102,12 @@ template <class T>
   return attrib;
 }
 //____________________________________________________________________________
+
+// template specializations:
+//
+template class Record<vXSecRecord>;
+template class Record<eDiffXSecRecord>;
+template class Record<SFRecord>;
 
 } // nuvld namespace
 } // genie namespace
