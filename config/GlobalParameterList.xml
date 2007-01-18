@@ -158,6 +158,12 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="double" name="RFG-Momentum-CutOff"> 0.5 </param>
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Table of Fermi momentum (kF) constants for various nuclei
+  The tables can be found in $GENIE/config/FermiMomentumTables.xml
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <param type="string" name="FermiMomentumTable"> Default </param>
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameters controlling the hadronic multiplicities in the KNO model
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <param type="double" name="KNO-Beta">      1.30 </param> 
