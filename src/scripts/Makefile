@@ -19,7 +19,7 @@ install: FORCE
 	cp setup/gnuvld-dbbootstrap $(GENIE_BIN_PATH); \
 	cp setup/genie-config $(GENIE_BIN_PATH); \
 	cp gcint/genie $(GENIE_BIN_PATH); \
-	chmod 755 $(GENIE_BIN_PATH)/db-bootstrap; \
+	chmod 755 $(GENIE_BIN_PATH)/gnuvld-dbbootstrap; \
 	chmod 755 $(GENIE_BIN_PATH)/genie-config; \
 	chmod 755 $(GENIE_BIN_PATH)/genie; 
 
