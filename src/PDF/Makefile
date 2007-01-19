@@ -20,6 +20,8 @@ GENIEO 	   = $(addsuffix .$(ObjSuf), $(basename $(GENIES)))
 GENIEbS   := $(wildcard *.cxx)
 GENIEbO    = $(addsuffix .$(ObjSuf), $(basename $(GENIEbS)))
 
+EXTRA_LIBS = $(CERN_LIBRARIES)
+
 all: rootcint lib link
 
 rootcint: _ROOT_DICT_PDF.o
@@ -33,7 +35,7 @@ _ROOT_DICT_PDF.cc: LinkDef.h $(CINTLISTO)
 lib: $(GENIEO) 
 	@echo "Generating shared library ..."
 	$(SOCMD) $(SOFLAGS) $(SOMINF) \
-		$(GENIEO) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_PDF_LIBNAME).$(DllSuf)
+		$(GENIEO) $(EXTRA_LIBS) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_PDF_LIBNAME).$(DllSuf)
 
 link: FORCE
 ifeq ($(strip $(ARCH)),macosx)
