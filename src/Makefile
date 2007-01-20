@@ -137,7 +137,7 @@ ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),NO)
 	cd NuValidator; make dummy-neugen; cd ..; 
 else
 	@echo " "
-	@echo "** Neugen was enabled. Will not build dummy version...""
+	@echo "** Neugen was enabled. Will not build dummy version..."
 endif
 
 neugen: FORCE
