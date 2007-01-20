@@ -220,7 +220,7 @@ endif
 #                             NEUGEN3
 #-------------------------------------------------------------------
 
-ifndef GOPT_NEUGEN
+ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),NO) 
 
 # if NeuGEN was not enabled a dummy NeuGEN library will be built so 
 # that the NuValidator's NeuGEN facade can compile. In this case, 
