@@ -117,7 +117,7 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
 
   //-- look up the Fermi momentum for this Target
   FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-  const FermiMomentumTable * kft  = kftp->GetTable("Default");
+  const FermiMomentumTable * kft  = kftp->GetTable(fKFTable);
   double KF = kft->FindClosestKF(target_pdgc, nucleon_pdgc);
   LOG("BodekRitchie", pNOTICE) << "KF = " << KF;
 
@@ -187,6 +187,8 @@ void FGMBodekRitchie::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
+  fKFTable = fConfig->GetStringDef ("FermiMomentumTable", 
+                                    gc->GetString("FermiMomentumTable"));
   fNPBins  = fConfig->GetIntDef    ("Momentum-NumBins",  400);
   fPMax    = fConfig->GetDoubleDef ("Momentum-Max",     10.0);
   fPCutOff = fConfig->GetDoubleDef ("Momentum-CutOff",  
