@@ -29,8 +29,8 @@ namespace genie {
 typedef enum EINukeMode {
 
    kIMdUndefined = -1, 
-   kIMdhN,
-   kIMdhA
+   kIMdHN,
+   kIMdHA
 
 } INukeMode_t;   
 
@@ -41,8 +41,8 @@ public:
   static string AsString(INukeMode_t mode) {
      switch (mode) {
      case kIMdUndefined:  return "** Undefined Intranuke mode **"; break;
-     case kIMdhN:         return "hadron+nucleon (h+N)";  break;
-     case kIMdhA:         return "hadron+nucleus (h+A)";  break;
+     case kIMdHN:         return "hadron+nucleon (H+N)";  break;
+     case kIMdHA:         return "hadron+nucleus (H+A)";  break;
      default:             break;
      }
      return "** Undefined Intranuke mode ** ";

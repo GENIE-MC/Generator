@@ -32,8 +32,8 @@
 #include <TGenPhaseSpace.h>
 
 #include "EVGCore/EventRecordVisitorI.h"
-#include "HadronTransport/INukeProc.h"
 #include "HadronTransport/INukeMode.h"
+#include "HadronTransport/INukeHadroFates.h"
 
 class TLorentzVector;
 class TVector3;
@@ -42,13 +42,14 @@ namespace genie {
 
 class GHepParticle;
 class INukeHadroData;
+class PDGCodeList;
 
 class Intranuke : public EventRecordVisitorI {
 
 public :
   Intranuke();
   Intranuke(string config);
-  ~Intranuke();
+ ~Intranuke();
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -60,32 +61,47 @@ public :
 
 private:
 
-  //-- private methods
-  void        LoadConfig             (void);
-  void        TransportHadrons       (GHepRecord * ev) const;
-  void        GenerateVertex         (GHepRecord * ev) const;
-  bool        NeedsRescattering      (const GHepParticle* p) const;
-  bool        CanRescatter           (const GHepParticle* p) const;
-  bool        IsInNucleus            (const GHepParticle* p) const;
-  void        SetNuclearRadius       (const GHepParticle* p) const;
-  INukeProc_t HadronFate             (const GHepParticle* p) const;
-  void        StepParticle           (GHepParticle * p, double dr) const;
-  bool        IsFreshHadron          (GHepRecord* ev, GHepParticle* p) const;
-  double      FormationZone          (GHepRecord* ev, GHepParticle* p) const;
-  void        AdvanceFreshHadron     (GHepRecord* ev, GHepParticle* p) const;
-  double      GenerateStep           (GHepRecord* ev, GHepParticle* p) const;
-  double      MeanFreePath           (GHepRecord* ev, GHepParticle* p) const;
-  void        SimHadronicInteraction (GHepRecord* ev, GHepParticle* p) const;
-  void        SimAbsorption          (GHepRecord* ev, GHepParticle* p) const;
-  void        SimChargeExchange      (GHepRecord* ev, GHepParticle* p) const;
-  void        SimInelasticScattering (GHepRecord* ev, GHepParticle* p) const;
-  void        SimElasticScattering   (GHepRecord* ev, GHepParticle* p) const;
+  //-- private methods:
 
+  // methods for loading configuration
+  void LoadConfig (void);
+
+  // general methods for the cascade mc structure
+  void   TransportHadrons   (GHepRecord * ev) const;
+  void   GenerateVertex     (GHepRecord * ev) const;
+  bool   NeedsRescattering  (const GHepParticle* p) const;
+  bool   CanRescatter       (const GHepParticle* p) const;
+  bool   IsInNucleus        (const GHepParticle* p) const;
+  void   SetNuclearRadius   (const GHepParticle* p) const;
+  void   StepParticle       (GHepParticle * p, double dr) const;
+  bool   IsFreshHadron      (GHepRecord* ev, GHepParticle* p) const;
+  double FormationZone      (GHepRecord* ev, GHepParticle* p) const;
+  void   AdvanceFreshHadron (GHepRecord* ev, GHepParticle* p) const;
+  double GenerateStep       (GHepRecord* ev, GHepParticle* p) const;
+  double MeanFreePath       (GHepRecord* ev, GHepParticle* p) const;
+  void   SimHadroProc       (GHepRecord* ev, GHepParticle* p) const;
+
+  // methods specific to intranuke HA-mode
+  INukeFateHA_t HadronFateHA    (const GHepParticle* p) const;
+  void          SimHadroProcHA  (GHepRecord* ev, GHepParticle* p) const;
+  void          PiSlam          (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
+  void          PnSlam          (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
+  void          PiInelastic     (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
+  void          PnInelastic     (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
+  double        PiBounce        (void) const;
+  double        PnBounce        (void) const;
+  double        Degrade         (double ke) const;
+
+  // methods specific to intranuke HN-mode
+  void          SimHadroProcHN  (GHepRecord* ev, GHepParticle* p) const;
+
+  // general phase space decay method
+  bool PhaseSpaceDecay (GHepRecord* ev, GHepParticle* p, const PDGCodeList & pdgv) const;
+
+  //-- utility objects & params
   mutable double fNuclRadius;
-
-  //-- utility objects
-  TGenPhaseSpace   fGenPhaseSp; ///< a phase space generator
-  INukeHadroData * fHadroData;  ///< a collection of h+N,h+A data & calculations
+  mutable TGenPhaseSpace fGenPhaseSpace; ///< a phase space generator
+  INukeHadroData * fHadroData;           ///< a collection of h+N,h+A data & calculations
 
   //-- configuration parameters
   INukeMode_t  fMode;  ///< h+A, h+N

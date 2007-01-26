@@ -31,101 +31,99 @@ class INukeHadroData
 public:
   static INukeHadroData * Instance (void);
 
-  //-- cross section splines
-
   // Cross sections from SAID (Arndt, Workman, Strakovsky) PWA fit.
   //
-  const Spline * XsPipPElas (void) const { return fXsPipPElas; }
-  const Spline * XsPipPReac (void) const { return fXsPipPReac; }
-  const Spline * XsPipDAbs  (void) const { return fXsPipDAbs;  }
-  const Spline * XsPimPElas (void) const { return fXsPimPElas; }
-  const Spline * XsPimPReac (void) const { return fXsPimPReac; }
-  const Spline * XsPimPCEx  (void) const { return fXsPimPCEx;  }
-  const Spline * XsPPElas   (void) const { return fXsPPElas;   }
-  const Spline * XsPPReac   (void) const { return fXsPPReac;   }
-  const Spline * XsNPElas   (void) const { return fXsNPElas;   }
-  const Spline * XsNPReac   (void) const { return fXsNPReac;   }
+  const Spline * XSecPipP_Elas (void) const { return fXSecPipP_Elas; }
+  const Spline * XSecPipP_Reac (void) const { return fXSecPipP_Reac; }
+  const Spline * XSecPipD_Abs  (void) const { return fXSecPipD_Abs;  }
+  const Spline * XSecPimP_Elas (void) const { return fXSecPimP_Elas; }
+  const Spline * XSecPimP_Reac (void) const { return fXSecPimP_Reac; }
+  const Spline * XSecPimP_CEx  (void) const { return fXSecPimP_CEx;  }
+  const Spline * XSecPP_Elas   (void) const { return fXSecPP_Elas;   }
+  const Spline * XSecPP_Reac   (void) const { return fXSecPP_Reac;   }
+  const Spline * XSecNP_Elas   (void) const { return fXSecNP_Elas;   }
+  const Spline * XSecNP_Reac   (void) const { return fXSecNP_Reac;   }
 
   // Cross sections from Mashnik's calculations (p+Fe)
   //
-  const Spline * XsPFeElas  (void) const { return fXsPFeElas; }
-  const Spline * XsPFeReac  (void) const { return fXsPFeReac; }
-  const Spline * XsPFeP     (void) const { return fXsPFeP;    }
-  const Spline * XsPFePP    (void) const { return fXsPFePP;   }
-  const Spline * XsPFeNPP   (void) const { return fXsPFeNPP;  }
-  const Spline * XsPFeNNP   (void) const { return fXsPFeNNP;  }
-  const Spline * XsPFeNNPP  (void) const { return fXsPFeNNPP; }
-  const Spline * XsPFePim   (void) const { return fXsPFePim;  }
-  const Spline * XsPFePi0   (void) const { return fXsPFePi0;  }
-  const Spline * XsPFePip   (void) const { return fXsPFePip;  }
+  const Spline * XSecPFe_Elas  (void) const { return fXSecPFe_Elas; }
+  const Spline * XSecPFe_Reac  (void) const { return fXSecPFe_Reac; }
+  const Spline * XSecPFe_P     (void) const { return fXSecPFe_P;    }
+  const Spline * XSecPFe_PP    (void) const { return fXSecPFe_PP;   }
+  const Spline * XSecPFe_NPP   (void) const { return fXSecPFe_NPP;  }
+  const Spline * XSecPFe_NNP   (void) const { return fXSecPFe_NNP;  }
+  const Spline * XSecPFe_NNPP  (void) const { return fXSecPFe_NNPP; }
+  const Spline * XSecPFe_Pim   (void) const { return fXSecPFe_Pim;  }
+  const Spline * XSecPFe_Pi0   (void) const { return fXSecPFe_Pi0;  }
+  const Spline * XSecPFe_Pip   (void) const { return fXSecPFe_Pip;  }
 
   // Cross sections from Mashnik's calculations (pi+Fe)
   //
-  const Spline * XsPiFeP    (void) const { return fXsPiFeP;    }
-  const Spline * XsPiFePP   (void) const { return fXsPiFePP;   }
-  const Spline * XsPiFePPP  (void) const { return fXsPiFePPP;  }
-  const Spline * XsPiFeN    (void) const { return fXsPiFeN;    }
-  const Spline * XsPiFeNN   (void) const { return fXsPiFeNN;   }
-  const Spline * XsPiFeNNN  (void) const { return fXsPiFeNNN;  }
-  const Spline * XsPiFeNP   (void) const { return fXsPiFeNP;   }
-  const Spline * XsPiFeNPP  (void) const { return fXsPiFeNPP;  }
-  const Spline * XsPiFeNPPP (void) const { return fXsPiFeNPPP; }
-  const Spline * XsPiFeNNP  (void) const { return fXsPiFeNNP;  }
-  const Spline * XsPiFeNNPP (void) const { return fXsPiFeNNPP; }
-  const Spline * XsPiFePi0  (void) const { return fXsPiFePi0;  }
+  const Spline * XSecPiFe_P    (void) const { return fXSecPiFe_P;    }
+  const Spline * XSecPiFe_PP   (void) const { return fXSecPiFe_PP;   }
+  const Spline * XSecPiFe_PPP  (void) const { return fXSecPiFe_PPP;  }
+  const Spline * XSecPiFe_N    (void) const { return fXSecPiFe_N;    }
+  const Spline * XSecPiFe_NN   (void) const { return fXSecPiFe_NN;   }
+  const Spline * XSecPiFe_NNN  (void) const { return fXSecPiFe_NNN;  }
+  const Spline * XSecPiFe_NP   (void) const { return fXSecPiFe_NP;   }
+  const Spline * XSecPiFe_NPP  (void) const { return fXSecPiFe_NPP;  }
+  const Spline * XSecPiFe_NPPP (void) const { return fXSecPiFe_NPPP; }
+  const Spline * XSecPiFe_NNP  (void) const { return fXSecPiFe_NNP;  }
+  const Spline * XSecPiFe_NNPP (void) const { return fXSecPiFe_NNPP; }
+  const Spline * XSecPiFe_Pi0  (void) const { return fXSecPiFe_Pi0;  }
   
   // Cross sections from data (Ashery, Carrol) and extrapolations
   //
-  const Spline * XsAshPiFeAbs  (void) const { return fXsAshPiFeAbs;  }
-  const Spline * XsAshPiFeReac (void) const { return fXsAshPiFeReac; }
-  const Spline * XsCarPiFeTot  (void) const { return fXsCarPiFeTot;  }
+  const Spline * XSecAshPiFe_Abs  (void) const { return fXSecAshPiFe_Abs;  }
+  const Spline * XSecAshPiFe_Reac (void) const { return fXSecAshPiFe_Reac; }
+  const Spline * XSecCarPiFe_Tot  (void) const { return fXSecCarPiFe_Tot;  }
 
   // Total x-sections needed from mean free path
   //
-  const Spline * XsPipTot   (void) const { return fXsPipTot; }
-  const Spline * XsPimTot   (void) const { return fXsPimTot; }
-  const Spline * XsPi0Tot   (void) const { return fXsPi0Tot; }
-  const Spline * XsPTot     (void) const { return fXsPTot;   }
-  const Spline * XsNTot     (void) const { return fXsNTot;   }
+  const Spline * XSecPip_Tot   (void) const { return fXSecPip_Tot; }
+  const Spline * XSecPim_Tot   (void) const { return fXSecPim_Tot; }
+  const Spline * XSecPi0_Tot   (void) const { return fXSecPi0_Tot; }
+  const Spline * XSecP_Tot     (void) const { return fXSecP_Tot;   }
+  const Spline * XSecN_Tot     (void) const { return fXSecN_Tot;   }
 
   // Fractions of total cross sections needed for deciding particle fates
   //
-  const Spline * FrPipCEx   (void) const { return fFrPipCEx;    }
-  const Spline * FrPipElas  (void) const { return fFrPipElas;   }
-  const Spline * FrPipReac  (void) const { return fFrPipReac;   }
-  const Spline * FrPipAbs   (void) const { return fFrPipAbs;    }
-  const Spline * FrPimCEx   (void) const { return fFrPimCEx;    }
-  const Spline * FrPimElas  (void) const { return fFrPimElas;   }
-  const Spline * FrPimReac  (void) const { return fFrPimReac;   }
-  const Spline * FrPimAbs   (void) const { return fFrPimAbs;    }
-  const Spline * FrPi0CEx   (void) const { return fFrPi0CEx;    }
-  const Spline * FrPi0Elas  (void) const { return fFrPi0Elas;   }
-  const Spline * FrPi0Reac  (void) const { return fFrPi0Reac;   }
-  const Spline * FrPi0Abs   (void) const { return fFrPi0Abs;    }
-  const Spline * FrPReac    (void) const { return fFrPReac;     }
-  const Spline * FrNReac    (void) const { return fFrNReac;     }
-  const Spline * FrPiAElas  (void) const { return fFrPiAElas;   }
-  const Spline * FrPiAInel  (void) const { return fFrPiAInel;   }
-  const Spline * FrPiACEx   (void) const { return fFrPiACEx;    }
-  const Spline * FrPiAAbs   (void) const { return fFrPiAAbs;    }
-  const Spline * FrPiAPP    (void) const { return fFrPiAPP;     }
-  const Spline * FrPiANPP   (void) const { return fFrPiANPP;    }
-  const Spline * FrPiANNP   (void) const { return fFrPiANNP;    }
-  const Spline * FrPiA4N4P  (void) const { return fFrPiA4N4P;   }
-  const Spline * FrPiAPiProd(void) const { return fFrPiAPiProd; }
-  const Spline * FrPAElas   (void) const { return fFrPAElas;    }
-  const Spline * FrPAInel   (void) const { return fFrPAInel;    }
-  const Spline * FrPAAbs    (void) const { return fFrPAAbs;     }
-  const Spline * FrPAPP     (void) const { return fFrPAPP;      }
-  const Spline * FrPANPP    (void) const { return fFrPANPP;     }
-  const Spline * FrPANNP    (void) const { return fFrPANNP;     }
-  const Spline * FrPA4N4P   (void) const { return fFrPA4N4P;    }
-  const Spline * FrPAPiProd (void) const { return fFrPAPiProd;  }
+  const Spline * FracPip_CEx   (void) const { return fFracPip_CEx;    }
+  const Spline * FracPip_Elas  (void) const { return fFracPip_Elas;   }
+  const Spline * FracPip_Reac  (void) const { return fFracPip_Reac;   }
+  const Spline * FracPip_Abs   (void) const { return fFracPip_Abs;    }
+  const Spline * FracPim_CEx   (void) const { return fFracPim_CEx;    }
+  const Spline * FracPim_Elas  (void) const { return fFracPim_Elas;   }
+  const Spline * FracPim_Reac  (void) const { return fFracPim_Reac;   }
+  const Spline * FracPim_Abs   (void) const { return fFracPim_Abs;    }
+  const Spline * FracPi0_CEx   (void) const { return fFracPi0_CEx;    }
+  const Spline * FracPi0_Elas  (void) const { return fFracPi0_Elas;   }
+  const Spline * FracPi0_Reac  (void) const { return fFracPi0_Reac;   }
+  const Spline * FracPi0_Abs   (void) const { return fFracPi0_Abs;    }
+  const Spline * FracP_Reac    (void) const { return fFracP_Reac;     }
+  const Spline * FracN_Reac    (void) const { return fFracN_Reac;     }
+  const Spline * FracPiA_Elas  (void) const { return fFracPiA_Elas;   }
+  const Spline * FracPiA_Inel  (void) const { return fFracPiA_Inel;   }
+  const Spline * FracPiA_CEx   (void) const { return fFracPiA_CEx;    }
+  const Spline * FracPiA_Abs   (void) const { return fFracPiA_Abs;    }
+  const Spline * FracPiA_PP    (void) const { return fFracPiA_PP;     }
+  const Spline * FracPiA_NPP   (void) const { return fFracPiA_NPP;    }
+  const Spline * FracPiA_NNP   (void) const { return fFracPiA_NNP;    }
+  const Spline * FracPiA_4N4P  (void) const { return fFracPiA_4N4P;   }
+  const Spline * FracPiA_PiProd(void) const { return fFracPiA_PiProd; }
+  const Spline * FracPA_Elas   (void) const { return fFracPA_Elas;    }
+  const Spline * FracPA_Inel   (void) const { return fFracPA_Inel;    }
+  const Spline * FracPA_Abs    (void) const { return fFracPA_Abs;     }
+  const Spline * FracPA_PP     (void) const { return fFracPA_PP;      }
+  const Spline * FracPA_NPP    (void) const { return fFracPA_NPP;     }
+  const Spline * FracPA_NNP    (void) const { return fFracPA_NNP;     }
+  const Spline * FracPA_4N4P   (void) const { return fFracPA_4N4P;    }
+  const Spline * FracPA_PiProd (void) const { return fFracPA_PiProd;  }
 
 private:
   INukeHadroData();
   INukeHadroData(const INukeHadroData & shx);
-  ~INukeHadroData();
+ ~INukeHadroData();
 
   void LoadData (void); ///< adapted from neugen3's read_hadron_data.F 
   void CalcData (void); ///< adapted from neugen3's calc_hadron_data.F 
@@ -135,87 +133,87 @@ private:
   //-- loaded cross section splines
 
   // SAID h+N x-section splines
-  Spline * fXsPipPElas;  ///< pi+p ELAS x-section
-  Spline * fXsPipPReac;  ///< pi+p REAC x-section
-  Spline * fXsPipDAbs;   ///< pi+d ABS  x-section
-  Spline * fXsPimPElas;  ///< pi-p ELAS x-section
-  Spline * fXsPimPReac;  ///< pi-p REAC x-section
-  Spline * fXsPimPCEx;   ///< pi-p CEX  x-section
-  Spline * fXsPPElas;    ///< pp   ELAS x-section
-  Spline * fXsPPReac;    ///< pp   REAC x-section
-  Spline * fXsNPElas;    ///< np   ELAS x-section
-  Spline * fXsNPReac;    ///< np   REAC x-section //?????????
+  Spline * fXSecPipP_Elas;  ///< pi+p ELAS x-section
+  Spline * fXSecPipP_Reac;  ///< pi+p REAC x-section
+  Spline * fXSecPipD_Abs;   ///< pi+d ABS  x-section
+  Spline * fXSecPimP_Elas;  ///< pi-p ELAS x-section
+  Spline * fXSecPimP_Reac;  ///< pi-p REAC x-section
+  Spline * fXSecPimP_CEx;   ///< pi-p CEX  x-section
+  Spline * fXSecPP_Elas;    ///< pp   ELAS x-section
+  Spline * fXSecPP_Reac;    ///< pp   REAC x-section
+  Spline * fXSecNP_Elas;    ///< np   ELAS x-section
+  Spline * fXSecNP_Reac;    ///< np   REAC x-section //?????????
 
   // Mashnik p+Fe x-section splines
-  Spline * fXsPFeElas;   ///< pFe ELAS   x-section
-  Spline * fXsPFeReac;   ///< pFe REAC   x-section
-  Spline * fXsPFeP;      ///< pFe->pX    x-section
-  Spline * fXsPFePP;     ///< pFe->ppX   x-section
-  Spline * fXsPFeNPP;    ///< pFe->nppX  x-section
-  Spline * fXsPFeNNP;    ///< pFe->nnpX  x-section
-  Spline * fXsPFeNNPP;   ///< pFe->nnppX x-section
-  Spline * fXsPFePim;    ///< pFe->pi-X  x-section
-  Spline * fXsPFePi0;    ///< pFe->pi0X  x-section
-  Spline * fXsPFePip;    ///< pFe->pi+X  x-section
+  Spline * fXSecPFe_Elas;   ///< pFe ELAS   x-section
+  Spline * fXSecPFe_Reac;   ///< pFe REAC   x-section
+  Spline * fXSecPFe_P;      ///< pFe->pX    x-section
+  Spline * fXSecPFe_PP;     ///< pFe->ppX   x-section
+  Spline * fXSecPFe_NPP;    ///< pFe->nppX  x-section
+  Spline * fXSecPFe_NNP;    ///< pFe->nnpX  x-section
+  Spline * fXSecPFe_NNPP;   ///< pFe->nnppX x-section
+  Spline * fXSecPFe_Pim;    ///< pFe->pi-X  x-section
+  Spline * fXSecPFe_Pi0;    ///< pFe->pi0X  x-section
+  Spline * fXSecPFe_Pip;    ///< pFe->pi+X  x-section
 
   // Mashnik pi+Fe x-section splines
-  Spline * fXsPiFeP;     ///< piFe->pX    x-section
-  Spline * fXsPiFePP;    ///< piFe->ppX   x-section
-  Spline * fXsPiFePPP;   ///< piFe->pppX  x-section
-  Spline * fXsPiFeN;     ///< piFe->nX    x-section
-  Spline * fXsPiFeNN;    ///< piFe->nnX   x-section
-  Spline * fXsPiFeNNN;   ///< piFe->nnnX  x-section
-  Spline * fXsPiFeNP;    ///< piFe->npX   x-section
-  Spline * fXsPiFeNPP;   ///< piFe->nppX  x-section
-  Spline * fXsPiFeNPPP;  ///< piFe->npppX x-section
-  Spline * fXsPiFeNNP;   ///< piFe->nnpX  x-section
-  Spline * fXsPiFeNNPP;  ///< piFe->nnppX x-section
-  Spline * fXsPiFePi0;   ///< piFe->pi0X  x-section
+  Spline * fXSecPiFe_P;     ///< piFe->pX    x-section
+  Spline * fXSecPiFe_PP;    ///< piFe->ppX   x-section
+  Spline * fXSecPiFe_PPP;   ///< piFe->pppX  x-section
+  Spline * fXSecPiFe_N;     ///< piFe->nX    x-section
+  Spline * fXSecPiFe_NN;    ///< piFe->nnX   x-section
+  Spline * fXSecPiFe_NNN;   ///< piFe->nnnX  x-section
+  Spline * fXSecPiFe_NP;    ///< piFe->npX   x-section
+  Spline * fXSecPiFe_NPP;   ///< piFe->nppX  x-section
+  Spline * fXSecPiFe_NPPP;  ///< piFe->npppX x-section
+  Spline * fXSecPiFe_NNP;   ///< piFe->nnpX  x-section
+  Spline * fXSecPiFe_NNPP;  ///< piFe->nnppX x-section
+  Spline * fXSecPiFe_Pi0;   ///< piFe->pi0X  x-section
 
   // Hadronic x-sections from data (Ash & Carrol)
-  Spline * fXsAshPiFeAbs;  ///<
-  Spline * fXsAshPiFeReac; ///<
-  Spline * fXsCarPiFeTot;  ///<
+  Spline * fXSecAshPiFe_Abs;  ///<
+  Spline * fXSecAshPiFe_Reac; ///<
+  Spline * fXSecCarPiFe_Tot;  ///<
 
   // Total x-sections needed from mean free path
-  Spline * fXsPipTot;     ///<
-  Spline * fXsPimTot;     ///<
-  Spline * fXsPi0Tot;     ///<
-  Spline * fXsPTot;       ///<
-  Spline * fXsNTot;       ///<
+  Spline * fXSecPip_Tot;     ///<
+  Spline * fXSecPim_Tot;     ///<
+  Spline * fXSecPi0_Tot;     ///<
+  Spline * fXSecP_Tot;       ///<
+  Spline * fXSecN_Tot;       ///<
 
   // Fractions of total x-sections needed for particle fates
-  Spline * fFrPipCEx;    ///< fraction of CEx for pi+
-  Spline * fFrPipElas;   ///< fraction of CEx+Elas for pi+
-  Spline * fFrPipReac;   ///< fraction of CEx+Elas+PiProd for pi+
-  Spline * fFrPipAbs;    ///< fraction of CEx+Elas+PiProd+Abs for pi+
-  Spline * fFrPimCEx;    ///<
-  Spline * fFrPimElas;   ///<
-  Spline * fFrPimReac;   ///<
-  Spline * fFrPimAbs;    ///<
-  Spline * fFrPi0CEx;    ///<
-  Spline * fFrPi0Elas;   ///<
-  Spline * fFrPi0Reac;   ///<
-  Spline * fFrPi0Abs;    ///<
-  Spline * fFrPReac;     ///<
-  Spline * fFrNReac;     ///<
-  Spline * fFrPiAElas;   ///<
-  Spline * fFrPiAInel;   ///<
-  Spline * fFrPiACEx;    ///<
-  Spline * fFrPiAAbs;    ///<
-  Spline * fFrPiAPP;     ///<
-  Spline * fFrPiANPP;    ///<
-  Spline * fFrPiANNP;    ///<
-  Spline * fFrPiA4N4P;   ///<
-  Spline * fFrPiAPiProd; ///<
-  Spline * fFrPAElas;    ///<
-  Spline * fFrPAInel;    ///<
-  Spline * fFrPAAbs;     ///<
-  Spline * fFrPAPP;      ///<
-  Spline * fFrPANPP;     ///<
-  Spline * fFrPANNP;     ///<
-  Spline * fFrPA4N4P;    ///<
-  Spline * fFrPAPiProd;  ///<
+  Spline * fFracPip_CEx;    ///< fraction of CEx for pi+
+  Spline * fFracPip_Elas;   ///< fraction of CEx+Elas for pi+
+  Spline * fFracPip_Reac;   ///< fraction of CEx+Elas+PiProd for pi+
+  Spline * fFracPip_Abs;    ///< fraction of CEx+Elas+PiProd+Abs for pi+
+  Spline * fFracPim_CEx;    ///<
+  Spline * fFracPim_Elas;   ///<
+  Spline * fFracPim_Reac;   ///<
+  Spline * fFracPim_Abs;    ///<
+  Spline * fFracPi0_CEx;    ///<
+  Spline * fFracPi0_Elas;   ///<
+  Spline * fFracPi0_Reac;   ///<
+  Spline * fFracPi0_Abs;    ///<
+  Spline * fFracP_Reac;     ///<
+  Spline * fFracN_Reac;     ///<
+  Spline * fFracPiA_Elas;   ///<
+  Spline * fFracPiA_Inel;   ///<
+  Spline * fFracPiA_CEx;    ///<
+  Spline * fFracPiA_Abs;    ///<
+  Spline * fFracPiA_PP;     ///<
+  Spline * fFracPiA_NPP;    ///<
+  Spline * fFracPiA_NNP;    ///<
+  Spline * fFracPiA_4N4P;   ///<
+  Spline * fFracPiA_PiProd; ///<
+  Spline * fFracPA_Elas;    ///<
+  Spline * fFracPA_Inel;    ///<
+  Spline * fFracPA_Abs;     ///<
+  Spline * fFracPA_PP;      ///<
+  Spline * fFracPA_NPP;     ///<
+  Spline * fFracPA_NNP;     ///<
+  Spline * fFracPA_4N4P;    ///<
+  Spline * fFracPA_PiProd;  ///<
 
   //-- Sinleton cleaner
   struct Cleaner {
