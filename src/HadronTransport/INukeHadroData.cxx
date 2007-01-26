@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+ Copyright (C) 2003-2006, GENIE Neutrino MC Generator Collaboration
  All rights reserved.
  For the licensing terms see $GENIE/USER_LICENSE.
 
@@ -50,87 +50,87 @@ INukeHadroData::~INukeHadroData()
                       << "Deleting all hadron cross section splines" << endl;
 
   //-- delete SAID h+N x-section splines
-  delete fXsPipPElas;
-  delete fXsPipPReac;
-  delete fXsPipDAbs;    
-  delete fXsPimPElas;
-  delete fXsPimPReac;
-  delete fXsPimPCEx; 
-  delete fXsPPElas;      
-  delete fXsPPReac;      
-  delete fXsNPElas;      
-  delete fXsNPReac;      
+  delete fXSecPipP_Elas;
+  delete fXSecPipP_Reac;
+  delete fXSecPipD_Abs;    
+  delete fXSecPimP_Elas;
+  delete fXSecPimP_Reac;
+  delete fXSecPimP_CEx; 
+  delete fXSecPP_Elas;      
+  delete fXSecPP_Reac;      
+  delete fXSecNP_Elas;      
+  delete fXSecNP_Reac;      
 
   //-- delete Mashnik p+Fe x-section splines
-  delete fXsPFeElas;
-  delete fXsPFeReac;
-  delete fXsPFeP;   
-  delete fXsPFePP;  
-  delete fXsPFeNPP; 
-  delete fXsPFeNNP; 
-  delete fXsPFeNNPP;
-  delete fXsPFePim; 
-  delete fXsPFePi0; 
-  delete fXsPFePip; 
+  delete fXSecPFe_Elas;
+  delete fXSecPFe_Reac;
+  delete fXSecPFe_P;   
+  delete fXSecPFe_PP;  
+  delete fXSecPFe_NPP; 
+  delete fXSecPFe_NNP; 
+  delete fXSecPFe_NNPP;
+  delete fXSecPFe_Pim; 
+  delete fXSecPFe_Pi0; 
+  delete fXSecPFe_Pip; 
 
   //-- delete Mashnik pi+Fe x-section splines
-  delete fXsPiFeP;    
-  delete fXsPiFePP;   
-  delete fXsPiFePPP;  
-  delete fXsPiFeN;    
-  delete fXsPiFeNN;   
-  delete fXsPiFeNNN;  
-  delete fXsPiFeNP;   
-  delete fXsPiFeNPP;  
-  delete fXsPiFeNPPP; 
-  delete fXsPiFeNNP;  
-  delete fXsPiFeNNPP; 
-  delete fXsPiFePi0;  
+  delete fXSecPiFe_P;    
+  delete fXSecPiFe_PP;   
+  delete fXSecPiFe_PPP;  
+  delete fXSecPiFe_N;    
+  delete fXSecPiFe_NN;   
+  delete fXSecPiFe_NNN;  
+  delete fXSecPiFe_NP;   
+  delete fXSecPiFe_NPP;  
+  delete fXSecPiFe_NPPP; 
+  delete fXSecPiFe_NNP;  
+  delete fXSecPiFe_NNPP; 
+  delete fXSecPiFe_Pi0;  
 
   //-- delete x-sections from data (Ash/Carrol)
-  delete fXsAshPiFeAbs; 
-  delete fXsAshPiFeReac;
-  delete fXsCarPiFeTot; 
+  delete fXSecAshPiFe_Abs; 
+  delete fXSecAshPiFe_Reac;
+  delete fXSecCarPiFe_Tot; 
 
   //-- delete total x-sections 
-  delete fXsPipTot;   
-  delete fXsPimTot;   
-  delete fXsPi0Tot;   
-  delete fXsPTot;     
-  delete fXsNTot;     
+  delete fXSecPip_Tot;   
+  delete fXSecPim_Tot;   
+  delete fXSecPi0_Tot;   
+  delete fXSecP_Tot;     
+  delete fXSecN_Tot;     
 
   //-- delete x-section fractions
-  delete fFrPipCEx;   
-  delete fFrPipElas;  
-  delete fFrPipReac;  
-  delete fFrPipAbs;   
-  delete fFrPimCEx;   
-  delete fFrPimElas;  
-  delete fFrPimReac;  
-  delete fFrPimAbs;   
-  delete fFrPi0CEx;    
-  delete fFrPi0Elas;   
-  delete fFrPi0Reac;   
-  delete fFrPi0Abs;    
-  delete fFrPReac;     
-  delete fFrNReac;     
-  delete fFrPiAElas;   
-  delete fFrPiAInel;   
-  delete fFrPiACEx;    
-  delete fFrPiAAbs;    
-  delete fFrPiAPP;     
-  delete fFrPiANPP;    
-  delete fFrPiANNP;    
-  delete fFrPiA4N4P;   
-  delete fFrPiAPiProd; 
-  delete fFrPAElas;    
-  delete fFrPAInel;    
-  delete fFrPAAbs;     
-  delete fFrPAPP;      
-  delete fFrPANPP;     
-  delete fFrPANNP;     
-  delete fFrPA4N4P;    
-  delete fFrPAPiProd;  
+  delete fFracPip_CEx;   
+  delete fFracPip_Elas;  
+  delete fFracPip_Reac;  
+  delete fFracPip_Abs;   
+  delete fFracPim_CEx;   
+  delete fFracPim_Elas;  
+  delete fFracPim_Reac;  
+  delete fFracPim_Abs;   
+  delete fFracPi0_CEx;    
+  delete fFracPi0_Elas;   
+  delete fFracPi0_Reac;   
+  delete fFracPi0_Abs;    
+  delete fFracP_Reac;     
+  delete fFracN_Reac;     
+  delete fFracPiA_Elas;   
+  delete fFracPiA_Inel;   
+  delete fFracPiA_CEx;    
+  delete fFracPiA_Abs;    
+  delete fFracPiA_PP;     
+  delete fFracPiA_NPP;    
+  delete fFracPiA_NNP;    
+  delete fFracPiA_4N4P;   
+  delete fFracPiA_PiProd; 
+  delete fFracPA_Elas;    
+  delete fFracPA_Inel;    
+  delete fFracPA_Abs;     
+  delete fFracPA_PP;      
+  delete fFracPA_NPP;     
+  delete fFracPA_NNP;     
+  delete fFracPA_4N4P;    
+  delete fFracPA_PiProd;  
 }
 //____________________________________________________________________________
 INukeHadroData * INukeHadroData::Instance()
@@ -199,15 +199,15 @@ void INukeHadroData::LoadData(void)
 
   //-- Load the SAID data into splines
   
-  fXsPipPElas = new Spline ( fnm_said_pip_p_elas );
-  fXsPipPReac = new Spline ( fnm_said_pip_p_reac );
-  fXsPimPElas = new Spline ( fnm_said_pim_p_elas );
-  fXsPimPReac = new Spline ( fnm_said_pim_p_reac );
-  fXsPimPCEx  = new Spline ( fnm_said_pim_p_cex  );
-  fXsNPElas   = new Spline ( fnm_said_np_elas    );
-  fXsNPReac   = new Spline ( fnm_said_np_reac    );
-  fXsPPElas   = new Spline ( fnm_said_pp_elas    );   
-  fXsPPReac   = new Spline ( fnm_said_pp_reac    );   
+  fXSecPipP_Elas = new Spline ( fnm_said_pip_p_elas );
+  fXSecPipP_Reac = new Spline ( fnm_said_pip_p_reac );
+  fXSecPimP_Elas = new Spline ( fnm_said_pim_p_elas );
+  fXSecPimP_Reac = new Spline ( fnm_said_pim_p_reac );
+  fXSecPimP_CEx  = new Spline ( fnm_said_pim_p_cex  );
+  fXSecNP_Elas   = new Spline ( fnm_said_np_elas    );
+  fXSecNP_Reac   = new Spline ( fnm_said_np_reac    );
+  fXSecPP_Elas   = new Spline ( fnm_said_pp_elas    );   
+  fXSecPP_Reac   = new Spline ( fnm_said_pp_reac    );   
 
   // Especially for pion absorption cross section copy S.Dytmnan's correction.
   // His comments: 'model not valid above 600 MeV, slow linear falloff matches data'
@@ -223,7 +223,7 @@ void INukeHadroData::LoadData(void)
     xsec[i] = (E[i] < 600.) ? frac * xsabs.Evaluate(E[i]) : 
                               frac * xsabs.Evaluate(600.)*(1800.-E[i])/1200.;
   }
-  fXsPipDAbs = new Spline(nk,E,xsec); // corrected pi abs xsec
+  fXSecPipD_Abs = new Spline(nk,E,xsec); // corrected pi abs xsec
 
   delete [] xsec;
   delete [] E;
@@ -237,40 +237,40 @@ void INukeHadroData::LoadData(void)
   tpFe.ReadFile(fnm_mashnik_pFe.c_str(),
      "ke/D:p/D:np/D:pp/D:npp/D:pim/D:nnpp/D:pi0/D:nnp/D:pip/D:n/D:reac/D:elas/D");
 
-  fXsPFeElas  = new Spline(&tpFe,"ke:elas"); 
-  fXsPFeReac  = new Spline(&tpFe,"ke:reac"); 
-  fXsPFeP     = new Spline(&tpFe,"ke:p"); 
-  fXsPFePP    = new Spline(&tpFe,"ke:pp"); 
-  fXsPFeNPP   = new Spline(&tpFe,"ke:npp"); 
-  fXsPFeNNP   = new Spline(&tpFe,"ke:nnp"); 
-  fXsPFeNNPP  = new Spline(&tpFe,"ke:nnpp"); 
-  fXsPFePim   = new Spline(&tpFe,"ke:pim"); 
-  fXsPFePi0   = new Spline(&tpFe,"ke:pi0"); 
-  fXsPFePip   = new Spline(&tpFe,"ke:pip"); 
+  fXSecPFe_Elas  = new Spline(&tpFe,"ke:elas"); 
+  fXSecPFe_Reac  = new Spline(&tpFe,"ke:reac"); 
+  fXSecPFe_P     = new Spline(&tpFe,"ke:p"); 
+  fXSecPFe_PP    = new Spline(&tpFe,"ke:pp"); 
+  fXSecPFe_NPP   = new Spline(&tpFe,"ke:npp"); 
+  fXSecPFe_NNP   = new Spline(&tpFe,"ke:nnp"); 
+  fXSecPFe_NNPP  = new Spline(&tpFe,"ke:nnpp"); 
+  fXSecPFe_Pim   = new Spline(&tpFe,"ke:pim"); 
+  fXSecPFe_Pi0   = new Spline(&tpFe,"ke:pi0"); 
+  fXSecPFe_Pip   = new Spline(&tpFe,"ke:pip"); 
 
   TTree tpiFe;
   tpiFe.ReadFile(fnm_mashnik_piFe.c_str(),
       "ke/D:p/D:pp/D:ppp/D:n/D:nn/D:nnn/D:np/D:npp/D:nppp/D:nnp/D:nnpp/D:pi0/D");
 
-  fXsPiFeP    = new Spline(&tpiFe,"ke:p"); 
-  fXsPiFePP   = new Spline(&tpiFe,"ke:pp"); 
-  fXsPiFePPP  = new Spline(&tpiFe,"ke:ppp"); 
-  fXsPiFeN    = new Spline(&tpiFe,"ke:n"); 
-  fXsPiFeNN   = new Spline(&tpiFe,"ke:nn"); 
-  fXsPiFeNNN  = new Spline(&tpiFe,"ke:nnn"); 
-  fXsPiFeNP   = new Spline(&tpiFe,"ke:np"); 
-  fXsPiFeNPP  = new Spline(&tpiFe,"ke:npp"); 
-  fXsPiFeNPPP = new Spline(&tpiFe,"ke:nppp"); 
-  fXsPiFeNNP  = new Spline(&tpiFe,"ke:nnp"); 
-  fXsPiFeNNPP = new Spline(&tpiFe,"ke:nnpp"); 
-  fXsPiFePi0  = new Spline(&tpiFe,"ke:pi0"); 
+  fXSecPiFe_P    = new Spline(&tpiFe,"ke:p"); 
+  fXSecPiFe_PP   = new Spline(&tpiFe,"ke:pp"); 
+  fXSecPiFe_PPP  = new Spline(&tpiFe,"ke:ppp"); 
+  fXSecPiFe_N    = new Spline(&tpiFe,"ke:n"); 
+  fXSecPiFe_NN   = new Spline(&tpiFe,"ke:nn"); 
+  fXSecPiFe_NNN  = new Spline(&tpiFe,"ke:nnn"); 
+  fXSecPiFe_NP   = new Spline(&tpiFe,"ke:np"); 
+  fXSecPiFe_NPP  = new Spline(&tpiFe,"ke:npp"); 
+  fXSecPiFe_NPPP = new Spline(&tpiFe,"ke:nppp"); 
+  fXSecPiFe_NNP  = new Spline(&tpiFe,"ke:nnp"); 
+  fXSecPiFe_NNPP = new Spline(&tpiFe,"ke:nnpp"); 
+  fXSecPiFe_Pi0  = new Spline(&tpiFe,"ke:pi0"); 
 
   LOG("INukeData", pNOTICE) 
       << "... Done loading Mashnik hadron cross section data";
 
-  fXsAshPiFeAbs  = new Spline( fnm_ash_piFe_abs    );
-  fXsAshPiFeReac = new Spline( fnm_ash_piFe_reac   );
-  fXsCarPiFeTot  = new Spline( fnm_carrol_piFe_tot );
+  fXSecAshPiFe_Abs  = new Spline( fnm_ash_piFe_abs    );
+  fXSecAshPiFe_Reac = new Spline( fnm_ash_piFe_reac   );
+  fXSecCarPiFe_Tot  = new Spline( fnm_carrol_piFe_tot );
 
   LOG("INukeData", pNOTICE) 
       << "... Done loading Ash & Carrol hadron cross section data";
@@ -289,24 +289,24 @@ void INukeHadroData::CalcData(void)
   //pi0 fractions
   TNtupleD * ntfrpi0 = new TNtupleD("ntfrpi0","","ke:cex:elas:reac:abs");
 
-  int nknots = fXsPipPElas->NKnots();
+  int nknots = fXSecPipP_Elas->NKnots();
 
   for(int i=0; i<nknots; i++) {
 
     double ke, tmp;
-    fXsPipPElas->GetAsTSpline()->GetKnot(i,ke,tmp);
+    fXSecPipP_Elas->GetAsTSpline()->GetKnot(i,ke,tmp);
 
-    double xspipelas = fXsPipPElas->Evaluate(ke);
-    double xspipreac = fXsPipPReac->Evaluate(ke);
-    double xspiabs   = fXsPipDAbs ->Evaluate(ke);
+    double xspipelas = fXSecPipP_Elas->Evaluate(ke);
+    double xspipreac = fXSecPipP_Reac->Evaluate(ke);
+    double xspiabs   = fXSecPipD_Abs ->Evaluate(ke);
 
     LOG("INukeData", pDEBUG) 
       << "pi+ @ ke = " << ke << ": elas =  " <<  xspipelas 
       << ", reac = " << xspipreac << ", abs = " <<  xspiabs;
 
-    double xspimelas = fXsPimPElas->Evaluate(ke);
-    double xspimreac = fXsPimPReac->Evaluate(ke);
-    double xspimcex  = fXsPimPCEx ->Evaluate(ke);
+    double xspimelas = fXSecPimP_Elas->Evaluate(ke);
+    double xspimreac = fXSecPimP_Reac->Evaluate(ke);
+    double xspimcex  = fXSecPimP_CEx ->Evaluate(ke);
 
     LOG("INukeData", pDEBUG) 
       << "pi- @ at ke = " << ke << ": elas =  " <<  xspimelas 
@@ -318,10 +318,10 @@ void INukeHadroData::CalcData(void)
     double xspi0cex   =  xspimcex;
     double xspi0abs   =  xspiabs;
 
-    double xsppelas  = fXsPPElas->Evaluate(ke);
-    double xsnpelas  = fXsNPElas->Evaluate(ke);
-    double xsppreac  = fXsPPReac->Evaluate(ke);
-    double xsnpreac  = fXsNPReac->Evaluate(ke);
+    double xsppelas  = fXSecPP_Elas->Evaluate(ke);
+    double xsnpelas  = fXSecNP_Elas->Evaluate(ke);
+    double xsppreac  = fXSecPP_Reac->Evaluate(ke);
+    double xsnpreac  = fXSecNP_Reac->Evaluate(ke);
 
     LOG("INukeData", pDEBUG) 
       << "pp @ ke = " << ke << ": elas =  " <<  xsppelas 
@@ -354,52 +354,50 @@ void INukeHadroData::CalcData(void)
     }
   }
 
-  fXsPipTot    = new Spline(ntxs,"ke:pip");
-  fXsPimTot    = new Spline(ntxs,"ke:pim");
-  fXsPi0Tot    = new Spline(ntxs,"ke:pi0");
-  fXsPTot      = new Spline(ntxs,"ke:p");
-  fXsNTot      = new Spline(ntxs,"ke:n");
+  fXSecPip_Tot    = new Spline(ntxs,"ke:pip");
+  fXSecPim_Tot    = new Spline(ntxs,"ke:pim");
+  fXSecPi0_Tot    = new Spline(ntxs,"ke:pi0");
+  fXSecP_Tot      = new Spline(ntxs,"ke:p");
+  fXSecN_Tot      = new Spline(ntxs,"ke:n");
 
-  fFrPi0CEx    = new Spline(ntfrpi0,"ke:cex");
-  fFrPi0Elas   = new Spline(ntfrpi0,"ke:elas");
-  fFrPi0Reac   = new Spline(ntfrpi0,"ke:reac");
-  fFrPi0Abs    = new Spline(ntfrpi0,"ke:abs");
+  fFracPi0_CEx    = new Spline(ntfrpi0,"ke:cex");
+  fFracPi0_Elas   = new Spline(ntfrpi0,"ke:elas");
+  fFracPi0_Reac   = new Spline(ntfrpi0,"ke:reac");
+  fFracPi0_Abs    = new Spline(ntfrpi0,"ke:abs");
 
   delete ntxs;
   delete ntfrpi0;
 
+  fFracPip_CEx    = new Spline; 
+  fFracPip_Elas   = new Spline; 
+  fFracPip_Reac   = new Spline; 
+  fFracPip_Abs    = new Spline; 
+  fFracPim_CEx    = new Spline; 
+  fFracPim_Elas   = new Spline; 
+  fFracPim_Reac   = new Spline; 
+  fFracPim_Abs    = new Spline; 
+  fFracP_Reac     = new Spline; 
+  fFracN_Reac     = new Spline; 
 
+  fFracPiA_Elas   = new Spline; 
+  fFracPiA_Inel   = new Spline; 
+  fFracPiA_CEx    = new Spline; 
+  fFracPiA_Abs    = new Spline; 
+  fFracPiA_PP     = new Spline; 
+  fFracPiA_NPP    = new Spline; 
+  fFracPiA_NNP    = new Spline; 
+  fFracPiA_4N4P   = new Spline; 
+  fFracPiA_PiProd = new Spline; 
+  fFracPA_Elas    = new Spline; 
+  fFracPA_Inel    = new Spline; 
+  fFracPA_Abs     = new Spline; 
+  fFracPA_PP      = new Spline; 
+  fFracPA_NPP     = new Spline; 
+  fFracPA_NNP     = new Spline; 
+  fFracPA_4N4P    = new Spline; 
+  fFracPA_PiProd  = new Spline; 
 
-  fFrPipCEx    = new Spline; 
-  fFrPipElas   = new Spline; 
-  fFrPipReac   = new Spline; 
-  fFrPipAbs    = new Spline; 
-  fFrPimCEx    = new Spline; 
-  fFrPimElas   = new Spline; 
-  fFrPimReac   = new Spline; 
-  fFrPimAbs    = new Spline; 
-
-  fFrPReac     = new Spline; 
-  fFrNReac     = new Spline; 
-  fFrPiAElas   = new Spline; 
-  fFrPiAInel   = new Spline; 
-  fFrPiACEx    = new Spline; 
-  fFrPiAAbs    = new Spline; 
-  fFrPiAPP     = new Spline; 
-  fFrPiANPP    = new Spline; 
-  fFrPiANNP    = new Spline; 
-  fFrPiA4N4P   = new Spline; 
-  fFrPiAPiProd = new Spline; 
-  fFrPAElas    = new Spline; 
-  fFrPAInel    = new Spline; 
-  fFrPAAbs     = new Spline; 
-  fFrPAPP      = new Spline; 
-  fFrPANPP     = new Spline; 
-  fFrPANNP     = new Spline; 
-  fFrPA4N4P    = new Spline; 
-  fFrPAPiProd  = new Spline; 
-
-
+  //...
 
   LOG("INukeData", pNOTICE) 
        << "... Done computing total hadron cross section data";

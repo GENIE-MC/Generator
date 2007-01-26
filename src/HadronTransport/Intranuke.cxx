@@ -22,6 +22,7 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
@@ -30,8 +31,10 @@
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+#include "Numerical/Spline.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
+#include "PDG/PDGCodeList.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
@@ -39,6 +42,7 @@
 using namespace genie;
 using namespace genie::utils;
 using namespace genie::constants;
+using namespace genie::controls;
 
 //___________________________________________________________________________
 Intranuke::Intranuke() :
@@ -134,20 +138,24 @@ bool Intranuke::CanRescatter(const GHepParticle * p) const
 // rescattered by this cascade MC
 
   assert(p);
-  return  ( p->Pdg() == kPdgPiP  || 
-            p->Pdg() == kPdgPiM || 
-            p->Pdg() == kPdgPi0
+  return  ( p->Pdg() == kPdgPiP     || 
+            p->Pdg() == kPdgPiM     || 
+            p->Pdg() == kPdgPi0     ||
+            p->Pdg() == kPdgProton  ||
+            p->Pdg() == kPdgNeutron
           );
 }
 //___________________________________________________________________________
 bool Intranuke::IsInNucleus(const GHepParticle * p) const
 {
+// check whether the input particle is still within the nucleus
+//
   return (p->X4()->Vect().Mag() < fNuclRadius);
 }
 //___________________________________________________________________________
 void Intranuke::TransportHadrons(GHepRecord * evrec) const
 {
-// transport all hadrons 
+// transport all hadrons outside the nucleus
 
   // Loop over GHEP and run intranuclear rescattering on handled particles
   TObjArrayIter piter(evrec);
@@ -167,6 +175,9 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
     // Rescatter a clone, not the original particle
     GHepParticle * sp = new GHepParticle(*p); 
 
+    // Set clone's mom to be the hadron that was cloned
+    sp->SetFirstMother(icurr); 
+
     // Check whether the particle can be rescattered 
     if(!this->CanRescatter(sp)) {
 
@@ -179,13 +190,14 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
        continue; // <-- skip to next GHEP entry
     }
 
-    // Check whether it is a 'fresh' hadron 
+    // ** 
+    // ** 
+
+    // All 'fresh' hadrons would be advanced by the formation zone. Then
+    // their corresponding (cloned) GHEP entry would be stored and would
+    // move on to the next particle...
+
     bool fresh = this->IsFreshHadron(evrec,sp);
-
-    // Set clone's mom to be the hadron that was cloned
-    sp->SetFirstMother(icurr); 
-
-    // Advance a 'fresh' hadron by the formation zone, store and continue 
     if (fresh) {
        this->AdvanceFreshHadron(evrec,sp);
 
@@ -195,11 +207,15 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
                   << "Hadron went out of the nucleus! Done with it.";
            sp->SetStatus(kIStStableFinalState);
        }
-       evrec->AddParticle(*sp);
-       continue; // <-- skip to next GHEP entry
+
+       evrec->AddParticle(*sp); // <-- add it to the GHEP record
+       continue;                // <-- skip to next GHEP entry
     }
 
-    // Step in the nucleus
+    // **
+    // **
+
+    // Generate a step and advance the hadron by it
     double d = this->GenerateStep(evrec,sp);
     this->StepParticle(sp, d);
 
@@ -215,7 +231,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
     }
 
     // The stepped particle interacts. Simulate the hadronic interaction.
-    this->SimHadronicInteraction(evrec,sp);
+    this->SimHadroProc(evrec,sp);
 
   }// GHEP entries
 }
@@ -284,155 +300,6 @@ double Intranuke::GenerateStep(GHepRecord* evrec, GHepParticle* p) const
   return d;
 }
 //___________________________________________________________________________
-double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
-{
-// Mean free path for the pions with the input kinetic energy.
-// Adapted from NeuGEN's intranuke_piscat
-// Original documentation:
-//   Determine the scattering length LAMDA from yellowbook data and scale
-//   it to the nuclear density.
-
-  // compute pion kinetic energy K in MeV
-  double K = (p->KinE() / units::MeV);
-
-  // collision length in fermis
-  double rlmbda;
-  if      (K < 25 ) rlmbda = 200.;
-  else if (K > 550) rlmbda = 25.;
-  else              rlmbda = 1.0 / (-2.444/K + .1072 - .00011810*K);
-
-  // additional correction for iron
-  GHepParticle * target = evrec->TargetNucleus();
-  if(target->Z()==26) {
-      rlmbda = rlmbda/2.297;
-  }
-
-  // scale to nuclear density.
-  //double density = kNucDensity;
-  double density = 3.4; // units?
-
-  double L  = (rlmbda/density); // units?
-  return L;
-}
-//___________________________________________________________________________
-void Intranuke::SimHadronicInteraction(
-                                    GHepRecord* evrec, GHepParticle* p) const
-{
-  INukeProc_t proc = this->HadronFate(p);
-
-  switch (proc) {
-    case kIPcAbsorption:
-        this->SimAbsorption(evrec, p);
-        break;
-    case kIPcChargeExchange:
-        this->SimChargeExchange(evrec, p);
-        break;
-    case kIPcInelastic:
-        this->SimInelasticScattering(evrec, p);
-        break;
-    case kIPcElastic:
-        this->SimElasticScattering(evrec, p);
-        break;
-    default:
-        LOG("Intranuke", pFATAL) << "Unknown INTRANUKE interaction type.";
-        exit(1);
-  }
-}
-//___________________________________________________________________________
-void Intranuke::SimAbsorption(GHepRecord* evrec, GHepParticle* p) const
-{
-   LOG("Intranuke", pWARN) << "Can not do hadron absorption yet.";
-}
-//___________________________________________________________________________
-void Intranuke::SimChargeExchange(
-			   GHepRecord* /*evrec*/, GHepParticle* /*p*/) const
-{
-   LOG("Intranuke", pWARN) << "Can not do charge exchange yet.";
-}
-//___________________________________________________________________________
-void Intranuke::SimInelasticScattering(
-			   GHepRecord* /*evrec*/, GHepParticle* /*p*/) const
-{
-   LOG("Intranuke", pWARN) << "Can not do inelastic scatering yet.";
-
-
-  //++++ I have to get the final state for the selected fate somehow...
-  //++++ Set to something
-   /*
-  int nparticles = 2;
-  PDGCodeList pdgcv(nparticles);
-
-  pdgcv[0] = kPdgProton;
-  pdgcv[1] = kPdgNeutron;
-
-  // Get the decay product masses
-
-  vector<int>::const_iterator pdg_iter;
-  int i = 0;
-  double * mass = new double[pdgv.size()];
-  double   sum  = 0;
-  for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
-    int pdgc = *pdg_iter;
-    double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
-    mass[i++] = m;
-    sum += m;
-  }
-
-  LOG("KNOHad", pINFO)  
-    << "Decaying N = " << pdgv.size() << " particles / total mass = " << sum;
-  LOG("KNOHad", pINFO) 
-    << "Decaying system p4 = " << utils::print::P4AsString(&pd);
-
-  // Set the decay
-  bool permitted = fPhaseSpaceGenerator.SetDecay(pd, pdgv.size(), mass);
-  if(!permitted) {
-     LOG("KNOHad", pERROR) 
-       << " *** Phase space decay is not permitted \n"
-       << " Total particle mass = " << sum << "\n"
-       << " Decaying system p4 = " << utils::print::P4AsString(&pd);
-
-     // clean-up and return
-     delete [] mass;
-     return false;
-  }   
-   */
-
-}
-//___________________________________________________________________________
-void Intranuke::SimElasticScattering(
-			   GHepRecord* /*evrec*/, GHepParticle* /*p*/) const
-{
-   LOG("Intranuke", pWARN) << "Can not do elastic scatering yet.";
-}
-//___________________________________________________________________________
-INukeProc_t Intranuke::HadronFate(const GHepParticle * p) const
-{
-// Selects interaction type for the particle that is currently rescaterred.
-// Adapted from NeuGEN's intranuke_pifate
-
-  INukeProc_t proc = kIPcUndefined;
-  /*
-  // compute pion kinetic energy K in MeV
-  double K = (p->KinE() / units::MeV);
-
-  // find the kinetic energy bin in the cummulative interaction prob array
-  int Kbin = TMath::Min (int(K/50.), intranuke::kPNDataPoints-1);
-
-  // select rescattering type
-  RandomGen * rnd = RandomGen::Instance();
-  double t = rnd->RndFsi().Rndm();
-
-  if      ( t < intranuke::kPElastic[Kbin]    ) proc = kHPcElastic;
-  else if ( t < intranuke::kPInelastic[Kbin]  ) proc = kHPcInelastic;
-  else if ( t < intranuke::kPAbsorption[Kbin] ) proc = kHPcAbsorption;
-  else                                          proc = kHPcChargeExchange;
-  */
-  LOG("Intranuke", pINFO)
-        << "Selected hadronic process for " 
-                        << p->Name() << ": " << INukeProc::AsString(proc);
-  return proc;
-}
-//___________________________________________________________________________
 void Intranuke::StepParticle(GHepParticle * p, double step) const
 {
 // Steps a particle starting from its current position (in m, sec) and moving
@@ -464,6 +331,685 @@ void Intranuke::StepParticle(GHepParticle * p, double step) const
   p->SetPosition(x4new);
 }
 //___________________________________________________________________________
+double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
+{
+// Mean free path for the pions with the input kinetic energy.
+// Adapted from NeuGEN's intranuke_piscat
+// Original documentation:
+//   Determine the scattering length LAMDA from yellowbook data and scale
+//   it to the nuclear density.
+
+  // compute pion kinetic energy K in MeV
+  double K = (p->KinE() / units::MeV);
+
+  // collision length in fermis
+  double rlmbda;
+  if      (K < 25 ) rlmbda = 200.;
+  else if (K > 550) rlmbda = 25.;
+  else              rlmbda = 1.0 / (-2.444/K + .1072 - .00011810*K);
+
+  // additional correction for iron
+  GHepParticle * target = evrec->TargetNucleus();
+  if(target->Z()==26) {
+      rlmbda = rlmbda/2.297;
+  }
+
+  // scale to nuclear density.
+  //double density = kNucDensity;
+  double density = 3.4; // units?
+
+  double L  = (rlmbda/density); // units?
+  return L;
+}
+//___________________________________________________________________________
+void Intranuke::SimHadroProc(GHepRecord* ev, GHepParticle* p) const
+{
+// Simulate a hadron interaction for the input particle p
+//
+  switch(fMode) {
+  case (kIMdUndefined) :
+          LOG("Intranuke", pERROR) << "Undefined INTRANUKE mode";
+          break;
+  case (kIMdHN) :
+          // simulate the hadron interaction in INTRANUKE's hN mode
+          this->SimHadroProcHN(ev,p);
+          break;
+  case (kIMdHA) :
+          // simulate the hadron interaction in INTRANUKE's hA mode
+          this->SimHadroProcHN(ev,p);
+          break;
+  default :
+          LOG("Intranuke", pERROR) << "Undefined INTRANUKE mode";
+          break;
+  }
+}
+//___________________________________________________________________________
+//___________________________________________________________________________
+// Methods specific to INTRANUKE's HA-mode
+//___________________________________________________________________________
+//___________________________________________________________________________
+void Intranuke::SimHadroProcHA(GHepRecord* ev, GHepParticle* p) const
+{
+// Simulate a hadron interaction for the input particle p in HA mode
+//
+  // check inputs
+  if(!p || !ev) {
+     LOG("Intranuke", pERROR) << "** Null input!";
+     return;
+  }
+
+  // check particle id
+  int  pdgc = p->Pdg();
+  bool is_pion    = (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0);
+  bool is_baryon  = (pdgc==kPdgProton || pdgc==kPdgNeutron);
+  bool is_handled = (is_baryon || is_pion);
+  if(!is_handled) {
+     LOG("Intranuke", pERROR) << "** Can not handle particle: " << p->Name();
+     return;     
+  }
+
+  // select a fate for the input particle
+  INukeFateHA_t fate = this->HadronFateHA(p);
+  if(fate == kIHAFtUndefined) {
+     LOG("Intranuke", pERROR) << "** Couldn't select a fate";
+     p->SetStatus(kIStStableFinalState);
+     ev->AddParticle(*p);
+     return;     
+  }
+
+  // get the reaction products for the selected fate
+  if (fate == kIHAFtCEx || fate == kIHAFtElas  || fate == kIHAFtInelas) {
+   if (is_pion)   this->PiSlam(ev,p,fate);
+   if (is_baryon) this->PnSlam(ev,p,fate);
+  }
+  else if (fate == kIHAFtAbsPN   ||
+           fate == kIHAFtAbsPP   ||
+           fate == kIHAFtAbsNPP  ||
+           fate == kIHAFtAbsNNP  ||
+           fate == kIHAFtAbs4N4P ||
+           fate == kIHAFtPiProd  || 
+           fate == kIHAFt10) {
+   if (is_pion)   this->PiInelastic(ev,p,fate);
+   if (is_baryon) this->PnInelastic(ev,p,fate);
+  }
+}
+//___________________________________________________________________________
+INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
+{
+// Select a hadron fate in HA mode
+//
+  INukeFateHA_t fate = kIHAFtUndefined; 
+
+  RandomGen * rnd = RandomGen::Instance();
+
+  // get pdgc code & kinetic energy in MeV
+  int    pdgc = p->Pdg();
+  double ke   = p->KinE() / units::MeV;
+ 
+  // get kinetic energy range from a typical spline
+  double ke_min = fHadroData->FracPiA_Elas()->XMin();
+  double ke_max = fHadroData->FracPiA_Elas()->XMax();
+
+  // adjust kinetic energy if not in spline range
+  if(ke < 0     ) ke = ke_min; 
+  if(ke > ke_max) ke = ke_max;
+
+  // handle pions
+  if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
+     double r = rnd->RndFsi().Rndm();
+     fate = kIHAFtCEx;
+     if (r < fHadroData -> FracPiA_Elas()  -> Evaluate(ke)) fate = kIHAFtElas;
+     if (r < fHadroData -> FracPiA_Inel()  -> Evaluate(ke)) fate = kIHAFtInelas;
+     if (r < fHadroData -> FracPiA_Abs()   -> Evaluate(ke)) fate = kIHAFtAbsPN;
+     if (r < fHadroData -> FracPiA_PP()    -> Evaluate(ke)) fate = kIHAFtAbsPP;
+     if (r < fHadroData -> FracPiA_NPP()   -> Evaluate(ke)) fate = kIHAFtAbsNPP;
+     if (r < fHadroData -> FracPiA_NNP()   -> Evaluate(ke)) fate = kIHAFtAbsNNP;
+     if (r < fHadroData -> FracPiA_4N4P()  -> Evaluate(ke)) fate = kIHAFtAbs4N4P;
+     if (r < fHadroData -> FracPiA_PiProd()-> Evaluate(ke)) fate = kIHAFtPiProd;
+  }
+
+  // handle nucleons
+  else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
+     double r = rnd->RndFsi().Rndm();
+     fate = kIHAFtCEx;
+     if (r < fHadroData -> FracPA_Elas()  -> Evaluate(ke)) fate = kIHAFtElas;
+     if (r < fHadroData -> FracPA_Inel()  -> Evaluate(ke)) fate = kIHAFtInelas;
+     if (r < fHadroData -> FracPA_Abs()   -> Evaluate(ke)) fate = kIHAFtAbsPN;
+     if (r < fHadroData -> FracPA_PP()    -> Evaluate(ke)) fate = kIHAFtAbsPP;
+     if (r < fHadroData -> FracPA_NPP()   -> Evaluate(ke)) fate = kIHAFtAbsNPP;
+     if (r < fHadroData -> FracPA_NNP()   -> Evaluate(ke)) fate = kIHAFtAbsNNP;
+     if (r < fHadroData -> FracPA_4N4P()  -> Evaluate(ke)) fate = kIHAFtAbs4N4P;
+     if (r < fHadroData -> FracPA_PiProd()-> Evaluate(ke)) {
+         double r2 = rnd->RndFsi().Rndm();
+         if(r2 < 1.0) fate = kIHAFtPiProd;
+         if(r2 < 0.5) fate = kIHAFt10;
+     }
+  }
+  LOG("Intranuke", pINFO)
+        << "For input:  " << p->Name() 
+        << " --> selected fate: " << INukeHadroFates::AsString(fate);
+
+  return fate;
+}
+//___________________________________________________________________________
+void Intranuke::PiSlam(
+         GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
+{
+// [adapted from neugen3 intranuke_pislam.F]
+//
+// Scatters charged pions on iron nuclei.
+// Note: At pi momenta below a few GeV, beta for the Lab to CM tranformation
+// is small due to the huge mass of an iron nucleus. Here, the Lab and CM 
+// are, for our purposes, identical.
+//
+  if (fate!=kIHAFtCEx && fate!=kIHAFtElas && fate!=kIHAFtInelas) {
+     LOG("Intranuke", pWARN) 
+         << "Can not handle fate: " << INukeHadroFates::AsString(fate);
+     return;
+  }
+  RandomGen * rnd = RandomGen::Instance();
+
+  // compute the scattering angle
+  //
+  double costheta = 0.; 
+  if(fate == kIHAFtElas) {  
+    // Elastic scattering
+    double theta = this->PiBounce();
+    costheta = TMath::Cos(theta);
+  } else {   
+    // CEx & inelastic scattering
+    costheta = 2.0 * rnd->RndFsi().Rndm() - 1.0;
+  }
+  double sintheta = TMath::Sqrt(1.0 - TMath::Power(costheta,2));
+
+  // degrade the momentum for CEx and Inelastic scattering
+  //
+  double ptot = 0;
+  if (fate == kIHAFtCEx || fate == kIHAFtInelas) {
+     double ke     = p->KinE();
+     double ke_fin = 0.;
+     if(costheta < 0.) { ke_fin = this->Degrade(ke); }
+     else              { ke_fin = ke * (0.5 * rnd->RndFsi().Rndm() + 0.5); }
+
+     // handle pdg code change for CEx
+     if (fate == kIHAFtCEx) {
+       int pdgc = p->Pdg();
+       if(pdgc != kPdgPi0) pdgc = kPdgPi0; // pi0
+       else {
+         double r = rnd->RndFsi().Rndm();
+         pdgc = (r > 0.5) ? kPdgPiP : kPdgPiM; // 50% pi+ - 50% pi-
+       }
+       p->SetPdgCode(pdgc);
+     }
+     ptot = TMath::Sqrt(ke_fin*ke_fin + 2.0 * p->Mass() * ke_fin);
+  }
+  else { ptot = p->P4()->Mag(); }
+
+  // update pi momentum & energy
+  //
+  double pz  = ptot * costheta;
+  double pt  = ptot * sintheta;
+  double phi = 2 * kPi * rnd->RndFsi().Rndm();
+
+  TVector3 plab(0,pt,pz);
+  TVector3 dir = p->P4()->Vect().Unit(); // unit vector along incoming pi
+
+  plab.RotateUz(dir);  // align pz with the direction of the incoming pi
+  plab.RotateZ(phi);   // randomize tranverse components
+
+  double ptot2  = TMath::Power(ptot,      2);
+  double pmass2 = TMath::Power(p->Mass(), 2);
+  double energy = TMath::Sqrt(ptot2 + pmass2);
+
+  TLorentzVector p4lab(plab, energy);
+  p->SetMomentum(p4lab);
+
+  // now add the modified particle to the GHEP record
+  //
+  ev->AddParticle(*p);
+}
+//___________________________________________________________________________
+void Intranuke::PnSlam(
+         GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
+{
+// [adapted from neugen3 intranuke_pnslam.F]
+//
+// Scatters charged protons off nuclei.
+//
+  if (fate!=kIHAFtCEx && fate!=kIHAFtElas && fate!=kIHAFtInelas) {
+     LOG("Intranuke", pWARN) 
+         << "Can not handle fate: " << INukeHadroFates::AsString(fate);
+     return;
+  }
+
+  RandomGen * rnd = RandomGen::Instance();
+
+  // compute the scattering angle
+  //
+  double theta    = this->PnBounce();
+  double costheta = TMath::Cos(theta);
+  double sintheta = TMath::Sqrt(1.0 - TMath::Power(costheta,2));
+
+  // handle pdg code change for CEx
+  //
+  if (fate == kIHAFtCEx) {
+     int pdgc = p->Pdg();
+     pdgc = pdg::SwitchProtonNeutron(pdgc);
+     p->SetPdgCode(pdgc);
+  }
+     
+  // update nucleon momentum & energy
+  //
+  double ptot = p->P4()->Mag();  
+  double pz   = ptot * costheta;
+  double pt   = ptot * sintheta;
+  double phi  = 2 * kPi * rnd->RndFsi().Rndm();
+
+  TVector3 plab(0,pt,pz);
+  TVector3 dir = p->P4()->Vect().Unit(); // unit vector along incoming nucleon
+
+  plab.RotateUz(dir);  // align pz with the direction of the incoming nucleon
+  plab.RotateZ(phi);   // randomize tranverse components
+
+  double ptot2  = TMath::Power(ptot,      2);
+  double pmass2 = TMath::Power(p->Mass(), 2);
+  double energy = TMath::Sqrt(ptot2 + pmass2);
+
+  TLorentzVector p4lab(plab, energy);
+  p->SetMomentum(p4lab);
+
+  // now add the modified particle to the GHEP record
+  //
+  ev->AddParticle(*p);
+}
+//___________________________________________________________________________
+double Intranuke::PiBounce(void) const
+{
+// [adapted from neugen3 intranuke_bounce.F]
+// [is a fortran stub / difficult to understand - needs to be improved]
+//
+// Generates theta in radians for elastic pion-nucleus scattering/
+// Lookup table is based on Fig 17 of Freeman, Miller and Henley, Nucl.Phys.
+// A389, 457 (1982)
+//
+  const int nprob = 25;
+  double dintor = 0.0174533;
+  double denom  = 47979.453;
+  double rprob[nprob] = {
+    5000., 4200., 3000., 2600., 2100., 1800., 1200., 750., 500., 230., 120., 
+    35., 9., 3., 11., 18., 29., 27., 20., 14., 10., 6., 2., 0.14, 0.19 };
+
+  double angles[nprob];
+  for(int i=0; i<nprob; i++) angles[i] = 2.5*i;
+
+  RandomGen * rnd = RandomGen::Instance();
+  double r = rnd->RndFsi().Rndm();
+  
+  double xsum  = 0.;
+  double theta = 0.;
+  double binl  = 0.;
+  double binh  = 0.;
+  int tj = 0;
+  for(int i=0; i<60; i++) {
+   theta = i+0.5;
+   for(int j=0; j < nprob-1; j++) {
+     binl = angles[j];
+     binh = angles[j+1];
+     tj=j;
+     if(binl<=theta && binh>=theta) break;
+     tj=0;
+   }//j
+   int itj = tj;
+   double tfract = (theta-binl)/2.5;
+   double delp   = rprob[itj+1] - rprob[itj];
+   xsum += (rprob[itj] + tfract*delp)/denom;
+   if(xsum>r) break;
+   theta = 0.;
+  }//i
+
+  theta *= dintor;
+  return theta;
+}
+//___________________________________________________________________________
+double Intranuke::PnBounce(void) const
+{
+// [adapted from neugen3 intranuke_pnbounce.F]
+// [is a fortran stub / difficult to understand - needs to be improved]
+//
+// Generates theta in radians for elastic nucleon-nucleus scattering.
+// Use 800 MeV p+O16 as template in same (highly simplified) spirit as pi+A
+// from table in Adams et al., PRL 1979. Guess value at 0-2 deg based on Ni
+// data.
+//
+  const int nprob = 20;
+  double dintor = 0.0174533;
+  double denom  = 11967.0;
+  double rprob[nprob] = {
+    2400., 2350., 2200., 2000., 1728., 1261., 713., 312., 106., 35., 
+    6., 5., 10., 12., 11., 9., 6., 1., 1., 1. };
+
+  double angles[nprob];
+  for(int i=0; i<nprob; i++) angles[i] = 1.0*i;
+
+  RandomGen * rnd = RandomGen::Instance();
+  double r = rnd->RndFsi().Rndm();
+
+  double xsum  = 0.;
+  double theta = 0.;
+  double binl  = 0.;
+  double binh  = 0.;
+  int tj = 0;
+  for(int i=0; i < nprob; i++) {
+    theta = i + 0.5;
+    for(int j=0; j < nprob-1; j++) {
+      binl = angles[j];
+      binh = angles[j+1];
+      tj = j;
+      if(binl<theta && binh>theta) break;
+      tj = 0;
+    } //j 
+    double tfract = (theta-binl)/1.;
+    int itj = tj;
+    double delp = rprob[itj+1] - rprob[itj];
+    xsum += (rprob[itj] + tfract*delp)/denom;
+    if(xsum > r) break;
+    theta = 0.0;
+  } //i
+
+  theta *= dintor;
+  return theta;
+}
+//___________________________________________________________________________
+double Intranuke::Degrade(double ke) const
+{
+// [adapted from neugen3 intranuke_degrade.F]
+// [is a fortran stub / difficult to understand - needs to be improved]
+//
+// The method receives the incident pion kinetic energy for inelastic scatt.
+// process and returns the degraded final-state kinetic energy.
+// Is based on inelastic scattering distribution Fig.18, of C.H.Q.Ingram,
+// Nucl.Phys.A374, 319 (1982)
+//
+  const int np = 15;
+  double efract[np] = { 
+   0.13, 0.19, 0.25, 0.31, 0.38, 0.44, 0.50, 0.56, 0.63, 0.69, 0.75, 0.81,
+   0.88, 0.94, 1.00 };
+  double rprob[np] = {
+   0.00, 0.33, 0.54, 0.67, 0.72, 0.76, 0.71, 0.59, 0.41, 0.32, 0.25, 0.19, 
+   0.11, 0.08, 0.02 };
+  double ekin[np] = {
+    20.,  30. , 40., 50., 60., 70., 80., 90., 100., 110., 120., 130., 
+    140., 150., 160. };
+  double distn = 56.95;
+
+  RandomGen * rnd = RandomGen::Instance();
+  double r = rnd->RndFsi().Rndm();
+
+  double xsum   = 0.;
+  double fractn = 0.;
+  for(int i=0; i<70; i++) {
+    double x = 1. + i;
+    double tmev = 20. + 2.*x - 1.;
+    int ibinl = -1;
+    for(int j=0; j<np; j++) {
+       ibinl = j;
+       if(ekin[j]>tmev) break;
+    }//j
+    if(ibinl>0) {
+       int ibinh = ibinl+1;
+       double delt   = (tmev-ekin[ibinl])/10.0;
+       double dprob  = rprob[ibinh]  - rprob[ibinl];
+       double dfract = efract[ibinh] - efract[ibinl];
+       double probi  = rprob[ibinl] + delt * dprob;
+       xsum += (2.*probi)/distn;
+       if(xsum>r) {
+         fractn = efract[ibinl] + delt * dfract;
+         break;
+       }
+    } else {
+       fractn = 0.;
+       break;
+    }    
+  }//i
+
+  double ke_fin = fractn * ke;
+  return ke_fin;
+}
+//___________________________________________________________________________
+void Intranuke::PiInelastic(
+          GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
+{
+// [adapted from neugen3 intranuke_pi_inelastic.F]
+//
+
+  PDGCodeList list; // list of final state particles
+
+  // figure out the final state according to the fate
+  //
+  switch (fate) {
+   case (kIHAFtAbsPN)   : // -> p+n
+         list.push_back(kPdgProton);
+         list.push_back(kPdgNeutron);
+         break;
+   case (kIHAFtAbsPP)   : // -> p+p
+         list.push_back(kPdgProton);
+         list.push_back(kPdgProton);
+         break;
+   case (kIHAFtAbsNPP)  : // -> n+p+p
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgProton);
+         list.push_back(kPdgProton);
+         break;
+   case (kIHAFtAbsNNP)  : // -> n+n+p
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgProton);
+         break;
+   case (kIHAFtAbs4N4P) : //???? shouldn't it be 4n+4p rather than -> 2n+2p ????
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgProton);
+         list.push_back(kPdgProton);
+         break;
+   case (kIHAFtPiProd)  : // -> n + pi+ + pi0
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgPiP);
+         list.push_back(kPdgPi0);
+         break;
+   default : 
+         LOG("Intranuke", pWARN) 
+             << "Can not handle fate: " << INukeHadroFates::AsString(fate);
+         return;
+  }
+
+  // do the phase space decay & save all f/s particles to the event record
+  //
+  this->PhaseSpaceDecay(ev,p,list);
+}
+//___________________________________________________________________________
+void Intranuke::PnInelastic(
+          GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
+{
+// [adapted from neugen3 intranuke_pn_inelastic.F]
+//
+
+  PDGCodeList list; // list of final state particles
+
+  // figure out the final state according to the fate
+  //
+  switch (fate) {
+   case (kIHAFtAbsPN)   : // -> p+n
+         list.push_back(kPdgProton);
+         list.push_back(kPdgNeutron);
+         break;
+   case (kIHAFtAbsPP)   : // -> p+p
+         list.push_back(kPdgProton);
+         list.push_back(kPdgProton);
+         break;
+   case (kIHAFtAbsNPP)  : // -> n+p+p
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgProton);
+         list.push_back(kPdgProton);
+         break;
+   case (kIHAFtAbsNNP)  : // -> n+n+p
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgProton);
+         break;
+   case (kIHAFtAbs4N4P) : //???? shouldn't it be -> 4n+4p rather than 2n+3p ????
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgProton);
+         list.push_back(kPdgProton);
+         list.push_back(kPdgProton);
+         break;
+   case (kIHAFtPiProd)  : // -> n + pi+ 
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgPiP);
+         break;
+   case (kIHAFt10)      : // -> n + pi+ + pi0
+         list.push_back(kPdgNeutron);
+         list.push_back(kPdgPiP);
+         list.push_back(kPdgPi0);
+         break;
+   default : 
+         LOG("Intranuke", pWARN) 
+             << "Can not handle fate: " << INukeHadroFates::AsString(fate);
+         return;
+  }
+
+  // do the phase space decay & save all f/s particles to the event record
+  //
+  this->PhaseSpaceDecay(ev,p,list);
+}
+//___________________________________________________________________________
+//___________________________________________________________________________
+// Methods specific to INTRANUKE's HN-mode
+//___________________________________________________________________________
+//___________________________________________________________________________
+void Intranuke::SimHadroProcHN(GHepRecord* /*ev*/, GHepParticle* /*p*/) const
+{
+// Simulate a hadron interaction for the input particle p in HN mode
+//
+  LOG("Intranuke", pERROR) << "** HN-mode not implemented yet";
+}
+//___________________________________________________________________________
+// Generic Phase Space Decay method
+//___________________________________________________________________________
+bool Intranuke::PhaseSpaceDecay(
+             GHepRecord* ev, GHepParticle* p, const PDGCodeList & pdgv) const
+{
+// General method decaying the input particle system 'pdgv' with available 4-p
+// given by 'pd'. The decayed system is used to populate the input TMCParticle
+// array starting from the slot 'offset'.
+//
+  LOG("Intranuke", pINFO) << "*** Performing a Phase Space Decay";
+
+  assert(pdgv.size() > 1);
+
+  // Get the decay product masses
+
+  vector<int>::const_iterator pdg_iter;
+  int i = 0;
+  double * mass = new double[pdgv.size()];
+  double   sum  = 0;
+  for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
+    int pdgc = *pdg_iter;
+    double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
+    mass[i++] = m;
+    sum += m;
+  }
+
+  TLorentzVector * pd = p->GetP4();
+
+  LOG("Intranuke", pINFO)
+    << "Decaying N = " << pdgv.size() << " particles / total mass = " << sum;
+  LOG("Intranuke", pINFO)
+    << "Decaying system p4 = " << utils::print::P4AsString(pd);
+
+  // Set the decay
+  bool permitted = fGenPhaseSpace.SetDecay(*pd, pdgv.size(), mass);
+  if(!permitted) {
+     LOG("Intranuke", pERROR)
+       << " *** Phase space decay is not permitted \n"
+       << " Total particle mass = " << sum << "\n"
+       << " Decaying system p4 = " << utils::print::P4AsString(pd);
+
+     // clean-up and return
+     delete [] mass;
+     delete pd;
+     return false;
+  }
+
+  // Get the maximum weight
+  double wmax = -1;
+  for(int i=0; i<200; i++) {
+     double w = fGenPhaseSpace.Generate();
+     wmax = TMath::Max(wmax,w);
+  }
+  assert(wmax>0);
+
+  LOG("Intranuke", pNOTICE)
+   << "Max phase space gen. weight @ current hadronic interaction: " << wmax;
+
+  // Generate an unweighted decay
+
+  RandomGen * rnd = RandomGen::Instance();
+  wmax *= 1.2;
+
+  bool accept_decay=false;
+  unsigned int itry=0;
+
+  while(!accept_decay)
+  {
+    itry++;
+
+    if(itry>kMaxUnweightDecayIterations) {
+       // report, clean-up and return
+       LOG("Intranuke", pWARN)
+             << "Couldn't generate an unweighted phase space decay after "
+             << itry << " attempts";
+       delete [] mass;
+       delete pd;
+       return false;
+    }
+
+    double w  = fGenPhaseSpace.Generate();
+    double gw = wmax * rnd->RndFsi().Rndm();
+
+    LOG("Intranuke", pINFO) << "Decay weight = " << w << " / R = " << gw;
+    accept_decay = (gw<=w);
+  }
+
+  // Insert final state products into a TClonesArray of TMCParticles
+  i=0;
+  int mom = ev->ParticlePosition(p);
+  GHepStatus_t ist = kIStHadronInTheNucleus;
+  TLorentzVector * v4 = p->GetX4();
+
+  for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
+
+     //-- current PDG code
+     int pdgc = *pdg_iter;
+
+     //-- get the 4-momentum of the i-th final state particle
+     TLorentzVector * p4fin = fGenPhaseSpace.GetDecay(i++);
+
+     //-- add the particle at the event record
+     ev->AddParticle(pdgc, ist, mom,-1,-1,-1, *p4fin, *v4);
+  }
+  // Clean-up
+  delete [] mass;
+  delete pd;
+  delete v4;
+
+  return true;
+}
+//___________________________________________________________________________
+//___________________________________________________________________________
+// Methods for configuring the INTRANUKE module:
+//___________________________________________________________________________
+//___________________________________________________________________________
 void Intranuke::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -486,7 +1032,7 @@ void Intranuke::LoadConfig(void)
 
   //-- intranuke mode (h+N or h+A)
   bool hAmd = fConfig->GetBoolDef ("hA-mode",gc->GetBool("INUKE-hA-mode"));
-  fMode = (hAmd) ? kIMdhA : kIMdhN;
+  fMode = (hAmd) ? kIMdHA : kIMdHN;
 
   fct0 = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("INUKE-FormationZone")); // fermi
   fK   = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("INUKE-KPt2"));
