@@ -440,6 +440,10 @@ EventRecord * GMCJDriver::GenerateEvent(void)
   //-- set the selected interaction vtx (in the detector coordinate system)
   fCurEvt->SetVertex(fCurVtx);
 
+  //-- update the event weight to include the flux neutrino weight (if any)
+  double new_weight = fFluxDriver->Weight() * fCurEvt->Weight();
+  fCurEvt->SetWeight(new_weight);
+  
   return fCurEvt;
 }
 //___________________________________________________________________________
