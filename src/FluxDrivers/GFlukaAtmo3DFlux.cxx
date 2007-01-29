@@ -44,16 +44,6 @@ GFlukaAtmo3DFlux::~GFlukaAtmo3DFlux()
   this->CleanUp();
 }
 //___________________________________________________________________________
-const PDGCodeList & GFlukaAtmo3DFlux::FluxParticles(void)
-{
-  return (*fPdgCList);
-}
-//___________________________________________________________________________
-double GFlukaAtmo3DFlux::MaxEnergy(void)
-{
-  return fMaxEv;
-}
-//___________________________________________________________________________
 bool GFlukaAtmo3DFlux::GenerateNext(void)
 {
   //-- Reset previously generated neutrino code / 4-p / 4-x
@@ -124,21 +114,6 @@ bool GFlukaAtmo3DFlux::GenerateNext(void)
              << "Generated neutrino x4: " << utils::print::X4AsString(&fgX4);
 
   return true;
-}
-//___________________________________________________________________________
-int GFlukaAtmo3DFlux::PdgCode(void)
-{
-  return fgPdgC;
-}
-//___________________________________________________________________________
-const TLorentzVector & GFlukaAtmo3DFlux::Momentum(void)
-{
-  return fgP4;
-}
-//___________________________________________________________________________
-const TLorentzVector & GFlukaAtmo3DFlux::Position(void)
-{
-  return fgX4;
 }
 //___________________________________________________________________________
 void GFlukaAtmo3DFlux::Initialize(void)

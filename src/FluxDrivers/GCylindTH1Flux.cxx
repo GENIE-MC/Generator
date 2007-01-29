@@ -42,16 +42,6 @@ GCylindTH1Flux::~GCylindTH1Flux()
   this->CleanUp();
 }
 //___________________________________________________________________________
-const PDGCodeList & GCylindTH1Flux::FluxParticles(void)
-{
-  return (*fPdgCList);
-}
-//___________________________________________________________________________
-double GCylindTH1Flux::MaxEnergy(void)
-{
-  return fMaxEv;
-}
-//___________________________________________________________________________
 bool GCylindTH1Flux::GenerateNext(void)
 {
   //-- Reset previously generated neutrino code / 4-p / 4-x
@@ -98,21 +88,6 @@ bool GCylindTH1Flux::GenerateNext(void)
              << "Generated neutrino x4: " << utils::print::X4AsString(&fgX4);
 
   return true;
-}
-//___________________________________________________________________________
-int GCylindTH1Flux::PdgCode(void)
-{
-  return fgPdgC;
-}
-//___________________________________________________________________________
-const TLorentzVector & GCylindTH1Flux::Momentum(void)
-{
-  return fgP4;
-}
-//___________________________________________________________________________
-const TLorentzVector & GCylindTH1Flux::Position(void)
-{
-  return fgX4;
 }
 //___________________________________________________________________________
 void GCylindTH1Flux::Initialize(void)

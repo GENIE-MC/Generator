@@ -71,9 +71,8 @@ const double kGFlk3DEv[kNGFlk3DEv]   = {
 class GFlukaAtmo3DFlux: public GFluxI {
 
 public :
-
   GFlukaAtmo3DFlux();
-  ~GFlukaAtmo3DFlux();
+ ~GFlukaAtmo3DFlux();
 
   //-- methods specific to this flux object
   bool LoadFluxData       (void);
@@ -84,12 +83,13 @@ public :
   void SetNuEBarFluxFile  (string filename) { fFluxFile[3] = filename; }
 
   //-- methods implementing the GENIE GFluxI interface
-  const PDGCodeList &    FluxParticles (void);
-  double                 MaxEnergy     (void);
+  const PDGCodeList &    FluxParticles (void) { return *fPdgCList; }
+  double                 MaxEnergy     (void) { return  fMaxEv;    }
   bool                   GenerateNext  (void);
-  int                    PdgCode       (void);
-  const TLorentzVector & Momentum      (void);
-  const TLorentzVector & Position      (void);
+  int                    PdgCode       (void) { return fgPdgC;     }
+  double                 Weight        (void) { return 1.0;        }
+  const TLorentzVector & Momentum      (void) { return fgP4;       }
+  const TLorentzVector & Position      (void) { return fgX4;       }
 
 private:
 
