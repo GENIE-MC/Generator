@@ -44,9 +44,8 @@ namespace flux  {
 class GCylindTH1Flux: public GFluxI {
 
 public :
-
   GCylindTH1Flux();
-  ~GCylindTH1Flux();
+ ~GCylindTH1Flux();
 
   //-- methods specific to this flux object
   void SetNuDirection      (const TVector3 & direction);
@@ -56,12 +55,13 @@ public :
   void SetRtDependence     (string rdep);
 
   //-- methods implementing the GENIE GFluxI interface
-  const PDGCodeList &    FluxParticles (void);
-  double                 MaxEnergy     (void);
+  const PDGCodeList &    FluxParticles (void) { return *fPdgCList; }
+  double                 MaxEnergy     (void) { return  fMaxEv;    }
   bool                   GenerateNext  (void);
-  int                    PdgCode       (void);
-  const TLorentzVector & Momentum      (void);
-  const TLorentzVector & Position      (void);
+  int                    PdgCode       (void) { return  fgPdgC;    }
+  double                 Weight        (void) { return  1.0;       }
+  const TLorentzVector & Momentum      (void) { return  fgP4;      }
+  const TLorentzVector & Position      (void) { return  fgX4;      }
 
 private:
 
