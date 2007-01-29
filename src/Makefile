@@ -169,6 +169,9 @@ ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
 else
 endif
 
+# This target is used for generating the doxygen documentation
+# during the genie build. 
+# It only does so if the option has been enabled explicitly by the user.
 doxygen-doc: FORCE
 ifeq ($(strip $(GOPT_ENABLE_DOXYGEN_DOC)),YES)
 	@echo " "
@@ -177,6 +180,14 @@ ifeq ($(strip $(GOPT_ENABLE_DOXYGEN_DOC)),YES)
 	cd ./scripts; make doxygen; cd ..;
 else
 endif
+
+# Use this target  to generate the doxygen documentation at any
+# point, independently of your local genie build.
+doxygen: FORCE
+	@echo " "
+	@echo "** Building doxygen documentation..."
+	cd ${GENIE}/src;\
+	cd ./scripts; make doxygen; cd ..;
 
 generator-std-exe: FORCE
 	@echo " "
