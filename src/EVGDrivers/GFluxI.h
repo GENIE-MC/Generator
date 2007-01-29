@@ -40,6 +40,7 @@ public :
   // generate flux neutrino
   virtual bool                   GenerateNext  (void) = 0;
   virtual int                    PdgCode       (void) = 0;
+  virtual double                 Weight        (void) = 0;
   virtual const TLorentzVector & Momentum      (void) = 0;
   virtual const TLorentzVector & Position      (void) = 0;
 
