@@ -65,6 +65,8 @@ INukeHadroData::~INukeHadroData()
   delete fXSecPFe_Elas;
   delete fXSecPFe_Reac;
   delete fXSecPFe_P;   
+  delete fXSecPFe_N;   
+  delete fXSecPFe_NP;  
   delete fXSecPFe_PP;  
   delete fXSecPFe_NPP; 
   delete fXSecPFe_NNP; 
@@ -240,6 +242,8 @@ void INukeHadroData::LoadData(void)
   fXSecPFe_Elas  = new Spline(&tpFe,"ke:elas"); 
   fXSecPFe_Reac  = new Spline(&tpFe,"ke:reac"); 
   fXSecPFe_P     = new Spline(&tpFe,"ke:p"); 
+  fXSecPFe_N     = new Spline(&tpFe,"ke:n"); 
+  fXSecPFe_NP    = new Spline(&tpFe,"ke:np"); 
   fXSecPFe_PP    = new Spline(&tpFe,"ke:pp"); 
   fXSecPFe_NPP   = new Spline(&tpFe,"ke:npp"); 
   fXSecPFe_NNP   = new Spline(&tpFe,"ke:nnp"); 
@@ -283,6 +287,35 @@ void INukeHadroData::CalcData(void)
   LOG("INukeData", pNOTICE) 
       << "Computing missing x-sections & applying corrections...";
 
+  //
+  //-- corrections to Mashnik total pi0 and Carrol total x-section
+  //
+
+  // Mashnik: divide pi0 to match Bowles data
+  fXSecPiFe_Pi0->Divide(2.0); 
+
+  // This extrapolation is empirical, based on total x-sections at similar
+  // energies measured by Cluogh et al for lighter targets
+/*
+  double fac0  = 44.8;
+  double fac1  = -0.045;
+  double fac2  =  0.000048;
+  double expo1 =  0.9715;
+  double expo2 = -0.000215;
+
+  loop from bins 16 to 29... and do something...
+
+  Stuff like this make make the code more error prone and obscure that it needs
+  to be.
+
+  **WHY** don't we do this **offline**, and correct the x-section files once
+  and for all so that we don't repeat this ugly thing everytime we run GENIE???
+*/
+
+  //
+  // -- hN mode: Build total x-sections and fractions splines
+  //
+
   //total x-sections
   TNtupleD * ntxs = new TNtupleD("tot","total x-sec","ke:pip:pim:pi0:p:n");
 
@@ -290,12 +323,8 @@ void INukeHadroData::CalcData(void)
   TNtupleD * ntfrpi0 = new TNtupleD("ntfrpi0","","ke:cex:elas:reac:abs");
 
   int nknots = fXSecPipP_Elas->NKnots();
-
   for(int i=0; i<nknots; i++) {
-
-    double ke, tmp;
-    fXSecPipP_Elas->GetAsTSpline()->GetKnot(i,ke,tmp);
-
+    double ke        = fXSecPipP_Elas->GetKnotX(i);  // kinetic energy
     double xspipelas = fXSecPipP_Elas->Evaluate(ke);
     double xspipreac = fXSecPipP_Reac->Evaluate(ke);
     double xspiabs   = fXSecPipD_Abs ->Evaluate(ke);
@@ -368,6 +397,7 @@ void INukeHadroData::CalcData(void)
   delete ntxs;
   delete ntfrpi0;
 
+  // the following 10 splines are not filled-in yet...
   fFracPip_CEx    = new Spline; 
   fFracPip_Elas   = new Spline; 
   fFracPip_Reac   = new Spline; 
@@ -379,25 +409,102 @@ void INukeHadroData::CalcData(void)
   fFracP_Reac     = new Spline; 
   fFracN_Reac     = new Spline; 
 
-  fFracPiA_Elas   = new Spline; 
-  fFracPiA_Inel   = new Spline; 
-  fFracPiA_CEx    = new Spline; 
-  fFracPiA_Abs    = new Spline; 
-  fFracPiA_PP     = new Spline; 
-  fFracPiA_NPP    = new Spline; 
-  fFracPiA_NNP    = new Spline; 
-  fFracPiA_4N4P   = new Spline; 
-  fFracPiA_PiProd = new Spline; 
-  fFracPA_Elas    = new Spline; 
-  fFracPA_Inel    = new Spline; 
-  fFracPA_Abs     = new Spline; 
-  fFracPA_PP      = new Spline; 
-  fFracPA_NPP     = new Spline; 
-  fFracPA_NNP     = new Spline; 
-  fFracPA_4N4P    = new Spline; 
-  fFracPA_PiProd  = new Spline; 
+  //
+  //-- hA mode: calculate p+A fractions
+  //
 
-  //...
+  TNtupleD ntfrpA("ntfrpA","","ke:elas:inel:abs:pp:npp:nnp:n4p4:piprod"); 
+  nknots = fXSecPFe_Elas->NKnots();
+  for(int i=0; i<nknots; i++) {
+      double ke = fXSecPFe_Elas->GetKnotX(i); // kinetic energy
+      ke = TMath::Max(1.,ke);
+      double sigreac        = fXSecPFe_Reac->Evaluate(ke);
+      double sigelas        = fXSecPFe_Elas->Evaluate(ke);
+      double sigtot         = sigreac + sigelas;
+      if(i==0) sigtot=1; // Steve's comment: to avoid NaN !
+      double siginel        = fXSecPFe_P->Evaluate(ke);
+      double sigcex         = fXSecPFe_N->Evaluate(ke);
+      double sig_pfe_np     = fXSecPFe_NP->Evaluate(ke);
+      double sig_pfe_pp     = fXSecPFe_PP->Evaluate(ke);
+      double sig_pfe_npp    = fXSecPFe_NPP->Evaluate(ke);
+      double sig_pfe_nnp    = fXSecPFe_NNP->Evaluate(ke);
+      double sig_pfe_pip    = fXSecPFe_Pip->Evaluate(ke);
+
+      double frac_pa_elas   = 1 - sigcex/sigtot;
+      double frac_pa_inel   = frac_pa_elas   - sigelas / sigtot;
+      double frac_pa_abs    = frac_pa_inel   - siginel / sigtot;
+      double frac_pa_pp     = frac_pa_abs    - sig_pfe_np / sigtot;
+      double frac_pa_npp    = frac_pa_pp     - sig_pfe_pp / sigtot;
+      double frac_pa_nnp    = frac_pa_npp    - sig_pfe_npp / sigtot;
+      double frac_pa_4n4p   = frac_pa_nnp    - sig_pfe_nnp / sigtot;
+      double frac_pa_piprod = sig_pfe_pip / sigtot;
+
+      ntfrpA.Fill(ke, frac_pa_elas, frac_pa_inel, frac_pa_abs, frac_pa_pp, 
+                  frac_pa_npp, frac_pa_nnp, frac_pa_4n4p, frac_pa_piprod);
+  }
+  fFracPA_Elas    = new Spline(&ntfrpA, "ke:elas"  );
+  fFracPA_Inel    = new Spline(&ntfrpA, "ke:inel"  );
+  fFracPA_Abs     = new Spline(&ntfrpA, "ke:abs"   );
+  fFracPA_PP      = new Spline(&ntfrpA, "ke:pp"    );
+  fFracPA_NPP     = new Spline(&ntfrpA, "ke:npp"   );
+  fFracPA_NNP     = new Spline(&ntfrpA, "ke:nnp"   );
+  fFracPA_4N4P    = new Spline(&ntfrpA, "ke:n4p4"  );
+  fFracPA_PiProd  = new Spline(&ntfrpA, "ke:piprod");
+
+  //
+  //-- hA mode: calculate pi+A fractions
+  //
+
+  TNtupleD ntfrpiA("ntfrpiA","","ke:elas:inel:cex:abs:pp:npp:nnp:n4p4:piprod"); 
+  nknots = fXSecPiFe_Pi0->NKnots();
+  for(int i=0; i<nknots; i++) {
+      double ke = fXSecPiFe_NP->GetKnotX(i); // kinetic energy
+      ke = TMath::Max(1.,ke);
+      double sig_pife_pi0    = fXSecPiFe_Pi0->Evaluate(ke);
+      double sigtot          = fXSecCarPiFe_Tot->Evaluate(ke);
+      double sigabs          = fXSecAshPiFe_Abs->Evaluate(ke); 
+      double sigreac         = fXSecAshPiFe_Reac->Evaluate(ke);
+      double sigelas         = sigtot - sigreac;
+      double siginel         = sigreac - sig_pife_pi0 - sigabs;
+      // this is an estimate of the single pi0 x-section from Ashery (elas only)
+      double sigcex          = 2.2 * fXSecPimP_CEx->Evaluate(ke);
+      double sig_cex_elas;
+      double sig_cex_inel;
+      if(ke<400) {
+          sig_cex_elas = sig_pife_pi0;
+          sig_cex_inel = 0.;
+      } else {
+          sig_cex_elas = sigcex;
+          sig_cex_inel = sig_pife_pi0 - sigcex;
+      }
+      double sig_pife_np     = fXSecPiFe_NP->Evaluate(ke);
+      double sig_pife_pp     = fXSecPiFe_PP->Evaluate(ke);
+      double sig_pife_npp    = fXSecPiFe_NPP->Evaluate(ke);
+      double sig_pife_nnp    = fXSecPiFe_NNP->Evaluate(ke);
+
+      double frac_pia_elas   = 1 - sig_cex_elas / sigtot;
+      double frac_pia_inel   = frac_pia_elas - sigelas / sigtot;
+      double frac_pia_abs    = frac_pia_inel - siginel / sigtot;
+      double frac_pia_pp     = frac_pia_abs  - sig_pife_np / sigtot;
+      double frac_pia_npp    = frac_pia_pp   - sig_pife_pp / sigtot;
+      double frac_pia_nnp    = frac_pia_npp  - sig_pife_npp / sigtot;
+      double frac_pia_4n4p   = frac_pia_nnp  - sig_pife_nnp / sigtot;
+      double frac_pia_piprod = sig_cex_inel / sigtot;
+      double frac_pia_cex    = 0; // ???
+
+      ntfrpiA.Fill(ke, frac_pia_elas, frac_pia_inel, frac_pia_cex,
+                   frac_pia_abs, frac_pia_pp, frac_pia_npp, frac_pia_nnp,
+                   frac_pia_4n4p, frac_pia_piprod); 
+  }
+  fFracPiA_Elas   = new Spline(&ntfrpiA, "ke:elas"); 
+  fFracPiA_Inel   = new Spline(&ntfrpiA, "ke:inel"); 
+  fFracPiA_CEx    = new Spline(&ntfrpiA, "ke:cex"); 
+  fFracPiA_Abs    = new Spline(&ntfrpiA, "ke:abs"); 
+  fFracPiA_PP     = new Spline(&ntfrpiA, "ke:pp"); 
+  fFracPiA_NPP    = new Spline(&ntfrpiA, "ke:npp"); 
+  fFracPiA_NNP    = new Spline(&ntfrpiA, "ke:nnp"); 
+  fFracPiA_4N4P   = new Spline(&ntfrpiA, "ke:n4p4"); 
+  fFracPiA_PiProd = new Spline(&ntfrpiA, "ke:piprod"); 
 
   LOG("INukeData", pNOTICE) 
        << "... Done computing total hadron cross section data";
