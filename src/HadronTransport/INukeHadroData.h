@@ -48,7 +48,9 @@ public:
   //
   const Spline * XSecPFe_Elas  (void) const { return fXSecPFe_Elas; }
   const Spline * XSecPFe_Reac  (void) const { return fXSecPFe_Reac; }
+  const Spline * XSecPFe_N     (void) const { return fXSecPFe_N;    }
   const Spline * XSecPFe_P     (void) const { return fXSecPFe_P;    }
+  const Spline * XSecPFe_NP    (void) const { return fXSecPFe_NP;   }
   const Spline * XSecPFe_PP    (void) const { return fXSecPFe_PP;   }
   const Spline * XSecPFe_NPP   (void) const { return fXSecPFe_NPP;  }
   const Spline * XSecPFe_NNP   (void) const { return fXSecPFe_NNP;  }
@@ -148,6 +150,8 @@ private:
   Spline * fXSecPFe_Elas;   ///< pFe ELAS   x-section
   Spline * fXSecPFe_Reac;   ///< pFe REAC   x-section
   Spline * fXSecPFe_P;      ///< pFe->pX    x-section
+  Spline * fXSecPFe_N;      ///< pFe->nX    x-section
+  Spline * fXSecPFe_NP;     ///< pFe->npX   x-section
   Spline * fXSecPFe_PP;     ///< pFe->ppX   x-section
   Spline * fXSecPFe_NPP;    ///< pFe->nppX  x-section
   Spline * fXSecPFe_NNP;    ///< pFe->nnpX  x-section
