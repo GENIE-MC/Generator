@@ -139,10 +139,8 @@ INukeHadroData * INukeHadroData::Instance()
 {
   if(fInstance == 0) {
     LOG("INukeData", pINFO) << "INukeHadroData late initialization";
-
     static INukeHadroData::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
-
     fInstance = new INukeHadroData;
   }
   return fInstance;
@@ -227,8 +225,8 @@ void INukeHadroData::LoadData(void)
   }
   fXSecPipD_Abs = new Spline(nk,E,xsec); // corrected pi abs xsec
 
-  delete [] xsec;
-  delete [] E;
+  delete xsec;
+  delete E;
 
   LOG("INukeData", pNOTICE) 
       << "... Done loading SAID hadron cross section data";
@@ -282,8 +280,9 @@ void INukeHadroData::LoadData(void)
 //____________________________________________________________________________
 void INukeHadroData::CalcData(void)
 {
-// Calculates hadronic x-sections 
-
+// Hopefully this esction would be simplified (be made redundant) by making all 
+// the corrections offline and loading the corrected x-sections
+//
   LOG("INukeData", pNOTICE) 
       << "Computing missing x-sections & applying corrections...";
 
@@ -304,12 +303,8 @@ void INukeHadroData::CalcData(void)
   double expo2 = -0.000215;
 
   loop from bins 16 to 29... and do something...
-
   Stuff like this make make the code more error prone and obscure that it needs
   to be.
-
-  **WHY** don't we do this **offline**, and correct the x-section files once
-  and for all so that we don't repeat this ugly thing everytime we run GENIE???
 */
 
   //
@@ -380,7 +375,7 @@ void INukeHadroData::CalcData(void)
       double frpi0abs  = frpi0reac - xspi0reac/xspi0;
 
       ntfrpi0->Fill(ke,frpi0cex,frpi0elas,frpi0reac,frpi0abs);
-    }
+    } 
   }
 
   fXSecPip_Tot    = new Spline(ntxs,"ke:pip");
@@ -412,6 +407,7 @@ void INukeHadroData::CalcData(void)
   //
   //-- hA mode: calculate p+A fractions
   //
+  LOG("INukeData", pNOTICE) << "Calculating p+A fractions...";
 
   TNtupleD ntfrpA("ntfrpA","","ke:elas:inel:abs:pp:npp:nnp:n4p4:piprod"); 
   nknots = fXSecPFe_Elas->NKnots();
@@ -421,8 +417,9 @@ void INukeHadroData::CalcData(void)
       double sigreac        = fXSecPFe_Reac->Evaluate(ke);
       double sigelas        = fXSecPFe_Elas->Evaluate(ke);
       double sigtot         = sigreac + sigelas;
-      if(i==0) sigtot=1; // Steve's comment: to avoid NaN !
-      double siginel        = fXSecPFe_P->Evaluate(ke);
+      // if(i==0) sigtot=1; // Steve's comment: to avoid NaN !
+      if(sigtot==0) sigtot=1;
+      double  siginel       = fXSecPFe_P->Evaluate(ke);
       double sigcex         = fXSecPFe_N->Evaluate(ke);
       double sig_pfe_np     = fXSecPFe_NP->Evaluate(ke);
       double sig_pfe_pp     = fXSecPFe_PP->Evaluate(ke);
@@ -430,14 +427,28 @@ void INukeHadroData::CalcData(void)
       double sig_pfe_nnp    = fXSecPFe_NNP->Evaluate(ke);
       double sig_pfe_pip    = fXSecPFe_Pip->Evaluate(ke);
 
-      double frac_pa_elas   = 1 - sigcex/sigtot;
-      double frac_pa_inel   = frac_pa_elas   - sigelas / sigtot;
-      double frac_pa_abs    = frac_pa_inel   - siginel / sigtot;
-      double frac_pa_pp     = frac_pa_abs    - sig_pfe_np / sigtot;
-      double frac_pa_npp    = frac_pa_pp     - sig_pfe_pp / sigtot;
-      double frac_pa_nnp    = frac_pa_npp    - sig_pfe_npp / sigtot;
-      double frac_pa_4n4p   = frac_pa_nnp    - sig_pfe_nnp / sigtot;
-      double frac_pa_piprod = sig_pfe_pip / sigtot;
+      double frac_pa_elas   = TMath::Max(0., 1 - sigcex/sigtot);
+      double frac_pa_inel   = TMath::Max(0., frac_pa_elas   - sigelas / sigtot);
+      double frac_pa_abs    = TMath::Max(0., frac_pa_inel   - siginel / sigtot);
+      double frac_pa_pp     = TMath::Max(0., frac_pa_abs    - sig_pfe_np / sigtot);
+      double frac_pa_npp    = TMath::Max(0., frac_pa_pp     - sig_pfe_pp / sigtot);
+      double frac_pa_nnp    = TMath::Max(0., frac_pa_npp    - sig_pfe_npp / sigtot);
+      double frac_pa_4n4p   = TMath::Max(0., frac_pa_nnp    - sig_pfe_nnp / sigtot);
+      double frac_pa_piprod = TMath::Max(0., sig_pfe_pip / sigtot);
+
+      SLOG("INukeData", pNOTICE) 
+        << "\n ******* pA @ ke = " << ke << "\n"
+        << "- x-sections: \n"
+        << "reac = "  << sigreac     << ", elas = " << sigelas 
+        << ", tot = " << sigtot      << ", inel = " << siginel  
+        << ", cex = " << sigcex      << ", pp = "   << sig_pfe_pp   
+        << ", np = "  << sig_pfe_np  << ", nnp = "  << sig_pfe_nnp 
+        << ", npp = " << sig_pfe_npp << ", piprod = " << sig_pfe_pip << "\n"
+        << "- fractions: \n"
+        << "elas = "  << frac_pa_elas  << ". inel = "   << frac_pa_inel     
+        << ", abs = " << frac_pa_abs   << ", pp = "     << frac_pa_pp
+        << ", npp = "  << frac_pa_npp  << ", nnp = "    << frac_pa_nnp  
+        << ", 4n4p = " << frac_pa_4n4p << ", piprod = " << frac_pa_piprod;
 
       ntfrpA.Fill(ke, frac_pa_elas, frac_pa_inel, frac_pa_abs, frac_pa_pp, 
                   frac_pa_npp, frac_pa_nnp, frac_pa_4n4p, frac_pa_piprod);
@@ -454,6 +465,7 @@ void INukeHadroData::CalcData(void)
   //
   //-- hA mode: calculate pi+A fractions
   //
+  LOG("INukeData", pINFO) << "Calculating pi+A fractions...";
 
   TNtupleD ntfrpiA("ntfrpiA","","ke:elas:inel:cex:abs:pp:npp:nnp:n4p4:piprod"); 
   nknots = fXSecPiFe_Pi0->NKnots();
@@ -461,11 +473,13 @@ void INukeHadroData::CalcData(void)
       double ke = fXSecPiFe_NP->GetKnotX(i); // kinetic energy
       ke = TMath::Max(1.,ke);
       double sig_pife_pi0    = fXSecPiFe_Pi0->Evaluate(ke);
-      double sigtot          = fXSecCarPiFe_Tot->Evaluate(ke);
+      // car x-section goes only up to 320 MeV - take it to be constant above that
+      double sigtot          = (ke<320) ? fXSecCarPiFe_Tot->Evaluate(ke) : 
+                                         fXSecCarPiFe_Tot->Evaluate(310);
       double sigabs          = fXSecAshPiFe_Abs->Evaluate(ke); 
       double sigreac         = fXSecAshPiFe_Reac->Evaluate(ke);
-      double sigelas         = sigtot - sigreac;
-      double siginel         = sigreac - sig_pife_pi0 - sigabs;
+      double sigelas         = TMath::Max(0., sigtot - sigreac);
+      double siginel         = TMath::Max(0., sigreac - sig_pife_pi0 - sigabs);
       // this is an estimate of the single pi0 x-section from Ashery (elas only)
       double sigcex          = 2.2 * fXSecPimP_CEx->Evaluate(ke);
       double sig_cex_elas;
@@ -475,22 +489,36 @@ void INukeHadroData::CalcData(void)
           sig_cex_inel = 0.;
       } else {
           sig_cex_elas = sigcex;
-          sig_cex_inel = sig_pife_pi0 - sigcex;
+          sig_cex_inel = TMath::Max(0., sig_pife_pi0 - sigcex);
       }
       double sig_pife_np     = fXSecPiFe_NP->Evaluate(ke);
       double sig_pife_pp     = fXSecPiFe_PP->Evaluate(ke);
       double sig_pife_npp    = fXSecPiFe_NPP->Evaluate(ke);
       double sig_pife_nnp    = fXSecPiFe_NNP->Evaluate(ke);
 
-      double frac_pia_elas   = 1 - sig_cex_elas / sigtot;
-      double frac_pia_inel   = frac_pia_elas - sigelas / sigtot;
-      double frac_pia_abs    = frac_pia_inel - siginel / sigtot;
-      double frac_pia_pp     = frac_pia_abs  - sig_pife_np / sigtot;
-      double frac_pia_npp    = frac_pia_pp   - sig_pife_pp / sigtot;
-      double frac_pia_nnp    = frac_pia_npp  - sig_pife_npp / sigtot;
-      double frac_pia_4n4p   = frac_pia_nnp  - sig_pife_nnp / sigtot;
-      double frac_pia_piprod = sig_cex_inel / sigtot;
+      double frac_pia_elas   = TMath::Max(0., 1 - sig_cex_elas / sigtot);
+      double frac_pia_inel   = TMath::Max(0., frac_pia_elas - sigelas / sigtot);
+      double frac_pia_abs    = TMath::Max(0., frac_pia_inel - siginel / sigtot);
+      double frac_pia_pp     = TMath::Max(0., frac_pia_abs  - sig_pife_np / sigtot);
+      double frac_pia_npp    = TMath::Max(0., frac_pia_pp   - sig_pife_pp / sigtot);
+      double frac_pia_nnp    = TMath::Max(0., frac_pia_npp  - sig_pife_npp / sigtot);
+      double frac_pia_4n4p   = TMath::Max(0., frac_pia_nnp  - sig_pife_nnp / sigtot);
+      double frac_pia_piprod = TMath::Max(0., sig_cex_inel / sigtot);
       double frac_pia_cex    = 0; // ???
+
+      SLOG("INukeData", pNOTICE) 
+         << "\n ******* piA @ ke = " << ke << "\n"
+         << "- x-sections: \n"
+         << "elas = " << sigelas << ", inel = " << siginel << ", tot = " << sigtot
+         << ", abs = " << sigabs << ", reac = " << sigreac << ", cex = " << sigcex
+         << ", cex/elas = " << sig_cex_elas << ", cex/inel = " << sig_cex_inel
+         << ", pi0 = " << sig_pife_pi0 << ", np = " << sig_pife_np << ", pp = " << sig_pife_pp
+         << ", npp = " << sig_pife_npp << ", nnp = " << sig_pife_nnp << "\n"
+         << "- fractions: \n"
+         << "elas = "  << frac_pia_elas  << ". inel = " << frac_pia_inel     
+         << ", abs = " << frac_pia_abs   << ", pp = "   << frac_pia_pp
+         << ", npp = "  << frac_pia_npp  << ", nnp = "  << frac_pia_nnp  
+         << ", 4n4p = " << frac_pia_4n4p << ", piprod = " << frac_pia_piprod;
 
       ntfrpiA.Fill(ke, frac_pia_elas, frac_pia_inel, frac_pia_cex,
                    frac_pia_abs, frac_pia_pp, frac_pia_npp, frac_pia_nnp,
