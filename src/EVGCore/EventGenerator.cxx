@@ -99,7 +99,6 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
     string mesg = mesgh + visitor->Id().Key();
     LOG("EventGenerator", pNOTICE)
                  << utils::print::PrintFramedMesg(mesg,0,'~');
-
     if(ffwd) {
       LOG("EventGenerator", pNOTICE)
            << "Fast Forward flag was set - Skipping processing step!";
@@ -110,9 +109,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
       fWatch->Start();
       visitor->ProcessEventRecord(event_rec);
       fWatch->Stop();
-
       fRecHistory.AddSnapshot(istep, event_rec);
-
       (*fEVGTime)[istep] = fWatch->CpuTime(); // sec
     }
     catch (EVGThreadException exception)
@@ -133,14 +130,12 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
       assert( !(exception.FastForward() && exception.StepBack()) );
 
       ffwd = exception.FastForward();
-
       if(exception.StepBack()) {
 
          // get return step (if return_step > current_step just ignore it)
          if(exception.ReturnStep() >= 0 && exception.ReturnStep() <= istep) {
 
            int rstep = exception.ReturnStep();
-
            LOG("EventGenerator", pNOTICE)
                                    << "Return at processing step " << rstep;
            advance(miter, rstep-istep-1);
