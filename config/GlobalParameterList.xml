@@ -215,8 +215,8 @@ Use the "Default" one to get the best GENIE physics & tuning.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Invariant mass window for the transition from KNO model to PYTHIA
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <param type="double" name="KNO2PYTHIA-Wmin">  1.70 </param>
-  <param type="double" name="KNO2PYTHIA-Wmax">  2.00 </param>
+  <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
+  <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   NEUGEN parameters applied to DIS hadronic multiplicity distributions 
@@ -250,11 +250,12 @@ Use the "Default" one to get the best GENIE physics & tuning.
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Intranuclear rescattering 
+  Use the HadronTransportEnable option to toggle intranuclear rescattering
+  on/off. Possible model options include INTRANUKE, FLUKA and GIBUU
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <param type="bool"   name="InuclRescat-On">          false  </param>
-  <param type="string" name="InuclRescat-ModelName">   none   </param>
-  <param type="string" name="InuclRescat-ModelConfig"> none   </param>
- <!-- 
+  <param type="bool" name="HadronTransp-Enable"> false </param>
+  <param type="alg"  name="HadronTransp-Model">  none  </param>
+ <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   INTRANUKE-specific parameters 
   Ro (in fm)
@@ -266,10 +267,12 @@ Use the "Default" one to get the best GENIE physics & tuning.
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   FLUKA-specific parameters 
+  (not used yet)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   GIBUU-specific parameters 
+  (not used yet)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
