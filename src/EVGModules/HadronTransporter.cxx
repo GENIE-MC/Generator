@@ -64,15 +64,16 @@ void HadronTransporter::ProcessEventRecord(GHepRecord * evrec) const
   // If rescattering is turned off but the interaction was on a nuclear
   // target then simply transfer the hadrons outside the nucleus inhibiting
   // any rescattering
-  if(!fRescatON) {
+  if(!fEnabled) {
     LOG("HadTransp", pNOTICE) 
-                     << "*** Intranuclear rescattering has been turned off";
+             << "*** Intranuclear rescattering has been turned off";
     this->GenerateVertex(evrec);
     this->TransportInTransparentNuc(evrec);
     return;
   }
 
   // Use the specified intrsnuclear rescattering model
+  LOG("HadTransp", pINFO)  << "Calling the selected hadron transport MC";
   fHadTranspModel->ProcessEventRecord(evrec);
 }
 //___________________________________________________________________________
@@ -109,7 +110,11 @@ void HadronTransporter::GenerateVertex(GHepRecord * evrec) const
 //___________________________________________________________________________
 void HadronTransporter::TransportInTransparentNuc(GHepRecord * evrec) const
 {
-// transport all hadrons assuming a transparent nucleus
+// Transport all hadrons assuming a transparent nucleus - used when the
+// realistic hadron transport is tuned off.
+
+  LOG("HadTransp", pNOTICE) 
+     << "Getting the nucleons out of the nucleus as if it was transparent";
 
   TObjArrayIter piter(evrec);
   GHepParticle * p = 0;
@@ -158,18 +163,24 @@ void HadronTransporter::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   fHadTranspModel = 0; 
+  fEnabled = fConfig->GetBoolDef("enable", gc->GetBool("HadronTransp-Enable")); 
 
-  fRescatON = fConfig->GetBoolDef("rescatter",gc->GetBool("InuclRescat-On")); 
+  LOG("HadTransp", pDEBUG) 
+       << "Hadron transport was " << ((fEnabled) ? "" : "not ") << " enabled";
+  if(fEnabled) {
+     RgAlg hadtransp_model = 
+        fConfig->GetAlgDef("model", gc->GetAlg("HadronTransp-Model"));
+     LOG("HadTransp", pDEBUG) 
+         << "Loading the hadron transport model: " << hadtransp_model;
 
-  if(fRescatON) {
-    string name   = fConfig->GetStringDef(
-        "rescattering-model-name",   gc->GetString("InuclRescat-ModelName")); 
-    string config = fConfig->GetStringDef(
-      "rescattering-model-config", gc->GetString("InuclRescat-ModelConfig"));
-
-    AlgFactory * algf = AlgFactory::Instance();
-    fHadTranspModel = dynamic_cast<const EventRecordVisitorI *>(
-					    algf->GetAlgorithm(name,config));
+     // Note: this relies on the fact that if a missing registry entry was
+     // found above then it would be filled up by the default choice so that
+     // when the registry is looked-up again the same key would point to the 
+     // correct value. Probably it would be better to convert the RgAlg to AlgId
+     // and query the AlgFactory directly. 
+     fHadTranspModel = 
+         dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("model"));
+     assert(fHadTranspModel);
   }
 }
 //___________________________________________________________________________
