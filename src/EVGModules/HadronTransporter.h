@@ -30,7 +30,7 @@ class HadronTransporter : public EventRecordVisitorI {
 public :
   HadronTransporter();
   HadronTransporter(string config);
-  ~HadronTransporter();
+ ~HadronTransporter();
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -41,16 +41,14 @@ public :
   void Configure (string param_set);
 
 private:
-
   void  LoadConfig                (void);
   void  TransportInTransparentNuc (GHepRecord * ev) const;
   void  GenerateVertex            (GHepRecord * ev) const;
 
-  bool  fRescatON; // intranuclear rescattering turned on?
+  bool  fEnabled;                              ///< hadron transport enabled?
   const EventRecordVisitorI * fHadTranspModel; ///< hadron transport MC to use
 
 };
 
 }      // genie namespace
-
 #endif // _INTRANUKE_H_
