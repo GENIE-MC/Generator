@@ -7,8 +7,10 @@ Configuration sets for the HadronTransporter EventRecordVisitorI
 
 Configurable Parameters:
 ............................................................................................
-Name                    Type     Optional   Comment                     Default
+Name         Type     Optional   Comment                     Default
 ............................................................................................
+enable       bool     Yes                                    GPL HadronTransp-Enable
+model        alg      Yes                                    GPL HadronTransp-Model    
 -->
 
   <param_set name="Default"> 
