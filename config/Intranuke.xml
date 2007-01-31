@@ -8,11 +8,11 @@
   </param_set>
 
   <param_set name="hA"> 
-      <param type="bool" name="hA-mode"> true  </param>
+      <param type="string" name="mode"> hA </param>
   </param_set>
 
   <param_set name="hN"> 
-      <param type="bool" name="hA-mode"> false </param>
+      <param type="string" name="mode"> hN </param>
   </param_set>
 
 </alg_conf>
