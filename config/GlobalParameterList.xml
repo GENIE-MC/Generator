@@ -254,13 +254,15 @@ Use the "Default" one to get the best GENIE physics & tuning.
   on/off. Possible model options include INTRANUKE, FLUKA and GIBUU
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <param type="bool" name="HadronTransp-Enable"> false </param>
-  <param type="alg"  name="HadronTransp-Model">  none  </param>
+  <param type="alg"  name="HadronTransp-Model">  
+                            genie::Intranuke/Default  </param>
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   INTRANUKE-specific parameters 
-  Ro (in fm)
+  Mode options are: hA, hN
+  Ro is an effective nucleus size given in fm (R=Ro*A^1/3)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <param type="bool"   name="INUKE-hA-mode">       true  </param>
+  <param type="string" name="INUKE-Mode">          hA    </param>
   <param type="double" name="INUKE-FormationZone"> 2.0   </param>
   <param type="double" name="INUKE-KPt2">          1.0   </param>
   <param type="double" name="INUKE-Ro">            1.2   </param>
