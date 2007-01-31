@@ -436,7 +436,7 @@ void INukeHadroData::CalcData(void)
       double frac_pa_4n4p   = TMath::Max(0., frac_pa_nnp    - sig_pfe_nnp / sigtot);
       double frac_pa_piprod = TMath::Max(0., sig_pfe_pip / sigtot);
 
-      SLOG("INukeData", pNOTICE) 
+      SLOG("INukeData", pDEBUG) 
         << "\n ******* pA @ ke = " << ke << "\n"
         << "- x-sections: \n"
         << "reac = "  << sigreac     << ", elas = " << sigelas 
@@ -506,7 +506,7 @@ void INukeHadroData::CalcData(void)
       double frac_pia_piprod = TMath::Max(0., sig_cex_inel / sigtot);
       double frac_pia_cex    = 0; // ???
 
-      SLOG("INukeData", pNOTICE) 
+      SLOG("INukeData", pDEBUG) 
          << "\n ******* piA @ ke = " << ke << "\n"
          << "- x-sections: \n"
          << "elas = " << sigelas << ", inel = " << siginel << ", tot = " << sigtot
