@@ -17,6 +17,7 @@
 //____________________________________________________________________________
 
 #include <cstdlib>
+#include <sstream>
 
 #include <TMath.h>
 
@@ -38,6 +39,8 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
+
+using std::ostringstream;
 
 using namespace genie;
 using namespace genie::utils;
@@ -170,7 +173,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
     if( ! this->NeedsRescattering(p) ) continue;
 
     LOG("Intranuke", pINFO)
-             << "*** Intranuke will attempt to rescatter a " << p->Name();
+      << " >> Stepping a " << p->Name() << " with kinetic E = " << p->KinE();
 
     // Rescatter a clone, not the original particle
     GHepParticle * sp = new GHepParticle(*p); 
@@ -190,7 +193,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
        continue; // <-- skip to next GHEP entry
     }
 
-    // ** 
+    // ** Special treatment for hadrons handled for the very first time
     // ** 
 
     // All 'fresh' hadrons would be advanced by the formation zone. Then
@@ -212,8 +215,8 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
        continue;                // <-- skip to next GHEP entry
     }
 
-    // **
-    // **
+    // ** Standard intranuclear rescattering step
+    // ** 
 
     // Generate a step and advance the hadron by it
     double d = this->GenerateStep(evrec,sp);
@@ -232,6 +235,9 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
 
     // The stepped particle interacts. Simulate the hadronic interaction.
     this->SimHadroProc(evrec,sp);
+
+    // Current snapshot
+    //LOG("Intranuke", pINFO) << "Current event record snapshot: " << *evrec;
 
   }// GHEP entries
 }
@@ -279,6 +285,8 @@ void Intranuke::AdvanceFreshHadron(GHepRecord* evrec, GHepParticle* cp) const
 // from an event entry to undergo rescattering but it should not have been
 // added at the event just yet)
 
+  LOG("Intranuke", pINFO)
+         << "Hadron handled for first time is advanced by the formation zone";
   double fzone = this->FormationZone(evrec, cp);
   this->StepParticle(cp, fzone);
 }
@@ -286,16 +294,16 @@ void Intranuke::AdvanceFreshHadron(GHepRecord* evrec, GHepParticle* cp) const
 double Intranuke::GenerateStep(GHepRecord* evrec, GHepParticle* p) const
 {
 // Generate a step (in fermis) for particle p in the input event.
-// Computes the mean free path L and generate an 'interaction' distance d from 
-// an exp(-d/L) distribution
+// Computes the mean free path L and generate an 'interaction' distance d 
+// from an exp(-d/L) distribution
 
   RandomGen * rnd = RandomGen::Instance();
 
   double L = this->MeanFreePath(evrec, p);
   double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 
-  LOG("Intranuke", pDEBUG)
-            << "Mean free path = " << L << " fm, "
+  LOG("Intranuke", pINFO)
+            << "Mean free path = " << L << " fm / "
                               << "Generated path length = " << d << " fm";
   return d;
 }
@@ -376,7 +384,7 @@ void Intranuke::SimHadroProc(GHepRecord* ev, GHepParticle* p) const
           break;
   case (kIMdHA) :
           // simulate the hadron interaction in INTRANUKE's hA mode
-          this->SimHadroProcHN(ev,p);
+          this->SimHadroProcHA(ev,p);
           break;
   default :
           LOG("Intranuke", pERROR) << "Undefined INTRANUKE mode";
@@ -486,8 +494,7 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
      }
   }
   LOG("Intranuke", pINFO)
-        << "For input:  " << p->Name() 
-        << " --> selected fate: " << INukeHadroFates::AsString(fate);
+    << "Selected " << p->Name() << " fate: " << INukeHadroFates::AsString(fate);
 
   return fate;
 }
@@ -502,6 +509,10 @@ void Intranuke::PiSlam(
 // is small due to the huge mass of an iron nucleus. Here, the Lab and CM 
 // are, for our purposes, identical.
 //
+  LOG("Intranuke", pDEBUG) 
+      << "PiSlam() is invoked for a : " << p->Name() 
+      << " whose fate is : " << INukeHadroFates::AsString(fate);
+
   if (fate!=kIHAFtCEx && fate!=kIHAFtElas && fate!=kIHAFtInelas) {
      LOG("Intranuke", pWARN) 
          << "Can not handle fate: " << INukeHadroFates::AsString(fate);
@@ -566,6 +577,7 @@ void Intranuke::PiSlam(
 
   // now add the modified particle to the GHEP record
   //
+  p->SetStatus(kIStStableFinalState); // done with it in hA?
   ev->AddParticle(*p);
 }
 //___________________________________________________________________________
@@ -576,6 +588,10 @@ void Intranuke::PnSlam(
 //
 // Scatters charged protons off nuclei.
 //
+  LOG("Intranuke", pDEBUG) 
+      << "PnSlam() is invoked for a : " << p->Name() 
+      << " whose fate is : " << INukeHadroFates::AsString(fate);
+
   if (fate!=kIHAFtCEx && fate!=kIHAFtElas && fate!=kIHAFtInelas) {
      LOG("Intranuke", pWARN) 
          << "Can not handle fate: " << INukeHadroFates::AsString(fate);
@@ -620,6 +636,7 @@ void Intranuke::PnSlam(
 
   // now add the modified particle to the GHEP record
   //
+  p->SetStatus(kIStStableFinalState); // done with it in hA?
   ev->AddParticle(*p);
 }
 //___________________________________________________________________________
@@ -668,6 +685,10 @@ double Intranuke::PiBounce(void) const
   }//i
 
   theta *= dintor;
+
+  LOG("Intranuke", pINFO) 
+     << "Generated pi+A elastic scattering angle = " << theta << " radians";
+
   return theta;
 }
 //___________________________________________________________________________
@@ -717,6 +738,10 @@ double Intranuke::PnBounce(void) const
   } //i
 
   theta *= dintor;
+
+  LOG("Intranuke", pINFO) 
+     << "Generated N+A elastic scattering angle = " << theta << " radians";
+
   return theta;
 }
 //___________________________________________________________________________
@@ -773,6 +798,11 @@ double Intranuke::Degrade(double ke) const
   }//i
 
   double ke_fin = fractn * ke;
+
+  LOG("Intranuke", pINFO) 
+     << "Degrading pion kinetic energy for pi+N inelastic scattering : " 
+     << ke << " -> " << ke_fin;
+
   return ke_fin;
 }
 //___________________________________________________________________________
@@ -782,7 +812,12 @@ void Intranuke::PiInelastic(
 // [adapted from neugen3 intranuke_pi_inelastic.F]
 //
 
-  PDGCodeList list; // list of final state particles
+  LOG("Intranuke", pDEBUG) 
+      << "PiInelastic() is invoked for a : " << p->Name() 
+      << " whose fate is : " << INukeHadroFates::AsString(fate);
+
+  bool allow_dup = true;
+  PDGCodeList list(allow_dup); // list of final state particles
 
   // figure out the final state according to the fate
   //
@@ -832,8 +867,12 @@ void Intranuke::PnInelastic(
 {
 // [adapted from neugen3 intranuke_pn_inelastic.F]
 //
+  LOG("Intranuke", pDEBUG) 
+      << "PnInelastic() is invoked for a : " << p->Name() 
+      << " whose fate is : " << INukeHadroFates::AsString(fate);
 
-  PDGCodeList list; // list of final state particles
+  bool allow_dup = true;
+  PDGCodeList list(allow_dup); // list of final state particles
 
   // figure out the final state according to the fate
   //
@@ -904,26 +943,36 @@ bool Intranuke::PhaseSpaceDecay(
 // array starting from the slot 'offset'.
 //
   LOG("Intranuke", pINFO) << "*** Performing a Phase Space Decay";
-
   assert(pdgv.size() > 1);
 
-  // Get the decay product masses
+  // Get the decay product masses & names
 
+  ostringstream state_sstream;
+  state_sstream << "( ";
   vector<int>::const_iterator pdg_iter;
   int i = 0;
   double * mass = new double[pdgv.size()];
-  double   sum  = 0;
+  double   mass_sum = 0;
   for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
     int pdgc = *pdg_iter;
-    double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
+    double m  = PDGLibrary::Instance()->Find(pdgc)->Mass();
+    string nm = PDGLibrary::Instance()->Find(pdgc)->GetName();
     mass[i++] = m;
-    sum += m;
+    mass_sum += m;
+    state_sstream << nm << " ";
   }
+  state_sstream << ")";
 
-  TLorentzVector * pd = p->GetP4();
+  TLorentzVector * pd = p->GetP4(); // incident particle 4p
+
+  // update available energy -> init (mass + kinetic) + sum of f/s masses
+  double availE = pd->Energy() + mass_sum; 
+  availE += 0.01; // steve's recipe
+  pd->SetE(availE);
 
   LOG("Intranuke", pINFO)
-    << "Decaying N = " << pdgv.size() << " particles / total mass = " << sum;
+    << "Final state = " << state_sstream.str() << " has N = " << pdgv.size() 
+    << " particles / total mass = " << mass_sum;
   LOG("Intranuke", pINFO)
     << "Decaying system p4 = " << utils::print::P4AsString(pd);
 
@@ -932,7 +981,7 @@ bool Intranuke::PhaseSpaceDecay(
   if(!permitted) {
      LOG("Intranuke", pERROR)
        << " *** Phase space decay is not permitted \n"
-       << " Total particle mass = " << sum << "\n"
+       << " Total particle mass = " << mass_sum << "\n"
        << " Decaying system p4 = " << utils::print::P4AsString(pd);
 
      // clean-up and return
@@ -940,6 +989,11 @@ bool Intranuke::PhaseSpaceDecay(
      delete pd;
      return false;
   }
+
+  // The decay is permitted - add the incident particle at the event record
+  // and mark is as 'decayed state'
+  p->SetStatus(kIStDecayedState);
+  ev->AddParticle(*p);
 
   // Get the maximum weight
   double wmax = -1;
@@ -981,10 +1035,13 @@ bool Intranuke::PhaseSpaceDecay(
     accept_decay = (gw<=w);
   }
 
-  // Insert final state products into a TClonesArray of TMCParticles
+  // Insert final state products into the event record
+  // - the particles are added as daughters of the decayed state
+  // - the particles are marked as final stable state (in hA mode)
   i=0;
   int mom = ev->ParticlePosition(p);
-  GHepStatus_t ist = kIStHadronInTheNucleus;
+  GHepStatus_t ist = kIStStableFinalState;
+
   TLorentzVector * v4 = p->GetX4();
 
   for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
@@ -1031,9 +1088,12 @@ void Intranuke::LoadConfig(void)
   fHadroData = INukeHadroData::Instance();
 
   //-- intranuke mode (h+N or h+A)
-  bool hAmd = fConfig->GetBoolDef ("hA-mode",gc->GetBool("INUKE-hA-mode"));
-  fMode = (hAmd) ? kIMdHA : kIMdHN;
+  string mode = fConfig->GetStringDef ("mode", gc->GetString("INUKE-Mode"));
+  if      (mode == "hA" || mode == "HA") fMode = kIMdHA;
+  else if (mode == "hN" || mode == "HN") fMode = kIMdHN;
+  else                                   fMode = kIMdUndefined;
 
+  //-- other intranuke config params
   fct0 = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("INUKE-FormationZone")); // fermi
   fK   = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("INUKE-KPt2"));
   fR0  = fConfig->GetDoubleDef ("R0",   gc->GetDouble("INUKE-Ro")); // fermi
