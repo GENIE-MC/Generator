@@ -65,6 +65,7 @@
 #include <TGraph.h>
 #include <TPaveText.h>
 #include <TString.h>
+#include <TH1F.h>
 
 #include "Conventions/XmlParserStatus.h"
 #include "Conventions/Units.h"
