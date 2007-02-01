@@ -33,10 +33,9 @@ class GHepParticle;
 class NucBindEnergyAggregator : public EventRecordVisitorI {
 
 public :
-
   NucBindEnergyAggregator();
   NucBindEnergyAggregator(string config);
-  ~NucBindEnergyAggregator();
+ ~NucBindEnergyAggregator();
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -48,7 +47,7 @@ public :
 
 private:
   void LoadConfig (void);
-  GHepParticle * FindMotherNucleus(int ipos, GHepRecord * event_rec) const;
+  //GHepParticle * FindMotherNucleus(int ipos, GHepRecord * event_rec) const;
 
   bool fAllowRecombination; 
 };
