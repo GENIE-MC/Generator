@@ -17,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <vector>
 
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
