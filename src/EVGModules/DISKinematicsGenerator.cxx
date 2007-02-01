@@ -14,6 +14,8 @@
 */
 //____________________________________________________________________________
 
+#include <cfloat>
+
 #include <TMath.h>
 
 #include "Base/XSecAlgorithmI.h"
@@ -281,10 +283,10 @@ double DISKinematicsGenerator::ComputeMaxXSec(
     xpeak   = .1;
     ypeak   = .5;
     xwindow = .2;
-    ywindow = .5;
-    Ny  = 20;
-    Nx  = 80;
-    Nxb = 10;
+    ywindow = .48;
+    Ny  = 50;
+    Nx  = 50;
+    Nxb =  5;
   }
 
   if(tgt.HitQrkIsSet() && tgt.HitSeaQrk()) {
@@ -296,9 +298,9 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   Range1D_t xl = kps.Limits(kKVx);
   Range1D_t yl = kps.Limits(kKVy);
 
-  double xmin    = TMath::Max(xpeak-xwindow, xl.min);
+  double xmin    = TMath::Max(xpeak-xwindow, TMath::Max(xl.min, 5E-3));
   double xmax    = TMath::Min(xpeak+xwindow, xl.max);
-  double ymin    = TMath::Max(ypeak-ywindow, yl.min);
+  double ymin    = TMath::Max(ypeak-ywindow, TMath::Max(yl.min, 2E-3));
   double ymax    = TMath::Min(ypeak+ywindow, yl.max);
   double logxmin = TMath::Log10(xmin);
   double logxmax = TMath::Log10(xmax);
@@ -306,6 +308,9 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   double logymax = TMath::Log10(ymax);
   double dlogx   = (logxmax-logxmin)/(Nx-1);
   double dlogy   = (logymax-logymin)/(Ny-1);
+
+  LOG("DISKinematics", pWARN) 
+    << "Searching max. in x [" << xmin << ", " << xmax << "], y [" << ymin << ", " << ymax << "]";
 
   double xseclast_y = -1;
   bool increasing_y;
@@ -370,7 +375,8 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy
   //  max_xsec *= fSafetyFactor;
-  max_xsec *= ( (Ev<3.5) ? 2. : fSafetyFactor);
+  //max_xsec *= ( (Ev<3.0) ? 2.5 : fSafetyFactor);
+  max_xsec *= 3;
 
   SLOG("DISKinematics", pDEBUG) << interaction->AsString();
   SLOG("DISKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;

@@ -48,68 +48,66 @@ PauliBlocker::~PauliBlocker()
 
 }
 //___________________________________________________________________________
-void PauliBlocker::ProcessEventRecord(GHepRecord * event_rec) const
+void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
 {
-  //-- Get the Interaction & InitialState objects
-  Interaction * interaction = event_rec->Summary();
-  const InitialState & init_state = interaction->InitState();
+  // Return if the neutrino was not scatterred off a nuclear target
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+  if (!nucltgt) {
+    LOG("PauliBlock", pINFO)
+           << "No nuclear target found - The Pauli Blocker exits";
+    return;
+  }
 
-  //-- Pauli Blocking is only relevant for nucleon bound in a nucleus
+  // Handle only QEL for now...
+  Interaction * interaction = evrec->Summary();
+  const ProcessInfo & proc = interaction->ProcInfo();
+  if(!proc.IsQuasiElastic()) {
+    LOG("PauliBlock", pINFO) << "Not a QEL event - The Pauli Blocker exits";  
+    return;
+  }
 
-  if( init_state.Tgt().IsNucleus() ) {
+  GHepParticle * hit = evrec->HitNucleon();
+  assert(hit);
+  GHepParticle * recoil = evrec->Particle(hit->FirstDaughter());
+  assert(recoil);
 
-    int tgt_pdgc = init_state.Tgt().Pdg();
-    int nuc_pdgc = interaction->RecoilNucleonPdg();
+  int tgt_pdgc = nucltgt -> Pdg();
+  int nuc_pdgc = recoil  -> Pdg();
 
-    GHepParticle * hit = event_rec->HitNucleon();
-    TVector3 beta = hit->P4()->BoostVector();
-  
-    if(nuc_pdgc != 0) {
-       // Find the recoil nucleon in the EventRecord
+  // get the Fermi momentum
+  const double kf = fKFTable->FindClosestKF(tgt_pdgc, nuc_pdgc);
+  LOG("PauliBlock", pINFO) << "KF = " << kf;
 
-       GHepStatus_t ist = kIStStableFinalState;
-       GHepParticle * nuc = event_rec->FindParticle(nuc_pdgc, ist, 0);
+  // get the recoil momentum
+  double p = recoil->P4()->P(); // |p| for the recoil nucleon
+  LOG("PauliBlock", pINFO) << "Recoil nucleon |P| = " << p;
 
-       if(nuc) {
-         // get the Fermi momentum
-         const double kf = fKFTable->FindClosestKF(tgt_pdgc, nuc_pdgc);
+  // check for pauli blocking
+  bool is_blocked = (p < kf);
 
-         LOG("PauliBlock", pINFO) << "KF = " << kf;
+  // if it is blocked, set & thow an exception
+  if(is_blocked) {
+     LOG("PauliBlock", pNOTICE)
+        << "\n The generated event is Pauli-blocked: "
+                       << " |p| = " << p << " < Fermi-Momentum = " << kf;
 
-         //TLorentzVector * p4 = nuc->GetP4();
-         //p4->Boost(-beta);
-         //double p = p4->P(); // |p| for the recoil nucleon         
-         //delete p4;
+     evrec->EventFlags()->SetBitNumber(kPauliBlock, true);
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("Pauli-blocked event");
 
-	 double p = nuc->P4()->P(); // |p| for the recoil nucleon
-         LOG("PauliBlock", pINFO) << "Recoil nucleon |P| = " << p;
-
-         if(p < kf) {
-              LOG("PauliBlock", pINFO)
-                   << "\n The generated event is Pauli-blocked: "
-                          << " |p| = " << p << " < Fermi-Momentum = " << kf;
-
-              const ProcessInfo & proc = interaction->ProcInfo();
-
-              event_rec->EventFlags()->SetBitNumber(kPauliBlock, true);
-              genie::exceptions::EVGThreadException exception;
-              exception.SetReason("Pauli-blocked event");
-
-              if(proc.IsQuasiElastic()) {
-                 // nuclear suppression taken into account at the QEL cross
-                 // section - should attempt to regenerate the event as QEL
-                 exception.SwitchOnStepBack();
-                 exception.SetReturnStep(0);
-              } else {
-                 // end this event generation thread and start again at the 
-                 // interaction selection step
-                 exception.SwitchOnFastForward();
-              }
-              throw exception;
-         }
-       }//nuc!=0
-    }//nuc_pdgc!=0
-  }//not a free nucleon
+     if(proc.IsQuasiElastic()) {
+        // nuclear suppression taken into account at the QEL cross
+        // section - should attempt to regenerate the event as QEL
+        exception.SwitchOnStepBack();
+        exception.SetReturnStep(0);
+     } else {
+        // end this event generation thread and start again at the 
+        // interaction selection step
+        // - this is irrelevant for the time being as we only handle QEL-
+        exception.SwitchOnFastForward();
+     }
+     throw exception;
+  }
 }
 //___________________________________________________________________________
 void PauliBlocker::Configure(const Registry & config)

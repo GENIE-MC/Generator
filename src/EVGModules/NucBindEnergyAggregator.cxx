@@ -50,130 +50,132 @@ NucBindEnergyAggregator::~NucBindEnergyAggregator()
 
 }
 //___________________________________________________________________________
-void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * event_rec) const
+void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * evrec) const
 {
-  TIter stdhep_iter(event_rec);
+  // Return if the neutrino was not scatterred off a nuclear target
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+  if (!nucltgt) {
+    LOG("Nuclear", pINFO)
+           << "No nuclear target found - Hadron transporter exits";
+    return;
+  }
+
+  // Loop over particles, find final state nucleons for which a removal 
+  // energy has been set and subtract it from their energy
+  TIter stdhep_iter(evrec);
   GHepParticle * p = 0;
-  int ipos = 0;
 
   while( (p = (GHepParticle * ) stdhep_iter.Next()) ) {
 
-     bool is_nucleon = pdg::IsNeutronOrProton(p->Pdg());
-     bool in_nucleus = (p->Status() == kIStHadronInTheNucleus);
+     bool is_nucleon   = pdg::IsNeutronOrProton(p->Pdg());  
+     bool in_fin_state = (p->Status() == kIStStableFinalState);
+     bool had_bind_e   = (p->RemovalEnergy() > 0.);
 
-     if(is_nucleon && in_nucleus) {
-        // check if it is coming from a nucleus and find it in the record
-        GHepParticle * nucleus = this->FindMotherNucleus(ipos, event_rec);
-        if(nucleus) {
-           //-- ask for the binding energy set by the nuclear model
-           double bindE = p->RemovalEnergy();
-           LOG("Nuclear", pINFO) << "Binding energy = " << bindE;
+     bool handle = is_nucleon && in_fin_state && had_bind_e;
+     if(!handle) continue;
 
-           //-- subtract this energy from the final state nucleon
-           LOG("Nuclear", pINFO)
-              << "Subtracting the binding energy from the escaped nucleon";
+     //-- ask for the binding energy set by the nuclear model
+     double bindE = p->RemovalEnergy();
+     LOG("Nuclear", pINFO) << "Binding energy = " << bindE;
 
-           double M  = p->Mass();
-           double En = p->Energy();
-           double KE = En-M;
+     //-- subtract this energy from the final state nucleon
+     LOG("Nuclear", pINFO)
+          << "Subtracting the binding energy from the escaped nucleon";
 
-           LOG("Nuclear", pINFO) 
-                  << "Kinetic energy before subtraction = " << KE;
+     double M  = p->Mass();
+     double En = p->Energy();
+     double KE = En-M;
 
-           KE -= bindE;
-           KE = TMath::Max(0.,KE);
+     LOG("Nuclear", pINFO)  << "Kinetic energy before subtraction = " << KE;
+     KE -= bindE;
+     KE = TMath::Max(0.,KE);
 
-           LOG("Nuclear", pINFO) 
-                   << "Kinetic energy after subtraction = " << KE;
+     LOG("Nuclear", pINFO) << "Kinetic energy after subtraction = " << KE;
 
-           En = KE+M;
+     En = KE+M;
 
-           if (En>M || !fAllowRecombination) { 
-             double pmag_old = p->P4()->P();
-             double pmag_new = TMath::Sqrt(utils::math::NonNegative(En*En-M*M));
+     if(En>M || !fAllowRecombination) { 
+         double pmag_old = p->P4()->P();
+         double pmag_new = TMath::Sqrt(utils::math::NonNegative(En*En-M*M));
+         double scale    = pmag_new / pmag_old;
+         LOG("Nuclear", pINFO) 
+             << "|pnew| = " << pmag_new << ", |pold| = " << pmag_old
+             << ", scale = " << scale;
 
-             double scale = pmag_new / pmag_old;
+         double pxn = scale * p->Px();
+         double pyn = scale * p->Py();
+         double pzn = scale * p->Pz();
 
-             LOG("Nuclear", pINFO) 
-	       << "|pnew| = " << pmag_new << ", |pold| = " << pmag_old
-                                                       << ", scale = " << scale;
+         double pxb = (1-scale) * p->Px();
+         double pyb = (1-scale) * p->Py();
+         double pzb = (1-scale) * p->Pz();
 
-             double pxn = scale * p->Px();
-             double pyn = scale * p->Py();
-             double pzn = scale * p->Pz();
+          p->SetEnergy ( En  );
+          p->SetPx     ( pxn );
+          p->SetPy     ( pyn );
+          p->SetPz     ( pzn );
 
-             double pxb = (1-scale) * p->Px();
-             double pyb = (1-scale) * p->Py();
-             double pzb = (1-scale) * p->Pz();
+          //-- and add a GHEP entry to record this in the event record and
+          //   conserve energy/momentum
+          LOG("Nuclear", pINFO)
+             << "Adding a [BindingE] to account for nuclear binding energy";
 
-             p->SetEnergy ( En  );
-             p->SetPx     ( pxn );
-             p->SetPy     ( pyn );
-             p->SetPz     ( pzn );
-
-             //-- and add a GHEP entry to record this in the event record and
-             //   conserve energy/momentum
-
-             LOG("Nuclear", pINFO)
-               << "Adding a [BindingE] to account for nuclear binding energy";
-
-             event_rec->AddParticle(kPdgBindino, kIStStableFinalState, 
-  				       -1,-1,-1,-1, pxb,pyb,pzb,bindE, 0,0,0,0);
-          }
-          else {
-             LOG("Nuclear", pNOTICE)
+          evrec->AddParticle(kPdgBindino, kIStStableFinalState, 
+      		                   -1,-1,-1,-1, pxb,pyb,pzb,bindE, 0,0,0,0);
+     } else {
+          LOG("Nuclear", pNOTICE)
                << "Nucleon is above the Fermi sea but can't escape the nucleus";
-             LOG("Nuclear", pNOTICE)
+          LOG("Nuclear", pNOTICE)
                << "Recombining remnant nucleus + f/s nucleon";
 
-             LOG("Nuclear", pNOTICE) << *event_rec;
+          LOG("Nuclear", pERROR)
+               << "*** This functionality is temporarily disabled";
+/*
+          LOG("Nuclear", pNOTICE) << *evrec;
 
-             // find the remnant nucleus
-             int rnucpos = event_rec->RemnantNucleusPosition();
-             assert(rnucpos);
+          // find the remnant nucleus
+          int rnucpos = evrec->RemnantNucleusPosition();
+          assert(rnucpos);
 
-             GHepParticle * rnucl = event_rec->Particle(rnucpos);
+          GHepParticle * rnucl = evrec->Particle(rnucpos);
 
-             // mark both the remnant nucleus and the final state nucleon as 
-             // intermediate states
-             rnucl -> SetStatus(kIStIntermediateState);
-             p     -> SetStatus(kIStIntermediateState);
+          // mark both the remnant nucleus and the final state nucleon as 
+          // intermediate states
+          rnucl -> SetStatus(kIStIntermediateState);
+          p     -> SetStatus(kIStIntermediateState);
 
-             // figure out the recombined nucleus PDG code
-             int Z = rnucl->Z();
-             int A = rnucl->A();
-             if(pdg::IsProton(p->Pdg())) Z++;
-             A++;
-             int ipdgc = pdg::IonPdgCode(A,Z);
+          // figure out the recombined nucleus PDG code
+          int Z = rnucl->Z();
+          int A = rnucl->A();
+          if(pdg::IsProton(p->Pdg())) Z++;
+          A++;
+          int ipdgc = pdg::IonPdgCode(A,Z);
 
-             // add-up their 4-momenta
-             double pxnuc = rnucl->Px() + p->Px();
-             double pynuc = rnucl->Py() + p->Py();
-             double pznuc = rnucl->Pz() + p->Pz();
-             double Enuc  = rnucl->E()  + p->E();
+          // add-up their 4-momenta
+          double pxnuc = rnucl->Px() + p->Px();
+          double pynuc = rnucl->Py() + p->Py();
+          double pznuc = rnucl->Pz() + p->Pz();
+          double Enuc  = rnucl->E()  + p->E();
 
-             event_rec->AddParticle(ipdgc, kIStStableFinalState,
-                          rnucpos,-1,-1,-1, pxnuc,pynuc,pznuc,Enuc, 0,0,0,0);
-          }
-
-        } // nucleus != 0
-     }  // if is a final state p,n
-
-     ipos++;
+          evrec->AddParticle(ipdgc, kIStStableFinalState,
+                       rnucpos,-1,-1,-1, pxnuc,pynuc,pznuc,Enuc, 0,0,0,0);
+*/
+     }
   }
 }
 //___________________________________________________________________________
+/*
 GHepParticle * NucBindEnergyAggregator::FindMotherNucleus(
-                                    int ipos, GHepRecord * event_rec) const
+                                         int ipos, GHepRecord * evrec) const
 {
-  GHepParticle * p = event_rec->Particle(ipos);
+  GHepParticle * p = evrec->Particle(ipos);
 
   //-- get its mothet
   int mother_pos = p->FirstMother();
 
   //-- if mother is set
   if(mother_pos != -1) {
-     GHepParticle * mother = event_rec->Particle(mother_pos);
+     GHepParticle * mother = evrec->Particle(mother_pos);
 
      //-- check its status
      if( mother->Status() == kIStNucleonTarget ) {
@@ -184,7 +186,7 @@ GHepParticle * NucBindEnergyAggregator::FindMotherNucleus(
         //-- if grandmother is set get its PDG code a check if it is an ion
         if(grandmother_pos != -1) {
              GHepParticle * grandmother =
-                                   event_rec->Particle(grandmother_pos);
+                                     evrec->Particle(grandmother_pos);
 
              int grandmother_pdgc = grandmother->Pdg();
              if( pdg::IsIon(grandmother_pdgc) ) return grandmother;
@@ -194,7 +196,7 @@ GHepParticle * NucBindEnergyAggregator::FindMotherNucleus(
   }  //mpos != -1
 
   return 0;
-}
+} */
 //___________________________________________________________________________
 void NucBindEnergyAggregator::Configure(const Registry & config)
 {
