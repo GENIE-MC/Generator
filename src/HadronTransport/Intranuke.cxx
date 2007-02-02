@@ -341,33 +341,96 @@ void Intranuke::StepParticle(GHepParticle * p, double step) const
 //___________________________________________________________________________
 double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
 {
+// [adapted from neugen3 mean_free_path.F]
+//
 // Mean free path for the pions with the input kinetic energy.
-// Adapted from NeuGEN's intranuke_piscat
-// Original documentation:
-//   Determine the scattering length LAMDA from yellowbook data and scale
-//   it to the nuclear density.
+// Determines the scattering length lamda from the SAID pi+N PWA fit ands
+// scales it to the nuclear density.
+//
+// output mean free path units: fm
 
   // compute pion kinetic energy K in MeV
   double K = (p->KinE() / units::MeV);
 
-  // collision length in fermis
-  double rlmbda;
-  if      (K < 25 ) rlmbda = 200.;
-  else if (K > 550) rlmbda = 25.;
-  else              rlmbda = 1.0 / (-2.444/K + .1072 - .00011810*K);
+  // get the nuclear target mass number
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+  double A = nucltgt->A();
 
-  // additional correction for iron
-  GHepParticle * target = evrec->TargetNucleus();
-  if(target->Z()==26) {
-      rlmbda = rlmbda/2.297;
+  // get current radial position within the nucleus
+  double rnow = p->X4()->Vect().Mag();
+
+  // get the nuclear density at the current position
+  double rrms = (A>=20) ? 3.76 /* heavy:Fe */ : 2.44 /* light:C */;
+  double req  = rrms*1.26;
+  double req3 = TMath::Power(req,3);
+  double rho  = A/(4*kPi*req3/3.);
+
+  if(A>20) rho *= this->DensityWoodsSaxon(rnow);
+  else     rho *= this->DensityGaus(rnow);
+
+  // get total xsection for the incident hadron at its current 
+  // kinetic energy
+  int    pdgc   = p->Pdg();
+  double sigtot = 0;
+
+  if (pdgc == kPdgPiP) 
+      sigtot = fHadroData -> XSecPip_Tot() -> Evaluate(K);
+  else if (pdgc == kPdgPi0) 
+      sigtot = fHadroData -> XSecPi0_Tot() -> Evaluate(K);
+  else if (pdgc == kPdgPiM) 
+      sigtot = fHadroData -> XSecPim_Tot() -> Evaluate(K);
+  else if (pdgc == kPdgProton) 
+      sigtot = fHadroData -> XSecP_Tot()   -> Evaluate(K);
+  else if (pdgc == kPdgNeutron) 
+      sigtot = fHadroData -> XSecN_Tot()   -> Evaluate(K);
+  else {
+     LOG("Intranuke", pWARN)
+         << "Can't compute mean free path for particle code = " << pdgc;
+     return 0;
   }
 
-  // scale to nuclear density.
-  //double density = kNucDensity;
-  double density = 3.4; // units?
+  // the xsection splines in INukeHadroData return the hadron x-section in
+  // mb -> convert to fm^2
+  sigtot *= (units::mb / units::fm2);
 
-  double L  = (rlmbda/density); // units?
-  return L;
+  // compute the mean free path
+  double lamda = 1. / (rho * sigtot);
+  return lamda;
+}
+//___________________________________________________________________________
+double Intranuke::DensityGaus(double r) const
+{
+// [adapted from neugen3 density_gaus.F]
+//
+// Modified harmonic osc density distribution. Norm gives normalization to 1
+// Only C12 here - can be expalned to others later
+//
+// input  : radial distance in nucleus [units: fm]
+// output : nuclear density            [units: fm^-3]
+
+  double norm = 0.0132;
+  double a    = 1.635;
+  double alf  = 1.403;
+  double b    = TMath::Power(r/a,2.);
+  double dens = norm * (1. + alf*b) * TMath::Exp(-b);
+  return dens;
+}
+//___________________________________________________________________________
+double Intranuke::DensityWoodsSaxon(double r) const
+{
+// [adapted from neugen3 density_ws.F]
+//
+// Woods-Saxon desity distribution. Norn gives normalization to 1
+// Onlt Fe here - can be expalned to others later
+//
+// input  : radial distance in nucleus [units: fm]
+// output : nuclear density            [units: fm^-3]
+
+  double norm = 0.002925;
+  double c    = 4.10;
+  double z    = 0.56;
+  double dens = norm / (1 + TMath::Exp((r-c)/z));
+  return dens;
 }
 //___________________________________________________________________________
 void Intranuke::SimHadroProc(GHepRecord* ev, GHepParticle* p) const

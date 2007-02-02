@@ -77,9 +77,11 @@ private:
   bool   IsFreshHadron      (GHepRecord* ev, GHepParticle* p) const;
   double FormationZone      (GHepRecord* ev, GHepParticle* p) const;
   void   AdvanceFreshHadron (GHepRecord* ev, GHepParticle* p) const;
+  void   SimHadroProc       (GHepRecord* ev, GHepParticle* p) const;
   double GenerateStep       (GHepRecord* ev, GHepParticle* p) const;
   double MeanFreePath       (GHepRecord* ev, GHepParticle* p) const;
-  void   SimHadroProc       (GHepRecord* ev, GHepParticle* p) const;
+  double DensityGaus        (double r) const;
+  double DensityWoodsSaxon  (double r) const;
 
   // methods specific to intranuke HA-mode
   INukeFateHA_t HadronFateHA    (const GHepParticle* p) const;

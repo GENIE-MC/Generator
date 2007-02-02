@@ -31,6 +31,12 @@ class INukeHadroData
 public:
   static INukeHadroData * Instance (void);
 
+  // ----
+  // Note that, unlike most the rest of GENIE where everything is expressed
+  // in natural units, all x-section splines included here are evaluated in
+  // kinetic energies given in MeV and return the x-section value in mbarn
+  // ----
+
   // Cross sections from SAID (Arndt, Workman, Strakovsky) PWA fit.
   //
   const Spline * XSecPipP_Elas (void) const { return fXSecPipP_Elas; }
