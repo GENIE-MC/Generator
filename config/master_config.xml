@@ -116,6 +116,7 @@
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::FGMBodekRitchie">             FGMBodekRitchie.xml             </config>
    <config alg="genie::BenharSpectralFunc1D">        BenharSpectralFunc1D.xml        </config>
+   <config alg="genie::BenharSpectralFunc">          BenharSpectralFunc.xml          </config>
 
    <!--  ****** CONFIGURATION FOR BREIT-WIGNER ALGORITHMSS  ****** -->
    <config alg="genie::BreitWignerLRes">             BreitWignerRes.xml              </config>
