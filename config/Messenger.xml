@@ -28,6 +28,7 @@
   <priority msgstream="BardinIMD">           NOTICE </priority>
   <priority msgstream="BaryonResList">       WARN   </priority>
   <priority msgstream="BaseHad">             NOTICE </priority>
+  <priority msgstream="BenharSF">            DEBUG  </priority>
   <priority msgstream="BreitWignet">         INFO   </priority>
   <priority msgstream="Bardin">              INFO   </priority>
   <priority msgstream="BodekYang">           INFO   </priority>

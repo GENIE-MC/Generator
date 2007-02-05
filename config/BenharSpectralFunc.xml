@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the BenharSpectralFunc1D NuclModelI implementation
+Configuration for the BenharSpectralFunc NuclerModelI implementation
 
 Configurable Parameters:
 .........................................................................................
