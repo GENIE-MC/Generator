@@ -23,6 +23,7 @@
 
 namespace genie {
 
+class Spline;
 class BenharSpectralFunc1D : public NuclearModelI {
 
 public:
@@ -40,8 +41,14 @@ public:
   void Configure (string param_set);
 
 private:
-  void LoadConfig();
-  TH1D * fHisto;
+  void     LoadConfig            (void);
+  Spline * SelectMomentumDistrib (const Target & target) const;
+  double   MaxProb               (const Target & target) const;
+
+  Spline * fSfC12_k;     ///< Benhar C12  spectral func integrated over removal energy
+  Spline * fSfFe56_k;    ///< Benhar Fe56 spectral func integrated over removal energy
+  double   fMaxC12Prob;  ///<
+  double   fMaxFe56Prob; ///<
 };
 
 }         // genie namespace
