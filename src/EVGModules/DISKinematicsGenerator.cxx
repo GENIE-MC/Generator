@@ -309,7 +309,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   double dlogx   = (logxmax-logxmin)/(Nx-1);
   double dlogy   = (logymax-logymin)/(Ny-1);
 
-  LOG("DISKinematics", pWARN) 
+  LOG("DISKinematics", pDEBUG) 
     << "Searching max. in x [" << xmin << ", " << xmax << "], y [" << ymin << ", " << ymax << "]";
 
   double xseclast_y = -1;
