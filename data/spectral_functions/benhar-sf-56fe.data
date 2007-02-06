@@ -2,7 +2,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~          
 # Notes:     This version is a bit outdated - Newer calculations are available from from O.Benhar et al.               
 # Citations: PRD72:053005,2005; PRC62:034304,2000;  Nucl.Phs.A505:267-99,1989
-# Format:    Eb(MeV)  P(MeV)  Prob
+# Format:    Momentum(MeV)  RemovalEnergy(MeV) Probability
 #
 1.000000e+01	5.000000e+00	0.000000e+00
 1.000000e+01	1.000000e+01	8.820000e-09
