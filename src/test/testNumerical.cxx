@@ -16,6 +16,8 @@
 */
 //____________________________________________________________________________
 
+#include <TMath.h>
+
 #include "Algorithm/AlgFactory.h"
 #include "Numerical/GSFunc.h"
 #include "Numerical/Spline.h"
