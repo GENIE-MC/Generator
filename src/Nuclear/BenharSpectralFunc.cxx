@@ -19,6 +19,7 @@
 #include <TGraph2D.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
 #include "Nuclear/BenharSpectralFunc.h"
@@ -27,6 +28,7 @@
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::controls;
 
 //____________________________________________________________________________
 BenharSpectralFunc::BenharSpectralFunc() :
@@ -59,42 +61,58 @@ bool BenharSpectralFunc::GenerateNucleon(const Target & target) const
     return false;
   }
 
-  double kmin = sf->GetXmin(); // momentum range
-  double kmax = sf->GetXmax();
-  double wmin = sf->GetYmin(); // removal energy range
-  double wmax = sf->GetYmax();
-  double pmax = sf->GetZmax(); // maximum probability
-  pmax *= 1.1;
+  double kmin    = sf->GetXmin(); // momentum range
+  double kmax    = sf->GetXmax();
+  double wmin    = sf->GetYmin(); // removal energy range
+  double wmax    = sf->GetYmax();
+  double probmax = sf->GetZmax(); // maximum probability
+  probmax *= 1.1;
 
   double dk = kmax - kmin;
   double dw = wmax - wmin;
 
+  LOG("BenharSF", pINFO) << "Momentum range = ["   << kmin << ", " << kmax << "]"; 
+  LOG("BenharSF", pINFO) << "Rmv energy range = [" << wmin << ", " << wmax << "]";
+
   RandomGen * rnd = RandomGen::Instance();
 
+  unsigned int niter = 0;
   while(1) {
+    if(niter > kRjMaxIterations) {
+       LOG("BenharSF", pWARN) 
+           << "Couldn't generate a hit nucleon after " << niter << " iterations";
+       return false;
+    }
+    niter++;
+
+    // random pair
     double kc = kmin + dk * rnd->RndGen().Rndm();
     double wc = wmin + dw * rnd->RndGen().Rndm();
-    double pc = this->Prob(kc,wc,target);
-    double pg = pmax * rnd->RndGen().Rndm();
-    
-    bool accept = (pg < pc);
+    LOG("BenharSF", pINFO) << "Trying p = " << kc << ", w = " << wc;
+
+    // accept/reject
+    double prob  = this->Prob(kc,wc, target);
+    double probg = probmax * rnd->RndGen().Rndm();
+    bool accept = (probg < prob);
     if(!accept) continue;
 
-    LOG("BenharSF", pINFO) << "|p,nucleon| = " << pc; 
+    LOG("BenharSF", pINFO) << "|p,nucleon| = " << kc; 
     LOG("BenharSF", pINFO) << "|w,nucleon| = " << wc;
 
+    // generate momentum components
     double costheta = -1. + 2. * rnd->RndGen().Rndm();
     double sintheta = TMath::Sqrt(1.-costheta*costheta);
     double fi       = 2 * kPi * rnd->RndGen().Rndm();
     double cosfi    = TMath::Cos(fi);
     double sinfi    = TMath::Sin(fi);
 
-    double px = pc*sintheta*cosfi;
-    double py = pc*sintheta*sinfi;
-    double pz = pc*costheta;
+    double kx = kc*sintheta*cosfi;
+    double ky = kc*sintheta*sinfi;
+    double kz = kc*costheta;
 
+    // set generated values
     fCurrRemovalEnergy = wc;
-    fCurrMomentum.SetXYZ(px,py,pz);
+    fCurrMomentum.SetXYZ(kx,ky,kz);
 
     return true;
   }

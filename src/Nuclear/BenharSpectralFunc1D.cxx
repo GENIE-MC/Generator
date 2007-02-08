@@ -17,6 +17,7 @@
 #include <TSystem.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "Messenger/Messenger.h"
 #include "Nuclear/BenharSpectralFunc1D.h"
 #include "Numerical/RandomGen.h"
@@ -25,6 +26,7 @@
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::controls;
 
 //____________________________________________________________________________
 BenharSpectralFunc1D::BenharSpectralFunc1D() :
@@ -66,7 +68,15 @@ bool BenharSpectralFunc1D::GenerateNucleon(const Target & target) const
   LOG("BenharSF", pDEBUG) << "Max probability = " << max;
 
   double p = 0;
+  unsigned int niter = 0;
   while(1) {
+    if(niter > kRjMaxIterations) {
+       LOG("BenharSF", pWARN)
+        << "Couldn't generate a hit nucleon after " << niter << " iterations";
+       return false;
+    }
+    niter++;
+
     p = rnd->RndGen().Rndm();
     double prob  = distrib->Evaluate(p);
     double probg = max * rnd->RndGen().Rndm();
