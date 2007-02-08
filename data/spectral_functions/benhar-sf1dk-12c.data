@@ -1,5 +1,5 @@
 # Benhar's C12 spectral function integrated over removal energy
-# Format: Momentum(MeV) Probability
+# Format: Momentum(GeV) Probability
 #
 1.000000e-02	6.115673e-02
 3.000000e-02	4.574280e-01

@@ -1,5 +1,5 @@
 # Benhar's Fe56 spectral function integrated over removal energy
-# Format: Momentum(MeV) Probability
+# Format: Momentum(GeV) Probability
 #
 1.000000e-02	3.925826e-02
 3.000000e-02	2.953691e-01
