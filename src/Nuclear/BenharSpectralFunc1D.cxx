@@ -63,14 +63,17 @@ bool BenharSpectralFunc1D::GenerateNucleon(const Target & target) const
   RandomGen * rnd = RandomGen::Instance();
 
   double max = this->MaxProb(target);
+  LOG("BenharSF", pDEBUG) << "Max probability = " << max;
+
   double p = 0;
   while(1) {
     p = rnd->RndGen().Rndm();
-    double prob  = distrib->Evaluate(p*1000);
+    double prob  = distrib->Evaluate(p);
     double probg = max * rnd->RndGen().Rndm();
+    LOG("BenharSF", pDEBUG) << "Trying p = " << p << " / prob = " << prob;
 
     bool accept = (probg<prob);
-    if(accept) break;;
+    if(accept) break;
   }
 
   LOG("BenharSF", pINFO) << "|p,nucleon| = " << p;
@@ -136,12 +139,12 @@ void BenharSpectralFunc1D::LoadConfig(void)
   fMaxC12Prob  = 0;
   fMaxFe56Prob = 0;
   int    n    = 100;
-  double xmin =  0.0;
-  double dx   = 10.0;
+  double pmin =  0.000;
+  double dp   =  0.010;
   for(int i=0; i<n; i++) {
-    double x = xmin + i*dx;
-    fMaxC12Prob  = TMath::Max(fMaxC12Prob,  fSfC12_k ->Evaluate(x));
-    fMaxFe56Prob = TMath::Max(fMaxFe56Prob, fSfFe56_k->Evaluate(x));
+    double p = pmin + i*dp;
+    fMaxC12Prob  = TMath::Max(fMaxC12Prob,  fSfC12_k ->Evaluate(p));
+    fMaxFe56Prob = TMath::Max(fMaxFe56Prob, fSfFe56_k->Evaluate(p));
   }
 }
 //____________________________________________________________________________
