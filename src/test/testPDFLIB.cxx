@@ -18,6 +18,7 @@
 
 #include <TNtuple.h>
 #include <TFile.h>
+#include <TMath.h>
 
 #include "Messenger/Messenger.h"
 #include "PDF/PDFModelI.h"
@@ -86,7 +87,7 @@ void fill_ntuple(TNtuple * nt,
 
   for(int ix=0; ix<nx; ix++) {
 
-      double x = pow(10, xmin_idx + ix * dx_idx);
+      double x = TMath::Power(10, xmin_idx + ix * dx_idx);
       pdf.Calculate(x, Q2);
 
       LOG("Main", pINFO) << ENDL << pdf;
