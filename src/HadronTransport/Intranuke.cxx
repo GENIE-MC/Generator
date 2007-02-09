@@ -365,8 +365,8 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   double req3 = TMath::Power(req,3);
   double rho  = A/(4*kPi*req3/3.);
 
-  if(A>20) rho *= this->DensityWoodsSaxon(rnow);
-  else     rho *= this->DensityGaus(rnow);
+  if(A>20) rho = A * this->DensityWoodsSaxon(rnow);
+  else     rho = A * this->DensityGaus(rnow);
 
   // get total xsection for the incident hadron at its current 
   // kinetic energy
@@ -392,9 +392,13 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   // the xsection splines in INukeHadroData return the hadron x-section in
   // mb -> convert to fm^2
   sigtot *= (units::mb / units::fm2);
+  LOG("Intranuke", pDEBUG) 
+       << "SigmaTotal(KineticE = " << K << " MeV) = " << sigtot << " fm2";
 
   // compute the mean free path
   double lamda = 1. / (rho * sigtot);
+  LOG("Intranuke", pDEBUG) << "Mean free path = " << lamda << " fm";
+
   return lamda;
 }
 //___________________________________________________________________________
