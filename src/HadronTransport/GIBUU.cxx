@@ -46,21 +46,13 @@ GIBUU::~GIBUU()
 //___________________________________________________________________________
 void GIBUU::ProcessEventRecord(GHepRecord * event) const
 {
-  //-- Check that we have an interaction with a nuclear target.
-  //   If not, do not call GIBUU
-  Interaction * interaction = event->Summary();
-  const InitialState & init_state = interaction->InitState();
-  if(!init_state.Tgt().IsNucleus() ) {
-    LOG("GIBUU", pDEBUG)
-        << "Not an interaction with a nuclear target. Skipping GIBUU call";
+  //-- Check that we have an interaction with a nuclear target. If not skip...
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+  if (!nucltgt) {
+    LOG("GIBUU", pINFO)
+       << "No nuclear target found - GIBUU will not be called....";
     return;
   }
-
-  //-- Access this module's configuration options and pass them to
-  //   the actual GIBUU code
-
-  //
-  // ...
 
   //-- Translate GENIE GHepRecord to whatever FLUKA needs
   LOG("GIBUU", pDEBUG) << "Translating: GENIE GHepRecord ---> GIBUU input";
@@ -69,7 +61,7 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
   // ...
 
   //-- Run GIBUU
-  LOG("GIBUU", pINFO) << "************ Running FLUKA ************";
+  LOG("GIBUU", pNOTICE) << "************ Running GIBUU ************";
 
   //
   // ...
@@ -96,7 +88,9 @@ void GIBUU::Configure(string config)
 //___________________________________________________________________________
 void GIBUU::LoadConfig (void)
 {
-
+// Access this module's configuration options from its designated Registry
+// and pass them to the actual GIBUU code
+   
 }
 //___________________________________________________________________________
 

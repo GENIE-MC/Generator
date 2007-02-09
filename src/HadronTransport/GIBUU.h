@@ -5,8 +5,9 @@
 
 \brief    A GENIE interface to the GIBUU hadron transport code.
           Is a concerete implementation of the EventRecordVisitorI interface.
-          Note: the GIBUU code is *not included* in your GENIE installation.
-          You need to obtain GIBUU from its official distribution point.
+          Note: To use this event generation module you need to obtain GIBUU
+          from its official distribution point and enable it during the GENIE
+          installation.
 
 \ref      http://tp8.physik.uni-giessen.de:8080/GiBUU/
 
