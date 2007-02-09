@@ -47,7 +47,7 @@ GIBUU::~GIBUU()
 void GIBUU::ProcessEventRecord(GHepRecord * event) const
 {
   //-- Check that we have an interaction with a nuclear target. If not skip...
-  GHepParticle * nucltgt = evrec->TargetNucleus();
+  GHepParticle * nucltgt = event->TargetNucleus();
   if (!nucltgt) {
     LOG("GIBUU", pINFO)
        << "No nuclear target found - GIBUU will not be called....";

@@ -46,7 +46,7 @@ FLUKA::~FLUKA()
 void FLUKA::ProcessEventRecord(GHepRecord * event) const
 {
   //-- Check that we have an interaction with a nuclear target. If not skip...
-  GHepParticle * nucltgt = evrec->TargetNucleus();
+  GHepParticle * nucltgt = event->TargetNucleus();
   if (!nucltgt) {
     LOG("FLUKA", pINFO)
        << "No nuclear target found - FLUKA will not be called....";
