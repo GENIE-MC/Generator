@@ -510,7 +510,6 @@ TGraph * Spline::GetAsTGraph(
   double * y = new double[np];
 
   for(int i=0; i<np; i++) {
-
       x[i] = ( (use_log) ? TMath::Power(10, xmin+i*dx) : xmin + i*dx );
       y[i] = this->Evaluate( x[i] );
 
@@ -523,7 +522,6 @@ TGraph * Spline::GetAsTGraph(
   }
 
   TGraph * graph = new TGraph(np, x, y);
-
   return graph;
 }
 //___________________________________________________________________________
@@ -711,6 +709,7 @@ void Spline::InitSpline(void)
   fName = "genie-spline";
   fXMin = 0.0;
   fXMax = 0.0;
+  fYMax = 0.0;
 
   fInterpolator = 0;
 
@@ -727,14 +726,13 @@ void Spline::BuildSpline(int nentries, double x[], double y[])
 {
   LOG("Spline", pDEBUG) << "Building spline...";
 
-  //double xmin = x[ TMath::LocMin(nentries, x) ]; // minimum x in spline
-  //double xmax = x[ TMath::LocMax(nentries, x) ]; // maximum x in spline
   double xmin = x[0];          // minimum x in spline
   double xmax = x[nentries-1]; // maximum x in spline
 
   fNKnots = nentries;
   fXMin   = xmin;
   fXMax   = xmax;
+  fYMax   = y[ TMath::LocMax(nentries, y) ]; // maximum y in spline
 
   if(fInterpolator) delete fInterpolator;
 
