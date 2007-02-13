@@ -40,94 +40,82 @@ int main(int /*argc*/, char ** /*argv*/)
   // root [3] said_pip_p_elas->Draw("same");
   //
   
-  // Cross sections from SAID (Arndt, Workman, Strakovsky) PWA fit.
-  //  
-  inukd -> XSecPipP_Elas () -> SaveAsROOT("hdxs.root", "said_pip_p_elas", true);
-  inukd -> XSecPipP_Reac () -> SaveAsROOT("hdxs.root", "said_pip_p_reac", false);
-  inukd -> XSecPipD_Abs  () -> SaveAsROOT("hdxs.root", "said_pip_d_abs",  false);
-  inukd -> XSecPimP_Elas () -> SaveAsROOT("hdxs.root", "said_pim_p_elas", false);
-  inukd -> XSecPimP_Reac () -> SaveAsROOT("hdxs.root", "said_pim_p_reac", false);
-  inukd -> XSecPimP_CEx  () -> SaveAsROOT("hdxs.root", "said_pim_p_cex",  false);
-  inukd -> XSecPP_Elas   () -> SaveAsROOT("hdxs.root", "said_p_p_elas",   false);
-  inukd -> XSecPP_Reac   () -> SaveAsROOT("hdxs.root", "said_p_p_reac",   false);
-  inukd -> XSecNP_Elas   () -> SaveAsROOT("hdxs.root", "said_n_p_elas",   false);
-  inukd -> XSecNP_Reac   () -> SaveAsROOT("hdxs.root", "said_n_p_reac",   false);
-
-  // Cross sections from Mashnik's calculations (p+Fe)
-  //
-  inukd -> XSecPFe_Elas  () -> SaveAsROOT("hdxs.root", "mashnik_pfe_elas", false);
-  inukd -> XSecPFe_Reac  () -> SaveAsROOT("hdxs.root", "mashnik_pfe_reac", false);
-  inukd -> XSecPFe_P     () -> SaveAsROOT("hdxs.root", "mashnik_pfe_p",    false);
-  inukd -> XSecPFe_N     () -> SaveAsROOT("hdxs.root", "mashnik_pfe_n",    false);
-  inukd -> XSecPFe_PP    () -> SaveAsROOT("hdxs.root", "mashnik_pfe_pp",   false);
-  inukd -> XSecPFe_NP    () -> SaveAsROOT("hdxs.root", "mashnik_pfe_np",   false);
-  inukd -> XSecPFe_NPP   () -> SaveAsROOT("hdxs.root", "mashnik_pfe_npp",  false);
-  inukd -> XSecPFe_NNP   () -> SaveAsROOT("hdxs.root", "mashnik_pfe_nnp",  false);
-  inukd -> XSecPFe_NNPP  () -> SaveAsROOT("hdxs.root", "mashnik_pfe_nnpp", false);
-  inukd -> XSecPFe_Pim   () -> SaveAsROOT("hdxs.root", "mashnik_pfe_pim",  false);
-  inukd -> XSecPFe_Pi0   () -> SaveAsROOT("hdxs.root", "mashnik_pfe_pi0",  false);
-  inukd -> XSecPFe_Pip   () -> SaveAsROOT("hdxs.root", "mashnik_pfe_pip",  false);
-
-  // Cross sections from Mashnik's calculations (pi+Fe)
-  //
-  inukd -> XSecPiFe_P    () -> SaveAsROOT("hdxs.root", "mashnik_pife_p",    false);
-  inukd -> XSecPiFe_PP   () -> SaveAsROOT("hdxs.root", "mashnik_pife_pp",   false);
-  inukd -> XSecPiFe_PPP  () -> SaveAsROOT("hdxs.root", "mashnik_pife_ppp",  false);
-  inukd -> XSecPiFe_N    () -> SaveAsROOT("hdxs.root", "mashnik_pife_n",    false);
-  inukd -> XSecPiFe_NN   () -> SaveAsROOT("hdxs.root", "mashnik_pife_nn",   false);
-  inukd -> XSecPiFe_NNN  () -> SaveAsROOT("hdxs.root", "mashnik_pife_nnn",  false);
-  inukd -> XSecPiFe_NP   () -> SaveAsROOT("hdxs.root", "mashnik_pife_np",   false);
-  inukd -> XSecPiFe_NPP  () -> SaveAsROOT("hdxs.root", "mashnik_pife_npp",  false);
-  inukd -> XSecPiFe_NPPP () -> SaveAsROOT("hdxs.root", "mashnik_pife_nppp", false);
-  inukd -> XSecPiFe_NNP  () -> SaveAsROOT("hdxs.root", "mashnik_pife_nnp",  false);
-  inukd -> XSecPiFe_NNPP () -> SaveAsROOT("hdxs.root", "mashnik_pife_nnpp", false);
-  inukd -> XSecPiFe_Pi0  () -> SaveAsROOT("hdxs.root", "mashnik_pife_pi0",  false);
-
-  // Hadronic x-sections from experimental data (Ash & Carrol)
-  //
-  inukd -> XSecAshPiFe_Abs () -> SaveAsROOT("hdxs.root", "exp_ash_pife_abs",  false);
-  inukd -> XSecAshPiFe_Reac() -> SaveAsROOT("hdxs.root", "exp_ash_pife_reac", false);
-  inukd -> XSecCarPiFe_Tot () -> SaveAsROOT("hdxs.root", "exp_car_pife_tot",  false);
-
-  // Total x-sections needed from mean free path
-  //
-  inukd -> XSecPip_Tot() -> SaveAsROOT("hdxs.root", "tot_pip",  false);
-  inukd -> XSecPim_Tot() -> SaveAsROOT("hdxs.root", "tot_pim",  false);
-  inukd -> XSecPi0_Tot() -> SaveAsROOT("hdxs.root", "tot_pi0",  false);
-  inukd -> XSecP_Tot  () -> SaveAsROOT("hdxs.root", "tot_p",    false);
-  inukd -> XSecN_Tot  () -> SaveAsROOT("hdxs.root", "tot_n",    false);
-
-  // Fractions of total x-sections needed for particle fates
-  //
-  inukd -> FracPip_CEx    () -> SaveAsROOT("hdxs.root", "fr_pip_cex",    false);
-  inukd -> FracPip_Elas   () -> SaveAsROOT("hdxs.root", "fr_pip_elas",   false);
-  inukd -> FracPip_Reac   () -> SaveAsROOT("hdxs.root", "fr_pip_reac",   false);
-  inukd -> FracPip_Abs    () -> SaveAsROOT("hdxs.root", "fr_pip_abs",    false);
-  inukd -> FracPim_CEx    () -> SaveAsROOT("hdxs.root", "fr_pim_cex",    false);
-  inukd -> FracPim_Elas   () -> SaveAsROOT("hdxs.root", "fr_pim_elas",   false);
-  inukd -> FracPim_Reac   () -> SaveAsROOT("hdxs.root", "fr_pim_reac",   false);
-  inukd -> FracPim_Abs    () -> SaveAsROOT("hdxs.root", "fr_pim_abs",    false);
-  inukd -> FracPi0_CEx    () -> SaveAsROOT("hdxs.root", "fr_pi0_cex",    false);
-  inukd -> FracPi0_Elas   () -> SaveAsROOT("hdxs.root", "fr_pi0_elas",   false);
-  inukd -> FracPi0_Reac   () -> SaveAsROOT("hdxs.root", "fr_pi0_reac",   false);
-  inukd -> FracPi0_Abs    () -> SaveAsROOT("hdxs.root", "fr_pi0_abs",    false);
-  inukd -> FracP_Reac     () -> SaveAsROOT("hdxs.root", "fr_p_reac",     false);
-  inukd -> FracN_Reac     () -> SaveAsROOT("hdxs.root", "fr_n_reac",     false);
-  inukd -> FracPiA_Elas   () -> SaveAsROOT("hdxs.root", "fr_pia_elas",   false);
-  inukd -> FracPiA_Inel   () -> SaveAsROOT("hdxs.root", "fr_pia_inel",   false);
-  inukd -> FracPiA_CEx    () -> SaveAsROOT("hdxs.root", "fr_pia_cex",    false);
-  inukd -> FracPiA_Abs    () -> SaveAsROOT("hdxs.root", "fr_pia_abs",    false);
-  inukd -> FracPiA_PP     () -> SaveAsROOT("hdxs.root", "fr_pia_pp",     false);
-  inukd -> FracPiA_NPP    () -> SaveAsROOT("hdxs.root", "fr_pia_npp",    false);
-  inukd -> FracPiA_NNP    () -> SaveAsROOT("hdxs.root", "fr_pia_nnp",    false);
-  inukd -> FracPiA_4N4P   () -> SaveAsROOT("hdxs.root", "fr_pia_4n4p",   false);
-  inukd -> FracPiA_PiProd () -> SaveAsROOT("hdxs.root", "fr_pia_piprod", false);
-  inukd -> FracPA_Elas    () -> SaveAsROOT("hdxs.root", "fr_pa_elas",    false);
-  inukd -> FracPA_Inel    () -> SaveAsROOT("hdxs.root", "fr_pa_inel",    false);
-  inukd -> FracPA_Abs     () -> SaveAsROOT("hdxs.root", "fr_pa_abs",     false);
-  inukd -> FracPA_PP      () -> SaveAsROOT("hdxs.root", "fr_pa_pp",      false);
-  inukd -> FracPA_NPP     () -> SaveAsROOT("hdxs.root", "fr_pa_npp",     false);
-  inukd -> FracPA_NNP     () -> SaveAsROOT("hdxs.root", "fr_pa_nnp",     false);
-  inukd -> FracPA_4N4P    () -> SaveAsROOT("hdxs.root", "fr_pa_4n4p",    false);
-  inukd -> FracPA_PiProd  () -> SaveAsROOT("hdxs.root", "fr_pa_piprod",  false); 
+  // Write out hN mode hadron x-section splines
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  inukd -> XSecPN_Tot       () -> SaveAsROOT("hdxs.root", "pN_tot",    true);
+  inukd -> XSecPN_Elas      () -> SaveAsROOT("hdxs.root", "pN_elas",   false);
+  inukd -> XSecPN_Reac      () -> SaveAsROOT("hdxs.root", "pN_reac",   false);
+  inukd -> XSecNN_Tot       () -> SaveAsROOT("hdxs.root", "nN_tot",    false);
+  inukd -> XSecNN_Elas      () -> SaveAsROOT("hdxs.root", "nN_elas",   false);
+  inukd -> XSecNN_Reac      () -> SaveAsROOT("hdxs.root", "nN_reac",   false);
+  inukd -> XSecPipN_Tot     () -> SaveAsROOT("hdxs.root", "pipN_tot",  false);
+  inukd -> XSecPipN_CEx     () -> SaveAsROOT("hdxs.root", "pipN_cex",  false);
+  inukd -> XSecPipN_Elas    () -> SaveAsROOT("hdxs.root", "pipN_elas", false);
+  inukd -> XSecPipN_Reac    () -> SaveAsROOT("hdxs.root", "pipN_reac", false);
+  inukd -> XSecPipN_Abs     () -> SaveAsROOT("hdxs.root", "pipN_abs",  false);
+  inukd -> XSecPimN_Tot     () -> SaveAsROOT("hdxs.root", "pimN_tot",  false);
+  inukd -> XSecPimN_CEx     () -> SaveAsROOT("hdxs.root", "pimN_cex",  false);
+  inukd -> XSecPimN_Elas    () -> SaveAsROOT("hdxs.root", "pimN_elas", false);
+  inukd -> XSecPimN_Reac    () -> SaveAsROOT("hdxs.root", "pimN_reac", false);
+  inukd -> XSecPimN_Abs     () -> SaveAsROOT("hdxs.root", "pimN_abs",  false);
+  inukd -> XSecPi0N_Tot     () -> SaveAsROOT("hdxs.root", "pi0N_tot",  false);
+  inukd -> XSecPi0N_CEx     () -> SaveAsROOT("hdxs.root", "pi0N_cex",  false);
+  inukd -> XSecPi0N_Elas    () -> SaveAsROOT("hdxs.root", "pi0N_elas", false);
+  inukd -> XSecPi0N_Reac    () -> SaveAsROOT("hdxs.root", "pi0N_reac", false);
+  inukd -> XSecPi0N_Abs     () -> SaveAsROOT("hdxs.root", "pi0N_abs",  false);
+  
+  // Write out hA mode hadron x-section splines
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  inukd -> XSecPA_Tot       () -> SaveAsROOT("hdxs.root", "pA_tot",       false);
+  inukd -> XSecPA_Elas      () -> SaveAsROOT("hdxs.root", "pA_elas",      false);
+  inukd -> XSecPA_Inel      () -> SaveAsROOT("hdxs.root", "pA_inel",      false);
+  inukd -> XSecPA_CEx       () -> SaveAsROOT("hdxs.root", "pA_cex",       false);
+  inukd -> XSecPA_NP        () -> SaveAsROOT("hdxs.root", "pA_np",        false);
+  inukd -> XSecPA_PP        () -> SaveAsROOT("hdxs.root", "pA_pp",        false);
+  inukd -> XSecPA_NPP       () -> SaveAsROOT("hdxs.root", "pA_npp",       false);
+  inukd -> XSecPA_NNP       () -> SaveAsROOT("hdxs.root", "pA_nnp",       false);
+  inukd -> XSecPA_NNPPP     () -> SaveAsROOT("hdxs.root", "pA_nnppp",     false);
+  inukd -> XSecPA_NPip      () -> SaveAsROOT("hdxs.root", "pA_pip",       false);
+  inukd -> XSecPA_NPipPi0   () -> SaveAsROOT("hdxs.root", "pA_npippi0",   false);
+  inukd -> XSecNA_Tot       () -> SaveAsROOT("hdxs.root", "nA_tot",       false);
+  inukd -> XSecNA_Elas      () -> SaveAsROOT("hdxs.root", "nA_elas",      false);
+  inukd -> XSecNA_Inel      () -> SaveAsROOT("hdxs.root", "nA_inel",      false);
+  inukd -> XSecNA_CEx       () -> SaveAsROOT("hdxs.root", "nA_cex",       false);
+  inukd -> XSecNA_NP        () -> SaveAsROOT("hdxs.root", "nA_np",        false);
+  inukd -> XSecNA_PP        () -> SaveAsROOT("hdxs.root", "nA_pp",        false);
+  inukd -> XSecNA_NPP       () -> SaveAsROOT("hdxs.root", "nA_npp",       false); 
+  inukd -> XSecNA_NNP       () -> SaveAsROOT("hdxs.root", "nA_nnp",       false);
+  inukd -> XSecNA_NNPPP     () -> SaveAsROOT("hdxs.root", "nA_nnppp",     false);
+  inukd -> XSecNA_NPip      () -> SaveAsROOT("hdxs.root", "nA_npip",      false);
+  inukd -> XSecNA_NPipPi0   () -> SaveAsROOT("hdxs.root", "nA_npippi0",   false);
+  inukd -> XSecPipA_Tot     () -> SaveAsROOT("hdxs.root", "pipA_tot",     false);
+  inukd -> XSecPipA_Elas    () -> SaveAsROOT("hdxs.root", "pipA_elas",    false);
+  inukd -> XSecPipA_Inel    () -> SaveAsROOT("hdxs.root", "pipA_inel",    false);
+  inukd -> XSecPipA_CEx     () -> SaveAsROOT("hdxs.root", "pipA_cex",     false);
+  inukd -> XSecPipA_NP      () -> SaveAsROOT("hdxs.root", "pipA_np",      false);  
+  inukd -> XSecPipA_PP      () -> SaveAsROOT("hdxs.root", "pipA_pp",      false);
+  inukd -> XSecPipA_NPP     () -> SaveAsROOT("hdxs.root", "pipA_npp",     false);
+  inukd -> XSecPipA_NNP     () -> SaveAsROOT("hdxs.root", "pipA_nnp",     false);
+  inukd -> XSecPipA_NNPP    () -> SaveAsROOT("hdxs.root", "pipA_nnpp",    false);
+  inukd -> XSecPipA_NPipPi0 () -> SaveAsROOT("hdxs.root", "pipA_npippi0", false);
+  inukd -> XSecPimA_Tot     () -> SaveAsROOT("hdxs.root", "pimA_tot",     false);
+  inukd -> XSecPimA_Elas    () -> SaveAsROOT("hdxs.root", "pimA_elas",    false);
+  inukd -> XSecPimA_Inel    () -> SaveAsROOT("hdxs.root", "pimA_inel",    false);
+  inukd -> XSecPimA_CEx     () -> SaveAsROOT("hdxs.root", "pimA_cex",     false);
+  inukd -> XSecPimA_NP      () -> SaveAsROOT("hdxs.root", "pimA_np",      false);
+  inukd -> XSecPimA_PP      () -> SaveAsROOT("hdxs.root", "pimA_pp",      false);
+  inukd -> XSecPimA_NPP     () -> SaveAsROOT("hdxs.root", "pimA_npp",     false);
+  inukd -> XSecPimA_NNP     () -> SaveAsROOT("hdxs.root", "pimA_nnp",     false);
+  inukd -> XSecPimA_NNPP    () -> SaveAsROOT("hdxs.root", "pimA_nnpp",    false);
+  inukd -> XSecPimA_NPipPi0 () -> SaveAsROOT("hdxs.root", "pimA_npippi0", false);
+  inukd -> XSecPi0A_Tot     () -> SaveAsROOT("hdxs.root", "pi0A_tot",     false);
+  inukd -> XSecPi0A_Elas    () -> SaveAsROOT("hdxs.root", "pi0A_elas",    false);
+  inukd -> XSecPi0A_Inel    () -> SaveAsROOT("hdxs.root", "pi0A_inel",    false);
+  inukd -> XSecPi0A_CEx     () -> SaveAsROOT("hdxs.root", "pi0A_cex",     false);
+  inukd -> XSecPi0A_NP      () -> SaveAsROOT("hdxs.root", "pi0A_np",      false);
+  inukd -> XSecPi0A_PP      () -> SaveAsROOT("hdxs.root", "pi0A_pp",      false);
+  inukd -> XSecPi0A_NPP     () -> SaveAsROOT("hdxs.root", "pi0A_npp",     false);
+  inukd -> XSecPi0A_NNP     () -> SaveAsROOT("hdxs.root", "pi0A_nnp",     false);
+  inukd -> XSecPi0A_NNPP    () -> SaveAsROOT("hdxs.root", "pi0A_nnpp",    false);
+  inukd -> XSecPi0A_NPipPi0 () -> SaveAsROOT("hdxs.root", "pi0A_npippi0", false);
 }
