@@ -35,7 +35,7 @@ typedef enum EINukeFateHN_t {
    kIHNFtCEx,       // cex
    kIHNFtElas,      // elas
    kIHNFtInelas,    // inelas
-   kIHNFtAbsPN      // abs 
+   kIHNFtAbs        // abs 
 
 } INukeFateHN_t;   
 
@@ -47,13 +47,14 @@ typedef enum EINukeFateHA_t {
    kIHAFtCEx,       // cex
    kIHAFtElas,      // elas
    kIHAFtInelas,    // inelas
-   kIHAFtAbsPN,     // abs pn
+   kIHAFtAbsNP,     // abs np
    kIHAFtAbsPP,     // abs pp
    kIHAFtAbsNPP,    // abs npp
    kIHAFtAbsNNP,    // abs nnp
-   kIHAFtAbs4N4P,   // abs 4n4p (remainder)
-   kIHAFtPiProd,    // piprod
-   kIHAFt10         // fate 10 ??
+   kIHAFtAbs2N2P,   // abs 2n2p
+   kIHAFtAbs2N3P,   // abs 2n3p
+   kIHAFtNPip,      // pi production : n pi+
+   kIHAFtNPipPi0    // pi production : n pi+ pi0
 
 } INukeFateHA_t;   
 
@@ -67,7 +68,7 @@ public:
       case kIHNFtCEx       : return "HN-mode / cex";    break;
       case kIHNFtElas      : return "HN-mode / elas";   break;
       case kIHNFtInelas    : return "HN-mode / inelas"; break;
-      case kIHNFtAbsPN     : return "HN-mode / abs";    break;
+      case kIHNFtAbs       : return "HN-mode / abs";    break;
       default              : break; 
      }
      return "** Undefined HN-mode fate **"; 
@@ -76,16 +77,17 @@ public:
   static string AsString(INukeFateHA_t fate) {
      switch (fate) {
       case kIHAFtUndefined : return "** Undefined HA-mode fate **"; break;
-      case kIHAFtCEx       : return "HA-mode / cex";      break;
-      case kIHAFtElas      : return "HA-mode / elas";     break;
-      case kIHAFtInelas    : return "HA-mode / inelas";   break;
-      case kIHAFtAbsPN     : return "HA-mode / abs pn";   break;
-      case kIHAFtAbsPP     : return "HA-mode / abs pp";   break;
-      case kIHAFtAbsNPP    : return "HA-mode / abs npp";  break;
-      case kIHAFtAbsNNP    : return "HA-mode / ans nnp";  break;
-      case kIHAFtAbs4N4P   : return "HA-mode / abs 4n4p"; break;
-      case kIHAFtPiProd    : return "HA-mode / piprod";   break;
-      case kIHAFt10        : return "HA-mode / fate 10?"; break;
+      case kIHAFtCEx       : return "HA-mode / cex";          break;
+      case kIHAFtElas      : return "HA-mode / elas";         break;
+      case kIHAFtInelas    : return "HA-mode / inelas";       break;
+      case kIHAFtAbsNP     : return "HA-mode / abs pn";       break;
+      case kIHAFtAbsPP     : return "HA-mode / abs pp";       break;
+      case kIHAFtAbsNPP    : return "HA-mode / abs npp";      break;
+      case kIHAFtAbsNNP    : return "HA-mode / abs nnp";      break;
+      case kIHAFtAbs2N2P   : return "HA-mode / abs 2n2p";     break;
+      case kIHAFtAbs2N3P   : return "HA-mode / abs 2n3p";     break;
+      case kIHAFtNPip      : return "HA-mode / abs npi+";     break;
+      case kIHAFtNPipPi0   : return "HA-mode / abs npi+pi0";  break;
       default              : break;
      }
      return "** Undefined HA-mode fate **"; 

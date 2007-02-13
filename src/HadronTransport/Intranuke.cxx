@@ -374,15 +374,15 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   double sigtot = 0;
 
   if (pdgc == kPdgPiP) 
-      sigtot = fHadroData -> XSecPip_Tot() -> Evaluate(K);
+      sigtot = fHadroData -> XSecPipN_Tot() -> Evaluate(K);
   else if (pdgc == kPdgPi0) 
-      sigtot = fHadroData -> XSecPi0_Tot() -> Evaluate(K);
+      sigtot = fHadroData -> XSecPi0N_Tot() -> Evaluate(K);
   else if (pdgc == kPdgPiM) 
-      sigtot = fHadroData -> XSecPim_Tot() -> Evaluate(K);
+      sigtot = fHadroData -> XSecPimN_Tot() -> Evaluate(K);
   else if (pdgc == kPdgProton) 
-      sigtot = fHadroData -> XSecP_Tot()   -> Evaluate(K);
+      sigtot = fHadroData -> XSecPN_Tot()   -> Evaluate(K);
   else if (pdgc == kPdgNeutron) 
-      sigtot = fHadroData -> XSecN_Tot()   -> Evaluate(K);
+      sigtot = fHadroData -> XSecNN_Tot()   -> Evaluate(K);
   else {
      LOG("Intranuke", pWARN)
          << "Can't compute mean free path for particle code = " << pdgc;
@@ -491,21 +491,23 @@ void Intranuke::SimHadroProcHA(GHepRecord* ev, GHepParticle* p) const
      ev->AddParticle(*p);
      return;     
   }
+  LOG("Intranuke", pINFO)
+    << "Selected " << p->Name() << " fate: " << INukeHadroFates::AsString(fate);
 
   // get the reaction products for the selected fate
   if (fate == kIHAFtCEx || fate == kIHAFtElas  || fate == kIHAFtInelas) {
    if (is_pion)   this->PiSlam(ev,p,fate);
    if (is_baryon) this->PnSlam(ev,p,fate);
   }
-  else if (fate == kIHAFtAbsPN   ||
+  else if (fate == kIHAFtAbsNP   ||
            fate == kIHAFtAbsPP   ||
            fate == kIHAFtAbsNPP  ||
            fate == kIHAFtAbsNNP  ||
-           fate == kIHAFtAbs4N4P ||
-           fate == kIHAFtPiProd  || 
-           fate == kIHAFt10) {
-   if (is_pion)   this->PiInelastic(ev,p,fate);
-   if (is_baryon) this->PnInelastic(ev,p,fate);
+           fate == kIHAFtAbs2N2P ||
+           fate == kIHAFtAbs2N3P ||
+           fate == kIHAFtNPip    || 
+           fate == kIHAFtNPipPi0) {
+    this->Inelastic(ev,p,fate);
   }
 }
 //___________________________________________________________________________
@@ -513,57 +515,43 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
 {
 // Select a hadron fate in HA mode
 //
-  INukeFateHA_t fate = kIHAFtUndefined; 
-
   RandomGen * rnd = RandomGen::Instance();
 
   // get pdgc code & kinetic energy in MeV
   int    pdgc = p->Pdg();
   double ke   = p->KinE() / units::MeV;
  
-  // get kinetic energy range from a typical spline
-  double ke_min = fHadroData->FracPiA_Elas()->XMin();
-  double ke_max = fHadroData->FracPiA_Elas()->XMax();
-
-  // adjust kinetic energy if not in spline range
-  if(ke < 0     ) ke = ke_min; 
-  if(ke > ke_max) ke = ke_max;
-
   // handle pions
   if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
+     double tot_frac = 0;
      double r = rnd->RndFsi().Rndm();
-     fate = kIHAFtCEx;
-     if (r < fHadroData -> FracPiA_Elas()  -> Evaluate(ke)) fate = kIHAFtElas;
-     if (r < fHadroData -> FracPiA_Inel()  -> Evaluate(ke)) fate = kIHAFtInelas;
-     if (r < fHadroData -> FracPiA_Abs()   -> Evaluate(ke)) fate = kIHAFtAbsPN;
-     if (r < fHadroData -> FracPiA_PP()    -> Evaluate(ke)) fate = kIHAFtAbsPP;
-     if (r < fHadroData -> FracPiA_NPP()   -> Evaluate(ke)) fate = kIHAFtAbsNPP;
-     if (r < fHadroData -> FracPiA_NNP()   -> Evaluate(ke)) fate = kIHAFtAbsNNP;
-     if (r < fHadroData -> FracPiA_4N4P()  -> Evaluate(ke)) fate = kIHAFtAbs4N4P;
-     if (r < fHadroData -> FracPiA_PiProd()-> Evaluate(ke)) fate = kIHAFtPiProd;
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtCEx,     ke))) return kIHAFtCEx;     // cex
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtElas,    ke))) return kIHAFtElas;    // elas
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtInelas,  ke))) return kIHAFtInelas;  // inelas
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNP,   ke))) return kIHAFtAbsNP;   // abs np
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke))) return kIHAFtAbsPP;   // abs pp
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke))) return kIHAFtAbsNPP;  // abs npp
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N3P, ke))) return kIHAFtAbs2N3P; // abs 2n3p
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPip,    ke))) return kIHAFtNPip;    // pi production : n pi+
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
   }
 
   // handle nucleons
   else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
+     double tot_frac = 0;
      double r = rnd->RndFsi().Rndm();
-     fate = kIHAFtCEx;
-     if (r < fHadroData -> FracPA_Elas()  -> Evaluate(ke)) fate = kIHAFtElas;
-     if (r < fHadroData -> FracPA_Inel()  -> Evaluate(ke)) fate = kIHAFtInelas;
-     if (r < fHadroData -> FracPA_Abs()   -> Evaluate(ke)) fate = kIHAFtAbsPN;
-     if (r < fHadroData -> FracPA_PP()    -> Evaluate(ke)) fate = kIHAFtAbsPP;
-     if (r < fHadroData -> FracPA_NPP()   -> Evaluate(ke)) fate = kIHAFtAbsNPP;
-     if (r < fHadroData -> FracPA_NNP()   -> Evaluate(ke)) fate = kIHAFtAbsNNP;
-     if (r < fHadroData -> FracPA_4N4P()  -> Evaluate(ke)) fate = kIHAFtAbs4N4P;
-     if (r < fHadroData -> FracPA_PiProd()-> Evaluate(ke)) {
-         double r2 = rnd->RndFsi().Rndm();
-         if(r2 < 1.0) fate = kIHAFtPiProd;
-         if(r2 < 0.5) fate = kIHAFt10;
-     }
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtCEx,     ke))) return kIHAFtCEx;     // cex
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtElas,    ke))) return kIHAFtElas;    // elas
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtInelas,  ke))) return kIHAFtInelas;  // inelas
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNP,   ke))) return kIHAFtAbsNP;   // abs np
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke))) return kIHAFtAbsPP;   // abs pp
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke))) return kIHAFtAbsNPP;  // abs npp
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N2P, ke))) return kIHAFtAbs2N2P; // abs 2n2p 
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
   }
-  LOG("Intranuke", pINFO)
-    << "Selected " << p->Name() << " fate: " << INukeHadroFates::AsString(fate);
-
-  return fate;
+  return kIHAFtUndefined; 
 }
 //___________________________________________________________________________
 void Intranuke::PiSlam(
@@ -873,14 +861,14 @@ double Intranuke::Degrade(double ke) const
   return ke_fin;
 }
 //___________________________________________________________________________
-void Intranuke::PiInelastic(
+void Intranuke::Inelastic(
           GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
 {
-// [adapted from neugen3 intranuke_pi_inelastic.F]
+// [adapted from neugen3 intranuke_pi_inelastic.F, intranuke_pn_inelastic.F] 
 //
 
   LOG("Intranuke", pDEBUG) 
-      << "PiInelastic() is invoked for a : " << p->Name() 
+      << "Inelastic() is invoked for a : " << p->Name() 
       << " whose fate is : " << INukeHadroFates::AsString(fate);
 
   bool allow_dup = true;
@@ -889,9 +877,9 @@ void Intranuke::PiInelastic(
   // figure out the final state according to the fate
   //
   switch (fate) {
-   case (kIHAFtAbsPN)   : // -> p+n
-         list.push_back(kPdgProton);
+   case (kIHAFtAbsNP)   : // -> n+p
          list.push_back(kPdgNeutron);
+         list.push_back(kPdgProton);
          break;
    case (kIHAFtAbsPP)   : // -> p+p
          list.push_back(kPdgProton);
@@ -907,73 +895,24 @@ void Intranuke::PiInelastic(
          list.push_back(kPdgNeutron);
          list.push_back(kPdgProton);
          break;
-   case (kIHAFtAbs4N4P) : //???? shouldn't it be 4n+4p rather than -> 2n+2p ????
+   case (kIHAFtAbs2N2P) : // -> n+n+p+p
          list.push_back(kPdgNeutron);
          list.push_back(kPdgNeutron);
          list.push_back(kPdgProton);
          list.push_back(kPdgProton);
          break;
-   case (kIHAFtPiProd)  : // -> n + pi+ + pi0
-         list.push_back(kPdgNeutron);
-         list.push_back(kPdgPiP);
-         list.push_back(kPdgPi0);
-         break;
-   default : 
-         LOG("Intranuke", pWARN) 
-             << "Can not handle fate: " << INukeHadroFates::AsString(fate);
-         return;
-  }
-
-  // do the phase space decay & save all f/s particles to the event record
-  //
-  this->PhaseSpaceDecay(ev,p,list);
-}
-//___________________________________________________________________________
-void Intranuke::PnInelastic(
-          GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
-{
-// [adapted from neugen3 intranuke_pn_inelastic.F]
-//
-  LOG("Intranuke", pDEBUG) 
-      << "PnInelastic() is invoked for a : " << p->Name() 
-      << " whose fate is : " << INukeHadroFates::AsString(fate);
-
-  bool allow_dup = true;
-  PDGCodeList list(allow_dup); // list of final state particles
-
-  // figure out the final state according to the fate
-  //
-  switch (fate) {
-   case (kIHAFtAbsPN)   : // -> p+n
-         list.push_back(kPdgProton);
-         list.push_back(kPdgNeutron);
-         break;
-   case (kIHAFtAbsPP)   : // -> p+p
-         list.push_back(kPdgProton);
-         list.push_back(kPdgProton);
-         break;
-   case (kIHAFtAbsNPP)  : // -> n+p+p
-         list.push_back(kPdgNeutron);
-         list.push_back(kPdgProton);
-         list.push_back(kPdgProton);
-         break;
-   case (kIHAFtAbsNNP)  : // -> n+n+p
-         list.push_back(kPdgNeutron);
-         list.push_back(kPdgNeutron);
-         list.push_back(kPdgProton);
-         break;
-   case (kIHAFtAbs4N4P) : //???? shouldn't it be -> 4n+4p rather than 2n+3p ????
+   case (kIHAFtAbs2N3P) : // -> n+n+p+p+p
          list.push_back(kPdgNeutron);
          list.push_back(kPdgNeutron);
          list.push_back(kPdgProton);
          list.push_back(kPdgProton);
          list.push_back(kPdgProton);
          break;
-   case (kIHAFtPiProd)  : // -> n + pi+ 
+   case (kIHAFtNPip)  : // -> n + pi+ 
          list.push_back(kPdgNeutron);
          list.push_back(kPdgPiP);
          break;
-   case (kIHAFt10)      : // -> n + pi+ + pi0
+   case (kIHAFtNPipPi0)  : // -> n + pi+ + pi0 
          list.push_back(kPdgNeutron);
          list.push_back(kPdgPiP);
          list.push_back(kPdgPi0);
