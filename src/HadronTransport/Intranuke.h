@@ -3,16 +3,15 @@
 
 \class    genie::Intranuke
 
-\brief    The INTRANUKE cascading MC for intranuclear rescattering.
+\brief    The INTRANUKE intranuclear hadron transport MC.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \ref      R.Merenyi et al., Phys.Rev.D45 (1992)
           R.D.Ransome, Nucl.Phys.B 139 (2005)
 
-          The original INTRANUKE cascade MC was developed (in fortran) for the
-          NeuGEN MC by G.F.Pearce, R.Edgecock, W.A.Mann and H.Gallagher.
-
           Current INTRANUKE development is led by S.Dytman and H.Gallagher.
+          The original INTRANUKE cascade MC was developed (in fortran) for the
+          NeuGEN MC by R.Edgecock, G.F.Pearce, W.A.Mann, R.Merenyi and others.
 
 \author   Steve Dytman <dytman+@pitt.edu>, Pittsburgh University
           Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
@@ -86,10 +85,9 @@ private:
   // methods specific to intranuke HA-mode
   INukeFateHA_t HadronFateHA    (const GHepParticle* p) const;
   void          SimHadroProcHA  (GHepRecord* ev, GHepParticle* p) const;
+  void          Inelastic       (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
   void          PiSlam          (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
   void          PnSlam          (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
-  void          PiInelastic     (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
-  void          PnInelastic     (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
   double        PiBounce        (void) const;
   double        PnBounce        (void) const;
   double        Degrade         (double ke) const;

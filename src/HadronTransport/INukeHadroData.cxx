@@ -4,9 +4,7 @@
  All rights reserved.
  For the licensing terms see $GENIE/USER_LICENSE.
 
- Author: Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
-         Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts Univ.
-         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
          October 02, 2006
 
  For the class documentation see the corresponding header file.
@@ -27,6 +25,7 @@
 #include "HadronTransport/INukeHadroData.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
+#include "PDG/PDGCodes.h"
 
 using std::cout;
 using std::endl;
@@ -36,11 +35,12 @@ using namespace genie;
 //____________________________________________________________________________
 INukeHadroData * INukeHadroData::fInstance = 0;
 //____________________________________________________________________________
+double INukeHadroData::fMinKinEnergy =    0.0; // MeV
+double INukeHadroData::fMaxKinEnergy = 5000.0; // MeV
+//____________________________________________________________________________
 INukeHadroData::INukeHadroData()
 {
-  this->LoadData();
-  this->CalcData();
-
+  this->LoadCrossSections();
   fInstance = 0;
 }
 //____________________________________________________________________________
@@ -49,90 +49,86 @@ INukeHadroData::~INukeHadroData()
   cout << "INukeHadroData singleton dtor: "
                       << "Deleting all hadron cross section splines" << endl;
 
-  //-- delete SAID h+N x-section splines
-  delete fXSecPipP_Elas;
-  delete fXSecPipP_Reac;
-  delete fXSecPipD_Abs;    
-  delete fXSecPimP_Elas;
-  delete fXSecPimP_Reac;
-  delete fXSecPimP_CEx; 
-  delete fXSecPP_Elas;      
-  delete fXSecPP_Reac;      
-  delete fXSecNP_Elas;      
-  delete fXSecNP_Reac;      
+  // N+N x-section splines
+  delete fXSecPN_Tot;
+  delete fXSecPN_Elas;
+  delete fXSecPN_Reac; 
+  delete fXSecNN_Tot;     
+  delete fXSecNN_Elas;   
+  delete fXSecNN_Reac; 
 
-  //-- delete Mashnik p+Fe x-section splines
-  delete fXSecPFe_Elas;
-  delete fXSecPFe_Reac;
-  delete fXSecPFe_P;   
-  delete fXSecPFe_N;   
-  delete fXSecPFe_NP;  
-  delete fXSecPFe_PP;  
-  delete fXSecPFe_NPP; 
-  delete fXSecPFe_NNP; 
-  delete fXSecPFe_NNPP;
-  delete fXSecPFe_Pim; 
-  delete fXSecPFe_Pi0; 
-  delete fXSecPFe_Pip; 
+  // pi+N x-section splines
+  delete fXSecPipN_Tot;
+  delete fXSecPipN_CEx;
+  delete fXSecPipN_Elas;
+  delete fXSecPipN_Reac;
+  delete fXSecPipN_Abs;
+  delete fXSecPimN_Tot;
+  delete fXSecPimN_CEx;
+  delete fXSecPimN_Elas;
+  delete fXSecPimN_Reac;
+  delete fXSecPimN_Abs;
+  delete fXSecPi0N_Tot;
+  delete fXSecPi0N_CEx;
+  delete fXSecPi0N_Elas;
+  delete fXSecPi0N_Reac;
+  delete fXSecPi0N_Abs;
 
-  //-- delete Mashnik pi+Fe x-section splines
-  delete fXSecPiFe_P;    
-  delete fXSecPiFe_PP;   
-  delete fXSecPiFe_PPP;  
-  delete fXSecPiFe_N;    
-  delete fXSecPiFe_NN;   
-  delete fXSecPiFe_NNN;  
-  delete fXSecPiFe_NP;   
-  delete fXSecPiFe_NPP;  
-  delete fXSecPiFe_NPPP; 
-  delete fXSecPiFe_NNP;  
-  delete fXSecPiFe_NNPP; 
-  delete fXSecPiFe_Pi0;  
+  // N+A x-section splines
+  delete fXSecPA_Tot;
+  delete fXSecPA_Elas;
+  delete fXSecPA_Inel;
+  delete fXSecPA_CEx;
+  delete fXSecPA_NP;
+  delete fXSecPA_PP;
+  delete fXSecPA_NPP;
+  delete fXSecPA_NNP;
+  delete fXSecPA_NNPPP;
+  delete fXSecPA_NPip;
+  delete fXSecPA_NPipPi0;
+  delete fXSecNA_Tot;
+  delete fXSecNA_Elas;
+  delete fXSecNA_Inel;
+  delete fXSecNA_CEx;
+  delete fXSecNA_NP;
+  delete fXSecNA_PP;
+  delete fXSecNA_NPP;
+  delete fXSecNA_NNP;
+  delete fXSecNA_NNPPP;
+  delete fXSecNA_NPip;
+  delete fXSecNA_NPipPi0;
 
-  //-- delete x-sections from data (Ash/Carrol)
-  delete fXSecAshPiFe_Abs; 
-  delete fXSecAshPiFe_Reac;
-  delete fXSecCarPiFe_Tot; 
-
-  //-- delete total x-sections 
-  delete fXSecPip_Tot;   
-  delete fXSecPim_Tot;   
-  delete fXSecPi0_Tot;   
-  delete fXSecP_Tot;     
-  delete fXSecN_Tot;     
-
-  //-- delete x-section fractions
-  delete fFracPip_CEx;   
-  delete fFracPip_Elas;  
-  delete fFracPip_Reac;  
-  delete fFracPip_Abs;   
-  delete fFracPim_CEx;   
-  delete fFracPim_Elas;  
-  delete fFracPim_Reac;  
-  delete fFracPim_Abs;   
-  delete fFracPi0_CEx;    
-  delete fFracPi0_Elas;   
-  delete fFracPi0_Reac;   
-  delete fFracPi0_Abs;    
-  delete fFracP_Reac;     
-  delete fFracN_Reac;     
-  delete fFracPiA_Elas;   
-  delete fFracPiA_Inel;   
-  delete fFracPiA_CEx;    
-  delete fFracPiA_Abs;    
-  delete fFracPiA_PP;     
-  delete fFracPiA_NPP;    
-  delete fFracPiA_NNP;    
-  delete fFracPiA_4N4P;   
-  delete fFracPiA_PiProd; 
-  delete fFracPA_Elas;    
-  delete fFracPA_Inel;    
-  delete fFracPA_Abs;     
-  delete fFracPA_PP;      
-  delete fFracPA_NPP;     
-  delete fFracPA_NNP;     
-  delete fFracPA_4N4P;    
-  delete fFracPA_PiProd;  
+  // pi+A x-section splines
+  delete fXSecPipA_Tot;
+  delete fXSecPipA_Elas;
+  delete fXSecPipA_Inel;
+  delete fXSecPipA_CEx;
+  delete fXSecPipA_NP;
+  delete fXSecPipA_PP;
+  delete fXSecPipA_NPP;
+  delete fXSecPipA_NNP;
+  delete fXSecPipA_NNPP;
+  delete fXSecPipA_NPipPi0;
+  delete fXSecPimA_Tot;
+  delete fXSecPimA_Elas;
+  delete fXSecPimA_Inel;
+  delete fXSecPimA_CEx;
+  delete fXSecPimA_NP;
+  delete fXSecPimA_PP;
+  delete fXSecPimA_NPP;
+  delete fXSecPimA_NNP;
+  delete fXSecPimA_NNPP;
+  delete fXSecPimA_NPipPi0;
+  delete fXSecPi0A_Tot;
+  delete fXSecPi0A_Elas;
+  delete fXSecPi0A_Inel;
+  delete fXSecPi0A_CEx;
+  delete fXSecPi0A_NP;
+  delete fXSecPi0A_PP;
+  delete fXSecPi0A_NPP;
+  delete fXSecPi0A_NNP;
+  delete fXSecPi0A_NNPP;
+  delete fXSecPi0A_NPipPi0;
 }
 //____________________________________________________________________________
 INukeHadroData * INukeHadroData::Instance()
@@ -146,7 +142,7 @@ INukeHadroData * INukeHadroData::Instance()
   return fInstance;
 }
 //____________________________________________________________________________
-void INukeHadroData::LoadData(void)
+void INukeHadroData::LoadCrossSections(void)
 {
 // Loads hadronic x-section data
 
@@ -161,380 +157,349 @@ void INukeHadroData::LoadData(void)
 
   //-- Build filenames
 
-  string fnm_said_pip_p_elas = data_dir + "/pi+p-xselas-said.dat";
-  string fnm_said_pip_p_reac = data_dir + "/pi+p-xsreac-said.dat";
-  string fnm_said_pim_p_elas = data_dir + "/pi-p-xselas-said.dat";
-  string fnm_said_pim_p_reac = data_dir + "/pi-p-xsreac-said.dat";
-  string fnm_said_pim_p_cex  = data_dir + "/pi-p-cex-xstot-said.dat";
-  string fnm_said_pid_pp_tot = data_dir + "/pid-pp-xstot-said.dat";
-  string fnm_said_np_elas    = data_dir + "/np-xselas-said.dat";
-  string fnm_said_np_reac    = data_dir + "/np-xsreac-said.dat";
-  string fnm_said_pp_elas    = data_dir + "/pp-xselas-said.dat";
-  string fnm_said_pp_reac    = data_dir + "/pp-xsreac-said.dat";
-  string fnm_mashnik_pFe     = data_dir + "/mashnik-pfe-xs.dat";
-  string fnm_mashnik_piFe    = data_dir + "/mashnik-pife-xs.dat";
-  string fnm_ash_piFe_abs    = data_dir + "/exp-ash-pife-xsabs.dat";
-  string fnm_ash_piFe_reac   = data_dir + "/exp-ash-pife-xsreac.dat";
-  string fnm_carrol_piFe_tot = data_dir + "/exp-carrol-pife-xstot.dat";
+  string datafile_NN  = data_dir + "/intranuke-xsections-NN.dat";
+  string datafile_piN = data_dir + "/intranuke-xsections-piN.dat";
+  string datafile_NA  = data_dir + "/intranuke-xsections-NA.dat";
+  string datafile_piA = data_dir + "/intranuke-xsections-piA.dat";
 
   //-- Make sure that all data files are available
 
-  assert( ! gSystem->AccessPathName(fnm_said_pip_p_elas.c_str()) );
-  assert( ! gSystem->AccessPathName(fnm_said_pip_p_reac.c_str()) );
-  assert( ! gSystem->AccessPathName(fnm_said_pim_p_elas.c_str()) );
-  assert( ! gSystem->AccessPathName(fnm_said_pim_p_reac.c_str()) );
-  assert( ! gSystem->AccessPathName(fnm_said_pim_p_cex.c_str())  );
-  assert( ! gSystem->AccessPathName(fnm_said_pid_pp_tot.c_str()) );
-  assert( ! gSystem->AccessPathName(fnm_said_np_elas.c_str())    );
-  assert( ! gSystem->AccessPathName(fnm_said_np_reac.c_str())    );
-  assert( ! gSystem->AccessPathName(fnm_said_pp_elas.c_str())    );
-  assert( ! gSystem->AccessPathName(fnm_said_pp_reac.c_str())    );
-  assert( ! gSystem->AccessPathName(fnm_mashnik_pFe.c_str())     );
-  assert( ! gSystem->AccessPathName(fnm_mashnik_piFe.c_str())    );
-  assert( ! gSystem->AccessPathName(fnm_ash_piFe_abs.c_str())    );
-  assert( ! gSystem->AccessPathName(fnm_ash_piFe_reac.c_str())   );
-  assert( ! gSystem->AccessPathName(fnm_carrol_piFe_tot.c_str()) );
+  assert( ! gSystem->AccessPathName(datafile_NN. c_str()) );
+  assert( ! gSystem->AccessPathName(datafile_piN.c_str()) );
+  assert( ! gSystem->AccessPathName(datafile_NA. c_str()) );
+  assert( ! gSystem->AccessPathName(datafile_piA.c_str()) );
 
   LOG("INukeData", pNOTICE)  << "Found all necessary data files...";
 
-  //-- Load the SAID data into splines
-  
-  fXSecPipP_Elas = new Spline ( fnm_said_pip_p_elas );
-  fXSecPipP_Reac = new Spline ( fnm_said_pip_p_reac );
-  fXSecPimP_Elas = new Spline ( fnm_said_pim_p_elas );
-  fXSecPimP_Reac = new Spline ( fnm_said_pim_p_reac );
-  fXSecPimP_CEx  = new Spline ( fnm_said_pim_p_cex  );
-  fXSecNP_Elas   = new Spline ( fnm_said_np_elas    );
-  fXSecNP_Reac   = new Spline ( fnm_said_np_reac    );
-  fXSecPP_Elas   = new Spline ( fnm_said_pp_elas    );   
-  fXSecPP_Reac   = new Spline ( fnm_said_pp_reac    );   
+  //-- Load data files
 
-  // Especially for pion absorption cross section copy S.Dytmnan's correction.
-  // His comments: 'model not valid above 600 MeV, slow linear falloff matches data'
+  TTree data_NN;
+  TTree data_piN;
+  TTree data_NA;
+  TTree data_piA;
 
-  Spline xsabs(fnm_said_pid_pp_tot); 
+  data_NN.ReadFile(datafile_NN.c_str(),
+     "ke/D:pN_tot/D:pN_elas/D:pN_reac/D:nN_tot/D:nN_elas/D:nN_reac/D");
+  data_piN.ReadFile(datafile_piN.c_str(),
+     "ke/D:piN_tot/D:piN_cex/D:piN_elas/D:piN_reac/D:piN_abs/D:pi0N_tot/D:pi0N_cex/D:pi0N_elas/D:pi0N_reac/D:pi0N_abs/D");
+  data_NA.ReadFile(datafile_NA.c_str(),
+     "ke/D:pA_tot/D:pA_elas/D:pA_inel/D:pA_cex/D:pA_np/D:pA_pp/D:pA_npp/D:pA_nnp/D:pA_2n3p/D:pA_npip/D:pA_npippi0/D");
+  data_piA.ReadFile(datafile_piA.c_str(),
+     "ke/D:piA_tot/D:piA_elas/D:piA_inel/D:piA_cex/D:piA_np/D:piA_pp/D:piA_npp/D:piA_nnp/D:piA_2n2p/D:piA_npippi0/D:");
 
-  double   frac = 1; //?
-  int      nk   = xsabs.NKnots();
-  double * xsec = new double[nk];
-  double * E    = new double[nk];
+  LOG("INukeData", pDEBUG)  << "Number of data rows in NN  : " << data_NN.GetEntries();
+  LOG("INukeData", pDEBUG)  << "Number of data rows in piN : " << data_piN.GetEntries();
+  LOG("INukeData", pDEBUG)  << "Number of data rows in NA  : " << data_NA.GetEntries();
+  LOG("INukeData", pDEBUG)  << "Number of data rows in piA : " << data_piA.GetEntries();
 
-  for(int i=0; i<nk; i++) {
-    xsec[i] = (E[i] < 600.) ? frac * xsabs.Evaluate(E[i]) : 
-                              frac * xsabs.Evaluate(600.)*(1800.-E[i])/1200.;
-  }
-  fXSecPipD_Abs = new Spline(nk,E,xsec); // corrected pi abs xsec
+  LOG("INukeData", pNOTICE)  << "Done loading all x-section files...";
 
-  delete xsec;
-  delete E;
+  //-- Build x-section splines
 
-  LOG("INukeData", pNOTICE) 
-      << "... Done loading SAID hadron cross section data";
+  // N+N x-section splines
+  fXSecPN_Tot      = new Spline(&data_NN, "ke:pN_tot");     
+  fXSecPN_Elas     = new Spline(&data_NN, "ke:pN_elas");      
+  fXSecPN_Reac     = new Spline(&data_NN, "ke:pN_reac");      
+  fXSecNN_Tot      = new Spline(&data_NN, "ke:nN_tot");     
+  fXSecNN_Elas     = new Spline(&data_NN, "ke:nN_elas");      
+  fXSecNN_Reac     = new Spline(&data_NN, "ke:nN_reac");      
 
-  //-- Load the Mashnik data into splines
+  // pi+N x-section splines
+  fXSecPipN_Tot    = new Spline(&data_piN, "ke:piN_tot");
+  fXSecPipN_CEx    = new Spline(&data_piN, "ke:piN_cex");
+  fXSecPipN_Elas   = new Spline(&data_piN, "ke:piN_elas");
+  fXSecPipN_Reac   = new Spline(&data_piN, "ke:piN_reac");
+  fXSecPipN_Abs    = new Spline(&data_piN, "ke:piN_abs");
+  fXSecPimN_Tot    = new Spline(&data_piN, "ke:piN_tot");  // same as for pi+
+  fXSecPimN_CEx    = new Spline(&data_piN, "ke:piN_cex");  
+  fXSecPimN_Elas   = new Spline(&data_piN, "ke:piN_elas"); 
+  fXSecPimN_Reac   = new Spline(&data_piN, "ke:piN_reac"); 
+  fXSecPimN_Abs    = new Spline(&data_piN, "ke:piN_abs");  
+  fXSecPi0N_Tot    = new Spline(&data_piN, "ke:pi0N_tot");
+  fXSecPi0N_CEx    = new Spline(&data_piN, "ke:pi0N_cex");
+  fXSecPi0N_Elas   = new Spline(&data_piN, "ke:pi0N_elas");
+  fXSecPi0N_Reac   = new Spline(&data_piN, "ke:pi0N_reac");
+  fXSecPi0N_Abs    = new Spline(&data_piN, "ke:pi0N_abs");
 
-  TTree tpFe;
-  tpFe.ReadFile(fnm_mashnik_pFe.c_str(),
-     "ke/D:p/D:np/D:pp/D:npp/D:pim/D:nnpp/D:pi0/D:nnp/D:pip/D:n/D:reac/D:elas/D");
+  // N+A x-section splines
+  fXSecPA_Tot      = new Spline(&data_NA, "ke:pA_tot");
+  fXSecPA_Elas     = new Spline(&data_NA, "ke:pA_elas");
+  fXSecPA_Inel     = new Spline(&data_NA, "ke:pA_inel");   
+  fXSecPA_CEx      = new Spline(&data_NA, "ke:pA_cex");   
+  fXSecPA_NP       = new Spline(&data_NA, "ke:pA_np");  
+  fXSecPA_PP       = new Spline(&data_NA, "ke:pA_pp");  
+  fXSecPA_NPP      = new Spline(&data_NA, "ke:pA_npp");  
+  fXSecPA_NNP      = new Spline(&data_NA, "ke:pA_nnp");  
+  fXSecPA_NNPPP    = new Spline(&data_NA, "ke:pA_2n3p");  
+  fXSecPA_NPip     = new Spline(&data_NA, "ke:pA_npip");  
+  fXSecPA_NPipPi0  = new Spline(&data_NA, "ke:pA_npippi0");  
+  fXSecNA_Tot      = new Spline(&data_NA, "ke:pA_tot");  // assuming nA same as pA
+  fXSecNA_Elas     = new Spline(&data_NA, "ke:pA_elas"); 
+  fXSecNA_Inel     = new Spline(&data_NA, "ke:pA_inel");   
+  fXSecNA_CEx      = new Spline(&data_NA, "ke:pA_cex");   
+  fXSecNA_NP       = new Spline(&data_NA, "ke:pA_np");  
+  fXSecNA_PP       = new Spline(&data_NA, "ke:pA_pp");  
+  fXSecNA_NPP      = new Spline(&data_NA, "ke:pA_npp");  
+  fXSecNA_NNP      = new Spline(&data_NA, "ke:pA_nnp");  
+  fXSecNA_NNPPP    = new Spline(&data_NA, "ke:pA_2n3p");  
+  fXSecNA_NPip     = new Spline(&data_NA, "ke:pA_npip");  
+  fXSecNA_NPipPi0  = new Spline(&data_NA, "ke:pA_npippi0");  
 
-  fXSecPFe_Elas  = new Spline(&tpFe,"ke:elas"); 
-  fXSecPFe_Reac  = new Spline(&tpFe,"ke:reac"); 
-  fXSecPFe_P     = new Spline(&tpFe,"ke:p"); 
-  fXSecPFe_N     = new Spline(&tpFe,"ke:n"); 
-  fXSecPFe_NP    = new Spline(&tpFe,"ke:np"); 
-  fXSecPFe_PP    = new Spline(&tpFe,"ke:pp"); 
-  fXSecPFe_NPP   = new Spline(&tpFe,"ke:npp"); 
-  fXSecPFe_NNP   = new Spline(&tpFe,"ke:nnp"); 
-  fXSecPFe_NNPP  = new Spline(&tpFe,"ke:nnpp"); 
-  fXSecPFe_Pim   = new Spline(&tpFe,"ke:pim"); 
-  fXSecPFe_Pi0   = new Spline(&tpFe,"ke:pi0"); 
-  fXSecPFe_Pip   = new Spline(&tpFe,"ke:pip"); 
+  // pi+A x-section splines
+  fXSecPipA_Tot     = new Spline(&data_piA, "ke:piA_tot");    
+  fXSecPipA_Elas    = new Spline(&data_piA, "ke:piA_elas");    
+  fXSecPipA_Inel    = new Spline(&data_piA, "ke:piA_inel");    
+  fXSecPipA_CEx     = new Spline(&data_piA, "ke:piA_cex");    
+  fXSecPipA_NP      = new Spline(&data_piA, "ke:piA_np");    
+  fXSecPipA_PP      = new Spline(&data_piA, "ke:piA_pp");    
+  fXSecPipA_NPP     = new Spline(&data_piA, "ke:piA_npp");    
+  fXSecPipA_NNP     = new Spline(&data_piA, "ke:piA_nnp");    
+  fXSecPipA_NNPP    = new Spline(&data_piA, "ke:piA_2n2p");    
+  fXSecPipA_NPipPi0 = new Spline(&data_piA, "ke:piA_npippi0");    
+  fXSecPimA_Tot     = new Spline(&data_piA, "ke:piA_tot");    
+  fXSecPimA_Elas    = new Spline(&data_piA, "ke:piA_elas");    
+  fXSecPimA_Inel    = new Spline(&data_piA, "ke:piA_inel");    
+  fXSecPimA_CEx     = new Spline(&data_piA, "ke:piA_cex");    
+  fXSecPimA_NP      = new Spline(&data_piA, "ke:piA_np");    
+  fXSecPimA_PP      = new Spline(&data_piA, "ke:piA_pp");    
+  fXSecPimA_NPP     = new Spline(&data_piA, "ke:piA_npp");    
+  fXSecPimA_NNP     = new Spline(&data_piA, "ke:piA_nnp");    
+  fXSecPimA_NNPP    = new Spline(&data_piA, "ke:piA_2n2p");    
+  fXSecPimA_NPipPi0 = new Spline(&data_piA, "ke:piA_npippi0");    
+  fXSecPi0A_Tot     = new Spline(&data_piA, "ke:piA_tot");    
+  fXSecPi0A_Elas    = new Spline(&data_piA, "ke:piA_elas");    
+  fXSecPi0A_Inel    = new Spline(&data_piA, "ke:piA_inel");    
+  fXSecPi0A_CEx     = new Spline(&data_piA, "ke:piA_cex");    
+  fXSecPi0A_NP      = new Spline(&data_piA, "ke:piA_np");    
+  fXSecPi0A_PP      = new Spline(&data_piA, "ke:piA_pp");    
+  fXSecPi0A_NPP     = new Spline(&data_piA, "ke:piA_npp");    
+  fXSecPi0A_NNP     = new Spline(&data_piA, "ke:piA_nnp");    
+  fXSecPi0A_NNPP    = new Spline(&data_piA, "ke:piA_2n2p");    
+  fXSecPi0A_NPipPi0 = new Spline(&data_piA, "ke:piA_npippi0");    
 
-  TTree tpiFe;
-  tpiFe.ReadFile(fnm_mashnik_piFe.c_str(),
-      "ke/D:p/D:pp/D:ppp/D:n/D:nn/D:nnn/D:np/D:npp/D:nppp/D:nnp/D:nnpp/D:pi0/D");
-
-  fXSecPiFe_P    = new Spline(&tpiFe,"ke:p"); 
-  fXSecPiFe_PP   = new Spline(&tpiFe,"ke:pp"); 
-  fXSecPiFe_PPP  = new Spline(&tpiFe,"ke:ppp"); 
-  fXSecPiFe_N    = new Spline(&tpiFe,"ke:n"); 
-  fXSecPiFe_NN   = new Spline(&tpiFe,"ke:nn"); 
-  fXSecPiFe_NNN  = new Spline(&tpiFe,"ke:nnn"); 
-  fXSecPiFe_NP   = new Spline(&tpiFe,"ke:np"); 
-  fXSecPiFe_NPP  = new Spline(&tpiFe,"ke:npp"); 
-  fXSecPiFe_NPPP = new Spline(&tpiFe,"ke:nppp"); 
-  fXSecPiFe_NNP  = new Spline(&tpiFe,"ke:nnp"); 
-  fXSecPiFe_NNPP = new Spline(&tpiFe,"ke:nnpp"); 
-  fXSecPiFe_Pi0  = new Spline(&tpiFe,"ke:pi0"); 
-
-  LOG("INukeData", pNOTICE) 
-      << "... Done loading Mashnik hadron cross section data";
-
-  fXSecAshPiFe_Abs  = new Spline( fnm_ash_piFe_abs    );
-  fXSecAshPiFe_Reac = new Spline( fnm_ash_piFe_reac   );
-  fXSecCarPiFe_Tot  = new Spline( fnm_carrol_piFe_tot );
-
-  LOG("INukeData", pNOTICE) 
-      << "... Done loading Ash & Carrol hadron cross section data";
-};
-//____________________________________________________________________________
-void INukeHadroData::CalcData(void)
-{
-// Hopefully this esction would be simplified (be made redundant) by making all 
-// the corrections offline and loading the corrected x-sections
-//
-  LOG("INukeData", pNOTICE) 
-      << "Computing missing x-sections & applying corrections...";
-
-  //
-  //-- corrections to Mashnik total pi0 and Carrol total x-section
-  //
-
-  // Mashnik: divide pi0 to match Bowles data
-  fXSecPiFe_Pi0->Divide(2.0); 
-
-  // This extrapolation is empirical, based on total x-sections at similar
-  // energies measured by Cluogh et al for lighter targets
-/*
-  double fac0  = 44.8;
-  double fac1  = -0.045;
-  double fac2  =  0.000048;
-  double expo1 =  0.9715;
-  double expo2 = -0.000215;
-
-  loop from bins 16 to 29... and do something...
-  Stuff like this make make the code more error prone and obscure that it needs
-  to be.
-*/
-
-  //
-  // -- hN mode: Build total x-sections and fractions splines
-  //
-
-  //total x-sections
-  TNtupleD * ntxs = new TNtupleD("tot","total x-sec","ke:pip:pim:pi0:p:n");
-
-  //pi0 fractions
-  TNtupleD * ntfrpi0 = new TNtupleD("ntfrpi0","","ke:cex:elas:reac:abs");
-
-  int nknots = fXSecPipP_Elas->NKnots();
-  for(int i=0; i<nknots; i++) {
-    double ke        = fXSecPipP_Elas->GetKnotX(i);  // kinetic energy
-    double xspipelas = fXSecPipP_Elas->Evaluate(ke);
-    double xspipreac = fXSecPipP_Reac->Evaluate(ke);
-    double xspiabs   = fXSecPipD_Abs ->Evaluate(ke);
-
-    LOG("INukeData", pDEBUG) 
-      << "pi+ @ ke = " << ke << ": elas =  " <<  xspipelas 
-      << ", reac = " << xspipreac << ", abs = " <<  xspiabs;
-
-    double xspimelas = fXSecPimP_Elas->Evaluate(ke);
-    double xspimreac = fXSecPimP_Reac->Evaluate(ke);
-    double xspimcex  = fXSecPimP_CEx ->Evaluate(ke);
-
-    LOG("INukeData", pDEBUG) 
-      << "pi- @ at ke = " << ke << ": elas =  " <<  xspimelas 
-      << ", reac = " << xspimreac << ", cex = " <<  xspimcex;
-
-    double xspi0pelas = (5./18.)*xspipelas - (1./6.)*xspimelas + (5./6.)*xspimcex;
-    double xspi0nelas = (1./2. )*xspipelas + (1./2.)*xspimelas - (1./2.)*xspimcex;
-    double xspi0reac  = (xspimreac+xspipreac)/2.;
-    double xspi0cex   =  xspimcex;
-    double xspi0abs   =  xspiabs;
-
-    double xsppelas  = fXSecPP_Elas->Evaluate(ke);
-    double xsnpelas  = fXSecNP_Elas->Evaluate(ke);
-    double xsppreac  = fXSecPP_Reac->Evaluate(ke);
-    double xsnpreac  = fXSecNP_Reac->Evaluate(ke);
-
-    LOG("INukeData", pDEBUG) 
-      << "pp @ ke = " << ke << ": elas =  " <<  xsppelas 
-      << ", reac = " << xsppreac;
-    LOG("INukeData", pDEBUG) 
-      << "np @ ke = " << ke << ": elas =  " <<  xsnpelas 
-      << ", reac = " << xsnpreac;
-
-    double xsplptot  = xspipelas + xspipreac +  xspiabs;
-    double xsplntot  = xspimelas + xspimreac +  xspiabs;
-    double xspi0ptot = xspi0pelas + xspi0cex + xspi0reac + xspi0abs;
-    double xspi0ntot = xspi0nelas + xspi0cex + xspi0reac + xspi0abs;
-
-    double xspip = (xsplptot  + xsplntot)/2.;
-    double xspim = (xsplptot  + xsplntot)/2.;
-    double xspi0 = (xspi0ptot + xspi0ntot)/2.;
-    double xsp   = (xsppelas  + xsnpelas + xsppreac + xsnpreac)/2.;
-    double xsn   =  xsnpelas  + xsnpreac;
-
-    ntxs->Fill(ke,xspip,xspim,xspi0,xsp,xsn);
-
-    //-- pi0 fractions
-    if(xspi0>0) {
-      double frpi0cex  = xspi0cex/xspi0;
-      double frpi0elas = 1 - frpi0cex;
-      double frpi0reac = frpi0elas - 0.5*(xspi0pelas+xspi0nelas)/xspi0;
-      double frpi0abs  = frpi0reac - xspi0reac/xspi0;
-
-      ntfrpi0->Fill(ke,frpi0cex,frpi0elas,frpi0reac,frpi0abs);
-    } 
-  }
-
-  fXSecPip_Tot    = new Spline(ntxs,"ke:pip");
-  fXSecPim_Tot    = new Spline(ntxs,"ke:pim");
-  fXSecPi0_Tot    = new Spline(ntxs,"ke:pi0");
-  fXSecP_Tot      = new Spline(ntxs,"ke:p");
-  fXSecN_Tot      = new Spline(ntxs,"ke:n");
-
-  fFracPi0_CEx    = new Spline(ntfrpi0,"ke:cex");
-  fFracPi0_Elas   = new Spline(ntfrpi0,"ke:elas");
-  fFracPi0_Reac   = new Spline(ntfrpi0,"ke:reac");
-  fFracPi0_Abs    = new Spline(ntfrpi0,"ke:abs");
-
-  delete ntxs;
-  delete ntfrpi0;
-
-  // the following 10 splines are not filled-in yet...
-  fFracPip_CEx    = new Spline; 
-  fFracPip_Elas   = new Spline; 
-  fFracPip_Reac   = new Spline; 
-  fFracPip_Abs    = new Spline; 
-  fFracPim_CEx    = new Spline; 
-  fFracPim_Elas   = new Spline; 
-  fFracPim_Reac   = new Spline; 
-  fFracPim_Abs    = new Spline; 
-  fFracP_Reac     = new Spline; 
-  fFracN_Reac     = new Spline; 
-
-  //
-  //-- hA mode: calculate p+A fractions
-  //
-  LOG("INukeData", pNOTICE) << "Calculating p+A fractions...";
-
-  TNtupleD ntfrpA("ntfrpA","","ke:elas:inel:abs:pp:npp:nnp:n4p4:piprod"); 
-  nknots = fXSecPFe_Elas->NKnots();
-  for(int i=0; i<nknots; i++) {
-      double ke = fXSecPFe_Elas->GetKnotX(i); // kinetic energy
-      ke = TMath::Max(1.,ke);
-      double sigreac        = fXSecPFe_Reac->Evaluate(ke);
-      double sigelas        = fXSecPFe_Elas->Evaluate(ke);
-      double sigtot         = sigreac + sigelas;
-      // if(i==0) sigtot=1; // Steve's comment: to avoid NaN !
-      if(sigtot==0) sigtot=1;
-      double  siginel       = fXSecPFe_P->Evaluate(ke);
-      double sigcex         = fXSecPFe_N->Evaluate(ke);
-      double sig_pfe_np     = fXSecPFe_NP->Evaluate(ke);
-      double sig_pfe_pp     = fXSecPFe_PP->Evaluate(ke);
-      double sig_pfe_npp    = fXSecPFe_NPP->Evaluate(ke);
-      double sig_pfe_nnp    = fXSecPFe_NNP->Evaluate(ke);
-      double sig_pfe_pip    = fXSecPFe_Pip->Evaluate(ke);
-
-      double frac_pa_elas   = TMath::Max(0., 1 - sigcex/sigtot);
-      double frac_pa_inel   = TMath::Max(0., frac_pa_elas   - sigelas / sigtot);
-      double frac_pa_abs    = TMath::Max(0., frac_pa_inel   - siginel / sigtot);
-      double frac_pa_pp     = TMath::Max(0., frac_pa_abs    - sig_pfe_np / sigtot);
-      double frac_pa_npp    = TMath::Max(0., frac_pa_pp     - sig_pfe_pp / sigtot);
-      double frac_pa_nnp    = TMath::Max(0., frac_pa_npp    - sig_pfe_npp / sigtot);
-      double frac_pa_4n4p   = TMath::Max(0., frac_pa_nnp    - sig_pfe_nnp / sigtot);
-      double frac_pa_piprod = TMath::Max(0., sig_pfe_pip / sigtot);
-
-      SLOG("INukeData", pDEBUG) 
-        << "\n ******* pA @ ke = " << ke << "\n"
-        << "- x-sections: \n"
-        << "reac = "  << sigreac     << ", elas = " << sigelas 
-        << ", tot = " << sigtot      << ", inel = " << siginel  
-        << ", cex = " << sigcex      << ", pp = "   << sig_pfe_pp   
-        << ", np = "  << sig_pfe_np  << ", nnp = "  << sig_pfe_nnp 
-        << ", npp = " << sig_pfe_npp << ", piprod = " << sig_pfe_pip << "\n"
-        << "- fractions: \n"
-        << "elas = "  << frac_pa_elas  << ". inel = "   << frac_pa_inel     
-        << ", abs = " << frac_pa_abs   << ", pp = "     << frac_pa_pp
-        << ", npp = "  << frac_pa_npp  << ", nnp = "    << frac_pa_nnp  
-        << ", 4n4p = " << frac_pa_4n4p << ", piprod = " << frac_pa_piprod;
-
-      ntfrpA.Fill(ke, frac_pa_elas, frac_pa_inel, frac_pa_abs, frac_pa_pp, 
-                  frac_pa_npp, frac_pa_nnp, frac_pa_4n4p, frac_pa_piprod);
-  }
-  fFracPA_Elas    = new Spline(&ntfrpA, "ke:elas"  );
-  fFracPA_Inel    = new Spline(&ntfrpA, "ke:inel"  );
-  fFracPA_Abs     = new Spline(&ntfrpA, "ke:abs"   );
-  fFracPA_PP      = new Spline(&ntfrpA, "ke:pp"    );
-  fFracPA_NPP     = new Spline(&ntfrpA, "ke:npp"   );
-  fFracPA_NNP     = new Spline(&ntfrpA, "ke:nnp"   );
-  fFracPA_4N4P    = new Spline(&ntfrpA, "ke:n4p4"  );
-  fFracPA_PiProd  = new Spline(&ntfrpA, "ke:piprod");
-
-  //
-  //-- hA mode: calculate pi+A fractions
-  //
-  LOG("INukeData", pINFO) << "Calculating pi+A fractions...";
-
-  TNtupleD ntfrpiA("ntfrpiA","","ke:elas:inel:cex:abs:pp:npp:nnp:n4p4:piprod"); 
-  nknots = fXSecPiFe_Pi0->NKnots();
-  for(int i=0; i<nknots; i++) {
-      double ke = fXSecPiFe_NP->GetKnotX(i); // kinetic energy
-      ke = TMath::Max(1.,ke);
-      double sig_pife_pi0    = fXSecPiFe_Pi0->Evaluate(ke);
-      // car x-section goes only up to 320 MeV - take it to be constant above that
-      double sigtot          = (ke<320) ? fXSecCarPiFe_Tot->Evaluate(ke) : 
-                                         fXSecCarPiFe_Tot->Evaluate(310);
-      double sigabs          = fXSecAshPiFe_Abs->Evaluate(ke); 
-      double sigreac         = fXSecAshPiFe_Reac->Evaluate(ke);
-      double sigelas         = TMath::Max(0., sigtot - sigreac);
-      double siginel         = TMath::Max(0., sigreac - sig_pife_pi0 - sigabs);
-      // this is an estimate of the single pi0 x-section from Ashery (elas only)
-      double sigcex          = 2.2 * fXSecPimP_CEx->Evaluate(ke);
-      double sig_cex_elas;
-      double sig_cex_inel;
-      if(ke<400) {
-          sig_cex_elas = sig_pife_pi0;
-          sig_cex_inel = 0.;
-      } else {
-          sig_cex_elas = sigcex;
-          sig_cex_inel = TMath::Max(0., sig_pife_pi0 - sigcex);
-      }
-      double sig_pife_np     = fXSecPiFe_NP->Evaluate(ke);
-      double sig_pife_pp     = fXSecPiFe_PP->Evaluate(ke);
-      double sig_pife_npp    = fXSecPiFe_NPP->Evaluate(ke);
-      double sig_pife_nnp    = fXSecPiFe_NNP->Evaluate(ke);
-
-      double frac_pia_elas   = TMath::Max(0., 1 - sig_cex_elas / sigtot);
-      double frac_pia_inel   = TMath::Max(0., frac_pia_elas - sigelas / sigtot);
-      double frac_pia_abs    = TMath::Max(0., frac_pia_inel - siginel / sigtot);
-      double frac_pia_pp     = TMath::Max(0., frac_pia_abs  - sig_pife_np / sigtot);
-      double frac_pia_npp    = TMath::Max(0., frac_pia_pp   - sig_pife_pp / sigtot);
-      double frac_pia_nnp    = TMath::Max(0., frac_pia_npp  - sig_pife_npp / sigtot);
-      double frac_pia_4n4p   = TMath::Max(0., frac_pia_nnp  - sig_pife_nnp / sigtot);
-      double frac_pia_piprod = TMath::Max(0., sig_cex_inel / sigtot);
-      double frac_pia_cex    = 0; // ???
-
-      SLOG("INukeData", pDEBUG) 
-         << "\n ******* piA @ ke = " << ke << "\n"
-         << "- x-sections: \n"
-         << "elas = " << sigelas << ", inel = " << siginel << ", tot = " << sigtot
-         << ", abs = " << sigabs << ", reac = " << sigreac << ", cex = " << sigcex
-         << ", cex/elas = " << sig_cex_elas << ", cex/inel = " << sig_cex_inel
-         << ", pi0 = " << sig_pife_pi0 << ", np = " << sig_pife_np << ", pp = " << sig_pife_pp
-         << ", npp = " << sig_pife_npp << ", nnp = " << sig_pife_nnp << "\n"
-         << "- fractions: \n"
-         << "elas = "  << frac_pia_elas  << ". inel = " << frac_pia_inel     
-         << ", abs = " << frac_pia_abs   << ", pp = "   << frac_pia_pp
-         << ", npp = "  << frac_pia_npp  << ", nnp = "  << frac_pia_nnp  
-         << ", 4n4p = " << frac_pia_4n4p << ", piprod = " << frac_pia_piprod;
-
-      ntfrpiA.Fill(ke, frac_pia_elas, frac_pia_inel, frac_pia_cex,
-                   frac_pia_abs, frac_pia_pp, frac_pia_npp, frac_pia_nnp,
-                   frac_pia_4n4p, frac_pia_piprod); 
-  }
-  fFracPiA_Elas   = new Spline(&ntfrpiA, "ke:elas"); 
-  fFracPiA_Inel   = new Spline(&ntfrpiA, "ke:inel"); 
-  fFracPiA_CEx    = new Spline(&ntfrpiA, "ke:cex"); 
-  fFracPiA_Abs    = new Spline(&ntfrpiA, "ke:abs"); 
-  fFracPiA_PP     = new Spline(&ntfrpiA, "ke:pp"); 
-  fFracPiA_NPP    = new Spline(&ntfrpiA, "ke:npp"); 
-  fFracPiA_NNP    = new Spline(&ntfrpiA, "ke:nnp"); 
-  fFracPiA_4N4P   = new Spline(&ntfrpiA, "ke:n4p4"); 
-  fFracPiA_PiProd = new Spline(&ntfrpiA, "ke:piprod"); 
-
-  LOG("INukeData", pNOTICE) 
-       << "... Done computing total hadron cross section data";
+  LOG("INukeData", pNOTICE)  << "Done building x-section splines...";
 }
 //____________________________________________________________________________
+double INukeHadroData::XSec(int hpdgc, INukeFateHA_t fate, double ke) const
+{
+// return the x-section for the input fate for the particle with the input pdg 
+// code at the input kinetic energy
+//
+  ke = TMath::Max(fMinKinEnergy, ke);
+  ke = TMath::Min(fMaxKinEnergy, ke);
+
+  if(hpdgc == kPdgProton) {
+   /* handle protons */
+        if (fate == kIHAFtCEx    ) return fXSecPA_CEx     -> Evaluate (ke);
+   else if (fate == kIHAFtElas   ) return fXSecPA_Elas    -> Evaluate (ke);
+   else if (fate == kIHAFtInelas ) return fXSecPA_Inel    -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNP  ) return fXSecPA_NP      -> Evaluate (ke);
+   else if (fate == kIHAFtAbsPP  ) return fXSecPA_PP      -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNPP ) return fXSecPA_NPP     -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNNP ) return fXSecPA_NNP     -> Evaluate (ke);
+   else if (fate == kIHAFtAbs2N3P) return fXSecPA_NNPPP   -> Evaluate (ke);
+   else if (fate == kIHAFtNPip   ) return fXSecPA_NPip    -> Evaluate (ke);
+   else if (fate == kIHAFtNPipPi0) return fXSecPA_NPipPi0 -> Evaluate (ke);
+   else {
+     LOG("INukeData", pWARN) 
+       << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
+     return 0;
+   }
+
+  } else if (hpdgc == kPdgNeutron) {
+   /* handle neutrons */
+        if (fate == kIHAFtCEx    ) return fXSecNA_CEx     -> Evaluate (ke);
+   else if (fate == kIHAFtElas   ) return fXSecNA_Elas    -> Evaluate (ke);
+   else if (fate == kIHAFtInelas ) return fXSecNA_Inel    -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNP  ) return fXSecNA_NP      -> Evaluate (ke);
+   else if (fate == kIHAFtAbsPP  ) return fXSecNA_PP      -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNPP ) return fXSecNA_NPP     -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNNP ) return fXSecNA_NNP     -> Evaluate (ke);
+   else if (fate == kIHAFtAbs2N3P) return fXSecNA_NNPPP   -> Evaluate (ke);
+   else if (fate == kIHAFtNPip   ) return fXSecNA_NPip    -> Evaluate (ke);
+   else if (fate == kIHAFtNPipPi0) return fXSecNA_NPipPi0 -> Evaluate (ke);
+   else {
+     LOG("INukeData", pWARN) 
+       << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
+     return 0;
+   }
+
+  } else if (hpdgc == kPdgPiP) {
+   /* handle pi+ */
+        if (fate == kIHAFtCEx    ) return fXSecPipA_CEx     -> Evaluate (ke);
+   else if (fate == kIHAFtElas   ) return fXSecPipA_Elas    -> Evaluate (ke);
+   else if (fate == kIHAFtInelas ) return fXSecPipA_Inel    -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNP  ) return fXSecPipA_NP      -> Evaluate (ke);
+   else if (fate == kIHAFtAbsPP  ) return fXSecPipA_PP      -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNPP ) return fXSecPipA_NPP     -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNNP ) return fXSecPipA_NNP     -> Evaluate (ke);
+   else if (fate == kIHAFtAbs2N2P) return fXSecPipA_NNPP    -> Evaluate (ke);
+   else if (fate == kIHAFtNPipPi0) return fXSecPipA_NPipPi0 -> Evaluate (ke);
+   else {
+     LOG("INukeData", pWARN) 
+         << "Pi+'s don't have this fate: " << INukeHadroFates::AsString(fate);
+     return 0;
+   }
+
+  } else if (hpdgc == kPdgPiM) {
+   /* handle pi- */
+   if      (fate == kIHAFtCEx    ) return fXSecPimA_CEx     -> Evaluate (ke);
+   else if (fate == kIHAFtElas   ) return fXSecPimA_Elas    -> Evaluate (ke);
+   else if (fate == kIHAFtInelas ) return fXSecPimA_Inel    -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNP  ) return fXSecPimA_NP      -> Evaluate (ke);
+   else if (fate == kIHAFtAbsPP  ) return fXSecPimA_PP      -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNPP ) return fXSecPimA_NPP     -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNNP ) return fXSecPimA_NNP     -> Evaluate (ke);
+   else if (fate == kIHAFtAbs2N2P) return fXSecPimA_NNPP    -> Evaluate (ke);
+   else if (fate == kIHAFtNPipPi0) return fXSecPimA_NPipPi0 -> Evaluate (ke);
+   else {
+     LOG("INukeData", pWARN) 
+        << "Pi-'s don't have this fate: " << INukeHadroFates::AsString(fate);
+     return 0;
+   }
+
+  } else if (hpdgc == kPdgPi0) {
+   /* handle pi0 */
+        if (fate == kIHAFtCEx    ) return fXSecPi0A_CEx     -> Evaluate (ke);
+   else if (fate == kIHAFtElas   ) return fXSecPi0A_Elas    -> Evaluate (ke);
+   else if (fate == kIHAFtInelas ) return fXSecPi0A_Inel    -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNP  ) return fXSecPi0A_NP      -> Evaluate (ke);
+   else if (fate == kIHAFtAbsPP  ) return fXSecPi0A_PP      -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNPP ) return fXSecPi0A_NPP     -> Evaluate (ke);
+   else if (fate == kIHAFtAbsNNP ) return fXSecPi0A_NNP     -> Evaluate (ke);
+   else if (fate == kIHAFtAbs2N2P) return fXSecPi0A_NNPP    -> Evaluate (ke);
+   else if (fate == kIHAFtNPipPi0) return fXSecPi0A_NPipPi0 -> Evaluate (ke);
+   else {
+     LOG("INukeData", pWARN) 
+        << "Pi0's don't have this fate: " << INukeHadroFates::AsString(fate);
+       return 0;
+   }
+  }
+
+  LOG("INukeData", pWARN) 
+      << "Can't handle particles with pdg code = " << hpdgc;
+
+  return 0;
+}
+//____________________________________________________________________________
+double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke) const
+{
+// return the x-section for the input fate for the particle with the input pdg 
+// code at the input kinetic energy
+//
+  ke = TMath::Max(fMinKinEnergy, ke);
+  ke = TMath::Min(fMaxKinEnergy, ke);
+
+  if (hpdgc == kPdgProton) {  
+    /* handle protons */
+         if (fate == kIHNFtElas  ) return fXSecPN_Elas -> Evaluate(ke);
+    else if (fate == kIHNFtInelas) return fXSecPN_Reac -> Evaluate(ke);
+    else {
+     LOG("INukeData", pWARN) 
+        << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
+     return 0;
+    }
+
+  } else if (hpdgc == kPdgNeutron) {
+    /* handle neutrons */
+         if (fate == kIHNFtElas  ) return fXSecNN_Elas -> Evaluate(ke);
+    else if (fate == kIHNFtInelas) return fXSecNN_Reac -> Evaluate(ke);
+    else {
+     LOG("INukeData", pWARN) 
+        << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
+     return 0;
+    }
+
+  } else if (hpdgc == kPdgPiP) {
+    /* handle pi+ */
+         if (fate == kIHNFtCEx   ) return fXSecPipN_CEx  -> Evaluate(ke);
+    else if (fate == kIHNFtElas  ) return fXSecPipN_Elas -> Evaluate(ke);
+    else if (fate == kIHNFtInelas) return fXSecPipN_Reac -> Evaluate(ke);
+    else if (fate == kIHNFtAbs   ) return fXSecPipN_Abs  -> Evaluate(ke);
+    else {
+     LOG("INukeData", pWARN) 
+        << "Pi+'s don't have this fate: " << INukeHadroFates::AsString(fate);
+     return 0;
+    }
+
+  } else if (hpdgc == kPdgPiM) {
+    /* handle pi- */
+         if (fate == kIHNFtCEx   ) return fXSecPipN_CEx  -> Evaluate(ke);
+    else if (fate == kIHNFtElas  ) return fXSecPipN_Elas -> Evaluate(ke);
+    else if (fate == kIHNFtInelas) return fXSecPipN_Reac -> Evaluate(ke);
+    else if (fate == kIHNFtAbs   ) return fXSecPipN_Abs  -> Evaluate(ke);
+    else {
+     LOG("INukeData", pWARN) 
+        << "Pi-'s don't have this fate: " << INukeHadroFates::AsString(fate);
+     return 0;
+    }
+
+  } else if (hpdgc == kPdgPi0) {
+    /* handle pi0 */
+         if (fate == kIHNFtCEx   ) return fXSecPipN_CEx  -> Evaluate(ke);
+    else if (fate == kIHNFtElas  ) return fXSecPipN_Elas -> Evaluate(ke);
+    else if (fate == kIHNFtInelas) return fXSecPipN_Reac -> Evaluate(ke);
+    else if (fate == kIHNFtAbs   ) return fXSecPipN_Abs  -> Evaluate(ke);
+    else {
+     LOG("INukeData", pWARN) 
+        << "Pi0's don't have this fate: " << INukeHadroFates::AsString(fate);
+     return 0;
+    }
+  }
+
+  LOG("INukeData", pWARN) 
+      << "Can't handle particles with pdg code = " << hpdgc;
+
+  return 0;
+}
+//____________________________________________________________________________
+double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
+{
+// return the x-section fraction for the input fate for the particle with the 
+// input pdg code at the input kinetic energy
+
+  ke = TMath::Max(fMinKinEnergy, ke);
+  ke = TMath::Min(fMaxKinEnergy, ke);
+
+  // get x-section
+  double xsec = this->XSec(hpdgc,fate,ke);
+
+  // get max x-section
+  double xsec_tot = 0;
+       if (hpdgc == kPdgProton ) xsec_tot = fXSecPN_Tot   -> Evaluate (ke);
+  else if (hpdgc == kPdgNeutron) xsec_tot = fXSecNN_Tot   -> Evaluate (ke);
+  else if (hpdgc == kPdgPiP    ) xsec_tot = fXSecPipN_Tot -> Evaluate (ke);
+  else if (hpdgc == kPdgPiM    ) xsec_tot = fXSecPimN_Tot -> Evaluate (ke);
+  else if (hpdgc == kPdgPi0    ) xsec_tot = fXSecPi0N_Tot -> Evaluate (ke);
+
+  // compute fraction
+  double frac = (xsec_tot>0) ? xsec/xsec_tot : 0.;
+  return frac;
+}
+//____________________________________________________________________________
+double INukeHadroData::Frac(int hpdgc, INukeFateHN_t fate, double ke) const
+{
+// return the x-section fraction for the input fate for the particle with the 
+// input pdg code at the input kinetic energy
+
+  ke = TMath::Max(fMinKinEnergy, ke);
+  ke = TMath::Min(fMaxKinEnergy, ke);
+
+  // get x-section
+  double xsec = this->XSec(hpdgc,fate,ke);
+
+  // get max x-section
+  double xsec_tot = 0;
+       if (hpdgc == kPdgProton ) xsec_tot = fXSecPA_Tot   -> Evaluate (ke);
+  else if (hpdgc == kPdgNeutron) xsec_tot = fXSecNA_Tot   -> Evaluate (ke);
+  else if (hpdgc == kPdgPiP    ) xsec_tot = fXSecPipA_Tot -> Evaluate (ke);
+  else if (hpdgc == kPdgPiM    ) xsec_tot = fXSecPimA_Tot -> Evaluate (ke);
+  else if (hpdgc == kPdgPi0    ) xsec_tot = fXSecPi0A_Tot -> Evaluate (ke);
+
+  // compute fraction
+  double frac = (xsec_tot>0) ? xsec/xsec_tot : 0.;
+  return frac;
+}
+//____________________________________________________________________________
+
+
