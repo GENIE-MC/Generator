@@ -67,6 +67,7 @@ public:
   double GetKnotY           (int iknot) const;
   double XMin               (void) const {return fXMin;  }
   double XMax               (void) const {return fXMax;  }
+  double YMax               (void) const {return fYMax;  }
   double Evaluate           (double x) const;
   bool   IsWithinValidRange (double x) const;
 
@@ -115,6 +116,7 @@ private:
   int        fNKnots;
   double     fXMin;
   double     fXMax;
+  double     fYMax;
   TSpline3 * fInterpolator;
 
 ClassDef(Spline,1)
