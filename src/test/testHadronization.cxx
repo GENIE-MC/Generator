@@ -61,6 +61,9 @@ using std::ostringstream;
 
 using namespace genie;
 
+extern "C" void pysphe_(double *, double *);
+extern "C" void pythru_(double *, double *);
+
 void PrintSyntax        (void);
 void GetCommandLineArgs (int argc, char ** argv);
 
@@ -87,17 +90,29 @@ int main(int argc, char ** argv)
   gOutFile = new TFile("./genie-hadronization.root","recreate");
 
   const int npmax = 100; // max number of particles
-
+/*
+  const int kCcNc    = 2;
   const int kNNu     = 2;
   const int kNNuc    = 2;
   const int kNQrkMax = 4;
-  const int kNW      = 8;
+  const int kNW      = 1;
 
-  int    CcNc[2]        = { 1, 2 };
+  int    CcNc[kCcNc]    = { 1, 2 };
   int    NuCode[kNNu]   = { kPdgNuMu, kPdgAntiNuMu };
   int    NucCode[kNNuc] = { kPdgProton, kPdgNeutron };
-
   double W[kNW] = { 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 };
+*/
+  const int kCcNc    = 1;
+  const int kNNu     = 1;
+  const int kNNuc    = 1;
+  const int kNQrkMax = 4;
+  const int kNW      = 12;
+
+  int    CcNc[kCcNc]    = { 1 };
+  int    NuCode[kNNu]   = { kPdgNuMu   };
+  int    NucCode[kNNuc] = { kPdgProton };
+//  double W[kNW] = { 1.5, 1.8, 2.0, 2.5, 3.0, 4.0, 5.0 };
+  double W[kNW] = { 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 4.0, 6.0, 8.0, 10.0, 15.0, 20.0 };
 
   int  QrkCode[kNQrkMax];
   bool SeaQrk [kNQrkMax];
@@ -122,8 +137,15 @@ int main(int argc, char ** argv)
   int   br_nKm;         // number of generated K-
   int   br_nK0;         // number of generated K0
   int   br_n;           // total number of generated particles
+  int   br_nstrst;      // string daughters
+  int   br_model;       // jetset model info (1:string,2:cluster,3:indep), 0: for kno
+  float br_sphericity;  // jetset sphericity
+  float br_aplanarity;  // jetset aplanarity
+  float br_thrust;      // jetset thrust
+  float br_oblateness;  // jetset oblateness
   int   br_pdg[npmax];  // PDG code of each particle
   int   br_ist[npmax];  // Status code of each particle
+  int   br_dec[npmax];  // Decay of a previous hadronization product (Delta,...)?
   float br_px [npmax];  // px of each particle
   float br_py [npmax];  // py of each particle
   float br_pz [npmax];  // pz of each particle
@@ -151,8 +173,15 @@ int main(int argc, char ** argv)
   hadnt->Branch("nKm",   &br_nKm,   "nKm/I");
   hadnt->Branch("nK0",   &br_nK0,   "nK0/I");
   hadnt->Branch("n",     &br_n,     "n/I");
+  hadnt->Branch("jmod",  &br_model, "jmod/I");
+  hadnt->Branch("nstrst",&br_nstrst,"nstrst/I");
+  hadnt->Branch("sph",   &br_sphericity, "sph/F");
+  hadnt->Branch("apl",   &br_aplanarity, "apl/F");
+  hadnt->Branch("thr",   &br_thrust,     "thr/F");
+  hadnt->Branch("obl",   &br_oblateness, "obl/F");
   hadnt->Branch("pdg",    br_pdg,   "pdg[n]/I");
   hadnt->Branch("ist",    br_ist,   "ist[n]/I");
+  hadnt->Branch("dec",    br_dec,   "dec[n]/I");
   hadnt->Branch("px",     br_px,    "px[n]/F");
   hadnt->Branch("py",     br_py,    "py[n]/F");
   hadnt->Branch("pz",     br_pz,    "pz[n]/F");
@@ -168,7 +197,7 @@ int main(int argc, char ** argv)
   int nnull=0;
 
   // CC/NC loop
-  for(int iccnc=0; iccnc<2; iccnc++) { 
+  for(int iccnc=0; iccnc<kCcNc; iccnc++) { 
     InteractionType_t it = (CcNc[iccnc]==1) ? kIntWeakCC : kIntWeakNC;
 
     // neutrino & hit nucleon loops
@@ -207,11 +236,14 @@ int main(int argc, char ** argv)
                  if(nnull>nnull_max) exit(1);
                  continue;
                 }
+
+                utils::fragmrec::Print(plist);
+
                 br_iev  = in;
                 br_nuc  = NucCode[inuc];
                 br_neut = NuCode[inu];
-                br_qrk  = (gSetHitQrk) ? QrkCode[iqrk] : 0;
-                br_sea  = (gSetHitQrk) ? SeaQrk[iqrk]  : 0;
+                br_qrk  = ((gSetHitQrk) ? QrkCode[iqrk] : 0);
+                br_sea  = ((gSetHitQrk) ? SeaQrk[iqrk]  : 0);
                 br_ccnc = CcNc[iccnc];
                 br_W    = W[iw];
                 br_np   = utils::fragmrec::NParticles(kPdgProton,  plist);
@@ -224,10 +256,15 @@ int main(int argc, char ** argv)
                 br_nK0  = utils::fragmrec::NParticles(kPdgK0,      plist);
                 br_n    = plist->GetEntries();
 
+                br_model=0;
+                br_nstrst=0;
+
                 TMCParticle * particle = 0;
                 TIter particle_iter(plist);
 
                 unsigned int i=0;
+                unsigned int daughter1=0, daughter2=0;
+                bool model_set=false;
 
                 while( (particle = (TMCParticle *) particle_iter.Next()) ) {
                    br_pdg[i] = particle->GetKF();
@@ -244,8 +281,39 @@ int main(int argc, char ** argv)
                    br_xF[i]  = particle->GetPz() / (W[iw]/2); 
 		   br_z[i]   = particle->GetEnergy() / W[iw];
 
+                   if(particle->GetKF() == kPdgString || particle->GetKF() == kPdgCluster || particle->GetKF() == kPdgIndep) {
+			if(model_set) exit(1);
+                        model_set = true;
+                        if      (particle->GetKF() == kPdgString ) br_model=1;
+                        else if (particle->GetKF() == kPdgCluster) br_model=2;
+                        else if (particle->GetKF() == kPdgIndep  ) br_model=3;
+
+                        daughter1 = particle->GetFirstChild();
+                        daughter2 = particle->GetLastChild();
+                        br_nstrst = daughter2-daughter1+1;
+                   }
+
+                   if(model_set) {
+                     if(i>=daughter1 && i<=daughter2) br_dec[i] = 1;
+                     else                             br_dec[i] = 0;
+                   } else {
+                      br_dec[i] = 0;
+                   }
+
                    i++;
                 } // particle-iterator
+
+                double sph=0, apl=0, thr=0, obl=0;
+                if(br_model!=0) {
+                   pysphe_(&sph,&apl);
+                   pythru_(&thr,&obl);
+                   LOG("Main", pINFO) << "Sphericity = " << sph << ", aplanarity = " << apl;
+                }
+
+                br_sphericity = sph;
+                br_aplanarity = apl;
+                br_thrust     = thr;
+                br_oblateness = obl;
 
                 hadnt->Fill();
 
