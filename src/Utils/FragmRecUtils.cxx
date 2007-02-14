@@ -32,8 +32,11 @@ int genie::utils::fragmrec::NParticles(
 
   TObjArrayIter particle_iter(particle_list);
 
-  while( (p = (TMCParticle *) particle_iter.Next()) )
-                                     if(p->GetKF() == pdg_code)  nparticles++;
+  while( (p = (TMCParticle *) particle_iter.Next()) ) {
+    if(p->GetKF() == pdg_code)  {
+      if(p->GetKS()<10) nparticles++;
+    }
+  }
   return nparticles;
 }
 //____________________________________________________________________________
