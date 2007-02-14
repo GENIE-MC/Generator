@@ -77,7 +77,7 @@ bool FGMBodekRitchie::GenerateNucleon(const Target & target) const
   double py = p*sintheta*sinfi;
   double pz = p*costheta;  
 
-  fCurrRemovalEnergy = 0.025;
+  fCurrRemovalEnergy = fNucRmvE;;
   fCurrMomentum.SetXYZ(px,py,pz);
 
   return true;
@@ -192,7 +192,11 @@ void FGMBodekRitchie::LoadConfig(void)
   fNPBins  = fConfig->GetIntDef    ("Momentum-NumBins",  400);
   fPMax    = fConfig->GetDoubleDef ("Momentum-Max",     10.0);
   fPCutOff = fConfig->GetDoubleDef ("Momentum-CutOff",  
-                        gc->GetDouble("RFG-Momentum-CutOff"));
+                                    gc->GetDouble("RFG-Momentum-CutOff"));
+  fNucRmvE = fConfig->GetDoubleDef ("NucRemovalE",  
+                                    gc->GetDouble("RFG-NucRemovalE"));
+
+  fNucRmvE = TMath::Max(fNucRmvE, 0.);
 
   assert(fNPBins > 1 && fPMax > 0 && fPCutOff > 0 && fPCutOff < fPMax);
 }

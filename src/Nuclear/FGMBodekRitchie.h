@@ -53,6 +53,7 @@ private:
   int    fNPBins;
   double fPMax;
   double fPCutOff;
+  double fNucRmvE;
   string fKFTable;
 };
 
