@@ -36,8 +36,8 @@ int main(int /*argc*/, char ** /*argv*/)
   // eg:
   // root [0] .x $GENIE/src/scripts/loadlibs.C
   // root [1] TFile f("./hdxs.root");
-  // root [2] mashnik_pife_pi0->Draw();
-  // root [3] said_pip_p_elas->Draw("same");
+  // root [2] pN_tot->Draw();
+  // root [3] pi0N_tot->Draw("same");
   //
   
   // Write out hN mode hadron x-section splines
