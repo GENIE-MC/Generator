@@ -2,7 +2,7 @@
 // Exports conrete XSecAlgorithmI class as a GSFunc (GENIE scalar function)
 // for interfacing with the numerical integration code
 //
-// Copyright (c) 2003-2006, GENIE Neutrino MC Generator Collaboration
+// Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
 // All rights reserved.
 //For the licensing terms see $GENIE/USER_LICENSE.
 //

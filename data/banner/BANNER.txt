@@ -14,7 +14,7 @@
 **     /   jet <===               @@@@@@@                   Neutrino MC Generator  **
 **    /             u  ____________@@@@@                                           **
 **  nu_mu                          @@@@@                                           ** 
-**                                  @@@         (c) 2003-2006 GENIE Collaboration  **
+**                                  @@@         (c) 2003-2007 GENIE Collaboration  **
 **                                   @  p                                          **
 **                                                                                 **
 **                                                                                 **
