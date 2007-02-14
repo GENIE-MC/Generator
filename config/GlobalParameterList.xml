@@ -153,9 +153,10 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="alg" name="NuclearModel"> 
                         genie::FGMBodekRitchie/Default </param>
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters related with GENIE's Fermi Gas (FGM) model implementation
+  Parameters related with GENIE's Fermi Gas (RFG) model implementation  
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <param type="double" name="RFG-Momentum-CutOff"> 0.5 </param>
+  <param type="double" name="RFG-Momentum-CutOff"> 0.500 </param>
+  <param type="double" name="RFG-NucRemovalE">     0.030 </param>
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Table of Fermi momentum (kF) constants for various nuclei
@@ -201,11 +202,11 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="double" name="KNO-PhaseSpace-RewParm"> 3.5 </param>
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters controlling the PYTHIA hadronization model    
-  ssbar:   [PYTHIA def:0.30    ] [NUX tune:0.21    ]
-  pt2:     [PYTHIA def:0.36 GeV] [NUX tune:0.44 GeV]
-  pt2tail: [PYTHIA def:0.01    ] [NUX tune:0.01    ]
-  cutoff:  [PYTHIA def:0.80 GeV] [NUX tune:0.20 GeV]
+  Parameters controlling the PYTHIA hadronization model:
+  - ssbar:   [PYTHIA def:0.30    ] [NUX tune:0.21    ]
+  - pt2:     [PYTHIA def:0.36 GeV] [NUX tune:0.44 GeV]
+  - pt2tail: [PYTHIA def:0.01    ] [NUX tune:0.01    ]
+  - cutoff:  [PYTHIA def:0.80 GeV] [NUX tune:0.20 GeV]
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <param type="double" name="PYTHIA-SSBarSuppression">      0.21 </param>
   <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param>
@@ -258,14 +259,18 @@ Use the "Default" one to get the best GENIE physics & tuning.
                             genie::Intranuke/Default  </param>
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  INTRANUKE-specific parameters 
-  Mode options are: hA, hN
-  Ro is an effective nucleus size given in fm (R=Ro*A^1/3)
+  INTRANUKE-specific parameters:
+  - Mode options are: hA, hN
+  - Ro is an effective nucleus size given in fm (R=Ro*A^1/3)
+  - FormationZone is the ct0 param entering in form. zone calc (in fm)
+  - KPt2 is the parameter multiplying pT2 in formation zone calc.
+  - NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <param type="string" name="INUKE-Mode">          hA    </param>
-  <param type="double" name="INUKE-FormationZone"> 2.0   </param>
-  <param type="double" name="INUKE-KPt2">          1.0   </param>
-  <param type="double" name="INUKE-Ro">            1.2   </param>
+  <param type="string" name="INUKE-Mode">            hA    </param>
+  <param type="double" name="INUKE-FormationZone">   2.0   </param>
+  <param type="double" name="INUKE-KPt2">            1.0   </param>
+  <param type="double" name="INUKE-Ro">              1.2   </param>
+  <param type="double" name="INUKE-NucRemovalE">     0.008 </param>
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   FLUKA-specific parameters 
