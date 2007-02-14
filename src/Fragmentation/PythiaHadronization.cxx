@@ -21,6 +21,7 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
+#include "Decay/DecayModelI.h"
 #include "Fragmentation/PythiaHadronization.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -216,14 +217,33 @@ TClonesArray * PythiaHadronization::Hadronize(
   LOG("PythiaHad", pNOTICE)
         << "Fragmentation / Init System: "
                       << "q = " << final_quark << ", qq = " << diquark;
-  int ip     = 0;
-  int mstj21 = fPythia->GetMSTJ(21);
 
-  fPythia->SetMSTJ(21,0);                   // inhibit decays at this stage
+  int ip = 0;
+
+  // back-up initial pythia settings
+  int   mstj21 = fPythia->GetMSTJ(21);
+  int   mstj22 = fPythia->GetMSTJ(22);
+  float parj71 = fPythia->GetPARJ(71);
+
+  fPythia->SetMSTJ(21,0);  // inhibit decays
+/*
+  double ct = 0.00001; // ct, in mm
+  fPythia->SetMSTJ(21,1);  // enable decays
+  fPythia->SetMSTJ(22,2);  // decay particles with average proper lifetime < PARJ(71) 
+  fPythia->SetPARJ(71,ct); // proper lifetime
+  this->SwitchDecays(kPdgPi0,       false); // don't decay pi0
+  this->SwitchDecays(2214,           true); // decay Delta+
+  this->SwitchDecays(2224,           true); // decay Delta++
+*/
+  // hadronize
   py2ent_(&ip, &final_quark, &diquark, &W); // hadronizer
-  fPythia->SetMSTJ(21,mstj21);              // restore 
 
-  //-- get LUJETS record
+  // restore pythia settings
+  fPythia->SetMSTJ(21,mstj21);              // restore mstj(21)
+  fPythia->SetMSTJ(22,mstj22);              // restore mstj(22)
+  fPythia->SetPARJ(71,parj71);              // restore parj(71)
+
+  // get LUJETS record
   fPythia->GetPrimaries();
   TClonesArray * pythia_particles =
                       (TClonesArray *) fPythia->ImportParticles("All");
@@ -397,6 +417,13 @@ void PythiaHadronization::LoadConfig(void)
   // scaling factors would be applied -if requested-
   fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
 
+  // decayer
+  fDecayer = 0;
+  if(fConfig->Exists("Decayer")) {
+     fDecayer = dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
+     assert(fDecayer);
+  }
+
   // Load NEUGEN multiplicity probability scaling parameters Rijk
   fRvpCCm2  = fConfig->GetDoubleDef(
                       "R-vp-CC-m2", gc->GetDouble("DIS-HMultWgt-vp-CC-m2"));
@@ -459,5 +486,124 @@ bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
+void PythiaHadronization::SwitchDecays(int pdgc, bool on_off) const
+{
+  LOG("PythiaHad", pNOTICE)
+     << "Switching " << ((on_off) ? "ON" : "OFF")
+                     << " all PYTHIA decay channels for particle = " << pdgc;
 
+  int flag     = (on_off) ? 1 : 0;
+  int kc       = fPythia->Pycomp(pdgc);
+  int first_ch = fPythia->GetMDCY(kc,2);
+  int last_ch  = fPythia->GetMDCY(kc,2) + fPythia->GetMDCY(kc,3) - 1;
+
+  for(int ich = first_ch; ich < last_ch; ich++) fPythia->SetMDME(ich,1,flag);
+}
+//____________________________________________________________________________
+void PythiaHadronization::HandleDecays(TClonesArray * plist) const
+{
+// Handle decays of unstable particles if requested through the XML config.
+// The default is not to decay the particles at this stage (during event
+// generation, the UnstableParticleDecayer event record visitor decays what
+// is needed to be decayed later on). But, when comparing various models
+// (eg PYTHIA vs KNO) independently and not within the full MC simulation
+// framework it might be necessary to force the decays at this point.
+
+  if(!fDecayer) {
+    LOG("PythiaHad", pWARN) << "No decayer was specified!";
+    return;
+  }
+
+  this->SwitchDecays(kPdgLambda,     true); // decay Lambda
+  this->SwitchDecays(kPdgAntiLambda, true); // decay \bar{Lambda}
+  this->SwitchDecays(kPdgSigmaP,     true); // decay Sigma+
+  this->SwitchDecays(kPdgSigma0,     true); // decay Sigma0
+  this->SwitchDecays(kPdgSigmaM,     true); // decay Sigma-
+  this->SwitchDecays(kPdgAntiSigmaP, true); // decay Sigma+
+  this->SwitchDecays(kPdgAntiSigma0, true); // decay Sigma0
+  this->SwitchDecays(kPdgAntiSigmaM, true); // decay Sigma-
+  this->SwitchDecays(kPdgXi0,        true); // decay Xi0
+  this->SwitchDecays(kPdgXiM,        true); // decay Xi-
+  this->SwitchDecays(kPdgAntiXi0,    true); // decay \bar{Xi0}
+  this->SwitchDecays(kPdgAntiXiP,    true); // decay \bar{Xi+}
+  this->SwitchDecays(kPdgOmegaM,     true); // decay Omega-
+  this->SwitchDecays(kPdgAntiOmegaP, true); // decay \bar{Omega+}
+
+  int mstj21 = fPythia->GetMSTJ(21);
+  fPythia->SetMSTJ(21,1); 
+  fPythia->SetMSTJ(22,2);                  
+  fPythia->SetPARJ(71,100);                  
+
+  //-- loop through the fragmentation event record & decay unstables
+  int idecaying   = -1; // position of decaying particle
+  TMCParticle * p =  0; // current particle
+
+  TIter piter(plist);
+  while ( (p = (TMCParticle *) piter.Next()) ) {
+     idecaying++;
+     int status = p->GetKS();
+     int pdg    = p->GetKF();
+
+     bool decay_it = (status<10) && 
+                     ( pdg == kPdgLambda ||
+                       pdg == kPdgAntiLambda ||
+                       pdg == kPdgSigmaP ||
+                       pdg == kPdgSigma0 ||
+                       pdg == kPdgSigmaM ||
+                       pdg == kPdgAntiSigmaP ||
+                       pdg == kPdgAntiSigma0 ||
+                       pdg == kPdgAntiSigmaM ||
+                       pdg == kPdgXi0 ||
+                       pdg == kPdgXiM ||
+                       pdg == kPdgAntiXi0 ||
+                       pdg == kPdgAntiXiP ||
+                       pdg == kPdgOmegaM  ||
+                       pdg == kPdgAntiOmegaP );
+
+     // bother for final state particle only
+     if(decay_it) {
+
+          LOG("PythiaHad", pINFO)
+                     << "Decaying particle with pdgc = " << p->GetKF();
+
+          DecayerInputs_t dinp;
+
+          TLorentzVector p4;
+          p4.SetPxPyPzE(p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy());
+
+          dinp.PdgCode = p->GetKF();
+          dinp.P4      = &p4;
+
+          TClonesArray * decay_products = fDecayer->Decay(dinp);
+          if(decay_products) {
+                  //--  mark the parent particle as decayed & set daughters
+                  p->SetKS(11);
+
+                  int nfp = plist->GetEntries();          // n. fragm. products
+                  int ndp = decay_products->GetEntries(); // n. decay products
+
+                  p->SetFirstChild ( nfp );          // decay products added at
+                  p->SetLastChild  ( nfp + ndp -1 ); // the end of the fragm.rec.
+
+                  //--  add decay products to the fragmentation record
+                  TMCParticle * dp = 0;
+                  TIter dpiter(decay_products);
+
+                  while ( (dp = (TMCParticle *) dpiter.Next()) ) {
+  	  	     if(dp->GetKS()>10) continue;
+                     dp->SetParent(idecaying);
+                     new ( (*plist)[plist->GetEntries()] ) TMCParticle(*dp);
+                  }
+
+                  //-- clean up decay products
+                  decay_products->Delete();
+                  delete decay_products;
+           }
+
+     } // KS < 10 : final state particle (as in PYTHIA LUJETS record)
+  } // particles in fragmentation record
+
+  fPythia->SetMSTJ(21,mstj21); // restore mstj(21)
+}
+//____________________________________________________________________________
 
