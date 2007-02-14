@@ -104,10 +104,11 @@ private:
   INukeHadroData * fHadroData;           ///< a collection of h+N,h+A data & calculations
 
   //-- configuration parameters
-  INukeMode_t  fMode;  ///< h+A, h+N
-  double       fct0;   ///< formation zone (c * formation time)
-  double       fK;
-  double       fR0;
+  INukeMode_t  fMode;    ///< h+A, h+N
+  double       fct0;     ///< formation zone (c * formation time)
+  double       fK;       ///< param multiplying pT^2 in formation zone calculation
+  double       fR0;      ///< effective nuclear size param
+  double       fNucRmvE; ///< binding energy to subtract from cascade nucleons
 };
 
 }      // genie namespace

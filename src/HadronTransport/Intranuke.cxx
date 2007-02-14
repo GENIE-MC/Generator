@@ -1059,7 +1059,14 @@ bool Intranuke::PhaseSpaceDecay(
      TLorentzVector * p4fin = fGenPhaseSpace.GetDecay(i++);
 
      //-- add the particle at the event record
-     ev->AddParticle(pdgc, ist, mom,-1,-1,-1, *p4fin, *v4);
+     //   (if it is a cascade nucleon set the binding energy to be 
+     //    removed later on)
+    
+     GHepParticle new_particle(pdgc, ist, mom,-1,-1,-1, *p4fin, *v4);
+     if(pdg::IsNeutronOrProton(pdgc)) 
+             new_particle.SetRemovalEnergy(fNucRmvE);
+
+     ev->AddParticle(new_particle);
   }
   // Clean-up
   delete [] mass;
@@ -1100,9 +1107,10 @@ void Intranuke::LoadConfig(void)
   else                                   fMode = kIMdUndefined;
 
   //-- other intranuke config params
-  fct0 = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("INUKE-FormationZone")); // fermi
-  fK   = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("INUKE-KPt2"));
-  fR0  = fConfig->GetDoubleDef ("R0",   gc->GetDouble("INUKE-Ro")); // fermi
+  fct0     = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("INUKE-FormationZone")); // fm
+  fK       = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("INUKE-KPt2"));
+  fR0      = fConfig->GetDoubleDef ("R0",   gc->GetDouble("INUKE-Ro")); // fm
+  fNucRmvE = fConfig->GetDoubleDef ("nucleon-removal-energy", gc->GetDouble("INUKE-NucRemovalE")); // GeV
 
   //-- report
   LOG("Intranuke", pDEBUG) << "mode    = " << INukeMode::AsString(fMode);
