@@ -154,14 +154,19 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
   int pdg_code = particle->Pdg();
 
   TParticlePDG * ppdg = PDGLibrary::Instance()->Find(pdg_code);
-
-  if( ppdg->Lifetime() < fMaxLifetime ) { /*return true*/ };
+  if( ppdg->Lifetime() < fMaxLifetime ) { /* ... */ };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - temporary/
   // ROOT's TParticlepdg::Lifetime() does not work properly
   // do something else instead (temporarily)
 
-  int particles_to_decay[] = {
+  if( fRunBefHadroTransp ) {
+    /* run before the hadron transport MC */
+    if(utils::res::IsBaryonResonance(pdg_code)) return true;
+
+  } else {
+    /* run before the hadron transport MC */
+    int particles_to_decay[] = {
           kPdgPi0, 
           kPdgEta, kPdgEtaPrm, 
           kPdgRho0, kPdgRhoP, kPdgRhoM,
@@ -169,11 +174,11 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
           kPdgDP, kPdgDM, kPdgD0, kPdgAntiD0, kPdgDPs, kPdgDMs,
           kPdgLambdaPc, kPdgSigmaPc, kPdgSigmaPPc };
 
-  const int N = sizeof(particles_to_decay) / sizeof(int);
+    const int N = sizeof(particles_to_decay) / sizeof(int);
+    int matches = count(particles_to_decay, particles_to_decay+N, pdg_code);
 
-  int matches = count(particles_to_decay, particles_to_decay+N, pdg_code);
-
-  if(matches > 0 || utils::res::IsBaryonResonance(pdg_code)) return true;
+    if(matches > 0 || utils::res::IsBaryonResonance(pdg_code)) return true;
+  } 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - /temporary
 
   return false;
@@ -207,7 +212,6 @@ void UnstableParticleDecayer::CopyToEventRecord(
 
      TLorentzVector p4(px, py, pz, E); // momentum 4-vector
      TLorentzVector v4(0,  0,  0,  0); // dummy position 4-vector
-
 /*
      //-- duplicate the mother particle with status=kIStDecayedState to 
      //   record the decay 
@@ -261,16 +265,19 @@ void UnstableParticleDecayer::LoadConfig(void)
 
   //-- Check whether the module is being run before or after the hadron
   //   transport (intranuclear rescattering) module.
-  //   If it is run after, then it should decay all 'unstable' particles 
-  //   marked as 'present in the final state'.
+  //
   //   If it is run before the hadron transport (and after the hadronization)
-  //   step it should decay only "unstable" particles marked as hadrons in
-  //   the nucleus (the algorithm should do nothing if the scattering is off
-  //   a free nucleon target). Note that it should typically decay pi0's,eta's,
-  //   rho's,D's and baryon resonances while pi+'s,pi-'s would not be decayed
-  //   at that stage as they need to be handled by the hadron transport code 
-  //   first.
-  //   
+  //   step it should decay only "unstable" particles (marked as hadrons in
+  //   the nucleus) which would typically decay within the time required to 
+  //   exit the nucleus - so, the algorithm wouldn't decay particles that 
+  //   have to be rescattered first. In case that the generated event is off
+  //   a free nucleon target, thi instance of the algorithm should do nothing.
+  //
+  //   If it is run after the hadon transport, then it should decay all the 
+  //   'unstable' particles marked as 'present in the final state' and which 
+  //   should be decay before the event is passed to the detector particle
+  //   transport MC.
+  //
   fRunBefHadroTransp = fConfig->GetBool("RunBeforeHadronTransport");
 
   //-- Load particle decayers
