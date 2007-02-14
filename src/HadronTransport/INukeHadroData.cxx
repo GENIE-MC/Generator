@@ -5,7 +5,8 @@
  For the licensing terms see $GENIE/USER_LICENSE.
 
  Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
-         October 02, 2006
+         Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
+         February 01, 2007
 
  For the class documentation see the corresponding header file.
 

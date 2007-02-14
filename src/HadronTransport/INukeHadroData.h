@@ -22,8 +22,9 @@
           for h+Fe56.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
+          Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
 
-\created  October 03, 2006
+\created  February 01, 2007
 
 */
 //____________________________________________________________________________
