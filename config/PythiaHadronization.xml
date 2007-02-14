@@ -36,6 +36,7 @@ R-vbn-CC-m2              double  Yes   scaling factor, vbn CC, multiplicity=2   
 R-vbn-CC-m3              double  Yes   scaling factor, vbn CC, multiplicity=3                   GPL DIS-HMultWgt-vbn-CC-m3
 R-vbn-NC-m2              double  Yes   scaling factor, vbn NC, multiplicity=2                   GPL DIS-HMultWgt-vbn-NC-m2
 R-vbn-NC-m3              double  Yes   scaling factor, vbn NC, multiplicity=3                   GPL DIS-HMultWgt-vbn-NC-m3
+Decayer                  alg     Yes   particle decayer algorithm in case of -manual- decays    -unused-
 -->
 
 <!-- 
@@ -51,7 +52,7 @@ R-vbn-NC-m3              double  Yes   scaling factor, vbn NC, multiplicity=3   
     <param type="double" name="SSBarSuppression">      0.30 </param> 
     <param type="double" name="GaussianPt2">           0.36 </param> 
     <param type="double" name="NonGaussianPt2Tail">    0.01 </param> 
-    <param type="double" name="RemainingEnergyCutoff"> 0.20 </param> 
+    <param type="double" name="RemainingEnergyCutoff"> 0.80 </param> 
   </param_set>
 
 <!-- 
