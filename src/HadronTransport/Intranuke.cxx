@@ -532,8 +532,7 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
      if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke))) return kIHAFtAbsPP;   // abs pp
      if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke))) return kIHAFtAbsNPP;  // abs npp
      if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N3P, ke))) return kIHAFtAbs2N3P; // abs 2n3p
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPip,    ke))) return kIHAFtNPip;    // pi production : n pi+
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N2P, ke))) return kIHAFtAbs2N2P; // abs 2n2p 
      if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
   }
 
@@ -548,7 +547,8 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
      if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke))) return kIHAFtAbsPP;   // abs pp
      if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke))) return kIHAFtAbsNPP;  // abs npp
      if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N2P, ke))) return kIHAFtAbs2N2P; // abs 2n2p 
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N3P, ke))) return kIHAFtAbs2N3P; // abs 2n3p
+     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPip,    ke))) return kIHAFtNPip;    // pi production : n pi+
      if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
   }
   return kIHAFtUndefined; 
