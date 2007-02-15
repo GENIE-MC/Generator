@@ -36,8 +36,9 @@ using namespace genie;
 //____________________________________________________________________________
 INukeHadroData * INukeHadroData::fInstance = 0;
 //____________________________________________________________________________
-double INukeHadroData::fMaxKinEnergyHA = 1000.0; // MeV
-double INukeHadroData::fMaxKinEnergyHN = 1800.0; // MeV
+double INukeHadroData::fMinKinEnergy   =    1.0; // MeV
+double INukeHadroData::fMaxKinEnergyHA =  999.0; // MeV
+double INukeHadroData::fMaxKinEnergyHN = 1799.0; // MeV
 //____________________________________________________________________________
 INukeHadroData::INukeHadroData()
 {
@@ -286,7 +287,7 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHA_t fate, double ke) const
 // return the x-section for the input fate for the particle with the input pdg 
 // code at the input kinetic energy
 //
-  ke = TMath::Max(0., ke);
+  ke = TMath::Max(fMinKinEnergy,   ke);
   ke = TMath::Min(fMaxKinEnergyHA, ke);
 
   if(hpdgc == kPdgProton) {
@@ -387,7 +388,7 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke) const
 // return the x-section for the input fate for the particle with the input pdg 
 // code at the input kinetic energy
 //
-  ke = TMath::Max(0., ke);
+  ke = TMath::Max(fMinKinEnergy,   ke);
   ke = TMath::Min(fMaxKinEnergyHN, ke);
 
   if (hpdgc == kPdgProton) {  
@@ -457,7 +458,7 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
 // return the x-section fraction for the input fate for the particle with the 
 // input pdg code at the input kinetic energy
 
-  ke = TMath::Max(0., ke);
+  ke = TMath::Max(fMinKinEnergy,   ke);
   ke = TMath::Min(fMaxKinEnergyHA, ke);
 
   // get x-section
@@ -481,7 +482,7 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHN_t fate, double ke) const
 // return the x-section fraction for the input fate for the particle with the 
 // input pdg code at the input kinetic energy
 
-  ke = TMath::Max(0., ke);
+  ke = TMath::Max(fMinKinEnergy,   ke);
   ke = TMath::Min(fMaxKinEnergyHN, ke);
 
   // get x-section
