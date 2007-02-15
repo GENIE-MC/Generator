@@ -186,7 +186,7 @@ void INukeHadroData::LoadCrossSections(void)
   data_NA.ReadFile(datafile_NA.c_str(),
      "ke/D:pA_tot/D:pA_elas/D:pA_inel/D:pA_cex/D:pA_np/D:pA_pp/D:pA_npp/D:pA_nnp/D:pA_2n3p/D:pA_npip/D:pA_npippi0/D");
   data_piA.ReadFile(datafile_piA.c_str(),
-     "ke/D:piA_tot/D:piA_elas/D:piA_inel/D:piA_cex/D:piA_np/D:piA_pp/D:piA_npp/D:piA_nnp/D:piA_2n2p/D:piA_npippi0/D:");
+     "ke/D:piA_tot/D:piA_elas/D:piA_inel/D:piA_cex/D:piA_np/D:piA_pp/D:piA_npp/D:piA_nnp/D:piA_2n2p/D:piA_npippi0/D");
 
   LOG("INukeData", pDEBUG)  << "Number of data rows in NN  : " << data_NN.GetEntries();
   LOG("INukeData", pDEBUG)  << "Number of data rows in piN : " << data_piN.GetEntries();
