@@ -546,6 +546,8 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
     if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
        double tot_frac = 0;
        double r = rnd->RndFsi().Rndm();
+       LOG("Intranuke", pDEBUG) << "r = " << r;
+
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtCEx,     ke))) return kIHAFtCEx;     // cex
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtElas,    ke))) return kIHAFtElas;    // elas
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtInelas,  ke))) return kIHAFtInelas;  // inelas
@@ -555,12 +557,18 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N2P, ke))) return kIHAFtAbs2N2P; // abs 2n2p 
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
+
+       LOG("Intranuke", pWARN) 
+         << "No selection after going through all fates! "
+         << "Total fraction = " << tot_frac << " (r = " << r << ")";
     }
 
     // handle nucleons
     else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
        double tot_frac = 0;
        double r = rnd->RndFsi().Rndm();
+       LOG("Intranuke", pDEBUG) << "r = " << r;
+
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtCEx,     ke))) return kIHAFtCEx;     // cex
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtElas,    ke))) return kIHAFtElas;    // elas
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtInelas,  ke))) return kIHAFtInelas;  // inelas
@@ -571,6 +579,10 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N3P, ke))) return kIHAFtAbs2N3P; // abs 2n3p
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPip,    ke))) return kIHAFtNPip;    // pi production : n pi+
        if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
+
+       LOG("Intranuke", pWARN) 
+         << "No selection after going through all fates! "
+         << "Total fraction = " << tot_frac << " (r = " << r << ")";
     }
   }//iterations
 
