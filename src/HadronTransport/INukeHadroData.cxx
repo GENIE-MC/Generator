@@ -36,8 +36,8 @@ using namespace genie;
 //____________________________________________________________________________
 INukeHadroData * INukeHadroData::fInstance = 0;
 //____________________________________________________________________________
-double INukeHadroData::fMinKinEnergy =    0.0; // MeV
-double INukeHadroData::fMaxKinEnergy = 5000.0; // MeV
+double INukeHadroData::fMaxKinEnergyHA = 1000.0; // MeV
+double INukeHadroData::fMaxKinEnergyHN = 1800.0; // MeV
 //____________________________________________________________________________
 INukeHadroData::INukeHadroData()
 {
@@ -286,21 +286,21 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHA_t fate, double ke) const
 // return the x-section for the input fate for the particle with the input pdg 
 // code at the input kinetic energy
 //
-  ke = TMath::Max(fMinKinEnergy, ke);
-  ke = TMath::Min(fMaxKinEnergy, ke);
+  ke = TMath::Max(0., ke);
+  ke = TMath::Min(fMaxKinEnergyHA, ke);
 
   if(hpdgc == kPdgProton) {
    /* handle protons */
-        if (fate == kIHAFtCEx    ) return fXSecPA_CEx     -> Evaluate (ke);
-   else if (fate == kIHAFtElas   ) return fXSecPA_Elas    -> Evaluate (ke);
-   else if (fate == kIHAFtInelas ) return fXSecPA_Inel    -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNP  ) return fXSecPA_NP      -> Evaluate (ke);
-   else if (fate == kIHAFtAbsPP  ) return fXSecPA_PP      -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNPP ) return fXSecPA_NPP     -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNNP ) return fXSecPA_NNP     -> Evaluate (ke);
-   else if (fate == kIHAFtAbs2N3P) return fXSecPA_NNPPP   -> Evaluate (ke);
-   else if (fate == kIHAFtNPip   ) return fXSecPA_NPip    -> Evaluate (ke);
-   else if (fate == kIHAFtNPipPi0) return fXSecPA_NPipPi0 -> Evaluate (ke);
+        if (fate == kIHAFtCEx    ) return TMath::Max(0., fXSecPA_CEx     -> Evaluate (ke));
+   else if (fate == kIHAFtElas   ) return TMath::Max(0., fXSecPA_Elas    -> Evaluate (ke));
+   else if (fate == kIHAFtInelas ) return TMath::Max(0., fXSecPA_Inel    -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNP  ) return TMath::Max(0., fXSecPA_NP      -> Evaluate (ke));
+   else if (fate == kIHAFtAbsPP  ) return TMath::Max(0., fXSecPA_PP      -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNPP ) return TMath::Max(0., fXSecPA_NPP     -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNNP ) return TMath::Max(0., fXSecPA_NNP     -> Evaluate (ke));
+   else if (fate == kIHAFtAbs2N3P) return TMath::Max(0., fXSecPA_NNPPP   -> Evaluate (ke));
+   else if (fate == kIHAFtNPip   ) return TMath::Max(0., fXSecPA_NPip    -> Evaluate (ke));
+   else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fXSecPA_NPipPi0 -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
        << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -309,16 +309,16 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHA_t fate, double ke) const
 
   } else if (hpdgc == kPdgNeutron) {
    /* handle neutrons */
-        if (fate == kIHAFtCEx    ) return fXSecNA_CEx     -> Evaluate (ke);
-   else if (fate == kIHAFtElas   ) return fXSecNA_Elas    -> Evaluate (ke);
-   else if (fate == kIHAFtInelas ) return fXSecNA_Inel    -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNP  ) return fXSecNA_NP      -> Evaluate (ke);
-   else if (fate == kIHAFtAbsPP  ) return fXSecNA_PP      -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNPP ) return fXSecNA_NPP     -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNNP ) return fXSecNA_NNP     -> Evaluate (ke);
-   else if (fate == kIHAFtAbs2N3P) return fXSecNA_NNPPP   -> Evaluate (ke);
-   else if (fate == kIHAFtNPip   ) return fXSecNA_NPip    -> Evaluate (ke);
-   else if (fate == kIHAFtNPipPi0) return fXSecNA_NPipPi0 -> Evaluate (ke);
+        if (fate == kIHAFtCEx    ) return TMath::Max(0., fXSecNA_CEx     -> Evaluate (ke));
+   else if (fate == kIHAFtElas   ) return TMath::Max(0., fXSecNA_Elas    -> Evaluate (ke));
+   else if (fate == kIHAFtInelas ) return TMath::Max(0., fXSecNA_Inel    -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNP  ) return TMath::Max(0., fXSecNA_NP      -> Evaluate (ke));
+   else if (fate == kIHAFtAbsPP  ) return TMath::Max(0., fXSecNA_PP      -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNPP ) return TMath::Max(0., fXSecNA_NPP     -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNNP ) return TMath::Max(0., fXSecNA_NNP     -> Evaluate (ke));
+   else if (fate == kIHAFtAbs2N3P) return TMath::Max(0., fXSecNA_NNPPP   -> Evaluate (ke));
+   else if (fate == kIHAFtNPip   ) return TMath::Max(0., fXSecNA_NPip    -> Evaluate (ke));
+   else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fXSecNA_NPipPi0 -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
        << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -327,15 +327,15 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHA_t fate, double ke) const
 
   } else if (hpdgc == kPdgPiP) {
    /* handle pi+ */
-        if (fate == kIHAFtCEx    ) return fXSecPipA_CEx     -> Evaluate (ke);
-   else if (fate == kIHAFtElas   ) return fXSecPipA_Elas    -> Evaluate (ke);
-   else if (fate == kIHAFtInelas ) return fXSecPipA_Inel    -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNP  ) return fXSecPipA_NP      -> Evaluate (ke);
-   else if (fate == kIHAFtAbsPP  ) return fXSecPipA_PP      -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNPP ) return fXSecPipA_NPP     -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNNP ) return fXSecPipA_NNP     -> Evaluate (ke);
-   else if (fate == kIHAFtAbs2N2P) return fXSecPipA_NNPP    -> Evaluate (ke);
-   else if (fate == kIHAFtNPipPi0) return fXSecPipA_NPipPi0 -> Evaluate (ke);
+        if (fate == kIHAFtCEx    ) return TMath::Max(0., fXSecPipA_CEx     -> Evaluate (ke));
+   else if (fate == kIHAFtElas   ) return TMath::Max(0., fXSecPipA_Elas    -> Evaluate (ke));
+   else if (fate == kIHAFtInelas ) return TMath::Max(0., fXSecPipA_Inel    -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNP  ) return TMath::Max(0., fXSecPipA_NP      -> Evaluate (ke));
+   else if (fate == kIHAFtAbsPP  ) return TMath::Max(0., fXSecPipA_PP      -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNPP ) return TMath::Max(0., fXSecPipA_NPP     -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNNP ) return TMath::Max(0., fXSecPipA_NNP     -> Evaluate (ke));
+   else if (fate == kIHAFtAbs2N2P) return TMath::Max(0., fXSecPipA_NNPP    -> Evaluate (ke));
+   else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fXSecPipA_NPipPi0 -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
          << "Pi+'s don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -344,15 +344,15 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHA_t fate, double ke) const
 
   } else if (hpdgc == kPdgPiM) {
    /* handle pi- */
-   if      (fate == kIHAFtCEx    ) return fXSecPimA_CEx     -> Evaluate (ke);
-   else if (fate == kIHAFtElas   ) return fXSecPimA_Elas    -> Evaluate (ke);
-   else if (fate == kIHAFtInelas ) return fXSecPimA_Inel    -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNP  ) return fXSecPimA_NP      -> Evaluate (ke);
-   else if (fate == kIHAFtAbsPP  ) return fXSecPimA_PP      -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNPP ) return fXSecPimA_NPP     -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNNP ) return fXSecPimA_NNP     -> Evaluate (ke);
-   else if (fate == kIHAFtAbs2N2P) return fXSecPimA_NNPP    -> Evaluate (ke);
-   else if (fate == kIHAFtNPipPi0) return fXSecPimA_NPipPi0 -> Evaluate (ke);
+   if      (fate == kIHAFtCEx    ) return TMath::Max(0., fXSecPimA_CEx     -> Evaluate (ke));
+   else if (fate == kIHAFtElas   ) return TMath::Max(0., fXSecPimA_Elas    -> Evaluate (ke));
+   else if (fate == kIHAFtInelas ) return TMath::Max(0., fXSecPimA_Inel    -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNP  ) return TMath::Max(0., fXSecPimA_NP      -> Evaluate (ke));
+   else if (fate == kIHAFtAbsPP  ) return TMath::Max(0., fXSecPimA_PP      -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNPP ) return TMath::Max(0., fXSecPimA_NPP     -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNNP ) return TMath::Max(0., fXSecPimA_NNP     -> Evaluate (ke));
+   else if (fate == kIHAFtAbs2N2P) return TMath::Max(0., fXSecPimA_NNPP    -> Evaluate (ke));
+   else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fXSecPimA_NPipPi0 -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
         << "Pi-'s don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -361,22 +361,21 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHA_t fate, double ke) const
 
   } else if (hpdgc == kPdgPi0) {
    /* handle pi0 */
-        if (fate == kIHAFtCEx    ) return fXSecPi0A_CEx     -> Evaluate (ke);
-   else if (fate == kIHAFtElas   ) return fXSecPi0A_Elas    -> Evaluate (ke);
-   else if (fate == kIHAFtInelas ) return fXSecPi0A_Inel    -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNP  ) return fXSecPi0A_NP      -> Evaluate (ke);
-   else if (fate == kIHAFtAbsPP  ) return fXSecPi0A_PP      -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNPP ) return fXSecPi0A_NPP     -> Evaluate (ke);
-   else if (fate == kIHAFtAbsNNP ) return fXSecPi0A_NNP     -> Evaluate (ke);
-   else if (fate == kIHAFtAbs2N2P) return fXSecPi0A_NNPP    -> Evaluate (ke);
-   else if (fate == kIHAFtNPipPi0) return fXSecPi0A_NPipPi0 -> Evaluate (ke);
+        if (fate == kIHAFtCEx    ) return TMath::Max(0., fXSecPi0A_CEx     -> Evaluate (ke));
+   else if (fate == kIHAFtElas   ) return TMath::Max(0., fXSecPi0A_Elas    -> Evaluate (ke));
+   else if (fate == kIHAFtInelas ) return TMath::Max(0., fXSecPi0A_Inel    -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNP  ) return TMath::Max(0., fXSecPi0A_NP      -> Evaluate (ke));
+   else if (fate == kIHAFtAbsPP  ) return TMath::Max(0., fXSecPi0A_PP      -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNPP ) return TMath::Max(0., fXSecPi0A_NPP     -> Evaluate (ke));
+   else if (fate == kIHAFtAbsNNP ) return TMath::Max(0., fXSecPi0A_NNP     -> Evaluate (ke));
+   else if (fate == kIHAFtAbs2N2P) return TMath::Max(0., fXSecPi0A_NNPP    -> Evaluate (ke));
+   else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fXSecPi0A_NPipPi0 -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
         << "Pi0's don't have this fate: " << INukeHadroFates::AsString(fate);
        return 0;
    }
   }
-
   LOG("INukeData", pWARN) 
       << "Can't handle particles with pdg code = " << hpdgc;
 
@@ -388,13 +387,13 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke) const
 // return the x-section for the input fate for the particle with the input pdg 
 // code at the input kinetic energy
 //
-  ke = TMath::Max(fMinKinEnergy, ke);
-  ke = TMath::Min(fMaxKinEnergy, ke);
+  ke = TMath::Max(0., ke);
+  ke = TMath::Min(fMaxKinEnergyHN, ke);
 
   if (hpdgc == kPdgProton) {  
     /* handle protons */
-         if (fate == kIHNFtElas  ) return fXSecPN_Elas -> Evaluate(ke);
-    else if (fate == kIHNFtInelas) return fXSecPN_Reac -> Evaluate(ke);
+         if (fate == kIHNFtElas  ) return TMath::Max(0., fXSecPN_Elas -> Evaluate(ke));
+    else if (fate == kIHNFtInelas) return TMath::Max(0., fXSecPN_Reac -> Evaluate(ke));
     else {
      LOG("INukeData", pWARN) 
         << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -403,8 +402,8 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke) const
 
   } else if (hpdgc == kPdgNeutron) {
     /* handle neutrons */
-         if (fate == kIHNFtElas  ) return fXSecNN_Elas -> Evaluate(ke);
-    else if (fate == kIHNFtInelas) return fXSecNN_Reac -> Evaluate(ke);
+         if (fate == kIHNFtElas  ) return TMath::Max(0., fXSecNN_Elas -> Evaluate(ke));
+    else if (fate == kIHNFtInelas) return TMath::Max(0., fXSecNN_Reac -> Evaluate(ke));
     else {
      LOG("INukeData", pWARN) 
         << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -413,10 +412,10 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke) const
 
   } else if (hpdgc == kPdgPiP) {
     /* handle pi+ */
-         if (fate == kIHNFtCEx   ) return fXSecPipN_CEx  -> Evaluate(ke);
-    else if (fate == kIHNFtElas  ) return fXSecPipN_Elas -> Evaluate(ke);
-    else if (fate == kIHNFtInelas) return fXSecPipN_Reac -> Evaluate(ke);
-    else if (fate == kIHNFtAbs   ) return fXSecPipN_Abs  -> Evaluate(ke);
+         if (fate == kIHNFtCEx   ) return TMath::Max(0., fXSecPipN_CEx  -> Evaluate(ke));
+    else if (fate == kIHNFtElas  ) return TMath::Max(0., fXSecPipN_Elas -> Evaluate(ke));
+    else if (fate == kIHNFtInelas) return TMath::Max(0., fXSecPipN_Reac -> Evaluate(ke));
+    else if (fate == kIHNFtAbs   ) return TMath::Max(0., fXSecPipN_Abs  -> Evaluate(ke));
     else {
      LOG("INukeData", pWARN) 
         << "Pi+'s don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -425,10 +424,10 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke) const
 
   } else if (hpdgc == kPdgPiM) {
     /* handle pi- */
-         if (fate == kIHNFtCEx   ) return fXSecPipN_CEx  -> Evaluate(ke);
-    else if (fate == kIHNFtElas  ) return fXSecPipN_Elas -> Evaluate(ke);
-    else if (fate == kIHNFtInelas) return fXSecPipN_Reac -> Evaluate(ke);
-    else if (fate == kIHNFtAbs   ) return fXSecPipN_Abs  -> Evaluate(ke);
+         if (fate == kIHNFtCEx   ) return TMath::Max(0., fXSecPipN_CEx  -> Evaluate(ke));
+    else if (fate == kIHNFtElas  ) return TMath::Max(0., fXSecPipN_Elas -> Evaluate(ke));
+    else if (fate == kIHNFtInelas) return TMath::Max(0., fXSecPipN_Reac -> Evaluate(ke));
+    else if (fate == kIHNFtAbs   ) return TMath::Max(0., fXSecPipN_Abs  -> Evaluate(ke));
     else {
      LOG("INukeData", pWARN) 
         << "Pi-'s don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -437,17 +436,16 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke) const
 
   } else if (hpdgc == kPdgPi0) {
     /* handle pi0 */
-         if (fate == kIHNFtCEx   ) return fXSecPipN_CEx  -> Evaluate(ke);
-    else if (fate == kIHNFtElas  ) return fXSecPipN_Elas -> Evaluate(ke);
-    else if (fate == kIHNFtInelas) return fXSecPipN_Reac -> Evaluate(ke);
-    else if (fate == kIHNFtAbs   ) return fXSecPipN_Abs  -> Evaluate(ke);
+         if (fate == kIHNFtCEx   ) return TMath::Max(0., fXSecPipN_CEx  -> Evaluate(ke));
+    else if (fate == kIHNFtElas  ) return TMath::Max(0., fXSecPipN_Elas -> Evaluate(ke));
+    else if (fate == kIHNFtInelas) return TMath::Max(0., fXSecPipN_Reac -> Evaluate(ke));
+    else if (fate == kIHNFtAbs   ) return TMath::Max(0., fXSecPipN_Abs  -> Evaluate(ke));
     else {
      LOG("INukeData", pWARN) 
         << "Pi0's don't have this fate: " << INukeHadroFates::AsString(fate);
      return 0;
     }
   }
-
   LOG("INukeData", pWARN) 
       << "Can't handle particles with pdg code = " << hpdgc;
 
@@ -459,18 +457,18 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
 // return the x-section fraction for the input fate for the particle with the 
 // input pdg code at the input kinetic energy
 
-  ke = TMath::Max(fMinKinEnergy, ke);
-  ke = TMath::Min(fMaxKinEnergy, ke);
+  ke = TMath::Max(0., ke);
+  ke = TMath::Min(fMaxKinEnergyHA, ke);
 
   // get x-section
   double xsec = this->XSec(hpdgc,fate,ke);
 
   // get max x-section
   double xsec_tot = 0;
-       if (hpdgc == kPdgProton ) xsec_tot = fXSecPN_Tot   -> Evaluate (ke);
-  else if (hpdgc == kPdgNeutron) xsec_tot = fXSecNN_Tot   -> Evaluate (ke);
-  else if (hpdgc == kPdgPiP    ) xsec_tot = fXSecPipN_Tot -> Evaluate (ke);
-  else if (hpdgc == kPdgPiM    ) xsec_tot = fXSecPimN_Tot -> Evaluate (ke);
+       if (hpdgc == kPdgProton ) xsec_tot = TMath::Max(0., fXSecPN_Tot   -> Evaluate (ke));
+  else if (hpdgc == kPdgNeutron) xsec_tot = TMath::Max(0., fXSecNN_Tot   -> Evaluate (ke));
+  else if (hpdgc == kPdgPiP    ) xsec_tot = TMath::Max(0., fXSecPipN_Tot -> Evaluate (ke));
+  else if (hpdgc == kPdgPiM    ) xsec_tot = TMath::Max(0., fXSecPimN_Tot -> Evaluate (ke));
   else if (hpdgc == kPdgPi0    ) xsec_tot = fXSecPi0N_Tot -> Evaluate (ke);
 
   // compute fraction
@@ -483,19 +481,19 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHN_t fate, double ke) const
 // return the x-section fraction for the input fate for the particle with the 
 // input pdg code at the input kinetic energy
 
-  ke = TMath::Max(fMinKinEnergy, ke);
-  ke = TMath::Min(fMaxKinEnergy, ke);
+  ke = TMath::Max(0., ke);
+  ke = TMath::Min(fMaxKinEnergyHN, ke);
 
   // get x-section
   double xsec = this->XSec(hpdgc,fate,ke);
 
   // get max x-section
   double xsec_tot = 0;
-       if (hpdgc == kPdgProton ) xsec_tot = fXSecPA_Tot   -> Evaluate (ke);
-  else if (hpdgc == kPdgNeutron) xsec_tot = fXSecNA_Tot   -> Evaluate (ke);
-  else if (hpdgc == kPdgPiP    ) xsec_tot = fXSecPipA_Tot -> Evaluate (ke);
-  else if (hpdgc == kPdgPiM    ) xsec_tot = fXSecPimA_Tot -> Evaluate (ke);
-  else if (hpdgc == kPdgPi0    ) xsec_tot = fXSecPi0A_Tot -> Evaluate (ke);
+       if (hpdgc == kPdgProton ) xsec_tot = TMath::Max(0., fXSecPA_Tot   -> Evaluate (ke));
+  else if (hpdgc == kPdgNeutron) xsec_tot = TMath::Max(0., fXSecNA_Tot   -> Evaluate (ke));
+  else if (hpdgc == kPdgPiP    ) xsec_tot = TMath::Max(0., fXSecPipA_Tot -> Evaluate (ke));
+  else if (hpdgc == kPdgPiM    ) xsec_tot = TMath::Max(0., fXSecPimA_Tot -> Evaluate (ke));
+  else if (hpdgc == kPdgPi0    ) xsec_tot = TMath::Max(0., fXSecPi0A_Tot -> Evaluate (ke));
 
   // compute fraction
   double frac = (xsec_tot>0) ? xsec/xsec_tot : 0.;

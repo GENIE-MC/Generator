@@ -104,7 +104,8 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
 
   TVector3 vtx(R*sin9*cosfi,R*sin9*sinfi,R*cos9);
 
-  LOG("Intranuke", pINFO) << "Vtx (in fm) = " << print::Vec3AsString(&vtx);
+  LOG("Intranuke", pNOTICE) 
+     << "Generated vtx @ R = " << R << " fm / " << print::Vec3AsString(&vtx);
 
   TObjArrayIter piter(evrec);
   GHepParticle * p = 0;
@@ -172,8 +173,9 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
     // Check whether the particle needs rescattering, otherwise skip it
     if( ! this->NeedsRescattering(p) ) continue;
 
-    LOG("Intranuke", pINFO)
-      << " >> Stepping a " << p->Name() << " with kinetic E = " << p->KinE();
+    LOG("Intranuke", pNOTICE)
+      << " >> Stepping a " << p->Name() 
+                        << " with kinetic E = " << p->KinE() << " GeV";
 
     // Rescatter a clone, not the original particle
     GHepParticle * sp = new GHepParticle(*p); 
@@ -185,8 +187,8 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
     if(!this->CanRescatter(sp)) {
 
        // if I can't rescatter it, I will just take it out of the nucleus
-       LOG("Intranuke", pINFO)
-                   << "Current version can't rescatter a " << sp->Name();
+       LOG("Intranuke", pNOTICE)
+              << "... Current version can't rescatter a " << sp->Name();
        sp->SetFirstMother(icurr); 
        sp->SetStatus(kIStStableFinalState);
        evrec->AddParticle(*sp);
@@ -206,8 +208,8 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
 
        // Check whether the hadron's position is still within the nucleus
        if(!this->IsInNucleus(sp)) {
-           LOG("Intranuke", pINFO)
-                  << "Hadron went out of the nucleus! Done with it.";
+           LOG("Intranuke", pNOTICE)
+                  << "*** Hadron escaped the nucleus! Done with it.";
            sp->SetStatus(kIStStableFinalState);
        }
 
@@ -227,7 +229,8 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
 
     // If it does not interact, it must exit the nucleus. Done with it! 
     if(!interacts) {
-       LOG("Intranuke", pINFO) << "*** Hadron escaped the nucleus!";
+       LOG("Intranuke", pNOTICE) 
+                    << "*** Hadron escaped the nucleus! Done with it.";
        sp->SetStatus(kIStStableFinalState);
        evrec->AddParticle(*sp);
        continue; 
@@ -245,12 +248,24 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
 bool Intranuke::IsFreshHadron(GHepRecord* evrec, GHepParticle* p) const
 {
 // Decide whether the particle p is a 'fresh' hadron (direct descendant of 
-// the 'HadronicSystem' GHEP entry)
+// the 'HadronicSystem' GHEP entry -in case od the KNO model- or descedant of 
+// the JETSET special particles -cluster,string,indep-)
 
+  // mom
   int imom = p->FirstMother();
   assert(imom>0);
 
-  if(evrec->Particle(imom)->Pdg() == kPdgHadronicSyst) return true;
+  // grand-mom
+  int igmom = evrec->Particle(imom)->FirstMother();
+  assert(igmom>0);
+
+  // grand-mom pdgc
+  int gmom_pdg = evrec->Particle(igmom)->Pdg();
+
+  if (gmom_pdg == kPdgHadronicSyst ||
+      gmom_pdg == kPdgCluster      ||
+      gmom_pdg == kPdgString       ||
+      gmom_pdg == kPdgIndep) return true;
 
   return false;
 }
@@ -285,10 +300,12 @@ void Intranuke::AdvanceFreshHadron(GHepRecord* evrec, GHepParticle* cp) const
 // from an event entry to undergo rescattering but it should not have been
 // added at the event just yet)
 
-  LOG("Intranuke", pINFO)
-         << "Hadron handled for first time is advanced by the formation zone";
   double fzone = this->FormationZone(evrec, cp);
   this->StepParticle(cp, fzone);
+
+  LOG("Intranuke", pNOTICE)
+    << "Hadron handled for first time is advanced by the formation zone = "
+    << fzone << " m";
 }
 //___________________________________________________________________________
 double Intranuke::GenerateStep(GHepRecord* evrec, GHepParticle* p) const
@@ -302,7 +319,7 @@ double Intranuke::GenerateStep(GHepRecord* evrec, GHepParticle* p) const
   double L = this->MeanFreePath(evrec, p);
   double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 
-  LOG("Intranuke", pINFO)
+  LOG("Intranuke", pNOTICE)
             << "Mean free path = " << L << " fm / "
                               << "Generated path length = " << d << " fm";
   return d;
@@ -491,7 +508,7 @@ void Intranuke::SimHadroProcHA(GHepRecord* ev, GHepParticle* p) const
      ev->AddParticle(*p);
      return;     
   }
-  LOG("Intranuke", pINFO)
+  LOG("Intranuke", pNOTICE)
     << "Selected " << p->Name() << " fate: " << INukeHadroFates::AsString(fate);
 
   // get the reaction products for the selected fate
@@ -521,36 +538,42 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
   int    pdgc = p->Pdg();
   double ke   = p->KinE() / units::MeV;
  
-  // handle pions
-  if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
-     double tot_frac = 0;
-     double r = rnd->RndFsi().Rndm();
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtCEx,     ke))) return kIHAFtCEx;     // cex
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtElas,    ke))) return kIHAFtElas;    // elas
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtInelas,  ke))) return kIHAFtInelas;  // inelas
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNP,   ke))) return kIHAFtAbsNP;   // abs np
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke))) return kIHAFtAbsPP;   // abs pp
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke))) return kIHAFtAbsNPP;  // abs npp
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N2P, ke))) return kIHAFtAbs2N2P; // abs 2n2p 
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
-  }
+  // try to generate a hadron fate
+  unsigned int iter = 0;
+  while(iter++ < kRjMaxIterations) {
 
-  // handle nucleons
-  else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
-     double tot_frac = 0;
-     double r = rnd->RndFsi().Rndm();
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtCEx,     ke))) return kIHAFtCEx;     // cex
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtElas,    ke))) return kIHAFtElas;    // elas
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtInelas,  ke))) return kIHAFtInelas;  // inelas
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNP,   ke))) return kIHAFtAbsNP;   // abs np
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke))) return kIHAFtAbsPP;   // abs pp
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke))) return kIHAFtAbsNPP;  // abs npp
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N3P, ke))) return kIHAFtAbs2N3P; // abs 2n3p
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPip,    ke))) return kIHAFtNPip;    // pi production : n pi+
-     if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
-  }
+    // handle pions
+    if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
+       double tot_frac = 0;
+       double r = rnd->RndFsi().Rndm();
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtCEx,     ke))) return kIHAFtCEx;     // cex
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtElas,    ke))) return kIHAFtElas;    // elas
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtInelas,  ke))) return kIHAFtInelas;  // inelas
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNP,   ke))) return kIHAFtAbsNP;   // abs np
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke))) return kIHAFtAbsPP;   // abs pp
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke))) return kIHAFtAbsNPP;  // abs npp
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N2P, ke))) return kIHAFtAbs2N2P; // abs 2n2p 
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
+    }
+
+    // handle nucleons
+    else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
+       double tot_frac = 0;
+       double r = rnd->RndFsi().Rndm();
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtCEx,     ke))) return kIHAFtCEx;     // cex
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtElas,    ke))) return kIHAFtElas;    // elas
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtInelas,  ke))) return kIHAFtInelas;  // inelas
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNP,   ke))) return kIHAFtAbsNP;   // abs np
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke))) return kIHAFtAbsPP;   // abs pp
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke))) return kIHAFtAbsNPP;  // abs npp
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N3P, ke))) return kIHAFtAbs2N3P; // abs 2n3p
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPip,    ke))) return kIHAFtNPip;    // pi production : n pi+
+       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
+    }
+  }//iterations
+
   return kIHAFtUndefined; 
 }
 //___________________________________________________________________________
