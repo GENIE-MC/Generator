@@ -141,6 +141,7 @@ private:
 
   static INukeHadroData * fInstance;
 
+  static double fMinKinEnergy;   ///<
   static double fMaxKinEnergyHA; ///<
   static double fMaxKinEnergyHN; ///<
 
