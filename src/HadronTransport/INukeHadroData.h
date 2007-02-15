@@ -141,8 +141,8 @@ private:
 
   static INukeHadroData * fInstance;
 
-  static double fMinKinEnergy; ///<
-  static double fMaxKinEnergy; ///<
+  static double fMaxKinEnergyHA; ///<
+  static double fMaxKinEnergyHN; ///<
 
   Spline * fXSecPN_Tot;        ///< N+N x-section splines
   Spline * fXSecPN_Elas;       ///<
