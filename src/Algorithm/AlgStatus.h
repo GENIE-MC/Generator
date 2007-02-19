@@ -36,14 +36,14 @@ typedef enum EAlgStatus {
 
 class AlgStatus {
 
- public:
+public:
 
   static char * AsString(AlgStatus_t alg) {
      switch (alg) {
-     case kAlgFail:                 return "Algorithm failed";           break;
-     case kAlgSuccess:              return "Algorithm run successfully"; break;
-     case kAlgUndefinedStatus:      return "Undefined alg status";       break;
-     default:                       break;
+     case kAlgFail:               return "Algorithm failed";           break;
+     case kAlgSuccess:            return "Algorithm run successfully"; break;
+     case kAlgUndefinedStatus:    return "Undefined alg status";       break;
+     default:                     break;
      }
      return " ";
   }
