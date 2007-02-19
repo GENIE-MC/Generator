@@ -45,6 +45,8 @@ class PDGCodeList;
 
 class Intranuke : public EventRecordVisitorI {
 
+friend class IntranukeTester;
+
 public :
   Intranuke();
   Intranuke(string config);
