@@ -69,6 +69,7 @@
   <priority msgstream="GridDim">             WARN   </priority>
   <priority msgstream="GXSecFunc">           WARN   </priority>
   <priority msgstream="GlashowResXSec">      WARN   </priority>
+  <priority msgstream="GIBUU">               DEBUG  </priority>
   <priority msgstream="HadTransp">           INFO   </priority>
   <priority msgstream="HadronicVtx">         INFO   </priority>
   <priority msgstream="HybridHad">           INFO   </priority>
