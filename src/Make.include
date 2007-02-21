@@ -31,7 +31,7 @@
 # .................................................................
 #  NEUGEN3PATH    -> top level NEUGEN-3 directory
 #                    [needed if you enable NuValidator]
-#  GIBUU_LIB      -> top level NEUGEN-3 directory
+#  GIBUU          -> top level GIBUU directory
 #                    [needed if you enable the GENIE/GIBUU interface]
 #  GPROFILER_LIB  -> location of libprofiler.so
 #                    [needed if you enable Google profiler]
