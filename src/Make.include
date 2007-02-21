@@ -1,6 +1,5 @@
 ####################################################################
 # Make.include for GENIE Object-Oriented Neutrino Generator
-#
 # Costas Andreopoulos (Rutherford Lab.) <C.V.Andreopoulos@rl.ac.uk>
 ####################################################################
 
@@ -28,25 +27,16 @@
 #  LOG4CPP_INC    -> where the log4cpp headers are [log4cpp dir]
 #  LOG4CPP_LIB    -> where the log4cpp library is
 #
-# Optional [needed if you enable NuValidator]
+# Optional:
 # .................................................................
-#  NEUGEN3PATH -> top level NEUGEN-3 directory
-#
-# Optional [needed if you enable Google profiler]
-# .................................................................
-#  GPROFILER_LIB -> location of libprofiler.so
-#
-# Optional [needed if you enable GENIE docs]
-# .................................................................
-#  DOXYGEN -> your doxygen exe (with full path if needed)
-#
-# Notes:
-# ------
-# - If you enable GENIE's NuValidator then you must also have the 
-#   MySQL  relational data-base management system properly installed 
-#   and ROOT configured to work with MySQL.
-# - As of now, independently of your enabled options ROOT must be 
-#   properly configured to work with PYTHIA-6 and CERNLIBs
+#  NEUGEN3PATH    -> top level NEUGEN-3 directory
+#                    [needed if you enable NuValidator]
+#  GIBUU_LIB      -> top level NEUGEN-3 directory
+#                    [needed if you enable the GENIE/GIBUU interface]
+#  GPROFILER_LIB  -> location of libprofiler.so
+#                    [needed if you enable Google profiler]
+#  DOXYGEN        -> your doxygen exe (with full path if needed)
+#                    [needed if you enable GENIE docs]
 #
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #                 GENIE build options - Description
@@ -62,6 +52,7 @@
 # GOPT_ENABLE_TEST            -> enables GENIE test programs
 # GOPT_ENABLE_VIEWER          -> enables GENIE Feynman/GHEP gui 
 # GOPT_ENABLE_MUELOSS         -> enables GENIE MuELoss utility 
+# GOPT_ENABLE_GIBUU           -> enables the GENIE/GIBUU interface
 
 #-------------------------------------------------------------------
 #              GENIE build options - Setting defaults
@@ -77,6 +68,7 @@
 # GOPT_ENABLE_TEST            -> NO
 # GOPT_ENABLE_VIEWER          -> NO
 # GOPT_ENABLE_MUELOSS         -> YES
+# GOPT_ENABLE_GIBUU           -> NO
 
 ifndef GOPT_ENABLE_PROFILER   
  GOPT_ENABLE_PROFILER=NO
@@ -105,6 +97,9 @@ endif
 ifndef GOPT_ENABLE_MUELOSS
   GOPT_ENABLE_MUELOSS=NO
 endif
+ifndef GOPT_ENABLE_GIBUU
+  GOPT_ENABLE_GIBUU=NO
+endif
 
 #-------------------------------------------------------------------
 #           GENIE GCC options - read and/or set defaults
@@ -114,7 +109,7 @@ ifndef GOPT_CXX_OPTIM_FLAG
  GOPT_CXX_OPTIM_FLAG=-O # can be -O,-O2,-O3,-OO,-Os, see gcc manual
 endif
 ifndef GOPT_CXX_DEBUG_FLAG
- GOPT_CXX_DEBUG_FLAG=-g 
+GOPT_CXX_DEBUG_FLAG=-g 
 endif
 ifndef GOPT_CXX_USERDEF_FLAGS
  GOPT_CXX_USERDEF_FLAGS=
