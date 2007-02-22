@@ -18,8 +18,8 @@
           Please cite GIBUU separately if you include this event generation
           module in your event generation threads.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> CCLRC, Rutherford Lab
+          Tina Leitner <Tina.J.Leitner@theo.physik.uni-giessen.de> Giessen Univ.
 
 \created  December 13, 2005
 
@@ -33,6 +33,40 @@
 #define _GIBUU_H_
 
 #include "EVGCore/EventRecordVisitorI.h"
+
+// fortran90 subroutine/function name aliases
+//
+#define SetNucleus              __gibuu_genie__setnucleus 
+#define AddHadron               __gibuu_genie__addhadron
+#define HadronTransportForGENIE __gibuu_genie__hadrontransportforgenie
+#define NumOfFinalStateHadrons  __gibuu_genie__numoffinalstatehadrons
+#define FinalStateHadronPDG     __gibuu_genie__finalstatehadronpdg
+#define FinalStateHadronPX      __gibuu_genie__finalstatehadronpx
+#define FinalStateHadronPY      __gibuu_genie__finalstatehadronpy
+#define FinalStateHadronPZ      __gibuu_genie__finalstatehadronpz
+#define FinalStateHadronE       __gibuu_genie__finalstatehadrone
+#define FinalStateHadronX       __gibuu_genie__finalstatehadronx
+#define FinalStateHadronY       __gibuu_genie__finalstatehadrony
+#define FinalStateHadronZ       __gibuu_genie__finalstatehadronz
+#define FinalStateHadronT       __gibuu_genie__finalstatehadront
+
+// C bindings for fortran90 GIBUU/GENIE module subroutines/functions
+//
+extern "C" {
+  void  SetNucleus              (int*);
+  void  AddHadron               (int*, int*, float*, float*, float*, float*);
+  void  HadronTransportForGENIE (void);
+  int   NumOfFinalStateHadrons  (int*);
+  int   FinalStateHadronPDG     (int*,int*);
+  float FinalStateHadronPX      (int*,int*);
+  float FinalStateHadronPY      (int*,int*);
+  float FinalStateHadronPZ      (int*,int*);
+  float FinalStateHadronE       (int*,int*);
+  float FinalStateHadronX       (int*,int*);
+  float FinalStateHadronY       (int*,int*);
+  float FinalStateHadronZ       (int*,int*);
+  float FinalStateHadronT       (int*,int*);
+}
 
 namespace genie {
 
