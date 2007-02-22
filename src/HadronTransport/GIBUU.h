@@ -86,8 +86,11 @@ public:
   void Configure(string config);
 
 private:
-  void LoadConfig (void);
 
+  void LoadConfig        (void);
+  void CheckInstallation (void);
+
+  bool fIsEnabled; ///< GiBUU interface was enabled & libGiBUU.a library exists
 };
 
 }      // genie namespace
