@@ -35,7 +35,7 @@ export NEUGEN3PATH=/home/costas/MC/neugen3
 
 #---  You only really need to set GIBUU is you want to enable the
 #---  GENIE/GIBUU interface (by setting GOPT_ENABLE_GIBUU=YES)
-export GIBUU=
+export GIBUU_LIB=
 
 #--- You only really need to set GPROFILER is you plan to enable
 #--- Google's profiling tool (by setting GOPT_ENABLE_PROFILER=YES)
@@ -84,7 +84,7 @@ echo "ROOTSYS     -> " ${ROOTSYS}
 echo "NEUGEN3PATH -> " ${NEUGEN3PATH}
 echo "CERNLIB     -> " ${CERNLIB}
 echo "PYTHIA      -> " ${PYTHIA6}
-echo "GIBUU       -> " ${GIBUU}
+echo "GIBUU_LI    -> " ${GIBUU_LIB}
 echo "LIBXML2_INC -> " ${LIBXML2_INC}
 echo "LIBXML2_LIB -> " ${LIBXML2_LIB}
 echo "LOG4CPP_INC -> " ${LOG4CPP_INC}
