@@ -7,7 +7,6 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::INukeHadroData;
-
 #pragma link C++ class genie::Intranuke;
 #pragma link C++ class genie::FLUKA;
 #pragma link C++ class genie::GIBUU;

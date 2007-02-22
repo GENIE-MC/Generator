@@ -22,7 +22,7 @@ GENIEbO    = $(addsuffix .$(ObjSuf), $(basename $(GENIEbS)))
 
 EXTERNAL_MCs = $(GIBUU_LIBRARIES)
 
-all: gibuu_dummy rootcint lib link 
+all: rootcint lib link 
 
 rootcint: _ROOT_DICT_HadronTransport.o
 
@@ -44,18 +44,11 @@ ifeq ($(strip $(ARCH)),macosx)
 else
 endif
 
-gibuu_dummy: FORCE
-ifeq ($(strip $(GOPT_ENABLE_GIBUU)),NO)
-	$(FORT) -c gibuu_dummy_lib.f90
-	ar rcs $(GENIE_LIB_PATH)/libGiBUU.a gibuu_dummy_lib.o 
-else
-endif
-
 purge: FORCE
 	$(RM) $(GENIEbO) *~ core a.out Makefile.temp
 
 clean: FORCE
-	$(RM) *.o *~ core a.out *.mod $(GENIE_LIB_PATH)/$(GENIE_HADRON_TRANSPORT_LIBNAME).* $(GENIE_LIB_PATH)/libGiBUU.a \
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_HADRON_TRANSPORT_LIBNAME).* \
 		_ROOT_DICT_HadronTransport.* Makefile.temp
 
 FORCE:

@@ -329,20 +329,20 @@ endif
 
 ifeq ($(strip $(GOPT_ENABLE_GIBUU)),NO) 
 
-# if GiBUU was not enabled a dummy GiBUU library will be built so 
-# that the GENIE can compile. In this case, override GIBUU (=GENIE)
-  GIBUU_LIB=$(GENIE_LIB_PATH)
-  GIBUU_LIBRARIES = -L$(GIBUU_LIB) -lGiBUU
+# GiBUU was not enabled 
+  GIBUU_LIB       =
+  GIBUU_LIBRARIES = 
 else
 
 # In case the actual fortran90 GIBUU library is used
   GIBUU_LIBRARIES = -L$(GIBUU_LIB)/lib -lGiBUU
-endif
 
 ifeq ($(strip $(ARCH)),macosx) 
   GIBUU_LIBRARIES := $(GIBUU_LIBRARIES) /usr/local/lib/libgfortran.dylib
 else
   GIBUU_LIBRARIES := $(GIBUU_LIBRARIES) -lg2c
+endif
+
 endif
 
 #-------------------------------------------------------------------
