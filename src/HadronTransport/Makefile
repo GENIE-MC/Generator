@@ -20,7 +20,9 @@ GENIEO 	   = $(addsuffix .$(ObjSuf), $(basename $(GENIES)))
 GENIEbS   := $(wildcard *.cxx)
 GENIEbO    = $(addsuffix .$(ObjSuf), $(basename $(GENIEbS)))
 
-all: rootcint lib link
+EXTERNAL_MCs = $(GIBUU_LIBRARIES)
+
+all: gibuu_dummy rootcint lib link 
 
 rootcint: _ROOT_DICT_HadronTransport.o
 
@@ -33,7 +35,7 @@ _ROOT_DICT_HadronTransport.cc: LinkDef.h $(CINTLISTO)
 lib: $(GENIEO) 
 	@echo "Generating shared library ..."
 	$(SOCMD) $(SOFLAGS) $(SOMINF) \
-		$(GENIEO) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_HADRON_TRANSPORT_LIBNAME).$(DllSuf)
+		$(GENIEO) $(EXTERNAL_MCs) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_HADRON_TRANSPORT_LIBNAME).$(DllSuf)
 
 link: FORCE
 ifeq ($(strip $(ARCH)),macosx)
@@ -42,11 +44,18 @@ ifeq ($(strip $(ARCH)),macosx)
 else
 endif
 
+gibuu_dummy: FORCE
+ifeq ($(strip $(GOPT_ENABLE_GIBUU)),NO)
+	$(FORT) -c gibuu_dummy_lib.f90
+	ar rcs $(GENIE_LIB_PATH)/libGiBUU.a gibuu_dummy_lib.o 
+else
+endif
+
 purge: FORCE
 	$(RM) $(GENIEbO) *~ core a.out Makefile.temp
 
 clean: FORCE
-	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_HADRON_TRANSPORT_LIBNAME).* \
+	$(RM) *.o *~ core a.out *.mod $(GENIE_LIB_PATH)/$(GENIE_HADRON_TRANSPORT_LIBNAME).* $(GENIE_LIB_PATH)/libGiBUU.a \
 		_ROOT_DICT_HadronTransport.* Makefile.temp
 
 FORCE:
