@@ -55,6 +55,7 @@ $LD_LIBRARY_PATH             = "**undefined**" unless defined $LD_LIBRARY_PATH;
 $GENIE                       = "**undefined**" unless defined $GENIE;
 $GOPT_ENABLE_NUVALIDATOR     = "**undefined**" unless defined $GOPT_ENABLE_NUVALIDATOR;
 $GOPT_ENABLE_NEUGEN          = "**undefined**" unless defined $GOPT_ENABLE_NEUGEN;
+$GOPT_ENABLE_GIBUU           = "**undefined**" unless defined $GOPT_ENABLE_GIBUU;
 $GOPT_ENABLE_FLUX_DRIVERS    = "**undefined**" unless defined $GOPT_ENABLE_FLUX_DRIVERS;
 $GOPT_ENABLE_GEOM_DRIVERS    = "**undefined**" unless defined $GOPT_ENABLE_GEOM_DRIVERS;
 $GOPT_ENABLE_PROFILER        = "**undefined**" unless defined $GOPT_ENABLE_PROFILER;
