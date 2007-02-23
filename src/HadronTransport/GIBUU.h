@@ -33,7 +33,7 @@
 #define _GIBUU_H_
 
 #include "EVGCore/EventRecordVisitorI.h"
-
+/*
 // fortran90 subroutine/function name aliases
 //
 #define SetNucleus              __gibuu_genie__setnucleus 
@@ -67,7 +67,7 @@ extern "C" {
   float FinalStateHadronZ       (int*,int*);
   float FinalStateHadronT       (int*,int*);
 }
-
+*/
 namespace genie {
 
 class GIBUU : public EventRecordVisitorI {
