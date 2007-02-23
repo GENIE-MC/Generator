@@ -71,8 +71,8 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
        << "No nuclear target found - GIBUU will not be called....";
     return;
   }
-
-  //-- Translate GENIE GHepRecord to whatever FLUKA needs
+/*
+  //-- Translate GENIE GHepRecord to whatever GIBUU needs
 
   LOG("GIBUU", pDEBUG) << "Translating: GENIE GHepRecord ---> GIBUU input";
 
@@ -140,6 +140,7 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
 
       } // input hadron daughters (output hadrons)
   }//input hadrons
+*/
 }
 //___________________________________________________________________________
 void GIBUU::CheckInstallation(void)
