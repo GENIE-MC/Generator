@@ -25,6 +25,7 @@ EXE =	$(GENIE_BIN_PATH)/gtestAlgorithms	\
  	$(GENIE_BIN_PATH)/gtestDecay		\
  	$(GENIE_BIN_PATH)/gtestDISSF		\
  	$(GENIE_BIN_PATH)/gtestHadronization	\
+ 	$(GENIE_BIN_PATH)/gtestIntranuke	\
 	$(GENIE_BIN_PATH)/gtestMessenger	\
 	$(GENIE_BIN_PATH)/gtestMuELoss		\
 	$(GENIE_BIN_PATH)/gtestNumerical	\
@@ -47,6 +48,7 @@ TGT =	gtestAlgorithms 	\
  	gtestDecay		\
  	gtestDISSF		\
  	gtestHadronization	\
+ 	gtestIntranuke		\
 	gtestMessenger		\
 	gtestNumerical		\
 	gtestPDFLIB		\
@@ -84,6 +86,10 @@ gtestDISSF: FORCE
 gtestHadronization: FORCE
 	$(CXX) $(CXXFLAGS) -c testHadronization.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testHadronization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestHadronization
+
+gtestIntranuke: FORCE
+	$(CXX) $(CXXFLAGS) -c testIntranuke.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testIntranuke.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestIntranuke
 
 gtestXSec: FORCE
 	$(CXX) $(CXXFLAGS) -c testXSec.cxx $(INCLUDES)
@@ -186,6 +192,9 @@ clean--gtestDISSF: FORCE
 
 clean--gtestHadronization: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestHadronization
+
+clean--gtestHadronization: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestIntranuke
 
 clean--gtestXSec: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestXSec
