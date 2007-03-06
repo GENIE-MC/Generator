@@ -95,7 +95,7 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
 
   RandomGen * rnd = RandomGen::Instance();
 
-  double R     = fNuclRadius * rnd->RndFsi().Rndm();
+  double R     = (fInTestMode) ? fNuclRadius : fNuclRadius * rnd->RndFsi().Rndm();
   double cos9  = -1. + 2. * rnd->RndFsi().Rndm();    
   double sin9  = TMath::Sqrt(1.-cos9*cos9);   
   double fi    = 2 * kPi * rnd->RndFsi().Rndm();
@@ -133,7 +133,16 @@ bool Intranuke::NeedsRescattering(const GHepParticle * p) const
 // checks whether the particle should be rescattered
 
   assert(p);
-  return (p->Status() == kIStHadronInTheNucleus);
+
+  if(fInTestMode) {
+    // in test mode (initial state: hadron+nucleus) rescatter the initial
+    // state hadron
+    return (p->Status() == kIStInitialState && !pdg::IsIon(p->Pdg()));
+  }
+  else {
+   // attempt to rescatter anything marked as 'hadron in the nucleus'
+   return (p->Status() == kIStHadronInTheNucleus);
+  }
 }
 //___________________________________________________________________________
 bool Intranuke::CanRescatter(const GHepParticle * p) const
@@ -250,6 +259,10 @@ bool Intranuke::IsFreshHadron(GHepRecord* evrec, GHepParticle* p) const
 // Decide whether the particle p is a 'fresh' hadron (direct descendant of 
 // the 'HadronicSystem' GHEP entry -in case od the KNO model- or descedant of 
 // the JETSET special particles -cluster,string,indep-)
+
+  // in test mode the initial state is hadron+nucleus and that initial
+  // hadron does not have a formation zone
+  if(fInTestMode) return false;
 
   // mom
   int imom = p->FirstMother();
@@ -1140,6 +1153,9 @@ void Intranuke::LoadConfig(void)
   if      (mode == "hA" || mode == "HA") fMode = kIMdHA;
   else if (mode == "hN" || mode == "HN") fMode = kIMdHN;
   else                                   fMode = kIMdUndefined;
+
+  //-- in test mode? (def:no)
+  fInTestMode = fConfig->GetBoolDef ("test-mode", false);
 
   //-- other intranuke config params
   fct0     = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("INUKE-FormationZone")); // fm

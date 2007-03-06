@@ -41,8 +41,8 @@ public:
   static string AsString(INukeMode_t mode) {
      switch (mode) {
      case kIMdUndefined:  return "** Undefined Intranuke mode **"; break;
-     case kIMdHN:         return "hadron+nucleon (H+N)";  break;
-     case kIMdHA:         return "hadron+nucleus (H+A)";  break;
+     case kIMdHN:         return "hN Intranuke mode";  break;
+     case kIMdHA:         return "hA Intranuke mode";  break;
      default:             break;
      }
      return "** Undefined Intranuke mode ** ";
