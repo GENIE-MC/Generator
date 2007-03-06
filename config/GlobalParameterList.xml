@@ -254,9 +254,9 @@ Use the "Default" one to get the best GENIE physics & tuning.
   Use the HadronTransportEnable option to toggle intranuclear rescattering
   on/off. Possible model options include INTRANUKE, FLUKA and GIBUU
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <param type="bool" name="HadronTransp-Enable"> false </param>
+  <param type="bool" name="HadronTransp-Enable"> true </param>
   <param type="alg"  name="HadronTransp-Model">  
-                            genie::Intranuke/Default  </param>
+                             genie::Intranuke/Default  </param>
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   INTRANUKE-specific parameters:
