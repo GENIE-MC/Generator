@@ -76,7 +76,7 @@ void Algorithm::Configure(const Registry & config)
   } else {
     fConfig->Copy(config);
   }
-  //LOG("Algorithm", pNOTICE) << "Copied configuration: " << *fConfig;
+  LOG("Algorithm", pNOTICE) << "Copied configuration: " << *fConfig;
 
   if(!fOwnsSubstruc) return;              // doesn't own substructure
   if(fOwnedSubAlgMp->size()==0) return;   // no sub-algorithms
