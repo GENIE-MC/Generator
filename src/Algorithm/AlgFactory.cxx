@@ -117,18 +117,6 @@ const Algorithm * AlgFactory::GetAlgorithm(string name, string config)
   return 0;
 }
 //____________________________________________________________________________
-/*
-const Algorithm * AlgFactory::CloneAlgorithm(const AlgId & algid, string cpfx)
-{
-  const Algorithm * alg = this->GetAlgorithm(algid);
-
-  if(!alg) return 0;
-
-  const Registry & config = alg->GetConfig();
-
-  string newname = cpfx + algid.Config();
-}*/
-//____________________________________________________________________________
 Algorithm * AlgFactory::AdoptAlgorithm(const AlgId & algid) const
 {
 //! Hands over an algorithm instance that is owned by the client.

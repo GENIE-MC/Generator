@@ -85,7 +85,7 @@ public:
 
   //! Take ownership of the algorithms subtructure (sub-algorithms,...)
   //! by copying them from the AlgFactory pool to the local pool
-  //! Also bring all the configuration variables to the top level.
+  //! Also bring all the configuration variables to the top level config Registry.
   //! This can be used to group together a series of algorithms & their
   //! configurations and extract (a clone of) this group from the shared 
   //! pools. Having a series of algorithms/configurations behaving as a
