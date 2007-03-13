@@ -470,7 +470,7 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
   else if (hpdgc == kPdgNeutron) xsec_tot = TMath::Max(0., fXSecNA_Tot   -> Evaluate (ke));
   else if (hpdgc == kPdgPiP    ) xsec_tot = TMath::Max(0., fXSecPipA_Tot -> Evaluate (ke));
   else if (hpdgc == kPdgPiM    ) xsec_tot = TMath::Max(0., fXSecPimA_Tot -> Evaluate (ke));
-  else if (hpdgc == kPdgPi0    ) xsec_tot = TMath::Max(0., fXSecPi0N_Tot -> Evaluate (ke));
+  else if (hpdgc == kPdgPi0    ) xsec_tot = TMath::Max(0., fXSecPi0A_Tot -> Evaluate (ke));
 
   // compute fraction
   double frac = (xsec_tot>0) ? xsec/xsec_tot : 0.;
