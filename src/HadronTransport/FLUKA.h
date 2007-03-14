@@ -32,6 +32,7 @@
 #ifndef _FLUKA_H_
 #define _FLUKA_H_
 
+#include "Conventions/GBuild.h"
 #include "EVGCore/EventRecordVisitorI.h"
 
 namespace genie {
@@ -53,7 +54,6 @@ public:
 
 private:
   void LoadConfig (void);
-
 };
 
 }      // genie namespace
