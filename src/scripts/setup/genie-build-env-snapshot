@@ -1,0 +1,118 @@
+#! /usr/bin/perl -w
+
+# Reads building options from your environment and writes them
+# down to the 'build-env.snapshot' file.
+# Consult this file if you have any doubt on how was GENIE build
+# was performed...
+
+$GENIE = $ENV{'GENIE'};
+
+die ("Not even the GENIE environmental variable is defined!") unless defined $GENIE;
+
+$SRT_ENV_SET       = $ENV{'SRT_ENV_SET'};
+$ROOTSYS           = $ENV{'ROOTSYS'};
+$CERNLIB           = $ENV{'CERNLIB'};
+$PYTHIA6           = $ENV{'PYTHIA6'};
+$GIBUU_LIB         = $ENV{'GIBUU_LIB'};
+$LIBXML2_INC       = $ENV{'LIBXML2_INC'};
+$LIBXML2_LIB       = $ENV{'LIBXML2_LIB'};
+$LOG4CPP_INC       = $ENV{'LOG4CPP_INC'};
+$LOG4CPP_LIB       = $ENV{'LOG4CPP_LIB'};
+$NEUGEN3PATH       = $ENV{'NEUGEN3PATH'};
+$GPROFILER_LIB     = $ENV{'GPROFILER_LIB'};
+$DOXYGEN           = $ENV{'DOXYGEN'};
+$PATH              = $ENV{'PATH'};
+$LD_LIBRARY_PATH   = $ENV{'LD_LIBRARY_PATH'};
+$DYLD_LIBRARY_PATH = $ENV{'DYLD_LIBRARY_PATH'};
+
+$GOPT_ENABLE_NUVALIDATOR     = $ENV{'GOPT_ENABLE_NUVALIDATOR'};
+$GOPT_ENABLE_NEUGEN          = $ENV{'GOPT_ENABLE_NEUGEN'};
+$GOPT_ENABLE_GIBUU           = $ENV{'GOPT_ENABLE_GIBUU'};
+$GOPT_ENABLE_FLUX_DRIVERS    = $ENV{'GOPT_ENABLE_FLUX_DRIVERS'};
+$GOPT_ENABLE_GEOM_DRIVERS    = $ENV{'GOPT_ENABLE_GEOM_DRIVERS'};
+$GOPT_ENABLE_PROFILER        = $ENV{'GOPT_ENABLE_PROFILER'};
+$GOPT_ENABLE_DOXYGEN_DOC     = $ENV{'GOPT_ENABLE_DOXYGEN_DOC'};
+$GOPT_ENABLE_TEST            = $ENV{'GOPT_ENABLE_TEST'};
+$GOPT_ENABLE_VIEWER          = $ENV{'GOPT_ENABLE_VIEWER'};
+$GOPT_ENABLE_MUELOSS         = $ENV{'GOPT_ENABLE_MUELOSS'};
+
+# suppress PERL warnings when using undefined variables
+
+$SRT_ENV_SET                 = "**undefined**" unless defined $SRT_ENV_SET;
+$ROOTSYS                     = "**undefined**" unless defined $ROOTSYS;
+$CERNLIB                     = "**undefined**" unless defined $CERNLIB;
+$PYTHIA6                     = "**undefined**" unless defined $PYTHIA6;
+$GIBUU_LIB                   = "**undefined**" unless defined $GIBUU_LIB;
+$LIBXML2_INC                 = "**undefined**" unless defined $LIBXML2_INC;
+$LIBXML2_LIB                 = "**undefined**" unless defined $LIBXML2_LIB;
+$LOG4CPP_INC                 = "**undefined**" unless defined $LOG4CPP_INC;
+$LOG4CPP_LIB                 = "**undefined**" unless defined $LOG4CPP_LIB;
+$NEUGEN3PATH                 = "**undefined**" unless defined $NEUGEN3PATH;
+$GPROFILER_LIB               = "**undefined**" unless defined $GPROFILER_LIB;
+$DOXYGEN                     = "**undefined**" unless defined $DOXYGEN;
+$PATH                        = "**undefined**" unless defined $PATH;
+$LD_LIBRARY_PATH             = "**undefined**" unless defined $LD_LIBRARY_PATH;
+$DYLD_LIBRARY_PATH           = "**undefined**" unless defined $DYLD_LIBRARY_PATH;
+$GENIE                       = "**undefined**" unless defined $GENIE;
+$GOPT_ENABLE_NUVALIDATOR     = "**undefined**" unless defined $GOPT_ENABLE_NUVALIDATOR;
+$GOPT_ENABLE_NEUGEN          = "**undefined**" unless defined $GOPT_ENABLE_NEUGEN;
+$GOPT_ENABLE_GIBUU           = "**undefined**" unless defined $GOPT_ENABLE_GIBUU;
+$GOPT_ENABLE_FLUX_DRIVERS    = "**undefined**" unless defined $GOPT_ENABLE_FLUX_DRIVERS;
+$GOPT_ENABLE_GEOM_DRIVERS    = "**undefined**" unless defined $GOPT_ENABLE_GEOM_DRIVERS;
+$GOPT_ENABLE_PROFILER        = "**undefined**" unless defined $GOPT_ENABLE_PROFILER;
+$GOPT_ENABLE_DOXYGEN_DOC     = "**undefined**" unless defined $GOPT_ENABLE_DOXYGEN_DOC;
+$GOPT_ENABLE_TEST            = "**undefined**" unless defined $GOPT_ENABLE_TEST;
+$GOPT_ENABLE_VIEWER          = "**undefined**" unless defined $GOPT_ENABLE_VIEWER;
+$GOPT_ENABLE_MUELOSS         = "**undefined**" unless defined $GOPT_ENABLE_MUELOSS;
+
+# create log
+
+$BLD_ENV_LOG = "$GENIE/src/build-env.snapshot";
+open(LOG, ">$BLD_ENV_LOG") 
+    or die("Can not open build-env.snapshot file to save your build environment");
+
+print LOG "[The GENIE spy reports]\n\n";
+
+print LOG "This is your environment: \n\n";
+
+print LOG "\$GENIE                       -> $GENIE\n";
+print LOG "\$SRT_ENV_SET                 -> $SRT_ENV_SET\n";
+print LOG "\$ROOTSYS                     -> $ROOTSYS\n";
+print LOG "\$CERNLIB                     -> $CERNLIB\n";
+print LOG "\$PYTHIA6                     -> $PYTHIA6\n";
+print LOG "\$GIBUU_LIB                   -> $GIBUU_LIB\n";
+print LOG "\$LIBXML2_INC                 -> $LIBXML2_INC\n";
+print LOG "\$LIBXML2_LIB                 -> $LIBXML2_LIB\n";
+print LOG "\$LOG4CPP_INC                 -> $LOG4CPP_INC\n";
+print LOG "\$LOG4CPP_LIB                 -> $LOG4CPP_LIB\n";
+print LOG "\$NEUGEN3PATH                 -> $NEUGEN3PATH\n";
+print LOG "\$GPROFILER_LIB               -> $GPROFILER_LIB\n";
+print LOG "\$DOXYGEN                     -> $DOXYGEN\n\n";
+print LOG "\$GOPT_ENABLE_NUVALIDATOR     -> $GOPT_ENABLE_NUVALIDATOR\n";
+print LOG "\$GOPT_ENABLE_NEUGEN          -> $GOPT_ENABLE_NEUGEN\n";
+print LOG "\$GOPT_ENABLE_GIBUU           -> $GOPT_ENABLE_GIBUU\n";
+print LOG "\$GOPT_ENABLE_FLUX_DRIVERS    -> $GOPT_ENABLE_FLUX_DRIVERS\n";
+print LOG "\$GOPT_ENABLE_GEOM_DRIVERS    -> $GOPT_ENABLE_GEOM_DRIVERS\n";
+print LOG "\$GOPT_ENABLE_PROFILER        -> $GOPT_ENABLE_PROFILER\n";
+print LOG "\$GOPT_ENABLE_DOXYGEN_DOC     -> $GOPT_ENABLE_DOXYGEN_DOC\n";
+print LOG "\$GOPT_ENABLE_TEST            -> $GOPT_ENABLE_TEST\n";
+print LOG "\$GOPT_ENABLE_VIEWER          -> $GOPT_ENABLE_VIEWER\n";
+print LOG "\$GOPT_ENABLE_MUELOSS         -> $GOPT_ENABLE_MUELOSS\n\n";
+print LOG "\$LD_LIBRARY_PATH             -> $LD_LIBRARY_PATH\n";
+print LOG "\$DYLD_LIBRARY_PATH           -> $DYLD_LIBRARY_PATH\n";
+print LOG "\$PATH                        -> $PATH\n\n";
+
+print LOG "Saving info on your OS, activity, disk usage & quota limit: \n\n";
+
+close(LOG);
+
+system("uname -a >> $BLD_ENV_LOG");
+system("echo     >> $BLD_ENV_LOG");
+system("ps -aux  >> $BLD_ENV_LOG");
+system("echo     >> $BLD_ENV_LOG");
+system("df       >> $BLD_ENV_LOG");
+system("echo     >> $BLD_ENV_LOG");
+system("quota -v >> $BLD_ENV_LOG");
+
+
+
