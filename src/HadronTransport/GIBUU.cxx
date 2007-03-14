@@ -36,13 +36,13 @@ using namespace genie;
 GIBUU::GIBUU() :
 EventRecordVisitorI("genie::GIBUU")
 {
-  this->CheckInstallation();
+
 }
 //___________________________________________________________________________
 GIBUU::GIBUU(string config) :
 EventRecordVisitorI("genie::GIBUU", config)
 {
-  this->CheckInstallation();
+
 }
 //___________________________________________________________________________
 GIBUU::~GIBUU()
@@ -52,18 +52,6 @@ GIBUU::~GIBUU()
 //___________________________________________________________________________
 void GIBUU::ProcessEventRecord(GHepRecord * event) const
 {
-  if(!fIsEnabled) {
-    LOG("GIBUU", pFATAL) 
-       << "\n"
-       << "\n****************************************************"
-       << "\n*** YOU HAVE NOT INSTALLED GIBUU!                ***"
-       << "\n*** Please obtain the actual GiBUU code from:    ***"
-       << "\n*** http://tp8.physik.uni-giessen.de:8080/GiBUU/ ***"
-       << "\n****************************************************"
-       << "\n";
-    exit(1);
-  }
-
   //-- Check that we have an interaction with a nuclear target. If not skip...
   GHepParticle * nucltgt = event->TargetNucleus();
   if (!nucltgt) {
@@ -71,7 +59,9 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
        << "No nuclear target found - GIBUU will not be called....";
     return;
   }
-/*
+
+#ifdef __GENIE_GIBUU_ENABLED__
+
   //-- Translate GENIE GHepRecord to whatever GIBUU needs
 
   LOG("GIBUU", pDEBUG) << "Translating: GENIE GHepRecord ---> GIBUU input";
@@ -140,34 +130,18 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
 
       } // input hadron daughters (output hadrons)
   }//input hadrons
-*/
-}
-//___________________________________________________________________________
-void GIBUU::CheckInstallation(void)
-{
-  // check that GiBUU was enabled
-  bool enabled = false;
-  if(gSystem->Getenv("GOPT_GIBUU_ENABLE")) {
-     string gibuu_enable = string(gSystem->Getenv("GOPT_GIBUU_ENABLE"));
-     enabled = (gibuu_enable=="YES") || (gibuu_enable=="yes");
-  }
-  if(!enabled) {
-    fIsEnabled = false;
-    return;
-  }
 
-  // check that the GiBUU library exists
-  bool lib_ok = false;
-  if(gSystem->Getenv("GIBUU_LIB")) {
-    string gibuu_lib = string(gSystem->Getenv("GIBUU_LIB")) + "/libGiBUU.a";
-    lib_ok  = ! (gSystem->AccessPathName(gibuu_lib.c_str()));
-  }
-  if(!lib_ok) {
-    fIsEnabled = false;
-    return;
-  }
-
-  fIsEnabled = true;
+#else
+  LOG("GIBUU", pFATAL) 
+       << "\n"
+       << "\n****************************************************"
+       << "\n*** YOU HAVE NOT INSTALLED GIBUU!                ***"
+       << "\n*** Please obtain the actual GiBUU code from:    ***"
+       << "\n*** http://tp8.physik.uni-giessen.de:8080/GiBUU/ ***"
+       << "\n****************************************************"
+       << "\n";
+  exit(1);
+#endif
 }
 //___________________________________________________________________________
 void GIBUU::Configure(const Registry & config)
