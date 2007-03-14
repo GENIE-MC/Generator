@@ -14,7 +14,7 @@ include $(GENIE)/src/Make.include
 
 # std build targets
 BUILD_TARGETS = make-bin-lib-dir \
-		save-build-options \
+		save-build-env \
 		base-framework \
 		utils \
 		physics-models-modules \
@@ -220,11 +220,11 @@ all-libs: base-framework \
 	  mueloss \
 	  nuvld-libs
 
-save-build-options: FORCE
+save-build-env: FORCE
 	@echo " "
 	@echo "** Logging configuration options..."
 	cd ${GENIE}/src;\
-	perl scripts/setup/genie-save-build-env;
+	perl scripts/setup/genie-build-env-snapshot;
 
 make-bin-lib-dir: FORCE
 	@echo " "
@@ -273,7 +273,7 @@ purge: FORCE
 	cd Utils;              make purge; cd ..; \
 	cd Viewer;             make purge; cd ..; \
 
-clean: clean-files clean-dir
+clean: clean-files clean-dir clean-etc
 
 clean-files: FORCE
 	@echo " "
@@ -325,6 +325,11 @@ clean-dir: FORCE
 	cd $(GENIE);\
 	rmdir ./bin;\
 	rmdir ./lib 
+
+clean-etc: FORCE
+	cd $(GENIE)/src
+	rm ./*.options
+	rm ./*.snapshot;
 
 FORCE:
 
