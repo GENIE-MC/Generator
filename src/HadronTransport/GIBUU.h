@@ -32,8 +32,11 @@
 #ifndef _GIBUU_H_
 #define _GIBUU_H_
 
+#include "Conventions/GBuild.h"
 #include "EVGCore/EventRecordVisitorI.h"
-/*
+
+#ifdef __GENIE_GIBUU_ENABLED__
+
 // fortran90 subroutine/function name aliases
 //
 #define SetNucleus              __gibuu_genie__setnucleus 
@@ -67,7 +70,8 @@ extern "C" {
   float FinalStateHadronZ       (int*,int*);
   float FinalStateHadronT       (int*,int*);
 }
-*/
+#endif // __GENIE_GIBUU_ENABLED__
+
 namespace genie {
 
 class GIBUU : public EventRecordVisitorI {
@@ -86,11 +90,7 @@ public:
   void Configure(string config);
 
 private:
-
-  void LoadConfig        (void);
-  void CheckInstallation (void);
-
-  bool fIsEnabled; ///< GiBUU interface was enabled & libGiBUU.a library exists
+  void LoadConfig (void);
 };
 
 }      // genie namespace
