@@ -327,9 +327,9 @@ clean-dir: FORCE
 	rmdir ./lib 
 
 clean-etc: FORCE
-	cd $(GENIE)/src
-	rm ./*.options
-	rm ./*.snapshot;
+	cd $(GENIE)/src;
+	rm -f ./*.options;
+	rm -f ./*.snapshot;
 
 FORCE:
 
