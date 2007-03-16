@@ -102,6 +102,18 @@ print LOG "\$LD_LIBRARY_PATH             -> $LD_LIBRARY_PATH\n";
 print LOG "\$DYLD_LIBRARY_PATH           -> $DYLD_LIBRARY_PATH\n";
 print LOG "\$PATH                        -> $PATH\n\n";
 
+# Read the ROOT config status
+$RCONF_FILE = "$ROOTSYS/config.status";
+$root_conf_status="";
+if(-e $RCONF_FILE) {
+  open(RCONF, "<$RCONF_FILE") or die("Can not open $ROOTSYS/config.status!");
+  @root_conf=<RCONF>;
+  close(RCONF);
+  chomp($root_conf_status = $root_conf[0]);
+}
+print LOG "Saving the configuration of your ROOT installation: \n\n";
+print LOG "$root_conf_status \n\n";
+
 print LOG "Saving info on your OS, activity, disk usage & quota limit: \n\n";
 
 close(LOG);
