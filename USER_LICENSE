@@ -53,8 +53,8 @@ be negotiated with the copyright holders [*].
 
 Additionally, the authors grant permission to modify this software and its
 documentation for any purpose, provided that such modifications are not distributed
-(unless permitted in written) and that existing copyright notices are retained in 
-all copies. The modified GENIE source code is subject to the same license agreement 
+publicly (unless permitted in written) and that existing copyright notices are retained 
+in all copies. The modified GENIE source code is subject to the same license agreement 
 as the unmodified one.
 
 Insertion of the GENIE code, in whole or in part, into other codes, or its translation 
@@ -66,8 +66,6 @@ fixes and documentation of the GENIE software (through the official GENIE web si
 http://www.genie-mc.org and its source code repository hosted at Rutherford Lab.)
 Each official version of GENIE is identified by a numbering scheme specifying major 
 and minor releases and a revision number. 
-
-All versions of GENIE are automatically covered by the most recent copyright notice.
 
 Support for this software is done on a best effort basis. All bug fixes and
 enhancements will be made available under the same terms and conditions as the
