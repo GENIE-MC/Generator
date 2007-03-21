@@ -79,23 +79,29 @@ void HadronTransporter::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 void HadronTransporter::GenerateVertex(GHepRecord * evrec) const
 {
-// generate a vtx and set it to all GHEP physical particles
+// Generate a vtx and set it to all GHEP physical particles.
+// This vtx generation method is used for the transparent nucleus case (i.e.
+// no intreanuclear rescattering).
+// The vtx is generated using const probablity per unit volume within a 
+// sphere of radius R (nuclear radius)
 
   GHepParticle * nucltgt = evrec->TargetNucleus();
   assert(nucltgt);
 
   RandomGen * rnd = RandomGen::Instance();
+  TVector3 vtx(0.,0.,0.);
 
-  int    A     = nucltgt->A();
-  double Ro    = nuclear::Radius(A); //fm
-  double R     = Ro * rnd->RndFsi().Rndm();
-  double cos9  = -1. + 2. * rnd->RndFsi().Rndm();    
-  double sin9  = TMath::Sqrt(1.-cos9*cos9);   
-  double fi    = 2 * kPi * rnd->RndFsi().Rndm();
-  double cosfi = TMath::Cos(fi);
-  double sinfi = TMath::Sin(fi);
+  int    A  = nucltgt->A();
+  double Ro = nuclear::Radius(A); //fm
 
-  TVector3 vtx(R*sin9*cosfi,R*sin9*sinfi,R*cos9);
+  // Use const probability per unit volume within the sphere
+  // (don't do the silly mistake to generate vertices uniformly in R)
+  //
+  while(vtx.Mag() > Ro) {
+    vtx.SetX(-Ro + 2*Ro * rnd->RndFsi().Rndm());
+    vtx.SetY(-Ro + 2*Ro * rnd->RndFsi().Rndm());
+    vtx.SetZ(-Ro + 2*Ro * rnd->RndFsi().Rndm());
+  }
 
   LOG("HadTransp", pINFO) << "Vtx (in fm) = " << print::Vec3AsString(&vtx);
 
