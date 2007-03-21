@@ -11,7 +11,6 @@
 #pragma link C++ class genie::NucBindEnergyAggregator;
 
 #pragma link C++ class genie::InitialStateAppender;
-#pragma link C++ class genie::PrimaryVtxGenerator;
 #pragma link C++ class genie::HadronTransporter;
 #pragma link C++ class genie::UnstableParticleDecayer;
 
