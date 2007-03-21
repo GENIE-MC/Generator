@@ -94,18 +94,41 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
   this->SetNuclearRadius(nucltgt);
 
   RandomGen * rnd = RandomGen::Instance();
+  TVector3 vtx(0.,0.,0.);
 
-  double R     = (fInTestMode) ? fNuclRadius : fNuclRadius * rnd->RndFsi().Rndm();
-  double cos9  = -1. + 2. * rnd->RndFsi().Rndm();    
-  double sin9  = TMath::Sqrt(1.-cos9*cos9);   
-  double fi    = 2 * kPi * rnd->RndFsi().Rndm();
-  double cosfi = TMath::Cos(fi);
-  double sinfi = TMath::Sin(fi);
+  if(fInTestMode) {
+    // *** For h+A events (test mode):
+    // Generate vtx on the nuclear radius.
+    //
+    double R     = fNuclRadius;
+    double cos9  = -1. + 2. * rnd->RndFsi().Rndm();    
+    double sin9  = TMath::Sqrt(1.-cos9*cos9);   
+    double fi    = 2 * kPi * rnd->RndFsi().Rndm();
+    double cosfi = TMath::Cos(fi);
+    double sinfi = TMath::Sin(fi);
+    vtx.SetXYZ(R*sin9*cosfi,R*sin9*sinfi, -1. * TMath::Abs(R*cos9));
 
-  TVector3 vtx(R*sin9*cosfi,R*sin9*sinfi,R*cos9);
+    // get a unit vector along the incoming hadron direction
+    TVector3 direction = evrec->Probe()->P4()->Vect().Unit();
+
+    // rotate the vtx position
+    vtx.RotateUz(direction);
+  } 
+  else {
+    // *** For v+A events:
+    // Use const probability per unit volume within the sphere
+    // (don't do the silly mistake to generate vertices uniformly in R)
+    //
+    while(vtx.Mag() > fNuclRadius) {
+      vtx.SetX(-fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm());
+      vtx.SetY(-fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm());
+      vtx.SetZ(-fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm());
+    }
+  }
 
   LOG("Intranuke", pNOTICE) 
-     << "Generated vtx @ R = " << R << " fm / " << print::Vec3AsString(&vtx);
+     << "Generated vtx @ R = " << vtx.Mag() << " fm / " 
+     << print::Vec3AsString(&vtx);
 
   TObjArrayIter piter(evrec);
   GHepParticle * p = 0;
