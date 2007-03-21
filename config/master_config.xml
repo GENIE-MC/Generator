@@ -13,7 +13,6 @@
    <config alg="genie::PauliBlocker">                PauliBlocker.xml                </config>
    <config alg="genie::NucBindEnergyAggregator">     NucBindEnergyAggregator.xml     </config>
    <config alg="genie::InitialStateAppender">        InitialStateAppender.xml        </config>
-   <config alg="genie::PrimaryVtxGenerator">         PrimaryVtxGenerator.xml         </config>
    <config alg="genie::QELPrimaryLeptonGenerator">   QELPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::DISPrimaryLeptonGenerator">   DISPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::RESPrimaryLeptonGenerator">   RESPrimaryLeptonGenerator.xml   </config>
