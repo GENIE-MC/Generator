@@ -96,29 +96,37 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
   RandomGen * rnd = RandomGen::Instance();
   TVector3 vtx(0.,0.,0.);
 
+  // *** For h+A events (test mode): 
+  // Generate vtx on the nuclear radius. Put the vtx on the
+  // 'correct' half of the sphere so that the hadron does not
+  // point away from the nucleus
+
   if(fInTestMode) {
-    // *** For h+A events (test mode):
-    // Generate vtx on the nuclear radius.
-    //
+    // generate a point in spherical coordinates
     double R     = fNuclRadius;
     double cos9  = -1. + 2. * rnd->RndFsi().Rndm();    
     double sin9  = TMath::Sqrt(1.-cos9*cos9);   
     double fi    = 2 * kPi * rnd->RndFsi().Rndm();
     double cosfi = TMath::Cos(fi);
     double sinfi = TMath::Sin(fi);
+
+    // polar -> rectangular coordinates assuming the unit vector along 
+    // the hadron direction is (0,0,1)
     vtx.SetXYZ(R*sin9*cosfi,R*sin9*sinfi, -1. * TMath::Abs(R*cos9));
 
-    // get a unit vector along the incoming hadron direction
+    // get the actual unit vector along the incoming hadron direction
     TVector3 direction = evrec->Probe()->P4()->Vect().Unit();
 
     // rotate the vtx position
     vtx.RotateUz(direction);
   } 
+
+  // *** For v+A events:
+  // Use const probability per unit volume within the sphere
+  // (don't do the silly mistake to generate vertices uniformly in R)
+  //
+
   else {
-    // *** For v+A events:
-    // Use const probability per unit volume within the sphere
-    // (don't do the silly mistake to generate vertices uniformly in R)
-    //
     while(vtx.Mag() > fNuclRadius) {
       vtx.SetX(-fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm());
       vtx.SetY(-fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm());
