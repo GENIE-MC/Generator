@@ -108,6 +108,7 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
       x = (fNuclRadius-epsilon) * rnd->RndFsi().Rndm();
       y = -fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm();
       y -= ((y>0) ? epsilon : -epsilon);
+      rp2 = TMath::Power(x,2.) + TMath::Power(y,2.);
     }
     vtx.SetXYZ(x,y, -1.*TMath::Sqrt(TMath::Max(0.,R2-rp2)) + epsilon);
 
