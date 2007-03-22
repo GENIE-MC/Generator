@@ -101,7 +101,7 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
   // so we need to choose events uniformly within that area.
 
   if(fInTestMode) {
-    double x=999999., y=999999., epsilon = 0.01;
+    double x=999999., y=999999., epsilon = 0.001;
     double R2  = TMath::Power(fNuclRadius,2.);
     double rp2 = TMath::Power(x,2.) + TMath::Power(y,2.);
     while(rp2 > R2-epsilon) {
