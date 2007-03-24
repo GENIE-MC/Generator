@@ -49,5 +49,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_INVERSE_MU_DECAY_LIBNAME).* \
 		_ROOT_DICT_InverseMuDecay.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_INVERSE_MU_DECAY_LIBNAME).*
+
 FORCE:
 

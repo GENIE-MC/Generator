@@ -1,24 +1,18 @@
 ####################################################################
 # Make.include for GENIE Object-Oriented Neutrino Generator
+#
 # Costas Andreopoulos (Rutherford Lab.) <C.V.Andreopoulos@rl.ac.uk>
 ####################################################################
 
 #-------------------------------------------------------------------
 #                      Documentation Section
 #-------------------------------------------------------------------
+# In the following section you will find a list of vars that should 
+# be properly defined. These are set from the configure script or via
+# the environment. For more info type 'configure --help'
 #
-# In the following section you will find a list of environmental vars 
-# that should be properly defined.
-# Note: Do not not set them here. Create a setup script and run it to
-# configure your environment prior to building/running GENIE.
-# See $GENIE/src/scripts/setup_genie_example for an example shell 
-# script that can configure your environment for GENIE.
-#
+# GENIE paths - Description
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#                    GENIE paths - Description
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-# Mandatory:
-# .................................................................
 #  ROOTSYS        -> top level ROOT directory
 #  CERNLIB        -> where the CERN libraries live
 #  PYTHIA6        -> where the libPythia6 library lives
@@ -26,87 +20,35 @@
 #  LIBXML2_LIB    -> where the libxml2 library is
 #  LOG4CPP_INC    -> where the log4cpp headers are [log4cpp dir]
 #  LOG4CPP_LIB    -> where the log4cpp library is
+#  NEUGEN3PATH    -> top level NEUGEN-3 directory [if you enable neugen]
+#  GIBUU_LIB      -> libGiBUU.a path [if you enable the GENIE/GIBUU interface]
+#  GPROFILER_LIB  -> libprofiler.so path [if you enable the google profiler]
+#  DOXYGEN        -> doxygen binary path [if you enable the doxygen doc generation]
 #
-# Optional:
-# .................................................................
-#  NEUGEN3PATH    -> top level NEUGEN-3 directory
-#                    [needed if you enable NuValidator]
-#  GIBUU_LIB      -> location of libGiBUU.a
-#                    [needed if you enable the GENIE/GIBUU interface]
-#  GPROFILER_LIB  -> location of libprofiler.so
-#                    [needed if you enable Google profiler]
-#  DOXYGEN        -> your doxygen exe (with full path if needed)
-#                    [needed if you enable GENIE docs]
-#
+# GENIE build options - Description
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#                 GENIE build options - Description
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-# Set the following environmental variables to enable GENIE options:
-#
-# GOPT_ENABLE_PROFILER        -> enables Google profiler
-# GOPT_ENABLE_NUVALIDATOR     -> enables GENIE's NuValidator
-# GOPT_ENABLE_NEUGEN          -> enables NuValidator's NeuGEN facade
-# GOPT_ENABLE_FLUX_DRIVERS    -> enables GENIE's flux drivers
-# GOPT_ENABLE_GEOM_DRIVERS    -> enables GENIE's geometry drivers
-# GOPT_ENABLE_DOXYGEN_DOC     -> enables GENIE's Doxygen doc
-# GOPT_ENABLE_TEST            -> enables GENIE test programs
-# GOPT_ENABLE_VIEWER          -> enables GENIE Feynman/GHEP gui 
-# GOPT_ENABLE_MUELOSS         -> enables GENIE MuELoss utility 
-# GOPT_ENABLE_GIBUU           -> enables the GENIE/GIBUU interface
+#  GOPT_ENABLE_PROFILER        -> enables Google profiler
+#  GOPT_ENABLE_NUVALIDATOR     -> enables GENIE's NuValidator
+#  GOPT_ENABLE_NEUGEN          -> enables NuValidator's NeuGEN facade
+#  GOPT_ENABLE_FLUX_DRIVERS    -> enables GENIE's flux drivers
+#  GOPT_ENABLE_GEOM_DRIVERS    -> enables GENIE's geometry drivers
+#  GOPT_ENABLE_DOXYGEN_DOC     -> enables GENIE's Doxygen doc
+#  GOPT_ENABLE_TEST            -> enables GENIE test programs
+#  GOPT_ENABLE_VIEWER          -> enables GENIE Feynman/GHEP gui 
+#  GOPT_ENABLE_MUELOSS         -> enables GENIE MuELoss utility 
+#  GOPT_ENABLE_GIBUU           -> enables the GENIE/GIBUU interface
 
 #-------------------------------------------------------------------
-#              GENIE build options - Setting defaults
+#                 Read in configure script output
 #-------------------------------------------------------------------
-# If variables controlling build options are not set, set defaults:
-#
-# GOPT_ENABLE_PROFILER        -> NO
-# GOPT_ENABLE_NUVALIDATOR     -> YES
-# GOPT_ENABLE_NEUGEN          -> NO
-# GOPT_ENABLE_FLUX_DRIVERS    -> YES
-# GOPT_ENABLE_GEOM_DRIVERS    -> YES
-# GOPT_ENABLE_DOXYGEN_DOC     -> NO
-# GOPT_ENABLE_TEST            -> NO
-# GOPT_ENABLE_VIEWER          -> NO
-# GOPT_ENABLE_MUELOSS         -> YES
-# GOPT_ENABLE_GIBUU           -> NO
-
-ifndef GOPT_ENABLE_PROFILER   
- GOPT_ENABLE_PROFILER=NO
-endif
-ifndef GOPT_ENABLE_NUVALIDATOR 
-  GOPT_ENABLE_NUVALIDATOR=YES
-endif 
-ifndef GOPT_ENABLE_NEUGEN
-  GOPT_ENABLE_NEUGEN=NO
-endif 
-ifndef GOPT_ENABLE_FLUX_DRIVERS
-  GOPT_ENABLE_FLUX_DRIVERS=YES
-endif 
-ifndef GOPT_ENABLE_GEOM_DRIVERS
-  GOPT_ENABLE_GEOM_DRIVERS=YES
-endif 
-ifndef GOPT_ENABLE_DOXYGEN_DOC
-  GOPT_ENABLE_DOXYGEN_DOC=NO
-endif
-ifndef GOPT_ENABLE_TEST
-  GOPT_ENABLE_TEST=NO
-endif
-ifndef GOPT_ENABLE_VIEWER
-  GOPT_ENABLE_VIEWER=NO
-endif
-ifndef GOPT_ENABLE_MUELOSS
-  GOPT_ENABLE_MUELOSS=NO
-endif
-ifndef GOPT_ENABLE_GIBUU
-  GOPT_ENABLE_GIBUU=NO
-endif
+include $(GENIE)/src/Make.config
 
 #-------------------------------------------------------------------
 #           GENIE GCC options - read and/or set defaults
 #-------------------------------------------------------------------
 
 ifndef GOPT_CXX_OPTIM_FLAG
- GOPT_CXX_OPTIM_FLAG=-O # can be -O,-O2,-O3,-OO,-Os, see gcc manual
+ GOPT_CXX_OPTIM_FLAG=-O3 # can be -O,-O2,-O3,-OO,-Os, see gcc manual
 endif
 ifndef GOPT_CXX_DEBUG_FLAG
 GOPT_CXX_DEBUG_FLAG=-g 
@@ -125,18 +67,27 @@ ARCH = $(shell root-config --arch)
 #                              GENIE
 #-------------------------------------------------------------------
 
-# GENIE & NuValidator header files base dir
+# GENIE installation paths used with 'make install'
+# The $GENIE_INSTALLATION_PATH is determined from ./configure --prefix=...
+#
+GENIE_LIB_INSTALLATION_PATH    := $(GENIE_INSTALLATION_PATH)/lib
+GENIE_BIN_INSTALLATION_PATH    := $(GENIE_INSTALLATION_PATH)/bin
+GENIE_INC_INSTALLATION_PATH    := $(GENIE_INSTALLATION_PATH)/include/GENIE
 
+# GENIE paths
+#
+GENIE_LIB_PATH    := $(GENIE)/lib
+GENIE_BIN_PATH    := $(GENIE)/bin
+GENIE_SRC_PATH    := $(GENIE)/src
+GENIE_CONFIG_PATH := $(GENIE)/config
+
+# GENIE & NuValidator header files base dir
+#
 GENIE_INCLUDES := -I$(GENIE)/src/
 NUVLD_INCLUDES := -I$(GENIE)/src/NuValidator/
 
-# GENIE lib & bin paths
-
-GENIE_LIB_PATH := $(GENIE)/lib
-GENIE_BIN_PATH := $(GENIE)/bin
-
 # GENIE & NuValidator libraries
-
+#
 GENIE_ALGORITHM_LIBNAME        := libGAlgorithm
 GENIE_BARYONRES_LIBNAME        := libGBaryonResonance
 GENIE_BASE_LIBNAME             := libGBase
@@ -182,7 +133,7 @@ VLD_NEUGEN_INTERFACE_LIBNAME   := libGNuVldNeugen
 GDUMMY_NEUGEN_LIBNAME          := libneugen3
 
 # standard GENIE's Neutrino Generator libraries
-
+#
 GENIE_LIBRARIES := -L$(GENIE_LIB_PATH) \
   -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
   -lGDecay -lGElas -lGHEP -lGLlewellynSmith -lGEVGCore -lGEVGModules -lGEVGDrivers\

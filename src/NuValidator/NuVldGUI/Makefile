@@ -49,6 +49,9 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_GUI_WIDGETS_LIBNAME).* _ROOT_DICT_NuVldGUI.* 
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(VLD_GUI_WIDGETS_LIBNAME).*
+
 FORCE:
 
 # DO NOT DELETE

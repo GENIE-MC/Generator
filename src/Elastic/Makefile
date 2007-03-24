@@ -49,5 +49,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_ELASTIC_LIBNAME).* \
 		_ROOT_DICT_Elastic.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_ELASTIC_LIBNAME).*
+
 FORCE:
 

@@ -49,5 +49,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_NUMERICAL_LIBNAME).* \
 		_ROOT_DICT_Numerical.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_NUMERICAL_LIBNAME).*
+
 FORCE:
 

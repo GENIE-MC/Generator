@@ -49,6 +49,9 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_DBUTIL_LIBNAME).* _ROOT_DICT_DBUtils.* 
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(VLD_DBUTIL_LIBNAME).*
+
 FORCE:
 
 # DO NOT DELETE

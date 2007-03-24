@@ -21,14 +21,6 @@ LIBRARIES := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 LIBS_AND_HDRS := $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
-EXE =	$(GENIE_BIN_PATH)/gevgen   \
-	$(GENIE_BIN_PATH)/gmkspl   \
-	$(GENIE_BIN_PATH)/gmxpl    \
-	$(GENIE_BIN_PATH)/gntpc    \
-	$(GENIE_BIN_PATH)/gsplt	   \
-	$(GENIE_BIN_PATH)/gmctest  \
-	$(GENIE_BIN_PATH)/gviewer
-
 TGT =    gEvGen		\
 	 gMakeSplines	\
 	 gMaxPathLengths\
@@ -96,7 +88,23 @@ endif
 #################### CLEANING
 
 clean: FORCE
-	$(RM) *.o *~ core $(EXE)
+	$(RM) *.o *~ core \
+	$(RM) $(GENIE_BIN_PATH)/gevgen   \
+	$(RM) $(GENIE_BIN_PATH)/gmkspl   \
+	$(RM) $(GENIE_BIN_PATH)/gmxpl    \
+	$(RM) $(GENIE_BIN_PATH)/gntpc    \
+	$(RM) $(GENIE_BIN_PATH)/gsplt	 \
+	$(RM) $(GENIE_BIN_PATH)/gmctest  \
+	$(RM) $(GENIE_BIN_PATH)/gviewer
+
+distclean: FORCE
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen   \
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl   \
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl    \
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc    \
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gsplt    \
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmctest  \
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gviewer
 
 clean--gEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen

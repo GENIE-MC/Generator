@@ -40,5 +40,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_MSG_LIBNAME).* \
 		Cint.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_MSG_LIBNAME).*
+
 FORCE:
 

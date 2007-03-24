@@ -49,5 +49,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_EVGMODULES_LIBNAME).* \
 		_ROOT_DICT_EVGModules.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_EVGMODULES_LIBNAME).*
+
 FORCE:
 

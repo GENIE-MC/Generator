@@ -50,5 +50,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).* \
 		_ROOT_DICT_LlewellynSmith.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_LLEWELLYN_SMITH_LIBNAME).*
+
 FORCE:
 

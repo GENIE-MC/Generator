@@ -29,6 +29,9 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_PARSER_LIBNAME).*
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(VLD_PARSER_LIBNAME).*
+
 FORCE:
 
 # DO NOT DELETE
