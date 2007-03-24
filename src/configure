@@ -11,8 +11,8 @@
 #
 if(($match = grep(/--help/i, @ARGV)) > 0) { 
   print "\n";
-  print "GENIE configure script \n\n";
-  print "Usage: ./configure [flag=value];\n\n";
+  print "*** GENIE configure script *** \n\n";
+  print "Usage: ./configure [flag=value]\n\n";
   print "    FLAG            DESCRIPTION                                         DEFAULT\n\n";
   print "    --prefix        installation location (for 'make install')          /usr/local/\n\n";
   print "enable/disable options with either --enable- or --disable- (eg --enable-gibuu --disable-flux-drivers)\n\n";
@@ -27,14 +27,16 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    viewer          Event generation GUI _incomplete_                   default: disabled \n";
   print "    mueloss         Muon energy loss modeling                           default: enabled  \n\n";
   print "with options for 3rd party software, prefix with --with- (eg --with-gibuu-lib=/some/path/libGiBUU.a)\n\n";
-  print "    profiler-lib    Path to libprofiler.so library     \n";
-  print "    neugen3path     Neugen3 top level directory        \n";
-  print "    gibuu-lib       Path to libGiBUU.a library         \n";
-  print "    doxygen         Doxygen binary including full path \n";
-  print "    libxml2-inc     Path to libxml2 includes           \n";
-  print "    libxml2-lib     Path to libxml2 library            \n";
-  print "    log4cpp-inc     Path to log4cpp includes           \n";
-  print "    log4cpp-lib     Path to log4cpp library            \n\n";
+  print "    profiler-lib    Path to libprofiler.so library       if you --enable-profiler \n";
+  print "    neugen3path     NeuGEN top level directory           if you --enable-neugen  (can pick \$NEUGEN3PATH env var) \n";
+  print "    gibuu-lib       Path to libGiBUU.a library           if you --enable-gibuu   (can pick \$GIBUU_LIB env var)   \n";
+  print "    doxygen         Doxygen binary including full path   if you --enable-doxygen (can pick \$DOXYGEN env var)     \n";
+  print "    pythia6         PYTHIA6 library path                 *always needed* / (can pick \$PYTHIA6 env var) \n";
+  print "    cernlib         CERN libraries path                  *always needed* / (can pick \$CERNLIB env var) \n";
+  print "    libxml2-inc     Path to libxml2 includes             *always needed* \n";
+  print "    libxml2-lib     Path to libxml2 library              *always needed* \n";
+  print "    log4cpp-inc     Path to log4cpp includes             *always needed* \n";
+  print "    log4cpp-lib     Path to log4cpp library              *always needed* \n\n";
   exit;
 }
 
@@ -184,6 +186,30 @@ if($gopt_enable_nuvalidator eq "YES") {
 
 }
 
+# Get PYTHIA6 and CERNLIB
+
+my $pythia6 = "";
+my $cernlib = "";
+
+if($options=~m/--with-pythia6=(\S*)/i) {
+  $pythia6 = $1;
+  # if it was not set, try to pick it up from the environment
+  if($pythia6 eq "" && defined $ENV{'PYTHIA6'}) { $pythia6 = $ENV{'PYTHIA6'}; }
+  else {
+    print " *** Error *** You need to specify the PYTHIA6 library path using --with-pythia6=/some/path/\n\n";
+    exit;
+  }
+} 
+if($options=~m/--with-cernlib=(\S*)/i) {
+  $cernlib = $1;
+  # if it was not set, try to pick it up from the environment
+  if($cernlib eq "" && defined $ENV{'CERNLIB'}) { $cernlib = $ENV{'CERNLIB'}; }
+  else {
+    print " *** Error *** You need to specify the CERNLIB libraries path using --with-cernlib=/some/path/\n\n";
+    exit;
+  }
+} 
+
 # Get libxml2 and log4cpp include and library paths 
 
 my $libxml2_inc = "";
@@ -225,6 +251,8 @@ print MKCONF "GPROFILER_LIB=$gprofiler_lib\n";
 print MKCONF "NEUGEN3PATH=$neugen3path\n";
 print MKCONF "GIBUU_LIB=$gibuu_lib\n";
 print MKCONF "DOXYGEN=$doxygen\n";
+print MKCONF "CERNLIB=$cernlib\n";
+print MKCONF "PYTHIA6=$pythia6\n";
 print MKCONF "LIBXML2_INC=$libxml2_inc\n";
 print MKCONF "LIBXML2_LIB=$libxml2_lib\n";
 print MKCONF "LOG4CPP_INC=$log4cpp_inc\n";
