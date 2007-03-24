@@ -49,5 +49,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_MUELOSS_LIBNAME).* \
 		_ROOT_DICT_MuELoss.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_MUELOSS_LIBNAME).*
+
 FORCE:
 

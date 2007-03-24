@@ -49,5 +49,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_FRAGMENTATION_LIBNAME).* \
 		_ROOT_DICT_Fragmentation.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_FRAGMENTATION_LIBNAME).*
+
 FORCE:
 

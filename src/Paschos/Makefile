@@ -49,5 +49,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_PASCHOS_LIBNAME).* \
 		_ROOT_DICT_Paschos.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_PASCHOS_LIBNAME).*
+
 FORCE:
 

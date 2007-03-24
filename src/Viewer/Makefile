@@ -48,5 +48,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_VIEWER_LIBNAME).* \
 		_ROOT_DICT_Viewer.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_VIEWER_LIBNAME).*
+
 FORCE:
 

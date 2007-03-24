@@ -51,5 +51,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_HADRON_TRANSPORT_LIBNAME).* \
 		_ROOT_DICT_HadronTransport.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_HADRON_TRANSPORT_LIBNAME).*
+
 FORCE:
 

@@ -4,16 +4,16 @@
 # genie-config a la ROOT's root-config
 #
 
-########################### GENIE Libraries Directory:
+### Source GENIE config options::
+source $GENIE/src/Make.config
 
+### GENIE libraries path:
 libdir=$GENIE/lib
 
-########################### GENIE src top level directory:
-
+### GENIE src top level directory:
 srcdir=$GENIE/src
 
-########################### GENIE Libraries;
-
+### GENIE Libraries;
 libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
  -lGCrossSections -lGDecay -lGElas -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
  -lGHadronTransp -lGFragmentation -lGInteraction -lGInvMuDecay -lGLlewellynSmith\
@@ -33,12 +33,10 @@ if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
   libs="$libs -lGMuELoss"
 fi
 
-########################### GENIE's NuValidator Libraries;
-
+### GENIE's NuValidator Libraries;
 nvldlibs="-L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
 
-########################### GENIE Dictionaries;
-
+### GENIE Dictionaries;
 dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
 		$srcdir/BaryonResonance/_ROOT_DICT_BaryonResonance.o \
                 $srcdir/Base/_ROOT_DICT_Base.o \
@@ -80,6 +78,7 @@ if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
   dictionaries="$dictionaries $srcdir/MuELoss/_ROOT_DICT_MuELoss.o"
 fi
 
+### Usage
 usage="\
 Usage: genie-config [--libs] [--dicts] [--libdir] [--topsrcdir] [-nuvldlibs]" 
 

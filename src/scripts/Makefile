@@ -29,5 +29,11 @@ clean: FORCE
 	$(GENIE_BIN_PATH)/genie-config \
 	$(GENIE_BIN_PATH)/genie
 
+distclean: FORCE
+	$(RM) \
+	$(GENIE_BIN_INSTALLATION_PATH)/gnuvld-dbbootstrap \
+	$(GENIE_BIN_INSTALLATION_PATH)/genie-config \
+	$(GENIE_BIN_INSTALLATION_PATH)/genie
+
 FORCE:
 

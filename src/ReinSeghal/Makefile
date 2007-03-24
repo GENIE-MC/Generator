@@ -50,5 +50,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_REIN_SEGHAL_LIBNAME).* \
 		_ROOT_DICT_ReinSeghal.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_REIN_SEGHAL_LIBNAME).*
+
 FORCE:
 

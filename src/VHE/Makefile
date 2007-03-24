@@ -51,5 +51,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_VHE_LIBNAME).* \
 		_ROOT_DICT_VHE.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_VHE_LIBNAME).*
+
 FORCE:
 

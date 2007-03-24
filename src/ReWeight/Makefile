@@ -49,5 +49,8 @@ clean: FORCE
 	$(RM) *.o *~ core a.out  $(GENIE_LIB_PATH)/$(GENIE_REWEIGHT_LIBNAME).* \
 		_ROOT_DICT_ReWeight.* Makefile.temp
 
+distclean: FORCE
+	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_REWEIGHT_LIBNAME).*
+
 FORCE:
 
