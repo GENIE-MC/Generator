@@ -195,7 +195,7 @@ if($options=~m/--with-pythia6=(\S*)/i) {
   $pythia6 = $1;
   # if it was not set, try to pick it up from the environment
   if($pythia6 eq "" && defined $ENV{'PYTHIA6'}) { $pythia6 = $ENV{'PYTHIA6'}; }
-  else {
+  if($pythia6 eq "") {
     print " *** Error *** You need to specify the PYTHIA6 library path using --with-pythia6=/some/path/\n\n";
     exit;
   }
@@ -204,7 +204,7 @@ if($options=~m/--with-cernlib=(\S*)/i) {
   $cernlib = $1;
   # if it was not set, try to pick it up from the environment
   if($cernlib eq "" && defined $ENV{'CERNLIB'}) { $cernlib = $ENV{'CERNLIB'}; }
-  else {
+  if($cernlib eq "") {
     print " *** Error *** You need to specify the CERNLIB libraries path using --with-cernlib=/some/path/\n\n";
     exit;
   }
