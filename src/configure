@@ -1,0 +1,243 @@
+#! /usr/bin/perl -w
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# GENIE configuration script
+#
+# For help, type ./configure --help
+#
+# C.Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# print out info & exit if any of the command-line arguments was --help
+#
+if(($match = grep(/--help/i, @ARGV)) > 0) { 
+  print "\n";
+  print "GENIE configure script \n\n";
+  print "Usage: ./configure [flag=value];\n\n";
+  print "    FLAG            DESCRIPTION                                         DEFAULT\n\n";
+  print "    --prefix        installation location (for 'make install')          /usr/local/\n\n";
+  print "enable/disable options with either --enable- or --disable- (eg --enable-gibuu --disable-flux-drivers)\n\n";
+  print "    profiler        GENIE code profiling using Google perftools         default: disabled \n";
+  print "    nuvalidator     GENIE's NuValidator tool, requires MySQL            default: disabled \n";
+  print "    neugen          GENIE/NeuGEN facade, requires libneugen3.a          default: disabled \n";
+  print "    gibuu           GiBUU intranuclear cascade MC, requires libGiBUU.a  default: disabled \n";
+  print "    flux-drivers    Built-in flux drivers                               default: enabled  \n";
+  print "    geom-drivers    Built-in detector geometry drivers                  default: enabled  \n";
+  print "    doxygen-doc     Generate doxygen documentation at build time        default: disabled \n";
+  print "    test            Build test programs                                 default: disabled \n";
+  print "    viewer          Event generation GUI _incomplete_                   default: disabled \n";
+  print "    mueloss         Muon energy loss modeling                           default: enabled  \n\n";
+  print "with options for 3rd party software, prefix with --with- (eg --with-gibuu-lib=/some/path/libGiBUU.a)\n\n";
+  print "    profiler-lib    Path to libprofiler.so library     \n";
+  print "    neugen3path     Neugen3 top level directory        \n";
+  print "    gibuu-lib       Path to libGiBUU.a library         \n";
+  print "    doxygen         Doxygen binary including full path \n";
+  print "    libxml2-inc     Path to libxml2 includes           \n";
+  print "    libxml2-lib     Path to libxml2 library            \n";
+  print "    log4cpp-inc     Path to log4cpp includes           \n";
+  print "    log4cpp-lib     Path to log4cpp library            \n\n";
+  exit;
+}
+
+# Check that $GENIE is set
+#
+$GENIE = $ENV{'GENIE'};
+die ("*** Error *** The GENIE environmental variable (pointing to the top level GENIE directory) is not defined") 
+unless defined $GENIE;
+
+# Check that $ROOTSYS is set
+#
+$ROOTSYS = $ENV{'ROOTSYS'};
+die ("*** Error *** The ROOTSYS environmental variable is not defined. Is ROOT installed?") 
+unless defined $ROOTSYS;
+
+# Print GENIE banner 
+#
+$BANNER_FILE = "$GENIE/data/banner/BANNER.txt";
+if(-e $BANNER_FILE) {
+  open(BANNER, "<$BANNER_FILE");
+  @hdr=<BANNER>;
+  print @hdr;
+  close(BANNER);
+}
+
+# Open Make.config to write configuration options
+#
+$MKCONF_FILE = "$GENIE/src/Make.config";
+open(MKCONF, ">$MKCONF_FILE") or die("Can not write out the Make.config file!");
+
+my $options = join(" ", @ARGV);
+
+# Get & save installation location (--prefix) or set default
+#
+my $prefix="/usr/local/";
+if(($match = grep(/--prefix/i, @ARGV)) > 0) { 
+  $options=~m/--prefix=(\S*)/i;
+  $prefix = $1;
+}
+print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
+
+# Default --enable/--disable config options (for a minimal genie build)
+#
+my $gopt_enable_profiler     = "NO";
+my $gopt_enable_nuvalidator  = "NO";
+my $gopt_enable_neugen       = "NO";
+my $gopt_enable_gibuu        = "NO";
+my $gopt_enable_flux_drivers = "YES";
+my $gopt_enable_geom_drivers = "YES";
+my $gopt_enable_doxygen_doc  = "NO";
+my $gopt_enable_test         = "NO";
+my $gopt_enable_viewer       = "NO";
+my $gopt_enable_mueloss      = "YES";
+
+# Check configure's command line arguments for non-default values
+#
+if(($match = grep(/--enable-profiler/i,      @ARGV)) > 0) { $gopt_enable_profiler     = "YES"; }
+if(($match = grep(/--enable-nuvalidator/i,   @ARGV)) > 0) { $gopt_enable_nuvalidator  = "YES"; }
+if(($match = grep(/--enable-neugen/i,        @ARGV)) > 0) { $gopt_enable_neugen       = "YES"; }
+if(($match = grep(/--enable-gibuu/i,         @ARGV)) > 0) { $gopt_enable_gibuu        = "YES"; }
+if(($match = grep(/--enable-doxygen-doc/i,   @ARGV)) > 0) { $gopt_enable_doxygen_doc  = "YES"; }
+if(($match = grep(/--enable-test/i,          @ARGV)) > 0) { $gopt_enable_test         = "YES"; }
+if(($match = grep(/--enable-viewer/i,        @ARGV)) > 0) { $gopt_enable_viewer       = "YES"; }
+if(($match = grep(/--disable-flux-drivers/i, @ARGV)) > 0) { $gopt_enable_flux_drivers = "NO";  }
+if(($match = grep(/--disable-geom-drivers/i, @ARGV)) > 0) { $gopt_enable_geom_drivers = "NO";  }
+if(($match = grep(/--disable-mueloss/i,      @ARGV)) > 0) { $gopt_enable_mueloss      = "NO";  }
+
+# Save config options
+#
+print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
+print MKCONF "GOPT_ENABLE_NUVALIDATOR=$gopt_enable_nuvalidator\n"; 
+print MKCONF "GOPT_ENABLE_NEUGEN=$gopt_enable_neugen\n";
+print MKCONF "GOPT_ENABLE_GIBUU=$gopt_enable_gibuu\n";
+print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
+print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
+print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
+print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
+print MKCONF "GOPT_ENABLE_VIEWER=$gopt_enable_viewer\n";
+print MKCONF "GOPT_ENABLE_MUELOSS=$gopt_enable_mueloss\n";
+
+# Check for --with options for 3rd party software:
+
+# If --enable-profiler was set then the full path to the profiler library must be specified
+#
+my $gprofiler_lib = "";
+if($gopt_enable_profiler eq "YES") {
+  if(($match = grep(/--with-profiler-lib/i, @ARGV)) > 0) { 
+    $options=~m/--with-profiler-lib=(\S*)/i;
+    $gprofiler_lib = $1;
+  }
+}
+
+# If --enable-neugen was set then the location to the neugen installation must be specified
+#
+my $neugen3path = "";
+if($gopt_enable_neugen eq "YES") {
+  if(($match = grep(/--with-neugen3path/i, @ARGV)) > 0) { 
+    $options=~m/--with-neugen3path=(\S*)/i;
+    $neugen3path = $1;
+  }
+  # if it was not set, try to pick it up from the environment
+  if($neugen3path eq "" && defined $ENV{'NEUGEN3PATH'}) { $neugen3path = $ENV{'NEUGEN3PATH'}; }
+  # check
+  my $file = "$neugen3path/lib/libneugen3.a";
+  if(! -e $file) {
+     print " *** Error *** You need to specify the top level neugen3 directory using --with-neugen3path=/some/path/\n";
+     print "               (alternatively, you can --disable-neugen)\n\n";
+     exit;
+  }
+}
+
+# If --enable-gibuu was set then the full path to the libGiBUU.a library must be specified
+#
+my $gibuu_lib = "";
+if($gopt_enable_gibuu eq "YES") {
+  if(($match = grep(/--with-gibuu-lib/i, @ARGV)) > 0) { 
+    $options=~m/--with-gibuu-lib=(\S*)/i;
+    $gibuu_lib = $1;
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gibuu_lib eq "" && defined $ENV{'GIBUU_LIB'}) { $gibuu_lib = $ENV{'GIBUU_LIB'}; }
+  # check
+  my $file = "$gibuu_lib/libGiBUU.a";
+  if(! -e $file) {
+     print " *** Error *** You need to specify the path to the libGiBUU.a library using --with-gibuu-lib=/some/path/\n";
+     print "               (alternatively, you can --disable-gibuu)\n\n";
+     exit;
+  }
+}
+
+# If --enable-doxygen was set then the full path to the doxygen binary must be specified
+# unless it is in the $PATH
+#
+my $doxygen = "";
+if($gopt_enable_doxygen_doc eq "YES") {
+  if(($match = grep(/--with-doxygen/i, @ARGV)) > 0) { 
+    $options=~m/--with-doxygen=(\S*)/i;
+    $doxygen = $1;
+  }
+  # if it was not set, try to pick it up from the environment
+  if($doxygen eq "" && defined $ENV{'DOXYGEN'}) { $doxygen = $ENV{'DOXYGEN'}; }
+}
+
+# If --enable-nuvalidator was set then ROOT must have mysql support enabled
+#
+if($gopt_enable_nuvalidator eq "YES") {
+
+}
+
+# Get libxml2 and log4cpp include and library paths 
+
+my $libxml2_inc = "";
+my $libxml2_lib = "";
+my $log4cpp_inc = "";
+my $log4cpp_lib = "";
+
+if($options=~m/--with-libxml2-inc=(\S*)/i) {
+  $libxml2_inc = $1;
+} else {
+  print " *** Error *** You need to specify the libxml2 include path using --with-libxml2-inc=/some/path/\n\n";
+  exit;
+}
+
+if($options=~m/--with-libxml2-lib=(\S*)/i) {
+  $libxml2_lib = $1;
+} else {
+  print " *** Error *** You need to specify the libxml2 library path using --with-libxml2-lib=/some/path/\n\n";
+  exit;
+}
+
+if($options=~m/--with-log4cpp-inc=(\S*)/i) {
+  $log4cpp_inc = $1;
+} else {
+  print " *** Error *** You need to specify the log4cpp include path using --with-log4cpp-inc=/some/path/\n\n";
+  exit;
+}
+
+if($options=~m/--with-log4cpp-lib=(\S*)/i) {
+  $log4cpp_lib = $1;
+} else {
+  print " *** Error *** You need to specify the log4cpp library path using --with-log4cpp-lib=/some/path/\n\n";
+  exit;
+}
+
+# Save the --with options
+#
+print MKCONF "GPROFILER_LIB=$gprofiler_lib\n";
+print MKCONF "NEUGEN3PATH=$neugen3path\n";
+print MKCONF "GIBUU_LIB=$gibuu_lib\n";
+print MKCONF "DOXYGEN=$doxygen\n";
+print MKCONF "LIBXML2_INC=$libxml2_inc\n";
+print MKCONF "LIBXML2_LIB=$libxml2_lib\n";
+print MKCONF "LOG4CPP_INC=$log4cpp_inc\n";
+print MKCONF "LOG4CPP_LIB=$log4cpp_lib\n";
+
+close(MKCONF);
+
+print "\nYour configuration options were:\n @ARGV \n\n";
+if(-e $MKCONF_FILE) {
+  print "The $GENIE/src/Make.config file has been succesfully generated! \n";
+  print "To continue type: gmake \n";
+  # warning for SRT users  
+  if(defined $ENV{'SRT_ENV_SET'}) {
+    print "Don't forget to 'srt_setup --unsetup' first\n";
+  }
+}
