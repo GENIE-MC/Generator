@@ -41,7 +41,7 @@ clean: FORCE
 		Cint.* Makefile.temp
 
 distclean: FORCE
-	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_MSG_LIBNAME).*
+	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(GENIE_MSG_LIBNAME).*
 
 FORCE:
 

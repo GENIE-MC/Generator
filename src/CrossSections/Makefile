@@ -50,7 +50,7 @@ clean: FORCE
 		_ROOT_DICT_CrossSections.* Makefile.temp
 
 distclean: FORCE
-	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_XSEC_LIBNAME).*
+	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(GENIE_XSEC_LIBNAME).*
 
 FORCE:
 

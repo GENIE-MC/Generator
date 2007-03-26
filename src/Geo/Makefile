@@ -50,7 +50,7 @@ clean: FORCE
 		_ROOT_DICT_Geo.* Makefile.temp
 
 distclean: FORCE
-	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_GEO_LIBNAME).*
+	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(GENIE_GEO_LIBNAME).*
 
 FORCE:
 
