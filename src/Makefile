@@ -34,7 +34,7 @@ BUILD_TARGETS =    make-bin-lib-dir \
 		   generator-std-exe \
   		   install-scripts
 
-INSTALL_TARGETS =  distclean \
+INSTALL_TARGETS =  check-previous-installation \
 		   make-install-dirs \
 		   copy-install-files
 
@@ -248,7 +248,67 @@ make-bin-lib-dir: FORCE
 	mkdir lib; chmod 755 lib;\
 	cd ${GENIE}/src;
 
+check-previous-installation: FORCE
+	@echo " "
+	@echo "** Testing for existing GENIE installation at specified installation location..."
+ifeq ($(strip $(GENIE_PREVIOUS_INSTALLATION)),YES)
+	$(error Previous installation exists at your specified installation path: $(GENIE_INSTALLATION_PATH). Trgy 'gmake clean' first)
+endif
+
+make-install-dirs: FORCE
+	@echo " "
+	@echo "** Creating directory structure for GENIE installation..."
+	[ -d ${GENIE_INSTALLATION_PATH} ] || mkdir ${GENIE_INSTALLATION_PATH}
+	cd ${GENIE_INSTALLATION_PATH}
+	[ -d ${GENIE_BIN_INSTALLATION_PATH}     ] || mkdir ${GENIE_BIN_INSTALLATION_PATH}
+	[ -d ${GENIE_LIB_INSTALLATION_PATH}     ] || mkdir ${GENIE_LIB_INSTALLATION_PATH}
+	[ -d ${GENIE_INCBASE_INSTALLATION_PATH} ] || mkdir ${GENIE_INCBASE_INSTALLATION_PATH}
+	mkdir ${GENIE_INC_INSTALLATION_PATH}
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Algorithm
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/BaryonResonance
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Base
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/BodekYang
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Charm
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Conventions
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/CrossSections
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Decay
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGCore
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGDrivers
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGModules
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Elastic
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/FluxDrivers
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Fragmentation
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/GHEP
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Geo
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/HadronTransport
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Interaction
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/InverseMuonDecay
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/LlewellynSmith
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Messenger
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/MuELoss
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Ntuple
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator/DBUtils/
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator/Facades/
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator/NuVldGUI/
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator/XmlParser/
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Nuclear
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Numerical
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDF
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDG
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/PartonModel
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Paschos
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Radiative
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReWeight
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Registry
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReinSeghal
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Utils
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/VHE
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Viewer
+
 copy-install-files: FORCE
+	@echo " "
+	@echo "** Copying libraries/binaries/headers to installation location..."
 	cp ${GENIE_LIB_PATH}/* ${GENIE_LIB_INSTALLATION_PATH}
 	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH}
 	cp ${GENIE_SRC_PATH}/Algorithm/*h             ${GENIE_INC_INSTALLATION_PATH}/Algorithm/
@@ -291,55 +351,6 @@ copy-install-files: FORCE
 	cp ${GENIE_SRC_PATH}/Utils/*h                 ${GENIE_INC_INSTALLATION_PATH}/Utils/
 	cp ${GENIE_SRC_PATH}/VHE/*h                   ${GENIE_INC_INSTALLATION_PATH}/VHE/
 	cp ${GENIE_SRC_PATH}/Viewer/*h                ${GENIE_INC_INSTALLATION_PATH}/Viewer/
-
-make-install-dirs: FORCE
-	[ -d ${GENIE_INSTALLATION_PATH} ] || mkdir ${GENIE_INSTALLATION_PATH}
-	cd ${GENIE_INSTALLATION_PATH}
-	[ -d ${GENIE_INSTALLATION_PATH}/bin     ] || mkdir ${GENIE_INSTALLATION_PATH}/bin
-	[ -d ${GENIE_INSTALLATION_PATH}/lib     ] || mkdir ${GENIE_INSTALLATION_PATH}/lib
-	[ -d ${GENIE_INSTALLATION_PATH}/include ] || mkdir ${GENIE_INSTALLATION_PATH}/include
-	mkdir ${GENIE_INSTALLATION_PATH}/include/GENIE
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Algorithm
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/BaryonResonance
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Base
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/BodekYang
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Charm
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Conventions
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/CrossSections
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Decay
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGCore
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGDrivers
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGModules
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Elastic
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/FluxDrivers
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Fragmentation
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/GHEP
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Geo
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/HadronTransport
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Interaction
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/InverseMuonDecay
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/LlewellynSmith
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Messenger
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/MuELoss
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Ntuple
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator/DBUtils/
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator/Facades/
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator/NuVldGUI/
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator/XmlParser/
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Nuclear
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Numerical
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDF
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDG
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/PartonModel
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Paschos
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Radiative
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReWeight
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Registry
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReinSeghal
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Utils
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/VHE
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Viewer
 
 purge: FORCE
 	@echo " "
@@ -480,9 +491,9 @@ distclean: FORCE
 	cd Utils;              make distclean; cd ..; \
 	cd Viewer;             make distclean; cd ..; \
 	cd VHE;                make distclean; cd ..; \
-	cd stdapp;             make clean; cd ..; \
-	cd test;               make clean; cd ..; \
-	cd scripts;	       make clean; cd ..;
+	cd stdapp;             make distclean; cd ..; \
+	cd test;               make distclean; cd ..; \
+	cd scripts;	       make distclean; cd ..;
 
 FORCE:
 

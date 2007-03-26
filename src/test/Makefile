@@ -16,8 +16,6 @@ include $(GENIE)/src/Make.include
 #GENIE_DICTS =
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
-#LIBRARIES := $(LIBRARIES) -L /usr/local/lib -ltcmalloc
-#LIBS_AND_HDRS := $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
 
 TGT =	gtestAlgorithms 	\
  	gtestBaryonResDataSet	\
@@ -150,53 +148,15 @@ purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core \
-	$(RM) $(GENIE_BIN_PATH)/gtestAlgorithms	        \
- 	$(RM) $(GENIE_BIN_PATH)/gtestBaryonResDataSet	\
- 	$(RM) $(GENIE_BIN_PATH)/gtestConfigPool	        \
- 	$(RM) $(GENIE_BIN_PATH)/gtestDecay		\
- 	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		\
- 	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	\
- 	$(RM) $(GENIE_BIN_PATH)/gtestIntranuke	        \
-	$(RM) $(GENIE_BIN_PATH)/gtestMessenger	        \
-	$(RM) $(GENIE_BIN_PATH)/gtestMuELoss		\
-	$(RM) $(GENIE_BIN_PATH)/gtestNumerical	        \
-	$(RM) $(GENIE_BIN_PATH)/gtestPDFLIB		\
-	$(RM) $(GENIE_BIN_PATH)/gtestFermiP		\
-	$(RM) $(GENIE_BIN_PATH)/gtestMCJobDriver	\
-	$(RM) $(GENIE_BIN_PATH)/gtestFluxDriver	        \
-	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		\
-	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	\
-	$(RM) $(GENIE_BIN_PATH)/gtestResonances	        \
-	$(RM) $(GENIE_BIN_PATH)/gtestReWeight		\
-	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	\
-	$(RM) $(GENIE_BIN_PATH)/gtestReadGNtuple	\
-	$(RM) $(GENIE_BIN_PATH)/gtestROOTGeometry       \
-	$(RM) $(GENIE_BIN_PATH)/gtestINukeHadroData
+	$(RM) *.o *~ core 
+	cd $(GENIE_BIN_PATH) 
+	$(RM) $(TGT) 
+	cd $(GENIE)/src/test/
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestAlgorithms	        \
- 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestBaryonResDataSet	\
- 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestConfigPool	        \
- 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDecay		        \
- 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDISSF		        \
- 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	        \
- 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestIntranuke	        \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMessenger	        \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMuELoss		\
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNumerical	        \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPDFLIB		\
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFermiP		\
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMCJobDriver	        \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxDriver	        \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		\
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	        \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances	        \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeight		\
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	        \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReadGNtuple	        \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestROOTGeometry          \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestINukeHadroData
+	cd $(GENIE_BIN_INSTALLATION_PATH) 
+	$(RM) $(TGT) 
+	cd $(GENIE)/src/test/
 
 clean--gtestAlgorithms: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestAlgorithms
@@ -216,7 +176,7 @@ clean--gtestDISSF: FORCE
 clean--gtestHadronization: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestHadronization
 
-clean--gtestHadronization: FORCE
+clean--gtestIntranuke: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestIntranuke
 
 clean--gtestXSec: FORCE

@@ -50,7 +50,7 @@ clean: FORCE
 		_ROOT_DICT_Base.* Makefile.temp
 
 distclean: FORCE
-	$(RM) $(GENIE_INSTALLATION_PATH)/lib/$(GENIE_BASE_LIBNAME).*
+	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(GENIE_BASE_LIBNAME).*
 
 FORCE:
 

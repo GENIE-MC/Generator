@@ -15,11 +15,7 @@ include $(GENIE)/src/Make.include
 #GENIE_DICTS = $(shell $(GENIE)/src/scripts/setup/genie-config --dicts)
 GENIE_DICTS = 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-
-LIBRARIES := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
-#LIBRARIES := $(GENIE_LIBS) $(LIBRARIES) 
-
-LIBS_AND_HDRS := $(GENIE_DICTS) $(LIBRARIES) $(INCLUDES)
+LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 TGT =    gEvGen		\
 	 gMakeSplines	\
@@ -87,24 +83,20 @@ endif
 
 #################### CLEANING
 
+purge: FORCE
+	$(RM) *.o *~ core 
+
 clean: FORCE
-	$(RM) *.o *~ core \
-	$(RM) $(GENIE_BIN_PATH)/gevgen   \
-	$(RM) $(GENIE_BIN_PATH)/gmkspl   \
-	$(RM) $(GENIE_BIN_PATH)/gmxpl    \
-	$(RM) $(GENIE_BIN_PATH)/gntpc    \
-	$(RM) $(GENIE_BIN_PATH)/gsplt	 \
-	$(RM) $(GENIE_BIN_PATH)/gmctest  \
-	$(RM) $(GENIE_BIN_PATH)/gviewer
+	$(RM) *.o *~ core 
+	$cd $(GENIE_BIN_PATH)
+	$(RM) $(TGT)
+	cd $(GENIE)/src/stdapp/
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen   \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl   \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl    \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc    \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gsplt    \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmctest  \
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gviewer
+	$(RM) *.o *~ core 
+	$cd $(GENIE_BIN_INSTALLATION_PATH)
+	$(RM) $(TGT)
+	cd $(GENIE)/src/stdapp/
 
 clean--gEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen
