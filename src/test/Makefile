@@ -149,14 +149,44 @@ purge: FORCE
 
 clean: FORCE
 	$(RM) *.o *~ core 
-	cd $(GENIE_BIN_PATH) 
-	$(RM) $(TGT) 
-	cd $(GENIE)/src/test/
+	$(RM) $(GENIE_BIN_PATH)/gtestAlgorithms 	
+	$(RM) $(GENIE_BIN_PATH)/gtestBaryonResDataSet	
+	$(RM) $(GENIE_BIN_PATH)/gtestConfigPool		
+	$(RM) $(GENIE_BIN_PATH)/gtestDecay		
+	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		
+	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	
+	$(RM) $(GENIE_BIN_PATH)/gtestIntranuke		
+	$(RM) $(GENIE_BIN_PATH)/gtestMessenger		
+	$(RM) $(GENIE_BIN_PATH)/gtestNumerical		
+	$(RM) $(GENIE_BIN_PATH)/gtestPDFLIB		
+	$(RM) $(GENIE_BIN_PATH)/gtestFermiP		
+	$(RM) $(GENIE_BIN_PATH)/gtestMCJobDriver	
+	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
+	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
+	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
+	$(RM) $(GENIE_BIN_PATH)/gtestReWeight		
+	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
+	$(RM) $(GENIE_BIN_PATH)/gtestReadGNtuple		
 
 distclean: FORCE
-	cd $(GENIE_BIN_INSTALLATION_PATH) 
-	$(RM) $(TGT) 
-	cd $(GENIE)/src/test/
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestAlgorithms 	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestBaryonResDataSet	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestConfigPool		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDecay		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDISSF		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestIntranuke		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMessenger		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNumerical		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPDFLIB		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFermiP		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMCJobDriver	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeight		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReadGNtuple		
 
 clean--gtestAlgorithms: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestAlgorithms

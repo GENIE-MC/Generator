@@ -448,7 +448,6 @@ clean-etc: FORCE
 	cd $(GENIE)/src;
 	rm -f ./*.options;
 	rm -f ./*.snapshot;
-	rm -f ./Make.config;
 
 distclean: FORCE
 	@echo " "

@@ -23,9 +23,7 @@ TGT =    gEvGen		\
 	 gNtpConv	\
 	 gSplinePlotter	\
 	 gMCSampleTest	\
-	 gViewer	\
-	 gMaxPathLengths\
-	 gViewer
+	 gViewer	
 
 all: $(TGT)
 
@@ -87,16 +85,23 @@ purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core 
-	cd $(GENIE_BIN_PATH)
-	$(RM) $(TGT)
-	cd $(GENIE)/src/stdapp/
+	$(RM) *.o *~ core
+	$(RM) $(GENIE_BIN_PATH)/gevgen		
+	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
+	$(RM) $(GENIE_BIN_PATH)/gmxpl		
+	$(RM) $(GENIE_BIN_PATH)/gntpc		
+	$(RM) $(GENIE_BIN_PATH)/gsplt		
+	$(RM) $(GENIE_BIN_PATH)/gmctest	
+	$(RM) $(GENIE_BIN_PATH)/gviewer	
 
 distclean: FORCE
-	$(RM) *.o *~ core 
-	cd $(GENIE_BIN_INSTALLATION_PATH)
-	$(RM) $(TGT)
-	cd $(GENIE)/src/stdapp/
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gsplt		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmctest	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gviewer	
 
 clean--gEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen
