@@ -13,20 +13,21 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "\n";
   print "*** GENIE configure script *** \n\n";
   print "Usage: ./configure [option]... [flag=value]... \n\n";
-  print "    FLAG            DESCRIPTION                                         DEFAULT\n\n";
-  print "    --prefix        installation location (for 'make install')          /usr/local/\n\n";
+  print "    FLAG            DESCRIPTION                                             DEFAULT\n\n";
+  print "    --prefix        installation location (for 'make install')              /usr/local/\n\n";
   print "enable/disable options with either --enable- or --disable- (eg --enable-gibuu --disable-flux-drivers)\n\n";
-  print "    profiler        GENIE code profiling using Google perftools         default: disabled \n";
-  print "    nuvalidator     GENIE's NuValidator tool, requires MySQL            default: disabled \n";
-  print "    neugen          GENIE/NeuGEN facade, requires libneugen3.a          default: disabled \n";
-  print "    gibuu           GiBUU intranuclear cascade MC, requires libGiBUU.a  default: disabled \n";
-  print "    flux-drivers    Built-in flux drivers                               default: enabled  \n";
-  print "    geom-drivers    Built-in detector geometry drivers                  default: enabled  \n";
-  print "    doxygen-doc     Generate doxygen documentation at build time        default: disabled \n";
-  print "    test            Build test programs                                 default: disabled \n";
-  print "    viewer          Event generation GUI _incomplete_                   default: disabled \n";
-  print "    mueloss         Muon energy loss modeling                           default: enabled  \n";
-  print "    debug           Adds -g in the compiler options                     default: disabled \n\n";
+  print "    profiler        GENIE code profiling using Google perftools             default: disabled \n";
+  print "    nuvalidator     GENIE's NuValidator tool, requires MySQL                default: disabled \n";
+  print "    neugen          GENIE/NeuGEN facade, requires libneugen3.a              default: disabled \n";
+  print "    gibuu           GiBUU intranuclear cascade MC, requires libGiBUU.a      default: disabled \n";
+  print "    flux-drivers    Built-in flux drivers                                   default: enabled  \n";
+  print "    geom-drivers    Built-in detector geometry drivers                      default: enabled  \n";
+  print "    doxygen-doc     Generate doxygen documentation at build time            default: disabled \n";
+  print "    test            Build test programs                                     default: disabled \n";
+  print "    viewer          Event generation GUI _incomplete_                       default: disabled \n";
+  print "    mueloss         Muon energy loss modeling                               default: enabled  \n";
+  print "    dylibversion    Adds version number in dynamic lib names [recommended]  default: enabled  \n";
+  print "    debug           Adds -g in the compiler options to request debug info   default: disabled \n\n";
   print "with options for 3rd party software, prefix with --with- (eg --with-gibuu-lib=/some/path/libGiBUU.a)\n\n";
   print "    optimiz-level   compiler opitimization level O/O2/O3/OO/Os   default: O3 \n";
   print "    profiler-lib    Path to libprofiler.so library               if you --enable-profiler \n";
@@ -102,6 +103,7 @@ my $gopt_enable_doxygen_doc  = "NO";
 my $gopt_enable_test         = "NO";
 my $gopt_enable_viewer       = "NO";
 my $gopt_enable_mueloss      = "YES";
+my $gopt_enable_dylibversion = "YES";
 my $gopt_enable_debug        = "NO";
 
 # Check configure's command line arguments for non-default values
@@ -117,6 +119,7 @@ if(($match = grep(/--enable-debug/i,         @ARGV)) > 0) { $gopt_enable_debug  
 if(($match = grep(/--disable-flux-drivers/i, @ARGV)) > 0) { $gopt_enable_flux_drivers = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i, @ARGV)) > 0) { $gopt_enable_geom_drivers = "NO";  }
 if(($match = grep(/--disable-mueloss/i,      @ARGV)) > 0) { $gopt_enable_mueloss      = "NO";  }
+if(($match = grep(/--disable-dylibversion/i, @ARGV)) > 0) { $gopt_enable_dylibversion = "NO";  }
 
 my $gopt_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_cxx_debug_flag = "-g"; }
@@ -133,6 +136,7 @@ print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_VIEWER=$gopt_enable_viewer\n";
 print MKCONF "GOPT_ENABLE_MUELOSS=$gopt_enable_mueloss\n";
+print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
 print MKCONF "GOPT_CXX_DEBUG_FLAG=$gopt_cxx_debug_flag\n";
 
 # Check for --with options:

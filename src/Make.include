@@ -116,14 +116,21 @@ ifdef GOPT_VIEWER
   GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGViewer
 endif
 
-# standard GENIE's NuValidator libraries
+# Standard GENIE's NuValidator libraries
 #
 NUVLD_CORE_LIBRARIES := -L$(GENIE_LIB_PATH) \
   -lGNuVldXML -lGNuVldDBU -lGNuVldGUI
 
 NUVLD_LIBRARIES := $(NUVLD_CORE_LIBRARIES) -lGNuVldNeugen 
 
-# look for traces of a previous installation at the specified
+# The following will be appended in the library name 
+#
+GLIBVERSION =
+ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES) 
+  GLIBVERSION = -$(GVERSION)
+endif
+
+# Look for traces of a previous installation at the specified
 # installation location
 #
 ifeq ($(shell ls $(GENIE_INC_INSTALLATION_PATH) 2>/dev/null ),)

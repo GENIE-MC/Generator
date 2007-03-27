@@ -1,9 +1,8 @@
-#########################################################
+#
 # Makefile for GENIE Neutrino Generator
 #
 # Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-# Last update: 2003-12-23
-#########################################################
+#
 
 SHELL = /bin/sh
 NAME = all
@@ -21,7 +20,7 @@ GENIEbS   := $(wildcard *.cxx)
 GENIEbO    = $(addsuffix .$(ObjSuf), $(basename $(GENIEbS)))
 GENIESO   := $(GENIE_LLEWELLYN_SMITH_SHARED_LIB)
 
-all:	rootcint lib
+all:	rootcint lib link
 
 rootcint: _ROOT_DICT_LlewellynSmith.o
 
@@ -34,12 +33,15 @@ _ROOT_DICT_LlewellynSmith.cc: LinkDef.h $(CINTLISTO)
 lib: $(GENIEO) 
 	@echo "Generating shared library ..."
 	$(SOCMD) $(SOFLAGS) $(SOMINF) \
-		$(GENIEO) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).$(DllSuf)
+		$(GENIEO) $(OutPutOpt) $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME)$(GLIBVERSION).$(DllSuf)
 
 link: FORCE
-ifeq ($(strip $(ARCH)),macosx)
 	@echo "Creating symbolic link to shared library ..."
-	ln -sf $(GENIE_LLEWELLYN_SMITH_LIBNAME).$(DllSuf) $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).$(DllLinkSuf)
+ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
+	ln -sf $(GENIE_LLEWELLYN_SMITH_LIBNAME)$(GLIBVERSION).$(DllSuf) $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).$(DllSuf)
+endif
+ifeq ($(strip $(ARCH)),macosx)
+	ln -sf $(GENIE_LLEWELLYN_SMITH_LIBNAME)$(GLIBVERSION).$(DllSuf) $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).$(DllLinkSuf)
 else
 endif
 
@@ -47,11 +49,11 @@ purge: FORCE
 	$(RM) $(GENIEbO) *~ core a.out Makefile.temp
 
 clean: FORCE
-	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).* \
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME)* \
 		_ROOT_DICT_LlewellynSmith.* Makefile.temp
 
 distclean: FORCE
-	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME).*
+	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(GENIE_LLEWELLYN_SMITH_LIBNAME)*
 
 FORCE:
 
