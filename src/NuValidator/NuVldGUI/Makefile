@@ -1,8 +1,8 @@
-#########################################################
+#
 # Makefile for the Neutrino Generator Validator
 #
-# Costas Andreopoulos
-#########################################################
+# Author: Costas Andreopoulos
+#
 
 SHELL = /bin/sh
 NAME = all
@@ -34,12 +34,15 @@ _ROOT_DICT_NuVldGUI.cc: LinkDef.h $(CINTLIST_O)
 
 lib: $(PROJECT_O)
 	@echo "Generating shared library ..."
-	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PROJECT_O) $(OutPutOpt) $(GENIE_LIB_PATH)/$(VLD_GUI_WIDGETS_LIBNAME).$(DllSuf)
+	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PROJECT_O) $(OutPutOpt) $(GENIE_LIB_PATH)/$(VLD_GUI_WIDGETS_LIBNAME)$(GLIBVERSION).$(DllSuf)
 
 link: FORCE
-ifeq ($(strip $(ARCH)),macosx)
 	@echo "Creating symbolic link to shared library ..."
-	ln -sf $(VLD_GUI_WIDGETS_LIBNAME).$(DllSuf) $(GENIE_LIB_PATH)/$(VLD_GUI_WIDGETS_LIBNAME).$(DllLinkSuf)
+ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
+	ln -sf $(VLD_GUI_WIDGETS_LIBNAME)$(GLIBVERSION).$(DllSuf) $(GENIE_LIB_PATH)/$(VLD_GUI_WIDGETS_LIBNAME).$(DllSuf)
+endif
+ifeq ($(strip $(ARCH)),macosx)
+	ln -sf $(VLD_GUI_WIDGETS_LIBNAME)$(GLIBVERSION).$(DllSuf) $(GENIE_LIB_PATH)/$(VLD_GUI_WIDGETS_LIBNAME).$(DllLinkSuf)
 else
 endif
 
@@ -47,10 +50,10 @@ purge: FORCE
 	$(RM) *.o *~ core a.out _ROOT_DICT_NuVldGUI.* 
 
 clean: FORCE
-	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_GUI_WIDGETS_LIBNAME).* _ROOT_DICT_NuVldGUI.* 
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_GUI_WIDGETS_LIBNAME)* _ROOT_DICT_NuVldGUI.* 
 
 distclean: FORCE
-	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(VLD_GUI_WIDGETS_LIBNAME).*
+	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(VLD_GUI_WIDGETS_LIBNAME)*
 
 FORCE:
 

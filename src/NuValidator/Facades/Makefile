@@ -1,8 +1,8 @@
-#########################################################
+#
 # Makefile for Neutrino Generator Validator
 #
-# Costas Andreopoulos, 2003-08-20
-#########################################################
+# Author: Costas Andreopoulos
+#
 
 SHELL = /bin/sh
 NAME = all
@@ -34,12 +34,16 @@ _ROOT_DICT_NeuGen.cc: LinkDef.h $(CINTLIST_O)
 
 lib: $(PROJECT_O)
 	@echo "Generating shared library ..."
-	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PROJECT_O) $(NEUGEN_LIBS) $(CERN_LIBS) $(OutPutOpt) $(GENIE_LIB_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME).$(DllSuf)
+	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PROJECT_O) $(NEUGEN_LIBS) $(CERN_LIBS) $(OutPutOpt) \
+		$(GENIE_LIB_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME)$(GLIBVERSION).$(DllSuf)
 
 link: FORCE
-ifeq ($(strip $(ARCH)),macosx)
 	@echo "Creating symbolic link to shared library ..."
-	ln -sf $(VLD_NEUGEN_INTERFACE_LIBNAME).$(DllSuf) $(GENIE_LIB_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME).$(DllLinkSuf)
+ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
+	ln -sf $(VLD_NEUGEN_INTERFACE_LIBNAME)$(GLIBVERSION).$(DllSuf) $(GENIE_LIB_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME).$(DllSuf)
+endif
+ifeq ($(strip $(ARCH)),macosx)
+	ln -sf $(VLD_NEUGEN_INTERFACE_LIBNAME)$(GLIBVERSION).$(DllSuf) $(GENIE_LIB_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME).$(DllLinkSuf)
 else
 endif
 
@@ -47,10 +51,10 @@ purge: FORCE
 	$(RM) *.o *~ core a.out _ROOT_DICT_NeuGen.*
 
 clean: FORCE
-	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME).* _ROOT_DICT_NeuGen.* 
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME)* _ROOT_DICT_NeuGen.* 
 
 distclean: FORCE
-	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME).*
+	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(VLD_NEUGEN_INTERFACE_LIBNAME)*
 
 FORCE:
 
