@@ -26,6 +26,10 @@ ARCH = $(shell root-config --arch)
 #                              GENIE
 #-------------------------------------------------------------------
 
+# GENIE release info
+#
+GVERSION  = $(shell awk '{print $0}' $(GENIE)/config/release_info)
+
 # GENIE paths
 #
 GENIE_LIB_PATH    := $(GENIE)/lib
