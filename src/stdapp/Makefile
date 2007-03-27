@@ -88,13 +88,13 @@ purge: FORCE
 
 clean: FORCE
 	$(RM) *.o *~ core 
-	$cd $(GENIE_BIN_PATH)
+	cd $(GENIE_BIN_PATH)
 	$(RM) $(TGT)
 	cd $(GENIE)/src/stdapp/
 
 distclean: FORCE
 	$(RM) *.o *~ core 
-	$cd $(GENIE_BIN_INSTALLATION_PATH)
+	cd $(GENIE_BIN_INSTALLATION_PATH)
 	$(RM) $(TGT)
 	cd $(GENIE)/src/stdapp/
 
