@@ -1,21 +1,19 @@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@                                                                                @@
-@@ The GENIE Universal Object-Oriented/C++ Neutrino MC Generator                  @@
-@@                                                                                @@
-@@ Detailed information including a 'User & Physics manual', a 'Reference manual, @@
-@@ Doxygen documentation, Installation & Running instructions, HOWTO's, a list of @@
-@@ available releases and ChangeLogs can be found in: http://www.genie-mc.org     @@
-@@                                                    ~~~~~~~~~~~~~~~~~~~~~~~     @@
-@@                                                                                @@
-@@ Corresponding author: Costas Andreopoulos, C.V.Andreopoulos \at rl.ac.uk       @@
-@@                                                                                @@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+
+The GENIE Universal Object-Oriented/C++ Neutrino MC Generator                  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Detailed information including a 'User & Physics manual', a 'Reference manual, 
+Doxygen documentation, Installation & Running instructions, HOWTO's, a list of 
+available releases and ChangeLogs can be found in: http://www.genie-mc.org     
+
+Corresponding author: Costas Andreopoulos, C.V.Andreopoulos \at rl.ac.uk       
 Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
 
 
 GENIE Neutrino MC Generator Collaboration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Costas Andreopoulos   C.V.Andreopoulos \at rl.ac.uk       [2]
 Flavio Cavanna        flavio.cavanna \at aquila.infn.it   [7]
 Steve Dytman          dytman+ \at pitt.edu                [6]
@@ -40,6 +38,7 @@ Mike Whalley          M.R.Whalley \at durham.ac.uk        [3]
 
 LICENSE
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 All rights not explicitly granted under this license are reserved.
 
 The authors hereby grant permission to copy, reproduce, install and use the GENIE
@@ -99,12 +98,15 @@ How to reference GENIE correctly
 
 For any derivative work based on GENIE:
 
-- (technical paper to be submitted to Comp.Phys.Comm)
+- [... technical paper to be submitted to Comp.Phys.Comm ...]
+  until it is published you may cite:
+  C.Andreopoulos, Nucl.Phys.B Proc.Suppl. 159:217-222, 2006; 
+  C.Andreopoulos, Act.Phys.Pol.B Vol.37,8:2349, 2006
 
 Especially, for any derivative work based on GENIE version 2.0.0 or above you
 should add:
 
-- (hep-ex release note)
+- [... GENIE 2.0.0 hep-ex release note ...]
 
 Especially, for any derivative work based on GENIE's NuValidator you should add:
 
