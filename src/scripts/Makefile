@@ -10,7 +10,8 @@ NAME = all
 MAKEFILE = Makefile
 
 # Include machine specific flags and locations (inc. files & libs)
-include $(GENIE)/src/Make.include
+#
+include $(GENIE)/src/make/Make.include
 
 doxygen: FORCE
 	$(DOXYGEN) dox/genie-doxygen;
@@ -24,16 +25,14 @@ install: FORCE
 	chmod 755 $(GENIE_BIN_PATH)/genie; 
 
 clean: FORCE
-	$(RM) \
-	$(GENIE_BIN_PATH)/gnuvld-dbbootstrap \
-	$(GENIE_BIN_PATH)/genie-config \
-	$(GENIE_BIN_PATH)/genie
+	$(RM) $(GENIE_BIN_PATH)/gnuvld-dbbootstrap 
+	$(RM) $(GENIE_BIN_PATH)/genie-config 
+	$(RM) $(GENIE_BIN_PATH)/genie
 
 distclean: FORCE
-	$(RM) \
-	$(GENIE_BIN_INSTALLATION_PATH)/gnuvld-dbbootstrap \
-	$(GENIE_BIN_INSTALLATION_PATH)/genie-config \
-	$(GENIE_BIN_INSTALLATION_PATH)/genie
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnuvld-dbbootstrap 
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/genie-config 
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/genie
 
 FORCE:
 

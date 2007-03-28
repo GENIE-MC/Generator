@@ -8,7 +8,7 @@ NAME = all
 MAKEFILE = Makefile
 
 # Include machine specific flags and locations (inc. files & libs)
-include $(GENIE)/src/Make.include
+include $(GENIE)/src/make/Make.include
 
 all: neugen3_dummy_lib
 

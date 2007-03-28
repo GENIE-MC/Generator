@@ -10,10 +10,11 @@ NAME = all
 MAKEFILE = Makefile
 
 # Include machine specific flags and locations (inc. files & libs)
-include $(GENIE)/src/Make.include
+#
+include $(GENIE)/src/make/Make.include
 
 # define composite targets
-
+#
 BUILD_TARGETS =    print-make-info \
 		   make-bin-lib-dir \
 		   save-build-env \
@@ -34,7 +35,6 @@ BUILD_TARGETS =    print-make-info \
 		   generator-test-exe \
 		   generator-std-exe \
   		   install-scripts
-
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
 		   make-install-dirs \
@@ -267,7 +267,7 @@ check-previous-installation: FORCE
 	@echo " "
 	@echo "** Testing for existing GENIE installation at specified installation location..."
 ifeq ($(strip $(GENIE_PREVIOUS_INSTALLATION)),YES)
-	$(error Previous installation exists at your specified installation path: $(GENIE_INSTALLATION_PATH). Trgy 'gmake clean' first)
+	$(error Previous installation exists at your specified installation path: $(GENIE_INSTALLATION_PATH). Trgy 'gmake distclean' first)
 endif
 
 make-install-dirs: FORCE
@@ -324,48 +324,43 @@ make-install-dirs: FORCE
 copy-install-files: FORCE
 	@echo " "
 	@echo "** Copying libraries/binaries/headers to installation location..."
-	cp ${GENIE_LIB_PATH}/* ${GENIE_LIB_INSTALLATION_PATH}
-	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH}
-	cp ${GENIE_SRC_PATH}/Algorithm/*h             ${GENIE_INC_INSTALLATION_PATH}/Algorithm/
-	cp ${GENIE_SRC_PATH}/BaryonResonance/*h       ${GENIE_INC_INSTALLATION_PATH}/BaryonResonance/
-	cp ${GENIE_SRC_PATH}/Base/*h                  ${GENIE_INC_INSTALLATION_PATH}/Base/
-	cp ${GENIE_SRC_PATH}/BodekYang/*h             ${GENIE_INC_INSTALLATION_PATH}/BodekYang/
-	cp ${GENIE_SRC_PATH}/Charm/*h                 ${GENIE_INC_INSTALLATION_PATH}/Charm/
-	cp ${GENIE_SRC_PATH}/Conventions/*h           ${GENIE_INC_INSTALLATION_PATH}/Conventions/
-	cp ${GENIE_SRC_PATH}/CrossSections/*h         ${GENIE_INC_INSTALLATION_PATH}/CrossSections/
-	cp ${GENIE_SRC_PATH}/Decay/*h                 ${GENIE_INC_INSTALLATION_PATH}/Decay/
-	cp ${GENIE_SRC_PATH}/EVGCore/*h               ${GENIE_INC_INSTALLATION_PATH}/EVGCore/
-	cp ${GENIE_SRC_PATH}/EVGDrivers/*h            ${GENIE_INC_INSTALLATION_PATH}/EVGDrivers/
-	cp ${GENIE_SRC_PATH}/EVGModules/*h            ${GENIE_INC_INSTALLATION_PATH}/EVGModules/
-	cp ${GENIE_SRC_PATH}/Elastic/*h               ${GENIE_INC_INSTALLATION_PATH}/Elastic/
-	cp ${GENIE_SRC_PATH}/FluxDrivers/*h           ${GENIE_INC_INSTALLATION_PATH}/FluxDrivers/
-	cp ${GENIE_SRC_PATH}/Fragmentation/*h         ${GENIE_INC_INSTALLATION_PATH}/Fragmentation/
-	cp ${GENIE_SRC_PATH}/GHEP/*h                  ${GENIE_INC_INSTALLATION_PATH}/GHEP/
-	cp ${GENIE_SRC_PATH}/Geo/*h                   ${GENIE_INC_INSTALLATION_PATH}/Geo/
-	cp ${GENIE_SRC_PATH}/HadronTransport/*h       ${GENIE_INC_INSTALLATION_PATH}/HadronTransport/
-	cp ${GENIE_SRC_PATH}/Interaction/*h           ${GENIE_INC_INSTALLATION_PATH}/Interaction/
-	cp ${GENIE_SRC_PATH}/InverseMuonDecay/*h      ${GENIE_INC_INSTALLATION_PATH}/InverseMuonDecay/
-	cp ${GENIE_SRC_PATH}/LlewellynSmith/*h        ${GENIE_INC_INSTALLATION_PATH}/LlewellynSmith/
-	cp ${GENIE_SRC_PATH}/Messenger/*h             ${GENIE_INC_INSTALLATION_PATH}/Messenger/
-	cp ${GENIE_SRC_PATH}/MuELoss/*h               ${GENIE_INC_INSTALLATION_PATH}/MuELoss/
-	cp ${GENIE_SRC_PATH}/Ntuple/*h                ${GENIE_INC_INSTALLATION_PATH}/Ntuple/
-	cp ${GENIE_SRC_PATH}/NuValidator/DBUtils/*h   ${GENIE_INC_INSTALLATION_PATH}/NuValidator/DBUtils/
-	cp ${GENIE_SRC_PATH}/NuValidator/Facades/*h   ${GENIE_INC_INSTALLATION_PATH}/NuValidator/Facades/
-	cp ${GENIE_SRC_PATH}/NuValidator/NuVldGUI/*h  ${GENIE_INC_INSTALLATION_PATH}/NuValidator/NuVldGUI/
-	cp ${GENIE_SRC_PATH}/NuValidator/XmlParser/*h ${GENIE_INC_INSTALLATION_PATH}/NuValidator/XmlParser/
-	cp ${GENIE_SRC_PATH}/Nuclear/*h               ${GENIE_INC_INSTALLATION_PATH}/Nuclear/
-	cp ${GENIE_SRC_PATH}/Numerical/*h             ${GENIE_INC_INSTALLATION_PATH}/Numerical/
-	cp ${GENIE_SRC_PATH}/PDF/*h                   ${GENIE_INC_INSTALLATION_PATH}/PDF/
-	cp ${GENIE_SRC_PATH}/PDG/*h                   ${GENIE_INC_INSTALLATION_PATH}/PDG/
-	cp ${GENIE_SRC_PATH}/PartonModel/*h           ${GENIE_INC_INSTALLATION_PATH}/PartonModel/
-	cp ${GENIE_SRC_PATH}/Paschos/*h               ${GENIE_INC_INSTALLATION_PATH}/Paschos/
-	cp ${GENIE_SRC_PATH}/Radiative/*h             ${GENIE_INC_INSTALLATION_PATH}/Radiative/
-	cp ${GENIE_SRC_PATH}/ReWeight/*h              ${GENIE_INC_INSTALLATION_PATH}/ReWeight/
-	cp ${GENIE_SRC_PATH}/Registry/*h              ${GENIE_INC_INSTALLATION_PATH}/Registry/
-	cp ${GENIE_SRC_PATH}/ReinSeghal/*h            ${GENIE_INC_INSTALLATION_PATH}/ReinSeghal/
-	cp ${GENIE_SRC_PATH}/Utils/*h                 ${GENIE_INC_INSTALLATION_PATH}/Utils/
-	cp ${GENIE_SRC_PATH}/VHE/*h                   ${GENIE_INC_INSTALLATION_PATH}/VHE/
-	cp ${GENIE_SRC_PATH}/Viewer/*h                ${GENIE_INC_INSTALLATION_PATH}/Viewer/
+	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH};\
+	cd ${GENIE}/src;\
+	cd Algorithm;          make install; cd ..; \
+	cd BaryonResonance;    make install; cd ..; \
+	cd Base;               make install; cd ..; \
+	cd BodekYang;          make install; cd ..; \
+	cd Charm;              make install; cd ..; \
+	cd Conventions;        make install; cd ..; \
+	cd CrossSections;      make install; cd ..; \
+	cd Decay; 	       make install; cd ..; \
+	cd Elastic; 	       make install; cd ..; \
+	cd EVGCore;            make install; cd ..; \
+	cd EVGModules;         make install; cd ..; \
+	cd EVGDrivers;         make install; cd ..; \
+	cd FluxDrivers;        make install; cd ..; \
+	cd Fragmentation;      make install; cd ..; \
+	cd GHEP;               make install; cd ..; \
+	cd Geo;                make install; cd ..; \
+	cd HadronTransport;    make install; cd ..; \
+	cd Interaction;        make install; cd ..; \
+	cd InverseMuonDecay;   make install; cd ..; \
+	cd LlewellynSmith;     make install; cd ..; \
+	cd Messenger;	       make install; cd ..; \
+	cd Nuclear;            make install; cd ..; \
+	cd Ntuple;             make install; cd ..; \
+	cd Numerical;          make install; cd ..; \
+	cd NuValidator;        make install; cd ..; \
+	cd PartonModel;        make install; cd ..; \
+	cd Paschos;            make install; cd ..; \
+	cd PDF;                make install; cd ..; \
+	cd PDG;                make install; cd ..; \
+	cd Radiative;          make install; cd ..; \
+	cd Registry;           make install; cd ..; \
+	cd ReinSeghal;         make install; cd ..; \
+	cd ReWeight;           make install; cd ..; \
+	cd Utils;              make install; cd ..; \
+	cd Viewer;             make install; cd ..; 
 
 purge: FORCE
 	@echo " "
