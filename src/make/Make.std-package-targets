@@ -1,0 +1,99 @@
+#
+# Make.target for GENIE Neutrino Generator
+#
+# Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+#
+
+#
+#
+PACKAGE_LIB                   = $(LIBNAME)$(GLIBVERSION).$(DllSuf)
+PACKAGE_LIB_WITH_PATH         = $(GENIE_LIB_PATH)/$(LIBNAME)$(GLIBVERSION).$(DllSuf)
+PACKAGE_LIBNOVRS_WITH_PATH    = $(GENIE_LIB_PATH)/$(LIBNAME).$(DllSuf)
+PACKAGE_LIBMACLINK_WITH_PATH  = $(GENIE_LIB_PATH)/$(LIBNAME).$(DllLinkSuf)
+PACKAGE_LIBNOVRS_WITH_IPATH   = $(GENIE_LIB_INSTALLATION_PATH)/$(LIBNAME).$(DllSuf)
+PACKAGE_LIBMACLINK_WITH_IPATH = $(GENIE_LIB_INSTALLATION_PATH)/$(LIBNAME).$(DllLinkSuf)
+
+PACKAGE_ALL_SOURCES          := $(wildcard *.cxx)
+DICTGEN_HEADERS              := $(addsuffix .h, $(basename $(PACKAGE_ALL_SOURCES)))
+DICTGEN_OBJECTS              := $(addsuffix .$(ObjSuf), $(basename $(DICTGEN_HEADERS)))
+PACKAGE_ALL_SOURCES          := $(PACKAGE_ALL_SOURCES) $(DICTIONARY).cc $(wildcard *.cpp)
+PACKAGE_ALL_OBJECTS           = $(addsuffix .$(ObjSuf), $(basename $(PACKAGE_ALL_SOURCES)))
+PACKAGE_SOURCES              := $(wildcard *.cxx)
+PACKAGE_OBJECTS               = $(addsuffix .$(ObjSuf), $(basename $(PACKAGE_SOURCES)))
+
+LIB_DEPEND=
+ifeq ($(strip $(DICTIONARY)),undefined)
+  LIB_DEPEND = $(PACKAGE_OBJECTS) 
+else
+  LIB_DEPEND = $(PACKAGE_ALL_OBJECTS)
+endif
+
+#
+#
+rootcint: $(DICTIONARY).o
+
+$(DICTIONARY).cc: LinkDef.h $(DICTGEN_OBJECTS)
+	$(RM) $(DICTIONARY).*
+	@echo "[package: $(PACKAGE)] Generating ROOT dictionary ..."
+	rootcint -f $(DICTIONARY).cc -c -I$(ROOTSYS)/include -I$(GENIE)/src -I$(GENIE)/src/NuValidator $(DICTGEN_HEADERS) LinkDef.h
+
+#
+#
+
+lib: $(LIB_DEPEND)
+	@echo "[package: $(PACKAGE)] Generating shared library ..."
+ifeq ($(strip $(DICTIONARY)),undefined)
+	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_OBJECTS) $(EXTRA_EXT_LIBS) $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
+else
+	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_ALL_OBJECTS) $(EXTRA_EXT_LIBS) $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
+endif
+
+#
+#
+lib-link: FORCE
+	@echo "[package: $(PACKAGE)] Creating symbolic link to shared library ..."
+ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
+	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBNOVRS_WITH_PATH)
+endif
+ifeq ($(strip $(ARCH)),macosx)
+	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBMACLINK_WITH_PATH)
+endif
+
+
+#
+#
+install-lib: FORCE
+	@echo "[package: $(PACKAGE)] Installing library..."
+	$(COPY) $(PACKAGE_LIB_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
+ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
+	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBNOVRS_WITH_IPATH)
+endif
+ifeq ($(strip $(ARCH)),macosx)
+	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBMACLINK_WITH_IPATH)
+endif
+
+
+#
+#
+install-inc: FORCE
+	@echo "[package: $(PACKAGE)] Installing headers..."
+	$(COPY) *.h $(GENIE_INC_INSTALLATION_PATH)/$(PACKAGE)
+
+
+#
+#
+purge: FORCE
+	$(RM) $(PACKAGE_OBJECTS) *~ core a.out Makefile.temp
+ 
+
+#
+#
+clean: FORCE   
+	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(DICTIONARY).* Makefile.temp
+
+
+#
+#
+distclean: FORCE
+	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(LIBNAME)*
+
