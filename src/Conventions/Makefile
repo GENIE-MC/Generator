@@ -12,13 +12,13 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = ReinSeghal
-DICTIONARY        = _ROOT_DICT_ReinSeghal
-LIBNAME           = $(GENIE_REIN_SEGHAL_LIBNAME)
+PACKAGE           = Conventions
+DICTIONARY        = 
+LIBNAME           = 
 EXTRA_EXT_LIBS    =
 
-all     : rootcint lib lib-link
-install : install-inc install-lib
+all     : 
+install : install-inc 
 
 # Include standard package makefile targets
 #

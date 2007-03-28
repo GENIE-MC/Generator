@@ -67,7 +67,7 @@ if(-e $BANNER_FILE) {
 
 # Open Make.config to write configuration options
 #
-$MKCONF_FILE = "$GENIE/src/Make.config";
+$MKCONF_FILE = "$GENIE/src/make/Make.config";
 open(MKCONF, ">$MKCONF_FILE") or die("Can not write out the Make.config file!");
 
 print MKCONF "# Make.config \n";

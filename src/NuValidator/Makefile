@@ -8,7 +8,7 @@ NAME = all
 MAKEFILE = Makefile
 
 # Include machine specific flags and locations (inc. files & libs)
-include $(GENIE)/src/Make.include
+include $(GENIE)/src/make/Make.include
 
 BUILD_TARGETS = std-libs dummy-neugen neugen exe
 
@@ -53,6 +53,14 @@ clean: FORCE
 	cd NuVldGUI;      make clean; cd ..;    
 	cd Facades/dummy; make clean; cd ../..; 
 	cd app;           make clean; cd ..; 
+
+distclean: FORCE
+	cd XmlParser;     make distclean; cd ..;    
+	cd DBUtils;       make distclean; cd ..;    
+	cd Facades;	  make distclean; cd ..;    
+	cd NuVldGUI;      make distclean; cd ..;    
+	cd app;           make distclean; cd ..; 
+#	cd Facades/dummy; make distclean; cd ../..; 
 
 clean-libs: FORCE
 	cd XmlParser;     make clean; cd ..;    

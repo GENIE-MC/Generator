@@ -10,7 +10,8 @@ NAME = all
 MAKEFILE = Makefile
 
 # Include machine specific flags and locations (inc. files & libs)
-include $(GENIE)/src/Make.include
+#
+include $(GENIE)/src/make/Make.include
 
 #GENIE_DICTS = $(shell $(GENIE)/src/scripts/setup/genie-config --dicts)
 GENIE_DICTS = 

@@ -1,60 +1,28 @@
 #
-# Makefile for Neutrino Generator Validator
+# Makefile for GENIE Neutrino Generator
 #
-# Author: Costas Andreopoulos
+# Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
 #
 
-SHELL = /bin/sh
-NAME = all
+SHELL    = /bin/sh
+NAME     = all
 MAKEFILE = Makefile
 
 # Include machine specific flags and locations (inc. files & libs)
-include $(GENIE)/src/Make.include
+#
+include $(GENIE)/src/make/Make.include
 
-CSOURCES   = $(wildcard *.c) $(wildcard *.cxx)
-DEPSOURCES = $(CSOURCES) $(wildcard *.C)
+PACKAGE           = NuValidator/DBUtils
+DICTIONARY        = _ROOT_DICT_DBUtils
+LIBNAME           = $(VLD_DBUTIL_LIBNAME)
+EXTRA_EXT_LIBS    =
 
-PROJECT_S  := $(wildcard *.$(SrcSuf))
-CINTLIST_H := $(addsuffix .h, $(basename $(PROJECT_S)))
-CINTLIST_O := $(addsuffix .$(ObjSuf), $(basename $(CINTLIST_H)))
-PROJECT_S  := $(PROJECT_S) _ROOT_DICT_DBUtils.cc
-PROJECT_O   = $(addsuffix .$(ObjSuf), $(basename $(PROJECT_S)))
-PROJECT_bS := $(wildcard *.$(SrcSuf))
-PROJECT_bO  = $(addsuffix .$(ObjSuf), $(basename $(PROJECT_bS)))
+all     : rootcint lib lib-link
+install : install-inc install-lib
 
-all: rootcint lib link
-
-rootcint: _ROOT_DICT_DBUtils.o
-
-_ROOT_DICT_DBUtils.cc: LinkDef.h $(CINTLIST_O)
-	$(RM) _ROOT_DICT_DBUtils.*
-	@echo "Generating CINT dictionary ..."
-	rootcint -f _ROOT_DICT_DBUtils.cc -c \
-	    $(ROOT_INCLUDES) $(NUVLD_INCLUDES) $(CINTLIST_H) LinkDef.h
-
-lib: $(PROJECT_O) FORCE
-	@echo "Generating shared library ..."
-	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PROJECT_O) $(OutPutOpt) $(GENIE_LIB_PATH)/$(VLD_DBUTIL_LIBNAME)$(GLIBVERSION).$(DllSuf)
-
-link: FORCE
-	@echo "Creating symbolic link to shared library ..."
-ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
-	ln -sf $(VLD_DBUTIL_LIBNAME)$(GLIBVERSION).$(DllSuf) $(GENIE_LIB_PATH)/$(VLD_DBUTIL_LIBNAME).$(DllSuf)
-endif
-ifeq ($(strip $(ARCH)),macosx)
-	ln -sf $(VLD_DBUTIL_LIBNAME)$(GLIBVERSION).$(DllSuf) $(GENIE_LIB_PATH)/$(VLD_DBUTIL_LIBNAME).$(DllLinkSuf)
-else
-endif
-
-purge: FORCE
-	$(RM) *.o *~ core a.out _ROOT_DICT_DBUtils.*
-
-clean: FORCE
-	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(VLD_DBUTIL_LIBNAME)* _ROOT_DICT_DBUtils.* 
-
-distclean: FORCE
-	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(VLD_DBUTIL_LIBNAME)*
+# Include standard package makefile targets
+#
+include $(GENIE)/src/make/Make.std-package-targets
 
 FORCE:
 
-# DO NOT DELETE
