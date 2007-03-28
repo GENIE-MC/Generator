@@ -29,17 +29,17 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    dylibversion    Adds version number in dynamic lib names [recommended]  default: enabled  \n";
   print "    debug           Adds -g in the compiler options to request debug info   default: disabled \n\n";
   print "with options for 3rd party software, prefix with --with- (eg --with-gibuu-lib=/some/path/libGiBUU.a)\n\n";
-  print "    optimiz-level   compiler opitimization level O/O2/O3/OO/Os   default: O3 \n";
+  print "    optimiz-level   compiler opitimization level O/O2/O3/OO/Os   default: O2 \n";
   print "    profiler-lib    Path to libprofiler.so library               if you --enable-profiler \n";
-  print "    neugen3path     NeuGEN top level directory                   if you --enable-neugen  (can pick \$NEUGEN3PATH env var) \n";
-  print "    gibuu-lib       Path to libGiBUU.a library                   if you --enable-gibuu   (can pick \$GIBUU_LIB env var)   \n";
-  print "    doxygen         Doxygen binary including full path           if you --enable-doxygen (can pick \$DOXYGEN env var)     \n";
-  print "    pythia6         PYTHIA6 library path                         *always needed*  (can pick \$PYTHIA6 env var) \n";
-  print "    cernlib         CERN libraries path                          *always needed*  (can pick \$CERNLIB env var) \n";
-  print "    libxml2-inc     Path to libxml2 includes                     *always needed* \n";
-  print "    libxml2-lib     Path to libxml2 library                      *always needed* \n";
-  print "    log4cpp-inc     Path to log4cpp includes                     *always needed* \n";
-  print "    log4cpp-lib     Path to log4cpp library                      *always needed* \n\n";
+  print "    neugen3path     NeuGEN top level directory                   if you --enable-neugen  / can pick \$NEUGEN3PATH \n";
+  print "    gibuu-lib       Path to libGiBUU.a library                   if you --enable-gibuu   / can pick \$GIBUU_LIB   \n";
+  print "    doxygen         Doxygen binary including full path           if you --enable-doxygen / can pick \$DOXYGEN     \n";
+  print "    pythia6         PYTHIA6 library path                         always needed / can pick \$PYTHIA6 / auto-detected \n";
+  print "    cernlib         CERN libraries path                          always needed / can pick \$CERNLIB / auto-detected \n";
+  print "    libxml2-inc     Path to libxml2 includes                     always needed / auto-detected \n";
+  print "    libxml2-lib     Path to libxml2 library                      always needed / auto-detected \n";
+  print "    log4cpp-inc     Path to log4cpp includes                     always needed / auto-detected \n";
+  print "    log4cpp-lib     Path to log4cpp library                      always needed / auto-detected \n\n";
   exit;
 }
 
@@ -152,7 +152,7 @@ print MKCONF "GOPT_CXX_DEBUG_FLAG=$gopt_cxx_debug_flag\n";
 
 # Check compiler optimization level
 #
-my $gopt_cxx_optimiz_flag="O3"; # default
+my $gopt_cxx_optimiz_flag="O2"; # default
 if( $options=~m/--with-optimiz-level=(\S*)/i ) {
   $gopt_cxx_optimiz_flag = $1;
 }
@@ -215,7 +215,13 @@ if($gopt_enable_doxygen_doc eq "YES") {
     $doxygen = $1;
   }
   # if it was not set, try to pick it up from the environment
-  if($doxygen eq "" && defined $ENV{'DOXYGEN'}) { $doxygen = $ENV{'DOXYGEN'}; }
+  if(! -f $doxygen && defined $ENV{'DOXYGEN'}) { $doxygen = $ENV{'DOXYGEN'}; }
+  # complain
+  if(! -f $doxygen) {
+     print " *** Error *** You need to specify the path to doxygen using --with-doxygen=/some/path/\n";
+     print "               (alternatively, you can --disable-doxygen-doc)\n\n";
+     exit;
+  }
 }
 
 # If --enable-nuvalidator was set then ROOT must have mysql support enabled
