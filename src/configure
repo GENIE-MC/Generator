@@ -65,6 +65,15 @@ if(-e $BANNER_FILE) {
   close(BANNER);
 }
 
+# Enable auto-detection?
+#
+system("find $GENIE/src/configure");
+print "\n";
+$auto_detect = ($?==0) ? 1 : 0;
+if(! $auto_detect) {
+     print "\n *** Warn *** Path auto-detection is turned off. You need the 'find' utility to use that feature\n\n";
+}
+
 # Open Make.config to write configuration options
 #
 $MKCONF_FILE = "$GENIE/src/make/Make.config";
@@ -220,24 +229,59 @@ if($gopt_enable_nuvalidator eq "YES") {
 my $pythia6 = "";
 my $cernlib = "";
 
+#
+# --with-pythia6=
+#
 if($options=~m/--with-pythia6=(\S*)/i) {
   $pythia6 = $1;
-  # if it was not set, try to pick it up from the environment
-  if($pythia6 eq "" && defined $ENV{'PYTHIA6'}) { $pythia6 = $ENV{'PYTHIA6'}; }
-  if($pythia6 eq "") {
+}
+# if it was not set, try to pick it up from the environment
+if(! -d $pythia6 && defined $ENV{'PYTHIA6'}) { 
+  $pythia6 = $ENV{'PYTHIA6'}; 
+  print " *** Warn *** You didn't specify the PYTHIA6 path -- Picking up the \$PYTHIA6 env var\n";
+  print "              Setting --with-pythia6=$pythia6\n\n";
+}
+# if it still not set, try autodetecting it
+if(! -d $pythia6 && $auto_detect) 
+{
+  print " *** Warn *** You didn't specify the PYTHIA6 path -- Autodetecting...\n";
+  $matched = auto_detect("libPythia6*");
+  if( $matched=~m/(\S*)\/libPythia6\S*/i ) {
+     $pythia6 = $1;
+  }
+  print "              Setting --with-pythia6=$pythia6\n\n";
+}
+if(! -d $pythia6) {
     print " *** Error *** You need to specify the PYTHIA6 library path using --with-pythia6=/some/path/\n\n";
     exit;
-  }
 } 
+
+#
+# --with-cernlib=
+#
 if($options=~m/--with-cernlib=(\S*)/i) {
   $cernlib = $1;
-  # if it was not set, try to pick it up from the environment
-  if($cernlib eq "" && defined $ENV{'CERNLIB'}) { $cernlib = $ENV{'CERNLIB'}; }
-  if($cernlib eq "") {
-    print " *** Error *** You need to specify the CERNLIB libraries path using --with-cernlib=/some/path/\n\n";
-    exit;
+}
+# if it was not set, try to pick it up from the environment
+if(! -d $cernlib && defined $ENV{'CERNLIB'}) { 
+  $cernlib = $ENV{'CERNLIB'}; 
+  print " *** Warn *** You didn't specify the CERNLIB path -- Picking up the \$CERNLIB env var\n";
+  print "              Setting --with-cernlib=$cernlib\n\n";
+}
+# if it still not set, try autodetecting it
+if(! -d $cernlib && $auto_detect) 
+{
+  print " *** Warn *** You didn't specify the CERNLIB path -- Autodetecting...\n";
+  $matched = auto_detect("libpdflib*.*");
+  if( $matched=~m/(\S*)\/libpdflib\S*/i ) {
+     $cernlib = $1;
   }
-} 
+  print "              Setting --with-cernlib=$cernlib\n\n";
+}
+if(! -d $cernlib) {
+    print " *** Error *** You need to specify the CERNLIB library path using --with-cernlib=/some/path/\n\n";
+    exit;
+}
 
 # Get libxml2 and log4cpp include and library paths 
 
@@ -246,30 +290,78 @@ my $libxml2_lib = "";
 my $log4cpp_inc = "";
 my $log4cpp_lib = "";
 
+#
+# --with-libxml2-inc=
+#
 if($options=~m/--with-libxml2-inc=(\S*)/i) {
   $libxml2_inc = $1;
-} else {
+}
+if(! -d $libxml2_inc && $auto_detect)  {
+  print " *** Warn *** You didn't specify the libxml2 include path -- Autodetecting...\n";
+  $matched = auto_detect("xmlmemory.h");
+  if( $matched=~m/(\S*)\/libxml\/xmlmemory.h/i ) {
+     $libxml2_inc = $1;
+  }
+  print "              Setting --with-libxml2-inc=$libxml2_inc\n\n";
+}
+if(! -d $libxml2_inc) {
   print " *** Error *** You need to specify the libxml2 include path using --with-libxml2-inc=/some/path/\n\n";
   exit;
 }
 
+#
+# --with-libxml2-lib=
+#
 if($options=~m/--with-libxml2-lib=(\S*)/i) {
   $libxml2_lib = $1;
-} else {
+}
+if(! -d $libxml2_lib && $auto_detect)  {
+  print " *** Warn *** You didn't specify the libxml2 library path -- Autodetecting...\n";
+  $matched = auto_detect("libxml2.*");
+  if( $matched=~m/(\S*)\/libxml2\S*/i ) {
+     $libxml2_lib = $1;
+  }
+  print "              Setting --with-libxml2-lib=$libxml2_lib\n\n";
+}
+if(! -d $libxml2_lib) {
   print " *** Error *** You need to specify the libxml2 library path using --with-libxml2-lib=/some/path/\n\n";
   exit;
 }
 
+#
+# --with-log4cpp-inc=
+#
 if($options=~m/--with-log4cpp-inc=(\S*)/i) {
   $log4cpp_inc = $1;
-} else {
+}
+if(! -d $log4cpp_inc && $auto_detect)  {
+  print " *** Warn *** You didn't specify the log4cpp include path -- Autodetecting...\n";
+  $matched = auto_detect("OstreamAppender.hh");
+  if( $matched=~m/(\S*)\/log4cpp\/OstreamAppender.hh/i ) {
+     $log4cpp_inc = $1;
+  }
+  print "              Setting --with-log4cpp-inc=$log4cpp_inc\n\n";
+}
+if(! -d $log4cpp_inc) {
   print " *** Error *** You need to specify the log4cpp include path using --with-log4cpp-inc=/some/path/\n\n";
   exit;
 }
 
+#
+# --with-log4cpp-lib=
+#
 if($options=~m/--with-log4cpp-lib=(\S*)/i) {
   $log4cpp_lib = $1;
-} else {
+}
+if(! -d $log4cpp_lib && $auto_detect)  {
+  print " *** Warn *** You didn't specify the log4cpp library path -- Autodetecting...\n";
+  $matched = auto_detect("liblog4cpp.*");
+  if( $matched=~m/(\S*)\/liblog4cpp\S*/i ) {
+     $log4cpp_lib = $1;
+  }
+  print "              Setting --with-log4cpp-lib=$log4cpp_lib\n\n";
+}
+if(! -d $log4cpp_lib) {
   print " *** Error *** You need to specify the log4cpp library path using --with-log4cpp-lib=/some/path/\n\n";
   exit;
 }
@@ -292,10 +384,23 @@ close(MKCONF);
 
 print "\nYour configuration options were:\n @ARGV \n\n";
 if(-e $MKCONF_FILE) {
-  print "The $GENIE/src/Make.config file has been succesfully generated! \n";
+  print "The $GENIE/src/make/Make.config file has been succesfully generated! \n";
   print "To continue type: gmake \n";
   # warning for SRT users  
   if(defined $ENV{'SRT_ENV_SET'}) {
     print "Don't forget to 'srt_setup --unsetup' first\n";
   }
+}
+
+sub auto_detect {
+  @search_dir  = ('/usr','/opt','/home','/WorkApp');
+  $search_file = shift; 
+  foreach(@search_dir) {
+     $curr_dir = $_;
+     if(! -d $curr_dir) {next;}
+     @matches = `find $curr_dir -type f -maxdepth 5 -name $search_file`;
+     $nmatches = @matches;
+     if( $nmatches > 0) { return $matches[0]; }
+  }
+  return "";
 }
