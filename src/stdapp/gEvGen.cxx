@@ -199,6 +199,8 @@ int main(int argc, char ** argv)
   int ievent = 0;
   while ( ievent < gOptNevents) {
 
+     LOG("gevgen", pNOTICE) << " *** Generating event............ " << ievent;
+
      // generate neutrino energy (if an energy range was defined)
      if(gOptNuEnergyRange>0) {
        double Ev = gOptMinNuEnergy + gOptNuEnergyRange * r->RndEvg().Rndm();
