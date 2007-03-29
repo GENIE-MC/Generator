@@ -1,0 +1,115 @@
+
+
+The GENIE Universal Object-Oriented/C++ Neutrino MC Generator                  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Detailed information including a 'User & Physics manual', a 'Reference manual, 
+Doxygen documentation, Installation & Running instructions, HOWTO's, a list of 
+available releases and ChangeLogs can be found in: http://www.genie-mc.org     
+
+Corresponding author: Costas Andreopoulos, C.V.Andreopoulos \at rl.ac.uk       
+Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
+
+
+GENIE Neutrino MC Generator Collaboration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Costas Andreopoulos   C.V.Andreopoulos \at rl.ac.uk       [2]
+Flavio Cavanna        flavio.cavanna \at aquila.infn.it   [7]
+Steve Dytman          dytman+ \at pitt.edu                [6]
+Hugh Gallagher        gallag \at minos.phy.tufts.edu      [8]
+Yoshinari Hayato      hayato \at icrr.u-tokyo.ac.jp       [5]
+Stefan Kretzer        kretzer \at quark.phy.bnl.gov       [1]
+Anselmo Meregaglia    anselmo.meregaglia \at cern.ch      [4]
+Donna Naples          naples \at merlin.phyast.pitt.edu   [7]
+Geoff Pearce          G.F.Pearce \at rl.ac.uk             [2]
+Andre Rubbia          rubbia \at phys.ethz.ch             [4]
+Mike Whalley          M.R.Whalley \at durham.ac.uk        [3]
+
+[1] BNL, Brookhaven National Laboratory
+[2] CCLRC, Rutherford Appleton Laboratory
+[3] Durham University
+[4] ETH Zurich
+[5] Kamioka Observatory, ICRR, University of Tokyo
+[6] L'Aquila University / INFN
+[7] Pittsburgh University
+[8] Tufts University
+
+
+LICENSE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All rights not explicitly granted under this license are reserved.
+
+The authors hereby grant permission to copy, reproduce, install and use the GENIE
+software in source and binary forms, free of charge on a non-exclusive basis for
+internal scientific, non-commercial and non-weapon related use by non-profit
+organizations only. The licensee shall ensure that the existing copyright notices 
+are retained verbatim in all copies.
+
+Commercial or weapon-related use of GENIE, ouside the scope of this license, must
+be negotiated with the copyright holders [*].
+
+Additionally, the authors grant permission to modify this software and its
+documentation for any purpose, provided that such modifications are not distributed
+publicly (unless permitted in written) and that existing copyright notices are retained 
+in all copies. The modified GENIE source code is subject to the same license agreement 
+as the unmodified one.
+
+Insertion of the GENIE code, in whole or in part, into other codes, or its translation 
+into any other computer language are possible only after obtaining prior written
+permission. 
+
+The GENIE collaboration is the exclusive source of distribution of the code, bug 
+fixes and documentation of the GENIE software (through the official GENIE web site at
+http://www.genie-mc.org and its source code repository hosted at Rutherford Lab.)
+Each official version of GENIE is identified by a numbering scheme specifying major 
+and minor releases and a revision number. 
+
+Support for this software is done on a best effort basis. All bug fixes and
+enhancements will be made available under the same terms and conditions as the
+original software.
+
+You are granted the right to use GENIE on the explicit understanding that every
+publication (including publications to peer-reviewed journals, contributions to 
+conference proceedings or publicly available internal notes) describing derivative 
+works should include the appropriate references to GENIE.
+
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR DIRECT,
+INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF
+THIS SOFTWARE, ITS DOCUMENTATION, OR ANY DERIVATIVES THEREOF, EVEN IF THE AUTHORS
+HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. THE AUTHORS AND DISTRIBUTORS
+SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE  IMPLIED
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+NON-INFRINGEMENT. THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS
+AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ENHANCEMENTS, OR MODIFICATIONS.
+
+
+[*] The GENIE copyright is held by the GENIE Collaboration Board (CB). 
+In the interim period until the CB is established the GENIE copyright is held by:
+Dr. Costas Andreopoulos <C.V.Andreopoulos \at rl.ac.uk>
+Science & Technology Facilities Council, Rutherford Appleton Lab.
+R1, 2.90 - Harwell Science & Innovation Campus, Oxfordshire OX11 0QX, UK 
+
+
+How to reference GENIE correctly
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For any derivative work based on GENIE:
+
+- [... technical paper to be submitted to Comp.Phys.Comm ...]
+  until it is published you may cite:
+  C.Andreopoulos, Nucl.Phys.B Proc.Suppl. 159:217-222, 2006; 
+  C.Andreopoulos, Act.Phys.Pol.B Vol.37,8:2349, 2006
+
+Especially, for any derivative work based on GENIE version 2.0.0 or above you
+should add:
+
+- [... GENIE 2.0.0 hep-ex release note ...]
+
+Especially, for any derivative work based on GENIE's NuValidator you should add:
+
+- C.Andreopoulos and H.Gallagher, Nucl.Phys.Proc.Suppl.139:247-252,2005;
+  M. Whalley, Nucl.Phys.Proc.Suppl.139:241-246,2005
+

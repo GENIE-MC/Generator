@@ -9,7 +9,7 @@ $GENIE = $ENV{'GENIE'};
 die ("Not even the GENIE environmental variable is defined!") unless defined $GENIE;
 
 # Read version info
-$REL_INFO_FILE = "$GENIE/config/release_info";
+$REL_INFO_FILE = "$GENIE/VERSION";
 open(REL_INFO, "<$REL_INFO_FILE") or die("Can not read the GENIE release information!");
 @rel_info=<REL_INFO>;
 close(REL_INFO);

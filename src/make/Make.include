@@ -28,7 +28,7 @@ ARCH = $(shell root-config --arch)
 
 # GENIE release info
 #
-GVERSION  = $(shell awk '{print $0}' $(GENIE)/config/release_info)
+GVERSION  = $(shell awk '{print $0}' $(GENIE)/VERSION)
 
 # GENIE paths
 #

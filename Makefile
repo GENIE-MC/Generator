@@ -426,7 +426,6 @@ clean-files: FORCE
 	@echo " "
 	@echo "** Cleaning..."
 	cd ${GENIE}/src;\
-	rm build.options; \
 	cd Algorithm;          make clean; cd ..; \
 	cd BaryonResonance;    make clean; cd ..; \
 	cd Base;               make clean; cd ..; \
