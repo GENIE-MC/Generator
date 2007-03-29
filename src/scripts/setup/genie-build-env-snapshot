@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 
-# Takes a snapshot of the GENIE build environment and saves it build-env.snapshot file
+# Takes a snapshot of the GENIE build environment and saves it build-env.log file
 # C.V.Andreopoulos
 
 $GENIE = $ENV{'GENIE'};
@@ -21,9 +21,9 @@ $LD_LIBRARY_PATH             = "**undefined**" unless defined $LD_LIBRARY_PATH;
 $DYLD_LIBRARY_PATH           = "**undefined**" unless defined $DYLD_LIBRARY_PATH;
 
 # create log
-$BLD_ENV_LOG = "$GENIE/src/build-env.snapshot";
+$BLD_ENV_LOG = "$GENIE/build-env.log";
 open(LOG, ">$BLD_ENV_LOG") 
-    or die("Can not open build-env.snapshot file to save your build environment");
+    or die("Can not open build-env.log file to save your build environment");
 
 print LOG "[The GENIE spy reports]\n\n";
 
@@ -34,7 +34,7 @@ print LOG "\$DYLD_LIBRARY_PATH           -> $DYLD_LIBRARY_PATH\n";
 print LOG "\$PATH                        -> $PATH\n\n";
 
 # Read the GENIE config status
-$GCONF_FILE = "$GENIE/src/Make.config";
+$GCONF_FILE = "$GENIE/src/make/Make.config";
 if(-e $GCONF_FILE) {
   open(GCONF, "<$GCONF_FILE") or die("Can not open $GENIE/src/Make.config!");
   @genie_conf=<GCONF>;
