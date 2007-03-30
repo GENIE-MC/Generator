@@ -64,21 +64,19 @@ endif
 #
 install-lib: FORCE
 	@echo "[package: $(PACKAGE)] Installing library..."
-	$(COPY) $(PACKAGE_LIB_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
+	[ ! -f $(PACKAGE_LIB_WITH_PATH) ] || $(COPY) $(PACKAGE_LIB_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
 ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
-	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBNOVRS_WITH_IPATH)
+	[ ! -f $(PACKAGE_LIB_WITH_PATH) ] || $(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBNOVRS_WITH_IPATH)
 endif
 ifeq ($(strip $(ARCH)),macosx)
-	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBMACLINK_WITH_IPATH)
+	[ ! -f $(PACKAGE_LIB_WITH_PATH) ] || $(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBMACLINK_WITH_IPATH)
 endif
-
 
 #
 #
 install-inc: FORCE
 	@echo "[package: $(PACKAGE)] Installing headers..."
 	$(COPY) *.h $(GENIE_INC_INSTALLATION_PATH)/$(PACKAGE)
-
 
 #
 #
