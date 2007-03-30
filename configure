@@ -67,7 +67,7 @@ if(-e $BANNER_FILE) {
 
 # Enable auto-detection?
 #
-system("find $GENIE/src/configure");
+system("find $GENIE/configure");
 print "\n";
 $auto_detect = ($?==0) ? 1 : 0;
 if(! $auto_detect) {
