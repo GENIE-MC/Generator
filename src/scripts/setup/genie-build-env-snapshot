@@ -36,7 +36,7 @@ print LOG "\$PATH                        -> $PATH\n\n";
 # Read the GENIE config status
 $GCONF_FILE = "$GENIE/src/make/Make.config";
 if(-e $GCONF_FILE) {
-  open(GCONF, "<$GCONF_FILE") or die("Can not open $GENIE/src/Make.config!");
+  open(GCONF, "<$GCONF_FILE") or die("Can not open $GENIE/src/make/Make.config!");
   @genie_conf=<GCONF>;
   close(GCONF);
 }
