@@ -40,7 +40,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    libxml2-lib     Path to libxml2 library                      always needed / auto-detected \n";
   print "    log4cpp-inc     Path to log4cpp includes                     always needed / auto-detected \n";
   print "    log4cpp-lib     Path to log4cpp library                      always needed / auto-detected \n\n";
-  exit;
+  exit 0;
 }
 
 # Check that $GENIE is set
@@ -97,7 +97,7 @@ if(($match = grep(/--prefix/i, @ARGV)) > 0) {
   $prefix = $1;
   if( $GENIE eq $prefix ) {
      print "*** Error *** --prefix can not point to the GENIE top level directory!\n\n";
-     exit;
+     exit 1;
   }
 }
 print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
@@ -184,7 +184,7 @@ if($gopt_enable_neugen eq "YES") {
   if(! -e $file) {
      print "*** Error *** You need to specify the top level neugen3 directory using --with-neugen3path=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-neugen\n\n";
-     exit;
+     exit 1;
   }
 }
 
@@ -203,7 +203,7 @@ if($gopt_enable_gibuu eq "YES") {
   if(! -e $file) {
      print "*** Error *** You need to specify the path to the libGiBUU.a library using --with-gibuu-lib=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-gibuu\n\n";
-     exit;
+     exit 1;
   }
 }
 
@@ -222,7 +222,7 @@ if($gopt_enable_doxygen_doc eq "YES") {
   if(! -f $doxygen) {
      print "*** Error *** You need to specify the path to doxygen using --with-doxygen=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-doxygen-doc\n\n";
-     exit;
+     exit 1;
   }
 }
 
@@ -262,7 +262,7 @@ if(! -d $pythia6 && $auto_detect)
 }
 if(! -d $pythia6) {
     print "*** Error *** Could not locate the PYTHIA6 library path. Please specify it using --with-pythia6=/some/path/\n\n";
-    exit;
+    exit 1;
 } 
 
 #
@@ -289,7 +289,7 @@ if(! -d $cernlib && $auto_detect)
 }
 if(! -d $cernlib) {
     print "*** Error *** Could not locate the CERNLIB path. Please specify it using --with-cernlb=/some/path/\n\n";
-    exit;
+    exit 1;
 }
 
 # Get libxml2 and log4cpp include and library paths 
@@ -316,7 +316,7 @@ if(! -d $libxml2_inc && $auto_detect)  {
 }
 if(! -d $libxml2_inc) {
   print "*** Error *** You need to specify the libxml2 include path using --with-libxml2-inc=/some/path/\n\n";
-  exit;
+  exit 1;
 }
 
 #
@@ -336,7 +336,7 @@ if(! -d $libxml2_lib && $auto_detect)  {
 }
 if(! -d $libxml2_lib) {
   print "*** Error *** You need to specify the libxml2 library path using --with-libxml2-lib=/some/path/\n\n";
-  exit;
+  exit 1;
 }
 
 #
@@ -356,7 +356,7 @@ if(! -d $log4cpp_inc && $auto_detect)  {
 }
 if(! -d $log4cpp_inc) {
   print "*** Error *** You need to specify the log4cpp include path using --with-log4cpp-inc=/some/path/\n\n";
-  exit;
+  exit 1;
 }
 
 #
@@ -376,7 +376,7 @@ if(! -d $log4cpp_lib && $auto_detect)  {
 }
 if(! -d $log4cpp_lib) {
   print "*** Error *** You need to specify the log4cpp library path using --with-log4cpp-lib=/some/path/\n\n";
-  exit;
+  exit 1;
 }
 
 # Save the --with options
@@ -419,6 +419,8 @@ if(-e $MKCONF_FILE) {
     print "(Don't forget to 'srt_setup --unsetup' first)";
   }
   print "\n\n";
+
+  exit 0;
 }
 
 sub auto_detect {
