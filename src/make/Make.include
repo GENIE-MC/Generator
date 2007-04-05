@@ -244,7 +244,7 @@ else
 
 # In case the actual NeuGEN library is used, add CERNLIB's stdhep
 # which is used by NeuGEN (in addition to the 'std' CERNLIBs)
-  NEUGEN_LIBRARIES = -L $(CERN_LIB_DIR) -lstdhep \
+  NEUGEN_LIBRARIES = -L$(CERN_LIB_DIR) -lstdhep \
 			-L$(NEUGEN3PATH)/lib -lneugen3 
 endif
 
