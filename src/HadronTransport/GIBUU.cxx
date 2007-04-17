@@ -22,6 +22,8 @@
 #include <TVector3.h>
 #include <TSystem.h>
 
+#include "Algorithm/AlgConfigPool.h"
+#include "Conventions/Constants.h"
 #include "EVGCore/EVGThreadException.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
@@ -29,8 +31,11 @@
 #include "HadronTransport/GIBUU.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
+#include "Utils/PrintUtils.h"
 
 using namespace genie;
+using namespace genie::utils;
+using namespace genie::constants;
 
 //___________________________________________________________________________
 GIBUU::GIBUU() :
@@ -62,6 +67,13 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
 
 #ifdef __GENIE_GIBUU_ENABLED__
 
+  //-- Preparing event before  passing it to GiBUU 
+
+  // Set intranuke-style formation zones. Within GiBUU formation zones are 
+  // taken from the JETSET model but, when GiBUU is called from GENIE, that
+  // step is bypassed
+  this->SetFormationZones(event);
+
   //-- Translate GENIE GHepRecord to whatever GIBUU needs
 
   LOG("GIBUU", pDEBUG) << "Translating: GENIE GHepRecord ---> GIBUU input";
@@ -84,13 +96,17 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
     if(ist != kIStHadronInTheNucleus) continue;
 
     ihad++;
-    int   inp_pdg = p->Pdg();
-    float inp_px  = (float) p->Px();
-    float inp_py  = (float) p->Py();
-    float inp_pz  = (float) p->Pz();
-    float inp_E   = (float) p->E();
+    int   in_pdg = p->Pdg();
+    float in_px  = (float) p->Px();
+    float in_py  = (float) p->Py();
+    float in_pz  = (float) p->Pz();
+    float in_E   = (float) p->E();
+    float in_x   = (float) p->Vx();
+    float in_y   = (float) p->Vy();
+    float in_z   = (float) p->Vz();
+    float in_t   = (float) p->Vt();
 
-    AddHadron(&ihad, &inp_pdg, &inp_px, &inp_py, &inp_pz, &inp_E);
+    AddHadron(&ihad, &in_pdg, &in_px, &in_py, &in_pz, &in_E, &in_x, &in_y, &in_z, &in_t);
 
     mother_pos[ihad] = ipos;
   }  
@@ -126,6 +142,10 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
              out_pdg, out_ist, mom,-1,-1,-1, 
                      out_px,out_py,out_pz,out_e, out_x,out_y,out_z,out_t);
   
+        // inhibit bindong energy removal from latter steps - that has been
+        // taken into account internally at GiBUU
+        new_particle->SetRemovalEnergy(0.);
+
         event->AddParticle(new_particle);
 
       } // input hadron daughters (output hadrons)
@@ -142,6 +162,53 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
        << "\n";
   exit(1);
 #endif
+}
+//___________________________________________________________________________
+void GIBUU::SetFormationZones(GHepRecord * event) const
+{
+// Set intranuke-style formation zones to 'initial' hadrons
+
+  // Get hadronic system's 3-momentum
+  GHepParticle * hadronic_system = event->FinalStateHadronicSystem();
+  TVector3 p3hadr = hadronic_system->P4()->Vect(); // (px,py,pz)
+
+  TObjArrayIter piter(event);
+  GHepParticle * p = 0;
+  while( (p = (GHepParticle *) piter.Next()) )
+  {
+     // Use only particles marked as hadrons in the nucleus
+     GHepStatus_t ist = p->Status();
+     if(ist != kIStHadronInTheNucleus) continue;
+
+     // Compute formation zone
+     TVector3 p3  = p->P4()->Vect();      // hadron's: p (px,py,pz)
+     double   m   = p->Mass();            //           m
+     double   m2  = m*m;                  //           m^2
+     double   P   = p->P4()->P();         //           |p|
+     double   Pt  = p3.Pt(p3hadr);        //           pT
+     double   Pt2 = Pt*Pt;                //           pT^2
+     double   fz  = P*fct0*m/(m2+fK*Pt2); //           formation zone, in m
+
+     LOG("GIBUU", pINFO)
+          << "|P| = " << P << " GeV, Pt = " << Pt
+                              << " GeV, Formation Zone = " << fz << " m";
+
+     // Step particle 
+     TVector3 dr = p->P4()->Vect().Unit();          // unit vector along its direction
+     double c  = kLightSpeed / (units::m/units::s); // c in m/sec
+     dr.SetMag(fz);                                 // spatial step size
+     double dt = fz/c;                              // temporal step:
+     TLorentzVector dx4(dr,dt);                     // 4-vector step
+     TLorentzVector x4new = *(p->X4()) + dx4;       // new position
+
+     LOG("Intranuke", pDEBUG)
+             << "Init direction = " << print::Vec3AsString(&dr);
+     LOG("Intranuke", pDEBUG)
+             << "Init position (in m,sec) = " << print::X4AsString(p->X4());
+     LOG("Intranuke", pDEBUG)
+                  << "X4[new] (in m,sec) = " << print::X4AsString(&x4new);
+     p->SetPosition(x4new);
+  }
 }
 //___________________________________________________________________________
 void GIBUU::Configure(const Registry & config)
@@ -161,6 +228,11 @@ void GIBUU::LoadConfig (void)
 // Access this module's configuration options from its designated Registry
 // and pass them to the actual GIBUU code
 
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+ 
+  fct0     = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("INUKE-FormationZone")); // fm
+  fK       = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("INUKE-KPt2"));
 }
 //___________________________________________________________________________
 

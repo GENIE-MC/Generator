@@ -57,7 +57,7 @@
 //
 extern "C" {
   void  SetNucleus              (int*);
-  void  AddHadron               (int*, int*, float*, float*, float*, float*);
+  void  AddHadron               (int*, int*,float*,float*,float*,float*,float*,float*,float*,float*);
   void  HadronTransportForGENIE (void);
   int   NumOfFinalStateHadrons  (int*);
   int   FinalStateHadronPDG     (int*,int*);
@@ -90,7 +90,12 @@ public:
   void Configure(string config);
 
 private:
-  void LoadConfig (void);
+  void LoadConfig        (void);
+  void SetFormationZones (GHepRecord * event) const;
+
+  //-- configuration parameters
+  double fct0; ///< formation zone (c * formation time)
+  double fK;   ///< param multiplying pT^2 in formation zone calculation
 };
 
 }      // genie namespace
