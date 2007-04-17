@@ -376,25 +376,19 @@ void Intranuke::StepParticle(GHepParticle * p, double step) const
   LOG("Intranuke", pDEBUG)
       << "Stepping particle [" << p->Name() << "] by dr = " << step << " m";
 
-  TVector3 dr = p->P4()->Vect().Unit();  // unit vector along its direction
-
-  LOG("Intranuke", pDEBUG)
-               << "Init direction = " << print::Vec3AsString(&dr);
-  LOG("Intranuke", pDEBUG)
-       << "Init position (in m,sec) = " << print::X4AsString(p->X4());
-
-  // spatial step size:
-  dr.SetMag(step);
-
-  // temporal step:
+  // Step particle
+  TVector3 dr = p->P4()->Vect().Unit();          // unit vector along its direction
   double c  = kLightSpeed / (units::m/units::s); // c in m/sec
-  double dt = step/c;
-
-  TLorentzVector dx4(dr,dt);       // 4-vector step
-  TLorentzVector x4new = *(p->X4()) + dx4; // new position
-
+  dr.SetMag(step);                               // spatial step size
+  double dt = step/c;                            // temporal step:
+  TLorentzVector dx4(dr,dt);                     // 4-vector step
+  TLorentzVector x4new = *(p->X4()) + dx4;       // new position
+       
   LOG("Intranuke", pDEBUG)
-                  << "X4[new] (in m,sec) = " << print::X4AsString(&x4new);
+      << "\n Init direction = " << print::Vec3AsString(&dr)
+      << "\n Init position (in m,sec) = " << print::X4AsString(p->X4())
+      << "\n Fin  position (in m,sec) = " << print::X4AsString(&x4new);
+
   p->SetPosition(x4new);
 }
 //___________________________________________________________________________

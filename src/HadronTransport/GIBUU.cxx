@@ -201,12 +201,11 @@ void GIBUU::SetFormationZones(GHepRecord * event) const
      TLorentzVector dx4(dr,dt);                     // 4-vector step
      TLorentzVector x4new = *(p->X4()) + dx4;       // new position
 
-     LOG("Intranuke", pDEBUG)
-             << "Init direction = " << print::Vec3AsString(&dr);
-     LOG("Intranuke", pDEBUG)
-             << "Init position (in m,sec) = " << print::X4AsString(p->X4());
-     LOG("Intranuke", pDEBUG)
-                  << "X4[new] (in m,sec) = " << print::X4AsString(&x4new);
+     LOG("GIBUU", pDEBUG)
+        << "\n Init direction = " << print::Vec3AsString(&dr) 
+        << "\n Init position (in m,sec) = " << print::X4AsString(p->X4())
+        << "\n Fin  position (in m,sec) = " << print::X4AsString(&x4new);
+
      p->SetPosition(x4new);
   }
 }
