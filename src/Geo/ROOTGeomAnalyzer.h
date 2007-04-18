@@ -43,7 +43,6 @@ namespace geometry {
 class ROOTGeomAnalyzer : public GeomAnalyzerI {
 
 public :
-
   ROOTGeomAnalyzer(string geometry_filename);
   ROOTGeomAnalyzer(TGeoManager * gm);
  ~ROOTGeomAnalyzer();
@@ -56,7 +55,8 @@ public :
   void SetScannerFlux       (GFluxI* f) { fFlux       = f;  } /* flux scanner */
   void SetWeightWithDensity (bool   wt) { fDensWeight = wt; }
   void SetMixtureWeightsSum (double sum);
-  void SetUnits             (double lu);
+  void SetLengthUnits       (double lu);
+  void SetDensityUnits      (double du);
   void SetMaxPlSafetyFactor (double sf);
   void SetTopVolName        (string nm);
 
@@ -64,7 +64,8 @@ public :
   int     ScannerNRays      (void) const { return fNRays;             }
   int     ScannerNParticles (void) const { return fNParticles;        }
   bool    WeightWithDensity (void) const { return fDensWeight;        }
-  double  Units             (void) const { return fScale;             }
+  double  LengthUnits       (void) const { return fLengthScale;       }
+  double  DensityUnits      (void) const { return fDensityScale;      }
   double  MixtureWeightsSum (void) const { return fMixtWghtSum;       }
   double  MaxPlSafetyFactor (void) const { return fMaxPlSafetyFactor; }
   string  TopVolName        (void) const { return fTopVolumeName;     }
@@ -112,7 +113,8 @@ private:
   int              fNParticles;            ///< max path length scanner (flux method): particles in [def:10000]
   GFluxI *         fFlux;                  ///< a flux objects that can be used to scan the max path lengths
   bool             fDensWeight;            ///< if true pathlengths are weighted with density [def:true]
-  double           fScale;                 ///< conversion factor: input geometry units -> meters
+  double           fLengthScale;           ///< conversion factor: input geometry length units -> meters
+  double           fDensityScale;          ///< conversion factor: input geometry density units -> kgr/meters^3
   double           fMaxPlSafetyFactor;     ///< factor that can multiply the computed max path lengths
   double           fMixtWghtSum;           ///< norm of relative weights (<0 if explicit summing required)
   TVector3 *       fCurrVertex;            ///< current generated vertex
