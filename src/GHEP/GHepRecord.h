@@ -106,12 +106,14 @@ public :
 
   //-- methods to set/get the event weight and cross sections
 
-  virtual double Weight      (void) const  { return fWeight;   }
-  virtual double XSec        (void) const  { return fXSec;     }
-  virtual double DiffXSec    (void) const  { return fDiffXSec; }
-  virtual void   SetWeight   (double wght) { fWeight   = (wght>0) ? wght : 0.; }
-  virtual void   SetXSec     (double xsec) { fXSec     = (xsec>0) ? xsec : 0.; }
-  virtual void   SetDiffXSec (double xsec) { fDiffXSec = (xsec>0) ? xsec : 0.; }
+  virtual double Weight         (void) const  { return fWeight;   }
+  virtual double Probability    (void) const  { return fProb;     }
+  virtual double XSec           (void) const  { return fXSec;     }
+  virtual double DiffXSec       (void) const  { return fDiffXSec; }
+  virtual void   SetWeight      (double wght) { fWeight   = (wght>0) ? wght : 0.; }
+  virtual void   SetProbability (double prob) { fProb     = (prob>0) ? prob : 0.; }
+  virtual void   SetXSec        (double xsec) { fXSec     = (xsec>0) ? xsec : 0.; }
+  virtual void   SetDiffXSec    (double xsec) { fDiffXSec = (xsec>0) ? xsec : 0.; }
 
   //-- set/get event vertex in detector coordinate system
 
@@ -147,6 +149,7 @@ protected:
 
   // Misc info associated with the generated event
   double fWeight;         ///< event weight
+  double fProb;           ///< event probability (given flux neutrino && exp setup)
   double fXSec;           ///< cross section for selected event
   double fDiffXSec;       ///< differential cross section for selected event kinematics
 
