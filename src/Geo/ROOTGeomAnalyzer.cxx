@@ -64,7 +64,7 @@ ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
   this->CleanUp();
 }
 //___________________________________________________________________________
-void ROOTGeomAnalyzer::SetUnits(double u)
+void ROOTGeomAnalyzer::SetLengthUnits(double u)
 {
 // Use the units of your input geometry, eg
 //               geom.SetUnits(genie::units::centimeter)
@@ -74,10 +74,18 @@ void ROOTGeomAnalyzer::SetUnits(double u)
 // conversion factor.
 // As input, use one of the constants in $GENIE/src/Conventions/Units.h
 
-  fScale = u/units::meter;
-
+  fLengthScale = u/units::meter;
   LOG("GROOTGeom", pNOTICE)
-                << "Geometry units scale factor (GU -> m): " << fScale;
+     << "Geometry length units scale factor (GU -> m): " << fLengthScale;
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::SetDensityUnits(double u)
+{
+// Like above, but for density (def units = kgr/m3)
+
+  fDensityScale = u / (units::kilogram / units::meter3);
+  LOG("GROOTGeom", pNOTICE)
+    << "Geometry density units scale factor (GU -> kgr/m3): " << fDensityScale;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::SetMaxPlSafetyFactor(double sf)
@@ -356,7 +364,8 @@ void ROOTGeomAnalyzer::Initialize(void)
   this -> SetScannerNParticles (10000);
   this -> SetScannerFlux       (0);
   this -> SetMaxPlSafetyFactor (1.1);
-  this -> SetUnits             (genie::units::meter);
+  this -> SetLengthUnits       (genie::units::meter);
+  this -> SetDensityUnits      (genie::units::kilogram/genie::units::meter3);
   this -> SetWeightWithDensity (true);
   this -> SetMixtureWeightsSum (-1.);
 }
@@ -443,7 +452,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                       <<"Calculating path length for material: " << pdgc;
 
     TVector3 pos  = x.Vect();        // initial position
-    pos *= (1./this->Units());       // m -> GU
+    pos *= (1./this->LengthUnits()); // m -> GU
     TVector3 udir = p.Vect().Unit(); // unit vector along direction
 
     fCurrPathLengthList->AddPathLength(
@@ -481,7 +490,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   // x and looking along the direction of p
   TVector3 r    = x.Vect();
   TVector3 dir  = p.Vect().Unit();
-  r *= (1./this->Units());  // m -> GU
+  r *= (1./this->LengthUnits());  // m -> GU
   double   dist = this->ComputePathLengthPDG(r, dir, tgtpdg);
 
   LOG("GROOTGeom", pNOTICE)
@@ -507,11 +516,11 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
   int    FlagNotInYet(0);
   bool   condition(kTRUE);
-  double StepIncrease(0.001/this->Units());
+  double StepIncrease(0.001/this->LengthUnits());
   double distToVtx(0);
 
   r.SetXYZ(x.X(), x.Y(), x.Z());
-  r *= (1./this->Units());  // m -> GU
+  r *= (1./this->LengthUnits());  // m -> GU
 
   fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
 
@@ -548,7 +557,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
   r = r - StepIncrease * dir;
   fCurrVertex->SetXYZ(r[0],r[1],r[2]);
-  (*fCurrVertex) *= (this->Units()); // GU -> m
+  (*fCurrVertex) *= (this->LengthUnits()); // GU -> m
 
   LOG("GROOTGeom",pDEBUG) << "Vtx (m) = " << utils::print::Vec3AsString(&r);
 
@@ -714,8 +723,10 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat, int pdgc)
   int ion_pdgc = this->GetTargetPdgCode(mat);
   if(ion_pdgc != pdgc) return 0.;
 
-  if (this->WeightWithDensity()) weight = mat->GetDensity();
-  else                           weight = 1.0;
+  if (this->WeightWithDensity()) 
+    weight = mat->GetDensity() / this->DensityUnits();
+  else                           
+    weight = 1.0;
 
   LOG("GROOTGeom", pDEBUG)
                     << "Weight[mat:" << mat->GetName() << "] = " << weight;
@@ -767,7 +778,7 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture* mixt, int ielement, int pdgc)
   int ion_pdgc = this->GetTargetPdgCode(mixt->GetElement(ielement));
   if(ion_pdgc != pdgc) return 0.;
 
-  double d = mixt->GetDensity();         // mixture density
+  double d = mixt->GetDensity() / this->DensityUnits(); // mixture density
   double w = mixt->GetWmixt()[ielement]; // relative proportion by mass
 
   double wtot = this->MixtureWeightsSum();
@@ -842,13 +853,13 @@ void ROOTGeomAnalyzer::ScalePathLengths(PathLengthList & pl)
 // convert path lenghts to default GENIE length scale
 //
   LOG("GROOTGeom", pDEBUG)
-              << "Scaling path-lengths -> meters (scale = " << fScale << ")";
+    << "Scaling path-lengths -> meters (scale = " << fLengthScale << ")";
 
   PathLengthList::iterator pliter;
   for(pliter = pl.begin(); pliter != pl.end(); ++pliter)
   {
     int pdgc = pliter->first;
-    pl.ScalePathLength(pdgc,fScale);
+    pl.ScalePathLength(pdgc,fLengthScale);
   }
 }
 //___________________________________________________________________________
