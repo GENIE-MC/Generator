@@ -232,7 +232,13 @@ GeomAnalyzerI * GetGeometryDriver(void)
   LOG("Main", pINFO) << "Creating/configuring the ROOT geom. driver";
 
   ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer(gOptRootGeom);
-  geom->SetUnits(genie::utils::units::UnitFromString(gOptGeomUnits));
+  geom->SetLengthUnits(genie::utils::units::UnitFromString(gOptGeomUnits));
+
+  if(gOptGeomUnits == "cm") {
+    geom->SetDensityUnits(genie::units::gram/genie::units::cm3);
+  } else if(gOptGeomUnits == "m") {
+    geom->SetDensityUnits(genie::units::kilogram/genie::units::m3);
+  }
 
   GeomAnalyzerI * geomb = dynamic_cast<GeomAnalyzerI *> (geom);
 
