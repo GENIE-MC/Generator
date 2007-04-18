@@ -378,22 +378,6 @@ void GMCJDriver::InitEventGeneration(void)
   fCurVtx.SetXYZT(0.,0.,0.,0.);
 }
 //___________________________________________________________________________
-double GMCJDriver::Exposure(bool physical)
-{
-  if(!physical) return fNFluxNeutrinos;
-
-  // Teport the number of neutrinos that would have really thrown if I was
-  // not scaliing the interaction probabilities. This corresponds to the
-  // real number of flux neutrinos...
-  if(fPmax>0) {
-    return (fNFluxNeutrinos/fPmax);
-  }
-
-  LOG("GMCJDriver", pERROR) 
-   << "Fails to report exposure because max interaction probab is not set!";
-  return -1;
-}
-//___________________________________________________________________________
 EventRecord * GMCJDriver::GenerateEvent(void)
 {
   LOG("GMCJDriver", pNOTICE) << "Generating next event...";
@@ -433,16 +417,27 @@ EventRecord * GMCJDriver::GenerateEvent(void)
   //   its kinematics for the selected initial state & neutrino 4-momentum
   this->GenerateEventKinematics();
 
-  //-- Generate an 'interaction position' in the selected material, along
-  //   the direction of nup4
+  //-- Generate an 'interaction position' in the selected material (in the
+  //   detector coord system), along the direction of nup4 & set it 
   this->GenerateVertex();
 
-  //-- set the selected interaction vtx (in the detector coordinate system)
-  fCurEvt->SetVertex(fCurVtx);
+  //-- Set the event probability (probability for this event to happen given
+  //   the detector setup & the selected flux neutrino)
+  //   Note (Frequenty Asked Question from accelerator v experiments): 
+  //   That would _not_ give you a POT normalization but a normalization to
+  //   your input neutrino flux. To get a POT normalization you must take
+  //   into account (multiply this probability), on an event by event basis, 
+  //   with the weight reported by your flux driver (GFluxI::Weight()) which 
+  //   should return the appropriate factor for going from a flux normalization 
+  //   to a POT normalization.
+  this->ComputeEventProbability();
 
-  //-- update the event weight to include the flux neutrino weight (if any)
-  double new_weight = fFluxDriver->Weight() * fCurEvt->Weight();
-  fCurEvt->SetWeight(new_weight);
+//  //-- update the event weight to include the flux neutrino weight (if any)
+//  double new_weight = fFluxDriver->Weight() * fCurEvt->Weight();
+//  fCurEvt->SetWeight(new_weight);
+//  double Pi = fCurEvt->Probability(); // event probability
+//  double Pj = fCurEvt->Probability();
+//  fCurEvt->SetProbability(Pi*Pj);
   
   return fCurEvt;
 }
@@ -614,9 +609,6 @@ void GMCJDriver::GenerateEventKinematics(void)
   //-- Find the GEVGDriver object that generates interactions for the
   //   given initial state (neutrino + target)
   InitialState init_state(fSelTgtPdg, nupdg);
-  LOG("GMCJDriver", pWARN)
-      << "Searching GEVGDriver configured with: " << init_state.AsString();
-
   GEVGDriver * evgdriver = fGPool->FindDriver(init_state);
   if(!evgdriver) {
      LOG("GMCJDriver", pFATAL)
@@ -654,6 +646,32 @@ void GMCJDriver::GenerateVertex(void)
         << "|vtx - origin|: dL = " << dL << " m, dt = " << dt << " sec";
 
   fCurVtx.SetXYZT(vtx.x(), vtx.y(), vtx.z(), x4.T() + dt);
+
+  fCurEvt->SetVertex(fCurVtx);
+}
+//___________________________________________________________________________
+void GMCJDriver::ComputeEventProbability(void)
+{
+// Compute event probability for the given flux neutrino & detector geometry
+
+  // interaction cross section
+  double xsec = fCurEvt->XSec(); 
+
+  // path length in detector along v direction for specified target material
+  PathLengthList::const_iterator pliter = fCurPathLengths.find(fSelTgtPdg);
+  double path_length = pliter->second;
+
+  // target material mass number
+  int A = pdg::IonPdgCodeToA(fSelTgtPdg);
+
+  // interaction probability
+  double P = this->PInt(xsec, path_length, A);
+
+  // take event weight into account (for internal event generation  biasing)
+  //double weight = fCurEvt->Weight(); // event probability
+  //P *= weight;
+
+  fCurEvt->SetProbability(P);
 }
 //___________________________________________________________________________
 double GMCJDriver::PInt(double xsec, double path_length, int A)

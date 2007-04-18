@@ -656,6 +656,7 @@ void GHepRecord::InitRecord(void)
 
   fInteraction = 0;
   fWeight      = 1.;
+  fProb        = 1.;
   fXSec        = 0.;
   fDiffXSec    = 0.;
   fVtx         = new TLorentzVector(0,0,0,0);
@@ -724,6 +725,7 @@ void GHepRecord::Copy(const GHepRecord & record)
 
   // copy weights & xsecs
   fWeight   = record.fWeight;
+  fProb     = record.fProb;
   fXSec     = record.fXSec;
   fDiffXSec = record.fDiffXSec;
 }

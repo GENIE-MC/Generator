@@ -54,33 +54,33 @@ public :
   GEVGDriver();
   ~GEVGDriver();
 
-  //! Set driver options before calling Configure()
+  //-- Set driver options before calling Configure()
   void FilterUnphysical (const TBits & unphysmask);
   void UseSplines       (void);
 
-  //! Configure the driver
+  //-- Configure the driver
   void Configure (int nu_pdgc, int Z, int A);
   void Configure (const InitialState & init_state);
 
-  //! Generate single event
+  //-- Generate single event
   EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
-  //! Instruct the driver to create all the splines it needs
+  //-- Instruct the driver to create all the splines it needs
   void CreateSplines (int nknots=-1, double emax=-1, bool inLogE=true);
 
-  //! Cross section sum for all interactions that can be generated for
-  //! the current init-state.
+  //-- Cross section sum for all interactions that can be generated for
+  //-- the current init-state.
   double         XSecSum             (const TLorentzVector & nup4);
   void           CreateXSecSumSpline (int nk, double Emin, double Emax, bool inlogE=true);
   const Spline * XSecSumSpline       (void) const { return fXSecSumSpl; }
 
-  //! Get loaded event generator list
+  //-- Get loaded event generator list
   const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
 
-  //! Get validity range (combined validity range of loaded evg threads)
+  //-- Get validity range (combined validity range of loaded evg threads)
   Range1D_t ValidEnergyRange (void) const;
 
-  //! Reset, Print etc
+  //-- Reset, Print etc
   void Reset (void);
   void Print (ostream & stream) const;
 
@@ -88,7 +88,7 @@ public :
 
 private:
 
-  //! Private initialization, configuration & input validation methods
+  //-- Private initialization, configuration & input validation methods
   void Init                         (void);
   void CleanUp                      (void);
   void BuildInitialState            (const InitialState & init_state);
@@ -97,7 +97,7 @@ private:
   void BuildInteractionSelector     (void);
   void AssertIsValidInitState       (void) const;
 
-  //! Private data members
+  //-- Private data members
   InitialState *            fInitState;       ///< initial state information for driver instance
   EventRecord *             fCurrentRecord;   ///< ptr to the event record being processed
   EventGeneratorList *      fEvGenList;       ///< all Event Generators available at this job
