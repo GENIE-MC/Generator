@@ -48,13 +48,13 @@ organizations only. The licensee shall ensure that the existing copyright notice
 are retained verbatim in all copies.
 
 Commercial or weapon-related use of GENIE, ouside the scope of this license, must
-be negotiated with the copyright holders [*].
+be negotiated with the GENIE copyright holders [*].
 
 Additionally, the authors grant permission to modify this software and its
 documentation for any purpose, provided that such modifications are not distributed
-publicly (unless permitted in written) and that existing copyright notices are retained 
-in all copies. The modified GENIE source code is subject to the same license agreement 
-as the unmodified one.
+publicly (unless permitted in written [**]) and that existing copyright notices are 
+retained in all copies. The modified GENIE source code is subject to the same license 
+agreement as the unmodified one.
 
 Insertion of the GENIE code, in whole or in part, into other codes, or its translation 
 into any other computer language are possible only after obtaining prior written
@@ -66,14 +66,19 @@ http://www.genie-mc.org and its source code repository hosted at Rutherford Lab.
 Each official version of GENIE is identified by a numbering scheme specifying major 
 and minor releases and a revision number. 
 
-Support for this software is done on a best effort basis. All bug fixes and
-enhancements will be made available under the same terms and conditions as the
-original software.
-
 You are granted the right to use GENIE on the explicit understanding that every
 publication (including publications to peer-reviewed journals, contributions to 
 conference proceedings or publicly available internal notes) describing derivative 
-works should include the appropriate references to GENIE.
+works should include the appropriate references to GENIE. 
+
+Derivative works focusing on comparing GENIE predictions with data and/or other 
+models, or ones in which the MC generator name appears on the title or abstract 
+shall not be published by the licensee (unless permitted in written or co-authored 
+by the GENIE collaboration).
+
+Support for this software is done on a best effort basis. All bug fixes and
+enhancements will be made available under the same terms and conditions as the
+original software.
 
 IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR DIRECT,
 INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF
@@ -89,8 +94,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 [*] The GENIE copyright is held by the GENIE Collaboration Board (CB). 
 In the interim period until the CB is established the GENIE copyright is held by:
 Dr. Costas Andreopoulos <C.V.Andreopoulos \at rl.ac.uk>
-Science & Technology Facilities Council, Rutherford Appleton Lab.
+Science & Technology Facilities Council, 
+Rutherford Appleton Laboratory,
 R1, 2.90 - Harwell Science & Innovation Campus, Oxfordshire OX11 0QX, UK 
+
+[**] Written permissions should be obtained from the copyright holders.
 
 
 How to reference GENIE correctly
