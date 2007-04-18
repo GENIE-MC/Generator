@@ -646,21 +646,21 @@ void GMCJDriver::ComputeEventProbability(void)
 // Compute event probability for the given flux neutrino & detector geometry
 
   // interaction cross section
-  double xsec = fCurEvt->XSec(); 
+  // (convert from physical units -> cm^2)
+  double xsec = fCurEvt->XSec() / units::cm2; 
 
   // path length in detector along v direction for specified target material
+  // (convert from kgr/m2 to gr/cm2)
   PathLengthList::const_iterator pliter = fCurPathLengths.find(fSelTgtPdg);
   double path_length = pliter->second;
+  path_length *= ((units::kilogram/units::m2)/(units::gram/units::cm2));
 
   // target material mass number
+  // (in gr)
   int A = pdg::IonPdgCodeToA(fSelTgtPdg);
 
   // interaction probability
   double P = this->PInt(xsec, path_length, A);
-
-  // take event weight into account (for internal event generation  biasing)
-  //double weight = fCurEvt->Weight(); // event probability
-  //P *= weight;
 
   fCurEvt->SetProbability(P);
 }
