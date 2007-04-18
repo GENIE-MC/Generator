@@ -423,22 +423,13 @@ EventRecord * GMCJDriver::GenerateEvent(void)
 
   //-- Set the event probability (probability for this event to happen given
   //   the detector setup & the selected flux neutrino)
-  //   Note (Frequenty Asked Question from accelerator v experiments): 
-  //   That would _not_ give you a POT normalization but a normalization to
-  //   your input neutrino flux. To get a POT normalization you must take
-  //   into account (multiply this probability), on an event by event basis, 
-  //   with the weight reported by your flux driver (GFluxI::Weight()) which 
-  //   should return the appropriate factor for going from a flux normalization 
-  //   to a POT normalization.
+  //   Note for users: 
+  //   The above probability is stored at GHepRecord::Probability()
+  //   For normalization purposes make sure that you take into account the
+  //   GHepRecord::Weight() -if event generation is weighted-, and
+  //   GFluxI::Weight() -if beam simulation is weighted-.
   this->ComputeEventProbability();
 
-//  //-- update the event weight to include the flux neutrino weight (if any)
-//  double new_weight = fFluxDriver->Weight() * fCurEvt->Weight();
-//  fCurEvt->SetWeight(new_weight);
-//  double Pi = fCurEvt->Probability(); // event probability
-//  double Pj = fCurEvt->Probability();
-//  fCurEvt->SetProbability(Pi*Pj);
-  
   return fCurEvt;
 }
 //___________________________________________________________________________
