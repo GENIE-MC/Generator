@@ -8,13 +8,14 @@
          Typically used in validating new generator releases.
 
          Syntax :
-           gmctest -f filename -t tgt [-n events]
+           gmctest -f filename -t tgt [-n events] [-c another_filename]
 
          Options:
-           [] denotes an optional argument
-           -f specifies the GENIE/ROOT file with the generated event sample
-           -t target pdg code (analyzing interactions for one target at a time)
-           -n specifies how many events to analyze [default: all]
+           [] Denotes an optional argument
+           -f Specifies the GENIE/ROOT file with the generated event sample
+           -t Target pdg code (analyzing interactions for one target at a time)
+           -n Specifies how many events to analyze [default: all]
+	   -c Specifies another GENIE/ROOT event sample file for comparison 
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -40,6 +41,7 @@
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TH3D.h>
+#include <TMath.h>
 
 #include "Conventions/Constants.h"
 #include "EVGCore/EventRecord.h"
@@ -63,77 +65,68 @@ using namespace genie::constants;
 
 // function prototypes
 void   GetCommandLineArgs(int argc, char ** argv);
-void   PrintSyntax       (void);
-bool   CheckRootFilename (string filename);
-string OutputFileName    (string input_file_name);
-void   InitHistos        (void);
-void   SaveHistos        (string outpfilename);
-void   HistogramLimits   (Long64_t n, TTree* t, NtpMCEventRecord* r);
-void   AnalyzeEvents     (Long64_t n, TTree* t, NtpMCEventRecord* r);
-int    IProc             (const ProcessInfo &  pi);
-int    ICurr             (const ProcessInfo &  pi);
-int    INeut             (int pdgc);
-string ProcName          (int i);
-string CurrName          (int i);
-string NeutName          (int i);
-string HistoPtr          (string b, int iproc, int icurr, int ineut);
-string HistoTitle        (string b, int iproc, int icurr, int ineut);
-
-// bin sizes
-const double kdE  = 0.25; // energy bin size
-const double kdy  = 0.01; // inelasticity y bin size
-const double kdx  = 0.01; // bjorken x bin size
-const double kdQ2 = 0.10; // momentum transfer Q2 bin size
-const double kdW  = 0.25; // invariant mass W bin size
-const double kdv  = 0.01; // energy transfer v bin size
-
-// output histograms
-const int kNProc = 3; // QEL, RES, DIS
-const int kNCurr = 2; // CC, NC
-const int kNNeut = 6; // nue,numu,nutau,\bar(nue),\bar(numu),\bar(nutau)
-
-TH1D * hEvLAB [kNProc][kNCurr][kNNeut]; // neutrino energy in LAB
-TH1D * hElLAB [kNProc][kNCurr][kNNeut]; // fsl energy in LAB
-TH1D * hKinX  [kNProc][kNCurr][kNNeut]; // x
-TH1D * hKinY  [kNProc][kNCurr][kNNeut]; // y
-TH2D * hKinXY [kNProc][kNCurr][kNNeut]; // x vs y
-TH1D * hKinQ2 [kNProc][kNCurr][kNNeut]; // Q2
-TH1D * hKinW  [kNProc][kNCurr][kNNeut]; // W
-TH1D * hKinNu [kNProc][kNCurr][kNNeut]; // v
-TH2D * hKinWQ2[kNProc][kNCurr][kNNeut]; // W vs Q2
-TH2D * hMultPW   [kNCurr][kNNeut];
-TH2D * hMultNW   [kNCurr][kNNeut];
-TH2D * hMultPi0W [kNCurr][kNNeut];
-TH2D * hMultPipW [kNCurr][kNNeut];
-TH2D * hMultPimW [kNCurr][kNNeut];
-TH1D * hVtxX;
-TH1D * hVtxY;
-TH1D * hVtxZ;
-TH1D * hVtxT;
-TH3D * hVtxR;
-
-// 'detectable' histogram limits
-double gEvMin   =  999999;
-double gEvMax   = -999999;
-double gWMin    =  999999;
-double gWMax    = -999999;
-double gQ2Min   =  999999;
-double gQ2Max   = -999999;
-double gVtxXMin =  999999;
-double gVtxXMax = -999999;
-double gVtxYMin =  999999;
-double gVtxYMax = -999999;
-double gVtxZMin =  999999;
-double gVtxZMax = -999999;
-double gVtxTMin =  999999;
-double gVtxTMax = -999999;
+void   PrintSyntax          (void);
+bool   CheckRootFilename    (string filename);
+string OutputFileName       (string input_file_name);
+void   Initialize           (void);
+void   AnalyzeEvents        (Long64_t n, TTree* t, NtpMCEventRecord* r);
+void   SaveResults          (string outpfilename);
+void   AddKineDir           (TFile & file);
+void   AddKineCcNumuDir     (TFile & file);
+void   AddKineCcNumuQelDir  (TFile & file);
+void   AddKineCcNumuResDir  (TFile & file);
+void   AddKineCcNumuDisDir  (TFile & file);
+void   AddHMultDir          (TFile & file);
+void   AddVtxDir            (TFile & file);
+void   AddNtpDir            (TFile & file);
 
 // command-line arguments
-Long64_t gOptN;       // process so many events, all if -1
-Long64_t gOptTgtPdgC; // process events only for this nucl. target
-string   gOptInpFile; // input GENIE event file
+Long64_t gOptN;            // process so many events, all if -1
+Long64_t gOptTgtPdgC;      // process events only for this nucl. target
+string   gOptInpFile;      // input GENIE event sample file
+string   gOptInpTemplFile; // input GENIE event sample file (template)
 
-//___________________________________________________________________
+TTree * tEvtTree;
+int    br_iev       = 0;
+int    br_neutrino  = 0;
+int    br_target    = 0;
+int    br_hitnuc    = 0;
+int    br_hitqrk    = 0;
+bool   br_qel       = false;
+bool   br_res       = false;
+bool   br_dis       = false;
+bool   br_coh       = false;
+bool   br_em        = false;
+bool   br_weakcc    = false;
+bool   br_weaknc    = false;
+double br_kine_xs   = 0;
+double br_kine_ys   = 0; 
+double br_kine_ts   = 0; 
+double br_kine_Q2s  = 0; 
+double br_kine_Ws   = 0;
+double br_kine_x    = 0;
+double br_kine_y    = 0; 
+double br_kine_t    = 0; 
+double br_kine_Q2   = 0; 
+double br_kine_W    = 0;
+double br_kine_v    = 0;
+double br_Ev        = 0;
+double br_El        = 0;
+double br_vtxx      = 0;
+double br_vtxy      = 0;
+double br_vtxz      = 0;
+double br_weight    = 0;
+int    br_np        = 0;
+int    br_nn        = 0;
+int    br_npip      = 0;
+int    br_npim      = 0;
+int    br_npi0      = 0;
+int    br_ngamma    = 0;
+int    br_nKp       = 0;
+int    br_nKm       = 0;
+int    br_nK0       = 0;
+
+//_________________________________________________________________________________
 int main(int argc, char ** argv)
 {
   //-- scan the command line arguments 
@@ -168,17 +161,9 @@ int main(int argc, char ** argv)
   //-- build output filename based on input filename
   string outpfilename = OutputFileName(gOptInpFile);
 
-  //-- detect histogram limits
-  HistogramLimits(nmax, tree, mcrec);
-
-  //-- book output histograms
-  InitHistos();
-
-  //-- loop over the TTree records & fill in the histograms
-  AnalyzeEvents(nmax, tree, mcrec);
-
-  //-- save the histograms 
-  SaveHistos(outpfilename);
+  Initialize    ();
+  AnalyzeEvents (nmax, tree, mcrec);
+  SaveResults   (outpfilename);
 
   //-- close the input GENIE event file
   LOG("gmctest", pNOTICE) << "*** Closing input GHEP data stream";
@@ -189,7 +174,50 @@ int main(int argc, char ** argv)
   LOG("gmctest", pINFO)  << "Done!";
   return 0;
 }
-//___________________________________________________________________
+//_________________________________________________________________________________
+void Initialize()
+{
+  tEvtTree = new TTree("tEvtTree","event tree summary");
+  tEvtTree->Branch("iev",    &br_iev,       "iev/I"      );
+  tEvtTree->Branch("neu",    &br_neutrino,  "neu/I"      );
+  tEvtTree->Branch("tgt" ,   &br_target,    "tgt/I"      );
+  tEvtTree->Branch("hitnuc", &br_hitnuc,    "hitnuc/I"   );
+  tEvtTree->Branch("hitqrk", &br_hitqrk,    "hitqrk/I"   );
+  tEvtTree->Branch("qel",    &br_qel,       "br_qel/O"   );
+  tEvtTree->Branch("res",    &br_res,       "br_res/O"   );
+  tEvtTree->Branch("dis",    &br_dis,       "br_dis/O"   );
+  tEvtTree->Branch("coh",    &br_coh,       "br_coh/O"   );
+  tEvtTree->Branch("em",     &br_em,        "br_em/O"    );
+  tEvtTree->Branch("weakcc", &br_weakcc,    "br_weakcc/O");
+  tEvtTree->Branch("weaknc", &br_weaknc,    "br_weaknc/O");
+  tEvtTree->Branch("xs",     &br_kine_xs,   "xs/D"       );
+  tEvtTree->Branch("ys",     &br_kine_ys,   "ys/D"       );
+  tEvtTree->Branch("ts",     &br_kine_ts,   "ts/D"       );
+  tEvtTree->Branch("Q2s",    &br_kine_Q2s,  "Q2s/D"      );
+  tEvtTree->Branch("Ws",     &br_kine_Ws,   "Ws/D"       );
+  tEvtTree->Branch("x",      &br_kine_x,    "x/D"        );
+  tEvtTree->Branch("y",      &br_kine_y,    "y/D"        );
+  tEvtTree->Branch("t",      &br_kine_t,    "t/D"        );
+  tEvtTree->Branch("Q2",     &br_kine_Q2,   "Q2/D"       );
+  tEvtTree->Branch("W",      &br_kine_W,    "W/D"        );
+  tEvtTree->Branch("v",      &br_kine_v,    "v/D"        );
+  tEvtTree->Branch("Ev",     &br_Ev,        "Ev/D"       );
+  tEvtTree->Branch("El",     &br_El,        "El/D"       );
+  tEvtTree->Branch("vtxx",   &br_vtxx,      "vtxx/D"     );
+  tEvtTree->Branch("vtxy",   &br_vtxy,      "vtxy/D"     );
+  tEvtTree->Branch("vtxz",   &br_vtxz,      "vtxz/D"     );
+  tEvtTree->Branch("wgt",    &br_weight,    "wgt/D"      );
+  tEvtTree->Branch("np",     &br_np,        "np/I"       );
+  tEvtTree->Branch("nn",     &br_nn,        "nn/I"       );
+  tEvtTree->Branch("npip",   &br_npip,      "npip/I"     );
+  tEvtTree->Branch("npim",   &br_npim,      "npim/I"     );
+  tEvtTree->Branch("npi0",   &br_npi0,      "npi0/I"     );
+  tEvtTree->Branch("ngamma", &br_ngamma,    "ngamma/I"   );
+  tEvtTree->Branch("nKp",    &br_nKp,       "nKp/I"      );
+  tEvtTree->Branch("nKm",    &br_nKm,       "nKm/I"      );
+  tEvtTree->Branch("nK0",    &br_nK0,       "nK0/I"      );
+}
+//_________________________________________________________________________________
 void AnalyzeEvents(
                Long64_t nmax, TTree * tree, NtpMCEventRecord * mcrec)
 {
@@ -208,7 +236,7 @@ void AnalyzeEvents(
     // LOG("gmctest", pINFO) << rec_header;
     // LOG("gmctest", pINFO) << event;
 
-    // go further inly if the event is physical
+    // go further only if the event is physical
     bool is_unphysical = event.IsUnphysical();
     if(is_unphysical) continue;
 
@@ -231,6 +259,7 @@ void AnalyzeEvents(
 
     const Interaction * interaction = event.Summary();
     const ProcessInfo &  proc_info  = interaction->ProcInfo();
+    const Kinematics &   kine       = interaction->Kine();
 
     double weight = event.Weight();
     double Ev     = neutrino->Energy();
@@ -242,7 +271,8 @@ void AnalyzeEvents(
 
     double M  = kNucleonMass;
 
-    // see, for example, particle data booklet, page 210-211
+    // compute kinematical params
+    // (see, for example, particle data booklet, page 210-211)
 
     TLorentzVector q  = k1-k2;    // q=k1-k2, 4-p transfer
     double v  = (q*p1)/M;         // v (E transfer in hit nucleon rest frame)
@@ -252,392 +282,234 @@ void AnalyzeEvents(
     double W2 = M*M + 2*M*v - Q2; // Hadronic Invariant mass ^ 2
     double W  = TMath::Sqrt(W2);
 
-    TLorentzVector * vtx = event.Vertex(); // Interaction vertex
+    // also, access kinematical params _exactly_ as they were selected
+    // by the event generation code (can be different because of the
+    // off-shell kinematics)
 
-    bool isDIS = proc_info.IsDeepInelastic();
+    bool get_selected = true;
+    double xs  = kine.x (get_selected);
+    double ys  = kine.y (get_selected);
+    double ts  = 0; //kine.t (get_selected);
+    double Q2s = kine.Q2(get_selected);
+    double Ws  = kine.W (get_selected);
 
-    int np   = (!isDIS) ? 0 : event.NEntries(kPdgProton,  kIStStableFinalState);
-    int nn   = (!isDIS) ? 0 : event.NEntries(kPdgNeutron, kIStStableFinalState);
-    int npi0 = (!isDIS) ? 0 : event.NEntries(kPdgPi0,     kIStStableFinalState);
-    int npip = (!isDIS) ? 0 : event.NEntries(kPdgPiP,     kIStStableFinalState);
-    int npim = (!isDIS) ? 0 : event.NEntries(kPdgPiM,     kIStStableFinalState);
+    // get interaction vertex (in detector coord system)
+    //
+    TLorentzVector * vtx = event.Vertex(); 
 
-    int iproc = IProc(proc_info);
-    int icurr = ICurr(proc_info);
-    int ineut = INeut(neutrino->Pdg());
+    // fill the summary ntuple
+    //
+    br_iev       = i;
+    br_neutrino  = neutrino->Pdg();
+    br_target    = 0;
+    br_hitnuc    = 0;
+    br_hitqrk    = 0;
+    br_qel       = proc_info.IsQuasiElastic();
+    br_res       = proc_info.IsResonant();
+    br_dis       = proc_info.IsDeepInelastic();
+    br_coh       = proc_info.IsCoherent();
+    br_em        = proc_info.IsEM();
+    br_weakcc    = proc_info.IsWeakCC();
+    br_weaknc    = proc_info.IsWeakNC();
+    br_kine_xs   = xs;
+    br_kine_ys   = ys; 
+    br_kine_ts   = ts; 
+    br_kine_Q2s  = Q2s; 
+    br_kine_Ws   = Ws;
+    br_kine_x    = x;
+    br_kine_y    = y; 
+    br_kine_t    = 0; 
+    br_kine_Q2   = Q2; 
+    br_kine_W    = W;
+    br_kine_v    = v;
+    br_Ev        = Ev;
+    br_El        = El;
+    br_vtxx      = vtx->X();
+    br_vtxy      = vtx->Y();
+    br_vtxz      = vtx->Z();
+    br_weight    = weight; 
+    br_np        = event.NEntries(kPdgProton,  kIStStableFinalState);
+    br_nn        = event.NEntries(kPdgNeutron, kIStStableFinalState);
+    br_npip      = event.NEntries(kPdgPiP,     kIStStableFinalState);
+    br_npim      = event.NEntries(kPdgPiM,     kIStStableFinalState);
+    br_npi0      = event.NEntries(kPdgPi0,     kIStStableFinalState);
+    br_ngamma    = event.NEntries(kPdgGamma,   kIStStableFinalState);
+    br_nKp       = event.NEntries(kPdgKP,      kIStStableFinalState);
+    br_nKm       = event.NEntries(kPdgKM,      kIStStableFinalState);
+    br_nK0       = event.NEntries(kPdgK0,      kIStStableFinalState);
 
-    if (iproc<0) continue;
-    if (icurr<0) continue;
-    if (ineut<0) continue;
-
-    // fill histograms
-    hEvLAB  [iproc][icurr][ineut] -> Fill ( Ev,  weight );
-    hElLAB  [iproc][icurr][ineut] -> Fill ( El,  weight );
-    hKinX   [iproc][icurr][ineut] -> Fill ( x,   weight );
-    hKinY   [iproc][icurr][ineut] -> Fill ( y,   weight );
-    hKinXY  [iproc][icurr][ineut] -> Fill ( x,y, weight );
-    hKinNu  [iproc][icurr][ineut] -> Fill ( v,   weight );
-    hKinW   [iproc][icurr][ineut] -> Fill ( W,   weight );
-    hKinQ2  [iproc][icurr][ineut] -> Fill ( Q2,  weight );
-    hKinWQ2 [iproc][icurr][ineut] -> Fill ( W,Q2,weight );
-
-    if(isDIS) {
-      hMultPW   [icurr][ineut] -> Fill ( np,   W, weight);
-      hMultNW   [icurr][ineut] -> Fill ( nn,   W, weight);
-      hMultPi0W [icurr][ineut] -> Fill ( npi0, W, weight);
-      hMultPipW [icurr][ineut] -> Fill ( npip, W, weight);
-      hMultPimW [icurr][ineut] -> Fill ( npim, W, weight);
-    }
-    hVtxX -> Fill (vtx->X());
-    hVtxY -> Fill (vtx->Y());
-    hVtxZ -> Fill (vtx->Z());
-    hVtxT -> Fill (vtx->T());
-    hVtxR -> Fill (vtx->X(), vtx->Y(), vtx->Z());
+    tEvtTree->Fill();
 
     mcrec->Clear();
 
   } // event loop
 }
-//___________________________________________________________________
-void HistogramLimits(
-               Long64_t nmax, TTree * tree, NtpMCEventRecord * mcrec)
-{
-  LOG("gmctest", pNOTICE) << "*** Computing histogram limits";
-
-  for(Long64_t i = 0; i < nmax; i++) {
-    tree->GetEntry(i);
-
-    EventRecord &  event = *(mcrec->event);
-
-    bool is_unphysical = event.IsUnphysical();
-    if(is_unphysical) continue;
- 
-    double Ev = event.Particle(0)->Energy();
-
-    TLorentzVector * vtx = event.Vertex();
-
-    gEvMin   = TMath::Min(gEvMin,   Ev);
-    gEvMax   = TMath::Max(gEvMax,   Ev);
-    gVtxXMin = TMath::Min(gVtxXMin, vtx->X());
-    gVtxXMax = TMath::Max(gVtxXMax, vtx->X());
-    gVtxYMin = TMath::Min(gVtxYMin, vtx->Y());
-    gVtxYMax = TMath::Max(gVtxYMax, vtx->Y());
-    gVtxZMin = TMath::Min(gVtxZMin, vtx->Z());
-    gVtxZMax = TMath::Max(gVtxZMax, vtx->Z());
-    gVtxTMin = TMath::Min(gVtxTMin, vtx->T());
-    gVtxTMax = TMath::Max(gVtxTMax, vtx->T());
-
-    mcrec->Clear();
-  }
-
-  if(gEvMax-gEvMin < 0.5) { gEvMax+=1.0; gEvMin-=1.0; }
-  gEvMin = TMath::Max(gEvMin,0.);
-
-  if(gVtxXMin==gVtxXMax) gVtxXMax+=1;
-  if(gVtxYMin==gVtxYMax) gVtxYMax+=1;
-  if(gVtxZMin==gVtxZMax) gVtxZMax+=1;
-  if(gVtxTMin==gVtxTMax) gVtxTMax+=1;
-
-  gWMin  = 0;
-  gWMax  = gEvMax;
-  gQ2Min = 0;
-  gQ2Max = gEvMax*gEvMax;
-
-  LOG("gmctest", pDEBUG) << "Ev = [" << gEvMin << "," << gEvMax << "]";
-  LOG("gmctest", pDEBUG) << "Vx = [" << gVtxXMin << "," << gVtxXMax << "]";
-  LOG("gmctest", pDEBUG) << "Vy = [" << gVtxYMin << "," << gVtxYMax << "]";
-  LOG("gmctest", pDEBUG) << "Vz = [" << gVtxZMin << "," << gVtxZMax << "]";
-  LOG("gmctest", pDEBUG) << "Vt = [" << gVtxTMin << "," << gVtxTMax << "]";
-}
-//___________________________________________________________________
-void InitHistos(void)
-{
-  LOG("gmctest", pNOTICE) << "*** Booking output histograms";
-
-  int NEv = int ((gEvMax-gEvMin)/kdE);
-  int Nx  = int (1./kdx);
-  int Ny  = int (1./kdy);
-  int NQ2 = int ((gQ2Max-gQ2Min)/kdQ2);
-  int NW  = int ((gQ2Max-gQ2Min)/kdW);
-
-  string ptrn;
-  string title;
-
-  for(int iproc=0; iproc<kNProc; iproc++) {
-    for(int icurr=0; icurr<kNCurr; icurr++) {
-      for(int ineut=0; ineut<kNNeut; ineut++) {
-
-	ptrn  = HistoPtr("hEvLab",    iproc,icurr,ineut);
-	title = HistoTitle("Ev(LAB)", iproc,icurr,ineut);
-	hEvLAB[iproc][icurr][ineut] = new TH1D(
-                      ptrn.c_str(),title.c_str(),NEv,gEvMin,gEvMax);
-
-	ptrn  = HistoPtr("hElLab",    iproc,icurr,ineut);
-	title = HistoTitle("El (LAB)",iproc,icurr,ineut);
-	hElLAB[iproc][icurr][ineut] = new TH1D(
-                     ptrn.c_str(), title.c_str(),NEv,gEvMin,gEvMax);
-
-	ptrn  = HistoPtr("hKinX",iproc,icurr,ineut);
-	title = HistoTitle("x",  iproc,icurr,ineut);
-	hKinX[iproc][icurr][ineut] = new TH1D(
-                              ptrn.c_str(), title.c_str(), Nx, 0,1);
-
-	ptrn  = HistoPtr("hKinY",iproc,icurr,ineut);
-	title = HistoTitle("y",  iproc,icurr,ineut);
-	hKinY[iproc][icurr][ineut] = new TH1D(
-                              ptrn.c_str(), title.c_str(), Ny, 0,1);
-
-	ptrn  = HistoPtr("hKinXY",  iproc,icurr,ineut);
-	title = HistoTitle("x vs y",iproc,icurr,ineut);
-	hKinXY[iproc][icurr][ineut] = new TH2D(
-		     ptrn.c_str(), title.c_str(), Nx, 0,1, Ny, 0,1);   
-
-	ptrn  = HistoPtr("hKinQ2",iproc,icurr,ineut);
-	title = HistoTitle("Q2",  iproc,icurr,ineut);
-	hKinQ2[iproc][icurr][ineut] = new TH1D(
-                   ptrn.c_str(), title.c_str(), NQ2, gQ2Min,gQ2Max);
-
-	ptrn  = HistoPtr("hKinW",iproc,icurr,ineut);
-	title = HistoTitle("W",  iproc,icurr,ineut);
-	hKinW[iproc][icurr][ineut] = new TH1D(
-                      ptrn.c_str(), title.c_str(), NW, gWMin,gWMax);
-
-	ptrn  = HistoPtr("hKinNu",iproc,icurr,ineut);
-	title = HistoTitle("v",  iproc,icurr,ineut);
-	hKinNu[iproc][icurr][ineut] = new TH1D(
-                   ptrn.c_str(), title.c_str(), NEv, gEvMin,gEvMax);
-
-	ptrn  = HistoPtr("hKinWQ2",  iproc,icurr,ineut);
-	title = HistoTitle("W vs Q2",iproc,icurr,ineut);
-	hKinWQ2[iproc][icurr][ineut] = new TH2D(
-		     ptrn.c_str(), title.c_str(), 
-                               NW, gWMin,gWMax, NQ2, gQ2Min,gQ2Max);   
-      }//neut
-    }//curr
-  }//proc
-
-  for(int icurr=0; icurr<kNCurr; icurr++) {
-    for(int ineut=0; ineut<kNNeut; ineut++) {
-
-	ptrn  = HistoPtr("hMultPW", -1,icurr,ineut);
-	title = HistoTitle("DIS Proton Multiplicity vs W", -1,icurr,ineut);
-        hMultPW[icurr][ineut] = new TH2D(ptrn.c_str(), title.c_str(),
-					          5,0,5, NW, gWMin, gWMax);
-
-	ptrn  = HistoPtr("hMultNW", -1,icurr,ineut);
-	title = HistoTitle("DIS Neutron Multiplicity vs W", -1,icurr,ineut);
-        hMultNW[icurr][ineut] = new TH2D(ptrn.c_str(), title.c_str(),
-					           5,0,5, NW, gWMin, gWMax);
-
-	ptrn  = HistoPtr("hMultPi0W", -1,icurr,ineut);
-	title = HistoTitle("DIS Pi0 Multiplicity vs W", -1,icurr,ineut);
-        hMultPi0W[icurr][ineut] = new TH2D(ptrn.c_str(), title.c_str(),
-					         30,0,30, NW, gWMin, gWMax);
-
-	ptrn  = HistoPtr("hMultPipW", -1,icurr,ineut);
-	title = HistoTitle("DIS Pi+ Multiplicity vs W", -1,icurr,ineut);
-        hMultPipW[icurr][ineut] = new TH2D(ptrn.c_str(), title.c_str(),
-					         30,0,30, NW, gWMin, gWMax);
-
-	ptrn  = HistoPtr("hMultPimW", -1,icurr,ineut);
-	title = HistoTitle("DIS Pi- Multiplicity vs W", -1,icurr,ineut);
-        hMultPimW[icurr][ineut] = new TH2D(ptrn.c_str(), title.c_str(),
-					         30,0,30, NW, gWMin, gWMax);
-    }//neut
-  }//curr
-
-  hVtxX = new TH1D("hVtxX","interaction vtx, x", 
-                          100, 0.95*gVtxXMin, 1.05*gVtxXMax);
-  hVtxY = new TH1D("hVtxY","interaction vtx, y", 
-                          100, 0.95*gVtxYMin, 1.05*gVtxYMax);
-  hVtxZ = new TH1D("hVtxZ","interaction vtx, z", 
-                          1000, 0.95*gVtxZMin, 1.05*gVtxZMax);
-  hVtxT = new TH1D("hVtxT","interaction vtx, t", 
-                          100, 0.95*gVtxTMin, 1.05*gVtxTMax);
-  hVtxR = new TH3D("hVtxR","interaction vtx, x,y,z", 
-		          100, 0.95*gVtxTMin, 1.05*gVtxTMax,
-  		          100, 0.95*gVtxYMin, 1.05*gVtxYMax,
-                          100, 0.95*gVtxZMin, 1.05*gVtxZMax);
-}
-//___________________________________________________________________
-void SaveHistos(string outpfilename)
+//_________________________________________________________________________________
+void SaveResults(string outpfilename)
 {
   LOG("gmctest", pNOTICE) 
           << "*** Saving output histograms to: " << outpfilename;
 
+  LOG("gmctest", pNOTICE) 
+     << "number of events processed: " << tEvtTree->GetEntries();
+
   TFile outfile(outpfilename.c_str(),"recreate");
 
-  TDirectory * dirEvLab  = 
-                   new TDirectory("Ev_Lab","Ev (LAB)");
-  TDirectory * dirElLab  = 
-                   new TDirectory("El_Lab","El (LAB)");
-  TDirectory * dirKinX   = 
-                   new TDirectory("x","Bjorken x");
-  TDirectory * dirKinY   = 
-                   new TDirectory("y","Inelasticity y");
-  TDirectory * dirKinXY  = 
-                   new TDirectory("xy","Bjorken x vs Inelasticity y");
-  TDirectory * dirKinW   = 
-                   new TDirectory("W","Hadronic Invariant Mass");
-  TDirectory * dirKinNu  = 
-                   new TDirectory("v","Energy transfer");
-  TDirectory * dirKinQ2  = 
-                   new TDirectory("Q2","Momentum Trasfer");
-  TDirectory * dirKinWQ2 = 
-                   new TDirectory("WQ2","Invariant Mass W vs Momentum Transfer Q2");
-  TDirectory * dirVtx    = 
-                   new TDirectory("vtx", "Interaction Vertex");
-  TDirectory * dirMult   = 
-                   new TDirectory("multipl","DIS Hadronic Multiplicities");
-
-  for(int iproc=0; iproc<kNProc; iproc++) {
-    for(int icurr=0; icurr<kNCurr; icurr++) {
-      for(int ineut=0; ineut<kNNeut; ineut++) {
-
-        dirEvLab -> cd();
-	hEvLAB[iproc][icurr][ineut] -> Write();
-
-        dirElLab -> cd();
-	hElLAB[iproc][icurr][ineut] -> Write();
-
-        dirKinX  -> cd();
-	hKinX[iproc][icurr][ineut]  -> Write();
-
-        dirKinY  -> cd(); 
-	hKinY[iproc][icurr][ineut]  -> Write();
-
-        dirKinXY -> cd();
-	hKinXY[iproc][icurr][ineut] -> Write();
-
-        dirKinW  -> cd();
-	hKinW[iproc][icurr][ineut]  -> Write();
-
-        dirKinNu  -> cd();
-	hKinNu[iproc][icurr][ineut]  -> Write();
-
-        dirKinQ2  -> cd(); 
-	hKinQ2[iproc][icurr][ineut]  -> Write();
-
-        dirKinWQ2 -> cd();
-	hKinWQ2[iproc][icurr][ineut] -> Write();
-      }
-    }
-  }
-
-  dirVtx->cd();
-  hVtxX -> Write();
-  hVtxY -> Write();
-  hVtxZ -> Write();
-  hVtxT -> Write();
-  hVtxR -> Write();
-
-  dirMult->cd();
-  for(int icurr=0; icurr<kNCurr; icurr++) {
-    for(int ineut=0; ineut<kNNeut; ineut++) {
-
-       hMultPW   [icurr][ineut] -> Write();
-       hMultNW   [icurr][ineut] -> Write();
-       hMultPi0W [icurr][ineut] -> Write();
-       hMultPipW [icurr][ineut] -> Write();
-       hMultPimW [icurr][ineut] -> Write();
-    }
-  }
-
-  dirEvLab  -> Write();
-  dirElLab  -> Write();
-  dirKinX   -> Write();
-  dirKinY   -> Write();
-  dirKinXY  -> Write(); 
-  dirKinW   -> Write();
-  dirKinNu  -> Write();
-  dirKinQ2  -> Write();
-  dirKinWQ2 -> Write(); 
-  dirVtx    -> Write();
-  dirMult  -> Write();
+  AddKineDir           (outfile);
+  AddKineCcNumuDir     (outfile);
+  AddKineCcNumuQelDir  (outfile);
+  AddKineCcNumuResDir  (outfile);
+  AddKineCcNumuDisDir  (outfile);
+  AddHMultDir          (outfile);
+  AddVtxDir            (outfile);
+  AddNtpDir            (outfile);
 
   outfile.Close();
 }
-//___________________________________________________________________
-int IProc(const ProcessInfo & pi)
+//_________________________________________________________________________________
+void AddKineDir(TFile & file)
 {
-  int iproc = -1;
+  TDirectory * KineDir = file.mkdir("KineDir", "Kinematics plots - All processes");
+  KineDir->cd();
 
-  if      ( pi.IsQuasiElastic()  ) iproc = 0;
-  else if ( pi.IsResonant()      ) iproc = 1;
-  else if ( pi.IsDeepInelastic() ) iproc = 2;
+  tEvtTree->Draw( "x>>hx",     "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "y>>hy",     "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "t>>ht",     "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "Q2>>hQ2",   "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "W>>hW",     "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "v>>hv",     "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "xs>>hxs",   "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "ys>>hys",   "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "ts>>hts",   "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "Q2s>>hQ2s", "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "Ws>>hWs",   "wgt*(1==1)", "GOFF");
 
-  return iproc;
+  KineDir->Write();
 }
-//___________________________________________________________________
-int ICurr(const ProcessInfo & pi)
+//_________________________________________________________________________________
+void AddKineCcNumuDir(TFile & file)
 {
-  int icurr = -1;
+  TDirectory * KineCcNumuDir = file.mkdir(
+         "KineCcNumuDir", "Kinematics plots - All nu_mu CC processes");
+  KineCcNumuDir->cd();
 
-  if      ( pi.IsWeakCC() ) icurr = 0;
-  else if ( pi.IsWeakNC() ) icurr = 1;
+  tEvtTree->Draw( "x>>hx",     "wgt*(neu==14&&weakcc)", "GOFF");
+  tEvtTree->Draw( "y>>hy",     "wgt*(neu==14&&weakcc)", "GOFF");
+  tEvtTree->Draw( "t>>ht",     "wgt*(neu==14&&weakcc)", "GOFF");
+  tEvtTree->Draw( "Q2>>hQ2",   "wgt*(neu==14&&weakcc)", "GOFF");
+  tEvtTree->Draw( "W>>hW",     "wgt*(neu==14&&weakcc)", "GOFF");
+  tEvtTree->Draw( "v>>hv",     "wgt*(neu==14&&weakcc)", "GOFF");
+  tEvtTree->Draw( "xs>>hxs",   "wgt*(neu==14&&weakcc)", "GOFF");
+  tEvtTree->Draw( "ys>>hys",   "wgt*(neu==14&&weakcc)", "GOFF");
+  tEvtTree->Draw( "ts>>hts",   "wgt*(neu==14&&weakcc)", "GOFF");
+  tEvtTree->Draw( "Q2s>>hQ2s", "wgt*(neu==14&&weakcc)", "GOFF");
+  tEvtTree->Draw( "Ws>>hWs",   "wgt*(neu==14&&weakcc)", "GOFF");
 
-  return icurr;
+  KineCcNumuDir->Write();
 }
-//___________________________________________________________________
-int INeut(int pdgc)
+//_________________________________________________________________________________
+void AddKineCcNumuQelDir(TFile & file)
 {
-  int ineut = -1;
+  TDirectory * KineCcNumuQelDir = file.mkdir(
+         "KineCcNumuQelDir", "Kinematics plots - nu_mu CC QEL");
+  KineCcNumuQelDir->cd();
 
-  if      ( pdg::IsNuE(pdgc)       ) ineut = 0;
-  else if ( pdg::IsNuMu(pdgc)      ) ineut = 1;
-  else if ( pdg::IsNuTau(pdgc)     ) ineut = 2;
-  else if ( pdg::IsAntiNuE(pdgc)   ) ineut = 3;
-  else if ( pdg::IsAntiNuMu(pdgc)  ) ineut = 4;
-  else if ( pdg::IsAntiNuTau(pdgc) ) ineut = 5;
+  tEvtTree->Draw( "x>>hx",     "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  tEvtTree->Draw( "y>>hy",     "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  tEvtTree->Draw( "t>>ht",     "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  tEvtTree->Draw( "Q2>>hQ2",   "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  tEvtTree->Draw( "W>>hW",     "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  tEvtTree->Draw( "v>>hv",     "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  tEvtTree->Draw( "xs>>hxs",   "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  tEvtTree->Draw( "ys>>hys",   "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  tEvtTree->Draw( "ts>>hts",   "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  tEvtTree->Draw( "Q2s>>hQ2s", "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  tEvtTree->Draw( "Ws>>hWs",   "wgt*(neu==14&&weakcc&&qel)", "GOFF");
 
-  return ineut;
+  KineCcNumuQelDir->Write();
 }
-//___________________________________________________________________
-string ProcName(int i)
+//_________________________________________________________________________________
+void AddKineCcNumuResDir(TFile & file)
 {
-  if      (i==0) return "QEL";
-  else if (i==1) return "RES";
-  else if (i==2) return "DIS";
-  else
-    return "";
+  TDirectory * KineCcNumuResDir = file.mkdir(
+         "KineCcNumuResDir", "Kinematics plots - nu_mu CC RES");
+  KineCcNumuResDir->cd();
+
+  tEvtTree->Draw( "x>>hx",     "wgt*(neu==14&&weakcc&&res)", "GOFF");
+  tEvtTree->Draw( "y>>hy",     "wgt*(neu==14&&weakcc&&res)", "GOFF");
+  tEvtTree->Draw( "t>>ht",     "wgt*(neu==14&&weakcc&&res)", "GOFF");
+  tEvtTree->Draw( "Q2>>hQ2",   "wgt*(neu==14&&weakcc&&res)", "GOFF");
+  tEvtTree->Draw( "W>>hW",     "wgt*(neu==14&&weakcc&&res)", "GOFF");
+  tEvtTree->Draw( "v>>hv",     "wgt*(neu==14&&weakcc&&res)", "GOFF");
+  tEvtTree->Draw( "xs>>hxs",   "wgt*(neu==14&&weakcc&&res)", "GOFF");
+  tEvtTree->Draw( "ys>>hys",   "wgt*(neu==14&&weakcc&&res)", "GOFF");
+  tEvtTree->Draw( "ts>>hts",   "wgt*(neu==14&&weakcc&&res)", "GOFF");
+  tEvtTree->Draw( "Q2s>>hQ2s", "wgt*(neu==14&&weakcc&&res)", "GOFF");
+  tEvtTree->Draw( "Ws>>hWs",   "wgt*(neu==14&&weakcc&&res)", "GOFF");
+
+  KineCcNumuResDir->Write();
 }
-//___________________________________________________________________
-string CurrName(int i)
+//_________________________________________________________________________________
+void AddKineCcNumuDisDir(TFile & file)
 {
-  if      (i==0) return "CC";
-  else if (i==1) return "NC";
-  else
-    return "";
+  TDirectory * KineCcNumuDisDir = file.mkdir(
+         "KineCcNumuDisDir", "Kinematics plots - nu_mu CC DIS");
+  KineCcNumuDisDir->cd();
+
+  tEvtTree->Draw( "x>>hx",     "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+  tEvtTree->Draw( "y>>hy",     "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+  tEvtTree->Draw( "t>>ht",     "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+  tEvtTree->Draw( "Q2>>hQ2",   "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+  tEvtTree->Draw( "W>>hW",     "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+  tEvtTree->Draw( "v>>hv",     "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+  tEvtTree->Draw( "xs>>hxs",   "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+  tEvtTree->Draw( "ys>>hys",   "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+  tEvtTree->Draw( "ts>>hts",   "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+  tEvtTree->Draw( "Q2s>>hQ2s", "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+  tEvtTree->Draw( "Ws>>hWs",   "wgt*(neu==14&&weakcc&&dis)", "GOFF");
+
+  KineCcNumuDisDir->Write();
 }
-//___________________________________________________________________
-string NeutName(int i)
+//_________________________________________________________________________________
+void AddHMultDir(TFile & file)
 {
-  if      (i==0) return "NuE";
-  else if (i==1) return "NuMu";
-  else if (i==2) return "NuTau";
-  else if (i==3) return "NuEBar";
-  else if (i==4) return "NuMuBar";
-  else if (i==5) return "NuTauBar";
-  else
-    return "";
+  TDirectory * HMultDir = file.mkdir(
+              "HMultDir", "Hadronic multiplicities - All processes");
+  HMultDir->cd();
+
+  tEvtTree->Draw( "np>>hnp",         "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "nn>>hnn",         "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "npip>>hnpip",     "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "npim>>hnpim",     "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "ngamma/2>>hnpi0", "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "nKp>>hnKp",       "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "nKm>>hnKm",       "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw( "nK0>>hnK0",       "wgt*(1==1)", "GOFF");
+
+  HMultDir->Write();
 }
-//___________________________________________________________________
-string HistoPtr(string front, int iproc, int icurr, int ineut)
+//_________________________________________________________________________________
+void AddVtxDir(TFile & file)
 {
-  ostringstream ptrn;
-  ptrn << front << ProcName(iproc) 
-       << CurrName(icurr) << NeutName(ineut);
-  return ptrn.str();
+  TDirectory * VtxDir = file.mkdir("VtxDir", "Event vertex plots");
+  VtxDir->cd();
+
+  tEvtTree->Draw("vtxx>>hvtxx",       "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw("vtxy>>hvtxy",       "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw("vtxz>>hvtxz",       "wgt*(1==1)", "GOFF");
+  tEvtTree->Draw("vtxx:vtxy>>hvtxxy", "wgt*(1==1)", "GOFF");
+
+  VtxDir->Write();
 }
-//___________________________________________________________________
-string HistoTitle(string front, int iproc, int icurr, int ineut)
+//_________________________________________________________________________________
+void AddNtpDir(TFile & file)
 {
-  ostringstream title;
-  title << front << ", " << ProcName(iproc) 
-        << ", " << CurrName(icurr) << ", " << NeutName(ineut);
-  return title.str();
+  TDirectory * NtpDir = file.mkdir("NtpDir", "Summary Ntuples");
+  NtpDir->cd();
+  NtpDir->Add(tEvtTree);
+  NtpDir->Write();
 }
-//___________________________________________________________________
+//_________________________________________________________________________________
 string OutputFileName(string inpname)
 {
 // Builds the output filename based on the name of the input filename
@@ -655,7 +527,7 @@ string OutputFileName(string inpname)
 
   return gSystem->BaseName(name.str().c_str());
 }
-//___________________________________________________________________
+//_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gmctest", pNOTICE) << "*** Parsing commad line arguments";
@@ -684,9 +556,9 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
-  //get input ROOT file (containing a GENIE ER ntuple)
+  //get GENIE event sample ROOT file (ER-format)
   try {
-    LOG("gmctest", pINFO) << "Reading input filename";
+    LOG("gmctest", pINFO) << "Reading event sample filename";
     gOptInpFile = utils::clap::CmdLineArgAsString(argc,argv,'f');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
@@ -696,17 +568,28 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
+  //get another (template) GENIE event sample ROOT file (ER-format)
+  try {
+    LOG("gmctest", pINFO) << "Reading filename of event sample template";
+    gOptInpTemplFile = utils::clap::CmdLineArgAsString(argc,argv,'c');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gmctst", pNOTICE) 
+         << "Unspecified event sample template - WIll not run comparisons";
+    }
+  }
+
   //assert that the input ROOT file is accessible
   assert(CheckRootFilename(gOptInpFile));
 }
-//___________________________________________________________________
+//_________________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("gmctest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gmctest [-n nev] -t tgtpdg -f filename\n";
+    << "   gmctest -f file -t tgtpdg [-n nev] [-c template_file]\n";
 }
-//___________________________________________________________________
+//_________________________________________________________________________________
 bool CheckRootFilename(string filename)
 {
   bool is_accessible = ! (gSystem->AccessPathName(filename.c_str()));
@@ -717,4 +600,4 @@ bool CheckRootFilename(string filename)
   }
   return true;
 }
-//___________________________________________________________________
+//_________________________________________________________________________________
