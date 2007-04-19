@@ -26,18 +26,19 @@
               -> [path length]*[mixture density]*[element weight fraction]
 
          Syntax :
-           gmxpl -f geom_file [-u units] [-o output_xml_file] [-n np] [-r nr]
+           gmxpl -f geom_file [-l length-units] [-m mass-units] [-o output_xml_file] [-n np] [-r nr]
 
          Options :
            -f  a ROOT file containing a ROOT/GEANT geometry description
-           -u  geometry length units       [ default: meter ]
+           -l  geometry length units       [ default: meter ]
+           -m  geometry mass units         [ default: kilogram ]
            -n  n scanning points / surface [ default: see geom driver's defaults ]
            -r  n scanning rays / point     [ default: see geom driver's defaults ]
            -o  output XML filename         [ default: maxpl.xml ]
 
          Examples:
 
-           gmxpl -f ~/data/mygeometry.root -u cm
+           gmxpl -f ~/data/mygeometry.root -l cm -m gram
 
            will compute the maximum path lengths for all the materials found
            in the input ROOT geometry (at mygeometry.root), in which the used
@@ -58,6 +59,8 @@
 #include <cassert>
 #include <string>
 
+#include <TMath.h>
+
 #include "EVGDrivers/PathLengthList.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Messenger/Messenger.h"
@@ -75,15 +78,17 @@ void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
 
 //Defaults for optional options:
-string kDefOptXMLFilename = "maxpl.xml";
-string kDefOptGeomUnits   = "meter";
+string kDefOptXMLFilename       = "maxpl.xml";
+string kDefOptGeomLengthUnits   = "meter";
+string kDefOptGeomMassUnits     = "kilogram";
 
 //User-specified options:
-string gOptGeomFilename = "";
-string gOptXMLFilename  = "";
-string gOptGeomUnits    = "";
-int    gOptNPoints      = -1;
-int    gOptNRays        = -1;
+string gOptGeomFilename    = "";
+string gOptXMLFilename     = "";
+string gOptGeomLengthUnits = "";
+string gOptGeomMassUnits   = "";
+int    gOptNPoints         = -1;
+int    gOptNRays           = -1;
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -95,17 +100,23 @@ int main(int argc, char ** argv)
   LOG("gmxpl", pINFO) << "Command line arguments:";
   LOG("gmxpl", pINFO) << "Input ROOT geometry    = " << gOptGeomFilename;
   LOG("gmxpl", pINFO) << "Output XML file        = " << gOptXMLFilename;
-  LOG("gmxpl", pINFO) << "Geometry units         = " << gOptGeomUnits;
+  LOG("gmxpl", pINFO) << "Geometry length units  = " << gOptGeomLengthUnits;
+  LOG("gmxpl", pINFO) << "Geometry mass units  = " << gOptGeomMassUnits;
   LOG("gmxpl", pINFO) << "Scanner points/surface = " << gOptNPoints;
   LOG("gmxpl", pINFO) << "Scanner rays/point     = " << gOptNRays;
 
   //-- create the geometry driver
   LOG("gmxpl", pINFO)
-            << "Creating/configuring a ROOT geom. driver";
+     << "Creating/configuring a ROOT geom. driver";
 
   ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer(gOptGeomFilename);
 
-  geom->SetUnits(genie::utils::units::UnitFromString(gOptGeomUnits));
+  double lu = genie::utils::units::UnitFromString(gOptGeomLengthUnits);
+  double mu = genie::utils::units::UnitFromString(gOptGeomMassUnits);
+  double du = mu / TMath::Power(lu,3.);
+
+  geom->SetLengthUnits(lu);
+  geom->SetDensityUnits(du);
   geom->SetWeightWithDensity(true);
 
   if(gOptNPoints > 0) geom->SetScannerNPoints(gOptNPoints);
@@ -141,14 +152,24 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptXMLFilename = kDefOptXMLFilename;
     }
   }
-  //geometry units:
+  //geometry length units:
   try {
-    LOG("gmxpl", pINFO) << "Reading input geometry units";
-    gOptGeomUnits = genie::utils::clap::CmdLineArgAsString(argc,argv,'u');
+    LOG("gmxpl", pINFO) << "Reading input geometry length units";
+    gOptGeomLengthUnits = genie::utils::clap::CmdLineArgAsString(argc,argv,'l');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("gmxpl", pINFO) << "Unspecified geometry units - Using default";
-      gOptGeomUnits = kDefOptGeomUnits;
+      LOG("gmxpl", pINFO) << "Unspecified geometry length units - Using default";
+      gOptGeomLengthUnits = kDefOptGeomLengthUnits;
+    }
+  }
+  //geometry mass units:
+  try {
+    LOG("gmxpl", pINFO) << "Reading input geometry mass units";
+    gOptGeomMassUnits = genie::utils::clap::CmdLineArgAsString(argc,argv,'m');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gmxpl", pINFO) << "Unspecified geometry mass units - Using default";
+      gOptGeomMassUnits = kDefOptGeomMassUnits;
     }
   }
 
@@ -192,6 +213,6 @@ void PrintSyntax(void)
 {
   LOG("gmxpl", pNOTICE)
       << "\n\n" << "Syntax:" << "\n"
-          << "   gmxpl -f geom_file [-u geom_units] [-o output_xml_file]";
+     << "   gmxpl -f geom_file [-l length_units] [-m mass_units] [-o output_xml_file]";
 }
 //____________________________________________________________________________
