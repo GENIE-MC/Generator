@@ -38,10 +38,13 @@
 #include <TTree.h>
 #include <TVector3.h>
 #include <TLorentzVector.h>
+#include <TPostScript.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TH3D.h>
 #include <TMath.h>
+#include <TCanvas.h>
+#include <TPavesText.h>
 
 #include "Conventions/Constants.h"
 #include "EVGCore/EventRecord.h"
@@ -68,9 +71,11 @@ void   GetCommandLineArgs(int argc, char ** argv);
 void   PrintSyntax          (void);
 bool   CheckRootFilename    (string filename);
 string OutputFileName       (string input_file_name);
+void   AnalyzeSample        (string filename);
 void   Initialize           (void);
-void   AnalyzeEvents        (Long64_t n, TTree* t, NtpMCEventRecord* r);
-void   SaveResults          (string outpfilename);
+void   EventLoop            (void);
+void   SaveResults          (void);
+void   CleanUp              (void);
 void   AddKineDir           (TFile & file);
 void   AddKineCcNumuDir     (TFile & file);
 void   AddKineCcNumuQelDir  (TFile & file);
@@ -79,13 +84,28 @@ void   AddKineCcNumuDisDir  (TFile & file);
 void   AddHMultDir          (TFile & file);
 void   AddVtxDir            (TFile & file);
 void   AddNtpDir            (TFile & file);
+void   Plot                 (void);
+void   PlotH1F              (string name, string title);
 
 // command-line arguments
-Long64_t gOptN;            // process so many events, all if -1
-Long64_t gOptTgtPdgC;      // process events only for this nucl. target
-string   gOptInpFile;      // input GENIE event sample file
-string   gOptInpTemplFile; // input GENIE event sample file (template)
+Long64_t gOptN;                // (-n)  process so many events, all if -1
+Long64_t gOptTgtPdgC;          // (-t) process events only for this nucl. target
+string   gOptInpFile;          // (-f) input GENIE event sample file
+string   gOptInpTemplFile;     // (-c) input GENIE event sample file (template)
 
+//
+bool               gSampleComp = false;  // run sample comparisons ?
+TCanvas *          gC = 0;
+TPostScript *      gPS = 0;
+TDirectory *       gTestedSampleDir = 0; // plot dir in test sample file
+TDirectory *       gTempltSampleDir = 0; // plot dir in template sample file
+NtpMCEventRecord * gMCRec = 0;
+TTree *            gEventRecTree = 0;
+Long64_t           gNEvt = 0;
+string             gCurrInpFilename = "";
+TFile *            gCurrInpFile = 0;
+
+// summary tree
 TTree * tEvtTree;
 int    br_iev       = 0;
 int    br_neutrino  = 0;
@@ -132,17 +152,46 @@ int main(int argc, char ** argv)
   //-- scan the command line arguments 
   GetCommandLineArgs(argc,argv);
 
+  //-- analyze tested event generation sample
+  assert(CheckRootFilename(gOptInpFile));
+  AnalyzeSample(gOptInpFile);
+
+  //-- analyze tested event generation sample template - if available
+  if (CheckRootFilename(gOptInpTemplFile) ) {
+    AnalyzeSample(gOptInpTemplFile);
+    gSampleComp = true;
+  }
+
+  //-- plot results
+  //-- if a template file was available plot comparisons too
+  Plot();
+
+  LOG("gmctest", pINFO)  << "Done!";
+  return 0;
+}
+//_________________________________________________________________________________
+void AnalyzeSample(string filename)
+{
+  gCurrInpFilename = filename;
+
+  Initialize  ();
+  EventLoop   ();
+  SaveResults ();
+  CleanUp     ();
+
+  LOG("gmctest", pINFO)  << "Done analyzing : " << filename;
+}
+//_________________________________________________________________________________
+void Initialize(void)
+{
   //-- open the ROOT file and get the TTree & its header
-  TTree *           tree = 0;
-  NtpMCTreeHeader * thdr = 0;
 
-  LOG("gmctest", pNOTICE) 
-                  << "*** Opening GHEP data file: " << gOptInpFile;
+  LOG("gmctest", pNOTICE) << "*** Opening GHEP data file: " << gCurrInpFilename;
 
-  TFile inpfile(gOptInpFile.c_str(),"READ");
-
-  tree = dynamic_cast <TTree *>           ( inpfile.Get("gtree")  );
-  thdr = dynamic_cast <NtpMCTreeHeader *> ( inpfile.Get("header") );
+  TFile * gCurrInpFile = new TFile(gCurrInpFilename.c_str(),"READ");
+  TTree * tree = dynamic_cast <TTree *> (gCurrInpFile->Get("gtree"));
+  NtpMCTreeHeader * thdr = 
+       dynamic_cast <NtpMCTreeHeader *> (gCurrInpFile->Get("header"));
 
   LOG("gmctest", pNOTICE) << "*** Input tree header: " << *thdr;
 
@@ -158,25 +207,12 @@ int main(int argc, char ** argv)
   Long64_t nmax = (gOptN<0) ? 
        tree->GetEntries() : TMath::Min( tree->GetEntries(), gOptN );
 
-  //-- build output filename based on input filename
-  string outpfilename = OutputFileName(gOptInpFile);
+  //-- keep what is needed for the EventLoop()
+  gEventRecTree = tree;
+  gMCRec        = mcrec;
+  gNEvt         = nmax;
 
-  Initialize    ();
-  AnalyzeEvents (nmax, tree, mcrec);
-  SaveResults   (outpfilename);
-
-  //-- close the input GENIE event file
-  LOG("gmctest", pNOTICE) << "*** Closing input GHEP data stream";
-  inpfile.Close();
-  tree = 0;
-  thdr = 0;
-
-  LOG("gmctest", pINFO)  << "Done!";
-  return 0;
-}
-//_________________________________________________________________________________
-void Initialize()
-{
+  //-- create summary tree
   tEvtTree = new TTree("tEvtTree","event tree summary");
   tEvtTree->Branch("iev",    &br_iev,       "iev/I"      );
   tEvtTree->Branch("neu",    &br_neutrino,  "neu/I"      );
@@ -218,20 +254,19 @@ void Initialize()
   tEvtTree->Branch("nK0",    &br_nK0,       "nK0/I"      );
 }
 //_________________________________________________________________________________
-void AnalyzeEvents(
-               Long64_t nmax, TTree * tree, NtpMCEventRecord * mcrec)
+void EventLoop(void)
 {
-  LOG("gmctest", pNOTICE) << "*** Analyzing: " << nmax << " events";
+  LOG("gmctest", pNOTICE) << "*** Analyzing: " << gNEvt << " events";
 
-  if ( nmax<0 ) return;
-  if ( !tree  ) return;
-  if ( !mcrec ) return;
+  if ( gNEvt<0 )       return;
+  if ( !gEventRecTree) return;
+  if ( !gMCRec )       return;
 
-  for(Long64_t i = 0; i < nmax; i++) {
-    tree->GetEntry(i);
+  for(Long64_t i = 0; i < gNEvt; i++) {
+    gEventRecTree->GetEntry(i);
 
-    NtpMCRecHeader rec_header = mcrec->hdr;
-    EventRecord &  event      = *(mcrec->event);
+    NtpMCRecHeader rec_header = gMCRec->hdr;
+    EventRecord &  event      = *(gMCRec->event);
 
     // LOG("gmctest", pINFO) << rec_header;
     // LOG("gmctest", pINFO) << event;
@@ -340,13 +375,26 @@ void AnalyzeEvents(
 
     tEvtTree->Fill();
 
-    mcrec->Clear();
+    gMCRec->Clear();
 
   } // event loop
 }
 //_________________________________________________________________________________
-void SaveResults(string outpfilename)
+void CleanUp(void)
 {
+  //-- close the input GENIE event file
+  LOG("gmctest", pNOTICE) << "*** Closing input GHEP data stream";
+//  gCurrInpFile->Close();
+  delete gCurrInpFile;
+  gCurrInpFile=0;
+  gMCRec=0;
+  gEventRecTree=0;
+}
+//_________________________________________________________________________________
+void SaveResults(void)
+{
+  //-- build output filename based on input filename
+  string outpfilename = OutputFileName(gCurrInpFilename);
   LOG("gmctest", pNOTICE) 
           << "*** Saving output histograms to: " << outpfilename;
 
@@ -369,7 +417,7 @@ void SaveResults(string outpfilename)
 //_________________________________________________________________________________
 void AddKineDir(TFile & file)
 {
-  TDirectory * KineDir = file.mkdir("KineDir", "Kinematics plots - All processes");
+  TDirectory * KineDir = file.mkdir("KineDir", "Kinematics plots - All events");
   KineDir->cd();
 
   tEvtTree->Draw( "x>>hx",     "wgt*(1==1)", "GOFF");
@@ -390,7 +438,7 @@ void AddKineDir(TFile & file)
 void AddKineCcNumuDir(TFile & file)
 {
   TDirectory * KineCcNumuDir = file.mkdir(
-         "KineCcNumuDir", "Kinematics plots - All nu_mu CC processes");
+         "KineCcNumuDir", "Kinematics plots - All nu_mu CC events");
   KineCcNumuDir->cd();
 
   tEvtTree->Draw( "x>>hx",     "wgt*(neu==14&&weakcc)", "GOFF");
@@ -510,6 +558,167 @@ void AddNtpDir(TFile & file)
   NtpDir->Write();
 }
 //_________________________________________________________________________________
+void Plot(void)
+{
+  TFile * file1 = new TFile(OutputFileName(gOptInpFile).c_str(), "read");
+  TFile * file2 = (gSampleComp) ?
+                  new TFile(OutputFileName(gOptInpTemplFile).c_str(), "read") : 0;
+
+  gC = new TCanvas("gC");
+  gC->SetFillColor(0);
+  gC->SetBorderMode(0);
+
+  gPS = new TPostScript("out.ps", 112);
+
+  // --- front page
+
+  gPS->NewPage();
+  gC->cd();
+
+  TPavesText title(0.1, 0.6, 0.9, 0.9, 0, "tr");
+  title.SetTextSize(0.04);
+  title.AddText("GENIE MC Sample Test");
+  title.AddText(Form("Testing all events for target pdg = %d", gOptTgtPdgC));
+  title.SetFillColor(46);  
+  title.SetTextColor(10);  
+  title.Draw();
+
+  TPavesText stitle(0.1, 0.2, 0.9, 0.5, 0, "tr");
+  stitle.SetTextSize(0.027);
+  stitle.AddText(Form("Tested event sample : %s", gOptInpFile.c_str()));
+  if(gSampleComp) 
+    stitle.AddText(Form("Event sample tempate : %s", gOptInpTemplFile.c_str()));
+  else
+    stitle.AddText("Event sample tempate : not available");
+  stitle.SetFillColor(0);  
+  stitle.SetTextColor(1);  
+  stitle.Draw();
+
+  gC->Update();
+
+  // --- kinematics - all events in sample (directory: KineDir)
+
+  gTestedSampleDir = (TDirectory*) file1->Get("KineDir");
+  gTempltSampleDir = (gSampleComp) ? (TDirectory*) file2->Get("KineDir") : 0;
+
+  PlotH1F ( "hx",   "x_{comp} - all events" );
+  PlotH1F ( "hy",   "y_{comp} - all events" );
+  PlotH1F ( "ht",   "t_{comp} - all events" );
+  PlotH1F ( "hW",   "W_{comp} - all events" );
+  PlotH1F ( "hQ2",  "Q^{2}_{comp} (GeV^{2}) - all events" );
+  PlotH1F ( "hv",   "v_{comp} - all events" );
+  PlotH1F ( "hxs",  "x_{sel} - all events" );
+  PlotH1F ( "hys",  "y_{sel} - all events" );
+  PlotH1F ( "hts",  "t_{sel} - all events" );
+  PlotH1F ( "hWs",  "W_{sel} - all events" );
+  PlotH1F ( "hQ2s", "Q^{2}_{sel} (GeV^{2}) - all events" );
+
+  // --- kinematics - numu CC (directory: KineCcNumuDir)
+
+  gTestedSampleDir = (TDirectory*) file1->Get("KineCcNumuDir");
+  gTempltSampleDir = (gSampleComp) ? (TDirectory*) file2->Get("KineCcNumuDir") : 0;
+
+  PlotH1F ( "hx",   "x_{comp} - #nu_{#mu} CC" );
+  PlotH1F ( "hy",   "y_{comp} - #nu_{#mu} CC" );
+  PlotH1F ( "ht",   "t_{comp} - #nu_{#mu} CC" );
+  PlotH1F ( "hW",   "W_{comp} - #nu_{#mu} CC" );
+  PlotH1F ( "hQ2",  "Q^{2}_{comp} (GeV^{2}) - #nu_{#mu} CC" );
+  PlotH1F ( "hv",   "v_{comp} - #nu_{#mu} CC" );
+  PlotH1F ( "hxs",  "x_{sel} - #nu_{#mu} CC" );
+  PlotH1F ( "hys",  "y_{sel} - #nu_{#mu} CC" );
+  PlotH1F ( "hts",  "t_{sel} - #nu_{#mu} CC" );
+  PlotH1F ( "hWs",  "W_{sel} - #nu_{#mu} CC" );
+  PlotH1F ( "hQ2s", "Q^{2}_{sel} (GeV^{2}) - #nu_{#mu} CC" );
+
+  // --- kinematics - numu CC QEL (directory: KineCcNumuQelDir)
+
+  gTestedSampleDir = (TDirectory*) file1->Get("KineCcNumuQelDir");
+  gTempltSampleDir = (gSampleComp) ? (TDirectory*) file2->Get("KineCcNumuQelDir") : 0;
+
+  PlotH1F ( "hx",   "x_{comp} - #nu_{#mu} CC QEL" );
+  PlotH1F ( "hy",   "y_{comp} - #nu_{#mu} CC QEL" );
+  PlotH1F ( "ht",   "t_{comp} - #nu_{#mu} CC QEL" );
+  PlotH1F ( "hW",   "W_{comp} - #nu_{#mu} CC QEL" );
+  PlotH1F ( "hQ2",  "Q^{2}_{comp} (GeV^{2}) - #nu_{#mu} CC QEL" );
+  PlotH1F ( "hv",   "v_{comp} - #nu_{#mu} CC QEL" );
+  PlotH1F ( "hxs",  "x_{sel} - #nu_{#mu} CC QEL" );
+  PlotH1F ( "hys",  "y_{sel} - #nu_{#mu} CC QEL" );
+  PlotH1F ( "hts",  "t_{sel} - #nu_{#mu} CC QEL" );
+  PlotH1F ( "hWs",  "W_{sel} - #nu_{#mu} CC QEL" );
+  PlotH1F ( "hQ2s", "Q^{2}_{sel} (GeV^{2}) - #nu_{#mu} CC QEL" );
+
+  // --- kinematics - numu CC RES (directory: KineCcNumuResDir)
+
+  gTestedSampleDir = (TDirectory*) file1->Get("KineCcNumuResDir");
+  gTempltSampleDir = (gSampleComp) ? (TDirectory*) file2->Get("KineCcNumuResDir") : 0;
+
+  PlotH1F ( "hx",   "x_{comp} - #nu_{#mu} CC RES" );
+  PlotH1F ( "hy",   "y_{comp} - #nu_{#mu} CC RES" );
+  PlotH1F ( "ht",   "t_{comp} - #nu_{#mu} CC RES" );
+  PlotH1F ( "hW",   "W_{comp} - #nu_{#mu} CC RES" );
+  PlotH1F ( "hQ2",  "Q^{2}_{comp} (GeV^{2}) - #nu_{#mu} CC RES" );
+  PlotH1F ( "hv",   "v_{comp} - #nu_{#mu} CC RES" );
+  PlotH1F ( "hxs",  "x_{sel} - #nu_{#mu} CC RES" );
+  PlotH1F ( "hys",  "y_{sel} - #nu_{#mu} CC RES" );
+  PlotH1F ( "hts",  "t_{sel} - #nu_{#mu} CC RES" );
+  PlotH1F ( "hWs",  "W_{sel} - #nu_{#mu} CC RES" );
+  PlotH1F ( "hQ2s", "Q^{2}_{sel} (GeV^{2}) - #nu_{#mu} CC RES" );
+
+  // --- kinematics - numu CC DIS (directory: KineCcNumuDisDir)
+
+  gTestedSampleDir = (TDirectory*) file1->Get("KineCcNumuDisDir");
+  gTempltSampleDir = (gSampleComp) ? (TDirectory*) file2->Get("KineCcNumuDisDir") : 0;
+
+  PlotH1F ( "hx",   "x_{comp} - #nu_{#mu} CC DIS" );
+  PlotH1F ( "hy",   "y_{comp} - #nu_{#mu} CC DIS" );
+  PlotH1F ( "ht",   "t_{comp} - #nu_{#mu} CC DIS" );
+  PlotH1F ( "hW",   "W_{comp} - #nu_{#mu} CC DIS" );
+  PlotH1F ( "hQ2",  "Q^{2}_{comp} (GeV^{2}) - #nu_{#mu} CC DIS" );
+  PlotH1F ( "hv",   "v_{comp} - #nu_{#mu} CC DIS" );
+  PlotH1F ( "hxs",  "x_{sel} - #nu_{#mu} CC DIS" );
+  PlotH1F ( "hys",  "y_{sel} - #nu_{#mu} CC DIS" );
+  PlotH1F ( "hts",  "t_{sel} - #nu_{#mu} CC DIS" );
+  PlotH1F ( "hWs",  "W_{sel} - #nu_{#mu} CC DIS" );
+  PlotH1F ( "hQ2s", "Q^{2}_{sel} (GeV^{2}) - #nu_{#mu} CC DIS" );
+
+  gPS->Close();
+
+  file1->Close();
+  delete file1;
+  if(file2) {
+    file2->Close();
+    delete file2;
+  }
+  delete gC;
+  delete gPS;
+}
+//_________________________________________________________________________________
+void PlotH1F(string name, string title)
+{
+  gPS->NewPage();
+  gC->cd();
+
+  TH1F * tested_hst = dynamic_cast<TH1F *> (gTestedSampleDir->Get(name.c_str()));
+  TH1F * templt_hst = (gSampleComp) ?
+                      dynamic_cast<TH1F *> (gTempltSampleDir->Get(name.c_str())) : 0;
+
+  if(!tested_hst) return;
+
+  tested_hst->SetLineColor(2);
+  tested_hst->SetLineWidth(2);
+  tested_hst->Draw();
+
+  if(templt_hst) {
+    templt_hst->SetLineWidth(2);
+    templt_hst->SetMarkerSize(1.3);
+    templt_hst->SetMarkerStyle(8);
+    templt_hst->Draw("PERRSAME");
+  }
+
+  tested_hst->GetXaxis()->SetTitle(title.c_str());
+  gC->Update();
+}
+//_________________________________________________________________________________
 string OutputFileName(string inpname)
 {
 // Builds the output filename based on the name of the input filename
@@ -578,9 +787,6 @@ void GetCommandLineArgs(int argc, char ** argv)
          << "Unspecified event sample template - WIll not run comparisons";
     }
   }
-
-  //assert that the input ROOT file is accessible
-  assert(CheckRootFilename(gOptInpFile));
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)
@@ -601,3 +807,4 @@ bool CheckRootFilename(string filename)
   return true;
 }
 //_________________________________________________________________________________
+
