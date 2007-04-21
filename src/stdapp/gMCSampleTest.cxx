@@ -45,6 +45,8 @@
 #include <TMath.h>
 #include <TCanvas.h>
 #include <TPavesText.h>
+#include <TText.h>
+#include <TStyle.h>
 
 #include "Conventions/Constants.h"
 #include "EVGCore/EventRecord.h"
@@ -72,20 +74,24 @@ void   PrintSyntax          (void);
 bool   CheckRootFilename    (string filename);
 string OutputFileName       (string input_file_name);
 void   AnalyzeSample        (string filename);
-void   Initialize           (void);
+void   InitInputEventStream (void);
+void   InitOutput           (void);
 void   EventLoop            (void);
 void   SaveResults          (void);
 void   CleanUp              (void);
-void   AddKineDir           (TFile & file);
-void   AddKineCcNumuDir     (TFile & file);
-void   AddKineCcNumuQelDir  (TFile & file);
-void   AddKineCcNumuResDir  (TFile & file);
-void   AddKineCcNumuDisDir  (TFile & file);
-void   AddHMultDir          (TFile & file);
-void   AddVtxDir            (TFile & file);
-void   AddNtpDir            (TFile & file);
+void   AddEvtFracDir        (string dir, string title, int nupdg);
+void   AddKineDir           (string dir, string title, int nupdg, string proc);
+void   AddHMultDir          (string dir, string title, int nupdg, string proc);
+void   AddVtxDir            (void);
+void   AddNtpDir            (void);
 void   Plot                 (void);
-void   PlotH1F              (string name, string title);
+void   AddFrontPage         (void);
+void   PlotEvtFrac          (string dir, string title);
+void   PlotKine             (string dir, string title);
+void   PlotHMult            (string dir, string title);
+void   PlotVtx              (void);
+void   PlotH1F              (string name, string title, bool keep_page = false);
+void   PlotH2F              (string name, string title);
 
 // command-line arguments
 Long64_t gOptN;                // (-n)  process so many events, all if -1
@@ -93,17 +99,20 @@ Long64_t gOptTgtPdgC;          // (-t) process events only for this nucl. target
 string   gOptInpFile;          // (-f) input GENIE event sample file
 string   gOptInpTemplFile;     // (-c) input GENIE event sample file (template)
 
-//
+// internal vars
 bool               gSampleComp = false;  // run sample comparisons ?
 TCanvas *          gC = 0;
 TPostScript *      gPS = 0;
-TDirectory *       gTestedSampleDir = 0; // plot dir in test sample file
-TDirectory *       gTempltSampleDir = 0; // plot dir in template sample file
 NtpMCEventRecord * gMCRec = 0;
 TTree *            gEventRecTree = 0;
 Long64_t           gNEvt = 0;
 string             gCurrInpFilename = "";
 TFile *            gCurrInpFile = 0;
+TFile *            gCurrOutFile = 0;
+TFile *            gTestedSamplePlotFile = 0;
+TFile *            gTempltSamplePlotFile = 0;
+TDirectory *       gTestedSampleDir = 0; // plot dir in test sample file
+TDirectory *       gTempltSampleDir = 0; // plot dir in template sample file
 
 // summary tree
 TTree * tEvtTree;
@@ -174,15 +183,16 @@ void AnalyzeSample(string filename)
 {
   gCurrInpFilename = filename;
 
-  Initialize  ();
-  EventLoop   ();
-  SaveResults ();
-  CleanUp     ();
+  InitInputEventStream();
+  InitOutput();
+  EventLoop();
+  SaveResults();
+  CleanUp();
 
   LOG("gmctest", pINFO)  << "Done analyzing : " << filename;
 }
 //_________________________________________________________________________________
-void Initialize(void)
+void InitInputEventStream(void)
 {
   //-- open the ROOT file and get the TTree & its header
 
@@ -211,6 +221,17 @@ void Initialize(void)
   gEventRecTree = tree;
   gMCRec        = mcrec;
   gNEvt         = nmax;
+}
+//_________________________________________________________________________________
+void InitOutput(void)
+{
+  //-- build output filename based on input filename
+  string outpfilename = OutputFileName(gCurrInpFilename);
+  LOG("gmctest", pNOTICE) 
+          << "*** Saving output histograms to: " << outpfilename;
+
+  // open output file
+  gCurrOutFile = new TFile(outpfilename.c_str(),"recreate");
 
   //-- create summary tree
   tEvtTree = new TTree("tEvtTree","event tree summary");
@@ -263,13 +284,15 @@ void EventLoop(void)
   if ( !gMCRec )       return;
 
   for(Long64_t i = 0; i < gNEvt; i++) {
+
+    LOG("gmctest", pDEBUG) << "....... getting evt " << i;
     gEventRecTree->GetEntry(i);
 
     NtpMCRecHeader rec_header = gMCRec->hdr;
     EventRecord &  event      = *(gMCRec->event);
 
-    // LOG("gmctest", pINFO) << rec_header;
-    // LOG("gmctest", pINFO) << event;
+    //LOG("gmctest", pINFO) << rec_header;
+    //LOG("gmctest", pINFO) << event;
 
     // go further only if the event is physical
     bool is_unphysical = event.IsUnphysical();
@@ -382,164 +405,266 @@ void EventLoop(void)
 //_________________________________________________________________________________
 void CleanUp(void)
 {
-  //-- close the input GENIE event file
-  LOG("gmctest", pNOTICE) << "*** Closing input GHEP data stream";
-//  gCurrInpFile->Close();
+  LOG("gmctest", pNOTICE) << "*** Cleaning up";
+
   delete gCurrInpFile;
   gCurrInpFile=0;
+
+  gCurrOutFile->Close();
+  delete gCurrOutFile;
+  gCurrOutFile=0;
+
   gMCRec=0;
   gEventRecTree=0;
 }
 //_________________________________________________________________________________
 void SaveResults(void)
 {
-  //-- build output filename based on input filename
-  string outpfilename = OutputFileName(gCurrInpFilename);
   LOG("gmctest", pNOTICE) 
-          << "*** Saving output histograms to: " << outpfilename;
+          << "number of events processed: " << tEvtTree->GetEntries();
 
-  LOG("gmctest", pNOTICE) 
-     << "number of events processed: " << tEvtTree->GetEntries();
+  AddEvtFracDir("EvtFracNumuDir", "Event fractions", 14);
 
-  TFile outfile(outpfilename.c_str(),"recreate");
+  // --- add directories containing kinematics plots
+  //
+  AddKineDir("KineDir",          "Kinematics - All events",        0, "");
+  AddKineDir("KineCcNumuDir",    "Kinematics - All nu_mu CC",     14, "weakcc");
+  AddKineDir("KineCcNumuQelDir", "Kinematics - All nu_mu CC QEL", 14, "weakcc&&qel");
+  AddKineDir("KineCcNumuResDir", "Kinematics - All nu_mu CC RES", 14, "weakcc&&res");
+  AddKineDir("KineCcNumuDisDir", "Kinematics - All nu_mu CC DIS", 14, "weakcc&&dis");
+  AddKineDir("KineNcNumuDir",    "Kinematics - All nu_mu NC",     14, "weaknc");
+  AddKineDir("KineNcNumuQelDir", "Kinematics - All nu_mu NC QEL", 14, "weaknc&&qel");
+  AddKineDir("KineNcNumuResDir", "Kinematics - All nu_mu NC RES", 14, "weaknc&&res");
+  AddKineDir("KineNcNumuDisDir", "Kinematics - All nu_mu NC DIS", 14, "weaknc&&dis");
 
-  AddKineDir           (outfile);
-  AddKineCcNumuDir     (outfile);
-  AddKineCcNumuQelDir  (outfile);
-  AddKineCcNumuResDir  (outfile);
-  AddKineCcNumuDisDir  (outfile);
-  AddHMultDir          (outfile);
-  AddVtxDir            (outfile);
-  AddNtpDir            (outfile);
+  // --- add directories containing hadronic multiplicity plots
+  //
+  AddHMultDir("HadMultDir",          "Hadronic multiplicities - All events",        0, "");
+  AddHMultDir("HadMultCcNumuDir",    "Hadronic multiplicities - All nu_mu CC",     14, "weakcc");
+  AddHMultDir("HadMultCcNumuQelDir", "Hadronic multiplicities - All nu_mu CC QEL", 14, "weakcc&&qel");
+  AddHMultDir("HadMultCcNumuResDir", "Hadronic multiplicities - All nu_mu CC RES", 14, "weakcc&&res");
+  AddHMultDir("HadMultCcNumuDisDir", "Hadronic multiplicities - All nu_mu CC DIS", 14, "weakcc&&dis");
+  AddHMultDir("HadMultNcNumuDir",    "Hadronic multiplicities - All nu_mu NC",     14, "weaknc");
+  AddHMultDir("HadMultNcNumuQelDir", "Hadronic multiplicities - All nu_mu NC QEL", 14, "weaknc&&qel");
+  AddHMultDir("HadMultNcNumuResDir", "Hadronic multiplicities - All nu_mu NC RES", 14, "weaknc&&res");
+  AddHMultDir("HadMultNcNumuDisDir", "Hadronic multiplicities - All nu_mu NC DIS", 14, "weaknc&&dis");
 
-  outfile.Close();
+  // --- add directory containing event vertex plots
+  //
+  AddVtxDir();
+
+  // --- add directory containing summary ntuuples
+  //
+  AddNtpDir();
 }
 //_________________________________________________________________________________
-void AddKineDir(TFile & file)
+void AddKineDir(string dir, string title, int nupdg, string proc)
 {
-  TDirectory * KineDir = file.mkdir("KineDir", "Kinematics plots - All events");
-  KineDir->cd();
+  TDirectory * tdir = gCurrOutFile->mkdir(dir.c_str(), title.c_str());
+  tdir->cd();
 
-  tEvtTree->Draw( "x>>hx",     "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "y>>hy",     "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "t>>ht",     "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "Q2>>hQ2",   "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "W>>hW",     "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "v>>hv",     "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "xs>>hxs",   "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "ys>>hys",   "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "ts>>hts",   "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "Q2s>>hQ2s", "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "Ws>>hWs",   "wgt*(1==1)", "GOFF");
+  ostringstream condition;
+  condition << "wgt*(1";
+  if(nupdg)          condition << "&&neu==" << nupdg;
+  if (proc.size()>0) condition << "&&" << proc;
+  condition << ")";
 
-  KineDir->Write();
+  tEvtTree->Draw( "x>>hx",     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "y>>hy",     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "t>>ht",     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "Q2>>hQ2",   condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "W>>hW",     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "v>>hv",     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "xs>>hxs",   condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "ys>>hys",   condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "ts>>hts",   condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "Q2s>>hQ2s", condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "Ws>>hWs",   condition.str().c_str(), "GOFF");
+
+  tdir->Write(dir.c_str());
 }
 //_________________________________________________________________________________
-void AddKineCcNumuDir(TFile & file)
+void AddHMultDir(string dir, string title, int nupdg, string proc)
 {
-  TDirectory * KineCcNumuDir = file.mkdir(
-         "KineCcNumuDir", "Kinematics plots - All nu_mu CC events");
-  KineCcNumuDir->cd();
+  TDirectory * tdir = gCurrOutFile->mkdir(dir.c_str(), title.c_str());
+  tdir->cd();
 
-  tEvtTree->Draw( "x>>hx",     "wgt*(neu==14&&weakcc)", "GOFF");
-  tEvtTree->Draw( "y>>hy",     "wgt*(neu==14&&weakcc)", "GOFF");
-  tEvtTree->Draw( "t>>ht",     "wgt*(neu==14&&weakcc)", "GOFF");
-  tEvtTree->Draw( "Q2>>hQ2",   "wgt*(neu==14&&weakcc)", "GOFF");
-  tEvtTree->Draw( "W>>hW",     "wgt*(neu==14&&weakcc)", "GOFF");
-  tEvtTree->Draw( "v>>hv",     "wgt*(neu==14&&weakcc)", "GOFF");
-  tEvtTree->Draw( "xs>>hxs",   "wgt*(neu==14&&weakcc)", "GOFF");
-  tEvtTree->Draw( "ys>>hys",   "wgt*(neu==14&&weakcc)", "GOFF");
-  tEvtTree->Draw( "ts>>hts",   "wgt*(neu==14&&weakcc)", "GOFF");
-  tEvtTree->Draw( "Q2s>>hQ2s", "wgt*(neu==14&&weakcc)", "GOFF");
-  tEvtTree->Draw( "Ws>>hWs",   "wgt*(neu==14&&weakcc)", "GOFF");
+  ostringstream condition;
+  condition << "wgt*(1";
+  if(nupdg)          condition << "&&neu==" << nupdg;
+  if (proc.size()>0) condition << "&&" << proc;
+  condition << ")";
 
-  KineCcNumuDir->Write();
+  tEvtTree->Draw( "np>>hnp",         condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "nn>>hnn",         condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "npip>>hnpip",     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "npim>>hnpim",     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "ngamma/2>>hnpi0", condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "nKp>>hnKp",       condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "nKm>>hnKm",       condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "nK0>>hnK0",       condition.str().c_str(), "GOFF");
+
+  tEvtTree->Draw( "np:Ws>>hnpW",         condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "nn:Ws>>hnnW",         condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "npip:Ws>>hnpipW",     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "npim:Ws>>hnpimW",     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "ngamma/2:Ws>>hnpi0W", condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "nKp:Ws>>hnKpW",       condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "nKm:Ws>>hnKmW",       condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "nK0:Ws>>hnK0W",       condition.str().c_str(), "GOFF");
+
+  tdir->Write(dir.c_str());
 }
 //_________________________________________________________________________________
-void AddKineCcNumuQelDir(TFile & file)
+void AddEvtFracDir(string dir, string title, int nupdg)
 {
-  TDirectory * KineCcNumuQelDir = file.mkdir(
-         "KineCcNumuQelDir", "Kinematics plots - nu_mu CC QEL");
-  KineCcNumuQelDir->cd();
+  TH1F * hE       = new TH1F("hE",      "",80,0,20);
+  TH1F * hEcc     = new TH1F("hEcc",    "",80,0,20);
+  TH1F * hEccqel  = new TH1F("hEccqel", "",80,0,20);
+  TH1F * hEccres  = new TH1F("hEccres", "",80,0,20);
+  TH1F * hEccdis  = new TH1F("hEccdis", "",80,0,20);
+  TH1F * hEnc     = new TH1F("hEnc",    "",80,0,20);
+  TH1F * hEncqel  = new TH1F("hEncqel", "",80,0,20);
+  TH1F * hEncres  = new TH1F("hEncres", "",80,0,20);
+  TH1F * hEncdis  = new TH1F("hEncdis", "",80,0,20);
 
-  tEvtTree->Draw( "x>>hx",     "wgt*(neu==14&&weakcc&&qel)", "GOFF");
-  tEvtTree->Draw( "y>>hy",     "wgt*(neu==14&&weakcc&&qel)", "GOFF");
-  tEvtTree->Draw( "t>>ht",     "wgt*(neu==14&&weakcc&&qel)", "GOFF");
-  tEvtTree->Draw( "Q2>>hQ2",   "wgt*(neu==14&&weakcc&&qel)", "GOFF");
-  tEvtTree->Draw( "W>>hW",     "wgt*(neu==14&&weakcc&&qel)", "GOFF");
-  tEvtTree->Draw( "v>>hv",     "wgt*(neu==14&&weakcc&&qel)", "GOFF");
-  tEvtTree->Draw( "xs>>hxs",   "wgt*(neu==14&&weakcc&&qel)", "GOFF");
-  tEvtTree->Draw( "ys>>hys",   "wgt*(neu==14&&weakcc&&qel)", "GOFF");
-  tEvtTree->Draw( "ts>>hts",   "wgt*(neu==14&&weakcc&&qel)", "GOFF");
-  tEvtTree->Draw( "Q2s>>hQ2s", "wgt*(neu==14&&weakcc&&qel)", "GOFF");
-  tEvtTree->Draw( "Ws>>hWs",   "wgt*(neu==14&&weakcc&&qel)", "GOFF");
+  TH1F * hW       = new TH1F("hW",      "",40,0,20);
+  TH1F * hWcc     = new TH1F("hWcc",    "",40,0,20);
+  TH1F * hWccqel  = new TH1F("hWccqel", "",40,0,20);
+  TH1F * hWccres  = new TH1F("hWccres", "",40,0,20);
+  TH1F * hWccdis  = new TH1F("hWccdis", "",40,0,20);
+  TH1F * hWnc     = new TH1F("hWnc",    "",40,0,20);
+  TH1F * hWncqel  = new TH1F("hWncqel", "",40,0,20);
+  TH1F * hWncres  = new TH1F("hWncres", "",40,0,20);
+  TH1F * hWncdis  = new TH1F("hWncdis", "",40,0,20);
 
-  KineCcNumuQelDir->Write();
+  TH1F * hQ2      = new TH1F("hQ2",     "",80,0,40);
+  TH1F * hQ2cc    = new TH1F("hQ2cc",   "",80,0,40);
+  TH1F * hQ2ccqel = new TH1F("hQ2ccqel","",80,0,40);
+  TH1F * hQ2ccres = new TH1F("hQ2ccres","",80,0,40);
+  TH1F * hQ2ccdis = new TH1F("hQ2ccdis","",80,0,40);
+  TH1F * hQ2nc    = new TH1F("hQ2nc",   "",80,0,40);
+  TH1F * hQ2ncqel = new TH1F("hQ2ncqel","",80,0,40);
+  TH1F * hQ2ncres = new TH1F("hQ2ncres","",80,0,40);
+  TH1F * hQ2ncdis = new TH1F("hQ2ncdis","",80,0,40);
+
+  tEvtTree->Draw("Ev>>hE",       Form("wgt*(neu==%d)",nupdg),              "GOFF");
+  tEvtTree->Draw("Ev>>hEcc",     Form("wgt*(neu==%d&&weakcc)",nupdg),      "GOFF");
+  tEvtTree->Draw("Ev>>hEccqel",  Form("wgt*(neu==%d&&weakcc&&qel)",nupdg), "GOFF");
+  tEvtTree->Draw("Ev>>hEccres",  Form("wgt*(neu==%d&&weakcc&&res)",nupdg), "GOFF");
+  tEvtTree->Draw("Ev>>hEccdis",  Form("wgt*(neu==%d&&weakcc&&dis)",nupdg), "GOFF");
+  tEvtTree->Draw("Ev>>hEnc",     Form("wgt*(neu==%d&&weaknc)",nupdg),      "GOFF");
+  tEvtTree->Draw("Ev>>hEncqel",  Form("wgt*(neu==%d&&weaknc&&qel)",nupdg), "GOFF");
+  tEvtTree->Draw("Ev>>hEncres",  Form("wgt*(neu==%d&&weaknc&&res)",nupdg), "GOFF");
+  tEvtTree->Draw("Ev>>hEncdis",  Form("wgt*(neu==%d&&weaknc&&dis)",nupdg), "GOFF");
+
+  tEvtTree->Draw("Ws>>hW",       Form("wgt*(neu==%d)",nupdg),              "GOFF");
+  tEvtTree->Draw("Ws>>hWcc",     Form("wgt*(neu==%d&&weakcc)",nupdg),      "GOFF");
+  tEvtTree->Draw("Ws>>hWccqel",  Form("wgt*(neu==%d&&weakcc&&qel)",nupdg), "GOFF");
+  tEvtTree->Draw("Ws>>hWccres",  Form("wgt*(neu==%d&&weakcc&&res)",nupdg), "GOFF");
+  tEvtTree->Draw("Ws>>hWccdis",  Form("wgt*(neu==%d&&weakcc&&dis)",nupdg), "GOFF");
+  tEvtTree->Draw("Ws>>hWnc",     Form("wgt*(neu==%d&&weaknc)",nupdg),      "GOFF");
+  tEvtTree->Draw("Ws>>hWncqel",  Form("wgt*(neu==%d&&weaknc&&qel)",nupdg), "GOFF");
+  tEvtTree->Draw("Ws>>hWncres",  Form("wgt*(neu==%d&&weaknc&&res)",nupdg), "GOFF");
+  tEvtTree->Draw("Ws>>hWncdis",  Form("wgt*(neu==%d&&weaknc&&dis)",nupdg), "GOFF");
+
+  tEvtTree->Draw("Q2s>>hQ2",     Form("wgt*(neu==%d)",nupdg),              "GOFF");
+  tEvtTree->Draw("Q2s>>hQ2cc",   Form("wgt*(neu==%d&&weakcc)",nupdg),      "GOFF");
+  tEvtTree->Draw("Q2s>>hQ2ccqel",Form("wgt*(neu==%d&&weakcc&&qel)",nupdg), "GOFF");
+  tEvtTree->Draw("Q2s>>hQ2ccres",Form("wgt*(neu==%d&&weakcc&&res)",nupdg), "GOFF");
+  tEvtTree->Draw("Q2s>>hQ2ccdis",Form("wgt*(neu==%d&&weakcc&&dis)",nupdg), "GOFF");
+  tEvtTree->Draw("Q2s>>hQ2nc",   Form("wgt*(neu==%d&&weaknc)",nupdg),      "GOFF");
+  tEvtTree->Draw("Q2s>>hQ2ncqel",Form("wgt*(neu==%d&&weaknc&&qel)",nupdg), "GOFF");
+  tEvtTree->Draw("Q2s>>hQ2ncres",Form("wgt*(neu==%d&&weaknc&&res)",nupdg), "GOFF");
+  tEvtTree->Draw("Q2s>>hQ2ncdis",Form("wgt*(neu==%d&&weaknc&&dis)",nupdg), "GOFF");
+
+  hE       -> Sumw2();
+  hEcc     -> Sumw2();
+  hEccqel  -> Sumw2();
+  hEccres  -> Sumw2();
+  hEccdis  -> Sumw2();
+  hEnc     -> Sumw2();
+  hEncqel  -> Sumw2();
+  hEncres  -> Sumw2();
+  hEncdis  -> Sumw2();
+  hW       -> Sumw2();
+  hWcc     -> Sumw2();
+  hWccqel  -> Sumw2();
+  hWccres  -> Sumw2();
+  hWccdis  -> Sumw2();
+  hWnc     -> Sumw2();
+  hWncqel  -> Sumw2();
+  hWncres  -> Sumw2();
+  hWncdis  -> Sumw2();
+  hQ2      -> Sumw2();
+  hQ2cc    -> Sumw2();
+  hQ2ccqel -> Sumw2();
+  hQ2ccres -> Sumw2();
+  hQ2ccdis -> Sumw2();
+  hQ2nc    -> Sumw2();
+  hQ2ncqel -> Sumw2();
+  hQ2ncres -> Sumw2();
+  hQ2ncdis -> Sumw2();
+
+  hEcc     -> Divide(hE);
+  hEccqel  -> Divide(hE);
+  hEccres  -> Divide(hE);
+  hEccdis  -> Divide(hE);
+  hEnc     -> Divide(hE);
+  hEncqel  -> Divide(hE);
+  hEncres  -> Divide(hE);
+  hEncdis  -> Divide(hE);
+  hWcc     -> Divide(hW);
+  hWccqel  -> Divide(hW);
+  hWccres  -> Divide(hW);
+  hWccdis  -> Divide(hW);
+  hWnc     -> Divide(hW);
+  hWncqel  -> Divide(hW);
+  hWncres  -> Divide(hW);
+  hWncdis  -> Divide(hW);
+  hQ2cc    -> Divide(hQ2);
+  hQ2ccqel -> Divide(hQ2);
+  hQ2ccres -> Divide(hQ2);
+  hQ2ccdis -> Divide(hQ2);
+  hQ2nc    -> Divide(hQ2);
+  hQ2ncqel -> Divide(hQ2);
+  hQ2ncres -> Divide(hQ2);
+  hQ2ncdis -> Divide(hQ2);
+
+  TDirectory * tdir = gCurrOutFile->mkdir(dir.c_str(), title.c_str());
+  tdir->cd();
+
+  tdir -> Add ( hEcc     );
+  tdir -> Add ( hEccqel  );
+  tdir -> Add ( hEccres  );
+  tdir -> Add ( hEccdis  );
+  tdir -> Add ( hEnc     );
+  tdir -> Add ( hEncqel  );
+  tdir -> Add ( hEncres  );
+  tdir -> Add ( hEncdis  );
+  tdir -> Add ( hWcc     );
+  tdir -> Add ( hWccqel  );
+  tdir -> Add ( hWccres  );
+  tdir -> Add ( hWccdis  );
+  tdir -> Add ( hWnc     );
+  tdir -> Add ( hWncqel  );
+  tdir -> Add ( hWncres  );
+  tdir -> Add ( hWncdis  );
+  tdir -> Add ( hQ2cc    );
+  tdir -> Add ( hQ2ccqel );
+  tdir -> Add ( hQ2ccres );
+  tdir -> Add ( hQ2ccdis );
+  tdir -> Add ( hQ2nc    );
+  tdir -> Add ( hQ2ncqel );
+  tdir -> Add ( hQ2ncres );
+  tdir -> Add ( hQ2ncdis );
+
+  tdir->Write(dir.c_str());
 }
 //_________________________________________________________________________________
-void AddKineCcNumuResDir(TFile & file)
+void AddVtxDir(void)
 {
-  TDirectory * KineCcNumuResDir = file.mkdir(
-         "KineCcNumuResDir", "Kinematics plots - nu_mu CC RES");
-  KineCcNumuResDir->cd();
-
-  tEvtTree->Draw( "x>>hx",     "wgt*(neu==14&&weakcc&&res)", "GOFF");
-  tEvtTree->Draw( "y>>hy",     "wgt*(neu==14&&weakcc&&res)", "GOFF");
-  tEvtTree->Draw( "t>>ht",     "wgt*(neu==14&&weakcc&&res)", "GOFF");
-  tEvtTree->Draw( "Q2>>hQ2",   "wgt*(neu==14&&weakcc&&res)", "GOFF");
-  tEvtTree->Draw( "W>>hW",     "wgt*(neu==14&&weakcc&&res)", "GOFF");
-  tEvtTree->Draw( "v>>hv",     "wgt*(neu==14&&weakcc&&res)", "GOFF");
-  tEvtTree->Draw( "xs>>hxs",   "wgt*(neu==14&&weakcc&&res)", "GOFF");
-  tEvtTree->Draw( "ys>>hys",   "wgt*(neu==14&&weakcc&&res)", "GOFF");
-  tEvtTree->Draw( "ts>>hts",   "wgt*(neu==14&&weakcc&&res)", "GOFF");
-  tEvtTree->Draw( "Q2s>>hQ2s", "wgt*(neu==14&&weakcc&&res)", "GOFF");
-  tEvtTree->Draw( "Ws>>hWs",   "wgt*(neu==14&&weakcc&&res)", "GOFF");
-
-  KineCcNumuResDir->Write();
-}
-//_________________________________________________________________________________
-void AddKineCcNumuDisDir(TFile & file)
-{
-  TDirectory * KineCcNumuDisDir = file.mkdir(
-         "KineCcNumuDisDir", "Kinematics plots - nu_mu CC DIS");
-  KineCcNumuDisDir->cd();
-
-  tEvtTree->Draw( "x>>hx",     "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-  tEvtTree->Draw( "y>>hy",     "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-  tEvtTree->Draw( "t>>ht",     "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-  tEvtTree->Draw( "Q2>>hQ2",   "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-  tEvtTree->Draw( "W>>hW",     "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-  tEvtTree->Draw( "v>>hv",     "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-  tEvtTree->Draw( "xs>>hxs",   "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-  tEvtTree->Draw( "ys>>hys",   "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-  tEvtTree->Draw( "ts>>hts",   "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-  tEvtTree->Draw( "Q2s>>hQ2s", "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-  tEvtTree->Draw( "Ws>>hWs",   "wgt*(neu==14&&weakcc&&dis)", "GOFF");
-
-  KineCcNumuDisDir->Write();
-}
-//_________________________________________________________________________________
-void AddHMultDir(TFile & file)
-{
-  TDirectory * HMultDir = file.mkdir(
-              "HMultDir", "Hadronic multiplicities - All processes");
-  HMultDir->cd();
-
-  tEvtTree->Draw( "np>>hnp",         "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "nn>>hnn",         "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "npip>>hnpip",     "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "npim>>hnpim",     "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "ngamma/2>>hnpi0", "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "nKp>>hnKp",       "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "nKm>>hnKm",       "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw( "nK0>>hnK0",       "wgt*(1==1)", "GOFF");
-
-  HMultDir->Write();
-}
-//_________________________________________________________________________________
-void AddVtxDir(TFile & file)
-{
-  TDirectory * VtxDir = file.mkdir("VtxDir", "Event vertex plots");
+  TDirectory * VtxDir = gCurrOutFile->mkdir("VtxDir", "Event vertex plots");
   VtxDir->cd();
 
   tEvtTree->Draw("vtxx>>hvtxx",       "wgt*(1==1)", "GOFF");
@@ -550,9 +675,9 @@ void AddVtxDir(TFile & file)
   VtxDir->Write();
 }
 //_________________________________________________________________________________
-void AddNtpDir(TFile & file)
+void AddNtpDir(void)
 {
-  TDirectory * NtpDir = file.mkdir("NtpDir", "Summary Ntuples");
+  TDirectory * NtpDir = gCurrOutFile->mkdir("NtpDir", "Summary Ntuples");
   NtpDir->cd();
   NtpDir->Add(tEvtTree);
   NtpDir->Write();
@@ -560,18 +685,72 @@ void AddNtpDir(TFile & file)
 //_________________________________________________________________________________
 void Plot(void)
 {
-  TFile * file1 = new TFile(OutputFileName(gOptInpFile).c_str(), "read");
-  TFile * file2 = (gSampleComp) ?
-                  new TFile(OutputFileName(gOptInpTemplFile).c_str(), "read") : 0;
+  gTestedSamplePlotFile = new TFile(OutputFileName(gOptInpFile).c_str(), "read");
+  gTempltSamplePlotFile = (gSampleComp) ?
+                 new TFile(OutputFileName(gOptInpTemplFile).c_str(), "read") : 0;
 
   gC = new TCanvas("gC");
   gC->SetFillColor(0);
+  gC->SetBorderMode(0);
   gC->SetBorderMode(0);
 
   gPS = new TPostScript("out.ps", 112);
 
   // --- front page
+  //
+  AddFrontPage();
 
+  // --- event fraction plots
+  //
+  PlotEvtFrac("EvtFracNumuDir", "Event fractions");
+
+  // --- kinematics plots
+  //
+  PlotKine("KineDir",             "All events"       );
+  PlotKine("KineCcNumuDir",       "#nu_{#mu} CC"     );
+  PlotKine("KineCcNumuQelDir",    "#nu_{#mu} CC QEL" );
+  PlotKine("KineCcNumuResDir",    "#nu_{#mu} CC RES" );
+  PlotKine("KineCcNumuDisDir",    "#nu_{#mu} CC DIS" );
+  PlotKine("KineNcNumuDir",       "#nu_{#mu} NC"     );
+  PlotKine("KineNcNumuQelDir",    "#nu_{#mu} NC QEL" );
+  PlotKine("KineNcNumuResDir",    "#nu_{#mu} NC RES" );
+  PlotKine("KineNcNumuDisDir",    "#nu_{#mu} NC DIS" );
+
+  // --- hadronic multiplicity plots
+  //
+  PlotHMult("HadMultDir",             "All events"       );
+  PlotHMult("HadMultCcNumuDir",       "#nu_{#mu} CC"     );
+  PlotHMult("HadMultCcNumuQelDir",    "#nu_{#mu} CC QEL" );
+  PlotHMult("HadMultCcNumuResDir",    "#nu_{#mu} CC RES" );
+  PlotHMult("HadMultCcNumuDisDir",    "#nu_{#mu} CC DIS" );
+  PlotHMult("HadMultNcNumuDir",       "#nu_{#mu} NC"     );
+  PlotHMult("HadMultNcNumuQelDir",    "#nu_{#mu} NC QEL" );
+  PlotHMult("HadMultNcNumuResDir",    "#nu_{#mu} NC RES" );
+  PlotHMult("HadMultNcNumuDisDir",    "#nu_{#mu} NC DIS" );
+
+  // --- vertex position plots
+  //
+  PlotVtx();
+
+  gPS->Close();
+
+  gTestedSamplePlotFile->Close();
+  delete gTestedSamplePlotFile;
+  if(gTempltSamplePlotFile) {
+    gTempltSamplePlotFile->Close();
+    delete gTempltSamplePlotFile;
+  }
+  delete gC;
+  delete gPS;
+
+  gTestedSamplePlotFile=0;
+  gTempltSamplePlotFile=0;
+  gC=0;
+  gPS=0;
+}
+//_________________________________________________________________________________
+void AddFrontPage(void)
+{
   gPS->NewPage();
   gC->cd();
 
@@ -590,129 +769,160 @@ void Plot(void)
     stitle.AddText(Form("Event sample tempate : %s", gOptInpTemplFile.c_str()));
   else
     stitle.AddText("Event sample tempate : not available");
-  stitle.SetFillColor(0);  
+  stitle.SetFillColor(0);    
   stitle.SetTextColor(1);  
   stitle.Draw();
 
   gC->Update();
-
-  // --- kinematics - all events in sample (directory: KineDir)
-
-  gTestedSampleDir = (TDirectory*) file1->Get("KineDir");
-  gTempltSampleDir = (gSampleComp) ? (TDirectory*) file2->Get("KineDir") : 0;
-
-  PlotH1F ( "hx",   "x_{comp} - all events" );
-  PlotH1F ( "hy",   "y_{comp} - all events" );
-  PlotH1F ( "ht",   "t_{comp} - all events" );
-  PlotH1F ( "hW",   "W_{comp} - all events" );
-  PlotH1F ( "hQ2",  "Q^{2}_{comp} (GeV^{2}) - all events" );
-  PlotH1F ( "hv",   "v_{comp} - all events" );
-  PlotH1F ( "hxs",  "x_{sel} - all events" );
-  PlotH1F ( "hys",  "y_{sel} - all events" );
-  PlotH1F ( "hts",  "t_{sel} - all events" );
-  PlotH1F ( "hWs",  "W_{sel} - all events" );
-  PlotH1F ( "hQ2s", "Q^{2}_{sel} (GeV^{2}) - all events" );
-
-  // --- kinematics - numu CC (directory: KineCcNumuDir)
-
-  gTestedSampleDir = (TDirectory*) file1->Get("KineCcNumuDir");
-  gTempltSampleDir = (gSampleComp) ? (TDirectory*) file2->Get("KineCcNumuDir") : 0;
-
-  PlotH1F ( "hx",   "x_{comp} - #nu_{#mu} CC" );
-  PlotH1F ( "hy",   "y_{comp} - #nu_{#mu} CC" );
-  PlotH1F ( "ht",   "t_{comp} - #nu_{#mu} CC" );
-  PlotH1F ( "hW",   "W_{comp} - #nu_{#mu} CC" );
-  PlotH1F ( "hQ2",  "Q^{2}_{comp} (GeV^{2}) - #nu_{#mu} CC" );
-  PlotH1F ( "hv",   "v_{comp} - #nu_{#mu} CC" );
-  PlotH1F ( "hxs",  "x_{sel} - #nu_{#mu} CC" );
-  PlotH1F ( "hys",  "y_{sel} - #nu_{#mu} CC" );
-  PlotH1F ( "hts",  "t_{sel} - #nu_{#mu} CC" );
-  PlotH1F ( "hWs",  "W_{sel} - #nu_{#mu} CC" );
-  PlotH1F ( "hQ2s", "Q^{2}_{sel} (GeV^{2}) - #nu_{#mu} CC" );
-
-  // --- kinematics - numu CC QEL (directory: KineCcNumuQelDir)
-
-  gTestedSampleDir = (TDirectory*) file1->Get("KineCcNumuQelDir");
-  gTempltSampleDir = (gSampleComp) ? (TDirectory*) file2->Get("KineCcNumuQelDir") : 0;
-
-  PlotH1F ( "hx",   "x_{comp} - #nu_{#mu} CC QEL" );
-  PlotH1F ( "hy",   "y_{comp} - #nu_{#mu} CC QEL" );
-  PlotH1F ( "ht",   "t_{comp} - #nu_{#mu} CC QEL" );
-  PlotH1F ( "hW",   "W_{comp} - #nu_{#mu} CC QEL" );
-  PlotH1F ( "hQ2",  "Q^{2}_{comp} (GeV^{2}) - #nu_{#mu} CC QEL" );
-  PlotH1F ( "hv",   "v_{comp} - #nu_{#mu} CC QEL" );
-  PlotH1F ( "hxs",  "x_{sel} - #nu_{#mu} CC QEL" );
-  PlotH1F ( "hys",  "y_{sel} - #nu_{#mu} CC QEL" );
-  PlotH1F ( "hts",  "t_{sel} - #nu_{#mu} CC QEL" );
-  PlotH1F ( "hWs",  "W_{sel} - #nu_{#mu} CC QEL" );
-  PlotH1F ( "hQ2s", "Q^{2}_{sel} (GeV^{2}) - #nu_{#mu} CC QEL" );
-
-  // --- kinematics - numu CC RES (directory: KineCcNumuResDir)
-
-  gTestedSampleDir = (TDirectory*) file1->Get("KineCcNumuResDir");
-  gTempltSampleDir = (gSampleComp) ? (TDirectory*) file2->Get("KineCcNumuResDir") : 0;
-
-  PlotH1F ( "hx",   "x_{comp} - #nu_{#mu} CC RES" );
-  PlotH1F ( "hy",   "y_{comp} - #nu_{#mu} CC RES" );
-  PlotH1F ( "ht",   "t_{comp} - #nu_{#mu} CC RES" );
-  PlotH1F ( "hW",   "W_{comp} - #nu_{#mu} CC RES" );
-  PlotH1F ( "hQ2",  "Q^{2}_{comp} (GeV^{2}) - #nu_{#mu} CC RES" );
-  PlotH1F ( "hv",   "v_{comp} - #nu_{#mu} CC RES" );
-  PlotH1F ( "hxs",  "x_{sel} - #nu_{#mu} CC RES" );
-  PlotH1F ( "hys",  "y_{sel} - #nu_{#mu} CC RES" );
-  PlotH1F ( "hts",  "t_{sel} - #nu_{#mu} CC RES" );
-  PlotH1F ( "hWs",  "W_{sel} - #nu_{#mu} CC RES" );
-  PlotH1F ( "hQ2s", "Q^{2}_{sel} (GeV^{2}) - #nu_{#mu} CC RES" );
-
-  // --- kinematics - numu CC DIS (directory: KineCcNumuDisDir)
-
-  gTestedSampleDir = (TDirectory*) file1->Get("KineCcNumuDisDir");
-  gTempltSampleDir = (gSampleComp) ? (TDirectory*) file2->Get("KineCcNumuDisDir") : 0;
-
-  PlotH1F ( "hx",   "x_{comp} - #nu_{#mu} CC DIS" );
-  PlotH1F ( "hy",   "y_{comp} - #nu_{#mu} CC DIS" );
-  PlotH1F ( "ht",   "t_{comp} - #nu_{#mu} CC DIS" );
-  PlotH1F ( "hW",   "W_{comp} - #nu_{#mu} CC DIS" );
-  PlotH1F ( "hQ2",  "Q^{2}_{comp} (GeV^{2}) - #nu_{#mu} CC DIS" );
-  PlotH1F ( "hv",   "v_{comp} - #nu_{#mu} CC DIS" );
-  PlotH1F ( "hxs",  "x_{sel} - #nu_{#mu} CC DIS" );
-  PlotH1F ( "hys",  "y_{sel} - #nu_{#mu} CC DIS" );
-  PlotH1F ( "hts",  "t_{sel} - #nu_{#mu} CC DIS" );
-  PlotH1F ( "hWs",  "W_{sel} - #nu_{#mu} CC DIS" );
-  PlotH1F ( "hQ2s", "Q^{2}_{sel} (GeV^{2}) - #nu_{#mu} CC DIS" );
-
-  gPS->Close();
-
-  file1->Close();
-  delete file1;
-  if(file2) {
-    file2->Close();
-    delete file2;
-  }
-  delete gC;
-  delete gPS;
 }
 //_________________________________________________________________________________
-void PlotH1F(string name, string title)
+void PlotEvtFrac(string dir, string title)
 {
-  gPS->NewPage();
+  gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get(dir.c_str());
+  gTempltSampleDir = (gSampleComp) ? 
+                     (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
+
+  PlotH1F ( "hEcc",   (title + ", in energy bins, CC events").c_str());
+  PlotH1F ( "hEccqel",(title + ", in energy bins, CC QEL events").c_str(),true);
+  PlotH1F ( "hEccres",(title + ", in energy bins, CC RES events").c_str(),true);
+  PlotH1F ( "hEccdis",(title + ", in energy bins, CC DIS events").c_str(),true);
+  PlotH1F ( "hEnc",   (title + ", in energy bins, NC events").c_str());
+  PlotH1F ( "hEncqel",(title + ", in energy bins, NC QEL events").c_str());
+  PlotH1F ( "hEncres",(title + ", in energy bins, NC RES events").c_str());
+  PlotH1F ( "hEncdis",(title + ", in energy bins, NC DIS events").c_str());
+
+  PlotH1F ( "hWcc",   (title + ", in W bins, CC events").c_str());
+  PlotH1F ( "hWccqel",(title + ", in W bins, CC QEL events").c_str());
+  PlotH1F ( "hWccres",(title + ", in W bins, CC RES events").c_str());
+  PlotH1F ( "hWccdis",(title + ", in W bins, CC DIS events").c_str());
+  PlotH1F ( "hWnc",   (title + ", in W bins, NC events").c_str());
+  PlotH1F ( "hWncqel",(title + ", in W bins, NC QEL events").c_str());
+  PlotH1F ( "hWncres",(title + ", in W bins, NC RES events").c_str());
+  PlotH1F ( "hWncdis",(title + ", in W bins, NC DIS events").c_str());
+
+  PlotH1F ( "hQ2cc",   (title + ", in Q2 bins, CC events").c_str());
+  PlotH1F ( "hQ2ccqel",(title + ", in Q2 bins, CC QEL events").c_str());
+  PlotH1F ( "hQ2ccres",(title + ", in Q2 bins, CC RES events").c_str());
+  PlotH1F ( "hQ2ccdis",(title + ", in Q2 bins, CC DIS events").c_str());
+  PlotH1F ( "hQ2nc",   (title + ", in Q2 bins, NC events").c_str());
+  PlotH1F ( "hQ2ncqel",(title + ", in Q2 bins, NC QEL events").c_str());
+  PlotH1F ( "hQ2ncres",(title + ", in Q2 bins, NC RES events").c_str());
+  PlotH1F ( "hQ2ncdis",(title + ", in Q2 bins, NC DIS events").c_str());
+}
+//_________________________________________________________________________________
+void PlotKine(string dir, string title)
+{
+  gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get(dir.c_str());
+  gTempltSampleDir = (gSampleComp) ? 
+                     (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
+
+  PlotH1F ( "hx",   (title + ", x_{comp}").c_str());
+  PlotH1F ( "hy",   (title + ", y_{comp}").c_str());
+  PlotH1F ( "ht",   (title + ", t_{comp}").c_str());
+  PlotH1F ( "hW",   (title + ", W_{comp}").c_str());
+  PlotH1F ( "hQ2",  (title + ", Q^{2}_{comp} (GeV^{2})").c_str());
+  PlotH1F ( "hv",   (title + ", v_{comp}").c_str());
+  PlotH1F ( "hxs",  (title + ", x_{sel}").c_str());
+  PlotH1F ( "hys",  (title + ", y_{sel}").c_str());
+  PlotH1F ( "hts",  (title + ", t_{sel}").c_str());
+  PlotH1F ( "hWs",  (title + ", W_{sel}").c_str());
+  PlotH1F ( "hQ2s", (title + ", Q^{2}_{sel} (GeV^{2})").c_str());
+}
+//_________________________________________________________________________________
+void PlotHMult(string dir, string title)
+{
+  gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get(dir.c_str());
+  gTempltSampleDir = (gSampleComp) ? 
+                     (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
+
+  PlotH1F ( "hnp",   (title + ", num of protons").c_str());
+  PlotH1F ( "hnn",   (title + ", num of neutrons").c_str());
+  PlotH1F ( "hnpip", (title + ", num of #pi^{+}").c_str());
+  PlotH1F ( "hnpim", (title + ", num of #pi^{-}").c_str());
+  PlotH1F ( "hnpi0", (title + ", num of #pi^{0}").c_str());
+  PlotH1F ( "hnKp",  (title + ", num of K^{+}").c_str());
+  PlotH1F ( "hnKm",  (title + ", num of K^{-}").c_str());
+  PlotH1F ( "hnK0",  (title + ", num of K^{0}+#bar{K^{0}}").c_str());
+
+  PlotH2F ( "hnpW",   (title + ", num of protons vs W (GeV)").c_str());
+  PlotH2F ( "hnnW",   (title + ", num of neutrons vs W (GeV)").c_str());
+  PlotH2F ( "hnpipW", (title + ", num of #pi^{+} vs W (GeV)").c_str());
+  PlotH2F ( "hnpimW", (title + ", num of #pi^{-} vs W (GeV)").c_str());
+  PlotH2F ( "hnpi0W", (title + ", num of #pi^{0} vs W (GeV)").c_str());
+  PlotH2F ( "hnKpW",  (title + ", num of K^{+} vs W (GeV)").c_str());
+  PlotH2F ( "hnKmW",  (title + ", num of K^{-} vs W (GeV)").c_str());
+  PlotH2F ( "hnK0W",  (title + ", num of K^{0}+#bar{K^{0}} vs W (GeV)").c_str());
+}
+//_________________________________________________________________________________
+void PlotVtx(void)
+{
+  gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get("VtxDir");
+  gTempltSampleDir = (gSampleComp) ? 
+                     (TDirectory*) gTempltSamplePlotFile->Get("VtxDir") : 0;
+
+  PlotH1F ( "vtxx",  "vertex x");
+  PlotH1F ( "vtxy",  "vertex y");
+  PlotH1F ( "vtxz",  "vertex z");
+}
+//_________________________________________________________________________________
+void PlotH1F(string name, string title, bool keep_page)
+{
+  if(!keep_page) gPS->NewPage();
   gC->cd();
 
   TH1F * tested_hst = dynamic_cast<TH1F *> (gTestedSampleDir->Get(name.c_str()));
   TH1F * templt_hst = (gSampleComp) ?
                       dynamic_cast<TH1F *> (gTempltSampleDir->Get(name.c_str())) : 0;
 
+  // plot histogram from test sample
   if(!tested_hst) return;
-
   tested_hst->SetLineColor(2);
   tested_hst->SetLineWidth(2);
   tested_hst->Draw();
 
+  // plot same hisogram from template sample (if any) 
   if(templt_hst) {
     templt_hst->SetLineWidth(2);
     templt_hst->SetMarkerSize(1.3);
     templt_hst->SetMarkerStyle(8);
     templt_hst->Draw("PERRSAME");
+  }
+
+  tested_hst->GetXaxis()->SetTitle(title.c_str());
+  gC->Update();
+}
+//_________________________________________________________________________________
+void PlotH2F(string name, string title)
+{
+  gPS->NewPage();
+  gC->cd();
+
+  TH2F * tested_hst = dynamic_cast<TH2F *> (gTestedSampleDir->Get(name.c_str()));
+  TH2F * templt_hst = (gSampleComp) ?
+                      dynamic_cast<TH2F *> (gTempltSampleDir->Get(name.c_str())) : 0;
+
+  // plot histogram from test sample
+  if(!tested_hst) return;
+  //gStyle->SetPalette(1);
+  //tested_hst->Draw("COLZ");
+  tested_hst->SetFillColor(3);
+  tested_hst->Draw();
+
+  TProfile * hpx = tested_hst->ProfileX();
+  hpx->SetLineColor(2);
+  hpx->SetLineWidth(2);
+  hpx->SetMarkerStyle(20);
+  hpx->SetMarkerSize(1.3);
+  hpx->Draw("SAME");
+
+  // plot same hisogram from template sample (if any)
+  if(templt_hst) {
+    TProfile * hpxt = templt_hst->ProfileX();
+    hpxt->SetLineColor(1);
+    hpxt->SetLineWidth(2);
+    hpxt->SetMarkerStyle(8);
+    hpxt->SetMarkerSize(1.3);
+    hpxt->Draw("SAME");
   }
 
   tested_hst->GetXaxis()->SetTitle(title.c_str());
