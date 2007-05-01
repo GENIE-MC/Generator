@@ -13,7 +13,7 @@ UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase sp
                                        wgt = (phase_space_volume)*(diff_xsec)/(xsec) 
 
 MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method        1.25
-MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)  0.00
+MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)  999999.00 (disable)
                                        if xsec>xsecmax
 Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached    1.00
                                        if xsec>xsecmax
@@ -21,17 +21,14 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
 
   <param_set name="CC-Default"> 
      <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
-     <param type="double" name="MaxXSec-DiffTolerance">  1.000                                  </param>
   </param_set>
 
   <param_set name="NC-Default"> 
      <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
-     <param type="double" name="MaxXSec-DiffTolerance">  1.000                                  </param>
   </param_set>
 
   <param_set name="CC-Charm-Default"> 
      <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
-     <param type="double" name="MaxXSec-DiffTolerance">  1.000                                  </param>
   </param_set>
 
 </alg_conf>
