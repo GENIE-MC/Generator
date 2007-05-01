@@ -286,7 +286,8 @@ void RESKinematicsGenerator::LoadConfig(void)
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("MaxXSec-DiffTolerance",0.);
+  fMaxXSecDiffTolerance = 
+                    fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
   assert(fMaxXSecDiffTolerance>=0);
 
   //-- Generate kinematics uniformly over allowed phase space and compute
@@ -318,7 +319,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
   LOG("RESKinematics", pDEBUG) << "Scanning phase space for E= " << E;
 
-  double scan1d = (E>0.8);
+  double scan1d = (E>1.0);
 
   double md;
   if(!interaction->ExclTag().KnownResonance()) md=1.23;

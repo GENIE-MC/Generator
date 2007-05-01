@@ -229,7 +229,8 @@ void DISKinematicsGenerator::LoadConfig(void)
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("MaxXSec-DiffTolerance",0.);
+  fMaxXSecDiffTolerance = 
+                   fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
   assert(fMaxXSecDiffTolerance>=0);
 
   //-- Generate kinematics uniformly over allowed phase space and compute
@@ -288,10 +289,9 @@ double DISKinematicsGenerator::ComputeMaxXSec(
     Nx  = 50;
     Nxb =  5;
   }
-
   if(tgt.HitQrkIsSet() && tgt.HitSeaQrk()) {
-    xpeak    = .1;
-    xwindow  = .1;
+    xpeak    = .2;
+    xwindow  = .2;
   }
 
   const KPhaseSpace & kps = interaction->PhaseSpace();
