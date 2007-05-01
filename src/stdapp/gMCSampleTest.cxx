@@ -79,17 +79,19 @@ void   InitOutput           (void);
 void   EventLoop            (void);
 void   SaveResults          (void);
 void   CleanUp              (void);
-void   AddEvtFracDir        (string dir, string title, int nupdg);
-void   AddKineDir           (string dir, string title, int nupdg, string proc);
-void   AddHMultDir          (string dir, string title, int nupdg, string proc);
-void   AddVtxDir            (void);
+void   AddEvtFracDir        (string dir, string title, int nupdg);              
+void   AddKineDir           (string dir, string title, int nupdg, string proc); 
+void   AddHMultDir          (string dir, string title, int nupdg, string proc); 
+void   AddHP4Dir            (string dir, string title, int nupdg, string proc); 
+void   AddVtxDir            (void); 
 void   AddNtpDir            (void);
 void   Plot                 (void);
 void   AddFrontPage         (void);
-void   PlotEvtFrac          (string dir, string title);
-void   PlotKine             (string dir, string title);
-void   PlotHMult            (string dir, string title);
-void   PlotVtx              (void);
+void   PlotEvtFrac          (string dir, string title); 
+void   PlotKine             (string dir, string title); 
+void   PlotHMult            (string dir, string title); 
+void   PlotHP4              (string dir, string title); 
+void   PlotVtx              (void);                     
 void   PlotH1F              (string name, string title, bool keep_page = false);
 void   PlotH2F              (string name, string title);
 
@@ -113,47 +115,68 @@ TFile *            gTestedSamplePlotFile = 0;
 TFile *            gTempltSamplePlotFile = 0;
 TDirectory *       gTestedSampleDir = 0; // plot dir in test sample file
 TDirectory *       gTempltSampleDir = 0; // plot dir in template sample file
+double             gEmin  = 999, gEmax  = -999; // Ev range of events in input sample
+double             gWmin  = 999, gWmax  = -999; // W  range of events in input sample
+double             gQ2min = 999, gQ2max = -999; // Q2 range of events in input sample
+
+// various control constants
+const int    kNPmax   = 100;   //
+const double kEBinSz  = 0.250; //
+const double kWBinSz  = 0.200; //
+const double kQ2BinSz = 0.100; //
 
 // summary tree
 TTree * tEvtTree;
-int    br_iev       = 0;
-int    br_neutrino  = 0;
-int    br_target    = 0;
-int    br_hitnuc    = 0;
-int    br_hitqrk    = 0;
-bool   br_qel       = false;
-bool   br_res       = false;
-bool   br_dis       = false;
-bool   br_coh       = false;
-bool   br_em        = false;
-bool   br_weakcc    = false;
-bool   br_weaknc    = false;
-double br_kine_xs   = 0;
-double br_kine_ys   = 0; 
-double br_kine_ts   = 0; 
-double br_kine_Q2s  = 0; 
-double br_kine_Ws   = 0;
-double br_kine_x    = 0;
-double br_kine_y    = 0; 
-double br_kine_t    = 0; 
-double br_kine_Q2   = 0; 
-double br_kine_W    = 0;
-double br_kine_v    = 0;
-double br_Ev        = 0;
-double br_El        = 0;
-double br_vtxx      = 0;
-double br_vtxy      = 0;
-double br_vtxz      = 0;
-double br_weight    = 0;
-int    br_np        = 0;
-int    br_nn        = 0;
-int    br_npip      = 0;
-int    br_npim      = 0;
-int    br_npi0      = 0;
-int    br_ngamma    = 0;
-int    br_nKp       = 0;
-int    br_nKm       = 0;
-int    br_nK0       = 0;
+int    br_iev       = 0;      //
+int    br_neutrino  = 0;      //
+int    br_target    = 0;      //
+int    br_hitnuc    = 0;      //
+int    br_hitqrk    = 0;      //
+bool   br_qel       = false;  //
+bool   br_res       = false;  //
+bool   br_dis       = false;  //
+bool   br_coh       = false;  //
+bool   br_em        = false;  //
+bool   br_weakcc    = false;  //
+bool   br_weaknc    = false;  //
+double br_kine_xs   = 0;      //
+double br_kine_ys   = 0;      //
+double br_kine_ts   = 0;      //
+double br_kine_Q2s  = 0;      //
+double br_kine_Ws   = 0;      //
+double br_kine_x    = 0;      //
+double br_kine_y    = 0;      //
+double br_kine_t    = 0;      //
+double br_kine_Q2   = 0;      //
+double br_kine_W    = 0;      //
+double br_kine_v    = 0;      //
+double br_Ev        = 0;      //
+double br_El        = 0;      //
+double br_vtxx      = 0;      //
+double br_vtxy      = 0;      //
+double br_vtxz      = 0;      //
+double br_weight    = 0;      //
+int    br_np        = 0;      // number of f/s p
+int    br_nn        = 0;      // number of f/s n
+int    br_npip      = 0;      // number of f/s pi+
+int    br_npim      = 0;      // number of f/s pi-
+int    br_npi0      = 0;      // number of f/s pi0
+int    br_ngamma    = 0;      // number of f/s gamma
+int    br_nKp       = 0;      // number of f/s K+
+int    br_nKm       = 0;      // number of f/s K-
+int    br_nK0       = 0;      // number of f/s K0
+int    br_hmod      = 0;      // hadronization model (0:kno, 1:string, 2:cluster, 3:indep)
+int    br_nhep      = 0;      // number of GHEP record entries
+int    br_pdg[kNPmax];        //
+int    br_ist[kNPmax];        //
+double br_px [kNPmax];        //
+double br_py [kNPmax];        //
+double br_pz [kNPmax];        //
+double br_E  [kNPmax];        //
+double br_KE [kNPmax];        //
+double br_x  [kNPmax];        //
+double br_y  [kNPmax];        //
+double br_z  [kNPmax];        //
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -167,8 +190,8 @@ int main(int argc, char ** argv)
 
   //-- analyze tested event generation sample template - if available
   if (CheckRootFilename(gOptInpTemplFile) ) {
-    AnalyzeSample(gOptInpTemplFile);
     gSampleComp = true;
+    AnalyzeSample(gOptInpTemplFile);
   }
 
   //-- plot results
@@ -235,44 +258,56 @@ void InitOutput(void)
 
   //-- create summary tree
   tEvtTree = new TTree("tEvtTree","event tree summary");
-  tEvtTree->Branch("iev",    &br_iev,       "iev/I"      );
-  tEvtTree->Branch("neu",    &br_neutrino,  "neu/I"      );
-  tEvtTree->Branch("tgt" ,   &br_target,    "tgt/I"      );
-  tEvtTree->Branch("hitnuc", &br_hitnuc,    "hitnuc/I"   );
-  tEvtTree->Branch("hitqrk", &br_hitqrk,    "hitqrk/I"   );
-  tEvtTree->Branch("qel",    &br_qel,       "br_qel/O"   );
-  tEvtTree->Branch("res",    &br_res,       "br_res/O"   );
-  tEvtTree->Branch("dis",    &br_dis,       "br_dis/O"   );
-  tEvtTree->Branch("coh",    &br_coh,       "br_coh/O"   );
-  tEvtTree->Branch("em",     &br_em,        "br_em/O"    );
-  tEvtTree->Branch("weakcc", &br_weakcc,    "br_weakcc/O");
-  tEvtTree->Branch("weaknc", &br_weaknc,    "br_weaknc/O");
-  tEvtTree->Branch("xs",     &br_kine_xs,   "xs/D"       );
-  tEvtTree->Branch("ys",     &br_kine_ys,   "ys/D"       );
-  tEvtTree->Branch("ts",     &br_kine_ts,   "ts/D"       );
-  tEvtTree->Branch("Q2s",    &br_kine_Q2s,  "Q2s/D"      );
-  tEvtTree->Branch("Ws",     &br_kine_Ws,   "Ws/D"       );
-  tEvtTree->Branch("x",      &br_kine_x,    "x/D"        );
-  tEvtTree->Branch("y",      &br_kine_y,    "y/D"        );
-  tEvtTree->Branch("t",      &br_kine_t,    "t/D"        );
-  tEvtTree->Branch("Q2",     &br_kine_Q2,   "Q2/D"       );
-  tEvtTree->Branch("W",      &br_kine_W,    "W/D"        );
-  tEvtTree->Branch("v",      &br_kine_v,    "v/D"        );
-  tEvtTree->Branch("Ev",     &br_Ev,        "Ev/D"       );
-  tEvtTree->Branch("El",     &br_El,        "El/D"       );
-  tEvtTree->Branch("vtxx",   &br_vtxx,      "vtxx/D"     );
-  tEvtTree->Branch("vtxy",   &br_vtxy,      "vtxy/D"     );
-  tEvtTree->Branch("vtxz",   &br_vtxz,      "vtxz/D"     );
-  tEvtTree->Branch("wgt",    &br_weight,    "wgt/D"      );
-  tEvtTree->Branch("np",     &br_np,        "np/I"       );
-  tEvtTree->Branch("nn",     &br_nn,        "nn/I"       );
-  tEvtTree->Branch("npip",   &br_npip,      "npip/I"     );
-  tEvtTree->Branch("npim",   &br_npim,      "npim/I"     );
-  tEvtTree->Branch("npi0",   &br_npi0,      "npi0/I"     );
-  tEvtTree->Branch("ngamma", &br_ngamma,    "ngamma/I"   );
-  tEvtTree->Branch("nKp",    &br_nKp,       "nKp/I"      );
-  tEvtTree->Branch("nKm",    &br_nKm,       "nKm/I"      );
-  tEvtTree->Branch("nK0",    &br_nK0,       "nK0/I"      );
+  tEvtTree->Branch("iev",    &br_iev,       "iev/I"       );
+  tEvtTree->Branch("neu",    &br_neutrino,  "neu/I"       );
+  tEvtTree->Branch("tgt" ,   &br_target,    "tgt/I"       );
+  tEvtTree->Branch("hitnuc", &br_hitnuc,    "hitnuc/I"    );
+  tEvtTree->Branch("hitqrk", &br_hitqrk,    "hitqrk/I"    );
+  tEvtTree->Branch("qel",    &br_qel,       "br_qel/O"    );
+  tEvtTree->Branch("res",    &br_res,       "br_res/O"    );
+  tEvtTree->Branch("dis",    &br_dis,       "br_dis/O"    );
+  tEvtTree->Branch("coh",    &br_coh,       "br_coh/O"    );
+  tEvtTree->Branch("em",     &br_em,        "br_em/O"     );
+  tEvtTree->Branch("weakcc", &br_weakcc,    "br_weakcc/O" );
+  tEvtTree->Branch("weaknc", &br_weaknc,    "br_weaknc/O" );
+  tEvtTree->Branch("xs",     &br_kine_xs,   "xs/D"        );
+  tEvtTree->Branch("ys",     &br_kine_ys,   "ys/D"        );
+  tEvtTree->Branch("ts",     &br_kine_ts,   "ts/D"        );
+  tEvtTree->Branch("Q2s",    &br_kine_Q2s,  "Q2s/D"       );
+  tEvtTree->Branch("Ws",     &br_kine_Ws,   "Ws/D"        );
+  tEvtTree->Branch("x",      &br_kine_x,    "x/D"         );
+  tEvtTree->Branch("y",      &br_kine_y,    "y/D"         );
+  tEvtTree->Branch("t",      &br_kine_t,    "t/D"         );
+  tEvtTree->Branch("Q2",     &br_kine_Q2,   "Q2/D"        );
+  tEvtTree->Branch("W",      &br_kine_W,    "W/D"         );
+  tEvtTree->Branch("v",      &br_kine_v,    "v/D"         );
+  tEvtTree->Branch("Ev",     &br_Ev,        "Ev/D"        );
+  tEvtTree->Branch("El",     &br_El,        "El/D"        );
+  tEvtTree->Branch("vtxx",   &br_vtxx,      "vtxx/D"      );
+  tEvtTree->Branch("vtxy",   &br_vtxy,      "vtxy/D"      );
+  tEvtTree->Branch("vtxz",   &br_vtxz,      "vtxz/D"      );
+  tEvtTree->Branch("wgt",    &br_weight,    "wgt/D"       );
+  tEvtTree->Branch("np",     &br_np,        "np/I"        );
+  tEvtTree->Branch("nn",     &br_nn,        "nn/I"        );
+  tEvtTree->Branch("npip",   &br_npip,      "npip/I"      );
+  tEvtTree->Branch("npim",   &br_npim,      "npim/I"      );
+  tEvtTree->Branch("npi0",   &br_npi0,      "npi0/I"      );
+  tEvtTree->Branch("ngamma", &br_ngamma,    "ngamma/I"    );
+  tEvtTree->Branch("nKp",    &br_nKp,       "nKp/I"       );
+  tEvtTree->Branch("nKm",    &br_nKm,       "nKm/I"       );
+  tEvtTree->Branch("nK0",    &br_nK0,       "nK0/I"       );
+  tEvtTree->Branch("hmod",   &br_hmod,      "hmod/I"      );
+  tEvtTree->Branch("nhep",   &br_nhep,      "nhep/I"      );
+  tEvtTree->Branch("pdg",     br_pdg,       "pdg[nhep]/I" );
+  tEvtTree->Branch("ist",     br_ist,       "ist[nhep]/I" );
+  tEvtTree->Branch("px",      br_px,        "px[nhep]/D"  );
+  tEvtTree->Branch("py",      br_py,        "py[nhep]/D"  );
+  tEvtTree->Branch("pz",      br_pz,        "pz[nhep]/D"  );
+  tEvtTree->Branch("E",       br_E,         "E[nhep]/D"   );
+  tEvtTree->Branch("KE",      br_KE,        "KE[nhep]/D"  );
+  tEvtTree->Branch("x",       br_x,         "x[nhep]/D"   );
+  tEvtTree->Branch("y",       br_y,         "y[nhep]/D"   );
+  tEvtTree->Branch("z",       br_z,         "z[nhep]/D"   );
 }
 //_________________________________________________________________________________
 void EventLoop(void)
@@ -355,6 +390,44 @@ void EventLoop(void)
     //
     TLorentzVector * vtx = event.Vertex(); 
 
+    // update ranges
+    //
+    if(!gSampleComp) {
+      gEmin  = TMath::Min( gEmin,  Ev);
+      gEmax  = TMath::Max( gEmax,  Ev);
+      gWmin  = TMath::Min( gWmin,  W );
+      gWmax  = TMath::Max( gWmax,  W );
+      gQ2min = TMath::Min( gQ2min, Q2);
+      gQ2max = TMath::Max( gQ2max, Q2);
+    }
+
+    // copy GHEP record into a flat array
+    //
+    TObjArrayIter piter(&event);
+    GHepParticle * p = 0;
+    unsigned int ip=0;
+    br_hmod = 0;  
+    while( (p = (GHepParticle *) piter.Next()) )
+    {
+      br_pdg[ip] = p->Pdg(); 
+      br_ist[ip] = p->Status(); 
+      br_px [ip] = p->Px(); 
+      br_py [ip] = p->Py(); 
+      br_pz [ip] = p->Pz(); 
+      br_E  [ip] = p->Energy(); 
+      br_KE [ip] = p->KinE(); 
+      br_x  [ip] = p->Vx(); 
+      br_y  [ip] = p->Vy(); 
+      br_z  [ip] = p->Vz(); 
+
+      if      (p->Pdg() == kPdgString ) br_hmod=1;
+      else if (p->Pdg() == kPdgCluster) br_hmod=2;
+      else if (p->Pdg() == kPdgIndep  ) br_hmod=3;
+
+      ip++;
+    }
+    br_nhep = event.GetEntries();
+
     // fill the summary ntuple
     //
     br_iev       = i;
@@ -401,6 +474,8 @@ void EventLoop(void)
     gMCRec->Clear();
 
   } // event loop
+
+  assert(gEmin < gEmax);
 }
 //_________________________________________________________________________________
 void CleanUp(void)
@@ -448,6 +523,18 @@ void SaveResults(void)
   AddHMultDir("HadMultNcNumuQelDir", "Hadronic multiplicities - All nu_mu NC QEL", 14, "weaknc&&qel");
   AddHMultDir("HadMultNcNumuResDir", "Hadronic multiplicities - All nu_mu NC RES", 14, "weaknc&&res");
   AddHMultDir("HadMultNcNumuDisDir", "Hadronic multiplicities - All nu_mu NC DIS", 14, "weaknc&&dis");
+
+  // --- add directories containing hadronic 4-momentum plots
+  //
+  AddHP4Dir("HadP4Dir",          "Hadronic 4-momentum - All events",        0, "");
+  AddHP4Dir("HadP4CcNumuDir",    "Hadronic 4-momentum - All nu_mu CC",     14, "weakcc");
+  AddHP4Dir("HadP4CcNumuQelDir", "Hadronic 4-momentum - All nu_mu CC QEL", 14, "weakcc&&qel");
+  AddHP4Dir("HadP4CcNumuResDir", "Hadronic 4-momentum - All nu_mu CC RES", 14, "weakcc&&res");
+  AddHP4Dir("HadP4CcNumuDisDir", "Hadronic 4-momentum - All nu_mu CC DIS", 14, "weakcc&&dis");
+  AddHP4Dir("HadP4NcNumuDir",    "Hadronic 4-momentum - All nu_mu NC",     14, "weaknc");
+  AddHP4Dir("HadP4NcNumuQelDir", "Hadronic 4-momentum - All nu_mu NC QEL", 14, "weaknc&&qel");
+  AddHP4Dir("HadP4NcNumuResDir", "Hadronic 4-momentum - All nu_mu NC RES", 14, "weaknc&&res");
+  AddHP4Dir("HadP4NcNumuDisDir", "Hadronic 4-momentum - All nu_mu NC DIS", 14, "weaknc&&dis");
 
   // --- add directory containing event vertex plots
   //
@@ -516,37 +603,90 @@ void AddHMultDir(string dir, string title, int nupdg, string proc)
   tdir->Write(dir.c_str());
 }
 //_________________________________________________________________________________
+void AddHP4Dir(string dir, string title, int nupdg, string proc)
+{
+  TDirectory * tdir = gCurrOutFile->mkdir(dir.c_str(), title.c_str());
+  tdir->cd();
+
+  ostringstream condition;
+  condition << "wgt*(1";
+  if(nupdg)          condition << "&&neu==" << nupdg;
+  if (proc.size()>0) condition << "&&" << proc;
+
+  tEvtTree->Draw( "px>>hpx_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "py>>hpy_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "pz>>hpz_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "sqrt(px*px+py*py+pz*pz)>>hp_pip",  
+                                  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "E>>hE_pip",    (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "KE>>hKE_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+
+  tEvtTree->Draw( "px>>hpx_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
+  tEvtTree->Draw( "py>>hpy_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
+  tEvtTree->Draw( "pz>>hpz_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
+  tEvtTree->Draw( "sqrt(px*px+py*py+pz*pz)>>hp_pim",  
+                                  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "E>>hE_pim",    (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
+  tEvtTree->Draw( "KE>>hKE_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
+
+  tEvtTree->Draw( "px>>hpx_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
+  tEvtTree->Draw( "py>>hpy_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
+  tEvtTree->Draw( "pz>>hpz_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
+  tEvtTree->Draw( "sqrt(px*px+py*py+pz*pz)>>hp_p",  
+                                  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "E>>hE_p",      (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
+  tEvtTree->Draw( "KE>>hKE_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
+
+  tEvtTree->Draw( "px>>hpx_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
+  tEvtTree->Draw( "py>>hpy_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
+  tEvtTree->Draw( "pz>>hpz_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
+  tEvtTree->Draw( "sqrt(px*px+py*py+pz*pz)>>hp_n",  
+                                  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "E>>hE_n",      (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
+  tEvtTree->Draw( "KE>>hKE_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
+
+  tdir->Write(dir.c_str());
+}
+//_________________________________________________________________________________
 void AddEvtFracDir(string dir, string title, int nupdg)
 {
-  TH1F * hE       = new TH1F("hE",      "",80,0,20);
-  TH1F * hEcc     = new TH1F("hEcc",    "",80,0,20);
-  TH1F * hEccqel  = new TH1F("hEccqel", "",80,0,20);
-  TH1F * hEccres  = new TH1F("hEccres", "",80,0,20);
-  TH1F * hEccdis  = new TH1F("hEccdis", "",80,0,20);
-  TH1F * hEnc     = new TH1F("hEnc",    "",80,0,20);
-  TH1F * hEncqel  = new TH1F("hEncqel", "",80,0,20);
-  TH1F * hEncres  = new TH1F("hEncres", "",80,0,20);
-  TH1F * hEncdis  = new TH1F("hEncdis", "",80,0,20);
+  double dE  = gEmax  - gEmin;
+  double dW  = gWmax  - gWmin;
+  double dQ2 = gQ2max - gQ2min;
 
-  TH1F * hW       = new TH1F("hW",      "",40,0,20);
-  TH1F * hWcc     = new TH1F("hWcc",    "",40,0,20);
-  TH1F * hWccqel  = new TH1F("hWccqel", "",40,0,20);
-  TH1F * hWccres  = new TH1F("hWccres", "",40,0,20);
-  TH1F * hWccdis  = new TH1F("hWccdis", "",40,0,20);
-  TH1F * hWnc     = new TH1F("hWnc",    "",40,0,20);
-  TH1F * hWncqel  = new TH1F("hWncqel", "",40,0,20);
-  TH1F * hWncres  = new TH1F("hWncres", "",40,0,20);
-  TH1F * hWncdis  = new TH1F("hWncdis", "",40,0,20);
+  int    nbe  = dE  / kEBinSz;
+  int    nbw  = dW  / kWBinSz;
+  int    nbq2 = dQ2 / kQ2BinSz;
 
-  TH1F * hQ2      = new TH1F("hQ2",     "",80,0,40);
-  TH1F * hQ2cc    = new TH1F("hQ2cc",   "",80,0,40);
-  TH1F * hQ2ccqel = new TH1F("hQ2ccqel","",80,0,40);
-  TH1F * hQ2ccres = new TH1F("hQ2ccres","",80,0,40);
-  TH1F * hQ2ccdis = new TH1F("hQ2ccdis","",80,0,40);
-  TH1F * hQ2nc    = new TH1F("hQ2nc",   "",80,0,40);
-  TH1F * hQ2ncqel = new TH1F("hQ2ncqel","",80,0,40);
-  TH1F * hQ2ncres = new TH1F("hQ2ncres","",80,0,40);
-  TH1F * hQ2ncdis = new TH1F("hQ2ncdis","",80,0,40);
+  TH1F * hE       = new TH1F("hE",      "", nbe, gEmin, gEmax);
+  TH1F * hEcc     = new TH1F("hEcc",    "", nbe, gEmin, gEmax);
+  TH1F * hEccqel  = new TH1F("hEccqel", "", nbe, gEmin, gEmax);
+  TH1F * hEccres  = new TH1F("hEccres", "", nbe, gEmin, gEmax);
+  TH1F * hEccdis  = new TH1F("hEccdis", "", nbe, gEmin, gEmax);
+  TH1F * hEnc     = new TH1F("hEnc",    "", nbe, gEmin, gEmax);
+  TH1F * hEncqel  = new TH1F("hEncqel", "", nbe, gEmin, gEmax);
+  TH1F * hEncres  = new TH1F("hEncres", "", nbe, gEmin, gEmax);
+  TH1F * hEncdis  = new TH1F("hEncdis", "", nbe, gEmin, gEmax);
+
+  TH1F * hW       = new TH1F("hW",      "", nbw, gWmin, gWmax);
+  TH1F * hWcc     = new TH1F("hWcc",    "", nbw, gWmin, gWmax);
+  TH1F * hWccqel  = new TH1F("hWccqel", "", nbw, gWmin, gWmax);
+  TH1F * hWccres  = new TH1F("hWccres", "", nbw, gWmin, gWmax);
+  TH1F * hWccdis  = new TH1F("hWccdis", "", nbw, gWmin, gWmax);
+  TH1F * hWnc     = new TH1F("hWnc",    "", nbw, gWmin, gWmax);
+  TH1F * hWncqel  = new TH1F("hWncqel", "", nbw, gWmin, gWmax);
+  TH1F * hWncres  = new TH1F("hWncres", "", nbw, gWmin, gWmax);
+  TH1F * hWncdis  = new TH1F("hWncdis", "", nbw, gWmin, gWmax);
+
+  TH1F * hQ2      = new TH1F("hQ2",     "", nbq2, gQ2min, gQ2max);
+  TH1F * hQ2cc    = new TH1F("hQ2cc",   "", nbq2, gQ2min, gQ2max);
+  TH1F * hQ2ccqel = new TH1F("hQ2ccqel","", nbq2, gQ2min, gQ2max);
+  TH1F * hQ2ccres = new TH1F("hQ2ccres","", nbq2, gQ2min, gQ2max);
+  TH1F * hQ2ccdis = new TH1F("hQ2ccdis","", nbq2, gQ2min, gQ2max);
+  TH1F * hQ2nc    = new TH1F("hQ2nc",   "", nbq2, gQ2min, gQ2max);
+  TH1F * hQ2ncqel = new TH1F("hQ2ncqel","", nbq2, gQ2min, gQ2max);
+  TH1F * hQ2ncres = new TH1F("hQ2ncres","", nbq2, gQ2min, gQ2max);
+  TH1F * hQ2ncdis = new TH1F("hQ2ncdis","", nbq2, gQ2min, gQ2max);
 
   tEvtTree->Draw("Ev>>hE",       Form("wgt*(neu==%d)",nupdg),              "GOFF");
   tEvtTree->Draw("Ev>>hEcc",     Form("wgt*(neu==%d&&weakcc)",nupdg),      "GOFF");
@@ -728,6 +868,18 @@ void Plot(void)
   PlotHMult("HadMultNcNumuResDir",    "#nu_{#mu} NC RES" );
   PlotHMult("HadMultNcNumuDisDir",    "#nu_{#mu} NC DIS" );
 
+  // --- hadronic 4-momentum plots
+  //
+  PlotHP4("HadP4Dir",             "All events"       );
+  PlotHP4("HadP4CcNumuDir",       "#nu_{#mu} CC"     );
+  PlotHP4("HadP4CcNumuQelDir",    "#nu_{#mu} CC QEL" );
+  PlotHP4("HadP4CcNumuResDir",    "#nu_{#mu} CC RES" );
+  PlotHP4("HadP4CcNumuDisDir",    "#nu_{#mu} CC DIS" );
+  PlotHP4("HadP4NcNumuDir",       "#nu_{#mu} NC"     );
+  PlotHP4("HadP4NcNumuQelDir",    "#nu_{#mu} NC QEL" );
+  PlotHP4("HadP4NcNumuResDir",    "#nu_{#mu} NC RES" );
+  PlotHP4("HadP4NcNumuDisDir",    "#nu_{#mu} NC DIS" );
+
   // --- vertex position plots
   //
   PlotVtx();
@@ -854,6 +1006,41 @@ void PlotHMult(string dir, string title)
   PlotH2F ( "hnK0W",  (title + ", num of K^{0}+#bar{K^{0}} vs W (GeV)").c_str());
 }
 //_________________________________________________________________________________
+void PlotHP4(string dir, string title)
+{
+  gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get(dir.c_str());
+  gTempltSampleDir = (gSampleComp) ? 
+                     (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
+
+  PlotH1F ( "hpx_pip", (title + ", f/s #pi^{+} Px").c_str() );
+  PlotH1F ( "hpy_pip", (title + ", f/s #pi^{+} Py").c_str() );
+  PlotH1F ( "hpz_pip", (title + ", f/s #pi^{+} Pz").c_str() );
+  PlotH1F ( "hp_pip",  (title + ", f/s #pi^{+} P").c_str()  );
+  PlotH1F ( "hE_pip",  (title + ", f/s #pi^{+} E").c_str()  );
+  PlotH1F ( "hKE_pip", (title + ", f/s #pi^{+} KE").c_str() );
+
+  PlotH1F ( "hpx_pim", (title + ", f/s #pi^{-} Px").c_str() );
+  PlotH1F ( "hpy_pim", (title + ", f/s #pi^{-} Py").c_str() );
+  PlotH1F ( "hpz_pim", (title + ", f/s #pi^{-} Pz").c_str() );
+  PlotH1F ( "hp_pim",  (title + ", f/s #pi^{-} P").c_str()  );
+  PlotH1F ( "hE_pim",  (title + ", f/s #pi^{-} E").c_str()  );
+  PlotH1F ( "hKE_pim", (title + ", f/s #pi^{-} KE").c_str() );
+
+  PlotH1F ( "hpx_p",   (title + ", f/s proton Px").c_str()  );
+  PlotH1F ( "hpy_p",   (title + ", f/s proton Py").c_str()  );
+  PlotH1F ( "hpz_p",   (title + ", f/s proton Pz").c_str()  );
+  PlotH1F ( "hp_p",    (title + ", f/s proton P").c_str()   );
+  PlotH1F ( "hE_p",    (title + ", f/s proton E").c_str()   );
+  PlotH1F ( "hKE_p",   (title + ", f/s proton KE").c_str()  );
+
+  PlotH1F ( "hpx_n",   (title + ", f/s neutron Px").c_str() );
+  PlotH1F ( "hpy_n",   (title + ", f/s neutron Py").c_str() );
+  PlotH1F ( "hpz_n",   (title + ", f/s neutron Pz").c_str() );
+  PlotH1F ( "hp_n",    (title + ", f/s neutron P").c_str()  );
+  PlotH1F ( "hE_n",    (title + ", f/s neutron E").c_str()  );
+  PlotH1F ( "hKE_n",   (title + ", f/s neutron KE").c_str() );
+}
+//_________________________________________________________________________________
 void PlotVtx(void)
 {
   gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get("VtxDir");
@@ -874,8 +1061,20 @@ void PlotH1F(string name, string title, bool keep_page)
   TH1F * templt_hst = (gSampleComp) ?
                       dynamic_cast<TH1F *> (gTempltSampleDir->Get(name.c_str())) : 0;
 
-  // plot histogram from test sample
   if(!tested_hst) return;
+/*
+  if(tested_hst->GetEntries() <= 0) {
+    TPavesText warn(0.1, 0.6, 0.9, 0.9, 0, "tr");
+    warn.SetTextSize(0.04);
+    warn.AddText("EMPTY HISTOGRAM");
+    warn.AddText(title.c_str());
+    warn.SetFillColor(46);  
+    warn.SetTextColor(10);  
+    warn.Draw();
+    return;
+  }
+*/
+  // plot histogram from test sample
   tested_hst->SetLineColor(2);
   tested_hst->SetLineWidth(2);
   tested_hst->Draw();
