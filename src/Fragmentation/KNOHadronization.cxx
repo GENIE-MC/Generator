@@ -87,6 +87,7 @@ TClonesArray * KNOHadronization::Hadronize(
      LOG("KNOHad", pWARN) << "Returning a null particle list!";
      return 0;
   }
+  fWeight=1;
 
   double W = utils::kinematics::W(interaction);
   LOG("KNOHad", pINFO) << "W = " << W << " GeV";
