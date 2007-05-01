@@ -315,20 +315,14 @@ void COHKinematicsGenerator::LoadConfig(void)
   fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.6);
   fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",     -1.0);
 
-/*
-  //-- Differential cross section model
-  fXSecModel = 
-       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
-  assert(fXSecModel);
-*/
-
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
   fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("MaxXSec-DiffTolerance",0.);
+  fMaxXSecDiffTolerance = 
+                       fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
   assert(fMaxXSecDiffTolerance>=0);
 
   //-- Envelope employed when importance sampling is used 
