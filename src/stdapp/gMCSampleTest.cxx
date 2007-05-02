@@ -489,6 +489,7 @@ void EventLoop(void)
 
     // init root position for hadronic system (before intranuclear transport)
     int ihad_root = -1;
+    if(!is_dis) ihad_root = event.HitNucleonPosition();
 
     // copy GHEP record into a flat array
     //
@@ -1235,33 +1236,33 @@ void PlotHP4(string dir, string title)
   gTempltSampleDir = (gSampleComp) ? 
                      (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
 
-  PlotH1F_2 ( "hpx_pip", "hpx_pip_hprim", (title + ", f/s #pi^{+} Px (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpy_pip", "hpy_pip_hprim", (title + ", f/s #pi^{+} Py (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpz_pip", "hpz_pip_hprim", (title + ", f/s #pi^{+} Pz (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hp_pip",  "hp_pip_hprim",  (title + ", f/s #pi^{+} P  (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hE_pip",  "hE_pip_hprim",  (title + ", f/s #pi^{+} E  (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hKE_pip", "hKE_pip_hprim", (title + ", f/s #pi^{+} KE (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpx_pip", "hpx_pip_hprim", (title + ", f/s #pi^{+} Px (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpy_pip", "hpy_pip_hprim", (title + ", f/s #pi^{+} Py (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpz_pip", "hpz_pip_hprim", (title + ", f/s #pi^{+} Pz (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hp_pip",  "hp_pip_hprim",  (title + ", f/s #pi^{+} P  (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hE_pip",  "hE_pip_hprim",  (title + ", f/s #pi^{+} E  (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hKE_pip", "hKE_pip_hprim", (title + ", f/s #pi^{+} KE (dashed/open: before hadron transport)").c_str() );
 
-  PlotH1F_2 ( "hpx_pim", "hpx_pim_hprim", (title + ", f/s #pi^{-} Px (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpy_pim", "hpy_pim_hprim", (title + ", f/s #pi^{-} Py (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpz_pim", "hpz_pim_hprim", (title + ", f/s #pi^{-} Pz (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hp_pim",  "hp_pim_hprim",  (title + ", f/s #pi^{-} P  (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hE_pim",  "hE_pim_hprim",  (title + ", f/s #pi^{-} E  (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hKE_pim", "hKE_pim_hprim", (title + ", f/s #pi^{-} KE (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpx_pim", "hpx_pim_hprim", (title + ", f/s #pi^{-} Px (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpy_pim", "hpy_pim_hprim", (title + ", f/s #pi^{-} Py (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpz_pim", "hpz_pim_hprim", (title + ", f/s #pi^{-} Pz (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hp_pim",  "hp_pim_hprim",  (title + ", f/s #pi^{-} P  (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hE_pim",  "hE_pim_hprim",  (title + ", f/s #pi^{-} E  (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hKE_pim", "hKE_pim_hprim", (title + ", f/s #pi^{-} KE (dashed/open: before hadron transport)").c_str() );
 
-  PlotH1F_2 ( "hpx_p",   "hpx_p_hprim",   (title + ", f/s proton Px (dashed lines / open markers: before hadron transport)").c_str()  );
-  PlotH1F_2 ( "hpy_p",   "hpy_p_hprim",   (title + ", f/s proton Py (dashed lines / open markers: before hadron transport)").c_str()  );
-  PlotH1F_2 ( "hpz_p",   "hpz_p_hprim",   (title + ", f/s proton Pz (dashed lines / open markers: before hadron transport)").c_str()  );
-  PlotH1F_2 ( "hp_p",    "hp_p_hprim",    (title + ", f/s proton P  (dashed lines / open markers: before hadron transport)").c_str()  );
-  PlotH1F_2 ( "hE_p",    "hE_p_hprim",    (title + ", f/s proton E  (dashed lines / open markers: before hadron transport)").c_str()  );
-  PlotH1F_2 ( "hKE_p",   "hKE_p_hprim",   (title + ", f/s proton KE (dashed lines / open markers: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hpx_p",   "hpx_p_hprim",   (title + ", f/s proton Px (dashed/open: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hpy_p",   "hpy_p_hprim",   (title + ", f/s proton Py (dashed/open: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hpz_p",   "hpz_p_hprim",   (title + ", f/s proton Pz (dashed/open: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hp_p",    "hp_p_hprim",    (title + ", f/s proton P  (dashed/open: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hE_p",    "hE_p_hprim",    (title + ", f/s proton E  (dashed/open: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hKE_p",   "hKE_p_hprim",   (title + ", f/s proton KE (dashed/open: before hadron transport)").c_str()  );
 
-  PlotH1F_2 ( "hpx_n",   "hpx_n_hprim",   (title + ", f/s neutron Px (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpy_n",   "hpy_n_hprim",   (title + ", f/s neutron Py (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpz_n",   "hpz_n_hprim",   (title + ", f/s neutron Pz (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hp_n",    "hp_n_hprim",    (title + ", f/s neutron P  (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hE_n",    "hE_n_hprim",    (title + ", f/s neutron E  (dashed lines / open markers: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hKE_n",   "hKE_n_hprim",   (title + ", f/s neutron KE (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpx_n",   "hpx_n_hprim",   (title + ", f/s neutron Px (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpy_n",   "hpy_n_hprim",   (title + ", f/s neutron Py (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpz_n",   "hpz_n_hprim",   (title + ", f/s neutron Pz (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hp_n",    "hp_n_hprim",    (title + ", f/s neutron P  (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hE_n",    "hE_n_hprim",    (title + ", f/s neutron E  (dashed/open: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hKE_n",   "hKE_n_hprim",   (title + ", f/s neutron KE (dashed/open: before hadron transport)").c_str() );
 }
 //_________________________________________________________________________________
 void PlotVtx(void)
