@@ -79,7 +79,7 @@ void   InitOutput           (void);
 void   EventLoop            (void);
 void   SaveResults          (void);
 void   CleanUp              (void);
-void   AddEvtFracDir        (string dir, string title, int nupdg);              
+void   AddEvtFracDir        (string dir, string title, int nupdg);  
 void   AddKineDir           (string dir, string title, int nupdg, string proc); 
 void   AddHMultDir          (string dir, string title, int nupdg, string proc); 
 void   AddHP4Dir            (string dir, string title, int nupdg, string proc); 
@@ -177,6 +177,9 @@ double br_KE [kNPmax];        //
 double br_x  [kNPmax];        //
 double br_y  [kNPmax];        //
 double br_z  [kNPmax];        //
+int    br_da1[kNPmax];        //
+int    br_da2[kNPmax];        //
+int    br_mom[kNPmax];        //
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -258,56 +261,59 @@ void InitOutput(void)
 
   //-- create summary tree
   tEvtTree = new TTree("tEvtTree","event tree summary");
-  tEvtTree->Branch("iev",    &br_iev,       "iev/I"       );
-  tEvtTree->Branch("neu",    &br_neutrino,  "neu/I"       );
-  tEvtTree->Branch("tgt" ,   &br_target,    "tgt/I"       );
-  tEvtTree->Branch("hitnuc", &br_hitnuc,    "hitnuc/I"    );
-  tEvtTree->Branch("hitqrk", &br_hitqrk,    "hitqrk/I"    );
-  tEvtTree->Branch("qel",    &br_qel,       "br_qel/O"    );
-  tEvtTree->Branch("res",    &br_res,       "br_res/O"    );
-  tEvtTree->Branch("dis",    &br_dis,       "br_dis/O"    );
-  tEvtTree->Branch("coh",    &br_coh,       "br_coh/O"    );
-  tEvtTree->Branch("em",     &br_em,        "br_em/O"     );
-  tEvtTree->Branch("weakcc", &br_weakcc,    "br_weakcc/O" );
-  tEvtTree->Branch("weaknc", &br_weaknc,    "br_weaknc/O" );
-  tEvtTree->Branch("xs",     &br_kine_xs,   "xs/D"        );
-  tEvtTree->Branch("ys",     &br_kine_ys,   "ys/D"        );
-  tEvtTree->Branch("ts",     &br_kine_ts,   "ts/D"        );
-  tEvtTree->Branch("Q2s",    &br_kine_Q2s,  "Q2s/D"       );
-  tEvtTree->Branch("Ws",     &br_kine_Ws,   "Ws/D"        );
-  tEvtTree->Branch("x",      &br_kine_x,    "x/D"         );
-  tEvtTree->Branch("y",      &br_kine_y,    "y/D"         );
-  tEvtTree->Branch("t",      &br_kine_t,    "t/D"         );
-  tEvtTree->Branch("Q2",     &br_kine_Q2,   "Q2/D"        );
-  tEvtTree->Branch("W",      &br_kine_W,    "W/D"         );
-  tEvtTree->Branch("v",      &br_kine_v,    "v/D"         );
-  tEvtTree->Branch("Ev",     &br_Ev,        "Ev/D"        );
-  tEvtTree->Branch("El",     &br_El,        "El/D"        );
-  tEvtTree->Branch("vtxx",   &br_vtxx,      "vtxx/D"      );
-  tEvtTree->Branch("vtxy",   &br_vtxy,      "vtxy/D"      );
-  tEvtTree->Branch("vtxz",   &br_vtxz,      "vtxz/D"      );
-  tEvtTree->Branch("wgt",    &br_weight,    "wgt/D"       );
-  tEvtTree->Branch("np",     &br_np,        "np/I"        );
-  tEvtTree->Branch("nn",     &br_nn,        "nn/I"        );
-  tEvtTree->Branch("npip",   &br_npip,      "npip/I"      );
-  tEvtTree->Branch("npim",   &br_npim,      "npim/I"      );
-  tEvtTree->Branch("npi0",   &br_npi0,      "npi0/I"      );
-  tEvtTree->Branch("ngamma", &br_ngamma,    "ngamma/I"    );
-  tEvtTree->Branch("nKp",    &br_nKp,       "nKp/I"       );
-  tEvtTree->Branch("nKm",    &br_nKm,       "nKm/I"       );
-  tEvtTree->Branch("nK0",    &br_nK0,       "nK0/I"       );
-  tEvtTree->Branch("hmod",   &br_hmod,      "hmod/I"      );
-  tEvtTree->Branch("nhep",   &br_nhep,      "nhep/I"      );
-  tEvtTree->Branch("pdg",     br_pdg,       "pdg[nhep]/I" );
-  tEvtTree->Branch("ist",     br_ist,       "ist[nhep]/I" );
-  tEvtTree->Branch("px",      br_px,        "px[nhep]/D"  );
-  tEvtTree->Branch("py",      br_py,        "py[nhep]/D"  );
-  tEvtTree->Branch("pz",      br_pz,        "pz[nhep]/D"  );
-  tEvtTree->Branch("E",       br_E,         "E[nhep]/D"   );
-  tEvtTree->Branch("KE",      br_KE,        "KE[nhep]/D"  );
-  tEvtTree->Branch("x",       br_x,         "x[nhep]/D"   );
-  tEvtTree->Branch("y",       br_y,         "y[nhep]/D"   );
-  tEvtTree->Branch("z",       br_z,         "z[nhep]/D"   );
+  tEvtTree->Branch("iev",      &br_iev,       "iev/I"       );
+  tEvtTree->Branch("neu",      &br_neutrino,  "neu/I"       );
+  tEvtTree->Branch("tgt" ,     &br_target,    "tgt/I"       );
+  tEvtTree->Branch("hitnuc",   &br_hitnuc,    "hitnuc/I"    );
+  tEvtTree->Branch("hitqrk",   &br_hitqrk,    "hitqrk/I"    );
+  tEvtTree->Branch("qel",      &br_qel,       "br_qel/O"    );
+  tEvtTree->Branch("res",      &br_res,       "br_res/O"    );
+  tEvtTree->Branch("dis",      &br_dis,       "br_dis/O"    );
+  tEvtTree->Branch("coh",      &br_coh,       "br_coh/O"    );
+  tEvtTree->Branch("em",       &br_em,        "br_em/O"     );
+  tEvtTree->Branch("weakcc",   &br_weakcc,    "br_weakcc/O" );
+  tEvtTree->Branch("weaknc",   &br_weaknc,    "br_weaknc/O" );
+  tEvtTree->Branch("xs",       &br_kine_xs,   "xs/D"        );
+  tEvtTree->Branch("ys",       &br_kine_ys,   "ys/D"        );
+  tEvtTree->Branch("ts",       &br_kine_ts,   "ts/D"        );
+  tEvtTree->Branch("Q2s",      &br_kine_Q2s,  "Q2s/D"       );
+  tEvtTree->Branch("Ws",       &br_kine_Ws,   "Ws/D"        );
+  tEvtTree->Branch("x",        &br_kine_x,    "x/D"         );
+  tEvtTree->Branch("y",        &br_kine_y,    "y/D"         );
+  tEvtTree->Branch("t",        &br_kine_t,    "t/D"         );
+  tEvtTree->Branch("Q2",       &br_kine_Q2,   "Q2/D"        );
+  tEvtTree->Branch("W",        &br_kine_W,    "W/D"         );
+  tEvtTree->Branch("v",        &br_kine_v,    "v/D"         );
+  tEvtTree->Branch("Ev",       &br_Ev,        "Ev/D"        );
+  tEvtTree->Branch("El",       &br_El,        "El/D"        );
+  tEvtTree->Branch("vtxx",     &br_vtxx,      "vtxx/D"      );
+  tEvtTree->Branch("vtxy",     &br_vtxy,      "vtxy/D"      );
+  tEvtTree->Branch("vtxz",     &br_vtxz,      "vtxz/D"      );
+  tEvtTree->Branch("wgt",      &br_weight,    "wgt/D"       );
+  tEvtTree->Branch("np",       &br_np,        "np/I"        );
+  tEvtTree->Branch("nn",       &br_nn,        "nn/I"        );
+  tEvtTree->Branch("npip",     &br_npip,      "npip/I"      );
+  tEvtTree->Branch("npim",     &br_npim,      "npim/I"      );
+  tEvtTree->Branch("npi0",     &br_npi0,      "npi0/I"      );
+  tEvtTree->Branch("ngamma",   &br_ngamma,    "ngamma/I"    );
+  tEvtTree->Branch("nKp",      &br_nKp,       "nKp/I"       );
+  tEvtTree->Branch("nKm",      &br_nKm,       "nKm/I"       );
+  tEvtTree->Branch("nK0",      &br_nK0,       "nK0/I"       );
+  tEvtTree->Branch("hmod",     &br_hmod,      "hmod/I"      );
+  tEvtTree->Branch("nhep",     &br_nhep,      "nhep/I"      );
+  tEvtTree->Branch("pdg",       br_pdg,       "pdg[nhep]/I" );
+  tEvtTree->Branch("ist",       br_ist,       "ist[nhep]/I" );
+  tEvtTree->Branch("px",        br_px,        "px[nhep]/D"  );
+  tEvtTree->Branch("py",        br_py,        "py[nhep]/D"  );
+  tEvtTree->Branch("pz",        br_pz,        "pz[nhep]/D"  );
+  tEvtTree->Branch("E",         br_E,         "E[nhep]/D"   );
+  tEvtTree->Branch("KE",        br_KE,        "KE[nhep]/D"  );
+  tEvtTree->Branch("x",         br_x,         "x[nhep]/D"   );
+  tEvtTree->Branch("y",         br_y,         "y[nhep]/D"   );
+  tEvtTree->Branch("z",         br_z,         "z[nhep]/D"   );
+  tEvtTree->Branch("fdaughter", br_da1,       "fdaughter[nhep]/I" );
+  tEvtTree->Branch("ldaughter", br_da2,       "ldaughter[nhep]/I" );
+  tEvtTree->Branch("mom",       br_mom,       "mom[nhep]/I" );
 }
 //_________________________________________________________________________________
 void EventLoop(void)
@@ -419,6 +425,9 @@ void EventLoop(void)
       br_x  [ip] = p->Vx(); 
       br_y  [ip] = p->Vy(); 
       br_z  [ip] = p->Vz(); 
+      br_da1[ip] = p->FirstDaughter();
+      br_da2[ip] = p->LastDaughter();
+      br_mom[ip] = p->FirstMother();
 
       if      (p->Pdg() == kPdgString ) br_hmod=1;
       else if (p->Pdg() == kPdgCluster) br_hmod=2;
@@ -498,6 +507,9 @@ void SaveResults(void)
   LOG("gmctest", pNOTICE) 
           << "number of events processed: " << tEvtTree->GetEntries();
 
+  // -- add directory containing event fraction plots as a function of kinematical 
+  //    quantities
+  //
   AddEvtFracDir("EvtFracNumuDir", "Event fractions", 14);
 
   // --- add directories containing kinematics plots
@@ -687,6 +699,66 @@ void AddEvtFracDir(string dir, string title, int nupdg)
   TH1F * hQ2ncqel = new TH1F("hQ2ncqel","", nbq2, gQ2min, gQ2max);
   TH1F * hQ2ncres = new TH1F("hQ2ncres","", nbq2, gQ2min, gQ2max);
   TH1F * hQ2ncdis = new TH1F("hQ2ncdis","", nbq2, gQ2min, gQ2max);
+
+  hE       -> SetMaximum(1.2);
+  hEcc     -> SetMaximum(1.2);
+  hEccqel  -> SetMaximum(1.2);
+  hEccres  -> SetMaximum(1.2);
+  hEccdis  -> SetMaximum(1.2);
+  hEnc     -> SetMaximum(1.2);
+  hEncqel  -> SetMaximum(1.2);
+  hEncres  -> SetMaximum(1.2);
+  hEncdis  -> SetMaximum(1.2);
+
+  hW       -> SetMaximum(1.2);
+  hWcc     -> SetMaximum(1.2);
+  hWccqel  -> SetMaximum(1.2);
+  hWccres  -> SetMaximum(1.2);
+  hWccdis  -> SetMaximum(1.2);
+  hWnc     -> SetMaximum(1.2);
+  hWncqel  -> SetMaximum(1.2);
+  hWncres  -> SetMaximum(1.2);
+  hWncdis  -> SetMaximum(1.2);
+
+  hQ2      -> SetMaximum(1.2);
+  hQ2cc    -> SetMaximum(1.2);
+  hQ2ccqel -> SetMaximum(1.2);
+  hQ2ccres -> SetMaximum(1.2);
+  hQ2ccdis -> SetMaximum(1.2);
+  hQ2nc    -> SetMaximum(1.2);
+  hQ2ncqel -> SetMaximum(1.2);
+  hQ2ncres -> SetMaximum(1.2);
+  hQ2ncdis -> SetMaximum(1.2);
+
+  hE       -> SetMinimum(1.2);
+  hEcc     -> SetMinimum(1.2);
+  hEccqel  -> SetMinimum(1.2);
+  hEccres  -> SetMinimum(1.2);
+  hEccdis  -> SetMinimum(1.2);
+  hEnc     -> SetMinimum(1.2);
+  hEncqel  -> SetMinimum(1.2);
+  hEncres  -> SetMinimum(1.2);
+  hEncdis  -> SetMinimum(1.2);
+
+  hW       -> SetMinimum(1.2);
+  hWcc     -> SetMinimum(1.2);
+  hWccqel  -> SetMinimum(1.2);
+  hWccres  -> SetMinimum(1.2);
+  hWccdis  -> SetMinimum(1.2);
+  hWnc     -> SetMinimum(1.2);
+  hWncqel  -> SetMinimum(1.2);
+  hWncres  -> SetMinimum(1.2);
+  hWncdis  -> SetMinimum(1.2);
+
+  hQ2      -> SetMinimum(1.2);
+  hQ2cc    -> SetMinimum(1.2);
+  hQ2ccqel -> SetMinimum(1.2);
+  hQ2ccres -> SetMinimum(1.2);
+  hQ2ccdis -> SetMinimum(1.2);
+  hQ2nc    -> SetMinimum(1.2);
+  hQ2ncqel -> SetMinimum(1.2);
+  hQ2ncres -> SetMinimum(1.2);
+  hQ2ncdis -> SetMinimum(1.2);
 
   tEvtTree->Draw("Ev>>hE",       Form("wgt*(neu==%d)",nupdg),              "GOFF");
   tEvtTree->Draw("Ev>>hEcc",     Form("wgt*(neu==%d&&weakcc)",nupdg),      "GOFF");
