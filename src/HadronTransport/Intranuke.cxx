@@ -680,7 +680,7 @@ void Intranuke::PiSlam(
      }
      ptot = TMath::Sqrt(ke_fin*ke_fin + 2.0 * p->Mass() * ke_fin);
   }
-  else { ptot = p->P4()->Mag(); }
+  else { ptot = p->P4()->Vect().Mag(); }
 
   // update pi momentum & energy
   //
@@ -742,7 +742,7 @@ void Intranuke::PnSlam(
      
   // update nucleon momentum & energy
   //
-  double ptot = p->P4()->Mag();  
+  double ptot = p->P4()->Vect().Mag();  
   double pz   = ptot * costheta;
   double pt   = ptot * sintheta;
   double phi  = 2 * kPi * rnd->RndFsi().Rndm();
@@ -756,6 +756,9 @@ void Intranuke::PnSlam(
   double ptot2  = TMath::Power(ptot,      2);
   double pmass2 = TMath::Power(p->Mass(), 2);
   double energy = TMath::Sqrt(ptot2 + pmass2);
+
+  LOG("Intranuke", pDEBUG) 
+         << "|p| = " << TMath::Sqrt(ptot2) << ", E = " << energy;
 
   TLorentzVector p4lab(plab, energy);
   p->SetMomentum(p4lab);
@@ -1045,6 +1048,7 @@ bool Intranuke::PhaseSpaceDecay(
   // update available energy -> init (mass + kinetic) + sum of f/s masses
   double availE = pd->Energy() + mass_sum; 
   availE += 0.01; // steve's recipe
+  if(pdg::IsNeutronOrProton(p->Pdg())) availE -= p->Mass();
   pd->SetE(availE);
 
   LOG("Intranuke", pINFO)
