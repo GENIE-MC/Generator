@@ -76,6 +76,7 @@ string OutputFileName       (string input_file_name);
 void   AnalyzeSample        (string filename);
 void   InitInputEventStream (void);
 void   InitOutput           (void);
+void   InitEvent            (void);
 void   EventLoop            (void);
 void   SaveResults          (void);
 void   CleanUp              (void);
@@ -93,6 +94,7 @@ void   PlotHMult            (string dir, string title);
 void   PlotHP4              (string dir, string title); 
 void   PlotVtx              (void);                     
 void   PlotH1F              (string name, string title, bool keep_page = false);
+void   PlotH1F_2            (string name1, string name2, string title, bool keep_page = false);
 void   PlotH2F              (string name, string title);
 
 // command-line arguments
@@ -120,10 +122,10 @@ double             gWmin  = 999, gWmax  = -999; // W  range of events in input s
 double             gQ2min = 999, gQ2max = -999; // Q2 range of events in input sample
 
 // various control constants
-const int    kNPmax   = 100;   //
-const double kEBinSz  = 0.250; //
-const double kWBinSz  = 0.200; //
-const double kQ2BinSz = 0.100; //
+const int    kNPmax      = 100;   //
+const double kEBinSz     = 0.250; //
+const double kWBinSz     = 0.200; //
+const double kQ2BinSz    = 0.100; //
 
 // summary tree
 TTree * tEvtTree;
@@ -165,13 +167,14 @@ int    br_ngamma    = 0;      // number of f/s gamma
 int    br_nKp       = 0;      // number of f/s K+
 int    br_nKm       = 0;      // number of f/s K-
 int    br_nK0       = 0;      // number of f/s K0
-int    br_hmod      = 0;      // hadronization model (0:kno, 1:string, 2:cluster, 3:indep)
+int    br_hmod      = 0;      // hadronization model (-1: nodis, 0:kno, 1:string, 2:cluster, 3:indep)
 int    br_nhep      = 0;      // number of GHEP record entries
 int    br_pdg[kNPmax];        //
 int    br_ist[kNPmax];        //
 double br_px [kNPmax];        //
 double br_py [kNPmax];        //
 double br_pz [kNPmax];        //
+double br_p  [kNPmax];        //
 double br_E  [kNPmax];        //
 double br_KE [kNPmax];        //
 double br_x  [kNPmax];        //
@@ -180,6 +183,14 @@ double br_z  [kNPmax];        //
 int    br_da1[kNPmax];        //
 int    br_da2[kNPmax];        //
 int    br_mom[kNPmax];        //
+int    br_n_hprim = 0;        // number of particles at the prim hadronic system (before transport)
+int    br_pdg_hprim[kNPmax];  //
+double br_px_hprim [kNPmax];  //
+double br_py_hprim [kNPmax];  //
+double br_pz_hprim [kNPmax];  //
+double br_p_hprim  [kNPmax];  //
+double br_E_hprim  [kNPmax];  //
+double br_KE_hprim [kNPmax];  //
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -261,72 +272,111 @@ void InitOutput(void)
 
   //-- create summary tree
   tEvtTree = new TTree("tEvtTree","event tree summary");
-  tEvtTree->Branch("iev",      &br_iev,       "iev/I"       );
-  tEvtTree->Branch("neu",      &br_neutrino,  "neu/I"       );
-  tEvtTree->Branch("tgt" ,     &br_target,    "tgt/I"       );
-  tEvtTree->Branch("hitnuc",   &br_hitnuc,    "hitnuc/I"    );
-  tEvtTree->Branch("hitqrk",   &br_hitqrk,    "hitqrk/I"    );
-  tEvtTree->Branch("qel",      &br_qel,       "br_qel/O"    );
-  tEvtTree->Branch("res",      &br_res,       "br_res/O"    );
-  tEvtTree->Branch("dis",      &br_dis,       "br_dis/O"    );
-  tEvtTree->Branch("coh",      &br_coh,       "br_coh/O"    );
-  tEvtTree->Branch("em",       &br_em,        "br_em/O"     );
-  tEvtTree->Branch("weakcc",   &br_weakcc,    "br_weakcc/O" );
-  tEvtTree->Branch("weaknc",   &br_weaknc,    "br_weaknc/O" );
-  tEvtTree->Branch("xs",       &br_kine_xs,   "xs/D"        );
-  tEvtTree->Branch("ys",       &br_kine_ys,   "ys/D"        );
-  tEvtTree->Branch("ts",       &br_kine_ts,   "ts/D"        );
-  tEvtTree->Branch("Q2s",      &br_kine_Q2s,  "Q2s/D"       );
-  tEvtTree->Branch("Ws",       &br_kine_Ws,   "Ws/D"        );
-  tEvtTree->Branch("x",        &br_kine_x,    "x/D"         );
-  tEvtTree->Branch("y",        &br_kine_y,    "y/D"         );
-  tEvtTree->Branch("t",        &br_kine_t,    "t/D"         );
-  tEvtTree->Branch("Q2",       &br_kine_Q2,   "Q2/D"        );
-  tEvtTree->Branch("W",        &br_kine_W,    "W/D"         );
-  tEvtTree->Branch("v",        &br_kine_v,    "v/D"         );
-  tEvtTree->Branch("Ev",       &br_Ev,        "Ev/D"        );
-  tEvtTree->Branch("El",       &br_El,        "El/D"        );
-  tEvtTree->Branch("vtxx",     &br_vtxx,      "vtxx/D"      );
-  tEvtTree->Branch("vtxy",     &br_vtxy,      "vtxy/D"      );
-  tEvtTree->Branch("vtxz",     &br_vtxz,      "vtxz/D"      );
-  tEvtTree->Branch("wgt",      &br_weight,    "wgt/D"       );
-  tEvtTree->Branch("np",       &br_np,        "np/I"        );
-  tEvtTree->Branch("nn",       &br_nn,        "nn/I"        );
-  tEvtTree->Branch("npip",     &br_npip,      "npip/I"      );
-  tEvtTree->Branch("npim",     &br_npim,      "npim/I"      );
-  tEvtTree->Branch("npi0",     &br_npi0,      "npi0/I"      );
-  tEvtTree->Branch("ngamma",   &br_ngamma,    "ngamma/I"    );
-  tEvtTree->Branch("nKp",      &br_nKp,       "nKp/I"       );
-  tEvtTree->Branch("nKm",      &br_nKm,       "nKm/I"       );
-  tEvtTree->Branch("nK0",      &br_nK0,       "nK0/I"       );
-  tEvtTree->Branch("hmod",     &br_hmod,      "hmod/I"      );
-  tEvtTree->Branch("nhep",     &br_nhep,      "nhep/I"      );
-  tEvtTree->Branch("pdg",       br_pdg,       "pdg[nhep]/I" );
-  tEvtTree->Branch("ist",       br_ist,       "ist[nhep]/I" );
-  tEvtTree->Branch("px",        br_px,        "px[nhep]/D"  );
-  tEvtTree->Branch("py",        br_py,        "py[nhep]/D"  );
-  tEvtTree->Branch("pz",        br_pz,        "pz[nhep]/D"  );
-  tEvtTree->Branch("E",         br_E,         "E[nhep]/D"   );
-  tEvtTree->Branch("KE",        br_KE,        "KE[nhep]/D"  );
-  tEvtTree->Branch("x",         br_x,         "x[nhep]/D"   );
-  tEvtTree->Branch("y",         br_y,         "y[nhep]/D"   );
-  tEvtTree->Branch("z",         br_z,         "z[nhep]/D"   );
-  tEvtTree->Branch("fdaughter", br_da1,       "fdaughter[nhep]/I" );
-  tEvtTree->Branch("ldaughter", br_da2,       "ldaughter[nhep]/I" );
-  tEvtTree->Branch("mom",       br_mom,       "mom[nhep]/I" );
+  tEvtTree->Branch("iev",      &br_iev,        "iev/I"       );
+  tEvtTree->Branch("neu",      &br_neutrino ,  "neu/I"       );
+  tEvtTree->Branch("tgt" ,     &br_target,     "tgt/I"       );
+  tEvtTree->Branch("hitnuc",   &br_hitnuc,     "hitnuc/I"    );
+  tEvtTree->Branch("hitqrk",   &br_hitqrk,     "hitqrk/I"    );
+  tEvtTree->Branch("qel",      &br_qel,        "br_qel/O"    );
+  tEvtTree->Branch("res",      &br_res,        "br_res/O"    );
+  tEvtTree->Branch("dis",      &br_dis,        "br_dis/O"    );
+  tEvtTree->Branch("coh",      &br_coh,        "br_coh/O"    );
+  tEvtTree->Branch("em",       &br_em,         "br_em/O"     );
+  tEvtTree->Branch("weakcc",   &br_weakcc,     "br_weakcc/O" );
+  tEvtTree->Branch("weaknc",   &br_weaknc,     "br_weaknc/O" );
+  tEvtTree->Branch("xs",       &br_kine_xs,    "xs/D"        );
+  tEvtTree->Branch("ys",       &br_kine_ys,    "ys/D"        );
+  tEvtTree->Branch("ts",       &br_kine_ts,    "ts/D"        );
+  tEvtTree->Branch("Q2s",      &br_kine_Q2s ,  "Q2s/D"       );
+  tEvtTree->Branch("Ws",       &br_kine_Ws,    "Ws/D"        );
+  tEvtTree->Branch("x",        &br_kine_x,     "x/D"         );
+  tEvtTree->Branch("y",        &br_kine_y,     "y/D"         );
+  tEvtTree->Branch("t",        &br_kine_t,     "t/D"         );
+  tEvtTree->Branch("Q2",       &br_kine_Q2,    "Q2/D"        );
+  tEvtTree->Branch("W",        &br_kine_W,     "W/D"         );
+  tEvtTree->Branch("v",        &br_kine_v,     "v/D"         );
+  tEvtTree->Branch("Ev",       &br_Ev,         "Ev/D"        );
+  tEvtTree->Branch("El",       &br_El,         "El/D"        );
+  tEvtTree->Branch("vtxx",     &br_vtxx,       "vtxx/D"      );
+  tEvtTree->Branch("vtxy",     &br_vtxy,       "vtxy/D"      );
+  tEvtTree->Branch("vtxz",     &br_vtxz,       "vtxz/D"      );
+  tEvtTree->Branch("wgt",      &br_weight,     "wgt/D"       );
+  tEvtTree->Branch("np",       &br_np,         "np/I"        );
+  tEvtTree->Branch("nn",       &br_nn,         "nn/I"        );
+  tEvtTree->Branch("npip",     &br_npip,       "npip/I"      );
+  tEvtTree->Branch("npim",     &br_npim,       "npim/I"      );
+  tEvtTree->Branch("npi0",     &br_npi0,       "npi0/I"      );
+  tEvtTree->Branch("ngamma",   &br_ngamma,     "ngamma/I"    );
+  tEvtTree->Branch("nKp",      &br_nKp,        "nKp/I"       );
+  tEvtTree->Branch("nKm",      &br_nKm,        "nKm/I"       );
+  tEvtTree->Branch("nK0",      &br_nK0,        "nK0/I"       );
+  tEvtTree->Branch("hmod",     &br_hmod,       "hmod/I"      );
+  tEvtTree->Branch("nhep",     &br_nhep,       "nhep/I"      );
+  tEvtTree->Branch("pdg",       br_pdg,        "pdg[nhep]/I" );
+  tEvtTree->Branch("ist",       br_ist,        "ist[nhep]/I" );
+  tEvtTree->Branch("px",        br_px,         "px[nhep]/D"  );
+  tEvtTree->Branch("py",        br_py,         "py[nhep]/D"  );
+  tEvtTree->Branch("pz",        br_pz,         "pz[nhep]/D"  );
+  tEvtTree->Branch("p" ,        br_p,          "p[nhep]/D"   );
+  tEvtTree->Branch("E",         br_E,          "E[nhep]/D"   );
+  tEvtTree->Branch("KE",        br_KE,         "KE[nhep]/D"  );
+  tEvtTree->Branch("x",         br_x,          "x[nhep]/D"   );
+  tEvtTree->Branch("y",         br_y,          "y[nhep]/D"   );
+  tEvtTree->Branch("z",         br_z,          "z[nhep]/D"   );
+  tEvtTree->Branch("fdaughter", br_da1,        "fdaughter[nhep]/I" );
+  tEvtTree->Branch("ldaughter", br_da2,        "ldaughter[nhep]/I" );
+  tEvtTree->Branch("mom",       br_mom,        "mom[nhep]/I" );
+  tEvtTree->Branch("n_hprim",  &br_n_hprim,    "n_hprim/I"            );
+  tEvtTree->Branch("pdg_hprim", br_pdg_hprim,  "pdg_hprim[n_hprim]/I" );
+  tEvtTree->Branch("px_hprim",  br_px_hprim,   "px_hprim[n_hprim]/D"  );
+  tEvtTree->Branch("py_hprim",  br_py_hprim,   "py_hprim[n_hprim]/D"  );
+  tEvtTree->Branch("pz_hprim",  br_pz_hprim,   "pz_hprim[n_hprim]/D"  );
+  tEvtTree->Branch("p_hprim" ,  br_p_hprim,    "p_hprim[n_hprim]/D"   );
+  tEvtTree->Branch("E_hprim",   br_E_hprim,    "E_hprim[n_hprim]/D"   );
+  tEvtTree->Branch("KE_hprim",  br_KE_hprim,   "KE_hprim[n_hprim]/D"  );
+}
+//_________________________________________________________________________________
+void InitEvent()
+{
+  br_nhep    = 0; 
+  br_n_hprim = 0; 
+  for(int k=0; k<kNPmax; k++) {
+     br_pdg      [k] =  0;        
+     br_ist      [k] = -1;        
+     br_px       [k] =  0;        
+     br_py       [k] =  0;        
+     br_pz       [k] =  0;        
+     br_p        [k] =  0;        
+     br_E        [k] =  0;        
+     br_KE       [k] =  0;        
+     br_x        [k] =  0;        
+     br_y        [k] =  0;        
+     br_z        [k] =  0;        
+     br_da1      [k] = -1;        
+     br_da2      [k] = -1;        
+     br_mom      [k] = -1;        
+     br_pdg_hprim[k] =  0;  
+     br_px_hprim [k] =  0;  
+     br_py_hprim [k] =  0;  
+     br_pz_hprim [k] =  0;  
+     br_p_hprim  [k] =  0;  
+     br_E_hprim  [k] =  0;  
+     br_KE_hprim [k] =  0;  
+  }
 }
 //_________________________________________________________________________________
 void EventLoop(void)
 {
   LOG("gmctest", pNOTICE) << "*** Analyzing: " << gNEvt << " events";
 
-  if ( gNEvt<0 )       return;
-  if ( !gEventRecTree) return;
-  if ( !gMCRec )       return;
+  if (gNEvt<0)        return;
+  if (!gEventRecTree) return;
+  if (!gMCRec)        return;
+
+  InitEvent();
 
   for(Long64_t i = 0; i < gNEvt; i++) {
 
-    LOG("gmctest", pDEBUG) << "....... getting evt " << i;
     gEventRecTree->GetEntry(i);
 
     NtpMCRecHeader rec_header = gMCRec->hdr;
@@ -337,14 +387,20 @@ void EventLoop(void)
 
     // go further only if the event is physical
     bool is_unphysical = event.IsUnphysical();
-    if(is_unphysical) continue;
+    if(is_unphysical) {
+      gMCRec->Clear();
+      continue;
+    }
 
     // nuclear target or free nucleon target
     GHepParticle * target = event.Particle(1);
     assert(target);
 
     // only further only if it matches the requested target
-    if(target->Pdg() != gOptTgtPdgC) continue;
+    if(target->Pdg() != gOptTgtPdgC) {
+      gMCRec->Clear();
+      continue;
+    }
 
     // neutrino
     GHepParticle * neutrino = event.Probe();
@@ -359,6 +415,14 @@ void EventLoop(void)
     const Interaction * interaction = event.Summary();
     const ProcessInfo &  proc_info  = interaction->ProcInfo();
     const Kinematics &   kine       = interaction->Kine();
+
+    bool is_qel    = proc_info.IsQuasiElastic();
+    bool is_res    = proc_info.IsResonant();
+    bool is_dis    = proc_info.IsDeepInelastic();
+    bool is_coh    = proc_info.IsCoherent();
+    bool is_em     = proc_info.IsEM();
+    bool is_weakcc = proc_info.IsWeakCC();
+    bool is_weaknc = proc_info.IsWeakNC();
 
     double weight = event.Weight();
     double Ev     = neutrino->Energy();
@@ -396,23 +460,41 @@ void EventLoop(void)
     //
     TLorentzVector * vtx = event.Vertex(); 
 
+    // f/s multiplicities
+    //
+    int np      = event.NEntries(kPdgProton,  kIStStableFinalState);
+    int nn      = event.NEntries(kPdgNeutron, kIStStableFinalState);
+    int npip    = event.NEntries(kPdgPiP,     kIStStableFinalState);
+    int npim    = event.NEntries(kPdgPiM,     kIStStableFinalState);
+    int npi0    = event.NEntries(kPdgPi0,     kIStStableFinalState);
+    int ngamma  = event.NEntries(kPdgGamma,   kIStStableFinalState);
+    int nKp     = event.NEntries(kPdgKP,      kIStStableFinalState);
+    int nKm     = event.NEntries(kPdgKM,      kIStStableFinalState);
+    int nK0     = event.NEntries(kPdgK0,      kIStStableFinalState);
+
     // update ranges
     //
     if(!gSampleComp) {
-      gEmin  = TMath::Min( gEmin,  Ev);
-      gEmax  = TMath::Max( gEmax,  Ev);
-      gWmin  = TMath::Min( gWmin,  W );
-      gWmax  = TMath::Max( gWmax,  W );
-      gQ2min = TMath::Min( gQ2min, Q2);
-      gQ2max = TMath::Max( gQ2max, Q2);
+      gEmin  = TMath::Min( gEmin,  Ev    );
+      gEmax  = TMath::Max( gEmax,  Ev    );
+      gWmin  = TMath::Min( gWmin,  W     );
+      gWmax  = TMath::Max( gWmax,  W     );
+      gQ2min = TMath::Min( gQ2min, Q2    );
+      gQ2max = TMath::Max( gQ2max, Q2    );
     }
+
+    // init hadronization model flag
+    if(is_dis) br_hmod =  0;  
+    else       br_hmod = -1;
+
+    // init root position for hadronic system (before intranuclear transport)
+    int ihad_root = -1;
 
     // copy GHEP record into a flat array
     //
     TObjArrayIter piter(&event);
     GHepParticle * p = 0;
     unsigned int ip=0;
-    br_hmod = 0;  
     while( (p = (GHepParticle *) piter.Next()) )
     {
       br_pdg[ip] = p->Pdg(); 
@@ -420,6 +502,7 @@ void EventLoop(void)
       br_px [ip] = p->Px(); 
       br_py [ip] = p->Py(); 
       br_pz [ip] = p->Pz(); 
+      br_p  [ip] = p->P4()->Vect().Mag(); 
       br_E  [ip] = p->Energy(); 
       br_KE [ip] = p->KinE(); 
       br_x  [ip] = p->Vx(); 
@@ -429,13 +512,52 @@ void EventLoop(void)
       br_da2[ip] = p->LastDaughter();
       br_mom[ip] = p->FirstMother();
 
-      if      (p->Pdg() == kPdgString ) br_hmod=1;
-      else if (p->Pdg() == kPdgCluster) br_hmod=2;
-      else if (p->Pdg() == kPdgIndep  ) br_hmod=3;
+      if(is_dis) {
+         if(p->Pdg() == kPdgHadronicSyst) { ihad_root = ip; }
+
+         if      (p->Pdg() == kPdgString ) { br_hmod=1; ihad_root = ip; }
+         else if (p->Pdg() == kPdgCluster) { br_hmod=2; ihad_root = ip; }
+         else if (p->Pdg() == kPdgIndep  ) { br_hmod=3; ihad_root = ip; }
+      }
 
       ip++;
     }
     br_nhep = event.GetEntries();
+
+    if(ihad_root>0) {
+      int ih=0;
+      GHepParticle * hadroot = event.Particle(ihad_root);    
+      for(int j=hadroot->FirstDaughter(); j<hadroot->LastDaughter(); j++) {
+        GHepParticle * hj = event.Particle(j);    
+        if(hj->Status() == kIStHadronInTheNucleus) {
+           br_pdg_hprim[ih] = hj->Pdg();  
+           br_px_hprim [ih] = hj->Px();  
+           br_py_hprim [ih] = hj->Py();  
+           br_pz_hprim [ih] = hj->Pz();  
+           br_p_hprim  [ih] = hj->P4()->Vect().Mag();  
+           br_E_hprim  [ih] = hj->E();  
+           br_KE_hprim [ih] = hj->KinE();  
+           ih++;
+        } else if(hj->Status() == kIStDecayedState) {
+           for(int k=hj->FirstDaughter(); k<hadroot->LastDaughter(); k++) {
+              GHepParticle * hk = event.Particle(k);    
+              if(hk->Status() == kIStHadronInTheNucleus) {
+                 br_pdg_hprim[ih] = hk->Pdg();  
+                 br_px_hprim [ih] = hk->Px();  
+                 br_py_hprim [ih] = hk->Py();  
+                 br_pz_hprim [ih] = hk->Pz();  
+                 br_p_hprim  [ih] = hk->P4()->Vect().Mag();  
+                 br_E_hprim  [ih] = hk->E();  
+                 br_KE_hprim [ih] = hk->KinE();  
+                 ih++;
+              } // hadronic decay products
+          }//decay products
+        } // has decayed before transport
+      } // j
+      br_n_hprim = ih; 
+    } else {
+      br_n_hprim = 0; 
+    }
 
     // fill the summary ntuple
     //
@@ -444,13 +566,13 @@ void EventLoop(void)
     br_target    = 0;
     br_hitnuc    = 0;
     br_hitqrk    = 0;
-    br_qel       = proc_info.IsQuasiElastic();
-    br_res       = proc_info.IsResonant();
-    br_dis       = proc_info.IsDeepInelastic();
-    br_coh       = proc_info.IsCoherent();
-    br_em        = proc_info.IsEM();
-    br_weakcc    = proc_info.IsWeakCC();
-    br_weaknc    = proc_info.IsWeakNC();
+    br_qel       = is_qel;
+    br_res       = is_res;
+    br_dis       = is_dis;
+    br_coh       = is_coh;
+    br_em        = is_em;
+    br_weakcc    = is_weakcc;
+    br_weaknc    = is_weaknc;
     br_kine_xs   = xs;
     br_kine_ys   = ys; 
     br_kine_ts   = ts; 
@@ -468,15 +590,15 @@ void EventLoop(void)
     br_vtxy      = vtx->Y();
     br_vtxz      = vtx->Z();
     br_weight    = weight; 
-    br_np        = event.NEntries(kPdgProton,  kIStStableFinalState);
-    br_nn        = event.NEntries(kPdgNeutron, kIStStableFinalState);
-    br_npip      = event.NEntries(kPdgPiP,     kIStStableFinalState);
-    br_npim      = event.NEntries(kPdgPiM,     kIStStableFinalState);
-    br_npi0      = event.NEntries(kPdgPi0,     kIStStableFinalState);
-    br_ngamma    = event.NEntries(kPdgGamma,   kIStStableFinalState);
-    br_nKp       = event.NEntries(kPdgKP,      kIStStableFinalState);
-    br_nKm       = event.NEntries(kPdgKM,      kIStStableFinalState);
-    br_nK0       = event.NEntries(kPdgK0,      kIStStableFinalState);
+    br_np        = np;
+    br_nn        = nn;
+    br_npip      = npip;
+    br_npim      = npim;
+    br_npi0      = npi0;
+    br_ngamma    = ngamma;
+    br_nKp       = nKp;
+    br_nKm       = nKm;
+    br_nK0       = nK0;
 
     tEvtTree->Fill();
 
@@ -484,7 +606,7 @@ void EventLoop(void)
 
   } // event loop
 
-  assert(gEmin < gEmax);
+//  assert(gEmin < gEmax);
 }
 //_________________________________________________________________________________
 void CleanUp(void)
@@ -524,18 +646,6 @@ void SaveResults(void)
   AddKineDir("KineNcNumuResDir", "Kinematics - All nu_mu NC RES", 14, "weaknc&&res");
   AddKineDir("KineNcNumuDisDir", "Kinematics - All nu_mu NC DIS", 14, "weaknc&&dis");
 
-  // --- add directories containing hadronic multiplicity plots
-  //
-  AddHMultDir("HadMultDir",          "Hadronic multiplicities - All events",        0, "");
-  AddHMultDir("HadMultCcNumuDir",    "Hadronic multiplicities - All nu_mu CC",     14, "weakcc");
-  AddHMultDir("HadMultCcNumuQelDir", "Hadronic multiplicities - All nu_mu CC QEL", 14, "weakcc&&qel");
-  AddHMultDir("HadMultCcNumuResDir", "Hadronic multiplicities - All nu_mu CC RES", 14, "weakcc&&res");
-  AddHMultDir("HadMultCcNumuDisDir", "Hadronic multiplicities - All nu_mu CC DIS", 14, "weakcc&&dis");
-  AddHMultDir("HadMultNcNumuDir",    "Hadronic multiplicities - All nu_mu NC",     14, "weaknc");
-  AddHMultDir("HadMultNcNumuQelDir", "Hadronic multiplicities - All nu_mu NC QEL", 14, "weaknc&&qel");
-  AddHMultDir("HadMultNcNumuResDir", "Hadronic multiplicities - All nu_mu NC RES", 14, "weaknc&&res");
-  AddHMultDir("HadMultNcNumuDisDir", "Hadronic multiplicities - All nu_mu NC DIS", 14, "weaknc&&dis");
-
   // --- add directories containing hadronic 4-momentum plots
   //
   AddHP4Dir("HadP4Dir",          "Hadronic 4-momentum - All events",        0, "");
@@ -547,6 +657,18 @@ void SaveResults(void)
   AddHP4Dir("HadP4NcNumuQelDir", "Hadronic 4-momentum - All nu_mu NC QEL", 14, "weaknc&&qel");
   AddHP4Dir("HadP4NcNumuResDir", "Hadronic 4-momentum - All nu_mu NC RES", 14, "weaknc&&res");
   AddHP4Dir("HadP4NcNumuDisDir", "Hadronic 4-momentum - All nu_mu NC DIS", 14, "weaknc&&dis");
+
+  // --- add directories containing hadronic multiplicity plots
+  //
+  AddHMultDir("HadMultDir",          "Hadronic multiplicities - All events",        0, "");
+  AddHMultDir("HadMultCcNumuDir",    "Hadronic multiplicities - All nu_mu CC",     14, "weakcc");
+  AddHMultDir("HadMultCcNumuQelDir", "Hadronic multiplicities - All nu_mu CC QEL", 14, "weakcc&&qel");
+  AddHMultDir("HadMultCcNumuResDir", "Hadronic multiplicities - All nu_mu CC RES", 14, "weakcc&&res");
+  AddHMultDir("HadMultCcNumuDisDir", "Hadronic multiplicities - All nu_mu CC DIS", 14, "weakcc&&dis");
+  AddHMultDir("HadMultNcNumuDir",    "Hadronic multiplicities - All nu_mu NC",     14, "weaknc");
+  AddHMultDir("HadMultNcNumuQelDir", "Hadronic multiplicities - All nu_mu NC QEL", 14, "weaknc&&qel");
+  AddHMultDir("HadMultNcNumuResDir", "Hadronic multiplicities - All nu_mu NC RES", 14, "weaknc&&res");
+  AddHMultDir("HadMultNcNumuDisDir", "Hadronic multiplicities - All nu_mu NC DIS", 14, "weaknc&&dis");
 
   // --- add directory containing event vertex plots
   //
@@ -568,17 +690,18 @@ void AddKineDir(string dir, string title, int nupdg, string proc)
   if (proc.size()>0) condition << "&&" << proc;
   condition << ")";
 
-  tEvtTree->Draw( "x>>hx",     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "y>>hy",     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "t>>ht",     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "Q2>>hQ2",   condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "W>>hW",     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "v>>hv",     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "xs>>hxs",   condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "ys>>hys",   condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "ts>>hts",   condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "Q2s>>hQ2s", condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "Ws>>hWs",   condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "x>>hx",                       condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "y>>hy",                       condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "t>>ht",                       condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "log10(Q2)>>hlog10Q2",         condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "W>>hW",                       condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "v>>hv",                       condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "xs>>hxs",                     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "ys>>hys",                     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "ts>>hts",                     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "log10(Q2s)>>hlog10Q2s",       condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "Ws>>hWs",                     condition.str().c_str(), "GOFF");
+  tEvtTree->Draw( "log10(Q2s):Ws>>hlog10Q2Ws",   condition.str().c_str(), "GOFF");
 
   tdir->Write(dir.c_str());
 }
@@ -628,47 +751,73 @@ void AddHP4Dir(string dir, string title, int nupdg, string proc)
   tEvtTree->Draw( "px>>hpx_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
   tEvtTree->Draw( "py>>hpy_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
   tEvtTree->Draw( "pz>>hpz_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "sqrt(px*px+py*py+pz*pz)>>hp_pip",  
-                                  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "p>>hp_pip",    (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
   tEvtTree->Draw( "E>>hE_pip",    (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
   tEvtTree->Draw( "KE>>hKE_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
 
   tEvtTree->Draw( "px>>hpx_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
   tEvtTree->Draw( "py>>hpy_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
   tEvtTree->Draw( "pz>>hpz_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
-  tEvtTree->Draw( "sqrt(px*px+py*py+pz*pz)>>hp_pim",  
-                                  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "p>>hp_pim",    (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
   tEvtTree->Draw( "E>>hE_pim",    (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
   tEvtTree->Draw( "KE>>hKE_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
 
   tEvtTree->Draw( "px>>hpx_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
   tEvtTree->Draw( "py>>hpy_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
   tEvtTree->Draw( "pz>>hpz_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
-  tEvtTree->Draw( "sqrt(px*px+py*py+pz*pz)>>hp_p",  
-                                  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "p>>hp_p",      (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
   tEvtTree->Draw( "E>>hE_p",      (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
   tEvtTree->Draw( "KE>>hKE_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
 
   tEvtTree->Draw( "px>>hpx_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
   tEvtTree->Draw( "py>>hpy_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
   tEvtTree->Draw( "pz>>hpz_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
-  tEvtTree->Draw( "sqrt(px*px+py*py+pz*pz)>>hp_n",  
-                                  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "p>>hp_n",      (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
   tEvtTree->Draw( "E>>hE_n",      (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
   tEvtTree->Draw( "KE>>hKE_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
+
+
+  // add plots before hadron transport (primary hadronic system)
+
+  tEvtTree->Draw( "px_hprim>>hpx_pip_hprim",  (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "py_hprim>>hpy_pip_hprim",  (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "pz_hprim>>hpz_pip_hprim",  (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "p_hprim>>hp_pip_hprim",    (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "E_hprim>>hE_pip_hprim",    (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "KE_hprim>>hKE_pip_hprim",  (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
+
+  tEvtTree->Draw( "px_hprim>>hpx_pim_hprim",  (condition.str() + "&&pdg_hprim==-211)").c_str(), "GOFF");
+  tEvtTree->Draw( "py_hprim>>hpy_pim_hprim",  (condition.str() + "&&pdg_hprim==-211)").c_str(), "GOFF");
+  tEvtTree->Draw( "pz_hprim>>hpz_pim_hprim",  (condition.str() + "&&pdg_hprim==-211)").c_str(), "GOFF");
+  tEvtTree->Draw( "p_hprim>>hp_pim_hprim",    (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "E_hprim>>hE_pim_hprim",    (condition.str() + "&&pdg_hprim==-211)").c_str(), "GOFF");
+  tEvtTree->Draw( "KE_hprim>>hKE_pim_hprim",  (condition.str() + "&&pdg_hprim==-211)").c_str(), "GOFF");
+
+  tEvtTree->Draw( "px_hprim>>hpx_hp_prim",    (condition.str() + "&&pdg_hprim==2212)").c_str(), "GOFF");
+  tEvtTree->Draw( "py_hprim>>hpy_hp_prim",    (condition.str() + "&&pdg_hprim==2212)").c_str(), "GOFF");
+  tEvtTree->Draw( "pz_hprim>>hpz_hp_prim",    (condition.str() + "&&pdg_hprim==2212)").c_str(), "GOFF");
+  tEvtTree->Draw( "p_hprim>>hp_p_hprim",      (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "E_hprim>>hE_p_hprim",      (condition.str() + "&&pdg_hprim==2212)").c_str(), "GOFF");
+  tEvtTree->Draw( "KE_hprim>>hKE_p_hprim",    (condition.str() + "&&pdg_hprim==2212)").c_str(), "GOFF");
+
+  tEvtTree->Draw( "px_hprim>>hpx_n_hprim",    (condition.str() + "&&pdg_hprim==2112)").c_str(), "GOFF");
+  tEvtTree->Draw( "py_hprim>>hpy_n_hprim",    (condition.str() + "&&pdg_hprim==2112)").c_str(), "GOFF");
+  tEvtTree->Draw( "pz_hprim>>hpz_n_hprim",    (condition.str() + "&&pdg_hprim==2112)").c_str(), "GOFF");
+  tEvtTree->Draw( "p_hprim>>hp_n_hprim",      (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
+  tEvtTree->Draw( "E_hprim>>hE_n_hprim",      (condition.str() + "&&pdg_hprim==2112)").c_str(), "GOFF");
+  tEvtTree->Draw( "KE_hprim>>hKE_n_hprim",    (condition.str() + "&&pdg_hprim==2112)").c_str(), "GOFF");
 
   tdir->Write(dir.c_str());
 }
 //_________________________________________________________________________________
 void AddEvtFracDir(string dir, string title, int nupdg)
 {
-  double dE  = gEmax  - gEmin;
-  double dW  = gWmax  - gWmin;
-  double dQ2 = gQ2max - gQ2min;
-
-  int    nbe  = dE  / kEBinSz;
-  int    nbw  = dW  / kWBinSz;
-  int    nbq2 = dQ2 / kQ2BinSz;
+  double dE      = gEmax  - gEmin;
+  double dW      = gWmax  - gWmin;
+  double dQ2     = gQ2max - gQ2min;
+  int    nbe     = dE     / kEBinSz;
+  int    nbw     = dW     / kWBinSz;
+  int    nbq2    = dQ2   / kQ2BinSz;
 
   TH1F * hE       = new TH1F("hE",      "", nbe, gEmin, gEmax);
   TH1F * hEcc     = new TH1F("hEcc",    "", nbe, gEmin, gEmax);
@@ -730,35 +879,35 @@ void AddEvtFracDir(string dir, string title, int nupdg)
   hQ2ncres -> SetMaximum(1.2);
   hQ2ncdis -> SetMaximum(1.2);
 
-  hE       -> SetMinimum(1.2);
-  hEcc     -> SetMinimum(1.2);
-  hEccqel  -> SetMinimum(1.2);
-  hEccres  -> SetMinimum(1.2);
-  hEccdis  -> SetMinimum(1.2);
-  hEnc     -> SetMinimum(1.2);
-  hEncqel  -> SetMinimum(1.2);
-  hEncres  -> SetMinimum(1.2);
-  hEncdis  -> SetMinimum(1.2);
+  hE       -> SetMinimum(0.0);
+  hEcc     -> SetMinimum(0.0);
+  hEccqel  -> SetMinimum(0.0);
+  hEccres  -> SetMinimum(0.0);
+  hEccdis  -> SetMinimum(0.0);
+  hEnc     -> SetMinimum(0.0);
+  hEncqel  -> SetMinimum(0.0);
+  hEncres  -> SetMinimum(0.0);
+  hEncdis  -> SetMinimum(0.0);
 
-  hW       -> SetMinimum(1.2);
-  hWcc     -> SetMinimum(1.2);
-  hWccqel  -> SetMinimum(1.2);
-  hWccres  -> SetMinimum(1.2);
-  hWccdis  -> SetMinimum(1.2);
-  hWnc     -> SetMinimum(1.2);
-  hWncqel  -> SetMinimum(1.2);
-  hWncres  -> SetMinimum(1.2);
-  hWncdis  -> SetMinimum(1.2);
+  hW       -> SetMinimum(0.0);
+  hWcc     -> SetMinimum(0.0);
+  hWccqel  -> SetMinimum(0.0);
+  hWccres  -> SetMinimum(0.0);
+  hWccdis  -> SetMinimum(0.0);
+  hWnc     -> SetMinimum(0.0);
+  hWncqel  -> SetMinimum(0.0);
+  hWncres  -> SetMinimum(0.0);
+  hWncdis  -> SetMinimum(0.0);
 
-  hQ2      -> SetMinimum(1.2);
-  hQ2cc    -> SetMinimum(1.2);
-  hQ2ccqel -> SetMinimum(1.2);
-  hQ2ccres -> SetMinimum(1.2);
-  hQ2ccdis -> SetMinimum(1.2);
-  hQ2nc    -> SetMinimum(1.2);
-  hQ2ncqel -> SetMinimum(1.2);
-  hQ2ncres -> SetMinimum(1.2);
-  hQ2ncdis -> SetMinimum(1.2);
+  hQ2      -> SetMinimum(0.0);
+  hQ2cc    -> SetMinimum(0.0);
+  hQ2ccqel -> SetMinimum(0.0);
+  hQ2ccres -> SetMinimum(0.0);
+  hQ2ccdis -> SetMinimum(0.0);
+  hQ2nc    -> SetMinimum(0.0);
+  hQ2ncqel -> SetMinimum(0.0);
+  hQ2ncres -> SetMinimum(0.0);
+  hQ2ncdis -> SetMinimum(0.0);
 
   tEvtTree->Draw("Ev>>hE",       Form("wgt*(neu==%d)",nupdg),              "GOFF");
   tEvtTree->Draw("Ev>>hEcc",     Form("wgt*(neu==%d&&weakcc)",nupdg),      "GOFF");
@@ -906,7 +1055,9 @@ void Plot(void)
   gC->SetBorderMode(0);
   gC->SetBorderMode(0);
 
-  gPS = new TPostScript("out.ps", 112);
+  ostringstream psfilename;
+  psfilename << "mc-sample-test-" << gOptTgtPdgC << ".ps";
+  gPS = new TPostScript(psfilename.str().c_str(), 112);
 
   // --- front page
   //
@@ -914,7 +1065,7 @@ void Plot(void)
 
   // --- event fraction plots
   //
-  PlotEvtFrac("EvtFracNumuDir", "Event fractions");
+  //PlotEvtFrac("EvtFracNumuDir", "Event fractions");
 
   // --- kinematics plots
   //
@@ -928,18 +1079,6 @@ void Plot(void)
   PlotKine("KineNcNumuResDir",    "#nu_{#mu} NC RES" );
   PlotKine("KineNcNumuDisDir",    "#nu_{#mu} NC DIS" );
 
-  // --- hadronic multiplicity plots
-  //
-  PlotHMult("HadMultDir",             "All events"       );
-  PlotHMult("HadMultCcNumuDir",       "#nu_{#mu} CC"     );
-  PlotHMult("HadMultCcNumuQelDir",    "#nu_{#mu} CC QEL" );
-  PlotHMult("HadMultCcNumuResDir",    "#nu_{#mu} CC RES" );
-  PlotHMult("HadMultCcNumuDisDir",    "#nu_{#mu} CC DIS" );
-  PlotHMult("HadMultNcNumuDir",       "#nu_{#mu} NC"     );
-  PlotHMult("HadMultNcNumuQelDir",    "#nu_{#mu} NC QEL" );
-  PlotHMult("HadMultNcNumuResDir",    "#nu_{#mu} NC RES" );
-  PlotHMult("HadMultNcNumuDisDir",    "#nu_{#mu} NC DIS" );
-
   // --- hadronic 4-momentum plots
   //
   PlotHP4("HadP4Dir",             "All events"       );
@@ -951,6 +1090,18 @@ void Plot(void)
   PlotHP4("HadP4NcNumuQelDir",    "#nu_{#mu} NC QEL" );
   PlotHP4("HadP4NcNumuResDir",    "#nu_{#mu} NC RES" );
   PlotHP4("HadP4NcNumuDisDir",    "#nu_{#mu} NC DIS" );
+
+  // --- hadronic multiplicity plots
+  //
+  PlotHMult("HadMultDir",             "All events"       );
+  PlotHMult("HadMultCcNumuDir",       "#nu_{#mu} CC"     );
+  PlotHMult("HadMultCcNumuQelDir",    "#nu_{#mu} CC QEL" );
+  PlotHMult("HadMultCcNumuResDir",    "#nu_{#mu} CC RES" );
+  PlotHMult("HadMultCcNumuDisDir",    "#nu_{#mu} CC DIS" );
+  PlotHMult("HadMultNcNumuDir",       "#nu_{#mu} NC"     );
+  PlotHMult("HadMultNcNumuQelDir",    "#nu_{#mu} NC QEL" );
+  PlotHMult("HadMultNcNumuResDir",    "#nu_{#mu} NC RES" );
+  PlotHMult("HadMultNcNumuDisDir",    "#nu_{#mu} NC DIS" );
 
   // --- vertex position plots
   //
@@ -1040,17 +1191,17 @@ void PlotKine(string dir, string title)
   gTempltSampleDir = (gSampleComp) ? 
                      (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
 
-  PlotH1F ( "hx",   (title + ", x_{comp}").c_str());
-  PlotH1F ( "hy",   (title + ", y_{comp}").c_str());
-  PlotH1F ( "ht",   (title + ", t_{comp}").c_str());
-  PlotH1F ( "hW",   (title + ", W_{comp}").c_str());
-  PlotH1F ( "hQ2",  (title + ", Q^{2}_{comp} (GeV^{2})").c_str());
-  PlotH1F ( "hv",   (title + ", v_{comp}").c_str());
-  PlotH1F ( "hxs",  (title + ", x_{sel}").c_str());
-  PlotH1F ( "hys",  (title + ", y_{sel}").c_str());
-  PlotH1F ( "hts",  (title + ", t_{sel}").c_str());
-  PlotH1F ( "hWs",  (title + ", W_{sel}").c_str());
-  PlotH1F ( "hQ2s", (title + ", Q^{2}_{sel} (GeV^{2})").c_str());
+  PlotH1F ( "hx",        (title + ", x_{comp}").c_str());
+  PlotH1F ( "hy",        (title + ", y_{comp}").c_str());
+  PlotH1F ( "ht",        (title + ", t_{comp}").c_str());
+  PlotH1F ( "hW",        (title + ", W_{comp}").c_str());
+  PlotH1F ( "hlog10Q2",  (title + ", log_{10}Q^{2}_{comp} (GeV^{2})").c_str());
+  PlotH1F ( "hv",        (title + ", v_{comp}").c_str());
+  PlotH1F ( "hxs",       (title + ", x_{sel}").c_str());
+  PlotH1F ( "hys",       (title + ", y_{sel}").c_str());
+  PlotH1F ( "hts",       (title + ", t_{sel}").c_str());
+  PlotH1F ( "hWs",       (title + ", W_{sel}").c_str());
+  PlotH1F ( "hlog10Q2s", (title + ", log_{10}Q^{2}_{sel} (GeV^{2})").c_str());
 }
 //_________________________________________________________________________________
 void PlotHMult(string dir, string title)
@@ -1084,33 +1235,33 @@ void PlotHP4(string dir, string title)
   gTempltSampleDir = (gSampleComp) ? 
                      (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
 
-  PlotH1F ( "hpx_pip", (title + ", f/s #pi^{+} Px").c_str() );
-  PlotH1F ( "hpy_pip", (title + ", f/s #pi^{+} Py").c_str() );
-  PlotH1F ( "hpz_pip", (title + ", f/s #pi^{+} Pz").c_str() );
-  PlotH1F ( "hp_pip",  (title + ", f/s #pi^{+} P").c_str()  );
-  PlotH1F ( "hE_pip",  (title + ", f/s #pi^{+} E").c_str()  );
-  PlotH1F ( "hKE_pip", (title + ", f/s #pi^{+} KE").c_str() );
+  PlotH1F_2 ( "hpx_pip", "hpx_pip_hprim", (title + ", f/s #pi^{+} Px (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpy_pip", "hpy_pip_hprim", (title + ", f/s #pi^{+} Py (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpz_pip", "hpz_pip_hprim", (title + ", f/s #pi^{+} Pz (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hp_pip",  "hp_pip_hprim",  (title + ", f/s #pi^{+} P  (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hE_pip",  "hE_pip_hprim",  (title + ", f/s #pi^{+} E  (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hKE_pip", "hKE_pip_hprim", (title + ", f/s #pi^{+} KE (dashed lines / open markers: before hadron transport)").c_str() );
 
-  PlotH1F ( "hpx_pim", (title + ", f/s #pi^{-} Px").c_str() );
-  PlotH1F ( "hpy_pim", (title + ", f/s #pi^{-} Py").c_str() );
-  PlotH1F ( "hpz_pim", (title + ", f/s #pi^{-} Pz").c_str() );
-  PlotH1F ( "hp_pim",  (title + ", f/s #pi^{-} P").c_str()  );
-  PlotH1F ( "hE_pim",  (title + ", f/s #pi^{-} E").c_str()  );
-  PlotH1F ( "hKE_pim", (title + ", f/s #pi^{-} KE").c_str() );
+  PlotH1F_2 ( "hpx_pim", "hpx_pim_hprim", (title + ", f/s #pi^{-} Px (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpy_pim", "hpy_pim_hprim", (title + ", f/s #pi^{-} Py (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpz_pim", "hpz_pim_hprim", (title + ", f/s #pi^{-} Pz (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hp_pim",  "hp_pim_hprim",  (title + ", f/s #pi^{-} P  (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hE_pim",  "hE_pim_hprim",  (title + ", f/s #pi^{-} E  (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hKE_pim", "hKE_pim_hprim", (title + ", f/s #pi^{-} KE (dashed lines / open markers: before hadron transport)").c_str() );
 
-  PlotH1F ( "hpx_p",   (title + ", f/s proton Px").c_str()  );
-  PlotH1F ( "hpy_p",   (title + ", f/s proton Py").c_str()  );
-  PlotH1F ( "hpz_p",   (title + ", f/s proton Pz").c_str()  );
-  PlotH1F ( "hp_p",    (title + ", f/s proton P").c_str()   );
-  PlotH1F ( "hE_p",    (title + ", f/s proton E").c_str()   );
-  PlotH1F ( "hKE_p",   (title + ", f/s proton KE").c_str()  );
+  PlotH1F_2 ( "hpx_p",   "hpx_p_hprim",   (title + ", f/s proton Px (dashed lines / open markers: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hpy_p",   "hpy_p_hprim",   (title + ", f/s proton Py (dashed lines / open markers: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hpz_p",   "hpz_p_hprim",   (title + ", f/s proton Pz (dashed lines / open markers: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hp_p",    "hp_p_hprim",    (title + ", f/s proton P  (dashed lines / open markers: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hE_p",    "hE_p_hprim",    (title + ", f/s proton E  (dashed lines / open markers: before hadron transport)").c_str()  );
+  PlotH1F_2 ( "hKE_p",   "hKE_p_hprim",   (title + ", f/s proton KE (dashed lines / open markers: before hadron transport)").c_str()  );
 
-  PlotH1F ( "hpx_n",   (title + ", f/s neutron Px").c_str() );
-  PlotH1F ( "hpy_n",   (title + ", f/s neutron Py").c_str() );
-  PlotH1F ( "hpz_n",   (title + ", f/s neutron Pz").c_str() );
-  PlotH1F ( "hp_n",    (title + ", f/s neutron P").c_str()  );
-  PlotH1F ( "hE_n",    (title + ", f/s neutron E").c_str()  );
-  PlotH1F ( "hKE_n",   (title + ", f/s neutron KE").c_str() );
+  PlotH1F_2 ( "hpx_n",   "hpx_n_hprim",   (title + ", f/s neutron Px (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpy_n",   "hpy_n_hprim",   (title + ", f/s neutron Py (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hpz_n",   "hpz_n_hprim",   (title + ", f/s neutron Pz (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hp_n",    "hp_n_hprim",    (title + ", f/s neutron P  (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hE_n",    "hE_n_hprim",    (title + ", f/s neutron E  (dashed lines / open markers: before hadron transport)").c_str() );
+  PlotH1F_2 ( "hKE_n",   "hKE_n_hprim",   (title + ", f/s neutron KE (dashed lines / open markers: before hadron transport)").c_str() );
 }
 //_________________________________________________________________________________
 void PlotVtx(void)
@@ -1163,6 +1314,51 @@ void PlotH1F(string name, string title, bool keep_page)
   gC->Update();
 }
 //_________________________________________________________________________________
+void PlotH1F_2(string name1, string name2, string title, bool keep_page)
+{
+  if(!keep_page) gPS->NewPage();
+  gC->cd();
+
+  TH1F * tested_hst1 = dynamic_cast<TH1F *> (gTestedSampleDir->Get(name1.c_str()));
+  TH1F * tested_hst2 = dynamic_cast<TH1F *> (gTestedSampleDir->Get(name2.c_str()));
+  TH1F * templt_hst1 = 0;
+  TH1F * templt_hst2 = 0;
+  if(gSampleComp) {
+      templt_hst1 = dynamic_cast<TH1F *> (gTempltSampleDir->Get(name1.c_str()));
+      templt_hst2 = dynamic_cast<TH1F *> (gTempltSampleDir->Get(name2.c_str()));
+  }
+  if(!tested_hst1 || !tested_hst2) return;
+
+  // plot histogram from test sample
+  tested_hst1->SetLineColor(2);
+  tested_hst1->SetLineWidth(2);
+  tested_hst1->SetLineStyle(1);
+  tested_hst1->Draw();
+
+  tested_hst2->SetLineColor(2);
+  tested_hst2->SetLineWidth(2);
+  tested_hst2->SetLineStyle(2);
+  tested_hst2->Draw("SAME");
+
+  // plot same hisogram from template sample (if any) 
+  if(templt_hst1 && templt_hst2) {
+    templt_hst1->SetLineWidth(2);
+    templt_hst1->SetLineStyle(1);
+    templt_hst1->SetMarkerSize(1.3);
+    templt_hst1->SetMarkerStyle(8);
+    templt_hst1->Draw("PERRSAME");
+
+    templt_hst2->SetLineWidth(2);
+    templt_hst2->SetLineStyle(2);
+    templt_hst2->SetMarkerSize(1.3);
+    templt_hst2->SetMarkerStyle(4);
+    templt_hst2->Draw("PERRSAME");
+  }
+
+  tested_hst1->GetXaxis()->SetTitle(title.c_str());
+  gC->Update();
+}
+//_________________________________________________________________________________
 void PlotH2F(string name, string title)
 {
   gPS->NewPage();
@@ -1174,10 +1370,8 @@ void PlotH2F(string name, string title)
 
   // plot histogram from test sample
   if(!tested_hst) return;
-  //gStyle->SetPalette(1);
-  //tested_hst->Draw("COLZ");
   tested_hst->SetFillColor(3);
-  tested_hst->Draw();
+  tested_hst->Draw("BOX");
 
   TProfile * hpx = tested_hst->ProfileX();
   hpx->SetLineColor(2);
@@ -1193,7 +1387,7 @@ void PlotH2F(string name, string title)
     hpxt->SetLineWidth(2);
     hpxt->SetMarkerStyle(8);
     hpxt->SetMarkerSize(1.3);
-    hpxt->Draw("SAME");
+    hpxt->Draw("SAMEBOX1");
   }
 
   tested_hst->GetXaxis()->SetTitle(title.c_str());
@@ -1279,6 +1473,8 @@ void PrintSyntax(void)
 //_________________________________________________________________________________
 bool CheckRootFilename(string filename)
 {
+  if(filename.size() == 0) return false;
+
   bool is_accessible = ! (gSystem->AccessPathName(filename.c_str()));
   if (!is_accessible) {
    LOG("gmctest", pERROR)
