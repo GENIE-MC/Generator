@@ -75,10 +75,10 @@ class NGInitState {
         if      (code ==  1) return e_vp;
         else if (code ==  2) return e_vn;
         else if (code ==  5) return e_vN;
-        else if (code ==  6) return e_vA;
+        else if (code ==  7) return e_vA;
         else if (code ==  3) return e_vbp;
         else if (code ==  4) return e_vbn;
-        else if (code ==  7) return e_vbN;
+        else if (code ==  6) return e_vbN;
         else if (code ==  8) return e_vbA;
         else if (code ==  9) return e_lp;
         else if (code == 10) return e_ln;
