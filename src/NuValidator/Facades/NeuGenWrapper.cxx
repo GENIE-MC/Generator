@@ -103,11 +103,7 @@ void NeuGenWrapper::Reconfigure(const NeuGenConfig * config)
 
   //! Neutrino DIS Scale Factor
   val = _config->NuDisFF();
-  set_parameters_("NU_DISFF",&eight,&val);
-
-  //! Anti-Neutrino DIS Scale Factor
-  val = _config->ANuDisFF();
-  set_parameters_("ANU_DISFF",&nine,&val);
+  set_parameters_("DISSF",&five,&val);
 
   //! Set R-S Model parameter Omega
   val = _config->OmegaRes();
@@ -135,8 +131,22 @@ void NeuGenWrapper::Reconfigure(const NeuGenConfig * config)
   set_parameters_("KNO_A3",&six,&val);
   val = _config->KnoA(e_vbn);
   set_parameters_("KNO_A4",&six,&val);
-  val = _config->KnoB();
-  set_parameters_("KNO_B",&five,&val);
+  val = _config->KnoB(e_vp);
+  set_parameters_("KNO_B1",&six,&val);
+  val = _config->KnoB(e_vn);
+  set_parameters_("KNO_B2",&six,&val);
+  val = _config->KnoB(e_vbp);
+  set_parameters_("KNO_B3",&six,&val);
+  val = _config->KnoB(e_vbn);
+  set_parameters_("KNO_B4",&six,&val);
+  val = _config->KnoC(e_vp);
+  set_parameters_("KNO_C1",&six,&val);
+  val = _config->KnoC(e_vn);
+  set_parameters_("KNO_C2",&six,&val);
+  val = _config->KnoC(e_vbp);
+  set_parameters_("KNO_C3",&six,&val);
+  val = _config->KnoC(e_vbn);
+  set_parameters_("KNO_C4",&six,&val);
   
   //! DIS-RES tuning params for multiplicity = 2 states
   

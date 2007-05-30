@@ -67,12 +67,13 @@ void NeuGenConfig::SetBestParameters(void)
   fZRes     =  kNGDefZRes;
   fR0Coh    =  kNGDefR0Coh;
   fREICoh   =  kNGDefREICoh;
-  fKnoB     =  kNGDefKnoB;
   fNuDisFF  =  kNGDefNuDisFF;
-  fANuDisFF =  kNGDefANuDisFF;
     
-  for(unsigned int istate = 0; istate < kNInSt; istate++)
+  for(unsigned int istate = 0; istate < kNInSt; istate++)   {
                                           fKnoA[istate] = kNGDefKnoA[istate];
+                                          fKnoB[istate] = kNGDefKnoB[istate];
+                                          fKnoC[istate] = kNGDefKnoC[istate];
+  }
 
   for(unsigned int imulti = 0; imulti < kNMlt; imulti++)
           for(unsigned int istate = 0; istate < kNInSt; istate++)
@@ -88,6 +89,32 @@ float NeuGenConfig::KnoA(NGInitState_t initial_state) const
     int istate = this->InitState2IPos(initial_state);
 
     return fKnoA[istate];
+    
+ } else return -1;
+}
+//____________________________________________________________________________
+float NeuGenConfig::KnoB(NGInitState_t initial_state) const
+{
+ bool is_valid = this->IsValidInitState(initial_state);
+ 
+ if( is_valid ) {
+
+    int istate = this->InitState2IPos(initial_state);
+
+    return fKnoB[istate];
+    
+ } else return -1;
+}
+//____________________________________________________________________________
+float NeuGenConfig::KnoC(NGInitState_t initial_state) const
+{
+ bool is_valid = this->IsValidInitState(initial_state);
+ 
+ if( is_valid ) {
+
+    int istate = this->InitState2IPos(initial_state);
+
+    return fKnoC[istate];
     
  } else return -1;
 }
@@ -115,6 +142,28 @@ void NeuGenConfig::SetKnoA(NGInitState_t initial_state, float kno)
     int istate = this->InitState2IPos(initial_state);
     
     fKnoA[istate] = kno;
+ }
+}
+//____________________________________________________________________________
+void NeuGenConfig::SetKnoB(NGInitState_t initial_state, float kno)
+{
+ bool is_valid = this->IsValidInitState(initial_state);
+
+ if( is_valid ) {
+    int istate = this->InitState2IPos(initial_state);
+    
+    fKnoB[istate] = kno;
+ }
+}
+//____________________________________________________________________________
+void NeuGenConfig::SetKnoC(NGInitState_t initial_state, float kno)
+{
+ bool is_valid = this->IsValidInitState(initial_state);
+
+ if( is_valid ) {
+    int istate = this->InitState2IPos(initial_state);
+    
+    fKnoC[istate] = kno;
  }
 }
 //____________________________________________________________________________
@@ -146,12 +195,13 @@ void NeuGenConfig::Copy(const NeuGenConfig * config)
   fZRes     = config->fZRes;     
   fR0Coh    = config->fR0Coh;    
   fREICoh   = config->fREICoh;   
-  fKnoB     = config->fKnoB;
   fNuDisFF  = config->fNuDisFF;
-  fANuDisFF = config->fANuDisFF;
  
-  for(unsigned int istate = 0; istate < kNInSt; istate++)
+  for(unsigned int istate = 0; istate < kNInSt; istate++)   {
                                       fKnoA[istate] = config->fKnoA[istate];
+                                      fKnoB[istate] = config->fKnoB[istate];
+                                      fKnoC[istate] = config->fKnoC[istate];
+  }
 
   for(unsigned int imult = 0; imult < kNMlt; imult++)
              for(unsigned int istate = 0; istate < kNInSt; istate++)
@@ -170,8 +220,6 @@ void NeuGenConfig::Print(ostream & stream) const
   stream << "Nuclear size scale param:................" << fR0Coh    << endl;
   stream << "Re/Im for pion scattering amplitude:....." << fREICoh   << endl;
   stream << "Neutrino DIS Scale Factor:..............." << fNuDisFF  << endl;
-  stream << "Anti-Neutrino DIS Scale Factor:.........." << fANuDisFF << endl;
-  stream << "KNO Hadronization Param B ..............." << fKnoB     << endl;
   stream << "KNO Hadronization Param A / vp .........."
                                << fKnoA[this->InitState2IPos(e_vp)]  << endl;
   stream << "KNO Hadronization Param A / vn .........."
@@ -180,7 +228,22 @@ void NeuGenConfig::Print(ostream & stream) const
                                << fKnoA[this->InitState2IPos(e_vbp)] << endl;
   stream << "KNO Hadronization Param A / vbn ........."
                                << fKnoA[this->InitState2IPos(e_vbn)] << endl;
-
+  stream << "KNO Hadronization Param B / vp .........."
+                               << fKnoB[this->InitState2IPos(e_vp)]  << endl;
+  stream << "KNO Hadronization Param B / vn .........."
+                               << fKnoB[this->InitState2IPos(e_vn)]  << endl;
+  stream << "KNO Hadronization Param B / vbp ........."
+                               << fKnoB[this->InitState2IPos(e_vbp)] << endl;
+  stream << "KNO Hadronization Param B / vbn ........."
+                               << fKnoB[this->InitState2IPos(e_vbn)] << endl;
+  stream << "KNO Hadronization Param C / vp .........."
+                               << fKnoC[this->InitState2IPos(e_vp)]  << endl;
+  stream << "KNO Hadronization Param C / vn .........."
+                               << fKnoC[this->InitState2IPos(e_vn)]  << endl;
+  stream << "KNO Hadronization Param C / vbp ........."
+                               << fKnoC[this->InitState2IPos(e_vbp)] << endl;
+  stream << "KNO Hadronization Param C / vbn ........."
+                               << fKnoC[this->InitState2IPos(e_vbn)] << endl;
   stream << "DIS/RES Tuning Param - 2 / vp ......" 
          << fDisRes[this->Multiplicity2IPos(2)][this->InitState2IPos(e_vp)]
          << endl;
