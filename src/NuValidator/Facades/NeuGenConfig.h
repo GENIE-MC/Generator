@@ -34,26 +34,32 @@ const unsigned int kNInSt = 4; ///< number of initial states (vp,vn,vbp,vbn)
 
 const int    kNGDefPdfGrp   =  5;
 const int    kNGDefPdfSet   = 12;
-const float  kNGDefMaQel    =  1.032;
-const float  kNGDefMaRes    =  1.032;
+const float  kNGDefMaQel    =  0.99;
+const float  kNGDefMaRes    =  1.12;
 const float  kNGDefMaCoh    =  1.000;    
-const float  kNGDefFa0Qel   = -1.260;   
+const float  kNGDefFa0Qel   = -1.267;   
 const float  kNGDefEtaQel   =  0.120;   
 const float  kNGDefOmegaRes =  1.050; 
-const float  kNGDefZRes     =  0.750;     
+const float  kNGDefZRes     =  0.762;     
 const float  kNGDefR0Coh    =  1.000;    
 const float  kNGDefREICoh   =  0.300;   
-const float  kNGDefKnoB     =  1.300;
-const float  kNGDefNuDisFF  =  1.000;
-const float  kNGDefANuDisFF =  1.000;
+const float  kNGDefNuDisFF  =  1.032;
 
 const float kNGDefKnoA[kNInSt] = {
                  /* v+p   v+n   vb+p  vb+n */
-                    0.50, 0.00, 0.20, 0.20
+                    0.40, -0.20, 0.02, 0.80
+};
+const float kNGDefKnoB[kNInSt] = {
+                 /* v+p   v+n   vb+p  vb+n */
+                    1.42, 1.42, 1.28, 0.95
+};
+const float kNGDefKnoC[kNInSt] = {
+                 /* v+p   v+n   vb+p  vb+n */
+                    7.93, 5.22, 5.22, 7.93
 };
 const float kNGDefDisRes[kNMlt][kNInSt] = {
                  /* v+p   v+n   vb+p  vb+n */
-                   {0.20, 0.20, 0.20, 0.20},    /* multiplicity = 2 */
+                   {0.10, 0.30, 0.30, 0.10},    /* multiplicity = 2 */
                    {1.00, 1.00, 1.00, 1.00}     /* multiplicity = 3 */
 };
 
@@ -84,9 +90,9 @@ public:
   float  R0Coh    (void) const { return fR0Coh;    }
   float  REICoh   (void) const { return fREICoh;   }
   float  NuDisFF  (void) const { return fNuDisFF;  }
-  float  ANuDisFF (void) const { return fANuDisFF; }
-  float  KnoB     (void) const { return fKnoB;     }  
   float  KnoA     (NGInitState_t init) const;
+  float  KnoB     (NGInitState_t init) const;
+  float  KnoC     (NGInitState_t init) const;
   float  DisRes   (unsigned int multiplicity, NGInitState_t init) const;
 
   void SetBestParameters(void);
@@ -103,9 +109,9 @@ public:
   void SetR0Coh    (float r0_coh   ) { fR0Coh    = r0_coh;    }
   void SetREICoh   (float rei_coh  ) { fREICoh   = rei_coh;   }
   void SetNuDisFF  (float nu_disff ) { fNuDisFF  = nu_disff;  }
-  void SetANuDisFF (float anu_disff) { fANuDisFF = anu_disff; }
-  void SetKnoB     (float kno_b    ) { fKnoB     = kno_b;     }
   void SetKnoA     (NGInitState_t init, float kno);    
+  void SetKnoB     (NGInitState_t init, float kno);    
+  void SetKnoC     (NGInitState_t init, float kno);    
   void SetDisRes   (unsigned int multiplicity, NGInitState_t init, float dis_res);
 
   void Copy  (const NeuGenConfig * config);
@@ -132,13 +138,13 @@ private:
   float  fZRes;                   ///< R-S Model parameter Z
   float  fR0Coh;                  ///< Nuclear size scale param in COH scattering
   float  fREICoh;                 ///< Re/Im for pion scattering amplitude  
-  float  fKnoB;                   ///< KNO Hadronization parameter B,  <n> = A + B*ln(W^2)
   float  fKnoA[kNInSt];           ///< KNO Hadronization parameters A, B,  <n> = A + B*ln(W^2)
+  float  fKnoB[kNInSt];           ///< KNO Hadronization parameters A, B,  <n> = A + B*ln(W^2)
+  float  fKnoC[kNInSt];           ///< KNO Hadronization parameters C for Levy function
   float  fDisRes[kNMlt][kNInSt];  ///< DIS/RES tuning factors
   float  fNuDisFF;                ///  Neutrino DIS scale factor
-  float  fANuDisFF;               ///  Anti-neutrino DIS scale factor 
 
-ClassDef(NeuGenConfig, 1)
+ClassDef(NeuGenConfig, 2)
 };
 
 } // facades namespace
