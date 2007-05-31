@@ -16,7 +16,7 @@
 
 #include <vector>
 
-#include <TMCParticle6.h>
+#include <TMCParticle.h>
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Decay/PythiaDecayer.h"
