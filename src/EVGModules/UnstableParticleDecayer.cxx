@@ -18,7 +18,7 @@
 #include <sstream>
 
 #include <TParticlePDG.h>
-#include <TMCParticle6.h>
+#include <TMCParticle.h>
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"

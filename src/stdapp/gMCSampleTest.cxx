@@ -154,10 +154,10 @@ double br_kine_W    = 0;      //
 double br_kine_v    = 0;      //
 double br_Ev        = 0;      //
 double br_El        = 0;      //
-double br_vtxx      = 0;      //
-double br_vtxy      = 0;      //
-double br_vtxz      = 0;      //
-double br_weight    = 0;      //
+double br_vtxx      = 0;      // vertex position x 
+double br_vtxy      = 0;      // vertex position y
+double br_vtxz      = 0;      // vertex position z
+double br_weight    = 0;      // event weight
 int    br_np        = 0;      // number of f/s p
 int    br_nn        = 0;      // number of f/s n
 int    br_npip      = 0;      // number of f/s pi+
@@ -191,6 +191,18 @@ double br_pz_hprim [kNPmax];  //
 double br_p_hprim  [kNPmax];  //
 double br_E_hprim  [kNPmax];  //
 double br_KE_hprim [kNPmax];  //
+double br_had_E;              // hadronic energy 
+double br_had_px;             // -//-     px      
+double br_had_py;             // -//-     py      
+double br_had_pz;             // -//-     pz      
+double br_vishad_E;           // 'visible' hadronic energy 
+double br_vishad_px;          // -//-     px      
+double br_vishad_py;          // -//-     py      
+double br_vishad_pz;          // -//-     pz      
+double br_mishad_E;           // missing hadronic energy (because of intranuclear rescattering)
+double br_mishad_px;          //      -//-        px      -//-
+double br_mishad_py;          //      -//-        py      -//-
+double br_mishad_pz;          //      -//-        pz      -//-
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -272,68 +284,81 @@ void InitOutput(void)
 
   //-- create summary tree
   tEvtTree = new TTree("tEvtTree","event tree summary");
-  tEvtTree->Branch("iev",      &br_iev,        "iev/I"       );
-  tEvtTree->Branch("neu",      &br_neutrino ,  "neu/I"       );
-  tEvtTree->Branch("tgt" ,     &br_target,     "tgt/I"       );
-  tEvtTree->Branch("hitnuc",   &br_hitnuc,     "hitnuc/I"    );
-  tEvtTree->Branch("hitqrk",   &br_hitqrk,     "hitqrk/I"    );
-  tEvtTree->Branch("qel",      &br_qel,        "br_qel/O"    );
-  tEvtTree->Branch("res",      &br_res,        "br_res/O"    );
-  tEvtTree->Branch("dis",      &br_dis,        "br_dis/O"    );
-  tEvtTree->Branch("coh",      &br_coh,        "br_coh/O"    );
-  tEvtTree->Branch("em",       &br_em,         "br_em/O"     );
-  tEvtTree->Branch("weakcc",   &br_weakcc,     "br_weakcc/O" );
-  tEvtTree->Branch("weaknc",   &br_weaknc,     "br_weaknc/O" );
-  tEvtTree->Branch("xs",       &br_kine_xs,    "xs/D"        );
-  tEvtTree->Branch("ys",       &br_kine_ys,    "ys/D"        );
-  tEvtTree->Branch("ts",       &br_kine_ts,    "ts/D"        );
-  tEvtTree->Branch("Q2s",      &br_kine_Q2s ,  "Q2s/D"       );
-  tEvtTree->Branch("Ws",       &br_kine_Ws,    "Ws/D"        );
-  tEvtTree->Branch("x",        &br_kine_x,     "x/D"         );
-  tEvtTree->Branch("y",        &br_kine_y,     "y/D"         );
-  tEvtTree->Branch("t",        &br_kine_t,     "t/D"         );
-  tEvtTree->Branch("Q2",       &br_kine_Q2,    "Q2/D"        );
-  tEvtTree->Branch("W",        &br_kine_W,     "W/D"         );
-  tEvtTree->Branch("v",        &br_kine_v,     "v/D"         );
-  tEvtTree->Branch("Ev",       &br_Ev,         "Ev/D"        );
-  tEvtTree->Branch("El",       &br_El,         "El/D"        );
-  tEvtTree->Branch("vtxx",     &br_vtxx,       "vtxx/D"      );
-  tEvtTree->Branch("vtxy",     &br_vtxy,       "vtxy/D"      );
-  tEvtTree->Branch("vtxz",     &br_vtxz,       "vtxz/D"      );
-  tEvtTree->Branch("wgt",      &br_weight,     "wgt/D"       );
-  tEvtTree->Branch("np",       &br_np,         "np/I"        );
-  tEvtTree->Branch("nn",       &br_nn,         "nn/I"        );
-  tEvtTree->Branch("npip",     &br_npip,       "npip/I"      );
-  tEvtTree->Branch("npim",     &br_npim,       "npim/I"      );
-  tEvtTree->Branch("npi0",     &br_npi0,       "npi0/I"      );
-  tEvtTree->Branch("ngamma",   &br_ngamma,     "ngamma/I"    );
-  tEvtTree->Branch("nKp",      &br_nKp,        "nKp/I"       );
-  tEvtTree->Branch("nKm",      &br_nKm,        "nKm/I"       );
-  tEvtTree->Branch("nK0",      &br_nK0,        "nK0/I"       );
-  tEvtTree->Branch("hmod",     &br_hmod,       "hmod/I"      );
-  tEvtTree->Branch("nhep",     &br_nhep,       "nhep/I"      );
-  tEvtTree->Branch("pdg",       br_pdg,        "pdg[nhep]/I" );
-  tEvtTree->Branch("ist",       br_ist,        "ist[nhep]/I" );
-  tEvtTree->Branch("px",        br_px,         "px[nhep]/D"  );
-  tEvtTree->Branch("py",        br_py,         "py[nhep]/D"  );
-  tEvtTree->Branch("pz",        br_pz,         "pz[nhep]/D"  );
-  tEvtTree->Branch("p" ,        br_p,          "p[nhep]/D"   );
-  tEvtTree->Branch("E",         br_E,          "E[nhep]/D"   );
-  tEvtTree->Branch("KE",        br_KE,         "KE[nhep]/D"  );
-  tEvtTree->Branch("x",         br_x,          "x[nhep]/D"   );
-  tEvtTree->Branch("y",         br_y,          "y[nhep]/D"   );
-  tEvtTree->Branch("z",         br_z,          "z[nhep]/D"   );
-  tEvtTree->Branch("fdaughter", br_da1,        "fdaughter[nhep]/I" );
-  tEvtTree->Branch("ldaughter", br_da2,        "ldaughter[nhep]/I" );
-  tEvtTree->Branch("mom",       br_mom,        "mom[nhep]/I" );
-  tEvtTree->Branch("n_hprim",  &br_n_hprim,    "n_hprim/I"            );
-  tEvtTree->Branch("pdg_hprim", br_pdg_hprim,  "pdg_hprim[n_hprim]/I" );
-  tEvtTree->Branch("px_hprim",  br_px_hprim,   "px_hprim[n_hprim]/D"  );
-  tEvtTree->Branch("py_hprim",  br_py_hprim,   "py_hprim[n_hprim]/D"  );
-  tEvtTree->Branch("pz_hprim",  br_pz_hprim,   "pz_hprim[n_hprim]/D"  );
-  tEvtTree->Branch("p_hprim" ,  br_p_hprim,    "p_hprim[n_hprim]/D"   );
-  tEvtTree->Branch("E_hprim",   br_E_hprim,    "E_hprim[n_hprim]/D"   );
-  tEvtTree->Branch("KE_hprim",  br_KE_hprim,   "KE_hprim[n_hprim]/D"  );
+  tEvtTree->Branch("iev",       &br_iev,        "iev/I"       );
+  tEvtTree->Branch("neu",       &br_neutrino ,  "neu/I"       );
+  tEvtTree->Branch("tgt" ,      &br_target,     "tgt/I"       );
+  tEvtTree->Branch("hitnuc",    &br_hitnuc,     "hitnuc/I"    );
+  tEvtTree->Branch("hitqrk",    &br_hitqrk,     "hitqrk/I"    );
+  tEvtTree->Branch("qel",       &br_qel,        "br_qel/O"    );
+  tEvtTree->Branch("res",       &br_res,        "br_res/O"    );
+  tEvtTree->Branch("dis",       &br_dis,        "br_dis/O"    );
+  tEvtTree->Branch("coh",       &br_coh,        "br_coh/O"    );
+  tEvtTree->Branch("em",        &br_em,         "br_em/O"     );
+  tEvtTree->Branch("weakcc",    &br_weakcc,     "br_weakcc/O" );
+  tEvtTree->Branch("weaknc",    &br_weaknc,     "br_weaknc/O" );
+  tEvtTree->Branch("xs",        &br_kine_xs,    "xs/D"        );
+  tEvtTree->Branch("ys",        &br_kine_ys,    "ys/D"        );
+  tEvtTree->Branch("ts",        &br_kine_ts,    "ts/D"        );
+  tEvtTree->Branch("Q2s",       &br_kine_Q2s ,  "Q2s/D"       );
+  tEvtTree->Branch("Ws",        &br_kine_Ws,    "Ws/D"        );
+  tEvtTree->Branch("x",         &br_kine_x,     "x/D"         );
+  tEvtTree->Branch("y",         &br_kine_y,     "y/D"         );
+  tEvtTree->Branch("t",         &br_kine_t,     "t/D"         );
+  tEvtTree->Branch("Q2",        &br_kine_Q2,    "Q2/D"        );
+  tEvtTree->Branch("W",         &br_kine_W,     "W/D"         );
+  tEvtTree->Branch("v",         &br_kine_v,     "v/D"         );
+  tEvtTree->Branch("Ev",        &br_Ev,         "Ev/D"        );
+  tEvtTree->Branch("El",        &br_El,         "El/D"        );
+  tEvtTree->Branch("vtxx",      &br_vtxx,       "vtxx/D"      );
+  tEvtTree->Branch("vtxy",      &br_vtxy,       "vtxy/D"      );
+  tEvtTree->Branch("vtxz",      &br_vtxz,       "vtxz/D"      );
+  tEvtTree->Branch("wgt",       &br_weight,     "wgt/D"       );
+  tEvtTree->Branch("np",        &br_np,         "np/I"        );
+  tEvtTree->Branch("nn",        &br_nn,         "nn/I"        );
+  tEvtTree->Branch("npip",      &br_npip,       "npip/I"      );
+  tEvtTree->Branch("npim",      &br_npim,       "npim/I"      );
+  tEvtTree->Branch("npi0",      &br_npi0,       "npi0/I"      );
+  tEvtTree->Branch("ngamma",    &br_ngamma,     "ngamma/I"    );
+  tEvtTree->Branch("nKp",       &br_nKp,        "nKp/I"       );
+  tEvtTree->Branch("nKm",       &br_nKm,        "nKm/I"       );
+  tEvtTree->Branch("nK0",       &br_nK0,        "nK0/I"       );
+  tEvtTree->Branch("hmod",      &br_hmod,       "hmod/I"      );
+  tEvtTree->Branch("nhep",      &br_nhep,       "nhep/I"      );
+  tEvtTree->Branch("pdg",        br_pdg,        "pdg[nhep]/I" );
+  tEvtTree->Branch("ist",        br_ist,        "ist[nhep]/I" );
+  tEvtTree->Branch("px",         br_px,         "px[nhep]/D"  );
+  tEvtTree->Branch("py",         br_py,         "py[nhep]/D"  );
+  tEvtTree->Branch("pz",         br_pz,         "pz[nhep]/D"  );
+  tEvtTree->Branch("p" ,         br_p,          "p[nhep]/D"   );
+  tEvtTree->Branch("E",          br_E,          "E[nhep]/D"   );
+  tEvtTree->Branch("KE",         br_KE,         "KE[nhep]/D"  );
+  tEvtTree->Branch("x",          br_x,          "x[nhep]/D"   );
+  tEvtTree->Branch("y",          br_y,          "y[nhep]/D"   );
+  tEvtTree->Branch("z",          br_z,          "z[nhep]/D"   );
+  tEvtTree->Branch("fdaughter",  br_da1,        "fdaughter[nhep]/I" );
+  tEvtTree->Branch("ldaughter",  br_da2,        "ldaughter[nhep]/I" );
+  tEvtTree->Branch("mom",        br_mom,        "mom[nhep]/I" );
+  tEvtTree->Branch("n_hprim",   &br_n_hprim,    "n_hprim/I"            );
+  tEvtTree->Branch("pdg_hprim",  br_pdg_hprim,  "pdg_hprim[n_hprim]/I" );
+  tEvtTree->Branch("px_hprim",   br_px_hprim,   "px_hprim[n_hprim]/D"  );
+  tEvtTree->Branch("py_hprim",   br_py_hprim,   "py_hprim[n_hprim]/D"  );
+  tEvtTree->Branch("pz_hprim",   br_pz_hprim,   "pz_hprim[n_hprim]/D"  );
+  tEvtTree->Branch("p_hprim" ,   br_p_hprim,    "p_hprim[n_hprim]/D"   );
+  tEvtTree->Branch("E_hprim",    br_E_hprim,    "E_hprim[n_hprim]/D"   );
+  tEvtTree->Branch("KE_hprim",   br_KE_hprim,   "KE_hprim[n_hprim]/D"  );
+  tEvtTree->Branch("had_E",     &br_had_E,      "had_E/D"              );
+  tEvtTree->Branch("had_px",    &br_had_px,     "had_px/D"             );
+  tEvtTree->Branch("had_py",    &br_had_py,     "had_py/D"             );
+  tEvtTree->Branch("had_pz",    &br_had_pz,     "had_pz/D"             );
+  tEvtTree->Branch("vishad_E",  &br_vishad_E,   "vishad_E/D"           );
+  tEvtTree->Branch("vishad_px", &br_vishad_px,  "vishad_px/D"          );
+  tEvtTree->Branch("vishad_py", &br_vishad_py,  "vishad_py/D"          );
+  tEvtTree->Branch("vishad_pz", &br_vishad_pz,  "vishad_pz/D"          );
+  tEvtTree->Branch("mishad_E",  &br_mishad_E,   "mishad_E/D"           );
+  tEvtTree->Branch("mishad_px", &br_mishad_px,  "mishad_px/D"          );
+  tEvtTree->Branch("mishad_py", &br_mishad_py,  "mishad_py/D"          );
+  tEvtTree->Branch("mishad_pz", &br_mishad_pz,  "mishad_pz/D"          );
+
 }
 //_________________________________________________________________________________
 void InitEvent()
@@ -560,8 +585,26 @@ void EventLoop(void)
       br_n_hprim = 0; 
     }
 
-    // fill the summary ntuple
-    //
+    br_had_E     = 0.;
+    br_had_px    = 0.;
+    br_had_py    = 0.;
+    br_had_pz    = 0.;
+    br_vishad_E  = 0.;
+    br_vishad_px = 0.;
+    br_vishad_py = 0.;
+    br_vishad_pz = 0.;
+    br_mishad_E  = 0.;
+    br_mishad_px = 0.;
+    br_mishad_py = 0.;
+    br_mishad_pz = 0.;
+    if(ihad_root) {
+	br_had_E  = event.Particle(ihad_root)->Energy();
+	br_had_px = event.Particle(ihad_root)->Px();
+	br_had_py = event.Particle(ihad_root)->Py();
+	br_had_pz = event.Particle(ihad_root)->Pz();
+    }
+
+
     br_iev       = i;
     br_neutrino  = neutrino->Pdg();
     br_target    = 0;

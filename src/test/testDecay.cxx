@@ -19,7 +19,7 @@
 
 #include <ostream>
 
-#include <TMCParticle6.h>
+#include <TMCParticle.h>
 #include <TClonesArray.h>
 #include <TIterator.h>
 

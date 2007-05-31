@@ -19,7 +19,7 @@
 #include <TSystem.h>
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
-#include <TMCParticle6.h>
+#include <TMCParticle.h>
 #include <TH1D.h>
 #include <TMath.h>
 #include <TF1.h>

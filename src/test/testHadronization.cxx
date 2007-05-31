@@ -36,7 +36,7 @@
 #include <TTree.h>
 #include <TH1F.h>
 #include <TLorentzVector.h>
-#include <TMCParticle6.h>
+#include <TMCParticle.h>
 #include <TMath.h>
 #include <TClonesArray.h>
 #include <TIterator.h>

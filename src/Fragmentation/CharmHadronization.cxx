@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include <TMCParticle6.h>
+#include <TMCParticle.h>
 #include <TPythia6.h>
 #include <TVector3.h>
 #include <TF1.h>
