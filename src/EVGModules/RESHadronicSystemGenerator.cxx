@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include <TMCParticle6.h>
+#include <TMCParticle.h>
 
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResUtils.h"

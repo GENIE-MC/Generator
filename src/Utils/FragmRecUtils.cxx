@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include <TMCParticle6.h>
+#include <TMCParticle.h>
 #include <TIterator.h>
 
 #include "Messenger/Messenger.h"

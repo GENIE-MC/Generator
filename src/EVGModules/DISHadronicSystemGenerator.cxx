@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include <TMCParticle6.h>
+#include <TMCParticle.h>
 
 #include "Conventions/Constants.h"
 #include "EVGCore/EVGThreadException.h"
