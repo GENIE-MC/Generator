@@ -14,6 +14,7 @@ CV             double   Yes                                GPL: NuElecEL-CV
 -->
 
   <param_set name="Default"> 
+     <param type="alg"  name="XSec-Integrator"> genie::NuElectronXSec/Default  </param>
   </param_set>
 
 </alg_conf>
