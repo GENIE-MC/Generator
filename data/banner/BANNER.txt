@@ -1,30 +1,38 @@
-*************************************************************************************
-*************************************************************************************
-**                                                                                 **
-**  mu-                                         @@@@@@  @@@@@@  @    @  @  @@@@@@  **
-**     \                                        @       @       @@   @  @  @       **
-**      \                                       @   @   @@@@@   @ @  @  @  @@@@@@  **
-**       \                   ______ ===> jet    @   @   @       @  @ @  @  @       **
-**        \       W+       u/                   @@@@@@  @@@@@@  @    @  @  @@@@@@  **
-**         \_ _ _ _ _ _ _ _/                                                       **
-**         /               \         @                                             **
-**        /                d\______ @@@                                            **
-**       /                         @@@@@        Universal                          **
-**      /           u  ____________@@@@@             Object-Oriented/C++           **
-**     /   jet <===               @@@@@@@                   Neutrino MC Generator  **
-**    /             u  ____________@@@@@                                           **
-**  nu_mu                          @@@@@                                           ** 
-**                                  @@@         (c) 2003-2007 GENIE Collaboration  **
-**                                   @  p                                          **
-**                                                                                 **
-**                                                                                 **
-**           C.Andreopoulos (Rutherford), F.Cavanna (L'Aquila U./INFN),            ** 
-**    S.Dytman (Pittsburgh U.), H.Gallagher (Tufts U.), Y.Hayato (ICRR, Tokyo),    **
-**         S.Kretzer (BNL), A.Meregaglia (ETHZ), D.Naples (Pittsburgh U.),         **
-**           G.Pearce (Rutherford), A.Rubbia (ETHZ), M.Whalley (Durham)            **
-**                                                                                 **
-**                    home page URL:   http://www.genie-mc.org                     **
-**                                                                                 **
-*************************************************************************************
-*************************************************************************************
+*****************************************************************************************
+*****************************************************************************************
+**                                                                                     **
+**    mu-                                         @@@@@@  @@@@@@  @    @  @  @@@@@@    **
+**       \                                        @       @       @@   @  @  @         **
+**        \                                       @   @   @@@@@   @ @  @  @  @@@@@@    **
+**         \                   ______ ===> jet    @   @   @       @  @ @  @  @         **
+**          \       W+       u/                   @@@@@@  @@@@@@  @    @  @  @@@@@@    **
+**           \_ _ _ _ _ _ _ _/                                                         **
+**           /               \         @                                               **
+**          /                d\______ @@@                                              **
+**         /                         @@@@@        Universal                            **
+**        /           u  ____________@@@@@             Object-Oriented/C++             **
+**       /   jet <===               @@@@@@@                   Neutrino MC Generator    **
+**      /             u  ____________@@@@@                                             **
+**    nu_mu                          @@@@@                                             ** 
+**                                    @@@         (c) 2003-2007 GENIE Collaboration    **
+**                                     @  p                                            **
+**                                                                                     **
+**                    home page URL:   http://www.genie-mc.org                         **
+**                                                                                     **
+**                                                                                     **
+**  Costas Andreopoulos [2], Flavio Cavanna [6], Steve Dytman [7], Hugh Gallagher [8], **
+**  Yoshinari Hayato [5], Minsuk Kim [7], Stefan Kretzer [1], Anselmo Meregaglia [4],  **
+**  Donna Naples [7], Geoff Pearce [2], Andre Rubbia [4], Mike Whalley [3]             **
+**                                                                                     **
+** [1] BNL, Brookhaven National Laboratory                                             **
+** [2] STFC, Rutherford Appleton Laboratory                                            **
+** [3] Durham University                                                               **
+** [4] ETH Zurich                                                                      **
+** [5] Kamioka Observatory, ICRR, University of Tokyo                                  **
+** [6] L'Aquila University / INFN                                                      **
+** [7] Pittsburgh University                                                           **
+** [8] Tufts University                                                                **
+**                                                                                     **
+*****************************************************************************************
+*****************************************************************************************
 
