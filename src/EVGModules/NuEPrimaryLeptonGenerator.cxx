@@ -18,7 +18,7 @@
 #include <TVector3.h>
 
 #include "Conventions/Constants.h"
-#include "EVGModules/IMDPrimaryLeptonGenerator.h"
+#include "EVGModules/NuEPrimaryLeptonGenerator.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
@@ -31,26 +31,26 @@ using namespace genie;
 using namespace genie::constants;
 
 //___________________________________________________________________________
-IMDPrimaryLeptonGenerator::IMDPrimaryLeptonGenerator() :
-PrimaryLeptonGenerator("genie::IMDPrimaryLeptonGenerator")
+NuEPrimaryLeptonGenerator::NuEPrimaryLeptonGenerator() :
+PrimaryLeptonGenerator("genie::NuEPrimaryLeptonGenerator")
 {
 
 }
 //___________________________________________________________________________
-IMDPrimaryLeptonGenerator::IMDPrimaryLeptonGenerator(string config):
-PrimaryLeptonGenerator("genie::IMDPrimaryLeptonGenerator", config)
+NuEPrimaryLeptonGenerator::NuEPrimaryLeptonGenerator(string config):
+PrimaryLeptonGenerator("genie::NuEPrimaryLeptonGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-IMDPrimaryLeptonGenerator::~IMDPrimaryLeptonGenerator()
+NuEPrimaryLeptonGenerator::~NuEPrimaryLeptonGenerator()
 {
 
 }
 //___________________________________________________________________________
-void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// This method generates the final state primary lepton for IMD events
+// This method generates the final state primary lepton for NuE events
 
   Interaction * interaction = evrec->Summary();
   const InitialState & init_state = interaction->InitState();
@@ -60,7 +60,8 @@ void IMDPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   assert(y>0 && y<1);
 
   // Final state primary lepton PDG code
-  int pdgc = kPdgMuon;
+  int pdgc = interaction->FSPrimLeptonPdg();
+  assert(pdgc!=0);
 
   // Compute the neutrino and muon energy
   double Ev    = init_state.ProbeE(kRfLab); 

@@ -19,7 +19,7 @@
 #include "EVGCore/EVGThreadException.h"
 #include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/RunningThreadInfo.h"
-#include "EVGModules/IMDKinematicsGenerator.h"
+#include "EVGModules/NuEKinematicsGenerator.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
@@ -32,27 +32,27 @@ using namespace genie::controls;
 using namespace genie::utils;
 
 //___________________________________________________________________________
-IMDKinematicsGenerator::IMDKinematicsGenerator() :
-KineGeneratorWithCache("genie::IMDKinematicsGenerator")
+NuEKinematicsGenerator::NuEKinematicsGenerator() :
+KineGeneratorWithCache("genie::NuEKinematicsGenerator")
 {
 
 }
 //___________________________________________________________________________
-IMDKinematicsGenerator::IMDKinematicsGenerator(string config) :
-KineGeneratorWithCache("genie::IMDKinematicsGenerator", config)
+NuEKinematicsGenerator::NuEKinematicsGenerator(string config) :
+KineGeneratorWithCache("genie::NuEKinematicsGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-IMDKinematicsGenerator::~IMDKinematicsGenerator()
+NuEKinematicsGenerator::~NuEKinematicsGenerator()
 {
 
 }
 //___________________________________________________________________________
-void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void NuEKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
   if(fGenerateUniformly) {
-    LOG("IMDKinematics", pNOTICE)
+    LOG("NuEKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
   }
 
@@ -86,7 +86,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
-        LOG("IMDKinematics", pWARN)
+        LOG("NuEKinematics", pWARN)
               << "*** Could not select a valid y after "
                                               << iter << " iterations";
         evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
@@ -99,7 +99,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      double y = ymin + dy * rnd->RndKine().Rndm();
      interaction->KinePtr()->Sety(y);
 
-     LOG("IMDKinematics", pINFO) << "Trying: y = " << y;
+     LOG("NuEKinematics", pINFO) << "Trying: y = " << y;
 
      //-- computing cross section for the current kinematics
      xsec = fXSecModel->XSec(interaction, kPSyfE);
@@ -109,7 +109,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
         double t = xsec_max * rnd->RndKine().Rndm();
-        LOG("IMDKinematics", pDEBUG) << "xsec= "<< xsec<< ", J= 1, Rnd= "<< t;
+        LOG("NuEKinematics", pDEBUG) << "xsec= "<< xsec<< ", J= 1, Rnd= "<< t;
 
         accept = (t<xsec);
      } else {
@@ -118,7 +118,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {
-        LOG("IMDKinematics", pINFO) << "Selected: y = " << y;
+        LOG("NuEKinematics", pINFO) << "Selected: y = " << y;
 
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec);
@@ -129,11 +129,11 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
            double vol     = kinematics::PhaseSpaceVolume(interaction,kPSyfE);
            double totxsec = evrec->XSec();
            double wght    = (vol/totxsec)*xsec;
-           LOG("IMDKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
+           LOG("NuEKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
 
            // apply computed weight to the current event weight
            wght *= evrec->Weight();
-           LOG("IMDKinematics", pNOTICE) << "Current event wght = " << wght;
+           LOG("NuEKinematics", pNOTICE) << "Current event wght = " << wght;
            evrec->SetWeight(wght);
         }
 
@@ -146,7 +146,7 @@ void IMDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   }// iterations
 }
 //___________________________________________________________________________
-double IMDKinematicsGenerator::ComputeMaxXSec(
+double NuEKinematicsGenerator::ComputeMaxXSec(
                                        const Interaction * interaction) const
 {
 // Computes the maximum differential cross section in the requested phase
@@ -174,7 +174,7 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
     interaction->KinePtr()->Sety(y);
     double xsec = fXSecModel->XSec(interaction, kPSyfE);
 
-    SLOG("IMDKinematics", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
+    SLOG("NuEKinematics", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
     max_xsec = TMath::Max(xsec, max_xsec);
 
     increasing = xsec-xseclast>=0;
@@ -190,7 +190,7 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
          if(y<ymin) break;
          interaction->KinePtr()->Sety(y);
          xsec = fXSecModel->XSec(interaction, kPSyfE);
-         SLOG("IMDKinematics", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
+         SLOG("NuEKinematics", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
          max_xsec = TMath::Max(xsec, max_xsec);
        }
        break;
@@ -201,14 +201,14 @@ double IMDKinematicsGenerator::ComputeMaxXSec(
   // correspond to a slightly different energy.
   max_xsec *= fSafetyFactor;
 
-  SLOG("IMDKinematics", pDEBUG) << interaction->AsString();
-  SLOG("IMDKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  SLOG("IMDKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
+  SLOG("NuEKinematics", pDEBUG) << interaction->AsString();
+  SLOG("NuEKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
+  SLOG("NuEKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
 
   return max_xsec;
 }
 //___________________________________________________________________________
-double IMDKinematicsGenerator::Energy(const Interaction * interaction) const
+double NuEKinematicsGenerator::Energy(const Interaction * interaction) const
 {
 // Override the base class Energy() method to cache the max xsec for the
 // neutrino energy in the LAB rather than in the hit nucleon rest frame.
@@ -218,19 +218,19 @@ double IMDKinematicsGenerator::Energy(const Interaction * interaction) const
   return E;
 }
 //___________________________________________________________________________
-void IMDKinematicsGenerator::Configure(const Registry & config)
+void NuEKinematicsGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void IMDKinematicsGenerator::Configure(string config)
+void NuEKinematicsGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void IMDKinematicsGenerator::LoadConfig(void)
+void NuEKinematicsGenerator::LoadConfig(void)
 {
 /*
   fXSecModel = 
