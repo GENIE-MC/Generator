@@ -2,7 +2,7 @@
 
 <alg_conf>
 
-  Configuration sets for IMDTargetRemnantGenerator EventRecordVisitorI
+  Configuration sets for NuETargetRemnantGenerator EventRecordVisitorI
 
   <param_set name="Default"> 
   </param_set>

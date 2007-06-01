@@ -305,6 +305,8 @@ Use the "Default" one to get the best GENIE physics & tuning.
       genie::ReinSeghalCOHPXSec/Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD">         
       genie::BardinIMDRadCorPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">         
+      genie::NuElectronPXSec/Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM"> 
       genie::AivazisCharmPXSecLO/CC-Default </param>
 

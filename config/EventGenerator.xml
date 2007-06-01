@@ -134,10 +134,20 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="string" name="VldContext"> energy:0.010-200                           </param>
      <param type="int"    name="NModules">   4                                          </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default        </param>
-     <param type="alg"    name="Module-1">   genie::IMDKinematicsGenerator/Default      </param>
-     <param type="alg"    name="Module-2">   genie::IMDPrimaryLeptonGenerator/Default   </param>
-     <param type="alg"    name="Module-3">   genie::IMDTargetRemnantGenerator/Default   </param>
-     <param type="alg"    name="ILstGen">    genie::IMDInteractionListGenerator/Default </param>
+     <param type="alg"    name="Module-1">   genie::NuEKinematicsGenerator/Default      </param>
+     <param type="alg"    name="Module-2">   genie::NuEPrimaryLeptonGenerator/Default   </param>
+     <param type="alg"    name="Module-3">   genie::NuETargetRemnantGenerator/Default   </param>
+     <param type="alg"    name="ILstGen">    genie::NuEInteractionListGenerator/IMD     </param>
+  </param_set>
+
+  <param_set name="NUE-EL"> 
+     <param type="string" name="VldContext"> energy:0.010-200                           </param>
+     <param type="int"    name="NModules">   4                                          </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default        </param>
+     <param type="alg"    name="Module-1">   genie::NuEKinematicsGenerator/Default      </param>
+     <param type="alg"    name="Module-2">   genie::NuEPrimaryLeptonGenerator/Default   </param>
+     <param type="alg"    name="Module-3">   genie::NuETargetRemnantGenerator/Default   </param>
+     <param type="alg"    name="ILstGen">    genie::NuEInteractionListGenerator/NUE-EL  </param>
   </param_set>
 
   <param_set name="COH-NC"> 
