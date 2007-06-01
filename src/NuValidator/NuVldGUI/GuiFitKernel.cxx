@@ -685,7 +685,10 @@ float GuiFitKernel::CurrFitParamValue(int iparam)
   case ( kNgfResZ        ): return cards->CurrConfig()->ZRes();           break;
   case ( kNgfCohR0       ): return cards->CurrConfig()->R0Coh();          break;
   case ( kNgfCohREI      ): return cards->CurrConfig()->REICoh();         break;
-  case ( kNgfKnoB        ): return cards->CurrConfig()->KnoB();           break;
+  case ( kNgfKnoBvp      ): return cards->CurrConfig()->KnoB(e_vp);       break;
+  case ( kNgfKnoBvn      ): return cards->CurrConfig()->KnoB(e_vn);       break;
+  case ( kNgfKnoBvbp     ): return cards->CurrConfig()->KnoB(e_vbp);      break;
+  case ( kNgfKnoBvbn     ): return cards->CurrConfig()->KnoB(e_vbn);      break;
   case ( kNgfKnoAvp      ): return cards->CurrConfig()->KnoA(e_vp);       break;
   case ( kNgfKnoAvn      ): return cards->CurrConfig()->KnoA(e_vn);       break;
   case ( kNgfKnoAvbp     ): return cards->CurrConfig()->KnoA(e_vbp);      break;

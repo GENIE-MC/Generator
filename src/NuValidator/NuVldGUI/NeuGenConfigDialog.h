@@ -76,7 +76,10 @@ private:
    float ReadKnoAvn   (void) const;
    float ReadKnoAvbp  (void) const;
    float ReadKnoAvbn  (void) const;
-   float ReadKnoB     (void) const;
+   float ReadKnoBvp   (void) const;
+   float ReadKnoBvn   (void) const;
+   float ReadKnoBvbp  (void) const;
+   float ReadKnoBvbn  (void) const;
    float ReadDR2vp    (void) const;
    float ReadDR2vn    (void) const;
    float ReadDR2vbp   (void) const;
@@ -116,7 +119,10 @@ private:
    TGNumberEntry *     fREICohNum;
    TGNumberEntry *     fPdfGroupNum;
    TGNumberEntry *     fPdfSetNum;
-   TGNumberEntry *     fKnoBNum;
+   TGNumberEntry *     fKnoBvpNum;
+   TGNumberEntry *     fKnoBvnNum;
+   TGNumberEntry *     fKnoBvbpNum;
+   TGNumberEntry *     fKnoBvbnNum;
    TGNumberEntry *     fKnoAvpNum;
    TGNumberEntry *     fKnoAvnNum;
    TGNumberEntry *     fKnoAvbpNum;
@@ -147,7 +153,9 @@ private:
    TGLabel *           fKnoISvnLbl;
    TGLabel *           fKnoISvbpLbl;
    TGLabel *           fKnoISvbnLbl;
-   TGLabel *           fKnoBScaleLbl;   
+   TGLabel *           fKnoALbl;   
+   TGLabel *           fKnoBLbl;   
+   TGLabel *           fKnoNullLbl;   
    TGLabel *           fISvpLbl;
    TGLabel *           fISvnLbl;
    TGLabel *           fISvbpLbl;

@@ -80,7 +80,10 @@ NeuGenConfigDialog::~NeuGenConfigDialog()
    delete fKnoAvnNum;
    delete fKnoAvbpNum;
    delete fKnoAvbnNum;
-   delete fKnoBNum;
+   delete fKnoBvpNum;
+   delete fKnoBvnNum;
+   delete fKnoBvbpNum;
+   delete fKnoBvbnNum;
    delete fDisResM2vpNum;
    delete fDisResM2vnNum;
    delete fDisResM2vbpNum;
@@ -104,7 +107,9 @@ NeuGenConfigDialog::~NeuGenConfigDialog()
    delete fKnoISvnLbl;
    delete fKnoISvbpLbl;
    delete fKnoISvbnLbl;
-   delete fKnoBScaleLbl;
+   delete fKnoNullLbl;
+   delete fKnoALbl;
+   delete fKnoBLbl;
    delete fMultLbl;
    delete fMultEq2Lbl;
    delete fMultEq3Lbl;
@@ -265,30 +270,40 @@ void NeuGenConfigDialog::BuildKnoParamsFrame(void)
                               "KNO Hadronization model params", kVerticalFrame);
 
   fKnoGrpFrm->SetTitlePos(TGGroupFrame::kRight); // right aligned
-  fKnoGrpFrm->SetLayoutManager(new TGMatrixLayout(fKnoGrpFrm, 0, 5, 2));
+  fKnoGrpFrm->SetLayoutManager(new TGMatrixLayout(fKnoGrpFrm, 0, 5, 3));
 
-  fKnoISvpLbl    = new TGLabel(fKnoGrpFrm, new TGString( " A(v-p) ")    );
-  fKnoISvnLbl    = new TGLabel(fKnoGrpFrm, new TGString( " A(v-n) ")    );
-  fKnoISvbpLbl   = new TGLabel(fKnoGrpFrm, new TGString( " A(vbar-p) ") );
-  fKnoISvbnLbl   = new TGLabel(fKnoGrpFrm, new TGString( " A(vbar-n) ") );
-  fKnoBScaleLbl  = new TGLabel(fKnoGrpFrm, new TGString( " B ") );
+  fKnoNullLbl    = new TGLabel(fKnoGrpFrm, new TGString(" ")           );
+  fKnoISvpLbl    = new TGLabel(fKnoGrpFrm, new TGString( " (v-p) ")    );
+  fKnoISvnLbl    = new TGLabel(fKnoGrpFrm, new TGString( " (v-n) ")    );
+  fKnoISvbpLbl   = new TGLabel(fKnoGrpFrm, new TGString( " (vbar-p) ") );
+  fKnoISvbnLbl   = new TGLabel(fKnoGrpFrm, new TGString( " (vbar-n) ") );
+  fKnoALbl       = new TGLabel(fKnoGrpFrm, new TGString( " A ") );
+  fKnoBLbl       = new TGLabel(fKnoGrpFrm, new TGString( " B ") );
   
   fKnoAvpNum  = new TGNumberEntry(fKnoGrpFrm, 0, 6, 3, TGNumberFormat::kNESReal);
   fKnoAvnNum  = new TGNumberEntry(fKnoGrpFrm, 0, 6, 3, TGNumberFormat::kNESReal);
   fKnoAvbpNum = new TGNumberEntry(fKnoGrpFrm, 0, 6, 3, TGNumberFormat::kNESReal);
   fKnoAvbnNum = new TGNumberEntry(fKnoGrpFrm, 0, 6, 3, TGNumberFormat::kNESReal);
-  fKnoBNum    = new TGNumberEntry(fKnoGrpFrm, 0, 6, 3, TGNumberFormat::kNESReal);
+  fKnoBvpNum  = new TGNumberEntry(fKnoGrpFrm, 0, 6, 3, TGNumberFormat::kNESReal);
+  fKnoBvnNum  = new TGNumberEntry(fKnoGrpFrm, 0, 6, 3, TGNumberFormat::kNESReal);
+  fKnoBvbpNum = new TGNumberEntry(fKnoGrpFrm, 0, 6, 3, TGNumberFormat::kNESReal);
+  fKnoBvbnNum = new TGNumberEntry(fKnoGrpFrm, 0, 6, 3, TGNumberFormat::kNESReal);
 
+  fKnoGrpFrm -> AddFrame( fKnoNullLbl   );
   fKnoGrpFrm -> AddFrame( fKnoISvpLbl   );
   fKnoGrpFrm -> AddFrame( fKnoISvnLbl   );
   fKnoGrpFrm -> AddFrame( fKnoISvbpLbl  );
   fKnoGrpFrm -> AddFrame( fKnoISvbnLbl  );
-  fKnoGrpFrm -> AddFrame( fKnoBScaleLbl );
+  fKnoGrpFrm -> AddFrame( fKnoALbl      );
   fKnoGrpFrm -> AddFrame( fKnoAvpNum    );
   fKnoGrpFrm -> AddFrame( fKnoAvnNum    );
   fKnoGrpFrm -> AddFrame( fKnoAvbpNum   );
   fKnoGrpFrm -> AddFrame( fKnoAvbnNum   );
-  fKnoGrpFrm -> AddFrame( fKnoBNum      );
+  fKnoGrpFrm -> AddFrame( fKnoBLbl      );
+  fKnoGrpFrm -> AddFrame( fKnoBvpNum    );
+  fKnoGrpFrm -> AddFrame( fKnoBvnNum    );
+  fKnoGrpFrm -> AddFrame( fKnoBvbpNum   );
+  fKnoGrpFrm -> AddFrame( fKnoBvbnNum   );
 
   fKnoFrmLt = new TGLayoutHints(kLHintsCenterX, 2, 2, 2, 2);
 }
@@ -386,7 +401,11 @@ void NeuGenConfigDialog::RestoreDefaults(void)
   fKnoAvnNum      -> SetNumber( default_conf -> KnoA(e_vn)       );
   fKnoAvbpNum     -> SetNumber( default_conf -> KnoA(e_vbp)      );
   fKnoAvbnNum     -> SetNumber( default_conf -> KnoA(e_vbn)      );
-  fKnoBNum        -> SetNumber( default_conf -> KnoB()           );
+
+  fKnoBvpNum      -> SetNumber( default_conf -> KnoB(e_vp)       );
+  fKnoBvnNum      -> SetNumber( default_conf -> KnoB(e_vn)       );
+  fKnoBvbpNum     -> SetNumber( default_conf -> KnoB(e_vbp)      );
+  fKnoBvbnNum     -> SetNumber( default_conf -> KnoB(e_vbn)      );
 
   fDisResM2vpNum  -> SetNumber( default_conf -> DisRes(2, e_vp)  );
   fDisResM2vnNum  -> SetNumber( default_conf -> DisRes(2, e_vn)  );
@@ -424,7 +443,10 @@ void NeuGenConfigDialog::UseNewValues(void)
   cards -> CurrConfig() -> SetKnoA ( e_vn,  this->ReadKnoAvn()  );
   cards -> CurrConfig() -> SetKnoA ( e_vbp, this->ReadKnoAvbp() );
   cards -> CurrConfig() -> SetKnoA ( e_vbn, this->ReadKnoAvbn() );
-  cards -> CurrConfig() -> SetKnoB ( this->ReadKnoB()           );
+  cards -> CurrConfig() -> SetKnoB ( e_vp,  this->ReadKnoBvp()  );
+  cards -> CurrConfig() -> SetKnoB ( e_vn,  this->ReadKnoBvn()  );
+  cards -> CurrConfig() -> SetKnoB ( e_vbp, this->ReadKnoBvbp() );
+  cards -> CurrConfig() -> SetKnoB ( e_vbn, this->ReadKnoBvbn() );
 
   cards -> CurrConfig() -> SetDisRes   ( 2, e_vp,   this->ReadDR2vp()  );
   cards -> CurrConfig() -> SetDisRes   ( 2, e_vn,   this->ReadDR2vn()  );
@@ -488,7 +510,10 @@ void NeuGenConfigDialog::Report(void) const
   syslog->Log()->AddLine( Concat("KNO Param A /v -n...", this->ReadKnoAvn()  ) );
   syslog->Log()->AddLine( Concat("KNO Param A /vb-p...", this->ReadKnoAvbp() ) );
   syslog->Log()->AddLine( Concat("KNO Param A /vb-n...", this->ReadKnoAvbn() ) );
-  syslog->Log()->AddLine( Concat("KNO Param B.........", this->ReadKnoB()    ) );
+  syslog->Log()->AddLine( Concat("KNO Param B /v -p...", this->ReadKnoBvp()  ) );
+  syslog->Log()->AddLine( Concat("KNO Param B /v -n...", this->ReadKnoBvn()  ) );
+  syslog->Log()->AddLine( Concat("KNO Param B /vb-p...", this->ReadKnoBvbp() ) );
+  syslog->Log()->AddLine( Concat("KNO Param B /vb-n...", this->ReadKnoBvbn() ) );
   syslog->Log()->AddLine( Concat("DIS/RES - m=2/v -p..", this->ReadDR2vp()   ) );
   syslog->Log()->AddLine( Concat("DIS/RES - m=2/v -n..", this->ReadDR2vn()   ) );
   syslog->Log()->AddLine( Concat("DIS/RES - m=2/vb-p..", this->ReadDR2vbp()  ) );
@@ -574,9 +599,24 @@ float NeuGenConfigDialog::ReadKnoAvbn(void) const
   return (float) fKnoAvbnNum->GetNumber();
 }
 //______________________________________________________________________________
-float NeuGenConfigDialog::ReadKnoB(void) const
+float NeuGenConfigDialog::ReadKnoBvp(void) const
 {
-  return (float) fKnoBNum->GetNumber();
+  return (float) fKnoBvpNum->GetNumber();
+}
+//______________________________________________________________________________
+float NeuGenConfigDialog::ReadKnoBvn(void) const
+{
+  return (float) fKnoBvnNum->GetNumber();
+}
+//______________________________________________________________________________
+float NeuGenConfigDialog::ReadKnoBvbp(void) const
+{
+  return (float) fKnoBvbpNum->GetNumber();
+}
+//______________________________________________________________________________
+float NeuGenConfigDialog::ReadKnoBvbn(void) const
+{
+  return (float) fKnoBvbnNum->GetNumber();
 }
 //______________________________________________________________________________
 float NeuGenConfigDialog::ReadDR2vp(void) const

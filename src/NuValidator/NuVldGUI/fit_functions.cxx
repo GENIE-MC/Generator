@@ -29,21 +29,23 @@ void update_neugen_config_with_fit_params(double * par)
 // par[6]   --- RES - Rein/Seghal parameter Z
 // par[7]   --- COH - Nuclear size scale R0
 // par[8]   --- COH - Pion scattering amplitude Re/Im
-// par[9]   --- KNO Hadronization model, parameter B
-// par[10]  --- KNO Hadronization model, parameter A / v+p
-// par[11]  --- KNO Hadronization model, parameter A / v+n
-// par[12]  --- KNO Hadronization model, parameter A / vb+p
-// par[13]  --- KNO Hadronization model, parameter A / vb+n
-// par[14]  --- DIS/RES tuning parameter / v+p  / multiplicity = 2
-// par[15]  --- DIS/RES tuning parameter / v+p  / multiplicity = 3
-// par[16]  --- DIS/RES tuning parameter / v+n  / multiplicity = 2
-// par[17]  --- DIS/RES tuning parameter / v+n  / multiplicity = 3
-// par[18]  --- DIS/RES tuning parameter / vb+p / multiplicity = 2
-// par[19]  --- DIS/RES tuning parameter / vb+p / multiplicity = 3
-// par[20]  --- DIS/RES tuning parameter / vb+n / multiplicity = 2
-// par[21]  --- DIS/RES tuning parameter / vb+n / multiplicity = 3
-//
-// par[22]  --- XSEC NORM
+// par[9]   --- KNO Hadronization model, parameter B / v+p
+// par[10]  --- KNO Hadronization model, parameter B / v+n
+// par[11]  --- KNO Hadronization model, parameter B / vb+p
+// par[12]  --- KNO Hadronization model, parameter B / vb+n
+// par[13]  --- KNO Hadronization model, parameter A / v+p
+// par[14]  --- KNO Hadronization model, parameter A / v+n
+// par[15]  --- KNO Hadronization model, parameter A / vb+p
+// par[16]  --- KNO Hadronization model, parameter A / vb+n
+// par[17]  --- DIS/RES tuning parameter / v+p  / multiplicity = 2
+// par[18]  --- DIS/RES tuning parameter / v+p  / multiplicity = 3
+// par[19]  --- DIS/RES tuning parameter / v+n  / multiplicity = 2
+// par[20]  --- DIS/RES tuning parameter / v+n  / multiplicity = 3
+// par[21]  --- DIS/RES tuning parameter / vb+p / multiplicity = 2
+// par[22]  --- DIS/RES tuning parameter / vb+p / multiplicity = 3
+// par[23]  --- DIS/RES tuning parameter / vb+n / multiplicity = 2
+// par[24]  --- DIS/RES tuning parameter / vb+n / multiplicity = 3
+// par[25]  --- XSEC NORM
 //
 // From the NuValidator GUI:
 // -- You determine which parameters are actually fitted.
@@ -61,19 +63,22 @@ void update_neugen_config_with_fit_params(double * par)
   cards -> CurrConfig() -> SetZRes     ( (float) par[6] );
   cards -> CurrConfig() -> SetR0Coh    ( (float) par[7] );
   cards -> CurrConfig() -> SetREICoh   ( (float) par[8] );
-  cards -> CurrConfig() -> SetKnoB     ( (float) par[9] );
-  cards -> CurrConfig() -> SetKnoA     ( e_vp,  (float) par[10] );
-  cards -> CurrConfig() -> SetKnoA     ( e_vn,  (float) par[11] );
-  cards -> CurrConfig() -> SetKnoA     ( e_vbp, (float) par[12] );
-  cards -> CurrConfig() -> SetKnoA     ( e_vbn, (float) par[13] );
-  cards -> CurrConfig() -> SetDisRes   ( 2, e_vp,  (float) par[14] );
-  cards -> CurrConfig() -> SetDisRes   ( 3, e_vp,  (float) par[15] );
-  cards -> CurrConfig() -> SetDisRes   ( 2, e_vn,  (float) par[16] );
-  cards -> CurrConfig() -> SetDisRes   ( 3, e_vn,  (float) par[17] );
-  cards -> CurrConfig() -> SetDisRes   ( 2, e_vbp, (float) par[18] );
-  cards -> CurrConfig() -> SetDisRes   ( 3, e_vbp, (float) par[19] );
-  cards -> CurrConfig() -> SetDisRes   ( 2, e_vbn, (float) par[20] );
-  cards -> CurrConfig() -> SetDisRes   ( 3, e_vbn, (float) par[21] );
+  cards -> CurrConfig() -> SetKnoB     ( e_vp,  (float) par[9] );
+  cards -> CurrConfig() -> SetKnoB     ( e_vn,  (float) par[10] );
+  cards -> CurrConfig() -> SetKnoB     ( e_vbp, (float) par[11] );
+  cards -> CurrConfig() -> SetKnoB     ( e_vbn, (float) par[12] );
+  cards -> CurrConfig() -> SetKnoA     ( e_vp,  (float) par[13] );
+  cards -> CurrConfig() -> SetKnoA     ( e_vn,  (float) par[14] );
+  cards -> CurrConfig() -> SetKnoA     ( e_vbp, (float) par[15] );
+  cards -> CurrConfig() -> SetKnoA     ( e_vbn, (float) par[16] );
+  cards -> CurrConfig() -> SetDisRes   ( 2, e_vp,  (float) par[17] );
+  cards -> CurrConfig() -> SetDisRes   ( 3, e_vp,  (float) par[18] );
+  cards -> CurrConfig() -> SetDisRes   ( 2, e_vn,  (float) par[19] );
+  cards -> CurrConfig() -> SetDisRes   ( 3, e_vn,  (float) par[20] );
+  cards -> CurrConfig() -> SetDisRes   ( 2, e_vbp, (float) par[21] );
+  cards -> CurrConfig() -> SetDisRes   ( 3, e_vbp, (float) par[22] );
+  cards -> CurrConfig() -> SetDisRes   ( 2, e_vbn, (float) par[23] );
+  cards -> CurrConfig() -> SetDisRes   ( 3, e_vbn, (float) par[24] );
 
 //  cout << "CURRENT NeuGEN CONFIG: " << endl;
 //  cout << *(cards -> CurrConfig());
@@ -111,43 +116,52 @@ void update_neugen_config(double par, int iparam)
   case(8) :
       cards->CurrConfig()->SetREICoh( (float) par );
       break;
-  case(9) :
-      cards->CurrConfig()->SetKnoB( (float) par );
+  case(9):
+      cards->CurrConfig()->SetKnoB( e_vp,  (float) par );
       break;
   case(10):
-      cards->CurrConfig()->SetKnoA( e_vp,  (float) par );
+      cards->CurrConfig()->SetKnoB( e_vn,  (float) par );
       break;
   case(11):
-      cards->CurrConfig()->SetKnoA( e_vn,  (float) par );
+      cards->CurrConfig()->SetKnoB( e_vbp, (float) par );
       break;
   case(12):
-      cards->CurrConfig()->SetKnoA( e_vbp, (float) par );
+      cards->CurrConfig()->SetKnoB( e_vbn, (float) par );
       break;
   case(13):
-      cards->CurrConfig()->SetKnoA( e_vbn, (float) par );
+      cards->CurrConfig()->SetKnoA( e_vp,  (float) par );
       break;
   case(14):
-      cards->CurrConfig()->SetDisRes( 2, e_vp,  (float) par );
+      cards->CurrConfig()->SetKnoA( e_vn,  (float) par );
       break;
   case(15):
-      cards->CurrConfig()->SetDisRes( 3, e_vp,  (float) par );
+      cards->CurrConfig()->SetKnoA( e_vbp, (float) par );
       break;
   case(16):
-      cards->CurrConfig()->SetDisRes( 2, e_vn,  (float) par );
+      cards->CurrConfig()->SetKnoA( e_vbn, (float) par );
       break;
   case(17):
-      cards->CurrConfig()->SetDisRes( 3, e_vn,  (float) par );
+      cards->CurrConfig()->SetDisRes( 2, e_vp,  (float) par );
       break;
   case(18):
-      cards->CurrConfig()->SetDisRes( 2, e_vbp, (float) par );
+      cards->CurrConfig()->SetDisRes( 3, e_vp,  (float) par );
       break;
   case(19):
-      cards->CurrConfig()->SetDisRes( 3, e_vbp, (float) par );
+      cards->CurrConfig()->SetDisRes( 2, e_vn,  (float) par );
       break;
   case(20):
-      cards->CurrConfig()->SetDisRes( 2, e_vbn, (float) par );
+      cards->CurrConfig()->SetDisRes( 3, e_vn,  (float) par );
       break;
   case(21):
+      cards->CurrConfig()->SetDisRes( 2, e_vbp, (float) par );
+      break;
+  case(22):
+      cards->CurrConfig()->SetDisRes( 3, e_vbp, (float) par );
+      break;
+  case(23):
+      cards->CurrConfig()->SetDisRes( 2, e_vbn, (float) par );
+      break;
+  case(24):
       cards->CurrConfig()->SetDisRes( 3, e_vbn, (float) par );
       break;
   default:
