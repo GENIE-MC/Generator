@@ -16,19 +16,19 @@
    <config alg="genie::QELPrimaryLeptonGenerator">   QELPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::DISPrimaryLeptonGenerator">   DISPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::RESPrimaryLeptonGenerator">   RESPrimaryLeptonGenerator.xml   </config>
-   <config alg="genie::IMDPrimaryLeptonGenerator">   IMDPrimaryLeptonGenerator.xml   </config>
+   <config alg="genie::NuEPrimaryLeptonGenerator">   NuEPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::COHPrimaryLeptonGenerator">   COHPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::QELKinematicsGenerator">      QELKinematicsGenerator.xml      </config>
    <config alg="genie::DISKinematicsGenerator">      DISKinematicsGenerator.xml      </config>
    <config alg="genie::RESKinematicsGenerator">      RESKinematicsGenerator.xml      </config>
-   <config alg="genie::IMDKinematicsGenerator">      IMDKinematicsGenerator.xml      </config>
+   <config alg="genie::NuEKinematicsGenerator">      NuEKinematicsGenerator.xml      </config>
    <config alg="genie::COHKinematicsGenerator">      COHKinematicsGenerator.xml      </config>
    <config alg="genie::QELHadronicSystemGenerator">  QELHadronicSystemGenerator.xml  </config>
    <config alg="genie::COHHadronicSystemGenerator">  COHHadronicSystemGenerator.xml  </config>
    <config alg="genie::DISHadronicSystemGenerator">  DISHadronicSystemGenerator.xml  </config>
    <config alg="genie::RESHadronicSystemGenerator">  RESHadronicSystemGenerator.xml  </config>
    <config alg="genie::RSPPHadronicSystemGenerator"> RSPPHadronicSystemGenerator.xml </config>
-   <config alg="genie::IMDTargetRemnantGenerator">   IMDTargetRemnantGenerator.xml   </config>
+   <config alg="genie::NuETargetRemnantGenerator">   NuETargetRemnantGenerator.xml   </config>
    <config alg="genie::RSPPResonanceSelector">       RSPPResonanceSelector.xml       </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
@@ -36,7 +36,7 @@
    <config alg="genie::RSPPInteractionListGenerator">RSPPInteractionListGenerator.xml</config>
    <config alg="genie::RESInteractionListGenerator"> RESInteractionListGenerator.xml </config>
    <config alg="genie::DISInteractionListGenerator"> DISInteractionListGenerator.xml </config>
-   <config alg="genie::IMDInteractionListGenerator"> IMDInteractionListGenerator.xml </config>
+   <config alg="genie::NuEInteractionListGenerator"> NuEInteractionListGenerator.xml </config>
    <config alg="genie::COHInteractionListGenerator"> COHInteractionListGenerator.xml </config>
    <config alg="genie::InteractionListAssembler">    InteractionListAssembler.xml    </config>
    <config alg="genie::EventGeneratorListAssembler"> EventGeneratorListAssembler.xml </config>

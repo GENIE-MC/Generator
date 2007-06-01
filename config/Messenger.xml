@@ -74,8 +74,6 @@
   <priority msgstream="HadronicVtx">         INFO   </priority>
   <priority msgstream="HybridHad">           INFO   </priority>
   <priority msgstream="IMDXSec">             NOTICE </priority>
-  <priority msgstream="IMDTargetRemnant">    INFO   </priority>
-  <priority msgstream="IMDKinematics">       INFO   </priority>
   <priority msgstream="IntSel">              NOTICE </priority>
   <priority msgstream="IntLst">              NOTICE </priority>
   <priority msgstream="Interaction">         INFO   </priority>
@@ -100,6 +98,8 @@
   <priority msgstream="NtpWriter">           NOTICE </priority>
   <priority msgstream="NuVld">               INFO   </priority>
   <priority msgstream="NeuGen">              INFO   </priority>
+  <priority msgstream="NuETargetRemnant">    INFO   </priority>
+  <priority msgstream="NuEKinematics">       INFO   </priority>
   <priority msgstream="PartonModel">         INFO   </priority>
   <priority msgstream="PauliBlock">          INFO   </priority>
   <priority msgstream="ParticleDecayer">     INFO   </priority>

@@ -2,7 +2,7 @@
 
 <alg_conf>
 
-  Configuration sets for IMDPrimaryLeptonGenerator EventRecordVisitorI
+  Configuration sets for NuEPrimaryLeptonGenerator EventRecordVisitorI
 
   <param_set name="Default"> 
   </param_set>

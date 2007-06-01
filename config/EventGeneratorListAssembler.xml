@@ -34,6 +34,17 @@ Name                        Type    Opt  Comment                                
      <param type="alg" name="Generator-0">   genie::EventGenerator/IMD </param>
   </param_set>
 
+  <param_set name="NUE-EL"> 
+     <param type="int" name="NGenerators">   1                            </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/NUE-EL </param>
+  </param_set>
+
+  <param_set name="NUE"> 
+     <param type="int" name="NGenerators">   2                            </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/NUE-EL </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/IMD    </param>
+  </param_set>
+
   <param_set name="QEL"> 
      <param type="int" name="NGenerators">   2                             </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC  </param>
