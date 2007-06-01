@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::IMDTargetRemnantGenerator
+\class    genie::NuETargetRemnantGenerator
 
-\brief    Generates all the non - primarly lepton final state particles in v
-          IMD interactions.
+\brief    Generates all the non-primary lepton final state particles in 
+          neutrino-electron events.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -18,23 +18,21 @@
 */
 //____________________________________________________________________________
 
-#ifndef _IMD_TARGET_REMNANT_GENERATOR_H_
-#define _IMD_TARGET_REMNANT_GENERATOR_H_
+#ifndef _NUE_TARGET_REMNANT_GENERATOR_H_
+#define _NUE_TARGET_REMNANT_GENERATOR_H_
 
 #include "EVGCore/EventRecordVisitorI.h"
 
 namespace genie {
 
-class IMDTargetRemnantGenerator : public EventRecordVisitorI {
+class NuETargetRemnantGenerator : public EventRecordVisitorI {
 
 public :
-
-  IMDTargetRemnantGenerator();
-  IMDTargetRemnantGenerator(string config);
-  ~IMDTargetRemnantGenerator();
+  NuETargetRemnantGenerator();
+  NuETargetRemnantGenerator(string config);
+ ~NuETargetRemnantGenerator();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord (GHepRecord * evrec) const;
 
 private:
@@ -43,5 +41,4 @@ private:
 };
 
 }      // genie namespace
-
-#endif // _IMD_TARGET_REMNANT_GENERATOR_H_
+#endif // _NUE_TARGET_REMNANT_GENERATOR_H_

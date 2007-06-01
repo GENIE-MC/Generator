@@ -1,10 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::IMDPrimaryLeptonGenerator
+\class    genie::NuEPrimaryLeptonGenerator
 
-\brief    Generates the final state primary lepton in inverse muon decay (IMD)
-          neutrino interaction events.
+\brief    Generates the final state primary lepton in neutrino-electron events.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -18,26 +17,23 @@
 */
 //____________________________________________________________________________
 
-#ifndef _IMD_PRIMARY_LEPTON_GENERATOR_H_
-#define _IMD_PRIMARY_LEPTON_GENERATOR_H_
+#ifndef _NUE_PRIMARY_LEPTON_GENERATOR_H_
+#define _NUE_PRIMARY_LEPTON_GENERATOR_H_
 
 #include "EVGModules/PrimaryLeptonGenerator.h"
 
 namespace genie {
 
-class IMDPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
+class NuEPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
 
 public :
-
-  IMDPrimaryLeptonGenerator();
-  IMDPrimaryLeptonGenerator(string config);
-  ~IMDPrimaryLeptonGenerator();
+  NuEPrimaryLeptonGenerator();
+  NuEPrimaryLeptonGenerator(string config);
+ ~NuEPrimaryLeptonGenerator();
 
   //-- implement the EventRecordVisitorI interface
-
   void ProcessEventRecord(GHepRecord * event_rec) const;
 };
 
 }      // genie namespace
-
-#endif // _IMD_PRIMARY_LEPTON_GENERATOR_H_
+#endif // _NUE_PRIMARY_LEPTON_GENERATOR_H_

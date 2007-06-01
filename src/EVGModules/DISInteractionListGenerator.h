@@ -34,10 +34,9 @@ class Interaction;
 class DISInteractionListGenerator : public InteractionListGeneratorI {
 
 public :
-
   DISInteractionListGenerator();
   DISInteractionListGenerator(string config);
-  ~DISInteractionListGenerator();
+ ~DISInteractionListGenerator();
 
   //-- implement the InteractionListGeneratorI interface
   InteractionList * CreateInteractionList(const InitialState & init) const;

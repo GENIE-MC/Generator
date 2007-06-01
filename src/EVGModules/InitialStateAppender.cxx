@@ -113,7 +113,8 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
   const InitialState & init_state = interaction->InitState();
   const ProcessInfo & proc_info   = interaction->ProcInfo();
 
-  if(proc_info.IsInverseMuDecay()) {
+  bool hit_e = proc_info.IsInverseMuDecay() || proc_info.IsNuElectronElastic();
+  if(hit_e) {
     int    pdgc = kPdgElectron;
     double mass = PDGLibrary::Instance()->Find(pdgc)->Mass();
     const TLorentzVector p4(0,0,0, mass);

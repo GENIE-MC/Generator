@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "EVGModules/IMDTargetRemnantGenerator.h"
+#include "EVGModules/NuETargetRemnantGenerator.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
@@ -26,37 +26,37 @@
 using namespace genie;
 
 //___________________________________________________________________________
-IMDTargetRemnantGenerator::IMDTargetRemnantGenerator() :
-EventRecordVisitorI("genie::IMDTargetRemnantGenerator")
+NuETargetRemnantGenerator::NuETargetRemnantGenerator() :
+EventRecordVisitorI("genie::NuETargetRemnantGenerator")
 {
 
 }
 //___________________________________________________________________________
-IMDTargetRemnantGenerator::IMDTargetRemnantGenerator(string config) :
-EventRecordVisitorI("genie::IMDTargetRemnantGenerator", config)
+NuETargetRemnantGenerator::NuETargetRemnantGenerator(string config) :
+EventRecordVisitorI("genie::NuETargetRemnantGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-IMDTargetRemnantGenerator::~IMDTargetRemnantGenerator()
+NuETargetRemnantGenerator::~NuETargetRemnantGenerator()
 {
 
 }
 //___________________________________________________________________________
-void IMDTargetRemnantGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void NuETargetRemnantGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
   this -> AddElectronNeutrino     (evrec);
   this -> AddTargetNucleusRemnant (evrec);
 }
 //___________________________________________________________________________
-void IMDTargetRemnantGenerator::AddElectronNeutrino(GHepRecord * evrec) const
+void NuETargetRemnantGenerator::AddElectronNeutrino(GHepRecord * evrec) const
 {
   //-- Get all initial & final state particles 4-momenta (in the LAB frame)
 
   //incoming v:
   GHepParticle * nu = evrec->Probe();
 
-  //struck nucleon:
+  //struck particle
   GHepParticle * el = evrec->HitElectron();
 
   //final state primary lepton:
@@ -76,19 +76,24 @@ void IMDTargetRemnantGenerator::AddElectronNeutrino(GHepRecord * evrec) const
 
   //-- Add the final state recoil nucleon at the EventRecord
 
-  LOG("IMDTargetRemnant", pINFO) << "Adding final state electron neutrino";
+  LOG("NuETargetRemnant", pINFO) << "Adding final state lepton from e- vtx";
 
-  int mom = evrec->HitElectronPosition();
+  const ProcessInfo & proc_info = evrec->Summary()->ProcInfo();
+  int mom  = evrec->HitElectronPosition();
+  int pdgc = 0;
+  if      (proc_info.IsWeakNC()) pdgc = kPdgElectron;
+  else if (proc_info.IsWeakCC()) pdgc = kPdgNuE;
+  assert(pdgc>0);
   evrec->AddParticle(
-          kPdgNuE,kIStStableFinalState, mom,-1,-1,-1, px,py,pz,E, 0,0,0,0);
+       pdgc,kIStStableFinalState, mom,-1,-1,-1, px,py,pz,E, 0,0,0,0);
 }
 //___________________________________________________________________________
-void IMDTargetRemnantGenerator::AddTargetNucleusRemnant(
+void NuETargetRemnantGenerator::AddTargetNucleusRemnant(
                                                     GHepRecord * evrec) const
 {
 // add the remnant nuclear target at the GHEP record
 
-  LOG("IMDTargetRemnant", pDEBUG) << "Adding final state nucleus";
+  LOG("NuETargetRemnant", pDEBUG) << "Adding final state nucleus";
 
   //-- get A,Z for initial state nucleus
   Interaction * interaction = evrec->Summary();
@@ -96,7 +101,7 @@ void IMDTargetRemnantGenerator::AddTargetNucleusRemnant(
 
   bool is_nucleus = init_state.Tgt().IsNucleus();
   if (!is_nucleus) {
-    LOG("IMDTargetRemnant", pDEBUG)
+    LOG("NuETargetRemnant", pDEBUG)
                << "Initial state not a nucleus - no remnant nucleus to add";
     return;
   }
@@ -107,7 +112,7 @@ void IMDTargetRemnantGenerator::AddTargetNucleusRemnant(
   double mass  = PDGLibrary::Instance()->Find(ipdgc)->Mass();
 
   //-- Add the nucleus to the event record
-  LOG("IMDTargetRemnant", pINFO)
+  LOG("NuETargetRemnant", pINFO)
           << "Adding nucleus [A = " << A << ", Z = " << Z
                                             << ", pdgc = " << ipdgc << "]";
 
