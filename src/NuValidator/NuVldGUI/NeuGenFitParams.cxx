@@ -113,7 +113,10 @@ string NeuGenFitParams::ParamAsString(int iparam) const
      case ( kNgfResZ         ): return "RES-Z       "; break;
      case ( kNgfCohR0        ): return "COH Nucl. R0"; break;
      case ( kNgfCohREI       ): return "COH pi Re/Im"; break;
-     case ( kNgfKnoB         ): return "KNO B       "; break;
+     case ( kNgfKnoBvp       ): return "KNO B (v+p) "; break;
+     case ( kNgfKnoBvn       ): return "KNO B (v+n) "; break;
+     case ( kNgfKnoBvbp      ): return "KNO B (vb+p)"; break;
+     case ( kNgfKnoBvbn      ): return "KNO B (vb+n)"; break;
      case ( kNgfKnoAvp       ): return "KNO A (v+p) "; break;
      case ( kNgfKnoAvn       ): return "KNO A (v+n) "; break;
      case ( kNgfKnoAvbp      ): return "KNO A (vb+p)"; break;
