@@ -70,8 +70,8 @@ GENIE_LLEWELLYN_SMITH_LIBNAME  := libGLlewellynSmith
 GENIE_FLUX_DRIVERS_LIBNAME     := libGFluxDrivers
 GENIE_FRAGMENTATION_LIBNAME    := libGFragmentation
 GENIE_INTERACTION_LIBNAME      := libGInteraction
-GENIE_INVERSE_MU_DECAY_LIBNAME := libGInvMuDecay
 GENIE_MSG_LIBNAME              := libGMessenger
+GENIE_NUE_LIBNAME              := libGNuE
 GENIE_NTUPLE_LIBNAME           := libGNtuple
 GENIE_NUCLEAR_LIBNAME          := libGNuclear
 GENIE_NUMERICAL_LIBNAME        := libGNumerical
@@ -101,7 +101,7 @@ GDUMMY_NEUGEN_LIBNAME          := libneugen3
 GENIE_LIBRARIES := -L$(GENIE_LIB_PATH) \
   -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
   -lGDecay -lGElas -lGHEP -lGLlewellynSmith -lGEVGCore -lGEVGModules -lGEVGDrivers\
-  -lGFragmentation -lGInteraction -lGInvMuDecay -lGMessenger \
+  -lGFragmentation -lGInteraction  -lGMessenger -lGNuE \
   -lGNtuple -lGNuclear -lGNumerical -lGEVGCore -lGEVGDrivers -lGEVGModules  \
   -lGHadronTransp -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
   -lGReinSeghal -lGUtils -lGCrossSections -lGReWeight
