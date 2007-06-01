@@ -190,7 +190,7 @@ bool KPhaseSpace::IsAllowed(void) const
   }
 
   //IMD
-  if(pi.IsInverseMuDecay()) {
+  if(pi.IsInverseMuDecay() || pi.IsNuElectronElastic()) {
     Range1D_t yl = this->YLim();
     double    y  = kine.y();
     bool in_phys = math::IsWithinLimits(y, yl);
@@ -394,7 +394,7 @@ Range1D_t KPhaseSpace::YLim(void) const
     return yl;
   }
   // IMD
-  if(pi.IsInverseMuDecay()) {
+  if(pi.IsInverseMuDecay() || pi.IsNuElectronElastic()) {
     yl.min =   kASmallNum;
     yl.max = 1-kASmallNum;
     return yl;
