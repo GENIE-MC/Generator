@@ -90,8 +90,8 @@ physics-models-modules: FORCE
 	cd Elastic; 	       make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
 	cd Interaction;        make; cd ..; \
-	cd InverseMuonDecay;   make; cd ..; \
 	cd LlewellynSmith;     make; cd ..; \
+	cd NuE;                make; cd ..; \
 	cd Nuclear;            make; cd ..; \
 	cd PartonModel;        make; cd ..; \
 	cd Paschos; 	       make; cd ..; \
@@ -314,11 +314,11 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Geo
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/HadronTransport
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Interaction
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/InverseMuonDecay
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/LlewellynSmith
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Messenger
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/MuELoss
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Ntuple
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator/DBUtils/
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuValidator/Facades/
@@ -361,11 +361,11 @@ copy-install-files: FORCE
 	cd Geo;                make install; cd ..; \
 	cd HadronTransport;    make install; cd ..; \
 	cd Interaction;        make install; cd ..; \
-	cd InverseMuonDecay;   make install; cd ..; \
 	cd LlewellynSmith;     make install; cd ..; \
 	cd Messenger;	       make install; cd ..; \
 	cd Nuclear;            make install; cd ..; \
 	cd Ntuple;             make install; cd ..; \
+	cd NuE;                make install; cd ..; \
 	cd Numerical;          make install; cd ..; \
 	cd NuValidator;        make install; cd ..; \
 	cd PartonModel;        make install; cd ..; \
@@ -401,11 +401,11 @@ purge: FORCE
 	cd Geo;                make purge; cd ..; \
 	cd HadronTransport;    make purge; cd ..; \
 	cd Interaction;        make purge; cd ..; \
-	cd InverseMuonDecay;   make purge; cd ..; \
 	cd LlewellynSmith;     make purge; cd ..; \
 	cd Messenger;	       make purge; cd ..; \
 	cd Nuclear;            make purge; cd ..; \
 	cd Ntuple;             make purge; cd ..; \
+	cd NuE;                make purge; cd ..; \
 	cd Numerical;          make purge; cd ..; \
 	cd NuValidator;        make purge; cd ..; \
 	cd PartonModel;        make purge; cd ..; \
@@ -443,12 +443,12 @@ clean-files: FORCE
 	cd Geo;                make clean; cd ..; \
 	cd HadronTransport;    make clean; cd ..; \
 	cd Interaction;        make clean; cd ..; \
-	cd InverseMuonDecay;   make clean; cd ..; \
 	cd LlewellynSmith;     make clean; cd ..; \
 	cd Messenger;	       make clean; cd ..; \
 	cd MuELoss;	       make clean; cd ..; \
 	cd Nuclear;            make clean; cd ..; \
 	cd Ntuple;             make clean; cd ..; \
+	cd NuE;                make clean; cd ..; \
 	cd Numerical;          make clean; cd ..; \
 	cd NuValidator;        make clean; cd ..; \
 	cd PartonModel;        make clean; cd ..; \
@@ -500,12 +500,12 @@ distclean: FORCE
 	cd Geo;                make distclean; cd ..; \
 	cd HadronTransport;    make distclean; cd ..; \
 	cd Interaction;        make distclean; cd ..; \
-	cd InverseMuonDecay;   make distclean; cd ..; \
 	cd LlewellynSmith;     make distclean; cd ..; \
 	cd Messenger;	       make distclean; cd ..; \
 	cd MuELoss;	       make distclean; cd ..; \
 	cd Nuclear;            make distclean; cd ..; \
 	cd Ntuple;             make distclean; cd ..; \
+	cd NuE;                make distclean; cd ..; \
 	cd Numerical;          make distclean; cd ..; \
 	cd NuValidator;        make distclean; cd ..; \
 	cd PartonModel;        make distclean; cd ..; \
