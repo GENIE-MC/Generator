@@ -62,8 +62,9 @@ double NuElectronXSec::Integrate(
 
   GXSecFunc * func = new Integrand_DXSec_Dy_E(model, interaction);
   func->SetParam(0,"y",yl);
-  double xsec = fIntegrator->Integrate(*func);
+  LOG("NuEXSec", pDEBUG) << "y = (" << yl.min << ", " << yl.max << ")";
 
+  double xsec = fIntegrator->Integrate(*func);
   //LOG("NuEXSec", pDEBUG) << "*** XSec[ve-] (E=" << E << ") = " << xsec;
 
   delete interaction;
