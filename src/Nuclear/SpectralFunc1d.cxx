@@ -19,7 +19,7 @@
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/BenharSpectralFunc1D.h"
+#include "Nuclear/SpectralFunc1d.h"
 #include "Numerical/RandomGen.h"
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
@@ -29,8 +29,8 @@ using namespace genie::constants;
 using namespace genie::controls;
 
 //____________________________________________________________________________
-BenharSpectralFunc1D::BenharSpectralFunc1D() :
-NuclearModelI("genie::BenharSpectralFunc1D")
+SpectralFunc1d::SpectralFunc1d() :
+NuclearModelI("genie::SpectralFunc1d")
 {
   fSfC12_k     = 0;   
   fSfFe56_k    = 0; 
@@ -38,8 +38,8 @@ NuclearModelI("genie::BenharSpectralFunc1D")
   fMaxFe56Prob = 0;
 }
 //____________________________________________________________________________
-BenharSpectralFunc1D::BenharSpectralFunc1D(string config) :
-NuclearModelI("genie::BenharSpectralFunc1D", config)
+SpectralFunc1d::SpectralFunc1d(string config) :
+NuclearModelI("genie::SpectralFunc1d", config)
 {
   fSfC12_k     = 0;   
   fSfFe56_k    = 0; 
@@ -47,13 +47,13 @@ NuclearModelI("genie::BenharSpectralFunc1D", config)
   fMaxFe56Prob = 0;
 }
 //____________________________________________________________________________
-BenharSpectralFunc1D::~BenharSpectralFunc1D()
+SpectralFunc1d::~SpectralFunc1d()
 {
   if (fSfC12_k ) delete fSfC12_k;
   if (fSfFe56_k) delete fSfFe56_k;
 }
 //____________________________________________________________________________
-bool BenharSpectralFunc1D::GenerateNucleon(const Target & target) const
+bool SpectralFunc1d::GenerateNucleon(const Target & target) const
 {
   Spline * distrib = this->SelectMomentumDistrib(target);
   if(!distrib) {
@@ -65,13 +65,13 @@ bool BenharSpectralFunc1D::GenerateNucleon(const Target & target) const
   RandomGen * rnd = RandomGen::Instance();
 
   double max = this->MaxProb(target);
-  LOG("BenharSF", pDEBUG) << "Max probability = " << max;
+  LOG("SpectralFunc1", pDEBUG) << "Max probability = " << max;
 
   double p = 0;
   unsigned int niter = 0;
   while(1) {
     if(niter > kRjMaxIterations) {
-       LOG("BenharSF", pWARN)
+       LOG("SpectralFunc1", pWARN)
         << "Couldn't generate a hit nucleon after " << niter << " iterations";
        return false;
     }
@@ -80,13 +80,13 @@ bool BenharSpectralFunc1D::GenerateNucleon(const Target & target) const
     p = rnd->RndGen().Rndm();
     double prob  = distrib->Evaluate(p);
     double probg = max * rnd->RndGen().Rndm();
-    LOG("BenharSF", pDEBUG) << "Trying p = " << p << " / prob = " << prob;
+    LOG("SpectralFunc1", pDEBUG) << "Trying p = " << p << " / prob = " << prob;
 
     bool accept = (probg<prob);
     if(accept) break;
   }
 
-  LOG("BenharSF", pINFO) << "|p,nucleon| = " << p;
+  LOG("SpectralFunc1", pINFO) << "|p,nucleon| = " << p;
 
   double costheta = -1. + 2. * rnd->RndGen().Rndm();
   double sintheta = TMath::Sqrt(1.-costheta*costheta);
@@ -104,7 +104,7 @@ bool BenharSpectralFunc1D::GenerateNucleon(const Target & target) const
   return true;
 }
 //____________________________________________________________________________
-double BenharSpectralFunc1D::Prob(
+double SpectralFunc1d::Prob(
                   double p, double /*w*/, const Target & target) const
 {
   Spline * distrib = this->SelectMomentumDistrib(target);
@@ -117,21 +117,21 @@ double BenharSpectralFunc1D::Prob(
   return prob;
 }
 //____________________________________________________________________________
-void BenharSpectralFunc1D::Configure(const Registry & config)
+void SpectralFunc1d::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void BenharSpectralFunc1D::Configure(string param_set)
+void SpectralFunc1d::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void BenharSpectralFunc1D::LoadConfig(void)
+void SpectralFunc1d::LoadConfig(void)
 {
-  LOG("BenharSF", pDEBUG) << "Loading coonfiguration for BenharSpectralFunc1D";
+  LOG("SpectralFunc1", pDEBUG) << "Loading coonfiguration for SpectralFunc1d";
 
   if (fSfC12_k ) delete fSfC12_k;
   if (fSfFe56_k) delete fSfFe56_k;
@@ -158,7 +158,7 @@ void BenharSpectralFunc1D::LoadConfig(void)
   }
 }
 //____________________________________________________________________________
-Spline * BenharSpectralFunc1D::SelectMomentumDistrib(const Target & t) const
+Spline * SpectralFunc1d::SelectMomentumDistrib(const Target & t) const
 {
   Spline * distrib = 0;
   int pdgc = t.Pdg();
@@ -175,7 +175,7 @@ Spline * BenharSpectralFunc1D::SelectMomentumDistrib(const Target & t) const
   return distrib;
 }
 //____________________________________________________________________________
-double BenharSpectralFunc1D::MaxProb(const Target & t) const
+double SpectralFunc1d::MaxProb(const Target & t) const
 {
   int pdgc = t.Pdg();
     

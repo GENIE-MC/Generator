@@ -26,7 +26,7 @@ FermiMomentumTable::FermiMomentumTable()
 {
 }
 //____________________________________________________________________________
-FermiMomentumTable::FermiMomentumTable(const FermiMomentumTable & fmt)
+FermiMomentumTable::FermiMomentumTable(const FermiMomentumTable & )
 {
 
 }

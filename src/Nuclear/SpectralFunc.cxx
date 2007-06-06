@@ -22,7 +22,7 @@
 #include "Conventions/Controls.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/BenharSpectralFunc.h"
+#include "Nuclear/SpectralFunc.h"
 #include "PDG/PDGCodes.h"
 #include "Numerical/RandomGen.h"
 
@@ -31,27 +31,27 @@ using namespace genie::constants;
 using namespace genie::controls;
 
 //____________________________________________________________________________
-BenharSpectralFunc::BenharSpectralFunc() :
-NuclearModelI("genie::BenharSpectralFunc")
+SpectralFunc::SpectralFunc() :
+NuclearModelI("genie::SpectralFunc")
 {
   fSfFe56 = 0;
   fSfC12  = 0;
 }
 //____________________________________________________________________________
-BenharSpectralFunc::BenharSpectralFunc(string config) :
-NuclearModelI("genie::BenharSpectralFunc", config)
+SpectralFunc::SpectralFunc(string config) :
+NuclearModelI("genie::SpectralFunc", config)
 {
   fSfFe56 = 0;
   fSfC12  = 0;
 }
 //____________________________________________________________________________
-BenharSpectralFunc::~BenharSpectralFunc()
+SpectralFunc::~SpectralFunc()
 {
   if (fSfFe56) delete fSfFe56;
   if (fSfC12 ) delete fSfC12;
 }
 //____________________________________________________________________________
-bool BenharSpectralFunc::GenerateNucleon(const Target & target) const
+bool SpectralFunc::GenerateNucleon(const Target & target) const
 {
   TGraph2D * sf = this->SelectSpectralFunction(target);
 
@@ -71,15 +71,15 @@ bool BenharSpectralFunc::GenerateNucleon(const Target & target) const
   double dk = kmax - kmin;
   double dw = wmax - wmin;
 
-  LOG("BenharSF", pINFO) << "Momentum range = ["   << kmin << ", " << kmax << "]"; 
-  LOG("BenharSF", pINFO) << "Rmv energy range = [" << wmin << ", " << wmax << "]";
+  LOG("SpectralFunc", pINFO) << "Momentum range = ["   << kmin << ", " << kmax << "]"; 
+  LOG("SpectralFunc", pINFO) << "Rmv energy range = [" << wmin << ", " << wmax << "]";
 
   RandomGen * rnd = RandomGen::Instance();
 
   unsigned int niter = 0;
   while(1) {
     if(niter > kRjMaxIterations) {
-       LOG("BenharSF", pWARN) 
+       LOG("SpectralFunc", pWARN) 
            << "Couldn't generate a hit nucleon after " << niter << " iterations";
        return false;
     }
@@ -88,7 +88,7 @@ bool BenharSpectralFunc::GenerateNucleon(const Target & target) const
     // random pair
     double kc = kmin + dk * rnd->RndGen().Rndm();
     double wc = wmin + dw * rnd->RndGen().Rndm();
-    LOG("BenharSF", pINFO) << "Trying p = " << kc << ", w = " << wc;
+    LOG("SpectralFunc", pINFO) << "Trying p = " << kc << ", w = " << wc;
 
     // accept/reject
     double prob  = this->Prob(kc,wc, target);
@@ -96,8 +96,8 @@ bool BenharSpectralFunc::GenerateNucleon(const Target & target) const
     bool accept = (probg < prob);
     if(!accept) continue;
 
-    LOG("BenharSF", pINFO) << "|p,nucleon| = " << kc; 
-    LOG("BenharSF", pINFO) << "|w,nucleon| = " << wc;
+    LOG("SpectralFunc", pINFO) << "|p,nucleon| = " << kc; 
+    LOG("SpectralFunc", pINFO) << "|w,nucleon| = " << wc;
 
     // generate momentum components
     double costheta = -1. + 2. * rnd->RndGen().Rndm();
@@ -119,7 +119,7 @@ bool BenharSpectralFunc::GenerateNucleon(const Target & target) const
   return false;
 }
 //____________________________________________________________________________
-double BenharSpectralFunc::Prob(
+double SpectralFunc::Prob(
                          double p, double w, const Target & target) const
 {
   TGraph2D * sf = this->SelectSpectralFunction(target);
@@ -128,21 +128,21 @@ double BenharSpectralFunc::Prob(
   return sf->Interpolate(p,w);
 }
 //____________________________________________________________________________
-void BenharSpectralFunc::Configure(const Registry & config)
+void SpectralFunc::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void BenharSpectralFunc::Configure(string param_set)
+void SpectralFunc::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void BenharSpectralFunc::LoadConfig(void)
+void SpectralFunc::LoadConfig(void)
 {
-  LOG("BenharSF", pDEBUG) << "Loading Benhar et al. spectral functions";
+  LOG("SpectralFunc", pDEBUG) << "Loading Benhar et al. spectral functions";
 
   string data_dir =
         string(gSystem->Getenv("GENIE")) + string("/data/spectral_functions/");
@@ -155,8 +155,8 @@ void BenharSpectralFunc::LoadConfig(void)
   sfdata_fe56.ReadFile ( fe56file.c_str() );
   sfdata_c12. ReadFile ( c12file.c_str () );
 
-  LOG("BenharSF", pDEBUG) << "Loaded " << sfdata_fe56.GetEntries() << " Fe56 points";
-  LOG("BenharSF", pDEBUG) << "Loaded " << sfdata_c12.GetEntries()  << " C12 points";
+  LOG("SpectralFunc", pDEBUG) << "Loaded " << sfdata_fe56.GetEntries() << " Fe56 points";
+  LOG("SpectralFunc", pDEBUG) << "Loaded " << sfdata_c12.GetEntries()  << " C12 points";
 
   if (fSfFe56) delete fSfFe56;
   if (fSfC12 ) delete fSfC12;
@@ -168,7 +168,7 @@ void BenharSpectralFunc::LoadConfig(void)
   fSfC12 ->SetName("sf_c12");
 }
 //____________________________________________________________________________
-TGraph2D * BenharSpectralFunc::Convert2Graph(TNtupleD & sfdata) const
+TGraph2D * SpectralFunc::Convert2Graph(TNtupleD & sfdata) const
 {
   int np = sfdata.GetEntries();
   TGraph2D * sfgraph = new TGraph2D(np);
@@ -188,7 +188,7 @@ TGraph2D * BenharSpectralFunc::Convert2Graph(TNtupleD & sfdata) const
   return sfgraph;
 }
 //____________________________________________________________________________
-TGraph2D * BenharSpectralFunc::SelectSpectralFunction(const Target & t) const
+TGraph2D * SpectralFunc::SelectSpectralFunction(const Target & t) const
 {
   TGraph2D * sf = 0;
   int pdgc = t.Pdg();
@@ -196,11 +196,11 @@ TGraph2D * BenharSpectralFunc::SelectSpectralFunction(const Target & t) const
   if      (pdgc == kPdgTgtC12)  sf = fSfC12;
   else if (pdgc == kPdgTgtFe56) sf = fSfFe56;
   else {
-    LOG("BenharSF", pERROR) 
+    LOG("SpectralFunc", pERROR) 
      << "** The spectral function for target " << pdgc << " isn't available";
   }
   if(!sf) {
-    LOG("BenharSF", pERROR) << "** Null spectral function";
+    LOG("SpectralFunc", pERROR) << "** Null spectral function";
   }
   return sf;
 }
