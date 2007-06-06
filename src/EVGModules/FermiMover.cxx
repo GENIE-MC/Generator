@@ -176,14 +176,14 @@ void FermiMover::LoadConfig(void)
 // Reads its configuration from its Registry and loads all the sub-algorithms
 // needed
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+//  AlgConfigPool * confp = AlgConfigPool::Instance();
+//  const Registry * gc = confp->GlobalParameterList();
 
   fNuclModel = 0;
 
   RgKey nuclkey = "NuclearModel";
-  RgAlg nuclalg = fConfig->GetAlgDef(nuclkey, gc->GetAlg(nuclkey));
-  LOG("FermiMover", pINFO) << "Loading nuclear model: " << nuclalg;
+//  RgAlg nuclalg = fConfig->GetAlgDef(nuclkey, gc->GetAlg(nuclkey));
+//  LOG("FermiMover", pINFO) << "Loading nuclear model: " << nuclalg;
 
   fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
   assert(fNuclModel);
