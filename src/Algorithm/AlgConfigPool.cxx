@@ -205,8 +205,8 @@ bool AlgConfigPool::LoadGlobalParamLists(void)
 
   // search at $GALGCONF or use the default at: $GENIE/config)
   string glob_params = (gSystem->Getenv("GALGCONF")) ?
-    string(gSystem->Getenv("GALGCONF")) + string("/GlobalParameterList.xml"):
-    string(gSystem->Getenv("GENIE")) + string("/config/GlobalParameterList.xml");
+    string(gSystem->Getenv("GALGCONF")) + string("/UserPhysicsOptions.xml"):
+    string(gSystem->Getenv("GENIE")) + string("/config/UserPhysicsOptions.xml");
 
   // fixed key prefix
   string key_prefix = "GlobalParameterList";
@@ -486,8 +486,8 @@ Registry * AlgConfigPool::FindRegistry(string key) const
 //____________________________________________________________________________
 const Registry * AlgConfigPool::GlobalParameterList(void) const
 {
-  string glob_param_set = (gSystem->Getenv("GGLOBPARAMSET")) ?
-                        string(gSystem->Getenv("GGLOBPARAMSET")) : "Default";
+  string glob_param_set = (gSystem->Getenv("GUSERPHYSOPT")) ?
+                        string(gSystem->Getenv("GUSERPHYSOPT")) : "Default";
   ostringstream key;
   key << "GlobalParameterList/" << glob_param_set;
 
