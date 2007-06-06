@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BenharSpectralFunc
+\class    genie::SpectralFunc
 
-\brief    A realistic spectral function computed using the Local Density
-          Aproximation.
-          Is a concrete implementation of the SpectralFunctionI interface.
+\brief    A realistic spectral function - based nuclear model.
+          Is a concrete implementation of the NuclearModelI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -15,8 +14,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BENHAR_SPECTRAL_FUNCTION_H_
-#define _BENHAR_SPECTRAL_FUNCTION_H_
+#ifndef _SPECTRAL_FUNCTION_H_
+#define _SPECTRAL_FUNCTION_H_
 
 #include "Nuclear/NuclearModelI.h"
 
@@ -25,12 +24,12 @@ class TGraph2D;
 
 namespace genie {
 
-class BenharSpectralFunc : public NuclearModelI {
+class SpectralFunc : public NuclearModelI {
 
 public:
-  BenharSpectralFunc();
-  BenharSpectralFunc(string config);
-  virtual ~BenharSpectralFunc();
+  SpectralFunc();
+  SpectralFunc(string config);
+  virtual ~SpectralFunc();
 
   //-- implement the NuclearModelI interface
   bool     GenerateNucleon (const Target & t) const;
@@ -51,4 +50,4 @@ private:
 };
 
 }      // genie namespace
-#endif // _BENHAR_SPECTRAL_FUNCTION_H_
+#endif // _SPECTRAL_FUNCTION_H_

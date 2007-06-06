@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BenharSpectralFunc1D
+\class    genie::SpectralFunc1d
 
-\brief    
+\brief    Simpler approach to using spectral functions.
           Implements the NuclearModelI interface.
 
 \ref      
@@ -16,20 +16,20 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BENHAR_SPECTRAL_FUNCTION_1D_H_
-#define _BENHAR_SPECTRAL_FUNCTION_1D_H_
+#ifndef _SPECTRAL_FUNCTION_1D_H_
+#define _SPECTRAL_FUNCTION_1D_H_
 
 #include "Nuclear/NuclearModelI.h"
 
 namespace genie {
 
 class Spline;
-class BenharSpectralFunc1D : public NuclearModelI {
+class SpectralFunc1d : public NuclearModelI {
 
 public:
-  BenharSpectralFunc1D();
-  BenharSpectralFunc1D(string config);
-  virtual ~BenharSpectralFunc1D();
+  SpectralFunc1d();
+  SpectralFunc1d(string config);
+  virtual ~SpectralFunc1d();
 
   //-- implement the NuclearModelI interface
   bool     GenerateNucleon (const Target & t) const;
@@ -52,5 +52,5 @@ private:
 };
 
 }         // genie namespace
-#endif    // _BENHAR_SPECTRAL_FUNCTION_1D_H_
+#endif    // _SPECTRAL_FUNCTION_1D_H_
 

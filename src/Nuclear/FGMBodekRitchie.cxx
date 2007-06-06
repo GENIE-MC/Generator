@@ -77,7 +77,7 @@ bool FGMBodekRitchie::GenerateNucleon(const Target & target) const
   double py = p*sintheta*sinfi;
   double pz = p*costheta;  
 
-  fCurrRemovalEnergy = fNucRmvE;;
+  fCurrRemovalEnergy = fNucRmvE;
   fCurrMomentum.SetXYZ(px,py,pz);
 
   return true;
