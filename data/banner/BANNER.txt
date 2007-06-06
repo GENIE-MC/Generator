@@ -9,20 +9,21 @@
 **           \_ _ _ _ _ _ _ _/                                                         **
 **           /               \         @                                               **
 **          /                d\______ @@@                                              **
-**         /                         @@@@@        Universal                            **
-**        /           u  ____________@@@@@             Object-Oriented/C++             **
-**       /   jet <===               @@@@@@@                   Neutrino MC Generator    **
-**      /             u  ____________@@@@@                                             **
+**         /                         @@@@@                                             **
+**        /           u  ____________@@@@@          UNIVERSAL                          **
+**       /   jet <===               @@@@@@@             OBJECT-ORIENTED/C++            **
+**      /             u  ____________@@@@@                     NEUTRINO MC GENERATOR   **
 **    nu_mu                          @@@@@                                             ** 
-**                                    @@@         (c) 2003-2007 GENIE Collaboration    **
+**                                    @@@                                              **
 **                                     @  p                                            **
 **                                                                                     **
-**                    home page URL:   http://www.genie-mc.org                         **
+**                     home page URL:  http://www.genie-mc.org                         **
 **                                                                                     **
+**       (c) 2003-2007 GENIE Collaboration (see http://copyright.genie-mc.org)         **
 **                                                                                     **
-**  Costas Andreopoulos [2], Flavio Cavanna [6], Steve Dytman [7], Hugh Gallagher [8], **
+** Costas Andreopoulos [2], Flavio Cavanna [6], Steve Dytman  [7], Hugh Gallagher [8], **
 **  Yoshinari Hayato [5], Minsuk Kim [7], Stefan Kretzer [1], Anselmo Meregaglia [4],  **
-**  Donna Naples [7], Geoff Pearce [2], Andre Rubbia [4], Mike Whalley [3]             **
+**       Donna Naples [7], Geoff Pearce [2], Andre Rubbia [4], Mike Whalley [3]        **
 **                                                                                     **
 ** [1] BNL, Brookhaven National Laboratory                                             **
 ** [2] STFC, Rutherford Appleton Laboratory                                            **
