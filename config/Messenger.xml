@@ -28,7 +28,6 @@
   <priority msgstream="BardinIMD">           NOTICE </priority>
   <priority msgstream="BaryonResList">       WARN   </priority>
   <priority msgstream="BaseHad">             NOTICE </priority>
-  <priority msgstream="BenharSF">            NOTICE </priority>
   <priority msgstream="BreitWignet">         INFO   </priority>
   <priority msgstream="Bardin">              INFO   </priority>
   <priority msgstream="BodekYang">           INFO   </priority>
@@ -126,6 +125,8 @@
   <priority msgstream="RESKinematics">       INFO   </priority>
   <priority msgstream="RESSelector">         NOTICE </priority>
   <priority msgstream="Rndm">                INFO   </priority>
+  <priority msgstream="SpectralFunc1">       NOTICE </priority>
+  <priority msgstream="SpectralFunc">        NOTICE </priority>
   <priority msgstream="Simpson1D">           WARN   </priority>
   <priority msgstream="Simpson2D">           WARN   </priority>
   <priority msgstream="SimMCIntegrator">     NOTICE </priority>

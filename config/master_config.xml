@@ -114,9 +114,10 @@
    <config alg="genie::ReinSeghalSPPXSec">           ReinSeghalSPPXSec.xml           </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
+   <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>
    <config alg="genie::FGMBodekRitchie">             FGMBodekRitchie.xml             </config>
-   <config alg="genie::BenharSpectralFunc1D">        BenharSpectralFunc1D.xml        </config>
-   <config alg="genie::BenharSpectralFunc">          BenharSpectralFunc.xml          </config>
+   <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
+   <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>
 
    <!--  ****** CONFIGURATION FOR BREIT-WIGNER ALGORITHMSS  ****** -->
    <config alg="genie::BreitWignerLRes">             BreitWignerRes.xml              </config>
