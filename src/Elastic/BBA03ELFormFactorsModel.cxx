@@ -17,13 +17,11 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
-#include "Elastic/BBA03Constants.h"
 #include "Elastic/BBA03ELFormFactorsModel.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;
-using namespace genie::constants;
 
 //____________________________________________________________________________
 BBA03ELFormFactorsModel::BBA03ELFormFactorsModel() :
@@ -107,13 +105,35 @@ void BBA03ELFormFactorsModel::LoadConfig(void)
 {
   //-- load BBA03 model parameters
 
-  this->LoadBBA2003Params();
-
-  //-- get config options from the configuration registry or set defaults
-  //   from the global parameter list
-
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
+
+  // BBA2003 fit coefficients
+  fGep.a2  = fConfig->GetDoubleDef("Gep-a2",  gc->GetDouble("BBA03-Gep-a2")  );
+  fGep.a4  = fConfig->GetDoubleDef("Gep-a4",  gc->GetDouble("BBA03-Gep-a4")  );
+  fGep.a6  = fConfig->GetDoubleDef("Gep-a6",  gc->GetDouble("BBA03-Gep-a6")  );
+  fGep.a8  = fConfig->GetDoubleDef("Gep-a8",  gc->GetDouble("BBA03-Gep-a8")  );
+  fGep.a10 = fConfig->GetDoubleDef("Gep-a10", gc->GetDouble("BBA03-Gep-a10") );
+  fGep.a12 = fConfig->GetDoubleDef("Gep-a12", gc->GetDouble("BBA03-Gep-a12") );
+  fGmp.a2  = fConfig->GetDoubleDef("Gmp-a2",  gc->GetDouble("BBA03-Gmp-a2")  );
+  fGmp.a4  = fConfig->GetDoubleDef("Gmp-a4",  gc->GetDouble("BBA03-Gmp-a4")  );
+  fGmp.a6  = fConfig->GetDoubleDef("Gmp-a6",  gc->GetDouble("BBA03-Gmp-a6")  );
+  fGmp.a8  = fConfig->GetDoubleDef("Gmp-a8",  gc->GetDouble("BBA03-Gmp-a8")  );
+  fGmp.a10 = fConfig->GetDoubleDef("Gmp-a10", gc->GetDouble("BBA03-Gmp-a10") );
+  fGmp.a12 = fConfig->GetDoubleDef("Gmp-a12", gc->GetDouble("BBA03-Gmp-a12") );
+  fGmn.a2  = fConfig->GetDoubleDef("Gmn-a2",  gc->GetDouble("BBA03-Gmn-a2")  );
+  fGmn.a4  = fConfig->GetDoubleDef("Gmn-a4",  gc->GetDouble("BBA03-Gmn-a4")  );
+  fGmn.a6  = fConfig->GetDoubleDef("Gmn-a6",  gc->GetDouble("BBA03-Gmn-a6")  );
+  fGmn.a8  = fConfig->GetDoubleDef("Gmn-a8",  gc->GetDouble("BBA03-Gmn-a8")  );
+  fGmn.a10 = fConfig->GetDoubleDef("Gmn-a10", gc->GetDouble("BBA03-Gmn-a10") );
+  fGmn.a12 = fConfig->GetDoubleDef("Gmn-a12", gc->GetDouble("BBA03-Gmn-a12") );
+
+  // Krutov parameters
+  fGenA    = fConfig->GetDoubleDef("Gen-a", gc->GetDouble("BBA03-Gen-a"));
+  fGenB    = fConfig->GetDoubleDef("Gen-b", gc->GetDouble("BBA03-Gen-b"));
+
+  // Q2max
+  fQ2Max   = fConfig->GetDoubleDef("Q2Max", gc->GetDouble("BBA03-Q2Max"));
 
   // vector mass
   fMv  = fConfig->GetDoubleDef("Mv", gc->GetDouble("EL-Mv"));
@@ -122,41 +142,6 @@ void BBA03ELFormFactorsModel::LoadConfig(void)
   // anomalous magnetic moments
   fMuP = fConfig->GetDoubleDef("MuP", gc->GetDouble("AnomMagnMoment-P"));
   fMuN = fConfig->GetDoubleDef("MuN", gc->GetDouble("AnomMagnMoment-N"));
-}
-//____________________________________________________________________________
-void BBA03ELFormFactorsModel::LoadBBA2003Params(void)
-{
-// Fill private data members holding BBA2003 model parameters.
-// Use defaults for all configuration parameters not given in the config file.
-
-  // BBA2003 fit coefficients
-  fGep.a2  = fConfig->GetDoubleDef("Gep-a2",  bba2003::kGep_a2 );
-  fGep.a4  = fConfig->GetDoubleDef("Gep-a4",  bba2003::kGep_a4 );
-  fGep.a6  = fConfig->GetDoubleDef("Gep-a6",  bba2003::kGep_a6 );
-  fGep.a8  = fConfig->GetDoubleDef("Gep-a8",  bba2003::kGep_a8 );
-  fGep.a10 = fConfig->GetDoubleDef("Gep-a10", bba2003::kGep_a10);
-  fGep.a12 = fConfig->GetDoubleDef("Gep-a12", bba2003::kGep_a12);
-
-  fGmp.a2  = fConfig->GetDoubleDef("Gmp-a2",  bba2003::kGmp_a2 );
-  fGmp.a4  = fConfig->GetDoubleDef("Gmp-a4",  bba2003::kGmp_a4 );
-  fGmp.a6  = fConfig->GetDoubleDef("Gmp-a6",  bba2003::kGmp_a6 );
-  fGmp.a8  = fConfig->GetDoubleDef("Gmp-a8",  bba2003::kGmp_a8 );
-  fGmp.a10 = fConfig->GetDoubleDef("Gmp-a10", bba2003::kGmp_a10);
-  fGmp.a12 = fConfig->GetDoubleDef("Gmp-a12", bba2003::kGmp_a12);
-
-  fGmn.a2  = fConfig->GetDoubleDef("Gmn-a2",  bba2003::kGmn_a2 );
-  fGmn.a4  = fConfig->GetDoubleDef("Gmn-a4",  bba2003::kGmn_a4 );
-  fGmn.a6  = fConfig->GetDoubleDef("Gmn-a6",  bba2003::kGmn_a6 );
-  fGmn.a8  = fConfig->GetDoubleDef("Gmn-a8",  bba2003::kGmn_a8 );
-  fGmn.a10 = fConfig->GetDoubleDef("Gmn-a10", bba2003::kGmn_a10);
-  fGmn.a12 = fConfig->GetDoubleDef("Gmn-a12", bba2003::kGmn_a12);
-
-  // Krutov parameters
-  fGenA    = fConfig->GetDoubleDef("Gen-a",   bba2003::kGen_a  );
-  fGenB    = fConfig->GetDoubleDef("Gen-b",   bba2003::kGen_b  );
-
-  // Q2max
-  fQ2Max   = fConfig->GetDoubleDef("Q2Max",   bba2003::kQ2Max  );
 }
 //____________________________________________________________________________
 double BBA03ELFormFactorsModel::BBA03Fit(
