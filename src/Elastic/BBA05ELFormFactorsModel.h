@@ -54,7 +54,6 @@ private:
 
   // fill data members from the configuration Registry
   void LoadConfig(void);
-  void LoadBBA2005Params(void);
 
   // the actual BBA2005 fit function
   double BBA05Fit (double tau, const BBA2005Fit_t & fp) const;
@@ -65,6 +64,8 @@ private:
   BBA2005Fit_t fGen;   ///< BBA2005 fit coefficients for Gen
   BBA2005Fit_t fGmp;   ///< BBA2005 fit coefficients for Gmp
   BBA2005Fit_t fGmn;   ///< BBA2005 fit coefficients for Gmn
+  double       fMuP;   ///< Anomalous proton magnetic moment
+  double       fMuN;   ///< Anomalous neutron magnetic moment
 };
 
 }         // genie namespace

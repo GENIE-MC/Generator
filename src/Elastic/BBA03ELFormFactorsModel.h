@@ -54,7 +54,6 @@ private:
 
   // fill data members from the configuration Registry
   void LoadConfig(void);
-  void LoadBBA2003Params(void);
 
   // the actual BBA2003 inverse polynomial fit function
   double BBA03Fit(double q2, double g0, const BBA2003Fit_t & fp) const;
