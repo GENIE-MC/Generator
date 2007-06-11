@@ -50,10 +50,11 @@ private:
 
   mutable map<string, TH1D *> fProbDistroMap;
 
+  map<int, double> fNucRmvE;
+
   int    fNPBins;
   double fPMax;
   double fPCutOff;
-  double fNucRmvE;
   string fKFTable;
 };
 

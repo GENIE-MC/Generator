@@ -14,6 +14,7 @@
 */
 //____________________________________________________________________________
 
+#include <sstream>
 #include <cstdlib>
 #include <TMath.h>
 
@@ -26,9 +27,12 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Numerical/RandomGen.h"
+#include "Utils/NuclearUtils.h"
 
+using std::ostringstream;
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 FGMBodekRitchie::FGMBodekRitchie() :
@@ -55,13 +59,14 @@ bool FGMBodekRitchie::GenerateNucleon(const Target & target) const
   fCurrRemovalEnergy = 0;
   fCurrMomentum.SetXYZ(0,0,0);
 
+  //-- set fermi momentum vector
+  //
   TH1D * prob = this->ProbDistro(target);
   if(!prob) {
-    LOG("BodekRitchie", pFATAL)
+    LOG("BodekRitchie", pNOTICE)
               << "Null nucleon momentum probability distribution";
     exit(1);
   }
-
   double p = prob->GetRandom();
   LOG("BodekRitchie", pINFO) << "|p,nucleon| = " << p;
 
@@ -77,8 +82,14 @@ bool FGMBodekRitchie::GenerateNucleon(const Target & target) const
   double py = p*sintheta*sinfi;
   double pz = p*costheta;  
 
-  fCurrRemovalEnergy = fNucRmvE;
   fCurrMomentum.SetXYZ(px,py,pz);
+
+  //-- set removal energy 
+  //
+  int Z = target.Z();
+  map<int,double>::const_iterator it = fNucRmvE.find(Z);
+  if(it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
+  else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
 
   return true;
 }
@@ -189,16 +200,36 @@ void FGMBodekRitchie::LoadConfig(void)
 
   fKFTable = fConfig->GetStringDef ("FermiMomentumTable", 
                                     gc->GetString("FermiMomentumTable"));
+
   fNPBins  = fConfig->GetIntDef    ("Momentum-NumBins",  400);
   fPMax    = fConfig->GetDoubleDef ("Momentum-Max",     10.0);
+
   fPCutOff = fConfig->GetDoubleDef ("Momentum-CutOff",  
                                     gc->GetDouble("RFG-Momentum-CutOff"));
-  fNucRmvE = fConfig->GetDoubleDef ("NucRemovalE",  
-                                    gc->GetDouble("RFG-NucRemovalE"));
-
-  fNucRmvE = TMath::Max(fNucRmvE, 0.);
 
   assert(fNPBins > 1 && fPMax > 0 && fPCutOff > 0 && fPCutOff < fPMax);
+
+  // Load removal energy for specific nuclei from either the algorithm's
+  // configuration file or the UserPhysicsOptions file.
+  // If none is used use Wapstra's semi-empirical formula.
+  //
+  for(int Z=1; Z<140; Z++) {
+    for(int A=Z; A<3*Z; A++) {
+      ostringstream key, gckey;
+      int pdgc = pdg::IonPdgCode(A,Z);
+      gckey << "RFG-NucRemovalE@Pdg=" << pdgc;
+      key   << "NucRemovalE@Pdg="     << pdgc;
+      RgKey gcrgkey = gckey.str();
+      RgKey rgkey   = key.str();
+      if (this->GetConfig().Exists(rgkey) || gc->Exists(gcrgkey)) {
+        double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(gcrgkey));
+        eb = TMath::Max(eb, 0.);
+        LOG("BodekRitchie", pFATAL)
+          << "Nucleus: " << pdgc << " -> using Eb =  " << eb << " GeV";
+        fNucRmvE.insert(map<int,double>::value_type(Z,eb));
+      }
+    }
+  }
 }
 //____________________________________________________________________________
 

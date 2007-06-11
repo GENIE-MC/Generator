@@ -14,8 +14,11 @@
 */
 //____________________________________________________________________________
 
+#include <sstream>
+
 #include <TSystem.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Messenger/Messenger.h"
@@ -23,49 +26,54 @@
 #include "Numerical/RandomGen.h"
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
+#include "PDG/PDGUtils.h"
+#include "Utils/NuclearUtils.h"
+
+using std::ostringstream;
 
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::controls;
+using namespace genie::utils;
 
 //____________________________________________________________________________
 SpectralFunc1d::SpectralFunc1d() :
 NuclearModelI("genie::SpectralFunc1d")
 {
-  fSfC12_k     = 0;   
-  fSfFe56_k    = 0; 
-  fMaxC12Prob  = 0;
-  fMaxFe56Prob = 0;
+
 }
 //____________________________________________________________________________
 SpectralFunc1d::SpectralFunc1d(string config) :
 NuclearModelI("genie::SpectralFunc1d", config)
 {
-  fSfC12_k     = 0;   
-  fSfFe56_k    = 0; 
-  fMaxC12Prob  = 0;
-  fMaxFe56Prob = 0;
+
 }
 //____________________________________________________________________________
 SpectralFunc1d::~SpectralFunc1d()
 {
-  if (fSfC12_k ) delete fSfC12_k;
-  if (fSfFe56_k) delete fSfFe56_k;
+  this->CleanUp();
 }
 //____________________________________________________________________________
 bool SpectralFunc1d::GenerateNucleon(const Target & target) const
 {
-  Spline * distrib = this->SelectMomentumDistrib(target);
-  if(!distrib) {
+  RandomGen * rnd = RandomGen::Instance();
+  int Z = target.Z();
+
+  map<int, double>::const_iterator  dbl_it;
+  map<int, Spline*>::const_iterator spl_it;
+
+  // Select fermi momentum from the integrated (over removal energies) s/f.
+  //
+  spl_it = fSFk.find(Z);
+  dbl_it = fMaxProb.find(Z);
+  if(spl_it == fSFk.end() || dbl_it == fMaxProb.end()) {
     fCurrRemovalEnergy = 0.;
     fCurrMomentum.SetXYZ(0.,0.,0.);
     return false;
   }
 
-  RandomGen * rnd = RandomGen::Instance();
-
-  double max = this->MaxProb(target);
-  LOG("SpectralFunc1", pDEBUG) << "Max probability = " << max;
+  double prob_max = dbl_it->second;
+  LOG("SpectralFunc1", pDEBUG) << "Max probability = " << prob_max;
 
   double p = 0;
   unsigned int niter = 0;
@@ -78,8 +86,8 @@ bool SpectralFunc1d::GenerateNucleon(const Target & target) const
     niter++;
 
     p = rnd->RndGen().Rndm();
-    double prob  = distrib->Evaluate(p);
-    double probg = max * rnd->RndGen().Rndm();
+    double prob  = spl_it->second->Evaluate(p);
+    double probg = prob_max * rnd->RndGen().Rndm();
     LOG("SpectralFunc1", pDEBUG) << "Trying p = " << p << " / prob = " << prob;
 
     bool accept = (probg<prob);
@@ -98,8 +106,24 @@ bool SpectralFunc1d::GenerateNucleon(const Target & target) const
   double py = p*sintheta*sinfi;
   double pz = p*costheta;
 
-  fCurrRemovalEnergy = 0.025;
   fCurrMomentum.SetXYZ(px,py,pz);
+
+  // Set removal energy 
+  // Do it either in the same way as in the FG model or by using the average 
+  // removal energy for the seleced pF as calculated from the s/f itself
+  //
+  if(fUseFGMRemovalE) {
+    dbl_it = fNucRmvE.find(Z);
+    if(dbl_it != fNucRmvE.end()) fCurrRemovalEnergy = dbl_it->second;
+    else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
+  } else {
+    spl_it = fSFw.find(Z);
+    if(spl_it==fSFw.end()) {
+       fCurrRemovalEnergy = 0.;
+       fCurrMomentum.SetXYZ(0.,0.,0.);
+       return false;
+    } else fCurrRemovalEnergy = spl_it->second->Evaluate(p);
+  }
 
   return true;
 }
@@ -107,14 +131,11 @@ bool SpectralFunc1d::GenerateNucleon(const Target & target) const
 double SpectralFunc1d::Prob(
                   double p, double /*w*/, const Target & target) const
 {
-  Spline * distrib = this->SelectMomentumDistrib(target);
-  if(!distrib) {
-    fCurrRemovalEnergy = 0.;
-    fCurrMomentum.SetXYZ(0.,0.,0.);
-    return false;
-  }
-  double prob  = distrib->Evaluate(p*1000);
-  return prob;
+  int Z = target.Z();
+  map<int, Spline*>::const_iterator spl_it = fSFk.find(Z);
+
+  if(spl_it == fSFk.end()) return 0;
+  else return TMath::Max(0.,spl_it->second->Evaluate(p));
 }
 //____________________________________________________________________________
 void SpectralFunc1d::Configure(const Registry & config)
@@ -133,56 +154,98 @@ void SpectralFunc1d::LoadConfig(void)
 {
   LOG("SpectralFunc1", pDEBUG) << "Loading coonfiguration for SpectralFunc1d";
 
-  if (fSfC12_k ) delete fSfC12_k;
-  if (fSfFe56_k) delete fSfFe56_k;
-  
-  // load 
-  string data_dir = 
-        string(gSystem->Getenv("GENIE")) + string("/data/spectral_functions/");
-  string c12file  = data_dir + "benhar-sf1dk-12c.data";
-  string fe56file = data_dir + "benhar-sf1dk-56fe.data";
+  this->CleanUp();
 
-  fSfC12_k  = new Spline( c12file  );
-  fSfFe56_k = new Spline( fe56file );
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+  
+  // Load spectral function data.
+  // Hopefully analytical expressions will be available soon.
+  // Currently I have spectral functions for C12 and Fe56 only.
+  //
+  string data_dir = 
+      string(gSystem->Getenv("GENIE")) + string("/data/spectral_functions/");
+
+  string c12_sf1dk_file  = data_dir + "benhar-sf1dk-12c.data";
+  string fe56_sf1dk_file = data_dir + "benhar-sf1dk-56fe.data";
+  string c12_sf1dw_file  = data_dir + "benhar-sf1dw-12c.data";
+  string fe56_sf1dw_file = data_dir + "benhar-sf1dw-56fe.data";
+
+  Spline * spl = 0;
+
+  spl = new Spline(c12_sf1dk_file);
+  fSFk.insert(map<int, Spline*>::value_type(6,spl));
+  spl = new Spline(fe56_sf1dk_file);
+  fSFk.insert(map<int, Spline*>::value_type(26,spl));
+
+  spl = new Spline(c12_sf1dw_file);
+  fSFw.insert(map<int, Spline*>::value_type(6,spl));
+  spl = new Spline(fe56_sf1dw_file);
+  fSFw.insert(map<int, Spline*>::value_type(26,spl));
 
   // scan for max.
-  fMaxC12Prob  = 0;
-  fMaxFe56Prob = 0;
+  map<int, Spline*>::const_iterator spliter;
   int    n    = 100;
   double pmin =  0.000;
   double dp   =  0.010;
-  for(int i=0; i<n; i++) {
-    double p = pmin + i*dp;
-    fMaxC12Prob  = TMath::Max(fMaxC12Prob,  fSfC12_k ->Evaluate(p));
-    fMaxFe56Prob = TMath::Max(fMaxFe56Prob, fSfFe56_k->Evaluate(p));
+  for(spliter = fSFk.begin(); spliter != fSFk.end(); ++spliter) {
+    double prob_max = 0;
+    int Z = spliter->first;
+    spl = spliter->second;
+    for(int i=0; i<n; i++) {
+       double p = pmin + i*dp;
+       prob_max = TMath::Max(prob_max, spl->Evaluate(p));
+    }
+    fMaxProb.insert(map<int,double>::value_type(Z,prob_max));         
   }
-}
-//____________________________________________________________________________
-Spline * SpectralFunc1d::SelectMomentumDistrib(const Target & t) const
-{
-  Spline * distrib = 0;
-  int pdgc = t.Pdg();
-    
-  if      (pdgc == kPdgTgtC12)  distrib = fSfC12_k;
-  else if (pdgc == kPdgTgtFe56) distrib = fSfFe56_k;
-  else {
-    LOG("BenharSF", pERROR)   
-    << "** The momentum distribution for target " << pdgc << " isn't available";
-  }
-  if(!distrib) {
-    LOG("BenharSF", pERROR) << "** Null momentum distribution";
-  }                      
-  return distrib;
-}
-//____________________________________________________________________________
-double SpectralFunc1d::MaxProb(const Target & t) const
-{
-  int pdgc = t.Pdg();
-    
-  if      (pdgc == kPdgTgtC12)  return fMaxC12Prob;
-  else if (pdgc == kPdgTgtFe56) return fMaxFe56Prob;
-  else                          return 0;
-}
-//____________________________________________________________________________
 
+  // Check whether to use the same removal energies as in the FG model or
+  // to use the average removal energy for the selected fermi momentum 
+  // (computed from the spectral function itself)
+  //
+  fUseFGMRemovalE = fConfig->GetBoolDef(
+                    "UseFGMRmVE", gc->GetBool("SF1d-UseFGMRemovalE"));
+
+  // Removal energies as used in the FG model
+  // Load removal energy for specific nuclei from either the algorithm's
+  // configuration file or the UserPhysicsOptions file.
+  // If none is used use Wapstra's semi-empirical formula.
+  //
+  for(int Z=1; Z<140; Z++) {
+    for(int A=Z; A<3*Z; A++) {
+      ostringstream key, gckey;
+      int pdgc = pdg::IonPdgCode(A,Z);
+      gckey << "RFG-NucRemovalE@Pdg=" << pdgc;
+      key   << "NucRemovalE@Pdg="     << pdgc;
+      RgKey gcrgkey = gckey.str();
+      RgKey rgkey   = key.str();
+      if (this->GetConfig().Exists(rgkey) || gc->Exists(gcrgkey)) {
+        double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(gcrgkey));
+        eb = TMath::Max(eb, 0.);
+        LOG("BodekRitchie", pNOTICE)
+          << "Nucleus: " << pdgc << " -> using Eb =  " << eb << " GeV";
+        fNucRmvE.insert(map<int,double>::value_type(Z,eb));
+      }
+    }
+  }
+}
+//____________________________________________________________________________
+void SpectralFunc1d::CleanUp(void)
+{
+  map<int, Spline*>::iterator spliter;
+
+  for(spliter = fSFk.begin(); spliter != fSFk.end(); ++spliter) {
+    Spline * spl = spliter->second;
+    if(spl) delete spl;
+  }
+  for(spliter = fSFw.begin(); spliter != fSFw.end(); ++spliter) {
+    Spline * spl = spliter->second;
+    if(spl) delete spl;
+  }
+  fSFk.clear(); 
+  fSFw.clear(); 
+  fNucRmvE.clear();
+  fMaxProb.clear();
+}
+//____________________________________________________________________________
 

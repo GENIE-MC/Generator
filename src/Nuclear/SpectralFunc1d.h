@@ -4,6 +4,7 @@
 \class    genie::SpectralFunc1d
 
 \brief    Simpler approach to using spectral functions.
+	  A beta version.
           Implements the NuclearModelI interface.
 
 \ref      
@@ -19,7 +20,11 @@
 #ifndef _SPECTRAL_FUNCTION_1D_H_
 #define _SPECTRAL_FUNCTION_1D_H_
 
+#include <map>
+
 #include "Nuclear/NuclearModelI.h"
+
+using std::map;
 
 namespace genie {
 
@@ -41,14 +46,17 @@ public:
   void Configure (string param_set);
 
 private:
-  void     LoadConfig            (void);
-  Spline * SelectMomentumDistrib (const Target & target) const;
-  double   MaxProb               (const Target & target) const;
-
-  Spline * fSfC12_k;     ///< Benhar C12  spectral func integrated over removal energy
-  Spline * fSfFe56_k;    ///< Benhar Fe56 spectral func integrated over removal energy
-  double   fMaxC12Prob;  ///<
-  double   fMaxFe56Prob; ///<
+  void LoadConfig (void);
+  void CleanUp    (void);
+  
+  // Spectral function data
+  // Hopefully, analytical expressions for spectral functions will become available soon.
+  //
+  bool fUseFGMRemovalE;
+  map<int, Spline *> fSFk;     ///< All available spectral funcs integrated over removal energy
+  map<int, Spline *> fSFw;     ///< Average nucleon removal as a function of pF - computed from the spectral function
+  map<int, double>   fNucRmvE; ///< Removal energies as used in FG model
+  map<int, double>   fMaxProb; ///< Max SF(k) probability used in rejection method
 };
 
 }         // genie namespace
