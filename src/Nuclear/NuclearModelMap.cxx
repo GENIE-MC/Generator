@@ -27,6 +27,7 @@
 #include "Messenger/Messenger.h"
 #include "Nuclear/NuclearModelMap.h"
 #include "PDG/PDGCodes.h"
+#include "PDG/PDGUtils.h"
 #include "Numerical/RandomGen.h"
 
 using std::ostringstream;
@@ -106,18 +107,21 @@ void NuclearModelMap::LoadConfig(void)
   assert(fDefGlobModel);
 
   // load refined models for specific nuclei
-  for(int Z=1; Z<120; Z++) {
-    ostringstream key;
-    key << "NuclearModel@Z=" << Z;
-    RgKey rgkey = key.str();
-    if (this->GetConfig().Exists(rgkey) || gc->Exists(rgkey)) {
-      RgAlg rgmodel = fConfig->GetAlgDef(rgkey, gc->GetAlg(rgkey));
-      LOG("Nuclear", pNOTICE) 
-         << "Especially for for Z=" << Z << " using nuclear model: " << rgmodel;
-      const NuclearModelI * model = 
+  for(int Z=1; Z<140; Z++) {
+    for(int A=Z; A<3*Z; A++) {
+      ostringstream key;
+      key << "NuclearModel@Pdg=" << pdg::IonPdgCode(A,Z);
+      RgKey rgkey = key.str();
+      if (this->GetConfig().Exists(rgkey) || gc->Exists(rgkey)) {
+        RgAlg rgmodel = fConfig->GetAlgDef(rgkey, gc->GetAlg(rgkey));
+        LOG("Nuclear", pNOTICE) 
+          << "Nucleus =" << pdg::IonPdgCode(A,Z) 
+                         << " -> refined nuclear model: " << rgmodel;
+        const NuclearModelI * model = 
               dynamic_cast<const NuclearModelI *> (this->SubAlg(rgkey));
-      assert(model);
-      fRefinedModels.insert(map<int,const NuclearModelI*>::value_type(Z,model));
+        assert(model);
+        fRefinedModels.insert(map<int,const NuclearModelI*>::value_type(Z,model));
+      }
     }
   }
 }
