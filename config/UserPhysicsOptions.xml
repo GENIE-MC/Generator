@@ -233,23 +233,37 @@ Use the "Default" one to get the best GENIE physics & tuning.
   Options:
    - genie::FGMBodekRitchie/Default
    - genie::SpectralFunc1d/Default
-  The 'NuclearModel' option defines the default basic model which
-  should work for _any_ nuclei (typically a Fermi Gas model with the 
-  Bodek-Ritchie NN corellatin tail.
-  Refinements for specific nuclei are possible, by specifying the
-  'NuclearModel@Z=??' option. 
+  The 'NuclearModel' option defines the default basic model which should work for _any_ nuclei 
+  (typically a Fermi Gas model with the Bodek-Ritchie NN corellatin tail). Refinements for specific 
+  nuclei are possible, by specifying the 'NuclearModel@Pdg=1aaazzz000' option. 
+  Currently the same nuclear model is forced for all isotopes.
   -->
-  <param type="alg" name="NuclearModel">     genie::FGMBodekRitchie/Default </param>
+  <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
 <!--
-  <param type="alg" name="NuclearModel@Z=26"> genie::SpectralFunc1d/Default  </param>
+  <param type="alg" name="NuclearModel@Pdg=1056026000">   genie::SpectralFunc1d/Default  </param>
 -->
+  <param type="bool" name="IsotopesUseSameNuclearModel">  true                           </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameters related with GENIE's Fermi Gas (RFG) model implementation  
+  - RFG-Momentum-CutOff is a momentum cut-off for the NN correlation tail
+  - RFG-NucRemovalE@Pdg=1aaazzz000 is the removal energy for the nucleus with the specified pdg
+    code. If none is used then the average binding energy will be computed from Wapstra's semi-
+    empirical formula.
+  Currently, if you explicitly specify a binding energy for a nucleus then the same value will
+  be used for all isotopes.
   -->
-  <param type="double" name="RFG-Momentum-CutOff"> 0.500 </param>
-  <param type="double" name="RFG-NucRemovalE">     0.030 </param>
+  <param type="double" name="RFG-Momentum-CutOff">             0.500 </param>
+  <param type="double" name="RFG-NucRemovalE@Pdg=1006003000">  0.017 </param> <!-- Li6    -->
+  <param type="double" name="RFG-NucRemovalE@Pdg=1012006000">  0.025 </param> <!-- C12    -->
+  <param type="double" name="RFG-NucRemovalE@Pdg=1016008000">  0.027 </param> <!-- O16    -->
+  <param type="double" name="RFG-NucRemovalE@Pdg=1024012000">  0.032 </param> <!-- Mg24   -->
+  <param type="double" name="RFG-NucRemovalE@Pdg=1040020000">  0.028 </param> <!-- Ca40   -->
+  <param type="double" name="RFG-NucRemovalE@Pdg=1056026000">  0.030 </param> <!-- Fe56   -->
+  <param type="double" name="RFG-NucRemovalE@Pdg=1058028000">  0.036 </param> <!-- Ni58   -->
+  <param type="double" name="RFG-NucRemovalE@Pdg=1208082000">  0.044 </param> <!-- Pb208  -->
+  <param type="bool"   name="RFG-IsotopesHaveSameRemovalE">    true  </param> 
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -356,8 +370,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   Possible model options include INTRANUKE, FLUKA and GIBUU
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
-  <param type="alg"  name="HadronTransp-Model">  
-                             genie::Intranuke/Default  </param>
+  <param type="alg"  name="HadronTransp-Model">  genie::Intranuke/Default  </param>
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   INTRANUKE-specific parameters:
