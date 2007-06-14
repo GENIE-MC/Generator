@@ -69,6 +69,13 @@ gMCSampleTest: FORCE
 	$(CXX) $(CXXFLAGS) -c gMCSampleTest.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gMCSampleTest.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmctest
 
+
+# gnc2eN program converting NC events to electron scattering events
+#
+gNC2ElectronScat: FORCE
+	$(CXX) $(CXXFLAGS) -c gNC2ElectronScat.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gNC2ElectronScat.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gnc2eN
+
 # gviewer MC event viewing utility
 #
 gViewer: FORCE
