@@ -126,8 +126,10 @@ void LlewellynSmithModel::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   // load elastic form factors model
-  fElFFModel = dynamic_cast<const ELFormFactorsModelI *> (
-                                      this->SubAlg("ElFormFactorsAlg"));
+  RgAlg form_factors_model = fConfig->GetAlgDef(
+                 "ElasticFormFactorsModel", gc->GetAlg("ElasticFormFactorsModel"));
+  fElFFModel =  dynamic_cast<const ELFormFactorsModelI *> (
+                                          this->SubAlg("ElasticFormFactorsModel"));
   assert(fElFFModel);
 
   fELFF.SetModel(fElFFModel);  
