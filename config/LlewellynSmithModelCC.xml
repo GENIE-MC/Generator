@@ -6,28 +6,17 @@
 Configuration sets for Llewellyn-Smith QEL CC form factors
 
 Configurable Parameters:
-................................................................................................
-Name             Type     Optional   Comment                     Default
-................................................................................................
-Ma               double   Yes        Axial  Mass squared         GPL: QEl-Ma
-FA0              double   Yes        FA(q2=0)                    GPL: QEL-FA0
-ElFormFactorsAlg alg      No         Elastic form factors model
-WeinbergAngle    double   Yes        Weinberg angle              GPL: WeinbergAngle
+..........................................................................................................
+Name                     Type     Optional   Comment                     Default
+..........................................................................................................
+Ma                       double   Yes        Axial  Mass squared         GPL: QEl-Ma
+FA0                      double   Yes        FA(q2=0)                    GPL: QEL-FA0
+ElasticFormFactorsModel  alg      No         Elastic form factors model  GPL: ElasticFormFactorsModel
+WeinbergAngle            double   Yes        Weinberg angle              GPL: WeinbergAngle
 
 -->
 
   <param_set name="Default"> 
-     <param type="alg" name="ElFormFactorsAlg"> genie::DipoleELFormFactorsModel/Default </param>
-  </param_set>
-
-  <param_set name="Dipole"> 
-     <param type="alg" name="ElFormFactorsAlg"> genie::DipoleELFormFactorsModel/Default </param>
-  </param_set>
-  <param_set name="BBA2003"> 
-     <param type="alg" name="ElFormFactorsAlg"> genie::BBA03ELFormFactorsModel/Default </param>
-  </param_set>
-  <param_set name="BBA2005"> 
-     <param type="alg" name="ElFormFactorsAlg"> genie::BBA05ELFormFactorsModel/Default </param>
   </param_set>
 
 </alg_conf>
