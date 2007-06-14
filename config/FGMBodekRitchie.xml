@@ -9,9 +9,9 @@ Configurable Parameters:
 .............................................................................................................
 Name               Type    Optional   Comment                      Default
 .............................................................................................................
-Momentum-NumBins   int      Yes       n bins in prob. distribution                   400
-Momentum-Max       double   Yes       max p in prob distribution                     10 GeV
-Momentum-CutOff    double   Yes       momentum cut off value                         GPL RFG-Momentum-CutOff
+MomentumNumBins    int      Yes       n bins in prob. distribution                   400
+MomentumMax        double   Yes       max p in prob distribution                     10 GeV
+MomentumCutOff     double   Yes       momentum cut off value                         GPL RFG-Momentum-CutOff
 NucRemovalE@Pdg=?  int      Yes       nuclear removal energy for specfic nuclei      GPL RFG-NucRemovalE@Pdg=x
 -->
 
