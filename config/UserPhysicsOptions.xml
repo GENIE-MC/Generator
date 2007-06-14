@@ -240,6 +240,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   -->
   <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
 <!--
+  <param type="alg" name="NuclearModel@Pdg=1012006000">   genie::SpectralFunc1d/Default  </param>
   <param type="alg" name="NuclearModel@Pdg=1056026000">   genie::SpectralFunc1d/Default  </param>
 -->
   <param type="bool" name="IsotopesUseSameNuclearModel">  true                           </param>
@@ -254,7 +255,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   Currently, if you explicitly specify a binding energy for a nucleus then the same value will
   be used for all isotopes.
   -->
-  <param type="double" name="RFG-Momentum-CutOff">             0.500 </param>
+  <param type="double" name="RFG-MomentumCutOff">              0.500 </param>
   <param type="double" name="RFG-NucRemovalE@Pdg=1006003000">  0.017 </param> <!-- Li6    -->
   <param type="double" name="RFG-NucRemovalE@Pdg=1012006000">  0.025 </param> <!-- C12    -->
   <param type="double" name="RFG-NucRemovalE@Pdg=1016008000">  0.027 </param> <!-- O16    -->
@@ -264,6 +265,18 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="double" name="RFG-NucRemovalE@Pdg=1058028000">  0.036 </param> <!-- Ni58   -->
   <param type="double" name="RFG-NucRemovalE@Pdg=1208082000">  0.044 </param> <!-- Pb208  -->
   <param type="bool"   name="RFG-IsotopesHaveSameRemovalE">    true  </param> 
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters related with GENIE's 1-d/effective spectral function implementation  
+  -->
+  <param type="bool"   name="SF1d-UseRFGRemovalE">       false </param> 
+  <param type="bool"   name="SF1d-UseRFGMomentumCutoff"> true  </param> 
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters related with GENIE's full spectral function implementation  
+  -->
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
