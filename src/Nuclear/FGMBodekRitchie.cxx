@@ -201,11 +201,11 @@ void FGMBodekRitchie::LoadConfig(void)
   fKFTable = fConfig->GetStringDef ("FermiMomentumTable", 
                                     gc->GetString("FermiMomentumTable"));
 
-  fNPBins  = fConfig->GetIntDef    ("Momentum-NumBins",  400);
-  fPMax    = fConfig->GetDoubleDef ("Momentum-Max",     10.0);
+  fNPBins  = fConfig->GetIntDef    ("MomentumNumBins",  400);
+  fPMax    = fConfig->GetDoubleDef ("MomentumMax",     10.0);
 
-  fPCutOff = fConfig->GetDoubleDef ("Momentum-CutOff",  
-                                    gc->GetDouble("RFG-Momentum-CutOff"));
+  fPCutOff = fConfig->GetDoubleDef ("MomentumCutOff",  
+                                    gc->GetDouble("RFG-MomentumCutOff"));
 
   assert(fNPBins > 1 && fPMax > 0 && fPCutOff > 0 && fPCutOff < fPMax);
 

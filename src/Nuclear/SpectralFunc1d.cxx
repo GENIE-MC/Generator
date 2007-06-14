@@ -85,7 +85,9 @@ bool SpectralFunc1d::GenerateNucleon(const Target & target) const
     }
     niter++;
 
-    p = rnd->RndGen().Rndm();
+    if(fUseRFGMomentumCutoff) p = fPCutOff * rnd->RndGen().Rndm(); 
+    else p = rnd->RndGen().Rndm();
+
     double prob  = spl_it->second->Evaluate(p);
     double probg = prob_max * rnd->RndGen().Rndm();
     LOG("SpectralFunc1", pDEBUG) << "Trying p = " << p << " / prob = " << prob;
@@ -112,7 +114,7 @@ bool SpectralFunc1d::GenerateNucleon(const Target & target) const
   // Do it either in the same way as in the FG model or by using the average 
   // removal energy for the seleced pF as calculated from the s/f itself
   //
-  if(fUseFGMRemovalE) {
+  if(fUseRFGRemovalE) {
     dbl_it = fNucRmvE.find(Z);
     if(dbl_it != fNucRmvE.end()) fCurrRemovalEnergy = dbl_it->second;
     else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
@@ -131,6 +133,8 @@ bool SpectralFunc1d::GenerateNucleon(const Target & target) const
 double SpectralFunc1d::Prob(
                   double p, double /*w*/, const Target & target) const
 {
+  if(fUseRFGMomentumCutoff) { if(p > fPCutOff) return 0; }
+
   int Z = target.Z();
   map<int, Spline*>::const_iterator spl_it = fSFk.find(Z);
 
@@ -203,8 +207,16 @@ void SpectralFunc1d::LoadConfig(void)
   // to use the average removal energy for the selected fermi momentum 
   // (computed from the spectral function itself)
   //
-  fUseFGMRemovalE = fConfig->GetBoolDef(
-                    "UseFGMRmVE", gc->GetBool("SF1d-UseFGMRemovalE"));
+  fUseRFGRemovalE = fConfig->GetBoolDef(
+                    "UseRFGRmVE", gc->GetBool("SF1d-UseRFGRemovalE"));
+
+  // Check whether to use the same momentum cutoff as in the FG model
+  // and get that cutoff value
+  //
+  fUseRFGMomentumCutoff = fConfig->GetBoolDef(
+       "UseRFGMomentumCutoff", gc->GetBool("SF1d-UseRFGMomentumCutoff"));
+  fPCutOff = fConfig->GetDoubleDef ("MomentumCutOff",
+                                    gc->GetDouble("RFG-MomentumCutOff"));
 
   // Removal energies as used in the FG model
   // Load removal energy for specific nuclei from either the algorithm's
