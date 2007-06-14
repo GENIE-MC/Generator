@@ -26,6 +26,7 @@ using std::string;
 namespace genie {
 
 class Target;
+class Interaction;
 
 namespace utils {
 
