@@ -28,7 +28,6 @@ namespace genie {
 typedef enum ENtpMCFormat {
 
    kNFUndefined = -1,
-   kNFPlainRecord,
    kNFEventRecord,
 
 } NtpMCFormat_t;
@@ -43,9 +42,6 @@ class NtpMCFormat {
      case kNFUndefined:
               return "Undefined";
               break;
-     case kNFPlainRecord:
-              return "[NtpMCPlainRecord]";
-              break;
      case kNFEventRecord:
               return "[NtpMCEventRecord]";
               break;
@@ -59,9 +55,6 @@ class NtpMCFormat {
      switch (fmt) {
      case kNFUndefined:
               return "for wasting your time";
-              break;
-     case kNFPlainRecord:
-              return "for analyzing data in bare ROOT session (without GENIE libs)";
               break;
      case kNFEventRecord:
               return "for passing GENIE data between applications (eg GENIE->GEANT)";
@@ -83,9 +76,6 @@ class NtpMCFormat {
      switch (fmt) {
      case kNFUndefined:
               return "UNDEFINED";
-              break;
-     case kNFPlainRecord:
-              return "PR";
               break;
      case kNFEventRecord:
               return "ER";

@@ -13,8 +13,6 @@
 #pragma link C++ class genie::NtpMCRecHeader;
 #pragma link C++ class genie::NtpMCRecordI;
 #pragma link C++ class genie::NtpMCEventRecord;
-#pragma link C++ class genie::NtpMCSummary;
-#pragma link C++ class genie::NtpMCGHepEntry;
 #pragma link C++ class genie::NtpWriter;
 
 #endif
