@@ -25,7 +25,6 @@
 #include "EVGCore/EventRecord.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
-#include "Ntuple/NtpMCPlainRecord.h"
 #include "Ntuple/NtpMCEventRecord.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCJobConfig.h"
@@ -41,7 +40,6 @@ fNtpFormat(fmt),
 fRunNu(runnu),
 fOutFile(0),
 fOutTree(0),
-fNtpMCPlainRecord(0),
 fNtpMCEventRecord(0),
 fNtpMCTreeHeader(0)
 {
@@ -73,13 +71,6 @@ void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
   }
 
   switch (fNtpFormat) {
-     case kNFPlainRecord:
-          fNtpMCPlainRecord = new NtpMCPlainRecord();
-          fNtpMCPlainRecord->Fill(ievent, ev_rec);
-          fOutTree->Fill();
-          delete fNtpMCPlainRecord;
-          fNtpMCPlainRecord = 0;
-          break;
      case kNFEventRecord:
           fNtpMCEventRecord = new NtpMCEventRecord();
           fNtpMCEventRecord->Fill(ievent, ev_rec);
@@ -150,9 +141,6 @@ TBranch * NtpWriter::CreateTreeBranch(void)
   TBranch * branch = 0;
 
   switch (fNtpFormat) {
-     case kNFPlainRecord:
-        branch = this->CreatePRTreeBranch();
-        break;
      case kNFEventRecord:
         branch = this->CreateERTreeBranch();
         break;
@@ -161,18 +149,6 @@ TBranch * NtpWriter::CreateTreeBranch(void)
                     << "Unknown TTree format. Can not create TBranches";
         break;
   }
-  return branch;
-}
-//____________________________________________________________________________
-TBranch * NtpWriter::CreatePRTreeBranch(void)
-{
-  LOG("NtpWriter", pINFO) << "Creating a NtpMCPlainRecord TBranch";
-
-  fNtpMCPlainRecord = 0;
-  TTree::SetBranchStyle(2);
-
-  TBranch * branch = fOutTree->Branch("gmcrec",
-                      "genie::NtpMCPlainRecord", &fNtpMCPlainRecord, 32000,1);
   return branch;
 }
 //____________________________________________________________________________
