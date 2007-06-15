@@ -14,13 +14,21 @@
 */
 //____________________________________________________________________________
 
+#include <fstream>
+#include <iomanip>
+
+#include <TSystem.h>
+
+#include "Messenger/Messenger.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 
 using namespace genie;
 
 ClassImp(NtpMCTreeHeader)
 
+using std::ifstream;
 using std::endl;
+using std::ios;
 
 //____________________________________________________________________________
 namespace genie {
@@ -70,8 +78,22 @@ void NtpMCTreeHeader::Copy(const NtpMCTreeHeader & hdr)
 //____________________________________________________________________________
 void NtpMCTreeHeader::Init(void)
 {
+  string version;
+  string genie_path = gSystem->Getenv("GENIE");   
+  string filename   = genie_path + "/VERSION";
+  bool vrs_file_found = ! (gSystem->AccessPathName(filename.c_str()));
+  if (!vrs_file_found) {
+   LOG("Ntp", pERROR)
+       << "The GENIE version file [" << filename << "] is not accessible";
+   version = "NO CVS version number was specified";
+  } else {
+    ifstream gvinp(filename.c_str(), ios::in);
+    gvinp >> version;
+    gvinp.close();
+  }
+
   this->format = kNFUndefined;
-  this->cvstag.SetString("NO CVS version number was specified");
+  this->cvstag.SetString(version.c_str());
   this->datime.Now();
   this->runnu  = 0;
 }

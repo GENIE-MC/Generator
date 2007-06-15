@@ -43,8 +43,8 @@ fOutTree(0),
 fNtpMCEventRecord(0),
 fNtpMCTreeHeader(0)
 {
-  LOG("NtpWriter", pNOTICE) << "Run number: " << runnu;
-  LOG("NtpWriter", pNOTICE)
+  LOG("Ntp", pNOTICE) << "Run number: " << runnu;
+  LOG("Ntp", pNOTICE)
      << "Requested G/ROOT tree format: " << NtpMCFormat::AsString(fNtpFormat);
 }
 //____________________________________________________________________________
@@ -58,7 +58,7 @@ NtpWriter::~NtpWriter()
 //____________________________________________________________________________
 void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
 {
-  LOG("NtpWriter", pNOTICE) << "Adding event " << ievent << " to output tree";
+  LOG("Ntp", pNOTICE) << "Adding event " << ievent << " to output tree";
 
   if(!ev_rec) {
     LOG("Ntp", pERROR) << "NULL input EventRecord!";
@@ -85,7 +85,7 @@ void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
 //____________________________________________________________________________
 void NtpWriter::Initialize(string filename_prefix)
 {
-  LOG("NtpWriter",pINFO) << "Initializing GENIE output MC tree";
+  LOG("Ntp",pINFO) << "Initializing GENIE output MC tree";
 
   this->OpenFile(filename_prefix); // open ROOT file
   this->CreateTree();              // create output ROOT file
@@ -118,7 +118,7 @@ void NtpWriter::OpenFile(string filename_prefix)
            << NtpMCFormat::FilenameTag(fNtpFormat)
            << "-" << fRunNu << ".root";
 
-  LOG("NtpWriter", pINFO) << "Opening the output ROOT file: " << filename;
+  LOG("Ntp", pINFO) << "Opening the output ROOT file: " << filename;
   fOutFile = new TFile(filename.str().c_str(),"RECREATE");
 }
 //____________________________________________________________________________
@@ -126,7 +126,7 @@ void NtpWriter::CreateTree(void)
 {
   if(fOutTree) delete fOutTree;
 
-  LOG("NtpWriter", pINFO) << "Creating the output GENIE/ROOT tree";
+  LOG("Ntp", pINFO) << "Creating the output GENIE/ROOT tree";
 
   ostringstream title;
   title << "GENIE MC Truth TTree"
@@ -145,8 +145,8 @@ TBranch * NtpWriter::CreateTreeBranch(void)
         branch = this->CreateERTreeBranch();
         break;
      default:
-        LOG("NtpWriter", pERROR)
-                    << "Unknown TTree format. Can not create TBranches";
+        LOG("Ntp", pERROR)
+           << "Unknown TTree format. Can not create TBranches";
         break;
   }
   return branch;
@@ -154,7 +154,7 @@ TBranch * NtpWriter::CreateTreeBranch(void)
 //____________________________________________________________________________
 TBranch * NtpWriter::CreateERTreeBranch(void)
 {
-  LOG("NtpWriter", pINFO) << "Creating a NtpMCEventRecord TBranch";
+  LOG("Ntp", pINFO) << "Creating a NtpMCEventRecord TBranch";
 
   fNtpMCEventRecord = 0;
   TTree::SetBranchStyle(1);
@@ -166,7 +166,7 @@ TBranch * NtpWriter::CreateERTreeBranch(void)
 //____________________________________________________________________________
 void NtpWriter::CreateTreeHeader(void)
 {
-  LOG("NtpWriter", pINFO) << "Creating the NtpMCTreeHeader";
+  LOG("Ntp", pINFO) << "Creating the NtpMCTreeHeader";
 
   if(fNtpMCTreeHeader) delete fNtpMCTreeHeader;
 
@@ -175,12 +175,12 @@ void NtpWriter::CreateTreeHeader(void)
   fNtpMCTreeHeader->format = fNtpFormat;
   fNtpMCTreeHeader->runnu  = fRunNu;
 
-  LOG("NtpWriter", pINFO) << *fNtpMCTreeHeader;
+  LOG("Ntp", pINFO) << *fNtpMCTreeHeader;
 }
 //____________________________________________________________________________
 void NtpWriter::Save(void)
 {
-  LOG("NtpWriter", pINFO) << "Saving the output tree";
+  LOG("Ntp", pINFO) << "Saving the output tree";
 
   if(fOutFile) {
 
@@ -190,7 +190,7 @@ void NtpWriter::Save(void)
     fOutFile = 0;
 
   } else {
-     LOG("NtpWriter", pERROR) << "No open ROOT file was found";
+     LOG("Ntp", pERROR) << "No open ROOT file was found";
   }
 }
 //____________________________________________________________________________
