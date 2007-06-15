@@ -74,7 +74,9 @@ void CorrelatedNucleonGenerator::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   fSimulateCorrelN = fConfig->GetBoolDef(
-                   "SimCorrelNuc", gc->GetBool("SimulateCorrelatedNucleon"));
+              "Enable", gc->GetBool("CorrelNN-Enable"));
+  fMomentumThr  = fConfig->GetDoubleDef(
+              "MomentumThreshold", gc->GetBool("CorrelNN-MomentumThreshold"));
 }
 //____________________________________________________________________________
 
