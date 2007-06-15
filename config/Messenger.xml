@@ -90,11 +90,7 @@
   <priority msgstream="Nuclear">             INFO   </priority>
   <priority msgstream="Numerical">           INFO   </priority>
   <priority msgstream="NuEXSec">             INFO   </priority>
-  <priority msgstream="NtpGHepAnalyzer">     INFO   </priority>
-  <priority msgstream="NtpMCConfig">         NOTICE </priority>
-  <priority msgstream="NtpMCEnv">            NOTICE </priority>
-  <priority msgstream="NtpMCConf">           NOTICE </priority>
-  <priority msgstream="NtpWriter">           NOTICE </priority>
+  <priority msgstream="Ntp">                 NOTICE </priority>
   <priority msgstream="NuVld">               INFO   </priority>
   <priority msgstream="NeuGen">              INFO   </priority>
   <priority msgstream="NuETargetRemnant">    INFO   </priority>
