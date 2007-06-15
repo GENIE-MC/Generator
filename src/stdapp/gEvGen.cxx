@@ -6,7 +6,7 @@
 \brief   Example program driving GENIE event generation modules
 
          Syntax :
-           gevgen [-n nev] [-s] -e E -p nupdg -t tgtpdg [-f format] [-r run#]
+           gevgen [-n nev] [-s] -e E -p nupdg -t tgtpdg [-r run#]
 
          Options :
            [] denotes an optional argument
@@ -21,11 +21,6 @@
               interact anyway (see GMCJDriver for how to input fluxes)
            -p specifies the neutrino PDG code
            -t specifies the target PDG code (std format: 1aaazzz000)
-           -f specifies the output TTree format. If set to 0 will create a
-              single-branch TTree with NtpMCPlainRecord objects in its leaves,
-              while if set to 1 it will have NtpMCEventRecord objects in
-              its leaves (see the Ntuple package for descriptions of the ntuple
-              records and their intended usage). Default options is 1.
            -r specifies the MC run number
 
          Example:
@@ -139,7 +134,6 @@ double        gOptMinNuEnergy;  // min neutrino energy
 double        gOptNuEnergyRange;// max-min neutrino energy 
 int           gOptNuPdgCode;    // neutrino PDG code
 int           gOptTgtPdgCode;   // target PDG code
-NtpMCFormat_t gOptNtpFormat;    // ntuple format
 Long_t        gOptRunNu;        // run number
 
 //____________________________________________________________________________
@@ -150,14 +144,11 @@ int main(int argc, char ** argv)
   
   //-- print the options you got from command line arguments
 
-  string fmts = NtpMCFormat::AsString(gOptNtpFormat);
-
   LOG("gevgen", pINFO) << "Number of events requested = " << gOptNevents;
   LOG("gevgen", pINFO) << "Building splines at init.  = " << gOptBuildSplines; 
   LOG("gevgen", pINFO) << "Neutrino PDG code          = " << gOptNuPdgCode;
   LOG("gevgen", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
   LOG("gevgen", pINFO) << "MC Run Number              = " << gOptRunNu;
-  LOG("gevgen", pINFO) << "Output ntuple format       = " << fmts;
   if(gOptNuEnergyRange>0) {
     LOG("gevgen", pINFO) << "Neutrino energy            = [" 
         << gOptMinNuEnergy << ", " << gOptMinNuEnergy+gOptNuEnergyRange << "]";
@@ -186,7 +177,7 @@ int main(int argc, char ** argv)
   TLorentzVector nu_p4(0.,0.,gOptMinNuEnergy,gOptMinNuEnergy); // px,py,pz,E (GeV)
 
   //-- initialize an Ntuple Writer
-  NtpWriter ntpw(gOptNtpFormat, gOptRunNu);
+  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
   ntpw.Initialize();
 
   //-- create an MC Job Monitor
@@ -256,18 +247,6 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptRunNu = kDefOptRunNu;
     }
   }
-
-  //output ntuple format
-  int format = 1;
-  try {
-    LOG("gevgen", pINFO) << "Reading requested output ntuple format";
-    format = genie::utils::clap::CmdLineArgAsInt(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevgen", pINFO) << "Unspecified tree format - Using default";
-    }
-  }
-  if(format == 0 || format == 1) gOptNtpFormat = (NtpMCFormat_t)format;
 
   //spline building option
   gOptBuildSplines = genie::utils::clap::CmdLineArgAsBool(argc,argv,'s');
