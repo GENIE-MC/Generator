@@ -42,6 +42,7 @@ private:
   void   LoadConfig (void);
 
   bool   fSimulateCorrelN;
+  double fMomentumThr;
 };
 
 }      // genie namespace
