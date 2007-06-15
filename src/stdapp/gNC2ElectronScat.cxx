@@ -40,7 +40,6 @@
 #include "Ntuple/NtpMCFormat.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
-#include "Ntuple/NtpMCSummary.h"
 #include "Ntuple/NtpWriter.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
@@ -88,7 +87,7 @@ int main(int argc, char ** argv)
 
   //-- figure out how many events to analyze
   Long64_t nmax = (gOptN<0) ? 
-       event_tree->GetEntries() : TMath::Min( event_tree->GetEntries(), gOptN );
+    event_tree->GetEntries() : TMath::Min( event_tree->GetEntries(), gOptN );
 
   //-- initialize an Ntuple Writer
   int gOptRunNu = 0;
@@ -107,6 +106,8 @@ int main(int argc, char ** argv)
     bool is_nc = vN_event.Summary()->ProcInfo().IsWeakNC();
     if(!is_nc) continue;
 
+    LOG("gnc2eN", pNOTICE) << "Input vN NC event: " << vN_event;
+
     //-- copy event - switch incoming/outgoing neutrinos to electrons
     EventRecord eN_event(vN_event);
     eN_event.Particle(0)->SetPdgCode(kPdgElectron);
@@ -118,12 +119,13 @@ int main(int argc, char ** argv)
     double wght    = eN_xsec/vN_xsec;
     eN_event.SetWeight(wght * eN_event.Weight());
 
-    //-- print out events & save eN event to the new event tree
-    LOG("gnc2eN", pINFO) << "Input vN NC event: " << vN_event;
-    LOG("gnc2eN", pINFO) << "Output eN event: "   << eN_event;
-
+    //-- save eN event to the new event tree
+    LOG("gnc2eN", pNOTICE) << "Output eN event: "<< eN_event;
     ntpw.AddEventRecord(ieN++, &eN_event);
   }
+
+  //-- save event tree
+  ntpw.Save();
 
   LOG("gnc2eN", pINFO)  << "Done!";
   return 0;
