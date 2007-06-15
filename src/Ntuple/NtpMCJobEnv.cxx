@@ -49,8 +49,8 @@ TFolder * NtpMCJobEnv::TakeSnapshot(void)
   if (fEnv) delete fEnv;
   fEnv = 0;
 
-  LOG("NtpMCEnv", pNOTICE)
-                << "Taking environment snapshot and saving it in a TFolder";
+  LOG("Ntp", pNOTICE)
+      << "Taking environment snapshot and saving it in a TFolder";
 
   fEnv = gROOT->GetRootFolder()->AddFolder("genv","GENIE user environment");
   gROOT->GetListOfBrowsables()->Add(fEnv,"genv");
@@ -65,7 +65,7 @@ TFolder * NtpMCJobEnv::TakeSnapshot(void)
     ivar++;
   }
 
-  LOG("NtpMCEnv", pINFO) << "** MC Job Environment:";
+  LOG("Ntp", pINFO) << "** MC Job Environment:";
   vector<string>::iterator variter;
   for(variter = envvars.begin(); variter != envvars.end(); ++variter) {
 
@@ -74,7 +74,7 @@ TFolder * NtpMCJobEnv::TakeSnapshot(void)
      string value = (gSystem->Getenv(var.c_str()) ?
                                gSystem->Getenv(var.c_str()) : "UNDEFINED");
 
-     LOG("NtpMCEnv", pINFO) << "$" << var << " ---> " << value;
+     LOG("Ntp", pINFO) << "$" << var << " ---> " << value;
 
      entry << "envv:" << var << ";value:" << value;
      fEnv->Add(new TObjString(entry.str().c_str()));

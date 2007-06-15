@@ -50,8 +50,8 @@ TFolder * NtpMCJobConfig::Load(void)
   if (fConfig) delete fConfig;
   fConfig = 0;
 
-  LOG("NtpMCConf", pNOTICE)
-                << "Converting configuration registries to TFolders";
+  LOG("Ntp", pNOTICE)
+        << "Converting configuration registries to TFolders";
 
   fConfig = gROOT->GetRootFolder()->AddFolder("gconfig","GENIE configs");
   gROOT->GetListOfBrowsables()->Add(fConfig,"gconfig");
@@ -65,26 +65,26 @@ TFolder * NtpMCJobConfig::Load(void)
 
     string key = *keyiter;
 
-    LOG("NtpMCConf",pDEBUG) << "Current configuration registry key" << key;
+    LOG("Ntp",pDEBUG) << "Current configuration registry key" << key;
 
     vector<string> vkey = utils::str::Split(key,"/");
     assert(vkey.size()==2);
     string alg_name  = vkey[0];
     string param_set = vkey[1];
 
-    LOG("NtpMCConf",pDEBUG)
-                << "alg_name: " << alg_name << ", param_set: " << param_set;
+    LOG("Ntp",pDEBUG)
+         << "alg_name: " << alg_name << ", param_set: " << param_set;
 
     if( !(fConfig->FindObject(alg_name.c_str())) ) {
-      LOG("NtpMCConf",pDEBUG) << "Adding new folder for alg: " << alg_name;
+      LOG("Ntp",pDEBUG) << "Adding new folder for alg: " << alg_name;
       fConfig->AddFolder(alg_name.c_str(), "");
     }
     TFolder * alg_folder = (TFolder *) fConfig->FindObject(alg_name.c_str());
 
-    LOG("NtpMCConf",pDEBUG) << "Adding folder for param set: " << param_set;
+    LOG("Ntp",pDEBUG) << "Adding folder for param set: " << param_set;
     TFolder * config_folder = alg_folder->AddFolder(param_set.c_str(), "");
 
-    LOG("NtpMCConf",pDEBUG) << "Accessing Registry & converting it to TFolder";
+    LOG("Ntp",pDEBUG) << "Accessing Registry & converting it to TFolder";
     Registry * config_registry = algconf->FindRegistry(key);
     config_registry->CopyToFolder(config_folder);
   }
