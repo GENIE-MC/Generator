@@ -55,7 +55,6 @@
 #include "Ntuple/NtpMCFormat.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
-#include "Ntuple/NtpMCSummary.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
@@ -74,9 +73,7 @@ void   PrintSyntax          (void);
 bool   CheckRootFilename    (string filename);
 string OutputFileName       (string input_file_name);
 void   AnalyzeSample        (string filename);
-void   InitInputEventStream (void);
-void   InitOutput           (void);
-void   InitEvent            (void);
+void   Init                 (void);
 void   EventLoop            (void);
 void   SaveResults          (void);
 void   CleanUp              (void);
@@ -232,8 +229,7 @@ void AnalyzeSample(string filename)
 {
   gCurrInpFilename = filename;
 
-  InitInputEventStream();
-  InitOutput();
+  Init();
   EventLoop();
   SaveResults();
   CleanUp();
@@ -241,7 +237,7 @@ void AnalyzeSample(string filename)
   LOG("gmctest", pINFO)  << "Done analyzing : " << filename;
 }
 //_________________________________________________________________________________
-void InitInputEventStream(void)
+void Init(void)
 {
   //-- open the ROOT file and get the TTree & its header
 
@@ -270,10 +266,7 @@ void InitInputEventStream(void)
   gEventRecTree = tree;
   gMCRec        = mcrec;
   gNEvt         = nmax;
-}
-//_________________________________________________________________________________
-void InitOutput(void)
-{
+
   //-- build output filename based on input filename
   string outpfilename = OutputFileName(gCurrInpFilename);
   LOG("gmctest", pNOTICE) 
@@ -359,10 +352,6 @@ void InitOutput(void)
   tEvtTree->Branch("mishad_py", &br_mishad_py,  "mishad_py/D"          );
   tEvtTree->Branch("mishad_pz", &br_mishad_pz,  "mishad_pz/D"          );
 
-}
-//_________________________________________________________________________________
-void InitEvent()
-{
   br_nhep    = 0; 
   br_n_hprim = 0; 
   for(int k=0; k<kNPmax; k++) {
@@ -397,8 +386,6 @@ void EventLoop(void)
   if (gNEvt<0)        return;
   if (!gEventRecTree) return;
   if (!gMCRec)        return;
-
-  InitEvent();
 
   for(Long64_t i = 0; i < gNEvt; i++) {
 
