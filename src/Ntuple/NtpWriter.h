@@ -34,7 +34,6 @@ using std::string;
 namespace genie {
 
 class EventRecord;
-class NtpMCPlainRecord;
 class NtpMCEventRecord;
 class NtpMCTreeHeader;
 
@@ -55,14 +54,12 @@ private:
   void      CreateTree         (void);
   void      CreateTreeHeader   (void);
   TBranch * CreateTreeBranch   (void);
-  TBranch * CreatePRTreeBranch (void);
   TBranch * CreateERTreeBranch (void);
 
   NtpMCFormat_t      fNtpFormat;
   Long_t             fRunNu;
   TFile *            fOutFile;
   TTree *            fOutTree;
-  NtpMCPlainRecord * fNtpMCPlainRecord;
   NtpMCEventRecord * fNtpMCEventRecord;
   NtpMCTreeHeader *  fNtpMCTreeHeader;
 };
