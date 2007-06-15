@@ -287,6 +287,15 @@ Use the "Default" one to get the best GENIE physics & tuning.
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Options relevant for the simulation of the 2nd nucleon when the scattering if off a correlated
+  NN pair
+  -->
+  <param type="bool"   name="CorrelNN-Enable">            false </param>
+  <param type="double" name="CorrelNN-MomentumThreshold"> 0.3   </param>
+
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameters controlling the hadronic multiplicities in the KNO model
   -->
   <param type="double" name="KNO-Beta">      1.30 </param> 
