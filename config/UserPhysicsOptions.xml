@@ -293,6 +293,11 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="bool"   name="CorrelNN-Enable">            false </param>
   <param type="double" name="CorrelNN-MomentumThreshold"> 0.3   </param>
 
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters controlling corrections to final state primary lepton simulation
+  -->
+  <param type="bool" name="FSL-ApplyCoulombCorrection"> false </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
