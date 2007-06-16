@@ -66,7 +66,7 @@ int main(int argc, char ** argv)
 
   //-- read & print the TTree entries [depends on the format]
   LOG("Main", pINFO) << "This ntuple's format is : "
-                             << NtpMCFormat::SuggestedUsage(format);
+                                   << NtpMCFormat::AsString(format);
   switch(format) {
      case kNFEventRecord:
        // ntuple for passing data to other applications (eg the MC
