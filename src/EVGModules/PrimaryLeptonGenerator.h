@@ -32,22 +32,32 @@ class PrimaryLeptonGenerator : public EventRecordVisitorI {
 
 public :
 
-  //! Standard EventRecordVisitorI interface implementation
+  //-- Standard EventRecordVisitorI interface implementation
   virtual void ProcessEventRecord(GHepRecord * evrec) const;
 
-  //! Common methods for all concrete PrimaryLeptonGenerator-type
-  //! EventRecordVisitors
+  //-- Common methods for all concrete PrimaryLeptonGenerator-type
+  //   EventRecordVisitors
   virtual void     SetPolarization  (GHepRecord * ev) const;
   virtual TVector3 NucRestFrame2Lab (GHepRecord * ev) const;
   virtual void     AddToEventRecord (
               GHepRecord * ev, int pdgc, const TLorentzVector & p4) const;
+
+  //-- override the Algorithm::Configure methods to load configuration
+  //   data to private data members
+  void Configure (const Registry & config);
+  void Configure (string config);
+
 protected:
 
-  //! Abstract class - Can only be instantiated by its children.
+  //-- Abstract class - Can only be instantiated by its children.
   PrimaryLeptonGenerator();
   PrimaryLeptonGenerator(string name);
   PrimaryLeptonGenerator(string name, string config);
   virtual ~PrimaryLeptonGenerator();
+
+  void LoadConfig(void);
+
+  bool fApplyCoulombCorrection;
 };
 
 }      // genie namespace
