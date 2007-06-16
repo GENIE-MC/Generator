@@ -17,6 +17,7 @@
 #include <TVector3.h>
 #include <TLorentzVector.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "EVGModules/PrimaryLeptonGenerator.h"
 #include "GHEP/GHepRecord.h"
@@ -26,8 +27,10 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGUtils.h"
+#include "PDG/PDGCodes.h"
 #include "Numerical/RandomGen.h"
 #include "Utils/PrintUtils.h"
+#include "Utils/MathUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -134,15 +137,9 @@ TVector3 PrimaryLeptonGenerator::NucRestFrame2Lab(GHepRecord * evrec) const
   Interaction * interaction = evrec->Summary();
   const InitialState & init_state = interaction->InitState();
 
-  const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[LAB]
-
+  const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
   TVector3 beta = pnuc4.BoostVector();
-  
-  //double bx = pnuc4.Px() / pnuc4.Energy();
-  //double by = pnuc4.Py() / pnuc4.Energy();
-  //double bz = pnuc4.Pz() / pnuc4.Energy();
-  //TVector3 beta(bx,by,bz);
-  
+    
   return beta;
 }
 //___________________________________________________________________________
@@ -152,13 +149,62 @@ void PrimaryLeptonGenerator::AddToEventRecord(
 // Adds the final state primary lepton GHepParticle to the event record.
 // To be called by all concrete PrimaryLeptonGenerators before exiting.
 
+  Interaction * interaction = evrec->Summary();
+    
   int mom = evrec->ProbePosition();
-  TLorentzVector vdummy(0,0,0,0); // position 4-vector
 
-  evrec->AddParticle(pdgc, kIStStableFinalState, mom,-1,-1,-1, p4, vdummy);
+  TLorentzVector vdummy(0,0,0,0); // position 4-vector
+  TLorentzVector p4l(p4); // momentum 4-vector
+
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+
+  bool is_ve = interaction->ProcInfo().IsInverseMuDecay() || 
+               interaction->ProcInfo().IsNuElectronElastic();
+
+  bool can_correct = fApplyCoulombCorrection && nucltgt!=0 && !is_ve;
+  if(can_correct) {
+    LOG("LeptonicVertex", pINFO)  
+        << "Correcting f/s lepton energy for Coulomb effects";
+
+    double m = interaction->FSPrimLepton()->Mass();
+    double Z  = nucltgt->Z();
+    double A  = nucltgt->A();
+
+    //  charge radius of nucleus in GeV^-1
+    double Rc = (1.1*TMath::Power(A,1./3.) + 0.86*TMath::Power(A,-1./3.))/0.197; 
+
+    // shift of lepton energy in homogenous sphere with radius Rc
+    double Vo = 3*kAem*Z/(2*Rc);
+    Vo *= 0.75; // as suggested in R.Gran's note
+    
+    double Elo = p4l.Energy();
+    double e   = TMath::Min(Vo, Elo-m);
+    double El  = TMath::Max(0., Elo-e);
+
+    LOG("LeptonicVertex", pINFO) 
+      << "Lepton energy subtraction: E = " << Elo << " --> " << El;
+
+    double pmag_old = p4l.P();
+    double pmag_new = TMath::Sqrt(utils::math::NonNegative(El*El-m*m));
+    double scale    = pmag_new / pmag_old;
+    LOG("LeptonicVertex", pDEBUG) 
+         << "|pnew| = " << pmag_new << ", |pold| = " << pmag_old
+         << ", scale = " << scale;
+
+    double pxl = scale * p4l.Px();
+    double pyl = scale * p4l.Py();
+    double pzl = scale * p4l.Pz();
+
+    p4l.SetPxPyPzE(pxl,pyl,pzl,El);
+
+    TLorentzVector p4c = p4 - p4l;
+    evrec->AddParticle(kPdgCoulobtron, kIStStableFinalState, -1,-1,-1,-1, p4c, vdummy);
+  }
+
+  evrec->AddParticle(pdgc, kIStStableFinalState, mom,-1,-1,-1, p4l, vdummy);
 
   // update the interaction summary
-  evrec->Summary()->KinePtr()->SetFSLeptonP4(p4);
+  evrec->Summary()->KinePtr()->SetFSLeptonP4(p4l);
 }
 //___________________________________________________________________________
 void PrimaryLeptonGenerator::SetPolarization(GHepRecord * ev) const
@@ -198,6 +244,31 @@ void PrimaryLeptonGenerator::SetPolarization(GHepRecord * ev) const
           << "Polarization (rad): Polar = "  << fsl->PolzPolarAngle() 
                            << ", Azimuthal = " << fsl->PolzAzimuthAngle();
   }
+}
+//___________________________________________________________________________
+void PrimaryLeptonGenerator::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void PrimaryLeptonGenerator::Configure(string config)
+{    
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void PrimaryLeptonGenerator::LoadConfig(void)
+{
+// Reads its configuration from its Registry and loads all the sub-algorithms
+// needed
+     
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+     
+  fApplyCoulombCorrection =
+          fConfig->GetBoolDef("ApplyCoulombCorrection", 
+                             gc->GetBool("FSL-ApplyCoulombCorrection"));
 }
 //___________________________________________________________________________
 
