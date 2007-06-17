@@ -155,6 +155,8 @@ void GCylindTH1Flux::SetTransverseRadius(double Rt)
 //___________________________________________________________________________
 void GCylindTH1Flux::AddEnergySpectrum(int nu_pdgc, TH1D * spectrum)
 {
+  LOG("Flux", pNOTICE) << "Adding flux spectrum for pdg = " << nu_pdgc;
+
   fPdgCList->push_back(nu_pdgc);
 
   bool accepted = (count(fPdgCList->begin(),fPdgCList->end(),nu_pdgc) == 1);
@@ -167,6 +169,9 @@ void GCylindTH1Flux::AddEnergySpectrum(int nu_pdgc, TH1D * spectrum)
      int    nb  = spectrum->GetNbinsX();
      Axis_t max = spectrum->GetBinLowEdge(nb)+spectrum->GetBinWidth(nb);
      fMaxEv = TMath::Max(fMaxEv, (double)max);
+
+     LOG("Flux", pNOTICE) 
+          << "Updating maximum energy of flux particles to: " << fMaxEv;
 
      this->AddAllFluxes(); // update combined flux
   }
