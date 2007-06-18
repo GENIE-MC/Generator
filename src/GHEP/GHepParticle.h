@@ -97,7 +97,7 @@ public :
   bool IsOnMassShell  (void) const;
   bool IsOffMassShell (void) const;
 
-  //-- Relevant if entry is nucleus(nucleon), else=-1 / Decoded from PDG code
+  //-- Relevant if GHEP entry is a nucleus, else=-1 / Decoded from PDG code
   int  Z (void) const;
   int  A (void) const;
 
