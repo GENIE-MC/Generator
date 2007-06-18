@@ -357,7 +357,7 @@ void ConvertToGTab(ofstream & output, EventRecord & event)
 // FUNCTIONS FOR CONVERTING:
 //    ***** GENIE ER ROOT TREE -> GMINOS-STYLE TEXT FILE ****
 //___________________________________________________________________
-void ConvertToGMinos(ofstream & output, EventRecord & event)
+void ConvertToGMinos(ofstream & /*output*/, EventRecord & /*event*/)
 {
   LOG("gntpc", pERROR) << "GMINOS format is not supported yet";
   exit(4);
