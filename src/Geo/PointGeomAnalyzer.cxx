@@ -33,9 +33,6 @@ GeomAnalyzerI()
 {
   fCurrVertex = new TVector3(0,0,0);
 
-  PathLengthList::size_type ntgt=1;
-  PDGCodeList::size_type    nneu=1;
-
   fCurrPDGCodeList = new PDGCodeList;
   fCurrPDGCodeList->clear();
   fCurrPDGCodeList->push_back(tgtpdgc);
