@@ -26,6 +26,7 @@ TGT =	gtestAlgorithms 	\
  	gtestElFormFactors	\
  	gtestHadronization	\
  	gtestIntranuke		\
+	gtestINukeHadroData     \
 	gtestMessenger		\
 	gtestNumerical		\
 	gtestPDFLIB		\
@@ -71,6 +72,10 @@ gtestHadronization: FORCE
 gtestIntranuke: FORCE
 	$(CXX) $(CXXFLAGS) -c testIntranuke.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testIntranuke.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestIntranuke
+
+gtestINukeHadroData: FORCE
+	$(CXX) $(CXXFLAGS) -c testINukeHadroData.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testINukeHadroData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestINukeHadroData
 
 gtestXSec: FORCE
 	$(CXX) $(CXXFLAGS) -c testXSec.cxx $(INCLUDES)
@@ -144,10 +149,6 @@ else
 	@echo "You need to enable the geometry drivers to build the gtestROOTGeometry program"
 endif
 
-gtestINukeHadroData: FORCE
-	$(CXX) $(CXXFLAGS) -c testINukeHadroData.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testINukeHadroData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestINukeHadroData
-
 #################### CLEANING
 
 purge: FORCE
@@ -162,7 +163,8 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	
-	$(RM) $(GENIE_BIN_PATH)/gtestIntranuke		
+	$(RM) $(GENIE_BIN_PATH)/gtestIntranuke	
+	$(RM) $(GENIE_BIN_PATH)/gtestINukeHadroData	
 	$(RM) $(GENIE_BIN_PATH)/gtestMessenger		
 	$(RM) $(GENIE_BIN_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_PATH)/gtestPDFLIB		
@@ -184,6 +186,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestIntranuke		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestINukeHadroData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMessenger		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPDFLIB		
@@ -219,6 +222,9 @@ clean--gtestHadronization: FORCE
 
 clean--gtestIntranuke: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestIntranuke
+
+clean--gtestINukeHadroData: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestINukeHadroData
 
 clean--gtestXSec: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestXSec
@@ -261,9 +267,6 @@ clean--gtestReadGNtuple: FORCE
 
 clean--gtestROOTGeometry: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestROOTGeometry
-
-clean--gtestINukeHadroData: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestSAIDHadronXSec
 
 FORCE:
 
