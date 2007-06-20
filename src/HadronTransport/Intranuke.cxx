@@ -1047,7 +1047,6 @@ bool Intranuke::PhaseSpaceDecay(
 
   // update available energy -> init (mass + kinetic) + sum of f/s masses
   double availE = pd->Energy() + mass_sum; 
-  availE += 0.01; // steve's recipe
   if(pdg::IsNeutronOrProton(p->Pdg())) availE -= p->Mass();
   pd->SetE(availE);
 
