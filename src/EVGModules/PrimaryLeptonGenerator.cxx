@@ -151,10 +151,13 @@ void PrimaryLeptonGenerator::AddToEventRecord(
 
   Interaction * interaction = evrec->Summary();
     
-  int mom = evrec->ProbePosition();
+  GHepParticle * mom  = evrec->Probe();
+  int            imom = evrec->ProbePosition();
 
-  TLorentzVector vdummy(0,0,0,0); // position 4-vector
-  TLorentzVector p4l(p4); // momentum 4-vector
+  const TLorentzVector & vtx = *(mom->X4());
+
+  TLorentzVector x4l(vtx);  // position 4-vector
+  TLorentzVector p4l(p4);   // momentum 4-vector
 
   GHepParticle * nucltgt = evrec->TargetNucleus();
 
@@ -198,10 +201,13 @@ void PrimaryLeptonGenerator::AddToEventRecord(
     p4l.SetPxPyPzE(pxl,pyl,pzl,El);
 
     TLorentzVector p4c = p4 - p4l;
-    evrec->AddParticle(kPdgCoulobtron, kIStStableFinalState, -1,-1,-1,-1, p4c, vdummy);
+    TLorentzVector x4dummy(0,0,0,0);;
+
+    evrec->AddParticle(
+        kPdgCoulobtron, kIStStableFinalState, -1,-1,-1,-1, p4c, x4dummy);
   }
 
-  evrec->AddParticle(pdgc, kIStStableFinalState, mom,-1,-1,-1, p4l, vdummy);
+  evrec->AddParticle(pdgc, kIStStableFinalState, imom,-1,-1,-1, p4l, x4l);
 
   // update the interaction summary
   evrec->Summary()->KinePtr()->SetFSLeptonP4(p4l);

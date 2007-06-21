@@ -104,8 +104,7 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
         //   The decayer might not be able to handle it - in which case it
         //   should return a NULL decay products container
 
-        TLorentzVector p4(p->Px(), p->Py(), p->Pz(), p->E());
-
+        TLorentzVector p4 = *(p->P4());
         DecayerInputs_t dinp;
         dinp.PdgCode = p->Pdg();
         dinp.P4      = &p4;
@@ -120,7 +119,7 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
            p->SetStatus(kIStDecayedState);
 
            //-- Add the mom & daughters to the event record
-           this->CopyToEventRecord(decay_products, evrec, ipos, in_nucleus);
+           this->CopyToEventRecord(decay_products, evrec, p, ipos, in_nucleus);
 
            //-- Update the event weight for each weighted particle decay
            double decay_weight = fCurrDecayer->Weight();
@@ -185,7 +184,7 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
 }
 //___________________________________________________________________________
 void UnstableParticleDecayer::CopyToEventRecord(
-            TClonesArray * decay_products, GHepRecord * evrec, 
+  TClonesArray * decay_products, GHepRecord * evrec, GHepParticle * p,
                                        int mother_pos, bool in_nucleus) const
 {
 // Adds the decayer output at the GHEP event record. 
@@ -198,6 +197,8 @@ void UnstableParticleDecayer::CopyToEventRecord(
   int new_mother_pos = mother_pos;
   TMCParticle * dpmc =  0;
 
+  TLorentzVector parent_x4 = *(p->X4());
+
   TObjArrayIter decay_iter(decay_products);
 
   while( (dpmc = (TMCParticle *) decay_iter.Next()) ) {
@@ -205,29 +206,17 @@ void UnstableParticleDecayer::CopyToEventRecord(
      int pdg = dpmc->GetKF();
      GHepStatus_t ist = GHepStatus_t (dpmc->GetKS()); 
 
+/*
      double px = dpmc->GetPx();
      double py = dpmc->GetPy();
      double pz = dpmc->GetPz();
      double E  = dpmc->GetEnergy();
-
-     TLorentzVector p4(px, py, pz, E); // momentum 4-vector
-     TLorentzVector v4(0,  0,  0,  0); // dummy position 4-vector
-/*
-     //-- duplicate the mother particle with status=kIStDecayedState to 
-     //   record the decay 
-     if(ist == 11) {
-        LOG("ParticleDecayer", pINFO) << "Cloning mother... PDG = " << pdg;
-
-        GHepStatus_t istfin = kIStDecayedState;
-        evrec->AddParticle(pdg, istfin, mother_pos,-1,-1,-1, p4, v4);
-
-        // update the mother position
-        new_mother_pos = evrec->Particle(mother_pos)->FirstDaughter();
-
-        LOG("ParticleDecayer", pINFO) << "New mother position = " << new_mother_pos;
-        assert(new_mother_pos>0);
-     }
 */
+     TLorentzVector p4(dpmc->GetPx(), dpmc->GetPy(), dpmc->GetPz(), dpmc->GetEnergy()); 
+
+     TLorentzVector x4(dpmc->GetVx(), dpmc->GetVy(), dpmc->GetVz(), dpmc->GetTime()); 
+     x4 += parent_x4;
+
      //-- and now add the decay products
      if(ist == kIStStableFinalState) { 
 
@@ -240,7 +229,7 @@ void UnstableParticleDecayer::CopyToEventRecord(
         GHepStatus_t istfin = (hadron_in_nuc) ?
                                kIStHadronInTheNucleus : kIStStableFinalState;
 
-        evrec->AddParticle(pdg, istfin, new_mother_pos,-1,-1,-1, p4, v4);
+        evrec->AddParticle(pdg, istfin, new_mother_pos,-1,-1,-1, p4, x4);
      }
   }
 }

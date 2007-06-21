@@ -56,7 +56,7 @@ private:
   void  LoadConfig        (void);
   bool  ToBeDecayed       (GHepParticle * particle) const;
   bool  IsUnstable        (GHepParticle * particle) const;
-  void  CopyToEventRecord (TClonesArray * dp, GHepRecord * ev, 
+  void  CopyToEventRecord (TClonesArray * dp, GHepRecord * ev, GHepParticle * p,
                            int mother_pos, bool in_nucleus) const;
 
   double fMaxLifetime;       ///< define "unstable" particle?

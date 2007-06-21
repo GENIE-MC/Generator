@@ -131,7 +131,7 @@
   <priority msgstream="Spline">              INFO   </priority>
   <priority msgstream="Target">              INFO   </priority>
   <priority msgstream="Utils">               INFO   </priority>
-  <priority msgstream="VtxGenerator">        INFO   </priority>
+  <priority msgstream="Vtx">                 INFO   </priority>
   <priority msgstream="VldContext">          NOTICE </priority>
   <priority msgstream="XSecBase">            NOTICE </priority>
   <priority msgstream="XSecAlgMap">          NOTICE </priority>

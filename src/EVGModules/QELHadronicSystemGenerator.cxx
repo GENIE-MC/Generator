@@ -66,9 +66,13 @@ void QELHadronicSystemGenerator::AddRecoilNucleon(GHepRecord * evrec) const
   GHepStatus_t ist = (tgt.IsNucleus()) ?
                            kIStHadronInTheNucleus : kIStStableFinalState;
 
+  //-- Get the vtx position
+  GHepParticle * neutrino  = evrec->Probe();
+  const TLorentzVector & vtx = *(neutrino->X4());
+
+
   //-- Get nucleon 4-momentum (in the LAB frame) & position
   TLorentzVector p4 = this->Hadronic4pLAB(evrec);
-  TLorentzVector v4(0.,0.,0.,0.); 
 
   //-- Get mother position
   int mom = evrec->HitNucleonPosition();
@@ -76,7 +80,7 @@ void QELHadronicSystemGenerator::AddRecoilNucleon(GHepRecord * evrec) const
   //-- Add the final state recoil nucleon at the EventRecord
   LOG("QELHadronicVtx", pINFO) << "Adding nucleon [pdgc = " << pdgc << "]";
 
-  GHepParticle p(pdgc, ist, mom,-1,-1,-1, p4, v4);
+  GHepParticle p(pdgc, ist, mom,-1,-1,-1, p4, vtx);
   p.SetRemovalEnergy(evrec->Particle(mom)->RemovalEnergy());
   evrec->AddParticle(p);
 }

@@ -390,6 +390,13 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="bool"   name="UseDRJoinScheme"> true </param>
   <param type="double" name="Wcut">            1.7  </param>
 
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - NUCL-Ro is an effective nucleus size given in fm (R=Ro*A^1/3)
+  -->
+  <param type="double" name="NUCL-R0"> 1.2   </param>
+
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Intranuclear rescattering 
@@ -402,7 +409,6 @@ Use the "Default" one to get the best GENIE physics & tuning.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   INTRANUKE-specific parameters:
   - Mode options are: hA, hN
-  - Ro is an effective nucleus size given in fm (R=Ro*A^1/3)
   - FormationZone is the ct0 param entering in form. zone calc (in fm)
   - KPt2 is the parameter multiplying pT2 in formation zone calc.
   - NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
@@ -410,7 +416,6 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="string" name="INUKE-Mode">            hA    </param>
   <param type="double" name="INUKE-FormationZone">   2.0   </param>
   <param type="double" name="INUKE-KPt2">            1.0   </param>
-  <param type="double" name="INUKE-Ro">              1.2   </param>
   <param type="double" name="INUKE-NucRemovalE">     0.008 </param>
 
  <!-- 

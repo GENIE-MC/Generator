@@ -14,8 +14,8 @@ mode                string  Yes   intranuke mode                                
 test-mode           bool    Yes   Enables modifications for the pitest mode                 false
 ct0                 double  Yes   ct0 param (in fm) in formation zone calculation           GPL INUKE-FormationZone
 Kpt2                double  Yes   param multiplying pT2 in formation zone calculation       GPL INUKE-KPt2
-R0                  double  Yes   effective nucleus size Ro in fm                           GPL INUKE-Ro
-nuc-removal-energy  double  Yes   binding energy to subtract from cascade nucleons (GeV)    GPL INUKE-NucRemovalE
+NumRmvE             double  Yes   binding energy to subtract from cascade nucleons (GeV)    GPL INUKE-NucRemovalE
+R0                  double  Yes   effective nucleus size Ro in fm                           GPL NUCL-R0
 -->
 
   <param_set name="Default"> 
