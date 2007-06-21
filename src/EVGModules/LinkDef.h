@@ -10,8 +10,8 @@
 #pragma link C++ class genie::PauliBlocker;
 #pragma link C++ class genie::NucBindEnergyAggregator;
 #pragma link C++ class genie::CorrelatedNucleonGenerator;
-
 #pragma link C++ class genie::InitialStateAppender;
+#pragma link C++ class genie::VertexGenerator;
 #pragma link C++ class genie::HadronTransporter;
 #pragma link C++ class genie::UnstableParticleDecayer;
 

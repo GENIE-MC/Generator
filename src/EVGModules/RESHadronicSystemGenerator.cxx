@@ -96,15 +96,18 @@ int RESHadronicSystemGenerator::GetResonancePdgCode(GHepRecord * evrec) const
 void RESHadronicSystemGenerator::AddResonance(
                                          GHepRecord * evrec, int pdgc) const
 {
-  // compute RES p4 = p4(neutrino) + p4(hit nucleon) - p4(primary lepton)
+  //-- Compute RES p4 = p4(neutrino) + p4(hit nucleon) - p4(primary lepton)
   TLorentzVector p4 = this->Hadronic4pLAB(evrec);
 
   //-- Add the resonance at the EventRecord
   GHepStatus_t ist = kIStPreDecayResonantState;
   int mom = evrec->HitNucleonPosition();
 
-  evrec->AddParticle(
-        pdgc, ist, mom,-1,-1,-1, p4.Px(),p4.Py(),p4.Pz(),p4.E(), 0,0,0,0);
+  //-- Get vtx position
+  GHepParticle * neutrino  = evrec->Probe();
+  const TLorentzVector & vtx = *(neutrino->X4());
+
+  evrec->AddParticle(pdgc, ist, mom,-1,-1,-1, p4, vtx);
 }
 //___________________________________________________________________________
 void RESHadronicSystemGenerator::AddResonanceDecayProducts(
@@ -124,6 +127,9 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
   // access the GHEP entry
   GHepParticle * resonance = evrec->Particle(irpos);
   assert(resonance);
+
+  // resonance location
+  const TLorentzVector & x4 = *(resonance->X4());
 
   // prepare the decayer inputs
   DecayerInputs_t dinp;
@@ -174,10 +180,11 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
         double py = dpmc->GetPy();
         double pz = dpmc->GetPz();
         double E  = dpmc->GetEnergy();
+        TLorentzVector p4(px,py,pz,E);
 
        //-- Only add the decay products - the mother particle already exists
        if(dpmc->GetKS()==1) {
-         evrec->AddParticle(dppdg,dpist,irpos,-1,-1,-1, px,py,pz,E, 0,0,0,0);
+         evrec->AddParticle(dppdg,dpist,irpos,-1,-1,-1, p4, x4);
        }
      }
          

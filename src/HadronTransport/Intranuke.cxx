@@ -87,7 +87,10 @@ void Intranuke::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 void Intranuke::GenerateVertex(GHepRecord * evrec) const
 {
-// generate a vtx and set it to all GHEP physical particles
+// Generate a vtx and set it to all GHEP physical particles
+// This method only takes effect in intranuke's h+A test mode.
+
+  if(!fInTestMode) return;
 
   GHepParticle * nucltgt = evrec->TargetNucleus();
   assert(nucltgt);
@@ -99,48 +102,33 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
   // *** For h+A events (test mode): 
   // Assume a hadron beam with uniform intensity across an area, 
   // so we need to choose events uniformly within that area.
-
-  if(fInTestMode) {
-    double x=999999., y=999999., epsilon = 0.001;
-    double R2  = TMath::Power(fNuclRadius,2.);
-    double rp2 = TMath::Power(x,2.) + TMath::Power(y,2.);
-    while(rp2 > R2-epsilon) {
+  double x=999999., y=999999., epsilon = 0.001;
+  double R2  = TMath::Power(fNuclRadius,2.);
+  double rp2 = TMath::Power(x,2.) + TMath::Power(y,2.);
+  while(rp2 > R2-epsilon) {
       x = (fNuclRadius-epsilon) * rnd->RndFsi().Rndm();
       y = -fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm();
       y -= ((y>0) ? epsilon : -epsilon);
       rp2 = TMath::Power(x,2.) + TMath::Power(y,2.);
-    }
-    vtx.SetXYZ(x,y, -1.*TMath::Sqrt(TMath::Max(0.,R2-rp2)) + epsilon);
-
-    // get the actual unit vector along the incoming hadron direction
-    TVector3 direction = evrec->Probe()->P4()->Vect().Unit();
-
-    // rotate the vtx position
-    vtx.RotateUz(direction);
-  } 
-
-  // *** For v+A events:
-  // Use const probability per unit volume within the sphere
-  // (don't do the silly mistake to generate vertices uniformly in R)
-  //
-
-  else {
-    while(vtx.Mag() > fNuclRadius) {
-      vtx.SetX(-fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm());
-      vtx.SetY(-fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm());
-      vtx.SetZ(-fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm());
-    }
   }
+  vtx.SetXYZ(x,y, -1.*TMath::Sqrt(TMath::Max(0.,R2-rp2)) + epsilon);
 
+  // get the actual unit vector along the incoming hadron direction
+  TVector3 direction = evrec->Probe()->P4()->Vect().Unit();
+
+  // rotate the vtx position
+  vtx.RotateUz(direction);
+  
   LOG("Intranuke", pNOTICE) 
      << "Generated vtx @ R = " << vtx.Mag() << " fm / " 
-     << print::Vec3AsString(&vtx);
+                                            << print::Vec3AsString(&vtx);
 
   TObjArrayIter piter(evrec);
   GHepParticle * p = 0;
   while( (p = (GHepParticle *) piter.Next()) )
   {
-    if(p->IsFake()) continue;
+    if(p->IsFake()   ) continue;
+    if(p->IsNucleus()) continue;
     p->SetPosition(vtx.x(), vtx.y(), vtx.z(), 0.);
   }
 }
@@ -148,13 +136,8 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
 void Intranuke::SetNuclearRadius(const GHepParticle * p) const
 {
   assert(p && p->IsNucleus());
-
-  int A = p->A();
-  if(fR0>0) {
-     fNuclRadius = fR0 * TMath::Power(A, 1./3.);
-  } else {
-     fNuclRadius  = nuclear::Radius(A); 
-  }
+  double A = p->A();
+  fNuclRadius = fR0 * TMath::Power(A, 1./3.);
 }
 //___________________________________________________________________________
 bool Intranuke::NeedsRescattering(const GHepParticle * p) const
@@ -198,6 +181,20 @@ bool Intranuke::IsInNucleus(const GHepParticle * p) const
 void Intranuke::TransportHadrons(GHepRecord * evrec) const
 {
 // transport all hadrons outside the nucleus
+
+  //  Keep track of the remnant nucleus A,Z  
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+  assert(nucltgt);
+  int iremn = nucltgt->LastDaughter();
+  assert(iremn!=-1);
+  fRemnA =  evrec->Particle(iremn)->A();
+  fRemnZ =  evrec->Particle(iremn)->Z();
+
+  const TLorentzVector & premn4 = *(evrec->Particle(iremn)->P4());
+  fRemnP4 = premn4; 
+
+  LOG("Intranuke", pNOTICE)
+        << "Remnant nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
 
   // Loop over GHEP and run intranuclear rescattering on handled particles
   TObjArrayIter piter(evrec);
@@ -281,6 +278,14 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
     //LOG("Intranuke", pINFO) << "Current event record snapshot: " << *evrec;
 
   }// GHEP entries
+
+  // Add remnant nucleus - that 'hadronic blob' has all the remaining hadronic 
+  // 4p not  put explicitly into the simulated particles
+  TLorentzVector v4(0.,0.,0.,0.);
+  GHepParticle remnant_nucleus(
+     kPdgHadronicBlob, kIStStableFinalState, iremn,-1,-1,-1, fRemnP4, v4);
+  evrec->AddParticle(remnant_nucleus);
+  evrec->Particle(iremn)->SetStatus(kIStIntermediateState);
 }
 //___________________________________________________________________________
 bool Intranuke::IsFreshHadron(GHepRecord* evrec, GHepParticle* p) const
@@ -574,55 +579,158 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
   int    pdgc = p->Pdg();
   double ke   = p->KinE() / units::MeV;
  
+  LOG("Intranuke", pINFO) 
+   << "Selecting hA fate for " << p->Name() << " with KE = " << ke << " MeV";
+
   // try to generate a hadron fate
   unsigned int iter = 0;
   while(iter++ < kRjMaxIterations) {
 
     // handle pions
+    //
     if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
-       double tot_frac = 0;
-       double r = rnd->RndFsi().Rndm();
-       LOG("Intranuke", pDEBUG) << "r = " << r;
 
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtCEx,     ke))) return kIHAFtCEx;     // cex
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtElas,    ke))) return kIHAFtElas;    // elas
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtInelas,  ke))) return kIHAFtInelas;  // inelas
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNP,   ke))) return kIHAFtAbsNP;   // abs np
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke))) return kIHAFtAbsPP;   // abs pp
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke))) return kIHAFtAbsNPP;  // abs npp
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N2P, ke))) return kIHAFtAbs2N2P; // abs 2n2p 
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
+       double frac_cex      = this->FateWeight(pdgc, kIHAFtCEx)     * fHadroData->Frac(pdgc, kIHAFtCEx,     ke);
+       double frac_elas     = this->FateWeight(pdgc, kIHAFtElas)    * fHadroData->Frac(pdgc, kIHAFtElas,    ke);
+       double frac_inel     = this->FateWeight(pdgc, kIHAFtInelas)  * fHadroData->Frac(pdgc, kIHAFtInelas,  ke);
+       double frac_abs_np   = this->FateWeight(pdgc, kIHAFtAbsNP)   * fHadroData->Frac(pdgc, kIHAFtAbsNP,   ke);
+       double frac_abs_pp   = this->FateWeight(pdgc, kIHAFtAbsPP)   * fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke);
+       double frac_abs_npp  = this->FateWeight(pdgc, kIHAFtAbsNPP)  * fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke);
+       double frac_abs_nnp  = this->FateWeight(pdgc, kIHAFtAbsNNP)  * fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke);
+       double frac_abs_2n2p = this->FateWeight(pdgc, kIHAFtAbs2N2P) * fHadroData->Frac(pdgc, kIHAFtAbs2N2P, ke);
+       double frac_npippi0  = this->FateWeight(pdgc, kIHAFtNPipPi0) * fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke);
+
+       LOG("Intranuke", pINFO) 
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbsNP)   << "} = " << frac_abs_np
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbsPP)   << "} = " << frac_abs_pp
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbsNPP)  << "} = " << frac_abs_npp
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbsNNP)  << "} = " << frac_abs_nnp
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs2N2P) << "} = " << frac_abs_2n2p
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtNPipPi0) << "} = " << frac_npippi0;
+          
+       // compute total fraction (can be <1 if fates have been switched off)
+       double tf = frac_cex      +
+                   frac_elas     +
+                   frac_inel     +  
+                   frac_abs_np   + 
+                   frac_abs_pp   +
+                   frac_abs_npp  +
+                   frac_abs_nnp  +
+                   frac_abs_2n2p +
+                   frac_npippi0;
+
+       double r = tf * rnd->RndFsi().Rndm();
+       LOG("Intranuke", pDEBUG) << "r = " << r << " (max = " << tf << ")";
+
+       double cf=0; // current fraction
+       if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
+       if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
+       if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
+       if(r < (cf += frac_abs_np  )) return kIHAFtAbsNP;   // abs np
+       if(r < (cf += frac_abs_pp  )) return kIHAFtAbsPP;   // abs pp
+       if(r < (cf += frac_abs_npp )) return kIHAFtAbsNPP;  // abs npp
+       if(r < (cf += frac_abs_nnp )) return kIHAFtAbsNNP;  // abs nnp
+       if(r < (cf += frac_abs_2n2p)) return kIHAFtAbs2N2P; // abs 2n2p 
+       if(r < (cf += frac_npippi0 )) return kIHAFtNPipPi0; // pi prod: n pi+ pi0
 
        LOG("Intranuke", pWARN) 
-         << "No selection after going through all fates! "
-         << "Total fraction = " << tot_frac << " (r = " << r << ")";
+         << "No selection after going through all fates! " 
+                     << "Total fraction = " << tf << " (r = " << r << ")";
     }
 
     // handle nucleons
     else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
-       double tot_frac = 0;
-       double r = rnd->RndFsi().Rndm();
-       LOG("Intranuke", pDEBUG) << "r = " << r;
 
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtCEx,     ke))) return kIHAFtCEx;     // cex
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtElas,    ke))) return kIHAFtElas;    // elas
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtInelas,  ke))) return kIHAFtInelas;  // inelas
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNP,   ke))) return kIHAFtAbsNP;   // abs np
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke))) return kIHAFtAbsPP;   // abs pp
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke))) return kIHAFtAbsNPP;  // abs npp
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke))) return kIHAFtAbsNNP;  // abs nnp
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtAbs2N3P, ke))) return kIHAFtAbs2N3P; // abs 2n3p
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPip,    ke))) return kIHAFtNPip;    // pi production : n pi+
-       if(r < (tot_frac += fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke))) return kIHAFtNPipPi0; // pi production : n pi+ pi0
+       double frac_cex      = this->FateWeight(pdgc, kIHAFtCEx)     * fHadroData->Frac(pdgc, kIHAFtCEx,     ke);
+       double frac_elas     = this->FateWeight(pdgc, kIHAFtElas)    * fHadroData->Frac(pdgc, kIHAFtElas,    ke);
+       double frac_inel     = this->FateWeight(pdgc, kIHAFtInelas)  * fHadroData->Frac(pdgc, kIHAFtInelas,  ke);
+       double frac_abs_np   = this->FateWeight(pdgc, kIHAFtAbsNP)   * fHadroData->Frac(pdgc, kIHAFtAbsNP,   ke);
+       double frac_abs_pp   = this->FateWeight(pdgc, kIHAFtAbsPP)   * fHadroData->Frac(pdgc, kIHAFtAbsPP,   ke);
+       double frac_abs_npp  = this->FateWeight(pdgc, kIHAFtAbsNPP)  * fHadroData->Frac(pdgc, kIHAFtAbsNPP,  ke);
+       double frac_abs_nnp  = this->FateWeight(pdgc, kIHAFtAbsNNP)  * fHadroData->Frac(pdgc, kIHAFtAbsNNP,  ke);
+       double frac_abs_2n3p = this->FateWeight(pdgc, kIHAFtAbs2N3P) * fHadroData->Frac(pdgc, kIHAFtAbs2N3P, ke);
+       double frac_npip     = this->FateWeight(pdgc, kIHAFtNPip)    * fHadroData->Frac(pdgc, kIHAFtNPip,    ke);
+       double frac_npippi0  = this->FateWeight(pdgc, kIHAFtNPipPi0) * fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke);
+
+       LOG("Intranuke", pINFO) 
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbsNP)   << "} = " << frac_abs_np
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbsPP)   << "} = " << frac_abs_pp
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbsNPP)  << "} = " << frac_abs_npp
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbsNNP)  << "} = " << frac_abs_nnp
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs2N3P) << "} = " << frac_abs_2n3p
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtNPip)    << "} = " << frac_npip
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtNPipPi0) << "} = " << frac_npippi0;
+
+       // compute total fraction (can be <1 if fates have been switched off)
+       double tf = frac_cex      +
+                   frac_elas     +
+                   frac_inel     +  
+                   frac_abs_np   + 
+                   frac_abs_pp   +
+                   frac_abs_npp  +
+                   frac_abs_nnp  +
+                   frac_abs_2n3p +
+                   frac_npip     +
+                   frac_npippi0;
+
+       double r = tf * rnd->RndFsi().Rndm();
+       LOG("Intranuke", pDEBUG) << "r = " << r << " (max = " << tf << ")";
+
+       double cf=0; // current fraction
+       if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
+       if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
+       if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
+       if(r < (cf += frac_abs_np  )) return kIHAFtAbsNP;   // abs np
+       if(r < (cf += frac_abs_pp  )) return kIHAFtAbsPP;   // abs pp
+       if(r < (cf += frac_abs_npp )) return kIHAFtAbsNPP;  // abs npp
+       if(r < (cf += frac_abs_nnp )) return kIHAFtAbsNNP;  // abs nnp
+       if(r < (cf += frac_abs_2n3p)) return kIHAFtAbs2N2P; // abs 2n3p 
+       if(r < (cf += frac_npip    )) return kIHAFtNPip;    // pi prod: n pi+ 
+       if(r < (cf += frac_npippi0 )) return kIHAFtNPipPi0; // pi prod: n pi+ pi0
 
        LOG("Intranuke", pWARN) 
          << "No selection after going through all fates! "
-         << "Total fraction = " << tot_frac << " (r = " << r << ")";
+                        << "Total fraction = " << tf << " (r = " << r << ")";
     }
   }//iterations
 
   return kIHAFtUndefined; 
+}
+//___________________________________________________________________________
+double Intranuke::FateWeight(int pdgc, INukeFateHA_t fate) const
+{
+// turn fates off if the remnant nucleus does not have the number of p,n
+// required
+
+  int np = fRemnZ;
+  int nn = fRemnA - fRemnZ;
+
+  bool no_nuc_emit = 
+        fate == kIHAFtCEx    || 
+        fate == kIHAFtElas   || 
+        fate == kIHAFtInelas ||
+        fate == kIHAFtNPip   ||
+        fate == kIHAFtNPipPi0;
+
+  if(no_nuc_emit) return 1.;
+  else {
+     if ( pdg::IsProton(pdgc)  ) np++;
+     if ( pdg::IsNeutron(pdgc) ) nn++;
+
+     if (fate == kIHAFtAbsNP  ) { return (nn>=1 && np>=1) ? 1. : 0.; } //  np
+     if (fate == kIHAFtAbsPP  ) { return (nn>=0 && np>=2) ? 1. : 0.; } //  pp
+     if (fate == kIHAFtAbsNPP ) { return (nn>=1 && np>=2) ? 1. : 0.; } //  npp
+     if (fate == kIHAFtAbsNNP ) { return (nn>=2 && np>=1) ? 1. : 0.; } //  nnp
+     if (fate == kIHAFtAbs2N2P) { return (nn>=2 && np>=2) ? 1. : 0.; } //  2n2p 
+     if (fate == kIHAFtAbs2N3P) { return (nn>=2 && np>=3) ? 1. : 0.; } //  2n3p
+  }
+  return 0.;
 }
 //___________________________________________________________________________
 void Intranuke::PiSlam(
@@ -698,13 +806,18 @@ void Intranuke::PiSlam(
   double pmass2 = TMath::Power(p->Mass(), 2);
   double energy = TMath::Sqrt(ptot2 + pmass2);
 
-  TLorentzVector p4lab(plab, energy);
-  p->SetMomentum(p4lab);
-
+  TLorentzVector p4lab_fin(plab, energy);   // new p4 @ lab
+  TLorentzVector p4lab_init = *(p->P4());   // save old p4
+  p->SetMomentum(p4lab_fin);                // update p4
+  
   // now add the modified particle to the GHEP record
   //
   p->SetStatus(kIStStableFinalState); // done with it in hA?
   ev->AddParticle(*p);
+
+  // compute the p4 imbalance & transfer it to the hadronic blob
+  TLorentzVector dp4 = p4lab_fin - p4lab_init; 
+  fRemnP4 -= dp4;
 }
 //___________________________________________________________________________
 void Intranuke::PnSlam(
@@ -760,13 +873,18 @@ void Intranuke::PnSlam(
   LOG("Intranuke", pDEBUG) 
          << "|p| = " << TMath::Sqrt(ptot2) << ", E = " << energy;
 
-  TLorentzVector p4lab(plab, energy);
-  p->SetMomentum(p4lab);
+  TLorentzVector p4lab_fin(plab, energy);   // new p4 @ lab
+  TLorentzVector p4lab_init = *(p->P4());   // save old p4
+  p->SetMomentum(p4lab_fin);                // update p4
 
   // now add the modified particle to the GHEP record
   //
   p->SetStatus(kIStStableFinalState); // done with it in hA?
   ev->AddParticle(*p);
+
+  // compute the p4 imbalance & transfer it to the hadronic blob
+  TLorentzVector dp4 = p4lab_fin - p4lab_init; 
+  fRemnP4 -= dp4;
 }
 //___________________________________________________________________________
 double Intranuke::PiBounce(void) const
@@ -954,26 +1072,36 @@ void Intranuke::Inelastic(
    case (kIHAFtAbsNP)   : // -> n+p
          list.push_back(kPdgNeutron);
          list.push_back(kPdgProton);
+         fRemnA -= 2;
+         fRemnZ -= 1;
          break;
    case (kIHAFtAbsPP)   : // -> p+p
          list.push_back(kPdgProton);
          list.push_back(kPdgProton);
+         fRemnA -= 2;
+         fRemnZ -= 2;
          break;
    case (kIHAFtAbsNPP)  : // -> n+p+p
          list.push_back(kPdgNeutron);
          list.push_back(kPdgProton);
          list.push_back(kPdgProton);
+         fRemnA -= 3;
+         fRemnZ -= 2;
          break;
    case (kIHAFtAbsNNP)  : // -> n+n+p
          list.push_back(kPdgNeutron);
          list.push_back(kPdgNeutron);
          list.push_back(kPdgProton);
+         fRemnA -= 3;
+         fRemnZ -= 1;
          break;
    case (kIHAFtAbs2N2P) : // -> n+n+p+p
          list.push_back(kPdgNeutron);
          list.push_back(kPdgNeutron);
          list.push_back(kPdgProton);
          list.push_back(kPdgProton);
+         fRemnA -= 4;
+         fRemnZ -= 2;
          break;
    case (kIHAFtAbs2N3P) : // -> n+n+p+p+p
          list.push_back(kPdgNeutron);
@@ -981,6 +1109,8 @@ void Intranuke::Inelastic(
          list.push_back(kPdgProton);
          list.push_back(kPdgProton);
          list.push_back(kPdgProton);
+         fRemnA -= 5;
+         fRemnZ -= 3;
          break;
    case (kIHAFtNPip)  : // -> n + pi+ 
          list.push_back(kPdgNeutron);
@@ -996,6 +1126,12 @@ void Intranuke::Inelastic(
              << "Can not handle fate: " << INukeHadroFates::AsString(fate);
          return;
   }
+
+  if ( pdg::IsProton          (p->Pdg()) ) fRemnZ++;
+  if ( pdg::IsNeutronOrProton (p->Pdg()) ) fRemnA++;
+
+  LOG("Intranuke", pNOTICE)
+        << "Remnant nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
 
   // do the phase space decay & save all f/s particles to the event record
   //
@@ -1045,10 +1181,18 @@ bool Intranuke::PhaseSpaceDecay(
 
   TLorentzVector * pd = p->GetP4(); // incident particle 4p
 
+  bool is_nuc = pdg::IsNeutronOrProton(p->Pdg());
+
   // update available energy -> init (mass + kinetic) + sum of f/s masses
   double availE = pd->Energy() + mass_sum; 
-  if(pdg::IsNeutronOrProton(p->Pdg())) availE -= p->Mass();
+  if(is_nuc) availE -= p->Mass();
   pd->SetE(availE);
+
+  // compute the 4p transfer to the hadronic blob
+  double dE = mass_sum;
+  if(is_nuc) dE -= p->Mass();  
+  TLorentzVector premnsub(0,0,0,dE);
+  fRemnP4 -= premnsub;
 
   LOG("Intranuke", pINFO)
     << "Final state = " << state_sstream.str() << " has N = " << pdgv.size() 
@@ -1128,19 +1272,46 @@ bool Intranuke::PhaseSpaceDecay(
 
      //-- current PDG code
      int pdgc = *pdg_iter;
+     bool isnuc = pdg::IsNeutronOrProton(pdgc);
 
      //-- get the 4-momentum of the i-th final state particle
      TLorentzVector * p4fin = fGenPhaseSpace.GetDecay(i++);
 
      //-- add the particle at the event record
      //   (if it is a cascade nucleon set the binding energy to be 
-     //    removed later on)
-    
-     GHepParticle new_particle(pdgc, ist, mom,-1,-1,-1, *p4fin, *v4);
-     if(pdg::IsNeutronOrProton(pdgc)) 
-             new_particle.SetRemovalEnergy(fNucRmvE);
+     //    removed later on)    
+     //GHepParticle new_particle(pdgc, ist, mom,-1,-1,-1, *p4fin, *v4);
+     //if(isnuc) new_particle.SetRemovalEnergy(fNucRmvE);
+
+     //-- intranuke no longer throws "bindinos" but adds all the energy 
+     //   not going at a simulated f/s particle at a "hadronic blob" 
+     //   representing the remnant system: do the binding energy subtraction
+     //   here & update the remnant hadronic system 4p
+     double M  = p4fin->M();
+     double En = p4fin->Energy();
+     double KE = En-M;
+     double dE = TMath::Min(fNucRmvE, KE);
+     KE -= dE;
+     En  = KE+M;
+     double pmag_old = p->P4()->P();
+     double pmag_new = TMath::Sqrt(TMath::Max(0.,En*En-M*M));
+     double scale    = pmag_new / pmag_old;
+     double pxn      = scale * p4fin->Px();
+     double pyn      = scale * p4fin->Py();
+     double pzn      = scale * p4fin->Pz();
+
+     TLorentzVector p4n(pxn,pyn,pzn,En);
+
+     GHepParticle new_particle(pdgc, ist, mom,-1,-1,-1, p4n, *v4);
+     if(isnuc) new_particle.SetRemovalEnergy(0.);
 
      ev->AddParticle(new_particle);
+
+     double dpx = (1-scale)*p4fin->Px();
+     double dpy = (1-scale)*p4fin->Py();
+     double dpz = (1-scale)*p4fin->Pz();
+     TLorentzVector premnadd(dpx,dpy,dpz,dE);
+     fRemnP4 += premnadd;
   }
   // Clean-up
   delete [] mass;
@@ -1184,10 +1355,10 @@ void Intranuke::LoadConfig(void)
   fInTestMode = fConfig->GetBoolDef ("test-mode", false);
 
   //-- other intranuke config params
-  fct0     = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("INUKE-FormationZone")); // fm
-  fK       = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("INUKE-KPt2"));
-  fR0      = fConfig->GetDoubleDef ("R0",   gc->GetDouble("INUKE-Ro")); // fm
-  fNucRmvE = fConfig->GetDoubleDef ("nucleon-removal-energy", gc->GetDouble("INUKE-NucRemovalE")); // GeV
+  fR0      = fConfig->GetDoubleDef ("R0",      gc->GetDouble("NUCL-R0")); // fm
+  fct0     = fConfig->GetDoubleDef ("ct0",     gc->GetDouble("INUKE-FormationZone")); // fm
+  fK       = fConfig->GetDoubleDef ("Kpt2",    gc->GetDouble("INUKE-KPt2"));
+  fNucRmvE = fConfig->GetDoubleDef ("NucRmvE", gc->GetDouble("INUKE-NucRemovalE")); // GeV
 
   //-- report
   LOG("Intranuke", pDEBUG) << "mode    = " << INukeMode::AsString(fMode);

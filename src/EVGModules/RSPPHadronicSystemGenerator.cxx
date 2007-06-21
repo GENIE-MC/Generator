@@ -87,7 +87,8 @@ void RSPPHadronicSystemGenerator::AddResonanceDecayProducts(
   else           res_pos = 3;
 
   GHepParticle * res  = evrec->Particle(res_pos);
-  
+  const TLorentzVector & x4 = *(res->X4());  
+
   //-- mark the resonance as decayed
   res->SetStatus(kIStDecayedState);
 
@@ -116,8 +117,8 @@ void RSPPHadronicSystemGenerator::AddResonanceDecayProducts(
   GHepStatus_t ist = (is_nucleus) ? 
                               kIStHadronInTheNucleus : kIStStableFinalState;
   int mom = res_pos;
-  evrec->AddParticle(nuc_pdgc, ist, mom,-1,-1,-1, p4_nuc, vdummy);
-  evrec->AddParticle(pi_pdgc,  ist, mom,-1,-1,-1, p4_pi,  vdummy);
+  evrec->AddParticle(nuc_pdgc, ist, mom,-1,-1,-1, p4_nuc, x4);
+  evrec->AddParticle(pi_pdgc,  ist, mom,-1,-1,-1, p4_pi,  x4);
   delete p4;
 }
 //___________________________________________________________________________

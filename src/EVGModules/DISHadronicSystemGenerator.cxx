@@ -74,6 +74,9 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
 {
 // Calls a hadronizer and adds the fragmentation products at the GHEP
 
+  GHepParticle * neutrino  = evrec->Probe();
+  const TLorentzVector & vtx = *(neutrino->X4());
+
   //-- Compute the hadronic system invariant mass
   TLorentzVector p4Had = this->Hadronic4pLAB(evrec);
   double W = p4Had.M();
@@ -113,8 +116,6 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
 
   int mom = evrec->FinalStateHadronicSystemPosition();
   assert(mom!=-1);
-
-  TLorentzVector v4(0,0,0,0); // dummy position 4-vector
  
   TMCParticle * p = 0;
   TIter particle_iter(plist);
@@ -155,7 +156,7 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
      int ifc = (p->GetFirstChild() == -1) ? -1 : mom + 1 + p->GetFirstChild();
      int ilc = (p->GetLastChild()  == -1) ? -1 : mom + 1 + p->GetLastChild();
 
-     evrec->AddParticle(pdgc, ist, im,-1, ifc, ilc, p4,v4);
+     evrec->AddParticle(pdgc, ist, im,-1, ifc, ilc, p4,vtx);
 
   } // fragmentation-products-iterator
 

@@ -86,6 +86,7 @@ private:
 
   // methods specific to intranuke HA-mode
   INukeFateHA_t HadronFateHA    (const GHepParticle* p) const;
+  double        FateWeight      (int pdgc, INukeFateHA_t fate) const;
   void          SimHadroProcHA  (GHepRecord* ev, GHepParticle* p) const;
   void          Inelastic       (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
   void          PiSlam          (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
@@ -101,9 +102,12 @@ private:
   bool PhaseSpaceDecay (GHepRecord* ev, GHepParticle* p, const PDGCodeList & pdgv) const;
 
   //-- utility objects & params
-  mutable double fNuclRadius;
+  mutable double         fNuclRadius;
   mutable TGenPhaseSpace fGenPhaseSpace; ///< a phase space generator
-  INukeHadroData * fHadroData;           ///< a collection of h+N,h+A data & calculations
+  INukeHadroData *       fHadroData;     ///< a collection of h+N,h+A data & calculations
+  mutable int            fRemnA;         ///< remnant nucleus A
+  mutable int            fRemnZ;         ///< remnant nucleus Z
+  mutable TLorentzVector fRemnP4;        ///< P4 of remnant system
 
   //-- configuration parameters
   INukeMode_t  fMode;       ///< intranuke mode (h+A, h+N)

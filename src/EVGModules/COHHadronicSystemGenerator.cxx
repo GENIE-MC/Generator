@@ -69,6 +69,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   assert(Ni);
   assert(fsl);
 
+  const TLorentzVector & vtx   = *(nu->X4());
   const TLorentzVector & p4nu  = *(nu ->P4());
   const TLorentzVector & p4fsl = *(fsl->P4());
 
@@ -154,11 +155,12 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   int mom = evrec->TargetNucleusPosition();
   
   evrec->AddParticle(
-	    nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
-                               	       pxNf, pyNf, pzNf, ENf, 0, 0, 0, 0);
+     nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
+     pxNf, pyNf, pzNf, ENf, 0, 0, 0, 0);
+
   evrec->AddParticle(
-            pion_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
-       	                     ppi3.Px(), ppi3.Py(),ppi3.Pz(),Epi, 0,0,0,0);
+     pion_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
+     ppi3.Px(), ppi3.Py(),ppi3.Pz(),Epi, vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
 }
 //___________________________________________________________________________
 
