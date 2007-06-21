@@ -139,7 +139,7 @@ const int kPdgTgtO16       = 1016008000;
 // GENIE special particles
 const int kPdgBindino      = 1111111001; // binding energy subtracted from f/s nucleons
 const int kPdgHadronicSyst = 1111111002; 
-const int kPdgHadronicBlob = 1111111003; // not hadronized fraction of hadronic system
+const int kPdgHadronicBlob = 1111111003; // unmodelled fraction of the hadronic system
 const int kPdgCoulobtron   = 1111111004; // coulomb energy subtracted from f/s leptons
 
 // PYTHIA special particles
