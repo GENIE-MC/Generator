@@ -22,6 +22,7 @@ TGT =    gEvGen		\
 	 gMakeSplines	\
 	 gMaxPathLengths\
 	 gNtpConv	\
+ 	 gNC2ElectronScat \
 	 gSplinePlotter	\
 	 gMCSampleTest	\
 	 gViewer	
@@ -98,6 +99,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
+	$(RM) $(GENIE_BIN_PATH)/gnc2eN  
 	$(RM) $(GENIE_BIN_PATH)/gsplt		
 	$(RM) $(GENIE_BIN_PATH)/gmctest	
 	$(RM) $(GENIE_BIN_PATH)/gviewer	
@@ -107,6 +109,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnc2eN		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gsplt		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmctest	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gviewer	
@@ -122,6 +125,9 @@ clean--gMaxPathLengths: FORCE
 
 clean--gNtpConv: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gntpc
+
+clean-gNC2ElectronScat: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gnc2eN
 
 clean--gSplinePlotter: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gsplt
