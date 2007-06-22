@@ -6,40 +6,44 @@
 \brief   testIntranuke from hadtest.F
 
          Syntax :
-           testIntranuke [-n nev] [-e E] [-p nupdg] [-t tgtpdg] [-r run#] [-a R0] -i inputpdg -k KE
+           testIntranuke [-n nev] [-t tgtpdg] [-f format] [-r run#] [-a R0] -i inputpdg -k KE
 
          Options :
            [] denotes an optional argument
            -n specifies the number of events to generate
-           -e specifies the neutrino energy
-              (if what follows the -e option is a comma separated pair of
-               values it will be interpreted as an energy range and neutrino
-               energies will be generated uniformly in this range).
-              Note that this is the energy of an "interacting" neutrino, not
-              the energy of a "flux" neutrino -- the  neutrino is forced to
-              interact anyway (see GMCJDriver for how to input fluxes)
-           -p specifies the neutrino PDG code
            -t specifies the target PDG code (std format: 1aaazzz000)
+           -f specifies the output TTree format. If set to 0 will create a
+              single-branch TTree with NtpMCPlainRecord objects in its leaves,
+              while if set to 1 it will have NtpMCEventRecord objects in
+              its leaves (see the Ntuple package for descriptions of the ntuple
+              records and their intended usage). Default options is 1.
            -r specifies the MC run number
            -i specifies the rescattering particle PDG code as a input
            -k specifies the rescattering particle kinetic energy
+              (if what follows the -k option is a comma separated pair of
+               values it will be interpreted as an energy range and input
+               energies will be generated uniformly in this range)
+	      *Note that this is the kinetic energy of an "scattering" particle, not
+	      the energy of an "interacting" or a "flux" neutrino -- the particle is forced to
+	      scatter anyway (see gEvGen for how to input neutrinos)
+	   -l length of step corresponding to some amount of KE (step size)
+	   -m number of steps with some amount of KE
            -a specifies an effective nucleus size given in fm (R=Ro*A^1/3)
 
          Example:
-           gtestIntranuke -n 300 -e 6.5 -p 14 -t 1056026000 -a 1.3 -i 211 -k 0.165
+           gtestIntranuke -n 300 -t 1056026000 -a 1.2 -i 211 -k 0.165
 
-           will generate 300 events of muon neutrinos (pdg = 14) on Iron
-           (A=56,Z=26) at E = 6.5 GeV REGARDLESS OF cross section splines
-           and will only generate a rescattering pion with input of KE,
-           as well as vertex at around nuclear boundry using an effective nucleus size
-           and will show cross section.
+           will generate 300 events hadron-nucleus interaction and show cross section.
+	   A nucleus is Iron (A=56,Z=26) as default target.
+	   A hadron is pi+ (pdg = 211) with R0 = 1.2 as defalt option, KE = .165 GeV, 
+	   and a vertex as a point on the outer edge using an effective nucleus size.
 
 \author  Minsuk Kim and Steve Dytman
          University of Pittsburgh
 
-\version 1.0
+\version 1.1
 
-\created Mar 1, 2007
+\created May 1, 2007
 
 \cpright Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
          All rights reserved.
@@ -55,6 +59,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TSystem.h>
+#include <TNtuple.h>
 
 #include <iomanip>
 
@@ -63,8 +68,8 @@
 #include "EVGDrivers/GMCJMonitor.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
-//#include "Ntuple/NtpWriter.h"
-//#include "Ntuple/NtpMCFormat.h"
+#include "Ntuple/NtpWriter.h"
+#include "Ntuple/NtpMCFormat.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
@@ -114,60 +119,23 @@ using std::setw;
 int           kDefOptNevents   = 100;            // n-events to generate
 Long_t        kDefOptRunNu     = 0;              // default run number
 
-double        kDefOptMinNuEnergy  = 5.2;
-int           kDefOptNuPdgCode    = 14;
 int           kDefOptTgtPdgCode   = 1056026000;
 double        kDefOptR0           = 1.2;
+int           kDefOptNstep        = 1; 
+double        kDefOptLstep        = 0.02;        // some amount of KE (GeV)
 
 //User-specified options:
 int           gOptNevents;           // n-events to generate
-bool          gOptBuildSplines;      // spline building option
-double        gOptMinNuEnergy;       // min neutrino energy
-double        gOptNuEnergyRange;     // max-min neutrino energy
-int           gOptNuPdgCode;         // neutrino PDG code
 int           gOptTgtPdgCode;        // target PDG code
+NtpMCFormat_t gOptNtpFormat;         // ntuple format
 Long_t        gOptRunNu;             // run number
 
 int           gOptInputPdgCode;      // rescattering particle PDG code as a input
 double        gOptInputKE;           // This is KE = E - M. So E = M + KE
+double        gOptRangeKE;           // max-min KE
 double        gOptR0;                // R0
-
-
-namespace genie {
-
-//class IntranukeTester;
-//__________________________________________________
-class IntranukeTester
-{
-public:
-  IntranukeTester() {
-    this->Init();
-  }
-  ~IntranukeTester() {
-    this->Cleanup();
-  }
-  void   TransportHadrons   (GHepRecord* ev) {
-    fINTRANUKE->TransportHadrons(ev);
-  }
-  void   GenerateVertex     (GHepRecord * ev) {
-    fINTRANUKE->GenerateVertex(ev);
-  }
-  void Init() {
-    AlgFactory * algf = AlgFactory::Instance();
-    fINTRANUKE = dynamic_cast<Intranuke *> (algf->AdoptAlgorithm("genie::Intranuke","Default"));
-    assert(fINTRANUKE);
-  }
-  void Cleanup() {
-    if(fINTRANUKE) delete fINTRANUKE;
-  }
-
-private:
-
-  Intranuke * fINTRANUKE;
-
-};
-
-} // genie namespace
+double        gOptLstep;             // Length of step corresponding to some amount of KE (size) 
+int           gOptNstep;             // Number of steps with some amount of KE
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -176,71 +144,82 @@ int main(int argc, char ** argv)
   GetCommandLineArgs(argc,argv);
 
   //-- print the options you got from command line arguments
+
+  string fmts = NtpMCFormat::AsString(gOptNtpFormat);
+  if(gOptNstep>1) gOptRangeKE = gOptLstep*(gOptNstep-1);
+
   LOG("testIntranuke", pINFO) << "Number of events requested = " << gOptNevents;
-  //LOG("testIntranuke", pINFO) << "Building splines at init.  = " << gOptBuildSplines; 
-  LOG("testIntranuke", pINFO) << "Neutrino PDG code          = " << gOptNuPdgCode;
   LOG("testIntranuke", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
   LOG("testIntranuke", pINFO) << "MC Run Number              = " << gOptRunNu;
-  if(gOptNuEnergyRange>0) {
-    LOG("testIntranuke", pINFO) << "Neutrino energy            = ["
-        << gOptMinNuEnergy << ", " << gOptMinNuEnergy+gOptNuEnergyRange << "]";
+  LOG("testIntranuke", pINFO) << "Output ntuple format       = " << fmts;
+  LOG("testIntranuke", pINFO) << "Effective nucleus size, R0 = " << gOptR0;
+  LOG("testIntranuke", pINFO) << "Length of step             = " << gOptLstep;
+  LOG("testIntranuke", pINFO) << "Number of steps            = " << gOptNstep;
+  if(gOptRangeKE>0) {
+    LOG("testIntranuke", pINFO) << "Hadron input KE            = ["
+        << gOptInputKE << ", " << gOptInputKE+gOptRangeKE << "]";
   } else {
-    LOG("testIntranuke", pINFO) << "Neutrino energy            = " << gOptMinNuEnergy;
+    LOG("testIntranuke", pINFO) << "Hadron input KE            = " << gOptInputKE;
   }
 
-  GHepStatus_t status = kIStHadronInTheNucleus;
+  //-- Get an instance of PDG library to access PDG particle data (masses etc)
+  PDGLibrary * pdglib = PDGLibrary::Instance();
 
-  string gHadAlg    = "genie::Intranuke";
-  string gHadConfig = "Default";
+  //-- Get a handle to the algorithm factory and ask it to give you an algorithm
+  //-- called 'genie::Intranuke' configured with a parameter set named 'Default'
+  //-- and implementing an algorithm interface named 'EventRecordVisitorI'.
+  AlgFactory * algf = AlgFactory::Instance();
 
-  //-- get the algorithm factory & config pool
-  AlgConfigPool * cnfp = AlgConfigPool::Instance();
-  AlgFactory *    algf = AlgFactory::Instance();
-  //cout << *algf;
-  AlgId id("genie::Intranuke","Default");
-  //const Algorithm * alg = algf->GetAlgorithm(id);
-  //string config = alg->Id().Config();
-  Algorithm * alg = algf->AdoptAlgorithm(id);
-  //cout << *alg;
-  Registry * reg = cnfp->FindRegistry(alg);
-  if(gOptR0!=1.2) {
-    reg->UnLock();
+  const EventRecordVisitorI * intranuke = 
+                 dynamic_cast<const EventRecordVisitorI *> (
+                         algf->GetAlgorithm("genie::Intranuke","Default"));
 
-    ////reg->Set("Kpt2",1);
-    reg->Set("R0",gOptR0);
-    ////reg->Set("ct0","2");
-    //reg->Set("mode","hN");
-    //reg->Set("nuc-removal-energy",0.007); //reg->Set("nucleon-removal-energy",0.007); 
+  //-- Access the algorithm's configuration
+  AlgConfigPool * confpool = AlgConfigPool::Instance();
+  Registry * config = confpool->FindRegistry(intranuke);
 
-    //reg->Set("INUKE-KPt2",1.1);
-    //reg->Set("INUKE-Ro",gOptR0);         [fm]
-    //reg->Set("INUKE-FormationZone",2.1); [fm]
-    //reg->Set("INUKE-Mode","hN");
-    //reg->Set("INUKE-NucRemovalE",0.007); [GeV]
+  //-- Set the 'test-mode' parameter to true (same as fortran intranuke's pitest mode)
+  config->UnLock();
+  bool test=true;
+  config->Set("test-mode", test);
+  if(gOptR0!=1.2) config->Set("R0",gOptR0);
+  ////config->Set("Kpt2",1);
+  ////config->Set("ct0","2");
+  //config->Set("mode","hN");
+  //config->Set("nuc-removal-energy",0.007); //config->Set("nucleon-removal-energy",0.007); 
 
-    //-- force reconfiguration
-    ////algf->ForceReconfiguration();
-    alg->Configure(*reg);
-  }
-  // frac = Pi Absorption Scale factor
+  //-- Read modified configurations
+  algf->ForceReconfiguration();
 
-  int NNUCLN = genie::pdg::IonPdgCodeToA(gOptTgtPdgCode); // from $GENIE/PDG/PDGUtils.h
-  TParticlePDG * input = PDGLibrary::Instance()->Find(gOptInputPdgCode);
-  TParticlePDG * tgt = PDGLibrary::Instance()->Find(gOptTgtPdgCode);
+  int NNUCLN = pdg::IonPdgCodeToA(gOptTgtPdgCode); // from $GENIE/PDG/PDGUtils.h
   //double nuclear_density = GV_RHONUC;
   ////gOptR0 = gOptR0 + 0.00000005; (in neugen)
   double nuclear_radius = gOptR0*TMath::Power(NNUCLN,1./3.); //exactly rsiz*TMath::Power(NNUCLN,1/3.);
 
   double area = TMath::Pi()*TMath::Power(nuclear_radius,2);
+  double mass = pdglib->Find(gOptInputPdgCode)->Mass();
   double nuclear_vertex[3];
   for(int k=0; k<3; k++) nuclear_vertex[k] = 0;
   const int nfates = 12;
-  int countfate[nfates]; string FateType[nfates];
+  const int nsteps = gOptNstep; double stepKE[nsteps];
+  int countfate[nsteps][nfates]; string FateType[nsteps][nfates];
   double sigma[nfates], err[nfates];
-  for(int k=0; k<nfates; k++) { countfate[k] = 0; sigma[k] = 0; err[k] = 0; }
+  char fname[80]; sprintf(fname,"xsec-%d.root",static_cast<Int_t>(gOptRunNu));
+  TFile f(fname,"RECREATE");
+  TNtuple* nt = new TNtuple("nt","nt","probe:ke:step:sigtot:sigcex:sigelas:siginelas:sigabs:sigprod:sigtoterr:sigcexerr:sigelaserr:siginelaserr:sigabserr:sigproderr");
+  TNtuple* nt2 = new TNtuple("nt2","nt2","probe:ke:step:energy:fate:fspid:fske");
+  int bin = 100; if(gOptNstep>1) bin = gOptNstep;
+  TH1F *he = new TH1F("he","he",bin,mass+gOptInputKE,mass+gOptInputKE+gOptRangeKE);
+  for(int istep=0; istep<gOptNstep; istep++) {
+    stepKE[istep] = 0;
+    for(int k=0; k<nfates; k++) {
+      countfate[istep][k] = 0; if(istep==0) sigma[k] = err[k] = 0;
+    }
+  }
 
-  //-- this driver produces events for monoenergetic neutrinos
-  TLorentzVector nu_p4(0.,0.,gOptMinNuEnergy,gOptMinNuEnergy); // px,py,pz,E (GeV)
+  //-- initialize an Ntuple Writer
+  NtpWriter ntpw(gOptNtpFormat, gOptRunNu);
+  ntpw.Initialize();
 
   //-- create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -250,185 +229,161 @@ int main(int argc, char ** argv)
   time_t t; (void) time(&t);
   r->SetSeed(t);
 
-  //-- generate events / print the GHEP record / add it to the ntuple
-  int ievent = 0;
-  while ( ievent < gOptNevents) {
+  for(int istep=0; istep<gOptNstep; istep++) {
 
-    // generate neutrino energy (if an energy range was defined)
-    if(gOptNuEnergyRange>0) {
-      double Ev = gOptMinNuEnergy + gOptNuEnergyRange * r->RndEvg().Rndm();
-      nu_p4.SetPxPyPzE(0,0,Ev,Ev);
-    }
+    if(istep>0) gOptInputKE += gOptLstep; stepKE[istep] = gOptInputKE;
 
-    EventRecord * evrec = new EventRecord();
+    //-- generate events / print the GHEP record / add it to the ntuple
+    int ievent = 0;
+    while ( ievent < gOptNevents) {
 
-    //-- Generate a vertex within the nucleus (from $NEUGEN3PATH/gen/nuclear_rescattering.F)
-    double random[2];
-    double xpysq = 10000, rs = 0;
-    while ( xpysq > TMath::Power((nuclear_radius-0.01),2)) {
-
-      for(int k=0; k<2; k++) random[k] = r->RndGen().Rndm();
-      random[1] = 2*random[1] - 1;
-      nuclear_vertex[0] = random[0]*(nuclear_radius-0.01);
-      nuclear_vertex[1] = random[1]*(nuclear_radius-0.01);	
-      xpysq = TMath::Power(nuclear_vertex[0],2) + TMath::Power(nuclear_vertex[1],2);
-
-    }
-
-    nuclear_vertex[2] = -1.*TMath::Sqrt(TMath::Power((nuclear_radius-0.01),2) - xpysq);
-    rs = TMath::Sqrt(TMath::Power(nuclear_vertex[0],2) + TMath::Power(nuclear_vertex[1],2) + TMath::Power(nuclear_vertex[2],2));
-
-    double mass = input->Mass();
-    double energy = mass + gOptInputKE;
-    double pz = TMath::Sqrt(energy*energy - mass*mass);
-    
-    TLorentzVector newp4(0.,0.,pz,energy);
-    TLorentzVector newv4(nuclear_vertex[0],nuclear_vertex[1],nuclear_vertex[2],0.);
-  
-    TLorentzVector v4(0,0,0,0);
-    TLorentzVector tgt_p4(0,0,0,tgt->Mass());
-    evrec->AddParticle(gOptNuPdgCode,kIStInitialState,-1,-1,0,0,nu_p4,v4);
-    evrec->AddParticle(gOptTgtPdgCode,kIStInitialState,-1,-1,0,0,tgt_p4,v4);
-
-    int tgt_n = gOptTgtPdgCode - 1000000; 
-    int tgt_p = gOptTgtPdgCode - 1001000;
-    TParticlePDG * tgtn = PDGLibrary::Instance()->Find(tgt_n);
-    TParticlePDG * tgtp = PDGLibrary::Instance()->Find(tgt_p);
-
-    TLorentzVector p4(0.036,-0.143,0.009,0.94);            // neutron(0.94) or proton(0.938)
-    TLorentzVector p4_n(-0.036,0.143,-0.009,tgtn->Mass()); // Fe55(51.172) or O15(13.945)
-    TLorentzVector p4_p(-0.036,0.143,-0.009,tgtp->Mass()); // Mn55(51.175) or N15(13.973)
-    TLorentzVector p4_f(0.415,-0.069,0.425,0.598);         // nu_mu or mu-
-    TLorentzVector p4_h(-0.379,-0.074,4.583,5.334);        // HardSyst
-
-    if(r->RndGen().Rndm()<0.65) {
-      evrec->AddParticle(2112,kIStNucleonTarget,1,-1,5,5,p4,v4); // neutron
-      evrec->AddParticle(tgt_n,kIStStableFinalState,1,-1,-1,-1,p4_n,v4);
-    } else {
-      evrec->AddParticle(2212,kIStNucleonTarget,1,-1,5,5,p4,v4); // proton
-      evrec->AddParticle(tgt_p,kIStStableFinalState,1,-1,-1,-1,p4_p,v4);
-    }
-    if(r->RndGen().Rndm()<0.35) evrec->AddParticle(gOptNuPdgCode,kIStStableFinalState,0,-1,-1,-1,p4_f,v4); // NC
-    else { // CC
-      if(gOptNuPdgCode>0) evrec->AddParticle(13,kIStStableFinalState,0,-1,-1,-1,p4_f,v4);
-      else evrec->AddParticle(-13,kIStStableFinalState,0,-1,-1,-1,p4_f,v4);
-    }
-    evrec->AddParticle(1111111002,kIStDISPreFragmHadronicState,2,-1,6,6,p4_h,v4);
-    evrec->AddParticle(gOptInputPdgCode,status,5,-1,7,7,newp4,newv4);
-
-    int idx = evrec->ParticlePosition(gOptInputPdgCode,status,0);
-
-    IntranukeTester tester;
-    //-- Generate and set a vertex in the nucleus coordinate system
-    tester.GenerateVertex(evrec);
-    GHepParticle * input14 = evrec->Particle(idx);
-    input14->SetPosition(newv4);
-    //-- Transport all particles outside the nucleus and exit
-    tester.TransportHadrons(evrec);
-
-    bool interacts = false;
-    INukeFateHA_t fate = kIHAFtUndefined;
-    int nn = 0, np = 0, npip = 0, npi0 = 0, npim = 0;
-    TObjArrayIter piter(evrec);
-    GHepParticle * p = 0;
-    int icurr = -1;
-    while( (p = (GHepParticle *) piter.Next()) ) {
-      icurr++;
-      if(icurr<8) continue;
-      if(icurr==8) {
-	//cout << " -> Event No. " << setw(4) << ievent << setw(12) << p->Pdg() << setw(5) << p->Name() << setw(3) << p->Status() << endl;
-	//cout << " -> KinE = " << p->KinE() << " " << print::P4AsShortString(p->P4()) << endl;
-	//cout << " -> rs = " << p->X4()->Vect().Mag() << " " << print::X4AsString(p->X4()) << ", NuclearRadius=" << nuclear_radius << endl;
-	if(p->X4()->Vect().Mag() < nuclear_radius) interacts = true;
-        if(p->Status() == kIStStableFinalState) {
-          if(p->Pdg() != gOptInputPdgCode) fate = kIHAFtCEx;
-          else {
-	    double E = TMath::Sqrt(2)*p->Mass(); //TMath::Sqrt(2*p->P4()->Vect().Mag2());
-            //printf(" ==> %f %f %f %f %f\n",p->P4()->Vect().Mag(),p->Mass(),p->E(),E,p->E()-E);
-            fate = (TMath::Abs(p->E()-E)<1E-10) ? kIHAFtElas : kIHAFtInelas;
-          }
-          break;
-        }
-      } else if(p->Status() == kIStStableFinalState) {
-        if(p->Pdg() == kPdgProton) np++;
-        if(p->Pdg() == kPdgNeutron) nn++;
-        if(p->Pdg() == kPdgPiP) npip++;
-        if(p->Pdg() == kPdgPiM) npim++;
-        if(p->Pdg() == kPdgPi0) npi0++;
+      if(ievent<100) cout << " *** Generating event............ " << ievent << endl;
+      
+      EventRecord * evrec = new EventRecord();
+      
+      double energy = mass + gOptInputKE;
+      //-- generate input energy (if an energy range was defined)
+      if(gOptNstep==1 && gOptRangeKE>0) energy = mass + gOptInputKE + gOptRangeKE * r->RndEvg().Rndm();
+      he->Fill(energy);
+      double pz = TMath::Sqrt(energy*energy - mass*mass);
+      
+      TLorentzVector p4new(0.,0.,pz,energy);
+      TLorentzVector p4tgt(0,0,0,pdglib->Find(gOptTgtPdgCode)->Mass());
+      TLorentzVector x4null(0,0,0,0);
+      
+      evrec->AddParticle(gOptInputPdgCode,kIStInitialState,-1,-1,-1,-1,p4new,x4null);
+      evrec->AddParticle(gOptTgtPdgCode  ,kIStInitialState,-1,-1,-1,-1,p4tgt,x4null);
+      
+      //-- Print the event record that will be input to intranuke
+      //LOG("testIntranuke", pDEBUG) << "Intranuke input event: " << *evrec;
+      //-- Let intranuke do its job
+      intranuke->ProcessEventRecord(evrec);
+      
+      bool interacts = false;
+      INukeFateHA_t fate = kIHAFtUndefined;
+      int nn = 0, np = 0, npip = 0, npi0 = 0, npim = 0;
+      TObjArrayIter piter(evrec);
+      GHepParticle * p = 0;
+      int icurr = -1;
+      while( (p = (GHepParticle *) piter.Next()) ) {
+	icurr++;
+	//if(icurr<2) cout << icurr << " " << print::X4AsString(p->X4()) << endl;
+	if(icurr==2) {
+	  LOG("testIntranuke", pDEBUG) << " -> Event No. " << setw(4) << ievent << setw(12) << p->Pdg() << setw(5) << p->Name() << setw(3) << p->Status();
+	  LOG("testIntranuke", pDEBUG) << " -> KinE = " << p->KinE() << " " << print::P4AsShortString(p->P4());
+	  LOG("testIntranuke", pDEBUG) << " -> rs = " << p->X4()->Vect().Mag() << " " << print::X4AsString(p->X4()) << ", NuclearRadius=" << nuclear_radius;
+	  if(p->X4()->Vect().Mag() < nuclear_radius) interacts = true;
+	  if(p->Status() == kIStStableFinalState) {
+	    if(interacts) {
+	      if(p->Pdg() != gOptInputPdgCode) fate = kIHAFtCEx;
+	      else fate = (TMath::Abs(p->P4()->Vect().Mag()-pz)<1E-5) ? kIHAFtElas : kIHAFtInelas;
+	    }
+	    nt2->Fill(gOptInputPdgCode,gOptInputKE,istep,energy,fate,p->Pdg(),p->KinE());
+	    break;
+	  }
+	} else if(p->Status() == kIStStableFinalState) {
+	  if(p->Pdg() == kPdgProton) np++;
+	  if(p->Pdg() == kPdgNeutron) nn++;
+	  if(p->Pdg() == kPdgPiP) npip++;
+	  if(p->Pdg() == kPdgPiM) npim++;
+	  if(p->Pdg() == kPdgPi0) npi0++;
+	}
       }
-    }
-    int npi = npip + npi0 + npim;
-    if(npi==0) { 
-      if(nn==1 && np==1) fate = kIHAFtAbsNP;
-      if(np==2 && nn==0) fate = kIHAFtAbsPP;
-      if(nn==1 && np==2) fate = kIHAFtAbsNPP;
-      if(nn==2 && np==1) fate = kIHAFtAbsNNP;
-      if(nn==2 && np==2) fate = kIHAFtAbs2N2P; // only for rescattering pion
-      if(nn==2 && np==3) fate = kIHAFtAbs2N3P; // either rescattering neutron or proton
-    } else {
-      if(nn==1 && npip==1 && npi0==0) fate = kIHAFtNPip; // either rescattering neutron or proton
-      if(nn==1 && npip==1 && npi0==1) fate = kIHAFtNPipPi0;
-    }
+      
+      if(interacts) {
 
-    if(interacts) {
+	int npi = npip + npi0 + npim;
+	if(npi==0) { 
+	  if(nn==1 && np==1) fate = kIHAFtAbsNP;
+	  if(np==2 && nn==0) fate = kIHAFtAbsPP;
+	  if(nn==1 && np==2) fate = kIHAFtAbsNPP;
+	  if(nn==2 && np==1) fate = kIHAFtAbsNNP;
+	  if(nn==2 && np==2) fate = kIHAFtAbs2N2P; // only for rescattering pion
+	  if(nn==2 && np==3) fate = kIHAFtAbs2N3P; // either rescattering neutron or proton
+	} else {
+	  if(nn==1 && npip==1 && npi0==0) fate = kIHAFtNPip; // either rescattering neutron or proton
+	  if(nn==1 && npip==1 && npi0==1) fate = kIHAFtNPipPi0;
+	}
 
-      ////GHepParticle * genp = evrec->Particle(idx+2); if(genp) fate = tester.HadronFateHA(sp);
-      //cout << " => Event No. " << setw(7) << ievent << ": " << INukeHadroFates::AsString(fate) << endl;
-      //cout << " (nn=" << nn << ", np=" << np << ", npip=" << npip << ", npi0=" << npi0 << ", npim=" << npim << ")" << endl;
-      countfate[fate]++;
-      FateType[fate] = INukeHadroFates::AsString(fate).c_str();
+      }
 
-    }
-    //cout << " ==> Generated Event GHEP Record: " << *evrec << endl;
-
-    //-- refresh the mc job monitor
-    mcjmonitor.Update(ievent,evrec);
+      countfate[istep][fate]++;
+      FateType[istep][fate] = INukeHadroFates::AsString(fate).c_str();
     
-    ievent++;
-    delete evrec;
-    
-  } // end loop events
+      if(ievent<100) cout << " =======> Selected fate: " << INukeHadroFates::AsString(fate) << endl;
+      if(ievent<100) cout << " =======> Generated Event GHEP Record: " << *evrec << endl;
+      
+      //-- add event at the output ntuple
+      ntpw.AddEventRecord(ievent, evrec);
+      
+      //-- refresh the mc job monitor
+      mcjmonitor.Update(ievent,evrec);
+      
+      ievent++;
+      delete evrec;
+      
+    } // end loop events
+
+  } // end loop for KE step
+  
+  //-- save the generated MC events
+  ntpw.Save();
 
   cout << endl << endl;
-  cout << " Total cross section results for " << input->GetName() << " (KE=" << gOptInputKE << ") + " << tgt->GetName() << " interaction " << endl;
   cout << " A = " << NNUCLN << " nuclear radius, area are: " << nuclear_radius << " fm, " << area << " fm**2 " << endl;
+  cout << " Total cross section results " << endl;
+  for(int istep=0; istep<nsteps; istep++) {
 
-  double fm2tomb = (units::fm2 / units::mb);
+    cout << " " << endl;
+    cout << "  For " << pdglib->Find(gOptInputPdgCode)->GetName() << " (KE=" << stepKE[istep] << ") + " << pdglib->Find(gOptTgtPdgCode)->GetName() << " interaction " << endl;
+    cout << "  -------------------------------------------------------------------------- " << endl;
 
-  int cnttot = 0;
-  //int nullint = 0;
-  double sigtot = 0, sigtoterr = 0;
-  double sigtotScat = 0, sigtotAbs = 0, sigtotProd = 0;
-  for(int k=0; k<nfates; k++) {
+    double fm2tomb = (units::fm2 / units::mb);
 
-    //if(k==0) nullint += countfate[k];
-    if(k!=0) {
-      cnttot += countfate[k];
-      double ratio = countfate[k]/(double)ievent;
+    int cnttot = 0;
+    //int nullint = countfate[istep][0];
+    double sigtot = 0, sigtoterr = 0;
+    double sigtotScat = 0, sigtotAbs = 0, sigtotProd = 0;
+
+    for(int k=1; k<nfates; k++) {
+      
+      cnttot += countfate[istep][k];
+      double ratio = countfate[istep][k]/(double)gOptNevents;
       sigma[k] = fm2tomb * area * ratio;
-      err[k]   = fm2tomb * area * TMath::Sqrt(ratio*(1-ratio)/(double)ievent);
-      if(err[k]==0) err[k] = fm2tomb * area * TMath::Sqrt(countfate[k])/(double)ievent;
-    } 
-    if(countfate[k]>0) {
-      cout << " --> " << setw(26) << FateType[k] << ": " << setw(7) << countfate[k] << " events -> " << setw(7) << sigma[k] << " +- " << err[k] << " (mb)" << endl;
+      err[k]   = fm2tomb * area * TMath::Sqrt(ratio*(1-ratio)/(double)gOptNevents);
+      if(err[k]==0) err[k] = fm2tomb * area * TMath::Sqrt(countfate[istep][k])/(double)gOptNevents;
+
+      if(countfate[istep][k]>0) {
+	cout << "  --> " << setw(26) << FateType[istep][k] << ": " << setw(7) << countfate[istep][k] << " events -> " << setw(7) << sigma[k] << " +- " << err[k] << " (mb)" << endl;
+      }
+
+      if(k>=1 && k<=3) sigtotScat += sigma[k];
+      if(k>=4 && k<=9) sigtotAbs += sigma[k];
+      if(k>=10 && k<=11) sigtotProd += sigma[k];
+      
     }
-    if(k>=1 && k<=3) sigtotScat += sigma[k];
-    if(k>=4 && k<=9) sigtotAbs += sigma[k];
-    if(k>=10 && k<=11) sigtotProd += sigma[k];
+    sigtot    = fm2tomb * area * cnttot/(double)gOptNevents;
+    sigtoterr = fm2tomb * area * TMath::Sqrt(cnttot)/(double)gOptNevents;
+    double ratioAS = (sigtotScat==0) ? 0 : sigtotAbs/(double)sigtotScat;
+    
+    cout << "  -------------------------------------------------------------------------- " << endl;
+    cout << "  ==> " << setw(28) << " Total: " << setw(7) << cnttot << " events -> " << setw(7) << sigtot << " +- " << sigtoterr << " (mb)" << endl;
+    cout << "  ==> " << setw(28) << " Ratio (abs/scat) = " << setw(7) << ratioAS << endl;
+    cout << "  ==> " << setw(28) << " avg. num of int. = " << setw(7) << cnttot/(double)gOptNevents << endl;
+    cout << "  ==> " << setw(28) << " no interaction   = " << setw(7) << (gOptNevents-cnttot)/(double)gOptNevents << endl; 
+    cout << endl;
+
+    double sigcex = sigma[1], sigelas = sigma[2], siginelas = sigma[3], sigabs = sigma[4]+sigma[5]+sigma[6]+sigma[7]+sigma[8]+sigma[9], sigprod = sigma[10]+sigma[11];
+    double sigcexerr = err[1], sigelaserr = err[2], siginelaserr = err[3], sigabserr = err[4]+err[5]+err[6]+err[7]+err[8]+err[9], sigproderr = err[10]+err[11];
+    nt->Fill(gOptInputPdgCode,stepKE[istep],istep,sigtot,sigcex,sigelas,siginelas,sigabs,sigprod,sigtoterr,sigcexerr,sigelaserr,siginelaserr,sigabserr,sigproderr);
 
   }
-  sigtot    = fm2tomb * area * cnttot/(double)ievent;
-  sigtoterr = fm2tomb * area * TMath::Sqrt(cnttot)/(double)ievent;
-  double ratioAS = (sigtotScat==0) ? 0 : sigtotAbs/(double)sigtotScat;
+  nt->Write(); nt2->Write(); he->Write();
+  f.Write();
+  f.Close();
 
-  cout << " -------------------------------------------------------------------------- " << endl;
-  cout << " ==> " << setw(28) << " Total: " << setw(7) << cnttot << " events -> " << setw(7) << sigtot << " +- " << sigtoterr << " (mb)" << endl;
-  cout << " ==> " << setw(28) << " Ratio (abs/scat) = " << setw(7) << ratioAS << endl;
-  cout << " ==> " << setw(28) << " avg. num of int. = " << setw(7) << cnttot/(double)ievent << endl;
-  cout << " ==> " << setw(28) << " no interaction   = " << setw(7) << (ievent-cnttot)/(double)ievent << endl; 
-  cout << endl;
-
-  cout << *alg << endl; delete alg;
+  //-- Print the algorithm id and configuration parameters
+  LOG("testIntranuke", pNOTICE) << *intranuke;
 
   return 0;
 }
@@ -459,12 +414,50 @@ void GetCommandLineArgs(int argc, char ** argv)
   //rescattering particle kinetic energy
   try {
     LOG("testIntranuke", pINFO) << "Reading rescattering particle KE energy";
-    gOptInputKE = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'k');
+    ////gOptInputKE = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'k');
+    string ke = genie::utils::clap::CmdLineArgAsString(argc,argv,'k');
+
+    // is it just a value or a range (comma separated set of values)
+    if(ke.find(",") != string::npos) {
+       // split the comma separated list
+       vector<string> kerange = utils::str::Split(ke, ",");
+       assert(kerange.size() == 2);
+       double emin = atof(kerange[0].c_str());
+       double emax = atof(kerange[1].c_str());
+       assert(emax>emin && emin>0);
+       gOptInputKE = emin;
+       gOptRangeKE = emax-emin;
+    } else {
+       gOptInputKE = atof(ke.c_str());
+       gOptRangeKE = -1;
+    }
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("testIntranuke", pFATAL) << "Unspecified KE - Exiting";
       PrintSyntax();
       exit(1);
+    }
+  }
+
+  //length of step:
+  try {
+    LOG("testIntranuke", pINFO) << "Reading length of step corresponding to some amount of KE";
+    gOptLstep = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'l');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("testIntranuke", pINFO) << "Unspecified length of step - Using default";
+      gOptLstep = kDefOptLstep;
+    }
+  }
+
+  //number of steps:
+  try {
+    LOG("testIntranuke", pINFO) << "Reading number of steps with some amount of KE";
+    gOptNstep = genie::utils::clap::CmdLineArgAsInt(argc,argv,'m');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("testIntranuke", pINFO) << "Unspecified number of steps - Using default";
+      gOptNstep = kDefOptNstep;
     }
   }
 
@@ -500,51 +493,17 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
-  //spline building option
-  gOptBuildSplines = genie::utils::clap::CmdLineArgAsBool(argc,argv,'s');
-
-  //-- Required arguments
-
-  //neutrino energy:
+  //output ntuple format
+  int format = 1; format = 0;
   try {
-    LOG("testIntranuke", pINFO) << "Reading neutrino energy";
-    string nue = genie::utils::clap::CmdLineArgAsString(argc,argv,'e');
-
-    // is it just a value or a range (comma separated set of values)
-    if(nue.find(",") != string::npos) {
-       // split the comma separated list
-       vector<string> nurange = utils::str::Split(nue, ",");
-       assert(nurange.size() == 2);
-       double emin = atof(nurange[0].c_str());
-       double emax = atof(nurange[1].c_str());
-       assert(emax>emin && emin>0);
-       gOptMinNuEnergy   = emin;
-       gOptNuEnergyRange = emax-emin;
-    } else {
-       gOptMinNuEnergy   = atof(nue.c_str());
-       gOptNuEnergyRange = -1;
-    }
+    LOG("gevgen", pINFO) << "Reading requested output ntuple format";
+    format = genie::utils::clap::CmdLineArgAsInt(argc,argv,'f');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      gOptMinNuEnergy = kDefOptMinNuEnergy;
-      //LOG("testIntranuke", pFATAL) << "Unspecified neutrino energy - Exiting";
-      //PrintSyntax();
-      //exit(1);
+      LOG("gevgen", pINFO) << "Unspecified tree format - Using default";
     }
   }
-
-  //neutrino PDG code:
-  try {
-    LOG("testIntranuke", pINFO) << "Reading neutrino PDG code";
-    gOptNuPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      gOptNuPdgCode = kDefOptNuPdgCode;
-      //LOG("testIntranuke", pFATAL) << "Unspecified neutrino PDG code - Exiting";
-      //PrintSyntax();
-      //exit(1);
-    }
-  }
+  if(format == 0 || format == 1) gOptNtpFormat = (NtpMCFormat_t)format;
 
   //target PDG code:
   try {
@@ -565,7 +524,7 @@ void PrintSyntax(void)
 {
   LOG("testIntranuke", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gtestIntranuke [-n nev] [-e energy] [-p nupdg] [-t tgtpdg] [-r run] [-a R0] -i inputpdg -k KE\n"
+    << "   gtestIntranuke [-n nev] [-t tgtpdg] [-f format] [-r run] [-a R0] -i inputpdg -k KE\n"
     << "    for inputpdg : piplus  =  211\n"
     << "                   pizero  =  111\n"
     << "                   piminus = -211\n"
@@ -573,7 +532,7 @@ void PrintSyntax(void)
     << "                   proton  = 2212\n\n"
     << "    to generate 1k events with intranuclear rescattering in the default target (pi+,Fe56)\n"
     << "    gtestIntranuke -n 1000 -i 211 -k .165\n\n"
-    << "    to generate 1k events with intranuclear rescattering in the oxegen target (pi+,O16)\n"
-    << "    gtestIntranuke -n 1000 -i 211 -k .165 -t 1016008000\n\n";
+    << "    to generate 1k events with intranuclear rescattering in the carbon target (pi+,C12)\n"
+    << "    gtestIntranuke -n 1000 -i 211 -k .165 -t 1016008000 -a 1.4\n\n";
 }
 //____________________________________________________________________________
