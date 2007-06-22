@@ -16,18 +16,16 @@
            -f specifies the output text file format. Default is 0.
 		0 : GENIE-style XML file
 		1 : GENIE's GHEP in tabular text format
-		2 : GMINOS-style text file
-		3 : NUANCE-style text file
-		4 : NEUGEN/GENIE cross generator test-style text file
+		2 : NUANCE-style text file
+		3 : ROOT Tree used for T2K cross-generator comparisons
 
            -o specifies the output filename. 
               If not specified a the default filename is constructed by the 
               input base name and an extension depending on the file format: 
                 0 -> *.gxml 
-                1 -> *.gtab
-                2 -> *.gminos
-                3 -> *.nuance
-                4 -> *.gneugen
+                1 -> *.gdat
+                2 -> *.gnuance
+                3 -> *.gt2k.root
 		
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -75,17 +73,22 @@ using std::ios;
 
 using namespace genie;
 
+void   ConvertToTextFormat();
+void   ConvertToT2KMCComparisonsRootFormat();
+
 void   ConvertToGXML      (ofstream & out, EventRecord & event);
 void   AddGXMLHeader      (ofstream & out);
 void   AddGXMLFooter      (ofstream & out);
+
 void   ConvertToGTab      (ofstream & out, EventRecord & event);
-void   ConvertToGMinos    (ofstream & out, EventRecord & event);
+
 void   ConvertToNuance    (ofstream & out, EventRecord & event);
-void   ConvertToGNeugen   (ofstream & out, EventRecord & event);
 int    GHepToNuanceIst    (GHepParticle * p);
 int    GHep2NuancePDGC    (GHepParticle * p);
+
 void   GetCommandLineArgs (int argc, char ** argv);
 void   PrintSyntax        (void);
+
 string DefaultOutputFile  (void);
 
 //input options (from command line arguments):
@@ -93,62 +96,50 @@ string gOptInpFileName;
 string gOptOutFileName;
 int    gOptOutFileFormat;
 
+const int kNPmax = 100;
+
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
   //-- get the command line arguments
   GetCommandLineArgs(argc, argv);
 
-  string out_format="";
-  if      (gOptOutFileFormat==0) out_format = "GXML";
-  else if (gOptOutFileFormat==1) out_format = "GTAB";
-  else if (gOptOutFileFormat==2) out_format = "GMINOS";
-  else if (gOptOutFileFormat==3) out_format = "NUANCE";
-  else if (gOptOutFileFormat==4) out_format = "GNEUGEN";
+  if(gOptOutFileFormat==0 || 
+     gOptOutFileFormat==1 || 
+     gOptOutFileFormat==2) ConvertToTextFormat();
 
-  LOG("gntpc", pNOTICE)
-   << "\n\n Converting:...\n"
-   << "  GENIE ER ROOT Tree -> " << out_format << "-format file \n";
-   
-  LOG("gntpc", pNOTICE)
-       << "Input  GENIE/ROOT file: " << gOptInpFileName;
-  LOG("gntpc", pNOTICE)
-                  << "Output file: " << gOptOutFileName;
+  if(gOptOutFileFormat==3) ConvertToT2KMCComparisonsRootFormat();
 
+  return 0;
+}
+//___________________________________________________________________
+void ConvertToTextFormat()
+{
   //-- open the ROOT file and get the TTree & its header
-
   TFile file(gOptInpFileName.c_str(),"READ");
-
   TTree *           tree = 0;
   NtpMCTreeHeader * thdr = 0;
-
   tree = dynamic_cast <TTree *>           ( file.Get("gtree")  );
   thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
 
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  //-- Figure out the TTree format (GENIE supports multiple formats)
-  //   This program only translates ER ntupes.
-  //   Assert that the user has input a correct ntuple type
   NtpMCFormat_t format = thdr->format;
   assert(format == kNFEventRecord);
 
-  //-- The ER ntuple contains a single TBranch with NtpMCEventRecord
-  //   objects in its leaves. Set the branch address for reading it.
+  //-- get mc record
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
 
-  //-- Create an ofstream for saving the converted GHEP records
+  //-- open the output stream
   ofstream output(gOptOutFileName.c_str(), ios::out);
 
-  //-- Add a file header when it is needed
+  //-- add a file header when it is needed
   if(gOptOutFileFormat==0) AddGXMLHeader(output);
 
-  //-- loop over TTree NtpMC records, get each events & call the right
-  //   converter depending on the requested format
+  //-- event loop
   for(int i = 0; i< tree->GetEntries(); i++) {
     tree->GetEntry(i);
-
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
 
@@ -157,22 +148,19 @@ int main(int argc, char ** argv)
 
     if      (gOptOutFileFormat==0) ConvertToGXML   (output, event);
     else if (gOptOutFileFormat==1) ConvertToGTab   (output, event);
-    else if (gOptOutFileFormat==2) ConvertToGMinos (output, event);
-    else if (gOptOutFileFormat==3) ConvertToNuance (output, event);
-    else if (gOptOutFileFormat==4) ConvertToGNeugen(output, event);
+    else if (gOptOutFileFormat==2) ConvertToNuance (output, event);
 
     mcrec->Clear();
   }
 
-  //-- Add a file footer when it is needed
+  //-- add a file footer when it is needed
   if(gOptOutFileFormat==0) AddGXMLHeader(output);
 
   LOG("gntpc", pINFO) << "\nDone converting GENIE's ER ntuple";
-
-  return 0;
 }
 //___________________________________________________________________
-// FUNCTIONS FOR CONVERTING:
+//        *** code for converting to text-based formats ***
+//___________________________________________________________________
 //      ***** GENIE ER ROOT TREE -> GENIE-STYLE XML FILE ****
 //___________________________________________________________________
 void AddGXMLHeader(ofstream & output)
@@ -234,7 +222,7 @@ void ConvertToGXML(ofstream & output, EventRecord & event)
                                          << type << "\">" << endl;
     output << "        ";
     output << " <pdg> " << p->Pdg()       << " </pdg>";
-    output << " <ist> " << p->Status()        << " </ist>";
+    output << " <ist> " << p->Status()    << " </ist>";
     output << endl;
 
     output << "        ";
@@ -284,7 +272,6 @@ void AddGXMLFooter(ofstream & output)
   output << "<genie_event_list version=\"1.00\">";
 }
 //___________________________________________________________________
-// FUNCTIONS FOR CONVERTING:
 //     ***** GENIE ER ROOT TREE -> GHEPs in TABULAR TXT FMT *****
 //___________________________________________________________________
 void ConvertToGTab(ofstream & output, EventRecord & event)
@@ -354,16 +341,6 @@ void ConvertToGTab(ofstream & output, EventRecord & event)
   }
 }
 //___________________________________________________________________
-// FUNCTIONS FOR CONVERTING:
-//    ***** GENIE ER ROOT TREE -> GMINOS-STYLE TEXT FILE ****
-//___________________________________________________________________
-void ConvertToGMinos(ofstream & /*output*/, EventRecord & /*event*/)
-{
-  LOG("gntpc", pERROR) << "GMINOS format is not supported yet";
-  exit(4);
-}
-//___________________________________________________________________
-// FUNCTIONS FOR CONVERTING:
 //    ***** GENIE ER ROOT TREE -> NUANCE-STYLE TEXT FILE ****
 //___________________________________________________________________
 void ConvertToNuance(ofstream & output, EventRecord & event)
@@ -465,110 +442,256 @@ int GHep2NuancePDGC(GHepParticle * p)
   return nuance_pdgc;
 }
 //___________________________________________________________________
-// FUNCTIONS FOR CONVERTING:
-// ***** GENIE ER ROOT TREE -> NEUGEN/GENIE TEST-STYLE TEXT FILE ****
+// ***** GENIE ER ROOT TREE -> STD NT FOR T2K CROSS-GENERATOR STUDIES ****
 //___________________________________________________________________
-void ConvertToGNeugen(ofstream & output, EventRecord & event)
+void ConvertToT2KMCComparisonsRootFormat()
 {
-  // format --
-  // CCNC PROC NU NUC TGT q2 W x y p4nu p4nuc p4fsl p4had
-  // 
-  // notes --
-  // CCNC    : 1->CC, 2->NC
-  // PROC    : 1->QEL
-  // NU,NUC  : std PDG codes for neutrino and hit nucleon
-  // TGT     : MINOS PDG code for target (1AAAZZZ000)
-  // q2      : selected momentum transfer (q2<0, in GeV^2)
-  // W       : selected hadronic invariant mass (in GeV)
-  // x       : selected Bjorken scaling var
-  // y       : selected inelasticity
-  // q2,W,x,y: are the kinematic variables selected by the kinematic
-  //           generators using *off-shell* kinematics, not the ones
-  //           that can be computed by the generated particle 4-vectors.
-  //           To avoid the ambiguity caused by the value of the 
-  //           (off-shell) nucleon mass when translating between 
-  //           kinematic variables, only the ones actually selected
-  //           would be non-zero (QEL:q2, RES:q2,W, DIS:x,y)
-  // p4      : all 4-momentum vector in this order = (px,py,pz,E)
+  //-- define branch variables
+  //
+  int    brIev        = 0;      // Event number (to be used as index for friend trees with detector response variables)
+  int    brNeutrino   = 0;      // Neutrino pdg code
+  int    brTarget     = 0;      // Nuclear target pdg code (1aaazzz000)
+  int    brHitNuc     = 0;      // Hit nucleon pdg code
+  int    brHitQrk     = 0;      // Hit quark pdg code
+  bool   brIsQel      = false;  // Is QEL?
+  bool   brIsRes      = false;  // Is RES?
+  bool   brIsDis      = false;  // Is DIS?
+  bool   brIsCoh      = false;  // Is COH?
+  bool   brIsCC       = false;  // Is CC?
+  bool   brIsNC       = false;  // Is NC?
+  double brWeight     = 0;      // Event weight
+  double brKineXs     = 0;      // Bjorken x (selected)
+  double brKineYs     = 0;      // Inelasticity y (selected)
+  double brKineTs     = 0;      // Energy transfer to nucleus at COH events (selected)
+  double brKineQ2s    = 0;      // Momentum transfer Q^2 (selected)
+  double brKineWs     = 0;      // Hadronic invariant mass W (selected)
+  double brKineX      = 0;      // Bjorken x  (computed from the event record)
+  double brKineY      = 0;      // Inelasticity y (computed from the event record)
+  double brKineT      = 0;      // Energy transfer to nucleus at COH events (computed from the event record)
+  double brKineQ2     = 0;      // Momentum transfer Q^2 (computed from the event record)
+  double brKineW      = 0;      // Hadronic invariant mass W (computed from the event record)
+  double brEv         = 0;      // Neutrino energy (neutrino assumed in +z direction)
+  double brEn         = 0;      // Initial state hit nucleon energy
+  double brPxn        = 0;      // Initial state hit nucleon px
+  double brPyn        = 0;      // Initial state hit nucleon py
+  double brPzn        = 0;      // Initial state hit nucleon pz
+  double brEl         = 0;      // Final state primary lepton energy
+  double brPxl        = 0;      // Final state primary lepton px
+  double brPyl        = 0;      // Final state primary lepton py
+  double brPzl        = 0;      // Final state primary lepton pz 
+  int    brNfP        = 0;      // Number of final state p's
+  int    brNfN        = 0;      // Number of final state n's
+  int    brNfPip      = 0;      // Number of final state pi+'s
+  int    brNfPim      = 0;      // Number of final state pi-'s
+  int    brNfPi0      = 0;      // Number of final state pi0's
+  int    brNfKp       = 0;      // Number of final state K+'s
+  int    brNfKm       = 0;      // Number of final state K-'s
+  int    brNfK0       = 0;      // Number of final state K0's
+  int    brNiP        = 0;      // Number of 'primary' p's   (before intranuclear rescattering)
+  int    brNiN        = 0;      // Number of 'primary' n's   (before intranuclear rescattering)
+  int    brNiPip      = 0;      // Number of 'primary' pi+'s (before intranuclear rescattering)
+  int    brNiPim      = 0;      // Number of 'primary' pi-'s (before intranuclear rescattering)
+  int    brNiPi0      = 0;      // Number of 'primary' pi0's (before intranuclear rescattering)
+  int    brNiKp       = 0;      // Number of 'primary' K+'s  (before intranuclear rescattering)
+  int    brNiKm       = 0;      // Number of 'primary' K-'s  (before intranuclear rescattering)
+  int    brNiK0       = 0;      // Number of 'primary' K0's  (before intranuclear rescattering) 
+  int    brNf         = 0;      // Number of final state particles in hadronic system
+  int    brPdgf[kNPmax];        // Pdg code of i^th final state particle in hadronic system
+  double brEf  [kNPmax];        // Energy   of i^th final state particle in hadronic system
+  double brPxf [kNPmax];        // Px       of i^th final state particle in hadronic system
+  double brPyf [kNPmax];        // Py       of i^th final state particle in hadronic system
+  double brPzf [kNPmax];        // Pz       of i^th final state particle in hadronic system
+  int    brNi         = 0;      // Number of particles in 'primary' hadronic system (before intranuclear rescattering)
+  int    brPdgi[kNPmax];        // Pdg code of i^th particle in 'primary' hadronic system 
+  double brEi  [kNPmax];        // Energy   of i^th particle in 'primary' hadronic system 
+  double brPxi [kNPmax];        // Px       of i^th particle in 'primary' hadronic system 
+  double brPyi [kNPmax];        // Py       of i^th particle in 'primary' hadronic system 
+  double brPzi [kNPmax];        // Pz       of i^th particle in 'primary' hadronic system 
 
-  Interaction * interaction = event.Summary();
+  //-- open output file
+  //
+  TFile fout(gOptOutFileName.c_str(),"recreate");
 
-  const ProcessInfo & proc_info = interaction->ProcInfo();
+  //-- create output tree
+  //
+  TTree * tEvtTree = new TTree("tEvtTree","event tree summary");
 
-  int ccnc=-1;
-  if      (proc_info.IsWeakCC()) ccnc=1;
-  else if (proc_info.IsWeakNC()) ccnc=2;
+  //-- create tree branches
+  //
+  tEvtTree->Branch("iev",       &brIev,          "iev/I"       );
+  tEvtTree->Branch("neu",       &brNeutrino,     "neu/I"       );
+  tEvtTree->Branch("tgt" ,      &brTarget,       "tgt/I"       );
+  tEvtTree->Branch("hitnuc",    &brHitNuc,       "hitnuc/I"    );
+  tEvtTree->Branch("hitqrk",    &brHitQrk,       "hitqrk/I"    );
+  tEvtTree->Branch("qel",       &brIsQel,        "qel/O"       );
+  tEvtTree->Branch("res",       &brIsRes,        "res/O"       );
+  tEvtTree->Branch("dis",       &brIsDis,        "dis/O"       );
+  tEvtTree->Branch("coh",       &brIsCoh,        "coh/O"       );
+  tEvtTree->Branch("cc",        &brIsCC,         "cc/O"        );
+  tEvtTree->Branch("nc",        &brIsNC,         "nc/O"        );
+  tEvtTree->Branch("wght",      &brWeight,       "wght/D"      );
+  tEvtTree->Branch("xs",        &brKineXs,       "xs/D"        );
+  tEvtTree->Branch("ys",        &brKineYs,       "ys/D"        );
+  tEvtTree->Branch("ts",        &brKineTs,       "ts/D"        );
+  tEvtTree->Branch("Q2s",       &brKineQ2s ,     "Q2s/D"       );
+  tEvtTree->Branch("Ws",        &brKineWs,       "Ws/D"        );
+  tEvtTree->Branch("x",         &brKineX,        "x/D"         );
+  tEvtTree->Branch("y",         &brKineY,        "y/D"         );
+  tEvtTree->Branch("t",         &brKineT,        "t/D"         );
+  tEvtTree->Branch("Q2",        &brKineQ2,       "Q2/D"        );
+  tEvtTree->Branch("W",         &brKineW,        "W/D"         );
+  tEvtTree->Branch("Ev",        &brEv,           "Ev/D"        );
+  tEvtTree->Branch("En",        &brEn,           "En/D"        );
+  tEvtTree->Branch("pxn",       &brPxn,          "pxn/D"       );
+  tEvtTree->Branch("pyn",       &brPyn,          "pyn/D"       );
+  tEvtTree->Branch("pzn",       &brPzn,          "pzn/D"       );
+  tEvtTree->Branch("El",        &brEl,           "El/D"        );
+  tEvtTree->Branch("pxl",       &brPxl,          "pxl/D"       );
+  tEvtTree->Branch("pyl",       &brPyl,          "pyl/D"       );
+  tEvtTree->Branch("pzl",       &brPzl,          "pzl/D"       );
+  tEvtTree->Branch("nfp",       &brNfP,          "nfp/I"       );
+  tEvtTree->Branch("nfn",       &brNfN,          "nfn/I"       );
+  tEvtTree->Branch("nfpip",     &brNfPip,        "nfpip/I"     );
+  tEvtTree->Branch("nfpim",     &brNfPim,        "nfpim/I"     );
+  tEvtTree->Branch("nfpi0",     &brNfPi0,        "nfpi0/I"     );
+  tEvtTree->Branch("nfkp",      &brNfKp,         "nfkp/I"      );
+  tEvtTree->Branch("nfkm",      &brNfKm,         "nfkm/I"      );
+  tEvtTree->Branch("nfk0",      &brNfK0,         "nfk0/I"      );
+  tEvtTree->Branch("nip",       &brNiP,          "np/I"        );
+  tEvtTree->Branch("nin",       &brNiN,          "nn/I"        );
+  tEvtTree->Branch("nipip",     &brNiPip,        "npip/I"      );
+  tEvtTree->Branch("nipim",     &brNiPim,        "npim/I"      );
+  tEvtTree->Branch("nipi0",     &brNiPi0,        "npi0/I"      );
+  tEvtTree->Branch("niKp",      &brNiKp,         "nKp/I"       );
+  tEvtTree->Branch("niKm",      &brNiKm,         "nKm/I"       );
+  tEvtTree->Branch("niK0",      &brNiK0,         "nK0/I"       );
+  tEvtTree->Branch("ni",        &brNi,           "ni/I"        );
+  tEvtTree->Branch("pdgi",      brPdgi,          "pdgi[ni]/I " );
+  tEvtTree->Branch("Ei",        brEi,            "Ei[ni]/D"    );
+  tEvtTree->Branch("pxi",       brPxi,           "pxi[ni]/D"   );
+  tEvtTree->Branch("pyi",       brPyi,           "pyi[ni]/D"   );
+  tEvtTree->Branch("pzi",       brPzi,           "pzi[ni]/D"   );
+  tEvtTree->Branch("nf",        &brNf,           "nf/I"        );
+  tEvtTree->Branch("pdgf",      brPdgf,          "pdgf[nf]/I " );
+  tEvtTree->Branch("Ef",        brEf,            "Ef[nf]/D"    );
+  tEvtTree->Branch("pxf",       brPxf,           "pxf[nf]/D"   );
+  tEvtTree->Branch("pyf",       brPyf,           "pyf[nf]/D"   );
+  tEvtTree->Branch("pzf",       brPzf,           "pzf[nf]/D"   );
 
-  int proc=-1;
-  if (proc_info.IsQuasiElastic()) proc=1;
-  if (proc_info.IsResonant())     proc=2;
-  if (proc_info.IsCoherent())     proc=4;
+  //-- open the ROOT file and get the TTree & its header
+  TFile fin(gOptInpFileName.c_str(),"READ");
+  TTree *           tree = 0;
+  NtpMCTreeHeader * thdr = 0;
+  tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
+  thdr = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
 
-  //-- get kinematics as selected by the corresponding kinematics
-  //   generator, ignore other variables to avoid possible definition
-  //   incosnsistencies due to the off-shell kinematics
+  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  const Kinematics & kinematics = interaction->Kine();
-  double q2=0, W=0, x=0, y=0;
+  NtpMCFormat_t format = thdr->format;
+  assert(format == kNFEventRecord);
 
-  if(proc==1) {
-    q2 = kinematics.q2(true);
+  //-- get the mc record
+  NtpMCEventRecord * mcrec = 0;
+  tree->SetBranchAddress("gmcrec", &mcrec);
+
+  //-- event loop
+  for(int i = 0; i< tree->GetEntries(); i++) {
+    tree->GetEntry(i);
+    EventRecord &  event = *(mcrec->event);
+
+    LOG("gntpc", pINFO) << event;
+
+    // clean-up arrays
+    //
+    for(int j=0; j<kNPmax; j++) {
+       brPdgi[j] = 0;     
+       brEi  [j] = 0;     
+       brPxi [j] = 0;     
+       brPyi [j] = 0;     
+       brPzi [j] = 0;     
+       brPdgf[j] = 0;     
+       brEf  [j] = 0;     
+       brPxf [j] = 0;     
+       brPyf [j] = 0;     
+       brPzf [j] = 0;     
+    }
+
+    // start filling up branches
+    //
+    brIev        = i;      
+    brNeutrino   = 0;      
+    brTarget     = 0;      
+    brHitNuc     = 0;      
+    brHitQrk     = 0;      
+    brIsQel      = false;
+    brIsRes      = false;
+    brIsDis      = false;  
+    brIsCoh      = false;  
+    brIsCC       = false;  
+    brIsNC       = false;  
+    brWeight     = 0.;      
+    brKineXs     = 0.;      
+    brKineYs     = 0.;      
+    brKineTs     = 0.;      
+    brKineQ2s    = 0.;            
+    brKineWs     = 0.;      
+    brKineX      = 0.;      
+    brKineY      = 0.;      
+    brKineT      = 0.;      
+    brKineQ2     = 0.;      
+    brKineW      = 0.;      
+    brEv         = 0.;      
+    brEn         = 0.;      
+    brPxn        = 0.;      
+    brPyn        = 0.;      
+    brPzn        = 0.;            
+    brEl         = 0.;      
+    brPxl        = 0.;      
+    brPyl        = 0.;      
+    brPzl        = 0.;      
+    brNfP        = 0;      
+    brNfN        = 0;      
+    brNfPip      = 0;      
+    brNfPim      = 0;      
+    brNfPi0      = 0;      
+    brNfKp       = 0;      
+    brNfKm       = 0;      
+    brNfK0       = 0;      
+    brNiP        = 0;      
+    brNiN        = 0;      
+    brNiPip      = 0;      
+    brNiPim      = 0;      
+    brNiPi0      = 0;      
+    brNiKp       = 0;      
+    brNiKm       = 0;      
+    brNiK0       = 0;      
+
+    brNi = 0;      
+    for(int j=0; j<brNi; j++) {
+      brPdgi[j] = 0;     
+      brEi  [j] = 0;     
+      brPxi [j] = 0;     
+      brPyi [j] = 0;     
+      brPzi [j] = 0;     
+    }
+
+    brNf = 0;      
+    for(int j=0; j<brNf; j++) {
+      brPdgf[j] = 0;     
+      brEf  [j] = 0;     
+      brPxf [j] = 0;     
+      brPyf [j] = 0;     
+      brPzf [j] = 0;     
+    }
+
+    tEvtTree->Fill();
+
+    mcrec->Clear();
   }
-  if(proc==2) {
-    q2 = kinematics.q2(true);
-    W  = kinematics.W(true);
-  }
-  if(proc==4) {
-    x  = kinematics.x(true);
-    y  = kinematics.y(true);
-    q2 = kinematics.q2(true);
-  }
+  fin.Close();
 
-  GHepParticle * neutrino = event.Probe();
-  GHepParticle * nucleon  = event.HitNucleon();
-  GHepParticle * target   = event.TargetNucleus();
-  GHepParticle * lepton   = event.FinalStatePrimaryLepton();
-  GHepParticle * hadsyst  = event.FinalStateHadronicSystem();
-
-  if(proc==1) hadsyst=event.Particle(nucleon->FirstDaughter());
-
-  int neu_pdg = neutrino -> Pdg();
-  int nuc_pdg = (nucleon) ? nucleon -> Pdg() : 0;
-  int tgt_pdg = (target)  ? target  -> Pdg() : 0;
-
-  output << ccnc << " " << proc << " "
-         << neu_pdg << " " 
-         << nuc_pdg << " " 
-         << tgt_pdg << " "
-         << q2 << " " 
-         << W  << " " 
-         << x  << " " 
-         << y  << " "; 
-
-  TLorentzVector * p4neu = neutrino->P4();
-  output << p4neu->Px() << " "  << p4neu->Py() << " " 
-         << p4neu->Pz() << " "  << p4neu->E()  << " ";
-
-  if(nucleon) {
-    TLorentzVector * p4nuc = nucleon->P4();
-    output << p4nuc->Px() << " "  << p4nuc->Py() << " " 
-           << p4nuc->Pz() << "\n" << p4nuc->E()  << " ";
-  } else {
-    output << "0.0 0.0 0.0 \n 0.0 ";
-  }
-
-  TLorentzVector * p4lep = lepton->P4();
-  output << p4lep->Px() << " "  << p4lep->Py() << " " 
-         << p4lep->Pz() << " "  << p4lep->E()  << " ";
-
-  if(hadsyst) {
-     TLorentzVector * p4had = hadsyst->P4();
-     output << p4had->Px()  << "\n" << p4had->Py()  << " " 
-            << p4had->Pz()  << " "  << p4had->E()   << " ";
-  } else {
-    output << "0.0 \n 0.0  0.0  0.0 ";
-  }
-  output << endl;
+  tEvtTree->Write("numcnt");
+  fout.Close();
 }
 //___________________________________________________________________
 // FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS & PRINTING SYNTAX ON ERR
@@ -605,7 +728,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     if(!e.ArgumentFound()) {
       LOG("gntpc", pINFO)
                << "Unspecified output file format - Using default";
-      gOptOutFileFormat = 0;
+      gOptOutFileFormat = 3;
     }
   }
 
@@ -636,9 +759,8 @@ string DefaultOutputFile(void)
   string ext="";
   if      (gOptOutFileFormat==0) ext = "gxml";
   else if (gOptOutFileFormat==1) ext = "gtab";
-  else if (gOptOutFileFormat==2) ext = "gminos";
-  else if (gOptOutFileFormat==3) ext = "nuance";
-  else if (gOptOutFileFormat==4) ext = "gneugen";
+  else if (gOptOutFileFormat==2) ext = "gnuance";
+  else if (gOptOutFileFormat==3) ext = "gt2k.root";
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
@@ -664,21 +786,20 @@ void PrintSyntax(void)
     << "\n"
     << "\n"
     << "  Options : \n"
-    << "       [] denotes an optional argument \n"
-    << "       -f specifies the output text file format. Default is 0.\n"
-    << "	        0 : GENIE-style XML file \n"
-    << "		1 : GENIE's GHEP in tabular text format \n"
-    << "		2 : GMINOS-style text file \n"
-    << "		3 : NUANCE-style text file \n"
-    << "                4:  NEUGEN/GENIE cross generator test-style text file\n\n"
-    << "       -o specifies the output filename. \n"
-    << "          If not specified a the default filename is constructed by the  \n"
-    << "          input base name and an extension depending on the file format: \n"
-    << "                0 -> *.gxml \n"
-    << "                1 -> *.gtab \n"
-    << "                2 -> *.gminos \n"
-    << "                3 -> *.nuance \n" 
-    << "                4 -> *.gneugen \n" 
+    << "      [] denotes an optional argument \n"
+    << "      -f specifies the output text file format. Default is 3.  \n"
+    << "          0 : GENIE-style XML file  \n"
+    << "          1 : GENIE's GHEP in tabular text format  \n"
+    << "          2 : NUANCE-style text file  \n"
+    << "          3 : ROOT Tree used for T2K cross-generator comparisons  \n"
+    << "  \n"
+    << "    -o specifies the output filename.  \n"
+    << "         If not specified a the default filename is constructed by the  \n"
+    << "         input base name and an extension depending on the file format:  \n"
+    << "           0 -> *.gxml  \n"
+    << "           1 -> *.gtab  \n"
+    << "           2 -> *.gnuance  \n"
+    << "           3 -> *.gt2k.root \n"
     << ENDL;
 }
 //___________________________________________________________________
