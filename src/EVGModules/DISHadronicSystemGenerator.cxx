@@ -16,6 +16,7 @@
 
 #include <TMCParticle.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/DISHadronicSystemGenerator.h"
@@ -34,7 +35,7 @@
 
 using namespace genie;
 using namespace genie::constants;
-using namespace genie::utils::print;
+using namespace genie::utils;
 
 //___________________________________________________________________________
 DISHadronicSystemGenerator::DISHadronicSystemGenerator() :
@@ -67,10 +68,14 @@ void DISHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- Add the fragmentation products
   this->AddFragmentationProducts(evrec);
+
+  //-- Simulate the formation zone if not taken directly from the 
+  //   hadronization model
+  this->SimulateFormationZone(evrec);
 }
 //___________________________________________________________________________
 void DISHadronicSystemGenerator::AddFragmentationProducts(
-                                                    GHepRecord * evrec) const
+                                                   GHepRecord * evrec) const
 {
 // Calls a hadronizer and adds the fragmentation products at the GHEP
 
@@ -168,6 +173,79 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   delete plist;
 }
 //___________________________________________________________________________
+void DISHadronicSystemGenerator::SimulateFormationZone(
+                                                   GHepRecord * evrec) const
+{
+  LOG("DISHadronicVtx", pDEBUG) 
+    << "Simulating formation zone for the DIS hadronic system";
+ 
+  // Get hadronic system's 3-momentum
+  GHepParticle * hadronic_system = evrec->FinalStateHadronicSystem();
+  TVector3 p3hadr = hadronic_system->P4()->Vect(); // (px,py,pz)
+
+  // Loop over GHEP and run intranuclear rescattering on handled particles
+  TObjArrayIter piter(evrec);
+  GHepParticle * p = 0;
+  int icurr = -1;
+ 
+  while( (p = (GHepParticle *) piter.Next()) )
+  {
+    icurr++;
+
+   //-- Decide whether we need to apply the formation zone
+   //-- Applied to direct descendants of the the 'HadronicSystem' GHEP entry 
+   //-- -in case od the KNO model- or descedants of  the JETSET special particles 
+   //-- -cluster,string,indep-)
+      
+   bool apply_formation_zone = false;
+ 
+   // mom 
+   int imom = p->FirstMother();
+   if(imom<0) continue;     
+
+   // grand-mom pdgc
+   int mom_pdg = evrec->Particle(imom)->Pdg();
+    
+   if (mom_pdg == kPdgHadronicSyst ||
+       mom_pdg == kPdgCluster      ||
+       mom_pdg == kPdgString       ||
+       mom_pdg == kPdgIndep) apply_formation_zone = true;
+   if(!apply_formation_zone) continue;
+
+    //-- Compute the formation zone
+    //
+    TVector3 p3  = p->P4()->Vect();      // hadron's: p (px,py,pz)
+    double   m   = p->Mass();            //           m
+    double   m2  = m*m;                  //           m^2
+    double   P   = p->P4()->P();         //           |p|
+    double   Pt  = p3.Pt(p3hadr);        //           pT
+    double   Pt2 = Pt*Pt;                //           pT^2
+    double   fz  = P*fct0*m/(m2+fK*Pt2); //           formation zone, in m
+
+    LOG("DISHadronicVtx", pNOTICE)
+      << p->Name() << ": |P| = " << P << " GeV, Pt = " << Pt
+                                << " GeV, Formation Zone = " << fz << " m";
+
+    //-- Apply the formation zone
+
+    double step = fz;
+
+    TVector3 dr = p->P4()->Vect().Unit();          // unit vector along its direction
+    double c  = kLightSpeed / (units::m/units::s); // c in m/sec
+    dr.SetMag(step);                               // spatial step size
+    double dt = step/c;                            // temporal step:
+    TLorentzVector dx4(dr,dt);                     // 4-vector step
+    TLorentzVector x4new = *(p->X4()) + dx4;       // new position
+
+    LOG("DISHadronicVtx", pDEBUG)
+         << "\n Init direction = " << print::Vec3AsString(&dr)
+         << "\n Init position (in m,sec) = " << print::X4AsString(p->X4())
+         << "\n Fin  position (in m,sec) = " << print::X4AsString(&x4new);
+
+    p->SetPosition(x4new);
+  }
+}
+//___________________________________________________________________________
 void DISHadronicSystemGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -182,8 +260,8 @@ void DISHadronicSystemGenerator::Configure(string config)
 //____________________________________________________________________________
 void DISHadronicSystemGenerator::LoadConfig(void)
 {
-// Load sub-algorithms and config data to reduce the number of registry
-// lookups
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
 
   fHadronizationModel = 0;
 
@@ -193,9 +271,17 @@ void DISHadronicSystemGenerator::LoadConfig(void)
 
   assert(fHadronizationModel);
 
-  //-- flag to determine whether we copy all fragmentation record entries
+  //-- Get flag to determine whether we copy all fragmentation record entries
   //   into the GHEP record or just the ones marked with kf=1
   fFilterPreFragmEntries = fConfig->GetBoolDef("FilterPreFragm",false);
+
+  //-- Get parameters controlling the formation zone simulation
+  //
+  fct0 = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("FZONE-ct0")); // fm
+  fK   = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("FZONE-KPt2"));
+
+  LOG("DISHadronicVtx", pDEBUG) << "ct0     = " << fct0 << " fermi";
+  LOG("DISHadronicVtx", pDEBUG) << "K(pt^2) = " << fK;
 }
 //____________________________________________________________________________
 

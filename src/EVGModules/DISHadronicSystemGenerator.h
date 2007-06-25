@@ -45,11 +45,15 @@ public :
 private:
 
   void AddFragmentationProducts (GHepRecord * event_rec) const;
+  void SimulateFormationZone    (GHepRecord * event_rec) const;
+
   void LoadConfig (void);
 
   const HadronizationModelI * fHadronizationModel;
 
-  bool fFilterPreFragmEntries;
+  bool   fFilterPreFragmEntries;
+  double fct0;        ///< formation zone (c * formation time)
+  double fK;          ///< param multiplying pT^2 in formation zone calculation
 };
 
 }      // genie namespace
