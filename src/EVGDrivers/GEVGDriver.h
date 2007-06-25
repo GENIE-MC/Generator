@@ -43,11 +43,12 @@ namespace genie {
 class EventRecord;
 class EventGeneratorList;
 class InteractionSelectorI;
+class InteractionGeneratorMap;
+class InteractionList;
 class Interaction;
 class InitialState;
 class Target;
 class Spline;
-class InteractionGeneratorMap;
 
 class GEVGDriver {
 
@@ -66,20 +67,25 @@ public :
   //-- Generate single event
   EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
-  //-- Instruct the driver to create all the splines it needs
-  void CreateSplines (int nknots=-1, double emax=-1, bool inLogE=true);
+  //-- Get loaded event generator list
+  const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
+
+  //-- Get the list of all interactions that can be simulated for the specified 
+  //   initial state (depends on which event generation threads were loaded into
+  //   the event generation driver driver)
+  const InteractionList * Interactions(void) const;
 
   //-- Cross section splines for input interaction and for the sum of all
   //   simulated interactions for the specified initial state
   const Spline * XSecSumSpline       (void) const { return fXSecSumSpl; }
   const Spline * XSecSpline          (const Interaction * interaction) const;
 
+  //-- Instruct the driver to create all the splines it needs
+  void CreateSplines (int nknots=-1, double emax=-1, bool inLogE=true);
+
   //-- Methods used for building the 'total' cross section spline
   double XSecSum             (const TLorentzVector & nup4);
   void   CreateXSecSumSpline (int nk, double Emin, double Emax, bool inlogE=true);
-
-  //-- Get loaded event generator list
-  const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
 
   //-- Get validity range (combined validity range of loaded evg threads)
   Range1D_t ValidEnergyRange (void) const;
