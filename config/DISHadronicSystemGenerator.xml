@@ -2,7 +2,21 @@
 
 <alg_conf>
 
-  Configuration sets for DISHadronSystemGenerator EventRecordVisitorI
+<!--
+
+Configuration sets for DISHadronSystemGenerator EventRecordVisitorI
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                Type    Opt   Comment                                                   Default
+.......................................................................................................................
+Hadronizer          string  No   
+FilterPreFragm      bool    No
+ct0                 double  Yes                                                             GPL FZONE-ct0
+Kpt2                double  Yes                                                             GPL FZONE-Kpt2
+-->
+
+
 
   <param_set name="Default"> 
      <param type="alg"  name="Hadronizer">     genie::KNOPythiaHadronization/Default  </param>
