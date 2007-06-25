@@ -439,6 +439,26 @@ void GEVGDriver::CreateXSecSumSpline(
   fXSecSumSpl = new Spline(nk, E, xsec);
 }
 //___________________________________________________________________________
+const Spline * GEVGDriver::XSecSpline(const Interaction * interaction) const
+{
+// Returns the cross section spline for the input interaction as was
+// computed from the cross section model associated with that interaction.
+
+  if (!fUseSplines) return 0;
+
+  // Get the list of spline objects
+  // Should have been constructed at the job initialization
+  XSecSplineList * xssl = XSecSplineList::Instance();
+
+  // get corresponding cross section algorithm for the input interaction
+  const XSecAlgorithmI * xsec_alg =
+               fIntGenMap->FindGenerator(interaction)->CrossSectionAlg();
+  assert(xsec_alg);
+
+  const Spline * spl = xssl->GetSpline(xsec_alg,interaction);
+  return spl;
+}
+//___________________________________________________________________________
 void GEVGDriver::UseSplines(void)
 {
 // Instructs the driver to use cross section splines rather than computing
