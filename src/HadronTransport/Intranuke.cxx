@@ -230,31 +230,6 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
        continue; // <-- skip to next GHEP entry
     }
 
-    // ** Special treatment for hadrons handled for the very first time
-    // ** 
-
-    // All 'fresh' hadrons would be advanced by the formation zone. Then
-    // their corresponding (cloned) GHEP entry would be stored and would
-    // move on to the next particle...
-
-    bool fresh = this->IsFreshHadron(evrec,sp);
-    if (fresh) {
-       this->AdvanceFreshHadron(evrec,sp);
-
-       // Check whether the hadron's position is still within the nucleus
-       if(!this->IsInNucleus(sp)) {
-           LOG("Intranuke", pNOTICE)
-                  << "*** Hadron escaped the nucleus! Done with it.";
-           sp->SetStatus(kIStStableFinalState);
-       }
-
-       evrec->AddParticle(*sp); // <-- add it to the GHEP record
-       continue;                // <-- skip to next GHEP entry
-    }
-
-    // ** Standard intranuclear rescattering step
-    // ** 
-
     // Generate a step and advance the hadron by it
     double d = this->GenerateStep(evrec,sp);
     this->StepParticle(sp, d);
@@ -286,73 +261,6 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
      kPdgHadronicBlob, kIStStableFinalState, iremn,-1,-1,-1, fRemnP4, v4);
   evrec->AddParticle(remnant_nucleus);
   evrec->Particle(iremn)->SetStatus(kIStIntermediateState);
-}
-//___________________________________________________________________________
-bool Intranuke::IsFreshHadron(GHepRecord* evrec, GHepParticle* p) const
-{
-// Decide whether the particle p is a 'fresh' hadron (direct descendant of 
-// the 'HadronicSystem' GHEP entry -in case od the KNO model- or descedant of 
-// the JETSET special particles -cluster,string,indep-)
-
-  // in test mode the initial state is hadron+nucleus and that initial
-  // hadron does not have a formation zone
-  if(fInTestMode) return false;
-
-  // mom
-  int imom = p->FirstMother();
-  assert(imom>0);
-
-  // grand-mom
-  int igmom = evrec->Particle(imom)->FirstMother();
-  assert(igmom>0);
-
-  // grand-mom pdgc
-  int gmom_pdg = evrec->Particle(igmom)->Pdg();
-
-  if (gmom_pdg == kPdgHadronicSyst ||
-      gmom_pdg == kPdgCluster      ||
-      gmom_pdg == kPdgString       ||
-      gmom_pdg == kPdgIndep) return true;
-
-  return false;
-}
-//___________________________________________________________________________
-double Intranuke::FormationZone(GHepRecord* evrec, GHepParticle* p) const
-{
-// Compute the formation zone for the particle p of the input event
-
-  // Get hadronic system's 3-momentum
-  GHepParticle * hadronic_system = evrec->FinalStateHadronicSystem();
-  TVector3 p3hadr = hadronic_system->P4()->Vect(); // (px,py,pz)
-
-  // Compute formation zone
-  TVector3 p3  = p->P4()->Vect();      // hadron's: p (px,py,pz)
-  double   m   = p->Mass();            //           m
-  double   m2  = m*m;                  //           m^2
-  double   P   = p->P4()->P();         //           |p|
-  double   Pt  = p3.Pt(p3hadr);        //           pT
-  double   Pt2 = Pt*Pt;                //           pT^2
-  double   fz  = P*fct0*m/(m2+fK*Pt2); //           formation zone, in m
-
-  LOG("Intranuke", pINFO)
-          << "|P| = " << P << " GeV, Pt = " << Pt
-                              << " GeV, Formation Zone = " << fz << " m";
-  return fz;
-}
-//___________________________________________________________________________
-void Intranuke::AdvanceFreshHadron(GHepRecord* evrec, GHepParticle* cp) const
-{
-// Advance 'fresh' hadrons by a formation zone. Note that the input particle
-// may be modified but the event record not (ie the particle has been cloned 
-// from an event entry to undergo rescattering but it should not have been
-// added at the event just yet)
-
-  double fzone = this->FormationZone(evrec, cp);
-  this->StepParticle(cp, fzone);
-
-  LOG("Intranuke", pNOTICE)
-    << "Hadron handled for first time is advanced by the formation zone = "
-    << fzone << " m";
 }
 //___________________________________________________________________________
 double Intranuke::GenerateStep(GHepRecord* evrec, GHepParticle* p) const
@@ -1356,14 +1264,14 @@ void Intranuke::LoadConfig(void)
 
   //-- other intranuke config params
   fR0      = fConfig->GetDoubleDef ("R0",      gc->GetDouble("NUCL-R0")); // fm
-  fct0     = fConfig->GetDoubleDef ("ct0",     gc->GetDouble("INUKE-FormationZone")); // fm
-  fK       = fConfig->GetDoubleDef ("Kpt2",    gc->GetDouble("INUKE-KPt2"));
+//  fct0     = fConfig->GetDoubleDef ("ct0",     gc->GetDouble("INUKE-FormationZone")); // fm
+//  fK       = fConfig->GetDoubleDef ("Kpt2",    gc->GetDouble("INUKE-KPt2"));
   fNucRmvE = fConfig->GetDoubleDef ("NucRmvE", gc->GetDouble("INUKE-NucRemovalE")); // GeV
 
   //-- report
   LOG("Intranuke", pDEBUG) << "mode    = " << INukeMode::AsString(fMode);
-  LOG("Intranuke", pDEBUG) << "ct0     = " << fct0 << " fermi";
-  LOG("Intranuke", pDEBUG) << "K(pt^2) = " << fK;
+//  LOG("Intranuke", pDEBUG) << "ct0     = " << fct0 << " fermi";
+//  LOG("Intranuke", pDEBUG) << "K(pt^2) = " << fK;
   LOG("Intranuke", pDEBUG) << "R0      = " << fR0  << " fermi";
 }
 //___________________________________________________________________________

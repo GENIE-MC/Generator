@@ -75,9 +75,6 @@ private:
   bool   IsInNucleus        (const GHepParticle* p) const;
   void   SetNuclearRadius   (const GHepParticle* p) const;
   void   StepParticle       (GHepParticle * p, double dr) const;
-  bool   IsFreshHadron      (GHepRecord* ev, GHepParticle* p) const;
-  double FormationZone      (GHepRecord* ev, GHepParticle* p) const;
-  void   AdvanceFreshHadron (GHepRecord* ev, GHepParticle* p) const;
   void   SimHadroProc       (GHepRecord* ev, GHepParticle* p) const;
   double GenerateStep       (GHepRecord* ev, GHepParticle* p) const;
   double MeanFreePath       (GHepRecord* ev, GHepParticle* p) const;
@@ -112,8 +109,6 @@ private:
   //-- configuration parameters
   INukeMode_t  fMode;       ///< intranuke mode (h+A, h+N)
   bool         fInTestMode; ///<
-  double       fct0;        ///< formation zone (c * formation time)
-  double       fK;          ///< param multiplying pT^2 in formation zone calculation
   double       fR0;         ///< effective nuclear size param
   double       fNucRmvE;    ///< binding energy to subtract from cascade nucleons
 };
