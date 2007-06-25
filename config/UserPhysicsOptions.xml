@@ -380,6 +380,15 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.000  </param>
   <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 0.133  </param>
 
+ <!-- 	
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters relevant to formation zone simulation
+  - ct0 is the formation time times the speed of light (given in fm)
+  - KPt2 is the parameter multiplying pT2 in formation zone calc.
+  -->
+  <param type="double" name="FZONE-ct0">    2.0   </param>
+  <param type="double" name="FZONE-KPt2">   1.0   </param>
+
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   RES/DIS joining parameter Wcut 
@@ -396,15 +405,6 @@ Use the "Default" one to get the best GENIE physics & tuning.
   - NUCL-Ro is an effective nucleus size given in fm (R=Ro*A^1/3)
   -->
   <param type="double" name="NUCL-R0"> 1.2   </param>
-
- <!-- 	
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters relevant to formation zone simulation
-  - ct0 is the formation time times the speed of light (given in fm)
-  - KPt2 is the parameter multiplying pT2 in formation zone calc.
-  -->
-  <param type="double" name="FZONE-ct0">    2.0   </param>
-  <param type="double" name="FZONE-KPt2">   1.0   </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
