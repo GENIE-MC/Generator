@@ -43,6 +43,7 @@ namespace genie {
 class EventRecord;
 class EventGeneratorList;
 class InteractionSelectorI;
+class Interaction;
 class InitialState;
 class Target;
 class Spline;
@@ -68,11 +69,14 @@ public :
   //-- Instruct the driver to create all the splines it needs
   void CreateSplines (int nknots=-1, double emax=-1, bool inLogE=true);
 
-  //-- Cross section sum for all interactions that can be generated for
-  //-- the current init-state.
-  double         XSecSum             (const TLorentzVector & nup4);
-  void           CreateXSecSumSpline (int nk, double Emin, double Emax, bool inlogE=true);
+  //-- Cross section splines for input interaction and for the sum of all
+  //   simulated interactions for the specified initial state
   const Spline * XSecSumSpline       (void) const { return fXSecSumSpl; }
+  const Spline * XSecSpline          (const Interaction * interaction) const;
+
+  //-- Methods used for building the 'total' cross section spline
+  double XSecSum             (const TLorentzVector & nup4);
+  void   CreateXSecSumSpline (int nk, double Emin, double Emax, bool inlogE=true);
 
   //-- Get loaded event generator list
   const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
