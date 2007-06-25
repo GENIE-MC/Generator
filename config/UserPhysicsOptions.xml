@@ -397,6 +397,15 @@ Use the "Default" one to get the best GENIE physics & tuning.
   -->
   <param type="double" name="NUCL-R0"> 1.2   </param>
 
+ <!-- 	
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters relevant to formation zone simulation
+  - ct0 is the formation time times the speed of light (given in fm)
+  - KPt2 is the parameter multiplying pT2 in formation zone calc.
+  -->
+  <param type="double" name="FZONE-ct0">    2.0   </param>
+  <param type="double" name="FZONE-KPt2">   1.0   </param>
+
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Intranuclear rescattering 
@@ -405,19 +414,26 @@ Use the "Default" one to get the best GENIE physics & tuning.
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
   <param type="alg"  name="HadronTransp-Model">  genie::Intranuke/Default  </param>
+
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   INTRANUKE-specific parameters:
   - Mode options are: hA, hN
-  - FormationZone is the ct0 param entering in form. zone calc (in fm)
-  - KPt2 is the parameter multiplying pT2 in formation zone calc.
   - NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
   -->
   <param type="string" name="INUKE-Mode">            hA    </param>
-  <param type="double" name="INUKE-FormationZone">   2.0   </param>
-  <param type="double" name="INUKE-KPt2">            1.0   </param>
   <param type="double" name="INUKE-NucRemovalE">     0.008 </param>
 
+ <!-- 	
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  GIBUU-specific parameters:
+  -->
+
+ <!-- 	
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  FLUKA-specific parameters:
+  -->
+  
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Specify which cross section model is to be used by each GENIE event generation thread.
