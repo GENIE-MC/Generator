@@ -99,11 +99,14 @@ private:
   double   fPpic;                ///< pi+ pi- production probability
   double   fPKc;                 ///< K+  K- production probability
   double   fPK0;                 ///< K0  K0bar production probability
-  double   fAvp;                 ///< offset in average multiplicity relation for vp
-  double   fAvn;                 ///< offset in average multiplicity relation for vn
-  double   fAvbp;                ///< offset in average multiplicity relation for vbp
-  double   fAvbn;                ///< offset in average multiplicity relation for vbn
-  double   fB;                   ///< slope  in average multiplicity relation
+  double   fAvp;                 ///< offset in average multiplicity = f(W) relation for vp
+  double   fAvn;                 ///< offset in average multiplicity = f(W) relation for vn
+  double   fAvbp;                ///< offset in average multiplicity = f(W) relation for vbp
+  double   fAvbn;                ///< offset in average multiplicity = f(W) relation for vbn
+  double   fBvp;                 ///< slope  in average multiplicity = f(W) relation for vp
+  double   fBvn;                 ///< slope  in average multiplicity = f(W) relation for vn
+  double   fBvbp;                ///< slope  in average multiplicity = f(W) relation for vbp
+  double   fBvbn;                ///< slope  in average multiplicity = f(W) relation for vbn
   double   fCvp;                 ///< Levy function parameter for vp
   double   fCvn;                 ///< Levy function parameter for vn
   double   fCvbp;                ///< Levy function parameter for vbp

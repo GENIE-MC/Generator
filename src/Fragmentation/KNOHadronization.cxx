@@ -429,17 +429,17 @@ void KNOHadronization::LoadConfig(void)
   // Probabilities for producing hadron pairs
 
   //-- pi0 pi0
-  fPpi0 = fConfig->GetDoubleDef("ProbPi0Pi0", 
-                                gc->GetDouble("KNO-ProbPi0Pi0")); 
+  fPpi0 = fConfig->GetDoubleDef(
+             "ProbPi0Pi0", gc->GetDouble("KNO-ProbPi0Pi0")); 
   //-- pi+ pi-
-  fPpic = fConfig->GetDoubleDef("ProbPiplusPiminus", 
-                                gc->GetDouble("KNO-ProbPiplusPiminus")); 
+  fPpic = fConfig->GetDoubleDef(
+             "ProbPiplusPiminus", gc->GetDouble("KNO-ProbPiplusPiminus")); 
   //-- K+  K-
-  fPKc  = fConfig->GetDoubleDef("ProbKplusKminus", 
-                                gc->GetDouble("KNO-ProbKplusKminus")); 
+  fPKc  = fConfig->GetDoubleDef(
+             "ProbKplusKminus", gc->GetDouble("KNO-ProbKplusKminus")); 
   //-- K0 K0bar
-  fPK0  = fConfig->GetDoubleDef("ProbK0K0bar", 
-                                gc->GetDouble("KNO-ProbK0K0bar")); 
+  fPK0  = fConfig->GetDoubleDef(
+             "ProbK0K0bar", gc->GetDouble("KNO-ProbK0K0bar")); 
 
   // Decay unstable particles now or leave it for later? Which decayer to use?
   fDecayer = 0;
@@ -480,7 +480,10 @@ void KNOHadronization::LoadConfig(void)
   fAvn  = fConfig->GetDoubleDef("Alpha-vn",  gc->GetDouble("KNO-Alpha-vn") ); 
   fAvbp = fConfig->GetDoubleDef("Alpha-vbp", gc->GetDouble("KNO-Alpha-vbp")); 
   fAvbn = fConfig->GetDoubleDef("Alpha-vbn", gc->GetDouble("KNO-Alpha-vbn"));
-  fB    = fConfig->GetDoubleDef("Beta",      gc->GetDouble("KNO-Beta")     );
+  fBvp  = fConfig->GetDoubleDef("Beta-vp",   gc->GetDouble("KNO-Beta-vp") );
+  fBvn  = fConfig->GetDoubleDef("Beta-vn",   gc->GetDouble("KNO-Beta-vn") ); 
+  fBvbp = fConfig->GetDoubleDef("Beta-vbp",  gc->GetDouble("KNO-Beta-vbp")); 
+  fBvbn = fConfig->GetDoubleDef("Beta-vbn",  gc->GetDouble("KNO-Beta-vbn"));
 
   // Load the Levy function parameter
   fCvp  = fConfig->GetDoubleDef("LevyC-vp",  gc->GetDouble("KNO-LevyC-vp") );
@@ -563,12 +566,18 @@ double KNOHadronization::AverageChMult(int nu_pdg,int nuc_pdg, double W) const
   assert( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) );
   assert( pdg::IsNeutronOrProton(nuc_pdg) );
 
-  double a=0, b=fB;
+  double a=0, b=0;
 
   if      ( pdg::IsProton (nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) a=fAvp;
   else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) a=fAvn;
   else if ( pdg::IsProton (nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) a=fAvbp;
   else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) a=fAvbn;
+  else return 0;
+
+  if      ( pdg::IsProton (nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) b=fBvp;
+  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) b=fBvn;
+  else if ( pdg::IsProton (nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) b=fBvbp;
+  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) b=fBvbn;
   else return 0;
 
   double av_nch = a + b * 2*TMath::Log(W);

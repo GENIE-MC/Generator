@@ -7,11 +7,14 @@ Algorithm Configurable Parameters:
 .......................................................................................................................
 Name                          Type    Opt   Comment                                       Default
 .......................................................................................................................
-Beta                          double  Yes   b in <mult> = a + 2blnW                       GPL KNO-Beta
-Alpha-vp                      double  Yes   a for vp                                      GPL KNO-Alpha-vp
+Alpha-vp                      double  Yes   a for vp in <mult> = a + 2blnW                GPL KNO-Alpha-vp
 Alpha-vn                      double  Yes   a for vn                                      GPL KNO-Alpha-vn
 Alpha-vbp                     double  Yes   a for vbp                                     GPL KNO-Alpha-vbp
 Alpha-vbn                     double  Yes   a for vbn                                     GPL KNO-Alpha-vbn
+Beta-vp                       double  Yes   b for vp                                      GPL KNO-Alpha-vp
+Beta-vn                       double  Yes   b for vn                                      GPL KNO-Alpha-vn
+Beta-vbp                      double  Yes   b for vbp                                     GPL KNO-Alpha-vbp
+Beta-vbn                      double  Yes   b for vbn                                     GPL KNO-Alpha-vbn
 LevyC-vp                      double  Yes   Levy function param c for vp                  GPL KNO-LevyC-vp
 LevyC-vn                      double  Yes   Levy function param c for vn                  GPL KNO-LevyC-vn
 LevyC-vbp                     double  Yes   Levy function param c for vbp                 GPL KNO-LevyC-vbp
