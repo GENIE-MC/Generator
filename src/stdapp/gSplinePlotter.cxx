@@ -8,12 +8,14 @@
          create by themselves at job initialization.
 
          Syntax :
-             gsplt -f xml_file -t target_pdg [-e emax] [-o root_file] [-k key]
+             gsplt -f xml_file -p neutrino_pdg -t target_pdg [-e emax] [-o root_file]
 
          Options :
+           []  denotes an optional argument
            -f  the input XML file containing the cross section spline data
-           -t  a target pdg code (format: 1aaazzz000)
-           -e  the maximum energy (in plots)
+           -p  the neutrino pdg code
+           -t  the target pdg code (format: 1aaazzz000)
+           -e  the maximum energy (in generated plots -- use it to zoom at low E)
            -o  if an output ROOT file is specified the splines data will be 
                saved there in a hierarchical directory structure.
                Note that the input ROOT file, if already exists, would not be 
@@ -22,23 +24,18 @@
 
          Example:
 
-           gsplt -f ~/mydata/mysplines.xml -t 1056026000 -e 78.4
+           gsplt -f ~/mydata/mysplines.xml -p 14 -t 1056026000 
 
            will load the cross section splines from the XML file mysplines.xml,
-           then will select the cross section splines that refer to an iron
-           target (A=56,Z=26) and will plot xsec/E vs E up to 78.4 GeV (or the
-           maximum energy in the loaded splines, if it is less that 78.4 GeV)
+           then will select the cross section splines that are relevant to 
+           numu+Fe56 and will generate cross section plots.
            The generated cross section plots will be saved in a postscript
-           document named "xsec-splines-1056026000.ps"
+           document named "xsec-splines-14-1056026000.ps"
 
          Notes:
          - To create the cross sections splines in XML format (for some target
            list or input geometry and for some input neutrino list) run the gmkspl
            GENIE application (see $GENIE/src/stdapp/gMakeSplines.cxx)
-         - The event generation drivers can also generate cross section splines
-           or complete a loaded cross section spline list with all the splines
-           that would be needed but were not loaded. See at the event generation
-           drivers for more information.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -69,6 +66,8 @@
 
 #include "Conventions/XmlParserStatus.h"
 #include "Conventions/Units.h"
+#include "EVGCore/InteractionList.h"
+#include "EVGDrivers/GEVGDriver.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
@@ -92,7 +91,11 @@ void PrintSyntax        (void);
 string gOptXMLFilename;  // input XML filename
 string gOptROOTFilename; // output ROOT filename
 double gOptNuEnergy;     // Ev(max)
+int    gOptNuPdgCode;    // neutrino PDG code
 int    gOptTgtPdgCode;   // target PDG code
+
+const int NP=300;
+const int PsType = 111; // ps type: portrait
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -100,48 +103,239 @@ int main(int argc, char ** argv)
   //-- parse command line arguments
   GetCommandLineArgs(argc,argv);
 
+  //-- figuring out the energy, xsec range
+  double Emin  = 0.01;
+  double Emax  = gOptNuEnergy;
+  double XSmax = -9999;
+  double XSmin =  9999;
+
+  //-- define some marker styles / colors
+  const unsigned int kNMarkers = 5;
+  const unsigned int kNColors  = 6;
+  unsigned int markers[kNMarkers] = {20, 28, 29, 27, 3};
+  unsigned int colors [kNColors]  = {1, 2, 4, 6, 8, 28};
+
   //-- load the cross section spline list
   XSecSplineList * splist = XSecSplineList::Instance();
   XmlParserStatus_t ist = splist->LoadFromXml(gOptXMLFilename);
   assert(ist == kXmlOK);
 
-  //-- get all available spline keys
-  const vector<string> * keyv = splist->GetSplineKeys();
-  vector<string>::const_iterator kiter;
+  //-- create an event genartion driver configured for the
+  //   specified initial state (cross section splines will be
+  //   accessed through that driver as in event generation mode)
+  InitialState init_state(gOptTgtPdgCode, gOptNuPdgCode);
+           
+  GEVGDriver evg_driver;
+  evg_driver.Configure(init_state);
+  evg_driver.CreateSplines();
+  evg_driver.CreateXSecSumSpline (100, Emin, Emax);
 
-  //-- figuring out the energy, xsec range
-  double Emin  = 0.1;
-  double Emax  = gOptNuEnergy;
-  double XSmax = -9999;
-  double XSmin =  9999;
+  //-- create a postscript document for saving cross section plpots
 
-  //-- string to match for selecting splines for the input target only
-  ostringstream tgtmatch;
-  tgtmatch << "tgt:" << gOptTgtPdgCode;
-
-  //-- get all splines and draw them
-  TCanvas * c = 0;
-  TH1F *    h = 0;
-
-  //-- create a postscript document
-  ostringstream filename;
-  filename << "xsec-splines-" << gOptTgtPdgCode << ".ps";
-  TPostScript * ps = new TPostScript(filename.str().c_str(), 111);
-
-  //-- create plot legend
-  TLegend * legend = new TLegend(0.85,0.2,1.00,0.9);
+  TCanvas * c = new TCanvas("c","",20,20,500,800);
+  c->SetBorderMode(0);
+  c->SetFillColor(0);
+  TLegend * legend = new TLegend(0.01,0.01,0.99,0.99);
   legend->SetFillColor(0);
+  legend->SetBorderSize(0);
 
-  //-- book enough space for xsec plots
-  TGraph * gr[keyv->size()];
+  ostringstream filename;
+  filename << "xsec-splines-" << gOptNuPdgCode << "-" << gOptTgtPdgCode << ".ps";
+  TPostScript * ps = new TPostScript(filename.str().c_str(), PsType);
 
-  //-- define some marker styles / colors
-  const int kNMarkers = 5;
-  const int kNColors  = 6;
-  int markers[kNMarkers] = {20, 28, 29, 27, 3};
-  int colors [kNColors]  = {1, 2, 4, 6, 8, 28};
+  //-- get the list of interactions that can be simulated by the driver
+  const InteractionList * ilist = evg_driver.Interactions();
+  unsigned int nspl = ilist->size();
 
-  //-- check whether to append the splines into a ROOT file
+  //-- book enough space for xsec plots (last one is the sum)
+  TGraph * gr[nspl+1];
+
+  //-- loop over all the simulated interactions & create the cross section graphs
+  InteractionList::const_iterator ilistiter = ilist->begin();
+  unsigned int i=0;
+  for(; ilistiter != ilist->end(); ++ilistiter) {
+    
+    const Interaction * interaction = *ilistiter;
+    LOG("gsplt", pINFO) 
+       << "Current interaction: " << interaction->AsString();
+
+    //-- access the cross section spline
+    const Spline * spl = evg_driver.XSecSpline(interaction);
+    if(!spl) {
+      LOG("gsplt", pWARN) << "Can't get spline for: " << interaction->AsString();
+      exit(2);
+    }
+
+    //-- set graph color/style
+    int icol = TMath::Min( i % kNColors,  kNColors-1  );
+    int isty = TMath::Min( i / kNMarkers, kNMarkers-1 );
+    int col = colors[icol];
+    int sty = markers[isty];
+
+    LOG("gsplt", pINFO) << "color = " << col << ", marker = " << sty;
+
+    //-- export Spline as TGraph / set color & stype
+    gr[i] = spl->GetAsTGraph(NP,true,true,1.,1./units::cm2);
+    gr[i]->SetLineColor(col);
+    gr[i]->SetMarkerColor(col);
+    gr[i]->SetMarkerStyle(sty);
+    gr[i]->SetMarkerSize(0.5);
+
+    i++;
+  }
+
+  //-- now, get the sum...
+  const Spline * splsum = evg_driver.XSecSumSpline();
+  if(!splsum) {
+      LOG("gsplt", pWARN) << "Can't get the cross section sum spline";
+      exit(2);
+  }
+  gr[nspl] = splsum->GetAsTGraph(NP,true,true,1.,1./units::cm2);
+
+  //-- figure out the minimum / maximum xsec in plotted range
+  double x=0, y=0;
+  for(int j=0; j<NP; j++) {
+    gr[nspl]->GetPoint(j,x,y);
+    XSmax = TMath::Max(XSmax,y);
+  }
+  XSmin = XSmax/2000.;
+  XSmax = XSmax*1.2;
+
+  LOG("gsplt", pINFO) << "Drawing frame: E    = (" << Emin  << ", " << Emax  << ")";
+  LOG("gsplt", pINFO) << "Drawing frame: XSec = (" << XSmin << ", " << XSmax << ")";
+
+  //-- ps output: add the 1st page with _all_ xsec spline plots
+  //
+  //c->Draw();
+  TH1F * h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+  for(unsigned int i = 0; i <= nspl; i++) if(gr[i]) gr[i]->Draw("LP");
+  h->GetXaxis()->SetTitle("Ev (GeV)");
+  h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
+  c->SetLogx();
+  c->SetLogy();
+  c->SetGridx();
+  c->SetGridy();
+  c->Update();
+
+  //-- plot QEL xsecs only
+  //
+  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+  i=0;
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    if(interaction->ProcInfo().IsQuasiElastic()) {
+        gr[i]->Draw("LP");
+        TString spltitle(interaction->AsString());
+        spltitle = spltitle.ReplaceAll(";",1," ",1);
+        legend->AddEntry(gr[i], spltitle.Data(),"LP");
+    }
+    i++;
+  }
+  gr[nspl]->Draw("LP");
+  legend->AddEntry(gr[nspl], "sum","LP");
+  h->GetXaxis()->SetTitle("Ev (GeV)");
+  h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
+  c->SetLogx();
+  c->SetLogy();
+  c->SetGridx();
+  c->SetGridy();
+  c->Update();
+  c->Clear();
+  c->Range(0,0,1,1);
+  legend->Draw();
+  c->Update();
+
+  //-- plot RES xsecs only
+  //
+  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+  legend->Clear();
+  i=0;
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    if(interaction->ProcInfo().IsResonant()) {
+        gr[i]->Draw("LP");
+        TString spltitle(interaction->AsString());
+        spltitle = spltitle.ReplaceAll(";",1," ",1);
+        legend->AddEntry(gr[i], spltitle.Data(),"LP");
+    }
+    i++;
+  }
+  gr[nspl]->Draw("LP");
+  legend->AddEntry(gr[nspl], "sum","LP");
+  h->GetXaxis()->SetTitle("Ev (GeV)");
+  h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
+  c->SetLogx();
+  c->SetLogy();
+  c->SetGridx();
+  c->SetGridy();
+  c->Update();
+  c->Clear();
+  c->Range(0,0,1,1);
+  legend->Draw();
+  c->Update();
+
+  //-- plot DIS xsecs only
+  //
+  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+  legend->Clear();
+  i=0;
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    if(interaction->ProcInfo().IsDeepInelastic()) {
+        gr[i]->Draw("LP");
+        TString spltitle(interaction->AsString());
+        spltitle = spltitle.ReplaceAll(";",1," ",1);
+        legend->AddEntry(gr[i], spltitle.Data(),"LP");
+    }
+    i++;
+  }
+  gr[nspl]->Draw("LP");
+  legend->AddEntry(gr[nspl], "sum","LP");
+  h->GetXaxis()->SetTitle("Ev (GeV)");
+  h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
+  c->SetLogx();
+  c->SetLogy();
+  c->SetGridx();
+  c->SetGridy();
+  c->Update();
+  c->Clear();
+  c->Range(0,0,1,1);
+  legend->Draw();
+  c->Update();
+
+  //-- plot COH xsecs only
+  //
+  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+  legend->Clear();
+  i=0;
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    if(interaction->ProcInfo().IsCoherent()) {
+        gr[i]->Draw("LP");
+        TString spltitle(interaction->AsString());
+        spltitle = spltitle.ReplaceAll(";",1," ",1);
+        legend->AddEntry(gr[i], spltitle.Data(),"LP");
+    }
+    i++;
+  }
+  gr[nspl]->Draw("LP");
+  legend->AddEntry(gr[nspl], "sum","LP");
+  h->GetXaxis()->SetTitle("Ev (GeV)");
+  h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
+  c->SetLogx();
+  c->SetLogy();
+  c->SetGridx();
+  c->SetGridy();
+  c->Update();
+  c->Clear();
+  c->Range(0,0,1,1);
+  legend->Draw();
+  c->Update();
+
+  //-- close the postscript document 
+  ps->Close();
+
+/*
   TFile * froot = 0;
   bool save_in_root = gOptROOTFilename.size()>0;
 
@@ -175,140 +369,15 @@ int main(int argc, char ** argv)
     }
   }
 
-  //-- fill all cross section graphs for the input target
-  int i=-1;
-  for(kiter = keyv->begin(); kiter != keyv->end(); ++kiter) {
-
-    i++;
-    string key = *kiter;
-
-    if(key.find(tgtmatch.str()) == string::npos) {
-      gr[i] = 0;
-      continue;
-    }
-
-    LOG("gsplt", pINFO) << "Drawing spline with key = \n" << key;
-
-    //-- access the cross section spline
-    const Spline * spl = splist->GetSpline(key);
-
-    //-- set graph color/style
-    int icol = TMath::Min( i % kNColors,  kNColors-1  );
-    int isty = TMath::Min( i / kNMarkers, kNMarkers-1 );
-    int col = colors[icol];
-    int sty = markers[isty];
-
-    LOG("gsplt", pINFO) << "color = " << col << ", marker = " << sty;
-
-    //-- export Spline as TGraph / set color & stype
-    int NP=300;
-    gr[i] = spl->GetAsTGraph(NP,true,true,1.,1./units::cm2);
-    gr[i]->SetLineColor(col);
-    gr[i]->SetMarkerColor(col);
-    gr[i]->SetMarkerStyle(sty);
-    gr[i]->SetMarkerSize(0.5);
-
-    //-- update maximum xsec in plot
-    double x=0, y=0;
-    for(int j=0; j<NP; j++) {
-       gr[i]->GetPoint(j,x,y);
-       XSmax = TMath::Max(XSmax,y);
-    }
-
-    //-- create legend entry for current graph
-    ostringstream lgentry;
-    lgentry << "spl-" << i;
-    legend->AddEntry(gr[i], lgentry.str().c_str(),"LP");
-
-    //-- save splines in ROOT file
-    if(save_in_root) {
-
-      dirTgt->cd(); 
-
-      vector<string> keyv = utils::str::Split(key,"/");
-      assert(keyv.size()==3);
-
-      string algkey = keyv[0] + "/" + keyv[1];
-      string intkey = keyv[2];
-
-      TGraph * gr = spl->GetAsTGraph(4000);
-
-      ostringstream grptrn;
-      grptrn << "gr_" << i;
-
-      // replace all ";" from the interaction key with spaces
-      TString spltitle(intkey.c_str());
-      spltitle = spltitle.ReplaceAll(";",1," ",1);
-      spltitle.Prepend(", INT=");
-      spltitle.Prepend(algkey.c_str());
-      spltitle.Prepend("ALG=");
-      gr->SetTitle(spltitle.Data());
-      gr->Write(grptrn.str().c_str());
-    }
-  }
-  XSmin = XSmax/300.;
-
-  LOG("gsplt", pINFO) << "Saving plots in a postscript document";
-
-  //-- ps output: add the 1st page with xsec spline plots
-  c = new TCanvas("c","",20,20,500,500);
-  c->SetBorderMode(0);
-  c->SetFillColor(0);
-  c->Draw();
-
-  LOG("gsplt", pINFO) << "Drawing frame: E    = (" << Emin  << ", " << Emax  << ")";
-  LOG("gsplt", pINFO) << "Drawing frame: XSec = (" << XSmin << ", " << XSmax << ")";
-
-  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
-
-  for(int i = 0; i < (int) keyv->size(); i++) if(gr[i]) gr[i]->Draw("LP");
-  legend->Draw();
-
-  h->GetXaxis()->SetTitle("Ev (GeV)");
-  h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
-
-  c->SetLogx();
-  c->SetLogy();
-  legend->Draw();
-  c->Update();
-
-  //-- ps output: create the 2nd page (detailed legend) with spline keys
-
-  LOG("gsplt", pINFO) << "Creating legend page";
-
-  ps->NewPage();
-
-  delete c;
-  c = new TCanvas("c","",20,20,500,500);
-  c->SetBorderMode(0);
-  c->SetFillColor(0);
-  c->Draw();
-
-  c->Range(0,0,100,100);
-  TPaveText * ptxt = new TPaveText(0,0,100,100);
-  i = -1;
-  for(kiter = keyv->begin(); kiter != keyv->end(); ++kiter) {
-    i++;
-    string key = *kiter;
-    if(key.find(tgtmatch.str()) == string::npos) continue;
-    ostringstream lgentry;
-    lgentry << "spl-" << i << " : " << key;
-    ptxt->InsertText(lgentry.str().c_str());
-  }
-  ptxt->Draw();
-  c->Update();
-
-  //-- close the postscript document and output ROOT file
-  ps->Close();
   if(froot) froot->Close();
 
+  if(froot) delete froot;
+*/
+
   //-- clean-up
-  for(unsigned int j=0; j<keyv->size(); j++) { if(gr[j]) delete gr[j]; }
+  for(unsigned int j=0; j<=nspl; j++) { if(gr[j]) delete gr[j]; }
   delete c;
   delete ps;
-  delete keyv;
-  delete ptxt;
-  if(froot) delete froot;
 
   return 0;
 }
@@ -328,6 +397,38 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(1);
     }
   }
+  // neutrino PDG code:
+  try {
+    LOG("gevgen", pINFO) << "Reading neutrino PDG code";
+    gOptNuPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gevgen", pFATAL) << "Unspecified neutrino PDG code - Exiting";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+  // target PDG code:
+  try {
+    LOG("gevgen", pINFO) << "Reading target PDG code";
+    gOptTgtPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'t');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gevgen", pFATAL) << "Unspecified target PDG code - Exiting";
+      PrintSyntax();
+      exit(1);
+    }
+  } 
+  //max neutrino energy
+  try {
+    LOG("gsplt", pINFO) << "Reading neutrino energy";
+    gOptNuEnergy = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'e');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gsplt", pDEBUG)  << "Unspecified Emax - Setting to 100 GeV";
+      gOptNuEnergy = 100;
+    }
+  }
   //output ROOT file name:
   try {
     LOG("gsplt", pINFO) << "Reading output ROOT filename";
@@ -339,39 +440,20 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptROOTFilename = "";
     }
   }
-  //max neutrino energy
-  try {
-    LOG("gsplt", pINFO) << "Reading neutrino energy";
-    gOptNuEnergy = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'e');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gsplt", pDEBUG)  << "Unspecified Emax - Setting to 100 GeV";
-      gOptNuEnergy = 100;
-    }
-  }
-  //target PDG code:
-  try {
-    LOG("gsplt", pINFO) << "Reading target PDG code";
-    gOptTgtPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'t');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gsplt", pFATAL) << "Unspecified target PDG code - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
-  }
 
   // print the options you got from command line arguments
   LOG("gsplt", pINFO) << "Command line arguments:";
-  LOG("gsplt", pINFO) << "  Input XML file  = " << gOptXMLFilename;
-  LOG("gsplt", pINFO) << "  Max neutrino E  = " << gOptNuEnergy;
-  LOG("gsplt", pINFO) << "  Target PDG code = " << gOptTgtPdgCode;
+  LOG("gsplt", pINFO) << "  Input XML file    = " << gOptXMLFilename;
+  LOG("gsplt", pINFO) << "  Neutrino PDG code = " << gOptNuPdgCode;
+  LOG("gsplt", pINFO) << "  Target PDG code   = " << gOptTgtPdgCode;
+  LOG("gsplt", pINFO) << "  Max neutrino E    = " << gOptNuEnergy;
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("gsplt", pNOTICE)
       << "\n\n" << "Syntax:" << "\n"
-      << "   gsplt -f xml_file -t target_pdg [-e emax] [-o output_root_file]";
+      << "   gsplt -f xml_file -p neutrino_pdg -t target_pdg"
+      << " [-e emax] [-o output_root_file]";
 }
 //____________________________________________________________________________
