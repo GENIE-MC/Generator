@@ -335,49 +335,77 @@ int main(int argc, char ** argv)
   //-- close the postscript document 
   ps->Close();
 
-/*
-  TFile * froot = 0;
-  bool save_in_root = gOptROOTFilename.size()>0;
-
-  //-- check whether the file already exists in which case open
-  //   it in APPEND mode, otherwise open it in RECREATE mode
-  if(save_in_root) {
-    bool exists = !(gSystem->AccessPathName(gOptROOTFilename.c_str()));
-
-    if(exists) froot = new TFile(gOptROOTFilename.c_str(), "UPDATE");
-    else       froot = new TFile(gOptROOTFilename.c_str(), "RECREATE");
-    assert(froot);
-  }
-
-  //-- if the splines are to be saved in an output root file, cd into
-  //   a directory with the nuclear target PDG code (create it if it
-  //   does not exist)
-  TDirectory * dirTgt = 0;
-  if(save_in_root) {
-    ostringstream dptr;
-    dptr << "tgt_" << gOptTgtPdgCode;
-    ostringstream dtitle;
-    dtitle << "Cross section splines for target: " << gOptTgtPdgCode;
-
-    LOG("gsplt", pINFO) 
-                 << "Will store splines in ROOT TDir = " << dptr.str();
-
-    dirTgt = (TDirectory*) froot->Get(dptr.str().c_str());
-    if(!dirTgt) {
-      dirTgt = new TDirectory(dptr.str().c_str(),dtitle.str().c_str());
-      dirTgt->Write();
-    }
-  }
-
-  if(froot) froot->Close();
-
-  if(froot) delete froot;
-*/
-
   //-- clean-up
   for(unsigned int j=0; j<=nspl; j++) { if(gr[j]) delete gr[j]; }
   delete c;
   delete ps;
+
+  //-- check whether the splines will be saved in a ROOT file - if not, exit now
+  bool save_in_root = gOptROOTFilename.size()>0;
+  if(!save_in_root) return 0;
+  
+  //-- check whether the requested filename exists
+  //   if yes, then open the file in 'update' mode 
+  bool exists = !(gSystem->AccessPathName(gOptROOTFilename.c_str()));
+
+  TFile * froot = 0;
+  if(exists) froot = new TFile(gOptROOTFilename.c_str(), "UPDATE");
+  else       froot = new TFile(gOptROOTFilename.c_str(), "RECREATE");
+  assert(froot);
+
+  //-- create directory structure
+  ostringstream dptr;
+  dptr << "xs_" << gOptNuPdgCode << "_" << gOptTgtPdgCode;
+  ostringstream dtitle;
+  dtitle << "Cross section splines for: "
+         << gOptNuPdgCode << "+" << gOptTgtPdgCode;
+  LOG("gsplt", pINFO) 
+      << "Will store splines in ROOT TDir = " << dptr.str();
+
+  TDirectory * topdir = 
+         dynamic_cast<TDirectory *> (froot->Get(dptr.str().c_str()));
+  if(topdir) {
+     LOG("gsplt", pINFO) 
+       << "Directory: " << dptr.str() << " already exists!! Exiting";
+     froot->Close();
+     delete froot;
+     return 1;
+  }
+
+  topdir = froot->mkdir(dptr.str().c_str(),dtitle.str().c_str());
+  topdir->cd();
+
+  TDirectory * qeldir = topdir->mkdir("qel","qel");
+  qeldir->cd();
+  TDirectory * qelccdir = qeldir->mkdir("cc","cc");
+  TDirectory * qelncdir = qeldir->mkdir("nc","nc");  
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    if(!interaction->ProcInfo().IsQuasiElastic()) continue;
+    const Spline * spl = evg_driver.XSecSpline(interaction);
+    if(interaction->ProcInfo().IsWeakCC()) {}
+    else {}
+
+  }
+  qelccdir->Write();
+  qelncdir->Write();
+  qeldir->Write();
+
+  TDirectory * resdir = topdir->mkdir("res","res");
+  resdir->Write();
+
+  TDirectory * disdir = topdir->mkdir("dis","dis");
+  disdir->Write();
+
+  TDirectory * cohdir = topdir->mkdir("coh","coh");
+  cohdir->Write();
+
+  topdir->Write(dptr.str().c_str());
+
+  if(froot) {
+    froot->Close();
+    delete froot;
+  }
 
   return 0;
 }
