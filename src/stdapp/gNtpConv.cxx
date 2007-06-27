@@ -51,6 +51,7 @@
 #include <TFile.h>
 #include <TTree.h>
 
+#include "Conventions/Constants.h"
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
@@ -58,6 +59,7 @@
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
 #include "Messenger/Messenger.h"
+#include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
@@ -72,23 +74,21 @@ using std::setfill;
 using std::ios;
 
 using namespace genie;
+using namespace genie::constants;
 
+//func prototypes
 void   ConvertToTextFormat();
 void   ConvertToT2KMCComparisonsRootFormat();
 
 void   ConvertToGXML      (ofstream & out, EventRecord & event);
 void   AddGXMLHeader      (ofstream & out);
 void   AddGXMLFooter      (ofstream & out);
-
 void   ConvertToGTab      (ofstream & out, EventRecord & event);
-
 void   ConvertToNuance    (ofstream & out, EventRecord & event);
 int    GHepToNuanceIst    (GHepParticle * p);
 int    GHep2NuancePDGC    (GHepParticle * p);
-
 void   GetCommandLineArgs (int argc, char ** argv);
 void   PrintSyntax        (void);
-
 string DefaultOutputFile  (void);
 
 //input options (from command line arguments):
@@ -96,6 +96,7 @@ string gOptInpFileName;
 string gOptOutFileName;
 int    gOptOutFileFormat;
 
+//consts
 const int kNPmax = 100;
 
 //___________________________________________________________________
@@ -601,6 +602,13 @@ void ConvertToT2KMCComparisonsRootFormat()
 
     LOG("gntpc", pINFO) << event;
 
+    // go further only if the event is physical
+    bool is_unphysical = event.IsUnphysical();
+    if(is_unphysical) {
+      mcrec->Clear();
+      continue;
+    }
+      
     // clean-up arrays
     //
     for(int j=0; j<kNPmax; j++) {
@@ -616,55 +624,176 @@ void ConvertToT2KMCComparisonsRootFormat()
        brPzf [j] = 0;     
     }
 
+    // computing event characteristics
+    // This section is largely copied from gMCSampleTest.cxx which creates GENIE's
+    // native 'reduced' event ntuple and analyzes the generated event sample.
+    // Refer to that file for more comments
+
+    //input particles
+    GHepParticle * neutrino = event.Probe();
+    assert(neutrino);
+    GHepParticle * target = event.Particle(1);
+    assert(target);
+    GHepParticle * fsl = event.FinalStatePrimaryLepton();
+    assert(fsl);
+    GHepParticle * hitnucl = event.HitNucleon();
+    if(!hitnucl) continue;
+  
+    //summary info
+    const Interaction * interaction = event.Summary();
+    const ProcessInfo &  proc_info  = interaction->ProcInfo();
+    const Kinematics &   kine       = interaction->Kine();
+  
+    //process id
+    bool is_qel    = proc_info.IsQuasiElastic();
+    bool is_res    = proc_info.IsResonant();
+    bool is_dis    = proc_info.IsDeepInelastic();
+    bool is_coh    = proc_info.IsCoherent();
+    bool is_weakcc = proc_info.IsWeakCC();
+    bool is_weaknc = proc_info.IsWeakNC();
+  
+    //weight
+    double weight = event.Weight();
+
+    //input 4-momenta    
+    const TLorentzVector & k1 = *(neutrino->P4()); // v 4-p (k1)
+    const TLorentzVector & k2 = *(fsl->P4());      // l 4-p (k2)
+    const TLorentzVector & p1 = *(hitnucl->P4());  // N 4-p (p1)      
+     
+    // compute kinematical params
+    double M  = kNucleonMass;
+    TLorentzVector q  = k1-k2;    // q=k1-k2, 4-p transfer
+    double v  = (q*p1)/M;         // v (E transfer in hit nucleon rest frame)
+    double Q2 = -1 * q.M2();      // momemtum transfer
+    double x  = 0.5*Q2/(M*v);     // Bjorken x
+    double y  = v*M/(k1*p1);      // Inelasticity, y = q*P1/k1*P1
+    double W2 = M*M + 2*M*v - Q2; // Hadronic Invariant mass ^ 2
+    double W  = TMath::Sqrt(W2);
+    double t  = 0;
+
+    // also, access kinematical params _exactly_ as they were selected
+    // (possibly using off-shell kinematics)
+    bool get_selected = true;
+    double xs  = kine.x (get_selected);
+    double ys  = kine.y (get_selected);
+    double ts  = 0; //kine.t (get_selected);
+    double Q2s = kine.Q2(get_selected);
+    double Ws  = kine.W (get_selected);
+
+    // number of final state hadrons 
+
+    TObjArrayIter piter(&event);
+    GHepParticle * p = 0;
+
+    int np    = 0;
+    int nn    = 0;
+    int npip  = 0;
+    int npim  = 0;
+    int npi0  = 0;
+    int nKp   = 0;
+    int nKm   = 0;
+    int nK0   = 0;
+    int ngpi0 = 0.;
+
+    while( (p = (GHepParticle *) piter.Next()) )
+    {
+      int pdgc = p->Pdg();
+      int ist  = p->Status();
+      if(ist!=kIStStableFinalState) continue;
+
+      if (pdgc == kPdgProton)  np++;
+      if (pdgc == kPdgNeutron) nn++;
+      if (pdgc == kPdgPiP)     npip++;
+      if (pdgc == kPdgPiM)     npim++;
+      if (pdgc == kPdgPi0)     npi0++;
+      if (pdgc == kPdgKP)      nKp++;
+      if (pdgc == kPdgKM)      nKm++;
+      if (pdgc == kPdgK0)      nK0++;
+      if (pdgc == kPdgGamma)  {
+          int igmom = p->FirstMother();
+          if(igmom!=-1) {
+            if( event.Particle(igmom)->Pdg() == kPdgPi0) ngpi0++;
+          }
+      }
+    }
+    npi0 += (ngpi0/2);
+
+    // number of primary hadrons (before intranuclear rescattering)
+
+    int np_prim    = 0;
+    int nn_prim    = 0;
+    int npip_prim  = 0;
+    int npim_prim  = 0;
+    int npi0_prim  = 0;
+    int nKp_prim   = 0;
+    int nKm_prim   = 0;
+    int nK0_prim   = 0;
+
+    while( (p = (GHepParticle *) piter.Next()) )
+    {
+      int pdgc = p->Pdg();
+      int ist  = p->Status();
+      if(ist!=kIStStableFinalState) continue;
+
+      if (pdgc == kPdgProton)  np_prim++;
+      if (pdgc == kPdgNeutron) nn_prim++;
+      if (pdgc == kPdgPiP)     npip_prim++;
+      if (pdgc == kPdgPiM)     npim_prim++;
+      if (pdgc == kPdgPi0)     npi0_prim++;
+      if (pdgc == kPdgKP)      nKp_prim++;
+      if (pdgc == kPdgKM)      nKm_prim++;
+      if (pdgc == kPdgK0)      nK0_prim++;
+    }
+
     // start filling up branches
     //
     brIev        = i;      
-    brNeutrino   = 0;      
-    brTarget     = 0;      
-    brHitNuc     = 0;      
+    brNeutrino   = neutrino->Pdg();      
+    brTarget     = target->Pdg();      
+    brHitNuc     = (hitnucl) ? hitnucl->Pdg() : 0;      
     brHitQrk     = 0;      
-    brIsQel      = false;
-    brIsRes      = false;
-    brIsDis      = false;  
-    brIsCoh      = false;  
-    brIsCC       = false;  
-    brIsNC       = false;  
-    brWeight     = 0.;      
-    brKineXs     = 0.;      
-    brKineYs     = 0.;      
-    brKineTs     = 0.;      
-    brKineQ2s    = 0.;            
-    brKineWs     = 0.;      
-    brKineX      = 0.;      
-    brKineY      = 0.;      
-    brKineT      = 0.;      
-    brKineQ2     = 0.;      
-    brKineW      = 0.;      
-    brEv         = 0.;      
-    brEn         = 0.;      
-    brPxn        = 0.;      
-    brPyn        = 0.;      
-    brPzn        = 0.;            
-    brEl         = 0.;      
-    brPxl        = 0.;      
-    brPyl        = 0.;      
-    brPzl        = 0.;      
-    brNfP        = 0;      
-    brNfN        = 0;      
-    brNfPip      = 0;      
-    brNfPim      = 0;      
-    brNfPi0      = 0;      
-    brNfKp       = 0;      
-    brNfKm       = 0;      
-    brNfK0       = 0;      
-    brNiP        = 0;      
-    brNiN        = 0;      
-    brNiPip      = 0;      
-    brNiPim      = 0;      
-    brNiPi0      = 0;      
-    brNiKp       = 0;      
-    brNiKm       = 0;      
-    brNiK0       = 0;      
+    brIsQel      = is_qel;
+    brIsRes      = is_res;
+    brIsDis      = is_dis;  
+    brIsCoh      = is_coh;  
+    brIsCC       = is_weakcc;  
+    brIsNC       = is_weaknc;  
+    brWeight     = weight;      
+    brKineXs     = xs;      
+    brKineYs     = ys;      
+    brKineTs     = ts;      
+    brKineQ2s    = Q2s;            
+    brKineWs     = Ws;      
+    brKineX      = x;      
+    brKineY      = y;      
+    brKineT      = t;      
+    brKineQ2     = Q2;      
+    brKineW      = W;      
+    brEv         = k1.Energy();      
+    brEn         = p1.Energy();      
+    brPxn        = p1.Px();      
+    brPyn        = p1.Py();      
+    brPzn        = p1.Pz();            
+    brEl         = k2.Energy();      
+    brPxl        = k2.Px();      
+    brPyl        = k2.Py();      
+    brPzl        = k2.Pz();      
+    brNfP        = np;      
+    brNfN        = nn;      
+    brNfPip      = npip;      
+    brNfPim      = npim;      
+    brNfPi0      = npi0;      
+    brNfKp       = nKp;      
+    brNfKm       = nKm;      
+    brNfK0       = nK0;      
+    brNiP        = np_prim;      
+    brNiN        = nn_prim;      
+    brNiPip      = npip_prim;      
+    brNiPim      = npim_prim;      
+    brNiPi0      = npi0_prim;      
+    brNiKp       = nKp_prim;      
+    brNiKm       = nKm_prim;      
+    brNiK0       = nK0_prim;      
 
     brNi = 0;      
     for(int j=0; j<brNi; j++) {
