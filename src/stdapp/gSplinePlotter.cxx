@@ -8,7 +8,7 @@
          create by themselves at job initialization.
 
          Syntax :
-             gsplt -f xml_file -p neutrino_pdg -t target_pdg [-e emax] [-o root_file]
+           gsplt -f xml_file -p nu_pdg -t target_pdg [-e emax] [-o root_file]
 
          Options :
            []  denotes an optional argument
@@ -16,11 +16,15 @@
            -p  the neutrino pdg code
            -t  the target pdg code (format: 1aaazzz000)
            -e  the maximum energy (in generated plots -- use it to zoom at low E)
-           -o  if an output ROOT file is specified the splines data will be 
-               saved there in a hierarchical directory structure.
-               Note that the input ROOT file, if already exists, would not be 
-               recreated and the output splines would be appended to the ones
-               already stored.
+           -o  if an output ROOT file is specified then the cross section graphs 
+               will be saved there as well 
+               Note 1: these graphs can be used to instantiate splines in bare 
+               root sessions -- effectively, they provide you with cross section 
+               functions --.
+               Note 2: the input ROOT file will not be recreated if it already 
+               exists. The graphs are saved in a TDirectory named after the 
+               neutrino+target names. That allows you to save all graphs in a 
+               single root file (with multiple directories)
 
          Example:
 
@@ -30,7 +34,7 @@
            then will select the cross section splines that are relevant to 
            numu+Fe56 and will generate cross section plots.
            The generated cross section plots will be saved in a postscript
-           document named "xsec-splines-14-1056026000.ps"
+           document named "xsec-splines-nu_mu-Fe56.ps"
 
          Notes:
          - To create the cross sections splines in XML format (for some target
@@ -64,6 +68,8 @@
 #include <TString.h>
 #include <TH1F.h>
 
+#include "BaryonResonance/BaryonResonance.h"
+#include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/XmlParserStatus.h"
 #include "Conventions/Units.h"
 #include "EVGCore/InteractionList.h"
@@ -72,6 +78,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 #include "PDG/PDGUtils.h"
+#include "PDG/PDGLibrary.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/CmdLineArgParserUtils.h"
@@ -82,10 +89,15 @@ using std::vector;
 using std::ostringstream;
 
 using namespace genie;
+using namespace genie::utils;
 
 //Prototypes:
-void GetCommandLineArgs (int argc, char ** argv);
-void PrintSyntax        (void);
+void       LoadSplines        (void);
+GEVGDriver GetEventGenDriver  (void);
+void       SaveToPsFile       (void);
+void       SaveToRootFile     (void);
+void       GetCommandLineArgs (int argc, char ** argv);
+void       PrintSyntax        (void);
 
 //User-specified options:
 string gOptXMLFilename;  // input XML filename
@@ -94,8 +106,13 @@ double gOptNuEnergy;     // Ev(max)
 int    gOptNuPdgCode;    // neutrino PDG code
 int    gOptTgtPdgCode;   // target PDG code
 
-const int NP=300;
-const int PsType = 111; // ps type: portrait
+//Globals & constants
+double gEmin;
+double gEmax;
+const int    kNP       = 300;
+const int    kNSplineP = 1000;
+const int    kPsType   = 111;  // ps type: portrait
+const double kEmin     = 0.01; // minimum energy in plots (GeV)
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -103,11 +120,48 @@ int main(int argc, char ** argv)
   //-- parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  //-- figuring out the energy, xsec range
-  double Emin  = 0.01;
-  double Emax  = gOptNuEnergy;
-  double XSmax = -9999;
-  double XSmin =  9999;
+  //-- load the x-section splines xml file specified by the user
+  LoadSplines();
+
+  //-- save the cross section plots in a postscript file
+  SaveToPsFile();
+
+  //-- save the cross section graphs at a root file
+  //   (these graphs can then be used to create splines
+  SaveToRootFile();
+
+  return 0;
+}
+//____________________________________________________________________________
+void LoadSplines(void)
+{
+// load the cross section splines specified at the cmd line
+
+  XSecSplineList * splist = XSecSplineList::Instance();
+  XmlParserStatus_t ist = splist->LoadFromXml(gOptXMLFilename);
+  assert(ist == kXmlOK);
+}
+//____________________________________________________________________________
+GEVGDriver GetEventGenDriver(void)
+{
+// create an event genartion driver configured for the specified initial state 
+// (so that cross section splines will be accessed through that driver as in 
+// event generation mode)
+
+  InitialState init_state(gOptTgtPdgCode, gOptNuPdgCode);
+           
+  GEVGDriver evg_driver;
+  evg_driver.Configure(init_state);
+  evg_driver.CreateSplines();
+  evg_driver.CreateXSecSumSpline (100, gEmin, gEmax);
+
+  return evg_driver;
+}
+//____________________________________________________________________________
+void SaveToPsFile(void)
+{
+  //-- get the event generation driver
+  GEVGDriver evg_driver = GetEventGenDriver();
 
   //-- define some marker styles / colors
   const unsigned int kNMarkers = 5;
@@ -115,33 +169,22 @@ int main(int argc, char ** argv)
   unsigned int markers[kNMarkers] = {20, 28, 29, 27, 3};
   unsigned int colors [kNColors]  = {1, 2, 4, 6, 8, 28};
 
-  //-- load the cross section spline list
-  XSecSplineList * splist = XSecSplineList::Instance();
-  XmlParserStatus_t ist = splist->LoadFromXml(gOptXMLFilename);
-  assert(ist == kXmlOK);
-
-  //-- create an event genartion driver configured for the
-  //   specified initial state (cross section splines will be
-  //   accessed through that driver as in event generation mode)
-  InitialState init_state(gOptTgtPdgCode, gOptNuPdgCode);
-           
-  GEVGDriver evg_driver;
-  evg_driver.Configure(init_state);
-  evg_driver.CreateSplines();
-  evg_driver.CreateXSecSumSpline (100, Emin, Emax);
-
   //-- create a postscript document for saving cross section plpots
 
-  TCanvas * c = new TCanvas("c","",20,20,500,800);
+  TCanvas * c = new TCanvas("c","",20,20,500,850);
   c->SetBorderMode(0);
   c->SetFillColor(0);
   TLegend * legend = new TLegend(0.01,0.01,0.99,0.99);
   legend->SetFillColor(0);
   legend->SetBorderSize(0);
 
+  //-- get pdglibrary for mapping pdg codes to names   
+  PDGLibrary * pdglib = PDGLibrary::Instance();
   ostringstream filename;
-  filename << "xsec-splines-" << gOptNuPdgCode << "-" << gOptTgtPdgCode << ".ps";
-  TPostScript * ps = new TPostScript(filename.str().c_str(), PsType);
+  filename << "xsec-splines-" 
+          <<  pdglib->Find(gOptNuPdgCode)->GetName()  << "-"
+          <<  pdglib->Find(gOptTgtPdgCode)->GetName() << ".ps";
+  TPostScript * ps = new TPostScript(filename.str().c_str(), kPsType);
 
   //-- get the list of interactions that can be simulated by the driver
   const InteractionList * ilist = evg_driver.Interactions();
@@ -175,7 +218,7 @@ int main(int argc, char ** argv)
     LOG("gsplt", pINFO) << "color = " << col << ", marker = " << sty;
 
     //-- export Spline as TGraph / set color & stype
-    gr[i] = spl->GetAsTGraph(NP,true,true,1.,1./units::cm2);
+    gr[i] = spl->GetAsTGraph(kNP,true,true,1.,1./units::cm2);
     gr[i]->SetLineColor(col);
     gr[i]->SetMarkerColor(col);
     gr[i]->SetMarkerStyle(sty);
@@ -190,24 +233,26 @@ int main(int argc, char ** argv)
       LOG("gsplt", pWARN) << "Can't get the cross section sum spline";
       exit(2);
   }
-  gr[nspl] = splsum->GetAsTGraph(NP,true,true,1.,1./units::cm2);
+  gr[nspl] = splsum->GetAsTGraph(kNP,true,true,1.,1./units::cm2);
 
   //-- figure out the minimum / maximum xsec in plotted range
+  double XSmax = -9999;
+  double XSmin =  9999;
   double x=0, y=0;
-  for(int j=0; j<NP; j++) {
+  for(int j=0; j<kNP; j++) {
     gr[nspl]->GetPoint(j,x,y);
     XSmax = TMath::Max(XSmax,y);
   }
-  XSmin = XSmax/2000.;
+  XSmin = XSmax/100000.;
   XSmax = XSmax*1.2;
 
-  LOG("gsplt", pINFO) << "Drawing frame: E    = (" << Emin  << ", " << Emax  << ")";
-  LOG("gsplt", pINFO) << "Drawing frame: XSec = (" << XSmin << ", " << XSmax << ")";
+  LOG("gsplt", pINFO) << "Drawing frame: E    = (" << gEmin  << ", " << gEmax << ")";
+  LOG("gsplt", pINFO) << "Drawing frame: XSec = (" << XSmin  << ", " << XSmax << ")";
 
   //-- ps output: add the 1st page with _all_ xsec spline plots
   //
   //c->Draw();
-  TH1F * h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+  TH1F * h = (TH1F*) c->DrawFrame(gEmin, XSmin, gEmax, XSmax);
   for(unsigned int i = 0; i <= nspl; i++) if(gr[i]) gr[i]->Draw("LP");
   h->GetXaxis()->SetTitle("Ev (GeV)");
   h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
@@ -219,7 +264,7 @@ int main(int argc, char ** argv)
 
   //-- plot QEL xsecs only
   //
-  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+  h = (TH1F*) c->DrawFrame(gEmin, XSmin, gEmax, XSmax);
   i=0;
   for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
     const Interaction * interaction = *ilistiter;
@@ -231,6 +276,7 @@ int main(int argc, char ** argv)
     }
     i++;
   }
+  legend->SetHeader("QEL Cross Sections");
   gr[nspl]->Draw("LP");
   legend->AddEntry(gr[nspl], "sum","LP");
   h->GetXaxis()->SetTitle("Ev (GeV)");
@@ -247,7 +293,7 @@ int main(int argc, char ** argv)
 
   //-- plot RES xsecs only
   //
-  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+  h = (TH1F*) c->DrawFrame(gEmin, XSmin, gEmax, XSmax);
   legend->Clear();
   i=0;
   for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
@@ -260,6 +306,7 @@ int main(int argc, char ** argv)
     }
     i++;
   }
+  legend->SetHeader("RES Cross Sections");
   gr[nspl]->Draw("LP");
   legend->AddEntry(gr[nspl], "sum","LP");
   h->GetXaxis()->SetTitle("Ev (GeV)");
@@ -276,7 +323,7 @@ int main(int argc, char ** argv)
 
   //-- plot DIS xsecs only
   //
-  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+  h = (TH1F*) c->DrawFrame(gEmin, XSmin, gEmax, XSmax);
   legend->Clear();
   i=0;
   for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
@@ -289,6 +336,7 @@ int main(int argc, char ** argv)
     }
     i++;
   }
+  legend->SetHeader("DIS Cross Sections");
   gr[nspl]->Draw("LP");
   legend->AddEntry(gr[nspl], "sum","LP");
   h->GetXaxis()->SetTitle("Ev (GeV)");
@@ -305,7 +353,7 @@ int main(int argc, char ** argv)
 
   //-- plot COH xsecs only
   //
-  h = (TH1F*) c->DrawFrame(Emin, XSmin, Emax, XSmax);
+  h = (TH1F*) c->DrawFrame(gEmin, XSmin, gEmax, XSmax);
   legend->Clear();
   i=0;
   for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
@@ -318,6 +366,38 @@ int main(int argc, char ** argv)
     }
     i++;
   }
+  legend->SetHeader("COH Cross Sections");
+  gr[nspl]->Draw("LP");
+  legend->AddEntry(gr[nspl], "sum","LP");
+  h->GetXaxis()->SetTitle("Ev (GeV)");
+  h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
+  c->SetLogx();
+  c->SetLogy();
+  c->SetGridx();
+  c->SetGridy();
+  c->Update();
+  c->Clear();
+  c->Range(0,0,1,1);
+  legend->Draw();
+  c->Update();
+
+  //-- plot ve xsecs only
+  //
+  h = (TH1F*) c->DrawFrame(gEmin, XSmin, gEmax, XSmax);
+  legend->Clear();
+  i=0;
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    if(interaction->ProcInfo().IsInverseMuDecay() ||
+       interaction->ProcInfo().IsNuElectronElastic()) {
+        gr[i]->Draw("LP");
+        TString spltitle(interaction->AsString());
+        spltitle = spltitle.ReplaceAll(";",1," ",1);
+        legend->AddEntry(gr[i], spltitle.Data(),"LP");
+    }
+    i++;
+  }
+  legend->SetHeader("IMD and ve Elastic Cross Sections");
   gr[nspl]->Draw("LP");
   legend->AddEntry(gr[nspl], "sum","LP");
   h->GetXaxis()->SetTitle("Ev (GeV)");
@@ -339,11 +419,23 @@ int main(int argc, char ** argv)
   for(unsigned int j=0; j<=nspl; j++) { if(gr[j]) delete gr[j]; }
   delete c;
   delete ps;
+}
+//____________________________________________________________________________
+void SaveToRootFile(void)
+{
+  //-- get the event generation driver
+  GEVGDriver evg_driver = GetEventGenDriver();
+
+  //-- get the list of interactions that can be simulated by the driver
+  const InteractionList * ilist = evg_driver.Interactions();
 
   //-- check whether the splines will be saved in a ROOT file - if not, exit now
   bool save_in_root = gOptROOTFilename.size()>0;
-  if(!save_in_root) return 0;
+  if(!save_in_root) return;
   
+  //-- get pdglibrary for mapping pdg codes to names
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+
   //-- check whether the requested filename exists
   //   if yes, then open the file in 'update' mode 
   bool exists = !(gSystem->AccessPathName(gOptROOTFilename.c_str()));
@@ -353,15 +445,18 @@ int main(int argc, char ** argv)
   else       froot = new TFile(gOptROOTFilename.c_str(), "RECREATE");
   assert(froot);
 
-  //-- create directory structure
+  //-- create directory 
   ostringstream dptr;
-  dptr << "xs_" << gOptNuPdgCode << "_" << gOptTgtPdgCode;
+  dptr << pdglib->Find(gOptNuPdgCode)->GetName() << "_" 
+       << pdglib->Find(gOptTgtPdgCode)->GetName();
+
   ostringstream dtitle;
   dtitle << "Cross section splines for: "
-         << gOptNuPdgCode << "+" << gOptTgtPdgCode;
-  LOG("gsplt", pINFO) 
-      << "Will store splines in ROOT TDir = " << dptr.str();
+         << pdglib->Find(gOptNuPdgCode)->GetName() << "+" 
+         << pdglib->Find(gOptTgtPdgCode)->GetName();
 
+  LOG("gsplt", pINFO) 
+           << "Will store graphs in root directory = " << dptr.str();
   TDirectory * topdir = 
          dynamic_cast<TDirectory *> (froot->Get(dptr.str().c_str()));
   if(topdir) {
@@ -369,45 +464,96 @@ int main(int argc, char ** argv)
        << "Directory: " << dptr.str() << " already exists!! Exiting";
      froot->Close();
      delete froot;
-     return 1;
+     return;
   }
 
   topdir = froot->mkdir(dptr.str().c_str(),dtitle.str().c_str());
   topdir->cd();
 
-  TDirectory * qeldir = topdir->mkdir("qel","qel");
-  qeldir->cd();
-  TDirectory * qelccdir = qeldir->mkdir("cc","cc");
-  TDirectory * qelncdir = qeldir->mkdir("nc","nc");  
-  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+  double * e  = new double[kNSplineP];
+  double * xs = new double[kNSplineP];
+
+  InteractionList::const_iterator ilistiter = ilist->begin();
+
+  for(; ilistiter != ilist->end(); ++ilistiter) {    
+
     const Interaction * interaction = *ilistiter;
-    if(!interaction->ProcInfo().IsQuasiElastic()) continue;
+    ostringstream title;
+
+    const ProcessInfo &  proc = interaction->ProcInfo();
+    const XclsTag &      xcls = interaction->ExclTag();
+    const InitialState & init = interaction->InitState();
+    const Target &       tgt  = init.Tgt();
+   
+    if      (proc.IsQuasiElastic()     ) { title << "qel";   }
+    else if (proc.IsResonant()         ) { title << "res";   }
+    else if (proc.IsDeepInelastic()    ) { title << "dis";   }
+    else if (proc.IsCoherent(  )       ) { title << "coh";   }
+    else if (proc.IsInverseMuDecay()   ) { title << "imd";   }
+    else if (proc.IsNuElectronElastic()) { title << "ve";    }
+    else                                 {  continue;        }
+
+    if      (proc.IsWeakCC()) { title << "_cc"; }
+    else if (proc.IsWeakNC()) { title << "_nc"; }
+    else                      { continue;       }
+
+    if(tgt.HitNucIsSet()) {
+      int hitnuc = tgt.HitNucPdg();
+      if      ( pdg::IsProton (hitnuc) ) { title << "_p"; }
+      else if ( pdg::IsNeutron(hitnuc) ) { title << "_n"; }
+
+      if(tgt.HitQrkIsSet()) {
+        int  qrkpdg = tgt.HitQrkPdg();
+        bool insea  = tgt.HitSeaQrk();
+
+        if      ( pdg::IsUQuark(qrkpdg)     ) { title << "_u";    }
+        else if ( pdg::IsDQuark(qrkpdg)     ) { title << "_d";    }
+        else if ( pdg::IsSQuark(qrkpdg)     ) { title << "_s";    }
+        else if ( pdg::IsCQuark(qrkpdg)     ) { title << "_c";    }
+        else if ( pdg::IsAntiUQuark(qrkpdg) ) { title << "_ubar"; }
+        else if ( pdg::IsAntiDQuark(qrkpdg) ) { title << "_dbar"; }
+        else if ( pdg::IsAntiSQuark(qrkpdg) ) { title << "_sbar"; }
+        else if ( pdg::IsAntiCQuark(qrkpdg) ) { title << "_cbar"; }
+
+        if(insea) { title << "sea"; }
+        else      { title << "val"; }
+      }
+    }
+    if(proc.IsResonant()) { 
+       Resonance_t res = xcls.Resonance();
+       string resname = res::AsString(res);
+       resname = str::FilterString(")", resname);
+       resname = str::FilterString("(", resname);
+       title << "_" << resname.substr(3,4) << resname.substr(0,3);
+    }
+
     const Spline * spl = evg_driver.XSecSpline(interaction);
-    if(interaction->ProcInfo().IsWeakCC()) {}
-    else {}
 
+    double emin = spl->XMin();
+    double emax = spl->XMax();
+    double de   = (emax-emin)/(kNSplineP-1);
+
+    for(int i=0; i<kNSplineP; i++) {
+      e[i]  = emin + i*de;
+      xs[i] = spl->Evaluate(e[i]);
+    }
+
+    TGraph * gr = new TGraph(kNSplineP, e, xs);
+    gr->SetName(title.str().c_str());
+    gr->SetTitle("GENIE cross section graph");
+
+    topdir->Add(gr);
   }
-  qelccdir->Write();
-  qelncdir->Write();
-  qeldir->Write();
 
-  TDirectory * resdir = topdir->mkdir("res","res");
-  resdir->Write();
+  delete [] e;
+  delete [] xs;
 
-  TDirectory * disdir = topdir->mkdir("dis","dis");
-  disdir->Write();
-
-  TDirectory * cohdir = topdir->mkdir("coh","coh");
-  cohdir->Write();
-
-  topdir->Write(dptr.str().c_str());
+  topdir->Write();
 
   if(froot) {
     froot->Close();
     delete froot;
   }
-
-  return 0;
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -468,6 +614,10 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptROOTFilename = "";
     }
   }
+
+  gEmin  = kEmin;
+  gEmax  = gOptNuEnergy;
+  assert(gEmin<gEmax);
 
   // print the options you got from command line arguments
   LOG("gsplt", pINFO) << "Command line arguments:";
