@@ -216,7 +216,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Charm mass 
   -->
-  <param type="double" name="Charm-Mass"> 1.300 </param>
+  <param type="double" name="Charm-Mass"> 1.430 </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
