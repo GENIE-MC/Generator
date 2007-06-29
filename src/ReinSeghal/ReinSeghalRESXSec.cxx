@@ -125,26 +125,6 @@ double ReinSeghalRESXSec::Integrate(
   return rxsec;
 }
 //____________________________________________________________________________
-/*
-bool ReinSeghalRESXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-  return fSingleResXSecModel->ValidProcess(interaction);
-}
-//____________________________________________________________________________
-bool ReinSeghalRESXSec::ValidKinematics(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const InitialState & init_state = interaction -> InitState();
-  double Ev  = init_state.ProbeE(kRfHitNucRest);
-
-  double EvThr = interaction->EnergyThreshold();
-  if(Ev <= EvThr) return false;
-
-  return true;
-}*/
-//____________________________________________________________________________
 void ReinSeghalRESXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -165,21 +145,7 @@ void ReinSeghalRESXSec::LoadConfig(void)
   fIntegrator = 
        dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert (fIntegrator);
-/*
-  fIntegrator = 0;
-  //-- get the requested d^2xsec/dxdy xsec algorithm to use
-  fSingleResXSecModel = 0;
-  fSingleResXSecModel =
-       dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
-  assert (fSingleResXSecModel);
-*/
-/*
-  // user cuts in W,Q2
-  fWmin  = fConfig->GetDoubleDef("Kine-Wmin", - 1.0);
-  fWmax  = fConfig->GetDoubleDef("Kine-Wmax",   1e9);
-  fQ2min = fConfig->GetDoubleDef("Kine-Q2min", -1.0);
-  fQ2max = fConfig->GetDoubleDef("Kine-Q2max",  1e9);
-*/
+
   // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   fEMax = fConfig->GetDoubleDef("ESplineMax", 40);
   fEMax = TMath::Max(fEMax,10.); // don't accept user Emax if less than 10 GeV
