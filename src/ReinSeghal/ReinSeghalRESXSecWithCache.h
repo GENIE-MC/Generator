@@ -42,30 +42,17 @@ protected:
 
   // Don't implement the XSecIntegratorI interface - leave it for the concrete
   // subclasses. Just define utility methods and data
-
   void   CacheResExcitationXSec (const Interaction * interaction) const;
   string CacheBranchName(Resonance_t r, InteractionType_t it, int nu, int nuc) const;
 
-/*
-  Range1D_t WRange (const Interaction * interaction) const;
-  Range1D_t Q2Range(const Interaction * interaction) const;
-*/
   bool   fUsingDisResJoin;
   double fWcut;
   double fEMax;
-/*
-  double fWmin;
-  double fWmax;
-  double fQ2min;
-  double fQ2max;
 
-  const IntegratorI *    fIntegrator;
-*/
   mutable const XSecAlgorithmI * fSingleResXSecModel;
-  BaryonResList          fResList;
+  BaryonResList fResList;
 };
 
 }       // genie namespace
-
 #endif  // _REIN_SEGHAL_RES_XSEC_WITH_CACHE_H_
 
