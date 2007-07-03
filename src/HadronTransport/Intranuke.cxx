@@ -183,13 +183,27 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
 // transport all hadrons outside the nucleus
 
   //  Keep track of the remnant nucleus A,Z  
-  GHepParticle * nucltgt = evrec->TargetNucleus();
-  assert(nucltgt);
-  int iremn = nucltgt->LastDaughter();
-  assert(iremn!=-1);
-  fRemnA =  evrec->Particle(iremn)->A();
-  fRemnZ =  evrec->Particle(iremn)->Z();
-
+  //  Get 'nuclear environment' at the begginning of hadron transport 
+  int iremn=-1;
+  fRemnA=-1;
+  fRemnZ=-1;
+  if(fInTestMode) {
+     // in hadron+nucleus mode get the particle at the 2nd GHEP row 
+     GHepParticle * nucltgt = evrec->Particle(1);
+     assert(nucltgt);
+     iremn = 1;
+     fRemnA = nucltgt->A();
+     fRemnZ = nucltgt->Z();
+  } else {
+     // in neutrino+nucleus mode get the last daughter of the initial
+     // state nucleus
+     GHepParticle * nucltgt = evrec->TargetNucleus();
+     assert(nucltgt);
+     iremn = nucltgt->LastDaughter();
+     assert(iremn!=-1);
+     fRemnA =  evrec->Particle(iremn)->A();
+     fRemnZ =  evrec->Particle(iremn)->Z();
+  }
   const TLorentzVector & premn4 = *(evrec->Particle(iremn)->P4());
   fRemnP4 = premn4; 
 
@@ -260,7 +274,12 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
   GHepParticle remnant_nucleus(
      kPdgHadronicBlob, kIStStableFinalState, iremn,-1,-1,-1, fRemnP4, v4);
   evrec->AddParticle(remnant_nucleus);
-  evrec->Particle(iremn)->SetStatus(kIStIntermediateState);
+  // Mark the initial remnant nucleus as an intermediate state 
+  // Don't do that in the test mode sinc ethe initial remnant nucleus and
+  // the initial nucleus coincide.
+  if(!fInTestMode) {
+     evrec->Particle(iremn)->SetStatus(kIStIntermediateState);
+  }
 }
 //___________________________________________________________________________
 double Intranuke::GenerateStep(GHepRecord* evrec, GHepParticle* p) const
