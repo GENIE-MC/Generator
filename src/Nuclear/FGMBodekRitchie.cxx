@@ -224,7 +224,7 @@ void FGMBodekRitchie::LoadConfig(void)
       if (this->GetConfig().Exists(rgkey) || gc->Exists(gcrgkey)) {
         double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(gcrgkey));
         eb = TMath::Max(eb, 0.);
-        LOG("BodekRitchie", pFATAL)
+        LOG("BodekRitchie", pINFO)
           << "Nucleus: " << pdgc << " -> using Eb =  " << eb << " GeV";
         fNucRmvE.insert(map<int,double>::value_type(Z,eb));
       }
