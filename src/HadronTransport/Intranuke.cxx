@@ -617,7 +617,7 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
        if(r < (cf += frac_abs_pp  )) return kIHAFtAbsPP;   // abs pp
        if(r < (cf += frac_abs_npp )) return kIHAFtAbsNPP;  // abs npp
        if(r < (cf += frac_abs_nnp )) return kIHAFtAbsNNP;  // abs nnp
-       if(r < (cf += frac_abs_2n3p)) return kIHAFtAbs2N2P; // abs 2n3p 
+       if(r < (cf += frac_abs_2n3p)) return kIHAFtAbs2N3P; // abs 2n3p 
        if(r < (cf += frac_npip    )) return kIHAFtNPip;    // pi prod: n pi+ 
        if(r < (cf += frac_npippi0 )) return kIHAFtNPipPi0; // pi prod: n pi+ pi0
 
