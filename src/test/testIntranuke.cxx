@@ -6,17 +6,12 @@
 \brief   testIntranuke from hadtest.F
 
          Syntax :
-           testIntranuke [-n nev] [-t tgtpdg] [-f format] [-r run#] [-a R0] -i inputpdg -k KE
+           testIntranuke [-n nev] [-t tgtpdg] [-r run#] [-a R0] -i inputpdg -k KE
 
          Options :
            [] denotes an optional argument
            -n specifies the number of events to generate
            -t specifies the target PDG code (std format: 1aaazzz000)
-           -f specifies the output TTree format. If set to 0 will create a
-              single-branch TTree with NtpMCPlainRecord objects in its leaves,
-              while if set to 1 it will have NtpMCEventRecord objects in
-              its leaves (see the Ntuple package for descriptions of the ntuple
-              records and their intended usage). Default options is 1.
            -r specifies the MC run number
            -i specifies the rescattering particle PDG code as a input
            -k specifies the rescattering particle kinetic energy
@@ -127,7 +122,6 @@ double        kDefOptLstep        = 0.02;        // some amount of KE (GeV)
 //User-specified options:
 int           gOptNevents;           // n-events to generate
 int           gOptTgtPdgCode;        // target PDG code
-NtpMCFormat_t gOptNtpFormat;         // ntuple format
 Long_t        gOptRunNu;             // run number
 
 int           gOptInputPdgCode;      // rescattering particle PDG code as a input
@@ -145,13 +139,11 @@ int main(int argc, char ** argv)
 
   //-- print the options you got from command line arguments
 
-  string fmts = NtpMCFormat::AsString(gOptNtpFormat);
   if(gOptNstep>1) gOptRangeKE = gOptLstep*(gOptNstep-1);
 
   LOG("testIntranuke", pINFO) << "Number of events requested = " << gOptNevents;
   LOG("testIntranuke", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
   LOG("testIntranuke", pINFO) << "MC Run Number              = " << gOptRunNu;
-  LOG("testIntranuke", pINFO) << "Output ntuple format       = " << fmts;
   LOG("testIntranuke", pINFO) << "Effective nucleus size, R0 = " << gOptR0;
   LOG("testIntranuke", pINFO) << "Length of step             = " << gOptLstep;
   LOG("testIntranuke", pINFO) << "Number of steps            = " << gOptNstep;
@@ -218,7 +210,7 @@ int main(int argc, char ** argv)
   }
 
   //-- initialize an Ntuple Writer
-  NtpWriter ntpw(gOptNtpFormat, gOptRunNu);
+  NtpWriter ntpw(kNFEventRecord, gOptRunNu);
   ntpw.Initialize();
 
   //-- create an MC Job Monitor
@@ -240,6 +232,8 @@ int main(int argc, char ** argv)
       if(ievent<100) cout << " *** Generating event............ " << ievent << endl;
       
       EventRecord * evrec = new EventRecord();
+      Interaction * interaction = new Interaction;
+      evrec->AttachSummary(interaction);
       
       double energy = mass + gOptInputKE;
       //-- generate input energy (if an energy range was defined)
@@ -493,18 +487,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
-  //output ntuple format
-  int format = 1; format = 0;
-  try {
-    LOG("gevgen", pINFO) << "Reading requested output ntuple format";
-    format = genie::utils::clap::CmdLineArgAsInt(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevgen", pINFO) << "Unspecified tree format - Using default";
-    }
-  }
-  if(format == 0 || format == 1) gOptNtpFormat = (NtpMCFormat_t)format;
-
   //target PDG code:
   try {
     LOG("testIntranuke", pINFO) << "Reading target PDG code";
@@ -524,7 +506,7 @@ void PrintSyntax(void)
 {
   LOG("testIntranuke", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gtestIntranuke [-n nev] [-t tgtpdg] [-f format] [-r run] [-a R0] -i inputpdg -k KE\n"
+    << "   gtestIntranuke [-n nev] [-t tgtpdg] [-r run] [-a R0] -i inputpdg -k KE\n"
     << "    for inputpdg : piplus  =  211\n"
     << "                   pizero  =  111\n"
     << "                   piminus = -211\n"
