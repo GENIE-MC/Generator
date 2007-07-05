@@ -110,7 +110,15 @@ int main(int argc, char ** argv)
      gOptOutFileFormat==1 || 
      gOptOutFileFormat==2)  ConvertToTextFormat();
 
+  else
   if(gOptOutFileFormat==10) ConvertToT2KMCComparisonsRootFormat();
+
+  else {
+    LOG("gntpc", pFATAL)
+        << "Invalid output format [" << gOptOutFileFormat << "]";
+    PrintSyntax();
+    exit(3);
+  }
 
   return 0;
 }
@@ -915,14 +923,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
-  // check output file format
-  bool fmtok = (gOptOutFileFormat>=0 && gOptOutFileFormat<=4);
-  if (!fmtok) {
-    LOG("gntpc", pFATAL)
-        << "Invalid output format [" << gOptOutFileFormat << "]";
-    PrintSyntax();
-    exit(3);
-  }
   //get output file name 
   try {
     LOG("gntpc", pINFO) << "Reading output filename";
@@ -982,7 +982,7 @@ void PrintSyntax(void)
     << "           0 -> *.gxml   \n"
     << "           1 -> *.gtrac  \n"
     << "           2 -> *.ghad   \n"
-    << "           3 -> *.gt2k.root \n"
+    << "          10 -> *.gt2k.root \n"
     << ENDL;
 }
 //___________________________________________________________________
