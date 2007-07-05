@@ -342,8 +342,8 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
 void DISStructureFuncModel::QQBar(
              const Interaction * interaction, double & q, double & qbar) const
 {
-  q     = -1;
-  qbar  = -1;
+  q     = 0;
+  qbar  = 0;
 
   double tmp = 0;
 
@@ -409,7 +409,7 @@ void DISStructureFuncModel::QQBar(
   // this algorithm can be used from computing vq->lq cross sections as well.
 
   if(target.HitQrkIsSet()) {
-    bool qpdg = target.HitQrkPdg();
+    int  qpdg = target.HitQrkPdg();
     bool sea  = target.HitSeaQrk();
 
     bool isu  = pdg::IsUQuark     (qpdg);
@@ -418,6 +418,16 @@ void DISStructureFuncModel::QQBar(
     bool isdb = pdg::IsAntiDQuark (qpdg);
     bool iss  = pdg::IsSQuark     (qpdg);
     bool issb = pdg::IsAntiSQuark (qpdg);
+
+    const ProcessInfo & proc_info = interaction->ProcInfo();
+    bool isNuCC    = isNu    && proc_info.IsWeakCC();
+    bool isNuBarCC = isNuBar && proc_info.IsWeakCC();
+    if(isNuCC    && isu ) return;
+    if(isNuCC    && isdb) return;
+    if(isNuCC    && issb) return;
+    if(isNuBarCC && isub) return;
+    if(isNuBarCC && isd ) return;
+    if(isNuBarCC && iss ) return;
 
     uv   = ( isu        && !sea) ? uv   : 0.;
     us   = ((isu||isub) &&  sea) ? us   : 0.; 
@@ -430,6 +440,7 @@ void DISStructureFuncModel::QQBar(
     ds_c = ((isd||isdb) &&  sea) ? ds_c : 0.;
     s_c  = ((iss||issb) &&  sea) ? s_c  : 0.;
     c_c  = 0;
+
     u    = uv   + us;
     d    = dv   + ds;
     u_c  = uv_c + us_c;
