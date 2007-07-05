@@ -102,6 +102,9 @@ double BYStructureFuncModel::ScalingVar(const Interaction * interaction) const
   const Kinematics & kine  = interaction->Kine();
   double x  = kine.x();
   double Q2 = this->Q2(interaction);
+  //Q2 = TMath::Max(Q2,fQ2min);
+  LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << Q2;
+
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / Q2;
   double xw =  2*x*(Q2+fB) / (Q2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
   return xw;
