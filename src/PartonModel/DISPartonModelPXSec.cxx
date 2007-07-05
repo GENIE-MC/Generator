@@ -20,6 +20,7 @@
 #include <TH1D.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/Units.h"
 #include "Base/DISStructureFuncModelI.h"
 #include "Base/XSecIntegratorI.h"
 #include "Conventions/Constants.h"
@@ -42,6 +43,7 @@ using std::ostringstream;
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::units;
 
 //____________________________________________________________________________
 DISPartonModelPXSec::DISPartonModelPXSec() :
@@ -141,11 +143,21 @@ double DISPartonModelPXSec::XSec(
 
   //----- Compute nuclear cross section (simple scaling here, corrections must
   //      have been included in the structure functions)
-
   const Target & target = init_state.Tgt();
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
   xsec *= NNucl; 
+
+  //----- Apply scaling / if required to reach well known asymmptotic value
+  xsec *= fScale;
+
+  //----- Subtract the inclusive charm production cross section
+  interaction->ExclTagPtr()->SetCharm();
+  double xsec_charm = fCharmProdModel->XSec(interaction,kps);
+  interaction->ExclTagPtr()->UnsetCharm();
+  LOG("DISPXSec", pINFO) 
+       << "Subtracting charm piece: " << xsec_charm << " / out of " << xsec;
+  xsec = TMath::Max(0., xsec-xsec_charm);
 
   return xsec;
 }
@@ -159,7 +171,6 @@ double DISPartonModelPXSec::Integral(const Interaction * interaction) const
 bool DISPartonModelPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
-
   return true;
 }
 //____________________________________________________________________________
@@ -318,6 +329,9 @@ void DISPartonModelPXSec::LoadConfig(void)
      fWcut = fConfig->GetDoubleDef("Wcut", gc->GetDouble("Wcut"));
   }
 
+  // Cross section scaling factor
+  fScale = fConfig->GetDoubleDef("Scale", gc->GetDouble("DIS-XSecScale"));
+
   //-- Caching the reduction factors used in the DIS/RES joing scheme?
   //   In normal event generation (1 config -> many calls) it is worth caching
   //   these suppression factors.
@@ -342,6 +356,15 @@ void DISPartonModelPXSec::LoadConfig(void)
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
+
+  //-- load the charm production cross section model
+  RgKey xkey    = "CharmXSecModel";
+  RgKey xdefkey = "XSecModel@genie::EventGenerator/DIS-CC-CHARM";
+  RgAlg xalg    = fConfig->GetAlgDef(xkey, gc->GetAlg(xdefkey));
+  LOG("DISXSec", pNOTICE)
+     << "Loading the cross section model: " << xalg;
+  fCharmProdModel = dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(xkey));
+  assert(fCharmProdModel);
 }
 //____________________________________________________________________________
 
