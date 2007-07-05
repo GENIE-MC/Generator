@@ -18,13 +18,14 @@ GENIE_DICTS =
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-TGT =    gEvGen		\
-	 gMakeSplines	\
-	 gMaxPathLengths\
-	 gNtpConv	\
+TGT =    gEvGen		  \
+	 gMakeSplines	  \
+	 gSplineAdd   	  \
+	 gMaxPathLengths  \
+	 gNtpConv	  \
  	 gNC2ElectronScat \
-	 gSplinePlotter	\
-	 gMCSampleTest	\
+	 gSplinePlotter	  \
+	 gMCSampleTest	  \
 	 gViewer	
 
 all: $(TGT)
@@ -40,6 +41,12 @@ gEvGen: FORCE
 gMakeSplines: FORCE
 	$(CXX) $(CXXFLAGS) -c gMakeSplines.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gMakeSplines.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkspl 
+
+# gspladd utility merging x-section spline xml files
+#
+gSplineAdd: FORCE
+	$(CXX) $(CXXFLAGS) -c gSplineAdd.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gSplineAdd.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspladd 
 
 # gmxpl utility computing maximum path lengths for a given root geometry
 #
@@ -97,6 +104,7 @@ clean: FORCE
 	$(RM) *.o *~ core
 	$(RM) $(GENIE_BIN_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
+	$(RM) $(GENIE_BIN_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_PATH)/gnc2eN  
@@ -107,6 +115,7 @@ clean: FORCE
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnc2eN		
@@ -119,6 +128,9 @@ clean--gEvGen: FORCE
 
 clean--gMakeSplines: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmkspl
+
+clean--gSplineAdd: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gspladd
 
 clean--gMaxPathLengths: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmxpl
