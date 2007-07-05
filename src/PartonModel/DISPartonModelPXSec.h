@@ -59,9 +59,12 @@ private:
   const HadronizationModelI *    fHadronizationModel; ///< hadronic multip. model
   const XSecIntegratorI *        fXSecIntegrator;     ///< diff. xsec integrator
 
+  const XSecAlgorithmI * fCharmProdModel;
+
   bool   fUsingDisResJoin;  ///< use a DIS/RES joining scheme?
   bool   fUseCache;         ///< cache reduction factors used in joining scheme
   double fWcut;             ///< apply DIS/RES joining scheme < Wcut
+  double fScale;            ///< cross section scaling factor
 };
 
 }       // genie namespace
