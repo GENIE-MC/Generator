@@ -59,6 +59,7 @@
 
 #include <TSystem.h>
 #include <TFile.h>
+#include <TTree.h>
 #include <TDirectory.h>
 #include <TPostScript.h>
 #include <TCanvas.h>
@@ -77,6 +78,7 @@
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
+#include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/XSecSplineList.h"
@@ -451,7 +453,7 @@ void SaveToRootFile(void)
        << pdglib->Find(gOptTgtPdgCode)->GetName();
 
   ostringstream dtitle;
-  dtitle << "Cross section splines for: "
+  dtitle << "Cross sections for: "
          << pdglib->Find(gOptNuPdgCode)->GetName() << "+" 
          << pdglib->Find(gOptTgtPdgCode)->GetName();
 
@@ -470,7 +472,44 @@ void SaveToRootFile(void)
   topdir = froot->mkdir(dptr.str().c_str(),dtitle.str().c_str());
   topdir->cd();
 
+  //-- create cross section ntuple
+  //
+  double brXSec;
+  double brEv;
+  bool   brIsQel;
+  bool   brIsRes;
+  bool   brIsDis;
+  bool   brIsCoh;
+  bool   brIsImd;
+  bool   brIsNuEEl;
+  bool   brIsCC;
+  bool   brIsNC;
+  int    brNucleon;
+  int    brQrk;
+  bool   brIsSeaQrk;
+  int    brRes;
+  bool   brCharm;
+  TTree * xsecnt = new TTree("xsecnt",dtitle.str().c_str());
+  xsecnt->Branch("xsec",  &brXSec,     "xsec/D");
+  xsecnt->Branch("e",     &brEv,       "e/D");
+  xsecnt->Branch("qel",   &brIsQel,    "qel/O");
+  xsecnt->Branch("res",   &brIsRes,    "res/O");
+  xsecnt->Branch("dis",   &brIsDis,    "dis/O");
+  xsecnt->Branch("coh",   &brIsCoh,    "coh/O");
+  xsecnt->Branch("imd",   &brIsImd,    "imd/O");
+  xsecnt->Branch("veel",  &brIsNuEEl,  "veel/O");
+  xsecnt->Branch("cc",    &brIsCC,     "cc/O");
+  xsecnt->Branch("nc",    &brIsNC,     "nc/O");
+  xsecnt->Branch("nuc",   &brNucleon,  "nuc/I");
+  xsecnt->Branch("qrk",   &brQrk,      "qrk/I");
+  xsecnt->Branch("sea",   &brIsSeaQrk, "sea/O");
+  xsecnt->Branch("res",   &brRes,      "res/I");
+  xsecnt->Branch("charm", &brCharm,    "charm/O");
+
+  double   de = (gEmax-gEmin)/(kNSplineP-1);
   double * e  = new double[kNSplineP];
+  for(int i=0; i<kNSplineP; i++) {  e[i]  = gEmin + i*de; }
+
   double * xs = new double[kNSplineP];
 
   InteractionList::const_iterator ilistiter = ilist->begin();
@@ -478,34 +517,53 @@ void SaveToRootFile(void)
   for(; ilistiter != ilist->end(); ++ilistiter) {    
 
     const Interaction * interaction = *ilistiter;
-    ostringstream title;
 
     const ProcessInfo &  proc = interaction->ProcInfo();
     const XclsTag &      xcls = interaction->ExclTag();
     const InitialState & init = interaction->InitState();
     const Target &       tgt  = init.Tgt();
-   
-    if      (proc.IsQuasiElastic()     ) { title << "qel";   }
-    else if (proc.IsResonant()         ) { title << "res";   }
-    else if (proc.IsDeepInelastic()    ) { title << "dis";   }
-    else if (proc.IsCoherent(  )       ) { title << "coh";   }
-    else if (proc.IsInverseMuDecay()   ) { title << "imd";   }
-    else if (proc.IsNuElectronElastic()) { title << "ve";    }
-    else                                 {  continue;        }
 
-    if      (proc.IsWeakCC()) { title << "_cc"; }
-    else if (proc.IsWeakNC()) { title << "_nc"; }
-    else                      { continue;       }
+    // init ntuple proc id vars
+    brIsQel     = false;
+    brIsRes     = false;
+    brIsDis     = false;
+    brIsCoh     = false;
+    brIsImd     = false;
+    brIsNuEEl   = false;
+    brIsCC      = false;
+    brIsNC      = false;
+    brNucleon   = 99999;
+    brQrk       = 99999;
+    brIsSeaQrk  = false;
+    brRes       = 99999;
+    brCharm     = false;
+
+    // graph title
+    ostringstream title;
+   
+    if      (proc.IsQuasiElastic()     ) { title << "qel";   brIsQel   = true; }
+    else if (proc.IsResonant()         ) { title << "res";   brIsRes   = true; }
+    else if (proc.IsDeepInelastic()    ) { title << "dis";   brIsDis   = true; }
+    else if (proc.IsCoherent(  )       ) { title << "coh";   brIsCoh   = true; }
+    else if (proc.IsInverseMuDecay()   ) { title << "imd";   brIsImd   = true; }
+    else if (proc.IsNuElectronElastic()) { title << "ve";    brIsNuEEl = true; }
+    else                                 { continue; }
+
+    if      (proc.IsWeakCC()) { title << "_cc";  brIsCC = true; }
+    else if (proc.IsWeakNC()) { title << "_nc";  brIsNC = true; }
+    else                      { continue; }
 
     if(tgt.HitNucIsSet()) {
       int hitnuc = tgt.HitNucPdg();
+      brNucleon = hitnuc;
       if      ( pdg::IsProton (hitnuc) ) { title << "_p"; }
       else if ( pdg::IsNeutron(hitnuc) ) { title << "_n"; }
 
       if(tgt.HitQrkIsSet()) {
         int  qrkpdg = tgt.HitQrkPdg();
         bool insea  = tgt.HitSeaQrk();
-
+        brQrk       = qrkpdg;
+        brIsSeaQrk  = insea;
         if      ( pdg::IsUQuark(qrkpdg)     ) { title << "_u";    }
         else if ( pdg::IsDQuark(qrkpdg)     ) { title << "_d";    }
         else if ( pdg::IsSQuark(qrkpdg)     ) { title << "_s";    }
@@ -521,21 +579,25 @@ void SaveToRootFile(void)
     }
     if(proc.IsResonant()) { 
        Resonance_t res = xcls.Resonance();
+       brRes       = (int)res;;
        string resname = res::AsString(res);
        resname = str::FilterString(")", resname);
        resname = str::FilterString("(", resname);
        title << "_" << resname.substr(3,4) << resname.substr(0,3);
     }
 
+    if(xcls.IsCharmEvent()) {
+        title << "_charm";
+        brCharm = true;
+        if(!xcls.IsInclusiveCharm()) { title << xcls.CharmHadronPdg(); }
+    }
+
     const Spline * spl = evg_driver.XSecSpline(interaction);
-
-    double emin = spl->XMin();
-    double emax = spl->XMax();
-    double de   = (emax-emin)/(kNSplineP-1);
-
     for(int i=0; i<kNSplineP; i++) {
-      e[i]  = emin + i*de;
-      xs[i] = spl->Evaluate(e[i]);
+      xs[i] = spl->Evaluate(e[i]) * (1E+38/units::cm2);
+      brEv   = e[i];
+      brXSec = xs[i];
+      xsecnt->Fill();
     }
 
     TGraph * gr = new TGraph(kNSplineP, e, xs);
@@ -545,8 +607,194 @@ void SaveToRootFile(void)
     topdir->Add(gr);
   }
 
+  topdir->Add(xsecnt);
+
+  brIsQel     = false;
+  brIsRes     = false;
+  brIsDis     = false;
+  brIsCoh     = false;
+  brIsImd     = false;
+  brIsNuEEl   = false;
+  brIsCC      = false;
+  brIsNC      = false;
+  brNucleon   = 99999;
+  brQrk       = 99999;
+  brIsSeaQrk  = false;
+  brRes       = 99999;
+  brCharm     = false;
+
+  // add-up all res channels
+  //
+  double * xsresccp = new double[kNSplineP];
+  double * xsresccn = new double[kNSplineP];
+  double * xsresncp = new double[kNSplineP];
+  double * xsresncn = new double[kNSplineP];
+  for(int i=0; i<kNSplineP; i++) {
+    xsresccp[i] = 0;
+    xsresccn[i] = 0;
+    xsresncp[i] = 0;
+    xsresncn[i] = 0;
+  }
+
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    const ProcessInfo &  proc = interaction->ProcInfo();
+    const InitialState & init = interaction->InitState();
+    const Target &       tgt  = init.Tgt();
+
+    const Spline * spl = evg_driver.XSecSpline(interaction);
+ 
+    if (proc.IsResonant() && proc.IsWeakCC() && pdg::IsProton(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsresccp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (proc.IsResonant() && proc.IsWeakCC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsresccn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (proc.IsResonant() && proc.IsWeakNC() && pdg::IsProton(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsresncp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (proc.IsResonant() && proc.IsWeakNC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsresncn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+  }
+
+  TGraph * gr_resccp = new TGraph(kNSplineP, e, xsresccp);
+  gr_resccp->SetName("res_cc_p");
+  gr_resccp->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_resccp);
+  TGraph * gr_resccn = new TGraph(kNSplineP, e, xsresccn);
+  gr_resccn->SetName("res_cc_n");
+  gr_resccn->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_resccn);
+  TGraph * gr_resncp = new TGraph(kNSplineP, e, xsresncp);
+  gr_resncp->SetName("res_nc_p");
+  gr_resncp->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_resncp);
+  TGraph * gr_resncn = new TGraph(kNSplineP, e, xsresncn);
+  gr_resncn->SetName("res_nc_n");
+  gr_resncn->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_resncn);
+
+  brIsRes   = true;
+  brIsCC    = true;
+  brNucleon = kPdgProton;
+  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsresccp[i]; xsecnt->Fill(); }
+  brNucleon = kPdgNeutron;
+  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsresccn[i]; xsecnt->Fill(); }
+  brIsCC    = false;
+  brIsNC    = true;
+  brNucleon = kPdgProton;
+  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsresncp[i]; xsecnt->Fill(); }
+  brNucleon = kPdgNeutron;
+  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsresncn[i]; xsecnt->Fill(); }
+
+  brIsQel     = false;
+  brIsRes     = false;
+  brIsDis     = false;
+  brIsCoh     = false;
+  brIsImd     = false;
+  brIsNuEEl   = false;
+  brIsCC      = false;
+  brIsNC      = false;
+  brNucleon   = 99999;
+  brQrk       = 99999;
+  brIsSeaQrk  = false;
+  brRes       = 99999;
+  brCharm     = false;
+
+  // add-up all dis channels
+  //
+  double * xsdisccp = new double[kNSplineP];
+  double * xsdisccn = new double[kNSplineP];
+  double * xsdisncp = new double[kNSplineP];
+  double * xsdisncn = new double[kNSplineP];
+  for(int i=0; i<kNSplineP; i++) {
+    xsdisccp[i] = 0;
+    xsdisccn[i] = 0;
+    xsdisncp[i] = 0;
+    xsdisncn[i] = 0;
+  }
+
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    const ProcessInfo &  proc = interaction->ProcInfo();
+    const XclsTag &      xcls = interaction->ExclTag();
+    const InitialState & init = interaction->InitState();
+    const Target &       tgt  = init.Tgt();
+
+    const Spline * spl = evg_driver.XSecSpline(interaction);
+
+    if(xcls.IsCharmEvent()) continue;
+ 
+    if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsProton(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsdisccp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsdisccn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsProton(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsdisncp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsdisncn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+  }
+  TGraph * gr_disccp = new TGraph(kNSplineP, e, xsdisccp);
+  gr_disccp->SetName("dis_cc_p");
+  gr_disccp->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_disccp);
+  TGraph * gr_disccn = new TGraph(kNSplineP, e, xsdisccn);
+  gr_disccn->SetName("dis_cc_n");
+  gr_disccn->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_disccn);
+  TGraph * gr_disncp = new TGraph(kNSplineP, e, xsdisncp);
+  gr_disncp->SetName("dis_nc_p");
+  gr_disncp->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_disncp);
+  TGraph * gr_disncn = new TGraph(kNSplineP, e, xsdisncn);
+  gr_disncn->SetName("dis_nc_n");
+  gr_disncn->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_disncn);
+
+  brIsDis   = true;
+  brIsCC    = true;
+  brNucleon = kPdgProton;
+  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsdisccp[i]; xsecnt->Fill(); }
+  brNucleon = kPdgNeutron;
+  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsdisccn[i]; xsecnt->Fill(); }
+  brIsCC    = false;
+  brIsNC    = true;
+  brNucleon = kPdgProton;
+  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsdisncp[i]; xsecnt->Fill(); }
+  brNucleon = kPdgNeutron;
+  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsdisncn[i]; xsecnt->Fill(); }
+
   delete [] e;
   delete [] xs;
+  delete [] xsresccp;
+  delete [] xsresccn;
+  delete [] xsresncp;
+  delete [] xsresncn; 
+  delete [] xsdisccp;
+  delete [] xsdisccn;
+  delete [] xsdisncp;
+  delete [] xsdisncn; 
 
   topdir->Write();
 
