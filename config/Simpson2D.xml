@@ -32,6 +32,13 @@ Name             Type     Optional   Comment               Default
      <param type="bool"   name="ForceFixedNBins">     true  </param>
   </param_set>
 
+  <param_set name="Default-Linear-FixedNBins-201"> 
+     <param type="bool"   name="InLoge">              false </param>
+     <param type="bool"   name="ForceFixedNBins">     true  </param>
+     <param type="int"    name="NBinsDim0">           201   </param>
+     <param type="int"    name="NBinsDim1">           201   </param>
+  </param_set>
+
   <param_set name="Default-Logarithmic-FixedNBins-Fast"> 
      <param type="bool"   name="InLoge">              true  </param>
      <param type="bool"   name="ForceFixedNBins">     true  </param>
