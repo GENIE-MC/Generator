@@ -384,12 +384,24 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
 // ... then for each stable daughter
 // particle id, 5 vec 
 
-  const Interaction * interaction = event.Summary();
+  GHepParticle * p = 0;
 
-  const ProcessInfo & proc_info = interaction->ProcInfo();
-  //bool is_res = proc_info.IsResonant();
+  const Interaction * interaction = event.Summary();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+  const InitialState & init_state = interaction->InitState();
+
   bool is_dis = proc_info.IsDeepInelastic();
   if(!is_dis) return; 
+
+  int ccnc   = proc_info.IsWeakCC() ? 1 : 0;
+  int inttyp = 3; 
+
+  int im     = -1;
+  if      (init_state.IsNuP    ()) im = 1; 
+  else if (init_state.IsNuN    ()) im = 2; 
+  else if (init_state.IsNuBarP ()) im = 3; 
+  else if (init_state.IsNuBarN ()) im = 4; 
+  else return;
 
   GHepParticle * neutrino = event.Probe();
   assert(neutrino);
@@ -397,33 +409,34 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
   assert(target);
   GHepParticle * fsl = event.FinalStatePrimaryLepton();
   assert(fsl);
-  GHepParticle * hitnucl = event.HitNucleon();
-  assert(hitnucl);
+//GHepParticle * hitnucl = event.HitNucleon();
+//assert(hitnucl);
   GHepParticle * hadsyst = event.FinalStateHadronicSystem();
 
+  int nupdg  = neutrino->Pdg();
+  int fslpdg = fsl->Pdg();
+  int A      = target->A();
+  int Z      = target->Z();
 
   const TLorentzVector & k1 = *(neutrino->P4());  // v 4-p (k1)
   const TLorentzVector & k2 = *(fsl->P4());       // l 4-p (k2)
-  const TLorentzVector & p1 = *(hitnucl->P4());   // N 4-p (p1)      
+//const TLorentzVector & p1 = *(hitnucl->P4());   // N 4-p (p1)      
   const TLorentzVector & ph = *(hadsyst->P4());   // had-syst 4-p 
      
-  double M  = kNucleonMass;
-  TLorentzVector q  = k1-k2;    // q=k1-k2, 4-p transfer
-  double v  = (q*p1)/M;         // v (E transfer in hit nucleon rest frame)
-  double Q2 = -1 * q.M2();      // momemtum transfer
-  double x  = 0.5*Q2/(M*v);     // Bjorken x
-  double y  = v*M/(k1*p1);      // Inelasticity, y = q*P1/k1*P1
-  double W2 = M*M + 2*M*v - Q2; // Hadronic Invariant mass ^ 2
-  double W  = TMath::Sqrt(W2); 
+  const Kinematics & kine = interaction->Kine();
+  bool get_selected = true;
+  double x  = kine.x (get_selected);
+  double y  = kine.y (get_selected);
+  double W  = kine.W (get_selected);
 
-  int     nupdg  = neutrino->Pdg();
-  int     fslpdg = fsl->Pdg();
-  int     ccnc   = proc_info.IsWeakCC() ? 1 : 0;;
-  int     im     = -1;
-  int     A      = target->A();
-  int     Z      = target->Z();;
-  int     inttyp = 2;
-  int     hadmod = 0;
+  int hadmod = 2;
+  TIter event_iter(&event);
+  while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+    int pdg = p->Pdg();
+    if (pdg == kPdgString )  { hadmod=11; break; }
+    if (pdg == kPdgCluster)  { hadmod=12; break; }
+    if (pdg == kPdgIndep  )  { hadmod=13; break; }
+  }
 
   output << endl;
   output << gIEv   << "\t"  
@@ -468,9 +481,10 @@ void ConvertToT2KMCComparisonsRootFormat()
   int    brIev        = 0;      // Event number (to be used as index for friend trees with detector response variables)
   int    brNeutrino   = 0;      // Neutrino pdg code
   int    brTarget     = 0;      // Nuclear target pdg code (1aaazzz000)
-  int    brHitNuc     = 0;      // Hit nucleon pdg code
-  int    brHitQrk     = 0;      // Hit quark pdg code
-  bool   brFromSea    = false;  // Hit quark is from sea
+  int    brHitNuc     = 0;      // Hit nucleon pdg code      (not set for COH,IMD and NuEL events)
+  int    brHitQrk     = 0;      // Hit quark pdg code        (set for DIS events only)
+  bool   brFromSea    = false;  // Hit quark is from sea     (set for DIS events only)
+  bool   brResId      = 0;      // Produced baryon resonance (set for resonance events only)
   bool   brIsQel      = false;  // Is QEL?
   bool   brIsRes      = false;  // Is RES?
   bool   brIsDis      = false;  // Is DIS?
@@ -537,12 +551,6 @@ void ConvertToT2KMCComparisonsRootFormat()
   //
   TTree * tEvtTree = new TTree("tEvtTree","event tree summary");
 
-// changes:
-// sea
-// imd
-// nuel
-// charm
-
   //-- create tree branches
   //
   tEvtTree->Branch("iev",       &brIev,          "iev/I"       );
@@ -550,6 +558,7 @@ void ConvertToT2KMCComparisonsRootFormat()
   tEvtTree->Branch("tgt" ,      &brTarget,       "tgt/I"       );
   tEvtTree->Branch("hitnuc",    &brHitNuc,       "hitnuc/I"    );
   tEvtTree->Branch("hitqrk",    &brHitQrk,       "hitqrk/I"    );
+  tEvtTree->Branch("resid",     &brResId,        "resid/I"     );
   tEvtTree->Branch("sea",       &brFromSea,      "sea/O"       );
   tEvtTree->Branch("qel",       &brIsQel,        "qel/O"       );
   tEvtTree->Branch("res",       &brIsRes,        "res/O"       );
@@ -810,6 +819,7 @@ void ConvertToT2KMCComparisonsRootFormat()
     brHitNuc     = (hitnucl) ? hitnucl->Pdg() : 0;      
     brHitQrk     = qrk;     
     brFromSea    = seaq;  
+    brResId      = 0;
     brIsQel      = is_qel;
     brIsRes      = is_res;
     brIsDis      = is_dis;  
