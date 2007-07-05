@@ -74,9 +74,9 @@ double Simpson2DFixN::Integrate(GSFunc & gsfunc) const
     r[0] = (fSpacingD0 == kGSpLoge) ? 
                      TMath::Exp(xmin+i*dx) : xmin + i*dx;
 
-    r[1] = ymin;
+    r[1] = (fSpacingD1 == kGSpLoge) ? TMath::Exp(ymin) : ymin;
     sum1d[i] += 0.5 * (this->J(r) * gsfunc(r));
-    r[1] = ymax;
+    r[1] = (fSpacingD1 == kGSpLoge) ? TMath::Exp(ymax) : ymax;
     sum1d[i] += 0.5 * (this->J(r) * gsfunc(r));
     
     for(unsigned int j=1; j<fNBinsD1-1; j++) {
