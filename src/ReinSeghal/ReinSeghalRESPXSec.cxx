@@ -134,6 +134,8 @@ double ReinSeghalRESPXSec::XSec(
   double V2     = TMath::Power(V, 2);
   double UV     = U*V;
 
+  LOG("ReinSeghalRes", pDEBUG) << "V = " << V << ", U = " << U;
+
   //-- Calculate the Feynman-Kislinger-Ravndall parameters
   LOG("ReinSeghalRes", pDEBUG) << "Computing the FKR parameters";
 
@@ -150,7 +152,7 @@ double ReinSeghalRESPXSec::XSec(
   fFKR.Tv     = GV / (3.*W*sq2omg);
   fFKR.Rv     = kSqrt2 * mq_w*(W+Mnuc)*GV / d;
   fFKR.S      = (-q2/Q2) * (3*W*Mnuc + q2 - Mnuc2) * GV / (6*Mnuc2);
-  fFKR.Ta     = (2./3.) * fZeta * sq2omg * mq_w * GA / d;
+  fFKR.Ta     = (2./3.) * (fZeta/sq2omg) * mq_w * GA / d;
   fFKR.Ra     = (kSqrt2/6.) * fZeta * (GA/W) * (W+Mnuc + 2*nomg*W/d );
   fFKR.B      = fZeta/(3.*W*sq2omg) * (1 + (W2-Mnuc2+q2)/ d) * GA;
   fFKR.C      = fZeta/(6.*Q) * (W2 - Mnuc2 + nomg*(W2-Mnuc2+q2)/d) * (GA/Mnuc);
@@ -192,6 +194,11 @@ double ReinSeghalRESPXSec::XSec(
   double sigS = scS * (hampl->Amp20Plus () + hampl->Amp20Minus());
 
   delete hampl;
+
+  LOG("ReinSeghalRes", pDEBUG) << "sig_{0} = " << sig0;
+  LOG("ReinSeghalRes", pDEBUG) << "sig_{L} = " << sigL;
+  LOG("ReinSeghalRes", pDEBUG) << "sig_{R} = " << sigR;
+  LOG("ReinSeghalRes", pDEBUG) << "sig_{S} = " << sigS;
 
   double xsec = 0.0;
   if (is_nu) {
