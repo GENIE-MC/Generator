@@ -77,6 +77,11 @@ Use the "Default" one to get the best GENIE physics & tuning.
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -->
+  <param type="double" name="DIS-XSecScale"> 1.032 </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Proton and neutron anomalous magnetic moments 
   -->
   <param type="double" name="AnomMagnMoment-P">   2.7930     </param> <!-- 2.7928473 -->
