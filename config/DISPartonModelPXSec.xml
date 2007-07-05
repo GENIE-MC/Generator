@@ -11,6 +11,7 @@ SFAlg                       alg     No    Structure functions algorithm
 XSec-Integrator             alg     No
 Hadronizer                  alg     Dep   Hadronization model used for computing suppression
                                           factors. Set if use-dis-res-joining-scheme=true
+Scale                       double  Yes   Cross section multiplication factor                 GPL DIS-XSecScale
 UseDRJoinScheme             bool    Yes   Use DIS/RES joining scheme?                         GPL UseDRJoinScheme
 Wcut                        double  Yes   Param used in DIS/RES joining                       GPL Wcut
 UseCache                    bool    Yes   Cache suppression factors?                          true
