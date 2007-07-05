@@ -44,7 +44,7 @@ double genie::utils::bwfunc::BreitWignerL(
 
   //-- auxiliary parameters
   double mN    = kNucleonMass;
-  double mPi   = kPionMass;
+  double mPi   = kPi0Mass;
   double m_2   = TMath::Power(mass, 2);
   double mN_2  = TMath::Power(mN,   2);
   double mPi_2 = TMath::Power(mPi,  2);
