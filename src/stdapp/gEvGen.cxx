@@ -29,11 +29,11 @@
            -t specifies the target PDG code (std format: 1aaazzz000)
            -r specifies the MC run number
            -f specifies the neutrino flux spectrum - it can be either a function,
-              eg 'x*x+4*exp(-x)' of a text file containing (energy,flux) pairs 
-              (see $GENIE/data/flux/) for few examples. In this case the GMCJDriver
-              is partially utilized to the use the specified flux and a trivial
-              'point geometry'. See $GENIE/src/test/testMCJobDriver.cxx to see
-              how you can generate events for arbitrarily complex fluxes and 
+              eg 'x*x+4*exp(-x)' or a text file containing 2 columns corresponding to
+              energy,flux (see $GENIE/data/flux/ for few examples). In this case the 
+              GMCJDriver is partially utilized to the use the specified flux and a 
+              trivial 'point geometry'. See $GENIE/src/test/testMCJobDriver.cxx to 
+              see how you can generate events for arbitrarily complex fluxes and 
               detector geometries. Note that in order to use the -f option you
               must have enabled the flux and geometry drivers during the GENIE
               installation (see installation instructions)
