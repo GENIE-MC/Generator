@@ -456,41 +456,43 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
   output << ph.Px()     << "\t" << ph.Py() << "\t" << ph.Pz() << "\t"
          << ph.Energy() << "\t" << ph.M()  << endl;
 
+  vector<int> hadv;
+
   int id1 = (ijetset>0) ? event.Particle(ijetset)->FirstDaughter() : hadsyst->FirstDaughter();
   int id2 = (ijetset>0) ? event.Particle(ijetset)->LastDaughter()  : hadsyst->LastDaughter();
+
   for(int id=id1; id<=id2; id++) {
     GHepParticle * p = event.Particle(id);
     GHepStatus_t ist = p->Status();
     int pdg = p->Pdg();
-    if(ist == kIStStableFinalState || pdg==kPdgPi0) {
-      double px = p->P4()->Px();
-      double py = p->P4()->Py();
-      double pz = p->P4()->Pz();
-      double E  = p->P4()->Energy();
-      double m  = p->P4()->M();
-      output << pdg << "\t" 
-             << px  << "\t" << py << "\t" << pz << "\t"
-             << E   << "\t" << m  << endl;
-    } //stable f/s or decayed pi0
+    if(ist == kIStStableFinalState || pdg==kPdgPi0) hadv.push_back(id);
     if(ist == kIStDecayedState && pdg!=kPdgPi0) {
       vector<int> * stable_daughters = event.GetStableDescendants(id);
       vector<int>::const_iterator iter = stable_daughters->begin();
       for( ; iter != stable_daughters->end(); ++iter) {
         int ids = *iter;
-        GHepParticle * ps = event.Particle(ids);
-        int    pdgs = ps->Pdg();
-        double pxs  = ps->P4()->Px();
-        double pys  = ps->P4()->Py();
-        double pzs  = ps->P4()->Pz();
-        double Es   = ps->P4()->Energy();
-        double ms   = ps->P4()->M();
-        output << pdgs << "\t" 
-               << pxs  << "\t" << pys << "\t" << pzs << "\t"
-               << Es   << "\t" << ms  << endl;
+        hadv.push_back(ids);
       }
       delete stable_daughters;
-    } // decayed_state, not pi0
-  }//primary hadronic system
+    }
+  }
+
+  output << hadv.size() << endl;
+
+  vector<int>::const_iterator hiter = hadv.begin();
+  for( ; hiter != hadv.end(); ++hiter) {
+    int id = *hiter;
+    GHepParticle * p = event.Particle(id);
+    int pdg = p->Pdg();
+    double px = p->P4()->Px();
+    double py = p->P4()->Py();
+    double pz = p->P4()->Pz();
+    double E  = p->P4()->Energy();
+    double m  = p->P4()->M();
+    output << pdg << "\t" 
+           << px  << "\t" << py << "\t" << pz << "\t"
+           << E   << "\t" << m  << endl;
+  }
 }
 //___________________________________________________________________
 // ** GENIE ER ROOT TREE -> STD NT FOR T2K CROSS-GENERATOR STUDIES **
