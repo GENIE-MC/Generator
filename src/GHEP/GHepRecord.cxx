@@ -156,16 +156,22 @@ vector<int> * GHepRecord::GetStableDescendants(int position) const
 // Returns a list of all stable descendants of the GHEP entry in the input 
 // slot. The user adopts the output vector.
 
+  // return null if particle index is out of range
+  int nentries = this->GetEntries();
+  if(position<0 || position>=nentries) return 0;  
+
   vector<int> * descendants = new vector<int>;
   
-  int nentries = this->GetEntries();
+  // return itself if it is a stable final state particle
+  if(this->Particle(position)->Status() == kIStStableFinalState) {
+    descendants->push_back(position);
+    return descendants;
+  }
+
   for(int i = 0; i < nentries; i++) {
-
     if(i==position) continue;
-
     GHepParticle * p = (GHepParticle *) (*this)[i];
     if(p->Status() != kIStStableFinalState) continue;
-
     bool is_descendant=false;
     int mom = p->FirstMother();
     while(mom>-1) {
