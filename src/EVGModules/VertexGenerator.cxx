@@ -52,15 +52,19 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
   TVector3 vtx(999999.,999999.,999999.);
 
   GHepParticle * nucltgt = evrec->TargetNucleus();
-  assert(nucltgt);
 
-  double A = nucltgt->A();
-  double R = fR0 * TMath::Power(A, 1./3.);
+  if(!nucltgt) {
+    vtx.SetXYZ(0.,0.,0.);
+  } 
+  else {
+    double A = nucltgt->A();
+    double R = fR0 * TMath::Power(A, 1./3.);
 
-  while(vtx.Mag() > R) {
+    while(vtx.Mag() > R) {
       vtx.SetX(-R + 2*R * rnd->RndFsi().Rndm());
       vtx.SetY(-R + 2*R * rnd->RndFsi().Rndm());
       vtx.SetZ(-R + 2*R * rnd->RndFsi().Rndm());
+    }
   }
 
   LOG("Vtx", pNOTICE) 
