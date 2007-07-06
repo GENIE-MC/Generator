@@ -429,13 +429,16 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
   double y  = kine.y (get_selected);
   double W  = kine.W (get_selected);
 
-  int hadmod = 2;
+  int hadmod  =  2;
+  int ijetset = -1;
   TIter event_iter(&event);
+  int i=-1;
   while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+    i++;
     int pdg = p->Pdg();
-    if (pdg == kPdgString )  { hadmod=11; break; }
-    if (pdg == kPdgCluster)  { hadmod=12; break; }
-    if (pdg == kPdgIndep  )  { hadmod=13; break; }
+    if (pdg == kPdgString )  { hadmod=11; ijetset=i; break; }
+    if (pdg == kPdgCluster)  { hadmod=12; ijetset=i; break; }
+    if (pdg == kPdgIndep  )  { hadmod=13; ijetset=i; break; }
   }
 
   output << endl;
@@ -453,13 +456,13 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
   output << ph.Px()     << "\t" << ph.Py() << "\t" << ph.Pz() << "\t"
          << ph.Energy() << "\t" << ph.M()  << endl;
 
-  int id1 = hadsyst->FirstDaughter();
-  int id2 = hadsyst->LastDaughter();
-  for(int i=id1; i<=id2; i++) {
-    GHepParticle * p = event.Particle(i);
+  int id1 = (ijetset>0) ? event.Particle(ijetset)->FirstDaughter() : hadsyst->FirstDaughter();
+  int id2 = (ijetset>0) ? event.Particle(ijetset)->LastDaughter()  : hadsyst->LastDaughter();
+  for(int id=id1; id<=id2; id++) {
+    GHepParticle * p = event.Particle(id);
     GHepStatus_t ist = p->Status();
-    if(ist == kIStStableFinalState) {
-      int pdg = p->Pdg();
+    int pdg = p->Pdg();
+    if(ist == kIStStableFinalState || pdg==kPdgPi0) {
       double px = p->P4()->Px();
       double py = p->P4()->Py();
       double pz = p->P4()->Pz();
@@ -468,8 +471,26 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
       output << pdg << "\t" 
              << px  << "\t" << py << "\t" << pz << "\t"
              << E   << "\t" << m  << endl;
-    }
-  }
+    } //stable f/s or decayed pi0
+    if(ist == kIStDecayedState && pdg!=kPdgPi0) {
+      vector<int> * stable_daughters = event.GetStableDescendants(id);
+      vector<int>::const_iterator iter = stable_daughters->begin();
+      for( ; iter != stable_daughters->end(); ++iter) {
+        int ids = *iter;
+        GHepParticle * ps = event.Particle(ids);
+        int    pdgs = ps->Pdg();
+        double pxs  = ps->P4()->Px();
+        double pys  = ps->P4()->Py();
+        double pzs  = ps->P4()->Pz();
+        double Es   = ps->P4()->Energy();
+        double ms   = ps->P4()->M();
+        output << pdgs << "\t" 
+               << pxs  << "\t" << pys << "\t" << pzs << "\t"
+               << Es   << "\t" << ms  << endl;
+      }
+      delete stable_daughters;
+    } // decayed_state, not pi0
+  }//primary hadronic system
 }
 //___________________________________________________________________
 // ** GENIE ER ROOT TREE -> STD NT FOR T2K CROSS-GENERATOR STUDIES **
