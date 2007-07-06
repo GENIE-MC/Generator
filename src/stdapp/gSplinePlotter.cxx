@@ -94,12 +94,13 @@ using namespace genie;
 using namespace genie::utils;
 
 //Prototypes:
-void       LoadSplines        (void);
-GEVGDriver GetEventGenDriver  (void);
-void       SaveToPsFile       (void);
-void       SaveToRootFile     (void);
-void       GetCommandLineArgs (int argc, char ** argv);
-void       PrintSyntax        (void);
+void       LoadSplines          (void);
+GEVGDriver GetEventGenDriver    (void);
+void       SaveToPsFile         (void);
+void       SaveGraphsToRootFile (void);
+void       SaveNtupleToRootFile (void);
+void       GetCommandLineArgs   (int argc, char ** argv);
+void       PrintSyntax          (void);
 
 //User-specified options:
 string gOptXMLFilename;  // input XML filename
@@ -130,7 +131,7 @@ int main(int argc, char ** argv)
 
   //-- save the cross section graphs at a root file
   //   (these graphs can then be used to create splines
-  SaveToRootFile();
+  SaveGraphsToRootFile();
 
   return 0;
 }
@@ -423,7 +424,7 @@ void SaveToPsFile(void)
   delete ps;
 }
 //____________________________________________________________________________
-void SaveToRootFile(void)
+void SaveGraphsToRootFile(void)
 {
   //-- get the event generation driver
   GEVGDriver evg_driver = GetEventGenDriver();
@@ -472,40 +473,6 @@ void SaveToRootFile(void)
   topdir = froot->mkdir(dptr.str().c_str(),dtitle.str().c_str());
   topdir->cd();
 
-  //-- create cross section ntuple
-  //
-  double brXSec;
-  double brEv;
-  bool   brIsQel;
-  bool   brIsRes;
-  bool   brIsDis;
-  bool   brIsCoh;
-  bool   brIsImd;
-  bool   brIsNuEEl;
-  bool   brIsCC;
-  bool   brIsNC;
-  int    brNucleon;
-  int    brQrk;
-  bool   brIsSeaQrk;
-  int    brRes;
-  bool   brCharm;
-  TTree * xsecnt = new TTree("xsecnt",dtitle.str().c_str());
-  xsecnt->Branch("xsec",  &brXSec,     "xsec/D");
-  xsecnt->Branch("e",     &brEv,       "e/D");
-  xsecnt->Branch("qel",   &brIsQel,    "qel/O");
-  xsecnt->Branch("res",   &brIsRes,    "res/O");
-  xsecnt->Branch("dis",   &brIsDis,    "dis/O");
-  xsecnt->Branch("coh",   &brIsCoh,    "coh/O");
-  xsecnt->Branch("imd",   &brIsImd,    "imd/O");
-  xsecnt->Branch("veel",  &brIsNuEEl,  "veel/O");
-  xsecnt->Branch("cc",    &brIsCC,     "cc/O");
-  xsecnt->Branch("nc",    &brIsNC,     "nc/O");
-  xsecnt->Branch("nuc",   &brNucleon,  "nuc/I");
-  xsecnt->Branch("qrk",   &brQrk,      "qrk/I");
-  xsecnt->Branch("sea",   &brIsSeaQrk, "sea/O");
-  xsecnt->Branch("res",   &brRes,      "res/I");
-  xsecnt->Branch("charm", &brCharm,    "charm/O");
-
   double   de = (gEmax-gEmin)/(kNSplineP-1);
   double * e  = new double[kNSplineP];
   for(int i=0; i<kNSplineP; i++) {  e[i]  = gEmin + i*de; }
@@ -523,47 +490,30 @@ void SaveToRootFile(void)
     const InitialState & init = interaction->InitState();
     const Target &       tgt  = init.Tgt();
 
-    // init ntuple proc id vars
-    brIsQel     = false;
-    brIsRes     = false;
-    brIsDis     = false;
-    brIsCoh     = false;
-    brIsImd     = false;
-    brIsNuEEl   = false;
-    brIsCC      = false;
-    brIsNC      = false;
-    brNucleon   = 99999;
-    brQrk       = 99999;
-    brIsSeaQrk  = false;
-    brRes       = 99999;
-    brCharm     = false;
-
     // graph title
     ostringstream title;
    
-    if      (proc.IsQuasiElastic()     ) { title << "qel";   brIsQel   = true; }
-    else if (proc.IsResonant()         ) { title << "res";   brIsRes   = true; }
-    else if (proc.IsDeepInelastic()    ) { title << "dis";   brIsDis   = true; }
-    else if (proc.IsCoherent(  )       ) { title << "coh";   brIsCoh   = true; }
-    else if (proc.IsInverseMuDecay()   ) { title << "imd";   brIsImd   = true; }
-    else if (proc.IsNuElectronElastic()) { title << "ve";    brIsNuEEl = true; }
-    else                                 { continue; }
+    if      (proc.IsQuasiElastic()     ) { title << "qel"; }
+    else if (proc.IsResonant()         ) { title << "res"; }
+    else if (proc.IsDeepInelastic()    ) { title << "dis"; }
+    else if (proc.IsCoherent(  )       ) { title << "coh"; }
+    else if (proc.IsInverseMuDecay()   ) { title << "imd"; }
+    else if (proc.IsNuElectronElastic()) { title << "ve";  }
+    else                                 { continue;       }
 
-    if      (proc.IsWeakCC()) { title << "_cc";  brIsCC = true; }
-    else if (proc.IsWeakNC()) { title << "_nc";  brIsNC = true; }
-    else                      { continue; }
+    if      (proc.IsWeakCC()) { title << "_cc"; }
+    else if (proc.IsWeakNC()) { title << "_nc"; }
+    else                      { continue;       }
 
     if(tgt.HitNucIsSet()) {
       int hitnuc = tgt.HitNucPdg();
-      brNucleon = hitnuc;
       if      ( pdg::IsProton (hitnuc) ) { title << "_p"; }
       else if ( pdg::IsNeutron(hitnuc) ) { title << "_n"; }
 
       if(tgt.HitQrkIsSet()) {
         int  qrkpdg = tgt.HitQrkPdg();
         bool insea  = tgt.HitSeaQrk();
-        brQrk       = qrkpdg;
-        brIsSeaQrk  = insea;
+
         if      ( pdg::IsUQuark(qrkpdg)     ) { title << "_u";    }
         else if ( pdg::IsDQuark(qrkpdg)     ) { title << "_d";    }
         else if ( pdg::IsSQuark(qrkpdg)     ) { title << "_s";    }
@@ -579,7 +529,6 @@ void SaveToRootFile(void)
     }
     if(proc.IsResonant()) { 
        Resonance_t res = xcls.Resonance();
-       brRes       = (int)res;;
        string resname = res::AsString(res);
        resname = str::FilterString(")", resname);
        resname = str::FilterString("(", resname);
@@ -588,16 +537,12 @@ void SaveToRootFile(void)
 
     if(xcls.IsCharmEvent()) {
         title << "_charm";
-        brCharm = true;
         if(!xcls.IsInclusiveCharm()) { title << xcls.CharmHadronPdg(); }
     }
 
     const Spline * spl = evg_driver.XSecSpline(interaction);
     for(int i=0; i<kNSplineP; i++) {
       xs[i] = spl->Evaluate(e[i]) * (1E+38/units::cm2);
-      brEv   = e[i];
-      brXSec = xs[i];
-      xsecnt->Fill();
     }
 
     TGraph * gr = new TGraph(kNSplineP, e, xs);
@@ -606,22 +551,6 @@ void SaveToRootFile(void)
 
     topdir->Add(gr);
   }
-
-  topdir->Add(xsecnt);
-
-  brIsQel     = false;
-  brIsRes     = false;
-  brIsDis     = false;
-  brIsCoh     = false;
-  brIsImd     = false;
-  brIsNuEEl   = false;
-  brIsCC      = false;
-  brIsNC      = false;
-  brNucleon   = 99999;
-  brQrk       = 99999;
-  brIsSeaQrk  = false;
-  brRes       = 99999;
-  brCharm     = false;
 
   // add-up all res channels
   //
@@ -683,33 +612,6 @@ void SaveToRootFile(void)
   gr_resncn->SetTitle("GENIE cross section graph");
   topdir->Add(gr_resncn);
 
-  brIsRes   = true;
-  brIsCC    = true;
-  brNucleon = kPdgProton;
-  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsresccp[i]; xsecnt->Fill(); }
-  brNucleon = kPdgNeutron;
-  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsresccn[i]; xsecnt->Fill(); }
-  brIsCC    = false;
-  brIsNC    = true;
-  brNucleon = kPdgProton;
-  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsresncp[i]; xsecnt->Fill(); }
-  brNucleon = kPdgNeutron;
-  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsresncn[i]; xsecnt->Fill(); }
-
-  brIsQel     = false;
-  brIsRes     = false;
-  brIsDis     = false;
-  brIsCoh     = false;
-  brIsImd     = false;
-  brIsNuEEl   = false;
-  brIsCC      = false;
-  brIsNC      = false;
-  brNucleon   = 99999;
-  brQrk       = 99999;
-  brIsSeaQrk  = false;
-  brRes       = 99999;
-  brCharm     = false;
-
   // add-up all dis channels
   //
   double * xsdisccp = new double[kNSplineP];
@@ -722,7 +624,6 @@ void SaveToRootFile(void)
     xsdisncp[i] = 0;
     xsdisncn[i] = 0;
   }
-
   for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
     const Interaction * interaction = *ilistiter;
     const ProcessInfo &  proc = interaction->ProcInfo();
@@ -772,18 +673,63 @@ void SaveToRootFile(void)
   gr_disncn->SetTitle("GENIE cross section graph");
   topdir->Add(gr_disncn);
 
-  brIsDis   = true;
-  brIsCC    = true;
-  brNucleon = kPdgProton;
-  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsdisccp[i]; xsecnt->Fill(); }
-  brNucleon = kPdgNeutron;
-  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsdisccn[i]; xsecnt->Fill(); }
-  brIsCC    = false;
-  brIsNC    = true;
-  brNucleon = kPdgProton;
-  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsdisncp[i]; xsecnt->Fill(); }
-  brNucleon = kPdgNeutron;
-  for(int i=0; i<kNSplineP; i++) { brEv=e[i]; brXSec=xsdisncn[i]; xsecnt->Fill(); }
+
+  // add-up all charm dis channels
+  //
+  for(int i=0; i<kNSplineP; i++) {
+    xsdisccp[i] = 0;
+    xsdisccn[i] = 0;
+    xsdisncp[i] = 0;
+    xsdisncn[i] = 0;
+  }
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    const ProcessInfo &  proc = interaction->ProcInfo();
+    const XclsTag &      xcls = interaction->ExclTag();
+    const InitialState & init = interaction->InitState();
+    const Target &       tgt  = init.Tgt();
+
+    const Spline * spl = evg_driver.XSecSpline(interaction);
+
+    if(!xcls.IsCharmEvent()) continue;
+ 
+    if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsProton(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsdisccp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsdisccn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsProton(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsdisncp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xsdisncn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+  }
+  TGraph * gr_disccp_charm = new TGraph(kNSplineP, e, xsdisccp);
+  gr_disccp_charm->SetName("dis_cc_p_charm");
+  gr_disccp_charm->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_disccp_charm);
+  TGraph * gr_disccn_charm = new TGraph(kNSplineP, e, xsdisccn);
+  gr_disccn_charm->SetName("dis_cc_n_charm");
+  gr_disccn_charm->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_disccn_charm);
+  TGraph * gr_disncp_charm = new TGraph(kNSplineP, e, xsdisncp);
+  gr_disncp_charm->SetName("dis_nc_p_charm");
+  gr_disncp_charm->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_disncp_charm);
+  TGraph * gr_disncn_charm = new TGraph(kNSplineP, e, xsdisncn);
+  gr_disncn_charm->SetName("dis_nc_n_charm");
+  gr_disncn_charm->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_disncn_charm);
 
   delete [] e;
   delete [] xs;
@@ -802,6 +748,45 @@ void SaveToRootFile(void)
     froot->Close();
     delete froot;
   }
+}
+//____________________________________________________________________________
+void SaveNtupleToRootFile(void)
+{
+/*
+  //-- create cross section ntuple
+  //
+  double brXSec;
+  double brEv;
+  bool   brIsQel;
+  bool   brIsRes;
+  bool   brIsDis;
+  bool   brIsCoh;
+  bool   brIsImd;
+  bool   brIsNuEEl;
+  bool   brIsCC;
+  bool   brIsNC;
+  int    brNucleon;
+  int    brQrk;
+  bool   brIsSeaQrk;
+  int    brRes;
+  bool   brCharm;
+  TTree * xsecnt = new TTree("xsecnt",dtitle.str().c_str());
+  xsecnt->Branch("xsec",  &brXSec,     "xsec/D");
+  xsecnt->Branch("e",     &brEv,       "e/D");
+  xsecnt->Branch("qel",   &brIsQel,    "qel/O");
+  xsecnt->Branch("res",   &brIsRes,    "res/O");
+  xsecnt->Branch("dis",   &brIsDis,    "dis/O");
+  xsecnt->Branch("coh",   &brIsCoh,    "coh/O");
+  xsecnt->Branch("imd",   &brIsImd,    "imd/O");
+  xsecnt->Branch("veel",  &brIsNuEEl,  "veel/O");
+  xsecnt->Branch("cc",    &brIsCC,     "cc/O");
+  xsecnt->Branch("nc",    &brIsNC,     "nc/O");
+  xsecnt->Branch("nuc",   &brNucleon,  "nuc/I");
+  xsecnt->Branch("qrk",   &brQrk,      "qrk/I");
+  xsecnt->Branch("sea",   &brIsSeaQrk, "sea/O");
+  xsecnt->Branch("res",   &brRes,      "res/I");
+  xsecnt->Branch("charm", &brCharm,    "charm/O");
+*/
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
