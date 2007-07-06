@@ -476,9 +476,9 @@ void KNOHadronization::LoadConfig(void)
   if (fBaryonPT2pdf) delete fBaryonPT2pdf;
 
   fBaryonXFpdf  = new TF1("fBaryonXFpdf",
-                   "0.049889-0.116769*x-0.033949*x*x+0.146209*x*x*x",-1,0.5);  
-  fBaryonPT2pdf = new TF1("fBaryonPT2pdf", "exp(-0.213362-6.62464*x)",0,0.6);  
-
+                   "0.083*exp(-1*pow(x+0.385,2.)/0.131)",-1,0.5);  
+  fBaryonPT2pdf = new TF1("fBaryonPT2pdf", 
+                   "exp(-0.214-6.625*x)",0,0.6);  
 
   // load legacy KNO spline
   fUseLegacyKNOSpline = fConfig->GetBoolDef("UseLegacyKNOSpl", false);
