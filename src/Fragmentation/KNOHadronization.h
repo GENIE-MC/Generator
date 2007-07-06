@@ -71,8 +71,8 @@ private:
   void          HandleDecays          (TClonesArray * particle_list) const;
   double        ReWeightPt2           (const PDGCodeList & pdgcv)    const;
 
-  TClonesArray* DecayMethod1    (double W, const PDGCodeList & pdgv) const;
-  TClonesArray* DecayMethod2    (double W, const PDGCodeList & pdgv) const;
+  TClonesArray* DecayMethod1    (double W, const PDGCodeList & pdgv, bool reweight_decays) const;
+  TClonesArray* DecayMethod2    (double W, const PDGCodeList & pdgv, bool reweight_decays) const;
   TClonesArray* DecayBackToBack (double W, const PDGCodeList & pdgv) const;
 
   bool PhaseSpaceDecay(
@@ -89,6 +89,7 @@ private:
   const DecayModelI * fDecayer;  ///< decay algorithm
   bool     fForceNeuGenLimit;    ///< force upper hadronic multiplicity to NeuGEN limit
   bool     fUseLegacyKNOSpline;  ///< use legacy spline instead of Levy
+  bool     fUseIsotropic2BDecays;///< force isotropic, non-reweighted 2-body decays for consistency with neugen/daikon
   bool     fUseBaryonXfPt2Param; ///< Generate baryon xF,pT2 from experimental parameterization?
   bool     fReWeightDecays;      ///< Reweight phase space decays?
   bool     fForceDecays;         ///< force decays of unstable hadrons produced?
