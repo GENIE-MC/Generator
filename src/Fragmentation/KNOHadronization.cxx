@@ -105,17 +105,28 @@ TClonesArray * KNOHadronization::Hadronize(
   //   Two stratefies are considered (for N particles):
   //   1- N (>=2) particles get passed to the phase space decayer. This is the
   //      old NeuGEN strategy.
-  //   2- The generated baryon P4 gets selected from from experimental xF and 
-  //      pT^2 distributions and the remaining N-1 particles are passed to the
-  //      phase space decayer, with P4 = P4(Sum_Hadronic) - P4(Baryon).
-  //      For N=2, the meson P4 would be generated from the baryon P4 and 
-  //      energy/momentrum conservation only. This is decay strategy adopted
-  //      at the July-2006 hadronization model mini-workshop (C.Andreopoulos,
-  //      H.Gallagher, T.Yang)
-
+  //   2- decay strategy adopted at the July-2006 hadronization model mini-workshop 
+  //      (C.Andreopoulos, H.Gallagher, P.Kehayias, T.Yang)
+  //      The generated baryon P4 gets selected from from experimental xF and  pT^2 
+  //      distributions and the remaining N-1 particles are passed to the phase space
+  //      decayer, with P4 = P4(Sum_Hadronic) - P4(Baryon).
+  //      For N=2, generate a phase space decay and keep the solution according to its
+  //      likelihood calculated based on the baryon xF and pT pdfs. Especially for N=2
+  //      keep the option of using simple phase space decay with reweighting switched 
+  //      off (for consistency with the neugen/daikon version).
+  //
   TClonesArray * particle_list = 0;
-  if(fUseBaryonXfPt2Param) particle_list = this->DecayMethod2(W,*pdgcv);
-  else                     particle_list = this->DecayMethod1(W,*pdgcv);
+  bool reweight_decays = fReWeightDecays;
+  if(fUseBaryonXfPt2Param) {
+    bool use_isotropic_decay = (pdgcv->size()==2 && fUseIsotropic2BDecays);
+    if(use_isotropic_decay) {
+       particle_list = this->DecayMethod1(W,*pdgcv,false);
+    } else {
+       particle_list = this->DecayMethod2(W,*pdgcv,reweight_decays);
+    }
+  } else {
+   particle_list = this->DecayMethod1(W,*pdgcv,reweight_decays);
+  }
 
   if(!particle_list) {
     LOG("KNOHad", pNOTICE) 
@@ -415,13 +426,24 @@ void KNOHadronization::LoadConfig(void)
   // bkw/fwd xF hemisphere average multiplicities.
   // Note: not in the legacy KNO model (NeuGEN). Switch this feature off for 
   // comparisons or for reproducing old simulations.
-  fUseBaryonXfPt2Param = fConfig->GetBoolDef("UseBaryon-xF-PT2", true);
+  fUseBaryonXfPt2Param = fConfig->GetBoolDef(
+             "UseBaryonPdfs-xFpT2", gc->GetBool("KNO-UseBaryonPdfs-xFpT2"));
 
   // Reweight the phase space decayer events to reproduce the experimentally
   // measured pT^2 distributions.
   // Note: not in the legacy KNO model (NeuGEN). Switch this feature off for 
   // comparisons or for reproducing old simulations.
-  fReWeightDecays = fConfig->GetBoolDef("PhaseSpace-RewDecays", true);
+  fReWeightDecays = fConfig->GetBoolDef(
+             "PhaseSpDec-Reweight", gc->GetBool("KNO-PhaseSpDec-Reweight"));
+
+  // Parameter for phase space re-weighting. See ReWeightPt2()
+  fPhSpRwA = fConfig->GetDoubleDef(
+      "PhaseSpDec-ReweightParm", gc->GetDouble("KNO-PhaseSpDec-ReweightParm")); 
+
+  // use isotropic non-reweighted 2-body phase space decays for consistency
+  // with neugen/daikon
+  fUseIsotropic2BDecays =fConfig->GetBoolDef(
+             "UseIsotropic2BodyDec", gc->GetBool("KNO-UseIsotropic2BodyDec"));
 
   // Generated weighted or un-weighted hadronic systems?
   fGenerateWeighted = fConfig->GetBoolDef("GenerateWeighted", false);
@@ -457,13 +479,10 @@ void KNOHadronization::LoadConfig(void)
                    "0.049889-0.116769*x-0.033949*x*x+0.146209*x*x*x",-1,0.5);  
   fBaryonPT2pdf = new TF1("fBaryonPT2pdf", "exp(-0.213362-6.62464*x)",0,0.6);  
 
-  // Parameter for phase space re-weighting. See ReWeightPt2()
-
-  fPhSpRwA = fConfig->GetDoubleDef(
-              "PhaseSpace-RewParm", gc->GetDouble("KNO-PhaseSpace-RewParm")); 
 
   // load legacy KNO spline
   fUseLegacyKNOSpline = fConfig->GetBoolDef("UseLegacyKNOSpl", false);
+
 
   if(fUseLegacyKNOSpline) {
      assert(gSystem->Getenv("GENIE"));
@@ -614,7 +633,7 @@ int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
 }
 //____________________________________________________________________________
 TClonesArray * KNOHadronization::DecayMethod1(
-                                     double W, const PDGCodeList & pdgv) const
+               double W, const PDGCodeList & pdgv, bool reweight_decays) const
 {
 // Simple phase space decay including all generated particles.
 // The old NeuGEN decay strategy.
@@ -625,7 +644,7 @@ TClonesArray * KNOHadronization::DecayMethod1(
   TClonesArray * plist = new TClonesArray("TMCParticle", pdgv.size());
 
   // do the decay
-  bool ok = this->PhaseSpaceDecay(*plist, p4had, pdgv, 0, fReWeightDecays); 
+  bool ok = this->PhaseSpaceDecay(*plist, p4had, pdgv, 0, reweight_decays); 
 
   // clean-up and return NULL
   if(!ok) {
@@ -637,7 +656,7 @@ TClonesArray * KNOHadronization::DecayMethod1(
 }
 //____________________________________________________________________________
 TClonesArray * KNOHadronization::DecayMethod2(
-                                     double W, const PDGCodeList & pdgv) const
+               double W, const PDGCodeList & pdgv, bool reweight_decays) const
 {
 // Generate the baryon based on experimental pT^2 and xF distributions
 // Then pass the remaining system of N-1 particles to a phase space decayer.
@@ -726,7 +745,7 @@ TClonesArray * KNOHadronization::DecayMethod2(
     1,baryon,-1,-1,-1, p4N.Px(),p4N.Py(),p4N.Pz(),p4N.Energy(),MN, 0,0,0,0,0);
 
   // Do a phase space decay for the N-1 particles and add them to the list
-  bool ok = this->PhaseSpaceDecay(*plist, p4d, pdgv_strip, 1,fReWeightDecays); 
+  bool ok = this->PhaseSpaceDecay(*plist, p4d, pdgv_strip, 1, reweight_decays); 
 
   // clean-up and return NULL
   if(!ok) {
@@ -813,6 +832,7 @@ bool KNOHadronization::PhaseSpaceDecay(
 // array starting from the slot 'offset'.
 //
   LOG("KNOHad", pINFO) << "*** Performing a Phase Space Decay";
+  LOG("KNOHad", pINFO) << "pT reweighting is " << (reweight ? "on" : "off");
 
   assert ( offset      >= 0);
   assert ( pdgv.size() >  1);
