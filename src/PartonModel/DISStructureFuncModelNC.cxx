@@ -108,7 +108,7 @@ void DISStructureFuncModelNC::Calculate(const Interaction * interaction) const
 
   if(target.HitQrkIsSet()) {
 
-    bool qpdg = target.HitQrkPdg();
+    int  qpdg = target.HitQrkPdg();
     bool sea  = target.HitSeaQrk();
 
     bool isu  = pdg::IsUQuark     (qpdg);
