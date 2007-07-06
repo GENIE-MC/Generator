@@ -46,9 +46,11 @@ ForceDecays                   bool    Yes   force decays of unstable particles  
 Decayer                       alg     Dep   decayer to be used if decayes are forced
 ForceMinMultiplicity          bool    Yes   force a minimum multiplicity of 2             true
 GenerateWeighted              bool    Yes   generate weighted events                      false
-UseBaryon-xF-PT2              bool    Yes   use a baryon pT^2, xF parameterization        true
-PhaseSpace-RewDecays          bool    Yes   reweight decays to to reproduce exp pT2       true
-PhaseSpace-RewParm            double  Yes   parameter controlling the reweight function   GPL KNO-PhaseSpase-RewParm
+UseBaryonPdfs-xFpT2           bool    Yes   use a baryon pT^2, xF parameterization        GPL KNO-UseBaryonPdfs-xFpT2
+UseIsotropic2BodyDec          bool    Yes   use isotropic, non-reweighted 2-body decays   GPL KNO-UseIsotropic2BodyDec
+                                            for compatibility with neuugen/daikon
+PhaseSpDec-Reweight           bool    Yes   reweight decays to to reproduce exp pT2       GPL KNO-PhaseSpDec-Reweight
+PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweight function   GPL KNO-PhaseSpDec-ReweightParm
 -->
 
 <alg_conf>
@@ -61,15 +63,15 @@ PhaseSpace-RewParm            double  Yes   parameter controlling the reweight f
   </param_set>
 
   <param_set name="Old"> 
-     <param type="bool" name="UseBaryon-xF-PT2">      false  </param>
-     <param type="bool" name="PhaseSpace-RewDecays">  false  </param>
+     <param type="bool" name="UseBaryonPdfs-xFpT2">  false  </param>
+     <param type="bool" name="PhaseSpDec-Reweight">  false  </param>
   </param_set>
 
   <param_set name="Old-Decaying"> 
      <param type="bool" name="ForceDecays">           true                            </param>
      <param type="alg"  name="Decayer">               genie::PythiaDecayer/Default    </param>
-     <param type="bool" name="UseBaryon-xF-PT2">      false                           </param>
-     <param type="bool" name="PhaseSpace-RewDecays">  false                           </param>
+     <param type="bool" name="UseBaryonPdfs-xFpT2">   false                           </param>
+     <param type="bool" name="PhaseSpDec-Reweight">   false                           </param>
   </param_set>
 
 </alg_conf>

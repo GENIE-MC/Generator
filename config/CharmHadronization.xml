@@ -14,7 +14,7 @@ Name                          Type    Opt   Comment                             
 
   <param_set name="Default"> 
      <param type="alg"    name="FragmentationFunc">  genie::PetersonFragm/Default </param>
-     <param type="bool"   name="HadronizeRemnants">  true                         </param>
+     <param type="bool"   name="HadronizeRemnants">  false                        </param>
   </param_set>
 
 </alg_conf>
