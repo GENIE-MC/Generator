@@ -341,10 +341,21 @@ Use the "Default" one to get the best GENIE physics & tuning.
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameter controlling the KNO phase space decay reweighting. See: A.B.Clegg, A.Donnachie, 
-  A Description of Jet Structure by pT-limited Phase Space.
+  Parameters controlling whether to reweight the KNO phase space decay reweighting and the actual
+  reweighting function.
+  See: A.B.Clegg, A.Donnachie, A Description of Jet Structure by pT-limited Phase Space.
   -->
-  <param type="double" name="KNO-PhaseSpace-RewParm"> 3.5 </param>
+  <param type="bool"   name="KNO-PhaseSpDec-Reweight">     true </param>
+  <param type="double" name="KNO-PhaseSpDec-ReweightParm"> 3.5  </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters controlling whether to use the baryon xF and pT2 pdfs in the KNO hadronization.
+  The option to use isotropic, non-reweighted 2-body phase space decays is used for compatibility
+  with neugen/daikon.
+  -->
+  <param type="bool" name="KNO-UseBaryonPdfs-xFpT2">  true  </param>
+  <param type="bool" name="KNO-UseIsotropic2BodyDec"> false </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
