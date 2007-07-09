@@ -108,7 +108,7 @@ InteractionList * NuEInteractionListGenerator::NuEELInteractionList(
 
   // CC+NC+interference
   if(nupdg == kPdgNuE  || nupdg == kPdgAntiNuE) { 
-     ProcessInfo   proc_info(kScNuElectronElastic,  kIntWeakCC); // <-note
+     ProcessInfo   proc_info(kScNuElectronElastic,  kIntWeakMix); 
      Interaction * interaction = new Interaction(init, proc_info);
      intlist->push_back(interaction);
   }
