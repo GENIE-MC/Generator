@@ -39,10 +39,11 @@ using std::string;
 
 namespace genie {
 
-const UInt_t kISkipProcessChk     = 1<<17;
-const UInt_t kISkipKinematicChk   = 1<<16;
-const UInt_t kIAssumeFreeNucleon  = 1<<15;
-const UInt_t kIAssumeFreeElectron = 1<<15;
+const UInt_t kISkipProcessChk      = 1<<17;
+const UInt_t kISkipKinematicChk    = 1<<16;
+const UInt_t kIAssumeFreeNucleon   = 1<<15;
+const UInt_t kIAssumeFreeElectron  = 1<<15;
+const UInt_t kINoNuclearCorrection = 1<<14;
 
 class Interaction : public TObject {
 

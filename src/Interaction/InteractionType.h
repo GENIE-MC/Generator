@@ -32,7 +32,8 @@ typedef enum EInteractionType {
   kIntNull   = 0,
   kIntEM,
   kIntWeakCC,
-  kIntWeakNC
+  kIntWeakNC,
+  kIntWeakMix
 
 } InteractionType_t;
 
@@ -46,10 +47,11 @@ public:
   {
     switch (type) {
 
-      case(kIntEM) :     return "EM";        break;
-      case(kIntWeakCC) : return "Weak[CC]";  break;
-      case(kIntWeakNC) : return "Weak[NC]";  break;
-      default :          return "Unknown";   break;
+      case(kIntEM) :      return "EM";                        break;
+      case(kIntWeakCC)  : return "Weak[CC]";                  break;
+      case(kIntWeakNC)  : return "Weak[NC]";                  break;
+      case(kIntWeakMix) : return "Weak[CC+NC+interference]";  break;
+      default :           return "Unknown";                   break;
     }
     return "Unknown";    
   }
