@@ -1,18 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
-\class    genie::BYStructureFuncModel
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         CCLRC, Rutherford Appleton Laboratory - October 03, 2004
 
-\brief    Abstract class. Provides common implementation for concrete
-          DISStructureFuncModelI objects computing the Bodek Yang structure
-          functions.
+ For the class documentation see the corresponding header file.
 
-\ref      hep-ph/0411202
-
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
-
-\created  September 28, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________

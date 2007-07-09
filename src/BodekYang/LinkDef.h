@@ -9,6 +9,6 @@
 #pragma link C++ class genie::BYPDFModel;
 #pragma link C++ class genie::BYStructureFuncModel;
 #pragma link C++ class genie::BYStructureFuncModelCC;
-//#pragma link C++ class genie::BYStructureFuncModelNC;
+#pragma link C++ class genie::BYStructureFuncModelNC;
 
 #endif

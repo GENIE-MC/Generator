@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BYStructureFuncModelCC
+\class    genie::BYStructureFuncModelNC
 
-\brief    Computes CC vN DIS Form Factors according to the Bodek-Yang model.
+\brief    Computes NC vN DIS Form Factors according to the Bodek-Yang model.
           Inherits part of its implemenation from the DISBodekYangFormFactors
           abstract class.
 
@@ -19,20 +19,20 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BODEK_YANG_STRUCTURE_FUNCTIONS_MODEL_CC_H_
-#define _BODEK_YANG_STRUCTURE_FUNCTIONS_MODEL_CC_H_
+#ifndef _BODEK_YANG_STRUCTURE_FUNCTIONS_MODEL_NC_H_
+#define _BODEK_YANG_STRUCTURE_FUNCTIONS_MODEL_NC_H_
 
 #include "BodekYang/BYStructureFuncModel.h"
 
 namespace genie {
 
-class BYStructureFuncModelCC : public BYStructureFuncModel {
+class BYStructureFuncModelNC : public BYStructureFuncModel {
 
 public:
-  BYStructureFuncModelCC();
-  BYStructureFuncModelCC(string config);
-  ~BYStructureFuncModelCC();
+  BYStructureFuncModelNC();
+  BYStructureFuncModelNC(string config);
+  ~BYStructureFuncModelNC();
 };
 
 }         // genie namespace
-#endif    // _BODEK_YANG_STRUCTURE_FUNCTIONS_MODEL_CC_H_
+#endif    // _BODEK_YANG_STRUCTURE_FUNCTIONS_MODEL_NC_H_
