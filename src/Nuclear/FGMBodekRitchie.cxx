@@ -148,13 +148,14 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
 
   //-- create the probability distribution
 
-  TH1D * prob = new TH1D("", "", fNPBins, 0, fPMax);
+  int npbins = (int) 1000*fPMax;
+  TH1D * prob = new TH1D("", "", npbins, 0, fPMax);
 
-  double dp = fPMax / (fNPBins-1);
+  double dp = fPMax / (npbins-1);
   double iC = (C>0) ? 1./C : 0.;
   double kfa_pi_2 = TMath::Power(KF*a/kPi,2);
 
-  for(int i = 0; i < fNPBins; i++) {
+  for(int i = 0; i < npbins; i++) {
      double p  = i * dp;
      double p2 = TMath::Power(p,2);
 
@@ -201,13 +202,12 @@ void FGMBodekRitchie::LoadConfig(void)
   fKFTable = fConfig->GetStringDef ("FermiMomentumTable", 
                                     gc->GetString("FermiMomentumTable"));
 
-  fNPBins  = fConfig->GetIntDef    ("MomentumNumBins",  400);
-  fPMax    = fConfig->GetDoubleDef ("MomentumMax",     10.0);
+  fPMax    = fConfig->GetDoubleDef ("MomentumMax", 1.0);
 
   fPCutOff = fConfig->GetDoubleDef ("MomentumCutOff",  
                                     gc->GetDouble("RFG-MomentumCutOff"));
 
-  assert(fNPBins > 1 && fPMax > 0 && fPCutOff > 0 && fPCutOff < fPMax);
+  assert(fPMax > 0 && fPCutOff > 0 && fPCutOff < fPMax);
 
   // Load removal energy for specific nuclei from either the algorithm's
   // configuration file or the UserPhysicsOptions file.
