@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "BodekYang/BYStructureFuncModelCC.h"
+#include "BodekYang/BYStructureFuncModelNC.h"
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
 #include "PDF/PDF.h"
@@ -25,19 +25,19 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-BYStructureFuncModelCC::BYStructureFuncModelCC() :
-BYStructureFuncModel("genie::BYStructureFuncModelCC")
+BYStructureFuncModelNC::BYStructureFuncModelNC() :
+BYStructureFuncModel("genie::BYStructureFuncModelNC")
 {
 
 }
 //____________________________________________________________________________
-BYStructureFuncModelCC::BYStructureFuncModelCC(string config):
-BYStructureFuncModel("genie::BYStructureFuncModelCC", config)
+BYStructureFuncModelNC::BYStructureFuncModelNC(string config):
+BYStructureFuncModel("genie::BYStructureFuncModelNC", config)
 {
 
 }
 //____________________________________________________________________________
-BYStructureFuncModelCC::~BYStructureFuncModelCC()
+BYStructureFuncModelNC::~BYStructureFuncModelNC()
 {
 
 }
