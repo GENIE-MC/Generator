@@ -175,6 +175,16 @@ double genie::utils::kinematics::Jacobian(
   {
     J = Jacobian(i,kPSW2Q2fE,kPSxyfE)/kine.Q2();
   } 
+  // ****** transformation: {W,Q2}|E -> {x,y}|E
+  else if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSxyfE,forward) ) 
+  {
+    const InitialState & init_state = i->InitState();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double M  = init_state.Tgt().HitNucP4Ptr()->M(); 
+    double y  = kine.y();
+    double W  = kine.W();
+    J = 2*TMath::Power(M*Ev,2) * y/W;
+  } 
   else {
      SLOG("KineLimits", pFATAL) 
        << "*** Can not compute Jacobian for transforming: "
