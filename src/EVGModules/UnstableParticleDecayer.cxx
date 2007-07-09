@@ -164,14 +164,12 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
     if(utils::res::IsBaryonResonance(pdg_code)) return true;
 
   } else {
-    /* run before the hadron transport MC */
+    /* run after the hadron transport MC - decay particles with ct<~0.1mm*/   
     int particles_to_decay[] = {
           kPdgPi0, 
           kPdgEta, kPdgEtaPrm, 
           kPdgRho0, kPdgRhoP, kPdgRhoM,
-          kPdgomega,kPdgPhi,
-          kPdgDP, kPdgDM, kPdgD0, kPdgAntiD0, kPdgDPs, kPdgDMs,
-          kPdgLambdaPc, kPdgSigmaPc, kPdgSigmaPPc };
+          kPdgomega,kPdgPhi };
 
     const int N = sizeof(particles_to_decay) / sizeof(int);
     int matches = count(particles_to_decay, particles_to_decay+N, pdg_code);
