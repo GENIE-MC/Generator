@@ -17,10 +17,6 @@
 #pragma link C++ class genie::FragmentationFunctionI;
 #pragma link C++ class genie::PetersonFragm;
 #pragma link C++ class genie::CollinsSpillerFragm;
-
-#pragma link C++ class genie::CharmFractionTablePool;
-#pragma link C++ class genie::CharmFractionTable;
-
 #pragma link C++ function genie::utils::frgmfunc::peterson_func;
 #pragma link C++ function genie::utils::frgmfunc::collins_spiller_func;
 
