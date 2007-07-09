@@ -85,6 +85,7 @@
    <config alg="genie::DISStructureFuncModelCC">     DISStructureFuncModelCC.xml     </config>
    <config alg="genie::DISStructureFuncModelNC">     DISStructureFuncModelNC.xml     </config>
    <config alg="genie::BYStructureFuncModelCC">      BYStructureFuncModelCC.xml      </config>
+   <config alg="genie::BYStructureFuncModelNC">      BYStructureFuncModelNC.xml      </config>
    <config alg="genie::RSHelicityAmplModelCC">       RSHelicityAmplModelCC.xml       </config>
    <config alg="genie::RSHelicityAmplModelNCp">      RSHelicityAmplModelNCp.xml      </config>
    <config alg="genie::RSHelicityAmplModelNCn">      RSHelicityAmplModelNCn.xml      </config>
