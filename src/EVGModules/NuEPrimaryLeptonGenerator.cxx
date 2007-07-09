@@ -63,42 +63,12 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   int pdgc = interaction->FSPrimLeptonPdg();
   assert(pdgc!=0);
 
-/*
-  original code for IMD - that code is generalized
-  below to handle all ve-
-
-  // Compute the neutrino and muon energy
-  double Ev    = init_state.ProbeE(kRfLab); 
-  double Emu   = (1-y)*Ev;
-
-  // Compute the momentum transfer and scattering angle
-  double Emu2  = TMath::Power(Emu,2);
-  double me    = kElectronMass;
-  double mmu2  = kMuonMass2;
-  double pmu   = TMath::Sqrt(Emu2-mmu2);   
-  
-  assert(Emu2>=mmu2);
-
-  double Q2    = 2*(Ev-Emu)*me;
-  double costh = (Emu-0.5*(Q2+mmu2)/Ev)/pmu;
-  double sinth = TMath::Sqrt( TMath::Max(0., 1-TMath::Power(costh,2.)) );
-
-  //warn about overflow in costheta and ignore it if it is small or abort
-  if( TMath::Abs(costh)>1 ) {
-     LOG("LeptonicVertex", pWARN)
-       << "El = " << Emu << ", Ev = " << Ev << ", cos(theta) = " << costh;
-     if(TMath::Abs(costh)-1<0.3) costh = 1.0; //why?
-  }
-  assert(TMath::Abs(costh)<=1);
-
-  // Compute the p components along and perpendicular the v direction 
-  double plp = pmu * costh; // p(//)
-  double plt = pmu * sinth; // p(-|)
-*/
-
   // Compute the neutrino and muon energy
   double Ev  = init_state.ProbeE(kRfLab); 
   double El  = (1-y)*Ev;
+
+  LOG("LeptonicVertex", pINFO)
+       << "Ev = " << Ev << ", y = " << y << ", -> El = " << El;
 
   // Compute the momentum transfer and scattering angle
   double El2   = TMath::Power(El,2);
@@ -112,6 +82,9 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double Q2    = 2*(Ev-El)*me;
   double costh = (El-0.5*(Q2+ml2)/Ev)/pl;
   double sinth = TMath::Sqrt( TMath::Max(0., 1-TMath::Power(costh,2.)) );
+
+  LOG("LeptonicVertex", pNOTICE)
+       << "Q2 = " << Q2 << ", cos(theta) = " << costh;
 
   //warn about overflow in costheta and ignore it if it is small or abort
   if( TMath::Abs(costh)>1 ) {
