@@ -52,7 +52,6 @@ private:
 
   map<int, double> fNucRmvE;
 
-  int    fNPBins;
   double fPMax;
   double fPCutOff;
   string fKFTable;
