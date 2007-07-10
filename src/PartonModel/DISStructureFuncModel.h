@@ -12,6 +12,9 @@
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
 
+          Adapted from neugen 3.
+          Primary authors: D.Naples (Pittsburgh U.), H.Gallagher (Tufts U)
+
 \created  May 03, 2004
 
 \cpright  Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
@@ -63,19 +66,10 @@ protected:
   virtual void   CalcPDFs   (const Interaction * i) const;
   virtual double NuclMod    (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
-  virtual void   QQBar      (const Interaction * i, double & q, double & qbar) const;
   virtual void   KFactors   (const Interaction * i, double & kuv, 
                                      double & kdv, double & kus, double & kds) const;
-
-  mutable double fF1;
-  mutable double fF2;
-  mutable double fF3;
-  mutable double fF4;
-  mutable double fF5;
-  mutable double fF6;
-
-  PDF *  fPDF;           ///< computed PDFs @ (x,Q2)
-  PDF *  fPDFc;          ///< computed PDFs @ (slow-rescaling-var,Q2)
+  // configuration
+  //
   double fQ2min;         ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
   bool   fCharmOff;      ///< turn charm production off?
   bool   fIncludeR;      ///< include R (~FL) in DIS SF calculation?
@@ -89,6 +83,32 @@ protected:
   double fVcs2;          ///<
   double fVud2;          ///<
   double fVus2;          ///<
+  double fSin2thw;       ///<
+
+  mutable double fF1;
+  mutable double fF2;
+  mutable double fF3;
+  mutable double fF4;
+  mutable double fF5;
+  mutable double fF6;
+  PDF *  fPDF;           ///< computed PDFs @ (x,Q2)
+  PDF *  fPDFc;          ///< computed PDFs @ (slow-rescaling-var,Q2)
+  mutable double fuv;
+  mutable double fus; 
+  mutable double fdv; 
+  mutable double fds; 
+  mutable double fs;
+  mutable double fuv_c; 
+  mutable double fus_c; 
+  mutable double fdv_c;
+  mutable double fds_c;
+  mutable double fs_c; 
+  mutable double fc_c; 
+  mutable double fu;
+  mutable double fd; 
+  mutable double fu_c;
+  mutable double fd_c;
+
 };
 
 }         // genie namespace
