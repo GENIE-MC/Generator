@@ -9,8 +9,6 @@ Configurable Parameters:
 ....................................................................................
 Name           Type     Optional   Comment                 Default
 ....................................................................................
-CA             double   Yes                                GPL: NuElecEL-CA
-CV             double   Yes                                GPL: NuElecEL-CV
 -->
 
   <param_set name="Default"> 
