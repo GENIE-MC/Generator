@@ -45,11 +45,13 @@ private:
 
   void LoadConfigData(void);
 
-  InteractionList * CreateInteractionListCC(const InitialState & init) const;
-  InteractionList * CreateInteractionListNC(const InitialState & init) const;
+  InteractionList * CreateInteractionListCC      (const InitialState & init) const;
+  InteractionList * CreateInteractionListNC      (const InitialState & init) const;
+  InteractionList * CreateInteractionListCharmCC (const InitialState & init) const;
 
   bool fIsCC;
   bool fIsNC;
+  bool fIsCharm;
 };
 
 }      // genie namespace

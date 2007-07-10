@@ -35,9 +35,8 @@ public :
   void ProcessEventRecord (GHepRecord * event_rec) const;
 
 private:
-  void AddRecoilNucleon (GHepRecord * event_rec) const;
+  void AddRecoilBaryon    (GHepRecord * event_rec) const;
 };
 
 }      // genie namespace
-
 #endif // _QEL_HADRONIC_SYSTEM_GENERATOR_H_
