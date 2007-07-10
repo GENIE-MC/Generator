@@ -147,11 +147,8 @@ Use the "Default" one to get the best GENIE physics & tuning.
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Cv and Ca parameters for neutrino-electron elastic scattering 
+  Parameters for neutrino-electron elastic scattering 
   -->
-  <param type="double" name="NuElecEL-CV"> -0.52 </param>
-  <param type="double" name="NuElecEL-CA">  0.06 </param>
-
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -468,6 +465,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">       genie::ReinSeghalCOHPXSec/Default     </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD">          genie::BardinIMDRadCorPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">       genie::NuElectronPXSec/Default        </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-CHARM"> genie::KovalenkoQELCharmPXSec/Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM"> genie::AivazisCharmPXSecLO/CC-Default </param>
 
  <!-- 
