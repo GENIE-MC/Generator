@@ -117,11 +117,20 @@ Integrand_D2XSec_DWDQ2_E::~Integrand_D2XSec_DWDQ2_E()
 //____________________________________________________________________________
 double Integrand_D2XSec_DWDQ2_E::operator() (const vector<double> & p)
 {
-  //-- set the kinematical peters
+  //-- set the kinematical parameters
   double W  = p[0];
   double Q2 = p[1];
   fInteraction->KinePtr()->SetW(W);
   fInteraction->KinePtr()->SetQ2(Q2);
+
+  if(fInteraction->ProcInfo().IsDeepInelastic()) {
+    double x=0,y=0;
+    double E = fInteraction->InitState().ProbeE(kRfHitNucRest);
+    double M = fInteraction->InitState().Tgt().HitNucP4Ptr()->M();
+    kinematics::WQ2toXY(E,M,W,Q2,x,y);
+    fInteraction->KinePtr()->Setx(x);
+    fInteraction->KinePtr()->Sety(y);
+  }
 
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSWQ2fE);
@@ -143,7 +152,7 @@ Integrand_DXSec_Dy_E::~Integrand_DXSec_Dy_E()
 //____________________________________________________________________________
 double Integrand_DXSec_Dy_E::operator() (const vector<double> & p)
 {
-  //-- set the kinematical peters
+  //-- set the kinematical parameters
   double y = p[0];
   fInteraction->KinePtr()->Sety(y);
 
@@ -170,7 +179,7 @@ Integrand_D2XSec_DxDy_Ex::~Integrand_D2XSec_DxDy_Ex()
 //____________________________________________________________________________
 double Integrand_D2XSec_DxDy_Ex::operator() (const vector<double> & p)
 {
-  //-- set the kinematical peters
+  //-- set the kinematical parameters
   double y = p[0];
 
   fInteraction->KinePtr()->Setx(fx);
@@ -196,7 +205,7 @@ Integrand_D2XSec_DxDy_Ey::~Integrand_D2XSec_DxDy_Ey()
 //____________________________________________________________________________
 double Integrand_D2XSec_DxDy_Ey::operator() (const vector<double> & p)
 {
-  //-- set the kinematical peters
+  //-- set the kinematical parameters
   double x = p[0];
 
   fInteraction->KinePtr()->Setx(x);
@@ -222,7 +231,7 @@ Integrand_D2XSec_DWDQ2_EW::~Integrand_D2XSec_DWDQ2_EW()
 //____________________________________________________________________________
 double Integrand_D2XSec_DWDQ2_EW::operator() (const vector<double> & p)
 {
-  //-- set the kinematical peters
+  //-- set the kinematical parameters
   double Q2 = p[0];
 
   fInteraction->KinePtr()->SetW(fW);
@@ -248,7 +257,7 @@ Integrand_D2XSec_DWDQ2_EQ2::~Integrand_D2XSec_DWDQ2_EQ2()
 //____________________________________________________________________________
 double Integrand_D2XSec_DWDQ2_EQ2::operator() (const vector<double> & p)
 {
-  //-- set the kinematical peters
+  //-- set the kinematical parameters
   double W = p[0];
 
   fInteraction->KinePtr()->SetW(W);

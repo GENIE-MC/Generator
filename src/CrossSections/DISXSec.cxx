@@ -57,24 +57,38 @@ double DISXSec::Integrate(
      return 0;
   }
 
+  Interaction * interaction = new Interaction(*in);
+
+  interaction->SetBit(kISkipProcessChk);
+  //interaction->SetBit(kISkipKinematicChk);
+
+  interaction->SetBit(kINoNuclearCorrection);
+
+  Range1D_t Wl  = kps.WLim();
+  Range1D_t Q2l = kps.Q2Lim();
+  LOG("DISXSec", pINFO)  
+            << "W integration range = [" << Wl.min << ", " << Wl.max << "]";
+  LOG("DISXSec", pINFO)  
+         << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
+
+  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
+  func->SetParam(0,"W", Wl);
+  func->SetParam(1,"Q2",Q2l);
+  double xsec = fIntegrator->Integrate(*func);
+
+/*
   Range1D_t xl = kps.Limits(kKVx);
   Range1D_t yl = kps.Limits(kKVy);
-
   LOG("DISXSec", pINFO)  
             << "x integration range = [" << xl.min << ", " << xl.max << "]";
   LOG("DISXSec", pINFO)  
             << "y integration range = [" << yl.min << ", " << yl.max << "]";
 
-  Interaction * interaction = new Interaction(*in);
-  interaction->SetBit(kISkipProcessChk);
-  //interaction->SetBit(kISkipKinematicChk);
-
   GXSecFunc * func = new Integrand_D2XSec_DxDy_E(model, interaction);
-
   func->SetParam(0,"x",xl);
   func->SetParam(1,"y",yl);
   double xsec = fIntegrator->Integrate(*func);
-
+*/
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfHitNucRest);
   LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
