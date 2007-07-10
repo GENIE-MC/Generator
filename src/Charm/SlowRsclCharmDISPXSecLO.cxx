@@ -75,12 +75,12 @@ double SlowRsclCharmDISPXSecLO::XSec(
   bool isP  = pdg::IsProton (nuc);
   bool isN  = pdg::IsNeutron(nuc);
   bool qset = target.HitQrkIsSet();
-  int  qpdg = (qset) ? target.HitQrkPdg()   : 0;
-  bool sea  = (qset) ? target.HitSeaQrk()   : false;
-  bool isd  = (qset) ? pdg::IsDQuark (qpdg) : false;
-  bool iss  = (qset) ? pdg::IsSQuark (qpdg) : false;
-
-  if (pdg::IsAntiQuark(qpdg)) return 0.; // prevent qbar -> charm
+  int  qpdg = (qset) ? target.HitQrkPdg()       : 0;
+  bool sea  = (qset) ? target.HitSeaQrk()       : false;
+  bool isd  = (qset) ? pdg::IsDQuark (qpdg)     : false;
+  bool iss  = (qset) ? pdg::IsSQuark (qpdg)     : false;
+  bool isdb = (qset) ? pdg::IsAntiDQuark (qpdg) : false;
+  bool issb = (qset) ? pdg::IsAntiSQuark (qpdg) : false;
 
   //----- compute kinematic & auxiliary parameters
   double Mnuc2 = TMath::Power(Mnuc, 2);
@@ -113,9 +113,9 @@ double SlowRsclCharmDISPXSecLO::XSec(
 
   //----- if a hit quark has been set then switch off other contributions
   if(qset) {
-    dv = ( isd && !sea) ? dv : 0.;
-    ds = ( isd &&  sea) ? ds : 0.;
-    s  = ( iss &&  sea) ? s  : 0.;
+    dv = (  isd        && !sea) ? dv : 0.;
+    ds = ( (isd||isdb) &&  sea) ? ds : 0.;
+    s  = ( (iss||issb) &&  sea) ? s  : 0.;
   }
 
   //----- calculate cross section
