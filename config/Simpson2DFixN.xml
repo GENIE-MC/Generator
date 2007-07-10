@@ -54,5 +54,12 @@ Name             Type     Optional   Comment               Default
      <param type="int"    name="NBinsDim1">      51   </param>
   </param_set>
 
+  <param_set name="DIS"> 
+     <param type="bool"   name="InLogeDim0">   true  </param>
+     <param type="bool"   name="InLogeDim1">   true  </param>
+     <param type="int"    name="NBinsDim0">      51   </param>
+     <param type="int"    name="NBinsDim1">     201   </param>
+  </param_set>
+
 </alg_conf>
 
