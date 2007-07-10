@@ -23,5 +23,8 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
   <param_set name="NC-Default"> 
   </param_set>
 
+  <param_set name="CC-Charm-Default"> 
+  </param_set>
+
 </alg_conf>
 

@@ -25,9 +25,20 @@ Name                        Type    Opt  Comment                                
      <param type="alg" name="Generator-9">   genie::EventGenerator/DIS-CC-CHARM </param>
   </param_set>
 
-  <param_set name="Charm"> 
+  <param_set name="DIS-CHARM"> 
      <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DIS-CC-CHARM </param>
+  </param_set>
+
+  <param_set name="QEL-CHARM"> 
+     <param type="int" name="NGenerators">   1                                  </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC-CHARM </param>
+  </param_set>
+
+  <param_set name="CHARM"> 
+     <param type="int" name="NGenerators">   2                                  </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC-CHARM </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/DIS-CC-CHARM </param>
   </param_set>
 
   <param_set name="IMD"> 
