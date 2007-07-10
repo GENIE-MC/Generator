@@ -29,25 +29,11 @@ namespace genie {
 class DISStructureFuncModelNC : public DISStructureFuncModel {
 
 public:
-
   DISStructureFuncModelNC();
   DISStructureFuncModelNC(string config);
   virtual ~DISStructureFuncModelNC();
-
-  //-- DISStructureFuncModelI interface implementation
-
-  // override just this interface method and take any other implementation
-  // from DISStructureFuncModel
-  void Calculate(const Interaction * interaction) const;
-
-private:
-
-  void LoadConfig();
-
-  double fSin2thw;
 };
 
 }         // genie namespace
-
 #endif    // _DIS_STRUCTURE_FUNC_MODEL_NC_H_
 

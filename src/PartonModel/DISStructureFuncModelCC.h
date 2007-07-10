@@ -33,6 +33,5 @@ public:
 };
 
 }         // genie namespace
-
 #endif    // _DIS_STRUCTURE_FUNC_MODEL_CC_H_
 
