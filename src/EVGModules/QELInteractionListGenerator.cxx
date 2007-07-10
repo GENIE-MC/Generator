@@ -47,8 +47,12 @@ InteractionList * QELInteractionListGenerator::CreateInteractionList(
   LOG("InteractionList", pINFO)
                           << "InitialState = " << init_state.AsString();
 
-  if      (fIsCC) return this->CreateInteractionListCC(init_state);
-  else if (fIsNC) return this->CreateInteractionListNC(init_state);
+  if      (fIsCC && !fIsCharm) 
+                return this->CreateInteractionListCC(init_state);
+  else if (fIsNC && !fIsCharm) 
+                return this->CreateInteractionListNC(init_state);
+  else if (fIsCC &&  fIsCharm) 
+                return this->CreateInteractionListCharmCC(init_state);
   else {
      LOG("InteractionList", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "
@@ -143,6 +147,56 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
   return intlist;
 }
 //___________________________________________________________________________
+InteractionList * 
+  QELInteractionListGenerator::CreateInteractionListCharmCC(
+                                      const InitialState & init_state) const
+{
+  //   vl + n --> l- + Lambda_{c}^{+} (2285)
+  //   vl + n --> l- + Sigma_{c}^{+}  (2455)
+  //   vl + p --> l- + Sigma_{c}^{++} (2455)
+
+  int  nupdg = init_state.ProbePdg();
+  bool isnu = pdg::IsNeutrino(nupdg);
+  if(!isnu) {
+     LOG("InteractionList", pERROR)
+       << "Returning NULL InteractionList for init-state: "
+                                                  << init_state.AsString();
+     return 0;
+  }
+
+  const int nch = 3;
+  int nuclpdg [nch] = { kPdgNeutron,  kPdgNeutron, kPdgProton   };
+  int charmpdg[nch] = { kPdgLambdaPc, kPdgSigmaPc, kPdgSigmaPPc };
+
+  InteractionList * intlist = new InteractionList;
+
+  for(int i=0; i<nch; i++) {
+
+     ProcessInfo   proc_info(kScQuasiElastic, kIntWeakCC);
+     Interaction * interaction = new Interaction(init_state, proc_info);
+
+     Target * target  = interaction->InitStatePtr()->TgtPtr();
+     bool hasP = (target->Z() > 0);
+     bool hasN = (target->N() > 0);
+
+     XclsTag * xcls = interaction->ExclTagPtr();
+
+     if(nuclpdg[i] == kPdgProton  && !hasP) {
+       delete interaction;
+       continue;
+     }
+     if(nuclpdg[i] == kPdgNeutron  && !hasN) {
+       delete interaction;
+       continue;
+     }
+     target->SetHitNucPdg(nuclpdg[i]);
+     xcls->SetCharm(charmpdg[i]);
+
+     intlist->push_back(interaction);
+  }
+  return intlist;
+}
+//____________________________________________________________________________
 void QELInteractionListGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -157,8 +211,9 @@ void QELInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void QELInteractionListGenerator::LoadConfigData(void)
 {
-  fIsCC = fConfig->GetBoolDef("is-CC", false);
-  fIsNC = fConfig->GetBoolDef("is-NC", false);
+  fIsCC    = fConfig->GetBoolDef("is-CC",    false);
+  fIsNC    = fConfig->GetBoolDef("is-NC",    false);
+  fIsCharm = fConfig->GetBoolDef("is-Charm", false);
 }
 //____________________________________________________________________________
 

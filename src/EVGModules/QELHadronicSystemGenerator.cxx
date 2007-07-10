@@ -51,25 +51,31 @@ void QELHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   nucleus at the EventRecord
   this->AddTargetNucleusRemnant(evrec);
 
-  //-- Add the recoil nucleon
+  //-- Add the recoil baryon 
+  //   (p or n - Lambda_c+,Sigma_c+,Sigma_c++ in charm/QEL)
   //   Its 4-momentum is computed by requiring the energy + momentum to be
   //   conserved.
-  this->AddRecoilNucleon(evrec);
+  this->AddRecoilBaryon(evrec);
 }
 //___________________________________________________________________________
-void QELHadronicSystemGenerator::AddRecoilNucleon(GHepRecord * evrec) const
+void QELHadronicSystemGenerator::AddRecoilBaryon(GHepRecord * evrec) const
 {
-  //-- Determine the pdg & status code of the recoil nucleon
+  //-- Determine the pdg & status code of the recoil baryon
   Interaction * interaction = evrec->Summary();
+  const XclsTag & xcls = interaction->ExclTag();
+  int pdgc = 0;
+  if(xcls.IsCharmEvent()) { pdgc = xcls.CharmHadronPdg();           }
+  else                    { pdgc = interaction->RecoilNucleonPdg(); }
+  assert(pdgc!=0);
+
+  //-- Determine the status code
   const Target & tgt = interaction->InitState().Tgt();
-  int pdgc = interaction->RecoilNucleonPdg();
   GHepStatus_t ist = (tgt.IsNucleus()) ?
-                           kIStHadronInTheNucleus : kIStStableFinalState;
+                          kIStHadronInTheNucleus : kIStStableFinalState;
 
   //-- Get the vtx position
   GHepParticle * neutrino  = evrec->Probe();
   const TLorentzVector & vtx = *(neutrino->X4());
-
 
   //-- Get nucleon 4-momentum (in the LAB frame) & position
   TLorentzVector p4 = this->Hadronic4pLAB(evrec);
@@ -77,11 +83,14 @@ void QELHadronicSystemGenerator::AddRecoilNucleon(GHepRecord * evrec) const
   //-- Get mother position
   int mom = evrec->HitNucleonPosition();
 
-  //-- Add the final state recoil nucleon at the EventRecord
-  LOG("QELHadronicVtx", pINFO) << "Adding nucleon [pdgc = " << pdgc << "]";
+  //-- Add the final state recoil baryon at the EventRecord
+  LOG("QELHadronicVtx", pINFO) 
+      << "Adding recoil baryon [pdgc = " << pdgc << "]";
 
   GHepParticle p(pdgc, ist, mom,-1,-1,-1, p4, vtx);
-  p.SetRemovalEnergy(evrec->Particle(mom)->RemovalEnergy());
+  double w = xcls.IsCharmEvent() ? 
+                0. : evrec->Particle(mom)->RemovalEnergy();
+  p.SetRemovalEnergy(w);
   evrec->AddParticle(p);
 }
 //___________________________________________________________________________
