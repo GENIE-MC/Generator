@@ -20,7 +20,7 @@
 -->
 
   <param_set name="Default"> 
-     <param type="alg" name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param>
+     <param type="alg" name="Integrator">   genie::Simpson2DFixN/DIS </param>
   </param_set>
 
 </alg_conf>
