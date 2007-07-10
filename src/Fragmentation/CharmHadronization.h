@@ -30,6 +30,7 @@ class TF1;
 
 namespace genie {
 
+class Spline;
 class FragmentationFunctionI;
 
 class CharmHadronization : public HadronizationModelI {
@@ -56,13 +57,18 @@ public:
 private:
 
   void LoadConfig          (void);
-  int  GenerateCharmHadron (double Ev) const;
+  int  GenerateCharmHadron (int nupdg, double EvLab) const;
 
   // Configuration parameters
   //
   bool                           fCharmOnly;   ///< don't hadronize non-charm blob
   TF1 *                          fCharmPT2pdf; ///< charm hadron pT^2 pdf
   const FragmentationFunctionI * fFragmFunc;   ///< charm hadron fragmentation func
+  Spline *                       fD0FracSpl;   ///< nu charm fraction vs Ev: D0
+  Spline *                       fDpFracSpl;   ///< nu charm fraction vs Ev: D+
+  Spline *                       fDsFracSpl;   ///< nu charm fraction vs Ev: Ds+
+  double                         fD0BarFrac;   ///< nubar \bar{D0} charm fraction
+  double                         fDmFrac;      ///< nubar D- charm fraction
   mutable TPythia6 *             fPythia;      ///< remnant (non-charm) hadronizer
 };
 
