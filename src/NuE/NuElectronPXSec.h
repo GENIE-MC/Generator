@@ -12,8 +12,8 @@
 
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
-\ref      W.Greiner and B.Muller, Gauge Theory of Weak  Interactions, Springer
-          F.Halzen and A.Martin, Quarks and Leptons, J.Wiley
+\ref      W.J.Marciano and Z.Parsa, Neutrino-electron scattering theory,
+          J.Phys.G: Nucl.Part.Phys. 29 (2003) 2629-2645
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           CCLRC, Rutherford Appleton Laboratory
@@ -59,8 +59,8 @@ private:
 
   const XSecIntegratorI * fXSecIntegrator;
 
-  double fCv;
-  double fCa;
+  double fSin28w; // sin^2(theta-weinberg)
+  double fSin48w; 
 };
 
 }       // genie namespace

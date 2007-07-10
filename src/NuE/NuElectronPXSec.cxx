@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/Controls.h"
 #include "Base/XSecIntegratorI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
@@ -25,6 +26,7 @@
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::controls;
 
 //____________________________________________________________________________
 NuElectronPXSec::NuElectronPXSec() :
@@ -55,48 +57,66 @@ double NuElectronPXSec::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   const ProcessInfo &  proc_info  = interaction -> ProcInfo();
 
-  double E     = init_state.ProbeE(kRfLab);
-  double s     = 2*kElectronMass*E;
-  double y     = kinematics.y();
-  double ydep  = TMath::Power(1.-y,2.);
-  double C     = 0.25 * (kGF2*s/kPi);
-  double m2    = kElectronMass2;
-  double mterm = -0.5*s*kGF2*m2*y*(fCv*fCv-fCa*fCa)/kPi; // small if m2/s<<1
+  double Ev = init_state.ProbeE(kRfLab);
+  double me = kElectronMass;
+  double s  = 2*me*Ev;
+  double y  = kinematics.y();
+  double A  = kGF2*s/kPi;
+
+  if(y > 1/(1+0.5*me/Ev)) return 0;
+  if(y < 0) return 0;
 
   double xsec = 0; // <-- dxsec/dy
 
   int inu = init_state.ProbePdg();
 
   // nue + e- -> nue + e- [CC + NC + interference]
-  if(pdg::IsNuE(inu))
-    xsec = C*(TMath::Power(fCv+fCa+2,2) + 
-                                   TMath::Power(fCv-fCa,2) * ydep) + mterm;
+  if(pdg::IsNuE(inu)) 
+  {
+    double em = -0.5 - fSin28w;
+    double ep = -fSin28w;
+    xsec = TMath::Power(em,2) + TMath::Power(ep*(1-y),2) - ep*em*me*y/Ev;
+    xsec *= A;
+  }
 
   // nuebar + e- -> nue + e- [CC + NC + interference]
-  if(pdg::IsAntiNuE(inu))
-    xsec = C*(TMath::Power(fCv-fCa,2) + 
-                                 TMath::Power(fCv+fCa+2,2) * ydep) + mterm;
+  if(pdg::IsAntiNuE(inu)) 
+  {
+    double em = -0.5 - fSin28w;
+    double ep = -fSin28w;
+    xsec = TMath::Power(ep,2) + TMath::Power(em*(1-y),2) - ep*em*me*y/Ev;
+    xsec *= A;
+  }
 
   // numu/nutau + e- -> numu/nutau + e- [NC]
-  if( (pdg::IsNuMu(inu)||pdg::IsNuTau(inu)) && proc_info.IsWeakNC() )
-    xsec = C*(TMath::Power(fCv+fCa,2) + 
-                                   TMath::Power(fCv-fCa,2) * ydep) + mterm;
+  if( (pdg::IsNuMu(inu)||pdg::IsNuTau(inu)) && proc_info.IsWeakNC() ) 
+  {
+    double em = 0.5 - fSin28w;
+    double ep = -fSin28w;
+    xsec = TMath::Power(em,2) + TMath::Power(ep*(1-y),2) - ep*em*me*y/Ev;
+    xsec *= A;
+  }
 
   // numubar/nutaubar + e- -> numubar/nutaubar + e- [NC]
   if( (pdg::IsAntiNuMu(inu)||pdg::IsAntiNuTau(inu)) && proc_info.IsWeakNC() )
-    xsec = C*(TMath::Power(fCv-fCa,2) + 
-                                   TMath::Power(fCv+fCa,2) * ydep) + mterm;
+  {
+    double em = 0.5 - fSin28w;
+    double ep = -fSin28w;
+    xsec = TMath::Power(ep,2) + TMath::Power(em*(1-y),2) - ep*em*me*y/Ev;
+    xsec *= A;
+  }
 
   // numu/nutau + e- -> l- + nu_e [CC}
-  if( (pdg::IsNuMu(inu)||pdg::IsNuTau(inu)) && proc_info.IsWeakCC() ) {
+  if( (pdg::IsNuMu(inu)||pdg::IsNuTau(inu)) && proc_info.IsWeakCC() ) xsec=0;
+/*
     double ml  = (pdg::IsNuMu(inu)) ? kMuonMass : kTauMass;
     double ml2 = TMath::Power(ml,2);
     xsec = (kGF2*s/kPi)*(1-ml2/s);
     xsec = TMath::Max(0.,xsec); // if s<ml2 => xsec<0 : force to xsec=0
-  }
+*/
 
   LOG("Elastic", pDEBUG)
-     << "*** dxsec(ve-)/dy [free e-](E="<< E << ", y= "<< y<< ") = "<< xsec;
+    << "*** dxsec(ve-)/dy [free e-](Ev="<< Ev << ", y= "<< y<< ") = "<< xsec;
 
   //----- The algorithm computes dxsec/dy
   //      Check whether variable tranformation is needed
@@ -150,8 +170,14 @@ void NuElectronPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fCv = fConfig->GetDoubleDef("CV", gc->GetDouble("NuElecEL-CV"));
-  fCa = fConfig->GetDoubleDef("CA", gc->GetDouble("NuElecEL-CA"));
+//  fCv = fConfig->GetDoubleDef("CV", gc->GetDouble("NuElecEL-CV"));
+//  fCa = fConfig->GetDoubleDef("CA", gc->GetDouble("NuElecEL-CA"));
+
+  // weinberg angle
+  double thw = fConfig->GetDoubleDef(
+                          "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
+  fSin28w = TMath::Power(TMath::Sin(thw), 2);
+  fSin48w = TMath::Power(TMath::Sin(thw), 4);
 
   // load XSec Integrator
   fXSecIntegrator =
