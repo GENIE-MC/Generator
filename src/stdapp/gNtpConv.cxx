@@ -540,7 +540,7 @@ void ConvertToT2KStdGenNtp(void)
   double brPxl        = 0;      // Final state primary lepton px
   double brPyl        = 0;      // Final state primary lepton py
   double brPzl        = 0;      // Final state primary lepton pz 
-  int    brNfP        = 0;      // Number of final state p's + \bar{p}'s
+  int    brNfP        = 0;      // Number of final state p's + \bar{p}'s (after intranuclear rescattering)
   int    brNfN        = 0;      // Number of final state n's + \bar{n}'s
   int    brNfPip      = 0;      // Number of final state pi+'s
   int    brNfPim      = 0;      // Number of final state pi-'s
@@ -550,14 +550,16 @@ void ConvertToT2KStdGenNtp(void)
   int    brNfK0       = 0;      // Number of final state K0's + \bar{K0}'s
   int    brNfEM       = 0;      // Number of final state gammas and e-/e+ (excluding pi0 decay products)
   int    brNfOther    = 0;      // Number of heavier final state hadrons (D+,D-,D0,Ds+,Ds-,Lamda,Sigma,Lamda_c,Sigma_c,...)
-  int    brNiP        = 0;      // Number of 'primary' p's   (before intranuclear rescattering)
-  int    brNiN        = 0;      // Number of 'primary' n's   (before intranuclear rescattering)
-  int    brNiPip      = 0;      // Number of 'primary' pi+'s (before intranuclear rescattering)
-  int    brNiPim      = 0;      // Number of 'primary' pi-'s (before intranuclear rescattering)
-  int    brNiPi0      = 0;      // Number of 'primary' pi0's (before intranuclear rescattering)
-  int    brNiKp       = 0;      // Number of 'primary' K+'s  (before intranuclear rescattering)
-  int    brNiKm       = 0;      // Number of 'primary' K-'s  (before intranuclear rescattering)
-  int    brNiK0       = 0;      // Number of 'primary' K0's  (before intranuclear rescattering) 
+  int    brNiP        = 0;      // Number of 'primary' (: before intranuclear rescattering) p's + \bar{p}'s  
+  int    brNiN        = 0;      // Number of 'primary' n's + \bar{n}'s  
+  int    brNiPip      = 0;      // Number of 'primary' pi+'s 
+  int    brNiPim      = 0;      // Number of 'primary' pi-'s 
+  int    brNiPi0      = 0;      // Number of 'primary' pi0's 
+  int    brNiKp       = 0;      // Number of 'primary' K+'s  
+  int    brNiKm       = 0;      // Number of 'primary' K-'s  
+  int    brNiK0       = 0;      // Number of 'primary' K0's + \bar{K0}'s 
+  int    brNiEM       = 0;      // Number of 'primary' gammas and e-/e+ (eg from resonance decays)
+  int    brNiOther    = 0;      // Number of 'primary' hadron shower particles
   int    brNf         = 0;      // Number of final state particles in hadronic system
   int    brPdgf[kNPmax];        // Pdg code of i^th final state particle in hadronic system
   double brEf  [kNPmax];        // Energy   of i^th final state particle in hadronic system
@@ -667,11 +669,11 @@ void ConvertToT2KStdGenNtp(void)
   TLorentzVector pdummy(0,0,0,0);
 
   //-- event loop
-  for(int i = 0; i< tree->GetEntries(); i++) {
+  for(int iev = 0; iev < tree->GetEntries(); iev++) {
 
-    if(i>500) break;
+    LOG("gntpc", pINFO) << "\n\n *** event:  " << iev;
 
-    tree->GetEntry(i);
+    tree->GetEntry(iev);
     EventRecord &  event = *(mcrec->event);
 
     LOG("gntpc", pINFO) << event;
@@ -799,110 +801,78 @@ void ConvertToT2KStdGenNtp(void)
     //  ** eta,eta',rho0,rho+,rho-,omega,phi are decayed early on: include decay products
     //  ** group together f/s D+, D-, D0, \bar{D0}, Ds+, Ds-, Sigma's, Omega's, Lambda's, Sigma_{c}'s,...
     //
-
     vector<int> final_had_syst;
-
-    int np     = 0;
-    int nn     = 0;
-    int npip   = 0;
-    int npim   = 0;
-    int npi0   = 0;
-    int nKp    = 0;
-    int nKm    = 0;
-    int nK0    = 0;
-    int nem    = 0;
-    int nother = 0;
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
       ip++;
+      if(ip < hitnucl->FirstDaughter()) continue;
+      if(p->IsFake()) continue;
       int pdgc = p->Pdg();
       int ist  = p->Status();
       if(ist==kIStStableFinalState) {
-         if (pdgc == kPdgProton  || pdgc==kPdgAntiProton)  { np++; final_had_syst.push_back(ip); }
-         if (pdgc == kPdgNeutron || pdgc==kPdgAntiNeutron) { nn++; final_had_syst.push_back(ip); }
-         if (pdgc == kPdgPiP) { npip++; final_had_syst.push_back(ip); }
-         if (pdgc == kPdgPiM) { npim++; final_had_syst.push_back(ip); }
-         if (pdgc == kPdgKP)  { nKp++;  final_had_syst.push_back(ip); }
-         if (pdgc == kPdgKM)  { nKm++;  final_had_syst.push_back(ip); }
-         if (pdgc == kPdgK0)  { nK0++;  final_had_syst.push_back(ip); }
-
          if (pdgc == kPdgGamma || pdgc == kPdgElectron || pdgc == kPdgPositron)  {
             int igmom = p->FirstMother();
             if(igmom!=-1) {
-               if(event.Particle(igmom)->Pdg() != kPdgPi0) { nem++; final_had_syst.push_back(ip); }
+               if(event.Particle(igmom)->Pdg() != kPdgPi0) { final_had_syst.push_back(ip); }
             }
+         } else {
+            final_had_syst.push_back(ip);
          }
-        
-         bool is_other = 
-                   pdgc == kPdgLambda       ||
-                   pdgc == kPdgAntiLambda   ||
-                   pdgc == kPdgSigmaP       ||
-                   pdgc == kPdgSigma0       ||
-                   pdgc == kPdgSigmaM       ||
-                   pdgc == kPdgAntiSigmaP   ||
-                   pdgc == kPdgAntiSigma0   ||
-                   pdgc == kPdgAntiSigmaM   ||
-                   pdgc == kPdgXi0          ||
-                   pdgc == kPdgXiM          ||
-                   pdgc == kPdgAntiXi0      ||
-                   pdgc == kPdgAntiXiP      ||
-                   pdgc == kPdgOmegaM       ||
-                   pdgc == kPdgAntiOmegaP   ||
-                   pdgc == kPdgLambdaPc     ||
-                   pdgc == kPdgSigmaPc      ||
-                   pdgc == kPdgSigmaPPc     ||
-                   pdgc == kPdgDP           ||
-                   pdgc == kPdgDM           ||
-                   pdgc == kPdgD0           ||
-                   pdgc == kPdgAntiD0       ||
-                   pdgc == kPdgDPs          ||
-                   pdgc == kPdgDMs;
-           if(is_other) { nother++; final_had_syst.push_back(ip); }
       }
-      if(ist==kIStDecayedState) {
-         if(pdgc == kPdgPi0) { npi0++; final_had_syst.push_back(ip); }
+      if(ist==kIStDecayedState && pdgc==kPdgPi0) {
+         final_had_syst.push_back(ip);
       }
     }//particle-loop
 
     //
-    // Extract info on the primary hadronic system 
-    // (before any intranuclear rescattering)
-    //
+    // Extract info on the primary hadronic system (before any intranuclear rescattering)
+    // * For DIS: 
+    //   Low-W events hadronized by KNO:
+    //       Find the HadronicSyst special particle & get its daughters.
+    //   High-W events hadronized by JETSET: 
+    //       Find the HadronicSyst special particle & get its daughters. Find the JETSET
+    //       special particle ('cluster','string','indep') and take its own daughters.
+    //       Neglect particles decayed internally by JETSET
+    // * For RES:
+    //   Find the hit nucleon and lookup its 1st daughter (intermediate resonance).
+    //   Get the resonance decay products.
+    // * For QEL:
+    //   Get the 1st daughter of the hit nucleon
+    // * For other processes:
+    //   Skip...
 
     vector<int> prim_had_syst;
+    if(is_dis) {
+      int ibase = event.FinalStateHadronicSystemPosition();
+      int idx = event.Particle(ibase)->LastDaughter() + 1;
+      p = event.Particle(idx);
+      if(p->Pdg()==kPdgCluster || p->Pdg()==kPdgString || p->Pdg()==kPdgIndep) ibase=idx;
 
-    int np_prim    = 0;
-    int nn_prim    = 0;
-    int npip_prim  = 0;
-    int npim_prim  = 0;
-    int npi0_prim  = 0;
-    int nKp_prim   = 0;
-    int nKm_prim   = 0;
-    int nK0_prim   = 0;
-
-    piter.Reset();
-    ip=-1;
-
-    while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
-    {
-      ip++;
-      int pdgc = p->Pdg();
-      int ist  = p->Status();
-      if(ist!=kIStHadronInTheNucleus) continue;
-      if (pdgc == kPdgProton)  np_prim++;
-      if (pdgc == kPdgNeutron) nn_prim++;
-      if (pdgc == kPdgPiP)     npip_prim++;
-      if (pdgc == kPdgPiM)     npim_prim++;
-      if (pdgc == kPdgPi0)     npi0_prim++;
-      if (pdgc == kPdgKP)      nKp_prim++;
-      if (pdgc == kPdgKM)      nKm_prim++;
-      if (pdgc == kPdgK0)      nK0_prim++;
+      int idx1 = event.Particle(ibase)->FirstDaughter();
+      int idx2 = event.Particle(ibase)->LastDaughter();
+      for(int i=idx1; i<=idx2; i++) {
+         p = event.Particle(i);
+         int ist  = p->Status();
+         if(ist==kIStDISPreFragmHadronicState) {
+             for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) prim_had_syst.push_back(j);
+         } else {
+              prim_had_syst.push_back(i);
+         }
+      }
+    }
+    if(is_qel || is_res) {
+      int ibase = hitnucl->FirstDaughter();
+      int idx1 = event.Particle(ibase)->FirstDaughter();
+      int idx2 = event.Particle(ibase)->LastDaughter();
+      for(int i=idx1; i<=idx2; i++) {
+         prim_had_syst.push_back(i);
+      }
     }
 
     //
-    // start filling up branches
+    // Al information has been assembled -- Start filling up the tree branches
     //
-    brIev        = i;      
+    brIev        = iev;      
     brNeutrino   = neutrino->Pdg();      
     brTarget     = target->Pdg();      
     brHitNuc     = (hitnucl) ? hitnucl->Pdg() : 0;      
@@ -938,28 +908,21 @@ void ConvertToT2KStdGenNtp(void)
     brPxl        = k2.Px();      
     brPyl        = k2.Py();      
     brPzl        = k2.Pz();      
-    brNfP        = np;      
-    brNfN        = nn;      
-    brNfPip      = npip;      
-    brNfPim      = npim;      
-    brNfPi0      = npi0;      
-    brNfKp       = nKp;      
-    brNfKm       = nKm;      
-    brNfK0       = nK0;      
-    brNfEM       = nem;      
-    brNfOther    = nother;      
-    brNiP        = np_prim;      
-    brNiN        = nn_prim;      
-    brNiPip      = npip_prim;      
-    brNiPim      = npim_prim;      
-    brNiPi0      = npi0_prim;      
-    brNiKp       = nKp_prim;      
-    brNiKm       = nKm_prim;      
-    brNiK0       = nK0_prim;      
 
-    brNi = final_had_syst.size();;      
+    // prim had syst
+    brNiP        = 0;
+    brNiN        = 0;    
+    brNiPip      = 0;    
+    brNiPim      = 0;    
+    brNiPi0      = 0;    
+    brNiKp       = 0;  
+    brNiKm       = 0;  
+    brNiK0       = 0;  
+    brNiEM       = 0;  
+    brNiOther    = 0;  
+    brNi = prim_had_syst.size();
     for(int j=0; j<brNi; j++) {
-      p = event.Particle(final_had_syst[j]);
+      p = event.Particle(prim_had_syst[j]);
       assert(p);
       brPdgi[j] = p->Pdg();     
       brEi  [j] = p->Energy();     
@@ -967,18 +930,77 @@ void ConvertToT2KStdGenNtp(void)
       brPyi [j] = p->Py();     
       brPzi [j] = p->Pz();     
 
-      LOG("gntpc", pINFO) 
-        << "Counting in f/s system from hadronic vtx: " << final_had_syst[j];
-    }
+      if      (p->Pdg() == kPdgProton  || p->Pdg() == kPdgAntiProton)   brNiP++;
+      else if (p->Pdg() == kPdgNeutron || p->Pdg() == kPdgAntiNeutron)  brNiN++;
+      else if (p->Pdg() == kPdgPiP) brNiPip++; 
+      else if (p->Pdg() == kPdgPiM) brNiPim++; 
+      else if (p->Pdg() == kPdgPi0) brNiPi0++; 
+      else if (p->Pdg() == kPdgKP)  brNiKp++;  
+      else if (p->Pdg() == kPdgKM)  brNiKm++;  
+      else if (p->Pdg() == kPdgK0)  brNiK0++; 
+      else if (p->Pdg() == kPdgGamma || p->Pdg() == kPdgElectron || p->Pdg() == kPdgPositron) brNiEM++;
+      else brNiOther++;
 
-    brNf = 0;      
-    for(int j=0; j<brNf; j++) {
-      brPdgf[j] = 0;     
-      brEf  [j] = 0;     
-      brPxf [j] = 0;     
-      brPyf [j] = 0;     
-      brPzf [j] = 0;     
+      LOG("gntpc", pINFO) 
+        << "Counting in primary hadronic system: idx = " << prim_had_syst[j]
+        << " -> " << p->Name();
     }
+    LOG("gntpc", pINFO) 
+     << "N(p):"             << brNiP
+     << ", N(n):"           << brNiN
+     << ", N(pi+):"         << brNiPip
+     << ", N(pi-):"         << brNiPim
+     << ", N(pi0):"         << brNiPi0
+     << ", N(K+,K-,K0):"    << brNiKp+brNiKm+brNiK0
+     << ", N(gamma,e-,e+):" << brNiEM
+     << ", N(etc:)"         << brNiOther << "\n";
+
+    // f/s had syst
+    brNfP        = 0;
+    brNfN        = 0;    
+    brNfPip      = 0;    
+    brNfPim      = 0;    
+    brNfPi0      = 0;    
+    brNfKp       = 0;  
+    brNfKm       = 0;  
+    brNfK0       = 0;  
+    brNfEM       = 0;  
+    brNfOther    = 0;  
+
+    brNf = final_had_syst.size();
+    for(int j=0; j<brNf; j++) {
+      p = event.Particle(final_had_syst[j]);
+      assert(p);
+      brPdgf[j] = p->Pdg();     
+      brEf  [j] = p->Energy();     
+      brPxf [j] = p->Px();     
+      brPyf [j] = p->Py();     
+      brPzf [j] = p->Pz();     
+
+      if      (p->Pdg() == kPdgProton  || p->Pdg() == kPdgAntiProton)   brNfP++;
+      else if (p->Pdg() == kPdgNeutron || p->Pdg() == kPdgAntiNeutron)  brNfN++;
+      else if (p->Pdg() == kPdgPiP) brNfPip++; 
+      else if (p->Pdg() == kPdgPiM) brNfPim++; 
+      else if (p->Pdg() == kPdgPi0) brNfPi0++; 
+      else if (p->Pdg() == kPdgKP)  brNfKp++;  
+      else if (p->Pdg() == kPdgKM)  brNfKm++;  
+      else if (p->Pdg() == kPdgK0)  brNfK0++; 
+      else if (p->Pdg() == kPdgGamma || p->Pdg() == kPdgElectron || p->Pdg() == kPdgPositron) brNfEM++;
+      else brNfOther++;
+
+      LOG("gntpc", pINFO) 
+        << "Counting in f/s system from hadronic vtx: idx = " << final_had_syst[j]
+        << " -> " << p->Name();
+    }
+    LOG("gntpc", pINFO) 
+     << "N(p):"             << brNfP
+     << ", N(n):"           << brNfN
+     << ", N(pi+):"         << brNfPip
+     << ", N(pi-):"         << brNfPim
+     << ", N(pi0):"         << brNfPi0
+     << ", N(K+,K-,K0):"    << brNfKp+brNfKm+brNfK0
+     << ", N(gamma,e-,e+):" << brNfEM
+     << ", N(etc:)"         << brNfOther << "\n";
 
     tEvtTree->Fill();
 

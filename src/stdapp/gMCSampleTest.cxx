@@ -3,9 +3,10 @@
 
 \program gmctest
 
-\brief   A GENIE utility that reads a generated event sample and generates a 
-         ROOT file with loads of histograms with basic MC truth quantities.
-         Typically used in validating new generator releases.
+\brief   A GENIE utility that reads a generated GENIE event tree and generates 
+         a ROOT file with loads of histograms with basic MC truth quantities.
+         It also generates the 'definite' summary ROOT ntuple.
+         Typically used in validating generator changes.
 
          Syntax :
            gmctest -f filename -t tgt [-n events] [-c another_filename]
