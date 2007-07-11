@@ -4,8 +4,8 @@
 \program gNtpConv
 
 \brief   Converts a GENIE neutrino events (from ER-type GENIE ROOT Trees) to a 
-         variety of textual formats (typically used in legacy systems) or in 
-         XML format.
+         variety of textual formats (typically used in legacy systems), in XML
+         format or in summary ROOT ntuples.
 
          Syntax:
               gntpc -i input_filename [-o output_filename] [-f fmt]
@@ -77,17 +77,16 @@ using namespace genie;
 using namespace genie::constants;
 
 //func prototypes
-void   ConvertToTextFormat (void);
-void   AddHeader           (ofstream & out);
-void   AddFooter           (ofstream & out);
-void   ConvertToT2KMCComparisonsRootFormat();
-
-void   ConvertToGXML       (ofstream & out, EventRecord & event);
-void   ConvertToGTrac      (ofstream & out, EventRecord & event);
-void   ConvertToGHad       (ofstream & out, EventRecord & event);
-void   GetCommandLineArgs (int argc, char ** argv);
-void   PrintSyntax        (void);
-string DefaultOutputFile  (void);
+void   ConvertToTextFormat  (void);
+void   ConvertToT2KStdGenNtp(void);
+void   AddHeader            (ofstream & out);
+void   AddFooter            (ofstream & out);
+void   ConvertToGXML        (ofstream & out, EventRecord & event);
+void   ConvertToGTrac       (ofstream & out, EventRecord & event);
+void   ConvertToGHad        (ofstream & out, EventRecord & event);
+void   GetCommandLineArgs   (int argc, char ** argv);
+void   PrintSyntax          (void);
+string DefaultOutputFile    (void);
 
 //input options (from command line arguments):
 string gOptInpFileName;
@@ -111,7 +110,7 @@ int main(int argc, char ** argv)
      gOptOutFileFormat==2)  ConvertToTextFormat();
 
   else
-  if(gOptOutFileFormat==10) ConvertToT2KMCComparisonsRootFormat();
+  if(gOptOutFileFormat==10) ConvertToT2KStdGenNtp();
 
   else {
     LOG("gntpc", pFATAL)
@@ -429,16 +428,17 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
   double y  = kine.y (get_selected);
   double W  = kine.W (get_selected);
 
-  int hadmod  =  2;
-  int ijetset = -1;
+  int hadmod  = -1;
+  int ihadmom = -1;
   TIter event_iter(&event);
   int i=-1;
   while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
     i++;
     int pdg = p->Pdg();
-    if (pdg == kPdgString )  { hadmod=11; ijetset=i; break; }
-    if (pdg == kPdgCluster)  { hadmod=12; ijetset=i; break; }
-    if (pdg == kPdgIndep  )  { hadmod=13; ijetset=i; break; }
+    if (pdg == kPdgHadronicSyst )  { hadmod= 2; ihadmom=i; }
+    if (pdg == kPdgString       )  { hadmod=11; ihadmom=i; }
+    if (pdg == kPdgCluster      )  { hadmod=12; ihadmom=i; }
+    if (pdg == kPdgIndep        )  { hadmod=13; ihadmom=i; }
   }
 
   output << endl;
@@ -458,23 +458,26 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
 
   vector<int> hadv;
 
-  int id1 = (ijetset>0) ? event.Particle(ijetset)->FirstDaughter() : hadsyst->FirstDaughter();
-  int id2 = (ijetset>0) ? event.Particle(ijetset)->LastDaughter()  : hadsyst->LastDaughter();
+  event_iter.Reset();
+  i=-1;
+  while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+    i++;
+    if(i<ihadmom) continue;
 
-  for(int id=id1; id<=id2; id++) {
-    GHepParticle * p = event.Particle(id);
     GHepStatus_t ist = p->Status();
     int pdg = p->Pdg();
-    if(ist == kIStStableFinalState || pdg==kPdgPi0) hadv.push_back(id);
-    if(ist == kIStDecayedState && pdg!=kPdgPi0) {
-      vector<int> * stable_daughters = event.GetStableDescendants(id);
-      vector<int>::const_iterator iter = stable_daughters->begin();
-      for( ; iter != stable_daughters->end(); ++iter) {
-        int ids = *iter;
-        hadv.push_back(ids);
-      }
-      delete stable_daughters;
+
+    if(ist == kIStDISPreFragmHadronicState) continue;
+
+    if(ist == kIStStableFinalState) {
+      GHepParticle * mom = event.Particle(p->FirstMother());
+      GHepStatus_t mom_ist = mom->Status();
+      int mom_pdg = mom->Pdg();
+      bool skip = (mom_pdg == kPdgPi0 && mom_ist== kIStDecayedState);
+      if(!skip) { hadv.push_back(i); }
     }
+
+    if(pdg==kPdgPi0 && ist==kIStDecayedState) { hadv.push_back(i); }
   }
 
   output << hadv.size() << endl;
@@ -497,7 +500,7 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
 //___________________________________________________________________
 // ** GENIE ER ROOT TREE -> STD NT FOR T2K CROSS-GENERATOR STUDIES **
 //___________________________________________________________________
-void ConvertToT2KMCComparisonsRootFormat()
+void ConvertToT2KStdGenNtp(void)
 {
   //-- define branch variables
   //
@@ -537,14 +540,16 @@ void ConvertToT2KMCComparisonsRootFormat()
   double brPxl        = 0;      // Final state primary lepton px
   double brPyl        = 0;      // Final state primary lepton py
   double brPzl        = 0;      // Final state primary lepton pz 
-  int    brNfP        = 0;      // Number of final state p's
-  int    brNfN        = 0;      // Number of final state n's
+  int    brNfP        = 0;      // Number of final state p's + \bar{p}'s
+  int    brNfN        = 0;      // Number of final state n's + \bar{n}'s
   int    brNfPip      = 0;      // Number of final state pi+'s
   int    brNfPim      = 0;      // Number of final state pi-'s
-  int    brNfPi0      = 0;      // Number of final state pi0's
+  int    brNfPi0      = 0;      // Number of 'final state' pi0's (
   int    brNfKp       = 0;      // Number of final state K+'s
   int    brNfKm       = 0;      // Number of final state K-'s
-  int    brNfK0       = 0;      // Number of final state K0's
+  int    brNfK0       = 0;      // Number of final state K0's + \bar{K0}'s
+  int    brNfEM       = 0;      // Number of final state gammas and e-/e+ (excluding pi0 decay products)
+  int    brNfOther    = 0;      // Number of heavier final state hadrons (D+,D-,D0,Ds+,Ds-,Lamda,Sigma,Lamda_c,Sigma_c,...)
   int    brNiP        = 0;      // Number of 'primary' p's   (before intranuclear rescattering)
   int    brNiN        = 0;      // Number of 'primary' n's   (before intranuclear rescattering)
   int    brNiPip      = 0;      // Number of 'primary' pi+'s (before intranuclear rescattering)
@@ -572,7 +577,7 @@ void ConvertToT2KMCComparisonsRootFormat()
 
   //-- create output tree
   //
-  TTree * tEvtTree = new TTree("tEvtTree","event tree summary");
+  TTree * tEvtTree = new TTree("gt2k","GENIE events in T2K standard MC generator ntuple format");
 
   //-- create tree branches
   //
@@ -620,6 +625,8 @@ void ConvertToT2KMCComparisonsRootFormat()
   tEvtTree->Branch("nfkp",      &brNfKp,         "nfkp/I"      );
   tEvtTree->Branch("nfkm",      &brNfKm,         "nfkm/I"      );
   tEvtTree->Branch("nfk0",      &brNfK0,         "nfk0/I"      );
+  tEvtTree->Branch("nfem",      &brNfEM,         "nfem/I"      );
+  tEvtTree->Branch("nfother",   &brNfOther,      "nfother/I"   );
   tEvtTree->Branch("nip",       &brNiP,          "np/I"        );
   tEvtTree->Branch("nin",       &brNiN,          "nn/I"        );
   tEvtTree->Branch("nipip",     &brNiPip,        "npip/I"      );
@@ -661,6 +668,9 @@ void ConvertToT2KMCComparisonsRootFormat()
 
   //-- event loop
   for(int i = 0; i< tree->GetEntries(); i++) {
+
+    if(i>500) break;
+
     tree->GetEntry(i);
     EventRecord &  event = *(mcrec->event);
 
@@ -688,10 +698,11 @@ void ConvertToT2KMCComparisonsRootFormat()
        brPzf [j] = 0;     
     }
 
-    // computing event characteristics
+    // Computing event characteristics
+    //
     // This section is largely copied from gMCSampleTest.cxx which creates GENIE's
     // native 'reduced' event ntuple and analyzes the generated event sample.
-    // Refer to that file for more comments
+    // Refer to that file for more comments.
 
     //input particles
     GHepParticle * neutrino = event.Probe();
@@ -722,20 +733,18 @@ void ConvertToT2KMCComparisonsRootFormat()
 
     if(!hitnucl) { assert(is_coh || is_imd || is_nuel); }
   
-    // hit quark
-    int  qrk  = 0;     
-    bool seaq = false; 
-    if(is_dis) {
-      assert(tgt.HitQrkIsSet());
-      qrk  = tgt.HitQrkPdg();
-      seaq = tgt.HitSeaQrk(); 
-    } else {
-      assert(!tgt.HitQrkIsSet());
-    }
+    // hit quark 
+    // set only for DIS events
+    int  qrk  = (is_dis) ? tgt.HitQrkPdg() : 0;     
+    bool seaq = (is_dis) ? tgt.HitSeaQrk() : false; 
 
-    // chram production?
+    // resonance id ($GENIE/src/BaryonResonance/BaryonResonance.h)
+    // set only for resonance neutrinoproduction
+    int resid = (is_res) ? xcls.Resonance() : 0;
+
+    // (qel or dis) charm production?
     bool charm = xcls.IsCharmEvent();
-
+    
     //weight
     double weight = event.Weight();
 
@@ -745,18 +754,20 @@ void ConvertToT2KMCComparisonsRootFormat()
     const TLorentzVector & p1 = (hitnucl) ? *(hitnucl->P4()) : pdummy; // N 4-p (p1)      
      
     // compute kinematical params
+    //
     double M  = kNucleonMass;
     TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer
-    double v  = (hitnucl) ? (q*p1)/M : -1;         // v (E transfer in hit nucleon rest frame)
     double Q2 = -1 * q.M2();                       // momemtum transfer
+    double v  = (hitnucl) ? (q*p1)/M         : -1; // v (E transfer in hit nucleon rest frame)
     double x  = (hitnucl) ? 0.5*Q2/(M*v)     : -1; // Bjorken x
     double y  = (hitnucl) ? v*M/(k1*p1)      : -1; // Inelasticity, y = q*P1/k1*P1
     double W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
     double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
     double t  = 0;
 
-    // also, access kinematical params _exactly_ as they were selected
+    // also, access kinematical params _exactly_ as they were selected internally
     // (possibly using off-shell kinematics)
+    //
     bool get_selected = true;
     double xs  = kine.x (get_selected);
     double ys  = kine.y (get_selected);
@@ -764,51 +775,102 @@ void ConvertToT2KMCComparisonsRootFormat()
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
 
+    // Extract more info on the hadronic system
+    // Only for QEL/RES/DIS events
+    //
+    bool study_hadsyst = (is_qel || is_res || is_dis);
+    
     //
     TObjArrayIter piter(&event);
     GHepParticle * p = 0;
     int ip=-1;
 
-    vector<int> final_had_syst;
-    vector<int> prim_had_syst;
+    //
+    // Extract info on the final state system originating from the
+    // hadronic vertex (includes intranuclear rescattering mc)
+    //
+    // Notes:
+    //  ** include f/s  p,n,\bar{p},\bar{n}
+    //  ** include f/s pi+, pi-
+    //  ** include **decayed** pi0 & ommit their decay products
+    //  ** include f/s K+, K-, K0, \bar{K0}
+    //  ** include gammas/e+/e- but not the ones coming from decaying pi0's (pi0's are counted)
+    //  ** baryon resonances are decayed early on: include decay products
+    //  ** eta,eta',rho0,rho+,rho-,omega,phi are decayed early on: include decay products
+    //  ** group together f/s D+, D-, D0, \bar{D0}, Ds+, Ds-, Sigma's, Omega's, Lambda's, Sigma_{c}'s,...
+    //
 
-    // number of final state hadrons 
-    int np    = 0;
-    int nn    = 0;
-    int npip  = 0;
-    int npim  = 0;
-    int npi0  = 0;
-    int nKp   = 0;
-    int nKm   = 0;
-    int nK0   = 0;
-    int ngpi0 = 0.;
-    while( (p = (GHepParticle *) piter.Next()) )
+    vector<int> final_had_syst;
+
+    int np     = 0;
+    int nn     = 0;
+    int npip   = 0;
+    int npim   = 0;
+    int npi0   = 0;
+    int nKp    = 0;
+    int nKm    = 0;
+    int nK0    = 0;
+    int nem    = 0;
+    int nother = 0;
+    while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
       ip++;
       int pdgc = p->Pdg();
       int ist  = p->Status();
-      if(ist!=kIStStableFinalState) continue;
-      if (pdgc == kPdgProton)  np++;
-      if (pdgc == kPdgNeutron) nn++;
-      if (pdgc == kPdgPiP)     npip++;
-      if (pdgc == kPdgPiM)     npim++;
-      if (pdgc == kPdgPi0)     npi0++;
-      if (pdgc == kPdgKP)      nKp++;
-      if (pdgc == kPdgKM)      nKm++;
-      if (pdgc == kPdgK0)      nK0++;
-      if (pdgc == kPdgGamma)  {
-          int igmom = p->FirstMother();
-          if(igmom!=-1) {
-            if( event.Particle(igmom)->Pdg() == kPdgPi0) ngpi0++;
-          }
+      if(ist==kIStStableFinalState) {
+         if (pdgc == kPdgProton  || pdgc==kPdgAntiProton)  { np++; final_had_syst.push_back(ip); }
+         if (pdgc == kPdgNeutron || pdgc==kPdgAntiNeutron) { nn++; final_had_syst.push_back(ip); }
+         if (pdgc == kPdgPiP) { npip++; final_had_syst.push_back(ip); }
+         if (pdgc == kPdgPiM) { npim++; final_had_syst.push_back(ip); }
+         if (pdgc == kPdgKP)  { nKp++;  final_had_syst.push_back(ip); }
+         if (pdgc == kPdgKM)  { nKm++;  final_had_syst.push_back(ip); }
+         if (pdgc == kPdgK0)  { nK0++;  final_had_syst.push_back(ip); }
+
+         if (pdgc == kPdgGamma || pdgc == kPdgElectron || pdgc == kPdgPositron)  {
+            int igmom = p->FirstMother();
+            if(igmom!=-1) {
+               if(event.Particle(igmom)->Pdg() != kPdgPi0) { nem++; final_had_syst.push_back(ip); }
+            }
+         }
+        
+         bool is_other = 
+                   pdgc == kPdgLambda       ||
+                   pdgc == kPdgAntiLambda   ||
+                   pdgc == kPdgSigmaP       ||
+                   pdgc == kPdgSigma0       ||
+                   pdgc == kPdgSigmaM       ||
+                   pdgc == kPdgAntiSigmaP   ||
+                   pdgc == kPdgAntiSigma0   ||
+                   pdgc == kPdgAntiSigmaM   ||
+                   pdgc == kPdgXi0          ||
+                   pdgc == kPdgXiM          ||
+                   pdgc == kPdgAntiXi0      ||
+                   pdgc == kPdgAntiXiP      ||
+                   pdgc == kPdgOmegaM       ||
+                   pdgc == kPdgAntiOmegaP   ||
+                   pdgc == kPdgLambdaPc     ||
+                   pdgc == kPdgSigmaPc      ||
+                   pdgc == kPdgSigmaPPc     ||
+                   pdgc == kPdgDP           ||
+                   pdgc == kPdgDM           ||
+                   pdgc == kPdgD0           ||
+                   pdgc == kPdgAntiD0       ||
+                   pdgc == kPdgDPs          ||
+                   pdgc == kPdgDMs;
+           if(is_other) { nother++; final_had_syst.push_back(ip); }
       }
-    }
-    npi0 += (ngpi0/2);
+      if(ist==kIStDecayedState) {
+         if(pdgc == kPdgPi0) { npi0++; final_had_syst.push_back(ip); }
+      }
+    }//particle-loop
 
-    // reset iterator so as too loop again
-    piter.Reset();
+    //
+    // Extract info on the primary hadronic system 
+    // (before any intranuclear rescattering)
+    //
 
-    // number of primary hadrons (before intranuclear rescattering)
+    vector<int> prim_had_syst;
+
     int np_prim    = 0;
     int nn_prim    = 0;
     int npip_prim  = 0;
@@ -817,8 +879,11 @@ void ConvertToT2KMCComparisonsRootFormat()
     int nKp_prim   = 0;
     int nKm_prim   = 0;
     int nK0_prim   = 0;
+
+    piter.Reset();
     ip=-1;
-    while( (p = (GHepParticle *) piter.Next()) )
+
+    while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
       ip++;
       int pdgc = p->Pdg();
@@ -834,6 +899,7 @@ void ConvertToT2KMCComparisonsRootFormat()
       if (pdgc == kPdgK0)      nK0_prim++;
     }
 
+    //
     // start filling up branches
     //
     brIev        = i;      
@@ -842,7 +908,7 @@ void ConvertToT2KMCComparisonsRootFormat()
     brHitNuc     = (hitnucl) ? hitnucl->Pdg() : 0;      
     brHitQrk     = qrk;     
     brFromSea    = seaq;  
-    brResId      = 0;
+    brResId      = resid;
     brIsQel      = is_qel;
     brIsRes      = is_res;
     brIsDis      = is_dis;  
@@ -864,10 +930,10 @@ void ConvertToT2KMCComparisonsRootFormat()
     brKineQ2     = Q2;      
     brKineW      = W;      
     brEv         = k1.Energy();      
-    brEn         = p1.Energy();      
-    brPxn        = p1.Px();      
-    brPyn        = p1.Py();      
-    brPzn        = p1.Pz();            
+    brEn         = (hitnucl) ? p1.Energy() : 0;      
+    brPxn        = (hitnucl) ? p1.Px()     : 0;      
+    brPyn        = (hitnucl) ? p1.Py()     : 0;      
+    brPzn        = (hitnucl) ? p1.Pz()     : 0;            
     brEl         = k2.Energy();      
     brPxl        = k2.Px();      
     brPyl        = k2.Py();      
@@ -880,6 +946,8 @@ void ConvertToT2KMCComparisonsRootFormat()
     brNfKp       = nKp;      
     brNfKm       = nKm;      
     brNfK0       = nK0;      
+    brNfEM       = nem;      
+    brNfOther    = nother;      
     brNiP        = np_prim;      
     brNiN        = nn_prim;      
     brNiPip      = npip_prim;      
@@ -889,13 +957,18 @@ void ConvertToT2KMCComparisonsRootFormat()
     brNiKm       = nKm_prim;      
     brNiK0       = nK0_prim;      
 
-    brNi = 0;      
+    brNi = final_had_syst.size();;      
     for(int j=0; j<brNi; j++) {
-      brPdgi[j] = 0;     
-      brEi  [j] = 0;     
-      brPxi [j] = 0;     
-      brPyi [j] = 0;     
-      brPzi [j] = 0;     
+      p = event.Particle(final_had_syst[j]);
+      assert(p);
+      brPdgi[j] = p->Pdg();     
+      brEi  [j] = p->Energy();     
+      brPxi [j] = p->Px();     
+      brPyi [j] = p->Py();     
+      brPzi [j] = p->Pz();     
+
+      LOG("gntpc", pINFO) 
+        << "Counting in f/s system from hadronic vtx: " << final_had_syst[j];
     }
 
     brNf = 0;      
@@ -913,7 +986,7 @@ void ConvertToT2KMCComparisonsRootFormat()
   }
   fin.Close();
 
-  tEvtTree->Write("numcnt");
+  tEvtTree->Write("gt2k");
   fout.Write();
   fout.Close();
 }
