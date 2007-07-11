@@ -40,7 +40,13 @@ public:
   void Configure(string config);
 
 private:
-  void LoadConfig (void);
+  void   LoadConfig (void);
+
+  void   CacheFreeNucleonXSec(const XSecAlgorithmI * model, const Interaction * in) const;
+  string CacheBranchName     (const XSecAlgorithmI * model, const Interaction * in) const;
+
+  double fVldEmin;
+  double fVldEmax;
 };
 
 }       // genie namespace
