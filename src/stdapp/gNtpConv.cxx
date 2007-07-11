@@ -805,7 +805,7 @@ void ConvertToT2KStdGenNtp(void)
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
       ip++;
-      if(ip < hitnucl->FirstDaughter()) continue;
+      if(ip < TMath::Max(hitnucl->FirstDaughter(), event.FinalStatePrimaryLeptonPosition()+1)) continue;
       if(p->IsFake()) continue;
       int pdgc = p->Pdg();
       int ist  = p->Status();
@@ -842,30 +842,44 @@ void ConvertToT2KStdGenNtp(void)
     //   Skip...
 
     vector<int> prim_had_syst;
-    if(is_dis) {
-      int ibase = event.FinalStateHadronicSystemPosition();
-      int idx = event.Particle(ibase)->LastDaughter() + 1;
-      p = event.Particle(idx);
-      if(p->Pdg()==kPdgCluster || p->Pdg()==kPdgString || p->Pdg()==kPdgIndep) ibase=idx;
+    if(study_hadsyst) {
+      int ihadbase=0;
+      if(is_dis) {
+        ihadbase = event.FinalStateHadronicSystemPosition();
+        int idx = event.Particle(ihadbase)->LastDaughter() + 1;
+        p = event.Particle(idx);
+        if(p->Pdg()==kPdgCluster || p->Pdg()==kPdgString || p->Pdg()==kPdgIndep) ihadbase=idx;
+      }
+      if(is_qel || is_res) {
+        ihadbase = hitnucl->FirstDaughter();
+      }
+      assert(ihadbase>0);
 
-      int idx1 = event.Particle(ibase)->FirstDaughter();
-      int idx2 = event.Particle(ibase)->LastDaughter();
+      int idx1 = event.Particle(ihadbase)->FirstDaughter();
+      int idx2 = event.Particle(ihadbase)->LastDaughter();
       for(int i=idx1; i<=idx2; i++) {
          p = event.Particle(i);
-         int ist  = p->Status();
-         if(ist==kIStDISPreFragmHadronicState) {
+         if(p->IsFake()) continue;
+         int ist = p->Status();
+         // handle decayed dis states
+         if(is_dis && ist==kIStDISPreFragmHadronicState) {
              for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) prim_had_syst.push_back(j);
+         } 
+         // handle decayed resonances (whose decay products may be resonances that decay further)
+         else if(is_res && ist==kIStDecayedState) {
+             for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) {
+                GHepParticle * pd = event.Particle(j);
+                if(pd->Status()==kIStDecayedState) {
+                   for(int k=pd->FirstDaughter(); k<=pd->LastDaughter(); k++) prim_had_syst.push_back(k);
+                } else {
+                   prim_had_syst.push_back(j); 
+                }       
+             }
          } else {
               prim_had_syst.push_back(i);
          }
-      }
-    }
-    if(is_qel || is_res) {
-      int ibase = hitnucl->FirstDaughter();
-      int idx1 = event.Particle(ibase)->FirstDaughter();
-      int idx2 = event.Particle(ibase)->LastDaughter();
-      for(int i=idx1; i<=idx2; i++) {
-         prim_had_syst.push_back(i);
+
+
       }
     }
 
@@ -953,7 +967,7 @@ void ConvertToT2KStdGenNtp(void)
      << ", N(pi0):"         << brNiPi0
      << ", N(K+,K-,K0):"    << brNiKp+brNiKm+brNiK0
      << ", N(gamma,e-,e+):" << brNiEM
-     << ", N(etc:)"         << brNiOther << "\n";
+     << ", N(etc):"         << brNiOther << "\n";
 
     // f/s had syst
     brNfP        = 0;
@@ -1000,7 +1014,7 @@ void ConvertToT2KStdGenNtp(void)
      << ", N(pi0):"         << brNfPi0
      << ", N(K+,K-,K0):"    << brNfKp+brNfKm+brNfK0
      << ", N(gamma,e-,e+):" << brNfEM
-     << ", N(etc:)"         << brNfOther << "\n";
+     << ", N(etc):"         << brNfOther << "\n";
 
     tEvtTree->Fill();
 
