@@ -352,7 +352,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   with neugen/daikon.
   -->
   <param type="bool" name="KNO-UseBaryonPdfs-xFpT2">  true  </param>
-  <param type="bool" name="KNO-UseIsotropic2BodyDec"> false </param>
+  <param type="bool" name="KNO-UseIsotropic2BodyDec"> true  </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -477,6 +477,13 @@ Use the "Default" one to get the best GENIE physics & tuning.
   - genie::BBA05ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
   -->
   <param type="alg" name="ElasticFormFactorsModel"> genie::BBA05ELFormFactorsModel/Default </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  GENIE validity range
+  -->
+  <param type="double" name="GVLD-Emin">    0.010  </param>
+  <param type="double" name="GVLD-Emax">  300.000  </param>
 
  </param_set>
 
