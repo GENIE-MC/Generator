@@ -24,7 +24,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   -->
 
   <param_set name="QEL-CC"> 
-     <param type="string" name="VldContext"> energy:0.010-200                                     </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   11                                                   </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
@@ -41,7 +41,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="QEL-NC"> 
-     <param type="string" name="VldContext"> energy:0.010-200                                     </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   11                                                   </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
@@ -58,7 +58,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="DIS-CC"> 
-     <param type="string" name="VldContext"> energy:0.010-200                                     </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   10                                                    </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
@@ -74,7 +74,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="DIS-NC"> 
-     <param type="string" name="VldContext"> energy:0.010-200                                     </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   10                                                    </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
@@ -90,7 +90,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="RES-CC"> 
-     <param type="string" name="VldContext"> energy:0.010-200                                      </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   10                                                     </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                   </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                        </param>
@@ -106,7 +106,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="RES-NC"> 
-     <param type="string" name="VldContext"> energy:0.010-200                                      </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   10                                                     </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                   </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                        </param>
@@ -122,7 +122,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="QEL-CC-CHARM"> 
-     <param type="string" name="VldContext"> energy:0.010-200                                     </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   9                                                    </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
@@ -137,7 +137,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="DIS-CC-CHARM"> 
-     <param type="string" name="VldContext"> energy:0.010-200                                     </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   10                                                    </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
@@ -153,7 +153,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="IMD"> 
-     <param type="string" name="VldContext"> energy:0.010-200                           </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   5                                          </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default        </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default             </param>
@@ -164,7 +164,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="NUE-EL"> 
-     <param type="string" name="VldContext"> energy:0.010-200                           </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   5                                          </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default        </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default             </param>
@@ -175,7 +175,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="COH-NC"> 
-     <param type="string" name="VldContext"> energy:0.010-200                              </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   5                                             </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default           </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                </param>
@@ -186,7 +186,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="COH-CC"> 
-     <param type="string" name="VldContext"> energy:0.010-200                              </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   5                                             </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default           </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                </param>
@@ -203,7 +203,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   -->
 
   <param_set name="RSPP-CC"> 
-     <param type="string" name="VldContext"> energy:0.010-200                                     </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   11                                                   </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
@@ -221,7 +221,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="RSPP-NC"> 
-     <param type="string" name="VldContext"> energy:0.010-200                                     </param>
+     <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   11                                                   </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
