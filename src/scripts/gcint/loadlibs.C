@@ -1,4 +1,8 @@
 {
+ TString libs0 = gSystem->GetDynamicPath();
+ TString libs  = libs0 + ":/usr/lib:/usr/local/lib:/opt/lib:/opt/local/lib";
+ gSystem->SetDynamicPath(libs.Data());
+
  // PYTHIA 6 lib
  gSystem->Load("libPythia6.so");
 
@@ -7,6 +11,7 @@
  gSystem->Load("libEG");
  gSystem->Load("libEGPythia6");
  gSystem->Load("libGeom");
+ gSystem->Load("libTree");
 
  // libxml2 and log4cpp libs
  gSystem->Load("libxml2.so");
@@ -27,8 +32,7 @@
  gSystem->Load("libGBaryonResonance.so");
  gSystem->Load("libGNuclear.so");
  gSystem->Load("libGLlewellynSmith.so");
- gSystem->Load("libGCrossSections.so");
- gSystem->Load("libGInvMuDecay.so");
+ gSystem->Load("libGCrossSections.so");	
  gSystem->Load("libGCharm.so");
  gSystem->Load("libGElas.so");
  gSystem->Load("libGReinSeghal.so");
