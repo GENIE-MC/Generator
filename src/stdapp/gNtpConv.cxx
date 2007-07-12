@@ -13,11 +13,12 @@
          Options :
            [] denotes an optional argument
 
-           -f specifies the output text file format. Default is 0.
+           -f specifies the output file format. Default is 0.
 		0 : GENIE XML format event file
 		1 : NUANCE-style tracker text format 
 	        2 : NEUGEN-style test format for hadronization model studies
-	       10 : ROOT Tree used for T2K cross-generator comparisons
+	       10 : ROOT file with the standard generator ntuple used for T2K cross-generator comparisons
+	       11 : ROOT file with INTRANUKE's h+A summary ntuple
 
            -o specifies the output filename. 
               If not specified a the default filename is constructed by the 
@@ -26,6 +27,7 @@
                 1 -> *.gtrac
                 2 -> *.ghad
                10 -> *.gt2k.root
+               11 -> *.ghA.root
 		
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          CCLRC, Rutherford Appleton Laboratory
@@ -79,6 +81,7 @@ using namespace genie::constants;
 //func prototypes
 void   ConvertToTextFormat  (void);
 void   ConvertToT2KStdGenNtp(void);
+void   ConvertToIntranukeNtp(void);
 void   AddHeader            (ofstream & out);
 void   AddFooter            (ofstream & out);
 void   ConvertToGXML        (ofstream & out, EventRecord & event);
@@ -111,6 +114,9 @@ int main(int argc, char ** argv)
 
   else
   if(gOptOutFileFormat==10) ConvertToT2KStdGenNtp();
+
+  else
+  if(gOptOutFileFormat==11) ConvertToIntranukeNtp();
 
   else {
     LOG("gntpc", pFATAL)
@@ -797,9 +803,9 @@ void ConvertToT2KStdGenNtp(void)
     //  ** include **decayed** pi0 & ommit their decay products
     //  ** include f/s K+, K-, K0, \bar{K0}
     //  ** include gammas/e+/e- but not the ones coming from decaying pi0's (pi0's are counted)
-    //  ** baryon resonances are decayed early on: include decay products
-    //  ** eta,eta',rho0,rho+,rho-,omega,phi are decayed early on: include decay products
-    //  ** group together f/s D+, D-, D0, \bar{D0}, Ds+, Ds-, Sigma's, Omega's, Lambda's, Sigma_{c}'s,...
+    //  ** include f/s D+, D-, D0, \bar{D0}, Ds+, Ds-, Sigma's, Omega's, Lambda's, Sigma_{c}'s,...
+    //  ** baryon resonances should have been decayed early on: include decay products
+    //  ** eta,eta',rho0,rho+,rho-,omega,phi should have been decayed early on: include decay products
     //
     vector<int> final_had_syst;
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
@@ -1027,6 +1033,56 @@ void ConvertToT2KStdGenNtp(void)
   fout.Close();
 }
 //___________________________________________________________________
+//     ** GENIE ER ROOT TREE -> INTRANUKE h+A SUMMARY NTUPLE **
+//___________________________________________________________________
+void ConvertToIntranukeNtp(void)
+{
+  //-- open output file
+  //
+  TFile fout(gOptOutFileName.c_str(),"recreate");
+
+  //-- create output tree
+  //
+
+  //-- open the ROOT file and get the TTree & its header
+  TFile fin(gOptInpFileName.c_str(),"READ");
+  TTree *           tree = 0;
+  NtpMCTreeHeader * thdr = 0;
+  tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
+  thdr = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
+
+  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+
+  NtpMCFormat_t format = thdr->format;
+  assert(format == kNFEventRecord);
+
+  //-- get the mc record
+  NtpMCEventRecord * mcrec = 0;
+  tree->SetBranchAddress("gmcrec", &mcrec);
+
+  //-- event loop
+  for(int iev = 0; iev < tree->GetEntries(); iev++) {
+
+    LOG("gntpc", pINFO) << "\n\n *** event:  " << iev;
+
+    tree->GetEntry(iev);
+    EventRecord &  event = *(mcrec->event);
+
+    LOG("gntpc", pINFO) << event;
+
+    // extract information for the event and fill in summary ntuple
+    //
+    // ...
+
+
+    mcrec->Clear();
+  }
+  fin.Close();
+
+  fout.Write();
+  fout.Close();
+}
+//___________________________________________________________________
 // FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS & PRINTING SYNTAX ON ERR
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -1086,6 +1142,7 @@ string DefaultOutputFile(void)
   else if (gOptOutFileFormat==1)  ext = "gtrac";
   else if (gOptOutFileFormat==2)  ext = "ghad";
   else if (gOptOutFileFormat==10) ext = "gt2k.root";
+  else if (gOptOutFileFormat==11) ext = "ghA.root";
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
@@ -1116,7 +1173,8 @@ void PrintSyntax(void)
     << "          0 : GENIE XML format event file  \n"
     << "          1 : NUANCE-style tracker text format  \n"
     << "          2 : NEUGEN-style test format for hadronization model studies  \n"
-    << "         10 : ROOT Tree used for T2K cross-generator comparisons  \n"
+    << "         10 : ROOT file with the standard generator ntuple used for T2K cross-generator comparisons \n"
+    << "	 11 : ROOT file with INTRANUKE's h+A summary ntuple \n"
     << "  \n"
     << "    -o specifies the output filename.  \n"
     << "         If not specified a the default filename is constructed by the  \n"
@@ -1125,6 +1183,7 @@ void PrintSyntax(void)
     << "           1 -> *.gtrac  \n"
     << "           2 -> *.ghad   \n"
     << "          10 -> *.gt2k.root \n"
+    << "          11 -> *.ghA.root \n"
     << ENDL;
 }
 //___________________________________________________________________
