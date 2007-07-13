@@ -16,10 +16,15 @@
 
 #include <cstdlib>
 
+#include <RVersion.h>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
+#include <TMCParticle.h>
+#else
+#include <TMCParticle6.h>
+#endif
 #include <TSystem.h>
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
-#include <TMCParticle.h>
 #include <TH1D.h>
 #include <TMath.h>
 #include <TF1.h>
