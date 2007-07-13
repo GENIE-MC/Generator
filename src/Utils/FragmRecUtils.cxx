@@ -14,7 +14,12 @@
 */
 //____________________________________________________________________________
 
+#include <RVersion.h>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
 #include <TMCParticle.h>
+#else
+#include <TMCParticle6.h>
+#endif
 #include <TIterator.h>
 
 #include "Messenger/Messenger.h"
