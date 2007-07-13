@@ -31,12 +31,17 @@
 #include <string>
 #include <vector>
 
+#include <RVersion.h>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
+#include <TMCParticle.h>
+#else
+#include <TMCParticle6.h>
+#endif
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TTree.h>
 #include <TH1F.h>
 #include <TLorentzVector.h>
-#include <TMCParticle.h>
 #include <TMath.h>
 #include <TClonesArray.h>
 #include <TIterator.h>
