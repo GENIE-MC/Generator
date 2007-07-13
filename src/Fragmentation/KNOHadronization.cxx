@@ -975,9 +975,8 @@ double KNOHadronization::ReWeightPt2(const PDGCodeList & pdgcv) const
 
   for(unsigned int i = 0; i < pdgcv.size(); i++) {
 
-     int pdgc = pdgcv[i];
-
-     if(pdgc!=kPdgPiP&&pdgc!=kPdgPiM) continue;
+     //int pdgc = pdgcv[i];
+     //if(pdgc!=kPdgPiP&&pdgc!=kPdgPiM) continue;
 
      TLorentzVector * p4 = fPhaseSpaceGenerator.GetDecay(i); 
      double pt2 = TMath::Power(p4->Px(),2) + TMath::Power(p4->Py(),2);
