@@ -17,8 +17,13 @@
 #include <algorithm>
 #include <sstream>
 
-#include <TParticlePDG.h>
+#include <RVersion.h>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
 #include <TMCParticle.h>
+#else
+#include <TMCParticle6.h>
+#endif
+#include <TParticlePDG.h>
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
