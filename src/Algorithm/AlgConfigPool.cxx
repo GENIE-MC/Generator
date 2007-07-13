@@ -62,6 +62,15 @@ AlgConfigPool::AlgConfigPool()
 AlgConfigPool::~AlgConfigPool()
 {
   cout << "AlgConfigPool singleton dtor: "
+       << "Printing out the main physics parameter list used at this job" 
+       << endl;
+  cout << "(Note: global defaults listed here _may_ have been over-written"
+       << " by specific algorithms. You should make sure you understand the"
+       << " XML config files)" << endl;
+  const Registry * gc = this->GlobalParameterList();
+  cout << *gc;
+
+  cout << "AlgConfigPool singleton dtor: "
        << "Deleting all owned algorithm configurations" << endl;
   map<string, Registry *>::iterator citer;
   for(citer = fRegistryPool.begin(); citer != fRegistryPool.end(); ++citer) {
