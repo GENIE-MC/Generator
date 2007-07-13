@@ -21,7 +21,6 @@
 
 #include <TMath.h>
 #include <TStopwatch.h>
-#include <TMCParticle.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecAlgorithmI.h"
