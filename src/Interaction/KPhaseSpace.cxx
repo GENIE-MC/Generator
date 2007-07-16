@@ -59,6 +59,7 @@ double KPhaseSpace::Threshold(void) const
 {
   const ProcessInfo &  pi         = fInteraction->ProcInfo();
   const InitialState & init_state = fInteraction->InitState();
+  const XclsTag &      xcls       = fInteraction->ExclTag();
   const Target &       tgt        = init_state.Tgt();
 
   double ml = fInteraction->FSPrimLepton()->Mass();
@@ -77,6 +78,15 @@ double KPhaseSpace::Threshold(void) const
     double Mn   = tgt.HitNucP4Ptr()->M();
     double Mn2  = TMath::Power(Mn,2);
     double Wmin = (pi.IsQuasiElastic()) ? kNucleonMass : kNucleonMass+kPionMass;
+    if(xcls.IsCharmEvent()) {
+       if(xcls.IsInclusiveCharm()) {
+          Wmin = kNucleonMass+kLightestChmHad;
+       } else {
+          int cpdg = xcls.CharmHadronPdg();
+          double mchm = PDGLibrary::Instance()->Find(cpdg)->Mass();
+          Wmin = kNucleonMass + mchm;
+       }
+    }
     double smin = TMath::Power(Wmin+ml,2.);
     double Ethr = 0.5*(smin-Mn2)/Mn;
     return Ethr;
