@@ -29,22 +29,16 @@ gui:
 	$(CXX) $(CXXFLAGS) -c nuvld_gui.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) nuvld_gui.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gnuvld-gui
 
-neugen_evgen:
-	$(CXX) $(CXXFLAGS) -c neugen_evgen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) neugen_evgen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gneugen-evgen
-
 clean: FORCE
 	$(RM) *.o *~ core 
 	$(RM) $(GENIE_BIN_PATH)/gnuvld-parsexml 
 	$(RM) $(GENIE_BIN_PATH)/gnuvld-dbupload 
 	$(RM) $(GENIE_BIN_PATH)/gnuvld-gui 
-	$(RM) $(GENIE_BIN_PATH)/gneugen-evgen
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnuvld-parsexml 
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnuvld-dbupload 
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnuvld-gui 
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gneugen-evgen
 
 FORCE:
 
