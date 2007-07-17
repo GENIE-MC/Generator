@@ -19,7 +19,7 @@
 	   -c Specifies another GENIE/ROOT event sample file for comparison 
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created September 02, 2005
 

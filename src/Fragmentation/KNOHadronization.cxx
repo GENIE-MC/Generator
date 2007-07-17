@@ -5,7 +5,7 @@
  For the licensing terms see $GENIE/USER_LICENSE.
 
  Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory - August 17, 2004
+         STFC, Rutherford Appleton Laboratory - August 17, 2004
 
  For the class documentation see the corresponding header file.
 
@@ -941,7 +941,6 @@ bool KNOHadronization::PhaseSpaceDecay(
           << "Decay weight = " << w << " / R = " << gw 
           << " - accepted: " << accept_decay;
 
-       //some test code
        bool return_after_not_accepted_decay = false;
        if(return_after_not_accepted_decay && !accept_decay) {
            LOG("KNOHad", pWARN) 

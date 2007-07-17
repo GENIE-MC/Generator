@@ -8,7 +8,7 @@
           primary lepton for a specific processes (QEL,DIS,RES,IMD,...)
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  October 03, 2004
 

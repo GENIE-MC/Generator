@@ -8,7 +8,7 @@
           any algorithmic class implementing a fragmentation function.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  June 15, 2004
 

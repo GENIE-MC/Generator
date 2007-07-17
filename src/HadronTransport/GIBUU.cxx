@@ -5,7 +5,7 @@
  For the licensing terms see $GENIE/USER_LICENSE.
 
  Author:   
-    Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> CCLRC, Rutherford Lab
+    Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> STFC, Rutherford Lab
     Tina Leitner <Tina.J.Leitner@theo.physik.uni-giessen.de> Giessen Univ.
     February 22, 2007
 

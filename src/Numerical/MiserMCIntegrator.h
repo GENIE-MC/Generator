@@ -9,7 +9,7 @@
 \ref      Numerical Recipes in C, Cambridge Univ. Press, 2002, page 316-328
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  February 23, 2006
 

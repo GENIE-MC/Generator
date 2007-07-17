@@ -6,7 +6,7 @@
 \brief   Validity Context for an Event Generator
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created November 20, 2004
 

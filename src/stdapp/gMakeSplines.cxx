@@ -19,7 +19,7 @@
 
          Options :
            -p  a comma separated list of nu PDG code
-           -t  a comma separated list of tgt PDG codes (format: 1aaazzz000)
+           -t  a comma separated list of tgt PDG codes (format: 10LZZZAAAI)
            -f  a ROOT file containing a ROOT/GEANT geometry description
            -o  output XML filename [ default: xsec_splines.xml ]
            -n  number of knots per spline [default: 15 knots per decade of
@@ -29,7 +29,7 @@
 
          Examples:
 
-         1) gmkspl -p 14,-14 -t 1056026000
+         1) gmkspl -p 14,-14 -t 1000260560
 
             will build cross section splines for muon neutrinos (pdg = 14)
             and muon anti-neutrinos (pgc = -14) on Iron (A=56,Z=26) and will
@@ -61,7 +61,7 @@
              case of clashing priority for the same stream.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created September 27, 2005
 

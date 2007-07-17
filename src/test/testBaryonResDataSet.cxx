@@ -6,7 +6,7 @@
 \brief   test program used for testing the Baryon Resonance Data Sets
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created May 12, 2004
 

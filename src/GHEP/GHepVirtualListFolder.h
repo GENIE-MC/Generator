@@ -6,7 +6,7 @@
 \brief    A singleton class to manage all named GHepVirtualLists
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  July 16, 2005
 

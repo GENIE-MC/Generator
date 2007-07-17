@@ -6,7 +6,7 @@
 \brief    Contains minimal information for tagging exclusive processes.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  December 08, 2004
 

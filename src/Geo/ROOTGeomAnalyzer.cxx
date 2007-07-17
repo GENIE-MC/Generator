@@ -5,7 +5,7 @@
  For the licensing terms see $GENIE/USER_LICENSE.
 
  Author: Anselmo Meregaglia <anselmo.meregaglia@cern.ch>, ETH Zurich
-         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, CCLRC - Rutherford Lab
+         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, STFC - Rutherford Lab
          May 24, 2005
 
  For the class documentation see the corresponding header file.

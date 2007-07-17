@@ -12,7 +12,7 @@
          Is a concrete implementation of the InteractionSelectorI interface.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created December 05, 2004
 

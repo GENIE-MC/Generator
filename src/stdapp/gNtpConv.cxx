@@ -30,7 +30,7 @@
                11 -> *.ghA.root
 		
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created September 23, 2005
 
@@ -102,11 +102,37 @@ int gIEv=0;
 //consts
 const int kNPmax = 100;
 
+  int    brIev;   
+  double brW;  
+  int    brN = 0;  
+  int    brPdg[kNPmax];       
+  double brE  [kNPmax];  
+  double brPx [kNPmax]; 
+  double brPy [kNPmax]; 
+  double brPz [kNPmax];  
+
+  TTree * ghad;
+
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
   //-- get the command line arguments
   GetCommandLineArgs(argc, argv);
+
+
+
+  TFile fout("ghad.root","recreate");  
+  ghad = new TTree("ghad","");   
+  ghad->Branch("i",       &brIev,          "i/I " );
+  ghad->Branch("W",       &brW,            "W/D " );
+  ghad->Branch("n",       &brN,            "n/I " );
+  ghad->Branch("pdg",      brPdg,          "pdg[n]/I " );
+  ghad->Branch("E",        brE,            "E[n]/D"    );
+  ghad->Branch("px",       brPx,           "px[n]/D"   );
+  ghad->Branch("py",       brPy,           "py[n]/D"   );
+  ghad->Branch("pz",       brPz,           "pz[n]/D"   );
+
+
 
   if(gOptOutFileFormat==0 || 
      gOptOutFileFormat==1 || 
@@ -124,6 +150,11 @@ int main(int argc, char ** argv)
     PrintSyntax();
     exit(3);
   }
+
+  ghad->Write("ghad");
+  fout.Write();
+  fout.Close();
+
 
   return 0;
 }
@@ -157,6 +188,16 @@ void ConvertToTextFormat()
     tree->GetEntry(gIEv);
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
+
+
+  brN = 0;  
+  for(int k=0; k<kNPmax; k++) {
+   brPdg[k]=0;       
+   brE  [k]=0;  
+   brPx [k]=0; 
+   brPy [k]=0; 
+   brPz [k]=0;  
+  }
 
     LOG("gntpc", pINFO) << rec_header;
     LOG("gntpc", pINFO) << event;
@@ -332,7 +373,7 @@ void ConvertToGTrac(ofstream & output, EventRecord & event)
  
     // Convert GENIE pdg code -> nuance PDG code
     // For most particles both generators use the standard PDG codes.
-    // For nuclei GHEP PDGC follows the MINOS-convention: 1AAAZZZ000
+    // For nuclei GENIE follows the PDG-convention: 10LZZZAAAI
     // NUANCE is using: ZZZAAA
     int ghep_pdgc = p->Pdg();
     int pdgc = ghep_pdgc;
@@ -488,6 +529,12 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
 
   output << hadv.size() << endl;
 
+
+  brIev = gIEv;   
+  brW   = W;  
+  brN   = hadv.size();
+  int k=0;
+
   vector<int>::const_iterator hiter = hadv.begin();
   for( ; hiter != hadv.end(); ++hiter) {
     int id = *hiter;
@@ -501,7 +548,15 @@ void ConvertToGHad(ofstream & output, EventRecord & event)
     output << pdg << "\t" 
            << px  << "\t" << py << "\t" << pz << "\t"
            << E   << "\t" << m  << endl;
+
+    brPx[k]  = px;
+    brPy[k]  = py;
+    brPz[k]  = pz;
+    brE[k]   = E;
+    brPdg[k] = pdg;
+    k++;
   }
+  ghad->Fill();
 }
 //___________________________________________________________________
 // ** GENIE ER ROOT TREE -> STD NT FOR T2K CROSS-GENERATOR STUDIES **
@@ -512,7 +567,7 @@ void ConvertToT2KStdGenNtp(void)
   //
   int    brIev        = 0;      // Event number (to be used as index for friend trees with detector response variables)
   int    brNeutrino   = 0;      // Neutrino pdg code
-  int    brTarget     = 0;      // Nuclear target pdg code (1aaazzz000)
+  int    brTarget     = 0;      // Nuclear target pdg code (10LZZZAAAI)
   int    brHitNuc     = 0;      // Hit nucleon pdg code      (not set for COH,IMD and NuEL events)
   int    brHitQrk     = 0;      // Hit quark pdg code        (set for DIS events only)
   bool   brFromSea    = false;  // Hit quark is from sea     (set for DIS events only)

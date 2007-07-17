@@ -14,7 +14,7 @@
           being pushed into the cache at a previous iteration.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  December 15, 2004
 

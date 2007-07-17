@@ -14,7 +14,7 @@
            []  denotes an optional argument
            -f  the input XML file containing the cross section spline data
            -p  the neutrino pdg code
-           -t  the target pdg code (format: 1aaazzz000)
+           -t  the target pdg code (format: 10LZZZAAAI)
            -e  the maximum energy (in generated plots -- use it to zoom at low E)
            -o  if an output ROOT file is specified then the cross section graphs 
                will be saved there as well 
@@ -28,7 +28,7 @@
 
          Example:
 
-           gsplt -f ~/mydata/mysplines.xml -p 14 -t 1056026000 
+           gsplt -f ~/mydata/mysplines.xml -p 14 -t 1000260560
 
            will load the cross section splines from the XML file mysplines.xml,
            then will select the cross section splines that are relevant to 
@@ -42,7 +42,7 @@
            GENIE application (see $GENIE/src/stdapp/gMakeSplines.cxx)
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created December 15, 2005
 

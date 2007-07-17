@@ -8,7 +8,7 @@
           rescattering -if rescattering is switched off- or to call one of the 
           supported hadron transport MCs -if rescattering is switched on-
          
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> CCLRC, Rutherford Lab
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> STFC, Rutherford Lab
 
 \created  September 14, 2006
 

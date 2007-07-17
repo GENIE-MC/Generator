@@ -6,7 +6,7 @@
 \brief   GENIE MC Job Driver (event generation for the input flux & geometry)
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created May 25, 2005
 

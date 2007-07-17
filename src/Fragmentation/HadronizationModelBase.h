@@ -8,7 +8,7 @@
           It propagates some common methods to the concrete subclasses.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  August 17, 2004
 

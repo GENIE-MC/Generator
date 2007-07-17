@@ -8,7 +8,7 @@
          Pattern to perform an operation on an EventRecord.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created October 04, 2004
 

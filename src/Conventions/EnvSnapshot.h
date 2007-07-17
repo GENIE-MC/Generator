@@ -6,7 +6,7 @@ Names of environmental variables to keep track of when saving the job config
 in TFolders along with the output event tree
 
 \author    Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-           CCLRC, Rutherford Appleton Laboratory
+           STFC, Rutherford Appleton Laboratory
 
 \created   May 03, 2004
 

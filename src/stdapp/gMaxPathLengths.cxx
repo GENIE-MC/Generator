@@ -46,7 +46,7 @@
            See $GENIE/src/Conventions/Units.h for GENIE unit definitions.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created September 27, 2005
 

@@ -6,7 +6,7 @@
 \brief    A ROOT/GEANT4 geometry driver
 
 \author   Anselmo Meregaglia <anselmo.meregaglia@cern.ch>, ETH Zurich
-          Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, CCLRC, Rutherford Lab
+          Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, STFC, Rutherford Lab
 
 \created  May 24, 2005
 

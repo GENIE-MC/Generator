@@ -6,7 +6,7 @@
 \brief   testing GENIE's numerical utility classes
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created May 4, 2004
 
@@ -66,9 +66,9 @@ void testSplineOperators      (void);
 
 int main(int /*argc*/, char ** /*argv*/)
 {
-  //testNumericalIntegration();
+  testNumericalIntegration();
   //testSplineInterpolation();
-  testSplineOperators();
+  //testSplineOperators();
 
   return 0;
 }
@@ -79,33 +79,58 @@ void testNumericalIntegration(void)
 
   // get integrator
   AlgFactory * algf = AlgFactory::Instance();
-  const IntegratorI * integrator1 = 
+  const IntegratorI * integrator1a = 
         dynamic_cast<const IntegratorI *> (
            algf->GetAlgorithm("genie::Simpson1D","Default-Linear"));
-  const IntegratorI * integrator2 = 
+
+  const IntegratorI * integrator2a = 
         dynamic_cast<const IntegratorI *> (
            algf->GetAlgorithm("genie::Simpson2D","Default-Linear"));
+  const IntegratorI * integrator2b = 
+        dynamic_cast<const IntegratorI *> (
+           algf->GetAlgorithm("genie::Simpson2D","Default-Logarithmic"));
+  const IntegratorI * integrator2c = 
+        dynamic_cast<const IntegratorI *> (
+           algf->GetAlgorithm("genie::Simpson2D","Default-Linear-FixedNBins-201"));
+  const IntegratorI * integrator2d = 
+        dynamic_cast<const IntegratorI *> (
+           algf->GetAlgorithm("genie::Simpson2D","Default-Logarithmic-FixedNBins-201"));
+  const IntegratorI * integrator2e = 
+        dynamic_cast<const IntegratorI *> (
+           algf->GetAlgorithm("genie::Simpson2DFixN","LogLog-201"));
 
   // create test functions & set limits
 
   // 1-D:
   GExampleFunc1D myfunc1d;
-  Range1D_t lim(0,10);
+  Range1D_t lim(1,10);
   myfunc1d.SetParam(0,"x", lim);
 
   // 2-D:
   GExampleFunc2D myfunc2d;
-  myfunc2d.SetParam(0,"x",-12.,12.);
-  myfunc2d.SetParam(1,"y",-12.,12.);
+  myfunc2d.SetParam(0,"x",0.001,20.);
+  myfunc2d.SetParam(1,"y",1.,10.);
 
   // integrate functions
-  double I1 = integrator1->Integrate(myfunc1d);
-  double I2 = integrator2->Integrate(myfunc2d);
+  double I1a = integrator1->Integrate(myfunc1d);
+  double I2a = integrator2a->Integrate(myfunc2d);
+  double I2b = integrator2b->Integrate(myfunc2d);
+  double I2c = integrator2c->Integrate(myfunc2d);
+  double I2d = integrator2d->Integrate(myfunc2d);
+  double I2e = integrator2e->Integrate(myfunc2d);
 
   LOG("Main",pINFO) 
-         << "1-D Integral <for given numerical accuracy> = " << I1;
+         << "1-D Integral <for given numerical accuracy> = " << I1a;
   LOG("Main",pINFO) 
-         << "2-D Integral <for given numerical accuracy> = " << I2;
+         << "2-D Integral <for given numerical accuracy> a= " << I2a;
+  LOG("Main",pINFO) 
+         << "2-D Integral <for given numerical accuracy> b= " << I2b;
+  LOG("Main",pINFO) 
+         << "2-D Integral <for given numerical accuracy> c= " << I2c;
+  LOG("Main",pINFO) 
+         << "2-D Integral <for given numerical accuracy> d= " << I2d;
+  LOG("Main",pINFO) 
+         << "2-D Integral <for given numerical accuracy> e= " << I2e;
 }
 //____________________________________________________________________________
 void testSplineInterpolation(void)

@@ -12,7 +12,7 @@
           Is a concrete implementation of the DISFormFactorsModelI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  September 28, 2004
 

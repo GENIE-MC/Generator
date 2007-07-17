@@ -18,7 +18,7 @@
           Please cite GIBUU separately if you include this event generation
           module in your event generation threads.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> CCLRC, Rutherford Lab
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> STFC, Rutherford Lab
           Tina Leitner <Tina.J.Leitner@theo.physik.uni-giessen.de> Giessen Univ.
 
 \created  December 13, 2005

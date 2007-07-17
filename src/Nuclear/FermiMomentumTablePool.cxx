@@ -6,7 +6,7 @@
 \brief    Singleton class to load & serve tables of Fermi momentum constants
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  August 18, 2005
 

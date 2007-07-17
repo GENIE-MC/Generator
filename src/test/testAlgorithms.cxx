@@ -6,7 +6,7 @@
 \brief   program used for testing / debugging GENIE's Algorithms & AlgFactory
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created October 26, 2006
 

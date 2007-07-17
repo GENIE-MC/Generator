@@ -8,7 +8,7 @@
           Is a concrete implementation of the XSecAlgorithmI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  March 17, 2005
 

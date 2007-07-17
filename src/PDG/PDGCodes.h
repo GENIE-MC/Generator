@@ -4,11 +4,10 @@
 \file     PDGCodes.h
 
 \brief    Most commonly used PDG codes.
-          A set of utility functions to hagle PDG codes is provided in
-          PDGUtils
+          A set of utility functions to handle PDG codes is provided in PDGUtils
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  May 06, 2004
 
@@ -22,27 +21,6 @@
 #define _PDG_CODES_H_
 
 namespace genie {
-
-/*
-PDG naming convention:
------------------------
-Mesons are represented by the form NML and baryons by NMKL where N, M and K 
-are the quark numbers (1=d, 2=u, 3=s, 4=c, 5=b, 6=t) and L=2J+1 where J is 
-the spin. K short and K long are exceptions being 310 and 130. The quarks 
-are in decreasing mass order from left to right except that Lambda (3122) 
-has the order switched to distinguish it from Sigma (3212). The fifth digit 
-is used to distinguish particles with the same spin and quark content. 
-Particles have positive numbers, antiparticles have the negative of their 
-counterparts. The positive kaon and positive B meson are particles. 
-The electron, electron neutrino, negative muon etc are 11, 12, 13 etc. 
-The gluon, photon, Z, and W are 21, 22, 23 and 24. 
-The PDG naming convention does not cover nuclei. GENIE uses the MINOS
-naming convention to code nuclei.
-
-MINOS naming conventions (for nuclei):
----------------------------------------
-1AAAZZZ000
-*/
 
 const int kPdgNuE          =  12;
 const int kPdgAntiNuE      = -12;
@@ -129,20 +107,23 @@ const int kPdgZ0           =    23; // Z
 const int kPdgWP           =    24; // W+
 const int kPdgWM           =   -24; // W-
 
-// note: PDG codes for nuclear targets can be computed using pdg::IonPdgCode(A,Z);
-const int kPdgTgtFreeP     = 1001001000;
-const int kPdgTgtFreeN     = 1001000000;
-const int kPdgTgtFe56      = 1056026000;
-const int kPdgTgtC12       = 1012006000;
-const int kPdgTgtO16       = 1016008000;
+// Note: PDG codes for nuclear targets can be computed using pdg::IonPdgCode(A,Z)
+// PDG2006 convention: 10LZZZAAAI 
+// Define names for some commonly used nuclear PDG codes:
+const int kPdgTgtFreeP     = 1000010010;
+const int kPdgTgtFreeN     = 1000000010;
+const int kPdgTgtC12       = 1000060120;
+const int kPdgTgtO16       = 1000080160;
+const int kPdgTgtFe56      = 1000260560;
 
-// GENIE special particles
-const int kPdgBindino      = 1111111001; // binding energy subtracted from f/s nucleons
-const int kPdgHadronicSyst = 1111111002; 
-const int kPdgHadronicBlob = 1111111003; // unmodelled fraction of the hadronic system
-const int kPdgCoulobtron   = 1111111004; // coulomb energy subtracted from f/s leptons
+// PDG codes for GENIE special particles
 
-// PYTHIA special particles
+const int kPdgHadronicSyst = 2000000001; // dis hadronic system before hadronization
+const int kPdgHadronicBlob = 2000000002; // unmodelled fraction of the hadronic system
+const int kPdgBindino      = 2000000101; // binding energy subtracted from f/s nucleons
+const int kPdgCoulobtron   = 2000000102; // coulomb energy subtracted from f/s leptons
+
+// PDG codes for PYTHIA/JETSET special particles
 const int kPdgCluster      = 91; 
 const int kPdgString       = 92; 
 const int kPdgIndep        = 93; 
