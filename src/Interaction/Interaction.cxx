@@ -495,7 +495,7 @@ double Interaction::EnergyThreshold(void) const
 
   if (fProcInfo->IsCoherent()) {
 
-    int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (1AAAZZZ000)
+    int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (10LZZZAAAI)
     double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass();
     double m    = ml + kPionMass;
     double m2   = TMath::Power(m,2);
