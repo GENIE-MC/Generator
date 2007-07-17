@@ -14,7 +14,7 @@
          assembles a list of GEVGDrivers (1 / possible initial state).
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created August 06, 2004
 

@@ -19,7 +19,7 @@
           Production by Neutrinos, hep-ph/0606185
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  March 11, 2005
 

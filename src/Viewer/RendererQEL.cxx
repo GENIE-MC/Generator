@@ -6,7 +6,7 @@
 \brief    Draws the Feynman diagram for a QEL event
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  October 07, 2004
 

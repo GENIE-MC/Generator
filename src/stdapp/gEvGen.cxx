@@ -26,7 +26,7 @@
               the energy range will be interpreted as the energy range of flux
               neutrinos
            -p specifies the neutrino PDG code
-           -t specifies the target PDG code (std format: 1aaazzz000)
+           -t specifies the target PDG code (pdg format: 10LZZZAAAI)
            -r specifies the MC run number
            -f specifies the neutrino flux spectrum - it can be either a function,
               eg 'x*x+4*exp(-x)' or a text file containing 2 columns corresponding to
@@ -40,7 +40,7 @@
  
          Examples:
          (1)
-           gevgen -n 300 -s -e 6.5 -p 14 -t 1056026000 -r 10000
+           gevgen -n 300 -s -e 6.5 -p 14 -t 1000260560 -r 10000
 
            will generate 300 events of muon neutrinos (pdg = 14) on Iron (A=56,Z=26) 
            at E = 6.5 GeV. The -s option will force it to generate cross section
@@ -51,14 +51,14 @@
            and loading them via $GSPLOAD.
 
          (2)
-           gevgen -n 300 -s -e 1,5 -p 14 -t 1056026000 -r 10000
+           gevgen -n 300 -s -e 1,5 -p 14 -t 1000260560 -r 10000
 
            like above except that interactions will be generated uniformly at the
            energy range from 1 to 5 GeV (note: uniform spectrum of interacting 
            neutrinos _not_ flux neutrinos).
 
           (3)
-           gevgen -n 30000 -s -e 1,4 -p 14 -t 1016008000 -r 10000 -f 'x*x*exp((-x*x+3)/4)'
+           gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -r 10000 -f 'x*x*exp((-x*x+3)/4)'
 
            will generate 30000 events of muon neutrinos (pdg = 14) on Oxygen
            (A=16,Z=8) using a neutrino flux of the specified functional form at the 
@@ -66,7 +66,7 @@
            here too.
 
           (4)
-           gevgen -n 30000 -s -e 1,4 -p 14 -t 1016008000 -r 10000 -f $GENIE/data/flux/nufact.data
+           gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -r 10000 -f $GENIE/data/flux/nufact.data
 
            like above except that the neutrino flux is taken from the input vector file 
            rather than the input functional form.
@@ -119,7 +119,7 @@
              shell% export GMSGCONF=/home/me/GENIE/mydata/mymsg.xml
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created October 05, 2004
 

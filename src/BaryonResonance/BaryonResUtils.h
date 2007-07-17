@@ -6,7 +6,7 @@
 \brief     Baryon Resonance utilities.
 
 \author    Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-           CCLRC, Rutherford Appleton Laboratory
+           STFC, Rutherford Appleton Laboratory
 
 \created   November 25, 2004
 

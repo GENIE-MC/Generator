@@ -4,7 +4,7 @@
  All rights reserved.
  For the licensing terms see $GENIE/USER_LICENSE.
 
- Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, CCLRC, Rutherford Lab
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, STFC, Rutherford Lab
          September 14, 2006
 
  For the class documentation see the corresponding header file.

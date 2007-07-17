@@ -3,7 +3,7 @@
  See the corresponding header file for the class documentation.
 
  Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory - March 09, 2006
+         STFC, Rutherford Appleton Laboratory - March 09, 2006
 
  Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
  All rights reserved.

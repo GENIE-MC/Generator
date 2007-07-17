@@ -26,6 +26,7 @@ TGT =    gEvGen		  \
  	 gNC2ElectronScat \
 	 gSplinePlotter	  \
 	 gMCSampleTest	  \
+	 gHadroNucGen     \
 	 gViewer	
 
 all: $(TGT)
@@ -83,6 +84,12 @@ gMCSampleTest: FORCE
 gNC2ElectronScat: FORCE
 	$(CXX) $(CXXFLAGS) -c gNC2ElectronScat.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gNC2ElectronScat.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gnc2eN
+
+# ghAgen program generating hadron + nucleus interactions using GENIE's INTRANUKE
+#
+gHadroNucGen: FORCE
+	$(CXX) $(CXXFLAGS) -c gHadroNucGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gHadroNucGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ghAgen
 
 # gviewer MC event viewing utility
 #

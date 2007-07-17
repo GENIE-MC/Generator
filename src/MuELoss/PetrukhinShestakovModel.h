@@ -11,7 +11,7 @@
           Energy Loss of Muons in the Energy Range 1-10000 GeV, CERN 85-03
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  December 10, 2003
 
@@ -62,7 +62,7 @@ private:
           Shestakov model
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  December 10, 2003
 */

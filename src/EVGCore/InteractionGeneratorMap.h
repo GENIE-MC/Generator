@@ -9,7 +9,7 @@
          that can generate aany given interaction.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created January 23, 2006
 

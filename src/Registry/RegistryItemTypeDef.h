@@ -6,7 +6,7 @@
 \brief    Definition of Registry item types
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  October 20, 2006
 

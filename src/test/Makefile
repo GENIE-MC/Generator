@@ -14,9 +14,10 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 #GENIE_DICTS = $(shell $(GENIE)/src/scripts/setup/genie-config --dicts)
-#GENIE_DICTS =
+GENIE_DICTS =
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-LIBRARIES := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+
 
 TGT =	gtestAlgorithms 	\
  	gtestBaryonResDataSet	\
@@ -40,6 +41,10 @@ TGT =	gtestAlgorithms 	\
 	gtestReadGNtuple		
 
 all: $(TGT)
+
+debugxsec: FORCE
+	$(CXX) $(CXXFLAGS) -c debugxsec.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) debugxsec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/debugxsec
 
 gtestAlgorithms: FORCE
 	$(CXX) $(CXXFLAGS) -c testAlgorithms.cxx $(INCLUDES)

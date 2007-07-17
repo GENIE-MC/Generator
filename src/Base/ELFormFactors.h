@@ -8,7 +8,7 @@
           This class is using the \b Strategy Pattern. \n
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  April 20, 2004
 

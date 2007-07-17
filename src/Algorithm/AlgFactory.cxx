@@ -5,7 +5,7 @@
  For the licensing terms see $GENIE/USER_LICENSE.
 
  Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory - May 12, 2004
+         STFC, Rutherford Appleton Laboratory - May 12, 2004
 
  For the class documentation see the corresponding header file.
 

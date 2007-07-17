@@ -6,7 +6,7 @@
 \brief   program used for testing / debugging the kinematic phase space calc
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created June 20, 2004
 

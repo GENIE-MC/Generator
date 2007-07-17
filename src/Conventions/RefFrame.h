@@ -6,7 +6,7 @@
 \brief    An enumeration of reference frames.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  May 04, 2004
  

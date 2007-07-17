@@ -11,7 +11,7 @@
 \ref      Numerical Recipes in C, Cambridge Univ. Press, 2002, page 134
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  May 03, 2004
 

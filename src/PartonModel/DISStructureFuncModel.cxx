@@ -5,7 +5,7 @@
  For the licensing terms see $GENIE/USER_LICENSE.
 
  Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory - May 03, 2004
+         STFC, Rutherford Appleton Laboratory - May 03, 2004
 
  Adapted from neugen 3.
  Primary authors: D.Naples (Pittsburgh U.), H.Gallagher (Tufts U)

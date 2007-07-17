@@ -19,7 +19,7 @@
           this event generation module in your event generation threads.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  December 13, 2005
 

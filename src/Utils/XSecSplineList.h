@@ -6,7 +6,7 @@
 \brief    List of cross section vs energy splines
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  May 12, 2005
 

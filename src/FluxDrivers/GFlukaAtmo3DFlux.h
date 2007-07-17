@@ -15,7 +15,7 @@
          flux data from:  http://lxmi.mi.infn.it/~battist/neutrino.html
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created July 3, 2005 [during the most boring MINOS shift ever!]
 

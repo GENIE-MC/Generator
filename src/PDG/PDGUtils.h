@@ -4,11 +4,9 @@
 \namespace genie::pdg
 
 \brief     Utilities for improving the code readability when using PDG codes.
-           E.g. a ..............................if( pdg::IsProton(pdg_code) )
-           is much easier to read/check than....if( pdgc_code == 2212 )
 
 \author    Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-           CCLRC, Rutherford Appleton Laboratory
+           STFC, Rutherford Appleton Laboratory
 
 \created   May 06, 2004
 
@@ -28,6 +26,7 @@ namespace pdg
   int  IonPdgCodeToZ   (int ion_pdgc);
   int  IonPdgCodeToA   (int ion_pdgc);
   int  IonPdgCode      (int A, int Z);
+  int  IonPdgCode      (int A, int Z, int L, int I);
   bool IsIon           (int pdgc);
   
   bool IsNeutrino      (int pdgc);

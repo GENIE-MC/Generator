@@ -5,7 +5,7 @@
  For the licensing terms see $GENIE/USER_LICENSE.
 
  Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory - May 02, 2004
+         STFC, Rutherford Appleton Laboratory - May 02, 2004
 
  For documentation see the corresponding header file.
 
@@ -25,25 +25,32 @@ using namespace genie;
 //____________________________________________________________________________
 int genie::pdg::IonPdgCodeToZ(int ion_pdgc)
 {
-// Decoding Z from the PDG code
-// GENIE uses the MINOS PDG extension for ions: PDG Code = [1AAAZZZ000]
+// Decoding Z from the PDG code (PDG ion code convention: 10LZZZAAAI)
 
-  int Z = (ion_pdgc/1000) - 1000*(ion_pdgc/1000000); // don't factor out
+  int Z = (ion_pdgc/10000) - 1000*(ion_pdgc/10000000); // don't factor out!
   return Z;
 }
 //____________________________________________________________________________
 int genie::pdg::IonPdgCodeToA(int ion_pdgc)
 {
-// Decoding A from the PDG code
-// GENIE uses the MINOS PDG extension for ions: PDG Code = [1AAAZZZ000]
+// Decoding A from the PDG code (PDG ion code convention: 10LZZZAAAI)
 
-  int A = (ion_pdgc/1000000) - 1000;
+  int A = (ion_pdgc/10) - 1000*(ion_pdgc/10000); // don't factor out!
   return A;
 }
 //____________________________________________________________________________
 int genie::pdg::IonPdgCode(int A, int Z)
 {
-  int ion_pdgc = (1000000000) + (A*1000000) + (Z*1000);
+// Build ion PDG code from A,Z
+
+  return IonPdgCode(A,Z,0,0);
+}
+//____________________________________________________________________________
+int genie::pdg::IonPdgCode(int A, int Z, int L, int I)
+{
+// Build ion PDG code from A,Z,L,I
+
+  int ion_pdgc = 1000000000 +  L*100000000 + Z*10000 + A*10 + I;
   return ion_pdgc;
 }
 //____________________________________________________________________________

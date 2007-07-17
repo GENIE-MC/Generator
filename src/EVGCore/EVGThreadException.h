@@ -7,7 +7,7 @@
          sequence has to be disrupted (fast-fwd at the end or step-back)
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created September 27, 2005
 

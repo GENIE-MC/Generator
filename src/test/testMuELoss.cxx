@@ -15,7 +15,7 @@
                in $GENIE/src/MuELoss/MuELMaterial.h)
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created March 10, 2006
 

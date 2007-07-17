@@ -11,7 +11,7 @@
          Is a concrete implementation of the EventGeneratorI interface.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created October 03, 2004
 

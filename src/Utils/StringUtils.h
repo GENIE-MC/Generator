@@ -6,7 +6,7 @@
 \brief      Utilities for string manipulation
 
 \author     Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-            CCLRC, Rutherford Appleton Laboratory
+            STFC, Rutherford Appleton Laboratory
 
 \created    January 12, 2004
 

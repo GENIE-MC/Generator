@@ -11,7 +11,7 @@
           Neutrino Deep Inelastic Scattering", JINR-E2-86-260, Apr. 1986
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  July 06, 2004
 

@@ -6,7 +6,7 @@
 \brief   program used for testing / debugging the elastic form factors
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created June 20, 2004
 
@@ -52,7 +52,7 @@ int main(int /*argc*/, char ** /*argv*/)
   ELFormFactors elff;
 
   Interaction * interaction = 
-                   Interaction::QELCC(1056026000,kPdgProton,kPdgNuMu,10);
+         Interaction::QELCC(kPdgTgtFe56,kPdgProton,kPdgNuMu,10);
 
   for(int iq=0; iq<100; iq++) {
 

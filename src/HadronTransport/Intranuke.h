@@ -15,7 +15,7 @@
 
 \author   Steve Dytman <dytman+@pitt.edu>, Pittsburgh University
           Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
-          Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> CCLRC, Rutherford Lab
+          Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> STFC, Rutherford Lab
 
 \created  September 20, 2005
 

@@ -16,7 +16,7 @@
           J.Phys.G: Nucl.Part.Phys. 29 (2003) 2629-2645
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
 \created  February 10, 2006
 

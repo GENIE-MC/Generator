@@ -10,7 +10,7 @@
           Phys.Rev.D 65.033002 and R.Devenish and A.Cooper-Sarkar, OUP 2004.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          CCLRC, Rutherford Appleton Laboratory
+          STFC, Rutherford Appleton Laboratory
 
           Adapted from neugen 3.
           Primary authors: D.Naples (Pittsburgh U.), H.Gallagher (Tufts U)

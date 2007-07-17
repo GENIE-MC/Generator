@@ -18,7 +18,7 @@
          
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created June 20, 2004
 
@@ -79,9 +79,9 @@ void BuildStdNtuple(void)
   const int kNX    = 12;
   const int kNQ2   = 60;
 
-  int neutrino    [kNNu]   = { 12, -12, 14, -14, 16, -16 };
-  int hit_nucleon [kNNuc]  = { 2212, 2112 };
-  int target      [kNTgt]  = { 1001001000, 1001000000, 1056026000 };
+  int neutrino    [kNNu]   = { kPdgNuE, kPdgAntiNuE, kPdgNuMu, kPdgAntiNuMu, kPdgNuTau, kPdgAntiNuTau };
+  int hit_nucleon [kNNuc]  = { kPdgProton, kPdgNeutron };
+  int target      [kNTgt]  = { kPdgTgtFreeP, kPdgTgtFreeN, kPdgTgtFe56 };
 
   double xbj[kNX] = {
         0.0150, 0.0450, 0.0800, 0.1250, 0.1750, 0.2250,
@@ -200,9 +200,9 @@ void VerticalSlice(void)
   const int kNNuc  = 2;
   const int kNTgt  = 1;
 
-  int neutrino    [kNNu]   = { 14,  -14   };
-  int hit_nucleon [kNNuc]  = { 2212, 2112 };
-  int target      [kNTgt]  = { 1056026000 };
+  int neutrino    [kNNu]   = { kPdgNuMu,   kPdgAntiNuMu };
+  int hit_nucleon [kNNuc]  = { kPdgProton, kPdgNeutron  };
+  int target      [kNTgt]  = { kPdgTgtFe56 };
 
   for(int inu=0; inu<kNNu; inu++) {
      for(int inuc=0; inuc<kNNuc; inuc++) {

@@ -6,7 +6,7 @@
 \brief   A pool of GEVGDriver objects with an initial state key
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         CCLRC, Rutherford Appleton Laboratory
+         STFC, Rutherford Appleton Laboratory
 
 \created May 24, 2005
 
