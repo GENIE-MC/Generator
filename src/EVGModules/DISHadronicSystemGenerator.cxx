@@ -118,9 +118,6 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   //   was asked to produce weighted events
   double wght = fHadronizationModel->Weight();
 
-  //-- Velocity for the [Hadronic CM] -> [LAB] active Lorentz transform
-  TVector3 beta = this->HCM2LAB(evrec);
-
   //-- Translate the fragmentation products from TMCParticles to
   //   GHepParticles and copy them to the event record.
 
@@ -134,11 +131,11 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
   GHepStatus_t istfin = (is_nucleus) ?       
                  kIStHadronInTheNucleus : kIStStableFinalState;
 
-  //-- Get a unit momentum along the momentum transfer direction \vec{q}
-  //   at the [Hadronic CM] 
-  TLorentzVector pq4 = this->MomentumTransferLAB(evrec);
-  pq4.Boost(-beta);
-  TVector3 unitvq = pq4.Vect().Unit();
+  // Vector defining rotation from LAB to LAB' (z:= \vec{phad})
+  TVector3 unitvq = p4Had.Vect().Unit();
+
+  // Boost velocity LAB' -> HCM
+  TVector3 beta(0,0,p4Had.P()/p4Had.Energy());
 
   while( (p = (TMCParticle *) particle_iter.Next()) ) {
 
@@ -147,18 +144,18 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
 
      if(fFilterPreFragmEntries && ks!=1) continue;
 
-     // The fragmentation products are generated in the final state
-     // hadronic CM Frame (with the z>0 axis being the \vec{q} direction).
-     // For each particle returned by the hadronizer:
-     // - rotate its 3-momentum so that z := \vec{q} at hadronic CM frame
-     // - boost it back to LAB frame
+     // The fragmentation products are generated in the hadronic CM frame
+     // where the z>0 axis is the \vec{phad} direction. For each particle 
+     // returned by the hadronizer:
+     // - boost it back to LAB' frame {z:=\vec{phad}} / doesn't affect pT
+     // - rotate its 3-momentum from LAB' to LAB
 
-     TVector3 p3(p->GetPx(), p->GetPy(), p->GetPz());
+     TLorentzVector p4o(p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy());
+     p4o.Boost(beta); 
+     TVector3 p3 = p4o.Vect();
      p3.RotateUz(unitvq); 
-
-     TLorentzVector p4(p3, p->GetEnergy());
-     p4.Boost(beta); 
-
+     TLorentzVector p4(p3,p4o.Energy());
+     
      // copy final state particles to the event record
      GHepStatus_t ist = (ks==1) ? istfin : kIStDISPreFragmHadronicState;
 
