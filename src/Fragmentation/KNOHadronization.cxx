@@ -481,7 +481,7 @@ void KNOHadronization::LoadConfig(void)
   if (fBaryonPT2pdf) delete fBaryonPT2pdf;
 
   fBaryonXFpdf  = new TF1("fBaryonXFpdf",
-                   "0.083*exp(-1*pow(x+0.385,2.)/0.131)",-1,0.5);  
+                   "0.083*exp(-0.5*pow(x+0.385,2.)/0.131)",-1,0.5);  
   fBaryonPT2pdf = new TF1("fBaryonPT2pdf", 
                    "exp(-0.214-6.625*x)",0,0.6);  
 
@@ -687,7 +687,6 @@ TClonesArray * KNOHadronization::DecayMethod2(
   for(unsigned int i=1; i<pdgv.size(); i++) pdgv_strip[i-1] = pdgv[i];
   
   // Get the sum of all masses for the particles in the stripped list
-
   double mass_sum = 0;
   vector<int>::const_iterator pdg_iter = pdgv_strip.begin();
 
@@ -696,64 +695,76 @@ TClonesArray * KNOHadronization::DecayMethod2(
     mass_sum += PDGLibrary::Instance()->Find(pdgc)->Mass();
   }
 
-  // generate the N 4-p independently
-
-  LOG("KNOHad", pINFO) << "Generating p4 for baryon with pdg= " << baryon;
+  // Create the particle list
+  TClonesArray * plist = new TClonesArray("TMCParticle", pdgv.size());
 
   RandomGen * rnd = RandomGen::Instance();
   TLorentzVector p4had(0,0,0,W);
   TLorentzVector p4N  (0,0,0,0);
   TLorentzVector p4d;
 
-  bool allowed = false;
+  // generate the N 4-p independently
 
-  while(!allowed) {
+  bool got_baryon_4p  = false;
+  bool got_hadsyst_4p = false;
 
-    //-- generate baryon xF and pT2
-    double xf  = fBaryonXFpdf ->GetRandom();               
-    double pt2 = fBaryonPT2pdf->GetRandom();               
+  while(!got_hadsyst_4p) {
 
-    //-- generate baryon px,py,pz
-    double pt  = TMath::Sqrt(pt2);            
-    double phi = (2*kPi) * rnd->RndHadro().Rndm();
-    double px  = pt * TMath::Cos(phi);
-    double py  = pt * TMath::Sin(phi);
-    double pz  = xf*W/2;
-    double p2  = TMath::Power(pz,2) + pt2;
-    double E   = TMath::Sqrt(p2+MN2);
+    LOG("KNOHad", pINFO) << "Generating p4 for baryon with pdg = " << baryon;
 
-    p4N.SetPxPyPzE(px,py,pz,E);
+    while(!got_baryon_4p) {
 
-    LOG("KNOHad", pDEBUG) << "Trying nucleon xF= "<< xf<< ", pT2= "<< pt2;
+      //-- generate baryon xF and pT2
+      double xf  = fBaryonXFpdf ->GetRandom();               
+      double pt2 = fBaryonPT2pdf->GetRandom();               
 
-    //-- check whether there is phase space for the remnant N-1 system
-   
-    p4d = p4had-p4N; // 4-momentum vector for phase space decayer
+      //-- generate baryon px,py,pz
+      double pt  = TMath::Sqrt(pt2);            
+      double phi = (2*kPi) * rnd->RndHadro().Rndm();
+      double px  = pt * TMath::Cos(phi);
+      double py  = pt * TMath::Sin(phi);
+      double pz  = xf*W/2;
+      double p2  = TMath::Power(pz,2) + pt2;
+      double E   = TMath::Sqrt(p2+MN2);
 
-    double Mav = p4d.Mag();
-    allowed = (Mav > mass_sum);
+      p4N.SetPxPyPzE(px,py,pz,E);
 
-    if(allowed) {
-      LOG("KNOHad", pINFO) 
+      LOG("KNOHad", pDEBUG) << "Trying nucleon xF= "<< xf<< ", pT2= "<< pt2;
+
+      //-- check whether there is phase space for the remnant N-1 system
+      p4d = p4had-p4N; // 4-momentum vector for phase space decayer
+      double Mav = p4d.Mag();
+
+      got_baryon_4p = (Mav > mass_sum);
+
+    } // baryon xf,pt2 seletion
+
+    LOG("KNOHad", pINFO) 
         << "Generated baryon with P4 = " << utils::print::P4AsString(&p4N);
-      LOG("KNOHad", pINFO) 
-        << "Remaining available mass = " << Mav 
-                                     << ", particle masses = " << mass_sum; 
+
+    // Insert the baryon at the event record
+    new ((*plist)[0]) TMCParticle(
+      1,baryon,-1,-1,-1, p4N.Px(),p4N.Py(),p4N.Pz(),p4N.Energy(),MN, 0,0,0,0,0);
+
+    // Do a phase space decay for the N-1 particles and add them to the list
+    LOG("KNOHad", pINFO) 
+        << "Generating p4 for the remaining hadronic system";
+    LOG("KNOHad", pINFO) 
+        << "Remaining system: Available mass = " << p4d.Mag() 
+        << ", Particle masses = " << mass_sum; 
+
+    bool is_ok = this->PhaseSpaceDecay(*plist, p4d, pdgv_strip, 1, reweight_decays); 
+
+    got_hadsyst_4p = is_ok;
+
+    if(!got_hadsyst_4p) { 
+      got_baryon_4p = false;
+      plist->Delete(); 
     }
   }
 
-  // Create the particle list
-  TClonesArray * plist = new TClonesArray("TMCParticle", pdgv.size());
-
-  // Insert the baryon
-  new ((*plist)[0]) TMCParticle(
-    1,baryon,-1,-1,-1, p4N.Px(),p4N.Py(),p4N.Pz(),p4N.Energy(),MN, 0,0,0,0,0);
-
-  // Do a phase space decay for the N-1 particles and add them to the list
-  bool ok = this->PhaseSpaceDecay(*plist, p4d, pdgv_strip, 1, reweight_decays); 
-
   // clean-up and return NULL
-  if(!ok) {
+  if(0) {
      LOG("KNOHad", pERROR) << "*** Decay forbidden by kinematics! ***";
      plist->Delete();
      delete plist;
@@ -878,7 +889,7 @@ bool KNOHadronization::PhaseSpaceDecay(
   double wmax = -1;
   for(int i=0; i<200; i++) {
      double w = fPhaseSpaceGenerator.Generate();   
-     w *= this->ReWeightPt2(pdgv);
+     if(reweight) { w *= this->ReWeightPt2(pdgv); }
      wmax = TMath::Max(wmax,w);
   }
   assert(wmax>0);
@@ -900,7 +911,7 @@ bool KNOHadronization::PhaseSpaceDecay(
   else 
   {
     // *** generating un-weighted decays ***
-     wmax *= 1.2;
+     wmax *= 1.3;
      bool accept_decay=false;
      unsigned int itry=0;
 
@@ -919,11 +930,25 @@ bool KNOHadronization::PhaseSpaceDecay(
 
        double w  = fPhaseSpaceGenerator.Generate();   
        if(reweight) { w *= this->ReWeightPt2(pdgv); }
+       if(w > wmax) {
+          LOG("KNOHad", pWARN) 
+           << "Decay weight = " << w << " > max decay weight = " << wmax;
+       }
        double gw = wmax * rnd->RndHadro().Rndm();
-
-       LOG("KNOHad", pINFO) << "Decay weight = " << w << " / R = " << gw;
-
        accept_decay = (gw<=w);
+
+       LOG("KNOHad", pINFO) 
+          << "Decay weight = " << w << " / R = " << gw 
+          << " - accepted: " << accept_decay;
+
+       //some test code
+       bool return_after_not_accepted_decay = false;
+       if(return_after_not_accepted_decay && !accept_decay) {
+           LOG("KNOHad", pWARN) 
+             << "Was instructed to return after a not-accepted decay";
+           delete [] mass;
+           return false;        
+       }
      }
   }
 
@@ -999,7 +1024,7 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
   // vector to add final state hadron PDG codes
   bool allowdup=true;
   PDGCodeList * pdgc = new PDGCodeList(allowdup);
-  pdgc->reserve(multiplicity);
+  //pdgc->reserve(multiplicity);
   int hadrons_to_add = multiplicity;
 
   //----- Assign baryon as p or n.
@@ -1083,71 +1108,61 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
 
          double x = rnd->RndHadro().Rndm();
          LOG("KNOHad", pDEBUG) << "rndm = " << x;
-
-         if (x >= 0 && x < fPpi0) {
+         
+         if (x >= 0 && x < fPpi0) {  
             //-------------------------------------------------------------
-            // Add a pi0-pair
+            // Add a pi0 pair
+            //-------------------------------------------------------------
             LOG("KNOHad", pDEBUG) << " -> Adding a pi0pi0 pair";
-
             pdgc->push_back( kPdgPi0 );
             pdgc->push_back( kPdgPi0 );
-
             hadrons_to_add -= 2; // update the number of hadrons to add
             W -= M2pi0; // update the available invariant mass
-            //-------------------------------------------------------------
 
          } else if (x < fPpi0 + fPpic) {
             //-------------------------------------------------------------
-            // Add a piplus - piminus pair if there is enough W
+            // Add a pi+ pi- pair 
+            //-------------------------------------------------------------
             if(W >= M2pic) {
-
                 LOG("KNOHad", pDEBUG) << " -> Adding a pi+pi- pair";
-
                 pdgc->push_back( kPdgPiP );
                 pdgc->push_back( kPdgPiM );
-
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2pic; // update the available invariant mass
             } else {
                 LOG("KNOHad", pDEBUG) 
                   << "Not enough mass for a pi+pi-: trying something else";
             }
-            //-------------------------------------------------------------
 
          } else if (x < fPpi0 + fPpic + fPKc) {
             //-------------------------------------------------------------
-            // Add a Kplus - Kminus pair if there is enough W
+            // Add a K+ K- pair 
+            //-------------------------------------------------------------
             if(W >= M2Kc) {
-
                 LOG("KNOHad", pDEBUG) << " -> Adding a K+K- pair";
-
                 pdgc->push_back( kPdgKP );
                 pdgc->push_back( kPdgKM );
-
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2Kc; // update the available invariant mass
             } else {
                 LOG("KNOHad", pDEBUG) 
                      << "Not enough mass for a K+K-: trying something else";
             }
-            //-------------------------------------------------------------
 
          } else if (x <= fPpi0 + fPpic + fPKc + fPK0) {
             //-------------------------------------------------------------
-            // Add a K0 - K0bar pair if there is enough W
+            // Add a K0 - \bar{K0} pair 
+            //-------------------------------------------------------------
             if( W >= M2K0 ) {
                 LOG("KNOHad", pDEBUG) << " -> Adding a K0 K0bar pair";
-
                 pdgc->push_back( kPdgK0 );
                 pdgc->push_back( kPdgK0 );
-
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2K0; // update the available invariant mass
             } else {
                 LOG("KNOHad", pDEBUG) 
                  << "Not enough mass for a K0 K0bar: trying something else";
             }
-            //-------------------------------------------------------------
 
          } else {
             LOG("KNOHad", pERROR)
