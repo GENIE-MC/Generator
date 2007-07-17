@@ -211,12 +211,16 @@ void GHepParticle::SetPdgCode(int code)
   fPdgCode = code;
   this->AssertIsKnownParticle();
 
-  // GENIE uses the MINOS PDG extension for ions: PDG Code = [1AAAZZZ000]
+  // GENIE uses the PDG convenion for ions (10LZZZAAAI)]
   fIsNucleus = pdg::IsIon(code);
 
-  // GENIE uses PDG codes in the range 1111111001 - 1111111999 for fake
-  // particles + the rootino with pdg-code = 0
-  fIsFake = ( (code == 0) || (code>1111111000 && code < 1111112000) );
+  // ROOT's rootino has PDG code=0
+  // GENIE pseudoparticles are in the 2000000000-2999999999 range
+  // Include JETSET's pseudoparticles
+  fIsFake = ( (code == 0) || 
+              (code>2000000000 && code < 2999999999) ||
+              (code==kPdgCluster || code == kPdgString || code == kPdgIndep)
+            );
 }
 //___________________________________________________________________________
 void GHepParticle::SetMomentum(const TLorentzVector & p4)
