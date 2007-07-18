@@ -46,10 +46,14 @@ public:
   //-- query the existence, access or create a spline
   bool           SplineExists (const XSecAlgorithmI * alg, const Interaction * i) const;
   bool           SplineExists (string spline_key) const;
-  const Spline * GetSpline   (const XSecAlgorithmI * alg, const Interaction * i) const;
+  const Spline * GetSpline    (const XSecAlgorithmI * alg, const Interaction * i) const;
   const Spline * GetSpline    (string spline_key) const;
   void           CreateSpline (const XSecAlgorithmI * alg, const Interaction * i,
                                    int nknots = -1, double Emin = -1, double Emax = -1);
+
+  const int  NSplines (void) const { return fSplineMap.size();        }
+  const bool IsEmpty  (void) const { return (fSplineMap.size() == 0); }
+
   //-- set XSecSplineList options
   void   SetLogE   (bool   on); ///< set opt to build splines as f(E) or as f(logE)
   void   SetNKnots (int    nk); ///< set default number of knots for building the spline
