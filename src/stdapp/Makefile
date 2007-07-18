@@ -26,7 +26,7 @@ TGT =    gEvGen		  \
  	 gNC2ElectronScat \
 	 gSplinePlotter	  \
 	 gMCSampleTest	  \
-	 gHadroNucGen     \
+	 ghAEvGen         \
 	 gViewer	
 
 all: $(TGT)
@@ -87,9 +87,9 @@ gNC2ElectronScat: FORCE
 
 # ghAgen program generating hadron + nucleus interactions using GENIE's INTRANUKE
 #
-gHadroNucGen: FORCE
-	$(CXX) $(CXXFLAGS) -c gHadroNucGen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gHadroNucGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ghAgen
+ghAEvGen: FORCE
+	$(CXX) $(CXXFLAGS) -c ghAEvGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) ghAEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ghAevgen
 
 # gviewer MC event viewing utility
 #
@@ -117,6 +117,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gnc2eN  
 	$(RM) $(GENIE_BIN_PATH)/gsplt		
 	$(RM) $(GENIE_BIN_PATH)/gmctest	
+	$(RM) $(GENIE_BIN_PATH)/ghAevgen
 	$(RM) $(GENIE_BIN_PATH)/gviewer	
 
 distclean: FORCE
@@ -128,6 +129,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnc2eN		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gsplt		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmctest	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/ghAevgen	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gviewer	
 
 clean--gEvGen: FORCE
@@ -153,6 +155,9 @@ clean--gSplinePlotter: FORCE
 
 clean--gMCSampleTest: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmctest
+
+clean--ghAEvGen: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen
 
 clean--gViewer: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gviewer
