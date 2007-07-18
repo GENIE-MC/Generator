@@ -29,6 +29,7 @@
 #include "Utils/Range1.h"
 #include "Utils/Cache.h"
 #include "Utils/CacheBranchFx.h"
+#include "Utils/XSecSplineList.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -64,23 +65,40 @@ double DISXSec::Integrate(
 
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfHitNucRest);
-
-  Interaction * interaction = new Interaction(*in);
-  interaction->SetBit(kISkipProcessChk);
-//interaction->SetBit(kISkipKinematicChk);
-  // **Important note** 
-  // Based on discussions with Hugh at the GENIE mini-workshop / RAL - July '07
-  // The DIS nuclear corrections redistribute the strength in x,y but do not
-  // affect the total cross-section They should be disabled at this step.
-  // But they should be enabled at the DIS thread's kinematical selection.
+  
+  // If the input interaction is off a nuclear target, then chek whether 
+  // the corresponding free nucleon cross section already exists at the 
+  // cross section spline list. 
+  // If yes, calculate the nuclear cross section based on that value.
   //
-  interaction->SetBit(kINoNuclearCorrection);
+  XSecSplineList * xsl = XSecSplineList::Instance();
+  if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() ) {
+    Interaction * interaction = new Interaction(*in);
+    Target * target = interaction->InitStatePtr()->TgtPtr();
+    int nucpdgc = target->HitNucPdg();
+    if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
+    else                       { target->SetId(kPdgTgtFreeN); }
+    if(xsl->SplineExists(model,interaction)) {
+      const Spline * spl = xsl->GetSpline(model, interaction);
+      double xsec = spl->Evaluate(Ev);
+      int NNucl = (pdg::IsProton(nucpdgc)) ? target->Z() : target->N(); 
+      xsec *= NNucl; 
+      LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
+      delete interaction;
+      return xsec;
+    }
+    delete interaction;
+  }
 
-  // Cache free nucleon cross sections first.
-  // Then Compute all nuclear cross sections based on these values.
+  // There was no corresponding free nucleon spline saved in XSecSplineList that
+  // could be used to speed up this calculation.
+  // Check whether local caching of free nucleon cross sections is allowed.
+  // If yes, store free nucleon cross sections at a cache branch and use those 
+  // at any subsequent call.
   //
   if(!gSystem->Getenv("GDISABLECACHING")) {
      Cache * cache = Cache::Instance();
+     Interaction * interaction = new Interaction(*in);
      string key = this->CacheBranchName(model,interaction);
      LOG("DISXSec", pINFO) << "Finding cache branch with key: " << key;
      CacheBranchFx * cache_branch =
@@ -93,19 +111,34 @@ double DISXSec::Integrate(
      }
      const CacheBranchFx & cb = (*cache_branch);
      double xsec = cb(Ev);
-     const Target & target = init_state.Tgt();
-     int nucpdgc = target.HitNucPdg();
-     int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
+     Target * target = interaction->InitStatePtr()->TgtPtr();
+     int nucpdgc = target->HitNucPdg();
+     int NNucl = (pdg::IsProton(nucpdgc)) ? target->Z() : target->N(); 
      xsec *= NNucl; 
      LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
      delete interaction;
      return xsec;
   }
 
-  // Caching disabled - Just go ahead and integrate the input differential
-  // cross section for the specified interaction.
-  //
   else {
+
+    // Just go ahead and integrate the input differential cross section for the 
+    // specified interaction.
+    //
+     Interaction * interaction = new Interaction(*in);
+     interaction->SetBit(kISkipProcessChk);
+//   interaction->SetBit(kISkipKinematicChk);
+
+     // **Important note** 
+     // Based on discussions with Hugh at the GENIE mini-workshop / RAL - July '07
+     // The DIS nuclear corrections re-distribute the strength in x,y but do not
+     // affect the total cross-section They should be disabled at this step.
+     // But they should be enabled at the DIS thread's kinematical selection.
+     // Since nuclear corrections don't need to be included at this stage, all the
+     // nuclear cross sections can be trivially built from the free nucleon ones.
+     //
+     interaction->SetBit(kINoNuclearCorrection);
+
      Range1D_t Wl  = kps.WLim();
      Range1D_t Q2l = kps.Q2Lim();
      LOG("DISXSec", pINFO)  
@@ -117,7 +150,6 @@ double DISXSec::Integrate(
      func->SetParam(0,"W", Wl);
      func->SetParam(1,"Q2",Q2l);
      double xsec = fIntegrator->Integrate(*func);
-
 /*
      Range1D_t xl = kps.Limits(kKVx);
      Range1D_t yl = kps.Limits(kKVy);
@@ -179,8 +211,8 @@ void DISXSec::CacheFreeNucleonXSec(
 
   Target * target = interaction->InitStatePtr()->TgtPtr();
   int nucpdgc = target->HitNucPdg();
-  if(pdg::IsProton(nucpdgc)) target->SetId(kPdgTgtFreeP);
-  else                       target->SetId(kPdgTgtFreeN);
+  if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
+  else                       { target->SetId(kPdgTgtFreeN); }
 
   cache_branch = new CacheBranchFx("DIS XSec");
   cache->AddCacheBranch(key, cache_branch);
@@ -199,7 +231,6 @@ void DISXSec::CacheFreeNucleonXSec(
  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
 
  for(int ie=0; ie<kNSplineKnots; ie++) {
-
     double Ev = TMath::Exp(kLogEmin + ie*kdLogE);
     TLorentzVector p4(0,0,Ev,Ev);
     interaction->InitStatePtr()->SetProbeP4(p4);
@@ -234,7 +265,6 @@ string DISXSec::CacheBranchName(
   string algkey = model->Id().Key();
   string ikey   = interaction->AsString();  
   string key    = cache->CacheBranchKey(algkey, ikey);
-
   return key;
 }
 //____________________________________________________________________________
