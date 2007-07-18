@@ -215,10 +215,10 @@ void GHepParticle::SetPdgCode(int code)
   fIsNucleus = pdg::IsIon(code);
 
   // ROOT's rootino has PDG code=0
-  // GENIE pseudoparticles are in the 2000000000-2999999999 range
+  // GENIE pseudoparticles are in the 2000000000-2000100000 range
   // Include JETSET's pseudoparticles
   fIsFake = ( (code == 0) || 
-              (code>2000000000 && code < 2999999999) ||
+              (code>2000000000 && code < 2000100000) ||
               (code==kPdgCluster || code == kPdgString || code == kPdgIndep)
             );
 }
