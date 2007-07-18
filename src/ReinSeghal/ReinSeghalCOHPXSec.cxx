@@ -134,6 +134,14 @@ double ReinSeghalCOHPXSec::XSec(
   LOG("ReinSeghalCoh", pINFO)
                 << "d2xsec/dxdy[COH] (x= " << x << ", y="
                                          << y << ", E=" << E << ") = "<< xsec;
+
+  //----- The algorithm computes d^2xsec/dxdy
+  //      Check whether variable tranformation is needed
+  if(kps!=kPSxyfE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSxyfE,kps);
+    xsec *= J;
+  }
+
   return xsec;
 }
 //____________________________________________________________________________
