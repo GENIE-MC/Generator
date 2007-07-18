@@ -1,12 +1,13 @@
 //____________________________________________________________________________
 /*!
 
-\program ghAgen
+\program ghAevgen
 
 \brief   Generates hadron + nucleus interactions using GENIE's INTRANUKE
+	 Similar to NEUGEN's pitest (S.Dytman & H.Gallagher)
 
          Syntax :
-           ghAgen [-n nev] -p hadron_pdg -t tgt_pdg [-r run#] -k KE
+           ghAevgen [-n nev] -p hadron_pdg -t tgt_pdg [-r run#] -k KE
 
          Options :
            [] denotes an optional argument
@@ -17,12 +18,15 @@
            -k specifies the incoming hadron's kinetic energy (in GeV)
 
          Example:
-           ghAgen -n 100000 -p 211 -t 1000260560 -k 0.165
-           will generate 100k pi^{+} + Fe56 events at E(pi+)=165 MeV
+           ghAevgen -n 100000 -p 211 -t 1000260560 -k 0.165
+           will generate 100k pi^{+} + Fe56 events at E(pi^{+})=165 MeV
 
-\author  Minsuk Kim and Steve Dytman
-         University of Pittsburgh
+\authors  Minsuk Kim and Steve Dytman
+          University of Pittsburgh
 
+	  Costas Andreopoulos,
+          STFC, Rutherford Appleton Laboratory
+	  
 \version 1.2
 
 \created May 1, 2007
@@ -34,77 +38,38 @@
 //____________________________________________________________________________
 
 #include <cassert>
-#include <sstream>
-#include <string>
-#include <vector>
 
-#include <TFile.h>
-#include <TTree.h>
-#include <TSystem.h>
-#include <TNtuple.h>
-
-#include <iomanip>
-
+#include "Algorithm/AlgFactory.h"
 #include "EVGCore/EventRecord.h"
-#include "EVGDrivers/GEVGDriver.h"
 #include "EVGDrivers/GMCJMonitor.h"
+#include "EVGCore/EventRecordVisitorI.h"
+#include "GHEP/GHepParticle.h"
+#include "GHEP/GHepRecord.h"
+#include "GHEP/GHepStatus.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
 #include "Ntuple/NtpMCFormat.h"
-#include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "Utils/XSecSplineList.h"
-#include "Utils/StringUtils.h"
+#include "PDG/PDGLibrary.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
-
-//#include "Algorithm/Algorithm.h"
-#include "Algorithm/AlgFactory.h"
-//#include "Conventions/Controls.h"
-//#include "Conventions/Units.h"
-//#include "Conventions/Constants.h"
-#include "PDG/PDGLibrary.h"
-//#include "PDG/PDGCodeList.h"
-//#include "Utils/PrintUtils.h"
-//#include "Utils/NuclearUtils.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepStatus.h"
-#include "HadronTransport/Intranuke.h"
-//#include "HadronTransport/INukeHadroData.h"
-//#include "HadronTransport/INukeHadroFates.h"
-#include "EVGCore/EventRecordVisitorI.h"
-
-using std::string;
-using std::vector;
-using std::ostringstream;
 
 using namespace genie;
 
 void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
 
-//using namespace genie::utils;
-//using namespace genie::constants;
-//using namespace genie::controls;
-
-using std::cout;
-using std::endl;
-using std::ios;
-using std::setw;
-
 //Default options 
 int     kDefOptNevents   = 10000;   // n-events to generate
 Long_t  kDefOptRunNu     = 0;       // default run number
 
 //User-specified options:
-int           gOptNevents;           // n-events to generate
-int           gOptTgtPdgCode;        // target PDG code
-Long_t        gOptRunNu;             // run number
-int           gOptInputPdgCode;      // rescattering particle PDG code as a input
-double        gOptInputKE;           // This is KE = E - M. So E = M + KE
+int           gOptNevents;          // n-events to generate
+int           gOptTgtPdgCode;       // target PDG code
+Long_t        gOptRunNu;            // run number
+int           gOptInpHadPdgCode;    // incoming hadron PDG code
+double        gOptInpHadKE;         // incoming hadron kinetic enegy (GeV)
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -128,10 +93,10 @@ int main(int argc, char ** argv)
   PDGLibrary * pdglib = PDGLibrary::Instance();
 
   //-- input 4-momenta & dummy vtx
-  double mh  = pdglib->Find(gOptInputPdgCode)->Mass();
+  double mh  = pdglib->Find(gOptInpHadPdgCode)->Mass();
   double M   = pdglib->Find(gOptTgtPdgCode)->Mass();
 
-  double Eh  = mh + gOptInputKE;
+  double Eh  = mh + gOptInpHadKE;
   double pzh = TMath::Sqrt(TMath::Max(0.,Eh*Eh-mh*mh));
 
   TLorentzVector p4h   (0.,0.,pzh,Eh);
@@ -141,21 +106,21 @@ int main(int argc, char ** argv)
   //-- generate events / print the GHEP record / add it to the event tree
   int ievent = 0;
   while (ievent < gOptNevents) {
-      LOG("ghAgen", pINFO) << " *** Generating event............ " << ievent;
+      LOG("ghAevgen", pINFO) << " *** Generating event............ " << ievent;
       
       // insert initial state
       EventRecord * evrec = new EventRecord();
       Interaction * interaction = new Interaction;
       evrec->AttachSummary(interaction);
             
-      evrec->AddParticle(gOptInputPdgCode,kIStInitialState,-1,-1,-1,-1,p4h,  x4null);
-      evrec->AddParticle(gOptTgtPdgCode  ,kIStInitialState,-1,-1,-1,-1,p4tgt,x4null);
+      evrec->AddParticle(gOptInpHadPdgCode,kIStInitialState,-1,-1,-1,-1,p4h,  x4null);
+      evrec->AddParticle(gOptTgtPdgCode,   kIStInitialState,-1,-1,-1,-1,p4tgt,x4null);
       
       // generate h+A eventw
       intranuke->ProcessEventRecord(evrec);
   
       // print generated event    
-      LOG("ghAgen", pINFO) << *evrec;
+      LOG("ghAevgen", pINFO) << *evrec;
   
       // add event at the output ntuple
       ntpw.AddEventRecord(ievent, evrec);
@@ -176,15 +141,15 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("ghAgen", pNOTICE) << "Parsing command line arguments";
+  LOG("ghAevgen", pNOTICE) << "Parsing command line arguments";
 
   //number of events:
   try {
-    LOG("ghAgen", pINFO) << "Reading number of events to generate";
+    LOG("ghAevgen", pINFO) << "Reading number of events to generate";
     gOptNevents = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("ghAgen", pINFO)
+      LOG("ghAevgen", pINFO)
             << "Unspecified number of events to generate - Using default";
       gOptNevents = kDefOptNevents;
     }
@@ -192,22 +157,22 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   //run number:
   try {
-    LOG("ghAgen", pINFO) << "Reading MC run number";
+    LOG("ghAevgen", pINFO) << "Reading MC run number";
     gOptRunNu = genie::utils::clap::CmdLineArgAsInt(argc,argv,'r');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("ghAgen", pINFO) << "Unspecified run number - Using default";
+      LOG("ghAevgen", pINFO) << "Unspecified run number - Using default";
       gOptRunNu = kDefOptRunNu;
     }
   }
 
   // incoming hadron PDG code:
   try {
-    LOG("ghAgen", pINFO) << "Reading rescattering particle PDG code";
-    gOptInputPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
+    LOG("ghAevgen", pINFO) << "Reading rescattering particle PDG code";
+    gOptInpHadPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
   } catch(exceptions::CmdLineArgParserException e) {
       if(!e.ArgumentFound()) {
-      LOG("ghAgen", pFATAL) << "Unspecified PDG code - Exiting";
+      LOG("ghAevgen", pFATAL) << "Unspecified PDG code - Exiting";
       PrintSyntax();
       exit(1);
     }
@@ -215,11 +180,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   //target PDG code:
   try {
-    LOG("ghAgen", pINFO) << "Reading target PDG code";
+    LOG("ghevAgen", pINFO) << "Reading target PDG code";
     gOptTgtPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'t');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("ghAgen", pFATAL) << "Unspecified target PDG code - Exiting";
+      LOG("ghAevgen", pFATAL) << "Unspecified target PDG code - Exiting";
       PrintSyntax();
       exit(1);
     }
@@ -227,30 +192,30 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // incoming hadron kinetic energy:
   try {
-    LOG("ghAgen", pINFO) << "Reading rescattering particle KE energy";
+    LOG("ghAevgen", pINFO) << "Reading rescattering particle KE energy";
     string ke = genie::utils::clap::CmdLineArgAsString(argc,argv,'k');
-    gOptInputKE = atof(ke.c_str());
+    gOptInpHadKE = atof(ke.c_str());
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("ghAgen", pFATAL) << "Unspecified KE - Exiting";
+      LOG("ghAevgen", pFATAL) << "Unspecified KE - Exiting";
       PrintSyntax();
       exit(1);
     }
   }
 
-  LOG("ghAgen", pINFO) << "Number of events requested = " << gOptNevents;
-  LOG("ghAgen", pINFO) << "MC Run Number              = " << gOptRunNu;
-  LOG("ghAgen", pINFO) << "Incoming hadron PDG code   = " << gOptInputPdgCode;
-  LOG("ghAgen", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
-  LOG("ghAgen", pINFO) << "Hadron input KE            = " << gOptInputKE;
+  LOG("ghAevgen", pINFO) << "Number of events requested = " << gOptNevents;
+  LOG("ghAevgen", pINFO) << "MC Run Number              = " << gOptRunNu;
+  LOG("ghAevgen", pINFO) << "Incoming hadron PDG code   = " << gOptInpHadPdgCode;
+  LOG("ghAevgen", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
+  LOG("ghAevgen", pINFO) << "Hadron input KE            = " << gOptInpHadKE;
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("ghAgen", pNOTICE)
+  LOG("ghAevgen", pNOTICE)
     << "\n\n" 
     << "Syntax:" << "\n"
-    << "   ghAgen [-n nev] -p hadron_pdg -t tgt_pdg [-r run] [-a R0] -k KE"
-    << "\n\n";
+    << "   ghAevgen [-n nev] -p hadron_pdg -t tgt_pdg [-r run] [-a R0] -k KE"
+    << "\n";
 }
 //____________________________________________________________________________
