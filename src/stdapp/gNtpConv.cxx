@@ -532,7 +532,8 @@ void ConvertToGHad(void)
     output << fslpdg      << "\t"
            << k2.Px()     << "\t" << k2.Py() << "\t" << k2.Pz() << "\t"
            << k2.Energy() << "\t" << k2.M()  << endl;
-    output << ph.Px()     << "\t" << ph.Py() << "\t" << ph.Pz() << "\t"
+    output << 111111 << "\t"
+           << ph.Px()     << "\t" << ph.Py() << "\t" << ph.Pz() << "\t"
            << ph.Energy() << "\t" << ph.M()  << endl;
 
     vector<int> hadv;
