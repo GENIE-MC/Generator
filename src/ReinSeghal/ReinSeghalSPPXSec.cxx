@@ -156,30 +156,6 @@ double ReinSeghalSPPXSec::Integrate(
   return xsec;
 }
 //____________________________________________________________________________
-/*
-bool ReinSeghalSPPXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-
-  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-  if(spp_channel == kSppNull) return false;
-
-  return true;
-}
-//____________________________________________________________________________
-bool ReinSeghalSPPXSec::ValidKinematics(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const InitialState & init_state = interaction -> InitState();
-  double Ev  = init_state.ProbeE(kRfHitNucRest);
-
-  double EvThr = interaction->EnergyThreshold();
-  if(Ev <= EvThr) return false;
-
-  return true;
-}*/
-//____________________________________________________________________________
 void ReinSeghalSPPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -197,27 +173,12 @@ void ReinSeghalSPPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-/*
-  //-- get the requested d^2xsec/dxdy xsec algorithm to use
-  fSingleResXSecModel = 0;
-  fIntegrator = 0;
-  fSingleResXSecModel = 
-       dynamic_cast<const XSecAlgorithmI *> (
-                               this->SubAlg("SingleRESDiffXSecAlg"));
-  assert (fSingleResXSecModel);
-*/
   fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
   assert (fIntegrator);
-/*
-  // user cuts in W,Q2
-  fWmin  = fConfig->GetDoubleDef("Kine-Wmin",  -1.0);
-  fWmax  = fConfig->GetDoubleDef("Kine-Wmax",   1e9);
-  fQ2min = fConfig->GetDoubleDef("Kine-Q2min", -1.0);
-  fQ2max = fConfig->GetDoubleDef("Kine-Q2max",  1e9);
-*/
+
   // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
-  fEMax = fConfig->GetDoubleDef("ESplineMax", 40);
-  fEMax = TMath::Max(fEMax,10.); // don't accept user Emax if less than 10 GeV
+  fEMax = fConfig->GetDoubleDef("ESplineMax", 100);
+  fEMax = TMath::Max(fEMax,20.); // don't accept user Emax if less than 20 GeV
 
   // create the baryon resonance list specified in the config.
   fResList.Clear();
