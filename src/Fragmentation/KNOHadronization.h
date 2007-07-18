@@ -4,8 +4,8 @@
 \class    genie::KNOHadronization
 
 \brief    The KNO hadronization model.
-          This hadronization scheme is similar to the one originally used
-          in NeuGEN by G.Barr, G.F.Pearce, H.Gallagher et al. \n
+          This hadronization scheme originates from the NEUGEN's KNO model
+          (G.Barr, G.F.Pearce, H.Gallagher et al.) \n
           Improvements were made by C.Andreopoulos, H.Gallagher, T.Yang. \n
 
           Both the 'historical' version and the new versions are supported.
