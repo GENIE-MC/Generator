@@ -116,11 +116,11 @@ int main(int argc, char ** argv)
   //-- parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  //-- print the options you got from command line arguments
-  LOG("gmkspl", pINFO) << "Neutrino PDG codes  = " << gOptNuPdgCodeList;
-  LOG("gmkspl", pINFO) << "Target PDG codes    = " << gOptTgtPdgCodeList;
-  LOG("gmkspl", pINFO) << "Input ROOT geometry = " << gOptGeomFilename;
-  LOG("gmkspl", pINFO) << "Output XML file     = " << gOptXMLFilename;
+  //-- get spline list 
+  //  (& autoload splines specified in $GSPLOAD in case free nucleon cross
+  //   sections are recycled for nuclear targets))
+  XSecSplineList * spline_list = XSecSplineList::Instance();
+  spline_list->AutoLoad();
 
   PDGCodeList * neutrinos = GetNeutrinoCodes();
   PDGCodeList * targets   = GetTargetCodes();
@@ -151,21 +151,15 @@ int main(int argc, char ** argv)
 
       int nupdgc  = *nuiter;
       int tgtpdgc = *tgtiter;
-
       InitialState init_state(tgtpdgc, nupdgc);
 
       GEVGDriver driver;
-
       driver.Configure(init_state);
       driver.CreateSplines(gOptNKnots, gOptMaxE);
     }
   }
 
-  //-- get the populated cross section spline list and save it at the
-  //   requested XML file
-
-  XSecSplineList * spline_list = XSecSplineList::Instance();
-
+  //-- save the splines at the requested XML file
   spline_list->SaveAsXml(gOptXMLFilename);
 
   delete neutrinos;
@@ -215,7 +209,6 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptMaxE = -1;
     }
   }
-
 
   //-- Required arguments
 
@@ -273,6 +266,12 @@ void GetCommandLineArgs(int argc, char ** argv)
     PrintSyntax();
     exit(1);
   }
+
+  //-- print the options you got from command line arguments
+  LOG("gmkspl", pINFO) << "Neutrino PDG codes  = " << gOptNuPdgCodeList;
+  LOG("gmkspl", pINFO) << "Target PDG codes    = " << gOptTgtPdgCodeList;
+  LOG("gmkspl", pINFO) << "Input ROOT geometry = " << gOptGeomFilename;
+  LOG("gmkspl", pINFO) << "Output XML file     = " << gOptXMLFilename;
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
