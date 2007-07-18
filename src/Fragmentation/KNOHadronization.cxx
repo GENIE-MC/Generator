@@ -5,7 +5,13 @@
  For the licensing terms see $GENIE/USER_LICENSE.
 
  Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         STFC, Rutherford Appleton Laboratory - August 17, 2004
+         STFC, Rutherford Appleton Laboratory 
+
+         Hugh Gallagher <gallag@minos.phy.tufts.edu>
+         Tufts University
+
+         Tinjun Yang <tjyang@stanford.edu>          
+         Stanford University
 
  For the class documentation see the corresponding header file.
 

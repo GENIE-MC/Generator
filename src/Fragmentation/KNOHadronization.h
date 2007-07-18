@@ -16,6 +16,12 @@
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
+          Hugh Gallagher <gallag@minos.phy.tufts.edu>
+          Tufts University
+
+          Tinjun Yang <tjyang@stanford.edu>
+          Stanford University
+
 \created  August 17, 2004
 
 \cpright  Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
