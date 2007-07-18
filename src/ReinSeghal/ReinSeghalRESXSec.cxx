@@ -52,14 +52,13 @@ double ReinSeghalRESXSec::Integrate(
           const XSecAlgorithmI * model, const Interaction * interaction) const
 {
   if(! model->ValidProcess(interaction) ) return 0.;
+  fSingleResXSecModel = model;
 
   const KPhaseSpace & kps = interaction->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
      LOG("COHXSec", pDEBUG)  << "*** Below energy threshold";
      return 0;
   }
-
-  fSingleResXSecModel = model;
 
   //-- Get cache
   Cache * cache = Cache::Instance();
@@ -119,7 +118,6 @@ double ReinSeghalRESXSec::Integrate(
 
   //-- number of scattering centers in the target
   int NNucl = (pdg::IsProton(nucleon_pdgc)) ? target.Z() : target.N();
-
   rxsec*=NNucl; // nuclear xsec 
 
   return rxsec;
@@ -147,8 +145,8 @@ void ReinSeghalRESXSec::LoadConfig(void)
   assert (fIntegrator);
 
   // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
-  fEMax = fConfig->GetDoubleDef("ESplineMax", 40);
-  fEMax = TMath::Max(fEMax,10.); // don't accept user Emax if less than 10 GeV
+  fEMax = fConfig->GetDoubleDef("ESplineMax", 100);
+  fEMax = TMath::Max(fEMax,20.); // don't accept user Emax if less than 20 GeV
 
   // create the baryon resonance list specified in the config.
   fResList.Clear();
