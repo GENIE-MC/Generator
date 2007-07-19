@@ -176,36 +176,6 @@ bool ReinSeghalSPPPXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
-/*
-bool ReinSeghalSPPPXSec::ValidKinematics(const Interaction* interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
-
-  double E    = init_state.ProbeE(kRfHitNucRest);
-  double W    = kinematics.W();
-  double q2   = kinematics.q2();
-
-  //-- Check energy threshold & kinematical limits in q2, W
-  double EvThr = interaction->EnergyThreshold();
-  if(E <= EvThr) {
-    LOG("ReinSeghalSpp", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
-    return false;
-  }
-
-  //-- Check against physical range in W and Q2
-  Range1D_t rW  = utils::kinematics::KineRange(interaction, kKVW);
-  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
-
-  bool in_physical_range = utils::math::IsWithinLimits(W, rW) &&
-                           utils::math::IsWithinLimits(-q2, rQ2);
-  if(!in_physical_range) return false;
-
-  return true;
-}*/
-//____________________________________________________________________________
 void ReinSeghalSPPPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);

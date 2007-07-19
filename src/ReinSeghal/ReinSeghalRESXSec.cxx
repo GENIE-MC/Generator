@@ -11,20 +11,25 @@
 */
 //____________________________________________________________________________
 
+#include <TSystem.h>
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
+#include "Conventions/KineVar.h"
+#include "CrossSections/GXSecFunc.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
+#include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "ReinSeghal/ReinSeghalRESXSec.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Cache.h"
 #include "Utils/CacheBranchFx.h"
+#include "Utils/XSecSplineList.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -60,9 +65,6 @@ double ReinSeghalRESXSec::Integrate(
      return 0;
   }
 
-  //-- Get cache
-  Cache * cache = Cache::Instance();
-
   //-- Get init state and process information
   const InitialState & init_state = interaction->InitState();
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
@@ -78,49 +80,106 @@ double ReinSeghalRESXSec::Integrate(
   //-- Get the requested resonance
   Resonance_t res = interaction->ExclTag().Resonance();
 
-  //-- Build a unique name for the cache branch
-  string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
-
-  LOG("ReinSeghalResT", pINFO) << "Finding cache branch with key: " << key;
-
-  CacheBranchFx * cache_branch =
-              dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
-
-  if(!cache_branch) {
-     LOG("ReinSeghalResT", pWARN)  
-         << "No cached RES v-production data for input neutrino"
-         << " (pdgc: " << nu_pdgc << ")";
-     LOG("ReinSeghalResT", pWARN)  
-         << "Wait while computing/caching RES production xsec first...";
-
-     this->CacheResExcitationXSec(interaction); 
-
-     LOG("ReinSeghalResT", pINFO) << "Done caching resonance xsec data";
-     LOG("ReinSeghalResT", pINFO) 
-               << "Finding newly created cache branch with key: " << key;
-     cache_branch =
-              dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
-     assert(cache_branch);
+  // If the input interaction is off a nuclear target, then chek whether
+  // the corresponding free nucleon cross section already exists at the
+  // cross section spline list.
+  // If yes, calculate the nuclear cross section based on that value.
+  //
+  XSecSplineList * xsl = XSecSplineList::Instance();
+  if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() ) {
+    Interaction * in = new Interaction(*interaction);
+    if(pdg::IsProton(nucleon_pdgc)) { 
+      in->InitStatePtr()->TgtPtr()->SetId(kPdgTgtFreeP); 
+    } else { 
+      in->InitStatePtr()->TgtPtr()->SetId(kPdgTgtFreeN); 
+    }
+    if(xsl->SplineExists(model,in)) {
+      const Spline * spl = xsl->GetSpline(model, in);
+      double xsec = spl->Evaluate(Ev);
+      SLOG("ReinSeghalResT", pNOTICE)  
+         << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
+               << Ev << " GeV) = " << xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
+      if(! interaction->TestBit(kIAssumeFreeNucleon) ) {
+        int NNucl = (pdg::IsProton(nucleon_pdgc)) ? target.Z() : target.N();
+        xsec *= NNucl;
+      }
+      delete in;
+      return xsec;
+    }
+    delete in;
   }
-  const CacheBranchFx & cbranch = (*cache_branch);
-  
-  //-- Get cached resonance neutrinoproduction xsec
-  //   (If E>Emax, assume xsec = xsec(Emax) - but do not evaluate the
-  //    cross section spline at the end of its energy range-)
-  double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
 
-  SLOG("ReinSeghalResT", pNOTICE)  
-    << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
+  // There was no corresponding free nucleon spline saved in XSecSplineList that
+  // could be used to speed up this calculation.
+  // Check whether local caching of free nucleon cross sections is allowed.
+  // If yes, store free nucleon cross sections at a cache branch and use those
+  // at any subsequent call.
+  //
+  if(!gSystem->Getenv("GDISABLECACHING")) {
+     Cache * cache = Cache::Instance();
+     string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
+     LOG("ReinSeghalResT", pINFO) 
+         << "Finding cache branch with key: " << key;
+     CacheBranchFx * cache_branch =
+         dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+     if(!cache_branch) {
+        LOG("ReinSeghalResT", pWARN)  
+           << "No cached RES v-production data for input neutrino"
+           << " (pdgc: " << nu_pdgc << ")";
+        LOG("ReinSeghalResT", pWARN)  
+           << "Wait while computing/caching RES production xsec first...";
+
+        this->CacheResExcitationXSec(interaction); 
+
+        LOG("ReinSeghalResT", pINFO) << "Done caching resonance xsec data";
+        LOG("ReinSeghalResT", pINFO) 
+               << "Finding newly created cache branch with key: " << key;
+        cache_branch =
+              dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+        assert(cache_branch);
+     }
+     const CacheBranchFx & cbranch = (*cache_branch);
+  
+    //-- Get cached resonance neutrinoproduction xsec
+    //   (If E>Emax, assume xsec = xsec(Emax) - but do not evaluate the
+    //    cross section spline at the end of its energy range-)
+    double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
+
+    SLOG("ReinSeghalResT", pNOTICE)  
+       << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
                << Ev << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
 
-  //-- If requested return the free nucleon xsec even for input nuclear tgt
-  if( interaction->TestBit(kIAssumeFreeNucleon) ) return rxsec;
+     if( interaction->TestBit(kIAssumeFreeNucleon) ) return rxsec;
 
-  //-- number of scattering centers in the target
-  int NNucl = (pdg::IsProton(nucleon_pdgc)) ? target.Z() : target.N();
-  rxsec*=NNucl; // nuclear xsec 
+     int NNucl = (pdg::IsProton(nucleon_pdgc)) ? target.Z() : target.N();
+     rxsec*=NNucl; // nuclear xsec 
+     return rxsec;
+  } // disable local caching
 
-  return rxsec;
+  // Just go ahead and integrate the input differential cross section for the
+  // specified interaction.  
+  else {
+
+    Range1D_t rW  = kps.Limits(kKVW);
+    Range1D_t rQ2 = kps.Limits(kKVQ2);
+
+    LOG("ReinSeghalResC", pINFO)
+          << "*** Integrating d^2 XSec/dWdQ^2 for R: "
+          << utils::res::AsString(res) << " at Ev = " << Ev;
+    LOG("ReinSeghalResC", pINFO)
+          << "{W}   = " << rW.min  << ", " << rW.max;
+    LOG("ReinSeghalResC", pINFO)
+          << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
+         
+    GXSecFunc * func = 
+         new Integrand_D2XSec_DWDQ2_E(fSingleResXSecModel, interaction);
+    func->SetParam(0,"W",  rW);
+    func->SetParam(1,"Q2", rQ2);
+    double xsec = fIntegrator->Integrate(*func);
+    delete func;
+    return xsec;
+  }
+  return 0;
 }
 //____________________________________________________________________________
 void ReinSeghalRESXSec::Configure(const Registry & config)
