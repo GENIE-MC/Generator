@@ -726,8 +726,8 @@ void Intranuke::PiSlam(
   TVector3 plab(0,pt,pz);
   TVector3 dir = p->P4()->Vect().Unit(); // unit vector along incoming pi
 
-  plab.RotateUz(dir);  // align pz with the direction of the incoming pi
   plab.RotateZ(phi);   // randomize tranverse components
+  plab.RotateUz(dir);  // align pz with the direction of the incoming pi
 
   double ptot2  = TMath::Power(ptot,      2);
   double pmass2 = TMath::Power(p->Mass(), 2);
@@ -790,8 +790,8 @@ void Intranuke::PnSlam(
   TVector3 plab(0,pt,pz);
   TVector3 dir = p->P4()->Vect().Unit(); // unit vector along incoming nucleon
 
-  plab.RotateUz(dir);  // align pz with the direction of the incoming nucleon
   plab.RotateZ(phi);   // randomize tranverse components
+  plab.RotateUz(dir);  // align pz with the direction of the incoming nucleon
 
   double ptot2  = TMath::Power(ptot,      2);
   double pmass2 = TMath::Power(p->Mass(), 2);
