@@ -65,6 +65,10 @@ double DISXSec::Integrate(
 
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfHitNucRest);
+
+  int nucpdgc = init_state.Tgt().HitNucPdg();
+  int NNucl   = (pdg::IsProton(nucpdgc)) ? 
+                   init_state.Tgt().Z() : init_state.Tgt().N();
   
   // If the input interaction is off a nuclear target, then chek whether 
   // the corresponding free nucleon cross section already exists at the 
@@ -75,15 +79,17 @@ double DISXSec::Integrate(
   if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() ) {
     Interaction * interaction = new Interaction(*in);
     Target * target = interaction->InitStatePtr()->TgtPtr();
-    int nucpdgc = target->HitNucPdg();
     if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
     else                       { target->SetId(kPdgTgtFreeN); }
     if(xsl->SplineExists(model,interaction)) {
       const Spline * spl = xsl->GetSpline(model, interaction);
       double xsec = spl->Evaluate(Ev);
-      int NNucl = (pdg::IsProton(nucpdgc)) ? target->Z() : target->N(); 
-      xsec *= NNucl; 
-      LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
+      LOG("DISXSec", pINFO)  
+        << "From XSecSplineList: XSec[DIS,free nucleon] (E = " << Ev << " GeV) = " << xsec;
+      if(! interaction->TestBit(kIAssumeFreeNucleon) ) { 
+          xsec *= NNucl; 
+          LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
+      }
       delete interaction;
       return xsec;
     }
@@ -111,17 +117,12 @@ double DISXSec::Integrate(
      }
      const CacheBranchFx & cb = (*cache_branch);
      double xsec = cb(Ev);
-     Target * target = interaction->InitStatePtr()->TgtPtr();
-     int nucpdgc = target->HitNucPdg();
-     int NNucl = (pdg::IsProton(nucpdgc)) ? target->Z() : target->N(); 
-     xsec *= NNucl; 
+     if(! interaction->TestBit(kIAssumeFreeNucleon) ) { xsec *= NNucl; }
      LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
      delete interaction;
      return xsec;
   }
-
   else {
-
     // Just go ahead and integrate the input differential cross section for the 
     // specified interaction.
     //
