@@ -42,10 +42,6 @@ TGT =	gtestAlgorithms 	\
 
 all: $(TGT)
 
-debugxsec: FORCE
-	$(CXX) $(CXXFLAGS) -c debugxsec.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) debugxsec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/debugxsec
-
 gtestAlgorithms: FORCE
 	$(CXX) $(CXXFLAGS) -c testAlgorithms.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testAlgorithms.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestAlgorithms
