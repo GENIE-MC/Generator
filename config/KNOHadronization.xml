@@ -55,7 +55,9 @@ PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweight f
 
 <alg_conf>
   <param_set name="Default"> 
-     <param type="bool" name="ForceNeugenMultLimit">  true                            </param>
+<!--
+     <param type="bool" name="ForceNeugenMultLimit">  true </param>
+-->
   </param_set>
 
   <param_set name="Default-Decaying"> 
