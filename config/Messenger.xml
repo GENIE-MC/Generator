@@ -76,7 +76,7 @@
   <priority msgstream="IntSel">              NOTICE </priority>
   <priority msgstream="IntLst">              NOTICE </priority>
   <priority msgstream="Interaction">         INFO   </priority>
-  <priority msgstream="Intranuke">           DEBUG </priority>
+  <priority msgstream="Intranuke">           NOTICE </priority>
   <priority msgstream="ISApp">               INFO   </priority>
   <priority msgstream="IntGenMap">           INFO   </priority>
   <priority msgstream="KNOHad">              NOTICE </priority> 
