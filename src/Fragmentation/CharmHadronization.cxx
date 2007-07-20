@@ -26,6 +26,7 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "Fragmentation/CharmHadronization.h"
 #include "Fragmentation/FragmentationFunctionI.h"
 #include "Messenger/Messenger.h"
@@ -34,12 +35,14 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
+#include "PDG/PDGCodeList.h"
 #include "Utils/KineUtils.h"
 #include "Utils/FragmRecUtils.h"
 #include "Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::controls;
 
 extern "C" void py1ent_(int *,  int *, double *, double *, double *);
 extern "C" void py2ent_(int *,  int *, int *, double *);
@@ -70,11 +73,14 @@ void CharmHadronization::Initialize(void) const
 TClonesArray * CharmHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
-  LOG("CharmHad", pNOTICE) << "Running CHARM hadronizer";
+  LOG("CharmHad", pNOTICE) << "** Running CHARM hadronizer";
 
   PDGLibrary * pdglib = PDGLibrary::Instance();
   RandomGen *  rnd    = RandomGen::Instance();
   
+  // --------------------------------------------------------------------
+  // Get information on the input event
+  //
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
   const Target &       target     = init_state.Tgt();
@@ -83,113 +89,120 @@ TClonesArray * CharmHadronization::Hadronize(
 
   double Ev = init_state.ProbeE(kRfLab);
   double W  = kinematics.W(true);
+
+  TVector3 beta = -1 * p4Had.BoostVector(); // boost vector for LAB' -> HCM'
+  TLorentzVector p4H(0,0,0,W);              // hadronic system 4p @ HCM'
+
   double Eh = p4Had.Energy();
 
   LOG("CharmHad", pNOTICE) << "Ehad (LAB) = " << Eh << ", W = " << W;
 
-  //-- Generate a charmed hadron PDG code and generate its energy
-  //   based on the input fragmentation function
+  int  nu_pdg  = init_state.ProbePdg();
+  int  nuc_pdg = target.HitNucPdg();
+//int  qpdg    = target.HitQrkPdg();
+//bool sea     = target.HitSeaQrk();
+  bool isp     = pdg::IsProton (nuc_pdg);
+  bool isn     = pdg::IsNeutron(nuc_pdg);
+  bool isnu    = pdg::IsNeutrino(nu_pdg);
+  bool isnub   = pdg::IsAntiNeutrino(nu_pdg);
 
-  int nupdg = init_state.ProbePdg();
-  int cpdgc = 0;
+  // --------------------------------------------------------------------
+  // Attempt to generate a charmed hadron & its 4-momentum
+  //
 
-  double mC=0., mC2=0., EC=0., EC2=0., z=0., pC2=0.;
+  TLorentzVector p4C(0,0,0,0);
+  int ch_pdg = -1;
 
-  unsigned int itry = 0;
-  bool found = false;
+  bool got_charmed_hadron = false;
+  unsigned int itry=0;
 
-  while(itry++<1000 && !found) {
+  while(itry++ < kRjMaxIterations && !got_charmed_hadron) {
 
-    cpdgc = this->GenerateCharmHadron(nupdg,Ev); // generate hadron
-    z     = fFragmFunc->GenerateZ();             // generate z(=Eh/Ev)
-    mC    = pdglib->Find(cpdgc)->Mass();         // lookup mass
-    EC    = z*Eh;                                // charm hadron energy
-    mC2   = TMath::Power(mC,2);
-    EC2   = TMath::Power(EC,2);
-    pC2   = EC2-mC2;
+     // Generate a charmed hadron PDG code
+     int    pdg = this->GenerateCharmHadron(nu_pdg,Ev); // generate hadron
+     double mc  = pdglib->Find(pdg)->Mass();           // lookup mass
+     
+     LOG("CharmHad", pNOTICE) 
+         << "Trying charm hadron = " << pdg << "(m = " << mc << ")";
 
-    found = (mC<W && pC2>0);
+     if(mc>=W) continue; // dont' accept
+
+     // Generate the charmed hadron energy based on the input
+     // fragmentation function
+     double z   = fFragmFunc->GenerateZ();  // generate z(=Eh/Ev)
+     double Ec  = z*Eh;                     // @ LAB'
+     double mc2 = TMath::Power(mc,2);
+     double Ec2 = TMath::Power(Ec,2);
+     double pc2 = Ec2-mc2;
+
+     LOG("CharmHad", pINFO) 
+         << "Trying charm hadron z = " << z << ", E = " << Ec;
+     
+     if(pc2<=0) continue; 
+
+     // Generate the charm hadron pT^2 and pL^2 (with respect to the
+     // hadronic system direction @ the LAB)
+     double ptc2 = fCharmPT2pdf->GetRandom();   
+     double plc2 = Ec2 - ptc2 - mc2;
+     LOG("CharmHad", pINFO) 
+           << "Trying charm hadron pT^2 (tranv to pHad) = " << ptc2;
+     if(plc2<0) continue;
+
+     // Generate the charm hadron momentum components (@ LAB', z:\vec{pHad})
+     double ptc = TMath::Sqrt(ptc2);
+     double plc = TMath::Sqrt(plc2);   
+     double phi = (2*kPi) * rnd->RndHadro().Rndm();
+     double pxc = ptc * TMath::Cos(phi);
+     double pyc = ptc * TMath::Sin(phi);
+     double pzc = plc; 
+
+     p4C.SetPxPyPzE(pxc,pyc,pzc,Ec); // @ LAB'
+
+     // Boost charm hadron 4-momentum from the LAB' to the HCM' frame
+     //
+     LOG("CharmHad", pDEBUG) 
+       << "Charm hadron p4 (@LAB') = " << utils::print::P4AsString(&p4C);
+
+     p4C.Boost(beta);
+
+     LOG("CharmHad", pDEBUG) 
+        << "Charm hadron p4 (@HCM') = " << utils::print::P4AsString(&p4C);
+
+     // Hadronic non-charm remnant 4p at HCM'
+     TLorentzVector p4 = p4H - p4C;
+     double wr = p4.M();
+     LOG("CharmHad", pINFO) 
+             << "Invariant mass of remnant hadronic system= " << wr;
+     if(wr < kNucleonMass + kPionMass + kASmallNum) {
+        LOG("CharmHad", pINFO) << "Too small hadronic remnant mass!";
+        continue;
+     }
+    
+     ch_pdg = pdg;
+     got_charmed_hadron = true;
+
+     LOG("CharmHad", pNOTICE) 
+           << "Generated charm hadron = " << pdg << "(m = " <<  mc << ")";
+     LOG("CharmHad", pNOTICE) 
+           << "Generated charm hadron z = " << z << ", E = " << Ec;
   }
-  
-  if(!found){
-     LOG("CharmHad", pWARN) << "Couldn't generate charm hadron id!";
+
+  if(ch_pdg==-1){
+     LOG("CharmHad", pWARN) 
+         << "Couldn't generate charm hadron for: " << *interaction;
      return 0;
   }
 
-  LOG("CharmHad", pNOTICE) 
-         << "Generated charm hadron = " << cpdgc << "(m = " << mC << ")";
-  LOG("CharmHad", pNOTICE) 
-         << "Generated charm hadron z = " << z << ", E = " << EC;
-
-  //-- Generate the charm hadron pT^2 and pL^2 (with respect to the
-  //   hadronic system direction @ the LAB)
-
-  double plC2=0., ptC2=0.;
-  found = false;
-  while(!found) {
-    ptC2 = fCharmPT2pdf->GetRandom();   
-    plC2 = EC2 - ptC2 - mC2;
-    found = (plC2>0);
-  }
-
-  if(!found){
-     LOG("CharmHad", pWARN) << "Couldn't generate charm hadron 4p!";
-     return 0;
-  }
-
-  //-- Generate the charm hadron momentum components (with respect to
-  //   the hadronic system direction @ the LAB)
-  double ptC = TMath::Sqrt(ptC2);
-  double plC = TMath::Sqrt(plC2);   
-  double phi = (2*kPi) * rnd->RndHadro().Rndm();
-  double pxC = ptC * TMath::Cos(phi);
-  double pyC = ptC * TMath::Sin(phi);
-  double pzC = plC; 
-
-  LOG("CharmHad", pNOTICE) 
-           << "Generated charm hadron pT (tranv to pHad) = " << ptC;
-  LOG("CharmHad", pNOTICE) 
-           << "Generated charm hadron pL (along to pHad) = " << plC;
-
-  //-- Rotate charm hadron 3-momentum from the system with z' along
-  //   the hadronic momentum to the LAB
-
-  TVector3 unitvq = p4Had.Vect().Unit();
-
-  TVector3 p3C(pxC, pyC, pzC);
-  p3C.RotateUz(unitvq);
-
-  //-- Boost charm hadron 4-momentum from the LAB to the HCM frame
-
-  TLorentzVector p4C(p3C,EC);
-
-  LOG("CharmHad", pNOTICE) 
-    << "Charm hadron p4 (LAB) = " << utils::print::P4AsString(&p4C);
-
-  TVector3 beta = -1 * p4Had.BoostVector();
-  p4C.Boost(beta);
-
-  LOG("CharmHad", pNOTICE) 
-    << "Charm hadron p4 (HCM) = " << utils::print::P4AsString(&p4C);
-
-  //-- Hadronic non-charm remnant 4p at HCM
-  TLorentzVector p4H(0,0,0,W);
   TLorentzVector p4R = p4H - p4C;
-
   double WR = p4R.M();
+  double MC = pdglib->Find(ch_pdg)->Mass();
 
-  LOG("CharmHad", pNOTICE) 
-             << "Hadronic-blob (remnant) invariant mass = " << WR;
+  LOG("CharmHad", pNOTICE) << "Remnant hadronic system mass = " << WR;
 
-  //-- If the remnant mass is too low then return a null record so
-  //   as to re-try.
-  if(WR < kNucleonMass + kPionMass) {
-     LOG("CharmHad", pWARN) << "Too small hadronic remnant mass!";
-     return 0;
-  }
-
-  //-- Check whether I was only asked to generate the charm hadron and the
-  //   hadronic blob and not to hadronize the blob as well
+  // --------------------------------------------------------------------
+  // Handle case where the user doesn't want to remnant system to be
+  // hadronized (add as 'hadronic blob'
+  //
   if(fCharmOnly) {
     // Create particle list (fragmentation record)
     TClonesArray * particle_list = new TClonesArray("TMCParticle", 2);
@@ -197,131 +210,296 @@ TClonesArray * CharmHadronization::Hadronize(
 
     // insert the generated charm hadron & the hadronic (non-charm) blob
 
-    new ((*particle_list)[0]) TMCParticle (1,cpdgc,
-	     -1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),mC, 0,0,0,0,0);
+    new ((*particle_list)[0]) TMCParticle (1,ch_pdg,
+	     -1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),MC, 0,0,0,0,0);
     new ((*particle_list)[1]) TMCParticle (1,kPdgHadronicBlob,
              -1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
 
     return particle_list;
   }
   
-  //  *****  Hadronize non-charm hadronic blob *****
+  // --------------------------------------------------------------------
+  // Hadronize non-charm hadronic blob
+  //
 
-  //-- Figure out the quark systems to input to PYTHIA based on simple
-  //   quark model arguments
+  // Create output event record
+  // Insert the generated charm hadron & the hadronic (non-charm) blob.
+  // In this case the hadronic blob is entered as a pre-fragm. state.
 
-  int  nuc  = target.HitNucPdg();
-  //bool qpdg = target.HitQrkPdg();
-  bool sea  = target.HitSeaQrk();
-  bool isP  = pdg::IsProton (nuc);
-
-  int  qrkSyst1 = 0;
-  int  qrkSyst2 = 0;
-
-  // scattering off valence quark
-  if(!sea) {
-     // Scattering off a valence d quark. The remaining target diquark is:
-     // - uu for protons 
-     // - ud for neutrons (50% in singlet, 50% in triplet state)
-     if(isP) qrkSyst2 = kPdgUUDiquarkS1;
-     else {
-       qrkSyst2 = kPdgUDDiquarkS1;
-       double Rqq = rnd->RndHadro().Rndm();
-       if(Rqq<0.5) qrkSyst2 = kPdgUDDiquarkS0;
-     }
-
-     // The hit d quark is now a c quark within the charm hadron. 
-     // The charm hadron was formed by picking up quarks from qqbar pairs.
-     // Check the charm meson quark contents to figure out which quark
-     // was left outside the meson so that it can go on hadronizing...
-     
-     if      (cpdgc == kPdgD0      ) qrkSyst1 = kPdgUQuark; // D0 (c ubar),      
-     else if (cpdgc == kPdgDP      ) qrkSyst1 = kPdgDQuark; // D^+ (c dbar)
-     else if (cpdgc == kPdgDPs     ) qrkSyst1 = kPdgSQuark; // Ds^+ (c sbar)
-     else if (cpdgc == kPdgLambdaPc) qrkSyst1 = -2101;      // Lamda_c^+ (c ud)
-  }
-  else {
-    LOG("CharmHad", pWARN) 
-           << "I can't handle hadronization for scattering off sea quarks";
-    return 0;
-  }
-
-  //-- Run PYTHIA.
-  //   The hadronization takes place at the *remnant hadrons* centre of mass
-  //   frame (not the hadronic centre of mass frame). Remember to boost.
-  int ip     = 0;
-  int mstj21 = fPythia->GetMSTJ(21);
-
-  fPythia->SetMSTJ(21,0);                  // inhibit decays at this stage
-  py2ent_(&ip, &qrkSyst1, &qrkSyst2, &WR); // hadronize
-  fPythia->SetMSTJ(21,mstj21);             // restore
-
-  //-- Get PYTHIA's LUJETS event record
-  TClonesArray * remnants = 0;
-  fPythia->GetPrimaries();
-  remnants = dynamic_cast<TClonesArray *>(fPythia->ImportParticles("All"));
-  if(!remnants) {
-     LOG("CharmHad", pWARN) << "Couldn't hadronize (non-charm) remnants!";
-     return 0;
-  }
-
-  //-- Create particle list (fragmentation record)
-
-  unsigned int nremnants = remnants->GetEntries();
-  unsigned int nhadrons  = 2 + nremnants;
-
-  TClonesArray * particle_list = new TClonesArray("TMCParticle", nhadrons);
+  TClonesArray * particle_list = new TClonesArray("TMCParticle");
   particle_list->SetOwner(true);
 
-  //-- Insert the generated charm hadron & the hadronic (non-charm) blob.
-  //   In this case the hadronic blob is entered as a pre-fragm. state.
-
-  new ((*particle_list)[0]) TMCParticle (1,cpdgc,
-                  -1,-1,-1,  p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),mC, 0,0,0,0,0);
+  new ((*particle_list)[0]) TMCParticle (1,ch_pdg,
+                  -1,-1,-1,  p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),MC, 0,0,0,0,0);
   new ((*particle_list)[1]) TMCParticle (11,kPdgHadronicBlob,
-       -1,2,3, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
+                     -1,2,3, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
 
-  //-- Velocity for boosting fragments from the remnant hadrons CM frame
-  //   to the hadronic -all hadrons- CM frame
-  TVector3 rmnbeta = -1 * p4R.BoostVector();
+  unsigned int rpos =2; // offset in event record
 
-  //-- Boost all hadronic blob fragments to the hadronic CM, fix their
-  //   mother/daughter assignments and add them to the fragmentation record.
+  bool use_pythia = (WR>1.5);
 
-  TMCParticle * remnant = 0; 
-  TIter remnant_iter(remnants);
+  // ....................................................................
+  // Hadronizing non-charm hadronic blob using PYTHIA/JETEST
+  // ....................................................................
+/*
+  // Determining quark systems to input to PYTHIA based on simple quark model 
+  // arguments
+  //
+  // Neutrinos
+  // ------------------------------------------------------------------
+  // Scattering off valence q
+  // ..................................................................
+  // p: [uu]+d 
+  //         |--> c --> D0       <c+\bar(u)>  : [u]
+  //                --> D+       <c+\bar(d)>  : [d]
+  //                --> Ds+      <c+\bar(s)>  : [s]
+  //                --> Lamda_c+ <c+ud     >  : [\bar(ud)]
+  //
+  // (for n: [uu] -> 50%[ud]_{0} + 50%[ud]_{1})
+  //
+  // Scattering off sea q
+  // ..................................................................
+  // p: [uud] + [\bar(d)]d (or)
+  //            [\bar(s)]s 
+  //                     |--> c --> D0       <c+\bar(u)>  : [u]
+  //                            --> D+       <c+\bar(d)>  : [d]
+  //                            --> Ds+      <c+\bar(s)>  : [s]
+  //                            --> Lamda_c+ <c+ud     >  : [\bar(ud)]
+  // Anti-Neutrinos
+  // ------------------------------------------------------------------
+  // Scattering off sea q
+  // ..................................................................
+  // p: [uud] + [d] \bar(d) (or)
+  //            [s] \bar(s) 
+  //                   |----> \bar(c) --> \bar(D0) <\bar(c)+u>  : [\bar(u)]
+  //                                  --> D-       <\bar(c)+d>  : [\bar(d)]
+  //                                  --> Ds-      <\bar(c)+s>  : [\bar(s)]
+  // [Summary]
+  //                                                                                    Qq
+  // | v        + p  [val/d]        -->    D0       +  {           u          uu       }(+2) / u,uu
+  // | v        + p  [val/d]        -->    D+       +  {           d          uu       }(+1) / d,uu
+  // | v        + p  [val/d]        -->    Ds+      +  {           s          uu       }(+1) / s,uu
+  // | v        + p  [val/d]        -->    Lc+      +  {           \bar(ud)   uu       }(+1) / \bar(d),u
+  // | v        + n  [val/d]        -->    D0       +  {           u          ud       }(+1) / u,ud
+  // | v        + n  [val/d]        -->    D+       +  {           d          ud       }( 0) / d,ud
+  // | v        + n  [val/d]        -->    Ds+      +  {           s          ud       }( 0) / s,ud
+  // | v        + n  [val/d]        -->    Lc+      +  {           \bar(ud)   ud       }( 0) / \bar(d),d
+  // | v        + p  [sea/d]        -->    D0       +  {  uud      \bar(d)    u        }(+2) / u,uu
+  // | v        + p  [sea/d]        -->    D+       +  {  uud      \bar(d)    d        }(+1) / d,uu
+  // | v        + p  [sea/d]        -->    Ds+      +  {  uud      \bar(d)    s        }(+1) / s,uu
+  // | v        + p  [sea/d]        -->    Lc+      +  {  uud      \bar(d)    \bar(ud) }(+1) / \bar(d),u
+  // | v        + n  [sea/d]        -->    D0       +  {  udd      \bar(d)    u        }(+1) / u,ud
+  // | v        + n  [sea/d]        -->    D+       +  {  udd      \bar(d)    d        }( 0) / d,ud
+  // | v        + n  [sea/d]        -->    Ds+      +  {  udd      \bar(d)    s        }( 0) / s,ud
+  // | v        + n  [sea/d]        -->    Lc+      +  {  udd      \bar(d)    \bar(ud) }( 0) / \bar(d),d
+  // | v        + p  [sea/s]        -->    D0       +  {  uud      \bar(s)    u        }(+2) / u,uu
+  // | v        + p  [sea/s]        -->    D+       +  {  uud      \bar(s)    d        }(+1) / d,uu
+  // | v        + p  [sea/s]        -->    Ds+      +  {  uud      \bar(s)    s        }(+1) / s,uu
+  // | v        + p  [sea/s]        -->    Lc+      +  {  uud      \bar(s)    \bar(ud) }(+1) / \bar(d),u
+  // | v        + n  [sea/s]        -->    D0       +  {  udd      \bar(s)    u        }(+1) / u,ud
+  // | v        + n  [sea/s]        -->    D+       +  {  udd      \bar(s)    d        }( 0) / d,ud
+  // | v        + n  [sea/s]        -->    Ds+      +  {  udd      \bar(s)    s        }( 0) / s,ud
+  // | v        + n  [sea/s]        -->    Lc+      +  {  udd      \bar(s)    \bar(ud) }( 0) / \bar(d),d
 
-  unsigned int rpos=2; // offset in event record
+  // | \bar(v)  + p  [sea/\bar(d)]  -->    \bar(D0) +  {  uud      d          \bar(u)  }( 0) / d,ud
+  // | \bar(v)  + p  [sea/\bar(d)]  -->    D-       +  {  uud      d          \bar(d)  }(+1) / d,uu
+  // | \bar(v)  + p  [sea/\bar(d)]  -->    Ds-      +  {  uud      d          \bar(s)  }(+1) / d,uu
+  // | \bar(v)  + n  [sea/\bar(d)]  -->    \bar(D0) +  {  udd      d          \bar(u)  }(-1) / d,dd
+  // | \bar(v)  + n  [sea/\bar(d)]  -->    D-       +  {  udd      d          \bar(d)  }( 0) / d,ud
+  // | \bar(v)  + n  [sea/\bar(d)]  -->    Ds-      +  {  udd      d          \bar(s)  }( 0) / d,ud
+  // | \bar(v)  + p  [sea/\bar(s)]  -->    \bar(D0) +  {  uud      s          \bar(u)  }( 0) / d,ud
+  // | \bar(v)  + p  [sea/\bar(s)]  -->    D-       +  {  uud      s          \bar(d)  }(+1) / d,uu
+  // | \bar(v)  + p  [sea/\bar(s)]  -->    Ds-      +  {  uud      s          \bar(s)  }(+1) / d,uu
+  // | \bar(v)  + n  [sea/\bar(s)]  -->    \bar(D0) +  {  udd      s          \bar(u)  }(-1) / d,dd
+  // | \bar(v)  + n  [sea/\bar(s)]  -->    D-       +  {  udd      s          \bar(d)  }( 0) / d,ud
+  // | \bar(v)  + n  [sea/\bar(s)]  -->    Ds-      +  {  udd      s          \bar(s)  }( 0) / d,ud
+  //
+  //
+  // Taking some short-cuts below :
+  // In the process of obtaining 2 q systems (while conserving the charge) I might tread 
+  // d,s or \bar(d),\bar(s) as the same
+  // In the future I should perform the first steps of the multi-q hadronization manualy
+  // (to reduce the number of q's input to PYTHIA) or use py3ent_(), py4ent_() ...
+  //
+*/
 
-  while( (remnant = (TMCParticle *) remnant_iter.Next()) ) {
+  if(use_pythia) {
+    int  qrkSyst1 = 0;
+    int  qrkSyst2 = 0;
+    if(isnu) { // neutrinos
+       if(ch_pdg==kPdgLambdaPc) {
+          if(isp) { qrkSyst1 = kPdgAntiDQuark; qrkSyst2 = kPdgUQuark; }
+          if(isn) { qrkSyst1 = kPdgAntiDQuark; qrkSyst2 = kPdgDQuark; }
+       } else {
+          if(isp) { qrkSyst2 = kPdgUUDiquarkS1; }
+          if(isn) { qrkSyst2 = (rnd->RndHadro().Rndm()<0.5) ?  kPdgUDDiquarkS0 :  kPdgUDDiquarkS1; }
+          if (ch_pdg==kPdgD0      ) { qrkSyst1 = kPdgUQuark; }
+          if (ch_pdg==kPdgDP      ) { qrkSyst1 = kPdgDQuark; }  
+          if (ch_pdg==kPdgDPs     ) { qrkSyst1 = kPdgSQuark; }  
+       }
+     }
+     if(isnub) { // antineutrinos
+       qrkSyst1 = kPdgDQuark;    
+       if (isp && ch_pdg==kPdgAntiD0) { qrkSyst2 = (rnd->RndHadro().Rndm()<0.5) ? kPdgUDDiquarkS0 : kPdgUDDiquarkS1; }
+       if (isp && ch_pdg==kPdgDM    ) { qrkSyst2 = kPdgUUDiquarkS1; }
+       if (isp && ch_pdg==kPdgDMs   ) { qrkSyst2 = kPdgUUDiquarkS1; }
+       if (isn && ch_pdg==kPdgAntiD0) { qrkSyst2 = kPdgDDDiquarkS1; }
+       if (isn && ch_pdg==kPdgDM    ) { qrkSyst2 = (rnd->RndHadro().Rndm()<0.5) ? kPdgUDDiquarkS0 : kPdgUDDiquarkS1; }
+       if (isn && ch_pdg==kPdgDMs   ) { qrkSyst2 = (rnd->RndHadro().Rndm()<0.5) ? kPdgUDDiquarkS0 : kPdgUDDiquarkS1; }
+     }
+     if(qrkSyst1 == 0 && qrkSyst2 == 0) {
+         LOG("CharmHad", pWARN) 
+             << "Couldn't generate quark systems for PYTHIA in: " << *interaction;
+         return 0;
+     }
 
-    // insert and get a pointer to inserted object for mods
-    TMCParticle * boosted_remnant = 
-      new ((*particle_list)[rpos++]) TMCParticle (*remnant);
+     //
+     // Run PYTHIA for the hadronization of remnant system
+     //
+     fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),     1,0); // don't decay pi0
+     fPythia->SetMDCY(fPythia->Pycomp(kPdgDeltaP),  1,1); // decay Delta+
+     fPythia->SetMDCY(fPythia->Pycomp(kPdgDeltaPP), 1,1); // decay Delta++
 
-    // boost 
-    double px = remnant->GetPx();
-    double py = remnant->GetPy();
-    double pz = remnant->GetPz();
-    double E  = remnant->GetEnergy();
+     int ip = 0;
+     py2ent_(&ip, &qrkSyst1, &qrkSyst2, &WR); // hadronize
 
-    TLorentzVector p4(px,py,pz,E);
-    p4.Boost(rmnbeta);
+     fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),1,1); // restore
 
-    boosted_remnant -> SetPx     (p4.Px());
-    boosted_remnant -> SetPy     (p4.Py());
-    boosted_remnant -> SetPz     (p4.Pz());
-    boosted_remnant -> SetEnergy (p4.E() );
+     //-- Get PYTHIA's LUJETS event record
+     TClonesArray * remnants = 0;
+     fPythia->GetPrimaries();
+     remnants = dynamic_cast<TClonesArray *>(fPythia->ImportParticles("All"));
+     if(!remnants) {
+         LOG("CharmHad", pWARN) << "Couldn't hadronize (non-charm) remnants!";
+         return 0;
+      }
 
-    // handle insertion of charmed hadron 
-    int ip  = boosted_remnant->GetParent();
-    int ifc = boosted_remnant->GetFirstChild();
-    int ilc = boosted_remnant->GetLastChild();
+      // PYTHIA performs the hadronization at the *remnant hadrons* centre of mass 
+      // frame  (not the hadronic centre of mass frame). 
+      // Boost all hadronic blob fragments to the HCM', fix their mother/daughter 
+      // assignments and add them to the fragmentation record.
 
-    boosted_remnant -> SetParent     ( (ip  == 0 ?  1 : ip +1) );
-    boosted_remnant -> SetFirstChild ( (ifc == 0 ? -1 : ifc+1) );
-    boosted_remnant -> SetLastChild  ( (ilc == 0 ? -1 : ilc+1) );
-  }
+      TVector3 rmnbeta = +1 * p4R.BoostVector(); // boost velocity
+
+      TMCParticle * remn  = 0; // remnant
+      TMCParticle * bremn = 0; // boosted remnant
+      TIter remn_iter(remnants);
+      while( (remn = (TMCParticle *) remn_iter.Next()) ) {
+
+         // insert and get a pointer to inserted object for mods
+         bremn = new ((*particle_list)[rpos++]) TMCParticle (*remn);
+
+         // boost 
+         TLorentzVector p4(remn->GetPx(),remn->GetPy(),remn->GetPz(),remn->GetEnergy());
+         p4.Boost(rmnbeta);
+         bremn -> SetPx     (p4.Px());
+         bremn -> SetPy     (p4.Py());
+         bremn -> SetPz     (p4.Pz());
+         bremn -> SetEnergy (p4.E() );
+
+         // handle insertion of charmed hadron 
+         int ip  = bremn->GetParent();
+         int ifc = bremn->GetFirstChild();
+         int ilc = bremn->GetLastChild();
+         bremn -> SetParent     ( (ip  == 0 ?  1 : ip +1) );
+         bremn -> SetFirstChild ( (ifc == 0 ? -1 : ifc+1) );
+         bremn -> SetLastChild  ( (ilc == 0 ? -1 : ilc+1) );
+      }
+  } // use_pythia
+
+  // ....................................................................
+  // Hadronizing low-W non-charm hadronic blob using a phase space decay
+  // ....................................................................
+
+  else {
+     // Just a small fraction of events (low-W remnant syste) causing trouble
+     // to PYTHIA/JETSET
+     // Set a 2-body N+pi system that matches the remnant system charge and
+     // do a simple phase space decay
+     //
+     // q(remn)  remn/syst
+     // +2    :  (p pi+)
+     // +1    :  50%(p pi0) + 50% n pi+
+     //  0    :  50%(p pi-) + 50% n pi0
+     // -1    :  (n pi-)
+     //
+     double qfsl  = interaction->FSPrimLepton()->Charge() / 3.;
+     double qinit = pdglib->Find(nuc_pdg)->Charge() / 3.;
+     double qch   = pdglib->Find(ch_pdg)->Charge() / 3.;
+     int Q = (int) (qinit - qfsl - qch); // remnant hadronic system charge
+
+     bool allowdup=true;
+     PDGCodeList pd(allowdup);
+     if(Q==2) {
+            pd.push_back(kPdgProton);  pd.push_back(kPdgPiP);  } 
+     else if (Q==1) {
+       if(rnd->RndHadro().Rndm()<0.5) {
+            pd.push_back(kPdgProton);  pd.push_back(kPdgPi0);  }
+       else {
+            pd.push_back(kPdgNeutron); pd.push_back(kPdgPiP);  }
+     } 
+     else if (Q==0) {
+        if(rnd->RndHadro().Rndm()<0.5) {
+            pd.push_back(kPdgProton);  pd.push_back(kPdgPiM);  }
+        else {
+           pd.push_back(kPdgNeutron);  pd.push_back(kPdgPi0);  }
+     } 
+     else if (Q==-1) {
+           pd.push_back(kPdgNeutron);  pd.push_back(kPdgPiM);  }
+
+     double mass[2] = {
+       pdglib->Find(pd[0])->Mass(), pdglib->Find(pd[1])->Mass()
+     };
+
+     // Set the decay
+     bool permitted = fPhaseSpaceGenerator.SetDecay(p4R, 2, mass);
+     if(!permitted) {
+       LOG("CharmHad", pERROR) << " *** Phase space decay is not permitted";
+       return 0;
+     }
+     // Get the maximum weight
+     double wmax = -1;
+     for(int i=0; i<200; i++) {
+       double w = fPhaseSpaceGenerator.Generate();
+       wmax = TMath::Max(wmax,w);
+     }
+     assert(wmax>0);
+
+     LOG("CharmHad", pINFO)
+        << "Max phase space gen. weight @ current hadronic system: " << wmax;
+
+      // *** generating an un-weighted decay ***
+      wmax *= 1.3;
+      bool accept_decay=false;
+      unsigned int idectry=0;
+      while(!accept_decay)
+      {
+       idectry++;
+       if(idectry>kMaxUnweightDecayIterations) {
+         // report, clean-up and return
+         LOG("Char,Had", pWARN)
+             << "Couldn't generate an unweighted phase space decay after "
+             << itry << " attempts";
+         return 0;
+      }
+      double w = fPhaseSpaceGenerator.Generate();
+      if(w > wmax) {
+          LOG("CharmHad", pWARN)
+             << "Decay weight = " << w << " > max decay weight = " << wmax;
+       }
+       double gw = wmax * rnd->RndHadro().Rndm();
+       accept_decay = (gw<=w);
+       LOG("CharmHad", pDEBUG)
+          << "Decay weight = " << w << " / R = " << gw << " - accepted: " << accept_decay;
+     }
+     for(unsigned int i=0; i<2; i++) {
+        int pdgc = pd[i];
+        TLorentzVector * p4d = fPhaseSpaceGenerator.GetDecay(i);
+        new ( (*particle_list)[rpos+i] ) TMCParticle(
+           1,pdgc,1,-1,-1,p4d->Px(),p4d->Py(),p4d->Pz(),p4d->Energy(),
+           mass[i],0,0,0,0,0);
+     }
+  } 
 
   //-- Print & return the fragmentation record
   //utils::fragmrec::Print(particle_list);
@@ -345,21 +523,21 @@ TH1D * CharmHadronization::MultiplicityProb(
   return 0;
 }
 //____________________________________________________________________________
-int CharmHadronization::GenerateCharmHadron(int nupdg, double EvLab) const
+int CharmHadronization::GenerateCharmHadron(int nu_pdg, double EvLab) const
 {
   // generate a charmed hadron pdg code using a charm fraction table
 
   RandomGen * rnd = RandomGen::Instance();
   double r  = rnd->RndHadro().Rndm();
 
-  if(pdg::IsNeutrino(nupdg)) {
+  if(pdg::IsNeutrino(nu_pdg)) {
      double tf = 0;
      if      (r < (tf+=fD0FracSpl->Evaluate(EvLab)))  return kPdgD0;       // D^0
      else if (r < (tf+=fDpFracSpl->Evaluate(EvLab)))  return kPdgDP;       // D^+
      else if (r < (tf+=fDsFracSpl->Evaluate(EvLab)))  return kPdgDPs;      // Ds^+
      else                                             return kPdgLambdaPc; // Lamda_c^+
 
-  } else if(pdg::IsAntiNeutrino(nupdg)) {
+  } else if(pdg::IsAntiNeutrino(nu_pdg)) {
      if      (r < fD0BarFrac)          return kPdgAntiD0;
      else if (r < fD0BarFrac+fDmFrac)  return kPdgDM;
      else                              return kPdgDMs;

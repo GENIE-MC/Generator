@@ -23,6 +23,8 @@
 #ifndef _CHARM_HADRONIZATION_H_
 #define _CHARM_HADRONIZATION_H_
 
+#include <TGenPhaseSpace.h>
+
 #include "Fragmentation/HadronizationModelI.h"
 
 class TPythia6;
@@ -58,6 +60,8 @@ private:
 
   void LoadConfig          (void);
   int  GenerateCharmHadron (int nupdg, double EvLab) const;
+
+  mutable TGenPhaseSpace fPhaseSpaceGenerator; ///< a phase space generator
 
   // Configuration parameters
   //
