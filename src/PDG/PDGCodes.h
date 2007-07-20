@@ -105,7 +105,7 @@ const int kPdgK0S          =   310; // K0_{short}
 const int kPdgDP           =   411; // D+
 const int kPdgDM           =  -411; // D-
 const int kPdgD0           =   421; // D0
-const int kPdgAntiD0       =   421; // \bar{D0} - no separate PDG code?
+const int kPdgAntiD0       =  -421; // \bar{D0}
 const int kPdgDPs          =   431; // D+_{s}
 const int kPdgDMs          =  -431; // D-_{s}
 
