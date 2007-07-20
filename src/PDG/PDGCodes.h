@@ -48,15 +48,23 @@ const int kPdgBQuark       =   5;
 const int kPdgAntiBQuark   =  -5;
 const int kPdgTQuark       =   6;
 const int kPdgAntiTQuark   =  -6;
-const int kPdgUUDiquarkS1  =  2203; // uu, spin = 1 - triplet
-const int kPdgUDDiquarkS0  =  2101; // ud, spin = 0 - singlet
-const int kPdgUDDiquarkS1  =  2103; // ud, spin = 1 - triplet
-const int kPdgDDDiquarkS1  =  1103; // dd, spin = 1 - triplet
+
+const int kPdgDDDiquarkS1  =  1103; // dd, spin = 1 
+const int kPdgUDDiquarkS0  =  2101; // ud, spin = 0 
+const int kPdgUDDiquarkS1  =  2103; // ud, spin = 1 
+const int kPdgUUDiquarkS1  =  2203; // uu, spin = 1 
+const int kPdgSDDiquarkS0  =  3101; // sd, spin = 0
+const int kPdgSDDiquarkS1  =  3103; // sd, spin = 1
+const int kPdgSUDiquarkS0  =  3201; // su, spin = 0
+const int kPdgSUDiquarkS1  =  3201; // su, spin = 1
+const int kPdgSSDiquarkS1  =  3303; // ss, spin = 1
 
 const int kPdgProton       =  2212;
 const int kPdgAntiProton   = -2212;
 const int kPdgNeutron      =  2112;
 const int kPdgAntiNeutron  = -2112;
+const int kPdgDeltaP       =  2214; // Delta+
+const int kPdgDeltaPP      =  2214; // Delta++
 const int kPdgLambda       =  3122; // Lambda
 const int kPdgAntiLambda   = -3122; // \bar{Lambda}
 const int kPdgSigmaP       =  3222; // Sigma+
