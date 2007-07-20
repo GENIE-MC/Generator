@@ -1204,23 +1204,17 @@ bool Intranuke::PhaseSpaceDecay(
      //-- get the 4-momentum of the i-th final state particle
      TLorentzVector * p4fin = fGenPhaseSpace.GetDecay(i++);
 
-     //-- add the particle at the event record
-     //   (if it is a cascade nucleon set the binding energy to be 
-     //    removed later on)    
-     //GHepParticle new_particle(pdgc, ist, mom,-1,-1,-1, *p4fin, *v4);
-     //if(isnuc) new_particle.SetRemovalEnergy(fNucRmvE);
-
      //-- intranuke no longer throws "bindinos" but adds all the energy 
      //   not going at a simulated f/s particle at a "hadronic blob" 
      //   representing the remnant system: do the binding energy subtraction
      //   here & update the remnant hadronic system 4p
-     double M  = p4fin->M();
+     double M  = PDGLibrary::Instance()->Find(pdgc)->Mass();
      double En = p4fin->Energy();
      double KE = En-M;
      double dE = TMath::Min(fNucRmvE, KE);
      KE -= dE;
      En  = KE+M;
-     double pmag_old = p->P4()->P();
+     double pmag_old = p4fin->P();
      double pmag_new = TMath::Sqrt(TMath::Max(0.,En*En-M*M));
      double scale    = pmag_new / pmag_old;
      double pxn      = scale * p4fin->Px();
