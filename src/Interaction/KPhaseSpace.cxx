@@ -84,7 +84,7 @@ double KPhaseSpace::Threshold(void) const
        } else {
           int cpdg = xcls.CharmHadronPdg();
           double mchm = PDGLibrary::Instance()->Find(cpdg)->Mass();
-          Wmin = kNucleonMass + mchm;
+          Wmin = kNeutronMass + mchm + kASmallNum;
        }
     }
     double smin = TMath::Power(Wmin+ml,2.);
