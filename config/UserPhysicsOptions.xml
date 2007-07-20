@@ -363,7 +363,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   - cutoff:  [PYTHIA def:0.80 GeV] [NUX tune:0.20 GeV]
   -->
   <param type="double" name="PYTHIA-SSBarSuppression">      0.21 </param>
-  <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param>
+  <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param> 
   <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param>
   <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.20 </param>
 
