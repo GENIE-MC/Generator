@@ -60,6 +60,8 @@ double SlowRsclCharmDISPXSecLO::XSec(
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
+  if(interaction->ProcInfo().IsWeakNC()) return 0;
+
   //----- get kinematics & init-state parameters
   const Kinematics &   kinematics = interaction->Kine();
   const InitialState & init_state = interaction->InitState();
