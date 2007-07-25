@@ -363,6 +363,7 @@ copy-install-files: FORCE
 	cd Interaction;        make install; cd ..; \
 	cd LlewellynSmith;     make install; cd ..; \
 	cd Messenger;	       make install; cd ..; \
+	cd MuELoss;	       make install; cd ..; \
 	cd Nuclear;            make install; cd ..; \
 	cd Ntuple;             make install; cd ..; \
 	cd NuE;                make install; cd ..; \
@@ -403,6 +404,7 @@ purge: FORCE
 	cd Interaction;        make purge; cd ..; \
 	cd LlewellynSmith;     make purge; cd ..; \
 	cd Messenger;	       make purge; cd ..; \
+	cd MuELoss;	       make purge; cd ..; \
 	cd Nuclear;            make purge; cd ..; \
 	cd Ntuple;             make purge; cd ..; \
 	cd NuE;                make purge; cd ..; \
