@@ -1,8 +1,8 @@
 //____________________________________________________________________________
 /*
  Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
- All rights reserved.
- For the licensing terms see $GENIE/USER_LICENSE.
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
  Author: This class is based on code written by the model authors (Olga
          Lalakulich, 17.02.2005). The code was modified to fit into the
