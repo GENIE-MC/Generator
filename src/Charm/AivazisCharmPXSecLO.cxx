@@ -68,17 +68,20 @@ double AivazisCharmPXSecLO::XSec(
   const Target &       target     = init_state.Tgt();
   
   //----- get target information (hit nucleon and quark)
-  int  nuc  = target.HitNucPdg();
-  bool isP  = pdg::IsProton (nuc);
-  bool isN  = pdg::IsNeutron(nuc);
-  bool qset = target.HitQrkIsSet();
-  int  qpdg = (qset) ? target.HitQrkPdg()       : 0;
-  bool sea  = (qset) ? target.HitSeaQrk()       : false;
-  bool isd  = (qset) ? pdg::IsDQuark     (qpdg) : false;
-  bool iss  = (qset) ? pdg::IsSQuark     (qpdg) : false;
-  bool isdb = (qset) ? pdg::IsAntiDQuark (qpdg) : false;
-  bool issb = (qset) ? pdg::IsAntiSQuark (qpdg) : false;
-
+  int  nu    = init_state.ProbePdg();
+  int  nuc   = target.HitNucPdg();
+  bool isP   = pdg::IsProton (nuc);
+  bool isN   = pdg::IsNeutron(nuc);
+  bool qset  = target.HitQrkIsSet();
+  int  qpdg  = (qset) ? target.HitQrkPdg()       : 0;
+  bool sea   = (qset) ? target.HitSeaQrk()       : false;
+  bool isd   = (qset) ? pdg::IsDQuark     (qpdg) : false;
+  bool iss   = (qset) ? pdg::IsSQuark     (qpdg) : false;
+  bool isdb  = (qset) ? pdg::IsAntiDQuark (qpdg) : false;
+  bool issb  = (qset) ? pdg::IsAntiSQuark (qpdg) : false;
+  bool isnu  = pdg::IsNeutrino(nu);
+  bool isnub = pdg::IsAntiNeutrino(nu);
+  
   //----- compute kinematic & auxiliary parameters
   double E           = init_state.ProbeE(kRfHitNucRest);
   double x           = kinematics.x();
@@ -119,10 +122,14 @@ double AivazisCharmPXSecLO::XSec(
 
   //----- if a hit quark has been set then switch off other contributions
   if(qset) {
+    if(isnub) { bool pass = (isdb||issb)&&sea; if(!pass) return 0; }
+    if(isnu)  { bool pass = isd||(iss&&sea);   if(!pass) return 0; }
     dv = (  isd        && !sea) ? dv : 0.;
     ds = ( (isd||isdb) &&  sea) ? ds : 0.;
     s  = ( (iss||issb) &&  sea) ? s  : 0.;
   }
+  //----- in case of a \bar{v}+N calculation (quark not set) zero the d/val contribution 
+  if(isnub) dv=0;
 
   //----- calculate the cross section
   double Gw2    = TMath::Power((kGF/kSqrt2)*(1+Q2/kMw2), 2);
