@@ -158,7 +158,6 @@ double DISPartonModelPXSec::XSec(
   LOG("DISPXSec", pINFO) 
        << "Subtracting charm piece: " << xsec_charm << " / out of " << xsec;
   xsec = TMath::Max(0., xsec-xsec_charm);
-
   return xsec;
 }
 //____________________________________________________________________________
