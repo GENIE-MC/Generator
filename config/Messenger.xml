@@ -40,8 +40,8 @@
   <priority msgstream="COHHadronicVtx">      INFO   </priority>
   <priority msgstream="COHKinematics">       NOTICE </priority>
   <priority msgstream="Decay">               INFO   </priority>
-  <priority msgstream="DISSF">               INFO   </priority>
-  <priority msgstream="DISXSec">             NOTICE  </priority>
+  <priority msgstream="DISSF">               NOTICE </priority>
+  <priority msgstream="DISXSec">             NOTICE </priority>
   <priority msgstream="DISCharmXSec">        INFO   </priority>
   <priority msgstream="DISPXSec">            NOTICE </priority>
   <priority msgstream="DISHadronicVtx">      INFO   </priority>
