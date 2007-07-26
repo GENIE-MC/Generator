@@ -6,8 +6,8 @@
          STFC, Rutherford Appleton Laboratory - March 09, 2006
 
  Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
- All rights reserved.
- For the licensing terms see $GENIE/USER_LICENSE.
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
