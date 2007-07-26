@@ -184,30 +184,6 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
   //
   double F2=0, xF3=0;
 
-  // ***  CHARGED CURRENT
-  //
-  if(isCC) {
-
-    double q=-1, qbar=-1;
-    if (isNu) {
-      q    = (fd  * fVud2) + (fs  * fVus2) + (fd_c * fVcd2) + (fs_c * fVcs2);
-      qbar = (fus * fVud2) + (fus * fVus2) + (fc_c * fVcd2) + (fc_c * fVcs2);
-    }
-    else if (isNuBar) {
-      q    = (fu    * fVud2) + (fu  * fVus2) + (fc_c * fVcd2) + (fc_c * fVcs2);
-      qbar = (fds_c * fVcd2) + (fds * fVud2) + (fs   * fVus2) + (fs_c * fVcs2);
-    }
-
-    LOG("DISSF", pDEBUG) << "Q(x,Q2) = " << q << ", Qbar(x,Q2) = " << qbar;
-    if(q<0 || qbar<0) {
-      LOG("DISSF", pERROR) << "Negative q and/or q{bar}! Can not compute SFs";
-      return;
-    }
-
-    F2  = 2*(q+qbar);
-    xF3 = 2*(q-qbar);
-  }
-
   // ***  NEUTRAL CURRENT
   //
   if(isNC) {
@@ -229,9 +205,42 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
     double qb2  = (fus+fc) * (gvu2+gau2) + (fds+fs) * (gvd2+gad2);    
     double qb3  = (fus+fc) * (2*gvu*gau) + (fds+fs) * (2*gvd*gad);    
  
+    if(tgt.HitQrkIsSet()) {
+       // \bar{q} contributions are computed from q(sea) pdfs.
+       // Explicity zero q contributions if we have a hit anti-quark.
+       // Vice-versa for hit-quarks.
+       // One has to do that despite the pdf zeroing in CalcPDFs() as the non-zero
+       // q(sea) pdf would give non-zero contributions to S/F from both q and \bar{q}.
+       int qpdg = tgt.HitQrkPdg();
+       q2  *= ( pdg::IsQuark(qpdg)     ? 1. : 0. );
+       q3  *= ( pdg::IsQuark(qpdg)     ? 1. : 0. );
+       qb2 *= ( pdg::IsAntiQuark(qpdg) ? 1. : 0. );
+       qb3 *= ( pdg::IsAntiQuark(qpdg) ? 1. : 0. );
+    }
+
+    LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", \bar{q} = " << qb2;
+    LOG("DISSF", pINFO) << "xf3: q = " << q3 << ", \bar{q} = " << qb3;
+
     F2  = q2+qb2;
     xF3 = q3-qb3;
   } 
+
+  // ***  CHARGED CURRENT
+  //
+  if(isCC) {
+    double q=0, qbar=0;
+    if (isNu) {
+      q    = (fd  * fVud2) + (fs  * fVus2) + (fd_c * fVcd2) + (fs_c * fVcs2);
+      qbar = (fus * fVud2) + (fus * fVus2) + (fc_c * fVcd2) + (fc_c * fVcs2);
+    }
+    else if (isNuBar) {
+      q    = (fu    * fVud2) + (fu  * fVus2) + (fc_c * fVcd2) + (fc_c * fVcs2);
+      qbar = (fds_c * fVcd2) + (fds * fVud2) + (fs   * fVus2) + (fs_c * fVcs2);
+    }
+    LOG("DISSF", pINFO) << "Q(x,Q2) = " << q << ", Qbar(x,Q2) = " << qbar;
+    F2  = 2*(q+qbar);
+    xF3 = 2*(q-qbar);
+  }
 
   double Q2 = this->Q2        (interaction);
   double x  = this->ScalingVar(interaction);
@@ -499,5 +508,12 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
     fu_c  = fuv_c + fus_c;
     fd_c  = fdv_c + fds_c;
   }
+/*
+  LOG("DISSF", pDEBUG) << "u(v) = " << fuv;
+  LOG("DISSF", pDEBUG) << "u(s) = " << fus;
+  LOG("DISSF", pDEBUG) << "d(v) = " << fdv;
+  LOG("DISSF", pDEBUG) << "d(s) = " << fds;
+  LOG("DISSF", pDEBUG) << "s    = " << fs;
+*/
 }
 //____________________________________________________________________________
