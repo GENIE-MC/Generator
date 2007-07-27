@@ -72,6 +72,7 @@ double DISPartonModelPXSec::XSec(
   //----- Get kinematical & init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
+  const ProcessInfo &  proc_info  = interaction -> ProcInfo();
 
   double E     = init_state.ProbeE(kRfHitNucRest);
   double ml    = interaction->FSPrimLepton()->Mass();
@@ -83,9 +84,11 @@ double DISPartonModelPXSec::XSec(
   LOG("DISPXSec", pDEBUG)  
    << "Computing d2xsec/dxdy @ E = " << E << ", x = " << x << ", y = " << y;
 
-  //----- One of the xsec terms changes sign for antineutrinos
-  int sign = 1;
-  if( pdg::IsAntiNeutrino(init_state.ProbePdg()) ) sign = -1;
+  //----- One of the xsec terms changes sign for antineutrinos @ DIS/CC
+
+  bool is_nubar_cc = pdg::IsAntiNeutrino(init_state.ProbePdg()) && 
+                     proc_info.IsWeakCC();
+  int sign = (is_nubar_cc) ? -1 : 1;
 
   //----- Calculate the DIS structure functions
 

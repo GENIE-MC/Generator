@@ -218,8 +218,8 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
        qb3 *= ( pdg::IsAntiQuark(qpdg) ? 1. : 0. );
     }
 
-    LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", \bar{q} = " << qb2;
-    LOG("DISSF", pINFO) << "xf3: q = " << q3 << ", \bar{q} = " << qb3;
+    LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", bar{q} = " << qb2;
+    LOG("DISSF", pINFO) << "xf3: q = " << q3 << ", bar{q} = " << qb3;
 
     F2  = q2+qb2;
     xF3 = q3-qb3;
