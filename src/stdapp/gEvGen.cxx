@@ -288,7 +288,7 @@ void GenerateEventsUsingANeutrinoFlux(void)
 
   flux->SetNuDirection      (bdir);
   flux->SetBeamSpot         (bspot);
-  flux->SetTransverseRadius (0.0);
+  flux->SetTransverseRadius (-1);
   flux->AddEnergySpectrum   (gOptNuPdgCode, spectrum);
 
   GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
