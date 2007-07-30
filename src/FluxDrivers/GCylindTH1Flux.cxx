@@ -62,24 +62,29 @@ bool GCylindTH1Flux::GenerateNext(void)
 
   //-- Compute neutrino 4-x
 
-  // Create a vector (vec) that points to a random position at a disk
-  // of radius Rt passing through the origin, perpendicular to the
-  // input direction.
-  TVector3 vec0(*fDirVec);           // vector along the input direction
-  TVector3 vec = vec0.Orthogonal();  // orthogonal vector
+  if(fRt <= 0) {
+    fgX4.SetXYZT(0.,0.,0.,0.);
+  } 
+  else {
+    // Create a vector (vec) that points to a random position at a disk
+    // of radius Rt passing through the origin, perpendicular to the
+    // input direction.
+    TVector3 vec0(*fDirVec);           // vector along the input direction
+    TVector3 vec = vec0.Orthogonal();  // orthogonal vector
 
-  double psi = this->GeneratePhi();  // rndm angle [0,2pi]
-  double Rt  = this->GenerateRt();   // rndm R [0,Rtransverse]
+    double psi = this->GeneratePhi();  // rndm angle [0,2pi]
+    double Rt  = this->GenerateRt();   // rndm R [0,Rtransverse]
 
-  vec.Rotate(psi,vec0); // rotate around original vector
-  vec.SetMag(Rt);       // set new norm
+    vec.Rotate(psi,vec0); // rotate around original vector
+    vec.SetMag(Rt);       // set new norm
 
-  // Set the neutrino position as beam_spot + vec
-  double x = fBeamSpot->X() + vec.X();
-  double y = fBeamSpot->Y() + vec.Y();
-  double z = fBeamSpot->Z() + vec.Z();
+    // Set the neutrino position as beam_spot + vec
+    double x = fBeamSpot->X() + vec.X();
+    double y = fBeamSpot->Y() + vec.Y();
+    double z = fBeamSpot->Z() + vec.Z();
 
-  fgX4.SetXYZT(x,y,z,0.);
+    fgX4.SetXYZT(x,y,z,0.);
+  }
 
   LOG("Flux", pINFO) << "Generated neutrino pdg-code: " << fgPdgC;
   LOG("Flux", pINFO)
@@ -99,7 +104,7 @@ void GCylindTH1Flux::Initialize(void)
   fTotSpectrum = 0;
   fDirVec      = 0;
   fBeamSpot    = 0;
-  fRt          = 0;
+  fRt          =-1;
   fRtDep       = 0;
 
   this->ResetSelection();
