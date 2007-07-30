@@ -20,13 +20,16 @@
 #define _GENIE_MC_JOB_DRIVER_H_
 
 #include <string>
+#include <map>
 
 #include <TBits.h>
+#include <TH1D.h>
 
 #include "EVGDrivers/PathLengthList.h"
 #include "PDG/PDGCodeList.h"
 
 using std::string;
+using std::map;
 
 namespace genie {
 
@@ -39,9 +42,8 @@ class GEVGPool;
 class GMCJDriver {
 
 public :
-
   GMCJDriver();
-  ~GMCJDriver();
+ ~GMCJDriver();
 
   //-- configure MC job
   void UseFluxDriver      (GFluxI * flux);
@@ -86,7 +88,8 @@ private:
   EventRecord *   fCurEvt;           ///< current generated event
   int             fSelTgtPdg;        ///< selected target material PDG code
   double          fEmax;             ///< maximum neutrino energy [taken from flux driver]
-  double          fPmax;             ///< [computed] Pmax(interaction)|<flux/geom>
+  map<int,TH1D*>  fPmax;             ///< [computed] Interaction probability scale /neutrino /energy for given geometry
+  double          fGlobPmax;         ///< [computed] Global interaction probability scale for given flux & geometry
   string          fMaxPlXmlFilename; ///< [input/opt] max path lengths, all materials|geom
   bool            fUseExtMaxPl;      ///< using external max path length estimate?
   bool            fUseSplines;       ///< compute all needed & not-loaded splines at init
