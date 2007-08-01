@@ -1,8 +1,8 @@
 //____________________________________________________________________________
 /*
  Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ All rights reserved.
+ For the licensing terms see $GENIE/USER_LICENSE.
 
  Author: Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
          Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts Univ.
@@ -250,6 +250,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
 
     // Check whether it interacts
     bool interacts = this->IsInNucleus(sp);
+    LOG("Intranuke", pNOTICE) << "check interact vs. location " << interacts << "  " << sp->X4()->Vect().Mag() << fNuclRadius;
 
     // If it does not interact, it must exit the nucleus. Done with it! 
     if(!interacts) {
@@ -349,10 +350,30 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   double req  = rrms*1.26;
   double req3 = TMath::Power(req,3);
   double rho  = A/(4*kPi*req3/3.);
+  double c = 1., ap=1.;
+  double z = 1.,  alf=1.;
 
-  if(A>20) rho = A * this->DensityWoodsSaxon(rnow);
-  else     rho = A * this->DensityGaus(rnow);
-
+  if(A>20) {
+    if(A==27) { c=3.07 ; z=0.52 ; }   //aluminum
+    else if (A==28) { c=3.07 ; z=0.54 ; }  //silicon
+    else if (A==40) { c=3.53 ; z=0.54 ; } //argon
+    else if (A==56) { c=4.10 ; z=0.56 ; } //iron
+    else if (A==208) { c=6.62 ; z=0.55 ; } //lead
+    else { c=TMath::Power(A,0.35); z=0.54; } //others
+    rho = A * this->DensityWoodsSaxon(rnow,c,z);
+  }
+  else if (A>4) {
+    if(A==7) { ap=1.77 ; alf=.327 ; }   //lithium
+    else if(A==12) { ap=1.69; alf=1.08; } //carbon
+    else if(A==14) { ap=1.76; alf=1.23; } //nitrogen
+    else if(A==16) { ap=1.83; alf=1.54; } //oxygen
+    else  { ap=1.75; alf=-0.4+.12*A; } //others- alf=0.08 if A=4
+    rho = A * this->DensityGaus(rnow,ap,alf);
+  }
+  else {
+    ap=1.9/TMath::Sqrt(2.);  alf=0.;  //helium
+    rho = A * this->DensityGaus(rnow,ap,alf);
+  }
   // get total xsection for the incident hadron at its current 
   // kinetic energy
   int    pdgc   = p->Pdg();
@@ -387,7 +408,7 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   return lamda;
 }
 //___________________________________________________________________________
-double Intranuke::DensityGaus(double r) const
+double Intranuke::DensityGaus(double r, double a, double alf) const
 {
 // [adapted from neugen3 density_gaus.F]
 //
@@ -397,15 +418,16 @@ double Intranuke::DensityGaus(double r) const
 // input  : radial distance in nucleus [units: fm]
 // output : nuclear density            [units: fm^-3]
 
-  double norm = 0.0132;
-  double a    = 1.635;
-  double alf  = 1.403;
+  double norm = 1./((5.568 + alf*8.353)*TMath::Power(a,3.));  //0.0132;
+  LOG("Intranuke", pINFO) << "norm = " << norm;
+  //double a    = 1.635;
+  //double alf  = 1.403;
   double b    = TMath::Power(r/a,2.);
   double dens = norm * (1. + alf*b) * TMath::Exp(-b);
   return dens;
 }
 //___________________________________________________________________________
-double Intranuke::DensityWoodsSaxon(double r) const
+double Intranuke::DensityWoodsSaxon(double r, double c, double z) const
 {
 // [adapted from neugen3 density_ws.F]
 //
@@ -415,9 +437,7 @@ double Intranuke::DensityWoodsSaxon(double r) const
 // input  : radial distance in nucleus [units: fm]
 // output : nuclear density            [units: fm^-3]
 
-  double norm = 0.002925;
-  double c    = 4.10;
-  double z    = 0.56;
+  double norm = (3./(4.*kPi*TMath::Power(c,3)))*1./(1.+TMath::Power((kPi*z/c),2));
   double dens = norm / (1 + TMath::Exp((r-c)/z));
   return dens;
 }
@@ -1282,10 +1302,10 @@ void Intranuke::LoadConfig(void)
   fNucRmvE = fConfig->GetDoubleDef ("NucRmvE", gc->GetDouble("INUKE-NucRemovalE")); // GeV
 
   //-- report
-  LOG("Intranuke", pDEBUG) << "mode    = " << INukeMode::AsString(fMode);
+  LOG("Intranuke", pNOTICE) << "mode    = " << INukeMode::AsString(fMode);
 //  LOG("Intranuke", pDEBUG) << "ct0     = " << fct0 << " fermi";
 //  LOG("Intranuke", pDEBUG) << "K(pt^2) = " << fK;
-  LOG("Intranuke", pDEBUG) << "R0      = " << fR0  << " fermi";
+  LOG("Intranuke", pNOTICE) << "R0      = " << fR0  << " fermi";
 }
 //___________________________________________________________________________
 

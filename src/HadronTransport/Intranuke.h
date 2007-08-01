@@ -20,8 +20,8 @@
 \created  September 20, 2005
 
 \cpright  Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+          All rights reserved.
+          For the licensing terms see $GENIE/USER_LICENSE.
 */
 //____________________________________________________________________________
 
@@ -78,8 +78,8 @@ private:
   void   SimHadroProc       (GHepRecord* ev, GHepParticle* p) const;
   double GenerateStep       (GHepRecord* ev, GHepParticle* p) const;
   double MeanFreePath       (GHepRecord* ev, GHepParticle* p) const;
-  double DensityGaus        (double r) const;
-  double DensityWoodsSaxon  (double r) const;
+  double DensityGaus        (double r, double ap, double alf) const;
+  double DensityWoodsSaxon  (double r, double c, double z) const;
 
   // methods specific to intranuke HA-mode
   INukeFateHA_t HadronFateHA    (const GHepParticle* p) const;
