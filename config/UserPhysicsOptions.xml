@@ -418,9 +418,9 @@ Use the "Default" one to get the best GENIE physics & tuning.
 
  <!-- 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  - NUCL-Ro is an effective nucleus size given in fm (R=Ro*A^1/3)
+  NUCL-Ro (in fm) is a scale parameter driving the effective nuclear sizes (Ro in R=Ro*A^1/3)
   -->
-  <param type="double" name="NUCL-R0"> 1.2   </param>
+  <param type="double" name="NUCL-R0"> 1.4 </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
