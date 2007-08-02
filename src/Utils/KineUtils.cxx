@@ -745,15 +745,18 @@ double genie::utils::kinematics::COHImportanceSamplingEnvelope(
   double yb = x[1];   // y
 
   //-- parameters
-  double xsmax = par[0]; // safety factor * max cross section in (x,y)
+  double xsmax = 3*par[0]; // safety factor * max cross section in (x,y)
   double Ev    = par[1]; // neutrino energy;
 
   if(yb<0.|| yb>1.) return 0.;
   if(xb<0.|| xb>1.) return 0.;
 
+  if(Ev<1) return xsmax;
+  if(xb/Ev<1E-4 && yb>0.95) return 5*xsmax;
+
   double func = 0;
   double xp   = 0.1;
-  double yp   = (Ev>2.5) ? 1.75/Ev : 0.5;
+  double yp   = (Ev>2.5) ? 2.5/Ev : 1;
 
   if(xb>xp) {
     double xs0=0;
