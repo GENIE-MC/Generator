@@ -18,7 +18,6 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="double" name="MaxXSec-DiffTolerance">  0.500  </param>
   </param_set>
 
 </alg_conf>
