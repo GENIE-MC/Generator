@@ -749,9 +749,11 @@ void ConvertToT2KStdGenNtp(void)
   tEvtTree->Branch("nipip",     &brNiPip,        "npip/I"      );
   tEvtTree->Branch("nipim",     &brNiPim,        "npim/I"      );
   tEvtTree->Branch("nipi0",     &brNiPi0,        "npi0/I"      );
-  tEvtTree->Branch("niKp",      &brNiKp,         "nKp/I"       );
-  tEvtTree->Branch("niKm",      &brNiKm,         "nKm/I"       );
-  tEvtTree->Branch("niK0",      &brNiK0,         "nK0/I"       );
+  tEvtTree->Branch("nikp",      &brNiKp,         "nkp/I"       );
+  tEvtTree->Branch("nikm",      &brNiKm,         "nkm/I"       );
+  tEvtTree->Branch("nik0",      &brNiK0,         "nk0/I"       );
+  tEvtTree->Branch("niem",      &brNiEM,         "niem/I"      );
+  tEvtTree->Branch("niother",   &brNiOther,      "niother/I"   );
   tEvtTree->Branch("ni",        &brNi,           "ni/I"        );
   tEvtTree->Branch("pdgi",      brPdgi,          "pdgi[ni]/I " );
   tEvtTree->Branch("Ei",        brEi,            "Ei[ni]/D"    );
