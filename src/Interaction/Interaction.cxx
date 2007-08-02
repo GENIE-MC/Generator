@@ -464,6 +464,52 @@ Interaction * Interaction::RESNC(
   return interaction;
 }
 //___________________________________________________________________________
+Interaction * Interaction::COHCC(int tgt, int probe, double E)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt,probe,kScCoherent, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::COHCC(
+                          int tgt, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt,probe,kScCoherent, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::COHNC(int tgt, int probe, double E)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt,probe,kScCoherent, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::COHNC(
+                          int tgt, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt,probe,kScCoherent, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+
+  return interaction;
+}
+//___________________________________________________________________________
 Interaction * Interaction::IMD(int target, double E)
 {
   Interaction * interaction = 
@@ -486,40 +532,3 @@ Interaction * Interaction::IMD(int target, const TLorentzVector & p4probe)
   return interaction;
 }
 //___________________________________________________________________________
-/*
-double Interaction::EnergyThreshold(void) const
-{
-  double ml = this->FSPrimLepton()->Mass();
-
-  const Target & tgt = fInitialState->Tgt();
-
-  if (fProcInfo->IsCoherent()) {
-
-    int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (10LZZZAAAI)
-    double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass();
-    double m    = ml + kPionMass;
-    double m2   = TMath::Power(m,2);
-    double Ethr = m + 0.5*m2/MA;
-    return Ethr;
-  }
-
-  if(fProcInfo->IsQuasiElastic() || 
-         fProcInfo->IsResonant() || fProcInfo->IsDeepInelastic()) {
-
-    assert(tgt.HitNucIsSet());
-    double Mn   = tgt.HitNucP4Ptr()->M();
-    double Mn2  = TMath::Power(Mn,2);
-    double Wmin = (fProcInfo->IsQuasiElastic()) ? Mn : kNeutronMass+kPionMass;
-    double smin = TMath::Power(Wmin+ml,2.);
-    double Ethr = 0.5*(smin-Mn2)/Mn;
-    return Ethr;
-  }
-
-  SLOG("Interaction", pERROR) << "Can't compute threshold for \n" << *this;
-  exit(1);
-
-  return 99999999;
-}
-//___________________________________________________________________________
-
-*/
