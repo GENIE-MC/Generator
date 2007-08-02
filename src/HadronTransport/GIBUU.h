@@ -90,12 +90,7 @@ public:
   void Configure(string config);
 
 private:
-  void LoadConfig        (void);
-  void SetFormationZones (GHepRecord * event) const;
-
-  //-- configuration parameters
-  double fct0; ///< formation zone (c * formation time)
-  double fK;   ///< param multiplying pT^2 in formation zone calculation
+  void LoadConfig (void);
 };
 
 }      // genie namespace
