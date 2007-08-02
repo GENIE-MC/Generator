@@ -236,18 +236,25 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
   double Ev = in->InitState().ProbeE(kRfLab);
 
+  double log10Ev = TMath::Log10(Ev);
+  double yc = TMath::Power(10,-0.5813-0.8492*log10Ev);
+
   const int Nx = 40;
   const int Ny = 50;
 
   const KPhaseSpace & kps = in->PhaseSpace();
   Range1D_t y = kps.YLim();
-  if(Ev>3)  y.max = TMath::Min(y.max, 0.25);
-  if(Ev>30) y.max = TMath::Min(y.max, 0.10);
+//  if(Ev>3)  y.max = TMath::Min(y.max, 0.25);
+//  if(Ev>30) y.max = TMath::Min(y.max, 0.10);
+
+  double dy = (Ev>1) ? 0.1 : 0.3;
 
   const double logxmin = TMath::Log10(1E-5);
-  const double logxmax = TMath::Log10(1E-1);
-  const double logymin = TMath::Log10(y.min);
-  const double logymax = TMath::Log10(y.max);
+  const double logxmax = TMath::Log10(1E-2);
+  const double logymin = TMath::Log10( TMath::Max(y.min,yc-dy) );
+  const double logymax = TMath::Log10( TMath::Min(y.max,yc+dy) );
+//  const double logymin = TMath::Log10(y.min);
+//  const double logymax = TMath::Log10(y.max);
   const double dlogx   = (logxmax - logxmin) /(Nx-1);
   const double dlogy   = (logymax - logymin) /(Ny-1);
 
@@ -257,7 +264,7 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
      double gy = TMath::Power(10, logymin + j * dlogy);
 
      double Q2 = 2*kNucleonMass*gx*gy*Ev;
-     if(Q2 >0.04) continue;
+     if(Q2 >0.01) continue;
 
      in->KinePtr()->Setx(gx);
      in->KinePtr()->Sety(gy);
