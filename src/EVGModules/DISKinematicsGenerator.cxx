@@ -95,8 +95,8 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   Range1D_t xl = kps.Limits(kKVx);
   Range1D_t yl = kps.Limits(kKVy);
 
-  LOG("DISKinematics", pINFO) << "x: [" << xl.min << ", " << xl.max << "]";
-  LOG("DISKinematics", pINFO) << "y: [" << yl.min << ", " << yl.max << "]";
+  LOG("DISKinematics", pNOTICE) << "x: [" << xl.min << ", " << xl.max << "]";
+  LOG("DISKinematics", pNOTICE) << "y: [" << yl.min << ", " << yl.max << "]";
 
   assert(xl.min>0 && yl.min>0);
 
@@ -135,7 +135,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      interaction->KinePtr()->Sety(gy);
      kinematics::UpdateWQ2FromXY(interaction);
 
-     LOG("DISKinematics", pINFO) 
+     LOG("DISKinematics", pNOTICE) 
         << "Trying: x = " << gx << ", y = " << gy 
         << " (W  = " << interaction->KinePtr()->W()  << ","
         << " (Q2 = " << interaction->KinePtr()->Q2() << ")";
