@@ -75,6 +75,7 @@ void Intranuke::ProcessEventRecord(GHepRecord * evrec) const
     LOG("Intranuke", pINFO) << "No nuclear target found - INTRANUKE exits";
     return;
   }
+  this->SetNuclearRadius(nucltgt);
 
   // Generate and set a vertex in the nucleus coordinate system
   this->GenerateVertex(evrec);
@@ -94,7 +95,6 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
 
   GHepParticle * nucltgt = evrec->TargetNucleus();
   assert(nucltgt);
-  this->SetNuclearRadius(nucltgt);
 
   RandomGen * rnd = RandomGen::Instance();
   TVector3 vtx(999999.,999999.,999999.);
@@ -138,6 +138,9 @@ void Intranuke::SetNuclearRadius(const GHepParticle * p) const
   assert(p && p->IsNucleus());
   double A = p->A();
   fNuclRadius = fR0 * TMath::Power(A, 1./3.);
+
+  LOG("Intranuke", pNOTICE) 
+               << "Setting nuclear radius to R = " << fNuclRadius;
 }
 //___________________________________________________________________________
 bool Intranuke::NeedsRescattering(const GHepParticle * p) const
@@ -250,7 +253,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
 
     // Check whether it interacts
     bool interacts = this->IsInNucleus(sp);
-    LOG("Intranuke", pNOTICE) << "check interact vs. location " << interacts << "  " << sp->X4()->Vect().Mag() << fNuclRadius;
+    LOG("Intranuke", pNOTICE) << "check interact vs. location " << interacts << "  " << sp->X4()->Vect().Mag() << " " << fNuclRadius;
 
     // If it does not interact, it must exit the nucleus. Done with it! 
     if(!interacts) {
@@ -303,24 +306,24 @@ double Intranuke::GenerateStep(GHepRecord* evrec, GHepParticle* p) const
 void Intranuke::StepParticle(GHepParticle * p, double step) const
 {
 // Steps a particle starting from its current position (in m, sec) and moving
-// along the direction of its current momentum by the input step (in m).
+// along the direction of its current momentum by the input step (in fm).
 // The particle is stepped in a straight line.
 
   LOG("Intranuke", pDEBUG)
-      << "Stepping particle [" << p->Name() << "] by dr = " << step << " m";
+      << "Stepping particle [" << p->Name() << "] by dr = " << step << " fm";
 
   // Step particle
-  TVector3 dr = p->P4()->Vect().Unit();          // unit vector along its direction
-  double c  = kLightSpeed / (units::m/units::s); // c in m/sec
-  dr.SetMag(step);                               // spatial step size
-  double dt = step/c;                            // temporal step:
-  TLorentzVector dx4(dr,dt);                     // 4-vector step
-  TLorentzVector x4new = *(p->X4()) + dx4;       // new position
+  TVector3 dr = p->P4()->Vect().Unit();            // unit vector along its direction
+  double c  = kLightSpeed / (units::fm/units::ns); // c in fm/nsec
+  dr.SetMag(step);                                 // spatial step size
+  double dt = step/c;                              // temporal step:
+  TLorentzVector dx4(dr,dt);                       // 4-vector step
+  TLorentzVector x4new = *(p->X4()) + dx4;         // new position
        
   LOG("Intranuke", pDEBUG)
       << "\n Init direction = " << print::Vec3AsString(&dr)
-      << "\n Init position (in m,sec) = " << print::X4AsString(p->X4())
-      << "\n Fin  position (in m,sec) = " << print::X4AsString(&x4new);
+      << "\n Init position (in fm,nsec) = " << print::X4AsString(p->X4())
+      << "\n Fin  position (in fm,nsec) = " << print::X4AsString(&x4new);
 
   p->SetPosition(x4new);
 }
@@ -340,7 +343,8 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
 
   // get the nuclear target mass number
   GHepParticle * nucltgt = evrec->TargetNucleus();
-  double A = nucltgt->A();
+  //double A = nucltgt->A();
+  int A = (int) nucltgt->A();
 
   // get current radial position within the nucleus
   double rnow = p->X4()->Vect().Mag();
@@ -354,24 +358,24 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   double z = 1.,  alf=1.;
 
   if(A>20) {
-    if(A==27) { c=3.07 ; z=0.52 ; }   //aluminum
-    else if (A==28) { c=3.07 ; z=0.54 ; }  //silicon
-    else if (A==40) { c=3.53 ; z=0.54 ; } //argon
-    else if (A==56) { c=4.10 ; z=0.56 ; } //iron
-    else if (A==208) { c=6.62 ; z=0.55 ; } //lead
+    if      (A==27 ) { c=3.07 ; z=0.52 ; }   //aluminum
+    else if (A==28 ) { c=3.07 ; z=0.54 ; }   //silicon
+    else if (A==40 ) { c=3.53 ; z=0.54 ; }   //argon
+    else if (A==56 ) { c=4.10 ; z=0.56 ; }   //iron
+    else if (A==208) { c=6.62 ; z=0.55 ; }   //lead
     else { c=TMath::Power(A,0.35); z=0.54; } //others
     rho = A * this->DensityWoodsSaxon(rnow,c,z);
   }
   else if (A>4) {
-    if(A==7) { ap=1.77 ; alf=.327 ; }   //lithium
-    else if(A==12) { ap=1.69; alf=1.08; } //carbon
-    else if(A==14) { ap=1.76; alf=1.23; } //nitrogen
-    else if(A==16) { ap=1.83; alf=1.54; } //oxygen
-    else  { ap=1.75; alf=-0.4+.12*A; } //others- alf=0.08 if A=4
+    if      (A==7) { ap=1.77 ; alf=0.327; } //lithium
+    else if (A==12) { ap=1.69; alf=1.08;  } //carbon
+    else if (A==14) { ap=1.76; alf=1.23;  } //nitrogen
+    else if (A==16) { ap=1.83; alf=1.54;  } //oxygen
+    else  { ap=1.75; alf=-0.4+.12*A; }      //others- alf=0.08 if A=4
     rho = A * this->DensityGaus(rnow,ap,alf);
   }
   else {
-    ap=1.9/TMath::Sqrt(2.);  alf=0.;  //helium
+    ap=1.9/TMath::Sqrt(2.);  alf=0.;        //helium
     rho = A * this->DensityGaus(rnow,ap,alf);
   }
   // get total xsection for the incident hadron at its current 
@@ -1297,14 +1301,10 @@ void Intranuke::LoadConfig(void)
 
   //-- other intranuke config params
   fR0      = fConfig->GetDoubleDef ("R0",      gc->GetDouble("NUCL-R0")); // fm
-//  fct0     = fConfig->GetDoubleDef ("ct0",     gc->GetDouble("INUKE-FormationZone")); // fm
-//  fK       = fConfig->GetDoubleDef ("Kpt2",    gc->GetDouble("INUKE-KPt2"));
   fNucRmvE = fConfig->GetDoubleDef ("NucRmvE", gc->GetDouble("INUKE-NucRemovalE")); // GeV
 
   //-- report
   LOG("Intranuke", pNOTICE) << "mode    = " << INukeMode::AsString(fMode);
-//  LOG("Intranuke", pDEBUG) << "ct0     = " << fct0 << " fermi";
-//  LOG("Intranuke", pDEBUG) << "K(pt^2) = " << fK;
   LOG("Intranuke", pNOTICE) << "R0      = " << fR0  << " fermi";
 }
 //___________________________________________________________________________
