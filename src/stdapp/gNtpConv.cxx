@@ -802,6 +802,7 @@ void ConvertToT2KStdGenNtp(void)
     // go further only if the event is physical
     bool is_unphysical = event.IsUnphysical();
     if(is_unphysical) {
+      LOG("gntpc", pINFO) << "Skipping unphysical event";
       mcrec->Clear();
       continue;
     }
@@ -888,6 +889,10 @@ void ConvertToT2KStdGenNtp(void)
     double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
     double t  = 0;
 
+    LOG("gntpc", pDEBUG) 
+       << "[Calc] Q2 = " << Q2 << ", W = " << W 
+       << ", x = " << x << ", y = " << y << ", t = " << t;
+
     // also, access kinematical params _exactly_ as they were selected internally
     // (possibly using off-shell kinematics)
     //
@@ -897,6 +902,10 @@ void ConvertToT2KStdGenNtp(void)
     double ts  = (is_coh) ? kine.t (get_selected) : -1;
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
+
+    LOG("gntpc", pDEBUG) 
+       << "[Select] Q2 = " << Q2s << ", W = " << Ws 
+       << ", x = " << xs << ", y = " << ys << ", t = " << ts;
 
     // Extract more info on the hadronic system
     // Only for QEL/RES/DIS events
@@ -922,6 +931,9 @@ void ConvertToT2KStdGenNtp(void)
     //  ** baryon resonances should have been decayed early on: include decay products
     //  ** eta,eta',rho0,rho+,rho-,omega,phi should have been decayed early on: include decay products
     //
+
+    LOG("gntpc", pDEBUG) << "Extracting final state hadronic system";
+ 
     vector<int> final_had_syst;
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
@@ -961,48 +973,60 @@ void ConvertToT2KStdGenNtp(void)
     //   Get the 1st daughter of the hit nucleon
     // * For other processes:
     //   Skip...
+    //
+    // For free nucleon targets (no intranuclear rescattering) the primary hadronic system
+    // is 'identical' with the final state hadronic system
+    //
+
+    LOG("gntpc", pDEBUG) << "Extracting primary hadronic system";
 
     vector<int> prim_had_syst;
     if(study_hadsyst) {
-      int ihadbase=0;
-      if(is_dis) {
-        ihadbase = event.FinalStateHadronicSystemPosition();
-        int idx = event.Particle(ihadbase)->LastDaughter() + 1;
-        p = event.Particle(idx);
-        if(p->Pdg()==kPdgCluster || p->Pdg()==kPdgString || p->Pdg()==kPdgIndep) ihadbase=idx;
-      }
-      if(is_qel || is_res) {
-        ihadbase = hitnucl->FirstDaughter();
-      }
-      assert(ihadbase>0);
-
-      int idx1 = event.Particle(ihadbase)->FirstDaughter();
-      int idx2 = event.Particle(ihadbase)->LastDaughter();
-      for(int i=idx1; i<=idx2; i++) {
-         p = event.Particle(i);
-         if(p->IsFake()) continue;
-         int ist = p->Status();
-         // handle decayed dis states
-         if(is_dis && ist==kIStDISPreFragmHadronicState) {
-             for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) prim_had_syst.push_back(j);
-         } 
-         // handle decayed resonances (whose decay products may be resonances that decay further)
-         else if(is_res && ist==kIStDecayedState) {
-             for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) {
-                GHepParticle * pd = event.Particle(j);
-                if(pd->Status()==kIStDecayedState) {
-                   for(int k=pd->FirstDaughter(); k<=pd->LastDaughter(); k++) prim_had_syst.push_back(k);
-                } else {
-                   prim_had_syst.push_back(j); 
-                }       
-             }
-         } else {
-              prim_had_syst.push_back(i);
+      if(!target->IsNucleus()) {
+         vector<int>::const_iterator hiter = final_had_syst.begin();
+         for( ; hiter != final_had_syst.end(); ++hiter) {
+           prim_had_syst.push_back(*hiter);
          }
+      } 
+      else {
+         int ihadbase=0;
+         if(is_dis) {
+           ihadbase = event.FinalStateHadronicSystemPosition();
+           int idx = event.Particle(ihadbase)->LastDaughter() + 1;
+           p = event.Particle(idx);
+           if(p->Pdg()==kPdgCluster || p->Pdg()==kPdgString || p->Pdg()==kPdgIndep) ihadbase=idx;
+         }
+         if(is_qel || is_res) {
+           ihadbase = hitnucl->FirstDaughter();
+         }
+         assert(ihadbase>0);
 
-
-      }
-    }
+         int idx1 = event.Particle(ihadbase)->FirstDaughter();
+         int idx2 = event.Particle(ihadbase)->LastDaughter();
+         for(int i=idx1; i<=idx2; i++) {
+            p = event.Particle(i);
+            if(p->IsFake()) continue;
+            int ist = p->Status();
+            // handle decayed dis states
+            if(is_dis && ist==kIStDISPreFragmHadronicState) {
+               for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) prim_had_syst.push_back(j);
+            } 
+            // handle decayed resonances (whose decay products may be resonances that decay further)
+            else if(is_res && ist==kIStDecayedState) {
+                for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) {
+                   GHepParticle * pd = event.Particle(j);
+                   if(pd->Status()==kIStDecayedState) {
+                      for(int k=pd->FirstDaughter(); k<=pd->LastDaughter(); k++) prim_had_syst.push_back(k);
+                   } else {
+                      prim_had_syst.push_back(j); 
+                   }       
+                }
+            } else {
+                 prim_had_syst.push_back(i);
+            }
+         }//i
+      }//freenuc?
+    }//study_hadsystem?
 
     //
     // Al information has been assembled -- Start filling up the tree branches
