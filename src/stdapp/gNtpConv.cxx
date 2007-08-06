@@ -882,9 +882,11 @@ void ConvertToT2KStdGenNtp(void)
     double M  = kNucleonMass;
     TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer
     double Q2 = -1 * q.M2();                       // momemtum transfer
-    double v  = (hitnucl) ? (q*p1)/M         : -1; // v (E transfer in hit nucleon rest frame)
+    double v  = (hitnucl) ? q.Energy()       : -1; // v (E transfer in hit nucleon rest frame)
+//  double v  = (hitnucl) ? (q*p1)/M         : -1; // v (E transfer in hit nucleon rest frame)
     double x  = (hitnucl) ? 0.5*Q2/(M*v)     : -1; // Bjorken x
-    double y  = (hitnucl) ? v*M/(k1*p1)      : -1; // Inelasticity, y = q*P1/k1*P1
+    double y  = (hitnucl) ? v/k1.Energy()    : -1; // Inelasticity, y = q*P1/k1*P1
+//  double y  = (hitnucl) ? v*M/(k1*p1)      : -1; // Inelasticity, y = q*P1/k1*P1
     double W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
     double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
     double t  = 0;
