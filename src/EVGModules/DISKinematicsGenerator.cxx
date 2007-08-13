@@ -267,7 +267,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   double xpeak=-1, ypeak=-1, xwindow=-1, ywindow=-1;
   int Ny=100, Nx=100, Nxb=10;
 
-  if(proc.IsWeakCC() && !interaction->ExclTag().IsCharmEvent()) {
+  if(proc.IsWeakCC() && !interaction->ExclTag().IsCharmEvent() && Ev>1) {
     if( pdg::IsProton(tgt.HitNucPdg()) ) {
       xpeak = 0.18 - 0.055 * log10Ev;
       ypeak = 0.95 - 0.670 * log10Ev + 0.145 * TMath::Power(log10Ev,2);
