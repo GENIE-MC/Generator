@@ -312,11 +312,12 @@ void Intranuke::StepParticle(GHepParticle * p, double step) const
   LOG("Intranuke", pDEBUG)
       << "Stepping particle [" << p->Name() << "] by dr = " << step << " fm";
 
-  // Step particle
+  //-- Step particle
   TVector3 dr = p->P4()->Vect().Unit();            // unit vector along its direction
-  double c  = kLightSpeed / (units::fm/units::ns); // c in fm/nsec
+//double c  = kLightSpeed / (units::fm/units::ns); // c in fm/nsec
   dr.SetMag(step);                                 // spatial step size
-  double dt = step/c;                              // temporal step:
+//double dt = step/c;                              // temporal step:
+  double dt = 0;                                   // temporal step:
   TLorentzVector dx4(dr,dt);                       // 4-vector step
   TLorentzVector x4new = *(p->X4()) + dx4;         // new position
        
@@ -383,16 +384,27 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   int    pdgc   = p->Pdg();
   double sigtot = 0;
 
+  // The hadron+nucleon cross section will be evaluated within the range
+  // of the cross sections spline
+  // The hadron cross section will be taken to be const outside that range
+  //
+  double ke = K;
+  ke = TMath::Max(INukeHadroData::fMinKinEnergy,   ke);
+  ke = TMath::Min(INukeHadroData::fMaxKinEnergyHN, ke);
+
+  LOG("Intranuke", pDEBUG) 
+       << "Cross sections will be evaluated at K = " << ke << " MeV";
+
   if (pdgc == kPdgPiP) 
-      sigtot = fHadroData -> XSecPipN_Tot() -> Evaluate(K);
+      sigtot = fHadroData -> XSecPipN_Tot() -> Evaluate(ke);
   else if (pdgc == kPdgPi0) 
-      sigtot = fHadroData -> XSecPi0N_Tot() -> Evaluate(K);
+      sigtot = fHadroData -> XSecPi0N_Tot() -> Evaluate(ke);
   else if (pdgc == kPdgPiM) 
-      sigtot = fHadroData -> XSecPimN_Tot() -> Evaluate(K);
+      sigtot = fHadroData -> XSecPimN_Tot() -> Evaluate(ke);
   else if (pdgc == kPdgProton) 
-      sigtot = fHadroData -> XSecPN_Tot()   -> Evaluate(K);
+      sigtot = fHadroData -> XSecPN_Tot()   -> Evaluate(ke);
   else if (pdgc == kPdgNeutron) 
-      sigtot = fHadroData -> XSecNN_Tot()   -> Evaluate(K);
+      sigtot = fHadroData -> XSecNN_Tot()   -> Evaluate(ke);
   else {
      LOG("Intranuke", pWARN)
          << "Can't compute mean free path for particle code = " << pdgc;
@@ -408,6 +420,15 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   // compute the mean free path
   double lamda = 1. / (rho * sigtot);
   LOG("Intranuke", pDEBUG) << "Mean free path = " << lamda << " fm";
+
+  // exits if lamda is InF (if cross section is 0)
+  if( ! TMath::Finite(lamda) ) {
+     LOG("Intranuke", pFATAL) 
+           << "SigmaTotal(KineticE = " << K << " MeV) = " << sigtot << " fm2";
+     LOG("Intranuke", pFATAL) 
+           << "Mean free path = " << lamda << " fm";
+     exit(1);
+  }
 
   return lamda;
 }

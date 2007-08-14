@@ -132,6 +132,10 @@ public:
   const Spline * XSecPi0A_NNPP    (void) const { return fXSecPi0A_NNPP;    }
   const Spline * XSecPi0A_NPipPi0 (void) const { return fXSecPi0A_NPipPi0; }
 
+  static double fMinKinEnergy;   ///<
+  static double fMaxKinEnergyHA; ///<
+  static double fMaxKinEnergyHN; ///<
+
 private:
   INukeHadroData();
   INukeHadroData(const INukeHadroData & shx);
@@ -140,10 +144,6 @@ private:
   void LoadCrossSections(void); 
 
   static INukeHadroData * fInstance;
-
-  static double fMinKinEnergy;   ///<
-  static double fMaxKinEnergyHA; ///<
-  static double fMaxKinEnergyHN; ///<
 
   Spline * fXSecPN_Tot;        ///< N+N x-section splines
   Spline * fXSecPN_Elas;       ///<
