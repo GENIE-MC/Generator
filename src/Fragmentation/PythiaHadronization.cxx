@@ -207,7 +207,7 @@ TClonesArray * PythiaHadronization::Hadronize(
     // from above) so that I conserve charge. 
 
     if(iss || issb) {
-       LOG("PythiaHad", pWARN) 
+       LOG("PythiaHad", pNOTICE) 
                  << "Can not really handle a hit s or sbar quark / Faking it";
 
        if(isp && iss) { diquark = kPdgUUDiquarkS1; }
