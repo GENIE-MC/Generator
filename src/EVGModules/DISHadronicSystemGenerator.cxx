@@ -222,22 +222,23 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
     double   P   = p->P4()->P();         //           |p|
     double   Pt  = p3.Pt(p3hadr);        //           pT
     double   Pt2 = Pt*Pt;                //           pT^2
-    double   fz  = P*fct0*m/(m2+fK*Pt2); //           formation zone, in m
+    double   fz  = P*fct0*m/(m2+fK*Pt2); //           formation zone, in fm
 
     LOG("DISHadronicVtx", pNOTICE)
       << p->Name() << ": |P| = " << P << " GeV, Pt = " << Pt
-                                << " GeV, Formation Zone = " << fz << " m";
+                                << " GeV, Formation Zone = " << fz << " fm";
 
     //-- Apply the formation zone
 
     double step = fz;
 
-    TVector3 dr = p->P4()->Vect().Unit();          // unit vector along its direction
-    double c  = kLightSpeed / (units::m/units::s); // c in m/sec
-    dr.SetMag(step);                               // spatial step size
-    double dt = step/c;                            // temporal step:
-    TLorentzVector dx4(dr,dt);                     // 4-vector step
-    TLorentzVector x4new = *(p->X4()) + dx4;       // new position
+    TVector3 dr = p->P4()->Vect().Unit();            // unit vector along its direction
+ // double c  = kLightSpeed / (units::fm/units::ns); // c in fm/nsec
+    dr.SetMag(step);                                 // spatial step size
+ // double dt = step/c;                              // temporal step:
+    double dt = 0;
+    TLorentzVector dx4(dr,dt);                       // 4-vector step
+    TLorentzVector x4new = *(p->X4()) + dx4;         // new position
 
     LOG("DISHadronicVtx", pDEBUG)
          << "\n Init direction = " << print::Vec3AsString(&dr)
