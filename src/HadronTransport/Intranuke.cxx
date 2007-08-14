@@ -1206,6 +1206,11 @@ bool Intranuke::PhaseSpaceDecay(
     double w  = fGenPhaseSpace.Generate();
     double gw = wmax * rnd->RndFsi().Rndm();
 
+    if(w > wmax) {
+       LOG("Intranuke", pWARN)
+           << "Decay weight = " << w << " > max decay weight = " << wmax;
+    }
+
     LOG("Intranuke", pINFO) << "Decay weight = " << w << " / R = " << gw;
     accept_decay = (gw<=w);
   }
