@@ -176,7 +176,8 @@ TClonesArray * PythiaHadronization::Hadronize(
     if(isn && isu) diquark = kPdgDDDiquarkS1; /* u(->q) + bar{u} udd (=dd) */
     if(isn && isd) diquark = kPdgUDDiquarkS1; /* d(->q) + bar{d} udd (=ud) */
 
-    // This section needs revisiting.
+    // The following section needs revisiting.
+
     // The neutrino is scattered off a sea antiquark, materializing its quark
     // partner and leaving me with a 5q system ( <qbar + q> + qqq(valence) )
     // I will force few qbar+q annhilations below to get my quark/diquark system
@@ -201,13 +202,22 @@ TClonesArray * PythiaHadronization::Hadronize(
     /* bar{d} (-> bar{d}) + d udd => d + ud */
     if(isn && isdb && isnc) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
 
-    // Cases where I don't know what to do :
     // The neutrino is scatterred off s or sbar sea quarks 
-    if(iss || issb) {
-       LOG("PythiaHad", pERROR) << "Can not handle a hit s or sbar quark";
-       return 0;
-    }
+    // For the time being I will handle s like d and sbar like dbar (copy & paste
+    // from above) so that I conserve charge. 
 
+    if(iss || issb) {
+       LOG("PythiaHad", pWARN) 
+                 << "Can not really handle a hit s or sbar quark / Faking it";
+
+       if(isp && iss) { diquark = kPdgUUDiquarkS1; }
+       if(isn && iss) { diquark = kPdgUDDiquarkS1; }
+       if(isp && issb && iscc) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
+       if(isp && issb && isnc) {final_quark = kPdgDQuark; diquark = kPdgUUDiquarkS1;}
+       if(isn && issb && iscc) {final_quark = kPdgDQuark; diquark = kPdgDDDiquarkS1;}
+       if(isn && issb && isnc) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
+    }
+ 
     // if the diquark is a ud, switch it to the singlet state with 50% probability
     if(diquark == kPdgUDDiquarkS1) {
       RandomGen * rnd = RandomGen::Instance();
