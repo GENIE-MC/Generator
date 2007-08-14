@@ -279,7 +279,7 @@ void RESKinematicsGenerator::LoadConfig(void)
 
   //-- Minimum energy for which max xsec would be cached, forcing explicit
   //   calculation for lower eneries
-  fEMin = fConfig->GetDoubleDef("Cache-MinEnergy", 1.0);
+  fEMin = fConfig->GetDoubleDef("Cache-MinEnergy", 0.5);
 
   //-- Load Wcut used in DIS/RES join scheme
   fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
@@ -319,7 +319,8 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
   LOG("RESKinematics", pDEBUG) << "Scanning phase space for E= " << E;
 
-  double scan1d = (E>1.0);
+  //bool scan1d = (E>1.0);
+  bool scan1d = false;
 
   double md;
   if(!interaction->ExclTag().KnownResonance()) md=1.23;
@@ -385,18 +386,24 @@ double RESKinematicsGenerator::ComputeMaxXSec(
     const KPhaseSpace & kps = interaction->PhaseSpace();
     Range1D_t rW = kps.WLim();
 
-    int    NW   = 10;
+    int    NW   = 20;
     double Wmin = rW.min + kASmallNum;
     double Wmax = rW.max - kASmallNum;
-    double dW   = (Wmax-Wmin)/(NW-1);
+
+    Wmax = TMath::Min(Wmax,fWcut);
+
+    Wmin = TMath::Max(Wmin, md-.3);
+    Wmax = TMath::Min(Wmax, md+.3);
 
     if(Wmax-Wmin<0.05) { NW=1; Wmin=Wmax; }
+
+    double dW = (Wmax-Wmin)/(NW-1);
 
     for(int iw=0; iw<NW; iw++) {
       double W = Wmin + iw*dW;
       interaction->KinePtr()->SetW(W);
 
-      int NQ2  = 15;
+      int NQ2  = 25;
       int NQ2b =  4;
 
       Range1D_t rQ2 = kps.Q2Lim_W();
