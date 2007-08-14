@@ -209,14 +209,7 @@ void UnstableParticleDecayer::CopyToEventRecord(
      int pdg = dpmc->GetKF();
      GHepStatus_t ist = GHepStatus_t (dpmc->GetKS()); 
 
-/*
-     double px = dpmc->GetPx();
-     double py = dpmc->GetPy();
-     double pz = dpmc->GetPz();
-     double E  = dpmc->GetEnergy();
-*/
      TLorentzVector p4(dpmc->GetPx(), dpmc->GetPy(), dpmc->GetPz(), dpmc->GetEnergy()); 
-
      TLorentzVector x4(dpmc->GetVx(), dpmc->GetVy(), dpmc->GetVz(), dpmc->GetTime()); 
      x4 += parent_x4;
 

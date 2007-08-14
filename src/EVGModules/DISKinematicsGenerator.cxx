@@ -225,7 +225,7 @@ void DISKinematicsGenerator::LoadConfig(void)
 
   //-- Minimum energy for which max xsec would be cached, forcing explicit
   //   calculation for lower eneries
-  fEMin = fConfig->GetDoubleDef("Cache-MinEnergy", 1.0);
+  fEMin = fConfig->GetDoubleDef("Cache-MinEnergy", 0.8);
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
@@ -254,45 +254,32 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   double max_xsec = 0.0;
 
   const InitialState & init_state = interaction->InitState();
-  double Ev = init_state.ProbeE(kRfHitNucRest);
-
-  double log10Ev = TMath::Log10(Ev);
-
-  const ProcessInfo & proc = interaction->ProcInfo();
+  //double Ev = init_state.ProbeE(kRfHitNucRest);
+  //const ProcessInfo & proc = interaction->ProcInfo();
   const Target & tgt = init_state.Tgt();
 
-  // guess the approximate position of the maximum differential xsec to avoid
-  // an extensive (time-consuming) phase space search
+  int Ny  = 20;
+  int Nx  = 40;
+  int Nxb = 3;
 
-  double xpeak=-1, ypeak=-1, xwindow=-1, ywindow=-1;
-  int Ny=100, Nx=100, Nxb=10;
+  double xpeak    = .2;
+  double xwindow  = .2;
+  double ypeak    = .5;
+  double ywindow  = .5;
 
-  if(proc.IsWeakCC() && !interaction->ExclTag().IsCharmEvent() && Ev>1) {
-    if( pdg::IsProton(tgt.HitNucPdg()) ) {
-      xpeak = 0.18 - 0.055 * log10Ev;
-      ypeak = 0.95 - 0.670 * log10Ev + 0.145 * TMath::Power(log10Ev,2);
+  if(tgt.HitQrkIsSet()) {
+    if(tgt.HitSeaQrk()) {
+       xpeak    = .1;
+       xwindow  = .1;
+       ypeak    = .7;
+       ywindow  = .3;
     } else {
-      xpeak = 0.26 - 0.060 * log10Ev;
-      ypeak = 0.85 - 0.680 * log10Ev + 0.145 * TMath::Power(log10Ev,2);
+       xpeak    = .2;
+       xwindow  = .2;
+       ypeak    = .7;
+       ywindow  = .3;
     }
-    xwindow = .2;
-    ywindow = .2;
-    Ny  = 10;
-    Nx  = 10;
-    Nxb =  3;
-  } else {
-    xpeak   = .1;
-    ypeak   = .5;
-    xwindow = .2;
-    ywindow = .48;
-    Ny  = 50;
-    Nx  = 50;
-    Nxb =  5;
-  }
-  if(tgt.HitQrkIsSet() && tgt.HitSeaQrk()) {
-    xpeak    = .2;
-    xwindow  = .2;
-  }
+  } 
 
   const KPhaseSpace & kps = interaction->PhaseSpace();
   Range1D_t xl = kps.Limits(kKVx);
@@ -302,12 +289,8 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   double xmax    = TMath::Min(xpeak+xwindow, xl.max);
   double ymin    = TMath::Max(ypeak-ywindow, TMath::Max(yl.min, 2E-3));
   double ymax    = TMath::Min(ypeak+ywindow, yl.max);
-  double logxmin = TMath::Log10(xmin);
-  double logxmax = TMath::Log10(xmax);
-  double logymin = TMath::Log10(ymin);
-  double logymax = TMath::Log10(ymax);
-  double dlogx   = (logxmax-logxmin)/(Nx-1);
-  double dlogy   = (logymax-logymin)/(Ny-1);
+  double dx      = (xmax-xmin)/(Nx-1);
+  double dy      = (ymax-ymin)/(Ny-1);
 
   LOG("DISKinematics", pDEBUG) 
     << "Searching max. in x [" << xmin << ", " << xmax << "], y [" << ymin << ", " << ymax << "]";
@@ -316,8 +299,8 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   bool increasing_y;
 
   for(int i=0; i<Ny; i++) {
-    //double gy = ymin + i*dy;
-     double gy = TMath::Power(10., logymin + i*dlogy);
+     double gy = ymin + i*dy;
+     //double gy = TMath::Power(10., logymin + i*dlogy);
      interaction->KinePtr()->Sety(gy);
 
      LOG("DISKinematics", pDEBUG) << "y = " << gy;
@@ -326,8 +309,8 @@ double DISKinematicsGenerator::ComputeMaxXSec(
      bool increasing_x;
 
      for(int j=0; j<Nx; j++) {
-        //double gx = xmin + j*dx;
-	double gx = TMath::Power(10., logxmin + j*dlogx);
+        double gx = xmin + j*dx;
+	//double gx = TMath::Power(10., logxmin + j*dlogx);
         interaction->KinePtr()->Setx(gx);
         kinematics::UpdateWQ2FromXY(interaction);
 
@@ -347,11 +330,11 @@ double DISKinematicsGenerator::ComputeMaxXSec(
         if(!increasing_x) {
           LOG("DISKinematics", pDEBUG) 
            << "d2xsec/dxdy|x stopped increasing. Stepping back & exiting x loop";
-          double dlogxn = dlogx/(Nxb+1);
-          //double dxn = dx/(Nxb+1);
+          //double dlogxn = dlogx/(Nxb+1);
+          double dxn = dx/(Nxb+1);
           for(int ik=0; ik<Nxb; ik++) {
-	     gx = TMath::Exp(TMath::Log(gx) - dlogxn);
-   	     //gx = gx - dxn;
+	     //gx = TMath::Exp(TMath::Log(gx) - dlogxn);
+   	     gx = gx - dxn;
              interaction->KinePtr()->Setx(gx);
              kinematics::UpdateWQ2FromXY(interaction);
 

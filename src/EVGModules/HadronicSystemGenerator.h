@@ -39,13 +39,14 @@ public :
   //-- Common methods for all concrete PrimaryLeptonGenerator-type
   //   EventRecordVisitors
 
-  void AddTargetNucleusRemnant (GHepRecord * event_rec) const;
-  void AddFinalHadronicSyst    (GHepRecord * event_rec) const;
+  void AddTargetNucleusRemnant  (GHepRecord * event_rec) const;
+  void AddFinalHadronicSyst     (GHepRecord * event_rec) const;
+  void PreHadronTransportDecays (GHepRecord * event_rec) const;
 
-  TLorentzVector Hadronic4pLAB      (GHepRecord * event_rec) const;
-  TLorentzVector MomentumTransferLAB(GHepRecord * event_rec) const;
-  TVector3       HCM2LAB            (GHepRecord * event_rec) const;
-  int            HadronShowerCharge (GHepRecord * event_rec) const;
+  TLorentzVector Hadronic4pLAB       (GHepRecord * event_rec) const;
+  TLorentzVector MomentumTransferLAB (GHepRecord * event_rec) const;
+  TVector3       HCM2LAB             (GHepRecord * event_rec) const;
+  int            HadronShowerCharge  (GHepRecord * event_rec) const;
 
 protected:
 
@@ -53,7 +54,9 @@ protected:
   HadronicSystemGenerator();
   HadronicSystemGenerator(string name);
   HadronicSystemGenerator(string name, string config);
-  ~HadronicSystemGenerator();
+ ~HadronicSystemGenerator();
+
+  const EventRecordVisitorI * fPreINukeDecayer;
 };
 
 }      // genie namespace

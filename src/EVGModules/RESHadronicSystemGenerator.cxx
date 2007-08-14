@@ -21,6 +21,7 @@
 #include <TMCParticle6.h>
 #endif
 
+#include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
@@ -77,6 +78,13 @@ void RESHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- Add the baryon resonance decay products at the event record
   this->AddResonanceDecayProducts(evrec,pdgc);
+
+  //-- Handle pre - hadron transport decays
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+  if (nucltgt) {
+    LOG("RESHadronicVtx", pINFO) << "Handling pre - hadron transport decays";  
+    this->PreHadronTransportDecays(evrec);
+  }
 }
 //___________________________________________________________________________
 int RESHadronicSystemGenerator::GetResonancePdgCode(GHepRecord * evrec) const
@@ -214,11 +222,17 @@ void RESHadronicSystemGenerator::Configure(string config)
 void RESHadronicSystemGenerator::LoadConfig(void)
 {
   fResonanceDecayer = 0;
+  fPreINukeDecayer  = 0;
 
   //-- Get the specified baryon resonance decayer
   fResonanceDecayer = 
          dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
   assert(fResonanceDecayer);
+
+  //-- Handle pre-intranuke decays
+  fPreINukeDecayer =
+     dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("PreTransportDecayer"));
+  assert(fPreINukeDecayer);
 }
 //___________________________________________________________________________
 

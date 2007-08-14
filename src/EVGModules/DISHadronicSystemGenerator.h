@@ -32,7 +32,7 @@ public :
 
   DISHadronicSystemGenerator();
   DISHadronicSystemGenerator(string config);
-  ~DISHadronicSystemGenerator();
+ ~DISHadronicSystemGenerator();
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -52,8 +52,9 @@ private:
   const HadronizationModelI * fHadronizationModel;
 
   bool   fFilterPreFragmEntries;
-  double fct0;        ///< formation zone (c * formation time)
-  double fK;          ///< param multiplying pT^2 in formation zone calculation
+  double fR0;   ///< param controling nuclear size
+  double fct0;  ///< formation zone (c * formation time)
+  double fK;    ///< param multiplying pT^2 in formation zone calculation
 };
 
 }      // genie namespace
