@@ -661,6 +661,10 @@ double genie::utils::kinematics::RESImportanceSamplingEnvelope(
   double Wmax  = par[3]; // kinematically allowed Wmax
   //double E     = par[4]; // neutrino energy
 
+//  return 3*xsmax; ////////////////NOTE
+
+  xsmax*=5;
+
   double func = 0;
 
   if(Wmax > mD) {
@@ -669,7 +673,7 @@ double genie::utils::kinematics::RESImportanceSamplingEnvelope(
      // -- a steeply falling leading edge (low-W side) and a more slowly
      // -- falling trailing edge (high-W side)
 
-     double hwfe = mD+gD/2; // high W falling edge
+     double hwfe = mD+2*gD; // high W falling edge
      double lwfe = mD-gD/2; // low  W falling edge
 
      if(W < lwfe) {
@@ -677,7 +681,7 @@ double genie::utils::kinematics::RESImportanceSamplingEnvelope(
        func = xsmax / (1 + 5* TMath::Power((W-lwfe)/gD,2));
      } else if (W > hwfe) {
        //high-W falling edge
-       func = xsmax / (1 + 2 * TMath::Power((W-hwfe)/gD,2));
+       func = xsmax / (1 + TMath::Power((W-hwfe)/gD,2));
      } else {
        // plateau
        func = xsmax;
