@@ -290,6 +290,8 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHA_t fate, double ke) const
   ke = TMath::Max(fMinKinEnergy,   ke);
   ke = TMath::Min(fMaxKinEnergyHA, ke);
 
+  LOG("INukeData", pDEBUG)  << "Querying hA cross section at ke = " << ke;
+
   if(hpdgc == kPdgProton) {
    /* handle protons */
         if (fate == kIHAFtCEx    ) return TMath::Max(0., fXSecPA_CEx     -> Evaluate (ke));
@@ -390,6 +392,8 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke) const
 //
   ke = TMath::Max(fMinKinEnergy,   ke);
   ke = TMath::Min(fMaxKinEnergyHN, ke);
+
+  LOG("INukeData", pDEBUG)  << "Querying hN cross section at ke = " << ke;
 
   if (hpdgc == kPdgProton) {  
     /* handle protons */
