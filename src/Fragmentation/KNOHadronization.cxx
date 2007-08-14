@@ -917,7 +917,7 @@ bool KNOHadronization::PhaseSpaceDecay(
   else 
   {
     // *** generating un-weighted decays ***
-     wmax *= 1.3;
+     wmax *= 2.3;
      bool accept_decay=false;
      unsigned int itry=0;
 
