@@ -23,6 +23,7 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/DISHadronicSystemGenerator.h"
 #include "Fragmentation/HadronizationModelI.h"
@@ -39,6 +40,7 @@
 #include "Utils/PrintUtils.h"
 
 using namespace genie;
+using namespace genie::controls;
 using namespace genie::constants;
 using namespace genie::utils;
 
@@ -159,6 +161,12 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
      // copy final state particles to the event record
      GHepStatus_t ist = (ks==1) ? istfin : kIStDISPreFragmHadronicState;
 
+     // handle gammas, and leptons that might come from internal pythia decays
+     // mark them as final state particles
+     bool not_hadron = (pdgc==kPdgGamma || 
+                        pdg::IsNeutralLepton(pdgc) || pdg::IsChargedLepton(pdgc));
+     if(not_hadron)  { ist = kIStStableFinalState; }
+
      int im  = mom + 1 + p->GetParent();
      int ifc = (p->GetFirstChild() == -1) ? -1 : mom + 1 + p->GetFirstChild();
      int ilc = (p->GetLastChild()  == -1) ? -1 : mom + 1 + p->GetLastChild();
@@ -181,11 +189,29 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
   LOG("DISHadronicVtx", pDEBUG) 
     << "Simulating formation zone for the DIS hadronic system";
  
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+  if (!nucltgt) {
+    LOG("DISHadronicVtx", pDEBUG) 
+     << "No nuclear target was found - No need to simulate formation zones";
+    return;
+  }
+  // Compute the nuclear radius
+  assert(nucltgt && nucltgt->IsNucleus());
+  double A = nucltgt->A();
+  double R = fR0 * TMath::Power(A, 1./3.);
+
+  // Decay very short living particles so that we can give the formation
+  // zone to the daughters
+  this->PreHadronTransportDecays(evrec);
+
   // Get hadronic system's 3-momentum
   GHepParticle * hadronic_system = evrec->FinalStateHadronicSystem();
   TVector3 p3hadr = hadronic_system->P4()->Vect(); // (px,py,pz)
 
-  // Loop over GHEP and run intranuclear rescattering on handled particles
+  // Loop over GHEP and set the formation zone to the right particles
+  // Limit the maximum formation zone so that particles escaping the
+  // nucleus are placed right outside...
+  
   TObjArrayIter piter(evrec);
   GHepParticle * p = 0;
   int icurr = -1;
@@ -194,25 +220,10 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
   {
     icurr++;
 
-   //-- Decide whether we need to apply the formation zone
-   //-- Applied to direct descendants of the the 'HadronicSystem' GHEP entry 
-   //-- -in case od the KNO model- or descedants of  the JETSET special particles 
-   //-- -cluster,string,indep-)
-      
-   bool apply_formation_zone = false;
- 
-   // mom 
-   int imom = p->FirstMother();
-   if(imom<0) continue;     
+    GHepStatus_t ist = p->Status();
+    bool apply_formation_zone = (ist==kIStHadronInTheNucleus);
 
-   // grand-mom pdgc
-   int mom_pdg = evrec->Particle(imom)->Pdg();
-    
-   if (mom_pdg == kPdgHadronicSyst ||
-       mom_pdg == kPdgCluster      ||
-       mom_pdg == kPdgString       ||
-       mom_pdg == kPdgIndep) apply_formation_zone = true;
-   if(!apply_formation_zone) continue;
+    if(!apply_formation_zone) continue;
 
     //-- Compute the formation zone
     //
@@ -227,6 +238,12 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
     LOG("DISHadronicVtx", pNOTICE)
       << p->Name() << ": |P| = " << P << " GeV, Pt = " << Pt
                                 << " GeV, Formation Zone = " << fz << " fm";
+
+    if(fz > R + kASmallNum) {
+        fz =  R + kASmallNum;
+        LOG("DISHadronicVtx", pNOTICE)
+          << "Limiting formation zone to  nuclear radius + epslon : " << fz << " fm";
+    }
 
     //-- Apply the formation zone
 
@@ -267,16 +284,25 @@ void DISHadronicSystemGenerator::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   fHadronizationModel = 0;
+  fPreINukeDecayer    = 0;
 
   //-- Get the requested hadronization model
   fHadronizationModel = 
      dynamic_cast<const HadronizationModelI *> (this->SubAlg("Hadronizer"));
-
   assert(fHadronizationModel);
+ 
+  //-- Handle pre-intranuke decays
+  fPreINukeDecayer =
+     dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("PreTransportDecayer"));
+  assert(fPreINukeDecayer);
 
   //-- Get flag to determine whether we copy all fragmentation record entries
   //   into the GHEP record or just the ones marked with kf=1
   fFilterPreFragmEntries = fConfig->GetBoolDef("FilterPreFragm",false);
+
+  //-- Get parameters controlling the nuclear sizes
+  //
+  fR0  = fConfig->GetDoubleDef ("R0", gc->GetDouble("NUCL-R0")); // fm
 
   //-- Get parameters controlling the formation zone simulation
   //

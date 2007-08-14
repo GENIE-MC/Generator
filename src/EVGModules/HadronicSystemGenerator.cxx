@@ -122,6 +122,14 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
            ipdgc,kIStStableFinalState, mom,-1,-1,-1, px,py,pz,E, 0,0,0,0);
 }
 //___________________________________________________________________________
+void HadronicSystemGenerator::PreHadronTransportDecays(
+                                                    GHepRecord * evrec) const
+{
+  if(fPreINukeDecayer) {
+      fPreINukeDecayer->ProcessEventRecord(evrec);
+  }
+}
+//___________________________________________________________________________
 TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(
                                                     GHepRecord * evrec) const
 {
