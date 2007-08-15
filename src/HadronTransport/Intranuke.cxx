@@ -308,19 +308,35 @@ void Intranuke::StepParticle(GHepParticle * p, double step) const
 // Steps a particle starting from its current position (in m, sec) and moving
 // along the direction of its current momentum by the input step (in fm).
 // The particle is stepped in a straight line.
+// If the step is too large and takes the the particle far away from the
+// nucleus then its position is scaled back so that the escaped particles are
+// always within a ~1fm from the "outer nucleus surface"
 
   LOG("Intranuke", pDEBUG)
       << "Stepping particle [" << p->Name() << "] by dr = " << step << " fm";
 
   //-- Step particle
   TVector3 dr = p->P4()->Vect().Unit();            // unit vector along its direction
-//double c  = kLightSpeed / (units::fm/units::ns); // c in fm/nsec
   dr.SetMag(step);                                 // spatial step size
-//double dt = step/c;                              // temporal step:
   double dt = 0;                                   // temporal step:
   TLorentzVector dx4(dr,dt);                       // 4-vector step
   TLorentzVector x4new = *(p->X4()) + dx4;         // new position
        
+  //-- Check position against nuclear boundary. If the particle was stepped
+  //   too far away outside the nuclear boundary bring it back to within 1fm from
+  //   that boundary
+  double epsilon = 1; // fm
+  double r       = x4new.Vect().Mag(); // fm
+  double rmax    = fNuclRadius+epsilon;
+  if(r > rmax) {
+     LOG("Intranuke", pINFO)
+          << "Particle was stepped too far away (r = " << r << " fm)";
+      LOG("Intranuke", pINFO)
+          << "Placing it ~1 fm outside the nucleus (r' = " << rmax << " fm)";
+      double scale = rmax/r;
+      x4new *= scale;
+  }
+    
   LOG("Intranuke", pDEBUG)
       << "\n Init direction = " << print::Vec3AsString(&dr)
       << "\n Init position (in fm,nsec) = " << print::X4AsString(p->X4())
