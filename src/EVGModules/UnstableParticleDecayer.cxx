@@ -82,6 +82,9 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
 
   while( (p = (GHepParticle *) piter.Next()) ) {
 
+        LOG("ParticleDecayer", pNOTICE)
+                   << "Checking: " << p->Name();
+
      if( this->ToBeDecayed(p) ) {
         LOG("ParticleDecayer", pNOTICE)
                    << "Decaying unstable particle: " << p->Name();
@@ -145,11 +148,17 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 bool UnstableParticleDecayer::ToBeDecayed(GHepParticle * particle) const
 {
-   GHepStatus_t ist = (fRunBefHadroTransp) ?
-                       kIStHadronInTheNucleus : kIStStableFinalState;
+   if(particle->Pdg() != 0) {
+     bool check = false;
+     GHepStatus_t ist = particle->Status();
 
-   if( particle->Pdg() != 0 && particle->Status() == ist)
-                                   return this->IsUnstable(particle);
+     if(fRunBefHadroTransp) {
+       check = (ist == kIStHadronInTheNucleus || ist == kIStStableFinalState);
+     } else {
+       check = (ist == kIStStableFinalState);
+     }
+     if(check) { return this->IsUnstable(particle); }
+   }
    return false;
 }
 //___________________________________________________________________________

@@ -79,12 +79,11 @@ void RESHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Add the baryon resonance decay products at the event record
   this->AddResonanceDecayProducts(evrec,pdgc);
 
-  //-- Handle pre - hadron transport decays
-  GHepParticle * nucltgt = evrec->TargetNucleus();
-  if (nucltgt) {
-    LOG("RESHadronicVtx", pINFO) << "Handling pre - hadron transport decays";  
-    this->PreHadronTransportDecays(evrec);
-  }
+  //-- Handle resonance decay channels to other resonances or short-living
+  //   partices
+  LOG("RESHadronicVtx", pNOTICE)
+     << "Decay any resonance in  the initial resonance decay products";
+  this->PreHadronTransportDecays(evrec);
 }
 //___________________________________________________________________________
 int RESHadronicSystemGenerator::GetResonancePdgCode(GHepRecord * evrec) const
