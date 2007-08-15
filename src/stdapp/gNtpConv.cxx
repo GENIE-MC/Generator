@@ -1098,7 +1098,7 @@ void ConvertToT2KStdGenNtp(void)
       else if (p->Pdg() == kPdgPi0) brNiPi0++; 
       else if (p->Pdg() == kPdgKP)  brNiKp++;  
       else if (p->Pdg() == kPdgKM)  brNiKm++;  
-      else if (p->Pdg() == kPdgK0)  brNiK0++; 
+      else if (p->Pdg() == kPdgK0    || p->Pdg() == kPdgAntiK0)  brNiK0++; 
       else if (p->Pdg() == kPdgGamma || p->Pdg() == kPdgElectron || p->Pdg() == kPdgPositron) brNiEM++;
       else brNiOther++;
 
@@ -1145,7 +1145,7 @@ void ConvertToT2KStdGenNtp(void)
       else if (p->Pdg() == kPdgPi0) brNfPi0++; 
       else if (p->Pdg() == kPdgKP)  brNfKp++;  
       else if (p->Pdg() == kPdgKM)  brNfKm++;  
-      else if (p->Pdg() == kPdgK0)  brNfK0++; 
+      else if (p->Pdg() == kPdgK0    || p->Pdg() == kPdgAntiK0)  brNfK0++; 
       else if (p->Pdg() == kPdgGamma || p->Pdg() == kPdgElectron || p->Pdg() == kPdgPositron) brNfEM++;
       else brNfOther++;
 
