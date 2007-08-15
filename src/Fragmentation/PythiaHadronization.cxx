@@ -237,6 +237,7 @@ TClonesArray * PythiaHadronization::Hadronize(
   // Determine how jetset treats unsstable particles appearning in hadronization
   fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),        1,0); // don't decay pi0
   fPythia->SetMDCY(fPythia->Pycomp(kPdgK0),         1,0); // don't decay K0
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiK0),     1,0); // don't decay \bar{K0}
   fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),     1,0); // don't decay Lambda0
   fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda), 1,0); // don't decay \bar{Lambda0}
   fPythia->SetMDCY(fPythia->Pycomp(2214),           1,1); // decay Delta+
@@ -248,6 +249,7 @@ TClonesArray * PythiaHadronization::Hadronize(
   // restore pythia settings
   fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),        1,1);
   fPythia->SetMDCY(fPythia->Pycomp(kPdgK0),         1,1);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiK0),     1,1);
   fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),     1,1); 
   fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda), 1,1); 
 
