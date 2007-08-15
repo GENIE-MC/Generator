@@ -100,6 +100,7 @@ const int kPdgY            =   553; // Y
 const int kPdgKP           =   321; // K+
 const int kPdgKM           =  -321; // K-
 const int kPdgK0           =   311; // K0
+const int kPdgAntiK0       =  -311; // \bar{K0}
 const int kPdgK0L          =   130; // K0_{long}
 const int kPdgK0S          =   310; // K0_{short}
 const int kPdgDP           =   411; // D+
