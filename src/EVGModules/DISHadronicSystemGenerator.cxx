@@ -226,7 +226,7 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
     if(!apply_formation_zone) continue;
 
     //-- Compute the formation zone
-    //
+
     TVector3 p3  = p->P4()->Vect();      // hadron's: p (px,py,pz)
     double   m   = p->Mass();            //           m
     double   m2  = m*m;                  //           m^2
@@ -239,16 +239,9 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
       << p->Name() << ": |P| = " << P << " GeV, Pt = " << Pt
                                 << " GeV, Formation Zone = " << fz << " fm";
 
-    if(fz > R + kASmallNum) {
-        fz =  R + kASmallNum;
-        LOG("DISHadronicVtx", pNOTICE)
-          << "Limiting formation zone to  nuclear radius + epslon : " << fz << " fm";
-    }
-
-    //-- Apply the formation zone
+    //-- Apply the formation zone step
 
     double step = fz;
-
     TVector3 dr = p->P4()->Vect().Unit();            // unit vector along its direction
  // double c  = kLightSpeed / (units::fm/units::ns); // c in fm/nsec
     dr.SetMag(step);                                 // spatial step size
@@ -256,6 +249,21 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
     double dt = 0;
     TLorentzVector dx4(dr,dt);                       // 4-vector step
     TLorentzVector x4new = *(p->X4()) + dx4;         // new position
+
+    //-- If the formation zone was large enough that the particle is now outside
+    //   the nucleus make sure that it is not placed further away from the 
+    //   nuclear radius + ~1 fm
+    double epsilon = 1; // fm
+    double r       = x4new.Vect().Mag(); // fm
+    double rmax    = R+epsilon; 
+    if(r > rmax) {
+        LOG("DISHadronicVtx", pINFO)
+          << "Particle was stepped too far away (r = " << r << " fm)";
+        LOG("DISHadronicVtx", pINFO)
+          << "Placing it ~1 fm outside the nucleus (r' = " << rmax << " fm)";
+        double scale = rmax/r;
+        x4new *= scale;
+    }
 
     LOG("DISHadronicVtx", pDEBUG)
          << "\n Init direction = " << print::Vec3AsString(&dr)
