@@ -1160,8 +1160,8 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
             //-------------------------------------------------------------
             if( W >= M2K0 ) {
                 LOG("KNOHad", pDEBUG) << " -> Adding a K0 K0bar pair";
-                pdgc->push_back( kPdgK0 );
-                pdgc->push_back( kPdgK0 );
+                pdgc->push_back( kPdgK0     );
+                pdgc->push_back( kPdgAntiK0 );
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2K0; // update the available invariant mass
             } else {
