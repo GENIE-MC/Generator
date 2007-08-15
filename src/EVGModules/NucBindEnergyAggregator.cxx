@@ -56,7 +56,7 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * evrec) const
   GHepParticle * nucltgt = evrec->TargetNucleus();
   if (!nucltgt) {
     LOG("Nuclear", pINFO)
-           << "No nuclear target found - Hadron transporter exits";
+        << "No nuclear target found - Not subtracting any binding energy";
     return;
   }
 
