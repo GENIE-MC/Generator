@@ -232,40 +232,24 @@ TClonesArray * PythiaHadronization::Hadronize(
   LOG("PythiaHad", pNOTICE)
         << "Fragmentation / Init System: "
                       << "q = " << final_quark << ", qq = " << diquark;
-
   int ip = 0;
 
   // Determine how jetset treats unsstable particles appearning in hadronization
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),        1,0); // don't decay pi0
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgK0),         1,0); // don't decay K0
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),     1,0); // don't decay Lambda0
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda), 1,0); // don't decay \bar{Lambda0}
+  fPythia->SetMDCY(fPythia->Pycomp(2214),           1,1); // decay Delta+
+  fPythia->SetMDCY(fPythia->Pycomp(2224),           1,1); // decay Delta++
 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),1,0); // don't decay pi0
-  fPythia->SetMDCY(fPythia->Pycomp(2214),   1,1); // decay Delta+
-  fPythia->SetMDCY(fPythia->Pycomp(2224),   1,1); // decay Delta++
-
-/*
-  // back-up initial pythia settings
-  int   mstj21 = fPythia->GetMSTJ(21);
-  int   mstj22 = fPythia->GetMSTJ(22);
-  float parj71 = fPythia->GetPARJ(71);
-
-  double ct = 0.00001; // ct, in mm
-  //fPythia->SetMSTJ(21,0);  // inhibit decays
-  fPythia->SetMSTJ(21,1);    // enable decays
-  fPythia->SetMSTJ(22,2);    // decay particles with average proper lifetime < PARJ(71) 
-  fPythia->SetPARJ(71,ct);   // proper lifetime
-  this->SwitchDecays(kPdgPi0,       false); // don't decay pi0
-  this->SwitchDecays(2214,           true); // decay Delta+
-  this->SwitchDecays(2224,           true); // decay Delta++
-*/
   // -- hadronize --
   py2ent_(&ip, &final_quark, &diquark, &W); // hadronizer
 
   // restore pythia settings
-/*
-  fPythia->SetMSTJ(21,mstj21);              // restore mstj(21)
-  fPythia->SetMSTJ(22,mstj22);              // restore mstj(22)
-  fPythia->SetPARJ(71,parj71);              // restore parj(71)
-*/
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),1,1);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),        1,1);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgK0),         1,1);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),     1,1); 
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda), 1,1); 
 
   // get LUJETS record
   fPythia->GetPrimaries();
@@ -283,7 +267,7 @@ TClonesArray * PythiaHadronization::Hadronize(
   TIter particle_iter(pythia_particles);
 
   while( (particle = (TMCParticle *) particle_iter.Next()) ) {
-     LOG("PythiaHad", pINFO)
+     LOG("PythiaHad", pDEBUG)
                << "Adding final state particle pdgc = " << particle->GetKF();
 
      // fix numbering scheme used for mother/daughter assignments
