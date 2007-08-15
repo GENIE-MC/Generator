@@ -124,9 +124,13 @@ double ReinSeghalCOHPXSec::XSec(
         double ml    = interaction->FSPrimLepton()->Mass();
         double ml2   = TMath::Power(ml,2);
         double Q2min = ml2 * y/(1-y);
-        double C1    = TMath::Power(1-0.5*Q2min/(Q2+kPionMass2), 2);
-        double C2    = 0.25*y*Q2min*(Q2-Q2min)/ TMath::Power(Q2+kPionMass,2);
-        C= C1+C2;
+        if(Q2>Q2min) {
+           double C1    = TMath::Power(1-0.5*Q2min/(Q2+kPionMass2), 2);
+           double C2    = 0.25*y*Q2min*(Q2-Q2min)/ TMath::Power(Q2+kPionMass,2);
+           C = C1+C2;
+        } else {
+           C = 0.;
+        }
      }
      xsec *= (2.*C); 
   }
