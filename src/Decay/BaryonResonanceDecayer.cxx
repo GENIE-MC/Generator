@@ -201,7 +201,7 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   {
      // *** generating un-weighted decays ***
      RandomGen * rnd = RandomGen::Instance();
-     wmax *= 1.2;
+     wmax *= 2;
      bool accept_decay=false;
      register unsigned int itry=0;
 
@@ -213,6 +213,10 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
        double w  = fPhaseSpaceGenerator.Generate();
        double gw = wmax * rnd->RndDec().Rndm();
 
+       if(w>wmax) {
+          LOG("Decay", pWARN) 
+             << "Current decay weight = " << w << " > wmax = " << wmax;
+       }
        LOG("Decay", pINFO) 
           << "Current decay weight = " << w << " / R = " << gw;
 
@@ -275,7 +279,16 @@ double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * channel) const
      TParticlePDG * daughter = PDGLibrary::Instance()->Find(daughter_code);
      assert(daughter);
 
-     mass += ( daughter->Mass() );
+     double md = daughter->Mass();
+
+     // hack to switch off channels giving rare  occurences of |1114| that has 
+     // no decay channels in the pdg table (08/2007)
+     if(TMath::Abs(daughter_code) == 1114) {
+         LOG("Decay", pNOTICE)
+                  << "Disabling decay channel containing resonance 1114";;
+         md = 999999999;
+     }
+     mass += md;
   }  
   return mass;
 }
