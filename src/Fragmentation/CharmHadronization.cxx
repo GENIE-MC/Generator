@@ -78,7 +78,7 @@ TClonesArray * CharmHadronization::Hadronize(
   PDGLibrary * pdglib = PDGLibrary::Instance();
   RandomGen *  rnd    = RandomGen::Instance();
   
-  // --------------------------------------------------------------------
+  // ....................................................................
   // Get information on the input event
   //
   const InitialState & init_state = interaction -> InitState();
@@ -106,7 +106,7 @@ TClonesArray * CharmHadronization::Hadronize(
   bool isnu    = pdg::IsNeutrino(nu_pdg);
   bool isnub   = pdg::IsAntiNeutrino(nu_pdg);
 
-  // --------------------------------------------------------------------
+  // ....................................................................
   // Attempt to generate a charmed hadron & its 4-momentum
   //
 
@@ -187,6 +187,87 @@ TClonesArray * CharmHadronization::Hadronize(
            << "Generated charm hadron z = " << z << ", E = " << Ec;
   }
 
+  // ....................................................................
+  // Check whether the code above had difficulty generating the charmed
+  // hadron near the W - threshold.
+  // If yes, attempt a phase space decay of a low mass charm hadron + nucleon
+  // pair that maintains the charge.
+  // That's a desperate solution but don't want to quit too early as that 
+  // would distort the generated dsigma/dW distribution near threshold.
+  //
+  bool used_lowW_strategy = false;
+  int  fs_nucleon_pdg = -1;
+  if(ch_pdg==-1 && W < 3.){
+     LOG("CharmHad", pNOTICE) 
+         << "Had difficulty generating charm hadronic system near W threshold";
+     LOG("CharmHad", pNOTICE) 
+         << "Trying an alternative strategy";
+
+     double qfsl  = interaction->FSPrimLepton()->Charge() / 3.;
+     double qinit = pdglib->Find(nuc_pdg)->Charge() / 3.;
+     int qhad  = (int) (qinit - qfsl);
+
+     int remn_pdg = -1; 
+     int chrm_pdg = -1; 
+
+     if(qhad ==  2) { chrm_pdg = kPdgDP; remn_pdg = kPdgProton;  }
+     if(qhad ==  1) { chrm_pdg = kPdgD0; remn_pdg = kPdgProton;  }
+     if(qhad ==  0) { chrm_pdg = kPdgD0; remn_pdg = kPdgNeutron; }
+     if(qhad == -1) { chrm_pdg = kPdgDM; remn_pdg = kPdgNeutron; } 
+
+     double mc  = pdglib->Find(chrm_pdg)->Mass();           
+     double mn  = pdglib->Find(remn_pdg)->Mass();          
+
+     if(mc+mn < W) {
+        // Set decay
+        double mass[2] = {mc, mn};
+        bool permitted = fPhaseSpaceGenerator.SetDecay(p4H, 2, mass);
+        assert(permitted);
+ 
+        // Get the maximum weight
+        double wmax = -1;
+        for(int i=0; i<200; i++) {
+           double w = fPhaseSpaceGenerator.Generate();
+           wmax = TMath::Max(wmax,w);
+        }
+        assert(wmax>0);
+        wmax *= 2;
+
+        // Generate unweighted decay
+        bool accept_decay=false;
+        unsigned int idecay_try=0;
+        while(!accept_decay)
+        {
+          idecay_try++;
+
+          if(idecay_try>kMaxUnweightDecayIterations) {
+             LOG("CharmHad", pWARN)
+               << "Couldn't generate an unweighted phase space decay after "
+               << idecay_try << " attempts";
+          }
+          double w  = fPhaseSpaceGenerator.Generate();
+          if(w > wmax) {
+             LOG("CharmHad", pWARN)
+                << "Decay weight = " << w << " > max decay weight = " << wmax;
+          }
+          double gw = wmax * rnd->RndHadro().Rndm();
+          accept_decay = (gw<=w);
+
+          if(accept_decay) {
+              used_lowW_strategy = true;
+              TLorentzVector * p4 = fPhaseSpaceGenerator.GetDecay(0);
+              p4C            = *p4;
+              ch_pdg         = chrm_pdg;
+              fs_nucleon_pdg = remn_pdg;
+          } 
+
+       } // decay loop
+     }// allowed decay
+  } // failed at low W
+
+  // ....................................................................
+  // Check success in generating the charm hadron
+    
   if(ch_pdg==-1){
      LOG("CharmHad", pWARN) 
          << "Couldn't generate charm hadron for: " << *interaction;
@@ -199,28 +280,34 @@ TClonesArray * CharmHadronization::Hadronize(
 
   LOG("CharmHad", pNOTICE) << "Remnant hadronic system mass = " << WR;
 
-  // --------------------------------------------------------------------
+  // ....................................................................
   // Handle case where the user doesn't want to remnant system to be
-  // hadronized (add as 'hadronic blob'
+  // hadronized (add as 'hadronic blob') or the case where a simple
+  // 2-body phase decay was performed (so the remnant system is known)
   //
-  if(fCharmOnly) {
+  if(fCharmOnly || used_lowW_strategy) {
     // Create particle list (fragmentation record)
     TClonesArray * particle_list = new TClonesArray("TMCParticle", 2);
     particle_list->SetOwner(true);
 
-    // insert the generated charm hadron & the hadronic (non-charm) blob
+    int remn_pdg = -1;
+    if(fCharmOnly) remn_pdg = kPdgHadronicBlob;
+    else           remn_pdg = fs_nucleon_pdg;
 
+    // insert the generated particles
     new ((*particle_list)[0]) TMCParticle (1,ch_pdg,
 	     -1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),MC, 0,0,0,0,0);
-    new ((*particle_list)[1]) TMCParticle (1,kPdgHadronicBlob,
+    new ((*particle_list)[1]) TMCParticle (1,remn_pdg,
              -1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
 
     return particle_list;
   }
   
+  // ....................................................................
   // --------------------------------------------------------------------
-  // Hadronize non-charm hadronic blob
-  //
+  // Hadronize non-charm hadronic blob using PYTHIA/JETSET
+  // --------------------------------------------------------------------
+  // ....................................................................
 
   // Create output event record
   // Insert the generated charm hadron & the hadronic (non-charm) blob.
@@ -238,9 +325,6 @@ TClonesArray * CharmHadronization::Hadronize(
 
   bool use_pythia = (WR>1.5);
 
-  // ....................................................................
-  // Hadronizing non-charm hadronic blob using PYTHIA/JETEST
-  // ....................................................................
 /*
   // Determining quark systems to input to PYTHIA based on simple quark model 
   // arguments
