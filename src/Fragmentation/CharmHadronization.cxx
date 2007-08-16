@@ -210,10 +210,21 @@ TClonesArray * CharmHadronization::Hadronize(
      int remn_pdg = -1; 
      int chrm_pdg = -1; 
 
-     if(qhad ==  2) { chrm_pdg = kPdgDP; remn_pdg = kPdgProton;  }
-     if(qhad ==  1) { chrm_pdg = kPdgD0; remn_pdg = kPdgProton;  }
-     if(qhad ==  0) { chrm_pdg = kPdgD0; remn_pdg = kPdgNeutron; }
-     if(qhad == -1) { chrm_pdg = kPdgDM; remn_pdg = kPdgNeutron; } 
+     //cc-only: qhad(nu) = +1,+2, qhad(nubar)= -1,0
+     //
+     if(qhad == 2) { 
+         chrm_pdg = kPdgDP; remn_pdg = kPdgProton; 
+     } else if(qhad ==  1) { 
+         if(rnd->RndHadro().Rndm() > 0.5) { 
+            chrm_pdg = kPdgD0; remn_pdg = kPdgProton; 
+         } else { 
+            chrm_pdg = kPdgDP; remn_pdg = kPdgNeutron; 
+         }
+     } else if(qhad ==  0) { 
+         chrm_pdg = kPdgAntiD0; remn_pdg = kPdgNeutron; 
+     } else if(qhad == -1) { 
+         chrm_pdg = kPdgDM; remn_pdg = kPdgNeutron; 
+     } 
 
      double mc  = pdglib->Find(chrm_pdg)->Mass();           
      double mn  = pdglib->Find(remn_pdg)->Mass();          
