@@ -63,6 +63,7 @@ const int kPdgProton       =  2212;
 const int kPdgAntiProton   = -2212;
 const int kPdgNeutron      =  2112;
 const int kPdgAntiNeutron  = -2112;
+const int kPdgDeltaM       =  1114; // Delta-
 const int kPdgDeltaP       =  2214; // Delta+
 const int kPdgDeltaPP      =  2214; // Delta++
 const int kPdgLambda       =  3122; // Lambda
