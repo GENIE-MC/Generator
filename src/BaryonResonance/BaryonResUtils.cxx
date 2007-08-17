@@ -406,6 +406,11 @@ bool genie::utils::res::IsBaryonResonance(int pdgc)
 
     /* ------ F17(1970) ------*/
 
+
+    /* ------ ?         ------*/
+    case (-1114) :
+    case (1114)  :
+
         return true;
   }
 
