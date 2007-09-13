@@ -9,15 +9,20 @@
          Typically used in validating generator changes.
 
          Syntax :
-           gmctest -f filename -t tgt [-n events] [-c another_filename]
+           gmctest -m mode -f sample [-n events] [-r reference_sample] 
 
          Options:
            [] Denotes an optional argument
            -f Specifies the GENIE/ROOT file with the generated event sample
-           -t Target pdg code (analyzing interactions for one target at a time)
            -n Specifies how many events to analyze [default: all]
-	   -c Specifies another GENIE/ROOT event sample file for comparison 
-
+	   -r Specifies another GENIE/ROOT event sample file for comparison 
+           -m mode
+	      0: create summary tree
+	      1: create plots (and compare with reference sample, if any)
+	      
+\example gmctest -m 0 -f /path/GNtp-0.root -n 10000
+         gmctest -m 1 -f /path/GNtp-0.gst.root -f /path/GNtp-1.gst.root
+		      
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
@@ -48,6 +53,7 @@
 #include <TPavesText.h>
 #include <TText.h>
 #include <TStyle.h>
+#include <TLegend.h>
 
 #include "Conventions/Constants.h"
 #include "EVGCore/EventRecord.h"
@@ -69,138 +75,21 @@ using namespace genie;
 using namespace genie::constants;
 
 // function prototypes
-void   GetCommandLineArgs(int argc, char ** argv);
+void   GetCommandLineArgs   (int argc, char ** argv);
 void   PrintSyntax          (void);
 bool   CheckRootFilename    (string filename);
-string OutputFileName       (string input_file_name);
-void   AnalyzeSample        (string filename);
-void   Init                 (void);
-void   EventLoop            (void);
-void   SaveResults          (void);
-void   CleanUp              (void);
-void   AddEvtFracDir        (string dir, string title, int nupdg);  
-void   AddKineDir           (string dir, string title, int nupdg, string proc); 
-void   AddHMultDir          (string dir, string title, int nupdg, string proc); 
-void   AddHP4Dir            (string dir, string title, int nupdg, string proc); 
-void   AddVtxDir            (void); 
-void   AddNtpDir            (void);
-void   Plot                 (void);
-void   AddFrontPage         (void);
-void   PlotEvtFrac          (string dir, string title); 
-void   PlotKine             (string dir, string title); 
-void   PlotHMult            (string dir, string title); 
-void   PlotHP4              (string dir, string title); 
-void   PlotVtx              (void);                     
-void   PlotH1F              (string name, string title, bool keep_page = false);
-void   PlotH1F_2            (string name1, string name2, string title, bool keep_page = false);
-void   PlotH2F              (string name, string title);
+string OutputFileName       (string input_file_name, int mod);
+void   CreateSummaryTree    (string filename);
+void   CreatePlots          (string filename, string filename_ref);
 
 // command-line arguments
-Long64_t gOptN;                // (-n)  process so many events, all if -1
-Long64_t gOptTgtPdgC;          // (-t) process events only for this nucl. target
-string   gOptInpFile;          // (-f) input GENIE event sample file
-string   gOptInpTemplFile;     // (-c) input GENIE event sample file (template)
-
-// internal vars
-bool               gSampleComp = false;  // run sample comparisons ?
-TCanvas *          gC = 0;
-TPostScript *      gPS = 0;
-NtpMCEventRecord * gMCRec = 0;
-TTree *            gEventRecTree = 0;
-Long64_t           gNEvt = 0;
-string             gCurrInpFilename = "";
-TFile *            gCurrInpFile = 0;
-TFile *            gCurrOutFile = 0;
-TFile *            gTestedSamplePlotFile = 0;
-TFile *            gTempltSamplePlotFile = 0;
-TDirectory *       gTestedSampleDir = 0; // plot dir in test sample file
-TDirectory *       gTempltSampleDir = 0; // plot dir in template sample file
-double             gEmin  = 999, gEmax  = -999; // Ev range of events in input sample
-double             gWmin  = 999, gWmax  = -999; // W  range of events in input sample
-double             gQ2min = 999, gQ2max = -999; // Q2 range of events in input sample
+Long64_t gOptN           = -1; // (-n) process so many events, all if -1
+string   gOptInpFile     = ""; // (-f) input GENIE event sample file
+string   gOptInpFileRef  = ""; // (-r) input GENIE event sample file (reference)
+Int_t    gOptMode        = -1; // (-m) mode
 
 // various control constants
-const int    kNPmax      = 100;   //
-const double kEBinSz     = 0.250; //
-const double kWBinSz     = 0.200; //
-const double kQ2BinSz    = 0.100; //
-
-// summary tree
-TTree * tEvtTree;
-int    br_iev       = 0;      //
-int    br_neutrino  = 0;      //
-int    br_target    = 0;      //
-int    br_hitnuc    = 0;      //
-int    br_hitqrk    = 0;      //
-bool   br_qel       = false;  //
-bool   br_res       = false;  //
-bool   br_dis       = false;  //
-bool   br_coh       = false;  //
-bool   br_em        = false;  //
-bool   br_weakcc    = false;  //
-bool   br_weaknc    = false;  //
-double br_kine_xs   = 0;      //
-double br_kine_ys   = 0;      //
-double br_kine_ts   = 0;      //
-double br_kine_Q2s  = 0;      //
-double br_kine_Ws   = 0;      //
-double br_kine_x    = 0;      //
-double br_kine_y    = 0;      //
-double br_kine_t    = 0;      //
-double br_kine_Q2   = 0;      //
-double br_kine_W    = 0;      //
-double br_kine_v    = 0;      //
-double br_Ev        = 0;      //
-double br_El        = 0;      //
-double br_vtxx      = 0;      // vertex position x 
-double br_vtxy      = 0;      // vertex position y
-double br_vtxz      = 0;      // vertex position z
-double br_weight    = 0;      // event weight
-int    br_np        = 0;      // number of f/s p
-int    br_nn        = 0;      // number of f/s n
-int    br_npip      = 0;      // number of f/s pi+
-int    br_npim      = 0;      // number of f/s pi-
-int    br_npi0      = 0;      // number of f/s pi0
-int    br_ngamma    = 0;      // number of f/s gamma
-int    br_nKp       = 0;      // number of f/s K+
-int    br_nKm       = 0;      // number of f/s K-
-int    br_nK0       = 0;      // number of f/s K0
-int    br_hmod      = 0;      // hadronization model (-1: nodis, 0:kno, 1:string, 2:cluster, 3:indep)
-int    br_nhep      = 0;      // number of GHEP record entries
-int    br_pdg[kNPmax];        //
-int    br_ist[kNPmax];        //
-double br_px [kNPmax];        //
-double br_py [kNPmax];        //
-double br_pz [kNPmax];        //
-double br_p  [kNPmax];        //
-double br_E  [kNPmax];        //
-double br_KE [kNPmax];        //
-double br_x  [kNPmax];        //
-double br_y  [kNPmax];        //
-double br_z  [kNPmax];        //
-int    br_da1[kNPmax];        //
-int    br_da2[kNPmax];        //
-int    br_mom[kNPmax];        //
-int    br_n_hprim = 0;        // number of particles at the prim hadronic system (before transport)
-int    br_pdg_hprim[kNPmax];  //
-double br_px_hprim [kNPmax];  //
-double br_py_hprim [kNPmax];  //
-double br_pz_hprim [kNPmax];  //
-double br_p_hprim  [kNPmax];  //
-double br_E_hprim  [kNPmax];  //
-double br_KE_hprim [kNPmax];  //
-double br_had_E;              // hadronic energy 
-double br_had_px;             // -//-     px      
-double br_had_py;             // -//-     py      
-double br_had_pz;             // -//-     pz      
-double br_vishad_E;           // 'visible' hadronic energy 
-double br_vishad_px;          // -//-     px      
-double br_vishad_py;          // -//-     py      
-double br_vishad_pz;          // -//-     pz      
-double br_mishad_E;           // missing hadronic energy (because of intranuclear rescattering)
-double br_mishad_px;          //      -//-        px      -//-
-double br_mishad_py;          //      -//-        py      -//-
-double br_mishad_pz;          //      -//-        pz      -//-
+const int kNPmax = 100;   
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -209,1228 +98,2486 @@ int main(int argc, char ** argv)
   GetCommandLineArgs(argc,argv);
 
   //-- analyze tested event generation sample
-  assert(CheckRootFilename(gOptInpFile));
-  AnalyzeSample(gOptInpFile);
-
-  //-- analyze tested event generation sample template - if available
-  if (CheckRootFilename(gOptInpTemplFile) ) {
-    gSampleComp = true;
-    AnalyzeSample(gOptInpTemplFile);
+  if(gOptMode==0) {
+     CreateSummaryTree(gOptInpFile);
   }
-
-  //-- plot results
-  //-- if a template file was available plot comparisons too
-  Plot();
-
+  
+  if(gOptMode==1) {
+     CreatePlots(gOptInpFile,gOptInpFileRef);
+  }
+  
   LOG("gmctest", pINFO)  << "Done!";
   return 0;
 }
 //_________________________________________________________________________________
-void AnalyzeSample(string filename)
+void CreateSummaryTree(string inp_filename)
 {
-  gCurrInpFilename = filename;
+  if(!CheckRootFilename(inp_filename)) {
+    LOG("gmctest", pERROR) << "Input file: " << inp_filename << " doesn't exist";
+    return;
+  }
 
-  Init();
-  EventLoop();
-  SaveResults();
-  CleanUp();
+  //-- define branch variables
+  //
+  int    brIev        = 0;      // Event number 
+  int    brNeutrino   = 0;      // Neutrino pdg code
+  int    brTarget     = 0;      // Nuclear target pdg code (10LZZZAAAI)
+  int    brHitNuc     = 0;      // Hit nucleon pdg code      (not set for COH,IMD and NuEL events)
+  int    brHitQrk     = 0;      // Hit quark pdg code        (set for DIS events only)
+  bool   brFromSea    = false;  // Hit quark is from sea     (set for DIS events only)
+  bool   brResId      = 0;      // Produced baryon resonance (set for resonance events only)
+  bool   brIsQel      = false;  // Is QEL?
+  bool   brIsRes      = false;  // Is RES?
+  bool   brIsDis      = false;  // Is DIS?
+  bool   brIsCoh      = false;  // Is COH?
+  bool   brIsImd      = false;  // Is IMD?
+  bool   brIsNuEL     = false;  // Is ve elastic?
+  bool   brIsCC       = false;  // Is CC?
+  bool   brIsNC       = false;  // Is NC?
+  bool   brIsCharmPro = false;  // Produces charm?
+  double brWeight     = 0;      // Event weight
+  double brKineXs     = 0;      // Bjorken x (selected)
+  double brKineYs     = 0;      // Inelasticity y (selected)
+  double brKineTs     = 0;      // Energy transfer to nucleus at COH events (selected)
+  double brKineQ2s    = 0;      // Momentum transfer Q^2 (selected)
+  double brKineWs     = 0;      // Hadronic invariant mass W (selected)
+  double brKineX      = 0;      // Bjorken x  (computed from the event record)
+  double brKineY      = 0;      // Inelasticity y (computed from the event record)
+  double brKineT      = 0;      // Energy transfer to nucleus at COH events (computed from the event record)
+  double brKineQ2     = 0;      // Momentum transfer Q^2 (computed from the event record)
+  double brKineW      = 0;      // Hadronic invariant mass W (computed from the event record)
+  double brEv         = 0;      // Neutrino energy (neutrino assumed in +z direction)
+  double brEn         = 0;      // Initial state hit nucleon energy
+  double brPxn        = 0;      // Initial state hit nucleon px
+  double brPyn        = 0;      // Initial state hit nucleon py
+  double brPzn        = 0;      // Initial state hit nucleon pz
+  double brEl         = 0;      // Final state primary lepton energy
+  double brPxl        = 0;      // Final state primary lepton px
+  double brPyl        = 0;      // Final state primary lepton py
+  double brPzl        = 0;      // Final state primary lepton pz 
+  int    brNfP        = 0;      // Number of final state p's + \bar{p}'s (after intranuclear rescattering)
+  int    brNfN        = 0;      // Number of final state n's + \bar{n}'s
+  int    brNfPip      = 0;      // Number of final state pi+'s
+  int    brNfPim      = 0;      // Number of final state pi-'s
+  int    brNfPi0      = 0;      // Number of 'final state' pi0's (
+  int    brNfKp       = 0;      // Number of final state K+'s
+  int    brNfKm       = 0;      // Number of final state K-'s
+  int    brNfK0       = 0;      // Number of final state K0's + \bar{K0}'s
+  int    brNfEM       = 0;      // Number of final state gammas and e-/e+ (excluding pi0 decay products)
+  int    brNfOther    = 0;      // Number of heavier final state hadrons (D+,D-,D0,Ds+,Ds-,Lamda,Sigma,Lamda_c,Sigma_c,...)
+  int    brNiP        = 0;      // Number of 'primary' (: before intranuclear rescattering) p's + \bar{p}'s  
+  int    brNiN        = 0;      // Number of 'primary' n's + \bar{n}'s  
+  int    brNiPip      = 0;      // Number of 'primary' pi+'s 
+  int    brNiPim      = 0;      // Number of 'primary' pi-'s 
+  int    brNiPi0      = 0;      // Number of 'primary' pi0's 
+  int    brNiKp       = 0;      // Number of 'primary' K+'s  
+  int    brNiKm       = 0;      // Number of 'primary' K-'s  
+  int    brNiK0       = 0;      // Number of 'primary' K0's + \bar{K0}'s 
+  int    brNiEM       = 0;      // Number of 'primary' gammas and e-/e+ (eg from resonance decays)
+  int    brNiOther    = 0;      // Number of 'primary' hadron shower particles
+  int    brNf         = 0;      // Number of final state particles in hadronic system
+  int    brPdgf[kNPmax];        // Pdg code of i^th final state particle in hadronic system
+  double brEf  [kNPmax];        // Energy   of i^th final state particle in hadronic system
+  double brPxf [kNPmax];        // Px       of i^th final state particle in hadronic system
+  double brPyf [kNPmax];        // Py       of i^th final state particle in hadronic system
+  double brPzf [kNPmax];        // Pz       of i^th final state particle in hadronic system
+  int    brNi         = 0;      // Number of particles in 'primary' hadronic system (before intranuclear rescattering)
+  int    brPdgi[kNPmax];        // Pdg code of i^th particle in 'primary' hadronic system 
+  double brEi  [kNPmax];        // Energy   of i^th particle in 'primary' hadronic system 
+  double brPxi [kNPmax];        // Px       of i^th particle in 'primary' hadronic system 
+  double brPyi [kNPmax];        // Py       of i^th particle in 'primary' hadronic system 
+  double brPzi [kNPmax];        // Pz       of i^th particle in 'primary' hadronic system 
 
-  LOG("gmctest", pINFO)  << "Done analyzing : " << filename;
-}
-//_________________________________________________________________________________
-void Init(void)
-{
+  //-- build output filename based on input filename
+  string outp_filename = OutputFileName(inp_filename,0);
+  LOG("gmctest", pNOTICE) 
+       << "*** Saving summary tree to: " << outp_filename;
+
+  TFile fout(outp_filename.c_str(),"recreate");
+
+  //-- create output summary tree & create the tree branches
+  //
+  TTree * s_tree = new TTree("gst","GENIE Summary Event Tree");
+
+  //-- create tree branches
+  //
+  s_tree->Branch("iev",       &brIev,       "iev/I"       );
+  s_tree->Branch("neu",	      &brNeutrino,  "neu/I"	  );
+  s_tree->Branch("tgt",       &brTarget,    "tgt/I"	  );
+  s_tree->Branch("hitnuc",    &brHitNuc,    "hitnuc/I"    );
+  s_tree->Branch("hitqrk",    &brHitQrk,    "hitqrk/I"    );
+  s_tree->Branch("resid",     &brResId,	    "resid/I"	  );
+  s_tree->Branch("sea",	      &brFromSea,   "sea/O"	  );
+  s_tree->Branch("qel",	      &brIsQel,	    "qel/O"	  );
+  s_tree->Branch("res",	      &brIsRes,	    "res/O"	  );
+  s_tree->Branch("dis",	      &brIsDis,	    "dis/O"	  );
+  s_tree->Branch("coh",	      &brIsCoh,	    "coh/O"	  );
+  s_tree->Branch("imd",	      &brIsImd,	    "imd/O"	  );
+  s_tree->Branch("nuel",      &brIsNuEL,    "nuel/O"	  );
+  s_tree->Branch("cc",	      &brIsCC,	    "cc/O"	  );
+  s_tree->Branch("nc",	      &brIsNC,	    "nc/O"	  );
+  s_tree->Branch("charm",     &brIsCharmPro,"charm/O"	  );
+  s_tree->Branch("wght",      &brWeight,    "wght/D"	  );
+  s_tree->Branch("xs",	      &brKineXs,    "xs/D"	  );
+  s_tree->Branch("ys",	      &brKineYs,    "ys/D"	  );
+  s_tree->Branch("ts",	      &brKineTs,    "ts/D"	  );
+  s_tree->Branch("Q2s",	      &brKineQ2s,   "Q2s/D"	  );
+  s_tree->Branch("Ws",	      &brKineWs,    "Ws/D"	  );
+  s_tree->Branch("x",	      &brKineX,	    "x/D"	  );
+  s_tree->Branch("y",	      &brKineY,	    "y/D"	  );
+  s_tree->Branch("t",	      &brKineT,	    "t/D"	  );
+  s_tree->Branch("Q2",	      &brKineQ2,    "Q2/D"	  );
+  s_tree->Branch("W",	      &brKineW,	    "W/D"	  );
+  s_tree->Branch("Ev",	      &brEv,	    "Ev/D"	  );
+  s_tree->Branch("En",	      &brEn,	    "En/D"	  );
+  s_tree->Branch("pxn",	      &brPxn,	    "pxn/D"	  );
+  s_tree->Branch("pyn",	      &brPyn,	    "pyn/D"	  );
+  s_tree->Branch("pzn",	      &brPzn,	    "pzn/D"	  );
+  s_tree->Branch("El",	      &brEl,	    "El/D"	  );
+  s_tree->Branch("pxl",	      &brPxl,	    "pxl/D"	  );
+  s_tree->Branch("pyl",	      &brPyl,	    "pyl/D"	  );
+  s_tree->Branch("pzl",	      &brPzl,	    "pzl/D"	  );
+  s_tree->Branch("nfp",	      &brNfP,	    "nfp/I"	  );
+  s_tree->Branch("nfn",	      &brNfN,	    "nfn/I"	  );
+  s_tree->Branch("nfpip",     &brNfPip,	    "nfpip/I"	  );
+  s_tree->Branch("nfpim",     &brNfPim,	    "nfpim/I"	  );
+  s_tree->Branch("nfpi0",     &brNfPi0,	    "nfpi0/I"	  );
+  s_tree->Branch("nfkp",      &brNfKp,	    "nfkp/I"	  );
+  s_tree->Branch("nfkm",      &brNfKm,	    "nfkm/I"	  );
+  s_tree->Branch("nfk0",      &brNfK0,	    "nfk0/I"	  );
+  s_tree->Branch("nfem",      &brNfEM,	    "nfem/I"	  );
+  s_tree->Branch("nfother",   &brNfOther,   "nfother/I"   );
+  s_tree->Branch("nip",	      &brNiP,	    "np/I"	  );
+  s_tree->Branch("nin",	      &brNiN,	    "nn/I"	  );
+  s_tree->Branch("nipip",     &brNiPip,	    "npip/I"	  );
+  s_tree->Branch("nipim",     &brNiPim,	    "npim/I"	  );
+  s_tree->Branch("nipi0",     &brNiPi0,	    "npi0/I"	  );
+  s_tree->Branch("nikp",      &brNiKp,	    "nkp/I"	  );
+  s_tree->Branch("nikm",      &brNiKm,	    "nkm/I"	  );
+  s_tree->Branch("nik0",      &brNiK0,	    "nk0/I"	  );
+  s_tree->Branch("niem",      &brNiEM,	    "niem/I"	  );
+  s_tree->Branch("niother",   &brNiOther,   "niother/I"   );
+  s_tree->Branch("ni",	      &brNi,	    "ni/I"	  );
+  s_tree->Branch("pdgi",       brPdgi,	    "pdgi[ni]/I " );
+  s_tree->Branch("Ei",	       brEi,	    "Ei[ni]/D"    );
+  s_tree->Branch("pxi",	       brPxi,	    "pxi[ni]/D"   );
+  s_tree->Branch("pyi",	       brPyi,	    "pyi[ni]/D"   );
+  s_tree->Branch("pzi",	       brPzi,	    "pzi[ni]/D"   );
+  s_tree->Branch("nf",	      &brNf,	    "nf/I"	  );
+  s_tree->Branch("pdgf",       brPdgf,	    "pdgf[nf]/I " );
+  s_tree->Branch("Ef",	       brEf,	    "Ef[nf]/D"    );
+  s_tree->Branch("pxf",	       brPxf,	    "pxf[nf]/D"   );
+  s_tree->Branch("pyf",	       brPyf,	    "pyf[nf]/D"   );
+  s_tree->Branch("pzf",	       brPzf,	    "pzf[nf]/D"   );
+
   //-- open the ROOT file and get the TTree & its header
+  TFile fin(inp_filename.c_str(),"READ");
+  TTree *           er_tree = 0;
+  NtpMCTreeHeader * thdr    = 0;
+  er_tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
+  thdr    = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
 
-  LOG("gmctest", pNOTICE) << "*** Opening GHEP data file: " << gCurrInpFilename;
+  if (!er_tree) {
+    LOG("gmctest", pERROR) << "Null input ER tree";
+    return;
+  }
 
-  TFile * gCurrInpFile = new TFile(gCurrInpFilename.c_str(),"READ");
-  TTree * tree = dynamic_cast <TTree *> (gCurrInpFile->Get("gtree"));
-  NtpMCTreeHeader * thdr = 
-       dynamic_cast <NtpMCTreeHeader *> (gCurrInpFile->Get("header"));
+  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  LOG("gmctest", pNOTICE) << "*** Input tree header: " << *thdr;
-
-  //-- figure out the TTree format (GENIE supports multiple formats)
   NtpMCFormat_t format = thdr->format;
   assert(format == kNFEventRecord);
 
-  //-- set the event record branch ptr
+  //-- get the mc record
   NtpMCEventRecord * mcrec = 0;
-  tree->SetBranchAddress("gmcrec", &mcrec);
+  er_tree->SetBranchAddress("gmcrec", &mcrec);
 
+  if (!mcrec) {
+    LOG("gmctest", pERROR) << "Null MC record";
+    return;
+  }
+  
   //-- figure out how many events to analyze
   Long64_t nmax = (gOptN<0) ? 
-       tree->GetEntries() : TMath::Min( tree->GetEntries(), gOptN );
+       er_tree->GetEntries() : TMath::Min( er_tree->GetEntries(), gOptN );
 
-  //-- keep what is needed for the EventLoop()
-  gEventRecTree = tree;
-  gMCRec        = mcrec;
-  gNEvt         = nmax;
-
-  //-- build output filename based on input filename
-  string outpfilename = OutputFileName(gCurrInpFilename);
-  LOG("gmctest", pNOTICE) 
-          << "*** Saving output histograms to: " << outpfilename;
-
-  // open output file
-  gCurrOutFile = new TFile(outpfilename.c_str(),"recreate");
-
-  //-- create summary tree
-  tEvtTree = new TTree("tEvtTree","event tree summary");
-  tEvtTree->Branch("iev",       &br_iev,        "iev/I"       );
-  tEvtTree->Branch("neu",       &br_neutrino ,  "neu/I"       );
-  tEvtTree->Branch("tgt" ,      &br_target,     "tgt/I"       );
-  tEvtTree->Branch("hitnuc",    &br_hitnuc,     "hitnuc/I"    );
-  tEvtTree->Branch("hitqrk",    &br_hitqrk,     "hitqrk/I"    );
-  tEvtTree->Branch("qel",       &br_qel,        "br_qel/O"    );
-  tEvtTree->Branch("res",       &br_res,        "br_res/O"    );
-  tEvtTree->Branch("dis",       &br_dis,        "br_dis/O"    );
-  tEvtTree->Branch("coh",       &br_coh,        "br_coh/O"    );
-  tEvtTree->Branch("em",        &br_em,         "br_em/O"     );
-  tEvtTree->Branch("weakcc",    &br_weakcc,     "br_weakcc/O" );
-  tEvtTree->Branch("weaknc",    &br_weaknc,     "br_weaknc/O" );
-  tEvtTree->Branch("xs",        &br_kine_xs,    "xs/D"        );
-  tEvtTree->Branch("ys",        &br_kine_ys,    "ys/D"        );
-  tEvtTree->Branch("ts",        &br_kine_ts,    "ts/D"        );
-  tEvtTree->Branch("Q2s",       &br_kine_Q2s ,  "Q2s/D"       );
-  tEvtTree->Branch("Ws",        &br_kine_Ws,    "Ws/D"        );
-  tEvtTree->Branch("x",         &br_kine_x,     "x/D"         );
-  tEvtTree->Branch("y",         &br_kine_y,     "y/D"         );
-  tEvtTree->Branch("t",         &br_kine_t,     "t/D"         );
-  tEvtTree->Branch("Q2",        &br_kine_Q2,    "Q2/D"        );
-  tEvtTree->Branch("W",         &br_kine_W,     "W/D"         );
-  tEvtTree->Branch("v",         &br_kine_v,     "v/D"         );
-  tEvtTree->Branch("Ev",        &br_Ev,         "Ev/D"        );
-  tEvtTree->Branch("El",        &br_El,         "El/D"        );
-  tEvtTree->Branch("vtxx",      &br_vtxx,       "vtxx/D"      );
-  tEvtTree->Branch("vtxy",      &br_vtxy,       "vtxy/D"      );
-  tEvtTree->Branch("vtxz",      &br_vtxz,       "vtxz/D"      );
-  tEvtTree->Branch("wgt",       &br_weight,     "wgt/D"       );
-  tEvtTree->Branch("np",        &br_np,         "np/I"        );
-  tEvtTree->Branch("nn",        &br_nn,         "nn/I"        );
-  tEvtTree->Branch("npip",      &br_npip,       "npip/I"      );
-  tEvtTree->Branch("npim",      &br_npim,       "npim/I"      );
-  tEvtTree->Branch("npi0",      &br_npi0,       "npi0/I"      );
-  tEvtTree->Branch("ngamma",    &br_ngamma,     "ngamma/I"    );
-  tEvtTree->Branch("nKp",       &br_nKp,        "nKp/I"       );
-  tEvtTree->Branch("nKm",       &br_nKm,        "nKm/I"       );
-  tEvtTree->Branch("nK0",       &br_nK0,        "nK0/I"       );
-  tEvtTree->Branch("hmod",      &br_hmod,       "hmod/I"      );
-  tEvtTree->Branch("nhep",      &br_nhep,       "nhep/I"      );
-  tEvtTree->Branch("pdg",        br_pdg,        "pdg[nhep]/I" );
-  tEvtTree->Branch("ist",        br_ist,        "ist[nhep]/I" );
-  tEvtTree->Branch("px",         br_px,         "px[nhep]/D"  );
-  tEvtTree->Branch("py",         br_py,         "py[nhep]/D"  );
-  tEvtTree->Branch("pz",         br_pz,         "pz[nhep]/D"  );
-  tEvtTree->Branch("p" ,         br_p,          "p[nhep]/D"   );
-  tEvtTree->Branch("E",          br_E,          "E[nhep]/D"   );
-  tEvtTree->Branch("KE",         br_KE,         "KE[nhep]/D"  );
-  tEvtTree->Branch("x",          br_x,          "x[nhep]/D"   );
-  tEvtTree->Branch("y",          br_y,          "y[nhep]/D"   );
-  tEvtTree->Branch("z",          br_z,          "z[nhep]/D"   );
-  tEvtTree->Branch("fdaughter",  br_da1,        "fdaughter[nhep]/I" );
-  tEvtTree->Branch("ldaughter",  br_da2,        "ldaughter[nhep]/I" );
-  tEvtTree->Branch("mom",        br_mom,        "mom[nhep]/I" );
-  tEvtTree->Branch("n_hprim",   &br_n_hprim,    "n_hprim/I"            );
-  tEvtTree->Branch("pdg_hprim",  br_pdg_hprim,  "pdg_hprim[n_hprim]/I" );
-  tEvtTree->Branch("px_hprim",   br_px_hprim,   "px_hprim[n_hprim]/D"  );
-  tEvtTree->Branch("py_hprim",   br_py_hprim,   "py_hprim[n_hprim]/D"  );
-  tEvtTree->Branch("pz_hprim",   br_pz_hprim,   "pz_hprim[n_hprim]/D"  );
-  tEvtTree->Branch("p_hprim" ,   br_p_hprim,    "p_hprim[n_hprim]/D"   );
-  tEvtTree->Branch("E_hprim",    br_E_hprim,    "E_hprim[n_hprim]/D"   );
-  tEvtTree->Branch("KE_hprim",   br_KE_hprim,   "KE_hprim[n_hprim]/D"  );
-  tEvtTree->Branch("had_E",     &br_had_E,      "had_E/D"              );
-  tEvtTree->Branch("had_px",    &br_had_px,     "had_px/D"             );
-  tEvtTree->Branch("had_py",    &br_had_py,     "had_py/D"             );
-  tEvtTree->Branch("had_pz",    &br_had_pz,     "had_pz/D"             );
-  tEvtTree->Branch("vishad_E",  &br_vishad_E,   "vishad_E/D"           );
-  tEvtTree->Branch("vishad_px", &br_vishad_px,  "vishad_px/D"          );
-  tEvtTree->Branch("vishad_py", &br_vishad_py,  "vishad_py/D"          );
-  tEvtTree->Branch("vishad_pz", &br_vishad_pz,  "vishad_pz/D"          );
-  tEvtTree->Branch("mishad_E",  &br_mishad_E,   "mishad_E/D"           );
-  tEvtTree->Branch("mishad_px", &br_mishad_px,  "mishad_px/D"          );
-  tEvtTree->Branch("mishad_py", &br_mishad_py,  "mishad_py/D"          );
-  tEvtTree->Branch("mishad_pz", &br_mishad_pz,  "mishad_pz/D"          );
-
-  br_nhep    = 0; 
-  br_n_hprim = 0; 
-  for(int k=0; k<kNPmax; k++) {
-     br_pdg      [k] =  0;        
-     br_ist      [k] = -1;        
-     br_px       [k] =  0;        
-     br_py       [k] =  0;        
-     br_pz       [k] =  0;        
-     br_p        [k] =  0;        
-     br_E        [k] =  0;        
-     br_KE       [k] =  0;        
-     br_x        [k] =  0;        
-     br_y        [k] =  0;        
-     br_z        [k] =  0;        
-     br_da1      [k] = -1;        
-     br_da2      [k] = -1;        
-     br_mom      [k] = -1;        
-     br_pdg_hprim[k] =  0;  
-     br_px_hprim [k] =  0;  
-     br_py_hprim [k] =  0;  
-     br_pz_hprim [k] =  0;  
-     br_p_hprim  [k] =  0;  
-     br_E_hprim  [k] =  0;  
-     br_KE_hprim [k] =  0;  
+  if (nmax<0) {
+    LOG("gmctest", pERROR) << "Number of events = 0";
+    return;
   }
-}
-//_________________________________________________________________________________
-void EventLoop(void)
-{
-  LOG("gmctest", pNOTICE) << "*** Analyzing: " << gNEvt << " events";
+  
+  LOG("gmctest", pNOTICE) << "*** Analyzing: " << nmax << " events";
 
-  if (gNEvt<0)        return;
-  if (!gEventRecTree) return;
-  if (!gMCRec)        return;
+  TLorentzVector pdummy(0,0,0,0);
 
-  for(Long64_t i = 0; i < gNEvt; i++) {
+  for(Long64_t iev = 0; iev < nmax; iev++) {
 
-    gEventRecTree->GetEntry(i);
+    er_tree->GetEntry(iev);
 
-    NtpMCRecHeader rec_header = gMCRec->hdr;
-    EventRecord &  event      = *(gMCRec->event);
+    NtpMCRecHeader rec_header = mcrec->hdr;
+    EventRecord &  event      = *(mcrec->event);
 
-    //LOG("gmctest", pINFO) << rec_header;
-    //LOG("gmctest", pINFO) << event;
+    LOG("gmctest", pINFO) << rec_header;
+    LOG("gmctest", pINFO) << event;
 
     // go further only if the event is physical
     bool is_unphysical = event.IsUnphysical();
     if(is_unphysical) {
-      gMCRec->Clear();
+      LOG("gmctest", pINFO) << "Skipping unphysical event";
+      mcrec->Clear();
       continue;
     }
 
-    // nuclear target or free nucleon target
-    GHepParticle * target = event.Particle(1);
-    assert(target);
-
-    // only further only if it matches the requested target
-    if(target->Pdg() != gOptTgtPdgC) {
-      gMCRec->Clear();
-      continue;
+    // clean-up arrays
+    //
+    for(int j=0; j<kNPmax; j++) {
+       brPdgi[j] = 0;     
+       brEi  [j] = 0;     
+       brPxi [j] = 0;     
+       brPyi [j] = 0;     
+       brPzi [j] = 0;     
+       brPdgf[j] = 0;     
+       brEf  [j] = 0;     
+       brPxf [j] = 0;     
+       brPyf [j] = 0;     
+       brPzf [j] = 0;     
     }
 
-    // neutrino
+    // Computing event characteristics
+    //
+
+    //input particles
     GHepParticle * neutrino = event.Probe();
     assert(neutrino);
-    // final state primary lepton
+    GHepParticle * target = event.Particle(1);
+    assert(target);
     GHepParticle * fsl = event.FinalStatePrimaryLepton();
     assert(fsl);
-    // hit nucleon
     GHepParticle * hitnucl = event.HitNucleon();
-    if(!hitnucl) continue;
-
+  
+    //summary info
     const Interaction * interaction = event.Summary();
+    const InitialState & init_state = interaction->InitState();
     const ProcessInfo &  proc_info  = interaction->ProcInfo();
     const Kinematics &   kine       = interaction->Kine();
+    const XclsTag &      xcls       = interaction->ExclTag();
+    const Target &       tgt        = init_state.Tgt();
 
+    //process id
     bool is_qel    = proc_info.IsQuasiElastic();
     bool is_res    = proc_info.IsResonant();
     bool is_dis    = proc_info.IsDeepInelastic();
     bool is_coh    = proc_info.IsCoherent();
-    bool is_em     = proc_info.IsEM();
+    bool is_imd    = proc_info.IsInverseMuDecay();
+    bool is_nuel   = proc_info.IsNuElectronElastic();
     bool is_weakcc = proc_info.IsWeakCC();
     bool is_weaknc = proc_info.IsWeakNC();
 
+    if(!hitnucl) { assert(is_coh || is_imd || is_nuel); }
+  
+    // hit quark 
+    // set only for DIS events
+    int  qrk  = (is_dis) ? tgt.HitQrkPdg() : 0;     
+    bool seaq = (is_dis) ? tgt.HitSeaQrk() : false; 
+
+    // resonance id ($GENIE/src/BaryonResonance/BaryonResonance.h)
+    // set only for resonance neutrinoproduction
+    int resid = (is_res) ? xcls.Resonance() : 0;
+
+    // (qel or dis) charm production?
+    bool charm = xcls.IsCharmEvent();
+    
+    //weight
     double weight = event.Weight();
-    double Ev     = neutrino->Energy();
-    double El     = fsl->Energy();
 
-    const TLorentzVector & k1 = *(neutrino->P4()); // v 4-p (k1)
-    const TLorentzVector & k2 = *(fsl->P4());      // l 4-p (k2)
-    const TLorentzVector & p1 = *(hitnucl->P4());  // N 4-p (p1)
-
-    double M  = kNucleonMass;
-
+    //input 4-momenta    
+    const TLorentzVector & k1 = *(neutrino->P4());                     // v 4-p (k1)
+    const TLorentzVector & k2 = *(fsl->P4());                          // l 4-p (k2)
+    const TLorentzVector & p1 = (hitnucl) ? *(hitnucl->P4()) : pdummy; // N 4-p (p1)      
+     
     // compute kinematical params
-    // (see, for example, particle data booklet, page 210-211)
+    //
+    double M  = kNucleonMass;
+    TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer
+    double Q2 = -1 * q.M2();                       // momemtum transfer
+    double v  = (hitnucl) ? q.Energy()       : -1; // v (E transfer in hit nucleon rest frame)
+    double x  = (hitnucl) ? 0.5*Q2/(M*v)     : -1; // Bjorken x
+    double y  = (hitnucl) ? v/k1.Energy()    : -1; // Inelasticity, y = q*P1/k1*P1
+    double W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
+    double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
+    double t  = 0;
 
-    TLorentzVector q  = k1-k2;    // q=k1-k2, 4-p transfer
-    double v  = (q*p1)/M;         // v (E transfer in hit nucleon rest frame)
-    double Q2 = -1 * q.M2();      // momemtum transfer
-    double x  = 0.5*Q2/(M*v);     // Bjorken x
-    double y  = v*M/(k1*p1);      // Inelasticity, y = q*P1/k1*P1
-    double W2 = M*M + 2*M*v - Q2; // Hadronic Invariant mass ^ 2
-    double W  = TMath::Sqrt(W2);
+    LOG("gmctest", pDEBUG) 
+       << "[Calc] Q2 = " << Q2 << ", W = " << W 
+       << ", x = " << x << ", y = " << y << ", t = " << t;
 
-    // also, access kinematical params _exactly_ as they were selected
-    // by the event generation code (can be different because of the
-    // off-shell kinematics)
-
+    // also, access kinematical params _exactly_ as they were selected internally
+    // (possibly using off-shell kinematics)
+    //
     bool get_selected = true;
     double xs  = kine.x (get_selected);
     double ys  = kine.y (get_selected);
-    double ts  = 0; //kine.t (get_selected);
+    double ts  = (is_coh) ? kine.t (get_selected) : -1;
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
 
-    // get interaction vertex (in detector coord system)
+    LOG("gmctest", pDEBUG) 
+       << "[Select] Q2 = " << Q2s << ", W = " << Ws 
+       << ", x = " << xs << ", y = " << ys << ", t = " << ts;
+
+    // Extract more info on the hadronic system
+    // Only for QEL/RES/DIS events
     //
-    TLorentzVector * vtx = event.Vertex(); 
-
-    // f/s multiplicities
-    //
-    int np      = event.NEntries(kPdgProton,  kIStStableFinalState);
-    int nn      = event.NEntries(kPdgNeutron, kIStStableFinalState);
-    int npip    = event.NEntries(kPdgPiP,     kIStStableFinalState);
-    int npim    = event.NEntries(kPdgPiM,     kIStStableFinalState);
-    int npi0    = event.NEntries(kPdgPi0,     kIStStableFinalState);
-    int ngamma  = event.NEntries(kPdgGamma,   kIStStableFinalState);
-    int nKp     = event.NEntries(kPdgKP,      kIStStableFinalState);
-    int nKm     = event.NEntries(kPdgKM,      kIStStableFinalState);
-    int nK0     = event.NEntries(kPdgK0,      kIStStableFinalState);
-
-    // update ranges
-    //
-    if(!gSampleComp) {
-      gEmin  = TMath::Min( gEmin,  Ev    );
-      gEmax  = TMath::Max( gEmax,  Ev    );
-      gWmin  = TMath::Min( gWmin,  W     );
-      gWmax  = TMath::Max( gWmax,  W     );
-      gQ2min = TMath::Min( gQ2min, Q2    );
-      gQ2max = TMath::Max( gQ2max, Q2    );
-    }
-
-    // init hadronization model flag
-    if(is_dis) br_hmod =  0;  
-    else       br_hmod = -1;
-
-    // init root position for hadronic system (before intranuclear transport)
-    int ihad_root = -1;
-    if(!is_dis) ihad_root = event.HitNucleonPosition();
-
-    // copy GHEP record into a flat array
+    bool study_hadsyst = (is_qel || is_res || is_dis);
+    
     //
     TObjArrayIter piter(&event);
     GHepParticle * p = 0;
-    unsigned int ip=0;
-    while( (p = (GHepParticle *) piter.Next()) )
+    int ip=-1;
+
+    //
+    // Extract info on the final state system originating from the
+    // hadronic vertex (includes intranuclear rescattering mc)
+    //
+    // Notes:
+    //  ** include f/s  p,n,\bar{p},\bar{n}
+    //  ** include f/s pi+, pi-
+    //  ** include **decayed** pi0 & ommit their decay products
+    //  ** include f/s K+, K-, K0, \bar{K0}
+    //  ** include gammas/e+/e- but not the ones coming from decaying pi0's (pi0's are counted)
+    //  ** include f/s D+, D-, D0, \bar{D0}, Ds+, Ds-, Sigma's, Omega's, Lambda's, Sigma_{c}'s,...
+    //  ** baryon resonances should have been decayed early on: include decay products
+    //  ** eta,eta',rho0,rho+,rho-,omega,phi should have been decayed early on: include decay products
+    //
+
+    LOG("gmctest", pDEBUG) << "Extracting final state hadronic system";
+
+    vector<int> final_had_syst;
+    while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
-      br_pdg[ip] = p->Pdg(); 
-      br_ist[ip] = p->Status(); 
-      br_px [ip] = p->Px(); 
-      br_py [ip] = p->Py(); 
-      br_pz [ip] = p->Pz(); 
-      br_p  [ip] = p->P4()->Vect().Mag(); 
-      br_E  [ip] = p->Energy(); 
-      br_KE [ip] = p->KinE(); 
-      br_x  [ip] = p->Vx(); 
-      br_y  [ip] = p->Vy(); 
-      br_z  [ip] = p->Vz(); 
-      br_da1[ip] = p->FirstDaughter();
-      br_da2[ip] = p->LastDaughter();
-      br_mom[ip] = p->FirstMother();
-
-      if(is_dis) {
-         if(p->Pdg() == kPdgHadronicSyst) { ihad_root = ip; }
-
-         if      (p->Pdg() == kPdgString ) { br_hmod=1; ihad_root = ip; }
-         else if (p->Pdg() == kPdgCluster) { br_hmod=2; ihad_root = ip; }
-         else if (p->Pdg() == kPdgIndep  ) { br_hmod=3; ihad_root = ip; }
-      }
-
       ip++;
+      if(ip < TMath::Max(hitnucl->FirstDaughter(), event.FinalStatePrimaryLeptonPosition()+1)) continue;
+      if(p->IsFake()) continue;
+      int pdgc = p->Pdg();
+      int ist  = p->Status();
+      if(ist==kIStStableFinalState) {
+         if (pdgc == kPdgGamma || pdgc == kPdgElectron || pdgc == kPdgPositron)  {
+            int igmom = p->FirstMother();
+            if(igmom!=-1) {
+               if(event.Particle(igmom)->Pdg() != kPdgPi0) { final_had_syst.push_back(ip); }
+            }
+         } else {
+            final_had_syst.push_back(ip);
+         }
+      }
+      if(ist==kIStDecayedState && pdgc==kPdgPi0) {
+         final_had_syst.push_back(ip);
+      }
+    }//particle-loop
+
+    //
+    // Extract info on the primary hadronic system (before any intranuclear rescattering)
+    // * For DIS: 
+    //   Low-W events hadronized by KNO:
+    //       Find the HadronicSyst special particle & get its daughters.
+    //   High-W events hadronized by JETSET: 
+    //       Find the HadronicSyst special particle & get its daughters. Find the JETSET
+    //       special particle ('cluster','string','indep') and take its own daughters.
+    //       Neglect particles decayed internally by JETSET
+    // * For RES:
+    //   Find the hit nucleon and lookup its 1st daughter (intermediate resonance).
+    //   Get the resonance decay products.
+    // * For QEL:
+    //   Get the 1st daughter of the hit nucleon
+    // * For other processes:
+    //   Skip...
+    //
+    // For free nucleon targets (no intranuclear rescattering) the primary hadronic system
+    // is 'identical' with the final state hadronic system
+    //
+
+    LOG("gmctest", pDEBUG) << "Extracting primary hadronic system";
+
+    vector<int> prim_had_syst;
+    if(study_hadsyst) {
+      if(!target->IsNucleus()) {
+         vector<int>::const_iterator hiter = final_had_syst.begin();
+         for( ; hiter != final_had_syst.end(); ++hiter) {
+           prim_had_syst.push_back(*hiter);
+         }
+      } 
+      else {
+         int ihadbase=0;
+         if(is_dis) {
+           ihadbase = event.FinalStateHadronicSystemPosition();
+           int idx = event.Particle(ihadbase)->LastDaughter() + 1;
+           p = event.Particle(idx);
+           if(p->Pdg()==kPdgCluster || p->Pdg()==kPdgString || p->Pdg()==kPdgIndep) ihadbase=idx;
+         }
+         if(is_qel || is_res) {
+           ihadbase = hitnucl->FirstDaughter();
+         }
+         assert(ihadbase>0);
+
+         int idx1 = event.Particle(ihadbase)->FirstDaughter();
+         int idx2 = event.Particle(ihadbase)->LastDaughter();
+         for(int i=idx1; i<=idx2; i++) {
+            p = event.Particle(i);
+            if(p->IsFake()) continue;
+            int ist = p->Status();
+            // handle decayed dis states
+            if(is_dis && ist==kIStDISPreFragmHadronicState) {
+               for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) prim_had_syst.push_back(j);
+            } 
+            // handle decayed resonances (whose decay products may be resonances that decay further)
+            else if(is_res && ist==kIStDecayedState) {
+                for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) {
+                   GHepParticle * pd = event.Particle(j);
+                   if(pd->Status()==kIStDecayedState) {
+                      for(int k=pd->FirstDaughter(); k<=pd->LastDaughter(); k++) prim_had_syst.push_back(k);
+                   } else {
+                      prim_had_syst.push_back(j); 
+                   }       
+                }
+            } else {
+                 prim_had_syst.push_back(i);
+            }
+         }//i
+      }//freenuc?
+    }//study_hadsystem?
+
+    //
+    // Al information has been assembled -- Start filling up the tree branches
+    //
+    brIev        = iev;      
+    brNeutrino   = neutrino->Pdg();      
+    brTarget     = target->Pdg();      
+    brHitNuc     = (hitnucl) ? hitnucl->Pdg() : 0;      
+    brHitQrk     = qrk;     
+    brFromSea    = seaq;  
+    brResId      = resid;
+    brIsQel      = is_qel;
+    brIsRes      = is_res;
+    brIsDis      = is_dis;  
+    brIsCoh      = is_coh;  
+    brIsImd      = is_imd;  
+    brIsNuEL     = is_nuel;  
+    brIsCC       = is_weakcc;  
+    brIsNC       = is_weaknc;  
+    brIsCharmPro = charm;
+    brWeight     = weight;      
+    brKineXs     = xs;      
+    brKineYs     = ys;      
+    brKineTs     = ts;      
+    brKineQ2s    = Q2s;            
+    brKineWs     = Ws;      
+    brKineX      = x;      
+    brKineY      = y;      
+    brKineT      = t;      
+    brKineQ2     = Q2;      
+    brKineW      = W;      
+    brEv         = k1.Energy();      
+    brEn         = (hitnucl) ? p1.Energy() : 0;      
+    brPxn        = (hitnucl) ? p1.Px()     : 0;      
+    brPyn        = (hitnucl) ? p1.Py()     : 0;      
+    brPzn        = (hitnucl) ? p1.Pz()     : 0;            
+    brEl         = k2.Energy();      
+    brPxl        = k2.Px();      
+    brPyl        = k2.Py();      
+    brPzl        = k2.Pz();      
+
+    // prim had syst
+    brNiP        = 0;
+    brNiN        = 0;    
+    brNiPip      = 0;    
+    brNiPim      = 0;    
+    brNiPi0      = 0;    
+    brNiKp       = 0;  
+    brNiKm       = 0;  
+    brNiK0       = 0;  
+    brNiEM       = 0;  
+    brNiOther    = 0;  
+    brNi = prim_had_syst.size();
+    for(int j=0; j<brNi; j++) {
+      p = event.Particle(prim_had_syst[j]);
+      assert(p);
+      brPdgi[j] = p->Pdg();     
+      brEi  [j] = p->Energy();     
+      brPxi [j] = p->Px();     
+      brPyi [j] = p->Py();     
+      brPzi [j] = p->Pz();     
+
+      if      (p->Pdg() == kPdgProton  || p->Pdg() == kPdgAntiProton)   brNiP++;
+      else if (p->Pdg() == kPdgNeutron || p->Pdg() == kPdgAntiNeutron)  brNiN++;
+      else if (p->Pdg() == kPdgPiP) brNiPip++; 
+      else if (p->Pdg() == kPdgPiM) brNiPim++; 
+      else if (p->Pdg() == kPdgPi0) brNiPi0++; 
+      else if (p->Pdg() == kPdgKP)  brNiKp++;  
+      else if (p->Pdg() == kPdgKM)  brNiKm++;  
+      else if (p->Pdg() == kPdgK0    || p->Pdg() == kPdgAntiK0)  brNiK0++; 
+      else if (p->Pdg() == kPdgGamma || p->Pdg() == kPdgElectron || p->Pdg() == kPdgPositron) brNiEM++;
+      else brNiOther++;
+
+      LOG("gmctest", pINFO) 
+        << "Counting in primary hadronic system: idx = " << prim_had_syst[j]
+        << " -> " << p->Name();
     }
-    br_nhep = event.GetEntries();
 
-    if(ihad_root>0) {
-      int ih=0;
-      GHepParticle * hadroot = event.Particle(ihad_root);    
-      for(int j=hadroot->FirstDaughter(); j<hadroot->LastDaughter(); j++) {
-        GHepParticle * hj = event.Particle(j);    
-        if(hj->Status() == kIStHadronInTheNucleus) {
-           br_pdg_hprim[ih] = hj->Pdg();  
-           br_px_hprim [ih] = hj->Px();  
-           br_py_hprim [ih] = hj->Py();  
-           br_pz_hprim [ih] = hj->Pz();  
-           br_p_hprim  [ih] = hj->P4()->Vect().Mag();  
-           br_E_hprim  [ih] = hj->E();  
-           br_KE_hprim [ih] = hj->KinE();  
-           ih++;
-        } else if(hj->Status() == kIStDecayedState) {
-           for(int k=hj->FirstDaughter(); k<hadroot->LastDaughter(); k++) {
-              GHepParticle * hk = event.Particle(k);    
-              if(hk->Status() == kIStHadronInTheNucleus) {
-                 br_pdg_hprim[ih] = hk->Pdg();  
-                 br_px_hprim [ih] = hk->Px();  
-                 br_py_hprim [ih] = hk->Py();  
-                 br_pz_hprim [ih] = hk->Pz();  
-                 br_p_hprim  [ih] = hk->P4()->Vect().Mag();  
-                 br_E_hprim  [ih] = hk->E();  
-                 br_KE_hprim [ih] = hk->KinE();  
-                 ih++;
-              } // hadronic decay products
-          }//decay products
-        } // has decayed before transport
-      } // j
-      br_n_hprim = ih; 
-    } else {
-      br_n_hprim = 0; 
+    LOG("gmctest", pINFO) 
+     << "N(p):"             << brNiP
+     << ", N(n):"           << brNiN
+     << ", N(pi+):"         << brNiPip
+     << ", N(pi-):"         << brNiPim
+     << ", N(pi0):"         << brNiPi0
+     << ", N(K+,K-,K0):"    << brNiKp+brNiKm+brNiK0
+     << ", N(gamma,e-,e+):" << brNiEM
+     << ", N(etc):"         << brNiOther << "\n";
+
+    // f/s had syst
+    brNfP        = 0;
+    brNfN        = 0;    
+    brNfPip      = 0;    
+    brNfPim      = 0;    
+    brNfPi0      = 0;    
+    brNfKp       = 0;  
+    brNfKm       = 0;  
+    brNfK0       = 0;  
+    brNfEM       = 0;  
+    brNfOther    = 0;  
+
+    brNf = final_had_syst.size();
+    for(int j=0; j<brNf; j++) {
+      p = event.Particle(final_had_syst[j]);
+      assert(p);
+      brPdgf[j] = p->Pdg();     
+      brEf  [j] = p->Energy();     
+      brPxf [j] = p->Px();     
+      brPyf [j] = p->Py();     
+      brPzf [j] = p->Pz();     
+
+      if      (p->Pdg() == kPdgProton  || p->Pdg() == kPdgAntiProton)   brNfP++;
+      else if (p->Pdg() == kPdgNeutron || p->Pdg() == kPdgAntiNeutron)  brNfN++;
+      else if (p->Pdg() == kPdgPiP) brNfPip++; 
+      else if (p->Pdg() == kPdgPiM) brNfPim++; 
+      else if (p->Pdg() == kPdgPi0) brNfPi0++; 
+      else if (p->Pdg() == kPdgKP)  brNfKp++;  
+      else if (p->Pdg() == kPdgKM)  brNfKm++;  
+      else if (p->Pdg() == kPdgK0    || p->Pdg() == kPdgAntiK0)  brNfK0++; 
+      else if (p->Pdg() == kPdgGamma || p->Pdg() == kPdgElectron || p->Pdg() == kPdgPositron) brNfEM++;
+      else brNfOther++;
+
+      LOG("gmctest", pINFO) 
+        << "Counting in f/s system from hadronic vtx: idx = " << final_had_syst[j]
+        << " -> " << p->Name();
     }
 
-    br_had_E     = 0.;
-    br_had_px    = 0.;
-    br_had_py    = 0.;
-    br_had_pz    = 0.;
-    br_vishad_E  = 0.;
-    br_vishad_px = 0.;
-    br_vishad_py = 0.;
-    br_vishad_pz = 0.;
-    br_mishad_E  = 0.;
-    br_mishad_px = 0.;
-    br_mishad_py = 0.;
-    br_mishad_pz = 0.;
-    if(ihad_root) {
-	br_had_E  = event.Particle(ihad_root)->Energy();
-	br_had_px = event.Particle(ihad_root)->Px();
-	br_had_py = event.Particle(ihad_root)->Py();
-	br_had_pz = event.Particle(ihad_root)->Pz();
-    }
+    LOG("gmctest", pINFO) 
+     << "N(p):"             << brNfP
+     << ", N(n):"           << brNfN
+     << ", N(pi+):"         << brNfPip
+     << ", N(pi-):"         << brNfPim
+     << ", N(pi0):"         << brNfPi0
+     << ", N(K+,K-,K0):"    << brNfKp+brNfKm+brNfK0
+     << ", N(gamma,e-,e+):" << brNfEM
+     << ", N(etc):"         << brNfOther << "\n";
 
+    s_tree->Fill();
 
-    br_iev       = i;
-    br_neutrino  = neutrino->Pdg();
-    br_target    = 0;
-    br_hitnuc    = 0;
-    br_hitqrk    = 0;
-    br_qel       = is_qel;
-    br_res       = is_res;
-    br_dis       = is_dis;
-    br_coh       = is_coh;
-    br_em        = is_em;
-    br_weakcc    = is_weakcc;
-    br_weaknc    = is_weaknc;
-    br_kine_xs   = xs;
-    br_kine_ys   = ys; 
-    br_kine_ts   = ts; 
-    br_kine_Q2s  = Q2s; 
-    br_kine_Ws   = Ws;
-    br_kine_x    = x;
-    br_kine_y    = y; 
-    br_kine_t    = 0; 
-    br_kine_Q2   = Q2; 
-    br_kine_W    = W;
-    br_kine_v    = v;
-    br_Ev        = Ev;
-    br_El        = El;
-    br_vtxx      = vtx->X();
-    br_vtxy      = vtx->Y();
-    br_vtxz      = vtx->Z();
-    br_weight    = weight; 
-    br_np        = np;
-    br_nn        = nn;
-    br_npip      = npip;
-    br_npim      = npim;
-    br_npi0      = npi0;
-    br_ngamma    = ngamma;
-    br_nKp       = nKp;
-    br_nKm       = nKm;
-    br_nK0       = nK0;
-
-    tEvtTree->Fill();
-
-    gMCRec->Clear();
+    mcrec->Clear();
 
   } // event loop
 
-//  assert(gEmin < gEmax);
+  fin.Close();
+
+  fout.Write();
+  fout.Close();
 }
 //_________________________________________________________________________________
-void CleanUp(void)
+void CreatePlots(string inp_filename, string inp_filename_ref)
 {
-  LOG("gmctest", pNOTICE) << "*** Cleaning up";
-
-  delete gCurrInpFile;
-  gCurrInpFile=0;
-
-  gCurrOutFile->Close();
-  delete gCurrOutFile;
-  gCurrOutFile=0;
-
-  gMCRec=0;
-  gEventRecTree=0;
-}
-//_________________________________________________________________________________
-void SaveResults(void)
-{
-  LOG("gmctest", pNOTICE) 
-          << "number of events processed: " << tEvtTree->GetEntries();
-
-  // -- add directory containing event fraction plots as a function of kinematical 
-  //    quantities
-  //
-  AddEvtFracDir("EvtFracNumuDir", "Event fractions", 14);
-
-  // --- add directories containing kinematics plots
-  //
-  AddKineDir("KineDir",          "Kinematics - All events",        0, "");
-  AddKineDir("KineCcNumuDir",    "Kinematics - All nu_mu CC",     14, "weakcc");
-  AddKineDir("KineCcNumuQelDir", "Kinematics - All nu_mu CC QEL", 14, "weakcc&&qel");
-  AddKineDir("KineCcNumuResDir", "Kinematics - All nu_mu CC RES", 14, "weakcc&&res");
-  AddKineDir("KineCcNumuDisDir", "Kinematics - All nu_mu CC DIS", 14, "weakcc&&dis");
-  AddKineDir("KineNcNumuDir",    "Kinematics - All nu_mu NC",     14, "weaknc");
-  AddKineDir("KineNcNumuQelDir", "Kinematics - All nu_mu NC QEL", 14, "weaknc&&qel");
-  AddKineDir("KineNcNumuResDir", "Kinematics - All nu_mu NC RES", 14, "weaknc&&res");
-  AddKineDir("KineNcNumuDisDir", "Kinematics - All nu_mu NC DIS", 14, "weaknc&&dis");
-
-  // --- add directories containing hadronic 4-momentum plots
-  //
-  AddHP4Dir("HadP4Dir",          "Hadronic 4-momentum - All events",        0, "");
-  AddHP4Dir("HadP4CcNumuDir",    "Hadronic 4-momentum - All nu_mu CC",     14, "weakcc");
-  AddHP4Dir("HadP4CcNumuQelDir", "Hadronic 4-momentum - All nu_mu CC QEL", 14, "weakcc&&qel");
-  AddHP4Dir("HadP4CcNumuResDir", "Hadronic 4-momentum - All nu_mu CC RES", 14, "weakcc&&res");
-  AddHP4Dir("HadP4CcNumuDisDir", "Hadronic 4-momentum - All nu_mu CC DIS", 14, "weakcc&&dis");
-  AddHP4Dir("HadP4NcNumuDir",    "Hadronic 4-momentum - All nu_mu NC",     14, "weaknc");
-  AddHP4Dir("HadP4NcNumuQelDir", "Hadronic 4-momentum - All nu_mu NC QEL", 14, "weaknc&&qel");
-  AddHP4Dir("HadP4NcNumuResDir", "Hadronic 4-momentum - All nu_mu NC RES", 14, "weaknc&&res");
-  AddHP4Dir("HadP4NcNumuDisDir", "Hadronic 4-momentum - All nu_mu NC DIS", 14, "weaknc&&dis");
-
-  // --- add directories containing hadronic multiplicity plots
-  //
-  AddHMultDir("HadMultDir",          "Hadronic multiplicities - All events",        0, "");
-  AddHMultDir("HadMultCcNumuDir",    "Hadronic multiplicities - All nu_mu CC",     14, "weakcc");
-  AddHMultDir("HadMultCcNumuQelDir", "Hadronic multiplicities - All nu_mu CC QEL", 14, "weakcc&&qel");
-  AddHMultDir("HadMultCcNumuResDir", "Hadronic multiplicities - All nu_mu CC RES", 14, "weakcc&&res");
-  AddHMultDir("HadMultCcNumuDisDir", "Hadronic multiplicities - All nu_mu CC DIS", 14, "weakcc&&dis");
-  AddHMultDir("HadMultNcNumuDir",    "Hadronic multiplicities - All nu_mu NC",     14, "weaknc");
-  AddHMultDir("HadMultNcNumuQelDir", "Hadronic multiplicities - All nu_mu NC QEL", 14, "weaknc&&qel");
-  AddHMultDir("HadMultNcNumuResDir", "Hadronic multiplicities - All nu_mu NC RES", 14, "weaknc&&res");
-  AddHMultDir("HadMultNcNumuDisDir", "Hadronic multiplicities - All nu_mu NC DIS", 14, "weaknc&&dis");
-
-  // --- add directory containing event vertex plots
-  //
-  AddVtxDir();
-
-  // --- add directory containing summary ntuuples
-  //
-  AddNtpDir();
-}
-//_________________________________________________________________________________
-void AddKineDir(string dir, string title, int nupdg, string proc)
-{
-  TDirectory * tdir = gCurrOutFile->mkdir(dir.c_str(), title.c_str());
-  tdir->cd();
-
-  ostringstream condition;
-  condition << "wgt*(1";
-  if(nupdg)          condition << "&&neu==" << nupdg;
-  if (proc.size()>0) condition << "&&" << proc;
-  condition << ")";
-
-  tEvtTree->Draw( "x>>hx",                       condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "y>>hy",                       condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "t>>ht",                       condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "log10(Q2)>>hlog10Q2",         condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "W>>hW",                       condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "v>>hv",                       condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "xs>>hxs",                     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "ys>>hys",                     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "ts>>hts",                     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "log10(Q2s)>>hlog10Q2s",       condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "Ws>>hWs",                     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "log10(Q2s):Ws>>hlog10Q2Ws",   condition.str().c_str(), "GOFF");
-
-  tdir->Write(dir.c_str());
-}
-//_________________________________________________________________________________
-void AddHMultDir(string dir, string title, int nupdg, string proc)
-{
-  TDirectory * tdir = gCurrOutFile->mkdir(dir.c_str(), title.c_str());
-  tdir->cd();
-
-  ostringstream condition;
-  condition << "wgt*(1";
-  if(nupdg)          condition << "&&neu==" << nupdg;
-  if (proc.size()>0) condition << "&&" << proc;
-  condition << ")";
-
-  tEvtTree->Draw( "np>>hnp",         condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "nn>>hnn",         condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "npip>>hnpip",     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "npim>>hnpim",     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "ngamma/2>>hnpi0", condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "nKp>>hnKp",       condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "nKm>>hnKm",       condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "nK0>>hnK0",       condition.str().c_str(), "GOFF");
-
-  tEvtTree->Draw( "np:Ws>>hnpW",         condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "nn:Ws>>hnnW",         condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "npip:Ws>>hnpipW",     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "npim:Ws>>hnpimW",     condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "ngamma/2:Ws>>hnpi0W", condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "nKp:Ws>>hnKpW",       condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "nKm:Ws>>hnKmW",       condition.str().c_str(), "GOFF");
-  tEvtTree->Draw( "nK0:Ws>>hnK0W",       condition.str().c_str(), "GOFF");
-
-  tdir->Write(dir.c_str());
-}
-//_________________________________________________________________________________
-void AddHP4Dir(string dir, string title, int nupdg, string proc)
-{
-  TDirectory * tdir = gCurrOutFile->mkdir(dir.c_str(), title.c_str());
-  tdir->cd();
-
-  ostringstream condition;
-  condition << "wgt*(1";
-  if(nupdg)          condition << "&&neu==" << nupdg;
-  if (proc.size()>0) condition << "&&" << proc;
-
-  tEvtTree->Draw( "px>>hpx_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "py>>hpy_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "pz>>hpz_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "p>>hp_pip",    (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "E>>hE_pip",    (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "KE>>hKE_pip",  (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
-
-  tEvtTree->Draw( "px>>hpx_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
-  tEvtTree->Draw( "py>>hpy_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
-  tEvtTree->Draw( "pz>>hpz_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
-  tEvtTree->Draw( "p>>hp_pim",    (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "E>>hE_pim",    (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
-  tEvtTree->Draw( "KE>>hKE_pim",  (condition.str() + "&&ist==1&&pdg==-211)").c_str(), "GOFF");
-
-  tEvtTree->Draw( "px>>hpx_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
-  tEvtTree->Draw( "py>>hpy_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
-  tEvtTree->Draw( "pz>>hpz_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
-  tEvtTree->Draw( "p>>hp_p",      (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "E>>hE_p",      (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
-  tEvtTree->Draw( "KE>>hKE_p",    (condition.str() + "&&ist==1&&pdg==2212)").c_str(), "GOFF");
-
-  tEvtTree->Draw( "px>>hpx_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
-  tEvtTree->Draw( "py>>hpy_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
-  tEvtTree->Draw( "pz>>hpz_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
-  tEvtTree->Draw( "p>>hp_n",      (condition.str() + "&&ist==1&&pdg==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "E>>hE_n",      (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
-  tEvtTree->Draw( "KE>>hKE_n",    (condition.str() + "&&ist==1&&pdg==2112)").c_str(), "GOFF");
-
-
-  // add plots before hadron transport (primary hadronic system)
-
-  tEvtTree->Draw( "px_hprim>>hpx_pip_hprim",  (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "py_hprim>>hpy_pip_hprim",  (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "pz_hprim>>hpz_pip_hprim",  (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "p_hprim>>hp_pip_hprim",    (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "E_hprim>>hE_pip_hprim",    (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "KE_hprim>>hKE_pip_hprim",  (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
-
-  tEvtTree->Draw( "px_hprim>>hpx_pim_hprim",  (condition.str() + "&&pdg_hprim==-211)").c_str(), "GOFF");
-  tEvtTree->Draw( "py_hprim>>hpy_pim_hprim",  (condition.str() + "&&pdg_hprim==-211)").c_str(), "GOFF");
-  tEvtTree->Draw( "pz_hprim>>hpz_pim_hprim",  (condition.str() + "&&pdg_hprim==-211)").c_str(), "GOFF");
-  tEvtTree->Draw( "p_hprim>>hp_pim_hprim",    (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "E_hprim>>hE_pim_hprim",    (condition.str() + "&&pdg_hprim==-211)").c_str(), "GOFF");
-  tEvtTree->Draw( "KE_hprim>>hKE_pim_hprim",  (condition.str() + "&&pdg_hprim==-211)").c_str(), "GOFF");
-
-  tEvtTree->Draw( "px_hprim>>hpx_hp_prim",    (condition.str() + "&&pdg_hprim==2212)").c_str(), "GOFF");
-  tEvtTree->Draw( "py_hprim>>hpy_hp_prim",    (condition.str() + "&&pdg_hprim==2212)").c_str(), "GOFF");
-  tEvtTree->Draw( "pz_hprim>>hpz_hp_prim",    (condition.str() + "&&pdg_hprim==2212)").c_str(), "GOFF");
-  tEvtTree->Draw( "p_hprim>>hp_p_hprim",      (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "E_hprim>>hE_p_hprim",      (condition.str() + "&&pdg_hprim==2212)").c_str(), "GOFF");
-  tEvtTree->Draw( "KE_hprim>>hKE_p_hprim",    (condition.str() + "&&pdg_hprim==2212)").c_str(), "GOFF");
-
-  tEvtTree->Draw( "px_hprim>>hpx_n_hprim",    (condition.str() + "&&pdg_hprim==2112)").c_str(), "GOFF");
-  tEvtTree->Draw( "py_hprim>>hpy_n_hprim",    (condition.str() + "&&pdg_hprim==2112)").c_str(), "GOFF");
-  tEvtTree->Draw( "pz_hprim>>hpz_n_hprim",    (condition.str() + "&&pdg_hprim==2112)").c_str(), "GOFF");
-  tEvtTree->Draw( "p_hprim>>hp_n_hprim",      (condition.str() + "&&pdg_hprim==211)").c_str(),  "GOFF");
-  tEvtTree->Draw( "E_hprim>>hE_n_hprim",      (condition.str() + "&&pdg_hprim==2112)").c_str(), "GOFF");
-  tEvtTree->Draw( "KE_hprim>>hKE_n_hprim",    (condition.str() + "&&pdg_hprim==2112)").c_str(), "GOFF");
-
-  tdir->Write(dir.c_str());
-}
-//_________________________________________________________________________________
-void AddEvtFracDir(string dir, string title, int nupdg)
-{
-  double dE      = gEmax  - gEmin;
-  double dW      = gWmax  - gWmin;
-  double dQ2     = gQ2max - gQ2min;
-  int    nbe     = dE     / kEBinSz;
-  int    nbw     = dW     / kWBinSz;
-  int    nbq2    = dQ2   / kQ2BinSz;
-
-  TH1F * hE       = new TH1F("hE",      "", nbe, gEmin, gEmax);
-  TH1F * hEcc     = new TH1F("hEcc",    "", nbe, gEmin, gEmax);
-  TH1F * hEccqel  = new TH1F("hEccqel", "", nbe, gEmin, gEmax);
-  TH1F * hEccres  = new TH1F("hEccres", "", nbe, gEmin, gEmax);
-  TH1F * hEccdis  = new TH1F("hEccdis", "", nbe, gEmin, gEmax);
-  TH1F * hEnc     = new TH1F("hEnc",    "", nbe, gEmin, gEmax);
-  TH1F * hEncqel  = new TH1F("hEncqel", "", nbe, gEmin, gEmax);
-  TH1F * hEncres  = new TH1F("hEncres", "", nbe, gEmin, gEmax);
-  TH1F * hEncdis  = new TH1F("hEncdis", "", nbe, gEmin, gEmax);
-
-  TH1F * hW       = new TH1F("hW",      "", nbw, gWmin, gWmax);
-  TH1F * hWcc     = new TH1F("hWcc",    "", nbw, gWmin, gWmax);
-  TH1F * hWccqel  = new TH1F("hWccqel", "", nbw, gWmin, gWmax);
-  TH1F * hWccres  = new TH1F("hWccres", "", nbw, gWmin, gWmax);
-  TH1F * hWccdis  = new TH1F("hWccdis", "", nbw, gWmin, gWmax);
-  TH1F * hWnc     = new TH1F("hWnc",    "", nbw, gWmin, gWmax);
-  TH1F * hWncqel  = new TH1F("hWncqel", "", nbw, gWmin, gWmax);
-  TH1F * hWncres  = new TH1F("hWncres", "", nbw, gWmin, gWmax);
-  TH1F * hWncdis  = new TH1F("hWncdis", "", nbw, gWmin, gWmax);
-
-  TH1F * hQ2      = new TH1F("hQ2",     "", nbq2, gQ2min, gQ2max);
-  TH1F * hQ2cc    = new TH1F("hQ2cc",   "", nbq2, gQ2min, gQ2max);
-  TH1F * hQ2ccqel = new TH1F("hQ2ccqel","", nbq2, gQ2min, gQ2max);
-  TH1F * hQ2ccres = new TH1F("hQ2ccres","", nbq2, gQ2min, gQ2max);
-  TH1F * hQ2ccdis = new TH1F("hQ2ccdis","", nbq2, gQ2min, gQ2max);
-  TH1F * hQ2nc    = new TH1F("hQ2nc",   "", nbq2, gQ2min, gQ2max);
-  TH1F * hQ2ncqel = new TH1F("hQ2ncqel","", nbq2, gQ2min, gQ2max);
-  TH1F * hQ2ncres = new TH1F("hQ2ncres","", nbq2, gQ2min, gQ2max);
-  TH1F * hQ2ncdis = new TH1F("hQ2ncdis","", nbq2, gQ2min, gQ2max);
-
-  hE       -> SetMaximum(1.2);
-  hEcc     -> SetMaximum(1.2);
-  hEccqel  -> SetMaximum(1.2);
-  hEccres  -> SetMaximum(1.2);
-  hEccdis  -> SetMaximum(1.2);
-  hEnc     -> SetMaximum(1.2);
-  hEncqel  -> SetMaximum(1.2);
-  hEncres  -> SetMaximum(1.2);
-  hEncdis  -> SetMaximum(1.2);
-
-  hW       -> SetMaximum(1.2);
-  hWcc     -> SetMaximum(1.2);
-  hWccqel  -> SetMaximum(1.2);
-  hWccres  -> SetMaximum(1.2);
-  hWccdis  -> SetMaximum(1.2);
-  hWnc     -> SetMaximum(1.2);
-  hWncqel  -> SetMaximum(1.2);
-  hWncres  -> SetMaximum(1.2);
-  hWncdis  -> SetMaximum(1.2);
-
-  hQ2      -> SetMaximum(1.2);
-  hQ2cc    -> SetMaximum(1.2);
-  hQ2ccqel -> SetMaximum(1.2);
-  hQ2ccres -> SetMaximum(1.2);
-  hQ2ccdis -> SetMaximum(1.2);
-  hQ2nc    -> SetMaximum(1.2);
-  hQ2ncqel -> SetMaximum(1.2);
-  hQ2ncres -> SetMaximum(1.2);
-  hQ2ncdis -> SetMaximum(1.2);
-
-  hE       -> SetMinimum(0.0);
-  hEcc     -> SetMinimum(0.0);
-  hEccqel  -> SetMinimum(0.0);
-  hEccres  -> SetMinimum(0.0);
-  hEccdis  -> SetMinimum(0.0);
-  hEnc     -> SetMinimum(0.0);
-  hEncqel  -> SetMinimum(0.0);
-  hEncres  -> SetMinimum(0.0);
-  hEncdis  -> SetMinimum(0.0);
-
-  hW       -> SetMinimum(0.0);
-  hWcc     -> SetMinimum(0.0);
-  hWccqel  -> SetMinimum(0.0);
-  hWccres  -> SetMinimum(0.0);
-  hWccdis  -> SetMinimum(0.0);
-  hWnc     -> SetMinimum(0.0);
-  hWncqel  -> SetMinimum(0.0);
-  hWncres  -> SetMinimum(0.0);
-  hWncdis  -> SetMinimum(0.0);
-
-  hQ2      -> SetMinimum(0.0);
-  hQ2cc    -> SetMinimum(0.0);
-  hQ2ccqel -> SetMinimum(0.0);
-  hQ2ccres -> SetMinimum(0.0);
-  hQ2ccdis -> SetMinimum(0.0);
-  hQ2nc    -> SetMinimum(0.0);
-  hQ2ncqel -> SetMinimum(0.0);
-  hQ2ncres -> SetMinimum(0.0);
-  hQ2ncdis -> SetMinimum(0.0);
-
-  tEvtTree->Draw("Ev>>hE",       Form("wgt*(neu==%d)",nupdg),              "GOFF");
-  tEvtTree->Draw("Ev>>hEcc",     Form("wgt*(neu==%d&&weakcc)",nupdg),      "GOFF");
-  tEvtTree->Draw("Ev>>hEccqel",  Form("wgt*(neu==%d&&weakcc&&qel)",nupdg), "GOFF");
-  tEvtTree->Draw("Ev>>hEccres",  Form("wgt*(neu==%d&&weakcc&&res)",nupdg), "GOFF");
-  tEvtTree->Draw("Ev>>hEccdis",  Form("wgt*(neu==%d&&weakcc&&dis)",nupdg), "GOFF");
-  tEvtTree->Draw("Ev>>hEnc",     Form("wgt*(neu==%d&&weaknc)",nupdg),      "GOFF");
-  tEvtTree->Draw("Ev>>hEncqel",  Form("wgt*(neu==%d&&weaknc&&qel)",nupdg), "GOFF");
-  tEvtTree->Draw("Ev>>hEncres",  Form("wgt*(neu==%d&&weaknc&&res)",nupdg), "GOFF");
-  tEvtTree->Draw("Ev>>hEncdis",  Form("wgt*(neu==%d&&weaknc&&dis)",nupdg), "GOFF");
-
-  tEvtTree->Draw("Ws>>hW",       Form("wgt*(neu==%d)",nupdg),              "GOFF");
-  tEvtTree->Draw("Ws>>hWcc",     Form("wgt*(neu==%d&&weakcc)",nupdg),      "GOFF");
-  tEvtTree->Draw("Ws>>hWccqel",  Form("wgt*(neu==%d&&weakcc&&qel)",nupdg), "GOFF");
-  tEvtTree->Draw("Ws>>hWccres",  Form("wgt*(neu==%d&&weakcc&&res)",nupdg), "GOFF");
-  tEvtTree->Draw("Ws>>hWccdis",  Form("wgt*(neu==%d&&weakcc&&dis)",nupdg), "GOFF");
-  tEvtTree->Draw("Ws>>hWnc",     Form("wgt*(neu==%d&&weaknc)",nupdg),      "GOFF");
-  tEvtTree->Draw("Ws>>hWncqel",  Form("wgt*(neu==%d&&weaknc&&qel)",nupdg), "GOFF");
-  tEvtTree->Draw("Ws>>hWncres",  Form("wgt*(neu==%d&&weaknc&&res)",nupdg), "GOFF");
-  tEvtTree->Draw("Ws>>hWncdis",  Form("wgt*(neu==%d&&weaknc&&dis)",nupdg), "GOFF");
-
-  tEvtTree->Draw("Q2s>>hQ2",     Form("wgt*(neu==%d)",nupdg),              "GOFF");
-  tEvtTree->Draw("Q2s>>hQ2cc",   Form("wgt*(neu==%d&&weakcc)",nupdg),      "GOFF");
-  tEvtTree->Draw("Q2s>>hQ2ccqel",Form("wgt*(neu==%d&&weakcc&&qel)",nupdg), "GOFF");
-  tEvtTree->Draw("Q2s>>hQ2ccres",Form("wgt*(neu==%d&&weakcc&&res)",nupdg), "GOFF");
-  tEvtTree->Draw("Q2s>>hQ2ccdis",Form("wgt*(neu==%d&&weakcc&&dis)",nupdg), "GOFF");
-  tEvtTree->Draw("Q2s>>hQ2nc",   Form("wgt*(neu==%d&&weaknc)",nupdg),      "GOFF");
-  tEvtTree->Draw("Q2s>>hQ2ncqel",Form("wgt*(neu==%d&&weaknc&&qel)",nupdg), "GOFF");
-  tEvtTree->Draw("Q2s>>hQ2ncres",Form("wgt*(neu==%d&&weaknc&&res)",nupdg), "GOFF");
-  tEvtTree->Draw("Q2s>>hQ2ncdis",Form("wgt*(neu==%d&&weaknc&&dis)",nupdg), "GOFF");
-
-  hE       -> Sumw2();
-  hEcc     -> Sumw2();
-  hEccqel  -> Sumw2();
-  hEccres  -> Sumw2();
-  hEccdis  -> Sumw2();
-  hEnc     -> Sumw2();
-  hEncqel  -> Sumw2();
-  hEncres  -> Sumw2();
-  hEncdis  -> Sumw2();
-  hW       -> Sumw2();
-  hWcc     -> Sumw2();
-  hWccqel  -> Sumw2();
-  hWccres  -> Sumw2();
-  hWccdis  -> Sumw2();
-  hWnc     -> Sumw2();
-  hWncqel  -> Sumw2();
-  hWncres  -> Sumw2();
-  hWncdis  -> Sumw2();
-  hQ2      -> Sumw2();
-  hQ2cc    -> Sumw2();
-  hQ2ccqel -> Sumw2();
-  hQ2ccres -> Sumw2();
-  hQ2ccdis -> Sumw2();
-  hQ2nc    -> Sumw2();
-  hQ2ncqel -> Sumw2();
-  hQ2ncres -> Sumw2();
-  hQ2ncdis -> Sumw2();
-
-  hEcc     -> Divide(hE);
-  hEccqel  -> Divide(hE);
-  hEccres  -> Divide(hE);
-  hEccdis  -> Divide(hE);
-  hEnc     -> Divide(hE);
-  hEncqel  -> Divide(hE);
-  hEncres  -> Divide(hE);
-  hEncdis  -> Divide(hE);
-  hWcc     -> Divide(hW);
-  hWccqel  -> Divide(hW);
-  hWccres  -> Divide(hW);
-  hWccdis  -> Divide(hW);
-  hWnc     -> Divide(hW);
-  hWncqel  -> Divide(hW);
-  hWncres  -> Divide(hW);
-  hWncdis  -> Divide(hW);
-  hQ2cc    -> Divide(hQ2);
-  hQ2ccqel -> Divide(hQ2);
-  hQ2ccres -> Divide(hQ2);
-  hQ2ccdis -> Divide(hQ2);
-  hQ2nc    -> Divide(hQ2);
-  hQ2ncqel -> Divide(hQ2);
-  hQ2ncres -> Divide(hQ2);
-  hQ2ncdis -> Divide(hQ2);
-
-  TDirectory * tdir = gCurrOutFile->mkdir(dir.c_str(), title.c_str());
-  tdir->cd();
-
-  tdir -> Add ( hEcc     );
-  tdir -> Add ( hEccqel  );
-  tdir -> Add ( hEccres  );
-  tdir -> Add ( hEccdis  );
-  tdir -> Add ( hEnc     );
-  tdir -> Add ( hEncqel  );
-  tdir -> Add ( hEncres  );
-  tdir -> Add ( hEncdis  );
-  tdir -> Add ( hWcc     );
-  tdir -> Add ( hWccqel  );
-  tdir -> Add ( hWccres  );
-  tdir -> Add ( hWccdis  );
-  tdir -> Add ( hWnc     );
-  tdir -> Add ( hWncqel  );
-  tdir -> Add ( hWncres  );
-  tdir -> Add ( hWncdis  );
-  tdir -> Add ( hQ2cc    );
-  tdir -> Add ( hQ2ccqel );
-  tdir -> Add ( hQ2ccres );
-  tdir -> Add ( hQ2ccdis );
-  tdir -> Add ( hQ2nc    );
-  tdir -> Add ( hQ2ncqel );
-  tdir -> Add ( hQ2ncres );
-  tdir -> Add ( hQ2ncdis );
-
-  tdir->Write(dir.c_str());
-}
-//_________________________________________________________________________________
-void AddVtxDir(void)
-{
-  TDirectory * VtxDir = gCurrOutFile->mkdir("VtxDir", "Event vertex plots");
-  VtxDir->cd();
-
-  tEvtTree->Draw("vtxx>>hvtxx",       "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw("vtxy>>hvtxy",       "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw("vtxz>>hvtxz",       "wgt*(1==1)", "GOFF");
-  tEvtTree->Draw("vtxx:vtxy>>hvtxxy", "wgt*(1==1)", "GOFF");
-
-  VtxDir->Write();
-}
-//_________________________________________________________________________________
-void AddNtpDir(void)
-{
-  TDirectory * NtpDir = gCurrOutFile->mkdir("NtpDir", "Summary Ntuples");
-  NtpDir->cd();
-  NtpDir->Add(tEvtTree);
-  NtpDir->Write();
-}
-//_________________________________________________________________________________
-void Plot(void)
-{
-  gTestedSamplePlotFile = new TFile(OutputFileName(gOptInpFile).c_str(), "read");
-  gTempltSamplePlotFile = (gSampleComp) ?
-                 new TFile(OutputFileName(gOptInpTemplFile).c_str(), "read") : 0;
-
-  gC = new TCanvas("gC");
-  gC->SetFillColor(0);
-  gC->SetBorderMode(0);
-  gC->SetBorderMode(0);
-
-  ostringstream psfilename;
-  psfilename << "mc-sample-test-" << gOptTgtPdgC << ".ps";
-  gPS = new TPostScript(psfilename.str().c_str(), 112);
-
-  // --- front page
-  //
-  AddFrontPage();
-
-  // --- event fraction plots
-  //
-  //PlotEvtFrac("EvtFracNumuDir", "Event fractions");
-
-  // --- kinematics plots
-  //
-  PlotKine("KineDir",             "All events"       );
-  PlotKine("KineCcNumuDir",       "#nu_{#mu} CC"     );
-  PlotKine("KineCcNumuQelDir",    "#nu_{#mu} CC QEL" );
-  PlotKine("KineCcNumuResDir",    "#nu_{#mu} CC RES" );
-  PlotKine("KineCcNumuDisDir",    "#nu_{#mu} CC DIS" );
-  PlotKine("KineNcNumuDir",       "#nu_{#mu} NC"     );
-  PlotKine("KineNcNumuQelDir",    "#nu_{#mu} NC QEL" );
-  PlotKine("KineNcNumuResDir",    "#nu_{#mu} NC RES" );
-  PlotKine("KineNcNumuDisDir",    "#nu_{#mu} NC DIS" );
-
-  // --- hadronic 4-momentum plots
-  //
-  PlotHP4("HadP4Dir",             "All events"       );
-  PlotHP4("HadP4CcNumuDir",       "#nu_{#mu} CC"     );
-  PlotHP4("HadP4CcNumuQelDir",    "#nu_{#mu} CC QEL" );
-  PlotHP4("HadP4CcNumuResDir",    "#nu_{#mu} CC RES" );
-  PlotHP4("HadP4CcNumuDisDir",    "#nu_{#mu} CC DIS" );
-  PlotHP4("HadP4NcNumuDir",       "#nu_{#mu} NC"     );
-  PlotHP4("HadP4NcNumuQelDir",    "#nu_{#mu} NC QEL" );
-  PlotHP4("HadP4NcNumuResDir",    "#nu_{#mu} NC RES" );
-  PlotHP4("HadP4NcNumuDisDir",    "#nu_{#mu} NC DIS" );
-
-  // --- hadronic multiplicity plots
-  //
-  PlotHMult("HadMultDir",             "All events"       );
-  PlotHMult("HadMultCcNumuDir",       "#nu_{#mu} CC"     );
-  PlotHMult("HadMultCcNumuQelDir",    "#nu_{#mu} CC QEL" );
-  PlotHMult("HadMultCcNumuResDir",    "#nu_{#mu} CC RES" );
-  PlotHMult("HadMultCcNumuDisDir",    "#nu_{#mu} CC DIS" );
-  PlotHMult("HadMultNcNumuDir",       "#nu_{#mu} NC"     );
-  PlotHMult("HadMultNcNumuQelDir",    "#nu_{#mu} NC QEL" );
-  PlotHMult("HadMultNcNumuResDir",    "#nu_{#mu} NC RES" );
-  PlotHMult("HadMultNcNumuDisDir",    "#nu_{#mu} NC DIS" );
-
-  // --- vertex position plots
-  //
-  PlotVtx();
-
-  gPS->Close();
-
-  gTestedSamplePlotFile->Close();
-  delete gTestedSamplePlotFile;
-  if(gTempltSamplePlotFile) {
-    gTempltSamplePlotFile->Close();
-    delete gTempltSamplePlotFile;
-  }
-  delete gC;
-  delete gPS;
-
-  gTestedSamplePlotFile=0;
-  gTempltSamplePlotFile=0;
-  gC=0;
-  gPS=0;
-}
-//_________________________________________________________________________________
-void AddFrontPage(void)
-{
-  gPS->NewPage();
-  gC->cd();
-
-  TPavesText title(0.1, 0.6, 0.9, 0.9, 0, "tr");
-  title.SetTextSize(0.04);
-  title.AddText("GENIE MC Sample Test");
-  title.AddText(Form("Testing all events for target pdg = %d", gOptTgtPdgC));
-  title.SetFillColor(46);  
-  title.SetTextColor(10);  
-  title.Draw();
-
-  TPavesText stitle(0.1, 0.2, 0.9, 0.5, 0, "tr");
-  stitle.SetTextSize(0.027);
-  stitle.AddText(Form("Tested event sample : %s", gOptInpFile.c_str()));
-  if(gSampleComp) 
-    stitle.AddText(Form("Event sample tempate : %s", gOptInpTemplFile.c_str()));
-  else
-    stitle.AddText("Event sample tempate : not available");
-  stitle.SetFillColor(0);    
-  stitle.SetTextColor(1);  
-  stitle.Draw();
-
-  gC->Update();
-}
-//_________________________________________________________________________________
-void PlotEvtFrac(string dir, string title)
-{
-  gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get(dir.c_str());
-  gTempltSampleDir = (gSampleComp) ? 
-                     (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
-
-  PlotH1F ( "hEcc",   (title + ", in energy bins, CC events").c_str());
-  PlotH1F ( "hEccqel",(title + ", in energy bins, CC QEL events").c_str(),true);
-  PlotH1F ( "hEccres",(title + ", in energy bins, CC RES events").c_str(),true);
-  PlotH1F ( "hEccdis",(title + ", in energy bins, CC DIS events").c_str(),true);
-  PlotH1F ( "hEnc",   (title + ", in energy bins, NC events").c_str());
-  PlotH1F ( "hEncqel",(title + ", in energy bins, NC QEL events").c_str());
-  PlotH1F ( "hEncres",(title + ", in energy bins, NC RES events").c_str());
-  PlotH1F ( "hEncdis",(title + ", in energy bins, NC DIS events").c_str());
-
-  PlotH1F ( "hWcc",   (title + ", in W bins, CC events").c_str());
-  PlotH1F ( "hWccqel",(title + ", in W bins, CC QEL events").c_str());
-  PlotH1F ( "hWccres",(title + ", in W bins, CC RES events").c_str());
-  PlotH1F ( "hWccdis",(title + ", in W bins, CC DIS events").c_str());
-  PlotH1F ( "hWnc",   (title + ", in W bins, NC events").c_str());
-  PlotH1F ( "hWncqel",(title + ", in W bins, NC QEL events").c_str());
-  PlotH1F ( "hWncres",(title + ", in W bins, NC RES events").c_str());
-  PlotH1F ( "hWncdis",(title + ", in W bins, NC DIS events").c_str());
-
-  PlotH1F ( "hQ2cc",   (title + ", in Q2 bins, CC events").c_str());
-  PlotH1F ( "hQ2ccqel",(title + ", in Q2 bins, CC QEL events").c_str());
-  PlotH1F ( "hQ2ccres",(title + ", in Q2 bins, CC RES events").c_str());
-  PlotH1F ( "hQ2ccdis",(title + ", in Q2 bins, CC DIS events").c_str());
-  PlotH1F ( "hQ2nc",   (title + ", in Q2 bins, NC events").c_str());
-  PlotH1F ( "hQ2ncqel",(title + ", in Q2 bins, NC QEL events").c_str());
-  PlotH1F ( "hQ2ncres",(title + ", in Q2 bins, NC RES events").c_str());
-  PlotH1F ( "hQ2ncdis",(title + ", in Q2 bins, NC DIS events").c_str());
-}
-//_________________________________________________________________________________
-void PlotKine(string dir, string title)
-{
-  gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get(dir.c_str());
-  gTempltSampleDir = (gSampleComp) ? 
-                     (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
-
-  PlotH1F ( "hx",        (title + ", x_{comp}").c_str());
-  PlotH1F ( "hy",        (title + ", y_{comp}").c_str());
-  PlotH1F ( "ht",        (title + ", t_{comp}").c_str());
-  PlotH1F ( "hW",        (title + ", W_{comp}").c_str());
-  PlotH1F ( "hlog10Q2",  (title + ", log_{10}Q^{2}_{comp} (GeV^{2})").c_str());
-  PlotH1F ( "hv",        (title + ", v_{comp}").c_str());
-  PlotH1F ( "hxs",       (title + ", x_{sel}").c_str());
-  PlotH1F ( "hys",       (title + ", y_{sel}").c_str());
-  PlotH1F ( "hts",       (title + ", t_{sel}").c_str());
-  PlotH1F ( "hWs",       (title + ", W_{sel}").c_str());
-  PlotH1F ( "hlog10Q2s", (title + ", log_{10}Q^{2}_{sel} (GeV^{2})").c_str());
-}
-//_________________________________________________________________________________
-void PlotHMult(string dir, string title)
-{
-  gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get(dir.c_str());
-  gTempltSampleDir = (gSampleComp) ? 
-                     (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
-
-  PlotH1F ( "hnp",   (title + ", num of protons").c_str());
-  PlotH1F ( "hnn",   (title + ", num of neutrons").c_str());
-  PlotH1F ( "hnpip", (title + ", num of #pi^{+}").c_str());
-  PlotH1F ( "hnpim", (title + ", num of #pi^{-}").c_str());
-  PlotH1F ( "hnpi0", (title + ", num of #pi^{0}").c_str());
-  PlotH1F ( "hnKp",  (title + ", num of K^{+}").c_str());
-  PlotH1F ( "hnKm",  (title + ", num of K^{-}").c_str());
-  PlotH1F ( "hnK0",  (title + ", num of K^{0}+#bar{K^{0}}").c_str());
-
-  PlotH2F ( "hnpW",   (title + ", num of protons vs W (GeV)").c_str());
-  PlotH2F ( "hnnW",   (title + ", num of neutrons vs W (GeV)").c_str());
-  PlotH2F ( "hnpipW", (title + ", num of #pi^{+} vs W (GeV)").c_str());
-  PlotH2F ( "hnpimW", (title + ", num of #pi^{-} vs W (GeV)").c_str());
-  PlotH2F ( "hnpi0W", (title + ", num of #pi^{0} vs W (GeV)").c_str());
-  PlotH2F ( "hnKpW",  (title + ", num of K^{+} vs W (GeV)").c_str());
-  PlotH2F ( "hnKmW",  (title + ", num of K^{-} vs W (GeV)").c_str());
-  PlotH2F ( "hnK0W",  (title + ", num of K^{0}+#bar{K^{0}} vs W (GeV)").c_str());
-}
-//_________________________________________________________________________________
-void PlotHP4(string dir, string title)
-{
-  gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get(dir.c_str());
-  gTempltSampleDir = (gSampleComp) ? 
-                     (TDirectory*) gTempltSamplePlotFile->Get(dir.c_str()) : 0;
-
-  PlotH1F_2 ( "hpx_pip", "hpx_pip_hprim", (title + ", f/s #pi^{+} Px (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpy_pip", "hpy_pip_hprim", (title + ", f/s #pi^{+} Py (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpz_pip", "hpz_pip_hprim", (title + ", f/s #pi^{+} Pz (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hp_pip",  "hp_pip_hprim",  (title + ", f/s #pi^{+} P  (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hE_pip",  "hE_pip_hprim",  (title + ", f/s #pi^{+} E  (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hKE_pip", "hKE_pip_hprim", (title + ", f/s #pi^{+} KE (dashed/open: before hadron transport)").c_str() );
-
-  PlotH1F_2 ( "hpx_pim", "hpx_pim_hprim", (title + ", f/s #pi^{-} Px (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpy_pim", "hpy_pim_hprim", (title + ", f/s #pi^{-} Py (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpz_pim", "hpz_pim_hprim", (title + ", f/s #pi^{-} Pz (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hp_pim",  "hp_pim_hprim",  (title + ", f/s #pi^{-} P  (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hE_pim",  "hE_pim_hprim",  (title + ", f/s #pi^{-} E  (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hKE_pim", "hKE_pim_hprim", (title + ", f/s #pi^{-} KE (dashed/open: before hadron transport)").c_str() );
-
-  PlotH1F_2 ( "hpx_p",   "hpx_p_hprim",   (title + ", f/s proton Px (dashed/open: before hadron transport)").c_str()  );
-  PlotH1F_2 ( "hpy_p",   "hpy_p_hprim",   (title + ", f/s proton Py (dashed/open: before hadron transport)").c_str()  );
-  PlotH1F_2 ( "hpz_p",   "hpz_p_hprim",   (title + ", f/s proton Pz (dashed/open: before hadron transport)").c_str()  );
-  PlotH1F_2 ( "hp_p",    "hp_p_hprim",    (title + ", f/s proton P  (dashed/open: before hadron transport)").c_str()  );
-  PlotH1F_2 ( "hE_p",    "hE_p_hprim",    (title + ", f/s proton E  (dashed/open: before hadron transport)").c_str()  );
-  PlotH1F_2 ( "hKE_p",   "hKE_p_hprim",   (title + ", f/s proton KE (dashed/open: before hadron transport)").c_str()  );
-
-  PlotH1F_2 ( "hpx_n",   "hpx_n_hprim",   (title + ", f/s neutron Px (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpy_n",   "hpy_n_hprim",   (title + ", f/s neutron Py (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hpz_n",   "hpz_n_hprim",   (title + ", f/s neutron Pz (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hp_n",    "hp_n_hprim",    (title + ", f/s neutron P  (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hE_n",    "hE_n_hprim",    (title + ", f/s neutron E  (dashed/open: before hadron transport)").c_str() );
-  PlotH1F_2 ( "hKE_n",   "hKE_n_hprim",   (title + ", f/s neutron KE (dashed/open: before hadron transport)").c_str() );
-}
-//_________________________________________________________________________________
-void PlotVtx(void)
-{
-  gTestedSampleDir = (TDirectory*) gTestedSamplePlotFile->Get("VtxDir");
-  gTempltSampleDir = (gSampleComp) ? 
-                     (TDirectory*) gTempltSamplePlotFile->Get("VtxDir") : 0;
-
-  PlotH1F ( "vtxx",  "vertex x");
-  PlotH1F ( "vtxy",  "vertex y");
-  PlotH1F ( "vtxz",  "vertex z");
-}
-//_________________________________________________________________________________
-void PlotH1F(string name, string title, bool keep_page)
-{
-  if(!keep_page) gPS->NewPage();
-  gC->cd();
-
-  TH1F * tested_hst = dynamic_cast<TH1F *> (gTestedSampleDir->Get(name.c_str()));
-  TH1F * templt_hst = (gSampleComp) ?
-                      dynamic_cast<TH1F *> (gTempltSampleDir->Get(name.c_str())) : 0;
-
-  if(!tested_hst) return;
-/*
-  if(tested_hst->GetEntries() <= 0) {
-    TPavesText warn(0.1, 0.6, 0.9, 0.9, 0, "tr");
-    warn.SetTextSize(0.04);
-    warn.AddText("EMPTY HISTOGRAM");
-    warn.AddText(title.c_str());
-    warn.SetFillColor(46);  
-    warn.SetTextColor(10);  
-    warn.Draw();
+  TFile * fin_0 = 0;
+  TFile * fin_1 = 0;
+  TTree * gst_0 = 0;
+  TTree * gst_1 = 0;
+
+  if(!CheckRootFilename(inp_filename)) {
+    LOG("gmctest", pERROR) << "Input file: " << inp_filename << " doesn't exist";
     return;
   }
-*/
-  // plot histogram from test sample
-  tested_hst->SetLineColor(2);
-  tested_hst->SetLineWidth(2);
-  tested_hst->Draw();
+  fin_0 = new TFile(inp_filename.c_str(),"READ");
+  gst_0 = (TTree *) fin_0->Get("gst");
+  assert(gst_0);
+  
+  if(CheckRootFilename(inp_filename_ref)) {
+     fin_1 = new TFile(inp_filename_ref.c_str(),"READ");
+     gst_1 = (TTree *) fin_1->Get("gst");
+     assert(gst_1);
+  }
+  
+  gst_0->SetLineColor(kBlack);
+  gst_0->SetLineWidth(3);
+  if(gst_1) {
+    gst_1->SetLineColor(kRed);
+    gst_1->SetMarkerColor(kRed);
+    gst_1->SetLineWidth(2);
+    gst_1->SetMarkerStyle(20);
+    gst_1->SetMarkerSize(1);
+  }
+  
+  // Set global plot style
+  //
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat(0);
+  gStyle->SetHistTopMargin(0.2);
+  gStyle->SetHistMinimumZero(true);
+  
+  // Plotting options
+  //
+  bool monoenergetic_sample = true;
+  bool show_coh_plots       = true;
+  bool show_calc_kinematics = true;
+  bool show_mult_per_proc   = true;
+  bool show_primary_hadsyst = true;
+  
+  gst_0->Draw("1","tgt>1000010010","GOFF");
+  show_coh_plots = (gst_0->GetSelectedRows() > 0); 
 
-  // plot same hisogram from template sample (if any) 
-  if(templt_hst) {
-    templt_hst->SetLineWidth(2);
-    templt_hst->SetMarkerSize(1.3);
-    templt_hst->SetMarkerStyle(8);
-    templt_hst->Draw("PERRSAME");
+
+  TCanvas * c = new TCanvas("c","",20,20,500,650);
+  c->SetBorderMode(0);
+  c->SetFillColor(0);
+  c->SetGridx();
+  c->SetGridy();
+
+  TLegend * ls = new TLegend(0.20,0.94,0.99,0.99);
+  ls->SetFillColor(0);
+  ls->SetBorderSize(0);
+
+  string ps_filename = OutputFileName(inp_filename,1);
+  TPostScript * ps = new TPostScript(ps_filename.c_str(), 111);
+  
+  //
+  // SECTION: PS File Header
+  //
+
+  ps->NewPage();
+  c->Range(0,0,100,100);
+  TPavesText hdr(10,40,90,70,3,"tr");
+  hdr.AddText("GENIE Event Sample Comparisons");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText("Event Sample:");
+  //hdr.AddText(sample);
+  hdr.AddText(" ");
+  hdr.AddText("Notes:");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.Draw();
+  c->Update();
+
+  //
+  // SECTION: Event Numbers
+  //
+
+  TH1F * h0num = new TH1F("h0num","", 2, 0., 2.);
+  TH1F * h1num = new TH1F("h1num","", 2, 0., 2.);
+  float n0=0, n1=0;
+  ps->NewPage();
+  c->Range(0,0,100,100);
+  TPavesText evn(10,10,90,90,3,"tr");
+  evn.AddText("Event Numbers:");
+  evn.AddText("  ");
+ 
+            gst_0->Draw("1>>h0num","1","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","1","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("ALL    : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","qel","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","qel","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("QEL    : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","qel&&cc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","qel&&cc","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("QEL-CC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","qel&&nc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","qel&&nc","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("QEL-NC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","res","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","res","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("RES    : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","res&&cc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","res&&cc","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("RES-CC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","res&&nc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","res&&nc","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("RES-NC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","dis","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","dis","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("DIS    : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","dis&&cc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","dis&&cc","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("DIS-CC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","dis&&cc&&charm","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","dis&&cc&&charm","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("(charm): %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","dis&&nc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","dis&&nc","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("DIS-NC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","coh","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","coh","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("COH    : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","coh&&cc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","coh&&cc","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("COH-CC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","coh&&nc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","coh&&nc","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("COH-NC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","imd","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","imd","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("IMD    : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+  evn.Draw();
+  c->Update();
+
+  if(!monoenergetic_sample) {
+              gst_0->Draw("Ev","","");
+    if(gst_1) gst_1->Draw("Ev","","perrsame");
+    ls->Clear();
+    ls->SetHeader("Neutrino Energy Spectrum");
+    ls->Draw();
+    c->Update();  
   }
 
-  tested_hst->GetXaxis()->SetTitle(title.c_str());
-  gC->Update();
+  //
+  // SECTION: Kinematics
+  //
+  ps->NewPage();
+  c->Clear();
+  c->Range(0,0,100,100);
+  TPavesText hdrk(10,40,90,70,3,"tr");
+  hdrk.AddText("Selected Kinematical Quantities");
+  hdrk.AddText(" ");
+  hdrk.Draw();
+  c->Update();
+
+  //------ selected Q2 for all events
+  ps->NewPage();
+  gst_0->Draw("Q2s","","");
+  if(gst_1) gst_1->Draw("Q2s","","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for all events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected Q2 for QEL
+  ps->NewPage();
+  gst_0->Draw("Q2s","qel","");
+  if(gst_1) gst_1->Draw("Q2s","qel","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for QEL events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected Q2 for QEL CC
+  ps->NewPage();
+  gst_0->Draw("Q2s","qel&&cc","");
+  if(gst_1) gst_1->Draw("Q2s","qel&&cc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for QEL CC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected Q2 for QEL NC
+  ps->NewPage();
+  gst_0->Draw("Q2s","qel&&nc","");
+  if(gst_1) gst_1->Draw("Q2s","qel&&nc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for QEL NC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected Q2 for RES
+  ps->NewPage();
+  gst_0->Draw("Q2s","res","");
+  if(gst_1) gst_1->Draw("Q2s","res","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for RES events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected Q2 for RES CC
+  ps->NewPage();
+  gst_0->Draw("Q2s","res&&cc","");
+  if(gst_1) gst_1->Draw("Q2s","res&&cc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for RES CC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected Q2 for RES NC
+  ps->NewPage();
+  gst_0->Draw("Q2s","res&&nc","");
+  if(gst_1) gst_1->Draw("Q2s","res&&nc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for RES NC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected Q2 for DIS
+  ps->NewPage();
+  gst_0->Draw("Q2s","dis","");
+  if(gst_1) gst_1->Draw("Q2s","dis","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for DIS events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected Q2 for DIS CC
+  ps->NewPage();
+  gst_0->Draw("Q2s","dis&&cc","");
+  if(gst_1) gst_1->Draw("Q2s","dis&&cc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for DIS CC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected Q2 for DIS NC
+  ps->NewPage();
+  gst_0->Draw("Q2s","dis&&nc","");
+  if(gst_1) gst_1->Draw("Q2s","dis&&nc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for DIS NC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected Q2 for Charm/DIS
+  ps->NewPage();
+  gst_0->Draw("Q2s","dis&&charm","");
+  if(gst_1) gst_1->Draw("Q2s","dis&&charm","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected Q2 for Charm/DIS events");
+  ls->Draw();
+  c->Update();
+
+  if(show_coh_plots) {
+     //------ selected Q2 for COH
+     ps->NewPage();
+     gst_0->Draw("Q2s","coh","");
+     if(gst_1) gst_1->Draw("Q2s","coh","perrsame");
+     ls->Clear();
+     ls->SetHeader("selected Q2 for COH events");
+     ls->Draw();
+     c->Update();
+
+     //------ selected Q2 for COH CC
+     ps->NewPage();
+     gst_0->Draw("Q2s","coh&&cc","");
+     if(gst_1) gst_1->Draw("Q2s","coh&&cc","perrsame");
+     ls->Clear();
+     ls->SetHeader("selected Q2 for COH CC events");
+     ls->Draw();
+     c->Update();
+
+     //------ selected Q2 for COH NC
+     ps->NewPage();
+     gst_0->Draw("Q2s","coh&&nc","");
+     if(gst_1) gst_1->Draw("Q2s","coh&&nc","perrsame");
+     ls->Clear();
+     ls->SetHeader("selected Q2 for COH NC events");
+     ls->Draw();
+     c->Update();
+  }
+  
+  //------ selected W for all events
+  ps->NewPage();
+  gst_0->Draw("Ws","","");
+  if(gst_1) gst_1->Draw("Ws","","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected W for all events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected W for QEL
+  ps->NewPage();
+  gst_0->Draw("Ws","qel","");
+  if(gst_1) gst_1->Draw("Ws","qel","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected W for QEL events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected W for RES
+  ps->NewPage();
+  gst_0->Draw("Ws","res","");
+  if(gst_1) gst_1->Draw("Ws","res","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected W for RES events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected W for DIS
+  ps->NewPage();
+  gst_0->Draw("Ws","dis","");
+  if(gst_1) gst_1->Draw("Ws","dis","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected W for DIS events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected W for DIS CC
+  ps->NewPage();
+  gst_0->Draw("Ws","dis&&cc","");
+  if(gst_1) gst_1->Draw("Ws","dis&&cc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected W for DIS CC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected W for DIS NC
+  ps->NewPage();
+  gst_0->Draw("Ws","dis&&nc","");
+  if(gst_1) gst_1->Draw("Ws","dis&&nc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected W for DIS NC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected x for all events
+  ps->NewPage();
+  gst_0->Draw("xs","","");
+  if(gst_1) gst_1->Draw("xs","","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected x for all events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected x for QEL
+  ps->NewPage();
+  gst_0->Draw("xs","qel","");
+  if(gst_1) gst_1->Draw("xs","qel","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected x for QEL events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected x for RES
+  ps->NewPage();
+  gst_0->Draw("xs","res","");
+  if(gst_1) gst_1->Draw("xs","res","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected x for RES events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected x for DIS
+  ps->NewPage();
+  gst_0->Draw("xs","dis","");
+  if(gst_1) gst_1->Draw("xs","dis","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected x for DIS events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected x for DIS CC
+  ps->NewPage();
+  gst_0->Draw("xs","dis&&cc","");
+  if(gst_1) gst_1->Draw("xs","dis&&cc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected x for DIS CC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected x for DIS NC
+  ps->NewPage();
+  gst_0->Draw("xs","dis&&nc","");
+  if(gst_1) gst_1->Draw("xs","dis&&nc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected x for DIS NC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected x for Charm/DIS 
+  ps->NewPage();
+  gst_0->Draw("xs","dis&&charm","");
+  if(gst_1) gst_1->Draw("xs","dis&&charm","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected x for Charm/DIS events");
+  ls->Draw();
+  c->Update();
+
+  if(show_coh_plots) {
+     //------ selected x for COH
+     ps->NewPage();
+     gst_0->Draw("xs","coh","");
+     if(gst_1) gst_1->Draw("xs","coh","perrsame");
+     ls->Clear();
+     ls->SetHeader("selected x for COH events");
+     ls->Draw();
+     c->Update();
+
+     //------ selected x for COH CC
+     ps->NewPage();
+     gst_0->Draw("xs","coh&&cc","");
+     if(gst_1) gst_1->Draw("xs","coh&&cc","perrsame");
+     ls->Clear();
+     ls->SetHeader("selected x for COH CC events");
+     ls->Draw();
+     c->Update();
+
+     //------ selected x for COH NC
+     ps->NewPage();
+     gst_0->Draw("xs","coh&&nc","");
+     if(gst_1) gst_1->Draw("xs","coh&&nc","perrsame");
+     ls->Clear();
+     ls->SetHeader("selected x for COH NC events");
+     ls->Draw();
+     c->Update();
+  }
+
+  //------ selected y for all events
+  ps->NewPage();
+  gst_0->Draw("ys","","");
+  if(gst_1) gst_1->Draw("ys","","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected y for all events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected y for QEL
+  ps->NewPage();
+  gst_0->Draw("ys","qel","");
+  if(gst_1) gst_1->Draw("ys","qel","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected y for QEL events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected y for RES
+  ps->NewPage();
+  gst_0->Draw("ys","res","");
+  if(gst_1) gst_1->Draw("ys","res","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected y for RES events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected y for DIS
+  ps->NewPage();
+  gst_0->Draw("ys","dis","");
+  if(gst_1) gst_1->Draw("ys","dis","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected y for DIS events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected y for DIS CC
+  ps->NewPage();
+  gst_0->Draw("ys","dis&&cc","");
+  if(gst_1) gst_1->Draw("ys","dis&&cc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected y for DIS CC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected y for DIS NC
+  ps->NewPage();
+  gst_0->Draw("ys","dis&&nc","");
+  if(gst_1) gst_1->Draw("ys","dis&&nc","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected y for DIS NC events");
+  ls->Draw();
+  c->Update();
+
+  //------ selected y for Charm/DIS 
+  ps->NewPage();
+  gst_0->Draw("ys","dis&&charm","");
+  if(gst_1) gst_1->Draw("ys","dis&&charm","perrsame");
+  ls->Clear();
+  ls->SetHeader("selected y for Charm/DIS events");
+  ls->Draw();
+  c->Update();
+
+  if(show_coh_plots) {
+     //------ selected y for COH
+     ps->NewPage();
+     gst_0->Draw("ys","coh","");
+     if(gst_1) gst_1->Draw("ys","coh","perrsame");
+     ls->Clear();
+     ls->SetHeader("selected y for COH events");
+     ls->Draw();
+     c->Update();
+
+     //------ selected y for COH CC
+     ps->NewPage();
+     gst_0->Draw("ys","coh&&cc","");
+     if(gst_1) gst_1->Draw("ys","coh&&cc","perrsame");
+     ls->Clear();
+     ls->SetHeader("selected y for COH CC events");
+     ls->Draw();
+     c->Update();
+
+     //------ selected y for COH NC
+     ps->NewPage();
+     gst_0->Draw("ys","coh&&nc","");
+     if(gst_1) gst_1->Draw("ys","coh&&nc","perrsame");
+     ls->Clear();
+     ls->SetHeader("selected y for COH NC events");
+     ls->Draw();
+     c->Update();
+
+     //------ selected t for COH
+     ps->NewPage();
+     gst_0->Draw("ts","coh","");
+     if(gst_1) gst_1->Draw("ts","coh","perrsame");
+     ls->Clear();
+     ls->SetHeader("selected t for COH events");
+     ls->Draw();
+     c->Update();
+  }
+
+  if(show_calc_kinematics) {
+
+     //
+     // SECTION: Computed Kinematics 
+     //
+     ps->NewPage();
+     c->Clear();
+     c->Range(0,0,100,100);
+     TPavesText hdrck(10,40,90,70,3,"tr");
+     hdrck.AddText("Kinematical Quantities");
+     hdrck.AddText(" ");
+     hdrck.AddText(" ");
+     hdrck.AddText("Similar to the previous set of plots but");
+     hdrck.AddText("showing 'computed' rather than 'selected' variables");
+     hdrck.Draw();
+     c->Update();
+
+     //------ Q2 for all events
+     ps->NewPage();
+               gst_0->Draw("Q2","","");
+     if(gst_1) gst_1->Draw("Q2","","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed Q2 for all events");
+     ls->Draw();
+     c->Update();
+
+     //------ Q2 for QEL
+     ps->NewPage();
+               gst_0->Draw("Q2","qel","");
+     if(gst_1) gst_1->Draw("Q2","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed Q2 for QEL events");
+     ls->Draw();
+     c->Update();
+
+     //------ Q2 for RES
+     ps->NewPage();
+               gst_0->Draw("Q2","res","");
+     if(gst_1) gst_1->Draw("Q2","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed Q2 for RES events");
+     ls->Draw();
+     c->Update();
+
+     //------ Q2 for DIS
+     ps->NewPage();
+               gst_0->Draw("Q2","dis","");
+     if(gst_1) gst_1->Draw("Q2","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed Q2 for DIS events");
+     ls->Draw();
+     c->Update();
+
+     //------ x for all events
+     ps->NewPage();
+     gst_0->Draw("x","","");
+     if(gst_1) gst_1->Draw("x","","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed x for all events");
+     ls->Draw();
+     c->Update();
+
+     //------ x for QEL
+     ps->NewPage();
+     gst_0->Draw("x","qel","");
+     if(gst_1) gst_1->Draw("x","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed x for QEL events");
+     ls->Draw();
+     c->Update();
+
+     //------ x for RES
+     ps->NewPage();
+     gst_0->Draw("x","res","");
+     if(gst_1) gst_1->Draw("x","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed x for RES events");
+     ls->Draw();
+     c->Update();
+
+     //------ x for DIS
+     ps->NewPage();
+     gst_0->Draw("x","dis","");
+     if(gst_1) gst_1->Draw("x","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed x for DIS events");
+     ls->Draw();
+     c->Update();
+
+     //------ y for all events
+     ps->NewPage();
+     gst_0->Draw("y","","");
+     if(gst_1) gst_1->Draw("y","","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed y for all events");
+     ls->Draw();
+     c->Update();
+
+     //------ y for QEL
+     ps->NewPage();
+     gst_0->Draw("y","qel","");
+     if(gst_1) gst_1->Draw("y","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed y for QEL events");
+     ls->Draw();
+     c->Update();
+
+     //------ y for RES
+     ps->NewPage();
+     gst_0->Draw("y","res","");
+     if(gst_1) gst_1->Draw("y","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed y for RES events");
+     ls->Draw();
+     c->Update();
+
+     //------ y for DIS
+     ps->NewPage();
+     gst_0->Draw("y","dis","");
+     if(gst_1) gst_1->Draw("y","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("computed y for DIS events");
+     ls->Draw();
+     c->Update();
+
+  }//show?
+
+
+  //
+  // SECTION: Initial State nucleon
+  //
+  ps->NewPage();
+  c->Clear();
+  c->Range(0,0,100,100);
+  TPavesText hdrinuc(10,40,90,70,3,"tr");
+  hdrinuc.AddText("Initial state nucleon 4-Momentum");
+  hdrinuc.Draw();
+  c->Update();
+
+  //------ selected hit nucleon px
+  ps->NewPage();
+  c->Clear();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxn","","");
+  if(gst_1) gst_1->Draw("pxn","","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyn","","");
+  if(gst_1) gst_1->Draw("pyn","","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzn","","");
+  if(gst_1) gst_1->Draw("pzn","","perrsame");
+  c->cd(4);
+  gst_0->Draw("En","En>.2","");
+  if(gst_1) gst_1->Draw("En","En>.2","perrsame");
+  c->Update();
+
+  //
+  // SECTION: Final State Primary Lepton
+  //
+  ps->NewPage();
+  c->Clear();
+  c->Range(0,0,100,100);
+  TPavesText hdrfsl(10,40,90,70,3,"tr");
+  hdrfsl.AddText("Final State Primary Lepton 4-Momentum");
+  hdrfsl.Draw();
+  c->Update();
+
+  //------ f/s primary lepton : all events
+  ps->NewPage();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxl","","");
+  if(gst_1) gst_1->Draw("pxl","","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyl","","");
+  if(gst_1) gst_1->Draw("pyl","","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzl","","");
+  if(gst_1) gst_1->Draw("pzl","","perrsame");
+  c->cd(4);
+  gst_0->Draw("El","","");
+  if(gst_1) gst_1->Draw("El","","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state primary lepton 4-p: All events");
+  ls->Draw();
+  c->Update();
+
+  //------ f/s primary lepton : all CC events
+  ps->NewPage();
+  c->Clear();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxl","cc","");
+  if(gst_1) gst_1->Draw("pxl","cc","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyl","cc","");
+  if(gst_1) gst_1->Draw("pyl","cc","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzl","cc","");
+  if(gst_1) gst_1->Draw("pzl","cc","perrsame");
+  c->cd(4);
+  gst_0->Draw("El","cc","");
+  if(gst_1) gst_1->Draw("El","cc","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state primary lepton 4-p: All CC events");
+  ls->Draw();
+  c->Update();
+
+  //------ f/s primary lepton : all NC events
+  ps->NewPage();
+  c->Clear();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxl","nc","");
+  if(gst_1) gst_1->Draw("pxl","nc","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyl","nc","");
+  if(gst_1) gst_1->Draw("pyl","nc","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzl","nc","");
+  if(gst_1) gst_1->Draw("pzl","nc","perrsame");
+  c->cd(4);
+  gst_0->Draw("El","nc","");
+  if(gst_1) gst_1->Draw("El","nc","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state primary lepton 4-p: All NC events");
+  ls->Draw();
+  c->Update();
+
+  //------ f/s primary lepton : QEL events
+  ps->NewPage();
+  c->Clear();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxl","qel","");
+  if(gst_1) gst_1->Draw("pxl","qel","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyl","qel","");
+  if(gst_1) gst_1->Draw("pyl","qel","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzl","qel","");
+  if(gst_1) gst_1->Draw("pzl","qel","perrsame");
+  c->cd(4);
+  gst_0->Draw("El","qel","");
+  if(gst_1) gst_1->Draw("El","qel","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state primary lepton 4-p: QEL events");
+  ls->Draw();
+  c->Update();
+
+  //------ f/s primary lepton : RES events
+  ps->NewPage();
+  c->Clear();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxl","res","");
+  if(gst_1) gst_1->Draw("pxl","res","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyl","res","");
+  if(gst_1) gst_1->Draw("pyl","res","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzl","res","");
+  if(gst_1) gst_1->Draw("pzl","res","perrsame");
+  c->cd(4);
+  gst_0->Draw("El","res","");
+  if(gst_1) gst_1->Draw("El","res","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state primary lepton 4-p: RES events");
+  ls->Draw();
+  c->Update();
+
+  //------ f/s primary lepton : DIS events
+  ps->NewPage();
+  c->Clear();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxl","dis","");
+  if(gst_1) gst_1->Draw("pxl","dis","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyl","dis","");
+  if(gst_1) gst_1->Draw("pyl","dis","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzl","dis","");
+  if(gst_1) gst_1->Draw("pzl","dis","perrsame");
+  c->cd(4);
+  gst_0->Draw("El","dis","");
+  if(gst_1) gst_1->Draw("El","dis","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state primary lepton 4-p: All DIS events");
+  ls->Draw();
+  c->Update();
+
+  if(show_coh_plots) {
+     //------ f/s primary lepton : COH events
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxl","coh","");
+     if(gst_1) gst_1->Draw("pxl","coh","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyl","coh","");
+     if(gst_1) gst_1->Draw("pyl","coh","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzl","coh","");
+     if(gst_1) gst_1->Draw("pzl","coh","perrsame");
+     c->cd(4);
+     gst_0->Draw("El","coh","");
+     if(gst_1) gst_1->Draw("El","coh","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state primary lepton 4-p: COH events");
+     ls->Draw();
+     c->Update();
+  }
+
+  //
+  // SECTION: Final State Hadronic System Multiplicities & 4P
+  //
+  ps->NewPage();
+  c->Clear();
+  c->Range(0,0,100,100);
+  TPavesText hdrfhad(10,40,90,70,3,"tr");
+  hdrfhad.AddText("Final State Hadronic System");
+  hdrfhad.AddText("Multiplicities and 4-Momenta");
+  hdrfhad.AddText(" ");
+  hdrfhad.AddText(" ");
+  hdrfhad.AddText(" ");
+  hdrfhad.AddText(" ");
+  hdrfhad.AddText("Note:");
+  hdrfhad.AddText("For nuclear targets these plots include the effect");
+  hdrfhad.AddText("of intranuclear hadron transport / rescattering");
+  hdrfhad.Draw();
+  c->Update();
+
+  //------ number of final state p
+  ps->NewPage();
+  gst_0->Draw("nfp","","");
+  if(gst_1) gst_1->Draw("nfp","","perrsame");
+  ls->Clear();
+  ls->SetHeader("Number of final state protons");
+  ls->Draw();
+  c->Update();
+
+  //------ number of final state n
+  ps->NewPage();
+  gst_0->Draw("nfn","","");
+  if(gst_1) gst_1->Draw("nfn","","perrsame");
+  ls->Clear();
+  ls->SetHeader("Number of final state neutrons");
+  ls->Draw();
+  c->Update();
+
+  //------ number of final state pi+
+  ps->NewPage();
+  gst_0->Draw("nfpip","","");
+  if(gst_1) gst_1->Draw("nfpip","","perrsame");
+  ls->Clear();
+  ls->SetHeader("Number of final state pi+");
+  ls->Draw();
+  c->Update();
+
+  //------ number of final state pi-
+  ps->NewPage();
+  gst_0->Draw("nfpim","","");
+  if(gst_1) gst_1->Draw("nfpim","","perrsame");
+  ls->Clear();
+  ls->SetHeader("Number of final state pi-");
+  ls->Draw();
+  c->Update();
+
+  //------ number of final state pi0
+  ps->NewPage();
+  gst_0->Draw("nfpi0","","");
+  if(gst_1) gst_1->Draw("nfpi0","","perrsame");
+  ls->Clear();
+  ls->SetHeader("Number of final state pi0");
+  ls->Draw();
+  c->Update();
+
+  //------ number of final state K+
+  ps->NewPage();
+  gst_0->Draw("nfkp","","");
+  if(gst_1) gst_1->Draw("nfkp","","perrsame");
+  ls->Clear();
+  ls->SetHeader("Number of final state K+");
+  ls->Draw();
+  c->Update();
+
+  //------ number of final state K-
+  ps->NewPage();
+  gst_0->Draw("nfkm","","");
+  if(gst_1) gst_1->Draw("nfkm","","perrsame");
+  ls->Clear();
+  ls->SetHeader("Number of final state K-");
+  ls->Draw();
+  c->Update();
+
+  //------ number of final state K0
+  ps->NewPage();
+  gst_0->Draw("nfk0","","");
+  if(gst_1) gst_1->Draw("nfk0","","perrsame");
+  ls->Clear();
+  ls->SetHeader("Number of final state K0");
+  ls->Draw();
+  c->Update();
+
+  //------ momentum of final state p
+  ps->NewPage();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxf","pdgf==2212","");
+  if(gst_1) gst_1->Draw("pxf","pdgf==2212","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyf","pdgf==2212","");
+  if(gst_1) gst_1->Draw("pyf","pdgf==2212","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzf","pdgf==2212","");
+  if(gst_1) gst_1->Draw("pzf","pdgf==2212","perrsame"); 
+  c->cd(4);
+  gst_0->Draw("Ef","pdgf==2212","");
+  if(gst_1) gst_1->Draw("Ef","pdgf==2212","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state protons 4-momentum");
+  ls->Draw();
+  c->Update();
+
+  //------ momentum of final state n
+  ps->NewPage();
+  c->Clear();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxf","pdgf==2112","");
+  if(gst_1) gst_1->Draw("pxf","pdgf==2112","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyf","pdgf==2112","");
+  if(gst_1) gst_1->Draw("pyf","pdgf==2112","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzf","pdgf==2112","");
+  if(gst_1) gst_1->Draw("pzf","pdgf==2112","perrsame");
+  c->cd(4);
+  gst_0->Draw("Ef","pdgf==2112","");
+  if(gst_1) gst_1->Draw("Ef","pdgf==2112","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state neutrons 4-momentum");
+  ls->Draw();
+  c->Update();
+
+  //------ momentum of final state pi0
+  ps->NewPage();
+  c->Clear();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxf","pdgf==111","");
+  if(gst_1) gst_1->Draw("pxf","pdgf==111","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyf","pdgf==111","");
+  if(gst_1) gst_1->Draw("pyf","pdgf==111","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzf","pdgf==111","");
+  if(gst_1) gst_1->Draw("pzf","pdgf==111","perrsame");
+  c->cd(4);
+  gst_0->Draw("Ef","pdgf==111","");
+  if(gst_1) gst_1->Draw("Ef","pdgf==111","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state pi0's 4-momentum");
+  ls->Draw();
+  c->Update();
+
+  //------ momentum of final state pi+
+  ps->NewPage();
+  c->Clear();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxf","pdgf==211","");
+  if(gst_1) gst_1->Draw("pxf","pdgf==211","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyf","pdgf==211","");
+  if(gst_1) gst_1->Draw("pyf","pdgf==211","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzf","pdgf==211","");
+  if(gst_1) gst_1->Draw("pzf","pdgf==211","perrsame");
+  c->cd(4);
+  gst_0->Draw("Ef","pdgf==211","");
+  if(gst_1) gst_1->Draw("Ef","pdgf==211","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state pi+'s 4-momentum");
+  ls->Draw();
+  c->Update();
+
+  //------ momentum of final state pi+
+  ps->NewPage();
+  c->Clear();
+  c->Divide(2,2);
+  c->cd(1);
+  gst_0->Draw("pxf","pdgf==-211","");
+  if(gst_1) gst_1->Draw("pxf","pdgf==-211","perrsame");
+  c->cd(2);
+  gst_0->Draw("pyf","pdgf==-211","");
+  if(gst_1) gst_1->Draw("pyf","pdgf==-211","perrsame");
+  c->cd(3);
+  gst_0->Draw("pzf","pdgf==-211","");
+  if(gst_1) gst_1->Draw("pzf","pdgf==-211","perrsame");
+  c->cd(4);
+  gst_0->Draw("Ef","pdgf==-211","");
+  if(gst_1) gst_1->Draw("Ef","pdgf==-211","perrsame");
+  c->cd();
+  ls->Clear();
+  ls->SetHeader("Final state pi-'s 4-momentum");
+  ls->Draw();
+  c->Update();
+
+  if(show_mult_per_proc) {
+
+     //
+     // similarly but for QEL events only
+     //
+
+     //------ number of final state p /QEL
+     ps->NewPage();
+     if(gst_1) gst_1->Draw("nfp","qel","");
+     gst_0->Draw("nfp","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state protons / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ number of final state n /QEL
+     ps->NewPage();
+     if(gst_1) gst_1->Draw("nfn","qel","");
+     gst_0->Draw("nfn","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state neutrons / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ number of final state pi+ /QEL
+     ps->NewPage();
+     gst_0->Draw("nfpip","qel","");
+     if(gst_1) gst_1->Draw("nfpip","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state pi+ / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ number of final state pi- /QEL
+     ps->NewPage();
+     gst_0->Draw("nfpim","qel","");
+     if(gst_1) gst_1->Draw("nfpim","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state pi- / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ number of final state pi0 /QEL
+     ps->NewPage();
+     gst_0->Draw("nfpi0","qel","");
+     if(gst_1) gst_1->Draw("nfpi0","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state pi0 / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ number of final state K+ /QEL
+     ps->NewPage();
+     gst_0->Draw("nfkp","qel","");
+     if(gst_1) gst_1->Draw("nfkp","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state K+ / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ number of final state K- /QEL
+     ps->NewPage();
+     gst_0->Draw("nfkm","qel","");
+     if(gst_1) gst_1->Draw("nfkm","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state K- / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ number of final state K0 /QEL
+     ps->NewPage();
+     gst_0->Draw("nfk0","qel","");
+     if(gst_1) gst_1->Draw("nfk0","qel","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state K0 / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ momentum of final state p /QEL
+     ps->NewPage();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","qel&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pxf","qel&&pdgf==2212","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","qel&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pyf","qel&&pdgf==2212","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","qel&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pzf","qel&&pdgf==2212","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","qel&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("Ef","qel&&pdgf==2212","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state protons 4-momentum / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ momentum of final state n /QEL
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","qel&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pxf","qel&&pdgf==2112","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","qel&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pyf","qel&&pdgf==2112","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","qel&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pzf","qel&&pdgf==2112","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","qel&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("Ef","qel&&pdgf==2112","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state neutrons 4-momentum / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ momentum of final state pi0 /QEL
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","qel&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pxf","qel&&pdgf==111","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","qel&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pyf","qel&&pdgf==111","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","qel&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pzf","qel&&pdgf==111","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","qel&&pdgf==111","");
+     if(gst_1) gst_1->Draw("Ef","qel&&pdgf==111","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state pi0's 4-momentum / QEL only");
+     ls->Draw();
+     c->Update();
+
+     //------ momentum of final state pi+ /QEL
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","qel&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pxf","qel&&pdgf==211","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","qel&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pyf","qel&&pdgf==211","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","qel&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pzf","qel&&pdgf==211","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","qel&&pdgf==211","");
+     if(gst_1) gst_1->Draw("Ef","qel&&pdgf==211","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state pi+'s 4-momentum / QEL only");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of final state pi+ /QEL
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","qel&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pxf","qel&&pdgf==-211","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","qel&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pyf","qel&&pdgf==-211","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","qel&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pzf","qel&&pdgf==-211","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","qel&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("Ef","qel&&pdgf==-211","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state pi-'s 4-momentum/ QEL only");
+     ls->Draw();
+     c->Update();
+     
+     
+     //
+     // similarly but for RES events only
+     //
+     
+     //------ number of final state p /RES
+     ps->NewPage();
+               gst_0->Draw("nfp","res","");
+     if(gst_1) gst_1->Draw("nfp","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state protons / RES only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state n /RES
+     ps->NewPage();
+               gst_0->Draw("nfn","res","");
+     if(gst_1) gst_1->Draw("nfn","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state neutrons / RES only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state pi+ /RES
+     ps->NewPage();
+               gst_0->Draw("nfpip","res","");
+     if(gst_1) gst_1->Draw("nfpip","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state pi+ / RES only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state pi- /RES
+     ps->NewPage();
+               gst_0->Draw("nfpim","res","");
+     if(gst_1) gst_1->Draw("nfpim","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state pi- / RES only");
+     ls->Draw();
+     c->Update();
+
+     //------ number of final state pi0 /RES
+     ps->NewPage();
+               gst_0->Draw("nfpi0","res","");
+     if(gst_1) gst_1->Draw("nfpi0","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state pi0 / RES only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state K+ /RES
+     ps->NewPage();
+     gst_0->Draw("nfkp","res","");
+     if(gst_1) gst_1->Draw("nfkp","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state K+ / RES only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state K- /RES
+     ps->NewPage();
+     gst_0->Draw("nfkm","res","");
+     if(gst_1) gst_1->Draw("nfkm","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state K- / RES only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state K0 /RES
+     ps->NewPage();
+     gst_0->Draw("nfk0","res","");
+     if(gst_1) gst_1->Draw("nfk0","res","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state K0 / RES only");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of final state p /QEL
+     ps->NewPage();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","res&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pxf","res&&pdgf==2212","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","res&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pyf","res&&pdgf==2212","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","res&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pzf","res&&pdgf==2212","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","res&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("Ef","res&&pdgf==2212","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state protons 4-momentum / RES only");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of final state n /RES
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","res&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pxf","res&&pdgf==2112","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","res&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pyf","res&&pdgf==2112","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","res&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pzf","res&&pdgf==2112","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","res&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("Ef","res&&pdgf==2112","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state neutrons 4-momentum / RES only");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of final state pi0 /RES
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","res&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pxf","res&&pdgf==111","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","res&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pyf","res&&pdgf==111","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","res&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pzf","res&&pdgf==111","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","res&&pdgf==111","");
+     if(gst_1) gst_1->Draw("Ef","res&&pdgf==111","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state pi0's 4-momentum / RES only");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of final state pi+ /RES
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","res&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pxf","res&&pdgf==211","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","res&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pyf","res&&pdgf==211","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","res&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pzf","res&&pdgf==211","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","res&&pdgf==211","");
+     if(gst_1) gst_1->Draw("Ef","res&&pdgf==211","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state pi+'s 4-momentum / RES only");
+     ls->Draw();
+     c->Update();
+
+     //------ momentum of final state pi+ /RES
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","res&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pxf","res&&pdgf==-211","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","res&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pyf","res&&pdgf==-211","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","res&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pzf","res&&pdgf==-211","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","res&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("Ef","res&&pdgf==-211","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state pi-'s 4-momentum/ RES only");
+     ls->Draw();
+     c->Update();
+     
+     //
+     // similarly but for DIS events only
+     //
+     
+     //------ number of final state p /DIS
+     ps->NewPage();
+     gst_0->Draw("nfp","dis","");
+     if(gst_1) gst_1->Draw("nfp","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state protons / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state n /DIS
+     ps->NewPage();
+     gst_0->Draw("nfn","dis","");
+     if(gst_1) gst_1->Draw("nfn","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state neutrons / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state pi+ /DIS
+     ps->NewPage();
+     gst_0->Draw("nfpip","dis","");
+     if(gst_1) gst_1->Draw("nfpip","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state pi+ / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state pi- /DIS
+     ps->NewPage();
+     gst_0->Draw("nfpim","dis","");
+     if(gst_1) gst_1->Draw("nfpim","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state pi- / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state pi0 /DIS
+     ps->NewPage();
+     gst_0->Draw("nfpi0","dis","");
+     if(gst_1) gst_1->Draw("nfpi0","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state pi0 / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state K+ /DIS
+     ps->NewPage();
+     gst_0->Draw("nfkp","dis","");
+     if(gst_1) gst_1->Draw("nfkp","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state K+ / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state K- /DIS
+     ps->NewPage();
+     gst_0->Draw("nfkm","dis","");
+     if(gst_1) gst_1->Draw("nfkm","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state K- / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of final state K0 /DIS
+     ps->NewPage();
+     gst_0->Draw("nfk0","dis","");
+     if(gst_1) gst_1->Draw("nfk0","dis","perrsame");
+     ls->Clear();
+     ls->SetHeader("Number of final state K0 / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of final state p /DIS
+     ps->NewPage();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","dis&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pxf","dis&&pdgf==2212","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","dis&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pyf","dis&&pdgf==2212","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","dis&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pzf","dis&&pdgf==2212","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","dis&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("Ef","dis&&pdgf==2212","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state protons 4-momentum / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of final state n /DIS
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","dis&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pxf","dis&&pdgf==2112","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","dis&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pyf","dis&&pdgf==2112","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","dis&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pzf","dis&&pdgf==2112","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","dis&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("Ef","dis&&pdgf==2112","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state neutrons 4-momentum / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of final state pi0 /DIS
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","dis&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pxf","dis&&pdgf==111","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","dis&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pyf","dis&&pdgf==111","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","dis&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pzf","dis&&pdgf==111","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","dis&&pdgf==111","");
+     if(gst_1) gst_1->Draw("Ef","dis&&pdgf==111","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state pi0's 4-momentum / DIS only");
+     ls->Draw();
+     c->Update();
+
+     //------ momentum of final state pi+ /DIS
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","dis&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pxf","dis&&pdgf==211","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","dis&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pyf","dis&&pdgf==211","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","dis&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pzf","dis&&pdgf==211","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","dis&&pdgf==211","");
+     if(gst_1) gst_1->Draw("Ef","dis&&pdgf==211","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state pi+'s 4-momentum / DIS only");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of final state pi+ /DIS
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxf","dis&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pxf","dis&&pdgf==-211","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyf","dis&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pyf","dis&&pdgf==-211","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzf","dis&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pzf","dis&&pdgf==-211","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ef","dis&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("Ef","dis&&pdgf==-211","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Final state pi-'s 4-momentum/ DIS only");
+     ls->Draw();
+     c->Update();
+     
+  } // per-proc
+
+  //
+  // SECTION: Primary Hadronic System Multiplicities & 4P
+  //
+  if(show_primary_hadsyst) {
+     
+     ps->NewPage();
+     c->Clear();
+     c->Range(0,0,100,100);
+     TPavesText hdrihad(10,40,90,70,3,"tr");
+     hdrihad.AddText("Parimary Hadronic System");
+     hdrihad.AddText("Multiplicities and 4-Momenta");
+     hdrihad.AddText(" ");
+     hdrihad.AddText(" ");
+     hdrihad.AddText(" ");
+     hdrihad.AddText(" ");
+     hdrihad.AddText("Note:");
+     hdrihad.AddText("For nuclear targets these plots show the hadronic system");
+     hdrihad.AddText("BEFORE any intranuclear hadron transport / rescattering");
+     hdrihad.Draw();
+     c->Update();
+     
+     //------ number of prim p
+     ps->NewPage();
+     gst_0->Draw("nip","","");
+     if(gst_1) gst_1->Draw("nfp","","");
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: Number of protons");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of prim n
+     ps->NewPage();
+     gst_0->Draw("nin","","");
+     if(gst_1) gst_1->Draw("nfn","","");
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: Number of neutrons");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of prim pi+
+     ps->NewPage();
+     gst_0->Draw("nipip","","");
+     if(gst_1) gst_1->Draw("nfpip","","");
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: Number of pi+");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of prim pi-
+     ps->NewPage();
+     gst_0->Draw("nipim","","");
+     if(gst_1) gst_1->Draw("nfpim","","");
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: Number of pi-");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of prim pi0
+     ps->NewPage();
+     gst_0->Draw("nipi0","","");
+     if(gst_1) gst_1->Draw("nfpi0","","");
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: Number of pi0");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of prim K+
+     ps->NewPage();
+     gst_0->Draw("nikp","","");
+     if(gst_1) gst_1->Draw("nikp","","perrsame");
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: Number of K+");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of prim K-
+     ps->NewPage();
+     gst_0->Draw("nikm","","");
+     if(gst_1) gst_1->Draw("nikm","","perrsame");
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: Number of K-");
+     ls->Draw();
+     c->Update();
+     
+     //------ number of prim K0
+     ps->NewPage();
+     gst_0->Draw("nik0","","");
+     if(gst_1) gst_1->Draw("nik0","","perrsame");
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: Number of K0");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of prim, p
+     ps->NewPage();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxi","pdgi==2212","");
+     if(gst_1) gst_1->Draw("pxi","pdgi==2212","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyi","pdgi==2212","");
+     if(gst_1) gst_1->Draw("pyi","pdgi==2212","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzi","pdgi==2212","");
+     if(gst_1) gst_1->Draw("pzi","pdgi==2212","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ei","pdgi==2212","");
+     if(gst_1) gst_1->Draw("Ei","pdgi==2212","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: proton 4-momentum");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of prim. n
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxi","pdgi==2112","");
+     if(gst_1) gst_1->Draw("pxi","pdgi==2112","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyi","pdgi==2112","");
+     if(gst_1) gst_1->Draw("pyi","pdgi==2112","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzi","pdgi==2112","");
+     if(gst_1) gst_1->Draw("pzi","pdgi==2112","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ei","pdgi==2112","");
+     if(gst_1) gst_1->Draw("Ei","pdgi==2112","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: neutron 4-momentum");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of prim. pi0
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxi","pdgi==111","");
+     if(gst_1) gst_1->Draw("pxi","pdgi==111","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyi","pdgi==111","");
+     if(gst_1) gst_1->Draw("pyi","pdgi==111","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzi","pdgi==111","");
+     if(gst_1) gst_1->Draw("pzi","pdgi==111","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ei","pdgi==111","");
+     if(gst_1) gst_1->Draw("Ei","pdgi==111","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System: pi0's 4-momentum");
+     ls->Draw();
+     c->Update();
+
+     //------ momentum of prim pi+
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxi","pdgi==211","");
+     if(gst_1) gst_1->Draw("pxi","pdgi==211","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyi","pdgi==211","");
+     if(gst_1) gst_1->Draw("pyi","pdgi==211","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzi","pdgi==211","");
+     if(gst_1) gst_1->Draw("pzi","pdgi==211","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ei","pdgi==211","");
+     if(gst_1) gst_1->Draw("Ei","pdgi==211","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System:pi+'s 4-momentum");
+     ls->Draw();
+     c->Update();
+     
+     //------ momentum of prim. pi+
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,2);
+     c->cd(1);
+     gst_0->Draw("pxi","pdgi==-211","");
+     if(gst_1) gst_1->Draw("pxi","pdgi==-211","perrsame");
+     c->cd(2);
+     gst_0->Draw("pyi","pdgi==-211","");
+     if(gst_1) gst_1->Draw("pyi","pdgi==-211","perrsame");
+     c->cd(3);
+     gst_0->Draw("pzi","pdgi==-211","");
+     if(gst_1) gst_1->Draw("pzi","pdgi==-211","perrsame");
+     c->cd(4);
+     gst_0->Draw("Ei","pdgi==-211","");
+     if(gst_1) gst_1->Draw("Ei","pdgi==-211","perrsame");
+     c->cd();
+     ls->Clear();
+     ls->SetHeader("Primary Hadronic System:  pi-'s 4-momentum");
+     ls->Draw();
+     c->Update();
+  }//show?
+       
+  ps->Close();
+
+  fin_0->Close();
+  delete fin_0;
+  if(fin_1) {
+     fin_1->Close();
+     delete fin_1;
+  }
 }
 //_________________________________________________________________________________
-void PlotH1F_2(string name1, string name2, string title, bool keep_page)
-{
-  if(!keep_page) gPS->NewPage();
-  gC->cd();
-
-  TH1F * tested_hst1 = dynamic_cast<TH1F *> (gTestedSampleDir->Get(name1.c_str()));
-  TH1F * tested_hst2 = dynamic_cast<TH1F *> (gTestedSampleDir->Get(name2.c_str()));
-  TH1F * templt_hst1 = 0;
-  TH1F * templt_hst2 = 0;
-  if(gSampleComp) {
-      templt_hst1 = dynamic_cast<TH1F *> (gTempltSampleDir->Get(name1.c_str()));
-      templt_hst2 = dynamic_cast<TH1F *> (gTempltSampleDir->Get(name2.c_str()));
-  }
-  if(!tested_hst1 || !tested_hst2) return;
-
-  // plot histogram from test sample
-  tested_hst1->SetLineColor(2);
-  tested_hst1->SetLineWidth(2);
-  tested_hst1->SetLineStyle(1);
-  tested_hst1->Draw();
-
-  tested_hst2->SetLineColor(2);
-  tested_hst2->SetLineWidth(2);
-  tested_hst2->SetLineStyle(2);
-  tested_hst2->Draw("SAME");
-
-  // plot same hisogram from template sample (if any) 
-  if(templt_hst1 && templt_hst2) {
-    templt_hst1->SetLineWidth(2);
-    templt_hst1->SetLineStyle(1);
-    templt_hst1->SetMarkerSize(1.3);
-    templt_hst1->SetMarkerStyle(8);
-    templt_hst1->Draw("PERRSAME");
-
-    templt_hst2->SetLineWidth(2);
-    templt_hst2->SetLineStyle(2);
-    templt_hst2->SetMarkerSize(1.3);
-    templt_hst2->SetMarkerStyle(4);
-    templt_hst2->Draw("PERRSAME");
-  }
-
-  tested_hst1->GetXaxis()->SetTitle(title.c_str());
-  gC->Update();
-}
-//_________________________________________________________________________________
-void PlotH2F(string name, string title)
-{
-  gPS->NewPage();
-  gC->cd();
-
-  TH2F * tested_hst = dynamic_cast<TH2F *> (gTestedSampleDir->Get(name.c_str()));
-  TH2F * templt_hst = (gSampleComp) ?
-                      dynamic_cast<TH2F *> (gTempltSampleDir->Get(name.c_str())) : 0;
-
-  // plot histogram from test sample
-  if(!tested_hst) return;
-  tested_hst->SetFillColor(3);
-  tested_hst->Draw("BOX");
-
-  TProfile * hpx = tested_hst->ProfileX();
-  hpx->SetLineColor(2);
-  hpx->SetLineWidth(2);
-  hpx->SetMarkerStyle(20);
-  hpx->SetMarkerSize(1.3);
-  hpx->Draw("SAME");
-
-  // plot same hisogram from template sample (if any)
-  if(templt_hst) {
-    TProfile * hpxt = templt_hst->ProfileX();
-    hpxt->SetLineColor(1);
-    hpxt->SetLineWidth(2);
-    hpxt->SetMarkerStyle(8);
-    hpxt->SetMarkerSize(1.3);
-    hpxt->Draw("SAMEBOX1");
-  }
-
-  tested_hst->GetXaxis()->SetTitle(title.c_str());
-  gC->Update();
-}
-//_________________________________________________________________________________
-string OutputFileName(string inpname)
+string OutputFileName(string inpname, int mod)
 {
 // Builds the output filename based on the name of the input filename
 // Perfors the following conversion: name.root -> name.gmctest.root
 
+  assert(mod==0 || mod==1);
   unsigned int L = inpname.length();
 
   // if the last 4 characters are "root" (ROOT file extension) then
@@ -1439,7 +2586,11 @@ string OutputFileName(string inpname)
     inpname.erase(L-4, L);
   }
   ostringstream name;
-  name << inpname << "gmctest-" << gOptTgtPdgC << ".root";
+
+  if(mod==0)
+  	name << inpname << "gst.root";
+  else if(mod==1)
+  	name << inpname << "gmctest.ps";
 
   return gSystem->BaseName(name.str().c_str());
 }
@@ -1448,7 +2599,19 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gmctest", pNOTICE) << "*** Parsing commad line arguments";
 
-   //number of events:
+  //mode:
+  try {
+    LOG("gmctest", pINFO) << "Reading gmctest mode";
+    gOptMode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'m');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gmctest", pFATAL) << "Unspecified gmctest mode";
+      PrintSyntax();
+      exit(1);
+    }
+  }
+
+  //number of events:
   try {
     LOG("gmctest", pINFO) << "Reading number of events to analyze";
     gOptN = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
@@ -1460,19 +2623,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
-  //target PDG code:
-  try {
-    LOG("gmctest", pINFO) << "Reading target PDG code";
-    gOptTgtPdgC = genie::utils::clap::CmdLineArgAsInt(argc,argv,'t');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmctest", pFATAL) << "Unspecified target PDG code - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
-  }
-
-  //get GENIE event sample ROOT file (ER-format)
+  //get GENIE event sample
   try {
     LOG("gmctest", pINFO) << "Reading event sample filename";
     gOptInpFile = utils::clap::CmdLineArgAsString(argc,argv,'f');
@@ -1484,14 +2635,13 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
-  //get another (template) GENIE event sample ROOT file (ER-format)
+  //get another (reference) GENIE event sample 
   try {
     LOG("gmctest", pINFO) << "Reading filename of event sample template";
-    gOptInpTemplFile = utils::clap::CmdLineArgAsString(argc,argv,'c');
+    gOptInpFileRef = utils::clap::CmdLineArgAsString(argc,argv,'r');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("gmctst", pNOTICE) 
-         << "Unspecified event sample template - WIll not run comparisons";
+      LOG("gmctst", pNOTICE) << "Unspecified 'reference' event sample";
     }
   }
 }
@@ -1500,7 +2650,7 @@ void PrintSyntax(void)
 {
   LOG("gmctest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gmctest -f file -t tgtpdg [-n nev] [-c template_file]\n";
+    << "   gmctest -m mode -f sample.root [-n nev] [-r reference_sample.root]\n";
 }
 //_________________________________________________________________________________
 bool CheckRootFilename(string filename)
