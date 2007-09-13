@@ -450,9 +450,16 @@ void SaveGraphsToRootFile(void)
 
   //-- create directory 
   ostringstream dptr;
+
+  string neu_name = pdglib->Find(gOptNuPdgCode)->GetName();
+  string tgt_name = (gOptTgtPdgCode==1000000010) ? 
+                    "n" : pdglib->Find(gOptTgtPdgCode)->GetName();
+
+  dptr << neu_name << "_" << tgt_name;
+/*
   dptr << pdglib->Find(gOptNuPdgCode)->GetName() << "_" 
        << pdglib->Find(gOptTgtPdgCode)->GetName();
-
+*/
   ostringstream dtitle;
   dtitle << "Cross sections for: "
          << pdglib->Find(gOptNuPdgCode)->GetName() << "+" 
