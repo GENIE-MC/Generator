@@ -58,26 +58,22 @@ public:
 private:
   void  LoadConfig (void);
 
-  double ZR       (const Interaction * interaction) const;
-  double DR       (const Interaction * interaction, bool norm = false) const;
-  double MRes     (const Interaction * interaction) const;
-  double vR_minus (const Interaction * interaction) const;
-  double vR_plus  (const Interaction * interaction) const;
-  double SumF2    (const Interaction * interaction) const;
-  double ResDM    (const Interaction * interaction) const;
-  double xiBar    (const Interaction * interaction, double v) const;
+  double ZR    (const Interaction * interaction)  const;
+  double DR    (const Interaction * interaction)  const;
+  double MRes  (const Interaction * interaction)  const;
+  double ResDM (const Interaction * interaction)  const;
+  double xiBar (double Q2, double Mnuc, double v) const;
 
   const PDFModelI *       fPDFModel;
   const IntegratorI *     fIntegrator;
   const XSecIntegratorI * fXSecIntegrator;
 
   double fMo;
-  double fF2LambdaP;
-  double fF2SigmaP;
-  double fF2SigmaPP;
+  double fScLambdaP;
+  double fScSigmaP;
+  double fScSigmaPP;
   double fResDMLambda;
   double fResDMSigma;
-  double fSin8c2;
 };
 
 } // genie namespace
@@ -101,7 +97,7 @@ namespace genie {
 class KovQELCharmIntegrand : public GSFunc
 {
 public:
-  KovQELCharmIntegrand(PDF * pdf, double Q2, int nucleon_pdgc, bool norm);
+  KovQELCharmIntegrand(PDF * pdf, double Q2, int nucleon_pdgc);
   ~KovQELCharmIntegrand();
 
   double operator () (const vector<double> & x);
@@ -110,7 +106,6 @@ private:
   PDF *  fPDF;
   double fQ2;
   int    fPdgC;
-  bool   fNorm;
 };
 
 } // genie namespace

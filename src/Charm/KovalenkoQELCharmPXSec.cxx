@@ -11,6 +11,14 @@
 
  Important revisions after version 2.0.0 :
 
+ @ Sep 13, 2007 - CA
+   Debugged the model in order to be included in the default event generation
+   threads in the next physics release (2.0.2). Rather than using Kovalenko's
+   expression for the ZR scaling factor, I apply an ad-hoc scaling factor 
+   maintaining the relative strength of the QELC channels but lowering their 
+   sum to be consistent with recent NOMAD measurement. The default value of
+   M0 has been changed from 0.1 to sqrt(0.1) as in M.Bischofberger's (ETHZ)
+   PhD thesis (DISS.ETH NO 16034). For more details see GENIE-PUB/2007/006.
 */
 //____________________________________________________________________________
 
@@ -20,6 +28,7 @@
 #include "Base/XSecIntegratorI.h"
 #include "Charm/KovalenkoQELCharmPXSec.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
@@ -68,16 +77,20 @@ double KovalenkoQELCharmPXSec::XSec(
   double E2  = E * E;
   double Q2  = kinematics.Q2();
 
+  LOG("QELCharmXSec", pDEBUG) << "E = " << E << ", Q2 = " << Q2;
+
   //resonance mass & nucleon mass
   double MR    = this->MRes  (interaction);
   double MR2   = TMath::Power(MR,2);
   double Mnuc  = target.HitNucMass();
   double Mnuc2 = TMath::Power(Mnuc,2);
 
+  LOG("QELCharmXSec", pDEBUG) << "M(RES) = " << MR;
+
   //----- Calculate the differential cross section dxsec/dQ^2
   double Gf        = kGF2 / (2*kPi);
   double vR        = (MR2 - Mnuc2 + Q2) / (2*Mnuc);
-  double xiR       = this->xiBar(interaction, vR);
+  double xiR       = this->xiBar(Q2, Mnuc, vR);
   double vR2       = vR*vR;
   double vR_E      = vR/E;
   double Q2_4E2    = Q2/(4*E2);
@@ -85,13 +98,11 @@ double KovalenkoQELCharmPXSec::XSec(
   double Z         = this->ZR(interaction);
   double D         = this->DR(interaction);
 
-  LOG("QELCharmXSec", pDEBUG) << "Z = " << Z << ", D = " << D;
+  LOG("QELCharmXSec", pDEBUG) 
+     << "Z = " << Z << ", D = " << D << ". xiR = " << xiR << ", vR = " << vR;
 
   double xsec = Gf*Z*D * (1 - vR_E + Q2_4E2 + Q2_2MExiR) *
                                      TMath::Sqrt(vR2 + Q2) / (vR*xiR);
-
-  LOG("QELCharmXSec", pDEBUG) 
-    << "dxsec/dQ^2[QELCharm,FreeN] (E="<< E << ", Q2=" << Q2<< ") = "<< xsec;
 
   //----- The algorithm computes dxsec/dQ2
   //      Check whether variable tranformation is needed
@@ -108,27 +119,29 @@ double KovalenkoQELCharmPXSec::XSec(
   int NNucl = (pdg::IsProton(nuc)) ? target.Z() : target.N();
   xsec *= NNucl;
 
+  LOG("QELCharmXSec", pINFO) 
+     << "dsigma/dQ2(E=" << E << ", Q2=" << Q2 << ") = " 
+                             << xsec / (1E-40*units::cm2) << " x 1E-40 cm^2";
+
   return xsec;
 }
 //____________________________________________________________________________
 double KovalenkoQELCharmPXSec::ZR(const Interaction * interaction) const
 {
-  const InitialState & init_state  = interaction->InitState();
+  const XclsTag &      xcls       = interaction->ExclTag();
+  const InitialState & init_state = interaction->InitState();
 
-  double Mo2   = fMo*fMo;
-  double Mnuc  = init_state.Tgt().HitNucMass();
-  double Mnuc2 = TMath::Power(Mnuc,2);
-  double MR    = this->MRes(interaction);
-  double MR2   = TMath::Power(MR,2.);
-  double D0    = this->DR(interaction, true); // D^R(Q^2=0)
-  double sumF2 = this->SumF2(interaction);    // FA^2+F1^2
+  int pdgc = xcls.CharmHadronPdg();
+  bool isP = pdg::IsProton ( init_state.Tgt().HitNucPdg() );
+  bool isN = pdg::IsNeutron( init_state.Tgt().HitNucPdg() );
 
-  double Z  = 2*Mo2*fSin8c2 * sumF2 / (D0 * (MR2-Mnuc2));
-  return Z;
+  if      ( pdgc == kPdgLambdaPc && isN ) return fScLambdaP;
+  else if ( pdgc == kPdgSigmaPc  && isN ) return fScSigmaP;
+  else if ( pdgc == kPdgSigmaPPc && isP ) return fScSigmaPP;
+  else                                    abort();
 }
 //____________________________________________________________________________
-double KovalenkoQELCharmPXSec::DR(
-                             const Interaction * interaction, bool norm) const
+double KovalenkoQELCharmPXSec::DR(const Interaction * interaction) const
 {
   const InitialState & init_state = interaction -> InitState();
 
@@ -151,36 +164,26 @@ double KovalenkoQELCharmPXSec::DR(
   LOG("QELCharmXSec", pDEBUG)
             << "vR = [plus: " << vR_plus << ", minus: " << vR_minus << "]";
 
-  double xi_bar_minus = this->xiBar(interaction, vR_minus);
-  double xi_bar_plus  = this->xiBar(interaction, vR_plus);
+  double xi_bar_minus  = 0.999;
+  double xi_bar_plus  = this->xiBar(Q2, Mnuc, vR_plus);
 
   LOG("QELCharmXSec", pDEBUG) << "Integration limits = ["
                              << xi_bar_plus << ", " << xi_bar_minus << "]";
 
   int pdgc = init_state.Tgt().HitNucPdg();
 
-  KovQELCharmIntegrand * func = new KovQELCharmIntegrand(&pdfs,Q2,pdgc,norm);
-  func->SetParam(0,"xi_bar",xi_bar_minus, xi_bar_plus);
+  KovQELCharmIntegrand * func = new KovQELCharmIntegrand(&pdfs,Q2,pdgc);
+  func->SetParam(0,"xi_bar",xi_bar_plus, xi_bar_minus);
   double D = fIntegrator->Integrate(*func);
 
   delete func;
   return D;
 }
 //____________________________________________________________________________
-double KovalenkoQELCharmPXSec::xiBar(
-                              const Interaction * interaction, double v) const
+double KovalenkoQELCharmPXSec::xiBar(double Q2, double Mnuc, double v) const
 {
-  const InitialState & init_state = interaction -> InitState();
-  const Kinematics &   kinematics = interaction -> Kine();
-
-  double Q2     = kinematics.Q2();
-  double Mnuc   = init_state.Tgt().HitNucMass();
-  double Mo2    = fMo*fMo;
-  double v2     = v *v;
-
-  LOG("QELCharmXSec", pDEBUG)
-                     << "Q2 = " << Q2 << ", Mo = " << fMo << ", v = " << v;
-
+  double Mo2 = fMo*fMo;
+  double v2  = v *v;
   double xi  = (Q2/Mnuc) / (v + TMath::Sqrt(v2+Q2));
   double xib = xi * ( 1 + (1 + Mo2/(Q2+Mo2))*Mo2/Q2 );
   return xib;
@@ -217,55 +220,6 @@ double KovalenkoQELCharmPXSec::MRes(const Interaction * interaction) const
   return MR;
 }
 //____________________________________________________________________________
-double KovalenkoQELCharmPXSec::vR_minus(const Interaction * interaction) const
-{
-  const InitialState & init_state = interaction -> InitState();
-  const Kinematics & kinematics = interaction->Kine();
-
-  double Q2  = kinematics.Q2();
-  double dR  = this->ResDM(interaction);
-  double MR  = MRes(interaction);
-  double MN  = init_state.Tgt().HitNucP4Ptr()->M();
-  double MN2 = TMath::Power(MN,2);
-  double vR  = (TMath::Power(MR-dR,2) - MN2 + Q2) / (2*MN);
-  return vR;
-}
-//____________________________________________________________________________
-double KovalenkoQELCharmPXSec::vR_plus(const Interaction * interaction) const
-{
-  const InitialState & init_state = interaction -> InitState();
-  const Kinematics & kinematics = interaction->Kine();
-
-  double Q2  = kinematics.Q2();
-  double dR  = this->ResDM(interaction);
-  double MR  = MRes(interaction);
-  double MN  = init_state.Tgt().HitNucP4Ptr()->M();
-  double MN2 = TMath::Power(MN,2);
-  double vR  = (TMath::Power(MR+dR,2) - MN2 + Q2) / (2*MN);
-  return vR;
-}
-//____________________________________________________________________________
-double KovalenkoQELCharmPXSec::SumF2(const Interaction * interaction) const
-{
-// Returns F1^2 (Q^2=0) + FA^2 (Q^2 = 0) for the normalization factor.
-// Get the values from the algorithm conf. registry, and if they do not exist
-// set them to default values I computed using Sov.J.Nucl.Phys.52:934 (1990)
-
-  const XclsTag &      xcls       = interaction->ExclTag();
-  const InitialState & init_state = interaction->InitState();
-
-  int pdgc = xcls.CharmHadronPdg();
-  bool isP = pdg::IsProton ( init_state.Tgt().HitNucPdg() );
-  bool isN = pdg::IsNeutron( init_state.Tgt().HitNucPdg() );
-
-  if      ( pdgc == kPdgLambdaPc && isN ) return fF2LambdaP;
-  else if ( pdgc == kPdgSigmaPc  && isN ) return fF2SigmaP;
-  else if ( pdgc == kPdgSigmaPPc && isP ) return fF2SigmaPP;
-  else                                    abort();
-
-  return 0;
-}
-//____________________________________________________________________________
 double KovalenkoQELCharmPXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
@@ -275,11 +229,10 @@ double KovalenkoQELCharmPXSec::Integral(const Interaction * interaction) const
 bool KovalenkoQELCharmPXSec::ValidProcess(
                                         const Interaction * interaction) const
 {
-  //----- make sure we are dealing with one of the following channels:
-  //
-  //   v + n --> mu- + Lambda_{c}^{+} (2285)
-  //   v + n --> mu- + Sigma_{c}^{+} (2455)
-  //   v + p --> mu- + Sigma_{c}^{++} (2455)
+  // Make sure we are dealing with one of the following channels:
+  // v + n --> mu- + Lambda_{c}^{+} (2285)
+  // v + n --> mu- + Sigma_{c}^{+} (2455)
+  // v + p --> mu- + Sigma_{c}^{++} (2455)
 
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -299,9 +252,9 @@ bool KovalenkoQELCharmPXSec::ValidProcess(
   int pdgc = xcls.CharmHadronPdg();
 
   bool can_handle = (
-         (pdgc == kPdgLambdaPc && isN) || /* v + n -> l + #Lambda_{c}^{+} */
-         (pdgc == kPdgSigmaPc  && isN) || /* v + n -> l + #Sigma_{c}^{+}  */
-         (pdgc == kPdgSigmaPPc && isP)    /* v + p -> l + #Sigma_{c}^{++} */
+     (pdgc == kPdgLambdaPc && isN) || /* v + n -> l + #Lambda_{c}^{+} */
+     (pdgc == kPdgSigmaPc  && isN) || /* v + n -> l + #Sigma_{c}^{+}  */
+     (pdgc == kPdgSigmaPPc && isP)    /* v + p -> l + #Sigma_{c}^{++} */
   );
   return can_handle;
 }
@@ -344,25 +297,17 @@ void KovalenkoQELCharmPXSec::LoadConfig(void)
 {
   fPDFModel   = 0;
   fIntegrator = 0;
-
+  /*
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
-
+  */
   // Get config values or set defaults
-  fF2LambdaP   = fConfig->GetDoubleDef("F1^2+FA^2-LambdaP", 2.07);
-  fF2SigmaP    = fConfig->GetDoubleDef("F1^2+FA^2-SigmaP",  0.71);
-  fF2SigmaPP   = fConfig->GetDoubleDef("F1^2+FA^2-SigmaPP", 1.42);
-  fResDMLambda = fConfig->GetDoubleDef("Res-DeltaM-Lambda", 0.56); /*GeV*/
-  fResDMSigma  = fConfig->GetDoubleDef("Res-DeltaM-Sigma",  0.20); /*GeV*/
-
-  // 'proper scale of internal nucleon dynamics'.
-  // In the original paper Mo = 0.08 +/- 0.02 GeV.
-  fMo = fConfig->GetDoubleDef("Mo", 0.1);
-
-  // cabbibo angle
-  double thc = fConfig->GetDoubleDef(
-                       "CabbiboAngle", gc->GetDouble("CabbiboAngle"));
-  fSin8c2 = TMath::Power(TMath::Sin(thc), 2);
+  fScLambdaP   = fConfig->GetDoubleDef("Scale-LambdaP",     (0.8*0.0102));
+  fScSigmaP    = fConfig->GetDoubleDef("Scale-SigmaP",      (0.8*0.0028));
+  fScSigmaPP   = fConfig->GetDoubleDef("Scale-SigmaPP",     (0.8*0.0159));
+  fResDMLambda = fConfig->GetDoubleDef("Res-DeltaM-Lambda", 0.56);      //GeV
+  fResDMSigma  = fConfig->GetDoubleDef("Res-DeltaM-Sigma",  0.20);      //GeV
+  fMo          = fConfig->GetDoubleDef("Mo",                sqrt(0.1)); //GeV
 
   // get PDF model and integrator
 
@@ -382,13 +327,14 @@ void KovalenkoQELCharmPXSec::LoadConfig(void)
 // Auxiliary scalar function for internal integration
 //____________________________________________________________________________
 KovQELCharmIntegrand::KovQELCharmIntegrand(
-                          PDF * pdf, double Q2, int nucleon_pdgc, bool norm) :
+           PDF * pdf, double Q2, int nucleon_pdgc) :
 GSFunc(1)
 {
   fPDF  = pdf;
   fQ2   = Q2;
   fPdgC = nucleon_pdgc;
-  fNorm = norm;
+
+  fQ2 = TMath::Max(0.3, fQ2);
 }
 //____________________________________________________________________________
 KovQELCharmIntegrand::~KovQELCharmIntegrand()
@@ -402,12 +348,13 @@ double KovQELCharmIntegrand::operator() (const vector<double> & param)
   bool isP = pdg::IsProton(fPdgC);
 
   if(t<0 || t>1) return 0.;
-  else {
-       if(fNorm) fPDF->Calculate(t, 0.);
-       else      fPDF->Calculate(t, fQ2);
-  }
-  double f = (isP) ? ( fPDF->DownValence() + fPDF->DownSea() ):
-                     ( fPDF->UpValence()   + fPDF->UpSea()   );
+  fPDF->Calculate(t, fQ2);
+
+  double f = (isP) ? fPDF->DownValence() : fPDF->UpValence();
+
+  LOG("QELCharmXSec", pDEBUG) 
+        << "f(t = " << t << ", Q2 = " << fQ2 << ") = " << f; 
+
   return f;
 }
 //____________________________________________________________________________
