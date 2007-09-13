@@ -99,17 +99,6 @@ int gIEv=0;
 //consts
 const int kNPmax = 100;
 
-  int    brIev;   
-  double brW;  
-  int    brN = 0;  
-  int    brPdg[kNPmax];       
-  double brE  [kNPmax];  
-  double brPx [kNPmax]; 
-  double brPy [kNPmax]; 
-  double brPz [kNPmax];  
-
-  TTree * ghad;
-
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
@@ -920,18 +909,10 @@ void ConvertToT2KStdGenNtp(void)
     int ip=-1;
 
     //
-    // Extract info on the final state system originating from the
-    // hadronic vertex (includes intranuclear rescattering mc)
-    //
-    // Notes:
-    //  ** include f/s  p,n,\bar{p},\bar{n}
-    //  ** include f/s pi+, pi-
-    //  ** include **decayed** pi0 & ommit their decay products
-    //  ** include f/s K+, K-, K0, \bar{K0}
-    //  ** include gammas/e+/e- but not the ones coming from decaying pi0's (pi0's are counted)
-    //  ** include f/s D+, D-, D0, \bar{D0}, Ds+, Ds-, Sigma's, Omega's, Lambda's, Sigma_{c}'s,...
-    //  ** baryon resonances should have been decayed early on: include decay products
-    //  ** eta,eta',rho0,rho+,rho-,omega,phi should have been decayed early on: include decay products
+    // Extract info on the final state system originating from the hadronic vertex 
+    // (includes intranuclear rescattering mc)
+    // Please see comments at gMCSampleTest.cxx for a description of which particles
+    // are taken into account.
     //
 
     LOG("gntpc", pDEBUG) << "Extracting final state hadronic system";
@@ -961,21 +942,8 @@ void ConvertToT2KStdGenNtp(void)
 
     //
     // Extract info on the primary hadronic system (before any intranuclear rescattering)
-    // * For DIS: 
-    //   Low-W events hadronized by KNO:
-    //       Find the HadronicSyst special particle & get its daughters.
-    //   High-W events hadronized by JETSET: 
-    //       Find the HadronicSyst special particle & get its daughters. Find the JETSET
-    //       special particle ('cluster','string','indep') and take its own daughters.
-    //       Neglect particles decayed internally by JETSET
-    // * For RES:
-    //   Find the hit nucleon and lookup its 1st daughter (intermediate resonance).
-    //   Get the resonance decay products.
-    // * For QEL:
-    //   Get the 1st daughter of the hit nucleon
-    // * For other processes:
-    //   Skip...
-    //
+    // Please see comments at gMCSampleTest.cxx for a description of which particles
+    // are taken into account.
     // For free nucleon targets (no intranuclear rescattering) the primary hadronic system
     // is 'identical' with the final state hadronic system
     //
