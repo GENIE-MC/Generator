@@ -84,7 +84,8 @@ double KPhaseSpace::Threshold(void) const
        } else {
           int cpdg = xcls.CharmHadronPdg();
           double mchm = PDGLibrary::Instance()->Find(cpdg)->Mass();
-          Wmin = kNeutronMass + mchm + kASmallNum;
+          if(pi.IsQuasiElastic()) { Wmin = mchm + kASmallNum; }
+          else                    { Wmin = kNeutronMass + mchm + kASmallNum; }
        }
     }
     double smin = TMath::Power(Wmin+ml,2.);
@@ -320,8 +321,14 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
   double ml  = fInteraction->FSPrimLepton()->Mass();
 
+  const XclsTag & xcls = fInteraction->ExclTag();
+
   if(is_qel) {
     double W = fInteraction->RecoilNucleon()->Mass();
+    if(xcls.IsCharmEvent()) { 
+      int charm_pdgc = xcls.CharmHadronPdg();           
+      W = PDGLibrary::Instance()->Find(charm_pdgc)->Mass();
+    }
     Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);  
     return Q2l;
   }
