@@ -87,7 +87,7 @@
   <priority msgstream="MuELoss">             NOTICE </priority>
   <priority msgstream="MultProb">            INFO   </priority>
   <priority msgstream="NucleonP">            INFO   </priority>
-  <priority msgstream="Nuclear">             INFO   </priority>
+  <priority msgstream="Nuclear">             NOTICE </priority>
   <priority msgstream="Numerical">           INFO   </priority>
   <priority msgstream="NuEXSec">             INFO   </priority>
   <priority msgstream="Ntp">                 NOTICE </priority>
@@ -103,7 +103,7 @@
   <priority msgstream="PDG">                 INFO   </priority>
   <priority msgstream="PathL">               NOTICE </priority>
   <priority msgstream="QELXSec">             INFO   </priority>
-  <priority msgstream="QELCharmXSec">        INFO   </priority>
+  <priority msgstream="QELCharmXSec">        NOTICE  </priority>
   <priority msgstream="QELPXSec">            NOTICE </priority>
   <priority msgstream="QELHadronicVtx">      INFO   </priority>
   <priority msgstream="QELKinematics">       INFO   </priority>
