@@ -49,6 +49,10 @@ namespace nuclear
   double DISNuclFactor (double x, int A);
   double RModelMod     (double x, double Q2);
 
+  double Density           (double r, int A);
+  double DensityGaus       (double r, double ap, double alf);
+  double DensityWoodsSaxon (double r, double c, double z);
+
 } // nuclear namespace
 } // utils   namespace
 } // genie   namespace

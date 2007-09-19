@@ -11,6 +11,10 @@
 
  Important revisions after version 2.0.0 :
 
+ @ Sep 19, 2007 - CA
+   Copied here the nuclear density methods used by intranuke so that they
+   can be used by other modules as well (eg position vertex selection)
+
 */
 //____________________________________________________________________________
 
@@ -339,6 +343,91 @@ double genie::utils::nuclear::RModelMod(double x, double Q2)
       R *= ( 3.207*(Q2/(Q4+1.)) );
   }
   return R;
+}
+//___________________________________________________________________________
+double genie::utils::nuclear::Density(double r, int A)
+{
+// [by S.Dytman]
+//
+
+  if(A>20) {
+
+    double c = 1., z = 1.;
+
+    if      (A ==  27) { c = 3.07; z = 0.52; }  // aluminum
+    else if (A ==  28) { c = 3.07; z = 0.54; }  // silicon
+    else if (A ==  40) { c = 3.53; z = 0.54; }  // argon
+    else if (A ==  56) { c = 4.10; z = 0.56; }  // iron
+    else if (A == 208) { c = 6.62; z = 0.55; }  // lead
+    else { 
+       c = TMath::Power(A,0.35); z = 0.54; 
+    } //others
+
+    double rho = A * DensityWoodsSaxon(r,c,z);
+    return rho;
+  }
+  else if (A>4) {
+
+    double ap = 1., alf = 1.;
+
+    if      (A ==  7) { ap = 1.77; alf = 0.327; } // lithium
+    else if (A == 12) { ap = 1.69; alf = 1.08;  } // carbon
+    else if (A == 14) { ap = 1.76; alf = 1.23;  } // nitrogen
+    else if (A == 16) { ap = 1.83; alf = 1.54;  } // oxygen
+    else  { 
+      ap=1.75; alf=-0.4+.12*A; 
+    }  //others- alf=0.08 if A=4
+
+    double rho = A * DensityGaus(r,ap,alf);
+    return rho;
+  }
+  else {
+    // helium
+    double ap = 1.9/TMath::Sqrt(2.);  
+    double alf=0.;    
+    double rho = A * DensityGaus(r,ap,alf);
+    return rho;
+  }
+
+  return 0;
+}
+//___________________________________________________________________________
+double genie::utils::nuclear::DensityGaus(double r, double a, double alf)
+{
+// [adapted from neugen3 density_gaus.F written by S.Dytman]
+//
+// Modified harmonic osc density distribution. 
+// Norm gives normalization to 1
+//
+// input  : radial distance in nucleus [units: fm]
+// output : nuclear density            [units: fm^-3]
+
+  double norm = 1./((5.568 + alf*8.353)*TMath::Power(a,3.));  //0.0132;
+  double b    = TMath::Power(r/a,2.);
+  double dens = norm * (1. + alf*b) * TMath::Exp(-b);
+
+  LOG("Nuclear", pINFO) 
+        << "r = " << r << ", norm = " << norm << ", dens = " << dens;
+
+  return dens;
+}
+//___________________________________________________________________________
+double genie::utils::nuclear::DensityWoodsSaxon(double r, double c, double z)
+{
+// [adapted from neugen3 density_ws.F written by S.Dytman]
+//
+// Woods-Saxon desity distribution. Norn gives normalization to 1
+//
+// input  : radial distance in nucleus [units: fm]
+// output : nuclear density            [units: fm^-3]
+
+  double norm = (3./(4.*kPi*TMath::Power(c,3)))*1./(1.+TMath::Power((kPi*z/c),2));
+  double dens = norm / (1 + TMath::Exp((r-c)/z));
+
+  LOG("Nuclear", pINFO) 
+        << "r = " << r << ", norm = " << norm << ", dens = " << dens;
+
+  return dens;
 }
 //___________________________________________________________________________
 
