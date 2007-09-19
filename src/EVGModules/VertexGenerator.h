@@ -41,7 +41,8 @@ public :
 private:
   void  LoadConfig (void);
 
-  double fR0;
+  int    fVtxGenMethod; ///< vtx generation method (0: uniform, 1: according to nuclear density [def])
+  double fR0;           ///< parameter controlling nuclear sizes
 };
 
 }      // genie namespace
