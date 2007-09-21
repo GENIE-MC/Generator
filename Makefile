@@ -36,6 +36,7 @@ BUILD_TARGETS =    print-make-info \
 		   doxygen-doc \
 		   generator-test-exe \
 		   generator-std-exe \
+		   experiment-support-softw \
   		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
@@ -240,6 +241,17 @@ ifeq ($(strip $(GOPT_ENABLE_TEST)),YES)
 	@echo " "
 	@echo "** Building test applications..."
 	cd ${GENIE}/src/test;\
+	make all; \
+	cd ${GENIE}
+else
+endif
+
+experiment-support-softw: FORCE
+	@echo " "
+	@echo "** Building experiment-specific support software..."
+ifeq ($(strip $(GOPT_ENABLE_MINOS_EVENT_SERVER)),YES)
+	@echo "* Building MINOS GENIE event server"
+	cd ${GENIE}/src/support/minos/EventServer/;\
 	make all; \
 	cd ${GENIE}
 else
