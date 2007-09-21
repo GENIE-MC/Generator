@@ -36,7 +36,8 @@
 #include <TBits.h>
 #include <TMath.h>
 
-#include "Conventions/XmlParserStatus.h"
+//#include "Conventions/XmlParserStatus.h"
+#include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GEVGDriver.h"
 #include "EVGDrivers/GEVGPool.h"
@@ -46,6 +47,7 @@
 #include "GHEP/GHepRecord.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/Spline.h"
 #include "PDG/PDGCodeList.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
@@ -63,32 +65,37 @@ using namespace genie::utils;
 //
 void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
+void RunInitChecks      (void);
 void HandleMesg         (string mesg);
-void Ping               (void);
+void Handshake          (void);
 void Configure          (string mesg);
-void Generate           (string mesg);
+void CalcTotalXSec      (string mesg);
+void GenerateEvent      (string mesg);
 void Shutdown           (void);
 
 // ** Consts & Defaults
 //
-const int    kDefPortNum         = 9090;  // default port number
+const int    kDefPortNum           = 9090;  // default port number
 const string kHandshakeCmdRecv     = "RUB GENIE LAMP";
-const string kConfigCmdRecv        = "CONFIG";
-const string kEvgenCmdRecv         = "EVTVTX";
-const string kShutdownCmdRecv      = "SHUTDOWN";
 const string kHandshakeMesgSent    = "YOU HAVE 3 WISHES!";
-const string kConfigOkMesgSent     = "CONFIGURATION COMPLETED";
-const string kEvgenOkMesgSent      = "EVENT GENERATED";
-const string kEvgenHdrCmdSent      = "EVTREC";
-const string kEvgenStdhepCmdSent   = "STDHEP";
-const string kEvgenNoConfErrSent   = "NOT CONFIGURED!";
-const string kEvgenNoDriverErrSent = "NO AVAILABLE DRIVER FOR GIVEN INITIAL STATE!";
-const string kEvgenNoEventErrSent  = "EVENT GENERATION FAILED OR EVENT IS UNPHYSICAL";
-const string kEvgenErrSent         = "FAILED";
-const string kShutdownOkMesgSent   = "SHUTTING DOWN";
+const string kConfigCmdRecv        = "CONFIG";
+const string kConfigOkMesgSent     = "CONFIG COMPLETED";
 const string kConfigCmdLdSpl       = "load-splines";
 const string kConfigCmdNeuList     = "neutrino-list";
 const string kConfigCmdTgtList     = "target-list";
+const string kXSecCmdRecv          = "XSEC";
+const string kXSecCmdSent          = "XSECSPL";
+const string kXSecOkMesgSent       = "XSEC SENT";
+const string kEvgenCmdRecv         = "EVTVTX";
+const string kEvgenHdrCmdSent      = "EVTREC";
+const string kEvgenStdhepCmdSent   = "STDHEP";
+const string kEvgenOkMesgSent      = "EVENT GENERATED";
+const string kShutdownCmdRecv      = "SHUTDOWN";
+const string kShutdownOkMesgSent   = "SHUTTING DOWN";
+const string kErrNoConf            = "*** NOT CONFIGURED! ***";
+const string kErrNoDriver          = "*** NO EVENT GENERATION DRIVER! ***";
+const string kErrNoEvent           = "*** NULL OR UNPHYSICAL EVENT! ***";
+const string kErr                  = "FAILED";
 
 // ** User-specified options:
 //
@@ -106,6 +113,9 @@ int main(int argc, char ** argv)
 {
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
+
+  // Run some checks
+  RunInitChecks();
 
   // Open a server socket
   TServerSocket * serv_sock = new TServerSocket(gOptPortNum, kTRUE);
@@ -145,7 +155,7 @@ void HandleMesg(string mesg)
 {
   if(mesg.find(kHandshakeCmdRecv.c_str()) != string::npos) 
   { 
-    Ping();
+    Handshake();
   } 
   else
   if (mesg.find(kConfigCmdRecv.c_str()) != string::npos) 
@@ -153,9 +163,14 @@ void HandleMesg(string mesg)
     Configure(mesg);
   } 
   else
+  if (mesg.find(kXSecCmdRecv.c_str()) != string::npos) 
+  {
+    CalcTotalXSec(mesg);
+  }
+  else
   if (mesg.find(kEvgenCmdRecv.c_str()) != string::npos) 
   {
-    Generate(mesg);
+    GenerateEvent(mesg);
   } 
   else
   if (mesg.find(kShutdownCmdRecv.c_str()) != string::npos) 
@@ -164,14 +179,16 @@ void HandleMesg(string mesg)
   }
 }
 //____________________________________________________________________________
-void Ping(void)
+void Handshake(void)
 {
 // Reply to client messages checking whether the event server is active
 //
   LOG("gevserv_minos", pNOTICE) 
-       << "GENIE was pinged by a client (lamp was rubbed)!";
+         << "GENIE was pinged by a client (lamp was rubbed)! Responding...";
   
   gSock->Send(kHandshakeMesgSent.c_str());
+
+  LOG("gevserv_minos", pINFO) << "...done!";
 }
 //____________________________________________________________________________
 void Configure(string mesg)
@@ -293,17 +310,92 @@ void Configure(string mesg)
   gConfigured = true;
 
   gSock->Send(kConfigOkMesgSent.c_str());
+
+  LOG("gevserv_minos", pINFO) << "...done!";
 }
 //____________________________________________________________________________
-void Generate(string mesg)
+void CalcTotalXSec(string mesg)
+{
+  LOG("gevserv_minos", pNOTICE) 
+       << "Sending total xsec for enabled channels  - Input info : " << mesg;
+
+  if(!gConfigured) {
+      LOG("gevserv_minos", pERROR) 
+             << "Event server is not configured - Can not generate event";
+      gSock->Send(kErrNoConf.c_str());
+      gSock->Send(kErr.c_str());
+      return;
+  }
+
+  // Extract info from the input mesg
+
+  mesg = str::FilterString(kXSecCmdRecv, mesg); 
+  mesg = str::FilterString(":", mesg); 
+  mesg = str::TrimSpaces(mesg);             
+
+  vector<string> sv = str::Split(mesg," "); 
+  assert(sv.size()==2);
+
+  int ipdgnu  = atoi(sv[0].c_str());  // neutrino code
+  int ipdgtgt = atoi(sv[1].c_str());  // target code
+
+  // Find the appropriate event generation driver for the given initial state
+
+  InitialState init_state(ipdgtgt, ipdgnu);
+  GEVGDriver * evg_driver = gGPool.FindDriver(init_state);
+  if(!evg_driver) {
+     LOG("gevserv_minos", pERROR)
+       << "No GEVGDriver object for init state: " << init_state.AsString();
+     gSock->Send(kErrNoDriver.c_str());
+     gSock->Send(kErr.c_str());
+     return;
+  }
+
+  // Ask the event generation driver to sum up the splines for all enabled
+  // channels
+
+   LOG("gevserv_minos", pNOTICE)
+       << "Requesting total cross section for init state: " << init_state.AsString();
+
+  evg_driver->CreateXSecSumSpline (1000 /*nknots*/, 0.001 /*Emin*/, 300 /*Emax*/, true /*in-log*/);
+
+  const Spline * total_xsec_spl = evg_driver->XSecSumSpline();
+  assert(total_xsec_spl);
+
+  // Send back the cross section data (use 200 MeV bins from 0.010 -> 200.010 GeV)
+
+  double dE   =   0.200;
+  double Emin =   0.010;
+  double Emax = 200.010;
+  int    np   = (Emax - Emin) / dE;
+
+  ostringstream xsec_hdr;
+  xsec_hdr <<  kXSecCmdSent << ":" << np;
+  gSock->Send(xsec_hdr.str().c_str());
+
+  for(int ip=0; ip<np; ip++) {
+     double E  = Emin + ip*dE;
+     double xs = TMath::Max(0., total_xsec_spl->Evaluate(E) / (1E-38*units::cm2));
+     
+     ostringstream xsec_spl_knot;
+     xsec_spl_knot << ip << " " << E << " " << xs;
+     gSock->Send(xsec_spl_knot.str().c_str());
+  }
+
+  gSock->Send(kXSecOkMesgSent.c_str());
+
+  LOG("gevserv_minos", pINFO) << "...done!";
+}
+//____________________________________________________________________________
+void GenerateEvent(string mesg)
 {
   LOG("gevserv_minos", pNOTICE) << "Generating event - Input info : " << mesg;
 
   if(!gConfigured) {
       LOG("gevserv_minos", pERROR) 
              << "Event server is not configured - Can not generate event";
-      gSock->Send(kEvgenNoConfErrSent.c_str());
-      gSock->Send(kEvgenErrSent.c_str());
+      gSock->Send(kErrNoConf.c_str());
+      gSock->Send(kErr.c_str());
       return;
   }
 
@@ -315,6 +407,7 @@ void Generate(string mesg)
 
   vector<string> sv = str::Split(mesg," "); 
 
+  assert(sv.size()==11);
   int    irun        = atoi(sv[0].c_str());  // just pass through
   int    ievt        = atoi(sv[1].c_str());  // ...
   int    ipdgnunoosc = atoi(sv[2].c_str());  // ...
@@ -337,8 +430,8 @@ void Generate(string mesg)
   if(!evg_driver) {
      LOG("gevserv_minos", pERROR)
        << "No GEVGDriver object for init state: " << init_state.AsString();
-     gSock->Send(kEvgenNoDriverErrSent.c_str());
-     gSock->Send(kEvgenErrSent.c_str());
+     gSock->Send(kErrNoDriver.c_str());
+     gSock->Send(kErr.c_str());
      return;
   }
 
@@ -351,8 +444,8 @@ void Generate(string mesg)
   if(failed) {
       LOG("gevserv_minos", pWARN) 
               << "Failed to generate the requested event";
-      gSock->Send(kEvgenNoEventErrSent.c_str());
-      gSock->Send(kEvgenErrSent.c_str());
+      gSock->Send(kErrNoEvent.c_str());
+      gSock->Send(kErr.c_str());
       return;
   }
   LOG("gevserv_minos", pINFO) << "Generated event: " << *event;
@@ -461,15 +554,36 @@ void Generate(string mesg)
   delete event;
 
   gSock->Send(kEvgenOkMesgSent.c_str());
+
+  LOG("gevserv_minos", pINFO) << "...done!";
 }
 //____________________________________________________________________________
 void Shutdown(void)
 {
-  LOG("gevserv_minos", pNOTICE) << "Shutting GENIE event server down";
+  LOG("gevserv_minos", pNOTICE) << "Shutting GENIE event server down ...";
 
   gShutDown = true;
 
   gSock->Send(kShutdownOkMesgSent.c_str());
+
+  LOG("gevserv_minos", pINFO) << "...done!";
+}
+//____________________________________________________________________________
+void RunInitChecks(void)
+{
+  if(gSystem->Getenv("GSPLOAD")) {
+    string splines_filename = gSystem->Getenv("GSPLOAD");
+    bool is_accessible = ! (gSystem->AccessPathName( splines_filename.c_str() ));
+    if (!is_accessible) {
+       LOG("gevserv_minos", pWARN) 
+           << "*** The file (" << splines_filename 
+                     << ") specified in $GSPLOAD doesn't seem to be available!";
+       LOG("gevserv_minos", pWARN) << "*** Expect a significant start-up overhead!";
+    }     
+  } else {
+     LOG("gevserv_minos", pWARN) << "*** $GSPLOAD was not set!";
+     LOG("gevserv_minos", pWARN) << "*** Expect a significant start-up overhead!";
+  }
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
