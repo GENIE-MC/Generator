@@ -12,7 +12,7 @@
 
          Options :
            [] denotes an optional argument
-           -f specifies the output file format. Default is 0.
+           -f specifies the output file format. Default is 10.
 		0 : GENIE XML format event file
 		1 : NUANCE-style tracker text format 
 	        2 : NEUGEN-style test format for hadronization model studies
@@ -1144,7 +1144,8 @@ void ConvertToT2KStdGenNtp(void)
   LOG("gntpc", pINFO) << "\nDone converting GENIE's ER ntuple";
 }
 //___________________________________________________________________
-//     ** GENIE ER ROOT TREE -> INTRANUKE h+A SUMMARY NTUPLE **
+// ** GENIE ER ROOT TREE WITH INTRANUKE TEST-MODE HADRON+NUCLEUS
+//    EVENTS -> ghA SUMMARY NTUPLE **
 //___________________________________________________________________
 void ConvertToIntranukeNtp(void)
 {
@@ -1152,8 +1153,57 @@ void ConvertToIntranukeNtp(void)
   //
   TFile fout(gOptOutFileName.c_str(),"recreate");
 
+  //-- output tree branch variables
+  //
+  int    brProbe    = 0;      // Incident hadron code
+  int    brTarget   = 0;      // Nuclear target pdg code (10LZZZAAAI)
+  double brKE       = 0;      // Probe kinetic energy
+  double brE        = 0;      // Probe energy
+  double brP        = 0;      // Probe momentum
+  double brVtxX     = 0;      // "vertex x" (initial placement of h /in h+A events/ on the nuclear boundary)
+  double brVtxY     = 0;      // "vertex y"
+  double brVtxZ     = 0;      // "vertex z"
+  double brDist     = 0;      // Distance travelled by h before interacting (if at all before escaping)
+  int    brNh       = 0;      // Number of final state hadrons
+  int    brPdgh[kNPmax];      // Pdg code of i^th final state hadron
+  double brEh  [kNPmax];      // Energy   of i^th final state hadron
+  double brPxh [kNPmax];      // Px       of i^th final state hadron
+  double brPyh [kNPmax];      // Py       of i^th final state hadron
+  double brPzh [kNPmax];      // Pz       of i^th final state hadron
+  double brMh  [kNPmax];      // mass     of i^th final state hadron
+  int    brNp       = 0;      // Number of final state p
+  int    brNn       = 0;      // Number of final state n
+  int    brNpip     = 0;      // Number of final state pi+
+  int    brNpim     = 0;      // Number of final state pi-
+  int    brNpi0     = 0;      // Number of final state pi0
+
   //-- create output tree
   //
+  TTree * tEvtTree = new TTree("ghA","GENIE's INTRANUKE/hA summary tree");
+
+  //-- create tree branches
+  //
+  tEvtTree->Branch("probe",     &brProbe,        "probe/I"     );
+  tEvtTree->Branch("tgt" ,      &brTarget,       "tgt/I"       );
+  tEvtTree->Branch("ke",        &brKE,           "ke/D"        );
+  tEvtTree->Branch("e",         &brE,            "e/D"         );
+  tEvtTree->Branch("p",         &brP,            "p/D"         );
+  tEvtTree->Branch("vtxx",      &brVtxX,         "vtxx/D"      );
+  tEvtTree->Branch("vtxy",      &brVtxY,         "vtxy/D"      );
+  tEvtTree->Branch("vtxz",      &brVtxZ,         "vtxz/D"      );
+  tEvtTree->Branch("dist",      &brDist,         "dist/D"      );
+  tEvtTree->Branch("nh",        &brNh,           "nh/I"        );
+  tEvtTree->Branch("pdgh",      brPdgh,          "pdgh[nh]/I " );
+  tEvtTree->Branch("Eh",        brEh,            "Eh[nh]/D"    );
+  tEvtTree->Branch("pxh",       brPxh,           "pxh[nh]/D"   );
+  tEvtTree->Branch("pyh",       brPyh,           "pyh[nh]/D"   );
+  tEvtTree->Branch("pzh",       brPzh,           "pzh[nh]/D"   );
+  tEvtTree->Branch("mh",        brMh,            "mh[nh]/D"    );
+  tEvtTree->Branch("np",        &brNp,           "np/I"        );
+  tEvtTree->Branch("nn",        &brNn,           "nn/I"        );
+  tEvtTree->Branch("npip",      &brNpip,         "npip/I"      );
+  tEvtTree->Branch("npim",      &brNpim,         "npim/I"      );
+  tEvtTree->Branch("npi0",      &brNpi0,         "npi0/I"      );
 
   //-- open the ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
@@ -1181,14 +1231,87 @@ void ConvertToIntranukeNtp(void)
 
     LOG("gntpc", pINFO) << event;
 
+    // clean-up arrays
+    //
+    for(int j=0; j<kNPmax; j++) {
+       brPdgh[j] = 0;     
+       brEh  [j] = 0;     
+       brPxh [j] = 0;     
+       brPyh [j] = 0;     
+       brPzh [j] = 0;     
+       brMh  [j] = 0;     
+    }
+
     //
     // convert the current event
     //
+
+    GHepParticle * probe  = event.Particle(0);
+    GHepParticle * target = event.Particle(1);
+    assert(probe && target);
+
+    brProbe  = probe  -> Pdg();     
+    brTarget = target -> Pdg();     
+    brKE     = probe  -> KinE(); 
+    brE      = probe  -> E(); 
+    brP      = probe  -> P4()->Vect().Mag();
+    brVtxX   = probe  -> Vx(); 
+    brVtxY   = probe  -> Vy(); 
+    brVtxZ   = probe  -> Vz(); 
+
+    GHepParticle * rescattered_hadron  = event.Particle(probe->FirstDaughter());
+    assert(rescattered_hadron);
+    if(rescattered_hadron->Status() == kIStStableFinalState) {
+	brDist = -1; // hadron escaped nucleus before interacting;
+    }
+    else {
+        double x  = rescattered_hadron->Vx();
+        double y  = rescattered_hadron->Vy();
+        double z  = rescattered_hadron->Vz();
+        double d2 = TMath::Power(brVtxX-x,2) + 
+                    TMath::Power(brVtxY-y,2) + 
+                    TMath::Power(brVtxZ-z,2);
+	brDist = TMath::Sqrt(d2);
+    }
+
+    brNp       = 0;     
+    brNn       = 0;   
+    brNpip     = 0;   
+    brNpim     = 0;   
+    brNpi0     = 0;     
+
+    int i=0;    
+    GHepParticle * p = 0;
+    TIter event_iter(&event);
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+       if(p->IsFake()) continue;
+       if(p->Status() != kIStStableFinalState) continue;
+  
+       brPdgh[i] = p->Pdg(); 
+       brEh  [i] = p->E(); 
+       brPxh [i] = p->Px(); 
+       brPyh [i] = p->Py();    
+       brPzh [i] = p->Pz();    
+       brMh  [i] = p->Mass();    
+
+       if ( p->Pdg() == kPdgProton  ) brNp++;
+       if ( p->Pdg() == kPdgNeutron ) brNn++;
+       if ( p->Pdg() == kPdgPiP     ) brNpip++;
+       if ( p->Pdg() == kPdgPiM     ) brNpim++;
+       if ( p->Pdg() == kPdgPi0     ) brNpi0++;
+
+       i++;
+    }
+    brNh = i;
+
+    // fill the summary tree  
+    tEvtTree->Fill();
 
     mcrec->Clear();
   }
   fin.Close();
 
+  tEvtTree->Write("ghA");
   fout.Write();
   fout.Close();
 
@@ -1281,7 +1404,7 @@ void PrintSyntax(void)
     << "\n"
     << "  Options : \n"
     << "      [] denotes an optional argument \n"
-    << "      -f specifies the output text file format. Default is 3.  \n"
+    << "      -f specifies the output file format. Default is 10.  \n"
     << "          0 : GENIE XML format event file  \n"
     << "          1 : NUANCE-style tracker text format  \n"
     << "          2 : NEUGEN-style test format for hadronization model studies  \n"
