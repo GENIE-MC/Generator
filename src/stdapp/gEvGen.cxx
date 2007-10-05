@@ -262,8 +262,8 @@ void GenerateEventsUsingANeutrinoFlux(void)
            LOG("gevgen", pFATAL) << "Couldn't generate a flux histogram";
            exit(1);
         }
-        e = emin + de * r->RndEvg().Rndm();
-        gy = ymax * r->RndEvg().Rndm();
+        e = emin + de * r->RndGen().Rndm();
+        gy = ymax * r->RndGen().Rndm();
         ry = input_flux->Evaluate(e);
         accept = gy < ry;
         if(accept) spectrum->Fill(e);
@@ -303,7 +303,7 @@ void GenerateEventsUsingANeutrinoFlux(void)
   mcj_driver->Configure();
   mcj_driver->UseSplines();
 
-  //-- initialize an Ntuple Writer
+  //-- initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
   ntpw.Initialize();
 
@@ -373,7 +373,7 @@ void GenerateEventsAtFixedEnergies(void)
      // generate neutrino energy (if an energy range was defined)
      double Ev = 0;
      if(gOptNuEnergyRange>0) {
-       Ev = gOptMinNuEnergy + gOptNuEnergyRange * r->RndEvg().Rndm();
+       Ev = gOptMinNuEnergy + gOptNuEnergyRange * r->RndGen().Rndm();
      } else {
        Ev = gOptMinNuEnergy;
      }
