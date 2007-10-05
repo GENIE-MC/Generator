@@ -10,13 +10,16 @@
            ghAevgen [-n nev] -p hadron_pdg -t tgt_pdg [-r run#] -k KE
 
          Options :
-           [] denotes an optional argument
-           -n specifies the number of events to generate (default: 10000)
-           -p specifies the incoming hadron PDG code 
-           -t specifies the nuclear target PDG code (10LZZZAAAI)
-           -r specifies the MC run number (default: 0)
-           -k specifies the incoming hadron's kinetic energy (in GeV)
-
+           [] Denotes an optional argument
+           -n Specifies the number of events to generate (default: 10000)
+           -p Specifies the incoming hadron PDG code 
+           -t Specifies the nuclear target PDG code (10LZZZAAAI)
+           -r Specifies the MC run number (default: 0)
+           -k Specifies the incoming hadron's kinetic energy (in GeV).
+	      If a comma-separated set of numbers is supplied (eg 0.1,1.2)
+	      then the hadrons will be fired with an uniform kinetic energy
+	      distribution within that range.
+	      
          Example:
            ghAevgen -n 100000 -p 211 -t 1000260560 -k 0.165
            will generate 100k pi^{+} + Fe56 events at E(pi^{+})=165 MeV
@@ -50,8 +53,10 @@
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
 #include "Ntuple/NtpMCFormat.h"
+#include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
+#include "Utils/StringUtils.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
 
@@ -69,7 +74,8 @@ int           gOptNevents;          // n-events to generate
 int           gOptTgtPdgCode;       // target PDG code
 Long_t        gOptRunNu;            // run number
 int           gOptInpHadPdgCode;    // incoming hadron PDG code
-double        gOptInpHadKE;         // incoming hadron kinetic enegy (GeV)
+double        gOptInpHadKE;         // incoming hadron kinetic enegy (GeV) or min energy in specified range
+double        gOptInpHadDeltaKE;    // incoming hadron kinetic energy range (GeV)
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -77,6 +83,7 @@ int main(int argc, char ** argv)
   //-- parse command line arguments
   GetCommandLineArgs(argc,argv);
 
+  //-- get the intranuke module
   AlgFactory * algf = AlgFactory::Instance();
   const EventRecordVisitorI * intranuke = 
             dynamic_cast<const EventRecordVisitorI *> (
@@ -89,25 +96,34 @@ int main(int argc, char ** argv)
   //-- create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
 
+  //-- Get the random number generators
+  RandomGen * rnd = RandomGen::Instance();
+
   //-- get the pdg library
   PDGLibrary * pdglib = PDGLibrary::Instance();
 
-  //-- input 4-momenta & dummy vtx
+  //-- dummy vertex position
+  TLorentzVector x4null(0.,0.,0.,0.);
+
+  //-- incident hadron & target nucleon masses
   double mh  = pdglib->Find(gOptInpHadPdgCode)->Mass();
   double M   = pdglib->Find(gOptTgtPdgCode)->Mass();
-
-  double Eh  = mh + gOptInpHadKE;
-  double pzh = TMath::Sqrt(TMath::Max(0.,Eh*Eh-mh*mh));
-
-  TLorentzVector p4h   (0.,0.,pzh,Eh);
-  TLorentzVector p4tgt (0.,0.,0.,M);
-  TLorentzVector x4null(0.,0.,0.,0.);
 
   //-- generate events / print the GHEP record / add it to the event tree
   int ievent = 0;
   while (ievent < gOptNevents) {
       LOG("ghAevgen", pINFO) << " *** Generating event............ " << ievent;
       
+      //-- generate a kinetic energy & form the input 4-momenta
+      double ke = 0;
+      if(gOptInpHadDeltaKE<0) { ke = gOptInpHadKE; }
+      else                    { ke = gOptInpHadKE + rnd->RndGen().Rndm() * gOptInpHadDeltaKE; }
+
+      double Eh  = mh + ke;
+      double pzh = TMath::Sqrt(TMath::Max(0.,Eh*Eh-mh*mh));
+      TLorentzVector p4h   (0.,0.,pzh,Eh);
+      TLorentzVector p4tgt (0.,0.,0.,M);
+
       // insert initial state
       EventRecord * evrec = new EventRecord();
       Interaction * interaction = new Interaction;
@@ -194,7 +210,21 @@ void GetCommandLineArgs(int argc, char ** argv)
   try {
     LOG("ghAevgen", pINFO) << "Reading rescattering particle KE energy";
     string ke = genie::utils::clap::CmdLineArgAsString(argc,argv,'k');
-    gOptInpHadKE = atof(ke.c_str());
+
+    // is it just a value or a range (comma separated set of values)   
+    if(ke.find(",") != string::npos) {
+       // split the comma separated list
+       vector<string> kerange = utils::str::Split(ke, ",");
+       assert(kerange.size() == 2);
+       double kemin = atof(kerange[0].c_str());
+       double kemax = atof(kerange[1].c_str());
+       assert(kemax>kemin && kemin>0);
+       gOptInpHadKE      = kemin; 
+       gOptInpHadDeltaKE = kemax-kemin; 
+    } else {
+       gOptInpHadKE      = atof(ke.c_str());
+       gOptInpHadDeltaKE = -1;
+    }
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("ghAevgen", pFATAL) << "Unspecified KE - Exiting";
@@ -207,7 +237,14 @@ void GetCommandLineArgs(int argc, char ** argv)
   LOG("ghAevgen", pINFO) << "MC Run Number              = " << gOptRunNu;
   LOG("ghAevgen", pINFO) << "Incoming hadron PDG code   = " << gOptInpHadPdgCode;
   LOG("ghAevgen", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
-  LOG("ghAevgen", pINFO) << "Hadron input KE            = " << gOptInpHadKE;
+  if(gOptInpHadDeltaKE<0) {
+    LOG("ghAevgen", pINFO) 
+        << "Hadron input KE            = " << gOptInpHadKE;
+  } else {
+    LOG("ghAevgen", pINFO) 
+        << "Hadron input KE range      = [" 
+        << gOptInpHadKE << ", " << gOptInpHadKE+gOptInpHadDeltaKE << "]";
+  }
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
