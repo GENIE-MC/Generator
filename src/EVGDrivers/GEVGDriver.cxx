@@ -342,6 +342,23 @@ const InteractionList * GEVGDriver::Interactions(void) const
   return &ilst;
 }
 //___________________________________________________________________________
+const EventGeneratorI * GEVGDriver::FindGenerator(
+                                  const Interaction * interaction) const
+{
+  if(!interaction) {
+    LOG("GEVGDriver", pWARN) << "Null interaction!!";
+    return 0;
+  }
+  if(!fIntGenMap) {
+    LOG("GEVGDriver", pWARN)
+       << "Interaction->Generator Map has not being built yet!";
+    return 0;
+  }
+
+  const EventGeneratorI * evgen = fIntGenMap->FindGenerator(interaction);
+  return evgen;
+}
+//___________________________________________________________________________
 double GEVGDriver::XSecSum(const TLorentzVector & nup4)
 {
 // Computes the sum of the cross sections for all the interactions that can

@@ -42,6 +42,7 @@ namespace genie {
 
 class EventRecord;
 class EventGeneratorList;
+class EventGeneratorI;
 class InteractionSelectorI;
 class InteractionGeneratorMap;
 class InteractionList;
@@ -67,13 +68,16 @@ public :
   //-- Generate single event
   EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
-  //-- Get loaded event generator list
-  const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
-
   //-- Get the list of all interactions that can be simulated for the specified 
   //   initial state (depends on which event generation threads were loaded into
   //   the event generation driver driver)
   const InteractionList * Interactions(void) const;
+
+  //-- Get event generator thread list
+  const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
+
+  //-- Get the event generator that is responsible for generating the input event
+  const EventGeneratorI * FindGenerator(const Interaction * interaction) const;
 
   //-- Cross section splines for input interaction and for the sum of all
   //   simulated interactions for the specified initial state
