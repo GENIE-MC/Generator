@@ -226,6 +226,19 @@ string Interaction::AsString(void) const
   return interaction.str();
 }
 //___________________________________________________________________________
+bool Interaction::Compare(const Interaction & interaction) const
+{
+  const InitialState & init_state = *fInitialState;
+  const ProcessInfo  & proc_info  = *fProcInfo;
+  const XclsTag      & excl_tag   = *fExclusiveTag;
+
+  return (
+       init_state == interaction.InitState() &&
+       proc_info  == interaction.ProcInfo()  &&
+       excl_tag   == interaction.ExclTag() 
+  );
+}
+//___________________________________________________________________________
 void Interaction::Print(ostream & stream) const
 {
   const string line(110, '-');
@@ -244,6 +257,11 @@ void Interaction::Print(ostream & stream) const
   stream << line << endl;
 }
 //___________________________________________________________________________
+bool Interaction::operator == (const Interaction & i) const
+{
+  return this->Compare(i);
+}
+//___________________________________________________________________________ 
 Interaction & Interaction::operator = (const Interaction & interaction)
 {
   this->Copy(interaction);

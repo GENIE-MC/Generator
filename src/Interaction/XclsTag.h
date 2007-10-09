@@ -65,10 +65,12 @@ public:
 
   //-- Copy, reset, print itself and build string code
   void   Reset    (void);                          ///< reset object
-  void   Copy     (const XclsTag & final_state);   ///< copy input XclsTag object
+  void   Copy     (const XclsTag & xcls);          ///< copy input XclsTag object
+  bool   Compare  (const XclsTag & xcls) const;    ///< is it the same?
   string AsString (void) const;                    ///< pack into a string code
   void   Print    (ostream & stream) const;        ///< print
 
+  bool             operator == (const XclsTag & xcls) const;            ///< compare
   XclsTag &        operator =  (const XclsTag & xcls);                  ///< copy
   friend ostream & operator << (ostream& stream, const XclsTag & xcls); ///< print
 
