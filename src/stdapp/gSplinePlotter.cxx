@@ -738,6 +738,94 @@ void SaveGraphsToRootFile(void)
   gr_disncn_charm->SetTitle("GENIE cross section graph");
   topdir->Add(gr_disncn_charm);
 
+  // total cross sections
+  //
+  double * xstotcc  = new double[kNSplineP];
+  double * xstotccp = new double[kNSplineP];
+  double * xstotccn = new double[kNSplineP];
+  double * xstotnc  = new double[kNSplineP];
+  double * xstotncp = new double[kNSplineP];
+  double * xstotncn = new double[kNSplineP];
+  for(int i=0; i<kNSplineP; i++) {
+    xstotcc [i] = 0;
+    xstotccp[i] = 0;
+    xstotccn[i] = 0;
+    xstotnc [i] = 0;
+    xstotncp[i] = 0;
+    xstotncn[i] = 0;
+  }
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    const ProcessInfo &  proc = interaction->ProcInfo();
+    const InitialState & init = interaction->InitState();
+    const Target &       tgt  = init.Tgt();
+
+    const Spline * spl = evg_driver.XSecSpline(interaction);
+
+    bool iscc = proc.IsWeakCC();
+    bool isnc = proc.IsWeakNC();
+    bool offp = pdg::IsProton (tgt.HitNucPdg());
+    bool offn = pdg::IsNeutron(tgt.HitNucPdg());
+
+    if (iscc && offp) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xstotccp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (iscc && offn) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xstotccn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (isnc && offp) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xstotncp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (isnc && offn) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xstotncn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+
+    if (iscc) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xstotcc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+    if (isnc) {
+      for(int i=0; i<kNSplineP; i++) { 
+          xstotnc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+      }
+    }
+  }
+
+  TGraph * gr_totcc = new TGraph(kNSplineP, e, xstotcc);
+  gr_totcc->SetName("tot_cc");
+  gr_totcc->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_totcc);
+  TGraph * gr_totccp = new TGraph(kNSplineP, e, xstotccp);
+  gr_totccp->SetName("tot_cc_p");
+  gr_totccp->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_totccp);
+  TGraph * gr_totccn = new TGraph(kNSplineP, e, xstotccn);
+  gr_totccn->SetName("tot_cc_n");
+  gr_totccn->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_totccn);
+  TGraph * gr_totnc = new TGraph(kNSplineP, e, xstotnc);
+  gr_totnc->SetName("tot_nc");
+  gr_totnc->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_totnc);
+  TGraph * gr_totncp = new TGraph(kNSplineP, e, xstotncp);
+  gr_totncp->SetName("tot_nc_p");
+  gr_totncp->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_totncp);
+  TGraph * gr_totncn = new TGraph(kNSplineP, e, xstotncn);
+  gr_totncn->SetName("tot_nc_n");
+  gr_totncn->SetTitle("GENIE cross section graph");
+  topdir->Add(gr_totncn);
+
+
   delete [] e;
   delete [] xs;
   delete [] xsresccp;
@@ -748,6 +836,12 @@ void SaveGraphsToRootFile(void)
   delete [] xsdisccn;
   delete [] xsdisncp;
   delete [] xsdisncn; 
+  delete [] xstotcc;
+  delete [] xstotccp;
+  delete [] xstotccn;
+  delete [] xstotnc;
+  delete [] xstotncp;
+  delete [] xstotncn; 
 
   topdir->Write();
 
