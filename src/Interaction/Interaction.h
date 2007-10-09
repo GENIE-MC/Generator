@@ -81,10 +81,12 @@ public:
   //-- Copy, reset, print itself and build string code
   void   Reset    (void);
   void   Copy     (const Interaction & i);
+  bool   Compare  (const Interaction & i) const;
   string AsString (void) const;
   void   Print    (ostream & stream) const;
 
   //-- Overloaded operators
+  bool             operator == (const Interaction & i) const;             ///< compare
   Interaction &    operator =  (const Interaction & i);                   ///< copy
   friend ostream & operator << (ostream & stream, const Interaction & i); ///< print
 

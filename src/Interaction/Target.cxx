@@ -319,6 +319,10 @@ bool Target::ForceHitNucValidity(void)
 {
 // resets the struck nucleon pdg-code if it is found not to be a valid one
 
+  bool valid = pdg::IsProton(fHitNucPDG) || pdg::IsNeutron(fHitNucPDG) || fHitNucPDG==0;
+  return valid;
+
+/*
   bool valid = pdg::IsProton(fHitNucPDG) || pdg::IsNeutron(fHitNucPDG);
 
   if(!valid) {
@@ -326,6 +330,7 @@ bool Target::ForceHitNucValidity(void)
     fHitNucPDG = 0;
   }
   return valid;
+*/
 }
 //___________________________________________________________________________
 void Target::ForceNucleusValidity(void)
@@ -343,10 +348,12 @@ void Target::AutoSetHitNuc(void)
 {
 // for free nucleon targets -> (auto)set struck nucleon = target
 
+/*
   if( this->IsFreeNucleon() ) {
     if( this->IsProton() ) this->SetHitNucPdg(kPdgProton);
     else                   this->SetHitNucPdg(kPdgNeutron);
   }
+*/
 }
 //___________________________________________________________________________
 string Target::AsString(void) const

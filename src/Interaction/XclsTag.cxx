@@ -129,6 +129,20 @@ void XclsTag::Copy(const XclsTag & xcls)
   fResonance        = xcls.fResonance;
 }
 //___________________________________________________________________________
+bool XclsTag::Compare(const XclsTag & xcls) const
+{
+  return (
+     fIsCharmEvent     == xcls.fIsCharmEvent      &&
+     fCharmedHadronPdg == xcls.fCharmedHadronPdg  &&
+     fNProtons         == xcls.fNProtons          &&
+     fNNeutrons        == xcls.fNNeutrons         &&
+     fNPi0             == xcls.fNPi0              &&
+     fNPiPlus          == xcls.fNPiPlus           &&
+     fNPiMinus         == xcls.fNPiMinus          &&
+     fResonance        == xcls.fResonance
+  );
+}
+//___________________________________________________________________________
 string XclsTag::AsString(void) const
 {
 // codifies XclsTag state into a compact string
@@ -198,6 +212,11 @@ void XclsTag::Print(ostream & stream) const
      stream << "[not set]";
   }
   stream << endl;
+}
+//___________________________________________________________________________
+bool XclsTag::operator == (const XclsTag & xcls) const
+{
+  return this->Compare(xcls);
 }
 //___________________________________________________________________________
 XclsTag & XclsTag::operator = (const XclsTag & xcls)
