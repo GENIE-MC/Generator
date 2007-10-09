@@ -6,7 +6,6 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::MCModel;
-#pragma link C++ class genie::WeightCalculator;
+#pragma link C++ class genie::ReWeightCrossSection;
 
 #endif
