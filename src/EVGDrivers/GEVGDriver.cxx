@@ -166,8 +166,10 @@ void GEVGDriver::Configure(int nu_pdgc, int Z, int A)
   this->Configure(init_state);
 }
 //___________________________________________________________________________
-void GEVGDriver::Configure(const InitialState & init_state)
+void GEVGDriver::Configure(const InitialState & is)
 {
+  InitialState init_state(is.TgtPdg(), is.ProbePdg()); // filter any other init state info
+
   string mesgh = "Configuring a GEVGDriver object for init-state = ";
   LOG("GEVGDriver", pNOTICE) 
     << utils::print::PrintFramedMesg(mesgh + init_state.AsString(), 0, '*');
