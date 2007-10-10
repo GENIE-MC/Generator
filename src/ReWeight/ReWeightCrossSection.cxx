@@ -44,10 +44,19 @@ void ReWeightCrossSection::Initialize(void)
   this->DiffCrossSecType( kScCoherent,      kPSxyfE  );
 }
 //___________________________________________________________________________
-void ReWeightCrossSection::HandleInitState(const InitialState & init_state)
+void ReWeightCrossSection::HandleInitState(const InitialState & is)
 {
+  // form initial state filtering out any unwanted info
+  InitialState init_state(is.TgtPdg(), is.ProbePdg()); 
+
+  // check for an event generation configured for that initial state
   GEVGDriver * evg_driver = fGPool.FindDriver(init_state);
+
+  // if none was found  then create/configure/store one now
   if(!evg_driver) {
+    LOG("ReWeight", pNOTICE) 
+        << "Adding event generation driver for initial state = " 
+        << init_state.AsString();
     evg_driver = new GEVGDriver;
     evg_driver->Configure(init_state);
     fGPool.insert( GEVGPool::value_type(init_state.AsString(), evg_driver) );
@@ -70,34 +79,34 @@ void ReWeightCrossSection::DiffCrossSecType(
 double ReWeightCrossSection::NewWeight(const EventRecord & event)
 {
   // Get event summary (Interaction) from the input event
+  assert(event.Summary());
   Interaction & interaction = * event.Summary();
-/*
-  if(!interaction) {
-      LOG("ReWeight", pWARN) << "Null interaction!!";
-      return 0;
-  }
-*/
-
-  // Reweight?
-  InteractionList::const_iterator iiter = fNoRewProc.begin();
-  for( ; iiter != fNoRewProc.end(); ++iiter) {
-	const Interaction & norewint = **iiter;
-	if(interaction == norewint) {
-            LOG("ReWeight", pDEBUG) << "Skipping reweighting: " << interaction;
-            return 1;  
-        }
-  }
+//  Interaction interaction(*event.Summary());
 
   LOG("ReWeight", pDEBUG) << "Computing new weight for: \n" << interaction;
+
+  // Reweight that process? (user can exclude specific processes)
+  InteractionList::const_iterator iiter = fNoRewProc.begin();
+  for( ; iiter != fNoRewProc.end(); ++iiter) {
+    const Interaction & norewint = **iiter;
+    if(interaction == norewint) {
+       LOG("ReWeight", pDEBUG) 
+        << "Skipping reweighting was requested for the current interaction";
+       return 1.;  
+    }
+  }
 
   // Find the event generation driver that handles the given initial state
   const InitialState & init_state = interaction.InitState();
   GEVGDriver * evg_driver = fGPool.FindDriver(init_state);
   if(!evg_driver) {
-    LOG("ReWeight", pERROR)
-       << "No event generator driver for init state: " << init_state.AsString();
-    return 0;
+    LOG("ReWeight", pINFO)
+      << "Adding generator driver for init state: " << init_state.AsString();
+    evg_driver = new GEVGDriver;
+    evg_driver->Configure(init_state);
+    fGPool.insert( GEVGPool::value_type(init_state.AsString(), evg_driver) );
   }
+  assert(evg_driver);
 
   // Find the event generation thread that handles the given interaction
   const EventGeneratorI * evg_thread = evg_driver->FindGenerator(&interaction);
@@ -128,19 +137,22 @@ double ReWeightCrossSection::NewWeight(const EventRecord & event)
   // Copy the 'selected' kinematics into the 'running' kinematics
   interaction.KinePtr()->UseSelectedKinematics();
 
-  // tweak
-  interaction.SetBit(kIAssumeFreeNucleon);
+  // hack to match what was stored during event generation
+  // -- is currently revisited -- 
+  if(interaction.ProcInfo().IsQuasiElastic()) 
+		interaction.SetBit(kIAssumeFreeNucleon);
 
   double old_xsec   = event.DiffXSec();
   double old_weight = event.Weight();
   double new_xsec   = xsec_model->XSec(&interaction,kps);
   double new_weight = old_weight * (new_xsec/old_xsec);
 
+  // hack - closing parenthesis
+  if(interaction.ProcInfo().IsQuasiElastic()) 
+  		interaction.ResetBit(kIAssumeFreeNucleon);
+
   // Clear the 'running' kinematics buffer
   interaction.KinePtr()->ClearRunningValues();
-
-  // un-tweak
-  interaction.ResetBit(kIAssumeFreeNucleon);
 
   LOG("ReWeight", pINFO)
      << "Event d{xsec}/dK : " << old_xsec   << " --> " << new_xsec;
