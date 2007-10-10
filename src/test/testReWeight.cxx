@@ -6,9 +6,9 @@
 \brief   A simple test program to illustrate how to use the GENIE event
          reweighting package
 
-         To run: testReWeight -f filename
-         where the filename points to a ROOT file containing a GENIE output
-         TTree (ER)
+\syntax
+         testReWeight -f filename
+         where the filename points to a ROOT file with a GENIE event tree
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -51,8 +51,7 @@ int main(int argc, char ** argv)
   //-- create a weight calculator
   ReWeightCrossSection wcalc;
 
-  //-- open the file and get the TTree & its header / set branch addr.
-
+  //-- open the file and get the TTree & its header
   TFile file(gOptInpFile.c_str(),"READ");
   TTree *           tree = dynamic_cast <TTree *>           ( file.Get("gtree")  );
   NtpMCTreeHeader * thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
@@ -62,6 +61,7 @@ int main(int argc, char ** argv)
   NtpMCFormat_t format = thdr->format;
   assert(format == kNFEventRecord); // only ER trees in this test
 
+  //-- set the branch address
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
 
@@ -77,15 +77,18 @@ int main(int argc, char ** argv)
     LOG("test", pINFO) << rec_header;
     LOG("test", pINFO) << event;
 
-    wcalc.HandleInitState( event.Summary()->InitState() );
-
     // reweight the event
     double wght = wcalc.NewWeight(event);
 
     LOG("test", pINFO)  
         << "Re-weighting: old wght. = " << event.Weight() 
         << ", new wght. = " << wght;
+
+    mcrec->Clear();
   }
+
+  file.Close();
+
   LOG("test", pINFO)  << "Done!";
   return 0;
 }
