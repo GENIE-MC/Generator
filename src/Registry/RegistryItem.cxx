@@ -11,6 +11,10 @@
 
  Important revisions after version 2.0.0 :
 
+ @ Oct 11, 2007 - CA
+ Added 'bool IsLocal()' & 'SetLocal(bool)' implementations now required from
+ the RegistryItemI interface. Indicate 'local' or 'global' status in Print()
+
 */
 //____________________________________________________________________________
 
@@ -49,16 +53,19 @@ template <typename T>
    return stream;
 }
 //____________________________________________________________________________
-template<typename T> RegistryItem<T>::RegistryItem(T item, bool locked)
+template<typename T> 
+             RegistryItem<T>::RegistryItem(T item, bool locked, bool local)
 {
   fItem     = item;
   fIsLocked = locked;
+  fIsLocal  = local;
 }
 //____________________________________________________________________________
 template<typename T> RegistryItem<T>::RegistryItem(const RegistryItem * ri)
 {
   fItem     = ri->fItem;
   fIsLocked = ri->fIsLocked;
+  fIsLocal  = ri->fIsLocal;
 }
 //____________________________________________________________________________
 template<typename T> RegistryItem<T>::~RegistryItem()
@@ -129,13 +136,20 @@ template<> RgType_t RegistryItem<RgTree>::TypeInfo(void) const
 //____________________________________________________________________________
 template<typename T> void RegistryItem<T>::Print(ostream & stream) const
 {
-  if(fIsLocked) stream << "[  locked] : " << fItem;
-  else          stream << "[unlocked] : " << fItem;
+  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") 
+         << " "
+         << ((fIsLocal)  ? "[l]" : "[g]") 
+         << " : " 
+         << (fItem);
 }
 //____________________________________________________________________________
 template<> void RegistryItem<RgAlg>::Print(ostream & stream) const
 {
-  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") << " : " << (fItem);
+  stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") 
+         << " "
+         << ((fIsLocal)  ? "[l]" : "[g]") 
+         << " : " 
+         << (fItem);
 }
 //____________________________________________________________________________
 template<> void RegistryItem<RgH1F>::Print(ostream & stream) const
@@ -144,7 +158,10 @@ template<> void RegistryItem<RgH1F>::Print(ostream & stream) const
   if(!histo) stream << "*** NULL RgH1F ***";
 
   stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") 
-         << " : " << fItem->GetName();
+         << " "
+         << ((fIsLocal)  ? "[l]" : "[g]") 
+         << " : " 
+         << fItem->GetName();
 }
 //____________________________________________________________________________
 template<> void RegistryItem<RgH2F>::Print(ostream & stream) const
@@ -153,7 +170,10 @@ template<> void RegistryItem<RgH2F>::Print(ostream & stream) const
   if(!histo) stream << "*** NULL RgH2F ***";
 
   stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") 
-          << " : " << fItem->GetName();
+         << " "
+         << ((fIsLocal)  ? "[l]" : "[g]") 
+         << " : " 
+         << fItem->GetName();
 }
 //____________________________________________________________________________
 template<> void RegistryItem<RgTree>::Print(ostream & stream) const
@@ -162,7 +182,10 @@ template<> void RegistryItem<RgTree>::Print(ostream & stream) const
   if(!tree) stream << "*** NULL RgTree ***";
 
   stream << ((fIsLocked) ? "[  locked]" : "[unlocked]") 
-         << " : " << fItem->GetName();
+         << " "
+         << ((fIsLocal)  ? "[l]" : "[g]") 
+         << " : " 
+         << fItem->GetName();
 }
 //____________________________________________________________________________
 

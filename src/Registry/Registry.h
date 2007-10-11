@@ -85,15 +85,18 @@ public:
 
   // Registry & registry item locks
   //
-  void   Lock               (void);            ///< locks the registry
-  void   UnLock             (void);            ///< unlocks the registry (doesn't unlock items)
-  bool   IsLocked           (void) const;      ///< checks registry lock
-  void   InhibitItemLocks   (void);            ///< override individual item locks
-  void   RestoreItemLocks   (void);            ///< restore individual item locks
-  bool   ItemLocksAreActive (void) const;      ///< check if item locks are active
-  void   LockItem           (RgKey key);       ///< locks the registry item
-  void   UnLockItem         (RgKey key);       ///< unlocks the registry item
-  bool   ItemIsLocked       (RgKey key) const; ///< check item lock
+  void   Lock                (void);            ///< locks the registry
+  void   UnLock              (void);            ///< unlocks the registry (doesn't unlock items)
+  bool   IsLocked            (void) const;      ///< checks registry lock
+  void   InhibitItemLocks    (void);            ///< override individual item locks
+  void   RestoreItemLocks    (void);            ///< restore individual item locks
+  bool   ItemLocksAreActive  (void) const;      ///< check if item locks are active
+  void   LockItem            (RgKey key);       ///< locks the registry item
+  void   UnLockItem          (RgKey key);       ///< unlocks the registry item
+  bool   ItemIsLocked        (RgKey key) const; ///< check item lock
+  bool   ItemIsLocal         (RgKey key) const; ///< local or global?
+  void   OverrideGlobalDef   (RgKey key);       ///< let item override global default   (i.e. a 'local'  item)
+  void   LinkToGlobalDef     (RgKey key);       ///< link its value to a global default (i.e. a 'global' item)
 
   // Methods to set/retrieve Registry values
   //
