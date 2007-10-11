@@ -36,7 +36,8 @@ TGT =	gtestAlgorithms 	\
 	gtestRegistry		\
 	gtestInteraction	\
 	gtestResonances		\
-	gtestReWeight		\
+	gtestReWeightP2P	\
+	gtestReWeightLoop	\
 	gtestKPhaseSpace	\
 	gtestReadGNtuple		
 
@@ -130,9 +131,13 @@ gtestResonances: FORCE
 	$(CXX) $(CXXFLAGS) -c testResonances.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testResonances.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestResonances
 
-gtestReWeight: FORCE
-	$(CXX) $(CXXFLAGS) -c testReWeight.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testReWeight.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestReWeight
+gtestReWeightP2P: FORCE
+	$(CXX) $(CXXFLAGS) -c testReWeightP2P.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testReWeightP2P.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestReWeightP2P
+
+gtestReWeightLoop: FORCE
+	$(CXX) $(CXXFLAGS) -c testReWeightLoop.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testReWeightLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestReWeightLoop
 
 gtestKPhaseSpace: FORCE
 	$(CXX) $(CXXFLAGS) -c testKPhaseSpace.cxx $(INCLUDES)
@@ -174,7 +179,8 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
-	$(RM) $(GENIE_BIN_PATH)/gtestReWeight		
+	$(RM) $(GENIE_BIN_PATH)/gtestReWeightP2P	
+	$(RM) $(GENIE_BIN_PATH)/gtestReWeightLoop		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
 	$(RM) $(GENIE_BIN_PATH)/gtestReadGNtuple		
 
@@ -196,7 +202,8 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeight		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeightP2P		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeightLoop		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReadGNtuple		
 
@@ -257,8 +264,11 @@ clean--gtestInteraction: FORCE
 clean--gtestResonances: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestInteraction
 
-clean--gtestReWeight: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestReWeight
+clean--gtestReWeightP2P: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestReWeightP2P
+
+clean--gtestReWeightLoop: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestReWeightLoop
 
 clean--gtestKPhaseSpace: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestKPhaseSpace

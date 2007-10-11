@@ -1,19 +1,27 @@
 //____________________________________________________________________________
 /*!
 
-\program testReWeight
+\program gtestReWeightLoop
 
 \brief   A simple test program to illustrate how to use the GENIE event
-         reweighting package
+         reweighting package.
+         The program will re-weight events generated/stored at some point
+         during the generator evolution to take into account the effect of 
+         the uncertainty at a set of physics parameters.
+         So reweighting happens for a given set of physics model but between
+         a range of input physics parameters. 
+	 Most continuous (user-space) physics parameters listed in 
+         $GENIE/config/UserPhysicsOptions.xml can be included in the
+         parameter loop.
+         Only cross section model reweighting is included.
 
-\syntax
-         testReWeight -f filename
+\syntax  gtestReWeightLoop -f filename
          where the filename points to a ROOT file with a GENIE event tree
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
-\created October 25, 2005
+\created October 11, 2007
 
 \cpright Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
@@ -26,6 +34,8 @@
 #include <TFile.h>
 
 #include "Algorithm/AlgId.h"
+#include "Algorithm/AlgConfigPool.h"
+#include "Algorithm/AlgFactory.h"
 #include "EVGCore/EventRecord.h"
 #include "Ntuple/NtpMCFormat.h"
 #include "Ntuple/NtpMCTreeHeader.h"
@@ -53,8 +63,9 @@ int main(int argc, char ** argv)
 
   //-- open the file and get the TTree & its header
   TFile file(gOptInpFile.c_str(),"READ");
-  TTree *           tree = dynamic_cast <TTree *>           ( file.Get("gtree")  );
-  NtpMCTreeHeader * thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
+  TTree * tree = dynamic_cast <TTree *> ( file.Get("gtree")  );
+  NtpMCTreeHeader * thdr = 
+       dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
 
   LOG("test", pINFO) << "Input tree header: " << *thdr;
 
@@ -65,27 +76,51 @@ int main(int argc, char ** argv)
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
 
-  //-- loop over the event tree (GHEP records) and reweight events
+  //-- access the algorithm factory and the configuration pool
+  AlgFactory *    algf = AlgFactory::Instance();
+  AlgConfigPool * algc = AlgConfigPool::Instance();
 
-  for(int i = 0; i< tree->GetEntries(); i++) 
+  //-- get the physics parameters that GENIE developers find meaningfull
+  //   for a user to tweak
+  Registry * user_conf = algc->GlobalParameterList();
+  user_conf->UnLock();
+
+  //-- loop over physics configuration parameters, tweak their value
+  //   and reconfigure the entire system of instantiated GENIE algorithms
+  //   (a simple case here - few values of a single parameter)
+  //   
+  const int npv = 3;
+  double MaQEL[npv] = { 1.032, 1.111, 1.211 };
+
+  for(int j = 0; j < npv; j++) 
   {
-    tree->GetEntry(i);
+    user_conf->Set("QEL-Ma", MaQEL[j]);
+    algf->ForceReconfiguration();
 
-    NtpMCRecHeader rec_header = mcrec->hdr;
-    EventRecord &  event      = *(mcrec->event);
+    LOG("test", pINFO) << "User options / current " << *user_conf;
 
-    LOG("test", pINFO) << rec_header;
-    LOG("test", pINFO) << event;
+    //-- loop over the event tree (GHEP records) and reweight events
+    for(int i = 0; i< tree->GetEntries(); i++) 
+    {
+      tree->GetEntry(i);
 
-    // reweight the event
-    double wght = wcalc.NewWeight(event);
+      NtpMCRecHeader rec_header = mcrec->hdr;
+      EventRecord &  event      = *(mcrec->event);
 
-    LOG("test", pINFO)  
+      LOG("test", pINFO) << rec_header;
+      LOG("test", pINFO) << event;
+
+      // reweight the event
+      double wght = wcalc.NewWeight(event);
+
+      LOG("test", pINFO)  
         << "Re-weighting: old wght. = " << event.Weight() 
         << ", new wght. = " << wght;
 
-    mcrec->Clear();
-  }
+      mcrec->Clear();
+
+    } // event loop
+  } // physics parameter loop
 
   file.Close();
 
