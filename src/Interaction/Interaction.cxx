@@ -11,6 +11,8 @@
 
  Important revisions after version 2.0.0 :
 
+ @ Sep 19, 2007 - CA
+   Added == operator and Compare() method
 */
 //____________________________________________________________________________
 

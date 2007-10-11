@@ -11,6 +11,9 @@
 
  Important revisions after version 2.0.0 :
 
+@ Oct 09, 2007 - CA
+   Hit nucleon not auto-set for hit nucleon targets
+
 */
 //____________________________________________________________________________
 
@@ -132,7 +135,7 @@ void Target::SetId(int pdgc)
   }
 
   this->ForceNucleusValidity(); // search at the isotopes chart
-  this->AutoSetHitNuc();        // struck nuc := tgt for free nucleon tgt
+  //this->AutoSetHitNuc();      // struck nuc := tgt for free nucleon tgt
 }
 //___________________________________________________________________________
 void Target::SetId(int Z, int A)
@@ -142,7 +145,7 @@ void Target::SetId(int Z, int A)
   fA = A;
 
   this->ForceNucleusValidity(); // search at the isotopes chart
-  this->AutoSetHitNuc();        // struck nuc := tgt for free nucleon tgt
+  //this->AutoSetHitNuc();      // struck nuc := tgt for free nucleon tgt
 }
 //___________________________________________________________________________
 void Target::SetHitNucPdg(int nucl_pdgc)
@@ -319,18 +322,10 @@ bool Target::ForceHitNucValidity(void)
 {
 // resets the struck nucleon pdg-code if it is found not to be a valid one
 
-  bool valid = pdg::IsProton(fHitNucPDG) || pdg::IsNeutron(fHitNucPDG) || fHitNucPDG==0;
+  bool valid = pdg::IsProton(fHitNucPDG)  || 
+               pdg::IsNeutron(fHitNucPDG) || 
+               fHitNucPDG==0; /* not set */
   return valid;
-
-/*
-  bool valid = pdg::IsProton(fHitNucPDG) || pdg::IsNeutron(fHitNucPDG);
-
-  if(!valid) {
-    LOG("Target", pDEBUG) << "Reseting to struck nucleon to 'Rootino'";
-    fHitNucPDG = 0;
-  }
-  return valid;
-*/
 }
 //___________________________________________________________________________
 void Target::ForceNucleusValidity(void)
@@ -348,12 +343,10 @@ void Target::AutoSetHitNuc(void)
 {
 // for free nucleon targets -> (auto)set struck nucleon = target
 
-/*
   if( this->IsFreeNucleon() ) {
     if( this->IsProton() ) this->SetHitNucPdg(kPdgProton);
     else                   this->SetHitNucPdg(kPdgNeutron);
   }
-*/
 }
 //___________________________________________________________________________
 string Target::AsString(void) const
