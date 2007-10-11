@@ -45,7 +45,7 @@ public:
   Registry * FindRegistry (const Algorithm * algorithm)       const;
   Registry * FindRegistry (const AlgId & algid)               const;
 
-  const Registry * GlobalParameterList(void) const;
+  Registry * GlobalParameterList(void) const;
 
   const vector<string> & ConfigKeyList (void) const;
 
