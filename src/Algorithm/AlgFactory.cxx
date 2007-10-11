@@ -134,7 +134,7 @@ Algorithm * AlgFactory::AdoptAlgorithm(string name, string config) const
 //____________________________________________________________________________
 void AlgFactory::ForceReconfiguration(void)
 {
-  LOG("AlgFactory", pINFO) 
+  LOG("AlgFactory", pNOTICE) 
        << "Forcing reconfiguration of all owned algorithms";
 
   map<string, Algorithm *>::iterator alg_iter = fAlgPool.begin();
@@ -142,7 +142,10 @@ void AlgFactory::ForceReconfiguration(void)
     Algorithm * alg = alg_iter->second;
     string config = alg->Id().Config();
     bool skip_conf = (config=="NoConfig" || config=="");
-    if(!skip_conf) alg->Configure(config);
+    if(!skip_conf) {
+//      LOG("AlgFactory", pINFO) << "Reconfiguring: " << alg->Id().Key();
+	alg->Configure(config);
+    }
   }
 }
 //____________________________________________________________________________

@@ -11,6 +11,9 @@
 
  Important revisions after version 2.0.0 :
 
+ @ Oct 11, 2007 - CA
+ The GlobalParameterList method no longer returns a 'const Registry *' 
+ but a 'Registry *'.
 */
 //____________________________________________________________________________
 
@@ -493,7 +496,7 @@ Registry * AlgConfigPool::FindRegistry(string key) const
   return 0;
 }
 //____________________________________________________________________________
-const Registry * AlgConfigPool::GlobalParameterList(void) const
+Registry * AlgConfigPool::GlobalParameterList(void) const
 {
   string glob_param_set = (gSystem->Getenv("GUSERPHYSOPT")) ?
                         string(gSystem->Getenv("GUSERPHYSOPT")) : "Default";
