@@ -11,6 +11,12 @@
 
  Important revisions after version 2.0.0 :
 
+ @ Oct 11, 2007 - CA
+  Added 'bool ItemIsLocal(RgKey) const', 'void OverrideGlobalDef(RgKey)', and 
+  'void LinkToGlobalDef(RgKey)' to handle the distinction between global/local
+  configuration items. The templated function 'GetValueOrUseDefault' was
+  modifed to mark items with global status & not return them so that an updated
+  default can be cascaded through the entire pool of instantiated algorithms.
 */
 //____________________________________________________________________________
 
@@ -62,13 +68,19 @@ namespace genie {
 
    T value;
    if(r->Exists(key)) { 
-      r->Get(key,value); return value;
+      if(r->ItemIsLocal(key)) {
+	 r->Get(key,value); 
+         return value;
+      }
    }
    value = def;
    bool was_locked = r->IsLocked();
    if(was_locked) r->UnLock();
 
-   if(set_def) r->Set(key, value);
+   if(set_def) {
+	r->Set(key, value);
+	r->LinkToGlobalDef(key);
+   }
    if(was_locked) r->Lock();
    return value;
  }
@@ -173,13 +185,57 @@ bool Registry::ItemLocksAreActive(void) const
   return !fInhibitItemLocks;
 }
 //____________________________________________________________________________
+bool Registry::ItemIsLocal(RgKey key) const
+{
+  if( this->Exists(key) ) {
+     RgIMapConstIter entry = fRegistry.find(key);
+     bool is_local = entry->second->IsLocal();
+     return is_local;
+  } else {
+     LOG("Registry", pDEBUG)
+        << "*** Was asked to check 'local' flag on non-existing item: [" 
+        << key << "]";
+  }
+  return false;
+}
+//____________________________________________________________________________
+void Registry::OverrideGlobalDef(RgKey key)
+{
+  if( this->Exists(key) ) {
+     RgIMapConstIter entry = fRegistry.find(key);
+     entry->second->SetLocal(true);
+  } else {
+     LOG("Registry", pWARN)
+        << "*** Can't give 'local' status to  non-existem item [" 
+        << key << "]"; 
+  }
+}
+//____________________________________________________________________________
+void Registry::LinkToGlobalDef(RgKey key)
+{
+  if( this->Exists(key) ) {
+     RgIMapConstIter entry = fRegistry.find(key);
+     entry->second->SetLocal(false);
+  } else {
+     LOG("Registry", pWARN)
+        << "*** Can't give 'global' status to  non-existem item [" 
+        << key << "]"; 
+  }
+}
+//____________________________________________________________________________
 bool Registry::ItemIsLocked(RgKey key) const
 {
   if( this->Exists(key) ) {
      RgIMapConstIter entry = fRegistry.find(key);
      bool is_locked = entry->second->IsLocked();
      return is_locked;
-  }
+  } else {
+/*
+     LOG("Registry", pDEBUG)
+        << "*** Was asked to check lock on non-existing item: [" 
+        << key << "]";
+*/
+  }  
   return false;
 }
 //____________________________________________________________________________

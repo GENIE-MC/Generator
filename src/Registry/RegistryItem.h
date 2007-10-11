@@ -32,32 +32,35 @@ namespace genie {
 
 template<typename T> class RegistryItem;
 template<typename T>
-       ostream & operator << (ostream & stream, const RegistryItem<T> & rec);
+  ostream & operator << (ostream & stream, const RegistryItem<T> & rec);
 
 template<typename T> class RegistryItem : public RegistryItemI {
 
 public:
   RegistryItem() { };
-  RegistryItem(T item, bool locked = false);
+  RegistryItem(T item, bool locked=false, bool local=true);
   RegistryItem(const RegistryItem * ri);
   ~RegistryItem();
 
   RegistryItemI * Clone    (void) const;
   RgType_t        TypeInfo (void) const;
-  const T &       Data     (void) const { return fItem;         }
-  void            Lock     (void)       { fIsLocked = true;     }
-  void            UnLock   (void)       { fIsLocked = false;    }
-  bool            IsLocked (void) const { return fIsLocked;     }
+  const T &       Data     (void) const {  return fItem;       }
+  bool            IsLocked (void) const {  return fIsLocked;   }
+  void            Lock     (void)       {  fIsLocked = true;   }
+  void            UnLock   (void)       {  fIsLocked = false;  }
+  bool            IsLocal  (void) const {  return fIsLocal;    }
+  void            SetLocal (bool isloc) {  fIsLocal  = isloc;  }
 
   void Print(ostream& stream) const;
 
   friend ostream & operator <<
-                        <T>(ostream & stream, const RegistryItem<T> & rec);
+              <T>(ostream & stream, const RegistryItem<T> & rec);
 
 private:
 
   T    fItem;
   bool fIsLocked;
+  bool fIsLocal;
 };
 
 }      // genie namespace
