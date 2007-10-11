@@ -1,15 +1,18 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
-\class   genie::ReWeightCrossSection
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         STFC, Rutherford Appleton Laboratory - Oct 09, 2007
 
-\brief   A cross section model reweighting engine.
+ For the class documentation see the corresponding header file.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+ Important revisions after version 2.0.0 :
 
-\created October 22, 2005
-
+ @ Oct 09, 2007 - CA
+   This file was added in 2.0.1
 */
 //____________________________________________________________________________
 
