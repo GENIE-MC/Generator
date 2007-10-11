@@ -11,6 +11,11 @@
 
  Important revisions after version 2.0.0 :
 
+ @ Oct 09, 2007 - CA
+   Added EventGeneratorI * EVGDriver::FindGenerator(const Interaction *) const
+ @ Oct 10, 2007 - CA
+   In Configure(const InitialState &) filter out any initial state info other
+   that the probe/target pdg codes.
 */
 //____________________________________________________________________________
 
