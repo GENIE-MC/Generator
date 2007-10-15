@@ -26,7 +26,7 @@
 **       Donna Naples [7], Geoff Pearce [2], Andre Rubbia [4], Mike Whalley [3]        **
 **                                                                                     **
 ** [1] BNL, Brookhaven National Laboratory                                             **
-** [2] Science & Technolofy Facilities Council / Rutherford Appleton Laboratory        **
+** [2] Science & Technology Facilities Council / Rutherford Appleton Laboratory        **
 ** [3] Durham University                                                               **
 ** [4] ETH Zurich                                                                      **
 ** [5] Kamioka Observatory, ICRR, University of Tokyo                                  **
