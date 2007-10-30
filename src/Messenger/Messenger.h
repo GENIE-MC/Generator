@@ -20,6 +20,7 @@
 #define _MESSENGER_H_
 
 #include <iostream>
+#include <cstring>
 #include <string>
 #include <map>
 
@@ -28,6 +29,8 @@
 #include "log4cpp/OstreamAppender.hh"
 #include "log4cpp/BasicLayout.hh"
 #include "log4cpp/Priority.hh"
+
+#include "Conventions/GBuild.h"
 
 using std::string;
 
@@ -50,9 +53,17 @@ using std::string;
 #define pINFO   log4cpp::Priority::INFO
 #define pDEBUG  log4cpp::Priority::DEBUG
 
-/*! \def ENDL  \brief A shortcut for log4cpp's CategoryStream::ENDLINE */
+/*! \def ENDL  \brief A shortcut for log4cpp's CategoryStream::ENDLINE or std manipulators*/
 
-#define ENDL log4cpp::CategoryStream::ENDLINE
+#ifdef __GENIE_USES_LOG4CPP_VERSION__
+  #if __GENIE_USES_LOG4CPP_VERSION__==0
+    #define ENDL log4cpp::CategoryStream::ENDLINE
+  #else
+    #define ENDL std::endl
+  #endif
+#else
+  #define ENDL std::endl
+#endif
 
 /*! \def _GCLASS \brief Define a class name macro */
 
