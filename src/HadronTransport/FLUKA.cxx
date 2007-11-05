@@ -55,20 +55,23 @@ void FLUKA::ProcessEventRecord(GHepRecord * event) const
 
 #ifdef __GENIE_FLUKA_ENABLED__
 
-  //-- Translate GENIE GHepRecord to whatever FLUKA needs
-  LOG("FLUKA", pDEBUG) << "Translating: GENIE GHepRecord ---> FLUKA input";
+  //-- Translate the GENIE event record to whatever FLUKA needs
+  LOG("FLUKA", pDEBUG) 
+        << "Translating: GENIE GHepRecord ---> FLUKA input";
 
   //
   // ...
 
   //-- Run FLUKA
-  LOG("FLUKA", pNOTICE) << "************ Running FLUKA ************";
+  LOG("FLUKA", pNOTICE) 
+        << "************ Running FLUKA ************";
 
   //
   // ...
 
-  //-- Get FLUKA output & add it to GENIE GHepRecord
-  LOG("FLUKA", pDEBUG) << "Copying: FLUKA output ---> GENIE GHepRecord";
+  //-- Get FLUKA output & add it to the GENIE event record
+  LOG("FLUKA", pDEBUG) 
+        << "Copying: FLUKA output ---> GENIE GHepRecord";
 
   //
   // ...
@@ -77,7 +80,7 @@ void FLUKA::ProcessEventRecord(GHepRecord * event) const
   LOG("FLUKA", pFATAL)
        << "\n"
        << "\n****************************************************"
-       << "\n*** YOU HAVE NOT INSTALLED FLUKA!                ***"
+       << "\n*** FLUKA IS NOT INSTALLED AT YOUR SYSTEM!       ***"
        << "\n*** Please obtain the actual FLUKA code from:    ***"
        << "\n*** http://www.fluka.org                         ***"   
        << "\n****************************************************"

@@ -67,9 +67,9 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
 
 #ifdef __GENIE_GIBUU_ENABLED__
 
-  //-- Translate GENIE GHepRecord to whatever GIBUU needs
-
-  LOG("GIBUU", pDEBUG) << "Translating: GENIE GHepRecord ---> GIBUU input";
+  //-- Translate the GENIE event record to whatever GIBUU needs
+  LOG("GIBUU", pDEBUG) 
+         << "Translating: GENIE GHepRecord ---> GIBUU input";
 
   // set nuclear target
   int target_pdg = nucltgt->Pdg();
@@ -106,12 +106,14 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
   int n_inp_had = mother_pos.size();
     
   //-- Run GIBUU (use GiBUU's GENIE hook)
-  LOG("GIBUU", pNOTICE) << "************ Running GIBUU ************";
+  LOG("GIBUU", pNOTICE) 
+         << "************ Running GIBUU ************";
 
   HadronTransportForGENIE();
 
-  //-- Get FLUKA output & add it to GENIE GHepRecord
-  LOG("GIBUU", pDEBUG) << "Copying: GIBUU output ---> GENIE GHepRecord";
+  //-- Get FLUKA output & add it to the GENIE event record
+  LOG("GIBUU", pDEBUG) 
+         << "Copying: GIBUU output ---> GENIE GHepRecord";
 
   GHepStatus_t out_ist = kIStStableFinalState;
   for(int inp_had=0; inp_had < n_inp_had; inp_had++) {
@@ -148,7 +150,7 @@ void GIBUU::ProcessEventRecord(GHepRecord * event) const
   LOG("GIBUU", pFATAL) 
        << "\n"
        << "\n****************************************************"
-       << "\n*** YOU HAVE NOT INSTALLED GIBUU!                ***"
+       << "\n*** GIBUU IS NOT INSTALLED AT YOUR SYSTEM!       ***"
        << "\n*** Please obtain the actual GiBUU code from:    ***"
        << "\n*** http://tp8.physik.uni-giessen.de:8080/GiBUU/ ***"
        << "\n****************************************************"
