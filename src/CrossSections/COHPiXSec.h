@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::COHXSec
+\class    genie::COHPiXSec
 
-\brief    Computes the cross section for COH neutrino-nucleus scattering.\n
+\brief    Computes the cross section for COH neutrino-nucleus pi production.\n
           Is a concrete implementation of the XSecIntegratorI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -17,24 +17,24 @@
 */
 //____________________________________________________________________________
 
-#ifndef _COH_XSEC_H_
-#define _COH_XSEC_H_
+#ifndef _COHPI_XSEC_H_
+#define _COHPI_XSEC_H_
 
 #include "Base/XSecIntegratorI.h"
 
 namespace genie {
 
-class COHXSec : public XSecIntegratorI {
+class COHPiXSec : public XSecIntegratorI {
 public:
-  COHXSec();
-  COHXSec(string config);
-  virtual ~COHXSec();
+  COHPiXSec();
+  COHPiXSec(string config);
+  virtual ~COHPiXSec();
 
-  //! XSecIntegratorI interface implementation
+  //-- XSecIntegratorI interface implementation
   double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //!  members from configuration options
+  //-- overload the Algorithm::Configure() methods to load private data
+  //--  members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
@@ -43,4 +43,4 @@ private:
 };
 
 }       // genie namespace
-#endif  // _COH_XSEC_H_
+#endif  // _COHPI_XSEC_H_
