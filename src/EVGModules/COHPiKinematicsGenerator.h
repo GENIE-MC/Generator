@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::COHKinematicsGenerator
+\class    genie::COHPiKinematicsGenerator
 
-\brief    Generates values for the kinematic variables describing coherent NC
-          neutrino interaction events.
+\brief    Generates values for the kinematic variables describing coherent 
+          neutrino-nucleus pion production events.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -18,8 +18,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _COH_KINEMATICS_GENERATOR_H_
-#define _COH_KINEMATICS_GENERATOR_H_
+#ifndef _COHPI_KINEMATICS_GENERATOR_H_
+#define _COHPI_KINEMATICS_GENERATOR_H_
 
 #include "EVGModules/KineGeneratorWithCache.h"
 #include "Utils/Range1.h"
@@ -28,12 +28,12 @@ class TF2;
 
 namespace genie {
 
-class COHKinematicsGenerator : public KineGeneratorWithCache {
+class COHPiKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
-  COHKinematicsGenerator();
-  COHKinematicsGenerator(string config);
-  ~COHKinematicsGenerator();
+  COHPiKinematicsGenerator();
+  COHPiKinematicsGenerator(string config);
+ ~COHPiKinematicsGenerator();
 
   //! implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -58,5 +58,4 @@ public:
 };
 
 }      // genie namespace
-
-#endif // _COH_KINEMATICS_GENERATOR_H_
+#endif // _COHPI_KINEMATICS_GENERATOR_H_

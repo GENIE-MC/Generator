@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::COHHadronicSystemGenerator
+\class    genie::COHPiHadronicSystemGenerator
 
-\brief    Generates the final state hadronic system in v COH interactions.
+\brief    Generates the f/s hadronic system in v COH pi production interactions.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
@@ -17,24 +17,24 @@
 */
 //____________________________________________________________________________
 
-#ifndef _COH_HADRONIC_SYSTEM_GENERATOR_H_
-#define _COH_HADRONIC_SYSTEM_GENERATOR_H_
+#ifndef _COHPI_HADRONIC_SYSTEM_GENERATOR_H_
+#define _COHPI_HADRONIC_SYSTEM_GENERATOR_H_
 
 #include "EVGModules/HadronicSystemGenerator.h"
 
 namespace genie {
 
-class COHHadronicSystemGenerator : public HadronicSystemGenerator {
+class COHPiHadronicSystemGenerator : public HadronicSystemGenerator {
 
 public :
-  COHHadronicSystemGenerator();
-  COHHadronicSystemGenerator(string config);
-  ~COHHadronicSystemGenerator();
+  COHPiHadronicSystemGenerator();
+  COHPiHadronicSystemGenerator(string config);
+  ~COHPiHadronicSystemGenerator();
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 };
 
 }      // genie namespace
-#endif // _COH_HADRONIC_SYSTEM_GENERATOR_H_
+#endif // _COHPI_HADRONIC_SYSTEM_GENERATOR_H_
 

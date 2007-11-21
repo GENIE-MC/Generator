@@ -10,6 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Nov 21, 2007 - CA
+   Was renamed to COHPiHadronicSystemGenerator (from COHHadronicSystemGenerator)
 
 */
 //____________________________________________________________________________
@@ -19,7 +21,7 @@
 #include <TVector3.h>
 
 #include "Conventions/Constants.h"
-#include "EVGModules/COHHadronicSystemGenerator.h"
+#include "EVGModules/COHPiHadronicSystemGenerator.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
@@ -34,24 +36,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //___________________________________________________________________________
-COHHadronicSystemGenerator::COHHadronicSystemGenerator() :
-HadronicSystemGenerator("genie::COHHadronicSystemGenerator")
+COHPiHadronicSystemGenerator::COHPiHadronicSystemGenerator() :
+HadronicSystemGenerator("genie::COHPiHadronicSystemGenerator")
 {
 
 }
 //___________________________________________________________________________
-COHHadronicSystemGenerator::COHHadronicSystemGenerator(string config) :
-HadronicSystemGenerator("genie::COHHadronicSystemGenerator", config)
+COHPiHadronicSystemGenerator::COHPiHadronicSystemGenerator(string config) :
+HadronicSystemGenerator("genie::COHPiHadronicSystemGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-COHHadronicSystemGenerator::~COHHadronicSystemGenerator()
+COHPiHadronicSystemGenerator::~COHPiHadronicSystemGenerator()
 {
 
 }
 //___________________________________________________________________________
-void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void COHPiHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // This method generates the final state hadronic system (pion + nucleus) in 
 // COH interactions
@@ -80,7 +82,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   else if (xcls_tag.NPiPlus()  == 1) pion_pdgc = kPdgPiP;
   else if (xcls_tag.NPiMinus() == 1) pion_pdgc = kPdgPiM;
   else {
-     LOG("COHHadronicVtx", pFATAL)
+     LOG("COHPiHadronicVtx", pFATAL)
                << "No final state pion information in XclsTag!";
      exit(1);
   }
@@ -94,7 +96,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double yo   = interaction->Kine().y(true); 
   double to   = interaction->Kine().t(true); 
 
-  SLOG("COHHadronicVtx", pINFO) 
+  SLOG("COHPiHadronicVtx", pINFO) 
          << "Ev = "<< E << ", xo = " << xo 
                          << ", yo = " << yo << ", to = " << to;
 
@@ -104,7 +106,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double ppi2 = Epi2-mpi2;
   double ppi  = TMath::Sqrt(TMath::Max(0.,ppi2));
 
-  SLOG("COHHadronicVtx", pINFO)
+  SLOG("COHPiHadronicVtx", pINFO)
                       << "f/s pion E = " << Epi << ", |p| = " << ppi;
   assert(Epi>mpi);
 
@@ -115,7 +117,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   TLorentzVector q = p4nu - p4fsl;
 
-  SLOG("COHHadronicVtx", pINFO) 
+  SLOG("COHPiHadronicVtx", pINFO) 
           << "\n 4-p transfer q @ LAB: " << utils::print::P4AsString(&q);
 
   //-- find angle theta between q and ppi (xi=costheta)
@@ -127,7 +129,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double costheta  = xi;
   double sintheta  = TMath::Sqrt(TMath::Max(0.,1.-xi*xi));
 
-  SLOG("COHHadronicVtx", pINFO) << "cos(pion, q) = " << costheta;
+  SLOG("COHPiHadronicVtx", pINFO) << "cos(pion, q) = " << costheta;
 
   // compute transverse and longitudinal ppi components along q
   double ppiL = ppi*costheta;
@@ -140,7 +142,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   ppi3.RotateUz(q.Vect().Unit()); // align longit. component with q in LAB
   ppi3.RotateZ(phi);              // randomize transverse components
 
-  SLOG("COHHadronicVtx", pINFO) 
+  SLOG("COHPiHadronicVtx", pINFO) 
                << "Pion 3-p @ LAB: " << utils::print::Vec3AsString(&ppi3);
 
   // now figure out the f/s nucleus 4-p
