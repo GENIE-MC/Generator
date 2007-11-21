@@ -10,7 +10,11 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Nov 21, 2007 - CA
+ Handle the introduction of a new type of coherent interactions (coherent 
+ elastic). The kinematical limits for the old 'coherent' type now apply
+ only to 'coherent pi production'. Computing kinematical limits for
+ coherent elastic is not included at this moment.
 */
 //____________________________________________________________________________
 

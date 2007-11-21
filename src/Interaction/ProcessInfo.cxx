@@ -10,7 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Nov 21, 2007 - CA
+ Added IsCoherentPiProd() and IsCoherentElas() to handle the introduction of
+ a new type of coherent interactions (coherent elastic)  
 */
 //____________________________________________________________________________
 
