@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the COHElasticPXSec xsec algorithm.
+
+Configurable Parameters:
+..........................................................................................
+Name             Type     Optional   Comment                     Default
+..........................................................................................
+WeinbergAngle    double   Yes        Weinberg angle              GPL value: WeinbergAngle
+XSec-Integrator  alg      No
+-->
+
+  <param_set name="Default"> 
+     <param type="alg"  name="XSec-Integrator"> t </param>
+  </param_set>
+</alg_conf>
+
