@@ -20,6 +20,8 @@
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
+#include "Nuclear/FermiMomentumTablePool.h"
+#include "Nuclear/FermiMomentumTable.h"
 
 using namespace genie;
 
@@ -45,15 +47,56 @@ void CorrelatedNucleonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
   if(!fSimulateCorrelN) return;
 
-  Interaction *  interaction = evrec       -> Summary();
-  InitialState * init_state  = interaction -> InitStatePtr();
-  Target *       tgt         = init_state  -> TgtPtr();
+//  LOG("NNCorrel", pNOTICE) << "Simulating NN correlation";
+//  LOG("NNCorrel", pNOTICE) << *evrec;
 
-  // do nothing for non-nuclear targets
-  if(!tgt->IsNucleus()) return;
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+  if (!nucltgt) {
+    LOG("NNCorrel", pINFO) << "No nuclear target found - Doing nothing";
+    return;
+  }
 
+  GHepParticle * hitnucl = evrec->HitNucleon();
+  if(!hitnucl) {
+    LOG("NNCorrel", pINFO) << "No hit nucleon found - Doing nothing";
+    return;
+  }
 
+  // hit nuclear target & nucleon pdg codes
+  int target_pdgc  = nucltgt->Pdg(); 
+  int nucleon_pdgc = hitnucl->Pdg();
 
+  // check the actual hit nucleon momentum momentum 
+  double Pn = hitnucl->P4()->Mag();
+
+  // get kF
+  string fKFTable = "Default";
+  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+  const FermiMomentumTable * kft  = kftp->GetTable(fKFTable);
+  double kF = kft->FindClosestKF(target_pdgc, nucleon_pdgc);
+
+  // decide whether to eject extra init state nucleon
+  bool eject = (Pn > kF);
+
+  // add an extra nucleon
+  if(eject) {
+
+    LOG("NNCorrel", pNOTICE) << "Ejecting extra nucleon";
+
+    double px = -1 * hitnucl->Px();
+    double py = -1 * hitnucl->Py();
+    double pz = -1 * hitnucl->Pz();
+    double E  =      hitnucl->E();
+//  double w  =      hitnucl->RemovalEnergy();
+
+    TLorentzVector p4(px,py,pz,E);
+    TLorentzVector v4(0,0,0,0);
+
+    evrec->AddParticle(
+       nucleon_pdgc, kIStCorrelatedNucleon, 1, 1, -1, -1, p4, v4);
+
+//    LOG("NNCorrel", pNOTICE) << *evrec;
+  }
 }
 //___________________________________________________________________________
 void CorrelatedNucleonGenerator::Configure(const Registry & config)
@@ -75,8 +118,10 @@ void CorrelatedNucleonGenerator::LoadConfig(void)
 
   fSimulateCorrelN = fConfig->GetBoolDef(
               "Enable", gc->GetBool("CorrelNN-Enable"));
+/*
   fMomentumThr  = fConfig->GetDoubleDef(
-              "MomentumThreshold", gc->GetBool("CorrelNN-MomentumThreshold"));
+           "MomentumThreshold", gc->GetDouble("CorrelNN-MomentumThreshold"));
+*/
 }
 //____________________________________________________________________________
 

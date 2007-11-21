@@ -45,8 +45,9 @@ public :
 private:
   void LoadConfig (void);
 
-  const NuclearModelI *  fNuclModel; ///< loaded nuclear model
-  bool  fKeepNuclOnMassShell;        ///< if true, keeps hit bound nucleon on the mass shell
+  bool  fKeepNuclOnMassShell;               ///< if true, keeps hit bound nucleon on the mass shell
+  const NuclearModelI *       fNuclModel;   ///< nuclear model
+//const EventRecordVisitorI * fNNCorrModel; ///< NN correlation model
 };
 
 }      // genie namespace
