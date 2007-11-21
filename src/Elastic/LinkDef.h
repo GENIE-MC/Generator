@@ -10,5 +10,6 @@
 #pragma link C++ class genie::BBA05ELFormFactorsModel;
 #pragma link C++ class genie::DipoleELFormFactorsModel;
 #pragma link C++ class genie::NuNucElasticPXSec;
+#pragma link C++ class genie::COHElasticPXSec;
 
 #endif
