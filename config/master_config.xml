@@ -14,7 +14,7 @@
    <config alg="genie::NucBindEnergyAggregator">     NucBindEnergyAggregator.xml     </config>
    <config alg="genie::InitialStateAppender">        InitialStateAppender.xml        </config>
    <config alg="genie::VertexGenerator">             VertexGenerator.xml             </config>
-   <config alg="genie::CorrelatedNucleonGenerator">  CorrelatedNucleonGenerator.xml  </config>
+   <config alg="genie::CorrelatedNucleonGenerator">  CorrelatedNucleonGenerator.xml  </config> 
    <config alg="genie::QELPrimaryLeptonGenerator">   QELPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::DISPrimaryLeptonGenerator">   DISPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::RESPrimaryLeptonGenerator">   RESPrimaryLeptonGenerator.xml   </config>
@@ -24,9 +24,9 @@
    <config alg="genie::DISKinematicsGenerator">      DISKinematicsGenerator.xml      </config>
    <config alg="genie::RESKinematicsGenerator">      RESKinematicsGenerator.xml      </config>
    <config alg="genie::NuEKinematicsGenerator">      NuEKinematicsGenerator.xml      </config>
-   <config alg="genie::COHKinematicsGenerator">      COHKinematicsGenerator.xml      </config>
+   <config alg="genie::COHPiKinematicsGenerator">    COHPiKinematicsGenerator.xml    </config>
    <config alg="genie::QELHadronicSystemGenerator">  QELHadronicSystemGenerator.xml  </config>
-   <config alg="genie::COHHadronicSystemGenerator">  COHHadronicSystemGenerator.xml  </config>
+   <config alg="genie::COHPiHadronicSystemGenerator">COHPiHadronicSystemGenerator.xml</config>
    <config alg="genie::DISHadronicSystemGenerator">  DISHadronicSystemGenerator.xml  </config>
    <config alg="genie::RESHadronicSystemGenerator">  RESHadronicSystemGenerator.xml  </config>
    <config alg="genie::RSPPHadronicSystemGenerator"> RSPPHadronicSystemGenerator.xml </config>
@@ -93,7 +93,7 @@
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
    <config alg="genie::DISXSec">                     DISXSec.xml                     </config>
-   <config alg="genie::COHXSec">                     COHXSec.xml                     </config>
+   <config alg="genie::COHPiXSec">                   COHPiXSec.xml                   </config>
    <config alg="genie::IMDXSec">                     IMDXSec.xml                     </config>
    <config alg="genie::RESXSec">                     RESXSec.xml                     </config>
    <config alg="genie::QELPXSec">                    QELPXSec.xml                    </config>
@@ -110,7 +110,7 @@
    <config alg="genie::NuNucElasticPXSec">           NuNucElasticPXSec.xml           </config>
    <config alg="genie::NuElectronPXSec">             NuElectronPXSec.xml             </config>
    <config alg="genie::GlashowResXSec">              GlashowResXSec.xml              </config>
-   <config alg="genie::ReinSeghalCOHPXSec">          ReinSeghalCOHPXSec.xml          </config>
+   <config alg="genie::ReinSeghalCOHPiPXSec">        ReinSeghalCOHPiPXSec.xml        </config>
    <config alg="genie::ReinSeghalRESPXSec">          ReinSeghalRESPXSec.xml          </config>
    <config alg="genie::ReinSeghalSPPPXSec">          ReinSeghalSPPPXSec.xml          </config>
    <config alg="genie::ReinSeghalRESXSec">           ReinSeghalRESXSec.xml           </config>

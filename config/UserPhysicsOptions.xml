@@ -469,8 +469,8 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">       genie::ReinSeghalRESPXSec/Default     </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">       genie::DISPartonModelPXSec/CC-Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">       genie::DISPartonModelPXSec/NC-Default </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">       genie::ReinSeghalCOHPXSec/Default     </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">       genie::ReinSeghalCOHPXSec/Default     </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COHPI-CC">     genie::ReinSeghalCOHPiPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COHPI-NC">     genie::ReinSeghalCOHPiPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD">          genie::BardinIMDRadCorPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">       genie::NuElectronPXSec/Default        </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-CHARM"> genie::KovalenkoQELCharmPXSec/Default </param>

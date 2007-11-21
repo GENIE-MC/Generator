@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-Configurations for the Rein-Seghal Coherent pi production d2xsec/dxdy algorithm
+Configurations for the Rein-Seghal coherent pi production cross section algorithm
 
 Algorithm Configurable Parameters:
 ....................................................................................................
@@ -17,7 +17,7 @@ XSec-Integrator  alg      No
 <alg_conf>
 
   <param_set name="Default"> 
-      <param type="alg" name="XSec-Integrator"> genie::COHXSec/Default </param>
+      <param type="alg" name="XSec-Integrator"> genie::COHPiXSec/Default </param>
   </param_set>
 
 </alg_conf>
