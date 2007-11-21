@@ -119,69 +119,70 @@ void CreateSummaryTree(string inp_filename)
 
   //-- define branch variables
   //
-  int    brIev        = 0;      // Event number 
-  int    brNeutrino   = 0;      // Neutrino pdg code
-  int    brTarget     = 0;      // Nuclear target pdg code (10LZZZAAAI)
-  int    brHitNuc     = 0;      // Hit nucleon pdg code      (not set for COH,IMD and NuEL events)
-  int    brHitQrk     = 0;      // Hit quark pdg code        (set for DIS events only)
-  bool   brFromSea    = false;  // Hit quark is from sea     (set for DIS events only)
-  bool   brResId      = 0;      // Produced baryon resonance (set for resonance events only)
-  bool   brIsQel      = false;  // Is QEL?
-  bool   brIsRes      = false;  // Is RES?
-  bool   brIsDis      = false;  // Is DIS?
-  bool   brIsCoh      = false;  // Is COH?
-  bool   brIsImd      = false;  // Is IMD?
-  bool   brIsNuEL     = false;  // Is ve elastic?
-  bool   brIsCC       = false;  // Is CC?
-  bool   brIsNC       = false;  // Is NC?
-  bool   brIsCharmPro = false;  // Produces charm?
-  double brWeight     = 0;      // Event weight
-  double brKineXs     = 0;      // Bjorken x (selected)
-  double brKineYs     = 0;      // Inelasticity y (selected)
-  double brKineTs     = 0;      // Energy transfer to nucleus at COH events (selected)
-  double brKineQ2s    = 0;      // Momentum transfer Q^2 (selected)
-  double brKineWs     = 0;      // Hadronic invariant mass W (selected)
-  double brKineX      = 0;      // Bjorken x  (computed from the event record)
-  double brKineY      = 0;      // Inelasticity y (computed from the event record)
-  double brKineT      = 0;      // Energy transfer to nucleus at COH events (computed from the event record)
-  double brKineQ2     = 0;      // Momentum transfer Q^2 (computed from the event record)
-  double brKineW      = 0;      // Hadronic invariant mass W (computed from the event record)
-  double brEv         = 0;      // Neutrino energy (neutrino assumed in +z direction)
-  double brEn         = 0;      // Initial state hit nucleon energy
-  double brPxn        = 0;      // Initial state hit nucleon px
-  double brPyn        = 0;      // Initial state hit nucleon py
-  double brPzn        = 0;      // Initial state hit nucleon pz
-  double brEl         = 0;      // Final state primary lepton energy
-  double brPxl        = 0;      // Final state primary lepton px
-  double brPyl        = 0;      // Final state primary lepton py
-  double brPzl        = 0;      // Final state primary lepton pz 
-  int    brNfP        = 0;      // Number of final state p's + \bar{p}'s (after intranuclear rescattering)
-  int    brNfN        = 0;      // Number of final state n's + \bar{n}'s
-  int    brNfPip      = 0;      // Number of final state pi+'s
-  int    brNfPim      = 0;      // Number of final state pi-'s
-  int    brNfPi0      = 0;      // Number of 'final state' pi0's (
-  int    brNfKp       = 0;      // Number of final state K+'s
-  int    brNfKm       = 0;      // Number of final state K-'s
-  int    brNfK0       = 0;      // Number of final state K0's + \bar{K0}'s
-  int    brNfEM       = 0;      // Number of final state gammas and e-/e+ (excluding pi0 decay products)
-  int    brNfOther    = 0;      // Number of heavier final state hadrons (D+,D-,D0,Ds+,Ds-,Lamda,Sigma,Lamda_c,Sigma_c,...)
-  int    brNiP        = 0;      // Number of 'primary' (: before intranuclear rescattering) p's + \bar{p}'s  
-  int    brNiN        = 0;      // Number of 'primary' n's + \bar{n}'s  
-  int    brNiPip      = 0;      // Number of 'primary' pi+'s 
-  int    brNiPim      = 0;      // Number of 'primary' pi-'s 
-  int    brNiPi0      = 0;      // Number of 'primary' pi0's 
-  int    brNiKp       = 0;      // Number of 'primary' K+'s  
-  int    brNiKm       = 0;      // Number of 'primary' K-'s  
-  int    brNiK0       = 0;      // Number of 'primary' K0's + \bar{K0}'s 
-  int    brNiEM       = 0;      // Number of 'primary' gammas and e-/e+ (eg from resonance decays)
-  int    brNiOther    = 0;      // Number of 'primary' hadron shower particles
-  int    brNf         = 0;      // Number of final state particles in hadronic system
+  int    brIev         = 0;      // Event number 
+  int    brNeutrino    = 0;      // Neutrino pdg code
+  int    brTarget      = 0;      // Nuclear target pdg code (10LZZZAAAI)
+  int    brHitNuc      = 0;      // Hit nucleon pdg code      (not set for COH,IMD and NuEL events)
+  int    brHitQrk      = 0;      // Hit quark pdg code        (set for DIS events only)
+  bool   brFromSea     = false;  // Hit quark is from sea     (set for DIS events only)
+  bool   brResId       = 0;      // Produced baryon resonance (set for resonance events only)
+  bool   brIsQel       = false;  // Is QEL?
+  bool   brIsRes       = false;  // Is RES?
+  bool   brIsDis       = false;  // Is DIS?
+  bool   brIsCohPi     = false;  // Is COHPi?
+  bool   brIsCohEl     = false;  // Is COHEl?
+  bool   brIsImd       = false;  // Is IMD?
+  bool   brIsNuEL      = false;  // Is ve elastic?
+  bool   brIsCC        = false;  // Is CC?
+  bool   brIsNC        = false;  // Is NC?
+  bool   brIsCharmPro  = false;  // Produces charm?
+  double brWeight      = 0;      // Event weight
+  double brKineXs      = 0;      // Bjorken x (selected)
+  double brKineYs      = 0;      // Inelasticity y (selected)
+  double brKineTs      = 0;      // Energy transfer to nucleus at COHPi events (selected)
+  double brKineQ2s     = 0;      // Momentum transfer Q^2 (selected)
+  double brKineWs      = 0;      // Hadronic invariant mass W (selected)
+  double brKineX       = 0;      // Bjorken x  (computed from the event record)
+  double brKineY       = 0;      // Inelasticity y (computed from the event record)
+  double brKineT       = 0;      // Energy transfer to nucleus at COHPi events (computed from the event record)
+  double brKineQ2      = 0;      // Momentum transfer Q^2 (computed from the event record)
+  double brKineW       = 0;      // Hadronic invariant mass W (computed from the event record)
+  double brEv          = 0;      // Neutrino energy (neutrino assumed in +z direction)
+  double brEn          = 0;      // Initial state hit nucleon energy
+  double brPxn         = 0;      // Initial state hit nucleon px
+  double brPyn         = 0;      // Initial state hit nucleon py
+  double brPzn         = 0;      // Initial state hit nucleon pz
+  double brEl          = 0;      // Final state primary lepton energy
+  double brPxl         = 0;      // Final state primary lepton px
+  double brPyl         = 0;      // Final state primary lepton py
+  double brPzl         = 0;      // Final state primary lepton pz 
+  int    brNfP         = 0;      // Number of final state p's + \bar{p}'s (after intranuclear rescattering)
+  int    brNfN         = 0;      // Number of final state n's + \bar{n}'s
+  int    brNfPip       = 0;      // Number of final state pi+'s
+  int    brNfPim       = 0;      // Number of final state pi-'s
+  int    brNfPi0       = 0;      // Number of 'final state' pi0's (
+  int    brNfKp        = 0;      // Number of final state K+'s
+  int    brNfKm        = 0;      // Number of final state K-'s
+  int    brNfK0        = 0;      // Number of final state K0's + \bar{K0}'s
+  int    brNfEM        = 0;      // Number of final state gammas and e-/e+ (excluding pi0 decay products)
+  int    brNfOther     = 0;      // Number of heavier final state hadrons (D+,D-,D0,Ds+,Ds-,Lamda,Sigma,Lamda_c,Sigma_c,...)
+  int    brNiP         = 0;      // Number of 'primary' (: before intranuclear rescattering) p's + \bar{p}'s  
+  int    brNiN         = 0;      // Number of 'primary' n's + \bar{n}'s  
+  int    brNiPip       = 0;      // Number of 'primary' pi+'s 
+  int    brNiPim       = 0;      // Number of 'primary' pi-'s 
+  int    brNiPi0       = 0;      // Number of 'primary' pi0's 
+  int    brNiKp        = 0;      // Number of 'primary' K+'s  
+  int    brNiKm        = 0;      // Number of 'primary' K-'s  
+  int    brNiK0        = 0;      // Number of 'primary' K0's + \bar{K0}'s 
+  int    brNiEM        = 0;      // Number of 'primary' gammas and e-/e+ (eg from resonance decays)
+  int    brNiOther     = 0;      // Number of 'primary' hadron shower particles
+  int    brNf          = 0;      // Number of final state particles in hadronic system
   int    brPdgf[kNPmax];        // Pdg code of i^th final state particle in hadronic system
   double brEf  [kNPmax];        // Energy   of i^th final state particle in hadronic system
   double brPxf [kNPmax];        // Px       of i^th final state particle in hadronic system
   double brPyf [kNPmax];        // Py       of i^th final state particle in hadronic system
   double brPzf [kNPmax];        // Pz       of i^th final state particle in hadronic system
-  int    brNi         = 0;      // Number of particles in 'primary' hadronic system (before intranuclear rescattering)
+  int    brNi          = 0;      // Number of particles in 'primary' hadronic system (before intranuclear rescattering)
   int    brPdgi[kNPmax];        // Pdg code of i^th particle in 'primary' hadronic system 
   double brEi  [kNPmax];        // Energy   of i^th particle in 'primary' hadronic system 
   double brPxi [kNPmax];        // Px       of i^th particle in 'primary' hadronic system 
@@ -211,7 +212,8 @@ void CreateSummaryTree(string inp_filename)
   s_tree->Branch("qel",	      &brIsQel,	    "qel/O"	  );
   s_tree->Branch("res",	      &brIsRes,	    "res/O"	  );
   s_tree->Branch("dis",	      &brIsDis,	    "dis/O"	  );
-  s_tree->Branch("coh",	      &brIsCoh,	    "coh/O"	  );
+  s_tree->Branch("cohpi",     &brIsCohPi,   "cohpi/O"	  );
+  s_tree->Branch("cohel",     &brIsCohEl,   "cohel/O"	  );
   s_tree->Branch("imd",	      &brIsImd,	    "imd/O"	  );
   s_tree->Branch("nuel",      &brIsNuEL,    "nuel/O"	  );
   s_tree->Branch("cc",	      &brIsCC,	    "cc/O"	  );
@@ -366,13 +368,14 @@ void CreateSummaryTree(string inp_filename)
     bool is_qel    = proc_info.IsQuasiElastic();
     bool is_res    = proc_info.IsResonant();
     bool is_dis    = proc_info.IsDeepInelastic();
-    bool is_coh    = proc_info.IsCoherent();
+    bool is_cohpi  = proc_info.IsCoherentPiProd();
+    bool is_cohel  = proc_info.IsCoherentElas();
     bool is_imd    = proc_info.IsInverseMuDecay();
     bool is_nuel   = proc_info.IsNuElectronElastic();
     bool is_weakcc = proc_info.IsWeakCC();
     bool is_weaknc = proc_info.IsWeakNC();
 
-    if(!hitnucl) { assert(is_coh || is_imd || is_nuel); }
+    if(!hitnucl) { assert(is_cohel || is_cohpi || is_imd || is_nuel); }
   
     // hit quark 
     // set only for DIS events
@@ -416,7 +419,7 @@ void CreateSummaryTree(string inp_filename)
     bool get_selected = true;
     double xs  = kine.x (get_selected);
     double ys  = kine.y (get_selected);
-    double ts  = (is_coh) ? kine.t (get_selected) : -1;
+    double ts  = (is_cohpi) ? kine.t (get_selected) : -1;
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
 
@@ -427,7 +430,7 @@ void CreateSummaryTree(string inp_filename)
     // Extract more info on the hadronic system
     // Only for QEL/RES/DIS events
     //
-    bool study_hadsyst = (is_qel || is_res || is_dis);
+    bool study_hadsyst = (is_qel || is_res || is_dis || is_cohpi || is_cohel);
     
     //
     TObjArrayIter piter(&event);
@@ -499,7 +502,7 @@ void CreateSummaryTree(string inp_filename)
 
     vector<int> prim_had_syst;
     if(study_hadsyst) {
-      if(!target->IsNucleus()) {
+      if(!target->IsNucleus() || (is_cohel||is_cohpi)) {
          vector<int>::const_iterator hiter = final_had_syst.begin();
          for( ; hiter != final_had_syst.end(); ++hiter) {
            prim_had_syst.push_back(*hiter);
@@ -558,7 +561,8 @@ void CreateSummaryTree(string inp_filename)
     brIsQel      = is_qel;
     brIsRes      = is_res;
     brIsDis      = is_dis;  
-    brIsCoh      = is_coh;  
+    brIsCohPi    = is_cohpi;  
+    brIsCohEl    = is_cohel;  
     brIsImd      = is_imd;  
     brIsNuEL     = is_nuel;  
     brIsCC       = is_weakcc;  
@@ -741,7 +745,6 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   gst_0->Draw("1","tgt>1000010010","GOFF");
   show_coh_plots = (gst_0->GetSelectedRows() > 0); 
 
-
   TCanvas * c = new TCanvas("c","",20,20,500,650);
   c->SetBorderMode(0);
   c->SetFillColor(0);
@@ -853,23 +856,23 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   n1 = (gst_1) ? h1num->GetEntries() : 0;
   evn.AddText( Form("DIS-NC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
 
-            gst_0->Draw("1>>h0num","coh","goff");
-  if(gst_1) gst_1->Draw("1>>h1num","coh","goff");
+            gst_0->Draw("1>>h0num","cohpi","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","cohpi","goff");
   n0 =           h0num->GetEntries();
   n1 = (gst_1) ? h1num->GetEntries() : 0;
-  evn.AddText( Form("COH    : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+  evn.AddText( Form("COHPi    : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
 
-            gst_0->Draw("1>>h0num","coh&&cc","goff");
-  if(gst_1) gst_1->Draw("1>>h1num","coh&&cc","goff");
+            gst_0->Draw("1>>h0num","cohpi&&cc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","cohpi&&cc","goff");
   n0 =           h0num->GetEntries();
   n1 = (gst_1) ? h1num->GetEntries() : 0;
-  evn.AddText( Form("COH-CC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+  evn.AddText( Form("COHPi-CC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
 
-            gst_0->Draw("1>>h0num","coh&&nc","goff");
-  if(gst_1) gst_1->Draw("1>>h1num","coh&&nc","goff");
+            gst_0->Draw("1>>h0num","cohpi&&nc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","cohpi&&nc","goff");
   n0 =           h0num->GetEntries();
   n1 = (gst_1) ? h1num->GetEntries() : 0;
-  evn.AddText( Form("COH-NC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+  evn.AddText( Form("COHPi-NC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
 
             gst_0->Draw("1>>h0num","imd","goff");
   if(gst_1) gst_1->Draw("1>>h1num","imd","goff");
@@ -1001,30 +1004,30 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   c->Update();
 
   if(show_coh_plots) {
-     //------ selected Q2 for COH
+     //------ selected Q2 for COHPi
      ps->NewPage();
-     gst_0->Draw("Q2s","coh","");
-     if(gst_1) gst_1->Draw("Q2s","coh","perrsame");
+     gst_0->Draw("Q2s","cohpi","");
+     if(gst_1) gst_1->Draw("Q2s","cohpi","perrsame");
      ls->Clear();
-     ls->SetHeader("selected Q2 for COH events");
+     ls->SetHeader("selected Q2 for COHPi events");
      ls->Draw();
      c->Update();
 
-     //------ selected Q2 for COH CC
+     //------ selected Q2 for COHPi CC
      ps->NewPage();
-     gst_0->Draw("Q2s","coh&&cc","");
-     if(gst_1) gst_1->Draw("Q2s","coh&&cc","perrsame");
+     gst_0->Draw("Q2s","cohpi&&cc","");
+     if(gst_1) gst_1->Draw("Q2s","cohpi&&cc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected Q2 for COH CC events");
+     ls->SetHeader("selected Q2 for COHPi CC events");
      ls->Draw();
      c->Update();
 
-     //------ selected Q2 for COH NC
+     //------ selected Q2 for COHPi NC
      ps->NewPage();
-     gst_0->Draw("Q2s","coh&&nc","");
-     if(gst_1) gst_1->Draw("Q2s","coh&&nc","perrsame");
+     gst_0->Draw("Q2s","cohpi&&nc","");
+     if(gst_1) gst_1->Draw("Q2s","cohpi&&nc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected Q2 for COH NC events");
+     ls->SetHeader("selected Q2 for COHPi NC events");
      ls->Draw();
      c->Update();
   }
@@ -1147,30 +1150,30 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   c->Update();
 
   if(show_coh_plots) {
-     //------ selected x for COH
+     //------ selected x for COHPi
      ps->NewPage();
-     gst_0->Draw("xs","coh","");
-     if(gst_1) gst_1->Draw("xs","coh","perrsame");
+     gst_0->Draw("xs","cohpi","");
+     if(gst_1) gst_1->Draw("xs","cohpi","perrsame");
      ls->Clear();
-     ls->SetHeader("selected x for COH events");
+     ls->SetHeader("selected x for COHPi events");
      ls->Draw();
      c->Update();
 
-     //------ selected x for COH CC
+     //------ selected x for COHPi CC
      ps->NewPage();
-     gst_0->Draw("xs","coh&&cc","");
-     if(gst_1) gst_1->Draw("xs","coh&&cc","perrsame");
+     gst_0->Draw("xs","cohpi&&cc","");
+     if(gst_1) gst_1->Draw("xs","cohpi&&cc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected x for COH CC events");
+     ls->SetHeader("selected x for COHPi CC events");
      ls->Draw();
      c->Update();
 
-     //------ selected x for COH NC
+     //------ selected x for COHPi NC
      ps->NewPage();
-     gst_0->Draw("xs","coh&&nc","");
-     if(gst_1) gst_1->Draw("xs","coh&&nc","perrsame");
+     gst_0->Draw("xs","cohpi&&nc","");
+     if(gst_1) gst_1->Draw("xs","cohpi&&nc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected x for COH NC events");
+     ls->SetHeader("selected x for COHPi NC events");
      ls->Draw();
      c->Update();
   }
@@ -1239,39 +1242,39 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   c->Update();
 
   if(show_coh_plots) {
-     //------ selected y for COH
+     //------ selected y for COHPi
      ps->NewPage();
-     gst_0->Draw("ys","coh","");
-     if(gst_1) gst_1->Draw("ys","coh","perrsame");
+     gst_0->Draw("ys","cohpi","");
+     if(gst_1) gst_1->Draw("ys","cohpi","perrsame");
      ls->Clear();
-     ls->SetHeader("selected y for COH events");
+     ls->SetHeader("selected y for COHPi events");
      ls->Draw();
      c->Update();
 
-     //------ selected y for COH CC
+     //------ selected y for COHPi CC
      ps->NewPage();
-     gst_0->Draw("ys","coh&&cc","");
-     if(gst_1) gst_1->Draw("ys","coh&&cc","perrsame");
+     gst_0->Draw("ys","cohpi&&cc","");
+     if(gst_1) gst_1->Draw("ys","cohpi&&cc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected y for COH CC events");
+     ls->SetHeader("selected y for COHPi CC events");
      ls->Draw();
      c->Update();
 
-     //------ selected y for COH NC
+     //------ selected y for COHPi NC
      ps->NewPage();
-     gst_0->Draw("ys","coh&&nc","");
-     if(gst_1) gst_1->Draw("ys","coh&&nc","perrsame");
+     gst_0->Draw("ys","cohpi&&nc","");
+     if(gst_1) gst_1->Draw("ys","cohpi&&nc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected y for COH NC events");
+     ls->SetHeader("selected y for COHPi NC events");
      ls->Draw();
      c->Update();
 
-     //------ selected t for COH
+     //------ selected t for COHPi
      ps->NewPage();
-     gst_0->Draw("ts","coh","");
-     if(gst_1) gst_1->Draw("ts","coh","perrsame");
+     gst_0->Draw("ts","cohpi","");
+     if(gst_1) gst_1->Draw("ts","cohpi","perrsame");
      ls->Clear();
-     ls->SetHeader("selected t for COH events");
+     ls->SetHeader("selected t for COHPi events");
      ls->Draw();
      c->Update();
   }
@@ -1576,25 +1579,25 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   c->Update();
 
   if(show_coh_plots) {
-     //------ f/s primary lepton : COH events
+     //------ f/s primary lepton : COHPi events
      ps->NewPage();
      c->Clear();
      c->Divide(2,2);
      c->cd(1);
-     gst_0->Draw("pxl","coh","");
-     if(gst_1) gst_1->Draw("pxl","coh","perrsame");
+     gst_0->Draw("pxl","cohpi","");
+     if(gst_1) gst_1->Draw("pxl","cohpi","perrsame");
      c->cd(2);
-     gst_0->Draw("pyl","coh","");
-     if(gst_1) gst_1->Draw("pyl","coh","perrsame");
+     gst_0->Draw("pyl","cohpi","");
+     if(gst_1) gst_1->Draw("pyl","cohpi","perrsame");
      c->cd(3);
-     gst_0->Draw("pzl","coh","");
-     if(gst_1) gst_1->Draw("pzl","coh","perrsame");
+     gst_0->Draw("pzl","cohpi","");
+     if(gst_1) gst_1->Draw("pzl","cohpi","perrsame");
      c->cd(4);
-     gst_0->Draw("El","coh","");
-     if(gst_1) gst_1->Draw("El","coh","perrsame");
+     gst_0->Draw("El","cohpi","");
+     if(gst_1) gst_1->Draw("El","cohpi","perrsame");
      c->cd();
      ls->Clear();
-     ls->SetHeader("Final state primary lepton 4-p: COH events");
+     ls->SetHeader("Final state primary lepton 4-p: COHPi events");
      ls->Draw();
      c->Update();
   }
