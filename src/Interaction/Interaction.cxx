@@ -10,9 +10,13 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
  @ Sep 19, 2007 - CA
    Added == operator and Compare() method
+ @ Nov 21, 2007 - CA
+   In order to handle the introdyction of a new type of coherent interactions 
+   (coherent elastic) renamed the COHCC() and COHNC() methods to COHPiCC() 
+   and COHPiNC() respectivelly, and added COHEl() methods.
+
 */
 //____________________________________________________________________________
 
