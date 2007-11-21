@@ -41,10 +41,10 @@ ReWeightCrossSection::~ReWeightCrossSection(void)
 //___________________________________________________________________________
 void ReWeightCrossSection::Initialize(void)
 {
-  this->DiffCrossSecType( kScQuasiElastic,  kPSQ2fE  );
-  this->DiffCrossSecType( kScDeepInelastic, kPSxyfE  );
-  this->DiffCrossSecType( kScResonant,      kPSWQ2fE );
-  this->DiffCrossSecType( kScCoherent,      kPSxyfE  );
+  this->DiffCrossSecType( kScQuasiElastic,    kPSQ2fE  );
+  this->DiffCrossSecType( kScDeepInelastic,   kPSxyfE  );
+  this->DiffCrossSecType( kScResonant,        kPSWQ2fE );
+  this->DiffCrossSecType( kScCoherentPiProd,  kPSxyfE  );
 }
 //___________________________________________________________________________
 void ReWeightCrossSection::HandleInitState(const InitialState & is)

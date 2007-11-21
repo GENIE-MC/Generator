@@ -10,7 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Nov 21, 2007 - CA
+   Was renamed to ReinSeghalCOHPiPXSec (from ReinSeghalCOHPXSec)
 */
 //____________________________________________________________________________
 
@@ -24,7 +25,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
-#include "ReinSeghal/ReinSeghalCOHPXSec.h"
+#include "ReinSeghal/ReinSeghalCOHPiPXSec.h"
 #include "Utils/HadXSUtils.h"
 #include "Utils/KineUtils.h"
 
@@ -33,24 +34,24 @@ using namespace genie::constants;
 using namespace genie::utils;
 
 //____________________________________________________________________________
-ReinSeghalCOHPXSec::ReinSeghalCOHPXSec() :
-XSecAlgorithmI("genie::ReinSeghalCOHPXSec")
+ReinSeghalCOHPiPXSec::ReinSeghalCOHPiPXSec() :
+XSecAlgorithmI("genie::ReinSeghalCOHPiPXSec")
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalCOHPXSec::ReinSeghalCOHPXSec(string config) :
-XSecAlgorithmI("genie::ReinSeghalCOHPXSec", config)
+ReinSeghalCOHPiPXSec::ReinSeghalCOHPiPXSec(string config) :
+XSecAlgorithmI("genie::ReinSeghalCOHPiPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalCOHPXSec::~ReinSeghalCOHPXSec()
+ReinSeghalCOHPiPXSec::~ReinSeghalCOHPiPXSec()
 {
 
 }
 //____________________________________________________________________________
-double ReinSeghalCOHPXSec::XSec(
+double ReinSeghalCOHPiPXSec::XSec(
                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
@@ -99,7 +100,7 @@ double ReinSeghalCOHPXSec::XSec(
 
   double xsec = Gf*fp2 * A2 * E*(1-y) * sTot2 * (1+r2)*propg * Fabs*tint;
 
-  LOG("ReinSeghalCoh", pDEBUG)
+  LOG("ReinSeghalCohPi", pDEBUG)
       << "\n momentum transfer .............. Q2    = " << Q2
       << "\n mass number .................... A     = " << A
       << "\n pion energy .................... Epi   = " << Epi
@@ -135,8 +136,8 @@ double ReinSeghalCOHPXSec::XSec(
      xsec *= (2.*C); 
   }
 
-  LOG("ReinSeghalCoh", pINFO)
-                << "d2xsec/dxdy[COH] (x= " << x << ", y="
+  LOG("ReinSeghalCohPi", pINFO)
+                << "d2xsec/dxdy[COHPi] (x= " << x << ", y="
                                          << y << ", E=" << E << ") = "<< xsec;
 
   //----- The algorithm computes d^2xsec/dxdy
@@ -149,13 +150,13 @@ double ReinSeghalCOHPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double ReinSeghalCOHPXSec::Integral(const Interaction * interaction) const
+double ReinSeghalCOHPiPXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool ReinSeghalCOHPXSec::ValidProcess(const Interaction * interaction) const
+bool ReinSeghalCOHPiPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -165,52 +166,28 @@ bool ReinSeghalCOHPXSec::ValidProcess(const Interaction * interaction) const
 
   int nu = init_state.ProbePdg();
 
-  if (!proc_info.IsCoherent()) return false;
-  if (!proc_info.IsWeak())     return false;
-  if (target.HitNucIsSet())    return false;
-  if (!target.A()>1)           return false;
+  if (!proc_info.IsCoherentPiProd()) return false;
+  if (!proc_info.IsWeak())           return false;
+  if (target.HitNucIsSet())          return false;
+  if (!target.A()>1)                 return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
 
   return true;
 }
 //____________________________________________________________________________
-/*
-bool ReinSeghalCOHPXSec::ValidKinematics(const Interaction* interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
-
-  double E   = init_state.ProbeE(kRfLab); // neutrino energy
-  double Eth = interaction->EnergyThreshold();
-  double ml  = interaction->FSPrimLepton()->Mass();
-  double x   = kinematics.x(); // bjorken x
-  double y   = kinematics.y(); // inelasticity y
-
-  if (E<=Eth || x<=0. || x>=1. || y<=kPionMass/E || y>=1.-ml/E) {
-
-    LOG("ReinSeghalCoh", pINFO)
-             << "d2xsec/dxdy[COH] (x= " << x << ", y="
-                                             << y << ", E=" << E << ") = 0";
-    return false;
-  }
-  return true;
-}*/
-//____________________________________________________________________________
-void ReinSeghalCOHPXSec::Configure(const Registry & config)
+void ReinSeghalCOHPiPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalCOHPXSec::Configure(string config)
+void ReinSeghalCOHPiPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalCOHPXSec::LoadConfig(void)
+void ReinSeghalCOHPiPXSec::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
