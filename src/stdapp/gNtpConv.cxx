@@ -890,7 +890,7 @@ void ConvertToT2KStdGenNtp(void)
     bool get_selected = true;
     double xs  = kine.x (get_selected);
     double ys  = kine.y (get_selected);
-    double ts  = (is_coh) ? kine.t (get_selected) : -1;
+    double ts  = (proc_info.IsCoherentPiProd()) ? kine.t (get_selected) : -1;
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
 
@@ -901,7 +901,7 @@ void ConvertToT2KStdGenNtp(void)
     // Extract more info on the hadronic system
     // Only for QEL/RES/DIS events
     //
-    bool study_hadsyst = (is_qel || is_res || is_dis);
+    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh);
     
     //
     TObjArrayIter piter(&event);
@@ -952,7 +952,7 @@ void ConvertToT2KStdGenNtp(void)
 
     vector<int> prim_had_syst;
     if(study_hadsyst) {
-      if(!target->IsNucleus()) {
+      if(!target->IsNucleus() || is_coh) {
          vector<int>::const_iterator hiter = final_had_syst.begin();
          for( ; hiter != final_had_syst.end(); ++hiter) {
            prim_had_syst.push_back(*hiter);
