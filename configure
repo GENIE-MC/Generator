@@ -13,34 +13,36 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "\n";
   print "*** GENIE configure script *** \n\n";
   print "Usage: ./configure [option]... [flag=value]... \n\n";
-  print "    FLAG            DESCRIPTION                                             DEFAULT\n\n";
-  print "    --prefix        installation location (for 'make install')              /usr/local/\n\n";
+  print "    FLAG            DESCRIPTION                                                         DEFAULT\n\n";
+  print "    --prefix        installation location (for 'make install')                          /usr/local/\n\n";
   print "enable/disable options with either --enable- or --disable- (eg --enable-gibuu --disable-flux-drivers)\n\n";
-  print "    profiler        GENIE code profiling using Google perftools             default: disabled \n";
-  print "    nuvalidator     GENIE's NuValidator tool, requires MySQL                default: disabled \n";
-  print "    neugen          GENIE/NeuGEN facade, requires libneugen3.a              default: disabled \n";
-  print "    gibuu           GiBUU intranuclear cascade MC, requires libGiBUU.a      default: disabled \n";
-  print "    flux-drivers    Built-in flux drivers                                   default: enabled  \n";
-  print "    geom-drivers    Built-in detector geometry drivers                      default: enabled  \n";
-  print "    doxygen-doc     Generate doxygen documentation at build time            default: disabled \n";
-  print "    test            Build test programs                                     default: disabled \n";
-  print "    viewer          Event generation GUI _incomplete_                       default: disabled \n";
-  print "    mueloss         Muon energy loss modeling                               default: enabled  \n";
-  print "    dylibversion    Adds version number in dynamic lib names [recommended]  default: enabled  \n";
-  print "    minos-evserv    GENIE event server for interfacing to GMINOS            default: disabled \n";
-  print "    debug           Adds -g in the compiler options to request debug info   default: disabled \n\n";
+  print "    profiler        GENIE code profiling using Google perftools                         default: disabled \n";
+  print "    nuvalidator     GENIE's NuValidator tool, requires MySQL                            default: disabled \n";
+  print "    neugen          GENIE/NeuGEN facade, requires libneugen3.a                          default: disabled \n";
+  print "    neut-cascade    Alternative intranuclear hadron transport MC, requires libNEUT.a    default: disabled \n";
+  print "    gibuu           Alternative intranuclear hadron transport MC, requires libGiBUU.a   default: disabled \n";
+  print "    flux-drivers    Built-in flux drivers                                               default: enabled  \n";
+  print "    geom-drivers    Built-in detector geometry drivers                                  default: enabled  \n";
+  print "    doxygen-doc     Generate doxygen documentation at build time                        default: disabled \n";
+  print "    test            Build test programs                                                 default: disabled \n";
+  print "    viewer          Event generation GUI _incomplete_                                   default: disabled \n";
+  print "    mueloss         Muon energy loss modeling                                           default: enabled  \n";
+  print "    dylibversion    Adds version number in dynamic lib names [recommended]              default: enabled  \n";
+  print "    minos-evserv    GENIE event server for interfacing to GMINOS                        default: disabled \n";
+  print "    debug           Adds -g in the compiler options to request debug info               default: disabled \n\n";
   print "with options for 3rd party software, prefix with --with- (eg --with-gibuu-lib=/some/path/libGiBUU.a)\n\n";
-  print "    optimiz-level   compiler opitimization level O/O2/O3/OO/Os   default: O2 \n";
-  print "    profiler-lib    Path to libprofiler.so library               if you --enable-profiler \n";
-  print "    neugen3path     NeuGEN top level directory                   if you --enable-neugen  / can pick \$NEUGEN3PATH \n";
-  print "    gibuu-lib       Path to libGiBUU.a library                   if you --enable-gibuu   / can pick \$GIBUU_LIB   \n";
-  print "    doxygen         Doxygen binary including full path           if you --enable-doxygen / can pick \$DOXYGEN     \n";
-  print "    pythia6         PYTHIA6 library path                         always needed / can pick \$PYTHIA6 / auto-detected \n";
-  print "    cernlib         CERN libraries path                          always needed / can pick \$CERNLIB / auto-detected \n";
-  print "    libxml2-inc     Path to libxml2 includes                     always needed / auto-detected \n";
-  print "    libxml2-lib     Path to libxml2 library                      always needed / auto-detected \n";
-  print "    log4cpp-inc     Path to log4cpp includes                     always needed / auto-detected \n";
-  print "    log4cpp-lib     Path to log4cpp library                      always needed / auto-detected \n\n";
+  print "    optimiz-level   compiler opitimization level O/O2/O3/OO/Os    default: O2 \n";
+  print "    profiler-lib    Path to libprofiler.so library                if you --enable-profiler \n";
+  print "    neugen3path     NeuGEN top level directory                    if you --enable-neugen        / can pick \$NEUGEN3PATH \n";
+  print "    neut-lib        Path to libNEUT.a library                     if you --enable-neut-cascade  / can pick \$NEUT_LIB    \n";
+  print "    gibuu-lib       Path to libGiBUU.a library                    if you --enable-gibuu         / can pick \$GIBUU_LIB   \n";
+  print "    doxygen         Doxygen binary including full path            if you --enable-doxygen       / can pick \$DOXYGEN     \n";
+  print "    pythia6         PYTHIA6 library path                          always needed / can pick \$PYTHIA6 / auto-detected \n";
+  print "    cernlib         CERN libraries path                           always needed / can pick \$CERNLIB / auto-detected \n";
+  print "    libxml2-inc     Path to libxml2 includes                      always needed / auto-detected \n";
+  print "    libxml2-lib     Path to libxml2 library                       always needed / auto-detected \n";
+  print "    log4cpp-inc     Path to log4cpp includes                      always needed / auto-detected \n";
+  print "    log4cpp-lib     Path to log4cpp library                       always needed / auto-detected \n\n";
   exit 0;
 }
 
@@ -108,6 +110,7 @@ print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
 my $gopt_enable_profiler     = "NO";
 my $gopt_enable_nuvalidator  = "NO";
 my $gopt_enable_neugen       = "NO";
+my $gopt_enable_neut_cascade = "NO";
 my $gopt_enable_gibuu        = "NO";
 my $gopt_enable_flux_drivers = "YES";
 my $gopt_enable_geom_drivers = "YES";
@@ -124,6 +127,7 @@ my $gopt_enable_debug        = "NO";
 if(($match = grep(/--enable-profiler/i,      @ARGV)) > 0) { $gopt_enable_profiler     = "YES"; }
 if(($match = grep(/--enable-nuvalidator/i,   @ARGV)) > 0) { $gopt_enable_nuvalidator  = "YES"; }
 if(($match = grep(/--enable-neugen/i,        @ARGV)) > 0) { $gopt_enable_neugen       = "YES"; }
+if(($match = grep(/--enable-neut-cascade/i,  @ARGV)) > 0) { $gopt_enable_neut_cascade = "YES"; }
 if(($match = grep(/--enable-gibuu/i,         @ARGV)) > 0) { $gopt_enable_gibuu        = "YES"; }
 if(($match = grep(/--enable-doxygen-doc/i,   @ARGV)) > 0) { $gopt_enable_doxygen_doc  = "YES"; }
 if(($match = grep(/--enable-test/i,          @ARGV)) > 0) { $gopt_enable_test         = "YES"; }
@@ -143,6 +147,7 @@ if($gopt_enable_debug eq "YES") { $gopt_cxx_debug_flag = "-g"; }
 print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
 print MKCONF "GOPT_ENABLE_NUVALIDATOR=$gopt_enable_nuvalidator\n"; 
 print MKCONF "GOPT_ENABLE_NEUGEN=$gopt_enable_neugen\n";
+print MKCONF "GOPT_ENABLE_NEUT_CASCADE=$gopt_enable_neut_cascade\n";
 print MKCONF "GOPT_ENABLE_GIBUU=$gopt_enable_gibuu\n";
 print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
 print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
@@ -188,6 +193,25 @@ if($gopt_enable_neugen eq "YES") {
   if(! -e $file) {
      print "*** Error *** You need to specify the top level neugen3 directory using --with-neugen3path=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-neugen\n\n";
+     exit 1;
+  }
+}
+
+# If --enable-neut-cascade was set then the full path to the libNEUT.a library must be specified
+#
+my $neut_lib = "";
+if($gopt_enable_neut_cascade eq "YES") {
+  if(($match = grep(/--with-neut-lib/i, @ARGV)) > 0) { 
+    $options=~m/--with-neut-lib=(\S*)/i;
+    $neut_lib = $1;
+  }
+  # if it was not set, try to pick it up from the environment
+  if($neut_lib eq "" && defined $ENV{'NEUT_LIB'}) { $neut_lib = $ENV{'NEUT_LIB'}; }
+  # check
+  my $file = "$neut_lib/libNEUT.a";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the path to the libNEUT.a library using --with-neut-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-neut-cascade\n\n";
      exit 1;
   }
 }
@@ -388,6 +412,7 @@ if(! -d $log4cpp_lib) {
 print MKCONF "GOPT_CXX_OPTIMIZ_FLAG=-$gopt_cxx_optimiz_flag\n";
 print MKCONF "GPROFILER_LIB=$gprofiler_lib\n";
 print MKCONF "NEUGEN3PATH=$neugen3path\n";
+print MKCONF "NEUT_LIB=$neut_lib\n";
 print MKCONF "GIBUU_LIB=$gibuu_lib\n";
 print MKCONF "DOXYGEN=$doxygen\n";
 print MKCONF "CERNLIB=$cernlib\n";
