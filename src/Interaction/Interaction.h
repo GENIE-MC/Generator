@@ -91,28 +91,30 @@ public:
   friend ostream & operator << (ostream & stream, const Interaction & i); ///< print
 
   //-- Use the "Named Constructor" C++ idiom for fast creation of typical interactions
-  static Interaction * DISCC (int tgt, int nuc, int probe, double E=0);
-  static Interaction * DISCC (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
-  static Interaction * DISCC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * DISCC (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
-  static Interaction * DISNC (int tgt, int nuc, int probe, double E=0);
-  static Interaction * DISNC (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
-  static Interaction * DISNC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * DISNC (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
-  static Interaction * QELCC (int tgt, int nuc, int probe, double E=0);
-  static Interaction * QELCC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * QELNC (int tgt, int nuc, int probe, double E=0);
-  static Interaction * QELNC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * RESCC (int tgt, int nuc, int probe, double E=0);
-  static Interaction * RESCC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * RESNC (int tgt, int nuc, int probe, double E=0);
-  static Interaction * RESNC (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * COHCC (int tgt, int probe, double E=0);
-  static Interaction * COHCC (int tgt, int probe, const TLorentzVector & p4probe);
-  static Interaction * COHNC (int tgt, int probe, double E=0);
-  static Interaction * COHNC (int tgt, int probe, const TLorentzVector & p4probe);
-  static Interaction * IMD   (int tgt, double E=0);
-  static Interaction * IMD   (int tgt, const TLorentzVector & p4probe);
+  static Interaction * DISCC   (int tgt, int nuc, int probe, double E=0);
+  static Interaction * DISCC   (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
+  static Interaction * DISCC   (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * DISCC   (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
+  static Interaction * DISNC   (int tgt, int nuc, int probe, double E=0);
+  static Interaction * DISNC   (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
+  static Interaction * DISNC   (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * DISNC   (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
+  static Interaction * QELCC   (int tgt, int nuc, int probe, double E=0);
+  static Interaction * QELCC   (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * QELNC   (int tgt, int nuc, int probe, double E=0);
+  static Interaction * QELNC   (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * RESCC   (int tgt, int nuc, int probe, double E=0);
+  static Interaction * RESCC   (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * RESNC   (int tgt, int nuc, int probe, double E=0);
+  static Interaction * RESNC   (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * COHPiCC (int tgt, int probe, double E=0);
+  static Interaction * COHPiCC (int tgt, int probe, const TLorentzVector & p4probe);
+  static Interaction * COHPiNC (int tgt, int probe, double E=0);
+  static Interaction * COHPiNC (int tgt, int probe, const TLorentzVector & p4probe);
+  static Interaction * COHEl   (int tgt, int probe, double E=0);
+  static Interaction * COHEl   (int tgt, int probe, const TLorentzVector & p4probe);
+  static Interaction * IMD     (int tgt, double E=0);
+  static Interaction * IMD     (int tgt, const TLorentzVector & p4probe);
 
 private:
 

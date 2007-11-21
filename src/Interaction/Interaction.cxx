@@ -484,10 +484,10 @@ Interaction * Interaction::RESNC(
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHCC(int tgt, int probe, double E)
+Interaction * Interaction::COHPiCC(int tgt, int probe, double E)
 {
   Interaction * interaction = 
-          Interaction::Create(tgt,probe,kScCoherent, kIntWeakCC);
+          Interaction::Create(tgt,probe,kScCoherentPiProd, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
@@ -495,11 +495,11 @@ Interaction * Interaction::COHCC(int tgt, int probe, double E)
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHCC(
+Interaction * Interaction::COHPiCC(
                           int tgt, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
-          Interaction::Create(tgt,probe,kScCoherent, kIntWeakCC);
+          Interaction::Create(tgt,probe,kScCoherentPiProd, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
@@ -507,10 +507,10 @@ Interaction * Interaction::COHCC(
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHNC(int tgt, int probe, double E)
+Interaction * Interaction::COHPiNC(int tgt, int probe, double E)
 {
   Interaction * interaction = 
-          Interaction::Create(tgt,probe,kScCoherent, kIntWeakNC);
+          Interaction::Create(tgt,probe,kScCoherentPiProd, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
@@ -518,11 +518,34 @@ Interaction * Interaction::COHNC(int tgt, int probe, double E)
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHNC(
+Interaction * Interaction::COHPiNC(
                           int tgt, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
-          Interaction::Create(tgt,probe,kScCoherent, kIntWeakNC);
+          Interaction::Create(tgt,probe,kScCoherentPiProd, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::COHEl(int tgt, int probe, double E)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt,probe,kScCoherentElas, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::COHEl(
+                          int tgt, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt,probe,kScCoherentElas, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);

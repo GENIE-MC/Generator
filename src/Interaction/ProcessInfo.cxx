@@ -88,7 +88,18 @@ bool ProcessInfo::IsResonant(void) const
 //____________________________________________________________________________
 bool ProcessInfo::IsCoherent(void) const
 {
-  return (fScatteringType == kScCoherent);
+  return (fScatteringType == kScCoherentPiProd || 
+          fScatteringType == kScCoherentElas);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsCoherentPiProd(void) const
+{
+  return (fScatteringType == kScCoherentPiProd);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsCoherentElas(void) const
+{
+  return (fScatteringType == kScCoherentElas);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsInverseMuDecay(void) const

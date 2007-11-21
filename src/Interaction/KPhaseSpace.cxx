@@ -64,7 +64,7 @@ double KPhaseSpace::Threshold(void) const
 
   double ml = fInteraction->FSPrimLepton()->Mass();
 
-  if (pi.IsCoherent()) {
+  if (pi.IsCoherentPiProd()) {
     int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (10LZZZAAAI)
     double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass();
     double m    = ml + kPionMass;
@@ -209,8 +209,8 @@ bool KPhaseSpace::IsAllowed(void) const
     return allowed;
   }
 
-  //COH
-  if (pi.IsCoherent()) {
+  //COHPi
+  if (pi.IsCoherentPiProd()) {
     Range1D_t xl = this->XLim();
     Range1D_t yl = this->YLim();
     double    x  = kine.x();
@@ -368,7 +368,7 @@ Range1D_t KPhaseSpace::XLim(void) const
     return xl;
   }
   //COH
-  bool is_coh = pi.IsCoherent();
+  bool is_coh = pi.IsCoherentPiProd();
   if(is_coh) {
     xl = kinematics::CohXLim();
     return xl;
@@ -401,8 +401,8 @@ Range1D_t KPhaseSpace::YLim(void) const
     yl = kinematics::InelYLim(Ev,M,ml);
     return yl;
   }
-  //COH
-  bool is_coh = pi.IsCoherent();
+  //COHPi
+  bool is_coh = pi.IsCoherentPiProd();
   if(is_coh) {  
     const InitialState & init_state = fInteraction->InitState();
     double EvL = init_state.ProbeE(kRfLab);
@@ -440,8 +440,8 @@ Range1D_t KPhaseSpace::YLim_X(void) const
     yl = kinematics::InelYLim_X(Ev,M,ml,x);
     return yl;
   }
-  //COH
-  bool is_coh = pi.IsCoherent();
+  //COHPi
+  bool is_coh = pi.IsCoherentPiProd();
   if(is_coh) {  
     const InitialState & init_state = fInteraction->InitState();
     double EvL = init_state.ProbeE(kRfLab);

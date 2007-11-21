@@ -52,6 +52,8 @@ public:
   bool IsDeepInelastic     (void) const;
   bool IsResonant          (void) const;
   bool IsCoherent          (void) const;
+  bool IsCoherentPiProd    (void) const;
+  bool IsCoherentElas      (void) const;
   bool IsInverseMuDecay    (void) const;
   bool IsEM                (void) const;
   bool IsWeak              (void) const;
