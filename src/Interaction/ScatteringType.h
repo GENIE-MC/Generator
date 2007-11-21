@@ -32,7 +32,8 @@ typedef enum EScatteringType {
   kScQuasiElastic,
   kScDeepInelastic,
   kScResonant,
-  kScCoherent,
+  kScCoherentPiProd,
+  kScCoherentElas,
   kScDiffractive,
   kScNuElectronElastic,
   kScInverseMuDecay
@@ -51,7 +52,8 @@ public:
       case(kScQuasiElastic) :      return "QES";      break;
       case(kScDeepInelastic) :     return "DIS";      break;
       case(kScResonant) :          return "RES";      break;
-      case(kScCoherent) :          return "COH";      break;
+      case(kScCoherentPiProd) :    return "COHPi";    break;
+      case(kScCoherentElas) :      return "COHEl";    break;
       case(kScDiffractive) :       return "DFR";      break;
       case(kScNuElectronElastic) : return "NuEEL";    break;
       case(kScInverseMuDecay) :    return "IMD";      break;
