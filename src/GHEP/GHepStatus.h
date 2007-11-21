@@ -26,55 +26,59 @@
 namespace genie {
 
 typedef enum EGHepStatus {
-
    kIStUndefined                  = -1, 
    kIStInitialState               =  0,
    kIStStableFinalState           =  1,
    kIStIntermediateState          =  2,
    kIStDecayedState               =  3,
+   kIStCorrelatedNucleon          = 10,
    kIStNucleonTarget              = 11,
    kIStDISPreFragmHadronicState   = 12,
    kIStPreDecayResonantState      = 13,
    kIStHadronInTheNucleus         = 14
-
-} GHepStatus_t; 
+} 
+GHepStatus_t; 
   
-
 class GHepStatus {
-
  public:
 
   static char * AsString(GHepStatus_t Ist) {
-
      switch (Ist) {
-
      case kIStUndefined:                
-                            return  "<Undefined Status>"; break;
+           return  "[undefined status]"; 
+           break;
      case kIStInitialState:             
-                            return  "<Initial State>"; break;
+           return  "[initial state]"; 
+           break;
      case kIStStableFinalState:         
-                            return  "<Stable Final State>"; break;
+           return  "[stable final state]"; 
+           break;
      case kIStIntermediateState:       
-                            return  "<Intermediate State>"; break;
+           return  "[intermediate state]"; 
+           break;
      case kIStDecayedState:            
-                            return  "<Decayed State>"; break;
+           return  "[decayed state]"; 
+           break;
+     case kIStCorrelatedNucleon:
+           return  "[other energetic initial state nucleons]"; 
+           break;
      case kIStNucleonTarget:            
-                            return  "<Nucleon Target>"; break;
+           return  "[nucleon target]"; 
+           break;
      case kIStDISPreFragmHadronicState: 
-                            return  "<DIS Pre-Fragm. Hadronic State>"; break;
+           return  "[DIS pre-fragm. hadronic state]"; 
+           break;
      case kIStPreDecayResonantState:   
-                            return  "<Resonant Pre-Decayed State>"; break;
+           return  "[resonant pre-decayed state]"; 
+           break;
      case kIStHadronInTheNucleus:     
-                            return  "<Hadron in the Nucleus>"; break;
-
+           return  "[hadron in the nucleus]"; 
+           break;
      default:  break;
      }
-
-     return "<->";
+     return "[-]";
   }
-
 };
 
 }         // genie
-
 #endif    // _STDHEP_STATUS_H_
