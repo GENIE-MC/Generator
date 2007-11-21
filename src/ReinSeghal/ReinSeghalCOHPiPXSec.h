@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::ReinSeghalCOHPXSec
+\class    genie::ReinSeghalCOHPiPXSec
 
 \brief    Computes the double differential cross section for CC & NC coherent
           pion production according to the \b Rein-Seghal model.
@@ -29,8 +29,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REIN_SEGHAL_COH_PARTIAL_XSEC_H_
-#define _REIN_SEGHAL_COH_PARTIAL_XSEC_H_
+#ifndef _REIN_SEGHAL_COHPI_PXSEC_H_
+#define _REIN_SEGHAL_COHPI_PXSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
 
@@ -38,18 +38,17 @@ namespace genie {
 
 class XSecIntegratorI;
 
-class ReinSeghalCOHPXSec : public XSecAlgorithmI {
+class ReinSeghalCOHPiPXSec : public XSecAlgorithmI {
 
 public:
-  ReinSeghalCOHPXSec();
-  ReinSeghalCOHPXSec(string config);
-  virtual ~ReinSeghalCOHPXSec();
+  ReinSeghalCOHPiPXSec();
+  ReinSeghalCOHPiPXSec(string config);
+  virtual ~ReinSeghalCOHPiPXSec();
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  //////bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
@@ -70,4 +69,4 @@ private:
 
 }       // genie namespace
 
-#endif  // _REIN_SEGHAL_COH_PARTIAL_XSEC_H_
+#endif  // _REIN_SEGHAL_COHPI_PXSEC_H_

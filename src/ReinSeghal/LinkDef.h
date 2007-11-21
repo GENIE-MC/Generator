@@ -6,7 +6,7 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::ReinSeghalCOHPXSec;
+#pragma link C++ class genie::ReinSeghalCOHPiPXSec;
 #pragma link C++ class genie::ReinSeghalRESPXSec;
 #pragma link C++ class genie::ReinSeghalRESXSec;
 #pragma link C++ class genie::ReinSeghalSPPPXSec;

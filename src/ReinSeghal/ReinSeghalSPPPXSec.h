@@ -43,8 +43,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REIN_SEGHAL_EXCLUSIVE_SPP_PARTIAL_XSEC_H_
-#define _REIN_SEGHAL_EXCLUSIVE_SPP_PARTIAL_XSEC_H_
+#ifndef _REIN_SEGHAL_EXCLUSIVE_SPP_PXSEC_H_
+#define _REIN_SEGHAL_EXCLUSIVE_SPP_PXSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResList.h"
@@ -85,4 +85,4 @@ private:
 };
 
 }       // genie namespace
-#endif  // _REIN_SEGHAL_EXCLUSIVE_SPP_PARTIAL_XSEC_H_
+#endif  // _REIN_SEGHAL_EXCLUSIVE_SPP_PXSEC_H_
