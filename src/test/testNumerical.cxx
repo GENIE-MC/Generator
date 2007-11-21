@@ -112,7 +112,7 @@ void testNumericalIntegration(void)
   myfunc2d.SetParam(1,"y",1.,10.);
 
   // integrate functions
-  double I1a = integrator1->Integrate(myfunc1d);
+  double I1a = integrator1a->Integrate(myfunc1d);
   double I2a = integrator2a->Integrate(myfunc2d);
   double I2b = integrator2b->Integrate(myfunc2d);
   double I2c = integrator2c->Integrate(myfunc2d);
