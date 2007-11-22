@@ -48,6 +48,6 @@ int main(int /*argc*/, char ** /*argv*/)
  res_params.RetrieveData(resonance);
 
  //-- Print the data
- LOG("Main", pINFO) << ENDL << res_params;
+ LOG("Main", pINFO) << "Baryon resonance data:\n" << res_params;
 }
 

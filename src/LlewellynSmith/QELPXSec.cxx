@@ -83,7 +83,7 @@ double QELPXSec::XSec(
   double FA    = fFormFactors.FA();
   double Fp    = fFormFactors.Fp();
 
-  LOG("QELPXSec", pDEBUG) << ENDL << fFormFactors;
+  LOG("QELPXSec", pDEBUG) << "\n" << fFormFactors;
 
   //-- calculate auxiliary parameters
   double ml2     = TMath::Power(ml,    2);
