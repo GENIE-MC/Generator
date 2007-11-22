@@ -34,8 +34,7 @@ int main(int /*argc*/, char ** /*argv*/)
 
   //-- Print the ConfigPool ( => print all its configuration registries )
 
-  LOG("Main", pINFO) << "Printing the config pool";
-  LOG("Main", pINFO) << ENDL << *pool;
+  LOG("Main", pINFO) << "Printing the config pool\n" << *pool;
 
   //-- get the algorithm factory
 
@@ -68,8 +67,8 @@ int main(int /*argc*/, char ** /*argv*/)
   Registry * config1 = pool->FindRegistry( llewellyn_smith );
   Registry * config2 = pool->FindRegistry( dipole_elff     );
 
-  if(config1) LOG("Main", pINFO) << ENDL << *config1;
-  if(config2) LOG("Main", pINFO) << ENDL << *config2;
+  if(config1) LOG("Main", pINFO) << "1st algorithm config: \n" << *config1;
+  if(config2) LOG("Main", pINFO) << "2nd algorithm config: \n" << *config2;
 
   return 0;
 }

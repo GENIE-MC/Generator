@@ -38,7 +38,7 @@ PDFModelI("genie::PDFLIB")
 PDFLIB::PDFLIB(string config) :
 PDFModelI("genie::PDFLIB", config)
 {
-  LOG("PDF", pDEBUG) << "PDFLIB configuration: " << ENDL << *fConfig;  
+  LOG("PDF", pDEBUG) << "PDFLIB configuration:\n " << *fConfig;  
 
   this->Initialize();
 }

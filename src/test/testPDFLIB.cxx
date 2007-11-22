@@ -90,7 +90,7 @@ void fill_ntuple(TNtuple * nt,
       double x = TMath::Power(10, xmin_idx + ix * dx_idx);
       pdf.Calculate(x, Q2);
 
-      LOG("Main", pINFO) << ENDL << pdf;
+      LOG("Main", pINFO) << "PDFs:\n" << pdf;
 
       nt->Fill(pdf.UpValence(),
                pdf.DownValence(),

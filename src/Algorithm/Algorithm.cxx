@@ -153,7 +153,7 @@ void Algorithm::FindConfig(void)
      fConfig        = config;
      fOwnsConfig = false;
 
-     LOG("Algorithm", pDEBUG) << ENDL << *fConfig;
+     LOG("Algorithm", pDEBUG) << "\n" << *fConfig;
   }
 }
 //____________________________________________________________________________
