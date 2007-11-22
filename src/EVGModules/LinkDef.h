@@ -9,7 +9,7 @@
 #pragma link C++ class genie::FermiMover;
 #pragma link C++ class genie::PauliBlocker;
 #pragma link C++ class genie::NucBindEnergyAggregator;
-//#pragma link C++ class genie::CorrelatedNucleonGenerator;
+#pragma link C++ class genie::CorrelatedNucleonGenerator;
 #pragma link C++ class genie::InitialStateAppender;
 #pragma link C++ class genie::VertexGenerator;
 #pragma link C++ class genie::HadronTransporter;
@@ -44,5 +44,6 @@
 #pragma link C++ class genie::RESKinematicsGenerator;
 #pragma link C++ class genie::NuEKinematicsGenerator;
 #pragma link C++ class genie::COHPiKinematicsGenerator;
+#pragma link C++ class genie::COHElKinematicsGenerator;
 
 #endif
