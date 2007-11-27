@@ -79,8 +79,6 @@ InteractionList * NuEInteractionListGenerator::IMDInteractionList(
 InteractionList * NuEInteractionListGenerator::NuEELInteractionList(
                                        const InitialState & init_state) const
 {
-  LOG("InteractionList", pFATAL) << "helo";
-
 // channels:
 // nue      + e- -> nue      + e-   [CC + NC + interference]
 // nuebar   + e- -> nuebar   + e-   [CC + NC + interference]
