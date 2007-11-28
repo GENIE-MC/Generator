@@ -59,6 +59,7 @@ public:
   bool IsWeak              (void) const;
   bool IsWeakCC            (void) const;
   bool IsWeakNC            (void) const;
+  bool IsWeakMix           (void) const;
 
   //-- get scattering and interaction type enumerations
   ScatteringType_t  ScatteringTypeId  (void) const;

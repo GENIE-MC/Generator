@@ -33,7 +33,7 @@ typedef enum EInteractionType {
   kIntEM,
   kIntWeakCC,
   kIntWeakNC,
-  kIntWeakMix
+  kIntWeakMix  /* cc+nc+interference */
 
 } InteractionType_t;
 
