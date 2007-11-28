@@ -329,7 +329,29 @@ RANLIB    = ranlib
 #                        COMPILER OPTIONS
 #-------------------------------------------------------------------
 
-# LINUX (with gcc)
+# MAC OS X (with gcc)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ifeq ($(strip $(ARCH)),macosx) 
+CXX           = g++
+CXXFLAGS      = $(GOPT_CXX_DEBUG_FLAG) $(GOPT_CXX_OPTIMIZ_FLAG) -pipe -W -Wall -Wno-long-double -fsigned-char -fno-common -flat_namespace
+CXXFLAGS     += $(GOPT_CXX_USERDEF_FLAGS) 
+LD            = g++
+LDFLAGS       = -bind_at_load
+SOFLAGS       = -dynamiclib -flat_namespace -single_module -undefined dynamic_lookup
+DllSuf       := dylib
+DllLinkSuf   := so
+StaticLibSuf := a
+ObjSuf       := o
+SrcSuf       := cxx
+FORT         := g77
+FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
+RANLIB       := ranlib
+SOCMD         = $(LD)
+OutPutOpt     = -o
+SOMINF =
+endif
+
+# LINUX on 32-bit x86 (with gcc)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ifeq ($(strip $(ARCH)),linux) 
 CXX           = g++
@@ -351,17 +373,17 @@ OutPutOpt     = -o
 SOMINF =
 endif
 
-# MAC OS X (with gcc)
+# LINUX on 64-bit x86 (with gcc)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ifeq ($(strip $(ARCH)),macosx) 
+ifeq ($(strip $(ARCH)),linuxx8664gcc) 
 CXX           = g++
-CXXFLAGS      = $(GOPT_CXX_DEBUG_FLAG) $(GOPT_CXX_OPTIMIZ_FLAG) -pipe -W -Wall -Wno-long-double -fsigned-char -fno-common -flat_namespace
+CXXFLAGS      = $(GOPT_CXX_DEBUG_FLAG) $(GOPT_CXX_OPTIMIZ_FLAG) -Wall -fPIC
 CXXFLAGS     += $(GOPT_CXX_USERDEF_FLAGS) 
 LD            = g++
-LDFLAGS       = -bind_at_load
-SOFLAGS       = -dynamiclib -flat_namespace -single_module -undefined dynamic_lookup
-DllSuf       := dylib
-DllLinkSuf   := so
+LDFLAGS       = -g
+SOFLAGS       = -shared
+DllSuf       := so
+DllLinkSuf   := 
 StaticLibSuf := a
 ObjSuf       := o
 SrcSuf       := cxx

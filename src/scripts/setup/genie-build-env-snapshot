@@ -61,7 +61,7 @@ close(LOG);
 
 system("uname -a >> $BLD_ENV_LOG");
 system("echo     >> $BLD_ENV_LOG");
-system("ps -aux  >> $BLD_ENV_LOG");
+system("ps aux   >> $BLD_ENV_LOG");
 system("echo     >> $BLD_ENV_LOG");
 system("df       >> $BLD_ENV_LOG");
 system("echo     >> $BLD_ENV_LOG");
