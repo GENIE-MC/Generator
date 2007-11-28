@@ -141,6 +141,10 @@ int Interaction::FSPrimLeptonPdg(void) const
      int clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
      return clpdgc;
   }
+  else if (proc_info.IsWeakMix() && proc_info.IsNuElectronElastic()) {
+     return kPdgElectron;
+  }
+
   LOG("Interaction", pWARN)
         << "Could not figure out the final state primary lepton pdg code!!";
 
