@@ -25,8 +25,10 @@
    <config alg="genie::RESKinematicsGenerator">      RESKinematicsGenerator.xml      </config>
    <config alg="genie::NuEKinematicsGenerator">      NuEKinematicsGenerator.xml      </config>
    <config alg="genie::COHPiKinematicsGenerator">    COHPiKinematicsGenerator.xml    </config>
+   <config alg="genie::COHElKinematicsGenerator">    COHElKinematicsGenerator.xml    </config>
    <config alg="genie::QELHadronicSystemGenerator">  QELHadronicSystemGenerator.xml  </config>
    <config alg="genie::COHPiHadronicSystemGenerator">COHPiHadronicSystemGenerator.xml</config>
+   <config alg="genie::COHElHadronicSystemGenerator">COHElHadronicSystemGenerator.xml</config>
    <config alg="genie::DISHadronicSystemGenerator">  DISHadronicSystemGenerator.xml  </config>
    <config alg="genie::RESHadronicSystemGenerator">  RESHadronicSystemGenerator.xml  </config>
    <config alg="genie::RSPPHadronicSystemGenerator"> RSPPHadronicSystemGenerator.xml </config>
