@@ -24,6 +24,7 @@
 
 #pragma link C++ class genie::HadronicSystemGenerator;
 #pragma link C++ class genie::COHPiHadronicSystemGenerator;
+#pragma link C++ class genie::COHElHadronicSystemGenerator;
 #pragma link C++ class genie::QELHadronicSystemGenerator;
 #pragma link C++ class genie::DISHadronicSystemGenerator;
 #pragma link C++ class genie::RESHadronicSystemGenerator;
