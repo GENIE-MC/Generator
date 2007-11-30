@@ -447,6 +447,9 @@ Use the "Default" one to get the best GENIE physics & tuning.
   -->
   <param type="string" name="INUKE-Mode">            hA    </param>
   <param type="double" name="INUKE-NucRemovalE">     0.008 </param>
+  <param type="double" name="INUKE-HadStep">         0.05  </param>
+  <param type="double" name="INUKE-DelRPion">        0.5   </param>
+  <param type="double" name="INUKE-DelRNucleon">     1.0   </param>
 
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
