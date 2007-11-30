@@ -20,16 +20,17 @@
 #include <TApplication.h>
 #include <TGClient.h>
 
-#include "Viewer/GenieViewer.h"
+#include "Viewer/GViewerMainFrame.h"
 
 using namespace genie;
 
 int main(int argc, char ** argv)
 {
-  TApplication genie_gui("GENIE", &argc, argv);
+  TApplication ggui("GENIE", &argc, argv);
 
-  GenieViewer main_window(gClient->GetRoot(), 700, 350);
-  genie_gui.Run();
+  GViewerMainFrame gvmf(gClient->GetRoot(), 700, 350);
+  ggui.Run();
 
   return 0;
 }
+
