@@ -14,6 +14,11 @@
  @ Sep 19, 2007 - CA
    Copied here the nuclear density methods used by intranuke so that they
    can be used by other modules as well (eg position vertex selection)
+ @ Nov 30, 2007 - CA
+   Added possibility to increase the nuclear size (intranuke may increase the
+   nuclear size by a const times the de Broglie wavelength of a transported
+   hadron). Density() methods have a new default argument (ring) which is 0
+   if not explicity set.
 
 */
 //____________________________________________________________________________
@@ -345,13 +350,11 @@ double genie::utils::nuclear::RModelMod(double x, double Q2)
   return R;
 }
 //___________________________________________________________________________
-double genie::utils::nuclear::Density(double r, int A)
+double genie::utils::nuclear::Density(double r, int A, double ring)
 {
 // [by S.Dytman]
 //
-
   if(A>20) {
-
     double c = 1., z = 1.;
 
     if      (A ==  27) { c = 3.07; z = 0.52; }  // aluminum
@@ -363,11 +366,10 @@ double genie::utils::nuclear::Density(double r, int A)
        c = TMath::Power(A,0.35); z = 0.54; 
     } //others
 
-    double rho = A * DensityWoodsSaxon(r,c,z);
+    double rho = A * DensityWoodsSaxon(r,c,z,ring);
     return rho;
   }
   else if (A>4) {
-
     double ap = 1., alf = 1.;
 
     if      (A ==  7) { ap = 1.77; alf = 0.327; } // lithium
@@ -378,21 +380,22 @@ double genie::utils::nuclear::Density(double r, int A)
       ap=1.75; alf=-0.4+.12*A; 
     }  //others- alf=0.08 if A=4
 
-    double rho = A * DensityGaus(r,ap,alf);
+    double rho = A * DensityGaus(r,ap,alf,ring);
     return rho;
   }
   else {
     // helium
     double ap = 1.9/TMath::Sqrt(2.);  
     double alf=0.;    
-    double rho = A * DensityGaus(r,ap,alf);
+    double rho = A * DensityGaus(r,ap,alf,ring);
     return rho;
   }
 
   return 0;
 }
 //___________________________________________________________________________
-double genie::utils::nuclear::DensityGaus(double r, double a, double alf)
+double genie::utils::nuclear::DensityGaus(
+                             double r, double a, double alf, double ring)
 {
 // [adapted from neugen3 density_gaus.F written by S.Dytman]
 //
@@ -402,9 +405,12 @@ double genie::utils::nuclear::DensityGaus(double r, double a, double alf)
 // input  : radial distance in nucleus [units: fm]
 // output : nuclear density            [units: fm^-3]
 
-  double norm = 1./((5.568 + alf*8.353)*TMath::Power(a,3.));  //0.0132;
-  double b    = TMath::Power(r/a,2.);
-  double dens = norm * (1. + alf*b) * TMath::Exp(-b);
+  ring = TMath::Max(ring, 0.3*a);
+
+  double aeval = a + ring;
+  double norm  = 1./((5.568 + alf*8.353)*TMath::Power(a,3.));  //0.0132;
+  double b     = TMath::Power(r/aeval, 2.);
+  double dens  = norm * (1. + alf*b) * TMath::Exp(-b);
 
   LOG("Nuclear", pINFO) 
         << "r = " << r << ", norm = " << norm << ", dens = " << dens;
@@ -412,7 +418,8 @@ double genie::utils::nuclear::DensityGaus(double r, double a, double alf)
   return dens;
 }
 //___________________________________________________________________________
-double genie::utils::nuclear::DensityWoodsSaxon(double r, double c, double z)
+double genie::utils::nuclear::DensityWoodsSaxon(
+                              double r, double c, double z, double ring)
 {
 // [adapted from neugen3 density_ws.F written by S.Dytman]
 //
@@ -421,8 +428,11 @@ double genie::utils::nuclear::DensityWoodsSaxon(double r, double c, double z)
 // input  : radial distance in nucleus [units: fm]
 // output : nuclear density            [units: fm^-3]
 
-  double norm = (3./(4.*kPi*TMath::Power(c,3)))*1./(1.+TMath::Power((kPi*z/c),2));
-  double dens = norm / (1 + TMath::Exp((r-c)/z));
+  ring = TMath::Max(ring, 0.75*c);
+
+  double ceval = c + ring;
+  double norm  = (3./(4.*kPi*TMath::Power(c,3)))*1./(1.+TMath::Power((kPi*z/c),2));
+  double dens  = norm / (1 + TMath::Exp((r-ceval)/z));
 
   LOG("Nuclear", pINFO) 
         << "r = " << r << ", norm = " << norm << ", dens = " << dens;
