@@ -402,8 +402,8 @@ Use the "Default" one to get the best GENIE physics & tuning.
   - ct0 is the formation time times the speed of light (given in fm)
   - KPt2 is the parameter multiplying pT2 in formation zone calc.
   -->
-  <param type="double" name="FZONE-ct0">    0.5233   </param>
-  <param type="double" name="FZONE-KPt2">   0.0      </param>
+  <param type="double" name="FZONE-ct0">    0.342   </param>
+  <param type="double" name="FZONE-KPt2">   0.0     </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
