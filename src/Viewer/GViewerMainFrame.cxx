@@ -1,14 +1,20 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
-\class    genie::GenieViewer
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
+         October 07, 2004
 
-\brief    GENIE Viewer Main Frame
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+ Important revisions after version 2.0.0 :
 
-\created  October 07, 2004
+ @ Nov 30, 2007 - CA
+   Was renamed GViewerMainFrame from GenieViewer in 2.0.1. Replaced usage of
+   depcreciated/removed GHEP rendering objects. Auto-loading splines at 
+   initialization. More changes to the GUI are required.
 
 */
 //____________________________________________________________________________
@@ -50,9 +56,10 @@
 #include "EVGCore/EventRecord.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
-#include "Viewer/RendererQEL.h"
+#include "Utils/XSecSplineList.h"
+#include "Viewer/GHepDrawer.h"
 #include "Viewer/GHepPrinter.h"
-#include "Viewer/GenieViewer.h"
+#include "Viewer/GViewerMainFrame.h"
 
 using std::ostringstream;
 using std::setprecision;
@@ -61,24 +68,23 @@ using std::vector;
 
 using namespace genie;
 
-ClassImp(GenieViewer)
+ClassImp(GViewerMainFrame)
 
 const char * neutrinos[] = {
-             "nu_e", "nu_mu", "nu_tau", "nu_e_bar", "nu_mu_bar", "nu_tau_bar" };
-
-const int neutrino_pdg[] = { 12, 14, 16, -12, -14, -16 };
+   "nu_e", "nu_mu", "nu_tau", "nu_e_bar", "nu_mu_bar", "nu_tau_bar", 0 };
+const int neutrino_pdg[] = { 
+    12, 14, 16, -12, -14, -16, 0 };
 
 //______________________________________________________________________________
-GenieViewer::GenieViewer(const TGWindow * p, UInt_t w, UInt_t h) :
+GViewerMainFrame::GViewerMainFrame(const TGWindow * p, UInt_t w, UInt_t h) :
 TGMainFrame(p, w, h)
 {
   _main = new TGMainFrame(p,w,h);
-
-  _main->Connect("CloseWindow()", "genie::GenieViewer", this, "Close()");
+  _main->Connect(
+        "CloseWindow()", "genie::GViewerMainFrame", this, "Close()");
 
   //-- define TGLayoutHints
-
-  DefineLayoutHints();
+  this->DefineLayoutHints();
 
   //-- instantiate main frames (below menu & above the status bar)
 
@@ -102,11 +108,10 @@ TGMainFrame(p, w, h)
   fLowerFrame  -> AddFrame ( fLowerLeftFrame,   fLowerLeftFrameLayout  );
   fLowerFrame  -> AddFrame ( fLowerRightFrame,  fLowerRightFrameLayout );
 
-  fControlsGroupFrame     = BuildGenieControls();
-  fInitStateGroupFrame    = BuildInitialStateControls();
-  fNuP4ControlsGroupFrame = BuildNeutrinoP4Controls();
-
-  fViewerTabs             = BuildViewerTabs();
+  fControlsGroupFrame     = this->BuildGenieControls();
+  fInitStateGroupFrame    = this->BuildInitialStateControls();
+  fNuP4ControlsGroupFrame = this->BuildNeutrinoP4Controls();
+  fViewerTabs             = this->BuildViewerTabs();
 
   fLowerLeftFrame  -> AddFrame ( fControlsGroupFrame,  fControlsFrameLayout  );
   fLowerLeftFrame  -> AddFrame ( fInitStateGroupFrame    );
@@ -115,45 +120,41 @@ TGMainFrame(p, w, h)
 
   //-- add top/bottom main frames to main frame, and main frame to main
 
-  fMainFrame        -> AddFrame ( fUpperFrame    );
-  fMainFrame        -> AddFrame ( fLowerFrame );
-
-  _main             -> AddFrame ( fMainFrame  );
+  fMainFrame -> AddFrame ( fUpperFrame    );
+  fMainFrame -> AddFrame ( fLowerFrame );
+  _main      -> AddFrame ( fMainFrame  );
 
   //-- add Status Bar
 
   Int_t parts[] = { 60, 20, 20 };
 
   fStatusBar = new TGStatusBar(_main, 50, 10, kHorizontalFrame);
-
   fStatusBar->SetParts(parts, 3);
 
   _main->AddFrame(fStatusBar, fStatusBarLayout);
 
   //-- initialize
-
-  Initialize();
-
+  this->Initialize();
   _main->SetWindowName("GENIE Viewer");
-
   _main->MapSubwindows();
-
   _main->Resize( _main->GetDefaultSize() );
-
   _main->MapWindow();
 }
 //______________________________________________________________________________
-GenieViewer::~GenieViewer()
+GViewerMainFrame::~GViewerMainFrame()
 {
   _main->Cleanup();
-
   delete _main;
+
+  delete fEVGDriver;
+  delete fGHepDrawer;
+  delete fGHepPrinter;
 }
 //______________________________________________________________________________
-void GenieViewer::DefineLayoutHints(void)
+void GViewerMainFrame::DefineLayoutHints(void)
 {
   ULong_t hintFeynmanTabLayout  = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintGHepTabLayout   = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
+  ULong_t hintGHepTabLayout     = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
   ULong_t hintStatusBarLayout   = kLHintsBottom | kLHintsLeft | kLHintsExpandX;
   ULong_t hintLLeftFrameLayout  = kLHintsCenterY;
   ULong_t hintLRightFrameLayout = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
@@ -161,7 +162,7 @@ void GenieViewer::DefineLayoutHints(void)
   ULong_t hintViewerTabsLayout  = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
 
   fFeynmanTabLayout      = new TGLayoutHints(hintFeynmanTabLayout,    5, 5, 10, 1);
-  fGHepTabLayout       = new TGLayoutHints(hintGHepTabLayout,     5, 5, 10, 1);
+  fGHepTabLayout         = new TGLayoutHints(hintGHepTabLayout,       5, 5, 10, 1);
   fStatusBarLayout       = new TGLayoutHints(hintStatusBarLayout,     0, 0,  2, 0);
   fLowerLeftFrameLayout  = new TGLayoutHints(hintLLeftFrameLayout,    1, 1,  1, 1);
   fLowerRightFrameLayout = new TGLayoutHints(hintLRightFrameLayout,   1, 1,  1, 1);
@@ -169,7 +170,7 @@ void GenieViewer::DefineLayoutHints(void)
   fViewerTabsLayout      = new TGLayoutHints(hintViewerTabsLayout,    5, 5, 10, 1);
 }
 //______________________________________________________________________________
-TGGroupFrame * GenieViewer::BuildImageButtonFrame(void)
+TGGroupFrame * GViewerMainFrame::BuildImageButtonFrame(void)
 {
   TGGroupFrame * button_group_frame = new TGGroupFrame(
                        fUpperFrame, "Viewer Control Buttons", kHorizontalFrame);
@@ -187,7 +188,8 @@ TGGroupFrame * GenieViewer::BuildImageButtonFrame(void)
   fNextEventButton  -> SetToolTipText( "Next Event" ,   1);
   fExitButton       -> SetToolTipText( "Exit Viewer",   1);
 
-  fNextEventButton  -> Connect("Clicked()","genie::GenieViewer", this,"NextEvent()");
+  fNextEventButton  -> Connect(
+        "Clicked()","genie::GViewerMainFrame", this,"NextEvent()");
 
   button_group_frame -> AddFrame( fNextEventButton  );
   button_group_frame -> AddFrame( fExitButton       );
@@ -195,7 +197,7 @@ TGGroupFrame * GenieViewer::BuildImageButtonFrame(void)
   return button_group_frame;
 }
 //______________________________________________________________________________
-TGGroupFrame * GenieViewer::BuildGenieControls(void)
+TGGroupFrame * GViewerMainFrame::BuildGenieControls(void)
 {
   TGGroupFrame *  controls_frame = new TGGroupFrame(fLowerLeftFrame,
                                                "Run Switches",  kVerticalFrame);
@@ -217,7 +219,7 @@ TGGroupFrame * GenieViewer::BuildGenieControls(void)
   return controls_frame;
 }
 //______________________________________________________________________________
-TGGroupFrame * GenieViewer::BuildNeutrinoP4Controls(void)
+TGGroupFrame * GViewerMainFrame::BuildNeutrinoP4Controls(void)
 {
   TGGroupFrame *  nup4_frame = new TGGroupFrame(fLowerLeftFrame,
                                                "Neutrino 4-P",  kVerticalFrame);
@@ -253,8 +255,10 @@ TGGroupFrame * GenieViewer::BuildNeutrinoP4Controls(void)
   return nup4_frame;
 }
 //______________________________________________________________________________
-TGGroupFrame * GenieViewer::BuildInitialStateControls(void)
+TGGroupFrame * GViewerMainFrame::BuildInitialStateControls(void)
 {
+  LOG("gviewer", pINFO) << "Building initial state controls...";
+
   TGGroupFrame *  init_state_frame = new TGGroupFrame(fLowerLeftFrame,
                                              "Initial State",  kVerticalFrame);
 
@@ -262,14 +266,22 @@ TGGroupFrame * GenieViewer::BuildInitialStateControls(void)
 
   init_state_frame->SetLayoutManager( fInitStateMatrixLayout );
 
+  LOG("gviewer", pINFO) << "1";
+
   fA = new TGNumberEntry(init_state_frame, 1, 4, 0, TGNumberFormat::kNESInteger);
   fZ = new TGNumberEntry(init_state_frame, 1, 4, 0, TGNumberFormat::kNESInteger);
+
+  LOG("gviewer", pINFO) << "2";
 
   fALabel  = new TGLabel(init_state_frame, new TGString( "A = "));
   fZLabel  = new TGLabel(init_state_frame, new TGString( "Z = "));
   fNuLabel = new TGLabel(init_state_frame, new TGString( "Nu "));
 
+  LOG("gviewer", pINFO) << "3";
+
   fNu = new TGComboBox(init_state_frame, 201);
+
+  LOG("gviewer", pINFO) << "4";
 
   int i = 0;
   while( neutrinos[i] ) {
@@ -277,7 +289,11 @@ TGGroupFrame * GenieViewer::BuildInitialStateControls(void)
     i++;
   }
 
+  LOG("gviewer", pINFO) << "5";
+
   fNu -> Resize (80, 20);
+
+  LOG("gviewer", pINFO) << "6";
 
   init_state_frame -> AddFrame ( fALabel  );
   init_state_frame -> AddFrame ( fA       );
@@ -286,15 +302,19 @@ TGGroupFrame * GenieViewer::BuildInitialStateControls(void)
   init_state_frame -> AddFrame ( fNuLabel );
   init_state_frame -> AddFrame ( fNu      );
 
+  LOG("gviewer", pINFO) << "7";
+
   fEmptyLabel2  = new TGLabel(init_state_frame, new TGString(" "));
 
   init_state_frame -> AddFrame ( fEmptyLabel2 );
   init_state_frame -> AddFrame ( fEmptyLabel2 );
 
+  LOG("gviewer", pINFO) << "8";
+
   return init_state_frame;
 }
 //______________________________________________________________________________
-TGTab * GenieViewer::BuildViewerTabs(void)
+TGTab * GViewerMainFrame::BuildViewerTabs(void)
 {
   TGCompositeFrame * tf = 0;
 
@@ -332,32 +352,37 @@ TGTab * GenieViewer::BuildViewerTabs(void)
   return tab;
 }
 //______________________________________________________________________________
-const char * GenieViewer::Icon(const char * name)
+const char * GViewerMainFrame::Icon(const char * name)
 {
   ostringstream pic;
   pic  << gSystem->Getenv("GENIE") << "/data/icons/" << name << ".xpm";
 
+  LOG("gviewer", pINFO) << "Loading icon: " << pic.str();
+
   return pic.str().c_str();
 }
 //______________________________________________________________________________
-void GenieViewer::Initialize(void)
+void GViewerMainFrame::Initialize(void)
 {
   //-- build GENIE interface object
+
+  XSecSplineList * xspl = XSecSplineList::Instance();
+  xspl->AutoLoad();
 
   fEVGDriver = new GEVGDriver();
 
   //-- build Feynman diagram renderers and STDHEP record printer
-
-  fQELRenderer   = new RendererQEL;
+  fGHepDrawer  = new GHepDrawer;
   fGHepPrinter = new GHepPrinter;
 
-  fQELRenderer->SetEmbeddedCanvas(fEmbeddedCanvas);
-  fGHepPrinter->SetTextEdit(fGHep);
+  fGHepDrawer  -> SetEmbeddedCanvas(fEmbeddedCanvas);
+  fGHepPrinter -> SetTextEdit(fGHep);
 }
 //______________________________________________________________________________
-void GenieViewer::NextEvent(void)
+void GViewerMainFrame::NextEvent(void)
 {
   fEVGDriver->Configure(14,(int) fZ->GetNumber(), (int) fA->GetNumber()); // Z,A
+  fEVGDriver->UseSplines();
 
   double px = fPx->GetNumber();
   double py = fPy->GetNumber();
@@ -373,29 +398,9 @@ void GenieViewer::NextEvent(void)
   this->ShowEvent(ev_rec);
 }
 //______________________________________________________________________________
-void GenieViewer::ShowEvent(EventRecord * ev_rec)
+void GViewerMainFrame::ShowEvent(EventRecord * ev_rec)
 {
-  LOG("gviewer", pINFO) << "Drawing Feynman Diagram";
-
-  fGHepPrinter->Print(ev_rec);
-
-  Interaction * interaction = ev_rec->Summary();
-
-  if (interaction->ProcInfo().IsQuasiElastic())
-  {
-    fQELRenderer->DrawDiagram(ev_rec);
-  }
-  else if (interaction->ProcInfo().IsDeepInelastic())
-  {
-
-  }
-  else if (interaction->ProcInfo().IsResonant())
-  {
-
-  }
-  else
-  {
-
-  }
+  fGHepPrinter -> Print (ev_rec);
+  fGHepDrawer  -> Draw  (ev_rec);
 }
 //______________________________________________________________________________

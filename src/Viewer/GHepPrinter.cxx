@@ -1,14 +1,15 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2007, GENIE Neutrino MC Generator Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
-\class    genie::GHepPrinter
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
+         October 07, 2004
 
-\brief    Prints the STDHEP record
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          STFC, Rutherford Appleton Laboratory
-
-\created  October 07, 2004
+ Important revisions after version 2.0.0 :
 
 */
 //____________________________________________________________________________
