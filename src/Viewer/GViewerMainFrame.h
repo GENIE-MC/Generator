@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::GenieViewer
+\class    genie::GViewerMainFrame
 
 \brief    GENIE Viewer Main Frame
 
@@ -13,8 +13,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _GENIE_VIEWER_MAIN_FRAME_H_
-#define _GENIE_VIEWER_MAIN_FRAME_H_
+#ifndef _GVIEWER_MAIN_FRAME_H_
+#define _GVIEWER_MAIN_FRAME_H_
 
 #include <TApplication.h>
 #include <TGFrame.h>
@@ -49,15 +49,15 @@ namespace genie {
 
 class GEVGDriver;
 class EventRecord;
-class Renderer;
 class GHepPrinter;
+class GHepDrawer;
 
-class GenieViewer : public TGMainFrame {
+class GViewerMainFrame : public TGMainFrame {
 
 public:
 
-   GenieViewer(const TGWindow * p, UInt_t w, UInt_t h);
-   virtual ~GenieViewer();
+   GViewerMainFrame(const TGWindow * p, UInt_t w, UInt_t h);
+   virtual ~GViewerMainFrame();
 
    void Close              (void) { gApplication->Terminate(0); }
    void Exit               (void) { Close();                    }
@@ -132,13 +132,12 @@ private:
    TGLabel *                fEmptyLabel2;
    TGComboBox *             fNu;
 
-   Renderer *               fQELRenderer;
+   GHepDrawer *             fGHepDrawer;
    GHepPrinter *            fGHepPrinter;
 
-   ClassDef(GenieViewer, 0)
+   ClassDef(GViewerMainFrame, 0)
 };
 
 }       // genie namespace
-
-#endif  // _GENIE_VIEWER_MAIN_FRAME_H_
+#endif  // _GVIEWER_MAIN_FRAME_H_
 

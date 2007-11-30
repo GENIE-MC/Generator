@@ -1,20 +1,20 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::Renderer
+\class    genie::GHepDrawer
 
-\brief    Feynman diagram renderer ABC
+\brief    Draws a generated event
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
-\created  October 07, 2004
+\created  November 30, 2007
 
 */
 //____________________________________________________________________________
 
-#ifndef _RENDERER_H_
-#define _RENDERER_H_
+#ifndef _GHEP_DRAWER_H_
+#define _GHEP_DRAWER_H_
 
 class TRootEmbeddedCanvas;
 
@@ -22,24 +22,19 @@ namespace genie {
 
 class EventRecord;
 
-class Renderer {
+class GHepDrawer {
 
 public:
+   GHepDrawer();
+  ~GHepDrawer();
 
-   virtual void DrawDiagram (EventRecord * ev_rec) = 0;
+   void SetEmbeddedCanvas (TRootEmbeddedCanvas * ec);
+   void Draw              (EventRecord * ev_rec);
 
-   void         SetEmbeddedCanvas (TRootEmbeddedCanvas * ec);
-   const char * P4AsString(double E, double px, double py, double pz);
-
-protected:
-
-   Renderer();
-   virtual ~Renderer();
-
+private:
    TRootEmbeddedCanvas * fEmbeddedCanvas;
 };
 
 }       // genie namespace
-
-#endif  // _RENDERER_H_
+#endif  // _RENDERER_QEL_H_
 
