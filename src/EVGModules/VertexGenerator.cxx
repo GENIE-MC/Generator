@@ -10,10 +10,12 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
  @ Sep 19, 2007 - CA
    Added code to generate the interaction according to a realistic nuclear
    density and made that the default setting.
+ @ Dec 01, 2007 - CA
+   For COH and ve- interactions setting the vertex on the nuclear boundary
+   rather than inside the nucleus.
 */
 //____________________________________________________________________________
 
@@ -66,7 +68,7 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
   GHepParticle * nucltgt = evrec->TargetNucleus();
 
   bool uniform   = fVtxGenMethod==0;
-  bool realistic = !uniform;;
+  bool realistic = !uniform;
 
   if(!nucltgt) {
     vtx.SetXYZ(0.,0.,0.);
@@ -75,22 +77,33 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
     double A = nucltgt->A();
     double R = fR0 * TMath::Power(A, 1./3.);
 
-    // Generate the vertex uniformly within the nucleus
-    //
-    if(uniform) {
-       LOG("Vtx", pINFO) 
-             << "Generating intranuclear vertex uniformly in volume";
-       while(vtx.Mag() > R) {
-           vtx.SetX(-R + 2*R * rnd->RndFsi().Rndm());
-           vtx.SetY(-R + 2*R * rnd->RndFsi().Rndm());
-           vtx.SetZ(-R + 2*R * rnd->RndFsi().Rndm());
-       }
-    } 
+    Interaction * interaction = evrec->Summary();
+    const ProcessInfo & proc_info = interaction->ProcInfo();
+    bool is_coh = proc_info.IsCoherentPiProd() || proc_info.IsCoherentElas();
+    bool is_ve  = proc_info.IsInverseMuDecay() || proc_info.IsNuElectronElastic();
 
-    // Generate the vertex using a realistic nuclear density
-    //
-    if(realistic) {
-       LOG("Vtx", pINFO) 
+    if(is_coh||is_ve) {
+      // ** For COH or ve- set a vertex positon on the nuclear boundary
+      //
+      LOG("Vtx", pINFO)  << "Setting vertex on the nuclear boundary";
+      double phi      = 2*kPi * rnd->RndFsi().Rndm();
+      double cosphi   = TMath::Cos(phi);
+      double sinphi   = TMath::Sin(phi);
+      double costheta = -1 + 2 * rnd->RndFsi().Rndm();
+      double sintheta = TMath::Sqrt(1-costheta*costheta);
+      vtx.SetX(R*sintheta*cosphi);
+      vtx.SetY(R*sintheta*sinphi);
+      vtx.SetZ(R*costheta);
+    }
+    else {  
+      // ** For other events on nuclear targets set the interaction vertex
+      // ** using the requested method: either using a realistic nuclear 
+      // ** density or by setting it uniformly within the nucleus
+      //
+      if(realistic) {
+        // Generate the vertex using a realistic nuclear density
+        //
+        LOG("Vtx", pINFO) 
            << "Generating vertex according to a realistic nuclear density profile";
         // get inputs to the rejection method
         double ymax = -1;
@@ -138,8 +151,21 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
              break;
            }
         }//w(1)
-    } //use density?
+      } //use density?
 
+      if(uniform) {
+        // Generate the vertex uniformly within the nucleus
+        //
+        LOG("Vtx", pINFO) 
+             << "Generating intranuclear vertex uniformly in volume";
+        while(vtx.Mag() > R) {
+           vtx.SetX(-R + 2*R * rnd->RndFsi().Rndm());
+           vtx.SetY(-R + 2*R * rnd->RndFsi().Rndm());
+           vtx.SetZ(-R + 2*R * rnd->RndFsi().Rndm());
+        }
+      }// uniform? 
+
+    } // coh or ve-?
   } // nuclear target ?
 
   LOG("Vtx", pNOTICE) 
