@@ -374,8 +374,9 @@ void CreateSummaryTree(string inp_filename)
     bool is_nuel   = proc_info.IsNuElectronElastic();
     bool is_weakcc = proc_info.IsWeakCC();
     bool is_weaknc = proc_info.IsWeakNC();
+    bool is_coh    = is_cohpi | is_cohel;
 
-    if(!hitnucl) { assert(is_cohel || is_cohpi || is_imd || is_nuel); }
+    if(!hitnucl) { assert(is_coh || is_imd || is_nuel); }
   
     // hit quark 
     // set only for DIS events
@@ -428,9 +429,9 @@ void CreateSummaryTree(string inp_filename)
        << ", x = " << xs << ", y = " << ys << ", t = " << ts;
 
     // Extract more info on the hadronic system
-    // Only for QEL/RES/DIS events
+    // Only for QEL/RES/DIS/COH events
     //
-    bool study_hadsyst = (is_qel || is_res || is_dis || is_cohpi || is_cohel);
+    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh);
     
     //
     TObjArrayIter piter(&event);
@@ -458,7 +459,7 @@ void CreateSummaryTree(string inp_filename)
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
       ip++;
-      if(ip < TMath::Max(hitnucl->FirstDaughter(), event.FinalStatePrimaryLeptonPosition()+1)) continue;
+      if(!is_coh && ip < TMath::Max(hitnucl->FirstDaughter(), event.FinalStatePrimaryLeptonPosition()+1)) continue;
       if(p->IsFake()) continue;
       int pdgc = p->Pdg();
       int ist  = p->Status();
