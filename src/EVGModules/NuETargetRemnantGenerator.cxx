@@ -67,31 +67,22 @@ void NuETargetRemnantGenerator::AddElectronNeutrino(GHepRecord * evrec) const
   assert(l);
 
   //-- Force energy conservation
+  //   Pv(Ev,pxv,pyv,pzv) + Pe(En,pxn,pyn,pzn) = Pfsl(El,pxl,pyl,pzl) + Px
 
-  // Pvmu(Ev,pxv,pyv,pzv) + Pe(En,pxn,pyn,pzn) = Pmu(El,pxl,pyl,pzl) + Pve
-/*
-  double E  = nu->E()  + el->E()  - l->E();
-  double px = nu->Px() + el->Px() - l->Px();
-  double py = nu->Py() + el->Py() - l->Py();
-  double pz = nu->Pz() + el->Pz() - l->Pz();
-*/
   const TLorentzVector & p4v = *(nu->P4());
   const TLorentzVector & p4e = *(el->P4());
   const TLorentzVector & p4l = *(l->P4());
-
-  const TLorentzVector & p4 = p4v + p4e - p4l; 
+  const TLorentzVector & p4  = p4v + p4e - p4l; 
 
   //-- Vtx position
   const TLorentzVector & vtx = *(nu->X4());
 
-  //-- Add the final state recoil nucleon at the EventRecord
-  
   LOG("NuETargetRemnant", pINFO) << "Adding final state lepton from e- vtx";
 
   const ProcessInfo & proc_info = evrec->Summary()->ProcInfo();
   int mom  = evrec->HitElectronPosition();
   int pdgc = 0;
-  if      (proc_info.IsWeakNC()) pdgc = kPdgElectron;
+  if      (proc_info.IsWeakNC() || proc_info.IsWeakMix()) pdgc = kPdgElectron;
   else if (proc_info.IsWeakCC()) pdgc = kPdgNuE;
   assert(pdgc>0);
   evrec->AddParticle(
