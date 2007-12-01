@@ -732,7 +732,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   //
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
-  gStyle->SetHistTopMargin(0.2);
+  gStyle->SetHistTopMargin(0.33);
   gStyle->SetHistMinimumZero(true);
   
   // Plotting options
@@ -2387,7 +2387,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim p
      ps->NewPage();
      gst_0->Draw("nip","","");
-     if(gst_1) gst_1->Draw("nfp","","");
+     if(gst_1) gst_1->Draw("nfp","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of protons");
      ls->Draw();
@@ -2396,7 +2396,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim n
      ps->NewPage();
      gst_0->Draw("nin","","");
-     if(gst_1) gst_1->Draw("nfn","","");
+     if(gst_1) gst_1->Draw("nfn","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of neutrons");
      ls->Draw();
@@ -2405,7 +2405,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim pi+
      ps->NewPage();
      gst_0->Draw("nipip","","");
-     if(gst_1) gst_1->Draw("nfpip","","");
+     if(gst_1) gst_1->Draw("nfpip","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of pi+");
      ls->Draw();
@@ -2414,7 +2414,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim pi-
      ps->NewPage();
      gst_0->Draw("nipim","","");
-     if(gst_1) gst_1->Draw("nfpim","","");
+     if(gst_1) gst_1->Draw("nfpim","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of pi-");
      ls->Draw();
@@ -2423,7 +2423,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim pi0
      ps->NewPage();
      gst_0->Draw("nipi0","","");
-     if(gst_1) gst_1->Draw("nfpi0","","");
+     if(gst_1) gst_1->Draw("nfpi0","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of pi0");
      ls->Draw();
