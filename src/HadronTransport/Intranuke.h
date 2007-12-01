@@ -78,8 +78,6 @@ private:
   void   SimHadroProc       (GHepRecord* ev, GHepParticle* p) const;
   double GenerateStep       (GHepRecord* ev, GHepParticle* p) const;
   double MeanFreePath       (GHepRecord* ev, GHepParticle* p) const;
-  double DensityGaus        (double r, double ap, double alf) const;
-  double DensityWoodsSaxon  (double r, double c, double z) const;
 
   // methods specific to intranuke HA-mode
   INukeFateHA_t HadronFateHA    (const GHepParticle* p) const;
@@ -107,10 +105,14 @@ private:
   mutable TLorentzVector fRemnP4;        ///< P4 of remnant system
 
   //-- configuration parameters
-  INukeMode_t  fMode;       ///< intranuke mode (h+A, h+N)
-  bool         fInTestMode; ///<
-  double       fR0;         ///< effective nuclear size param
-  double       fNucRmvE;    ///< binding energy to subtract from cascade nucleons
+  INukeMode_t  fMode;         ///< intranuke mode (h+A, h+N)
+  bool         fInTestMode;   ///<
+  double       fR0;           ///< effective nuclear size param
+  double       fNR;           ///< param multiplying the nuclear radius, determining how far to track hadrons beyond the "nuclear boundary"
+  double       fNucRmvE;      ///< binding energy to subtract from cascade nucleons
+  double       fDelRPion;     ///< factor by which Pion Compton wavelength gets multiplied to become nuclear size enhancement 
+  double       fDelRNucleon;  ///< factor by which Nucleon Compton wavelength gets multiplied to become nuclear size enhancement 
+  double       fHadStep;      ///< step size for intranuclear hadron transport
 };
 
 }      // genie namespace
