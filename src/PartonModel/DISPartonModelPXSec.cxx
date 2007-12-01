@@ -275,13 +275,13 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
     } // cache data
 
     //-- get the reduction factor from the cache branch
-
-    const CacheBranchFx & cache_branch = (*cbr);
-    R = cache_branch(Wo);
+    if(Wo > Wmin && Wo < fWcut-1E-2) {
+       const CacheBranchFx & cache_branch = (*cbr);
+       R = cache_branch(Wo);
+    }
   }
 
   //-- Now return the suppression factor
-
   if      (Wo > Wmin && Wo < fWcut-1E-2) Ro = R;
   else if (Wo <= Wmin)                   Ro = 0.0;
   else                                   Ro = 1.0;
