@@ -12,7 +12,12 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Nov 30, 2007 - SD
+   Changed the hadron tracking algorithm to take into account the radial
+   nuclear density dependence. Using the somewhat empirical approach of
+   increasing the nuclear radius by a const (tunable) number times the tracked 
+   particle's de Broglie wavelength as this helps getting the hadron+nucleus 
+   cross sections right.
 */
 //____________________________________________________________________________
 
@@ -380,7 +385,7 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
 
   // before getting the nuclear density at the current position
   // check whether the nucleus has to become larger by const times the 
-  // de Broglie half-wavelength -- that is somewhat empirical, but this 
+  // de Broglie wavelength -- that is somewhat empirical, but this 
   // is what is needed to get piA total cross sections right.
   // The ring size is different for light nuclei (using gaus density) / 
   // heavy nuclei (using woods-saxon density).
