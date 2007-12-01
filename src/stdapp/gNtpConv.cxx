@@ -898,8 +898,8 @@ void ConvertToT2KStdGenNtp(void)
        << "[Select] Q2 = " << Q2s << ", W = " << Ws 
        << ", x = " << xs << ", y = " << ys << ", t = " << ts;
 
-    // Extract more info on the hadronic system
-    // Only for QEL/RES/DIS events
+    // Extract more info on the final & primary hadronic system
+    // Only for QEL/RES/DIS/COH events
     //
     bool study_hadsyst = (is_qel || is_res || is_dis || is_coh);
     
@@ -921,7 +921,7 @@ void ConvertToT2KStdGenNtp(void)
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
       ip++;
-      if(ip < TMath::Max(hitnucl->FirstDaughter(), event.FinalStatePrimaryLeptonPosition()+1)) continue;
+      if(!is_coh && ip < TMath::Max(hitnucl->FirstDaughter(), event.FinalStatePrimaryLeptonPosition()+1)) continue;
       if(p->IsFake()) continue;
       int pdgc = p->Pdg();
       int ist  = p->Status();
