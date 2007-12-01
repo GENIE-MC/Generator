@@ -139,6 +139,11 @@ void Intranuke::SetNuclearRadius(const GHepParticle * p) const
   double A = p->A();
   fNuclRadius = fR0 * TMath::Power(A, 1./3.);
 
+  // multiply that by some input factor so that hadrons are tracked
+  // beyond the nuclear 'boundary' since the nuclear density distribution
+  // is not zero there
+  fNuclRadius *= fNR; 
+
   LOG("Intranuke", pNOTICE) 
                << "Setting nuclear radius to R = " << fNuclRadius;
 }
@@ -178,7 +183,7 @@ bool Intranuke::IsInNucleus(const GHepParticle * p) const
 {
 // check whether the input particle is still within the nucleus
 //
-  return (p->X4()->Vect().Mag() < fNuclRadius);
+  return (p->X4()->Vect().Mag() < fNuclRadius + fHadStep);
 }
 //___________________________________________________________________________
 void Intranuke::TransportHadrons(GHepRecord * evrec) const
@@ -247,25 +252,32 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
        continue; // <-- skip to next GHEP entry
     }
 
-    // Generate a step and advance the hadron by it
-    double d = this->GenerateStep(evrec,sp);
-    this->StepParticle(sp, d);
+    // Start stepping particle out of the nucleus
+    bool has_interacted = false;
+    while ( this-> IsInNucleus(sp) ) 
+    {
+      // advance the hadron by a step
+      this->StepParticle(sp, fHadStep);
 
-    // Check whether it interacts
-    bool interacts = this->IsInNucleus(sp);
-    LOG("Intranuke", pNOTICE) << "check interact vs. location " << interacts << "  " << sp->X4()->Vect().Mag() << " " << fNuclRadius;
-
-    // If it does not interact, it must exit the nucleus. Done with it! 
-    if(!interacts) {
-       LOG("Intranuke", pNOTICE) 
-                    << "*** Hadron escaped the nucleus! Done with it.";
-       sp->SetStatus(kIStStableFinalState);
-       evrec->AddParticle(*sp);
-       continue; 
+      // check whether it interacts
+      double d = this->GenerateStep(evrec,sp);
+      has_interacted = (d<fHadStep);
+      if(has_interacted) break;
+    }//stepping
+ 
+    if(has_interacted)  {
+        // the particle interacts - simulate the hadronic interaction
+        LOG("Intranuke", pINFO) 
+          << "Particle has interacted at location:  " 
+          << sp->X4()->Vect().Mag() << " / nucl rad= " << fNuclRadius;
+	this->SimHadroProc(evrec,sp);
+    } else {
+        // the exits the nucleus without interacting - Done with it! 
+        LOG("Intranuke", pNOTICE) 
+          << "*** Hadron escaped the nucleus! Done with it.";
+      sp->SetStatus(kIStStableFinalState);
+      evrec->AddParticle(*sp);
     }
-
-    // The stepped particle interacts. Simulate the hadronic interaction.
-    this->SimHadroProc(evrec,sp);
 
     // Current snapshot
     //LOG("Intranuke", pINFO) << "Current event record snapshot: " << *evrec;
@@ -297,7 +309,7 @@ double Intranuke::GenerateStep(GHepRecord* evrec, GHepParticle* p) const
   double L = this->MeanFreePath(evrec, p);
   double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 
-  LOG("Intranuke", pNOTICE)
+  LOG("Intranuke", pINFO)
             << "Mean free path = " << L << " fm / "
                               << "Generated path length = " << d << " fm";
   return d;
@@ -355,55 +367,47 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
 //
 // output mean free path units: fm
 
-  // compute pion kinetic energy K in MeV
-  double K = (p->KinE() / units::MeV);
+  int pdgc = p->Pdg();
+  bool is_pion    = pdgc == kPdgPiP || pdgc == kPdgPi0 || pdgc == kPdgPiM;
+  bool is_nucleon = pdgc == kPdgProton || pdgc == kPdgNeutron;
 
   // get the nuclear target mass number
   GHepParticle * nucltgt = evrec->TargetNucleus();
-  //double A = nucltgt->A();
   int A = (int) nucltgt->A();
 
   // get current radial position within the nucleus
   double rnow = p->X4()->Vect().Mag();
 
-  // get the nuclear density at the current position
-  double rrms = (A>=20) ? 3.76 /* heavy:Fe */ : 2.44 /* light:C */;
-  double req  = rrms*1.26;
-  double req3 = TMath::Power(req,3);
-  double rho  = A/(4*kPi*req3/3.);
-  double c = 1., ap=1.;
-  double z = 1.,  alf=1.;
+  // before getting the nuclear density at the current position
+  // check whether the nucleus has to become larger by const times the 
+  // de Broglie half-wavelength -- that is somewhat empirical, but this 
+  // is what is needed to get piA total cross sections right.
+  // The ring size is different for light nuclei (using gaus density) / 
+  // heavy nuclei (using woods-saxon density).
+  // The ring size is different for pions / nucleons.
+  //
+  double pmom = p->P4()->Vect().Mag(); // momentum in GeV
+  double ring = (pmom>0) ? 1.240/pmom : 0;
 
-  if(A>20) {
-    if      (A==27 ) { c=3.07 ; z=0.52 ; }   //aluminum
-    else if (A==28 ) { c=3.07 ; z=0.54 ; }   //silicon
-    else if (A==40 ) { c=3.53 ; z=0.54 ; }   //argon
-    else if (A==56 ) { c=4.10 ; z=0.56 ; }   //iron
-    else if (A==208) { c=6.62 ; z=0.55 ; }   //lead
-    else { c=TMath::Power(A,0.35); z=0.54; } //others
-    rho = A * this->DensityWoodsSaxon(rnow,c,z);
-  }
-  else if (A>4) {
-    if      (A==7) { ap=1.77 ; alf=0.327; } //lithium
-    else if (A==12) { ap=1.69; alf=1.08;  } //carbon
-    else if (A==14) { ap=1.76; alf=1.23;  } //nitrogen
-    else if (A==16) { ap=1.83; alf=1.54;  } //oxygen
-    else  { ap=1.75; alf=-0.4+.12*A; }      //others- alf=0.08 if A=4
-    rho = A * this->DensityGaus(rnow,ap,alf);
-  }
-  else {
-    ap=1.9/TMath::Sqrt(2.);  alf=0.;        //helium
-    rho = A * this->DensityGaus(rnow,ap,alf);
-  }
+  if(A<=20) { ring /= 2.; }
+
+  if      (is_pion   ) { ring *= fDelRPion;    }
+  else if (is_nucleon) { ring *= fDelRNucleon; }
+
+  // get the nuclear density at the current position
+  double rho = A * utils::nuclear::Density(rnow,A,ring);
+  LOG("Intranuke", pDEBUG) 
+     << "Matter density = " << rho << " nucleons/fm^3";
+
   // get total xsection for the incident hadron at its current 
   // kinetic energy
-  int    pdgc   = p->Pdg();
   double sigtot = 0;
 
   // The hadron+nucleon cross section will be evaluated within the range
   // of the cross sections spline
   // The hadron cross section will be taken to be const outside that range
   //
+  double K  = (p->KinE() / units::MeV); // hadron kinetic energy in MeV
   double ke = K;
   ke = TMath::Max(INukeHadroData::fMinKinEnergy,   ke);
   ke = TMath::Min(INukeHadroData::fMaxKinEnergyHN, ke);
@@ -447,40 +451,6 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   }
 
   return lamda;
-}
-//___________________________________________________________________________
-double Intranuke::DensityGaus(double r, double a, double alf) const
-{
-// [adapted from neugen3 density_gaus.F]
-//
-// Modified harmonic osc density distribution. Norm gives normalization to 1
-// Only C12 here - can be expalned to others later
-//
-// input  : radial distance in nucleus [units: fm]
-// output : nuclear density            [units: fm^-3]
-
-  double norm = 1./((5.568 + alf*8.353)*TMath::Power(a,3.));  //0.0132;
-  LOG("Intranuke", pINFO) << "norm = " << norm;
-  //double a    = 1.635;
-  //double alf  = 1.403;
-  double b    = TMath::Power(r/a,2.);
-  double dens = norm * (1. + alf*b) * TMath::Exp(-b);
-  return dens;
-}
-//___________________________________________________________________________
-double Intranuke::DensityWoodsSaxon(double r, double c, double z) const
-{
-// [adapted from neugen3 density_ws.F]
-//
-// Woods-Saxon desity distribution. Norn gives normalization to 1
-// Onlt Fe here - can be expalned to others later
-//
-// input  : radial distance in nucleus [units: fm]
-// output : nuclear density            [units: fm^-3]
-
-  double norm = (3./(4.*kPi*TMath::Power(c,3)))*1./(1.+TMath::Power((kPi*z/c),2));
-  double dens = norm / (1 + TMath::Exp((r-c)/z));
-  return dens;
 }
 //___________________________________________________________________________
 void Intranuke::SimHadroProc(GHepRecord* ev, GHepParticle* p) const
@@ -1342,12 +1312,20 @@ void Intranuke::LoadConfig(void)
   fInTestMode = fConfig->GetBoolDef ("test-mode", false);
 
   //-- other intranuke config params
-  fR0      = fConfig->GetDoubleDef ("R0",      gc->GetDouble("NUCL-R0")); // fm
-  fNucRmvE = fConfig->GetDoubleDef ("NucRmvE", gc->GetDouble("INUKE-NucRemovalE")); // GeV
+  fR0          = fConfig->GetDoubleDef ("R0",           gc->GetDouble("NUCL-R0"));           // fm
+  fNR          = fConfig->GetDoubleDef ("NR",           gc->GetDouble("INUKE-NR"));           
+  fNucRmvE     = fConfig->GetDoubleDef ("NucRmvE",      gc->GetDouble("INUKE-NucRemovalE")); // GeV
+  fDelRPion    = fConfig->GetDoubleDef ("DelRPion",     gc->GetDouble("INUKE-DelRPion"));    
+  fDelRNucleon = fConfig->GetDoubleDef ("DelRNucleon",  gc->GetDouble("INUKE-DelRNucleon"));    
+  fHadStep     = fConfig->GetDoubleDef ("HadStep",      gc->GetDouble("INUKE-HadStep"));     // fm
 
   //-- report
-  LOG("Intranuke", pNOTICE) << "mode    = " << INukeMode::AsString(fMode);
-  LOG("Intranuke", pNOTICE) << "R0      = " << fR0  << " fermi";
+  LOG("Intranuke", pNOTICE) << "mode        = " << INukeMode::AsString(fMode);
+  LOG("Intranuke", pNOTICE) << "R0          = " << fR0        << " fermi";
+  LOG("Intranuke", pNOTICE) << "NR          = " << fNR;
+  LOG("Intranuke", pNOTICE) << "DelRPion    = " << fDelRPion;
+  LOG("Intranuke", pNOTICE) << "DelRNucleon = " << fDelRNucleon;
+  LOG("Intranuke", pNOTICE) << "HadStep     = " << fHadStep   << " fermi";
 }
 //___________________________________________________________________________
 
