@@ -16,7 +16,9 @@
    In order to handle the introdyction of a new type of coherent interactions 
    (coherent elastic) renamed the COHCC() and COHNC() methods to COHPiCC() 
    and COHPiNC() respectivelly, and added COHEl() methods.
-
+ @ Dec 01, 2007 - CA
+   For ve- 'weak mix' interactions (ve+e->ve+e) the neutrino is always set
+   as the primary final state lepton
 */
 //____________________________________________________________________________
 
@@ -134,15 +136,12 @@ int Interaction::FSPrimLeptonPdg(void) const
   LOG("Interaction", pDEBUG) << "Probe PDG code: " << pdgc;
 
   // vN (Weak-NC) or eN (EM)
-  if (proc_info.IsWeakNC() || proc_info.IsEM()) return pdgc;
+  if (proc_info.IsWeakNC() || proc_info.IsEM() || proc_info.IsWeakMix()) return pdgc;
 
   // vN (Weak-CC)
   else if (proc_info.IsWeakCC()) {
      int clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
      return clpdgc;
-  }
-  else if (proc_info.IsWeakMix() && proc_info.IsNuElectronElastic()) {
-     return kPdgElectron;
   }
 
   LOG("Interaction", pWARN)
