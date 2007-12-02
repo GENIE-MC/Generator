@@ -210,7 +210,7 @@ int main(int argc, char ** argv)
   }
 
   //-- initialize an Ntuple Writer
-  NtpWriter ntpw(kNFEventRecord, gOptRunNu);
+  NtpWriter ntpw(kNFGHEP, gOptRunNu);
   ntpw.Initialize();
 
   //-- create an MC Job Monitor

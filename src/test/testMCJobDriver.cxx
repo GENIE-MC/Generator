@@ -157,8 +157,8 @@ int main(int argc, char ** argv)
   if(gOptBuildSplines) mcj.UseSplines();
 
   //-- Initialize an Ntuple Writer
-  NtpWriter ntpw(kNFEventRecord);
-  ntpw.Initialize("GNtpMCJTest");
+  NtpWriter ntpw(kNFGHEP);
+  ntpw.Initialize("gntp-mcjtest");
 
   //-- Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);

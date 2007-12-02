@@ -39,7 +39,7 @@ using namespace genie;
 bool   testCommandLineArgs(int argc);
 string getRootFilename    (int argc, char ** argv);
 bool   checkRootFilename  (string filename);
-void   readNtpEventRecord (TTree * tree); // reads GNtpER.root files
+void   readGHEPTrees      (TTree * tree); 
 
 //___________________________________________________________________
 int main(int argc, char ** argv)
@@ -68,10 +68,10 @@ int main(int argc, char ** argv)
   LOG("Main", pINFO) << "This ntuple's format is : "
                                    << NtpMCFormat::AsString(format);
   switch(format) {
-     case kNFEventRecord:
+     case kNFGHEP:
        // ntuple for passing data to other applications (eg the MC
        // simulation framework of an experiment)
-       readNtpEventRecord(tree);
+       readGHEPTrees(tree);
        break;
      default:
        LOG("Main", pERROR) << "Cannot read this GENIE TTree format";
@@ -115,7 +115,7 @@ bool checkRootFilename(string filename)
   return true;
 }
 //___________________________________________________________________
-void readNtpEventRecord(TTree * tree)
+void readGHEPTrees(TTree * tree)
 {
 // This ntuple contains a single TBranch with NtpMCEventRecord
 // objects in its leaves
