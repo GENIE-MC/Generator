@@ -70,7 +70,7 @@ int main(int argc, char ** argv)
   LOG("test", pINFO) << "Input tree header: " << *thdr;
 
   NtpMCFormat_t format = thdr->format;
-  assert(format == kNFEventRecord); // only ER trees in this test
+  assert(format == kNFGHEP); // only GHEP trees in this test
 
   //-- set the branch address
   NtpMCEventRecord * mcrec = 0;
