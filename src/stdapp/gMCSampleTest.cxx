@@ -20,8 +20,8 @@
 	      0: create summary tree
 	      1: create plots (and compare with reference sample, if any)
 	      
-\example gmctest -m 0 -f /path/GNtp-0.root -n 10000
-         gmctest -m 1 -f /path/GNtp-0.gst.root -f /path/GNtp-1.gst.root
+\example gmctest -m 0 -f /path/gntp.1.ghep.root -n 10000
+         gmctest -m 1 -f /path/gntp.1.gst.root -r /path/gntp.2.gst.root
 		      
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -286,8 +286,8 @@ void CreateSummaryTree(string inp_filename)
 
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  NtpMCFormat_t format = thdr->format;
-  assert(format == kNFEventRecord);
+  //NtpMCFormat_t format = thdr->format;
+  //assert(format == kNFGHEP);
 
   //-- get the mc record
   NtpMCEventRecord * mcrec = 0;
@@ -2589,6 +2589,13 @@ string OutputFileName(string inpname, int mod)
   if(inpname.substr(L-4, L).find("root") != string::npos) {
     inpname.erase(L-4, L);
   }
+
+  // remove ghep.
+  size_t pos = inpname.find("ghep.");
+  if(pos != string::npos) {
+    inpname.erase(pos, pos+4);
+  }
+
   ostringstream name;
 
   if(mod==0)

@@ -28,15 +28,20 @@
            -p specifies the neutrino PDG code
            -t specifies the target PDG code (pdg format: 10LZZZAAAI)
            -r specifies the MC run number
-           -f specifies the neutrino flux spectrum - it can be either a function,
-              eg 'x*x+4*exp(-x)' or a text file containing 2 columns corresponding to
-              energy,flux (see $GENIE/data/flux/ for few examples). In this case the 
-              GMCJDriver is partially utilized to the use the specified flux and a 
-              trivial 'point geometry'. See $GENIE/src/test/testMCJobDriver.cxx to 
-              see how you can generate events for arbitrarily complex fluxes and 
-              detector geometries. Note that in order to use the -f option you
-              must have enabled the flux and geometry drivers during the GENIE
-              installation (see installation instructions)
+           -f specifies the neutrino flux spectrum - it can be either:
+	      -- A function, eg 'x*x+4*exp(-x)' 
+              -- A text file containing 2 columns corresponding to energy,flux
+                 (see $GENIE/data/flux/ for few examples). 
+              -- A 1-D histogram taken from a ROOT file. It is specified as
+                 /full/path/file.root,object_name
+              If this option is enabled, the GMCJDriver is partially utilized 
+              to the use the specified flux and a trivial 'point geometry'. 
+              See $GENIE/src/test/testMCJobDriver.cxx to see how you can generate 
+              events for arbitrarily complex fluxes and detector geometries. 
+              Note that in order to use the -f option you must have enabled the 
+              flux and geometry drivers during the GENIE installation (see 
+              installation instructions).
+           -u
  
          Examples:
          (1)
@@ -187,9 +192,9 @@ void GenerateEventsUsingANeutrinoFlux(void);
 void GenerateEventsAtFixedEnergies   (void);
 
 //Default options (override them using the command line arguments):
-int           kDefOptNevents   = 100;            // n-events to generate
-NtpMCFormat_t kDefOptNtpFormat = kNFEventRecord; // ntuple format
-Long_t        kDefOptRunNu     = 0;              // default run number
+int           kDefOptNevents   = 100;     // n-events to generate
+NtpMCFormat_t kDefOptNtpFormat = kNFGHEP; // ntuple format
+Long_t        kDefOptRunNu     = 0;       // default run number
 
 //User-specified options:
 int           gOptNevents;      // n-events to generate
@@ -200,6 +205,7 @@ int           gOptNuPdgCode;    // neutrino PDG code
 int           gOptTgtPdgCode;   // target PDG code
 Long_t        gOptRunNu;        // run number
 string        gOptFlux;         //
+bool          gOptUnweighted;   // 
 bool          gOptUsingFlux = false;
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -237,8 +243,11 @@ void GenerateEventsUsingANeutrinoFlux(void)
 
   // check whether the input flux is a file or a functional form
   //
-  bool input_is_file = ! gSystem->AccessPathName(gOptFlux.c_str());
-  if(input_is_file) {
+
+  bool input_is_text_file = ! gSystem->AccessPathName(gOptFlux.c_str());
+  bool input_is_root_file = gOptFlux.find(".root") != string::npos &&
+                            gOptFlux.find(",") != string::npos;
+  if(input_is_text_file) {
     Spline * input_flux = new Spline(gOptFlux.c_str());
 
     // generate the flux hisogram from the input flux file
@@ -271,6 +280,29 @@ void GenerateEventsUsingANeutrinoFlux(void)
     }
     delete input_flux;
 
+  } 
+  else if(input_is_root_file) {
+
+    vector<string> fv = utils::str::Split(gOptFlux,",");
+    assert(fv.size()==2); 
+    assert( !gSystem->AccessPathName(fv[0].c_str()) );
+
+    LOG("gevgen", pNOTICE) << "Getting input flux from root file: " << fv[0];
+    TFile * ff = new TFile(fv[0].c_str(),"read");
+
+    LOG("gevgen", pNOTICE) << "Flux name: " << fv[1];
+    TH1D * hh = (TH1D *)ff->Get(fv[1].c_str());
+    assert(hh);
+
+    LOG("gevgen", pNOTICE) << hh->GetEntries();
+    
+    delete spectrum;
+    spectrum = new TH1D(*hh);
+
+    LOG("gevgen", pNOTICE) << spectrum->GetEntries();
+
+//    ff.Close();	
+
   } else {
     // generate the flux histogram from the input functional form
     TF1 *  input_func = new TF1("input_func", gOptFlux.c_str(), emin, emax);
@@ -302,6 +334,8 @@ void GenerateEventsUsingANeutrinoFlux(void)
   mcj_driver->UseGeomAnalyzer(geom_driver);
   mcj_driver->Configure();
   mcj_driver->UseSplines();
+
+  if(gOptUnweighted) mcj_driver->ForceSingleProbScale();
 
   //-- initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
@@ -437,6 +471,9 @@ void GetCommandLineArgs(int argc, char ** argv)
   //spline building option
   gOptBuildSplines = genie::utils::clap::CmdLineArgAsBool(argc,argv,'s');
 
+  //generate unweighted option
+  gOptUnweighted = genie::utils::clap::CmdLineArgAsBool(argc,argv,'u');
+
   //-- Required arguments
 
   // neutrino energy:
@@ -511,6 +548,6 @@ void PrintSyntax(void)
 {
   LOG("gevgen", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gevgen [-n nev] [-s] -e energy -p nupdg -t tgtpdg [-f format]\n";
+    << "   gevgen [-n nev] [-s] -e energy -p nupdg -t tgtpdg [-f flux]\n";
 }
 //____________________________________________________________________________

@@ -3,7 +3,7 @@
 
 \program gNtpConv
 
-\brief   Converts a GENIE neutrino events (from ER-type GENIE ROOT Trees) to a 
+\brief   Converts a GENIE neutrino events (from GHEP GENIE ROOT Trees) to a 
          variety of textual formats (typically used in legacy systems), in XML
          format or in summary ROOT ntuples.
 
@@ -134,8 +134,8 @@ void ConvertToGXML(void)
 
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  NtpMCFormat_t format = thdr->format;
-  assert(format == kNFEventRecord);
+  //NtpMCFormat_t format = thdr->format;
+  //assert(format == kNFGHEP);
 
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
@@ -252,7 +252,7 @@ void ConvertToGXML(void)
   output.close();
   fin.Close();
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's ER ntuple";
+  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
 //___________________________________________________________________
 //  ***** GENIE ER ROOT TREE -> NUANCE-STYLE TRACKER TEXT FILE ****
@@ -268,8 +268,8 @@ void ConvertToGTrac(void)
 
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  NtpMCFormat_t format = thdr->format;
-  assert(format == kNFEventRecord);
+  //NtpMCFormat_t format = thdr->format;
+  //assert(format == kNFGHEP);
 
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
@@ -376,7 +376,7 @@ void ConvertToGTrac(void)
   output.close();
   fin.Close();
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's ER ntuple";
+  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
 //___________________________________________________________________
 // *** GENIE ER ROOT TREE -> NEUGEN-style format for AGKY studies ***
@@ -404,8 +404,8 @@ void ConvertToGHad(void)
 
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  NtpMCFormat_t format = thdr->format;
-  assert(format == kNFEventRecord);
+  //NtpMCFormat_t format = thdr->format;
+  //assert(format == kNFGHEP);
 
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
@@ -599,7 +599,7 @@ void ConvertToGHad(void)
   fout.Close();
 #endif
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's ER ntuple";
+  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
 //___________________________________________________________________
 // ** GENIE ER ROOT TREE -> STD NT FOR T2K CROSS-GENERATOR STUDIES **
@@ -765,8 +765,8 @@ void ConvertToT2KStdGenNtp(void)
 
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  NtpMCFormat_t format = thdr->format;
-  assert(format == kNFEventRecord);
+  //NtpMCFormat_t format = thdr->format;
+  //assert(format == kNFGHEP);
 
   //-- get the mc record
   NtpMCEventRecord * mcrec = 0;
@@ -1141,7 +1141,7 @@ void ConvertToT2KStdGenNtp(void)
   fout.Write();
   fout.Close();
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's ER ntuple";
+  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
 //___________________________________________________________________
 // ** GENIE ER ROOT TREE WITH INTRANUKE TEST-MODE HADRON+NUCLEUS
@@ -1214,8 +1214,8 @@ void ConvertToIntranukeNtp(void)
 
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  NtpMCFormat_t format = thdr->format;
-  assert(format == kNFEventRecord);
+  //NtpMCFormat_t format = thdr->format;
+  //assert(format == kNFGHEP);
 
   //-- get the mc record
   NtpMCEventRecord * mcrec = 0;
@@ -1315,7 +1315,7 @@ void ConvertToIntranukeNtp(void)
   fout.Write();
   fout.Close();
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's ER ntuple";
+  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
 //___________________________________________________________________
 // FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS & PRINTING SYNTAX ON ERR
@@ -1386,6 +1386,12 @@ string DefaultOutputFile(void)
   // remove them
   if(inpname.substr(L-4, L).find("root") != string::npos) {
     inpname.erase(L-4, L);
+  }
+
+  // remove ghep.
+  size_t pos = inpname.find("ghep.");
+  if(pos != string::npos) {
+    inpname.erase(pos, pos+4);
   }
 
   ostringstream name;

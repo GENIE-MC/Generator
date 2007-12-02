@@ -126,7 +126,7 @@ int main(int argc, char ** argv)
                      algf->GetAlgorithm("genie::Intranuke","hA-TestMode"));
 
   //-- initialize an Ntuple Writer to save GHEP records into a ROOT tree
-  NtpWriter ntpw(kNFEventRecord, gOptRunNu);
+  NtpWriter ntpw(kNFGHEP, gOptRunNu);
   ntpw.Initialize();
 
   //-- create an MC Job Monitor
