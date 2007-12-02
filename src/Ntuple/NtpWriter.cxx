@@ -71,7 +71,7 @@ void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
   }
 
   switch (fNtpFormat) {
-     case kNFEventRecord:
+     case kNFGHEP:
           fNtpMCEventRecord = new NtpMCEventRecord();
           fNtpMCEventRecord->Fill(ievent, ev_rec);
           fOutTree->Fill();
@@ -114,9 +114,10 @@ void NtpWriter::OpenFile(string filename_prefix)
 
   // modify the filename to add the run number & the ntuple format
   ostringstream filename;
-  filename << filename_prefix << "-" 
+  filename << filename_prefix  << "." 
+           << fRunNu << "."
            << NtpMCFormat::FilenameTag(fNtpFormat)
-           << "-" << fRunNu << ".root";
+           << ".root";
 
   LOG("Ntp", pINFO) << "Opening the output ROOT file: " << filename;
   fOutFile = new TFile(filename.str().c_str(),"RECREATE");
@@ -141,7 +142,7 @@ TBranch * NtpWriter::CreateTreeBranch(void)
   TBranch * branch = 0;
 
   switch (fNtpFormat) {
-     case kNFEventRecord:
+     case kNFGHEP:
         branch = this->CreateERTreeBranch();
         break;
      default:

@@ -28,21 +28,18 @@ namespace genie {
 typedef enum ENtpMCFormat {
 
    kNFUndefined = -1,
-   kNFEventRecord
+   kNFGHEP   /* each mc tree leaf contains the full GHEP EventRecord */
 
 } NtpMCFormat_t;
 
-
 class NtpMCFormat {
-
  public:
-
   static char * AsString(NtpMCFormat_t fmt) {
      switch (fmt) {
      case kNFUndefined:
               return "Undefined";
               break;
-     case kNFEventRecord:
+     case kNFGHEP:
               return "[NtpMCEventRecord]";
               break;
      default:
@@ -54,24 +51,20 @@ class NtpMCFormat {
   static char * FilenameTag(NtpMCFormat_t fmt) {
 
      // The output ROOT files containing GENIE ntuple are typically named as
-     // GNtp[TAG].root where TAG describes the tree format (This is just
-     // a naming convention for helping out the user with his book-keeping.
-     // GENIE understands the TTree format not by checking the filename but
-     // by reading the format NtpMCFormat_t variable from the TTree header)
+     // gntp.[tag].root where TAG describes the tree format
 
      switch (fmt) {
      case kNFUndefined:
-              return "UNDEFINED";
+              return "undef";
               break;
-     case kNFEventRecord:
-              return "ER";
+     case kNFGHEP:
+              return "ghep";
               break;
      default:
               break;
      }
-     return "UNDEFINED";
+     return "undef";
   }
-
 };
 
 }
