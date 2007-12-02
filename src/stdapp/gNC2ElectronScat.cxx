@@ -79,7 +79,7 @@ int main(int argc, char ** argv)
 
   //-- figure out the TTree format (GENIE supports multiple formats)
   NtpMCFormat_t format = thdr->format;
-  assert(format == kNFEventRecord);
+  assert(format == kNFGHEP);
 
   //-- set the event record branch ptr
   NtpMCEventRecord * mcrec = 0;
@@ -91,8 +91,8 @@ int main(int argc, char ** argv)
 
   //-- initialize an Ntuple Writer
   int gOptRunNu = 0;
-  NtpWriter ntpw(kNFEventRecord, gOptRunNu);
-  ntpw.Initialize("GNtp-eN");
+  NtpWriter ntpw(kNFGHEP, gOptRunNu);
+  ntpw.Initialize("gntp-eN");
   
   int ieN=0;
   for(Long64_t ivN = 0; ivN < nmax; ivN++) {
