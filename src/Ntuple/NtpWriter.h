@@ -41,16 +41,16 @@ class NtpWriter {
 
 public :
 
-  NtpWriter(NtpMCFormat_t fmt = kNFEventRecord, Long_t runnu = 0);
+  NtpWriter(NtpMCFormat_t fmt = kNFGHEP, Long_t runnu = 0);
   ~NtpWriter();
 
-  void Initialize     (string filename_prefix="GNtp");
+  void Initialize     (string filename_prefix="gntp");
   void AddEventRecord (int ievent, const EventRecord * ev_rec);
   void Save           (void);
 
 private:
 
-  void      OpenFile           (string filename_prefix="GNtp");
+  void      OpenFile           (string filename_prefix="gntp");
   void      CreateTree         (void);
   void      CreateTreeHeader   (void);
   TBranch * CreateTreeBranch   (void);
