@@ -46,13 +46,15 @@ public :
  ~GMCJDriver();
 
   //-- configure MC job
-  void UseFluxDriver      (GFluxI * flux);
-  void UseGeomAnalyzer    (GeomAnalyzerI * geom);
-  void UseSplines         (bool useLogE = true);
-  void UseMaxPathLengths  (string xml_filename);
-  void AllowRecursiveMode (bool allow);
-  void FilterUnphysical   (const TBits & unphysmask);
-  void Configure          (void);
+  //
+  void UseFluxDriver        (GFluxI * flux);
+  void UseGeomAnalyzer      (GeomAnalyzerI * geom);
+  void UseSplines           (bool useLogE = true);
+  void UseMaxPathLengths    (string xml_filename);
+  void AllowRecursiveMode   (bool allow);
+  void FilterUnphysical     (const TBits & unphysmask);
+  void ForceSingleProbScale (void);
+  void Configure            (void);
 
   //-- generate single neutrino event for input flux & geometry
   EventRecord * GenerateEvent (void);
@@ -67,7 +69,7 @@ private:
   void   CreateGEVGDriverPool    (void);
   void   CreateXSecSplines       (void);
   void   CreateXSecSumSplines    (void);
-  void   ComputeMaxIntProb       (void);
+  void   ComputeProbScales       (void);
   bool   GenerateFluxNeutrino    (void);
   bool   ComputePathLengths      (void);
   int    SelectTargetMaterial    (void);
@@ -77,25 +79,26 @@ private:
 
   double PInt(double xsec, double pl, int A);
 
-  GFluxI *        fFluxDriver;       ///< [input] neutrino flux driver
-  GeomAnalyzerI * fGeomAnalyzer;     ///< [input] detector geometry analyzer
-  GEVGPool *      fGPool;            ///< A pool of available GEVGDrivers objects
-  PDGCodeList     fNuList;           ///< list of neutrino codes [taken from flux driver]
-  PDGCodeList     fTgtList;          ///< list of target codes [taken from geom driver]
-  PathLengthList  fMaxPathLengths;   ///< maximum path length list [for all geometry materials]
-  PathLengthList  fCurPathLengths;   ///< path length list for current flux neutrino
-  TLorentzVector  fCurVtx;           ///< current interaction vertex
-  EventRecord *   fCurEvt;           ///< current generated event
-  int             fSelTgtPdg;        ///< selected target material PDG code
-  double          fEmax;             ///< maximum neutrino energy [taken from flux driver]
-  map<int,TH1D*>  fPmax;             ///< [computed] Interaction probability scale /neutrino /energy for given geometry
-  double          fGlobPmax;         ///< [computed] Global interaction probability scale for given flux & geometry
-  string          fMaxPlXmlFilename; ///< [input/opt] max path lengths, all materials|geom
-  bool            fUseExtMaxPl;      ///< using external max path length estimate?
-  bool            fUseSplines;       ///< compute all needed & not-loaded splines at init
-  bool            fUseLogE;          ///< build splines = f(logE) (rather than f(E)) ?
-  bool            fAllowRecursMode;  ///< can enter into recursive mode?
-  TBits           fUnphysMask;       ///< unphysical events filtering mask
+  GFluxI *        fFluxDriver;         ///< [input] neutrino flux driver
+  GeomAnalyzerI * fGeomAnalyzer;       ///< [input] detector geometry analyzer
+  GEVGPool *      fGPool;              ///< A pool of available GEVGDrivers objects
+  PDGCodeList     fNuList;             ///< list of neutrino codes [taken from flux driver]
+  PDGCodeList     fTgtList;            ///< list of target codes [taken from geom driver]
+  PathLengthList  fMaxPathLengths;     ///< maximum path length list [for all geometry materials]
+  PathLengthList  fCurPathLengths;     ///< path length list for current flux neutrino
+  TLorentzVector  fCurVtx;             ///< current interaction vertex
+  EventRecord *   fCurEvt;             ///< current generated event
+  int             fSelTgtPdg;          ///< selected target material PDG code
+  double          fEmax;               ///< maximum neutrino energy [taken from flux driver]
+  map<int,TH1D*>  fPmax;               ///< [computed] Interaction probability scale /neutrino /energy for given geometry
+  double          fGlobPmax;           ///< [computed] Global interaction probability scale for given flux & geometry
+  string          fMaxPlXmlFilename;   ///< [input/opt] max path lengths, all materials|geom
+  bool            fUseExtMaxPl;        ///< using external max path length estimate?
+  bool            fUseSplines;         ///< compute all needed & not-loaded splines at init
+  bool            fUseLogE;            ///< build splines = f(logE) (rather than f(E)) ?
+  bool            fAllowRecursMode;    ///< can enter into recursive mode?
+  bool            fGenerateUnweighted; ///< force single probability scale?
+  TBits           fUnphysMask;         ///< unphysical events filtering mask
   double          fNFluxNeutrinos;   
 };
 
