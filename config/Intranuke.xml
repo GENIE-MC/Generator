@@ -12,7 +12,7 @@ Name                Type    Opt   Comment                                       
 .......................................................................................................................
 test-mode           bool    Yes   enables modifications for the pitest mode                   false
 R0                  double  Yes   effective nucleus size Ro in fm                             GPL NUCL-R0
-NR                  double  Yes   param multiplying the nuclear radius determining how        GPL INUKE-NR
+NR                  double  Yes   param multiplying the nuclear radius determining how        GPL NUCL-NR
                                   far beyond the nuclear boundary particles are tracked
 mode                string  Yes   intranuke mode                                              GPL INUKE-Mode
 NumRmvE             double  Yes   binding energy to subtract from cascade nucleons (GeV)      GPL INUKE-NucRemovalE
