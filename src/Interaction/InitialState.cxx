@@ -10,7 +10,10 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Dec 03, 2007 - CA
+   Assert that the hit nucleon is set when energy is requested at the hit 
+   nucleon rest frame.
+	
 */
 //____________________________________________________________________________
 
@@ -242,7 +245,7 @@ TLorentzVector * InitialState::GetTgtP4(RefFrame_t ref_frame) const
        {
              // make sure that 'struck nucleon' properties were set in
              // the nuclear target object
-             assert( fTgt->HitNucP4Ptr() != 0 );
+             assert(fTgt->HitNucIsSet());
              TLorentzVector * pnuc4 = fTgt->HitNucP4Ptr();
 
              // compute velocity vector (px/E, py/E, pz/E)
