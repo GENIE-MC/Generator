@@ -1318,7 +1318,7 @@ void Intranuke::LoadConfig(void)
 
   //-- other intranuke config params
   fR0          = fConfig->GetDoubleDef ("R0",           gc->GetDouble("NUCL-R0"));           // fm
-  fNR          = fConfig->GetDoubleDef ("NR",           gc->GetDouble("INUKE-NR"));           
+  fNR          = fConfig->GetDoubleDef ("NR",           gc->GetDouble("NUCL-NR"));           
   fNucRmvE     = fConfig->GetDoubleDef ("NucRmvE",      gc->GetDouble("INUKE-NucRemovalE")); // GeV
   fDelRPion    = fConfig->GetDoubleDef ("DelRPion",     gc->GetDouble("INUKE-DelRPion"));    
   fDelRNucleon = fConfig->GetDoubleDef ("DelRNucleon",  gc->GetDouble("INUKE-DelRNucleon"));    
