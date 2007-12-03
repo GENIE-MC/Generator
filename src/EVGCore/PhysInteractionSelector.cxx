@@ -10,13 +10,19 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Dec 03, 2007 - CA
+   Setting the reference frame explicitly before computing the energy passed
+   to the spline objects rather than depending on the interaction doing the
+   right thing. Protect cross section eval. against NaN input as TSpline3
+   itself doesn't and its hard to diagnose problems from its actuall err mesg.
 */
 //____________________________________________________________________________
 
 #include <vector>
 #include <sstream>
+#include <cstdlib>
 
+#include <TMath.h>
 #include <TLorentzVector.h>
 
 #include "Base/XSecAlgorithmI.h"
@@ -109,7 +115,17 @@ EventRecord * PhysInteractionSelector::SelectInteraction
      bool eval = fUseSplines && spline_computed;
      if (eval) {
            const InitialState & init = interaction->InitState();
-           double E = init.ProbeE(kRfHitNucRest);
+           const ProcessInfo & proc  = interaction->ProcInfo();
+           // choose ref frame ('Lab' or 'Hit nucleon rest frame')
+           RefFrame_t frame = 
+              (proc.IsCoherent() || proc.IsElectronScattering()) ? 
+              kRfLab : kRfHitNucRest;
+           double E = init.ProbeE(frame);
+           if(TMath::IsNaN(E)) {
+    		 BLOG("IntSel", pFATAL) << *interaction;
+    		 BLOG("IntSel", pFATAL) << "E = " << E;
+		 abort();
+	   }
            const Spline * spl = xssl->GetSpline(xsec_alg,interaction);
            if(spl->ClosestKnotValueIsZero(E,"-")) xsec = 0;
            else xsec = spl->Evaluate(E);
