@@ -96,6 +96,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
 
   InitialState * init_state = interaction->InitStatePtr();
   ProcessInfo *  proc_info  = interaction->ProcInfoPtr();
+  Target *       target     = init_state->TgtPtr();
 
   unsigned int nres = fResList.NResonances();
 
@@ -105,6 +106,9 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
       init_state -> SetPdgs(tgtc[itgt], nu_code);
       proc_info  -> Set(kScResonant, wkcc[iwkc]);
 
+      if      (tgtc[itgt] == kPdgTgtFreeP) target->SetHitNucPdg(kPdgProton);
+      else if (tgtc[itgt] == kPdgTgtFreeN) target->SetHitNucPdg(kPdgNeutron);
+      
       for(unsigned int ires = 0; ires < nres; ires++) {
 
          //-- Get next resonance from the resonance list
