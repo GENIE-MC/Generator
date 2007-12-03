@@ -10,6 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Dec 03, 2007 - CA
+   Evaluate() asserts that the input is not NaN
 
 */
 //____________________________________________________________________________
@@ -359,6 +361,7 @@ bool Spline::IsWithinValidRange(double x) const
 double Spline::Evaluate(double x) const
 {
   LOG("Spline", pDEBUG) << "Evaluating spline at point x = " << x;
+  assert(!TMath::IsNaN(x));
 
   double y = 0;
   if( this->IsWithinValidRange(x) ) {
