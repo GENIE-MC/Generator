@@ -47,13 +47,14 @@ public:
   void Set(ScatteringType_t sc_type, InteractionType_t  int_type);
 
   //-- query for process information
-  bool IsNuElectronElastic (void) const;
   bool IsQuasiElastic      (void) const;
   bool IsDeepInelastic     (void) const;
   bool IsResonant          (void) const;
   bool IsCoherent          (void) const;
   bool IsCoherentPiProd    (void) const;
   bool IsCoherentElas      (void) const;
+  bool IsElectronScattering(void) const;
+  bool IsNuElectronElastic (void) const;
   bool IsInverseMuDecay    (void) const;
   bool IsEM                (void) const;
   bool IsWeak              (void) const;

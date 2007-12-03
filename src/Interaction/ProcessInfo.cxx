@@ -11,8 +11,10 @@
 
  Important revisions after version 2.0.0 :
  @ Nov 21, 2007 - CA
- Added IsCoherentPiProd() and IsCoherentElas() to handle the introduction of
- a new type of coherent interactions (coherent elastic)  
+   Added IsCoherentPiProd() and IsCoherentElas() to handle the introduction of
+   a new type of coherent interactions (coherent elastic)  
+ @ Dec 03, 2007 - CA
+   Added IsElectronScattering() to query about { IMD || ve- elastic }
 */
 //____________________________________________________________________________
 
@@ -68,11 +70,6 @@ void ProcessInfo::Reset(void)
   fInteractionType = kIntNull;
 }
 //____________________________________________________________________________
-bool ProcessInfo::IsNuElectronElastic(void) const
-{
-  return (fScatteringType == kScNuElectronElastic);
-}
-//____________________________________________________________________________
 bool ProcessInfo::IsQuasiElastic(void) const
 {
   return (fScatteringType == kScQuasiElastic);
@@ -102,6 +99,17 @@ bool ProcessInfo::IsCoherentPiProd(void) const
 bool ProcessInfo::IsCoherentElas(void) const
 {
   return (fScatteringType == kScCoherentElas);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsElectronScattering(void) const
+{
+  return (fScatteringType == kScNuElectronElastic ||
+          fScatteringType == kScInverseMuDecay);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsNuElectronElastic(void) const
+{
+  return (fScatteringType == kScNuElectronElastic);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsInverseMuDecay(void) const
