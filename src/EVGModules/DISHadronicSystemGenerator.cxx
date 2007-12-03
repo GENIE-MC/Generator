@@ -195,10 +195,12 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
      << "No nuclear target was found - No need to simulate formation zones";
     return;
   }
-  // Compute the nuclear radius
+  // Compute the nuclear radius & how far away a particle is being tracked by
+  // the intranuclear hadron transport
   assert(nucltgt && nucltgt->IsNucleus());
   double A = nucltgt->A();
   double R = fR0 * TMath::Power(A, 1./3.);
+  R *= fNR; // particle is tracked much further outside the nuclear boundary as the density is non-zero
 
   // Decay very short living particles so that we can give the formation
   // zone to the daughters
@@ -252,15 +254,16 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
 
     //-- If the formation zone was large enough that the particle is now outside
     //   the nucleus make sure that it is not placed further away from the 
-    //   nuclear radius + ~1 fm
-    double epsilon = 1; // fm
+    //   (max distance particles tracked by intranuclear cascade) + ~2 fm
+    double epsilon = 2; // fm
     double r       = x4new.Vect().Mag(); // fm
     double rmax    = R+epsilon; 
     if(r > rmax) {
         LOG("DISHadronicVtx", pINFO)
           << "Particle was stepped too far away (r = " << r << " fm)";
         LOG("DISHadronicVtx", pINFO)
-          << "Placing it ~1 fm outside the nucleus (r' = " << rmax << " fm)";
+          << "Placing it ~2 fm away from the furthermost position tracked "
+          << "by intranuclear cascades (r' = " << rmax << " fm)";
         double scale = rmax/r;
         x4new *= scale;
     }
@@ -311,6 +314,7 @@ void DISHadronicSystemGenerator::LoadConfig(void)
   //-- Get parameters controlling the nuclear sizes
   //
   fR0  = fConfig->GetDoubleDef ("R0", gc->GetDouble("NUCL-R0")); // fm
+  fNR  = fConfig->GetDoubleDef ("NR", gc->GetDouble("INUKE-NR"));    
 
   //-- Get parameters controlling the formation zone simulation
   //
