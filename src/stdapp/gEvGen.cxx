@@ -6,17 +6,17 @@
 \brief   GENIE v+A event generation driver 
 
          Syntax :
-           gevgen [-n nev] [-s] -e E -p nupdg -t tgtpdg [-r run#] [-f flux]
+           gevgen [-n nev] [-s] -e E -p nupdg -t tgtpdg [-r run#] [-f flux] [-u]
 
          Options :
-           [] denotes an optional argument
-           -n specifies the number of events to generate
-           -s turns on cross section spline generation at job initialization
+           [] Denotes an optional argument
+           -n Specifies the number of events to generate
+           -s Turns on cross section spline generation at job initialization
               Not using the cross section splines will slow down the event
               generation considerably. Since building the splines is a 
               considerable overhead we recommend building them in advance
               (see gmkspl utility) and loading via the $GSPLOAD env. variable.
-           -e specifies the neutrino energy
+           -e Specifies the neutrino energy
 	      If what follows the -e option is a comma separated pair of values
               it will be interpreted as an energy range and neutrino energies 
               will be generated uniformly in this range. Note that this is the 
@@ -25,10 +25,10 @@
               However, if a flux has been determined using the -f option then 
               the energy range will be interpreted as the energy range of flux
               neutrinos
-           -p specifies the neutrino PDG code
-           -t specifies the target PDG code (pdg format: 10LZZZAAAI)
-           -r specifies the MC run number
-           -f specifies the neutrino flux spectrum - it can be either:
+           -p Specifies the neutrino PDG code
+           -t Specifies the target PDG code (pdg format: 10LZZZAAAI)
+           -r Specifies the MC run number
+           -f Specifies the neutrino flux spectrum - it can be either:
 	      -- A function, eg 'x*x+4*exp(-x)' 
               -- A text file containing 2 columns corresponding to energy,flux
                  (see $GENIE/data/flux/ for few examples). 
@@ -41,11 +41,16 @@
               Note that in order to use the -f option you must have enabled the 
               flux and geometry drivers during the GENIE installation (see 
               installation instructions).
-           -u
+           -u Forces generation of unweighted events.
+              This option is relevant only if a neutrino flux is specified.
+              Note that 'unweighted' refers to the selection of the primary
+              flux neutrino + target that were forced to interact. A weighting
+              scheme for the generated kinematics of individual processes can
+              still be in effect if enabled..
  
          Examples:
          (1)
-           gevgen -n 300 -s -e 6.5 -p 14 -t 1000260560 -r 10000
+           gevgen -n 300 -s -e 6.5 -p 14 -t 1000260560 
 
            will generate 300 events of muon neutrinos (pdg = 14) on Iron (A=56,Z=26) 
            at E = 6.5 GeV. The -s option will force it to generate cross section
@@ -56,14 +61,14 @@
            and loading them via $GSPLOAD.
 
          (2)
-           gevgen -n 300 -s -e 1,5 -p 14 -t 1000260560 -r 10000
+           gevgen -n 300 -s -e 1,5 -p 14 -t 1000260560 
 
            like above except that interactions will be generated uniformly at the
            energy range from 1 to 5 GeV (note: uniform spectrum of interacting 
            neutrinos _not_ flux neutrinos).
 
           (3)
-           gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -r 10000 -f 'x*x*exp((-x*x+3)/4)'
+           gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f 'x*x*exp((-x*x+3)/4)'
 
            will generate 30000 events of muon neutrinos (pdg = 14) on Oxygen
            (A=16,Z=8) using a neutrino flux of the specified functional form at the 
@@ -71,11 +76,23 @@
            here too.
 
           (4)
-           gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -r 10000 -f $GENIE/data/flux/nufact.data
+           gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f /some/path/flux.data
 
            like above except that the neutrino flux is taken from the input vector file 
            rather than the input functional form.
 
+          (4)
+           gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f /some/path/my_file.root
+
+           like above except that the flux is taken from a TH1D object called my_flux
+           stored in /some/path/my_file.root. Note that the event generation driver
+           will use only the input histogram bins that fall within the specified
+           (with -e) energy range. In the above example, all the neutrino flux bins 
+           that do not fall in the 1 GeV - 4 GeV range will be neglected (Note that
+           the bins including 1 GeV and 4 GeV will be taken into account - So the 
+           actual energy range used is: from the lower edge of the bin containing 
+           1 GeV to the upper edge of the bin containing 4 GeV).
+           
          Other control options:
 
          You can further control the program behaviour by setting the GEVGL,
@@ -230,16 +247,15 @@ void GenerateEventsUsingANeutrinoFlux(void)
 {
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 
+  int flux_entries = 100000;
+
   //-- create the flux driver
   double emin = gOptMinNuEnergy;
   double emax = gOptMinNuEnergy+gOptNuEnergyRange;
   double de   = gOptNuEnergyRange;
 
   flux::GCylindTH1Flux * flux = new flux::GCylindTH1Flux;
-
-  int flux_bins    = 300;
-  int flux_entries = 100000;
-  TH1D * spectrum   = new TH1D("spectrum","neutrino flux", flux_bins, emin, emax);
+  TH1D * spectrum = 0;
 
   // check whether the input flux is a file or a functional form
   //
@@ -248,10 +264,11 @@ void GenerateEventsUsingANeutrinoFlux(void)
   bool input_is_root_file = gOptFlux.find(".root") != string::npos &&
                             gOptFlux.find(",") != string::npos;
   if(input_is_text_file) {
+    //
+    // ** generate the flux histogram from the x,y pairs in the input text file
+    //
     Spline * input_flux = new Spline(gOptFlux.c_str());
-
-    // generate the flux hisogram from the input flux file
-    int    n     = 100;
+    int  n = 100;
     double estep = (emax-emin)/(n-1);
     double ymax  = -1, ry = -1, gy = -1, e = -1;
     for(int i=0; i<n; i++) {
@@ -261,6 +278,8 @@ void GenerateEventsUsingANeutrinoFlux(void)
     ymax *= 1.3;
 
     RandomGen * r = RandomGen::Instance();
+    spectrum  = new TH1D("spectrum","neutrino flux", 300, emin, emax);
+    spectrum->SetDirectory(0);
 
     for(int ientry=0; ientry<flux_entries; ientry++) {
       bool accept = false;
@@ -279,34 +298,51 @@ void GenerateEventsUsingANeutrinoFlux(void)
       }
     }
     delete input_flux;
-
   } 
   else if(input_is_root_file) {
-
+    //
+    // ** extract specified flux histogram from the input root file
+    //
     vector<string> fv = utils::str::Split(gOptFlux,",");
     assert(fv.size()==2); 
     assert( !gSystem->AccessPathName(fv[0].c_str()) );
 
     LOG("gevgen", pNOTICE) << "Getting input flux from root file: " << fv[0];
-    TFile * ff = new TFile(fv[0].c_str(),"read");
+    TFile * flux_file = new TFile(fv[0].c_str(),"read");
 
     LOG("gevgen", pNOTICE) << "Flux name: " << fv[1];
-    TH1D * hh = (TH1D *)ff->Get(fv[1].c_str());
-    assert(hh);
+    TH1D * hst = (TH1D *)flux_file->Get(fv[1].c_str());
+    assert(hst);
 
-    LOG("gevgen", pNOTICE) << hh->GetEntries();
-    
-    delete spectrum;
-    spectrum = new TH1D(*hh);
+    LOG("gevgen", pNOTICE) << hst->GetEntries();
+
+    // copy all bins between emin,emax
+    spectrum  = new TH1D("spectrum","neutrino flux",
+        hst->GetNbinsX(),  hst->GetXaxis()->GetXmin(), hst->GetXaxis()->GetXmax());
+    spectrum->SetDirectory(0);
+    for(int ibin = 1; ibin <= hst->GetNbinsX(); ibin++) {
+       if(hst->GetBinLowEdge(ibin) < emax &&
+         hst->GetBinLowEdge(ibin) + hst->GetBinWidth(ibin) > emin) {
+           spectrum->SetBinContent(ibin, hst->GetBinContent(ibin));
+	    LOG("gevgen", pNOTICE) << "adding => " << ibin << ": " << hst->GetBinContent(ibin);
+         }
+    }
 
     LOG("gevgen", pNOTICE) << spectrum->GetEntries();
 
-//    ff.Close();	
+    flux_file->Close();	
+    delete flux_file;
+
+    LOG("gevgen", pNOTICE) << spectrum->GetEntries();
 
   } else {
-    // generate the flux histogram from the input functional form
+    //
+    // ** generate the flux histogram from the input functional form
+    //
     TF1 *  input_func = new TF1("input_func", gOptFlux.c_str(), emin, emax);
-    spectrum->FillRandom("input_func", 100000);
+    spectrum  = new TH1D("spectrum","neutrino flux", 300, emin, emax);
+    spectrum->SetDirectory(0);
+    spectrum->FillRandom("input_func", flux_entries);
     delete input_func;
   }
   // save input flux
@@ -548,6 +584,6 @@ void PrintSyntax(void)
 {
   LOG("gevgen", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gevgen [-n nev] [-s] -e energy -p nupdg -t tgtpdg [-f flux]\n";
+    << "   gevgen [-n nev] [-s] -e energy -p nupdg -t tgtpdg [-f flux] [-u]\n";
 }
 //____________________________________________________________________________
