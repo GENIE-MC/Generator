@@ -421,6 +421,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   NUCL-Ro (in fm) is a scale parameter driving the effective nuclear sizes (Ro in R=Ro*A^1/3)
   -->
   <param type="double" name="NUCL-R0"> 1.4 </param>
+  <param type="double" name="NUCL-NR"> 3.0 </param>
 
  <!-- 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -447,7 +448,6 @@ Use the "Default" one to get the best GENIE physics & tuning.
   -->
   <param type="string" name="INUKE-Mode">            hA    </param>
   <param type="double" name="INUKE-NucRemovalE">     0.008 </param>
-  <param type="double" name="INUKE-NR">              3.0   </param>
   <param type="double" name="INUKE-HadStep">         0.05  </param>
   <param type="double" name="INUKE-DelRPion">        0.5   </param>
   <param type="double" name="INUKE-DelRNucleon">     1.0   </param>
