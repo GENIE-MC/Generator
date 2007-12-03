@@ -10,7 +10,12 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Dec 03, 2007 - CA
+   If the formation zone is too large then the particle is placed back,
+   just "outside the nucleus". Update the definition of "outside the
+   nucleus" to be the maximum distance that a particle can be tracked
+   by the intranuclear cascade + a couple of fermis. Brings the code
+   in sync with changes in the intranuclear cascade tracking algorithm.
 */
 //____________________________________________________________________________
 
@@ -200,7 +205,7 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
   assert(nucltgt && nucltgt->IsNucleus());
   double A = nucltgt->A();
   double R = fR0 * TMath::Power(A, 1./3.);
-  R *= fNR; // particle is tracked much further outside the nuclear boundary as the density is non-zero
+  R *= TMath::Max(fNR,1.); // particle is tracked much further outside the nuclear boundary as the density is non-zero
 
   // Decay very short living particles so that we can give the formation
   // zone to the daughters
@@ -314,7 +319,7 @@ void DISHadronicSystemGenerator::LoadConfig(void)
   //-- Get parameters controlling the nuclear sizes
   //
   fR0  = fConfig->GetDoubleDef ("R0", gc->GetDouble("NUCL-R0")); // fm
-  fNR  = fConfig->GetDoubleDef ("NR", gc->GetDouble("INUKE-NR"));    
+  fNR  = fConfig->GetDoubleDef ("NR", gc->GetDouble("NUCL-NR"));    
 
   //-- Get parameters controlling the formation zone simulation
   //
