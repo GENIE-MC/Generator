@@ -82,7 +82,7 @@
            rather than the input functional form.
 
           (4)
-           gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f /some/path/my_file.root
+           gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f /some/path/my_file.root,my_flux
 
            like above except that the flux is taken from a TH1D object called my_flux
            stored in /some/path/my_file.root. Note that the event generation driver
