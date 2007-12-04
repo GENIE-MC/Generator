@@ -10,7 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Dec 04, 2007 - CA
+   Handle very rare failure mode where a bare quark or di-quark appears in
+   the final state
 */
 //____________________________________________________________________________
 
@@ -264,13 +266,27 @@ TClonesArray * PythiaHadronization::Hadronize(
   int np = pythia_particles->GetEntries();
   assert(np>0);
   TClonesArray * particle_list = new TClonesArray("TMCParticle", np);
+  particle_list->SetOwner(true);
+
   register unsigned int i = 0;
   TMCParticle * particle = 0;
   TIter particle_iter(pythia_particles);
 
   while( (particle = (TMCParticle *) particle_iter.Next()) ) {
      LOG("PythiaHad", pDEBUG)
-               << "Adding final state particle pdgc = " << particle->GetKF();
+          << "Adding final state particle pdgc = " << particle->GetKF() 
+          << " with status = " << particle->GetKS();
+
+     if(particle->GetKS() == 1) {
+	if( pdg::IsQuark  (particle->GetKF()) || 
+            pdg::IsDiQuark(particle->GetKF()) ) {
+                LOG("PythiaHad", pERROR)
+                  << "Hadronization failed! Bare quark/di-quarks appear in final state!";
+            particle_list->Delete();
+            delete particle_list;
+            return 0;            
+        }
+     }
 
      // fix numbering scheme used for mother/daughter assignments
      particle->SetParent     (particle->GetParent()     - 1);
@@ -282,8 +298,6 @@ TClonesArray * PythiaHadronization::Hadronize(
   }
 
   utils::fragmrec::Print(particle_list);
-
-  particle_list->SetOwner(true);
   return particle_list;
 }
 //____________________________________________________________________________
