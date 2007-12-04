@@ -157,8 +157,8 @@ double NuEKinematicsGenerator::ComputeMaxXSec(
 // maximum. The number used in the rejection method will be scaled up by a
 // safety factor. But it needs to be fast - do not use a very small y step.
 
-  const int N  = 10;
-  const int Nb =  6;
+  const int N  = 40;
+//const int Nb =  6;
 
   const double ymin = kMinY;
   const double ymax = kMaxY;
@@ -166,8 +166,8 @@ double NuEKinematicsGenerator::ComputeMaxXSec(
   double max_xsec = -1.0;
 
   double dy = (ymax-ymin)/(N-1);
-  double xseclast = -1;
-  bool   increasing;
+//double xseclast = -1;
+//bool   increasing;
 
   for(int i=0; i<N; i++) {
     double y = ymin + i * dy;
@@ -176,7 +176,7 @@ double NuEKinematicsGenerator::ComputeMaxXSec(
 
     SLOG("NuEKinematics", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
     max_xsec = TMath::Max(xsec, max_xsec);
-
+/*
     increasing = xsec-xseclast>=0;
     xseclast   = xsec;
 
@@ -195,6 +195,7 @@ double NuEKinematicsGenerator::ComputeMaxXSec(
        }
        break;
     }
+*/
   }//y
 
   // Apply safety factor, since value retrieved from the cache might
@@ -232,13 +233,8 @@ void NuEKinematicsGenerator::Configure(string config)
 //____________________________________________________________________________
 void NuEKinematicsGenerator::LoadConfig(void)
 {
-/*
-  fXSecModel = 
-      dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("DiffXSecAlg"));
-  assert(fXSecModel);
-*/
-  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
-  fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",     -1.00);
+  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 2.00);
+  fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",      1.00);
 
   fMaxXSecDiffTolerance = fConfig->GetDoubleDef("MaxXSec-DiffTolerance",0.);
   assert(fMaxXSecDiffTolerance>=0);
