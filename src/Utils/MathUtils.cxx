@@ -56,7 +56,7 @@ double genie::utils::math::KahanSummation(const vector<double> & x)
 //____________________________________________________________________________
 bool genie::utils::math::AreEqual(double x1, double x2)
 {
-  double err = DBL_EPSILON;
+  double err = 0.001*DBL_EPSILON;
   double dx  = TMath::Abs(x1-x2);
   if(dx<err) {
     LOG("Math", pINFO) << x1 << " := " << x2;
