@@ -83,6 +83,7 @@
   <priority msgstream="KineLimits">          INFO   </priority>
   <priority msgstream="Kinematics">          INFO   </priority>
   <priority msgstream="LeptonicVertex">      INFO   </priority>
+  <priority msgstream="Math">                NOTICE </priority>
   <priority msgstream="Messenger">           INFO   </priority>
   <priority msgstream="MuELoss">             NOTICE </priority>
   <priority msgstream="MultProb">            INFO   </priority>
