@@ -205,6 +205,7 @@ void SaveToPsFile(void)
     LOG("gsplt", pINFO) 
        << "Current interaction: " << interaction->AsString();
 
+
     //-- access the cross section spline
     const Spline * spl = evg_driver.XSecSpline(interaction);
     if(!spl) {
@@ -271,7 +272,7 @@ void SaveToPsFile(void)
   i=0;
   for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
     const Interaction * interaction = *ilistiter;
-    if(interaction->ProcInfo().IsQuasiElastic()) {
+    if(interaction->ProcInfo().IsQuasiElastic() && ! interaction->ExclTag().IsCharmEvent()) {
         gr[i]->Draw("LP");
         TString spltitle(interaction->AsString());
         spltitle = spltitle.ReplaceAll(";",1," ",1);
@@ -371,6 +372,35 @@ void SaveToPsFile(void)
   }
   legend->SetHeader("COH Cross Sections");
   gr[nspl]->Draw("LP");
+  legend->AddEntry(gr[nspl], "sum","LP");
+  h->GetXaxis()->SetTitle("Ev (GeV)");
+  h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
+  c->SetLogx();
+  c->SetLogy();
+  c->SetGridx();
+  c->SetGridy();
+  c->Update();
+  c->Clear();
+  c->Range(0,0,1,1);
+  legend->Draw();
+  c->Update();
+
+  //-- plot charm xsecs only
+  //
+  h = (TH1F*) c->DrawFrame(gEmin, XSmin, gEmax, XSmax);
+  i=0;
+  for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+    const Interaction * interaction = *ilistiter;
+    if(interaction->ExclTag().IsCharmEvent()) {
+        gr[i]->Draw("LP");
+        TString spltitle(interaction->AsString());
+        spltitle = spltitle.ReplaceAll(";",1," ",1);
+        legend->AddEntry(gr[i], spltitle.Data(),"LP");
+    }
+    i++;
+  }
+  legend->SetHeader("Charm Prod. Cross Sections");
+  //gr[nspl]->Draw("LP");
   legend->AddEntry(gr[nspl], "sum","LP");
   h->GetXaxis()->SetTitle("Ev (GeV)");
   h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
