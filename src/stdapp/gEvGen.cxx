@@ -524,7 +524,7 @@ void GetCommandLineArgs(int argc, char ** argv)
        assert(nurange.size() == 2);   
        double emin = atof(nurange[0].c_str());
        double emax = atof(nurange[1].c_str());
-       assert(emax>emin && emin>0);
+       assert(emax>emin && emin>=0);
        gOptMinNuEnergy   = emin;
        gOptNuEnergyRange = emax-emin;
     } else {
