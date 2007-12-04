@@ -79,7 +79,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //  (the physically allowed W's, unless an external cut is imposed)
   const KPhaseSpace & kps = interaction->PhaseSpace();
   Range1D_t W = kps.Limits(kKVW);
-  assert(W.min>=0. && W.min<W.max);
+//assert(W.min>=0. && W.min<W.max);
 
   if(W.max <=0 || W.min>=W.max) {
      LOG("RESKinematics", pWARN) << "No available phase space";
