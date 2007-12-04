@@ -18,6 +18,7 @@
 
 #include <TMath.h>
 
+#include "Messenger/Messenger.h"
 #include "Utils/MathUtils.h"
 
 //____________________________________________________________________________
@@ -55,16 +56,24 @@ double genie::utils::math::KahanSummation(const vector<double> & x)
 //____________________________________________________________________________
 bool genie::utils::math::AreEqual(double x1, double x2)
 {
-  double err = 10. * DBL_EPSILON;
+  double err = DBL_EPSILON;
   double dx  = TMath::Abs(x1-x2);
-  return (dx < err);
+  if(dx<err) {
+    LOG("Math", pINFO) << x1 << " := " << x2;
+    return true;
+  }
+  return false;;
 }
 //____________________________________________________________________________
 bool genie::utils::math::AreEqual(float x1, float x2)
 {
-  float err = 10. * FLT_EPSILON;
+  float err = FLT_EPSILON;
   float dx  = TMath::Abs(x1-x2);
-  return (dx < err);
+  if(dx<err) {
+    LOG("Math", pINFO) << x1 << " := " << x2;
+    return true;
+  }
+  return false;;
 }
 //____________________________________________________________________________
 bool genie::utils::math::IsWithinLimits(double x, Range1D_t range)
