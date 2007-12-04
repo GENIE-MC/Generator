@@ -48,6 +48,7 @@ namespace pdg
   bool IsTau           (int pdgc);
   bool IsAntiTau       (int pdgc);
   
+  bool IsDiQuark       (int pdgc);
   bool IsQuark         (int pdgc);
   bool IsUQuark        (int pdgc);
   bool IsDQuark        (int pdgc);
