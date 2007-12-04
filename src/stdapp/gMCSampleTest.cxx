@@ -37,6 +37,8 @@
 #include <cassert>
 #include <sstream>
 #include <string>
+#include <vector>
+#include <algorithm>
 
 #include <TSystem.h>
 #include <TFile.h>
@@ -70,6 +72,7 @@
 
 using std::ostringstream;
 using std::string;
+using std::vector;
 
 using namespace genie;
 using namespace genie::constants;
@@ -478,6 +481,11 @@ void CreateSummaryTree(string inp_filename)
       }
     }//particle-loop
 
+    if( count(final_had_syst.begin(), final_had_syst.end(), -1) > 0) {
+        mcrec->Clear();
+ 	continue;
+    }
+
     //
     // Extract info on the primary hadronic system (before any intranuclear rescattering)
     // * For DIS: 
@@ -548,6 +556,11 @@ void CreateSummaryTree(string inp_filename)
          }//i
       }//freenuc?
     }//study_hadsystem?
+
+    if( count(prim_had_syst.begin(), prim_had_syst.end(), -1) > 0) {
+        mcrec->Clear();
+ 	continue;
+    }
 
     //
     // Al information has been assembled -- Start filling up the tree branches
