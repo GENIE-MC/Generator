@@ -366,7 +366,9 @@ double genie::utils::nuclear::Density(double r, int A, double ring)
        c = TMath::Power(A,0.35); z = 0.54; 
     } //others
 
-    double rho = A * DensityWoodsSaxon(r,c,z,ring);
+    LOG("Nuclear",pINFO)
+	<< "r= " << r << ", ring= " << ring;
+    double rho = DensityWoodsSaxon(r,c,z,ring);
     return rho;
   }
   else if (A>4) {
@@ -380,14 +382,14 @@ double genie::utils::nuclear::Density(double r, int A, double ring)
       ap=1.75; alf=-0.4+.12*A; 
     }  //others- alf=0.08 if A=4
 
-    double rho = A * DensityGaus(r,ap,alf,ring);
+    double rho = DensityGaus(r,ap,alf,ring);
     return rho;
   }
   else {
     // helium
     double ap = 1.9/TMath::Sqrt(2.);  
     double alf=0.;    
-    double rho = A * DensityGaus(r,ap,alf,ring);
+    double rho = DensityGaus(r,ap,alf,ring);
     return rho;
   }
 
@@ -405,7 +407,7 @@ double genie::utils::nuclear::DensityGaus(
 // input  : radial distance in nucleus [units: fm]
 // output : nuclear density            [units: fm^-3]
 
-  ring = TMath::Max(ring, 0.3*a);
+  ring = TMath::Min(ring, 0.3*a);
 
   double aeval = a + ring;
   double norm  = 1./((5.568 + alf*8.353)*TMath::Power(a,3.));  //0.0132;
@@ -413,7 +415,8 @@ double genie::utils::nuclear::DensityGaus(
   double dens  = norm * (1. + alf*b) * TMath::Exp(-b);
 
   LOG("Nuclear", pINFO) 
-        << "r = " << r << ", norm = " << norm << ", dens = " << dens;
+        << "r = " << r << ", norm = " << norm << ", dens = " << dens << 
+", aeval= " << aeval;
 
   return dens;
 }
@@ -428,14 +431,17 @@ double genie::utils::nuclear::DensityWoodsSaxon(
 // input  : radial distance in nucleus [units: fm]
 // output : nuclear density            [units: fm^-3]
 
-  ring = TMath::Max(ring, 0.75*c);
+  LOG ("Nuclear",pINFO)
+	<< "c= " << c << ", z= " << z << ",ring= " << ring;
+  ring = TMath::Min(ring, 0.75*c);
 
   double ceval = c + ring;
   double norm  = (3./(4.*kPi*TMath::Power(c,3)))*1./(1.+TMath::Power((kPi*z/c),2));
   double dens  = norm / (1 + TMath::Exp((r-ceval)/z));
 
   LOG("Nuclear", pINFO) 
-        << "r = " << r << ", norm = " << norm << ", dens = " << dens;
+        << "r = " << r << ", norm = " << norm << ", dens = " << dens << 
+" , ceval= " << ceval;
 
   return dens;
 }
