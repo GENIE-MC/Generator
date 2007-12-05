@@ -15,7 +15,9 @@
            -f specifies the output file format. Default is 10.
 		0 : GENIE XML format event file
 		1 : NUANCE-style tracker text format 
-	        2 : NEUGEN-style test format for hadronization model studies
+		2 : A slightly tweaked NUANCE-style tracker text format - 
+	            A fast&dirty way for getting GENIE events into T2K/nd280 software.
+	        3 : NEUGEN-style test format for hadronization model studies
 	       10 : ROOT file with the standard generator ntuple used for T2K cross-generator comparisons
 	       11 : ROOT file with INTRANUKE's h+A summary ntuple
            -o specifies the output filename. 
@@ -23,7 +25,8 @@
               input base name and an extension depending on the file format: 
                 0 -> *.gxml 
                 1 -> *.gtrac
-                2 -> *.ghad
+                2 -> *.gtrac2
+                3 -> *.ghad
                10 -> *.gt2k.root
                11 -> *.ghA.root
 		
@@ -43,6 +46,8 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <vector>
+#include <algorithm>
 
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
@@ -74,6 +79,7 @@ using std::setw;
 using std::setprecision;
 using std::setfill;
 using std::ios;
+using std::vector;
 
 using namespace genie;
 using namespace genie::constants;
@@ -107,11 +113,22 @@ int main(int argc, char ** argv)
 
   //-- call the appropriate conversion function
   switch(gOptOutFileFormat) {
-   case (0)  :  ConvertToGXML();         break;
-   case (1)  :  ConvertToGTrac();        break;
-   case (2)  :  ConvertToGHad();         break;
-   case (10) :  ConvertToT2KStdGenNtp(); break;
-   case (11) :  ConvertToIntranukeNtp(); break;
+   case (0)  :  
+	ConvertToGXML();         
+	break;
+   case (1)  :  
+   case (2)  :  
+	ConvertToGTrac();        
+	break;
+   case (3)  :  
+	ConvertToGHad();         
+	break;
+   case (10) :  
+	ConvertToT2KStdGenNtp(); 
+	break;
+   case (11) :  
+	ConvertToIntranukeNtp(); 
+	break;
    default:
      LOG("gntpc", pFATAL)
           << "Invalid output format [" << gOptOutFileFormat << "]";
@@ -283,6 +300,7 @@ void ConvertToGTrac(void)
     tree->GetEntry(gIEv);
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
+    Interaction * interaction = event.Summary();
 
     LOG("gntpc", pINFO) << rec_header;
     LOG("gntpc", pINFO) << event;
@@ -296,9 +314,13 @@ void ConvertToGTrac(void)
     // Nuance begin tag
     output << "$ begin" << endl;
 
-    // Nuance event type
-    int nuance_event_type = 0;
-    output << "$ nuance " << nuance_event_type << endl;
+    if(gOptOutFileFormat==1) {
+    	// Nuance event type
+    	int nuance_event_type = 0;
+    	output << "$ nuance " << nuance_event_type << endl;
+    } else {
+    	output << "$ genie " << interaction->AsString() << endl;
+    }
 
     // Nuance vertex info
     double vtxx = 0, vtxy = 0, vtxz = 0, vtxt = 0;
@@ -311,7 +333,12 @@ void ConvertToGTrac(void)
 
     while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
 
+       // Neglect all GENIE pseudo-particles
+       //
+       if(p->IsFake()) continue;
+
        // Convert GENIE's GHEP pdgc & status to NUANCE's equivalent
+       //
        GHepStatus_t ghep_ist = (GHepStatus_t) p->Status();
        int ist;
        switch (ghep_ist) {
@@ -372,6 +399,9 @@ void ConvertToGTrac(void)
 
     mcrec->Clear();
   } // event loop
+
+  // Nuance end-of-file tag
+  output << "$ stop" << endl;
 
   output.close();
   fin.Close();
@@ -940,6 +970,11 @@ void ConvertToT2KStdGenNtp(void)
       }
     }//particle-loop
 
+    if( count(final_had_syst.begin(), final_had_syst.end(), -1) > 0) {
+        mcrec->Clear();
+        continue;
+    }
+
     //
     // Extract info on the primary hadronic system (before any intranuclear rescattering)
     // Please see comments at gMCSampleTest.cxx for a description of which particles
@@ -997,6 +1032,11 @@ void ConvertToT2KStdGenNtp(void)
          }//i
       }//freenuc?
     }//study_hadsystem?
+
+    if( count(prim_had_syst.begin(), prim_had_syst.end(), -1) > 0) {
+        mcrec->Clear();
+        continue;
+    }
 
     //
     // Al information has been assembled -- Start filling up the tree branches
@@ -1375,7 +1415,8 @@ string DefaultOutputFile(void)
   string ext="";
   if      (gOptOutFileFormat==0)  ext = "gxml";
   else if (gOptOutFileFormat==1)  ext = "gtrac";
-  else if (gOptOutFileFormat==2)  ext = "ghad";
+  else if (gOptOutFileFormat==2)  ext = "gtrac2";
+  else if (gOptOutFileFormat==3)  ext = "ghad";
   else if (gOptOutFileFormat==10) ext = "gt2k.root";
   else if (gOptOutFileFormat==11) ext = "ghA.root";
 
@@ -1413,8 +1454,11 @@ void PrintSyntax(void)
     << "      -f specifies the output file format. Default is 10.  \n"
     << "          0 : GENIE XML format event file  \n"
     << "          1 : NUANCE-style tracker text format  \n"
-    << "          2 : NEUGEN-style test format for hadronization model studies  \n"
+    << "          2 : A slightly tweaked NUANCE-style tracker text format - \n"
+    << "              A fast&dirty way for getting GENIE events into T2K/nd280 software \n"
+    << "          3 : NEUGEN-style test format for hadronization model studies  \n"
     << "         10 : ROOT file with the standard generator ntuple used for T2K cross-generator comparisons \n"
+    << "              (if you only use GENIE then should prefer the summary tree generated by gmctest) \n"
     << "	 11 : ROOT file with INTRANUKE's h+A summary ntuple \n"
     << "  \n"
     << "    -o specifies the output filename.  \n"
@@ -1422,7 +1466,8 @@ void PrintSyntax(void)
     << "         input base name and an extension depending on the file format:  \n"
     << "           0 -> *.gxml   \n"
     << "           1 -> *.gtrac  \n"
-    << "           2 -> *.ghad   \n"
+    << "           2 -> *.gtrac2 \n"
+    << "           3 -> *.ghad   \n"
     << "          10 -> *.gt2k.root \n"
     << "          11 -> *.ghA.root \n";
 }
