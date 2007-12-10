@@ -74,9 +74,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
   assert(fIntegrator);
 
   const int kNTgt = 2;
-  const int kNWkC = 2;
-  const int               tgtc[kNTgt] = { kPdgTgtFreeP, kPdgTgtFreeN };
-  const InteractionType_t wkcc[kNWkC] = { kIntWeakCC, kIntWeakNC     };
+  const int tgtc[kNTgt] = { kPdgTgtFreeP, kPdgTgtFreeN };
 
   // at the splines use at least 10 knots per decade but at least 40 knots
   // in the full energy range
@@ -98,13 +96,13 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
   ProcessInfo *  proc_info  = interaction->ProcInfoPtr();
   Target *       target     = init_state->TgtPtr();
 
+  InteractionType_t wkcur = proc_info->InteractionTypeId();
+
   unsigned int nres = fResList.NResonances();
 
-  for(int iwkc=0; iwkc<kNWkC; iwkc++) {
-    for(int itgt=0; itgt<kNTgt; itgt++) {
+  for(int itgt=0; itgt<kNTgt; itgt++) {
 
       init_state -> SetPdgs(tgtc[itgt], nu_code);
-      proc_info  -> Set(kScResonant, wkcc[iwkc]);
 
       if      (tgtc[itgt] == kPdgTgtFreeP) target->SetHitNucPdg(kPdgProton);
       else if (tgtc[itgt] == kPdgTgtFreeN) target->SetHitNucPdg(kPdgNeutron);
@@ -118,8 +116,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
 
          //-- Get a unique cache branch name
          int nuc_code = init_state->Tgt().HitNucPdg();
-         string key = this->CacheBranchName(
-                                   res, wkcc[iwkc], nu_code, nuc_code);
+         string key = this->CacheBranchName(res, wkcur, nu_code, nuc_code);
 
          //-- Make sure the cache branch does not already exists
          CacheBranchFx * cache_branch =
@@ -135,7 +132,6 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
 
          const KPhaseSpace & kps = interaction->PhaseSpace();
          double EvThr = kps.Threshold();
-         //double EvThr = interaction->EnergyThreshold();
          LOG("ReinSeghalResC", pNOTICE) << "E threshold = " << EvThr;
 
          for(int ie=0; ie<kNSplineKnots; ie++) {
@@ -183,8 +179,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
          cache_branch->CreateSpline();
 
       }//ires
-    }//hit nucleon
-  }//weak current
+  }//hit nucleon
 
   delete interaction;
 }
