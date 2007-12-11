@@ -14,6 +14,8 @@
 */
 //____________________________________________________________________________
 
+#include <cassert>
+
 #include "Numerical/GVFunc.h"
 
 using namespace genie;
