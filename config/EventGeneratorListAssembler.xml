@@ -14,15 +14,37 @@ Name                        Type    Opt  Comment                                
   <param_set name="Default"> 
      <param type="int" name="NGenerators">   10                                 </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC       </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/DIS-CC       </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC       </param>
      <param type="alg" name="Generator-2">   genie::EventGenerator/RES-CC       </param>
-     <param type="alg" name="Generator-3">   genie::EventGenerator/QEL-NC       </param>
-     <param type="alg" name="Generator-4">   genie::EventGenerator/DIS-NC       </param>
-     <param type="alg" name="Generator-5">   genie::EventGenerator/RES-NC       </param>
-     <param type="alg" name="Generator-6">   genie::EventGenerator/IMD          </param>
-     <param type="alg" name="Generator-7">   genie::EventGenerator/COHPI-CC     </param>
-     <param type="alg" name="Generator-8">   genie::EventGenerator/COHPI-NC     </param>
-     <param type="alg" name="Generator-9">   genie::EventGenerator/DIS-CC-CHARM </param>
+     <param type="alg" name="Generator-3">   genie::EventGenerator/RES-NC       </param>
+     <param type="alg" name="Generator-4">   genie::EventGenerator/DIS-CC       </param>
+     <param type="alg" name="Generator-5">   genie::EventGenerator/DIS-NC       </param>
+     <param type="alg" name="Generator-6">   genie::EventGenerator/COHPI-CC     </param>
+     <param type="alg" name="Generator-7">   genie::EventGenerator/COHPI-NC     </param>
+     <param type="alg" name="Generator-8">   genie::EventGenerator/DIS-CC-CHARM </param>
+     <param type="alg" name="Generator-9">   genie::EventGenerator/IMD          </param>
+  </param_set>
+
+  <param_set name="Default2"> 
+     <param type="int" name="NGenerators">   12                                 </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC       </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC       </param>
+     <param type="alg" name="Generator-2">   genie::EventGenerator/RES-CC       </param>
+     <param type="alg" name="Generator-3">   genie::EventGenerator/RES-NC       </param>
+     <param type="alg" name="Generator-4">   genie::EventGenerator/DIS-CC       </param>
+     <param type="alg" name="Generator-5">   genie::EventGenerator/DIS-NC       </param>
+     <param type="alg" name="Generator-6">   genie::EventGenerator/COHPI-CC     </param>
+     <param type="alg" name="Generator-7">   genie::EventGenerator/COHPI-NC     </param>
+     <param type="alg" name="Generator-8">   genie::EventGenerator/DIS-CC-CHARM </param>
+     <param type="alg" name="Generator-9">   genie::EventGenerator/QEL-CC-CHARM </param>
+     <param type="alg" name="Generator-10">  genie::EventGenerator/IMD          </param>
+     <param type="alg" name="Generator-11">  genie::EventGenerator/NUE-EL       </param>
+  </param_set>
+
+  <param_set name="TestNew"> 
+     <param type="int" name="NGenerators">  2                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/QEL-CC-CHARM </param>
+     <param type="alg" name="Generator-1">  genie::EventGenerator/NUE-EL       </param>
   </param_set>
 
   <param_set name="DIS-CHARM"> 
@@ -136,5 +158,6 @@ Name                        Type    Opt  Comment                                
      <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DIS-NC    </param>
   </param_set>
+
 </alg_conf>
 
