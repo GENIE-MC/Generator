@@ -110,7 +110,7 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double rmax = 3*R;
         double dr   = R/40.;
         for(double r = 0; r < rmax; r+=dr) { 
-           ymax = TMath::Max(ymax, r*r * utils::nuclear::Density(r,A)); 
+           ymax = TMath::Max(ymax, r*r * utils::nuclear::Density(r,(int)A)); 
         }
         ymax *= 1.2;
         
@@ -132,7 +132,7 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
            double r = rmax * rnd->RndFsi().Rndm();
            double t = ymax * rnd->RndFsi().Rndm();
-           double y = r*r * utils::nuclear::Density(r,A);
+           double y = r*r * utils::nuclear::Density(r,(int)A);
            if(y > ymax) {
                LOG("Vtx", pERROR)
                  << "y = " << y << " > ymax = " << ymax 

@@ -443,7 +443,7 @@ bool genie::utils::res::IsDelta(Resonance_t res)
        // should not be here - meaningless to return anything
        assert(false);
   }
-
+  return false;
 }
 //____________________________________________________________________________
 bool genie::utils::res::IsN(Resonance_t res)
