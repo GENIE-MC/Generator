@@ -57,6 +57,7 @@
 #include <TTree.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
@@ -368,11 +369,11 @@ void ConvertToGTrac(void)
 
        // Get particle's energy & momentum
        TLorentzVector * p4 = p->P4();
-       double E  = p4->Energy();
-       double Px = p4->Px();
-       double Py = p4->Py();
-       double Pz = p4->Pz();
-       double P  = p4->P();
+       double E  = p4->Energy() / units::MeV;
+       double Px = p4->Px()     / units::MeV;
+       double Py = p4->Py()     / units::MeV;
+       double Pz = p4->Pz()     / units::MeV;
+       double P  = p4->P()      / units::MeV;
        // Compute direction cosines
        double dcosx = (P>0) ? Px/P : -999;
        double dcosy = (P>0) ? Py/P : -999;
