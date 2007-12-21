@@ -85,6 +85,13 @@ if(@nret>0)
       { print GBLD   "#define __GENIE_GEOM_DRIVERS_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_GEOM_DRIVERS_ENABLED__\n"; }
 
+# low-level msg printout enabled?
+#
+@nret = `grep 'GOPT_ENABLE_LOWLEVEL_MESG=YES' $GCONF_FILE`;
+if(@nret>0) 
+      { print GBLD   "#define __GENIE_LOW_LEVEL_MESG_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_LOW_LEVEL_MESG_ENABLED__\n"; }
+
 # grab libxml2 version information
 #
 $libxml2_inc = "";
