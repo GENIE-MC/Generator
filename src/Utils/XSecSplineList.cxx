@@ -287,8 +287,9 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
        int nknots = atoi( snkn.c_str() );
 
        BLOG("XSecSplLst", pNOTICE) << "Loading spline: " << name;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        SLOG("XSecSplLst", pDEBUG)  << "Number ok knots = " << nknots;
-
+#endif
        int      iknot = 0;
        double * E     = new double[nknots];
        double * xsec  = new double[nknots];
@@ -297,8 +298,10 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 
        // loop over all xml tree nodes that are children of the <spline> node
        while (xmlSplChild != NULL) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
          LOG("XSecSplLst", pDEBUG)
-                      << "Got <spline> children node: " << xmlSplChild->name;
+              << "Got <spline> children node: " << xmlSplChild->name;
+#endif
 
          // enter everytime you find a <knot> tag
          if( (!xmlStrcmp(xmlSplChild->name, (const xmlChar *) "knot")) ) {
@@ -307,9 +310,10 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 
             // loop over all xml tree nodes that are children of this <knot>
             while (xmlKnotChild != NULL) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                LOG("XSecSplLst", pDEBUG)
                        << "Got <knot> children node: "  << xmlKnotChild->name;
-
+#endif
               // enter everytime you find a <E> or a <xsec> tag
               const xmlChar * tag = xmlKnotChild->name;
               bool is_E    = ! xmlStrcmp(tag,(const xmlChar *) "E");
@@ -323,8 +327,9 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                  if (is_xsec) xsec[iknot] = atof(val.c_str());
 
                 xmlFree(xmlValTagChild);
-                LOG("XSecSplLst", pDEBUG)
-                                       << "tag: " << tag << ", value: " << val;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+                LOG("XSecSplLst", pDEBUG) << "tag: " << tag << ", value: " << val;
+#endif
               }//if current tag is <E>,<xsec>
 
               xmlKnotChild = xmlKnotChild->next;

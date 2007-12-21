@@ -29,6 +29,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    mueloss         Muon energy loss modeling                                           default: enabled  \n";
   print "    dylibversion    Adds version number in dynamic lib names [recommended]              default: enabled  \n";
   print "    minos-evserv    GENIE event server for interfacing to GMINOS                        default: disabled \n";
+  print "    lowlevel-mesg   Disable (rather that expecting the mesg service to filter out)      default: disabled \n";
+  print "                    certain copious debug/info messages known to slow GENIE down        \n";
   print "    debug           Adds -g in the compiler options to request debug info               default: disabled \n\n";
   print "with options for 3rd party software, prefix with --with- (eg --with-gibuu-lib=/some/path/libGiBUU.a)\n\n";
   print "    optimiz-level   compiler opitimization level O/O2/O3/OO/Os    default: O2 \n";
@@ -107,37 +109,39 @@ print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
 
 # Default --enable/--disable config options (for a minimal genie build)
 #
-my $gopt_enable_profiler     = "NO";
-my $gopt_enable_nuvalidator  = "NO";
-my $gopt_enable_neugen       = "NO";
-my $gopt_enable_neut_cascade = "NO";
-my $gopt_enable_gibuu        = "NO";
-my $gopt_enable_flux_drivers = "YES";
-my $gopt_enable_geom_drivers = "YES";
-my $gopt_enable_doxygen_doc  = "NO";
-my $gopt_enable_test         = "NO";
-my $gopt_enable_viewer       = "NO";
-my $gopt_enable_mueloss      = "YES";
-my $gopt_enable_dylibversion = "YES";
-my $gopt_enable_minos_evserv = "NO";
-my $gopt_enable_debug        = "NO";
+my $gopt_enable_profiler      = "NO";
+my $gopt_enable_nuvalidator   = "NO";
+my $gopt_enable_neugen        = "NO";
+my $gopt_enable_neut_cascade  = "NO";
+my $gopt_enable_gibuu         = "NO";
+my $gopt_enable_flux_drivers  = "YES";
+my $gopt_enable_geom_drivers  = "YES";
+my $gopt_enable_doxygen_doc   = "NO";
+my $gopt_enable_test          = "NO";
+my $gopt_enable_viewer        = "NO";
+my $gopt_enable_mueloss       = "YES";
+my $gopt_enable_dylibversion  = "YES";
+my $gopt_enable_minos_evserv  = "NO";
+my $gopt_enable_lowlevel_mesg = "NO";
+my $gopt_enable_debug         = "NO";
 
 # Check configure's command line arguments for non-default values
 #
-if(($match = grep(/--enable-profiler/i,      @ARGV)) > 0) { $gopt_enable_profiler     = "YES"; }
-if(($match = grep(/--enable-nuvalidator/i,   @ARGV)) > 0) { $gopt_enable_nuvalidator  = "YES"; }
-if(($match = grep(/--enable-neugen/i,        @ARGV)) > 0) { $gopt_enable_neugen       = "YES"; }
-if(($match = grep(/--enable-neut-cascade/i,  @ARGV)) > 0) { $gopt_enable_neut_cascade = "YES"; }
-if(($match = grep(/--enable-gibuu/i,         @ARGV)) > 0) { $gopt_enable_gibuu        = "YES"; }
-if(($match = grep(/--enable-doxygen-doc/i,   @ARGV)) > 0) { $gopt_enable_doxygen_doc  = "YES"; }
-if(($match = grep(/--enable-test/i,          @ARGV)) > 0) { $gopt_enable_test         = "YES"; }
-if(($match = grep(/--enable-viewer/i,        @ARGV)) > 0) { $gopt_enable_viewer       = "YES"; }
-if(($match = grep(/--enable-minos-evserv/i,  @ARGV)) > 0) { $gopt_enable_minos_evserv = "YES"; }
-if(($match = grep(/--enable-debug/i,         @ARGV)) > 0) { $gopt_enable_debug        = "YES"; }
-if(($match = grep(/--disable-flux-drivers/i, @ARGV)) > 0) { $gopt_enable_flux_drivers = "NO";  }
-if(($match = grep(/--disable-geom-drivers/i, @ARGV)) > 0) { $gopt_enable_geom_drivers = "NO";  }
-if(($match = grep(/--disable-mueloss/i,      @ARGV)) > 0) { $gopt_enable_mueloss      = "NO";  }
-if(($match = grep(/--disable-dylibversion/i, @ARGV)) > 0) { $gopt_enable_dylibversion = "NO";  }
+if(($match = grep(/--enable-profiler/i,      @ARGV)) > 0) { $gopt_enable_profiler      = "YES"; }
+if(($match = grep(/--enable-nuvalidator/i,   @ARGV)) > 0) { $gopt_enable_nuvalidator   = "YES"; }
+if(($match = grep(/--enable-neugen/i,        @ARGV)) > 0) { $gopt_enable_neugen        = "YES"; }
+if(($match = grep(/--enable-neut-cascade/i,  @ARGV)) > 0) { $gopt_enable_neut_cascade  = "YES"; }
+if(($match = grep(/--enable-gibuu/i,         @ARGV)) > 0) { $gopt_enable_gibuu         = "YES"; }
+if(($match = grep(/--enable-doxygen-doc/i,   @ARGV)) > 0) { $gopt_enable_doxygen_doc   = "YES"; }
+if(($match = grep(/--enable-test/i,          @ARGV)) > 0) { $gopt_enable_test          = "YES"; }
+if(($match = grep(/--enable-viewer/i,        @ARGV)) > 0) { $gopt_enable_viewer        = "YES"; }
+if(($match = grep(/--enable-minos-evserv/i,  @ARGV)) > 0) { $gopt_enable_minos_evserv  = "YES"; }
+if(($match = grep(/--enable-lowlevel-mesg/i, @ARGV)) > 0) { $gopt_enable_lowlevel_mesg = "YES"; }
+if(($match = grep(/--enable-debug/i,         @ARGV)) > 0) { $gopt_enable_debug         = "YES"; }
+if(($match = grep(/--disable-flux-drivers/i, @ARGV)) > 0) { $gopt_enable_flux_drivers  = "NO";  }
+if(($match = grep(/--disable-geom-drivers/i, @ARGV)) > 0) { $gopt_enable_geom_drivers  = "NO";  }
+if(($match = grep(/--disable-mueloss/i,      @ARGV)) > 0) { $gopt_enable_mueloss       = "NO";  }
+if(($match = grep(/--disable-dylibversion/i, @ARGV)) > 0) { $gopt_enable_dylibversion  = "NO";  }
 
 my $gopt_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_cxx_debug_flag = "-g"; }
@@ -157,6 +161,7 @@ print MKCONF "GOPT_ENABLE_VIEWER=$gopt_enable_viewer\n";
 print MKCONF "GOPT_ENABLE_MUELOSS=$gopt_enable_mueloss\n";
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
 print MKCONF "GOPT_ENABLE_MINOS_EVENT_SERVER=$gopt_enable_minos_evserv\n";
+print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
 print MKCONF "GOPT_CXX_DEBUG_FLAG=$gopt_cxx_debug_flag\n";
 
 # Check for --with options:
