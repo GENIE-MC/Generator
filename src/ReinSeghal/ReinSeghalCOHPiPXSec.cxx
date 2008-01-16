@@ -19,6 +19,7 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecIntegratorI.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "Conventions/RefFrame.h"
@@ -100,6 +101,7 @@ double ReinSeghalCOHPiPXSec::XSec(
 
   double xsec = Gf*fp2 * A2 * E*(1-y) * sTot2 * (1+r2)*propg * Fabs*tint;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinSeghalCohPi", pDEBUG)
       << "\n momentum transfer .............. Q2    = " << Q2
       << "\n mass number .................... A     = " << A
@@ -112,6 +114,7 @@ double ReinSeghalCOHPiPXSec::XSec(
       << "\n pion absorption factor ......... Fabs  = " << Fabs
       << "\n t integration range ............ [" << tmin << "," << tmax << "]"
       << "\n t integration factor ........... tint  = " << tint;
+#endif
 
   // compute the cross section for the CC case
 
@@ -136,9 +139,11 @@ double ReinSeghalCOHPiPXSec::XSec(
      xsec *= (2.*C); 
   }
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinSeghalCohPi", pINFO)
-                << "d2xsec/dxdy[COHPi] (x= " << x << ", y="
-                                         << y << ", E=" << E << ") = "<< xsec;
+         << "d2xsec/dxdy[COHPi] (x= " << x << ", y="
+                       << y << ", E=" << E << ") = "<< xsec;
+#endif
 
   //----- The algorithm computes d^2xsec/dxdy
   //      Check whether variable tranformation is needed

@@ -22,6 +22,7 @@
 #include "Base/XSecIntegratorI.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
@@ -79,9 +80,11 @@ double ReinSeghalRESPXSec::XSec(
   //----- Under the DIS/RES joining scheme, xsec(RES)=0 for W>=Wcut
   if(fUsingDisResJoin) {
     if(W>=fWcut) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("ReinSeghalRes", pDEBUG)
          << "RES/DIS Join Scheme: XSec[RES, W=" << W 
-                                << " >= Wcut=" << fWcut << "] = 0";
+         << " >= Wcut=" << fWcut << "] = 0";
+#endif
        return 0;
     }
   }
@@ -134,10 +137,12 @@ double ReinSeghalRESPXSec::XSec(
   double V2     = TMath::Power(V, 2);
   double UV     = U*V;
 
-  LOG("ReinSeghalRes", pDEBUG) << "V = " << V << ", U = " << U;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("ReinSeghalRes", pDEBUG) 
+     << "Kinematical params V = " << V << ", U = " << U;
+#endif
 
   //-- Calculate the Feynman-Kislinger-Ravndall parameters
-  LOG("ReinSeghalRes", pDEBUG) << "Computing the FKR parameters";
 
   double Go     = TMath::Power(1 - 0.25 * q2/Mnuc2, 0.5-Nres);
   double GV     = Go * TMath::Power( 1./(1-q2/fMv2), 2);
@@ -163,11 +168,12 @@ double ReinSeghalRESPXSec::XSec(
   fFKR.Tplus  = - (fFKR.Tv + fFKR.Ta);
   fFKR.Tminus = - (fFKR.Tv - fFKR.Ta);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("FKR", pDEBUG) 
-           << "FKR params for RES=" << resname << " : " << fFKR;
+     << "FKR params for RES = " << resname << " : " << fFKR;
+#endif
 
   //-- Calculate the Rein-Seghal Helicity Amplitudes
-  LOG("ReinSeghalRes", pDEBUG) << "Computing Helicity Amplitudes";
 
   const RSHelicityAmplModelI * hamplmod = 0;
 
@@ -181,8 +187,10 @@ double ReinSeghalRESPXSec::XSec(
   RSHelicityAmpl * hampl = hamplmod->Compute(resonance, fFKR); 
   assert(hampl);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RSHAmpl", pDEBUG)
-    << "Helicity Ampl for RES=" << resname << " : " << *hampl;
+     << "Helicity Amplitudes for RES = " << resname << " : " << *hampl;
+#endif
 
   //-- Compute the cross section
 
@@ -195,10 +203,12 @@ double ReinSeghalRESPXSec::XSec(
 
   delete hampl;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinSeghalRes", pDEBUG) << "sig_{0} = " << sig0;
   LOG("ReinSeghalRes", pDEBUG) << "sig_{L} = " << sigL;
   LOG("ReinSeghalRes", pDEBUG) << "sig_{R} = " << sigR;
   LOG("ReinSeghalRes", pDEBUG) << "sig_{S} = " << sigS;
+#endif
 
   double xsec = 0.0;
   if (is_nu) {
@@ -219,11 +229,11 @@ double ReinSeghalRESPXSec::XSec(
   double bw = 1.0;
   if(fWghtBW) {
      bw = fBreitWigner->Eval(resonance, W);
+  } 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("ReinSeghalRes", pDEBUG) 
        << "BreitWigner(RES=" << resname << ", W=" << W << ") = " << bw;
-  } else {
-      LOG("ReinSeghalRes", pDEBUG) << "Breit-Wigner wght is turned-off";
-  }
+#endif
   xsec *= bw; 
 
   //-- Apply NeuGEN nutau cross section reduction factors
@@ -239,9 +249,11 @@ double ReinSeghalRESPXSec::XSec(
   }
   xsec *= rf;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinSeghalRes", pINFO) 
     << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
           << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
+#endif
 
   //-- The algorithm computes d^2xsec/dWdQ2
   //   Check whether variable tranformation is needed
