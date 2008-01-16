@@ -16,6 +16,7 @@
 
 #include <TMath.h>
 
+#include "Conventions/GBuild.h"
 #include "Numerical/Simpson2D.h"
 #include "Numerical/FunctionMap.h"
 #include "Numerical/GSFunc.h"
@@ -76,10 +77,12 @@ double Simpson2D::Integrate(GSFunc & gsfunc) const
          x[1] = curr_grid(1, j);
 
          y = gsfunc(x); // f(x)
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
          LOG("Simpson2D", pDEBUG)
                << "grid point...." << i << "," << j
                  << "/" << np << "," << np << " : "
                     << "func(x = " << x[0] << ", " << x[1] << ") = " << y;
+#endif
          if(fSpacing==kGSpLoge) y *= (x[0]*x[1]);
          fmap.SetValue(y, x);
       } //x1
@@ -118,9 +121,10 @@ double Simpson2D::Integrate(GSFunc & gsfunc) const
     }
 
     const UnifGrid & curr_grid = fmap.GetGrid();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Simpson2D", pINFO)
       << "Integration: iter = " << iter << ", using grid: " << curr_grid;
-
+#endif
     // populate the function map with the values of the input function
     // computed on the grid points
     for(unsigned int i=0; i < curr_grid[0]->NPoints(); i++) {
@@ -130,10 +134,12 @@ double Simpson2D::Integrate(GSFunc & gsfunc) const
 
          if(!fmap.ValueIsSet(x)) {
             y = gsfunc(x); // f(x)
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
             LOG("Simpson2D", pDEBUG)
                << "grid point...." << i << "," << j
                  << "/" << np << "," << np << " : "
                     << "func(x = " << x[0] << ", " << x[1] << ") = " << y;
+#endif
             //-- note that if the grid points are distributed uniformly in
             //   ln(x) then the scalar function has to be multiplied by x:
             //   integral { f(x)dx } = integral { x*f(x) dln(x) }
@@ -142,10 +148,12 @@ double Simpson2D::Integrate(GSFunc & gsfunc) const
             //-- add the computed point at the function map
             fmap.SetValue(y, x);
          } else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
            LOG("Simpson2D", pDEBUG)
                << "grid point...." << i << "," << j
                 << "/" << np << "," << np << " : " << "func at (x = " 
                  << x[0] << ", " << x[1] << ") computed at previous step";
+#endif
          }
       }
     }
@@ -186,8 +194,10 @@ double Simpson2D::SimpsonRule(FunctionMap & func_map) const
   for(unsigned int idim=0; idim<2; idim++) {
     N[idim]    = grid[idim]->NPoints();
     step[idim] = grid[idim]->Step();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Simpson2D", pDEBUG) << "DIM: " << idim
             << " -> N = " << N[idim] << ", dx = " << step[idim];
+#endif
   }
 
   vector<unsigned int>  pos(2);
