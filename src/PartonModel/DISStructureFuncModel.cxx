@@ -20,6 +20,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
 #include "PartonModel/DISStructureFuncModel.h"
@@ -218,8 +219,10 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
        qb3 *= ( pdg::IsAntiQuark(qpdg) ? 1. : 0. );
     }
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", bar{q} = " << qb2;
     LOG("DISSF", pINFO) << "xf3: q = " << q3 << ", bar{q} = " << qb3;
+#endif
 
     F2  = q2+qb2;
     xF3 = q3-qb3;
@@ -237,7 +240,9 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
       q    = (fu    * fVud2) + (fu  * fVus2) + (fc_c * fVcd2) + (fc_c * fVcs2);
       qbar = (fds_c * fVcd2) + (fds * fVud2) + (fs   * fVus2) + (fs_c * fVcs2);
     }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pINFO) << "Q(x,Q2) = " << q << ", Qbar(x,Q2) = " << qbar;
+#endif
     F2  = 2*(q+qbar);
     xF3 = 2*(q-qbar);
   }
@@ -247,8 +252,10 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
   double f  = this->NuclMod   (interaction); // nuclear modification
   double r  = this->R         (interaction); // R ~ FL
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "Nucl. mod   = " << f;
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
+#endif
 
   double a = TMath::Power(x,2.) / TMath::Max(Q2, 0.8);
   double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
@@ -261,9 +268,11 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
   fF5 = fF2/x;           // Albright-Jarlskog relation
   fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) 
      << "F1-F5 = " 
      << fF1 << ", " << fF2 << ", " << fF3 << ", " << fF4 << ", " << fF5;
+#endif
 }
 //____________________________________________________________________________
 double DISStructureFuncModel::Q2(const Interaction * interaction) const
@@ -364,16 +373,19 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   double Q2pdf = TMath::Max(Q2, fQ2min);
 
   // Compute PDFs at (x,Q2)
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "Calculating PDFs @ x = " << x << ", Q2 = " << Q2pdf;
+#endif
   fPDF->Calculate(x, Q2pdf);
 
   // Check whether it is above charm threshold
   bool above_charm = 
            utils::kinematics::IsAboveCharmThreshold(x,Q2,M,fMc);
   if(above_charm) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pDEBUG) 
       << "The event is above the charm threshold (mcharm = " << fMc << ")";
-
+#endif
     if(fCharmOff) {
        LOG("DISSF", pINFO) << "Charm production is turned off";
     } else {
@@ -383,9 +395,10 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
           LOG("DISSF", pINFO) << "Unphys. slow rescaling var: xc = " << xc;
        } else {
           // compute PDFs at (xc,Q2)
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
           LOG("DISSF", pDEBUG) 
-              << "Calculating PDFs @ xc (slow rescaling) = " 
-              << x << ", Q2 = " << Q2;
+              << "Calculating PDFs @ xc (slow rescaling) = " << x << ", Q2 = " << Q2;
+#endif
           fPDFc->Calculate(xc, Q2pdf);
        }
     }// charm off?
@@ -403,9 +416,11 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
 
   this->KFactors(interaction, kval_u, kval_d, ksea_u, ksea_d);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "K-Factors:";
   LOG("DISSF", pDEBUG) << "U: Kval = " << kval_u << ", Ksea = " << ksea_u;
   LOG("DISSF", pDEBUG) << "D: Kval = " << kval_d << ", Ksea = " << ksea_d;
+#endif
 
   // Apply the K factors
   //
