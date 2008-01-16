@@ -25,6 +25,7 @@
 
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/Units.h"
+#include "Conventions/GBuild.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 #include "Utils/StringUtils.h"
