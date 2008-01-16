@@ -17,13 +17,14 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    --prefix        installation location (for 'make install')                          /usr/local/\n\n";
   print "enable/disable options with either --enable- or --disable- (eg --enable-gibuu --disable-flux-drivers)\n\n";
   print "    profiler        GENIE code profiling using Google perftools                         default: disabled \n";
+  print "    doxygen-doc     Generate doxygen documentation at build time                        default: disabled \n";
   print "    nuvalidator     GENIE's NuValidator tool, requires MySQL                            default: disabled \n";
   print "    neugen          GENIE/NeuGEN facade, requires libneugen3.a                          default: disabled \n";
   print "    neut-cascade    Alternative intranuclear hadron transport MC, requires libNEUT.a    default: disabled \n";
   print "    gibuu           Alternative intranuclear hadron transport MC, requires libGiBUU.a   default: disabled \n";
+  print "    lhapdf          Use the LHAPDF pdf library                                          default: disabled \n";
   print "    flux-drivers    Built-in flux drivers                                               default: enabled  \n";
   print "    geom-drivers    Built-in detector geometry drivers                                  default: enabled  \n";
-  print "    doxygen-doc     Generate doxygen documentation at build time                        default: disabled \n";
   print "    test            Build test programs                                                 default: disabled \n";
   print "    viewer          Event generation GUI _incomplete_                                   default: disabled \n";
   print "    mueloss         Muon energy loss modeling                                           default: enabled  \n";
@@ -35,10 +36,11 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "with options for 3rd party software, prefix with --with- (eg --with-gibuu-lib=/some/path/libGiBUU.a)\n\n";
   print "    optimiz-level   compiler opitimization level O/O2/O3/OO/Os    default: O2 \n";
   print "    profiler-lib    Path to libprofiler.so library                if you --enable-profiler \n";
+  print "    doxygen         Doxygen binary including full path            if you --enable-doxygen       / can pick \$DOXYGEN     \n";
   print "    neugen3path     NeuGEN top level directory                    if you --enable-neugen        / can pick \$NEUGEN3PATH \n";
   print "    neut-lib        Path to libNEUT.a library                     if you --enable-neut-cascade  / can pick \$NEUT_LIB    \n";
   print "    gibuu-lib       Path to libGiBUU.a library                    if you --enable-gibuu         / can pick \$GIBUU_LIB   \n";
-  print "    doxygen         Doxygen binary including full path            if you --enable-doxygen       / can pick \$DOXYGEN     \n";
+  print "    lhapdf-lib      Path to LHAPDF library                        if you --enable-lhapdf \n";
   print "    pythia6         PYTHIA6 library path                          always needed / can pick \$PYTHIA6 / auto-detected \n";
   print "    cernlib         CERN libraries path                           always needed / can pick \$CERNLIB / auto-detected \n";
   print "    libxml2-inc     Path to libxml2 includes                      always needed / auto-detected \n";
@@ -114,6 +116,7 @@ my $gopt_enable_nuvalidator   = "NO";
 my $gopt_enable_neugen        = "NO";
 my $gopt_enable_neut_cascade  = "NO";
 my $gopt_enable_gibuu         = "NO";
+my $gopt_enable_lhapdf        = "NO";
 my $gopt_enable_flux_drivers  = "YES";
 my $gopt_enable_geom_drivers  = "YES";
 my $gopt_enable_doxygen_doc   = "NO";
@@ -128,11 +131,12 @@ my $gopt_enable_debug         = "NO";
 # Check configure's command line arguments for non-default values
 #
 if(($match = grep(/--enable-profiler/i,      @ARGV)) > 0) { $gopt_enable_profiler      = "YES"; }
+if(($match = grep(/--enable-doxygen-doc/i,   @ARGV)) > 0) { $gopt_enable_doxygen_doc   = "YES"; }
 if(($match = grep(/--enable-nuvalidator/i,   @ARGV)) > 0) { $gopt_enable_nuvalidator   = "YES"; }
 if(($match = grep(/--enable-neugen/i,        @ARGV)) > 0) { $gopt_enable_neugen        = "YES"; }
 if(($match = grep(/--enable-neut-cascade/i,  @ARGV)) > 0) { $gopt_enable_neut_cascade  = "YES"; }
 if(($match = grep(/--enable-gibuu/i,         @ARGV)) > 0) { $gopt_enable_gibuu         = "YES"; }
-if(($match = grep(/--enable-doxygen-doc/i,   @ARGV)) > 0) { $gopt_enable_doxygen_doc   = "YES"; }
+if(($match = grep(/--enable-lhapdf/i,        @ARGV)) > 0) { $gopt_enable_lhapdf        = "YES"; }
 if(($match = grep(/--enable-test/i,          @ARGV)) > 0) { $gopt_enable_test          = "YES"; }
 if(($match = grep(/--enable-viewer/i,        @ARGV)) > 0) { $gopt_enable_viewer        = "YES"; }
 if(($match = grep(/--enable-minos-evserv/i,  @ARGV)) > 0) { $gopt_enable_minos_evserv  = "YES"; }
@@ -149,13 +153,14 @@ if($gopt_enable_debug eq "YES") { $gopt_cxx_debug_flag = "-g"; }
 # Save config options
 #
 print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
+print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
 print MKCONF "GOPT_ENABLE_NUVALIDATOR=$gopt_enable_nuvalidator\n"; 
 print MKCONF "GOPT_ENABLE_NEUGEN=$gopt_enable_neugen\n";
 print MKCONF "GOPT_ENABLE_NEUT_CASCADE=$gopt_enable_neut_cascade\n";
 print MKCONF "GOPT_ENABLE_GIBUU=$gopt_enable_gibuu\n";
+print MKCONF "GOPT_ENABLE_LHAPDF=$gopt_enable_lhapdf\n";
 print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
 print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
-print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_VIEWER=$gopt_enable_viewer\n";
 print MKCONF "GOPT_ENABLE_MUELOSS=$gopt_enable_mueloss\n";
@@ -180,6 +185,25 @@ if($gopt_enable_profiler eq "YES") {
   if(($match = grep(/--with-profiler-lib/i, @ARGV)) > 0) { 
     $options=~m/--with-profiler-lib=(\S*)/i;
     $gprofiler_lib = $1;
+  }
+}
+
+# If --enable-doxygen was set then the full path to the doxygen binary must be specified
+# unless it is in the $PATH
+#
+my $doxygen = "";
+if($gopt_enable_doxygen_doc eq "YES") {
+  if(($match = grep(/--with-doxygen/i, @ARGV)) > 0) { 
+    $options=~m/--with-doxygen=(\S*)/i;
+    $doxygen = $1;
+  }
+  # if it was not set, try to pick it up from the environment
+  if(! -f $doxygen && defined $ENV{'DOXYGEN'}) { $doxygen = $ENV{'DOXYGEN'}; }
+  # complain
+  if(! -f $doxygen) {
+     print "*** Error *** You need to specify the path to doxygen using --with-doxygen=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-doxygen-doc\n\n";
+     exit 1;
   }
 }
 
@@ -240,21 +264,21 @@ if($gopt_enable_gibuu eq "YES") {
   }
 }
 
-# If --enable-doxygen was set then the full path to the doxygen binary must be specified
-# unless it is in the $PATH
+# If --enable-lhapdf was set then the full path to the LHAPDF library must be specified
 #
-my $doxygen = "";
-if($gopt_enable_doxygen_doc eq "YES") {
-  if(($match = grep(/--with-doxygen/i, @ARGV)) > 0) { 
-    $options=~m/--with-doxygen=(\S*)/i;
-    $doxygen = $1;
+my $lhapdf_lib = "";
+if($gopt_enable_lhapdf eq "YES") {
+  if(($match = grep(/--with-lhapdf-lib/i, @ARGV)) > 0) { 
+    $options=~m/--with-lhapdf-lib=(\S*)/i;
+    $lhapdf_lib = $1;
   }
   # if it was not set, try to pick it up from the environment
-  if(! -f $doxygen && defined $ENV{'DOXYGEN'}) { $doxygen = $ENV{'DOXYGEN'}; }
-  # complain
-  if(! -f $doxygen) {
-     print "*** Error *** You need to specify the path to doxygen using --with-doxygen=/some/path/\n";
-     print "*** Error *** Otherwise, you should --disable-doxygen-doc\n\n";
+  if($lhapdf_lib eq "" && defined $ENV{'LHAPDF_LIB'}) { $lhapdf_lib = $ENV{'LHAPDF_LIB'}; }
+  # check
+  my $file = "$lhapdf_lib/libLHAPDF.so";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the path to the libLHAPDF.so library using --with-lhapdf-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-lhapdf\n\n";
      exit 1;
   }
 }
