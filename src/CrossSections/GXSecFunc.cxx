@@ -19,6 +19,7 @@
 #include <TMath.h>
 
 #include "Base/XSecAlgorithmI.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/KineVar.h"
 #include "Conventions/KinePhaseSpace.h"
 #include "CrossSections/GXSecFunc.h"
@@ -98,7 +99,9 @@ double Integrand_DXSec_DQ2_E::operator() (const vector<double> & p)
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSQ2fE);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GXSecFunc", pDEBUG) << "xsec(Q2 = " << Q2 << ") = " << xsec;
+#endif
   return xsec;
 }
 //____________________________________________________________________________
@@ -159,8 +162,9 @@ double Integrand_DXSec_Dy_E::operator() (const vector<double> & p)
   //-- compute the cross section
   double xsec = fModel->XSec(fInteraction, kPSyfE);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GXSecFunc", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
-
+#endif
   return xsec;
 }
 //____________________________________________________________________________

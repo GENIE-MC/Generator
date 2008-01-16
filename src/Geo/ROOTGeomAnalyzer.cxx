@@ -28,6 +28,7 @@
 #include <TSystem.h>
 #include <TMath.h>
 
+#include "Conventions/GBuild.h"
 #include "Conventions/Units.h"
 #include "EVGDrivers/PathLengthList.h"
 #include "EVGDrivers/GFluxI.h"
@@ -436,9 +437,11 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
   LOG("GROOTGeom", pNOTICE)
        << "Computing path-lengths for the input neutrino";
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GROOTGeom", pDEBUG)
        << "\nInput nu: 4p (GeV) = " << utils::print::P4AsShortString(&p)
        << ", 4x (m,s) = " << utils::print::X4AsString(&x);
+#endif
 
   // reset current list of path-lengths
   fCurrPathLengthList->SetAllToZero();
@@ -448,8 +451,10 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
   for(itr=fCurrPDGCodeList->begin();itr!=fCurrPDGCodeList->end();itr++) {
 
     int pdgc = *itr;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("GROOTGeom", pINFO)
-                      <<"Calculating path length for material: " << pdgc;
+           <<"Calculating path length for material: " << pdgc;
+#endif
 
     TVector3 pos  = x.Vect();        // initial position
     pos *= (1./this->LengthUnits()); // m -> GU
@@ -477,9 +482,11 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   // reset current interaction vertex
   fCurrVertex->SetXYZ(0.,0.,0.);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GROOTGeom", pDEBUG)
        << "\nInput nu: 4p (GeV) = " << utils::print::P4AsShortString(&p)
        << ", 4x (m,s) = " << utils::print::X4AsString(&x);
+#endif
 
   if(!fGeometry) {
       LOG("GROOTGeom", pFATAL) << "No ROOT geometry is loaded!!";
@@ -528,10 +535,11 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
       condition=kTRUE;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("GROOTGeom",pDEBUG)
            << "Position = " << utils::print::Vec3AsString(&r)
                              << ", flag(not in yet) = " << FlagNotInYet;
-
+#endif
       r = r + StepIncrease * dir;
       fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
       fGeometry->FindNode();
@@ -540,8 +548,9 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
       mat = 0;
       vol = fGeometry->GetCurrentVolume();
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName();
-
+#endif
       if(fGeometry->IsOutside() || !vol) {
          condition=kFALSE;
          if(FlagNotInYet) break;
@@ -559,7 +568,9 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   fCurrVertex->SetXYZ(r[0],r[1],r[2]);
   (*fCurrVertex) *= (this->LengthUnits()); // GU -> m
 
-  LOG("GROOTGeom",pDEBUG) << "Vtx (m) = " << utils::print::Vec3AsString(&r);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("GROOTGeom", pDEBUG) << "Vtx (m) = " << utils::print::Vec3AsString(&r);
+#endif
 
   return *fCurrVertex;
 }
@@ -581,20 +592,18 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
   }
 
   int numVol = volume_list->GetEntries();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GROOTGeom", pDEBUG) << "Number of volumes found: " << numVol;
+#endif
 
   for(int ivol = 0; ivol < numVol; ivol++) {
-
       TGeoVolume * volume = dynamic_cast <TGeoVolume *>(volume_list->At(ivol));
-
       if(!volume) {
          LOG("GROOTGeom", pWARN)
            << "Got a null geometry volume!! Skiping current list element";
          continue;
       }
-
       TGeoMaterial * mat = volume->GetMedium()->GetMaterial();
-
       if(mat->IsMixture()) {
          TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
          int Nelements = mixt->GetNelements();
@@ -617,9 +626,6 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
 // the input position r and moving along the direction of the unit vector udir
 //
   double pl = 0; // <-- path length (x density, if weight by density is ON)
-
-  //LOG("GROOTGeom", pDEBUG) << "Pos: " << utils::print::Vec3AsString(&r0);
-  //LOG("GROOTGeom", pDEBUG) << "Dir: " << utils::print::Vec3AsString(&udir);
 
   int    counterloop  (0);
   int    FlagNotInYet (0);
@@ -645,8 +651,9 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
      mat = 0;
      vol = fGeometry->GetCurrentVolume();
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName();
-
+#endif
      if (fGeometry->IsOutside() || !vol) {
         condition=kFALSE;
         if(FlagNotInYet) break;
@@ -654,7 +661,9 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
         step = this->StepToNextBoundary();
         while(!fGeometry->IsEntering()) {
           step = this->Step();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
           LOG("GROOTGeom", pDEBUG) << "Stepping...dr = " << step;
+#endif
           if(this->WillNeverEnter(step)) return 0.;
         }
       }
@@ -664,9 +673,10 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
        med = vol->GetMedium();
        mat = med->GetMaterial();
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("GROOTGeom",pDEBUG)
          << "Cur med.: " << med->GetName() << ", mat.: " << mat->GetName();
-
+#endif
        step   = this->StepUntilEntering();
        weight = this->GetWeight(mat, pdgc);
 
@@ -697,8 +707,10 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat, int pdgc)
     return 0;
   }
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GROOTGeom",pDEBUG)
        << "Curr. material: A/Z = " << mat->GetA() << " / " << mat->GetZ();
+#endif
 
   // if the input material is a mixture, get a the sum of weights for
   // all matching elements
@@ -710,10 +722,11 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat, int pdgc)
      LOG("GROOTGeom", pERROR) << "Null input mixture. Return weight = 0.";
      return 0;
     }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("GROOTGeom", pDEBUG)
       << "Material : " << mat->GetName()
           << " is a mixture with " << mixt->GetNelements() << " elements";
-
+#endif
     // loop over elements & sum weights of matching elements
     weight = this->GetWeight(mixt,pdgc);
     return weight;
@@ -728,8 +741,11 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMaterial * mat, int pdgc)
   else                           
     weight = 1.0;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GROOTGeom", pDEBUG)
-                    << "Weight[mat:" << mat->GetName() << "] = " << weight;
+       << "Weight[mat:" << mat->GetName() << "] = " << weight;
+#endif
+
   return weight;
 }
 //___________________________________________________________________________
@@ -795,9 +811,12 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture* mixt, int ielement, int pdgc)
   w /= wtot;
   double weight = d*w;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GROOTGeom", pDEBUG)
-             << "Weight[mixt:" << mixt->GetName()
-                              << ", iel = " << ielement << "] = " << weight;
+       << "Weight[mixt:" << mixt->GetName()
+                      << ", iel = " << ielement << "] = " << weight;
+#endif
+
   return weight;
 }
 //___________________________________________________________________________
@@ -823,6 +842,8 @@ double ROOTGeomAnalyzer::StepUntilEntering(void)
     step = this->Step();
   }
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+
   bool isen = fGeometry->IsEntering();
   bool isob = fGeometry->IsOnBoundary();
 
@@ -830,6 +851,7 @@ double ROOTGeomAnalyzer::StepUntilEntering(void)
       << "IsEntering = "     << utils::print::BoolAsYNString(isen)
       << ", IsOnBoundary = " << utils::print::BoolAsYNString(isob)
       << ", Step = " << step;
+#endif
 
   return step;
 }
@@ -842,18 +864,25 @@ bool ROOTGeomAnalyzer::WillNeverEnter(double step)
 // would never enter the detector
 
   if(step > 9.99E29) {
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GROOTGeom", pINFO) << "Wow! Current step is dr = " << step;
      LOG("GROOTGeom", pINFO) << "This trajectory isn't entering the detector";
+#endif
      return true;
-  } else return false;
+
+  } else 
+    return false;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::ScalePathLengths(PathLengthList & pl)
 {
 // convert path lenghts to default GENIE length scale
 //
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GROOTGeom", pDEBUG)
     << "Scaling path-lengths -> meters (scale = " << fLengthScale << ")";
+#endif
 
   PathLengthList::iterator pliter;
   for(pliter = pl.begin(); pliter != pl.end(); ++pliter)

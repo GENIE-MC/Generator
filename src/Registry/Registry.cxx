@@ -31,6 +31,7 @@
 #include <TFolder.h>
 #include <TObjString.h>
 
+#include "Conventions/GBuild.h"
 #include "Messenger/Messenger.h"
 #include "Registry/Registry.h"
 #include "Registry/RegistryItemTypeId.h"
@@ -192,9 +193,11 @@ bool Registry::ItemIsLocal(RgKey key) const
      bool is_local = entry->second->IsLocal();
      return is_local;
   } else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("Registry", pDEBUG)
         << "*** Was asked to check 'local' flag on non-existing item: [" 
         << key << "]";
+#endif
   }
   return false;
 }
@@ -338,67 +341,89 @@ void Registry::Get(RgKey key, const RegistryItemI * item) const
 //____________________________________________________________________________
 void Registry::Get(RgKey key, RgBool & item) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Get an RgBool item with key: " << key;
+#endif
 
   RgIMapConstIter entry = fRegistry.find(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgBool> * ri = dynamic_cast<RegistryItem<RgBool>*> (rib);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Item value = " << ri->Data();
+#endif
   item = ri->Data();
 }
 //____________________________________________________________________________
 void Registry::Get(RgKey key, RgInt & item) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Getting an RgInt item with key: " << key;
+#endif
 
   RgIMapConstIter entry = fRegistry.find(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgInt> * ri = dynamic_cast< RegistryItem<RgInt> * > (rib);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Item value = " << ri->Data();
+#endif
   item = ri->Data();
 }
 //____________________________________________________________________________
 void Registry::Get(RgKey key, RgDbl & item) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Getting an RgDbl item with key: " << key;
+#endif
 
   RgIMapConstIter entry = fRegistry.find(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgDbl> * ri = dynamic_cast<RegistryItem<RgDbl>*> (rib);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Item value = " << ri->Data();
+#endif
   item = ri->Data();
 }
 //____________________________________________________________________________
 void Registry::Get(RgKey key, RgStr & item) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Getting an RgStr item with  key: " << key;
+#endif
 
   RgIMapConstIter entry = fRegistry.find(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgStr> * ri = dynamic_cast<RegistryItem<RgStr>*> (rib);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Item value = " << ri->Data();
+#endif
   item = ri->Data();
 }
 //____________________________________________________________________________
 void Registry::Get(RgKey key, RgAlg & item) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Getting an RgAlg item with key: " << key;
+#endif
 
   RgIMapConstIter entry = fRegistry.find(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgAlg> * ri = dynamic_cast<RegistryItem<RgAlg>*> (rib);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Item value = " << ri->Data();
+#endif
   item = ri->Data();
 }
 //____________________________________________________________________________
 void Registry::Get(RgKey key, RgH1F & item) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Getting an RgH1F item with key: " << key;
+#endif
 
   RgIMapConstIter entry = fRegistry.find(key);
   RegistryItemI * rib = entry->second;
@@ -412,7 +437,9 @@ void Registry::Get(RgKey key, RgH1F & item) const
 //____________________________________________________________________________
 void Registry::Get(RgKey key, RgH2F & item) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Getting an RgH2F item with key: " << key;
+#endif
 
   RgIMapConstIter entry = fRegistry.find(key);
   RegistryItemI * rib = entry->second;
@@ -426,7 +453,9 @@ void Registry::Get(RgKey key, RgH2F & item) const
 //____________________________________________________________________________
 void Registry::Get(RgKey key, RgTree & item) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Getting an RgTree item with key: " << key;
+#endif
 
   RgIMapConstIter entry = fRegistry.find(key);
   RegistryItemI * rib = entry->second;
@@ -673,8 +702,10 @@ void Registry::Print(ostream & stream) const
 
         string key_lbl  = string("> ") + key;
         string type_lbl = string("[") + stype + string("] ");
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("Registry", pDEBUG)
                       << "Printing [" << stype << "] item named = " << key;
+#endif
         stream << " |" << setfill('-') << setw(50) << key_lbl
                << setfill(' ') << setw(10) << type_lbl;
         ritem->Print(stream);

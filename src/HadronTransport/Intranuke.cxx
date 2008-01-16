@@ -27,6 +27,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "GHEP/GHepStatus.h"
@@ -329,8 +330,10 @@ void Intranuke::StepParticle(GHepParticle * p, double step) const
 // nucleus then its position is scaled back so that the escaped particles are
 // always within a ~1fm from the "outer nucleus surface"
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Intranuke", pDEBUG)
       << "Stepping particle [" << p->Name() << "] by dr = " << step << " fm";
+#endif
 
   //-- Step particle
   TVector3 dr = p->P4()->Vect().Unit();            // unit vector along its direction
@@ -354,10 +357,12 @@ void Intranuke::StepParticle(GHepParticle * p, double step) const
       x4new *= scale;
   }
     
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Intranuke", pDEBUG)
       << "\n Init direction = " << print::Vec3AsString(&dr)
       << "\n Init position (in fm,nsec) = " << print::X4AsString(p->X4())
       << "\n Fin  position (in fm,nsec) = " << print::X4AsString(&x4new);
+#endif
 
   p->SetPosition(x4new);
 }
@@ -401,8 +406,10 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
 
   // get the nuclear density at the current position
   double rho = A * utils::nuclear::Density(rnow,A,ring);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Intranuke", pDEBUG) 
      << "Matter density = " << rho << " nucleons/fm^3";
+#endif
 
   // get total xsection for the incident hadron at its current 
   // kinetic energy
@@ -417,8 +424,10 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   ke = TMath::Max(INukeHadroData::fMinKinEnergy,   ke);
   ke = TMath::Min(INukeHadroData::fMaxKinEnergyHN, ke);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Intranuke", pDEBUG) 
        << "Cross sections will be evaluated at K = " << ke << " MeV";
+#endif
 
   if (pdgc == kPdgPiP) 
       sigtot = fHadroData -> XSecPipN_Tot() -> Evaluate(ke);
@@ -439,12 +448,16 @@ double Intranuke::MeanFreePath(GHepRecord* evrec, GHepParticle* p) const
   // the xsection splines in INukeHadroData return the hadron x-section in
   // mb -> convert to fm^2
   sigtot *= (units::mb / units::fm2);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Intranuke", pDEBUG) 
        << "SigmaTotal(KineticE = " << K << " MeV) = " << sigtot << " fm2";
+#endif
 
   // compute the mean free path
   double lamda = 1. / (rho * sigtot);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Intranuke", pDEBUG) << "Mean free path = " << lamda << " fm";
+#endif
 
   // exits if lamda is InF (if cross section is 0)
   if( ! TMath::Finite(lamda) ) {
@@ -586,8 +599,9 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
                    frac_npippi0;
 
        double r = tf * rnd->RndFsi().Rndm();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("Intranuke", pDEBUG) << "r = " << r << " (max = " << tf << ")";
-
+#endif
        double cf=0; // current fraction
        if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
        if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
@@ -643,8 +657,9 @@ INukeFateHA_t Intranuke::HadronFateHA(const GHepParticle * p) const
                    frac_npippi0;
 
        double r = tf * rnd->RndFsi().Rndm();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("Intranuke", pDEBUG) << "r = " << r << " (max = " << tf << ")";
-
+#endif
        double cf=0; // current fraction
        if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
        if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
@@ -706,9 +721,11 @@ void Intranuke::PiSlam(
 // is small due to the huge mass of an iron nucleus. Here, the Lab and CM 
 // are, for our purposes, identical.
 //
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Intranuke", pDEBUG) 
       << "PiSlam() is invoked for a : " << p->Name() 
       << " whose fate is : " << INukeHadroFates::AsString(fate);
+#endif
 
   if (fate!=kIHAFtCEx && fate!=kIHAFtElas && fate!=kIHAFtInelas) {
      LOG("Intranuke", pWARN) 
@@ -790,9 +807,11 @@ void Intranuke::PnSlam(
 //
 // Scatters charged protons off nuclei.
 //
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Intranuke", pDEBUG) 
       << "PnSlam() is invoked for a : " << p->Name() 
       << " whose fate is : " << INukeHadroFates::AsString(fate);
+#endif
 
   if (fate!=kIHAFtCEx && fate!=kIHAFtElas && fate!=kIHAFtInelas) {
      LOG("Intranuke", pWARN) 
@@ -833,8 +852,10 @@ void Intranuke::PnSlam(
   double pmass2 = TMath::Power(p->Mass(), 2);
   double energy = TMath::Sqrt(ptot2 + pmass2);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Intranuke", pDEBUG) 
          << "|p| = " << TMath::Sqrt(ptot2) << ", E = " << energy;
+#endif
 
   TLorentzVector p4lab_fin(plab, energy);   // new p4 @ lab
   TLorentzVector p4lab_init = *(p->P4());   // save old p4
@@ -1022,9 +1043,11 @@ void Intranuke::Inelastic(
 // [adapted from neugen3 intranuke_pi_inelastic.F, intranuke_pn_inelastic.F] 
 //
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Intranuke", pDEBUG) 
       << "Inelastic() is invoked for a : " << p->Name() 
       << " whose fate is : " << INukeHadroFates::AsString(fate);
+#endif
 
   bool allow_dup = true;
   PDGCodeList list(allow_dup); // list of final state particles

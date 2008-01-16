@@ -16,6 +16,7 @@
 
 #include <TMath.h>
 
+#include "Conventions/GBuild.h"
 #include "Numerical/Simpson1D.h"
 #include "Numerical/GSFunc.h"
 #include "Numerical/FunctionMap.h"
@@ -69,8 +70,10 @@ double Simpson1D::Integrate(GSFunc & gsfunc) const
     fmap.IncreaseGridDensity(np);
     const UnifGrid & curr_grid = fmap.GetGrid();
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Simpson1D", pINFO)
       << "Integration: iter = " << iter << ", using grid: " << curr_grid;
+#endif
 
     // populate the function map with the values of the input function
     // computed on the grid points
@@ -81,10 +84,12 @@ double Simpson1D::Integrate(GSFunc & gsfunc) const
 
        if(!fmap.ValueIsSet(x)) {
           y = gsfunc(x); // f(x)
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
           LOG("Simpson1D", pDEBUG)
                << "grid point...." << i << "/" << np << " : "
                                 << "func(x = " << x[0] << " ) = " << y;
-
+#endif
           //-- note that if the grid points are distributed uniformly in
           //   ln(x) then the scalar function has to be multiplied by x:
           //   integral { f(x)dx } = integral { x*f(x) dln(x) }
@@ -93,9 +98,11 @@ double Simpson1D::Integrate(GSFunc & gsfunc) const
           //-- add the computed point at the function map
           fmap.SetValue(y, x);
        } else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
            LOG("Simpson1D", pDEBUG)
               << "grid point...." << i << "/" << np << " : "
               << "func at x = " << x[0] << " computed at previous step";
+#endif
        }
     }
 
