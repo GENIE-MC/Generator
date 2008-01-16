@@ -23,6 +23,7 @@
 #include "Conventions/Units.h"
 #include "Base/DISStructureFuncModelI.h"
 #include "Base/XSecIntegratorI.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
@@ -81,8 +82,10 @@ double DISPartonModelPXSec::XSec(
   double x     = kinematics.x();
   double y     = kinematics.y();
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pDEBUG)  
    << "Computing d2xsec/dxdy @ E = " << E << ", x = " << x << ", y = " << y;
+#endif
 
   //----- One of the xsec terms changes sign for antineutrinos @ DIS/CC
 
@@ -94,7 +97,9 @@ double DISPartonModelPXSec::XSec(
 
   fDISSF.Calculate(interaction); 
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pDEBUG) << fDISSF;
+#endif
 
   //-- calculate auxiliary parameters
   double ml2  = ml    * ml;
@@ -109,9 +114,11 @@ double DISPartonModelPXSec::XSec(
   double term4 = x*y*ml2/(2*Mnuc*E) + ml4/(4*Mnuc2*E2);
   double term5 = -1.*ml2/(2*Mnuc*E);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pDEBUG)  
     << "\nd2xsec/dxdy ~ (" << term1 << ")*F1+(" << term2 << ")*F2+(" 
                   << term3 << ")*F3+(" << term4 << ")*F4+(" << term5 << ")*F5";
+#endif
 
   //----- Compute the differential cross section
   term1 *= fDISSF.F1();
@@ -123,15 +130,20 @@ double DISPartonModelPXSec::XSec(
   double xsec = Gfac*(term1 + term2 + term3 + term4 + term5);
   xsec = TMath::Max(xsec,0.);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pINFO)
         << "d2xsec/dxdy[FreeN] (E= " << E 
                       << ", x= " << x << ", y= " << y << ") = " << xsec;
+#endif
 
   //----- If the DIS/RES joining scheme is enabled, modify the xsec accordingly
   if(fUsingDisResJoin) {
      double R = this->DISRESJoinSuppressionFactor(interaction);
      xsec*=R;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+     LOG("DISPXSec", pINFO) << "D/R Join scheme - suppression factor R = " << R;;
      LOG("DISPXSec", pINFO) << "d2xsec/dxdy[FreeN, D/R Join] " << xsec;
+#endif
   }
 
   //----- The algorithm computes d^2xsec/dxdy
@@ -158,8 +170,10 @@ double DISPartonModelPXSec::XSec(
   interaction->ExclTagPtr()->SetCharm();
   double xsec_charm = fCharmProdModel->XSec(interaction,kps);
   interaction->ExclTagPtr()->UnsetCharm();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pINFO) 
        << "Subtracting charm piece: " << xsec_charm << " / out of " << xsec;
+#endif
   xsec = TMath::Max(0., xsec-xsec_charm);
   return xsec;
 }
