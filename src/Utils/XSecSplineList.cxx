@@ -10,7 +10,11 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Jan 17, 2008 - CA
+   Re-wrote LoadFromXml() and switched from the tree-based libxml2 API to
+   the XmlTextReader API. That eliminates the need to load the whole XML file
+   in memory and is faster. Works much better with the large XML spline files
+   (~ 100 MB) used by MINOS.
 */
 //____________________________________________________________________________
 
@@ -18,6 +22,7 @@
 
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
+#include "libxml/xmlreader.h"
 
 #include <TSystem.h>
 #include <TMath.h>
@@ -243,6 +248,112 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                                          << ( (keep) ? "ON" : "OFF" );
   if(!keep) fSplineMap.clear();
 
+  const int kNodeTypeStartElement = 1;
+  const int kNodeTypeEndElement   = 15;
+  const int kKnotX                = 0;
+  const int kKnotY                = 1;
+
+  xmlTextReaderPtr reader;
+
+  int ret = 0, val_type = -1, iknot = 0, nknots = 0;
+  double * E = 0, * xsec = 0;
+  string spline_name = "";
+
+  reader = xmlNewTextReaderFilename(filename.c_str());
+  if (reader != NULL) {
+        ret = xmlTextReaderRead(reader);
+        while (ret == 1) {
+            xmlChar * name  = xmlTextReaderName     (reader);
+            xmlChar * value = xmlTextReaderValue    (reader);
+            int       type  = xmlTextReaderNodeType (reader);
+            int       depth = xmlTextReaderDepth    (reader);
+
+            if(depth==0 && type==kNodeTypeStartElement) {
+               LOG("XSecSplLst", pINFO) << "Root element = " << name;
+               if(xmlStrcmp(name, (const xmlChar *) "genie_xsec_spline_list")) {
+                   LOG("XSecSplLst", pERROR)
+                     << "\nXML doc. has invalid root element! [filename: " << filename << "]";
+                   return kXmlInvalidRoot;
+               }
+               string svrs   = utils::str::TrimSpaces(
+                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"version"));
+               string sinlog = utils::str::TrimSpaces(
+                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"uselog"));
+               if (atoi(sinlog.c_str()) == 1) this->SetLogE(true);
+               else this->SetLogE(false);
+               LOG("XSecSplLst", pINFO) << "Vrs   = " << svrs;
+               LOG("XSecSplLst", pINFO) << "InLog = " << sinlog;
+            }  
+            if( (!xmlStrcmp(name, (const xmlChar *) "spline")) && type==kNodeTypeStartElement) {
+               string sname = utils::str::TrimSpaces(
+                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"name"));
+               string snkn  = utils::str::TrimSpaces(
+                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"nknots"));
+               nknots = atoi( snkn.c_str() );
+               iknot=0;
+               E     = new double[nknots];
+               xsec  = new double[nknots];
+               spline_name = sname;
+               SLOG("XSecSplLst", pNOTICE) << "Loading spline: " << spline_name;
+            }
+            if( (!xmlStrcmp(name, (const xmlChar *) "E"))    && type==kNodeTypeStartElement) { val_type = kKnotX; }
+            if( (!xmlStrcmp(name, (const xmlChar *) "xsec")) && type==kNodeTypeStartElement) { val_type = kKnotY; }
+
+            if( (!xmlStrcmp(name, (const xmlChar *) "#text")) && depth==4) {
+                if      (val_type==kKnotX) E   [iknot] = atof((const char *)value);
+                else if (val_type==kKnotY) xsec[iknot] = atof((const char *)value);
+            }
+            if( (!xmlStrcmp(name, (const xmlChar *) "knot")) && type==kNodeTypeEndElement) {
+               iknot++;
+            }
+            if( (!xmlStrcmp(name, (const xmlChar *) "spline")) && type==kNodeTypeEndElement) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+               LOG("XSecSplLst", pNOTICE) << "Done with current spline";
+               for(int i=0; i<nknots; i++) {
+                  LOG("XSecSplLst", pNOTICE) << "xsec[E = " << E[i] << "] = " << xsec[i];
+               }
+#endif
+               // done looping over knots - build the spline
+               Spline * spline = new Spline(nknots, E, xsec);
+               // insert the spline to the list
+               fSplineMap.insert( map<string, Spline *>::value_type(spline_name,spline) );
+            }
+ 
+            xmlFree(name);
+            xmlFree(value);
+            ret = xmlTextReaderRead(reader);
+        }
+        xmlFreeTextReader(reader);
+        if (ret != 0) {
+          LOG("XSecSplLst", pERROR)
+            << "\nXML file could not be parsed! [filename: " << filename << "]";
+          return kXmlNotParsed;
+        }
+  } else {
+    LOG("XSecSplLst", pERROR)
+          << "\nXML file could not be found! [filename: " << filename << "]";
+  }
+
+  return kXmlOK;
+}
+//____________________________________________________________________________
+/*
+Below I am keeping a commented-out version the old LoadFromXml() method using 
+the tree-based libxml2 API. That has been replaced by the above method using
+the much faster XmlTextReader API.
+
+XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
+{
+//! Load XSecSplineList from ROOT file. If keep = true, then the loaded splines
+//! are added to the existing list. If false, then the existing list is reseted
+//! before loading the splines.
+
+  SLOG("XSecSplLst", pNOTICE) << "Loading splines from: " << filename;
+  SLOG("XSecSplLst", pNOTICE)
+          << "Option to keep existing splines is switched "
+                                         << ( (keep) ? "ON" : "OFF" );
+  if(!keep) fSplineMap.clear();
+
   xmlDocPtr xml_doc = xmlParseFile(filename.c_str() );
 
   if(xml_doc==NULL) {
@@ -354,7 +465,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 
   xmlFree(xmlCur);
   return kXmlOK;
-}
+}*/
 //____________________________________________________________________________
 string XSecSplineList::BuildSplineKey(
             const XSecAlgorithmI * alg, const Interaction * interaction) const
