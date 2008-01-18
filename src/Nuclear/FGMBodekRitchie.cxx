@@ -19,6 +19,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
 #include "Nuclear/FGMBodekRitchie.h"
@@ -142,9 +143,11 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
   double a  = 2.0;
   double C  = 4. * kPi * TMath::Power(KF,3) / 3.;
   double R  = 1. / (1.- KF/4.);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BodekRitchie", pDEBUG) << "a  = " << a;
   LOG("BodekRitchie", pDEBUG) << "C  = " << C;
   LOG("BodekRitchie", pDEBUG) << "R  = " << R;
+#endif
 
   //-- create the probability distribution
 
@@ -168,7 +171,9 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
 
      // calculate probability density : dProbability/dp
      double dP_dp = 4*kPi * p2 * phi2;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("BodekRitchie", pDEBUG) << "p = " << p << ", dP/dp = " << dP_dp;
+#endif
      prob->Fill(p, dP_dp);
   }
 

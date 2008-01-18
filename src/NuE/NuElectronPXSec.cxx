@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Controls.h"
 #include "Base/XSecIntegratorI.h"
 #include "Conventions/Constants.h"
@@ -115,8 +116,10 @@ double NuElectronPXSec::XSec(
     xsec = TMath::Max(0.,xsec); // if s<ml2 => xsec<0 : force to xsec=0
 */
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Elastic", pDEBUG)
     << "*** dxsec(ve-)/dy [free e-](Ev="<< Ev << ", y= "<< y<< ") = "<< xsec;
+#endif
 
   //----- The algorithm computes dxsec/dy
   //      Check whether variable tranformation is needed

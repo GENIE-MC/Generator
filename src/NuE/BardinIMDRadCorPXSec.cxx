@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "Base/XSecIntegratorI.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "NuE/BardinIMDRadCorPXSec.h"
@@ -67,17 +68,21 @@ double BardinIMDRadCorPXSec::XSec(
   double e = 1E-5;
   ymax = TMath::Min(ymax,1-e); // avoid ymax=1, due to a log(1-y)
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BardinIMD", pDEBUG)
            << "sig0 = " << sig0 << ", r = " << r << ", re = " << re;
   LOG("BardinIMD", pDEBUG)
                    << "allowed y: [" << ymin << ", " << ymax << "]";
+#endif
 
   if(y<ymin || y>ymax) return 0;
 
   double xsec = 2 * sig0 * ( 1 - r + (kAem/kPi) * Fa(re,r,y) );
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BardinIMD", pINFO)
      << "dxsec[1-loop]/dy (Ev = " << E << ", y = " << y << ") = " << xsec;
+#endif
 
   //----- The algorithm computes dxsec/dy
   //      Check whether variable tranformation is needed
@@ -161,15 +166,19 @@ double BardinIMDRadCorPXSec::Li2(double z) const
   double epsilon = 1e-2;
   Range1D_t t(epsilon, 1.0 - epsilon);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BardinIMD", pDEBUG)
     << "Summing BardinIMDRadCorIntegrand in [" << t.min<< ", " << t.max<< "]";
+#endif
 
   BardinIMDRadCorIntegrand * func = new BardinIMDRadCorIntegrand(z);
   func->SetParam(0,"t",t);
 
   double li2 = fIntegrator->Integrate(*func);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BardinIMD", pDEBUG) << "Li2(z = " << z << ")" << li2;
+#endif
 
   delete func;
   return li2;
