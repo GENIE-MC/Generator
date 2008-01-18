@@ -15,6 +15,13 @@
    the XmlTextReader API. That eliminates the need to load the whole XML file
    in memory and is faster. Works much better with the large XML spline files
    (~ 100 MB) used by MINOS.
+ @ Jan 18, 2008 - CA
+   Change the way spline knots are distributed in the given energy range so 
+   that spline energy thresholds are handled more accurately. 
+   One of the knots is sitting on the energy threshold for each interaction, 
+   few knots are linearly spaced below threshold so that the spline behaves 
+   ok for E<Ethr, and the bulk of the knots is spaced linearly or 
+   logarithmically for E>Ethr.
 */
 //____________________________________________________________________________
 
@@ -135,44 +142,73 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 // For building this specific entry of the spline list, the user is allowed
 // to override the list-wide nknots,Emin,Emax
 
+  double xsec[nknots];
+  double E   [nknots];
+
   SLOG("XSecSplLst", pNOTICE)
              << "Creating cross section spline using the algorithm: " << *alg;
 
   string key = this->BuildSplineKey(alg,interaction);
 
-  // if any of the nknots,Emin,Emax was not set or its value is not acceptable
+  // If any of the nknots,Emin,Emax was not set or its value is not acceptable
   // use the list values
+  //
   if (Emin   < 0.) Emin   = this->Emin();
-  if (Emax   < 0.) Emin   = this->Emax();
+  if (Emax   < 0.) Emax   = this->Emax();
   if (nknots <= 2) nknots = this->NKnots();
-
   assert(Emin < Emax);
 
-  double xsec[nknots];
-  double E   [nknots];
+  // Distribute the knots in the energy range (Emin,Emax) :
+  // - Will use 5 knots linearly spaced below the energy thresholds so that the
+  //   spline behaves correctly in (Emin,Ethr)
+  // - Place 1 knot exactly on the input interaction threshold
+  // - Place the remaining n-6 knots spaced either linearly or logarithmically 
+  //   above the input interaction threshold
+  // The above scheme schanges appropriately if Ethr<Emin (i.e. no knots
+  // are computed below threshold)
+  //
+  double Ethr = interaction->PhaseSpace().Threshold();
+  SLOG("XSecSplLst", pNOTICE)
+    << "Energy threshold for current interaction = " << Ethr << " GeV";
 
-  double dE = 0;
-  if( this->UseLogE() )
-       dE = (TMath::Log10(Emax) - TMath::Log10(Emin)) /(nknots-1);
-  else dE = (Emax-Emin) /(nknots-1);
+  int nkb = (Ethr>Emin) ? 5 : 0; // number of knots <  threshold
+  int nka = nknots-nkb;          // number of knots >= threshold
 
+  // knots < energy threshold
+  double dEb =  (Ethr>Emin) ? (Ethr - Emin) / (nkb-2) : 0;
+  for(int i=0; i<nkb; i++) {     
+     E[i] = Emin + i*dEb;
+  }
+  // knots >= energy threshold
+  double E0  = TMath::Max(Ethr,Emin);
+  double dEa = 0;
+  if(this->UseLogE())
+    dEa = (TMath::Log10(Emax) - TMath::Log10(E0)) /(nka-1);
+  else 
+    dEa = (Emax-E0) /(nka-1);
+
+  for(int i=0; i<nka; i++) {
+     if(this->UseLogE())
+       E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i * dEa);
+     else  
+       E[i+nkb] = E0 + i * dEa;
+  }
+
+  // Compute cross sections for the input interaction at the selected
+  // set of energies
+  //
   for (int i = 0; i < nknots; i++) {
-
-    if( this->UseLogE() )
-          E[i] = TMath::Power(10., TMath::Log10(Emin) + i * dE);
-    else  E[i] = Emin + i * dE;
-
     TLorentzVector p4(0,0,E[i],E[i]);
     interaction->InitStatePtr()->SetProbeP4(p4);
-
     xsec[i] = alg->Integral(interaction);
-
     SLOG("XSecSplLst", pNOTICE)
             << "xsec(E = " << E[i] << ") = " 
                        << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2";
   }
-  Spline * spline = new Spline(nknots, E, xsec);
 
+  // Build & save the spline
+  //
+  Spline * spline = new Spline(nknots, E, xsec);
   fSplineMap.insert( map<string, Spline *>::value_type(key, spline) );
 }
 //____________________________________________________________________________
@@ -184,19 +220,17 @@ void XSecSplineList::SetLogE(bool on)
 void XSecSplineList::SetNKnots(int nk)
 {
   fNKnots = nk;
-  if(fNKnots<2) fNKnots = 2; // minimum acceptable number of knots
+  if(fNKnots<10) fNKnots = 10; // minimum acceptable number of knots
 }
 //____________________________________________________________________________
 void XSecSplineList::SetMinE(double Ev)
 {
-  fEmin = Ev;
-  if(fEmin<0) fEmin = 0.;
+  if(Ev>0) fEmin = Ev;
 }
 //____________________________________________________________________________
 void XSecSplineList::SetMaxE(double Ev)
 {
-  fEmax = Ev;
-  if(fEmax<0) fEmax = 0.;
+  if(Ev>0) fEmax = Ev;
 }
 //____________________________________________________________________________
 void XSecSplineList::SaveAsXml(string filename) const
