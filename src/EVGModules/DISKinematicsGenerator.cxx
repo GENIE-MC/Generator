@@ -19,6 +19,7 @@
 #include <TMath.h>
 
 #include "Base/XSecAlgorithmI.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Controls.h"
 #include "Conventions/KineVar.h"
 #include "Conventions/KinePhaseSpace.h"
@@ -150,8 +151,10 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //double J = kinematics::Jacobian(interaction,kPSxyfE,kPSlogxlogyfE);
 	double J = 1;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("DISKinematics", pDEBUG)
               << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
+#endif
         accept = (t < J*xsec);
      } 
      else {
@@ -249,8 +252,9 @@ double DISKinematicsGenerator::ComputeMaxXSec(
 // maximum. The number used in the rejection method will be scaled up by a
 // safety factor. But this needs to be fast - do not use a very fine grid.
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISKinematics", pDEBUG)<< "Computing max xsec in allowed phase space";
-
+#endif
   double max_xsec = 0.0;
 
   const InitialState & init_state = interaction->InitState();
@@ -292,9 +296,10 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   double dx      = (xmax-xmin)/(Nx-1);
   double dy      = (ymax-ymin)/(Ny-1);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISKinematics", pDEBUG) 
     << "Searching max. in x [" << xmin << ", " << xmax << "], y [" << ymin << ", " << ymax << "]";
-
+#endif
   double xseclast_y = -1;
   bool increasing_y;
 
@@ -303,8 +308,9 @@ double DISKinematicsGenerator::ComputeMaxXSec(
      //double gy = TMath::Power(10., logymin + i*dlogy);
      interaction->KinePtr()->Sety(gy);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("DISKinematics", pDEBUG) << "y = " << gy;
-
+#endif
      double xseclast_x = -1;
      bool increasing_x;
 
@@ -315,9 +321,10 @@ double DISKinematicsGenerator::ComputeMaxXSec(
         kinematics::UpdateWQ2FromXY(interaction);
 
         double xsec = fXSecModel->XSec(interaction, kPSxyfE);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("DISKinematics", pINFO) 
                 << "xsec(y=" << gy << ", x=" << gx << ") = " << xsec;
-
+#endif
         // update maximum xsec
         max_xsec = TMath::Max(xsec, max_xsec);
 
@@ -328,8 +335,10 @@ double DISKinematicsGenerator::ComputeMaxXSec(
         // step backwards a little bit to handle cases that the max cross section
         // is grossly underestimated (very peaky distribution & large step)
         if(!increasing_x) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
           LOG("DISKinematics", pDEBUG) 
            << "d2xsec/dxdy|x stopped increasing. Stepping back & exiting x loop";
+#endif
           //double dlogxn = dlogx/(Nxb+1);
           double dxn = dx/(Nxb+1);
           for(int ik=0; ik<Nxb; ik++) {
@@ -337,11 +346,11 @@ double DISKinematicsGenerator::ComputeMaxXSec(
    	     gx = gx - dxn;
              interaction->KinePtr()->Setx(gx);
              kinematics::UpdateWQ2FromXY(interaction);
-
              xsec = fXSecModel->XSec(interaction, kPSxyfE);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
              LOG("DISKinematics", pINFO) 
                 << "xsec(y=" << gy << ", x=" << gx << ") = " << xsec;
+#endif
 	  }
           break;
         } // stepping back within last bin
@@ -349,8 +358,10 @@ double DISKinematicsGenerator::ComputeMaxXSec(
      increasing_y = max_xsec-xseclast_y>=0;
      xseclast_y   = max_xsec;
      if(!increasing_y) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("DISKinematics", pDEBUG) 
-                          << "d2xsec/dxdy stopped increasing. Exiting y loop";
+           << "d2xsec/dxdy stopped increasing. Exiting y loop";
+#endif
        break;
      }
   }// y
@@ -361,9 +372,11 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   //max_xsec *= ( (Ev<3.0) ? 2.5 : fSafetyFactor);
   max_xsec *= 3;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("DISKinematics", pDEBUG) << interaction->AsString();
   SLOG("DISKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
   SLOG("DISKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
+#endif
 
   return max_xsec;
 }

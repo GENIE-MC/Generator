@@ -21,6 +21,7 @@
 #include <TF2.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Conventions/Units.h"
@@ -150,7 +151,10 @@ void COHPiKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double t   = max * rnd->RndKine().Rndm();
 
         this->AssertXSecLimits(interaction, xsec, max);
-        LOG("COHPiKinematics", pINFO) << "xsec= " << xsec << ", J= 1, Rnd= " << t;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+        LOG("COHPiKinematics", pDEBUG) 
+            << "xsec= " << xsec << ", J= 1, Rnd= " << t;
+#endif
         accept = (t<xsec);
      }
      else { 
@@ -230,9 +234,10 @@ double COHPiKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 // method and the value is cached at a circular cache branch for retrieval
 // during subsequent event generation.
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("COHPiKinematics", pDEBUG)
           << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
-
+#endif
   double max_xsec = 0.;
 
   double Ev = in->InitState().ProbeE(kRfLab);
@@ -245,8 +250,6 @@ double COHPiKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
   const KPhaseSpace & kps = in->PhaseSpace();
   Range1D_t y = kps.YLim();
-//  if(Ev>3)  y.max = TMath::Min(y.max, 0.25);
-//  if(Ev>30) y.max = TMath::Min(y.max, 0.10);
 
   double dy = (Ev>1) ? 0.1 : 0.3;
 
@@ -254,8 +257,6 @@ double COHPiKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
   const double logxmax = TMath::Log10(1E-2);
   const double logymin = TMath::Log10( TMath::Max(y.min,yc-dy) );
   const double logymax = TMath::Log10( TMath::Min(y.max,yc+dy) );
-//  const double logymin = TMath::Log10(y.min);
-//  const double logymax = TMath::Log10(y.max);
   const double dlogx   = (logxmax - logxmin) /(Nx-1);
   const double dlogy   = (logymax - logymin) /(Ny-1);
 
@@ -271,8 +272,10 @@ double COHPiKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
      in->KinePtr()->Sety(gy);
 
      double xsec = fXSecModel->XSec(in, kPSxyfE);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("COHPiKinematics", pDEBUG)  
-     	                << "xsec(x= " << gx << ", y= " << gy << ") = " << xsec;
+     	 << "xsec(x= " << gx << ", y= " << gy << ") = " << xsec;
+#endif
      max_xsec = TMath::Max(max_xsec, xsec);
 
    }//y
@@ -282,9 +285,11 @@ double COHPiKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
   // correspond to a slightly different energy.
   max_xsec *= fSafetyFactor;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("COHPiKinematics", pDEBUG) << in->AsString();
   SLOG("COHPiKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
   SLOG("COHPiKinematics", pDEBUG) << "Computed using alg = " << fXSecModel->Id();
+#endif
 
   return max_xsec;
 }

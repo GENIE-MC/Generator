@@ -20,6 +20,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Controls.h"
 #include "Conventions/KineVar.h"
 #include "Conventions/KinePhaseSpace.h"
@@ -156,10 +157,11 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          double QD2min = utils::kinematics::Q2toQD2(Q2max);
          double QD2max = utils::kinematics::Q2toQD2(Q2min);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
          LOG("RESKinematics", pDEBUG) 
              <<  "Q^2: [" << Q2min  << ", " << Q2max  << "] => "
              << "QD^2: [" << QD2min << ", " << QD2max << "]";
-
+#endif
          double mR, gR;
          if(!interaction->ExclTag().KnownResonance()) { mR=1.2; gR = 0.6; }
          else {
@@ -167,10 +169,11 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
            mR=res::Mass(res);
            gR= (E>mR) ? 0.220 : 0.400;
          }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
          LOG("RESKinematics", pDEBUG) 
             <<  "(m,g) = (" << mR << ", " << gR 
             << "), max(xsec,W) = (" << xsec_max << ", " << W.max << ")";
-
+#endif
          fEnvelope->SetRange(QD2min,W.min,QD2max,W.max); // range
          fEnvelope->SetParameter(0,  mR);                // resonance mass
          fEnvelope->SetParameter(1,  gR);                // resonance width
@@ -202,8 +205,10 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         this->AssertXSecLimits(interaction, xsec, max);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("RESKinematics", pDEBUG)
                      << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
+#endif
         accept = (t < J*xsec);
      }
      else {
@@ -317,8 +322,9 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   const InitialState & init_state = interaction -> InitState();
   double E = init_state.ProbeE(kRfHitNucRest);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RESKinematics", pDEBUG) << "Scanning phase space for E= " << E;
-
+#endif
   //bool scan1d = (E>1.0);
   bool scan1d = false;
 
@@ -332,9 +338,10 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   if(scan1d) {
     // ** 1-D Scan
     //
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("RESKinematics", pDEBUG) 
               << "Will search for max{xsec} along W(=MRes) = " << md;
-
+#endif
     // Set W around the value where d^2xsec/dWdQ^2 peaks
     interaction->KinePtr()->SetW(md);
 
@@ -355,8 +362,10 @@ double RESKinematicsGenerator::ComputeMaxXSec(
       double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
       interaction->KinePtr()->SetQ2(Q2);
       double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("RESKinematics", pDEBUG) 
                 << "xsec(W= " << md << ", Q2= " << Q2 << ") = " << xsec;
+#endif
       max_xsec = TMath::Max(xsec, max_xsec);
       increasing = xsec-xseclast>=0;
       xseclast=xsec;
@@ -371,8 +380,10 @@ double RESKinematicsGenerator::ComputeMaxXSec(
           if(Q2 < rQ2.min) continue;
           interaction->KinePtr()->SetQ2(Q2);
           xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
           LOG("RESKinematics", pDEBUG) 
                  << "xsec(W= " << md << ", Q2= " << Q2 << ") = " << xsec;
+#endif
           max_xsec = TMath::Max(xsec, max_xsec);
         }
         break;
@@ -452,9 +463,11 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   // Apply larger safety factor for smaller energies.
   max_xsec *= ( (E<md) ? 2. : fSafetyFactor);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RESKinematics", pDEBUG) << interaction->AsString();
   LOG("RESKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
   LOG("RESKinematics", pDEBUG) << "Computed using " << fXSecModel->Id();
+#endif
 
   return max_xsec;
 }

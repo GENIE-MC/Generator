@@ -16,6 +16,7 @@
 
 #include <TMath.h>
 
+#include "Conventions/GBuild.h"
 #include "Conventions/Controls.h"
 #include "Conventions/Constants.h"
 #include "Conventions/KineVar.h"
@@ -150,8 +151,10 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         double t = xsec_max * rnd->RndKine().Rndm();
         double J = kinematics::Jacobian(interaction,kPSQ2fE,kPSQD2fE);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("QELKinematics", pDEBUG)
-                     << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
+            << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
+#endif
         accept = (t < J*xsec);
      } else {
         accept = (xsec>0);
@@ -288,8 +291,9 @@ double QELKinematicsGenerator::ComputeMaxXSec(
      double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
      interaction->KinePtr()->SetQ2(Q2);
      double xsec = fXSecModel->XSec(interaction, kPSQ2fE);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("QELKinematics", pDEBUG)  << "xsec(Q2= " << Q2 << ") = " << xsec;
-
+#endif
      max_xsec = TMath::Max(xsec, max_xsec);
      increasing = xsec-xseclast>=0;
      xseclast   = xsec;
@@ -304,7 +308,9 @@ double QELKinematicsGenerator::ComputeMaxXSec(
          if(Q2 < rQ2.min) continue;
          interaction->KinePtr()->SetQ2(Q2);
          xsec = fXSecModel->XSec(interaction, kPSQ2fE);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
          LOG("QELKinematics", pDEBUG)  << "xsec(Q2= " << Q2 << ") = " << xsec;
+#endif
          max_xsec = TMath::Max(xsec, max_xsec);
        }
        break;
@@ -315,9 +321,11 @@ double QELKinematicsGenerator::ComputeMaxXSec(
   // correspond to a slightly different energy
   max_xsec *= fSafetyFactor;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("QELKinematics", pDEBUG) << interaction->AsString();
   SLOG("QELKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
   SLOG("QELKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
+#endif
 
   return max_xsec;
 }
