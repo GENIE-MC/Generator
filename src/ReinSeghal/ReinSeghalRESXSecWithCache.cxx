@@ -10,7 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Jan 18, 2008 - CA
+   Simplify the way free nucleon channels (for which we cache cross sections)
+   are built from the input interaction
 */
 //____________________________________________________________________________
 
@@ -73,9 +75,6 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
   assert(fSingleResXSecModel);
   assert(fIntegrator);
 
-  const int kNTgt = 2;
-  const int tgtc[kNTgt] = { kPdgTgtFreeP, kPdgTgtFreeN };
-
   // at the splines use at least 10 knots per decade but at least 40 knots
   // in the full energy range
   const double kEmin         = 0.120; // xsec_res(Emin) = 0
@@ -87,27 +86,19 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
 
   TLorentzVector p4(0,0,0,0);
 
-  int nu_code = in->InitState().ProbePdg();
+  int nu_code  = in->InitState().ProbePdg();
+  int nuc_code = in->InitState().Tgt().HitNucPdg();
+  int tgt_code = (nuc_code==kPdgProton) ? kPdgTgtFreeP : kPdgTgtFreeN;
 
   Interaction * interaction = new Interaction(*in);
-  interaction->TestBit(kIAssumeFreeNucleon);
 
-  InitialState * init_state = interaction->InitStatePtr();
-  ProcessInfo *  proc_info  = interaction->ProcInfoPtr();
-  Target *       target     = init_state->TgtPtr();
+  interaction->InitStatePtr()->SetPdgs(tgt_code, nu_code);
+  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(nuc_code);
 
-  InteractionType_t wkcur = proc_info->InteractionTypeId();
-
+  InteractionType_t wkcur = interaction->ProcInfo().InteractionTypeId();
   unsigned int nres = fResList.NResonances();
 
-  for(int itgt=0; itgt<kNTgt; itgt++) {
-
-      init_state -> SetPdgs(tgtc[itgt], nu_code);
-
-      if      (tgtc[itgt] == kPdgTgtFreeP) target->SetHitNucPdg(kPdgProton);
-      else if (tgtc[itgt] == kPdgTgtFreeN) target->SetHitNucPdg(kPdgNeutron);
-      
-      for(unsigned int ires = 0; ires < nres; ires++) {
+  for(unsigned int ires = 0; ires < nres; ires++) {
 
          //-- Get next resonance from the resonance list
          Resonance_t res = fResList.ResonanceId(ires);
@@ -115,7 +106,6 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
          interaction->ExclTagPtr()->SetResonance(res);
 
          //-- Get a unique cache branch name
-         int nuc_code = init_state->Tgt().HitNucPdg();
          string key = this->CacheBranchName(res, wkcur, nu_code, nuc_code);
 
          //-- Make sure the cache branch does not already exists
@@ -178,8 +168,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
 
          cache_branch->CreateSpline();
 
-      }//ires
-  }//hit nucleon
+  }//ires
 
   delete interaction;
 }
