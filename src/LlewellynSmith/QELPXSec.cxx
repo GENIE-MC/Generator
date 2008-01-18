@@ -20,6 +20,7 @@
 #include "Base/XSecIntegratorI.h"
 #include "Base/QELFormFactors.h"
 #include "Base/QELFormFactorsModelI.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
@@ -83,7 +84,9 @@ double QELPXSec::XSec(
   double FA    = fFormFactors.FA();
   double Fp    = fFormFactors.Fp();
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELPXSec", pDEBUG) << "\n" << fFormFactors;
+#endif
 
   //-- calculate auxiliary parameters
   double ml2     = TMath::Power(ml,    2);
@@ -107,18 +110,22 @@ double QELPXSec::XSec(
 
   double xsec = Gfactor * (A + sign*B*s_u/M2 + C*s_u*s_u/M4);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELPXSec", pDEBUG)
      << "dXSec[QEL]/dQ2 [FreeN](E = "<< E << ", Q2 = "<< -q2 << ") = "<< xsec;
   LOG("QELPXSec", pDEBUG) 
                  << "A(Q2) = " << A << ", B(Q2) = " << B << ", C(Q2) = " << C;
+#endif
 
   //----- The algorithm computes dxsec/dQ2
   //      Check whether variable tranformation is needed
   if(kps!=kPSQ2fE) {
     double J = utils::kinematics::Jacobian(interaction,kPSQ2fE,kps);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("QELPXSec", pDEBUG)
      << "Jacobian for transformation to: " 
                   << KinePhaseSpace::AsString(kps) << ", J = " << J;
+#endif
     xsec *= J;
   }
 
@@ -133,8 +140,10 @@ double QELPXSec::XSec(
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELPXSec", pDEBUG) 
        << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
+#endif
 
   xsec *= (R*NNucl); // nuclear xsec
 
@@ -203,3 +212,4 @@ void QELPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
+
