@@ -3,7 +3,8 @@
 
 \namespace  genie::utils::nuclear
 
-\brief      Simple nuclear physics empirical formulas
+\brief      Simple nuclear physics empirical formulas (densities, radii, ...)
+            and empirical nuclear corrections
 
 \author     Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
             STFC, Rutherford Appleton Laboratory
