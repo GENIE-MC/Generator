@@ -19,6 +19,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecIntegratorI.h"
 #include "Charm/SlowRsclCharmDISPXSecLO.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
@@ -71,6 +72,7 @@ double SlowRsclCharmDISPXSecLO::XSec(
   double E    = init_state.ProbeE(kRfHitNucRest);
   double x    = kinematics.x();
   double y    = kinematics.y();
+  double Q2   = 2*Mnuc*E*x*y;
 
   //----- get target information (hit nucleon and quark)
   int  nu    = init_state.ProbePdg();
@@ -86,12 +88,6 @@ double SlowRsclCharmDISPXSecLO::XSec(
   bool issb  = (qset) ? pdg::IsAntiSQuark (qpdg) : false;
   bool isnu  = pdg::IsNeutrino(nu);
   bool isnub = pdg::IsAntiNeutrino(nu);
-
-  //----- compute kinematic & auxiliary parameters
-  double Mnuc2 = TMath::Power(Mnuc, 2);
-  double Q2    = 2*Mnuc*E*x*y;
-  double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
-  double W     = TMath::Max(0., TMath::Sqrt(W2));
 
   //----- compute slow rescaling variable & check its value
   double xi = x * (1 + fMc2/Q2);
@@ -134,10 +130,15 @@ double SlowRsclCharmDISPXSecLO::XSec(
   double xsec_s = xsec_0 * fVcs2 * s;
   double xsec   = xsec_d + xsec_s;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  double Mnuc2 = TMath::Power(Mnuc, 2);
+  double W2    = Mnuc2 + 2*Mnuc*E*y*(1-x);
+  double W     = TMath::Max(0., TMath::Sqrt(W2));
   LOG("DISCharmXSec", pDEBUG)
     << "\n dxsec[DISCharm,FreeN]/dxdy (E= " << E
                  << ", x= " << x << ", y= " << y
                          << ", W= " << W << ", Q2 = " << Q2 << ") = " << xsec;
+#endif
 
   //----- The algorithm computes d^2xsec/dxdy
   //      Check whether variable tranformation is needed
