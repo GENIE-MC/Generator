@@ -10,7 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Jan 18, 2008 - CA
+   Add protection against unphysical Q2 limits
 */
 //____________________________________________________________________________
 
