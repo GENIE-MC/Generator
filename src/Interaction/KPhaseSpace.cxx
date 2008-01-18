@@ -11,14 +11,18 @@
 
  Important revisions after version 2.0.0 :
  @ Nov 21, 2007 - CA
- Handle the introduction of a new type of coherent interactions (coherent 
- elastic). The kinematical limits for the old 'coherent' type now apply
- only to 'coherent pi production'. Computing kinematical limits for
- coherent elastic is not included at this moment.
+   Handle the introduction of a new type of coherent interactions (coherent 
+   elastic). The kinematical limits for the old 'coherent' type now apply
+   only to 'coherent pi production'. Computing kinematical limits for
+   coherent elastic is not included at this moment.
+ @ Jan 18, 2008 - CA
+   Add protection against non-positive energy thresholds
 */
 //____________________________________________________________________________
 
 #include <cstdlib>
+
+#include <TMath.h>
 
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
@@ -74,7 +78,7 @@ double KPhaseSpace::Threshold(void) const
     double m    = ml + kPionMass;
     double m2   = TMath::Power(m,2);
     double Ethr = m + 0.5*m2/MA;
-    return Ethr;
+    return TMath::Max(0.,Ethr);
   }
 
   if(pi.IsQuasiElastic() || pi.IsResonant() || pi.IsDeepInelastic()) {
@@ -94,12 +98,12 @@ double KPhaseSpace::Threshold(void) const
     }
     double smin = TMath::Power(Wmin+ml,2.);
     double Ethr = 0.5*(smin-Mn2)/Mn;
-    return Ethr;
+    return TMath::Max(0.,Ethr);
   }
 
   if(pi.IsInverseMuDecay()) {
     double Ethr = 0.5 * (kMuonMass2-kElectronMass2)/kElectronMass;
-    return Ethr;
+    return TMath::Max(0.,Ethr);
   }
 
   if(pi.IsNuElectronElastic()) {
