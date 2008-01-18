@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/GBuild.h"
 #include "BodekYang/BYPDFModel.h"
 #include "Messenger/Messenger.h"
 
@@ -87,9 +88,10 @@ double BYPDFModel::Gluon(double x, double q2) const
 //____________________________________________________________________________
 PDF_t BYPDFModel::AllPDFs(double x, double q2) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BodekYang", pDEBUG) 
        << "Inputs: x = " << x << ", |q2| = " << TMath::Abs(q2);
-
+#endif
   if(TMath::Abs(q2) < fQ2min) q2=fQ2min;
 
   // get the uncorrected PDFs
@@ -101,7 +103,9 @@ PDF_t BYPDFModel::AllPDFs(double x, double q2) const
 
   // compute correction factor delta(d/u)
   double delta = this->DeltaDU(x);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BodekYang", pDEBUG) << "delta(d/u) = " << delta;
+#endif
 
   // compute u/(u+d) ratios for both valence & sea quarks
   double val = uv+dv;
@@ -109,8 +113,10 @@ PDF_t BYPDFModel::AllPDFs(double x, double q2) const
   double rv  = (val==0) ? 0. : uv/val;
   double rs  = (sea==0) ? 0. : us/sea;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BodekYang", pDEBUG)
    << "valence[u/(u+d)] = " << rv << ", sea[u/(u+d)] = " << rs;
+#endif
 
   // compute the corrected valence and sea quark PDFs:
   double uv_c =       uv        / ( 1 + delta*rv);
@@ -118,11 +124,13 @@ PDF_t BYPDFModel::AllPDFs(double x, double q2) const
   double us_c =       us        / ( 1 + delta*rs);
   double ds_c = (ds + us*delta) / ( 1 + delta*rs);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BodekYang", pDEBUG) << "Bodek-Yang PDF correction:";
   LOG("BodekYang", pDEBUG) << "uv: " << uv << " --> " << uv_c;
   LOG("BodekYang", pDEBUG) << "dv: " << dv << " --> " << dv_c;
   LOG("BodekYang", pDEBUG) << "us: " << us << " --> " << us_c;
   LOG("BodekYang", pDEBUG) << "ds: " << ds << " --> " << ds_c;
+#endif
 
   // fill in and return the corrected PDFs:
   PDF_t corrected_pdfs;

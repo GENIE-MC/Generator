@@ -22,6 +22,7 @@
 #include <TVector3.h>
 #include <TSystem.h>
 
+#include "Conventions/GBuild.h"
 #include "Conventions/Units.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
@@ -380,9 +381,11 @@ void GHepRecord::AddParticle(const GHepParticle & p)
 // Provides a simplified method for inserting entries in the TClonesArray
 
   unsigned int pos = this->GetEntries();
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pINFO)
     << "Adding particle with pdgc = " << p.Pdg() << " at slot = " << pos;
-
+#endif
   new ((*this)[pos]) GHepParticle(p);
 
   // Update the mother's daughter list. If the newly inserted particle broke
@@ -397,9 +400,11 @@ void GHepRecord::AddParticle(
 // Provides a 'simplified' method for inserting entries in the TClonesArray
 
   unsigned int pos = this->GetEntries();
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pINFO)
            << "Adding particle with pdgc = " << pdg << " at slot = " << pos;
-
+#endif
   new ((*this)[pos]) GHepParticle(pdg,status, mom1,mom2,dau1,dau2, p, v);
 
   // Update the mother's daughter list. If the newly inserted particle broke
@@ -415,9 +420,11 @@ void GHepRecord::AddParticle(
 // Provides a 'simplified' method for inserting entries in the TClonesArray
 
   unsigned int pos = this->GetEntries();
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pINFO)
            << "Adding particle with pdgc = " << pdg << " at slot = " << pos;
-
+#endif
   new ( (*this)[pos] ) GHepParticle (
             pdg, status, mom1, mom2, dau1, dau2, px, py, pz, E, x, y, z, t);
 
@@ -430,14 +437,18 @@ void GHepRecord::UpdateDaughterLists(void)
 {
   int pos = this->GetEntries() - 1; // position of last entry
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pINFO)
      << "Updating the daughter-list for the mother of particle at: " << pos;
+#endif
 
   GHepParticle * p = this->Particle(pos);
   assert(p);
 
   int mom_pos = p->FirstMother();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pINFO) << "Mother particle is at slot: " << mom_pos;
+#endif
   if(mom_pos==-1) return; // may not have mom (eg init state)
   GHepParticle * mom = this->Particle(mom_pos);
   if(!mom) return; // may not have mom (eg init state)
@@ -449,31 +460,37 @@ void GHepRecord::UpdateDaughterLists(void)
   if(dau1 == -1) {
      mom->SetFirstDaughter(pos);
      mom->SetLastDaughter(pos);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GHEP", pINFO)
         << "Done! Daughter-list is compact: [" << pos << ", " << pos << "]";
+#endif
      return;
   }
   // handles the case where the new daughter is added at the slot just before
   // an already compact daughter list
   if(pos == dau1-1) {
      mom->SetFirstDaughter(pos);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GHEP", pINFO)
        << "Done! Daughter-list is compact: [" << pos << ", " << dau2 << "]";
+#endif
      return;
   }
   // handles the case where the new daughter is added at the slot just after
   // an already compact daughter list
   if(pos == dau2+1) {
      mom->SetLastDaughter(pos);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GHEP", pINFO)
        << "Done! Daughter-list is compact: [" << dau1 << ", " << pos << "]";
+#endif
      return;
   }
 
   // If you are here, then the last particle insertion broke the daughter
   // list compactification - Run the compactifier
   LOG("GHEP", pNOTICE)
-                   << "Daughter-list is not compact - Running compactifier";
+      << "Daughter-list is not compact - Running compactifier";
   this->CompactifyDaughterLists();
 }
 //___________________________________________________________________________
@@ -505,7 +522,9 @@ void GHepRecord::RemoveIntermediateParticles(void)
     }
     i++;
   }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pDEBUG) << "Compressing GHEP record to remove empty slots";
+#endif
   this->Compress(); 
 }
 //___________________________________________________________________________
@@ -536,25 +555,29 @@ void GHepRecord::CompactifyDaughterLists(void)
           this->Particle(i)->SetLastDaughter(-1);
         }
      } //!compact
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GHEP", pINFO)
-          << "Compactifying daughter-list for particle at slot: "
-                                                    << i << " - Done!";
+        << "Done ompactifying daughter-list for particle at slot: " << i;
+#endif
   }
   this->FinalizeDaughterLists();
 }
 //___________________________________________________________________________
 bool GHepRecord::HasCompactDaughterList(int pos)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pDEBUG) << "Examining daughter-list of particle at: " << pos;
-
+#endif
   vector<int> daughters;
   GHepParticle * p = 0;
   TIter iter(this);
   int i=0;
   while( (p = (GHepParticle *)iter.Next()) ) {
     if(p->FirstMother() == pos) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("GHEP", pDEBUG) << "Particle at: " << i << " is a daughter";
        daughters.push_back(i);
+#endif
     }
     i++;
   }
@@ -570,9 +593,11 @@ bool GHepRecord::HasCompactDaughterList(int pos)
        prev = curr;
     }
   }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pINFO)
-         << "Daughter-list of particle at: " << pos << " is "
-                                << (is_compact ? "" : "not") << " compact";
+      << "Daughter-list of particle at: " << pos << " is "
+                            << (is_compact ? "" : "not") << " compact";
+#endif
   return is_compact;
 }
 //___________________________________________________________________________
@@ -591,8 +616,9 @@ int GHepRecord::FirstNonInitStateEntry(void)
 //___________________________________________________________________________
 void GHepRecord::SwapParticles(int i, int j)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pINFO) << "Swapping GHepParticles : " << i << " <--> " << j;
-
+#endif
   int n = this->GetEntries();
   assert(i>=0 && j>=0 && i<n && j<n);
 
@@ -658,8 +684,9 @@ void GHepRecord::SetVertex(const TLorentzVector & vtx)
 //___________________________________________________________________________
 void GHepRecord::InitRecord(void)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pDEBUG) << "Initializing GHepRecord";
-
+#endif
   fInteraction = 0;
   fWeight      = 1.;
   fProb        = 1.;
@@ -673,15 +700,17 @@ void GHepRecord::InitRecord(void)
 //___________________________________________________________________________
 void GHepRecord::CleanRecord(void)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pDEBUG) << "Cleaning up GHepRecord";
-
+#endif
   this->Clear("C");
 }
 //___________________________________________________________________________
 void GHepRecord::ResetRecord(void)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pDEBUG) << "Reseting GHepRecord";
-
+#endif
   this->CleanRecord();
   this->InitRecord();
 }

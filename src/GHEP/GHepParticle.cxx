@@ -19,6 +19,7 @@
 
 #include <TMath.h>
 
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
@@ -178,8 +179,10 @@ TLorentzVector * GHepParticle::GetP4(void) const
 
   if(fP4) {
      TLorentzVector * p4 = new TLorentzVector(*fP4); 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GHepParticle", pDEBUG) 
-                    << "Return vp = " << utils::print::P4AsShortString(p4);
+          << "Return vp = " << utils::print::P4AsShortString(p4);
+#endif
      return p4;
   } else {
     LOG("GHepParticle", pWARN) << "NULL 4-momentum TLorentzVector";
@@ -194,8 +197,10 @@ TLorentzVector * GHepParticle::GetX4(void) const
 
   if(fX4) {
      TLorentzVector * x4 = new TLorentzVector(*fX4); 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GHepParticle", pDEBUG) 
-                          << "Return x4 = " << utils::print::X4AsString(x4);
+         << "Return x4 = " << utils::print::X4AsString(x4);
+#endif
      return x4;
   } else {
     LOG("GHepParticle", pWARN) << "NULL 4-position TLorentzVector";
@@ -246,9 +251,11 @@ void GHepParticle::SetPosition(const TLorentzVector & v4)
 //___________________________________________________________________________
 void GHepParticle::SetPosition(double x, double y, double z, double t)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHepParticle", pDEBUG) 
             << "Setting position to (x = " << x << ", y = " 
                                << y << ", z = " << z << ", t = " << t << ")";
+#endif
 
   if(fX4) fX4->SetXYZT(x,y,z,t);
   else    fX4 = new TLorentzVector(x,y,z,t);
