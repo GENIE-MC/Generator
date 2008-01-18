@@ -59,6 +59,7 @@ double QELXSec::Integrate(
      return 0;
   }
   Range1D_t rQ2 = kps.Limits(kKVQ2);
+  if(rQ2.min<0 || rQ2.max<0) return 0;
   LOG("QELXSec", pDEBUG) 
           << "Q2 integration range = (" << rQ2.min << ", " << rQ2.max << ")";
 
