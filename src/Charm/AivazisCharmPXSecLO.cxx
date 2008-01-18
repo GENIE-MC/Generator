@@ -19,6 +19,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecIntegratorI.h"
 #include "Charm/AivazisCharmPXSecLO.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
@@ -90,8 +91,6 @@ double AivazisCharmPXSecLO::XSec(
   double Mnuc        = target.HitNucMass();
   double Mnuc2       = TMath::Power(Mnuc, 2);
   double Q2          = 2*Mnuc*E*x*y;
-  double W2          = Mnuc2 + 2*Mnuc*E*y*(1-x);
-  double W           = TMath::Max(0., TMath::Sqrt(W2));
   double inverse_eta = 0.5/x + TMath::Sqrt( 0.25/x2 + Mnuc2/Q2 );
   double eta         = 1 / inverse_eta;
   double xi          = eta * (1 + fMc2/Q2);
@@ -140,10 +139,14 @@ double AivazisCharmPXSecLO::XSec(
   double xsec_s = xsec_0 * fVcs2 * s;
   double xsec   = xsec_d + xsec_s;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  double W2          = Mnuc2 + 2*Mnuc*E*y*(1-x);
+  double W           = TMath::Max(0., TMath::Sqrt(W2));
   LOG("DISCharmXSec", pDEBUG)
     << "\n dxsec[DISCharm,FreeN]/dxdy (E= " << E
                  << ", x= " << x << ", y= " << y
                          << ", W= " << W << ", Q2 = " << Q2 << ") = " << xsec;
+#endif
 
   //----- The algorithm computes d^2xsec/dxdy
   //      Check whether variable tranformation is needed

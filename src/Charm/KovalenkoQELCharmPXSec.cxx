@@ -27,6 +27,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecIntegratorI.h"
 #include "Charm/KovalenkoQELCharmPXSec.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "Conventions/RefFrame.h"
@@ -77,7 +78,9 @@ double KovalenkoQELCharmPXSec::XSec(
   double E2  = E * E;
   double Q2  = kinematics.Q2();
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELCharmXSec", pDEBUG) << "E = " << E << ", Q2 = " << Q2;
+#endif
 
   //resonance mass & nucleon mass
   double MR    = this->MRes  (interaction);
@@ -85,7 +88,9 @@ double KovalenkoQELCharmPXSec::XSec(
   double Mnuc  = target.HitNucMass();
   double Mnuc2 = TMath::Power(Mnuc,2);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELCharmXSec", pDEBUG) << "M(RES) = " << MR;
+#endif
 
   //----- Calculate the differential cross section dxsec/dQ^2
   double Gf        = kGF2 / (2*kPi);
@@ -98,8 +103,10 @@ double KovalenkoQELCharmPXSec::XSec(
   double Z         = this->ZR(interaction);
   double D         = this->DR(interaction);
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELCharmXSec", pDEBUG) 
      << "Z = " << Z << ", D = " << D << ". xiR = " << xiR << ", vR = " << vR;
+#endif
 
   double xsec = Gf*Z*D * (1 - vR_E + Q2_4E2 + Q2_2MExiR) *
                                      TMath::Sqrt(vR2 + Q2) / (vR*xiR);
@@ -119,9 +126,11 @@ double KovalenkoQELCharmPXSec::XSec(
   int NNucl = (pdg::IsProton(nuc)) ? target.Z() : target.N();
   xsec *= NNucl;
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELCharmXSec", pINFO) 
      << "dsigma/dQ2(E=" << E << ", Q2=" << Q2 << ") = " 
                              << xsec / (1E-40*units::cm2) << " x 1E-40 cm^2";
+#endif
 
   return xsec;
 }
