@@ -13,6 +13,10 @@
  @ Jan 18, 2008 - CA
    Simplify the way free nucleon channels (for which we cache cross sections)
    are built from the input interaction
+ @ Jan 19, 2008 - CA
+   Modify the way knots are distributed in the cached free nucleon resonance
+   neutrino production splines so that the energy threshold is treated more
+   accurately (see also XSecSplineList.cxx).
 */
 //____________________________________________________________________________
 
@@ -75,14 +79,12 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
   assert(fSingleResXSecModel);
   assert(fIntegrator);
 
-  // at the splines use at least 10 knots per decade but at least 40 knots
-  // in the full energy range
-  const double kEmin         = 0.120; // xsec_res(Emin) = 0
-  const double kLogEmin      = TMath::Log(kEmin);
-  const double kLogEmax      = TMath::Log(fEMax);
-  const int    kMinNKnots    = (int) (10*(kLogEmax-kLogEmin)); 
-  const int    kNSplineKnots = TMath::Max(40, kMinNKnots); 
-  const double kdLogE        = (kLogEmax-kLogEmin)/(kNSplineKnots-1);
+  // for the cached splines use at least 10 knots per decade but at least 
+  // 40 knots in the full energy range
+  const double Emin       = 0.01;
+  const int    nknots_min = (int) (10*(TMath::Log(fEMax)-TMath::Log(Emin))); 
+  const int    nknots     = TMath::Max(40, nknots_min); 
+  double * E = new double[nknots]; // knot 'x'
 
   TLorentzVector p4(0,0,0,0);
 
@@ -91,13 +93,11 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
   int tgt_code = (nuc_code==kPdgProton) ? kPdgTgtFreeP : kPdgTgtFreeN;
 
   Interaction * interaction = new Interaction(*in);
-
   interaction->InitStatePtr()->SetPdgs(tgt_code, nu_code);
   interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(nuc_code);
 
   InteractionType_t wkcur = interaction->ProcInfo().InteractionTypeId();
   unsigned int nres = fResList.NResonances();
-
   for(unsigned int ires = 0; ires < nres; ires++) {
 
          //-- Get next resonance from the resonance list
@@ -121,17 +121,35 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
          assert(cache_branch);
 
          const KPhaseSpace & kps = interaction->PhaseSpace();
-         double EvThr = kps.Threshold();
-         LOG("ReinSeghalResC", pNOTICE) << "E threshold = " << EvThr;
+         double Ethr = kps.Threshold();
+         LOG("ReinSeghalResC", pNOTICE) << "E threshold = " << Ethr;
 
-         for(int ie=0; ie<kNSplineKnots; ie++) {
+         //-- Distribute the knots in the given energy range
+         //   Use 1 knot exactly on the energy threshold, use few y=0 knots at
+         //   E<Ethr so that the spline behaves ok at the full energy range and
+         //   distribute logarithmcally the other knots in the (Ethr,Emax) range
+         int nkb = (Ethr>Emin) ? 5 : 0; // number of knots <  threshold
+         int nka = nknots-nkb;          // number of knots >= threshold
+         // knots < energy threshold
+         double dEb =  (Ethr>Emin) ? (Ethr - Emin) / nkb : 0;
+         for(int i=0; i<nkb; i++) {
+            E[i] = Emin + i*dEb;
+         }
+         // knots >= energy threshold
+         double E0  = TMath::Max(Ethr,Emin);
+         double dEa = (TMath::Log10(fEMax) - TMath::Log10(E0)) /(nka-1);
+         for(int i=0; i<nka; i++) {
+            E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i * dEa);
+         }
 
+         //-- Compute cross sections at the given set of energies
+         for(int ie=0; ie<nknots; ie++) {
              double xsec = 0.;
-             double Ev   = TMath::Exp(kLogEmin + ie*kdLogE);
+             double Ev   = E[ie];
              p4.SetPxPyPzE(0,0,Ev,Ev);
              interaction->InitStatePtr()->SetProbeP4(p4);
 
-             if(Ev>EvThr) {
+             if(Ev>Ethr) {
                // Get W integration range and the wider possible Q2 range 
                // (for all W)
                Range1D_t rW  = kps.Limits(kKVW);
@@ -158,7 +176,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
                }
              } else {
                  LOG("ReinSeghalResC", pINFO) 
- 		       << "** Below threshold E = " << Ev << " <= " << EvThr;
+ 		       << "** Below threshold E = " << Ev << " <= " << Ethr;
              }
              cache_branch->AddValues(Ev,xsec);
              SLOG("ReinSeghalResC", pNOTICE) 
@@ -166,10 +184,11 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
     	       << ", E="<< Ev << ") = "<< xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
          }//spline knots
 
+         //-- Build the spline
          cache_branch->CreateSpline();
-
   }//ires
 
+  delete [] E;
   delete interaction;
 }
 //____________________________________________________________________________
