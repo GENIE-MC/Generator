@@ -175,7 +175,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   int nka = nknots-nkb;          // number of knots >= threshold
 
   // knots < energy threshold
-  double dEb =  (Ethr>Emin) ? (Ethr - Emin) / (nkb-2) : 0;
+  double dEb =  (Ethr>Emin) ? (Ethr - Emin) / nkb : 0;
   for(int i=0; i<nkb; i++) {     
      E[i] = Emin + i*dEb;
   }
