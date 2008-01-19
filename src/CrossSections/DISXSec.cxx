@@ -10,7 +10,10 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Jan 19, 2008 - CA
+   Modify the way knots are distributed in the cached free nucleon DIS cross
+   section splines so that the energy threshold is treated more accurately 
+   (see also XSecSplineList.cxx).
 */
 //____________________________________________________________________________
 
@@ -201,59 +204,79 @@ void DISXSec::LoadConfig(void)
 void DISXSec::CacheFreeNucleonXSec(
           const XSecAlgorithmI * model, const Interaction * interaction) const
 {
+  LOG("DISXSec", pWARN)  
+      << "Wait while computing/caching free nucleon DIS xsections first...";
+
+  // Create the cache branch
   Cache * cache = Cache::Instance();
   string key = this->CacheBranchName(model,interaction);
   CacheBranchFx * cache_branch =
            dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
   assert(!cache_branch);
+  cache_branch = new CacheBranchFx("DIS XSec");
+  cache->AddCacheBranch(key, cache_branch);
 
-  LOG("DISXSec", pWARN)  
-      << "Wait while computing/caching free nucleon DIS xsections first...";
+  // Create the integrand
+  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
 
+  // Tweak interaction to be on a free nucleon target
   Target * target = interaction->InitStatePtr()->TgtPtr();
   int nucpdgc = target->HitNucPdg();
   if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
   else                       { target->SetId(kPdgTgtFreeN); }
 
-  cache_branch = new CacheBranchFx("DIS XSec");
-  cache->AddCacheBranch(key, cache_branch);
+  // Compute threshold
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  double Ethr = kps.Threshold();
 
- // use at least 10 knots per decade && at least 40 knots in the full 
- // energy range
+  // Compute the number of spline knots - use at least 10 knots per decade 
+  // && at least 40 knots in the full energy range
+  const double Emin       = fVldEmin/3.; 
+  const double Emax       = fVldEmax*3.; 
+  const int    nknots_min = (int) (10*(TMath::Log(Emax) - TMath::Log(Emin))); 
+  const int    nknots     = TMath::Max(40, nknots_min); 
 
- const double kEmin         = fVldEmin/3.; 
- const double kEmax         = fVldEmax*3.; 
- const double kLogEmin      = TMath::Log(kEmin);
- const double kLogEmax      = TMath::Log(kEmax);
- const int    kMinNKnots    = (int) (10*(kLogEmax-kLogEmin)); 
- const int    kNSplineKnots = TMath::Max(40, kMinNKnots); 
- const double kdLogE        = (kLogEmax-kLogEmin)/(kNSplineKnots-1);
+  // Distribute the knots in the energy range as is being done in the
+  // XSecSplineList so that the energy threshold is treated correctly
+  // in the spline - see comments there in.
+  double * E = new double[nknots]; 
+  int nkb = (Ethr>Emin) ? 5 : 0; // number of knots <  threshold
+  int nka = nknots-nkb;          // number of knots >= threshold
+  // knots < energy threshold
+  double dEb =  (Ethr>Emin) ? (Ethr - Emin) / nkb : 0;
+  for(int i=0; i<nkb; i++) {
+      E[i] = Emin + i*dEb;
+  }
+  // knots >= energy threshold
+  double E0  = TMath::Max(Ethr,Emin);
+  double dEa = (TMath::Log10(Emax) - TMath::Log10(E0)) /(nka-1);
+  for(int i=0; i<nka; i++) {
+      E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i * dEa);
+  }
 
- GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
-
- for(int ie=0; ie<kNSplineKnots; ie++) {
-    double Ev = TMath::Exp(kLogEmin + ie*kdLogE);
+  // Compute the cross section at the given set of knots
+  for(int ie=0; ie<nknots; ie++) {
+    double Ev = E[ie];
     TLorentzVector p4(0,0,Ev,Ev);
     interaction->InitStatePtr()->SetProbeP4(p4);
-
-    const KPhaseSpace & kps = interaction->PhaseSpace();
-
     double xsec = 0.;
-    if(!kps.IsAboveThreshold()) xsec = 0;
-    else {
-          Range1D_t Wl  = kps.WLim();
-          Range1D_t Q2l = kps.Q2Lim();
-          func->SetParam(0,"W", Wl);
-          func->SetParam(1,"Q2",Q2l);
-          xsec = fIntegrator->Integrate(*func);
+    if(Ev>Ethr) {
+       Range1D_t Wl  = kps.WLim();
+       Range1D_t Q2l = kps.Q2Lim();
+       func->SetParam(0,"W", Wl);
+       func->SetParam(1,"Q2",Q2l);
+       xsec = fIntegrator->Integrate(*func);
     }
     LOG("DISXSec", pNOTICE)  
                 << "Caching: XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
     cache_branch->AddValues(Ev,xsec);
   }//ie
 
-  delete func;
+  // Create the spline
   cache_branch->CreateSpline();
+
+  delete [] E;
+  delete func;
 }
 //____________________________________________________________________________
 string DISXSec::CacheBranchName(
