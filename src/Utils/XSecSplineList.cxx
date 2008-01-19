@@ -252,7 +252,7 @@ void XSecSplineList::SaveAsXml(string filename) const
 
   int uselog = (fUseLogE ? 1 : 0);
   outxml << "<genie_xsec_spline_list "
-                          << "version=\"1.00\" uselog=\"" << uselog << "\">";
+                          << "version=\"2.00\" uselog=\"" << uselog << "\">";
   outxml << endl << endl;
 
   map<string, Spline *>::const_iterator mapiter;
