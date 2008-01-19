@@ -79,8 +79,8 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
   assert(fSingleResXSecModel);
   assert(fIntegrator);
 
-  // for the cached splines use at least 10 knots per decade but at least 
-  // 40 knots in the full energy range
+  // Compute the number of spline knots - use at least 10 knots per decade 
+  // && at least 40 knots in the full energy range
   const double Emin       = 0.01;
   const int    nknots_min = (int) (10*(TMath::Log(fEMax)-TMath::Log(Emin))); 
   const int    nknots     = TMath::Max(40, nknots_min); 
@@ -100,20 +100,20 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
   unsigned int nres = fResList.NResonances();
   for(unsigned int ires = 0; ires < nres; ires++) {
 
-         //-- Get next resonance from the resonance list
+         // Get next resonance from the resonance list
          Resonance_t res = fResList.ResonanceId(ires);
 
          interaction->ExclTagPtr()->SetResonance(res);
 
-         //-- Get a unique cache branch name
+         // Get a unique cache branch name
          string key = this->CacheBranchName(res, wkcur, nu_code, nuc_code);
 
-         //-- Make sure the cache branch does not already exists
+         // Make sure the cache branch does not already exists
          CacheBranchFx * cache_branch =
              dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
          assert(!cache_branch);
 
-         //-- Create the new cache branch
+         // Create the new cache branch
          LOG("ReinSeghalResC", pNOTICE) 
                         << "\n ** Creating cache branch - key = " << key;
          cache_branch = new CacheBranchFx("RES Excitation XSec");
@@ -124,10 +124,9 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
          double Ethr = kps.Threshold();
          LOG("ReinSeghalResC", pNOTICE) << "E threshold = " << Ethr;
 
-         //-- Distribute the knots in the given energy range
-         //   Use 1 knot exactly on the energy threshold, use few y=0 knots at
-         //   E<Ethr so that the spline behaves ok at the full energy range and
-         //   distribute logarithmcally the other knots in the (Ethr,Emax) range
+         // Distribute the knots in the energy range as is being done in the
+         // XSecSplineList so that the energy threshold is treated correctly
+         // in the spline - see comments there in.
          int nkb = (Ethr>Emin) ? 5 : 0; // number of knots <  threshold
          int nka = nknots-nkb;          // number of knots >= threshold
          // knots < energy threshold
@@ -142,7 +141,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
             E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i * dEa);
          }
 
-         //-- Compute cross sections at the given set of energies
+         // Compute cross sections at the given set of energies
          for(int ie=0; ie<nknots; ie++) {
              double xsec = 0.;
              double Ev   = E[ie];
@@ -184,7 +183,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
     	       << ", E="<< Ev << ") = "<< xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
          }//spline knots
 
-         //-- Build the spline
+         // Build the spline
          cache_branch->CreateSpline();
   }//ires
 
