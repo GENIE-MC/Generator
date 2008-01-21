@@ -103,7 +103,7 @@
   <priority msgstream="PythiaHad">           INFO   </priority>
   <priority msgstream="PDG">                 INFO   </priority>
   <priority msgstream="PathL">               NOTICE </priority>
-  <priority msgstream="QELXSec">             INFO   </priority>
+  <priority msgstream="QELXSec">             NOTICE </priority>
   <priority msgstream="QELCharmXSec">        NOTICE  </priority>
   <priority msgstream="QELPXSec">            NOTICE </priority>
   <priority msgstream="QELHadronicVtx">      INFO   </priority>
