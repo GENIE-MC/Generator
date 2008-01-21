@@ -20,9 +20,9 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    doxygen-doc     Generate doxygen documentation at build time                        default: disabled \n";
   print "    nuvalidator     GENIE's NuValidator tool, requires MySQL                            default: disabled \n";
   print "    neugen          GENIE/NeuGEN facade, requires libneugen3.a                          default: disabled \n";
-  print "    neut-cascade    Alternative intranuclear hadron transport MC, requires libNEUT.a    default: disabled \n";
-  print "    gibuu           Alternative intranuclear hadron transport MC, requires libGiBUU.a   default: disabled \n";
-  print "    lhapdf          Use the LHAPDF pdf library                                          default: disabled \n";
+  print "    neut-cascade    Alternative intranuclear hadron transport MC, requires libNEUT      default: disabled \n";
+  print "    gibuu           Alternative intranuclear hadron transport MC, requires libGiBUU     default: disabled \n";
+  print "    lhapdf          Use the LHAPDF pdf library, requires libLHAPDF                      default: disabled \n";
   print "    flux-drivers    Built-in flux drivers                                               default: enabled  \n";
   print "    geom-drivers    Built-in detector geometry drivers                                  default: enabled  \n";
   print "    test            Build test programs                                                 default: disabled \n";
@@ -275,7 +275,7 @@ if($gopt_enable_lhapdf eq "YES") {
   # if it was not set, try to pick it up from the environment
   if($lhapdf_lib eq "" && defined $ENV{'LHAPDF_LIB'}) { $lhapdf_lib = $ENV{'LHAPDF_LIB'}; }
   # check
-  my $file = "$lhapdf_lib/libLHAPDF.so";
+  my $file = "$lhapdf_lib/libLHAPDF.a";
   if(! -e $file) {
      print "*** Error *** You need to specify the path to the libLHAPDF.so library using --with-lhapdf-lib=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-lhapdf\n\n";
@@ -440,10 +440,11 @@ if(! -d $log4cpp_lib) {
 #
 print MKCONF "GOPT_CXX_OPTIMIZ_FLAG=-$gopt_cxx_optimiz_flag\n";
 print MKCONF "GPROFILER_LIB=$gprofiler_lib\n";
+print MKCONF "DOXYGEN=$doxygen\n";
 print MKCONF "NEUGEN3PATH=$neugen3path\n";
 print MKCONF "NEUT_LIB=$neut_lib\n";
 print MKCONF "GIBUU_LIB=$gibuu_lib\n";
-print MKCONF "DOXYGEN=$doxygen\n";
+print MKCONF "LHAPDF_LIB=$lhapdf_lib\n";
 print MKCONF "CERNLIB=$cernlib\n";
 print MKCONF "PYTHIA6=$pythia6\n";
 print MKCONF "LIBXML2_INC=$libxml2_inc\n";
