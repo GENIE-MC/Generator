@@ -216,6 +216,21 @@ CERN_LIBRARIES = -L$(CERN_LIB_DIR) \
 endif
 
 #-------------------------------------------------------------------
+#                             LHAPDF
+#-------------------------------------------------------------------
+
+LHAPDF_LIBRARIES = 
+
+ifeq ($(strip $(GOPT_ENABLE_LHAPDF)),YES) 
+
+LHAPDF_LIBRARIES = -L$(LHAPDF_LIB) -lLHAPDF -lg2c
+ifeq ($(strip $(ARCH)),macosx) 
+LHAPDF_LIBRARIES = -L$(LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib
+endif
+
+endif
+
+#-------------------------------------------------------------------
 #                             PYTHIA6
 #-------------------------------------------------------------------
 
@@ -434,12 +449,22 @@ endif
 
 # LIBS should contain general libraries needed to compile programs. 
 
-LIBRARIES := $(SYSLIBS) $(ROOT_LIBRARIES) $(PYTHIA_LIBRARIES) \
-             $(XML_LIBRARIES) $(LOG_LIBRARIES) $(GPROF_LIBRARIES) -lnsl 
+LIBRARIES := $(SYSLIBS) \
+	     $(ROOT_LIBRARIES) \
+	     $(PYTHIA_LIBRARIES) \
+	     $(LHAPDF_LIBRARIES) \
+             $(XML_LIBRARIES) \
+	     $(LOG_LIBRARIES) \
+	     $(GPROF_LIBRARIES) -lnsl 
 
 ifeq ($(strip $(ARCH)),macosx) 
-LIBRARIES := $(SYSLIBS) $(ROOT_LIBRARIES) $(PYTHIA_LIBRARIES) \
-             $(XML_LIBRARIES) $(LOG_LIBRARIES) $(GPROF_LIBRARIES) 
+LIBRARIES := $(SYSLIBS) \
+	     $(ROOT_LIBRARIES) \
+	     $(PYTHIA_LIBRARIES) \
+	     $(LHAPDF_LIBRARIES) \
+             $(XML_LIBRARIES) \
+	     $(LOG_LIBRARIES) \
+	     $(GPROF_LIBRARIES)
 endif
 
 INCLUDES  = $(ROOT_INCLUDES) $(XML_INCLUDES) $(LOG_INCLUDES) \
