@@ -21,6 +21,7 @@
 #include <TSystem.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/Controls.h"
 #include "Conventions/Constants.h"
 #include "CrossSections/DISXSec.h"
 #include "CrossSections/GXSecFunc.h"
@@ -35,6 +36,7 @@
 #include "Utils/XSecSplineList.h"
 
 using namespace genie;
+using namespace genie::controls;
 using namespace genie::constants;
 
 //____________________________________________________________________________
@@ -260,9 +262,15 @@ void DISXSec::CacheFreeNucleonXSec(
     TLorentzVector p4(0,0,Ev,Ev);
     interaction->InitStatePtr()->SetProbeP4(p4);
     double xsec = 0.;
-    if(Ev>Ethr) {
+    if(Ev>Ethr+kASmallNum) {
+
        Range1D_t Wl  = kps.WLim();
        Range1D_t Q2l = kps.Q2Lim();
+       LOG("DISXSec", pINFO)  
+            << "W integration range = [" << Wl.min << ", " << Wl.max << "]";
+       LOG("DISXSec", pINFO)  
+         << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
+
        func->SetParam(0,"W", Wl);
        func->SetParam(1,"Q2",Q2l);
        xsec = fIntegrator->Integrate(*func);
