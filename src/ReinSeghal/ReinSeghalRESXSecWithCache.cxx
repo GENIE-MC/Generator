@@ -25,6 +25,7 @@
 #include <TMath.h>
 
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/Controls.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "Conventions/KineVar.h"
@@ -42,6 +43,7 @@
 using std::ostringstream;
 
 using namespace genie;
+using namespace genie::controls;
 using namespace genie::constants;
 using namespace genie::units;
 
@@ -148,7 +150,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
              p4.SetPxPyPzE(0,0,Ev,Ev);
              interaction->InitStatePtr()->SetProbeP4(p4);
 
-             if(Ev>Ethr) {
+             if(Ev>Ethr+kASmallNum) {
                // Get W integration range and the wider possible Q2 range 
                // (for all W)
                Range1D_t rW  = kps.Limits(kKVW);
