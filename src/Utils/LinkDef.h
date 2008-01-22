@@ -12,6 +12,7 @@
 #pragma link C++ namespace genie::utils::print;
 #pragma link C++ namespace genie::utils::str;
 #pragma link C++ namespace genie::utils::math;
+#pragma link C++ namespace genie::utils::phys;
 #pragma link C++ namespace genie::utils::kinematics;
 #pragma link C++ namespace genie::utils::hadxs;
 #pragma link C++ namespace genie::utils::fragmrec;
