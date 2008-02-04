@@ -69,9 +69,9 @@ namespace pdg
   int  SwitchProtonNeutron    (int pdgc);
   int  Neutrino2ChargedLepton (int pdgc);
 
+  int  GeantToPdg (int geant_code);
 
 }      // pdg namespace
-
 }      // genie namespace
 
 #endif // _PDG_UTILS_H_
