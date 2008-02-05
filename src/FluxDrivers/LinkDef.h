@@ -7,8 +7,12 @@
 #pragma link C++ namespace genie;
 #pragma link C++ namespace genie::flux;
 
+#pragma link C++ class genie::flux::GJPARCNuFlux;
+
+#pragma link C++ class genie::flux::GCylindTH1Flux;
+
+//#pragma link C++ class genie::flux::GAtmoFlux;
 #pragma link C++ class genie::flux::GFlukaAtmo3DFlux;
 #pragma link C++ class genie::flux::GBartolAtmoFlux;
-#pragma link C++ class genie::flux::GCylindTH1Flux;
 
 #endif
