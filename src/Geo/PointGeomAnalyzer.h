@@ -10,6 +10,8 @@
          to use a detailed GEANT/ROOT geometry description but you only need
          to generate events for a 'single' nuclear target while you still want
          to use the GENIE MC job driver 'loaded' with a GENIE flux driver.
+         The geometry can also support a mix of targets, each with its 
+         corresponding weight.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -33,9 +35,9 @@ namespace geometry {
 class PointGeomAnalyzer : public GeomAnalyzerI {
 
 public :
-
   PointGeomAnalyzer(int tgtpdgc);
-  ~PointGeomAnalyzer();
+  PointGeomAnalyzer(unsigned int n, const int tgt_pdg[], const double wpl[]);
+ ~PointGeomAnalyzer();
 
   // implement the GeomAnalyzerI interface
 
@@ -48,8 +50,10 @@ public :
   const TVector3 &
            GenerateVertex
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
-
 private:
+
+  void Initialize (unsigned int n, const int tgtpdgc[], const double weight[]);
+  void CleanUp    (void);
 
   TVector3 *       fCurrVertex;          ///< current generated vertex
   PathLengthList * fCurrPathLengthList;  ///< current list of path-lengths

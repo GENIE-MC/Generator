@@ -10,7 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Feb 05, 2008 - CA
+   Support a mix of targets (with their corresponding weights) in the same 
+   'point geometry'.
 */
 //____________________________________________________________________________
 
@@ -28,9 +30,10 @@ using namespace genie;
 using namespace genie::geometry;
 
 //___________________________________________________________________________
-PointGeomAnalyzer::PointGeomAnalyzer(int tgtpdgc) :
+PointGeomAnalyzer::PointGeomAnalyzer(int pdg) :
 GeomAnalyzerI()
 {
+/*
   fCurrVertex = new TVector3(0,0,0);
 
   fCurrPDGCodeList = new PDGCodeList;
@@ -42,12 +45,23 @@ GeomAnalyzerI()
 
   LOG("PointGeom", pNOTICE) << *fCurrPDGCodeList;
   LOG("PointGeom", pNOTICE) << *fCurrPathLengthList;
+*/
+  const int    tgtpdgc[1] = { pdg };
+  const double weight[1]  = { 1.0 };
+
+  this->Initialize(1,tgtpdgc,weight);
+}
+//___________________________________________________________________________
+PointGeomAnalyzer::PointGeomAnalyzer(
+           unsigned int n, const int tgtpdgc[], const double weight[]) :
+GeomAnalyzerI()
+{
+  this->Initialize(n,tgtpdgc,weight);
 }
 //___________________________________________________________________________
 PointGeomAnalyzer::~PointGeomAnalyzer()
 {
-  if( fCurrPathLengthList ) delete fCurrPathLengthList;
-  if( fCurrPDGCodeList    ) delete fCurrPDGCodeList;
+  this->CleanUp();
 }
 //___________________________________________________________________________
 const PDGCodeList & PointGeomAnalyzer::ListOfTargetNuclei(void)
@@ -83,3 +97,28 @@ const TVector3 & PointGeomAnalyzer::GenerateVertex(
   return *fCurrVertex;
 }
 //___________________________________________________________________________
+void PointGeomAnalyzer::Initialize(
+          unsigned int n, const int tgtpdgc[], const double weight[]) 
+{
+  fCurrVertex = new TVector3(0,0,0);
+
+  fCurrPDGCodeList = new PDGCodeList;
+  fCurrPDGCodeList->clear();
+  for(unsigned int i=0; i<n; i++) {
+	  fCurrPDGCodeList->push_back(tgtpdgc[i]);
+  }
+  fCurrPathLengthList = new PathLengthList(*fCurrPDGCodeList);
+  for(unsigned int i=0; i<n; i++) {
+	  fCurrPathLengthList->SetPathLength(tgtpdgc[i], weight[i]);
+  }
+  LOG("PointGeom", pNOTICE) << *fCurrPDGCodeList;
+  LOG("PointGeom", pNOTICE) << *fCurrPathLengthList;
+}
+//___________________________________________________________________________
+void PointGeomAnalyzer::CleanUp(void)
+{
+  if( fCurrPathLengthList ) delete fCurrPathLengthList;
+  if( fCurrPDGCodeList    ) delete fCurrPDGCodeList;
+}
+//___________________________________________________________________________
+
