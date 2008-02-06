@@ -46,7 +46,7 @@ bool GJPARCNuFlux::GenerateNext(void)
   this->ResetCurrent();
 
   // Read next flux ntuple entry
-  if(fIEntry < fNEntries-1) {
+  if(fIEntry >= fNEntries) {
      LOG("Flux", pWARN) 
           << "No more entries in input flux neutrino ntuple";
      return false;	
@@ -134,19 +134,28 @@ bool GJPARCNuFlux::GenerateNext(void)
 //___________________________________________________________________________
 void GJPARCNuFlux::LoadFile(string filename)
 {
-  LOG("Flux", pNOTICE) << "Getting file = " << filename;
+  LOG("Flux", pNOTICE) 
+        << "Loading jnubeam flux tree from ROOT file: " << filename;
 
   fNuFluxFile = new TFile(filename.c_str(), "read");
-
-  LOG("Flux", pNOTICE) << "Getting tree";
-
-  fNuFluxTree = (TTree*) fNuFluxFile->Get("h3001");
-
+  if(fNuFluxFile) {
+      LOG("Flux", pINFO) << "Getting flux tree h3001 (nd280)";
+      fNuFluxTree = (TTree*) fNuFluxFile->Get("h3001");
+      if(!fNuFluxTree) {
+          LOG("Flux", pERROR) << "** Couldn't get flux tree h3001";
+          return;
+      }
+  } else {
+      LOG("Flux", pERROR) << "** Couldn't open: " << filename;
+      return;
+  }
 
   fNEntries = fNuFluxTree->GetEntries();
-
   LOG("Flux", pNOTICE) 
-      << "Getting branches";
+      << "Loaded flux tree contains " <<  fNEntries << " entries";
+
+  LOG("Flux", pDEBUG) 
+      << "Getting tree branches & setting leaf addresses";
 
   fBrNorm      = fNuFluxTree -> GetBranch ("norm");
   fBrIdfd      = fNuFluxTree -> GetBranch ("idfd");
@@ -204,7 +213,7 @@ void GJPARCNuFlux::SetMaxEnergy(double Ev)
     << "Declared maximum flux neutrino energy: " << fMaxEv;
 }
 //___________________________________________________________________________
-void GJPARCNuFlux::SetDetectorId(int detector)
+void GJPARCNuFlux::SetDetectorId(int /*detector*/)
 {
 
 }
