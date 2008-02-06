@@ -33,30 +33,27 @@ using namespace genie::geometry;
 PointGeomAnalyzer::PointGeomAnalyzer(int pdg) :
 GeomAnalyzerI()
 {
-/*
-  fCurrVertex = new TVector3(0,0,0);
+  map<int,double> tgtmap;
+  tgtmap.insert( map<int, double>::value_type(pdg, 1.) );
 
-  fCurrPDGCodeList = new PDGCodeList;
-  fCurrPDGCodeList->clear();
-  fCurrPDGCodeList->push_back(tgtpdgc);
-
-  fCurrPathLengthList = new PathLengthList(*fCurrPDGCodeList);
-  fCurrPathLengthList->SetPathLength(tgtpdgc,1.);
-
-  LOG("PointGeom", pNOTICE) << *fCurrPDGCodeList;
-  LOG("PointGeom", pNOTICE) << *fCurrPathLengthList;
-*/
-  const int    tgtpdgc[1] = { pdg };
-  const double weight[1]  = { 1.0 };
-
-  this->Initialize(1,tgtpdgc,weight);
+  this->Initialize(tgtmap);
 }
 //___________________________________________________________________________
 PointGeomAnalyzer::PointGeomAnalyzer(
            unsigned int n, const int tgtpdgc[], const double weight[]) :
 GeomAnalyzerI()
 {
-  this->Initialize(n,tgtpdgc,weight);
+  map<int,double> tgtmap;
+  for(unsigned int i=0; i<n; i++) 
+     tgtmap.insert( map<int, double>::value_type(tgtpdgc[i], weight[i]) );
+
+  this->Initialize(tgtmap);
+}
+//___________________________________________________________________________
+PointGeomAnalyzer::PointGeomAnalyzer(const map<int,double> & tgtmap) :
+GeomAnalyzerI()
+{
+  this->Initialize(tgtmap);
 }
 //___________________________________________________________________________
 PointGeomAnalyzer::~PointGeomAnalyzer()
@@ -97,20 +94,21 @@ const TVector3 & PointGeomAnalyzer::GenerateVertex(
   return *fCurrVertex;
 }
 //___________________________________________________________________________
-void PointGeomAnalyzer::Initialize(
-          unsigned int n, const int tgtpdgc[], const double weight[]) 
+void PointGeomAnalyzer::Initialize(const map<int,double> & tgtmap)
 {
   fCurrVertex = new TVector3(0,0,0);
 
   fCurrPDGCodeList = new PDGCodeList;
   fCurrPDGCodeList->clear();
-  for(unsigned int i=0; i<n; i++) {
-	  fCurrPDGCodeList->push_back(tgtpdgc[i]);
+
+  map<int,double>::const_iterator iter;
+  for(iter = tgtmap.begin(); iter != tgtmap.end(); ++iter) {
+	int tgtpdgc = iter->first;
+	fCurrPDGCodeList->push_back(tgtpdgc);
   }
-  fCurrPathLengthList = new PathLengthList(*fCurrPDGCodeList);
-  for(unsigned int i=0; i<n; i++) {
-	  fCurrPathLengthList->SetPathLength(tgtpdgc[i], weight[i]);
-  }
+
+  fCurrPathLengthList = new PathLengthList(tgtmap);
+
   LOG("PointGeom", pNOTICE) << *fCurrPDGCodeList;
   LOG("PointGeom", pNOTICE) << *fCurrPathLengthList;
 }
