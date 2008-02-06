@@ -13,26 +13,28 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "\n";
   print "*** GENIE configure script *** \n\n";
   print "Usage: ./configure [option]... [flag=value]... \n\n";
-  print "    FLAG            DESCRIPTION                                                            DEFAULT\n\n";
-  print "    --prefix        installation location (for 'make install')                             /usr/local/\n\n";
+  print "    FLAG            DESCRIPTION                                                             DEFAULT\n\n";
+  print "    --prefix        installation location (for 'make install')                              /usr/local/\n\n";
   print "enable/disable options with either --enable- or --disable- (eg --enable-lhapdf --disable-flux-drivers)\n\n";
-  print "    profiler        GENIE code profiling using Google perftools                            default: disabled \n";
-  print "    doxygen-doc     Generate doxygen documentation at build time                           default: disabled \n";
-  print "    dylibversion    Adds version number in dynamic lib names (recommended)                 default: enabled  \n";
-  print "    lowlevel-mesg   Disable (rather than filter out at run time) certain prolific          default: disabled \n";
-  print "                    debug/info level messages known to slow GENIE down                     \n";
-  print "    debug           Adds -g in the compiler options to request debug info                  default: disabled \n";
-  print "    neugen          GENIE/NeuGEN facade, requires libneugen3 (depreciated)                 default: disabled \n";
-  print "    neut-cascade    Alt. intranuclear hadron transport MC, requires libNEUT (T2K internal) default: disabled \n";
-  print "    gibuu           Alt. intranuclear hadron transport MC, requires libGiBUU               default: disabled \n";
-  print "    lhapdf          Use the LHAPDF pdf library, requires libLHAPDF                         default: disabled \n";
-  print "    flux-drivers    Built-in flux drivers                                                  default: enabled  \n";
-  print "    geom-drivers    Built-in detector geometry drivers                                     default: enabled  \n";
-  print "    mueloss         Muon energy loss modeling                                              default: enabled  \n";
-  print "    nuvalidator     GENIE's NuValidator tool, requires MySQL                               default: disabled \n";
-  print "    viewer          Event generation GUI (incomplete)                                      default: disabled \n";
-  print "    test            Build test programs                                                    default: disabled \n";
-  print "    minos-evserv    GENIE event server for interfacing to GMINOS (minos support softw.)    default: disabled \n";
+  print "    profiler        GENIE code profiling using Google perftools                             default: disabled \n";
+  print "    doxygen-doc     Generate doxygen documentation at build time                            default: disabled \n";
+  print "    dylibversion    Adds version number in dynamic lib names (recommended)                  default: enabled  \n";
+  print "    lowlevel-mesg   Disable (rather than filter out at run time) certain prolific           default: disabled \n";
+  print "                    debug/info level messages known to slow GENIE down                      \n";
+  print "    debug           Adds -g in the compiler options to request debug info                   default: disabled \n";
+  print "    neugen          GENIE/NeuGEN facade, requires libneugen3 (depreciated)                  default: disabled \n";
+  print "    neut-cascade    Alt. intranuclear hadron transport MC, requires libNEUT (T2K internal)  default: disabled \n";
+  print "    gibuu           Alt. intranuclear hadron transport MC, requires libGiBUU                default: disabled \n";
+  print "    lhapdf          Use the LHAPDF pdf library, requires libLHAPDF                          default: disabled \n";
+  print "    cernlib         Use CERNLIBs for optional PDFLIB and optional legacy fortran code       default: enabled  \n";
+  print "    flux-drivers    Built-in flux drivers                                                   default: enabled  \n";
+  print "    geom-drivers    Built-in detector geometry drivers                                      default: enabled  \n";
+  print "    mueloss         Muon energy loss modeling                                               default: enabled  \n";
+  print "    nuvalidator     GENIE's NuValidator tool, requires MySQL                                default: disabled \n";
+  print "    viewer          Event generation GUI (incomplete)                                       default: disabled \n";
+  print "    test            Build test programs                                                     default: disabled \n";
+  print "    minos-evserv    GENIE event server for interfacing to GMINOS (minos support softw.)     default: disabled \n";
+  print "    t2k-evgen       GENIE event generation drivers customized for T2K (T2K support softw.)  default: disabled \n\n";
   print "with options for 3rd party software, prefix with --with- (eg --with-gibuu-lib=/some/path/libGiBUU.a)\n\n";
   print "    optimiz-level   compiler opitimization level O/O2/O3/OO/Os    default: O2 \n";
   print "    profiler-lib    Path to libprofiler.so library                if you --enable-profiler \n";
@@ -47,6 +49,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    libxml2-lib     Path to libxml2 library                       always needed / auto-detected \n";
   print "    log4cpp-inc     Path to log4cpp includes                      always needed / auto-detected \n";
   print "    log4cpp-lib     Path to log4cpp library                       always needed / auto-detected \n\n";
+  print "If the printout was too long then pipe it through a pager, eg: \n";
+  print "./configure --help | more \n";
   exit 0;
 }
 
@@ -120,6 +124,7 @@ my $gopt_enable_neugen        = "NO";
 my $gopt_enable_neut_cascade  = "NO";
 my $gopt_enable_gibuu         = "NO";
 my $gopt_enable_lhapdf        = "NO";
+my $gopt_enable_cernlib       = "YES";
 my $gopt_enable_flux_drivers  = "YES";
 my $gopt_enable_geom_drivers  = "YES";
 my $gopt_enable_mueloss       = "YES";
@@ -127,6 +132,7 @@ my $gopt_enable_nuvalidator   = "NO";
 my $gopt_enable_viewer        = "NO";
 my $gopt_enable_test          = "NO";
 my $gopt_enable_minos_evserv  = "NO";
+my $gopt_enable_t2k_evgen     = "NO";
 
 # Check configure's command line arguments for non-default values
 #
@@ -139,6 +145,7 @@ if(($match = grep(/--enable-neugen/i,        @ARGV)) > 0) { $gopt_enable_neugen 
 if(($match = grep(/--enable-neut-cascade/i,  @ARGV)) > 0) { $gopt_enable_neut_cascade  = "YES"; }
 if(($match = grep(/--enable-gibuu/i,         @ARGV)) > 0) { $gopt_enable_gibuu         = "YES"; }
 if(($match = grep(/--enable-lhapdf/i,        @ARGV)) > 0) { $gopt_enable_lhapdf        = "YES"; }
+if(($match = grep(/--disable-cernlib/i,      @ARGV)) > 0) { $gopt_enable_cernlib       = "NO";  }
 if(($match = grep(/--disable-flux-drivers/i, @ARGV)) > 0) { $gopt_enable_flux_drivers  = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i, @ARGV)) > 0) { $gopt_enable_geom_drivers  = "NO";  }
 if(($match = grep(/--disable-mueloss/i,      @ARGV)) > 0) { $gopt_enable_mueloss       = "NO";  }
@@ -146,28 +153,10 @@ if(($match = grep(/--enable-nuvalidator/i,   @ARGV)) > 0) { $gopt_enable_nuvalid
 if(($match = grep(/--enable-viewer/i,        @ARGV)) > 0) { $gopt_enable_viewer        = "YES"; }
 if(($match = grep(/--enable-test/i,          @ARGV)) > 0) { $gopt_enable_test          = "YES"; }
 if(($match = grep(/--enable-minos-evserv/i,  @ARGV)) > 0) { $gopt_enable_minos_evserv  = "YES"; }
+if(($match = grep(/--enable-t2k-evgen/i,     @ARGV)) > 0) { $gopt_enable_t2k_evgen     = "YES"; }
 
 my $gopt_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_cxx_debug_flag = "-g"; }
-
-# Save config options
-#
-print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
-print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
-print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
-print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
-print MKCONF "GOPT_CXX_DEBUG_FLAG=$gopt_cxx_debug_flag\n";
-print MKCONF "GOPT_ENABLE_NEUGEN=$gopt_enable_neugen\n";
-print MKCONF "GOPT_ENABLE_NEUT_CASCADE=$gopt_enable_neut_cascade\n";
-print MKCONF "GOPT_ENABLE_GIBUU=$gopt_enable_gibuu\n";
-print MKCONF "GOPT_ENABLE_LHAPDF=$gopt_enable_lhapdf\n";
-print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
-print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
-print MKCONF "GOPT_ENABLE_MUELOSS=$gopt_enable_mueloss\n";
-print MKCONF "GOPT_ENABLE_NUVALIDATOR=$gopt_enable_nuvalidator\n"; 
-print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
-print MKCONF "GOPT_ENABLE_VIEWER=$gopt_enable_viewer\n";
-print MKCONF "GOPT_ENABLE_MINOS_EVENT_SERVER=$gopt_enable_minos_evserv\n";
 
 # Check for --with options:
 
@@ -283,20 +272,49 @@ if($gopt_enable_lhapdf eq "YES") {
   }
 }
 
+# If --enable-cernlib was set then the full path to the CERNLIBs must be specified
+#
+my $cernlib = "";
+if($gopt_enable_cernlib eq "YES") {
+
+  if($options=~m/--with-cernlib=(\S*)/i) {
+     $cernlib = $1;
+   }
+   # if it was not set, try to pick it up from the environment
+   if(! -d $cernlib && defined $ENV{'CERNLIB'}) { 
+     $cernlib = $ENV{'CERNLIB'}; 
+     print "*** Warn *** You didn't specify the CERNLIB path \n";
+     print "The \$CERNLIB env var is defined. I will pick that and use --with-cernlib=$cernlib\n";
+   }
+   # if it still not set, try autodetecting it
+   if(! -d $cernlib && $auto_detect) 
+   {
+     print "Autodetecting the CERNLIB path...\n";
+     $matched = auto_detect("libpdflib*.*");
+     if( $matched=~m/(\S*)\/libpdflib\S*/i ) {
+        $cernlib = $1;
+     }
+     print "Setting --with-cernlib=$cernlib\n";
+   }
+   if(! -d $cernlib) {
+       print "*** Error *** Could not locate the CERNLIB path. Please specify it using --with-cernlb=/some/path/\n\n";
+       exit 1;
+   }
+} else {
+   print "*** Error *** CERNLIB is mandatory for the time being- You can not disable it\n\n";
+   exit 1;
+}
+
 # If --enable-nuvalidator was set then ROOT must have mysql support enabled
 #
 if($gopt_enable_nuvalidator eq "YES") {
 
 }
 
-# Get PYTHIA6 and CERNLIB
+# Get pythia6
+#
 
 my $pythia6 = "";
-my $cernlib = "";
-
-#
-# --with-pythia6=
-#
 if($options=~m/--with-pythia6=(\S*)/i) {
   $pythia6 = $1;
 } else {
@@ -322,34 +340,8 @@ if(! -d $pythia6) {
     exit 1;
 } 
 
-#
-# --with-cernlib=
-#
-if($options=~m/--with-cernlib=(\S*)/i) {
-  $cernlib = $1;
-}
-# if it was not set, try to pick it up from the environment
-if(! -d $cernlib && defined $ENV{'CERNLIB'}) { 
-  $cernlib = $ENV{'CERNLIB'}; 
-  print "*** Warn *** You didn't specify the CERNLIB path \n";
-  print "The \$CERNLIB env var is defined. I will pick that and use --with-cernlib=$cernlib\n";
-}
-# if it still not set, try autodetecting it
-if(! -d $cernlib && $auto_detect) 
-{
-  print "Autodetecting the CERNLIB path...\n";
-  $matched = auto_detect("libpdflib*.*");
-  if( $matched=~m/(\S*)\/libpdflib\S*/i ) {
-     $cernlib = $1;
-  }
-  print "Setting --with-cernlib=$cernlib\n";
-}
-if(! -d $cernlib) {
-    print "*** Error *** Could not locate the CERNLIB path. Please specify it using --with-cernlb=/some/path/\n\n";
-    exit 1;
-}
-
 # Get libxml2 and log4cpp include and library paths 
+#
 
 my $libxml2_inc = "";
 my $libxml2_lib = "";
@@ -436,8 +428,26 @@ if(! -d $log4cpp_lib) {
   exit 1;
 }
 
-# Save the --with options
+# Save config options
 #
+print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
+print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
+print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
+print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
+print MKCONF "GOPT_CXX_DEBUG_FLAG=$gopt_cxx_debug_flag\n";
+print MKCONF "GOPT_ENABLE_NEUGEN=$gopt_enable_neugen\n";
+print MKCONF "GOPT_ENABLE_NEUT_CASCADE=$gopt_enable_neut_cascade\n";
+print MKCONF "GOPT_ENABLE_GIBUU=$gopt_enable_gibuu\n";
+print MKCONF "GOPT_ENABLE_LHAPDF=$gopt_enable_lhapdf\n";
+print MKCONF "GOPT_ENABLE_CERNLIB=$gopt_enable_cernlib\n";
+print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
+print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
+print MKCONF "GOPT_ENABLE_MUELOSS=$gopt_enable_mueloss\n";
+print MKCONF "GOPT_ENABLE_NUVALIDATOR=$gopt_enable_nuvalidator\n"; 
+print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
+print MKCONF "GOPT_ENABLE_VIEWER=$gopt_enable_viewer\n";
+print MKCONF "GOPT_ENABLE_MINOS_EVENT_SERVER=$gopt_enable_minos_evserv\n";
+print MKCONF "GOPT_ENABLE_T2K_EVGEN=$gopt_enable_t2k_evgen\n";
 print MKCONF "GOPT_CXX_OPTIMIZ_FLAG=-$gopt_cxx_optimiz_flag\n";
 print MKCONF "GPROFILER_LIB=$gprofiler_lib\n";
 print MKCONF "DOXYGEN=$doxygen\n";
