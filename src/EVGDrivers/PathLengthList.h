@@ -43,6 +43,7 @@ public :
   PathLengthList();
   PathLengthList(const PDGCodeList & pdglist);
   PathLengthList(const PathLengthList & plist);
+  PathLengthList(const map<int,double> & plist);
  ~PathLengthList();
 
   void   AddPathLength   (int pdgc, double pl); // path-legth(pdgc) += pl
