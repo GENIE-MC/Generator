@@ -58,7 +58,6 @@ map<int, double>()
   PDGCodeList::const_iterator pdg_iter;
 
   for(pdg_iter = pdg_list.begin(); pdg_iter != pdg_list.end(); ++pdg_iter) {
-
      int pdgc = *pdg_iter;
      this->insert( map<int, double>::value_type(pdgc, 0.) );
   }
@@ -69,7 +68,19 @@ map<int, double>()
 {
   this->Copy(plist);
 }
-//___________________________________________________________________________
+//__________________________________________________________________________
+PathLengthList::PathLengthList(const map<int,double> & plist) :
+map<int, double>()
+{
+  map<int,double>::const_iterator iter;
+
+  for(iter = plist.begin(); iter != plist.end(); ++iter) {
+     int    pdgc = iter->first;
+     double pl   = iter->second;
+     this->insert( map<int, double>::value_type(pdgc, pl) );
+  }
+}
+//__________________________________________________________________________
 PathLengthList::~PathLengthList()
 {
 
