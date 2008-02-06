@@ -27,7 +27,11 @@
 #ifndef _POINT_GEOMETRY_ANALYZER_H_
 #define _POINT_GEOMETRY_ANALYZER_H_
 
+#include <map>
+
 #include "EVGDrivers/GeomAnalyzerI.h"
+
+using std::map;
 
 namespace genie    {
 namespace geometry {
@@ -36,7 +40,8 @@ class PointGeomAnalyzer : public GeomAnalyzerI {
 
 public :
   PointGeomAnalyzer(int tgtpdgc);
-  PointGeomAnalyzer(unsigned int n, const int tgt_pdg[], const double wpl[]);
+  PointGeomAnalyzer(unsigned int n, const int tgt_pdg[], const double weight[]);
+  PointGeomAnalyzer(const map<int,double> & tgtmap /* pdg -> weight*/);
  ~PointGeomAnalyzer();
 
   // implement the GeomAnalyzerI interface
@@ -52,7 +57,7 @@ public :
              (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
 private:
 
-  void Initialize (unsigned int n, const int tgtpdgc[], const double weight[]);
+  void Initialize (const map<int,double> & tgtmap);
   void CleanUp    (void);
 
   TVector3 *       fCurrVertex;          ///< current generated vertex
