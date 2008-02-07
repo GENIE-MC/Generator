@@ -71,7 +71,7 @@ public :
   void SetDetectorId    (int detector);                  ///< read flux for requested detector
 
   const GJPARCNuFluxPassThroughInfo & 
-        PassThroughInfo(void); ///< GJPARCNuFluxPassThroughInfo
+     PassThroughInfo(void) { return *fPassThroughInfo; } ///< GJPARCNuFluxPassThroughInfo
 
 private:
 
