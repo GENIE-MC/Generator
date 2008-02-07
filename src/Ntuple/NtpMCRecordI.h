@@ -39,15 +39,10 @@ public :
   NtpMCRecHeader hdr;   ///< record header
 
 protected:
-
   NtpMCRecordI();
-
-//  virtual void Init  (void) = 0;
-//  virtual void Clear (void) = 0;
 
 ClassDef(NtpMCRecordI, 1)
 };
 
 }      // genie namespace
-
 #endif // _NTP_MC_RECORD_I_H_

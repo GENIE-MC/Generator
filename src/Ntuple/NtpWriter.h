@@ -40,30 +40,29 @@ class NtpMCTreeHeader;
 class NtpWriter {
 
 public :
-
   NtpWriter(NtpMCFormat_t fmt = kNFGHEP, Long_t runnu = 0);
-  ~NtpWriter();
+ ~NtpWriter();
 
-  void Initialize     (string filename_prefix="gntp");
-  void AddEventRecord (int ievent, const EventRecord * ev_rec);
-  void Save           (void);
+  void     Initialize       (string filename_prefix="gntp");
+  void     AddEventRecord   (int ievent, const EventRecord * ev_rec);
+  void     Save             (void);
+  TTree *  EventTree        (void) { return fOutTree; }  
 
 private:
+  void OpenFile              (string filename_prefix="gntp");
+  void CreateTree            (void);
+  void CreateTreeHeader      (void);
+  void CreateEventBranch     (void);
+  void CreateGHEPEventBranch (void);
 
-  void      OpenFile           (string filename_prefix="gntp");
-  void      CreateTree         (void);
-  void      CreateTreeHeader   (void);
-  TBranch * CreateTreeBranch   (void);
-  TBranch * CreateERTreeBranch (void);
-
-  NtpMCFormat_t      fNtpFormat;
-  Long_t             fRunNu;
-  TFile *            fOutFile;
-  TTree *            fOutTree;
-  NtpMCEventRecord * fNtpMCEventRecord;
-  NtpMCTreeHeader *  fNtpMCTreeHeader;
+  NtpMCFormat_t      fNtpFormat;          ///< enumeration of event formats
+  Long_t             fRunNu;              ///< run nu
+  TFile *            fOutFile;            ///< output file
+  TTree *            fOutTree;            ///< output tree
+  TBranch *          fEventBranch;        ///< the generated event branch 
+  NtpMCEventRecord * fNtpMCEventRecord;   ///< 
+  NtpMCTreeHeader *  fNtpMCTreeHeader;    ///<
 };
 
 }      // genie namespace
-
 #endif // _NTP_WRITER_H_
