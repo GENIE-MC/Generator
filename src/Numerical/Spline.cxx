@@ -12,7 +12,9 @@
  Important revisions after version 2.0.0 :
  @ Dec 03, 2007 - CA
    Evaluate() asserts that the input is not NaN
-
+ @ Feb 07, 2008 - CA
+   In LoadFromTree() find htemp via gROOT and SetDirectory(0) as the temp
+   histogram was automatically written out at the event file.
 */
 //____________________________________________________________________________
 
@@ -29,6 +31,8 @@
 #include <TSQLServer.h>
 #include <TGraph.h>
 #include <TMath.h>
+#include <TH2F.h>
+#include <TROOT.h>
 
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
@@ -266,6 +270,9 @@ bool Spline::LoadFromTree(TTree * tree, string var, string cut)
 
   if(!cut.size()) tree->Draw(var.c_str(), "",          "GOFF");
   else            tree->Draw(var.c_str(), cut.c_str(), "GOFF");
+
+  TH2F * hst = (TH2F*)gROOT->FindObject("htemp");
+  if(hst) { hst->SetDirectory(0); }
 
   // Now, take into account that the data retrieved from the ntuple would
   // not be sorted in x and the resulting spline will be bogus...
