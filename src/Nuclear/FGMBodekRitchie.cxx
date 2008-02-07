@@ -10,7 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Feb 07, 2008 - CA
+   Call SetDirectory(0) at the temp momentum distribution histogram to stop 
+   it from being automatically written out at the event file.
 */
 //____________________________________________________________________________
 
@@ -153,6 +155,7 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
 
   int npbins = (int) 1000*fPMax;
   TH1D * prob = new TH1D("", "", npbins, 0, fPMax);
+  prob->SetDirectory(0);
 
   double dp = fPMax / (npbins-1);
   double iC = (C>0) ? 1./C : 0.;
