@@ -29,6 +29,8 @@
 using namespace genie;
 using namespace genie::flux;
 
+ClassImp(GJPARCNuFluxPassThroughInfo)
+
 //____________________________________________________________________________
 GJPARCNuFlux::GJPARCNuFlux()
 {
@@ -129,6 +131,27 @@ bool GJPARCNuFlux::GenerateNext(void)
         << "\n p4: " << utils::print::P4AsShortString(&fgP4)
         << "\n x4: " << utils::print::X4AsString(&fgX4);
 
+  // Update pass-through info (= info on the flux neutrino parent particle 
+  // that may be stored at an extra branch of the output event tree -alongside 
+  // with the generated event branch- for use further upstream in the t2k 
+  // analysis chain -eg for beam reweighting etc-)
+  fPassThroughInfo -> pdg       = pdg::GeantToPdg(fLfPpid);
+  fPassThroughInfo -> decayMode = fLfMode;
+  fPassThroughInfo -> decayP    = fLfPpi;
+  fPassThroughInfo -> decayX    = fLfXpi[0];
+  fPassThroughInfo -> decayY    = fLfXpi[1];
+  fPassThroughInfo -> decayZ    = fLfXpi[2];
+  fPassThroughInfo -> decayDirX = fLfNpi[0];
+  fPassThroughInfo -> decayDirY = fLfNpi[1];
+  fPassThroughInfo -> decayDirZ = fLfNpi[2];
+  fPassThroughInfo -> prodP     = fLfPpi0;
+  fPassThroughInfo -> prodX     = fLfXpi0[0];
+  fPassThroughInfo -> prodY     = fLfXpi0[1];
+  fPassThroughInfo -> prodZ     = fLfXpi0[2];
+  fPassThroughInfo -> prodDirX  = fLfNpi0[0];
+  fPassThroughInfo -> prodDirY  = fLfNpi0[1];
+  fPassThroughInfo -> prodDirZ  = fLfNpi0[2];
+
   return true;
 }
 //___________________________________________________________________________
@@ -222,29 +245,33 @@ void GJPARCNuFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing GJPARCNuFlux driver";
 
-  fMaxEv        = 0;
-  fPdgCList     = new PDGCodeList;
-  fNuFluxFile   = 0;
-  fNuFluxTree   = 0;
-  fNEntries     = 0;
-  fIEntry       = 0;
-  fBrNorm       = 0;
-  fBrIdfd       = 0;
-  fBrEnu        = 0;
-  fBrRnu        = 0;
-  fBrXnu        = 0;
-  fBrYnu        = 0;
-  fBrNnu        = 0;
-  fBrPpid       = 0;
-  fBrMode       = 0;
-  fBrPpi        = 0;
-  fBrXpi        = 0;
-  fBrNpi        = 0;
-  fBrCospibm    = 0;      
-  fBrPpi0       = 0;
-  fBrXpi0       = 0;
-  fBrNpi0       = 0;
-  fBrCospi0bm   = 0;
+  fMaxEv           = 0;
+  fPdgCList        = new PDGCodeList;
+  fPassThroughInfo = new GJPARCNuFluxPassThroughInfo;
+
+  fNuFluxFile      = 0;
+  fNuFluxTree      = 0;
+
+  fNEntries        = 0;
+  fIEntry          = 0;
+
+  fBrNorm          = 0;
+  fBrIdfd          = 0;
+  fBrEnu           = 0;
+  fBrRnu           = 0;
+  fBrXnu           = 0;
+  fBrYnu           = 0;
+  fBrNnu           = 0;
+  fBrPpid          = 0;
+  fBrMode          = 0;
+  fBrPpi           = 0;
+  fBrXpi           = 0;
+  fBrNpi           = 0;
+  fBrCospibm       = 0;      
+  fBrPpi0          = 0;
+  fBrXpi0          = 0;
+  fBrNpi0          = 0;
+  fBrCospi0bm      = 0;
 
   this->SetDefaults();
   this->ResetCurrent();
@@ -302,8 +329,8 @@ void GJPARCNuFlux::CleanUp(void)
 {
   LOG("Flux", pNOTICE) << "Cleaning up...";
 
-  if (fPdgCList) 
-	delete fPdgCList;
+  if (fPdgCList)        delete fPdgCList;
+  if (fPassThroughInfo) delete fPassThroughInfo;
 
   if (fNuFluxFile) {
 	fNuFluxFile->Close();
@@ -311,4 +338,50 @@ void GJPARCNuFlux::CleanUp(void)
   }
 }
 //___________________________________________________________________________
+GJPARCNuFluxPassThroughInfo::GJPARCNuFluxPassThroughInfo() :
+TObject(),
+pdg       (0),
+decayMode (0),
+decayP    (0.),
+decayX    (0.),
+decayY    (0.), 
+decayZ    (0.), 
+decayDirX (0.), 
+decayDirY (0.), 
+decayDirZ (0.),
+prodP     (0.), 
+prodX     (0.), 
+prodY     (0.),  
+prodZ     (0.),  
+prodDirX  (0.),  
+prodDirY  (0.),  
+prodDirZ  (0.)
+{
+
+}
+//___________________________________________________________________________
+GJPARCNuFluxPassThroughInfo::GJPARCNuFluxPassThroughInfo(
+                        const GJPARCNuFluxPassThroughInfo & info) :
+TObject(),
+pdg       (info.pdg),
+decayMode (info.decayMode),
+decayP    (info.decayP),
+decayX    (info.decayX),
+decayY    (info.decayY), 
+decayZ    (info.decayZ), 
+decayDirX (info.decayDirX), 
+decayDirY (info.decayDirY), 
+decayDirZ (info.decayDirZ),
+prodP     (info.prodP), 
+prodX     (info.prodX), 
+prodY     (info.prodY),  
+prodZ     (info.prodZ),  
+prodDirX  (info.prodDirX),  
+prodDirY  (info.prodDirY),  
+prodDirZ  (info.prodDirZ)
+{
+
+}
+//___________________________________________________________________________
+
 
