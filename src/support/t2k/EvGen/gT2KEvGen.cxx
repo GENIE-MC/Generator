@@ -97,6 +97,7 @@
 #include <map>
 
 #include <TSystem.h>
+#include <TTree.h>
 
 #include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
@@ -130,13 +131,15 @@ using namespace genie;
 void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
 
-//Default options (override them using the command line arguments):
+// Default options (override them using the command line arguments):
+//
 int           kDefOptNevents   = 0;       // default n-events to generate
 Long_t        kDefOptRunNu     = 0;       // default run number
 string        kDefOptGeomUnits = "m";     // default geometry units
 NtpMCFormat_t kDefOptNtpFormat = kNFGHEP; // default event tree format
 
-//User-specified options:
+// User-specified options:
+//
 int             gOptNevents;                // n-events to generate
 Long_t          gOptRunNu;                  // run number
 bool            gOptUsingRootGeom  = false; //
@@ -202,7 +205,13 @@ int main(int argc, char ** argv)
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
   ntpw.Initialize();
 
-  // Create an MC Job Monitor
+  // Add a custom-branch at the standard GENIE event tree so that
+  // info on the flux neutrino parent particle can be passed-through
+//  flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
+//  ntpw.EventTree()->Branch("flux",
+//       "flux::GJPARCNuFluxPassThroughInfo", &flux_info, 32000, 1);
+
+  // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
 
   // Generate events / print the GHEP record / add it to the ntuple
@@ -210,9 +219,16 @@ int main(int argc, char ** argv)
   while ( ievent < gOptNevents) {
      LOG("gT2Kevgen", pNOTICE) << " *** Generating event............ " << ievent;
 
-     // generate a single event for neutrinos coming from the specified flux
+     // generate a single event using neutrinos coming from the specified flux
+     // and hitting the specified geometry or target mix
      EventRecord * event = mcj_driver->GenerateEvent();
-     LOG("gT2Kevgen", pINFO) << "Generated Event GHEP Record: " << *event;
+     LOG("gT2Kevgen", pINFO) 
+             << "Generated event: " << *event;
+
+     // extract flux info (parent decay/production position/kinematics) for the 
+     // generated event so that it can be 
+//     flux_info = new flux::GJPARCNuFluxPassThroughInfo(
+//                                   jparc_flux_driver->PassThroughInfo());
 
      // add event at the output ntuple, refresh the mc job monitor & clean-up
      ntpw.AddEventRecord(ievent, event);
