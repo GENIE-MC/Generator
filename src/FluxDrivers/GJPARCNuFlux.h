@@ -41,6 +41,8 @@ using std::string;
 namespace genie {
 namespace flux  {
 
+class GJPARCNuFluxPassThroughInfo;
+
 class GJPARCNuFlux: public GFluxI {
 
 public :
@@ -68,28 +70,8 @@ public :
   void SetMaxEnergy     (double Ev);                     ///< declare maximum flx neutrino energy
   void SetDetectorId    (int detector);                  ///< read flux for requested detector
 
-  // pass-through neutrino parent info:
-  int      GeantCode     (void) const { return fLfPpid;  }
-  int      PdgCode       (void) const { return pdg::GeantToPdg(fLfPpid); }
-  int      DecayMode     (void) const { return fLfMode;  }
-  double   DecayMomentum (void) const { return fLfPpi;   }
-  TVector3 DecayPosVec   (void) const { return TVector3(fLfXpi[0],  fLfXpi[1],  fLfXpi[2]);  }
-  double   DecayPosX     (void) const { return fLfXpi[0]; }
-  double   DecayPosY     (void) const { return fLfXpi[1]; }
-  double   DecayPosZ     (void) const { return fLfXpi[2]; }
-  TVector3 DecayDirVec   (void) const { return TVector3(fLfNpi[0],  fLfNpi[1],  fLfNpi[2]);  }
-  double   DecayDirX     (void) const { return fLfNpi[0]; }
-  double   DecayDirY     (void) const { return fLfNpi[1]; }
-  double   DecayDirZ     (void) const { return fLfNpi[2]; }
-  double   ProdMomentum  (void) const { return fLfPpi0;  }
-  TVector3 ProdPosVec    (void) const { return TVector3(fLfXpi0[0], fLfXpi0[1], fLfXpi0[2]); }
-  double   ProdPosX      (void) const { return fLfXpi0[0]; }
-  double   ProdPosY      (void) const { return fLfXpi0[1]; }
-  double   ProdPosZ      (void) const { return fLfXpi0[2]; }
-  TVector3 ProdDirVec    (void) const { return TVector3(fLfNpi0[0], fLfNpi0[1], fLfNpi0[2]); }
-  double   ProdDirX      (void) const { return fLfNpi0[0]; }
-  double   ProdDirY      (void) const { return fLfNpi0[1]; }
-  double   ProdDirZ      (void) const { return fLfNpi0[2]; }
+  const GJPARCNuFluxPassThroughInfo & 
+        PassThroughInfo(void); ///< GJPARCNuFluxPassThroughInfo
 
 private:
 
@@ -107,7 +89,6 @@ private:
   int            fgPdgC;       ///< running generated nu pdg-code
   TLorentzVector fgP4;         ///< running generated nu 4-momentum
   TLorentzVector fgX4;         ///< running generated nu 4-position
-
   TFile *   fNuFluxFile;       ///< input flux file
   TTree *   fNuFluxTree;       ///< input flux ntuple
   long int  fNEntries;         ///< number offlux ntuple entries
@@ -116,8 +97,8 @@ private:
   TBranch * fBrIdfd;           ///< 'idfd'     branch: Detector ID
   TBranch * fBrEnu;            ///< 'Enu'      branch: Neutrino energy (GeV)
   TBranch * fBrRnu;            ///< 'rnu'      branch: Neutrino radial position (cm, in detectro coord system)
-  TBranch * fBrXnu;            ///< 'xnu'      branch: Neutrino x position (cm, in detectro coord system)
-  TBranch * fBrYnu;            ///< 'ynu'      branch: Neutrino y position (cm, in detectro coord system)
+  TBranch * fBrXnu;            ///< 'xnu'      branch: Neutrino x position (cm, in detector coord system)
+  TBranch * fBrYnu;            ///< 'ynu'      branch: Neutrino y position (cm, in detector coord system)
   TBranch * fBrNnu;            ///< 'nnu'      branch: Neutrino direction (in t2k global coord system)
   TBranch * fBrPpid;           ///< 'ppid'     branch: Neutrino parent GEANT particle id 
   TBranch * fBrMode;           ///< 'mode'     branch: Neutrino parent particle decay mode (see http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/nemode.h)
@@ -146,6 +127,26 @@ private:
   float     fLfXpi0[3];        ///< leaf on branch 'xpi0'
   float     fLfNpi0[3];        ///< leaf on branch 'npi0'
   float     fLfCospi0bm;       ///< leaf on branch 'cospi0bm'
+
+  GJPARCNuFluxPassThroughInfo * fPassThroughInfo;
+};
+
+
+// A small persistable C-struct - like class that may be stored at an extra branch of 
+// the output event tree -alongside with the generated event branch- for use further 
+// upstream in the t2k analysis chain -eg beam reweighting etc-)
+//
+class GJPARCNuFluxPassThroughInfo: public TObject { 
+public:
+   GJPARCNuFluxPassThroughInfo();
+   GJPARCNuFluxPassThroughInfo(const GJPARCNuFluxPassThroughInfo & info);
+   virtual ~GJPARCNuFluxPassThroughInfo() { };
+
+   int    pdg, decayMode;
+   double decayP, decayX, decayY, decayZ, decayDirX, decayDirY, decayDirZ;
+   double prodP,  prodX,  prodY,  prodZ,  prodDirX,  prodDirY,  prodDirZ;
+
+ClassDef(GJPARCNuFluxPassThroughInfo,1)
 };
 
 } // flux namespace

@@ -8,6 +8,7 @@
 #pragma link C++ namespace genie::flux;
 
 #pragma link C++ class genie::flux::GJPARCNuFlux;
+#pragma link C++ class genie::flux::GJPARCNuFluxPassThroughInfo;
 
 #pragma link C++ class genie::flux::GCylindTH1Flux;
 
