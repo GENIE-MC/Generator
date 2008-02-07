@@ -68,15 +68,28 @@ public :
   void SetMaxEnergy     (double Ev);                     ///< declare maximum flx neutrino energy
   void SetDetectorId    (int detector);                  ///< read flux for requested detector
 
-  int      NuParentGeant            (void) const { return fLfPpid;  }
-  int      NuParentPdg              (void) const { return pdg::GeantToPdg(fLfPpid); }
-  int      NuParentDecayMode        (void) const { return fLfMode;  }
-  double   NuParentMomentumAtDecay  (void) const { return fLfPpi;   }
-  TVector3 NuParentPositionAtDecay  (void) const { return TVector3(fLfXpi[0],  fLfXpi[1],  fLfXpi[2]);  }
-  TVector3 NuParentDirectionAtDecay (void) const { return TVector3(fLfNpi[0],  fLfNpi[1],  fLfNpi[2]);  }
-  double   NuParentMomentumAtProd   (void) const { return fLfPpi0;  }
-  TVector3 NuParentPositionAtProd   (void) const { return TVector3(fLfXpi0[0], fLfXpi0[1], fLfXpi0[2]); }
-  TVector3 NuParentDirectionAtProd  (void) const { return TVector3(fLfNpi0[0], fLfNpi0[1], fLfNpi0[2]); }
+  // pass-through neutrino parent info:
+  int      GeantCode     (void) const { return fLfPpid;  }
+  int      PdgCode       (void) const { return pdg::GeantToPdg(fLfPpid); }
+  int      DecayMode     (void) const { return fLfMode;  }
+  double   DecayMomentum (void) const { return fLfPpi;   }
+  TVector3 DecayPosVec   (void) const { return TVector3(fLfXpi[0],  fLfXpi[1],  fLfXpi[2]);  }
+  double   DecayPosX     (void) const { return fLfXpi[0]; }
+  double   DecayPosY     (void) const { return fLfXpi[1]; }
+  double   DecayPosZ     (void) const { return fLfXpi[2]; }
+  TVector3 DecayDirVec   (void) const { return TVector3(fLfNpi[0],  fLfNpi[1],  fLfNpi[2]);  }
+  double   DecayDirX     (void) const { return fLfNpi[0]; }
+  double   DecayDirY     (void) const { return fLfNpi[1]; }
+  double   DecayDirZ     (void) const { return fLfNpi[2]; }
+  double   ProdMomentum  (void) const { return fLfPpi0;  }
+  TVector3 ProdPosVec    (void) const { return TVector3(fLfXpi0[0], fLfXpi0[1], fLfXpi0[2]); }
+  double   ProdPosX      (void) const { return fLfXpi0[0]; }
+  double   ProdPosY      (void) const { return fLfXpi0[1]; }
+  double   ProdPosZ      (void) const { return fLfXpi0[2]; }
+  TVector3 ProdDirVec    (void) const { return TVector3(fLfNpi0[0], fLfNpi0[1], fLfNpi0[2]); }
+  double   ProdDirX      (void) const { return fLfNpi0[0]; }
+  double   ProdDirY      (void) const { return fLfNpi0[1]; }
+  double   ProdDirZ      (void) const { return fLfNpi0[2]; }
 
 private:
 
