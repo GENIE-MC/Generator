@@ -82,12 +82,12 @@
            energy range from 1 to 4 GeV. 
            Above comments on cross section splines apply here too.
 
-          (4) gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f /a/path/flux.data 
+          (3) gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f /a/path/flux.data 
 
            like above except that the neutrino flux is taken from the input vector file 
            rather than the input functional form.
 
-          (5) gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f /a/path/file.root,flux
+          (4) gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f /a/path/file.root,flux
 
            like above except that the flux is taken from a TH1D object called 'flux'
            stored in /a/path/file.root. 
@@ -99,7 +99,7 @@
            edge of the bin containing 1 GeV to the upper edge of the bin containing 
            4 GeV).
            
-          (6) gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160[0.95],1000010010[0.05] 
+          (5) gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160[0.95],1000010010[0.05] 
                       -f /a/path/file.root,flux 
 
            like above but in this case the target is a mix containing 95% O16 and
