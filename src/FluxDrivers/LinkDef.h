@@ -11,6 +11,7 @@
 #pragma link C++ class genie::flux::GJPARCNuFluxPassThroughInfo;
 
 #pragma link C++ class genie::flux::GCylindTH1Flux;
+#pragma link C++ class genie::flux::GMonoEnergeticFlux;
 
 //#pragma link C++ class genie::flux::GAtmoFlux;
 #pragma link C++ class genie::flux::GFlukaAtmo3DFlux;
