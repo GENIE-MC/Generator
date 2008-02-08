@@ -10,7 +10,11 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Feb 08, 2008 - CA
+   Modified the global probability scale to be the maximum amongst the maximum
+   interaction probabilities for each neutrino (rather than the sum of maximum
+   probabilities). The modified probability scale still gives unbiased event
+   generation & reduces the 'no-interaction' probability.
 */
 //____________________________________________________________________________
 
@@ -458,7 +462,8 @@ void GMCJDriver::ComputeProbScales(void)
 //  double pmax = pmax_hst->GetBinContent(pmax_hst->FindBin(fEmax));
     double pmax = pmax_hst->GetMaximum();
     assert(pmax>0);        
-    fGlobPmax += pmax;
+//  fGlobPmax += pmax;
+    fGlobPmax = TMath::Max(pmax, fGlobPmax); // ?;
   }
 }
 //___________________________________________________________________________
