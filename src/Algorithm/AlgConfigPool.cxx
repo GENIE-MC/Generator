@@ -434,6 +434,7 @@ void AlgConfigPool::AddRootObjParameter(
     TH1F * h  = (TH1F*) f.Get(rootobj.c_str());
     if(h) {
       TH1F * ch = new TH1F(*h); // clone
+		ch->SetDirectory(0);
       r->Set(pname,ch);
     } else {
       SLOG("AlgConfigPool", pERROR)
@@ -443,6 +444,7 @@ void AlgConfigPool::AddRootObjParameter(
     TH2F * h2  = (TH2F*) f.Get(rootobj.c_str());
     if(h2) {
       TH2F * ch2 = new TH2F(*h2); // clone
+		ch2->SetDirectory(0);
       r->Set(pname,ch2);
     } else {
       SLOG("AlgConfigPool", pERROR)
