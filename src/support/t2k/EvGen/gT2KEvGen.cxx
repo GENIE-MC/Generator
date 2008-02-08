@@ -207,9 +207,11 @@ int main(int argc, char ** argv)
 
   // Add a custom-branch at the standard GENIE event tree so that
   // info on the flux neutrino parent particle can be passed-through
-//  flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
-//  ntpw.EventTree()->Branch("flux",
-//       "flux::GJPARCNuFluxPassThroughInfo", &flux_info, 32000, 1);
+  flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
+  TBranch * flux = ntpw.EventTree()->Branch("flux",
+    "genie::flux::GJPARCNuFluxPassThroughInfo", &flux_info, 32000, 1);
+  assert(flux);
+  flux->SetAutoDelete(kFALSE);
 
   // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -227,8 +229,8 @@ int main(int argc, char ** argv)
 
      // extract flux info (parent decay/production position/kinematics) for the 
      // generated event so that it can be 
-//     flux_info = new flux::GJPARCNuFluxPassThroughInfo(
-//                                   jparc_flux_driver->PassThroughInfo());
+     flux_info = new flux::GJPARCNuFluxPassThroughInfo(
+                                   jparc_flux_driver->PassThroughInfo());
 
      // add event at the output ntuple, refresh the mc job monitor & clean-up
      ntpw.AddEventRecord(ievent, event);
