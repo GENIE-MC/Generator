@@ -10,12 +10,16 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
  @ Oct 09, 2007 - CA
    Added EventGeneratorI * EVGDriver::FindGenerator(const Interaction *) const
  @ Oct 10, 2007 - CA
    In Configure(const InitialState &) filter out any initial state info other
    that the probe/target pdg codes.
+ @ Feb 11, 2008 - CA
+   In BuildInteractionSelector() adopt the interaction selector from the alg
+   factory rather than creating / configuring an instance on my own. 
+   That is preventing the rare failure mode seen by Anselmo M. where the
+   interaction selector configuration was silently failing.
 */
 //____________________________________________________________________________
 
@@ -236,8 +240,11 @@ void GEVGDriver::BuildInteractionSelector(void)
 {
   LOG("GEVGDriver", pNOTICE) << "Building the interaction selector...";
 
+  AlgFactory * algf = AlgFactory::Instance();
+
   if(fIntSelector) delete fIntSelector;
-  fIntSelector = new PhysInteractionSelector("Default");
+  fIntSelector = dynamic_cast<InteractionSelectorI *> (
+        algf->AdoptAlgorithm("genie::PhysInteractionSelector","Default"));
 }
 //___________________________________________________________________________
 EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
