@@ -1,15 +1,15 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::PDFLIB
+\class    genie::LHAPDF
 
-\brief    PDFLIB library interface.
-          Concrete implementation of the PDFModelI interface.
+\brief    LHAPDF library interface.
+          Concrete implementation of the LHAPDF interface.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+\author   Anselmo Meregaglia <anselmo.meregaglia@cern.ch>, IPHC Strasbourg
+          Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, STFC, Rutherford Lab
 
-\created  June 06, 2004
+\created  January 22, 2008
 
 \cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -17,22 +17,22 @@
 */
 //____________________________________________________________________________
 
-#ifndef _PDFLIB_H_
-#define _PDFLIB_H_
+#ifndef _LHAPDFLIB_H_
+#define _LHAPDFLIB_H_
 
 #include "PDF/PDFModelI.h"
 
 namespace genie {
 
-class PDFLIB : public PDFModelI {
+class LHAPDF : public PDFModelI {
 
 public:
 
-  PDFLIB();
-  PDFLIB(string config);
-  virtual ~PDFLIB();
+  LHAPDF();
+  LHAPDF(string config);
+  virtual ~LHAPDF();
 
-  //-- impement PDFModelI interface
+  //-- implement PDFModelI interface
 
   double UpValence   (double x, double q2) const;
   double DownValence (double x, double q2) const;
@@ -53,10 +53,9 @@ public:
 
 private:
 
-  void   Initialize          (void) const;
   void   SetPDFSetFromConfig (void) const;
 };
 
 }         // genie namespace
 
-#endif    // _PDF_SET_MODEL_I_H_
+#endif    // _LHAPDF_SET_MODEL_I_H_

@@ -15,7 +15,8 @@ include $(GENIE)/src/make/Make.include
 PACKAGE           = PDF
 DICTIONARY        = _ROOT_DICT_PDF
 LIBNAME           = $(GENIE_PDF_LIBNAME)
-EXTRA_EXT_LIBS    = $(CERN_LIBRARIES)
+EXTRA_EXT_LIBS    = $(CERN_LIBRARIES) $(LHAPDF_LIBRARIES)
+#EXTRA_EXT_LIBS    = $(LHAPDF_LIBRARIES)
 
 all     : rootcint lib lib-link
 install : install-inc install-lib
