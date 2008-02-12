@@ -22,7 +22,6 @@
 using namespace genie;
 
 //the actual PDFLIB calls
-
 extern "C" void pdfset_(const char param[20][20], double val[20]);
 
 extern "C" void structm_(double *, double *, double *, double *, double *, 
