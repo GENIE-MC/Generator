@@ -116,9 +116,10 @@ bool GJPARCNuFlux::GenerateNext(void)
   double pynu = fLfEnu * fLfNnu[1];
   double pznu = fLfEnu * fLfNnu[2];
   double Enu  = fLfEnu;
-  double xnu  = fLfXnu * (units::m / units::cm);
-  double ynu  = fLfYnu * (units::m / units::cm);
-  double znu  = 1 * (units::m / units::cm);
+  double cm2m = units::cm / units::m;
+  double xnu  = cm2m * fLfXnu;
+  double ynu  = cm2m * fLfYnu;
+  double znu  = cm2m * 1;
  
   fgP4.SetPxPyPzE (pxnu, pynu, pznu, Enu);
   fgX4.SetXYZT    (xnu,  ynu,  znu,  0.);
