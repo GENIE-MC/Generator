@@ -25,7 +25,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    neugen          GENIE/NeuGEN facade, requires libneugen3 (depreciated)                  default: disabled \n";
   print "    neut-cascade    Alt. intranuclear hadron transport MC, requires libNEUT (T2K internal)  default: disabled \n";
   print "    gibuu           Alt. intranuclear hadron transport MC, requires libGiBUU                default: disabled \n";
-  print "    lhapdf          Use the LHAPDF pdf library, requires libLHAPDF                          default: disabled \n";
+  print "    lhapdf          Use the LHAPDF pdf library, requires libLHAPDF                          default: disabled [** in devel **]\n";
   print "    cernlib         Use CERNLIBs for optional PDFLIB and optional legacy fortran code       default: enabled  \n";
   print "    flux-drivers    Built-in flux drivers                                                   default: enabled  \n";
   print "    geom-drivers    Built-in detector geometry drivers                                      default: enabled  \n";
