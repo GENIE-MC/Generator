@@ -52,14 +52,14 @@ public :
   // Methods implementing the GENIE GFluxI interface, required for integrating
   // the JPARC neutrino flux simulations with the GENIE event generation drivers
 
-  const PDGCodeList &    FluxParticles (void) { return *fPdgCList; }
-  double                 MaxEnergy     (void) { return  fMaxEv;    }
+  const PDGCodeList &    FluxParticles (void) { return *fPdgCList;            }
+  double                 MaxEnergy     (void) { return  fMaxEv;               }
   bool                   GenerateNext  (void);
-  int                    PdgCode       (void) { return  fgPdgC;    }
-  double                 Weight        (void) { return  fLfNorm;   }
-  const TLorentzVector & Momentum      (void) { return  fgP4;      }
-  const TLorentzVector & Position      (void) { return  fgX4;      }
-  bool                   End           (void) { return  false;     }
+  int                    PdgCode       (void) { return  fgPdgC;               }
+  double                 Weight        (void) { return  fLfNorm;              }
+  const TLorentzVector & Momentum      (void) { return  fgP4;                 }
+  const TLorentzVector & Position      (void) { return  fgX4;                 }
+  bool                   End           (void) { return  fIEntry >= fNEntries; }
 
   // Methods specific to the JPARC flux driver, 
   // for configuration/initialization of the flux & event generation drivers and
