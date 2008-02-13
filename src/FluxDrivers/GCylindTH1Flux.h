@@ -47,14 +47,14 @@ public :
   GCylindTH1Flux();
  ~GCylindTH1Flux();
 
-  //-- methods specific to this flux object
+  // methods specific to this flux object
   void SetNuDirection      (const TVector3 & direction);
   void SetBeamSpot         (const TVector3 & spot);
   void SetTransverseRadius (double Rt);
   void AddEnergySpectrum   (int nu_pdgc, TH1D * spectrum);
   void SetRtDependence     (string rdep);
 
-  //-- methods implementing the GENIE GFluxI interface
+  // methods implementing the GENIE GFluxI interface
   const PDGCodeList &    FluxParticles (void) { return *fPdgCList; }
   double                 MaxEnergy     (void) { return  fMaxEv;    }
   bool                   GenerateNext  (void);
@@ -62,10 +62,11 @@ public :
   double                 Weight        (void) { return  1.0;       }
   const TLorentzVector & Momentum      (void) { return  fgP4;      }
   const TLorentzVector & Position      (void) { return  fgX4;      }
+  bool                   End           (void) { return  false;     }
 
 private:
 
-  //-- private methods
+  // private methods
   void   Initialize        (void);
   void   CleanUp           (void);
   void   ResetSelection    (void);
@@ -74,7 +75,7 @@ private:
   double GeneratePhi       (void) const;
   double GenerateRt        (void) const;
 
-  //-- private data members
+  // private data members
   double         fMaxEv;       ///< maximum energy
   PDGCodeList *  fPdgCList;    ///< list of neutrino pdg-codes
   int            fgPdgC;       ///< running generated nu pdg-code

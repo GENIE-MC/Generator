@@ -49,8 +49,8 @@ public :
   GJPARCNuFlux();
  ~GJPARCNuFlux();
 
-  //-- Methods implementing the GENIE GFluxI interface, required for integrating
-  //   the JPARC neutrino flux simulations with the GENIE event generation drivers
+  // Methods implementing the GENIE GFluxI interface, required for integrating
+  // the JPARC neutrino flux simulations with the GENIE event generation drivers
 
   const PDGCodeList &    FluxParticles (void) { return *fPdgCList; }
   double                 MaxEnergy     (void) { return  fMaxEv;    }
@@ -59,11 +59,12 @@ public :
   double                 Weight        (void) { return  fLfNorm;   }
   const TLorentzVector & Momentum      (void) { return  fgP4;      }
   const TLorentzVector & Position      (void) { return  fgX4;      }
+  bool                   End           (void) { return  false;     }
 
-  //-- Methods specific to the JPARC flux driver, 
-  //   for configuration/initialization of the flux & event generation drivers and
-  //   and for passing-through flux information (eg neutrino parent decay kinematics)
-  //   not used by the generator but required by analyses/processing further upstream
+  // Methods specific to the JPARC flux driver, 
+  // for configuration/initialization of the flux & event generation drivers and
+  // and for passing-through flux information (eg neutrino parent decay kinematics)
+  // not used by the generator but required by analyses/processing further upstream
 
   void LoadFile         (string filename);               ///< load a jnubeam root flux ntuple
   void SetFluxParticles (const PDGCodeList & particles); ///< declare list of flux neutrino species
@@ -75,14 +76,14 @@ public :
 
 private:
 
-  // ** Private methods
+  // Private methods
   //
   void Initialize   (void);
   void SetDefaults  (void);  
   void CleanUp      (void);
   void ResetCurrent (void);
 
-  // ** Private data members
+  // Private data members
   //
   double         fMaxEv;       ///< maximum energy
   PDGCodeList *  fPdgCList;    ///< list of neutrino pdg-codes
