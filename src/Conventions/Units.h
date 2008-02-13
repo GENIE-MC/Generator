@@ -138,6 +138,14 @@ static const double  kg = kilogram;
 static const double   g = gram;
 static const double  mg = milligram;
 
+//-- [Density]
+
+static const double  kilogram_meter3  = kilogram / meter3;
+static const double  gram_centimeter3 = gram     / centimeter3;
+
+static const double kg_m3 = kilogram_meter3;
+static const double g_cm3 = gram_centimeter3;
+
 //-- Dimensionless quantities
 
 //- Angle
