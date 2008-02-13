@@ -28,27 +28,23 @@ class PDGCodeList;
 class GFluxI {
 
 public :
-
   virtual ~GFluxI();
 
-  //-- define the GFluxI interface
-
-  // declare list of neutrinos and maximum energy
-  virtual const PDGCodeList &    FluxParticles (void) = 0;
-  virtual double                 MaxEnergy     (void) = 0;
-
-  // generate flux neutrino
-  virtual bool                   GenerateNext  (void) = 0;
-  virtual int                    PdgCode       (void) = 0;
-  virtual double                 Weight        (void) = 0;
-  virtual const TLorentzVector & Momentum      (void) = 0;
-  virtual const TLorentzVector & Position      (void) = 0;
+  //
+  // define the GFluxI interface:
+  //
+  virtual const PDGCodeList &    FluxParticles (void) = 0; ///< declare list of flux neutrinos that can be generated (for init. purposes)
+  virtual double                 MaxEnergy     (void) = 0; ///< declare the max flux neutrino energy that can be generated (for init. purposes)
+  virtual bool                   GenerateNext  (void) = 0; ///< generate the next flux neutrino (return false in err)
+  virtual int                    PdgCode       (void) = 0; ///< returns the flux neutrino pdg code
+  virtual double                 Weight        (void) = 0; ///< returns the flux neutrino weight (if any)
+  virtual const TLorentzVector & Momentum      (void) = 0; ///< returns the flux neutrino 4-momentum 
+  virtual const TLorentzVector & Position      (void) = 0; ///< returns the flux neutrino 4-position (note: expect SI rather than physical units)
+  virtual bool                   EOF           (void) = 0; ///< set to true if no more flux neutrinos can be thrown (eg if reaching end of beam simulation ntuples)
 
 protected:
-
   GFluxI();
 };
 
 }      // genie namespace
-
 #endif // _G_FLUX_I_H_
