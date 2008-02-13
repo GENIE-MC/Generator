@@ -40,7 +40,7 @@ public :
   virtual double                 Weight        (void) = 0; ///< returns the flux neutrino weight (if any)
   virtual const TLorentzVector & Momentum      (void) = 0; ///< returns the flux neutrino 4-momentum 
   virtual const TLorentzVector & Position      (void) = 0; ///< returns the flux neutrino 4-position (note: expect SI rather than physical units)
-  virtual bool                   EOF           (void) = 0; ///< set to true if no more flux neutrinos can be thrown (eg if reaching end of beam simulation ntuples)
+  virtual bool                   End           (void) = 0; ///< true if no more flux nu's can be thrown (eg reaching end of beam sim ntuples)
 
 protected:
   GFluxI();
