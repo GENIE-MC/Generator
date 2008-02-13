@@ -26,18 +26,7 @@
 #ifndef _GBARTOL_ATMO_FLUX_I_H_
 #define _GBARTOL_ATMO_FLUX_I_H_
 
-#include <string>
-
-#include <TLorentzVector.h>
-
-#include "EVGDrivers/GFluxI.h"
-
-// Get hold of kNNu - kind of a hack
-#include "FluxDrivers/GFlukaAtmo3DFlux.h"
-
-class TH2D;
-
-using std::string;
+#include "FluxDrivers/GAtmoFlux.h"
 
 namespace genie {
 namespace flux  {
@@ -46,69 +35,30 @@ namespace flux  {
 const unsigned int kNGBrtCos = 20;
 const unsigned int kNGBrtEv  = 30;
 
-// Number of cos8 and energies for which the neutrino flux is given
-const double kGBrtCos[kNGBrtCos] = {
-  -.95, -.85, -.75, -.65, -.55, -.45, -.35, -.25, -.15, -.05,
-  +.05, +.15, +.25, +.35, +.45, +.55, +.65, +.75, +.85, +.95
+const double kGBrtCos[kNGBrtCos+1] = {
+  -1, -.9, -.8, -.7, -.6, -.5, -.4, -.3, -.2, -.1,
+   0, +.1, +.2, +.3, +.4, +.5, +.6, +.7, +.8, +.9, +1
 };
 
-const double kGBrtEv[kNGBrtEv] = {
-      11.220,   14.125,   17.783,   22.387,   28.184,   35.481,   44.668,
-      56.234,   70.795,   89.125,  112.202,  141.254,  177.828,  223.872,
-     281.838,  354.813,  446.684,  562.341,  707.946,  891.251, 1122.018,
-    1412.538, 1778.279, 2238.721, 2818.383, 3548.134, 4466.836, 5623.413,
-    7079.458, 8912.509
+const double kGBrtEv[kNGBrtEv+1] = {
+  10.00, 12.59, 15.85, 19.95, 25.12, 31.62, 39.81, 50.12, 63.10, 79.43,
+  100.0, 125.9, 158.5, 199.5, 251.2, 316.2, 398.1, 501.2, 631.0, 794.3,
+  1000., 1259., 1585., 1995., 2512., 3162., 3981., 5012., 6310., 7943.,
+  10000
 };
 
-class GBartolAtmoFlux: public GFluxI {
+class GBartolAtmoFlux: public GAtmoFlux {
 
 public :
   GBartolAtmoFlux();
  ~GBartolAtmoFlux();
 
-  //-- methods specific to this flux object
-  bool LoadFluxData       (void);
-  void SetRadii           (double Rlongitudinal, double Rtransverse);
-  void SetNuMuFluxFile    (string filename) { fFluxFile[0] = filename; }
-  void SetNuMuBarFluxFile (string filename) { fFluxFile[1] = filename; }
-  void SetNuEFluxFile     (string filename) { fFluxFile[2] = filename; }
-  void SetNuEBarFluxFile  (string filename) { fFluxFile[3] = filename; }
-
-  //-- methods implementing the GENIE GFluxI interface
-  const PDGCodeList &    FluxParticles (void) { return *fPdgCList; }
-  double                 MaxEnergy     (void) { return  fMaxEv;    }
-  bool                   GenerateNext  (void);
-  int                    PdgCode       (void) { return fgPdgC;     }
-  double                 Weight        (void) { return 1.0;        }
-  const TLorentzVector & Momentum      (void) { return fgP4;       }
-  const TLorentzVector & Position      (void) { return fgX4;       }
-
+  // Most implementation is derived from the base GAtmoFlux
+  // The concrete driver is only required to implement a function for
+  // loading the input data files
 private:
-
-  //-- private methods
-  void   Initialize        (void);
-  void   CleanUp           (void);
-  void   ResetSelection    (void);
-  TH2D * CreateFluxHisto2D (string name, string title);
-  bool   FillFluxHisto2D   (TH2D * h2, string filename);
-  void   ZeroFluxHisto2D   (TH2D * h2);
-  void   AddAllFluxes      (void);
-  int    SelectNeutrino    (double Ev, double costheta);
-
-  //-- private data members
-  double         fMaxEv;          ///< maximum energy
-  PDGCodeList *  fPdgCList;       ///< list of neutrino pdg-codes
-  int            fgPdgC;          ///< running generated nu pdg-code
-  TLorentzVector fgP4;            ///< running generated nu 4-momentum
-  TLorentzVector fgX4;            ///< running generated nu 4-position
-  TH2D *         fFlux2D[kNNu];   ///< flux = f(Ev,cos8), 1/neutrino species
-  TH2D *         fFluxSum2D;      ///< combined flux = f(Ev,cos8)
-  string         fFluxFile[kNNu]; ///< flux file
-  int            fNSkipped;       ///< number of skipped fluxes
-  double         fRl;             ///< longitudinal radius
-  double         fRt;             ///< transverse radius
+  bool FillFluxHisto2D(TH2D * h2, string filename);
 };
-
 
 } // flux namespace
 } // genie namespace
