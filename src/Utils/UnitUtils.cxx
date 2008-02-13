@@ -90,6 +90,11 @@ double genie::utils::units::UnitFromString(string u)
   else if (u == "g"               ) return  genie::units::g;
   else if (u == "mg"              ) return  genie::units::mg;
 
+  else if (u == "kilogram_meter3" ) return  genie::units::kilogram_meter3;
+  else if (u == "gram_centimeter3") return  genie::units::gram_centimeter3; 
+  else if (u == "kg_m3"           ) return  genie::units::kg_m3;
+  else if (u == "g_cm3"           ) return  genie::units::g_cm3;
+
   else if (u == "radian"          ) return  genie::units::radian;
   else if (u == "milliradian"     ) return  genie::units::milliradian;
   else if (u == "degree"          ) return  genie::units::degree;
