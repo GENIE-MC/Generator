@@ -43,7 +43,7 @@ public :
   GMonoEnergeticFlux(double Ev, const map<int,double> & numap /* pdg -> weight*/);
  ~GMonoEnergeticFlux();
 
-  //-- methods implementing the GENIE GFluxI interface
+  // methods implementing the GENIE GFluxI interface
   const PDGCodeList &    FluxParticles (void) { return *fPdgCList; }
   double                 MaxEnergy     (void) { return  fMaxEv;    }
   bool                   GenerateNext  (void);
@@ -51,14 +51,15 @@ public :
   double                 Weight        (void) { return  1.0;       }
   const TLorentzVector & Momentum      (void) { return  fgP4;      }
   const TLorentzVector & Position      (void) { return  fgX4;      }
+  bool                   End           (void) { return  false;     }
 
 private:
 
-  //-- private methods
+  // private methods
   void   Initialize (double Ev, const map<int,double> & numap);
   void   CleanUp    (void);
 
-  //-- private data members
+  // private data members
   double           fMaxEv;       ///< maximum energy
   PDGCodeList *    fPdgCList;    ///< list of neutrino pdg-codes
   int              fgPdgC;       ///< running generated nu pdg-code

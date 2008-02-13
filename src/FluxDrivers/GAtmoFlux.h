@@ -49,6 +49,7 @@ public :
   virtual double                 Weight        (void) { return fWeight;    }
   virtual const TLorentzVector & Momentum      (void) { return fgP4;       }
   virtual const TLorentzVector & Position      (void) { return fgX4;       }
+  virtual bool                   End           (void) { return false;      }
 
   // methods specific to the atmospheric flux drivers
   void SetRadii           (double Rlongitudinal, double Rtransverse);
