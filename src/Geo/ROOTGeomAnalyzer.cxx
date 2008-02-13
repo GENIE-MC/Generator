@@ -123,12 +123,12 @@ void ROOTGeomAnalyzer::SetTopVolName(string name)
 // volume as the top one so as to generate events only in a specific part of
 // your detector.
 
-  fTopVolumeName = name;
+  if(name.size() == 0) return;
 
+  fTopVolumeName = name;
   LOG("GROOTGeom",pNOTICE) << "Geometry Top Volume name: " << fTopVolumeName;
 
   TGeoVolume * gvol = fGeometry->GetVolume(fTopVolumeName.c_str());
-
   if(!gvol) {
      LOG("GROOTGeom",pWARN) << "Could not find volume: " << name.c_str();
      LOG("GROOTGeom",pWARN) << "Will not change the current top volume";
