@@ -36,7 +36,8 @@ BUILD_TARGETS =    print-make-info \
 		   doxygen-doc \
 		   generator-test-exe \
 		   generator-std-exe \
-		   experiment-support-softw \
+		   minos-support-softw \
+		   t2k-support-softw \
   		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
@@ -246,12 +247,23 @@ ifeq ($(strip $(GOPT_ENABLE_TEST)),YES)
 else
 endif
 
-experiment-support-softw: FORCE
+minos-support-softw: FORCE
 	@echo " "
-	@echo "** Building experiment-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_MINOS_EVENT_SERVER)),YES)
+	@echo "** Building MINOS-specific support software..."
+ifeq ($(strip $(GOPT_ENABLE_MINOS_EVSERV)),YES)
 	@echo "* Building MINOS GENIE event server"
 	cd ${GENIE}/src/support/minos/EventServer/;\
+	make all; \
+	cd ${GENIE}
+else
+endif
+
+t2k-support-softw: FORCE
+	@echo " "
+	@echo "** Building T2K-specific support software..."
+ifeq ($(strip $(GOPT_ENABLE_T2K_EVGEN)),YES)
+	@echo "* Building GENIE event generation driver customized for T2K"
+	cd ${GENIE}/src/support/t2k/EvGen/;\
 	make all; \
 	cd ${GENIE}
 else
