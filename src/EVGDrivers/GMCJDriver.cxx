@@ -15,6 +15,8 @@
    interaction probabilities for each neutrino (rather than the sum of maximum
    probabilities). The modified probability scale still gives unbiased event
    generation & reduces the 'no-interaction' probability.
+ @ Feb 14, 2008 - CA
+   <document>
 */
 //____________________________________________________________________________
 
@@ -25,6 +27,7 @@
 #include <TVector3.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
@@ -49,7 +52,7 @@ using namespace genie::constants;
 //____________________________________________________________________________
 GMCJDriver::GMCJDriver()
 {
-  this->Initialize();
+  this->InitJob();
 }
 //___________________________________________________________________________
 GMCJDriver::~GMCJDriver()
@@ -97,12 +100,12 @@ void GMCJDriver::UseMaxPathLengths(string xml_filename)
   else                fUseExtMaxPl = true;
 }
 //___________________________________________________________________________
-void GMCJDriver::AllowRecursiveMode(bool allow)
+void GMCJDriver::KeepOnThrowingFluxNeutrinos(bool keep_on)
 {
   LOG("GMCJDriver", pNOTICE)
-        << "[Allow recursive mode] flag is set to: "
-                             << utils::print::BoolAsYNString(allow);
-  fAllowRecursMode = allow;
+        << "Keep on throwing flux neutrinos till one interacts? : "
+                             << utils::print::BoolAsYNString(keep_on);
+  fKeepThrowingFluxNu = keep_on;
 }
 //___________________________________________________________________________
 void GMCJDriver::FilterUnphysical(const TBits & unphysmask)
@@ -147,25 +150,29 @@ void GMCJDriver::Configure(void)
   // Ask the input GFluxI for the max. neutrino energy (to compute Pmax)
   this->GetMaxFluxEnergy();
 
-  // Create all possible initial states and initialize/store a GEVGDriver
-  // driver object for each one of them.
-  this->CreateGEVGDriverPool();
+  // Create all possible initial states and for each one initialize, 
+  // configure & store an GEVGDriver event generation driver object.
+  // Once an 'initial state' has been selected from the input flux / geom,
+  // the responsibility for generating the neutrino interaction will be
+  // delegated to one of these drivers.
+  this->PopulateEventGenDriverPool();
 
   // If the user wants to use cross section splines in order to speed things
   // up, then coordinate spline creation from all GEVGDriver objects pushed 
-  // into GEVGPool. This will create all xsec splines needed for all simulated 
-  // (enabled) processes involving the particles in the input flux and geometry. 
+  // into GEVGPool. This will create all xsec splines needed for all (enabled)
+  // processes that can be simulated involving the particles in the input flux 
+  // and geometry. 
   // Spline creation will be skipped for every spline that has been pre-loaded 
   // into the the XSecSplineList.
   // Once more it is noted that computing cross section splines is a huge 
   // overhead. The user is encouraged to generate them in advance and load
   // them into the XSecSplineList
-  this->CreateXSecSplines();
+  this->BootstrapXSecSplines();
 
   // Create cross section splines describing the total interaction xsec
   // for a given initial state (Create them by summing all xsec splines
   // for each possible initial state)
-  this->CreateXSecSumSplines();
+  this->BootstrapXSecSplineSummation();
 
   // Compute the max. interaction probability to scale all interaction
   // probabilities to be computed by this driver
@@ -174,7 +181,7 @@ void GMCJDriver::Configure(void)
   LOG("GMCJDriver", pNOTICE) << "Finished configuring GMCJDriver\n\n";
 }
 //___________________________________________________________________________
-void GMCJDriver::Initialize(void)
+void GMCJDriver::InitJob(void)
 {
   fFluxDriver         = 0;     // <-- flux driver
   fGeomAnalyzer       = 0;     // <-- geometry driver
@@ -194,10 +201,9 @@ void GMCJDriver::Initialize(void)
   fCurEvt             = 0;
   fCurVtx.SetXYZT(0.,0.,0.,0.);
 
-  // Go into recursive mode when it does not generate an event (neutrino
-  // does not cross the detector, does not interact etc...) so that it never
-  // returns NULL (except when in error)
-  this->AllowRecursiveMode(true);
+  // Throw as many flux neutrinos as necessary till one has interacted
+  // so that GenerateEvent() never  returns NULL (except when in error)
+  this->KeepOnThrowingFluxNeutrinos(true);
 
   // Allow the selected GEVGDriver to go into recursive mode and regenerate
   // an interaction that turns out to be unphysical.
@@ -269,10 +275,10 @@ void GMCJDriver::GetMaxFluxEnergy(void)
   LOG("GMCJDriver", pNOTICE) << "Maximum flux neutrino energy = " << fEmax;
 }
 //___________________________________________________________________________
-void GMCJDriver::CreateGEVGDriverPool(void)
+void GMCJDriver::PopulateEventGenDriverPool(void)
 {
   LOG("GMCJDriver", pDEBUG)
-          << "Creating GEVGPool & adding a GEVGDriver object per init-state";
+       << "Creating GEVGPool & adding a GEVGDriver object per init-state";
 
   if (fGPool) delete fGPool;
   fGPool = new GEVGPool;
@@ -306,21 +312,23 @@ void GMCJDriver::CreateGEVGDriverPool(void)
              << "All necessary GEVGDriver object were pushed into GEVGPool\n";
 }
 //___________________________________________________________________________
-void GMCJDriver::CreateXSecSplines(void)
+void GMCJDriver::BootstrapXSecSplines(void)
 {
+// Bootstrap cross section spline generation by the event generation drivers
+// that handle each initial state.
+
   if(!fUseSplines) return;
 
-  LOG("GMCJDriver", pNOTICE) << "Creating cross section splines";
+  LOG("GMCJDriver", pNOTICE) 
+      << "Asking event generation drivers for";
 
   PDGCodeList::const_iterator nuiter;
   PDGCodeList::const_iterator tgtiter;
-
   for(nuiter = fNuList.begin(); nuiter != fNuList.end(); ++nuiter){
      for(tgtiter = fTgtList.begin(); tgtiter != fTgtList.end(); ++tgtiter) {
 
        int target_pdgc   = *tgtiter;
        int neutrino_pdgc = *nuiter;
-
        InitialState init_state(target_pdgc, neutrino_pdgc);
 
        LOG("GMCJDriver", pINFO)
@@ -333,18 +341,19 @@ void GMCJDriver::CreateXSecSplines(void)
   LOG("GMCJDriver", pINFO) << "Finished creating cross section splines\n";
 }
 //___________________________________________________________________________
-void GMCJDriver::CreateXSecSumSplines(void)
+void GMCJDriver::BootstrapXSecSplineSummation(void)
 {
+// Sum-up the cross section splines for all the interaction that can be
+// simulated for each initial state
+
   LOG("GMCJDriver", pNOTICE)
-         << "Creating {sum interaction cross section | init state} splines";
+    << "Summing-up splines to get total cross section for each init state";
 
   GEVGPool::iterator diter;
   for(diter = fGPool->begin(); diter != fGPool->end(); ++diter) {
     string       init_state = diter->first;
     GEVGDriver * evgdriver  = diter->second;
-
     assert(evgdriver);
-
     LOG("GMCJDriver", pNOTICE)
              << "**** Summing xsec splines for init-state = " << init_state;
 
@@ -361,7 +370,7 @@ void GMCJDriver::CreateXSecSumSplines(void)
     evgdriver->CreateXSecSumSpline(100,min,max,true);
   }
   LOG("GMCJDriver", pNOTICE)
-        << "Finished summing all interaction xsec splines per initial state";
+     << "Finished summing all interaction xsec splines per initial state";
 }
 //___________________________________________________________________________
 void GMCJDriver::ComputeProbScales(void)
@@ -432,7 +441,7 @@ void GMCJDriver::ComputeProbScales(void)
          double plmax = fMaxPathLengths.PathLength(target_pdgc);  // max{L*density}
          int    A     = pdg::IonPdgCodeToA(target_pdgc);
 
-         double pmax = this->PInt(sxsec, plmax, A);
+         double pmax = this->InteractionProbability(sxsec, plmax, A);
          pmax_hst->SetBinContent(ie, pmax_hst->GetBinContent(ie) + pmax);
 
          LOG("GMCJDriver", pDEBUG)
@@ -480,33 +489,101 @@ EventRecord * GMCJDriver::GenerateEvent(void)
 
   this->InitEventGeneration();
 
-  // Generate flux neutrinos until you have got one crossing some geometry
-  // material
-  while(fCurPathLengths.AreAllZero()) {
-    // Generate a neutrino using the input GFluxI & get current pdgc/p4/x4
-    assert( this->GenerateFluxNeutrino() );
-    // Compute (pathLength x density x weight fraction) for all materials
-    // in the input geometry, for the neutrino generated by the flux driver
-    assert( this->ComputePathLengths() );
+  while(1) {
+    bool flux_end = fFluxDriver->End();
+    if(flux_end) {
+       LOG("GMCJDriver", pNOTICE) 
+           << "No more neutrinos can be thrown by the flux driver";
+       return 0;
+    }
+
+    EventRecord * event = this->GenerateEvent1Try();
+    if(event) return event;
+
+    if(fKeepThrowingFluxNu) {
+         LOG("GMCJDriver", pINFO)
+             << "Flux neutrino didn't interact - Trying the next one...";
+         continue;
+    }
+    break;
+  } // (w(1)
+
+  LOG("GMCJDriver", pINFO) << "Returning NULL event!";
+  return 0;
+}
+//___________________________________________________________________________
+EventRecord * GMCJDriver::GenerateEvent1Try(void)
+{
+// attempt generating a neutrino interaction by firing a single flux neutrino
+//
+  RandomGen * rnd = RandomGen::Instance();
+  bool preselect = true;
+
+  double Pno=0, Psum=0;
+  double R = rnd->RndEvg().Rndm();
+  LOG("GMCJDriver", pDEBUG) << "Rndm [0,1] = " << R;
+
+  // Generate a neutrino using the input GFluxI & get current pdgc/p4/x4
+  bool flux_ok = this->GenerateFluxNeutrino();
+  if(!flux_ok) {
+     LOG("GMCJDriver", pERROR) 
+        << "** Rejecting current flux neutrino (flux driver err)";
+     return 0;
   }
 
-  // The neutrino enters the detector - Select target material
-  fSelTgtPdg = this->SelectTargetMaterial();
+  // Compute the interaction probabilities assuming max. path lengths
+  // and decide whether the neutrino would interact -- 
+  // Many flux neutrinos should be rejected here, drastically reducing 
+  // the number of neutrinos that I need to propagate through the 
+  // actual detector geometry
+  if(preselect) {
+       LOG("GMCJDriver", pNOTICE) 
+          << "Computing interaction probabilities for max. path lengths";
 
-  // If the neutrino did not interact enter in recursive mode to regenerate
-  // it (if allowed)
+       Psum = this->ComputeInteractionProbabilities(true /* <- max PL*/);
+       Pno  = 1-Psum;
+       LOG("GMCJDriver", pNOTICE)
+          << "The 'no interaction' probability (max. path lengths) is: " 
+          << 100*Pno << " %";
+        if(R>=1-Pno) {
+  	   LOG("GMCJDriver", pNOTICE)  
+              << "** Rejecting current flux neutrino";
+	   return 0;
+        }
+  } // preselect 
+
+  // Compute (pathLength x density x weight fraction) for all materials
+  // in the input geometry, for the neutrino generated by the flux driver
+  bool pl_ok = this->ComputePathLengths();
+  if(!pl_ok) {
+     LOG("GMCJDriver", pERROR) 
+        << "** Rejecting current flux neutrino (err computing path-lengths)";
+     return 0;
+  }
+  if(fCurPathLengths.AreAllZero()) {
+     LOG("GMCJDriver", pNOTICE) 
+        << "** Rejecting current flux neutrino (misses generation volume)";
+     return 0;
+  }
+
+  Psum = this->ComputeInteractionProbabilities(false /* <- actual PL */);
+  Pno  = 1-Psum;
+  LOG("GMCJDriver", pNOTICE)
+     << "The actual 'no interaction' probability is: " << 100*Pno << " %";
+  if(R>=1-Pno) {
+     LOG("GMCJDriver", pNOTICE) 
+        << "** Rejecting current flux neutrino";
+     return 0;
+  }
+
+  //
+  // The flux neutrino interacts! Select a target material
+  //
+  fSelTgtPdg = this->SelectTargetMaterial(R);
   if(fSelTgtPdg==0) {
-     LOG("GMCJDriver", pINFO) << "Flux neutrino didn't interact - Retrying!";
-
-     if(fAllowRecursMode) {
-         LOG("GMCJDriver", pINFO)
-             << "In recursive mode - Attermting to regenerate the event...";
-         return this->GenerateEvent(); // enter in reccursive mode...
-      } else {
-         LOG("GMCJDriver", pINFO)
-            << "Recursive mode not allowed  - Returning NULL EventRecord!";
-         return 0;
-      }
+     LOG("GMCJDriver", pERROR) 
+        << "** Rejecting current flux neutrino (failed to select tgt!)";
+     return 0;
   }
 
   // Ask the GEVGDriver object to select and generate an interaction and
@@ -515,7 +592,7 @@ EventRecord * GMCJDriver::GenerateEvent(void)
 
   // Generate an 'interaction position' in the selected material (in the
   // detector coord system), along the direction of nup4 & set it 
-  this->GenerateVertex();
+  this->GenerateVertexPosition();
 
   // Set the event probability (probability for this event to happen given
   // the detector setup & the selected flux neutrino)
@@ -538,8 +615,8 @@ bool GMCJDriver::GenerateFluxNeutrino(void)
 
   bool ok = fFluxDriver->GenerateNext();
   if(!ok) {
-     LOG("GMCJDriver", pFATAL)
-              << "*** The flux driver couldn't generate a flux neutrino!!";
+     LOG("GMCJDriver", pERROR)
+         << "*** The flux driver couldn't generate a flux neutrino!!";
      return false;
   }
 
@@ -602,23 +679,25 @@ bool GMCJDriver::ComputePathLengths(void)
   return true;
 }
 //___________________________________________________________________________
-int GMCJDriver::SelectTargetMaterial(void)
+double GMCJDriver::ComputeInteractionProbabilities(bool use_max_path_length)
 {
-// Compute the total (scaled) interaction probabilities for each material 
-// (for the selected neutrino type) and select one. 
-// If the flux neutrino does not interact return 0
-//
   LOG("GMCJDriver", pNOTICE)
        << "Computing relative interaction probabilities for each material";
 
+  // current flux neutrino code & 4-p
   int                    nupdg = fFluxDriver->PdgCode();
   const TLorentzVector & nup4  = fFluxDriver->Momentum();
 
-  map<int,double> probm;
+  fCurCumulProbMap.clear();
+
+  const PathLengthList & path_length_list = 
+        (use_max_path_length) ? fMaxPathLengths : fCurPathLengths;
+
   double probsum=0;
   PathLengthList::const_iterator pliter;
-  for(pliter = fCurPathLengths.begin();
-                            pliter != fCurPathLengths.end(); ++pliter) {
+
+  for(pliter = path_length_list.begin();
+                            pliter != path_length_list.end(); ++pliter) {
      int    mpdg  = pliter->first;            // material PDG code
      double pl    = pliter->second;           // density x path-length
      int    A     = pdg::IonPdgCodeToA(mpdg);
@@ -637,7 +716,7 @@ int GMCJDriver::SelectTargetMaterial(void)
      // compute the interaction xsec and probability (if path-length>0)
      if(pl>0.) {
         xsec  = evgdriver->XSecSum(nup4);
-        prob  = this->PInt(xsec,pl,A);
+        prob  = this->InteractionProbability(xsec,pl,A);
 
         // scale the interaction probability to the maximum one so as not
         // to have to throw few billions of flux neutrinos before getting
@@ -656,46 +735,36 @@ int GMCJDriver::SelectTargetMaterial(void)
         probn = prob/pmax;
      }
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GMCJDriver", pNOTICE)
          << "tgt: " << mpdg << " -> TotXSec = "
          << xsec/units::cm2 << " cm^2, Norm.Prob = " << 100*probn << "%";
-
+#endif
      probsum += probn;
-     probm.insert(map<int,double>::value_type(mpdg,probsum));
+     fCurCumulProbMap.insert(map<int,double>::value_type(mpdg,probsum));
   }
+  return probsum;
+}
+//___________________________________________________________________________
+int GMCJDriver::SelectTargetMaterial(double R)
+{
+// Pick a target material using the pre-computed interaction probabilities
+// for a flux neutrino that has already been determined that interacts
 
-  double Pno = 1-probsum;
-  LOG("GMCJDriver", pNOTICE)
-        << "The 'no interaction' probability is: " << 100*Pno << " %";
-
-  // Select a detector material
-  LOG("GMCJDriver", pINFO)
-        << "Deciding whether the neutrino interacts and on which target";
-
-  RandomGen * rnd = RandomGen::Instance();
-  double R = rnd->RndEvg().Rndm();
-  LOG("GMCJDriver", pDEBUG) << "Rndm [0,1] = " << R;
-
-  // Check whether the neutrino interacts or not
-  if(R>=1-Pno) return 0;
-
-  // If an interaction does happen then select target material
-  LOG("GMCJDriver", pINFO)
-        << "The neutrino does interact - Selecting material";
+  LOG("GMCJDriver", pINFO) << "Selecting target material";
   int tgtpdg = 0;
-  map<int,double>::const_iterator probiter;
-  for(probiter = probm.begin(); probiter != probm.end(); ++probiter) {
+  map<int,double>::const_iterator probiter = fCurCumulProbMap.begin();
+  for( ; probiter != fCurCumulProbMap.end(); ++probiter) {
      double prob = probiter->second;
      if(R<prob) {
         tgtpdg = probiter->first;
-        LOG("GMCJDriver", pINFO) << "Selected target material = " << tgtpdg;
+        LOG("GMCJDriver", pINFO) 
+          << "Selected target material = " << tgtpdg;
         return tgtpdg;
      }
   }
-
-  LOG("GMCJDriver", pFATAL)
+  LOG("GMCJDriver", pERROR)
      << "Could not select target material for an interacting neutrino";
-  exit(1);
   return 0;
 }
 //___________________________________________________________________________
@@ -721,7 +790,7 @@ void GMCJDriver::GenerateEventKinematics(void)
   fCurEvt = evgdriver->GenerateEvent(nup4);
 }
 //___________________________________________________________________________
-void GMCJDriver::GenerateVertex(void)
+void GMCJDriver::GenerateVertexPosition(void)
 {
   // Generate an 'interaction position' in the selected material, along
   // the direction of nup4
@@ -772,7 +841,7 @@ void GMCJDriver::ComputeEventProbability(void)
   double Ev     = nu->P4()->Energy();
  
   // interaction probability
-  double P = this->PInt(xsec, path_length, A);
+  double P = this->InteractionProbability(xsec, path_length, A);
 
   // weight for selected event
   double weight = 1.0;
@@ -791,9 +860,13 @@ void GMCJDriver::ComputeEventProbability(void)
   fCurEvt->SetWeight(weight * fCurEvt->Weight());
 }
 //___________________________________________________________________________
-double GMCJDriver::PInt(double xsec, double path_length, int A)
+double GMCJDriver::InteractionProbability(double xsec, double pL, int A)
 {
-  return (xsec*path_length)/A;
+// xsec: interaction cross section
+// pL  : density weighted path length
+// A   : mass number
+
+  return (xsec*pL)/A;
 }
 //___________________________________________________________________________
 
