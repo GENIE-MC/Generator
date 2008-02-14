@@ -53,6 +53,8 @@ bool GJPARCNuFlux::GenerateNext(void)
           << "No more entries in input flux neutrino ntuple";
      return false;	
   }
+
+  LOG("Flux", pNOTICE) << "Reading flux ntuple entry:........" << fIEntry;
   fNuFluxTree->GetEntry(fIEntry);
   fIEntry++;
 
@@ -89,7 +91,7 @@ bool GJPARCNuFlux::GenerateNext(void)
      LOG("Flux", pWARN) 
           << "Unknown decay mode or decay mode producing an undeclared neurtino species";
      LOG("Flux", pWARN) 
-          << "Declared list of neutrino species: " << *fPdgCList;;
+          << "Declared list of neutrino species: " << *fPdgCList;
      LOG("Flux", pWARN) 
           << "Decay mode: " << fLfMode;
      return false;	
@@ -107,7 +109,7 @@ bool GJPARCNuFlux::GenerateNext(void)
           << "Flux neutrino energy exceeds declared maximum neutrino energy";
      LOG("Flux", pWARN) 
           << "Ev = " << fLfEnu << "(> Ev{max} = " << fMaxEv << ")";
-     return false;	
+     //return false;	
   }
   
   // Set the current flux neutrino 4-momentum & 4-position
@@ -123,8 +125,6 @@ bool GJPARCNuFlux::GenerateNext(void)
  
   fgP4.SetPxPyPzE (pxnu, pynu, pznu, Enu);
   fgX4.SetXYZT    (xnu,  ynu,  znu,  0.);
-
-  // Print-out & return
 
   LOG("Flux", pINFO) 
 	<< "Generated neutrino: "
@@ -295,7 +295,7 @@ void GJPARCNuFlux::SetDefaults(void)
   particles.push_back(kPdgAntiNuE);
 
   this->SetFluxParticles(particles);
-  this->SetMaxEnergy(20./*GeV*/);
+  this->SetMaxEnergy(22./*GeV*/);
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::ResetCurrent(void)
