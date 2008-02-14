@@ -1,14 +1,14 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::GMCJDriver
+\class    genie::GMCJDriver
 
-\brief   GENIE MC Job Driver (event generation for the input flux & geometry)
+\brief    GENIE MC Job Driver (event generation for the input flux & geometry)
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+          STFC, Rutherford Appleton Laboratory
 
-\created May 25, 2005
+\created  May 25, 2005
 
 \cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -45,63 +45,65 @@ public :
   GMCJDriver();
  ~GMCJDriver();
 
-  //-- configure MC job
-  //
-  void UseFluxDriver        (GFluxI * flux);
-  void UseGeomAnalyzer      (GeomAnalyzerI * geom);
-  void UseSplines           (bool useLogE = true);
-  void UseMaxPathLengths    (string xml_filename);
-  void AllowRecursiveMode   (bool allow);
-  void FilterUnphysical     (const TBits & unphysmask);
-  void ForceSingleProbScale (void);
-  void Configure            (void);
+  // configure MC job
+  void UseFluxDriver               (GFluxI * flux);
+  void UseGeomAnalyzer             (GeomAnalyzerI * geom);
+  void UseSplines                  (bool useLogE = true);
+  void UseMaxPathLengths           (string xml_filename);
+  void KeepOnThrowingFluxNeutrinos (bool keep_on);
+  void FilterUnphysical            (const TBits & unphysmask);
+  void ForceSingleProbScale        (void);
+  void Configure                   (void);
 
-  //-- generate single neutrino event for input flux & geometry
+  // generate single neutrino event for input flux & geometry
   EventRecord * GenerateEvent (void);
 
 private:
+ 
+  // private methods:
+  void          InitJob                         (void);
+  void          InitEventGeneration             (void);
+  void          GetParticleLists                (void);
+  void          GetMaxPathLengthList            (void);
+  void          GetMaxFluxEnergy                (void);
+  void          PopulateEventGenDriverPool      (void);
+  void          BootstrapXSecSplines            (void);
+  void          BootstrapXSecSplineSummation    (void);
+  void          ComputeProbScales               (void);
+  EventRecord * GenerateEvent1Try               (void);
+  bool          GenerateFluxNeutrino            (void);
+  bool          ComputePathLengths              (void);
+  double	ComputeInteractionProbabilities (bool use_max_path_length);
+  int           SelectTargetMaterial            (double R);
+  void          GenerateEventKinematics         (void);
+  void          GenerateVertexPosition          (void);
+  void          ComputeEventProbability         (void);
+  double        InteractionProbability          (double xsec, double pl, int A);
 
-  void   Initialize              (void);
-  void   InitEventGeneration     (void);
-  void   GetParticleLists        (void);
-  void   GetMaxPathLengthList    (void);
-  void   GetMaxFluxEnergy        (void);
-  void   CreateGEVGDriverPool    (void);
-  void   CreateXSecSplines       (void);
-  void   CreateXSecSumSplines    (void);
-  void   ComputeProbScales       (void);
-  bool   GenerateFluxNeutrino    (void);
-  bool   ComputePathLengths      (void);
-  int    SelectTargetMaterial    (void);
-  void   GenerateEventKinematics (void);
-  void   GenerateVertex          (void);
-  void   ComputeEventProbability (void);
-
-  double PInt(double xsec, double pl, int A);
-
+  // private data members:
+  GEVGPool *      fGPool;              ///< A pool of GEVGDrivers properly configured event generation drivers / one per init state
   GFluxI *        fFluxDriver;         ///< [input] neutrino flux driver
   GeomAnalyzerI * fGeomAnalyzer;       ///< [input] detector geometry analyzer
-  GEVGPool *      fGPool;              ///< A pool of available GEVGDrivers objects
-  PDGCodeList     fNuList;             ///< list of neutrino codes [taken from flux driver]
-  PDGCodeList     fTgtList;            ///< list of target codes [taken from geom driver]
-  PathLengthList  fMaxPathLengths;     ///< maximum path length list [for all geometry materials]
-  PathLengthList  fCurPathLengths;     ///< path length list for current flux neutrino
-  TLorentzVector  fCurVtx;             ///< current interaction vertex
-  EventRecord *   fCurEvt;             ///< current generated event
-  int             fSelTgtPdg;          ///< selected target material PDG code
-  double          fEmax;               ///< maximum neutrino energy [taken from flux driver]
-  map<int,TH1D*>  fPmax;               ///< [computed] Interaction probability scale /neutrino /energy for given geometry
-  double          fGlobPmax;           ///< [computed] Global interaction probability scale for given flux & geometry
-  string          fMaxPlXmlFilename;   ///< [input/opt] max path lengths, all materials|geom
-  bool            fUseExtMaxPl;        ///< using external max path length estimate?
-  bool            fUseSplines;         ///< compute all needed & not-loaded splines at init
-  bool            fUseLogE;            ///< build splines = f(logE) (rather than f(E)) ?
-  bool            fAllowRecursMode;    ///< can enter into recursive mode?
-  bool            fGenerateUnweighted; ///< force single probability scale?
-  TBits           fUnphysMask;         ///< unphysical events filtering mask
+  double          fEmax;               ///< [declared by the flux driver] maximum neutrino energy 
+  PDGCodeList     fNuList;             ///< [declared by the flux driver] list of neutrino codes 
+  PDGCodeList     fTgtList;            ///< [declared by the geom driver] list of target codes 
+  PathLengthList  fMaxPathLengths;     ///< [declared by the geom driver] maximum path length list 
+  PathLengthList  fCurPathLengths;     ///< [current] path length list for current flux neutrino
+  TLorentzVector  fCurVtx;             ///< [current] interaction vertex
+  EventRecord *   fCurEvt;             ///< [current] generated event
+  int             fSelTgtPdg;          ///< [current] selected target material PDG code
+  map<int,double> fCurCumulProbMap;    ///< [current] cummulative interaction probabilities
+  map<int,TH1D*>  fPmax;               ///< [computed at init] Interaction probability scale /neutrino /energy for given geometry
+  double          fGlobPmax;           ///< [computed at init] Global interaction probability scale for given flux & geometry
+  string          fMaxPlXmlFilename;   ///< [config] input file with max density-weighted path lengths for all materials
+  bool            fUseExtMaxPl;        ///< [config] using external max path length estimate?
+  bool            fUseSplines;         ///< [config] compute all needed & not-loaded splines at init
+  bool            fUseLogE;            ///< [config] build splines = f(logE) (rather than f(E)) ?
+  bool            fKeepThrowingFluxNu; ///< [config] keep firing flux neutrinos till one of them interacts
+  bool            fGenerateUnweighted; ///< [config] force single probability scale?
+  TBits           fUnphysMask;         ///< [config] unphysical events filtering mask
   double          fNFluxNeutrinos;   
 };
 
 }      // genie namespace
-
 #endif // _GENIE_MC_JOB_DRIVER_H_
