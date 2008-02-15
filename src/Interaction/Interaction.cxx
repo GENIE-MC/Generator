@@ -19,6 +19,8 @@
  @ Dec 01, 2007 - CA
    For ve- 'weak mix' interactions (ve+e->ve+e) the neutrino is always set
    as the primary final state lepton
+ @ Feb 15, 2008 - CA
+   Added named ctors for anomaly mediated nu-gamma interactions
 */
 //____________________________________________________________________________
 
