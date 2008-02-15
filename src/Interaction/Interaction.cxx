@@ -582,3 +582,29 @@ Interaction * Interaction::IMD(int target, const TLorentzVector & p4probe)
   return interaction;
 }
 //___________________________________________________________________________
+Interaction * Interaction::AMNuGamma(int tgt, int nuc, int probe, double E)
+{
+  Interaction * interaction = 
+                Interaction::Create(tgt,probe,kScAMNuGamma, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(nuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::AMNuGamma(
+               int tgt, int nuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+                Interaction::Create(tgt,probe,kScAMNuGamma, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(nuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+

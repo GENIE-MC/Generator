@@ -117,6 +117,11 @@ bool ProcessInfo::IsInverseMuDecay(void) const
   return (fScatteringType == kScInverseMuDecay);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsAMNuGamma(void) const
+{
+  return (fScatteringType == kScAMNuGamma);
+}
+//____________________________________________________________________________
 bool ProcessInfo::IsEM(void) const
 {
   return (fInteractionType == kIntEM);
