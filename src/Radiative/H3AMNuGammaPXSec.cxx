@@ -83,7 +83,9 @@ double H3AMNuGammaPXSec::Integral(const Interaction * interaction) const
 bool H3AMNuGammaPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
-  return true;
+
+  if(interaction->ProcInfo().IsAMNuGamma()) return true;
+  return false;
 }
 //____________________________________________________________________________
 bool H3AMNuGammaPXSec::ValidKinematics(const Interaction* interaction) const
