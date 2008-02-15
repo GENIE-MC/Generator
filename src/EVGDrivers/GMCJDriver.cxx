@@ -23,8 +23,9 @@
 #include <cassert>
 
 #include <TLorentzVector.h>
-#include <TSystem.h>
 #include <TVector3.h>
+#include <TSystem.h>
+#include <TStopwatch.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/GBuild.h"
@@ -404,10 +405,10 @@ void GMCJDriver::ComputeProbScales(void)
   // for maximum interaction probability vs E /for given geometry/ I will
   // be using ~200 MeV bins
   //
-  double ebin = 0.2;
+  double de   = 0.2;
   double emin = 0.0;
-  double emax = fEmax + ebin;
-  int n = 1 + (int) ((emax-emin)/ebin);
+  double emax = fEmax + de;
+  int n = 1 + (int) ((emax-emin)/de);
 
   PDGCodeList::const_iterator nuiter;
   PDGCodeList::const_iterator tgtiter;
@@ -437,10 +438,12 @@ void GMCJDriver::ComputeProbScales(void)
          // get the appropriate driver
          GEVGDriver * evgdriver = fGPool->FindDriver(init_state);
 
-         double sxsec = evgdriver->XSecSumSpline()->Evaluate(Ev); // sum{xsec}, is sum over all modelled processes for given target
-         double plmax = fMaxPathLengths.PathLength(target_pdgc);  // max{L*density}
-         int    A     = pdg::IonPdgCodeToA(target_pdgc);
-
+         // get sum{xsec} (sum over all modelled processes for given neutrino+target)
+         double sxsec = evgdriver->XSecSumSpline()->Evaluate(Ev); 
+         // get max{path-length x density}
+         double plmax = fMaxPathLengths.PathLength(target_pdgc);  
+         // compute/store the max interaction probabiity (for given energy)
+         int A = pdg::IonPdgCodeToA(target_pdgc);
          double pmax = this->InteractionProbability(sxsec, plmax, A);
          pmax_hst->SetBinContent(ie, pmax_hst->GetBinContent(ie) + pmax);
 
@@ -710,13 +713,24 @@ double GMCJDriver::ComputeInteractionProbabilities(bool use_max_path_length)
      GEVGDriver * evgdriver = fGPool->FindDriver(init_state);
      if(!evgdriver) {
        LOG("GMCJDriver", pFATAL)
-        << "No GEVGDriver object for init state: " << init_state.AsString();
+        << "\n * The MC Job driver isn't properly configured!"
+        << "\n * No event generation driver could be found for init state: " 
+        << init_state.AsString();
        exit(1);
      }
      // compute the interaction xsec and probability (if path-length>0)
      if(pl>0.) {
-        xsec  = evgdriver->XSecSum(nup4);
-        prob  = this->InteractionProbability(xsec,pl,A);
+        const Spline * totxsecspl = evgdriver->XSecSumSpline();
+        if(!totxsecspl) {
+            LOG("GMCJDriver", pFATAL)
+              << "\n * The MC Job driver isn't properly configured!"
+              << "\n * Couldn't retrieve total cross section spline for init state: " 
+              << init_state.AsString();
+            exit(1);
+        } else {
+            xsec = totxsecspl->Evaluate( nup4.Energy() );
+        }
+        prob = this->InteractionProbability(xsec,pl,A);
 
         // scale the interaction probability to the maximum one so as not
         // to have to throw few billions of flux neutrinos before getting
@@ -734,7 +748,6 @@ double GMCJDriver::ComputeInteractionProbabilities(bool use_max_path_length)
         assert(pmax>0);        
         probn = prob/pmax;
      }
-
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GMCJDriver", pNOTICE)
          << "tgt: " << mpdg << " -> TotXSec = "
