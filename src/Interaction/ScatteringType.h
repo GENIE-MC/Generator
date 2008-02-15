@@ -36,7 +36,8 @@ typedef enum EScatteringType {
   kScCoherentElas,
   kScDiffractive,
   kScNuElectronElastic,
-  kScInverseMuDecay
+  kScInverseMuDecay,
+  kScAMNuGamma
 
 } ScatteringType_t;
 
@@ -49,15 +50,16 @@ public:
   {
     switch (type) {
 
-      case(kScQuasiElastic) :      return "QES";      break;
-      case(kScDeepInelastic) :     return "DIS";      break;
-      case(kScResonant) :          return "RES";      break;
-      case(kScCoherentPiProd) :    return "COHPi";    break;
-      case(kScCoherentElas) :      return "COHEl";    break;
-      case(kScDiffractive) :       return "DFR";      break;
-      case(kScNuElectronElastic) : return "NuEEL";    break;
-      case(kScInverseMuDecay) :    return "IMD";      break;
-      default :                    return "Unknown";  break;
+      case(kScQuasiElastic) :      return "QES";       break;
+      case(kScDeepInelastic) :     return "DIS";       break;
+      case(kScResonant) :          return "RES";       break;
+      case(kScCoherentPiProd) :    return "COHPi";     break;
+      case(kScCoherentElas) :      return "COHEl";     break;
+      case(kScDiffractive) :       return "DFR";       break;
+      case(kScNuElectronElastic) : return "NuEEL";     break;
+      case(kScInverseMuDecay) :    return "IMD";       break;
+      case(kScAMNuGamma) :         return "AMNuGamma"; break;
+      default :                    return "Unknown";   break;
     }
     return "Unknown";
   }
@@ -65,5 +67,4 @@ public:
 };
 
 }      // genie namespace
-
 #endif // _SCATTERING_TYPE_H_
