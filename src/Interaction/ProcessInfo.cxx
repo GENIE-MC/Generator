@@ -15,6 +15,8 @@
    a new type of coherent interactions (coherent elastic)  
  @ Dec 03, 2007 - CA
    Added IsElectronScattering() to query about { IMD || ve- elastic }
+ @ Feb 15, 2008 - CA
+   Added IsAMNuGamma() to query about anomaly-mediated nu-gamma interactions
 */
 //____________________________________________________________________________
 
