@@ -119,6 +119,7 @@
    <config alg="genie::ReinSeghalSPPPXSec">          ReinSeghalSPPPXSec.xml          </config>
    <config alg="genie::ReinSeghalRESXSec">           ReinSeghalRESXSec.xml           </config>
    <config alg="genie::ReinSeghalSPPXSec">           ReinSeghalSPPXSec.xml           </config>
+   <config alg="genie::H3AMNuGammaPXSec">            H3AMNuGammaPXSec.xml            </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>
