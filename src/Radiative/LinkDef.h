@@ -7,5 +7,6 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::BardinDISPXSec;
+#pragma link C++ class genie::H3AMNuGammaPXSec;
 
 #endif
