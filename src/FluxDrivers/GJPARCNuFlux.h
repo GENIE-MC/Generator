@@ -25,6 +25,7 @@
 #define _GJPARC_NEUTRINO_FLUX_H_
 
 #include <string>
+#include <iostream>
 
 #include <TLorentzVector.h>
 #include <TVector3.h>
@@ -37,6 +38,7 @@ class TTree;
 class TBranch;
 
 using std::string;
+using std::ostream;
 
 namespace genie {
 namespace flux  {
@@ -66,10 +68,9 @@ public :
   // and for passing-through flux information (eg neutrino parent decay kinematics)
   // not used by the generator but required by analyses/processing further upstream
 
-  void LoadFile         (string filename);               ///< load a jnubeam root flux ntuple
-  void SetFluxParticles (const PDGCodeList & particles); ///< declare list of flux neutrino species
-  void SetMaxEnergy     (double Ev);                     ///< declare maximum flx neutrino energy
-  void SetDetectorId    (int detector);                  ///< read flux for requested detector
+  void LoadBeamSimData  (string filename, string det_loc);  ///< load a jnubeam root flux ntuple
+  void SetFluxParticles (const PDGCodeList & particles);    ///< specify list of flux neutrino species
+  void SetMaxEnergy     (double Ev);                        ///< specify maximum flx neutrino energy
 
   const GJPARCNuFluxPassThroughInfo & 
      PassThroughInfo(void) { return *fPassThroughInfo; } ///< GJPARCNuFluxPassThroughInfo
@@ -82,35 +83,48 @@ private:
   void SetDefaults  (void);  
   void CleanUp      (void);
   void ResetCurrent (void);
+  int  DLocName2Id  (string name);
 
   // Private data members
   //
   double         fMaxEv;       ///< maximum energy
   PDGCodeList *  fPdgCList;    ///< list of neutrino pdg-codes
+
   int            fgPdgC;       ///< running generated nu pdg-code
   TLorentzVector fgP4;         ///< running generated nu 4-momentum
   TLorentzVector fgX4;         ///< running generated nu 4-position
+
   TFile *   fNuFluxFile;       ///< input flux file
   TTree *   fNuFluxTree;       ///< input flux ntuple
+  string    fDetLoc;           ///< input detector location ('sk','nd1','nd2',...)
+  int       fDetLocId;         ///< input detector location id (fDetLoc -> jnubeam idfd)
+  bool      fIsFDLoc;          ///< input location is a 'far'  detector location?
+  bool      fIsNDLoc;          ///< input location is a 'near' detector location?
   long int  fNEntries;         ///< number offlux ntuple entries
   long int  fIEntry;           ///< current flux ntuple entry
-  TBranch * fBrNorm;           ///< 'norm'     branch: Weight for ND: flux /detector /1E+21 pot or FD: flux /cm2 /1E+21 pot
-  TBranch * fBrIdfd;           ///< 'idfd'     branch: Detector ID
-  TBranch * fBrEnu;            ///< 'Enu'      branch: Neutrino energy (GeV)
-  TBranch * fBrRnu;            ///< 'rnu'      branch: Neutrino radial position (cm, in detectro coord system)
-  TBranch * fBrXnu;            ///< 'xnu'      branch: Neutrino x position (cm, in detector coord system)
-  TBranch * fBrYnu;            ///< 'ynu'      branch: Neutrino y position (cm, in detector coord system)
-  TBranch * fBrNnu;            ///< 'nnu'      branch: Neutrino direction (in t2k global coord system)
-  TBranch * fBrPpid;           ///< 'ppid'     branch: Neutrino parent GEANT particle id 
-  TBranch * fBrMode;           ///< 'mode'     branch: Neutrino parent particle decay mode (see http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/nemode.h)
-  TBranch * fBrPpi;            ///< 'ppi'      branch: Neutrino parent particle momentum at its decay point (GeV)
-  TBranch * fBrXpi;            ///< 'xpi'      branch: Neutrino parent particle position vector at decay (cm, in t2k global coord system)
-  TBranch * fBrNpi;            ///< 'npi'      branch: Neutrino parent particle direction vector at decay (in t2k global coord system) 
-  TBranch * fBrCospibm;        ///< 'cospibm'  branch: Neutrino parent particle direction cosine at decay (with respect to the beam direction)
-  TBranch * fBrPpi0;           ///< 'ppi0'     branch: Neutrino parent particle momentum at its production point (GeV)
-  TBranch * fBrXpi0;           ///< 'xpi0'     branch: Neutrino parent particle position vector at production (cm, in t2k global coord system)
-  TBranch * fBrNpi0;           ///< 'npi0'     branch: Neutrino parent particle direction vector at production (in t2k global coord system)
-  TBranch * fBrCospi0bm;       ///< 'cospi0bm' branch: Neutrino parent particle direction cosine at production (with respect to the beam direction)
+
+  //-- jnubeam ntuple branches
+  //   branches marked with [f] can be found in SK flux ntuples only
+  //   branches marked with [n] can be found in near detector flux ntuples only
+  //   branches marked with [a] can be found in both ntuples
+  TBranch * fBrNorm;           ///< 'norm'     branch [a]: Weight for ND: flux /detector /1E+21 pot or FD: flux /cm2 /1E+21 pot
+  TBranch * fBrIdfd;           ///< 'idfd'     branch [n]: Detector ID
+  TBranch * fBrEnu;            ///< 'Enu'      branch [a]: Nu energy (GeV)
+  TBranch * fBrRnu;            ///< 'rnu'      branch [n]: Nu radial position (cm, in detectro coord system)
+  TBranch * fBrXnu;            ///< 'xnu'      branch [n]: Nu x position (cm, in detector coord system)
+  TBranch * fBrYnu;            ///< 'ynu'      branch [n]: Nu y position (cm, in detector coord system)
+  TBranch * fBrNnu;            ///< 'nnu'      branch [n]: Nu direction (in t2k global coord system)
+  TBranch * fBrPpid;           ///< 'ppid'     branch [a]: Nu parent GEANT particle id 
+  TBranch * fBrMode;           ///< 'mode'     branch [a]: Nu parent decay mode (see http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/nemode.h)
+  TBranch * fBrPpi;            ///< 'ppi'      branch [a]: Nu parent momentum at its decay point (GeV)
+  TBranch * fBrXpi;            ///< 'xpi'      branch [a]: Nu parent position vector at decay (cm, in t2k global coord system)
+  TBranch * fBrNpi;            ///< 'npi'      branch [a]: Nu parent direction vector at decay (in t2k global coord system) 
+  TBranch * fBrCospibm;        ///< 'cospibm'  branch [a]: Nu parent direction cosine at decay (with respect to the beam direction)
+  TBranch * fBrPpi0;           ///< 'ppi0'     branch [a]: Nu parent momentum at its production point (GeV)
+  TBranch * fBrXpi0;           ///< 'xpi0'     branch [a]: Nu parent position vector at production (cm, in t2k global coord system)
+  TBranch * fBrNpi0;           ///< 'npi0'     branch [a]: Nu parent direction vector at production (in t2k global coord system)
+  TBranch * fBrCospi0bm;       ///< 'cospi0bm' branch [n]: Nu parent direction cosine at production (with respect to the beam direction)
+  TBranch * fBrNVtx0;          ///< 'nvtx0'    branch [f]: Number of vtx where the nu. parent was produced
   float     fLfNorm;           ///< leaf on branch 'norm'
   int       fLfIdfd;           ///< leaf on branch 'idfd'
   float     fLfEnu;            ///< leaf on branch 'Enu'
@@ -128,6 +142,7 @@ private:
   float     fLfXpi0[3];        ///< leaf on branch 'xpi0'
   float     fLfNpi0[3];        ///< leaf on branch 'npi0'
   float     fLfCospi0bm;       ///< leaf on branch 'cospi0bm'
+  float     fLfNVtx0;          ///< leaf on branch 'nvtx0'
 
   GJPARCNuFluxPassThroughInfo * fPassThroughInfo;
 };
@@ -143,9 +158,17 @@ public:
    GJPARCNuFluxPassThroughInfo(const GJPARCNuFluxPassThroughInfo & info);
    virtual ~GJPARCNuFluxPassThroughInfo() { };
 
-   int    pdg, decayMode;
-   double decayP, decayX, decayY, decayZ, decayDirX, decayDirY, decayDirZ;
-   double prodP,  prodX,  prodY,  prodZ,  prodDirX,  prodDirY,  prodDirZ;
+   friend ostream & operator << (ostream & stream, const GJPARCNuFluxPassThroughInfo & info);
+
+   int    pdg;
+   int    decayMode;
+   double decayP;
+   double decayX, decayY, decayZ;
+   double decayDirX, decayDirY, decayDirZ;
+   double prodP;
+   double prodX,  prodY,  prodZ;
+   double prodDirX,  prodDirY,  prodDirZ;
+   int    prodNVtx;
 
 ClassDef(GJPARCNuFluxPassThroughInfo,1)
 };
