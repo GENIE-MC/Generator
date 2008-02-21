@@ -74,9 +74,7 @@ const EventGeneratorI * EventGeneratorListAssembler::LoadGenerator(int ip)
   assert(evgen);
 
   SLOG("EvGenListAssembler", pNOTICE) 
-        << "Loaded generator: " << evgen->Id().Key();
-
-  SLOG("EvGenListAssembler", pNOTICE) << "\n";
+        << "** Loaded generator: " << evgen->Id().Key();
 
   return evgen;
 }

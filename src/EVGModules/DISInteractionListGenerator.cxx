@@ -44,14 +44,14 @@ DISInteractionListGenerator::~DISInteractionListGenerator()
 InteractionList * DISInteractionListGenerator::CreateInteractionList(
                                       const InitialState & init_state) const
 {
-  LOG("InteractionList", pINFO)
-                          << "InitialState = " << init_state.AsString();
+  LOG("IntLst", pINFO)
+     << "InitialState = " << init_state.AsString();
 
   InteractionType_t inttype;
   if      (fIsCC) inttype = kIntWeakCC;
   else if (fIsNC) inttype = kIntWeakNC;
   else {
-     LOG("InteractionList", pWARN)
+     LOG("IntLst", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "
                          << "for init-state: " << init_state.AsString();
      return 0;
@@ -61,7 +61,7 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
   Target * target = init_state.TgtPtr();
 
   if( !pdg::IsNeutrino(nupdg) && !pdg::IsAntiNeutrino(nupdg) ) {
-     LOG("InteractionList", pWARN)
+     LOG("IntLst", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
                          << "for init-state: " << init_state.AsString();
      return 0;
@@ -120,7 +120,7 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
   }//N
 
   if(intlist->size() == 0) {
-     LOG("InteractionList", pERROR)
+     LOG("IntLst", pERROR)
          << "Returning NULL InteractionList for init-state: "
                                                   << init_state.AsString();
      delete intlist;

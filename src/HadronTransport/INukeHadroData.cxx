@@ -154,7 +154,7 @@ void INukeHadroData::LoadCrossSections(void)
              string(gSystem->Getenv("GINUKEHADRONDATA")) :
              string(gSystem->Getenv("GENIE")) + string("/data/hadron_xsec");
 
-  LOG("INukeData", pNOTICE)  
+  LOG("INukeData", pINFO)  
       << "Loading INTRANUKE hadron data from: " << data_dir;
 
   //-- Build filenames
@@ -171,7 +171,7 @@ void INukeHadroData::LoadCrossSections(void)
   assert( ! gSystem->AccessPathName(datafile_NA. c_str()) );
   assert( ! gSystem->AccessPathName(datafile_piA.c_str()) );
 
-  LOG("INukeData", pNOTICE)  << "Found all necessary data files...";
+  LOG("INukeData", pINFO)  << "Found all necessary data files...";
 
   //-- Load data files
 
@@ -194,7 +194,7 @@ void INukeHadroData::LoadCrossSections(void)
   LOG("INukeData", pDEBUG)  << "Number of data rows in NA  : " << data_NA.GetEntries();
   LOG("INukeData", pDEBUG)  << "Number of data rows in piA : " << data_piA.GetEntries();
 
-  LOG("INukeData", pNOTICE)  << "Done loading all x-section files...";
+  LOG("INukeData", pINFO)  << "Done loading all x-section files...";
 
   //-- Build x-section splines
 
@@ -279,7 +279,7 @@ void INukeHadroData::LoadCrossSections(void)
   fXSecPi0A_NNPP    = new Spline(&data_piA, "ke:piA_2n2p");    
   fXSecPi0A_NPipPi0 = new Spline(&data_piA, "ke:piA_npippi0");    
 
-  LOG("INukeData", pNOTICE)  << "Done building x-section splines...";
+  LOG("INukeData", pINFO)  << "Done building x-section splines...";
 }
 //____________________________________________________________________________
 double INukeHadroData::XSec(int hpdgc, INukeFateHA_t fate, double ke) const

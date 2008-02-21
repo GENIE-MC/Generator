@@ -44,8 +44,8 @@ QELInteractionListGenerator::~QELInteractionListGenerator()
 InteractionList * QELInteractionListGenerator::CreateInteractionList(
                                        const InitialState & init_state) const
 {
-  LOG("InteractionList", pINFO)
-                          << "InitialState = " << init_state.AsString();
+  LOG("IntLst", pINFO)
+     << "InitialState = " << init_state.AsString();
 
   if      (fIsCC && !fIsCharm) 
                 return this->CreateInteractionListCC(init_state);
@@ -54,9 +54,9 @@ InteractionList * QELInteractionListGenerator::CreateInteractionList(
   else if (fIsCC &&  fIsCharm) 
                 return this->CreateInteractionListCharmCC(init_state);
   else {
-     LOG("InteractionList", pWARN)
+     LOG("IntLst", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "
-                         << "for init-state: " << init_state.AsString();
+       << "for init-state: " << init_state.AsString();
      return 0;
   }
   return 0;
@@ -87,9 +87,9 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
      intlist->push_back(interaction);
 
   } else {
-     LOG("InteractionList", pWARN)
+     LOG("IntLst", pWARN)
        << "Returning NULL InteractionList for init-state: "
-                                                  << init_state.AsString();
+       << init_state.AsString();
      delete interaction;
      delete intlist;
      return 0;
@@ -109,9 +109,9 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
   bool     isnubar = pdg::IsAntiNeutrino (nupdg);
 
   if(!isnu && !isnubar) {
-     LOG("InteractionList", pWARN)
+     LOG("IntLst", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
-                         << "for init-state: " << init_state.AsString();
+       << "for init-state: " << init_state.AsString();
      delete intlist;
      return 0;
   }
@@ -138,9 +138,9 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
   }
 
   if(intlist->size() == 0) {
-     LOG("InteractionList", pERROR)
+     LOG("IntLst", pERROR)
        << "Returning NULL InteractionList for init-state: "
-                                                  << init_state.AsString();
+       << init_state.AsString();
      delete intlist;
      return 0;
   }
@@ -158,9 +158,9 @@ InteractionList *
   int  nupdg = init_state.ProbePdg();
   bool isnu = pdg::IsNeutrino(nupdg);
   if(!isnu) {
-     LOG("InteractionList", pERROR)
+     LOG("IntLst", pERROR)
        << "Returning NULL InteractionList for init-state: "
-                                                  << init_state.AsString();
+       << init_state.AsString();
      return 0;
   }
 

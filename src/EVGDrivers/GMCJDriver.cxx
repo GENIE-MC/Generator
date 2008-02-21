@@ -337,20 +337,18 @@ void GMCJDriver::BootstrapXSecSplines(void)
   if(!fUseSplines) return;
 
   LOG("GMCJDriver", pNOTICE) 
-      << "Asking event generation drivers for";
+    << "Asking event generation drivers to compute all needed xsec splines";
 
   PDGCodeList::const_iterator nuiter;
   PDGCodeList::const_iterator tgtiter;
   for(nuiter = fNuList.begin(); nuiter != fNuList.end(); ++nuiter){
      for(tgtiter = fTgtList.begin(); tgtiter != fTgtList.end(); ++tgtiter) {
-
        int target_pdgc   = *tgtiter;
        int neutrino_pdgc = *nuiter;
        InitialState init_state(target_pdgc, neutrino_pdgc);
-
        LOG("GMCJDriver", pINFO)
-             << "Computing all splines needed for init-state: "
-                                                  << init_state.AsString();
+           << "Computing all splines needed for init-state: "
+           << init_state.AsString();
        GEVGDriver * evgdriver = fGPool->FindDriver(init_state);
        evgdriver->CreateSplines(-1,-1,fUseLogE);
      } // targets
@@ -403,7 +401,7 @@ void GMCJDriver::ComputeProbScales(void)
 // proportions between differect flux neutrino species or flux neutrinos of 
 // different energies.
 
-  LOG("GMCJDriver", pINFO)
+  LOG("GMCJDriver", pNOTICE)
     << "Computing the max. interaction probability (probability scale)";
 
   // clean up global probability scale and maximum probabilties per neutrino
@@ -470,7 +468,7 @@ void GMCJDriver::ComputeProbScales(void)
 
        pmax_hst->SetBinContent(ie, 1.2 * pmax_hst->GetBinContent(ie));
 
-       LOG("GMCJDriver", pNOTICE)
+       LOG("GMCJDriver", pINFO)
           << "Pmax[nu=" << neutrino_pdgc << ", Ev=" << Ev << "] = " 
           <<  pmax_hst->GetBinContent(ie);
     } // E
@@ -494,6 +492,8 @@ void GMCJDriver::ComputeProbScales(void)
 //  fGlobPmax += pmax;
     fGlobPmax = TMath::Max(pmax, fGlobPmax); // ?;
   }
+
+  LOG("GMCJDriver", pNOTICE) << "*** Probability scale = " << fGlobPmax;
 }
 //___________________________________________________________________________
 void GMCJDriver::InitEventGeneration(void)
@@ -521,7 +521,7 @@ EventRecord * GMCJDriver::GenerateEvent(void)
     if(event) return event;
 
     if(fKeepThrowingFluxNu) {
-         LOG("GMCJDriver", pINFO)
+         LOG("GMCJDriver", pNOTICE)
              << "Flux neutrino didn't interact - Trying the next one...";
          continue;
     }
@@ -631,7 +631,7 @@ bool GMCJDriver::GenerateFluxNeutrino(void)
 // Ask the neutrino flux driver to generate a flux neutrino and make sure
 // that things look ok...
 //
-  LOG("GMCJDriver", pINFO) << "Generating a flux neutrino";
+  LOG("GMCJDriver", pNOTICE) << "Generating a flux neutrino";
 
   bool ok = fFluxDriver->GenerateNext();
   if(!ok) {
@@ -781,14 +781,14 @@ int GMCJDriver::SelectTargetMaterial(double R)
 // Pick a target material using the pre-computed interaction probabilities
 // for a flux neutrino that has already been determined that interacts
 
-  LOG("GMCJDriver", pINFO) << "Selecting target material";
+  LOG("GMCJDriver", pNOTICE) << "Selecting target material";
   int tgtpdg = 0;
   map<int,double>::const_iterator probiter = fCurCumulProbMap.begin();
   for( ; probiter != fCurCumulProbMap.end(); ++probiter) {
      double prob = probiter->second;
      if(R<prob) {
         tgtpdg = probiter->first;
-        LOG("GMCJDriver", pINFO) 
+        LOG("GMCJDriver", pNOTICE) 
           << "Selected target material = " << tgtpdg;
         return tgtpdg;
      }
@@ -824,8 +824,8 @@ void GMCJDriver::GenerateVertexPosition(void)
 {
   // Generate an 'interaction position' in the selected material, along
   // the direction of nup4
-  LOG("GMCJDriver", pINFO)
-                  << "Asking the geometry analyzer to generate a vertex";
+  LOG("GMCJDriver", pNOTICE)
+     << "Asking the geometry analyzer to generate a vertex";
 
   const TLorentzVector & p4 = fFluxDriver->Momentum ();
   const TLorentzVector & x4 = fFluxDriver->Position ();
@@ -839,8 +839,8 @@ void GMCJDriver::GenerateVertexPosition(void)
   double c  = kLightSpeed /(units::meter/units::second);
   double dt = dL/c;
 
-  LOG("GMCJDriver", pINFO)
-        << "|vtx - origin|: dL = " << dL << " m, dt = " << dt << " sec";
+  LOG("GMCJDriver", pNOTICE)
+     << "|vtx - origin|: dL = " << dL << " m, dt = " << dt << " sec";
 
   fCurVtx.SetXYZT(vtx.x(), vtx.y(), vtx.z(), x4.T() + dt);
 
