@@ -100,7 +100,7 @@ void NuclearModelMap::LoadConfig(void)
   //
   RgAlg dgmodel = 
           fConfig->GetAlgDef("NuclearModel", gc->GetAlg("NuclearModel"));
-  LOG("Nuclear", pNOTICE) 
+  LOG("Nuclear", pINFO) 
           << "Default global nuclear model: " << dgmodel;
   fDefGlobModel = 
       dynamic_cast<const NuclearModelI *> (this->SubAlg("NuclearModel"));

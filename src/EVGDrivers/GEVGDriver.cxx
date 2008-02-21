@@ -231,7 +231,7 @@ void GEVGDriver::BuildInteractionGeneratorMap(void)
 
   string mesgh = "Interaction -> Generator assignments for Initial State: ";
 
-  LOG("GEVGDriver", pNOTICE)
+  LOG("GEVGDriver", pINFO)
     << utils::print::PrintFramedMesg(mesgh + fInitState->AsString(), 0, '-')
     << *fIntGenMap;
 }
@@ -447,7 +447,7 @@ void GEVGDriver::CreateXSecSumSpline(
 // material out of all the materials in a detector geometry (summing the
 // cross sections again and again proved to be expensive...)
 
-  LOG("GEVGDriver", pNOTICE)
+  LOG("GEVGDriver", pINFO)
      << "Creating spline (sum-xsec = f(" << ((inlogE) ? "logE" : "E")
      << ") in E = [" << Emin << ", " << Emax << "] using " << nk << " knots";
 

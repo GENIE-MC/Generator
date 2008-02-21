@@ -42,7 +42,7 @@ RSPPInteractionListGenerator::~RSPPInteractionListGenerator()
 InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
                                        const InitialState & init_state) const
 {
-  LOG("InteractionList", pINFO) << "InitialState = " << init_state.AsString();
+  LOG("IntLst", pINFO) << "InitialState = " << init_state.AsString();
 
   // In the thread generating interactions from the list produced here (SPP), 
   // we can have (for free and nuclear targets):
@@ -94,7 +94,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
     nunc_channels[3] = kSpp_vbn_nc_10001;
   } 
   else {
-     LOG("InteractionList", pWARN)
+     LOG("IntLst", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
                          << "for init-state: " << init_state.AsString();
      return 0;
@@ -149,11 +149,10 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
     }//nc channels
   }//cc/nc
 
-
   if(intlist->size() == 0) {
-     LOG("InteractionList", pERROR)
+     LOG("IntLst", pERROR)
        << "Returning NULL InteractionList for init-state: "
-                                                  << init_state.AsString();
+       << init_state.AsString();
      delete intlist;
      return 0;
   }
@@ -176,17 +175,17 @@ void RSPPInteractionListGenerator::AddFinalStateInfo(
   if       ( nucpdg == kPdgProton  ) nproton  = 1;
   else if  ( nucpdg == kPdgNeutron ) nneutron = 1;
   else {
-     LOG("InteractionGenerator", pERROR)
-          << "Final state nucleon not a proton or a neutron! (pdg="
-                                                             << nucpdg <<")";
+     LOG("IntLst", pERROR)
+        << "Final state nucleon not a proton or a neutron! (pdg="
+        << nucpdg <<")";
   }
 
   if       ( pipdg == kPdgPiP  ) npiplus  = 1;
   else if  ( pipdg == kPdgPi0  ) npi0     = 1;
   else if  ( pipdg == kPdgPiM  ) npiminus = 1;
   else {
-     LOG("InteractionGenerator", pERROR)
-              << "Final state pion not a pi+/pi-/pi0! (pdg=" << pipdg <<")";
+     LOG("IntLst", pERROR)
+        << "Final state pion not a pi+/pi-/pi0! (pdg=" << pipdg <<")";
   }
 
   XclsTag exclusive_tag;

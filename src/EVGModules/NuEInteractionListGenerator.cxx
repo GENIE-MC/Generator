@@ -44,7 +44,7 @@ NuEInteractionListGenerator::~NuEInteractionListGenerator()
 InteractionList * NuEInteractionListGenerator::CreateInteractionList(
                                        const InitialState & init_state) const
 {
-  LOG("InteractionList", pINFO) << "InitialState = " << init_state.AsString();
+  LOG("IntLst", pINFO) << "InitialState = " << init_state.AsString();
 
   if(fIsIMD)  return this -> IMDInteractionList   (init_state);
   else        return this -> NuEELInteractionList (init_state);
@@ -57,7 +57,7 @@ InteractionList * NuEInteractionListGenerator::IMDInteractionList(
 // numu + e- -> mu- + nu_e [CC] -- 'inverse muon decay'
 
   if(init_state.ProbePdg() != kPdgNuMu) {
-     LOG("InteractionList", pDEBUG) 
+     LOG("IntLst", pDEBUG) 
           << "Return *null* interaction list (non nu_mu probe in IMD thread)";
      return 0;
   }

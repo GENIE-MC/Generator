@@ -247,8 +247,8 @@ void EventGenerator::LoadConfig(void)
     RgKey key = keystream.str();
 
     fConfig->AssertExistence(key);
-    SLOG("EventGenerator", pNOTICE)
-        << "Loading module " << istep << " : " << fConfig->GetAlg(key);
+    SLOG("EventGenerator", pINFO)
+        << " -- Loading module " << istep << " : " << fConfig->GetAlg(key);
 
     const EventRecordVisitorI * visitor =
                dynamic_cast<const EventRecordVisitorI *>(this->SubAlg(key));
@@ -261,8 +261,8 @@ void EventGenerator::LoadConfig(void)
   RgKey ikey = "ILstGen";
   fConfig->AssertExistence(ikey);
   RgAlg ialg = fConfig->GetAlg(ikey);
-  LOG("EventGenerator", pNOTICE) 
-      << "Loading the interaction list generator: " << ialg;
+  LOG("EventGenerator", pINFO) 
+      << " -- Loading the interaction list generator: " << ialg;
   fIntListGen = 
       dynamic_cast<const InteractionListGeneratorI *> (this->SubAlg(ikey));
   assert(fIntListGen);
@@ -271,8 +271,8 @@ void EventGenerator::LoadConfig(void)
   RgKey xkey    = "XSecModel";
   RgKey xdefkey = "XSecModel@" + this->Id().Key();
   RgAlg xalg    = fConfig->GetAlgDef(xkey, gc->GetAlg(xdefkey));
-  LOG("EventGenerator", pNOTICE) 
-     << "Loading the cross section model: " << xalg;
+  LOG("EventGenerator", pINFO) 
+     << " -- Loading the cross section model: " << xalg;
   fXSecModel = dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(xkey));
   assert(fXSecModel);
 }

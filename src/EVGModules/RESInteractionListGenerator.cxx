@@ -46,7 +46,7 @@ RESInteractionListGenerator::~RESInteractionListGenerator()
 InteractionList * RESInteractionListGenerator::CreateInteractionList(
                                        const InitialState & init_state) const
 {
-  LOG("InteractionList", pINFO) << "InitialState = " << init_state.AsString();
+  LOG("IntLst", pINFO) << "InitialState = " << init_state.AsString();
 
   // In the thread generating interactions from the list produced here (RES), 
   // we simulate (for free and nuclear targets) semi-inclusive resonance
@@ -75,9 +75,9 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
   if      (fIsCC) inttype = kIntWeakCC;
   else if (fIsNC) inttype = kIntWeakNC;
   else {
-     LOG("InteractionList", pWARN)
+     LOG("IntLst", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "
-                         << "for init-state: " << init_state.AsString();
+       << "for init-state: " << init_state.AsString();
      return 0;
   }
 
@@ -136,9 +136,9 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
   } //resonances
 
   if(intlist->size() == 0) {
-     LOG("InteractionList", pERROR)
+     LOG("IntLst", pERROR)
        << "Returning NULL InteractionList for init-state: "
-                                                  << init_state.AsString();
+       << init_state.AsString();
      delete intlist;
      return 0;
   }
@@ -169,15 +169,15 @@ void RESInteractionListGenerator::LoadConfigData(void)
   // Create the list with all the baryon resonances that the user wants me to
   // consider (from this algorithm's config file).
 
-  LOG("InteractionList", pDEBUG) << "Getting the baryon resonance list";
+  LOG("IntLst", pDEBUG) << "Getting the baryon resonance list";
 
   fResList.Clear();
   string resonances = fConfig->GetStringDef(
-                   "ResonanceNameList", gc->GetString("ResonanceNameList"));
-  SLOG("InteractionList", pDEBUG) << "Resonance list: " << resonances;
+          "ResonanceNameList", gc->GetString("ResonanceNameList"));
+  SLOG("IntLst", pDEBUG) << "Resonance list: " << resonances;
 
   fResList.DecodeFromNameList(resonances);
-  LOG("InteractionList", pDEBUG) << fResList;
+  LOG("IntLst", pDEBUG) << fResList;
 }
 //____________________________________________________________________________
 

@@ -1348,12 +1348,12 @@ void Intranuke::LoadConfig(void)
   fHadStep     = fConfig->GetDoubleDef ("HadStep",      gc->GetDouble("INUKE-HadStep"));     // fm
 
   //-- report
-  LOG("Intranuke", pNOTICE) << "mode        = " << INukeMode::AsString(fMode);
-  LOG("Intranuke", pNOTICE) << "R0          = " << fR0        << " fermi";
-  LOG("Intranuke", pNOTICE) << "NR          = " << fNR;
-  LOG("Intranuke", pNOTICE) << "DelRPion    = " << fDelRPion;
-  LOG("Intranuke", pNOTICE) << "DelRNucleon = " << fDelRNucleon;
-  LOG("Intranuke", pNOTICE) << "HadStep     = " << fHadStep   << " fermi";
+  LOG("Intranuke", pINFO) << "mode        = " << INukeMode::AsString(fMode);
+  LOG("Intranuke", pINFO) << "R0          = " << fR0 << " fermi";
+  LOG("Intranuke", pINFO) << "NR          = " << fNR;
+  LOG("Intranuke", pINFO) << "DelRPion    = " << fDelRPion;
+  LOG("Intranuke", pINFO) << "DelRNucleon = " << fDelRNucleon;
+  LOG("Intranuke", pINFO) << "HadStep     = " << fHadStep << " fermi";
 }
 //___________________________________________________________________________
 

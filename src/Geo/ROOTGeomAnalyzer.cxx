@@ -262,7 +262,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     TVector3 dir(0.,0.,0.); // direction
 
     //top:
-    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [TOP]";
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [TOP]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -275,7 +275,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 /*
     //bottom:
-    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [BOTTOM]";
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [BOTTOM]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -288,7 +288,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 */
     //left:
-    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [LEFT]";
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [LEFT]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -301,7 +301,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 /*
     //right:
-    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [RIGHT]";
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [RIGHT]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -314,7 +314,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 */
     //front:
-    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [FRONT]";
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [FRONT]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -327,7 +327,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     }
 /*
     //back:
-    LOG("GROOTGeom",pNOTICE) << "Box surface scanned: [BACK]";
+    LOG("GROOTGeom",pINFO) << "Box surface scanned: [BACK]";
     ipoint=0;
     while (ipoint++ < maxPoints) {
       iray=0;
@@ -342,8 +342,8 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     maxPath *= (this->MaxPlSafetyFactor());
     fCurrMaxPathLengthList->AddPathLength(pdgc, maxPath); // GU
 
-    LOG("GROOTGeom", pNOTICE)
-                       << "Max path length found = " << maxPath << " GU";
+    LOG("GROOTGeom", pINFO)
+           << "Max path length found = " << maxPath << " GU";
   }
   this->ScalePathLengths(*fCurrMaxPathLengthList); // GU -> m
 }
@@ -684,7 +684,10 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
      }//condition
   }
 
-  LOG("GROOTGeom", pDEBUG) << "PathLength[" << pdgc << "] = " << pl << " GU";
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("GROOTGeom", pDEBUG) 
+       << "PathLength[" << pdgc << "] = " << pl << " GU";
+#endif
 
   return pl;
 }
