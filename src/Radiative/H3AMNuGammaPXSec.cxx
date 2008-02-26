@@ -61,12 +61,16 @@ double H3AMNuGammaPXSec::Integral(const Interaction * interaction) const
   const InitialState & init_state = interaction -> InitState();
   const Target &       target     = init_state.Tgt();
   double Ev    = init_state.ProbeE(kRfHitNucRest);
-  double xsec0 = 2.2E-41 * units::cm2;
+//  double xsec0 = 2.2E-41 * units::cm2;
+  double xsec0 = 2.2E-41;
   double xsec  = xsec0 * TMath::Power(Ev,6.) * TMath::Power(0.1*fGw,4.);
 
+  LOG("AMNuGamma", pNOTICE)
+    << "*** xsec(vN->vNgamma) [free nuc](Ev="<< Ev << ") = "<< xsec;
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("Elastic", pDEBUG)
-    << "*** dxsec(vN->vNgamma)/dcosg [free nuc](Ev="<< Ev << ") = "<< xsec;
+  LOG("AMNuGamma", pDEBUG)
+    << "*** xsec(vN->vNgamma) [free nuc](Ev="<< Ev << ") = "<< xsec;
 #endif
 
   // If requested return the free xsec even for nuclear target
@@ -110,7 +114,8 @@ void H3AMNuGammaPXSec::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
-  fGw = fConfig->GetDoubleDef("AMNuGamma-Gw", gc->GetDouble("Gw"));
+
+  fGw = fConfig->GetDoubleDef("Gw", gc->GetDouble("AMNuGamma-Gw"));
 }
 //____________________________________________________________________________
 
