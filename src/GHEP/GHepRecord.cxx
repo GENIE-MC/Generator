@@ -576,8 +576,8 @@ bool GHepRecord::HasCompactDaughterList(int pos)
     if(p->FirstMother() == pos) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("GHEP", pDEBUG) << "Particle at: " << i << " is a daughter";
-       daughters.push_back(i);
 #endif
+       daughters.push_back(i);
     }
     i++;
   }
