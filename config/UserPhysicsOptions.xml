@@ -152,6 +152,12 @@ Use the "Default" one to get the best GENIE physics & tuning.
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters for anomaly mediated neutrino-gamma interactions
+  -->
+ <param type="double" name="AMNuGamma-Gw"> 20.0 </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   BBA2003 elastic form factor parameters
   - BBA03-Gen-* are parameters for the Krutov Gen parameterization used in BBA2003
   - BBA03-Gep/Gmp/Gmn-* are coefficients for the BBA2003 inverse polynomial fit for Gep,Gmp,Gmn
@@ -479,6 +485,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">       genie::NuElectronPXSec/Default        </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-CHARM"> genie::KovalenkoQELCharmPXSec/Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM"> genie::AivazisCharmPXSecLO/CC-Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/AM-NUGAMMA">   genie::H3AMNuGammaPXSec/Default       </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

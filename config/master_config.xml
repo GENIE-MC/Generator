@@ -2,7 +2,7 @@
 
 <genie_config>
 
-   <!-- ****** CONFIGURATION FOR EV-REC VISITORS ****** -->
+   <!-- ****** CONFIGURATION FOR EVEBT GENERATION MODULES ****** -->
    <config alg="genie::EventGenerator">              EventGenerator.xml              </config>
    <config alg="genie::FermiMover">                  FermiMover.xml                  </config>
    <config alg="genie::HadronTransporter">           HadronTransporter.xml           </config>
@@ -34,16 +34,18 @@
    <config alg="genie::RSPPHadronicSystemGenerator"> RSPPHadronicSystemGenerator.xml </config>
    <config alg="genie::NuETargetRemnantGenerator">   NuETargetRemnantGenerator.xml   </config>
    <config alg="genie::RSPPResonanceSelector">       RSPPResonanceSelector.xml       </config>
+   <config alg="genie::AMNuGammaGenerator">          AMNuGammaGenerator.xml          </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
-   <config alg="genie::QELInteractionListGenerator"> QELInteractionListGenerator.xml </config>
-   <config alg="genie::RSPPInteractionListGenerator">RSPPInteractionListGenerator.xml</config>
-   <config alg="genie::RESInteractionListGenerator"> RESInteractionListGenerator.xml </config>
-   <config alg="genie::DISInteractionListGenerator"> DISInteractionListGenerator.xml </config>
-   <config alg="genie::NuEInteractionListGenerator"> NuEInteractionListGenerator.xml </config>
-   <config alg="genie::COHInteractionListGenerator"> COHInteractionListGenerator.xml </config>
-   <config alg="genie::InteractionListAssembler">    InteractionListAssembler.xml    </config>
-   <config alg="genie::EventGeneratorListAssembler"> EventGeneratorListAssembler.xml </config>
+   <config alg="genie::AMNuGammaInteractionListGenerator"> AMNuGammaInteractionListGenerator.xml </config>
+   <config alg="genie::QELInteractionListGenerator">       QELInteractionListGenerator.xml       </config>
+   <config alg="genie::RSPPInteractionListGenerator">      RSPPInteractionListGenerator.xml      </config>
+   <config alg="genie::RESInteractionListGenerator">       RESInteractionListGenerator.xml       </config>
+   <config alg="genie::DISInteractionListGenerator">       DISInteractionListGenerator.xml       </config>
+   <config alg="genie::NuEInteractionListGenerator">       NuEInteractionListGenerator.xml       </config>
+   <config alg="genie::COHInteractionListGenerator">       COHInteractionListGenerator.xml       </config>
+   <config alg="genie::InteractionListAssembler">          InteractionListAssembler.xml          </config>
+   <config alg="genie::EventGeneratorListAssembler">       EventGeneratorListAssembler.xml       </config>
 
    <!--  ****** CONFIGURATION FOR INTERACTION SELECTORS ****** -->
    <config alg="genie::PhysInteractionSelector">     PhysInteractionSelector.xml     </config>
@@ -127,7 +129,7 @@
    <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
    <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>
 
-   <!--  ****** CONFIGURATION FOR BREIT-WIGNER ALGORITHMSS  ****** -->
+   <!--  ****** CONFIGURATION FOR BREIT-WIGNER ALGORITHMS  ****** -->
    <config alg="genie::BreitWignerLRes">             BreitWignerRes.xml              </config>
    <config alg="genie::BreitWignerRes">              BreitWignerRes.xml              </config>
 

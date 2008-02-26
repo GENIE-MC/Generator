@@ -47,6 +47,11 @@ Name                        Type    Opt  Comment                                
      <param type="alg" name="Generator-1">  genie::EventGenerator/NUE-EL       </param>
   </param_set>
 
+  <param_set name="AM-NUGAMMA"> 
+     <param type="int" name="NGenerators">  1                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/AM-NUGAMMA   </param>
+  </param_set>
+
   <param_set name="DIS-CHARM"> 
      <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DIS-CC-CHARM </param>

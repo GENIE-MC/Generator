@@ -12,7 +12,6 @@ Name           Type     Optional   Comment                 Default
 -->
 
   <param_set name="Default"> 
-     <param type="double"  name="Gw"> 1.  </param>
   </param_set>
 
 </alg_conf>
