@@ -416,6 +416,7 @@ void Registry::Get(RgKey key, RgAlg & item) const
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Registry", pDEBUG) << "Item value = " << ri->Data();
 #endif
+
   item = ri->Data();
 }
 //____________________________________________________________________________
