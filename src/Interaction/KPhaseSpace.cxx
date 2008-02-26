@@ -17,6 +17,8 @@
    coherent elastic is not included at this moment.
  @ Jan 18, 2008 - CA
    Add protection against non-positive energy thresholds
+ @ Feb 25, 2008 - CA
+   Added threshold for anomaly-mediated single gamma interactions
 */
 //____________________________________________________________________________
 
@@ -109,6 +111,9 @@ double KPhaseSpace::Threshold(void) const
   if(pi.IsNuElectronElastic()) {
     return 0;
   }
+  if(pi.IsAMNuGamma()) {
+    return 0;
+  }
 
   SLOG("KPhaseSpace", pERROR) 
          << "Can't compute threshold for \n" << *fInteraction;
@@ -161,7 +166,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
   if (pi.IsCoherent() || pi.IsInverseMuDecay() || pi.IsNuElectronElastic()) {
       E = init_state.ProbeE(kRfLab);
   }
-  if(pi.IsQuasiElastic() || pi.IsResonant() || pi.IsDeepInelastic()) {
+  if(pi.IsQuasiElastic() || pi.IsResonant() || pi.IsDeepInelastic() || pi.IsAMNuGamma()) {
       E = init_state.ProbeE(kRfHitNucRest);
   }
 
