@@ -71,6 +71,9 @@ public :
   void LoadBeamSimData  (string filename, string det_loc);  ///< load a jnubeam root flux ntuple
   void SetFluxParticles (const PDGCodeList & particles);    ///< specify list of flux neutrino species
   void SetMaxEnergy     (double Ev);                        ///< specify maximum flx neutrino energy
+  void SetFilePOT       (double pot);                       ///< flux file norm is in /N POT/det [ND] or /N POT/cm^2 [FD]. Specify N (typically 1E+21)
+
+  double ActualPOT(void) const { return fFilePOT/fFileWeight; } ///< actual POT in file
 
   const GJPARCNuFluxPassThroughInfo & 
      PassThroughInfo(void) { return *fPassThroughInfo; } ///< GJPARCNuFluxPassThroughInfo
@@ -102,12 +105,14 @@ private:
   bool      fIsNDLoc;          ///< input location is a 'near' detector location?
   long int  fNEntries;         ///< number offlux ntuple entries
   long int  fIEntry;           ///< current flux ntuple entry
+  double    fFileWeight;       ///< file weight (POT normalization / actual POT)
+  double    fFilePOT;          ///< file POT normalization, typically 1E+21
 
   //-- jnubeam ntuple branches
   //   branches marked with [f] can be found in SK flux ntuples only
   //   branches marked with [n] can be found in near detector flux ntuples only
   //   branches marked with [a] can be found in both ntuples
-  TBranch * fBrNorm;           ///< 'norm'     branch [a]: Weight for ND: flux /detector /1E+21 pot or FD: flux /cm2 /1E+21 pot
+  TBranch * fBrNorm;           ///< 'norm'     branch [a]: Weight to give flux in /N POT/det. [ND] or /N POT/cm^2 [FD], where is N is typically 1E+21
   TBranch * fBrIdfd;           ///< 'idfd'     branch [n]: Detector ID
   TBranch * fBrEnu;            ///< 'Enu'      branch [a]: Nu energy (GeV)
   TBranch * fBrRnu;            ///< 'rnu'      branch [n]: Nu radial position (cm, in detectro coord system)

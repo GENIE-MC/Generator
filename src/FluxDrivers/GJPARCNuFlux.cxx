@@ -15,7 +15,9 @@
    the development version 2.3.1
  @ Feb 19, 2008 - CA
    Extended to handle all near detector locations and super-k
-
+ @ Feb 22, 2008 - CA
+   Added method to report the actual POT from the input file POT normalization
+   and the weight. Added
 */
 //____________________________________________________________________________
 
@@ -27,6 +29,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGCodeList.h"
+#include "Utils/MathUtils.h"
 #include "Utils/PrintUtils.h"
 
 using std::endl;
@@ -178,6 +181,20 @@ bool GJPARCNuFlux::GenerateNext(void)
   fPassThroughInfo -> prodDirZ  = fLfNpi0[2];
   fPassThroughInfo -> prodNVtx  = fLfNVtx0;
 
+  // Set the weight (for computing the actual POT) at the first pass.
+  // At subsequent passes check weights to ensure that the flux neutrinos 
+  // are unweighted (i.e. they all have the same weight)
+  if(fFileWeight<0) fFileWeight = (double)fLfNorm;
+  else {
+    if(! utils::math::AreEqual(fFileWeight, (double)fLfNorm)) {
+      LOG("Flux", pWARN) 
+        << "\n ** Flux neutrino weight mismatch! ("
+        << "Set file-wide weight = " << fFileWeight
+        << ", Current weight = " << fLfNorm << ")";
+//    exit(1);
+    }
+  }
+
   return true;
 }
 //___________________________________________________________________________
@@ -299,6 +316,14 @@ void GJPARCNuFlux::SetMaxEnergy(double Ev)
     << "Declared maximum flux neutrino energy: " << fMaxEv;
 }
 //___________________________________________________________________________
+void GJPARCNuFlux::SetFilePOT(double pot)
+{
+// The flux normalization is in /N POT/det [ND] or /N POT/cm^2 [FD]
+// This method specifies N (typically 1E+21)
+
+  fFilePOT = pot;
+}
+//___________________________________________________________________________
 void GJPARCNuFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing GJPARCNuFlux driver";
@@ -316,6 +341,8 @@ void GJPARCNuFlux::Initialize(void)
 
   fNEntries        = 0;
   fIEntry          = 0;
+  fFileWeight      = -1;
+  fFilePOT         = 0;
 
   fBrNorm          = 0;
   fBrIdfd          = 0;
@@ -357,7 +384,8 @@ void GJPARCNuFlux::SetDefaults(void)
   particles.push_back(kPdgAntiNuE);
 
   this->SetFluxParticles(particles);
-  this->SetMaxEnergy(22./*GeV*/);
+  this->SetMaxEnergy(25./*GeV*/);
+  this->SetFilePOT(1E+21);
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::ResetCurrent(void)
