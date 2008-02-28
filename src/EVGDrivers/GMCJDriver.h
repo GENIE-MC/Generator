@@ -58,6 +58,9 @@ public :
   // generate single neutrino event for input flux & geometry
   EventRecord * GenerateEvent (void);
 
+  // [in devel]
+  double GlobProbScale(void) const { return 1; }
+
 private:
  
   // private methods:
