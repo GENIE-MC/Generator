@@ -17,16 +17,17 @@
          and contact me <C.V.Andreopoulos@rl.ac.uk> if in doubt.
 
          Syntax :
-           gT2Kevgen [-h] [-r run#] -f flux -g geometry
-                     [-v geo_top_volume_name] [-p geo_maxpl_xml_file]
+           gT2Kevgen [-h] [-r run#] 
+                     -f flux_file,detector_location [-n flux_normalization]
+                     -g geometry [-v geo_top_volume_name] [-p geo_maxpl_xml_file]
                      [-L geo_length_units] [-D geo_density_units]
-                     <[-n nev_max]>
+                     <[-m max_nev]>
 
          Options :
            [] Denotes an optional argument
            <> Denotes test-mode arguments / don't use in physics production jobs
            -h Prints out the gT2Kevgen syntax and exits
-           -r Specifies the MC run number (def: 1000)
+           -r Specifies the MC run number [default: 1000]
            -g Input 'geometry'.
               This option can be used to specify any of:
                 * A ROOT file containing a ROOT/GEANT geometry description
@@ -64,13 +65,11 @@
               [default: mm]
            -D Input eometry density units 
               [default: gr_cm3]
-           -f Input neutrino flux. 
-              This can be used to specify any of:
-   	        * A ROOT file with a T2K/jnubeam-simulation flux neutrino ntuple
-                  AND the corresponding detector position.
-                  The general sytax is:
-                    -f /full/path/flux_file.root,detector_location
-                  [Notes] 
+           -f Input neutrino flux file (a T2K/jnubeam-simulation output) and 
+              detector location for that flux file.
+              The general sytax is:
+                  -f /full/path/flux_file.root,detector_location
+              [Notes] 
                   - For more information on the flux ntuples, see (T2K internal):  
                     http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/
                   - The detector location can be any of 'sk' or the near detector
@@ -84,20 +83,25 @@
                     (eg parent decay kinematics / position etc) for each neutrino 
                     event it generates (an additional 'flux' branch is added at 
                     the output event tree).
-                  [Examples] 
-                     >> to use the SuperK flux ntuple from the flux.root file, 
-                        type:
-                        '-f /path/flux.root,sk'
-                     >> to use the 2km flux ntuple [near detector position 'nd1'
-                        in the jnubeam flux simulation] from the flux.root file, 
-                        type:
-                        '-f /path/flux.root,nd1'
-                     >> to use the nd280 flux ntuple [near detector position 'nd2' 
-                        in the jnubeam flux simulation] from the flux.root file, 
-                        type:
-                        '-f /path/flux.root,nd2'
-                * 
-           -n The driver will normally keep on generating events till _all_ the 
+              [Examples] 
+                  - To use the SuperK flux ntuple from the flux.root file, 
+                    type:
+                       '-f /path/flux.root,sk'
+                  - To use the 2km flux ntuple [near detector position 'nd1'
+                    in the jnubeam flux simulation] from the flux.root file, 
+                    type:
+                       '-f /path/flux.root,nd1'
+                  - To use the nd280 flux ntuple [near detector position 'nd5' 
+                    in the jnubeam flux simulation] from the flux.root file, 
+                    type:
+                       '-f /path/flux.root,nd5'
+           -n Input neutrino flux normalization.
+              [default: The 'standard' T2K/jnubeam flux ntuple normalization of 
+               1E+21 POT/detector for the near detectors and
+               1E+21 POT/cm2 for the far detector]
+              That will be used to calculate the actual normalization for the
+              generated sample.
+           -m The driver will normally keep on generating events till _all_ the 
               flux neutrinos in the input flux tree have been 'thrown' towards
               the detector. The number of simulated neutrino interactions 
               depends on the input flux tree size. Set this option if you want
@@ -106,7 +110,7 @@
 
          Examples:
         
-         (1) shell% gT2Kevgen -r 2001 -f /data/t2k/flux/07a/jnubeam001.root,nd2
+         (1) shell% gT2Kevgen -r 2001 -f /data/t2k/flux/07a/jnubeam001.root,nd5
                               -g /data/t2k/geom/nd280.root -L mm -D g_cm3
 
              <description>
@@ -187,6 +191,7 @@ string        kDefOptGeomLUnits = "mm";     // default geometry length units
 string        kDefOptGeomDUnits = "g_cm3";  // default geometry density units
 NtpMCFormat_t kDefOptNtpFormat  = kNFGHEP;  // default event tree format
 Long_t        kDefOptMaxNev     = -1;       // 
+double        kDefOptFluxNorm   = 1E+21;    // std jnubeam flux ntuple norm. (POT/detector [NDs] or POT/cm^2 [SK])
 
 // User-specified options:
 //
@@ -201,6 +206,7 @@ string          gOptExtMaxPlXml;            // max path lengths XML file for inp
 string          gOptFluxFile;               // ROOT file with jnubeam flux ntuple
 string          gOptDetectorLocation;       // detector location ('sk','nd1','nd2',...)
 int             gOptMaxNev;                 // 
+double          gOptFluxNorm;               // std jnubeam flux ntuple norm
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -218,6 +224,7 @@ int main(int argc, char ** argv)
   //
   flux::GJPARCNuFlux * jparc_flux_driver = new flux::GJPARCNuFlux;
   jparc_flux_driver->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation);
+  jparc_flux_driver->SetFilePOT(gOptFluxNorm);
 
   //
   // *** Create/configure the geometry driver
@@ -231,7 +238,6 @@ int main(int argc, char ** argv)
       rgeom -> SetLengthUnits  (gOptGeomLUnits);
       rgeom -> SetDensityUnits (gOptGeomDUnits);
       rgeom -> SetTopVolName   (gOptRootGeomTopVol);
-
       geom_driver = dynamic_cast<GeomAnalyzerI *> (rgeom);
   } 
   else {
@@ -246,11 +252,11 @@ int main(int argc, char ** argv)
   // *** Create/configure the event generation driver
   //
   GMCJDriver * mcj_driver = new GMCJDriver;
-  mcj_driver->UseFluxDriver(jparc_flux_driver);
-  mcj_driver->UseGeomAnalyzer(geom_driver);
-  mcj_driver->UseMaxPathLengths(gOptExtMaxPlXml);
-  mcj_driver->Configure();
-  mcj_driver->UseSplines();
+  mcj_driver->UseFluxDriver(jparc_flux_driver);    
+  mcj_driver->UseGeomAnalyzer(geom_driver);        
+  mcj_driver->UseMaxPathLengths(gOptExtMaxPlXml);  
+  mcj_driver->Configure();                         
+  mcj_driver->UseSplines();        
   mcj_driver->ForceSingleProbScale();
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
@@ -299,7 +305,7 @@ int main(int argc, char ** argv)
      // position/kinematics) for that simulated event so that it can be 
      // passed-through
      flux_info = new flux::GJPARCNuFluxPassThroughInfo(
-                              jparc_flux_driver->PassThroughInfo());
+          jparc_flux_driver->PassThroughInfo());
      LOG("gT2Kevgen", pINFO) 
         << "Pass-through flux info associated with generated event: " 
         << *flux_info;
@@ -307,13 +313,31 @@ int main(int argc, char ** argv)
      // add event at the output ntuple, refresh the mc job monitor & clean-up
      ntpw.AddEventRecord(ievent, event);
      mcjmonitor.Update(ievent,event);
+     delete event;
 
      ievent++;
-     delete event;
   }
 
   LOG("gT2Kevgen", pNOTICE) 
     << "The GENIE MC job is done generaing events - Cleaning up & exiting...";
+
+  //
+  // *** Calculate normalization factor for the generated sample
+  //
+  if(gOptMaxNev<0) {
+    double pot  = jparc_flux_driver->ActualPOT(); // actual pot in flux file (= pot norm / weight)
+    double psc  = mcj_driver->GlobProbScale();    // (unweighted) event gen (unbiased) probability scale 
+    double norm = pot / psc;                      // pot normalization for generated event sample
+
+    LOG("gT2Kevgen", pNOTICE) << "Actual POT: " << pot;
+    LOG("gT2Kevgen", pNOTICE) << "Prob scale: " << psc;
+
+    LOG("gT2Kevgen", pNOTICE) 
+       << "Normalization for generated sample: " << norm << " POT * "
+       << ((gOptDetectorLocation == "sk") ? "cm^2" : "detector");
+
+    ntpw.EventTree()->SetWeight(norm); // POT
+  }
 
   // Save the generated event tree & close the output file
   ntpw.Save();
@@ -487,11 +511,23 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
+  // flux file normalization
+  try {
+    LOG("gT2Kevgen", pDEBUG)  << "Reading flux file normalization";
+    gOptFluxNorm = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'n');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gT2Kevgen", pDEBUG)
+        << "Setting standard normalization for jnubeam flux ntuples";
+      gOptFluxNorm = kDefOptFluxNorm;
+    }
+  }
+
   // limit on max number of events that can be generated
   try {
     LOG("gT2Kevgen", pDEBUG) 
         << "Reading limit on number of events to generate";
-    gOptMaxNev = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
+    gOptMaxNev = genie::utils::clap::CmdLineArgAsInt(argc,argv,'m');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gT2Kevgen", pDEBUG)
