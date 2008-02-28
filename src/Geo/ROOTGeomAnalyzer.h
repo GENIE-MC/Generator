@@ -47,7 +47,7 @@ public :
   ROOTGeomAnalyzer(TGeoManager * gm);
  ~ROOTGeomAnalyzer();
 
-  // set or enquire for analyzer configuration options
+  // geometry driver configuration options
 
   void SetScannerNPoints    (int    np) { fNPoints    = np; } /* box  scanner */
   void SetScannerNRays      (int    nr) { fNRays      = nr; } /* box  scanner */
@@ -60,29 +60,28 @@ public :
   void SetMaxPlSafetyFactor (double sf);
   void SetTopVolName        (string nm);
 
-  int     ScannerNPoints    (void) const { return fNPoints;           }
-  int     ScannerNRays      (void) const { return fNRays;             }
-  int     ScannerNParticles (void) const { return fNParticles;        }
-  bool    WeightWithDensity (void) const { return fDensWeight;        }
-  double  LengthUnits       (void) const { return fLengthScale;       }
-  double  DensityUnits      (void) const { return fDensityScale;      }
-  double  MixtureWeightsSum (void) const { return fMixtWghtSum;       }
-  double  MaxPlSafetyFactor (void) const { return fMaxPlSafetyFactor; }
-  string  TopVolName        (void) const { return fTopVolumeName;     }
-  TGeoManager * GetGeometry (void) const { return fGeometry;          }
+  // enquire for geometry driver's  configuration option
+
+  int           ScannerNPoints    (void) const { return fNPoints;           }
+  int           ScannerNRays      (void) const { return fNRays;             }
+  int           ScannerNParticles (void) const { return fNParticles;        }
+  bool          WeightWithDensity (void) const { return fDensWeight;        }
+  double        LengthUnits       (void) const { return fLengthScale;       }
+  double        DensityUnits      (void) const { return fDensityScale;      }
+  double        MixtureWeightsSum (void) const { return fMixtWghtSum;       }
+  double        MaxPlSafetyFactor (void) const { return fMaxPlSafetyFactor; }
+  string        TopVolName        (void) const { return fTopVolumeName;     }
+  TGeoManager * GetGeometry       (void) const { return fGeometry;          }
 
   // implement the GeomAnalyzerI interface
 
   const PDGCodeList &    ListOfTargetNuclei    (void);
   const PathLengthList & ComputeMaxPathLengths (void);
 
-  const PathLengthList &
-           ComputePathLengths
-             (const TLorentzVector & x, const TLorentzVector & p);
-
-  const TVector3 &
-           GenerateVertex
-             (const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
+  const PathLengthList & ComputePathLengths(
+                    const TLorentzVector & x, const TLorentzVector & p);
+  const TVector3 & GenerateVertex(
+        const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
 
 private:
 
@@ -95,7 +94,6 @@ private:
   void   MaxPathLengthsFluxMethod(void);
   int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
   int    GetTargetPdgCode        (const TGeoElement  * const e) const;
-  void   ScalePathLengths        (PathLengthList & pl);
   double ComputePathLengthPDG    (const TVector3 & r, const TVector3 & udir, int pdgc);
   double GetWeight               (TGeoMaterial * mat, int pdgc);
   double GetWeight               (TGeoMixture * mixt, int pdgc);
@@ -104,6 +102,9 @@ private:
   double StepToNextBoundary      (void);
   double Step                    (void);
   double StepUntilEntering       (void);
+  void   Local2SI                (PathLengthList & pl);
+  void   Local2SI                (TVector3 & v);
+  void   SI2Local                (TVector3 & v);
 
   int              fMaterial;              ///< input selected material for vertex generation
   TGeoManager *    fGeometry;              ///< input detector geometry
