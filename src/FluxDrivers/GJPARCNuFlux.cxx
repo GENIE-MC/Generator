@@ -203,7 +203,7 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
 // Loads in a jnubeam beam simulation root file (converted from hbook format)
 // into the GJPARCNuFlux driver.
 // The detector location can be any of:
-//  "sk","nd1" (<-2km),"nd2" (<-nd280),...,"nd10"
+//  "sk","nd1" (<-2km),"nd5" (<-nd280),...,"nd10"
 
   LOG("Flux", pNOTICE) 
         << "Loading jnubeam flux tree from ROOT file: " << filename;
