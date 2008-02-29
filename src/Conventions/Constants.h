@@ -42,7 +42,7 @@ static const double kSqrte = TMath::Sqrt(ke);
 
 //----- Avogadro number, compton wavelength and such...
 
-static const double kNA    = 6.023e23;             
+static const double kNA    = 6.02214179E+23;             
 static const double kLe    = 3.8616E-11 *units::cm;
 static const double kLe2   = TMath::Power(kLe,2);          
 
