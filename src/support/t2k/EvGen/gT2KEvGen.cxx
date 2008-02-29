@@ -326,15 +326,19 @@ int main(int argc, char ** argv)
   //
   if(gOptMaxNev<0) {
     double pot  = jparc_flux_driver->ActualPOT(); // actual pot in flux file (= pot norm / weight)
+    double nf   = mcj_driver->NFluxNeutrinos();   // number of neutrinos thrown towards the geometry
     double psc  = mcj_driver->GlobProbScale();    // (unweighted) event gen (unbiased) probability scale 
-    double norm = pot / psc;                      // pot normalization for generated event sample
-
-    LOG("gT2Kevgen", pNOTICE) << "Actual POT: " << pot;
-    LOG("gT2Kevgen", pNOTICE) << "Prob scale: " << psc;
+    double nev  = (double) ievent;                // number of generated events
+    double norm = (nf/pot) / psc;                 // pot normalization for generated event sample
 
     LOG("gT2Kevgen", pNOTICE) 
-       << "Normalization for generated sample: " << norm << " POT * "
-       << ((gOptDetectorLocation == "sk") ? "cm^2" : "detector");
+        << "\n >> Actual jnubeam flux file normalization:  " << pot 
+            << " POT * " << ((gOptDetectorLocation == "sk") ? "cm^2" : "detector")
+        << "\n >> Neutrinos thrown by the flux driver:     " << nf
+        << "\n >> Neutrino ineteractions generated:        " << nev
+        << "\n >> Intreraction probability scaling factor: " << psc
+        << "\n ** Normalization for generated sample:      " << norm 
+            << " POT * " << ((gOptDetectorLocation == "sk") ? "cm^2" : "detector");
 
     ntpw.EventTree()->SetWeight(norm); // POT
   }
