@@ -58,8 +58,9 @@ public :
   // generate single neutrino event for input flux & geometry
   EventRecord * GenerateEvent (void);
 
-  // [in devel]
-  double GlobProbScale(void) const { return 1; }
+  // methods for enquiring info needed for computing the generated sample normalization
+  double GlobProbScale  (void) const { return fGlobPmax;       }
+  double NFluxNeutrinos (void) const { return fNFluxNeutrinos; }
 
 private:
  
@@ -96,8 +97,9 @@ private:
   EventRecord *   fCurEvt;             ///< [current] generated event
   int             fSelTgtPdg;          ///< [current] selected target material PDG code
   map<int,double> fCurCumulProbMap;    ///< [current] cummulative interaction probabilities
-  map<int,TH1D*>  fPmax;               ///< [computed at init] Interaction probability scale /neutrino /energy for given geometry
-  double          fGlobPmax;           ///< [computed at init] Global interaction probability scale for given flux & geometry
+  double          fNFluxNeutrinos;     ///< [current] number of flux nuetrinos fired by the flux driver so far 
+  map<int,TH1D*>  fPmax;               ///< [computed at init] interaction probability scale /neutrino /energy for given geometry
+  double          fGlobPmax;           ///< [computed at init] global interaction probability scale for given flux & geometry
   string          fMaxPlXmlFilename;   ///< [config] input file with max density-weighted path lengths for all materials
   bool            fUseExtMaxPl;        ///< [config] using external max path length estimate?
   bool            fUseSplines;         ///< [config] compute all needed & not-loaded splines at init
@@ -105,7 +107,6 @@ private:
   bool            fKeepThrowingFluxNu; ///< [config] keep firing flux neutrinos till one of them interacts
   bool            fGenerateUnweighted; ///< [config] force single probability scale?
   TBits           fUnphysMask;         ///< [config] unphysical events filtering mask
-  double          fNFluxNeutrinos;   
 };
 
 }      // genie namespace

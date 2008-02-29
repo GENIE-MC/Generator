@@ -33,6 +33,12 @@
    generating more flux neutrinos (eg because they read flux neutrinos by 
    looping over a beam simulation ntuple and they reached its last entry).
    Code was appropriately restructured and some methods have been renamed.
+ @ Feb 29, 2008 - CA
+   Modified the InteractionProbability() to calculate absolute interaction
+   probabilities. Added NFluxNeutrinos() and GlobProbScale() to get the
+   number of neutrinos thrown by the flux driver towards the geometry and
+   the global interaction probability scale so as to be able to calculate
+   event sample normalization factors.
 */
 //____________________________________________________________________________
 
@@ -270,12 +276,12 @@ void GMCJDriver::GetMaxPathLengthList(void)
 {
   if(fUseExtMaxPl) {
      LOG("GMCJDriver", pNOTICE)
-               << "Loading external max path-length list for input geometry";
+       << "Loading external max path-length list for input geometry";
      fMaxPathLengths.LoadFromXml(fMaxPlXmlFilename);
 
   } else {
      LOG("GMCJDriver", pNOTICE)
-         << "Asking the geometry driver to compute the max path-length list";
+       << "Querying the geometry driver to compute the max path-length list";
      fMaxPathLengths = fGeomAnalyzer->ComputeMaxPathLengths();
   }
   // Print maximum path lengths & neutrino energy
@@ -286,10 +292,11 @@ void GMCJDriver::GetMaxPathLengthList(void)
 void GMCJDriver::GetMaxFluxEnergy(void)
 {
   LOG("GMCJDriver", pNOTICE)
-       << "Asking the flux driver for the maximum energy of flux neutrinos";
+     << "Querying the flux driver for the maximum energy of flux neutrinos";
   fEmax = fFluxDriver->MaxEnergy();
 
-  LOG("GMCJDriver", pNOTICE) << "Maximum flux neutrino energy = " << fEmax;
+  LOG("GMCJDriver", pNOTICE) 
+     << "Maximum flux neutrino energy = " << fEmax << " GeV";
 }
 //___________________________________________________________________________
 void GMCJDriver::PopulateEventGenDriverPool(void)
@@ -892,11 +899,14 @@ void GMCJDriver::ComputeEventProbability(void)
 //___________________________________________________________________________
 double GMCJDriver::InteractionProbability(double xsec, double pL, int A)
 {
-// xsec: interaction cross section
-// pL  : density weighted path length
-// A   : mass number
+// P = Na   (Avogadro number,                 atoms/mole) *
+//     1/A  (1/mass number,                   mole/gr)    *
+//     xsec (total interaction cross section, cm^2)       *
+//     pL   (density-weighted path-length,    gr/cm^2)
+//
+  xsec = xsec / units::cm2; 
+  pL   = pL   * ((units::kilogram/units::m2)/(units::gram/units::cm2));
 
-  return (xsec*pL)/A;
+  return kNA*(xsec*pL)/A;
 }
 //___________________________________________________________________________
-
