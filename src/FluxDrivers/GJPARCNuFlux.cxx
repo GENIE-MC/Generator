@@ -16,8 +16,7 @@
  @ Feb 19, 2008 - CA
    Extended to handle all near detector locations and super-k
  @ Feb 22, 2008 - CA
-   Added method to report the actual POT from the input file POT normalization
-   and the weight. Added
+   Added method to report the actual POT.
 */
 //____________________________________________________________________________
 
@@ -184,8 +183,12 @@ bool GJPARCNuFlux::GenerateNext(void)
   // Set the weight (for computing the actual POT) at the first pass.
   // At subsequent passes check weights to ensure that the flux neutrinos 
   // are unweighted (i.e. they all have the same weight)
-  if(fFileWeight<0) fFileWeight = (double)fLfNorm;
-  else {
+  if(fFileWeight<0) {
+      fFileWeight = (double)fLfNorm;
+      LOG("Flux", pNOTICE) 
+        << "File-wide flux neutrino weight = " << fFileWeight
+        << " -> actual POT normalization   = " << this->ActualPOT();
+  } else {
     if(! utils::math::AreEqual(fFileWeight, (double)fLfNorm)) {
       LOG("Flux", pWARN) 
         << "\n ** Flux neutrino weight mismatch! ("
