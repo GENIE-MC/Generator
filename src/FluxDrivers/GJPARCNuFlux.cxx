@@ -17,6 +17,10 @@
    Extended to handle all near detector locations and super-k
  @ Feb 22, 2008 - CA
    Added method to report the actual POT.
+ @ Mar 05, 2008 - CA,JD
+   Added method to configure the starting z position (upstream of the detector
+   face, in detector coord system). Added code to back-track flux neutrinos
+   from z=0 to the input z0 position.
 */
 //____________________________________________________________________________
 
@@ -327,6 +331,16 @@ void GJPARCNuFlux::SetFilePOT(double pot)
   fFilePOT = pot;
 }
 //___________________________________________________________________________
+void GJPARCNuFlux::SetUpstreamZ(double z0)
+{
+// The flux neutrino position (x,y) is given at the detector coord system
+// at z=0. This method sets the preferred starting z position upstream of 
+// the upstream detector face. Each flux neutrino will be backtracked from
+// z=0 to the input z0.
+
+  fZ0 = z0;
+}
+//___________________________________________________________________________
 void GJPARCNuFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing GJPARCNuFlux driver";
@@ -346,6 +360,7 @@ void GJPARCNuFlux::Initialize(void)
   fIEntry          = 0;
   fFileWeight      = -1;
   fFilePOT         = 0;
+  fZ0              = 0;
 
   fBrNorm          = 0;
   fBrIdfd          = 0;
@@ -372,11 +387,14 @@ void GJPARCNuFlux::Initialize(void)
 //___________________________________________________________________________
 void GJPARCNuFlux::SetDefaults(void)
 {
-// Set default neutrino species list (nue, nuebar, numu, numubar) and maximum
-// energy (20 GeV).
-// These defaults can be overwritten by user calls (at the driver init) to 
-// GJPARCNuFlux::SetMaxEnergy(double Ev) and
-// GJPARCNuFlux::SetFluxParticles(const PDGCodeList & particles)
+// - Set default neutrino species list (nue, nuebar, numu, numubar) and 
+//   maximum energy (25 GeV).
+//   These defaults can be overwritten by user calls (at the driver init) to 
+//   GJPARCNuFlux::SetMaxEnergy(double Ev) and
+//   GJPARCNuFlux::SetFluxParticles(const PDGCodeList & particles)
+// - Set the default file normalization to 1E+21 POT
+// - Set the default flux neutrino start z position at -5m (z=0 is the
+//   detector centre).
 //
   LOG("Flux", pNOTICE) << "Setting default GJPARCNuFlux driver options";
 
@@ -389,6 +407,7 @@ void GJPARCNuFlux::SetDefaults(void)
   this->SetFluxParticles(particles);
   this->SetMaxEnergy(25./*GeV*/);
   this->SetFilePOT(1E+21);
+  this->SetUpstreamZ(-5.0); 
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::ResetCurrent(void)

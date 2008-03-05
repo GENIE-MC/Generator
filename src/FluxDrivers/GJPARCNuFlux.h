@@ -72,6 +72,7 @@ public :
   void SetFluxParticles (const PDGCodeList & particles);    ///< specify list of flux neutrino species
   void SetMaxEnergy     (double Ev);                        ///< specify maximum flx neutrino energy
   void SetFilePOT       (double pot);                       ///< flux file norm is in /N POT/det [ND] or /N POT/cm^2 [FD]. Specify N (typically 1E+21)
+  void SetUpstreamZ     (double z0);                        ///< set flux neutrino initial z position (upstream of the detector)
 
   double ActualPOT(void) const { return fFilePOT/fFileWeight; } ///< actual POT in file
 
@@ -107,6 +108,7 @@ private:
   long int  fIEntry;           ///< current flux ntuple entry
   double    fFileWeight;       ///< file weight (POT normalization / actual POT)
   double    fFilePOT;          ///< file POT normalization, typically 1E+21
+  double    fZ0;               ///< configurable starting z position for each flux neutrino (in detector coord system)
 
   //-- jnubeam ntuple branches
   //   branches marked with [f] can be found in SK flux ntuples only
