@@ -19,8 +19,8 @@
    Added method to report the actual POT.
  @ Mar 05, 2008 - CA,JD
    Added method to configure the starting z position (upstream of the detector
-   face, in detector coord system). Added code to back-track flux neutrinos
-   from z=0 to the input z0 position.
+   face, in detector coord system). Added code to project flux neutrinos from
+   z=0 to a configurable z position (somewhere upstream of the detector face)
 */
 //____________________________________________________________________________
 
@@ -152,9 +152,17 @@ bool GJPARCNuFlux::GenerateNext(void)
     double xnu  = cm2m * fLfXnu;
     double ynu  = cm2m * fLfYnu;
     double znu  = 0;
+
+    // projected 4-position (from z=0) back to a configurable plane 
+    // position (fZ0) upstream of the detector face.
+    xnu += (fZ0/fLfNnu[2])*fLfNnu[0]; 
+    ynu += (fZ0/fLfNnu[2])*fLfNnu[1];
+    znu = fZ0;
+
     fgX4.SetXYZT (xnu,  ynu,  znu,  0.);
   } else {
     fgX4.SetXYZT (0.,0.,0.,0.);
+  
   }
   LOG("Flux", pINFO) 
 	<< "Generated neutrino: "
