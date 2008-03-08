@@ -18,6 +18,10 @@
    increasing the nuclear radius by a const (tunable) number times the tracked 
    particle's de Broglie wavelength as this helps getting the hadron+nucleus 
    cross sections right.
+ @ Mar 08, 2008 - CA
+   Fixed code retrieving the remnant nucleus which stopped working as soon as
+   simulation of nuclear de-excitation started pushing photons in the target
+   nucleus daughter list.
 */
 //____________________________________________________________________________
 
@@ -27,6 +31,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Algorithm/AlgFactory.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
@@ -209,14 +214,18 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
      fRemnA = nucltgt->A();
      fRemnZ = nucltgt->Z();
   } else {
-     // in neutrino+nucleus mode get the last daughter of the initial
-     // state nucleus
-     GHepParticle * nucltgt = evrec->TargetNucleus();
+     // in neutrino+nucleus mode get the daughter of the initial
+     // state nucleus that is a nucleus itself
+     GHepParticle * nucltgt = evrec->Particle(1);
      assert(nucltgt);
-     iremn = nucltgt->LastDaughter();
-     assert(iremn!=-1);
-     fRemnA =  evrec->Particle(iremn)->A();
-     fRemnZ =  evrec->Particle(iremn)->Z();
+     for(int i=nucltgt->FirstDaughter(); i<=nucltgt->LastDaughter(); i++) {
+       if(i<0) continue;
+       if(evrec->Particle(i)->IsNucleus()) {
+          fRemnA = evrec->Particle(i)->A();
+          fRemnZ = evrec->Particle(i)->Z();
+          iremn  = i;
+       }
+     }
   }
   const TLorentzVector & premn4 = *(evrec->Particle(iremn)->P4());
   fRemnP4 = premn4; 
