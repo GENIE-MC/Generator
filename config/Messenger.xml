@@ -88,6 +88,7 @@
   <priority msgstream="Messenger">           INFO   </priority>
   <priority msgstream="MuELoss">             NOTICE </priority>
   <priority msgstream="MultProb">            INFO   </priority>
+  <priority msgstream="NucDeEx">             NOTICE </priority>
   <priority msgstream="NucleonP">            INFO   </priority>
   <priority msgstream="Nuclear">             NOTICE </priority>
   <priority msgstream="Numerical">           INFO   </priority>
