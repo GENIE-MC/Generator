@@ -10,7 +10,10 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Mar 08, 2008 - CA
+   Modified the algorithm for compactifying the daughter lists. The new 
+   algorithm is more robust and avoids failure modes of the old algorithm
+   which appeared once simulation of nuclear de-excitations was enabled.
 */
 //____________________________________________________________________________
 
@@ -460,30 +463,30 @@ void GHepRecord::UpdateDaughterLists(void)
   if(dau1 == -1) {
      mom->SetFirstDaughter(pos);
      mom->SetLastDaughter(pos);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+ #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GHEP", pINFO)
         << "Done! Daughter-list is compact: [" << pos << ", " << pos << "]";
-#endif
+ #endif
      return;
   }
   // handles the case where the new daughter is added at the slot just before
   // an already compact daughter list
   if(pos == dau1-1) {
      mom->SetFirstDaughter(pos);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+ #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GHEP", pINFO)
        << "Done! Daughter-list is compact: [" << pos << ", " << dau2 << "]";
-#endif
+ #endif
      return;
   }
   // handles the case where the new daughter is added at the slot just after
   // an already compact daughter list
   if(pos == dau2+1) {
      mom->SetLastDaughter(pos);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+ #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GHEP", pINFO)
        << "Done! Daughter-list is compact: [" << dau1 << ", " << pos << "]";
-#endif
+ #endif
      return;
   }
 
@@ -530,6 +533,56 @@ void GHepRecord::RemoveIntermediateParticles(void)
 //___________________________________________________________________________
 void GHepRecord::CompactifyDaughterLists(void)
 {
+  int n = this->GetEntries();
+  if(n<1) return;
+
+  int i = this->Particle(n-1)->FirstMother();
+  if(i<0) return;
+
+  //  for(int i=0; i<n; i++) {
+     bool compact = this->HasCompactDaughterList(i);
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+     LOG("GHEP", pNOTICE) 
+        << "Particle's " << i << " daughter list is " 
+        << ((compact) ? "compact" : "__not__ compact");
+#endif
+
+     if(!compact) {
+        GHepParticle * p = this->Particle(i);
+
+        int dau1 = p->FirstDaughter();
+        int dau2 = p->LastDaughter();
+        int ndau = dau2-dau1+1;
+        int ndp  = dau2+1;
+        if(dau1==-1) {ndau=0;}
+
+        int curr_pos = n-1;   
+        while (curr_pos > ndp) {
+           this->SwapParticles(curr_pos,curr_pos-1);
+           curr_pos--;
+        }
+        if(ndau>0) {
+          this->Particle(i)->SetFirstDaughter(dau1);
+          this->Particle(i)->SetLastDaughter(dau2+1);
+        } else {
+          this->Particle(i)->SetFirstDaughter(-1);
+          this->Particle(i)->SetLastDaughter(-1);
+        }
+        this->FinalizeDaughterLists();
+
+     } //!compact
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+     LOG("GHEP", pINFO)
+        << "Done ompactifying daughter-list for particle at slot: " << i;
+#endif
+     //  }
+}
+//___________________________________________________________________________
+/*
+void GHepRecord::CompactifyDaughterLists(void)
+{
   int n     = this->GetEntries();
   int start = this->FirstNonInitStateEntry();
 
@@ -540,10 +593,23 @@ void GHepRecord::CompactifyDaughterLists(void)
         int dau1 = start; // 1st daughter position
         int k=start+1;
         for(; k<n; k++) {
-            GHepParticle * p = this->Particle(k);
-            if(p->FirstMother() == i) {
+            GHepParticle * pk = this->Particle(k);
+            if(pk->FirstMother() == i) {
                  ndau++;
+                 while(start<n) {                 
+	            GHepParticle * ps = this->Particle(start);
+                    if(ps->FirstMother() == i) {
+                        start++;
+                    } else break;
+                 }
                  this->SwapParticles(start,k);
+
+                 int ikd = this->Particle(k)->FirstDaughter();
+                 if(ikd>0) {
+                    if(this->Particle(ikd)->FirstMother() >= ikd) {
+                 	this->SwapParticles(k, ikd);
+                    }
+                 }
                  start++;
             }
         }
@@ -562,6 +628,7 @@ void GHepRecord::CompactifyDaughterLists(void)
   }
   this->FinalizeDaughterLists();
 }
+*/
 //___________________________________________________________________________
 bool GHepRecord::HasCompactDaughterList(int pos)
 {
@@ -574,6 +641,7 @@ bool GHepRecord::HasCompactDaughterList(int pos)
   int i=0;
   while( (p = (GHepParticle *)iter.Next()) ) {
     if(p->FirstMother() == pos) {
+    
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("GHEP", pDEBUG) << "Particle at: " << i << " is a daughter";
 #endif
@@ -635,12 +703,29 @@ void GHepRecord::SwapParticles(int i, int j)
 
   // tell their daughters
   if(pi->HasDaughters()) {
-    for(int k=pi->FirstDaughter(); k<=pi->LastDaughter(); k++)
-      this->Particle(k)->SetFirstMother(j);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("GHEP", pINFO) 
+      << pi->Name() << "(previously at pos: " << j 
+      << ") is now at pos: " << i << " -> Notify daughters";
+#endif
+    for(int k=0; k<n; k++) {
+      if(this->Particle(k)->FirstMother()==j) {
+        this->Particle(k)->SetFirstMother(i);
+      }
+    }
   }
+
   if(pj->HasDaughters()) {
-    for(int k=pj->FirstDaughter(); k<=pj->LastDaughter(); k++)
-      this->Particle(k)->SetFirstMother(i);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("GHEP", pINFO) 
+      << pj->Name() << "(previously at pos: " << i 
+      << ") is now at pos: " << j << " -> Notify daughters";
+#endif
+    for(int k=0; k<n; k++) {
+      if(this->Particle(k)->FirstMother()==i) {
+        this->Particle(k)->SetFirstMother(j);
+      }
+    }
   }
 }
 //___________________________________________________________________________
