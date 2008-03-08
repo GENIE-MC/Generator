@@ -85,7 +85,7 @@ void NucDeExcitationSim::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 void NucDeExcitationSim::OxygenTargetSim(GHepRecord * evrec) const
 {
-  LOG("NuclDeEx", pNOTICE) 
+  LOG("NucDeEx", pNOTICE) 
      << "Simulating nuclear de-excitation gamma rays for Oxygen target";
 
   //LOG("NucDeEx", pNOTICE) << *evrec;
