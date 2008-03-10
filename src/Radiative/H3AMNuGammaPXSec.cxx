@@ -1,4 +1,3 @@
-
 //____________________________________________________________________________
 /*
  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
@@ -12,7 +11,11 @@
 
  Important revisions after version 2.0.0 :
  @ Feb 15, 2008 - CB
-   This cross section algorithm was added in 2.3.1 
+   This cross section algorithm was added in 2.3.1. The differential cross
+   section is not yet implemented - only the integrated cross section. 
+   Energy dependence (6-th power) increases the cross section rapidly for
+   energies > ~ nucleon mass which is outside the model validity range.
+   Currently preventing that by frozing E-dependence at ~1 GeV.
 */
 //____________________________________________________________________________
 
@@ -52,6 +55,9 @@ double H3AMNuGammaPXSec::XSec(
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
+  LOG("AMNuGamma", pWARN)
+    << "*** No differential cross section calculation is implemented yet";
+
   return 1;
 }
 //____________________________________________________________________________
@@ -61,8 +67,10 @@ double H3AMNuGammaPXSec::Integral(const Interaction * interaction) const
   const InitialState & init_state = interaction -> InitState();
   const Target &       target     = init_state.Tgt();
   double Ev    = init_state.ProbeE(kRfHitNucRest);
-//  double xsec0 = 2.2E-41 * units::cm2;
-  double xsec0 = 2.2E-41;
+
+  Ev = TMath::Min(Ev, kNucleonMass);
+
+  double xsec0 = 2.2E-41 * units::cm2;
   double xsec  = xsec0 * TMath::Power(Ev,6.) * TMath::Power(0.1*fGw,4.);
 
   LOG("AMNuGamma", pNOTICE)
