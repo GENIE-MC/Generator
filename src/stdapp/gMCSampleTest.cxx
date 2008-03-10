@@ -462,7 +462,8 @@ void CreateSummaryTree(string inp_filename)
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
       ip++;
-      if(!is_coh && ip < TMath::Max(hitnucl->FirstDaughter(), event.FinalStatePrimaryLeptonPosition()+1)) continue;
+//      if(!is_coh && ip < TMath::Max(hitnucl->FirstDaughter(), event.FinalStatePrimaryLeptonPosition()+1)) continue;
+      if(!is_coh && event.Particle(ip)->FirstMother()==0) continue;
       if(p->IsFake()) continue;
       int pdgc = p->Pdg();
       int ist  = p->Status();
@@ -554,6 +555,12 @@ void CreateSummaryTree(string inp_filename)
                  prim_had_syst.push_back(i);
             }
          }//i
+         // also include gammas from nuclear de-excitations (appearing in the daughter list of the 
+         // hit nucleus, earlier than the primary hadronic system extracted above)
+         for(int i = target->FirstDaughter(); i <= target->LastDaughter(); i++) {
+           if(i<0) continue;
+           if(event.Particle(i)->Status()==kIStStableFinalState) { prim_had_syst.push_back(i); }
+         }
       }//freenuc?
     }//study_hadsystem?
 
