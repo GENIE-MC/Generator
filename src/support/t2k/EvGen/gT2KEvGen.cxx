@@ -111,12 +111,15 @@
                        '-f /path/flux.root,nd5'
               2 > A set of histograms stored in a ROOT file.
                   The general syntax is:
-                      -f /path/histogram_file.root,histo_name[nu_species],...
+                      -f /path/histogram_file.root,neutrino_code[histo_name],...
                   [Notes] 
-                  - Possible names of nu_species is:
-                    'nu_e','nu_mu','nu_tau','nu_e_bar','nu_mu_bar','nu_tau_bar'
-                  - The 'histo_name[nu_species]' can be repeated multiple times,
-                    once for each flux neutrino species you want to consider.                    
+                  - The neutrino codes are the PDG ones:
+                    nu_e     ->  12, nu_mu     ->  14, nu_tau     ->  16,
+                    nu_e_bar -> -12, nu_mu_bar -> -14, nu_tau_bar -> -16
+                  - The 'neutrino_code[histogram_name]' part of the option can be 
+                    repeated multiple times (separated by commas), once for each 
+                    flux neutrino species you want to consider, eg
+                    '-f somefile.root,12[nuehst],-12[nuebarhst],14[numuhst]'
                   - When using flux from histograms you must specify the -m option
                     as well (number of events to generate) as there is no other way
                     to determine when the MC job should finish. The POT normalization
@@ -150,10 +153,11 @@
                     of flux neutrinos thrown by the flux driver
                   [Examples] 
                   - To use the histogram 'h100' (representing the nu_mu flux) and
-                    the histogram 'h300' (representing the nu_e flux) from the
+                    the histogram 'h300' (representing the nu_e flux) and the 
+                    histogram 'h301' (representing the nu_e_bar flux( from the
                     flux.root file in /path/ 
                     type:
-                      '-f /path/flux.root,h100[nu_mu],h300[nu_e]
+                      '-f /path/flux.root,14[h100],12[h300],-12[h301]
                   
            -n Input neutrino flux normalization.
               [default: The 'standard' T2K/jnubeam flux ntuple normalization of 
@@ -197,7 +201,7 @@
 
          (3) shell% gT2Kevgen 
                        -r 1001 
-                       -f /data/t2k/flux/hst/flux.root,h300[nu_mu],h301[nu_e]
+                       -f /data/t2k/flux/hst/flux.root,12[h100],-12[h101],14[h200]
                        -g 1000080160[0.95],1000010010[0.05]
 
              <description>
@@ -699,9 +703,9 @@ void GetCommandLineArgs(int argc, char ** argv)
         // Extract energy spectra for all specified neutrino species
         TFile flux_file(gOptFluxFile.c_str(), "read");
         for(unsigned int inu=1; inu<fluxv.size(); inu++) {
-            string histo_and_nutype = fluxv[inu];
-   	    string::size_type open_bracket  = histo_and_nutype.find("[");
-	    string::size_type close_bracket = histo_and_nutype.find("]");
+            string nutype_and_histo = fluxv[inu];
+   	    string::size_type open_bracket  = nutype_and_histo.find("[");
+	    string::size_type close_bracket = nutype_and_histo.find("]");
             if (open_bracket ==string::npos || 
                 close_bracket==string::npos) 
             {
@@ -714,8 +718,8 @@ void GetCommandLineArgs(int argc, char ** argv)
 	    string::size_type iend = open_bracket;
 	    string::size_type jbeg = open_bracket+1;
 	    string::size_type jend = close_bracket;
-            string histo  = histo_and_nutype.substr(ibeg,iend-ibeg);
-            string nutype = histo_and_nutype.substr(jbeg,jend-jbeg);
+            string nutype = nutype_and_histo.substr(ibeg,iend-ibeg);
+            string histo  = nutype_and_histo.substr(jbeg,jend-jbeg);
             // access specified histogram from the input root file
             TH1D * ihst = (TH1D*) flux_file.Get(histo.c_str()); 
             if(!ihst) {
@@ -734,14 +738,8 @@ void GetCommandLineArgs(int argc, char ** argv)
                spectrum->SetBinContent(ibin, ihst->GetBinContent(ibin));
             }
             // convert neutrino name -> pdg code
-            int pdg = 0;
-            if      (nutype.find("nu_e_bar")   != string::npos) pdg = kPdgAntiNuE;
-            else if (nutype.find("nu_mu_bar")  != string::npos) pdg = kPdgAntiNuMu;
-            else if (nutype.find("nu_tau_bar") != string::npos) pdg = kPdgAntiNuTau;
-            else if (nutype.find("nu_e")       != string::npos) pdg = kPdgNuE;
-            else if (nutype.find("nu_mu")      != string::npos) pdg = kPdgNuMu;
-            else if (nutype.find("nu_tau")     != string::npos) pdg = kPdgNuTau;
-            else {
+            int pdg = atoi(nutype.c_str());
+            if(!pdg::IsNeutrino(pdg) && !pdg::IsAntiNeutrino(pdg)) {
                 LOG("Main", pFATAL) 
                     << "Unknown neutrino type: " << nutype; 
                 PrintSyntax();
@@ -833,7 +831,7 @@ void GetCommandLineArgs(int argc, char ** argv)
           TParticlePDG * p = pdglib->Find(pdg_code);
           if(p) {
             string name = p->GetName();
-            fluxinfo << "(" << name << ") -> " << spectrum->GetName();
+            fluxinfo << "(" << name << ") -> " << spectrum->GetName() << " / ";
           }//p?
     }
   } else {
