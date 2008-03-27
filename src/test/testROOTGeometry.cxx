@@ -1,17 +1,56 @@
 //____________________________________________________________________________
 /*!
 
-\program testROOTGeometry
+\program gtestROOTGeometry
 
-\brief   Tests the ROOT Geometry Analyzer.
+\brief   Tests the GENIE ROOT geometry driver by generating random rays,
+         following them through the detector, computing density-weighted
+         path-lengths for each material & generating vertices
 
-\syntax  testROOTGeometry -f /path/to/root/geometry/file.root
+\syntax  gtestROOTGeometry [-f geom] [-n nvtx] [-d dx,dy,dz] [-s x,y,z] 
+                           [-t size] [-p pdg] 
+  
+         Options:
 
-         If no file is specified, $GENIE/src/test/data/GeometryLArPbBox.root 
-         is used as default.
+          -f  A ROOT file containing a ROOT/GEANT geometry description
+              [default: $GENIE/src/test/data/GeometryLArPbBox.root]
+          -n  Number of vertices to generate
+          -d  Direction of generated rays (dirx,diry,dirz) 
+              [default: 1,0,0 - along x]
+          -s  Specifies the ray generation surface.
+              That surface is perpendicular to the beam direction and
+              contains the point specified here.
+              Use the same units as your input geometry.
+              [default: 0,0,0]
+          -r  Specifies the radius of the area over which rays will be
+              generated. That event generation area is the area contained 
+              within the circle centered at the point specified with the
+              -s option and a radius specified here.
+              Use the same units as your input geometry.
+              [default: 100 in your geometry unit]
+          -p  Can be used to specify a target pdg code. If that option is set
+              then the vertex is generated only at that material. If not set
+              then vertices will be generated in all detector materials (by
+              weight).
+          -v  Can specify specific volumes of the input geometry. If not set
+              will use the master volume.
 
-\author  Anselmo Meregaglia <anselmo.meregaglia@cern.ch>
+          Examples:
+            
+          gtestROOTGeometry -n 20000 -d 1,0,0 -s -10,0,0 -r 10 -p 1000180400
+
+          will take the default (test) geometry included in GENIE (and located
+          in $GENIE/src/test/data/GeometryLArPbBox.root) and generate 20k 
+          vertices in Ar40 (pdg=1000180400) only, using rays (flux) generated
+          uniformly (in area) within a circle of radius = 10 m (that is units 
+          of that input geometry), centered ay (-10m,0m,0m) and perpendicular
+          to the ray direction (1,0,0)
+
+\Author  Anselmo Meregaglia <anselmo.meregaglia@cern.ch>
          ETH Zurich
+
+         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         STFC, Rutherford Appleton Lab
 
 \created August 11, 2005
 
@@ -22,77 +61,298 @@
 //____________________________________________________________________________
 
 #include <string>
-#include <iostream>
-#include <stdlib.h>
-#include <fstream>
-#include <TLorentzVector.h>
+#include <vector>
 
+#include <TFile.h>
+#include <TNtupleD.h>
+#include <TSystem.h>
+#include <TLorentzVector.h>
+#include <TVector3.h>
+#include <TApplication.h>
+#include <TPolyMarker3D.h>
+
+#include "Conventions/Constants.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "EVGDrivers/PathLengthList.h"
 #include "Messenger/Messenger.h"
-
-#include "TApplication.h"
-#include "TPolyMarker3D.h"
+#include "Numerical/RandomGen.h"
+#include "Utils/StringUtils.h"
+#include "Utils/CmdLineArgParserUtils.h"
+#include "Utils/CmdLineArgParserException.h"
 
 using std::string;
+using std::vector;
 
 using namespace genie;
-using namespace genie::geometry;
+using namespace genie::constants;
 
+void GetCommandLineArgs (int argc, char ** argv);
+void GetRandomRay       (TLorentzVector & x, TLorentzVector & p);
+int  GetTargetMaterial  (const PathLengthList & pl);
+
+string   gOptGeomFile;       // input ROOT geom file
+string   gOptRootGeomTopVol; // top volume / can be used to override the master volume
+TVector3 gOptRayDirection;   // ray direction
+TVector3 gOptRaySurf;        // ray generation surface
+double   gOptRayR;           // ray generation area radius
+int      gOptNVtx;           // number of vertices to generate
+int      gOptTgtPdg;         // 
+
+double   kDefOptRayR         = 100;
+TVector3 kDefOptRayDirection (1,0,0);
+TVector3 kDefOptRaySurf      (0,0,0);
+
+//____________________________________________________________________________
 int main(int argc, char ** argv)
-{  
-  TApplication theApp("App", &argc, argv);
-  
-  //-- Default geometry
-  string base_dir = string( gSystem->Getenv("GENIE") );
-  string filename = base_dir + string("/src/test/data/GeometryLArPbBox.root");
-  //-- Scan for filename from the command line argument (following -f)
-  for(int iarg = 0; iarg < argc-1; iarg++) {
-     string argument(argv[iarg]);
-     if( argument.compare("-f") == 0 ) filename = string(argv[++iarg]);
-  }
-
-  LOG("Test",pINFO) << "Starting ROOTGeomAnalyzer with geometry from: " << filename;
-  ROOTGeomAnalyzer* root_analyzer = new ROOTGeomAnalyzer(filename);
-  LOG("Test",pINFO) << "Drawing Geometry ";
-  root_analyzer->GetGeometry()->GetTopVolume()->Draw();
-    LOG("Test",pINFO) << "Computing Max path lengths";
-  const PathLengthList & maxpl = root_analyzer->ComputeMaxPathLengths();
-  LOG("Test",pINFO) << "Printing computed Max path lengths:";
-  LOG("Test",pINFO) << maxpl;
-
-  LOG("Test",pINFO) << "Computing path lengths";
-  TLorentzVector* x= new TLorentzVector(0,0,0,0);
-  TLorentzVector* p= new TLorentzVector(1,0,0,1);
-  const PathLengthList & pl = root_analyzer->ComputePathLengths(*x,*p);
-  LOG("Test",pINFO) << "Printing computed path lengths:";
-  LOG("Test",pINFO) << pl;
-
-  //material selected for the vertex generation
-  int pdg(1039018000);
-  //number of vertices to be generated
-  int numVtx(10);
-  ofstream outfileVTX("VtxCoord.txt",std::ios_base::app);
-
-  //define TPolyMarker3D
-  TPolyMarker3D *marker = new TPolyMarker3D();
-  marker->SetMarkerColor(kRed);
-  marker->SetMarkerStyle(8);
-  marker->SetMarkerSize(0.5);
-
-  for(int i=0;i<numVtx;i++)
-    {
-      const TVector3 & vtx = root_analyzer->GenerateVertex(*x,*p,pdg);
-      LOG("Test",pINFO) << "Vertex selected ...";
-      LOG("Test",pINFO) << " x "<<vtx.X()<<" y "<<vtx.Y()<<" z "<<vtx.Z();
-      outfileVTX<<vtx.X()<<"\t"<<vtx.Y()<<"\t"<<vtx.Z()<<std::endl; 
-
-      marker->SetNextPoint(vtx.X(),vtx.Y(),vtx.Z()); 
-    }
+{
+  GetCommandLineArgs(argc, argv);
  
-  marker->Draw("same");
+#ifdef __GENIE_GEOM_DRIVERS_ENABLED__
+
+  TApplication theApp("App", &argc, argv);
+ 
+  // Create & configure the geometry driver
+  //
+  LOG("GeomTest", pINFO) 
+     << "Creating a geometry driver for ROOT geometry at: " 
+     << gOptGeomFile;
+  geometry::ROOTGeomAnalyzer * geom_driver = 
+               new geometry::ROOTGeomAnalyzer(gOptGeomFile);
+  geom_driver ->SetTopVolName(gOptRootGeomTopVol);
+
+  // Draw the geometry
+  // & define TPolyMarker3D for drawing vertices later on
+  //
+  LOG("GeomTest", pINFO) 
+      << "Drawing the ROOT geometry";
+  geom_driver->GetGeometry()->GetTopVolume()->Draw();
+
+  TPolyMarker3D * vtxp = new TPolyMarker3D();
+  vtxp->SetMarkerColor(kRed);
+  vtxp->SetMarkerStyle(8);
+  vtxp->SetMarkerSize(0.4);
+
+  // Compute & Printout the (density weighted) max path lengths
+  //
+  LOG("GeomTest", pINFO) 
+       << "Computing max {density-weighted path lengths}";
+  const PathLengthList & maxpl = geom_driver->ComputeMaxPathLengths();
+
+  LOG("GeomTest", pINFO) << "Maximum math lengths: " << maxpl;
+
+
+  TFile f("geomtest.root","recreate");
+  TNtupleD vtxnt("vtxnt","","x,y,z");
+
+  TLorentzVector x(0,0,0,0);
+  TLorentzVector p(0,0,0,0);
+
+  int n = 0;
+  while (n < gOptNVtx) {
+
+    // generate a random ray 
+    GetRandomRay(x,p);
+
+    // compute density-weighted path lengths for each geometry
+    // material for the current ray
+    const PathLengthList & pl = geom_driver->ComputePathLengths(x,p);
+    LOG("GeomTest",pINFO)        
+       << "Current path lengths: " << pl;
+
+    // select detector material (amongst all materials defined in the 
+    // detector geometry -- do so based on density-weighted path lengths) 
+    // or force it to the user-selected material
+    int selected_pdg = GetTargetMaterial(pl);
+    if (selected_pdg == -1) continue;
+    LOG("GeomTest",pINFO) 
+       << "Selected target material: " << selected_pdg;
+
+    // generate an 'interaction vertex' in the selected material
+    const TVector3 & vtx = geom_driver->GenerateVertex(x,p,selected_pdg);
+    LOG("GeomTest",pINFO) 
+      << "Generated vtx: (x = " << vtx.X() 
+      << ", y = " << vtx.Y() << ", z = " <<vtx.Z() << ")";
+
+    // add it at the ntuple & at the vtx marker
+    vtxnt.Fill(vtx.X(),vtx.Y(),vtx.Z());
+    vtxp->SetNextPoint(vtx.X(),vtx.Y(),vtx.Z()); 
+
+    n++;
+    LOG("GeomTest", pNOTICE) 
+      << " *** Vertices generated so far: " << n;
+  }
+ 
+  // draw vertices
+  vtxp->Draw("same");
+  
+  vtxnt.Write();
+  f.Close();
   
   theApp.Run(kTRUE);
+
+#else
+    LOG("GeomTest", pERROR) 
+       << "*** You should have enabled the geometry drivers first!";
+#endif
+
   return 0;
 }
+//____________________________________________________________________________
+void GetRandomRay(TLorentzVector & x, TLorentzVector & p)
+{
+// generate a random ray (~flux neutrino)
+//
+  RandomGen * rnd = RandomGen::Instance();
 
+  TVector3 vec0(gOptRayDirection);
+  TVector3 vec = vec0.Orthogonal();
+
+  double phi = 2.*kPi * rnd->RndFlux().Rndm();
+  double Rt  = -1;
+  bool accept = false;
+  while(!accept) {
+    double r = gOptRayR * rnd->RndFlux().Rndm();
+    double y = gOptRayR * rnd->RndFlux().Rndm();
+    if(y<r) {
+      accept = true;
+      Rt = r;
+    }
+  }
+
+  vec.Rotate(phi,vec0);
+  vec.SetMag(Rt);
+
+  vec = vec + gOptRaySurf;
+
+  TLorentzVector xx(vec, 0.);
+  TLorentzVector pp(gOptRayDirection, gOptRayDirection.Mag());
+
+  x = xx;
+  p = pp;
+}
+//____________________________________________________________________________
+int GetTargetMaterial(const PathLengthList & pl)
+{
+  if(pl.AreAllZero()) return -1;
+
+  if(gOptTgtPdg > 0) {
+    if(pl.PathLength(gOptTgtPdg) > 0) return gOptTgtPdg;
+  } 
+  else {
+    RandomGen * rnd = RandomGen::Instance();
+
+    PathLengthList::const_iterator pliter;
+    double sum = 0;
+    for(pliter = pl.begin(); pliter != pl.end(); ++pliter) {
+        sum += pliter->second;
+    }
+    double cpl = sum * rnd->RndFlux().Rndm();
+    sum = 0;
+    for(pliter = pl.begin(); pliter != pl.end(); ++pliter) {
+       sum += pliter->second;
+       if(cpl < sum) {
+          return pliter->first;
+       }
+    }
+  }
+  return -1;
+}
+//____________________________________________________________________________
+void GetCommandLineArgs(int argc, char ** argv)
+{
+  // *** geometry file:
+  try {
+    LOG("GeomTest", pINFO) << "Getting ROOT geometry filename";
+    gOptGeomFile = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+       string base_dir = string( gSystem->Getenv("GENIE") );
+       string filename = base_dir + 
+                         string("/src/test/data/GeometryLArPbBox.root");
+       gOptGeomFile = filename;
+    }
+  }
+
+  // *** check whether an event generation volume name has been 
+  // *** specified -- default is the 'top volume'
+  try {
+    LOG("GeomTest", pDEBUG) << "Checking for input volume name";
+    gOptRootGeomTopVol = 
+          genie::utils::clap::CmdLineArgAsString(argc,argv,'v');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+       LOG("GeomTest", pDEBUG) << "Using the <master volume>";
+    }
+  } // try-catch (-v) 
+
+  // *** ray direction:
+  string direction = "";
+  try {
+    LOG("GeomTest", pINFO) << "Reading ray direction";
+    direction = genie::utils::clap::CmdLineArgAsString(argc,argv,'d');
+    // split the comma separated list
+    vector<string> dirv = utils::str::Split(direction, ",");
+    assert(dirv.size() == 3);
+    double dx = atof( dirv[0].c_str() );
+    double dy = atof( dirv[1].c_str() );
+    double dz = atof( dirv[2].c_str() );
+    gOptRayDirection.SetXYZ(dx,dy,dz);
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("GeomTest", pINFO) << "No input ray direction - Using default";
+      gOptRayDirection = kDefOptRayDirection;
+    }
+  }
+
+  // *** ray surface:
+  string rsurf = "";
+  try {
+    LOG("GeomTest", pINFO) << "Reading ray generation surface";
+    rsurf = genie::utils::clap::CmdLineArgAsString(argc,argv,'s');
+    // split the comma separated list
+    vector<string> rsv = utils::str::Split(rsurf, ",");
+    assert(rsv.size() == 3);
+    double x = atof( rsv[0].c_str() );
+    double y = atof( rsv[1].c_str() );
+    double z = atof( rsv[2].c_str() );
+    gOptRaySurf.SetXYZ(x,y,z);
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("GeomTest", pINFO) << "No input ray generation surface - Using default";
+      gOptRaySurf = kDefOptRaySurf;
+    }
+  }
+
+  // *** ray generation area radius:
+  try {
+    LOG("GeomTest", pINFO) << "Reading radius of ray generation area";
+    gOptRayR = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'r');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("GeomTest", pINFO) << "No input radius of ray generation area - Using default";
+      gOptRayR = kDefOptRayR;
+    }
+  }
+  gOptRayR = TMath::Abs(gOptRayR); // must be positive
+
+  // *** number of vertices to generate:
+  try {
+    LOG("GeomTest", pINFO) << "Getting number of vertices to generate";
+    gOptNVtx = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+       gOptNVtx = 0;
+    }
+  }
+
+  // *** 'forced' target pdg:
+  try {
+    LOG("GeomTest", pINFO) << "Getting 'forced' target pdg";
+    gOptTgtPdg = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+       gOptTgtPdg = -1;
+    }
+  }
+}
+//____________________________________________________________________________
