@@ -21,6 +21,8 @@
    Added method to configure the starting z position (upstream of the detector
    face, in detector coord system). Added code to project flux neutrinos from
    z=0 to a configurable z position (somewhere upstream of the detector face)
+ @ Mar 27, 2008 - CA
+   Added option to recycle the flux ntuple
 */
 //____________________________________________________________________________
 
@@ -67,12 +69,19 @@ bool GJPARCNuFlux::GenerateNext(void)
 
   // Read next flux ntuple entry
   if(fIEntry >= fNEntries) {
-     LOG("Flux", pWARN) 
-          << "No more entries in input flux neutrino ntuple";
-     return false;	
+     if(fICycle < fNCycles) {
+        fICycle++;
+        fIEntry=0;
+     } else {
+        LOG("Flux", pWARN) 
+            << "No more entries in input flux neutrino ntuple";
+        return false;	
+     }
   }
 
-  LOG("Flux", pNOTICE) << "Reading flux ntuple entry:........" << fIEntry;
+  LOG("Flux", pNOTICE) 
+     << "Reading flux ntuple entry:....." << fIEntry 
+     << " - Cycle: " << fICycle << "/" << fNCycles;
   fNuFluxTree->GetEntry(fIEntry);
   fIEntry++;
 
@@ -286,7 +295,6 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
     fBrNVtx0    = fNuFluxTree -> GetBranch ("nvtx0");
   }
 
-
   // set the leaf addresses for the above branches
   fBrNorm      -> SetAddress (&fLfNorm);
   fBrEnu       -> SetAddress (&fLfEnu);
@@ -310,6 +318,8 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   if(fIsFDLoc) {
     fBrNVtx0   -> SetAddress (&fLfNVtx0);
   }
+
+  fICycle = 1;
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::SetFluxParticles(const PDGCodeList & particles)
@@ -349,6 +359,16 @@ void GJPARCNuFlux::SetUpstreamZ(double z0)
   fZ0 = z0;
 }
 //___________________________________________________________________________
+void GJPARCNuFlux::SetNumOfCycles(int n)
+{
+// The flux ntuples can be recycled for a number of times to boost generated
+// event statistics without requiring enormous beam simulation statistics.
+// That option determines how many times the driver is going to cycle through
+// the input flux ntuple
+
+  fNCycles = TMath::Max(1, n);
+}
+//___________________________________________________________________________
 void GJPARCNuFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing GJPARCNuFlux driver";
@@ -369,6 +389,8 @@ void GJPARCNuFlux::Initialize(void)
   fFileWeight      = -1;
   fFilePOT         = 0;
   fZ0              = 0;
+  fNCycles         = 0;
+  fICycle          = 0;        
 
   fBrNorm          = 0;
   fBrIdfd          = 0;
@@ -403,7 +425,8 @@ void GJPARCNuFlux::SetDefaults(void)
 // - Set the default file normalization to 1E+21 POT
 // - Set the default flux neutrino start z position at -5m (z=0 is the
 //   detector centre).
-//
+// - Set number of cycles to 1
+
   LOG("Flux", pNOTICE) << "Setting default GJPARCNuFlux driver options";
 
   PDGCodeList particles;
@@ -416,6 +439,7 @@ void GJPARCNuFlux::SetDefaults(void)
   this->SetMaxEnergy(25./*GeV*/);
   this->SetFilePOT(1E+21);
   this->SetUpstreamZ(-5.0); 
+  this->SetNumOfCycles(1);
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::ResetCurrent(void)
