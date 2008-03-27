@@ -61,7 +61,8 @@ public :
   double                 Weight        (void) { return  fLfNorm;              }
   const TLorentzVector & Momentum      (void) { return  fgP4;                 }
   const TLorentzVector & Position      (void) { return  fgX4;                 }
-  bool                   End           (void) { return  fIEntry >= fNEntries; }
+  bool                   End           (void) { return  fIEntry >= fNEntries 
+                                                     && fICycle == fNCycles;  }
 
   // Methods specific to the JPARC flux driver, 
   // for configuration/initialization of the flux & event generation drivers and
@@ -73,8 +74,9 @@ public :
   void SetMaxEnergy     (double Ev);                        ///< specify maximum flx neutrino energy
   void SetFilePOT       (double pot);                       ///< flux file norm is in /N POT/det [ND] or /N POT/cm^2 [FD]. Specify N (typically 1E+21)
   void SetUpstreamZ     (double z0);                        ///< set flux neutrino initial z position (upstream of the detector)
+  void SetNumOfCycles   (int n);                            ///< set how many times to cycle through the ntuple (defaul: 1)
 
-  double ActualPOT(void) const { return fFilePOT/fFileWeight; } ///< actual POT in file
+  double ActualPOT(void) const { return fNCycles*fFilePOT/fFileWeight; } ///< actual POT in file x number of cycles
 
   const GJPARCNuFluxPassThroughInfo & 
      PassThroughInfo(void) { return *fPassThroughInfo; } ///< GJPARCNuFluxPassThroughInfo
@@ -109,6 +111,8 @@ private:
   double    fFileWeight;       ///< file weight (POT normalization / actual POT)
   double    fFilePOT;          ///< file POT normalization, typically 1E+21
   double    fZ0;               ///< configurable starting z position for each flux neutrino (in detector coord system)
+  int       fNCycles;          ///< how many times to cycle through the flux ntuple
+  int       fICycle;           ///< current cycle
 
   //-- jnubeam ntuple branches
   //   branches marked with [f] can be found in SK flux ntuples only
