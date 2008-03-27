@@ -166,8 +166,7 @@
               That will be used to calculate the actual normalization for the
               generated sample.
 
-           -c *** not implemented yet ***
-              Specifies how many times to recycle a jnubeam flux ntuple.
+           -c Specifies how many times to cycle a jnubeam flux ntuple.
               [default: 1]
               Due to the large rejection factor when generating unweighted events
               in the full energy range (approximately ~500 flux neutrinos will be 
@@ -276,29 +275,31 @@ void PrintSyntax        (void);
 
 // Default options (override them using the command line arguments):
 //
-Long_t        kDefOptRunNu      = 0;        // default run number
-string        kDefOptGeomLUnits = "mm";     // default geometry length units
-string        kDefOptGeomDUnits = "g_cm3";  // default geometry density units
-NtpMCFormat_t kDefOptNtpFormat  = kNFGHEP;  // default event tree format
-Long_t        kDefOptMaxNev     = -1;       // 
-double        kDefOptFluxNorm   = 1E+21;    // std jnubeam flux ntuple norm. (POT*detector [NDs] or POT*cm^2 [SK])
+Long_t          kDefOptRunNu       = 0;       // default run number
+string          kDefOptGeomLUnits  = "mm";    // default geometry length units
+string          kDefOptGeomDUnits  = "g_cm3"; // default geometry density units
+NtpMCFormat_t   kDefOptNtpFormat   = kNFGHEP; // default event tree format
+Long_t          kDefOptMaxNev      = -1;      // 
+double          kDefOptFluxNorm    = 1E+21;   // std jnubeam flux ntuple norm. (POT*detector [NDs] or POT*cm^2 [SK])
+int             kDefOptFluxNCycles = 1;       // default number of flux ntuple cycles
 
 // User-specified options:
 //
-Long_t          gOptRunNu;                  // run number
-bool            gOptUsingRootGeom = false;  // using root geom or target mix?
-bool            gOptUsingHistFlux = false;  // using jnubeam flux ntuples or flux from histograms?
-map<int,double> gOptTgtMix;                 // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
-map<int,TH1D*>  gOptFluxHst;                // flux histos (nu pdg  -> spectrum)  / if not using beam sim ntuples
-string          gOptRootGeom;               // input ROOT file with realistic detector geometry
-string          gOptRootGeomTopVol = "";    // input geometry top event generation volume [optional]
-double          gOptGeomLUnits = 0;         // input geometry length units [optional]
-double          gOptGeomDUnits = 0;         // input geometry density units [optional]
-string          gOptExtMaxPlXml;            // max path lengths XML file for input geometry [optional]
-string          gOptFluxFile;               // ROOT file with jnubeam flux ntuple
-string          gOptDetectorLocation;       // detector location ('sk','nd1','nd2',...)
-int             gOptMaxNev;                 // 
-double          gOptFluxNorm;               // std jnubeam flux ntuple norm
+Long_t          gOptRunNu;                    // run number
+bool            gOptUsingRootGeom = false;    // using root geom or target mix?
+bool            gOptUsingHistFlux = false;    // using jnubeam flux ntuples or flux from histograms?
+map<int,double> gOptTgtMix;                   // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
+map<int,TH1D*>  gOptFluxHst;                  // flux histos (nu pdg  -> spectrum)  / if not using beam sim ntuples
+string          gOptRootGeom;                 // input ROOT file with realistic detector geometry
+string          gOptRootGeomTopVol = "";      // input geometry top event generation volume [optional]
+double          gOptGeomLUnits = 0;           // input geometry length units [optional]
+double          gOptGeomDUnits = 0;           // input geometry density units [optional]
+string          gOptExtMaxPlXml;              // max path lengths XML file for input geometry [optional]
+string          gOptFluxFile;                 // ROOT file with jnubeam flux ntuple
+string          gOptDetectorLocation;         // detector location ('sk','nd1','nd2',...)
+int             gOptMaxNev;                   // 
+double          gOptFluxNorm;                 // std jnubeam flux ntuple norm
+int             gOptFluxNCycles;              // number of flux ntuple cycles
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -327,6 +328,7 @@ int main(int argc, char ** argv)
     jparc_flux_driver = new flux::GJPARCNuFlux;
     jparc_flux_driver->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation);
     jparc_flux_driver->SetFilePOT(gOptFluxNorm);
+    jparc_flux_driver->SetNumOfCycles(gOptFluxNCycles);
     flux_driver = dynamic_cast<GFluxI *> (jparc_flux_driver);
   } 
   else {
@@ -613,7 +615,7 @@ void GetCommandLineArgs(int argc, char ** argv)
               << "Will compute the maximum path lengths at job init";
             gOptExtMaxPlXml = "";
         }
-     } // try-catch (-v) 
+     } // try-catch (-p) 
   } // using root geom?
 
   else {
@@ -769,6 +771,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
 
   // flux file normalization
+  // only relevant when using the jnubeam flux ntuples
   try {
     LOG("gT2Kevgen", pDEBUG)  << "Reading flux file normalization";
     gOptFluxNorm = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'n');
@@ -777,6 +780,18 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("gT2Kevgen", pDEBUG)
         << "Setting standard normalization for jnubeam flux ntuples";
       gOptFluxNorm = kDefOptFluxNorm;
+    }
+  }
+
+  // number of times to cycle through the jnubeam flux ntuple contents
+  try {
+    LOG("gT2Kevgen", pDEBUG)  << "Reading number of flux ntuple cycles";
+    gOptFluxNCycles = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'c');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gT2Kevgen", pDEBUG)
+        << "Setting standard number of cycles for jnubeam flux ntuples";
+      gOptFluxNCycles = kDefOptFluxNCycles;
     }
   }
 
@@ -837,7 +852,8 @@ void GetCommandLineArgs(int argc, char ** argv)
   } else {
     fluxinfo << "using jnubeam simulation: "
              << "file = "        << gOptFluxFile
-             << ", location = "  << gOptDetectorLocation;
+             << ", location = "  << gOptDetectorLocation
+             << ", ncycles = "   << gOptFluxNCycles;
   }
 
   LOG("gT2Kevgen", pNOTICE) 
