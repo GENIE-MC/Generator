@@ -227,6 +227,7 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <cstdlib>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -236,6 +237,8 @@
 #include <TTree.h>
 #include <TFile.h>
 #include <TH1D.h>
+#include <TGeoVolume.h>
+#include <TGeoShape.h>
 
 #include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
@@ -313,6 +316,50 @@ int main(int argc, char ** argv)
   //xspl->AutoLoad();
 
   // *************************************************************************
+  // * Create / configure the geometry driver 
+  // *************************************************************************
+  GeomAnalyzerI * geom_driver = 0;
+  double zmin=0, zmax=0;
+
+  if(gOptUsingRootGeom) {
+    //
+    // *** Using a realistic root-based detector geometry description 
+    //
+
+    // creating & configuring a root geometry driver
+    geometry::ROOTGeomAnalyzer * rgeom = 
+            new geometry::ROOTGeomAnalyzer(gOptRootGeom);
+    rgeom -> SetLengthUnits  (gOptGeomLUnits);
+    rgeom -> SetDensityUnits (gOptGeomDUnits);
+    rgeom -> SetTopVolName   (gOptRootGeomTopVol);
+    // getting the bounding box dimensions along z so as to set the
+    // appropriate upstream generation surface for the JPARC flux driver
+    TGeoVolume * topvol = rgeom->GetGeometry()->GetTopVolume();
+    if(!topvol) {
+      LOG("gT2Kevgen", pFATAL) << "Null top ROOT geometry volume!";
+      exit(1);
+    }
+    TGeoShape * bounding_box = topvol->GetShape();
+    bounding_box->GetAxisRange(3, zmin, zmax);
+    zmin *= rgeom->LengthUnits();
+    zmax *= rgeom->LengthUnits();
+    // casting to the GENIE geometry driver interface
+    geom_driver = dynamic_cast<GeomAnalyzerI *> (rgeom);
+  } 
+  else {
+    //
+    // *** Using a 'point' geometry with the specified target mix 
+    // *** ( = a list of targets with their corresponding weight fraction)
+    //
+ 
+    // creating & configuring a point geometry driver
+    geometry::PointGeomAnalyzer * pgeom = 
+  	      new geometry::PointGeomAnalyzer(gOptTgtMix);
+    // casting to the GENIE geometry driver interface
+    geom_driver = dynamic_cast<GeomAnalyzerI *> (pgeom);
+  } 
+
+  // *************************************************************************
   // * Create / configure the flux driver 
   // *************************************************************************
   GFluxI * flux_driver = 0;
@@ -322,19 +369,25 @@ int main(int argc, char ** argv)
 
   if(!gOptUsingHistFlux) {
     //
-    // Using the detailed JPARC neutrino flux desription by feeding-in 
-    // the jnubeam flux simulation ntuples
+    // *** Using the detailed JPARC neutrino flux desription by feeding-in 
+    // *** the jnubeam flux simulation ntuples
     //
+
+    // creating & configuring a JPARC neutrino flux driver
     jparc_flux_driver = new flux::GJPARCNuFlux;
     jparc_flux_driver->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation);
     jparc_flux_driver->SetFilePOT(gOptFluxNorm);
     jparc_flux_driver->SetNumOfCycles(gOptFluxNCycles);
+    jparc_flux_driver->SetUpstreamZ(zmin);
+    // casting to the GENIE flux driver interface
     flux_driver = dynamic_cast<GFluxI *> (jparc_flux_driver);
   } 
   else {
     //
-    // Using fluxes from histograms (for all specified neutrino species)
+    // *** Using fluxes from histograms (for all specified neutrino species)
     //
+
+    // creating & configuring a generic GCylindTH1Flux flux driver
     TVector3 bdir (0,0,1); // dir along +z
     TVector3 bspot(0,0,0);
     hst_flux_driver = new flux::GCylindTH1Flux;
@@ -347,34 +400,9 @@ int main(int argc, char ** argv)
         TH1D * spectrum = it->second;
         hst_flux_driver->AddEnergySpectrum(pdg_code, spectrum);
     }
+    // casting to the GENIE flux driver interface
     flux_driver = dynamic_cast<GFluxI *> (hst_flux_driver);
   }
-
-  // *************************************************************************
-  // * Create / configure the geometry driver 
-  // *************************************************************************
-  GeomAnalyzerI * geom_driver = 0;
-
-  if(gOptUsingRootGeom) {
-    //
-    // Using a realistic root-based detector geometry description
-    //
-    geometry::ROOTGeomAnalyzer * rgeom = 
-            new geometry::ROOTGeomAnalyzer(gOptRootGeom);
-    rgeom -> SetLengthUnits  (gOptGeomLUnits);
-    rgeom -> SetDensityUnits (gOptGeomDUnits);
-    rgeom -> SetTopVolName   (gOptRootGeomTopVol);
-    geom_driver = dynamic_cast<GeomAnalyzerI *> (rgeom);
-  } 
-  else {
-    //
-    // Using a 'point' geometry with the specified target mix 
-    // (a list of targets with their corresponding weight fraction)
-    //
-    geometry::PointGeomAnalyzer * pgeom = 
-  	      new geometry::PointGeomAnalyzer(gOptTgtMix);
-    geom_driver = dynamic_cast<GeomAnalyzerI *> (pgeom);
-  } 
 
   // *************************************************************************
   // * Create/configure the event generation driver 
