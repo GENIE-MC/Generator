@@ -19,6 +19,8 @@
    Fixed bug preventing the code crossing more than a fixed number of volume
    boundaries. The problem was not seen before as the code was tested with
    relatively simpler geometries (small number of volumes).
+   Fixed problem with SetTopVolume() not actually setting it, so that the 
+   option to specify sub-volumes of the master volume wasn't working properly.
 */
 //____________________________________________________________________________
 
@@ -147,6 +149,7 @@ void ROOTGeomAnalyzer::SetTopVolName(string name)
      return;
   }
   fTopVolume = gvol;
+  fGeometry->SetTopVolume(fTopVolume);
 }
 //___________________________________________________________________________
 // Geometry driver interface implementation:
