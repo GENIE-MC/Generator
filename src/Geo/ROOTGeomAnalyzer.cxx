@@ -15,6 +15,10 @@
    Slight code restructuring to make it easier keeping track of conversions
    between the SI and the current geometry system of units.
    Fixed a bug in density unit conversions reported by Elaine Schulte.
+ @ Mar 28, 2008 - Pawel Guzowksi, Jim Dobson
+   Fixed bug preventing the code crossing more than a fixed number of volume
+   boundaries. The problem was not seen before as the code was tested with
+   relatively simpler geometries (small number of volumes).
 */
 //____________________________________________________________________________
 
@@ -210,13 +214,11 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
     TVector3 pos = x.Vect();         // initial position
 
     this->SI2Local(pos); // SI -> curr geom units
-    //////////////    pos *= (1./this->LengthUnits()); // m -> GU
 
     fCurrPathLengthList->AddPathLength(
                        pdgc, this->ComputePathLengthPDG(pos,udir,pdgc));
   }//materials
 
-  ///////////  this->ScalePathLengths(*fCurrPathLengthList); // GU -> m
   this->Local2SI(*fCurrPathLengthList); // GU -> m
 
   return *fCurrPathLengthList;
@@ -675,7 +677,6 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
 //
   double pl = 0; // path-length (x density, if density-weighting is ON)
 
-  int    counterloop  (0);
   int    FlagNotInYet (0);
   bool   condition    (kTRUE);
 
@@ -687,10 +688,9 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
   TGeoMaterial * mat = 0;
 
   fGeometry -> SetCurrentDirection (udir[0],udir[1],udir[2]);
-  fGeometry -> SetCurrentPoint     (r0[0],r0[1],r0[2]);
+  fGeometry -> SetCurrentPoint     (r0[0],  r0[1],  r0[2]  );
 
-  while(((!FlagNotInYet) || condition) && counterloop <100) {
-     counterloop++;
+  while ( (!FlagNotInYet) || condition) {
      condition=kTRUE;
 
      fGeometry->FindNode();
