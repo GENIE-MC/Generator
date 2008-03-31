@@ -8,7 +8,7 @@
          path-lengths for each material & generating vertices
 
 \syntax  gtestROOTGeometry [-f geom] [-n nvtx] [-d dx,dy,dz] [-s x,y,z] 
-                           [-t size] [-p pdg] 
+                           [-r size] [-p pdg] 
   
          Options:
 
@@ -142,7 +142,7 @@ int main(int argc, char ** argv)
 
 
   TFile f("geomtest.root","recreate");
-  TNtupleD vtxnt("vtxnt","","x,y,z");
+  TNtupleD vtxnt("vtxnt","","x:y:z:A:Z");
 
   TLorentzVector x(0,0,0,0);
   TLorentzVector p(0,0,0,0);
@@ -162,19 +162,19 @@ int main(int argc, char ** argv)
     // select detector material (amongst all materials defined in the 
     // detector geometry -- do so based on density-weighted path lengths) 
     // or force it to the user-selected material
-    int selected_pdg = GetTargetMaterial(pl);
-    if (selected_pdg == -1) continue;
-    LOG("GeomTest",pINFO) 
-       << "Selected target material: " << selected_pdg;
+    int tpdg = GetTargetMaterial(pl);
+    if (tpdg == -1) continue;
+    LOG("GeomTest",pINFO) << "Selected target material: " << tpdg;
 
     // generate an 'interaction vertex' in the selected material
-    const TVector3 & vtx = geom_driver->GenerateVertex(x,p,selected_pdg);
+    const TVector3 & vtx = geom_driver->GenerateVertex(x,p,tpdg);
     LOG("GeomTest",pINFO) 
       << "Generated vtx: (x = " << vtx.X() 
       << ", y = " << vtx.Y() << ", z = " <<vtx.Z() << ")";
 
     // add it at the ntuple & at the vtx marker
-    vtxnt.Fill(vtx.X(),vtx.Y(),vtx.Z());
+    vtxnt.Fill(vtx.X(),vtx.Y(),vtx.Z(), 
+               pdg::IonPdgCodeToA(tpdg), pdg::IonPdgCodeToZ(tpdg));
     vtxp->SetNextPoint(vtx.X(),vtx.Y(),vtx.Z()); 
 
     n++;
