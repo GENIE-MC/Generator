@@ -500,22 +500,27 @@ int main(int argc, char ** argv)
     // POT normalization will only be calculated if event generation was based
     // on beam simulation outputs (not just histograms) & if event generation
     // was not cut short (flux friver reached the end of flux ntuple)
-    double pot  = jparc_flux_driver->ActualPOT(); // actual POT in flux file 
-    double nf   = mcj_driver->NFluxNeutrinos();   // n. of flux neutrinos thrown 
+    double fpot = jparc_flux_driver->ActualPOT(); // actual POT in flux file 
     double psc  = mcj_driver->GlobProbScale();    // interaction prob. scale 
-    double nev  = (double) ievent;                // number of generated events
-    double norm = (nf/pot) / psc;                 // POT for generated sample
+    double pot  = fpot / psc;                     // POT for generated sample
+    // Get nunber of flux neutrinos read-in by flux friver, number of flux
+    // neutrinos actually thrown to the event generation driver and number
+    // of neutrino interactions actually generated
+    long int nflx_evg = mcj_driver        -> NFluxNeutrinos(); 
+    long int nflx     = jparc_flux_driver -> NFluxNeutrinos();
+    long int nev      = ievent;
 
     LOG("gT2Kevgen", pNOTICE) 
-        << "\n >> Actual jnubeam flux file normalization:  " << pot 
+        << "\n >> Actual jnubeam flux file normalization:  " << fpot 
             << " POT * " << ((gOptDetectorLocation == "sk") ? "cm^2" : "det")
-        << "\n >> Neutrinos thrown by the flux driver:     " << nf
-        << "\n >> Neutrino ineteractions generated:        " << nev
-        << "\n >> Intreraction probability scaling factor: " << psc
-        << "\n ** Normalization for generated sample:      " << norm 
+        << "\n >> Interaction probability scaling factor:  " << psc
+        << "\n >> N of flux v read-in by flux driver:      " << nflx
+        << "\n >> N of flux v thrown to event gen driver:  " << nflx_evg
+        << "\n >> N of generated v interactions:           " << nev
+        << "\n ** Normalization for generated sample:      " << pot 
             << " POT * " << ((gOptDetectorLocation == "sk") ? "cm^2" : "det");
 
-    ntpw.EventTree()->SetWeight(norm); // POT
+    ntpw.EventTree()->SetWeight(pot); // POT
   }
 
   // *************************************************************************
