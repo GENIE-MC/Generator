@@ -69,14 +69,17 @@ public :
   // and for passing-through flux information (eg neutrino parent decay kinematics)
   // not used by the generator but required by analyses/processing further upstream
 
-  void LoadBeamSimData  (string filename, string det_loc);  ///< load a jnubeam root flux ntuple
-  void SetFluxParticles (const PDGCodeList & particles);    ///< specify list of flux neutrino species
-  void SetMaxEnergy     (double Ev);                        ///< specify maximum flx neutrino energy
-  void SetFilePOT       (double pot);                       ///< flux file norm is in /N POT/det [ND] or /N POT/cm^2 [FD]. Specify N (typically 1E+21)
-  void SetUpstreamZ     (double z0);                        ///< set flux neutrino initial z position (upstream of the detector)
-  void SetNumOfCycles   (int n);                            ///< set how many times to cycle through the ntuple (defaul: 1)
+  void LoadBeamSimData  (string filename, string det_loc);     ///< load a jnubeam root flux ntuple
+  void SetFluxParticles (const PDGCodeList & particles);       ///< specify list of flux neutrino species
+  void SetMaxEnergy     (double Ev);                           ///< specify maximum flx neutrino energy
+  void SetFilePOT       (double pot);                          ///< flux file norm is in /N POT/det [ND] or /N POT/cm^2 [FD]. Specify N (typically 1E+21)
+  void SetUpstreamZ     (double z0);                           ///< set flux neutrino initial z position (upstream of the detector)
+  void SetNumOfCycles   (int n);                               ///< set how many times to cycle through the ntuple (default: 1)
 
-  double ActualPOT(void) const { return fNCycles*fFilePOT/fFileWeight; } ///< actual POT in file x number of cycles
+  double   ActualPOT      (void) const;                        ///< actual POT for neutrinos thrown so far
+  long int NFluxNeutrinos (void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
+  double   SumWeight      (void) const { return fSumWeight;  } ///< intergated weight for flux neutrinos looped so far
+
 
   const GJPARCNuFluxPassThroughInfo & 
      PassThroughInfo(void) { return *fPassThroughInfo; } ///< GJPARCNuFluxPassThroughInfo
@@ -85,11 +88,12 @@ private:
 
   // Private methods
   //
-  void Initialize   (void);
-  void SetDefaults  (void);  
-  void CleanUp      (void);
-  void ResetCurrent (void);
-  int  DLocName2Id  (string name);
+  bool GenerateNext_weighted (void);
+  void Initialize            (void);
+  void SetDefaults           (void);  
+  void CleanUp               (void);
+  void ResetCurrent          (void);
+  int  DLocName2Id           (string name);
 
   // Private data members
   //
@@ -108,11 +112,13 @@ private:
   bool      fIsNDLoc;          ///< input location is a 'near' detector location?
   long int  fNEntries;         ///< number offlux ntuple entries
   long int  fIEntry;           ///< current flux ntuple entry
-  double    fFileWeight;       ///< file weight (POT normalization / actual POT)
+  double    fMaxWeight;        ///< max flux  neutrino weight in input file for the specified detector location
   double    fFilePOT;          ///< file POT normalization, typically 1E+21
   double    fZ0;               ///< configurable starting z position for each flux neutrino (in detector coord system)
   int       fNCycles;          ///< how many times to cycle through the flux ntuple
   int       fICycle;           ///< current cycle
+  double    fSumWeight;        ///< sum of weights for neutrinos thrown so far
+  long int  fNNeutrinos;       ///< number of flux neutrinos thrown so far
 
   //-- jnubeam ntuple branches
   //   branches marked with [f] can be found in SK flux ntuples only

@@ -23,6 +23,14 @@
    z=0 to a configurable z position (somewhere upstream of the detector face)
  @ Mar 27, 2008 - CA
    Added option to recycle the flux ntuple
+ @ Mar 31, 2008 - CA
+   Handle the flux ntuple weights. Renamed the old implementation of GFluxI
+   GenerateNext() to GenerateNext_weighted(). Coded-up a new GenerateNext()
+   method using GenerateNext_weighted() + the rejection method to generate
+   unweighted flux neutrinos. Added code in LoadBeamSimData() to scan for the 
+   max. flux weight for the input location. The 'actual POT' norm factor is 
+   updated after each generated flux neutrino taking into account the flux 
+   weight variability. Added NFluxNeutrinos() and SumWeight().
 */
 //____________________________________________________________________________
 
@@ -32,6 +40,7 @@
 #include "Conventions/Units.h"
 #include "FluxDrivers/GJPARCNuFlux.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGCodeList.h"
 #include "Utils/MathUtils.h"
@@ -57,12 +66,45 @@ GJPARCNuFlux::~GJPARCNuFlux()
 //___________________________________________________________________________
 bool GJPARCNuFlux::GenerateNext(void)
 {
+// Get next (unweighted) flux ntuple entry on the specified detector location
+//
+  RandomGen * rnd = RandomGen::Instance();
+  while(1) {
+     // Check for end of flux ntuple
+     bool end = this->End();        
+     if(end) return false;
+     // Get next weighted flux ntuple entry
+     bool nextok = this->GenerateNext_weighted();
+     if(!nextok) continue;
+     // Get fractional weight & decide whether to accept curr flux neutrino
+     double f = this->Weight() / fMaxWeight;
+     LOG("Flux", pNOTICE) 
+        << "Curr flux neutrino fractional weight = " << f;
+     if(f > 1.) {
+       LOG("Flux", pERROR) 
+           << "** Fractional weight = " << f << " > 1 !!";
+     }
+     double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
+     bool accept = (r<f);
+     if(accept) return true;
+
+     LOG("Flux", pNOTICE) 
+       << "** Rejecting current flux neutrino based on the flux weight only";
+  }
+  return false;
+}
+//___________________________________________________________________________
+bool GJPARCNuFlux::GenerateNext_weighted(void)
+{
+// Get next (weighted) flux ntuple entry on the specified detector location
+//
+
   // Reset previously generated neutrino code / 4-p / 4-x
   this->ResetCurrent();
 
   // Check whether a jnubeam flux ntuple has been loaded
   if(!fNuFluxTree) {
-     LOG("Flux", pWARN) 
+     LOG("Flux", pWARN)
           << "The flux driver has not been properly configured";
      return false;	
   }
@@ -87,7 +129,7 @@ bool GJPARCNuFlux::GenerateNext(void)
 
   // For 'near detector' flux ntuples make sure that the current entry
   // corresponds to a flux neutrino at the specified detector location
-  if(fIsNDLoc      /* nd */  && 
+  if(fIsNDLoc           /* nd */  && 
      fDetLocId!=fLfIdfd /* doesn't match specified detector location*/) {
         LOG("Flux", pNOTICE) 
           << "Current flux neutrino not at specified detector location";
@@ -201,23 +243,9 @@ bool GJPARCNuFlux::GenerateNext(void)
   fPassThroughInfo -> prodDirZ  = fLfNpi0[2];
   fPassThroughInfo -> prodNVtx  = fLfNVtx0;
 
-  // Set the weight (for computing the actual POT) at the first pass.
-  // At subsequent passes check weights to ensure that the flux neutrinos 
-  // are unweighted (i.e. they all have the same weight)
-  if(fFileWeight<0) {
-      fFileWeight = (double)fLfNorm;
-      LOG("Flux", pNOTICE) 
-        << "File-wide flux neutrino weight = " << fFileWeight
-        << " -> actual POT normalization   = " << this->ActualPOT();
-  } else {
-    if(! utils::math::AreEqual(fFileWeight, (double)fLfNorm)) {
-      LOG("Flux", pWARN) 
-        << "\n ** Flux neutrino weight mismatch! ("
-        << "Set file-wide weight = " << fFileWeight
-        << ", Current weight = " << fLfNorm << ")";
-//    exit(1);
-    }
-  }
+  // update the quantities used for computing the 'actual' POT count
+  fSumWeight += this->Weight();
+  fNNeutrinos++;
 
   return true;
 }
@@ -319,7 +347,20 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
     fBrNVtx0   -> SetAddress (&fLfNVtx0);
   }
 
+  // current ntuple cycle # (flux ntuples may be recycled)
   fICycle = 1;
+
+  // scan for the maximum weight  
+  fNuFluxTree->Draw("norm","","goff");
+  Long64_t idx = TMath::LocMax(
+                     fNuFluxTree->GetSelectedRows(),
+                     fNuFluxTree->GetV1());
+  fMaxWeight = fNuFluxTree->GetV1()[idx];
+  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight; 
+  if(fMaxWeight <=0 ) {
+      LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
+      exit(1);
+  }
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::SetFluxParticles(const PDGCodeList & particles)
@@ -369,6 +410,13 @@ void GJPARCNuFlux::SetNumOfCycles(int n)
   fNCycles = TMath::Max(1, n);
 }
 //___________________________________________________________________________
+double GJPARCNuFlux::ActualPOT(void) const 
+{
+// Calculate actual POT for flux neutrinos read in so far
+
+  return fNNeutrinos*fFilePOT/fSumWeight; 
+} 
+//___________________________________________________________________________
 void GJPARCNuFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing GJPARCNuFlux driver";
@@ -386,11 +434,13 @@ void GJPARCNuFlux::Initialize(void)
 
   fNEntries        = 0;
   fIEntry          = 0;
-  fFileWeight      = -1;
+  fMaxWeight       = 0;
   fFilePOT         = 0;
   fZ0              = 0;
   fNCycles         = 0;
   fICycle          = 0;        
+  fSumWeight       = 0;
+  fNNeutrinos      = 0;
 
   fBrNorm          = 0;
   fBrIdfd          = 0;
