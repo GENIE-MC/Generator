@@ -59,8 +59,8 @@ public :
   EventRecord * GenerateEvent (void);
 
   // methods for enquiring info needed for computing the generated sample normalization
-  double GlobProbScale  (void) const { return fGlobPmax;       }
-  double NFluxNeutrinos (void) const { return fNFluxNeutrinos; }
+  double   GlobProbScale  (void) const { return fGlobPmax;                  }
+  long int NFluxNeutrinos (void) const { return (long int) fNFluxNeutrinos; }
 
 private:
  
