@@ -102,7 +102,7 @@ using std::string;
 #define LOG_CRIT(stream) \
           (*Messenger::Instance())(stream) \
                << log4cpp::Priority::CRIT << "[n] <" \
-               << __FIILE__ << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
+               << __FILE__ << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
 #define LOG_ERROR(stream) \
           (*Messenger::Instance())(stream) \
