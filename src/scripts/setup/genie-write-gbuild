@@ -109,8 +109,8 @@ else  { print GBLD "//#define __GENIE_CERNLIB_ENABLED__\n"; }
 # grab libxml2 version information
 #
 $libxml2_inc = "";
-$ret1 = `grep LIBXML2_INC $GCONF_FILE`;
-if($ret1=~m/LIBXML2_INC=(.+)/) {
+$ret1 = `grep GOPT_WITH_LIBXML2_INC $GCONF_FILE`;
+if($ret1=~m/GOPT_WITH_LIBXML2_INC=(.+)/) {
 	$libxml2_inc = $1;
 }
 open(VRS_FILE, "$libxml2_inc/libxml/xmlversion.h") or warn("$libxml2_inc/libxml/xmlversion.h!");
@@ -133,8 +133,8 @@ close VRS_FILE;
 # grab log4cpp version information
 #
 $libxml2_inc = "";
-$ret1 = `grep LOG4CPP_INC $GCONF_FILE`;
-if($ret1=~m/LOG4CPP_INC=(.+)/) {
+$ret1 = `grep GOPT_WITH_LOG4CPP_INC $GCONF_FILE`;
+if($ret1=~m/GOPT_WITH_LOG4CPP_INC=(.+)/) {
 	$log4cpp_inc = $1;
 }
 
