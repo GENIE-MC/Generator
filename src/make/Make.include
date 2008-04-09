@@ -12,8 +12,8 @@
 
 include $(GENIE)/src/make/Make.config
 
-ifndef GOPT_CXX_USERDEF_FLAGS
- GOPT_CXX_USERDEF_FLAGS=
+ifndef GOPT_WITH_CXX_USERDEF_FLAGS
+ GOPT_WITH_CXX_USERDEF_FLAGS=
 endif
 
 #-------------------------------------------------------------------
@@ -146,14 +146,14 @@ endif
 
 # XML lib & include directories 
 
-ifdef LIBXML2_INC
-XML_INC_DIR = $(LIBXML2_INC)
+ifdef GOPT_WITH_LIBXML2_INC
+XML_INC_DIR = $(GOPT_WITH_LIBXML2_INC)
 else
 XML_INC_DIR = /usr/include/libxml2
 endif
 
-ifdef LIBXML2_LIB
-XML_LIB_DIR = $(LIBXML2_LIB)
+ifdef GOPT_WITH_LIBXML2_LIB
+XML_LIB_DIR = $(GOPT_WITH_LIBXML2_LIB)
 else
 XML_LIB_DIR = /usr/lib
 endif
@@ -169,14 +169,14 @@ XML_LIBRARIES := -L$(XML_LIB_DIR) -lxml2
 
 # log4cpp lib & include directory
 
-ifdef LOG4CPP_INC
-LOG_INC_DIR = $(LOG4CPP_INC)
+ifdef GOPT_WITH_LOG4CPP_INC
+LOG_INC_DIR = $(GOPT_WITH_LOG4CPP_INC)
 else
 LOG_INC_DIR = /usr/local/src/log4cpp/include
 endif
 
-ifdef LOG4CPP_LIB
-LOG_LIB_DIR = $(LOG4CPP_LIB)
+ifdef GOPT_WITH_LOG4CPP_LIB
+LOG_LIB_DIR = $(GOPT_WITH_LOG4CPP_LIB)
 else
 LOG_LIB_DIR = /usr/local/lib
 endif
@@ -192,7 +192,7 @@ LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 
 # standard CERNLIBs used by PYTHIA and NeuGEN (and GENIE: pdflib)
 
-CERN_LIB_DIR = $(CERNLIB)
+CERN_LIB_DIR = $(GOPT_WITH_CERN_LIB)
 
 # figure out which pdflib to use (name keeps changing)
 
@@ -223,9 +223,9 @@ LHAPDF_LIBRARIES =
 
 ifeq ($(strip $(GOPT_ENABLE_LHAPDF)),YES) 
 
-LHAPDF_LIBRARIES = -L$(LHAPDF_LIB) -lLHAPDF -lg2c
+LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -lg2c
 ifeq ($(strip $(ARCH)),macosx) 
-LHAPDF_LIBRARIES = -L$(LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib
+LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib
 endif
 
 endif
@@ -236,7 +236,7 @@ endif
 
 # PYTHIA6 dir/lib/object file
 
-PYTHIA_DIR = $(PYTHIA6)
+PYTHIA_DIR = $(GOPT_WITH_PYTHIA6_LIB)
 PYTHIA_O   = $(wildcard $(PYTHIA_DIR)/pythia*.o) # match all vrs
 
 PYTHIA_LIBRARIES  = -L$(PYTHIA_DIR) -lPythia6 $(PYTHIA_O)
@@ -253,13 +253,14 @@ ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),NO)
 
 # if NeuGEN was not enabled a dummy NeuGEN library will be built so 
 # that the NuValidator's NeuGEN facade can compile. In this case, 
-# override NEUGEN3PATH (=GENIE)
+# set NEUGEN3PATH=GENIE
   NEUGEN3PATH=$(GENIE)
   NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 
 else
 
 # In case the actual NeuGEN library is used, add CERNLIB's stdhep
 # which is used by NeuGEN (in addition to the 'std' CERNLIBs)
+  NEUGEN3PATH=$(GOPT_WITH_NEUGEN_PATH)
   NEUGEN_LIBRARIES = -L$(CERN_LIB_DIR) -lstdhep \
 			-L$(NEUGEN3PATH)/lib -lneugen3 
 endif
@@ -268,6 +269,75 @@ ifeq ($(strip $(ARCH)),macosx)
   NEUGEN_LIBRARIES := $(NEUGEN_LIBRARIES) /usr/local/lib/libgfortran.dylib
 else
   NEUGEN_LIBRARIES := $(NEUGEN_LIBRARIES) -lg2c
+endif
+
+#-------------------------------------------------------------------
+#                              NEUT
+#-------------------------------------------------------------------
+
+ifeq ($(strip $(GOPT_ENABLE_NEUT)),NO) 
+  NEUT_LIB_DIR   =
+  NEUT_LIBRARIES =
+else
+  NEUT_LIB_DIR   = $(GOPT_WITH_NEUT_LIB)
+
+# I need to grab the following libraries:
+#   libneutcore_X.Y.Z.a    
+#   libnuccorrspl_X.Y.Z.a  
+#   libnuceff_X.Y.Z.a        
+#   libpartnuck_X.Y.Z.a    
+#   libskmcsvc_X.Y.Z.a  
+# with whatever version number (different for each library) they are 
+# coming with. 
+# For each one of the above, I will:
+# - find all libraries named lib<name>*.a and remove the .a part
+# - if many were found use the first one
+# - strip out thepath name
+# - replace the first lib with -l so lib<name> -> -l<name>
+
+# libneutcore:
+  PNEUTCORES = $(subst .a,,$(wildcard $(NEUT_LIB_DIR)/libneutcore*.a))
+  PNEUTCORE  = $(shell awk 'BEGIN {str="$(PNEUTCORES)"; \
+               split(str, tokens, " "); print tokens[1]}') 
+  NEUTCORE   = $(shell awk 'BEGIN {str="$(PNEUTCORE)"; \
+               n=split(str, tokens, "/"); print tokens[n]}')
+  LNEUTCORE  = $(shell awk 'BEGIN { str="$(NEUTCORE)"; \
+               sub(/lib/, "-l", str); print str}')
+# libnuccorrspl:
+  PNUCCORS = $(subst .a,,$(wildcard $(NEUT_LIB_DIR)/libnuccorrspl*.a))
+  PNUCCOR  = $(shell awk 'BEGIN {str="$(PNUCCORS)"; \
+               split(str, tokens, " "); print tokens[1]}') 
+  NUCCOR   = $(shell awk 'BEGIN {str="$(PNUCCOR)"; \
+               n=split(str, tokens, "/"); print tokens[n]}')
+  LNUCCOR  = $(shell awk 'BEGIN { str="$(NUCCOR)"; \
+               sub(/lib/, "-l", str); print str}')
+# libnuceff:
+  PNUCEFFS = $(subst .a,,$(wildcard $(NEUT_LIB_DIR)/libnuceff*.a))
+  PNUCEFF  = $(shell awk 'BEGIN {str="$(PNUCEFFS)"; \
+               split(str, tokens, " "); print tokens[1]}') 
+  NUCEFF   = $(shell awk 'BEGIN {str="$(PNUCEFF)"; \
+               n=split(str, tokens, "/"); print tokens[n]}')
+  LNUCEFF  = $(shell awk 'BEGIN { str="$(NUCEFF)"; \
+               sub(/lib/, "-l", str); print str}')
+# libpartnuck:
+  PPARTNUCS = $(subst .a,,$(wildcard $(NEUT_LIB_DIR)/libpartnuck*.a))
+  PPARTNUC  = $(shell awk 'BEGIN {str="$(PPARTNUCS)"; \
+               split(str, tokens, " "); print tokens[1]}') 
+  PARTNUC   = $(shell awk 'BEGIN {str="$(PPARTNUC)"; \
+               n=split(str, tokens, "/"); print tokens[n]}')
+  LPARTNUC  = $(shell awk 'BEGIN { str="$(PARTNUC)"; \
+               sub(/lib/, "-l", str); print str}')
+# libskmcsvc:
+  PSKMCSVCS = $(subst .a,,$(wildcard $(NEUT_LIB_DIR)/libskmcsvc*.a))
+  PSKMCSVC  = $(shell awk 'BEGIN {str="$(PSKMCSVCS)"; \
+               split(str, tokens, " "); print tokens[1]}') 
+  SKMCSVC   = $(shell awk 'BEGIN {str="$(PSKMCSVC)"; \
+               n=split(str, tokens, "/"); print tokens[n]}')
+  LSKMCSVC  = $(shell awk 'BEGIN { str="$(SKMCSVC)"; \
+               sub(/lib/, "-l", str); print str}')
+
+  NEUT_LIBRARIES = -L$(NEUT_LIB_DIR) \
+      $(LNEUTCORE) $(LNUCCORRSPL) $(LNUCEFF) $(LPARTNUC) $(LSKMCSVC)
 endif
 
 #-------------------------------------------------------------------
@@ -282,7 +352,7 @@ ifeq ($(strip $(GOPT_ENABLE_GIBUU)),NO)
 else
 
 # In case the actual fortran90 GIBUU library is used
-  GIBUU_LIBRARIES = -L$(GIBUU_LIB)/lib -lGiBUU
+  GIBUU_LIBRARIES = -L$(GOPT_WITH_GIBUU_LIB) -lGiBUU
 
 ifeq ($(strip $(ARCH)),macosx) 
   GIBUU_LIBRARIES := $(GIBUU_LIBRARIES) /usr/local/lib/libgfortran.dylib
@@ -306,9 +376,9 @@ ROOT_LIBRARIES = $(shell root-config --glibs) \
 # Linking in the Google Profiling Tool library
 #
 GPROF_LIBRARIES = 
-ifdef GOPT_PROFILER
-  ifdef GPROFILER_LIB
-    GPROF_LIBRARIES += -L$(GPROFILER_LIB) -lprofiler
+ifeq ($(strip $(GOPT_ENABLE_PROFILER)),YES)
+  ifdef GOPT_WITH_PROFILER_LIB
+    GPROF_LIBRARIES += -L$(GOPT_WITH_PROFILER_LIB) -lprofiler
   else
     GPROF_LIBRARIES += -L/usr/local/lib -lprofiler
   endif
@@ -319,8 +389,10 @@ endif
 #-------------------------------------------------------------------
 # if doc was enabled but DOXYGEN was not set, try a default
 #
-ifdef GOPT_DOXYGEN_DOC
-  ifndef DOXYGEN
+ifdef GOPT_ENABLE_DOXYGEN_DOC
+  ifdef GOPT_WITH_DOXYGEN_PATH
+    DOXYGEN=$(GOPT_WITH_DOXYGEN_PATH)/doxygen
+  else
     DOXYGEN=doxygen
   endif
 endif
@@ -369,9 +441,9 @@ ifeq ($(strip $(ARCH)),macosx)
 ARCH_OK       = YES
 CXXFLAGS      = -pipe -W -Wall -Wno-long-double \
 		-fsigned-char -fno-common -flat_namespace \
-		$(GOPT_CXX_DEBUG_FLAG) \
-		$(GOPT_CXX_OPTIMIZ_FLAG) \
-		$(GOPT_CXX_USERDEF_FLAGS) 
+		$(GOPT_WITH_CXX_DEBUG_FLAG) \
+		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
@@ -396,9 +468,9 @@ endif
 ifeq ($(strip $(ARCH)),linux) 
 ARCH_OK       = YES
 CXXFLAGS      = -Wall -fPIC \
-		$(GOPT_CXX_DEBUG_FLAG) \
-		$(GOPT_CXX_OPTIMIZ_FLAG) \
-		$(GOPT_CXX_USERDEF_FLAGS) 
+		$(GOPT_WITH_CXX_DEBUG_FLAG) \
+		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
@@ -422,9 +494,9 @@ endif
 ifeq ($(strip $(ARCH)),linuxx8664gcc) 
 ARCH_OK       = YES
 CXXFLAGS      = -Wall -fPIC \
-		$(GOPT_CXX_DEBUG_FLAG) \
-		$(GOPT_CXX_OPTIMIZ_FLAG) \
-		$(GOPT_CXX_USERDEF_FLAGS) 
+		$(GOPT_WITH_CXX_DEBUG_FLAG) \
+		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
