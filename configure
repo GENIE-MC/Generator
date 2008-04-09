@@ -226,11 +226,28 @@ if($gopt_enable_neut_cascade eq "YES") {
   # if it was not set, try to pick it up from the environment
   if($gopt_with_neut_lib eq "" && defined $ENV{'NEUT_LIB'}) { $gopt_with_neut_lib = $ENV{'NEUT_LIB'}; }
   # check
-  my $file = "$gopt_with_neut_lib/libneutcore_5.0.0.a";
-  if(! -e $file) {
-     print "*** Error *** You need to specify the path to the libNEUT.a library using --with-neut-lib=/some/path/\n";
-     print "*** Error *** Otherwise, you should --disable-neut-cascade\n\n";
-     exit 1;
+  my @libs = `ls $gopt_with_neut_lib`;
+  my %libs_found = (
+        'libneutcore'   => 0,
+        'libnuccorrspl' => 0,
+        'libnuceff'     => 0,
+        'libpartnuck'   => 0,
+        'libskmcsvc'    => 0  );
+  foreach(@libs) {
+     chomp($_);
+     if ( m/libneutcore/i   ) { $libs_found{'libneutcore'}   = 1; } #print "Found NEUT library: $_ \n"; }
+     if ( m/libnuccorrspl/i ) { $libs_found{'libnuccorrspl'} = 1; } #print "Found NEUT library: $_ \n"; }
+     if ( m/libnuceff/i     ) { $libs_found{'libnuceff'}     = 1; } #print "Found NEUT library: $_ \n"; }
+     if ( m/libpartnuck/i   ) { $libs_found{'libpartnuck'}   = 1; } #print "Found NEUT library: $_ \n"; }
+     if ( m/libskmcsvc/i    ) { $libs_found{'libskmcsvc'}    = 1; } #print "Found NEUT library: $_ \n"; }
+  }
+  for my $lib_key (keys %libs_found) {
+    my $found = $libs_found{$lib_key};
+    if ($found == 0) {
+       print "*** Error *** You need to specify the path to the NEUT $lib_key.<version>.a library using --with-neut-lib=/some/path/\n";
+       print "*** Error *** Otherwise, you should --disable-neut-cascade\n\n";
+       exit 1;
+    }
   }
 }
 
@@ -245,7 +262,7 @@ if($gopt_enable_gibuu eq "YES") {
   # if it was not set, try to pick it up from the environment
   if($gopt_with_gibuu_lib eq "" && defined $ENV{'GIBUU_LIB'}) { $gopt_with_gibuu_lib = $ENV{'GIBUU_LIB'}; }
   # check
-  my $file = "$gibuu_lib/libGiBUU.a";
+  my $file = "$gopt_with_gibuu_lib/libGiBUU.a";
   if(! -e $file) {
      print "*** Error *** You need to specify the path to the libGiBUU.a library using --with-gibuu-lib=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-gibuu\n\n";
@@ -264,7 +281,7 @@ if($gopt_enable_lhapdf eq "YES") {
   # if it was not set, try to pick it up from the environment
   if($gopt_with_lhapdf_lib eq "" && defined $ENV{'LHAPDF_LIB'}) { $gopt_with_lhapdf_lib = $ENV{'LHAPDF_LIB'}; }
   # check
-  my $file = "$lhapdf_lib/libLHAPDF.a";
+  my $file = "$gopt_with_lhapdf_lib/libLHAPDF.a";
   if(! -e $file) {
      print "*** Error *** You need to specify the path to the libLHAPDF.so library using --with-lhapdf-lib=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-lhapdf\n\n";
@@ -285,10 +302,10 @@ if($gopt_enable_cernlib eq "YES") {
      $gopt_with_cern_lib = $1;
    }
    # if it was not set, try to pick it up from the environment
-   if(! -d $gopt_with_cern-lib && defined $ENV{'CERNLIB'}) { 
+   if(! -d $gopt_with_cern_lib && defined $ENV{'CERNLIB'}) { 
      $gopt_with_cern_lib = $ENV{'CERNLIB'}; 
      print "*** Warn *** You didn't specify the CERNLIB path \n";
-     print "The \$CERNLIB env var is defined. I will pick that and use --with-cernlib=$gopt_with_cern_lib\n";
+     print "The \$CERNLIB env var is defined. I will pick that and use --with-cern-lib=$gopt_with_cern_lib\n";
    }
    # if it still not set, try autodetecting it
    if(! -d $gopt_with_cern_lib && $auto_detect) 
