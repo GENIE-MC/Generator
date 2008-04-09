@@ -38,13 +38,13 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "with options for 3rd party software, prefix with --with- (eg --with-gibuu-lib=/some/path/libGiBUU.a)\n\n";
   print "    optimiz-level   compiler opitimization level O/O2/O3/OO/Os    default: O2 \n";
   print "    profiler-lib    Path to libprofiler.so library                if you --enable-profiler \n";
-  print "    doxygen         Doxygen binary including full path            if you --enable-doxygen       / can pick \$DOXYGEN     \n";
-  print "    neugen3path     NeuGEN top level directory                    if you --enable-neugen        / can pick \$NEUGEN3PATH \n";
-  print "    neut-lib        Path to libNEUT.a library                     if you --enable-neut-cascade  / can pick \$NEUT_LIB    \n";
-  print "    gibuu-lib       Path to libGiBUU.a library                    if you --enable-gibuu         / can pick \$GIBUU_LIB   \n";
+  print "    doxygen-path    Doxygen binary path                           if you --enable-doxygen-doc   / can pick \$DOXYGENPATH \n";
+  print "    neugen-path     NeuGEN top level directory                    if you --enable-neugen        / can pick \$NEUGEN3PATH \n";
+  print "    neut-lib        Path to the NEUT libraries                    if you --enable-neut-cascade  / can pick \$NEUT_LIB    \n";
+  print "    gibuu-lib       Path to libGiBUU library                      if you --enable-gibuu         / can pick \$GIBUU_LIB   \n";
   print "    lhapdf-lib      Path to LHAPDF library                        if you --enable-lhapdf \n";
-  print "    cernlib         CERN libraries path                           always needed / can pick \$CERNLIB / auto-detected \n";
-  print "    pythia6         PYTHIA6 library path                          always needed / can pick \$PYTHIA6 / auto-detected \n";
+  print "    cern-lib        CERN libraries path                           always needed / can pick \$CERNLIB / auto-detected \n";
+  print "    pythia6-lib     PYTHIA6 library path                          always needed / can pick \$PYTHIA6 / auto-detected \n";
   print "    libxml2-inc     Path to libxml2 includes                      always needed / auto-detected \n";
   print "    libxml2-lib     Path to libxml2 library                       always needed / auto-detected \n";
   print "    log4cpp-inc     Path to log4cpp includes                      always needed / auto-detected \n";
@@ -155,42 +155,42 @@ if(($match = grep(/--enable-test/i,          @ARGV)) > 0) { $gopt_enable_test   
 if(($match = grep(/--enable-minos-evserv/i,  @ARGV)) > 0) { $gopt_enable_minos_evserv  = "YES"; }
 if(($match = grep(/--enable-t2k-evgen/i,     @ARGV)) > 0) { $gopt_enable_t2k_evgen     = "YES"; }
 
-my $gopt_cxx_debug_flag="";
-if($gopt_enable_debug eq "YES") { $gopt_cxx_debug_flag = "-g"; }
+my $gopt_with_cxx_debug_flag="";
+if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
 
 # Check for --with options:
 
 # Check compiler optimization level
 #
-my $gopt_cxx_optimiz_flag="O2"; # default
+my $gopt_with_cxx_optimiz_flag="O2"; # default
 if( $options=~m/--with-optimiz-level=(\S*)/i ) {
-  $gopt_cxx_optimiz_flag = $1;
+  $gopt_with_cxx_optimiz_flag = $1;
 }
 
 # If --enable-profiler was set then the full path to the profiler library must be specified
 #
-my $gprofiler_lib = "";
+my $gopt_with_profiler_lib = "";
 if($gopt_enable_profiler eq "YES") {
   if(($match = grep(/--with-profiler-lib/i, @ARGV)) > 0) { 
     $options=~m/--with-profiler-lib=(\S*)/i;
-    $gprofiler_lib = $1;
+    $gopt_with_profiler_lib = $1;
   }
 }
 
-# If --enable-doxygen was set then the full path to the doxygen binary must be specified
+# If --enable-doxygen-doc was set then the full path to the doxygen binary path must be specified
 # unless it is in the $PATH
 #
-my $doxygen = "";
+my $gopt_with_doxygen_path = "";
 if($gopt_enable_doxygen_doc eq "YES") {
-  if(($match = grep(/--with-doxygen/i, @ARGV)) > 0) { 
-    $options=~m/--with-doxygen=(\S*)/i;
-    $doxygen = $1;
+  if(($match = grep(/--with-doxygen-path/i, @ARGV)) > 0) { 
+    $options=~m/--with-doxygen-path=(\S*)/i;
+    $gopt_with_doxygen_path = $1;
   }
   # if it was not set, try to pick it up from the environment
-  if(! -f $doxygen && defined $ENV{'DOXYGEN'}) { $doxygen = $ENV{'DOXYGEN'}; }
+  if(! -f $gopt_with_doxygen_path && defined $ENV{'DOXYGENPATH'}) { $gopt_with_doxygen_path = $ENV{'DOXYGENPATH'}; }
   # complain
-  if(! -f $doxygen) {
-     print "*** Error *** You need to specify the path to doxygen using --with-doxygen=/some/path/\n";
+  if(! -f $gopt_with_doxygen_path) {
+     print "*** Error *** You need to specify the path to doxygen using --with-doxygen-path=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-doxygen-doc\n\n";
      exit 1;
   }
@@ -198,18 +198,18 @@ if($gopt_enable_doxygen_doc eq "YES") {
 
 # If --enable-neugen was set then the location to the neugen installation must be specified
 #
-my $neugen3path = "";
+my $gopt_with_neugen_path = "";
 if($gopt_enable_neugen eq "YES") {
-  if(($match = grep(/--with-neugen3path/i, @ARGV)) > 0) { 
-    $options=~m/--with-neugen3path=(\S*)/i;
-    $neugen3path = $1;
+  if(($match = grep(/--with-neugen-path/i, @ARGV)) > 0) { 
+    $options=~m/--with-neugen-path=(\S*)/i;
+    $gopt_with_neugen_path = $1;
   }
   # if it was not set, try to pick it up from the environment
-  if($neugen3path eq "" && defined $ENV{'NEUGEN3PATH'}) { $neugen3path = $ENV{'NEUGEN3PATH'}; }
+  if($gopt_with_neugen_path eq "" && defined $ENV{'NEUGEN3PATH'}) { $gopt_with_neugen_path = $ENV{'NEUGEN3PATH'}; }
   # check
-  my $file = "$neugen3path/lib/libneugen3.a";
+  my $file = "$gopt_with_neugen_path/lib/libneugen3.a";
   if(! -e $file) {
-     print "*** Error *** You need to specify the top level neugen3 directory using --with-neugen3path=/some/path/\n";
+     print "*** Error *** You need to specify the top level neugen3 directory using --with-neugen-path=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-neugen\n\n";
      exit 1;
   }
@@ -217,16 +217,16 @@ if($gopt_enable_neugen eq "YES") {
 
 # If --enable-neut-cascade was set then the full path to the libNEUT.a library must be specified
 #
-my $neut_lib = "";
+my $gopt_with_neut_lib = "";
 if($gopt_enable_neut_cascade eq "YES") {
   if(($match = grep(/--with-neut-lib/i, @ARGV)) > 0) { 
     $options=~m/--with-neut-lib=(\S*)/i;
-    $neut_lib = $1;
+    $gopt_with_neut_lib = $1;
   }
   # if it was not set, try to pick it up from the environment
-  if($neut_lib eq "" && defined $ENV{'NEUT_LIB'}) { $neut_lib = $ENV{'NEUT_LIB'}; }
+  if($gopt_with_neut_lib eq "" && defined $ENV{'NEUT_LIB'}) { $gopt_with_neut_lib = $ENV{'NEUT_LIB'}; }
   # check
-  my $file = "$neut_lib/libNEUT.a";
+  my $file = "$gopt_with_neut_lib/libneutcore_5.0.0.a";
   if(! -e $file) {
      print "*** Error *** You need to specify the path to the libNEUT.a library using --with-neut-lib=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-neut-cascade\n\n";
@@ -236,14 +236,14 @@ if($gopt_enable_neut_cascade eq "YES") {
 
 # If --enable-gibuu was set then the full path to the libGiBUU.a library must be specified
 #
-my $gibuu_lib = "";
+my $gopt_with_gibuu_lib = "";
 if($gopt_enable_gibuu eq "YES") {
   if(($match = grep(/--with-gibuu-lib/i, @ARGV)) > 0) { 
     $options=~m/--with-gibuu-lib=(\S*)/i;
-    $gibuu_lib = $1;
+    $gopt_with_gibuu_lib = $1;
   }
   # if it was not set, try to pick it up from the environment
-  if($gibuu_lib eq "" && defined $ENV{'GIBUU_LIB'}) { $gibuu_lib = $ENV{'GIBUU_LIB'}; }
+  if($gopt_with_gibuu_lib eq "" && defined $ENV{'GIBUU_LIB'}) { $gopt_with_gibuu_lib = $ENV{'GIBUU_LIB'}; }
   # check
   my $file = "$gibuu_lib/libGiBUU.a";
   if(! -e $file) {
@@ -255,14 +255,14 @@ if($gopt_enable_gibuu eq "YES") {
 
 # If --enable-lhapdf was set then the full path to the LHAPDF library must be specified
 #
-my $lhapdf_lib = "";
+my $gopt_with_lhapdf_lib = "";
 if($gopt_enable_lhapdf eq "YES") {
   if(($match = grep(/--with-lhapdf-lib/i, @ARGV)) > 0) { 
     $options=~m/--with-lhapdf-lib=(\S*)/i;
-    $lhapdf_lib = $1;
+    $gopt_with_lhapdf_lib = $1;
   }
   # if it was not set, try to pick it up from the environment
-  if($lhapdf_lib eq "" && defined $ENV{'LHAPDF_LIB'}) { $lhapdf_lib = $ENV{'LHAPDF_LIB'}; }
+  if($gopt_with_lhapdf_lib eq "" && defined $ENV{'LHAPDF_LIB'}) { $gopt_with_lhapdf_lib = $ENV{'LHAPDF_LIB'}; }
   # check
   my $file = "$lhapdf_lib/libLHAPDF.a";
   if(! -e $file) {
@@ -274,30 +274,34 @@ if($gopt_enable_lhapdf eq "YES") {
 
 # If --enable-cernlib was set then the full path to the CERNLIBs must be specified
 #
-my $cernlib = "";
+my $gopt_with_cern_lib = "";
 if($gopt_enable_cernlib eq "YES") {
-
-  if($options=~m/--with-cernlib=(\S*)/i) {
-     $cernlib = $1;
+  if($options=~m/--with-pythia6=\S*/i) {
+     print "*** Error *** Note that the option --with-cernlib has been renamed to --with-cern-lib \n";
+     print "*** Error *** Please see './configure --help' for all config option updates \n\n";
+     exit 1;
+  }
+  if($options=~m/--with-cern-lib=(\S*)/i) {
+     $gopt_with_cern_lib = $1;
    }
    # if it was not set, try to pick it up from the environment
-   if(! -d $cernlib && defined $ENV{'CERNLIB'}) { 
-     $cernlib = $ENV{'CERNLIB'}; 
+   if(! -d $gopt_with_cern-lib && defined $ENV{'CERNLIB'}) { 
+     $gopt_with_cern_lib = $ENV{'CERNLIB'}; 
      print "*** Warn *** You didn't specify the CERNLIB path \n";
-     print "The \$CERNLIB env var is defined. I will pick that and use --with-cernlib=$cernlib\n";
+     print "The \$CERNLIB env var is defined. I will pick that and use --with-cernlib=$gopt_with_cern_lib\n";
    }
    # if it still not set, try autodetecting it
-   if(! -d $cernlib && $auto_detect) 
+   if(! -d $gopt_with_cern_lib && $auto_detect) 
    {
      print "Autodetecting the CERNLIB path...\n";
      $matched = auto_detect("libpdflib*.*");
      if( $matched=~m/(\S*)\/libpdflib\S*/i ) {
-        $cernlib = $1;
+        $gopt_with_cern_lib = $1;
      }
-     print "Setting --with-cernlib=$cernlib\n";
+     print "Setting --with-cern-lib=$gopt_with_cern_lib\n";
    }
-   if(! -d $cernlib) {
-       print "*** Error *** Could not locate the CERNLIB path. Please specify it using --with-cernlb=/some/path/\n\n";
+   if(! -d $gopt_with_cern_lib) {
+       print "*** Error *** Could not locate the CERNLIB path. Please specify it using --with-cern-lib=/some/path/\n\n";
        exit 1;
    }
 } else {
@@ -314,28 +318,33 @@ if($gopt_enable_nuvalidator eq "YES") {
 # Get pythia6
 #
 
-my $pythia6 = "";
-if($options=~m/--with-pythia6=(\S*)/i) {
-  $pythia6 = $1;
+my $gopt_with_pythia6_lib = "";	
+if($options=~m/--with-pythia6=\S*/i) {
+    print "*** Error *** Note that the option --with-pythia6 has been renamed to --with-pythia6-lib \n";
+    print "*** Error *** Please see './configure --help' for all config option updates \n\n";
+    exit 1;
+}
+if($options=~m/--with-pythia6-lib=(\S*)/i) {
+  $gopt_with_pythia6_lib = $1;
 } else {
   print "*** Warn *** You didn't specify the PYTHIA6 path \n";
 }
 # if it was not set, try to pick it up from the environment
-if(! -d $pythia6 && defined $ENV{'PYTHIA6'}) { 
-  $pythia6 = $ENV{'PYTHIA6'}; 
-  print "The \$PYTHIA6 env var is defined. I will pick that and set --with-pythia6=$pythia6\n";
+if(! -d $gopt_with_pythia6_lib && defined $ENV{'PYTHIA6'}) { 
+  $gopt_with_pythia6_lib = $ENV{'PYTHIA6'}; 
+  print "The \$PYTHIA6 env var is defined. I will pick that and set --with-pythia6-lib=$gopt_with_pythia6_lib\n";
 }
 # if it still not set, try autodetecting it
-if(! -d $pythia6 && $auto_detect) 
+if(! -d $gopt_with_pythia6_lib && $auto_detect) 
 {
   print "Autodetecting the PYTHIA6 path...\n";
   $matched = auto_detect("libPythia6*");
   if( $matched=~m/(\S*)\/libPythia6\S*/i ) {
-     $pythia6 = $1;
+     $gopt_with_pythia6_lib = $1;
   }
-  print "Setting --with-pythia6=$pythia6\n";
+  print "Setting --with-pythia6-lib=$gopt_with_pythia6_lib\n";
 }
-if(! -d $pythia6) {
+if(! -d $gopt_with_pythia6_lib) {
     print "*** Error *** Could not locate the PYTHIA6 library path. Please specify it using --with-pythia6=/some/path/\n\n";
     exit 1;
 } 
@@ -343,27 +352,27 @@ if(! -d $pythia6) {
 # Get libxml2 and log4cpp include and library paths 
 #
 
-my $libxml2_inc = "";
-my $libxml2_lib = "";
-my $log4cpp_inc = "";
-my $log4cpp_lib = "";
+my $gopt_with_libxml2_inc = "";
+my $gopt_with_libxml2_lib = "";
+my $gopt_with_log4cpp_inc = "";
+my $gopt_with_log4cpp_lib = "";
 
 #
 # --with-libxml2-inc=
 #
 if($options=~m/--with-libxml2-inc=(\S*)/i) {
-  $libxml2_inc = $1;
+  $gopt_with_libxml2_inc = $1;
 }
-if(! -d $libxml2_inc && $auto_detect)  {
+if(! -d $gopt_with_libxml2_inc && $auto_detect)  {
   print "*** Warn *** You didn't specify the libxml2 include path \n";
   print "Autodetecting...\n";
   $matched = auto_detect("xmlmemory.h");
   if( $matched=~m/(\S*)\/libxml\/xmlmemory.h/i ) {
-     $libxml2_inc = $1;
+     $gopt_with_libxml2_inc = $1;
   }
-  print "Setting --with-libxml2-inc=$libxml2_inc\n";
+  print "Setting --with-libxml2-inc=$gopt_with_libxml2_inc\n";
 }
-if(! -d $libxml2_inc) {
+if(! -d $gopt_with_libxml2_inc) {
   print "*** Error *** You need to specify the libxml2 include path using --with-libxml2-inc=/some/path/\n\n";
   exit 1;
 }
@@ -372,18 +381,18 @@ if(! -d $libxml2_inc) {
 # --with-libxml2-lib=
 #
 if($options=~m/--with-libxml2-lib=(\S*)/i) {
-  $libxml2_lib = $1;
+  $gopt_with_libxml2_lib = $1;
 }
-if(! -d $libxml2_lib && $auto_detect)  {
+if(! -d $gopt_with_libxml2_lib && $auto_detect)  {
   print "*** Warn *** You didn't specify the libxml2 library path \n";
   print "Autodetecting...\n";
   $matched = auto_detect("libxml2.*");
   if( $matched=~m/(\S*)\/libxml2\S*/i ) {
-     $libxml2_lib = $1;
+     $gopt_with_libxml2_lib = $1;
   }
-  print "Setting --with-libxml2-lib=$libxml2_lib\n";
+  print "Setting --with-libxml2-lib=$gopt_with_libxml2_lib\n";
 }
-if(! -d $libxml2_lib) {
+if(! -d $gopt_with_libxml2_lib) {
   print "*** Error *** You need to specify the libxml2 library path using --with-libxml2-lib=/some/path/\n\n";
   exit 1;
 }
@@ -392,18 +401,18 @@ if(! -d $libxml2_lib) {
 # --with-log4cpp-inc=
 #
 if($options=~m/--with-log4cpp-inc=(\S*)/i) {
-  $log4cpp_inc = $1;
+  $gopt_with_log4cpp_inc = $1;
 }
-if(! -d $log4cpp_inc && $auto_detect)  {
+if(! -d $gopt_with_log4cpp_inc && $auto_detect)  {
   print "*** Warn *** You didn't specify the log4cpp include path \n";
   print "Autodetecting...\n";
   $matched = auto_detect("OstreamAppender.hh");
   if( $matched=~m/(\S*)\/log4cpp\/OstreamAppender.hh/i ) {
-     $log4cpp_inc = $1;
+     $gopt_with_log4cpp_inc = $1;
   }
-  print "Setting --with-log4cpp-inc=$log4cpp_inc\n";
+  print "Setting --with-log4cpp-inc=$gopt_with_log4cpp_inc\n";
 }
-if(! -d $log4cpp_inc) {
+if(! -d $gopt_with_log4cpp_inc) {
   print "*** Error *** You need to specify the log4cpp include path using --with-log4cpp-inc=/some/path/\n\n";
   exit 1;
 }
@@ -412,18 +421,18 @@ if(! -d $log4cpp_inc) {
 # --with-log4cpp-lib=
 #
 if($options=~m/--with-log4cpp-lib=(\S*)/i) {
-  $log4cpp_lib = $1;
+  $gopt_with_log4cpp_lib = $1;
 }
-if(! -d $log4cpp_lib && $auto_detect)  {
+if(! -d $gopt_with_log4cpp_lib && $auto_detect)  {
   print "*** Warn *** You didn't specify the log4cpp library path \n";
   print "Autodetecting...\n";
   $matched = auto_detect("liblog4cpp.*");
   if( $matched=~m/(\S*)\/liblog4cpp\S*/i ) {
-     $log4cpp_lib = $1;
+     $gopt_with_log4cpp_lib = $1;
   }
-  print "Setting --with-log4cpp-lib=$log4cpp_lib\n";
+  print "Setting --with-log4cpp-lib=$gopt_with_log4cpp_lib\n";
 }
-if(! -d $log4cpp_lib) {
+if(! -d $gopt_with_log4cpp_lib) {
   print "*** Error *** You need to specify the log4cpp library path using --with-log4cpp-lib=/some/path/\n\n";
   exit 1;
 }
@@ -434,7 +443,6 @@ print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
 print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
 print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
-print MKCONF "GOPT_CXX_DEBUG_FLAG=$gopt_cxx_debug_flag\n";
 print MKCONF "GOPT_ENABLE_NEUGEN=$gopt_enable_neugen\n";
 print MKCONF "GOPT_ENABLE_NEUT_CASCADE=$gopt_enable_neut_cascade\n";
 print MKCONF "GOPT_ENABLE_GIBUU=$gopt_enable_gibuu\n";
@@ -448,19 +456,20 @@ print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_VIEWER=$gopt_enable_viewer\n";
 print MKCONF "GOPT_ENABLE_MINOS_EVSERV=$gopt_enable_minos_evserv\n";
 print MKCONF "GOPT_ENABLE_T2K_EVGEN=$gopt_enable_t2k_evgen\n";
-print MKCONF "GOPT_CXX_OPTIMIZ_FLAG=-$gopt_cxx_optimiz_flag\n";
-print MKCONF "GPROFILER_LIB=$gprofiler_lib\n";
-print MKCONF "DOXYGEN=$doxygen\n";
-print MKCONF "NEUGEN3PATH=$neugen3path\n";
-print MKCONF "NEUT_LIB=$neut_lib\n";
-print MKCONF "GIBUU_LIB=$gibuu_lib\n";
-print MKCONF "LHAPDF_LIB=$lhapdf_lib\n";
-print MKCONF "CERNLIB=$cernlib\n";
-print MKCONF "PYTHIA6=$pythia6\n";
-print MKCONF "LIBXML2_INC=$libxml2_inc\n";
-print MKCONF "LIBXML2_LIB=$libxml2_lib\n";
-print MKCONF "LOG4CPP_INC=$log4cpp_inc\n";
-print MKCONF "LOG4CPP_LIB=$log4cpp_lib\n";
+print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
+print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
+print MKCONF "GOPT_WITH_PROFILER_LIB=$gopt_with_profiler_lib\n";
+print MKCONF "GOPT_WITH_DOXYGEN_PATH=$gopt_with_doxygen_path\n";
+print MKCONF "GOPT_WITH_NEUGEN_PATH=$gopt_with_neugen_path\n";
+print MKCONF "GOPT_WITH_NEUT_LIB=$gopt_with_neut_lib\n";
+print MKCONF "GOPT_WITH_GIBUU_LIB=$gopt_with_gibuu_lib\n";
+print MKCONF "GOPT_WITH_LHAPDF_LIB=$gopt_with_lhapdf_lib\n";
+print MKCONF "GOPT_WITH_CERN_LIB=$gopt_with_cern_lib\n";
+print MKCONF "GOPT_WITH_PYTHIA6_LIB=$gopt_with_pythia6_lib\n";
+print MKCONF "GOPT_WITH_LIBXML2_INC=$gopt_with_libxml2_inc\n";
+print MKCONF "GOPT_WITH_LIBXML2_LIB=$gopt_with_libxml2_lib\n";
+print MKCONF "GOPT_WITH_LOG4CPP_INC=$gopt_with_log4cpp_inc\n";
+print MKCONF "GOPT_WITH_LOG4CPP_LIB=$gopt_with_log4cpp_lib\n";
 
 close(MKCONF);
 
