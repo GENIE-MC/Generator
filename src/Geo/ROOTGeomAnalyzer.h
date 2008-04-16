@@ -98,6 +98,7 @@ private:
   double GetWeight               (TGeoMaterial * mat, int pdgc);
   double GetWeight               (TGeoMixture * mixt, int pdgc);
   double GetWeight               (TGeoMixture * mixt, int ielement, int pdgc);
+  bool   FindMaterialInCurrentVol(int pdgc);
   bool   WillNeverEnter          (double step);
   double StepToNextBoundary      (void);
   double Step                    (void);
