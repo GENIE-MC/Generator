@@ -21,6 +21,9 @@
    relatively simpler geometries (small number of volumes).
    Fixed problem with SetTopVolume() not actually setting it, so that the 
    option to specify sub-volumes of the master volume wasn't working properly.
+ @ Nov 12, 2008 - CA, Jim Dobson
+   Cleaned-up geometry navigation code. Improve the vertex placement method
+   GenerateVertex() to avoid geo volume overshots.
 */
 //____________________________________________________________________________
 
@@ -39,6 +42,7 @@
 
 #include "Conventions/GBuild.h"
 #include "Conventions/Units.h"
+#include "Conventions/Controls.h"
 #include "EVGDrivers/PathLengthList.h"
 #include "EVGDrivers/GFluxI.h"
 #include "Geo/ROOTGeomAnalyzer.h"
@@ -53,6 +57,7 @@
 
 using namespace genie;
 using namespace genie::geometry;
+using namespace genie::controls;
 
 //___________________________________________________________________________
 ROOTGeomAnalyzer::ROOTGeomAnalyzer(string geometry_filename) :
@@ -235,8 +240,9 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 // direction of p
 
   LOG("GROOTGeom", pNOTICE)
-         << "Generating vtx in material: " << tgtpdg
-                                  << " along the input neutrino direction";
+       << "Generating vtx in material: " << tgtpdg
+       << " along the input neutrino direction";
+
   // reset current interaction vertex
   fCurrVertex->SetXYZ(0.,0.,0.);
 
@@ -251,78 +257,149 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
       exit(1);
   }
 
-  // calculate the event length for the selected material starting from
+  // calculate the max path length for the selected material starting from
   // x and looking along the direction of p
   TVector3 dir = p.Vect().Unit();
   TVector3 r   = x.Vect();
   this->SI2Local(r); // SI -> curr geom units
 
-  double dist = this->ComputePathLengthPDG(r, dir, tgtpdg);
+  double max_dist = this->ComputePathLengthPDG(r, dir, tgtpdg);
   LOG("GROOTGeom", pNOTICE)
-     << "Max {L x Density x Weight} given (init,dir) = " << dist;
-
-  if(dist==0) {
+     << "Max {L x Density x Weight} given (init,dir) = " << max_dist;
+  if(max_dist<=0) {
     LOG("GROOTGeom", pERROR)
      << "The current trajectory does not cross the selected material!!";
     return *fCurrVertex;
   }
 
-  // generate random number between 0 and dist
+  // generate random number between 0 and max_dist
   RandomGen * rnd = RandomGen::Instance();
-  double distVertex(dist * rnd->RndGeom().Rndm());
+  double gen_dist(max_dist * rnd->RndGeom().Rndm());
   LOG("GROOTGeom", pNOTICE)
-       << "Generated 'distance' in selected material = " << distVertex;
+       << "Generated 'distance' in selected material = " << gen_dist;
 
-  //-- generate the vertex
+  // place the vertex 
+
+  bool   found_vol  = false;
+  bool   keep_on    = true;
+  double step       = 0;
+  double weight     = 0;
+  double curr_dist  = 0;
 
   TGeoVolume *   vol = 0;
   TGeoMedium *   med = 0;
   TGeoMaterial * mat = 0;
 
-  int    FlagNotInYet(0);
-  bool   condition(kTRUE);
-  double StepIncrease(0.001/this->LengthUnits());
-  double distToVtx(0);
-
   r.SetXYZ(x.X(), x.Y(), x.Z());
   this->SI2Local(r); // SI -> curr geom units
 
-  fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
+  fGeometry -> SetCurrentPoint     (r[0],  r[1],  r[2]  );
+  fGeometry -> SetCurrentDirection (dir[0],dir[1],dir[2]);
 
-  while(((!FlagNotInYet) || condition) && distToVtx<distVertex) {
+  while( (!found_vol || keep_on) && (curr_dist < gen_dist) ){
+     keep_on = true;
 
-      condition=kTRUE;
+     fGeometry->FindNode();
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("GROOTGeom",pDEBUG)
-           << "Position = " << utils::print::Vec3AsString(&r)
-           << ", flag(not in yet) = " << FlagNotInYet;
-#endif
-      r = r + StepIncrease * dir;
-      fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
-      fGeometry->FindNode();
-
-      med = 0;
-      mat = 0;
-      vol = fGeometry->GetCurrentVolume();
+     med = 0;
+     mat = 0;
+     vol = fGeometry->GetCurrentVolume();
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName();
+     LOG("GROOTGeom", pINFO) 
+         << "****** Before stepping / Current volume: " << vol->GetName()
+         << ", path: " << fGeometry->GetPath();
 #endif
-      if(fGeometry->IsOutside() || !vol) {
-         condition=kFALSE;
-         if(FlagNotInYet) break;
-      }
 
-      if(condition) {
-         if(!FlagNotInYet) FlagNotInYet=1;
-         mat = vol->GetMedium()->GetMaterial();
-         double weight = this->GetWeight(mat,tgtpdg);
-         distToVtx+=(StepIncrease*weight);
+     if (fGeometry->IsOutside() || !vol) {
+        keep_on = false;
+        if(found_vol) break;
+        step = this->StepToNextBoundary();
+        while(!fGeometry->IsEntering()) {
+          step = this->Step();
+          if(this->WillNeverEnter(step)) {
+             LOG("GROOTGeom", pFATAL) 
+                << "Input ray will never enter the geometry";
+             exit(1);
+          }
+        }
      }
+
+     if(keep_on) {
+       if(!found_vol) found_vol = true; 
+       med    = vol->GetMedium();
+       mat    = med->GetMaterial();
+       weight = this->GetWeight(mat, tgtpdg);
+       step   = this->StepUntilEntering();
+
+       double dist = (step*weight);
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+       LOG("GROOTGeom", pINFO)
+          << "Stepped to volume: " << fGeometry->GetCurrentVolume()->GetName()
+          << ", path: " << fGeometry->GetPath();
+       LOG("GROOTGeom", pINFO)
+         << "Proposed step = " << step << ", weight = " << weight << ", +dist = " << dist;
+#endif
+
+       if(dist <= gen_dist - curr_dist) {
+          r.SetXYZ( fGeometry->GetCurrentPoint()[0],
+                    fGeometry->GetCurrentPoint()[1],
+                    fGeometry->GetCurrentPoint()[2] );
+
+       } else {
+          fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
+          fGeometry -> FindNode();
+          double smaller_step = (gen_dist - curr_dist) / weight;
+          dist = gen_dist - curr_dist + kASmallNum;
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+          LOG("GROOTGeom", pINFO)
+              << "Stepping back to entry point at volume : " 
+              << fGeometry->GetCurrentVolume()->GetName();
+          LOG("GROOTGeom", pINFO)
+              << "** Reducing last step size from " << step << " -> " << smaller_step;   
+#endif
+
+          r = r + (smaller_step * dir);
+          fGeometry -> SetCurrentPoint (r[0],r[1],r[2]);
+          fGeometry -> FindNode();
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+          LOG("GROOTGeom", pINFO)
+              << "Step brought vertex within volume : " 
+              << fGeometry->GetCurrentVolume()->GetName()
+              << ", path: " << fGeometry->GetPath();
+#endif
+       } 
+
+       curr_dist += dist;
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+       LOG("GROOTGeom", pINFO)
+         << "Actual step = " << step << ", weight = " << weight << ", +dist = " << dist;
+       LOG("GROOTGeom", pINFO)
+         << "Position = " << utils::print::Vec3AsString(&r);
+       LOG("GROOTGeom", pINFO)
+         << "Curr dist travelled in specified material = " << curr_dist;
+#endif
+     }//keep on
+  }//w
+
+  LOG("GROOTGeom", pNOTICE)
+     << "The vertex was placed in volume: " 
+     << fGeometry->GetCurrentVolume()->GetName()
+     << ", path: " << fGeometry->GetPath();
+
+  // warn for any volume overshoots
+  bool ok = this->FindMaterialInCurrentVol(tgtpdg);
+  if(!ok) {
+    LOG("GROOTGeom", pWARN)
+       << "Geometry volume was probably overshot";
+    LOG("GROOTGeom", pWARN)
+       << "No material with code = " << tgtpdg << " could be found";
   }
 
-  r = r - StepIncrease * dir;
   this->Local2SI(r); // curr geom units -> SI
   fCurrVertex->SetXYZ(r[0],r[1],r[2]);
 
@@ -672,7 +749,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
 }
 //________________________________________________________________________
 double ROOTGeomAnalyzer::ComputePathLengthPDG(
-                    const TVector3 & r0, const TVector3 & udir, int pdgc)
+                  const TVector3 & r0, const TVector3 & udir, int pdgc)
 {
 // Compute the path length for the material with pdg-code = pdc, staring 
 // from the input position r (SI) and moving along the direction of the 
@@ -680,8 +757,8 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
 //
   double pl = 0; // path-length (x density, if density-weighting is ON)
 
-  int    FlagNotInYet (0);
-  bool   condition    (kTRUE);
+  bool found_vol (false);
+  bool keep_on   (true);
 
   double step   = 0;
   double weight = 0;
@@ -693,8 +770,8 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
   fGeometry -> SetCurrentDirection (udir[0],udir[1],udir[2]);
   fGeometry -> SetCurrentPoint     (r0[0],  r0[1],  r0[2]  );
 
-  while ( (!FlagNotInYet) || condition) {
-     condition=kTRUE;
+  while (!found_vol || keep_on) {
+     keep_on = true;
 
      fGeometry->FindNode();
 
@@ -704,35 +781,41 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName();
+     LOG("GROOTGeom", pDEBUG) << "[path: " << fGeometry->GetPath() << "]";
 #endif
+
      if (fGeometry->IsOutside() || !vol) {
-        condition=kFALSE;
-        if(FlagNotInYet) break;
+        keep_on = false;
+        if(found_vol) break;
 
         step = this->StepToNextBoundary();
         while(!fGeometry->IsEntering()) {
           step = this->Step();
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-          LOG("GROOTGeom", pDEBUG) << "Stepping...dr = " << step;
+          LOG("GROOTGeom", pDEBUG) 
+              << "Stepping... [step size = " << step << "]";
 #endif
           if(this->WillNeverEnter(step)) return 0.;
         }
-      }
+     }
 
-      if(condition) {
-       if(!FlagNotInYet) FlagNotInYet=1;
-       med = vol->GetMedium();
-       mat = med->GetMaterial();
+     if(keep_on) {
+       if(!found_vol) found_vol = true;
+
+       med  = vol->GetMedium();
+       mat  = med->GetMaterial();
+
+       weight = this->GetWeight(mat, pdgc);
+       step   = this->StepUntilEntering();
+       pl += (step*weight);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("GROOTGeom", pDEBUG)
          << "Cur med.: " << med->GetName() << ", mat.: " << mat->GetName();
+       LOG("GROOTGeom", pDEBUG)
+         << "Step = " << step << ", weight = " << weight;
 #endif
-       step   = this->StepUntilEntering();
-       weight = this->GetWeight(mat, pdgc);
-
-       pl += (step*weight);
-     }//condition
+     }//keep on
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -876,6 +959,29 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture* mixt, int ielement, int pdgc)
   return weight;
 }
 //___________________________________________________________________________
+bool ROOTGeomAnalyzer::FindMaterialInCurrentVol(int tgtpdg)
+{
+  TGeoVolume * vol = fGeometry -> GetCurrentVolume();
+  if(vol) {
+    TGeoMaterial * mat = vol->GetMedium()->GetMaterial();
+    if(mat->IsMixture()) {
+      TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
+      for(int imat = 0; imat < mixt->GetNelements(); imat++) {
+         TGeoElement * ele = mixt->GetElement(imat);
+         int pdg = this->GetTargetPdgCode(ele);
+         if(tgtpdg == pdg) return true;
+      }
+    } else {
+       int pdg = this->GetTargetPdgCode(mat);
+       if(tgtpdg == pdg) return true;
+    }
+  } else {
+     LOG("GROOTGeom", pWARN) << "Current volume is null!";
+     return false;
+  }
+  return false;
+}
+//___________________________________________________________________________
 double ROOTGeomAnalyzer::StepToNextBoundary(void)
 {
   fGeometry->FindNextBoundary();
@@ -892,7 +998,7 @@ double ROOTGeomAnalyzer::Step(void)
 //___________________________________________________________________________
 double ROOTGeomAnalyzer::StepUntilEntering(void)
 {
-  double step  = this->StepToNextBoundary();
+  double step = this->StepToNextBoundary();
 
   while(!fGeometry->IsEntering()) {
     step = this->Step();
