@@ -293,7 +293,7 @@ if($gopt_enable_lhapdf eq "YES") {
 #
 my $gopt_with_cern_lib = "";
 if($gopt_enable_cernlib eq "YES") {
-  if($options=~m/--with-cern-lib=\S*/i) {
+  if($options=~m/--with-cernlib=\S*/i) {
      print "*** Error *** Note that the option --with-cernlib has been renamed to --with-cern-lib \n";
      print "*** Error *** Please see './configure --help' for all config option updates \n\n";
      exit 1;
