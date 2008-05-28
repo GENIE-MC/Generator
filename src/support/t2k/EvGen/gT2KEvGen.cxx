@@ -23,13 +23,11 @@
                      [-n flux_normalization] [-c ntimes_to_recycle_flux]
                      [-v geo_top_volume_name] [-p geo_maxpl_xml_file]
                      [-L geo_length_units] [-D geo_density_units]
-                     <[-m max_nev]>
+                     [-m max_nu_of_events] [-o output_event_file_prefix]
 
          Options :
 
            [] Denotes an optional argument
-
-           <> Denotes test-mode arguments / don't use in physics production jobs
 
            -h Prints out the gT2Kevgen syntax and exits
 
@@ -182,6 +180,13 @@
               the event generation to stop after generating a fixed number of
               interactions.
 
+           -o Sets the prefix of the output event file. 
+              The output filename is built as: 
+              [prefix].[run_number].[event_tree_format].[file_format]
+              The default output filename is: 
+              gntp.[run_number].ghep.root
+              This cmd line arguments lets you override 'gntp'
+
          Examples:
         
          (1) shell% gT2Kevgen 
@@ -278,31 +283,33 @@ void PrintSyntax        (void);
 
 // Default options (override them using the command line arguments):
 //
-Long_t          kDefOptRunNu       = 0;       // default run number
-string          kDefOptGeomLUnits  = "mm";    // default geometry length units
-string          kDefOptGeomDUnits  = "g_cm3"; // default geometry density units
-NtpMCFormat_t   kDefOptNtpFormat   = kNFGHEP; // default event tree format
-Long_t          kDefOptMaxNev      = -1;      // 
-double          kDefOptFluxNorm    = 1E+21;   // std jnubeam flux ntuple norm. (POT*detector [NDs] or POT*cm^2 [SK])
-int             kDefOptFluxNCycles = 1;       // default number of flux ntuple cycles
+Long_t          kDefOptRunNu        = 0;       // default run number
+string          kDefOptGeomLUnits   = "mm";    // default geometry length units
+string          kDefOptGeomDUnits   = "g_cm3"; // default geometry density units
+NtpMCFormat_t   kDefOptNtpFormat    = kNFGHEP; // default event tree format
+Long_t          kDefOptMaxNev       = -1;      // 
+double          kDefOptFluxNorm     = 1E+21;   // std jnubeam flux ntuple norm. (POT*detector [NDs] or POT*cm^2 [SK])
+int             kDefOptFluxNCycles  = 1;       // default number of flux ntuple cycles
+string          kDefOptEvFilePrefix = "gntp";
 
 // User-specified options:
 //
-Long_t          gOptRunNu;                    // run number
-bool            gOptUsingRootGeom = false;    // using root geom or target mix?
-bool            gOptUsingHistFlux = false;    // using jnubeam flux ntuples or flux from histograms?
-map<int,double> gOptTgtMix;                   // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
-map<int,TH1D*>  gOptFluxHst;                  // flux histos (nu pdg  -> spectrum)  / if not using beam sim ntuples
-string          gOptRootGeom;                 // input ROOT file with realistic detector geometry
-string          gOptRootGeomTopVol = "";      // input geometry top event generation volume [optional]
-double          gOptGeomLUnits = 0;           // input geometry length units [optional]
-double          gOptGeomDUnits = 0;           // input geometry density units [optional]
-string          gOptExtMaxPlXml;              // max path lengths XML file for input geometry [optional]
-string          gOptFluxFile;                 // ROOT file with jnubeam flux ntuple
-string          gOptDetectorLocation;         // detector location ('sk','nd1','nd2',...)
-int             gOptMaxNev;                   // 
-double          gOptFluxNorm;                 // std jnubeam flux ntuple norm
-int             gOptFluxNCycles;              // number of flux ntuple cycles
+Long_t          gOptRunNu;                     // run number
+bool            gOptUsingRootGeom = false;     // using root geom or target mix?
+bool            gOptUsingHistFlux = false;     // using jnubeam flux ntuples or flux from histograms?
+map<int,double> gOptTgtMix;                    // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
+map<int,TH1D*>  gOptFluxHst;                   // flux histos (nu pdg  -> spectrum)  / if not using beam sim ntuples
+string          gOptRootGeom;                  // input ROOT file with realistic detector geometry
+string          gOptRootGeomTopVol = "";       // input geometry top event generation volume 
+double          gOptGeomLUnits = 0;            // input geometry length units 
+double          gOptGeomDUnits = 0;            // input geometry density units 
+string          gOptExtMaxPlXml;               // max path lengths XML file for input geometry 
+string          gOptFluxFile;                  // ROOT file with jnubeam flux ntuple
+string          gOptDetectorLocation;          // detector location ('sk','nd1','nd2',...)
+int             gOptMaxNev;                    // 
+double          gOptFluxNorm;                  // std jnubeam flux ntuple norm 
+int             gOptFluxNCycles;               // number of flux ntuple cycles 
+string          gOptEvFilePrefix;              // event file prefix
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -421,7 +428,7 @@ int main(int argc, char ** argv)
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
-  ntpw.Initialize();
+  ntpw.Initialize(gOptEvFilePrefix);
 
   // Add a custom-branch at the standard GENIE event tree so that
   // info on the flux neutrino parent particle can be passed-through
@@ -818,7 +825,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // number of times to cycle through the jnubeam flux ntuple contents
   try {
-    LOG("gT2Kevgen", pDEBUG)  << "Reading number of flux ntuple cycles";
+    LOG("gT2Kevgen", pDEBUG) << "Reading number of flux ntuple cycles";
     gOptFluxNCycles = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'c');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
@@ -838,6 +845,18 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("gT2Kevgen", pDEBUG)
         << "Will keep on generating events till the flux driver stops";
       gOptMaxNev = kDefOptMaxNev;
+    }
+  }
+
+  // event file prefix
+  try {
+    LOG("gT2Kevgen", pDEBUG) << "Reading the event filename prefix";
+    gOptEvFilePrefix = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gT2Kevgen", pDEBUG)
+        << "Will set the default event filename prefix";
+      gOptEvFilePrefix = kDefOptEvFilePrefix;
     }
   }
 
