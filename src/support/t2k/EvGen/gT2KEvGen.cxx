@@ -582,7 +582,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   string geom = "";
   string lunits, dunits;
   try {
-    LOG("Main", pDEBUG) << "Getting input geometry";
+    LOG("gT2Kevgen", pDEBUG) << "Getting input geometry";
     geom = genie::utils::clap::CmdLineArgAsString(argc,argv,'g');
 
     // is it a ROOT file that contains a ROOT geometry?
@@ -594,7 +594,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     }                 
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("Main", pFATAL) 
+      LOG("gT2Kevgen", pFATAL) 
         << "No geometry option specified - Exiting";
       PrintSyntax();
       exit(1);
@@ -606,23 +606,23 @@ void GetCommandLineArgs(int argc, char ** argv)
 
      // legth units:
      try {
-        LOG("Main", pDEBUG) 
+        LOG("gT2Kevgen", pDEBUG) 
            << "Checking for input geometry length units";
         lunits = genie::utils::clap::CmdLineArgAsString(argc,argv,'L');
      } catch(exceptions::CmdLineArgParserException e) {
         if(!e.ArgumentFound()) {
-            LOG("Main", pDEBUG) << "Using default geometry length units";
+            LOG("gT2Kevgen", pDEBUG) << "Using default geometry length units";
             lunits = kDefOptGeomLUnits;
         }
      } // try-catch (-L)
      // density units:
      try {
-        LOG("Main", pDEBUG) 
+        LOG("gT2Kevgen", pDEBUG) 
            << "Checking for input geometry density units";
         dunits = genie::utils::clap::CmdLineArgAsString(argc,argv,'D');
      } catch(exceptions::CmdLineArgParserException e) {
         if(!e.ArgumentFound()) {
-            LOG("Main", pDEBUG) << "Using default geometry density units";
+            LOG("gT2Kevgen", pDEBUG) << "Using default geometry density units";
             dunits = kDefOptGeomDUnits;
         }
      } // try-catch (-D) 
@@ -632,12 +632,12 @@ void GetCommandLineArgs(int argc, char ** argv)
      // check whether an event generation volume name has been 
      // specified -- default is the 'top volume'
      try {
-        LOG("Main", pDEBUG) << "Checking for input volume name";
+        LOG("gT2Kevgen", pDEBUG) << "Checking for input volume name";
         gOptRootGeomTopVol = 
             genie::utils::clap::CmdLineArgAsString(argc,argv,'v');
      } catch(exceptions::CmdLineArgParserException e) {
         if(!e.ArgumentFound()) {
-            LOG("Main", pDEBUG) << "Using the <master volume>";
+            LOG("gT2Kevgen", pDEBUG) << "Using the <master volume>";
         }
      } // try-catch (-v) 
 
@@ -645,13 +645,13 @@ void GetCommandLineArgs(int argc, char ** argv)
      // path lengths for each detector material is specified -
      // otherwise will compute the max path lengths at job init
      try {
-        LOG("Main", pDEBUG) 
+        LOG("gT2Kevgen", pDEBUG) 
               << "Checking for maximum path lengths XML file";
         gOptExtMaxPlXml = 
             genie::utils::clap::CmdLineArgAsString(argc,argv,'p');
      } catch(exceptions::CmdLineArgParserException e) {
         if(!e.ArgumentFound()) {
-            LOG("Main", pDEBUG) 
+            LOG("gT2Kevgen", pDEBUG) 
               << "Will compute the maximum path lengths at job init";
             gOptExtMaxPlXml = "";
         }
@@ -679,7 +679,7 @@ void GetCommandLineArgs(int argc, char ** argv)
          if (open_bracket ==string::npos || 
              close_bracket==string::npos) 
          {
-             LOG("Main", pFATAL) 
+             LOG("gT2Kevgen", pFATAL) 
                 << "You made an error in specifying the target mix"; 
              PrintSyntax();
              exit(1);
@@ -690,7 +690,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 	 string::size_type jend = close_bracket;
          int    pdg = atoi(tgt_with_wgt.substr(ibeg,iend-ibeg).c_str());
          double wgt = atof(tgt_with_wgt.substr(jbeg,jend-jbeg).c_str());
-         LOG("Main", pDEBUG) 
+         LOG("gT2Kevgen", pDEBUG) 
             << "Adding to target mix: pdg = " << pdg << ", wgt = " << wgt;
          gOptTgtMix.insert(map<int, double>::value_type(pdg, wgt));
 
@@ -702,7 +702,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // *** flux 
   // 
   try {
-    LOG("Main", pDEBUG) << "Getting input flux";
+    LOG("gT2Kevgen", pDEBUG) << "Getting input flux";
     string flux = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
     gOptUsingHistFlux = (flux.find("[") != string::npos);
 
@@ -712,7 +712,7 @@ void GetCommandLineArgs(int argc, char ** argv)
         //
         vector<string> fluxv = utils::str::Split(flux,",");
         if(fluxv.size()<2) {
-           LOG("Main", pFATAL) 
+           LOG("gT2Kevgen", pFATAL) 
              << "You need to specify both a flux ntuple ROOT file " 
              << " _AND_ a detector location";
            PrintSyntax();
@@ -728,7 +728,7 @@ void GetCommandLineArgs(int argc, char ** argv)
         //
         vector<string> fluxv = utils::str::Split(flux,",");      
         if(fluxv.size()<2) {
-           LOG("Main", pFATAL) 
+           LOG("gT2Kevgen", pFATAL) 
              << "You need to specify both a flux ntuple ROOT file " 
              << " _AND_ a detector location";
            PrintSyntax();
@@ -737,7 +737,7 @@ void GetCommandLineArgs(int argc, char ** argv)
         gOptFluxFile = fluxv[0];
         bool accessible_flux_file = !(gSystem->AccessPathName(gOptFluxFile.c_str()));
         if (!accessible_flux_file) {
-            LOG("Main", pFATAL) 
+            LOG("gT2Kevgen", pFATAL) 
               << "Can not access flux file: " << gOptFluxFile;
             PrintSyntax();
             exit(1);
@@ -751,7 +751,7 @@ void GetCommandLineArgs(int argc, char ** argv)
             if (open_bracket ==string::npos || 
                 close_bracket==string::npos) 
             {
-                LOG("Main", pFATAL) 
+                LOG("gT2Kevgen", pFATAL) 
                    << "You made an error in specifying the flux histograms"; 
                 PrintSyntax();
                 exit(1);
@@ -765,7 +765,7 @@ void GetCommandLineArgs(int argc, char ** argv)
             // access specified histogram from the input root file
             TH1D * ihst = (TH1D*) flux_file.Get(histo.c_str()); 
             if(!ihst) {
-                LOG("Main", pFATAL) 
+                LOG("gT2Kevgen", pFATAL) 
                   << "Can not find histogram: " << histo 
                   << " in flux file: " << gOptFluxFile;
                 PrintSyntax();
@@ -782,18 +782,18 @@ void GetCommandLineArgs(int argc, char ** argv)
             // convert neutrino name -> pdg code
             int pdg = atoi(nutype.c_str());
             if(!pdg::IsNeutrino(pdg) && !pdg::IsAntiNeutrino(pdg)) {
-                LOG("Main", pFATAL) 
+                LOG("gT2Kevgen", pFATAL) 
                     << "Unknown neutrino type: " << nutype; 
                 PrintSyntax();
                 exit(1);
             }
             // store flux neutrino code / energy spectrum
-            LOG("Main", pDEBUG) 
+            LOG("gT2Kevgen", pDEBUG) 
               << "Adding energy spectrum for flux neutrino: pdg = " << pdg;
             gOptFluxHst.insert(map<int, TH1D*>::value_type(pdg, spectrum));
         }//inu
         if(gOptFluxHst.size()<1) {
-           LOG("Main", pFATAL) 
+           LOG("gT2Kevgen", pFATAL) 
                << "You have not specified any flux histogram!";
            PrintSyntax();
            exit(1);
@@ -803,7 +803,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("Main", pFATAL) << "No flux info was specified - Exiting";
+      LOG("gT2Kevgen", pFATAL) << "No flux info was specified - Exiting";
       PrintSyntax();
       exit(1);
     }
