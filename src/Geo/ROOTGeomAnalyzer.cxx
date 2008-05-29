@@ -28,6 +28,7 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <cstdlib>
 
 #include <TGeoVolume.h>
 #include <TGeoManager.h>
@@ -174,7 +175,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
      << "Computing the maximum path lengths for all materials";
 
   if(!fGeometry) {
-      LOG("GROOTGeom",pFATAL) << "No ROOT geometry is loaded!!";
+      LOG("GROOTGeom", pFATAL) << "No ROOT geometry is loaded!!";
       exit(1);
   }
 
@@ -453,7 +454,7 @@ void ROOTGeomAnalyzer::Load(string filename)
 
   bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
   if (!is_accessible) {
-     LOG("GROOTGeom", pERROR)
+     LOG("GROOTGeom", pFATAL)
        << "The ROOT geometry doesn't exist! Initialization failed!";
      exit(1);
   }
