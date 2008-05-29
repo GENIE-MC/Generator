@@ -31,11 +31,16 @@
    max. flux weight for the input location. The 'actual POT' norm factor is 
    updated after each generated flux neutrino taking into account the flux 
    weight variability. Added NFluxNeutrinos() and SumWeight().
+ @ May 29, 2008 - CA, PG
+   Protect LoadBeamSimData() against non-existent input file
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
 #include <TFile.h>
 #include <TTree.h>
+#include <TSystem.h>
 
 #include "Conventions/Units.h"
 #include "FluxDrivers/GJPARCNuFlux.h"
@@ -261,6 +266,13 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
         << "Loading jnubeam flux tree from ROOT file: " << filename;
   LOG("Flux", pNOTICE) 
         << "Detector location: " << detector_location;
+
+  bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
+  if (!is_accessible) {
+    LOG("Flux", pFATAL)
+     << "The input jnubeam flux file doesn't exist! Initialization failed!";
+    exit(1);
+  }
 
   fDetLoc   = detector_location;   
   fDetLocId = this->DLocName2Id(fDetLoc);  
