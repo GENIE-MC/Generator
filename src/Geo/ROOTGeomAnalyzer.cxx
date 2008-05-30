@@ -24,6 +24,11 @@
  @ Nov 12, 2008 - CA, Jim Dobson
    Cleaned-up geometry navigation code. Improve the vertex placement method
    GenerateVertex() to avoid geo volume overshots.
+ @ May 30, 2008 - CA, Jim Dobson
+   Fixed path-lengths units problem in Local2SI(). The problem went undetected
+   for long as the relevant quantities were used in ratios & the extra 
+   multiplicative factor was cancelled out. It was spotted when we tried to
+   work out T2K event sample normalization in terms of POTs.
 */
 //____________________________________________________________________________
 
@@ -228,7 +233,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                        pdgc, this->ComputePathLengthPDG(pos,udir,pdgc));
   }//materials
 
-  this->Local2SI(*fCurrPathLengthList); // GU -> m
+  this->Local2SI(*fCurrPathLengthList); // curr geom units -> SI
 
   return *fCurrPathLengthList;
 }
@@ -1057,7 +1062,7 @@ void ROOTGeomAnalyzer::Local2SI(PathLengthList & pl)
   for(pliter = pl.begin(); pliter != pl.end(); ++pliter)
   {
     int pdgc = pliter->first;
-    pl.ScalePathLength(pdgc,fLengthScale);
+    pl.ScalePathLength(pdgc, scaling_factor);
   }
 }
 //___________________________________________________________________________
