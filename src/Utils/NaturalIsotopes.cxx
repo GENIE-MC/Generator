@@ -15,11 +15,10 @@
  Important revisions after version 2.0.0 :
  @ May 30, 2008 - CA, JD
    This class was first added in version 2.3.1
-
 */
 //____________________________________________________________________________
 
-#include <iostream>
+#include <fstream>
 #include <string>
 
 #include <TSystem.h>
@@ -65,7 +64,6 @@ NaturalIsotopes::~NaturalIsotopes()
      vec.clear();
   }
   fNaturalIsotopesTable.clear();
-
   fInstance = 0;
 }
 //____________________________________________________________________________
@@ -104,7 +102,7 @@ const NaturalIsotopeElementData *
     LOG("NatIsotop", pWARN)  
        << "Table has no elements for natural isotope  Z = " << Z;
     return 0;
-  } 
+  }
   vector<NaturalIsotopeElementData*> vec = miter->second;
   if(ielement >= (int)vec.size() || ielement < 0) {
     LOG("NatIsotop", pWARN)  
@@ -130,7 +128,55 @@ bool NaturalIsotopes::LoadTable(void)
      return false;
   }
 
+  // load the natural isotopes .txt file
+  string input_buf;
+  ifstream input(filename.c_str());  
+  if (input.is_open()){
+    
+    //skip first 8 lines (comments)
+    for(int i=0; i<8; i++){ 
+      string buffer;
+      getline(input, buffer);
+    } 
 
- return true;
+    int Z = -1, Z_previous = -1, nelements = 0, pdgcode = 0;
+    double atomicmass = 0, abundance = 0;
+    string elementname, subelementname;
+    
+    while( !input.eof() ) {
+      
+      //read in naturally occuring element info
+      input >> Z;
+      input >> elementname; 
+      input >> nelements; 
+      
+      vector<NaturalIsotopeElementData *> vec;
+      NaturalIsotopeElementData * data = 0;
+      
+      // check not re-reading same element
+      if(Z!=Z_previous){    
+	LOG("NatIsotop", pDEBUG) << "Reading entry for Z = " << Z;
+	for(int n=0 ; n < nelements; n++){
+	  input >> subelementname;
+	  input >> pdgcode;
+	  input >> atomicmass;
+	  input >> abundance;
+  	  LOG("NatIsotop", pDEBUG) 
+            << " - Element: " << n << ", pdg = " << pdgcode 
+            << ", A = " << atomicmass << ", abundance = " << abundance;
+          data = new NaturalIsotopeElementData(pdgcode, abundance);
+  	  vec.push_back(data);
+	}
+	fNaturalIsotopesTable.insert(
+           map<int,vector<NaturalIsotopeElementData*> >::value_type(Z,vec));
+      }      
+      Z_previous = Z;
+    } //!eof
+
+  } else { 
+    return false;	
+  } //open?
+  
+  return true;
 }
 //____________________________________________________________________________
