@@ -33,6 +33,18 @@
    weight variability. Added NFluxNeutrinos() and SumWeight().
  @ May 29, 2008 - CA, PG
    Protect LoadBeamSimData() against non-existent input file
+ @ May 31, 2008 - CA
+   Added option to keep on recyclying the flux ntuple for an 'infinite' number
+   of times (SetNumOfCycles(0)) so that exiting the event generation loop can 
+   be controlled by the accumulated POTs or number of events.
+ @ June 1, 2008 - CA
+   At LoadBeamSimData() added code to scan for number of neutrinos and sum of
+   weights for a complete flux ntuple cycle, at the specified detector.
+   Added POT_1cycle() to return the flux POT per flux ntuple cycle.
+   Added POT_curravg() to return the current average number of POTs taking
+   into account the flux ntuple recycling. At complete cycles the reported
+   number is not just the average POT but the exact POT.
+   Removed the older ActualPOT() method.
 */
 //____________________________________________________________________________
 
@@ -116,7 +128,9 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
 
   // Read next flux ntuple entry
   if(fIEntry >= fNEntries) {
-     if(fICycle < fNCycles) {
+     // Run out of entries @ the current cycle.
+     // Check whether more (or infinite) number of cycles is requested
+     if(fICycle < fNCycles || fNCycles == 0 ) {
         fICycle++;
         fIEntry=0;
      } else {
@@ -126,9 +140,16 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
      }
   }
 
-  LOG("Flux", pNOTICE) 
-     << "Reading flux ntuple entry:....." << fIEntry 
-     << " - Cycle: " << fICycle << "/" << fNCycles;
+  if(fNCycles==0) {
+    LOG("Flux", pNOTICE) 
+      << "Reading flux entry: " << fIEntry 
+      << " - Cycle: " << fICycle << "/ infinite"; 
+  } else {
+    LOG("Flux", pNOTICE) 
+      << "Reading flux entry: " << fIEntry 
+      << " - Cycle: " << fICycle << "/" << fNCycles; 
+  }
+
   fNuFluxTree->GetEntry(fIEntry);
   fIEntry++;
 
@@ -192,7 +213,6 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
           << "Flux neutrino energy exceeds declared maximum neutrino energy";
      LOG("Flux", pWARN) 
           << "Ev = " << fLfEnu << "(> Ev{max} = " << fMaxEv << ")";
-     //return false;	
   }
   
   // Set the current flux neutrino 4-momentum & 4-position
@@ -248,11 +268,39 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   fPassThroughInfo -> prodDirZ  = fLfNpi0[2];
   fPassThroughInfo -> prodNVtx  = fLfNVtx0;
 
-  // update the quantities used for computing the 'actual' POT count
+  // update the sum of weights & number of neutrinos
   fSumWeight += this->Weight();
   fNNeutrinos++;
 
   return true;
+}
+//___________________________________________________________________________
+double GJPARCNuFlux::POT_1cycle(void)
+{
+// Compute number of flux POTs / flux ntuple cycle
+//
+  if(!fNuFluxTree) {
+     LOG("Flux", pWARN)
+          << "The flux driver has not been properly configured";
+     return 0;	
+  }
+  double pot = fNNeutrinosTot1c*fFilePOT/fSumWeightTot1c;
+  return pot;
+}
+//___________________________________________________________________________
+double GJPARCNuFlux::POT_curravg(void)
+{
+// Compute current number of flux POTs 
+// On complete cycles, that POT number should be exact.
+// Within cycles that is only an average number 
+
+  if(!fNuFluxTree) {
+     LOG("Flux", pWARN)
+          << "The flux driver has not been properly configured";
+     return 0;	
+  }
+  double pot = fNNeutrinos*fFilePOT/fSumWeightTot1c;
+  return pot;
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
@@ -373,6 +421,21 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
       LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
       exit(1);
   }
+
+  // sum-up weights & number of neutrinos for the specified location
+  // over a complete cycle
+  fSumWeightTot1c  = 0;
+  fNNeutrinosTot1c = 0;
+  for(int ientry = 0; ientry < fNEntries; ientry++) {
+     fNuFluxTree->GetEntry(ientry);
+     // compare detector location (see GenerateNext_weighted() for details)
+     if(fIsNDLoc && fDetLocId!=fLfIdfd) continue;
+     fSumWeightTot1c += this->Weight();
+     fNNeutrinosTot1c++;
+  }
+  LOG("Flux", pINFO)
+    << "Totals / cycle: #neutrinos = " << fNNeutrinosTot1c 
+    << ", Sum{Weights} = " << fSumWeightTot1c;
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::SetFluxParticles(const PDGCodeList & particles)
@@ -417,17 +480,12 @@ void GJPARCNuFlux::SetNumOfCycles(int n)
 // The flux ntuples can be recycled for a number of times to boost generated
 // event statistics without requiring enormous beam simulation statistics.
 // That option determines how many times the driver is going to cycle through
-// the input flux ntuple
+// the input flux ntuple. 
+// With n=0 the flux ntuple will be recycled an infinite amount of times so
+// that the event generation loop can exit only on a POT or event num check.
 
-  fNCycles = TMath::Max(1, n);
+  fNCycles = TMath::Max(0, n);
 }
-//___________________________________________________________________________
-double GJPARCNuFlux::ActualPOT(void) const 
-{
-// Calculate actual POT for flux neutrinos read in so far
-
-  return fNNeutrinos*fFilePOT/fSumWeight; 
-} 
 //___________________________________________________________________________
 void GJPARCNuFlux::Initialize(void)
 {
@@ -453,6 +511,8 @@ void GJPARCNuFlux::Initialize(void)
   fICycle          = 0;        
   fSumWeight       = 0;
   fNNeutrinos      = 0;
+  fSumWeightTot1c  = 0;
+  fNNeutrinosTot1c = 0;
 
   fBrNorm          = 0;
   fBrIdfd          = 0;
