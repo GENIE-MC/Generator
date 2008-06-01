@@ -10,7 +10,10 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ June 1, 2008 - CA
+   At Configure(), if the GPRODMODE environmental variable is set then use
+   mesg thresholds from Messenger_production.xml rather than Messenger.xml.
+   That minimizes verbosity during production jobs.
 */
 //____________________________________________________________________________
 
@@ -106,8 +109,12 @@ void Messenger::Configure(void)
   bool ok = false;
 
   //-- get the default messenger configuration XML file
-  string base_dir = string( gSystem->Getenv("GENIE") );
-  string msg_config_file = base_dir + string("/config/Messenger.xml");
+  string base_dir = string( gSystem->Getenv("GENIE") ) + 
+                    string("/config/");
+  string filename = gSystem->Getenv("GPRODMODE") ? 
+                    "Messenger_production.xml" : "Messenger.xml";
+
+  string msg_config_file = base_dir + filename;
 
   // parse & set the default priority levels
   ok = this->SetPrioritiesFromXmlFile(msg_config_file);
