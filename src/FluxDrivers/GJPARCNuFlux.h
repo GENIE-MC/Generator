@@ -74,9 +74,10 @@ public :
   void SetMaxEnergy     (double Ev);                           ///< specify maximum flx neutrino energy
   void SetFilePOT       (double pot);                          ///< flux file norm is in /N POT/det [ND] or /N POT/cm^2 [FD]. Specify N (typically 1E+21)
   void SetUpstreamZ     (double z0);                           ///< set flux neutrino initial z position (upstream of the detector)
-  void SetNumOfCycles   (int n);                               ///< set how many times to cycle through the ntuple (default: 1)
+  void SetNumOfCycles   (int n);                               ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
 
-  double   ActualPOT      (void) const;                        ///< actual POT for neutrinos thrown so far
+  double   POT_1cycle     (void);                              ///< flux POT per cycle
+  double   POT_curravg    (void);                              ///< current average POT
   long int NFluxNeutrinos (void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
   double   SumWeight      (void) const { return fSumWeight;  } ///< intergated weight for flux neutrinos looped so far
 
@@ -119,6 +120,8 @@ private:
   int       fICycle;           ///< current cycle
   double    fSumWeight;        ///< sum of weights for neutrinos thrown so far
   long int  fNNeutrinos;       ///< number of flux neutrinos thrown so far
+  double    fSumWeightTot1c;   ///< total sum of weights for neutrinos to be thrown / cycle
+  long int  fNNeutrinosTot1c;  ///< total number of flux neutrinos to be thrown / cycle
 
   //-- jnubeam ntuple branches
   //   branches marked with [f] can be found in SK flux ntuples only
