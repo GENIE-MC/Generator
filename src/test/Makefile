@@ -32,7 +32,6 @@ TGT =	gtestAlgorithms 	\
 	gtestNumerical		\
 	gtestNaturalIsotopes	\
 	gtestPDFLIB		\
-	gtestLHAPDF		\
 	gtestFermiP		\
 	gtestRegistry		\
 	gtestInteraction	\
