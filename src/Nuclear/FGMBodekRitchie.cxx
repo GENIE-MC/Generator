@@ -153,7 +153,7 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
 
   //-- create the probability distribution
 
-  int npbins = (int) 1000*fPMax;
+  int npbins = (int) (1000*fPMax);
   TH1D * prob = new TH1D("", "", npbins, 0, fPMax);
   prob->SetDirectory(0);
 
