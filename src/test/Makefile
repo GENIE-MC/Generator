@@ -34,7 +34,6 @@ TGT =	gtestAlgorithms 	\
 	gtestPDFLIB		\
 	gtestLHAPDF		\
 	gtestFermiP		\
-	gtestMCJobDriver	\
 	gtestRegistry		\
 	gtestInteraction	\
 	gtestResonances		\
@@ -96,10 +95,6 @@ gtestLHAPDF: FORCE
 gtestFermiP: FORCE
 	$(CXX) $(CXXFLAGS) -c testFermiP.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testFermiP.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFermiP
-
-gtestMCJobDriver: FORCE
-	$(CXX) $(CXXFLAGS) -c testMCJobDriver.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testMCJobDriver.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestMCJobDriver
 
 gtestFluxDriver: FORCE
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
@@ -187,7 +182,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestPDFLIB		
 	$(RM) $(GENIE_BIN_PATH)/gtestLHAPDF		
 	$(RM) $(GENIE_BIN_PATH)/gtestFermiP		
-	$(RM) $(GENIE_BIN_PATH)/gtestMCJobDriver	
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
@@ -212,7 +206,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPDFLIB		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestLHAPDF		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFermiP		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMCJobDriver	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
@@ -268,9 +261,6 @@ clean--gtestLHAPDF: FORCE
 
 clean--gtestFermiP: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestFermiP
-
-clean--gtestMCJobDriver: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestMCJobDriver
 
 clean--gtestFluxDriver: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestFluxDriver
