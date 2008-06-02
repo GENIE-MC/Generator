@@ -490,6 +490,7 @@ clean-files: FORCE
 	cd VHE;                make clean; cd ..; \
 	cd stdapp;             make clean; cd ..; \
 	cd support/minos/EventServer/; make clean; cd ../../../; \
+	cd support/t2k/EventGen/;      make clean; cd ../../../; \
 	cd test;               make clean; cd ..; \
 	cd scripts;	       make clean; \
 	cd ${GENIE}
@@ -548,6 +549,7 @@ distclean: FORCE
 	cd VHE;                make distclean; cd ..; \
 	cd stdapp;             make distclean; cd ..; \
 	cd support/minos/EventServer/; make distclean; cd ../../../; \
+	cd support/t2k/EvGen/;         make distclean; cd ../../../; \
 	cd test;               make distclean; cd ..; \
 	cd scripts;	       make distclean; \
 	cd ${GENIE}
