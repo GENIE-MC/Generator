@@ -14,6 +14,8 @@
    This trivial case was added in 2.3.1 so that single energy neutrinos can
    be easily used with the event generation driver that can handle a 
    target mix or detailed geometries.
+ @ June 2, 2008 - CA
+   Fix bug in Initialize() where weight was used as int
 */
 //____________________________________________________________________________
 
@@ -59,8 +61,8 @@ bool GMonoEnergeticFlux::GenerateNext(void)
 
   map<int,double>::const_iterator iter;
   for(iter = fProb.begin(); iter != fProb.end(); ++iter) {
-     int nupdgc   = iter->first;
-     double prob  = iter->second;
+     int    nupdgc = iter->first;
+     double prob   = iter->second;
      if(p<prob) {
 	fgPdgC = nupdgc;
 	break;
@@ -90,8 +92,8 @@ void GMonoEnergeticFlux::Initialize(double Ev, const map<int,double> & numap)
 
   map<int,double>::const_iterator iter;
   for(iter = numap.begin(); iter != numap.end(); ++iter) {
-        int nupdgc = iter->first;
-        int nuwgt  = iter->second;
+        int    nupdgc = iter->first;
+        double nuwgt  = iter->second;
 
         fPdgCList->push_back(nupdgc);
 

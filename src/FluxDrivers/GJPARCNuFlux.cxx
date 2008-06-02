@@ -266,7 +266,7 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   fPassThroughInfo -> prodDirX  = fLfNpi0[0];
   fPassThroughInfo -> prodDirY  = fLfNpi0[1];
   fPassThroughInfo -> prodDirZ  = fLfNpi0[2];
-  fPassThroughInfo -> prodNVtx  = fLfNVtx0;
+  fPassThroughInfo -> prodNVtx  = (int) fLfNVtx0;
 
   // update the sum of weights & number of neutrinos
   fSumWeight += this->Weight();
@@ -647,7 +647,7 @@ prodZ     (0.),
 prodDirX  (0.),  
 prodDirY  (0.),  
 prodDirZ  (0.),
-prodNVtx  (0.)
+prodNVtx  (0)
 {
 
 }
