@@ -16,7 +16,7 @@ include $(GENIE)/src/make/Make.include
 #GENIE_DICTS = $(shell $(GENIE)/src/scripts/setup/genie-config --dicts)
 GENIE_DICTS =
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+LIBRARIES  := $(LHAPDF_LIBRARIES) $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 
 TGT =	gtestAlgorithms 	\
@@ -30,7 +30,9 @@ TGT =	gtestAlgorithms 	\
 	gtestINukeHadroData     \
 	gtestMessenger		\
 	gtestNumerical		\
+	gtestNaturalIsotopes	\
 	gtestPDFLIB		\
+	gtestLHAPDF		\
 	gtestFermiP		\
 	gtestMCJobDriver	\
 	gtestRegistry		\
@@ -87,6 +89,10 @@ gtestPDFLIB: FORCE
 	$(CXX) $(CXXFLAGS) -c testPDFLIB.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testPDFLIB.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPDFLIB
 
+gtestLHAPDF: FORCE
+	$(CXX) $(CXXFLAGS) -c testLHAPDF.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testLHAPDF.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestLHAPDF
+
 gtestFermiP: FORCE
 	$(CXX) $(CXXFLAGS) -c testFermiP.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testFermiP.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFermiP
@@ -118,6 +124,10 @@ endif
 gtestNumerical: FORCE
 	$(CXX) $(CXXFLAGS) -c testNumerical.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testNumerical.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNumerical
+
+gtestNaturalIsotopes: FORCE
+	$(CXX) $(CXXFLAGS) -c testNaturalIsotopes.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testNaturalIsotopes.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNaturalIsotopes
 
 gtestRegistry: FORCE
 	$(CXX) $(CXXFLAGS) -c testRegistry.cxx $(INCLUDES)
@@ -173,7 +183,9 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestINukeHadroData	
 	$(RM) $(GENIE_BIN_PATH)/gtestMessenger		
 	$(RM) $(GENIE_BIN_PATH)/gtestNumerical		
+	$(RM) $(GENIE_BIN_PATH)/gtestNaturalIsotopes	
 	$(RM) $(GENIE_BIN_PATH)/gtestPDFLIB		
+	$(RM) $(GENIE_BIN_PATH)/gtestLHAPDF		
 	$(RM) $(GENIE_BIN_PATH)/gtestFermiP		
 	$(RM) $(GENIE_BIN_PATH)/gtestMCJobDriver	
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
@@ -196,7 +208,9 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestINukeHadroData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMessenger		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNumerical		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNaturalIsotopes		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPDFLIB		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestLHAPDF		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFermiP		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMCJobDriver	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
@@ -243,8 +257,14 @@ clean--gtestMessenger: FORCE
 clean--gtestNumerical: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestNumerical
 
+clean--gtestNaturalIsotopes: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestNaturalIsotopes
+
 clean--gtestPDFLIB: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestPDFLIB
+
+clean--gtestLHAPDF: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestLHAPDF
 
 clean--gtestFermiP: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestFermiP
