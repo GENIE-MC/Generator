@@ -29,11 +29,11 @@
            -o specifies the output filename. 
               If not specified a the default filename is constructed by the 
               input base name and an extension depending on the file format: 
-                1 -> *.gtrac
-                2 -> *.gtrac2
+                1 -> *.gtrac0.dat
+                2 -> *.gtrac.dat
                 3 -> *.gtrac.root
               100 -> *.gxml 
-              901 -> *.ghad
+              901 -> *.ghad.dat
 		
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -996,11 +996,11 @@ string DefaultOutputFile(void)
 {
   // filename extension - depending on file format
   string ext="";
-  if      (gOptOutFileFormat==1)    ext = "gtrac";
-  else if (gOptOutFileFormat==2)    ext = "gtrac2";
+  if      (gOptOutFileFormat==1)    ext = "gtrac0.dat";
+  else if (gOptOutFileFormat==2)    ext = "gtrac.dat";
   else if (gOptOutFileFormat==3)    ext = "gtrac.root";
   else if (gOptOutFileFormat==100)  ext = "gxml";
-  else if (gOptOutFileFormat==901)  ext = "ghad";
+  else if (gOptOutFileFormat==901)  ext = "ghad.dat";
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
