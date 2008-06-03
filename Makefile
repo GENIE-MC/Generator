@@ -490,7 +490,7 @@ clean-files: FORCE
 	cd VHE;                make clean; cd ..; \
 	cd stdapp;             make clean; cd ..; \
 	cd support/minos/EventServer/; make clean; cd ../../../; \
-	cd support/t2k/EventGen/;      make clean; cd ../../../; \
+	cd support/t2k/EvGen/;         make clean; cd ../../../; \
 	cd test;               make clean; cd ..; \
 	cd scripts;	       make clean; \
 	cd ${GENIE}
