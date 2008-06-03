@@ -10,9 +10,13 @@
  For documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ June 3, 2008 - CA
+   Added clhep_def_density_unit. Setting unknown units causes GENIE to exit.
 
 */
 //____________________________________________________________________________
+
+#include <cstdlib>
 
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
@@ -120,9 +124,13 @@ double genie::utils::units::UnitFromString(string u)
   else if (u == "ub"              ) return  genie::units::ub;
   else if (u == "nb"              ) return  genie::units::nb;
   else if (u == "pb"              ) return  genie::units::pb;
+
+  else if (u == "clhep_def_density_unit") 
+                return  genie::units::clhep_def_density_unit;
+
   else {
-    LOG("Units", pWARN) << "Unknown units: " << u;
-    return 1.;
+    LOG("Units", pFATAL) << "Unknown units: " << u;
+    exit(1);
   }
   return 1.;
 }
