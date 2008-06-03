@@ -49,7 +49,7 @@
   <priority msgstream="EventGenerator">      NOTICE </priority> 
   <priority msgstream="Elastic">             INFO   </priority>
   <priority msgstream="EVGChain">            INFO   </priority>
-  <priority msgstream="EvGenListAssembler">  NOTICE </priority>
+  <priority msgstream="EvGenListAssembler">  WARN   </priority>
   <priority msgstream="ELFormFactors">       INFO   </priority>
   <priority msgstream="FermiMover">          INFO   </priority>
   <priority msgstream="FermiP">              NOTICE </priority>
@@ -79,7 +79,7 @@
   <priority msgstream="Intranuke">           NOTICE </priority>
   <priority msgstream="INukeData">           NOTICE </priority>
   <priority msgstream="ISApp">               INFO   </priority>
-  <priority msgstream="IntGenMap">           INFO   </priority>
+  <priority msgstream="IntGenMap">           WARN   </priority>
   <priority msgstream="KNOHad">              NOTICE </priority> 
   <priority msgstream="KineLimits">          INFO   </priority>
   <priority msgstream="Kinematics">          INFO   </priority>
@@ -145,6 +145,7 @@
   <priority msgstream="gmctest">             INFO   </priority>
   <priority msgstream="gntpc">               INFO   </priority>
   <priority msgstream="gmkspl">              INFO   </priority>
+  <priority msgstream="gT2Kevgen">           INFO   </priority>
 
 </messenger_config>
 
