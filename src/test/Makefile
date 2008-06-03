@@ -188,6 +188,12 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestReWeightLoop		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
 	$(RM) $(GENIE_BIN_PATH)/gtestReadGNtuple		
+ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
+	$(RM) $(GENIE_BIN_PATH)/gtestMuELoss		
+endif
+ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
+	$(RM) $(GENIE_BIN_PATH)/gtestROOTGeometry		
+endif
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestAlgorithms 	
@@ -212,6 +218,13 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeightLoop		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReadGNtuple		
+ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMuELoss		
+endif
+ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestROOTGeometry		
+endif
+
 
 clean--gtestAlgorithms: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestAlgorithms
