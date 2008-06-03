@@ -146,9 +146,9 @@ static const double  gram_centimeter3 = gram     / centimeter3;
 static const double kg_m3 = kilogram_meter3;
 static const double g_cm3 = gram_centimeter3;
 
-//-- Dimensionless quantities
+//-- [Dimensionless quantities]
 
-//- Angle
+// Angle
 
 static const double radian      = 1.;
 static const double milliradian = 1.e-3*radian;
@@ -159,6 +159,10 @@ static const double rad  = radian;
 static const double mrad = milliradian;
 static const double sr   = steradian;
 static const double deg  = degree;
+
+//-- [Etc]
+
+static const double clhep_def_density_unit = g_cm3/(0.62415185185E+19);
 
 } // namespace units
 } // namespace genie
