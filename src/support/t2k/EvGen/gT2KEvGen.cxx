@@ -70,11 +70,14 @@
               initialization to determine those max path lengths. 
               Supplying this file can speed-up the MC job initialization. 
 
-           -L Input geometry length units 
+           -L Input geometry length units, eg "m", "cm", "mm", ...
               [default: mm]
+              Note: Typically nd280m uses 'mm', ingrid uses ?, 2km uses ?, SK uses -
 
-           -D Input geometry density units 
-              [default: gr_cm3]
+           -D Input geometry density units, eg "g_cm3", "clhep_def_density_unit",... 
+              [default: g_cm3]
+              Note: Typically nd280m uses 'clhep_def_density_unit', ingrid uses ?, 
+              2km uses ?, SK uses -
 
            -f Input 'neutrino flux'.
               This option can be used to specify any of:
@@ -203,11 +206,11 @@
 
              Generate events (run number 1001) using the jnubeam flux ntuple in
              /data/t2k/flux/07a/jnubeam001.root & picking up the flux entries for
-             the detector location nd5 (:nd280m). The job will use the nd280
-             detector geometry description from /data/t2k/geom/nd280.root and the
-             specified length and density units are mm and gr/cm^3 respectivelly.
-             The job will stop on the first complete flux ntuple cycle after 
-             generating 5E+17 POT.
+             the detector location nd5 (:nd280m). The job will load the nd280
+             detector geometry description from /data/t2k/geom/nd280.root and 
+             use it thinking that the geometry length units is 'mm' and the
+             geometry density unit is 'gr/cm3'. The job will stop on the first 
+             complete flux ntuple cycle after generating 5E+17 POT.
 
          (2) shell% gT2Kevgen 
                        -r 1001 
