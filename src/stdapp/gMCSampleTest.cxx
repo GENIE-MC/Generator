@@ -865,12 +865,6 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   n1 = (gst_1) ? h1num->GetEntries() : 0;
   evn.AddText( Form("DIS-CC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
 
-            gst_0->Draw("1>>h0num","dis&&cc&&charm","goff");
-  if(gst_1) gst_1->Draw("1>>h1num","dis&&cc&&charm","goff");
-  n0 =           h0num->GetEntries();
-  n1 = (gst_1) ? h1num->GetEntries() : 0;
-  evn.AddText( Form("(charm): %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
-
             gst_0->Draw("1>>h0num","dis&&nc","goff");
   if(gst_1) gst_1->Draw("1>>h1num","dis&&nc","goff");
   n0 =           h0num->GetEntries();
@@ -901,6 +895,24 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   n1 = (gst_1) ? h1num->GetEntries() : 0;
   evn.AddText( Form("IMD    : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
 
+            gst_0->Draw("1>>h0num","nuel","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","nuel","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("NuE-EL : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","dis&&cc&&charm","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","dis&&cc&&charm","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("DIS-CHARM: %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
+            gst_0->Draw("1>>h0num","qel&&cc&&charm","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","qel&&cc&&charm","goff");
+  n0 =           h0num->GetEntries();
+  n1 = (gst_1) ? h1num->GetEntries() : 0;
+  evn.AddText( Form("QEL-CHARM: %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+
   evn.Draw();
   c->Update();
 
@@ -927,8 +939,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
   //------ selected Q2 for all events
   ps->NewPage();
-  gst_0->Draw("Q2s","","");
-  if(gst_1) gst_1->Draw("Q2s","","perrsame");
+  gst_0->Draw("Q2s","Q2s>0","");
+  if(gst_1) gst_1->Draw("Q2s","Q2s>0","perrsame");
   ls->Clear();
   ls->SetHeader("selected Q2 for all events");
   ls->Draw();
@@ -936,8 +948,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
   //------ selected Q2 for QEL
   ps->NewPage();
-  gst_0->Draw("Q2s","qel","");
-  if(gst_1) gst_1->Draw("Q2s","qel","perrsame");
+  gst_0->Draw("Q2s","qel&&!charm","");
+  if(gst_1) gst_1->Draw("Q2s","qel&&!charm","perrsame");
   ls->Clear();
   ls->SetHeader("selected Q2 for QEL events");
   ls->Draw();
@@ -945,8 +957,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
   //------ selected Q2 for QEL CC
   ps->NewPage();
-  gst_0->Draw("Q2s","qel&&cc","");
-  if(gst_1) gst_1->Draw("Q2s","qel&&cc","perrsame");
+  gst_0->Draw("Q2s","qel&&cc&&!charm","");
+  if(gst_1) gst_1->Draw("Q2s","qel&&cc&&!charm","perrsame");
   ls->Clear();
   ls->SetHeader("selected Q2 for QEL CC events");
   ls->Draw();
@@ -954,8 +966,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
   //------ selected Q2 for QEL NC
   ps->NewPage();
-  gst_0->Draw("Q2s","qel&&nc","");
-  if(gst_1) gst_1->Draw("Q2s","qel&&nc","perrsame");
+  gst_0->Draw("Q2s","qel&&nc&&!charm","");
+  if(gst_1) gst_1->Draw("Q2s","qel&&nc&&!charm","perrsame");
   ls->Clear();
   ls->SetHeader("selected Q2 for QEL NC events");
   ls->Draw();
@@ -1055,8 +1067,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   
   //------ selected W for all events
   ps->NewPage();
-  gst_0->Draw("Ws","","");
-  if(gst_1) gst_1->Draw("Ws","","perrsame");
+  gst_0->Draw("Ws","Ws>0","");
+  if(gst_1) gst_1->Draw("Ws","Ws>0","perrsame");
   ls->Clear();
   ls->SetHeader("selected W for all events");
   ls->Draw();
@@ -1064,8 +1076,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
   //------ selected W for QEL
   ps->NewPage();
-  gst_0->Draw("Ws","qel","");
-  if(gst_1) gst_1->Draw("Ws","qel","perrsame");
+  gst_0->Draw("Ws","qel&&!charm","");
+  if(gst_1) gst_1->Draw("Ws","qel&&!charm","perrsame");
   ls->Clear();
   ls->SetHeader("selected W for QEL events");
   ls->Draw();
@@ -1118,8 +1130,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
   //------ selected x for QEL
   ps->NewPage();
-  gst_0->Draw("xs","qel","");
-  if(gst_1) gst_1->Draw("xs","qel","perrsame");
+  gst_0->Draw("xs","qel&&!charm","");
+  if(gst_1) gst_1->Draw("xs","qel&&!charm","perrsame");
   ls->Clear();
   ls->SetHeader("selected x for QEL events");
   ls->Draw();
@@ -1210,8 +1222,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
   //------ selected y for QEL
   ps->NewPage();
-  gst_0->Draw("ys","qel","");
-  if(gst_1) gst_1->Draw("ys","qel","perrsame");
+  gst_0->Draw("ys","qel&&!charm","");
+  if(gst_1) gst_1->Draw("ys","qel&&!charm","perrsame");
   ls->Clear();
   ls->SetHeader("selected y for QEL events");
   ls->Draw();
@@ -1328,8 +1340,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ Q2 for QEL
      ps->NewPage();
-               gst_0->Draw("Q2","qel","");
-     if(gst_1) gst_1->Draw("Q2","qel","perrsame");
+               gst_0->Draw("Q2","qel&&!charm","");
+     if(gst_1) gst_1->Draw("Q2","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("computed Q2 for QEL events");
      ls->Draw();
@@ -1364,8 +1376,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ x for QEL
      ps->NewPage();
-     gst_0->Draw("x","qel","");
-     if(gst_1) gst_1->Draw("x","qel","perrsame");
+     gst_0->Draw("x","qel&&!charm","");
+     if(gst_1) gst_1->Draw("x","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("computed x for QEL events");
      ls->Draw();
@@ -1400,8 +1412,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ y for QEL
      ps->NewPage();
-     gst_0->Draw("y","qel","");
-     if(gst_1) gst_1->Draw("y","qel","perrsame");
+     gst_0->Draw("y","qel&&!charm","");
+     if(gst_1) gst_1->Draw("y","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("computed y for QEL events");
      ls->Draw();
@@ -1538,17 +1550,17 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   c->Clear();
   c->Divide(2,2);
   c->cd(1);
-  gst_0->Draw("pxl","qel","");
-  if(gst_1) gst_1->Draw("pxl","qel","perrsame");
+  gst_0->Draw("pxl","qel&&!charm","");
+  if(gst_1) gst_1->Draw("pxl","qel&&!charm","perrsame");
   c->cd(2);
-  gst_0->Draw("pyl","qel","");
-  if(gst_1) gst_1->Draw("pyl","qel","perrsame");
+  gst_0->Draw("pyl","qel&&!charm","");
+  if(gst_1) gst_1->Draw("pyl","qel&&!charm","perrsame");
   c->cd(3);
-  gst_0->Draw("pzl","qel","");
-  if(gst_1) gst_1->Draw("pzl","qel","perrsame");
+  gst_0->Draw("pzl","qel&&!charm","");
+  if(gst_1) gst_1->Draw("pzl","qel&&!charm","perrsame");
   c->cd(4);
-  gst_0->Draw("El","qel","");
-  if(gst_1) gst_1->Draw("El","qel","perrsame");
+  gst_0->Draw("El","qel&&!charm","");
+  if(gst_1) gst_1->Draw("El","qel&&!charm","perrsame");
   c->cd();
   ls->Clear();
   ls->SetHeader("Final state primary lepton 4-p: QEL events");
@@ -1831,8 +1843,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ number of final state p /QEL
      ps->NewPage();
-     if(gst_1) gst_1->Draw("nfp","qel","");
-     gst_0->Draw("nfp","qel","perrsame");
+     if(gst_1) gst_1->Draw("nfp","qel&&!charm","");
+     gst_0->Draw("nfp","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("Number of final state protons / QEL only");
      ls->Draw();
@@ -1840,8 +1852,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ number of final state n /QEL
      ps->NewPage();
-     if(gst_1) gst_1->Draw("nfn","qel","");
-     gst_0->Draw("nfn","qel","perrsame");
+     if(gst_1) gst_1->Draw("nfn","qel&&!charm","");
+     gst_0->Draw("nfn","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("Number of final state neutrons / QEL only");
      ls->Draw();
@@ -1849,8 +1861,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ number of final state pi+ /QEL
      ps->NewPage();
-     gst_0->Draw("nfpip","qel","");
-     if(gst_1) gst_1->Draw("nfpip","qel","perrsame");
+     gst_0->Draw("nfpip","qel&&!charm","");
+     if(gst_1) gst_1->Draw("nfpip","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("Number of final state pi+ / QEL only");
      ls->Draw();
@@ -1858,8 +1870,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ number of final state pi- /QEL
      ps->NewPage();
-     gst_0->Draw("nfpim","qel","");
-     if(gst_1) gst_1->Draw("nfpim","qel","perrsame");
+     gst_0->Draw("nfpim","qel&&!charm","");
+     if(gst_1) gst_1->Draw("nfpim","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("Number of final state pi- / QEL only");
      ls->Draw();
@@ -1867,8 +1879,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ number of final state pi0 /QEL
      ps->NewPage();
-     gst_0->Draw("nfpi0","qel","");
-     if(gst_1) gst_1->Draw("nfpi0","qel","perrsame");
+     gst_0->Draw("nfpi0","qel&&!charm","");
+     if(gst_1) gst_1->Draw("nfpi0","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("Number of final state pi0 / QEL only");
      ls->Draw();
@@ -1876,8 +1888,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ number of final state K+ /QEL
      ps->NewPage();
-     gst_0->Draw("nfkp","qel","");
-     if(gst_1) gst_1->Draw("nfkp","qel","perrsame");
+     gst_0->Draw("nfkp","qel&&!charm","");
+     if(gst_1) gst_1->Draw("nfkp","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("Number of final state K+ / QEL only");
      ls->Draw();
@@ -1885,8 +1897,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ number of final state K- /QEL
      ps->NewPage();
-     gst_0->Draw("nfkm","qel","");
-     if(gst_1) gst_1->Draw("nfkm","qel","perrsame");
+     gst_0->Draw("nfkm","qel&&!charm","");
+     if(gst_1) gst_1->Draw("nfkm","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("Number of final state K- / QEL only");
      ls->Draw();
@@ -1894,8 +1906,8 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
 
      //------ number of final state K0 /QEL
      ps->NewPage();
-     gst_0->Draw("nfk0","qel","");
-     if(gst_1) gst_1->Draw("nfk0","qel","perrsame");
+     gst_0->Draw("nfk0","qel&&!charm","");
+     if(gst_1) gst_1->Draw("nfk0","qel&&!charm","perrsame");
      ls->Clear();
      ls->SetHeader("Number of final state K0 / QEL only");
      ls->Draw();
@@ -1905,17 +1917,17 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      ps->NewPage();
      c->Divide(2,2);
      c->cd(1);
-     gst_0->Draw("pxf","qel&&pdgf==2212","");
-     if(gst_1) gst_1->Draw("pxf","qel&&pdgf==2212","perrsame");
+     gst_0->Draw("pxf","qel&&!charm&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pxf","qel&&!charm&&pdgf==2212","perrsame");
      c->cd(2);
-     gst_0->Draw("pyf","qel&&pdgf==2212","");
-     if(gst_1) gst_1->Draw("pyf","qel&&pdgf==2212","perrsame");
+     gst_0->Draw("pyf","qel&&!charm&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pyf","qel&&!charm&&pdgf==2212","perrsame");
      c->cd(3);
-     gst_0->Draw("pzf","qel&&pdgf==2212","");
-     if(gst_1) gst_1->Draw("pzf","qel&&pdgf==2212","perrsame");
+     gst_0->Draw("pzf","qel&&!charm&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("pzf","qel&&!charm&&pdgf==2212","perrsame");
      c->cd(4);
-     gst_0->Draw("Ef","qel&&pdgf==2212","");
-     if(gst_1) gst_1->Draw("Ef","qel&&pdgf==2212","perrsame");
+     gst_0->Draw("Ef","qel&&!charm&&pdgf==2212","");
+     if(gst_1) gst_1->Draw("Ef","qel&&!charm&&pdgf==2212","perrsame");
      c->cd();
      ls->Clear();
      ls->SetHeader("Final state protons 4-momentum / QEL only");
@@ -1927,17 +1939,17 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      c->Clear();
      c->Divide(2,2);
      c->cd(1);
-     gst_0->Draw("pxf","qel&&pdgf==2112","");
-     if(gst_1) gst_1->Draw("pxf","qel&&pdgf==2112","perrsame");
+     gst_0->Draw("pxf","qel&&!charm&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pxf","qel&&!charm&&pdgf==2112","perrsame");
      c->cd(2);
-     gst_0->Draw("pyf","qel&&pdgf==2112","");
-     if(gst_1) gst_1->Draw("pyf","qel&&pdgf==2112","perrsame");
+     gst_0->Draw("pyf","qel&&!charm&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pyf","qel&&!charm&&pdgf==2112","perrsame");
      c->cd(3);
-     gst_0->Draw("pzf","qel&&pdgf==2112","");
-     if(gst_1) gst_1->Draw("pzf","qel&&pdgf==2112","perrsame");
+     gst_0->Draw("pzf","qel&&!charm&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("pzf","qel&&!charm&&pdgf==2112","perrsame");
      c->cd(4);
-     gst_0->Draw("Ef","qel&&pdgf==2112","");
-     if(gst_1) gst_1->Draw("Ef","qel&&pdgf==2112","perrsame");
+     gst_0->Draw("Ef","qel&&!charm&&pdgf==2112","");
+     if(gst_1) gst_1->Draw("Ef","qel&&!charm&&pdgf==2112","perrsame");
      c->cd();
      ls->Clear();
      ls->SetHeader("Final state neutrons 4-momentum / QEL only");
@@ -1949,17 +1961,17 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      c->Clear();
      c->Divide(2,2);
      c->cd(1);
-     gst_0->Draw("pxf","qel&&pdgf==111","");
-     if(gst_1) gst_1->Draw("pxf","qel&&pdgf==111","perrsame");
+     gst_0->Draw("pxf","qel&&!charm&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pxf","qel&&!charm&&pdgf==111","perrsame");
      c->cd(2);
-     gst_0->Draw("pyf","qel&&pdgf==111","");
-     if(gst_1) gst_1->Draw("pyf","qel&&pdgf==111","perrsame");
+     gst_0->Draw("pyf","qel&&!charm&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pyf","qel&&!charm&&pdgf==111","perrsame");
      c->cd(3);
-     gst_0->Draw("pzf","qel&&pdgf==111","");
-     if(gst_1) gst_1->Draw("pzf","qel&&pdgf==111","perrsame");
+     gst_0->Draw("pzf","qel&&!charm&&pdgf==111","");
+     if(gst_1) gst_1->Draw("pzf","qel&&!charm&&pdgf==111","perrsame");
      c->cd(4);
-     gst_0->Draw("Ef","qel&&pdgf==111","");
-     if(gst_1) gst_1->Draw("Ef","qel&&pdgf==111","perrsame");
+     gst_0->Draw("Ef","qel&&!charm&&pdgf==111","");
+     if(gst_1) gst_1->Draw("Ef","qel&&!charm&&pdgf==111","perrsame");
      c->cd();
      ls->Clear();
      ls->SetHeader("Final state pi0's 4-momentum / QEL only");
@@ -1971,17 +1983,17 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      c->Clear();
      c->Divide(2,2);
      c->cd(1);
-     gst_0->Draw("pxf","qel&&pdgf==211","");
-     if(gst_1) gst_1->Draw("pxf","qel&&pdgf==211","perrsame");
+     gst_0->Draw("pxf","qel&&!charm&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pxf","qel&&!charm&&pdgf==211","perrsame");
      c->cd(2);
-     gst_0->Draw("pyf","qel&&pdgf==211","");
-     if(gst_1) gst_1->Draw("pyf","qel&&pdgf==211","perrsame");
+     gst_0->Draw("pyf","qel&&!charm&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pyf","qel&&!charm&&pdgf==211","perrsame");
      c->cd(3);
-     gst_0->Draw("pzf","qel&&pdgf==211","");
-     if(gst_1) gst_1->Draw("pzf","qel&&pdgf==211","perrsame");
+     gst_0->Draw("pzf","qel&&!charm&&pdgf==211","");
+     if(gst_1) gst_1->Draw("pzf","qel&&!charm&&pdgf==211","perrsame");
      c->cd(4);
-     gst_0->Draw("Ef","qel&&pdgf==211","");
-     if(gst_1) gst_1->Draw("Ef","qel&&pdgf==211","perrsame");
+     gst_0->Draw("Ef","qel&&!charm&&pdgf==211","");
+     if(gst_1) gst_1->Draw("Ef","qel&&!charm&&pdgf==211","perrsame");
      c->cd();
      ls->Clear();
      ls->SetHeader("Final state pi+'s 4-momentum / QEL only");
@@ -1993,17 +2005,17 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      c->Clear();
      c->Divide(2,2);
      c->cd(1);
-     gst_0->Draw("pxf","qel&&pdgf==-211","");
-     if(gst_1) gst_1->Draw("pxf","qel&&pdgf==-211","perrsame");
+     gst_0->Draw("pxf","qel&&!charm&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pxf","qel&&!charm&&pdgf==-211","perrsame");
      c->cd(2);
-     gst_0->Draw("pyf","qel&&pdgf==-211","");
-     if(gst_1) gst_1->Draw("pyf","qel&&pdgf==-211","perrsame");
+     gst_0->Draw("pyf","qel&&!charm&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pyf","qel&&!charm&&pdgf==-211","perrsame");
      c->cd(3);
-     gst_0->Draw("pzf","qel&&pdgf==-211","");
-     if(gst_1) gst_1->Draw("pzf","qel&&pdgf==-211","perrsame");
+     gst_0->Draw("pzf","qel&&!charm&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("pzf","qel&&!charm&&pdgf==-211","perrsame");
      c->cd(4);
-     gst_0->Draw("Ef","qel&&pdgf==-211","");
-     if(gst_1) gst_1->Draw("Ef","qel&&pdgf==-211","perrsame");
+     gst_0->Draw("Ef","qel&&!charm&&pdgf==-211","");
+     if(gst_1) gst_1->Draw("Ef","qel&&!charm&&pdgf==-211","perrsame");
      c->cd();
      ls->Clear();
      ls->SetHeader("Final state pi-'s 4-momentum/ QEL only");
@@ -2087,7 +2099,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      ls->Draw();
      c->Update();
      
-     //------ momentum of final state p /QEL
+     //------ momentum of final state p /RES
      ps->NewPage();
      c->Divide(2,2);
      c->cd(1);
