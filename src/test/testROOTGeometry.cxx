@@ -229,6 +229,14 @@ void GetRandomRay(TLorentzVector & x, TLorentzVector & p)
 
   x = xx;
   p = pp;
+
+  LOG("GeomTest", pNOTICE) 
+   << "** Curr ray:";
+  LOG("GeomTest", pNOTICE) 
+   << "    x = " << x.X() << ",  y = " << x.Y() << ",  z = " << x.Z();
+  LOG("GeomTest", pNOTICE) 
+   << "    px = " << p.X() << ", py = " << p.Y() << ", pz = " << p.Z();
+
 }
 //____________________________________________________________________________
 int GetTargetMaterial(const PathLengthList & pl)
