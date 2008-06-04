@@ -915,7 +915,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // number of times to cycle through the jnubeam flux ntuple contents
   try {
     LOG("gT2Kevgen", pDEBUG) << "Reading number of flux ntuple cycles";
-    gOptFluxNCycles = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'c');
+    gOptFluxNCycles = genie::utils::clap::CmdLineArgAsInt(argc,argv,'c');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gT2Kevgen", pDEBUG)
