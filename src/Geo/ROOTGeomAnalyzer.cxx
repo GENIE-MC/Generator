@@ -531,8 +531,9 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
          TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
          int Nelements = mixt->GetNelements();
          for(int i=0; i<Nelements; i++) {
-            TGeoElement * ele = mixt->GetElement(i);
-            int ion_pdgc = this->GetTargetPdgCode(ele);
+//          TGeoElement * ele = mixt->GetElement(i);
+//          int ion_pdgc = this->GetTargetPdgCode(ele);
+            int ion_pdgc = this->GetTargetPdgCode(mixt,i);
             fCurrPDGCodeList->push_back(ion_pdgc);
          }
       } else {
@@ -909,10 +910,14 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture * mixt, int pdgc)
 
   if(nm>1) {
      for(int j = 0; j < mixt->GetNelements(); j++) {
-           TGeoElement * e = mixt->GetElement(j);
+//         TGeoElement * e = mixt->GetElement(j);
            LOG("GROOTGeom", pWARN)
-              << "[" << j << "] Z = " << e->Z() << ", A = " << e->A()
-              << " (pdgc = " << this->GetTargetPdgCode(e)
+//            << "[" << j << "] Z = " << e->Z() 
+//            << ", A = " << e->A()
+//            << " (pdgc = " << this->GetTargetPdgCode(e)
+              << "[" << j << "] Z = " << mixt->GetZmixt()[j] 
+              << ", A = " << mixt->GetAmixt()[j]
+              << " (pdgc = " << this->GetTargetPdgCode(mixt,j)
               << "), w = " << mixt->GetWmixt()[j];
      }
      LOG("GROOTGeom", pERROR)
@@ -936,7 +941,8 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture* mixt, int ielement, int pdgc)
 // Return the weight only if the element's pdg code matches the input code.
 // Weight is in the curr geom density units.
 //
-  int ion_pdgc = this->GetTargetPdgCode(mixt->GetElement(ielement));
+//  int ion_pdgc = this->GetTargetPdgCode(mixt->GetElement(ielement));
+  int ion_pdgc = this->GetTargetPdgCode(mixt, ielement);
   if(ion_pdgc != pdgc) return 0.;
 
   double d = mixt->GetDensity();         // mixture density (curr geom units)
@@ -972,9 +978,10 @@ bool ROOTGeomAnalyzer::FindMaterialInCurrentVol(int tgtpdg)
     TGeoMaterial * mat = vol->GetMedium()->GetMaterial();
     if(mat->IsMixture()) {
       TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
-      for(int imat = 0; imat < mixt->GetNelements(); imat++) {
-         TGeoElement * ele = mixt->GetElement(imat);
-         int pdg = this->GetTargetPdgCode(ele);
+      for(int i = 0; i < mixt->GetNelements(); i++) {
+//       TGeoElement * ele = mixt->GetElement(i);
+//       int pdg = this->GetTargetPdgCode(ele);
+         int pdg = this->GetTargetPdgCode(mixt, i);
          if(tgtpdg == pdg) return true;
       }
     } else {
@@ -1111,6 +1118,18 @@ int ROOTGeomAnalyzer::GetTargetPdgCode(const TGeoMaterial * const m) const
   return pdgc;
 }
 //___________________________________________________________________________
+int ROOTGeomAnalyzer::GetTargetPdgCode(
+                     const TGeoMixture * const m, int ielement) const
+{
+  int A = TMath::Nint(m->GetAmixt()[ielement]);
+  int Z = TMath::Nint(m->GetZmixt()[ielement]);
+
+  int pdgc = pdg::IonPdgCode(A,Z);
+
+  return pdgc;
+}
+//___________________________________________________________________________
+/*
 int ROOTGeomAnalyzer::GetTargetPdgCode(const TGeoElement * const e) const
 {
   int A = TMath::Nint(e->A());
@@ -1121,4 +1140,4 @@ int ROOTGeomAnalyzer::GetTargetPdgCode(const TGeoElement * const e) const
   return pdgc;
 }
 //___________________________________________________________________________
-
+*/
