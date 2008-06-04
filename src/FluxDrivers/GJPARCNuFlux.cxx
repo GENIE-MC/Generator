@@ -45,6 +45,11 @@
    into account the flux ntuple recycling. At complete cycles the reported
    number is not just the average POT but the exact POT.
    Removed the older ActualPOT() method.
+ @ June 4, 2008 - CA, AM
+   Small modification at the POT normalization to account for the fact that
+   flux neutrinos get de-weighted before passed to the event generation code.
+   Now pot = file_pot/max_wght rather than file_pot*(nneutrinos/sum_wght)
+
 */
 //____________________________________________________________________________
 
@@ -284,7 +289,13 @@ double GJPARCNuFlux::POT_1cycle(void)
           << "The flux driver has not been properly configured";
      return 0;	
   }
-  double pot = fNNeutrinosTot1c*fFilePOT/fSumWeightTot1c;
+
+// double pot = fFilePOT * (fNNeutrinosTot1c/fSumWeightTot1c);
+//
+// Use the max weight instead, since flux neutrinos get de-weighted
+// before thrown to the event generation driver
+//
+  double pot = fFilePOT / fMaxWeight;
   return pot;
 }
 //___________________________________________________________________________
@@ -299,7 +310,14 @@ double GJPARCNuFlux::POT_curravg(void)
           << "The flux driver has not been properly configured";
      return 0;	
   }
-  double pot = fNNeutrinos*fFilePOT/fSumWeightTot1c;
+
+// double pot = fNNeutrinos*fFilePOT/fSumWeightTot1c;
+//
+// See also comment at POT_1cycle()
+//
+  double cnt   = (double)fNNeutrinos;
+  double cnt1c = (double)fNNeutrinosTot1c;
+  double pot  = (cnt/cnt1c) * this->POT_1cycle();
   return pot;
 }
 //___________________________________________________________________________
