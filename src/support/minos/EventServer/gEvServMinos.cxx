@@ -367,7 +367,7 @@ void CalcTotalXSec(string mesg)
   double dE   =   0.200;
   double Emin =   0.010;
   double Emax = 200.010;
-  int    np   = TMath::Ceil((Emax-Emin)/dE);
+  int    np   = (int) TMath::Ceil((Emax-Emin)/dE);
 
   ostringstream xsec_hdr;
   xsec_hdr <<  kXSecCmdSent << ":" << np;
