@@ -460,14 +460,11 @@ Use the "Default" one to get the best GENIE physics & tuning.
 
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  GIBUU-specific parameters:
+  Particle decayer parameters
   -->
-
- <!-- 	
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  FLUKA-specific parameters:
-  -->
+  <param type="bool" name="ForceCharmedHadronDecay"> false </param>
   
+
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Specify which cross section model is to be used by each GENIE event generation thread.
