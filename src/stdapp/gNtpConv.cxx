@@ -503,7 +503,7 @@ void ConvertToGT2KRooTracker(void)
   double      brEvtDXSec;                 // cross section for selected event kinematics (1E-38 cm2 /{K^n})
   double      brEvtWght;                  // weight for that event
   double      brEvtProb;                  // probability for that event (given cross section, path lengths, etc)
-  double      brEvtVtx[4];                // event vertex position in detector coord syst (in geom units)
+  double      brEvtVtx[4];                // event vertex position in detector coord syst (SI)
   int         brStdHepN;                  // number of particles in particle array 
   // > stdhep-like particle array:
   int         brStdHepPdg   [kNPmax];     // pdg codes (& generator specific codes for pseudoparticles)
@@ -515,10 +515,10 @@ void ConvertToGT2KRooTracker(void)
   int         brStdHepLd    [kNPmax];     // last  daughter 
   int         brStdHepFm    [kNPmax];     // first mother
   int         brStdHepLm    [kNPmax];     // last  mother
-  // > neutrino parent info:
+  // > neutrino parent info (passed-through from the beam-line MC / quantities in 'jnubeam' units)
   int         brNuParentPdg;              // parent hadron pdg code
   int         brNuParentDecMode;          // parent hadron decay mode
-  double      brNuParentDecP4 [4];        // parent hadron 4-momentum at decay
+  double      brNuParentDecP4 [4];        // parent hadron 4-momentum at decay 
   double      brNuParentDecX4 [4];        // parent hadron 4-position at decay
   double      brNuParentProP4 [4];        // parent hadron 4-momentum at production
   double      brNuParentProX4 [4];        // parent hadron 4-position at production
@@ -528,7 +528,7 @@ void ConvertToGT2KRooTracker(void)
   TFile fout(gOptOutFileName.c_str(), "RECREATE");
 
   //-- create the output ROOT tree
-  TTree * rootracker_tree = new TTree("gRooTracker","");
+  TTree * rootracker_tree = new TTree("gRooTracker","GENIE event tree for T2K in rootracker format");
 
   //-- create the output ROOT tree branches
   rootracker_tree->Branch("EvtFlags", "TBits",      &brEvtFlags, 32000, 1);           
@@ -559,23 +559,23 @@ void ConvertToGT2KRooTracker(void)
 
   //-- open the input GENIE ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
-  TTree *           tree = 0;
-  NtpMCTreeHeader * thdr = 0;
-  tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
-  thdr = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
+  TTree *           gtree = 0;
+  NtpMCTreeHeader * thdr  = 0;
+  gtree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
+  thdr  = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
 
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
-  tree->SetBranchAddress("gmcrec", &mcrec);
+  gtree->SetBranchAddress("gmcrec", &mcrec);
 
   flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
-  tree->SetBranchAddress("flux", &flux_info);
+  gtree->SetBranchAddress("flux", &flux_info);
 
   //-- event loop
-  for(gIEv = 0; gIEv< tree->GetEntries(); gIEv++) {
-    tree->GetEntry(gIEv);
+  for(gIEv = 0; gIEv< gtree->GetEntries(); gIEv++) {
+    gtree->GetEntry(gIEv);
 
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
@@ -584,7 +584,11 @@ void ConvertToGT2KRooTracker(void)
     LOG("gntpc", pINFO) << rec_header;
     LOG("gntpc", pINFO) << event;
     LOG("gntpc", pINFO) << *interaction;
-    LOG("gntpc", pINFO) << *flux_info;
+    if(flux_info) {
+       LOG("gntpc", pINFO) << *flux_info;
+    } else {
+       LOG("gntpc", pINFO) << "No flux info associated with that event";
+    }
 
     //
     // clear output tree branches
@@ -670,40 +674,46 @@ void ConvertToGT2KRooTracker(void)
         brStdHepLm    [iparticle] = p->LastMother(); 
         iparticle++;
     }
+    // Copy flux info - that may not be available, eg if events were generated using 
+    // plain flux histograms - not the beam simulation's output flux ntuples
+    if(flux_info) {
+       brNuParentPdg       = flux_info->pdg;        
+       brNuParentDecMode   = flux_info->decayMode;        
 
-    brNuParentPdg       = flux_info->pdg;        
-    brNuParentDecMode   = flux_info->decayMode;        
+       brNuParentDecP4 [0] = flux_info->decayP * flux_info->decayDirX; // px
+       brNuParentDecP4 [1] = flux_info->decayP * flux_info->decayDirY; // py
+       brNuParentDecP4 [2] = flux_info->decayP * flux_info->decayDirZ; // px
+       brNuParentDecP4 [3] = TMath::Sqrt(
+                                 TMath::Power(pdglib->Find(flux_info->pdg)->Mass(), 2.)
+                               + TMath::Power(flux_info->decayP, 2.)
+                              ); // E
+       brNuParentDecX4 [0] = flux_info->decayX; // x
+       brNuParentDecX4 [1] = flux_info->decayY; // y       
+       brNuParentDecX4 [2] = flux_info->decayZ; // x   
+       brNuParentDecX4 [3] = 0;                 // t
 
-    brNuParentDecP4 [0] = flux_info->decayP * flux_info->decayDirX; // px
-    brNuParentDecP4 [1] = flux_info->decayP * flux_info->decayDirY; // py
-    brNuParentDecP4 [2] = flux_info->decayP * flux_info->decayDirZ; // px
-    brNuParentDecP4 [3] = TMath::Sqrt(
-                              TMath::Power(pdglib->Find(flux_info->pdg)->Mass(), 2.)
-                            + TMath::Power(flux_info->decayP, 2.)
-                           ); // E
-    brNuParentDecX4 [0] = flux_info->decayX; // x
-    brNuParentDecX4 [1] = flux_info->decayY; // y       
-    brNuParentDecX4 [2] = flux_info->decayZ; // x   
-    brNuParentDecX4 [3] = 0; // t
+       brNuParentProP4 [0] = flux_info->prodP * flux_info->prodDirX; // px
+       brNuParentProP4 [1] = flux_info->prodP * flux_info->prodDirY; // py
+       brNuParentProP4 [2] = flux_info->prodP * flux_info->prodDirZ; // px
+       brNuParentProP4 [3] = TMath::Sqrt(
+                                TMath::Power(pdglib->Find(flux_info->pdg)->Mass(), 2.)
+                              + TMath::Power(flux_info->prodP, 2.)
+                              ); // E
+       brNuParentProX4 [0] = flux_info->prodX; // x
+       brNuParentProX4 [1] = flux_info->prodY; // y       
+       brNuParentProX4 [2] = flux_info->prodZ; // x   
+       brNuParentProX4 [3] = 0;                // t
 
-    brNuParentProP4 [0] = flux_info->prodP * flux_info->prodDirX; // px
-    brNuParentProP4 [1] = flux_info->prodP * flux_info->prodDirY; // py
-    brNuParentProP4 [2] = flux_info->prodP * flux_info->prodDirZ; // px
-    brNuParentProP4 [3] = TMath::Sqrt(
-                              TMath::Power(pdglib->Find(flux_info->pdg)->Mass(), 2.)
-                            + TMath::Power(flux_info->prodP, 2.)
-                           ); // E
-    brNuParentProX4 [0] = flux_info->prodX; // x
-    brNuParentProX4 [1] = flux_info->prodY; // y       
-    brNuParentProX4 [2] = flux_info->prodZ; // x   
-    brNuParentProX4 [3] = 0; // t
-
-    brNuParentProNVtx   = flux_info->prodNVtx;
-
+       brNuParentProNVtx   = flux_info->prodNVtx;
+    }
     rootracker_tree->Fill();
     mcrec->Clear();
 
   } // event loop
+
+  // Copy POT normalization for the generated sample
+  double pot = gtree->GetWeight();
+  rootracker_tree->SetWeight(pot);
 
   fin.Close();
 
