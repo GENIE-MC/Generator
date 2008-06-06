@@ -10,7 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Jun 05, 2008 - CA
+   Added option to force charmed hadron decays
 */
 //____________________________________________________________________________
 
@@ -25,6 +26,7 @@
 #endif
 #include <TParticlePDG.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
 #include "Decay/DecayModelI.h"
@@ -186,7 +188,19 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
           kPdgomega,kPdgPhi };
 
     const int N = sizeof(particles_to_decay) / sizeof(int);
-    int matches = count(particles_to_decay, particles_to_decay+N, pdg_code);
+    int matches = count (particles_to_decay, 
+                         particles_to_decay+N, pdg_code);
+
+    if(fForceCharmedHadronDecay) {
+       int charmed_particles_produced[] = {
+         kPdgDP, kPdgDM, 
+         kPdgD0, kPdgAntiD0,
+         kPdgDPs, kPdgDMs,
+         kPdgLambdaPc, kPdgSigmaPc, kPdgSigmaPPc };
+         const int Nc = sizeof(charmed_particles_produced) / sizeof(int);
+         matches += count (charmed_particles_produced, 
+                           charmed_particles_produced+Nc, pdg_code);
+    }
 
     if(matches > 0 || utils::res::IsBaryonResonance(pdg_code)) return true;
   } 
@@ -253,6 +267,9 @@ void UnstableParticleDecayer::Configure(string config)
 //___________________________________________________________________________
 void UnstableParticleDecayer::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   //-- Get the specified maximum lifetime tmax (decay with lifetime < tmax)
   //
   fMaxLifetime = fConfig->GetDoubleDef("MaxLifetime", 1e-9);
@@ -273,6 +290,14 @@ void UnstableParticleDecayer::LoadConfig(void)
   //   transport MC.
   //
   fRunBefHadroTransp = fConfig->GetBool("RunBeforeHadronTransport");
+
+  //-- Force charmed meson decays?
+  //   Plain-vanilla Geant4 doesn't have decay tables for charmed hadrons
+  //   and decaying those hadrons may be expected from the generator
+  //
+  fForceCharmedHadronDecay = 
+            fConfig->GetBoolDef("force_charm_decay", 
+                                gc->GetBool("ForceCharmedHadronDecay"));
 
   //-- Load particle decayers
   //   Order is important if both decayers can handle a specific particle
