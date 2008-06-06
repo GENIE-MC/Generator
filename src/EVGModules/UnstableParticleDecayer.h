@@ -59,11 +59,11 @@ private:
   void  CopyToEventRecord (TClonesArray * dp, GHepRecord * ev, GHepParticle * p,
                            int mother_pos, bool in_nucleus) const;
 
-  double fMaxLifetime;       ///< define "unstable" particle?
-  bool   fRunBefHadroTransp; ///< is being run before or after hadron transport?
+  double fMaxLifetime;             ///< define "unstable" particle
+  bool   fRunBefHadroTransp;       ///< is being run before or after hadron transport?
+  bool   fForceCharmedHadronDecay; ///< force charmed hadron decays?
 
-  vector<const DecayModelI *> * fDecayers; ///< list of all specified decayers
-
+  vector <const DecayModelI *> * fDecayers; ///< list of all specified decayers
   mutable const DecayModelI * fCurrDecayer; ///< current selected decayer
 
 };
