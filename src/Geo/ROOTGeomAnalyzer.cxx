@@ -29,6 +29,10 @@
    for long as the relevant quantities were used in ratios & the extra 
    multiplicative factor was cancelled out. It was spotted when we tried to
    work out T2K event sample normalization in terms of POTs.
+ @ June 4, 2008 - CA
+   Modified code forming pdg codes in case of mixtures: Getting A from
+   TGeoMixture::GetAmixt()[ielement] rather than TGeoElement::GetA().
+   Updated code enables GENIE to see all isotopes in the fixed nd280 geometry.
 */
 //____________________________________________________________________________
 
@@ -531,8 +535,6 @@ void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
          TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
          int Nelements = mixt->GetNelements();
          for(int i=0; i<Nelements; i++) {
-//          TGeoElement * ele = mixt->GetElement(i);
-//          int ion_pdgc = this->GetTargetPdgCode(ele);
             int ion_pdgc = this->GetTargetPdgCode(mixt,i);
             fCurrPDGCodeList->push_back(ion_pdgc);
          }
@@ -910,11 +912,7 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture * mixt, int pdgc)
 
   if(nm>1) {
      for(int j = 0; j < mixt->GetNelements(); j++) {
-//         TGeoElement * e = mixt->GetElement(j);
            LOG("GROOTGeom", pWARN)
-//            << "[" << j << "] Z = " << e->Z() 
-//            << ", A = " << e->A()
-//            << " (pdgc = " << this->GetTargetPdgCode(e)
               << "[" << j << "] Z = " << mixt->GetZmixt()[j] 
               << ", A = " << mixt->GetAmixt()[j]
               << " (pdgc = " << this->GetTargetPdgCode(mixt,j)
@@ -979,8 +977,6 @@ bool ROOTGeomAnalyzer::FindMaterialInCurrentVol(int tgtpdg)
     if(mat->IsMixture()) {
       TGeoMixture * mixt = dynamic_cast <TGeoMixture*> (mat);
       for(int i = 0; i < mixt->GetNelements(); i++) {
-//       TGeoElement * ele = mixt->GetElement(i);
-//       int pdg = this->GetTargetPdgCode(ele);
          int pdg = this->GetTargetPdgCode(mixt, i);
          if(tgtpdg == pdg) return true;
       }
@@ -1129,15 +1125,3 @@ int ROOTGeomAnalyzer::GetTargetPdgCode(
   return pdgc;
 }
 //___________________________________________________________________________
-/*
-int ROOTGeomAnalyzer::GetTargetPdgCode(const TGeoElement * const e) const
-{
-  int A = TMath::Nint(e->A());
-  int Z = e->Z();
-
-  int pdgc = pdg::IonPdgCode(A,Z);
-
-  return pdgc;
-}
-//___________________________________________________________________________
-*/

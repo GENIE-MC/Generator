@@ -94,7 +94,6 @@ private:
   void   MaxPathLengthsFluxMethod(void);
   int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
   int    GetTargetPdgCode        (const TGeoMixture * const m, int ielement) const;
-//int    GetTargetPdgCode        (const TGeoElement  * const e) const;
   double ComputePathLengthPDG    (const TVector3 & r, const TVector3 & udir, int pdgc);
   double GetWeight               (TGeoMaterial * mat, int pdgc);
   double GetWeight               (TGeoMixture * mixt, int pdgc);
