@@ -25,7 +25,7 @@ TGT =    gEvGen		  \
 	 gNtpConv	  \
  	 gNC2ElectronScat \
 	 gSplinePlotter	  \
-	 gMCSampleTest	  \
+	 gVldSampleComp	  \
 	 ghAEvGen         \
 	 gViewer	
 
@@ -72,11 +72,11 @@ gSplinePlotter: FORCE
 	$(CXX) $(CXXFLAGS) -c gSplinePlotter.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gSplinePlotter.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsplt
 
-# gmctest MC sample testing utility
+#  sample testing/comparison utility
 #
-gMCSampleTest: FORCE
-	$(CXX) $(CXXFLAGS) -c gMCSampleTest.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gMCSampleTest.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmctest
+gVldSampleComp: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldSampleComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldSampleComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sample_comp
 
 
 # gnc2eN program converting NC events to electron scattering events
@@ -116,7 +116,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_PATH)/gnc2eN  
 	$(RM) $(GENIE_BIN_PATH)/gsplt		
-	$(RM) $(GENIE_BIN_PATH)/gmctest	
+	$(RM) $(GENIE_BIN_PATH)/gvld_sample_comp
 	$(RM) $(GENIE_BIN_PATH)/ghAevgen
 	$(RM) $(GENIE_BIN_PATH)/gviewer	
 
@@ -128,7 +128,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnc2eN		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gsplt		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmctest	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sample_comp
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/ghAevgen	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gviewer	
 
@@ -153,8 +153,8 @@ clean-gNC2ElectronScat: FORCE
 clean--gSplinePlotter: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gsplt
 
-clean--gMCSampleTest: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmctest
+clean--gVldSampleComp: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gvld_sample_comp
 
 clean--ghAEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen
