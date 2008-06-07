@@ -19,6 +19,7 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 TGT =    gEvGen		  \
+	 gEvGenGUI	  \
 	 gMakeSplines	  \
 	 gSplineAdd   	  \
 	 gMaxPathLengths  \
@@ -27,7 +28,6 @@ TGT =    gEvGen		  \
 	 gSplinePlotter	  \
 	 gVldSampleComp	  \
 	 ghAEvGen         \
-	 gViewer	
 
 all: $(TGT)
 
@@ -36,6 +36,17 @@ all: $(TGT)
 gEvGen: FORCE
 	$(CXX) $(CXXFLAGS) -c gEvGen.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen 
+
+
+# A gevgen GUI (in devel)
+#
+gEvGenGUI: FORCE
+ifeq ($(strip $(GOPT_ENABLE_VIEWER)),YES)
+	$(CXX) $(CXXFLAGS) -c gEvGenGUI.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvGenGUI.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_gui
+else
+	@echo "You need to enable the Viewer package to build the gevgen_gui utility"
+endif
 
 # gmkspl x-section spline building utility
 #
@@ -58,7 +69,6 @@ ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 else
 	@echo "You need to enable the flux drivers to build the gmxpl utility"
 endif
-
 
 # gntpc ntuple conversion utility
 #
@@ -91,16 +101,6 @@ ghAEvGen: FORCE
 	$(CXX) $(CXXFLAGS) -c ghAEvGen.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) ghAEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ghAevgen
 
-# gviewer MC event viewing utility
-#
-gViewer: FORCE
-ifeq ($(strip $(GOPT_ENABLE_VIEWER)),YES)
-	$(CXX) $(CXXFLAGS) -c gViewer.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gViewer.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gviewer
-else
-	@echo "You need to enable the viewer to build the gviewer utility"
-endif
-
 
 #################### CLEANING
 
@@ -110,6 +110,7 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core
 	$(RM) $(GENIE_BIN_PATH)/gevgen		
+	$(RM) $(GENIE_BIN_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_PATH)/gmxpl		
@@ -118,10 +119,11 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gsplt		
 	$(RM) $(GENIE_BIN_PATH)/gvld_sample_comp
 	$(RM) $(GENIE_BIN_PATH)/ghAevgen
-	$(RM) $(GENIE_BIN_PATH)/gviewer	
+	$(RM) $(GENIE_BIN_PATH)/gviewer
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
@@ -134,6 +136,9 @@ distclean: FORCE
 
 clean--gEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen
+
+clean--gEvGenGUI: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_gui
 
 clean--gMakeSplines: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmkspl
@@ -158,9 +163,6 @@ clean--gVldSampleComp: FORCE
 
 clean--ghAEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen
-
-clean--gViewer: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gviewer
 
 FORCE:
 
