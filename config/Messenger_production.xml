@@ -142,7 +142,7 @@
 
   <priority msgstream="gevgen">              WARN   </priority>
   <priority msgstream="ngevgen">             WARN   </priority>
-  <priority msgstream="gmctest">             WARN   </priority>
+  <priority msgstream="gvldtest">            WARN   </priority>
   <priority msgstream="gntpc">               WARN   </priority>
   <priority msgstream="gmkspl">              WARN   </priority>
   <priority msgstream="gT2Kevgen">           WARN   </priority>
