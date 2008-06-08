@@ -588,11 +588,11 @@ int main(int argc, char ** argv)
   // * Print job statistics & 
   // * calculate normalization factor for the generated sample
   // *************************************************************************
-  if(!gOptUsingHistFlux) 
+  if(!gOptUsingHistFlux && gOptUsingRootGeom) 
   {
     // POT normalization will only be calculated if event generation was based
-    // on beam simulation outputs (not just histograms) & if event generation
-    // was not cut short (flux friver reached the end of flux ntuple)
+    // on beam simulation  outputs (not just histograms) & a detailed detector
+    // geometry description.
     double fpot = jparc_flux_driver->POT_curravg(); // current POT in flux file 
     double psc  = mcj_driver->GlobProbScale();      // interaction prob. scale 
     double pot  = fpot / psc;                       // POT for generated sample
@@ -1008,6 +1008,17 @@ void GetCommandLineArgs(int argc, char ** argv)
        PrintSyntax();
        exit(1);
      }
+  }
+  // If we don't use a detailed ROOT detector geometry (but just a target mix) then 
+  // don't accept POT as a way to control job statistics (not enough info is passed
+  // in the target mix to compute POT & the calculation can be easily done offline)
+  if(!gOptUsingRootGeom) {
+    if(gOptPOT > 0) {
+       LOG("gT2Kevgen", pFATAL) 
+         << "You may not use the -e, -E options "
+         << "without a detailed detector geometry description input";
+       exit(1);
+    }
   }
 
   //
