@@ -25,13 +25,9 @@
 using namespace genie;
 
 #ifdef __GENIE_LHAPDF_ENABLED__
-
+//
 //the actual LHAPDF calls
-/*
-extern "C" void InitPDFsetByName_(char name[20]);
-extern "C" void InitPDFmem_(int nmem);
-extern "C" void evolvePDF_(double x, double Q, double f[12]);
-*/
+//
 extern "C" void initpdfsetbyname_(char name[20]);
 extern "C" void initpdfmem_(int nmem);
 extern "C" void evolvepdf_(double x, double Q, double f[12]);
@@ -129,10 +125,10 @@ PDF_t LHAPDF::AllPDFs(double x, double q2) const
 
 #else
   LOG("PDF", pERROR) 
-     << " ** LHAPDF is not enabled duing the GENIE cofiguration";
+     << " ** LHAPDF was not enabled during the GENIE configuration";
   LOG("PDF", pERROR) 
      << " ** To use the LHAPDF library use"
-     << " --enable-lhapdf --with-lhapdf-lif=/some/path/libLHAPDF.a";
+     << " --enable-lhapdf --with-lhapdf-lib=/some/path/libLHAPDF.a";
 #endif
 
   return pdf;                                               
@@ -177,10 +173,10 @@ void LHAPDF::SetPDFSetFromConfig(void) const
 
 #else
   LOG("PDF", pERROR) 
-     << " ** LHAPDF is not enabled duing the GENIE cofiguration";
+     << " ** LHAPDF was not enabled during the GENIE configuration";
   LOG("PDF", pERROR) 
      << " ** To use the LHAPDF library use"
-     << " --enable-lhapdf --with-lhapdf-lif=/some/path/libLHAPDF.a";
+     << " --enable-lhapdf --with-lhapdf-lib=/some/path/libLHAPDF.a";
 #endif
 }
 //____________________________________________________________________________
