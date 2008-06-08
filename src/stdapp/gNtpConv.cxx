@@ -168,6 +168,8 @@ void ConvertToGST(void)
   int    brIev         = 0;      // Event number 
   int    brNeutrino    = 0;      // Neutrino pdg code
   int    brTarget      = 0;      // Nuclear target pdg code (10LZZZAAAI)
+  int    brTargetZ     = 0;      // Nuclear target Z (extracted from pdg code above)
+  int    brTargetA     = 0;      // Nuclear target A (extracted from pdg code above)
   int    brHitNuc      = 0;      // Hit nucleon pdg code      (not set for COH,IMD and NuEL events)
   int    brHitQrk      = 0;      // Hit quark pdg code        (set for DIS events only)
   bool   brFromSea     = false;  // Hit quark is from sea     (set for DIS events only)
@@ -234,6 +236,10 @@ void ConvertToGST(void)
   double brPxi [kNPmax];         // Px       of i^th particle in 'primary' hadronic system 
   double brPyi [kNPmax];         // Py       of i^th particle in 'primary' hadronic system 
   double brPzi [kNPmax];         // Pz       of i^th particle in 'primary' hadronic system 
+  double brVtxX;                 // Vertex x in detector coord system (SI)
+  double brVtxY;                 // Vertex y in detector coord system (SI)
+  double brVtxZ;                 // Vertex z in detector coord system (SI)
+  double brVtxT;                 // Vertex t in detector coord system (SI)
 
   //-- open output file & create output summary tree & create the tree branches
   //
@@ -248,6 +254,8 @@ void ConvertToGST(void)
   s_tree->Branch("iev",       &brIev,       "iev/I"       );
   s_tree->Branch("neu",	      &brNeutrino,  "neu/I"	  );
   s_tree->Branch("tgt",       &brTarget,    "tgt/I"	  );
+  s_tree->Branch("Z",         &brTargetZ,   "Z/I"	  );
+  s_tree->Branch("A",         &brTargetA,   "A/I"	  );
   s_tree->Branch("hitnuc",    &brHitNuc,    "hitnuc/I"    );
   s_tree->Branch("hitqrk",    &brHitQrk,    "hitqrk/I"    );
   s_tree->Branch("resid",     &brResId,	    "resid/I"	  );
@@ -314,6 +322,10 @@ void ConvertToGST(void)
   s_tree->Branch("pxf",	       brPxf,	    "pxf[nf]/D"   );
   s_tree->Branch("pyf",	       brPyf,	    "pyf[nf]/D"   );
   s_tree->Branch("pzf",	       brPzf,	    "pzf[nf]/D"   );
+  s_tree->Branch("vtxx",      &brVtxX,	    "vtxx/D"      );
+  s_tree->Branch("vtxy",      &brVtxY,	    "vtxy/D"      );
+  s_tree->Branch("vtxz",      &brVtxZ,	    "vtxz/D"      );
+  s_tree->Branch("vtxt",      &brVtxT,	    "vtxt/D"      );
 
   //-- open the ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
@@ -321,12 +333,10 @@ void ConvertToGST(void)
   NtpMCTreeHeader * thdr    = 0;
   er_tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
   thdr    = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
-
   if (!er_tree) {
     LOG("gntpc", pERROR) << "Null input ER tree";
     return;
   }
-
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
   //-- get the mc record
@@ -393,6 +403,15 @@ void ConvertToGST(void)
     GHepParticle * fsl = event.FinalStatePrimaryLepton();
     assert(fsl);
     GHepParticle * hitnucl = event.HitNucleon();
+
+    int tgtZ = 0;
+    int tgtA = 0;
+    if(pdg::IsIon(target->Pdg())) {
+       tgtZ = pdg::IonPdgCodeToZ(target->Pdg());
+       tgtA = pdg::IonPdgCodeToA(target->Pdg());
+    } 
+    if(target->Pdg() == kPdgProton ) { tgtZ = 1; tgtA = 1; }    
+    if(target->Pdg() == kPdgNeutron) { tgtZ = 0; tgtA = 1; }    
   
     //summary info
     const Interaction * interaction = event.Summary();
@@ -401,6 +420,9 @@ void ConvertToGST(void)
     const Kinematics &   kine       = interaction->Kine();
     const XclsTag &      xcls       = interaction->ExclTag();
     const Target &       tgt        = init_state.Tgt();
+
+    //vertex in detector coord system
+    TLorentzVector * vtx = event.Vertex();
 
     //process id
     bool is_qel    = proc_info.IsQuasiElastic();
@@ -609,7 +631,9 @@ void ConvertToGST(void)
     //
     brIev        = (int) iev;      
     brNeutrino   = neutrino->Pdg();      
-    brTarget     = target->Pdg();      
+    brTarget     = target->Pdg(); 
+    brTargetZ    = tgtZ;
+    brTargetA    = tgtA;   
     brHitNuc     = (hitnucl) ? hitnucl->Pdg() : 0;      
     brHitQrk     = qrk;     
     brFromSea    = seaq;  
@@ -739,6 +763,11 @@ void ConvertToGST(void)
      << ", N(K+,K-,K0):"    << brNfKp+brNfKm+brNfK0
      << ", N(gamma,e-,e+):" << brNfEM
      << ", N(etc):"         << brNfOther << "\n";
+
+    brVtxX = vtx->X();   
+    brVtxY = vtx->Y();   
+    brVtxZ = vtx->Z();   
+    brVtxT = vtx->T();
 
     s_tree->Fill();
 
@@ -1689,7 +1718,7 @@ void PrintSyntax(void)
 {
   string basedir  = string( gSystem->Getenv("GENIE") );
   string thisfile = basedir + string("/src/stdapp/gNtpConv.cxx");
-  string cmd      = "more " + thisfile;
+  string cmd      = "less " + thisfile;
 
   gSystem->Exec(cmd.c_str());
 }
