@@ -407,9 +407,9 @@ double Spline::Evaluate(double x) const
   }
 
   if(y<0) {
-    LOG("Spline", pERROR) << "Negative y (" << y << ")";
-    LOG("Spline", pERROR) << "x = " << x;
-    LOG("Spline", pERROR) << "spline range [" << fXMin << ", " << fXMax << "]";
+    LOG("Spline", pINFO) << "Negative y (" << y << ")";
+    LOG("Spline", pINFO) << "x = " << x;
+    LOG("Spline", pINFO) << "spline range [" << fXMin << ", " << fXMax << "]";
   }
 
   LOG("Spline", pDEBUG) << "Spline(x = " << x << ") = " << y;
