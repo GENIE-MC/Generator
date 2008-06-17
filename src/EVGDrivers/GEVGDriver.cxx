@@ -20,6 +20,8 @@
    factory rather than creating / configuring an instance on my own. 
    That is preventing the rare failure mode seen by Anselmo M. where the
    interaction selector configuration was silently failing.
+ @ June 17, 2008 - CA
+   Protect against round-off err in the cross section spline evaluation
 */
 //____________________________________________________________________________
 
@@ -414,6 +416,8 @@ double GEVGDriver::XSecSum(const TLorentzVector & nup4)
         xsec = xssl->GetSpline(xsec_alg,interaction)->Evaluate(E);
      } else
         xsec = xsec_alg->Integral(interaction);
+
+     xsec = TMath::Max(0., xsec);
 
      // sum-up and report
      xsec_sum += xsec;
