@@ -49,7 +49,8 @@
    Small modification at the POT normalization to account for the fact that
    flux neutrinos get de-weighted before passed to the event generation code.
    Now pot = file_pot/max_wght rather than file_pot*(nneutrinos/sum_wght)
-
+ @ June 19, 2008 - CA
+   Removing some LOG() mesgs speeds up GenerateNext() by a factor of 20 (!)
 */
 //____________________________________________________________________________
 
@@ -60,6 +61,7 @@
 #include <TSystem.h>
 
 #include "Conventions/Units.h"
+#include "Conventions/GBuild.h"
 #include "FluxDrivers/GJPARCNuFlux.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -95,9 +97,21 @@ bool GJPARCNuFlux::GenerateNext(void)
      // Check for end of flux ntuple
      bool end = this->End();        
      if(end) return false;
+
      // Get next weighted flux ntuple entry
      bool nextok = this->GenerateNext_weighted();
      if(!nextok) continue;
+
+     if(fNCycles==0) {
+       LOG("Flux", pNOTICE) 
+          << "Got flux entry: " << fIEntry 
+          << " - Cycle: "<< fICycle << "/ infinite"; 
+     } else {
+       LOG("Flux", pNOTICE) 
+          << "Got flux entry: "<< fIEntry 
+          << " - Cycle: "<< fICycle << "/"<< fNCycles; 
+     }
+
      // Get fractional weight & decide whether to accept curr flux neutrino
      double f = this->Weight() / fMaxWeight;
      LOG("Flux", pNOTICE) 
@@ -145,16 +159,6 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
      }
   }
 
-  if(fNCycles==0) {
-    LOG("Flux", pNOTICE) 
-      << "Reading flux entry: " << fIEntry 
-      << " - Cycle: " << fICycle << "/ infinite"; 
-  } else {
-    LOG("Flux", pNOTICE) 
-      << "Reading flux entry: " << fIEntry 
-      << " - Cycle: " << fICycle << "/" << fNCycles; 
-  }
-
   fNuFluxTree->GetEntry(fIEntry);
   fIEntry++;
 
@@ -162,8 +166,10 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // corresponds to a flux neutrino at the specified detector location
   if(fIsNDLoc           /* nd */  && 
      fDetLocId!=fLfIdfd /* doesn't match specified detector location*/) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("Flux", pNOTICE) 
           << "Current flux neutrino not at specified detector location";
+#endif
         return false;		
   }
 
@@ -245,11 +251,14 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
     fgX4.SetXYZT (0.,0.,0.,0.);
   
   }
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Flux", pINFO) 
 	<< "Generated neutrino: "
 	<< "\n pdg-code: " << fgPdgC
         << "\n p4: " << utils::print::P4AsShortString(&fgP4)
         << "\n x4: " << utils::print::X4AsString(&fgX4);
+#endif
 
   // Update pass-through info (= info on the flux neutrino parent particle 
   // that may be stored at an extra branch of the output event tree -alongside 
