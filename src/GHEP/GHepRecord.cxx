@@ -14,6 +14,9 @@
    Modified the algorithm for compactifying the daughter lists. The new 
    algorithm is more robust and avoids failure modes of the old algorithm
    which appeared once simulation of nuclear de-excitations was enabled.
+ @ Jun 20, 2008 - CA
+   Fixed memory leak in Print()
+
 */
 //____________________________________________________________________________
 
@@ -936,7 +939,7 @@ void GHepRecord::Print(ostream & stream) const
         stream << setfill(' ') << setw(7)  << p->Mass()        << " | ";
      else
         stream << setfill('*') << setw(7)  << p->Mass()        << " | M = " 
-               << p->GetP4()->M() << " ";
+               << p->P4()->M() << " ";
 
      if (p->PolzIsSet()) {
        p->GetPolarization(polarization);
