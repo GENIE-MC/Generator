@@ -24,7 +24,8 @@
    logarithmically for E>Ethr.
  @ Jun 20, 2008 - CA
    Fix a memory leak in LoadFromXml(). Arrays were not deleted after splines
-   instantiation.
+   instantiation. Also xmlChar* buffers got via xmlTextReaderGetAttribute()
+   were not passed to xmlFree().
 */
 //____________________________________________________________________________
 
@@ -312,27 +313,50 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                      << "\nXML doc. has invalid root element! [filename: " << filename << "]";
                    return kXmlInvalidRoot;
                }
+
+               xmlChar * xvrs   = xmlTextReaderGetAttribute(reader,(const xmlChar*)"version");
+               xmlChar * xinlog = xmlTextReaderGetAttribute(reader,(const xmlChar*)"uselog");
+               string svrs      = utils::str::TrimSpaces((const char *)xvrs);
+               string sinlog    = utils::str::TrimSpaces((const char *)xinlog);
+/*
                string svrs   = utils::str::TrimSpaces(
                    (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"version"));
                string sinlog = utils::str::TrimSpaces(
                    (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"uselog"));
+*/
                if (atoi(sinlog.c_str()) == 1) this->SetLogE(true);
                else this->SetLogE(false);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                LOG("XSecSplLst", pINFO) << "Vrs   = " << svrs;
                LOG("XSecSplLst", pINFO) << "InLog = " << sinlog;
+#endif
+               xmlFree(xvrs);
+               xmlFree(xinlog);
             }  
+
             if( (!xmlStrcmp(name, (const xmlChar *) "spline")) && type==kNodeTypeStartElement) {
+
+               xmlChar * xname = xmlTextReaderGetAttribute(reader,(const xmlChar*)"name");
+               xmlChar * xnkn  = xmlTextReaderGetAttribute(reader,(const xmlChar*)"nknots");
+               string sname    = utils::str::TrimSpaces((const char *)xname);
+               string snkn     = utils::str::TrimSpaces((const char *)xnkn);
+/*
                string sname = utils::str::TrimSpaces(
                    (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"name"));
                string snkn  = utils::str::TrimSpaces(
                    (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"nknots"));
+*/
+               spline_name = sname;
+               SLOG("XSecSplLst", pNOTICE) << "Loading spline: " << spline_name;
+
                nknots = atoi( snkn.c_str() );
                iknot=0;
                E     = new double[nknots];
                xsec  = new double[nknots];
-               spline_name = sname;
-               SLOG("XSecSplLst", pNOTICE) << "Loading spline: " << spline_name;
-            }
+  
+               xmlFree(xname);
+               xmlFree(xnkn);
+          }
             if( (!xmlStrcmp(name, (const xmlChar *) "E"))    && type==kNodeTypeStartElement) { val_type = kKnotX; }
             if( (!xmlStrcmp(name, (const xmlChar *) "xsec")) && type==kNodeTypeStartElement) { val_type = kKnotY; }
 
