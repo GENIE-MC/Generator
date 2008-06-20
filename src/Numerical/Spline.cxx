@@ -17,6 +17,7 @@
    histogram was automatically written out at the event file.
  @ Jun 20, 2008 - CA
    Fix some memleaks - Deleting arrays after passing them to BuildSpline().
+   Delete htemp when building the spline from a tree.
 */
 //____________________________________________________________________________
 
@@ -276,7 +277,7 @@ bool Spline::LoadFromTree(TTree * tree, string var, string cut)
   else            tree->Draw(var.c_str(), cut.c_str(), "GOFF");
 
   TH2F * hst = (TH2F*)gROOT->FindObject("htemp");
-  if(hst) { hst->SetDirectory(0); }
+  if(hst) { hst->SetDirectory(0); delete hst; }
 
   // Now, take into account that the data retrieved from the ntuple would
   // not be sorted in x and the resulting spline will be bogus...
