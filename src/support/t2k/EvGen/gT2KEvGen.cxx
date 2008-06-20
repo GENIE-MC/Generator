@@ -625,7 +625,7 @@ int main(int argc, char ** argv)
 
   // Clean-up
   delete geom_driver;
-  delete jparc_flux_driver;
+  delete flux_driver;
   delete mcj_driver;
   map<int,TH1D*>::iterator it = gOptFluxHst.begin();
   for( ; it != gOptFluxHst.end(); ++it) {
