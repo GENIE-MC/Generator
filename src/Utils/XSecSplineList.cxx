@@ -22,6 +22,9 @@
    few knots are linearly spaced below threshold so that the spline behaves 
    ok for E<Ethr, and the bulk of the knots is spaced linearly or 
    logarithmically for E>Ethr.
+ @ Jun 20, 2008 - CA
+   Fix a memory leak in LoadFromXml(). Arrays were not deleted after splines
+   instantiation.
 */
 //____________________________________________________________________________
 
@@ -349,6 +352,8 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 #endif
                // done looping over knots - build the spline
                Spline * spline = new Spline(nknots, E, xsec);
+               delete [] E;
+               delete [] xsec;
                // insert the spline to the list
                fSplineMap.insert( map<string, Spline *>::value_type(spline_name,spline) );
             }
