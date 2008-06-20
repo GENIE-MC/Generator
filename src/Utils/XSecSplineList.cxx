@@ -318,14 +318,10 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                xmlChar * xinlog = xmlTextReaderGetAttribute(reader,(const xmlChar*)"uselog");
                string svrs      = utils::str::TrimSpaces((const char *)xvrs);
                string sinlog    = utils::str::TrimSpaces((const char *)xinlog);
-/*
-               string svrs   = utils::str::TrimSpaces(
-                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"version"));
-               string sinlog = utils::str::TrimSpaces(
-                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"uselog"));
-*/
+
                if (atoi(sinlog.c_str()) == 1) this->SetLogE(true);
                else this->SetLogE(false);
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                LOG("XSecSplLst", pINFO) << "Vrs   = " << svrs;
                LOG("XSecSplLst", pINFO) << "InLog = " << sinlog;
@@ -340,12 +336,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                xmlChar * xnkn  = xmlTextReaderGetAttribute(reader,(const xmlChar*)"nknots");
                string sname    = utils::str::TrimSpaces((const char *)xname);
                string snkn     = utils::str::TrimSpaces((const char *)xnkn);
-/*
-               string sname = utils::str::TrimSpaces(
-                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"name"));
-               string snkn  = utils::str::TrimSpaces(
-                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"nknots"));
-*/
+
                spline_name = sname;
                SLOG("XSecSplLst", pNOTICE) << "Loading spline: " << spline_name;
 
