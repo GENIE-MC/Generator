@@ -470,28 +470,32 @@ int main(int argc, char ** argv)
   // * Work out number of cycles for current exposure settings
   // *************************************************************************
 
-  // If a number of POT was requested, then work out how many flux ntuple
-  // cycles are required for accumulating those statistics
-  //
-  if(!gOptUsingHistFlux && gOptPOT>0) {
-    double fpot_1c = jparc_flux_driver->POT_1cycle(); // flux POT / cycle
-    double psc     = mcj_driver->GlobProbScale();     // interaction prob. scale
-    double pot_1c  = fpot_1c / psc;                   // actual POT / cycle
-    int    ncycles = (int) TMath::Max(1., TMath::Ceil(gOptPOT/pot_1c));   
+  if(!gOptUsingHistFlux) {
+    // If a number of POT was requested, then work out how many flux ntuple
+    // cycles are required for accumulating those statistics
+    if(gOptPOT>0) {
+      double fpot_1c = jparc_flux_driver->POT_1cycle(); // flux POT / cycle
+      double psc     = mcj_driver->GlobProbScale();     // interaction prob. scale
+      double pot_1c  = fpot_1c / psc;                   // actual POT / cycle
+      int    ncycles = (int) TMath::Max(1., TMath::Ceil(gOptPOT/pot_1c));   
 
-    LOG("gT2Kevgen", pNOTICE) 
+      LOG("gT2Kevgen", pNOTICE) 
          << " *** POT/cycle:  " << pot_1c;
-    LOG("gT2Kevgen", pNOTICE) 
+      LOG("gT2Kevgen", pNOTICE) 
          << " *** Requested POT will be accumulated in: " 
          << ncycles << " flux ntuple cycles";
 
-    jparc_flux_driver->SetNumOfCycles(ncycles);
-  }
-  // If a number of events was requested, then set the number of flux ntuple
-  // cycles to 'infinite'
-  //
-  if(!gOptUsingHistFlux && gOptNev>0) {
-    jparc_flux_driver->SetNumOfCycles(0);
+      jparc_flux_driver->SetNumOfCycles(ncycles);
+    }
+    // If a number of events was requested, then set the number of flux 
+    // ntuple cycles to 'infinite'
+    else if(gOptNev>0) {
+       jparc_flux_driver->SetNumOfCycles(0);
+    }
+    // Just set the number of cycles to the requested value
+    else {
+       jparc_flux_driver->SetNumOfCycles(gOptFluxNCycles);
+    }
   }
 
   // *************************************************************************
@@ -577,7 +581,7 @@ int main(int argc, char ** argv)
      ntpw.AddEventRecord(ievent, event);
      mcjmonitor.Update(ievent,event);
      delete event;
-
+	     delete flux_info;
      ievent++;
   } //1
 
