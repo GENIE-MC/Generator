@@ -10,7 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Jun 23, 2008 - CA
+   At dtor delete the Spline and TF1 objects created at LoadConfig()
 */
 //____________________________________________________________________________
 
@@ -62,7 +63,17 @@ HadronizationModelI("genie::CharmHadronization", config)
 //____________________________________________________________________________
 CharmHadronization::~CharmHadronization()
 {
+  delete fCharmPT2pdf;
+  fCharmPT2pdf = 0;
 
+  delete fD0FracSpl;
+  fD0FracSpl = 0;
+
+  delete fDpFracSpl;
+  fDpFracSpl = 0;
+
+  delete fDsFracSpl;
+  fDsFracSpl = 0;
 }
 //____________________________________________________________________________
 void CharmHadronization::Initialize(void) const
