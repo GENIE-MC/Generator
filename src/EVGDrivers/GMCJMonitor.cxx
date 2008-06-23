@@ -10,6 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Jun 23, 2008 - CA
+   fCpuTime wasn't initialized.
 
 */
 //____________________________________________________________________________
@@ -85,6 +87,7 @@ void GMCJMonitor::Init(void)
   TStopwatch fWatch;
   fWatch.Reset(); 
   fWatch.Start();
+  fCpuTime = 0;
 
   // get rehreah rate of set default / protect from invalid refresh rates
   if( gSystem->Getenv("GMCJMONREFRESH") ) {
