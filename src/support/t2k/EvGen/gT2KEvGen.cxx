@@ -581,7 +581,7 @@ int main(int argc, char ** argv)
      ntpw.AddEventRecord(ievent, event);
      mcjmonitor.Update(ievent,event);
      delete event;
-	     delete flux_info;
+     if(flux_info) delete flux_info;
      ievent++;
   } //1
 
