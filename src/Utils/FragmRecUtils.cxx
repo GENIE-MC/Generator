@@ -106,7 +106,7 @@ void genie::utils::fragmrec::Print(const TClonesArray * const part_list)
     sum_py += (particle->GetPy());
     sum_pz += (particle->GetPz());
 
-    SLOG("FragmResUtils", pINFO)
+    SLOG("FragmRecUtils", pINFO)
         << "-> " << i++ << " " << particle->GetName()
         << " KF = " << particle->GetKF()
         << " KS = " << particle->GetKS()
@@ -119,7 +119,7 @@ void genie::utils::fragmrec::Print(const TClonesArray * const part_list)
         << ",Pz = "  << particle->GetPz() << ")";
   }
 
-  SLOG("FragmResUtils", pINFO)
+  SLOG("FragmRecUtils", pINFO)
        << "SUMS: E = " << sum_E
        << ", px = " << sum_px << ", py = " << sum_py << ", pz = " << sum_pz;
 
