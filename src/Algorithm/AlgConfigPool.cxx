@@ -178,6 +178,7 @@ bool AlgConfigPool::LoadMasterConfig(void)
   if(xml_root==NULL) {
      SLOG("AlgConfigPool", pERROR)
              << "The XML doc is empty! (filename : " << fMasterConfig << ")";
+     xmlFree(xml_doc);
      return false;
   }
 
@@ -205,7 +206,7 @@ bool AlgConfigPool::LoadMasterConfig(void)
     xml_ac = xml_ac->next;
   }
   xmlFree(xml_ac);
-  xmlFree(xml_root);
+  xmlFree(xml_doc);
   return true;
 }
 //____________________________________________________________________________
