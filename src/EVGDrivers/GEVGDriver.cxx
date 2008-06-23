@@ -22,6 +22,10 @@
    interaction selector configuration was silently failing.
  @ June 17, 2008 - CA
    Protect against round-off err in the cross section spline evaluation
+ @ June 20, 2008 - CA
+   Fix a memory leak in CreateXSecSumSpline. Arrays were not deleted after 
+   spline instantiation.
+
 */
 //____________________________________________________________________________
 
@@ -486,6 +490,8 @@ void GEVGDriver::CreateXSecSumSpline(
   }
   if (fXSecSumSpl) delete fXSecSumSpl;
   fXSecSumSpl = new Spline(nk, E, xsec);
+  delete [] E;
+  delete [] xsec;
 }
 //___________________________________________________________________________
 const Spline * GEVGDriver::XSecSpline(const Interaction * interaction) const
