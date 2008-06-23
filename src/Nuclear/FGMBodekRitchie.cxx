@@ -13,6 +13,8 @@
  @ Feb 07, 2008 - CA
    Call SetDirectory(0) at the temp momentum distribution histogram to stop 
    it from being automatically written out at the event file.
+ @ Jun 18, 2008 - CA
+   Deallocate the momentum distribution histograms map at dtor
 */
 //____________________________________________________________________________
 
@@ -52,7 +54,15 @@ NuclearModelI("genie::FGMBodekRitchie", config)
 //____________________________________________________________________________
 FGMBodekRitchie::~FGMBodekRitchie()
 {
-
+  map<string, TH1D*>::iterator iter = fProbDistroMap.begin();
+  for( ; iter != fProbDistroMap.begin(); ++iter) {
+    TH1D * hst = iter->second;
+    if(hst) {
+      delete hst;
+      hst=0;
+    }
+  }
+  fProbDistroMap.clear();
 }
 //____________________________________________________________________________
 bool FGMBodekRitchie::GenerateNucleon(const Target & target) const
@@ -187,7 +197,7 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
   fProbDistroMap.insert(
       map<string, TH1D*>::value_type(target.AsString(),prob));
 
-  return prob; // Note: The calling function adopts the object
+  return prob; 
 }
 //____________________________________________________________________________
 void FGMBodekRitchie::Configure(const Registry & config)
