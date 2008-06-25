@@ -978,7 +978,7 @@ void ConvertToGT2KTracker(void)
     output << "$ begin" << endl;
 
     // add event type
-    if(gOptOutFileFormat==1) {
+    if(gOptOutFileFormat==1 || gOptOutFileFormat==11) {
     	// nuance event type
     	int evtype = 0;
         /*
