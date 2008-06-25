@@ -21,13 +21,14 @@
 
 #include <iostream>
 #include <string>
-#include <TNtupleD.h>
+#include <map>
 
 #include "Numerical/Spline.h"
 #include "Utils/CacheBranchI.h"
 
 using std::string;
 using std::ostream;
+using std::map;
 
 namespace genie {
 
@@ -38,10 +39,9 @@ public:
   CacheBranchFx(string name);
   ~CacheBranchFx();
 
-  inline TNtupleD * Ntuple (void) const { return fNtp;    }
-  inline Spline *   Spl    (void) const { return fSpline; }
+  const map<double,double> & Map (void) const { return fFx;     }
+  Spline *                   Spl (void) const { return fSpline; }
 
-  void CreateNtuple(string name);
   void CreateSpline(void);
   void AddValues(double x, double y);
 
@@ -55,8 +55,9 @@ private:
   void Init    (void);
   void CleanUp (void);
 
-  TNtupleD * fNtp;
-  Spline   * fSpline;
+  string             fName;   ///< cache branch name
+  map<double,double> fFx;     ///< x->y map 
+  Spline *           fSpline; ///< spline y = f(x)
 
 ClassDef(CacheBranchFx,1)
 };
