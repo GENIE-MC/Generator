@@ -10,15 +10,18 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Jun 25, 2008 - CA
+   Using the new CacheBranchFx which avoids a significant memory leak.
 
 */
 //____________________________________________________________________________
 
 #include <sstream>
 #include <cstdlib>
+#include <map>
 
-#include <TSQLResult.h>
-#include <TSQLRow.h>
+//#include <TSQLResult.h>
+//#include <TSQLRow.h>
 #include <TMath.h>
 
 #include "EVGCore/EVGThreadException.h"
@@ -31,6 +34,7 @@
 #include "Utils/MathUtils.h"
 
 using std::ostringstream;
+using std::map;
 
 using namespace genie;
 
@@ -133,7 +137,16 @@ double KineGeneratorWithCache::FindMaxXSec(
 
   // if there are not enough points at the cache buffer to have a spline,
   // look whether there is another point that is sufficiently close
+  double dE = TMath::Min(0.25, 0.05*E);
+  const map<double,double> & fmap = cb->Map();
+  map<double,double>::const_iterator iter = fmap.lower_bound(E);
+  if(iter != fmap.end()) {
+     if(TMath::Abs(E - iter->first) < dE) return iter->second;
+  }
 
+  return -1;
+
+/*
   // build the search rule
   double dE = TMath::Min(0.25, 0.05*E);
   ostringstream search;
@@ -171,6 +184,7 @@ double KineGeneratorWithCache::FindMaxXSec(
      << "\nRetrieved: max xsec = " << max_xsec << " cached at E = " << Ep;
 
   return max_xsec;
+*/
 }
 //___________________________________________________________________________
 void KineGeneratorWithCache::CacheMaxXSec(
@@ -184,7 +198,7 @@ void KineGeneratorWithCache::CacheMaxXSec(
   if(max_xsec>0) cb->AddValues(E,max_xsec);
 
   if(! cb->Spl() ) {
-    if( cb->Ntuple()->GetEntriesFast() > 40 ) cb->CreateSpline();
+    if( cb->Map().size() > 40 ) cb->CreateSpline();
   }
 
   if( cb->Spl() ) {
