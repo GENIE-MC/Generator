@@ -10,11 +10,12 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Jun 25, 2008 - CA
+   Partial re-write to fix a serious memory leak. Holding x,y values in a map
+   rather than a circular ntuple.
 
 */
 //____________________________________________________________________________
-
-#include <TNtupleD.h>
 
 #include "Utils/CacheBranchFx.h"
 
@@ -42,7 +43,7 @@ CacheBranchFx::CacheBranchFx(string name) :
 CacheBranchI()
 {
   this->Init();
-  this->CreateNtuple(name);
+  fName = name;
 }
 //____________________________________________________________________________
 CacheBranchFx::~CacheBranchFx()
@@ -52,14 +53,14 @@ CacheBranchFx::~CacheBranchFx()
 //____________________________________________________________________________
 void CacheBranchFx::Init(void)
 {
-  fNtp    = 0;
+  fName   = "";
   fSpline = 0;
 }
 //____________________________________________________________________________
 void CacheBranchFx::CleanUp(void)
 {
-  if(fNtp)    delete fNtp;
   if(fSpline) delete fSpline;
+  fFx.clear();
 }
 //____________________________________________________________________________
 void CacheBranchFx::Reset(void)
@@ -70,35 +71,39 @@ void CacheBranchFx::Reset(void)
 //____________________________________________________________________________
 void CacheBranchFx::AddValues(double x, double y)
 {
-  fNtp->Fill(x,y);
-}
-//____________________________________________________________________________
-void CacheBranchFx::CreateNtuple(string name)
-{
-  fNtp = new TNtupleD(name.c_str(), "f(x)", "x:y");
-  fNtp->SetDirectory(0);
-  fNtp->SetCircular(1600000);
+  fFx.insert(map<double,double>::value_type(x,y));
 }
 //____________________________________________________________________________
 void CacheBranchFx::CreateSpline(void)
 {
+  int n = fFx.size();
+  double * x = new double[n];
+  double * y = new double[n];
+
+  int i=0;
+  map<double,double>::const_iterator iter = fFx.begin();
+  for( ; iter !=fFx.end(); ++iter) {
+    x[i] = iter->first;
+    y[i] = iter->second;
+    i++;
+  }
+
   if(fSpline) delete fSpline;
-  fSpline = new Spline(fNtp,"x:y");
+  fSpline = new Spline(n,x,y);
+
+  delete [] x;
+  delete [] y;
 }
 //____________________________________________________________________________
 void CacheBranchFx::Print(ostream & stream) const
 {
-  if(fNtp) {
-    stream << "type: [CacheBranchFx]  - nentries: " << fNtp->GetEntries() 
+  stream << "type: [CacheBranchFx]  - nentries: " << fFx.size()
            << " / spline: " << ((fSpline) ? "built" : "null");
-  } else {
-    stream << " *** NULL ***";
-  }
 }
 //____________________________________________________________________________
 double CacheBranchFx::operator () (double x) const
 {
   if(!fSpline) return 0;
-  else return fSpline->Evaluate(x);
+  else         return fSpline->Evaluate(x);
 }
 //____________________________________________________________________________
