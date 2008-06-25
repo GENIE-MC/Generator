@@ -27,6 +27,9 @@
    	            3 : A standardized bare-ROOT event-tree for getting GENIE
                         neutrino  & pass-through JPARC flux info into the
                         T2K (nd280/2km/SuperK) Monte Carlo
+   		   11 : Same as format 1 but with extra tweaks required by
+                        skdetsim, the SuperK detector MC:
+                        - K0, \bar{K0} -> KO_{long}, K0_{short}
 	      ** Generic GENIE XML / tabular or bare-ROOT formats **
                   100 : GENIE XML format 
 	      ** GENIE test / cross-generator comparisons **
@@ -37,6 +40,7 @@
               input base name and an extension depending on the file format: 
                 0 -> *.gst.root
                 1 -> *.gtrac0.dat
+               11 -> *.gtrac0.dat
                 2 -> *.gtrac.dat
                 3 -> *.gtrac.root
               100 -> *.gxml 
@@ -80,6 +84,7 @@
 #include "Ntuple/NtpMCFormat.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
+#include "Numerical/RandomGen.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
@@ -139,6 +144,7 @@ int main(int argc, char ** argv)
 	break;  
    case (1)  :  
    case (2)  :  
+   case (11) :  
 	ConvertToGT2KTracker();        
 	break;
    case (3) :  
@@ -1096,6 +1102,16 @@ void ConvertToGT2KTracker(void)
          int A = pdg::IonPdgCodeToA(ghep_pdgc);
          pdgc = 1000*Z + A;
        }
+       //
+       //
+       if(gOptOutFileFormat==11) {
+         if(pdgc==kPdgK0 || pdgc==kPdgAntiK0) {
+            RandomGen * rnd = RandomGen::Instance();
+            double R =  rnd->RndGen().Rndm();
+            if(R>0.5) pdgc = kPdgK0L;
+            else      pdgc = kPdgK0S;
+         }
+       }
        // Get particle's energy & momentum
        TLorentzVector * p4 = p->P4();
        double E  = p4->Energy() / units::MeV;
@@ -1686,12 +1702,13 @@ string DefaultOutputFile(void)
 {
   // filename extension - depending on file format
   string ext="";
-  if      (gOptOutFileFormat==0)    ext = "gst.root";
-  else if (gOptOutFileFormat==1)    ext = "gtrac0.dat";
-  else if (gOptOutFileFormat==2)    ext = "gtrac.dat";
-  else if (gOptOutFileFormat==3)    ext = "gtrac.root";
-  else if (gOptOutFileFormat==100)  ext = "gxml";
-  else if (gOptOutFileFormat==901)  ext = "ghad.dat";
+  if      (gOptOutFileFormat ==   0)  ext = "gst.root";
+  else if (gOptOutFileFormat ==   1)  ext = "gtrac0.dat";
+  else if (gOptOutFileFormat ==  11)  ext = "gtrac0.dat";
+  else if (gOptOutFileFormat ==   2)  ext = "gtrac.dat";
+  else if (gOptOutFileFormat ==   3)  ext = "gtrac.root";
+  else if (gOptOutFileFormat == 100)  ext = "gxml";
+  else if (gOptOutFileFormat == 901)  ext = "ghad.dat";
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
