@@ -9,6 +9,8 @@
 
 #pragma link C++ class genie::flux::GJPARCNuFlux;
 #pragma link C++ class genie::flux::GJPARCNuFluxPassThroughInfo;
+#pragma link C++ class genie::flux::GNuMIFlux;
+#pragma link C++ class genie::flux::GNuMIFluxPassThroughInfo;
 
 #pragma link C++ class genie::flux::GCylindTH1Flux;
 #pragma link C++ class genie::flux::GMonoEnergeticFlux;
