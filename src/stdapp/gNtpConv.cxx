@@ -21,15 +21,16 @@
                         that can be trivially used in bare-ROOT sessions.
 	      ** T2K/GENIE formats **
    		    1 : NUANCE-style tracker text-based format 
+   		   11 : Same as format 1 but with extra tweaks required by
+                        skdetsim, the SuperK detector MC:
+                        - K0, \bar{K0} -> KO_{long}, K0_{short}
+                        - emulating 'NEUT' reaction codes
 		    2 : A slightly tweaked NUANCE-style tracker text-based 
                         format - A fast & dirty way for getting GENIE event 
                         samples into the T2K (nd280/2km/SuperK) Monte Carlo.
    	            3 : A standardized bare-ROOT event-tree for getting GENIE
                         neutrino  & pass-through JPARC flux info into the
                         T2K (nd280/2km/SuperK) Monte Carlo
-   		   11 : Same as format 1 but with extra tweaks required by
-                        skdetsim, the SuperK detector MC:
-                        - K0, \bar{K0} -> KO_{long}, K0_{short}
 	      ** Generic GENIE XML / tabular or bare-ROOT formats **
                   100 : GENIE XML format 
 	      ** GENIE test / cross-generator comparisons **
@@ -977,9 +978,9 @@ void ConvertToGT2KTracker(void)
     // add tracker begin tag
     output << "$ begin" << endl;
 
-    // add event type
-    if(gOptOutFileFormat==1 || gOptOutFileFormat==11) {
-    	// nuance event type
+    // add 'NUANCE'-like event type
+    //
+    if(gOptOutFileFormat==1) {
     	int evtype = 0;
         /*
         conversion not tested yet
@@ -1056,8 +1057,140 @@ void ConvertToGT2KTracker(void)
         }
         */
     	output << "$ nuance " << evtype << endl;
-    } else {
-    	// genie "event type"
+    } // nuance code
+
+    // add 'NEUT'-like event type
+    //
+    else if(gOptOutFileFormat==11) {
+    	int evtype = 0;
+
+        const ProcessInfo &  proc = interaction->ProcInfo();
+        const InitialState & init = interaction->InitState();
+        const XclsTag &      xcls = interaction->ExclTag();
+        const Kinematics &   kine = interaction->Kine();
+        const Target &       tgt  = init.Tgt();
+
+        bool is_cc    = proc.IsWeakCC();
+        bool is_nc    = proc.IsWeakNC();
+        bool is_charm = xcls.IsCharmEvent();
+        bool is_qel   = proc.IsQuasiElastic();
+        bool is_dis   = proc.IsDeepInelastic();
+        bool is_res   = proc.IsResonant();
+        bool is_cohpi = proc.IsCoherentPiProd();
+      //bool is_ve    = proc.IsNuElectronElastic();
+      //bool is_imd   = proc.IsInverseMuDecay();
+        bool is_p     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgProton  : false;
+        bool is_n     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgNeutron : false;
+        bool is_nu    = pdg::IsNeutrino    (init.ProbePdg());
+        bool is_nubar = pdg::IsAntiNeutrino(init.ProbePdg());
+        bool W_gt_2   = kine.KVSet(kKVW) ?  (kine.W() > 2.0) : false;
+
+        // (quasi-)elastic, nc+cc, nu+nubar
+        //
+        if      (is_qel && !is_charm && is_cc && is_nu           ) evtype =   1;
+        else if (is_qel && !is_charm && is_nc && is_nu && is_p   ) evtype =  51;
+        else if (is_qel && !is_charm && is_nc && is_nu && is_n   ) evtype =  52;
+        else if (is_qel && !is_charm && is_cc && is_nubar        ) evtype =  -1;
+        else if (is_qel && !is_charm && is_nc && is_nubar && is_p) evtype = -51;
+        else if (is_qel && !is_charm && is_nc && is_nubar && is_n) evtype = -52;
+
+        // coherent pi, nc+cc, nu+nubar
+        //
+        else if (is_cohpi && is_cc && is_nu   ) evtype =  16;        
+        else if (is_cohpi && is_cc && is_nubar) evtype = -16;        
+        else if (is_cohpi && is_nc && is_nu   ) evtype =  36;
+        else if (is_cohpi && is_nc && is_nubar) evtype = -36;
+
+        // dis, W>2, nc+cc, nu+nubar 
+        // (charm DIS not simulated by NEUT, will bundle GENIE charm DIS into this category)
+        //
+        else if (is_dis && W_gt_2 && is_cc && is_nu   ) evtype =  26;        
+        else if (is_dis && W_gt_2 && is_nc && is_nu   ) evtype =  46;        
+        else if (is_dis && W_gt_2 && is_cc && is_nubar) evtype = -26;        
+        else if (is_dis && W_gt_2 && is_nc && is_nubar) evtype = -46;        
+
+        // resonance or dis with W < 2 GeV
+        //
+        else if ( is_res || (is_dis && !W_gt_2) ) {
+
+            LOG("gntpc", pNOTICE) << "Current event is RES or DIS with W<2";
+
+           // check the number of pions and nucleons in the primary hadronic system
+           // (_before_ intranuclear rescattering)
+           //
+           int nn=0, np=0, npi0=0, npip=0, npim=0, ngamma=0;
+           bool nuclear_target = init.Tgt().IsNucleus();
+           while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) 
+           {
+               GHepStatus_t ghep_ist = (GHepStatus_t) p->Status();  
+               int ghep_pdgc = p->Pdg();
+
+               // For nuclear targets use hadrons marked as 'hadron in the nucleus'
+               // which are the ones passed in the intranuclear rescattering
+               // For free nucleon targets use particles marked as 'final state'
+               // but make an exception for pi0 which must have been decayed by then
+
+               bool count_it = 
+                     ( nuclear_target && ghep_ist==kIStHadronInTheNucleus) ||
+                     (!nuclear_target && ghep_ist==kIStStableFinalState  ) ||
+                     (!nuclear_target && ghep_ist==kIStDecayedState && ghep_pdgc==kPdgPi0);
+               if(!count_it) continue;
+
+               if(ghep_pdgc == kPdgProton ) np++;
+               if(ghep_pdgc == kPdgNeutron) nn++;
+               if(ghep_pdgc == kPdgPi0)     npi0++;
+               if(ghep_pdgc == kPdgPiP)     npip++;
+               if(ghep_pdgc == kPdgPiM)     npim++;
+               if(ghep_pdgc == kPdgGamma)   ngamma++;
+           }
+           LOG("gntpc", pNOTICE) 
+              << "Num of primary hadrons: p = " << np << ", n = " << nn
+              << ", pi+ = " << npip << ", pi- = " << npim << ", pi0 = " << npi0;
+
+           bool is_single_pi_dis = (npi0+npip+npim==1) && is_dis;
+           bool is_radiative_dec = (np+nn==1) && (npip+npim+npi0==0) && ngamma==1;
+
+           // res + non-res bkg (single pi dis, W < 2 GeV)
+           //
+           if(is_res || is_single_pi_dis) {
+
+              if (is_radiative_dec) evtype = 17;
+
+              else if (is_nu    && is_cc && is_p && np==1 && nn==0 && npip==1 && npim==0 && npi0==0) evtype =  11;
+              else if (is_nu    && is_cc && is_n && np==1 && nn==0 && npip==0 && npim==0 && npi0==1) evtype =  12;
+              else if (is_nu    && is_cc && is_n && np==0 && nn==1 && npip==1 && npim==0 && npi0==0) evtype =  13;
+
+              else if (is_nu    && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1) evtype =  31;
+              else if (is_nu    && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1) evtype =  32;
+              else if (is_nu    && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0) evtype =  33;
+              else if (is_nu    && is_nc && is_p && np==0 && nn==1 && npip==1 && npim==0 && npi0==0) evtype =  34;
+
+              else if (is_nubar && is_cc && is_n && np==0 && nn==1 && npip==0 && npim==1 && npi0==0) evtype = -11;
+              else if (is_nubar && is_cc && is_p && np==0 && nn==1 && npip==0 && npim==0 && npi0==1) evtype = -12;
+              else if (is_nubar && is_cc && is_p && np==1 && nn==0 && npip==0 && npim==1 && npi0==0) evtype = -13;
+
+              else if (is_nubar && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1) evtype = -31; 
+              else if (is_nubar && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1) evtype = -32;
+              else if (is_nubar && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0) evtype = -33;
+              else if (is_nubar && is_nc && is_p && np==0 && nn==1 && npip==1 && npim==0 && npi0==0) evtype = -34;
+           }
+           // multi-pi (1.3 GeV < W < 2.0 GeV)
+           //
+           else {
+              if      (is_nu    && is_cc) evtype =  21;
+              else if (is_nu    && is_nc) evtype =  41;
+              else if (is_nubar && is_cc) evtype = -21;
+              else if (is_nubar && is_nc) evtype = -41;
+           }
+        }
+        LOG("gntpc", pNOTICE) << "NEUT-like event type = " << evtype;
+    	output << "$ nuance " << evtype << endl;
+
+    } //neut code
+
+    // add genie "event type"
+    //
+    else {
     	output << "$ genie " << interaction->AsString() << endl;
     }
 
