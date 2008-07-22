@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\program gNtpConv
+\program gntpc
 
 \brief   Converts a GENIE neutrino events (from GHEP GENIE ROOT Trees) to a 
          variety of textual formats (typically used in legacy systems), in XML
