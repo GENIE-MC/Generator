@@ -38,7 +38,7 @@ class SqlUtils {
 public:
 
  //__________________________________________________________________________
- static string SqlUtils::build_v_conditional(
+ static string build_v_conditional(
                 string experiments, string xsecs, string nus, string targets)
  {
    unsigned int i = 0;
@@ -132,7 +132,7 @@ public:
    return conditional.str();
  }
  //__________________________________________________________________________
- static string SqlUtils::build_v_key_list(TSQLServer * db,
+ static string build_v_key_list(TSQLServer * db,
                 string experiments, string xsecs, string nus, string targets)
  {
    string conditional = build_v_conditional(experiments, xsecs, nus, targets);
@@ -167,8 +167,7 @@ public:
   return key_list.str();
  }
  //__________________________________________________________________________ 
- static string SqlUtils::build_e_conditional(
-                                          string experiments, string targets)
+ static string build_e_conditional(string experiments, string targets)
  {
    unsigned int i = 0;
 
@@ -222,8 +221,8 @@ public:
    return conditional.str();
  }
  //__________________________________________________________________________
- static string SqlUtils::build_e_key_list(TSQLServer * db,
-                                          string experiments, string targets)
+ static string build_e_key_list(TSQLServer * db,
+                                 string experiments, string targets)
  {
    string conditional = build_e_conditional(experiments, targets);
 
@@ -257,7 +256,7 @@ public:
   return key_list.str();
  }
  //__________________________________________________________________________
- static string SqlUtils::build_sf_conditional(
+ static string build_sf_conditional(
                 string experiments, string sf, string probes, string targets)
  {
    unsigned int i = 0;
@@ -335,7 +334,7 @@ public:
    return conditional.str();   
  }
  //__________________________________________________________________________
- static string SqlUtils::build_sf_key_list(TSQLServer * db,
+ static string build_sf_key_list(TSQLServer * db,
                  string experiments, string sf, string probe, string targets)
  {
    string conditional = build_sf_conditional(experiments, sf, probe, targets);
