@@ -91,7 +91,11 @@ public :
   double RemovalEnergy (void) const { return fRemovalEnergy; } ///< Get removal energy 
 
   //-- Compare with another particle
-  bool Compare(const GHepParticle * p) const;
+  bool Compare            (const GHepParticle * p) const;
+  bool ComparePdgCodes    (const GHepParticle * p) const;
+  bool CompareStatusCodes (const GHepParticle * p) const;
+  bool CompareFamily      (const GHepParticle * p) const;
+  bool CompareMomentum    (const GHepParticle * p) const;
 
   //-- On/Off "shellness" if mass from PDG != mass from 4-P
   bool IsOnMassShell  (void) const;
@@ -152,9 +156,6 @@ private:
 
   void Init(void);
   void AssertIsKnownParticle(void) const;
-
-  bool CompareFamily   (const GHepParticle * p) const;
-  bool CompareMomentum (const GHepParticle * p) const;
 
   bool             fIsNucleus;      ///< nucleus flag
   bool             fIsFake;         ///< fake particle flag (rootino etc)
