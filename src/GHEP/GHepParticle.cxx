@@ -473,6 +473,16 @@ bool GHepParticle::Compare(const GHepParticle * p) const
   }
 }
 //___________________________________________________________________________
+bool GHepParticle::ComparePdgCodes(const GHepParticle * p) const
+{
+  return (this->fPdgCode == p->fPdgCode);
+}
+//___________________________________________________________________________
+bool GHepParticle::CompareStatusCodes(const GHepParticle * p) const
+{
+  return (this->fStatus == p->fStatus);
+}
+//___________________________________________________________________________
 bool GHepParticle::CompareFamily(const GHepParticle * p) const
 {
   bool same_family  = (
