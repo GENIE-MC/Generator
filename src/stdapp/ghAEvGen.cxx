@@ -7,7 +7,7 @@
 	 Similar to NEUGEN's pitest (S.Dytman & H.Gallagher)
 
          Syntax :
-           ghAevgen [-n nev] -p hadron_pdg -t tgt_pdg [-r run#] -k KE [-f flux]
+           ghAevgen [-n nev] -p hadron_pdg -t tgt_pdg [-r run#] -k KE [-f flux] [-o prefix]
 
          Options :
            [] Denotes an optional argument
@@ -26,6 +26,7 @@
            -f Specifies the incoming hadron's kinetic energy spectrum - 
               it can be either a function, eg 'x*x+4*exp(-x)' or a text file 
               containing 2 columns corresponding to (kinetic energy {GeV}, 'flux').
+           -o output filename prefix
 	      
          Examples:
 
@@ -93,8 +94,9 @@ void BuildKineticEnergySpectrum (void);
 void PrintSyntax                (void);
 
 //Default options 
-int     kDefOptNevents   = 10000;   // n-events to generate
-Long_t  kDefOptRunNu     = 0;       // default run number
+int     kDefOptNevents      = 10000;   // n-events to generate
+Long_t  kDefOptRunNu        = 0;       // default run number
+string  kDefOptEvFilePrefix = "gntp.inuke";
 
 //User-specified options:
 int           gOptNevents;          // n-events to generate
@@ -104,6 +106,7 @@ int           gOptInpHadPdgCode;    // incoming hadron PDG code
 double        gOptInpHadKE;         // incoming hadron kinetic enegy (GeV) or min energy in specified range
 double        gOptInpHadDeltaKE;    // incoming hadron kinetic energy range (GeV)
 string        gOptFlux;             // input flux (function or flux file)
+string        gOptEvFilePrefix;     // event file prefix
 
 // globals
 bool          gOptUsingFlux = false;
@@ -127,7 +130,7 @@ int main(int argc, char ** argv)
 
   //-- initialize an Ntuple Writer to save GHEP records into a ROOT tree
   NtpWriter ntpw(kNFGHEP, gOptRunNu);
-  ntpw.Initialize();
+  ntpw.Initialize(gOptEvFilePrefix);
 
   //-- create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -352,6 +355,17 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
+  // event file prefix
+  try {  
+    LOG("ghAevgen", pINFO) << "Reading the event filename prefix";
+    gOptEvFilePrefix = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("ghAevgen", pDEBUG)
+        << "Will set the default event filename prefix";
+      gOptEvFilePrefix = kDefOptEvFilePrefix;
+    }      
+  } //-o
 
   LOG("ghAevgen", pINFO) << "Number of events requested = " << gOptNevents;
   LOG("ghAevgen", pINFO) << "MC Run Number              = " << gOptRunNu;
