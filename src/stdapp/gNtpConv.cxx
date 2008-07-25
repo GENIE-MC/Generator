@@ -1060,7 +1060,8 @@ void ConvertToGT2KTracker(void)
     } // nuance code
 
     // add 'NEUT'-like event type
-    //
+    // a list of NEUT event types can be seen here: http://t2k.phy.duke.edu/bin/view/Main/NeutModes
+    // 
     else if(gOptOutFileFormat==11) {
     	int evtype = 0;
 
@@ -1118,7 +1119,7 @@ void ConvertToGT2KTracker(void)
            // check the number of pions and nucleons in the primary hadronic system
            // (_before_ intranuclear rescattering)
            //
-           int nn=0, np=0, npi0=0, npip=0, npim=0, ngamma=0;
+           int nn=0, np=0, npi0=0, npip=0, npim=0, nKp=0, nKm=0, nK0=0, neta=0, nlambda=0, ngamma=0;
            bool nuclear_target = init.Tgt().IsNucleus();
            while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) 
            {
@@ -1136,44 +1137,99 @@ void ConvertToGT2KTracker(void)
                      (!nuclear_target && ghep_ist==kIStDecayedState && ghep_pdgc==kPdgPi0);
                if(!count_it) continue;
 
-               if(ghep_pdgc == kPdgProton ) np++;
-               if(ghep_pdgc == kPdgNeutron) nn++;
-               if(ghep_pdgc == kPdgPi0)     npi0++;
-               if(ghep_pdgc == kPdgPiP)     npip++;
-               if(ghep_pdgc == kPdgPiM)     npim++;
-               if(ghep_pdgc == kPdgGamma)   ngamma++;
+               if(ghep_pdgc == kPdgProton )    np++;            // p
+               if(ghep_pdgc == kPdgNeutron)    nn++;            // n
+               if(ghep_pdgc == kPdgPiP)        npip++;          // pi+
+               if(ghep_pdgc == kPdgPiM)        npim++;          // pi-
+               if(ghep_pdgc == kPdgPi0)        npi0++;          // pi0
+               if(ghep_pdgc == kPdgEta)        neta++;          // eta0
+               if(ghep_pdgc == kPdgKP)         nKp++;           // K+
+               if(ghep_pdgc == kPdgKM)         nKm++;           // K-
+               if(ghep_pdgc == kPdgK0)         nK0++;           // K0
+               if(ghep_pdgc == kPdgAntiK0)     nK0++;           // K0
+               if(ghep_pdgc == kPdgLambda)     nlambda++;       // Lamda
+               if(ghep_pdgc == kPdgAntiLambda) nlambda++;       // Lamda
+               if(ghep_pdgc == kPdgGamma)      ngamma++;        // photon
            }
            LOG("gntpc", pNOTICE) 
               << "Num of primary hadrons: p = " << np << ", n = " << nn
               << ", pi+ = " << npip << ", pi- = " << npim << ", pi0 = " << npi0;
 
-           bool is_single_pi_dis = (npi0+npip+npim==1) && is_dis;
-           bool is_radiative_dec = (np+nn==1) && (npip+npim+npi0==0) && ngamma==1;
+           int nnuc = np + nn;
+           int npi  = npi0 + npip + npim;
+           int nK   = nK0 + nKp + nKm;
+           int neKL = neta + nK + nlambda;
+ 
+           bool is_single_pi_dis = (npi==1) && is_dis;
+           bool is_radiative_dec = (nnuc==1) && (npi==0) && (ngamma==1);
 
            // res + non-res bkg (single pi dis, W < 2 GeV)
            //
            if(is_res || is_single_pi_dis) {
 
-              if (is_radiative_dec) evtype = 17;
+              //
+              // single gamma from resonances
+              //
 
-              else if (is_nu    && is_cc && is_p && np==1 && nn==0 && npip==1 && npim==0 && npi0==0) evtype =  11;
-              else if (is_nu    && is_cc && is_n && np==1 && nn==0 && npip==0 && npim==0 && npi0==1) evtype =  12;
-              else if (is_nu    && is_cc && is_n && np==0 && nn==1 && npip==1 && npim==0 && npi0==0) evtype =  13;
+              if      (is_res && is_nu    && is_cc && is_n && is_radiative_dec) evtype =  17;
+              else if (is_res && is_nu    && is_nc && is_n && is_radiative_dec) evtype =  38;
+              else if (is_res && is_nu    && is_nc && is_p && is_radiative_dec) evtype =  39;
 
-              else if (is_nu    && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1) evtype =  31;
-              else if (is_nu    && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1) evtype =  32;
-              else if (is_nu    && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0) evtype =  33;
-              else if (is_nu    && is_nc && is_p && np==0 && nn==1 && npip==1 && npim==0 && npi0==0) evtype =  34;
+              else if (is_res && is_nubar && is_cc && is_p && is_radiative_dec) evtype = -17;
+              else if (is_res && is_nubar && is_nc && is_n && is_radiative_dec) evtype = -38;
+              else if (is_res && is_nubar && is_nc && is_p && is_radiative_dec) evtype = -39;
 
-              else if (is_nubar && is_cc && is_n && np==0 && nn==1 && npip==0 && npim==1 && npi0==0) evtype = -11;
-              else if (is_nubar && is_cc && is_p && np==0 && nn==1 && npip==0 && npim==0 && npi0==1) evtype = -12;
-              else if (is_nubar && is_cc && is_p && np==1 && nn==0 && npip==0 && npim==1 && npi0==0) evtype = -13;
+              //
+              // single pi (res + non-res bkg)
+              //
 
-              else if (is_nubar && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1) evtype = -31; 
-              else if (is_nubar && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1) evtype = -32;
-              else if (is_nubar && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0) evtype = -33;
-              else if (is_nubar && is_nc && is_p && np==0 && nn==1 && npip==1 && npim==0 && npi0==0) evtype = -34;
+              // nu CC
+              else if (is_nu    && is_cc && is_p && np==1 && nn==0 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype =  11;
+              else if (is_nu    && is_cc && is_n && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  12;
+              else if (is_nu    && is_cc && is_n && np==0 && nn==1 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype =  13;
+
+              // nubar CC
+              else if (is_nu    && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  31;
+              else if (is_nu    && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  32;
+              else if (is_nu    && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype =  33;
+              else if (is_nu    && is_nc && is_p && np==0 && nn==1 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype =  34;
+
+              //nubar CC
+              else if (is_nubar && is_cc && is_n && np==0 && nn==1 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype = -11;
+              else if (is_nubar && is_cc && is_p && np==0 && nn==1 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype = -12;
+              else if (is_nubar && is_cc && is_p && np==1 && nn==0 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype = -13;
+
+              //nubar NC
+              else if (is_nubar && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype = -31; 
+              else if (is_nubar && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype = -32;
+              else if (is_nubar && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype = -33;
+              else if (is_nubar && is_nc && is_p && np==0 && nn==1 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype = -34;
+
+              //
+              // single eta from res
+              //
+
+              else if (is_res &&  is_nu    && is_cc && is_n && np==1 && nn==0 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype =  22;
+              else if (is_res &&  is_nu    && is_nc && is_n && np==0 && nn==1 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype =  42;
+              else if (is_res &&  is_nu    && is_nc && is_p && np==1 && nn==0 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype =  43;
+
+              else if (is_res &&  is_nubar && is_cc && is_p && np==0 && nn==1 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype = -22;
+              else if (is_res &&  is_nubar && is_nc && is_n && np==0 && nn==1 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype = -42;
+              else if (is_res &&  is_nubar && is_nc && is_p && np==1 && nn==0 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype = -43;
+
+              //
+              // single K from res
+              //
+
+              else if (is_res &&  is_nu    && is_cc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype =  23;
+              else if (is_res &&  is_nu    && is_nc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype =  44;
+              else if (is_res &&  is_nu    && is_nc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype =  45;
+
+              else if (is_res &&  is_nubar && is_cc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -23;
+              else if (is_res &&  is_nubar && is_nc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -44;
+              else if (is_res &&  is_nubar && is_nc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -45;
            }
+
            // multi-pi (1.3 GeV < W < 2.0 GeV)
            //
            else {
