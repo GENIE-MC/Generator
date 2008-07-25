@@ -34,8 +34,8 @@
 	      ** Generic GENIE XML / tabular or bare-ROOT formats **
                   100 : GENIE XML format 
 	      ** GENIE test / cross-generator comparisons **
-	          901 : NEUGEN-style text-based format for hadronization 
-                        model studies
+	          901 : NEUGEN-style text-based format for hadronization studies
+	          902 : INTRANUKE summary ntuple for intranuclear-rescattering studies
            -o specifies the output filename. 
               If not specified a the default filename is constructed by the 
               input base name and an extension depending on the file format: 
@@ -46,6 +46,7 @@
                 3 -> *.gtrac.root
               100 -> *.gxml 
               901 -> *.ghad.dat
+              902 -> *.ginuke.root
 		
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -118,6 +119,7 @@ void   ConvertToGT2KTracker    (void);
 void   ConvertToGT2KRooTracker (void);
 void   ConvertToGXML           (void);
 void   ConvertToGHad           (void);
+void   ConvertToGINuke         (void);
 void   GetCommandLineArgs      (int argc, char ** argv);
 void   PrintSyntax             (void);
 string DefaultOutputFile       (void);
@@ -156,6 +158,9 @@ int main(int argc, char ** argv)
 	break;
    case (901) :  
 	ConvertToGHad();         
+	break;
+   case (902) :  
+	ConvertToGINuke();         
 	break;
    default:
      LOG("gntpc", pFATAL)
@@ -1825,6 +1830,89 @@ void ConvertToGHad(void)
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
 //___________________________________________________________________
+// * GENIE GHEP EVENT TREE -> Summary tree for INTRANUKE studies *
+//___________________________________________________________________
+void ConvertToGINuke(void)
+{
+  //-- open output file & create output summary tree & create the tree branches
+  //
+  LOG("gntpc", pNOTICE)
+       << "*** Saving summary tree to: " << gOptOutFileName;
+  TFile fout(gOptOutFileName.c_str(),"recreate");
+  
+  TTree * s_tree = new TTree("ginuke","GENIE INuke Summary Tree");
+  assert(s_tree);
+
+  //-- define summary ntuple
+  //
+
+  //
+  // ... 
+  // ... add code here
+  // ... 
+  //
+
+  //-- open the ROOT file and get the TTree & its header
+  TFile fin(gOptInpFileName.c_str(),"READ");
+  TTree *           er_tree = 0;
+  NtpMCTreeHeader * thdr    = 0;
+  er_tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
+  thdr    = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
+  if (!er_tree) {
+    LOG("gntpc", pERROR) << "Null input tree";
+    return;
+  }
+  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+
+  //-- get the mc record
+  NtpMCEventRecord * mcrec = 0;
+  er_tree->SetBranchAddress("gmcrec", &mcrec);
+  if (!mcrec) {
+    LOG("gntpc", pERROR) << "Null MC record";
+    return;
+  }
+  
+  //-- figure out how many events to analyze
+  Long64_t nmax = (gOptN<0) ? 
+       er_tree->GetEntries() : TMath::Min( er_tree->GetEntries(), gOptN );
+  if (nmax<0) {
+    LOG("gntpc", pERROR) << "Number of events = 0";
+    return;
+  }
+  LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+
+  for(Long64_t iev = 0; iev < nmax; iev++) {
+
+    er_tree->GetEntry(iev);
+
+    NtpMCRecHeader rec_header = mcrec->hdr;
+    EventRecord &  event      = *(mcrec->event);
+
+    LOG("gntpc", pINFO) << rec_header;
+    LOG("gntpc", pINFO) << event;
+
+
+    // analyze current event and fill the summary ntuple
+
+    //
+    // ...
+    // ... add code here
+    //
+    // ...
+
+
+    mcrec->Clear();
+
+  } // event loop
+
+  fin.Close();
+    
+  fout.Write();
+  fout.Close();
+       
+  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
+}
+//___________________________________________________________________
 //            FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS 
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -1898,6 +1986,7 @@ string DefaultOutputFile(void)
   else if (gOptOutFileFormat ==   3)  ext = "gtrac.root";
   else if (gOptOutFileFormat == 100)  ext = "gxml";
   else if (gOptOutFileFormat == 901)  ext = "ghad.dat";
+  else if (gOptOutFileFormat == 902)  ext = "ginuke.root";
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
