@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testFluxDriver
+\program gtestFluxDriver
 
-\brief   test program for flux drivers
+\brief   Test program for flux drivers
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

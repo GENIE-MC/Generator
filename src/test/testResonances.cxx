@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testResonances
+\program gtestResonances
 
-\brief   test program used for testing/debugging the Breit-Wigner distributions 
+\brief   Program used for testing/debugging the Breit-Wigner distributions 
          for Baryon Resonances
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>

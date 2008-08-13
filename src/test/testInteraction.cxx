@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\program testInteraction
+\program gtestInteraction
 
-\brief   small test program used for testing / debugging the Interaction and 
-         its aggregate objects (InitialState, ProcessInfo, Kinematics, XclsTag)
+\brief   Program used for testing / debugging the Interaction and its aggregate 
+         objects (InitialState, ProcessInfo, Kinematics, XclsTag)
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

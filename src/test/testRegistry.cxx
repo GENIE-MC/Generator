@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testRegistry
+\program gtestRegistry
 
-\brief   test program used for testing / debugging GENIE's Registry
+\brief   Program used for testing / debugging GENIE's Registry
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testFermiP
+\program gtestFermiP
 
-\brief   program used for testing / debugging the Fermi momentum distribution
+\brief   Program used for testing / debugging the Fermi momentum distribution
          models
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
