@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testElFormFactors
+\program gtestElFormFactors
 
-\brief   program used for testing / debugging the elastic form factors
+\brief   Program used for testing / debugging the elastic form factors
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

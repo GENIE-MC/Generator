@@ -1,13 +1,13 @@
 //____________________________________________________________________________
 /*!
 
-\program testMuELoss
+\program gtestMuELoss
 
-\brief   Test program for the MuELoss utility package. The program saves the
+\brief   Program for the MuELoss utility package. The program saves the
          computed data in an output ROOT ntuple. 
         
          Syntax :
-           testMuELoss -m materials
+           gtestMuELoss -m materials
 
          Options :
            -m specifies a comma seperated list of materials 

@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\program testDecay
+\program gtestDecay
 
 \brief   test program used for testing / debugging the PYTHIA/JETSET
          interface and the GENIE DecayModelI algorithms

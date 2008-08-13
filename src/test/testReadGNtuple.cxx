@@ -1,14 +1,11 @@
 //____________________________________________________________________________
 /*!
 
-\program testReadGNtuple
+\program gtestReadGNtuple
 
-\brief   A simple test program to illustrate how to use the GENIE ROOT output
-         TTrees of both formats.
-
-         To run: testReadGNtuple -f filename
-         where the filename points to a ROOT file containing a GENIE output
-         TTree
+\brief   A simple test program to illustrate how to read-in GENIE/ROOT GHEP
+         event trees.
+         To run: gtestReadGNtuple -f filename
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

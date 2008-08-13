@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testConfigPool
+\program gtestConfigPool
 
-\brief   test program used for testing / debugging GENIE's AlgConfigPool
+\brief   Program used for testing / debugging GENIE's AlgConfigPool
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

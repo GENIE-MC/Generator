@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testNumerical
+\program gtestNumerical
 
-\brief   testing GENIE's numerical utility classes
+\brief   Program testing GENIE's numerical utility classes
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

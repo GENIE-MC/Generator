@@ -1,12 +1,12 @@
 //____________________________________________________________________________
 /*!
 
-\program testDISSF
+\program gtestDISSF
 
-\brief   program used for testing / debugging the GENIE DIS SF models
+\brief   Program used for testing / debugging the GENIE DIS SF models
 
-       Syntax :
-           testDISSF -a model -c config [-m mode] [-x x] [-q Q2]
+         Syntax :
+          gtestDISSF -a model -c config [-m mode] [-x x] [-q Q2]
 
          Options :
            -a  DIS SF model (algorithm name, eg genie::BYStructureFuncModel)

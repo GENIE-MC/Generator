@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testMessenger
+\program gtestMessenger
 
-\brief   test program used for testing / debugging log4cpp
+\brief   Program used for testing / debugging log4cpp
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

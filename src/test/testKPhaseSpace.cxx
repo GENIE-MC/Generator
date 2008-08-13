@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testKPhaseSpace
+\program gtestKPhaseSpace
 
-\brief   program used for testing / debugging the kinematic phase space calc
+\brief   Program used for testing / debugging the kinematic phase space calc
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

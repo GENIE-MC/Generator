@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testPDFLIB
+\program gtestPDFLIB
 
-\brief   test interface to PDFLIB library
+\brief   Test interface to PDFLIB library
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

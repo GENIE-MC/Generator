@@ -1,12 +1,12 @@
 //____________________________________________________________________________
 /*!
 
-\program testHadronization
+\program gtestHadronization
 
-\brief   test program used for testing/debugging the KNO & PYTHIA hadronizers
+\brief   Program used for testing/debugging the KNO & PYTHIA hadronizers
 
-        Syntax :
-           testHadronization -n nevents -t test -a hadronizer -c config [-q]
+         Syntax :
+           gtestHadronization -n nevents -t test -a hadronizer -c config [-q]
 
          Options :
            -n  number of events

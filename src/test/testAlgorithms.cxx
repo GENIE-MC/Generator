@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testAlgorithms
+\program gtestAlgorithms
 
-\brief   program used for testing / debugging GENIE's Algorithms & AlgFactory
+\brief   Program used for testing / debugging GENIE's Algorithms & AlgFactory
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory

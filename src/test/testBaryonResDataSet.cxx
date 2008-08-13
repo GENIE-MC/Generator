@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program testBaryonResDataSet
+\program gtestBaryonResDataSet
 
-\brief   test program used for testing the Baryon Resonance Data Sets
+\brief   Program used for testing the Baryon Resonance Data Sets
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory
