@@ -28,8 +28,8 @@ TGT =    gEvGen		  \
  	 gNC2ElectronScat \
 	 gSplinePlotter	  \
 	 gVldSampleComp	  \
-	 gVldXSecComp	  \
-	 ghAEvGen         \
+	 ghAEvGen         
+#	 gVldXSecComp	  
 
 all: $(TGT)
 
