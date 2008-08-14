@@ -1685,7 +1685,8 @@ void ConvertToGHad(void)
     const InitialState & init_state = interaction->InitState();
 
     bool is_dis = proc_info.IsDeepInelastic();
-    if(!is_dis) return; 
+    bool is_res = proc_info.IsResonant();
+    if(!is_res && !is_dis) continue;
 
     int ccnc   = proc_info.IsWeakCC() ? 1 : 0;
     int inttyp = 3; 
@@ -1703,9 +1704,8 @@ void ConvertToGHad(void)
     assert(target);
     GHepParticle * fsl = event.FinalStatePrimaryLepton();
     assert(fsl);
-//  GHepParticle * hitnucl = event.HitNucleon();
-//  assert(hitnucl);
-    GHepParticle * hadsyst = event.FinalStateHadronicSystem();
+    GHepParticle * hitnucl = event.HitNucleon();
+    assert(hitnucl);
 
     int nupdg  = neutrino->Pdg();
     int fslpdg = fsl->Pdg();
@@ -1715,8 +1715,19 @@ void ConvertToGHad(void)
     const TLorentzVector & k1 = *(neutrino->P4());  // v 4-p (k1)
     const TLorentzVector & k2 = *(fsl->P4());       // l 4-p (k2)
 //  const TLorentzVector & p1 = *(hitnucl->P4());   // N 4-p (p1)      
-    const TLorentzVector & ph = *(hadsyst->P4());   // had-syst 4-p 
-     
+//  const TLorentzVector & ph = *(hadsyst->P4());   // had-syst 4-p 
+  
+    TLorentzVector ph;
+    if(is_dis) {
+      GHepParticle * hadsyst = event.FinalStateHadronicSystem();
+      assert(hadsyst);
+      ph = *(hadsyst->P4());
+    }   
+    if(is_res) {
+      GHepParticle * hadres = event.Particle(hitnucl->FirstDaughter());
+      ph = *(hadres->P4());
+    }
+   
     const Kinematics & kine = interaction->Kine();
     bool get_selected = true;
     double x  = kine.x (get_selected);
