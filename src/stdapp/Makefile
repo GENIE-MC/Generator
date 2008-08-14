@@ -16,7 +16,8 @@ include $(GENIE)/src/make/Make.include
 #GENIE_DICTS = $(shell $(GENIE)/src/scripts/setup/genie-config --dicts)
 GENIE_DICTS = 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+NUVLD_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --nuvldlibs)
+LIBRARIES  := $(GENIE_LIBS) $(NUVLD_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 TGT =    gEvGen		  \
 	 gEvGenGUI	  \
@@ -27,6 +28,7 @@ TGT =    gEvGen		  \
  	 gNC2ElectronScat \
 	 gSplinePlotter	  \
 	 gVldSampleComp	  \
+	 gVldXSecComp	  \
 	 ghAEvGen         \
 
 all: $(TGT)
@@ -82,12 +84,17 @@ gSplinePlotter: FORCE
 	$(CXX) $(CXXFLAGS) -c gSplinePlotter.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gSplinePlotter.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsplt
 
-#  sample testing/comparison utility
+# sample testing / comparison utility
 #
 gVldSampleComp: FORCE
 	$(CXX) $(CXXFLAGS) -c gVldSampleComp.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gVldSampleComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sample_comp
 
+# cross section testing / comparison utility
+#
+gVldXSecComp: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldXSecComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldXSecComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_xsec_comp
 
 # gnc2eN program converting NC events to electron scattering events
 #
@@ -118,6 +125,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gnc2eN  
 	$(RM) $(GENIE_BIN_PATH)/gsplt		
 	$(RM) $(GENIE_BIN_PATH)/gvld_sample_comp
+	$(RM) $(GENIE_BIN_PATH)/gvld_xsec_comp
 	$(RM) $(GENIE_BIN_PATH)/ghAevgen
 	$(RM) $(GENIE_BIN_PATH)/gviewer
 
@@ -131,6 +139,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnc2eN		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gsplt		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sample_comp
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_xsec_comp
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/ghAevgen	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gviewer	
 
@@ -160,6 +169,9 @@ clean--gSplinePlotter: FORCE
 
 clean--gVldSampleComp: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gvld_sample_comp
+
+clean--gVldXSecComp: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gvld_xsec_comp
 
 clean--ghAEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen

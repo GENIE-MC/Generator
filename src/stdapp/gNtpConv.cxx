@@ -1686,9 +1686,15 @@ void ConvertToGHad(void)
 
     bool is_dis = proc_info.IsDeepInelastic();
     bool is_res = proc_info.IsResonant();
-    if(!is_res && !is_dis) continue;
+    bool is_cc  = proc_info.IsWeakCC();
 
-    int ccnc   = proc_info.IsWeakCC() ? 1 : 0;
+    bool pass   = is_cc && (is_dis || is_res);
+    if(!pass) {
+      mcrec->Clear();
+      continue;
+    }
+
+    int ccnc   = is_cc ? 1 : 0;
     int inttyp = 3; 
 
     int im     = -1;
