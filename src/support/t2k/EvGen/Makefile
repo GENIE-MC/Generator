@@ -26,10 +26,10 @@ purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gT2Kevgen $(GENIE_BIN_PATH)/gT2Kgevgen
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gT2Kevgen $(GENIE_BIN_PATH)/gT2Kevgen
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gT2Kevgen $(GENIE_BIN_INSTALLATION_PATH)/gT2Kgevgen
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gT2Kevgen $(GENIE_BIN_INSTALLATION_PATH)/gT2Kevgen
 
 FORCE:
 
