@@ -17,7 +17,7 @@ include $(GENIE)/src/make/Make.include
 GENIE_DICTS = 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 NUVLD_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --nuvldlibs)
-LIBRARIES  := $(GENIE_LIBS) $(NUVLD_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+LIBRARIES  := $(GENIE_LIBS) $(NUVLD_LIBS) $(LIBRARIES)  $(NEUGEN_LIBRARIES) $(CERN_LIBRARIES)
 
 TGT =    gEvGen		  \
 	 gEvGenGUI	  \
