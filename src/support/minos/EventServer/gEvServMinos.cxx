@@ -126,6 +126,10 @@ int main(int argc, char ** argv)
   if(!gSock) exit(1);
   LOG("gevserv_minos", pNOTICE) << "Listening on port: " << gOptPortNum;
   
+  // Set no TCP/IP NODELAY
+  int delay_ok = gSock->SetOption(kNoDelay,1);
+  LOG("gevserv_minos", pNOTICE) << "TCP_NODELAY > " << delay_ok;
+
   // Start listening for messages & take the corresponding actions
 
   while(1) {
@@ -378,7 +382,7 @@ void CalcTotalXSec(string mesg)
      double xs = TMath::Max(0., total_xsec_spl->Evaluate(E) / (1E-38*units::cm2));
      
      ostringstream xsec_spl_knot;
-     xsec_spl_knot << ip << " " << E << " " << xs;
+     xsec_spl_knot << ip << " " << E << " " << Form("%15.8e",xs);
      gSock->Send(xsec_spl_knot.str().c_str());
   }
 
