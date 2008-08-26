@@ -62,10 +62,10 @@ public :
   double                 Weight        (void) { return  fWeight;              }
   const TLorentzVector & Momentum      (void) { return  fgP4;                 }
   const TLorentzVector & Position      (void) { return  fgX4;                 }
-  bool                   End           (void) { return  fIEntry >= fNEntries 
+  bool                   End           (void) { return  fIEntry >= fNEntries
                                                      && fICycle == fNCycles;  }
 
-  // Methods specific to the NuMI flux driver, 
+  // Methods specific to the NuMI flux driver,
   // for configuration/initialization of the flux & event generation drivers and
   // and for passing-through flux information (eg neutrino parent decay kinematics)
   // not used by the generator but required by analyses/processing further upstream
@@ -78,14 +78,16 @@ public :
   void SetNumOfCycles   (int n);                               ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
   void SetTreeName      (string name);                         ///< set input tree name (default: "h10")
   void ScanForMaxWeight (void);                                ///< scan for max flux weight (before generating unweighted flux neutrinos)
-  void UseFluxAtFarDet  (void);
-  void UseFluxAtNearDet (void);
+  void UseFluxAtFarDetCenter  (void);
+  void UseFluxAtNearDetCenter (void);
+
+  void PrintCurrent (void);  ///< print current entry from leaves
 
   double   POT_curr       (void);                              ///< current average POT
   long int NFluxNeutrinos (void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
   double   SumWeight      (void) const { return fSumWeight;  } ///< intergated weight for flux neutrinos looped so far
 
-  const GNuMIFluxPassThroughInfo & 
+  const GNuMIFluxPassThroughInfo &
      PassThroughInfo(void) { return *fPassThroughInfo; } ///< GNuMIFluxPassThroughInfo
 
 private:
@@ -94,7 +96,7 @@ private:
   //
   bool GenerateNext_weighted (void);
   void Initialize            (void);
-  void SetDefaults           (void);  
+  void SetDefaults           (void);
   void CleanUp               (void);
   void ResetCurrent          (void);
 
@@ -120,18 +122,18 @@ private:
   double    fWeight;           ///< current neutrino weight
   double    fSumWeight;        ///< sum of weights for neutrinos thrown so far
   long int  fNNeutrinos;       ///< number of flux neutrinos thrown so far
-  bool      fUseFluxAtFarDet;  ///< use flux at far or near det?
-  bool      fDetLocIsSet;      ///< is a flux location (near/far) set?
+  int       fUseFluxAtDetCenter;  ///< use flux at near (-1) or far (+1) det center?
+  bool      fDetLocIsSet;         ///< is a flux location (near/far) set?
 
   //-- gnumi ntuple branches
-  //   maintained names/comments from gnumi documentation 
+  //   maintained names/comments from gnumi documentation
   //   http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/
   //
-  TBranch * fBr_run;  	       ///< Run number
-  TBranch * fBr_evtno; 	       ///< Event number (proton on target)
-  TBranch * fBr_Ndxdz; 	       ///< Neutrino direction slopes for a random decay
+  TBranch * fBr_run;           ///< Run number
+  TBranch * fBr_evtno;         ///< Event number (proton on target)
+  TBranch * fBr_Ndxdz;         ///< Neutrino direction slopes for a random decay
   TBranch * fBr_Ndydz;         ///< see above
-  TBranch * fBr_Npz; 	       ///< Neutrino momentum (GeV/c) along z direction (beam axis)
+  TBranch * fBr_Npz;           ///< Neutrino momentum (GeV/c) along z direction (beam axis)
   TBranch * fBr_Nenergy;       ///< Neutrino energy (GeV/c) for a random decay
   TBranch * fBr_NdxdzNea;      ///< Neutrino direction slopes for a decay forced at center of near detector
   TBranch * fBr_NdydzNea;      ///< see above
@@ -141,7 +143,7 @@ private:
   TBranch * fBr_NdydzFar;      ///< see above
   TBranch * fBr_NenergyF;      ///< see above
   TBranch * fBr_NWtFar;        ///< see above
-  TBranch * fBr_Norig; 	       ///< Obsolete...
+  TBranch * fBr_Norig;         ///< Obsolete...
   TBranch * fBr_Ndecay;        ///< Decay mode that produced neutrino
                                ///   1  K0L -> nue pi- e+
                                ///   2  K0L -> nuebar pi+ e-
@@ -157,27 +159,27 @@ private:
                                ///  12  mu- -> numu nuebar e-
                                ///  13  pi+ -> numu mu+
                                ///  14  pi- -> numubar mu-
-  TBranch * fBr_Ntype; 	       ///< Neutrino flavor (56=numu, 55=numu-bar, 53=nue, 52=nue-bar)
+  TBranch * fBr_Ntype;         ///< Neutrino flavor (56=numu, 55=numu-bar, 53=nue, 52=nue-bar)
   TBranch * fBr_Vx;            ///< X position of hadron/muon decay
   TBranch * fBr_Vy;            ///< Y position of hadron/muon decay
   TBranch * fBr_Vz;            ///< Z position of hadron/muon decay
   TBranch * fBr_pdPx;          ///< Parent X momentum at decay point
   TBranch * fBr_pdPy;          ///< Parent Y momentum at decay point
-  TBranch * fBr_pdPz; 	       ///< Parent Z momentum at decay point
+  TBranch * fBr_pdPz;          ///< Parent Z momentum at decay point
   TBranch * fBr_ppdxdz;        ///< Parent dxdz direction at production
   TBranch * fBr_ppdydz;        ///< Parent dydz direction at production
   TBranch * fBr_pppz;          ///< Parent Z momentum at production
   TBranch * fBr_ppenergy;      ///< Parent energy at production
   TBranch * fBr_ppmedium;      ///< Tracking medium number where parent was produced
-  TBranch * fBr_ptype; 	       ///< Parent GEANT code particle ID
-  TBranch * fBr_ppvx; 	       ///< Parent production vertex X,Y,Z (cm)
+  TBranch * fBr_ptype;         ///< Parent GEANT code particle ID
+  TBranch * fBr_ppvx;          ///< Parent production vertex X,Y,Z (cm)
   TBranch * fBr_ppvy;          ///< see above
   TBranch * fBr_ppvz;          ///< see above
   TBranch * fBr_muparpx;       ///< Repeat of information above, but for muon neutrino parents
   TBranch * fBr_muparpy;       ///< see above
   TBranch * fBr_muparpz;       ///< see above
   TBranch * fBr_mupare;        ///< see above
-  TBranch * fBr_Necm;	       ///< Neutrino energy in COM frame
+  TBranch * fBr_Necm;          ///< Neutrino energy in COM frame
   TBranch * fBr_Nimpwt;        ///< Weight of neutrino parent
   TBranch * fBr_xpoint;        ///< Debugging hook -- unused
   TBranch * fBr_ypoint;        ///< Debugging hook -- unused
@@ -185,7 +187,7 @@ private:
   TBranch * fBr_tvx;           ///< X exit point of parent particle at the target
   TBranch * fBr_tvy;           ///< Y exit point of parent particle at the target
   TBranch * fBr_tvz;           ///< Z exit point of parent particle at the target
-  TBranch * fBr_tpx; 	       ///< Parent momentum exiting the target (X)
+  TBranch * fBr_tpx;           ///< Parent momentum exiting the target (X)
   TBranch * fBr_tpy;           ///< Parent momentum exiting the target (Y)
   TBranch * fBr_tpz;           ///< Parent momentum exiting the target (Z)
   TBranch * fBr_tptype;        ///< Parent particle ID exiting the target (GEANT code)
@@ -200,7 +202,7 @@ private:
   TBranch * fBr_tprivx;        ///< Primary particle interaction vertex
   TBranch * fBr_tprivy;        ///< see above
   TBranch * fBr_tprivz;        ///< see above
-  TBranch * fBr_beamx; 	       ///< Primary proton origin
+  TBranch * fBr_beamx;         ///< Primary proton origin
   TBranch * fBr_beamy;         ///< see above
   TBranch * fBr_beamz;         ///< see above
   TBranch * fBr_beampx;        ///< Primary proton momentum
@@ -209,57 +211,57 @@ private:
   //
   // corresponding leaves
   //
-  int   fLf_run;  	       ///<
-  int   fLf_evtno; 	       ///< 
-  float fLf_Ndxdz; 	       ///<
+  int   fLf_run;               ///<
+  int   fLf_evtno;             ///<
+  float fLf_Ndxdz;             ///<
   float fLf_Ndydz;             ///<
-  float fLf_Npz; 	       ///< 
-  float fLf_Nenergy;           ///< 
-  float fLf_NdxdzNea;          ///< 
+  float fLf_Npz;               ///<
+  float fLf_Nenergy;           ///<
+  float fLf_NdxdzNea;          ///<
   float fLf_NdydzNea;          ///<
   float fLf_NenergyN;          ///<
   float fLf_NWtNear;           ///<
-  float fLf_NdxdzFar;          ///< 
+  float fLf_NdxdzFar;          ///<
   float fLf_NdydzFar;          ///<
   float fLf_NenergyF;          ///<
   float fLf_NWtFar;            ///<
-  int   fLf_Norig; 	       ///<
+  int   fLf_Norig;             ///<
   int   fLf_Ndecay;            ///<
-  float fLf_Ntype; 	       ///<
+  int   fLf_Ntype;             ///<
   float fLf_Vx;                ///<
   float fLf_Vy;                ///<
   float fLf_Vz;                ///<
   float fLf_pdPx;              ///<
   float fLf_pdPy;              ///<
-  float fLf_pdPz; 	       ///<
+  float fLf_pdPz;              ///<
   float fLf_ppdxdz;            ///<
   float fLf_ppdydz;            ///<
   float fLf_pppz;              ///<
   float fLf_ppenergy;          ///<
   int   fLf_ppmedium;          ///<
-  int   fLf_ptype; 	       ///<
-  float fLf_ppvx; 	       ///<
+  int   fLf_ptype;             ///<
+  float fLf_ppvx;              ///<
   float fLf_ppvy;              ///<
   float fLf_ppvz;              ///<
   float fLf_muparpx;           ///<
   float fLf_muparpy;           ///<
   float fLf_muparpz;           ///<
   float fLf_mupare;            ///<
-  float fLf_Necm;	       ///< 
-  float fLf_Nimpwt;            ///< 
-  float fLf_xpoint;            ///< 
-  float fLf_ypoint;            ///< 
-  float fLf_zpoint;            ///< 
-  float fLf_tvx;               ///< 
-  float fLf_tvy;               ///< 
-  float fLf_tvz;               ///< 
-  float fLf_tpx; 	       ///< 
-  float fLf_tpy;               ///< 
-  float fLf_tpz;               ///< 
-  int   fLf_tptype;            ///< 
-  int   fLf_tgen;              ///< 
-  int   fLf_tgptype;  	       ///<
-  float fLf_tgppx; 	       ///<
+  float fLf_Necm;              ///<
+  float fLf_Nimpwt;            ///<
+  float fLf_xpoint;            ///<
+  float fLf_ypoint;            ///<
+  float fLf_zpoint;            ///<
+  float fLf_tvx;               ///<
+  float fLf_tvy;               ///<
+  float fLf_tvz;               ///<
+  float fLf_tpx;               ///<
+  float fLf_tpy;               ///<
+  float fLf_tpz;               ///<
+  int   fLf_tptype;            ///<
+  int   fLf_tgen;              ///<
+  int   fLf_tgptype;           ///<
+  float fLf_tgppx;             ///<
   float fLf_tgppy;             ///<
   float fLf_tgppz;             ///<
   float fLf_tprivx;            ///<
@@ -276,11 +278,11 @@ private:
 };
 
 
-// A small persistable C-struct - like class that may be stored at an extra branch of 
-// the output event tree -alongside with the generated event branch- for use further 
+// A small persistable C-struct - like class that may be stored at an extra branch of
+// the output event tree -alongside with the generated event branch- for use further
 // upstream in the analysis chain -eg beam reweighting etc-)
 //
-class GNuMIFluxPassThroughInfo: public TObject { 
+class GNuMIFluxPassThroughInfo: public TObject {
 public:
    GNuMIFluxPassThroughInfo();
    GNuMIFluxPassThroughInfo(const GNuMIFluxPassThroughInfo & info);
@@ -289,48 +291,48 @@ public:
    friend ostream & operator << (ostream & stream, const GNuMIFluxPassThroughInfo & info);
 
    // maintained variable names from gnumi ntuples
-   // see http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/
-   int   ndecay;    
-   float vx;      
-   float vy;            
-   float vz;             
-   float pdPx;       
-   float pdPy;           
-   float pdPz; 	     
-   float ppdxdz;        
-   float ppdydz;        
-   float pppz;          
-   float ppenergy;        
-   int   ppmedium;         
-   int   ptype;     // converted to PDG	    
-   float ppvx; 	      
-   float ppvy;           
-   float ppvz;            
-   float muparpx;          
-   float muparpy;         
-   float muparpz;          
-   float mupare;            
-   float tvx;               
-   float tvy;               
-   float tvz;               
-   float tpx; 	       
-   float tpy;               
-   float tpz;               
+   // see http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/[/v19/output_gnumi.html]
+   int   ndecay;
+   float vx;
+   float vy;
+   float vz;
+   float pdPx;
+   float pdPy;
+   float pdPz;
+   float ppdxdz;
+   float ppdydz;
+   float pppz;
+   float ppenergy;
+   int   ppmedium;
+   int   ptype;     // converted to PDG
+   float ppvx;
+   float ppvy;
+   float ppvz;
+   float muparpx;
+   float muparpy;
+   float muparpz;
+   float mupare;
+   float tvx;
+   float tvy;
+   float tvz;
+   float tpx;
+   float tpy;
+   float tpz;
    int   tptype;   // converted to PDG
-   int   tgen;              
+   int   tgen;
    int   tgptype;  // converted to PDG
-   float tgppx; 	       
-   float tgppy;            
-   float tgppz;           
-   float tprivx;          
-   float tprivy;         
-   float tprivz;          
-   float beamx;          
-   float beamy;           
-   float beamz;           
-   float beampx;           
-   float beampy;           
-   float beampz;            
+   float tgppx;
+   float tgppy;
+   float tgppz;
+   float tprivx;
+   float tprivy;
+   float tprivz;
+   float beamx;
+   float beamy;
+   float beamz;
+   float beampx;
+   float beampy;
+   float beampz;
 
 ClassDef(GNuMIFluxPassThroughInfo,1)
 };
