@@ -88,7 +88,7 @@ public :
   double   SumWeight      (void) const { return fSumWeight;  } ///< intergated weight for flux neutrinos looped so far
 
   const GNuMIFluxPassThroughInfo &
-     PassThroughInfo(void) { return *fPassThroughInfo; } ///< GNuMIFluxPassThroughInfo
+     PassThroughInfo(void) { return *fCurrentEntry; } ///< GNuMIFluxPassThroughInfo
 
 private:
 
@@ -209,96 +209,59 @@ private:
   TBranch * fBr_beampy;        ///< see above
   TBranch * fBr_beampz;        ///< see above
   //
-  // corresponding leaves
+  // corresponding leaves are part of owned structure
   //
-  int   fLf_run;               ///<
-  int   fLf_evtno;             ///<
-  float fLf_Ndxdz;             ///<
-  float fLf_Ndydz;             ///<
-  float fLf_Npz;               ///<
-  float fLf_Nenergy;           ///<
-  float fLf_NdxdzNea;          ///<
-  float fLf_NdydzNea;          ///<
-  float fLf_NenergyN;          ///<
-  float fLf_NWtNear;           ///<
-  float fLf_NdxdzFar;          ///<
-  float fLf_NdydzFar;          ///<
-  float fLf_NenergyF;          ///<
-  float fLf_NWtFar;            ///<
-  int   fLf_Norig;             ///<
-  int   fLf_Ndecay;            ///<
-  int   fLf_Ntype;             ///<
-  float fLf_Vx;                ///<
-  float fLf_Vy;                ///<
-  float fLf_Vz;                ///<
-  float fLf_pdPx;              ///<
-  float fLf_pdPy;              ///<
-  float fLf_pdPz;              ///<
-  float fLf_ppdxdz;            ///<
-  float fLf_ppdydz;            ///<
-  float fLf_pppz;              ///<
-  float fLf_ppenergy;          ///<
-  int   fLf_ppmedium;          ///<
-  int   fLf_ptype;             ///<
-  float fLf_ppvx;              ///<
-  float fLf_ppvy;              ///<
-  float fLf_ppvz;              ///<
-  float fLf_muparpx;           ///<
-  float fLf_muparpy;           ///<
-  float fLf_muparpz;           ///<
-  float fLf_mupare;            ///<
-  float fLf_Necm;              ///<
-  float fLf_Nimpwt;            ///<
-  float fLf_xpoint;            ///<
-  float fLf_ypoint;            ///<
-  float fLf_zpoint;            ///<
-  float fLf_tvx;               ///<
-  float fLf_tvy;               ///<
-  float fLf_tvz;               ///<
-  float fLf_tpx;               ///<
-  float fLf_tpy;               ///<
-  float fLf_tpz;               ///<
-  int   fLf_tptype;            ///<
-  int   fLf_tgen;              ///<
-  int   fLf_tgptype;           ///<
-  float fLf_tgppx;             ///<
-  float fLf_tgppy;             ///<
-  float fLf_tgppz;             ///<
-  float fLf_tprivx;            ///<
-  float fLf_tprivy;            ///<
-  float fLf_tprivz;            ///<
-  float fLf_beamx;             ///<
-  float fLf_beamy;             ///<
-  float fLf_beamz;             ///<
-  float fLf_beampx;            ///<
-  float fLf_beampy;            ///<
-  float fLf_beampz;            ///<
+  GNuMIFluxPassThroughInfo* fCurrentEntry;
 
-  GNuMIFluxPassThroughInfo * fPassThroughInfo;
 };
 
 
-// A small persistable C-struct - like class that may be stored at an extra branch of
-// the output event tree -alongside with the generated event branch- for use further
-// upstream in the analysis chain -eg beam reweighting etc-)
+// A small persistable C-struct -like class that mirrors the structure of 
+// the gnumi ntuples.  This can then be stored as an extra branch of
+// the output event tree -alongside with the generated event branch- 
+// for use further upstream in the analysis chain -eg beam reweighting etc-)
 //
 class GNuMIFluxPassThroughInfo: public TObject {
 public:
    GNuMIFluxPassThroughInfo();
+   /* allow default copy constructor ... for now nothing special
    GNuMIFluxPassThroughInfo(const GNuMIFluxPassThroughInfo & info);
+   */
    virtual ~GNuMIFluxPassThroughInfo() { };
+
+   void Reset();  //
+   void ConvertPartCodes();
 
    friend ostream & operator << (ostream & stream, const GNuMIFluxPassThroughInfo & info);
 
+   int   pcodes;  // 0=original GEANT particle codes, 1=converted to PDG
+   int   units;   // 0=original GEANT cm, 1=meters
+
    // maintained variable names from gnumi ntuples
    // see http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/[/v19/output_gnumi.html]
+   int   run;
+   int   evtno;
+   float ndxdz;
+   float ndydz;
+   float npz;
+   float nenergy;
+   float ndxdznea;
+   float ndydznea;
+   float nenergyn;
+   float nwtnear;
+   float ndxdzfar;
+   float ndydzfar;
+   float nenergyf;
+   float nwtfar;
+   int   norig;
    int   ndecay;
+   int   ntype;
    float vx;
    float vy;
    float vz;
-   float pdPx;
-   float pdPy;
-   float pdPz;
+   float pdpx;
+   float pdpy;
+   float pdpz;
    float ppdxdz;
    float ppdydz;
    float pppz;
@@ -312,6 +275,11 @@ public:
    float muparpy;
    float muparpz;
    float mupare;
+   float necm;
+   float nimpwt;
+   float xpoint;
+   float ypoint;
+   float zpoint;
    float tvx;
    float tvy;
    float tvz;
@@ -332,9 +300,9 @@ public:
    float beamz;
    float beampx;
    float beampy;
-   float beampz;
+   float beampz;    
 
-ClassDef(GNuMIFluxPassThroughInfo,1)
+ClassDef(GNuMIFluxPassThroughInfo,2)
 };
 
 } // flux namespace
