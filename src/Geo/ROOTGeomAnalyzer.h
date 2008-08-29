@@ -31,6 +31,7 @@ class TGeoMaterial;
 class TGeoMixture;
 class TGeoElement;
 class TVector3;
+class TGeoHMatrix;
 
 using std::string;
 
@@ -106,6 +107,9 @@ private:
   void   Local2SI                (PathLengthList & pl);
   void   Local2SI                (TVector3 & v);
   void   SI2Local                (TVector3 & v);
+  void   Master2Top              (TVector3 & v);
+  void   Master2TopDir           (TVector3 & v);
+  void   Top2Master              (TVector3 & v);
 
   int              fMaterial;              ///< input selected material for vertex generation
   TGeoManager *    fGeometry;              ///< input detector geometry
@@ -124,6 +128,7 @@ private:
   PathLengthList * fCurrMaxPathLengthList; ///< current list of max path-lengths
   PDGCodeList *    fCurrPDGCodeList;       ///< current list of target nuclei
   TGeoVolume *     fTopVolume;             ///< top volume
+  TGeoHMatrix *    fMasterToTop;           ///< matrix connecting master coordinates to top volume coordinates
 };
 
 }      // geometry namespace
