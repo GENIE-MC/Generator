@@ -195,6 +195,7 @@ void ROOTGeomAnalyzer::SetTopVolName(string name)
     if(nodeName.Contains(volName)) {
       if(fMasterToTop) delete fMasterToTop;
       fMasterToTop = new TGeoHMatrix(*next.GetCurrentMatrix());
+      fMasterToTopIsIdentity = fMasterToTop->IsIdentity();
       break;
     }
   }
@@ -268,8 +269,11 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
     TVector3 udir = p.Vect().Unit(); // unit vector along direction
     TVector3 pos = x.Vect();         // initial position
     this->SI2Local(pos);             // SI -> curr geom units
-    this->Master2Top(pos);           // transform position (master -> top)
-    this->Master2TopDir(udir);       // transform direction (master -> top)
+
+    if(!fMasterToTopIsIdentity) {
+      this->Master2Top(pos);         // transform position (master -> top)
+      this->Master2TopDir(udir);     // transform direction (master -> top)
+    }
 
     fCurrPathLengthList->AddPathLength(
           pdgc, this->ComputePathLengthPDG(pos,udir,pdgc));
@@ -311,9 +315,12 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   TVector3 dir = p.Vect().Unit();
   TVector3 r   = x.Vect();
 
-  this->SI2Local(r);         // SI -> curr geom units
-  this->Master2Top(r);       // transform position (master -> top)
-  this->Master2TopDir(dir);  // transform direction (master -> top)
+  this->SI2Local(r);           // SI -> curr geom units
+
+  if(!fMasterToTopIsIdentity) {
+    this->Master2Top(r);       // transform position (master -> top)
+    this->Master2TopDir(dir);  // transform direction (master -> top)
+  }
 
   double max_dist = this->ComputePathLengthPDG(r, dir, tgtpdg);
   LOG("GROOTGeom", pNOTICE)
@@ -345,7 +352,10 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   r.SetXYZ(x.X(), x.Y(), x.Z());
 
   this->SI2Local(r);   // SI -> curr geom units
-  this->Master2Top(r); // transform position (master -> top)
+
+  if(!fMasterToTopIsIdentity) {
+     this->Master2Top(r); // transform position (master -> top)
+  }
 
   fGeometry -> SetCurrentPoint     (r[0],  r[1],  r[2]  );
   fGeometry -> SetCurrentDirection (dir[0],dir[1],dir[2]);
@@ -454,7 +464,10 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
        << "No material with code = " << tgtpdg << " could be found";
   }
 
-  this->Top2Master(r); // transform position (top -> master)
+  if(!fMasterToTopIsIdentity) {
+     this->Top2Master(r); // transform position (top -> master)
+  }
+
   this->Local2SI(r);   // curr geom units -> SI
 
   fCurrVertex->SetXYZ(r[0],r[1],r[2]);
@@ -490,6 +503,8 @@ void ROOTGeomAnalyzer::Initialize(void)
   this -> SetDensityUnits      (genie::units::kilogram/genie::units::meter3);
   this -> SetWeightWithDensity (true);
   this -> SetMixtureWeightsSum (-1.);
+
+  fMasterToTopIsIdentity = true;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::CleanUp(void)
@@ -550,6 +565,7 @@ void ROOTGeomAnalyzer::Load(TGeoManager * gm)
 
   // load matrix (identity) of top volume
   fMasterToTop = new TGeoHMatrix(*fGeometry->GetCurrentMatrix());
+  fMasterToTopIsIdentity = true;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)

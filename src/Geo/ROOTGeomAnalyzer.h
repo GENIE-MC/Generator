@@ -129,6 +129,7 @@ private:
   PDGCodeList *    fCurrPDGCodeList;       ///< current list of target nuclei
   TGeoVolume *     fTopVolume;             ///< top volume
   TGeoHMatrix *    fMasterToTop;           ///< matrix connecting master coordinates to top volume coordinates
+  bool             fMasterToTopIsIdentity; ///< is fMasterToTop matrix the identity matrix?
 };
 
 }      // geometry namespace
