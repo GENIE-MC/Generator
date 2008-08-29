@@ -144,13 +144,13 @@ bool GNuMIFlux::GenerateNext_weighted(void)
 
   fNuFluxTree->GetEntry(fIEntry);
   fIEntry++;
+  fCurrentEntry->pcodes = 0;  // fetched entry has geant codes
+  fCurrentEntry->units  = 0;  // fetched entry has original units
 
   // Convert the current gnumi neutrino flavor mode into a neutrino pdg code
-
-  if ( fLf_Ntype == 56 ) fgPdgC = kPdgNuMu;
-  if ( fLf_Ntype == 55 ) fgPdgC = kPdgAntiNuMu;
-  if ( fLf_Ntype == 53 ) fgPdgC = kPdgNuE;
-  if ( fLf_Ntype == 52 ) fgPdgC = kPdgAntiNuE;
+  // Also convert other particle codes in GNuMIFluxPassThroughInfo to PDG
+  fCurrentEntry->ConvertPartCodes();
+  fgPdgC = fCurrentEntry->ntype;
 
   // Check neutrino pdg against declared list of neutrino species declared
   // by the current instance of the NuMI neutrino flux driver.
@@ -165,7 +165,8 @@ bool GNuMIFlux::GenerateNext_weighted(void)
      LOG("Flux", pWARN)
           << "Declared list of neutrino species: " << *fPdgCList;
      LOG("Flux", pWARN)
-          << "gnumi neutrino flavor: " << fLf_Ntype;
+       << "gnumi neutrino flavor: " << fCurrentEntry->ntype 
+       << "(pcodes=" << fCurrentEntry->pcodes << ")" ;
      return false;	
   }
 
@@ -177,16 +178,16 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // that maximum energy has already been used for normalizing the interaction probabilities.
   // Make sure that the appropriate maximum flux neutrino energy was set at
   // initialization via GNuMIFlux::SetMaxEnergy(double Ev)
-  fWeight = fLf_Nimpwt;   // start with importance weight
+  fWeight = fCurrentEntry->nimpwt;   // start with importance weight
   double Ev = 0;
   switch ( fUseFluxAtDetCenter ) {
   case -1:  // near detector
-    fWeight *= fLf_NWtNear;
-    Ev       = fLf_NenergyN;
+    fWeight *= fCurrentEntry->nwtnear;
+    Ev       = fCurrentEntry->nenergyn;
     break;
   case +1:  // far detector
-    fWeight *= fLf_NWtFar;
-    Ev       = fLf_NenergyF;
+    fWeight *= fCurrentEntry->nwtfar;
+    Ev       = fCurrentEntry->nenergyf;
     break;
   default:  // recalculate on x-y window
      LOG("Flux", pWARN)
@@ -219,52 +220,6 @@ bool GNuMIFlux::GenerateNext_weighted(void)
         << "\n p4: " << utils::print::P4AsShortString(&fgP4)
         << "\n x4: " << utils::print::X4AsString(&fgX4);
 #endif
-
-  // Update pass-through info (= info on the flux neutrino parent particle
-  // that may be stored at an extra branch of the output event tree -alongside
-  // with the generated event branch- for use further upstream in the
-  // analysis chain -eg for beam reweighting etc-)
-  fPassThroughInfo -> ndecay   = fLf_Ndecay;
-  fPassThroughInfo -> vx       = fLf_Vx;
-  fPassThroughInfo -> vy       = fLf_Vy;
-  fPassThroughInfo -> vz       = fLf_Vz;
-  fPassThroughInfo -> pdPx     = fLf_pdPx;
-  fPassThroughInfo -> pdPy     = fLf_pdPy;
-  fPassThroughInfo -> pdPz     = fLf_pdPz;
-  fPassThroughInfo -> ppdxdz   = fLf_ppdxdz;
-  fPassThroughInfo -> ppdydz   = fLf_ppdydz;
-  fPassThroughInfo -> pppz     = fLf_pppz;
-  fPassThroughInfo -> ppenergy = fLf_ppenergy;
-  fPassThroughInfo -> ppmedium = fLf_ppmedium;
-  fPassThroughInfo -> ptype    = pdg::GeantToPdg( fLf_ptype );
-  fPassThroughInfo -> ppvx     = fLf_ppvx;
-  fPassThroughInfo -> ppvy     = fLf_ppvy;
-  fPassThroughInfo -> ppvz     = fLf_ppvz;
-  fPassThroughInfo -> muparpx  = fLf_muparpx;
-  fPassThroughInfo -> muparpy  = fLf_muparpy;
-  fPassThroughInfo -> muparpz  = fLf_muparpz;
-  fPassThroughInfo -> mupare   = fLf_mupare;
-  fPassThroughInfo -> tvx      = fLf_tvx;
-  fPassThroughInfo -> tvy      = fLf_tvy;
-  fPassThroughInfo -> tvz      = fLf_tvz;
-  fPassThroughInfo -> tpx      = fLf_tpx;
-  fPassThroughInfo -> tpy      = fLf_tpy;
-  fPassThroughInfo -> tpz      = fLf_tpz;
-  fPassThroughInfo -> tptype   = pdg::GeantToPdg( fLf_tptype );
-  fPassThroughInfo -> tgen     = fLf_tgen;
-  fPassThroughInfo -> tgptype  = pdg::GeantToPdg( fLf_tgptype );
-  fPassThroughInfo -> tgppx    = fLf_tgppx;
-  fPassThroughInfo -> tgppy    = fLf_tgppy;
-  fPassThroughInfo -> tgppz    = fLf_tgppz;
-  fPassThroughInfo -> tprivx   = fLf_tprivx;
-  fPassThroughInfo -> tprivy   = fLf_tprivy;
-  fPassThroughInfo -> tprivz   = fLf_tprivz;
-  fPassThroughInfo -> beamx    = fLf_beamx;
-  fPassThroughInfo -> beamy    = fLf_beamy;
-  fPassThroughInfo -> beamz    = fLf_beamz;
-  fPassThroughInfo -> beampx   = fLf_beampx;
-  fPassThroughInfo -> beampy   = fLf_beampy;
-  fPassThroughInfo -> beampz   = fLf_beampz;
 
   // update the sum of weights & number of neutrinos
   fSumWeight += this->Weight();
@@ -386,68 +341,68 @@ void GNuMIFlux::LoadBeamSimData(string filename)
   fBr_beampz       = fNuFluxTree -> GetBranch ( "beampz"   );
 
   // set the leaf addresses for the above branches
-  fBr_run          -> SetAddress ( &fLf_run      );
-  fBr_evtno        -> SetAddress ( &fLf_evtno    );
-  fBr_Ndxdz        -> SetAddress ( &fLf_Ndxdz    );
-  fBr_Ndydz        -> SetAddress ( &fLf_Ndydz    );
-  fBr_Npz          -> SetAddress ( &fLf_Npz      );
-  fBr_Nenergy      -> SetAddress ( &fLf_Nenergy  );
-  fBr_NdxdzNea     -> SetAddress ( &fLf_NdxdzNea );
-  fBr_NdydzNea     -> SetAddress ( &fLf_NdydzNea );
-  fBr_NenergyN     -> SetAddress ( &fLf_NenergyN );
-  fBr_NWtNear      -> SetAddress ( &fLf_NWtNear  );
-  fBr_NdxdzFar     -> SetAddress ( &fLf_NdxdzFar );
-  fBr_NdydzFar     -> SetAddress ( &fLf_NdydzFar );
-  fBr_NenergyF     -> SetAddress ( &fLf_NenergyF );
-  fBr_NWtFar       -> SetAddress ( &fLf_NWtFar   );
-  fBr_Norig        -> SetAddress ( &fLf_Norig    );
-  fBr_Ndecay       -> SetAddress ( &fLf_Ndecay   );
-  fBr_Ntype        -> SetAddress ( &fLf_Ntype    );
-  fBr_Vx           -> SetAddress ( &fLf_Vx       );
-  fBr_Vy           -> SetAddress ( &fLf_Vy       );
-  fBr_Vz           -> SetAddress ( &fLf_Vz       );
-  fBr_pdPx         -> SetAddress ( &fLf_pdPx     );
-  fBr_pdPy         -> SetAddress ( &fLf_pdPy     );
-  fBr_pdPz         -> SetAddress ( &fLf_pdPz     );
-  fBr_ppdxdz       -> SetAddress ( &fLf_ppdxdz   );
-  fBr_ppdydz       -> SetAddress ( &fLf_ppdydz   );
-  fBr_pppz         -> SetAddress ( &fLf_pppz     );
-  fBr_ppenergy     -> SetAddress ( &fLf_ppenergy );
-  fBr_ppmedium     -> SetAddress ( &fLf_ppmedium );
-  fBr_ptype        -> SetAddress ( &fLf_ptype    );
-  fBr_ppvx         -> SetAddress ( &fLf_ppvx     );
-  fBr_ppvy         -> SetAddress ( &fLf_ppvy     );
-  fBr_ppvz         -> SetAddress ( &fLf_ppvz     );
-  fBr_muparpx      -> SetAddress ( &fLf_muparpx  );
-  fBr_muparpy      -> SetAddress ( &fLf_muparpy  );
-  fBr_muparpz      -> SetAddress ( &fLf_muparpz  );
-  fBr_mupare       -> SetAddress ( &fLf_mupare   );
-  fBr_Necm         -> SetAddress ( &fLf_Necm     );
-  fBr_Nimpwt       -> SetAddress ( &fLf_Nimpwt   );
-  fBr_xpoint       -> SetAddress ( &fLf_xpoint   );
-  fBr_ypoint       -> SetAddress ( &fLf_ypoint   );
-  fBr_zpoint       -> SetAddress ( &fLf_zpoint   );
-  fBr_tvx          -> SetAddress ( &fLf_tvx      );
-  fBr_tvy          -> SetAddress ( &fLf_tvy      );
-  fBr_tvz          -> SetAddress ( &fLf_tvz      );
-  fBr_tpx          -> SetAddress ( &fLf_tpx      );
-  fBr_tpy          -> SetAddress ( &fLf_tpy      );
-  fBr_tpz          -> SetAddress ( &fLf_tpz      );
-  fBr_tptype       -> SetAddress ( &fLf_tptype   );
-  fBr_tgen         -> SetAddress ( &fLf_tgen     );
-  fBr_tgptype      -> SetAddress ( &fLf_tgptype  );
-  fBr_tgppx        -> SetAddress ( &fLf_tgppx    );
-  fBr_tgppy        -> SetAddress ( &fLf_tgppy    );
-  fBr_tgppz        -> SetAddress ( &fLf_tgppz    );
-  fBr_tprivx       -> SetAddress ( &fLf_tprivx   );
-  fBr_tprivy       -> SetAddress ( &fLf_tprivy   );
-  fBr_tprivz       -> SetAddress ( &fLf_tprivz   );
-  fBr_beamx        -> SetAddress ( &fLf_beamx    );
-  fBr_beamy        -> SetAddress ( &fLf_beamy    );
-  fBr_beamz        -> SetAddress ( &fLf_beamz    );
-  fBr_beampx       -> SetAddress ( &fLf_beampx   );
-  fBr_beampy       -> SetAddress ( &fLf_beampy   );
-  fBr_beampz       -> SetAddress ( &fLf_beampz   );
+  fBr_run          -> SetAddress ( &fCurrentEntry->run      );
+  fBr_evtno        -> SetAddress ( &fCurrentEntry->evtno    );
+  fBr_Ndxdz        -> SetAddress ( &fCurrentEntry->ndxdz    );
+  fBr_Ndydz        -> SetAddress ( &fCurrentEntry->ndydz    );
+  fBr_Npz          -> SetAddress ( &fCurrentEntry->npz      );
+  fBr_Nenergy      -> SetAddress ( &fCurrentEntry->nenergy  );
+  fBr_NdxdzNea     -> SetAddress ( &fCurrentEntry->ndxdznea );
+  fBr_NdydzNea     -> SetAddress ( &fCurrentEntry->ndydznea );
+  fBr_NenergyN     -> SetAddress ( &fCurrentEntry->nenergyn );
+  fBr_NWtNear      -> SetAddress ( &fCurrentEntry->nwtnear  );
+  fBr_NdxdzFar     -> SetAddress ( &fCurrentEntry->ndxdzfar );
+  fBr_NdydzFar     -> SetAddress ( &fCurrentEntry->ndydzfar );
+  fBr_NenergyF     -> SetAddress ( &fCurrentEntry->nenergyf );
+  fBr_NWtFar       -> SetAddress ( &fCurrentEntry->nwtfar   );
+  fBr_Norig        -> SetAddress ( &fCurrentEntry->norig    );
+  fBr_Ndecay       -> SetAddress ( &fCurrentEntry->ndecay   );
+  fBr_Ntype        -> SetAddress ( &fCurrentEntry->ntype    );
+  fBr_Vx           -> SetAddress ( &fCurrentEntry->vx       );
+  fBr_Vy           -> SetAddress ( &fCurrentEntry->vy       );
+  fBr_Vz           -> SetAddress ( &fCurrentEntry->vz       );
+  fBr_pdPx         -> SetAddress ( &fCurrentEntry->pdpx     );
+  fBr_pdPy         -> SetAddress ( &fCurrentEntry->pdpy     );
+  fBr_pdPz         -> SetAddress ( &fCurrentEntry->pdpz     );
+  fBr_ppdxdz       -> SetAddress ( &fCurrentEntry->ppdxdz   );
+  fBr_ppdydz       -> SetAddress ( &fCurrentEntry->ppdydz   );
+  fBr_pppz         -> SetAddress ( &fCurrentEntry->pppz     );
+  fBr_ppenergy     -> SetAddress ( &fCurrentEntry->ppenergy );
+  fBr_ppmedium     -> SetAddress ( &fCurrentEntry->ppmedium );
+  fBr_ptype        -> SetAddress ( &fCurrentEntry->ptype    );
+  fBr_ppvx         -> SetAddress ( &fCurrentEntry->ppvx     );
+  fBr_ppvy         -> SetAddress ( &fCurrentEntry->ppvy     );
+  fBr_ppvz         -> SetAddress ( &fCurrentEntry->ppvz     );
+  fBr_muparpx      -> SetAddress ( &fCurrentEntry->muparpx  );
+  fBr_muparpy      -> SetAddress ( &fCurrentEntry->muparpy  );
+  fBr_muparpz      -> SetAddress ( &fCurrentEntry->muparpz  );
+  fBr_mupare       -> SetAddress ( &fCurrentEntry->mupare   );
+  fBr_Necm         -> SetAddress ( &fCurrentEntry->necm     );
+  fBr_Nimpwt       -> SetAddress ( &fCurrentEntry->nimpwt   );
+  fBr_xpoint       -> SetAddress ( &fCurrentEntry->xpoint   );
+  fBr_ypoint       -> SetAddress ( &fCurrentEntry->ypoint   );
+  fBr_zpoint       -> SetAddress ( &fCurrentEntry->zpoint   );
+  fBr_tvx          -> SetAddress ( &fCurrentEntry->tvx      );
+  fBr_tvy          -> SetAddress ( &fCurrentEntry->tvy      );
+  fBr_tvz          -> SetAddress ( &fCurrentEntry->tvz      );
+  fBr_tpx          -> SetAddress ( &fCurrentEntry->tpx      );
+  fBr_tpy          -> SetAddress ( &fCurrentEntry->tpy      );
+  fBr_tpz          -> SetAddress ( &fCurrentEntry->tpz      );
+  fBr_tptype       -> SetAddress ( &fCurrentEntry->tptype   );
+  fBr_tgen         -> SetAddress ( &fCurrentEntry->tgen     );
+  fBr_tgptype      -> SetAddress ( &fCurrentEntry->tgptype  );
+  fBr_tgppx        -> SetAddress ( &fCurrentEntry->tgppx    );
+  fBr_tgppy        -> SetAddress ( &fCurrentEntry->tgppy    );
+  fBr_tgppz        -> SetAddress ( &fCurrentEntry->tgppz    );
+  fBr_tprivx       -> SetAddress ( &fCurrentEntry->tprivx   );
+  fBr_tprivy       -> SetAddress ( &fCurrentEntry->tprivy   );
+  fBr_tprivz       -> SetAddress ( &fCurrentEntry->tprivz   );
+  fBr_beamx        -> SetAddress ( &fCurrentEntry->beamx    );
+  fBr_beamy        -> SetAddress ( &fCurrentEntry->beamy    );
+  fBr_beamz        -> SetAddress ( &fCurrentEntry->beamz    );
+  fBr_beampx       -> SetAddress ( &fCurrentEntry->beampx   );
+  fBr_beampy       -> SetAddress ( &fCurrentEntry->beampy   );
+  fBr_beampz       -> SetAddress ( &fCurrentEntry->beampz   );
 
   // current ntuple cycle # (flux ntuples may be recycled)
   fICycle = 1;
@@ -546,14 +501,7 @@ void GNuMIFlux::UseFluxAtNearDetCenter(void)
 //___________________________________________________________________________
 void GNuMIFlux::PrintCurrent(void)
 {
-  //std::cout << "GNuMIFlux::PrintCurrent ....." << std::endl;
-  //LOG("Flux", pINFO) 
-  LOG("Flux", pNOTICE) 
-    << "Current Leaf Values: "
-    << " run " << fLf_run << " evtno " << fLf_evtno << "\n"
-    << " NenergyN " << fLf_NenergyN << " NWtNear " << fLf_NWtNear
-    << " NenergyF " << fLf_NenergyF << " NWtFar  " << fLf_NWtFar << "\n"
-    << " Ntype " << fLf_Ntype;
+  LOG("Flux", pNOTICE) << "CurrentEntry:" << *fCurrentEntry;
 }
 //___________________________________________________________________________
 void GNuMIFlux::Initialize(void)
@@ -562,7 +510,7 @@ void GNuMIFlux::Initialize(void)
 
   fMaxEv           = 0;
   fPdgCList        = new PDGCodeList;
-  fPassThroughInfo = new GNuMIFluxPassThroughInfo;
+  fCurrentEntry    = new GNuMIFluxPassThroughInfo;
 
   fNuFluxFile      = 0;
   fNuFluxTree      = 0;
@@ -579,69 +527,6 @@ void GNuMIFlux::Initialize(void)
   fNNeutrinos      = 0;
   fUseFluxAtDetCenter = 0;
   fDetLocIsSet        = false;
-
-  fBr_run          = 0;
-  fBr_evtno        = 0;
-  fBr_Ndxdz        = 0;
-  fBr_Ndydz        = 0;
-  fBr_Npz          = 0;
-  fBr_Nenergy      = 0;
-  fBr_NdxdzNea     = 0;
-  fBr_NdydzNea     = 0;
-  fBr_NenergyN     = 0;
-  fBr_NWtNear      = 0;
-  fBr_NdxdzFar     = 0;
-  fBr_NdydzFar     = 0;
-  fBr_NenergyF     = 0;
-  fBr_NWtFar       = 0;
-  fBr_Norig        = 0;
-  fBr_Ndecay       = 0;
-  fBr_Ntype        = 0;
-  fBr_Vx           = 0;
-  fBr_Vy           = 0;
-  fBr_Vz           = 0;
-  fBr_pdPx         = 0;
-  fBr_pdPy         = 0;
-  fBr_pdPz         = 0;
-  fBr_ppdxdz       = 0;
-  fBr_ppdydz       = 0;
-  fBr_pppz         = 0;
-  fBr_ppenergy     = 0;
-  fBr_ppmedium     = 0;
-  fBr_ptype        = 0;
-  fBr_ppvx         = 0;
-  fBr_ppvy         = 0;
-  fBr_ppvz         = 0;
-  fBr_muparpx      = 0;
-  fBr_muparpy      = 0;
-  fBr_muparpz      = 0;
-  fBr_mupare       = 0;
-  fBr_Necm         = 0;
-  fBr_Nimpwt       = 0;
-  fBr_xpoint       = 0;
-  fBr_ypoint       = 0;
-  fBr_zpoint       = 0;
-  fBr_tvx          = 0;
-  fBr_tvy          = 0;
-  fBr_tvz          = 0;
-  fBr_tpx          = 0;
-  fBr_tpy          = 0;
-  fBr_tpz          = 0;
-  fBr_tptype       = 0;
-  fBr_tgen         = 0;
-  fBr_tgptype      = 0;
-  fBr_tgppx        = 0;
-  fBr_tgppy        = 0;
-  fBr_tgppz        = 0;
-  fBr_tprivx       = 0;
-  fBr_tprivy       = 0;
-  fBr_tprivz       = 0;
-  fBr_beamx        = 0;
-  fBr_beamy        = 0;
-  fBr_beamz        = 0;
-  fBr_beampx       = 0;
-  fBr_beampy       = 0;
-  fBr_beampz       = 0;
 
   this->SetDefaults();
   this->ResetCurrent();
@@ -685,68 +570,7 @@ void GNuMIFlux::ResetCurrent(void)
   fgP4.SetPxPyPzE (0.,0.,0.,0.);
   fgX4.SetXYZT    (0.,0.,0.,0.);
 
-  fLf_run          = 0;
-  fLf_evtno        = 0;
-  fLf_Ndxdz        = 0;
-  fLf_Ndydz        = 0;
-  fLf_Npz          = 0;
-  fLf_Nenergy      = 0;
-  fLf_NdxdzNea     = 0;
-  fLf_NdydzNea     = 0;
-  fLf_NenergyN     = 0;
-  fLf_NWtNear      = 0;
-  fLf_NdxdzFar     = 0;
-  fLf_NdydzFar     = 0;
-  fLf_NenergyF     = 0;
-  fLf_NWtFar       = 0;
-  fLf_Norig        = 0;
-  fLf_Ndecay       = 0;
-  fLf_Ntype        = 0;
-  fLf_Vx           = 0;
-  fLf_Vy           = 0;
-  fLf_Vz           = 0;
-  fLf_pdPx         = 0;
-  fLf_pdPy         = 0;
-  fLf_pdPz         = 0;
-  fLf_ppdxdz       = 0;
-  fLf_ppdydz       = 0;
-  fLf_pppz         = 0;
-  fLf_ppenergy     = 0;
-  fLf_ppmedium     = 0;
-  fLf_ptype        = 0;
-  fLf_ppvx         = 0;
-  fLf_ppvy         = 0;
-  fLf_ppvz         = 0;
-  fLf_muparpx      = 0;
-  fLf_muparpy      = 0;
-  fLf_muparpz      = 0;
-  fLf_mupare       = 0;
-  fLf_Necm         = 0;
-  fLf_Nimpwt       = 0;
-  fLf_xpoint       = 0;
-  fLf_ypoint       = 0;
-  fLf_zpoint       = 0;
-  fLf_tvx          = 0;
-  fLf_tvy          = 0;
-  fLf_tvz          = 0;
-  fLf_tpx          = 0;
-  fLf_tpy          = 0;
-  fLf_tpz          = 0;
-  fLf_tptype       = 0;
-  fLf_tgen         = 0;
-  fLf_tgptype      = 0;
-  fLf_tgppx        = 0;
-  fLf_tgppy        = 0;
-  fLf_tgppz        = 0;
-  fLf_tprivx       = 0;
-  fLf_tprivy       = 0;
-  fLf_tprivz       = 0;
-  fLf_beamx        = 0;
-  fLf_beamy        = 0;
-  fLf_beamz        = 0;
-  fLf_beampx       = 0;
-  fLf_beampy       = 0;
-  fLf_beampz       = 0;
+  fCurrentEntry->Reset();
 }
 //___________________________________________________________________________
 void GNuMIFlux::CleanUp(void)
@@ -754,65 +578,110 @@ void GNuMIFlux::CleanUp(void)
   LOG("Flux", pNOTICE) << "Cleaning up...";
 
   if (fPdgCList)        delete fPdgCList;
-  if (fPassThroughInfo) delete fPassThroughInfo;
+  if (fCurrentEntry)    delete fCurrentEntry;
 
   if (fNuFluxFile) {
 	fNuFluxFile->Close();
 	delete fNuFluxFile;
   }
 }
+
 //___________________________________________________________________________
-GNuMIFluxPassThroughInfo::GNuMIFluxPassThroughInfo() :
-TObject(),
-ndecay   (0 ),
-vx       (0.),
-vy       (0.),
-vz       (0.),
-pdPx     (0.),
-pdPy     (0.),
-pdPz     (0.),
-ppdxdz   (0.),
-ppdydz   (0.),
-pppz     (0.),
-ppenergy (0.),
-ppmedium (0 ),
-ptype    (0 ),
-ppvx     (0.),
-ppvy     (0.),
-ppvz     (0.),
-muparpx  (0.),
-muparpy  (0.),
-muparpz  (0.),
-mupare   (0.),
-tvx      (0.),
-tvy      (0.),
-tvz      (0.),
-tpx      (0.),
-tpy      (0.),
-tpz      (0.),
-tptype   (0 ),
-tgen     (0 ),
-tgptype  (0 ),
-tgppx    (0.),
-tgppy    (0.),
-tgppz    (0.),
-tprivx   (0.),
-tprivy   (0.),
-tprivz   (0.),
-beamx    (0.),
-beamy    (0.),
-beamz    (0.),
-beampx   (0.),
-beampy   (0.),
-beampz   (0.)
+GNuMIFluxPassThroughInfo::GNuMIFluxPassThroughInfo()
+  : TObject()
+{ Reset(); }
+//___________________________________________________________________________
+void GNuMIFluxPassThroughInfo::Reset()
 {
+  pcodes = -1;
+  units  = -1;
+  
+  run      = -1;
+  evtno    = -1;
+  ndxdz    = 0.;
+  ndydz    = 0.;
+  npz      = 0.;
+  nenergy  = 0.;
+  ndxdznea = 0.;
+  ndydznea = 0.;
+  nenergyn = 0.;
+  nwtnear  = 0.;
+  ndxdzfar = 0.;
+  ndydzfar = 0.;
+  nenergyf = 0.;
+  nwtfar   = 0.;
+  norig    = 0;
+  ndecay   = 0;
+  ntype    = 0;
+  vx       = 0.;
+  vy       = 0.;
+  vz       = 0.;
+  pdpx     = 0.;
+  pdpy     = 0.;
+  pdpz     = 0.;
+  ppdxdz   = 0.;
+  ppdydz   = 0.;
+  pppz     = 0.;
+  ppenergy = 0.;
+  ppmedium = 0 ;
+  ptype    = 0 ;
+  ppvx     = 0.;
+  ppvy     = 0.;
+  ppvz     = 0.;
+  muparpx  = 0.;
+  muparpy  = 0.;
+  muparpz  = 0.;
+  mupare   = 0.;
+  tvx      = 0.;
+  tvy      = 0.;
+  tvz      = 0.;
+  tpx      = 0.;
+  tpy      = 0.;
+  tpz      = 0.;
+  tptype   = 0 ;
+  tgen     = 0 ;
+  tgptype  = 0 ;
+  tgppx    = 0.;
+  tgppy    = 0.;
+  tgppz    = 0.;
+  tprivx   = 0.;
+  tprivy   = 0.;
+  tprivz   = 0.;
+  beamx    = 0.;
+  beamy    = 0.;
+  beamz    = 0.;
+  beampx   = 0.;
+  beampy   = 0.;
+  beampz   = 0.;
 
 }
+
 //___________________________________________________________________________
+/*******
+
+ALLOW DEFAULT COPY CONSTRUCTOR
 GNuMIFluxPassThroughInfo::GNuMIFluxPassThroughInfo(
                         const GNuMIFluxPassThroughInfo & info) :
 TObject(),
+pcodes   ( info.pcodes   ),
+units    ( info.units    ),
+run      ( info.run      ),
+evtno    ( info.evtno    ),
+ndxdz    ( info.ndxdz    ),
+ndydz    ( info.ndydz    ),
+npz      ( info.npz      ),
+nenergy  ( info.nenergy  ),
+ndxdznea ( info.ndxdznea ),
+ndydznea ( info.ndydznea ),
+nenergyn ( info.nenergyn ),
+nwtnear  ( info.nwtnear  ),
+ndxdzfar ( info.ndxdzfar ),
+ndydzfar ( info.ndydzfar ),
+nenergyf ( info.nenergyf ),
+nwtfar   ( info.nwtfar   ),
+norig    ( info.norig    ),
 ndecay   ( info.ndecay   ),
+ntype    ( info.ntype    ),
 vx       ( info.vx       ),
 vy       ( info.vy       ),
 vz       ( info.vz       ),
@@ -832,6 +701,11 @@ muparpx  ( info.muparpx  ),
 muparpy  ( info.muparpy  ),
 muparpz  ( info.muparpz  ),
 mupare   ( info.mupare   ),
+necm     ( info.necm     ),
+nimpwt   ( info.nimpwt   ),
+xpoint   ( info.xpoint   ),
+ypoint   ( info.ypoint   ),
+zpoint   ( info.zpoint   ),
 tvx      ( info.tvx      ),
 tvy      ( info.tvy      ),
 tvz      ( info.tvz      ),
@@ -856,14 +730,96 @@ beampz   ( info.beampz   )
 {
 
 }
+*************/
+
+//___________________________________________________________________________
+void GNuMIFluxPassThroughInfo::ConvertPartCodes()
+{
+  if ( pcodes == 0 ) {
+    pcodes = 1;  // flag that conversion has been made
+    switch ( ntype ) {
+    case 56: ntype = kPdgNuMu;     break;
+    case 55: ntype = kPdgAntiNuMu; break;
+    case 53: ntype = kPdgNuE;      break;
+    case 52: ntype = kPdgAntiNuE;  break;
+    default:
+      LOG("Flux", pNOTICE)
+        << "ConvertPartCodes saw ntype " << ntype << " -- unknown ";
+    }
+    if ( ptype   != 0 ) ptype   = pdg::GeantToPdg(ptype);
+    if ( tptype  != 0 ) tptype  = pdg::GeantToPdg(tptype);
+    if ( tgptype != 0 ) tgptype = pdg::GeantToPdg(tgptype);
+  } else if ( pcodes != 1 ) {
+    // flag as unknown state ...
+    LOG("Flux", pNOTICE)
+      << "ConvertPartCodes saw pcodes flag as " << pcodes;
+  }
+
+}
+
 //___________________________________________________________________________
 namespace genie {
 namespace flux  {
   ostream & operator << (
     ostream & stream, const genie::flux::GNuMIFluxPassThroughInfo & info)
     {
-      stream << "\n ndecay   = " << info.ndecay
-             << endl;
+      // stream << "\n ndecay   = " << info.ndecay << endl;
+      stream << "\n GNuMIFlux run " << info.run << " evtno " << info.evtno
+             << " pcodes " << info.pcodes << " units " << info.units << ")"
+             << "\n random dk: dx/dz " << info.ndxdz 
+             << " dy/dz " << info.ndydz
+             << " pz " <<  info.npz << " E " << info.nenergy
+             << "\n near00 dk: dx/dz " << info.ndxdznea 
+             << " dy/dz " << info.ndydznea
+             << " E " <<  info.nenergyn << " wgt " << info.nwtnear
+             << "\n far00  dk: dx/dz " << info.ndxdzfar
+             << " dy/dz " << info.ndydzfar
+             << " E " <<  info.nenergyf << " wgt " << info.nwtfar
+             << "\n norg " << info.norig << " ndecay " << info.ndecay
+             << " ntype " << info.ntype
+             << "\n had vtx " << info.vx << " " << info.vy << " " << info.vz
+             << "\n parent p3 @ dk " << info.pdpx << " " << info.pdpy << " " << info.pdpz
+             << "\n parent prod: dx/dz " << info.ppdxdz 
+             << " dy/dz " << info.ppdydz
+             << " pz " << info.pppz << " E " << info.ppenergy
+             << "\n ppmedium " << info.ppmedium << " ptype " << info.ptype
+             << " ppvtx " << info.ppvx << " " << info.ppvy << " " << info.ppvz
+             << "\n mu parent p4 " << info.muparpx << " " << info.muparpy
+             << " " << info.muparpz << " " << info.mupare
+             << "\n necm " << info.necm << " nimpwt " << info.nimpwt
+             << "\n point x,y,z " << info.xpoint << " " << info.ypoint
+             << " " << info.zpoint
+             << "\n tv x,y,z " << info.tvx << " " << info.tvy << " " << info.tvz
+             << "\n tptype " << info.tptype << " tgen " << info.tgen
+             << " tgptype " << info.tgptype 
+             << "\n tgp px,py,pz " << info.tgppx << " " << info.tgppy
+             << " " << info.tgppz
+             << "\n tpriv x,y,z " << info.tprivx << " " << info.tprivy
+             << " " << info.tprivz
+             << "\n beam x,y,z " << info.beamx << " " << info.beamy
+             << " " << info.beamz
+             << "\n beam px,py,pz " << info.beampx << " " << info.beampy
+             << " " << info.beampz
+        ;
+  /*
+  //std::cout << "GNuMIFlux::PrintCurrent ....." << std::endl;
+  //LOG("Flux", pINFO) 
+  LOG("Flux", pNOTICE) 
+    << "Current Leaf Values: "
+    << " run " << fLf_run << " evtno " << fLf_evtno << "\n"
+    << " NenergyN " << fLf_NenergyN << " NWtNear " << fLf_NWtNear
+    << " NenergyF " << fLf_NenergyF << " NWtFar  " << fLf_NWtFar << "\n"
+    << " Norig " << fLf_Norig << " Ndecay " << fLf_Ndecay << " Ntype " << fLf_Ntype << "\n"
+    << " Vxyz " << fLf_Vx << " " << fLf_Vy << " " << fLf_Vz 
+    << " pdPxyz " << fLf_pdPx << " " << fLf_pdPy << " " << fLf_pdPz << "\n"
+    << " pp dxdz " << fLf_ppdxdz << " dydz " << fLf_ppdydz << " pz " << fLf_pppz << "\n"
+    << " pp energy " << fLf_ppenergy << " medium " << fLf_ppmedium 
+    << " ptype " << fLf_ptype 
+    << " ppvxyz " << fLf_ppvx << " " << fLf_ppvy << " " << fLf_ppvz << "\n"
+    << " muparpxyz " << fLf_muparpx << " " << fLf_muparpy << " " << fLf_muparpz
+    << " mupare " << fLf_mupare << "\n"
+    << ;
+  */
 
      return stream;
   }
