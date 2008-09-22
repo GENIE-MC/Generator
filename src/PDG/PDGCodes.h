@@ -132,6 +132,9 @@ const int kPdgHadronicSyst = 2000000001; // dis hadronic system before hadroniza
 const int kPdgHadronicBlob = 2000000002; // unmodelled fraction of the hadronic system
 const int kPdgBindino      = 2000000101; // binding energy subtracted from f/s nucleons
 const int kPdgCoulobtron   = 2000000102; // coulomb energy subtracted from f/s leptons
+const int kPdgClusterNN    = 2000000200; // a nn cluster within a nucleus
+const int kPdgClusterNP    = 2000000201; // a np cluster within a nucleus
+const int kPdgClusterPP    = 2000000202; // a pp cluster within a nucleus
 
 // PDG codes for PYTHIA/JETSET special particles
 const int kPdgCluster      = 91; 
