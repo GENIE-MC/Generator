@@ -12,8 +12,9 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 # Add extra libraries needed for these executables
-LIBRARIES := $(GENIE_LIBRARIES) $(NUVLD_LIBRARIES) \
-             $(LIBRARIES) $(NEUGEN_LIBRARIES) $(CERN_LIBRARIES) 
+GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
+NUVLD_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --nuvldlibs)
+LIBRARIES  := $(GENIE_LIBS) $(NUVLD_LIBS) $(LIBRARIES)  $(NEUGEN_LIBRARIES) $(CERN_LIBRARIES)
 
 all: parse_xml upload_dbase gui 
 
