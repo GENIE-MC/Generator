@@ -17,6 +17,8 @@
    Added IsElectronScattering() to query about { IMD || ve- elastic }
  @ Feb 15, 2008 - CA
    Added IsAMNuGamma() to query about anomaly-mediated nu-gamma interactions
+ @ Sep 22, 2008 - CA
+   Added IsMEC() to query about meson exchange current interactions
 */
 //____________________________________________________________________________
 
@@ -122,6 +124,11 @@ bool ProcessInfo::IsInverseMuDecay(void) const
 bool ProcessInfo::IsAMNuGamma(void) const
 {
   return (fScatteringType == kScAMNuGamma);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsMEC(void) const
+{
+  return (fScatteringType == kScMEC);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsEM(void) const
