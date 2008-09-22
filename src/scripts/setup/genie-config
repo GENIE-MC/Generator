@@ -16,9 +16,9 @@ srcdir=$GENIE/src
 ### GENIE Libraries;
 libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
  -lGCrossSections -lGDecay -lGElas -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
- -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith \
- -lGMessenger -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
- -lGRadiative -lGRegistry -lGReinSeghal -lGReWeight -lGUtils"
+ -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
+ -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
+ -lGRegistry -lGReinSeghal -lGReWeight -lGUtils"
 
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
   libs="$libs -lGGeo"
@@ -52,15 +52,16 @@ dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
                 $srcdir/Fragmentation/_ROOT_DICT_Fragmentation.o \
                 $srcdir/Interaction/_ROOT_DICT_Interaction.o \
                 $srcdir/LlewellynSmith/_ROOT_DICT_LlewellynSmith.o \
+                $srcdir/LlewellynSmith/_ROOT_DICT_MEC.o \
                 $srcdir/GHEP/_ROOT_DICT_GHEP.o \
                 $srcdir/Ntuple/_ROOT_DICT_Ntuple.o \
                 $srcdir/NuE/_ROOT_DICT_NuE.o \
+                $srcdir/NuE/_ROOT_DICT_NuGamma.o \
                 $srcdir/Nuclear/_ROOT_DICT_Nuclear.o \
                 $srcdir/Numerical/_ROOT_DICT_Numerical.o \
                 $srcdir/PartonModel/_ROOT_DICT_PartonModel.o \
                 $srcdir/PDG/_ROOT_DICT_PDG.o \
                 $srcdir/PDF/_ROOT_DICT_PDF.o \
-		$srcdir/Radiative/_ROOT_DICT_Radiative.o \
                 $srcdir/Registry/_ROOT_DICT_Registry.o \
                 $srcdir/ReinSeghal/_ROOT_DICT_ReinSeghal.o \
                 $srcdir/Utils/_ROOT_DICT_Utils.o"
