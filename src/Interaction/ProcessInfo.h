@@ -57,6 +57,7 @@ public:
   bool IsNuElectronElastic (void) const;
   bool IsInverseMuDecay    (void) const;
   bool IsAMNuGamma         (void) const;
+  bool IsMEC               (void) const;
   bool IsEM                (void) const;
   bool IsWeak              (void) const;
   bool IsWeakCC            (void) const;

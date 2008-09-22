@@ -114,6 +114,9 @@ double KPhaseSpace::Threshold(void) const
   if(pi.IsAMNuGamma()) {
     return 0;
   }
+  if(pi.IsMEC()) {
+    return 0;
+  }
 
   SLOG("KPhaseSpace", pERROR) 
          << "Can't compute threshold for \n" << *fInteraction;
@@ -163,10 +166,18 @@ bool KPhaseSpace::IsAboveThreshold(void) const
   const ProcessInfo &  pi         = fInteraction->ProcInfo();
   const InitialState & init_state = fInteraction->InitState();
 
-  if (pi.IsCoherent() || pi.IsInverseMuDecay() || pi.IsNuElectronElastic()) {
+  if (pi.IsCoherent()       || 
+      pi.IsInverseMuDecay() || 
+      pi.IsNuElectronElastic()) 
+  {
       E = init_state.ProbeE(kRfLab);
   }
-  if(pi.IsQuasiElastic() || pi.IsResonant() || pi.IsDeepInelastic() || pi.IsAMNuGamma()) {
+
+  if(pi.IsQuasiElastic()  || 
+     pi.IsResonant()      || 
+     pi.IsDeepInelastic() || 
+     pi.IsAMNuGamma()) 
+  {
       E = init_state.ProbeE(kRfHitNucRest);
   }
 
