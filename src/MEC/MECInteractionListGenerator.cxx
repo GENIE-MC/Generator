@@ -1,0 +1,69 @@
+//____________________________________________________________________________
+/*
+ Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
+
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         STFC, Rutherford Appleton Laboratory - Sep 03, 2008
+
+ For the class documentation see the corresponding header file.
+
+ Important revisions after version 2.0.0 :
+ @ Sep 22, 2008 - CA
+   This interction list generator was first added in version 2.5.1 as part of
+   the new event generation thread handling MEC interactions.
+*/
+//____________________________________________________________________________
+
+#include "EVGCore/InteractionList.h"
+#include "Interaction/Interaction.h"
+#include "Messenger/Messenger.h"
+#include "PDG/PDGCodes.h"
+#include "MEC/MECInteractionListGenerator.h"
+
+using namespace genie;
+
+//___________________________________________________________________________
+MECInteractionListGenerator::MECInteractionListGenerator() :
+InteractionListGeneratorI("genie::MECInteractionListGenerator")
+{
+
+}
+//___________________________________________________________________________
+MECInteractionListGenerator::MECInteractionListGenerator(string config):
+InteractionListGeneratorI("genie::MECInteractionListGenerator", config)
+{
+
+}
+//___________________________________________________________________________
+MECInteractionListGenerator::~MECInteractionListGenerator()
+{
+
+}
+//___________________________________________________________________________
+InteractionList * MECInteractionListGenerator::CreateInteractionList(
+                                       const InitialState & init_state) const
+{
+  LOG("IntLst", pINFO)
+     << "InitialState = " << init_state.AsString();
+
+  int nupdg   = init_state.ProbePdg();
+  int tgtpdg  = init_state.Tgt().Pdg();
+
+  InteractionList * intlist = new InteractionList;
+
+  const Target & target = init_state.Tgt();
+
+  if(target.Z()>0) {
+    //Interaction * interaction = Interaction::MEC(tgtpdg,kPdgProton,nupdg,0);
+    //intlist->push_back(interaction);
+  }
+  if(target.N()>0) {
+    //Interaction * interaction = Interaction::MEC(tgtpdg,kPdgNeutron,nupdg,0);
+    //intlist->push_back(interaction);
+  }
+
+  return intlist;
+}
+//___________________________________________________________________________
