@@ -15,7 +15,6 @@
 #pragma link C++ class genie::VertexGenerator;
 #pragma link C++ class genie::HadronTransporter;
 #pragma link C++ class genie::UnstableParticleDecayer;
-#pragma link C++ class genie::AMNuGammaGenerator;
 
 #pragma link C++ class genie::PrimaryLeptonGenerator;
 #pragma link C++ class genie::COHPrimaryLeptonGenerator;
@@ -34,7 +33,6 @@
 #pragma link C++ class genie::NuETargetRemnantGenerator;
 #pragma link C++ class genie::RSPPResonanceSelector;
 
-#pragma link C++ class genie::AMNuGammaInteractionListGenerator;
 #pragma link C++ class genie::COHInteractionListGenerator;
 #pragma link C++ class genie::QELInteractionListGenerator;
 #pragma link C++ class genie::DISInteractionListGenerator;
