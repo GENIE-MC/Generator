@@ -20,11 +20,11 @@
 
 #include <TMath.h>
 
-#include "EVGModules/AMNuGammaGenerator.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
+#include "NuGamma/AMNuGammaGenerator.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
