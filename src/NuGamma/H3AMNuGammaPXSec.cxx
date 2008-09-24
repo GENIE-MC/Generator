@@ -68,7 +68,9 @@ double H3AMNuGammaPXSec::Integral(const Interaction * interaction) const
   const Target &       target     = init_state.Tgt();
   double Ev    = init_state.ProbeE(kRfHitNucRest);
 
-  Ev = TMath::Min(Ev, kNucleonMass);
+  double Ecutoff = kNucleonMass / 2;
+
+  if(Ev > Ecutoff) return 0;
 
   double xsec0 = 2.2E-41 * units::cm2;
   double xsec  = xsec0 * TMath::Power(Ev,6.) * TMath::Power(0.1*fGw,4.);
