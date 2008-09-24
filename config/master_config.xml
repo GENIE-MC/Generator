@@ -111,7 +111,6 @@
    <config alg="genie::SlowRsclCharmDISPXSecLO">     SlowRsclCharmDISPXSecLO.xml     </config>
    <config alg="genie::KovalenkoQELCharmPXSec">      KovalenkoQELCharmPXSec.xml      </config>
    <config alg="genie::P33PaschosLalakulichPXSec">   P33PaschosLalakulichPXSec.xml   </config>
-   <config alg="genie::BardinDISPXSec">              BardinDISPXSec.xml              </config>
    <config alg="genie::BardinIMDRadCorPXSec">        BardinIMDRadCorPXSec.xml        </config>
    <config alg="genie::COHElasticPXSec">             COHElasticPXSec.xml             </config>
    <config alg="genie::NuNucElasticPXSec">           NuNucElasticPXSec.xml           </config>
