@@ -21,6 +21,8 @@
    as the primary final state lepton
  @ Feb 15, 2008 - CA
    Added named ctors for anomaly mediated nu-gamma interactions
+ @ Feb 24, 2008 - CA
+   Added named ctors for MEC interactions
 */
 //____________________________________________________________________________
 
@@ -605,6 +607,52 @@ Interaction * Interaction::AMNuGamma(
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
   init_state->TgtPtr()->SetHitNucPdg(nuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::MECCC(int tgt, int probe, double E)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt, probe, kScMEC, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::MECCC(
+                          int tgt, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt, probe, kScMEC, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::MECNC(int tgt, int probe, double E)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt, probe, kScMEC, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::MECNC(
+                          int tgt, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt, probe, kScMEC, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
 
   return interaction;
 }
