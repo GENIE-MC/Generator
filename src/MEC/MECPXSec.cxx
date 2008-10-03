@@ -19,10 +19,10 @@
 #include "Conventions/GBuild.h"
 #include "Messenger/Messenger.h"
 #include "MEC/MECPXSec.h"
+#include "Utils/BWFunc.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;
-using namespace genie::utils;
 
 //____________________________________________________________________________
 MECPXSec::MECPXSec() :
@@ -52,8 +52,14 @@ double MECPXSec::XSec(
   // compute cross section
   //
 
-  double xsec = 0;
+  const Kinematics &   kinematics = interaction -> Kine();
 
+  double W     = kinematics.W();
+  double Q2    = kinematics.Q2();
+  double bw    = utils::bwfunc::BreitWigner(W, fMass, fWidth, fNorm);
+  double Q2dep = TMath::Power(1-Q2/fMaMEC, -1.5);
+
+  double xsec  = bw * Q2dep;
 
   //----- The algorithm computes d^2xsec/dWdQ2
   //      Check whether variable tranformation is needed
@@ -71,22 +77,22 @@ double MECPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double MECPXSec::Integral(const Interaction * interaction) const
+double MECPXSec::Integral(const Interaction * /*interaction*/) const
 {
   //double xsec = fXSecIntegrator->Integrate(this,interaction);
   //return xsec;
 
-  return 0;
+  return 1;
 }
 //____________________________________________________________________________
 bool MECPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  const InitialState & init_state = interaction->InitState();
+  //const InitialState & init_state = interaction->InitState();
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
-//  if(!proc_info.IsMEC()) return false;
+  if(!proc_info.IsMEC()) return false;
 
   return true;
 }
@@ -105,7 +111,10 @@ void MECPXSec::Configure(string config)
 //____________________________________________________________________________
 void MECPXSec::LoadConfig(void)
 {
-
+  fMaMEC  = 1.0;
+  fMass   = 1.1;
+  fWidth  = 0.3;
+  fNorm   = 1.0;
 }
 //____________________________________________________________________________
 

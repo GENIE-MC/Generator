@@ -51,18 +51,14 @@ InteractionList * MECInteractionListGenerator::CreateInteractionList(
   int nupdg   = init_state.ProbePdg();
   int tgtpdg  = init_state.Tgt().Pdg();
 
-  InteractionList * intlist = new InteractionList;
-
   const Target & target = init_state.Tgt();
 
-  if(target.Z()>0) {
-    //Interaction * interaction = Interaction::MEC(tgtpdg,kPdgProton,nupdg,0);
-    //intlist->push_back(interaction);
-  }
-  if(target.N()>0) {
-    //Interaction * interaction = Interaction::MEC(tgtpdg,kPdgNeutron,nupdg,0);
-    //intlist->push_back(interaction);
-  }
+  if(target.A() < 4) return 0;
+
+  InteractionList * intlist = new InteractionList;
+
+  Interaction * interaction = Interaction::MECCC(tgtpdg,nupdg,0);
+  intlist->push_back(interaction);
 
   return intlist;
 }

@@ -44,6 +44,11 @@ public:
 
 private:
   void LoadConfig (void);
+
+  double fMaMEC;
+  double fMass;
+  double fWidth;
+  double fNorm;
 };
 
 }       // genie namespace
