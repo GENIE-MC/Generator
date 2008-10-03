@@ -14,7 +14,17 @@
    This event generation modules was first added in version 2.3.1 as part of
    the new event generation thread handling amonaly-mediated single gamma
    interactions. 
-
+ @ Sep 25, 2008 - CA
+   Improved the calculation of the photon 4-momentum. Generating the 4-momentum
+   at NRF' and then rotating it to NRF and boosting it back at the LAB.
+   The photon cos(theta) follows a uniform distribution (with respect to the
+   incoming neutrnino in NRF). Need further inputs for modeling the energy 
+   transfer to the photon (uniform distribution up to the available energy).
+   The final state neutrino 4-momentum determined from energy conservation
+   (incoming nu = outgoing gamma + outgoing nu) but difficult to keep on the
+   mass shell. The nucleon recoil is negligible. For nuclear targets the hit
+   nucleon is forced back on the mass shell before intranuclear rescattering.
+   The necessary energy is taken from the remnant nucleus.
 */
 //____________________________________________________________________________
 
@@ -134,7 +144,7 @@ void AMNuGammaGenerator::AddFinalStateNeutrino(GHepRecord * evrec) const
   const TLorentzVector & vtx = *(nu->X4()); // vtx
 
   const TLorentzVector & p4nu_lab    = *(nu->P4());
-  const TLorentzVector & p4gamma_lab = *(gamma ->P4());
+  const TLorentzVector & p4gamma_lab = *(gamma->P4());
   TLorentzVector p4_lab = p4nu_lab - p4gamma_lab;
  
   GHepParticle p(nu->Pdg(), kIStStableFinalState, 0,-1,-1,-1, p4_lab, vtx);
