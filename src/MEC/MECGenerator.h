@@ -35,6 +35,11 @@ public :
 
 private:
 
+  void AddFinalStateLepton (GHepRecord * event_rec) const;
+  void SelectKinematics    (GHepRecord * event_rec) const;
+  void AddNucleonCluster   (GHepRecord * event_rec) const;
+  void AddTargetRemnant    (GHepRecord * event_rec) const;
+  void DecayNucleonCluster (GHepRecord * event_rec) const;
 };
 
 }      // genie namespace
