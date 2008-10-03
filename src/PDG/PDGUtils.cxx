@@ -10,6 +10,8 @@
  For documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Oct 01, 2008 - CA
+ Added Is2NucleonCuster(pdg)
 
 */
 //____________________________________________________________________________
@@ -267,6 +269,15 @@ bool genie::pdg::IsHadron(int pdgc)
 bool genie::pdg::IsBaryonResonance(int pdgc)
 {
   return utils::res::IsBaryonResonance(pdgc);
+}
+//____________________________________________________________________________
+bool genie::pdg::Is2NucleonCluster(int pdgc)
+{
+   return (
+      pdgc == kPdgClusterNN   ||
+      pdgc == kPdgClusterNP   ||
+      pdgc == kPdgClusterPP
+   );
 }
 //____________________________________________________________________________
 int genie::pdg::GeantToPdg(int geant_code)

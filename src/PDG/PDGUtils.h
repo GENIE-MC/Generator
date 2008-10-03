@@ -65,6 +65,7 @@ namespace pdg
   bool IsNeutronOrProton (int pdgc);
   bool IsHadron          (int pdgc);
   bool IsBaryonResonance (int pdgc);
+  bool Is2NucleonCluster (int pdgc);
   
   int  SwitchProtonNeutron    (int pdgc);
   int  Neutrino2ChargedLepton (int pdgc);
