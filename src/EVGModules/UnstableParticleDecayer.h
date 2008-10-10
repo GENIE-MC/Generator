@@ -62,6 +62,7 @@ private:
   double fMaxLifetime;             ///< define "unstable" particle
   bool   fRunBefHadroTransp;       ///< is being run before or after hadron transport?
   bool   fForceCharmedHadronDecay; ///< force charmed hadron decays?
+  bool   fInhibitPi0Decay;         ///< inhibit pi0 decays?
 
   vector <const DecayModelI *> * fDecayers; ///< list of all specified decayers
   mutable const DecayModelI * fCurrDecayer; ///< current selected decayer
