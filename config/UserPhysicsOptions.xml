@@ -464,6 +464,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   Particle decayer parameters
   -->
   <param type="bool" name="ForceCharmedHadronDecay"> false </param>
+  <param type="bool" name="InhibitPi0Decay">         false </param>
   
 
  <!-- 
