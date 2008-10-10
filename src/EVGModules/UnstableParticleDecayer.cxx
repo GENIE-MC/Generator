@@ -12,6 +12,8 @@
  Important revisions after version 2.0.0 :
  @ Jun 05, 2008 - CA
    Added option to force charmed hadron decays
+ @ Oct 10, 2008 - CA
+   Added option to inhibit pi0 decays
 */
 //____________________________________________________________________________
 
@@ -182,7 +184,6 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
   } else {
     /* run after the hadron transport MC - decay particles with ct<~0.1mm*/   
     int particles_to_decay[] = {
-          kPdgPi0, 
           kPdgEta, kPdgEtaPrm, 
           kPdgRho0, kPdgRhoP, kPdgRhoM,
           kPdgomega,kPdgPhi };
@@ -190,6 +191,10 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
     const int N = sizeof(particles_to_decay) / sizeof(int);
     int matches = count (particles_to_decay, 
                          particles_to_decay+N, pdg_code);
+
+    if(!fInhibitPi0Decay) {
+        matches += ( (pdg_code==kPdgPi0) ? 1 : 0 );
+    }
 
     if(fForceCharmedHadronDecay) {
        int charmed_particles_produced[] = {
@@ -298,6 +303,11 @@ void UnstableParticleDecayer::LoadConfig(void)
   fForceCharmedHadronDecay = 
             fConfig->GetBoolDef("force_charm_decay", 
                                 gc->GetBool("ForceCharmedHadronDecay"));
+
+  //-- Inhibit pi0 decays?
+  fInhibitPi0Decay = 
+            fConfig->GetBoolDef("inhibit_pi0_decay", 
+                                gc->GetBool("InhibitPi0Decay"));
 
   //-- Load particle decayers
   //   Order is important if both decayers can handle a specific particle
