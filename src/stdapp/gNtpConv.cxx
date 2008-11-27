@@ -91,6 +91,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
+#include "Utils/XGenUtils.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
 
@@ -196,6 +197,8 @@ void ConvertToGST(void)
   bool   brIsCC        = false;  // Is CC?
   bool   brIsNC        = false;  // Is NC?
   bool   brIsCharmPro  = false;  // Produces charm?
+  int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
+  int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
   double brWeight      = 0;      // Event weight
   double brKineXs      = 0;      // Bjorken x (selected)
   double brKineYs      = 0;      // Inelasticity y (selected)
@@ -263,81 +266,83 @@ void ConvertToGST(void)
 
   //-- create tree branches
   //
-  s_tree->Branch("iev",       &brIev,       "iev/I"       );
-  s_tree->Branch("neu",	      &brNeutrino,  "neu/I"	  );
-  s_tree->Branch("tgt",       &brTarget,    "tgt/I"	  );
-  s_tree->Branch("Z",         &brTargetZ,   "Z/I"	  );
-  s_tree->Branch("A",         &brTargetA,   "A/I"	  );
-  s_tree->Branch("hitnuc",    &brHitNuc,    "hitnuc/I"    );
-  s_tree->Branch("hitqrk",    &brHitQrk,    "hitqrk/I"    );
-  s_tree->Branch("resid",     &brResId,	    "resid/I"	  );
-  s_tree->Branch("sea",	      &brFromSea,   "sea/O"	  );
-  s_tree->Branch("qel",	      &brIsQel,	    "qel/O"	  );
-  s_tree->Branch("res",	      &brIsRes,	    "res/O"	  );
-  s_tree->Branch("dis",	      &brIsDis,	    "dis/O"	  );
-  s_tree->Branch("cohpi",     &brIsCohPi,   "cohpi/O"	  );
-  s_tree->Branch("cohel",     &brIsCohEl,   "cohel/O"	  );
-  s_tree->Branch("imd",	      &brIsImd,	    "imd/O"	  );
-  s_tree->Branch("nuel",      &brIsNuEL,    "nuel/O"	  );
-  s_tree->Branch("cc",	      &brIsCC,	    "cc/O"	  );
-  s_tree->Branch("nc",	      &brIsNC,	    "nc/O"	  );
-  s_tree->Branch("charm",     &brIsCharmPro,"charm/O"	  );
-  s_tree->Branch("wght",      &brWeight,    "wght/D"	  );
-  s_tree->Branch("xs",	      &brKineXs,    "xs/D"	  );
-  s_tree->Branch("ys",	      &brKineYs,    "ys/D"	  );
-  s_tree->Branch("ts",	      &brKineTs,    "ts/D"	  );
-  s_tree->Branch("Q2s",	      &brKineQ2s,   "Q2s/D"	  );
-  s_tree->Branch("Ws",	      &brKineWs,    "Ws/D"	  );
-  s_tree->Branch("x",	      &brKineX,	    "x/D"	  );
-  s_tree->Branch("y",	      &brKineY,	    "y/D"	  );
-  s_tree->Branch("t",	      &brKineT,	    "t/D"	  );
-  s_tree->Branch("Q2",	      &brKineQ2,    "Q2/D"	  );
-  s_tree->Branch("W",	      &brKineW,	    "W/D"	  );
-  s_tree->Branch("Ev",	      &brEv,	    "Ev/D"	  );
-  s_tree->Branch("En",	      &brEn,	    "En/D"	  );
-  s_tree->Branch("pxn",	      &brPxn,	    "pxn/D"	  );
-  s_tree->Branch("pyn",	      &brPyn,	    "pyn/D"	  );
-  s_tree->Branch("pzn",	      &brPzn,	    "pzn/D"	  );
-  s_tree->Branch("El",	      &brEl,	    "El/D"	  );
-  s_tree->Branch("pxl",	      &brPxl,	    "pxl/D"	  );
-  s_tree->Branch("pyl",	      &brPyl,	    "pyl/D"	  );
-  s_tree->Branch("pzl",	      &brPzl,	    "pzl/D"	  );
-  s_tree->Branch("nfp",	      &brNfP,	    "nfp/I"	  );
-  s_tree->Branch("nfn",	      &brNfN,	    "nfn/I"	  );
-  s_tree->Branch("nfpip",     &brNfPip,	    "nfpip/I"	  );
-  s_tree->Branch("nfpim",     &brNfPim,	    "nfpim/I"	  );
-  s_tree->Branch("nfpi0",     &brNfPi0,	    "nfpi0/I"	  );
-  s_tree->Branch("nfkp",      &brNfKp,	    "nfkp/I"	  );
-  s_tree->Branch("nfkm",      &brNfKm,	    "nfkm/I"	  );
-  s_tree->Branch("nfk0",      &brNfK0,	    "nfk0/I"	  );
-  s_tree->Branch("nfem",      &brNfEM,	    "nfem/I"	  );
-  s_tree->Branch("nfother",   &brNfOther,   "nfother/I"   );
-  s_tree->Branch("nip",	      &brNiP,	    "np/I"	  );
-  s_tree->Branch("nin",	      &brNiN,	    "nn/I"	  );
-  s_tree->Branch("nipip",     &brNiPip,	    "npip/I"	  );
-  s_tree->Branch("nipim",     &brNiPim,	    "npim/I"	  );
-  s_tree->Branch("nipi0",     &brNiPi0,	    "npi0/I"	  );
-  s_tree->Branch("nikp",      &brNiKp,	    "nkp/I"	  );
-  s_tree->Branch("nikm",      &brNiKm,	    "nkm/I"	  );
-  s_tree->Branch("nik0",      &brNiK0,	    "nk0/I"	  );
-  s_tree->Branch("niem",      &brNiEM,	    "niem/I"	  );
-  s_tree->Branch("niother",   &brNiOther,   "niother/I"   );
-  s_tree->Branch("ni",	      &brNi,	    "ni/I"	  );
-  s_tree->Branch("pdgi",       brPdgi,	    "pdgi[ni]/I " );
-  s_tree->Branch("Ei",	       brEi,	    "Ei[ni]/D"    );
-  s_tree->Branch("pxi",	       brPxi,	    "pxi[ni]/D"   );
-  s_tree->Branch("pyi",	       brPyi,	    "pyi[ni]/D"   );
-  s_tree->Branch("pzi",	       brPzi,	    "pzi[ni]/D"   );
-  s_tree->Branch("nf",	      &brNf,	    "nf/I"	  );
-  s_tree->Branch("pdgf",       brPdgf,	    "pdgf[nf]/I " );
-  s_tree->Branch("Ef",	       brEf,	    "Ef[nf]/D"    );
-  s_tree->Branch("pxf",	       brPxf,	    "pxf[nf]/D"   );
-  s_tree->Branch("pyf",	       brPyf,	    "pyf[nf]/D"   );
-  s_tree->Branch("pzf",	       brPzf,	    "pzf[nf]/D"   );
-  s_tree->Branch("vtxx",      &brVtxX,	    "vtxx/D"      );
-  s_tree->Branch("vtxy",      &brVtxY,	    "vtxy/D"      );
-  s_tree->Branch("vtxz",      &brVtxZ,	    "vtxz/D"      );
-  s_tree->Branch("vtxt",      &brVtxT,	    "vtxt/D"      );
+  s_tree->Branch("iev",           &brIev,           "iev/I"         );
+  s_tree->Branch("neu",	          &brNeutrino,      "neu/I"	    );
+  s_tree->Branch("tgt",           &brTarget,        "tgt/I"	    );
+  s_tree->Branch("Z",             &brTargetZ,       "Z/I"	    );
+  s_tree->Branch("A",             &brTargetA,       "A/I"	    );
+  s_tree->Branch("hitnuc",        &brHitNuc,        "hitnuc/I"      );
+  s_tree->Branch("hitqrk",        &brHitQrk,        "hitqrk/I"      );
+  s_tree->Branch("resid",         &brResId,	    "resid/I"	    );
+  s_tree->Branch("sea",	          &brFromSea,       "sea/O"	    );
+  s_tree->Branch("qel",	          &brIsQel,	    "qel/O"	    );
+  s_tree->Branch("res",	          &brIsRes,	    "res/O"	    );
+  s_tree->Branch("dis",	          &brIsDis,	    "dis/O"	    );
+  s_tree->Branch("cohpi",         &brIsCohPi,       "cohpi/O"	    );
+  s_tree->Branch("cohel",         &brIsCohEl,       "cohel/O"	    );
+  s_tree->Branch("imd",	          &brIsImd,	    "imd/O"	    );
+  s_tree->Branch("nuel",          &brIsNuEL,        "nuel/O"	    );
+  s_tree->Branch("cc",	          &brIsCC,	    "cc/O"	    );
+  s_tree->Branch("nc",	          &brIsNC,	    "nc/O"	    );
+  s_tree->Branch("charm",         &brIsCharmPro,    "charm/O"	    );
+  s_tree->Branch("neut_code",     &brCodeNeut,      "neut_code/I"   );
+  s_tree->Branch("nuance_code",   &brCodeNuance,    "nuance_code/I" );
+  s_tree->Branch("wght",          &brWeight,        "wght/D"	    );
+  s_tree->Branch("xs",	          &brKineXs,        "xs/D"	    );
+  s_tree->Branch("ys",	          &brKineYs,        "ys/D"	    );
+  s_tree->Branch("ts",	          &brKineTs,        "ts/D"	    );
+  s_tree->Branch("Q2s",	          &brKineQ2s,       "Q2s/D"	    );
+  s_tree->Branch("Ws",	          &brKineWs,        "Ws/D"	    );
+  s_tree->Branch("x",	          &brKineX,	    "x/D"	    );
+  s_tree->Branch("y",	          &brKineY,	    "y/D"	    );
+  s_tree->Branch("t",	          &brKineT,	    "t/D"	    );
+  s_tree->Branch("Q2",	          &brKineQ2,        "Q2/D"	    );
+  s_tree->Branch("W",	          &brKineW,	    "W/D"	    );
+  s_tree->Branch("Ev",	          &brEv,	    "Ev/D"	    );
+  s_tree->Branch("En",	          &brEn,	    "En/D"	    );
+  s_tree->Branch("pxn",	          &brPxn,	    "pxn/D"	    );
+  s_tree->Branch("pyn",	          &brPyn,	    "pyn/D"	    );
+  s_tree->Branch("pzn",	          &brPzn,	    "pzn/D"	    );
+  s_tree->Branch("El",	          &brEl,	    "El/D"	    );
+  s_tree->Branch("pxl",	          &brPxl,	    "pxl/D"	    );
+  s_tree->Branch("pyl",	          &brPyl,	    "pyl/D"	    );
+  s_tree->Branch("pzl",	          &brPzl,	    "pzl/D"	    );
+  s_tree->Branch("nfp",	          &brNfP,	    "nfp/I"	    );
+  s_tree->Branch("nfn",	          &brNfN,	    "nfn/I"	    );
+  s_tree->Branch("nfpip",         &brNfPip,	    "nfpip/I"	    );
+  s_tree->Branch("nfpim",         &brNfPim,	    "nfpim/I"	    );
+  s_tree->Branch("nfpi0",         &brNfPi0,	    "nfpi0/I"	    );
+  s_tree->Branch("nfkp",          &brNfKp,	    "nfkp/I"	    );
+  s_tree->Branch("nfkm",          &brNfKm,	    "nfkm/I"	    );
+  s_tree->Branch("nfk0",          &brNfK0,	    "nfk0/I"	    );
+  s_tree->Branch("nfem",          &brNfEM,	    "nfem/I"	    );
+  s_tree->Branch("nfother",       &brNfOther,       "nfother/I"     );
+  s_tree->Branch("nip",	          &brNiP,	    "np/I"	    );
+  s_tree->Branch("nin",	          &brNiN,	    "nn/I"	    );
+  s_tree->Branch("nipip",         &brNiPip,	    "npip/I"	    );
+  s_tree->Branch("nipim",         &brNiPim,	    "npim/I"	    );
+  s_tree->Branch("nipi0",         &brNiPi0,	    "npi0/I"	    );
+  s_tree->Branch("nikp",          &brNiKp,	    "nkp/I"	    );
+  s_tree->Branch("nikm",          &brNiKm,	    "nkm/I"	    );
+  s_tree->Branch("nik0",          &brNiK0,	    "nk0/I"	    );
+  s_tree->Branch("niem",          &brNiEM,	    "niem/I"	    );
+  s_tree->Branch("niother",       &brNiOther,       "niother/I"     );
+  s_tree->Branch("ni",	         &brNi,	            "ni/I"	    );
+  s_tree->Branch("pdgi",          brPdgi,	    "pdgi[ni]/I "   );
+  s_tree->Branch("Ei",	          brEi,	            "Ei[ni]/D"      );
+  s_tree->Branch("pxi",	          brPxi,	    "pxi[ni]/D"     );
+  s_tree->Branch("pyi",	          brPyi,	    "pyi[ni]/D"     );
+  s_tree->Branch("pzi",	          brPzi,	    "pzi[ni]/D"     );
+  s_tree->Branch("nf",	         &brNf,	            "nf/I"	    );
+  s_tree->Branch("pdgf",          brPdgf,	    "pdgf[nf]/I "   );
+  s_tree->Branch("Ef",	          brEf,	            "Ef[nf]/D"      );
+  s_tree->Branch("pxf",	          brPxf,	    "pxf[nf]/D"     );
+  s_tree->Branch("pyf",	          brPyf,	    "pyf[nf]/D"     );
+  s_tree->Branch("pzf",	          brPzf,	    "pzf[nf]/D"     );
+  s_tree->Branch("vtxx",         &brVtxX,	    "vtxx/D"        );
+  s_tree->Branch("vtxy",         &brVtxY,	    "vtxy/D"        );
+  s_tree->Branch("vtxz",         &brVtxZ,	    "vtxz/D"        );
+  s_tree->Branch("vtxt",         &brVtxT,	    "vtxt/D"        );
 
   //-- open the ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
@@ -461,7 +466,11 @@ void ConvertToGST(void)
 
     // (qel or dis) charm production?
     bool charm = xcls.IsCharmEvent();
-    
+
+    // get neut and nuance equivalent reaction codes (if any)
+    brCodeNeut    = utils::xgen::NeutReactionCode(&event);
+    brCodeNuance  = utils::xgen::NuanceReactionCode(&event);
+
     //weight
     double weight = event.Weight();
 
@@ -938,6 +947,9 @@ void ConvertToGXML(void)
 //___________________________________________________________________
 void ConvertToGT2KTracker(void)
 {
+  //-- get pdglib
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+
   //-- open the ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
   TTree *           tree = 0;
@@ -950,6 +962,9 @@ void ConvertToGT2KTracker(void)
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
+
+  flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
+  tree->SetBranchAddress("flux", &flux_info);
 
   //-- open the output stream
   ofstream output(gOptOutFileName.c_str(), ios::out);
@@ -975,364 +990,308 @@ void ConvertToGT2KTracker(void)
 
     GHepParticle * p = 0;
     TIter event_iter(&event);
+    int iparticle = -1;
+
+    // **** Convert the current event:
 
     //
-    // convert the current event
+    // -- Add tracker begin tag
     //
-
-    // add tracker begin tag
     output << "$ begin" << endl;
 
-    // add 'NUANCE'-like event type
     //
+    // -- Add the appropriate reaction code
+    //
+
+    // add 'NUANCE'-like event type
     if(gOptOutFileFormat==1) {
-    	int evtype = 0;
-        /*
-        conversion not tested yet
-        const ProcessInfo &  proc = interaction->ProcInfo();
-        const InitialState & init = interaction->InitState();
-        if      (proc.IsQuasiElastic()   && proc.IsWeakCC()) evtype =  1;
-        else if (proc.IsQuasiElastic()   && proc.IsWeakNC()) evtype =  2;
-        else if (proc.IsDeepInelastic()  && proc.IsWeakCC()) evtype = 91;        
-        else if (proc.IsDeepInelastic()  && proc.IsWeakNC()) evtype = 92;        
-        else if (proc.IsCoherentPiProd() && proc.IsWeakNC()) evtype = 96;        
-        else if (proc.IsCoherentPiProd() && proc.IsWeakCC()) evtype = 97;        
-        else if (proc.IsNuElectronElastic())                 evtype = 98;
-        else if (proc.IsInverseMuDecay())                    evtype = 99;
-        else if (proc.IsResonant()) {
-           int nn=0, np=0, npi0=0, npip=0, npim=0;
-           bool nuclear_target = init.Tgt().IsNucleus();
-           GHepStatus_t matched_ist = (nuclear_target) ? 
-                     kIStHadronInTheNucleus : kIStStableFinalState;
-           while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) 
-           {
-               GHepStatus_t ghep_ist = (GHepStatus_t) p->Status();  
-               if(ghep_ist != matched_ist) continue;
-               int ghep_pdgc = p->Pdg();
-               if(ghep_pdgc == kPdgProton ) np++;
-               if(ghep_pdgc == kPdgNeutron) nn++;
-               if(ghep_pdgc == kPdgPi0)     npi0++;
-               if(ghep_pdgc == kPdgPiP)     npip++;
-               if(ghep_pdgc == kPdgPiM)     npim++;
-           }
-           if(proc.IsWeakCC() && init.IsNuP()) {
-             // v p -> l- p pi+ 
-             if(np==1 && nn==0 && npip==1 && npi0==0 && npim==0) evtype = 3;  
-           }
-           if(proc.IsWeakCC() && init.IsNuN()) {
-             // v n -> l- p pi0 
-             if(np==1 && nn==0 && npip==0 && npi0==1 && npim==0) evtype = 4;  
-             // v n -> l- n pi+ 
-             if(np==0 && nn==1 && npip==1 && npi0==0 && npim==0) evtype = 5;  
-           }
-           if(proc.IsWeakNC() && init.IsNuP()) {
-             // v p -> v p pi0 
-             if(np==1 && nn==0 && npip==0 && npi0==1 && npim==0) evtype = 6;  
-             // v p -> v n pi+ 
-             if(np==0 && nn==1 && npip==1 && npi0==0 && npim==0) evtype = 7;  
-           }
-           if(proc.IsWeakNC() && init.IsNuN()) {
-             // v n -> v n pi0 
-             if(np==0 && nn==1 && npip==0 && npi0==1 && npim==0) evtype = 8;  
-             // v n -> v p pi- 
-             if(np==1 && nn==0 && npip==0 && npi0==0 && npim==1) evtype = 9;  
-           }
-           if(proc.IsWeakCC() && init.IsNuBarN()) {
-             // \bar{v} n -> l+ n pi- 
-             if(np==1 && nn==0 && npip==1 && npi0==0 && npim==0) evtype = 10; 
-           }
-           if(proc.IsWeakCC() && init.IsNuBarP()) {
-             // \bar{v} p -> l+ n pi0 
-             if(np==1 && nn==0 && npip==0 && npi0==1 && npim==0) evtype = 11; 
-             // \bar{v} p -> l+ p pi- 
-             if(np==0 && nn==1 && npip==1 && npi0==0 && npim==0) evtype = 12; 
-           }
-           if(proc.IsWeakNC() && init.IsNuBarP()) {
-             // \bar{v} p -> \bar{v} p pi0 
-             if(np==1 && nn==0 && npip==0 && npi0==1 && npim==0) evtype = 13;
-             // \bar{v} p -> \bar{v} n pi+ 
-             if(np==0 && nn==1 && npip==1 && npi0==0 && npim==0) evtype = 14; 
-           }
-           if(proc.IsWeakNC() && init.IsNuBarN()) {
-             // \bar{v} n -> \bar{v} n pi0 
-             if(np==0 && nn==1 && npip==0 && npi0==1 && npim==0) evtype = 15;
-             // \bar{v} n -> \bar{v} p pi-  
-             if(np==1 && nn==0 && npip==0 && npi0==0 && npim==1) evtype = 16;
-           }
-        }
-        */
+    	int evtype = utils::xgen::NuanceReactionCode(&event);
+        LOG("gntpc", pNOTICE) << "NUANCE-like event type = " << evtype;
     	output << "$ nuance " << evtype << endl;
     } // nuance code
-
     // add 'NEUT'-like event type
-    // a list of NEUT event types can be seen here: http://t2k.phy.duke.edu/bin/view/Main/NeutModes
-    // 
     else if(gOptOutFileFormat==11) {
-    	int evtype = 0;
-
-        const ProcessInfo &  proc = interaction->ProcInfo();
-        const InitialState & init = interaction->InitState();
-        const XclsTag &      xcls = interaction->ExclTag();
-        const Kinematics &   kine = interaction->Kine();
-        const Target &       tgt  = init.Tgt();
-
-        bool is_cc    = proc.IsWeakCC();
-        bool is_nc    = proc.IsWeakNC();
-        bool is_charm = xcls.IsCharmEvent();
-        bool is_qel   = proc.IsQuasiElastic();
-        bool is_dis   = proc.IsDeepInelastic();
-        bool is_res   = proc.IsResonant();
-        bool is_cohpi = proc.IsCoherentPiProd();
-      //bool is_ve    = proc.IsNuElectronElastic();
-      //bool is_imd   = proc.IsInverseMuDecay();
-        bool is_p     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgProton  : false;
-        bool is_n     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgNeutron : false;
-        bool is_nu    = pdg::IsNeutrino    (init.ProbePdg());
-        bool is_nubar = pdg::IsAntiNeutrino(init.ProbePdg());
-        bool W_gt_2   = kine.KVSet(kKVW) ?  (kine.W() > 2.0) : false;
-
-        // (quasi-)elastic, nc+cc, nu+nubar
-        //
-        if      (is_qel && !is_charm && is_cc && is_nu           ) evtype =   1;
-        else if (is_qel && !is_charm && is_nc && is_nu && is_p   ) evtype =  51;
-        else if (is_qel && !is_charm && is_nc && is_nu && is_n   ) evtype =  52;
-        else if (is_qel && !is_charm && is_cc && is_nubar        ) evtype =  -1;
-        else if (is_qel && !is_charm && is_nc && is_nubar && is_p) evtype = -51;
-        else if (is_qel && !is_charm && is_nc && is_nubar && is_n) evtype = -52;
-
-        // coherent pi, nc+cc, nu+nubar
-        //
-        else if (is_cohpi && is_cc && is_nu   ) evtype =  16;        
-        else if (is_cohpi && is_cc && is_nubar) evtype = -16;        
-        else if (is_cohpi && is_nc && is_nu   ) evtype =  36;
-        else if (is_cohpi && is_nc && is_nubar) evtype = -36;
-
-        // dis, W>2, nc+cc, nu+nubar 
-        // (charm DIS not simulated by NEUT, will bundle GENIE charm DIS into this category)
-        //
-        else if (is_dis && W_gt_2 && is_cc && is_nu   ) evtype =  26;        
-        else if (is_dis && W_gt_2 && is_nc && is_nu   ) evtype =  46;        
-        else if (is_dis && W_gt_2 && is_cc && is_nubar) evtype = -26;        
-        else if (is_dis && W_gt_2 && is_nc && is_nubar) evtype = -46;        
-
-        // resonance or dis with W < 2 GeV
-        //
-        else if ( is_res || (is_dis && !W_gt_2) ) {
-
-            LOG("gntpc", pNOTICE) << "Current event is RES or DIS with W<2";
-
-           // check the number of pions and nucleons in the primary hadronic system
-           // (_before_ intranuclear rescattering)
-           //
-           int nn=0, np=0, npi0=0, npip=0, npim=0, nKp=0, nKm=0, nK0=0, neta=0, nlambda=0, ngamma=0;
-           bool nuclear_target = init.Tgt().IsNucleus();
-           while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) 
-           {
-               GHepStatus_t ghep_ist = (GHepStatus_t) p->Status();  
-               int ghep_pdgc = p->Pdg();
-
-               // For nuclear targets use hadrons marked as 'hadron in the nucleus'
-               // which are the ones passed in the intranuclear rescattering
-               // For free nucleon targets use particles marked as 'final state'
-               // but make an exception for pi0 which must have been decayed by then
-
-               bool count_it = 
-                     ( nuclear_target && ghep_ist==kIStHadronInTheNucleus) ||
-                     (!nuclear_target && ghep_ist==kIStStableFinalState  ) ||
-                     (!nuclear_target && ghep_ist==kIStDecayedState && ghep_pdgc==kPdgPi0);
-               if(!count_it) continue;
-
-               if(ghep_pdgc == kPdgProton )    np++;            // p
-               if(ghep_pdgc == kPdgNeutron)    nn++;            // n
-               if(ghep_pdgc == kPdgPiP)        npip++;          // pi+
-               if(ghep_pdgc == kPdgPiM)        npim++;          // pi-
-               if(ghep_pdgc == kPdgPi0)        npi0++;          // pi0
-               if(ghep_pdgc == kPdgEta)        neta++;          // eta0
-               if(ghep_pdgc == kPdgKP)         nKp++;           // K+
-               if(ghep_pdgc == kPdgKM)         nKm++;           // K-
-               if(ghep_pdgc == kPdgK0)         nK0++;           // K0
-               if(ghep_pdgc == kPdgAntiK0)     nK0++;           // K0
-               if(ghep_pdgc == kPdgLambda)     nlambda++;       // Lamda
-               if(ghep_pdgc == kPdgAntiLambda) nlambda++;       // Lamda
-               if(ghep_pdgc == kPdgGamma)      ngamma++;        // photon
-           }
-           LOG("gntpc", pNOTICE) 
-              << "Num of primary hadrons: p = " << np << ", n = " << nn
-              << ", pi+ = " << npip << ", pi- = " << npim << ", pi0 = " << npi0;
-
-           int nnuc = np + nn;
-           int npi  = npi0 + npip + npim;
-           int nK   = nK0 + nKp + nKm;
-           int neKL = neta + nK + nlambda;
- 
-           bool is_single_pi_dis = (npi==1) && is_dis;
-           bool is_radiative_dec = (nnuc==1) && (npi==0) && (ngamma==1);
-
-           // res + non-res bkg (single pi dis, W < 2 GeV)
-           //
-           if(is_res || is_single_pi_dis) {
-
-              //
-              // single gamma from resonances
-              //
-
-              if      (is_res && is_nu    && is_cc && is_n && is_radiative_dec) evtype =  17;
-              else if (is_res && is_nu    && is_nc && is_n && is_radiative_dec) evtype =  38;
-              else if (is_res && is_nu    && is_nc && is_p && is_radiative_dec) evtype =  39;
-
-              else if (is_res && is_nubar && is_cc && is_p && is_radiative_dec) evtype = -17;
-              else if (is_res && is_nubar && is_nc && is_n && is_radiative_dec) evtype = -38;
-              else if (is_res && is_nubar && is_nc && is_p && is_radiative_dec) evtype = -39;
-
-              //
-              // single pi (res + non-res bkg)
-              //
-
-              // nu CC
-              else if (is_nu    && is_cc && is_p && np==1 && nn==0 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype =  11;
-              else if (is_nu    && is_cc && is_n && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  12;
-              else if (is_nu    && is_cc && is_n && np==0 && nn==1 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype =  13;
-
-              // nubar CC
-              else if (is_nu    && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  31;
-              else if (is_nu    && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  32;
-              else if (is_nu    && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype =  33;
-              else if (is_nu    && is_nc && is_p && np==0 && nn==1 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype =  34;
-
-              //nubar CC
-              else if (is_nubar && is_cc && is_n && np==0 && nn==1 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype = -11;
-              else if (is_nubar && is_cc && is_p && np==0 && nn==1 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype = -12;
-              else if (is_nubar && is_cc && is_p && np==1 && nn==0 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype = -13;
-
-              //nubar NC
-              else if (is_nubar && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype = -31; 
-              else if (is_nubar && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype = -32;
-              else if (is_nubar && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype = -33;
-              else if (is_nubar && is_nc && is_p && np==0 && nn==1 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype = -34;
-
-              //
-              // single eta from res
-              //
-
-              else if (is_res &&  is_nu    && is_cc && is_n && np==1 && nn==0 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype =  22;
-              else if (is_res &&  is_nu    && is_nc && is_n && np==0 && nn==1 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype =  42;
-              else if (is_res &&  is_nu    && is_nc && is_p && np==1 && nn==0 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype =  43;
-
-              else if (is_res &&  is_nubar && is_cc && is_p && np==0 && nn==1 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype = -22;
-              else if (is_res &&  is_nubar && is_nc && is_n && np==0 && nn==1 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype = -42;
-              else if (is_res &&  is_nubar && is_nc && is_p && np==1 && nn==0 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype = -43;
-
-              //
-              // single K from res
-              //
-
-              else if (is_res &&  is_nu    && is_cc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype =  23;
-              else if (is_res &&  is_nu    && is_nc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype =  44;
-              else if (is_res &&  is_nu    && is_nc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype =  45;
-
-              else if (is_res &&  is_nubar && is_cc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -23;
-              else if (is_res &&  is_nubar && is_nc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -44;
-              else if (is_res &&  is_nubar && is_nc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -45;
-           }
-
-           // multi-pi (1.3 GeV < W < 2.0 GeV)
-           //
-           else {
-              if      (is_nu    && is_cc) evtype =  21;
-              else if (is_nu    && is_nc) evtype =  41;
-              else if (is_nubar && is_cc) evtype = -21;
-              else if (is_nubar && is_nc) evtype = -41;
-           }
-        }
+    	int evtype = utils::xgen::NeutReactionCode(&event);
         LOG("gntpc", pNOTICE) << "NEUT-like event type = " << evtype;
     	output << "$ nuance " << evtype << endl;
-
     } //neut code
-
     // add genie "event type"
-    //
     else {
     	output << "$ genie " << interaction->AsString() << endl;
     }
 
-    // add tracker vertex info
-    double vtxx = 0, vtxy = 0, vtxz = 0, vtxt = 0;
-    output << "$ vertex " << vtxx << " " << vtxy
-           << " " << vtxz << " " << vtxt << " " << endl;
+    //
+    // -- Add '$vertex' line
+    //
+    output << "$ vertex " 
+           << event.Vertex()->X() << " "
+           << event.Vertex()->Y() << " "
+           << event.Vertex()->Z() << " "
+           << event.Vertex()->T() << endl;
 
-    // add 'tracks' (GENIE's equivalent of GHepParticles)
-    bool info_added  = false;
+    //
+    // -- Add '$track' lines
+    //
+
+    // Loop over the generated GHEP particles and decide which ones 
+    // to write-out in $track lines
+    vector<int> tracks;
+
     event_iter.Reset();
+    iparticle = -1;
     while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) 
     {
+       iparticle++;
+
        // Neglect all GENIE pseudo-particles
-       //
        if(p->IsFake()) continue;
 
-       // Convert GENIE's GHEP pdgc & status to NUANCE's equivalent
-       //
-       GHepStatus_t ghep_ist = (GHepStatus_t) p->Status();
-       int ist;
-       switch (ghep_ist) {
-         case kIStInitialState:             ist = -1;   break;
-         case kIStStableFinalState:         ist =  0;   break;
-         case kIStIntermediateState:        ist = -2;   break;
-         case kIStDecayedState:             ist = -2;   break;
-         case kIStNucleonTarget:            ist = -1;   break;
-         case kIStDISPreFragmHadronicState: ist = -2;   break;
-         case kIStPreDecayResonantState:    ist = -2;   break;
-         case kIStHadronInTheNucleus:       ist = -2;   break;
-         case kIStUndefined:                ist = -999; break;
-         default:                           ist = -999; break;
-       }
-       // Convert GENIE pdg code -> nuance PDG code
-       // For most particles both generators use the standard PDG codes.
-       // For nuclei GENIE follows the PDG-convention: 10LZZZAAAI
-       // NUANCE is using: ZZZAAA
-       int ghep_pdgc = p->Pdg();
-       int pdgc = ghep_pdgc;
-       if ( p->IsNucleus() ) {
-         int Z = pdg::IonPdgCodeToZ(ghep_pdgc);
-         int A = pdg::IonPdgCodeToA(ghep_pdgc);
-         pdgc = 1000*Z + A;
-       }
-       //
-       //
-       if(gOptOutFileFormat==11) {
-         if(pdgc==kPdgK0 || pdgc==kPdgAntiK0) {
-            RandomGen * rnd = RandomGen::Instance();
-            double R =  rnd->RndGen().Rndm();
-            if(R>0.5) pdgc = kPdgK0L;
-            else      pdgc = kPdgK0S;
-         }
-       }
-       // Get particle's energy & momentum
-       TLorentzVector * p4 = p->P4();
-       double E  = p4->Energy() / units::MeV;
-       double Px = p4->Px()     / units::MeV;
-       double Py = p4->Py()     / units::MeV;
-       double Pz = p4->Pz()     / units::MeV;
-       double P  = p4->P()      / units::MeV;
-       // Compute direction cosines
-       double dcosx = (P>0) ? Px/P : -999;
-       double dcosy = (P>0) ? Py/P : -999;
-       double dcosz = (P>0) ? Pz/P : -999;
+       int          ghep_pdgc   = p->Pdg();
+       int          ghep_fm     = p->FirstMother();
+       int          ghep_fd     = p->FirstDaughter();
+       int          ghep_ld     = p->LastDaughter();
+       int          ghep_fmpdgc = (ghep_fm==-1) ? 0 : event.Particle(ghep_fm)->Pdg();
+       int          ghep_fdpdgc = (ghep_fd==-1) ? 0 : event.Particle(ghep_fd)->Pdg();
+       int          ghep_ldpdgc = (ghep_ld==-1) ? 0 : event.Particle(ghep_ld)->Pdg();
+       GHepStatus_t ghep_ist    = (GHepStatus_t) p->Status();
+  
+       // Keep 'initial state', 'nucleon target', 'hadron in the nucleus' and 'final state' particles.
+       // Neglect pi0 decays if they were performed within GENIE.
+       // Write out the decayed pi0 and neglect the two final state photons.
+       bool keep = (ghep_ist == kIStInitialState)       ||
+                   (ghep_ist == kIStNucleonTarget)      ||
+                   (ghep_ist == kIStHadronInTheNucleus) ||
+                   (ghep_ist == kIStDecayedState  && ghep_pdgc == kPdgPi0 && ghep_fdpdgc == kPdgGamma && ghep_ldpdgc == kPdgGamma) ||
+                   (ghep_ist == kIStStableFinalState && !(ghep_pdgc == kPdgGamma && ghep_fmpdgc == kPdgPi0) );
+       if(!keep) continue;
 
-       GHepStatus_t gist = (GHepStatus_t) p->Status();
-       bool is_init =
-             (gist == kIStInitialState || gist == kIStNucleonTarget);
+       // Apparently SKDETSIM chokes with O16 - Neglect the nuclear target in this case
+       //
+       if (gOptOutFileFormat==11 && p->IsNucleus()) continue;
 
-       if(!is_init && !info_added) {
-         // Add nuance obsolete and flux info (not filled in by
-         // GENIE here). Add it once after the initial state particles
-         output << "$ info 2 949000 0.0000E+00" << endl;
-         info_added = true;
-       }
-       output << "$ track " << pdgc << " " << E << " "
-              << dcosx << " " << dcosy << " " << dcosz << " "
-              << ist << endl;
+       tracks.push_back(iparticle);
     }
-    //add  tracker end tag
+
+    //bool info_added  = false;
+
+    // Looping twice to ensure that all final state particle are grouped together.
+    // On the second loop add only f/s particles. On the first loop add all but f/s particles
+    for(int iloop=0; iloop<=1; iloop++) 
+    {
+      for(vector<int>::const_iterator ip = tracks.begin(); ip != tracks.end(); ++ip) 
+      {
+         iparticle = *ip;
+         p = event.Particle(iparticle);
+
+         int ghep_pdgc = p->Pdg();
+         GHepStatus_t ghep_ist = (GHepStatus_t) p->Status();
+
+         bool fs = (ghep_ist==kIStStableFinalState) || 
+                   (ghep_ist==kIStDecayedState && ghep_pdgc==kPdgPi0);
+
+         if(iloop==0 &&  fs) continue;
+         if(iloop==1 && !fs) continue;
+
+         // Convert GENIE's GHEP pdgc & status to NUANCE's equivalent
+         //
+         int ist;
+         switch (ghep_ist) {
+           case kIStInitialState:             ist = -1;                              break;
+           case kIStStableFinalState:         ist =  0;                              break;
+           case kIStIntermediateState:        ist = -2;                              break;
+           case kIStDecayedState:             ist = (ghep_pdgc==kPdgPi0) ? 0 : -2;   break;
+           case kIStNucleonTarget:            ist = -1;                              break;
+           case kIStDISPreFragmHadronicState: ist = -999;                            break;
+           case kIStPreDecayResonantState:    ist = -999;                            break;
+           case kIStHadronInTheNucleus:       ist = -2;                              break;
+           case kIStUndefined:                ist = -999;                            break;
+           default:                           ist = -999;                            break;
+         }
+         // Convert GENIE pdg code -> nuance PDG code
+         // For most particles both generators use the standard PDG codes.
+         // For nuclei GENIE follows the PDG-convention: 10LZZZAAAI
+         // NUANCE is using: ZZZAAA
+         int pdgc = ghep_pdgc;
+         if ( p->IsNucleus() ) {
+           int Z = pdg::IonPdgCodeToZ(ghep_pdgc);
+           int A = pdg::IonPdgCodeToA(ghep_pdgc);
+           pdgc = 1000*Z + A;
+         }
+
+         // The SK detector MC expects K0_Long, K0_Short - not K0, \bar{K0}
+         // Do the conversion here:
+         if(gOptOutFileFormat==11) {
+           if(pdgc==kPdgK0 || pdgc==kPdgAntiK0) {
+              RandomGen * rnd = RandomGen::Instance();
+              double R =  rnd->RndGen().Rndm();
+              if(R>0.5) pdgc = kPdgK0L;
+              else      pdgc = kPdgK0S;
+           }
+         }
+         // Get particle's energy & momentum
+         TLorentzVector * p4 = p->P4();
+         double E  = p4->Energy() / units::MeV;
+         double Px = p4->Px()     / units::MeV;
+         double Py = p4->Py()     / units::MeV;
+         double Pz = p4->Pz()     / units::MeV;
+         double P  = p4->P()      / units::MeV;
+         // Compute direction cosines
+         double dcosx = (P>0) ? Px/P : -999;
+         double dcosy = (P>0) ? Py/P : -999;
+         double dcosz = (P>0) ? Pz/P : -999;
+
+// <obsolte/>
+//         GHepStatus_t gist = (GHepStatus_t) p->Status();
+//         bool is_init =
+//               (gist == kIStInitialState || gist == kIStNucleonTarget);
+//
+//         if(!is_init && !info_added) {
+//           // Add nuance obsolete and flux info (not filled in by
+//           // GENIE here). Add it once after the initial state particles
+//           output << "$ info 2 949000 0.0000E+00" << endl;
+//           info_added = true;
+//         }
+// </obsolte>
+
+         LOG("gntpc", pNOTICE) 
+           << "Adding $track corrsponding to GHEP particle at position: " << iparticle
+           << " (tracker status code: " << ist << ")";
+
+         output << "$ track " << pdgc << " " << E << " "
+                << dcosx << " " << dcosy << " " << dcosz << " "
+                << ist << endl;
+
+      }//tracks
+    }//iloop
+
+    //
+    // -- Add $info lines as necessary
+    //
+
+    if(gOptOutFileFormat==11) {
+      //
+      // Writing $info lines with information identical to the one saved at the rootracker-format 
+      // files for the nd280MC. SKDETSIM can propagate all that complete MC truth information into 
+      // friend event trees that can be 'linked' with the SK DSTs.
+      // Having identical generator info for both SK and nd280 will enable global studies
+      //
+      // The $info lines are formatted as follows:
+      //
+      // $ info event_num err_flag string_event_code
+      // $ info xsec_event diff_xsec_kinematics weight prob
+      // $ info vtxx vtxy vtxz vtxt
+      // $ info nparticles
+      // $ info 0 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz
+      // $ info 1 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz
+      // ... ... ...
+      // $ info k pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz
+      // ... ... ...
+      // $ info jnubeam_parent_pdg_code, jnubeam_parent_decay_mode
+      // $ info jnubeam_parent_pdg_code, jnubeam_parent_decay_mode
+      // $ info jnubeam_parent_decay_px jnubeam_parent_decay_py jnubeam_parent_decay_pz jnubeam_parent_decay_E
+      // $ info jnubeam_parent_decay_x jnubeam_parent_decay_y jnubeam_parent_decay_z jnubeam_parent_decay_t
+      // $ info jnubeam_parent_prod_px jnubeam_parent_prod_py jnubeam_parent_prod_pz jnubeam_parent_prod_E
+      // $ info jnubeam_parent_prod_x jnubeam_parent_prod_y jnubeam_parent_prod_z jnubeam_parent_prod_t
+      // $ info jnubeam_parent_nvtx
+      //
+      // Comments:
+      // - The jnubeam lines may not always be available (eg if event generation used histogram-based flux descriptions)
+      // - event_xsec is the event cross section in 1E-38cm^2
+      // - diff_event_xsec is the cross section for the selected in 1E-38cm^2/{K^n}
+      // - weight is the event weight (1 for unweighted MC)
+      // - prob is the event probability (given cross sectios and density-weighted path-length)
+      // - vtxx,y,z,t is the vertex position/time in SI units 
+      // - nparticles is the number of particles in the GHEP record (number of $info lines to follow)
+      // - first_/last_daughter first_/last_mother indicate the particle
+      // - px,py,pz,E is the particle 4-momentum at the LAB frame (in GeV)
+      // - x,y,z,t is the particle 4-position at the hit nucleus coordinate system (in fm, t is not set)
+      // - polx,y,z is the particle polarization vector
+      // - the jnubeam variables are in whatever units are used by jnubeam.
+      // See also ConvertToGT2KRooTracker() for further descriptions of the variables stored at
+      // the rootracker files.
+      //
+      // event info
+      //
+      output << "$ info " << (int) iev << " " << event.EventFlags() << " " << event.Summary()->AsString() << endl;
+      output << "$ info " << (1E+38/units::cm2) * event.XSec() << " "
+                          << (1E+38/units::cm2) * event.DiffXSec() << " "  
+                          << event.Weight() << " "
+                          << event.Probability()
+                          << endl;
+      output << "$ info " << event.Vertex()->X() << " "
+                          << event.Vertex()->Y() << " "
+                          << event.Vertex()->Z() << " "
+                          << event.Vertex()->T() 
+                          << endl;
+      //
+      // copy stdhep-like particle list
+      //
+      iparticle = 0;
+      event_iter.Reset();
+      output << "$ info " << event.GetEntries() << endl;
+      while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) 
+      {
+        assert(p);
+        output << "$ info " 
+               << iparticle << " " 
+               << p->Pdg() << " " << (int) p->Status() << " "
+               << p->FirstDaughter() << " " << p->LastDaughter() << " " 
+               << p->FirstMother() << " " << p->LastMother() << " "
+               << p->X4()->X()  << " " << p->X4()->Y()  << " " << p->X4()->Z()  << " " << p->X4()->T() << " "
+               << p->P4()->Px() << " " << p->P4()->Py() << " " << p->P4()->Pz() << " " << p->P4()->E() << " ";
+        if(p->PolzIsSet()) {
+            output << TMath::Sin(p->PolzPolarAngle()) * TMath::Cos(p->PolzAzimuthAngle()) << " "
+                   << TMath::Sin(p->PolzPolarAngle()) * TMath::Sin(p->PolzAzimuthAngle()) << " "
+                   << TMath::Cos(p->PolzPolarAngle());
+        } else {
+            output << "0. 0. 0.";
+        }
+        output << endl;
+        iparticle++;
+      }
+      //
+      // JNUBEAM flux info - that may not be available, eg if events were generated using 
+      // plain flux histograms - not the beam simulation's output flux ntuples
+      //
+      if(flux_info) {
+         // parent hadron pdg code and decay mode
+         output << "$ info " << flux_info->pdg << " " << flux_info->decayMode << endl;
+         // parent hadron px,py,pz,E at decay
+         output << "$ info " << flux_info->decayP * flux_info->decayDirX << " " 
+                             << flux_info->decayP * flux_info->decayDirY << " " 
+                             << flux_info->decayP * flux_info->decayDirZ << " " 
+                             << TMath::Sqrt(
+                                   TMath::Power(pdglib->Find(flux_info->pdg)->Mass(), 2.)
+                                 + TMath::Power(flux_info->decayP, 2.)
+                                )  << endl;
+         // parent hadron x,y,z,t at decay
+         output << "$ info " << flux_info->decayX << " "
+                             << flux_info->decayY << " "
+                             << flux_info->decayZ << " "
+                             << "0." 
+                             << endl;
+         // parent hadron px,py,pz,E at production
+         output << "$ info " << flux_info->prodP * flux_info->prodDirX << " "
+                             << flux_info->prodP * flux_info->prodDirY << " "
+                             << flux_info->prodP * flux_info->prodDirZ << " "
+                             << TMath::Sqrt(
+                                   TMath::Power(pdglib->Find(flux_info->pdg)->Mass(), 2.)
+                                 + TMath::Power(flux_info->prodP, 2.)
+                                ) << endl;
+         // parent hadron x,y,z,t at production
+         output << "$ info " << flux_info->prodX << " "
+                             << flux_info->prodY << " "
+                             << flux_info->prodZ << " "
+                             << "0." 
+                             << endl;
+         // nvtx
+         output << "$ info " << output << "$info " << endl;
+     }
+    }//fmt==11
+
+    //
+    // -- Add  tracker end tag
+    //
     output << "$ end" << endl;
 
     mcrec->Clear();
