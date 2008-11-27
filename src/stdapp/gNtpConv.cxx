@@ -1196,23 +1196,27 @@ void ConvertToGT2KTracker(void)
       //
       // Comments:
       // - The jnubeam lines may not always be available (eg if event generation used histogram-based flux descriptions)
+      // - The jnubeam variables are in whatever units are used by jnubeam.
+      // - The err_flag is a bit field (16 bits)
+      // - The string_event_code is a rather long string which encapsulates lot of summary info on the event
+      //   (neutrino/nuclear target/hit nucleon/hit quark(if any)/process type/...).
+      //   Information on how to parse that string code is available at the T2K event reweighting package.
       // - event_xsec is the event cross section in 1E-38cm^2
       // - diff_event_xsec is the cross section for the selected in 1E-38cm^2/{K^n}
       // - weight is the event weight (1 for unweighted MC)
       // - prob is the event probability (given cross sectios and density-weighted path-length)
       // - vtxx,y,z,t is the vertex position/time in SI units 
-      // - nparticles is the number of particles in the GHEP record (number of $info lines to follow)
+      // - nparticles is the number of particles in the GHEP record (number of $info lines to follow before the start of the JNUBEAM block)
       // - first_/last_daughter first_/last_mother indicate the particle
       // - px,py,pz,E is the particle 4-momentum at the LAB frame (in GeV)
       // - x,y,z,t is the particle 4-position at the hit nucleus coordinate system (in fm, t is not set)
       // - polx,y,z is the particle polarization vector
-      // - the jnubeam variables are in whatever units are used by jnubeam.
       // See also ConvertToGT2KRooTracker() for further descriptions of the variables stored at
       // the rootracker files.
       //
       // event info
       //
-      output << "$ info " << (int) iev << " " << event.EventFlags() << " " << event.Summary()->AsString() << endl;
+      output << "$ info " << (int) iev << " " << *(event.EventFlags()) << " " << event.Summary()->AsString() << endl;
       output << "$ info " << (1E+38/units::cm2) * event.XSec() << " "
                           << (1E+38/units::cm2) * event.DiffXSec() << " "  
                           << event.Weight() << " "
