@@ -29,7 +29,10 @@
 int genie::utils::xgen::NeutReactionCode(const GHepRecord * event)
 {
 // Ryan Terri, Yoshinari Hayato, Costas Andreopoulos
-//  
+//
+// A description of NEUT event types can be seen here: 
+// http://t2k.phy.duke.edu/bin/view/Main/NeutModes
+//
   if(!event) {
     LOG("XGen", pWARN) << "Null event!";
     return 0;
