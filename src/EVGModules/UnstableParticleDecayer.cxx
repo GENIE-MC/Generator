@@ -31,6 +31,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Decay/DecayModelI.h"
 #include "EVGModules/UnstableParticleDecayer.h"
 #include "GHEP/GHepStatus.h"
@@ -237,8 +238,14 @@ void UnstableParticleDecayer::CopyToEventRecord(
      int pdg = dpmc->GetKF();
      GHepStatus_t ist = GHepStatus_t (dpmc->GetKS()); 
 
-     TLorentzVector p4(dpmc->GetPx(), dpmc->GetPy(), dpmc->GetPz(), dpmc->GetEnergy()); 
-     TLorentzVector x4(dpmc->GetVx(), dpmc->GetVy(), dpmc->GetVz(), dpmc->GetTime()); 
+     TLorentzVector p4(dpmc->GetPx(), 
+                       dpmc->GetPy(), 
+                       dpmc->GetPz(), 
+                       dpmc->GetEnergy()); 
+     TLorentzVector x4(dpmc->GetVx() / units::fm, 
+                       dpmc->GetVy() / units::fm, 
+                       dpmc->GetVz() / units::fm, 
+                       0); 
      x4 += parent_x4;
 
      //-- and now add the decay products
