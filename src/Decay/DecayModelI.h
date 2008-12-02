@@ -38,10 +38,10 @@ public:
 
   //! define DecayModelI interface
 
-  virtual bool           IsHandled  (int pdgc)                    const = 0;
-  virtual void           Initialize (void)                        const = 0;  
-  virtual TClonesArray * Decay      (const DecayerInputs_t & inp) const = 0;
-  virtual double         Weight     (void)                        const = 0;
+  virtual bool           IsHandled  (int pdgc)                    const = 0; ///< can this particle be decayed?
+  virtual void           Initialize (void)                        const = 0; ///< decayer initialization
+  virtual TClonesArray * Decay      (const DecayerInputs_t & inp) const = 0; ///< return a TClonesArray of TMCParticle objects (see TMCParticle for units)
+  virtual double         Weight     (void)                        const = 0; ///< last decay weight
 
 protected:
 
