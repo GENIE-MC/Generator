@@ -24,6 +24,8 @@
 #endif
 
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/Units.h"
+#include "Conventions/Constants.h"
 #include "Decay/PythiaDecayer.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -121,6 +123,12 @@ TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
        << type << p->GetName() << " (pdg-code = "
           << p->GetKF() << ", m = " << p->GetMass() 
              << ", E = " << p->GetEnergy() << ")";
+
+    p->SetLifetime (p->GetLifetime() * units::mm/constants::kLightSpeed);
+    p->SetTime     (p->GetTime()     * units::mm/constants::kLightSpeed);
+    p->SetVx       (p->GetVx()       * units::mm);
+    p->SetVy       (p->GetVy()       * units::mm);
+    p->SetVz       (p->GetVz()       * units::mm);
 
     new ( (*pl)[i++] ) TMCParticle(*p);
   }
