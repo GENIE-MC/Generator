@@ -19,7 +19,6 @@
 #pragma link C++ namespace genie::utils::units;
 #pragma link C++ namespace genie::utils::nuclear;
 #pragma link C++ namespace genie::utils::bwfunc;
-#pragma link C++ namespace genie::utils::xgen;
 
 #pragma link C++ class genie::Cache;
 #pragma link C++ class genie::CacheBranchI;
