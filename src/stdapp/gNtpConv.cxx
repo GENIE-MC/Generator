@@ -83,6 +83,7 @@
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
+#include "GHEP/GHepUtils.h"
 #include "Ntuple/NtpMCFormat.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
@@ -91,7 +92,6 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
-#include "Utils/XGenUtils.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
 
@@ -468,8 +468,8 @@ void ConvertToGST(void)
     bool charm = xcls.IsCharmEvent();
 
     // get neut and nuance equivalent reaction codes (if any)
-    brCodeNeut    = utils::xgen::NeutReactionCode(&event);
-    brCodeNuance  = utils::xgen::NuanceReactionCode(&event);
+    brCodeNeut    = utils::ghep::NeutReactionCode(&event);
+    brCodeNuance  = utils::ghep::NuanceReactionCode(&event);
 
     //weight
     double weight = event.Weight();
@@ -1005,13 +1005,13 @@ void ConvertToGT2KTracker(void)
 
     // add 'NUANCE'-like event type
     if(gOptOutFileFormat==1) {
-    	int evtype = utils::xgen::NuanceReactionCode(&event);
+    	int evtype = utils::ghep::NuanceReactionCode(&event);
         LOG("gntpc", pNOTICE) << "NUANCE-like event type = " << evtype;
     	output << "$ nuance " << evtype << endl;
     } // nuance code
     // add 'NEUT'-like event type
     else if(gOptOutFileFormat==11) {
-    	int evtype = utils::xgen::NeutReactionCode(&event);
+    	int evtype = utils::ghep::NeutReactionCode(&event);
         LOG("gntpc", pNOTICE) << "NEUT-like event type = " << evtype;
     	output << "$ nuance " << evtype << endl;
     } //neut code
