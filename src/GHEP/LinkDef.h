@@ -5,6 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
+#pragma link C++ namespace genie::utils::ghep;
 
 #pragma link C++ class genie::GHepParticle;
 #pragma link C++ class genie::GHepRecord;
