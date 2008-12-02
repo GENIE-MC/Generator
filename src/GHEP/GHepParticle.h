@@ -157,18 +157,18 @@ private:
   void Init(void);
   void AssertIsKnownParticle(void) const;
 
-  bool             fIsNucleus;      ///< nucleus flag
-  bool             fIsFake;         ///< fake particle flag (rootino etc)
-  bool             fIsBound;        ///< nucleon-specific flag 
+  bool             fIsNucleus;      ///< 'is it a nucleus?' flag
+  bool             fIsFake;         ///< 'is it a pseudo-particle?' flag 
+  bool             fIsBound;        ///< 'is it a bound particle?' flag
   int              fPdgCode;        ///< particle PDG code
   GHepStatus_t     fStatus;         ///< particle status
   int              fFirstMother;    ///< first mother idx
   int              fLastMother;     ///< last mother idx
   int              fFirstDaughter;  ///< first daughter idx
   int              fLastDaughter;   ///< last daughter idx
-  TLorentzVector * fP4;             ///< momentum 4-vector
-  TLorentzVector * fX4;             ///< position 4-vector
-  double           fRemovalEnergy;  ///< removal energy for bound nucleons 
+  TLorentzVector * fP4;             ///< momentum 4-vector (GeV)
+  TLorentzVector * fX4;             ///< position 4-vector (in the target nucleus coordinate system / x,y,z in fm / t=0)
+  double           fRemovalEnergy;  ///< removal energy for bound nucleons (GeV)
   double           fPolzTheta;      ///< polar polarization angle (rad)
   double           fPolzPhi;        ///< azimuthal polarization angle (rad)
 
