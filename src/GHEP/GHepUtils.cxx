@@ -120,7 +120,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
          // but make an exception for decayed pi0's,eta's (count them and not their daughters)
 
          bool decayed         = (ghep_ist==kIStDecayedState && (ghep_pdgc==kPdgPi0 || ghep_pdgc==kPdgEta));
-         bool parent_included = (ghep_fmpdgc==kPdgPi0 && ghep_fmpdgc==kPdgEta);
+         bool parent_included = (ghep_fmpdgc==kPdgPi0 || ghep_fmpdgc==kPdgEta);
 
          bool count_it =
                ( nuclear_target && ghep_ist==kIStHadronInTheNucleus) ||
