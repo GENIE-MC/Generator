@@ -1047,22 +1047,42 @@ void ConvertToGT2KTracker(void)
        if(p->IsFake()) continue;
 
        int          ghep_pdgc   = p->Pdg();
-       int          ghep_fm     = p->FirstMother();
-       int          ghep_fd     = p->FirstDaughter();
-       int          ghep_ld     = p->LastDaughter();
-       int          ghep_fmpdgc = (ghep_fm==-1) ? 0 : event.Particle(ghep_fm)->Pdg();
-       int          ghep_fdpdgc = (ghep_fd==-1) ? 0 : event.Particle(ghep_fd)->Pdg();
-       int          ghep_ldpdgc = (ghep_ld==-1) ? 0 : event.Particle(ghep_ld)->Pdg();
        GHepStatus_t ghep_ist    = (GHepStatus_t) p->Status();
-  
+
+       //  
        // Keep 'initial state', 'nucleon target', 'hadron in the nucleus' and 'final state' particles.
-       // Neglect pi0 decays if they were performed within GENIE.
-       // Write out the decayed pi0 and neglect the two final state photons.
+       // Neglect pi0 decays if they were performed within GENIE (write out the decayed pi0 and neglect 
+       // the {gamma + gamma} or {gamma + e- + e+} final state
+       //
+
+       // is pi0 decay?
+       bool is_pi0_dec = false;
+       if(ghep_ist == kIStDecayedState && ghep_pdgc == kPdgPi0) {
+         vector<int> pi0dv; // daughters vector
+         int ghep_fd = p->FirstDaughter();
+         int ghep_ld = p->LastDaughter();
+         for(int jd = ghep_fd; jd <= ghep_ld; jd++) {
+           if(jd!=-1) {
+              pi0dv.push_back(event.Particle(jd)->Pdg());
+           }
+         }
+         sort(pi0dv.begin(), pi0dv.end());
+         is_pi0_dec = (pi0dv.size()==2 && pi0dv[0]==kPdgGamma && pi0dv[1]==kPdgGamma) ||
+                      (pi0dv.size()==3 && pi0dv[0]==kPdgPositron && pi0dv[1]==kPdgElectron && pi0dv[2]==kPdgGamma);
+       }
+
+       // is pi0 decay product?
+       int ghep_fm     = p->FirstMother();
+       int ghep_fmpdgc = (ghep_fm==-1) ? 0 : event.Particle(ghep_fm)->Pdg();
+       bool is_pi0_dpro = (ghep_pdgc == kPdgGamma    && ghep_fmpdgc == kPdgPi0) ||
+                          (ghep_pdgc == kPdgElectron && ghep_fmpdgc == kPdgPi0) ||
+                          (ghep_pdgc == kPdgPositron && ghep_fmpdgc == kPdgPi0);
+
        bool keep = (ghep_ist == kIStInitialState)       ||
                    (ghep_ist == kIStNucleonTarget)      ||
                    (ghep_ist == kIStHadronInTheNucleus) ||
-                   (ghep_ist == kIStDecayedState  && ghep_pdgc == kPdgPi0 && ghep_fdpdgc == kPdgGamma && ghep_ldpdgc == kPdgGamma) ||
-                   (ghep_ist == kIStStableFinalState && !(ghep_pdgc == kPdgGamma && ghep_fmpdgc == kPdgPi0) );
+                   (ghep_ist == kIStDecayedState     &&  is_pi0_dec );
+                   (ghep_ist == kIStStableFinalState && !is_pi0_dpro);
        if(!keep) continue;
 
        // Apparently SKDETSIM chokes with O16 - Neglect the nuclear target in this case
