@@ -1081,7 +1081,7 @@ void ConvertToGT2KTracker(void)
        bool keep = (ghep_ist == kIStInitialState)       ||
                    (ghep_ist == kIStNucleonTarget)      ||
                    (ghep_ist == kIStHadronInTheNucleus) ||
-                   (ghep_ist == kIStDecayedState     &&  is_pi0_dec );
+                   (ghep_ist == kIStDecayedState     &&  is_pi0_dec ) ||
                    (ghep_ist == kIStStableFinalState && !is_pi0_dpro);
        if(!keep) continue;
 
