@@ -110,16 +110,23 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) )
      {
          GHepStatus_t ghep_ist = (GHepStatus_t) p->Status();
-         int ghep_pdgc = p->Pdg();
+         int ghep_pdgc    = p->Pdg();
+         int ghep_fm      = p->FirstMother();
+         int ghep_fmpdgc  = (ghep_fm==-1) ? 0 : event->Particle(ghep_fm)->Pdg();
         
          // For nuclear targets use hadrons marked as 'hadron in the nucleus'
          // which are the ones passed in the intranuclear rescattering
          // For free nucleon targets use particles marked as 'final state'
-         // but make an exception for pi0 which must have been decayed by then
+         // but make an exception for decayed pi0's,eta's (count them and not their daughters)
+
+         bool decayed         = (ghep_ist==kIStDecayedState && (ghep_pdgc==kPdgPi0 || ghep_pdgc==kPdgEta));
+         bool parent_included = (ghep_fmpdgc==kPdgPi0 && ghep_fmpdgc==kPdgEta);
+
          bool count_it =
                ( nuclear_target && ghep_ist==kIStHadronInTheNucleus) ||
-               (!nuclear_target && ghep_ist==kIStStableFinalState  ) ||
-               (!nuclear_target && ghep_ist==kIStDecayedState && ghep_pdgc==kPdgPi0);
+               (!nuclear_target && decayed) ||
+               (!nuclear_target && ghep_ist==kIStStableFinalState && !parent_included);
+
          if(!count_it) continue;
                 
          if(ghep_pdgc == kPdgProton )    np++;            // p
@@ -137,8 +144,11 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
          if(ghep_pdgc == kPdgGamma)      ngamma++;        // photon
      }
      LOG("GHepUtils", pNOTICE)
-           << "Num of primary hadrons: p = " << np << ", n = " << nn
-              << ", pi+ = " << npip << ", pi- = " << npim << ", pi0 = " << npi0;
+           << "Num of primary particles: \n p = " << np << ", n = " << nn
+              << ", pi+ = " << npip << ", pi- = " << npim << ", pi0 = " << npi0 
+              << ", eta = " << neta 
+              << ", K+ = " << nKp << ", K- = " << nKm << ", K0 = " << nK0 
+              << ", Labda's = " << nlambda; 
               
      int nnuc = np + nn;
      int npi  = npi0 + npip + npim;
