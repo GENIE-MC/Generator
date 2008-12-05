@@ -148,7 +148,8 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
               << ", pi+ = " << npip << ", pi- = " << npim << ", pi0 = " << npi0 
               << ", eta = " << neta 
               << ", K+ = " << nKp << ", K- = " << nKm << ", K0 = " << nK0 
-              << ", Labda's = " << nlambda; 
+              << ", Labda's = " << nlambda
+              << ", gamma's = " << ngamma;
               
      int nnuc = np + nn;
      int npi  = npi0 + npip + npim;
