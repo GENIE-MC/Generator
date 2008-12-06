@@ -192,19 +192,17 @@ using std::string;
 
 namespace genie {
 
+extern bool gAbortingInErr; 
+
 class Messenger
 {
 public:
-
   static Messenger * Instance(void);
 
   log4cpp::Category & operator () (const char * stream);
-
-  void SetPriorityLevel(const char * stream,
-                                 log4cpp::Priority::Value priority);
+  void SetPriorityLevel(const char * stream, log4cpp::Priority::Value p);
 
 private:
-
   Messenger();
   Messenger(const Messenger & config_pool);
   virtual ~Messenger();
@@ -229,5 +227,4 @@ private:
 };
 
 }      // genie namespace
-
 #endif // _MESSENGER_H_
