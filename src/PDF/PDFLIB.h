@@ -3,7 +3,7 @@
 
 \class    genie::PDFLIB
 
-\brief    PDFLIB library interface.
+\brief    LHAPDF/PDFLIB library interface.
           Concrete implementation of the PDFModelI interface.
 
 \author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>

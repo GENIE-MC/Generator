@@ -10,22 +10,38 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Dec 05, 2008 - CA, Anselmo Meregaglia
+   Added interface to the LHAPDF parton density function library.
 
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
+#include <TSystem.h>
 #include <TMath.h>
 
+#include "Conventions/GBuild.h"
 #include "PDF/PDFLIB.h"
 #include "Messenger/Messenger.h"
 
+#ifdef __GENIE_LHAPDF_ENABLED__
+//
+// include the LHAPDF C++ wrapper
+//
+#include "LHAPDF/LHAPDF.h"
+#else
+//
+// the actual PDFLIB fortran calls
+//
+extern "C" {
+ void pdfset_ (const char param[20][20], double val[20]);
+ void structm_ (double *, double *, double *, double *, double *, 
+                double *, double *, double *, double *, double *, double *);
+}
+#endif
+
 using namespace genie;
-
-//the actual PDFLIB calls
-extern "C" void pdfset_(const char param[20][20], double val[20]);
-
-extern "C" void structm_(double *, double *, double *, double *, double *, 
-                  double *, double *, double *, double *, double *, double *);
 
 //____________________________________________________________________________
 PDFLIB::PDFLIB() :
@@ -49,28 +65,72 @@ PDFLIB::~PDFLIB()
 //____________________________________________________________________________
 void PDFLIB::Initialize(void) const
 {
+#ifdef __GENIE_LHAPDF_ENABLED__
+  //
+  // LHAPDF
+  //
+  bool lhapath_ok = true;
+  const char * lhapath = gSystem->Getenv("LHAPATH");
+  if(!lhapath) lhapath_ok = false;
+  else {
+    if(!gSystem->OpenDirectory(lhapath)) lhapath_ok = false;
+  }
+  if(!lhapath_ok) {
+   LOG("PDF", pFATAL) 
+     << "\n"
+     << "** LHAPDF won't be able to read-in the PDF data. \n"
+     << "** The LHAPATH env. variable is not properly (or at all) defined. \n"
+     << "** Please, set LHAPATH to <lhapdf_top_dir>/PDFsets/ \n"
+     << "** See http://projects.hepforge.org/lhapdf/ for more details. \n\n";
+   gAbortingInErr = true;
+   exit(1);
+  }
+
+#else
+  //
+  // PDFLIB
+  //
   char   param[20][20];
   double val[20];
-
   strcpy(param[0], "Init0");
-
   pdfset_(param, val); // call pdfset from the fortran PDFLIB library
+
+#endif
 }
 //____________________________________________________________________________
 void PDFLIB::SetPDFSetFromConfig(void) const
 {
-  // Get configuration (particle type, pdf group/set) from registry.
-  // (for definitions, have a look at PDFLIB manual)
+// Get PDF spec (particle type, pdf group/set) from configuration registry.
+// For definitions, have a look at PDFLIB and LHAPDF manuals
 
+#ifdef __GENIE_LHAPDF_ENABLED__
+  //
+  // LHAPDF
+  //
+  string name   = "";
+  int    type   = 0;
+  int    memset = 0;
+
+  fConfig->Get("name_lhapdf",   name);
+  fConfig->Get("type_lhapdf",   type);
+  fConfig->Get("memset_lhapdf", memset);
+
+  LHAPDF::SetType stype = (type==0) ? LHAPDF::LHPDF :  LHAPDF::LHGRID;
+
+  LHAPDF::initPDFByName(name, stype, memset);
+  LHAPDF::extrapolate(false);
+
+#else
+  //
+  // PDFLIB
+  //
   int nptype = -1; // particle type
   int ngroup = -1; // PDF author group
   int nset   = -1; // PDF set --within PDF author group--
 
-  fConfig->Get("Nptype", nptype);
-  fConfig->Get("Ngroup", ngroup);
-  fConfig->Get("Nset",   nset  );
-
-  // Call pdfset from the fortran PDFLIB library to set PDF group/set
+  fConfig->Get("nptype_pdflib", nptype);
+  fConfig->Get("ngroup_pdflib", ngroup);
+  fConfig->Get("nset_pdfib",    nset  );
 
   char   param[20][20];
   double val[20];
@@ -83,6 +143,8 @@ void PDFLIB::SetPDFSetFromConfig(void) const
   val[2] = nset;
 
   pdfset_(param, val);
+
+#endif
 }
 //____________________________________________________________________________
 double PDFLIB::UpValence(double x, double q2) const
@@ -133,15 +195,35 @@ double PDFLIB::Gluon(double x, double q2) const
 PDF_t PDFLIB::AllPDFs(double x, double q2) const
 {
   PDF_t pdf;
-  double uval, dval, usea, dsea, str, chm, bot, top, gl;
 
   // QCD scale
-  double sc = TMath::Sqrt( TMath::Abs(q2) ); 
+  double q = TMath::Sqrt( TMath::Abs(q2) ); 
+
+#ifdef __GENIE_LHAPDF_ENABLED__
+  //
+  // LHAPDF
+  //
+  vector<double> pdfs = LHAPDF::xfx(x, q);
+  pdf.uval = pdfs[8] - pdfs[4];
+  pdf.dval = pdfs[7] - pdfs[5];
+  pdf.usea = pdfs[4];
+  pdf.dsea = pdfs[5];
+  pdf.str  = pdfs[9];
+  pdf.chm  = pdfs[10];
+  pdf.bot  = pdfs[11];
+  pdf.top  = pdfs[12];
+  pdf.gl   = pdfs[6];;
+
+#else
+  //
+  // PDFLIB
+  //
+
+  double uval, dval, usea, dsea, str, chm, bot, top, gl;
 
   // call structm from the fortran PDFLIB library
-  structm_(&x, &sc, &uval, &dval, &usea, &dsea, &str, &chm, &bot, &top, &gl);
+  structm_(&x, &q, &uval, &dval, &usea, &dsea, &str, &chm, &bot, &top, &gl);
 
-  // set PDF_t
   pdf.uval = uval;
   pdf.dval = dval;
   pdf.usea = usea;
@@ -152,6 +234,8 @@ PDF_t PDFLIB::AllPDFs(double x, double q2) const
   pdf.top  = top;
   pdf.gl   = gl;
 
+#endif
+
   return pdf;                                               
 }
 //____________________________________________________________________________
@@ -159,16 +243,16 @@ void PDFLIB::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
 
-  this->Initialize();          // re-initialize PDFLIB
-  this->SetPDFSetFromConfig(); // call PDFLIB's pdfset with new configuration
+  this->Initialize();         
+  this->SetPDFSetFromConfig();
 }
 //____________________________________________________________________________
 void PDFLIB::Configure(string config)
 {
   Algorithm::Configure(config);
 
-  this->Initialize();          // re-initialize PDFLIB
-  this->SetPDFSetFromConfig(); // call PDFLIB's pdfset with new configuration
+  this->Initialize();          
+  this->SetPDFSetFromConfig(); 
 }
 //____________________________________________________________________________
 
