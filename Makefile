@@ -251,8 +251,8 @@ endif
 minos-support-softw: FORCE
 	@echo " "
 	@echo "** Building MINOS-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_MINOS_EVSERV)),YES)
-	@echo "* Building MINOS GENIE event server"
+ifeq ($(strip $(GOPT_ENABLE_MINOS)),YES)
+	@echo "* Building MINOS-specific GENIE tools"
 	cd ${GENIE}/src/support/minos/EventServer/;\
 	make all; \
 	cd ${GENIE}
@@ -262,8 +262,8 @@ endif
 t2k-support-softw: FORCE
 	@echo " "
 	@echo "** Building T2K-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_T2K_EVGEN)),YES)
-	@echo "* Building GENIE event generation driver customized for T2K"
+ifeq ($(strip $(GOPT_ENABLE_T2K)),YES)
+	@echo "* Building T2K-specific GENIE tools"
 	cd ${GENIE}/src/support/t2k/EvGen/;\
 	make all; \
 	cd ${GENIE}
