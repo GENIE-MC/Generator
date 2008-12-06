@@ -143,7 +143,7 @@
                   [Examples] 
                   - To use the histogram 'h100' (representing the nu_mu flux) and
                     the histogram 'h300' (representing the nu_e flux) and the 
-                    histogram 'h301' (representing the nu_e_bar flux( from the
+                    histogram 'h301' (representing the nu_e_bar flux) from the
                     flux.root file in /path/ 
                     type:
                       '-f /path/flux.root,14[h100],12[h300],-12[h301]
@@ -252,8 +252,8 @@
                        -g 1000080160[0.95],1000010010[0.05]
                        -n 50000
 
-             As before, but now the flux is not described using a jnubeam ntuple
-             nbut a set of histograms from the /data/t2k/flux/hst/flux.root file:
+             As before, but in this case the flux description is not based on a jnubeam 
+             ntuple but a set of histograms at the /data/t2k/flux/hst/flux.root file:
              The histogram named 'h100' will be used for the nu_e flux, 'h101' will
              will be used for the nu_e_bar flux, and 'h200' for the nu_mu flux.
 
