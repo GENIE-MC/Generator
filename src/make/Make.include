@@ -190,7 +190,7 @@ LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 #                             CERNLIB
 #-------------------------------------------------------------------
 
-# standard CERNLIBs used by PYTHIA and NeuGEN (and GENIE: pdflib)
+ifeq ($(strip $(GOPT_ENABLE_CERNLIB)),YES) 
 
 CERN_LIB_DIR = $(GOPT_WITH_CERN_LIB)
 
@@ -215,17 +215,23 @@ CERN_LIBRARIES = -L$(CERN_LIB_DIR) \
 		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib /usr/local/lib/libgfortran.dylib
 endif
 
+endif
+
 #-------------------------------------------------------------------
 #                             LHAPDF
 #-------------------------------------------------------------------
 
 LHAPDF_LIBRARIES = 
+LHAPDF_INCLUDES  =
 
 ifeq ($(strip $(GOPT_ENABLE_LHAPDF)),YES) 
 
-LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -lg2c
+LHAPDF_INCLUDES = -I$(GOPT_WITH_LHAPDF_INC)
+
 ifeq ($(strip $(ARCH)),macosx) 
-LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib
+LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -lLHAPDFWrap /usr/local/lib/libgfortran.dylib
+else
+LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -lLHAPDFWrap -lg2c
 endif
 
 endif
@@ -254,22 +260,22 @@ ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),NO)
 # if NeuGEN was not enabled a dummy NeuGEN library will be built so 
 # that the NuValidator's NeuGEN facade can compile. In this case, 
 # set NEUGEN3PATH=GENIE
-  NEUGEN3PATH=$(GENIE)
-  NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 
+#1  NEUGEN3PATH=$(GENIE)
+#1  NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 
 else
-
+#
 # In case the actual NeuGEN library is used, add CERNLIB's stdhep
 # which is used by NeuGEN (in addition to the 'std' CERNLIBs)
-  NEUGEN3PATH=$(GOPT_WITH_NEUGEN_PATH)
-  NEUGEN_LIBRARIES = -L$(CERN_LIB_DIR) -lstdhep \
-			-L$(NEUGEN3PATH)/lib -lneugen3 
+#1  NEUGEN3PATH=$(GOPT_WITH_NEUGEN_PATH)
+#1  NEUGEN_LIBRARIES = -L$(CERN_LIB_DIR) -lstdhep \
+#1			-L$(NEUGEN3PATH)/lib -lneugen3 
 endif
 
-ifeq ($(strip $(ARCH)),macosx) 
-  NEUGEN_LIBRARIES := $(NEUGEN_LIBRARIES) /usr/local/lib/libgfortran.dylib
-else
-  NEUGEN_LIBRARIES := $(NEUGEN_LIBRARIES) -lg2c
-endif
+#1ifeq ($(strip $(ARCH)),macosx) 
+#1  NEUGEN_LIBRARIES := $(NEUGEN_LIBRARIES) /usr/local/lib/libgfortran.dylib
+#1else
+#1  NEUGEN_LIBRARIES := $(NEUGEN_LIBRARIES) -lg2c
+#1endif
 
 #-------------------------------------------------------------------
 #                              NEUT
@@ -540,7 +546,7 @@ LIBRARIES := $(SYSLIBS) \
 endif
 
 INCLUDES  = $(ROOT_INCLUDES) $(XML_INCLUDES) $(LOG_INCLUDES) \
-            $(GENIE_INCLUDES) $(NUVLD_INCLUDES)
+            $(GENIE_INCLUDES) $(NUVLD_INCLUDES) $(LHAPDF_INCLUDES)
 INCLUDES := $(INCLUDES) $(LINUX_SYS_INCLUDES)
 
 # Default compiler and preprocessor flags
