@@ -10,7 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Dec 06, 2008 - CA
+   Tweak dtor so as not to clutter the output if GENIE exits in err so as to
+   spot the fatal mesg immediately.
 */
 //____________________________________________________________________________
 
@@ -48,15 +50,21 @@ AlgFactory::AlgFactory()
 //____________________________________________________________________________
 AlgFactory::~AlgFactory()
 {
-  // clean-up 
-  cout << "AlgFactory singleton dtor: "
-       << "Deleting all owned algorithmic objects used at this job" << endl;
+// Clean up and report on the concrete algorithms  used in this instance.
+// Don't clutter output if exiting in err.
+
+  if(!gAbortingInErr) {
+    cout << "AlgFactory singleton dtor: "
+         << "Deleting all owned algorithmic objects used at this job" << endl;
+  }
 
   map<string, Algorithm *>::iterator alg_iter;
   for(alg_iter = fAlgPool.begin(); alg_iter != fAlgPool.end(); ++alg_iter) {
     Algorithm * alg = alg_iter->second;
     if(alg) {
-      cout << "- Deleting algorithm: " << alg->Id() << endl;
+      if(!gAbortingInErr) {
+         cout << "- Deleting algorithm: " << alg->Id() << endl;
+      }
       delete alg;
       alg = 0;
     }

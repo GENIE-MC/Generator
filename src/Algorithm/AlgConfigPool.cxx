@@ -15,6 +15,9 @@
    but a 'Registry *'.
  @ Jun 20, 2008 - CA
    Fix a memory leak in code reading the XML files / added xmlFree(doc)
+ @ Dec 06, 2008 - CA
+   Tweak dtor so as not to clutter the output if GENIE exits in err so as to
+   spot the fatal mesg immediately.  
 */
 //____________________________________________________________________________
 
@@ -65,17 +68,22 @@ AlgConfigPool::AlgConfigPool()
 //____________________________________________________________________________
 AlgConfigPool::~AlgConfigPool()
 {
-  cout << "AlgConfigPool singleton dtor: "
-       << "Printing out the main physics parameter list used at this job" 
-       << endl;
-  cout << "(Note: global defaults listed here _may_ have been over-written"
-       << " by specific algorithms. You should make sure you understand the"
-       << " XML config files)" << endl;
-  const Registry * gc = this->GlobalParameterList();
-  cout << *gc;
+// Clean up and report the most important physics params used in this instance.
+// Don't clutter output if exiting in err.
 
-  cout << "AlgConfigPool singleton dtor: "
-       << "Deleting all owned algorithm configurations" << endl;
+  if(!gAbortingInErr) {
+    cout << "AlgConfigPool singleton dtor: "
+         << "Printing out the main physics parameter list used at this job" 
+         << endl;
+    cout << "(Note: global defaults listed here _may_ have been over-written"
+         << " by specific algorithms. You should make sure you understand the"
+         << " XML config files)" << endl;
+    const Registry * gc = this->GlobalParameterList();
+    cout << *gc;
+
+    cout << "AlgConfigPool singleton dtor: "
+         << "Deleting all owned algorithm configurations" << endl;
+  }
   map<string, Registry *>::iterator citer;
   for(citer = fRegistryPool.begin(); citer != fRegistryPool.end(); ++citer) {
     string key = citer->first;

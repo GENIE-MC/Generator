@@ -26,6 +26,9 @@
    Fix a memory leak in LoadFromXml(). Arrays were not deleted after splines
    instantiation. Also xmlChar* buffers got via xmlTextReaderGetAttribute()
    were not passed to xmlFree().
+ @ Dec 06, 2008 - CA
+   Tweak dtor so as not to clutter the output if GENIE exits in err so as to
+   spot the fatal mesg immediately.
 */
 //____________________________________________________________________________
 
@@ -75,9 +78,11 @@ XSecSplineList::XSecSplineList()
 //____________________________________________________________________________
 XSecSplineList::~XSecSplineList()
 {
-  cout << "XSecSplineList singleton dtor: Deleting all splines" << endl;
+// Clean up. Don't clutter output if exiting in err.
 
-  cout << "Checking whether to AutoSave() first" << endl;
+  if(!gAbortingInErr) {
+    cout << "XSecSplineList singleton dtor: Deleting all splines" << endl;
+  }
   this->AutoSave();
 
   map<string, Spline *>::const_iterator spliter;
@@ -595,14 +600,8 @@ void XSecSplineList::AutoSave(void)
 // method would be automatically called before the singleton destroys itself.
 
   if( gSystem->Getenv("GSPSAVE") ) {
-
      string xmlfile = gSystem->Getenv("GSPSAVE");
-
-     // Use cout rather than LOG(). The method is called when when singletons
-     // have started destroying themselves. The Messenger singleotn can be
-     // deleted before the XSecSplineList.
-     cout << "Saving cross section splines to xml file: " << xmlfile << endl;
-
+     cout << "Saving cross section splines to file: " << xmlfile << endl;
      this->SaveAsXml(xmlfile);
   }
 }
