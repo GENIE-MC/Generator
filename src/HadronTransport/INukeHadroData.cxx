@@ -11,7 +11,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Dec 06, 2008 - CA
+   Tweak dtor so as not to clutter the output if GENIE exits in err so as to
+   spot the fatal mesg immediately.
 */
 //____________________________________________________________________________
 
@@ -48,8 +50,10 @@ INukeHadroData::INukeHadroData()
 //____________________________________________________________________________
 INukeHadroData::~INukeHadroData()
 {
-  cout << "INukeHadroData singleton dtor: "
-                      << "Deleting all hadron cross section splines" << endl;
+  if(!gAbortingInErr) {
+    cout << "INukeHadroData singleton dtor: "
+            << "Deleting all hadron cross section splines" << endl;
+  }
 
   // N+N x-section splines
   delete fXSecPN_Tot;
