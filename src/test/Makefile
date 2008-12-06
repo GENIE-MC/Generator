@@ -92,10 +92,6 @@ gtestPDFLIB: FORCE
 	$(CXX) $(CXXFLAGS) -c testPDFLIB.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testPDFLIB.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPDFLIB
 
-gtestLHAPDF: FORCE
-	$(CXX) $(CXXFLAGS) -c testLHAPDF.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testLHAPDF.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestLHAPDF
-
 gtestFermiP: FORCE
 	$(CXX) $(CXXFLAGS) -c testFermiP.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testFermiP.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFermiP
@@ -185,7 +181,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_PATH)/gtestNaturalIsotopes	
 	$(RM) $(GENIE_BIN_PATH)/gtestPDFLIB		
-	$(RM) $(GENIE_BIN_PATH)/gtestLHAPDF		
 	$(RM) $(GENIE_BIN_PATH)/gtestFermiP		
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
@@ -216,7 +211,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNaturalIsotopes		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPDFLIB		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestLHAPDF		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFermiP		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
@@ -277,9 +271,6 @@ clean--gtestNaturalIsotopes: FORCE
 
 clean--gtestPDFLIB: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestPDFLIB
-
-clean--gtestLHAPDF: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestLHAPDF
 
 clean--gtestFermiP: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestFermiP
