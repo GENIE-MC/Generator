@@ -10,10 +10,15 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ June 1, 2008 - CA
+ @ Jun 01, 2008 - CA
    At Configure(), if the GPRODMODE environmental variable is set then use
    mesg thresholds from Messenger_production.xml rather than Messenger.xml.
    That minimizes verbosity during production jobs.
+ @ Dec 06, 2008 - CA
+   Adding gAbortingInErr to be set if GENE is exiting in err so as to prevent 
+   output clutter (caused by reporting singletons) and help spotting the fatal
+   mesg more easily. In PriorityFromString() re-ordered the if-statements, 
+   putting the most commonly used priorities on top, so to improve performance.
 */
 //____________________________________________________________________________
 
@@ -39,6 +44,8 @@ using std::vector;
 
 using namespace genie;
 
+bool genie::gAbortingInErr = false;
+
 //____________________________________________________________________________
 Messenger * Messenger::fInstance = 0;
 //____________________________________________________________________________
@@ -49,7 +56,11 @@ Messenger::Messenger()
 //____________________________________________________________________________
 Messenger::~Messenger()
 {
-  cout << "Messenger singleton dtor" << endl;
+// Clean up. Don't clutter output if exiting in err.
+
+  if(!gAbortingInErr) {
+     cout << "Messenger singleton dtor" << endl;
+  }
   fInstance = 0;
 }
 //____________________________________________________________________________
@@ -59,7 +70,7 @@ Messenger * Messenger::Instance()
 
     // the first thing that get's printed in a GENIE session is the banner
     utils::print::PrintBanner();
-
+	
     static Messenger::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
 
@@ -206,18 +217,17 @@ bool Messenger::SetPrioritiesFromXmlFile(string filename)
 //____________________________________________________________________________
 log4cpp::Priority::Value Messenger::PriorityFromString(string p)
 {
-  if ( p.find("FATAL")  != string::npos ) return log4cpp::Priority::FATAL;
-  if ( p.find("ALERT")  != string::npos ) return log4cpp::Priority::ALERT;
-  if ( p.find("CRIT")   != string::npos ) return log4cpp::Priority::CRIT;
-  if ( p.find("ERROR")  != string::npos ) return log4cpp::Priority::ERROR;
-  if ( p.find("WARN")   != string::npos ) return log4cpp::Priority::WARN;
-  if ( p.find("NOTICE") != string::npos ) return log4cpp::Priority::NOTICE;
-  if ( p.find("INFO")   != string::npos ) return log4cpp::Priority::INFO;
   if ( p.find("DEBUG")  != string::npos ) return log4cpp::Priority::DEBUG;
+  if ( p.find("INFO")   != string::npos ) return log4cpp::Priority::INFO;
+  if ( p.find("NOTICE") != string::npos ) return log4cpp::Priority::NOTICE;
+  if ( p.find("WARN")   != string::npos ) return log4cpp::Priority::WARN;
+  if ( p.find("ERROR")  != string::npos ) return log4cpp::Priority::ERROR;
+  if ( p.find("CRIT")   != string::npos ) return log4cpp::Priority::CRIT;
+  if ( p.find("ALERT")  != string::npos ) return log4cpp::Priority::ALERT;
+  if ( p.find("FATAL")  != string::npos ) return log4cpp::Priority::FATAL;
 
   SLOG("Messenger", pWARN)
                     << "Unknown priority = " << p << " - Setting to INFO";
   return log4cpp::Priority::INFO;
 }
 //____________________________________________________________________________
-
