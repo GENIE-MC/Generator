@@ -34,7 +34,10 @@ if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
 fi
 
 ### GENIE's NuValidator Libraries;
-nvldlibs="-L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
+nvldlibs=""
+if test "$GOPT_ENABLE_NUVALIDATOR" = "YES"; then
+nvldlibs="$nvldlibs -L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
+fi
 
 ### GENIE Dictionaries;
 dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
