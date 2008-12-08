@@ -38,7 +38,7 @@ using std::ios;
 
 using namespace genie;
 
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
   // Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
   // if the env. var. has been set)
