@@ -13,8 +13,6 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-#GENIE_DICTS = $(shell $(GENIE)/src/scripts/setup/genie-config --dicts)
-GENIE_DICTS =
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(LHAPDF_LIBRARIES) $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
