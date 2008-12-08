@@ -229,9 +229,9 @@ ifeq ($(strip $(GOPT_ENABLE_LHAPDF)),YES)
 LHAPDF_INCLUDES = -I$(GOPT_WITH_LHAPDF_INC)
 
 ifeq ($(strip $(ARCH)),macosx) 
-LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -lLHAPDFWrap /usr/local/lib/libgfortran.dylib
+LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib
 else
-LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -lLHAPDFWrap -lg2c
+LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -lg2c
 endif
 
 endif
