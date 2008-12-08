@@ -1,0 +1,29 @@
+UPLOADING AN XML DATA FILE TO THE MYSQL DATA-BASE
+-------------------------------------------------
+
+1. Select the input XML data file: 
+
+        click "File" -> "Open XML"
+
+2. Connect to the MySQL data-base: 
+
+        click "Database" -> "Connect"
+
+3. Upload the XML file to the data-base:
+
+        Click "Database" -> "Upload XML"
+
+Notes:
+------
+
+A. Step 2 is not necessary if you have already established 
+   a connection to the data-base
+
+B. Before filling the database you must have created the
+   data-base structure. If not, then
+
+        Click "Database" -> "Bootstrap"
+
+C. Step 3 can be repeated many times (eg, if the scattering
+   data are distributed over many XML files)
+

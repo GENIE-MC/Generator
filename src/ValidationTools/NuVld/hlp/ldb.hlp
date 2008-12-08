@@ -1,0 +1,29 @@
+-------------------------------------------------
+CONNECTING TO THE DATABASE
+-------------------------------------------------
+
+Click on "Database" -> "Connect" and enter the 
+
+Example:
+
+--------------------------------
+|                              |
+|URL:        localhost         |
+|Data-base:  NuScat            |
+|User:       root              |
+|Password:   root-><paswd^^&1  |
+|                              |
+--------------------------------
+
+To avoid typing these fields in each NuValidator
+session create a .nuvld directory in your home area
+and create a dbase.vld file containing these four
+fields in the order they appear in the dialog.
+
+Example contents of ~/.nuvld/dbase.vld :
+
+localhost
+NuScat
+root
+root-><paswd^^&1
+
