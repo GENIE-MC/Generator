@@ -33,59 +33,18 @@ if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
   libs="$libs -lGMuELoss"
 fi
 
-### GENIE's NuValidator Libraries;
-nvldlibs=""
-if test "$GOPT_ENABLE_NUVALIDATOR" = "YES"; then
-nvldlibs="$nvldlibs -L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI"
-#nvldlibs="$nvldlibs -L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
+### GENIE validation tools;
+vldlibs=""
+if test "$GOPT_ENABLE_VALIDATION_TOOLS" = "YES"; then
+vldlibs="$vldlibs -L$libdir -lGNuVld"
 fi
 
-### GENIE Dictionaries;
-dictionaries="  $srcdir/Algorithm/_ROOT_DICT_Algorithm.o \
-		$srcdir/BaryonResonance/_ROOT_DICT_BaryonResonance.o \
-                $srcdir/Base/_ROOT_DICT_Base.o \
-                $srcdir/BodekYang/_ROOT_DICT_BodekYang.o \
-                $srcdir/Charm/_ROOT_DICT_Charm.o \
-                $srcdir/CrossSections/_ROOT_DICT_CrossSections.o \
-                $srcdir/Decay/_ROOT_DICT_Decay.o \
-                $srcdir/Elastic/_ROOT_DICT_Elastic.o \
-                $srcdir/EVGCore/_ROOT_DICT_EVGCore.o \
-                $srcdir/EVGModules/_ROOT_DICT_EVGModules.o \
-                $srcdir/EVGDrivers/_ROOT_DICT_EVGDrivers.o \
-                $srcdir/EVGDrivers/_ROOT_DICT_HadronTransport.o \
-                $srcdir/Fragmentation/_ROOT_DICT_Fragmentation.o \
-                $srcdir/Interaction/_ROOT_DICT_Interaction.o \
-                $srcdir/LlewellynSmith/_ROOT_DICT_LlewellynSmith.o \
-                $srcdir/LlewellynSmith/_ROOT_DICT_MEC.o \
-                $srcdir/GHEP/_ROOT_DICT_GHEP.o \
-                $srcdir/Ntuple/_ROOT_DICT_Ntuple.o \
-                $srcdir/NuE/_ROOT_DICT_NuE.o \
-                $srcdir/NuE/_ROOT_DICT_NuGamma.o \
-                $srcdir/Nuclear/_ROOT_DICT_Nuclear.o \
-                $srcdir/Numerical/_ROOT_DICT_Numerical.o \
-                $srcdir/PartonModel/_ROOT_DICT_PartonModel.o \
-                $srcdir/PDG/_ROOT_DICT_PDG.o \
-                $srcdir/PDF/_ROOT_DICT_PDF.o \
-                $srcdir/Registry/_ROOT_DICT_Registry.o \
-                $srcdir/ReinSeghal/_ROOT_DICT_ReinSeghal.o \
-                $srcdir/Utils/_ROOT_DICT_Utils.o"
-
-if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
-  dictionaries="$dictionaries $srcdir/Geo/_ROOT_DICT_Geo.o"
-fi
-if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
-  dictionaries="$dictionaries $srcdir/FluxDrivers/_ROOT_DICT_FluxDrivers.o"
-fi
-if test "$GOPT_ENABLE_VIEWER" = "YES"; then
-  dictionaries="$dictionaries $srcdir/Viewer/_ROOT_DICT_Viewer.o"
-fi
-if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
-  dictionaries="$dictionaries $srcdir/MuELoss/_ROOT_DICT_MuELoss.o"
-fi
+### dependencies for depreciated version of nuvalidator package
+nvldlibs="-L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
 
 ### Usage
 usage="\
-Usage: genie-config [--libs] [--dicts] [--libdir] [--topsrcdir] [-nuvldlibs]" 
+Usage: genie-config [--libs] [-vldlibs] [--libdir] [--topsrcdir]" 
 
 if test $# -eq 0; then
    echo "${usage}" 1>&2
@@ -102,12 +61,16 @@ while test $# -gt 0; do
 
   case $1 in
     --libs)
-      ### Output GENIE libraries
+      ### GENIE libraries
       out="$out $libs"
       ;;
-    --dicts)
-      ### Output GENIE dictionaries
-      out="$out $dictionaries"
+    --vldlibs)
+      ### GENIE validation tool libraries
+      out="$out $vldlibs"
+      ;;
+    --nuvldlibs)
+      ### GENIE nuvalidator libraries (depreciated version)
+      out="$out $nuvldlibs"
       ;;
     --libdir)
       ### Output GENIE libdir
@@ -116,10 +79,6 @@ while test $# -gt 0; do
     --topsrcdir)
       ### Output GENIE top level src directory
       out="$out $srcdir"
-      ;;
-    --nuvldlibs)
-      ### Output GENIE's NuValidator libraries
-      out="$out $nvldlibs"
       ;;
   esac
   shift
