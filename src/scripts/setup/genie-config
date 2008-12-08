@@ -36,7 +36,8 @@ fi
 ### GENIE's NuValidator Libraries;
 nvldlibs=""
 if test "$GOPT_ENABLE_NUVALIDATOR" = "YES"; then
-nvldlibs="$nvldlibs -L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
+nvldlibs="$nvldlibs -L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI"
+#nvldlibs="$nvldlibs -L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
 fi
 
 ### GENIE Dictionaries;
