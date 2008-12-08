@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = VHE
 DICTIONARY        = _ROOT_DICT_VHE
-LIBNAME           = $(GENIE_VHE_LIBNAME)
+LIBNAME           = libGVHE
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

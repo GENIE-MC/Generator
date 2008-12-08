@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = ReinSeghal
 DICTIONARY        = _ROOT_DICT_ReinSeghal
-LIBNAME           = $(GENIE_REIN_SEGHAL_LIBNAME)
+LIBNAME           = libGReinSeghal
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

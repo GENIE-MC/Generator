@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = BaryonResonance
 DICTIONARY        = _ROOT_DICT_BaryonResonance
-LIBNAME           = $(GENIE_BARYONRES_LIBNAME)
+LIBNAME           = libGBaryonResonance
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

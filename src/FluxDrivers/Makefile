@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = FluxDrivers
 DICTIONARY        = _ROOT_DICT_FluxDrivers
-LIBNAME           = $(GENIE_FLUX_DRIVERS_LIBNAME)
+LIBNAME           = libGFluxDrivers
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

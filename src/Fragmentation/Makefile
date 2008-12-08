@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Fragmentation
 DICTIONARY        = _ROOT_DICT_Fragmentation
-LIBNAME           = $(GENIE_FRAGMENTATION_LIBNAME)
+LIBNAME           = libGFragmentation
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

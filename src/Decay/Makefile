@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Decay
 DICTIONARY        = _ROOT_DICT_Decay
-LIBNAME           = $(GENIE_DECAY_LIBNAME)
+LIBNAME           = libGDecay
 
 all     : rootcint lib lib-link
 install : install-inc install-lib

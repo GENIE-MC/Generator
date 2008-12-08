@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Base
 DICTIONARY        = _ROOT_DICT_Base
-LIBNAME           = $(GENIE_BASE_LIBNAME)
+LIBNAME           = libGBase
 EXTRA_EXT_LIBS    =
 
 all: rootcint lib lib-link

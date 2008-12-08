@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = LlewellynSmith
 DICTIONARY        = _ROOT_DICT_LlewellynSmith
-LIBNAME           = $(GENIE_LLEWELLYN_SMITH_LIBNAME)
+LIBNAME           = libGLlewellynSmith
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

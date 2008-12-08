@@ -13,7 +13,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = EVGCore
 DICTIONARY        = _ROOT_DICT_EVGCore
-LIBNAME           = $(GENIE_EVGCORE_LIBNAME)
+LIBNAME           = libGEVGCore
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = NuE
 DICTIONARY        = _ROOT_DICT_NuE
-LIBNAME           = $(GENIE_NUE_LIBNAME)
+LIBNAME           = libGNuE
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

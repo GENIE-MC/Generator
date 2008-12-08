@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Paschos
 DICTIONARY        = _ROOT_DICT_Paschos
-LIBNAME           = $(GENIE_PASCHOS_LIBNAME)
+LIBNAME           = libGPaschos
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

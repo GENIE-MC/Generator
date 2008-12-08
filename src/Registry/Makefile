@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Registry
 DICTIONARY        = _ROOT_DICT_Registry
-LIBNAME           = $(GENIE_REGISTRY_LIBNAME)
+LIBNAME           = libGRegistry
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

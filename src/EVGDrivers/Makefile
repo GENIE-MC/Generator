@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = EVGDrivers
 DICTIONARY        = _ROOT_DICT_EVGDrivers
-LIBNAME           = $(GENIE_EVGDRIVERS_LIBNAME)
+LIBNAME           = libGEVGDrivers
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

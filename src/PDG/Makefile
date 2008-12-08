@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = PDG
 DICTIONARY        = _ROOT_DICT_PDG
-LIBNAME           = $(GENIE_PDG_LIBNAME)
+LIBNAME           = libGPDG
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

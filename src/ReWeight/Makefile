@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = ReWeight
 DICTIONARY        = _ROOT_DICT_ReWeight
-LIBNAME           = $(GENIE_REWEIGHT_LIBNAME)
+LIBNAME           = libGReWeight
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

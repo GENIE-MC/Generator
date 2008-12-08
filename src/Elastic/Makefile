@@ -13,7 +13,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Elastic
 DICTIONARY        = _ROOT_DICT_Elastic
-LIBNAME           = $(GENIE_ELASTIC_LIBNAME)
+LIBNAME           = libGElas
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
