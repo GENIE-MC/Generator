@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Interaction
 DICTIONARY        = _ROOT_DICT_Interaction
-LIBNAME           = $(GENIE_INTERACTION_LIBNAME)
+LIBNAME           = libGInteraction
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

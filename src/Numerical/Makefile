@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Numerical
 DICTIONARY        = _ROOT_DICT_Numerical
-LIBNAME           = $(GENIE_NUMERICAL_LIBNAME)
+LIBNAME           = libGNumerical
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

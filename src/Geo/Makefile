@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Geo
 DICTIONARY        = _ROOT_DICT_Geo
-LIBNAME           = $(GENIE_GEO_LIBNAME)
+LIBNAME           = libGGeo
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

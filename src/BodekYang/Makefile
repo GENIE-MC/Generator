@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = BodekYang
 DICTIONARY        = _ROOT_DICT_BodekYang
-LIBNAME           = $(GENIE_BODEK_YANG_LIBNAME)
+LIBNAME           = libGBodekYang
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

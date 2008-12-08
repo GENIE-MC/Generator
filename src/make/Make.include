@@ -49,80 +49,6 @@ GENIE_INC_INSTALLATION_PATH     := $(GENIE_INCBASE_INSTALLATION_PATH)/GENIE
 # GENIE & NuValidator header files base dir
 #
 GENIE_INCLUDES := -I$(GENIE)/src/
-NUVLD_INCLUDES := -I$(GENIE)/src/NuValidator/
-
-# GENIE & NuValidator libraries
-#
-GENIE_ALGORITHM_LIBNAME        := libGAlgorithm
-GENIE_BARYONRES_LIBNAME        := libGBaryonResonance
-GENIE_BASE_LIBNAME             := libGBase
-GENIE_BODEK_YANG_LIBNAME       := libGBodekYang
-GENIE_CHARM_LIBNAME            := libGCharm
-GENIE_DECAY_LIBNAME            := libGDecay
-GENIE_ELASTIC_LIBNAME          := libGElas
-GENIE_EVENT_GENERATION_LIBNAME := libGEventGen
-GENIE_EVGCORE_LIBNAME          := libGEVGCore
-GENIE_EVGDRIVERS_LIBNAME       := libGEVGDrivers
-GENIE_EVGMODULES_LIBNAME       := libGEVGModules
-GENIE_GEO_LIBNAME              := libGGeo
-GENIE_GHEP_LIBNAME             := libGHEP
-GENIE_HADRON_TRANSPORT_LIBNAME := libGHadronTransp
-GENIE_LLEWELLYN_SMITH_LIBNAME  := libGLlewellynSmith
-GENIE_FLUX_DRIVERS_LIBNAME     := libGFluxDrivers
-GENIE_FRAGMENTATION_LIBNAME    := libGFragmentation
-GENIE_INTERACTION_LIBNAME      := libGInteraction
-GENIE_MSG_LIBNAME              := libGMessenger
-GENIE_NUE_LIBNAME              := libGNuE
-GENIE_NTUPLE_LIBNAME           := libGNtuple
-GENIE_NUCLEAR_LIBNAME          := libGNuclear
-GENIE_NUMERICAL_LIBNAME        := libGNumerical
-GENIE_REWEIGHT_LIBNAME         := libGReWeight
-GENIE_PARTON_MODEL_LIBNAME     := libGPartonModel
-GENIE_PASCHOS_LIBNAME          := libGPaschos
-GENIE_PDG_LIBNAME              := libGPDG
-GENIE_PDF_LIBNAME              := libGPDF
-GENIE_RADIATIVE_LIBNAME        := libGRadiative
-GENIE_REGISTRY_LIBNAME         := libGRegistry
-GENIE_REIN_SEGHAL_LIBNAME      := libGReinSeghal
-GENIE_UTILS_LIBNAME            := libGUtils
-GENIE_VIEWER_LIBNAME           := libGViewer
-GENIE_XSEC_LIBNAME             := libGCrossSections
-GENIE_MUELOSS_LIBNAME          := libGMuELoss
-GENIE_VHE_LIBNAME              := libGVHE
-
-VLD_PARSER_LIBNAME             := libGNuVldXML
-VLD_DBUTIL_LIBNAME             := libGNuVldDBU
-VLD_GUI_WIDGETS_LIBNAME        := libGNuVldGUI
-VLD_NEUGEN_INTERFACE_LIBNAME   := libGNuVldNeugen
-
-GDUMMY_NEUGEN_LIBNAME          := libneugen3
-
-# standard GENIE's Neutrino Generator libraries
-#
-GENIE_LIBRARIES := -L$(GENIE_LIB_PATH) \
-  -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm \
-  -lGDecay -lGElas -lGHEP -lGLlewellynSmith -lGEVGCore -lGEVGModules -lGEVGDrivers\
-  -lGFragmentation -lGInteraction  -lGMessenger -lGNuE \
-  -lGNtuple -lGNuclear -lGNumerical -lGEVGCore -lGEVGDrivers -lGEVGModules  \
-  -lGHadronTransp -lGPartonModel -lGPaschos -lGPDG -lGPDF -lGRadiative -lGRegistry \
-  -lGReinSeghal -lGUtils -lGCrossSections -lGReWeight
-
-ifdef GOPT_FLUX_DRIVERS
-  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGFluxDrivers
-endif
-ifdef GOPT_GEOM_DRIVERS
-  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGGeo
-endif
-ifdef GOPT_VIEWER
-  GENIE_LIBRARIES := $(GENIE_LIBRARIES) -lGViewer
-endif
-
-# Standard GENIE's NuValidator libraries
-#
-NUVLD_CORE_LIBRARIES := -L$(GENIE_LIB_PATH) \
-  -lGNuVldXML -lGNuVldDBU -lGNuVldGUI
-
-NUVLD_LIBRARIES := $(NUVLD_CORE_LIBRARIES) -lGNuVldNeugen 
 
 # The following will be appended in the library name 
 #
@@ -545,9 +471,8 @@ LIBRARIES := $(SYSLIBS) \
 	     $(GPROF_LIBRARIES)
 endif
 
-INCLUDES  = $(ROOT_INCLUDES) $(XML_INCLUDES) $(LOG_INCLUDES) \
-            $(GENIE_INCLUDES) $(NUVLD_INCLUDES) $(LHAPDF_INCLUDES)
-INCLUDES := $(INCLUDES) $(LINUX_SYS_INCLUDES)
+INCLUDES  = $(ROOT_INCLUDES) $(XML_INCLUDES) $(LOG_INCLUDES) $(LHAPDF_INCLUDES) \
+	    $(GENIE_INCLUDES) $(LINUX_SYS_INCLUDES)
 
 # Default compiler and preprocessor flags
 

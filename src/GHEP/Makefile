@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = GHEP
 DICTIONARY        = _ROOT_DICT_GHEP
-LIBNAME           = $(GENIE_GHEP_LIBNAME)
+LIBNAME           = libGHEP
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

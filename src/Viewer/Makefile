@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Viewer
 DICTIONARY        = _ROOT_DICT_Viewer
-LIBNAME           = $(GENIE_VIEWER_LIBNAME)
+LIBNAME           = libGViewer
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

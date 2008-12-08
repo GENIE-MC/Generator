@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Nuclear
 DICTIONARY        = _ROOT_DICT_Nuclear
-LIBNAME           = $(GENIE_NUCLEAR_LIBNAME)
+LIBNAME           = libGNuclear
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

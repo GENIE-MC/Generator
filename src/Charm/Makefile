@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Charm
 DICTIONARY        = _ROOT_DICT_Charm
-LIBNAME           = $(GENIE_CHARM_LIBNAME)
+LIBNAME           = libGCharm
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = EVGModules
 DICTIONARY        = _ROOT_DICT_EVGModules
-LIBNAME           = $(GENIE_EVGMODULES_LIBNAME)
+LIBNAME           = libGEVGModules
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

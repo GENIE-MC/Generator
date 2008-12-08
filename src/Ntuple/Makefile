@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Ntuple
 DICTIONARY        = _ROOT_DICT_Ntuple
-LIBNAME           = $(GENIE_NTUPLE_LIBNAME)
+LIBNAME           = libGNtuple
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = MuELoss
 DICTIONARY        = _ROOT_DICT_MuELoss
-LIBNAME           = $(GENIE_MUELOSS_LIBNAME)
+LIBNAME           = libGMuELoss
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
