@@ -19,7 +19,7 @@
 **                                                                                       **
 **                      home page URL:  http://www.genie-mc.org                          **
 **                                                                                       **
-**        (c) 2003-2007 GENIE Collaboration (see http://copyright.genie-mc.org)          **
+**        (c) 2003-2008 GENIE Collaboration (see http://copyright.genie-mc.org)          **
 **                                                                                       **
 ** Costas Andreopoulos [2], Flavio Cavanna [6], Steve Dytman  [7], Hugh Gallagher [8],   **
 ** Yoshinari Hayato [5], Pauli Kehayias [8], Stefan Kretzer [1], Anselmo Meregaglia [4], **
