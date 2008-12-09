@@ -3,9 +3,8 @@
 
 \program gntpc
 
-\brief   Converts a GENIE neutrino events (from GHEP GENIE ROOT Trees) to a 
-         variety of textual formats (typically used in legacy systems), in XML
-         format or in summary ROOT ntuples.
+\brief   Converts a native GENIE (GHEP/ROOT) event tree file to a host of
+         plain text, XML or bare-ROOT formats.
 
          Syntax:
            gntpc -i input_filename [-o output_filename] -f format [-n nev]
@@ -13,41 +12,56 @@
          Options :
            [] denotes an optional argument
            -n number of events to convert
-           -f specifies the output file format. 
-	      ** 'Summary' ntuple formats **
-                    0 : The 'definite' GENIE summary tree format (gst). 
-                        The program will analyze the input event tree and save
-                        usefull/detailed summary information on a flat ntuple 
-                        that can be trivially used in bare-ROOT sessions.
-	      ** T2K/GENIE formats **
-   		    1 : NUANCE-style tracker text-based format 
-   		   11 : Same as format 1 but with extra tweaks required by
-                        skdetsim, the SuperK detector MC:
-                        - K0, \bar{K0} -> KO_{long}, K0_{short}
-                        - emulating 'NEUT' reaction codes
-		    2 : A slightly tweaked NUANCE-style tracker text-based 
-                        format - A fast & dirty way for getting GENIE event 
-                        samples into the T2K (nd280/2km/SuperK) Monte Carlo.
-   	            3 : A standardized bare-ROOT event-tree for getting GENIE
-                        neutrino  & pass-through JPARC flux info into the
-                        T2K (nd280/2km/SuperK) Monte Carlo
-	      ** Generic GENIE XML / tabular or bare-ROOT formats **
-                  100 : GENIE XML format 
-	      ** GENIE test / cross-generator comparisons **
-	          901 : NEUGEN-style text-based format for hadronization studies
-	          902 : INTRANUKE summary ntuple for intranuclear-rescattering studies
+           -f is a string that specifies the output file format. 
+	      [Generic summary ntuple formats]
+               * 'gst': 
+                    The 'definite' GENIE summary tree format (gst).
+	      [T2K/GENIE formats]
+   	       * 't2k_rootracker':
+                     The standardized bare-ROOT GENIE event tree used by the 
+                     nd280, INGRID and 2km MC.
+                     Includes full information about the generated neutrino
+                     event and pass-through JPARC flux info.
+   	       * 't2k_tracker': 
+                     A tracker-type format with tweaks required by the SuperK
+                     detector MC (SKDETSIM):
+                        - Converting K0, \bar{K0} -> KO_{long}, K0_{short}
+                        - Emulating 'NEUT' reaction codes
+                        - Appropriate $track ordering for SKDETSIM
+                        - Passing detailed GENIE MC truth and JPARC flux info
+                          using the tracker $info lines. This information, 
+                          propaged by SKDETSIM to the DSTs, is identical with the 
+                          one used at the near detectors and can be used for 
+                          global systematic studies.
+	      [Generic GENIE XML / tabular or bare-ROOT event formats]
+   	       * 'gxml': 
+                     GENIE XML event format 
+	      [GENIE test / cross-generator comparison formats]
+   	       * 'ghad': 
+	             NEUGEN-style text-based format for hadronization studies
+   	       * 'ginuke': 
+	             INTRANUKE summary ntuple for intranuclear-rescattering studies
+	      [Other (depreciated) formats]
+   	       * 'nuance_tracker': 
+   		     NUANCE-style tracker text-based format 
            -o specifies the output filename. 
               If not specified a the default filename is constructed by the 
               input base name and an extension depending on the file format: 
-                0 -> *.gst.root
-                1 -> *.gtrac0.dat
-               11 -> *.gtrac0.dat
-                2 -> *.gtrac.dat
-                3 -> *.gtrac.root
-              100 -> *.gxml 
-              901 -> *.ghad.dat
-              902 -> *.ginuke.root
+               'gst'            -> *.gst.root
+               't2k_tracker'    -> *.gtrac.dat
+               't2k_rootracker' -> *.gtrac.root
+               'gxml'           -> *.gxml 
+               'ghad'           -> *.ghad.dat
+               'ginuke'         -> *.ginuke.root
+               'nuance_tracker' -> *.gtrac_legacy.dat
 		
+         Examples:
+           (1)  shell% gntpc -i myfile.ghep.root -f t2k_rootracker
+
+                Converts all events in the GHEP file myfile.ghep.root into the
+                t2k_rootracker format. 
+                The output file is named myfile.gtrac.root
+
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
@@ -126,11 +140,23 @@ void   PrintSyntax             (void);
 string DefaultOutputFile       (void);
 bool   CheckRootFilename       (string filename);
 
+//format enum
+typedef enum EGNtpcFmt {
+  kConvFmt_undef = 0,
+  kConvFmt_gst,
+  kConvFmt_t2k_rootracker,
+  kConvFmt_t2k_tracker,
+  kConvFmt_gxml,
+  kConvFmt_ghad,
+  kConvFmt_ginuke,
+  kConvFmt_nuance_tracker
+} GNtpcFmt_t;
+
 //input options (from command line arguments):
-string   gOptInpFileName;
-string   gOptOutFileName;
-int      gOptOutFileFormat;
-Long64_t gOptN;
+string     gOptInpFileName;
+string     gOptOutFileName;
+GNtpcFmt_t gOptOutFileFormat;
+Long64_t   gOptN; 
 
 //consts
 const int kNPmax = 100;
@@ -143,36 +169,38 @@ int main(int argc, char ** argv)
 
   //-- call the appropriate conversion function
   switch(gOptOutFileFormat) {
-   case (0)  :
+   case (kConvFmt_gst)  :
 	ConvertToGST();        
 	break;  
-   case (1)  :  
-   case (2)  :  
-   case (11) :  
-	ConvertToGT2KTracker();        
-	break;
-   case (3) :  
+   case (kConvFmt_t2k_rootracker) :  
 	ConvertToGT2KRooTracker(); 
 	break;
-   case (100) :  
+   case (kConvFmt_t2k_tracker)  :  
+	ConvertToGT2KTracker();        
+	break;
+   case (kConvFmt_gxml) :  
 	ConvertToGXML();         
 	break;
-   case (901) :  
+   case (kConvFmt_ghad) :  
 	ConvertToGHad();         
 	break;
-   case (902) :  
+   case (kConvFmt_ginuke) :  
 	ConvertToGINuke();         
+	break;
+   case (kConvFmt_nuance_tracker)  :  
+	ConvertToGT2KTracker();        
 	break;
    default:
      LOG("gntpc", pFATAL)
           << "Invalid output format [" << gOptOutFileFormat << "]";
      PrintSyntax();
+     gAbortingInErr = true;
      exit(3);
   }
   return 0;
 }
 //___________________________________________________________________
-//    **** GENIE GHEP EVENT TREE -> GENIE SUMMARY NTUPLE ****
+// ***** GENIE GHEP EVENT TREE FORMAT -> GENIE SUMMARY NTUPLE *****
 //___________________________________________________________________
 void ConvertToGST(void)
 {
@@ -802,7 +830,7 @@ void ConvertToGST(void)
   fout.Close();
 }
 //___________________________________________________________________
-//    **** GENIE GHEP EVENT TREE -> GENIE XML EVENT FILE ****
+//  ** GENIE GHEP EVENT TREE FORMAT -> GENIE XML EVENT FILE FORMAT **
 //___________________________________________________________________
 void ConvertToGXML(void)
 {
@@ -943,7 +971,7 @@ void ConvertToGXML(void)
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
 //___________________________________________________________________
-// **** GENIE GHEP EVENT TREE -> NUANCE-STYLE TRACKER TEXT FILE ****
+// ******** GENIE GHEP EVENT TREE FORMAT -> TRACKER FORMATS ********
 //___________________________________________________________________
 void ConvertToGT2KTracker(void)
 {
@@ -1003,21 +1031,23 @@ void ConvertToGT2KTracker(void)
     // -- Add the appropriate reaction code
     //
 
+    // add 'NEUT'-like event type
+    if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
+    	int evtype = utils::ghep::NeutReactionCode(&event);
+        LOG("gntpc", pNOTICE) << "NEUT-like event type = " << evtype;
+    	output << "$ genie " << evtype << endl;
+    } //neut code
+
     // add 'NUANCE'-like event type
-    if(gOptOutFileFormat==1) {
+    else if(gOptOutFileFormat == kConvFmt_nuance_tracker) {
     	int evtype = utils::ghep::NuanceReactionCode(&event);
         LOG("gntpc", pNOTICE) << "NUANCE-like event type = " << evtype;
     	output << "$ nuance " << evtype << endl;
     } // nuance code
-    // add 'NEUT'-like event type
-    else if(gOptOutFileFormat==11) {
-    	int evtype = utils::ghep::NeutReactionCode(&event);
-        LOG("gntpc", pNOTICE) << "NEUT-like event type = " << evtype;
-    	output << "$ nuance " << evtype << endl;
-    } //neut code
-    // add genie "event type"
+
     else {
-    	output << "$ genie " << interaction->AsString() << endl;
+        gAbortingInErr = true;
+        exit(1);
     }
 
     //
@@ -1087,7 +1117,7 @@ void ConvertToGT2KTracker(void)
 
        // Apparently SKDETSIM chokes with O16 - Neglect the nuclear target in this case
        //
-       if (gOptOutFileFormat==11 && p->IsNucleus()) continue;
+       if (gOptOutFileFormat == kConvFmt_t2k_tracker && p->IsNucleus()) continue;
 
        tracks.push_back(iparticle);
     }
@@ -1140,7 +1170,7 @@ void ConvertToGT2KTracker(void)
 
          // The SK detector MC expects K0_Long, K0_Short - not K0, \bar{K0}
          // Do the conversion here:
-         if(gOptOutFileFormat==11) {
+         if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
            if(pdgc==kPdgK0 || pdgc==kPdgAntiK0) {
               RandomGen * rnd = RandomGen::Instance();
               double R =  rnd->RndGen().Rndm();
@@ -1188,7 +1218,7 @@ void ConvertToGT2KTracker(void)
     // -- Add $info lines as necessary
     //
 
-    if(gOptOutFileFormat==11) {
+    if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
       //
       // Writing $info lines with information identical to the one saved at the rootracker-format 
       // files for the nd280MC. SKDETSIM can propagate all that complete MC truth information into 
@@ -1236,7 +1266,7 @@ void ConvertToGT2KTracker(void)
       //
       // event info
       //
-      output << "$ info " << (int) iev << " " << *(event.EventFlags()) << " " << event.Summary()->AsString() << endl;
+      output << "$ info " << (int) iev << " " << *(event.EventFlags()) << " " << interaction->AsString() << endl;
       output << "$ info " << (1E+38/units::cm2) * event.XSec() << " "
                           << (1E+38/units::cm2) * event.DiffXSec() << " "  
                           << event.Weight() << " "
@@ -1311,7 +1341,7 @@ void ConvertToGT2KTracker(void)
          // nvtx
          output << "$ info " << output << "$info " << endl;
      }
-    }//fmt==11
+    }//fmt==kConvFmt_t2k_tracker
 
     //
     // -- Add  tracker end tag
@@ -1330,7 +1360,7 @@ void ConvertToGT2KTracker(void)
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
 //___________________________________________________________________
-//  *** GENIE GHEP EVENT TREE -> A T2K ROOT TRACKER TYPE FORMAT ***
+// **** GENIE GHEP EVENT TREE FORMAT -> A T2K ROOTRACKER FORMAT ****
 //___________________________________________________________________
 void ConvertToGT2KRooTracker(void)
 {
@@ -1917,7 +1947,7 @@ void ConvertToGINuke(void)
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  //get input ROOT file (containing a GENIE ER ntuple)
+  //get input ROOT file (containing a GENIE GHEP event tree)
   try {
     LOG("gntpc", pINFO) << "Reading input filename";
     gOptInpFileName = utils::clap::CmdLineArgAsString(argc,argv,'i');
@@ -1926,6 +1956,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("gntpc", pFATAL)
                << "Unspecified input filename - Exiting";
       PrintSyntax();
+      gAbortingInErr = true;
       exit(1);
     }
   }
@@ -1936,17 +1967,35 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gntpc", pFATAL)
            << "The input ROOT file ["
                        << gOptInpFileName << "] is not accessible";
+    gAbortingInErr = true;
     exit(2);
   }
 
   //get output file format
   try {
     LOG("gntpc", pINFO) << "Reading output file format";
-    gOptOutFileFormat = utils::clap::CmdLineArgAsInt(argc,argv,'f');
+    string fmt = utils::clap::CmdLineArgAsString(argc,argv,'f');
+
+    if      (fmt == "gst")            { gOptOutFileFormat = kConvFmt_gst;            }
+    else if (fmt == "t2k_rootracker") { gOptOutFileFormat = kConvFmt_t2k_rootracker; }
+    else if (fmt == "t2k_tracker")    { gOptOutFileFormat = kConvFmt_t2k_tracker;    }
+    else if (fmt == "gxml")           { gOptOutFileFormat = kConvFmt_gxml;           }
+    else if (fmt == "ghad")           { gOptOutFileFormat = kConvFmt_ghad;           }
+    else if (fmt == "ginuke")         { gOptOutFileFormat = kConvFmt_ginuke;         }
+    else if (fmt == "nuance_tracker") { gOptOutFileFormat = kConvFmt_nuance_tracker; }
+    else                              { gOptOutFileFormat = kConvFmt_undef;          }
+
+    if(gOptOutFileFormat == kConvFmt_undef) {
+      LOG("gntpc", pFATAL) << "Unknown output file format (" << fmt << ")";
+      gAbortingInErr = true;
+      exit(3);
+    }
+
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
       LOG("gntpc", pFATAL) << "Unspecified output file format";
-      exit(3);
+      gAbortingInErr = true;
+      exit(4);
     }
   }
 
@@ -1979,14 +2028,13 @@ string DefaultOutputFile(void)
 {
   // filename extension - depending on file format
   string ext="";
-  if      (gOptOutFileFormat ==   0)  ext = "gst.root";
-  else if (gOptOutFileFormat ==   1)  ext = "gtrac0.dat";
-  else if (gOptOutFileFormat ==  11)  ext = "gtrac0.dat";
-  else if (gOptOutFileFormat ==   2)  ext = "gtrac.dat";
-  else if (gOptOutFileFormat ==   3)  ext = "gtrac.root";
-  else if (gOptOutFileFormat == 100)  ext = "gxml";
-  else if (gOptOutFileFormat == 901)  ext = "ghad.dat";
-  else if (gOptOutFileFormat == 902)  ext = "ginuke.root";
+  if      (gOptOutFileFormat == kConvFmt_gst           ) { ext = "gst.root";         }
+  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker) { ext = "gtrac.root";       }
+  else if (gOptOutFileFormat == kConvFmt_t2k_tracker   ) { ext = "gtrac.dat";        }
+  else if (gOptOutFileFormat == kConvFmt_gxml          ) { ext = "gxml";             }
+  else if (gOptOutFileFormat == kConvFmt_ghad          ) { ext = "ghad.dat";         }
+  else if (gOptOutFileFormat == kConvFmt_ginuke        ) { ext = "ginuke.root";      }
+  else if (gOptOutFileFormat == kConvFmt_nuance_tracker) { ext = "gtrac_legacy.dat"; }
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
