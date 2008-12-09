@@ -130,7 +130,7 @@ void PDFLIB::SetPDFSetFromConfig(void) const
 
   fConfig->Get("nptype_pdflib", nptype);
   fConfig->Get("ngroup_pdflib", ngroup);
-  fConfig->Get("nset_pdfib",    nset  );
+  fConfig->Get("nset_pdflib",   nset  );
 
   char   param[20][20];
   double val[20];
