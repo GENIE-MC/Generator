@@ -1,7 +1,7 @@
 //_____________________________________________________________________________
 /*!
 
-\class    genie::nuvld::GuiMultiLineMsgBox "ValidationTools/NuVld/
+\class    genie::nuvld::GuiMultiLineMsgBox 
 
 \brief    A multi-line GUI Message Box
 
