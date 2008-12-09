@@ -1,7 +1,7 @@
 //_____________________________________________________________________________
 /*!
 
-\class    genie::nuvld::DBSFTableRow "ValidationTools/NuVld/
+\class    genie::nuvld::DBSFTableRow 
 
 \brief
 

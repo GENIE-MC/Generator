@@ -1,7 +1,7 @@
 //_____________________________________________________________________________
 /*!
 
-\class    genie::nuvld::GuiElDataSelectionTab "ValidationTools/NuVld/
+\class    genie::nuvld::GuiElDataSelectionTab 
 
 \brief    Electron Cross Section Data Selection Graphical Tab
 

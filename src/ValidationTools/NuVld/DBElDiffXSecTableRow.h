@@ -1,7 +1,7 @@
 //_____________________________________________________________________________
 /*!
 
-\class    genie::nuvld::DBElDiffXSecTableRow "ValidationTools/NuVld/
+\class    genie::nuvld::DBElDiffXSecTableRow 
 
 \brief
 
