@@ -162,12 +162,12 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      int nK   = nK0 + nKp + nKm;
      int neKL = neta + nK + nlambda;
               
-     bool is_single_pi_dis = (npi==1) && is_dis;
+//     bool is_single_pi_dis = (npi==1) && is_dis;
      bool is_radiative_dec = (nnuc==1) && (npi==0) && (ngamma==1);
               
-     // res + non-res bkg (single pi dis, W < 2 GeV)
-     //
-     if(is_res || is_single_pi_dis) {
+//     // res + non-res bkg (single pi dis, W < 2 GeV)
+//     //
+//     if(is_res || is_single_pi_dis) {
                
         //
         // single gamma from resonances
@@ -230,16 +230,26 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
         else if (is_res &&  is_nubar && is_cc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -23;
         else if (is_res &&  is_nubar && is_nc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -44;
         else if (is_res &&  is_nubar && is_nc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -45;
-     }
+
+        //
+        // multi-pi (res or dis (W<2GeV)
+        //
               
-     // multi-pi (1.3 GeV < W < 2.0 GeV)
-     //
-     else {
-        if      (is_nu    && is_cc) evtype =  21;
-        else if (is_nu    && is_nc) evtype =  41;
-        else if (is_nubar && is_cc) evtype = -21;
-        else if (is_nubar && is_nc) evtype = -41;
-     }
+        else if (is_nu    && is_cc && npi>1) evtype =  21;
+        else if (is_nu    && is_nc && npi>1) evtype =  41;
+        else if (is_nubar && is_cc && npi>1) evtype = -21;
+        else if (is_nubar && is_nc && npi>1) evtype = -41;
+
+//     }
+//              
+//     // multi-pi (1.3 GeV < W < 2.0 GeV)
+//     //
+//     else {
+//        if      (is_nu    && is_cc) evtype =  21;
+//        else if (is_nu    && is_nc) evtype =  41;
+//        else if (is_nubar && is_cc) evtype = -21;
+//        else if (is_nubar && is_nc) evtype = -41;
+//     }
   }
 
   return evtype;
