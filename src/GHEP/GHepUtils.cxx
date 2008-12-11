@@ -32,6 +32,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
 //
 // A description of NEUT event types can be seen here: 
 // http://t2k.phy.duke.edu/bin/view/Main/NeutModes
+// Any extension used here has been agreed with SK (Hayato et al)
 //
   if(!event) {
     LOG("GHepUtils", pWARN) << "Null event!";
@@ -55,8 +56,8 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   bool is_dis   = proc.IsDeepInelastic();
   bool is_res   = proc.IsResonant();
   bool is_cohpi = proc.IsCoherentPiProd();
-//bool is_ve    = proc.IsNuElectronElastic();
-//bool is_imd   = proc.IsInverseMuDecay();
+  bool is_ve    = proc.IsNuElectronElastic();
+  bool is_imd   = proc.IsInverseMuDecay();
   bool is_p     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgProton  : false;
   bool is_n     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgNeutron : false;
   bool is_nu    = pdg::IsNeutrino    (init.ProbePdg());
@@ -76,6 +77,11 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   //
   else if (is_qel && is_charm && is_cc && is_nu    ) evtype =   25;
   else if (is_qel && is_charm && is_cc && is_nubar ) evtype =  -25;
+
+  // inverse mu- (tau-) decay and ve- elastic
+  //
+  else if ( is_imd ) evtype =  9;
+  else if ( is_ve  ) evtype = 59;
                
   // coherent pi, nc+cc, nu+nubar
   //
