@@ -10,7 +10,9 @@
  For the namespace documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Dec 11, 2008 - CA
+   Fixed a bug with the Delta- pdg code. It was incorrectly set to -2214.
+   Now set to 1114. The bug affected the final state nubar RES events.
 */
 //____________________________________________________________________________
 
@@ -103,7 +105,7 @@ Resonance_t genie::utils::res::FromPdgCode(int pdgc)
 
   switch(pdgc) {
 
-    case (-2214) : /* Delta-  */
+    case  (1114) : /* Delta-  */
     case  (2114) : /* Delta0  */
     case  (2214) : /* Delta+  */
     case  (2224) : /* Delta++ */
@@ -193,7 +195,7 @@ int genie::utils::res::PdgCode(Resonance_t res, int Q)
   switch(res) {
 
     case kP33_1232:
-        if(Q == -1) return -2214; /* Delta-  */
+        if(Q == -1) return  1114; /* Delta-  */
         if(Q ==  0) return  2114; /* Delta0  */
         if(Q ==  1) return  2214; /* Delta+  */
         if(Q ==  2) return  2224; /* Delta++ */
@@ -309,7 +311,7 @@ bool genie::utils::res::IsBaryonResonance(int pdgc)
 
     /* ------ P33(1232) ------*/
 
-    case (-2214) : /* Delta-  */
+    case  (1114) : /* Delta-  */
     case  (2114) : /* Delta0  */
     case  (2214) : /* Delta+  */
     case  (2224) : /* Delta++ */
@@ -406,10 +408,6 @@ bool genie::utils::res::IsBaryonResonance(int pdgc)
 
     /* ------ F17(1970) ------*/
 
-
-    /* ------ ?         ------*/
-    case (-1114) :
-    case (1114)  :
 
         return true;
   }
