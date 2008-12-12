@@ -234,6 +234,21 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      else if (is_nu    && is_nc && npi>1) evtype =  41;
      else if (is_nubar && is_cc && npi>1) evtype = -21;
      else if (is_nubar && is_nc && npi>1) evtype = -41;
+
+     //
+     // rare final state for RES or low-W (<2GeV) DIS events
+     // (eg K0\bar{K0} final states, N0(1720) -> Sigma- K+ res decays, etc)
+     // bundled-in with multi-pi
+     //
+     else {              
+       LOG("GHepUtils", pWARN)
+         << "Rare RES/low-W DIS final state: Bundled-in with multi-pi events";
+
+             if (is_nu    && is_cc) evtype =  21;
+        else if (is_nu    && is_nc) evtype =  41;
+        else if (is_nubar && is_cc) evtype = -21;
+        else if (is_nubar && is_nc) evtype = -41;
+     }
   }
 
   return evtype;
