@@ -20,14 +20,21 @@
 //____________________________________________________________________________
 
 #include <cstdlib>
+#include <fstream>
 
 #include <TFile.h>
-#include <TTree.h>
+#include <TChain.h>
 #include <TSystem.h>
 
 #include "Conventions/Units.h"
 #include "Conventions/GBuild.h"
+
 #include "FluxDrivers/GNuMIFlux.h"
+#include "FluxDrivers/GNuMINtuple/g3numi.h"
+#include "FluxDrivers/GNuMINtuple/g3numi.C"
+#include "FluxDrivers/GNuMINtuple/g4numi.h"
+#include "FluxDrivers/GNuMINtuple/g4numi.C"
+
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
@@ -37,10 +44,20 @@
 
 using std::endl;
 
+#include <vector>
+#include <algorithm>
+#include <iomanip>
+#include "TRegexp.h"
+#include "TString.h"
+
 using namespace genie;
 using namespace genie::flux;
 
 ClassImp(GNuMIFluxPassThroughInfo)
+
+// some nominal positions used in the original g3 ntuple
+const TLorentzVector kPosCenterNear(0.,0.,103935.,0.);
+const TLorentzVector kPosCenterFar(0.,0.,73534000.,0.);
 
 //____________________________________________________________________________
 GNuMIFlux::GNuMIFlux()
@@ -57,36 +74,29 @@ bool GNuMIFlux::GenerateNext(void)
 {
 // Get next (unweighted) flux ntuple entry on the specified detector location
 //
-  if(!fDetLocIsSet) {
+  if (!fDetLocIsSet) {
      LOG("Flux", pERROR)
        << "Specify a detector location before generating flux neutrinos";
      return false;	
   }
-  if(fMaxWeight<=0) {
+  if (fMaxWeight<=0) {
      LOG("Flux", pERROR)
        << "Run ScanForMaxWeight() before generating unweighted flux neurtinos";
      return false;	
   }
 
-
-  // RWH
-  LOG("Flux", pWARN)
-    << "GenerateNext calling GenerateNext_weighted() ... and returning";
-  return this->GenerateNext_weighted();
-  // RWH
-
-
-  RandomGen * rnd = RandomGen::Instance();
-  while(1) {
+  RandomGen* rnd = RandomGen::Instance();
+  while ( true ) {
      // Check for end of flux ntuple
      bool end = this->End();
-     if(end) return false;
+     if ( end ) return false;
 
      // Get next weighted flux ntuple entry
      bool nextok = this->GenerateNext_weighted();
-     if(!nextok) continue;
+     if ( fGenWeighted ) return nextok;
+     if ( ! nextok ) continue;
 
-     if(fNCycles==0) {
+     if ( fNCycles == 0 ) {
        LOG("Flux", pNOTICE)
           << "Got flux entry: " << fIEntry
           << " - Cycle: "<< fICycle << "/ infinite";
@@ -100,13 +110,17 @@ bool GNuMIFlux::GenerateNext(void)
      double f = this->Weight() / fMaxWeight;
      LOG("Flux", pNOTICE)
         << "Curr flux neutrino fractional weight = " << f;
-     if(f > 1.) {
+     if (f > 1.) {
        LOG("Flux", pERROR)
            << "** Fractional weight = " << f << " > 1 !!";
+       fMaxWeight = this->Weight(); // bump the weight
      }
      double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
-     bool accept = (r<f);
-     if(accept) return true;
+     bool accept = ( r < f );
+     if ( accept ) {
+       fWeight = 1.;
+       return true;
+     }
 
      LOG("Flux", pNOTICE)
        << "** Rejecting current flux neutrino based on the flux weight only";
@@ -121,18 +135,18 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // Reset previously generated neutrino code / 4-p / 4-x
   this->ResetCurrent();
 
-  // Check whether a jnubeam flux ntuple has been loaded
-  if(!fNuFluxTree) {
+  // Check whether a flux ntuple has been loaded
+  if ( ! fG3NuMI && ! fG4NuMI ) {
      LOG("Flux", pWARN)
           << "The flux driver has not been properly configured";
      return false;	
   }
 
   // Read next flux ntuple entry
-  if(fIEntry >= fNEntries) {
+  if (fIEntry >= fNEntries) {
      // Run out of entries @ the current cycle.
      // Check whether more (or infinite) number of cycles is requested
-     if(fICycle < fNCycles || fNCycles == 0 ) {
+     if (fICycle < fNCycles || fNCycles == 0 ) {
         fICycle++;
         fIEntry=0;
      } else {
@@ -142,7 +156,10 @@ bool GNuMIFlux::GenerateNext_weighted(void)
      }
   }
 
-  fNuFluxTree->GetEntry(fIEntry);
+  //rwh//old: fNuFluxTree->GetEntry(fIEntry);
+  if ( fG3NuMI ) { fG3NuMI->GetEntry(fIEntry); fCurrentEntry->Copy(fG3NuMI); }
+  else           { fG4NuMI->GetEntry(fIEntry); fCurrentEntry->Copy(fG4NuMI); }
+
   fIEntry++;
   fCurrentEntry->pcodes = 0;  // fetched entry has geant codes
   fCurrentEntry->units  = 0;  // fetched entry has original units
@@ -159,7 +176,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // Make sure that the appropriate list of flux neutrino species was set at
   // initialization via GNuMIFlux::SetFluxParticles(const PDGCodeList &)
 
-  if( ! fPdgCList->ExistsInPDGCodeList(fgPdgC) ) {
+  if ( ! fPdgCList->ExistsInPDGCodeList(fgPdgC) ) {
      LOG("Flux", pWARN)
           << "Unknown decay mode or decay mode producing an undeclared neutrino species";
      LOG("Flux", pWARN)
@@ -180,6 +197,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // initialization via GNuMIFlux::SetMaxEnergy(double Ev)
   fWeight = fCurrentEntry->nimpwt;   // start with importance weight
   double Ev = 0;
+  TLorentzVector nuPosBeam = fFluxWindowBase;
   switch ( fUseFluxAtDetCenter ) {
   case -1:  // near detector
     fWeight *= fCurrentEntry->nwtnear;
@@ -190,15 +208,21 @@ bool GNuMIFlux::GenerateNext_weighted(void)
     Ev       = fCurrentEntry->nenergyf;
     break;
   default:  // recalculate on x-y window
-     LOG("Flux", pWARN)
-          << "not yet calculating on x-y window";
-     return false;
-    fWeight = 0;
-    Ev      = 0;
+    double wgt_xy = 0;
+    RandomGen * rnd = RandomGen::Instance();
+    nuPosBeam += ( rnd->RndFlux().Rndm()*fFluxWindowDir1 +
+                   rnd->RndFlux().Rndm()*fFluxWindowDir2   );
+#ifdef  GNUMI_TEST_XY_WGT
+    xypartials partials;
+    fCurrentEntry->CalcEnuWgt(nuPosBeam.X(),nuPosBeam.Y(),nuPosBeam.Z(),Ev,wgt_xy,partials);
+#else
+    fCurrentEntry->CalcEnuWgt(nuPosBeam.X(),nuPosBeam.Y(),nuPosBeam.Z(),Ev,wgt_xy);
+#endif
+    fWeight *= wgt_xy;
     break;
   }
 
-  if(Ev > fMaxEv) {
+  if (Ev > fMaxEv) {
      LOG("Flux", pWARN)
           << "Flux neutrino energy exceeds declared maximum neutrino energy";
      LOG("Flux", pWARN)
@@ -206,12 +230,15 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   }
 
   // Set the current flux neutrino 4-momentum
-  fgP4.SetPxPyPzE (0., 0., Ev, Ev); // ---> random values for now
+  // RWH!!! currently in *beam* coordinates
+  TLorentzVector dkVtx(fCurrentEntry->vx,fCurrentEntry->vy,fCurrentEntry->vz,0.);
+  TLorentzVector dirNu = nuPosBeam - dkVtx;
+  double dirnorm = 1.0 / dirNu.Vect().Mag();  // magnitude of position offset
+  fgP4.SetPxPyPzE (Ev*dirnorm*dirNu.X(), Ev*dirnorm*dirNu.Y(), Ev*dirnorm*dirNu.Z(), Ev);
 
   // Set the current flux neutrino 4-position
-  // (Read curr flux ntuple entry & trace back to requested started position z0)
-  double cm2m = units::cm / units::m;
-  fgX4.SetXYZT    (cm2m*1.,  cm2m*2.,  cm2m*3.,  0.);  // ---> random values for now
+  // RWH!!! currently in *beam* coordinates (but user units)
+  fgX4 = nuPosBeam * fLengthScaleB2U;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Flux", pINFO)
@@ -232,7 +259,7 @@ double GNuMIFlux::POT_curr(void)
 {
 // Compute current number of flux POTs
 
-  if(!fNuFluxTree) {
+  if (!fNuFluxTree) {
      LOG("Flux", pWARN)
           << "The flux driver has not been properly configured";
      return 0;	
@@ -246,9 +273,86 @@ void GNuMIFlux::LoadBeamSimData(string filename)
 // Loads in a gnumi beam simulation root file (converted from hbook format)
 // into the GNuMIFlux driver.
 
+  fNuFluxFilePattern = filename;
   LOG("Flux", pNOTICE)
-        << "Loading gnumi flux tree from ROOT file: " << filename;
+        << "Loading gnumi flux tree from ROOT file(s): " << filename;
 
+  // !WILDCARD only works for file name ... NOT directory
+  string dirname = gSystem->UnixPathName(gSystem->WorkingDirectory());
+  size_t slashpos = filename.find_last_of("/");
+  if ( slashpos != std::string::npos ) {
+    dirname = filename.substr(0,slashpos);
+    LOG("Flux", pINFO) << "Look for flux using directory " << dirname;
+  } else { slashpos = -1; }
+
+  void* dirp = gSystem->OpenDirectory(gSystem->ExpandPathName(dirname.c_str()));
+    // create a (sortable) vector of file names
+  std::vector<std::string> fnames;
+  if ( dirp ) {
+    std::string basename = 
+      filename.substr(slashpos+1,filename.size()-slashpos-1);
+    TRegexp re(basename.c_str(),kTRUE);
+    const char* onefile;
+    while ( ( onefile = gSystem->GetDirEntry(dirp) ) ) {
+      TString afile = onefile;
+      if ( afile=="." || afile==".." ) continue;
+      if ( basename!=afile && afile.Index(re) == kNPOS ) continue;
+      std::string fullname = dirname + "/" + afile.Data();
+      fnames.push_back(fullname);
+    }
+    gSystem->FreeDirectory(dirp);
+    // sort the list
+    std::sort(fnames.begin(),fnames.end());
+    for (unsigned int indx=0; indx < fnames.size(); ++indx) {
+      //std::cout << "  [" << std::setw(3) << indx << "]  \"" 
+      //          << fnames[indx] << "\"" << std::endl;
+      bool isok = ! (gSystem->AccessPathName(fnames[indx].c_str()));
+      if ( isok ) {
+        // open the file to see what it contains
+        TFile tf(fnames[indx].c_str());
+        const std::string tnames[] = { "h10", "nudata" };
+        for (int j = 0; j < 2 ; ++j ) { 
+          TTree* atree = (TTree*)tf.Get(tnames[j].c_str());
+          if ( atree ) {
+            // create chain if none exists
+            if ( ! fNuFluxTree ) {
+              this->SetTreeName(tnames[j]);
+              fNuFluxTree = new TChain(fNuFluxTreeName.c_str());
+              // here we should scan for estimated POTs/file
+              // also maybe the check on max weight
+            }
+            // sanity check for mixing g3/g4 files
+            if ( fNuFluxTreeName !=  tnames[j] ) {
+              LOG("Flux", pFATAL) 
+                << "Inconsistent flux file types\n"
+                << "The input gnumi flux file \"" << fnames[indx] 
+                << "\"\ncontains a '" << tnames[j] << "' g" << int(j+3)
+                << "numi ntuple " 
+                // 0->1  1->0 with 1-j,  0->4 1->3 with 4-j 
+                << "but a '" << tnames[1-j] << "' g" << int(4-j)
+                << "numi ntuple has alread been seen in the chain";
+              exit(1);
+            } // sanity mix/match g3/g4
+            // add the file to the chain
+            LOG("Flux",pNOTICE) //INFO)
+              << fNuFluxTreeName << "->AddFile() of "
+              << fnames[indx];
+            fNuFluxTree->AddFile(fnames[indx].c_str());
+          } // found a tree
+        } // loop over either g3 or g4
+        tf.Close();
+      }
+    } // loop over sorted file names
+  } // legal directory
+  if ( fNuFluxTreeName == "" ) {
+    LOG("Flux", pFATAL)
+     << "The input gnumi flux file doesn't exist! Initialization failed!";
+    exit(1);
+  }
+  if ( fNuFluxTreeName == "h10"    ) fG3NuMI = new g3numi(fNuFluxTree);
+  if ( fNuFluxTreeName == "nudata" ) fG4NuMI = new g4numi(fNuFluxTree);
+
+#ifdef OLD_STUFF
   bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
   if (!is_accessible) {
     LOG("Flux", pFATAL)
@@ -257,10 +361,10 @@ void GNuMIFlux::LoadBeamSimData(string filename)
   }
 
   fNuFluxFile = new TFile(filename.c_str(), "read");
-  if(fNuFluxFile) {
+  if (fNuFluxFile) {
       LOG("Flux", pINFO) << "Getting flux tree: " << fNuFluxTreeName;
       fNuFluxTree = (TTree*) fNuFluxFile->Get(fNuFluxTreeName.c_str());
-      if(!fNuFluxTree) {
+      if (!fNuFluxTree) {
           LOG("Flux", pERROR)
              << "** Couldn't get flux tree: " << fNuFluxTreeName;
           return;
@@ -269,140 +373,13 @@ void GNuMIFlux::LoadBeamSimData(string filename)
       LOG("Flux", pERROR) << "** Couldn't open: " << filename;
       return;
   }
+#endif
 
+  // this will open all files and head header!!
   fNEntries = fNuFluxTree->GetEntries();
+
   LOG("Flux", pNOTICE)
       << "Loaded flux tree contains " <<  fNEntries << " entries";
-
-  LOG("Flux", pDEBUG)
-      << "Getting tree branches & setting leaf addresses";
-
-  fBr_run          = fNuFluxTree -> GetBranch ( "run"      );
-  fBr_evtno        = fNuFluxTree -> GetBranch ( "evtno"    );
-  fBr_Ndxdz        = fNuFluxTree -> GetBranch ( "Ndxdz"    );
-  fBr_Ndydz        = fNuFluxTree -> GetBranch ( "Ndydz"    );
-  fBr_Npz          = fNuFluxTree -> GetBranch ( "Npz"      );
-  fBr_Nenergy      = fNuFluxTree -> GetBranch ( "Nenergy"  );
-  fBr_NdxdzNea     = fNuFluxTree -> GetBranch ( "Ndxdznea" );  // was NdxdzNea
-  fBr_NdydzNea     = fNuFluxTree -> GetBranch ( "Ndydznea" );  // was NdydzNea
-  fBr_NenergyN     = fNuFluxTree -> GetBranch ( "Nenergyn" );  // was NenergyN **
-  fBr_NWtNear      = fNuFluxTree -> GetBranch ( "Nwtnear"  );  // was NWtNear
-  fBr_NdxdzFar     = fNuFluxTree -> GetBranch ( "Ndxdzfar" );  // was NdxdzFar
-  fBr_NdydzFar     = fNuFluxTree -> GetBranch ( "Ndydzfar" );  // was NdydzFar
-  fBr_NenergyF     = fNuFluxTree -> GetBranch ( "Nenergyf" );  // was NenergyF
-  fBr_NWtFar       = fNuFluxTree -> GetBranch ( "Nwtfar"   );  // was NWtFar
-  fBr_Norig        = fNuFluxTree -> GetBranch ( "Norig"    );
-  fBr_Ndecay       = fNuFluxTree -> GetBranch ( "Ndecay"   );
-  fBr_Ntype        = fNuFluxTree -> GetBranch ( "Ntype"    );
-  fBr_Vx           = fNuFluxTree -> GetBranch ( "Vx"       );
-  fBr_Vy           = fNuFluxTree -> GetBranch ( "Vy"       );
-  fBr_Vz           = fNuFluxTree -> GetBranch ( "Vz"       );
-  fBr_pdPx         = fNuFluxTree -> GetBranch ( "pdpx"     );  // was pdPx
-  fBr_pdPy         = fNuFluxTree -> GetBranch ( "pdpy"     );  // was pdPy
-  fBr_pdPz         = fNuFluxTree -> GetBranch ( "pdpz"     );  // was pdPz
-  fBr_ppdxdz       = fNuFluxTree -> GetBranch ( "ppdxdz"   );
-  fBr_ppdydz       = fNuFluxTree -> GetBranch ( "ppdydz"   );
-  fBr_pppz         = fNuFluxTree -> GetBranch ( "pppz"     );
-  fBr_ppenergy     = fNuFluxTree -> GetBranch ( "ppenergy" );
-  fBr_ppmedium     = fNuFluxTree -> GetBranch ( "ppmedium" );
-  fBr_ptype        = fNuFluxTree -> GetBranch ( "ptype"    );
-  fBr_ppvx         = fNuFluxTree -> GetBranch ( "ppvx"     );
-  fBr_ppvy         = fNuFluxTree -> GetBranch ( "ppvy"     );
-  fBr_ppvz         = fNuFluxTree -> GetBranch ( "ppvz"     );
-  fBr_muparpx      = fNuFluxTree -> GetBranch ( "muparpx"  );
-  fBr_muparpy      = fNuFluxTree -> GetBranch ( "muparpy"  );
-  fBr_muparpz      = fNuFluxTree -> GetBranch ( "muparpz"  );
-  fBr_mupare       = fNuFluxTree -> GetBranch ( "mupare"   );
-  fBr_Necm         = fNuFluxTree -> GetBranch ( "Necm"     );
-  fBr_Nimpwt       = fNuFluxTree -> GetBranch ( "Nimpwt"   );
-  fBr_xpoint       = fNuFluxTree -> GetBranch ( "xpoint"   );
-  fBr_ypoint       = fNuFluxTree -> GetBranch ( "ypoint"   );
-  fBr_zpoint       = fNuFluxTree -> GetBranch ( "zpoint"   );
-  fBr_tvx          = fNuFluxTree -> GetBranch ( "tvx"      );
-  fBr_tvy          = fNuFluxTree -> GetBranch ( "tvy"      );
-  fBr_tvz          = fNuFluxTree -> GetBranch ( "tvz"      );
-  fBr_tpx          = fNuFluxTree -> GetBranch ( "tpx"      );
-  fBr_tpy          = fNuFluxTree -> GetBranch ( "tpy"      );
-  fBr_tpz          = fNuFluxTree -> GetBranch ( "tpz"      );
-  fBr_tptype       = fNuFluxTree -> GetBranch ( "tptype"   );
-  fBr_tgen         = fNuFluxTree -> GetBranch ( "tgen"     );
-  fBr_tgptype      = fNuFluxTree -> GetBranch ( "tgptype"  );
-  fBr_tgppx        = fNuFluxTree -> GetBranch ( "tgppx"    );
-  fBr_tgppy        = fNuFluxTree -> GetBranch ( "tgppy"    );
-  fBr_tgppz        = fNuFluxTree -> GetBranch ( "tgppz"    );
-  fBr_tprivx       = fNuFluxTree -> GetBranch ( "tprivx"   );
-  fBr_tprivy       = fNuFluxTree -> GetBranch ( "tprivy"   );
-  fBr_tprivz       = fNuFluxTree -> GetBranch ( "tprivz"   );
-  fBr_beamx        = fNuFluxTree -> GetBranch ( "beamx"    );
-  fBr_beamy        = fNuFluxTree -> GetBranch ( "beamy"    );
-  fBr_beamz        = fNuFluxTree -> GetBranch ( "beamz"    );
-  fBr_beampx       = fNuFluxTree -> GetBranch ( "beampx"   );
-  fBr_beampy       = fNuFluxTree -> GetBranch ( "beampy"   );
-  fBr_beampz       = fNuFluxTree -> GetBranch ( "beampz"   );
-
-  // set the leaf addresses for the above branches
-  fBr_run          -> SetAddress ( &fCurrentEntry->run      );
-  fBr_evtno        -> SetAddress ( &fCurrentEntry->evtno    );
-  fBr_Ndxdz        -> SetAddress ( &fCurrentEntry->ndxdz    );
-  fBr_Ndydz        -> SetAddress ( &fCurrentEntry->ndydz    );
-  fBr_Npz          -> SetAddress ( &fCurrentEntry->npz      );
-  fBr_Nenergy      -> SetAddress ( &fCurrentEntry->nenergy  );
-  fBr_NdxdzNea     -> SetAddress ( &fCurrentEntry->ndxdznea );
-  fBr_NdydzNea     -> SetAddress ( &fCurrentEntry->ndydznea );
-  fBr_NenergyN     -> SetAddress ( &fCurrentEntry->nenergyn );
-  fBr_NWtNear      -> SetAddress ( &fCurrentEntry->nwtnear  );
-  fBr_NdxdzFar     -> SetAddress ( &fCurrentEntry->ndxdzfar );
-  fBr_NdydzFar     -> SetAddress ( &fCurrentEntry->ndydzfar );
-  fBr_NenergyF     -> SetAddress ( &fCurrentEntry->nenergyf );
-  fBr_NWtFar       -> SetAddress ( &fCurrentEntry->nwtfar   );
-  fBr_Norig        -> SetAddress ( &fCurrentEntry->norig    );
-  fBr_Ndecay       -> SetAddress ( &fCurrentEntry->ndecay   );
-  fBr_Ntype        -> SetAddress ( &fCurrentEntry->ntype    );
-  fBr_Vx           -> SetAddress ( &fCurrentEntry->vx       );
-  fBr_Vy           -> SetAddress ( &fCurrentEntry->vy       );
-  fBr_Vz           -> SetAddress ( &fCurrentEntry->vz       );
-  fBr_pdPx         -> SetAddress ( &fCurrentEntry->pdpx     );
-  fBr_pdPy         -> SetAddress ( &fCurrentEntry->pdpy     );
-  fBr_pdPz         -> SetAddress ( &fCurrentEntry->pdpz     );
-  fBr_ppdxdz       -> SetAddress ( &fCurrentEntry->ppdxdz   );
-  fBr_ppdydz       -> SetAddress ( &fCurrentEntry->ppdydz   );
-  fBr_pppz         -> SetAddress ( &fCurrentEntry->pppz     );
-  fBr_ppenergy     -> SetAddress ( &fCurrentEntry->ppenergy );
-  fBr_ppmedium     -> SetAddress ( &fCurrentEntry->ppmedium );
-  fBr_ptype        -> SetAddress ( &fCurrentEntry->ptype    );
-  fBr_ppvx         -> SetAddress ( &fCurrentEntry->ppvx     );
-  fBr_ppvy         -> SetAddress ( &fCurrentEntry->ppvy     );
-  fBr_ppvz         -> SetAddress ( &fCurrentEntry->ppvz     );
-  fBr_muparpx      -> SetAddress ( &fCurrentEntry->muparpx  );
-  fBr_muparpy      -> SetAddress ( &fCurrentEntry->muparpy  );
-  fBr_muparpz      -> SetAddress ( &fCurrentEntry->muparpz  );
-  fBr_mupare       -> SetAddress ( &fCurrentEntry->mupare   );
-  fBr_Necm         -> SetAddress ( &fCurrentEntry->necm     );
-  fBr_Nimpwt       -> SetAddress ( &fCurrentEntry->nimpwt   );
-  fBr_xpoint       -> SetAddress ( &fCurrentEntry->xpoint   );
-  fBr_ypoint       -> SetAddress ( &fCurrentEntry->ypoint   );
-  fBr_zpoint       -> SetAddress ( &fCurrentEntry->zpoint   );
-  fBr_tvx          -> SetAddress ( &fCurrentEntry->tvx      );
-  fBr_tvy          -> SetAddress ( &fCurrentEntry->tvy      );
-  fBr_tvz          -> SetAddress ( &fCurrentEntry->tvz      );
-  fBr_tpx          -> SetAddress ( &fCurrentEntry->tpx      );
-  fBr_tpy          -> SetAddress ( &fCurrentEntry->tpy      );
-  fBr_tpz          -> SetAddress ( &fCurrentEntry->tpz      );
-  fBr_tptype       -> SetAddress ( &fCurrentEntry->tptype   );
-  fBr_tgen         -> SetAddress ( &fCurrentEntry->tgen     );
-  fBr_tgptype      -> SetAddress ( &fCurrentEntry->tgptype  );
-  fBr_tgppx        -> SetAddress ( &fCurrentEntry->tgppx    );
-  fBr_tgppy        -> SetAddress ( &fCurrentEntry->tgppy    );
-  fBr_tgppz        -> SetAddress ( &fCurrentEntry->tgppz    );
-  fBr_tprivx       -> SetAddress ( &fCurrentEntry->tprivx   );
-  fBr_tprivy       -> SetAddress ( &fCurrentEntry->tprivy   );
-  fBr_tprivz       -> SetAddress ( &fCurrentEntry->tprivz   );
-  fBr_beamx        -> SetAddress ( &fCurrentEntry->beamx    );
-  fBr_beamy        -> SetAddress ( &fCurrentEntry->beamy    );
-  fBr_beamz        -> SetAddress ( &fCurrentEntry->beamz    );
-  fBr_beampx       -> SetAddress ( &fCurrentEntry->beampx   );
-  fBr_beampy       -> SetAddress ( &fCurrentEntry->beampy   );
-  fBr_beampz       -> SetAddress ( &fCurrentEntry->beampz   );
 
   // current ntuple cycle # (flux ntuples may be recycled)
   fICycle = 1;
@@ -410,25 +387,38 @@ void GNuMIFlux::LoadBeamSimData(string filename)
 //___________________________________________________________________________
 void GNuMIFlux::ScanForMaxWeight(void)
 {
-  if(!fDetLocIsSet) {
+  if (!fDetLocIsSet) {
      LOG("Flux", pERROR)
        << "Specify a detector location before scanning for max weight";
      return;	
   }
 
   // scan for the maximum weight
-  if ( fUseFluxAtDetCenter > 0 ) {
-    fNuFluxTree->Draw("Nimpwt*Nwtfar","","goff");
+  int ipos_estimator = fUseFluxAtDetCenter;
+  if ( ipos_estimator == 0 ) {
+    // within 100m of a known point?
+    double zbase = fFluxWindowBase.Z();
+    if ( TMath::Abs(zbase-103648.837) < 10000. ) ipos_estimator = -1; // use NearDet
+    if ( TMath::Abs(zbase-73534000. ) < 10000. ) ipos_estimator = +1; // use FarDet
+    if ( ipos_estimator == 0 )
+      LOG("Flux", pERROR)
+        << "Don't know how to estimate max weight for the flux window base Z=" 
+        << zbase << " position";
   }
-  if ( fUseFluxAtDetCenter < 0 ) {
-    fNuFluxTree->Draw("Nimpwt*Nwtnear","","goff");
+  if ( ipos_estimator > 0 ) {
+    if ( fG3NuMI ) fNuFluxTree->Draw("Nimpwt*Nwtfar","","goff");
+    else           fNuFluxTree->Draw("Nimpwt*NWtFar[0]","","goff");
+  }
+  if ( ipos_estimator < 0 ) {
+    if ( fG3NuMI ) fNuFluxTree->Draw("Nimpwt*Nwtnear","","goff");
+    else           fNuFluxTree->Draw("Nimpwt*Nwtnear[0]","","goff");
   }
   Long64_t idx = TMath::LocMax(
                      fNuFluxTree->GetSelectedRows(),
                      fNuFluxTree->GetV1());
   fMaxWeight = fNuFluxTree->GetV1()[idx];
   LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight;
-  if(fMaxWeight <=0 ) {
+  if ( fMaxWeight <= 0 ) {
       LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
       exit(1);
   }
@@ -436,7 +426,7 @@ void GNuMIFlux::ScanForMaxWeight(void)
 //___________________________________________________________________________
 void GNuMIFlux::SetFluxParticles(const PDGCodeList & particles)
 {
-  if(!fPdgCList) {
+  if (!fPdgCList) {
      fPdgCList = new PDGCodeList;
   }
   fPdgCList->Copy(particles);
@@ -487,16 +477,119 @@ void GNuMIFlux::SetTreeName(string name)
   fNuFluxTreeName = name;
 }
 //___________________________________________________________________________
+void GNuMIFlux::UseFluxAtNearDetCenter(void)
+{
+  fFluxWindowBase      = kPosCenterNear;
+  fUseFluxAtDetCenter  = -1;
+  fDetLocIsSet         = true;
+}
+//___________________________________________________________________________
 void GNuMIFlux::UseFluxAtFarDetCenter(void)
 {
+  fFluxWindowBase      = kPosCenterFar;
   fUseFluxAtDetCenter  = +1;
   fDetLocIsSet         = true;
 }
 //___________________________________________________________________________
-void GNuMIFlux::UseFluxAtNearDetCenter(void)
+bool GNuMIFlux::SetBeamFluxWindow(GNuMIFlux::StdFluxWindow_t stdwindow, double padding)
 {
-  fUseFluxAtDetCenter  = -1;
+  // set some standard flux windows
+  // rwh:  should also set detector coord transform
+  // rwh:  padding allows add constant padding to pre-existing set
+  double padbeam = padding / fLengthScaleB2U;  // user might set different units
+  LOG("Flux",pNOTICE)
+    << "SetBeamFluxWindow " << (int)stdwindow << " padding " << padbeam << " cm";
+
+
+  switch ( stdwindow ) {
+#ifdef THIS_IS_NOT_YET_IMPLEMENTED
+  case kMinosNearDet:
+    SetBeamFluxWindow(103648.837);
+    break;
+  case kMinosFarDear:
+    SetBeamFluxWindow(73534000.);
+    break;
+  case kMinosNearRock:
+    SetBeamFluxWindow();
+    break;
+  case kMinosFarRock:
+    SetBeamFluxWindow();
+    break;
+#endif
+  case kMinosNearCenter:
+    {
+      SetFluxWindow(kPosCenterNear,kPosCenterNear,kPosCenterNear);
+      break;
+    }
+  case kMinosFarCenter:
+    {
+      SetFluxWindow(kPosCenterFar,kPosCenterFar,kPosCenterFar);
+      break;
+    }
+  default:
+    LOG("Flux", pERROR)
+      << "SetBeamFluxWindow - StdFluxWindow " << stdwindow << " no yet implemented";
+    return false;
+  }
+  return true;
+}
+//___________________________________________________________________________
+void GNuMIFlux::SetFluxWindow(TLorentzVector p1, TLorentzVector p2, TLorentzVector p3)
+                             // bool inDetCoord)  future extension
+{
+  // set flux window
+  // NOTE: internally these are in "cm", but user might have set a preference
+  fUseFluxAtDetCenter  = 0;
   fDetLocIsSet         = true;
+
+  // apply units conversion
+  p1 *= (1./fLengthScaleB2U);
+  p2 *= (1./fLengthScaleB2U);
+  p3 *= (1./fLengthScaleB2U);
+
+  fFluxWindowBase = p1;
+  fFluxWindowDir1 = p2 - p1;
+  fFluxWindowDir2 = p3 - p1;
+
+}
+
+//___________________________________________________________________________
+void GNuMIFlux::GetFluxWindow(TLorentzVector& p1, TLorentzVector& p2, TLorentzVector& p3) const
+{
+  // return flux window points
+  // NOTE: internally these are in "cm", but user might have set a preference
+
+  p1 = fFluxWindowBase;
+  p2 = fFluxWindowBase + fFluxWindowDir1;
+  p3 = fFluxWindowBase + fFluxWindowDir2;
+
+  // apply units conversion
+  p1 *= fLengthScaleB2U;
+  p2 *= fLengthScaleB2U;
+  p3 *= fLengthScaleB2U;
+
+}
+//___________________________________________________________________________
+void GNuMIFlux::SetDetectorCoord(TLorentzVector det0, TLorentzRotation detrot)
+{
+  // set coord transform between detector and beam
+  // NOTE: internally these are in "cm", but user might have set a preference
+
+  det0 *= (1./fLengthScaleB2U);
+  fDetectorZero = det0;
+  fDetectorRot  = detrot;
+
+}
+//___________________________________________________________________________
+void GNuMIFlux::GetDetectorCoord(TLorentzVector& det0, TLorentzRotation& detrot) const
+{
+  // get coord transform between detector and beam
+  // NOTE: internally these are in "cm", but user might have set a preference
+
+  det0 = fDetectorZero;
+  det0 *= fLengthScaleB2U;
+  detrot = fDetectorRot;
+
 }
 //___________________________________________________________________________
 void GNuMIFlux::PrintCurrent(void)
@@ -512,8 +605,9 @@ void GNuMIFlux::Initialize(void)
   fPdgCList        = new PDGCodeList;
   fCurrentEntry    = new GNuMIFluxPassThroughInfo;
 
-  fNuFluxFile      = 0;
   fNuFluxTree      = 0;
+  fG3NuMI          = 0;
+  fG4NuMI          = 0;
   fNuFluxTreeName  = "";
 
   fNEntries        = 0;
@@ -525,8 +619,11 @@ void GNuMIFlux::Initialize(void)
   fICycle          = 0;
   fSumWeight       = 0;
   fNNeutrinos      = 0;
+  fGenWeighted     = false;
   fUseFluxAtDetCenter = 0;
   fDetLocIsSet        = false;
+  fLengthUnits        = GNuMIFlux::kcm;  // by default assume user length is cm
+  this->SetLengthScale();
 
   this->SetDefaults();
   this->ResetCurrent();
@@ -557,7 +654,6 @@ void GNuMIFlux::SetDefaults(void)
   this->SetFilePOT       (1E+21);
   this->SetUpstreamZ     (-5.0);
   this->SetNumOfCycles   (1);
-  this->SetTreeName      ("h10");
 }
 //___________________________________________________________________________
 void GNuMIFlux::ResetCurrent(void)
@@ -580,9 +676,23 @@ void GNuMIFlux::CleanUp(void)
   if (fPdgCList)        delete fPdgCList;
   if (fCurrentEntry)    delete fCurrentEntry;
 
-  if (fNuFluxFile) {
-	fNuFluxFile->Close();
-	delete fNuFluxFile;
+  if ( fG3NuMI ) delete fG3NuMI;
+  if ( fG4NuMI ) delete fG4NuMI;
+
+}
+//___________________________________________________________________________
+void GNuMIFlux::SetLengthScale(void)
+{
+// Set the scale factor for lengths going from beam (cm) to user coordinates
+  switch (fLengthUnits) {
+  case GNuMIFlux::kmeter:  fLengthScaleB2U =   0.01  ; break;
+  case GNuMIFlux::kcm:     fLengthScaleB2U =   1.    ; break;
+  case GNuMIFlux::kmm:     fLengthScaleB2U =  10.    ; break;
+  case GNuMIFlux::kfm:     fLengthScaleB2U =   1.e13 ; break;  // 10e-2m -> 10e-15m
+  default:
+    LOG("Flux", pERROR)
+      << "GNuMIFlux::SetLengthScale unrecognized unit scale";
+    fLengthScaleB2U = 1.0;
   }
 }
 
@@ -632,6 +742,11 @@ void GNuMIFluxPassThroughInfo::Reset()
   muparpy  = 0.;
   muparpz  = 0.;
   mupare   = 0.;
+  necm     = 0.;
+  nimpwt   = 0.;
+  xpoint   = 0.;
+  ypoint   = 0.;
+  zpoint   = 0.;
   tvx      = 0.;
   tvy      = 0.;
   tvz      = 0.;
@@ -758,14 +873,450 @@ void GNuMIFluxPassThroughInfo::ConvertPartCodes()
 }
 
 //___________________________________________________________________________
+void GNuMIFluxPassThroughInfo::Copy(const g3numi* g3 )
+{
+  run      = g3->run;
+  evtno    = g3->evtno;
+  ndxdz    = g3->Ndxdz;
+  ndydz    = g3->Ndydz;
+  npz      = g3->Npz;
+  nenergy  = g3->Nenergy;
+  ndxdznea = g3->Ndxdznea;
+  ndydznea = g3->Ndydznea;
+  nenergyn = g3->Nenergyn;
+  nwtnear  = g3->Nwtnear;
+  ndxdzfar = g3->Ndxdzfar;
+  ndydzfar = g3->Ndydzfar;
+  nenergyf = g3->Nenergyf;
+  nwtfar   = g3->Nwtfar;
+  norig    = g3->Norig;
+  ndecay   = g3->Ndecay;
+  ntype    = g3->Ntype;
+  vx       = g3->Vx;
+  vy       = g3->Vy;
+  vz       = g3->Vz;
+  pdpx     = g3->pdpx;
+  pdpy     = g3->pdpy;
+  pdpz     = g3->pdpz;
+  ppdxdz   = g3->ppdxdz;
+  ppdydz   = g3->ppdydz;
+  pppz     = g3->pppz;
+  ppenergy = g3->ppenergy;
+  ppmedium = g3->ppmedium;
+  ptype    = g3->ptype;
+  ppvx     = g3->ppvx;
+  ppvy     = g3->ppvy;
+  ppvz     = g3->ppvz;
+  muparpx  = g3->muparpx;
+  muparpy  = g3->muparpy;
+  muparpz  = g3->muparpz;
+  mupare   = g3->mupare;
+
+  necm     = g3->Necm;
+  nimpwt   = g3->Nimpwt;
+  xpoint   = g3->xpoint;
+  ypoint   = g3->ypoint;
+  zpoint   = g3->zpoint;
+
+  tvx      = g3->tvx;
+  tvy      = g3->tvy;
+  tvz      = g3->tvz;
+  tpx      = g3->tpx;
+  tpy      = g3->tpy;
+  tpz      = g3->tpz;
+  tptype   = g3->tptype;
+  tgen     = g3->tgen;
+  tgptype  = g3->tgptype;
+  tgppx    = g3->tgppx;
+  tgppy    = g3->tgppy;
+  tgppz    = g3->tgppz;
+  tprivx   = g3->tprivx;
+  tprivy   = g3->tprivy;
+  tprivz   = g3->tprivz;
+  beamx    = g3->beamx;
+  beamy    = g3->beamy;
+  beamz    = g3->beamz;
+  beampx   = g3->beampx;
+  beampy   = g3->beampy;
+  beampz   = g3->beampz;
+
+}
+
+//___________________________________________________________________________
+void GNuMIFluxPassThroughInfo::Copy(const g4numi* g4 )
+{
+
+  run      = -1;
+  evtno    = -1;
+  ndxdz    = 0.;
+  ndydz    = 0.;
+  npz      = 0.;
+  nenergy  = 0.;
+  ndxdznea = 0.;
+  ndydznea = 0.;
+  nenergyn = 0.;
+  nwtnear  = 0.;
+  ndxdzfar = 0.;
+  ndydzfar = 0.;
+  nenergyf = 0.;
+  nwtfar   = 0.;
+  norig    = 0;
+  ndecay   = 0;
+  ntype    = 0;
+  vx       = 0.;
+  vy       = 0.;
+  vz       = 0.;
+  pdpx     = 0.;
+  pdpy     = 0.;
+  pdpz     = 0.;
+  ppdxdz   = 0.;
+  ppdydz   = 0.;
+  pppz     = 0.;
+  ppenergy = 0.;
+  ppmedium = 0 ;
+  ptype    = 0 ;
+  ppvx     = 0.;
+  ppvy     = 0.;
+  ppvz     = 0.;
+  muparpx  = 0.;
+  muparpy  = 0.;
+  muparpz  = 0.;
+  mupare   = 0.;
+
+  necm     = 0.;
+  nimpwt   = 0.;
+  xpoint   = 0.;
+  ypoint   = 0.;
+  zpoint   = 0.;
+
+  tvx      = 0.;
+  tvy      = 0.;
+  tvz      = 0.;
+  tpx      = 0.;
+  tpy      = 0.;
+  tpz      = 0.;
+  tptype   = 0 ;
+  tgen     = 0 ;
+  tgptype  = 0 ;
+  tgppx    = 0.;
+  tgppy    = 0.;
+  tgppz    = 0.;
+  tprivx   = 0.;
+  tprivy   = 0.;
+  tprivz   = 0.;
+  beamx    = 0.;
+  beamy    = 0.;
+  beamz    = 0.;
+  beampx   = 0.;
+  beampy   = 0.;
+  beampz   = 0.;
+
+}
+
+//___________________________________________________________________________
+int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
+                                         double& enu, double& wgt_xy
+#ifdef  GNUMI_TEST_XY_WGT
+                                         , xypartials& partials
+#endif
+                                         ) const
+{
+
+  // Neutrino Energy and Weigth at arbitrary point
+  // based on:
+  //   NuMI-NOTE-BEAM-0109 (MINOS DocDB # 109)
+  //   Title:   Neutrino Beam Simulation using PAW with Weighted Monte Carlos
+  //   Author:  Rick Milburn
+  //   Date:    1995-10-01
+
+  // history:
+  // jzh  3/21/96 grab R.H.Milburn's weighing routine
+  // jzh  5/ 9/96 substantially modify the weighting function use dot product 
+  //              instead of rotation vecs to get theta get all info except 
+  //              det from ADAMO banks neutrino parent is in Particle.inc
+  //              Add weighting factor for polarized muon decay
+  // jzh  4/17/97 convert more code to double precision because of problems 
+  //              with Enu>30 GeV
+  // rwh 10/ 9/08 transliterate function from f77 to C++
+
+  // original function description:
+  //   Real function for use with PAW Ntuple To transform from destination
+  //   detector geometry to the unit sphere moving with decaying hadron with
+  //   velocity v, BETA=v/c, etc..  For (pseudo)scalar hadrons the decays will
+  //   be isotropic in this  sphere so the fractional area (out of 4-pi) is the
+  //   fraction of decays that hit the target.  For a given target point and 
+  //   area, and given x-y components of decay transverse location and slope,
+  //   and given decay distance from target ans given decay GAMMA and 
+  //   rest-frame neutrino energy, the lab energy at the target and the 
+  //   fractional solid angle in the rest-frame are determined.
+  //   For muon decays, correction for non-isotropic nature of decay is done.
+
+  // Arguments:
+  //    double x, y, z :: position to evaluate for (enu,wgt_xy) 
+  //        in *beam* frame coordinates  (cm units)
+  //    double enu, wgt_xy :: resulting energy and weight
+  // Return:
+  //    int :: error code
+  // Assumptions:
+  //    Energies given in GeV
+  //    Particle codes have been translated from GEANT into PDG codes
+
+  // for now ... these _should_ come from DB
+  // but use these hard-coded values to "exactly" reproduce old code
+  //
+  const double kPIMASS = 0.13957;
+  const double kKMASS  = 0.49368;
+  const double kK0MASS = 0.49767;
+  const double kMUMASS = 0.105658389;
+
+  const int kpdg_nue       =   12;  // extended Geant 53
+  const int kpdg_nuebar    =  -12;  // extended Geant 52
+  const int kpdg_numu      =   14;  // extended Geant 56
+  const int kpdg_numubar   =  -14;  // extended Geant 55
+
+  const int kpdg_muplus    =  -13;  // Geant  5
+  const int kpdg_muminus   =   13;  // Geant  6
+  const int kpdg_pionplus  =  211;  // Geant  8
+  const int kpdg_pionminus = -211;  // Geant  9
+  const int kpdg_k0long    =  130;  // Geant 10  ( K0=311, K0S=310 )
+  const int kpdg_k0short   =  310;  // Geant 16
+  const int kpdg_k0mix     =  311;  
+  const int kpdg_kaonplus  =  321;  // Geant 11
+  const int kpdg_kaonminus = -321;  // Geant 12
+
+  const double kRDET = 100.0;   // set to flux per 100 cm radius
+
+  enu    = 0.0;  // don't know what the final value is
+  wgt_xy = 0.0;  // but set these in case we return early due to error
+
+
+  // in principle we should get these from the particle DB
+  // but for consistency testing use the hardcoded values
+  double parent_mass = kPIMASS;
+  switch ( this->ptype ) {
+  case kpdg_pionplus:
+  case kpdg_pionminus:
+    parent_mass = kPIMASS;
+    break;
+  case kpdg_kaonplus:
+  case kpdg_kaonminus:
+    parent_mass = kKMASS;
+    break;
+  case kpdg_k0long:
+  case kpdg_k0short:
+  case kpdg_k0mix:
+    parent_mass = kK0MASS;
+    break;
+  case kpdg_muplus:
+  case kpdg_muminus:
+    parent_mass = kMUMASS;
+    break;
+  default:
+    std::cerr << "NU_REWGT unknown particle type " << this->ptype
+              << std::endl;
+    return 1;
+  }
+
+  double parentp2 = ( this->pdpx*this->pdpx +
+                      this->pdpy*this->pdpy +
+                      this->pdpz*this->pdpz );
+  double parent_energy = TMath::Sqrt( parentp2 +
+                                     parent_mass*parent_mass);
+  double parentp = TMath::Sqrt( parentp2 );
+
+  double gamma     = parent_energy / parent_mass;
+  double gamma_sqr = gamma * gamma;
+  double beta_mag  = TMath::Sqrt( ( gamma_sqr - 1.0 )/gamma_sqr );
+
+  // Get the neutrino energy in the parent decay CM
+  double enuzr = this->necm;
+  // Get angle from parent line of flight to chosen point in beam frame
+  double rad = TMath::Sqrt( (xpos-this->vx)*(xpos-this->vx) +
+                            (ypos-this->vy)*(ypos-this->vy) +
+                            (zpos-this->vz)*(zpos-this->vz) );
+
+  double costh_pardet = ( this->pdpx*(xpos-this->vx) +
+                          this->pdpy*(ypos-this->vy) +
+                          this->pdpz*(zpos-this->vz) ) 
+                        / ( parentp * rad);
+  if ( costh_pardet >  1.0 ) costh_pardet =  1.0;
+  if ( costh_pardet < -1.0 ) costh_pardet = -1.0;
+  double theta_pardet = TMath::ACos(costh_pardet);
+
+  // Weighted neutrino energy in beam, approx, good for small theta
+  //RWH//double emrat = 1.0 / ( gamma * ( 1.0 - beta_mag * TMath::Cos(theta_pardet)));
+  double emrat = 1.0 / ( gamma * ( 1.0 - beta_mag * costh_pardet ));
+  enu = emrat * enuzr;  // ! the energy ... normally
+
+  // RWH-debug
+  bool debug = false;
+  if (debug) {
+    std::cout << std::setprecision(15);
+    std::cout << "ptype " << this->ptype << " m " << parent_mass 
+              << " p " << parentp << " e " << parent_energy << " gamma " << gamma
+              << " beta " << beta_mag << std::endl;
+
+    std::cout << " enuzr " << enuzr << " rad " << rad << " costh " << costh_pardet
+              << " theta " << theta_pardet << " emrat " << emrat 
+              << " enu " << enu << std::endl;
+  }
+
+#ifdef  GNUMI_TEST_XY_WGT
+  partials.parent_mass   = parent_mass;
+  partials.parentp       = parentp;
+  partials.parent_energy = parent_energy;
+  partials.gamma         = gamma;
+  partials.beta_mag      = beta_mag;
+  partials.enuzr         = enuzr;
+  partials.rad           = rad;
+  partials.costh_pardet  = costh_pardet;
+  partials.theta_pardet  = theta_pardet;
+  partials.emrat         = emrat;
+  partials.eneu          = enu;
+#endif
+
+  // Get solid angle/4pi for detector element
+  double sangdet = ( kRDET*kRDET / ( (zpos-this->vz)*(zpos-this->vz)))/4.0;
+
+  // Weight for solid angle and lorentz boost
+  wgt_xy = sangdet * ( emrat * emrat );  // ! the weight ... normally
+
+#ifdef  GNUMI_TEST_XY_WGT
+  partials.sangdet       = sangdet;
+  partials.wgt           = wgt_xy;
+  partials.ptype         = this->ptype; // assume already PDG
+#endif
+
+  // Done for all except polarized muon decay
+  // in which case need to modify weight 
+  // (must be done in double precision)
+  if ( this->ptype == kpdg_muplus || this->ptype == kpdg_muminus) {
+    double beta[3], p_dcm_nu[4], p_nu[3], p_pcm_mp[3], partial;
+
+    // Boost neu neutrino to mu decay CM
+    beta[0] = this->pdpx / parent_energy;
+    beta[1] = this->pdpy / parent_energy;
+    beta[2] = this->pdpz / parent_energy;
+    p_nu[0] = (xpos-this->vx)*enu/rad;
+    p_nu[1] = (ypos-this->vy)*enu/rad;
+    p_nu[2] = (zpos-this->vz)*enu/rad;
+    partial = gamma * 
+      (beta[0]*p_nu[0] + beta[1]*p_nu[1] + beta[2]*p_nu[2] );
+    partial = enu - partial/(gamma+1.0);
+    // the following calculation is numerically imprecise
+    // especially p_dcm_nu[2] leads to taking the difference of numbers of order ~10's
+    // and getting results of order ~0.02's
+    // for g3numi we're starting with floats (ie. good to ~1 part in 10^7)
+    p_dcm_nu[0] = p_nu[0] - beta[0]*gamma*partial;
+    p_dcm_nu[1] = p_nu[1] - beta[1]*gamma*partial;
+    p_dcm_nu[2] = p_nu[2] - beta[2]*gamma*partial;
+    p_dcm_nu[3] = TMath::Sqrt( p_dcm_nu[0]*p_dcm_nu[0] +
+                               p_dcm_nu[1]*p_dcm_nu[1] +
+                               p_dcm_nu[2]*p_dcm_nu[2] );
+
+#ifdef  GNUMI_TEST_XY_WGT
+    partials.betanu[0]     = beta[0];
+    partials.betanu[1]     = beta[1];
+    partials.betanu[2]     = beta[2];
+    partials.p_nu[0]       = p_nu[0];
+    partials.p_nu[1]       = p_nu[1];
+    partials.p_nu[2]       = p_nu[2];
+    partials.partial1      = partial;
+    partials.p_dcm_nu[0]   = p_dcm_nu[0];
+    partials.p_dcm_nu[1]   = p_dcm_nu[1];
+    partials.p_dcm_nu[2]   = p_dcm_nu[2];
+    partials.p_dcm_nu[3]   = p_dcm_nu[3];
+#endif
+
+    // Boost parent of mu to mu production CM
+    double particle_energy = this->ppenergy;
+    gamma = particle_energy/parent_mass;
+    beta[0] = this->ppdxdz * this->pppz / particle_energy;
+    beta[1] = this->ppdydz * this->pppz / particle_energy;
+    beta[2] =                    this->pppz / particle_energy;
+    partial = gamma * ( beta[0]*this->muparpx + 
+                        beta[1]*this->muparpy + 
+                        beta[2]*this->muparpz );
+    partial = this->mupare - partial/(gamma+1.0);
+    p_pcm_mp[0] = this->muparpx - beta[0]*gamma*partial;
+    p_pcm_mp[1] = this->muparpy - beta[1]*gamma*partial;
+    p_pcm_mp[2] = this->muparpz - beta[2]*gamma*partial;
+    double p_pcm = TMath::Sqrt ( p_pcm_mp[0]*p_pcm_mp[0] +
+                                 p_pcm_mp[1]*p_pcm_mp[1] +
+                                 p_pcm_mp[2]*p_pcm_mp[2] );
+
+    //std::cout << " muparpxyz " << this->muparpx << " "
+    //          << this->muparpy << " " << this->muparpz << std::endl;
+    //std::cout << " beta " << beta[0] << " " << beta[1] << " " << beta[2] << std::endl;
+    //std::cout << " gamma " << gamma << " partial " << partial << std::endl;
+    //std::cout << " p_pcm_mp " << p_pcm_mp[0] << " " << p_pcm_mp[1] << " " 
+    //          << p_pcm_mp[2] << " " << p_pcm << std::endl;
+
+#ifdef  GNUMI_TEST_XY_WGT
+    partials.muparent_px   = this->muparpx;
+    partials.muparent_py   = this->muparpy;
+    partials.muparent_pz   = this->muparpz;
+    partials.gammamp       = gamma;
+    partials.betamp[0]     = beta[0];
+    partials.betamp[1]     = beta[1];
+    partials.betamp[2]     = beta[2];
+    partials.partial2      = partial;
+    partials.p_pcm_mp[0]   = p_pcm_mp[0];
+    partials.p_pcm_mp[1]   = p_pcm_mp[1];
+    partials.p_pcm_mp[2]   = p_pcm_mp[2];
+    partials.p_pcm         = p_pcm;
+#endif
+
+    const double eps = 1.0e-30;  // ? what value to use
+    if ( p_pcm < eps || p_dcm_nu[3] < eps ) {
+      return 3; // mu missing parent info?
+    }
+    // Calc new decay angle w.r.t. (anti)spin direction
+    double costh = ( p_dcm_nu[0]*p_pcm_mp[0] +
+                     p_dcm_nu[1]*p_pcm_mp[1] +
+                     p_dcm_nu[2]*p_pcm_mp[2] ) /
+                   ( p_dcm_nu[3]*p_pcm );
+    if ( costh >  1.0 ) costh =  1.0;
+    if ( costh < -1.0 ) costh = -1.0;
+    // Calc relative weight due to angle difference
+    double wgt_ratio = 0.0;
+    switch ( this->ntype ) {
+    case kpdg_nue:
+    case kpdg_nuebar:
+      wgt_ratio = 1.0 - costh;
+      break;
+    case kpdg_numu:
+    case kpdg_numubar:
+      double xnu = 2.0 * enuzr / kMUMASS;
+      wgt_ratio = ( (3.0-2.0*xnu )  - (1.0-2.0*xnu)*costh ) / (3.0-2.0*xnu);
+      break;
+    default:
+      return 2; // bad neutrino type
+    }
+    wgt_xy = wgt_xy * wgt_ratio;
+
+#ifdef  GNUMI_TEST_XY_WGT
+    partials.ntype     = this->ntype; // assume converted to PDG
+    partials.costhmu   = costh;
+    partials.wgt_ratio = wgt_ratio;
+#endif
+
+  } // ptype is muon
+
+  return 0;
+}
+
+//___________________________________________________________________________
+
+
 namespace genie {
 namespace flux  {
   ostream & operator << (
     ostream & stream, const genie::flux::GNuMIFluxPassThroughInfo & info)
     {
-      // stream << "\n ndecay   = " << info.ndecay << endl;
-      stream << "\n GNuMIFlux run " << info.run << " evtno " << info.evtno
-             << " pcodes " << info.pcodes << " units " << info.units << ")"
+      // stream << "\n ndecay   = " << info.ndecay << std::endl;
+      stream << "\nGNuMIFlux run " << info.run << " evtno " << info.evtno
+             << " (pcodes " << info.pcodes << " units " << info.units << ")"
              << "\n random dk: dx/dz " << info.ndxdz 
              << " dy/dz " << info.ndydz
              << " pz " <<  info.npz << " E " << info.nenergy
@@ -825,5 +1376,154 @@ namespace flux  {
   }
 }//flux
 }//genie
+
 //___________________________________________________________________________
 
+#ifdef  GNUMI_TEST_XY_WGT
+
+double fabserr(double a, double b) 
+{ return TMath::Abs(a-b)/TMath::Max(TMath::Abs(b),1.0e-30); }
+
+int outdiff(double a, double b, double eps, const char* label)
+{
+  double err = fabserr(a,b);
+  if ( err > eps ) {
+    std::cout << std::setw(15) << label << " err " << err 
+         << " vals " << a << " " << b << std::endl;
+    return 1;
+  }
+  return 0;
+}
+
+int gnumi2pdg(int igeant) 
+{
+  switch ( igeant ) {
+  case 52: return -12;   // nuebar
+  case 53: return  12;   // nue
+  case 55: return -14;   // numubar
+  case 56: return  14;   // numu
+  case 58: return -16;   // nutaubar
+  case 59: return  16;   // nutau
+  default:
+    return genie::pdg::GeantToPdg(igeant);
+  }
+}
+
+void xypartials::ReadStream(ifstream& myfile)
+{
+  myfile >> parent_mass >> parentp >> parent_energy;
+  myfile >> gamma >> beta_mag >> enuzr >> rad;
+  myfile >> costh_pardet >> theta_pardet >> emrat >> eneu;
+  myfile >> sangdet >> wgt;
+  int ptype_g;
+  myfile >> ptype_g;
+  ptype = gnumi2pdg(ptype_g);
+  if ( ptype == 13 || ptype == -13 ) {
+    //std::cout << "ReadStream saw ptype " << ptype << std::endl;
+    myfile >> betanu[0] >> betanu[1] >> betanu[2]
+           >> p_nu[0] >> p_nu[1] >> p_nu[2];
+    myfile >> partial1
+           >> p_dcm_nu[0] >> p_dcm_nu[1] >> p_dcm_nu[2] >> p_dcm_nu[3];
+
+    myfile >> muparent_px >> muparent_py >> muparent_pz;
+    myfile >> gammamp >> betamp[0] >> betamp[1] >> betamp[2];
+    myfile >> partial2
+           >> p_pcm_mp[0] >> p_pcm_mp[1] >> p_pcm_mp[2] >> p_pcm;
+
+    if ( p_pcm != 0.0 && p_dcm_nu[3] != 0.0 ) {
+      int ntype_g;
+      myfile >> costhmu >> ntype_g >> wgt_ratio;
+      ntype = gnumi2pdg(ntype_g);
+    }
+  }
+}
+
+int xypartials::Compare(const xypartials& other) const
+{
+  double eps1 = 2.5e-5; // 0.003; // 6.0e-4; // 2.5e-4;
+  double eps2 = 2.5e-5; // 6.0e-4; // 2.5e-4;
+  double epsX = 2.5e-5; // 2.5e-4;
+  int np = 0;
+  np += outdiff(parent_mass  ,other.parent_mass  ,eps1,"parent_mass");
+  np += outdiff(parentp      ,other.parentp      ,eps1,"parentp");
+  np += outdiff(parent_energy,other.parent_energy,eps1,"parent_energy");
+  np += outdiff(gamma        ,other.gamma        ,eps1,"gamma");
+  np += outdiff(beta_mag     ,other.beta_mag     ,eps1,"beta_mag");
+  np += outdiff(enuzr        ,other.enuzr        ,eps1,"enuzr");
+  np += outdiff(rad          ,other.rad          ,eps1,"rad");
+  np += outdiff(costh_pardet ,other.costh_pardet ,eps1,"costh_pardet");
+  //np += outdiff(theta_pardet ,other.theta_pardet ,eps1,"theta_pardet");
+  np += outdiff(emrat        ,other.emrat        ,eps1,"emrat");
+  np += outdiff(eneu         ,other.eneu         ,epsX,"eneu");
+  np += outdiff(sangdet      ,other.sangdet      ,eps1,"sangdet");
+  np += outdiff(wgt          ,other.wgt          ,epsX,"wgt");
+  if ( ptype != other.ptype ) {
+    std::cout << "ptype mismatch " << ptype << " " << other.ptype << std::endl;
+    np++;
+  }
+  if ( TMath::Abs(ptype)==13 || TMath::Abs(other.ptype)==13 ) {
+    //std::cout << "== ismu " << std::endl;
+    np += outdiff(betanu[0]        ,other.betanu[0]        ,eps2,"betanu[0]");
+    np += outdiff(betanu[1]        ,other.betanu[1]        ,eps2,"betanu[1]");
+    np += outdiff(betanu[2]        ,other.betanu[2]        ,eps2,"betanu[2]");
+    np += outdiff(p_nu[0]          ,other.p_nu[0]          ,eps2,"p_nu[0]");
+    np += outdiff(p_nu[1]          ,other.p_nu[1]          ,eps2,"p_nu[1]");
+    np += outdiff(p_nu[2]          ,other.p_nu[2]          ,eps2,"p_nu[2]");
+    np += outdiff(partial1         ,other.partial1         ,eps2,"partial1");
+    np += outdiff(p_dcm_nu[0]      ,other.p_dcm_nu[0]      ,eps2,"p_dcm_nu[0]");
+    np += outdiff(p_dcm_nu[1]      ,other.p_dcm_nu[1]      ,eps2,"p_dcm_nu[1]");
+    np += outdiff(p_dcm_nu[2]      ,other.p_dcm_nu[2]      ,eps2,"p_dcm_nu[2]");
+    np += outdiff(p_dcm_nu[3]      ,other.p_dcm_nu[3]      ,eps2,"p_dcm_nu[3]");
+
+    np += outdiff(muparent_px      ,other.muparent_px      ,eps2,"muparent_px");
+    np += outdiff(muparent_py      ,other.muparent_py      ,eps2,"muparent_py");
+    np += outdiff(muparent_pz      ,other.muparent_pz      ,eps2,"muparent_pz");
+    np += outdiff(gammamp          ,other.gammamp          ,eps1,"gammamp");
+    np += outdiff(betamp[0]        ,other.betamp[0]        ,eps1,"betamp[0]");
+    np += outdiff(betamp[1]        ,other.betamp[1]        ,eps1,"betamp[1]");
+    np += outdiff(betamp[2]        ,other.betamp[2]        ,eps1,"betamp[2]");
+    np += outdiff(partial2         ,other.partial2         ,eps1,"partial2");
+    np += outdiff(p_pcm_mp[0]      ,other.p_pcm_mp[0]      ,eps1,"p_pcm_mp[0]");
+    np += outdiff(p_pcm_mp[1]      ,other.p_pcm_mp[1]      ,eps1,"p_pcm_mp[1]");
+    np += outdiff(p_pcm_mp[2]      ,other.p_pcm_mp[2]      ,eps1,"p_pcm_mp[2]");
+    np += outdiff(p_pcm            ,other.p_pcm            ,eps1,"p_pcm");
+
+    if ( ntype != other.ntype ) {
+      std::cout << "ntype mismatch " << ntype << " " << other.ntype << std::endl;
+      np++;
+    }
+    np += outdiff(costhmu          ,other.costhmu          ,eps1,"costhmu");
+    np += outdiff(wgt_ratio        ,other.wgt_ratio        ,eps1,"wgt_ratio");    
+
+  }
+  return np;
+}
+
+void xypartials::Print() const
+{
+  std::cout << "GNuMIFlux xypartials " << std::endl;
+  std::cout << "  parent: mass=" << parent_mass << " p=" << parentp 
+            << " e=" << parent_energy << " gamma=" << gamma << " beta_mag=" << beta_mag << std::endl;
+  std::cout << "  enuzr=" << enuzr << " rad=" << rad 
+            << " costh_pardet=" << costh_pardet << std::endl;
+  std::cout << "  emrat=" << emrat << " sangdet=" << sangdet << " wgt=" << wgt << std::endl;
+  std::cout << "  ptype=" << ptype
+            << ((TMath::Abs(ptype) == 13)?"is-muon":"not-muon")
+            << std::endl;
+
+  if ( TMath::Abs(ptype)==13 ) {
+    std::cout << "  betanu: [" << betanu[0] << "," << betanu[1] << "," << betanu[2] << "]" << std::endl;
+    std::cout << "  p_nu: [" << p_nu[0] << "," << p_nu[1] << "," << p_nu[2] << "]" << std::endl;
+    std::cout << "  partial1=" << partial1 << std::endl;
+    std::cout << "  p_dcm_nu: [" << p_dcm_nu[0] << "," << p_dcm_nu[1] << "," << p_dcm_nu[2] << "," << p_dcm_nu[3] << "]" << std::endl;
+    std::cout << "  muparent_p: [" << muparent_px << "," << muparent_py << "," << muparent_pz << "]" << std::endl;
+    std::cout << "  gammamp=" << gammamp << std::endl;
+    std::cout << "  betamp: [" << betamp[0] << "," << betamp[1] << "," << betamp[2] << "]" << std::endl;
+    std::cout << "  partial2=" << partial2 << std::endl;
+    std::cout << "  p_pcm_mp: [" << p_pcm_mp[0] << "," << p_pcm_mp[1] << "," << p_pcm_mp[2] << "]  p_pcm=" << p_pcm << std::endl;
+    std::cout << "  ntype=" << ntype 
+              << " costhmu=" << costhmu << " wgt_ratio=" << wgt_ratio << std::endl;
+  }
+}
+#endif
+//___________________________________________________________________________
