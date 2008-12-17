@@ -26,6 +26,15 @@ nset_pdflib      int      No         PDFLIB PDF set
      <param type="int"     name="ngroup_pdflib">  5         </param>
      <param type="int"     name="nset_pdflib">   12         </param>
   </param_set>
+
+  <param_set name="GRVHO"> 
+     <param type="string"  name="name_lhapdf">    GRV98nlo  </param>
+     <param type="int"     name="type_lhapdf">    2         </param>
+     <param type="int"     name="memset_lhapdf">  0         </param>
+     <param type="int"     name="nptype_pdflib">  1         </param>
+     <param type="int"     name="ngroup_pdflib">  5         </param>
+     <param type="int"     name="nset_pdflib">    3         </param>
+  </param_set>
   
 </alg_conf>
 
