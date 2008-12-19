@@ -369,6 +369,10 @@ void GenerateEventsUsingFluxOrTgtMix(void)
 
   //-- save the generated MC events
   ntpw.Save();
+
+  delete flux_driver;
+  delete geom_driver;
+  delete mcj_driver;;
 }
 //____________________________________________________________________________
 GeomAnalyzerI * GeomDriver(void)

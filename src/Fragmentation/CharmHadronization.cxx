@@ -10,7 +10,13 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Jun 23, 2008 - CA
+   At dtor delete the Spline and TF1 objects created at LoadConfig()
+ @ Jul 03, 2008 - CA
+   Removed a couple of (maximum weight > 0) assertions before generating 
+   an unweighted phase space decay. Return a null particle list instead so
+   that problematic event can be discarded and event generation can continue.
+   This prevents rare problems from stopping event generation jobs.
 */
 //____________________________________________________________________________
 
@@ -62,7 +68,17 @@ HadronizationModelI("genie::CharmHadronization", config)
 //____________________________________________________________________________
 CharmHadronization::~CharmHadronization()
 {
+  delete fCharmPT2pdf;
+  fCharmPT2pdf = 0;
 
+  delete fD0FracSpl;
+  fD0FracSpl = 0;
+
+  delete fDpFracSpl;
+  fDpFracSpl = 0;
+
+  delete fDsFracSpl;
+  fDsFracSpl = 0;
 }
 //____________________________________________________________________________
 void CharmHadronization::Initialize(void) const
@@ -241,40 +257,42 @@ TClonesArray * CharmHadronization::Hadronize(
            double w = fPhaseSpaceGenerator.Generate();
            wmax = TMath::Max(wmax,w);
         }
-        assert(wmax>0);
-        wmax *= 2;
 
-        // Generate unweighted decay
-        bool accept_decay=false;
-        unsigned int idecay_try=0;
-        while(!accept_decay)
-        {
-          idecay_try++;
+        if(wmax>0) {
+           wmax *= 2;
 
-          if(idecay_try>kMaxUnweightDecayIterations) {
-             LOG("CharmHad", pWARN)
-               << "Couldn't generate an unweighted phase space decay after "
-               << idecay_try << " attempts";
-          }
-          double w  = fPhaseSpaceGenerator.Generate();
-          if(w > wmax) {
-             LOG("CharmHad", pWARN)
-                << "Decay weight = " << w << " > max decay weight = " << wmax;
-          }
-          double gw = wmax * rnd->RndHadro().Rndm();
-          accept_decay = (gw<=w);
+           // Generate unweighted decay
+           bool accept_decay=false;
+           unsigned int idecay_try=0;
+           while(!accept_decay)
+           {
+             idecay_try++;
 
-          if(accept_decay) {
-              used_lowW_strategy = true;
-              TLorentzVector * p4 = fPhaseSpaceGenerator.GetDecay(0);
-              p4C            = *p4;
-              ch_pdg         = chrm_pdg;
-              fs_nucleon_pdg = remn_pdg;
-          } 
+             if(idecay_try>kMaxUnweightDecayIterations) {
+                LOG("CharmHad", pWARN)
+                  << "Couldn't generate an unweighted phase space decay after "
+                  << idecay_try << " attempts";
+             }
+             double w  = fPhaseSpaceGenerator.Generate();
+             if(w > wmax) {
+                LOG("CharmHad", pWARN)
+                 << "Decay weight = " << w << " > max decay weight = " << wmax;
+             }
+             double gw = wmax * rnd->RndHadro().Rndm();
+             accept_decay = (gw<=w);
 
-       } // decay loop
+             if(accept_decay) {
+                 used_lowW_strategy = true;
+                 TLorentzVector * p4 = fPhaseSpaceGenerator.GetDecay(0);
+                 p4C            = *p4;
+                 ch_pdg         = chrm_pdg;
+                 fs_nucleon_pdg = remn_pdg;
+             } 
+           } // decay loop
+        }//wmax>0
+
      }// allowed decay
-  } // failed at low W
+  } // alt low-W strategy
 
   // ....................................................................
   // Check success in generating the charm hadron & compute 4p for
@@ -575,7 +593,11 @@ TClonesArray * CharmHadronization::Hadronize(
        double w = fPhaseSpaceGenerator.Generate();
        wmax = TMath::Max(wmax,w);
      }
-     assert(wmax>0);
+     if(wmax<=0) {
+       LOG("CharmHad", pERROR) << " *** Non-positive maximum weight";
+       LOG("CharmHad", pERROR) << " *** Can not generate an unweighted phase space decay";
+       return 0;
+     }
 
      LOG("CharmHad", pINFO)
         << "Max phase space gen. weight @ current hadronic system: " << wmax;

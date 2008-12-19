@@ -22,6 +22,10 @@
    few knots are linearly spaced below threshold so that the spline behaves 
    ok for E<Ethr, and the bulk of the knots is spaced linearly or 
    logarithmically for E>Ethr.
+ @ Jun 20, 2008 - CA
+   Fix a memory leak in LoadFromXml(). Arrays were not deleted after splines
+   instantiation. Also xmlChar* buffers got via xmlTextReaderGetAttribute()
+   were not passed to xmlFree().
 */
 //____________________________________________________________________________
 
@@ -309,27 +313,41 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                      << "\nXML doc. has invalid root element! [filename: " << filename << "]";
                    return kXmlInvalidRoot;
                }
-               string svrs   = utils::str::TrimSpaces(
-                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"version"));
-               string sinlog = utils::str::TrimSpaces(
-                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"uselog"));
+
+               xmlChar * xvrs   = xmlTextReaderGetAttribute(reader,(const xmlChar*)"version");
+               xmlChar * xinlog = xmlTextReaderGetAttribute(reader,(const xmlChar*)"uselog");
+               string svrs      = utils::str::TrimSpaces((const char *)xvrs);
+               string sinlog    = utils::str::TrimSpaces((const char *)xinlog);
+
                if (atoi(sinlog.c_str()) == 1) this->SetLogE(true);
                else this->SetLogE(false);
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                LOG("XSecSplLst", pINFO) << "Vrs   = " << svrs;
                LOG("XSecSplLst", pINFO) << "InLog = " << sinlog;
+#endif
+               xmlFree(xvrs);
+               xmlFree(xinlog);
             }  
+
             if( (!xmlStrcmp(name, (const xmlChar *) "spline")) && type==kNodeTypeStartElement) {
-               string sname = utils::str::TrimSpaces(
-                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"name"));
-               string snkn  = utils::str::TrimSpaces(
-                   (const char *)xmlTextReaderGetAttribute(reader,(const xmlChar*)"nknots"));
+
+               xmlChar * xname = xmlTextReaderGetAttribute(reader,(const xmlChar*)"name");
+               xmlChar * xnkn  = xmlTextReaderGetAttribute(reader,(const xmlChar*)"nknots");
+               string sname    = utils::str::TrimSpaces((const char *)xname);
+               string snkn     = utils::str::TrimSpaces((const char *)xnkn);
+
+               spline_name = sname;
+               SLOG("XSecSplLst", pNOTICE) << "Loading spline: " << spline_name;
+
                nknots = atoi( snkn.c_str() );
                iknot=0;
                E     = new double[nknots];
                xsec  = new double[nknots];
-               spline_name = sname;
-               SLOG("XSecSplLst", pNOTICE) << "Loading spline: " << spline_name;
-            }
+  
+               xmlFree(xname);
+               xmlFree(xnkn);
+          }
             if( (!xmlStrcmp(name, (const xmlChar *) "E"))    && type==kNodeTypeStartElement) { val_type = kKnotX; }
             if( (!xmlStrcmp(name, (const xmlChar *) "xsec")) && type==kNodeTypeStartElement) { val_type = kKnotY; }
 
@@ -349,6 +367,8 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 #endif
                // done looping over knots - build the spline
                Spline * spline = new Spline(nknots, E, xsec);
+               delete [] E;
+               delete [] xsec;
                // insert the spline to the list
                fSplineMap.insert( map<string, Spline *>::value_type(spline_name,spline) );
             }

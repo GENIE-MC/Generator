@@ -470,28 +470,32 @@ int main(int argc, char ** argv)
   // * Work out number of cycles for current exposure settings
   // *************************************************************************
 
-  // If a number of POT was requested, then work out how many flux ntuple
-  // cycles are required for accumulating those statistics
-  //
-  if(!gOptUsingHistFlux && gOptPOT>0) {
-    double fpot_1c = jparc_flux_driver->POT_1cycle(); // flux POT / cycle
-    double psc     = mcj_driver->GlobProbScale();     // interaction prob. scale
-    double pot_1c  = fpot_1c / psc;                   // actual POT / cycle
-    int    ncycles = (int) TMath::Max(1., TMath::Ceil(gOptPOT/pot_1c));   
+  if(!gOptUsingHistFlux) {
+    // If a number of POT was requested, then work out how many flux ntuple
+    // cycles are required for accumulating those statistics
+    if(gOptPOT>0) {
+      double fpot_1c = jparc_flux_driver->POT_1cycle(); // flux POT / cycle
+      double psc     = mcj_driver->GlobProbScale();     // interaction prob. scale
+      double pot_1c  = fpot_1c / psc;                   // actual POT / cycle
+      int    ncycles = (int) TMath::Max(1., TMath::Ceil(gOptPOT/pot_1c));   
 
-    LOG("gT2Kevgen", pNOTICE) 
+      LOG("gT2Kevgen", pNOTICE) 
          << " *** POT/cycle:  " << pot_1c;
-    LOG("gT2Kevgen", pNOTICE) 
+      LOG("gT2Kevgen", pNOTICE) 
          << " *** Requested POT will be accumulated in: " 
          << ncycles << " flux ntuple cycles";
 
-    jparc_flux_driver->SetNumOfCycles(ncycles);
-  }
-  // If a number of events was requested, then set the number of flux ntuple
-  // cycles to 'infinite'
-  //
-  if(!gOptUsingHistFlux && gOptNev>0) {
-    jparc_flux_driver->SetNumOfCycles(0);
+      jparc_flux_driver->SetNumOfCycles(ncycles);
+    }
+    // If a number of events was requested, then set the number of flux 
+    // ntuple cycles to 'infinite'
+    else if(gOptNev>0) {
+       jparc_flux_driver->SetNumOfCycles(0);
+    }
+    // Just set the number of cycles to the requested value
+    else {
+       jparc_flux_driver->SetNumOfCycles(gOptFluxNCycles);
+    }
   }
 
   // *************************************************************************
@@ -577,7 +581,7 @@ int main(int argc, char ** argv)
      ntpw.AddEventRecord(ievent, event);
      mcjmonitor.Update(ievent,event);
      delete event;
-
+     if(flux_info) delete flux_info;
      ievent++;
   } //1
 
@@ -588,11 +592,11 @@ int main(int argc, char ** argv)
   // * Print job statistics & 
   // * calculate normalization factor for the generated sample
   // *************************************************************************
-  if(!gOptUsingHistFlux) 
+  if(!gOptUsingHistFlux && gOptUsingRootGeom) 
   {
     // POT normalization will only be calculated if event generation was based
-    // on beam simulation outputs (not just histograms) & if event generation
-    // was not cut short (flux friver reached the end of flux ntuple)
+    // on beam simulation  outputs (not just histograms) & a detailed detector
+    // geometry description.
     double fpot = jparc_flux_driver->POT_curravg(); // current POT in flux file 
     double psc  = mcj_driver->GlobProbScale();      // interaction prob. scale 
     double pot  = fpot / psc;                       // POT for generated sample
@@ -625,7 +629,7 @@ int main(int argc, char ** argv)
 
   // Clean-up
   delete geom_driver;
-  delete jparc_flux_driver;
+  delete flux_driver;
   delete mcj_driver;
   map<int,TH1D*>::iterator it = gOptFluxHst.begin();
   for( ; it != gOptFluxHst.end(); ++it) {
@@ -1008,6 +1012,17 @@ void GetCommandLineArgs(int argc, char ** argv)
        PrintSyntax();
        exit(1);
      }
+  }
+  // If we don't use a detailed ROOT detector geometry (but just a target mix) then 
+  // don't accept POT as a way to control job statistics (not enough info is passed
+  // in the target mix to compute POT & the calculation can be easily done offline)
+  if(!gOptUsingRootGeom) {
+    if(gOptPOT > 0) {
+       LOG("gT2Kevgen", pFATAL) 
+         << "You may not use the -e, -E options "
+         << "without a detailed detector geometry description input";
+       exit(1);
+    }
   }
 
   //

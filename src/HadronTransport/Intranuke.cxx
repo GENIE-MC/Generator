@@ -22,6 +22,9 @@
    Fixed code retrieving the remnant nucleus which stopped working as soon as
    simulation of nuclear de-excitation started pushing photons in the target
    nucleus daughter list.
+ @ Jun 20, 2008 - CA
+   Fix a mem leak: The (clone of the) GHepParticle being re-scattered was not 
+   deleted after it was added at the GHEP event record.
 */
 //____________________________________________________________________________
 
@@ -264,6 +267,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
        sp->SetFirstMother(icurr); 
        sp->SetStatus(kIStStableFinalState);
        evrec->AddParticle(*sp);
+       delete sp;
        continue; // <-- skip to next GHEP entry
     }
 
@@ -293,6 +297,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
       sp->SetStatus(kIStStableFinalState);
       evrec->AddParticle(*sp);
     }
+    delete sp;
 
     // Current snapshot
     //LOG("Intranuke", pINFO) << "Current event record snapshot: " << *evrec;

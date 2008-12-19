@@ -1,15 +1,17 @@
 //____________________________________________________________________________
-/*!
+/*
+ Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
-\class    genie::FermiMomentumTablePool
+ Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+         STFC, Rutherford Appleton Laboratory - August 18, 2005
 
-\brief    Singleton class to load & serve tables of Fermi momentum constants
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-          STFC, Rutherford Appleton Laboratory
-
-\created  August 18, 2005
-
+ Important revisions after version 2.0.0 :
+ @ Jun 18, 2008 - CA
+   Fix small memory leak - xmlFree the input XML doc
 */
 //____________________________________________________________________________
 
@@ -204,6 +206,7 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
   } //<kf_table> loop
   xmlFree(xml_kft);
   xmlFree(xml_root);
+  xmlFree(xml_doc);
 
   return kXmlOK;
 }

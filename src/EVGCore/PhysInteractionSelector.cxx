@@ -15,6 +15,8 @@
    to the spline objects rather than depending on the interaction doing the
    right thing. Protect cross section eval. against NaN input as TSpline3
    itself doesn't and its hard to diagnose problems from its actuall err mesg.
+ @ Jun 23, 2008 - CA
+   Protect against round off err / negative xsec
 */
 //____________________________________________________________________________
 
@@ -132,6 +134,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
      } else {
            xsec = xsec_alg->Integral(interaction);
      }
+     TMath::Max(0., xsec);
      BLOG("IntSel", pNOTICE)
        << interaction->AsString() 
        << " --> xsec " << (eval ? "[**interp**]" : "[**calc**]") 

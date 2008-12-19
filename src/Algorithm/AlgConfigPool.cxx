@@ -10,10 +10,11 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
  @ Oct 11, 2007 - CA
- The GlobalParameterList method no longer returns a 'const Registry *' 
- but a 'Registry *'.
+   The GlobalParameterList method no longer returns a 'const Registry *' 
+   but a 'Registry *'.
+ @ Jun 20, 2008 - CA
+   Fix a memory leak in code reading the XML files / added xmlFree(doc)
 */
 //____________________________________________________________________________
 
@@ -177,6 +178,7 @@ bool AlgConfigPool::LoadMasterConfig(void)
   if(xml_root==NULL) {
      SLOG("AlgConfigPool", pERROR)
              << "The XML doc is empty! (filename : " << fMasterConfig << ")";
+     xmlFree(xml_doc);
      return false;
   }
 
@@ -204,7 +206,7 @@ bool AlgConfigPool::LoadMasterConfig(void)
     xml_ac = xml_ac->next;
   }
   xmlFree(xml_ac);
-  xmlFree(xml_root);
+  xmlFree(xml_doc);
   return true;
 }
 //____________________________________________________________________________
@@ -324,6 +326,8 @@ bool AlgConfigPool::LoadRegistries(
     xml_cur = xml_cur->next;
   }
   xmlFree(xml_cur);
+  xmlFree(xml_doc);
+
   return true;
 }
 //____________________________________________________________________________

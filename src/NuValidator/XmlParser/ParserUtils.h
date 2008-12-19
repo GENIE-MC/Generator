@@ -36,7 +36,7 @@ class ParserUtils {
 public:
 
  //__________________________________________________________________________
- static string ParserUtils::trim_spaces(xmlChar * xml_string)
+ static string trim_spaces(xmlChar * xml_string)
  {
    // trim the leading/trailing empty spaces from the of the parsed xml string
    // like in
@@ -59,12 +59,12 @@ public:
    return remove_successive_spaces(std_string);
  }
  //__________________________________________________________________________
- static string ParserUtils::int_as_string(int i)
+ static string int_as_string(int i)
  {
    ostringstream os;   os << i;    return os.str();
  }
  //__________________________________________________________________________
- static vector<string> ParserUtils::split(string str, string delimiter)
+ static vector<string> split(string str, string delimiter)
  {
   // split a string of 'delimiter' separated values and return each string 
   // part as a vector<string> element.
@@ -84,7 +84,7 @@ public:
    return string_parts;
  }
  //__________________________________________________________________________
- static string ParserUtils::remove_successive_spaces(string str)
+ static string remove_successive_spaces(string str)
  {
   // this method trims white space that may be found within an expression...
   // eg. "stop    pressing     the spacebar" -> "stop pressing the spacebar"
@@ -101,19 +101,18 @@ public:
    return filter_string("\n",trimmed);
  }
  //__________________________________________________________________________
- static string ParserUtils::get_attribute(
-                                        xmlNodePtr xml_cur, string attr_name)
+ static string get_attribute(xmlNodePtr xml_cur, string attr_name)
  {
    xmlChar *  xml_string = xmlGetProp( 
-                             xml_cur, (const xmlChar *) attr_name.c_str() );
-   string     std_string = ParserUtils::trim_spaces(xml_string);
+                 xml_cur, (const xmlChar *) attr_name.c_str() );
+   string std_string = trim_spaces(xml_string);
   
    xmlFree(xml_string);
   
    return std_string;
  }
  //__________________________________________________________________________
- static string ParserUtils::filter_string(string filt_elements, string input)
+ static string filter_string(string filt_elements, string input)
  {
   // filter out from 'input' all characters that can be found in 'filt_elements'
 
