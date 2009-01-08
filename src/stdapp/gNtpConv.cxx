@@ -1248,8 +1248,7 @@ void ConvertToGTracker(void)
       // ... ... ...
       // $ info k pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz
       // ... ... ...
-      // $ info jnubeam_parent_pdg_code, jnubeam_parent_decay_mode
-      // $ info jnubeam_parent_pdg_code, jnubeam_parent_decay_mode
+      // $ info jnubeam_parent_pdg_code jnubeam_parent_decay_mode
       // $ info jnubeam_parent_decay_px jnubeam_parent_decay_py jnubeam_parent_decay_pz jnubeam_parent_decay_E
       // $ info jnubeam_parent_decay_x jnubeam_parent_decay_y jnubeam_parent_decay_z jnubeam_parent_decay_t
       // $ info jnubeam_parent_prod_px jnubeam_parent_prod_py jnubeam_parent_prod_pz jnubeam_parent_prod_E
