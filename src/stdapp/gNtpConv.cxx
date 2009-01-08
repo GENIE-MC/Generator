@@ -13,16 +13,14 @@
            [] denotes an optional argument
            -n number of events to convert
            -f is a string that specifies the output file format. 
-	      [Generic summary ntuple formats]
-               * 'gst': 
-                    The 'definite' GENIE summary tree format (gst).
+
 	      [T2K/GENIE formats]
-   	       * 't2k_rootracker':
+   	       * `t2k_rootracker':
                      The standardized bare-ROOT GENIE event tree used by the 
                      nd280, INGRID and 2km MC.
                      Includes full information about the generated neutrino
                      event and pass-through JPARC flux info.
-   	       * 't2k_tracker': 
+   	       * `t2k_tracker': 
                      A tracker-type format with tweaks required by the SuperK
                      detector MC (SKDETSIM):
                         - Converting K0, \bar{K0} -> KO_{long}, K0_{short}
@@ -33,27 +31,37 @@
                           propaged by SKDETSIM to the DSTs, is identical with the 
                           one used at the near detectors and can be used for 
                           global systematic studies.
-	      [Generic GENIE XML / tabular or bare-ROOT event formats]
-   	       * 'gxml': 
+
+	      [Generic formats]
+               * `gst': 
+                    The 'definite' GENIE summary tree format (gst).
+   	       * `gxml': 
                      GENIE XML event format 
+   	       * `rootracker': 
+                     Similar to `t2k_rootracker' but without the T2K-specific
+                     pass-through JPARC flux-info
+
 	      [GENIE test / cross-generator comparison formats]
-   	       * 'ghad': 
+   	       * `ghad': 
 	             NEUGEN-style text-based format for hadronization studies
-   	       * 'ginuke': 
+   	       * `ginuke': 
 	             INTRANUKE summary ntuple for intranuclear-rescattering studies
+
 	      [Other (depreciated) formats]
-   	       * 'nuance_tracker': 
+   	       * `nuance_tracker': 
    		     NUANCE-style tracker text-based format 
+
            -o specifies the output filename. 
               If not specified a the default filename is constructed by the 
               input base name and an extension depending on the file format: 
-               'gst'            -> *.gst.root
-               't2k_tracker'    -> *.gtrac.dat
-               't2k_rootracker' -> *.gtrac.root
-               'gxml'           -> *.gxml 
-               'ghad'           -> *.ghad.dat
-               'ginuke'         -> *.ginuke.root
-               'nuance_tracker' -> *.gtrac_legacy.dat
+               `t2k_tracker'    -> *.gtrac.dat
+               `t2k_rootracker' -> *.gtrac.root
+               `gst'            -> *.gst.root
+               `rootracker'     -> *.gtrac.root
+               `gxml'           -> *.gxml 
+               `ghad'           -> *.ghad.dat
+               `ginuke'         -> *.ginuke.root
+               `nuance_tracker' -> *.gtrac_legacy.dat
 		
          Examples:
            (1)  shell% gntpc -i myfile.ghep.root -f t2k_rootracker
@@ -130,8 +138,8 @@ using namespace genie::constants;
 
 //func prototypes
 void   ConvertToGST            (void);
-void   ConvertToGT2KTracker    (void);
-void   ConvertToGT2KRooTracker (void);
+void   ConvertToGTracker       (void);
+void   ConvertToGRooTracker    (void);
 void   ConvertToGXML           (void);
 void   ConvertToGHad           (void);
 void   ConvertToGINuke         (void);
@@ -143,9 +151,10 @@ bool   CheckRootFilename       (string filename);
 //format enum
 typedef enum EGNtpcFmt {
   kConvFmt_undef = 0,
-  kConvFmt_gst,
   kConvFmt_t2k_rootracker,
   kConvFmt_t2k_tracker,
+  kConvFmt_gst,
+  kConvFmt_rootracker,
   kConvFmt_gxml,
   kConvFmt_ghad,
   kConvFmt_ginuke,
@@ -169,14 +178,17 @@ int main(int argc, char ** argv)
 
   //-- call the appropriate conversion function
   switch(gOptOutFileFormat) {
+   case (kConvFmt_t2k_rootracker) :  
+	ConvertToGRooTracker(); 
+	break;
+   case (kConvFmt_t2k_tracker)  :  
+	ConvertToGTracker();        
+	break;
    case (kConvFmt_gst)  :
 	ConvertToGST();        
 	break;  
-   case (kConvFmt_t2k_rootracker) :  
-	ConvertToGT2KRooTracker(); 
-	break;
-   case (kConvFmt_t2k_tracker)  :  
-	ConvertToGT2KTracker();        
+   case (kConvFmt_rootracker) :  
+	ConvertToGRooTracker(); 
 	break;
    case (kConvFmt_gxml) :  
 	ConvertToGXML();         
@@ -188,7 +200,7 @@ int main(int argc, char ** argv)
 	ConvertToGINuke();         
 	break;
    case (kConvFmt_nuance_tracker)  :  
-	ConvertToGT2KTracker();        
+	ConvertToGTracker();        
 	break;
    default:
      LOG("gntpc", pFATAL)
@@ -973,7 +985,7 @@ void ConvertToGXML(void)
 //___________________________________________________________________
 // ******** GENIE GHEP EVENT TREE FORMAT -> TRACKER FORMATS ********
 //___________________________________________________________________
-void ConvertToGT2KTracker(void)
+void ConvertToGTracker(void)
 {
   //-- get pdglib
   PDGLibrary * pdglib = PDGLibrary::Instance();
@@ -1261,7 +1273,7 @@ void ConvertToGT2KTracker(void)
       // - px,py,pz,E is the particle 4-momentum at the LAB frame (in GeV)
       // - x,y,z,t is the particle 4-position at the hit nucleus coordinate system (in fm, t is not set)
       // - polx,y,z is the particle polarization vector
-      // See also ConvertToGT2KRooTracker() for further descriptions of the variables stored at
+      // See also ConvertToGRooTracker() for further descriptions of the variables stored at
       // the rootracker files.
       //
       // event info
@@ -1362,10 +1374,8 @@ void ConvertToGT2KTracker(void)
 //___________________________________________________________________
 // **** GENIE GHEP EVENT TREE FORMAT -> A T2K ROOTRACKER FORMAT ****
 //___________________________________________________________________
-void ConvertToGT2KRooTracker(void)
+void ConvertToGRooTracker(void)
 {
-#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
-
   //-- get pdglib
   PDGLibrary * pdglib = PDGLibrary::Instance();
 
@@ -1402,7 +1412,7 @@ void ConvertToGT2KRooTracker(void)
   TFile fout(gOptOutFileName.c_str(), "RECREATE");
 
   //-- create the output ROOT tree
-  TTree * rootracker_tree = new TTree("gRooTracker","GENIE event tree for T2K in rootracker format");
+  TTree * rootracker_tree = new TTree("gRooTracker","GENIE event tree rootracker format");
 
   //-- create the output ROOT tree branches
   rootracker_tree->Branch("EvtFlags", "TBits",      &brEvtFlags, 32000, 1);           
@@ -1423,13 +1433,16 @@ void ConvertToGT2KRooTracker(void)
   rootracker_tree->Branch("StdHepLd",         brStdHepLd,        "StdHepLd[StdHepN]/I"); 
   rootracker_tree->Branch("StdHepFm",         brStdHepFm,        "StdHepFm[StdHepN]/I"); 
   rootracker_tree->Branch("StdHepLm",         brStdHepLm,        "StdHepLm[StdHepN]/I"); 
-  rootracker_tree->Branch("NuParentPdg",     &brNuParentPdg,     "NuParentPdg/I");       
-  rootracker_tree->Branch("NuParentDecMode", &brNuParentDecMode, "NuParentDecMode/I");   
-  rootracker_tree->Branch("NuParentDecP4",    brNuParentDecP4,   "NuParentDecP4[4]/D");     
-  rootracker_tree->Branch("NuParentDecX4",    brNuParentDecX4,   "NuParentDecX4[4]/D");     
-  rootracker_tree->Branch("NuParentProP4",    brNuParentProP4,   "NuParentProP4[4]/D");     
-  rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/D");     
-  rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
+  if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
+    // JNUBEAM pass-through info only available on the t2k version of the rootracker format
+    rootracker_tree->Branch("NuParentPdg",     &brNuParentPdg,     "NuParentPdg/I");       
+    rootracker_tree->Branch("NuParentDecMode", &brNuParentDecMode, "NuParentDecMode/I");   
+    rootracker_tree->Branch("NuParentDecP4",    brNuParentDecP4,   "NuParentDecP4[4]/D");     
+    rootracker_tree->Branch("NuParentDecX4",    brNuParentDecX4,   "NuParentDecX4[4]/D");     
+    rootracker_tree->Branch("NuParentProP4",    brNuParentProP4,   "NuParentProP4[4]/D");     
+    rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/D");     
+    rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
+  }
 
   //-- open the input GENIE ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
@@ -1444,8 +1457,18 @@ void ConvertToGT2KRooTracker(void)
   NtpMCEventRecord * mcrec = 0;
   gtree->SetBranchAddress("gmcrec", &mcrec);
 
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
   flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
-  gtree->SetBranchAddress("flux", &flux_info);
+  if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
+     gtree->SetBranchAddress("flux", &flux_info);
+  }
+#else
+  LOG("gntpc", pWARN) 
+    << "\n Flux drivers are not enabled." 
+    << "\n No flux pass-through information will be written-out in the rootracker file"
+    << "\n If this isn't what you are supposed to be doing then build GENIE by adding "
+    << "--with-flux-drivers in the configuration step.";
+#endif
 
   //-- figure out how many events to analyze
   Long64_t nmax = (gOptN<0) ? 
@@ -1467,10 +1490,12 @@ void ConvertToGT2KRooTracker(void)
     LOG("gntpc", pINFO) << rec_header;
     LOG("gntpc", pINFO) << event;
     LOG("gntpc", pINFO) << *interaction;
-    if(flux_info) {
-       LOG("gntpc", pINFO) << *flux_info;
-    } else {
-       LOG("gntpc", pINFO) << "No flux info associated with that event";
+    if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
+       if(flux_info) {
+          LOG("gntpc", pINFO) << *flux_info;
+       } else {
+          LOG("gntpc", pINFO) << "No JNUBEAM flux info associated with this event";
+       }
     }
 
     //
@@ -1557,9 +1582,13 @@ void ConvertToGT2KRooTracker(void)
         brStdHepLm    [iparticle] = p->LastMother(); 
         iparticle++;
     }
-    // Copy flux info - that may not be available, eg if events were generated using 
-    // plain flux histograms - not the beam simulation's output flux ntuples
-    if(flux_info) {
+
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+    // Copy flux info if this is the t2k rootracker variance.
+    // The flux may not be available, eg if events were generated using plain flux 
+    // histograms and not the JNUBEAM simulation's output flux ntuples.
+    if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
+     if(flux_info) {
        brNuParentPdg       = flux_info->pdg;        
        brNuParentDecMode   = flux_info->decayMode;        
 
@@ -1588,7 +1617,10 @@ void ConvertToGT2KRooTracker(void)
        brNuParentProX4 [3] = 0;                // t
 
        brNuParentProNVtx   = flux_info->prodNVtx;
+     }
     }
+#endif
+
     rootracker_tree->Fill();
     mcrec->Clear();
 
@@ -1604,15 +1636,6 @@ void ConvertToGT2KRooTracker(void)
   fout.Close();
 
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
-
-#else
-
-  LOG("gntpc", pWARN) 
-    << "\n You should enable --with-flux-drivers during the GENIE"
-    << " installation step so as to access the JPARC neutrino flux"
-    << " pass-through info for the simulated neutrino interactions.";
-
-#endif
 }
 //___________________________________________________________________
 // * GENIE GHEP EVENT TREE -> NEUGEN-style format for AGKY studies *
@@ -1976,9 +1999,10 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gntpc", pINFO) << "Reading output file format";
     string fmt = utils::clap::CmdLineArgAsString(argc,argv,'f');
 
-    if      (fmt == "gst")            { gOptOutFileFormat = kConvFmt_gst;            }
-    else if (fmt == "t2k_rootracker") { gOptOutFileFormat = kConvFmt_t2k_rootracker; }
+         if (fmt == "t2k_rootracker") { gOptOutFileFormat = kConvFmt_t2k_rootracker; }
     else if (fmt == "t2k_tracker")    { gOptOutFileFormat = kConvFmt_t2k_tracker;    }
+    else if (fmt == "gst")            { gOptOutFileFormat = kConvFmt_gst;            }
+    else if (fmt == "rootracker")     { gOptOutFileFormat = kConvFmt_rootracker;     }
     else if (fmt == "gxml")           { gOptOutFileFormat = kConvFmt_gxml;           }
     else if (fmt == "ghad")           { gOptOutFileFormat = kConvFmt_ghad;           }
     else if (fmt == "ginuke")         { gOptOutFileFormat = kConvFmt_ginuke;         }
@@ -2028,9 +2052,10 @@ string DefaultOutputFile(void)
 {
   // filename extension - depending on file format
   string ext="";
-  if      (gOptOutFileFormat == kConvFmt_gst           ) { ext = "gst.root";         }
-  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker) { ext = "gtrac.root";       }
+  if      (gOptOutFileFormat == kConvFmt_t2k_rootracker) { ext = "gtrac.root";       }
   else if (gOptOutFileFormat == kConvFmt_t2k_tracker   ) { ext = "gtrac.dat";        }
+  else if (gOptOutFileFormat == kConvFmt_gst           ) { ext = "gst.root";         }
+  else if (gOptOutFileFormat == kConvFmt_rootracker    ) { ext = "gtrac.root";       }
   else if (gOptOutFileFormat == kConvFmt_gxml          ) { ext = "gxml";             }
   else if (gOptOutFileFormat == kConvFmt_ghad          ) { ext = "ghad.dat";         }
   else if (gOptOutFileFormat == kConvFmt_ginuke        ) { ext = "ginuke.root";      }
