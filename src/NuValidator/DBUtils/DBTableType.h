@@ -5,7 +5,7 @@
 
 \brief    An enumeration of possible DBTable<T> types.
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
 
 \created  January 28, 2005
 */

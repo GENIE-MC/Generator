@@ -5,7 +5,7 @@
 
 \brief    NuValidator GUI configuration options
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
 
 \created  September 17, 2005
 */

@@ -2,7 +2,7 @@
 // Exports conrete XSecAlgorithmI class as a GSFunc (GENIE scalar function)
 // for interfacing with the numerical integration code
 //
-// Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+// Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
 // For the full text of the license visit http://copyright.genie-mc.org
 //or see $GENIE/LICENSE
 //
@@ -19,7 +19,7 @@
           class as a GSFunc (GENIE scalar function). Note that this is merely
           a structural trick for interfacing with the numerical integration
           code. The implementation of xsec models is in concrete XSecAlgorithmIs
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 \created  February 20, 2006
 */
@@ -47,7 +47,7 @@ protected:
 /*!
 \class    genie::Integrand_D2XSec_DxDy_E
 \brief    A 2-D cross section function: d2xsec/dxdy = f(x,y)|(fixed E)
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 \created  February 20, 2006
 */
@@ -70,7 +70,7 @@ public:
 /*!
 \class    genie::Integrand_DXSec_DQ2_E
 \brief    A 1-D cross section function: dxsec/dQ2 = f(Q2)|(fixed E)
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 \created  February 20, 2006
 */
@@ -93,7 +93,7 @@ public:
 /*!
 \class    genie::Integrand_D2XSec_DWDQ2_E
 \brief    A 2-D cross section function: d2xsec/dWdQ2 = f(W,Q2)|(fixed E)
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 \created  February 20, 2006
 */
@@ -116,7 +116,7 @@ public:
 /*!
 \class    genie::Integrand_DXSec_Dy_E
 \brief    A 1-D cross section function: dxsec/dy = f(y)|(fixed E)
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 \created  February 20, 2006
 */
@@ -139,7 +139,7 @@ public:
 /*!
 \class    genie::Integrand_D2XSec_DxDy_Ex
 \brief    A 1-D cross section function: d2xsec/dxdy = f(y)|(fixed:E,x)
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 \created  February 20, 2006
 */
@@ -166,7 +166,7 @@ private:
 /*!
 \class    genie::Integrand_D2XSec_DxDy_Ey
 \brief    A 1-D cross section function: d2xsec/dxdy = f(x)|(fixed:E,y)
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 \created  February 20, 2006
 */
@@ -193,7 +193,7 @@ private:
 /*!
 \class    genie::Integrand_D2XSec_DWDQ2_EW
 \brief    A 1-D cross section function: d2xsec/dWdQ2= f(Q2)|(fixed:E,W)
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 \created  February 20, 2006
 */
@@ -220,7 +220,7 @@ private:
 /*!
 \class    genie::Integrand_D2XSec_DWDQ2_EQ2
 \brief    A 1-D cross section function: d2xsec/dWdQ2= f(W)|(fixed:E,Q2)
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 \created  February 20, 2006
 */

@@ -5,7 +5,7 @@
 
 \brief    Singleton class to load & serve tables of natural occurring isotopes
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 	  Jim Dobson <j.dobson07@imperial.ac.uk>

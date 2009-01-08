@@ -4,7 +4,7 @@ c
 c \brief    Dummy NeuGEN's for getting GENIE's NeuGEN Facade compiling
 c           even in systems with no working NeuGEN
 c
-c \author   Costas Andreopoulos (RAL)  <C.V.Andreopoulos@rl.ac.uk>
+c \author   Costas Andreopoulos (RAL)  <costas.andreopoulos \at stfc.ac.uk>
 c
 c \created  October 03, 2005
 c______________________________________________________________________

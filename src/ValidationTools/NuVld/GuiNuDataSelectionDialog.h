@@ -7,7 +7,7 @@
           the Selection Tab and allows the highest granularity in selecting
           data (at citation level)
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
 
 \created  November 01, 2004
 */

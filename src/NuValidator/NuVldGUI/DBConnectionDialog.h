@@ -5,7 +5,7 @@
 
 \brief    A GUI dialog for connecting to an RDBMS
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
 
 \created  January 12, 2004
 */

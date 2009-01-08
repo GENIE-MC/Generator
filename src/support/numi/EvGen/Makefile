@@ -2,7 +2,7 @@
 # Makefile for the event generation driver customized for NuMI
 # beam-line experiments
 #
-# Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 ####################################################################
 
 SHELL = /bin/sh

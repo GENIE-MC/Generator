@@ -2,7 +2,7 @@
 // ROOT macro to load hadronization model tuning data to ntuples.
 // See the data files for description of the ntuple fields.
 //
-// C.Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+// C.Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 // --------------------------------------------------------------
 {
   //

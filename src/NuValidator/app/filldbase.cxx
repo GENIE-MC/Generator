@@ -7,7 +7,7 @@
 
 \synopsis filldbase -f filename.xml -h host -d dbase -u username -p passwd
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created October 05, 2004

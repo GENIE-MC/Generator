@@ -21,7 +21,7 @@
           data and extrapolations, and INC model results from Mashnik et al.
           for h+Fe56.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
           Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
 
 \created  February 01, 2007

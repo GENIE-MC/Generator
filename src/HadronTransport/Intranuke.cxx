@@ -1,12 +1,12 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
          Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts Univ.
-         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
+         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
          September 20, 2005
 
  For the class documentation see the corresponding header file.

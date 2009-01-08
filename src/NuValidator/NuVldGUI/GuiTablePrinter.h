@@ -5,7 +5,7 @@
 
 \brief    Responds to GUI events for printing DBTable<T>'s
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
 
 \created  August 26, 2004
 */

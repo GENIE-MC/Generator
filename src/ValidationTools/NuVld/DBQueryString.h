@@ -6,7 +6,7 @@
 \brief    A collectable string class with encoded information needed to form
           a NuVld database SQL query
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
 
 \created  January 26, 2005
 */

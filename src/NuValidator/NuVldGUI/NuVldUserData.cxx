@@ -7,7 +7,7 @@
           NuVld RDBMS using its GUI, and makes them available to other objects
           such as the NuVldKernel.
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
 
 \created  January 21, 2005
 */

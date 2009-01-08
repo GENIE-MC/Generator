@@ -4,7 +4,7 @@
 #
 # For help, type ./configure --help
 #
-# C.Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, Rutherford Lab.
+# C.Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # print out info & exit if any of the command-line arguments was --help

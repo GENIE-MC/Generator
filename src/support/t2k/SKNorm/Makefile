@@ -1,6 +1,6 @@
 ####################################################################
 # Makefile for the gSKXSecTable T2K utility
-# Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 ####################################################################
 
 SHELL = /bin/sh

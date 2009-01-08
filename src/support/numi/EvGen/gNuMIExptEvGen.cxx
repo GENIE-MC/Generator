@@ -15,7 +15,7 @@
          still be a more appropriate tool to use for the simpler event generation cases 
          required for many 4-vector level / systematic studies.
          Please see the GENIE documentation (http://www.genie-mc.org) and contact me 
-         <C.V.Andreopoulos@rl.ac.uk> if in doubt.
+         <costas.andreopoulos \at stfc.ac.uk> if in doubt.
 
          *** Syntax :
 
@@ -211,12 +211,12 @@
          and others. 
          Please read the GENIE documentation.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created August 20, 2008
 
-\cpright Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

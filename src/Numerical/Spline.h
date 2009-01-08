@@ -9,7 +9,7 @@
           function (x,y(x)) pairs from an XML file, a flat ascii file, a
           TNtuple, a TTree or an SQL database.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  May 04, 2004

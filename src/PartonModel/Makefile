@@ -1,7 +1,7 @@
 #
 # Makefile for GENIE Neutrino Generator
 #
-# Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+# Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 #
 
 SHELL = /bin/sh

@@ -6,7 +6,7 @@
 \brief    A realistic spectral function - based nuclear model.
           Is a concrete implementation of the NuclearModelI interface.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  May 07, 2004
