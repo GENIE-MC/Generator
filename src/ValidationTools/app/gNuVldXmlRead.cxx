@@ -7,7 +7,7 @@
 
 \synopsis  gnuvld_xmlread -f filename.xml
 
-\author    Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author    Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
            STFC, Rutherford Appleton Laboratory
 
 \created   October 05, 2004

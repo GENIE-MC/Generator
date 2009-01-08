@@ -9,12 +9,12 @@
 \ref      R.E.Hendrick and L.Li, Phys.Rev.D 19:779 (1979)
           L.A.Ahrens et al., Phys.Rev.D 35:785 (1987)
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  Fabruary 15, 2005
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */

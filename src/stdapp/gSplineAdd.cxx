@@ -19,12 +19,12 @@
            will merge xsec_numu_Fe56.xml and xsec_numu_O16.xml into a single
            file named xsec_all.xml
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          Rutherford Appleton Laboratory
 
 \created July 05, 2007
 
-\cpright Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

@@ -5,7 +5,7 @@
 
 \brief    XML record structure for structure function data points
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
 
 \created  August 2003          
 */

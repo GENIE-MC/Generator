@@ -18,12 +18,12 @@
           Please cite GIBUU separately if you include this event generation
           module in your event generation threads.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk> STFC, Rutherford Lab
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk> STFC, Rutherford Lab
           Tina Leitner <Tina.J.Leitner@theo.physik.uni-giessen.de> Giessen Univ.
 
 \created  December 13, 2005
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */

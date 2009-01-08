@@ -7,12 +7,12 @@
          This is used to be able to keep track of an MC job status even when
          all output is suppressed or redirected to /dev/null.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created July 13, 2005
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */

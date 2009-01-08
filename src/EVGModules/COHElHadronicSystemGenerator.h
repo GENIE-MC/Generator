@@ -6,12 +6,12 @@
 \brief    Generates the f/s hadronic system in v COH elastic interactions.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  November 29, 2007
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */

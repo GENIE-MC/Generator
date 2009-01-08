@@ -11,7 +11,7 @@
 
           Is a concrete implementation of the DISFormFactorsModelI interface.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  September 28, 2004

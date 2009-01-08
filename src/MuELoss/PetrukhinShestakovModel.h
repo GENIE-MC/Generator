@@ -10,7 +10,7 @@
 \ref      W.Lohmann, R.Kopp and R.Voss,
           Energy Loss of Muons in the Energy Range 1-10000 GeV, CERN 85-03
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  December 10, 2003
@@ -61,7 +61,7 @@ private:
 \brief    Auxiliary scalar function for the internal integration in Petrukhin
           Shestakov model
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  December 10, 2003

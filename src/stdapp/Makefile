@@ -1,7 +1,7 @@
 #########################################################
 # Makefile for Neutrino Generator Test Programs
 #
-# Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # May 02, 2004
 #########################################################
 

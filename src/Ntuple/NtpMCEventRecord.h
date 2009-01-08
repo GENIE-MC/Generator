@@ -9,12 +9,12 @@
          MC generation framework of an experiment) if no direct interface
          exists.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created October 1, 2004
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */

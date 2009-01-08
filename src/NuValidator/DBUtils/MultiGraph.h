@@ -5,7 +5,7 @@
 
 \brief    
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
           Hugh Gallagher      (Tufts University) <gallag@minos.phy.tufts.edu>
 
 \created  January 2004

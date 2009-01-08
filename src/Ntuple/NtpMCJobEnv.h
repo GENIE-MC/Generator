@@ -6,7 +6,7 @@
 \brief   Stores a snapshot of your environment in ROOT TFolder along with the
          output event tree
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created September 10, 2006

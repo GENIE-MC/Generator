@@ -19,13 +19,13 @@
 **                                                                                       **
 **                      home page URL:  http://www.genie-mc.org                          **
 **                                                                                       **
-**        (c) 2003-2008 GENIE Collaboration (see http://copyright.genie-mc.org)          **
+**        (c) 2003-2009 GENIE Collaboration (see http://copyright.genie-mc.org)          **
 **                                                                                       **
 ** Costas Andreopoulos [2], Flavio Cavanna [6], Steve Dytman  [7], Hugh Gallagher [8],   **
 ** Yoshinari Hayato [5], Pauli Kehayias [8], Stefan Kretzer [1], Anselmo Meregaglia [4], **
 **        Donna Naples [7], Geoff Pearce [2], Andre Rubbia [4], Mike Whalley [3]         **
 **                                                                                       **
-** [1] BNL, Brookhaven National Laboratory                                               **
+** [1] Brookhaven National Laboratory                                                    **
 ** [2] Science & Technology Facilities Council / Rutherford Appleton Laboratory          **
 ** [3] Durham University                                                                 **
 ** [4] ETH Zurich                                                                        **

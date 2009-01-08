@@ -7,12 +7,12 @@
          neutrino event generation job by querying each EventGeneratorI
          subclass employed in that job for its interaction list.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created May 16, 2005
 
-\cpright Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

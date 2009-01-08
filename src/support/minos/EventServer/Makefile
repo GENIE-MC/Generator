@@ -1,6 +1,6 @@
 #########################################################
 # Makefile for the MINOS GENIE Event Server
-# Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 #########################################################
 
 SHELL = /bin/sh

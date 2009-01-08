@@ -5,7 +5,7 @@
 
 \brief    Base class for data selection popup dialogs and tabs
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
 
 \created  November 01, 2004
 */

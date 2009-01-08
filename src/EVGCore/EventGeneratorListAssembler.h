@@ -6,12 +6,12 @@
 \brief   Assembles a list of all the EventGeneratorI subclasses that can be
          employed during a neutrino event generation job.
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created January 25, 2004
 
-\cpright Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

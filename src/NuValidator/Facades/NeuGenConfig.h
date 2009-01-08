@@ -5,7 +5,7 @@
 
 \brief    Encapsulation of NeuGEN's Configuration Card
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
           Hugh Gallagher      (Tufts University) <gallag@minos.phy.tufts.edu>
 
 \created  August 2004

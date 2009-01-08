@@ -21,40 +21,34 @@
            gevgen [-h] -n nev [-s] -e E -p nupdg -t tgtpdg [-r run#] [-f flux] [-w]
 
          Options :
-           [] Denotes an optional argument
-           -h Prints help and exits
-           -n Specifies the number of events to generate
-           -r Specifies the MC run number
+           [] Denotes an optional argument.
+           -h Prints-out help on using gevgen and exits.
+           -n Specifies the number of events to generate.
+           -r Specifies the MC run number.
            -s Turns on cross section spline generation at job initialization.
               ** Always use that option **
               Not using the cross section splines will slow down the event
               generation considerably. Since building the splines is a 
               considerable overhead we recommend building them in advance
               (see gmkspl utility) and loading via the $GSPLOAD env. variable.
-           -e Specifies the neutrino energy
+           -e Specifies the neutrino energy.
 	      If what follows the -e option is a comma separated pair of values
               it will be interpreted as an energy range for the flux specified
               via the -f option (see below).
-           -p Specifies the neutrino PDG code
+           -p Specifies the neutrino PDG code.
            -t Specifies the target PDG code (pdg format: 10LZZZAAAI) _or_ a target
               mix (pdg codes with corresponding weights) typed as a comma-separated 
               list of pdg codes with the corresponding weight fractions in brackets, 
               eg code1[fraction1],code2[fraction2],... For example, to use a target
               mix of 95% O16 and 5% H type: '-t 1000080160[0.95],1000010010[0.05]'.
               See the examples below.
-           -f Specifies the neutrino flux spectrum - it can be either:
+           -f Specifies the neutrino flux spectrum.
+              It can be any of:
 	      -- A function, eg 'x*x+4*exp(-x)' 
               -- A text file containing 2 columns corresponding to energy,flux
                  (see $GENIE/data/flux/ for few examples). 
               -- A 1-D histogram taken from a ROOT file. It is specified as
                  /full/path/file.root,object_name
-              If this option is enabled, the GMCJDriver is partially utilized 
-              to the use the specified flux and a trivial 'point geometry'. 
-              See $GENIE/src/test/testMCJobDriver.cxx to see how you can generate 
-              events for arbitrarily complex fluxes and detector geometries. 
-              Note that in order to use the -f option you must have enabled the 
-              flux and geometry drivers during the GENIE installation (see 
-              installation instructions).
            -w Forces generation of weighted events.
               This option is relevant only if a neutrino flux is specified.
               Note that 'weighted' refers to the selection of the primary
@@ -152,12 +146,12 @@
              shell% export GSPLOAD=/home/me/GENIE/mydata/splines.xml
              shell% export GMSGCONF=/home/me/GENIE/mydata/mymsg.xml
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created October 05, 2004
 
-\cpright Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

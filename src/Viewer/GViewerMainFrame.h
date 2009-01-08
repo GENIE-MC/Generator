@@ -5,7 +5,7 @@
 
 \brief    GENIE Viewer Main Frame
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  October 07, 2004
