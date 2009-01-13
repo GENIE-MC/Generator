@@ -14,20 +14,20 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-NUVLD_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --nuvldlibs)
-LIBRARIES  := $(GENIE_LIBS) $(NUVLD_LIBS) $(LIBRARIES)  $(NEUGEN_LIBRARIES) $(CERN_LIBRARIES)
+#NUVLD_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --nuvldlibs)
+#LIBRARIES  := $(GENIE_LIBS) $(NUVLD_LIBS) $(LIBRARIES)  $(NEUGEN_LIBRARIES) $(CERN_LIBRARIES)
+
+LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 TGT =    gEvGen		  \
+	 ghAEvGen         \
 	 gEvGenGUI	  \
 	 gMakeSplines	  \
 	 gSplineAdd   	  \
+	 gSplinePlotter	  \
 	 gMaxPathLengths  \
 	 gNtpConv	  \
- 	 gNC2ElectronScat \
-	 gSplinePlotter	  \
-	 gVldSampleComp	  \
-	 ghAEvGen         
-#	 gVldXSecComp	  
+ 	 gNC2ElectronScat 
 
 all: $(TGT)
 
@@ -37,6 +37,12 @@ gEvGen: FORCE
 	$(CXX) $(CXXFLAGS) -c gEvGen.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen 
 
+
+# ghAgen program generating hadron + nucleus interactions using GENIE's INTRANUKE
+#
+ghAEvGen: FORCE
+	$(CXX) $(CXXFLAGS) -c ghAEvGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) ghAEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ghAevgen
 
 # A gevgen GUI (in devel)
 #
@@ -60,6 +66,12 @@ gSplineAdd: FORCE
 	$(CXX) $(CXXFLAGS) -c gSplineAdd.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gSplineAdd.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspladd 
 
+# gsplt spline plotter utility
+#
+gSplinePlotter: FORCE
+	$(CXX) $(CXXFLAGS) -c gSplinePlotter.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gSplinePlotter.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsplt
+
 # gmxpl utility computing maximum path lengths for a given root geometry
 #
 gMaxPathLengths: FORCE
@@ -76,35 +88,11 @@ gNtpConv: FORCE
 	$(CXX) $(CXXFLAGS) -c gNtpConv.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gNtpConv.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gntpc 
 
-# gsplt spline plotter utility
-#
-gSplinePlotter: FORCE
-	$(CXX) $(CXXFLAGS) -c gSplinePlotter.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gSplinePlotter.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsplt
-
-# sample testing / comparison utility
-#
-gVldSampleComp: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldSampleComp.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldSampleComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sample_comp
-
-# cross section testing / comparison utility
-#
-gVldXSecComp: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldXSecComp.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldXSecComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_xsec_comp
-
 # gnc2eN program converting NC events to electron scattering events
 #
 gNC2ElectronScat: FORCE
 	$(CXX) $(CXXFLAGS) -c gNC2ElectronScat.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gNC2ElectronScat.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gnc2eN
-
-# ghAgen program generating hadron + nucleus interactions using GENIE's INTRANUKE
-#
-ghAEvGen: FORCE
-	$(CXX) $(CXXFLAGS) -c ghAEvGen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) ghAEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ghAevgen
 
 
 #################### CLEANING
@@ -115,34 +103,31 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core
 	$(RM) $(GENIE_BIN_PATH)/gevgen		
+	$(RM) $(GENIE_BIN_PATH)/ghAevgen
 	$(RM) $(GENIE_BIN_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
+	$(RM) $(GENIE_BIN_PATH)/gsplt		
 	$(RM) $(GENIE_BIN_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_PATH)/gnc2eN  
-	$(RM) $(GENIE_BIN_PATH)/gsplt		
-	$(RM) $(GENIE_BIN_PATH)/gvld_sample_comp
-	$(RM) $(GENIE_BIN_PATH)/gvld_xsec_comp
-	$(RM) $(GENIE_BIN_PATH)/ghAevgen
-	$(RM) $(GENIE_BIN_PATH)/gviewer
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/ghAevgen	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gsplt		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnc2eN		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gsplt		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sample_comp
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_xsec_comp
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/ghAevgen	
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gviewer	
 
 clean--gEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen
+
+clean--ghAEvGen: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen
 
 clean--gEvGenGUI: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_gui
@@ -153,6 +138,9 @@ clean--gMakeSplines: FORCE
 clean--gSplineAdd: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gspladd
 
+clean--gSplinePlotter: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gsplt
+
 clean--gMaxPathLengths: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmxpl
 
@@ -162,17 +150,6 @@ clean--gNtpConv: FORCE
 clean-gNC2ElectronScat: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gnc2eN
 
-clean--gSplinePlotter: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gsplt
-
-clean--gVldSampleComp: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gvld_sample_comp
-
-clean--gVldXSecComp: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gvld_xsec_comp
-
-clean--ghAEvGen: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen
 
 FORCE:
 
