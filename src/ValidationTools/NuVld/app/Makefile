@@ -16,9 +16,9 @@ GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
 LIBRARIES   := $(GENIE_LIBS) $(VLDTOOL_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-all:    nuvld_xmlread \
-	nuvld_dbupload \
-	nuvld_gui
+all:    gNuVldXmlRead \
+	gNuVldDBUpload \
+	gNuVldGUI
 
 gNuVldXmlRead:
 	$(CXX) $(CXXFLAGS) -c gNuVldXmlRead.cxx $(INCLUDES)
