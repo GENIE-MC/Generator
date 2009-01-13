@@ -20,7 +20,6 @@ LIBRARIES  := $(LHAPDF_LIBRARIES) $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 TGT =	gtestAlgorithms 	\
  	gtestBaryonResDataSet	\
  	gtestConfigPool		\
-        gtestConservationLaws   \
  	gtestDecay		\
  	gtestDISSF		\
  	gtestElFormFactors	\
@@ -53,10 +52,6 @@ gtestBaryonResDataSet: FORCE
 gtestConfigPool: FORCE
 	$(CXX) $(CXXFLAGS) -c testConfigPool.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testConfigPool.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestConfigPool
-
-gtestConservationLaws: FORCE
-	$(CXX) $(CXXFLAGS) -c testConservationLaws.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testConservationLaws.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestConservationLaws
 
 gtestDecay: FORCE
 	$(CXX) $(CXXFLAGS) -c testDecay.cxx $(INCLUDES)
@@ -168,7 +163,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestAlgorithms 	
 	$(RM) $(GENIE_BIN_PATH)/gtestBaryonResDataSet	
 	$(RM) $(GENIE_BIN_PATH)/gtestConfigPool		
-	$(RM) $(GENIE_BIN_PATH)/gtestConservationLaws		
 	$(RM) $(GENIE_BIN_PATH)/gtestDecay		
 	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_PATH)/gtestElFormFactors
@@ -198,7 +192,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestAlgorithms 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestBaryonResDataSet	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestConfigPool		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestConservationLaws		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDecay		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestElFormFactors
@@ -233,9 +226,6 @@ clean--gtestBaryonResDataSet: FORCE
 
 clean--gtestConfigPool: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestConfigPool
-
-clean--gtestConservationLaws: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestConservationLaws
 
 clean--gtestDecay: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestDecay
