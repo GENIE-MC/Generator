@@ -21,24 +21,26 @@ all:    gvld_sample_comp
 # Generated sample comparison utility
 #
 gVldSampleComp: FORCE
-        $(CXX) $(CXXFLAGS) -c gVldSampleComp.cxx $(INCLUDES)
-        $(LD) $(LDFLAGS) gVldSampleComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sample_comp
+	$(CXX) $(CXXFLAGS) -c gVldSampleComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldSampleComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sample_comp
 
 #
 # Cross section testing / comparison utility
 #
 gVldXSecComp: FORCE
-        $(CXX) $(CXXFLAGS) -c gVldXSecComp.cxx $(INCLUDES)
-        $(LD) $(LDFLAGS) gVldXSecComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_xsec_comp
+	$(CXX) $(CXXFLAGS) -c gVldXSecComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldXSecComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_xsec_comp
 
 #
 # Utility checking conservation laws
 #
 gVldConservationTest: FORCE
-        $(CXX) $(CXXFLAGS) -c gVldConservationTest.cxx $(INCLUDES)
-        $(LD) $(LDFLAGS) gVldConservationTest.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_conservation_test
+	$(CXX) $(CXXFLAGS) -c gVldConservationTest.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldConservationTest.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_conservation_test
 
 
+purge: FORCE
+	$(RM) *.o *~ core 
 
 clean: FORCE
 	$(RM) *.o *~ core 
