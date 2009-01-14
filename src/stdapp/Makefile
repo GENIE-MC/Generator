@@ -1,9 +1,9 @@
-#########################################################
+#
 # Makefile for Neutrino Generator Test Programs
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # May 02, 2004
-#########################################################
+#
 
 SHELL = /bin/sh
 NAME = all
@@ -14,8 +14,6 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-#NUVLD_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --nuvldlibs)
-#LIBRARIES  := $(GENIE_LIBS) $(NUVLD_LIBS) $(LIBRARIES)  $(NEUGEN_LIBRARIES) $(CERN_LIBRARIES)
 
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
@@ -24,7 +22,7 @@ TGT =    gEvGen		  \
 	 gEvGenGUI	  \
 	 gMakeSplines	  \
 	 gSplineAdd   	  \
-	 gSplinePlotter	  \
+	 gSplineXml2Root  \
 	 gMaxPathLengths  \
 	 gNtpConv	  \
  	 gNC2ElectronScat 
@@ -66,11 +64,11 @@ gSplineAdd: FORCE
 	$(CXX) $(CXXFLAGS) -c gSplineAdd.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gSplineAdd.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspladd 
 
-# gsplt spline plotter utility
+# gspl2root utility for converting XML splines into ROOT
 #
-gSplinePlotter: FORCE
-	$(CXX) $(CXXFLAGS) -c gSplinePlotter.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gSplinePlotter.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsplt
+gSplineXml2Root: FORCE
+	$(CXX) $(CXXFLAGS) -c gSplineXml2Root.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gSplineXml2Root.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspl2root
 
 # gmxpl utility computing maximum path lengths for a given root geometry
 #
@@ -107,7 +105,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
-	$(RM) $(GENIE_BIN_PATH)/gsplt		
+	$(RM) $(GENIE_BIN_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_PATH)/gnc2eN  
@@ -118,7 +116,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gsplt		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnc2eN		
@@ -138,8 +136,8 @@ clean--gMakeSplines: FORCE
 clean--gSplineAdd: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gspladd
 
-clean--gSplinePlotter: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gsplt
+clean--gSplineXml2Root: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gspl2root
 
 clean--gMaxPathLengths: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmxpl
