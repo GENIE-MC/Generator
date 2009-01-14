@@ -138,7 +138,7 @@ CERN_LIBRARIES = -L$(CERN_LIB_DIR) \
 		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib -lg2c
 ifeq ($(strip $(ARCH)),macosx) 
 CERN_LIBRARIES = -L$(CERN_LIB_DIR) \
-		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib /usr/local/lib/libgfortran.dylib
+		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib /usr/local/lib/libgfortran.dylib /usr/local/lib/libg2c.dylib
 endif
 
 endif
@@ -155,7 +155,7 @@ ifeq ($(strip $(GOPT_ENABLE_LHAPDF)),YES)
 LHAPDF_INCLUDES = -I$(GOPT_WITH_LHAPDF_INC)
 
 ifeq ($(strip $(ARCH)),macosx) 
-LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib
+LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib /usr/local/lib/libg2c.dylib
 else
 LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -lg2c
 endif
