@@ -240,25 +240,28 @@ void ConvertToGST(void)
   int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
   int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
   double brWeight      = 0;      // Event weight
-  double brKineXs      = 0;      // Bjorken x (selected)
-  double brKineYs      = 0;      // Inelasticity y (selected)
-  double brKineTs      = 0;      // Energy transfer to nucleus at COHPi events (selected)
-  double brKineQ2s     = 0;      // Momentum transfer Q^2 (selected)
-  double brKineWs      = 0;      // Hadronic invariant mass W (selected)
+  double brKineXs      = 0;      // Bjorken x (as was generated during kinematical selection)
+  double brKineYs      = 0;      // Inelasticity y (as was generated during kinematical selection)
+  double brKineTs      = 0;      // Energy transfer to nucleus at COHPi events (as was generated during kinematical selection)
+  double brKineQ2s     = 0;      // Momentum transfer Q^2 (as was generated during kinematical selection)
+  double brKineWs      = 0;      // Hadronic invariant mass W (as was generated during kinematical selection)
   double brKineX       = 0;      // Bjorken x  (computed from the event record)
   double brKineY       = 0;      // Inelasticity y (computed from the event record)
   double brKineT       = 0;      // Energy transfer to nucleus at COHPi events (computed from the event record)
   double brKineQ2      = 0;      // Momentum transfer Q^2 (computed from the event record)
   double brKineW       = 0;      // Hadronic invariant mass W (computed from the event record)
-  double brEv          = 0;      // Neutrino energy (neutrino assumed in +z direction)
-  double brEn          = 0;      // Initial state hit nucleon energy
-  double brPxn         = 0;      // Initial state hit nucleon px
-  double brPyn         = 0;      // Initial state hit nucleon py
-  double brPzn         = 0;      // Initial state hit nucleon pz
-  double brEl          = 0;      // Final state primary lepton energy
-  double brPxl         = 0;      // Final state primary lepton px
-  double brPyl         = 0;      // Final state primary lepton py
-  double brPzl         = 0;      // Final state primary lepton pz 
+  double brEv          = 0;      // Neutrino energy @ LAB
+  double brPxv         = 0;      // Neutrino px @ LAB
+  double brPyv         = 0;      // Neutrino py @ LAB
+  double brPzv         = 0;      // Neutrino pz @ LAB
+  double brEn          = 0;      // Initial state hit nucleon energy @ LAB
+  double brPxn         = 0;      // Initial state hit nucleon px @ LAB
+  double brPyn         = 0;      // Initial state hit nucleon py @ LAB
+  double brPzn         = 0;      // Initial state hit nucleon pz @ LAB
+  double brEl          = 0;      // Final state primary lepton energy @ LAB
+  double brPxl         = 0;      // Final state primary lepton px @ LAB
+  double brPyl         = 0;      // Final state primary lepton py @ LAB
+  double brPzl         = 0;      // Final state primary lepton pz  @ LAB
   int    brNfP         = 0;      // Nu. of final state p's + \bar{p}'s (after intranuclear rescattering)
   int    brNfN         = 0;      // Nu. of final state n's + \bar{n}'s
   int    brNfPip       = 0;      // Nu. of final state pi+'s
@@ -267,30 +270,30 @@ void ConvertToGST(void)
   int    brNfKp        = 0;      // Nu. of final state K+'s
   int    brNfKm        = 0;      // Nu. of final state K-'s
   int    brNfK0        = 0;      // Nu. of final state K0's + \bar{K0}'s
-  int    brNfEM        = 0;      // Nu. of final state gammas and e-/e+ (excluding pi0 decay products)
+  int    brNfEM        = 0;      // Nu. of final state gammas and e-/e+ 
   int    brNfOther     = 0;      // Nu. of heavier final state hadrons (D+/-,D0,Ds+/-,Lamda,Sigma,Lamda_c,Sigma_c,...)
-  int    brNiP         = 0;      // Nu. of 'primary' (: before intranuclear rescattering) p's + \bar{p}'s  
-  int    brNiN         = 0;      // Nu. of 'primary' n's + \bar{n}'s  
-  int    brNiPip       = 0;      // Nu. of 'primary' pi+'s 
-  int    brNiPim       = 0;      // Nu. of 'primary' pi-'s 
-  int    brNiPi0       = 0;      // Nu. of 'primary' pi0's 
-  int    brNiKp        = 0;      // Nu. of 'primary' K+'s  
-  int    brNiKm        = 0;      // Nu. of 'primary' K-'s  
-  int    brNiK0        = 0;      // Nu. of 'primary' K0's + \bar{K0}'s 
-  int    brNiEM        = 0;      // Nu. of 'primary' gammas and e-/e+ (eg from resonance decays)
-  int    brNiOther     = 0;      // Nu. of 'primary' hadron shower particles
+  int    brNiP         = 0;      // Nu. of `primary' (: before intranuclear rescattering) p's + \bar{p}'s  
+  int    brNiN         = 0;      // Nu. of `primary' n's + \bar{n}'s  
+  int    brNiPip       = 0;      // Nu. of `primary' pi+'s 
+  int    brNiPim       = 0;      // Nu. of `primary' pi-'s 
+  int    brNiPi0       = 0;      // Nu. of `primary' pi0's 
+  int    brNiKp        = 0;      // Nu. of `primary' K+'s  
+  int    brNiKm        = 0;      // Nu. of `primary' K-'s  
+  int    brNiK0        = 0;      // Nu. of `primary' K0's + \bar{K0}'s 
+  int    brNiEM        = 0;      // Nu. of `primary' gammas and e-/e+ 
+  int    brNiOther     = 0;      // Nu. of other `primary' hadron shower particles
   int    brNf          = 0;      // Nu. of final state particles in hadronic system
-  int    brPdgf[kNPmax];         // Pdg code of i^th final state particle in hadronic system
-  double brEf  [kNPmax];         // Energy   of i^th final state particle in hadronic system
-  double brPxf [kNPmax];         // Px       of i^th final state particle in hadronic system
-  double brPyf [kNPmax];         // Py       of i^th final state particle in hadronic system
-  double brPzf [kNPmax];         // Pz       of i^th final state particle in hadronic system
+  int    brPdgf[kNPmax];         // Pdg code of k^th final state particle in hadronic system
+  double brEf  [kNPmax];         // Energy   of k^th final state particle in hadronic system @ LAB
+  double brPxf [kNPmax];         // Px       of k^th final state particle in hadronic system @ LAB
+  double brPyf [kNPmax];         // Py       of k^th final state particle in hadronic system @ LAB
+  double brPzf [kNPmax];         // Pz       of k^th final state particle in hadronic system @ LAB
   int    brNi          = 0;      // Nu. of particles in 'primary' hadronic system (before intranuclear rescattering)
-  int    brPdgi[kNPmax];         // Pdg code of i^th particle in 'primary' hadronic system 
-  double brEi  [kNPmax];         // Energy   of i^th particle in 'primary' hadronic system 
-  double brPxi [kNPmax];         // Px       of i^th particle in 'primary' hadronic system 
-  double brPyi [kNPmax];         // Py       of i^th particle in 'primary' hadronic system 
-  double brPzi [kNPmax];         // Pz       of i^th particle in 'primary' hadronic system 
+  int    brPdgi[kNPmax];         // Pdg code of k^th particle in 'primary' hadronic system 
+  double brEi  [kNPmax];         // Energy   of k^th particle in 'primary' hadronic system @ LAB
+  double brPxi [kNPmax];         // Px       of k^th particle in 'primary' hadronic system @ LAB
+  double brPyi [kNPmax];         // Py       of k^th particle in 'primary' hadronic system @ LAB
+  double brPzi [kNPmax];         // Pz       of k^th particle in 'primary' hadronic system @ LAB
   double brVtxX;                 // Vertex x in detector coord system (SI)
   double brVtxY;                 // Vertex y in detector coord system (SI)
   double brVtxZ;                 // Vertex z in detector coord system (SI)
@@ -339,6 +342,9 @@ void ConvertToGST(void)
   s_tree->Branch("Q2",	          &brKineQ2,        "Q2/D"	    );
   s_tree->Branch("W",	          &brKineW,	    "W/D"	    );
   s_tree->Branch("Ev",	          &brEv,	    "Ev/D"	    );
+  s_tree->Branch("pxv",	          &brPxv,	    "pxv/D"	    );
+  s_tree->Branch("pyv",	          &brPyv,	    "pyv/D"	    );
+  s_tree->Branch("pzv",	          &brPzv,	    "pzv/D"	    );
   s_tree->Branch("En",	          &brEn,	    "En/D"	    );
   s_tree->Branch("pxn",	          &brPxn,	    "pxn/D"	    );
   s_tree->Branch("pyn",	          &brPyn,	    "pyn/D"	    );
@@ -721,6 +727,9 @@ void ConvertToGST(void)
     brKineQ2     = Q2;      
     brKineW      = W;      
     brEv         = k1.Energy();      
+    brPxv        = k1.Px();  
+    brPyv        = k1.Py();  
+    brPzv        = k1.Pz();  
     brEn         = (hitnucl) ? p1.Energy() : 0;      
     brPxn        = (hitnucl) ? p1.Px()     : 0;      
     brPyn        = (hitnucl) ? p1.Py()     : 0;      
@@ -1378,7 +1387,7 @@ void ConvertToGRooTracker(void)
   //-- get pdglib
   PDGLibrary * pdglib = PDGLibrary::Instance();
 
-  //-- define the output tree branches
+  //-- define the output rootracker tree branches
   TBits*      brEvtFlags = 0;             // generator-specific event flags
   TObjString* brEvtCode = 0;              // generator-specific string with 'event code'
   int         brEvtNum;                   // event num.
@@ -1406,6 +1415,8 @@ void ConvertToGRooTracker(void)
   double      brNuParentProP4 [4];        // parent hadron 4-momentum at production
   double      brNuParentProX4 [4];        // parent hadron 4-position at production
   int         brNuParentProNVtx;          // parent hadron vtx id
+  // > etc 
+  int         brNeutCode;                 // > NEUT-like reaction code for the GENIE event
 
   //-- open the output ROOT file
   TFile fout(gOptOutFileName.c_str(), "RECREATE");
@@ -1432,8 +1443,8 @@ void ConvertToGRooTracker(void)
   rootracker_tree->Branch("StdHepLd",         brStdHepLd,        "StdHepLd[StdHepN]/I"); 
   rootracker_tree->Branch("StdHepFm",         brStdHepFm,        "StdHepFm[StdHepN]/I"); 
   rootracker_tree->Branch("StdHepLm",         brStdHepLm,        "StdHepLm[StdHepN]/I"); 
-  if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
-    // JNUBEAM pass-through info only available on the t2k version of the rootracker format
+  if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
+    // JNUBEAM pass-through info -- available ony on the t2k version of the rootracker format
     rootracker_tree->Branch("NuParentPdg",     &brNuParentPdg,     "NuParentPdg/I");       
     rootracker_tree->Branch("NuParentDecMode", &brNuParentDecMode, "NuParentDecMode/I");   
     rootracker_tree->Branch("NuParentDecP4",    brNuParentDecP4,   "NuParentDecP4[4]/D");     
@@ -1441,6 +1452,8 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("NuParentProP4",    brNuParentProP4,   "NuParentProP4[4]/D");     
     rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/D");     
     rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
+    // NEUT-like reaction code -- available only on the t2k version of the rootracker format
+    rootracker_tree->Branch("NeutCode",        &brNeutCode,        "NeutCode/I");   
   }
 
   //-- open the input GENIE ROOT file and get the TTree & its header
@@ -1536,6 +1549,7 @@ void ConvertToGRooTracker(void)
       brNuParentProX4 [k] = 0;     
     }
     brNuParentProNVtx = 0;     
+    brNeutCode = 0;     
 
     //
     // copy current event info to output tree
@@ -1619,6 +1633,9 @@ void ConvertToGRooTracker(void)
      }
     }
 #endif
+
+    // map GENIE event to NEUT reaction codes
+    brNeutCode = utils::ghep::NeutReactionCode(&event);
 
     rootracker_tree->Fill();
     mcrec->Clear();
