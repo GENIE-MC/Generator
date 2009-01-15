@@ -8,31 +8,32 @@
 **           \       W+       u/                   @@@@@@  @@@@@@  @    @  @  @@@@@@     **
 **            \_ _ _ _ _ _ _ _/                                                          **
 **            /               \         @                                                **
-**           /                d\______ @@@                                               **
+**           /                d\______ @@@          NEUTRINO MONTE CARLO GENERATOR       **
 **          /                         @@@@@                                              **
-**         /           u  ____________@@@@@          UNIVERSAL                           **
-**        /   jet <===               @@@@@@@             OBJECT-ORIENTED/C++             **
-**       /             u  ____________@@@@@                     NEUTRINO MC GENERATOR    **
-**     nu_mu                          @@@@@                                              ** 
+**         /           u  ____________@@@@@                     v2.5.1                   **
+**        /   jet <===               @@@@@@@                                             **
+**       /             u  ____________@@@@@                                              **
+**     nu_mu                          @@@@@            http://www.genie-mc.org           ** 
 **                                     @@@                                               **
 **                                      @  p                                             **
 **                                                                                       **
-**                      home page URL:  http://www.genie-mc.org                          **
 **                                                                                       **
-**        (c) 2003-2009 GENIE Collaboration (see http://copyright.genie-mc.org)          **
+**  (c) 2003-2009 GENIE Collaboration (see http://copyright.genie-mc.org)                **
 **                                                                                       **
-** Costas Andreopoulos [2], Flavio Cavanna [6], Steve Dytman  [7], Hugh Gallagher [8],   **
-** Yoshinari Hayato [5], Pauli Kehayias [8], Stefan Kretzer [1], Anselmo Meregaglia [4], **
-**        Donna Naples [7], Geoff Pearce [2], Andre Rubbia [4], Mike Whalley [3]         **
-**                                                                                       **
-** [1] Brookhaven National Laboratory                                                    **
-** [2] Science & Technology Facilities Council / Rutherford Appleton Laboratory          **
-** [3] Durham University                                                                 **
-** [4] ETH Zurich                                                                        **
-** [5] Kamioka Observatory, ICRR, University of Tokyo                                    **
-** [6] L'Aquila University / INFN                                                        **
-** [7] Pittsburgh University                                                             **
-** [8] Tufts University                                                                  **
+**  Costas Andreopoulos - STFC, Rutherford Appleton Laboratory (UK)                      **
+**  Flavio Cavanna      - INFN, L'Aquila University (Italy)                              **
+**  James Dobson        - Imperial College London (UK)                                   **
+**  Steve Dytman        - Pittsburgh University (USA)                                    **
+**  Hugh Gallagher      - Tufts University (USA)                                         **
+**  Pawel Guzowski      - Imperial College London (UK)                                   **
+**  Yoshinari Hayato    - Kamioka Observatory, ICRR, University of Tokyo (Japan)         **
+**  Pauli Kehayias      - Tufts University (USA)                                         **
+**  Stefan Kretzer      - Brookhaven National Laboratory (USA)                           **
+**  Anselmo Meregaglia  - ETH Zurich (Switzerland)                                       **
+**  Donna Naples        - Pittsburgh University (USA)                                    **
+**  Geoff Pearce        - STFC, Rutherford Appleton Laboratory (UK)                      **
+**  Andre Rubbia        - ETH Zurich (Switzerland)                                       **
+**  Mike Whalley        - Durham University (UK)                                         **
 **                                                                                       **
 *******************************************************************************************
 *******************************************************************************************
