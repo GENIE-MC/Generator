@@ -39,6 +39,10 @@
    number of neutrinos thrown by the flux driver towards the geometry and
    the global interaction probability scale so as to be able to calculate
    event sample normalization factors.
+ @ Jan 15, 2009 - CA
+   Stopped GMCJDriver from initializing the unphysical event mask so as not
+   to overwrite the values that each GEVGDriver obtains from the environment.
+
 */
 //____________________________________________________________________________
 
@@ -230,9 +234,9 @@ void GMCJDriver::InitJob(void)
 
   // Allow the selected GEVGDriver to go into recursive mode and regenerate
   // an interaction that turns out to be unphysical.
-  TBits unphysmask(GHepFlags::NFlags());
-  unphysmask.ResetAllBits(false); 
-  this->FilterUnphysical(unphysmask);
+  //TBits unphysmask(GHepFlags::NFlags());
+  //unphysmask.ResetAllBits(false); 
+  //this->FilterUnphysical(unphysmask);
 
   // Force early initialization of singleton objects that are typically
   // would be initialized at their first use later on.
@@ -324,7 +328,7 @@ void GMCJDriver::PopulateEventGenDriverPool(void)
 
      GEVGDriver * evgdriver = new GEVGDriver;
      evgdriver->Configure(init_state);
-     evgdriver->FilterUnphysical(fUnphysMask);
+     //evgdriver->FilterUnphysical(fUnphysMask);
      evgdriver->UseSplines(); // check if all splines needed are loaded
 
      LOG("GMCJDriver", pDEBUG) << "Adding new GEVGDriver object to GEVGPool";
