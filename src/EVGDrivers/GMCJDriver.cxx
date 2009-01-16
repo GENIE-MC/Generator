@@ -902,16 +902,6 @@ void GMCJDriver::ComputeEventProbability(void)
   fCurEvt->SetWeight(weight * fCurEvt->Weight());
 }
 //___________________________________________________________________________
-GFluxI * GMCJDriver::FluxDriver(void) const
-{
-  return fFluxDriver;
-}
-//___________________________________________________________________________
-GeomAnalyzerI * GMCJDriver::GeomAnalyzer(void) const
-{
-  return fGeomAnalyzer;
-}
-//___________________________________________________________________________
 double GMCJDriver::InteractionProbability(double xsec, double pL, int A)
 {
 // P = Na   (Avogadro number,                 atoms/mole) *
