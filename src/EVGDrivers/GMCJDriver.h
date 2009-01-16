@@ -3,7 +3,9 @@
 
 \class    genie::GMCJDriver
 
-\brief    GENIE MC Job Driver (event generation for the input flux & geometry)
+\brief    A GENIE `MC Job Driver'. Can be used for setting up complicated event 
+          generation cases involving detailed flux descriptions and detector 
+          geometry descriptions.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
@@ -58,9 +60,13 @@ public :
   // generate single neutrino event for input flux & geometry
   EventRecord * GenerateEvent (void);
 
-  // methods for enquiring info needed for computing the generated sample normalization
+  // info needed for computing the generated sample normalization
   double   GlobProbScale  (void) const { return fGlobPmax;                  }
   long int NFluxNeutrinos (void) const { return (long int) fNFluxNeutrinos; }
+
+  // input flux and geometry drivers
+  GFluxI *        FluxDriver   (void) const;
+  GeomAnalyzerI * GeomAnalyzer (void) const;
 
 private:
  
