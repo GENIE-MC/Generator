@@ -42,7 +42,8 @@
  @ Jan 15, 2009 - CA
    Stopped GMCJDriver from initializing the unphysical event mask so as not
    to overwrite the values that each GEVGDriver obtains from the environment.
-
+ @ Jan 16, 2009 - CA
+   Added methods to return pointers to the flux and geometry drivers.
 */
 //____________________________________________________________________________
 
@@ -899,6 +900,16 @@ void GMCJDriver::ComputeEventProbability(void)
   // set probability & update weight
   fCurEvt->SetProbability(P);
   fCurEvt->SetWeight(weight * fCurEvt->Weight());
+}
+//___________________________________________________________________________
+GFluxI * GMCJDriver::FluxDriver(void) const
+{
+  return fFluxDriver;
+}
+//___________________________________________________________________________
+GeomAnalyzerI * GMCJDriver::GeomAnalyzer(void) const
+{
+  return fGeomAnalyzer;
 }
 //___________________________________________________________________________
 double GMCJDriver::InteractionProbability(double xsec, double pL, int A)
