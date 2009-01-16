@@ -65,8 +65,10 @@ public :
   long int NFluxNeutrinos (void) const { return (long int) fNFluxNeutrinos; }
 
   // input flux and geometry drivers
-  GFluxI *        FluxDriver   (void) const;
-  GeomAnalyzerI * GeomAnalyzer (void) const;
+  const GFluxI &        FluxDriver      (void) const { return *fFluxDriver;   }
+  const GeomAnalyzerI & GeomAnalyzer    (void) const { return *fGeomAnalyzer; }
+  GFluxI *              FluxDriverPtr   (void) const { return  fFluxDriver;   } 
+  GeomAnalyzerI *       GeomAnalyzerPtr (void) const { return  fGeomAnalyzer; }
 
 private:
  
