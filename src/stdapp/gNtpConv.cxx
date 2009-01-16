@@ -1453,7 +1453,7 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/D");     
     rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
     // NEUT-like reaction code -- available only on the t2k version of the rootracker format
-    rootracker_tree->Branch("NeutCode",        &brNeutCode,        "NeutCode/I");   
+    rootracker_tree->Branch("G2NeutEvtCode",   &brNeutCode,        "G2NeutEvtCode/I");   
   }
 
   //-- open the input GENIE ROOT file and get the TTree & its header
