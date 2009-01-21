@@ -18,47 +18,22 @@
               selected at any given time.
 
          Options :
-           -p  a comma separated list of nu PDG code
-           -t  a comma separated list of tgt PDG codes (format: 10LZZZAAAI)
-           -f  a ROOT file containing a ROOT/GEANT geometry description
-           -o  output XML filename [ default: xsec_splines.xml ]
-           -n  number of knots per spline [default: 15 knots per decade of
-               energy range with a minimum of 30 knots totally]
-           -e  max energy in spline [default: the max energy in the validity
-               range of the spline generating thread]
+           -p  A comma separated list of nu PDG codes.
+           -t  A comma separated list of tgt PDG codes. 
+               PDG code format: 10LZZZAAAI
+           -f  A ROOT file containing a ROOT/GEANT geometry description.
+           -o  Output XML filename.
+               Default: `xsec_splines.xml'.
+           -n  Number of knots per spline.
+               Default: 15 knots per decade of energy range with a minimum 
+               of 30 knots totally.
+           -e  Maximum energy in spline.
+               Default: The max energy in the validity range of the spline 
+               generating thread.
 
-         Examples:
 
-         1) gmkspl -p 14,-14 -t 1000260560
+        ***  See the User Manual for more details and examples. ***
 
-            will build cross section splines for muon neutrinos (pdg = 14)
-            and muon anti-neutrinos (pgc = -14) on Iron (A=56,Z=26) and will
-            save them in an XML file with the default name.
-
-         2) gmkspl -p 14,-14 -f ~/data/mygeometry.root -o spl.xml
-
-            will build cross section splines for muon neutrinos (pdg = 14)
-            and muon anti-neutrinos (pgc = -14) on all the materials found
-            in the input ROOT geometry (found at mygeometry.root) and will
-            save them in an XML file named spl.xml
-
-         Other control options:
-
-         You can further control the program behaviour by setting the GEVGL
-         and GMSGCONF environmental variables.
-
-           - Set the GEVGL environmental variable to contol the list of event
-             generator objects that will get loaded into the event generation
-             driver (see $GENIE/src/stdapp/gEvGen.cxx). This program will only
-             build splines for the processes that can be simulated by the event
-             generators you plan to load.
-
-           - You can set the GMSGCONF env.variable to point to a messenger
-             XML configuration file (following the syntax of the default one
-             that can be found in $GENIE/config/messenger.xml) and modify the
-             verbosity of GENIE output. Both the default and your messenger
-             configuration will be read but yours will take precedence in
-             case of clashing priority for the same stream.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
