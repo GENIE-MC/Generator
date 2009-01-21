@@ -1,7 +1,7 @@
-####################################################################
-# Makefile for the gSKXSecTable T2K utility
+#
+# Makefile for the gSKxstable T2K utility
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-####################################################################
+#
 
 SHELL = /bin/sh
 NAME = all
@@ -20,16 +20,16 @@ all: $(TGT)
 
 gSKXSecTable: FORCE
 	$(CXX) $(CXXFLAGS) -c gSKXSecTable.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gSKXSecTable.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gSKXSecTable
+	$(LD) $(LDFLAGS) gSKXSecTable.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gSKxstable
 
 purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gSKXSecTable
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gSKxstable
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gSKXSecTable
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gSKxstable
 
 FORCE:
 
