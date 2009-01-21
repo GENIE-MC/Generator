@@ -15,7 +15,7 @@ include $(GENIE)/src/make/Make.include
 GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-all:    gvld_sample_comp 
+all:    gVldSampleComp 
 
 #
 # Generated sample comparison utility
@@ -38,6 +38,13 @@ gVldConservationTest: FORCE
 	$(CXX) $(CXXFLAGS) -c gVldConservationTest.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gVldConservationTest.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_conservation_test
 
+#
+# Scan generated particles to check for abnormalities
+#
+gVldParticleScan: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldParticleScan.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldParticleScan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_particle_scan
+
 
 purge: FORCE
 	$(RM) *.o *~ core 
@@ -46,10 +53,12 @@ clean: FORCE
 	$(RM) *.o *~ core 
 	$(RM) $(GENIE_BIN_PATH)/gvld_sample_comp
 	$(RM) $(GENIE_BIN_PATH)/gvld_conservation_test
+	$(RM) $(GENIE_BIN_PATH)/gvld_particle_scan
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sample_comp
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_conservation_test
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_particle_scan
 
 FORCE:
 
