@@ -12,7 +12,7 @@
             simple 'geometries' (a target mix with its corresponding weights)
 
          For more complex event generation cases using realistic / detailed 
-         neutrino flux simulations and detector geometries see for example 
+         neutrino flux simulations and detector geometries see, for example, 
          the GENIE event generation driver for T2K (gT2Kevgen) at
          $GENIE/src/support/t2k/EvGen/gT2Kevgen.cxx
 	 Use that as a template for your own experiment-specific case.
@@ -39,16 +39,18 @@
            -t Specifies the target PDG code (pdg format: 10LZZZAAAI) _or_ a target
               mix (pdg codes with corresponding weights) typed as a comma-separated 
               list of pdg codes with the corresponding weight fractions in brackets, 
-              eg code1[fraction1],code2[fraction2],... For example, to use a target
-              mix of 95% O16 and 5% H type: '-t 1000080160[0.95],1000010010[0.05]'.
-              See the examples below.
+              eg code1[fraction1],code2[fraction2],... 
+              For example, to use a target mix of 95% O16 and 5% H type: 
+              `-t 1000080160[0.95],1000010010[0.05]'.
            -f Specifies the neutrino flux spectrum.
               It can be any of:
-	      -- A function, eg 'x*x+4*exp(-x)' 
-              -- A text file containing 2 columns corresponding to energy,flux
-                 (see $GENIE/data/flux/ for few examples). 
-              -- A 1-D histogram taken from a ROOT file. It is specified as
-                 /full/path/file.root,object_name
+	      -- A function:
+                 eg ` -f x*x+4*exp(-x)' 
+              -- A vector file:
+                 The vector file should contain 2 columns corresponding to 
+                 energy,flux (see $GENIE/data/flux/ for few examples). 
+              -- A 1-D ROOT histogram (TH1D):
+                 The general syntax is `-f /full/path/file.root,object_name'
            -w Forces generation of weighted events.
               This option is relevant only if a neutrino flux is specified.
               Note that 'weighted' refers to the selection of the primary
@@ -57,94 +59,8 @@
               still be in effect if enabled..
               ** Only use that option if you understand what it means **
  
-         <Examples>
 
-          (1) gevgen -n 3000 -s -e 6.5 -p 14 -t 1000260560 
-
-           will generate 3000 events of muon neutrinos (pdg=14) on Iron (A=56,Z=26) 
-           at E = 6.5 GeV. The -s option will force it to generate cross section
-           splines during the job initialization. Only the cross section splines
-           not loaded via $GSPLOAD (see below) will be generated. Note that building
-           cross section splines for all necessary processes is a time consuming step
-           and we do recommend building them in advance (using the gmkspl utility)
-           and loading them via $GSPLOAD.
-
-          (2) gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f 'x*x*exp((-x*x+3)/4)' 
-
-           will generate 30000 _unweighted_ events of muon neutrinos (pdg=14) on O16
-           (A=16,Z=8) using a neutrino flux of the specified functional form at the 
-           energy range from 1 to 4 GeV. 
-           Above comments on cross section splines apply here too.
-
-          (3) gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f /a/path/flux.data 
-
-           like above except that the neutrino flux is taken from the input vector file 
-           rather than the input functional form.
-
-          (4) gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160 -f /a/path/file.root,flux
-
-           like above except that the flux is taken from a TH1D object called 'flux'
-           stored in /a/path/file.root. 
-           Note that the event generation driver will use only the input histogram 
-           bins that fall within the specified (with -e) energy range. In the above 
-           example, all the neutrino flux bins that do not fall in the 1 GeV - 4 GeV 
-           range will be neglected (Note that the bins including 1 GeV and 4 GeV will 
-           be taken into account - So the actual energy range used is: from the lower 
-           edge of the bin containing 1 GeV to the upper edge of the bin containing 
-           4 GeV).
-           
-          (5) gevgen -n 30000 -s -e 1,4 -p 14 -t 1000080160[0.95],1000010010[0.05] 
-                      -f /a/path/file.root,flux 
-
-           like above but in this case the target is a mix containing 95% O16 and
-           5% H.
-
-         Other control options:
-
-         You can further control the program behaviour by setting the GEVGL,
-         GSPLOAD, GSPSAVE, GHEPPRINTLEVEL, GSEED environmental variables.
-
-           - Set the GEVGL environmental variable to contol the list of event
-             generator objects that get loaded (at job initialization, the
-             EventGeneratorListAssember assembles the list of all requested
-             event generator objects -meaning: all concrete implementations of
-             the EventGeneratorI interface that know how to generate various
-             classes of events-). You can see the possible GEVGL options by
-             looking up the names of the EventGeneratorListAssembler configuration
-             sets at $GENIE/config/event_generator_list_assembler.xml
-             If GEVGL is not set, the 'Default' generator list is used.
-
-           - If you specify the -s option you can set the GSPSAVE env.variable
-             to specify an XML filename for saving the computed xsec splines.
-             If GSPSAVE is not set the computed splines will not be saved.
-
-           - If you specify the -s option you can set the GSPLOAD env.variable
-             to specify an XML filename from which to load xsec splines at
-             initialization. GENIE will load the splines and then go on and
-             compute only the xsec splines that it needs but were not loaded.
-             If GSPLOAD is not set, GENIE will not attempt to load any splines
-             and will compute them all.
-
-           - You can set the GMSGCONF env.variable to point to a messenger
-             XML configuration file (following the syntax of the default one
-             that can be found in $GENIE/config/messenger.xml) and modify the
-             verbosity of GENIE output. Both the default and your messenger
-             configuration will be read but yours will take precedence in
-             case of clashing priority for the same stream.
-
-           - You can set the GHEPPRINTLEVEL to control the GHEP print options
-
-           - You can set the GSEED env variable to define the random number
-             seed number (default seed number in (src/Conventions/Controls.h)
-
-             Examples:
-             By setting the following env.vars you ask GENIE to generate QEL
-             events only, and load the cross section splines from splines.xml
-             and also to add the priority levels in mymsg.xml on top of the
-             default ones.
-             shell% export GEVGL=QEL
-             shell% export GSPLOAD=/home/me/GENIE/mydata/splines.xml
-             shell% export GMSGCONF=/home/me/GENIE/mydata/mymsg.xml
+	***  See the User Manual for more details and examples. ***
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
