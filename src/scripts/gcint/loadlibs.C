@@ -36,7 +36,6 @@
  gSystem->Load("libGCharm.so");
  gSystem->Load("libGElas.so");
  gSystem->Load("libGReinSeghal.so");
- gSystem->Load("libGRadiative.so");
  gSystem->Load("libGPaschos.so");
  gSystem->Load("libGVHE.so");
  gSystem->Load("libGPartonModel.so");
