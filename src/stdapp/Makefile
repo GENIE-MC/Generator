@@ -18,6 +18,7 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 TGT =    gEvGen		  \
+	 gEvDump          \
 	 ghAEvGen         \
 	 gEvGenGUI	  \
 	 gMakeSplines	  \
@@ -34,6 +35,12 @@ all: $(TGT)
 gEvGen: FORCE
 	$(CXX) $(CXXFLAGS) -c gEvGen.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen 
+
+# gevdump event print-out utility
+#
+gEvDump: FORCE
+	$(CXX) $(CXXFLAGS) -c gEvDump.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevdump
 
 
 # ghAgen program generating hadron + nucleus interactions using GENIE's INTRANUKE
@@ -101,6 +108,7 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core
 	$(RM) $(GENIE_BIN_PATH)/gevgen		
+	$(RM) $(GENIE_BIN_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_PATH)/ghAevgen
 	$(RM) $(GENIE_BIN_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
@@ -112,6 +120,7 @@ clean: FORCE
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/ghAevgen	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
@@ -123,6 +132,9 @@ distclean: FORCE
 
 clean--gEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen
+
+clean--gEvDump: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevdump
 
 clean--ghAEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen
