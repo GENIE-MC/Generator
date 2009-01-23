@@ -13,37 +13,42 @@ include $(GENIE)/src/make/Make.include
 
 # Add extra libraries needed for these executables
 GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
+VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
 LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-all:    gVldSampleComp 
+all:    gVldNuEvComp \
+	gVldNuEvScan \
+	gVldNuXsComp \
+	gVldNuSfComp 
 
 #
-# Generated sample comparison utility
+# Neutrino event sample comparison utility
 #
-gVldSampleComp: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldSampleComp.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldSampleComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sample_comp
+gVldNuEvComp: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldNuEvComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldNuEvComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_nuev_comp
 
 #
-# Cross section testing / comparison utility
+# Utility scanning the input file and checking for conservation law violations,
+# strange/undecayed particles etc
 #
-gVldXSecComp: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldXSecComp.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldXSecComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_xsec_comp
+gVldNuEvScan: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldNuEvScan.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldNuEvScan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_nuev_scan
 
 #
-# Utility checking conservation laws
+# Neutrino cross section comparison utility
 #
-gVldConservationTest: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldConservationTest.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldConservationTest.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_conservation_test
+gVldNuXsComp: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldNuXsComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldNuXsComp.o $(LIBRARIES) $(VLDTOOL_LIBS) -o $(GENIE_BIN_PATH)/gvld_nuxs_comp
 
 #
-# Scan generated particles to check for abnormalities
+# Neutrino structure function comparison utility
 #
-gVldParticleScan: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldParticleScan.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldParticleScan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_particle_scan
+gVldNuSfComp: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldNuSfComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldNuSfComp.o $(LIBRARIES) $(VLDTOOL_LIBS) -o $(GENIE_BIN_PATH)/gvld_nusf_comp
 
 
 purge: FORCE
@@ -51,14 +56,16 @@ purge: FORCE
 
 clean: FORCE
 	$(RM) *.o *~ core 
-	$(RM) $(GENIE_BIN_PATH)/gvld_sample_comp
-	$(RM) $(GENIE_BIN_PATH)/gvld_conservation_test
-	$(RM) $(GENIE_BIN_PATH)/gvld_particle_scan
+	$(RM) $(GENIE_BIN_PATH)/gvld_nuev_comp
+	$(RM) $(GENIE_BIN_PATH)/gvld_nuev_scan
+	$(RM) $(GENIE_BIN_PATH)/gvld_nuxs_comp
+	$(RM) $(GENIE_BIN_PATH)/gvld_nusf_comp
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sample_comp
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_conservation_test
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_particle_scan
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nuev_comp
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nuev_scan
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nuxs_comp
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nusf_comp
 
 FORCE:
 
