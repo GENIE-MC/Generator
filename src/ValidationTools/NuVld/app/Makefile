@@ -33,6 +33,8 @@ gNuVldGUI:
 	$(LD) $(LDFLAGS) gNuVldGUI.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gnuvld_gui
 
 
+purge: FORCE
+	$(RM) *.o *~ core 
 
 clean: FORCE
 	$(RM) *.o *~ core 
