@@ -397,7 +397,7 @@ void ConvertToGST(void)
   er_tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
   thdr    = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
   if (!er_tree) {
-    LOG("gntpc", pERROR) << "Null input ER tree";
+    LOG("gntpc", pERROR) << "Null input GHEP event tree";
     return;
   }
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
