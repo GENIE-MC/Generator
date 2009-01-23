@@ -138,10 +138,17 @@ CERN_LIBRARIES = -L$(CERN_LIB_DIR) \
 		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib -lg2c
 ifeq ($(strip $(ARCH)),macosx) 
 CERN_LIBRARIES = -L$(CERN_LIB_DIR) \
-		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib /usr/local/lib/libgfortran.dylib /usr/local/lib/libg2c.dylib
+		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib /usr/local/lib/libgfortran.dylib 
+
+have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
+ifeq ($(strip $(have_g2c)),)
+else
+CERN_LIBRARIES := $(CERN_LIBRARIES) /usr/local/lib/libg2c.dylib 
 endif
 
-endif
+endif # macosx
+
+endif # enable-cern
 
 #-------------------------------------------------------------------
 #                             LHAPDF
@@ -155,7 +162,14 @@ ifeq ($(strip $(GOPT_ENABLE_LHAPDF)),YES)
 LHAPDF_INCLUDES = -I$(GOPT_WITH_LHAPDF_INC)
 
 ifeq ($(strip $(ARCH)),macosx) 
-LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib /usr/local/lib/libg2c.dylib
+LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib 
+
+have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
+ifeq ($(strip $(have_g2c)),)
+else
+LHAPDF_LIBRARIES := $(LHAPDF_LIBRARIES) /usr/local/lib/libg2c.dylib 
+endif
+
 else
 LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -lg2c
 endif
