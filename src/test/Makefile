@@ -36,8 +36,7 @@ TGT =	gtestAlgorithms 	\
 	gtestResonances		\
 	gtestReWeightP2P	\
 	gtestReWeightLoop	\
-	gtestKPhaseSpace	\
-	gtestReadGNtuple		
+	gtestKPhaseSpace	
 
 all: $(TGT)
 
@@ -141,10 +140,6 @@ gtestKPhaseSpace: FORCE
 	$(CXX) $(CXXFLAGS) -c testKPhaseSpace.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testKPhaseSpace.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestKPhaseSpace
 
-gtestReadGNtuple: FORCE
-	$(CXX) $(CXXFLAGS) -c testReadGNtuple.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testReadGNtuple.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestReadGNtuple
-
 gtestROOTGeometry: FORCE
 ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
 	$(CXX) $(CXXFLAGS) -c testROOTGeometry.cxx $(INCLUDES)
@@ -180,7 +175,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestReWeightP2P	
 	$(RM) $(GENIE_BIN_PATH)/gtestReWeightLoop		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
-	$(RM) $(GENIE_BIN_PATH)/gtestReadGNtuple		
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_PATH)/gtestMuELoss		
 endif
@@ -209,7 +203,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeightP2P		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeightLoop		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReadGNtuple		
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMuELoss		
 endif
@@ -283,9 +276,6 @@ clean--gtestReWeightLoop: FORCE
 
 clean--gtestKPhaseSpace: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestKPhaseSpace
-
-clean--gtestReadGNtuple: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestReadGNtuple
 
 clean--gtestROOTGeometry: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestROOTGeometry
