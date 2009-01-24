@@ -14,9 +14,9 @@
            -f Specifies a ROOT file with a GENIE SF ntuple.
 	   -r Specifies a reference ROOT file with a reference GENIE SF ntuple.
            -d Enable comparisons with data.
-           -h
-           -u
-           -p
+           -h NuVld MySQL URL (eg mysql://localhost/NuScat)
+           -u NuVld MySQL username 
+           -p NuVld MySQL password
 		      
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -207,40 +207,35 @@ int kSFA[kSFDataSets] = {
 /* 24 */ 56
 };
 
-//
 // function prototypes
-//
-void   GetCommandLineArgs (int argc, char ** argv);
-void   PrintSyntax        (void);
-bool   CheckRootFilename  (string filename);
-string OutputFileName     (string input_file_name);
-void   CompareWithData    (void);
-TH1F * DrawFrame          (TGraph * gr0, TGraph * gr1, TCanvas * c);
-void   Format             (TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
-void   Draw               (TGraph* gr, const char * opt);
-
-DBQueryString SFQueryFromKeyList
-        (const char * key_list, float Q2min, float Q2max, float xmin, float xmax);
-
-DBTable<DBSFTableRow>  * SFDownload (int iset);
+void                    GetCommandLineArgs (int argc, char ** argv);
+void                    PrintSyntax        (void);
+bool                    CheckRootFilename  (string filename);
+string                  OutputFileName     (string input_file_name);
+void                    CompareWithData    (void);
+TH1F *                  DrawFrame          (TGraph * gr0, TGraph * gr1, TCanvas * c);
+void                    Format             (TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
+void                    Draw               (TGraph* gr, const char * opt);
+DBQueryString           FormQuery          (const char * key_list, float Q2min, float Q2max, float xmin, float xmax);
+DBTable<DBSFTableRow> * GetNuVldData       (int iset);
 
 
 // command-line arguments
-string gOptXSecFilename_curr = "";  // (-f) input ROOT cross section file
-string gOptXSecFilename_ref0 = "";  // (-r) input ROOT cross section file (reference)
+string gOptSfFilename_curr = "";  // (-f) input ROOT cross section file
+string gOptSfFilename_ref0 = "";  // (-r) input ROOT cross section file (reference)
 bool   gOptHaveRef;
 bool   gOptCmpWithData;
 string gOptDbURL;
 string gOptDbUser;
 string gOptDbPasswd;
 
-// dbase information
+// default command line arguments
 const char * kDefDbURL = "mysql://localhost/NuScat";  
 
 // globals
-TFile *  gXSecFile_curr = 0;
-TFile *  gXSecFile_ref0 = 0;
-DBI *    dbi            = 0;
+TFile *  gSfFile_curr = 0;
+TFile *  gSfFile_ref0 = 0;
+DBI *    dbi          = 0;
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -267,7 +262,6 @@ void CompareWithData(void)
   c->SetGridx();
   c->SetGridy();
  
-  TH1F * hf = 0;
   TLegend * l  = new TLegend(0.80,0.20,0.99,0.99);
   TLegend * ls = new TLegend(0.15,0.85,0.55,0.95);
   l ->SetFillColor(0);
@@ -281,7 +275,7 @@ void CompareWithData(void)
   ps->NewPage();
   c->Range(0,0,100,100);
   TPavesText hdr(10,40,90,70,3,"tr");
-  hdr.AddText("GENIE cross sections comparison plots");
+  hdr.AddText("GENIE structure function comparison plots");
   hdr.AddText(" ");
   hdr.AddText(" ");
   hdr.AddText("Notes:");
@@ -291,15 +285,85 @@ void CompareWithData(void)
   c->Update();
   TPavesText title(10,40,90,70,1,"ndc");
   
+  double xmin = 9999;
+  double xmax = -1;
+  double ymin = 9999;
+  double ymax = -1;
+
+  //
+  // summarize all comparisons in a single page
+  //
+
   for(int iset = 0; iset < kSFDataSets; iset++) {
-    DBTable<DBSFTableRow> * dbtable = SFDownload(iset);
+    DBTable<DBSFTableRow> * dbtable = GetNuVldData(iset);
     TGraphAsymmErrors * graph = dbtable->GetGraph("err","Q2");
 
-    double xmin  = ( graph->GetX() )[TMath::LocMin(graph->GetN(),graph->GetX())];
-    double xmax  = ( graph->GetX() )[TMath::LocMax(graph->GetN(),graph->GetX())];
-    double ymin  = ( graph->GetY() )[TMath::LocMin(graph->GetN(),graph->GetY())];
-    double ymax  = ( graph->GetY() )[TMath::LocMax(graph->GetN(),graph->GetY())];
+    double xmin_c  = ( graph->GetX() )[TMath::LocMin(graph->GetN(),graph->GetX())];
+    double xmax_c  = ( graph->GetX() )[TMath::LocMax(graph->GetN(),graph->GetX())];
+    double ymin_c  = ( graph->GetY() )[TMath::LocMin(graph->GetN(),graph->GetY())];
+    double ymax_c  = ( graph->GetY() )[TMath::LocMax(graph->GetN(),graph->GetY())];
   
+    xmin = TMath::Min(xmin, xmin_c);
+    xmax = TMath::Max(xmax, xmax_c);
+    ymin = TMath::Min(ymin, ymin_c);
+    ymax = TMath::Max(ymax, ymax_c);
+  }
+
+//  c->Clear();
+//  c->Divide(2,1);
+//  c->GetPad(1)->SetPad("mplots_pad","",0.01,0.25,0.99,0.99);
+//  c->GetPad(2)->SetPad("legend_pad","",0.01,0.01,0.99,0.24);
+//  c->GetPad(1)->SetFillColor(0);
+//  c->GetPad(1)->SetBorderMode(0);
+//  c->GetPad(2)->SetFillColor(0);
+//  c->GetPad(2)->SetBorderMode(0);
+//  c->GetPad(1)->cd();
+//  c->GetPad(1)->SetBorderMode(0);
+  
+//  c->GetPad(1)->SetLogx();
+//  c->GetPad(1)->SetLogy();
+  c->SetLogx();
+
+
+//  TH1F * hframe = (TH1F*) c->GetPad(1)->DrawFrame(.5*xmin, .4*ymin, 1.2*xmax, 1.42*ymax);
+  TH1F * hframe = (TH1F*) c->DrawFrame(.5*xmin, .4*ymin, 1.2*xmax, 1.42*ymax);
+  hframe->Draw();
+
+  for(int iset = 0; iset < kSFDataSets; iset++) {
+    DBTable<DBSFTableRow> * dbtable = GetNuVldData(iset);
+    MultiGraph * mgraph = dbtable->GetMultiGraph("err","Q2");
+    for(unsigned int igraph = 0; igraph < mgraph->NGraphs(); igraph++) {
+       mgraph->GetGraph(igraph)->Draw("P");
+    }
+
+    // Superimpose GENIE predictions
+    //
+    // ...
+
+//    c->GetPad(2)->cd();
+//    TLegend * legend = new TLegend(0.01, 0.01, 0.99, 0.99);
+//    legend->SetFillColor(0);
+//    mgraph->FillLegend("LP", legend);
+//    legend->SetTextSize(0.08);
+//    legend->Draw();    
+  }
+
+//  c->GetPad(2)->Update();
+  c->Update();      
+
+  //
+  // show more detail: one page per SF set
+  //
+
+  for(int iset = 0; iset < kSFDataSets; iset++) {
+    DBTable<DBSFTableRow> * dbtable = GetNuVldData(iset);
+    TGraphAsymmErrors * graph = dbtable->GetGraph("err","Q2");
+
+    xmin  = ( graph->GetX() )[TMath::LocMin(graph->GetN(),graph->GetX())];
+    xmax  = ( graph->GetX() )[TMath::LocMax(graph->GetN(),graph->GetX())];
+    ymin  = ( graph->GetY() )[TMath::LocMin(graph->GetN(),graph->GetY())];
+    ymax  = ( graph->GetY() )[TMath::LocMax(graph->GetN(),graph->GetY())];
+
     c->Clear();
     c->Divide(2,1);
     c->GetPad(1)->SetPad("mplots_pad","",0.01,0.25,0.99,0.99);
@@ -322,6 +386,10 @@ void CompareWithData(void)
        mgraph->GetGraph(igraph)->Draw("P");
     }
 
+    // Superimpose GENIE prediction
+    //
+    // ...
+
     c->GetPad(2)->cd();
     TLegend * legend = new TLegend(0.01, 0.01, 0.99, 0.99);
     legend->SetFillColor(0);
@@ -330,14 +398,15 @@ void CompareWithData(void)
     legend->Draw();
     
     c->GetPad(2)->Update();
-    c->Update();      
+    c->Update();        
   }
+
 
   ps->Close();
 }
 //_________________________________________________________________________________
 // Formatting
-//
+//.................................................................................
 TH1F* DrawFrame(TGraph * gr0, TGraph * gr1, TCanvas * c)
 {
   TAxis * x0 = gr0 -> GetXaxis();
@@ -392,7 +461,7 @@ void Draw(TGraph* gr, const char * opt)
 //_________________________________________________________________________________
 // Get the requested structure function data from the NuVld MySQL dbase
 //.................................................................................
-DBQueryString SFQueryFromKeyList(
+DBQueryString FormQuery(
            const char * key_list, float Q2min, float Q2max, float xmin, float xmax)
 {
 // forms a DBQueryString for extracting structure function data from the input 
@@ -410,7 +479,7 @@ DBQueryString SFQueryFromKeyList(
   return query;
 }
 //_________________________________________________________________________________
-DBTable<DBSFTableRow> * SFDownload (int iset)
+DBTable<DBSFTableRow> * GetNuVldData(int iset)
 {
   DBTable<DBSFTableRow> * dbtable = new DBTable<DBSFTableRow>;
 
@@ -418,7 +487,7 @@ DBTable<DBSFTableRow> * SFDownload (int iset)
   float        xmin    = kSFx[iset] - 0.001;
   float        xmax    = kSFx[iset] + 0.001;
 
-  DBQueryString query = SFQueryFromKeyList(keylist, kSFQ2min, kSFQ2max, xmin, xmax);
+  DBQueryString query = FormQuery(keylist, kSFQ2min, kSFQ2max, xmin, xmax);
   
   assert( dbi->FillTable(dbtable, query) == eDbu_OK );
 
@@ -427,15 +496,14 @@ DBTable<DBSFTableRow> * SFDownload (int iset)
 //_________________________________________________________________________________
 // Parsing command-line arguments, check/form filenames, etc
 //.................................................................................
-//
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gvldtest", pNOTICE) << "*** Parsing commad line arguments";
 
   // get input GENIE cross section file
   try {
-    gOptXSecFilename_curr = utils::clap::CmdLineArgAsString(argc,argv,'f');
-    bool ok = CheckRootFilename(gOptXSecFilename_curr.c_str());
+    gOptSfFilename_curr = utils::clap::CmdLineArgAsString(argc,argv,'f');
+    bool ok = CheckRootFilename(gOptSfFilename_curr.c_str());
     if(!ok) {
       PrintSyntax();
       exit(1);
@@ -449,8 +517,8 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // get [reference] input GENIE cross section file
   try {
-    gOptXSecFilename_ref0 = utils::clap::CmdLineArgAsString(argc,argv,'r');
-    bool ok = CheckRootFilename(gOptXSecFilename_ref0.c_str());
+    gOptSfFilename_ref0 = utils::clap::CmdLineArgAsString(argc,argv,'r');
+    bool ok = CheckRootFilename(gOptSfFilename_ref0.c_str());
     if(!ok) {
       PrintSyntax();
       exit(1);
@@ -496,9 +564,7 @@ void GetCommandLineArgs(int argc, char ** argv)
        exit(1);
      }
    }
-
   } // -d enabled?
-
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)

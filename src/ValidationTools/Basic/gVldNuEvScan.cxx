@@ -21,6 +21,7 @@
 
 #include <string>
 #include <vector>
+#include <iomanip>
 
 #include <TSystem.h>
 #include <TFile.h>
@@ -38,6 +39,11 @@
 
 using std::string;
 using std::vector;
+using std::setw;
+using std::setprecision;
+using std::setfill;
+using std::ios;
+
 using namespace genie;
 
 void GetCommandLineArgs (int argc, char ** argv);
@@ -116,39 +122,51 @@ int main(int argc, char ** argv)
     TIter event_iter(&event);
     while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
 
-     int pdgc = p->Pdg();
+     int          pdgc = p->Pdg();
+     GHepStatus_t ist  = p->Status();
 
-     if(p->Status() == kIStInitialState) {
+     // Check energy & momentum conservation
+     //
+     if(ist == kIStInitialState) {
        E_init   += p->E();
        px_init  += p->Px();
        py_init  += p->Py();
        pz_init  += p->Pz();
-       Q_init   += p->Charge();
-     //s_init   += pdglib->Find(p->Pdg())->Strangeness();
      }
-     if(p->Status() == kIStStableFinalState) {
+     if(ist == kIStStableFinalState) {
        E_fin   += p->E();
        px_fin  += p->Px();
        py_fin  += p->Py();
        pz_fin  += p->Pz();
-       Q_fin   += p->Charge();
-     //s_fin   += pdglib->Find(p->Pdg())->Strangeness();
      }
+
+     // Check charge conservation
+     //
+     //Q_init += p->Charge();
+     //Q_fin  += p->Charge();
     
+     // Check strangeness conservation
+     //
+     //s_fin  += pdglib->Find(p->Pdg())->Strangeness();
+     //s_init += pdglib->Find(p->Pdg())->Strangeness();
+
+     // Check particle frequencies
+     //
+
      all_particles[pdgc]++;
      all_n++;
   
-     if (p->Status() == kIStStableFinalState)
+     if (ist == kIStStableFinalState)
      {
        fs_particles[pdgc]++;
        fs_n++;
      }
-     else if (p->Status() == kIStDecayedState)
+     else if (ist == kIStDecayedState)
      {
        dec_particles[pdgc]++;
        dec_n++;
      }
-     else if (p->Status() == kIStHadronInTheNucleus)
+     else if (ist == kIStHadronInTheNucleus)
      {
        primh_particles[pdgc]++;
        primh_n++;
@@ -222,7 +240,9 @@ int main(int argc, char ** argv)
      int n    = it->second;
      double r = (all_n>0) ? (double)n / (double)all_n : 0.;
      LOG("gvldtest", pINFO)
-       << " -> " << pdglib->Find(pdgc)->GetName() << " : "
+       << setfill(' ') << setw(15) 
+       << pdglib->Find(pdgc)->GetName() << " :"
+       << setfill('.') << setw(15) 
        << n << " (" << 100*r << " %)";
   }
   LOG("gvldtest", pINFO)  << "*** Final state particles:";
@@ -231,7 +251,9 @@ int main(int argc, char ** argv)
      int n    = it->second;
      double r = (fs_n>0) ? (double)n / (double)fs_n : 0.;
      LOG("gvldtest", pINFO)
-       << " -> " << pdglib->Find(pdgc)->GetName() << " : "
+       << setfill(' ') << setw(15) 
+       << pdglib->Find(pdgc)->GetName() << " :"
+       << setfill('.') << setw(15) 
        << n << " (" << 100*r << " %)";
   }
   LOG("gvldtest", pINFO)  << "*** Decayed particles:";
@@ -240,7 +262,9 @@ int main(int argc, char ** argv)
      int n    = it->second;
      double r = (dec_n>0) ? (double)n / (double)dec_n : 0.;
      LOG("gvldtest", pINFO)
-       << " -> " << pdglib->Find(pdgc)->GetName() << " : "
+       << setfill(' ') << setw(15) 
+       << pdglib->Find(pdgc)->GetName() << " :"
+       << setfill('.') << setw(15) 
        << n << " (" << 100*r << " %)";
   } 
 
@@ -250,7 +274,9 @@ int main(int argc, char ** argv)
      int n    = it->second;
      double r = (primh_n > 0) ? (double)n / (double)primh_n : 0;
      LOG("gvldtest", pINFO)
-       << " -> " << pdglib->Find(pdgc)->GetName() << " : "
+       << setfill(' ') << setw(15) 
+       << pdglib->Find(pdgc)->GetName() << " :"
+       << setfill('.') << setw(15) 
        << n << " (" << 100*r << " %)";
   }
 
