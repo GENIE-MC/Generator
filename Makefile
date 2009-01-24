@@ -162,49 +162,49 @@ else
 	@echo "** Mueloss was not enabled. Skipping..."
 endif
 
-dummy-neugen: FORCE
-ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),NO)
-	@echo " "
-	@echo "** Neugen was not enabled. Building dummy-neugen..."
-	cd ${GENIE}/src;\
-	cd NuValidator; make dummy-neugen; \
-	cd ${GENIE}
-else
-	@echo " "
-	@echo "** Neugen was enabled. Will not build dummy version..."
-endif
+#dummy-neugen: FORCE
+#ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),NO)
+#	@echo " "
+#	@echo "** Neugen was not enabled. Building dummy-neugen..."
+#	cd ${GENIE}/src;\
+#	cd NuValidator; make dummy-neugen; \
+#	cd ${GENIE}
+#else
+#	@echo " "
+#	@echo "** Neugen was enabled. Will not build dummy version..."
+#endif
 
-neugen: FORCE
-ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
-	@echo " "
-	@echo "** Building nuvalidator's neugen interface..."
-	cd ${GENIE}/src;\
-	cd NuValidator; make neugen; \
-	cd ${GENIE}
-else
-endif
+#neugen: FORCE
+#ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
+#	@echo " "
+#	@echo "** Building nuvalidator's neugen interface..."
+#	cd ${GENIE}/src;\
+#	cd NuValidator; make neugen; \
+#	cd ${GENIE}
+#else
+#endif
 
-nuvld-libs: FORCE
-ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
-	@echo " "
-	@echo "** Building nuvalidator libraries..."
-	cd ${GENIE}/src/NuValidator; \
-	make libs; \
-	cd ${GENIE}
-else
-	@echo " "
-	@echo "** Nuvalidator was not enabled. Skipping..."
-endif
+#nuvld-libs: FORCE
+#ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
+#	@echo " "
+#	@echo "** Building nuvalidator libraries..."
+#	cd ${GENIE}/src/NuValidator; \
+#	make libs; \
+#	cd ${GENIE}
+#else
+#	@echo " "
+#	@echo "** Nuvalidator was not enabled. Skipping..."
+#endif
 
-nuvld-exe: FORCE
-ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
-	@echo " "
-	@echo "** Building nuvalidator executables..."
-	cd ${GENIE}/src/NuValidator; \
-	make exe; \
-	cd ${GENIE}
-else
-endif
+#nuvld-exe: FORCE
+#ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
+#	@echo " "
+#	@echo "** Building nuvalidator executables..."
+#	cd ${GENIE}/src/NuValidator; \
+#	make exe; \
+#	cd ${GENIE}
+#else
+#endif
 
 vld-tools: FORCE
 ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
@@ -212,7 +212,11 @@ ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	@echo "** Building GENIE validation tools..."
 	cd ${GENIE}/src/ValidationTools/NuVld; \
 	make; \
-	cd ${GENIE}/src/ValidationTools/app; \
+	cd ${GENIE}/src/ValidationTools/NuVld/app; \
+	make; \
+	cd ${GENIE}/src/ValidationTools/Basic; \
+	make; \
+	cd ${GENIE}/src/ValidationTools/Merenyi; \
 	make; \
 	cd ${GENIE}
 else
@@ -297,8 +301,7 @@ all-libs: base-framework \
 	  flux-drivers \
 	  geom-drivers \
 	  viewer \
-	  mueloss \
-	  nuvld-libs
+	  mueloss 
 
 save-build-env: FORCE
 	@echo " "
@@ -421,42 +424,45 @@ purge: FORCE
 	@echo " "
 	@echo "** Purging..."
 	cd ${GENIE}/src;\
-	cd Algorithm;              make purge; cd ..; \
-	cd BaryonResonance;        make purge; cd ..; \
-	cd Base;                   make purge; cd ..; \
-	cd BodekYang;              make purge; cd ..; \
-	cd Charm;                  make purge; cd ..; \
-	cd CrossSections;          make purge; cd ..; \
-	cd Decay; 	           make purge; cd ..; \
-	cd Elastic; 	           make purge; cd ..; \
-	cd EVGCore;                make purge; cd ..; \
-	cd EVGModules;             make purge; cd ..; \
-	cd EVGDrivers;             make purge; cd ..; \
-	cd FluxDrivers;            make purge; cd ..; \
-	cd Fragmentation;          make purge; cd ..; \
-	cd GHEP;                   make purge; cd ..; \
-	cd Geo;                    make purge; cd ..; \
-	cd HadronTransport;        make purge; cd ..; \
-	cd Interaction;            make purge; cd ..; \
-	cd LlewellynSmith;         make purge; cd ..; \
-	cd MEC;	                   make purge; cd ..; \
-	cd Messenger;	           make purge; cd ..; \
-	cd MuELoss;	           make purge; cd ..; \
-	cd Nuclear;                make purge; cd ..; \
-	cd Ntuple;                 make purge; cd ..; \
-	cd NuGamma;                make purge; cd ..; \
-	cd NuE;                    make purge; cd ..; \
-	cd Numerical;              make purge; cd ..; \
-	cd PartonModel;            make purge; cd ..; \
-	cd Paschos;                make purge; cd ..; \
-	cd PDF;                    make purge; cd ..; \
-	cd PDG;                    make purge; cd ..; \
-	cd Registry;               make purge; cd ..; \
-	cd ReinSeghal;             make purge; cd ..; \
-	cd ReWeight;               make purge; cd ..; \
-	cd Utils;                  make purge; cd ..; \
-	cd ValidationTools/NuVld;  make purge; cd ../../; \
-	cd Viewer;                 make purge; \
+	cd Algorithm;                  make purge; cd ..; \
+	cd BaryonResonance;            make purge; cd ..; \
+	cd Base;                       make purge; cd ..; \
+	cd BodekYang;                  make purge; cd ..; \
+	cd Charm;                      make purge; cd ..; \
+	cd CrossSections;              make purge; cd ..; \
+	cd Decay; 	               make purge; cd ..; \
+	cd Elastic; 	               make purge; cd ..; \
+	cd EVGCore;                    make purge; cd ..; \
+	cd EVGModules;                 make purge; cd ..; \
+	cd EVGDrivers;                 make purge; cd ..; \
+	cd FluxDrivers;                make purge; cd ..; \
+	cd Fragmentation;              make purge; cd ..; \
+	cd GHEP;                       make purge; cd ..; \
+	cd Geo;                        make purge; cd ..; \
+	cd HadronTransport;            make purge; cd ..; \
+	cd Interaction;                make purge; cd ..; \
+	cd LlewellynSmith;             make purge; cd ..; \
+	cd MEC;	                       make purge; cd ..; \
+	cd Messenger;	               make purge; cd ..; \
+	cd MuELoss;	               make purge; cd ..; \
+	cd Nuclear;                    make purge; cd ..; \
+	cd Ntuple;                     make purge; cd ..; \
+	cd NuGamma;                    make purge; cd ..; \
+	cd NuE;                        make purge; cd ..; \
+	cd Numerical;                  make purge; cd ..; \
+	cd PartonModel;                make purge; cd ..; \
+	cd Paschos;                    make purge; cd ..; \
+	cd PDF;                        make purge; cd ..; \
+	cd PDG;                        make purge; cd ..; \
+	cd Registry;                   make purge; cd ..; \
+	cd ReinSeghal;                 make purge; cd ..; \
+	cd ReWeight;                   make purge; cd ..; \
+	cd Utils;                      make purge; cd ..; \
+	cd ValidationTools/NuVld;      make purge; cd ../../; \
+	cd ValidationTools/NuVld/app;  make purge; cd ../../../; \
+	cd ValidationTools/Basic;      make purge; cd ../../; \
+	cd ValidationTools/Merenyi;    make purge; cd ../../; \
+	cd Viewer;                     make purge; \
 	cd ${GENIE}
 
 clean: clean-files clean-dir clean-etc
@@ -499,8 +505,10 @@ clean-files: FORCE
 	cd ReinSeghal;                 make clean; cd ..; \
 	cd ReWeight;                   make clean; cd ..; \
 	cd Utils;                      make clean; cd ..; \
-	cd ValidationTools/app;        make clean; cd ../../; \
 	cd ValidationTools/NuVld;      make clean; cd ../../; \
+	cd ValidationTools/NuVld/app;  make clean; cd ../../../; \
+	cd ValidationTools/Basic;      make clean; cd ../../; \
+	cd ValidationTools/Merenyi;    make clean; cd ../../; \
 	cd Viewer;                     make clean; cd ..; \
 	cd VHE;                        make clean; cd ..; \
 	cd stdapp;                     make clean; cd ..; \
@@ -561,8 +569,10 @@ distclean: FORCE
 	cd ReinSeghal;                  make distclean; cd ..; \
 	cd ReWeight;                    make distclean; cd ..; \
 	cd Utils;                       make distclean; cd ..; \
-	cd ValidationTools/app;         make distclean; cd ../../; \
 	cd ValidationTools/NuVld;       make distclean; cd ../../; \
+	cd ValidationTools/NuVld/app;   make distclean; cd ../../../; \
+	cd ValidationTools/Basic;       make distclean; cd ../../; \
+	cd ValidationTools/Merenyi;     make distclean; cd ../../; \
 	cd Viewer;                      make distclean; cd ..; \
 	cd VHE;                         make distclean; cd ..; \
 	cd stdapp;                      make distclean; cd ..; \
