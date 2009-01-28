@@ -56,7 +56,7 @@ const int kPdgUUDiquarkS1  =  2203; // uu, spin = 1
 const int kPdgSDDiquarkS0  =  3101; // sd, spin = 0
 const int kPdgSDDiquarkS1  =  3103; // sd, spin = 1
 const int kPdgSUDiquarkS0  =  3201; // su, spin = 0
-const int kPdgSUDiquarkS1  =  3201; // su, spin = 1
+const int kPdgSUDiquarkS1  =  3203; // su, spin = 1
 const int kPdgSSDiquarkS1  =  3303; // ss, spin = 1
 
 const int kPdgProton       =  2212;
@@ -81,6 +81,7 @@ const int kPdgAntiXiP      = -3312; // \bar{Xi+}
 const int kPdgOmegaM       =  3332; // Omega-
 const int kPdgAntiOmegaP   = -3332; // \bar{Omega+}
 const int kPdgLambdaPc     =  4122; // Lambda+_{c}
+const int kPdgSigma0c      =  4112; // Sigma0_{c}
 const int kPdgSigmaPc      =  4212; // Sigma+_{c}
 const int kPdgSigmaPPc     =  4222; // Sigma++_{c}
 
