@@ -133,7 +133,7 @@ int main(int argc, char ** argv)
        py_init  += p->Py();
        pz_init  += p->Pz();
      }
-     if(ist == kIStStableFinalState) {
+     if(ist == kIStStableFinalState || ist == kIStFinalStateNuclearRemnant) {
        E_fin   += p->E();
        px_fin  += p->Px();
        py_fin  += p->Py();
