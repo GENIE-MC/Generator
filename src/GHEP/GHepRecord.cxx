@@ -16,7 +16,10 @@
    which appeared once simulation of nuclear de-excitations was enabled.
  @ Jun 20, 2008 - CA
    Fixed memory leak in Print()
-
+ @ Jan 28, 2009 - CA
+   When checking for energy / momentum conservation in Print(), use the new
+   kIStFinalStateNuclearRemnant status code for nuclear remnants (previously
+   marked as kIStStableFinalState).
 */
 //____________________________________________________________________________
 
@@ -966,13 +969,10 @@ void GHepRecord::Print(ostream & stream) const
        stream << setfill(' ') << setw(10) << " | ";
      }
 
-     // compute P4Final - P4Initial
-     //
-     // Take into account real particles and fake (generator-specific)
-     // particles (rootino, bindino, ...) used to record non-fake physics.
-     // Ignore initial & final state ions (if any).
+     // compute P4_{final} - P4_{nitial}
 
-     if(p->Status() == kIStStableFinalState) {
+     if(p->Status() == kIStStableFinalState ||
+        p->Status() == kIStFinalStateNuclearRemnant) {
 
           sum_E  += p->E();
           sum_px += p->Px();
