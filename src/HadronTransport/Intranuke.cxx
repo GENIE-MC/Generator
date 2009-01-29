@@ -25,6 +25,9 @@
  @ Jun 20, 2008 - CA
    Fix a mem leak: The (clone of the) GHepParticle being re-scattered was not 
    deleted after it was added at the GHEP event record.
+ @ Jan 28, 2009 - CA
+   The nuclear remnant is now marked as a kIStFinalStateNuclearRemnant, not
+   as a kIStStableFinalState.
 */
 //____________________________________________________________________________
 
@@ -308,7 +311,9 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
   // 4p not  put explicitly into the simulated particles
   TLorentzVector v4(0.,0.,0.,0.);
   GHepParticle remnant_nucleus(
-     kPdgHadronicBlob, kIStStableFinalState, iremn,-1,-1,-1, fRemnP4, v4);
+    kPdgHadronicBlob, kIStFinalStateNuclearRemnant, 
+    iremn,-1,-1,-1, fRemnP4, v4);
+//     kPdgHadronicBlob, kIStStableFinalState, iremn,-1,-1,-1, fRemnP4, v4);
   evrec->AddParticle(remnant_nucleus);
   // Mark the initial remnant nucleus as an intermediate state 
   // Don't do that in the test mode sinc ethe initial remnant nucleus and
