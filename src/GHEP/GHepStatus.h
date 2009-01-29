@@ -35,7 +35,9 @@ typedef enum EGHepStatus {
    kIStNucleonTarget              = 11,
    kIStDISPreFragmHadronicState   = 12,
    kIStPreDecayResonantState      = 13,
-   kIStHadronInTheNucleus         = 14
+   kIStHadronInTheNucleus         = 14,
+   kIStFinalStateNuclearRemnant   = 15,
+   kIStNucleonClusterTarget       = 16
 } 
 GHepStatus_t; 
   
@@ -73,6 +75,12 @@ class GHepStatus {
            break;
      case kIStHadronInTheNucleus:     
            return  "[hadron in the nucleus]"; 
+           break;
+     case kIStFinalStateNuclearRemnant:     
+           return  "[nuclear remnant]"; 
+           break;
+     case kIStNucleonClusterTarget:     
+           return  "[nucleon cluster target]"; 
            break;
      default:  break;
      }
