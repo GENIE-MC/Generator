@@ -287,28 +287,6 @@ else
 endif
 
 #-------------------------------------------------------------------
-#                             GIBUU
-#-------------------------------------------------------------------
-
-ifeq ($(strip $(GOPT_ENABLE_GIBUU)),NO) 
-
-# GiBUU was not enabled 
-  GIBUU_LIB       =
-  GIBUU_LIBRARIES = 
-else
-
-# In case the actual fortran90 GIBUU library is used
-  GIBUU_LIBRARIES = -L$(GOPT_WITH_GIBUU_LIB) -lGiBUU
-
-ifeq ($(strip $(ARCH)),macosx) 
-  GIBUU_LIBRARIES := $(GIBUU_LIBRARIES) /usr/local/lib/libgfortran.dylib
-else
-  GIBUU_LIBRARIES := $(GIBUU_LIBRARIES) -lg2c
-endif
-
-endif
-
-#-------------------------------------------------------------------
 #                              ROOT
 #-------------------------------------------------------------------
 # ROOT headers and libraries
