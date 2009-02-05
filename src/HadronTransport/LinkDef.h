@@ -9,7 +9,6 @@
 #pragma link C++ class genie::Intranuke;
 #pragma link C++ class genie::NEUTCascade;
 #pragma link C++ class genie::FLUKA;
-#pragma link C++ class genie::GIBUU;
 
 #pragma link C++ class genie::INukeHadroData;
 
