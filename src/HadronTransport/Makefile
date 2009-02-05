@@ -15,7 +15,7 @@ include $(GENIE)/src/make/Make.include
 PACKAGE           = HadronTransport
 DICTIONARY        = _ROOT_DICT_HadronTransport
 LIBNAME           = libGHadronTransp
-EXTRA_EXT_LIBS    = $(GIBUU_LIBRARIES)
+EXTRA_EXT_LIBS    = 
 
 all     : rootcint lib lib-link
 install : install-inc install-lib
