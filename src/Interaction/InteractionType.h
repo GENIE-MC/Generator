@@ -21,6 +21,7 @@
 
 #include <cassert>
 #include <string>
+#include <cstring>
 
 using std::string;
 

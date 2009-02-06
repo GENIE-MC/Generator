@@ -34,7 +34,7 @@ typedef enum ENtpMCFormat {
 
 class NtpMCFormat {
  public:
-  static char * AsString(NtpMCFormat_t fmt) {
+  static const char * AsString(NtpMCFormat_t fmt) {
      switch (fmt) {
      case kNFUndefined:
               return "Undefined";

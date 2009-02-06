@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include <cctype>
+#include <cstdlib>
 
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
