@@ -1287,9 +1287,11 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
       break;
     case kpdg_numu:
     case kpdg_numubar:
+    {
       double xnu = 2.0 * enuzr / kMUMASS;
       wgt_ratio = ( (3.0-2.0*xnu )  - (1.0-2.0*xnu)*costh ) / (3.0-2.0*xnu);
       break;
+    }
     default:
       return 2; // bad neutrino type
     }

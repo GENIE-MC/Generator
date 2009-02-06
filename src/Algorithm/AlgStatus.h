@@ -38,7 +38,7 @@ class AlgStatus {
 
 public:
 
-  static char * AsString(AlgStatus_t alg) {
+  static const char * AsString(AlgStatus_t alg) {
      switch (alg) {
      case kAlgFail:               return "Algorithm failed";           break;
      case kAlgSuccess:            return "Algorithm run successfully"; break;

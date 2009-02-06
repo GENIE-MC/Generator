@@ -32,7 +32,7 @@ class Interaction;
 namespace utils {
 namespace res {
 
-  char *      AsString          (Resonance_t res);
+  const char* AsString          (Resonance_t res);
   double      Mass              (Resonance_t res);
   Resonance_t FromString        (const char * res);
   Resonance_t FromPdgCode       (int pdgc);

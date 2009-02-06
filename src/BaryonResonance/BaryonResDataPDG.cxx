@@ -18,6 +18,8 @@
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Messenger/Messenger.h"
 
+#include <cstdlib>
+
 using std::endl;
 
 using namespace genie;

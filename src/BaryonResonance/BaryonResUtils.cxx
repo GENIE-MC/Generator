@@ -23,7 +23,7 @@
 using namespace genie;
 
 //____________________________________________________________________________
-char * genie::utils::res::AsString(Resonance_t res)
+const char * genie::utils::res::AsString(Resonance_t res)
 {
   switch(res) {
     case kP33_1232  : return "P33(1232)" ; break;

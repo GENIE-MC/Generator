@@ -39,7 +39,7 @@ class AlgCmp {
 
  public:
 
-  static char * AsString(AlgCmp_t alg) {
+  static const char * AsString(AlgCmp_t alg) {
      switch (alg) {
      case kAlgCmpIdentical:   return "Algorithm [same], configuration [same]";  break;
      case kAlgCmpDiffConfig:  return "Algorithm [same], configuration [diff]";  break;
