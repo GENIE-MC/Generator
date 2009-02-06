@@ -37,7 +37,7 @@ class RefFrame {
 
 public:
 
-  static char * AsString(RefFrame_t rf) 
+  static const char * AsString(RefFrame_t rf) 
   {
     switch (rf) {
        case (kRfLab)        : return "[LAB]";                     break;       

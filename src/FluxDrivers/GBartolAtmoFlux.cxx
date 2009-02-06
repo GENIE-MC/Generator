@@ -14,6 +14,7 @@
 //____________________________________________________________________________
 
 #include <fstream>
+#include <cassert>
 
 #include <TH2D.h>
 #include <TMath.h>
@@ -23,6 +24,7 @@
 
 using std::ifstream;
 using std::ios;
+
 using namespace genie;
 using namespace genie::flux;
 
