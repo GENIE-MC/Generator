@@ -16,6 +16,10 @@
    nucleus" to be the maximum distance that a particle can be tracked
    by the intranuclear cascade + a couple of fermis. Brings the code
    in sync with changes in the intranuclear cascade tracking algorithm.
+ @ Feb 07, 2009 - CA
+   Removed call to AddTargetNucleusRemnant(). This simulation step is now
+   performed further upstream in the processing chain.  
+
 */
 //____________________________________________________________________________
 
@@ -70,10 +74,6 @@ DISHadronicSystemGenerator::~DISHadronicSystemGenerator()
 void DISHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // This method generates the final state hadronic system
-
-  //-- If the struck nucleon was within a nucleus, then add the final state
-  //   nucleus at the EventRecord
-  this->AddTargetNucleusRemnant(evrec);
 
   //-- Add an entry for the DIS Pre-Fragm. Hadronic State
   this->AddFinalHadronicSyst(evrec);

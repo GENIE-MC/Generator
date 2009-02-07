@@ -43,11 +43,16 @@ public :
   void Configure(string config);
 
 private:
+
+  void KickHitNucleon          (GHepRecord * evrec) const; ///< give hit nucleon a momentum
+  void Emit2ndNucleonFromSRC   (GHepRecord * evrec) const; ///< check whether to emit a 2nd nucleon due to short range corellations
+  void AddTargetNucleusRemnant (GHepRecord * evrec) const; ///< add a recoiled nucleus remnant
+
   void LoadConfig (void);
 
-  bool  fKeepNuclOnMassShell;               ///< if true, keeps hit bound nucleon on the mass shell
-  const NuclearModelI *       fNuclModel;   ///< nuclear model
-//const EventRecordVisitorI * fNNCorrModel; ///< NN correlation model
+  bool  fKeepNuclOnMassShell;          ///< keep hit bound nucleon on the mass shell?
+  bool  fSRCRecoilNucleon;             ///< simulate recoil nucleon due to short range corellation?
+  const NuclearModelI *  fNuclModel;   ///< nuclear model
 };
 
 }      // genie namespace
