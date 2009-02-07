@@ -10,6 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Feb 07, 2009 - CA
+   Removed call to AddTargetNucleusRemnant(). This simulation step is now
+   performed further upstream in the processing chain.  
 
 */
 //____________________________________________________________________________
@@ -71,10 +74,6 @@ void RESHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- Add the selected resonance
   this->AddResonance(evrec,pdgc);
-
-  //-- If the struck nucleon was within a nucleus, then add the final state
-  //   nucleus at the EventRecord
-  this->AddTargetNucleusRemnant(evrec);
 
   //-- Add the baryon resonance decay products at the event record
   this->AddResonanceDecayProducts(evrec,pdgc);

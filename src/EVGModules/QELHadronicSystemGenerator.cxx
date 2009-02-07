@@ -10,6 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Feb 07, 2009 - CA
+   Removed call to AddTargetNucleusRemnant(). This simulation step is now
+   performed further upstream in the processing chain.  
 
 */
 //____________________________________________________________________________
@@ -47,14 +50,10 @@ void QELHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // This method generates the final state hadronic system
 
-  //-- If the struck nucleon was within a nucleus, then add the final state
-  //   nucleus at the EventRecord
-  this->AddTargetNucleusRemnant(evrec);
-
-  //-- Add the recoil baryon 
-  //   (p or n - Lambda_c+,Sigma_c+,Sigma_c++ in charm/QEL)
-  //   Its 4-momentum is computed by requiring the energy + momentum to be
-  //   conserved.
+  // Add the recoil baryon 
+  // (p or n - Lambda_c+,Sigma_c+,Sigma_c++ in charm/QEL)
+  // Its 4-momentum is computed by requiring the energy + momentum to be
+  // conserved.
   this->AddRecoilBaryon(evrec);
 }
 //___________________________________________________________________________
