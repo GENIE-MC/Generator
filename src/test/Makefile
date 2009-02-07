@@ -1,9 +1,9 @@
-#########################################################
+#
 # Makefile for Neutrino Generator Test Programs
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # May 02, 2004
-#########################################################
+#
 
 SHELL = /bin/sh
 NAME = all
@@ -30,6 +30,7 @@ TGT =	gtestAlgorithms 	\
 	gtestNumerical		\
 	gtestNaturalIsotopes	\
 	gtestPDFLIB		\
+	gtestROOTGeometry	\
 	gtestFermiP		\
 	gtestRegistry		\
 	gtestInteraction	\
@@ -63,6 +64,10 @@ gtestDISSF: FORCE
 gtestElFormFactors: FORCE
 	$(CXX) $(CXXFLAGS) -c testElFormFactors.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testElFormFactors.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestElFormFactors
+
+gtestNumOfEvents: FORCE
+	$(CXX) $(CXXFLAGS) -c testNumOfEvents.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testNumOfEvents.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNumOfEvents
 
 gtestHadronization: FORCE
 	$(CXX) $(CXXFLAGS) -c testHadronization.cxx $(INCLUDES)
