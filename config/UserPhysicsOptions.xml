@@ -296,11 +296,9 @@ Use the "Default" one to get the best GENIE physics & tuning.
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Options relevant for the simulation of the 2nd nucleon when the scattering if off a correlated
-  NN pair
+  Option relevant to simulating Short Range Corellation (SRC) effects.
   -->
-  <param type="bool"   name="CorrelNN-Enable">            false </param>
-  <param type="double" name="CorrelNN-MomentumThreshold"> 0.3   </param>
+  <param type="bool" name="SRC-SimRecoilNucleon"> false </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
