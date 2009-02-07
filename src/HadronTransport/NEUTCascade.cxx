@@ -50,8 +50,8 @@ void NEUTCascade::ProcessEventRecord(GHepRecord * event) const
   //-- Check that we have an interaction with a nuclear target. If not skip...
   GHepParticle * nucltgt = event->TargetNucleus();
   if (!nucltgt) {
-    LOG("FLUKA", pINFO)
-       << "No nuclear target found - FLUKA will not be called....";
+    LOG("NEUTc", pINFO)
+       << "No nuclear target. Skipping....";
     return;
   }
 
@@ -73,7 +73,7 @@ void NEUTCascade::ProcessEventRecord(GHepRecord * event) const
 
   //-- Get NEUT cascade output & add it to the GENIE event record
   LOG("NEUTCascade", pDEBUG) 
-	<< "Copying: FLUKA output ---> GENIE GHepRecord";
+	<< "Copying: NEUT output ---> GENIE GHepRecord";
 
   //
   // ...
