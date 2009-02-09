@@ -298,6 +298,11 @@ void ConvertToGST(void)
   double brVtxY;                 // Vertex y in detector coord system (SI)
   double brVtxZ;                 // Vertex z in detector coord system (SI)
   double brVtxT;                 // Vertex t in detector coord system (SI)
+  double brCalResp0;             // Approximate calorimetric response to the hadronic system computed as sum of
+				 //  - (kinetic energy) for pi+, pi-, p, n 
+                                 //  - (energy + mass)  for antiproton, antineutron
+                                 //  - ((e/h) * energy)   for pi0, gamma, e-, e+, where e/h is set to 1.3
+                                 //  - (kinetic energy) for other particles
 
   //-- open output file & create output summary tree & create the tree branches
   //
@@ -389,6 +394,7 @@ void ConvertToGST(void)
   s_tree->Branch("vtxy",         &brVtxY,	    "vtxy/D"        );
   s_tree->Branch("vtxz",         &brVtxZ,	    "vtxz/D"        );
   s_tree->Branch("vtxt",         &brVtxT,	    "vtxt/D"        );
+  s_tree->Branch("calresp0",     &brCalResp0,	    "calresp0/D"    );
 
   //-- open the ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
@@ -418,6 +424,10 @@ void ConvertToGST(void)
     LOG("gntpc", pERROR) << "Number of events = 0";
     return;
   }
+
+  //-- some constants
+  const double e_h = 1.3;
+
   LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
 
   TLorentzVector pdummy(0,0,0,0);
@@ -586,7 +596,6 @@ void ConvertToGST(void)
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
       ip++;
-//      if(!is_coh && ip < TMath::Max(hitnucl->FirstDaughter(), event.FinalStatePrimaryLeptonPosition()+1)) continue;
       if(!is_coh && event.Particle(ip)->FirstMother()==0) continue;
       if(p->IsFake()) continue;
       int pdgc = p->Pdg();
@@ -798,26 +807,42 @@ void ConvertToGST(void)
     brNfEM       = 0;  
     brNfOther    = 0;  
 
+    brCalResp0   = 0;
+
     brNf = final_had_syst.size();
     for(int j=0; j<brNf; j++) {
       p = event.Particle(final_had_syst[j]);
       assert(p);
-      brPdgf[j] = p->Pdg();     
-      brEf  [j] = p->Energy();     
-      brPxf [j] = p->Px();     
-      brPyf [j] = p->Py();     
-      brPzf [j] = p->Pz();     
 
-      if      (p->Pdg() == kPdgProton  || p->Pdg() == kPdgAntiProton)   brNfP++;
-      else if (p->Pdg() == kPdgNeutron || p->Pdg() == kPdgAntiNeutron)  brNfN++;
-      else if (p->Pdg() == kPdgPiP) brNfPip++; 
-      else if (p->Pdg() == kPdgPiM) brNfPim++; 
-      else if (p->Pdg() == kPdgPi0) brNfPi0++; 
-      else if (p->Pdg() == kPdgKP)  brNfKp++;  
-      else if (p->Pdg() == kPdgKM)  brNfKm++;  
-      else if (p->Pdg() == kPdgK0    || p->Pdg() == kPdgAntiK0)  brNfK0++; 
-      else if (p->Pdg() == kPdgGamma || p->Pdg() == kPdgElectron || p->Pdg() == kPdgPositron) brNfEM++;
-      else brNfOther++;
+      int    hpdg = p->Pdg();     
+      double hE   = p->Energy();     
+      double hKE  = p->KinE();     
+      double hpx  = p->Px();     
+      double hpy  = p->Py();     
+      double hpz  = p->Pz();     
+      double hm   = p->Mass();     
+
+      brPdgf[j] = hpdg;
+      brEf  [j] = hE;
+      brPxf [j] = hpx;
+      brPyf [j] = hpy;
+      brPzf [j] = hpz;
+
+      if      ( hpdg == kPdgProton      )  { brNfP++;     brCalResp0 += hKE;        }
+      else if ( hpdg == kPdgAntiProton  )  { brNfP++;     brCalResp0 += (hE + hm);  }
+      else if ( hpdg == kPdgNeutron     )  { brNfN++;     brCalResp0 += hKE;        }
+      else if ( hpdg == kPdgAntiNeutron )  { brNfN++;     brCalResp0 += (hE + hm);  }
+      else if ( hpdg == kPdgPiP         )  { brNfPip++;   brCalResp0 += hKE;        }
+      else if ( hpdg == kPdgPiM         )  { brNfPim++;   brCalResp0 += hKE;        }
+      else if ( hpdg == kPdgPi0         )  { brNfPi0++;   brCalResp0 += (e_h * hE); }
+      else if ( hpdg == kPdgKP          )  { brNfKp++;    brCalResp0 += hKE;        }
+      else if ( hpdg == kPdgKM          )  { brNfKm++;    brCalResp0 += hKE;        }
+      else if ( hpdg == kPdgK0          )  { brNfK0++;    brCalResp0 += hKE;        }
+      else if ( hpdg == kPdgAntiK0      )  { brNfK0++;    brCalResp0 += hKE;        }
+      else if ( hpdg == kPdgGamma       )  { brNfEM++;    brCalResp0 += (e_h * hE); }
+      else if ( hpdg == kPdgElectron    )  { brNfEM++;    brCalResp0 += (e_h * hE); }
+      else if ( hpdg == kPdgPositron    )  { brNfEM++;    brCalResp0 += (e_h * hE); }
+      else                                 { brNfOther++; brCalResp0 += hKE;        }
 
       LOG("gntpc", pINFO) 
         << "Counting in f/s system from hadronic vtx: idx = " << final_had_syst[j]
@@ -1471,7 +1496,7 @@ void ConvertToGRooTracker(void)
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
   flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
-  if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
+  if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
      gtree->SetBranchAddress("flux", &flux_info);
   }
 #else
@@ -1502,7 +1527,7 @@ void ConvertToGRooTracker(void)
     LOG("gntpc", pINFO) << rec_header;
     LOG("gntpc", pINFO) << event;
     LOG("gntpc", pINFO) << *interaction;
-    if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
+    if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
        if(flux_info) {
           LOG("gntpc", pINFO) << *flux_info;
        } else {
@@ -1600,7 +1625,7 @@ void ConvertToGRooTracker(void)
     // Copy flux info if this is the t2k rootracker variance.
     // The flux may not be available, eg if events were generated using plain flux 
     // histograms and not the JNUBEAM simulation's output flux ntuples.
-    if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
+    if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
      if(flux_info) {
        brNuParentPdg       = flux_info->pdg;        
        brNuParentDecMode   = flux_info->decayMode;        
