@@ -373,6 +373,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReinSeghal
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Utils
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/VHE
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/ValidationTools/
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ValidationTools/NuVld/
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Viewer
 
