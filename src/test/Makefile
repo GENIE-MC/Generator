@@ -23,6 +23,7 @@ TGT =	gtestAlgorithms 	\
  	gtestDecay		\
  	gtestDISSF		\
  	gtestElFormFactors	\
+ 	gtestEventLoop 		\
  	gtestHadronization	\
  	gtestIntranuke		\
 	gtestINukeHadroData     \
@@ -65,9 +66,9 @@ gtestElFormFactors: FORCE
 	$(CXX) $(CXXFLAGS) -c testElFormFactors.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testElFormFactors.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestElFormFactors
 
-gtestNumOfEvents: FORCE
-	$(CXX) $(CXXFLAGS) -c testNumOfEvents.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testNumOfEvents.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNumOfEvents
+gtestEventLoop: FORCE
+	$(CXX) $(CXXFLAGS) -c testEventLoop.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testEventLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestEventLoop
 
 gtestHadronization: FORCE
 	$(CXX) $(CXXFLAGS) -c testHadronization.cxx $(INCLUDES)
@@ -166,6 +167,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestDecay		
 	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_PATH)/gtestElFormFactors
+	$(RM) $(GENIE_BIN_PATH)/gtestEventLoop
 	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_PATH)/gtestIntranuke	
 	$(RM) $(GENIE_BIN_PATH)/gtestINukeHadroData	
@@ -194,6 +196,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDecay		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestElFormFactors
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestEventLoop
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestIntranuke		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestINukeHadroData
@@ -233,6 +236,9 @@ clean--gtestDISSF: FORCE
 
 clean--gtestElFormFactors: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestElFormFactors
+
+clean--gtestEventLoop: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestEventLoop
 
 clean--gtestHadronization: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestHadronization
