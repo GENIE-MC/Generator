@@ -19,6 +19,8 @@
    Added IsAMNuGamma() to query about anomaly-mediated nu-gamma interactions
  @ Sep 22, 2008 - CA
    Added IsMEC() to query about meson exchange current interactions
+ @ Feb 09, 2009 - CA
+   Added IsDiffractive() to query about diffractive interactions
 */
 //____________________________________________________________________________
 
@@ -127,6 +129,11 @@ bool ProcessInfo::IsAMNuGamma(void) const
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsMEC(void) const
+{
+  return (fScatteringType == kScMEC);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsDiffractive(void) const
 {
   return (fScatteringType == kScMEC);
 }
