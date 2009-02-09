@@ -12,7 +12,7 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = NuVld
+PACKAGE           = ValidationTools/NuVld
 DICTIONARY        = _ROOT_DICT_NuVld
 LIBNAME           = libGNuVld
 EXTRA_EXT_LIBS    =
