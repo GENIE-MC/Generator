@@ -96,6 +96,7 @@ evgen-models: FORCE
 	cd ${GENIE}/src;\
 	cd BodekYang;          make; cd ..; \
 	cd Charm;              make; cd ..; \
+	cd Coherent;           make; cd ..; \
 	cd CrossSections;      make; cd ..; \
 	cd Decay; 	       make; cd ..; \
 	cd Elastic; 	       make; cd ..; \
@@ -342,6 +343,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Base
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/BodekYang
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Charm
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Coherent
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Conventions
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/CrossSections
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Decay
@@ -387,6 +389,7 @@ copy-install-files: FORCE
 	cd Base;                   make install; cd ..; \
 	cd BodekYang;              make install; cd ..; \
 	cd Charm;                  make install; cd ..; \
+	cd Coherent;               make install; cd ..; \
 	cd Conventions;            make install; cd ..; \
 	cd CrossSections;          make install; cd ..; \
 	cd Decay; 	           make install; cd ..; \
@@ -430,6 +433,7 @@ purge: FORCE
 	cd Base;                       make purge; cd ..; \
 	cd BodekYang;                  make purge; cd ..; \
 	cd Charm;                      make purge; cd ..; \
+	cd Coherent;                   make purge; cd ..; \
 	cd CrossSections;              make purge; cd ..; \
 	cd Decay; 	               make purge; cd ..; \
 	cd Elastic; 	               make purge; cd ..; \
@@ -477,6 +481,7 @@ clean-files: FORCE
 	cd Base;                       make clean; cd ..; \
 	cd BodekYang;                  make clean; cd ..; \
 	cd Charm;                      make clean; cd ..; \
+	cd Coherent;                   make clean; cd ..; \
 	cd CrossSections;              make clean; cd ..; \
 	cd Decay; 	               make clean; cd ..; \
 	cd Elastic; 	               make clean; cd ..; \
@@ -541,6 +546,7 @@ distclean: FORCE
 	cd Base;                        make distclean; cd ..; \
 	cd BodekYang;                   make distclean; cd ..; \
 	cd Charm;                       make distclean; cd ..; \
+	cd Coherent;                    make distclean; cd ..; \
 	cd CrossSections;               make distclean; cd ..; \
 	cd Decay; 	                make distclean; cd ..; \
 	cd Elastic; 	                make distclean; cd ..; \
