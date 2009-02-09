@@ -21,8 +21,10 @@
    as the primary final state lepton
  @ Feb 15, 2008 - CA
    Added named ctors for anomaly mediated nu-gamma interactions
- @ Feb 24, 2008 - CA
+ @ Sep 24, 2008 - CA
    Added named ctors for MEC interactions
+ @ Feb 09, 2009 - CA
+   Added named ctors for diffractive interactions
 */
 //____________________________________________________________________________
 
@@ -487,6 +489,31 @@ Interaction * Interaction::RESNC(
 {
   Interaction * interaction = 
                    Interaction::Create(target,probe,kScResonant, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DFRCC(int tgt,int hitnuc, int probe, double E)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt, probe, kScDiffractive, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DFRCC(
+           int tgt, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+          Interaction::Create(tgt, probe, kScDiffractive, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
