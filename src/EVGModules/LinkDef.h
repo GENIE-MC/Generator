@@ -16,15 +16,12 @@
 #pragma link C++ class genie::UnstableParticleDecayer;
 
 #pragma link C++ class genie::PrimaryLeptonGenerator;
-#pragma link C++ class genie::COHPrimaryLeptonGenerator;
 #pragma link C++ class genie::QELPrimaryLeptonGenerator;
 #pragma link C++ class genie::DISPrimaryLeptonGenerator;
 #pragma link C++ class genie::RESPrimaryLeptonGenerator;
 #pragma link C++ class genie::NuEPrimaryLeptonGenerator;
 
 #pragma link C++ class genie::HadronicSystemGenerator;
-#pragma link C++ class genie::COHPiHadronicSystemGenerator;
-#pragma link C++ class genie::COHElHadronicSystemGenerator;
 #pragma link C++ class genie::QELHadronicSystemGenerator;
 #pragma link C++ class genie::DISHadronicSystemGenerator;
 #pragma link C++ class genie::RESHadronicSystemGenerator;
@@ -32,7 +29,6 @@
 #pragma link C++ class genie::NuETargetRemnantGenerator;
 #pragma link C++ class genie::RSPPResonanceSelector;
 
-#pragma link C++ class genie::COHInteractionListGenerator;
 #pragma link C++ class genie::QELInteractionListGenerator;
 #pragma link C++ class genie::DISInteractionListGenerator;
 #pragma link C++ class genie::RESInteractionListGenerator;
@@ -44,7 +40,5 @@
 #pragma link C++ class genie::DISKinematicsGenerator;
 #pragma link C++ class genie::RESKinematicsGenerator;
 #pragma link C++ class genie::NuEKinematicsGenerator;
-#pragma link C++ class genie::COHPiKinematicsGenerator;
-#pragma link C++ class genie::COHElKinematicsGenerator;
 
 #endif
