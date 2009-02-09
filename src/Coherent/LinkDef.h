@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::COHElasticPXSec;
 #pragma link C++ class genie::COHInteractionListGenerator;
 #pragma link C++ class genie::COHPrimaryLeptonGenerator;
 #pragma link C++ class genie::COHPiHadronicSystemGenerator;
