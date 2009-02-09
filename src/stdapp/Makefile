@@ -20,13 +20,13 @@ LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 TGT =    gEvGen		  \
 	 gEvDump          \
 	 ghAEvGen         \
+	 geAEvGen         \
 	 gEvGenGUI	  \
 	 gMakeSplines	  \
 	 gSplineAdd   	  \
 	 gSplineXml2Root  \
 	 gMaxPathLengths  \
-	 gNtpConv	  \
- 	 gNC2ElectronScat 
+	 gNtpConv	  
 
 all: $(TGT)
 
@@ -48,6 +48,12 @@ gEvDump: FORCE
 ghAEvGen: FORCE
 	$(CXX) $(CXXFLAGS) -c ghAEvGen.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) ghAEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ghAevgen
+
+# geAgen program generating inclusive electron + nucleus interactions 
+#
+geAEvGen: FORCE
+	$(CXX) $(CXXFLAGS) -c geAEvGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) geAEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/geAevgen
 
 # A gevgen GUI (in devel)
 #
@@ -93,12 +99,6 @@ gNtpConv: FORCE
 	$(CXX) $(CXXFLAGS) -c gNtpConv.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gNtpConv.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gntpc 
 
-# gnc2eN program converting NC events to electron scattering events
-#
-gNC2ElectronScat: FORCE
-	$(CXX) $(CXXFLAGS) -c gNC2ElectronScat.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gNC2ElectronScat.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gnc2eN
-
 
 #################### CLEANING
 
@@ -110,6 +110,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_PATH)/ghAevgen
+	$(RM) $(GENIE_BIN_PATH)/geAevgen
 	$(RM) $(GENIE_BIN_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
@@ -122,6 +123,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/ghAevgen	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/geAevgen	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
@@ -138,6 +140,9 @@ clean--gEvDump: FORCE
 
 clean--ghAEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen
+
+clean--geAEvGen: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/geAevgen
 
 clean--gEvGenGUI: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_gui
@@ -156,9 +161,6 @@ clean--gMaxPathLengths: FORCE
 
 clean--gNtpConv: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gntpc
-
-clean-gNC2ElectronScat: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gnc2eN
 
 
 FORCE:
