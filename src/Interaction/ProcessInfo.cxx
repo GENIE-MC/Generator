@@ -135,7 +135,7 @@ bool ProcessInfo::IsMEC(void) const
 //____________________________________________________________________________
 bool ProcessInfo::IsDiffractive(void) const
 {
-  return (fScatteringType == kScMEC);
+  return (fScatteringType == kScDiffractive);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsEM(void) const
