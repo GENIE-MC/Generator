@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program gtestRegistry
+\program gtestEventLoop
 
-\brief   Program used for testing / debugging GENIE's Registry
+\brief   Example event loop. Use that as a template for your analysis code.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -111,7 +111,7 @@ int main(int argc, char ** argv)
 	      p->Pdg() == kPdgPiM) 
            {
             LOG("myAnalysis", pNOTICE)  
-               << "Got a : << p->Name() << " with E = " << p->E() << " GeV"; 
+               << "Got a : " << p->Name() << " with E = " << p->E() << " GeV"; 
           }
        }
 
