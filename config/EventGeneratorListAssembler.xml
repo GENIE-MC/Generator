@@ -57,6 +57,11 @@ Name                        Type    Opt  Comment                                
      <param type="alg" name="Generator-0">  genie::EventGenerator/MEC          </param>
   </param_set>
 
+  <param_set name="DFR"> 
+     <param type="int" name="NGenerators">  1                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/DFR          </param>
+  </param_set>
+
   <param_set name="DIS-CHARM"> 
      <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DIS-CC-CHARM </param>
