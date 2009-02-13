@@ -19,6 +19,7 @@
 
 #include <TMath.h>
 
+#include "Conventions/Constants.h"
 #include "MEC/MECGenerator.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
@@ -30,6 +31,7 @@
 #include "PDG/PDGLibrary.h"
 
 using namespace genie;
+using namespace genie::constants;
 
 //___________________________________________________________________________
 MECGenerator::MECGenerator() :
@@ -62,21 +64,57 @@ void MECGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 void MECGenerator::SelectKinematics(GHepRecord * evrec) const
 {
-
+  evrec->Summary()->KinePtr()->SetQ2(1.0, true);
+  evrec->Summary()->KinePtr()->Sety (0.5, true);
 }
 //___________________________________________________________________________
 void MECGenerator::AddFinalStateLepton(GHepRecord * evrec) const
 {
-  const Interaction * interaction = evrec->Summary();
+  Interaction * interaction = evrec->Summary();
+  const InitialState & init_state = interaction->InitState();
 
-  int lepton_pdgc = interaction->FSPrimLepton()->PdgCode();
+  // Look-up selected kinematics
+  double Q2 = interaction->Kine().Q2(true);
+  double y  = interaction->Kine().y(true);
 
-  double ml = PDGLibrary::Instance()->Find(lepton_pdgc)->Mass();
+  // Auxiliary params
+  double Ev  = init_state.ProbeE(kRfLab);
+  double ml  = interaction->FSPrimLepton()->Mass();
+  double ml2 = TMath::Power(ml,2);
 
-  const TLorentzVector p4(0.,0.,0., ml);
-  const TLorentzVector v4(0.,0.,0., 0.);
+  // Compute the final state primary lepton energy and momentum components
+  // along and perpendicular the neutrino direction 
+  double El  = (1-y)*Ev;
+  double plp = El - 0.5*(Q2+ml2)/Ev;                          // p(//)
+  double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
 
-  evrec->AddParticle(lepton_pdgc, kIStStableFinalState, -1, 0, -1, -1, p4, v4);
+  LOG("LeptonicVertex", pNOTICE)
+          << "fsl: E = " << El << ", |p//| = " << plp << "[pT] = " << plt;
+
+  // Randomize transverse components
+  RandomGen * rnd = RandomGen::Instance();
+  double phi  = 2*kPi * rnd->RndLep().Rndm();
+  double pltx = plt * TMath::Cos(phi);
+  double plty = plt * TMath::Sin(phi);
+
+  // Take a unit vector along the neutrino direction
+  TVector3 unit_nudir = evrec->Probe()->P4()->Vect().Unit();
+
+  // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+  // {z':(neutrino direction), z'x':(theta plane)} to the LAB
+  TVector3 p3l(pltx,plty,plp);
+  p3l.RotateUz(unit_nudir);
+
+  // Lepton 4-momentum in LAB
+  TLorentzVector p4l(p3l,El);
+
+  // Figure out the Final State Lepton PDG Code
+  int pdgc = interaction->FSPrimLepton()->PdgCode();
+
+  // Lepton 4-position (= interacton vtx)
+  TLorentzVector v4(*evrec->Probe()->X4());
+
+  evrec->AddParticle(pdgc, kIStStableFinalState, -1, 0, -1, -1, p4l, v4);
 }
 //___________________________________________________________________________
 void MECGenerator::AddNucleonCluster(GHepRecord * evrec) const
@@ -126,7 +164,6 @@ void MECGenerator::AddTargetRemnant(GHepRecord * evrec) const
 {
   GHepParticle * target  = evrec->TargetNucleus();
   GHepParticle * cluster = evrec->Particle(2);
-//GHepParticle * cluster = evrec->HitNucleon();
 
   int Z = target->Z();
   int A = target->A();
