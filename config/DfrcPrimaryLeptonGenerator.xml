@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  Configuration sets for DISPrimaryLeptonGenerator EventRecordVisitorI
+
+  <param_set name="Default"> 
+  </param_set>
+
+</alg_conf>
+

@@ -296,7 +296,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Option relevant to simulating Short Range Corellation (SRC) effects.
+  Option relevant to simulating Short Range Correlation (SRC) effects.
   -->
   <param type="bool" name="SRC-SimRecoilNucleon"> false </param>
 
@@ -483,6 +483,7 @@ Use the "Default" one to get the best GENIE physics & tuning.
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-CHARM"> genie::KovalenkoQELCharmPXSec/Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM"> genie::AivazisCharmPXSecLO/CC-Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/AM-NUGAMMA">   genie::H3AMNuGammaPXSec/Default       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DFR">          genie::DfrcKopeliovichPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC">          genie::MECPXSec/Default               </param>
 
  <!-- 

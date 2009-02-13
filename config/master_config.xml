@@ -20,12 +20,14 @@
    <config alg="genie::RESPrimaryLeptonGenerator">   RESPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::NuEPrimaryLeptonGenerator">   NuEPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::COHPrimaryLeptonGenerator">   COHPrimaryLeptonGenerator.xml   </config>
+   <config alg="genie::DfrcPrimaryLeptonGenerator">  DfrcPrimaryLeptonGenerator.xml  </config>
    <config alg="genie::QELKinematicsGenerator">      QELKinematicsGenerator.xml      </config>
    <config alg="genie::DISKinematicsGenerator">      DISKinematicsGenerator.xml      </config>
    <config alg="genie::RESKinematicsGenerator">      RESKinematicsGenerator.xml      </config>
    <config alg="genie::NuEKinematicsGenerator">      NuEKinematicsGenerator.xml      </config>
    <config alg="genie::COHPiKinematicsGenerator">    COHPiKinematicsGenerator.xml    </config>
    <config alg="genie::COHElKinematicsGenerator">    COHElKinematicsGenerator.xml    </config>
+   <config alg="genie::DfrcKinematicsGenerator">     DfrcKinematicsGenerator.xml     </config>
    <config alg="genie::QELHadronicSystemGenerator">  QELHadronicSystemGenerator.xml  </config>
    <config alg="genie::COHPiHadronicSystemGenerator">COHPiHadronicSystemGenerator.xml</config>
    <config alg="genie::COHElHadronicSystemGenerator">COHElHadronicSystemGenerator.xml</config>
@@ -46,6 +48,7 @@
    <config alg="genie::COHInteractionListGenerator">       COHInteractionListGenerator.xml       </config>
    <config alg="genie::AMNuGammaInteractionListGenerator"> AMNuGammaInteractionListGenerator.xml </config>
    <config alg="genie::MECInteractionListGenerator">       MECInteractionListGenerator.xml       </config>
+   <config alg="genie::DfrcInteractionListGenerator">      DfrcInteractionListGenerator.xml      </config>
    <config alg="genie::InteractionListAssembler">          InteractionListAssembler.xml          </config>
    <config alg="genie::EventGeneratorListAssembler">       EventGeneratorListAssembler.xml       </config>
 
@@ -123,6 +126,7 @@
    <config alg="genie::ReinSeghalSPPXSec">           ReinSeghalSPPXSec.xml           </config>
    <config alg="genie::H3AMNuGammaPXSec">            H3AMNuGammaPXSec.xml            </config>
    <config alg="genie::MECPXSec">                    MECPXSec.xml                    </config>
+   <config alg="genie::DfrcKopeliovichPXSec">        DfrcKopeliovichPXSec.xml        </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>
