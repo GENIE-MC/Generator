@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Diffractive
 DICTIONARY        = _ROOT_DICT_Diffractive
-LIBNAME           = libGDiffrac
+LIBNAME           = libGDfrc
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
