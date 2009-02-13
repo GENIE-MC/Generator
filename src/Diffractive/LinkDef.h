@@ -6,8 +6,10 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::DfrcKopeliovichPXSec;
 #pragma link C++ class genie::DfrcInteractionListGenerator;
-#pragma link C++ class genie::DfrcGenerator;
-#pragma link C++ class genie::DfrcPXSec;
+#pragma link C++ class genie::DfrcKinematicsGenerator;
+#pragma link C++ class genie::DfrcPrimaryLeptonGenerator;
+#pragma link C++ class genie::DfrcHadronicSystemGenerator;
 
 #endif

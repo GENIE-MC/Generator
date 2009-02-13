@@ -18,6 +18,7 @@
 #include "Messenger/Messenger.h"
 #include "Diffractive/DfrcInteractionListGenerator.h"
 #include "PDG/PDGCodes.h"
+#include "PDG/PDGUtils.h"
 
 using namespace genie;
 
@@ -44,12 +45,22 @@ InteractionList * DfrcInteractionListGenerator::CreateInteractionList(
 {
   LOG("IntLst", pINFO)
      << "InitialState = " << init_state.AsString();
-/*
-  int nupdg   = init_state.ProbePdg();
-  int tgtpdg  = init_state.Tgt().Pdg();
-*/
+
+  int  nupdg   = init_state.ProbePdg();
+  int  tgtpdg  = init_state.Tgt().Pdg();
+  bool hasP    = (init_state.Tgt().Z() > 0);
+  bool hasN    = (init_state.Tgt().N() > 0);
+  bool isnu    = pdg::IsNeutrino     (nupdg);
+  bool isnubar = pdg::IsAntiNeutrino (nupdg);
+
   InteractionList * intlist = new InteractionList;
 
+  if (isnu && hasN) {
+     Interaction * interaction = Interaction::DFRCC(tgtpdg,kPdgNeutron,nupdg);
+     intlist->push_back(interaction);
+  } else if (isnubar && hasP) {
+  
+  }
 
   return intlist;
 }
