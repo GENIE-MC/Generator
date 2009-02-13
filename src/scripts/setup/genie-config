@@ -14,7 +14,7 @@ libdir=$GENIE/lib
 srcdir=$GENIE/src
 
 ### GENIE Libraries;
-libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm -lGCoh \
+libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm -lGCoh -lGDfrc \
  -lGCrossSections -lGDecay -lGElas -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
  -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
  -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
