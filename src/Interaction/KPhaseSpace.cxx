@@ -117,6 +117,9 @@ double KPhaseSpace::Threshold(void) const
   if(pi.IsMEC()) {
     return 0;
   }
+  if(pi.IsDiffractive()) {
+    return 0.4;
+  }
 
   SLOG("KPhaseSpace", pERROR) 
          << "Can't compute threshold for \n" << *fInteraction;
@@ -176,6 +179,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
   if(pi.IsQuasiElastic()  || 
      pi.IsResonant()      || 
      pi.IsDeepInelastic() || 
+     pi.IsDiffractive()   || 
      pi.IsAMNuGamma()) 
   {
       E = init_state.ProbeE(kRfHitNucRest);
@@ -404,6 +408,13 @@ Range1D_t KPhaseSpace::XLim(void) const
     xl.max = 1;
     return xl;
   }
+  bool is_dfr = pi.IsDiffractive();
+  if(is_dfr) {
+    xl.min = 0.1;
+    xl.max = 0.9;
+    return xl;
+  }
+
   return xl;
 }
 //____________________________________________________________________________
@@ -438,6 +449,12 @@ Range1D_t KPhaseSpace::YLim(void) const
   if(pi.IsInverseMuDecay() || pi.IsNuElectronElastic()) {
     yl.min =   kASmallNum;
     yl.max = 1-kASmallNum;
+    return yl;
+  }
+  bool is_dfr = pi.IsDiffractive();
+  if(is_dfr) {
+    yl.min = 0.1;
+    yl.max = 0.9;
     return yl;
   }
   return yl;
