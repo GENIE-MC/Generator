@@ -99,6 +99,7 @@ evgen-models: FORCE
 	cd Coherent;           make; cd ..; \
 	cd CrossSections;      make; cd ..; \
 	cd Decay; 	       make; cd ..; \
+	cd Diffractive;        make; cd ..; \
 	cd Elastic; 	       make; cd ..; \
 	cd EVGModules;         make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
@@ -347,6 +348,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Conventions
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/CrossSections
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Decay
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Diffractive
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGCore
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGDrivers
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGModules
@@ -393,6 +395,7 @@ copy-install-files: FORCE
 	cd Conventions;            make install; cd ..; \
 	cd CrossSections;          make install; cd ..; \
 	cd Decay; 	           make install; cd ..; \
+	cd Diffractive; 	   make install; cd ..; \
 	cd Elastic; 	           make install; cd ..; \
 	cd EVGCore;                make install; cd ..; \
 	cd EVGModules;             make install; cd ..; \
@@ -436,6 +439,7 @@ purge: FORCE
 	cd Coherent;                   make purge; cd ..; \
 	cd CrossSections;              make purge; cd ..; \
 	cd Decay; 	               make purge; cd ..; \
+	cd Diffractive;                make purge; cd ..; \
 	cd Elastic; 	               make purge; cd ..; \
 	cd EVGCore;                    make purge; cd ..; \
 	cd EVGModules;                 make purge; cd ..; \
@@ -484,6 +488,7 @@ clean-files: FORCE
 	cd Coherent;                   make clean; cd ..; \
 	cd CrossSections;              make clean; cd ..; \
 	cd Decay; 	               make clean; cd ..; \
+	cd Diffractive; 	       make clean; cd ..; \
 	cd Elastic; 	               make clean; cd ..; \
 	cd EVGCore;                    make clean; cd ..; \
 	cd EVGModules;                 make clean; cd ..; \
@@ -549,6 +554,7 @@ distclean: FORCE
 	cd Coherent;                    make distclean; cd ..; \
 	cd CrossSections;               make distclean; cd ..; \
 	cd Decay; 	                make distclean; cd ..; \
+	cd Diffractive; 	        make distclean; cd ..; \
 	cd Elastic; 	                make distclean; cd ..; \
 	cd EVGCore;                     make distclean; cd ..; \
 	cd EVGModules;                  make distclean; cd ..; \
