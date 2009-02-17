@@ -2,7 +2,7 @@
 
 <alg_conf>
 
-  Configuration sets for DISPrimaryLeptonGenerator EventRecordVisitorI
+  Configuration sets for DFRPrimaryLeptonGenerator EventRecordVisitorI
 
   <param_set name="Default"> 
   </param_set>

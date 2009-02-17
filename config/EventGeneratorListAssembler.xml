@@ -59,7 +59,7 @@ Name                        Type    Opt  Comment                                
 
   <param_set name="DFR"> 
      <param type="int" name="NGenerators">  1                                  </param>
-     <param type="alg" name="Generator-0">  genie::EventGenerator/DFR          </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/DFR-CC       </param>
   </param_set>
 
   <param_set name="DIS-CHARM"> 
