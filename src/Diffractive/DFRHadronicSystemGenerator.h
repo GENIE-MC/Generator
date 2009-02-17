@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::DfrcHadronicSystemGenerator
+\class    genie::FRHadronicSystemGenerator
 
-\brief    Generates the f/s hadronic system in v COH pi production interactions.
+\brief    Generates the f/s hadronic system in diffractive interactions.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -24,12 +24,12 @@
 
 namespace genie {
 
-class DfrcHadronicSystemGenerator : public HadronicSystemGenerator {
+class DFRHadronicSystemGenerator : public HadronicSystemGenerator {
 
 public :
-  DfrcHadronicSystemGenerator();
-  DfrcHadronicSystemGenerator(string config);
- ~DfrcHadronicSystemGenerator();
+  DFRHadronicSystemGenerator();
+  DFRHadronicSystemGenerator(string config);
+ ~DFRHadronicSystemGenerator();
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;

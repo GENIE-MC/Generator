@@ -5,11 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         STFC, Rutherford Appleton Laboratory - Feb 15, 2009
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Feb 15, 2009 - CA
+   This class was first added in version 2.5.1.
 
 */
 //____________________________________________________________________________
@@ -23,7 +25,7 @@
 #include "Conventions/Controls.h"
 #include "Conventions/KineVar.h"
 #include "Conventions/KinePhaseSpace.h"
-#include "Diffractive/DfrcKinematicsGenerator.h"
+#include "Diffractive/DFRKinematicsGenerator.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/RunningThreadInfo.h"
@@ -40,27 +42,27 @@ using namespace genie::controls;
 using namespace genie::utils;
 
 //___________________________________________________________________________
-DfrcKinematicsGenerator::DfrcKinematicsGenerator() :
-KineGeneratorWithCache("genie::DfrcKinematicsGenerator")
+DFRKinematicsGenerator::DFRKinematicsGenerator() :
+KineGeneratorWithCache("genie::DFRKinematicsGenerator")
 {
 
 }
 //___________________________________________________________________________
-DfrcKinematicsGenerator::DfrcKinematicsGenerator(string config) :
-KineGeneratorWithCache("genie::DfrcKinematicsGenerator", config)
+DFRKinematicsGenerator::DFRKinematicsGenerator(string config) :
+KineGeneratorWithCache("genie::DFRKinematicsGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-DfrcKinematicsGenerator::~DfrcKinematicsGenerator()
+DFRKinematicsGenerator::~DFRKinematicsGenerator()
 {
 
 }
 //___________________________________________________________________________
-void DfrcKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
   if(fGenerateUniformly) {
-    LOG("DFR", pNOTICE)
+    LOG("DFRKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
   }
 
@@ -86,7 +88,7 @@ void DfrcKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 /*
   Range1D_t W  = kps.Limits(kKVW);
   if(W.max <=0 || W.min>=W.max) {
-     LOG("DFR", pWARN) << "No available phase space";
+     LOG("DFRKinematics", pWARN) << "No available phase space";
      evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("No available phase space");
@@ -97,8 +99,8 @@ void DfrcKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   Range1D_t xl = kps.Limits(kKVx);
   Range1D_t yl = kps.Limits(kKVy);
 
-  LOG("DFR", pNOTICE) << "x: [" << xl.min << ", " << xl.max << "]";
-  LOG("DFR", pNOTICE) << "y: [" << yl.min << ", " << yl.max << "]";
+  LOG("DFRKinematics", pNOTICE) << "x: [" << xl.min << ", " << xl.max << "]";
+  LOG("DFRKinematics", pNOTICE) << "y: [" << yl.min << ", " << yl.max << "]";
 
   assert(xl.min>0 && yl.min>0);
 
@@ -121,7 +123,7 @@ void DfrcKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
-       LOG("DFR", pWARN)
+       LOG("DFRKinematics", pWARN)
          << " Couldn't select kinematics after " << iter << " iterations";
        evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
        genie::exceptions::EVGThreadException exception;
@@ -137,7 +139,7 @@ void DfrcKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      interaction->KinePtr()->Sety(gy);
 /*
      kinematics::UpdateWQ2FromXY(interaction);
-     LOG("DFR", pNOTICE) 
+     LOG("DFRKinematics", pNOTICE) 
         << "Trying: x = " << gx << ", y = " << gy 
         << " (W  = " << interaction->KinePtr()->W()  << ","
         << "  Q2 = " << interaction->KinePtr()->Q2() << ")";
@@ -150,11 +152,10 @@ void DfrcKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      if(!fGenerateUniformly) {
         this->AssertXSecLimits(interaction, xsec, xsec_max);
         double t = xsec_max * rnd->RndKine().Rndm();
-        //double J = kinematics::Jacobian(interaction,kPSxyfE,kPSlogxlogyfE);
 	double J = 1;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-        LOG("DFR", pDEBUG)
+        LOG("DFRKinematics", pDEBUG)
               << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
 #endif
         accept = (t < J*xsec);
@@ -166,7 +167,7 @@ void DfrcKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {
 /*
-         LOG("DFR", pNOTICE) 
+         LOG("DFRKinematics", pNOTICE) 
             << "Selected:  x = " << gx << ", y = " << gy
             << " (W  = " << interaction->KinePtr()->W()  << ","
             << "  Q2 = " << interaction->KinePtr()->Q2() << ")";
@@ -185,18 +186,18 @@ void DfrcKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
             double vol     = kinematics::PhaseSpaceVolume(interaction,kPSxyfE);
             double totxsec = evrec->XSec();
             double wght    = (vol/totxsec)*xsec;
-            LOG("DFR", pNOTICE)  << "Kinematics wght = "<< wght;
+            LOG("DFRKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
 
             // apply computed weight to the current event weight
             wght *= evrec->Weight();
-            LOG("DFR", pNOTICE) << "Current event wght = " << wght;
+            LOG("DFRKinematics", pNOTICE) << "Current event wght = " << wght;
             evrec->SetWeight(wght);
          }
 
          // compute W,Q2 for selected x,y
          kinematics::XYtoWQ2(Ev,M,gW,gQ2,gx,gy);
 
-         LOG("DFR", pNOTICE) 
+         LOG("DFRKinematics", pNOTICE) 
                         << "Selected x,y => W = " << gW << ", Q2 = " << gQ2;
 
          // lock selected kinematics & clear running values
@@ -210,19 +211,19 @@ void DfrcKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   } // iterations
 }
 //___________________________________________________________________________
-void DfrcKinematicsGenerator::Configure(const Registry & config)
+void DFRKinematicsGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DfrcKinematicsGenerator::Configure(string config)
+void DFRKinematicsGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DfrcKinematicsGenerator::LoadConfig(void)
+void DFRKinematicsGenerator::LoadConfig(void)
 {
 // Reads its configuration data from its configuration Registry and loads them
 // in private data members to avoid looking up at the Registry all the time.
@@ -245,7 +246,7 @@ void DfrcKinematicsGenerator::LoadConfig(void)
   fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
 }
 //____________________________________________________________________________
-double DfrcKinematicsGenerator::ComputeMaxXSec(
+double DFRKinematicsGenerator::ComputeMaxXSec(
                                        const Interaction * interaction) const
 {
 // Computes the maximum differential cross section in the requested phase
@@ -257,7 +258,8 @@ double DfrcKinematicsGenerator::ComputeMaxXSec(
 // safety factor. But this needs to be fast - do not use a very fine grid.
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DFR", pDEBUG)<< "Computing max xsec in allowed phase space";
+  LOG("DFRKinematics", pDEBUG)
+      << "Computing max xsec in allowed phase space";
 #endif
   double max_xsec = 0.0;
 
@@ -280,32 +282,31 @@ double DfrcKinematicsGenerator::ComputeMaxXSec(
   double dy      = (ymax-ymin)/(Ny-1);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DFR", pDEBUG) 
-    << "Searching max. in x [" << xmin << ", " << xmax << "], y [" << ymin << ", " << ymax << "]";
+  LOG("DFRKinematics", pDEBUG) 
+    << "Searching max. in x [" << xmin << ", " << xmax 
+    << "], y [" << ymin << ", " << ymax << "]";
 #endif
   double xseclast_y = -1;
   bool increasing_y;
 
   for(int i=0; i<Ny; i++) {
      double gy = ymin + i*dy;
-     //double gy = TMath::Power(10., logymin + i*dlogy);
      interaction->KinePtr()->Sety(gy);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("DFR", pDEBUG) << "y = " << gy;
+     LOG("DFRKinematics", pDEBUG) << "y = " << gy;
 #endif
      double xseclast_x = -1;
      bool increasing_x;
 
      for(int j=0; j<Nx; j++) {
         double gx = xmin + j*dx;
-	//double gx = TMath::Power(10., logxmin + j*dlogx);
         interaction->KinePtr()->Setx(gx);
         kinematics::UpdateWQ2FromXY(interaction);
 
         double xsec = fXSecModel->XSec(interaction, kPSxyfE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-        LOG("DFR", pINFO) 
+        LOG("DFRKinematics", pINFO) 
                 << "xsec(y=" << gy << ", x=" << gx << ") = " << xsec;
 #endif
         // update maximum xsec
@@ -320,19 +321,17 @@ double DfrcKinematicsGenerator::ComputeMaxXSec(
         // is grossly underestimated (very peaky distribution & large step)
         if(!increasing_x) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-          LOG("DFR", pDEBUG) 
+          LOG("DFRKinematics", pDEBUG) 
            << "d2xsec/dxdy|x stopped increasing. Stepping back & exiting x loop";
 #endif
-          //double dlogxn = dlogx/(Nxb+1);
           double dxn = dx/(Nxb+1);
           for(int ik=0; ik<Nxb; ik++) {
-	     //gx = TMath::Exp(TMath::Log(gx) - dlogxn);
    	     gx = gx - dxn;
              interaction->KinePtr()->Setx(gx);
              kinematics::UpdateWQ2FromXY(interaction);
              xsec = fXSecModel->XSec(interaction, kPSxyfE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-             LOG("DFR", pINFO) 
+             LOG("DFRKinematics", pINFO) 
                 << "xsec(y=" << gy << ", x=" << gx << ") = " << xsec;
 #endif
 	  }
@@ -345,7 +344,7 @@ double DfrcKinematicsGenerator::ComputeMaxXSec(
      xseclast_y   = max_xsec;
      if(!increasing_y) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-       LOG("DFR", pDEBUG) 
+       LOG("DFRKinematics", pDEBUG) 
            << "d2xsec/dxdy stopped increasing. Exiting y loop";
 #endif
        break;
@@ -359,9 +358,9 @@ double DfrcKinematicsGenerator::ComputeMaxXSec(
   max_xsec *= 3;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  SLOG("DFR", pDEBUG) << interaction->AsString();
-  SLOG("DFR", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  SLOG("DFR", pDEBUG) << "Computed using alg = " << *fXSecModel;
+  SLOG("DFRKinematics", pDEBUG) << interaction->AsString();
+  SLOG("DFRKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
+  SLOG("DFRKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
 #endif
 
   return max_xsec;

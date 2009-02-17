@@ -5,18 +5,20 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         STFC, Rutherford Appleton Laboratory - Feb 15, 2009
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Feb 15, 2009 - CA
+   This class was first added in version 2.5.1.
 
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
 
-#include "Diffractive/DfrcPrimaryLeptonGenerator.h"
+#include "Diffractive/DFRPrimaryLeptonGenerator.h"
 #include "EVGCore/EVGThreadException.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
@@ -26,24 +28,24 @@
 using namespace genie;
 
 //___________________________________________________________________________
-DfrcPrimaryLeptonGenerator::DfrcPrimaryLeptonGenerator() :
-PrimaryLeptonGenerator("genie::DfrcPrimaryLeptonGenerator")
+DFRPrimaryLeptonGenerator::DFRPrimaryLeptonGenerator() :
+PrimaryLeptonGenerator("genie::DFRPrimaryLeptonGenerator")
 {
 
 }
 //___________________________________________________________________________
-DfrcPrimaryLeptonGenerator::DfrcPrimaryLeptonGenerator(string config) :
-PrimaryLeptonGenerator("genie::DfrcPrimaryLeptonGenerator", config)
+DFRPrimaryLeptonGenerator::DFRPrimaryLeptonGenerator(string config) :
+PrimaryLeptonGenerator("genie::DFRPrimaryLeptonGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-DfrcPrimaryLeptonGenerator::~DfrcPrimaryLeptonGenerator()
+DFRPrimaryLeptonGenerator::~DFRPrimaryLeptonGenerator()
 {
 
 }
 //___________________________________________________________________________
-void DfrcPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void DFRPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // This method generates the final state primary lepton in DIS events
 

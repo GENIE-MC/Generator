@@ -1,15 +1,15 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::DISPrimaryLeptonGenerator
+\class    genie::DFRPrimaryLeptonGenerator
 
-\brief    Generates the final state primary lepton in v DIS interactions.
+\brief    Generates the final state primary lepton in diffractive reactions.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
-\created  October 03, 2004
+\created  Feb 15th, 2009
 
 \cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -24,19 +24,16 @@
 
 namespace genie {
 
-class DfrcPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
+class DFRPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
 
 public :
+  DFRPrimaryLeptonGenerator();
+  DFRPrimaryLeptonGenerator(string config);
+ ~DFRPrimaryLeptonGenerator();
 
-  DfrcPrimaryLeptonGenerator();
-  DfrcPrimaryLeptonGenerator(string config);
-  ~DfrcPrimaryLeptonGenerator();
-
-  //-- implement the EventRecordVisitorI interface
-
+  // implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 };
 
 }      // genie namespace
-
 #endif // _DIFFRACTIVE_PRIMARY_LEPTON_GENERATOR_H_
