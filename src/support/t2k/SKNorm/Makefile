@@ -20,16 +20,16 @@ all: $(TGT)
 
 gSKXSecTable: FORCE
 	$(CXX) $(CXXFLAGS) -c gSKXSecTable.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gSKXSecTable.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gSKxstable
+	$(LD) $(LDFLAGS) gSKXSecTable.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gSKxsect
 
 purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gSKxstable
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gSKxsect
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gSKxstable
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gSKxsect
 
 FORCE:
 
