@@ -5,11 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         STFC, Rutherford Appleton Laboratory - Feb 15, 2009
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Feb 15, 2009 - CA
+   This class was first added in version 2.5.1.
 
 */
 //____________________________________________________________________________
@@ -19,7 +21,7 @@
 #include <TVector3.h>
 
 #include "Conventions/Constants.h"
-#include "Diffractive/DfrcHadronicSystemGenerator.h"
+#include "Diffractive/DFRHadronicSystemGenerator.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
@@ -34,24 +36,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //___________________________________________________________________________
-DfrcHadronicSystemGenerator::DfrcHadronicSystemGenerator() :
-HadronicSystemGenerator("genie::DfrcHadronicSystemGenerator")
+DFRHadronicSystemGenerator::DFRHadronicSystemGenerator() :
+HadronicSystemGenerator("genie::DFRHadronicSystemGenerator")
 {
 
 }
 //___________________________________________________________________________
-DfrcHadronicSystemGenerator::DfrcHadronicSystemGenerator(string config) :
-HadronicSystemGenerator("genie::DfrcHadronicSystemGenerator", config)
+DFRHadronicSystemGenerator::DFRHadronicSystemGenerator(string config) :
+HadronicSystemGenerator("genie::DFRHadronicSystemGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-DfrcHadronicSystemGenerator::~DfrcHadronicSystemGenerator()
+DFRHadronicSystemGenerator::~DFRHadronicSystemGenerator()
 {
 
 }
 //___________________________________________________________________________
-void DfrcHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void DFRHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // This method generates the final state hadronic system (meson + nucleus) in 
 // diffractive scattering 
@@ -76,17 +78,15 @@ void DfrcHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- Determine the pdg code of the final state pion & nucleus
   int nucl_pdgc = Ni->Pdg(); // same as the initial nucleus
-  int pion_pdgc = 213;
-/*
+  int pion_pdgc = 0;
   if      (xcls_tag.NPi0()     == 1) pion_pdgc = kPdgPi0;
   else if (xcls_tag.NPiPlus()  == 1) pion_pdgc = kPdgPiP;
   else if (xcls_tag.NPiMinus() == 1) pion_pdgc = kPdgPiM;
   else {
-     LOG("COHPiHadronicVtx", pFATAL)
+     LOG("DFRHadronicVtx", pFATAL)
                << "No final state pion information in XclsTag!";
      exit(1);
   }
-*/
 
   //-- basic kinematic inputs
   double E    = nu->E();  
@@ -97,7 +97,9 @@ void DfrcHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double yo   = interaction->Kine().y(true); 
   double to   = interaction->Kine().t(true); 
 
-  SLOG("COHPiHadronicVtx", pINFO) 
+  to = 0.1;
+
+  SLOG("DFRHadronicVtx", pINFO) 
          << "Ev = "<< E << ", xo = " << xo 
                          << ", yo = " << yo << ", to = " << to;
 
@@ -107,7 +109,7 @@ void DfrcHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double ppi2 = Epi2-mpi2;
   double ppi  = TMath::Sqrt(TMath::Max(0.,ppi2));
 
-  SLOG("COHPiHadronicVtx", pINFO)
+  SLOG("DFRHadronicVtx", pINFO)
                       << "f/s pion E = " << Epi << ", |p| = " << ppi;
   assert(Epi>mpi);
 
@@ -118,7 +120,7 @@ void DfrcHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   TLorentzVector q = p4nu - p4fsl;
 
-  SLOG("COHPiHadronicVtx", pINFO) 
+  SLOG("DFRHadronicVtx", pINFO) 
           << "\n 4-p transfer q @ LAB: " << utils::print::P4AsString(&q);
 
   //-- find angle theta between q and ppi (xi=costheta)
@@ -130,7 +132,7 @@ void DfrcHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double costheta  = xi;
   double sintheta  = TMath::Sqrt(TMath::Max(0.,1.-xi*xi));
 
-  SLOG("COHPiHadronicVtx", pINFO) << "cos(pion, q) = " << costheta;
+  SLOG("DFRHadronicVtx", pINFO) << "cos(pion, q) = " << costheta;
 
   // compute transverse and longitudinal ppi components along q
   double ppiL = ppi*costheta;
@@ -143,7 +145,7 @@ void DfrcHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   ppi3.RotateUz(q.Vect().Unit()); // align longit. component with q in LAB
   ppi3.RotateZ(phi);              // randomize transverse components
 
-  SLOG("COHPiHadronicVtx", pINFO) 
+  SLOG("DFRHadronicVtx", pINFO) 
                << "Pion 3-p @ LAB: " << utils::print::Vec3AsString(&ppi3);
 
   // now figure out the f/s nucleus 4-p
