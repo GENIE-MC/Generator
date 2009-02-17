@@ -39,6 +39,8 @@
   <priority msgstream="CLAP">                NOTICE </priority>
   <priority msgstream="COHPiHadronicVtx">    INFO   </priority>
   <priority msgstream="COHPiKinematics">     NOTICE </priority>
+  <priority msgstream="DFRHadronicVtx">      DEBUG  </priority>
+  <priority msgstream="DFRKinematics">       DEBUG  </priority>
   <priority msgstream="Decay">               INFO   </priority>
   <priority msgstream="DISSF">               NOTICE </priority>
   <priority msgstream="DISXSec">             NOTICE </priority>
@@ -54,7 +56,6 @@
   <priority msgstream="FermiMover">          INFO   </priority>
   <priority msgstream="FermiP">              NOTICE </priority>
   <priority msgstream="Flux">                NOTICE </priority>
-  <priority msgstream="FLUKA">               INFO   </priority>
   <priority msgstream="FMap">                WARN   </priority>
   <priority msgstream="FragmRecUtils">       NOTICE </priority>
   <priority msgstream="GEVGDriver">          NOTICE </priority>
@@ -69,7 +70,6 @@
   <priority msgstream="GridDim">             WARN   </priority>
   <priority msgstream="GXSecFunc">           WARN   </priority>
   <priority msgstream="GlashowResXSec">      WARN   </priority>
-  <priority msgstream="GIBUU">               DEBUG  </priority>
   <priority msgstream="HadTransp">           INFO   </priority>
   <priority msgstream="HadronicVtx">         NOTICE </priority>
   <priority msgstream="HybridHad">           INFO   </priority>
@@ -97,7 +97,6 @@
   <priority msgstream="NuEXSec">             INFO   </priority>
   <priority msgstream="Ntp">                 NOTICE </priority>
   <priority msgstream="NuVld">               INFO   </priority>
-  <priority msgstream="NeuGen">              INFO   </priority>
   <priority msgstream="NuETargetRemnant">    INFO   </priority>
   <priority msgstream="NuEKinematics">       INFO   </priority>
   <priority msgstream="PartonModel">         INFO   </priority>
@@ -115,6 +114,7 @@
   <priority msgstream="RESXSec">             INFO   </priority>
   <priority msgstream="RESPXSec">            WARN   </priority>
   <priority msgstream="ReinSeghalCohPi">     WARN   </priority>
+  <priority msgstream="ReinDFR">             WARN   </priority>
   <priority msgstream="ReinSeghalRes">       WARN   </priority>
   <priority msgstream="ReinSeghalResT">      NOTICE </priority>
   <priority msgstream="ReinSeghalResC">      NOTICE </priority>
