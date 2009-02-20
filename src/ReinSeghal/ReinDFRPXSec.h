@@ -25,6 +25,8 @@
 
 namespace genie {
 
+class INukeHadroData;
+
 class ReinDFRPXSec : public XSecAlgorithmI {
 
 public:
@@ -32,14 +34,14 @@ public:
   ReinDFRPXSec(string config);
   virtual ~ReinDFRPXSec();
 
-  //-- XSecAlgorithmI interface implementation
+  // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   bool   ValidKinematics (const Interaction * i) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
@@ -49,6 +51,8 @@ private:
 
   double fMa;      ///< axial mass
   double fBeta;    ///< b in dsig{piN}/dt = dsig0{piN}/dt * exp(-b(t-tmin)), b ~ 0.333 (nucleon_size)^2
+
+  INukeHadroData * fHadroData;
 };
 
 }       // genie namespace
