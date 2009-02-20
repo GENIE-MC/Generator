@@ -22,11 +22,12 @@
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Conventions/RefFrame.h"
+#include "HadronTransport/INukeHadroData.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/Spline.h"
 #include "PDG/PDGUtils.h"
 #include "ReinSeghal/ReinDFRPXSec.h"
 #include "Utils/KineUtils.h"
-#include "Utils/HadXSUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -61,49 +62,46 @@ double ReinDFRPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Target &       target     = init_state.Tgt();
 
+  const Spline * spl_piN = fHadroData->XSecPipN_Tot();
+
   double E      = init_state.ProbeE(kRfHitNucRest);  // neutrino energy
   double x      = kinematics.x();                    // bjorken x
   double y      = kinematics.y();                    // inelasticity y
   double Q2     = 2.*x*y*kNucleonMass*E;             // momentum transfer Q2>0
   double Gf     = kGF2 * kNucleonMass/(16*kPi3);     // GF/pi/etc factor
-  double fp     = 0.93 * kPionMass;                  // pion decay constant
+  double fp     = 0.93 * kPionMass;                  // pion decay constant (cc)
   double fp2    = TMath::Power(fp,2.);         
   double Epi    = y*E;                               // pion energy
+  double Epi2   = TMath::Power(Epi,2.);
+  double Tpi    = Epi - kPionMass;                   // pion kinetic energy
   double ma2    = TMath::Power(fMa,2);
   double propg  = TMath::Power(ma2/(ma2+Q2),2.);     // propagator term
-  double sTot   = utils::hadxs::TotalPionNucleonXSec(Epi); // tot. pi+N xsec
+  double sTot   = spl_piN->Evaluate(Tpi/units::MeV) * units::mb; // pi+N total cross section
   double sTot2  = TMath::Power(sTot,2.);
   double b      = fBeta;
+//double tA     = kPionMass2 - Q2 - 2*Epi*v;
+//double tB     = 2 * ppi * q;
+//double tmin   = tA - tB;
+//double tmax   = tA + tB;
+  double MxEpi  = kNucleonMass*x/Epi;
+  double mEpi2  = kPionMass2/Epi2;
+  double tA     = 1. + MxEpi - 0.5*mEpi2;
+  double tB     = TMath::Sqrt(1. + 2*MxEpi) * TMath::Sqrt(1.-mEpi2);
+  double tmin   = 2*Epi2 * (tA-tB);
+  double tmax   = 2*Epi2 * (tA+tB);
+  double tint   = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; // t integral
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinDFR", pDEBUG)
     << "E = " << E << ", x = " << x << ", y = " << y << ", Q2 = " << Q2;
   LOG("ReinDFR", pDEBUG)
     << "Epi = " << Epi << ", s^{piN}_{tot} = " << sTot;
+  LOG("ReinDFR", pDEBUG)
+    << "b = " << b << ", t = [" << tmin << ", " << tmax << "]";
 #endif
 
-  double xsec = Gf*E*fp2*(1-y)*propg*sTot2;
-
-
-  //----- compute d^3sigma/dxdydt or d^2sigma/dxdy
-
-  //if(kps==kPSxytfE) 
-  //{
-  //  double t = kinematics.t(); 
-  //  xsec *= TMath::Exp(-b*t);
-  //}
-
-  if(kps==kPSxyfE) 
-  {
-    double tmin = TMath::Power(0.5*kPionMass2/Epi, 2.);
-  //double tmax =  0.5;
-    double tmax = 99.0;
-    double t_integral = 0;
-    if(tmin<tmax) {
-       t_integral = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b;
-    }
-    xsec *= t_integral;
-  }
+  //----- compute d^2sigma/dxdy
+  double xsec = Gf*E*fp2*(1-y)*propg*sTot2*tint;
 
   //----- Check whether variable tranformation is needed
   if(kps!=kPSxyfE) {
@@ -196,6 +194,8 @@ void ReinDFRPXSec::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
+
+  fHadroData = INukeHadroData::Instance();
 
   fMa   = fConfig->GetDoubleDef("Ma",   gc->GetDouble("DFR-Ma"));
   fBeta = fConfig->GetDoubleDef("beta", gc->GetDouble("DFR-Beta"));
