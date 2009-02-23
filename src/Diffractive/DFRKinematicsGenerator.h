@@ -43,6 +43,8 @@ public :
 private:
   void   LoadConfig      (void);
   double ComputeMaxXSec  (const Interaction * interaction) const;
+
+  double fBeta;
 };
 
 }      // genie namespace
