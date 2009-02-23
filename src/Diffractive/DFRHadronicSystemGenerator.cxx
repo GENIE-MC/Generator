@@ -97,11 +97,9 @@ void DFRHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double yo   = interaction->Kine().y(true); 
   double to   = interaction->Kine().t(true); 
 
-  to = 0.1;
-
   SLOG("DFRHadronicVtx", pINFO) 
-         << "Ev = "<< E << ", xo = " << xo 
-                         << ", yo = " << yo << ", to = " << to;
+         << "Ev = "<< E 
+         << ", xo = " << xo << ", yo = " << yo << ", to = " << to;
 
   //-- compute pion energy and |momentum|
   double Epi  = yo * E;  
@@ -110,7 +108,8 @@ void DFRHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double ppi  = TMath::Sqrt(TMath::Max(0.,ppi2));
 
   SLOG("DFRHadronicVtx", pINFO)
-                      << "f/s pion E = " << Epi << ", |p| = " << ppi;
+         << "f/s pion E = " << Epi << ", |p| = " << ppi;
+
   assert(Epi>mpi);
 
   //-- 4-momentum transfer q=p(neutrino) - p(f/s lepton)
