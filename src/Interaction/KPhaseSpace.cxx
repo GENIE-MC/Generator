@@ -19,6 +19,10 @@
    Add protection against non-positive energy thresholds
  @ Feb 25, 2008 - CA
    Added threshold for anomaly-mediated single gamma interactions
+ @ Mar 03, 2009 - CA
+   Add threshold and kinematical limits for diffractive scattering.
+   Adapt to naming changes made to the coherent generator for including 
+   coherent vector meson production.
 */
 //____________________________________________________________________________
 
@@ -74,7 +78,7 @@ double KPhaseSpace::Threshold(void) const
 
   double ml = fInteraction->FSPrimLepton()->Mass();
 
-  if (pi.IsCoherentPiProd()) {
+  if (pi.IsCoherent()) {
     int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (10LZZZAAAI)
     double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass();
     double m    = ml + kPionMass;
@@ -83,11 +87,12 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
 
-  if(pi.IsQuasiElastic() || pi.IsResonant() || pi.IsDeepInelastic()) {
+  if(pi.IsQuasiElastic() || pi.IsResonant() || pi.IsDeepInelastic() || pi.IsDiffractive()) {
     assert(tgt.HitNucIsSet());
     double Mn   = tgt.HitNucP4Ptr()->M();
     double Mn2  = TMath::Power(Mn,2);
     double Wmin = (pi.IsQuasiElastic()) ? kNucleonMass : kNucleonMass+kPionMass;
+
     if(xcls.IsCharmEvent()) {
        if(xcls.IsInclusiveCharm()) {
           Wmin = kNucleonMass+kLightestChmHad;
@@ -100,6 +105,7 @@ double KPhaseSpace::Threshold(void) const
     }
     double smin = TMath::Power(Wmin+ml,2.);
     double Ethr = 0.5*(smin-Mn2)/Mn;
+
     return TMath::Max(0.,Ethr);
   }
 
@@ -116,9 +122,6 @@ double KPhaseSpace::Threshold(void) const
   }
   if(pi.IsMEC()) {
     return 0;
-  }
-  if(pi.IsDiffractive()) {
-    return 0.4;
   }
 
   SLOG("KPhaseSpace", pERROR) 
@@ -237,8 +240,8 @@ bool KPhaseSpace::IsAllowed(void) const
     return allowed;
   }
 
-  //COHPi
-  if (pi.IsCoherentPiProd()) {
+  //COH
+  if (pi.IsCoherent()) {
     Range1D_t xl = this->XLim();
     Range1D_t yl = this->YLim();
     double    x  = kine.x();
@@ -396,7 +399,7 @@ Range1D_t KPhaseSpace::XLim(void) const
     return xl;
   }
   //COH
-  bool is_coh = pi.IsCoherentPiProd();
+  bool is_coh = pi.IsCoherent();
   if(is_coh) {
     xl = kinematics::CohXLim();
     return xl;
@@ -410,8 +413,8 @@ Range1D_t KPhaseSpace::XLim(void) const
   }
   bool is_dfr = pi.IsDiffractive();
   if(is_dfr) {
-    xl.min = 0.1;
-    xl.max = 0.9;
+    xl.min = kASmallNum;
+    xl.max = 1.-kASmallNum;
     return xl;
   }
 
@@ -436,8 +439,8 @@ Range1D_t KPhaseSpace::YLim(void) const
     yl = kinematics::InelYLim(Ev,M,ml);
     return yl;
   }
-  //COHPi
-  bool is_coh = pi.IsCoherentPiProd();
+  //COH
+  bool is_coh = pi.IsCoherent();
   if(is_coh) {  
     const InitialState & init_state = fInteraction->InitState();
     double EvL = init_state.ProbeE(kRfLab);
@@ -453,8 +456,11 @@ Range1D_t KPhaseSpace::YLim(void) const
   }
   bool is_dfr = pi.IsDiffractive();
   if(is_dfr) {
-    yl.min = 0.1;
-    yl.max = 0.9;
+    const InitialState & init_state = fInteraction -> InitState();
+    double Ev = init_state.ProbeE(kRfHitNucRest); 
+    double ml = fInteraction->FSPrimLepton()->Mass();
+    yl.min = kPionMass/Ev + kASmallNum;
+    yl.max = 1.-ml/Ev - kASmallNum;
     return yl;
   }
   return yl;
@@ -481,8 +487,8 @@ Range1D_t KPhaseSpace::YLim_X(void) const
     yl = kinematics::InelYLim_X(Ev,M,ml,x);
     return yl;
   }
-  //COHPi
-  bool is_coh = pi.IsCoherentPiProd();
+  //COH
+  bool is_coh = pi.IsCoherent();
   if(is_coh) {  
     const InitialState & init_state = fInteraction->InitState();
     double EvL = init_state.ProbeE(kRfLab);

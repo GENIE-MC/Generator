@@ -13,7 +13,7 @@
  @ Sep 19, 2007 - CA
    Added == operator and Compare() method
  @ Nov 21, 2007 - CA
-   In order to handle the introdyction of a new type of coherent interactions 
+   In order to handle the introduction of a new type of coherent interactions 
    (coherent elastic) renamed the COHCC() and COHNC() methods to COHPiCC() 
    and COHPiNC() respectivelly, and added COHEl() methods.
  @ Dec 01, 2007 - CA
@@ -25,6 +25,9 @@
    Added named ctors for MEC interactions
  @ Feb 09, 2009 - CA
    Added named ctors for diffractive interactions
+ @ Mar 03, 2009 - CA
+   Adapted COH name ctors (COHPi -> COH) in anticipation of including coherent
+   vector meson production.
 */
 //____________________________________________________________________________
 
@@ -522,10 +525,10 @@ Interaction * Interaction::DFRCC(
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHPiCC(int tgt, int probe, double E)
+Interaction * Interaction::COHCC(int tgt, int probe, double E)
 {
   Interaction * interaction = 
-          Interaction::Create(tgt,probe,kScCoherentPiProd, kIntWeakCC);
+          Interaction::Create(tgt,probe,kScCoherent, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
@@ -533,11 +536,11 @@ Interaction * Interaction::COHPiCC(int tgt, int probe, double E)
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHPiCC(
+Interaction * Interaction::COHCC(
                           int tgt, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
-          Interaction::Create(tgt,probe,kScCoherentPiProd, kIntWeakCC);
+          Interaction::Create(tgt,probe,kScCoherent, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
@@ -545,10 +548,10 @@ Interaction * Interaction::COHPiCC(
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHPiNC(int tgt, int probe, double E)
+Interaction * Interaction::COHNC(int tgt, int probe, double E)
 {
   Interaction * interaction = 
-          Interaction::Create(tgt,probe,kScCoherentPiProd, kIntWeakNC);
+          Interaction::Create(tgt,probe,kScCoherent, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
@@ -556,11 +559,11 @@ Interaction * Interaction::COHPiNC(int tgt, int probe, double E)
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHPiNC(
+Interaction * Interaction::COHNC(
                           int tgt, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
-          Interaction::Create(tgt,probe,kScCoherentPiProd, kIntWeakNC);
+          Interaction::Create(tgt,probe,kScCoherent, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
