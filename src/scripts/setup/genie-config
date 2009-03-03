@@ -14,11 +14,11 @@ libdir=$GENIE/lib
 srcdir=$GENIE/src
 
 ### GENIE Libraries;
-libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm -lGCoh -lGDfrc \
+libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm -lGCoh -lGDfrc -lGDIS \
  -lGCrossSections -lGDecay -lGElas -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers \
  -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
  -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGPartonModel -lGPDG -lGPDF\
- -lGRegistry -lGReinSeghal -lGReWeight -lGUtils"
+ -lGQEL -lGRES -lGRegistry -lGReinSeghal -lGReWeight -lGUtils"
 
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
   libs="$libs -lGGeo"
