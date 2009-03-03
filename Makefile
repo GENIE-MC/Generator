@@ -100,6 +100,7 @@ evgen-models: FORCE
 	cd CrossSections;      make; cd ..; \
 	cd Decay; 	       make; cd ..; \
 	cd Diffractive;        make; cd ..; \
+	cd DIS;                make; cd ..; \
 	cd Elastic; 	       make; cd ..; \
 	cd EVGModules;         make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
@@ -113,7 +114,9 @@ evgen-models: FORCE
 	cd Paschos; 	       make; cd ..; \
 	cd PDF;                make; cd ..; \
 	cd PDG;                make; cd ..; \
+	cd QEL;                make; cd ..; \
 	cd ReinSeghal;         make; cd ..; \
+	cd RES;                make; cd ..; \
 	cd VHE;                make; \
 	cd ${GENIE}
 
@@ -349,6 +352,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/CrossSections
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Decay
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Diffractive
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/DIS
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGCore
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGDrivers
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGModules
@@ -372,6 +376,8 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDG
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/PartonModel
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Paschos
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/QEL
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/RES
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReWeight
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Registry
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReinSeghal
@@ -396,6 +402,7 @@ copy-install-files: FORCE
 	cd CrossSections;          make install; cd ..; \
 	cd Decay; 	           make install; cd ..; \
 	cd Diffractive; 	   make install; cd ..; \
+	cd DIS; 		   make install; cd ..; \
 	cd Elastic; 	           make install; cd ..; \
 	cd EVGCore;                make install; cd ..; \
 	cd EVGModules;             make install; cd ..; \
@@ -419,6 +426,8 @@ copy-install-files: FORCE
 	cd Paschos;                make install; cd ..; \
 	cd PDF;                    make install; cd ..; \
 	cd PDG;                    make install; cd ..; \
+	cd QEL;                    make install; cd ..; \
+	cd RES;                    make install; cd ..; \
 	cd Registry;               make install; cd ..; \
 	cd ReinSeghal;             make install; cd ..; \
 	cd ReWeight;               make install; cd ..; \
@@ -440,6 +449,7 @@ purge: FORCE
 	cd CrossSections;              make purge; cd ..; \
 	cd Decay; 	               make purge; cd ..; \
 	cd Diffractive;                make purge; cd ..; \
+	cd DIS; 	               make purge; cd ..; \
 	cd Elastic; 	               make purge; cd ..; \
 	cd EVGCore;                    make purge; cd ..; \
 	cd EVGModules;                 make purge; cd ..; \
@@ -463,6 +473,8 @@ purge: FORCE
 	cd Paschos;                    make purge; cd ..; \
 	cd PDF;                        make purge; cd ..; \
 	cd PDG;                        make purge; cd ..; \
+	cd QEL;                        make purge; cd ..; \
+	cd RES;                        make purge; cd ..; \
 	cd Registry;                   make purge; cd ..; \
 	cd ReinSeghal;                 make purge; cd ..; \
 	cd ReWeight;                   make purge; cd ..; \
@@ -489,6 +501,7 @@ clean-files: FORCE
 	cd CrossSections;              make clean; cd ..; \
 	cd Decay; 	               make clean; cd ..; \
 	cd Diffractive; 	       make clean; cd ..; \
+	cd DIS;	 		       make clean; cd ..; \
 	cd Elastic; 	               make clean; cd ..; \
 	cd EVGCore;                    make clean; cd ..; \
 	cd EVGModules;                 make clean; cd ..; \
@@ -512,6 +525,8 @@ clean-files: FORCE
 	cd Paschos;                    make clean; cd ..; \
 	cd PDF;                        make clean; cd ..; \
 	cd PDG;                        make clean; cd ..; \
+	cd QEL;                        make clean; cd ..; \
+	cd RES;                        make clean; cd ..; \
 	cd Registry;                   make clean; cd ..; \
 	cd ReinSeghal;                 make clean; cd ..; \
 	cd ReWeight;                   make clean; cd ..; \
@@ -555,6 +570,7 @@ distclean: FORCE
 	cd CrossSections;               make distclean; cd ..; \
 	cd Decay; 	                make distclean; cd ..; \
 	cd Diffractive; 	        make distclean; cd ..; \
+	cd DIS;		 	        make distclean; cd ..; \
 	cd Elastic; 	                make distclean; cd ..; \
 	cd EVGCore;                     make distclean; cd ..; \
 	cd EVGModules;                  make distclean; cd ..; \
@@ -578,6 +594,8 @@ distclean: FORCE
 	cd Paschos;                     make distclean; cd ..; \
 	cd PDF;                         make distclean; cd ..; \
 	cd PDG;                         make distclean; cd ..; \
+	cd QEL;                         make distclean; cd ..; \
+	cd RES;                         make distclean; cd ..; \
 	cd Registry;                    make distclean; cd ..; \
 	cd ReinSeghal;                  make distclean; cd ..; \
 	cd ReWeight;                    make distclean; cd ..; \
