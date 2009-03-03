@@ -10,8 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ Nov 21, 2007 - CA
-   Was renamed to COHPiXSec (from COHXSec)
+ @ Mar 03, 2009 - CA
+   Renamed COHPiXSec -> COHXSec. Adapt to naming changes made to the coherent 
+   generator for including coherent vector meson production.
 
 */
 //____________________________________________________________________________
@@ -19,7 +20,7 @@
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
-#include "CrossSections/COHPiXSec.h"
+#include "CrossSections/COHXSec.h"
 #include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
@@ -32,40 +33,40 @@ using namespace genie::constants;
 using namespace genie::utils;
 
 //____________________________________________________________________________
-COHPiXSec::COHPiXSec() :
-XSecIntegratorI("genie::COHPiXSec")
+COHXSec::COHXSec() :
+XSecIntegratorI("genie::COHXSec")
 {
 
 }
 //____________________________________________________________________________
-COHPiXSec::COHPiXSec(string config) :
-XSecIntegratorI("genie::COHPiXSec", config)
+COHXSec::COHXSec(string config) :
+XSecIntegratorI("genie::COHXSec", config)
 {
 
 }
 //____________________________________________________________________________
-COHPiXSec::~COHPiXSec()
+COHXSec::~COHXSec()
 {
 
 }
 //____________________________________________________________________________
-double COHPiXSec::Integrate(
-                 const XSecAlgorithmI * model, const Interaction * in) const
+double COHXSec::Integrate(
+      const XSecAlgorithmI * model, const Interaction * in) const
 {
   if(! model->ValidProcess(in) ) return 0.;
 
   const KPhaseSpace & kps = in->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
-     LOG("COHPiXSec", pDEBUG)  << "*** Below energy threshold";
+     LOG("COHXSec", pDEBUG)  << "*** Below energy threshold";
      return 0;
   }
   Range1D_t xl = kps.Limits(kKVx);
   Range1D_t yl = kps.Limits(kKVy);
 
-  LOG("COHPiXSec", pINFO)
-            << "x integration range = [" << xl.min << ", " << xl.max << "]";
-  LOG("COHPiXSec", pINFO)
-            << "y integration range = [" << yl.min << ", " << yl.max << "]";
+  LOG("COHXSec", pINFO)
+       << "x integration range = [" << xl.min << ", " << xl.max << "]";
+  LOG("COHXSec", pINFO)
+       << "y integration range = [" << yl.min << ", " << yl.max << "]";
 
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
@@ -78,26 +79,27 @@ double COHPiXSec::Integrate(
 
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfLab);
-  LOG("COHPiXSec", pINFO)  << "XSec[COHPi] (E = " << Ev << " GeV) = " << xsec;
+  LOG("COHXSec", pINFO)  
+       << "XSec[COH] (E = " << Ev << " GeV) = " << xsec;
 
   delete interaction;
   delete func;
   return xsec;
 }
 //____________________________________________________________________________
-void COHPiXSec::Configure(const Registry & config)
+void COHXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHPiXSec::Configure(string config)
+void COHXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHPiXSec::LoadConfig(void)
+void COHXSec::LoadConfig(void)
 {
   //-- get specified integration algorithm
   fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));

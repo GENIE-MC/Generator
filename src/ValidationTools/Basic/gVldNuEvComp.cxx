@@ -241,23 +241,23 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   n1 = (gst_1) ? h1num->GetEntries() : 0;
   evn.AddText( Form("DIS-NC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
 
-            gst_0->Draw("1>>h0num","cohpi","goff");
-  if(gst_1) gst_1->Draw("1>>h1num","cohpi","goff");
+            gst_0->Draw("1>>h0num","coh","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","coh","goff");
   n0 =           h0num->GetEntries();
   n1 = (gst_1) ? h1num->GetEntries() : 0;
-  evn.AddText( Form("COHPi    : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+  evn.AddText( Form("COH      : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
 
-            gst_0->Draw("1>>h0num","cohpi&&cc","goff");
-  if(gst_1) gst_1->Draw("1>>h1num","cohpi&&cc","goff");
+            gst_0->Draw("1>>h0num","coh&&cc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","coh&&cc","goff");
   n0 =           h0num->GetEntries();
   n1 = (gst_1) ? h1num->GetEntries() : 0;
-  evn.AddText( Form("COHPi-CC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+  evn.AddText( Form("COH-CC   : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
 
-            gst_0->Draw("1>>h0num","cohpi&&nc","goff");
-  if(gst_1) gst_1->Draw("1>>h1num","cohpi&&nc","goff");
+            gst_0->Draw("1>>h0num","coh&&nc","goff");
+  if(gst_1) gst_1->Draw("1>>h1num","coh&&nc","goff");
   n0 =           h0num->GetEntries();
   n1 = (gst_1) ? h1num->GetEntries() : 0;
-  evn.AddText( Form("COHPi-NC : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
+  evn.AddText( Form("COH-NC   : %7.0f [test sample], %7.0f [ref sample]", n0, n1) );
 
             gst_0->Draw("1>>h0num","imd","goff");
   if(gst_1) gst_1->Draw("1>>h1num","imd","goff");
@@ -407,30 +407,30 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   c->Update();
 
   if(show_coh_plots) {
-     //------ selected Q2 for COHPi
+     //------ selected Q2 for COH
      ps->NewPage();
-     gst_0->Draw("Q2s","cohpi","");
-     if(gst_1) gst_1->Draw("Q2s","cohpi","perrsame");
+     gst_0->Draw("Q2s","coh","");
+     if(gst_1) gst_1->Draw("Q2s","coh","perrsame");
      ls->Clear();
-     ls->SetHeader("selected Q2 for COHPi events");
+     ls->SetHeader("selected Q2 for COH events");
      ls->Draw();
      c->Update();
 
-     //------ selected Q2 for COHPi CC
+     //------ selected Q2 for COH CC
      ps->NewPage();
-     gst_0->Draw("Q2s","cohpi&&cc","");
-     if(gst_1) gst_1->Draw("Q2s","cohpi&&cc","perrsame");
+     gst_0->Draw("Q2s","coh&&cc","");
+     if(gst_1) gst_1->Draw("Q2s","coh&&cc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected Q2 for COHPi CC events");
+     ls->SetHeader("selected Q2 for COH CC events");
      ls->Draw();
      c->Update();
 
-     //------ selected Q2 for COHPi NC
+     //------ selected Q2 for COH NC
      ps->NewPage();
-     gst_0->Draw("Q2s","cohpi&&nc","");
-     if(gst_1) gst_1->Draw("Q2s","cohpi&&nc","perrsame");
+     gst_0->Draw("Q2s","coh&&nc","");
+     if(gst_1) gst_1->Draw("Q2s","coh&&nc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected Q2 for COHPi NC events");
+     ls->SetHeader("selected Q2 for COH NC events");
      ls->Draw();
      c->Update();
   }
@@ -553,30 +553,30 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   c->Update();
 
   if(show_coh_plots) {
-     //------ selected x for COHPi
+     //------ selected x for COH
      ps->NewPage();
-     gst_0->Draw("xs","cohpi","");
-     if(gst_1) gst_1->Draw("xs","cohpi","perrsame");
+     gst_0->Draw("xs","coh","");
+     if(gst_1) gst_1->Draw("xs","coh","perrsame");
      ls->Clear();
-     ls->SetHeader("selected x for COHPi events");
+     ls->SetHeader("selected x for COH events");
      ls->Draw();
      c->Update();
 
-     //------ selected x for COHPi CC
+     //------ selected x for COH CC
      ps->NewPage();
-     gst_0->Draw("xs","cohpi&&cc","");
-     if(gst_1) gst_1->Draw("xs","cohpi&&cc","perrsame");
+     gst_0->Draw("xs","coh&&cc","");
+     if(gst_1) gst_1->Draw("xs","coh&&cc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected x for COHPi CC events");
+     ls->SetHeader("selected x for COH CC events");
      ls->Draw();
      c->Update();
 
-     //------ selected x for COHPi NC
+     //------ selected x for COH NC
      ps->NewPage();
-     gst_0->Draw("xs","cohpi&&nc","");
-     if(gst_1) gst_1->Draw("xs","cohpi&&nc","perrsame");
+     gst_0->Draw("xs","coh&&nc","");
+     if(gst_1) gst_1->Draw("xs","coh&&nc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected x for COHPi NC events");
+     ls->SetHeader("selected x for COH NC events");
      ls->Draw();
      c->Update();
   }
@@ -645,39 +645,39 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   c->Update();
 
   if(show_coh_plots) {
-     //------ selected y for COHPi
+     //------ selected y for COH
      ps->NewPage();
-     gst_0->Draw("ys","cohpi","");
-     if(gst_1) gst_1->Draw("ys","cohpi","perrsame");
+     gst_0->Draw("ys","coh","");
+     if(gst_1) gst_1->Draw("ys","coh","perrsame");
      ls->Clear();
-     ls->SetHeader("selected y for COHPi events");
+     ls->SetHeader("selected y for COH events");
      ls->Draw();
      c->Update();
 
-     //------ selected y for COHPi CC
+     //------ selected y for COH CC
      ps->NewPage();
-     gst_0->Draw("ys","cohpi&&cc","");
-     if(gst_1) gst_1->Draw("ys","cohpi&&cc","perrsame");
+     gst_0->Draw("ys","coh&&cc","");
+     if(gst_1) gst_1->Draw("ys","coh&&cc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected y for COHPi CC events");
+     ls->SetHeader("selected y for COH CC events");
      ls->Draw();
      c->Update();
 
-     //------ selected y for COHPi NC
+     //------ selected y for COH NC
      ps->NewPage();
-     gst_0->Draw("ys","cohpi&&nc","");
-     if(gst_1) gst_1->Draw("ys","cohpi&&nc","perrsame");
+     gst_0->Draw("ys","coh&&nc","");
+     if(gst_1) gst_1->Draw("ys","coh&&nc","perrsame");
      ls->Clear();
-     ls->SetHeader("selected y for COHPi NC events");
+     ls->SetHeader("selected y for COH NC events");
      ls->Draw();
      c->Update();
 
-     //------ selected t for COHPi
+     //------ selected t for COH
      ps->NewPage();
-     gst_0->Draw("ts","cohpi","");
-     if(gst_1) gst_1->Draw("ts","cohpi","perrsame");
+     gst_0->Draw("ts","coh","");
+     if(gst_1) gst_1->Draw("ts","coh","perrsame");
      ls->Clear();
-     ls->SetHeader("selected t for COHPi events");
+     ls->SetHeader("selected t for COH events");
      ls->Draw();
      c->Update();
   }
@@ -982,25 +982,25 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   c->Update();
 
   if(show_coh_plots) {
-     //------ f/s primary lepton : COHPi events
+     //------ f/s primary lepton : COH events
      ps->NewPage();
      c->Clear();
      c->Divide(2,2);
      c->cd(1);
-     gst_0->Draw("pxl","cohpi","");
-     if(gst_1) gst_1->Draw("pxl","cohpi","perrsame");
+     gst_0->Draw("pxl","coh","");
+     if(gst_1) gst_1->Draw("pxl","coh","perrsame");
      c->cd(2);
-     gst_0->Draw("pyl","cohpi","");
-     if(gst_1) gst_1->Draw("pyl","cohpi","perrsame");
+     gst_0->Draw("pyl","coh","");
+     if(gst_1) gst_1->Draw("pyl","coh","perrsame");
      c->cd(3);
-     gst_0->Draw("pzl","cohpi","");
-     if(gst_1) gst_1->Draw("pzl","cohpi","perrsame");
+     gst_0->Draw("pzl","coh","");
+     if(gst_1) gst_1->Draw("pzl","coh","perrsame");
      c->cd(4);
-     gst_0->Draw("El","cohpi","");
-     if(gst_1) gst_1->Draw("El","cohpi","perrsame");
+     gst_0->Draw("El","coh","");
+     if(gst_1) gst_1->Draw("El","coh","perrsame");
      c->cd();
      ls->Clear();
-     ls->SetHeader("Final state primary lepton 4-p: COHPi events");
+     ls->SetHeader("Final state primary lepton 4-p: COH events");
      ls->Draw();
      c->Update();
   }

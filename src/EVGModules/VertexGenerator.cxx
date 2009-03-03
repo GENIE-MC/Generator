@@ -79,7 +79,7 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
     Interaction * interaction = evrec->Summary();
     const ProcessInfo & proc_info = interaction->ProcInfo();
-    bool is_coh = proc_info.IsCoherentPiProd() || proc_info.IsCoherentElas();
+    bool is_coh = proc_info.IsCoherent() || proc_info.IsCoherentElas();
     bool is_ve  = proc_info.IsInverseMuDecay() || proc_info.IsNuElectronElastic();
 
     if(is_coh||is_ve) {

@@ -9,5 +9,10 @@
      <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
   </param_set>
 
+  <param_set name="NucOnShell"> 
+     <param type="bool"   name="KeepHitNuclOnMassShell"> true                                      </param>
+     <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+  </param_set>
+
 </alg_conf>
 

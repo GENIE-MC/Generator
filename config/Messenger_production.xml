@@ -35,10 +35,10 @@
   <priority msgstream="Cache">               WARN   </priority>
   <priority msgstream="CharmHad">            WARN   </priority>
   <priority msgstream="CFracTab">            WARN   </priority>
-  <priority msgstream="COHPiXSec">           WARN   </priority>
+  <priority msgstream="COHXSec">             WARN   </priority>
   <priority msgstream="CLAP">                WARN   </priority>
-  <priority msgstream="COHPiHadronicVtx">    WARN   </priority>
-  <priority msgstream="COHPiKinematics">     WARN   </priority>
+  <priority msgstream="COHHadronicVtx">      WARN   </priority>
+  <priority msgstream="COHKinematics">       WARN   </priority>
   <priority msgstream="Decay">               WARN   </priority>
   <priority msgstream="DISSF">               WARN   </priority>
   <priority msgstream="DISXSec">             WARN   </priority>
