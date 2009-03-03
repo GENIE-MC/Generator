@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::COHPiKinematicsGenerator
+\class    genie::COHKinematicsGenerator
 
 \brief    Generates values for the kinematic variables describing coherent 
           neutrino-nucleus pion production events.
@@ -18,8 +18,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _COHPI_KINEMATICS_GENERATOR_H_
-#define _COHPI_KINEMATICS_GENERATOR_H_
+#ifndef _COH_KINEMATICS_GENERATOR_H_
+#define _COH_KINEMATICS_GENERATOR_H_
 
 #include "EVGModules/KineGeneratorWithCache.h"
 #include "Utils/Range1.h"
@@ -28,29 +28,29 @@ class TF2;
 
 namespace genie {
 
-class COHPiKinematicsGenerator : public KineGeneratorWithCache {
+class COHKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
-  COHPiKinematicsGenerator();
-  COHPiKinematicsGenerator(string config);
- ~COHPiKinematicsGenerator();
+  COHKinematicsGenerator();
+  COHKinematicsGenerator(string config);
+ ~COHKinematicsGenerator();
 
-  //! implement the EventRecordVisitorI interface
+  // implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //! members from configuration options
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
 public:
-  //! methods to load sub-algorithms and config data from the Registry
+  // methods to load sub-algorithms and config data from the Registry
   void LoadConfig (void);
 
-  //! overload KineGeneratorWithCache method to compute max xsec
+  // overload KineGeneratorWithCache method to compute max xsec
   double ComputeMaxXSec (const Interaction * in) const;
 
-  //! overload KineGeneratorWithCache method to get energy
+  // overload KineGeneratorWithCache method to get energy
   double Energy         (const Interaction * in) const;
 
   mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
@@ -58,4 +58,4 @@ public:
 };
 
 }      // genie namespace
-#endif // _COHPI_KINEMATICS_GENERATOR_H_
+#endif // _COH_KINEMATICS_GENERATOR_H_

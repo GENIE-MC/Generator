@@ -10,11 +10,13 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ Nov 21, 2007 - CA
-   Was renamed to COHPiKinematicsGenerator (from COHKinematicsGenerator)
  @ Feb 09, 2009 - CA
    Moved into the new Coherent package from its previous location  (EVGModules 
    package)
+ @ Mar 03, 2009 - CA
+   Renamed COHPiKinematicsGenerator -> COHKinematicsGenerator in
+   anticipation of reusing the code for simulating coherent production of
+   vector mesons.
 
 */
 //____________________________________________________________________________
@@ -29,7 +31,7 @@
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Conventions/Units.h"
-#include "Coherent/COHPiKinematicsGenerator.h"
+#include "Coherent/COHKinematicsGenerator.h"
 #include "Conventions/KinePhaseSpace.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGCore/EventGeneratorI.h"
@@ -46,27 +48,27 @@ using namespace genie::controls;
 using namespace genie::utils;
 
 //___________________________________________________________________________
-COHPiKinematicsGenerator::COHPiKinematicsGenerator() :
-KineGeneratorWithCache("genie::COHPiKinematicsGenerator")
+COHKinematicsGenerator::COHKinematicsGenerator() :
+KineGeneratorWithCache("genie::COHKinematicsGenerator")
 {
   fEnvelope = 0;
 }
 //___________________________________________________________________________
-COHPiKinematicsGenerator::COHPiKinematicsGenerator(string config) :
-KineGeneratorWithCache("genie::COHPiKinematicsGenerator", config)
+COHKinematicsGenerator::COHKinematicsGenerator(string config) :
+KineGeneratorWithCache("genie::COHKinematicsGenerator", config)
 {
   fEnvelope = 0;
 }
 //___________________________________________________________________________
-COHPiKinematicsGenerator::~COHPiKinematicsGenerator()
+COHKinematicsGenerator::~COHKinematicsGenerator()
 {
   if(fEnvelope) delete fEnvelope;
 }
 //___________________________________________________________________________
-void COHPiKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
   if(fGenerateUniformly) {
-    LOG("COHPiKinematics", pNOTICE)
+    LOG("COHKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
   }
 
@@ -111,7 +113,7 @@ void COHPiKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
-        LOG("COHPiKinematics", pWARN)
+        LOG("COHKinematics", pWARN)
              << "*** Could not select a valid (x,y) pair after "
                                                << iter << " iterations";
         evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
@@ -130,7 +132,7 @@ void COHPiKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //-- Select unweighted kinematics using importance sampling method. 
 
         if(iter==1) {
-         LOG("COHPiKinematics", pNOTICE) << "Initializing the sampling envelope";
+         LOG("COHKinematics", pNOTICE) << "Initializing the sampling envelope";
          double Ev = interaction->InitState().ProbeE(kRfLab);
          fEnvelope->SetRange(xmin,ymin,xmax,ymax);
          fEnvelope->SetParameter(0, xsec_max);  
@@ -141,7 +143,7 @@ void COHPiKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        fEnvelope->GetRandom2(gx,gy);
      }
 
-     LOG("COHPiKinematics", pINFO) << "Trying: x = " << gx << ", y = " << gy;
+     LOG("COHKinematics", pINFO) << "Trying: x = " << gx << ", y = " << gy;
 
      interaction->KinePtr()->Setx(gx);
      interaction->KinePtr()->Sety(gy);
@@ -156,7 +158,7 @@ void COHPiKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         this->AssertXSecLimits(interaction, xsec, max);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-        LOG("COHPiKinematics", pDEBUG) 
+        LOG("COHKinematics", pDEBUG) 
             << "xsec= " << xsec << ", J= 1, Rnd= " << t;
 #endif
         accept = (t<xsec);
@@ -167,7 +169,7 @@ void COHPiKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {
-        LOG("COHPiKinematics", pNOTICE) << "Selected: x = "<< gx << ", y = "<< gy;
+        LOG("COHKinematics", pNOTICE) << "Selected: x = "<< gx << ", y = "<< gy;
 
         // the COH cross section should be a triple differential cross section
         // d^2xsec/dxdydt where t is the the square of the 4p transfer to the
@@ -194,7 +196,7 @@ void COHPiKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double rt    = tsum * rnd->RndKine().Rndm();
         double gt    = -1.*TMath::Log(-1.*b*rt + TMath::Exp(-1.*b*tmin))/b;
 
-        LOG("COHPiKinematics", pNOTICE)
+        LOG("COHKinematics", pNOTICE)
           << "Selected: t = "<< gt << ", from ["<< tmin << ", "<< tmax << "]";
 
         // for uniform kinematics, compute an event weight as
@@ -203,11 +205,11 @@ void COHPiKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           double vol     = y.max-y.min; // dx=1, dt: irrelevant
           double totxsec = evrec->XSec();
           double wght    = (vol/totxsec)*xsec;
-          LOG("COHPiKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
+          LOG("COHKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
 
           // apply computed weight to the current event weight
           wght *= evrec->Weight();
-          LOG("COHPiKinematics", pNOTICE) << "Current event wght = " << wght;
+          LOG("COHKinematics", pNOTICE) << "Current event wght = " << wght;
           evrec->SetWeight(wght);
         }
 
@@ -231,7 +233,7 @@ void COHPiKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   }// iterations
 }
 //___________________________________________________________________________
-double COHPiKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
+double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 {
 // Computes the maximum differential cross section in the requested phase
 // space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
@@ -239,7 +241,7 @@ double COHPiKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 // during subsequent event generation.
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  SLOG("COHPiKinematics", pDEBUG)
+  SLOG("COHKinematics", pDEBUG)
           << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
 #endif
   double max_xsec = 0.;
@@ -277,7 +279,7 @@ double COHPiKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
      double xsec = fXSecModel->XSec(in, kPSxyfE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("COHPiKinematics", pDEBUG)  
+     LOG("COHKinematics", pDEBUG)  
      	 << "xsec(x= " << gx << ", y= " << gy << ") = " << xsec;
 #endif
      max_xsec = TMath::Max(max_xsec, xsec);
@@ -290,15 +292,15 @@ double COHPiKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
   max_xsec *= fSafetyFactor;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  SLOG("COHPiKinematics", pDEBUG) << in->AsString();
-  SLOG("COHPiKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  SLOG("COHPiKinematics", pDEBUG) << "Computed using alg = " << fXSecModel->Id();
+  SLOG("COHKinematics", pDEBUG) << in->AsString();
+  SLOG("COHKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
+  SLOG("COHKinematics", pDEBUG) << "Computed using alg = " << fXSecModel->Id();
 #endif
 
   return max_xsec;
 }
 //___________________________________________________________________________
-double COHPiKinematicsGenerator::Energy(const Interaction * interaction) const
+double COHKinematicsGenerator::Energy(const Interaction * interaction) const
 {
 // Override the base class Energy() method to cache the max xsec for the
 // neutrino energy in the LAB rather than in the hit nucleon rest frame.
@@ -308,19 +310,19 @@ double COHPiKinematicsGenerator::Energy(const Interaction * interaction) const
   return E;
 }
 //___________________________________________________________________________
-void COHPiKinematicsGenerator::Configure(const Registry & config)
+void COHKinematicsGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHPiKinematicsGenerator::Configure(string config)
+void COHKinematicsGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHPiKinematicsGenerator::LoadConfig(void)
+void COHKinematicsGenerator::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();

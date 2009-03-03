@@ -9,9 +9,9 @@
 #pragma link C++ class genie::COHElasticPXSec;
 #pragma link C++ class genie::COHInteractionListGenerator;
 #pragma link C++ class genie::COHPrimaryLeptonGenerator;
-#pragma link C++ class genie::COHPiHadronicSystemGenerator;
+#pragma link C++ class genie::COHHadronicSystemGenerator;
 #pragma link C++ class genie::COHElHadronicSystemGenerator;
-#pragma link C++ class genie::COHPiKinematicsGenerator;
+#pragma link C++ class genie::COHKinematicsGenerator;
 #pragma link C++ class genie::COHElKinematicsGenerator;
 
 #endif
