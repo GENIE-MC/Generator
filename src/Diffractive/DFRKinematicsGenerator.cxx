@@ -192,7 +192,7 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          double Epi   = gy*Ev; // pion energy
          double Epi2  = TMath::Power(Epi,2);
          double pme2  = kPionMass2/Epi2;   
-         double xME   = kNucleonMass*gx/Epi;
+         double xME   = M*gx/Epi;
          double tA    = 1. + xME - 0.5*pme2;
          double tB    = TMath::Sqrt(1.+ 2*xME) * TMath::Sqrt(1.-pme2);
          double tmin  = 2*Epi2 * (tA-tB);

@@ -67,13 +67,14 @@ double ReinDFRPXSec::XSec(
   double E      = init_state.ProbeE(kRfHitNucRest);  // neutrino energy
   double x      = kinematics.x();                    // bjorken x
   double y      = kinematics.y();                    // inelasticity y
-  double Q2     = 2.*x*y*kNucleonMass*E;             // momentum transfer Q2>0
-  double Gf     = kGF2 * kNucleonMass/(16*kPi3);     // GF/pi/etc factor
+  double M      = target.HitNucMass();               //
+  double Q2     = 2.*x*y*M*E;                        // momentum transfer Q2>0
+  double Gf     = kGF2 * M/(16*kPi3);                // GF/pi/etc factor
   double fp     = 0.93 * kPionMass;                  // pion decay constant (cc)
   double fp2    = TMath::Power(fp,2.);         
   double Epi    = y*E;                               // pion energy
   double Epi2   = TMath::Power(Epi,2.);
-  double Tpi    = Epi - kPionMass;                   // pion kinetic energy
+  double Tpi    = TMath::Max(0., Epi-kPionMass);     // pion kinetic energy
   double ma2    = TMath::Power(fMa,2);
   double propg  = TMath::Power(ma2/(ma2+Q2),2.);     // propagator term
   double sTot   = spl_piN->Evaluate(Tpi/units::MeV) * units::mb; // pi+N total cross section
@@ -83,7 +84,7 @@ double ReinDFRPXSec::XSec(
 //double tB     = 2 * ppi * q;
 //double tmin   = tA - tB;
 //double tmax   = tA + tB;
-  double MxEpi  = kNucleonMass*x/Epi;
+  double MxEpi  = M*x/Epi;
   double mEpi2  = kPionMass2/Epi2;
   double tA     = 1. + MxEpi - 0.5*mEpi2;
   double tB     = TMath::Sqrt(1. + 2*MxEpi) * TMath::Sqrt(1.-mEpi2);
@@ -127,13 +128,12 @@ double ReinDFRPXSec::XSec(
 //____________________________________________________________________________
 double ReinDFRPXSec::Integral(const Interaction * interaction) const
 {
-  double ml = kMuonMass;
+  const KPhaseSpace & phsp = interaction->PhaseSpace();
 
-  const InitialState & init_state = interaction -> InitState();
-  double E = init_state.ProbeE(kRfHitNucRest); 
+  if(!phsp.IsAboveThreshold()) return 0;
 
-  Range1D_t x(kASmallNum, 1.-kASmallNum);
-  Range1D_t y(kPionMass/E + kASmallNum, 1.-ml/E - kASmallNum);
+  Range1D_t x = phsp.Limits(kKVx);
+  Range1D_t y = phsp.Limits(kKVy);
 
   if(y.max <= y.min) return 0;
 
@@ -157,9 +157,12 @@ double ReinDFRPXSec::Integral(const Interaction * interaction) const
     }
   }
 
+  const InitialState & init_state = interaction -> InitState();
+  double Ev = init_state.ProbeE(kRfHitNucRest);
+
   LOG("ReinDFR", pNOTICE)
-    << "xsec (E = " << E << " GeV) = "
-    << xsec/(1E-38*units::cm2) << "1E-38 * cm2";
+    << "xsec (E = " << Ev << " GeV) = "
+    << xsec/(1E-38*units::cm2) << " x 1E-38 * cm2";
 
   return xsec;
 }
