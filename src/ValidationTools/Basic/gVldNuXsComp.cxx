@@ -1012,27 +1012,27 @@ void GeneratePlots_1dir(string dirname)
           ls->Draw();
 	  c->Update();
      }
-     // COHPi CC v+A
+     // COH CC v+A
      {
-	  TGraph * gr_cohpi_curr = (TGraph *) dir_curr->Get("cohpi_cc");
-	  TGraph * gr_cohpi_ref0 = (dir_ref0) ? (TGraph *) dir_ref0->Get("cohpi_cc") : 0;
-          Draw(gr_cohpi_curr,"L");
-          Draw(gr_cohpi_ref0,"L");
-          DrawFrame (gr_cohpi_curr, gr_cohpi_ref0, c);
+	  TGraph * gr_coh_curr = (TGraph *) dir_curr->Get("coh_cc");
+	  TGraph * gr_coh_ref0 = (dir_ref0) ? (TGraph *) dir_ref0->Get("coh_cc") : 0;
+          Draw(gr_coh_curr,"L");
+          Draw(gr_coh_ref0,"L");
+          DrawFrame (gr_coh_curr, gr_coh_ref0, c);
           ls->Clear();
-          ls->SetHeader(Form("COHPI-CC / %s+%s",neutrino,target));
+          ls->SetHeader(Form("COH-CC / %s+%s",neutrino,target));
           ls->Draw();
 	  c->Update();
      }
-     // COHPi NC v+A
+     // COH NC v+A
      {
-	  TGraph * gr_cohpi_curr = (TGraph *) dir_curr->Get("cohpi_nc");
-	  TGraph * gr_cohpi_ref0 = (dir_ref0) ? (TGraph *) dir_ref0->Get("cohpi_nc") : 0;
-          Draw(gr_cohpi_curr,"L");
-          Draw(gr_cohpi_ref0,"L");
-          DrawFrame (gr_cohpi_curr, gr_cohpi_ref0, c);
+	  TGraph * gr_coh_curr = (TGraph *) dir_curr->Get("coh_nc");
+	  TGraph * gr_coh_ref0 = (dir_ref0) ? (TGraph *) dir_ref0->Get("coh_nc") : 0;
+          Draw(gr_coh_curr,"L");
+          Draw(gr_coh_ref0,"L");
+          DrawFrame (gr_coh_curr, gr_coh_ref0, c);
           ls->Clear();
-          ls->SetHeader(Form("COHPI-NC / %s+%s",neutrino,target));
+          ls->SetHeader(Form("COH-NC / %s+%s",neutrino,target));
           ls->Draw();
 	  c->Update();
      }

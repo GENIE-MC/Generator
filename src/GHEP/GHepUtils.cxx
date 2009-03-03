@@ -55,7 +55,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   bool is_qel   = proc.IsQuasiElastic();
   bool is_dis   = proc.IsDeepInelastic();
   bool is_res   = proc.IsResonant();
-  bool is_cohpi = proc.IsCoherentPiProd();
+  bool is_cohpi = proc.IsCoherent();
   bool is_ve    = proc.IsNuElectronElastic();
   bool is_imd   = proc.IsInverseMuDecay();
   bool is_p     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgProton  : false;
@@ -273,8 +273,8 @@ int genie::utils::ghep::NuanceReactionCode(const GHepRecord * event)
   else if (proc.IsQuasiElastic()   && proc.IsWeakNC()) evtype =  2;
   else if (proc.IsDeepInelastic()  && proc.IsWeakCC()) evtype = 91;
   else if (proc.IsDeepInelastic()  && proc.IsWeakNC()) evtype = 92;
-  else if (proc.IsCoherentPiProd() && proc.IsWeakNC()) evtype = 96;
-  else if (proc.IsCoherentPiProd() && proc.IsWeakCC()) evtype = 97;
+  else if (proc.IsCoherent()       && proc.IsWeakNC()) evtype = 96;
+  else if (proc.IsCoherent()       && proc.IsWeakCC()) evtype = 97;
   else if (proc.IsNuElectronElastic())                 evtype = 98;
   else if (proc.IsInverseMuDecay())                    evtype = 99;
   else if (proc.IsResonant()) {

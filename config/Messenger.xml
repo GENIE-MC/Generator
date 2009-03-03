@@ -35,10 +35,10 @@
   <priority msgstream="Cache">               NOTICE </priority>
   <priority msgstream="CharmHad">            NOTICE </priority>
   <priority msgstream="CFracTab">            INFO   </priority>
-  <priority msgstream="COHPiXSec">           NOTICE </priority>
+  <priority msgstream="COHXSec">             NOTICE </priority>
   <priority msgstream="CLAP">                NOTICE </priority>
-  <priority msgstream="COHPiHadronicVtx">    INFO   </priority>
-  <priority msgstream="COHPiKinematics">     NOTICE </priority>
+  <priority msgstream="COHHadronicVtx">      INFO   </priority>
+  <priority msgstream="COHKinematics">       NOTICE </priority>
   <priority msgstream="DFRHadronicVtx">      DEBUG  </priority>
   <priority msgstream="DFRKinematics">       DEBUG  </priority>
   <priority msgstream="Decay">               INFO   </priority>
