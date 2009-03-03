@@ -10,12 +10,13 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ Nov 21, 2007 - CA
-   Was renamed to COHPiHadronicSystemGenerator (from COHHadronicSystemGenerator)
  @ Feb 09, 2009 - CA
-   Moved into the new Coherent package from its previous location  (EVGModules 
+   Moved into the new Coherent package from its previous location (EVGModules 
    package)
-
+ @ Mar 03, 2009 - CA
+   Renamed COHPiHadronicSystemGenerator -> COHHadronicSystemGenerator in
+   anticipation of reusing the code for simulating coherent production of
+   vector mesons.
 */
 //____________________________________________________________________________
 
@@ -24,7 +25,7 @@
 #include <TVector3.h>
 
 #include "Conventions/Constants.h"
-#include "Coherent/COHPiHadronicSystemGenerator.h"
+#include "Coherent/COHHadronicSystemGenerator.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
@@ -39,24 +40,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //___________________________________________________________________________
-COHPiHadronicSystemGenerator::COHPiHadronicSystemGenerator() :
-HadronicSystemGenerator("genie::COHPiHadronicSystemGenerator")
+COHHadronicSystemGenerator::COHHadronicSystemGenerator() :
+HadronicSystemGenerator("genie::COHHadronicSystemGenerator")
 {
 
 }
 //___________________________________________________________________________
-COHPiHadronicSystemGenerator::COHPiHadronicSystemGenerator(string config) :
-HadronicSystemGenerator("genie::COHPiHadronicSystemGenerator", config)
+COHHadronicSystemGenerator::COHHadronicSystemGenerator(string config) :
+HadronicSystemGenerator("genie::COHHadronicSystemGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-COHPiHadronicSystemGenerator::~COHPiHadronicSystemGenerator()
+COHHadronicSystemGenerator::~COHHadronicSystemGenerator()
 {
 
 }
 //___________________________________________________________________________
-void COHPiHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // This method generates the final state hadronic system (pion + nucleus) in 
 // COH interactions
@@ -85,7 +86,7 @@ void COHPiHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   else if (xcls_tag.NPiPlus()  == 1) pion_pdgc = kPdgPiP;
   else if (xcls_tag.NPiMinus() == 1) pion_pdgc = kPdgPiM;
   else {
-     LOG("COHPiHadronicVtx", pFATAL)
+     LOG("COHHadronicVtx", pFATAL)
                << "No final state pion information in XclsTag!";
      exit(1);
   }
@@ -99,7 +100,7 @@ void COHPiHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double yo   = interaction->Kine().y(true); 
   double to   = interaction->Kine().t(true); 
 
-  SLOG("COHPiHadronicVtx", pINFO) 
+  SLOG("COHHadronicVtx", pINFO) 
          << "Ev = "<< E << ", xo = " << xo 
                          << ", yo = " << yo << ", to = " << to;
 
@@ -109,7 +110,7 @@ void COHPiHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double ppi2 = Epi2-mpi2;
   double ppi  = TMath::Sqrt(TMath::Max(0.,ppi2));
 
-  SLOG("COHPiHadronicVtx", pINFO)
+  SLOG("COHHadronicVtx", pINFO)
                       << "f/s pion E = " << Epi << ", |p| = " << ppi;
   assert(Epi>mpi);
 
@@ -120,7 +121,7 @@ void COHPiHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   TLorentzVector q = p4nu - p4fsl;
 
-  SLOG("COHPiHadronicVtx", pINFO) 
+  SLOG("COHHadronicVtx", pINFO) 
           << "\n 4-p transfer q @ LAB: " << utils::print::P4AsString(&q);
 
   //-- find angle theta between q and ppi (xi=costheta)
@@ -132,7 +133,7 @@ void COHPiHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double costheta  = xi;
   double sintheta  = TMath::Sqrt(TMath::Max(0.,1.-xi*xi));
 
-  SLOG("COHPiHadronicVtx", pINFO) << "cos(pion, q) = " << costheta;
+  SLOG("COHHadronicVtx", pINFO) << "cos(pion, q) = " << costheta;
 
   // compute transverse and longitudinal ppi components along q
   double ppiL = ppi*costheta;
@@ -145,7 +146,7 @@ void COHPiHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   ppi3.RotateUz(q.Vect().Unit()); // align longit. component with q in LAB
   ppi3.RotateZ(phi);              // randomize transverse components
 
-  SLOG("COHPiHadronicVtx", pINFO) 
+  SLOG("COHHadronicVtx", pINFO) 
                << "Pion 3-p @ LAB: " << utils::print::Vec3AsString(&ppi3);
 
   // now figure out the f/s nucleus 4-p
