@@ -110,7 +110,8 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
 
   LOG("FermiMover", pINFO) 
      << "Generated nucleon momentum: ("
-     << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << ")";
+     << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << "), "
+     << "|p| = " << p3.Mag();
   LOG("FermiMover", pINFO) 
      << "Generated nucleon removal energy: w = " << w;
   
