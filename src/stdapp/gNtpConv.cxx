@@ -230,8 +230,7 @@ void ConvertToGST(void)
   bool   brIsQel       = false;  // Is QEL?
   bool   brIsRes       = false;  // Is RES?
   bool   brIsDis       = false;  // Is DIS?
-  bool   brIsCohPi     = false;  // Is COHPi?
-  bool   brIsCohEl     = false;  // Is COHEl?
+  bool   brIsCoh       = false;  // Is COH?
   bool   brIsImd       = false;  // Is IMD?
   bool   brIsNuEL      = false;  // Is ve elastic?
   bool   brIsCC        = false;  // Is CC?
@@ -242,12 +241,12 @@ void ConvertToGST(void)
   double brWeight      = 0;      // Event weight
   double brKineXs      = 0;      // Bjorken x (as was generated during kinematical selection)
   double brKineYs      = 0;      // Inelasticity y (as was generated during kinematical selection)
-  double brKineTs      = 0;      // Energy transfer to nucleus at COHPi events (as was generated during kinematical selection)
+  double brKineTs      = 0;      // Energy transfer to nucleus at COH events (as was generated during kinematical selection)
   double brKineQ2s     = 0;      // Momentum transfer Q^2 (as was generated during kinematical selection)
   double brKineWs      = 0;      // Hadronic invariant mass W (as was generated during kinematical selection)
   double brKineX       = 0;      // Bjorken x  (computed from the event record)
   double brKineY       = 0;      // Inelasticity y (computed from the event record)
-  double brKineT       = 0;      // Energy transfer to nucleus at COHPi events (computed from the event record)
+  double brKineT       = 0;      // Energy transfer to nucleus at COH events (computed from the event record)
   double brKineQ2      = 0;      // Momentum transfer Q^2 (computed from the event record)
   double brKineW       = 0;      // Hadronic invariant mass W (computed from the event record)
   double brEv          = 0;      // Neutrino energy @ LAB
@@ -326,8 +325,7 @@ void ConvertToGST(void)
   s_tree->Branch("qel",	          &brIsQel,	    "qel/O"	    );
   s_tree->Branch("res",	          &brIsRes,	    "res/O"	    );
   s_tree->Branch("dis",	          &brIsDis,	    "dis/O"	    );
-  s_tree->Branch("cohpi",         &brIsCohPi,       "cohpi/O"	    );
-  s_tree->Branch("cohel",         &brIsCohEl,       "cohel/O"	    );
+  s_tree->Branch("coh",           &brIsCoh,         "coh/O"	    );
   s_tree->Branch("imd",	          &brIsImd,	    "imd/O"	    );
   s_tree->Branch("nuel",          &brIsNuEL,        "nuel/O"	    );
   s_tree->Branch("cc",	          &brIsCC,	    "cc/O"	    );
@@ -501,13 +499,11 @@ void ConvertToGST(void)
     bool is_qel    = proc_info.IsQuasiElastic();
     bool is_res    = proc_info.IsResonant();
     bool is_dis    = proc_info.IsDeepInelastic();
-    bool is_cohpi  = proc_info.IsCoherentPiProd();
-    bool is_cohel  = proc_info.IsCoherentElas();
+    bool is_coh    = proc_info.IsCoherent();
     bool is_imd    = proc_info.IsInverseMuDecay();
     bool is_nuel   = proc_info.IsNuElectronElastic();
     bool is_weakcc = proc_info.IsWeakCC();
     bool is_weaknc = proc_info.IsWeakNC();
-    bool is_coh    = is_cohpi | is_cohel;
 
     if(!hitnucl) { assert(is_coh || is_imd || is_nuel); }
   
@@ -557,7 +553,7 @@ void ConvertToGST(void)
     bool get_selected = true;
     double xs  = kine.x (get_selected);
     double ys  = kine.y (get_selected);
-    double ts  = (is_cohpi) ? kine.t (get_selected) : -1;
+    double ts  = (is_coh) ? kine.t (get_selected) : -1;
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
 
@@ -645,7 +641,7 @@ void ConvertToGST(void)
 
     vector<int> prim_had_syst;
     if(study_hadsyst) {
-      if(!target->IsNucleus() || (is_cohel||is_cohpi)) {
+      if(!target->IsNucleus() || (is_coh)) {
          vector<int>::const_iterator hiter = final_had_syst.begin();
          for( ; hiter != final_had_syst.end(); ++hiter) {
            prim_had_syst.push_back(*hiter);
@@ -717,8 +713,7 @@ void ConvertToGST(void)
     brIsQel      = is_qel;
     brIsRes      = is_res;
     brIsDis      = is_dis;  
-    brIsCohPi    = is_cohpi;  
-    brIsCohEl    = is_cohel;  
+    brIsCoh      = is_coh;  
     brIsImd      = is_imd;  
     brIsNuEL     = is_nuel;  
     brIsCC       = is_weakcc;  

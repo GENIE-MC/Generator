@@ -21,6 +21,10 @@
    Added IsMEC() to query about meson exchange current interactions
  @ Feb 09, 2009 - CA
    Added IsDiffractive() to query about diffractive interactions
+ @ Mar 03, 2009 - CA
+   Adapt to naming changes made to the coherent generator for including
+   coherent vector meson production.
+
 */
 //____________________________________________________________________________
 
@@ -93,13 +97,7 @@ bool ProcessInfo::IsResonant(void) const
 //____________________________________________________________________________
 bool ProcessInfo::IsCoherent(void) const
 {
-  return (fScatteringType == kScCoherentPiProd || 
-          fScatteringType == kScCoherentElas);
-}
-//____________________________________________________________________________
-bool ProcessInfo::IsCoherentPiProd(void) const
-{
-  return (fScatteringType == kScCoherentPiProd);
+  return (fScatteringType == kScCoherent);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsCoherentElas(void) const

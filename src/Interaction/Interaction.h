@@ -109,10 +109,10 @@ public:
   static Interaction * RESNC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DFRCC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * DFRCC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * COHPiCC   (int tgt, int probe, double E=0);
-  static Interaction * COHPiCC   (int tgt, int probe, const TLorentzVector & p4probe);
-  static Interaction * COHPiNC   (int tgt, int probe, double E=0);
-  static Interaction * COHPiNC   (int tgt, int probe, const TLorentzVector & p4probe);
+  static Interaction * COHCC     (int tgt, int probe, double E=0);
+  static Interaction * COHCC     (int tgt, int probe, const TLorentzVector & p4probe);
+  static Interaction * COHNC     (int tgt, int probe, double E=0);
+  static Interaction * COHNC     (int tgt, int probe, const TLorentzVector & p4probe);
   static Interaction * COHEl     (int tgt, int probe, double E=0);
   static Interaction * COHEl     (int tgt, int probe, const TLorentzVector & p4probe);
   static Interaction * IMD       (int tgt, double E=0);

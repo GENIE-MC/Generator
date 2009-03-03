@@ -556,7 +556,7 @@ void SaveGraphsToRootFile(void)
     if      (proc.IsQuasiElastic()     ) { title << "qel";   }
     else if (proc.IsResonant()         ) { title << "res";   }
     else if (proc.IsDeepInelastic()    ) { title << "dis";   }
-    else if (proc.IsCoherentPiProd()   ) { title << "cohpi"; }
+    else if (proc.IsCoherent()         ) { title << "coh";   }
     else if (proc.IsCoherentElas()     ) { title << "cohel"; }
     else if (proc.IsInverseMuDecay()   ) { title << "imd";   }
     else if (proc.IsNuElectronElastic()) { title << "ve";    }
