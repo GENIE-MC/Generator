@@ -11,4 +11,6 @@
 
 #pragma link C++ class genie::INukeHadroData;
 
+#pragma link C++ namespace genie::utils::intranuke;
+
 #endif
