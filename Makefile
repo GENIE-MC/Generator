@@ -221,6 +221,8 @@ ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	make; \
 	cd ${GENIE}/src/ValidationTools/Basic; \
 	make; \
+	cd ${GENIE}/src/ValidationTools/Hadronization; \
+	make; \
 	cd ${GENIE}/src/ValidationTools/Merenyi; \
 	make; \
 	cd ${GENIE}
@@ -440,50 +442,51 @@ purge: FORCE
 	@echo " "
 	@echo "** Purging..."
 	cd ${GENIE}/src;\
-	cd Algorithm;                  make purge; cd ..; \
-	cd BaryonResonance;            make purge; cd ..; \
-	cd Base;                       make purge; cd ..; \
-	cd BodekYang;                  make purge; cd ..; \
-	cd Charm;                      make purge; cd ..; \
-	cd Coherent;                   make purge; cd ..; \
-	cd CrossSections;              make purge; cd ..; \
-	cd Decay; 	               make purge; cd ..; \
-	cd Diffractive;                make purge; cd ..; \
-	cd DIS; 	               make purge; cd ..; \
-	cd Elastic; 	               make purge; cd ..; \
-	cd EVGCore;                    make purge; cd ..; \
-	cd EVGModules;                 make purge; cd ..; \
-	cd EVGDrivers;                 make purge; cd ..; \
-	cd FluxDrivers;                make purge; cd ..; \
-	cd Fragmentation;              make purge; cd ..; \
-	cd GHEP;                       make purge; cd ..; \
-	cd Geo;                        make purge; cd ..; \
-	cd HadronTransport;            make purge; cd ..; \
-	cd Interaction;                make purge; cd ..; \
-	cd LlewellynSmith;             make purge; cd ..; \
-	cd MEC;	                       make purge; cd ..; \
-	cd Messenger;	               make purge; cd ..; \
-	cd MuELoss;	               make purge; cd ..; \
-	cd Nuclear;                    make purge; cd ..; \
-	cd Ntuple;                     make purge; cd ..; \
-	cd NuGamma;                    make purge; cd ..; \
-	cd NuE;                        make purge; cd ..; \
-	cd Numerical;                  make purge; cd ..; \
-	cd PartonModel;                make purge; cd ..; \
-	cd Paschos;                    make purge; cd ..; \
-	cd PDF;                        make purge; cd ..; \
-	cd PDG;                        make purge; cd ..; \
-	cd QEL;                        make purge; cd ..; \
-	cd RES;                        make purge; cd ..; \
-	cd Registry;                   make purge; cd ..; \
-	cd ReinSeghal;                 make purge; cd ..; \
-	cd ReWeight;                   make purge; cd ..; \
-	cd Utils;                      make purge; cd ..; \
-	cd ValidationTools/NuVld;      make purge; cd ../../; \
-	cd ValidationTools/NuVld/app;  make purge; cd ../../../; \
-	cd ValidationTools/Basic;      make purge; cd ../../; \
-	cd ValidationTools/Merenyi;    make purge; cd ../../; \
-	cd Viewer;                     make purge; \
+	cd Algorithm;                     make purge; cd ..; \
+	cd BaryonResonance;               make purge; cd ..; \
+	cd Base;                          make purge; cd ..; \
+	cd BodekYang;                     make purge; cd ..; \
+	cd Charm;                         make purge; cd ..; \
+	cd Coherent;                      make purge; cd ..; \
+	cd CrossSections;                 make purge; cd ..; \
+	cd Decay; 	                  make purge; cd ..; \
+	cd Diffractive;                   make purge; cd ..; \
+	cd DIS; 	                  make purge; cd ..; \
+	cd Elastic; 	                  make purge; cd ..; \
+	cd EVGCore;                       make purge; cd ..; \
+	cd EVGModules;                    make purge; cd ..; \
+	cd EVGDrivers;                    make purge; cd ..; \
+	cd FluxDrivers;                   make purge; cd ..; \
+	cd Fragmentation;                 make purge; cd ..; \
+	cd GHEP;                          make purge; cd ..; \
+	cd Geo;                           make purge; cd ..; \
+	cd HadronTransport;               make purge; cd ..; \
+	cd Interaction;                   make purge; cd ..; \
+	cd LlewellynSmith;                make purge; cd ..; \
+	cd MEC;	                          make purge; cd ..; \
+	cd Messenger;	                  make purge; cd ..; \
+	cd MuELoss;	                  make purge; cd ..; \
+	cd Nuclear;                       make purge; cd ..; \
+	cd Ntuple;                        make purge; cd ..; \
+	cd NuGamma;                       make purge; cd ..; \
+	cd NuE;                           make purge; cd ..; \
+	cd Numerical;                     make purge; cd ..; \
+	cd PartonModel;                   make purge; cd ..; \
+	cd Paschos;                       make purge; cd ..; \
+	cd PDF;                           make purge; cd ..; \
+	cd PDG;                           make purge; cd ..; \
+	cd QEL;                           make purge; cd ..; \
+	cd RES;                           make purge; cd ..; \
+	cd Registry;                      make purge; cd ..; \
+	cd ReinSeghal;                    make purge; cd ..; \
+	cd ReWeight;                      make purge; cd ..; \
+	cd Utils;                         make purge; cd ..; \
+	cd ValidationTools/NuVld;         make purge; cd ../../; \
+	cd ValidationTools/NuVld/app;     make purge; cd ../../../; \
+	cd ValidationTools/Basic;         make purge; cd ../../; \
+	cd ValidationTools/Hadronization; make purge; cd ../../; \
+	cd ValidationTools/Merenyi;       make purge; cd ../../; \
+	cd Viewer;                        make purge; \
 	cd ${GENIE}
 
 clean: clean-files clean-dir clean-etc
@@ -492,57 +495,58 @@ clean-files: FORCE
 	@echo " "
 	@echo "** Cleaning..."
 	cd ${GENIE}/src;\
-	cd Algorithm;                  make clean; cd ..; \
-	cd BaryonResonance;            make clean; cd ..; \
-	cd Base;                       make clean; cd ..; \
-	cd BodekYang;                  make clean; cd ..; \
-	cd Charm;                      make clean; cd ..; \
-	cd Coherent;                   make clean; cd ..; \
-	cd CrossSections;              make clean; cd ..; \
-	cd Decay; 	               make clean; cd ..; \
-	cd Diffractive; 	       make clean; cd ..; \
-	cd DIS;	 		       make clean; cd ..; \
-	cd Elastic; 	               make clean; cd ..; \
-	cd EVGCore;                    make clean; cd ..; \
-	cd EVGModules;                 make clean; cd ..; \
-	cd EVGDrivers;                 make clean; cd ..; \
-	cd FluxDrivers;                make clean; cd ..; \
-	cd Fragmentation;              make clean; cd ..; \
-	cd GHEP;                       make clean; cd ..; \
-	cd Geo;                        make clean; cd ..; \
-	cd HadronTransport;            make clean; cd ..; \
-	cd Interaction;                make clean; cd ..; \
-	cd LlewellynSmith;             make clean; cd ..; \
-	cd MEC;                        make clean; cd ..; \
-	cd Messenger;	               make clean; cd ..; \
-	cd MuELoss;	               make clean; cd ..; \
-	cd Nuclear;                    make clean; cd ..; \
-	cd Ntuple;                     make clean; cd ..; \
-	cd NuGamma;                    make clean; cd ..; \
-	cd NuE;                        make clean; cd ..; \
-	cd Numerical;                  make clean; cd ..; \
-	cd PartonModel;                make clean; cd ..; \
-	cd Paschos;                    make clean; cd ..; \
-	cd PDF;                        make clean; cd ..; \
-	cd PDG;                        make clean; cd ..; \
-	cd QEL;                        make clean; cd ..; \
-	cd RES;                        make clean; cd ..; \
-	cd Registry;                   make clean; cd ..; \
-	cd ReinSeghal;                 make clean; cd ..; \
-	cd ReWeight;                   make clean; cd ..; \
-	cd Utils;                      make clean; cd ..; \
-	cd ValidationTools/NuVld;      make clean; cd ../../; \
-	cd ValidationTools/NuVld/app;  make clean; cd ../../../; \
-	cd ValidationTools/Basic;      make clean; cd ../../; \
-	cd ValidationTools/Merenyi;    make clean; cd ../../; \
-	cd Viewer;                     make clean; cd ..; \
-	cd VHE;                        make clean; cd ..; \
-	cd stdapp;                     make clean; cd ..; \
-	cd support/minos/EventServer/; make clean; cd ../../../; \
-	cd support/t2k/EvGen/;         make clean; cd ../../../; \
-	cd support/t2k/SKNorm/;        make clean; cd ../../../; \
-	cd test;                       make clean; cd ..; \
-	cd scripts;	               make clean; \
+	cd Algorithm;                     make clean; cd ..; \
+	cd BaryonResonance;               make clean; cd ..; \
+	cd Base;                          make clean; cd ..; \
+	cd BodekYang;                     make clean; cd ..; \
+	cd Charm;                         make clean; cd ..; \
+	cd Coherent;                      make clean; cd ..; \
+	cd CrossSections;                 make clean; cd ..; \
+	cd Decay; 	                  make clean; cd ..; \
+	cd Diffractive; 	          make clean; cd ..; \
+	cd DIS;	 		          make clean; cd ..; \
+	cd Elastic; 	                  make clean; cd ..; \
+	cd EVGCore;                       make clean; cd ..; \
+	cd EVGModules;                    make clean; cd ..; \
+	cd EVGDrivers;                    make clean; cd ..; \
+	cd FluxDrivers;                   make clean; cd ..; \
+	cd Fragmentation;                 make clean; cd ..; \
+	cd GHEP;                          make clean; cd ..; \
+	cd Geo;                           make clean; cd ..; \
+	cd HadronTransport;               make clean; cd ..; \
+	cd Interaction;                   make clean; cd ..; \
+	cd LlewellynSmith;                make clean; cd ..; \
+	cd MEC;                           make clean; cd ..; \
+	cd Messenger;	                  make clean; cd ..; \
+	cd MuELoss;	                  make clean; cd ..; \
+	cd Nuclear;                       make clean; cd ..; \
+	cd Ntuple;                        make clean; cd ..; \
+	cd NuGamma;                       make clean; cd ..; \
+	cd NuE;                           make clean; cd ..; \
+	cd Numerical;                     make clean; cd ..; \
+	cd PartonModel;                   make clean; cd ..; \
+	cd Paschos;                       make clean; cd ..; \
+	cd PDF;                           make clean; cd ..; \
+	cd PDG;                           make clean; cd ..; \
+	cd QEL;                           make clean; cd ..; \
+	cd RES;                           make clean; cd ..; \
+	cd Registry;                      make clean; cd ..; \
+	cd ReinSeghal;                    make clean; cd ..; \
+	cd ReWeight;                      make clean; cd ..; \
+	cd Utils;                         make clean; cd ..; \
+	cd ValidationTools/NuVld;         make clean; cd ../../; \
+	cd ValidationTools/NuVld/app;     make clean; cd ../../../; \
+	cd ValidationTools/Basic;         make clean; cd ../../; \
+	cd ValidationTools/Hadronization; make clean; cd ../../; \
+	cd ValidationTools/Merenyi;       make clean; cd ../../; \
+	cd Viewer;                        make clean; cd ..; \
+	cd VHE;                           make clean; cd ..; \
+	cd stdapp;                        make clean; cd ..; \
+	cd support/minos/EventServer/;    make clean; cd ../../../; \
+	cd support/t2k/EvGen/;            make clean; cd ../../../; \
+	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
+	cd test;                          make clean; cd ..; \
+	cd scripts;	                  make clean; \
 	cd ${GENIE}
 
 clean-dir: FORCE
@@ -561,57 +565,58 @@ distclean: FORCE
 	@echo "** Cleaning GENIE installation... "
 	[ ! -d ${GENIE_INSTALLATION_PATH}/include/GENIE ] || rm -rf ${GENIE_INSTALLATION_PATH}/include/GENIE/
 	cd ${GENIE}/src/;\
-	cd Algorithm;                   make distclean; cd ..; \
-	cd BaryonResonance;             make distclean; cd ..; \
-	cd Base;                        make distclean; cd ..; \
-	cd BodekYang;                   make distclean; cd ..; \
-	cd Charm;                       make distclean; cd ..; \
-	cd Coherent;                    make distclean; cd ..; \
-	cd CrossSections;               make distclean; cd ..; \
-	cd Decay; 	                make distclean; cd ..; \
-	cd Diffractive; 	        make distclean; cd ..; \
-	cd DIS;		 	        make distclean; cd ..; \
-	cd Elastic; 	                make distclean; cd ..; \
-	cd EVGCore;                     make distclean; cd ..; \
-	cd EVGModules;                  make distclean; cd ..; \
-	cd EVGDrivers;                  make distclean; cd ..; \
-	cd FluxDrivers;                 make distclean; cd ..; \
-	cd Fragmentation;               make distclean; cd ..; \
-	cd GHEP;                        make distclean; cd ..; \
-	cd Geo;                         make distclean; cd ..; \
-	cd HadronTransport;             make distclean; cd ..; \
-	cd Interaction;                 make distclean; cd ..; \
-	cd LlewellynSmith;              make distclean; cd ..; \
-	cd MEC;                         make distclean; cd ..; \
-	cd Messenger;	                make distclean; cd ..; \
-	cd MuELoss;	                make distclean; cd ..; \
-	cd Nuclear;                     make distclean; cd ..; \
-	cd Ntuple;                      make distclean; cd ..; \
-	cd NuGamma;                     make distclean; cd ..; \
-	cd NuE;                         make distclean; cd ..; \
-	cd Numerical;                   make distclean; cd ..; \
-	cd PartonModel;                 make distclean; cd ..; \
-	cd Paschos;                     make distclean; cd ..; \
-	cd PDF;                         make distclean; cd ..; \
-	cd PDG;                         make distclean; cd ..; \
-	cd QEL;                         make distclean; cd ..; \
-	cd RES;                         make distclean; cd ..; \
-	cd Registry;                    make distclean; cd ..; \
-	cd ReinSeghal;                  make distclean; cd ..; \
-	cd ReWeight;                    make distclean; cd ..; \
-	cd Utils;                       make distclean; cd ..; \
-	cd ValidationTools/NuVld;       make distclean; cd ../../; \
-	cd ValidationTools/NuVld/app;   make distclean; cd ../../../; \
-	cd ValidationTools/Basic;       make distclean; cd ../../; \
-	cd ValidationTools/Merenyi;     make distclean; cd ../../; \
-	cd Viewer;                      make distclean; cd ..; \
-	cd VHE;                         make distclean; cd ..; \
-	cd stdapp;                      make distclean; cd ..; \
-	cd support/minos/EventServer/;  make distclean; cd ../../../; \
-	cd support/t2k/EvGen/;          make distclean; cd ../../../; \
-	cd support/t2k/SKNorm/;         make distclean; cd ../../../; \
-	cd test;                        make distclean; cd ..; \
-	cd scripts;	                make distclean; \
+	cd Algorithm;                      make distclean; cd ..; \
+	cd BaryonResonance;                make distclean; cd ..; \
+	cd Base;                           make distclean; cd ..; \
+	cd BodekYang;                      make distclean; cd ..; \
+	cd Charm;                          make distclean; cd ..; \
+	cd Coherent;                       make distclean; cd ..; \
+	cd CrossSections;                  make distclean; cd ..; \
+	cd Decay; 	                   make distclean; cd ..; \
+	cd Diffractive; 	           make distclean; cd ..; \
+	cd DIS;		 	           make distclean; cd ..; \
+	cd Elastic; 	                   make distclean; cd ..; \
+	cd EVGCore;                        make distclean; cd ..; \
+	cd EVGModules;                     make distclean; cd ..; \
+	cd EVGDrivers;                     make distclean; cd ..; \
+	cd FluxDrivers;                    make distclean; cd ..; \
+	cd Fragmentation;                  make distclean; cd ..; \
+	cd GHEP;                           make distclean; cd ..; \
+	cd Geo;                            make distclean; cd ..; \
+	cd HadronTransport;                make distclean; cd ..; \
+	cd Interaction;                    make distclean; cd ..; \
+	cd LlewellynSmith;                 make distclean; cd ..; \
+	cd MEC;                            make distclean; cd ..; \
+	cd Messenger;	                   make distclean; cd ..; \
+	cd MuELoss;	                   make distclean; cd ..; \
+	cd Nuclear;                        make distclean; cd ..; \
+	cd Ntuple;                         make distclean; cd ..; \
+	cd NuGamma;                        make distclean; cd ..; \
+	cd NuE;                            make distclean; cd ..; \
+	cd Numerical;                      make distclean; cd ..; \
+	cd PartonModel;                    make distclean; cd ..; \
+	cd Paschos;                        make distclean; cd ..; \
+	cd PDF;                            make distclean; cd ..; \
+	cd PDG;                            make distclean; cd ..; \
+	cd QEL;                            make distclean; cd ..; \
+	cd RES;                            make distclean; cd ..; \
+	cd Registry;                       make distclean; cd ..; \
+	cd ReinSeghal;                     make distclean; cd ..; \
+	cd ReWeight;                       make distclean; cd ..; \
+	cd Utils;                          make distclean; cd ..; \
+	cd ValidationTools/NuVld;          make distclean; cd ../../; \
+	cd ValidationTools/NuVld/app;      make distclean; cd ../../../; \
+	cd ValidationTools/Basic;          make distclean; cd ../../; \
+	cd ValidationTools/Hadronization;  make distclean; cd ../../; \
+	cd ValidationTools/Merenyi;        make distclean; cd ../../; \
+	cd Viewer;                         make distclean; cd ..; \
+	cd VHE;                            make distclean; cd ..; \
+	cd stdapp;                         make distclean; cd ..; \
+	cd support/minos/EventServer/;     make distclean; cd ../../../; \
+	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
+	cd support/t2k/SKNorm/;            make distclean; cd ../../../; \
+	cd test;                           make distclean; cd ..; \
+	cd scripts;	                   make distclean; \
 	cd ${GENIE}
 
 FORCE:
