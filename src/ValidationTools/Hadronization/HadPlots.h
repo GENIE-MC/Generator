@@ -29,7 +29,7 @@ class TProfile;
 using namespace std;
 
 namespace genie {
-namespace vld   {
+namespace vld_hadronization {
 
 class HadPlots {
       
@@ -119,7 +119,7 @@ private:
 
 };
 
-}//vld
-}//genie
+} //vld_hadronization
+} //genie
 
 #endif

@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   HadPlots
+\class   HadPlotter
 
 \brief   Class to make data MC plots
 
@@ -18,35 +18,44 @@
 #ifndef _HADPLOTTER_H_
 #define _HADPLOTTER_H_
 
-#include "ValidationTools/Hadronization/HadPlots.h"
-
 #include <vector>
 #include <string>
+
+#include "ValidationTools/Hadronization/HadPlots.h"
+
+class TH2D;
+class TGraph;
+class TCanvas;
+class TLegend;
 
 using namespace std;
 
 namespace genie {
-namespace vld   {
+namespace vld_hadronization {
 
 class HadPlotter {
       
 public:
-  
-  HadPlotter() {};
+  HadPlotter(string data_file_directory = "");
+  virtual ~HadPlotter();
 
-  virtual ~HadPlotter() {}
-
-  void AddPlots(HadPlots hp);
-  
-  void ShowPlots();
+  void AddPlots  (HadPlots hp);
+  void ShowPlots (void);
 
 private:
 
+  TGraphErrors* MakeGraph (string file);
+  TH2D*         DrawFrame (TCanvas *c1, int dir, 
+                           double fr_xmin, double fr_xmax, double fr_ymin, double fr_ymax, 
+                           string frtit, string frxtit, string frytit, bool logx, bool logy);
+  void          DrawGraph (TGraph* gr, int mstyle, int mcol, double msize=0.8, string opt = "def");
+  void          SetLegend (TLegend *leg);
+
+  string fDataDir; ///< top level dir for data files
   vector<HadPlots> hadPlots;
-
-
 };
-}//vld
-}//genie
+
+} // vld_hadronization
+} // genie
 
 #endif

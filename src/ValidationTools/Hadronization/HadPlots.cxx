@@ -15,13 +15,13 @@
 */
 //____________________________________________________________________________
 
-#include "TFile.h"
-#include "TGraph.h"
-#include "TGraphErrors.h"
-#include "TH1D.h"
-#include "TLorentzVector.h"
-#include "TProfile.h"
-#include "TTree.h"
+#include <TFile.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <TH1D.h>
+#include <TLorentzVector.h>
+#include <TProfile.h>
+#include <TTree.h>
 
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
@@ -33,7 +33,7 @@
 #include "ValidationTools/Hadronization/HadPlots.h"
 
 using namespace genie;
-using namespace genie::vld;
+using namespace genie::vld_hadronization;
 
 //____________________________________________________________________________
 HadPlots::HadPlots(string name)
@@ -53,8 +53,7 @@ void HadPlots::LoadData(string mcfile)
 //____________________________________________________________________________
 void HadPlots::BookHists()
 {
-
-  //LOG("HadPlots", pNOTICE) << "bookhists";
+  //LOG("VldHadro", pDEBUG) << "Booking histograms";
 
   const int nw = 14;
   const double W2bins[nw+1] = {1,2,3,4,6,8,12,16,23,32,45,63,90,125,225};
@@ -83,7 +82,7 @@ void HadPlots::BookHists()
     npi0_nm_hi[i] = new TProfile();
     npi0_nm_hi[i]->SetBins(7,-1.5,5.5);
     
-    //LOG("HadPlots", pNOTICE) << i<<" "<<npi0_nm_lo[i];
+    //LOG("VldHadro", pNOTICE) << i<<" "<<npi0_nm_lo[i];
 
     xf_pip[i] = new TH1D();
     xf_pim[i] = new TH1D();
@@ -184,7 +183,7 @@ void HadPlots::BookHists()
 void HadPlots::Analyze()
 {
   if (!mcFiles.size()){
-    LOG("HadPlots",pERROR)<<"No MC files available";
+    LOG("VldHadro", pERROR) << "No MC files available";
     exit(0);
   }
 
@@ -197,7 +196,8 @@ void HadPlots::Analyze()
     er_tree = dynamic_cast <TTree *>( fin.Get("gtree")  );
     thdr    = dynamic_cast <NtpMCTreeHeader *>( fin.Get("header") );
     if (!er_tree) {
-      LOG("HadPlots", pERROR) << "Null input GHEP event tree found in file "<<mcFiles[imc];
+      LOG("VldHadro", pERROR) 
+         << "Null input GHEP event tree found in file: " << mcFiles[imc];
       return;
     }
 
@@ -206,18 +206,19 @@ void HadPlots::Analyze()
     er_tree->SetBranchAddress("gmcrec", &mcrec);
     
     if (!mcrec) {
-      LOG("HadPlots", pERROR) << "Null MC record";
+      LOG("VldHadro", pERROR) << "Null MC record";
       return;
     }
 
     Long64_t nmax = er_tree->GetEntries();
 
     if (nmax<0) {
-      LOG("HadPlots", pERROR) << "Number of events = 0";
+      LOG("VldHadro", pERROR) << "Number of events = 0";
       return;
     }
 
-    LOG("HadPlots", pNOTICE) << "*** Analyzing: " << nmax << " events found in file "<<mcFiles[imc];
+    LOG("VldHadro", pNOTICE) 
+     << "*** Analyzing: " << nmax << " events found in file " << mcFiles[imc];
 
     int im = -1; //interaction type, 0:vp, 1:vn, 2:vbarp, 3:vbarn
 
@@ -296,19 +297,19 @@ void HadPlots::Analyze()
     //first loop
     for(Long64_t iev = 0; iev < nmax; iev++) {//loop over all events
       
-      //LOG("HadPlots", pNOTICE) << "*** Analyzing event: " << iev;
+      //LOG("VldHadro", pNOTICE) << "*** Analyzing event: " << iev;
 
       er_tree->GetEntry(iev);
 
       NtpMCRecHeader rec_header = mcrec->hdr;
       EventRecord &  event      = *(mcrec->event);
       
-      //LOG("HadPlots",pINFO) << event;
+      //LOG("VldHadro", pINFO) << event;
       
       // go further only if the event is physical
       bool is_unphysical = event.IsUnphysical();
       if(is_unphysical) {
-	LOG("HadPlots", pINFO) << "Skipping unphysical event";
+	LOG("VldHadro", pINFO) << "Skipping unphysical event";
 	mcrec->Clear();
 	continue;
       }
@@ -344,11 +345,13 @@ void HadPlots::Analyze()
 	}
       }
       if (im<0){
-	LOG("HadPlots", pERROR) << "Unexpected interaction, neutrino="<<neutrino->Pdg()<<" target="<<target->Pdg();
+	LOG("VldHadro", pERROR) 
+           << "Unexpected interaction: neutrino = " << neutrino->Pdg()
+           << " target = " << target->Pdg();
 	return;
       }
       
-      //LOG("HadPlots",pINFO) << "im= "<<im;
+      //LOG("VldHadro",pINFO) << "im= "<<im;
 
       double M = hitnucl->Mass(); //mass of struck nucleon
 
@@ -365,7 +368,8 @@ void HadPlots::Analyze()
       //double Phs = sqrt(pow(p2.Px(),2)+pow(p2.Py(),2)+pow(p2.Pz(),2));
       v+=M;  //measured v
 
-      //LOG("HadPlots",pINFO) << Q2<<" "<<W<<" "<<y<<" "<<v;
+      //LOG("VldHadro", pINFO) 
+      //  << "Q2 = " << Q2 << ", W = " << W << ", y = " << y << ", v = " << v;
 
       int np = 0;
       int nn = 0;
@@ -406,7 +410,9 @@ void HadPlots::Analyze()
 	}
       }
       
-      //LOG("HadPlots",pINFO) <<np<<" "<<nn<<" "<<npip<<" "<<npim<<" "<<npi0;
+      //LOG("VldHadro",pINFO) 
+      //  << "np = " << np << ", nn = " << nn
+      //  << ", npip = " << npip << ", npim = " << npim << ", npi0 = " << npi0;
 
       double weight = 1.;
 
@@ -452,12 +458,12 @@ void HadPlots::Analyze()
 	pnch[nchtot][ipos]+=weight;
       }
 
-      //LOG("HadPlots",pINFO) <<"ipos "<<ipos;
+      //LOG("VldHadro",pINFO) <<"ipos "<<ipos;
 //      if (im==0&&(ncharged)>2&&W2<3){
-//	LOG("HadPlots",pINFO) << event;
+//	LOG("VldHadro",pINFO) << event;
 //      }
       if (im==1&&ncharged%2==0){
-	LOG("HadPlots",pINFO) << event;
+	LOG("VldHadro",pINFO) << event;
       }
       if (W<2){
 	nchkno[0] += weight*(ncharged);
@@ -481,7 +487,7 @@ void HadPlots::Analyze()
       }
       //cout<<"check point 1"<<endl;
       //<pi0> <n-> correlation
-      //LOG("HadPlots",pINFO) <<"check point 1 ";
+      //LOG("VldHadro",pINFO) <<"check point 1 ";
       if (W>3&&W<=4){
 	npi0_nneg[0][imc]->Fill(nnegative,npi0,weight);
       }
@@ -498,16 +504,16 @@ void HadPlots::Analyze()
 	npi0_nneg[4][imc]->Fill(nnegative,npi0,weight);
       }	
       //npi0_nm[imc]->Fill(nnegative,npi0,weight);
-      //LOG("HadPlots",pINFO) <<"check point 2 ";
+      //LOG("VldHadro",pINFO) <<"check point 2 ";
       if (W<4){
-	//LOG("HadPlots",pINFO) <<imc<<" "<<npi0_nm_lo[imc]<<" "<<nnegative<<" "<<npi0<<" "<<weight;
+	//LOG("VldHadro",pINFO) <<imc<<" "<<npi0_nm_lo[imc]<<" "<<nnegative<<" "<<npi0<<" "<<weight;
 	npi0_nm_lo[imc]->Fill(nnegative,npi0,weight);
       }
       else if (W>4){
 	npi0_nm_hi[imc]->Fill(nnegative,npi0,weight);
       }
       
-      //LOG("HadPlots",pINFO) <<"check point 3 ";
+      //LOG("VldHadro",pINFO) <<"check point 3 ";
 
       if (W<4){
 	npi0_nch[0][imc]->Fill(ncharged,npi0,weight);
@@ -520,7 +526,7 @@ void HadPlots::Analyze()
       }
     }
     
-    //LOG("HadPlots",pINFO)<<"finish 1st loop";
+    //LOG("VldHadro",pINFO)<<"finish 1st loop";
 
     for (int i = 0; i<nw; i++){
       if (nv[i]){
@@ -558,7 +564,7 @@ void HadPlots::Analyze()
       // go further only if the event is physical
       bool is_unphysical = event.IsUnphysical();
       if(is_unphysical) {
-	LOG("HadPlots", pINFO) << "Skipping unphysical event";
+	LOG("VldHadro", pINFO) << "Skipping unphysical event";
 	mcrec->Clear();
 	continue;
       }
@@ -654,7 +660,7 @@ void HadPlots::Analyze()
       double weight = 1.;
       
 //      if (im==0&&W<2)
-//	LOG("HadPlots",pINFO)<<ncharged<<" "<<nchkno[0];
+//	LOG("VldHadro",pINFO)<<ncharged<<" "<<nchkno[0];
 
       if (W<2){
 	kno[0][im]->Fill((ncharged)/nchkno[0],weight);
