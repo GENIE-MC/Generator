@@ -30,7 +30,7 @@ namespace intranuke
 {
 
   //! Reconstruct the INTRANUKE/hA model fate for the hadron at position i
-  INukeFateHA_t ReconstructHadronFateHA  (GHepRecord * event, int i); 
+  INukeFateHA_t ReconstructHadronFateHA  (GHepRecord * event, int i, bool hA_mode=false); 
 
 }      // intranuke namespace
 }      // utils     namespace

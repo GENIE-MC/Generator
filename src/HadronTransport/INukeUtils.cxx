@@ -12,6 +12,9 @@
  Important revisions after version 2.0.0 :
  @ Mar 04, 2009 - JD
    Was first added in v2.5.1.
+ @ Mar 05, 2009 - CA
+   Modified ReconstructHadronFateHA() to work with hadron+A event files in
+   addition to neutrino event files.
 
 */
 //____________________________________________________________________________
@@ -30,7 +33,7 @@ using namespace genie;
 
 //____________________________________________________________________________
 INukeFateHA_t genie::utils::intranuke::ReconstructHadronFateHA(
-   GHepRecord * event, int i)
+   GHepRecord * event, int i, bool hA_mode)
 {
 // Reconstruct the INTRANUKE/hA model fate for the hadron at position i.
 // Returns one of
@@ -55,17 +58,19 @@ INukeFateHA_t genie::utils::intranuke::ReconstructHadronFateHA(
 
   //
   //
-  int ist   = p->Status();
+  if(!hA_mode) {
+    int ist   = p->Status();
+    if(ist != kIStHadronInTheNucleus) return kIHAFtUndefined;
+  }
+
   int pdg_i = p->Pdg();
-
-  if(ist != kIStHadronInTheNucleus) return kIHAFtUndefined;
-
-  bool is_pion = (pdg_i == kPdgPiP || pdg_i == kPdgPi0 || pdg_i == kPdgPiM);
-  bool is_nucl = (pdg_i == kPdgProton || pdg_i == kPdgNeutron);
-  bool is_handled = is_pion || is_nucl;
+  bool is_handled = pdg_i == kPdgProton  || 
+                    pdg_i == kPdgNeutron ||
+                    pdg_i == kPdgPiP     || 
+                    pdg_i == kPdgPi0     || 
+                    pdg_i == kPdgPiM;
   if(!is_handled) return kIHAFtUndefined;
 
-    
   // determine the binding energy for given nuclear target
 
   double binding_energy = 0.0;
