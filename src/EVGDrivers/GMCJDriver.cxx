@@ -44,6 +44,9 @@
    to overwrite the values that each GEVGDriver obtains from the environment.
  @ Jan 16, 2009 - CA
    Added methods to return pointers to the flux and geometry drivers.
+ @ Mar 11, 2009 - CA
+   In GenerateEvent1Try() handle failure to generate kinematics. Added sanity
+   check on the no interaction probability.
 */
 //____________________________________________________________________________
 
@@ -511,6 +514,7 @@ void GMCJDriver::ComputeProbScales(void)
 void GMCJDriver::InitEventGeneration(void)
 {
   fCurPathLengths.clear();
+  fCurEvt    = 0;
   fSelTgtPdg = 0;
   fCurVtx.SetXYZT(0.,0.,0.,0.);
 }
@@ -577,11 +581,16 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
        LOG("GMCJDriver", pNOTICE)
           << "The 'no interaction' probability (max. path lengths) is: " 
           << 100*Pno << " %";
-        if(R>=1-Pno) {
+       if(Pno<0.) {
+           LOG("GMCJDriver", pFATAL) 
+             << "Negative no interactin probability! (P = " << 100*Pno << " %)";
+           exit(1);
+       }
+       if(R>=1-Pno) {
   	   LOG("GMCJDriver", pNOTICE)  
               << "** Rejecting current flux neutrino";
 	   return 0;
-        }
+       }
   } // preselect 
 
   // Compute (pathLength x density x weight fraction) for all materials
@@ -602,6 +611,11 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
   Pno  = 1-Psum;
   LOG("GMCJDriver", pNOTICE)
      << "The actual 'no interaction' probability is: " << 100*Pno << " %";
+  if(Pno<0.) {
+      LOG("GMCJDriver", pFATAL) 
+         << "Negative no interactin probability! (P = " << 100*Pno << " %)";
+      exit(1);
+  }
   if(R>=1-Pno) {
      LOG("GMCJDriver", pNOTICE) 
         << "** Rejecting current flux neutrino";
@@ -621,6 +635,11 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
   // Ask the GEVGDriver object to select and generate an interaction and
   // its kinematics for the selected initial state & neutrino 4-momentum
   this->GenerateEventKinematics();
+  if(!fCurEvt) {
+     LOG("GMCJDriver", pWARN) 
+        << "** Couldn't generate kinematics for selected interaction";
+     return 0;
+  }
 
   // Generate an 'interaction position' in the selected material (in the
   // detector coord system), along the direction of nup4 & set it 
@@ -782,6 +801,7 @@ double GMCJDriver::ComputeInteractionProbabilities(bool use_max_path_length)
          << "tgt: " << mpdg << " -> TotXSec = "
          << xsec/units::cm2 << " cm^2, Norm.Prob = " << 100*probn << "%";
 #endif
+
      probsum += probn;
      fCurCumulProbMap.insert(map<int,double>::value_type(mpdg,probsum));
   }
