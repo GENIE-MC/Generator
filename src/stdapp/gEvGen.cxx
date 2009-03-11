@@ -73,6 +73,7 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
 #include <cassert>
 #include <sstream>
 #include <string>
@@ -220,6 +221,13 @@ void GenerateEventsAtFixedInitState(void)
 
      // generate a single event
      EventRecord * event = evg_driver.GenerateEvent(nu_p4);
+
+     if(!event) {
+        LOG("gevgen", pNOTICE) 
+          << "Last attempt failed. Re-trying....";
+        continue;
+     }
+
      LOG("gevgen", pINFO) 
 	<< "Generated Event GHEP Record: " << *event;
 
