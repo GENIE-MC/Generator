@@ -65,8 +65,8 @@ public :
   bool                   GenerateNext  (void);
   int                    PdgCode       (void) { return  fgPdgC;               }
   double                 Weight        (void) { return  fWeight;              }
-  const TLorentzVector & Momentum      (void) { return  fgP4;                 }
-  const TLorentzVector & Position      (void) { return  fgX4;                 }
+  const TLorentzVector & Momentum      (void) { return  fgP4User;             }
+  const TLorentzVector & Position      (void) { return  fgX4User;             }
   bool                   End           (void) { return  fIEntry >= fNEntries
                                                      && fICycle == fNCycles;  }
 
@@ -87,25 +87,39 @@ public :
 
   double   POT_curr       (void);                              ///< current average POT
   long int NFluxNeutrinos (void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
-  double   SumWeight      (void) const { return fSumWeight;  } ///< intergated weight for flux neutrinos looped so far
+  double   SumWeight      (void) const { return fSumWeight;  } ///< integrated weight for flux neutrinos looped so far
 
   const GNuMIFluxPassThroughInfo &
      PassThroughInfo(void) { return *fCurrentEntry; } ///< GNuMIFluxPassThroughInfo
 
   void PrintCurrent (void);  ///< print current entry from leaves
 
+  bool LoadConfig(string cfg); ///< load a named configuration
+
+
+  // GNuMIFlux uses "cm" as the length unit consistently internally (this is 
+  // the length units used by both the g3 and g4 ntuples).  User interactions 
+  // setting the beam-to-detector coordinate transform, flux window, and the 
+  // returned position might need to be in other units.  Use:
+  //     double scale = genie::utils::units::UnitFromString("cm");
+  // ( #include "Utils/UnitUtils.h for declaration )
+  // to get the correct scale factor to pass in.  This should get set
+  // FIRST before setting detector position/rotation
+
+  void   SetLengthUnits(double user_units);  ///< Set units assumed by user
+  double    LengthUnits(void) const; ///< Return user units
+  
+  // set relative orientation of user coords vs. beam system, i.e.
+  //  x3_user = ( beamrot * x3_beam ) + x0beam_user
+  //  p3_user =   beamrot * p3_beam 
+
+  ///< beam (0,0,0) relative to user frame, beam direction in user frame
+  void SetBeamRotation(TRotation beamrot);
+  void SetBeamCenter(TVector3 beam0);
+  TRotation GetBeamRotation() const; ///< rotation to apply from beam->user
+  TVector3  GetBeamCenter() const;  ///< beam origin in user frame
+
   // configure a flux window (or point) where E_nu and weight are evaluated
-
-  void UseFluxAtNearDetCenter (void);  ///< MINOS NearDet "center" (as found in ntuple)
-  void UseFluxAtFarDetCenter  (void);  ///< MINOS FarDet "center" (as found in ntuple)
-
-  // GNuMIFlux uses "cm" as the length unit consistently internally (this the is
-  // units used by both the g3 and g4 ntuples).  User interactions setting the
-  // beam-to-detector coordinate transform, flux window, and the returned position
-  // might need to be in other units.  
-  typedef enum ELengthUnits { kmeter, kcm, kmm, kfm } LengthUnits_t;
-  LengthUnits_t GetLengthUnits() const { return fLengthUnits; }
-  void          SetLengthUnits(LengthUnits_t units) { fLengthUnits = units; SetLengthScale(); }
 
   typedef enum EStdFluxWindow {
     kMinosNearDet,      // appropriate for Near Detector
@@ -116,16 +130,27 @@ public :
     kMinosFarCenter     // point location mimic far value in ntuple
   } StdFluxWindow_t;
 
-  // set both flux window and coordinate transform for some standard conditions
-  bool SetBeamFluxWindow(StdFluxWindow_t stdwindow, double padding=0);  ///< return false if unhandled
+  // set both flux window in user coordand coordinate transform for some standard conditions
+  bool SetFluxWindow(StdFluxWindow_t stdwindow, double padding=0);  ///< return false if unhandled
   
-  // rwh: upgrade allow flux window set/get in beam coords as optional flag to *etFluxWindow
-  void SetFluxWindow(TLorentzVector  p1, TLorentzVector  p2, TLorentzVector  p3); ///< 3 points define a plane (by default in beam coordinates)
-  void GetFluxWindow(TLorentzVector& p1, TLorentzVector& p2, TLorentzVector& p3) const; ///< 3 points define a plane in beam coordinate 
-  void SetDetectorCoord(TLorentzVector det0, TLorentzRotation detrot);  ///< set detector position / orientation in beam system
-  void GetDetectorCoord(TLorentzVector& det0, TLorentzRotation& detrot) const;  ///< set detector position / orientation in beam system
+  // rwh: potential upgrade: allow flux window set/get in beam coords as optional flag to *etFluxWindow
+  void SetFluxWindow(TVector3  p1, TVector3  p2, TVector3  p3); ///< 3 points define a plane (by default in user coordinates)
+  void GetFluxWindow(TVector3& p1, TVector3& p2, TVector3& p3) const; ///< 3 points define a plane in beam coordinate 
 
-  void SetUpstreamZ     (double z0);                           ///< set flux neutrino initial z position (upstream of the detector)
+  void UseFluxAtNearDetCenter (void);  ///< MINOS NearDet "center" (as found in ntuple)
+  void UseFluxAtFarDetCenter  (void);  ///< MINOS FarDet "center" (as found in ntuple)
+
+
+  // Actual coordinate transformations  b=beam, u=user (e.g. detector)
+
+  void Beam2UserPos(const TLorentzVector& beamxyz, TLorentzVector& usrxyz) const;
+  void Beam2UserDir(const TLorentzVector& beamdir, TLorentzVector& usrdir) const;
+  void User2BeamPos(const TLorentzVector& usrxyz,  TLorentzVector& beamxyz) const;
+  void User2BeamDir(const TLorentzVector& usrdir,  TLorentzVector& beamdir) const;
+
+
+
+  void SetUpstreamZ     (double z0);                           ///< set flux neutrino initial z position (upstream of the detector) pushed back from the flux window
 
 
 private:
@@ -138,16 +163,16 @@ private:
   void CleanUp               (void);
   void ResetCurrent          (void);
 
-  void SetLengthScale        (void);
-
   // Private data members
   //
   double         fMaxEv;          ///< maximum energy
   PDGCodeList *  fPdgCList;       ///< list of neutrino pdg-codes
 
   int            fgPdgC;          ///< running generated nu pdg-code
-  TLorentzVector fgP4;            ///< running generated nu 4-momentum
-  TLorentzVector fgX4;            ///< running generated nu 4-position
+  TLorentzVector fgP4;            ///< running generated nu 4-momentum beam coord
+  TLorentzVector fgX4;            ///< running generated nu 4-position beam coord
+  TLorentzVector fgP4User;        ///< running generated nu 4-momentum user coord
+  TLorentzVector fgX4User;        ///< running generated nu 4-position user coord
 
   string    fNuFluxFilePattern;   ///< wildcarded path
   string    fNuFluxTreeName;      ///< Tree name "h10" (g3) or "nudata" (g4)
@@ -169,13 +194,20 @@ private:
   bool      fGenWeighted;         ///< does GenerateNext() give weights?
   bool      fDetLocIsSet;         ///< is a flux location (near/far) set?
   // 
-  LengthUnits_t fLengthUnits;       ///< units for coordinates in user exchanges
-  double        fLengthScaleB2U;    ///< scale factor beam (cm) --> user
-  TLorentzVector   fFluxWindowBase; ///< base point for flux window
+  double           fLengthUnits;    ///< units for coord in user exchanges
+  double           fLengthScaleB2U; ///< scale factor beam (cm) --> user
+
+  TVector3         fFluxWindowPtUser[3]; ///<  user points of flux window
+
+  TLorentzVector   fFluxWindowBase; ///< base point for flux window - beam coord
   TLorentzVector   fFluxWindowDir1; ///< extent for flux window (direction 1)
   TLorentzVector   fFluxWindowDir2; ///< extent for flux window (direction 2)
-  TLorentzVector   fDetectorZero;   ///< detector (0,0,0) in beam coordinates
-  TLorentzRotation fDetectorRot;    ///< detector axis' unit vectors in beam coordinate
+  double           fFluxWindowLen1;
+  double           fFluxWindowLen2;
+
+  TLorentzVector   fBeamZero; ///< beam origin in user coords
+  TLorentzRotation fBeamRot;  ///< rotation applied to beam to get user coord
+  TLorentzRotation fBeamRotInv;
 
   int       fUseFluxAtDetCenter;  ///< use flux at near (-1) or far (+1) det center from ntuple?
 
