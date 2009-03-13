@@ -1711,6 +1711,7 @@ std::string GNuMIFluxXMLHelper::GetXMLPathList()
   p = gSystem->Getenv("GALGCONF");
   if ( p ) { pathlist = std::string(p) + ":"; }
   pathlist += "$GENIE/config";  // standard path in case no env
+  pathlist += ":$GENIE/src/FluxDrivers/GNuMINtuple";
   return pathlist;
 }
 
