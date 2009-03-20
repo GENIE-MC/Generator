@@ -17,27 +17,28 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(LHAPDF_LIBRARIES) $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 
-TGT =	gtestAlgorithms 	\
- 	gtestBaryonResDataSet	\
- 	gtestConfigPool		\
- 	gtestDecay		\
- 	gtestDISSF		\
- 	gtestElFormFactors	\
- 	gtestEventLoop 		\
- 	gtestHadronization	\
- 	gtestIntranuke		\
-	gtestINukeHadroData     \
-	gtestMessenger		\
-	gtestNumerical		\
-	gtestNaturalIsotopes	\
-	gtestPDFLIB		\
-	gtestROOTGeometry	\
-	gtestFermiP		\
-	gtestRegistry		\
-	gtestInteraction	\
-	gtestResonances		\
-	gtestReWeightP2P	\
-	gtestReWeightLoop	\
+TGT =	gtestAlgorithms 	 \
+ 	gtestBaryonResDataSet	 \
+ 	gtestConfigPool		 \
+ 	gtestDecay		 \
+ 	gtestDISSF		 \
+ 	gtestElFormFactors	 \
+ 	gtestEventLoop 		 \
+ 	gtestHadronization	 \
+ 	gtestIntranuke		 \
+	gtestINukeHadroData      \
+	gtestMessenger		 \
+	gtestNumerical		 \
+	gtestNaturalIsotopes	 \
+	gtestPDFLIB		 \
+	gtestROOTGeometry	 \
+	gtestFermiP		 \
+	gtestRegistry		 \
+	gtestRecoINukeHadroFates \
+	gtestInteraction	 \
+	gtestResonances		 \
+	gtestReWeightP2P	 \
+	gtestReWeightLoop	 \
 	gtestKPhaseSpace	
 
 all: $(TGT)
@@ -142,6 +143,10 @@ gtestReWeightLoop: FORCE
 	$(CXX) $(CXXFLAGS) -c testReWeightLoop.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testReWeightLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestReWeightLoop
 
+gtestRecoINukeHadroFates: FORCE
+	$(CXX) $(CXXFLAGS) -c testRecoINukeHadroFates.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testRecoINukeHadroFates.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates
+
 gtestKPhaseSpace: FORCE
 	$(CXX) $(CXXFLAGS) -c testKPhaseSpace.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testKPhaseSpace.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestKPhaseSpace
@@ -181,6 +186,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
 	$(RM) $(GENIE_BIN_PATH)/gtestReWeightP2P	
 	$(RM) $(GENIE_BIN_PATH)/gtestReWeightLoop		
+	$(RM) $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_PATH)/gtestMuELoss		
@@ -210,6 +216,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeightP2P		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeightLoop		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMuELoss		
@@ -284,6 +291,9 @@ clean--gtestReWeightP2P: FORCE
 
 clean--gtestReWeightLoop: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestReWeightLoop
+
+clean--gtestRecoINukeHadroFates: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates
 
 clean--gtestKPhaseSpace: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestKPhaseSpace
