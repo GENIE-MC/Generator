@@ -10,4 +10,6 @@
 #pragma link C++ class genie::geometry::ROOTGeomAnalyzer;
 #pragma link C++ class genie::geometry::PointGeomAnalyzer;
 
+#pragma link C++ namespace genie::utils::geometry;
+
 #endif
