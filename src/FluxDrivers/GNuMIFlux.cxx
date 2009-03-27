@@ -312,10 +312,12 @@ double GNuMIFlux::POT_curr(void)
   return 0;
 }
 //___________________________________________________________________________
-void GNuMIFlux::LoadBeamSimData(string filename)
+void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
 {
 // Loads in a gnumi beam simulation root file (converted from hbook format)
 // into the GNuMIFlux driver.
+
+  this->LoadConfig(det_loc);
 
   fNuFluxFilePattern = filename;
   LOG("Flux", pNOTICE)
