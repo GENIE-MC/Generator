@@ -75,7 +75,7 @@ public :
   // and for passing-through flux information (eg neutrino parent decay kinematics)
   // not used by the generator but required by analyses/processing further upstream
 
-  void LoadBeamSimData  (string filename);                     ///< load a gnumi root flux ntuple
+  void LoadBeamSimData  (string filename, string det_loc);     ///< load a gnumi root flux ntuple
   void SetFluxParticles (const PDGCodeList & particles);       ///< specify list of flux neutrino species
   void SetMaxEnergy     (double Ev);                           ///< specify maximum flx neutrino energy
   void SetFilePOT       (double pot);                          ///< POTs per input flux file
@@ -85,6 +85,7 @@ public :
   void SetTreeName      (string name);                         ///< set input tree name (default: "h10")
   void ScanForMaxWeight (void);                                ///< scan for max flux weight (before generating unweighted flux neutrinos)
 
+  double   POT_1cycle     (void) { return 500000; }            ///< flux POT per cycle ??
   double   POT_curr       (void);                              ///< current average POT
   long int NFluxNeutrinos (void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
   double   SumWeight      (void) const { return fSumWeight;  } ///< integrated weight for flux neutrinos looped so far
