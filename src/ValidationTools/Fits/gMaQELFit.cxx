@@ -310,6 +310,7 @@ void FitFunc (
   // loop over all data sets included in the fit
   for(int imode=0; imode<kNDataSets; imode++) {
 
+    // include current data set?
     vector<int>::const_iterator it = 
         find(gEnabledDataSets.begin(), gEnabledDataSets.end(), imode);
     bool skip = (it==gEnabledDataSets.end());
@@ -319,7 +320,7 @@ void FitFunc (
 
     MultiGraph * mgr = gXSecDataGrph[imode];
 
-    // loop over graphs in current data-set
+    // loop over graphs in current data-set (one graph per experiment/publication in this data set)
     int ngr = mgr->NGraphs();
     for(int igr = 0; igr < ngr; igr++) {
 
