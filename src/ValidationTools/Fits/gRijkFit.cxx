@@ -9,10 +9,17 @@
          Not a user utility:
          Running and interpreting results is an expert operation.
 
-\syntax  gtune_rijk -h host -u username -p password
+\syntax  gtune_rijk -h host -u username -p password -d data_sets_to_fit
+
+         where
+          -h specifies the MySQL hostname and dbase
+          -u specifies the MySQL username
+          -p specifies the MySQL password
+          -d specifies which data sets to fit
+             (see list below, input as a comma separated list)
 
 \example shell% export GDISABLECACHING=YES
-         shell% gtune_rijk -h mysql://localhost/NuScat -u costas -p pswd   
+         shell% gtune_rijk -h mysql://localhost/NuScat -u costas -p pswd -d 0,1,2,3
                       
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -29,8 +36,11 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <cstdlib>
 #include <sstream>
+#include <algorithm>
 #include <string>
+#include <vector>
 
 #include <TFile.h>
 #include <TMinuit.h>
@@ -49,17 +59,20 @@
 #include "Interaction/SppChannel.h"
 #include "Messenger/Messenger.h"
 #include "Registry/Registry.h"
+#include "Utils/StringUtils.h"
 #include "ValidationTools/NuVld/DBStatus.h"
 #include "ValidationTools/NuVld/DBI.h"
 #include "ValidationTools/NuVld/DBTable.h"
 #include "ValidationTools/NuVld/DBQueryString.h"
 #include "ValidationTools/NuVld/MultiGraph.h"
 
+using std::vector;
 using std::string;
 using std::ostringstream;
 
 using namespace genie;
 using namespace genie::nuvld;
+using namespace genie::utils;
 
 // constants
 //
@@ -105,6 +118,7 @@ void          Save           (string filename);
 
 // globals
 //
+vector<int>                 gEnabledDataSets;
 DBI *                       gDBI = 0;                   ///< dbase interface
 DBTable<DBNuXSecTableRow> * gXSecData     [kNDataSets]; ///< fitted data
 MultiGraph *                gXSecDataGrph [kNDataSets]; ///< fitted data as graphs
@@ -138,6 +152,13 @@ void Init(int argc, char ** argv)
   string url      = GetArgument(argc, argv, "-h");
   string username = GetArgument(argc, argv, "-u");
   string passwd   = GetArgument(argc, argv, "-p");
+  string datasets = GetArgument(argc, argv, "-d");
+
+  vector<string> dsvec = str::Split(datasets,",");
+  vector<string>::const_iterator it = dsvec.begin();
+  for( ; it != dsvec.end(); ++it) { 
+    gEnabledDataSets.push_back( atoi(it->c_str()) );
+  }
 
   // establish connection with the NuValidator data-base and create a
   // data-base interface
@@ -493,13 +514,17 @@ void FitFunc (
   // loop over all data sets included in the fit
   for(int imode=0; imode<kNDataSets; imode++) {
 
-    //if(imode==0) continue;
+    // include current data set?
+    vector<int>::const_iterator it =
+        find(gEnabledDataSets.begin(), gEnabledDataSets.end(), imode);
+    bool skip = (it==gEnabledDataSets.end());
+    if(skip) continue;
 
     LOG("RijkFit",pNOTICE) << " *** Data Set : " << imode;	
 
     MultiGraph * mgr = gXSecDataGrph[imode];
 
-    // loop over graphs in current data-set
+    // loop over graphs in current data-set (one graph per experiment/publication in this data set)
     int ngr = mgr->NGraphs();
     for(int igr = 0; igr < ngr; igr++) {
 
