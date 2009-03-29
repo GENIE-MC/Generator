@@ -413,6 +413,7 @@ void Init(int argc, char ** argv)
             //add contribution to xsec integral
             xsec[ie] += (dxsec_dW[iw] * frac * dW);
          }//iw
+         xsec[ie] / (1E-38*units::cm2);
        }//ie
        Spline * spl = new Spline(kNE, E, xsec);
        gSplMapDIS_b.insert(map<int,Spline*>::value_type(imode,spl));
@@ -479,6 +480,7 @@ void Init(int argc, char ** argv)
             //add contribution to xsec integral
             xsec[ie] += (dxsec_dW[iw] * frac * dW);
          }//iw
+         xsec[ie] / (1E-38*units::cm2);
        }//ie
        Spline * spl = new Spline(kNE, E, xsec);
        gSplMapDIS_a.insert(map<int,Spline*>::value_type(imode,spl));
@@ -577,10 +579,10 @@ double GetXSecGENIE(double E, int imode)
   double xsec_res = gSplMapRES[imode]->Evaluate(E);
 
   // calculate the dis contribution for W <  Wcut (Rijk=1)
-  double xsec_dis_b = 0; 
+  double xsec_dis_b = gSplMapDIS_b[imode]->Evaluate(E); 
 
   // calculate the dis contribution for W >= Wcut (Rijk=1)
-  double xsec_dis_a = 0; // for W >= Wcut
+  double xsec_dis_a = gSplMapDIS_a[imode]->Evaluate(E);
 
   // get the appropriate R factor for the input mode (data set)
   double R = 0;
