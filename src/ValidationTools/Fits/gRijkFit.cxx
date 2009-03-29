@@ -41,6 +41,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <TFile.h>
 #include <TMinuit.h>
@@ -53,19 +54,22 @@
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecAlgorithmI.h"
-#include "BaryonResonance/BaryonResList.h"
+#include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "EVGDrivers/GEVGDriver.h"
 #include "Interaction/SppChannel.h"
 #include "Messenger/Messenger.h"
 #include "Registry/Registry.h"
 #include "Utils/StringUtils.h"
+#include "Utils/KineUtils.h"
+#include "Numerical/Spline.h"
 #include "ValidationTools/NuVld/DBStatus.h"
 #include "ValidationTools/NuVld/DBI.h"
 #include "ValidationTools/NuVld/DBTable.h"
 #include "ValidationTools/NuVld/DBQueryString.h"
 #include "ValidationTools/NuVld/MultiGraph.h"
 
+using std::map;
 using std::vector;
 using std::string;
 using std::ostringstream;
@@ -73,13 +77,16 @@ using std::ostringstream;
 using namespace genie;
 using namespace genie::nuvld;
 using namespace genie::utils;
+using namespace genie::constants;
 
+//
 // constants
 //
+
 // ...............................
-// Fitted data sets :
+// Fitted data sets
 // -------------------------------
-// 0 -> total xsec
+// 0 -> v N total xsec
 // 1 -> v p -> l- p pi+ xsec 
 // 2 -> v n -> l- p pi0 xsec
 // 3 -> v n -> l- n pi+ xsec
@@ -88,9 +95,7 @@ using namespace genie::utils;
 // 6 -> v p -> l- n pi+ pi+ xsec
 // ...............................
 
-const int    kNDataSets = 7;
-const double kEmin      =  0.1; // GeV
-const double kEmax      = 20.0; // GeV
+const int kNDataSets = 7;
 
 // keys (experiment id / measurement id) for extracting the
 // cross section data from the NuValidator MySQL data-base
@@ -104,29 +109,107 @@ const char * kKeyList[kNDataSets] = {
 /* 6 */ "ANL_12FT,13"
 };
 
+const double kEmin  =  0.1;  ///< GeV, minimum energy in the energy range of data points to fit 
+const double kEmax  = 20.0;  ///< GeV, maximum energy in the energy range of data points to fit
+const double kWcut  =  1.7;  ///< GeV, Wcut parameter for the RES/DIS joining algorithm
+
+const int kNE       =  30;   ///< number of knots in cross section = f(E) cubic splines
+const int kNWintg   = 101;   ///< number of W  steps in numerical integration
+const int kNQ2intg  = 101;   ///< number of Q2 steps in numerical integration
+
+// resonances taken into account by the cross section model
+const int kNR = 18;
+const Resonance_t kResonance[kNR] = {
+    kP33_1232, kS11_1535, kD13_1520, kS11_1650, kD13_1700, kD15_1675, kS31_1620, kD33_1700, kP11_1440, 
+    kP33_1600, kP13_1720, kF15_1680, kP31_1910, kP33_1920, kF35_1905, kF37_1950, kP11_1710, kF17_1970 
+};
+
+// fraction of the neutrino resonance-production cross section (listed for all resonances) which contributes 
+// to the process describing each fitted data set.
+const double kRESFrac[kNDataSets][kNR] = {
+/* 0 */   { 1.,        1.,       1.,        1.,         1.,        1.,        1.,        1.,        1.,
+            1.,        1.,       1.,        1.,         1.,        1.,        1.,        1.,        1.  },
+/* 1 */   { 0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.,
+            0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.  },
+/* 2 */   { 0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.,
+            0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.  },
+/* 3 */   { 0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.,
+            0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.  },
+/* 4 */   { 0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.,
+            0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.  },
+/* 5 */   { 0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.,
+            0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.  },
+/* 6 */   { 0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.,
+            0.,        0.,       0.,        0.,         0.,        0.,        0.,        0.,        0.  }
+};
+
+// fraction of the inclusive DIS that goes into the process describing in each fitted data set (for W < Wcut)
+const int kNW_b = 17;
+const double kW_b[kNW_b] = { 
+   1.00,  1.05,  1.10,  1.15,  1.20,  1.25,  1.30,  1.35,  1.40,  1.45,  1.50,  1.55,  1.60,  1.65,  1.70,  1.75,  1.80 
+};
+const double kDISFrac_b[kNDataSets][kNW_b] =  {
+ { 1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 }
+};
+
+// fraction of the inclusive DIS that goes into the process describing in each fitted data set (for W >= Wcut)
+const int kNW_a = 17;
+const double kW_a[kNW_a] = { 
+   1.85,  1.90,  2.00,  2.05,  2.10,  2.20,  2.30,  2.40,  2.50,  2.75,  3.00,  4.00,  5.00,  7.50,  10.00, 12.50, 15.00 
+};
+const double kDISFrac_a[kNDataSets][kNW_a] = {
+ { 1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 },
+ { 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00 }
+};
+
+//
 // func prototypes
 //
 void          Init           (int argc, char ** argv);
 string        GetArgument    (int argc, char ** argv, const char * option);
 double        GetXSecGENIE   (double E, int imode);
 void          GetXSecData    (void);
-Interaction * GetExclusive   (int imode, bool res);
 DBQueryString FormQuery      (const char * key_list);
 void          DoTheFit       (void);
 void          FitFunc        (Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t iflag);
 void          Save           (string filename);
 
+//
 // globals
 //
 vector<int>                 gEnabledDataSets;
 DBI *                       gDBI = 0;                   ///< dbase interface
 DBTable<DBNuXSecTableRow> * gXSecData     [kNDataSets]; ///< fitted data
 MultiGraph *                gXSecDataGrph [kNDataSets]; ///< fitted data as graphs
-BaryonResList               gResList;
 const XSecAlgorithmI *      gRESXSecModel;
 const XSecAlgorithmI *      gDISXSecModel;
 GEVGDriver *                gNuMuPdrv;
 GEVGDriver *                gNuMuNdrv;
+map<int, Spline*>           gSplMapRES_numup; ///< res id -> numu+p->l+res spline
+map<int, Spline*>           gSplMapRES_numun; ///< res id -> numu+n->l+res spline
+map<int, Spline*>           gSplMapRES;       ///< fitted data set id -> RES xsec spline
+map<int, Spline*>           gSplMapDIS_b;     ///< fitted data set id -> DIS xsec spline (W <  Wcut)
+map<int, Spline*>           gSplMapDIS_a;     ///< fitted data set id -> DIS xsec spline (W >= Wcut)
+
+///< fitted parameter (corresponds to `DIS-HMultWgt-vp-CC-m2' in UsersPhysicsConfig.xml)
+double gFittedParam_vpCC_m2; 
+///< fitted parameter (corresponds to `DIS-HMultWgt-vp-CC-m3' in UsersPhysicsConfig.xml)
+double gFittedParam_vpCC_m3; 
+///< fitted parameter (corresponds to `DIS-HMultWgt-vn-CC-m2' in UsersPhysicsConfig.xml)
+double gFittedParam_vnCC_m2; 
+///< fitted parameter (corresponds to `DIS-HMultWgt-vn-CC-m3' in UsersPhysicsConfig.xml)
+double gFittedParam_vnCC_m3; 
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -181,27 +264,229 @@ void Init(int argc, char ** argv)
   LOG("RijkFit", pNOTICE) << "Got algorithm: " << gRESXSecModel->Id();
   LOG("RijkFit", pNOTICE) << "Got algorithm: " << gDISXSecModel->Id();
 
-  // Set all fitted GENIE Rijk parameters to 1 & reconfigure
+  //
+  // *** Set all fitted GENIE Rijk parameters to 1. & reconfigure
+  //
+
+  gFittedParam_vpCC_m2 = 1.;  
+  gFittedParam_vpCC_m3 = 1.; 
+  gFittedParam_vnCC_m2 = 1.; 
+  gFittedParam_vnCC_m3 = 1.; 
+
   AlgConfigPool * confp = AlgConfigPool::Instance();
   Registry * user_conf = confp->GlobalParameterList();
   user_conf->UnLock();
 
-  user_conf->Set("DIS-HMultWgt-vp-CC-m2", 1.);
-  user_conf->Set("DIS-HMultWgt-vp-CC-m3", 1.);
-  user_conf->Set("DIS-HMultWgt-vn-CC-m2", 1.);
-  user_conf->Set("DIS-HMultWgt-vn-CC-m3", 1.);
+  user_conf->Set("DIS-HMultWgt-vp-CC-m2", gFittedParam_vpCC_m2);
+  user_conf->Set("DIS-HMultWgt-vp-CC-m3", gFittedParam_vpCC_m3);
+  user_conf->Set("DIS-HMultWgt-vn-CC-m2", gFittedParam_vnCC_m2);
+  user_conf->Set("DIS-HMultWgt-vn-CC-m3", gFittedParam_vnCC_m3);
 
   algf->ForceReconfiguration();
-
-  // List of resonances to take into account
-  string resonanes = user_conf->GetString("ResonanceNameList");
-  gResList.DecodeFromNameList(resonanes);
 
   //
   gNuMuPdrv = new GEVGDriver;
   gNuMuNdrv = new GEVGDriver;
   gNuMuPdrv->Configure(kPdgNuMu,1,1);
   gNuMuNdrv->Configure(kPdgNuMu,0,1);
+
+  //
+  // calculate/store the neutrino resonance production cross section
+  //
+  {
+    const int nn=2;
+    int free_target[nn] = { kPdgTgtFreeP, kPdgTgtFreeN };
+    int hit_nucleon[nn] = { kPdgProton,   kPdgNeutron  };
+
+    for(int in=0; in < nn; in++) {
+      Interaction * res = Interaction::RESCC(free_target[in], hit_nucleon[in],  kPdgNuMu); 
+      double Ethr = res->PhaseSpace().Threshold();
+      for(int ires = 0; ires < kNR; ires++) {
+         Resonance_t resonance_id = kResonance[ires]; 
+         res -> ExclTagPtr() -> SetResonance(resonance_id); 
+         double E[kNE], xsec[kNE];
+         // make sure the computed cubic sline will be well-behaved:
+         // place first knot at E=0, second knot at E=Ethreshold &
+         // used logarithmic spacing for E > Ethreshold
+         E[0]=0.; xsec[0]=0.;
+         for(int ie=1; ie<kNE; ie++) {
+           E[ie] = Ethr + TMath::Power(10, (ie-1) * TMath::Log10(kEmax-Ethr)/(kNE-1));
+           res -> InitStatePtr() -> SetProbeE(E[ie]);
+           xsec[ie] = gRESXSecModel->Integral(res) / (1E-38*units::cm2);
+         }//ie
+         Spline * spl = new Spline(kNE, E, xsec);
+         if(hit_nucleon[in]==kPdgProton) {
+	   gSplMapRES_numup.insert(map<int,Spline*>::value_type(ires,spl));
+         } else {
+	   gSplMapRES_numun.insert(map<int,Spline*>::value_type(ires,spl));
+         }
+      }//ires
+      delete res;
+    }//in
+  }
+
+  //
+  // use the data calculated above to calculate the RES cross section for the
+  // process describing each fitted data set.
+  //
+  {
+    //loop over fitted exclusive reactions
+    for(int imode=1; imode<kNDataSets; imode++){
+      double E[kNE], xsec[kNE];
+      for(int ie=0; ie<kNE; ie++) {
+         E[ie] = TMath::Power(10, ie * TMath::Log10(kEmax-kEmin)/(kNE-1));
+         // calculate the resonance contribution to the process
+         double xsec_res = 0;
+         for(int ires = 0; ires < kNR; ires++) {
+           double xs=0;
+           if(imode==0 || imode==5 || imode==6) { xs = gSplMapRES_numup[ires]->Evaluate(E[ie]); }
+           else                                 { xs = gSplMapRES_numun[ires]->Evaluate(E[ie]); }
+           xsec_res += (xs * kRESFrac[imode][ires]);
+         }//ires
+         xsec[ie] = xsec_res;
+      }//ie
+      Spline * spl = new Spline(kNE, E, xsec);
+      gSplMapRES.insert(map<int,Spline*>::value_type(imode,spl));
+    }//imode
+  }
+
+  //
+  // calculate/store the DIS contribution for the process describing each fitted data set
+  // (all Rijk set to 1.0 at this point)
+  //
+
+  // W < Wcut
+  {
+    Interaction * discc_p = Interaction::DISCC(kPdgTgtFreeP, kPdgProton,  kPdgNuMu); 
+    Interaction * discc_n = Interaction::DISCC(kPdgTgtFreeN, kPdgNeutron, kPdgNuMu); 
+    //loop over fitted exclusive reactions
+    for(int imode=1; imode<kNDataSets; imode++){
+       Interaction* interaction = 0;
+       if(imode==1 || imode==5 || imode==6) { interaction = discc_p; }
+       else                                 { interaction = discc_n; }
+       double Ethr = interaction->PhaseSpace().Threshold();
+       double E[kNE], xsec[kNE];
+       // make sure the computed cubic sline will be well-behaved:
+       // place first knot at E=0, second knot at E=Ethreshold &
+       // used logarithmic spacing for E > Ethreshold
+       E[0]=0.; xsec[0]=0.;
+       for(int ie=1; ie<kNE; ie++) {
+         E[ie] = Ethr + TMath::Power(10, (ie-1) * TMath::Log10(kEmax-Ethr)/(kNE-1));
+         interaction -> InitStatePtr() -> SetProbeE(E[ie]);
+         // W-loop
+         double dxsec_dW[kNWintg]; 
+         Range1D_t Wrange = interaction->PhaseSpace().Limits(kKVW);
+         double Wmin = Wrange.min;
+         double Wmax = TMath::Min(Wrange.max, kWcut);
+         double dW   = (Wmax-Wmin)/(kNWintg-1);
+         for(int iw=0; iw<kNWintg; iw++) {
+           double W = Wmin + iw * dW;
+           interaction -> KinePtr() -> SetW(W);
+           // integrate over Q2
+           dxsec_dW[iw] = 0;
+           Range1D_t Q2range = interaction->PhaseSpace().Limits(kKVQ2);
+           double Q2min = Q2range.min;
+           double Q2max = Q2range.max;
+           double dQ2   = (Q2max-Q2min)/(kNQ2intg-1);
+           for(int iq=0; iq<kNQ2intg; iq++) {
+             double Q2 = Q2min + iq * dQ2;
+             double x=0, y=0;
+             kinematics::WQ2toXY(E[ie],kNucleonMass,W,Q2,x,y);
+             interaction -> KinePtr() -> SetQ2(Q2);
+             interaction -> KinePtr() -> Setx(x);
+             interaction -> KinePtr() -> Sety(y);
+             // call the cross section algorithm (returns xsec*jacobian)
+             dxsec_dW[iw] += gDISXSecModel->XSec(interaction, kPSWQ2fE);
+           }//iq
+           dxsec_dW[iw] *= dQ2;
+         }//iw
+         // integrate over W; take W-dependent exclusive fractions into account
+         xsec[ie]=0;
+         for(int iw=0; iw<kNWintg; iw++) {
+            double W = Wmin + iw * dW;
+            //interpolate kDISFrac_b
+            double frac=0.;
+            int ipos = TMath::BinarySearch(kNW_b, kW_b, W);
+            if(ipos==kNW_b-1) frac=kDISFrac_b[imode][ipos];
+            else              frac=kDISFrac_b[imode][ipos] + (kW_b[ipos]-W) * 
+                                (kDISFrac_b[imode][ipos]-kDISFrac_b[imode][ipos+1])/(kW_b[ipos]-kW_b[ipos+1]);
+            //add contribution to xsec integral
+            xsec[ie] += (dxsec_dW[iw] * frac * dW);
+         }//iw
+       }//ie
+       Spline * spl = new Spline(kNE, E, xsec);
+       gSplMapDIS_b.insert(map<int,Spline*>::value_type(imode,spl));
+    }//imode
+    delete discc_p;
+    delete discc_n;
+  }
+
+  // repeat for W >= Wcut
+  {
+    Interaction * discc_p = Interaction::DISCC(kPdgTgtFreeP, kPdgProton,  kPdgNuMu); 
+    Interaction * discc_n = Interaction::DISCC(kPdgTgtFreeN, kPdgNeutron, kPdgNuMu); 
+    //loop over fitted exclusive reactions
+    for(int imode=1; imode<kNDataSets; imode++){
+       Interaction* interaction = 0;
+       if(imode==1 || imode==5 || imode==6) { interaction = discc_p; }
+       else                                 { interaction = discc_n; }
+       double Ethr = interaction->PhaseSpace().Threshold();
+       double E[kNE], xsec[kNE];
+       // make sure the computed cubic sline will be well-behaved:
+       // place first knot at E=0, second knot at E=Ethreshold &
+       // used logarithmic spacing for E > Ethreshold
+       E[0]=0.; xsec[0]=0.;
+       for(int ie=1; ie<kNE; ie++) {
+         E[ie] = Ethr + TMath::Power(10, (ie-1) * TMath::Log10(kEmax-Ethr)/(kNE-1));
+         interaction -> InitStatePtr() -> SetProbeE(E[ie]);
+         // W-loop
+         double dxsec_dW[kNWintg]; 
+         Range1D_t Wrange = interaction->PhaseSpace().Limits(kKVW);
+         double Wmin = TMath::Max(Wrange.min, kWcut);
+         double Wmax = TMath::Max(Wrange.max, Wmin);
+         double dW   = (Wmax-Wmin)/(kNWintg-1);
+         for(int iw=0; iw<kNWintg; iw++) {
+           double W = Wmin + iw * dW;
+           interaction -> KinePtr() -> SetW(W);
+           // integrate over Q2
+           dxsec_dW[iw] = 0;
+           Range1D_t Q2range = interaction->PhaseSpace().Limits(kKVQ2);
+           double Q2min = Q2range.min;
+           double Q2max = Q2range.max;
+           double dQ2   = (Q2max-Q2min)/(kNQ2intg-1);
+           for(int iq=0; iq<kNQ2intg; iq++) {
+             double Q2 = Q2min + iq * dQ2;
+             double x=0, y=0;
+             kinematics::WQ2toXY(E[ie],kNucleonMass,W,Q2,x,y);
+             interaction -> KinePtr() -> SetQ2(Q2);
+             interaction -> KinePtr() -> Setx(x);
+             interaction -> KinePtr() -> Sety(y);
+             // call the cross section algorithm (returns xsec*jacobian)
+             dxsec_dW[iw] += gDISXSecModel->XSec(interaction, kPSWQ2fE);
+           }//iq
+           dxsec_dW[iw] *= dQ2;
+         }//iw
+         // integrate over W; take W-dependent exclusive fractions into account
+         xsec[ie]=0;
+         for(int iw=0; iw<kNWintg; iw++) {
+            double W = Wmin + iw * dW;
+            //interpolate kDISFrac_a
+            double frac=0.;
+            int ipos = TMath::BinarySearch(kNW_a, kW_a, W);
+            if(ipos==kNW_a-1) frac=kDISFrac_a[imode][ipos];
+            else              frac=kDISFrac_a[imode][ipos] + (kW_a[ipos]-W) * 
+                                (kDISFrac_a[imode][ipos]-kDISFrac_a[imode][ipos+1])/(kW_a[ipos]-kW_a[ipos+1]);
+            //add contribution to xsec integral
+            xsec[ie] += (dxsec_dW[iw] * frac * dW);
+         }//iw
+       }//ie
+       Spline * spl = new Spline(kNE, E, xsec);
+       gSplMapDIS_a.insert(map<int,Spline*>::value_type(imode,spl));
+    }//imode
+    delete discc_p;
+    delete discc_n;
+  }
+
 }
 //____________________________________________________________________________
 string GetArgument(int argc, char ** argv, const char * option)
@@ -261,6 +546,7 @@ double GetXSecGENIE(double E, int imode)
 
   //
   // 0 -> total xsec
+  // (still inefficient; integration on the fly - not based on precomputed data)
   //
   if(imode == 0) {
     TLorentzVector p4(0,0,E,E);
@@ -273,166 +559,46 @@ double GetXSecGENIE(double E, int imode)
     return xsec_tot;
   }
 
-
   //
-  // single pion channels
+  // Exclusive reactions
   //
-  // 1 -> v p -> l- p pi+ xsec 
-  // 2 -> v n -> l- p pi0 xsec
-  // 3 -> v n -> l- n pi+ xsec
+  // single pion channels:
+  // 1 -> v p -> l- p pi+ 
+  // 2 -> v n -> l- p pi0 
+  // 3 -> v n -> l- n pi+ 
   //
-  else if(imode == 1 || imode == 2 || imode == 3) 
-  {
-     double xsec_1pi     = 0;
-     double xsec_1pi_res = 0;
-     double xsec_1pi_dis = 0;
- 
-     Interaction * res = GetExclusive(imode, true );
-     Interaction * dis = GetExclusive(imode, false);
-
-     SppChannel_t spp_channel = kSppNull;
-     if      (imode == 1)  spp_channel = kSpp_vp_cc_10100; 
-     else if (imode == 2)  spp_channel = kSpp_vn_cc_10010; 
-     else if (imode == 3)  spp_channel = kSpp_vn_cc_01100; 
-
-     // calculate the resonance singe pi contribution
-     //
-     unsigned int nres = gResList.NResonances();
-     for(unsigned int ires = 0; ires < nres; ires++) 
-     {
-        Resonance_t resonance_id = gResList.ResonanceId(ires); 
-
-        res -> ExclTagPtr()   -> SetResonance(resonance_id); 
-        res -> InitStatePtr() -> SetProbeE(E);
-
-        // xsec for exciting this resonance
-        double xsec_res = gRESXSecModel->Integral(res);
-
-        // resonance contribution to the 1pi channel
-        double br  = SppChannel::BranchingRatio(spp_channel, resonance_id);  // branching ratio  
-        double igg = SppChannel::IsospinWeight (spp_channel, resonance_id);  // isospin Glebsch-Gordon coeff.
-
-        xsec_1pi_res += (xsec_res * br * igg);
-     }
-
-     // calculate the DIS singe pi contribution
-     //
-     dis -> InitStatePtr() -> SetProbeE(E);
-     xsec_1pi_dis = gDISXSecModel->Integral(dis);
-
-     // sum-up
-     xsec_1pi_res /= (1E-38 * units::cm2);
-     xsec_1pi_dis /= (1E-38 * units::cm2);
-     xsec_1pi = xsec_1pi_res + xsec_1pi_dis;
-
-     LOG("RijkFit", pDEBUG) 
-        << "xsec(1pi / mode = " << imode << ", E = " << E << " GeV) = " 
-        << xsec_1pi << " 1E-38 * cm2 = (" << xsec_1pi_dis << " [dis] + " << xsec_1pi_res << " [res])";
-
-     delete dis;
-     delete res;
-
-     return xsec_1pi;
-
-  } // modes 1,2,3
-
-
-  //
-  // multi pion channels
-  //
-  // 4 -> v n -> l- p pi+ pi- xsec
-  // 5 -> v p -> l- p pi+ pi0 xsec
-  // 6 -> v p -> l- n pi+ pi+ xsec
+  // multi pion channels:
+  // 4 -> v n -> l- p pi+ pi- 
+  // 5 -> v p -> l- p pi+ pi0 
+  // 6 -> v p -> l- n pi+ pi+ 
   //
 
-  else if(imode == 4 || imode == 5 || imode == 6) {
+  // calculate the resonance contribution
+  double xsec_res = gSplMapRES[imode]->Evaluate(E);
 
-     double xsec_2pi     = 0;
-     double xsec_2pi_res = 0;
-     double xsec_2pi_dis = 0;
+  // calculate the dis contribution for W <  Wcut (Rijk=1)
+  double xsec_dis_b = 0; 
 
-     Interaction * res = GetExclusive(imode, true );
-     Interaction * dis = GetExclusive(imode, false);
+  // calculate the dis contribution for W >= Wcut (Rijk=1)
+  double xsec_dis_a = 0; // for W >= Wcut
 
-     // calculate the RES 2pi contribution
-     // ...
+  // get the appropriate R factor for the input mode (data set)
+  double R = 0;
+  if      (imode==1)             { R = gFittedParam_vpCC_m2; }
+  else if (imode==2 || imode==3) { R = gFittedParam_vnCC_m2; }
+  if      (imode==4)             { R = gFittedParam_vnCC_m3; }
+  else if (imode==5 || imode==6) { R = gFittedParam_vpCC_m3; }
 
-     // calculate the DIS 2pi contribution
-     dis -> InitStatePtr() -> SetProbeE(E);
-     xsec_2pi_dis = gDISXSecModel->Integral(dis);
+  // sum-up
+  double xsec = xsec_res + R * xsec_dis_b + xsec_dis_a;
 
-     // sum-up
-     xsec_2pi_res /= (1E-38 * units::cm2);
-     xsec_2pi_dis /= (1E-38 * units::cm2);
-     xsec_2pi = xsec_2pi_res + xsec_2pi_dis;
+  LOG("RijkFit", pDEBUG) 
+   << "xsec(mode: "<< imode<< ", E = "<< E<< " GeV) = "<< xsec<< " 1E-38*cm2";
+  LOG("RijkFit", pDEBUG) 
+   << " R=" << R << ", xsec_res = " << xsec_res 
+   << ", xsec_dis [b,a] = " << xsec_dis_b << ", " << xsec_dis_a;
 
-     LOG("RijkFit", pDEBUG) 
-        << "xsec(2pi / mode = " << imode << ", E = " << E << " GeV) = " 
-        << xsec_2pi << " 1E-38 * cm2 = (" << xsec_2pi_dis << " [dis] + " << xsec_2pi_res << " [res])";
-
-     delete dis;
-     delete res;
-
-     return xsec_2pi;
-
-  } // modes 4,5,6
-
-  return 0;
-}
-//____________________________________________________________________________
-Interaction * GetExclusive (int imode, bool res)
-{
-  Interaction * in = 0;
-
-  // 1 -> v p -> l- p pi+ xsec 
-  if(imode==1) {
-    if(res) { in = Interaction::RESCC(kPdgTgtFreeP, kPdgProton,  kPdgNuMu); }
-    else    { in = Interaction::DISCC(kPdgTgtFreeP, kPdgProton,  kPdgNuMu); }
-    in->ExclTagPtr()->SetNPions(1,0,0);
-    in->ExclTagPtr()->SetNNucleons(1,0);
-  }
-
-  // 2 -> v n -> l- p pi0 xsec
-  else if(imode==2) {
-    if(res) { in = Interaction::RESCC(kPdgTgtFreeN, kPdgNeutron,  kPdgNuMu); }
-    else    { in = Interaction::DISCC(kPdgTgtFreeN, kPdgNeutron,  kPdgNuMu); }
-    in->ExclTagPtr()->SetNPions(0,1,0);
-    in->ExclTagPtr()->SetNNucleons(1,0);
-  }
-
-  // 3 -> v n -> l- n pi+ xsec
-  else if(imode==3) {
-    if(res) { in = Interaction::RESCC(kPdgTgtFreeN, kPdgNeutron,  kPdgNuMu); }
-    else    { in = Interaction::DISCC(kPdgTgtFreeN, kPdgNeutron,  kPdgNuMu); }
-    in->ExclTagPtr()->SetNPions(1,0,0);
-    in->ExclTagPtr()->SetNNucleons(0,1);
-  }
-
-  // 4 -> v n -> l- p pi+ pi- xsec
-  else if(imode==4) {
-    if(res) { in = Interaction::RESCC(kPdgTgtFreeN, kPdgNeutron,  kPdgNuMu); }
-    else    { in = Interaction::DISCC(kPdgTgtFreeN, kPdgNeutron,  kPdgNuMu); }
-    in->ExclTagPtr()->SetNPions(1,0,1);
-    in->ExclTagPtr()->SetNNucleons(1,0);
-  }
-
-  // 5 -> v p -> l- p pi+ pi0 xsec
-  else if(imode==5) {
-    if(res) { in = Interaction::RESCC(kPdgTgtFreeP, kPdgProton,  kPdgNuMu); }
-    else    { in = Interaction::DISCC(kPdgTgtFreeP, kPdgProton,  kPdgNuMu); }
-    in->ExclTagPtr()->SetNPions(1,1,0);
-    in->ExclTagPtr()->SetNNucleons(1,0);
-  }
-
-  // 6 -> v p -> l- n pi+ pi+ xsec
-  else if(imode==6) {
-    if(res) { in = Interaction::RESCC(kPdgTgtFreeP, kPdgProton,  kPdgNuMu); }
-    else    { in = Interaction::DISCC(kPdgTgtFreeP, kPdgProton,  kPdgNuMu); }
-    in->ExclTagPtr()->SetNPions(2,0,0);
-    in->ExclTagPtr()->SetNNucleons(0,1);
-  }
-
-  return in;  
+  return xsec;
 }
 //____________________________________________________________________________
 void DoTheFit(void)
@@ -452,7 +618,7 @@ void DoTheFit(void)
   float        min   [np] = { 0.00,          0.00,           0.00,           0.00           };
   float        max   [np] = { 2.00,          2.00,           2.00,           2.00           };
   float        step  [np] = { 0.05,          0.05,           0.05,           0.05           };
-  const char * pname [np] = {"R(vp/CC/1pi)", "R(vp/CC/2pi)", "R(vn/CC/1pi)", "R(vn/CC/2pi)" };
+  const char * pname [np] = {"R(vp/CC/m2)",  "R(vp/CC/m3)",  "R(vn/CC/m2)",  "R(vn/CC/m3)"  };
 
   for(int i=0; i<np; i++) {
     LOG("RijkFit",pDEBUG)
@@ -492,21 +658,26 @@ void FitFunc (
   Registry * user_conf = confp->GlobalParameterList();
   user_conf->UnLock();
 
-  LOG("RijkFit", pNOTICE) << "Setting: R(vp/CC/1pi) = " << par[0];
-  LOG("RijkFit", pNOTICE) << "Setting: R(vp/CC/2pi) = " << par[1];
-  LOG("RijkFit", pNOTICE) << "Setting: R(vn/CC/1pi) = " << par[2];
-  LOG("RijkFit", pNOTICE) << "Setting: R(vn/CC/2pi) = " << par[3];
+  LOG("RijkFit", pNOTICE) << "Setting: R(vp/CC/m2) = " << par[0];
+  LOG("RijkFit", pNOTICE) << "Setting: R(vp/CC/m3) = " << par[1];
+  LOG("RijkFit", pNOTICE) << "Setting: R(vn/CC/m2) = " << par[2];
+  LOG("RijkFit", pNOTICE) << "Setting: R(vn/CC/m3) = " << par[3];
 
-  user_conf->Set("DIS-HMultWgt-vp-CC-m2", par[0]);
-  user_conf->Set("DIS-HMultWgt-vp-CC-m3", par[1]);
-  user_conf->Set("DIS-HMultWgt-vn-CC-m2", par[2]);
-  user_conf->Set("DIS-HMultWgt-vn-CC-m3", par[3]);
+  gFittedParam_vpCC_m2 = par[0];
+  gFittedParam_vpCC_m3 = par[1];
+  gFittedParam_vnCC_m2 = par[2];
+  gFittedParam_vnCC_m3 = par[3];
 
+  // prapage params through GENIE (for s_tot which, currently, is calculated on the fly)
+  user_conf->Set("DIS-HMultWgt-vp-CC-m2", gFittedParam_vpCC_m2);
+  user_conf->Set("DIS-HMultWgt-vp-CC-m3", gFittedParam_vpCC_m3);
+  user_conf->Set("DIS-HMultWgt-vn-CC-m2", gFittedParam_vnCC_m2);
+  user_conf->Set("DIS-HMultWgt-vn-CC-m3", gFittedParam_vnCC_m3);
   AlgFactory * algf = AlgFactory::Instance();
   algf->ForceReconfiguration();
 
   //
-  // calculate a global chisq for the current set of prediction
+  // calculate chisq for the current set of fitted parameters
   //
  
   double chisq = 0;
@@ -556,7 +727,7 @@ void FitFunc (
 
   f = chisq;
 
-  LOG("NuVldFit", pINFO) << "**** chisq = " << chisq;
+  LOG("RijkFit", pINFO) << "**** chisq = " << chisq;
 }
 //____________________________________________________________________________
 void Save(string filename)
@@ -580,6 +751,7 @@ void Save(string filename)
 
   // save best fit predictions
   for(int i=0; i<kNDataSets; i++) {
+
   }
 
   // write-out fitted params / errors  

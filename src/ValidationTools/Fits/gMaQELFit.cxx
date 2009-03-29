@@ -302,7 +302,7 @@ void FitFunc (
   algf->ForceReconfiguration();
 
   //
-  // calculate a global chisq for the current set of prediction
+  // calculate chisq for the current set of fitted parameters  
   //
  
   double chisq = 0;
