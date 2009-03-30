@@ -67,7 +67,7 @@ void AMNuGammaGenerator::ProcessEventRecord(GHepRecord * evrec) const
   this->AddPhoton(evrec);
   this->AddFinalStateNeutrino(evrec);
   this->AddRecoilNucleon(evrec);
-  this->AddTargetRemnant(evrec);
+//this->AddTargetRemnant(evrec);
 }
 //___________________________________________________________________________
 void AMNuGammaGenerator::AddPhoton(GHepRecord * evrec) const
