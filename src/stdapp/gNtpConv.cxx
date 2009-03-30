@@ -239,16 +239,16 @@ void ConvertToGST(void)
   int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
   int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
   double brWeight      = 0;      // Event weight
-  double brKineXs      = 0;      // Bjorken x (as was generated during kinematical selection)
-  double brKineYs      = 0;      // Inelasticity y (as was generated during kinematical selection)
-  double brKineTs      = 0;      // Energy transfer to nucleus at COH events (as was generated during kinematical selection)
-  double brKineQ2s     = 0;      // Momentum transfer Q^2 (as was generated during kinematical selection)
-  double brKineWs      = 0;      // Hadronic invariant mass W (as was generated during kinematical selection)
-  double brKineX       = 0;      // Bjorken x  (computed from the event record)
-  double brKineY       = 0;      // Inelasticity y (computed from the event record)
-  double brKineT       = 0;      // Energy transfer to nucleus at COH events (computed from the event record)
-  double brKineQ2      = 0;      // Momentum transfer Q^2 (computed from the event record)
-  double brKineW       = 0;      // Hadronic invariant mass W (computed from the event record)
+  double brKineXs      = 0;      // Bjorken x as was generated during kinematical selection; takes fermi momentum / off-shellness into account
+  double brKineYs      = 0;      // Inelasticity y as was generated during kinematical selection; takes fermi momentum / off-shellness into account
+  double brKineTs      = 0;      // Energy transfer to nucleus at COH events as was generated during kinematical selection
+  double brKineQ2s     = 0;      // Momentum transfer Q^2 as was generated during kinematical selection; takes fermi momentum / off-shellness into account
+  double brKineWs      = 0;      // Hadronic invariant mass W as was generated during kinematical selection; takes fermi momentum / off-shellness into account
+  double brKineX       = 0;      // Experimental-like Bjorken x; neglects fermi momentum / off-shellness 
+  double brKineY       = 0;      // Experimental-like inelasticity y; neglects fermi momentum / off-shellness 
+  double brKineT       = 0;      // Experimental-like energy transfer to nucleus at COH events 
+  double brKineQ2      = 0;      // Experimental-like momentum transfer Q^2; neglects fermi momentum / off-shellness
+  double brKineW       = 0;      // Experimental-like hadronic invariant mass W; neglects fermi momentum / off-shellness 
   double brEv          = 0;      // Neutrino energy @ LAB
   double brPxv         = 0;      // Neutrino px @ LAB
   double brPyv         = 0;      // Neutrino py @ LAB
@@ -526,29 +526,9 @@ void ConvertToGST(void)
     //weight
     double weight = event.Weight();
 
-    //input 4-momenta    
-    const TLorentzVector & k1 = *(neutrino->P4());                     // v 4-p (k1)
-    const TLorentzVector & k2 = *(fsl->P4());                          // l 4-p (k2)
-    const TLorentzVector & p1 = (hitnucl) ? *(hitnucl->P4()) : pdummy; // N 4-p (p1)      
-     
-    // compute kinematical params
-    //
-    double M  = kNucleonMass;
-    TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer
-    double Q2 = -1 * q.M2();                       // momemtum transfer
-    double v  = (hitnucl) ? q.Energy()       : -1; // v (E transfer in hit nucleon rest frame)
-    double x  = (hitnucl) ? 0.5*Q2/(M*v)     : -1; // Bjorken x
-    double y  = (hitnucl) ? v/k1.Energy()    : -1; // Inelasticity, y = q*P1/k1*P1
-    double W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
-    double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
-    double t  = 0;
-
-    LOG("gntpc", pDEBUG) 
-       << "[Calc] Q2 = " << Q2 << ", W = " << W 
-       << ", x = " << x << ", y = " << y << ", t = " << t;
-
-    // also, access kinematical params _exactly_ as they were selected internally
-    // (possibly using off-shell kinematics)
+    // Access kinematical params _exactly_ as they were selected internally
+    // (at the hit nucleon rest frame; 
+    // for bound nucleons: taking into account fermi momentum and off-shell kinematics)
     //
     bool get_selected = true;
     double xs  = kine.x (get_selected);
@@ -560,6 +540,28 @@ void ConvertToGST(void)
     LOG("gntpc", pDEBUG) 
        << "[Select] Q2 = " << Q2s << ", W = " << Ws 
        << ", x = " << xs << ", y = " << ys << ", t = " << ts;
+
+    // Calculate the same kinematical params but now as an experimentalist would 
+    // measure them by neglecting the fermi momentum and off-shellness of bound nucleons
+    //
+
+    const TLorentzVector & k1 = *(neutrino->P4());                     // v 4-p (k1)
+    const TLorentzVector & k2 = *(fsl->P4());                          // l 4-p (k2)
+    const TLorentzVector & p1 = (hitnucl) ? *(hitnucl->P4()) : pdummy; // N 4-p (p1)      
+
+    double M  = kNucleonMass; 
+    TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer
+    double Q2 = -1 * q.M2();                       // momemtum transfer
+    double v  = (hitnucl) ? q.Energy()       : -1; // v (E transfer to the nucleus)
+    double x  = (hitnucl) ? 0.5*Q2/(M*v)     : -1; // Bjorken x
+    double y  = (hitnucl) ? v/k1.Energy()    : -1; // Inelasticity, y = q*P1/k1*P1
+    double W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
+    double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
+    double t  = 0;
+
+    LOG("gntpc", pDEBUG) 
+       << "[Calc] Q2 = " << Q2 << ", W = " << W 
+       << ", x = " << x << ", y = " << y << ", t = " << t;
 
     // Extract more info on the hadronic system
     // Only for QEL/RES/DIS/COH events
