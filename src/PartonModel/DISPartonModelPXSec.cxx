@@ -16,6 +16,7 @@
 
 #include <sstream>
 
+#include <TSystem.h>
 #include <TMath.h>
 #include <TH1D.h>
 
@@ -356,6 +357,7 @@ void DISPartonModelPXSec::LoadConfig(void)
   //   Here we provide the option to turn the caching off (default: on)
 
   fUseCache = fConfig->GetBoolDef("UseCache", true);
+  fUseCache = fUseCache && !(gSystem->Getenv("GDISABLECACHING"));
 
   //-- Since this method would be called every time the current algorithm is 
   //   reconfigured at run-time, remove all the data cached by this algorithm
