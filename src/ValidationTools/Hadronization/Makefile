@@ -1,6 +1,5 @@
-# GENIE Merenyi test makefile
 #
-# Author: Pauli Kehayias
+# Makefile for the GENIE hadronization validation package
 #
 
 SHELL = /bin/sh
