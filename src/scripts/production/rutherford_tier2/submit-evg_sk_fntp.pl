@@ -91,8 +91,7 @@ $grep_filt     = "grep -B 50 -A 50 -i \"warn\\|error\\|fatal\"";
 $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
 $evgen_cmd     = "gT2Kevgen -g $geom_tgt_mix -f $flux_file,$flux_det_loc -r $mcrun -n $nevents | $grep_filt &> $logfile_evgen";
 $frenm_cmd     = "mv gntp.$mcrun.ghep.root $ghep_file";
-#$fconv_cmd    = "gntpc -f 1 -i $ghep_file &> $logfile_conv";
-$fconv_cmd     = "gntpc -f 3 -i $ghep_file &> $logfile_conv";
+$fconv_cmd     = "gntpc -f t2k_tracker -i $ghep_file &> $logfile_conv";
 
 # create the PBS script
 #
