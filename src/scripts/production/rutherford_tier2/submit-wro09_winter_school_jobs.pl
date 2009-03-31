@@ -67,16 +67,17 @@ unless defined $runnu;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind = 0                            unless defined $use_valgrind;
-$production   = "wroclaw\_$genie_version"    unless defined $production;
-$cycle        = "01"                         unless defined $cycle;
+$use_valgrind   = 0                         unless defined $use_valgrind;
+$production     = "wroclaw\_$genie_version" unless defined $production;
+$cycle          = "01"                      unless defined $cycle;
 
 $queue          = "prod";
 $time_limit     = "30:00:00";
-$genie_inst_dir = "/opt/ppd/t2k/GENIE/";
+$topdir         = "/opt/ppd/t2k";
+$genie_inst_dir = "$topdir/GENIE/";
 $genie_setup    = "$genie_inst_dir/$genie_version-setup";
-$jobs_dir       = "/opt/ppd/t2k/GENIE/scratch/vA-$production\_$cycle";
-$xspl_file      = "/opt/ppd/t2k/GENIE/data/job_inputs/xspl/gxspl-t2k-$genie_version.xml";
+$jobs_dir       = "$topdir/GENIE/scratch/$production\_$cycle";
+$xspl_file      = "$topdir/GENIE/data/job_inputs/xspl/gxspl-t2k-$genie_version.xml";
 $mcseed         = 210921029;
 
 %nevents_hash = ( 
