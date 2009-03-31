@@ -12,6 +12,9 @@
  Important revisions after version 2.0.0 :
  @ Nov 21, 2007 - CA
    Was renamed to ReinSeghalCOHPiPXSec (from ReinSeghalCOHPXSec)
+ @ Mar 31, 2009 - CA
+   Fixed a minor bug in the C2 term controlling the forward mu- suppression
+   predicted by Adler's PCAC (mpi -> mpi^2)
 */
 //____________________________________________________________________________
 
@@ -130,7 +133,7 @@ double ReinSeghalCOHPiPXSec::XSec(
         double Q2min = ml2 * y/(1-y);
         if(Q2>Q2min) {
            double C1    = TMath::Power(1-0.5*Q2min/(Q2+kPionMass2), 2);
-           double C2    = 0.25*y*Q2min*(Q2-Q2min)/ TMath::Power(Q2+kPionMass,2);
+           double C2    = 0.25*y*Q2min*(Q2-Q2min)/ TMath::Power(Q2+kPionMass2,2);
            C = C1+C2;
         } else {
            C = 0.;
