@@ -1011,11 +1011,11 @@ XML-izers: Costas Andreopoulos and Hugh Gallagher
                     </ref>
 
                     <reaction>              nu_mu_bar A --> nu_mubar A pi0 </reaction>
-                    <target>                Propane-Freon               </target>
-                    <exposure units="">                                 </exposure>
-                    <A>                     30                          </A>
-		    <npoints>               1                           </npoints>
-		    <data_source>           paper                       </data_source>
+                    <target>                Propane-Freon                  </target>
+                    <exposure units="">                                    </exposure>
+                    <A>                     30                             </A>
+		    <npoints>               1                              </npoints>
+		    <data_source>           paper                          </data_source>
 	       </header>
 
 	       <point>
@@ -1713,8 +1713,7 @@ XML-izers: Costas Andreopoulos and Hugh Gallagher
 	<measurement observable="coh_xsec">
 	       <header>
                     comments,...
-		    A = 20
- 
+
                     <ref>
                          <author>   Marage et al.          </author>
                          <journal>  Z.Phys.C43:523         </journal>
@@ -4057,7 +4056,8 @@ XML-izers: Costas Andreopoulos and Hugh Gallagher
 
 	<measurement observable="coh_xsec">
 	       <header>
-                    Comments for this measurement can be entered
+
+                    Mean neutrino energy 70 GeV
  
                     <ref>
                          <author>   Wilocq et al.       </author>
@@ -4065,20 +4065,30 @@ XML-izers: Costas Andreopoulos and Hugh Gallagher
                          <year>     1993                </year>
                     </ref>
 
-                    <reaction>           nu_mu_bar A -> mu+ A pi-  </reaction>
+                    <reaction>           
+                       Sum of nu_mu_bar A -> mu+ A pi- and num_mu  A -> mu- A pi+ 
+                    </reaction>
                     <target>             Neon-Hydrogen             </target>
                     <exposure units="">                            </exposure>
-		    <npoints>            1                         </npoints>
+		    <npoints>            2                         </npoints>
 		    <A>                  20                        </A>
 		    <data_source>        paper                     </data_source>
 	       </header>
 	       
 	       <point>
-                   <E units="GeV" frame="lab">                   74.5   </E>
+                   <E units="GeV" frame="lab">                   50.0   </E>
 		   <E_min>                                       10.0   </E_min>
+		   <E_max>                                       8.0   </E_max>
+ 	           <xsec units="*1.e-38 *cm2/nucleus" norm="1">   2.2   </xsec>
+                   <stat_err value="xsec">                     +/-0.8   </stat_err>
+	       </point>
+
+	       <point>
+                   <E units="GeV" frame="lab">                  145.0   </E>
+		   <E_min>                                       80.0   </E_min>
 		   <E_max>                                      250.0   </E_max>
- 	           <xsec units="*1.e-38 *cm2/nucleus" norm="1">   2.7   </xsec>
-                   <stat_err value="xsec">                     +/-1.1   </stat_err>
+ 	           <xsec units="*1.e-38 *cm2/nucleus" norm="1">   4.75  </xsec>
+                   <stat_err value="xsec">                     +/-1.5   </stat_err>
 	       </point>
 	</measurement>
 
@@ -4211,7 +4221,7 @@ XML-izers: Costas Andreopoulos and Hugh Gallagher
 
 
 
-        <!-- Grabosch 1986, Zeit.Phys.C31 203, SKAT - nu_mu coherent pi xsec @ heavy Freon -->
+        <!-- Grabosch 1986, Zeit.Phys.C31 203, SKAT - nu_mu coherent pi+ xsec @ heavy Freon -->
 
 	<measurement observable="coh_xsec">
 	       <header>
@@ -4243,7 +4253,7 @@ XML-izers: Costas Andreopoulos and Hugh Gallagher
 
 
 
-        <!-- Grabosch 1986, Zeit.Phys.C31 203, SKAT - nu_mu_bar coherent 1 pi- xsec @ heavy Freon -->
+        <!-- Grabosch 1986, Zeit.Phys.C31 203, SKAT - nu_mu_bar coherent pi- xsec @ heavy Freon -->
 
 	<measurement observable="coh_xsec">
 	       <header>
@@ -4275,7 +4285,7 @@ XML-izers: Costas Andreopoulos and Hugh Gallagher
 
 
 
-        <!-- Grabosch 1986, Zeit.Phys.C31 203, SKAT - nu_mu coherent 1 pi0 xsec @ heavy Freon -->
+        <!-- Grabosch 1986, Zeit.Phys.C31 203, SKAT - nu_mu coherent pi0 xsec @ heavy Freon -->
 
 	<measurement observable="coh_xsec">
 	       <header>
@@ -6185,6 +6195,59 @@ XML-izers: Costas Andreopoulos and Hugh Gallagher
    </experiment>
 
 
+   <!-- ********************************************************************* -->
+   <!-- ************************* [AachenPadova] *************************** -->
+   <!-- ********************************************************************* -->
+
+
+   <experiment name="AachenPadova">
+        <exp_info>
+	   Aachen Padova spark chamber experiment
+
+           <facility>                   CERN PS                     </facility>
+           <detector>                   spark chamber               </detector>
+           <target>                     Al                          </target>
+           <exposure units="">                                      </exposure>
+           <year>                       1983                        </year>
+           <beam>                       nu_mu - nu_mu_bar           </beam>
+           <E frame="lab" units="GeV">  2                           </E>
+
+        <flux_spectrum beam="numu" flux_units="" E_units="" E_frame="">
+        </flux_spectrum>
+
+        <flux_spectrum beam="numubar" flux_units="" E_units="" E_frame="">
+        </flux_spectrum>
+
+        </exp_info>
+
+        <!-- Faissner 1983, Phys. Lett. 125B, 230, Aachen Padova nu_mu NC coherent pi0 xsec @ Al -->
+
+	<measurement observable="coh_xsec">
+	       <header>
+                    comments, comments,...
+
+                    <ref>
+                         <author>   Faissner et al.         </author>
+                         <journal>  Phys. Lett. 125B, 230   </journal>
+                         <year>     1983                    </year>
+                    </ref>
+
+                    <reaction>           nu_mu A --> nu_mu A pi0    </reaction>
+                    <target>             Al                         </target>
+		    <A>                  27                          </A>
+                    <exposure units="">                              </exposure>
+		    <npoints>            1                           </npoints>
+		    <data_source>        paper                       </data_source>
+	       </header>
+
+	       <point>
+                   <E units="GeV" frame="lab">                         2.00  </E>
+ 	           <xsec units="*1.e-38 *cm2/nucleus" norm="1">        0.29  </xsec>
+                   <stat_err value="xsec">                          +/-0.10  </stat_err>
+	       </point>
+	</measurement>
+
+   </experiment>
 
 
    <!-- ********************************************************************* -->
