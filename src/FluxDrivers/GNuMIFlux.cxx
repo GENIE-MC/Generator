@@ -164,6 +164,17 @@ bool GNuMIFlux::GenerateNext(void)
      double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
      bool accept = ( r < f );
      if ( accept ) {
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+       LOG("Flux", pNOTICE)
+         << "Generated beam neutrino: "
+         << "\n pdg-code: " << fgPdgC
+         << "\n p4: " << utils::print::P4AsShortString(&fgP4)
+         << "\n x4: " << utils::print::X4AsString(&fgX4)
+         << "\n p4: " << utils::print::P4AsShortString(&fgP4User)
+         << "\n x4: " << utils::print::X4AsString(&fgX4User);
+#endif
+
        fWeight = 1.;
        return true;
      }
@@ -243,7 +254,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // initialization via GNuMIFlux::SetMaxEnergy(double Ev)
   fWeight = fCurrentEntry->nimpwt;   // start with importance weight
   double Ev = 0;
-  fgP4 = fFluxWindowBase;
+  fgX4 = fFluxWindowBase;
   switch ( fUseFluxAtDetCenter ) {
   case -1:  // near detector
     fWeight *= fCurrentEntry->nwtnear;
@@ -256,7 +267,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   default:  // recalculate on x-y window
     double wgt_xy = 0;
     RandomGen * rnd = RandomGen::Instance();
-    fgP4 += ( rnd->RndFlux().Rndm()*fFluxWindowDir1 +
+    fgX4 += ( rnd->RndFlux().Rndm()*fFluxWindowDir1 +
               rnd->RndFlux().Rndm()*fFluxWindowDir2   );
 #ifdef  GNUMI_TEST_XY_WGT
     xypartials partials;
@@ -630,6 +641,7 @@ void GNuMIFlux::SetFluxWindow(TVector3 p0, TVector3 p1, TVector3 p2)
 
   fFluxWindowLen1 = fFluxWindowDir1.Mag();
   fFluxWindowLen2 = fFluxWindowDir2.Mag();
+
 }
 
 //___________________________________________________________________________
@@ -1866,6 +1878,11 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
 
     } else if ( pname == "window" ) {
       ParseWindowSeries(xml_doc,xml_child);
+      // RWH  !!!! MEMORY LEAK!!!!
+      //std::cout << " flux window " << std::endl
+      //          << " [0] " << utils::print::X4AsString(new TLorentzVector(fFluxWindowPt[0],0)) << std::endl
+      //          << " [1] " << utils::print::X4AsString(new TLorentzVector(fFluxWindowPt[1],0)) << std::endl
+      //          << " [2] " << utils::print::X4AsString(new TLorentzVector(fFluxWindowPt[2],0)) << std::endl;
       fGNuMI->SetFluxWindow(fFluxWindowPt[0],fFluxWindowPt[1],fFluxWindowPt[2]);
 
     } else {
