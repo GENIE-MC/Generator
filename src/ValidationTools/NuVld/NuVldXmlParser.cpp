@@ -1,15 +1,18 @@
-//_____________________________________________________________________________
-/*!
+//____________________________________________________________________________
+/*
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
-\class    genie::nuvld::NuVldXmlParser
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory - May 06, 2004
 
-\brief    A libxml2 based parser for the NuValidator XML data files
+ For the class documentation see the corresponding header file.
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
+ Important revisions after version 2.0.0 :
 
-\created  August 2003          
 */
-//_____________________________________________________________________________
+//____________________________________________________________________________
 
 #include "Messenger/Messenger.h"
 #include "ValidationTools/NuVld/NuVldXmlParser.h" 
@@ -24,7 +27,7 @@ namespace nuvld {
 //__________________________________________________________________________
 NuVldXmlParser::NuVldXmlParser()
 {
-  _data = new XmlDataSet;
+  fDataSet = new XmlDataSet;
 } 
 //__________________________________________________________________________
 NuVldXmlParser::~NuVldXmlParser()
@@ -34,15 +37,15 @@ NuVldXmlParser::~NuVldXmlParser()
 //__________________________________________________________________________
 void NuVldXmlParser::ParseXmlDocument(const char * filename)
 {
-  _xml_filename = string(filename);   
-  _xml_doc      = xmlParseFile( _xml_filename.c_str() );
+  fXmlFilename = string(filename);   
+  fXmlDoc      = xmlParseFile(fXmlFilename.c_str());
 
-  if( (_parser_status = VerifyParsing()) == eXml_OK ) FillDataSet();
+  if((fXmlPStatus = VerifyParsing()) == eXml_OK) FillDataSet();
 }
 //__________________________________________________________________________
 const XmlDataSet & NuVldXmlParser::GetDataSet(void) const
 {
-  return *_data;
+  return *fDataSet;
 }
 //__________________________________________________________________________
 XmlParserStatus_t NuVldXmlParser::VerifyParsing(void)
@@ -51,34 +54,35 @@ XmlParserStatus_t NuVldXmlParser::VerifyParsing(void)
 
  XmlParserStatus_t status;
  
- if(_xml_doc==NULL) { 
+ if(fXmlDoc==NULL) { 
    status = eXml_NOT_PARSED;
-
-   SLOG("NuVld", pERROR)  << "***" << ParserStatus::AsString(status);
+   SLOG("NuVld", pERROR)  
+     << "***" << ParserStatus::AsString(status);
    return status;
  }
  
- xmlNodePtr xml_cur = xmlDocGetRootElement(_xml_doc);
+ xmlNodePtr xml_cur = xmlDocGetRootElement(fXmlDoc);
 
  if(xml_cur==NULL) {
    status = eXml_EMPTY;
-
-   SLOG("NuVld", pERROR)  << "***" << ParserStatus::AsString(status);
+   SLOG("NuVld", pERROR)  
+     << "***" << ParserStatus::AsString(status);
    return status;
  }
 
  if( xmlStrcmp(xml_cur->name, (const xmlChar *) "nuscat_data") ) {
 
    status = eXml_INVALID_ROOT;
-
-   xmlFreeDoc(_xml_doc);
-   SLOG("NuVld", pERROR)  << "***" << ParserStatus::AsString(status);
+   xmlFreeDoc(fXmlDoc);
+   SLOG("NuVld", pERROR)  
+     << "***" << ParserStatus::AsString(status);
    return status;
  }
 
  status = eXml_OK;
  
- SLOG("NuVld", pINFO) << ParserStatus::AsString(status);
+ SLOG("NuVld", pINFO) 
+   << ParserStatus::AsString(status);
  
  return status;
 }
@@ -88,8 +92,7 @@ void NuVldXmlParser::FillDataSet(void)
  SLOG("NuVld", pDEBUG) << "Starts parsing the XML file";
  
  xmlChar *  xml_exp_name = 0;
-
- xmlNodePtr xml_cur = xmlDocGetRootElement(_xml_doc);
+ xmlNodePtr xml_cur      = xmlDocGetRootElement(fXmlDoc);
  
  xml_cur = xml_cur->xmlChildrenNode;
 
@@ -101,21 +104,20 @@ void NuVldXmlParser::FillDataSet(void)
 
      // get experiment attributes (name,tag) - the last can be absent
      // if there is only one experiment entry with the given name
-     
-     xml_exp_name     = xmlGetProp(xml_cur, (const xmlChar *)"name");
 
+     xml_exp_name = xmlGetProp(xml_cur, (const xmlChar *)"name");
      string name  = ParserUtils::trim_spaces( xml_exp_name );
 
      xmlFree(xml_exp_name);     
 
-     SLOG("NuVld", pDEBUG) << "Parsing entries for experiment: " << name;
-
      // parse all measurements associated with the given experiment
-     
+     SLOG("NuVld", pDEBUG) 
+        << "Parsing entries for experiment: " << name;     
+
      XmlExperimentMeasurements * meas_list = ParseExperiment(xml_cur, name);
 
      // add the entry to the top-level STL map
-     _data->Add( name, meas_list );
+     fDataSet->Add( name, meas_list );
    }
    
    xml_cur = xml_cur->next;
@@ -129,28 +131,28 @@ XmlExperimentMeasurements * NuVldXmlParser::ParseExperiment(
 {
  XmlExperimentMeasurements * meas_list = new XmlExperimentMeasurements;
  
- _measurement_tag = 0; 
+ fMeasurementTag = 0; 
  
  xml_cur = xml_cur->xmlChildrenNode;
 
  while (xml_cur != NULL) {
 
-    //------------------ parse 'experiment-info' section ------------------
+    //
+    //  ***  parse 'experiment-info' section 
+    //
 
     if( (!xmlStrcmp(xml_cur->name, (const xmlChar *) "exp_info")) ) {
 
-        SLOG("NuVld", pDEBUG) << "Parsing experiment info";
+       SLOG("NuVld", pDEBUG) 
+          << "Parsing experiment info";
        
        XmlExperimentInfo * e_info = ParseXmlExperimentInfo(xml_cur);
-       
        e_info->Add("name", name);
-       
-       cout << *e_info << endl; // send the experiment info to stdout
-       
+       cout << *e_info << endl; // send the experiment info to stdout       
        meas_list->Add( e_info );
     }
 
-    //-------------------- parse 'beam-spectrum' section ------------------
+    // ***  parse 'beam-spectrum' section 
 
     if( (!xmlStrcmp(xml_cur->name, (const xmlChar *) "flux_spectrum")) ) {
        
@@ -172,17 +174,17 @@ XmlExperimentMeasurements * NuVldXmlParser::ParseExperiment(
        meas_list->Add( beam, flux );
     }
 
-    //--------------------- parse 'measurement' section -------------------
-
+    //
+    // *** parse 'measurement' section 
+    //
     if( (!xmlStrcmp(xml_cur->name, (const xmlChar *) "measurement")) ) {
 
-       //-------- understand what kind of measurement this is...
+       // understand what kind of measurement this is...
        string obs = ParserUtils::get_attribute(xml_cur, "observable");
-              
-       XmlObservable_t obst = XmlObservable::GetXmlObservable(obs);
- 
-       XmlMeasurement * meas = ParseXmlMeasurement(xml_cur, obst);
-       
+       XmlObservable_t obst = XmlObservable::GetXmlObservable(obs); 
+
+       // read & add this measurement
+       XmlMeasurement * meas = ParseXmlMeasurement(xml_cur, obst);       
        meas_list->Add( meas );
     }
 
@@ -201,27 +203,27 @@ XmlExperimentInfo * NuVldXmlParser::ParseXmlExperimentInfo(xmlNodePtr xml_cur)
  XmlExperimentInfo * e_info = new XmlExperimentInfo;
  
  string comment = ParserUtils::trim_spaces( 
-             xmlNodeListGetString(_xml_doc, xml_cur->xmlChildrenNode, 1) );
+             xmlNodeListGetString(fXmlDoc, xml_cur->xmlChildrenNode, 1) );
 
  e_info->Add("comment", ParserUtils::filter_string(",",comment));
 
  xml_cur = xml_cur->xmlChildrenNode;
   
  while (xml_cur != NULL) {
-
     for(int itag = 0; itag < c_exp_info_ntags; itag++) {
 
        // the element names are defined in XmlExperimentInfo.h       
        if( (!xmlStrcmp(xml_cur->name, 
                        (const xmlChar *) c_exp_info_tag[itag].c_str())) ) {
 
-          xml_string = xmlNodeListGetString(_xml_doc, xml_cur->xmlChildrenNode, 1); 
+          xml_string = xmlNodeListGetString(fXmlDoc, xml_cur->xmlChildrenNode, 1); 
           std_string = ParserUtils::trim_spaces(xml_string);
 
           SLOG("NuVld", pINFO)
                 << "Adding " << c_exp_info_tag[itag] << ": " << std_string;
                 
-          e_info->Add(c_exp_info_tag[itag], ParserUtils::filter_string(",",std_string)); 
+          e_info->Add(c_exp_info_tag[itag], 
+                      ParserUtils::filter_string(",",std_string)); 
 
           xmlFree(xml_string);     
         }
@@ -232,20 +234,19 @@ XmlExperimentInfo * NuVldXmlParser::ParseXmlExperimentInfo(xmlNodePtr xml_cur)
  return e_info;
 }
 //__________________________________________________________________________
-XmlBeamFluxSpectrum * NuVldXmlParser::ParseXmlBeamFluxSpectrum(xmlNodePtr xml_cur)
+XmlBeamFluxSpectrum * 
+      NuVldXmlParser::ParseXmlBeamFluxSpectrum(xmlNodePtr xml_cur)
 {
   XmlBeamFluxSpectrum * spectrum = new XmlBeamFluxSpectrum;
 
   xml_cur = xml_cur->xmlChildrenNode;
 
   while (xml_cur != NULL) {
-
     if( (!xmlStrcmp(xml_cur->name, (const xmlChar *) "bin")) ) {
     
         XmlBeamFluxBin * spectrum_bin = ParseXmlBeamFluxBin(xml_cur);
         spectrum->Add( spectrum_bin );
     }
-
     xml_cur = xml_cur->next;
   }  
   return spectrum;
@@ -262,39 +263,33 @@ XmlBeamFluxBin * NuVldXmlParser::ParseXmlBeamFluxBin(xmlNodePtr xml_cur)
   vector<string> fluxes;
   
   while (xml_cur != NULL) {
-
     if( (!xmlStrcmp(xml_cur->name, (const xmlChar *) "E")) ) {
-
-        xml_string = xmlNodeListGetString(_xml_doc, xml_cur->xmlChildrenNode, 1); 
+        xml_string = xmlNodeListGetString(fXmlDoc, xml_cur->xmlChildrenNode, 1); 
         std_string = ParserUtils::trim_spaces(xml_string);
 
         energies = ParserUtils::split( std_string, string(",") );
-
     }
-    
     if( (!xmlStrcmp(xml_cur->name, (const xmlChar *) "Flux")) ) {
-
-        xml_string = xmlNodeListGetString(_xml_doc, xml_cur->xmlChildrenNode, 1); 
+        xml_string = xmlNodeListGetString(fXmlDoc, xml_cur->xmlChildrenNode, 1); 
         std_string = ParserUtils::trim_spaces(xml_string);
 
         fluxes = ParserUtils::split( std_string, string(",") );
     }
-    
     xml_cur = xml_cur->next;
   }  
-
   XmlBeamFluxBin * spectrum_bin = new XmlBeamFluxBin(
-                                    energies[0], energies[1], energies[2], 
-                                    fluxes[0],   fluxes[1],   fluxes[2]   );
+       energies[0], energies[1], energies[2], 
+       fluxes[0],   fluxes[1],   fluxes[2]   );
 
   return spectrum_bin;
 }
 //__________________________________________________________________________
 XmlMeasurement * NuVldXmlParser::ParseXmlMeasurement(
-                                      xmlNodePtr xml_cur, XmlObservable_t obs)
+     xmlNodePtr xml_cur, XmlObservable_t obs)
 {
-  SLOG("NuVld", pINFO) << "Start parsing a <<" 
-                           << XmlObservable::AsString(obs) << ">> measurement";
+  SLOG("NuVld", pINFO) 
+    << "Start parsing a <<" 
+    << XmlObservable::AsString(obs) << ">> measurement";
 
   xml_cur = xml_cur->xmlChildrenNode;
 
@@ -304,33 +299,25 @@ XmlMeasurement * NuVldXmlParser::ParseXmlMeasurement(
   while (xml_cur != NULL) {
 
     // parse the measurement header
-
     if( (!xmlStrcmp(xml_cur->name, (const xmlChar *) "header")) ) {
-               
         header = ParseXmlMeasurementHeader(xml_cur);
 
         header->Add("observable", XmlObservable::Code(obs));
-        header->Add("tag",        ParserUtils::int_as_string(_measurement_tag));
+        header->Add("tag",        ParserUtils::int_as_string(fMeasurementTag));
 
         meas->Add( header ); 
         cout << *header << endl;
     }
 
     // parse every occurence of 'point' within the current measurement
-    
     if( (!xmlStrcmp(xml_cur->name, (const xmlChar *) "point")) ) {
-               
         XmlRecordBase * rec = ParsePoint(xml_cur, obs);  
-
         cout << *rec;
-
         meas->Add(rec);
     }
-
     xml_cur = xml_cur->next;
   }
-
-  _measurement_tag++;
+  fMeasurementTag++;
   
   return meas;
 }
@@ -340,14 +327,13 @@ XmlMeasurementHeader * NuVldXmlParser::ParseXmlMeasurementHeader(xmlNodePtr xml_
   XmlMeasurementHeader * header = new XmlMeasurementHeader;
 
   string comment = ParserUtils::trim_spaces( 
-             xmlNodeListGetString(_xml_doc, xml_cur->xmlChildrenNode, 1) );
+             xmlNodeListGetString(fXmlDoc, xml_cur->xmlChildrenNode, 1) );
 
   header->Add("comment", ParserUtils::filter_string(",",comment));
 
   xml_cur = xml_cur->xmlChildrenNode;
 
   while (xml_cur != NULL) {
-
    // Add a reference that is listed in relation with this measurement.
    // There is no limit in the number of references that can be added for a
    // single measurement
@@ -359,15 +345,12 @@ XmlMeasurementHeader * NuVldXmlParser::ParseXmlMeasurementHeader(xmlNodePtr xml_
 
    // or parse normal values
    } else {
-
     for(int itag = 0; itag < c_meas_header_ntags; itag++) {
-
        if( (!xmlStrcmp(xml_cur->name, 
                   (const xmlChar *) c_meas_header_tag[itag].c_str())) ) {
-
           header->Add(c_meas_header_tag[itag], 
           ParserUtils::trim_spaces(xmlNodeListGetString(
-                 _xml_doc, xml_cur->xmlChildrenNode, 1)) );
+              fXmlDoc, xml_cur->xmlChildrenNode, 1)) );
         }
     }
    }  
@@ -385,15 +368,12 @@ XmlCitation * NuVldXmlParser::ParseReference(xmlNodePtr xml_cur)
  xml_cur = xml_cur->xmlChildrenNode;
  
  while (xml_cur != NULL) {
-
     for(int itag = 0; itag < c_ref_ntags; itag++) {
-
        if( (!xmlStrcmp(xml_cur->name, 
                             (const xmlChar *) c_ref_tag[itag].c_str())) ) {
 
-
-        string value = ParserUtils::trim_spaces( xmlNodeListGetString(
-                                    _xml_doc, xml_cur->xmlChildrenNode, 1));
+          string value = ParserUtils::trim_spaces( 
+                xmlNodeListGetString(fXmlDoc, xml_cur->xmlChildrenNode, 1));
 
           ref->Add( c_ref_tag[itag], ParserUtils::filter_string(",",value) );
         }	
@@ -403,16 +383,16 @@ XmlCitation * NuVldXmlParser::ParseReference(xmlNodePtr xml_cur)
  return ref;
 }
 //__________________________________________________________________________
-XmlRecordBase * NuVldXmlParser::ParsePoint(xmlNodePtr xml_cur, XmlObservable_t obs)
+XmlRecordBase * 
+   NuVldXmlParser::ParsePoint(xmlNodePtr xml_cur, XmlObservable_t obs)
 {
  //cout << "NuVldXmlParser::parse_point() : begin" << endl;
 
  XmlRecordBase * rec = CreateNewXmlRecord(obs);
-
  if(!rec) {
      SLOG("NuVld", pERROR)
-             << "I can not create a record for observable: " 
-                                              << XmlObservable::AsString(obs);
+        << "I can not create a record for observable: " 
+        << XmlObservable::AsString(obs);
  }
  
  const vector<string> elements = rec->GetElements(); 
@@ -425,7 +405,7 @@ XmlRecordBase * NuVldXmlParser::ParsePoint(xmlNodePtr xml_cur, XmlObservable_t o
  xml_cur = xml_cur->xmlChildrenNode;
 
  for(element_iter = elements.begin(); 
-                           element_iter != elements.end(); ++element_iter) {
+    element_iter != elements.end(); ++element_iter) {
 
     xml_element = (xmlChar *) (*element_iter).c_str(); 
 
@@ -435,18 +415,14 @@ XmlRecordBase * NuVldXmlParser::ParsePoint(xmlNodePtr xml_cur, XmlObservable_t o
     xmlNodePtr xml_node = xml_cur;
 
     while (xml_node != NULL) {
-
         if( (!xmlStrcmp(xml_node->name, xml_element)) ) {
   
           // get the value associated with this element (tag)
-
           string value =  ParserUtils::trim_spaces(
-               xmlNodeListGetString(_xml_doc, xml_node->xmlChildrenNode, 1) ); 
+               xmlNodeListGetString(fXmlDoc, xml_node->xmlChildrenNode, 1) ); 
 
           // expand / filter elements that represent errors
-
           if( (*element_iter).find("err") != string::npos ) {
-            
             if( value.find("+") != string::npos ) 
                        rec->Add( *element_iter + "+", 
                        ParserUtils::filter_string("+/-", value));
@@ -455,8 +431,7 @@ XmlRecordBase * NuVldXmlParser::ParsePoint(xmlNodePtr xml_cur, XmlObservable_t o
                        ParserUtils::filter_string("+/-", value));	    
           } else rec->Add( *element_iter, value);
   
-          // now get the values for all attributes associated with this element
-  
+          // now get the values for all attributes associated with this element  
           for(attribute_iter = attributes.begin(); 
                         attribute_iter != attributes.end(); ++attribute_iter) {	  
 
@@ -464,7 +439,6 @@ XmlRecordBase * NuVldXmlParser::ParsePoint(xmlNodePtr xml_cur, XmlObservable_t o
                                               xml_node, *attribute_iter);
 
                   rec->Add( *element_iter + "_" + *attribute_iter, attrib);
-      
           } // element attributes
         } // if element is matched
     
@@ -483,7 +457,6 @@ XmlRecordBase * NuVldXmlParser::CreateNewXmlRecord(XmlObservable_t obs)
  XmlRecordBase * rec = 0;
   
  switch(obs) {
-   
    case (e_tot_xsec):
    case (e_qes_xsec):
    case (e_spp_xsec):
@@ -491,16 +464,13 @@ XmlRecordBase * NuVldXmlParser::CreateNewXmlRecord(XmlObservable_t obs)
    case (e_coh_xsec):
             rec = new XmlRecord<XmlNuXSecRecord>();
             break;
-                               
    case (e_electron_diff_xsec):
             rec = new XmlRecord<XmlElDiffXSecRecord>();
             break;
-
    case (e_f2):
    case (e_xf3):
             rec = new XmlRecord<XmlSFRecord>();
             break;
-
    default:
             rec = 0;         
  }

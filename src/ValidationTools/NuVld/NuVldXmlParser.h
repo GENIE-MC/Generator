@@ -1,15 +1,20 @@
-//_____________________________________________________________________________
+//____________________________________________________________________________
 /*!
 
 \class    genie::nuvld::NuVldXmlParser
 
-\brief    A libxml2 based parser for the NuValidator XML data files
+\brief    A libxml2-based parser for the NuValidator XML data files
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          STFC, Rutherford Appleton Laboratory
 
-\created  August 2003
+\created  August 2003 
+
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
+          or see $GENIE/LICENSE
 */
-//_____________________________________________________________________________
+//____________________________________________________________________________
 
 #ifndef _NUVLD_XML_PARSER_H_
 #define _NUVLD_XML_PARSER_H_
@@ -42,36 +47,37 @@ namespace nuvld {
 class NuVldXmlParser {
 
 public:
-
   NuVldXmlParser();
-  ~NuVldXmlParser();
+ ~NuVldXmlParser();
 
+  //! parse the input XML document
   void ParseXmlDocument(const char * filename);
+
+  //! return the parser status  
+  XmlParserStatus_t GetXmlParsingStatus(void) const { return fXmlPStatus; }
   
-  XmlParserStatus_t GetXmlParsingStatus(void) const { return _parser_status; }
-  
+  //! get the loaded data set
   const XmlDataSet & GetDataSet(void) const;
 
 private:
 
-  XmlParserStatus_t VerifyParsing(void);
-
-  void                     FillDataSet            (void);
-  XmlExperimentMeasurements * ParseExperiment        (xmlNodePtr xml_cur, string name);
+  XmlParserStatus_t           VerifyParsing             (void);
+  void                        FillDataSet               (void);
+  XmlExperimentMeasurements * ParseExperiment           (xmlNodePtr xml_cur, string name);
   XmlExperimentInfo *         ParseXmlExperimentInfo    (xmlNodePtr xml_cur);
   XmlBeamFluxSpectrum *       ParseXmlBeamFluxSpectrum  (xmlNodePtr xml_cur);
   XmlBeamFluxBin *            ParseXmlBeamFluxBin       (xmlNodePtr xml_cur);
   XmlMeasurement *            ParseXmlMeasurement       (xmlNodePtr xml_cur, XmlObservable_t obs);
   XmlMeasurementHeader *      ParseXmlMeasurementHeader (xmlNodePtr xml_cur);
-  XmlCitation *               ParseReference         (xmlNodePtr xml_cur);
-  XmlRecordBase *             ParsePoint             (xmlNodePtr xml_cur, XmlObservable_t obs);
+  XmlCitation *               ParseReference            (xmlNodePtr xml_cur);
+  XmlRecordBase *             ParsePoint                (xmlNodePtr xml_cur, XmlObservable_t obs);
   XmlRecordBase *             CreateNewXmlRecord        (XmlObservable_t obs);
       
-  xmlDocPtr                _xml_doc;
-  string                   _xml_filename;   
-  XmlDataSet *             _data;
-  int                      _measurement_tag;
-  XmlParserStatus_t        _parser_status;
+  xmlDocPtr                fXmlDoc;
+  string                   fXmlFilename;   
+  XmlDataSet *             fDataSet;
+  int                      fMeasurementTag;
+  XmlParserStatus_t        fXmlPStatus;
 };
 
 } // nuvld namespace
