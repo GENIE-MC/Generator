@@ -124,9 +124,9 @@ bool GNuMIFlux::GenerateNext(void)
      return false;	
   }
   if (fMaxWeight<=0) {
-     LOG("Flux", pERROR)
-       << "Run ScanForMaxWeight() before generating unweighted flux neurtinos";
-     return false;	
+     LOG("Flux", pWARN)
+       << "Run ScanForMaxWeight() before generating unweighted flux neutrinos";
+     this->ScanForMaxWeight();	
   }
 
   RandomGen* rnd = RandomGen::Instance();
@@ -140,6 +140,7 @@ bool GNuMIFlux::GenerateNext(void)
      if ( fGenWeighted ) return nextok;
      if ( ! nextok ) continue;
 
+     /* RWH - debug purposes
      if ( fNCycles == 0 ) {
        LOG("Flux", pNOTICE)
           << "Got flux entry: " << fIEntry
@@ -149,11 +150,12 @@ bool GNuMIFlux::GenerateNext(void)
           << "Got flux entry: "<< fIEntry
           << " - Cycle: "<< fICycle << "/"<< fNCycles;
      }
+     */
 
      // Get fractional weight & decide whether to accept curr flux neutrino
      double f = this->Weight() / fMaxWeight;
-     LOG("Flux", pNOTICE)
-        << "Curr flux neutrino fractional weight = " << f;
+     //LOG("Flux", pNOTICE)
+     //   << "Curr flux neutrino fractional weight = " << f;
      if (f > 1.) {
        LOG("Flux", pERROR)
            << "** Fractional weight = " << f << " > 1 !!";
@@ -166,8 +168,8 @@ bool GNuMIFlux::GenerateNext(void)
        return true;
      }
 
-     LOG("Flux", pNOTICE)
-       << "** Rejecting current flux neutrino based on the flux weight only";
+     //LOG("Flux", pNOTICE)
+     //  << "** Rejecting current flux neutrino based on the flux weight only";
   }
   return false;
 }
