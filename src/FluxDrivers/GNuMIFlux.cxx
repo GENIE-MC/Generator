@@ -339,17 +339,19 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
   // !WILDCARD only works for file name ... NOT directory
   string dirname = gSystem->UnixPathName(gSystem->WorkingDirectory());
   size_t slashpos = filename.find_last_of("/");
+  size_t fbegin;
   if ( slashpos != std::string::npos ) {
     dirname = filename.substr(0,slashpos);
     LOG("Flux", pINFO) << "Look for flux using directory " << dirname;
-  } else { slashpos = -1; }
+    fbegin = slashpos + 1;
+  } else { fbegin = 0; }
 
   void* dirp = gSystem->OpenDirectory(gSystem->ExpandPathName(dirname.c_str()));
     // create a (sortable) vector of file names
   std::vector<std::string> fnames;
   if ( dirp ) {
     std::string basename = 
-      filename.substr(slashpos+1,filename.size()-slashpos-1);
+      filename.substr(fbegin,filename.size()-fbegin);
     TRegexp re(basename.c_str(),kTRUE);
     const char* onefile;
     while ( ( onefile = gSystem->GetDirEntry(dirp) ) ) {
