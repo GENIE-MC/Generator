@@ -31,6 +31,7 @@
 #include <TFile.h>
 #include <TChain.h>
 #include <TSystem.h>
+#include <TStopwatch.h>
 
 #include "Conventions/Units.h"
 #include "Conventions/GBuild.h"
@@ -158,8 +159,8 @@ bool GNuMIFlux::GenerateNext(void)
      //   << "Curr flux neutrino fractional weight = " << f;
      if (f > 1.) {
        LOG("Flux", pERROR)
-           << "** Fractional weight = " << f << " > 1 !!";
-       fMaxWeight = this->Weight(); // bump the weight
+           << "** Fractional weight = " << f << " > 1 !! Bump fMaxWeight estimate.";
+       fMaxWeight = this->Weight() * fMaxWgtFudge; // bump the weight
      }
      double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
      bool accept = ( r < f );
@@ -330,7 +331,12 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
 // Loads in a gnumi beam simulation root file (converted from hbook format)
 // into the GNuMIFlux driver.
 
-  this->LoadConfig(det_loc);
+  bool found_cfg = this->LoadConfig(det_loc);
+  if ( ! found_cfg ) {
+    LOG("Flux", pFATAL) 
+      << "LoadBeamSimData could not find XML config \"" << det_loc << "\"\n";
+    exit(1);
+  }
 
   fNuFluxFilePattern = filename;
   LOG("Flux", pNOTICE)
@@ -461,10 +467,6 @@ void GNuMIFlux::ScanForMaxWeight(void)
     double zbase = fFluxWindowBase.Z();
     if ( TMath::Abs(zbase-103648.837) < 10000. ) ipos_estimator = -1; // use NearDet
     if ( TMath::Abs(zbase-73534000. ) < 10000. ) ipos_estimator = +1; // use FarDet
-    if ( ipos_estimator == 0 )
-      LOG("Flux", pERROR)
-        << "Don't know how to estimate max weight for the flux window base Z=" 
-        << zbase << " position";
   }
   if ( ipos_estimator > 0 ) {
     if ( fG3NuMI ) fNuFluxTree->Draw("Nimpwt*Nwtfar","","goff");
@@ -474,15 +476,33 @@ void GNuMIFlux::ScanForMaxWeight(void)
     if ( fG3NuMI ) fNuFluxTree->Draw("Nimpwt*Nwtnear","","goff");
     else           fNuFluxTree->Draw("Nimpwt*Nwtnear[0]","","goff");
   }
-  Long64_t idx = TMath::LocMax(
-                     fNuFluxTree->GetSelectedRows(),
-                     fNuFluxTree->GetV1());
-  fMaxWeight = fNuFluxTree->GetV1()[idx];
-  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight;
-  if ( fMaxWeight <= 0 ) {
+  if ( ipos_estimator != 0 ) {
+    Long64_t idx = TMath::LocMax(fNuFluxTree->GetSelectedRows(),
+                                 fNuFluxTree->GetV1());
+    fMaxWeight = fNuFluxTree->GetV1()[idx];
+    LOG("Flux", pNOTICE) << "Maximum flux weight from Nwt in ntuple = " << fMaxWeight;
+    if ( fMaxWeight <= 0 ) {
       LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
       exit(1);
+    }
   }
+  // the above works only for things close to the MINOS stored weight
+  // values.  otherwise we need to work out our own estimate.
+  double wgtgenmx = 0;
+  TStopwatch t;
+  t.Start();
+  for (int itry=0; itry < fMaxWgtEntries; ++itry) {
+    this->GenerateNext_weighted();
+    double wgt = this->Weight();
+    if ( wgt > wgtgenmx ) wgtgenmx = wgt;
+  }
+  t.Stop();
+  t.Print("u");
+  LOG("Flux", pNOTICE) << "Maximum flux weight for spin = " << wgtgenmx;
+  if (wgtgenmx > fMaxWeight ) fMaxWeight = wgtgenmx;
+  // apply a fudge factor
+  fMaxWeight *= fMaxWgtFudge;
+  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight;
 }
 //___________________________________________________________________________
 void GNuMIFlux::SetFluxParticles(const PDGCodeList & particles)
@@ -758,6 +778,8 @@ void GNuMIFlux::Initialize(void)
   fNEntries        = 0;
   fIEntry          = 0;
   fMaxWeight       =-1;
+  fMaxWgtFudge     = 1.05;
+  fMaxWgtEntries   = 2500000;
   fFilePOT         = 0;
   fZ0              = 0;
   fNCycles         = 0;
@@ -777,7 +799,7 @@ void GNuMIFlux::Initialize(void)
 void GNuMIFlux::SetDefaults(void)
 {
 // - Set default neutrino species list (nue, nuebar, numu, numubar) and
-//   maximum energy (125 GeV).
+//   maximum energy (120 GeV).
 //   These defaults can be overwritten by user calls (at the driver init) to
 //   GNuMIlux::SetMaxEnergy(double Ev) and
 //   GNuMIFlux::SetFluxParticles(const PDGCodeList & particles)
@@ -795,7 +817,7 @@ void GNuMIFlux::SetDefaults(void)
   particles.push_back(kPdgAntiNuE);
 
   this->SetFluxParticles (particles);
-  this->SetMaxEnergy     (125./*GeV*/);  // was 200, but that would be wasteful
+  this->SetMaxEnergy     (120./*GeV*/);  // was 200, but that would be wasteful
   this->SetFilePOT       (1E+21);
   this->SetUpstreamZ     (-5.0);
   this->SetNumOfCycles   (1);
@@ -1723,7 +1745,8 @@ std::string GNuMIFluxXMLHelper::GetXMLPathList()
   // get a separated list of potential locations for xml files
   // e.g. ".:$MYSITEXML:/path/to/exp/version:$GALGCONF:$GENIE"
   string pathlist; 
-  const char* p = gSystem->Getenv("GXMLPATHS");
+  const char* p = gSystem->Getenv("GXMLPATH");
+  if ( !p )   p = gSystem->Getenv("GXMLPATHS");
   if ( p ) { pathlist = std::string(p) + ":"; }
   // alternative path current supported
   p = gSystem->Getenv("GALGCONF");
@@ -1826,7 +1849,8 @@ bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
   SLOG("GNuMIFlux", pINFO) << "Attempt to load config \"" << cfg 
                            << "\" from file: " << fname;
 
-  // loop
+  // loop looking for particular config
+  bool found = false;
   xmlNodePtr xml_pset = xml_root->xmlChildrenNode;
   for ( ; xml_pset != NULL ; xml_pset = xml_pset->next ) {
     if ( ! xmlStrEqual(xml_pset->name, (const xmlChar*)"param_set") ) continue;
@@ -1839,10 +1863,12 @@ bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
     SLOG("GNuMIFlux", pINFO) << "Found config \"" << cfg << "\" in file:"
                                << fname;
     this->ParseParamSet(xml_doc,xml_pset);
+    found = true;
+
   } // loop over elements of root
   xmlFree(xml_pset);
   xmlFree(xml_doc);
-  return true;
+  return found;
 
 }
 
