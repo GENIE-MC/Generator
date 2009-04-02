@@ -17,6 +17,10 @@
    Renamed COHPiHadronicSystemGenerator -> COHHadronicSystemGenerator in
    anticipation of reusing the code for simulating coherent production of
    vector mesons.
+ @ Apr 02, 2009 - CA,HG,PK
+   Bug fix: Reverse the order of the pion momentum rotations: Randomize the
+   transverse component direction in the x'y' plane before aligning z' with 
+   the direction of the momentum transfer q in the LAB.
 */
 //____________________________________________________________________________
 
@@ -143,8 +147,8 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   TVector3 ppi3(0,ppiT,ppiL);
 
-  ppi3.RotateUz(q.Vect().Unit()); // align longit. component with q in LAB
   ppi3.RotateZ(phi);              // randomize transverse components
+  ppi3.RotateUz(q.Vect().Unit()); // align longit. component with q in LAB
 
   SLOG("COHHadronicVtx", pINFO) 
                << "Pion 3-p @ LAB: " << utils::print::Vec3AsString(&ppi3);
