@@ -84,6 +84,8 @@ public :
   void SetNumOfCycles   (int n);                               ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
   void SetTreeName      (string name);                         ///< set input tree name (default: "h10")
   void ScanForMaxWeight (void);                                ///< scan for max flux weight (before generating unweighted flux neutrinos)
+  void SetMaxWgtScan    (double fudge = 1.05, long int nentries = 2500000)      ///< configuration when estimating max weight
+  { fMaxWgtFudge = fudge; fMaxWgtEntries = nentries; }
 
   double   POT_1cycle     (void) { return 500000; }            ///< flux POT per cycle ??
   double   POT_curr       (void);                              ///< current average POT
@@ -185,6 +187,8 @@ private:
   long int  fNEntries;            ///< number of flux ntuple entries
   long int  fIEntry;              ///< current flux ntuple entry
   double    fMaxWeight;           ///< max flux neutrino weight in input file
+  double    fMaxWgtFudge;         ///< fudge factor for estimating max wgt
+  long int  fMaxWgtEntries;       ///< # of entries in estimating max wgt
   double    fFilePOT;             ///< file POT normalization
   double    fZ0;                  ///< configurable starting z position for each flux neutrino (in detector coord system)
   int       fNCycles;             ///< how many times to cycle through the flux ntuple
