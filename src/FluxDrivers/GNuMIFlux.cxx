@@ -27,6 +27,7 @@
 #include "libxml/parser.h"
 
 #include "Utils/XmlParserUtils.h"
+#include "Utils/StringUtils.h"
 
 #include <TFile.h>
 #include <TChain.h>
@@ -70,8 +71,7 @@ namespace genie {
       ~GNuMIFluxXMLHelper() { ; }
        bool LoadConfig(std::string cfg);
 
-       // these should go in more general package
-       std::vector<std::string> TokenizeString(std::string str, std::string sep);
+      // these should go in a more general package
        std::vector<double> GetDoubleVector(std::string str);
        std::string GetXMLPathList();
        std::string GetXMLFilePath(std::string basename);
@@ -82,6 +82,7 @@ namespace genie {
       void     ParseBeamPos(std::string);
       void     ParseRotSeries(xmlDocPtr&, xmlNodePtr&);
       void     ParseWindowSeries(xmlDocPtr&, xmlNodePtr&);
+      void     ParseEnuMax(std::string);
       TVector3 AnglesToAxis(double theta, double phi, std::string units = "deg");
       TVector3 ParseTV3(const std::string& );
 
@@ -119,17 +120,6 @@ bool GNuMIFlux::GenerateNext(void)
 {
 // Get next (unweighted) flux ntuple entry on the specified detector location
 //
-  if (!fDetLocIsSet) {
-     LOG("Flux", pERROR)
-       << "Specify a detector location before generating flux neutrinos";
-     return false;	
-  }
-  if (fMaxWeight<=0) {
-     LOG("Flux", pWARN)
-       << "Run ScanForMaxWeight() before generating unweighted flux neutrinos";
-     this->ScanForMaxWeight();	
-  }
-
   RandomGen* rnd = RandomGen::Instance();
   while ( true ) {
      // Check for end of flux ntuple
@@ -200,32 +190,40 @@ bool GNuMIFlux::GenerateNext_weighted(void)
      return false;	
   }
 
-  // Read next flux ntuple entry
-  if (fIEntry >= fNEntries) {
-     // Run out of entries @ the current cycle.
-     // Check whether more (or infinite) number of cycles is requested
-     if (fICycle < fNCycles || fNCycles == 0 ) {
+  // Reuse an entry?
+  if ( fIUse < fNUse && fIEntry >= 0 ) {
+    // Reuse this entry
+    fIUse++;
+  } else {
+    // Move on, read next flux ntuple entry
+    fIEntry++;
+    if ( fIEntry >= fNEntries ) {
+      // Ran out of entries @ the current cycle of this flux file
+      // Check whether more (or infinite) number of cycles is requested
+      if (fICycle < fNCycles || fNCycles == 0 ) {
         fICycle++;
         fIEntry=0;
-     } else {
+      } else {
         LOG("Flux", pWARN)
-            << "No more entries in input flux neutrino ntuple";
+          << "No more entries in input flux neutrino ntuple, cycle "
+          << fICycle << " of " << fNCycles;
+        fEnd = true;
         return false;	
-     }
+      }
+    }
+    
+    if ( fG3NuMI ) { fG3NuMI->GetEntry(fIEntry); fCurrentEntry->Copy(fG3NuMI); }
+    else           { fG4NuMI->GetEntry(fIEntry); fCurrentEntry->Copy(fG4NuMI); }
+
+    fIUse = 1; 
+    fCurrentEntry->pcodes = 0;  // fetched entry has geant codes
+    fCurrentEntry->units  = 0;  // fetched entry has original units
+
+    // Convert the current gnumi neutrino flavor mode into a neutrino pdg code
+    // Also convert other particle codes in GNuMIFluxPassThroughInfo to PDG
+    fCurrentEntry->ConvertPartCodes();
+    fgPdgC = fCurrentEntry->ntype;
   }
-
-  //rwh//old: fNuFluxTree->GetEntry(fIEntry);
-  if ( fG3NuMI ) { fG3NuMI->GetEntry(fIEntry); fCurrentEntry->Copy(fG3NuMI); }
-  else           { fG4NuMI->GetEntry(fIEntry); fCurrentEntry->Copy(fG4NuMI); }
-
-  fIEntry++;
-  fCurrentEntry->pcodes = 0;  // fetched entry has geant codes
-  fCurrentEntry->units  = 0;  // fetched entry has original units
-
-  // Convert the current gnumi neutrino flavor mode into a neutrino pdg code
-  // Also convert other particle codes in GNuMIFluxPassThroughInfo to PDG
-  fCurrentEntry->ConvertPartCodes();
-  fgPdgC = fCurrentEntry->ntype;
 
   // Check neutrino pdg against declared list of neutrino species declared
   // by the current instance of the NuMI neutrino flux driver.
@@ -442,14 +440,27 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
   }
 #endif
 
-  // this will open all files and head header!!
+  // this will open all files and read header!!
   fNEntries = fNuFluxTree->GetEntries();
 
   LOG("Flux", pNOTICE)
       << "Loaded flux tree contains " <<  fNEntries << " entries";
 
+  // we have a file we can work with
+  if (!fDetLocIsSet) {
+     LOG("Flux", pERROR)
+       << "LoadBeamSimData left detector location unset";
+  }
+  if (fMaxWeight<=0) {
+     LOG("Flux", pINFO)
+       << "Run ScanForMaxWeight() as part of LoadBeamSimData";
+     this->ScanForMaxWeight();	
+  }
+
   // current ntuple cycle # (flux ntuples may be recycled)
-  fICycle = 1;
+  fICycle =  0;
+  fIUse   =  0;
+  fIEntry = -1;
 }
 //___________________________________________________________________________
 void GNuMIFlux::ScanForMaxWeight(void)
@@ -488,21 +499,34 @@ void GNuMIFlux::ScanForMaxWeight(void)
   }
   // the above works only for things close to the MINOS stored weight
   // values.  otherwise we need to work out our own estimate.
-  double wgtgenmx = 0;
+  double wgtgenmx = 0, enumx = 0;
   TStopwatch t;
   t.Start();
   for (int itry=0; itry < fMaxWgtEntries; ++itry) {
     this->GenerateNext_weighted();
     double wgt = this->Weight();
     if ( wgt > wgtgenmx ) wgtgenmx = wgt;
+    double enu = this->fgP4.Energy();
+    if ( enu > enumx ) enumx = enu;
   }
   t.Stop();
   t.Print("u");
-  LOG("Flux", pNOTICE) << "Maximum flux weight for spin = " << wgtgenmx;
+  LOG("Flux", pNOTICE) << "Maximum flux weight for spin = " << wgtgenmx
+                       << "\nMaximum flux energy for spin = " << enumx;
+
   if (wgtgenmx > fMaxWeight ) fMaxWeight = wgtgenmx;
-  // apply a fudge factor
+  // apply a fudge factor to estimated weight
   fMaxWeight *= fMaxWgtFudge;
-  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight;
+  // adjust max energy?
+  if ( enumx*fMaxEFudge > fMaxEv ) {
+    LOG("Flux", pNOTICE) << "Adjust max: was=" << fMaxEv
+                         << " now " << enumx << "*" << fMaxEFudge
+                         << " = " << enumx*fMaxEFudge;
+    fMaxEv = enumx * fMaxEFudge;
+  }
+
+  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight 
+                       << ", energy = " << fMaxEv;
 }
 //___________________________________________________________________________
 void GNuMIFlux::SetFluxParticles(const PDGCodeList & particles)
@@ -524,13 +548,6 @@ void GNuMIFlux::SetMaxEnergy(double Ev)
     << "Declared maximum flux neutrino energy: " << fMaxEv;
 }
 //___________________________________________________________________________
-void GNuMIFlux::SetFilePOT(double pot)
-{
-// POTs in input flux file
-
-  fFilePOT = pot;
-}
-//___________________________________________________________________________
 void GNuMIFlux::SetUpstreamZ(double z0)
 {
 // The flux neutrino position (x,y) is given at the detector coord system
@@ -541,16 +558,19 @@ void GNuMIFlux::SetUpstreamZ(double z0)
   fZ0 = z0;
 }
 //___________________________________________________________________________
-void GNuMIFlux::SetNumOfCycles(int n)
+void GNuMIFlux::SetNumOfCycles(long int ncycle, long int nuse)
 {
 // The flux ntuples can be recycled for a number of times to boost generated
 // event statistics without requiring enormous beam simulation statistics.
 // That option determines how many times the driver is going to cycle through
 // the input flux ntuple.
-// With n=0 the flux ntuple will be recycled an infinite amount of times so
+// With ncycle=0 the flux ntuple will be recycled an infinite amount of times so
 // that the event generation loop can exit only on a POT or event num check.
+// 
+// With nuse > 1 then the same entry in the file is used "nuse" times
 
-  fNCycles = TMath::Max(0, n);
+  fNCycles = TMath::Max(0L, ncycle);
+  fNUse    = TMath::Max(1L, nuse);
 }
 //___________________________________________________________________________
 void GNuMIFlux::SetTreeName(string name)
@@ -766,26 +786,31 @@ void GNuMIFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing GNuMIFlux driver";
 
-  fMaxEv           = 0;
+  fMaxEv           =  0;
+  fEnd             =  false;
   fPdgCList        = new PDGCodeList;
   fCurrentEntry    = new GNuMIFluxPassThroughInfo;
 
-  fNuFluxTree      = 0;
-  fG3NuMI          = 0;
-  fG4NuMI          = 0;
+  fNuFluxTree      =  0;
+  fG3NuMI          =  0;
+  fG4NuMI          =  0;
   fNuFluxTreeName  = "";
 
-  fNEntries        = 0;
-  fIEntry          = 0;
-  fMaxWeight       =-1;
-  fMaxWgtFudge     = 1.05;
+  fNEntries        =  0;
+  fIEntry          = -1;
+  fMaxWeight       = -1;
+  fMaxWgtFudge     =  1.05;
   fMaxWgtEntries   = 2500000;
-  fFilePOT         = 0;
-  fZ0              = 0;
-  fNCycles         = 0;
-  fICycle          = 0;
-  fSumWeight       = 0;
-  fNNeutrinos      = 0;
+  fMaxEFudge       =  0;
+
+
+  fZ0              =  0;
+  fNCycles         =  0;
+  fICycle          =  0;
+  fNUse            =  1;
+  fIUse            =  0;
+  fSumWeight       =  0;
+  fNNeutrinos      =  0;
   fGenWeighted     = false;
   fUseFluxAtDetCenter = 0;
   fDetLocIsSet        = false;
@@ -818,9 +843,8 @@ void GNuMIFlux::SetDefaults(void)
 
   this->SetFluxParticles (particles);
   this->SetMaxEnergy     (120./*GeV*/);  // was 200, but that would be wasteful
-  this->SetFilePOT       (1E+21);
   this->SetUpstreamZ     (-5.0);
-  this->SetNumOfCycles   (1);
+  this->SetNumOfCycles   (0);
 }
 //___________________________________________________________________________
 void GNuMIFlux::ResetCurrent(void)
@@ -846,6 +870,9 @@ void GNuMIFlux::CleanUp(void)
   if ( fG3NuMI ) delete fG3NuMI;
   if ( fG4NuMI ) delete fG4NuMI;
 
+  LOG("Flux", pNOTICE)
+    << " flux file cycles: " << fICycle << " of " << fNCycles 
+    << ", entry " << fIEntry << " use: " << fIUse << " of " << fNUse;
 }
 
 //___________________________________________________________________________
@@ -1722,32 +1749,14 @@ bool GNuMIFlux::LoadConfig(string cfg)
 //___________________________________________________________________________
 //___________________________________________________________________________
 
-std::vector<std::string> 
-GNuMIFluxXMLHelper::TokenizeString(std::string str, std::string sep)
-{
-  // Separate "str" string into elements under the assumption
-  // that they are separated by any of the characters in "sep"
-  std::vector<std::string> rlist;
-  size_t pos_beg = 0;
-  size_t str_end = str.size();
-  while ( pos_beg != string::npos && pos_beg < str_end ) {
-    size_t pos_end = str.find_first_of(sep.c_str(),pos_beg);
-    std::string oneval = str.substr(pos_beg,pos_end-pos_beg);
-    pos_beg = pos_end+1;
-    if ( pos_end == string::npos ) pos_beg = str_end;
-    if ( oneval != "" ) rlist.push_back(oneval);
-  }
-  return rlist;
-}
-
 std::string GNuMIFluxXMLHelper::GetXMLPathList()
 {
-  // get a separated list of potential locations for xml files
+  // Get a separated list of potential locations for xml files
   // e.g. ".:$MYSITEXML:/path/to/exp/version:$GALGCONF:$GENIE"
   string pathlist; 
   const char* p = gSystem->Getenv("GXMLPATH");
   if ( !p )   p = gSystem->Getenv("GXMLPATHS");
-  if ( p ) { pathlist = std::string(p) + ":"; }
+  if (  p ) { pathlist = std::string(p) + ":"; }
   // alternative path current supported
   p = gSystem->Getenv("GALGCONF");
   if ( p ) { pathlist = std::string(p) + ":"; }
@@ -1763,7 +1772,7 @@ std::string GNuMIFluxXMLHelper::GetXMLFilePath(std::string basename)
   //   will return   "/Users/rhatcher/Software/GENIE/HEAD/config/GNuMIFlux.xml"
   // allow ::colon:: ::semicolon:: and ::comma:: as separators
   std::string pathlist = GetXMLPathList();
-  std::vector<std::string> paths = TokenizeString(pathlist,":;,");
+  std::vector<std::string> paths = genie::utils::str::Split(pathlist,":;,");
   // expand any wildcards, etc.
   size_t np = paths.size();
   for ( size_t i=0; i< np; ++i ) {
@@ -1785,7 +1794,7 @@ std::vector<double> GNuMIFluxXMLHelper::GetDoubleVector(std::string str)
 {
   // turn string into vector<double>
   // be liberal about separators, users might punctuate for clarity
-  std::vector<std::string> strtokens = TokenizeString(str," ,;:()[]=");
+  std::vector<std::string> strtokens = genie::utils::str::Split(str," ,;:()[]=");
   std::vector<double> vect;
   size_t ntok = strtokens.size();
 
@@ -1913,6 +1922,9 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
       //          << " [2] " << utils::print::X4AsString(new TLorentzVector(fFluxWindowPt[2],0)) << std::endl;
       fGNuMI->SetFluxWindow(fFluxWindowPt[0],fFluxWindowPt[1],fFluxWindowPt[2]);
 
+    } else if ( pname == "enumax" ) {
+      ParseEnuMax(pval);
+
     } else {
       SLOG("GNuMIFlux", pWARN)
         << "  NOT HANDLED: pname \"" << pname 
@@ -2017,6 +2029,21 @@ void GNuMIFluxXMLHelper::ParseBeamPos(std::string str)
               << std::setw(w) << fBeamPos.Y() << " , "
               << std::setw(w) << fBeamPos.Z() << " ] "
               << std::endl;
+  }
+}
+
+void GNuMIFluxXMLHelper::ParseEnuMax(std::string str)
+{
+  std::vector<double> v = GetDoubleVector(str);
+  if ( v.size() > 0 ) {
+    fGNuMI->SetMaxEnergy(v[0]);
+    if ( fVerbose > 1 ) 
+      std::cout << "ParseEnuMax SetMaxEnergy(" << v[0] << ") " << std::endl;
+  }
+  if ( v.size() > 1 ) {
+    fGNuMI->SetMaxEFudge(v[1]);
+    if ( fVerbose > 1 ) 
+      std::cout << "ParseEnuMax SetMaxEFudge(" << v[1] << ")" << std::endl;
   }
 }
 

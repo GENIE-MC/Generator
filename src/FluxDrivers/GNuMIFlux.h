@@ -67,8 +67,7 @@ public :
   double                 Weight        (void) { return  fWeight;              }
   const TLorentzVector & Momentum      (void) { return  fgP4User;             }
   const TLorentzVector & Position      (void) { return  fgX4User;             }
-  bool                   End           (void) { return  fIEntry >= fNEntries
-                                                     && fICycle == fNCycles;  }
+  bool                   End           (void) { return  fEnd;                 }
 
   // Methods specific to the NuMI flux driver,
   // for configuration/initialization of the flux & event generation drivers and
@@ -78,14 +77,16 @@ public :
   void LoadBeamSimData  (string filename, string det_loc);     ///< load a gnumi root flux ntuple
   void SetFluxParticles (const PDGCodeList & particles);       ///< specify list of flux neutrino species
   void SetMaxEnergy     (double Ev);                           ///< specify maximum flx neutrino energy
-  void SetFilePOT       (double pot);                          ///< POTs per input flux file
+
   void SetGenWeighted   (bool genwgt=false) { fGenWeighted = genwgt; } ///< toggle whether GenerateNext() returns weight=1 flux (initial default false)
 
-  void SetNumOfCycles   (int n);                               ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
+  void SetNumOfCycles   (long int ncycle, long int nuse=1);       ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite'), and # of times to use entry
   void SetTreeName      (string name);                         ///< set input tree name (default: "h10")
   void ScanForMaxWeight (void);                                ///< scan for max flux weight (before generating unweighted flux neutrinos)
   void SetMaxWgtScan    (double fudge = 1.05, long int nentries = 2500000)      ///< configuration when estimating max weight
   { fMaxWgtFudge = fudge; fMaxWgtEntries = nentries; }
+  void SetMaxEFudge     (double fudge = 1.05)                  ///< extra fudge factor in estimating maximum energy
+  { fMaxEFudge = fudge; }
 
   double   POT_1cycle     (void) { return 500000; }            ///< flux POT per cycle ??
   double   POT_curr       (void);                              ///< current average POT
@@ -176,6 +177,7 @@ private:
   TLorentzVector fgX4;            ///< running generated nu 4-position beam coord
   TLorentzVector fgP4User;        ///< running generated nu 4-momentum user coord
   TLorentzVector fgX4User;        ///< running generated nu 4-position user coord
+  bool           fEnd;            ///< end condition reached
 
   string    fNuFluxFilePattern;   ///< wildcarded path
   string    fNuFluxTreeName;      ///< Tree name "h10" (g3) or "nudata" (g4)
@@ -189,10 +191,12 @@ private:
   double    fMaxWeight;           ///< max flux neutrino weight in input file
   double    fMaxWgtFudge;         ///< fudge factor for estimating max wgt
   long int  fMaxWgtEntries;       ///< # of entries in estimating max wgt
-  double    fFilePOT;             ///< file POT normalization
+  double    fMaxEFudge;           ///< fudge factor for estmating max enu (0=> use fixed 120GeV)
   double    fZ0;                  ///< configurable starting z position for each flux neutrino (in detector coord system)
-  int       fNCycles;             ///< how many times to cycle through the flux ntuple
-  int       fICycle;              ///< current cycle
+  long int  fNCycles;             ///< how many times to cycle through the flux ntuple
+  long int  fICycle;              ///< current file cycle
+  long int  fNUse;                ///< how often to use same entry in a row
+  long int  fIUse;                ///< current # of times an entry has been used
   double    fWeight;              ///< current neutrino weight
   double    fSumWeight;           ///< sum of weights for neutrinos thrown so far
   long int  fNNeutrinos;          ///< number of flux neutrinos thrown so far
