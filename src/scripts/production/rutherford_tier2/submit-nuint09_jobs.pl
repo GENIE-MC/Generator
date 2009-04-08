@@ -16,8 +16,8 @@
 # [--use-valgrind] :
 #
 # Examples:
-#  perl submit-nuint09_jobs.pl --production nuint09 --cycle 01 --version v2.5.1 --run 1001 --nsubruns=5
-#  perl submit-nuint09_jobs.pl --production nuint09 --cycle 01 --version v2.5.1 --run all  --nsubruns=5
+#  perl submit-nuint09_jobs.pl --production nuint09 --cycle 01 --version v2.5.1 --run 1001 --nsubruns 5
+#  perl submit-nuint09_jobs.pl --production nuint09 --cycle 01 --version v2.5.1 --run all  --nsubruns 5
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
