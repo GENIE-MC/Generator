@@ -42,6 +42,7 @@
 # 3003xx          | numu    + C12    | 1.5     | RES-CC 
 # 9002xx          | numu    + C12    | 1.0     | CC (all)
 # 9003xx          | numu    + C12    | 1.5     | CC (all)
+# 9099xx          | numu    + C12    | 0.1-30. | CC (all)
 #
 # 1101xx          | numu    + O16    | 0.5     | COH-CC
 # 1102xx          | numu    + O16    | 1.0     | COH-CC
@@ -55,6 +56,7 @@
 # 3103xx          | numu    + O16    | 1.5     | RES-CC
 # 9102xx          | numu    + O16    | 1.0     | CC (all)
 # 9103xx          | numu    + O16    | 1.5     | CC (all)
+# 9199xx          | numu    + O16    | 0.1-30. | CC (all)
 #
 # 1201xx          | numu    + Fe56   | 0.5     | COH-CC
 # 1202xx          | numu    + Fe56   | 1.0     | COH-CC
@@ -68,12 +70,27 @@
 # 3203xx          | numu    + Fe56   | 1.5     | RES-CC
 # 9202xx          | numu    + Fe56   | 1.0     | CC (all)
 # 9203xx          | numu    + Fe56   | 1.5     | CC (all)
+# 9299xx          | numu    + Fe56   | 0.1-30  | CC (all)
 #......................................................................
-# run number key: IJKKxx
-# I  : Enabled processes (1:COHCC, 2:QELCC, 3:RESCC, 9:ALLCC)
-# J  : Initial state     (0:nu_mu+C12, 1:nu_mu+O16, 2:nu_mu+Fe56)
-# KK : Energy            (01: 0.5 GeV, 02: 1.0 GeV, 03: 1.5 GeV)
-# xx : Run id            (01-99, 100k events each)
+#
+# run number key: IJKKxx, where	
+#
+# I  : Enabled processes 
+#        1: COHCC, 
+#        2: QELCC, 
+#        3: RESCC, 
+#        9: ALLCC
+# J  : Initial state     
+#        0: nu_mu+C12, 
+#        1: nu_mu+O16, 
+#        2: nu_mu+Fe56
+# KK : Energy            
+#       01: 0.5 GeV, 
+#       02: 1.0 GeV, 
+#       03: 1.5 GeV, 
+#       99: 0.1 - 30 GeV with 1/E flux
+# xx : Run id            
+#      01-99, 100k events each
 #......................................................................
 #
 
@@ -124,6 +141,7 @@ $nev_per_subrun = 100000;
   '3003' =>  '14',
   '9002' =>  '14',
   '9003' =>  '14',
+  '9099' =>  '14',
   '1101' =>  '14',
   '1102' =>  '14',
   '1103' =>  '14',
@@ -136,6 +154,7 @@ $nev_per_subrun = 100000;
   '3103' =>  '14',
   '9102' =>  '14',
   '9103' =>  '14',
+  '9199' =>  '14',
   '1201' =>  '14',
   '1202' =>  '14',
   '1203' =>  '14',
@@ -147,7 +166,8 @@ $nev_per_subrun = 100000;
   '3202' =>  '14',
   '3203' =>  '14',
   '9202' =>  '14',
-  '9203' =>  '14'
+  '9203' =>  '14',
+  '9299' =>  '14'
 );
 
 %tgtpdg_hash = ( 
@@ -163,6 +183,7 @@ $nev_per_subrun = 100000;
   '3003' =>  '1000060120',
   '9002' =>  '1000060120',
   '9003' =>  '1000060120',
+  '9099' =>  '1000060120',
   '1101' =>  '1000080160',
   '1102' =>  '1000080160',
   '1103' =>  '1000080160',
@@ -175,6 +196,7 @@ $nev_per_subrun = 100000;
   '3103' =>  '1000080160',
   '9102' =>  '1000080160',
   '9103' =>  '1000080160',
+  '9199' =>  '1000080160',
   '1201' =>  '1000260560',
   '1202' =>  '1000260560',
   '1203' =>  '1000260560',
@@ -186,7 +208,8 @@ $nev_per_subrun = 100000;
   '3202' =>  '1000260560',
   '3203' =>  '1000260560',
   '9202' =>  '1000260560',
-  '9203' =>  '1000260560'
+  '9203' =>  '1000260560',
+  '9299' =>  '1000260560'
 );
 
 %energy_hash = ( 
@@ -202,6 +225,7 @@ $nev_per_subrun = 100000;
   '3003' =>  '1.5',
   '9002' =>  '1.0',
   '9003' =>  '1.5',
+  '9099' =>  '0.1,30.0',
   '1101' =>  '0.5',
   '1102' =>  '1.0',
   '1103' =>  '1.5',
@@ -214,6 +238,7 @@ $nev_per_subrun = 100000;
   '3103' =>  '1.5',
   '9102' =>  '1.0',
   '9103' =>  '1.5',
+  '9199' =>  '0.1,30.0',
   '1201' =>  '0.5',
   '1202' =>  '1.0',
   '1203' =>  '1.5',
@@ -225,7 +250,8 @@ $nev_per_subrun = 100000;
   '3202' =>  '1.0',
   '3203' =>  '1.5',
   '9202' =>  '1.0',
-  '9203' =>  '1.5'
+  '9203' =>  '1.5',
+  '9203' =>  '0.1,30.0'
 );
 
 %gevgl_hash = ( 
@@ -241,6 +267,7 @@ $nev_per_subrun = 100000;
   '3003' =>  'RES-CC',
   '9002' =>  'CC',
   '9003' =>  'CC',
+  '9099' =>  'CC',
   '1101' =>  'COH-CC',
   '1102' =>  'COH-CC',
   '1103' =>  'COH-CC',
@@ -253,6 +280,7 @@ $nev_per_subrun = 100000;
   '3103' =>  'RES-CC',
   '9102' =>  'CC',
   '9103' =>  'CC',
+  '9199' =>  'CC',
   '1201' =>  'COH-CC',
   '1202' =>  'COH-CC',
   '1203' =>  'COH-CC',
@@ -264,7 +292,50 @@ $nev_per_subrun = 100000;
   '3202' =>  'RES-CC',
   '3203' =>  'RES-CC',
   '9202' =>  'CC',
-  '9203' =>  'CC'
+  '9203' =>  'CC',
+  '9299' =>  'CC'
+);
+
+%fluxopt_hash = ( 
+  '1001' =>  '',
+  '1002' =>  '',
+  '1003' =>  '',
+  '1011' =>  '',
+  '1012' =>  '',
+  '1013' =>  '',
+  '2001' =>  '',
+  '2002' =>  '',
+  '3002' =>  '',
+  '3003' =>  '',
+  '9002' =>  '',
+  '9003' =>  '',
+  '9099' =>  '-f "1/x"',
+  '1101' =>  '',
+  '1102' =>  '',
+  '1103' =>  '',
+  '1111' =>  '',
+  '1112' =>  '',
+  '1113' =>  '',
+  '2101' =>  '',
+  '2102' =>  '',
+  '3102' =>  '',
+  '3103' =>  '',
+  '9102' =>  '',
+  '9103' =>  '',
+  '9199' =>  '-f "1/x"',
+  '1201' =>  '',
+  '1202' =>  '',
+  '1203' =>  '',
+  '1211' =>  '',
+  '1212' =>  '',
+  '1213' =>  '',
+  '2201' =>  '',
+  '2202' =>  '',
+  '3202' =>  '',
+  '3203' =>  '',
+  '9202' =>  '',
+  '9203' =>  '',
+  '9299' =>  '-f "1/x"'
 );
 
 # make the jobs directory
@@ -282,10 +353,11 @@ for my $curr_runnu (keys %gevgl_hash)  {
     #
     # get runnu-dependent info
     #
-    $nu    = $nupdg_hash   {$curr_runnu};
-    $tgt   = $tgtpdg_hash  {$curr_runnu};
-    $en    = $energy_hash  {$curr_runnu};
-    $gevgl = $gevgl_hash   {$curr_runnu};
+    $nu      = $nupdg_hash   {$curr_runnu};
+    $tgt     = $tgtpdg_hash  {$curr_runnu};
+    $en      = $energy_hash  {$curr_runnu};
+    $gevgl   = $gevgl_hash   {$curr_runnu};
+    $fluxopt = $fluxopt_hash {$curr_runnu};
 
     #
     # submit subruns
@@ -303,7 +375,7 @@ for my $curr_runnu (keys %gevgl_hash)  {
        $curr_seed     = $mcseed + $isubrun;
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $nu -t $tgt -r $curr_subrunnu | grep_pipe &> $logfile_evgen";
+       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $nu -t $tgt -r $curr_subrunnu $fluxopt | grep_pipe &> $logfile_evgen";
        $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root | grep -B 100 -A 30 -i \"warn\\|error\\|fatal\" &> $logfile_conv";
 
        # create the PBS script
