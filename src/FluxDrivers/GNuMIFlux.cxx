@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include <sstream>
 
 #include "libxml/xmlmemory.h"
 #include "libxml/parser.h"
@@ -293,7 +294,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   fgP4.SetPxPyPzE (Ev*dirnorm*dirNu.X(), Ev*dirnorm*dirNu.Y(), Ev*dirnorm*dirNu.Z(), Ev);
 
   // Set the current flux neutrino 4-position, direction in user coord
-  Beam2UserDir(fgP4,fgP4User);
+  Beam2UserP4(fgP4,fgP4User);
   Beam2UserPos(fgX4,fgX4User);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -402,6 +403,7 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
             LOG("Flux",pNOTICE) //INFO)
               << fNuFluxTreeName << "->AddFile() of "
               << fnames[indx];
+            fNFiles++;
             fNuFluxTree->AddFile(fnames[indx].c_str());
           } // found a tree
         } // loop over either g3 or g4
@@ -702,13 +704,14 @@ void GNuMIFlux::SetBeamRotation(TRotation beamrot)
   fBeamRot    = TLorentzRotation(beamrot);
   fBeamRotInv = fBeamRot.Inverse();
 }
+
 void GNuMIFlux::SetBeamCenter(TVector3 beam0)
 {
   // set coord transform between detector and beam
   // NOTE: internally these are in "cm", but user might have set a preference
-  beam0 *= (1./fLengthScaleB2U);
   fBeamZero = TLorentzVector(beam0,0);  // no time shift
 }
+
 //___________________________________________________________________________
 TRotation GNuMIFlux::GetBeamRotation() const
 {
@@ -725,9 +728,7 @@ TRotation GNuMIFlux::GetBeamRotation() const
 }
 TVector3 GNuMIFlux::GetBeamCenter() const
 {
-  // NOTE: internally these are in "cm", but user might have set a preference
   TVector3 beam0 = fBeamZero.Vect();
-  beam0 *= fLengthScaleB2U;
   return beam0;
 }
 
@@ -758,22 +759,33 @@ TVector3 GNuMIFlux::GetBeamCenter() const
 void GNuMIFlux::Beam2UserPos(const TLorentzVector& beamxyz, 
                                    TLorentzVector& usrxyz) const
 {
-  usrxyz = fBeamRot*beamxyz + fBeamZero;
+  usrxyz = fLengthScaleB2U*(fBeamRot*beamxyz) + fBeamZero;
 }
 void GNuMIFlux::Beam2UserDir(const TLorentzVector& beamdir, 
                                    TLorentzVector& usrdir) const
 {
-  usrdir = fBeamRot*beamdir;
+  usrdir = fLengthScaleB2U*(fBeamRot*beamdir);
 }
+void GNuMIFlux::Beam2UserP4 (const TLorentzVector& beamp4, 
+                                   TLorentzVector& usrp4 ) const
+{
+  usrp4 = fBeamRot*beamp4;
+}
+
 void GNuMIFlux::User2BeamPos(const TLorentzVector& usrxyz,
                                    TLorentzVector& beamxyz) const
 {
-  beamxyz = fBeamRotInv*(usrxyz-fBeamZero);
+  beamxyz = fLengthScaleU2B*(fBeamRotInv*(usrxyz-fBeamZero));
 }
 void GNuMIFlux::User2BeamDir(const TLorentzVector& usrdir,
                                    TLorentzVector& beamdir) const
 {
-  beamdir = fBeamRotInv*usrdir;
+  beamdir = fLengthScaleU2B*(fBeamRotInv*usrdir);
+}
+void GNuMIFlux::User2BeamP4 (const TLorentzVector& usrp4,
+                                   TLorentzVector& beamp4) const
+{
+  beamp4 = fBeamRotInv*usrp4;
 }
 
 //___________________________________________________________________________
@@ -795,6 +807,7 @@ void GNuMIFlux::Initialize(void)
   fG3NuMI          =  0;
   fG4NuMI          =  0;
   fNuFluxTreeName  = "";
+  fNFiles          =  0;
 
   fNEntries        =  0;
   fIEntry          = -1;
@@ -833,7 +846,7 @@ void GNuMIFlux::SetDefaults(void)
 //   detector centre).
 // - Set number of cycles to 1
 
-  LOG("Flux", pNOTICE) << "Setting default GJPARCNuFlux driver options";
+  LOG("Flux", pNOTICE) << "Setting default GNuMIFlux driver options";
 
   PDGCodeList particles;
   particles.push_back(kPdgNuMu);
@@ -888,8 +901,10 @@ void GNuMIFlux::SetLengthUnits(double user_units)
   // ( #include "Utils/UnitUtils.h for declaration )
   // to get the correct scale factor to pass in.
 
+  fLengthUnits = user_units;
   double cm = genie::utils::units::UnitFromString("cm");
-  fLengthScaleB2U = user_units / cm ;
+  fLengthScaleB2U = cm / user_units;
+  fLengthScaleU2B = user_units / cm;
 
   // case GNuMIFlux::kmeter:  fLengthScaleB2U =   0.01  ; break;
   // case GNuMIFlux::kcm:     fLengthScaleB2U =   1.    ; break;
@@ -1747,6 +1762,49 @@ bool GNuMIFlux::LoadConfig(string cfg)
 }
 
 //___________________________________________________________________________
+
+void GNuMIFlux::PrintConfig()
+{
+  
+  std::ostringstream s;
+  PDGCodeList::const_iterator itr = fPdgCList->begin();
+  for ( ; itr != fPdgCList->end(); ++itr)
+    s << (*itr) << " ";
+
+  LOG("Flux", pNOTICE)
+    << "GNuMIFlux Config:"
+    << "\n Enu_max " << fMaxEv 
+    << "\n pdg-codes: " << s.str()
+    << "\n " << (fG3NuMI?"g3numi":"") << (fG4NuMI?"g4numi":"") << "("
+    << fNuFluxTreeName << "), " << fNEntries << " entries " 
+    <<  "in " << fNFiles << " files like: "
+    << "\n " << fNuFluxFilePattern
+    << "\n wgt max=" << fMaxWeight << " fudge=" << fMaxWgtFudge << " using "
+    << fMaxWgtEntries << " entries"
+    << "\n Z0 pushback " << fZ0
+    << "\n used entry " << fIEntry << " " << fIUse << "/" << fNUse
+    << " times, in " << fICycle << "/" << fNCycles << " cycles"
+    << "\n SumWeight " << fSumWeight << " for " << fNNeutrinos << " neutrinos"
+    << "\n GenWeighted \"" << (fGenWeighted?"true":"false") << ", "
+    << "\", Detector location set \"" << (fDetLocIsSet?"true":"false") << "\""
+    << "\n LengthUnits " << fLengthUnits << ", scale b2u " << fLengthScaleB2U
+    << ", scale u2b " << fLengthScaleU2B
+    << "\n User Flux Window: "
+    << "\n       " << utils::print::Vec3AsString(&(fFluxWindowPtUser[0]))
+    << "\n       " << utils::print::Vec3AsString(&(fFluxWindowPtUser[1]))
+    << "\n       " << utils::print::Vec3AsString(&(fFluxWindowPtUser[2]))
+    << "\n Internal Flux Window: "
+    << "\n  base " << utils::print::X4AsString(&fFluxWindowBase)
+    << "\n  dir1 " << utils::print::X4AsString(&fFluxWindowDir1) << " len " << fFluxWindowLen1
+    << "\n  dir2 " << utils::print::X4AsString(&fFluxWindowDir2) << " len " << fFluxWindowLen2
+    << "\n User Beam Origin: "
+    << "\n  base " << utils::print::X4AsString(&fBeamZero)
+    << "\n BeamRot/BeamRotInv ... not yet implemented"
+    << "\n UseFluxAtDetCenter " << fUseFluxAtDetCenter;
+
+}
+
+//___________________________________________________________________________
 //___________________________________________________________________________
 
 std::string GNuMIFluxXMLHelper::GetXMLPathList()
@@ -2035,15 +2093,28 @@ void GNuMIFluxXMLHelper::ParseBeamPos(std::string str)
 void GNuMIFluxXMLHelper::ParseEnuMax(std::string str)
 {
   std::vector<double> v = GetDoubleVector(str);
-  if ( v.size() > 0 ) {
+  size_t n = v.size();
+  if ( n > 0 ) {
     fGNuMI->SetMaxEnergy(v[0]);
     if ( fVerbose > 1 ) 
       std::cout << "ParseEnuMax SetMaxEnergy(" << v[0] << ") " << std::endl;
   }
-  if ( v.size() > 1 ) {
+  if ( n > 1 ) {
     fGNuMI->SetMaxEFudge(v[1]);
     if ( fVerbose > 1 ) 
       std::cout << "ParseEnuMax SetMaxEFudge(" << v[1] << ")" << std::endl;
+  }
+  if ( n > 2 ) {
+    if ( n == 3 ) {
+      fGNuMI->SetMaxWgtScan(v[2]);
+      if ( fVerbose > 1 ) 
+        std::cout << "ParseEnuMax SetMaxWgtScan(" << v[2] << ")" << std::endl;
+    } else {
+      long int nentries = (long int)v[3];
+      fGNuMI->SetMaxWgtScan(v[2],nentries);
+      if ( fVerbose > 1 ) 
+        std::cout << "ParseEnuMax SetMaxWgtScan(" << v[2] << "," << nentries << ")" << std::endl;
+    }
   }
 }
 
