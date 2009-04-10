@@ -99,6 +99,7 @@ public :
   void PrintCurrent (void);  ///< print current entry from leaves
 
   bool LoadConfig(string cfg); ///< load a named configuration
+  void PrintConfig();          ///< print the current configuration
 
 
   // GNuMIFlux uses "cm" as the length unit consistently internally (this is 
@@ -149,8 +150,10 @@ public :
 
   void Beam2UserPos(const TLorentzVector& beamxyz, TLorentzVector& usrxyz) const;
   void Beam2UserDir(const TLorentzVector& beamdir, TLorentzVector& usrdir) const;
+  void Beam2UserP4 (const TLorentzVector& beamp4,  TLorentzVector& usrp4 ) const;
   void User2BeamPos(const TLorentzVector& usrxyz,  TLorentzVector& beamxyz) const;
   void User2BeamDir(const TLorentzVector& usrdir,  TLorentzVector& beamdir) const;
+  void User2BeamP4 (const TLorentzVector& usrp4,   TLorentzVector& beamp4 ) const;
 
 
 
@@ -205,6 +208,7 @@ private:
   // 
   double           fLengthUnits;    ///< units for coord in user exchanges
   double           fLengthScaleB2U; ///< scale factor beam (cm) --> user
+  double           fLengthScaleU2B; ///< scale factor beam user --> (cm)
 
   TVector3         fFluxWindowPtUser[3]; ///<  user points of flux window
 
