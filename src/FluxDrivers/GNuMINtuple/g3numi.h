@@ -300,7 +300,7 @@ void g3numi::Show(Long64_t entry)
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t g3numi::Cut(Long64_t entry)
+Int_t g3numi::Cut(Long64_t /* entry */)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
