@@ -70,9 +70,14 @@ public :
   bool                   End           (void) { return  fEnd;                 }
 
   // Methods specific to the NuMI flux driver,
-  // for configuration/initialization of the flux & event generation drivers and
-  // and for passing-through flux information (eg neutrino parent decay kinematics)
-  // not used by the generator but required by analyses/processing further upstream
+  // for configuration/initialization of the flux & event generation drivers 
+  // and and for passing-through flux information (e.g. neutrino parent decay
+  // kinematics) not used by the generator but required by analyses/processing 
+  // further downstream
+
+  const GNuMIFluxPassThroughInfo &
+     PassThroughInfo(void) { return *fCurrentEntry; } ///< GNuMIFluxPassThroughInfo
+  double GetDecayDist() const; ///< distance (user units) from dk point to current position
 
   void LoadBeamSimData  (string filename, string det_loc);     ///< load a gnumi root flux ntuple
   void SetFluxParticles (const PDGCodeList & particles);       ///< specify list of flux neutrino species
@@ -81,6 +86,7 @@ public :
   void SetGenWeighted   (bool genwgt=false) { fGenWeighted = genwgt; } ///< toggle whether GenerateNext() returns weight=1 flux (initial default false)
 
   void SetNumOfCycles   (long int ncycle, long int nuse=1);       ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite'), and # of times to use entry
+
   void SetTreeName      (string name);                         ///< set input tree name (default: "h10")
   void ScanForMaxWeight (void);                                ///< scan for max flux weight (before generating unweighted flux neutrinos)
   void SetMaxWgtScan    (double fudge = 1.05, long int nentries = 2500000)      ///< configuration when estimating max weight
@@ -88,17 +94,12 @@ public :
   void SetMaxEFudge     (double fudge = 1.05)                  ///< extra fudge factor in estimating maximum energy
   { fMaxEFudge = fudge; }
 
-  double   POT_1cycle     (void) { return 500000; }            ///< flux POT per cycle ??
   double   POT_curr       (void);                              ///< current average POT
   long int NFluxNeutrinos (void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
   double   SumWeight      (void) const { return fSumWeight;  } ///< integrated weight for flux neutrinos looped so far
 
-  const GNuMIFluxPassThroughInfo &
-     PassThroughInfo(void) { return *fCurrentEntry; } ///< GNuMIFluxPassThroughInfo
-
-  void PrintCurrent (void);  ///< print current entry from leaves
-
   bool LoadConfig(string cfg); ///< load a named configuration
+  void PrintCurrent(void);     ///< print current entry from leaves
   void PrintConfig();          ///< print the current configuration
 
 
@@ -178,6 +179,7 @@ private:
   int            fgPdgC;          ///< running generated nu pdg-code
   TLorentzVector fgP4;            ///< running generated nu 4-momentum beam coord
   TLorentzVector fgX4;            ///< running generated nu 4-position beam coord
+  TLorentzVector fgX4dkvtx;       ///< running generated decay 4-position beam coord
   TLorentzVector fgP4User;        ///< running generated nu 4-momentum user coord
   TLorentzVector fgX4User;        ///< running generated nu 4-position user coord
   bool           fEnd;            ///< end condition reached
