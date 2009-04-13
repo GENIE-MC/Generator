@@ -102,8 +102,8 @@ namespace genie {
 ClassImp(GNuMIFluxPassThroughInfo)
 
 // some nominal positions used in the original g3 ntuple
-const TLorentzVector kPosCenterNearBeam(0.,0.,103935.,0.);
-const TLorentzVector kPosCenterFarBeam(0.,0.,73534000.,0.);
+const TLorentzVector kPosCenterNearBeam(0.,0.,  1039.35,0.);
+const TLorentzVector kPosCenterFarBeam (0.,0.,735340.00,0.);
 
 //____________________________________________________________________________
 GNuMIFlux::GNuMIFlux()
@@ -181,21 +181,24 @@ bool GNuMIFlux::GenerateNext_weighted(void)
 {
 // Get next (weighted) flux ntuple entry on the specified detector location
 //
-  // Reset previously generated neutrino code / 4-p / 4-x
-  this->ResetCurrent();
 
   // Check whether a flux ntuple has been loaded
   if ( ! fG3NuMI && ! fG4NuMI ) {
-     LOG("Flux", pWARN)
+     LOG("Flux", pERROR)
           << "The flux driver has not been properly configured";
      return false;	
   }
 
   // Reuse an entry?
+  //std::cout << " ***** iuse " << fIUse << " nuse " << fNUse
+  //          << " ientry " << fIEntry << " nentry " << fNEntries
+  //          << " icycle " << fICycle << " ncycle " << fNCycles << std::endl;
   if ( fIUse < fNUse && fIEntry >= 0 ) {
     // Reuse this entry
     fIUse++;
   } else {
+    // Reset previously generated neutrino code / 4-p / 4-x
+    this->ResetCurrent();
     // Move on, read next flux ntuple entry
     fIEntry++;
     if ( fIEntry >= fNEntries ) {
@@ -235,26 +238,29 @@ bool GNuMIFlux::GenerateNext_weighted(void)
 
   if ( ! fPdgCList->ExistsInPDGCodeList(fgPdgC) ) {
      LOG("Flux", pWARN)
-          << "Unknown decay mode or decay mode producing an undeclared neutrino species";
-     LOG("Flux", pWARN)
-          << "Declared list of neutrino species: " << *fPdgCList;
-     LOG("Flux", pWARN)
-       << "gnumi neutrino flavor: " << fCurrentEntry->ntype 
-       << "(pcodes=" << fCurrentEntry->pcodes << ")" ;
+          << "Unknown decay mode or decay mode producing an undeclared"
+          << " neutrino species: "
+          << fCurrentEntry->ntype 
+          << " (pcodes=" << fCurrentEntry->pcodes << ")"
+          << "\nDeclared list of neutrino species: " << *fPdgCList;
+     //exit(123);
      return false;	
   }
 
   // Update the curr neutrino weight and energy
 
-  // Check current neutrino energy against the maximum flux neutrino energy declared
-  // by the current instance of the NuMI neutrino flux driver.
-  // No flux neutrino exceeding that maximum energy will be accepted at this point as
-  // that maximum energy has already been used for normalizing the interaction probabilities.
+  // Check current neutrino energy against the maximum flux neutrino energy 
+  // declared by the current instance of the NuMI neutrino flux driver.
+  // No flux neutrino exceeding that maximum energy will be accepted at this 
+  // point as that maximum energy has already been used for normalizing the
+  // interaction probabilities.
   // Make sure that the appropriate maximum flux neutrino energy was set at
   // initialization via GNuMIFlux::SetMaxEnergy(double Ev)
+
   fWeight = fCurrentEntry->nimpwt;   // start with importance weight
   double Ev = 0;
   fgX4 = fFluxWindowBase;
+
   switch ( fUseFluxAtDetCenter ) {
   case -1:  // near detector
     fWeight *= fCurrentEntry->nwtnear;
@@ -281,17 +287,21 @@ bool GNuMIFlux::GenerateNext_weighted(void)
 
   if (Ev > fMaxEv) {
      LOG("Flux", pWARN)
-          << "Flux neutrino energy exceeds declared maximum neutrino energy";
-     LOG("Flux", pWARN)
-          << "Ev = " << Ev << "(> Ev{max} = " << fMaxEv << ")";
+          << "Flux neutrino energy exceeds declared maximum neutrino energy"
+          << "\nEv = " << Ev << "(> Ev{max} = " << fMaxEv << ")";
   }
 
   // Set the current flux neutrino 4-momentum
-  // RWH!!! currently in *beam* coordinates
-  TLorentzVector dkVtx(fCurrentEntry->vx,fCurrentEntry->vy,fCurrentEntry->vz,0.);
-  TLorentzVector dirNu = fgX4 - dkVtx;
-  double dirnorm = 1.0 / dirNu.Vect().Mag();  // magnitude of position offset
-  fgP4.SetPxPyPzE (Ev*dirnorm*dirNu.X(), Ev*dirnorm*dirNu.Y(), Ev*dirnorm*dirNu.Z(), Ev);
+  // this is in *beam* coordinates
+  fgX4dkvtx = TLorentzVector( fCurrentEntry->vx,
+                              fCurrentEntry->vy,
+                              fCurrentEntry->vz, 0.);
+  // don't use TLorentzVector here for Mag() due to - on metric
+  TVector3 dirNu = fgX4.Vect() - fgX4dkvtx.Vect();
+  double dirnorm = 1.0 / dirNu.Mag();
+  fgP4.SetPxPyPzE( Ev*dirnorm*dirNu.X(), 
+                   Ev*dirnorm*dirNu.Y(),
+                   Ev*dirnorm*dirNu.Z(), Ev);
 
   // Set the current flux neutrino 4-position, direction in user coord
   Beam2UserP4(fgP4,fgP4User);
@@ -310,6 +320,14 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   fNNeutrinos++;
 
   return true;
+}
+//___________________________________________________________________________
+double GNuMIFlux::GetDecayDist() const
+{
+  // return distance (user units) between dk point and start position
+  // these are in beam units
+  TVector3 x3diff = fgX4.Vect() - fgX4dkvtx.Vect();
+  return x3diff.Mag() * fLengthScaleB2U;
 }
 //___________________________________________________________________________
 double GNuMIFlux::POT_curr(void)
@@ -461,8 +479,11 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
 
   // current ntuple cycle # (flux ntuples may be recycled)
   fICycle =  0;
-  fIUse   =  0;
-  fIEntry = -1;
+  // pick a starting entry index [0:fNEntries-1]
+  // pretend we just used up the the previous one
+  RandomGen* rnd = RandomGen::Instance();
+  fIUse   =  9999999;
+  fIEntry = rnd->RndFlux().Integer(fNEntries) - 1;
 }
 //___________________________________________________________________________
 void GNuMIFlux::ScanForMaxWeight(void)
@@ -582,6 +603,7 @@ void GNuMIFlux::SetTreeName(string name)
 //___________________________________________________________________________
 void GNuMIFlux::UseFluxAtNearDetCenter(void)
 {
+  SetLengthUnits(genie::utils::units::UnitFromString("m"));
   fFluxWindowBase      = kPosCenterNearBeam;
   fFluxWindowDir1      = TLorentzVector();   // no extent
   fFluxWindowDir2      = TLorentzVector();
@@ -591,6 +613,7 @@ void GNuMIFlux::UseFluxAtNearDetCenter(void)
 //___________________________________________________________________________
 void GNuMIFlux::UseFluxAtFarDetCenter(void)
 {
+  SetLengthUnits(genie::utils::units::UnitFromString("m"));
   fFluxWindowBase      = kPosCenterFarBeam;
   fFluxWindowDir1      = TLorentzVector();  // no extent
   fFluxWindowDir2      = TLorentzVector();
@@ -625,6 +648,7 @@ bool GNuMIFlux::SetFluxWindow(GNuMIFlux::StdFluxWindow_t stdwindow, double paddi
 #endif
   case kMinosNearCenter:
     {
+      SetLengthUnits(genie::utils::units::UnitFromString("m"));
       fFluxWindowBase = kPosCenterNearBeam;
       fFluxWindowDir1 = TLorentzVector();  // no extent
       fFluxWindowDir2 = TLorentzVector();
@@ -639,6 +663,7 @@ bool GNuMIFlux::SetFluxWindow(GNuMIFlux::StdFluxWindow_t stdwindow, double paddi
     }
   case kMinosFarCenter:
     {
+      SetLengthUnits(genie::utils::units::UnitFromString("m"));
       fFluxWindowBase = kPosCenterFarBeam;
       fFluxWindowDir1 = TLorentzVector();  // no extent
       fFluxWindowDir2 = TLorentzVector();
@@ -811,24 +836,24 @@ void GNuMIFlux::Initialize(void)
 
   fNEntries        =  0;
   fIEntry          = -1;
+  fNCycles         =  0;
+  fICycle          =  0;
+  fNUse            =  1;
+  fIUse            =  999999;
+
   fMaxWeight       = -1;
   fMaxWgtFudge     =  1.05;
   fMaxWgtEntries   = 2500000;
   fMaxEFudge       =  0;
 
-
   fZ0              =  0;
-  fNCycles         =  0;
-  fICycle          =  0;
-  fNUse            =  1;
-  fIUse            =  0;
   fSumWeight       =  0;
   fNNeutrinos      =  0;
   fGenWeighted     = false;
   fUseFluxAtDetCenter = 0;
   fDetLocIsSet        = false;
   // by default assume user length is cm
-  SetLengthUnits(genie::utils::units::UnitFromString("cm"));
+  SetLengthUnits(genie::utils::units::UnitFromString("m"));
 
   this->SetDefaults();
   this->ResetCurrent();
@@ -901,10 +926,19 @@ void GNuMIFlux::SetLengthUnits(double user_units)
   // ( #include "Utils/UnitUtils.h for declaration )
   // to get the correct scale factor to pass in.
 
+  double rescale = fLengthUnits / user_units;
   fLengthUnits = user_units;
   double cm = genie::utils::units::UnitFromString("cm");
   fLengthScaleB2U = cm / user_units;
   fLengthScaleU2B = user_units / cm;
+
+  // in case we're changing units without resetting transform/window
+  // not recommended, but should work
+  fgX4User             *= rescale;
+  fBeamZero            *= rescale;
+  fFluxWindowPtUser[0] *= rescale;
+  fFluxWindowPtUser[1] *= rescale;
+  fFluxWindowPtUser[2] *= rescale;
 
   // case GNuMIFlux::kmeter:  fLengthScaleB2U =   0.01  ; break;
   // case GNuMIFlux::kcm:     fLengthScaleB2U =   1.    ; break;
@@ -1171,70 +1205,73 @@ void GNuMIFluxPassThroughInfo::Copy(const g3numi* g3 )
 void GNuMIFluxPassThroughInfo::Copy(const g4numi* g4 )
 {
 
-  run      = -1;
-  evtno    = -1;
-  ndxdz    = 0.;
-  ndydz    = 0.;
-  npz      = 0.;
-  nenergy  = 0.;
-  ndxdznea = 0.;
-  ndydznea = 0.;
-  nenergyn = 0.;
-  nwtnear  = 0.;
-  ndxdzfar = 0.;
-  ndydzfar = 0.;
-  nenergyf = 0.;
-  nwtfar   = 0.;
-  norig    = 0;
-  ndecay   = 0;
-  ntype    = 0;
-  vx       = 0.;
-  vy       = 0.;
-  vz       = 0.;
-  pdpx     = 0.;
-  pdpy     = 0.;
-  pdpz     = 0.;
-  ppdxdz   = 0.;
-  ppdydz   = 0.;
-  pppz     = 0.;
-  ppenergy = 0.;
-  ppmedium = 0 ;
-  ptype    = 0 ;
-  ppvx     = 0.;
-  ppvy     = 0.;
-  ppvz     = 0.;
-  muparpx  = 0.;
-  muparpy  = 0.;
-  muparpz  = 0.;
-  mupare   = 0.;
+  const int kNearIndx = 0;
+  const int kFarIndx  = 0;
 
-  necm     = 0.;
-  nimpwt   = 0.;
-  xpoint   = 0.;
-  ypoint   = 0.;
-  zpoint   = 0.;
+  run      = g4->run;
+  evtno    = g4->evtno;
+  ndxdz    = g4->Ndxdz;
+  ndydz    = g4->Ndydz;
+  npz      = g4->Npz;
+  nenergy  = g4->Nenergy;
+  ndxdznea = g4->NdxdzNear[kNearIndx];
+  ndydznea = g4->NdydzNear[kNearIndx];
+  nenergyn = g4->NenergyN[kNearIndx];
+  nwtnear  = g4->NWtNear[kNearIndx];
+  ndxdzfar = g4->NdxdzFar[kFarIndx];
+  ndydzfar = g4->NdydzFar[kFarIndx];
+  nenergyf = g4->NenergyF[kFarIndx];
+  nwtfar   = g4->NWtFar[kFarIndx];
+  norig    = g4->Norig;
+  ndecay   = g4->Ndecay;
+  ntype    = g4->Ntype;
+  vx       = g4->Vx;
+  vy       = g4->Vy;
+  vz       = g4->Vz;
+  pdpx     = g4->pdPx;
+  pdpy     = g4->pdPy;
+  pdpz     = g4->pdPz;
+  ppdxdz   = g4->ppdxdz;
+  ppdydz   = g4->ppdydz;
+  pppz     = g4->pppz;
+  ppenergy = g4->ppenergy;
+  ppmedium = g4->ppmedium;
+  ptype    = g4->ptype;
+  ppvx     = g4->ppvx;
+  ppvy     = g4->ppvy;
+  ppvz     = g4->ppvz;
+  muparpx  = g4->muparpx;
+  muparpy  = g4->muparpy;
+  muparpz  = g4->muparpz;
+  mupare   = g4->mupare;
 
-  tvx      = 0.;
-  tvy      = 0.;
-  tvz      = 0.;
-  tpx      = 0.;
-  tpy      = 0.;
-  tpz      = 0.;
-  tptype   = 0 ;
-  tgen     = 0 ;
-  tgptype  = 0 ;
+  necm     = g4->Necm;
+  nimpwt   = g4->Nimpwt;
+  xpoint   = g4->xpoint;
+  ypoint   = g4->ypoint;
+  zpoint   = g4->zpoint;
+
+  tvx      = g4->tvx;
+  tvy      = g4->tvy;
+  tvz      = g4->tvz;
+  tpx      = g4->tpx;
+  tpy      = g4->tpy;
+  tpz      = g4->tpz;
+  tptype   = g4->tptype;
+  tgen     = g4->tgen;
+  tgptype  = 0 ;  // no equivalent in g4
   tgppx    = 0.;
   tgppy    = 0.;
   tgppz    = 0.;
   tprivx   = 0.;
   tprivy   = 0.;
   tprivz   = 0.;
-  beamx    = 0.;
-  beamy    = 0.;
-  beamz    = 0.;
-  beampx   = 0.;
-  beampy   = 0.;
-  beampz   = 0.;
+  beamx    = 0.; // g4->protonX;
+  beamy    = 0.; // g4->protonY;
+  beamz    = 0.; // g4->protonZ;
+  beampx   = 0.; // g4->protonPx;
+  beampy   = 0.; // g4->protonPy;
+  beampz   = 0.; // g4->protonPz;
 
 }
 
@@ -1360,17 +1397,23 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
                             (ypos-this->vy)*(ypos-this->vy) +
                             (zpos-this->vz)*(zpos-this->vz) );
 
-  double costh_pardet = ( this->pdpx*(xpos-this->vx) +
-                          this->pdpy*(ypos-this->vy) +
-                          this->pdpz*(zpos-this->vz) ) 
-                        / ( parentp * rad);
-  if ( costh_pardet >  1.0 ) costh_pardet =  1.0;
-  if ( costh_pardet < -1.0 ) costh_pardet = -1.0;
-  double theta_pardet = TMath::ACos(costh_pardet);
+  double emrat = 1.0;
+  double costh_pardet = -999., theta_pardet = -999.;
 
-  // Weighted neutrino energy in beam, approx, good for small theta
-  //RWH//double emrat = 1.0 / ( gamma * ( 1.0 - beta_mag * TMath::Cos(theta_pardet)));
-  double emrat = 1.0 / ( gamma * ( 1.0 - beta_mag * costh_pardet ));
+  // boost correction, but only if parent hasn't stopped
+  if ( parentp > 0. ) {
+    costh_pardet = ( this->pdpx*(xpos-this->vx) +
+                     this->pdpy*(ypos-this->vy) +
+                     this->pdpz*(zpos-this->vz) ) 
+                     / ( parentp * rad);
+    if ( costh_pardet >  1.0 ) costh_pardet =  1.0;
+    if ( costh_pardet < -1.0 ) costh_pardet = -1.0;
+    theta_pardet = TMath::ACos(costh_pardet);
+
+    // Weighted neutrino energy in beam, approx, good for small theta
+    emrat = 1.0 / ( gamma * ( 1.0 - beta_mag * costh_pardet ));
+  }
+
   enu = emrat * enuzr;  // ! the energy ... normally
 
   // RWH-debug
@@ -1793,7 +1836,7 @@ void GNuMIFlux::PrintConfig()
     << "\n       " << utils::print::Vec3AsString(&(fFluxWindowPtUser[0]))
     << "\n       " << utils::print::Vec3AsString(&(fFluxWindowPtUser[1]))
     << "\n       " << utils::print::Vec3AsString(&(fFluxWindowPtUser[2]))
-    << "\n Internal Flux Window: "
+    << "\n Flux Window (cm, beam coord): "
     << "\n  base " << utils::print::X4AsString(&fFluxWindowBase)
     << "\n  dir1 " << utils::print::X4AsString(&fFluxWindowDir1) << " len " << fFluxWindowLen1
     << "\n  dir2 " << utils::print::X4AsString(&fFluxWindowDir2) << " len " << fFluxWindowLen2
