@@ -73,7 +73,8 @@ namespace genie {
        bool LoadConfig(std::string cfg);
 
       // these should go in a more general package
-       std::vector<double> GetDoubleVector(std::string str);
+       std::vector<double>   GetDoubleVector(std::string str);
+       std::vector<long int> GetIntVector(std::string str);
        std::string GetXMLPathList();
        std::string GetXMLFilePath(std::string basename);
 
@@ -216,8 +217,8 @@ bool GNuMIFlux::GenerateNext_weighted(void)
       }
     }
     
-    if ( fG3NuMI ) { fG3NuMI->GetEntry(fIEntry); fCurrentEntry->Copy(fG3NuMI); }
-    else           { fG4NuMI->GetEntry(fIEntry); fCurrentEntry->Copy(fG4NuMI); }
+    if ( fG3NuMI ) { fG3NuMI->GetEntry(fIEntry); fCurrentEntry->MakeCopy(fG3NuMI); }
+    else           { fG4NuMI->GetEntry(fIEntry); fCurrentEntry->MakeCopy(fG4NuMI); }
 
     fIUse = 1; 
     fCurrentEntry->pcodes = 0;  // fetched entry has geant codes
@@ -307,6 +308,9 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   Beam2UserP4(fgP4,fgP4User);
   Beam2UserPos(fgX4,fgX4User);
 
+  // if desired, move to user specified user coord z
+  if ( TMath::Abs(fZ0) < 1.0e30 ) this->MoveToZ0(fZ0);
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Flux", pINFO)
 	<< "Generated neutrino: "
@@ -328,6 +332,28 @@ double GNuMIFlux::GetDecayDist() const
   // these are in beam units
   TVector3 x3diff = fgX4.Vect() - fgX4dkvtx.Vect();
   return x3diff.Mag() * fLengthScaleB2U;
+}
+//___________________________________________________________________________
+void GNuMIFlux::MoveToZ0(double z0usr)
+{
+  // move ray origin to specified user z0
+  // move beam coord entry correspondingly
+
+  double pzusr    = fgP4User.Pz();
+  if ( TMath::Abs(pzusr) < 1.0e-30 ) {
+    // neutrino is moving almost entirely in x-y plane
+    LOG("Flux", pWARN)
+      << "MoveToZ0(" << z0usr << ") not possible due to pz_usr (" << pzusr << ")";
+    return;
+  }
+
+  double scale = (z0usr - fgX4User.Z()) / pzusr; 
+  fgX4User += (scale*fgP4User);
+  fgX4     += ((fLengthScaleU2B*scale)*fgP4);
+  // this scaling works for distances, but not the time component
+  fgX4.SetT(0);
+  fgX4User.SetT(0);
+
 }
 //___________________________________________________________________________
 double GNuMIFlux::POT_curr(void)
@@ -573,15 +599,16 @@ void GNuMIFlux::SetMaxEnergy(double Ev)
 //___________________________________________________________________________
 void GNuMIFlux::SetUpstreamZ(double z0)
 {
-// The flux neutrino position (x,y) is given at the detector coord system
-// at z=0. This method sets the preferred starting z position upstream of
-// the upstream detector face. Each flux neutrino will be backtracked from
-// z=0 to the input z0.
+// The flux neutrino position (x,y) is given on the user specified flux window.
+// This method sets the preferred user coord starting z position upstream of
+// detector face. Each flux neutrino will be backtracked from the initial
+// flux window to the input z0.  If the value is unreasonable (> 10^30) 
+// then the ray is left on the flux window.
 
   fZ0 = z0;
 }
 //___________________________________________________________________________
-void GNuMIFlux::SetNumOfCycles(long int ncycle, long int nuse)
+void GNuMIFlux::SetNumOfCycles(long int ncycle)
 {
 // The flux ntuples can be recycled for a number of times to boost generated
 // event statistics without requiring enormous beam simulation statistics.
@@ -589,10 +616,15 @@ void GNuMIFlux::SetNumOfCycles(long int ncycle, long int nuse)
 // the input flux ntuple.
 // With ncycle=0 the flux ntuple will be recycled an infinite amount of times so
 // that the event generation loop can exit only on a POT or event num check.
-// 
-// With nuse > 1 then the same entry in the file is used "nuse" times
 
   fNCycles = TMath::Max(0L, ncycle);
+}
+//___________________________________________________________________________
+void GNuMIFlux::SetEntryReuse(long int nuse)
+{
+// With nuse > 1 then the same entry in the file is used "nuse" times
+// before moving on to the next entry in the ntuple
+
   fNUse    = TMath::Max(1L, nuse);
 }
 //___________________________________________________________________________
@@ -846,7 +878,7 @@ void GNuMIFlux::Initialize(void)
   fMaxWgtEntries   = 2500000;
   fMaxEFudge       =  0;
 
-  fZ0              =  0;
+  fZ0              =  -3.4e38;
   fSumWeight       =  0;
   fNNeutrinos      =  0;
   fGenWeighted     = false;
@@ -883,6 +915,7 @@ void GNuMIFlux::SetDefaults(void)
   this->SetMaxEnergy     (120./*GeV*/);  // was 200, but that would be wasteful
   this->SetUpstreamZ     (-5.0);
   this->SetNumOfCycles   (0);
+  this->SetEntryReuse    (1);
 }
 //___________________________________________________________________________
 void GNuMIFlux::ResetCurrent(void)
@@ -1132,7 +1165,7 @@ void GNuMIFluxPassThroughInfo::ConvertPartCodes()
 }
 
 //___________________________________________________________________________
-void GNuMIFluxPassThroughInfo::Copy(const g3numi* g3 )
+void GNuMIFluxPassThroughInfo::MakeCopy(const g3numi* g3 )
 {
   run      = g3->run;
   evtno    = g3->evtno;
@@ -1202,7 +1235,7 @@ void GNuMIFluxPassThroughInfo::Copy(const g3numi* g3 )
 }
 
 //___________________________________________________________________________
-void GNuMIFluxPassThroughInfo::Copy(const g4numi* g4 )
+void GNuMIFluxPassThroughInfo::MakeCopy(const g4numi* g4 )
 {
 
   const int kNearIndx = 0;
@@ -1414,7 +1447,7 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
     emrat = 1.0 / ( gamma * ( 1.0 - beta_mag * costh_pardet ));
   }
 
-  enu = emrat * enuzr;  // ! the energy ... normally
+  enu = emrat * enuzr;  // the energy ... normally
 
   // RWH-debug
   bool debug = false;
@@ -1905,7 +1938,30 @@ std::vector<double> GNuMIFluxXMLHelper::GetDoubleVector(std::string str)
   for (size_t i=0; i < ntok; ++i) {
     std::string trimmed = utils::str::TrimSpaces(strtokens[i]);
     if ( " " == trimmed || "" == trimmed ) continue;  // skip empty strings
-    double val = atof(trimmed.c_str());
+    double val = strtod(trimmed.c_str(), (char**)NULL);
+    if ( fVerbose > 2 ) 
+      std::cout << "(" << vect.size() << ") = " << val << std::endl;
+    vect.push_back(val);
+  }
+
+  return vect;
+}
+
+std::vector<long int> GNuMIFluxXMLHelper::GetIntVector(std::string str)
+{
+  // turn string into vector<long int>
+  // be liberal about separators, users might punctuate for clarity
+  std::vector<std::string> strtokens = genie::utils::str::Split(str," ,;:()[]=");
+  std::vector<long int> vect;
+  size_t ntok = strtokens.size();
+
+  if ( fVerbose > 2 ) 
+    std::cout << "GetIntVector \"" << str << "\"" << std::endl;
+
+  for (size_t i=0; i < ntok; ++i) {
+    std::string trimmed = utils::str::TrimSpaces(strtokens[i]);
+    if ( " " == trimmed || "" == trimmed ) continue;  // skip empty strings
+    long int val = strtol(trimmed.c_str(),(char**)NULL,10);
     if ( fVerbose > 2 ) 
       std::cout << "(" << vect.size() << ") = " << val << std::endl;
     vect.push_back(val);
@@ -2001,6 +2057,7 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
 
     if        ( pname == "verbose" ) {
       fVerbose = atoi(pval.c_str());
+
     } else if ( pname == "units" ) {
       double scale = genie::utils::units::UnitFromString(pval);
       fGNuMI->SetLengthUnits(scale);
@@ -2025,6 +2082,20 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
 
     } else if ( pname == "enumax" ) {
       ParseEnuMax(pval);
+
+    } else if ( pname == "upstreamz" ) {
+      double z0usr = -3.4e38;
+      std::vector<double> v = GetDoubleVector(pval);
+      if ( v.size() > 0 ) z0usr = v[0];
+      fGNuMI->SetUpstreamZ(z0usr);
+      SLOG("GNuMIFlux", pINFO) << "set upstreamz = " << z0usr;
+
+    } else if ( pname == "reuse" ) {
+      long int nreuse = 1;
+      std::vector<long int> v = GetIntVector(pval);
+      if ( v.size() > 0 ) nreuse = v[0];
+      fGNuMI->SetEntryReuse(nreuse);
+      SLOG("GNuMIFlux", pINFO) << "set entry reuse = " << nreuse;
 
     } else {
       SLOG("GNuMIFlux", pWARN)

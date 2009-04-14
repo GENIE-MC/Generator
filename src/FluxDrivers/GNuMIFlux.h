@@ -78,6 +78,7 @@ public :
   const GNuMIFluxPassThroughInfo &
      PassThroughInfo(void) { return *fCurrentEntry; } ///< GNuMIFluxPassThroughInfo
   double GetDecayDist() const; ///< distance (user units) from dk point to current position
+  void   MoveToZ0(double z0);  ///< move ray origin to specified user coord Z0
 
   void LoadBeamSimData  (string filename, string det_loc);     ///< load a gnumi root flux ntuple
   void SetFluxParticles (const PDGCodeList & particles);       ///< specify list of flux neutrino species
@@ -85,7 +86,8 @@ public :
 
   void SetGenWeighted   (bool genwgt=false) { fGenWeighted = genwgt; } ///< toggle whether GenerateNext() returns weight=1 flux (initial default false)
 
-  void SetNumOfCycles   (long int ncycle, long int nuse=1);       ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite'), and # of times to use entry
+  void SetNumOfCycles   (long int ncycle);                     ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
+  void SetEntryReuse    (long int nuse=1);                     ///<  # of times to use entry before moving to next
 
   void SetTreeName      (string name);                         ///< set input tree name (default: "h10")
   void ScanForMaxWeight (void);                                ///< scan for max flux weight (before generating unweighted flux neutrinos)
@@ -265,8 +267,8 @@ public:
    */
    virtual ~GNuMIFluxPassThroughInfo() { };
 
-   void Copy(const g3numi*);
-   void Copy(const g4numi*);
+   void MakeCopy(const g3numi*);
+   void MakeCopy(const g4numi*);
 
    void Reset();  //
    void ConvertPartCodes();
