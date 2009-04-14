@@ -16,17 +16,20 @@
                          needs 6 values and attribute: units
            "newxyz"    : 3 direction vectors, ala Geant4
                          needs 9 values (will normalize each vector)
-     <beampos> : define the beam origin in the user coordinate system
-                 3 values define the point 
-                 if 6 values treat as ( user xyz ) = ( beam xyz )
-                 but must have set <beamdir> first
-     <window> : define the flux window via three <point> elements
-                each <point> is a user coord (x,y,z)
-     <enumax>:  set limits on the maximum enu energy:  lowlimit, fudgefactor
-                set limits on wgt: fudgefactor, # points to use
-                final reported energy is max(lowlimit,fudgefactor*enumxscan)
-                where is 'enumxscan' is the highest energy seen when 
-                scanning for x-y weights.
+     <beampos> :  define the beam origin in the user coordinate system
+                  3 values define the point 
+                  if 6 values treat as ( user xyz ) = ( beam xyz )
+                  but must have set <beamdir> first
+     <window> :   define the flux window via three <point> elements
+                  each <point> is a user coord (x,y,z)
+     <enumax>:    set limits on the maximum enu energy:  lowlimit, fudgefactor
+                  set limits on wgt: fudgefactor, # points to use
+                  final reported energy is max(lowlimit,fudgefactor*enumxscan)
+                  where is 'enumxscan' is the highest energy seen when 
+                  scanning for x-y weights.
+     <reuse>:     set # of times an entry is sequentially reused
+     <upstreamz>: user coord z to push neutrino orgin to
+                  if abs(z) > 1e30 then leave on the flux window 
                               
      The units, beamdir, beampos elements define the user coordinate system 
         user_dir =  rot * beam_dir
@@ -96,6 +99,12 @@
     default:  <enumax> 120. 1.05 1.05 2500000 </enumax>
     -->
     <enumax> 120. 1.05 1.05 25000 </enumax>
+
+    <!-- allow entry to be reused 10 times before moving on -->
+    <reuse> 10 </reuse>
+
+    <!-- force ray orgin from flux window to user coord z = -1.0 -->
+    <upstreamz> -1.0 </upstreamz>
 
   </param_set>
 
