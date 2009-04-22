@@ -172,6 +172,7 @@ private:
   void SetDefaults           (void);
   void CleanUp               (void);
   void ResetCurrent          (void);
+  void AddFile               (TTree* tree, string fname);
 
   // Private data members
   //
@@ -193,8 +194,12 @@ private:
   g4numi*   fG4NuMI;              ///< g4numi ntuple
   int       fNFiles;              ///< number of files in chain
 
-  long int  fNEntries;            ///< number of flux ntuple entries
-  long int  fIEntry;              ///< current flux ntuple entry
+  Long64_t  fNEntries;            ///< number of flux ntuple entries
+  Long64_t  fIEntry;              ///< current flux ntuple entry
+
+  Long64_t  fNuTot;               ///< cummulative # of entries (should=fNEntries)
+  Long64_t  fFilePOTs;            ///< # of protons-on-target represented by all files
+  
   double    fMaxWeight;           ///< max flux neutrino weight in input file
   double    fMaxWgtFudge;         ///< fudge factor for estimating max wgt
   long int  fMaxWgtEntries;       ///< # of entries in estimating max wgt
