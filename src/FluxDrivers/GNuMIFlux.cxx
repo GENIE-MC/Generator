@@ -217,8 +217,13 @@ bool GNuMIFlux::GenerateNext_weighted(void)
       }
     }
     
-    if ( fG3NuMI ) { fG3NuMI->GetEntry(fIEntry); fCurrentEntry->MakeCopy(fG3NuMI); }
-    else           { fG4NuMI->GetEntry(fIEntry); fCurrentEntry->MakeCopy(fG4NuMI); }
+    if ( fG3NuMI ) { 
+      fG3NuMI->GetEntry(fIEntry); 
+      fCurrentEntry->MakeCopy(fG3NuMI); 
+    } else { 
+      fG4NuMI->GetEntry(fIEntry); 
+      fCurrentEntry->MakeCopy(fG4NuMI); 
+    }
 
     fIUse = 1; 
     fCurrentEntry->pcodes = 0;  // fetched entry has geant codes
@@ -444,11 +449,7 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
               exit(1);
             } // sanity mix/match g3/g4
             // add the file to the chain
-            LOG("Flux",pNOTICE) //INFO)
-              << fNuFluxTreeName << "->AddFile() of "
-              << fnames[indx];
-            fNFiles++;
-            fNuFluxTree->AddFile(fnames[indx].c_str());
+            this->AddFile(atree,fnames[indx]);
           } // found a tree
         } // loop over either g3 or g4
         tf.Close();
@@ -944,6 +945,38 @@ void GNuMIFlux::CleanUp(void)
   LOG("Flux", pNOTICE)
     << " flux file cycles: " << fICycle << " of " << fNCycles 
     << ", entry " << fIEntry << " use: " << fIUse << " of " << fNUse;
+}
+
+//___________________________________________________________________________
+void GNuMIFlux::AddFile(TTree* thetree, string fname)
+{
+  // Add a file to the chain
+
+  ULong64_t nentries = thetree->GetEntries();
+
+  // first/last "evtno" are the proton # of the first/last proton
+  // that generated a neutrino ... not necessarily true first/last #
+  // estimate we're probably not off by more than 100 ...
+  Int_t evtno = 0;
+  TBranch* br_evtno = 0;
+  thetree->SetBranchAddress("evtno",&evtno, &br_evtno);
+  thetree->GetEntry(0);
+  Int_t evt_1 = evtno;
+  Int_t est_1 = (TMath::FloorNint(evt_1/100.))*100 + 1;
+  thetree->GetEntry(nentries-1);
+  Int_t evt_N = evtno;
+  Int_t est_N = (TMath::FloorNint((evt_N-1)/100.)+1)*100;
+  ULong64_t npots = est_N - est_1 + 1;
+
+  LOG("Flux",pNOTICE) //INFO)
+    << fNuFluxTreeName << "->AddFile() of " << nentries << " entries ["
+    << evt_1 << ":" << evt_N << "(" <<  est_1 << ":" << est_N << ")=" 
+    << npots <<" POTs] in file: " << fname;
+  fNuTot    += nentries;
+  fFilePOTs += npots;
+  fNFiles++;
+
+  fNuFluxTree->AddFile(fname.c_str());
 }
 
 //___________________________________________________________________________
