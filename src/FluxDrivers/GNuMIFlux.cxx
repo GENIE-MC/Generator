@@ -60,6 +60,10 @@ using std::endl;
 #include "TRegexp.h"
 #include "TString.h"
 
+#ifdef  GNUMI_TEST_XY_WGT
+static genie::flux::xypartials gpartials;  // global one used by CalcEnuWgt()
+#endif
+
 using namespace genie;
 using namespace genie::flux;
 
@@ -161,11 +165,11 @@ bool GNuMIFlux::GenerateNext(void)
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("Flux", pNOTICE)
          << "Generated beam neutrino: "
-         << "\n pdg-code: " << fgPdgC
-         << "\n p4: " << utils::print::P4AsShortString(&fgP4)
-         << "\n x4: " << utils::print::X4AsString(&fgX4)
-         << "\n p4: " << utils::print::P4AsShortString(&fgP4User)
-         << "\n x4: " << utils::print::X4AsString(&fgX4User);
+         << "\n pdg-code: " << fCurEntry->fgPdgC
+         << "\n p4: " << utils::print::P4AsShortString(&(fCurEntry->fgP4))
+         << "\n x4: " << utils::print::X4AsString(&(fCurEntry->fgX4))
+         << "\n p4: " << utils::print::P4AsShortString(&(fCurEntry->fgP4User))
+         << "\n x4: " << utils::print::X4AsString(&(fCurEntry->fgX4User));
 #endif
 
        fWeight = 1.;
@@ -219,20 +223,21 @@ bool GNuMIFlux::GenerateNext_weighted(void)
     
     if ( fG3NuMI ) { 
       fG3NuMI->GetEntry(fIEntry); 
-      fCurrentEntry->MakeCopy(fG3NuMI); 
+      fCurEntry->MakeCopy(fG3NuMI); 
     } else { 
       fG4NuMI->GetEntry(fIEntry); 
-      fCurrentEntry->MakeCopy(fG4NuMI); 
+      fCurEntry->MakeCopy(fG4NuMI); 
     }
 
     fIUse = 1; 
-    fCurrentEntry->pcodes = 0;  // fetched entry has geant codes
-    fCurrentEntry->units  = 0;  // fetched entry has original units
+    fCurEntry->pcodes = 0;  // fetched entry has geant codes
+    fCurEntry->units  = 0;  // fetched entry has original units
 
     // Convert the current gnumi neutrino flavor mode into a neutrino pdg code
     // Also convert other particle codes in GNuMIFluxPassThroughInfo to PDG
-    fCurrentEntry->ConvertPartCodes();
-    fgPdgC = fCurrentEntry->ntype;
+    fCurEntry->ConvertPartCodes();
+    // here we might want to do flavor oscillations or simple mappings
+    fCurEntry->fgPdgC = fCurEntry->ntype;
   }
 
   // Check neutrino pdg against declared list of neutrino species declared
@@ -242,12 +247,12 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // Make sure that the appropriate list of flux neutrino species was set at
   // initialization via GNuMIFlux::SetFluxParticles(const PDGCodeList &)
 
-  if ( ! fPdgCList->ExistsInPDGCodeList(fgPdgC) ) {
+  if ( ! fPdgCList->ExistsInPDGCodeList(fCurEntry->fgPdgC) ) {
      LOG("Flux", pWARN)
           << "Unknown decay mode or decay mode producing an undeclared"
           << " neutrino species: "
-          << fCurrentEntry->ntype 
-          << " (pcodes=" << fCurrentEntry->pcodes << ")"
+          << fCurEntry->ntype 
+          << " (pcodes=" << fCurEntry->pcodes << ")"
           << "\nDeclared list of neutrino species: " << *fPdgCList;
      //exit(123);
      return false;	
@@ -263,33 +268,27 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // Make sure that the appropriate maximum flux neutrino energy was set at
   // initialization via GNuMIFlux::SetMaxEnergy(double Ev)
 
-  fWeight = fCurrentEntry->nimpwt;   // start with importance weight
-  double Ev = 0;
-  fgX4 = fFluxWindowBase;
+  fCurEntry->fgX4 = fFluxWindowBase;
 
+  double Ev = 0;
+  double& wgt_xy = fCurEntry->fgXYWgt;
   switch ( fUseFluxAtDetCenter ) {
   case -1:  // near detector
-    fWeight *= fCurrentEntry->nwtnear;
-    Ev       = fCurrentEntry->nenergyn;
+    wgt_xy   = fCurEntry->nwtnear;
+    Ev       = fCurEntry->nenergyn;
     break;
   case +1:  // far detector
-    fWeight *= fCurrentEntry->nwtfar;
-    Ev       = fCurrentEntry->nenergyf;
+    wgt_xy   = fCurEntry->nwtfar;
+    Ev       = fCurEntry->nenergyf;
     break;
   default:  // recalculate on x-y window
-    double wgt_xy = 0;
     RandomGen * rnd = RandomGen::Instance();
-    fgX4 += ( rnd->RndFlux().Rndm()*fFluxWindowDir1 +
-              rnd->RndFlux().Rndm()*fFluxWindowDir2   );
-#ifdef  GNUMI_TEST_XY_WGT
-    xypartials partials;
-    fCurrentEntry->CalcEnuWgt(fgX4.X(),fgX4.Y(),fgX4.Z(),Ev,wgt_xy,partials);
-#else
-    fCurrentEntry->CalcEnuWgt(fgX4.X(),fgX4.Y(),fgX4.Z(),Ev,wgt_xy);
-#endif
-    fWeight *= wgt_xy;
+    fCurEntry->fgX4 += ( rnd->RndFlux().Rndm()*fFluxWindowDir1 +
+                         rnd->RndFlux().Rndm()*fFluxWindowDir2   );
+    fCurEntry->CalcEnuWgt(fCurEntry->fgX4,Ev,wgt_xy);
     break;
   }
+  fWeight = fCurEntry->nimpwt * fCurEntry->fgXYWgt;  // full weight
 
   if (Ev > fMaxEv) {
      LOG("Flux", pWARN)
@@ -299,19 +298,19 @@ bool GNuMIFlux::GenerateNext_weighted(void)
 
   // Set the current flux neutrino 4-momentum
   // this is in *beam* coordinates
-  fgX4dkvtx = TLorentzVector( fCurrentEntry->vx,
-                              fCurrentEntry->vy,
-                              fCurrentEntry->vz, 0.);
+  fgX4dkvtx = TLorentzVector( fCurEntry->vx,
+                              fCurEntry->vy,
+                              fCurEntry->vz, 0.);
   // don't use TLorentzVector here for Mag() due to - on metric
-  TVector3 dirNu = fgX4.Vect() - fgX4dkvtx.Vect();
+  TVector3 dirNu = fCurEntry->fgX4.Vect() - fgX4dkvtx.Vect();
   double dirnorm = 1.0 / dirNu.Mag();
-  fgP4.SetPxPyPzE( Ev*dirnorm*dirNu.X(), 
-                   Ev*dirnorm*dirNu.Y(),
-                   Ev*dirnorm*dirNu.Z(), Ev);
+  fCurEntry->fgP4.SetPxPyPzE( Ev*dirnorm*dirNu.X(), 
+                              Ev*dirnorm*dirNu.Y(),
+                              Ev*dirnorm*dirNu.Z(), Ev);
 
   // Set the current flux neutrino 4-position, direction in user coord
-  Beam2UserP4(fgP4,fgP4User);
-  Beam2UserPos(fgX4,fgX4User);
+  Beam2UserP4(fCurEntry->fgP4,fCurEntry->fgP4User);
+  Beam2UserPos(fCurEntry->fgX4,fCurEntry->fgX4User);
 
   // if desired, move to user specified user coord z
   if ( TMath::Abs(fZ0) < 1.0e30 ) this->MoveToZ0(fZ0);
@@ -324,7 +323,8 @@ bool GNuMIFlux::GenerateNext_weighted(void)
         << "\n x4: " << utils::print::X4AsString(&fgX4);
 #endif
 
-  // update the sum of weights & number of neutrinos
+  // update the # POTs, sum of weights & number of neutrinos 
+  fAccumPOTs += fEffPOTsPerNu / fMaxWeight;
   fSumWeight += this->Weight();
   fNNeutrinos++;
 
@@ -335,7 +335,7 @@ double GNuMIFlux::GetDecayDist() const
 {
   // return distance (user units) between dk point and start position
   // these are in beam units
-  TVector3 x3diff = fgX4.Vect() - fgX4dkvtx.Vect();
+  TVector3 x3diff = fCurEntry->fgX4.Vect() - fgX4dkvtx.Vect();
   return x3diff.Mag() * fLengthScaleB2U;
 }
 //___________________________________________________________________________
@@ -344,7 +344,7 @@ void GNuMIFlux::MoveToZ0(double z0usr)
   // move ray origin to specified user z0
   // move beam coord entry correspondingly
 
-  double pzusr    = fgP4User.Pz();
+  double pzusr    = fCurEntry->fgP4User.Pz();
   if ( TMath::Abs(pzusr) < 1.0e-30 ) {
     // neutrino is moving almost entirely in x-y plane
     LOG("Flux", pWARN)
@@ -352,16 +352,41 @@ void GNuMIFlux::MoveToZ0(double z0usr)
     return;
   }
 
-  double scale = (z0usr - fgX4User.Z()) / pzusr; 
-  fgX4User += (scale*fgP4User);
-  fgX4     += ((fLengthScaleU2B*scale)*fgP4);
+  double scale = (z0usr - fCurEntry->fgX4User.Z()) / pzusr; 
+  fCurEntry->fgX4User += (scale*fCurEntry->fgP4User);
+  fCurEntry->fgX4     += ((fLengthScaleU2B*scale)*fCurEntry->fgP4);
   // this scaling works for distances, but not the time component
-  fgX4.SetT(0);
-  fgX4User.SetT(0);
+  fCurEntry->fgX4.SetT(0);
+  fCurEntry->fgX4User.SetT(0);
 
 }
+
 //___________________________________________________________________________
-double GNuMIFlux::POT_curr(void)
+void GNuMIFlux::CalcEffPOTsPerNu()
+{
+  // do this if flux window changes or # of files changes
+
+  if (!fNuFluxTree) return;  // not yet fully configured
+
+  // effpots = mc_pots * (wgtfunction-area) / window-area / wgt-max-est
+  //   wgtfunction-area = pi * radius-det-element^2 = pi * (100.cm)^2
+
+  // this should match what is used in the CalcEnuWgt()
+  const double kRDET = 100.0;   // set to flux per 100 cm radius
+  const double kRDET2 = kRDET * kRDET;
+
+  double flux_area = fFluxWindowDir1.Vect().Dot(fFluxWindowDir2.Vect());
+  if ( flux_area < 1.0e-30 ) {
+    LOG("Flux", pWARN)
+          << "CalcEffPOTsPerNu called with flux window area effectively zero";
+    flux_area = 1;
+  }
+  double area_ratio = TMath::Pi() * kRDET2 / flux_area;
+  fEffPOTsPerNu = area_ratio * ( fFilePOTs / fNEntries );
+}
+
+//___________________________________________________________________________
+double GNuMIFlux::UsedPOTs(void) const
 {
 // Compute current number of flux POTs
 
@@ -370,8 +395,14 @@ double GNuMIFlux::POT_curr(void)
           << "The flux driver has not been properly configured";
      return 0;	
   }
+  return fAccumPOTs;
+}
 
-  return 0;
+//___________________________________________________________________________
+double GNuMIFlux::POT_curr(void) { 
+  // RWH: Not sure what POT_curr is supposed to represent I'll guess for
+  // now that that it means what I mean by UsedPOTs().
+  return UsedPOTs(); 
 }
 //___________________________________________________________________________
 void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
@@ -511,6 +542,9 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
   RandomGen* rnd = RandomGen::Instance();
   fIUse   =  9999999;
   fIEntry = rnd->RndFlux().Integer(fNEntries) - 1;
+
+  this->CalcEffPOTsPerNu();
+
 }
 //___________________________________________________________________________
 void GNuMIFlux::ScanForMaxWeight(void)
@@ -556,7 +590,7 @@ void GNuMIFlux::ScanForMaxWeight(void)
     this->GenerateNext_weighted();
     double wgt = this->Weight();
     if ( wgt > wgtgenmx ) wgtgenmx = wgt;
-    double enu = this->fgP4.Energy();
+    double enu = fCurEntry->fgP4.Energy();
     if ( enu > enumx ) enumx = enu;
   }
   t.Stop();
@@ -715,6 +749,7 @@ bool GNuMIFlux::SetFluxWindow(GNuMIFlux::StdFluxWindow_t stdwindow, double paddi
       << " not yet implemented";
     return false;
   }
+  this->CalcEffPOTsPerNu();
   return true;
 }
 //___________________________________________________________________________
@@ -744,6 +779,7 @@ void GNuMIFlux::SetFluxWindow(TVector3 p0, TVector3 p1, TVector3 p2)
   fFluxWindowLen1 = fFluxWindowDir1.Mag();
   fFluxWindowLen2 = fFluxWindowDir2.Mag();
 
+  this->CalcEffPOTsPerNu();
 }
 
 //___________________________________________________________________________
@@ -849,7 +885,7 @@ void GNuMIFlux::User2BeamP4 (const TLorentzVector& usrp4,
 //___________________________________________________________________________
 void GNuMIFlux::PrintCurrent(void)
 {
-  LOG("Flux", pNOTICE) << "CurrentEntry:" << *fCurrentEntry;
+  LOG("Flux", pNOTICE) << "CurrentEntry:" << *fCurEntry;
 }
 //___________________________________________________________________________
 void GNuMIFlux::Initialize(void)
@@ -859,7 +895,7 @@ void GNuMIFlux::Initialize(void)
   fMaxEv           =  0;
   fEnd             =  false;
   fPdgCList        = new PDGCodeList;
-  fCurrentEntry    = new GNuMIFluxPassThroughInfo;
+  fCurEntry    = new GNuMIFluxPassThroughInfo;
 
   fNuFluxTree      =  0;
   fG3NuMI          =  0;
@@ -882,6 +918,9 @@ void GNuMIFlux::Initialize(void)
   fZ0              =  -3.4e38;
   fSumWeight       =  0;
   fNNeutrinos      =  0;
+  fEffPOTsPerNu    =  0;
+  fAccumPOTs       =  0;
+
   fGenWeighted     = false;
   fUseFluxAtDetCenter = 0;
   fDetLocIsSet        = false;
@@ -924,20 +963,16 @@ void GNuMIFlux::ResetCurrent(void)
 // reset running values of neutrino pdg-code, 4-position & 4-momentum
 // and the input ntuple leaves
 
-  fgPdgC  = 0;
-  fWeight = 0;
-  fgP4.SetPxPyPzE (0.,0.,0.,0.);
-  fgX4.SetXYZT    (0.,0.,0.,0.);
-
-  fCurrentEntry->Reset();
+  fCurEntry->ResetCurrent();
+  fCurEntry->ResetCopy();
 }
 //___________________________________________________________________________
 void GNuMIFlux::CleanUp(void)
 {
   LOG("Flux", pNOTICE) << "Cleaning up...";
 
-  if (fPdgCList)        delete fPdgCList;
-  if (fCurrentEntry)    delete fCurrentEntry;
+  if (fPdgCList) delete fPdgCList;
+  if (fCurEntry) delete fCurEntry;
 
   if ( fG3NuMI ) delete fG3NuMI;
   if ( fG4NuMI ) delete fG4NuMI;
@@ -1000,7 +1035,7 @@ void GNuMIFlux::SetLengthUnits(double user_units)
 
   // in case we're changing units without resetting transform/window
   // not recommended, but should work
-  fgX4User             *= rescale;
+  fCurEntry->fgX4User  *= rescale;
   fBeamZero            *= rescale;
   fFluxWindowPtUser[0] *= rescale;
   fFluxWindowPtUser[1] *= rescale;
@@ -1024,12 +1059,16 @@ double GNuMIFlux::LengthUnits(void) const
 //___________________________________________________________________________
 GNuMIFluxPassThroughInfo::GNuMIFluxPassThroughInfo()
   : TObject()
-{ Reset(); }
+{ 
+  ResetCopy(); 
+  ResetCurrent();
+}
+
 //___________________________________________________________________________
-void GNuMIFluxPassThroughInfo::Reset()
+void GNuMIFluxPassThroughInfo::ResetCopy()
 {
-  pcodes = -1;
-  units  = -1;
+  pcodes   = -1;
+  units    = -1;
   
   run      = -1;
   evtno    = -1;
@@ -1094,6 +1133,16 @@ void GNuMIFluxPassThroughInfo::Reset()
   beampy   = 0.;
   beampz   = 0.;
 
+}
+
+//___________________________________________________________________________
+void GNuMIFluxPassThroughInfo::ResetCurrent()
+{
+  // reset the state of the "generated" entry
+  fgPdgC  = 0;
+  fgXYWgt = 0;
+  fgP4.SetPxPyPzE(0.,0.,0.,0.);
+  fgX4.SetXYZT(0.,0.,0.,0.);
 }
 
 //___________________________________________________________________________
@@ -1301,7 +1350,7 @@ void GNuMIFluxPassThroughInfo::MakeCopy(const g4numi* g4 )
   ppdydz   = g4->ppdydz;
   pppz     = g4->pppz;
   ppenergy = g4->ppenergy;
-  ppmedium = g4->ppmedium;
+  ppmedium = (Int_t)g4->ppmedium;  // int in g3, double in g4!
   ptype    = g4->ptype;
   ppvx     = g4->ppvx;
   ppvy     = g4->ppvy;
@@ -1342,12 +1391,8 @@ void GNuMIFluxPassThroughInfo::MakeCopy(const g4numi* g4 )
 }
 
 //___________________________________________________________________________
-int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
-                                         double& enu, double& wgt_xy
-#ifdef  GNUMI_TEST_XY_WGT
-                                         , xypartials& partials
-#endif
-                                         ) const
+int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
+                                         double& enu, double& wgt_xy) const
 {
 
   // Neutrino Energy and Weigth at arbitrary point
@@ -1413,6 +1458,10 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
   const int kpdg_kaonminus = -321;  // Geant 12
 
   const double kRDET = 100.0;   // set to flux per 100 cm radius
+
+  double xpos = xyz.X();
+  double ypos = xyz.Y();
+  double zpos = xyz.Z();
 
   enu    = 0.0;  // don't know what the final value is
   wgt_xy = 0.0;  // but set these in case we return early due to error
@@ -1496,17 +1545,17 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
   }
 
 #ifdef  GNUMI_TEST_XY_WGT
-  partials.parent_mass   = parent_mass;
-  partials.parentp       = parentp;
-  partials.parent_energy = parent_energy;
-  partials.gamma         = gamma;
-  partials.beta_mag      = beta_mag;
-  partials.enuzr         = enuzr;
-  partials.rad           = rad;
-  partials.costh_pardet  = costh_pardet;
-  partials.theta_pardet  = theta_pardet;
-  partials.emrat         = emrat;
-  partials.eneu          = enu;
+  gpartials.parent_mass   = parent_mass;
+  gpartials.parentp       = parentp;
+  gpartials.parent_energy = parent_energy;
+  gpartials.gamma         = gamma;
+  gpartials.beta_mag      = beta_mag;
+  gpartials.enuzr         = enuzr;
+  gpartials.rad           = rad;
+  gpartials.costh_pardet  = costh_pardet;
+  gpartials.theta_pardet  = theta_pardet;
+  gpartials.emrat         = emrat;
+  gpartials.eneu          = enu;
 #endif
 
   // Get solid angle/4pi for detector element
@@ -1516,9 +1565,9 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
   wgt_xy = sangdet * ( emrat * emrat );  // ! the weight ... normally
 
 #ifdef  GNUMI_TEST_XY_WGT
-  partials.sangdet       = sangdet;
-  partials.wgt           = wgt_xy;
-  partials.ptype         = this->ptype; // assume already PDG
+  gpartials.sangdet       = sangdet;
+  gpartials.wgt           = wgt_xy;
+  gpartials.ptype         = this->ptype; // assume already PDG
 #endif
 
   // Done for all except polarized muon decay
@@ -1549,17 +1598,17 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
                                p_dcm_nu[2]*p_dcm_nu[2] );
 
 #ifdef  GNUMI_TEST_XY_WGT
-    partials.betanu[0]     = beta[0];
-    partials.betanu[1]     = beta[1];
-    partials.betanu[2]     = beta[2];
-    partials.p_nu[0]       = p_nu[0];
-    partials.p_nu[1]       = p_nu[1];
-    partials.p_nu[2]       = p_nu[2];
-    partials.partial1      = partial;
-    partials.p_dcm_nu[0]   = p_dcm_nu[0];
-    partials.p_dcm_nu[1]   = p_dcm_nu[1];
-    partials.p_dcm_nu[2]   = p_dcm_nu[2];
-    partials.p_dcm_nu[3]   = p_dcm_nu[3];
+    gpartials.betanu[0]     = beta[0];
+    gpartials.betanu[1]     = beta[1];
+    gpartials.betanu[2]     = beta[2];
+    gpartials.p_nu[0]       = p_nu[0];
+    gpartials.p_nu[1]       = p_nu[1];
+    gpartials.p_nu[2]       = p_nu[2];
+    gpartials.partial1      = partial;
+    gpartials.p_dcm_nu[0]   = p_dcm_nu[0];
+    gpartials.p_dcm_nu[1]   = p_dcm_nu[1];
+    gpartials.p_dcm_nu[2]   = p_dcm_nu[2];
+    gpartials.p_dcm_nu[3]   = p_dcm_nu[3];
 #endif
 
     // Boost parent of mu to mu production CM
@@ -1587,18 +1636,18 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
     //          << p_pcm_mp[2] << " " << p_pcm << std::endl;
 
 #ifdef  GNUMI_TEST_XY_WGT
-    partials.muparent_px   = this->muparpx;
-    partials.muparent_py   = this->muparpy;
-    partials.muparent_pz   = this->muparpz;
-    partials.gammamp       = gamma;
-    partials.betamp[0]     = beta[0];
-    partials.betamp[1]     = beta[1];
-    partials.betamp[2]     = beta[2];
-    partials.partial2      = partial;
-    partials.p_pcm_mp[0]   = p_pcm_mp[0];
-    partials.p_pcm_mp[1]   = p_pcm_mp[1];
-    partials.p_pcm_mp[2]   = p_pcm_mp[2];
-    partials.p_pcm         = p_pcm;
+    gpartials.muparent_px   = this->muparpx;
+    gpartials.muparent_py   = this->muparpy;
+    gpartials.muparent_pz   = this->muparpz;
+    gpartials.gammamp       = gamma;
+    gpartials.betamp[0]     = beta[0];
+    gpartials.betamp[1]     = beta[1];
+    gpartials.betamp[2]     = beta[2];
+    gpartials.partial2      = partial;
+    gpartials.p_pcm_mp[0]   = p_pcm_mp[0];
+    gpartials.p_pcm_mp[1]   = p_pcm_mp[1];
+    gpartials.p_pcm_mp[2]   = p_pcm_mp[2];
+    gpartials.p_pcm         = p_pcm;
 #endif
 
     const double eps = 1.0e-30;  // ? what value to use
@@ -1632,9 +1681,9 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(double xpos, double ypos, double zpos,
     wgt_xy = wgt_xy * wgt_ratio;
 
 #ifdef  GNUMI_TEST_XY_WGT
-    partials.ntype     = this->ntype; // assume converted to PDG
-    partials.costhmu   = costh;
-    partials.wgt_ratio = wgt_ratio;
+    gpartials.ntype     = this->ntype; // assume converted to PDG
+    gpartials.costhmu   = costh;
+    gpartials.wgt_ratio = wgt_ratio;
 #endif
 
   } // ptype is muon
@@ -1861,6 +1910,9 @@ void xypartials::Print() const
               << " costhmu=" << costhmu << " wgt_ratio=" << wgt_ratio << std::endl;
   }
 }
+
+xypartials& xypartials::GetStaticInstance()
+{ return gpartials; }
 #endif
 //___________________________________________________________________________
 
@@ -1894,6 +1946,7 @@ void GNuMIFlux::PrintConfig()
     << "\n used entry " << fIEntry << " " << fIUse << "/" << fNUse
     << " times, in " << fICycle << "/" << fNCycles << " cycles"
     << "\n SumWeight " << fSumWeight << " for " << fNNeutrinos << " neutrinos"
+    << "\n EffPOTsPerNu " << fEffPOTsPerNu << " AccumPOTs " << fAccumPOTs
     << "\n GenWeighted \"" << (fGenWeighted?"true":"false") << ", "
     << "\", Detector location set \"" << (fDetLocIsSet?"true":"false") << "\""
     << "\n LengthUnits " << fLengthUnits << ", scale b2u " << fLengthScaleB2U
