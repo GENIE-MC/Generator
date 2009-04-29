@@ -28,7 +28,6 @@
 **  Pawel Guzowski      - Imperial College London (UK)                                   **
 **  Yoshinari Hayato    - Kamioka Observatory, ICRR, University of Tokyo (Japan)         **
 **  Pauli Kehayias      - Tufts University (USA)                                         **
-**  Stefan Kretzer      - Brookhaven National Laboratory (USA)                           **
 **  Anselmo Meregaglia  - ETH Zurich (Switzerland)                                       **
 **  Donna Naples        - Pittsburgh University (USA)                                    **
 **  Geoff Pearce        - STFC, Rutherford Appleton Laboratory (UK)                      **
