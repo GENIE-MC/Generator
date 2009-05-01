@@ -204,7 +204,7 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
 
   if( ! fPdgCList->ExistsInPDGCodeList(fgPdgC) ) {
      LOG("Flux", pWARN) 
-          << "Unknown decay mode or decay mode producing an undeclared neurtino species";
+          << "Unknown decay mode or decay mode producing an undeclared neutrino species";
      LOG("Flux", pWARN) 
           << "Declared list of neutrino species: " << *fPdgCList;
      LOG("Flux", pWARN) 
