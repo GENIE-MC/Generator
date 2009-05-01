@@ -574,18 +574,8 @@ void ConvertToGST(void)
     int ip=-1;
 
     //
-    // Extract info on the final state system originating from the
-    // hadronic vertex (includes intranuclear rescattering mc)
-    //
-    // Notes:
-    //  ** include f/s  p,n,\bar{p},\bar{n}
-    //  ** include f/s pi+, pi-
-    //  ** include **decayed** pi0 & ommit their decay products
-    //  ** include f/s K+, K-, K0, \bar{K0}
-    //  ** include gammas/e+/e- but not the ones coming from decaying pi0's (pi0's are counted)
-    //  ** include f/s D+, D-, D0, \bar{D0}, Ds+, Ds-, Sigma's, Omega's, Lambda's, Sigma_{c}'s,...
-    //  ** baryon resonances should have been decayed early on: include decay products
-    //  ** eta,eta',rho0,rho+,rho-,omega,phi should have been decayed early on: include decay products
+    // Extract the final state system originating from the hadronic vertex 
+    // (after the intranuclear rescattering step)
     //
 
     LOG("gntpc", pDEBUG) << "Extracting final state hadronic system";
@@ -594,6 +584,7 @@ void ConvertToGST(void)
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
       ip++;
+      // don't count final state lepton as part hadronic system 
       if(!is_coh && event.Particle(ip)->FirstMother()==0) continue;
       if(p->IsFake()) continue;
       int pdgc = p->Pdg();
@@ -602,14 +593,21 @@ void ConvertToGST(void)
          if (pdgc == kPdgGamma || pdgc == kPdgElectron || pdgc == kPdgPositron)  {
             int igmom = p->FirstMother();
             if(igmom!=-1) {
-               if(event.Particle(igmom)->Pdg() != kPdgPi0) { final_had_syst.push_back(ip); }
+	      // only count e+'s e-'s or gammas not from decay of pi0
+	      if(event.Particle(igmom)->Pdg() != kPdgPi0) { final_had_syst.push_back(ip); }
             }
          } else {
             final_had_syst.push_back(ip);
          }
       }
-      if(ist==kIStDecayedState && pdgc==kPdgPi0) {
-         final_had_syst.push_back(ip);
+      // now add pi0's that were decayed as short lived particles
+      else if(pdgc == kPdgPi0){
+	int ifd = p->FirstDaughter();
+	int fd_pdgc = event.Particle(ifd)->Pdg();
+	// just require that first daughter is one of gamma, e+ or e-  
+	if(fd_pdgc == kPdgGamma || fd_pdgc == kPdgElectron || fd_pdgc == kPdgPositron){
+	  final_had_syst.push_back(ip);
+	}
       }
     }//particle-loop
 
@@ -620,81 +618,46 @@ void ConvertToGST(void)
 
     //
     // Extract info on the primary hadronic system (before any intranuclear rescattering)
-    // * For DIS: 
-    //   Low-W events hadronized by KNO:
-    //       Find the HadronicSyst special particle & get its daughters.
-    //   High-W events hadronized by JETSET: 
-    //       Find the HadronicSyst special particle & get its daughters. Find the JETSET
-    //       special particle ('cluster','string','indep') and take its own daughters.
-    //       Neglect particles decayed internally by JETSET
-    // * For RES:
-    //   Find the hit nucleon and lookup its 1st daughter (intermediate resonance).
-    //   Get the resonance decay products.
-    // * For QEL:
-    //   Get the 1st daughter of the hit nucleon
-    // * For other processes:
-    //   Skip...
-    //
-    // For free nucleon targets (no intranuclear rescattering) the primary hadronic system
-    // is 'identical' with the final state hadronic system
+    // looking for particles with status_code == kIStHadronInTheNucleus 
+    // An exception is the coherent production and scattering off free nucleon targets 
+    // (no intranuclear rescattering) in which case primary hadronic system is set to be 
+    // 'identical' with the final  state hadronic system
     //
 
     LOG("gntpc", pDEBUG) << "Extracting primary hadronic system";
+    
+    ip = -1;
+    TObjArrayIter piter_prim(&event);
 
     vector<int> prim_had_syst;
     if(study_hadsyst) {
+      // if coherent or free nucleon target set primary states equal to final states
       if(!target->IsNucleus() || (is_coh)) {
          vector<int>::const_iterator hiter = final_had_syst.begin();
          for( ; hiter != final_had_syst.end(); ++hiter) {
            prim_had_syst.push_back(*hiter);
          }
       } 
+      // otherwise loop over all particles and store indices of those which are hadrons
+      // created within the nucleus
       else {
-         int ihadbase=0;
-         if(is_dis) {
-           ihadbase = event.FinalStateHadronicSystemPosition();
-           int idx = event.Particle(ihadbase)->LastDaughter() + 1;
-           p = event.Particle(idx);
-           if(p->Pdg()==kPdgCluster || p->Pdg()==kPdgString || p->Pdg()==kPdgIndep) ihadbase=idx;
-         }
-         if(is_qel || is_res) {
-           ihadbase = hitnucl->FirstDaughter();
-         }
-         assert(ihadbase>0);
-
-         int idx1 = event.Particle(ihadbase)->FirstDaughter();
-         int idx2 = event.Particle(ihadbase)->LastDaughter();
-         for(int i=idx1; i<=idx2; i++) {
-            p = event.Particle(i);
-            if(p->IsFake()) continue;
-            int ist = p->Status();
-            // handle decayed dis states
-            if(is_dis && ist==kIStDISPreFragmHadronicState) {
-               for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) prim_had_syst.push_back(j);
-            } 
-            // handle decayed resonances (whose decay products may be resonances that decay further)
-            else if(is_res && ist==kIStDecayedState) {
-                for(int j=p->FirstDaughter(); j<=p->LastDaughter(); j++) {
-                   GHepParticle * pd = event.Particle(j);
-                   if(pd->Status()==kIStDecayedState) {
-                      for(int k=pd->FirstDaughter(); k<=pd->LastDaughter(); k++) prim_had_syst.push_back(k);
-                   } else {
-                      prim_had_syst.push_back(j); 
-                   }       
-                }
-            } else {
-                 prim_had_syst.push_back(i);
-            }
-         }//i
-         // also include gammas from nuclear de-excitations (appearing in the daughter list of the 
-         // hit nucleus, earlier than the primary hadronic system extracted above)
-         for(int i = target->FirstDaughter(); i <= target->LastDaughter(); i++) {
-           if(i<0) continue;
-           if(event.Particle(i)->Status()==kIStStableFinalState) { prim_had_syst.push_back(i); }
-         }
+	while( (p = (GHepParticle *) piter_prim.Next()) ){
+	  ip++;      
+	  int ist_comp  = p->Status();
+	  if(ist_comp==kIStHadronInTheNucleus) {
+	    prim_had_syst.push_back(ip); 
+	  }
+	}//particle-loop   
+	//
+	// also include gammas from nuclear de-excitations (appearing in the daughter list of the 
+	// hit nucleus, earlier than the primary hadronic system extracted above)
+	for(int i = target->FirstDaughter(); i <= target->LastDaughter(); i++) {
+	  if(i<0) continue;
+	  if(event.Particle(i)->Status()==kIStStableFinalState) { prim_had_syst.push_back(i); }
+	}      
       }//freenuc?
     }//study_hadsystem?
-
+    
     if( count(prim_had_syst.begin(), prim_had_syst.end(), -1) > 0) {
         mcrec->Clear();
  	continue;
