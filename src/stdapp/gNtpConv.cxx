@@ -216,6 +216,9 @@ int main(int argc, char ** argv)
 //___________________________________________________________________
 void ConvertToGST(void)
 {
+  //-- some constants
+  const double e_h = 1.3; // typical e/h ratio used for computing mean `calorimetric response'
+
   //-- define branch variables
   //
   int    brIev         = 0;      // Event number 
@@ -423,9 +426,6 @@ void ConvertToGST(void)
     return;
   }
 
-  //-- some constants
-  const double e_h = 1.3;
-
   LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
 
   TLorentzVector pdummy(0,0,0,0);
@@ -514,7 +514,7 @@ void ConvertToGST(void)
 
     // resonance id ($GENIE/src/BaryonResonance/BaryonResonance.h)
     // set only for resonance neutrinoproduction
-    int resid = (is_res) ? xcls.Resonance() : 0;
+    int resid = (is_res) ? xcls.Resonance() : -99;
 
     // (qel or dis) charm production?
     bool charm = xcls.IsCharmEvent();
