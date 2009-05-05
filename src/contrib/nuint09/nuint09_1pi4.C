@@ -141,18 +141,18 @@ void nuint09_1pi4(int isample, int single_pion_sources=0)
   //
   if(single_pion_sources==0) {
     // all sources
-    chain->Draw("(Ef-0.139)>>hst_dsig_dW_1000MeV","cc&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
-    chain->Draw("(Ef-0.139)>>hst_dsig_dW_1500MeV","cc&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+    chain->Draw("Ws>>hst_dsig_dW_1000MeV","cc&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+    chain->Draw("Ws>>hst_dsig_dW_1500MeV","cc&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
   }
   else if(single_pion_sources==1) {
     // P33(1232) only
-    chain->Draw("(Ef-0.139)>>hst_dsig_dW_1000MeV","cc&&resid==0&&res&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
-    chain->Draw("(Ef-0.139)>>hst_dsig_dW_1500MeV","cc&&resid==0&&res&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+    chain->Draw("Ws>>hst_dsig_dW_1000MeV","cc&&resid==0&&res&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+    chain->Draw("Ws>>hst_dsig_dW_1500MeV","cc&&resid==0&&res&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
   }
   else if(single_pion_sources==2) {
     // all resonances only
-    chain->Draw("(Ef-0.139)>>hst_dsig_dW_1000MeV","cc&&res&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
-    chain->Draw("(Ef-0.139)>>hst_dsig_dW_1500MeV","cc&&res&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+    chain->Draw("Ws>>hst_dsig_dW_1000MeV","cc&&res&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+    chain->Draw("Ws>>hst_dsig_dW_1500MeV","cc&&res&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
   }
                 
   //

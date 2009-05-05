@@ -175,10 +175,5 @@ void nuint09_qel2(int isample)
 
   out_stream.close();
 
-  // visual inspection
-  //TCanvas * c1 = new TCanvas("c1","",20,20,500,500);
-  //..
-  //c1->Update();
-
   delete chain;
 }
