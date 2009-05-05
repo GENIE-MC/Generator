@@ -2,7 +2,8 @@
 
 #-----------------------------------------------------------------------
 # Submit jobs to generate requested samples for the NuINT09 `Confronting 
-# theory, models & data' session organized by S.Dytman
+# theory, models & data' session organized by S.Dytman and S.Boyd.
+# Script prepared for the RAL/PPD Tier2 batch farm.
 #
 # Syntax:
 #   perl submit-nuint09_jobs.pl <options>
@@ -11,8 +12,8 @@
 #  --run           : Comma separated list of run numbers
 #  --version       : GENIE version number
 # [--nsubruns]     : number of subruns per run
-# [--production]   :
-# [--cycle]        :
+# [--production]   : production name
+# [--cycle]        : cycle in current production
 # [--use-valgrind] :
 #
 # Examples:

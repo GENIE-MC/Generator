@@ -101,7 +101,7 @@ void nuint09_1pi3(int isample, int single_pion_sources=0)
   out_stream << "#   - cross sections in 1E-38 cm^2 /GeV /sr" << endl;
   out_stream << "#   - quoted cross section is nuclear cross section divided with number of nucleons A" << endl;
   out_stream << "#  Columns:" << endl;
-  out_stream << "#  |  KE(pi+)   |   cos(theta_pi+)   |  dsig(numu N[bound] -> mu- 1pi+ X; Enu = 1.0 GeV)   |  dsig(numu N[bound] -> mu- 1pi+ X; Enu = 1.5 GeV)  | "  << endl;
+  out_stream << "#  |  KE(pi+)   |   cos(theta_pi+)   |  dsig(numu A -> mu- 1pi+ X; Enu = 1.0 GeV)   |  dsig(numu A -> mu- 1pi+ X; Enu = 1.5 GeV)  | "  << endl;
 
   out_stream << setiosflags(ios::fixed) << setprecision(6);
 

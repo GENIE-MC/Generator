@@ -150,8 +150,8 @@ void nuint09_qel5(int isample)
   //
   // fill histograms
   //
-  chain->Draw("pzi/sqrt(pzi*pzi+pyi*pyi+pxi*pxi):(Ei-0.938272)>>hst_d2sig_dKEmudOmg_qelcc_0500MeV","qel&&cc&&Ev>0.49&&Ev<0.51&&pdgi==2212","GOFF");
-  chain->Draw("pzi/sqrt(pzi*pzi+pyi*pyi+pxi*pxi):(Ei-0.938272)>>hst_d2sig_dKEmudOmg_qelcc_1000MeV","qel&&cc&&Ev>0.99&&Ev<1.01&&pdgi==2212","GOFF");
+  chain->Draw("pzl/sqrt(pzl*pzl+pyl*pyl+pxl*pxl):(El-0.105658)>>hst_d2sig_dKEmudOmg_qelcc_0500MeV","qel&&cc&&Ev>0.49&&Ev<0.51","GOFF");
+  chain->Draw("pzl/sqrt(pzl*pzl+pyl*pyl+pxl*pxl):(El-0.105658)>>hst_d2sig_dKEmudOmg_qelcc_1000MeV","qel&&cc&&Ev>0.99&&Ev<1.01","GOFF");
 
   //
   // normalize
@@ -183,11 +183,6 @@ void nuint09_qel5(int isample)
   }//E
 
   out_stream.close();
-
-  // visual inspection
-  //TCanvas * c1 = new TCanvas("c1","",20,20,500,500);
-  //..
-  //c1->Update();
 
   delete chain;
 }
