@@ -585,7 +585,8 @@ void ConvertToGST(void)
     {
       ip++;
       // don't count final state lepton as part hadronic system 
-      if(!is_coh && event.Particle(ip)->FirstMother()==0) continue;
+      //if(!is_coh && event.Particle(ip)->FirstMother()==0) continue;
+      if(event.Particle(ip)->FirstMother()==0) continue;
       if(p->IsFake()) continue;
       int pdgc = p->Pdg();
       int ist  = p->Status();
