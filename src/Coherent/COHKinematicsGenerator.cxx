@@ -17,7 +17,10 @@
    Renamed COHPiKinematicsGenerator -> COHKinematicsGenerator in
    anticipation of reusing the code for simulating coherent production of
    vector mesons.
-
+ @ May 06, 2009 - CA
+   Fix a problem with the search for the max cross section over the allowed
+   phase space which prevented kinematics to be generated for events near the 
+   energy threshold.
 */
 //____________________________________________________________________________
 
@@ -248,21 +251,23 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 
   double Ev = in->InitState().ProbeE(kRfLab);
 
-  double log10Ev = TMath::Log10(Ev);
-  double yc = TMath::Power(10,-0.5813-0.8492*log10Ev);
-
-  const int Nx = 40;
+  const int Nx = 50;
   const int Ny = 50;
 
   const KPhaseSpace & kps = in->PhaseSpace();
   Range1D_t y = kps.YLim();
 
-  double dy = (Ev>1) ? 0.1 : 0.3;
-
   const double logxmin = TMath::Log10(1E-5);
-  const double logxmax = TMath::Log10(1E-2);
+  const double logxmax = TMath::Log10(1.0);
+  const double logymin = TMath::Log10(y.min);
+  const double logymax = TMath::Log10(y.max);
+/*
+  double dy=0;
+  double log10Ev = TMath::Log10(Ev);
+  double yc = TMath::Power(10,-0.5813-0.8492*log10Ev);
   const double logymin = TMath::Log10( TMath::Max(y.min,yc-dy) );
   const double logymax = TMath::Log10( TMath::Min(y.max,yc+dy) );
+*/
   const double dlogx   = (logxmax - logxmin) /(Nx-1);
   const double dlogy   = (logymax - logymin) /(Ny-1);
 
@@ -272,7 +277,7 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
      double gy = TMath::Power(10, logymin + j * dlogy);
 
      double Q2 = 2*kNucleonMass*gx*gy*Ev;
-     if(Q2 >0.01) continue;
+     if(Ev>1.0 && Q2>0.01) continue;
 
      in->KinePtr()->Setx(gx);
      in->KinePtr()->Sety(gy);
