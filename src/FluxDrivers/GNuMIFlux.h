@@ -76,6 +76,7 @@ public:
    void ResetCopy();     // reset portion copied from ntuple
    void ResetCurrent();  // reset generated xy positioned info
    void ConvertPartCodes();
+   void Print(const Option_t* opt = "") const;
 
    int CalcEnuWgt(const TLorentzVector& xyz, double& enu, double& wgt_xy) const;
 
@@ -372,7 +373,7 @@ public:
   xypartials() { ; }
   void ReadStream(ifstream& myfile);
   int  Compare(const xypartials& other) const;
-  void Print() const;
+  void Print(const Option_t* opt = "") const;
   static xypartials& GetStaticInstance(); // copy used by CalcEnuWgt()
   // actual data
   double parent_mass, parentp, parent_energy;

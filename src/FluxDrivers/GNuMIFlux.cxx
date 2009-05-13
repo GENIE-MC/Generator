@@ -155,7 +155,9 @@ bool GNuMIFlux::GenerateNext(void)
      //   << "Curr flux neutrino fractional weight = " << f;
      if (f > 1.) {
        LOG("Flux", pERROR)
-           << "** Fractional weight = " << f << " > 1 !! Bump fMaxWeight estimate.";
+         << "** Fractional weight = " << f 
+         << " > 1 !! Bump fMaxWeight estimate."
+         << PassThroughInfo();
        fMaxWeight = this->Weight() * fMaxWgtFudge; // bump the weight
      }
      double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
@@ -374,8 +376,9 @@ void GNuMIFlux::CalcEffPOTsPerNu()
   // this should match what is used in the CalcEnuWgt()
   const double kRDET = 100.0;   // set to flux per 100 cm radius
   const double kRDET2 = kRDET * kRDET;
+  double flux_area = fFluxWindowDir1.Vect().Cross(fFluxWindowDir2.Vect()).Mag();
+  LOG("Flux",pNOTICE) << "in CalcEffPOTsPerNu, area = " << flux_area;
 
-  double flux_area = fFluxWindowDir1.Vect().Dot(fFluxWindowDir2.Vect());
   if ( flux_area < 1.0e-30 ) {
     LOG("Flux", pWARN)
           << "CalcEffPOTsPerNu called with flux window area effectively zero";
@@ -542,7 +545,13 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
   RandomGen* rnd = RandomGen::Instance();
   fIUse   =  9999999;
   fIEntry = rnd->RndFlux().Integer(fNEntries) - 1;
+  
+  // don't count things we used to estimate max weight
+  fSumWeight  = 0;
+  fNNeutrinos = 0;
+  fAccumPOTs  = 0;
 
+  LOG("Flux",pNOTICE) << "about to CalcEffPOTsPerNu";
   this->CalcEffPOTsPerNu();
 
 }
@@ -563,19 +572,31 @@ void GNuMIFlux::ScanForMaxWeight(void)
     if ( TMath::Abs(zbase-103648.837) < 10000. ) ipos_estimator = -1; // use NearDet
     if ( TMath::Abs(zbase-73534000. ) < 10000. ) ipos_estimator = +1; // use FarDet
   }
-  if ( ipos_estimator > 0 ) {
-    if ( fG3NuMI ) fNuFluxTree->Draw("Nimpwt*Nwtfar","","goff");
-    else           fNuFluxTree->Draw("Nimpwt*NWtFar[0]","","goff");
-  }
-  if ( ipos_estimator < 0 ) {
-    if ( fG3NuMI ) fNuFluxTree->Draw("Nimpwt*Nwtnear","","goff");
-    else           fNuFluxTree->Draw("Nimpwt*Nwtnear[0]","","goff");
-  }
   if ( ipos_estimator != 0 ) {
+
+    //// one can't really be sure which Nwtfar/Nwtnear this refers to
+    //// some gnumi files have "NOvA" weights
+    const char* ntwgtstrv[4] = { "Nimpwt*Nwtnear", 
+                                 "Nimpwt*Nwtfar",
+                                 "Nimpwt*NWtNear[0]",
+                                 "Nimpwt*NWtFar[0]"  };
+    int strindx = 0;
+    if ( ipos_estimator > 0 ) strindx = 1;
+    if ( ! fG3NuMI ) strindx += 2;
+    // set upper limit on how many entries to scan
+    Long64_t nscan = TMath::Min(fNEntries,200000LL);
+    
+    fNuFluxTree->Draw(ntwgtstrv[strindx],"","goff",nscan);
+    //std::cout << " Draw \"" << ntwgtstrv[strindx] << "\"" << std::endl;
+    //std::cout << " SelectedRows " << fNuFluxTree->GetSelectedRows()
+    //          << " V1 " << fNuFluxTree->GetV1() << std::endl;
+
     Long64_t idx = TMath::LocMax(fNuFluxTree->GetSelectedRows(),
                                  fNuFluxTree->GetV1());
+    //std::cout << "idx " << idx << " of " << fNuFluxTree->GetSelectedRows() << std::endl;
     fMaxWeight = fNuFluxTree->GetV1()[idx];
-    LOG("Flux", pNOTICE) << "Maximum flux weight from Nwt in ntuple = " << fMaxWeight;
+    LOG("Flux", pNOTICE) << "Maximum flux weight from Nwt in ntuple = " 
+                         << fMaxWeight;
     if ( fMaxWeight <= 0 ) {
       LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
       exit(1);
@@ -595,8 +616,8 @@ void GNuMIFlux::ScanForMaxWeight(void)
   }
   t.Stop();
   t.Print("u");
-  LOG("Flux", pNOTICE) << "Maximum flux weight for spin = " << wgtgenmx
-                       << "\nMaximum flux energy for spin = " << enumx;
+  LOG("Flux", pNOTICE) << "Maximum flux weight for spin = " 
+                       << wgtgenmx << ", energy = " << enumx;
 
   if (wgtgenmx > fMaxWeight ) fMaxWeight = wgtgenmx;
   // apply a fudge factor to estimated weight
@@ -611,6 +632,7 @@ void GNuMIFlux::ScanForMaxWeight(void)
 
   LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight 
                        << ", energy = " << fMaxEv;
+
 }
 //___________________________________________________________________________
 void GNuMIFlux::SetFluxParticles(const PDGCodeList & particles)
@@ -749,6 +771,7 @@ bool GNuMIFlux::SetFluxWindow(GNuMIFlux::StdFluxWindow_t stdwindow, double paddi
       << " not yet implemented";
     return false;
   }
+  LOG("Flux",pNOTICE) << "about to CalcEffPOTsPerNu";
   this->CalcEffPOTsPerNu();
   return true;
 }
@@ -779,6 +802,7 @@ void GNuMIFlux::SetFluxWindow(TVector3 p0, TVector3 p1, TVector3 p2)
   fFluxWindowLen1 = fFluxWindowDir1.Mag();
   fFluxWindowLen2 = fFluxWindowDir2.Mag();
 
+  LOG("Flux",pNOTICE) << "about to CalcEffPOTsPerNu";
   this->CalcEffPOTsPerNu();
 }
 
@@ -910,6 +934,9 @@ void GNuMIFlux::Initialize(void)
   fNUse            =  1;
   fIUse            =  999999;
 
+  fNuTot           = 0;
+  fFilePOTs        = 0;
+
   fMaxWeight       = -1;
   fMaxWgtFudge     =  1.05;
   fMaxWgtEntries   = 2500000;
@@ -953,7 +980,7 @@ void GNuMIFlux::SetDefaults(void)
 
   this->SetFluxParticles (particles);
   this->SetMaxEnergy     (120./*GeV*/);  // was 200, but that would be wasteful
-  this->SetUpstreamZ     (-5.0);
+  this->SetUpstreamZ     (-3.4e38); // way upstream ==> use flux window
   this->SetNumOfCycles   (0);
   this->SetEntryReuse    (1);
 }
@@ -1244,6 +1271,12 @@ void GNuMIFluxPassThroughInfo::ConvertPartCodes()
       << "ConvertPartCodes saw pcodes flag as " << pcodes;
   }
 
+}
+
+//___________________________________________________________________________
+void GNuMIFluxPassThroughInfo::Print(const Option_t* /* opt */ ) const
+{
+  std::cout << *this << std::endl;
 }
 
 //___________________________________________________________________________
@@ -1737,6 +1770,13 @@ namespace flux  {
              << "\n beam px,py,pz " << info.beampx << " " << info.beampy
              << " " << info.beampz
         ;
+      stream << "\nCurrent: pdg " << info.fgPdgC 
+             << " xywgt " << info.fgXYWgt
+             << "\n p4 (beam): " << utils::print::P4AsShortString(&info.fgP4)
+             << "\n x4 (beam): " << utils::print::X4AsString(&info.fgX4)
+             << "\n p4 (user): " << utils::print::P4AsShortString(&info.fgP4User)
+             << "\n x4 (user): " << utils::print::X4AsString(&info.fgX4User);
+        ;
   /*
   //std::cout << "GNuMIFlux::PrintCurrent ....." << std::endl;
   //LOG("Flux", pINFO) 
@@ -1884,7 +1924,7 @@ int xypartials::Compare(const xypartials& other) const
   return np;
 }
 
-void xypartials::Print() const
+void xypartials::Print(const Option_t* /* opt */) const
 {
   std::cout << "GNuMIFlux xypartials " << std::endl;
   std::cout << "  parent: mass=" << parent_mass << " p=" << parentp 
@@ -1938,6 +1978,7 @@ void GNuMIFlux::PrintConfig()
     << "\n pdg-codes: " << s.str()
     << "\n " << (fG3NuMI?"g3numi":"") << (fG4NuMI?"g4numi":"") << "("
     << fNuFluxTreeName << "), " << fNEntries << " entries " 
+    << " (FilePOTs " << fFilePOTs << ") "
     <<  "in " << fNFiles << " files like: "
     << "\n " << fNuFluxFilePattern
     << "\n wgt max=" << fMaxWeight << " fudge=" << fMaxWgtFudge << " using "
@@ -2164,6 +2205,7 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
       //          << " [0] " << utils::print::X4AsString(new TLorentzVector(fFluxWindowPt[0],0)) << std::endl
       //          << " [1] " << utils::print::X4AsString(new TLorentzVector(fFluxWindowPt[1],0)) << std::endl
       //          << " [2] " << utils::print::X4AsString(new TLorentzVector(fFluxWindowPt[2],0)) << std::endl;
+
       fGNuMI->SetFluxWindow(fFluxWindowPt[0],fFluxWindowPt[1],fFluxWindowPt[2]);
 
     } else if ( pname == "enumax" ) {
