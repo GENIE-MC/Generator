@@ -112,9 +112,5 @@ How to reference GENIE correctly
 
 For any derivative work based on GENIE:
 
-  [... technical paper to be submitted to Comp.Phys.Comm ...]
-
-  until it is published you may cite:
-  C.Andreopoulos, Nucl.Phys.B Proc.Suppl. 159:217-222, 2006; 
-  C.Andreopoulos, Act.Phys.Pol.B Vol.37,8:2349, 2006
-
+  * C.Andreopoulos et al., The GENIE Neutrino Monte Carlo Generator, 
+    arXiv:0905.2517; submitted to NIM A
