@@ -7,6 +7,7 @@
 // Inputs:
 // - sample id: 0 (nu_mu+C12), 1 (nu_mu+O16), 2 (nu_mu+Fe56)
 // - single pion source: 0 (all), 1 (P33(1232) resonance only), 2 (resonances only)
+// - stage: 0 -> primary Xpi+, 1 -> final state Xpi+
 //
 // Costas Andreopoulos, STFC / Rutherford Appleton Laboratory
 //
@@ -48,7 +49,7 @@ int kA[kNSamples] =
  /* 2 */  56
 };
 
-void nuint09_1pi1(int isample, int single_pion_sources=0)
+void nuint09_1pi1(int isample, int single_pion_sources=0, int stage=1)
 {
   cout << " ***** running: 1PI.1" << endl;
 
@@ -76,9 +77,13 @@ void nuint09_1pi1(int isample, int single_pion_sources=0)
 
   ostringstream out_filename;
   out_filename << label;
+
   if      (single_pion_sources==0) out_filename << ".1pi_1a.";
   else if (single_pion_sources==1) out_filename << ".1pi_1b.";
   else if (single_pion_sources==2) out_filename << ".1pi_1c.";
+
+  if(stage==0) out_filename << "no_FSI.";
+
   out_filename << "sig1pi_vs_Enu.data";
   ofstream out_stream(out_filename.str().c_str(), ios::out);
 
@@ -88,6 +93,9 @@ void nuint09_1pi1(int isample, int single_pion_sources=0)
   out_stream << "#  " << endl;
   out_stream << "# [1PI.1]:" << endl;
   out_stream << "#  Total cross section for 1 pion (pi+ only) production as a function of energy" << endl;
+  if(stage==0) {
+    out_stream << "#  ***** NO FSI: The {X pi+} state is a primary hadronic state" << endl;
+  }
   if(single_pion_sources==0) {
      out_stream << "#  1pi sources: All" << endl;
   }
@@ -142,17 +150,33 @@ void nuint09_1pi1(int isample, int single_pion_sources=0)
 
   chain->Draw("Ev>>hst_allcc", "cc","GOFF");
 
-  if(single_pion_sources==0) {
-    //all sources
-    chain->Draw("Ev>>hst_cc1pip","cc&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+  if(stage==1) {
+    if(single_pion_sources==0) {
+      //all sources
+      chain->Draw("Ev>>hst_cc1pip","cc&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+    }
+    else if(single_pion_sources==1) {
+      //P33(1232) only
+      chain->Draw("Ev>>hst_cc1pip","cc&&resid==0&&res&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+    }
+    else if(single_pion_sources==2) {
+      //all resonances only
+      chain->Draw("Ev>>hst_cc1pip","cc&&res&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+    }
   }
-  else if(single_pion_sources==1) {
-    //P33(1232) only
-    chain->Draw("Ev>>hst_cc1pip","cc&&resid==0&&res&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
-  }
-  else if(single_pion_sources==2) {
-    //all resonances only
-    chain->Draw("Ev>>hst_cc1pip","cc&&res&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+  else if(stage==0) {
+    if(single_pion_sources==0) {
+      //all sources
+      chain->Draw("Ev>>hst_cc1pip","cc&&pdgi==211&&nipip==1&&nipim==0&&nipi0==0","GOFF");
+    }
+    else if(single_pion_sources==1) {
+      //P33(1232) only
+      chain->Draw("Ev>>hst_cc1pip","cc&&resid==0&&res&&pdgi==211&&nipip==1&&nipim==0&&nipi0==0","GOFF");
+    }
+    else if(single_pion_sources==2) {
+      //all resonances only
+      chain->Draw("Ev>>hst_cc1pip","cc&&res&&pdgi==211&&nipip==1&&nipim==0&&nipi0==0","GOFF");
+    }
   }
 
   cout << "CC1pi+ nevents: " << hst_cc1pip->GetEntries() << endl;

@@ -142,22 +142,22 @@ void nuint09_coh3(int isample)
   //
   // book histograms (nevents in pion kinetic energy and cos(theta) bins)
   //
-  TH2D * hst_d2sig_dKEpidOmg_cohcc_0500MeV = new TH2D("hst_d2sig_dKEpidOmg_cohcc_0500MeV","dsig/dKEpi, COH CC, Enu=0.5 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
-  TH2D * hst_d2sig_dKEpidOmg_cohnc_0500MeV = new TH2D("hst_d2sig_dKEpidOmg_cohnc_0500MeV","dsig/dKEpi, COH NC, Enu=0.5 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
-  TH2D * hst_d2sig_dKEpidOmg_cohcc_1000MeV = new TH2D("hst_d2sig_dKEpidOmg_cohcc_1000MeV","dsig/dKEpi, COH CC, Enu=1.0 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
-  TH2D * hst_d2sig_dKEpidOmg_cohnc_1000MeV = new TH2D("hst_d2sig_dKEpidOmg_cohnc_1000MeV","dsig/dKEpi, COH NC, Enu=1.0 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
-  TH2D * hst_d2sig_dKEpidOmg_cohcc_1500MeV = new TH2D("hst_d2sig_dKEpidOmg_cohcc_1500MeV","dsig/dKEpi, COH CC, Enu=1.5 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
-  TH2D * hst_d2sig_dKEpidOmg_cohnc_1500MeV = new TH2D("hst_d2sig_dKEpidOmg_cohnc_1500MeV","dsig/dKEpi, COH NC, Enu=1.5 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
+  TH2D * hst_d2sig_dKEpidOmg_cohcc_0500MeV = new TH2D("hst_d2sig_dKEpidOmg_cohcc_0500MeV","d^2sig / dKEpi dOmega, COH CC, Enu=0.5 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
+  TH2D * hst_d2sig_dKEpidOmg_cohnc_0500MeV = new TH2D("hst_d2sig_dKEpidOmg_cohnc_0500MeV","d^2sig / dKEpi dOmega, COH NC, Enu=0.5 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
+  TH2D * hst_d2sig_dKEpidOmg_cohcc_1000MeV = new TH2D("hst_d2sig_dKEpidOmg_cohcc_1000MeV","d^2sig / dKEpi dOmega, COH CC, Enu=1.0 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
+  TH2D * hst_d2sig_dKEpidOmg_cohnc_1000MeV = new TH2D("hst_d2sig_dKEpidOmg_cohnc_1000MeV","d^2sig / dKEpi dOmega, COH NC, Enu=1.0 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
+  TH2D * hst_d2sig_dKEpidOmg_cohcc_1500MeV = new TH2D("hst_d2sig_dKEpidOmg_cohcc_1500MeV","d^2sig / dKEpi dOmega, COH CC, Enu=1.5 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
+  TH2D * hst_d2sig_dKEpidOmg_cohnc_1500MeV = new TH2D("hst_d2sig_dKEpidOmg_cohnc_1500MeV","d^2sig / dKEpi dOmega, COH NC, Enu=1.5 GeV", nKEpi, KEpimin, KEpimax, ncosth, costhmin, costhmax);
 
   //
   // fill histograms
   //
-  chain->Draw("(Ef-0.13957):pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf)>>hst_d2sig_dKEpidOmg_cohcc_0500MeV","coh&&cc&&Ev>0.49&&Ev<0.51&&pdgf==211","GOFF");
-  chain->Draw("(Ef-0.13498):pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf)>>hst_d2sig_dKEpidOmg_cohnc_0500MeV","coh&&nc&&Ev>0.49&&Ev<0.51&&pdgf==111","GOFF");
-  chain->Draw("(Ef-0.13957):pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf)>>hst_d2sig_dKEpidOmg_cohcc_1000MeV","coh&&cc&&Ev>0.99&&Ev<1.01&&pdgf==211","GOFF");
-  chain->Draw("(Ef-0.13498):pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf)>>hst_d2sig_dKEpidOmg_cohnc_1000MeV","coh&&nc&&Ev>0.99&&Ev<1.01&&pdgf==111","GOFF");
-  chain->Draw("(Ef-0.13957):pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf)>>hst_d2sig_dKEpidOmg_cohcc_1500MeV","coh&&cc&&Ev>1.49&&Ev<1.51&&pdgf==211","GOFF");
-  chain->Draw("(Ef-0.13498):pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf)>>hst_d2sig_dKEpidOmg_cohnc_1500MeV","coh&&nc&&Ev>1.49&&Ev<1.51&&pdgf==111","GOFF");
+  chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.13957)>>hst_d2sig_dKEpidOmg_cohcc_0500MeV","coh&&cc&&Ev>0.49&&Ev<0.51&&pdgf==211","GOFF");
+  chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.13498)>>hst_d2sig_dKEpidOmg_cohnc_0500MeV","coh&&nc&&Ev>0.49&&Ev<0.51&&pdgf==111","GOFF");
+  chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.13957)>>hst_d2sig_dKEpidOmg_cohcc_1000MeV","coh&&cc&&Ev>0.99&&Ev<1.01&&pdgf==211","GOFF");
+  chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.13498)>>hst_d2sig_dKEpidOmg_cohnc_1000MeV","coh&&nc&&Ev>0.99&&Ev<1.01&&pdgf==111","GOFF");
+  chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.13957)>>hst_d2sig_dKEpidOmg_cohcc_1500MeV","coh&&cc&&Ev>1.49&&Ev<1.51&&pdgf==211","GOFF");
+  chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.13498)>>hst_d2sig_dKEpidOmg_cohnc_1500MeV","coh&&nc&&Ev>1.49&&Ev<1.51&&pdgf==111","GOFF");
 
   //
   // normalize
