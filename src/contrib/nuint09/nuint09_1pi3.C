@@ -7,6 +7,7 @@
 // Inputs:
 // - sample id: 0 (nu_mu+C12), 1 (nu_mu+O16), 2 (nu_mu+Fe56)
 // - single pion source: 0 (all), 1 (P33(1232) resonance only), 2 (resonances only)
+// - stage: 0 -> primary Xpi+, 1 -> final state Xpi+    
 //
 // Costas Andreopoulos, STFC / Rutherford Appleton Laboratory
 //
@@ -45,7 +46,7 @@ const int kRunNu1PI3[kNSamples][kNWCur][kNEnergies][kNRunsPerCase] =
  }
 };
 
-void nuint09_1pi3(int isample, int single_pion_sources=0)
+void nuint09_1pi3(int isample, int single_pion_sources=0, int stage=1)
 {
   cout << " ***** running: 1PI.3" << endl;
 
@@ -73,9 +74,13 @@ void nuint09_1pi3(int isample, int single_pion_sources=0)
 
   ostringstream out_filename;
   out_filename << label;
+
   if      (single_pion_sources==0) out_filename << ".1pi_3a.";
   else if (single_pion_sources==1) out_filename << ".1pi_3b.";
   else if (single_pion_sources==2) out_filename << ".1pi_3c.";
+
+  if(stage==0) out_filename << "no_FSI.";
+
   out_filename << label << "d2sig1pi_dKEpidOmega.data";
 
   ofstream out_stream(out_filename.str().c_str(), ios::out);
@@ -86,6 +91,9 @@ void nuint09_1pi3(int isample, int single_pion_sources=0)
   out_stream << "#  " << endl;
   out_stream << "# [1PI.3]:" << endl;
   out_stream << "#  d^Sigma / dOmega_pi+ dKE_pi+ at E_nu= 1.0 and 1.5 GeV" << endl;
+  if(stage==0) { 
+    out_stream << "#  ***** NO FSI: The {X pi+} state is a primary hadronic state" << endl;
+  }
   if(single_pion_sources==0) {
      out_stream << "#  1pi sources: All" << endl;
   }
@@ -145,22 +153,41 @@ void nuint09_1pi3(int isample, int single_pion_sources=0)
   //
   // fill histograms
   //
-  if(single_pion_sources==0) {
-   // all sources
-    chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1000MeV","cc&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
-    chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1500MeV","cc&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+  if(stage==1) {
+     if(single_pion_sources==0) {
+       // all sources
+       chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1000MeV","cc&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+       chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1500MeV","cc&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+     }
+     else if(single_pion_sources==1) {
+       // P33(1232) only
+       chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1000MeV","cc&&resid==0&&res&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+       chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1500MeV","cc&&resid==0&&res&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+     }
+     else if(single_pion_sources==2) {
+       // all resonances only
+       chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1000MeV","cc&&res&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+       chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1500MeV","cc&&res&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
+     }
+  }         
+  else if(stage==0) {
+     if(single_pion_sources==0) {
+       // all sources
+       chain->Draw("pzi/sqrt(pzi*pzi+pyi*pyi+pxi*pxi):(Ei-0.139)>>hst_d2sig_dKEpipdOmg_1000MeV","cc&&Ev>0.99&&Ev<1.01&&pdgi==211&&nipip==1&&nipim==0&&nipi0==0","GOFF");
+       chain->Draw("pzi/sqrt(pzi*pzi+pyi*pyi+pxi*pxi):(Ei-0.139)>>hst_d2sig_dKEpipdOmg_1500MeV","cc&&Ev>1.49&&Ev<1.51&&pdgi==211&&nipip==1&&nipim==0&&nipi0==0","GOFF");
+     }
+     else if(single_pion_sources==1) {
+       // P33(1232) only
+       chain->Draw("pzi/sqrt(pzi*pzi+pyi*pyi+pxi*pxi):(Ei-0.139)>>hst_d2sig_dKEpipdOmg_1000MeV","cc&&resid==0&&res&&Ev>0.99&&Ev<1.01&&pdgi==211&&nipip==1&&nipim==0&&nipi0==0","GOFF");
+       chain->Draw("pzi/sqrt(pzi*pzi+pyi*pyi+pxi*pxi):(Ei-0.139)>>hst_d2sig_dKEpipdOmg_1500MeV","cc&&resid==0&&res&&Ev>1.49&&Ev<1.51&&pdgi==211&&nipip==1&&nipim==0&&nipi0==0","GOFF");
+     }
+     else if(single_pion_sources==2) {
+       // all resonances only
+       chain->Draw("pzi/sqrt(pzi*pzi+pyi*pyi+pxi*pxi):(Ei-0.139)>>hst_d2sig_dKEpipdOmg_1000MeV","cc&&res&&Ev>0.99&&Ev<1.01&&pdgi==211&&nipip==1&&nipim==0&&nipi0==0","GOFF");
+       chain->Draw("pzi/sqrt(pzi*pzi+pyi*pyi+pxi*pxi):(Ei-0.139)>>hst_d2sig_dKEpipdOmg_1500MeV","cc&&res&&Ev>1.49&&Ev<1.51&&pdgi==211&&nipip==1&&nipim==0&&nipi0==0","GOFF");
+     }
   }
-  else if(single_pion_sources==1) {
-   // P33(1232) only
-    chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1000MeV","cc&&resid==0&&res&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
-    chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1500MeV","cc&&resid==0&&res&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
-  }
-  else if(single_pion_sources==2) {
-   // all resonances only
-    chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1000MeV","cc&&res&&Ev>0.99&&Ev<1.01&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
-    chain->Draw("pzf/sqrt(pzf*pzf+pyf*pyf+pxf*pxf):(Ef-0.139)>>hst_d2sig_dKEpipdOmg_1500MeV","cc&&res&&Ev>1.49&&Ev<1.51&&pdgf==211&&nfpip==1&&nfpim==0&&nfpi0==0","GOFF");
-  }
-         
+
   //
   // normalize
   //
