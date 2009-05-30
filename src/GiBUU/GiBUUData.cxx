@@ -69,6 +69,7 @@ GiBUUData::~GiBUUData()
       }//j
     }//i   
   }//r 
+
 }
 //____________________________________________________________________________
 GiBUUData * GiBUUData::Instance()
@@ -85,6 +86,16 @@ GiBUUData * GiBUUData::Instance()
 void GiBUUData::LoadTables(void)
 {
 // Loads hadronic x-section data
+
+  for(int r=0; r<kNRes; r++) {
+    for(int i=0; i<kNCurr; i++) {
+      for(int j=0; j<kNHitNuc; j++) {
+        for(int k=0; k<kNFFRes; k++) {
+             fFFRes[r][i][j][k] = 0;
+        }//k
+      }//j
+    }//i   
+  }//r 
 
   string data_dir = string(gSystem->Getenv("GENIE")) + string("/data/gibuu");
 
@@ -161,24 +172,12 @@ void GiBUUData::LoadTables(void)
            fFFRes[r][i][j][1]  = new Spline(&data_ffres, "Q2:f2"); // F2V = f(Q2)
            fFFRes[r][i][j][2]  = new Spline(&data_ffres, "Q2:f5"); // FA  = f(Q2)
            fFFRes[r][i][j][3]  = new Spline(&data_ffres, "Q2:f6"); // FP  = f(Q2)
-           fFFRes[r][i][j][4]  = 0;
-           fFFRes[r][i][j][5]  = 0;
-           fFFRes[r][i][j][6]  = 0;
-           fFFRes[r][i][j][7]  = 0;
-           fFFRes[r][i][j][8]  = 0;
-           fFFRes[r][i][j][9]  = 0;
-           fFFRes[r][i][j][10] = 0;
-           fFFRes[r][i][j][11] = 0;
         } // Delta res
         else 
         //
         // I=1/2 resonances
         //
         if(res::IsN(resonance)) {
-           fFFRes[r][i][j][0]  = 0;
-           fFFRes[r][i][j][1]  = 0;
-           fFFRes[r][i][j][2]  = 0;
-           fFFRes[r][i][j][3]  = 0;
            fFFRes[r][i][j][4]  = new Spline(&data_ffres, "Q2:f1"); // C3V = f(Q2)
            fFFRes[r][i][j][5]  = new Spline(&data_ffres, "Q2:f2"); // C4V = f(Q2)
            fFFRes[r][i][j][6]  = new Spline(&data_ffres, "Q2:f3"); // C5V = f(Q2)
@@ -189,6 +188,17 @@ void GiBUUData::LoadTables(void)
            fFFRes[r][i][j][11] = new Spline(&data_ffres, "Q2:f8"); // C6A = f(Q2)
         } //N res
 
+      }//j
+    }//i   
+  }//r 
+
+
+  for(int r=0; r<kNRes; r++) {
+    for(int i=0; i<kNCurr; i++) {
+      for(int j=0; j<kNHitNuc; j++) {
+        for(int k=0; k<kNFFRes; k++) {
+             if(fFFRes[r][i][j][k]) fFFRes[r][i][j][k]->YCanBeNegative(true);
+        }//k
       }//j
     }//i   
   }//r 
