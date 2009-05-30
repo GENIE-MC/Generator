@@ -19,6 +19,7 @@ LIBRARIES  := $(LHAPDF_LIBRARIES) $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 TGT =	gtestAlgorithms 	 \
  	gtestBaryonResDataSet	 \
+	gtestBLI2DUnifGrid       \
  	gtestConfigPool		 \
  	gtestDecay		 \
  	gtestDISSF		 \
@@ -50,6 +51,10 @@ gtestAlgorithms: FORCE
 gtestBaryonResDataSet: FORCE
 	$(CXX) $(CXXFLAGS) -c testBaryonResDataSet.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testBaryonResDataSet.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestBaryonResDataSet
+
+gtestBLI2DUnifGrid: FORCE
+	$(CXX) $(CXXFLAGS) -c testBLI2DUnifGrid.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testBLI2DUnifGrid.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestBLI2DUnifGrid
 
 gtestConfigPool: FORCE
 	$(CXX) $(CXXFLAGS) -c testConfigPool.cxx $(INCLUDES)
@@ -168,6 +173,7 @@ clean: FORCE
 	$(RM) *.o *~ core 
 	$(RM) $(GENIE_BIN_PATH)/gtestAlgorithms 	
 	$(RM) $(GENIE_BIN_PATH)/gtestBaryonResDataSet	
+	$(RM) $(GENIE_BIN_PATH)/gtestBLI2DUnifGrid	
 	$(RM) $(GENIE_BIN_PATH)/gtestConfigPool		
 	$(RM) $(GENIE_BIN_PATH)/gtestDecay		
 	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		
@@ -198,6 +204,7 @@ endif
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestAlgorithms 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestBaryonResDataSet	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestBLI2DUnifGrid	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestConfigPool		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDecay		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDISSF		
@@ -231,6 +238,9 @@ clean--gtestAlgorithms: FORCE
 
 clean--gtestBaryonResDataSet: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestBaryonResDataSet
+
+clean--gtestBLI2DUnifGrid: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestBLI2DUnifGrid
 
 clean--gtestConfigPool: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestConfigPool
@@ -303,4 +313,6 @@ clean--gtestROOTGeometry: FORCE
 
 FORCE:
 
+clean--gtestBaryonResDataSet: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestBaryonResDataSet
 # DO NOT DELETE
