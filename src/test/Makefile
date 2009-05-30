@@ -25,7 +25,8 @@ TGT =	gtestAlgorithms 	 \
  	gtestDISSF		 \
  	gtestElFormFactors	 \
  	gtestEventLoop 		 \
- 	gtestHadronization	 \
+        gtestGiBUUData           \
+	gtestHadronization	 \
  	gtestIntranuke		 \
 	gtestINukeHadroData      \
 	gtestMessenger		 \
@@ -75,6 +76,10 @@ gtestElFormFactors: FORCE
 gtestEventLoop: FORCE
 	$(CXX) $(CXXFLAGS) -c testEventLoop.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testEventLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestEventLoop
+
+gtestGiBUUData: FORCE
+	$(CXX) $(CXXFLAGS) -c testGiBUUData.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testGiBUUData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestGiBUUData
 
 gtestHadronization: FORCE
 	$(CXX) $(CXXFLAGS) -c testHadronization.cxx $(INCLUDES)
@@ -179,6 +184,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_PATH)/gtestEventLoop
+	$(RM) $(GENIE_BIN_PATH)/gtestGiBUUData
 	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_PATH)/gtestIntranuke	
 	$(RM) $(GENIE_BIN_PATH)/gtestINukeHadroData	
@@ -210,6 +216,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestEventLoop
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestGiBUUData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestIntranuke		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestINukeHadroData
@@ -256,6 +263,9 @@ clean--gtestElFormFactors: FORCE
 
 clean--gtestEventLoop: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestEventLoop
+
+clean--gtestGiBUUData: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestGiBUUData
 
 clean--gtestHadronization: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestHadronization
@@ -313,6 +323,4 @@ clean--gtestROOTGeometry: FORCE
 
 FORCE:
 
-clean--gtestBaryonResDataSet: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestBaryonResDataSet
 # DO NOT DELETE
