@@ -18,6 +18,9 @@
  @ Jun 20, 2008 - CA
    Fix some memleaks - Deleting arrays after passing them to BuildSpline().
    Delete htemp when building the spline from a tree.
+ @ May 31, 2009 - CA
+   Added the YCanBeNegative(bool) method as we are now using the Spline to 
+   interpolate quantities other than cross sections. Default is `false';
 */
 //____________________________________________________________________________
 
@@ -411,7 +414,7 @@ double Spline::Evaluate(double x) const
      << " is not within spline range [" << fXMin << ", " << fXMax << "]";
   }
 
-  if(y<0) {
+  if(y<0 && !fYCanBeNegative) {
     LOG("Spline", pINFO) << "Negative y (" << y << ")";
     LOG("Spline", pINFO) << "x = " << x;
     LOG("Spline", pINFO) << "spline range [" << fXMin << ", " << fXMax << "]";
@@ -740,6 +743,8 @@ void Spline::InitSpline(void)
   fYMax = 0.0;
 
   fInterpolator = 0;
+
+  fYCanBeNegative = false;
 
   LOG("Spline", pDEBUG) << "...done initializing spline";
 }

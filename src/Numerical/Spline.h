@@ -74,6 +74,8 @@ public:
   void   SetName (string name) { fName = name; }
   string Name (void) const     { return fName; }
 
+  void   YCanBeNegative(bool tf) { fYCanBeNegative = tf; }
+
   //-- save the Spline in XML, flat ASCII or ROOT format
   void   SaveAsXml (string filename, string xtag, string ytag, string name="") const;
   void   SaveAsXml (ofstream & str,  string xtag, string ytag,
@@ -118,6 +120,7 @@ private:
   double     fXMax;
   double     fYMax;
   TSpline3 * fInterpolator;
+  bool       fYCanBeNegative;
 
 ClassDef(Spline,1)
 };
