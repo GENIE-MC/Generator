@@ -1,0 +1,21 @@
+There are 6 files for each resonance:
+
+FF for scattering off protons (one for EM, CC, NC)
+FF for scattering off neutrons (one for EM, CC, NC)
+
+
+
+Each file has 9 columns:
+
+For isospin 1/2 resonances:
+
+Qs  F_1^V  F_2^V  --  --  F_A  F_P  --  --
+
+
+For isospin 3/2 resonances:
+
+Qs  C_3^V  C_4^V  C_5^V  C_6^V  C_3^A  C_4^A  C_5^A  C_6^A
+
+
+
+FULL DETAILS ARE GIVEN IN Phys. Rev. C 79, 034601 (2009)
