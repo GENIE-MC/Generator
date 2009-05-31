@@ -104,6 +104,7 @@ evgen-models: FORCE
 	cd Elastic; 	       make; cd ..; \
 	cd EVGModules;         make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
+	cd GiBUU;              make; cd ..; \
 	cd HadronTransport;    make; cd ..; \
 	cd LlewellynSmith;     make; cd ..; \
 	cd MEC;                make; cd ..; \
@@ -363,6 +364,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Fragmentation
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/GHEP
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Geo
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/GiBUU
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/HadronTransport
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Interaction
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/LlewellynSmith
@@ -413,6 +415,7 @@ copy-install-files: FORCE
 	cd Fragmentation;          make install; cd ..; \
 	cd GHEP;                   make install; cd ..; \
 	cd Geo;                    make install; cd ..; \
+	cd GiBUU;                  make install; cd ..; \
 	cd HadronTransport;        make install; cd ..; \
 	cd Interaction;            make install; cd ..; \
 	cd LlewellynSmith;         make install; cd ..; \
@@ -460,6 +463,7 @@ purge: FORCE
 	cd Fragmentation;                 make purge; cd ..; \
 	cd GHEP;                          make purge; cd ..; \
 	cd Geo;                           make purge; cd ..; \
+	cd GiBUU;                         make purge; cd ..; \
 	cd HadronTransport;               make purge; cd ..; \
 	cd Interaction;                   make purge; cd ..; \
 	cd LlewellynSmith;                make purge; cd ..; \
@@ -513,6 +517,7 @@ clean-files: FORCE
 	cd Fragmentation;                 make clean; cd ..; \
 	cd GHEP;                          make clean; cd ..; \
 	cd Geo;                           make clean; cd ..; \
+	cd GiBUU;                         make clean; cd ..; \
 	cd HadronTransport;               make clean; cd ..; \
 	cd Interaction;                   make clean; cd ..; \
 	cd LlewellynSmith;                make clean; cd ..; \
@@ -583,6 +588,7 @@ distclean: FORCE
 	cd Fragmentation;                  make distclean; cd ..; \
 	cd GHEP;                           make distclean; cd ..; \
 	cd Geo;                            make distclean; cd ..; \
+	cd GiBUU;                          make distclean; cd ..; \
 	cd HadronTransport;                make distclean; cd ..; \
 	cd Interaction;                    make distclean; cd ..; \
 	cd LlewellynSmith;                 make distclean; cd ..; \
