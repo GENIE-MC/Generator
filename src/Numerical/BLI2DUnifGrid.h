@@ -43,8 +43,6 @@ public:
   double ZMin (void) const { return fZmin; }
   double ZMax (void) const { return fZmax; }
 
-  bool IsWithinValidRange (double x, double y) const;
-
 private:
 
   void Init (int nx=0, double xmin=0, double xmax=0, int ny=0, double ymin=0, double ymax=0);
