@@ -1,13 +1,15 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The GENIE Neutrino MC Generator (http://www.genie-mc.org)
+The GENIE Neutrino Monte Carlo Generator 
 
-Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
+http://www.genie-mc.org
+
+Copyright (c) 2003-2009, GENIE collaboration
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 GENIE Collaboration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Costas Andreopoulos   C.V.Andreopoulos \at rl.ac.uk       [1]
+Costas Andreopoulos   C.V.Andreopoulos \at rl.ac.uk       [1]  (*)
 Flavio Cavanna        flavio.cavanna \at aquila.infn.it   [2]
 James Dobson          j.dobson07 \at imperial.ac.uk       [3]
 Steve Dytman          dytman+ \at pitt.edu                [4]
@@ -30,7 +32,7 @@ Mike Whalley          M.R.Whalley \at durham.ac.uk        [8]
 [7] ETH Zurich (Switzerland)
 [8] Durham University (UK)
 
-Corresponding author: Costas Andreopoulos
+(*) Corresponding author
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LICENSE
@@ -114,3 +116,16 @@ For any derivative work based on GENIE:
 
   * C.Andreopoulos et al., The GENIE Neutrino Monte Carlo Generator, 
     arXiv:0905.2517; submitted to NIM A
+
+    Corresponding BibTeX entry:
+
+    @Article{Andreopoulos:2009rq,
+      author        = "Andreopoulos, C. and others",
+      title         = "{The GENIE Neutrino Monte Carlo Generator}",
+      year          = "2009",
+      eprint        = "0905.2517",
+      archivePrefix = "arXiv",
+      primaryClass  =  "hep-ph",
+      SLACcitation  = "%%CITATION = 0905.2517;%%"
+    }
+
