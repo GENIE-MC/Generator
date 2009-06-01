@@ -14,12 +14,23 @@
            -n number of events to convert
            -f is a string that specifies the output file format. 
 
-	      [T2K/GENIE formats]
+	      [Generic formats]
+               * `gst': 
+                    The 'definite' GENIE summary tree format (gst).
+   	       * `gxml': 
+                     GENIE XML event format 
+   	       * `rootracker': 
+                     A bare-ROOT STDHEP-like GENIE event tree.
+
+	      [Experiment-specific formats]
+   	       * `numi_rootracker':
+                     A variance of the `rootracker' format for the NuMI expts.
+                     Includes full information about the generated neutrino event 
+                     and pass-through NuMI flux info.
    	       * `t2k_rootracker':
-                     The standardized bare-ROOT GENIE event tree used by the 
-                     nd280, INGRID and 2km MC.
-                     Includes full information about the generated neutrino
-                     event and pass-through JPARC flux info.
+                     A variance of the `rootracker' format used by the nd280, 
+                     INGRID and 2km MC. Includes full information about the 
+                     generated neutrino event and pass-through JPARC flux info.
    	       * `t2k_tracker': 
                      A tracker-type format with tweaks required by the SuperK
                      detector MC (SKDETSIM):
@@ -31,15 +42,6 @@
                           propaged by SKDETSIM to the DSTs, is identical with the 
                           one used at the near detectors and can be used for 
                           global systematic studies.
-
-	      [Generic formats]
-               * `gst': 
-                    The 'definite' GENIE summary tree format (gst).
-   	       * `gxml': 
-                     GENIE XML event format 
-   	       * `rootracker': 
-                     Similar to `t2k_rootracker' but without the T2K-specific
-                     pass-through JPARC flux-info
 
 	      [GENIE test / cross-generator comparison formats]
    	       * `ghad': 
@@ -54,14 +56,15 @@
            -o specifies the output filename. 
               If not specified a the default filename is constructed by the 
               input base name and an extension depending on the file format: 
-               `t2k_tracker'    -> *.gtrac.dat
-               `t2k_rootracker' -> *.gtrac.root
-               `gst'            -> *.gst.root
-               `rootracker'     -> *.gtrac.root
-               `gxml'           -> *.gxml 
-               `ghad'           -> *.ghad.dat
-               `ginuke'         -> *.ginuke.root
-               `nuance_tracker' -> *.gtrac_legacy.dat
+               `gst'             -> *.gst.root
+               `rootracker'      -> *.gtrac.root
+               `gxml'            -> *.gxml 
+               `t2k_tracker'     -> *.gtrac.dat
+               `t2k_rootracker'  -> *.gtrac.root
+               `numi_rootracker' -> *.gtrac.root
+               `ghad'            -> *.ghad.dat
+               `ginuke'          -> *.ginuke.root
+               `nuance_tracker'  -> *.gtrac_legacy.dat
 		
          Examples:
            (1)  shell% gntpc -i myfile.ghep.root -f t2k_rootracker
@@ -119,6 +122,7 @@
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "FluxDrivers/GJPARCNuFlux.h"
+#include "FluxDrivers/GNuMIFlux.h"
 #endif
 
 //define __GHAD_NTP__
@@ -151,14 +155,15 @@ bool   CheckRootFilename       (string filename);
 //format enum
 typedef enum EGNtpcFmt {
   kConvFmt_undef = 0,
-  kConvFmt_t2k_rootracker,
-  kConvFmt_t2k_tracker,
   kConvFmt_gst,
   kConvFmt_rootracker,
   kConvFmt_gxml,
+  kConvFmt_t2k_rootracker,
+  kConvFmt_t2k_tracker,
+  kConvFmt_numi_rootracker,
+  kConvFmt_nuance_tracker,
   kConvFmt_ghad,
-  kConvFmt_ginuke,
-  kConvFmt_nuance_tracker
+  kConvFmt_ginuke
 } GNtpcFmt_t;
 
 //input options (from command line arguments):
@@ -178,12 +183,6 @@ int main(int argc, char ** argv)
 
   //-- call the appropriate conversion function
   switch(gOptOutFileFormat) {
-   case (kConvFmt_t2k_rootracker) :  
-	ConvertToGRooTracker(); 
-	break;
-   case (kConvFmt_t2k_tracker)  :  
-	ConvertToGTracker();        
-	break;
    case (kConvFmt_gst)  :
 	ConvertToGST();        
 	break;  
@@ -193,14 +192,23 @@ int main(int argc, char ** argv)
    case (kConvFmt_gxml) :  
 	ConvertToGXML();         
 	break;
+   case (kConvFmt_t2k_rootracker) :  
+	ConvertToGRooTracker(); 
+	break;
+   case (kConvFmt_t2k_tracker)  :  
+	ConvertToGTracker();        
+	break;
+   case (kConvFmt_numi_rootracker) :  
+	ConvertToGRooTracker(); 
+	break;
+   case (kConvFmt_nuance_tracker)  :  
+	ConvertToGTracker();        
+	break;
    case (kConvFmt_ghad) :  
 	ConvertToGHad();         
 	break;
    case (kConvFmt_ginuke) :  
 	ConvertToGINuke();         
-	break;
-   case (kConvFmt_nuance_tracker)  :  
-	ConvertToGTracker();        
 	break;
    default:
      LOG("gntpc", pFATAL)
@@ -1374,35 +1382,124 @@ void ConvertToGRooTracker(void)
   PDGLibrary * pdglib = PDGLibrary::Instance();
 
   //-- define the output rootracker tree branches
-  TBits*      brEvtFlags = 0;             // generator-specific event flags
-  TObjString* brEvtCode = 0;              // generator-specific string with 'event code'
-  int         brEvtNum;                   // event num.
-  double      brEvtXSec;                  // cross section for selected event (1E-38 cm2)
-  double      brEvtDXSec;                 // cross section for selected event kinematics (1E-38 cm2 /{K^n})
-  double      brEvtWght;                  // weight for that event
-  double      brEvtProb;                  // probability for that event (given cross section, path lengths, etc)
-  double      brEvtVtx[4];                // event vertex position in detector coord syst (SI)
-  int         brStdHepN;                  // number of particles in particle array 
-  // > stdhep-like particle array:
-  int         brStdHepPdg   [kNPmax];     // pdg codes (& generator specific codes for pseudoparticles)
-  int         brStdHepStatus[kNPmax];     // generator-specific status code
+
+  // event info
+  TBits*      brEvtFlags = 0;             // Generator-specific event flags
+  TObjString* brEvtCode = 0;              // Generator-specific string with 'event code'
+  int         brEvtNum;                   // Event num.
+  double      brEvtXSec;                  // Cross section for selected event (1E-38 cm2)
+  double      brEvtDXSec;                 // Cross section for selected event kinematics (1E-38 cm2 /{K^n})
+  double      brEvtWght;                  // Weight for that event
+  double      brEvtProb;                  // Probability for that event (given cross section, path lengths, etc)
+  double      brEvtVtx[4];                // Event vertex position in detector coord syst (SI)
+  int         brStdHepN;                  // Number of particles in particle array 
+  // stdhep-like particle array:
+  int         brStdHepPdg   [kNPmax];     // Pdg codes (& generator specific codes for pseudoparticles)
+  int         brStdHepStatus[kNPmax];     // Generator-specific status code
   double      brStdHepX4    [kNPmax][4];  // 4-x (x, y, z, t) of particle in hit nucleus frame (fm)
   double      brStdHepP4    [kNPmax][4];  // 4-p (px,py,pz,E) of particle in LAB frame (GeV)
-  double      brStdHepPolz  [kNPmax][3];  // polarization vector
-  int         brStdHepFd    [kNPmax];     // first daughter
-  int         brStdHepLd    [kNPmax];     // last  daughter 
-  int         brStdHepFm    [kNPmax];     // first mother
-  int         brStdHepLm    [kNPmax];     // last  mother
-  // > neutrino parent info (passed-through from the beam-line MC / quantities in 'jnubeam' units)
-  int         brNuParentPdg;              // parent hadron pdg code
-  int         brNuParentDecMode;          // parent hadron decay mode
-  double      brNuParentDecP4 [4];        // parent hadron 4-momentum at decay 
-  double      brNuParentDecX4 [4];        // parent hadron 4-position at decay
-  double      brNuParentProP4 [4];        // parent hadron 4-momentum at production
-  double      brNuParentProX4 [4];        // parent hadron 4-position at production
-  int         brNuParentProNVtx;          // parent hadron vtx id
-  // > etc 
-  int         brNeutCode;                 // > NEUT-like reaction code for the GENIE event
+  double      brStdHepPolz  [kNPmax][3];  // Polarization vector
+  int         brStdHepFd    [kNPmax];     // First daughter
+  int         brStdHepLd    [kNPmax];     // Last  daughter 
+  int         brStdHepFm    [kNPmax];     // First mother
+  int         brStdHepLm    [kNPmax];     // Last  mother
+
+  // >> for the t2k rootracker variance only
+
+  // neutrino parent info (passed-through from the beam-line MC / quantities in 'jnubeam' units)
+  int         brNuParentPdg;              // Parent hadron pdg code
+  int         brNuParentDecMode;          // Parent hadron decay mode
+  double      brNuParentDecP4 [4];        // Parent hadron 4-momentum at decay 
+  double      brNuParentDecX4 [4];        // Parent hadron 4-position at decay
+  double      brNuParentProP4 [4];        // Parent hadron 4-momentum at production
+  double      brNuParentProX4 [4];        // Parent hadron 4-position at production
+  int         brNuParentProNVtx;          // Parent hadron vtx id
+  // codes for T2K cross-generator comparisons 
+  int         brNeutCode;                 // NEUT-like reaction code for the GENIE event
+
+  // >> for the numi rootracker variance only
+
+  // neutrino parent info (GNuMI passed-through info)
+  // see http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/[/v19/output_gnumi.html]
+  int        brNumiFluxRun;               // Run number 
+  int        brNumiFluxEvtno;             // Event number (proton on target)
+  double     brNumiFluxNdxdz;             // Neutrino direction slopes for a random decay
+  double     brNumiFluxNdydz;             // ...
+  double     brNumiFluxNpz;               // Neutrino momentum (GeV/c) along z direction (beam axis)
+  double     brNumiFluxNenergy;           // Neutrino energy (GeV/c) for a random decay
+  double     brNumiFluxNdxdznea;          // Neutrino direction slopes for a decay forced at center of near detector 
+  double     brNumiFluxNdydznea;          // ...
+  double     brNumiFluxNenergyn;          // Neutrino energy for a decay forced at center of near detector 
+  double     brNumiFluxNwtnear;           // Neutrino weight for a decay forced at center of near detector 
+  double     brNumiFluxNdxdzfar;          // Neutrino direction slopes for a decay forced at center of far detector
+  double     brNumiFluxNdydzfar;          // ...
+  double     brNumiFluxNenergyf;          // Neutrino energy for a decay forced at center of far detector
+  double     brNumiFluxNwtfar;            // Neutrino weight for a decay forced at center of far detector
+  int        brNumiFluxNorig;             // Obsolete
+  int        brNumiFluxNdecay;            // Decay mode that produced neutrino:
+                                          //   1  K0L -> nue pi- e+
+                                          //   2  K0L -> nuebar pi+ e-
+                                          //   3  K0L -> numu pi- mu+
+                                          //   4  K0L -> numubar pi+ mu-
+                                          //   5  K+  -> numu mu+
+                                          //   6  K+  -> nue pi0 e+
+                                          //   7  K+  -> numu pi0 mu+
+                                          //   8  K-  -> numubar mu-
+                                          //   9  K-  -> nuebar pi0 e-
+                                          //  10  K-  -> numubar pi0 mu-
+                                          //  11  mu+ -> numubar nue e+
+                                          //  12  mu- -> numu nuebar e-
+                                          //  13  pi+ -> numu mu+
+                                          //  14  pi- -> numubar mu-
+  int        brNumiFluxNtype;             // Neutrino flavor
+  double     brNumiFluxVx;                // X position of hadron/muon decay 
+  double     brNumiFluxVy;                // Y position of hadron/muon decay 
+  double     brNumiFluxVz;                // Z position of hadron/muon decay 
+  double     brNumiFluxPdpx;              // Parent X momentum at decay point 
+  double     brNumiFluxPdpy;              // Parent Y momentum at decay point 
+  double     brNumiFluxPdpz;              // Parent Z momentum at decay point 
+  double     brNumiFluxPpdxdz;            // Parent dxdz direction at production 
+  double     brNumiFluxPpdydz;            // Parent dydz direction at production 
+  double     brNumiFluxPppz;              // Parent Z momentum at production 
+  double     brNumiFluxPpenergy;          // Parent energy at production 
+  int        brNumiFluxPpmedium;          // Tracking medium number where parent was produced 
+  int        brNumiFluxPtype;             // Parent particle ID
+  double     brNumiFluxPpvx;              // Parent production vertex X (cm)
+  double     brNumiFluxPpvy;              // Parent production vertex Y (cm)
+  double     brNumiFluxPpvz;              // Parent production vertex Z (cm)
+  double     brNumiFluxMuparpx;           // Repeat of information above, but for muon neutrino parents 
+  double     brNumiFluxMuparpy;           // ...
+  double     brNumiFluxMuparpz;           // ...
+  double     brNumiFluxMupare;            // ...
+  double     brNumiFluxNecm;              // Neutrino energy in COM frame 
+  double     brNumiFluxNimpwt;            // Weight of neutrino parent 
+  double     brNumiFluxXpoint;            // unused
+  double     brNumiFluxYpoint;            // unused
+  double     brNumiFluxZpoint;            // unused
+  double     brNumiFluxTvx;               // X exit point of parent particle at the target 
+  double     brNumiFluxTvy;               // Y exit point of parent particle at the target 
+  double     brNumiFluxTvz;               // Z exit point of parent particle at the target 
+  double     brNumiFluxTpx;               // Parent momentum exiting the target (X) 
+  double     brNumiFluxTpy;               // Parent momentum exiting the target (Y) 
+  double     brNumiFluxTpz;               // Parent momentum exiting the target (Z) 
+  double     brNumiFluxTptype;            // Parent particle ID exiting the target
+  double     brNumiFluxTgen;              // Parent generation in cascade
+                                          //   1  primary proton 
+                                          //   2  particles produced by proton interaction
+                                          //    3 = particles produced by interactions of the 2's, ... 
+  double     brNumiFluxTgptype;           // Type of particle that created a particle flying of the target 
+  double     brNumiFluxTgppx;             // Momentum of a particle, that created a particle that flies off the target, at the interaction point.
+  double     brNumiFluxTgppy;             // ...
+  double     brNumiFluxTgppz;             // ...
+  double     brNumiFluxTprivx;            // Primary particle interaction vertex 
+  double     brNumiFluxTprivy;            // ...
+  double     brNumiFluxTprivz;            // ...
+  double     brNumiFluxBeamx;             // Primary proton origin 
+  double     brNumiFluxBeamy;             // ...
+  double     brNumiFluxBeamz;             // ...
+  double     brNumiFluxBeampx;            // Primary proton momentum 
+  double     brNumiFluxBeampy;            // ...
+  double     brNumiFluxBeampz;            // ...
 
   //-- open the output ROOT file
   TFile fout(gOptOutFileName.c_str(), "RECREATE");
@@ -1429,8 +1526,11 @@ void ConvertToGRooTracker(void)
   rootracker_tree->Branch("StdHepLd",         brStdHepLd,        "StdHepLd[StdHepN]/I"); 
   rootracker_tree->Branch("StdHepFm",         brStdHepFm,        "StdHepFm[StdHepN]/I"); 
   rootracker_tree->Branch("StdHepLm",         brStdHepLm,        "StdHepLm[StdHepN]/I"); 
-  if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
-    // JNUBEAM pass-through info -- available ony on the t2k version of the rootracker format
+
+  // extra branches of the t2k rootracker variance
+  if(gOptOutFileFormat == kConvFmt_t2k_rootracker) 
+  {
+    // JNUBEAM pass-through info
     rootracker_tree->Branch("NuParentPdg",     &brNuParentPdg,     "NuParentPdg/I");       
     rootracker_tree->Branch("NuParentDecMode", &brNuParentDecMode, "NuParentDecMode/I");   
     rootracker_tree->Branch("NuParentDecP4",    brNuParentDecP4,   "NuParentDecP4[4]/D");     
@@ -1438,8 +1538,77 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("NuParentProP4",    brNuParentProP4,   "NuParentProP4[4]/D");     
     rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/D");     
     rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
-    // NEUT-like reaction code -- available only on the t2k version of the rootracker format
+
+    // NEUT-like reaction code
     rootracker_tree->Branch("G2NeutEvtCode",   &brNeutCode,        "G2NeutEvtCode/I");   
+  }
+
+  // extra branches of the numi rootracker variance
+  if(gOptOutFileFormat == kConvFmt_t2k_rootracker) 
+  {
+   // GNuMI pass-through info
+   rootracker_tree->Branch("NumiFluxRun",      &brNumiFluxRun,       "NumiFluxRun/I");
+   rootracker_tree->Branch("NumiFluxEvtno",    &brNumiFluxEvtno,     "NumiFluxEvtno/I");
+   rootracker_tree->Branch("NumiFluxNdxdz",    &brNumiFluxNdxdz,     "NumiFluxNdxdz/D");
+   rootracker_tree->Branch("NumiFluxNdydz",    &brNumiFluxNdydz,     "NumiFluxNdydz/D");
+   rootracker_tree->Branch("NumiFluxNpz",      &brNumiFluxNpz,       "NumiFluxNpz/D");
+   rootracker_tree->Branch("NumiFluxNenergy",  &brNumiFluxNenergy,   "NumiFluxNenergy/D");
+   rootracker_tree->Branch("NumiFluxNdxdznea", &brNumiFluxNdxdznea,  "NumiFluxNdxdznea/D");
+   rootracker_tree->Branch("NumiFluxNdydznea", &brNumiFluxNdydznea,  "NumiFluxNdydznea/D");
+   rootracker_tree->Branch("NumiFluxNenergyn", &brNumiFluxNenergyn,  "NumiFluxNenergyn/D");
+   rootracker_tree->Branch("NumiFluxNwtnear",  &brNumiFluxNwtnear,   "NumiFluxNwtnear/D");
+   rootracker_tree->Branch("NumiFluxNdxdzfar", &brNumiFluxNdxdzfar,  "NumiFluxNdxdzfar/D");
+   rootracker_tree->Branch("NumiFluxNdydzfar", &brNumiFluxNdydzfar,  "NumiFluxNdydzfar/D");
+   rootracker_tree->Branch("NumiFluxNenergyf", &brNumiFluxNenergyf,  "NumiFluxNenergyf/D");
+   rootracker_tree->Branch("NumiFluxNwtfar",   &brNumiFluxNwtfar,    "NumiFluxNwtfar/D");
+   rootracker_tree->Branch("NumiFluxNorig",    &brNumiFluxNorig,     "NumiFluxNorig/I");
+   rootracker_tree->Branch("NumiFluxNdecay",   &brNumiFluxNdecay,    "NumiFluxNdecay/I");
+   rootracker_tree->Branch("NumiFluxNtype",    &brNumiFluxNtype,     "NumiFluxNtype/I");
+   rootracker_tree->Branch("NumiFluxVx",       &brNumiFluxVx,        "NumiFluxVx/D");
+   rootracker_tree->Branch("NumiFluxVy",       &brNumiFluxVy,        "NumiFluxVy/D");
+   rootracker_tree->Branch("NumiFluxVz",       &brNumiFluxVz,        "NumiFluxVz/D");
+   rootracker_tree->Branch("NumiFluxPdpx",     &brNumiFluxPdpx,      "NumiFluxPdpx/D");
+   rootracker_tree->Branch("NumiFluxPdpy",     &brNumiFluxPdpy,      "NumiFluxPdpy/D");
+   rootracker_tree->Branch("NumiFluxPdpz",     &brNumiFluxPdpz,      "NumiFluxPdpz/D");
+   rootracker_tree->Branch("NumiFluxPpdxdz",   &brNumiFluxPpdxdz,    "NumiFluxPpdxdz/D");
+   rootracker_tree->Branch("NumiFluxPpdydz",   &brNumiFluxPpdydz,    "NumiFluxPpdydz/D");
+   rootracker_tree->Branch("NumiFluxPppz",     &brNumiFluxPppz,      "NumiFluxPppz/D");
+   rootracker_tree->Branch("NumiFluxPpenergy", &brNumiFluxPpenergy,  "NumiFluxPpenergy/D");
+   rootracker_tree->Branch("NumiFluxPpmedium", &brNumiFluxPpmedium,  "NumiFluxPpmedium/I");
+   rootracker_tree->Branch("NumiFluxPtype",    &brNumiFluxPtype,     "NumiFluxPtype/I");
+   rootracker_tree->Branch("NumiFluxPpvx",     &brNumiFluxPpvx,      "NumiFluxPpvx/D");
+   rootracker_tree->Branch("NumiFluxPpvy",     &brNumiFluxPpvy,      "NumiFluxPpvy/D");
+   rootracker_tree->Branch("NumiFluxPpvz",     &brNumiFluxPpvz,      "NumiFluxPpvz/D");
+   rootracker_tree->Branch("NumiFluxMuparpx",  &brNumiFluxMuparpx,   "NumiFluxMuparpx/D");
+   rootracker_tree->Branch("NumiFluxMuparpy",  &brNumiFluxMuparpy,   "NumiFluxMuparpy/D");
+   rootracker_tree->Branch("NumiFluxMuparpz",  &brNumiFluxMuparpz,   "NumiFluxMuparpz/D");
+   rootracker_tree->Branch("NumiFluxMupare",   &brNumiFluxMupare,    "NumiFluxMupare/D");
+   rootracker_tree->Branch("NumiFluxNecm",     &brNumiFluxNecm,      "NumiFluxNecm/D");
+   rootracker_tree->Branch("NumiFluxNimpwt",   &brNumiFluxNimpwt,    "NumiFluxNimpwt/D");
+   rootracker_tree->Branch("NumiFluxXpoint",   &brNumiFluxXpoint,    "NumiFluxXpoint/D");
+   rootracker_tree->Branch("NumiFluxYpoint",   &brNumiFluxYpoint,    "NumiFluxYpoint/D");
+   rootracker_tree->Branch("NumiFluxZpoint",   &brNumiFluxZpoint,    "NumiFluxZpoint/D");
+   rootracker_tree->Branch("NumiFluxTvx",      &brNumiFluxTvx,       "NumiFluxTvx/D");
+   rootracker_tree->Branch("NumiFluxTvy",      &brNumiFluxTvy,       "NumiFluxTvy/D");
+   rootracker_tree->Branch("NumiFluxTvz",      &brNumiFluxTvz,       "NumiFluxTvz/D");
+   rootracker_tree->Branch("NumiFluxTpx",      &brNumiFluxTpx,       "NumiFluxTpx/D");
+   rootracker_tree->Branch("NumiFluxTpy",      &brNumiFluxTpy,       "NumiFluxTpy/D");
+   rootracker_tree->Branch("NumiFluxTpz",      &brNumiFluxTpz,       "NumiFluxTpz/D");
+   rootracker_tree->Branch("NumiFluxTptype",   &brNumiFluxTptype,    "NumiFluxTptype/I");
+   rootracker_tree->Branch("NumiFluxTgen",     &brNumiFluxTgen,      "NumiFluxTgen/I");
+   rootracker_tree->Branch("NumiFluxTgptype",  &brNumiFluxTgptype,   "NumiFluxTgptype/I");
+   rootracker_tree->Branch("NumiFluxTgppx",    &brNumiFluxTgppx,     "NumiFluxTgppx/D");
+   rootracker_tree->Branch("NumiFluxTgppy",    &brNumiFluxTgppy,     "NumiFluxTgppy/D");
+   rootracker_tree->Branch("NumiFluxTgppz",    &brNumiFluxTgppz,     "NumiFluxTgppz/D");
+   rootracker_tree->Branch("NumiFluxTprivx",   &brNumiFluxTprivx,    "NumiFluxTprivx/D");
+   rootracker_tree->Branch("NumiFluxTprivy",   &brNumiFluxTprivy,    "NumiFluxTprivy/D");
+   rootracker_tree->Branch("NumiFluxTprivz",   &brNumiFluxTprivz,    "NumiFluxTprivz/D");
+   rootracker_tree->Branch("NumiFluxBeamx",    &brNumiFluxBeamx,     "NumiFluxBeamx/D");
+   rootracker_tree->Branch("NumiFluxBeamy",    &brNumiFluxBeamy,     "NumiFluxBeamy/D");
+   rootracker_tree->Branch("NumiFluxBeamz",    &brNumiFluxBeamz,     "NumiFluxBeamz/D");
+   rootracker_tree->Branch("NumiFluxBeampx",   &brNumiFluxBeampx,    "NumiFluxBeampx/D");
+   rootracker_tree->Branch("NumiFluxBeampy",   &brNumiFluxBeampy,    "NumiFluxBeampy/D");
+   rootracker_tree->Branch("NumiFluxBeampz",   &brNumiFluxBeampz,    "NumiFluxBeampz/D");
   }
 
   //-- open the input GENIE ROOT file and get the TTree & its header
@@ -1456,9 +1625,13 @@ void ConvertToGRooTracker(void)
   gtree->SetBranchAddress("gmcrec", &mcrec);
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
-  flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
+  flux::GJPARCNuFluxPassThroughInfo * jnubeam_flux_info = 0;
   if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
-     gtree->SetBranchAddress("flux", &flux_info);
+     gtree->SetBranchAddress("flux", &jnubeam_flux_info);
+  }
+  flux::GNuMIFluxPassThroughInfo * gnumi_flux_info = 0;
+  if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
+     gtree->SetBranchAddress("flux", &gnumi_flux_info);
   }
 #else
   LOG("gntpc", pWARN) 
@@ -1489,8 +1662,8 @@ void ConvertToGRooTracker(void)
     LOG("gntpc", pINFO) << event;
     LOG("gntpc", pINFO) << *interaction;
     if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
-       if(flux_info) {
-          LOG("gntpc", pINFO) << *flux_info;
+       if(jnubeam_flux_info) {
+          LOG("gntpc", pINFO) << *jnubeam_flux_info;
        } else {
           LOG("gntpc", pINFO) << "No JNUBEAM flux info associated with this event";
        }
@@ -1587,37 +1760,106 @@ void ConvertToGRooTracker(void)
     // The flux may not be available, eg if events were generated using plain flux 
     // histograms and not the JNUBEAM simulation's output flux ntuples.
     if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
-     if(flux_info) {
-       brNuParentPdg       = flux_info->pdg;        
-       brNuParentDecMode   = flux_info->decayMode;        
+     if(jnubeam_flux_info) {
+       brNuParentPdg       = jnubeam_flux_info->pdg;        
+       brNuParentDecMode   = jnubeam_flux_info->decayMode;        
 
-       brNuParentDecP4 [0] = flux_info->decayP * flux_info->decayDirX; // px
-       brNuParentDecP4 [1] = flux_info->decayP * flux_info->decayDirY; // py
-       brNuParentDecP4 [2] = flux_info->decayP * flux_info->decayDirZ; // px
+       brNuParentDecP4 [0] = jnubeam_flux_info->decayP * jnubeam_flux_info->decayDirX; // px
+       brNuParentDecP4 [1] = jnubeam_flux_info->decayP * jnubeam_flux_info->decayDirY; // py
+       brNuParentDecP4 [2] = jnubeam_flux_info->decayP * jnubeam_flux_info->decayDirZ; // px
        brNuParentDecP4 [3] = TMath::Sqrt(
-                                 TMath::Power(pdglib->Find(flux_info->pdg)->Mass(), 2.)
-                               + TMath::Power(flux_info->decayP, 2.)
+                                 TMath::Power(pdglib->Find(jnubeam_flux_info->pdg)->Mass(), 2.)
+                               + TMath::Power(jnubeam_flux_info->decayP, 2.)
                               ); // E
-       brNuParentDecX4 [0] = flux_info->decayX; // x
-       brNuParentDecX4 [1] = flux_info->decayY; // y       
-       brNuParentDecX4 [2] = flux_info->decayZ; // x   
+       brNuParentDecX4 [0] = jnubeam_flux_info->decayX; // x
+       brNuParentDecX4 [1] = jnubeam_flux_info->decayY; // y       
+       brNuParentDecX4 [2] = jnubeam_flux_info->decayZ; // x   
        brNuParentDecX4 [3] = 0;                 // t
 
-       brNuParentProP4 [0] = flux_info->prodP * flux_info->prodDirX; // px
-       brNuParentProP4 [1] = flux_info->prodP * flux_info->prodDirY; // py
-       brNuParentProP4 [2] = flux_info->prodP * flux_info->prodDirZ; // px
+       brNuParentProP4 [0] = jnubeam_flux_info->prodP * jnubeam_flux_info->prodDirX; // px
+       brNuParentProP4 [1] = jnubeam_flux_info->prodP * jnubeam_flux_info->prodDirY; // py
+       brNuParentProP4 [2] = jnubeam_flux_info->prodP * jnubeam_flux_info->prodDirZ; // px
        brNuParentProP4 [3] = TMath::Sqrt(
-                                TMath::Power(pdglib->Find(flux_info->pdg)->Mass(), 2.)
-                              + TMath::Power(flux_info->prodP, 2.)
+                                TMath::Power(pdglib->Find(jnubeam_flux_info->pdg)->Mass(), 2.)
+                              + TMath::Power(jnubeam_flux_info->prodP, 2.)
                               ); // E
-       brNuParentProX4 [0] = flux_info->prodX; // x
-       brNuParentProX4 [1] = flux_info->prodY; // y       
-       brNuParentProX4 [2] = flux_info->prodZ; // x   
+       brNuParentProX4 [0] = jnubeam_flux_info->prodX; // x
+       brNuParentProX4 [1] = jnubeam_flux_info->prodY; // y       
+       brNuParentProX4 [2] = jnubeam_flux_info->prodZ; // x   
        brNuParentProX4 [3] = 0;                // t
 
-       brNuParentProNVtx   = flux_info->prodNVtx;
+       brNuParentProNVtx   = jnubeam_flux_info->prodNVtx;
      }
     }
+
+    // Copy flux info if this is the numi rootracker variance.
+    if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
+     if(gnumi_flux_info) {
+       brNumiFluxRun      = gnumi_flux_info->run;
+       brNumiFluxEvtno    = gnumi_flux_info->evtno;
+       brNumiFluxNdxdz    = gnumi_flux_info->ndxdz;
+       brNumiFluxNdydz    = gnumi_flux_info->ndydz;
+       brNumiFluxNpz      = gnumi_flux_info->npz;
+       brNumiFluxNenergy  = gnumi_flux_info->nenergy;
+       brNumiFluxNdxdznea = gnumi_flux_info->ndxdznea;
+       brNumiFluxNdydznea = gnumi_flux_info->ndydznea;
+       brNumiFluxNenergyn = gnumi_flux_info->nenergyn;
+       brNumiFluxNwtnear  = gnumi_flux_info->nwtnear;
+       brNumiFluxNdxdzfar = gnumi_flux_info->ndxdzfar;
+       brNumiFluxNdydzfar = gnumi_flux_info->ndydzfar;
+       brNumiFluxNenergyf = gnumi_flux_info->nenergyf;
+       brNumiFluxNwtfar   = gnumi_flux_info->nwtfar;
+       brNumiFluxNorig    = gnumi_flux_info->norig;
+       brNumiFluxNdecay   = gnumi_flux_info->ndecay;
+       brNumiFluxNtype    = gnumi_flux_info->ntype;
+       brNumiFluxVx       = gnumi_flux_info->vx;
+       brNumiFluxVy       = gnumi_flux_info->vy;
+       brNumiFluxVz       = gnumi_flux_info->vz;
+       brNumiFluxPdpx     = gnumi_flux_info->pdpx;
+       brNumiFluxPdpy     = gnumi_flux_info->pdpy;
+       brNumiFluxPdpz     = gnumi_flux_info->pdpz;
+       brNumiFluxPpdxdz   = gnumi_flux_info->ppdxdz;
+       brNumiFluxPpdydz   = gnumi_flux_info->ppdydz;
+       brNumiFluxPppz     = gnumi_flux_info->pppz;
+       brNumiFluxPpenergy = gnumi_flux_info->ppenergy;
+       brNumiFluxPpmedium = gnumi_flux_info->ppmedium;
+       brNumiFluxPtype    = gnumi_flux_info->ptype;
+       brNumiFluxPpvx     = gnumi_flux_info->ppvx;
+       brNumiFluxPpvy     = gnumi_flux_info->ppvy;
+       brNumiFluxPpvz     = gnumi_flux_info->ppvz;
+       brNumiFluxMuparpx  = gnumi_flux_info->muparpx;
+       brNumiFluxMuparpy  = gnumi_flux_info->muparpy;
+       brNumiFluxMuparpz  = gnumi_flux_info->muparpz;
+       brNumiFluxMupare   = gnumi_flux_info->mupare;
+       brNumiFluxNecm     = gnumi_flux_info->necm;
+       brNumiFluxNimpwt   = gnumi_flux_info->nimpwt;
+       brNumiFluxXpoint   = gnumi_flux_info->xpoint;
+       brNumiFluxYpoint   = gnumi_flux_info->ypoint;
+       brNumiFluxZpoint   = gnumi_flux_info->zpoint;
+       brNumiFluxTvx      = gnumi_flux_info->tvx;
+       brNumiFluxTvy      = gnumi_flux_info->tvy;
+       brNumiFluxTvz      = gnumi_flux_info->tvz;
+       brNumiFluxTpx      = gnumi_flux_info->tpx;
+       brNumiFluxTpy      = gnumi_flux_info->tpy;
+       brNumiFluxTpz      = gnumi_flux_info->tpz;
+       brNumiFluxTptype   = gnumi_flux_info->tptype;
+       brNumiFluxTgen     = gnumi_flux_info->tgen;
+       brNumiFluxTgptype  = gnumi_flux_info->tgptype;
+       brNumiFluxTgppx    = gnumi_flux_info->tgppx;
+       brNumiFluxTgppy    = gnumi_flux_info->tgppy;
+       brNumiFluxTgppz    = gnumi_flux_info->tgppz;
+       brNumiFluxTprivx   = gnumi_flux_info->tprivx;
+       brNumiFluxTprivy   = gnumi_flux_info->tprivy;
+       brNumiFluxTprivz   = gnumi_flux_info->tprivz;
+       brNumiFluxBeamx    = gnumi_flux_info->beamx;
+       brNumiFluxBeamy    = gnumi_flux_info->beamy;
+       brNumiFluxBeamz    = gnumi_flux_info->beamz;
+       brNumiFluxBeampx   = gnumi_flux_info->beampx;
+       brNumiFluxBeampy   = gnumi_flux_info->beampy;
+       brNumiFluxBeampz   = gnumi_flux_info->beampz;
+     }
+    }
+
 #endif
 
     // map GENIE event to NEUT reaction codes
@@ -2054,14 +2296,15 @@ string DefaultOutputFile(void)
 {
   // filename extension - depending on file format
   string ext="";
-  if      (gOptOutFileFormat == kConvFmt_t2k_rootracker) { ext = "gtrac.root";       }
-  else if (gOptOutFileFormat == kConvFmt_t2k_tracker   ) { ext = "gtrac.dat";        }
-  else if (gOptOutFileFormat == kConvFmt_gst           ) { ext = "gst.root";         }
-  else if (gOptOutFileFormat == kConvFmt_rootracker    ) { ext = "gtrac.root";       }
-  else if (gOptOutFileFormat == kConvFmt_gxml          ) { ext = "gxml";             }
-  else if (gOptOutFileFormat == kConvFmt_ghad          ) { ext = "ghad.dat";         }
-  else if (gOptOutFileFormat == kConvFmt_ginuke        ) { ext = "ginuke.root";      }
-  else if (gOptOutFileFormat == kConvFmt_nuance_tracker) { ext = "gtrac_legacy.dat"; }
+  if      (gOptOutFileFormat == kConvFmt_gst            ) { ext = "gst.root";         }
+  else if (gOptOutFileFormat == kConvFmt_rootracker     ) { ext = "gtrac.root";       }
+  else if (gOptOutFileFormat == kConvFmt_gxml           ) { ext = "gxml";             }
+  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker ) { ext = "gtrac.root";       }
+  else if (gOptOutFileFormat == kConvFmt_t2k_tracker    ) { ext = "gtrac.dat";        }
+  else if (gOptOutFileFormat == kConvFmt_numi_rootracker) { ext = "gtrac.root";       }
+  else if (gOptOutFileFormat == kConvFmt_nuance_tracker ) { ext = "gtrac_legacy.dat"; }
+  else if (gOptOutFileFormat == kConvFmt_ghad           ) { ext = "ghad.dat";         }
+  else if (gOptOutFileFormat == kConvFmt_ginuke         ) { ext = "ginuke.root";      }
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
