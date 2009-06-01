@@ -2243,15 +2243,16 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gntpc", pINFO) << "Reading output file format";
     string fmt = utils::clap::CmdLineArgAsString(argc,argv,'f');
 
-         if (fmt == "t2k_rootracker") { gOptOutFileFormat = kConvFmt_t2k_rootracker; }
-    else if (fmt == "t2k_tracker")    { gOptOutFileFormat = kConvFmt_t2k_tracker;    }
-    else if (fmt == "gst")            { gOptOutFileFormat = kConvFmt_gst;            }
-    else if (fmt == "rootracker")     { gOptOutFileFormat = kConvFmt_rootracker;     }
-    else if (fmt == "gxml")           { gOptOutFileFormat = kConvFmt_gxml;           }
-    else if (fmt == "ghad")           { gOptOutFileFormat = kConvFmt_ghad;           }
-    else if (fmt == "ginuke")         { gOptOutFileFormat = kConvFmt_ginuke;         }
-    else if (fmt == "nuance_tracker") { gOptOutFileFormat = kConvFmt_nuance_tracker; }
-    else                              { gOptOutFileFormat = kConvFmt_undef;          }
+         if (fmt == "gst")             { gOptOutFileFormat = kConvFmt_gst;             }
+    else if (fmt == "gxml")            { gOptOutFileFormat = kConvFmt_gxml;            }
+    else if (fmt == "rootracker")      { gOptOutFileFormat = kConvFmt_rootracker;      }
+    else if (fmt == "t2k_rootracker")  { gOptOutFileFormat = kConvFmt_t2k_rootracker;  }
+    else if (fmt == "t2k_tracker")     { gOptOutFileFormat = kConvFmt_t2k_tracker;     }
+    else if (fmt == "numi_rootracker") { gOptOutFileFormat = kConvFmt_numi_rootracker; }
+    else if (fmt == "nuance_tracker" ) { gOptOutFileFormat = kConvFmt_nuance_tracker;  }
+    else if (fmt == "ghad")            { gOptOutFileFormat = kConvFmt_ghad;            }
+    else if (fmt == "ginuke")          { gOptOutFileFormat = kConvFmt_ginuke;          }
+    else                               { gOptOutFileFormat = kConvFmt_undef;           }
 
     if(gOptOutFileFormat == kConvFmt_undef) {
       LOG("gntpc", pFATAL) << "Unknown output file format (" << fmt << ")";
