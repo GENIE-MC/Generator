@@ -26,9 +26,10 @@
 **  Steve Dytman        - Pittsburgh University (USA)                                    **
 **  Hugh Gallagher      - Tufts University (USA)                                         **
 **  Pawel Guzowski      - Imperial College London (UK)                                   **
+**  Robert Hatcher      - Fermi National Accelerator Laboratory (USA)                    **
 **  Yoshinari Hayato    - Kamioka Observatory, ICRR, University of Tokyo (Japan)         **
 **  Pauli Kehayias      - Tufts University (USA)                                         **
-**  Anselmo Meregaglia  - ETH Zurich (Switzerland)                                       **
+**  Anselmo Meregaglia  - IPHC - Strasbourg (France)                                     **
 **  Donna Naples        - Pittsburgh University (USA)                                    **
 **  Geoff Pearce        - STFC, Rutherford Appleton Laboratory (UK)                      **
 **  Andre Rubbia        - ETH Zurich (Switzerland)                                       **
