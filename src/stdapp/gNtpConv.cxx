@@ -1423,83 +1423,86 @@ void ConvertToGRooTracker(void)
   // see http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/[/v19/output_gnumi.html]
   int        brNumiFluxRun;               // Run number 
   int        brNumiFluxEvtno;             // Event number (proton on target)
-  double     brNumiFluxNdxdz;             // Neutrino direction slopes for a random decay
-  double     brNumiFluxNdydz;             // ...
+  double     brNumiFluxNdxdz;             // Neutrino direction slope (dx/dz) for a random decay
+  double     brNumiFluxNdydz;             // Neutrino direction slope (dy/dz) for a random decay
   double     brNumiFluxNpz;               // Neutrino momentum (GeV/c) along z direction (beam axis)
   double     brNumiFluxNenergy;           // Neutrino energy (GeV/c) for a random decay
-  double     brNumiFluxNdxdznea;          // Neutrino direction slopes for a decay forced at center of near detector 
-  double     brNumiFluxNdydznea;          // ...
+  double     brNumiFluxNdxdznea;          // Neutrino direction slope (dx/dz) for a decay forced at center of near detector 
+  double     brNumiFluxNdydznea;          // Neutrino direction slope (dy/dz) for a decay forced at center of near detector
   double     brNumiFluxNenergyn;          // Neutrino energy for a decay forced at center of near detector 
   double     brNumiFluxNwtnear;           // Neutrino weight for a decay forced at center of near detector 
-  double     brNumiFluxNdxdzfar;          // Neutrino direction slopes for a decay forced at center of far detector
-  double     brNumiFluxNdydzfar;          // ...
+  double     brNumiFluxNdxdzfar;          // Neutrino direction slope (dx/dz) for a decay forced at center of far detector
+  double     brNumiFluxNdydzfar;          // Neutrino direction slope (dy/dz) for a decay forced at center of far detector
   double     brNumiFluxNenergyf;          // Neutrino energy for a decay forced at center of far detector
   double     brNumiFluxNwtfar;            // Neutrino weight for a decay forced at center of far detector
   int        brNumiFluxNorig;             // Obsolete
   int        brNumiFluxNdecay;            // Decay mode that produced neutrino:
-                                          //   1  K0L -> nue pi- e+
-                                          //   2  K0L -> nuebar pi+ e-
-                                          //   3  K0L -> numu pi- mu+
-                                          //   4  K0L -> numubar pi+ mu-
-                                          //   5  K+  -> numu mu+
-                                          //   6  K+  -> nue pi0 e+
-                                          //   7  K+  -> numu pi0 mu+
-                                          //   8  K-  -> numubar mu-
-                                          //   9  K-  -> nuebar pi0 e-
-                                          //  10  K-  -> numubar pi0 mu-
-                                          //  11  mu+ -> numubar nue e+
-                                          //  12  mu- -> numu nuebar e-
-                                          //  13  pi+ -> numu mu+
-                                          //  14  pi- -> numubar mu-
+                                          // -  1  K0L -> nue pi- e+
+                                          // -  2  K0L -> nuebar pi+ e-
+                                          // -  3  K0L -> numu pi- mu+
+                                          // -  4  K0L -> numubar pi+ mu-
+                                          // -  5  K+  -> numu mu+
+                                          // -  6  K+  -> nue pi0 e+
+                                          // -  7  K+  -> numu pi0 mu+
+                                          // -  8  K-  -> numubar mu-
+                                          // -  9  K-  -> nuebar pi0 e-
+                                          // - 10  K-  -> numubar pi0 mu-
+                                          // - 11  mu+ -> numubar nue e+
+                                          // - 12  mu- -> numu nuebar e-
+                                          // - 13  pi+ -> numu mu+
+                                          // - 14  pi- -> numubar mu-
   int        brNumiFluxNtype;             // Neutrino flavor
-  double     brNumiFluxVx;                // X position of hadron/muon decay 
-  double     brNumiFluxVy;                // Y position of hadron/muon decay 
-  double     brNumiFluxVz;                // Z position of hadron/muon decay 
-  double     brNumiFluxPdpx;              // Parent X momentum at decay point 
-  double     brNumiFluxPdpy;              // Parent Y momentum at decay point 
-  double     brNumiFluxPdpz;              // Parent Z momentum at decay point 
-  double     brNumiFluxPpdxdz;            // Parent dxdz direction at production 
-  double     brNumiFluxPpdydz;            // Parent dydz direction at production 
+  double     brNumiFluxVx;                // Position of hadron/muon decay, X coordinate
+  double     brNumiFluxVy;                // Position of hadron/muon decay, Y coordinate
+  double     brNumiFluxVz;                // Position of hadron/muon decay, Z coordinate
+  double     brNumiFluxPdpx;              // Parent momentum at decay point, X - component
+  double     brNumiFluxPdpy;              // Parent momentum at decay point, Y - component 
+  double     brNumiFluxPdpz;              // Parent momentum at decay point, Z - component 
+  double     brNumiFluxPpdxdz;            // Parent dx/dz direction at production 
+  double     brNumiFluxPpdydz;            // Parent dy/dz direction at production 
   double     brNumiFluxPppz;              // Parent Z momentum at production 
   double     brNumiFluxPpenergy;          // Parent energy at production 
   int        brNumiFluxPpmedium;          // Tracking medium number where parent was produced 
-  int        brNumiFluxPtype;             // Parent particle ID
-  double     brNumiFluxPpvx;              // Parent production vertex X (cm)
-  double     brNumiFluxPpvy;              // Parent production vertex Y (cm)
-  double     brNumiFluxPpvz;              // Parent production vertex Z (cm)
+  int        brNumiFluxPtype;             // Parent particle ID (PDG)
+  double     brNumiFluxPpvx;              // Parent production vertex, X coordinate (cm)
+  double     brNumiFluxPpvy;              // Parent production vertex, Y coordinate (cm)
+  double     brNumiFluxPpvz;              // Parent production vertex, Z coordinate (cm)
   double     brNumiFluxMuparpx;           // Repeat of information above, but for muon neutrino parents 
   double     brNumiFluxMuparpy;           // ...
   double     brNumiFluxMuparpz;           // ...
   double     brNumiFluxMupare;            // ...
   double     brNumiFluxNecm;              // Neutrino energy in COM frame 
   double     brNumiFluxNimpwt;            // Weight of neutrino parent 
-  double     brNumiFluxXpoint;            // unused
-  double     brNumiFluxYpoint;            // unused
-  double     brNumiFluxZpoint;            // unused
-  double     brNumiFluxTvx;               // X exit point of parent particle at the target 
-  double     brNumiFluxTvy;               // Y exit point of parent particle at the target 
-  double     brNumiFluxTvz;               // Z exit point of parent particle at the target 
-  double     brNumiFluxTpx;               // Parent momentum exiting the target (X) 
-  double     brNumiFluxTpy;               // Parent momentum exiting the target (Y) 
-  double     brNumiFluxTpz;               // Parent momentum exiting the target (Z) 
+  double     brNumiFluxXpoint;            // Unused
+  double     brNumiFluxYpoint;            // Unused
+  double     brNumiFluxZpoint;            // Unused
+  double     brNumiFluxTvx;               // Exit point of parent particle at the target, X coordinate 
+  double     brNumiFluxTvy;               // Exit point of parent particle at the target, Y coordinate
+  double     brNumiFluxTvz;               // Exit point of parent particle at the target, Z coordinate
+  double     brNumiFluxTpx;               // Parent momentum exiting the target, X - component
+  double     brNumiFluxTpy;               // Parent momentum exiting the target, Y - component
+  double     brNumiFluxTpz;               // Parent momentum exiting the target, Z - component
   double     brNumiFluxTptype;            // Parent particle ID exiting the target
   double     brNumiFluxTgen;              // Parent generation in cascade
-                                          //   1  primary proton 
-                                          //   2  particles produced by proton interaction
-                                          //    3 = particles produced by interactions of the 2's, ... 
+                                          // -  1  primary proton 
+                                          // -  2  particles produced by proton interaction
+                                          // -  3  particles produced by interactions of the 2's, ... 
   double     brNumiFluxTgptype;           // Type of particle that created a particle flying of the target 
-  double     brNumiFluxTgppx;             // Momentum of a particle, that created a particle that flies off the target, at the interaction point.
-  double     brNumiFluxTgppy;             // ...
-  double     brNumiFluxTgppz;             // ...
-  double     brNumiFluxTprivx;            // Primary particle interaction vertex 
-  double     brNumiFluxTprivy;            // ...
-  double     brNumiFluxTprivz;            // ...
-  double     brNumiFluxBeamx;             // Primary proton origin 
-  double     brNumiFluxBeamy;             // ...
-  double     brNumiFluxBeamz;             // ...
-  double     brNumiFluxBeampx;            // Primary proton momentum 
-  double     brNumiFluxBeampy;            // ...
-  double     brNumiFluxBeampz;            // ...
+  double     brNumiFluxTgppx;             // Momentum of a particle, that created a particle that flies off 
+                                          //  the target (at the interaction point), X - component
+  double     brNumiFluxTgppy;             // Momentum of a particle, that created a particle that flies off 
+                                          //  the target (at the interaction point), Y - component
+  double     brNumiFluxTgppz;             // Momentum of a particle, that created a particle that flies off 
+                                          //  the target (at the interaction point), Z - component
+  double     brNumiFluxTprivx;            // Primary particle interaction vertex, X coordinate
+  double     brNumiFluxTprivy;            // Primary particle interaction vertex, Y coordinate
+  double     brNumiFluxTprivz;            // Primary particle interaction vertex, Z coordinate
+  double     brNumiFluxBeamx;             // Primary proton origin, X coordinate
+  double     brNumiFluxBeamy;             // Primary proton origin, Y coordinate
+  double     brNumiFluxBeamz;             // Primary proton origin, Z coordinate
+  double     brNumiFluxBeampx;            // Primary proton momentum, X - component
+  double     brNumiFluxBeampy;            // Primary proton momentum, Y - component
+  double     brNumiFluxBeampz;            // Primary proton momentum, Z - component
 
   //-- open the output ROOT file
   TFile fout(gOptOutFileName.c_str(), "RECREATE");
