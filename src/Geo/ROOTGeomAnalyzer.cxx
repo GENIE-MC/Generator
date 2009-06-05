@@ -1018,7 +1018,7 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture* mixt, int ielement, int pdgc)
   if(wtot < 0) {
     wtot = 0;
     for(int i = 0; i < mixt->GetNelements(); i++) {
-      wtot += (mixt->GetWmixt()[ielement]);
+      wtot += (mixt->GetWmixt()[i]);
     }
   }
   assert(wtot>0);
