@@ -7,6 +7,7 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::GiBUUData;
+#pragma link C++ class genie::GiBUURESPXSec;
 
 
 #endif
