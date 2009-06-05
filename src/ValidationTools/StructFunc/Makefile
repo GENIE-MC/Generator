@@ -16,7 +16,8 @@ GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
 LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-all:    gVldStructFuncComp 
+all:    gVldStructFuncComp \
+	gVldSumRules
 
 #
 # Structure function comparison utility
@@ -26,7 +27,7 @@ gVldStructFuncComp: FORCE
 	$(LD) $(LDFLAGS) gVldStructFuncComp.o $(LIBRARIES) $(VLDTOOL_LIBS) -o $(GENIE_BIN_PATH)/gvld_structfunc_comp
 
 #
-# Structure function comparison utility
+# Utility testing sum rules
 #
 gVldSumRules: FORCE
 	$(CXX) $(CXXFLAGS) -c gVldSumRules.cxx ExtractStructFunc.cxx $(INCLUDES)
