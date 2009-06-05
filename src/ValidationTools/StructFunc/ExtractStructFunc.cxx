@@ -77,9 +77,9 @@ void genie::vld_structfunc::ExtractStructFunc(
   A(1,2) = sign * y[1] * (1.-0.5*y[1]);
   A(2,2) = sign * y[2] * (1.-0.5*y[2]);
 
-  Sigma(0,0) = d2sig_dxdy[0] / (kGF2*M*E[0]/kPI);
-  Sigma(1,0) = d2sig_dxdy[1] / (kGF2*M*E[1]/kPI);
-  Sigma(2,0) = d2sig_dxdy[2] / (kGF2*M*E[2]/kPI);
+  Sigma(0,0) = d2sig_dxdy[0] / (kGF2*M*E[0]/kPi);
+  Sigma(1,0) = d2sig_dxdy[1] / (kGF2*M*E[1]/kPi);
+  Sigma(2,0) = d2sig_dxdy[2] / (kGF2*M*E[2]/kPi);
 
   A.Invert();
 
