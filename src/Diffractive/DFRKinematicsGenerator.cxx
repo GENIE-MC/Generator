@@ -190,13 +190,8 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          // ~exp(-bt). Now that the x,y kinematical variables have been selected
          // we can generate a t using the t-dependence as a PDF.
          double Epi   = gy*Ev; // pion energy
-         double Epi2  = TMath::Power(Epi,2);
-         double pme2  = kPionMass2/Epi2;   
-         double xME   = M*gx/Epi;
-         double tA    = 1. + xME - 0.5*pme2;
-         double tB    = TMath::Sqrt(1.+ 2*xME) * TMath::Sqrt(1.-pme2);
-         double tmin  = 2*Epi2 * (tA-tB);
-         double tmax  = 2*Epi2 * (tA+tB);
+         double tmin  = TMath::Power(0.5*kPionMass2/Epi,2.);
+         double tmax  = tmin + 10;
          double b     = fBeta;
          double tsum  = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; 
          double rt    = tsum * rnd->RndKine().Rndm();
@@ -205,15 +200,14 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          LOG("DFRKinematics", pNOTICE)
            << "Selected: t = "<< gt << ", from ["<< tmin << ", "<< tmax << "]";
 
-         // set the cross section for the selected kinematics
-         evrec->SetDiffXSec(xsec*TMath::Exp(-b*gt));
-
          // compute W,Q2 for selected x,y
          kinematics::XYtoWQ2(Ev,M,gW,gQ2,gx,gy);
 
          LOG("DFRKinematics", pNOTICE) 
-                        << "Selected x,y => W = " << gW << ", Q2 = " << gQ2;
+                << "Selected x,y => W = " << gW << ", Q2 = " << gQ2;
 
+         // set the cross section for the selected kinematics
+         evrec->SetDiffXSec(xsec*TMath::Exp(-b*gt));
 
          // lock selected kinematics & clear running values
          interaction->KinePtr()->SetW (gW,  true);
