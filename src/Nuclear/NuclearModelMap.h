@@ -34,8 +34,9 @@ public:
   virtual ~NuclearModelMap();
 
   //-- implement the NuclearModelI interface
-  bool     GenerateNucleon (const Target & t) const;
-  double   Prob            (double p, double w, const Target & t) const;
+  bool           GenerateNucleon (const Target & t) const;
+  double         Prob            (double p, double w, const Target & t) const;
+  NuclearModel_t ModelType       (const Target & t) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members

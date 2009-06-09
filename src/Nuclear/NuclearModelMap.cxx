@@ -68,13 +68,20 @@ bool NuclearModelMap::GenerateNucleon(const Target & target) const
   return ok;
 }
 //____________________________________________________________________________
-double NuclearModelMap::Prob(
-                         double p, double w, const Target & target) const
+double NuclearModelMap::Prob(double p, double w, const Target & target) const
 {
   const NuclearModelI * nm = this->SelectModel(target);
   if(!nm) return 0;
 
   return nm->Prob(p,w,target);
+}
+//____________________________________________________________________________
+NuclearModel_t NuclearModelMap::ModelType(const Target & target) const
+{
+  const NuclearModelI * nm = this->SelectModel(target);
+  if(!nm) return kNucmUndefined;
+
+  return nm->ModelType(target);
 }
 //____________________________________________________________________________
 void NuclearModelMap::Configure(const Registry & config)

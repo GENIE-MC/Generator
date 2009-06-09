@@ -34,7 +34,7 @@ public:
   //-- implement the NuclearModelI interface
   bool           GenerateNucleon (const Target & t) const;
   double         Prob            (double p, double w, const Target & t) const;
-  NuclearModel_t ModelType       (void) const 
+  NuclearModel_t ModelType       (const Target &) const 
   {
     return kNucmSpectralFunc;
   }
