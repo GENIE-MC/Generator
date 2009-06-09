@@ -37,8 +37,12 @@ public:
   virtual ~SpectralFunc1d();
 
   //-- implement the NuclearModelI interface
-  bool     GenerateNucleon (const Target & t) const;
-  double   Prob            (double p, double w, const Target & t) const;
+  bool           GenerateNucleon (const Target & t) const;
+  double         Prob            (double p, double w, const Target & t) const;
+  NuclearModel_t ModelType       (void) const
+  {
+    return kNucmFermiGas; /// is not really a spectral func model, just a FG model with different momentum distribution
+  }
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
