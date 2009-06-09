@@ -32,11 +32,12 @@ public:
   virtual ~NuclearModelI();
 
   virtual bool           GenerateNucleon (const Target &) const = 0;
+  virtual double         Prob            (double p, double w, const Target &) const = 0;
+  virtual NuclearModel_t ModelType       (const Target &) const = 0;
+
   virtual double         RemovalEnergy   (void)           const;
   virtual double         Momentum        (void)           const;
   virtual TVector3       Momentum3       (void)           const;
-  virtual double         Prob            (double p, double w, const Target &) const = 0;
-  virtual NuclearModel_t ModelType       (void)           const = 0;
 
 protected:
   NuclearModelI();
