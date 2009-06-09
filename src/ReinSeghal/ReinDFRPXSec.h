@@ -25,8 +25,6 @@
 
 namespace genie {
 
-class INukeHadroData;
-
 class ReinDFRPXSec : public XSecAlgorithmI {
 
 public:
@@ -51,8 +49,6 @@ private:
 
   double fMa;      ///< axial mass
   double fBeta;    ///< b in dsig{piN}/dt = dsig0{piN}/dt * exp(-b(t-tmin)), b ~ 0.333 (nucleon_size)^2
-
-  INukeHadroData * fHadroData;
 };
 
 }       // genie namespace

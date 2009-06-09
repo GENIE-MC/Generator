@@ -22,7 +22,6 @@
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Conventions/RefFrame.h"
-#include "HadronTransport/INukeHadroData.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 #include "PDG/PDGUtils.h"
@@ -62,35 +61,24 @@ double ReinDFRPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Target &       target     = init_state.Tgt();
 
-  const Spline * spl_piN = fHadroData->XSecPipN_Tot();
-
-  double E      = init_state.ProbeE(kRfHitNucRest);  // neutrino energy
-  double x      = kinematics.x();                    // bjorken x
-  double y      = kinematics.y();                    // inelasticity y
-  double M      = target.HitNucMass();               //
-  double Q2     = 2.*x*y*M*E;                        // momentum transfer Q2>0
-  double Gf     = kGF2 * M/(16*kPi3);                // GF/pi/etc factor
-  double fp     = 0.93 * kPionMass;                  // pion decay constant (cc)
-  double fp2    = TMath::Power(fp,2.);         
-  double Epi    = y*E;                               // pion energy
-  double Epi2   = TMath::Power(Epi,2.);
-  double Tpi    = TMath::Max(0., Epi-kPionMass);     // pion kinetic energy
-  double ma2    = TMath::Power(fMa,2);
-  double propg  = TMath::Power(ma2/(ma2+Q2),2.);     // propagator term
-  double sTot   = spl_piN->Evaluate(Tpi/units::MeV) * units::mb; // pi+N total cross section
-  double sTot2  = TMath::Power(sTot,2.);
-  double b      = fBeta;
-//double tA     = kPionMass2 - Q2 - 2*Epi*v;
-//double tB     = 2 * ppi * q;
-//double tmin   = tA - tB;
-//double tmax   = tA + tB;
-  double MxEpi  = M*x/Epi;
-  double mEpi2  = kPionMass2/Epi2;
-  double tA     = 1. + MxEpi - 0.5*mEpi2;
-  double tB     = TMath::Sqrt(1. + 2*MxEpi) * TMath::Sqrt(1.-mEpi2);
-  double tmin   = 2*Epi2 * (tA-tB);
-  double tmax   = 2*Epi2 * (tA+tB);
-  double tint   = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; // t integral
+  double E       = init_state.ProbeE(kRfHitNucRest);  // neutrino energy
+  double x       = kinematics.x();                    // bjorken x
+  double y       = kinematics.y();                    // inelasticity y
+  double M       = target.HitNucMass();               //
+  double Q2      = 2.*x*y*M*E;                        // momentum transfer Q2>0
+  double Gf      = kGF2 * M/(16*kPi3);                // GF/pi/etc factor
+  double fp      = 0.93 * kPionMass;                  // pion decay constant (cc)
+  double fp2     = TMath::Power(fp,2.);         
+  double Epi     = y*E;                               // pion energy
+  double sqrtEpi = TMath::Sqrt(TMath::Max(0.,Epi));
+  double b       = fBeta;
+  double ma2     = TMath::Power(fMa,2);
+  double propg   = TMath::Power(ma2/(ma2+Q2),2.);     // propagator term
+  double sTot    = (sqrtEpi>0) ? 12.*(2.+1./sqrtEpi)*units::mb : 0.; // pi+N total cross section (Regge parametrization)
+  double sTot2   = TMath::Power(sTot,2.);
+  double tmax    = 1.0;
+  double tmin    = TMath::Min(tmax, TMath::Power(0.5*kPionMass2/Epi,2.));
+  double tint    = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; // t integral
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinDFR", pDEBUG)
@@ -197,8 +185,6 @@ void ReinDFRPXSec::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
-
-  fHadroData = INukeHadroData::Instance();
 
   fMa   = fConfig->GetDoubleDef("Ma",   gc->GetDouble("DFR-Ma"));
   fBeta = fConfig->GetDoubleDef("beta", gc->GetDouble("DFR-Beta"));
