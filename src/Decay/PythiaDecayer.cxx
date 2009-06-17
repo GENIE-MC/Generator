@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory - June 20, 2004
 
  For the class documentation see the corresponding header file.
@@ -24,6 +24,8 @@
 #endif
 
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/Units.h"
+#include "Conventions/Constants.h"
 #include "Decay/PythiaDecayer.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -121,6 +123,12 @@ TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
        << type << p->GetName() << " (pdg-code = "
           << p->GetKF() << ", m = " << p->GetMass() 
              << ", E = " << p->GetEnergy() << ")";
+
+    p->SetLifetime (p->GetLifetime() * units::mm/constants::kLightSpeed);
+    p->SetTime     (p->GetTime()     * units::mm/constants::kLightSpeed);
+    p->SetVx       (p->GetVx()       * units::mm);
+    p->SetVy       (p->GetVy()       * units::mm);
+    p->SetVz       (p->GetVz()       * units::mm);
 
     new ( (*pl)[i++] ) TMCParticle(*p);
   }
