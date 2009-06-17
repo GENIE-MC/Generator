@@ -3,14 +3,16 @@
 
 \class    genie::GMCJDriver
 
-\brief    GENIE MC Job Driver (event generation for the input flux & geometry)
+\brief    A GENIE `MC Job Driver'. Can be used for setting up complicated event 
+          generation cases involving detailed flux descriptions and detector 
+          geometry descriptions.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  May 25, 2005
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -24,6 +26,7 @@
 
 #include <TBits.h>
 #include <TH1D.h>
+#include <TLorentzVector.h>
 
 #include "EVGDrivers/PathLengthList.h"
 #include "PDG/PDGCodeList.h"
@@ -58,9 +61,15 @@ public :
   // generate single neutrino event for input flux & geometry
   EventRecord * GenerateEvent (void);
 
-  // methods for enquiring info needed for computing the generated sample normalization
+  // info needed for computing the generated sample normalization
   double   GlobProbScale  (void) const { return fGlobPmax;                  }
   long int NFluxNeutrinos (void) const { return (long int) fNFluxNeutrinos; }
+
+  // input flux and geometry drivers
+  const GFluxI &        FluxDriver      (void) const { return *fFluxDriver;   }
+  const GeomAnalyzerI & GeomAnalyzer    (void) const { return *fGeomAnalyzer; }
+  GFluxI *              FluxDriverPtr   (void) const { return  fFluxDriver;   } 
+  GeomAnalyzerI *       GeomAnalyzerPtr (void) const { return  fGeomAnalyzer; }
 
 private:
  
