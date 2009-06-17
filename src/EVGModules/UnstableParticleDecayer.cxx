@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory - November 17, 2004
 
  For the class documentation see the corresponding header file.
@@ -12,6 +12,9 @@
  Important revisions after version 2.0.0 :
  @ Jun 05, 2008 - CA
    Added option to force charmed hadron decays
+ @ Oct 10, 2008 - CA
+   Added option to inhibit pi0 decays. Convert all particle positions to fm
+   before adding them at the event record.
 */
 //____________________________________________________________________________
 
@@ -29,6 +32,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Decay/DecayModelI.h"
 #include "EVGModules/UnstableParticleDecayer.h"
 #include "GHEP/GHepStatus.h"
@@ -182,7 +186,6 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
   } else {
     /* run after the hadron transport MC - decay particles with ct<~0.1mm*/   
     int particles_to_decay[] = {
-          kPdgPi0, 
           kPdgEta, kPdgEtaPrm, 
           kPdgRho0, kPdgRhoP, kPdgRhoM,
           kPdgomega,kPdgPhi };
@@ -190,6 +193,10 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
     const int N = sizeof(particles_to_decay) / sizeof(int);
     int matches = count (particles_to_decay, 
                          particles_to_decay+N, pdg_code);
+
+    if(!fInhibitPi0Decay) {
+        matches += ( (pdg_code==kPdgPi0) ? 1 : 0 );
+    }
 
     if(fForceCharmedHadronDecay) {
        int charmed_particles_produced[] = {
@@ -232,8 +239,14 @@ void UnstableParticleDecayer::CopyToEventRecord(
      int pdg = dpmc->GetKF();
      GHepStatus_t ist = GHepStatus_t (dpmc->GetKS()); 
 
-     TLorentzVector p4(dpmc->GetPx(), dpmc->GetPy(), dpmc->GetPz(), dpmc->GetEnergy()); 
-     TLorentzVector x4(dpmc->GetVx(), dpmc->GetVy(), dpmc->GetVz(), dpmc->GetTime()); 
+     TLorentzVector p4(dpmc->GetPx(), 
+                       dpmc->GetPy(), 
+                       dpmc->GetPz(), 
+                       dpmc->GetEnergy()); 
+     TLorentzVector x4(dpmc->GetVx() / units::fm, 
+                       dpmc->GetVy() / units::fm, 
+                       dpmc->GetVz() / units::fm, 
+                       0); 
      x4 += parent_x4;
 
      //-- and now add the decay products
@@ -298,6 +311,11 @@ void UnstableParticleDecayer::LoadConfig(void)
   fForceCharmedHadronDecay = 
             fConfig->GetBoolDef("force_charm_decay", 
                                 gc->GetBool("ForceCharmedHadronDecay"));
+
+  //-- Inhibit pi0 decays?
+  fInhibitPi0Decay = 
+            fConfig->GetBoolDef("inhibit_pi0_decay", 
+                                gc->GetBool("InhibitPi0Decay"));
 
   //-- Load particle decayers
   //   Order is important if both decayers can handle a specific particle

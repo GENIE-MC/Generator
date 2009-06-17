@@ -10,12 +10,12 @@
           record and the status of parent particle is toggled. \n
           Is a concerete implementation of the EventRecordVisitorI interface.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  November 17, 2004
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -62,6 +62,7 @@ private:
   double fMaxLifetime;             ///< define "unstable" particle
   bool   fRunBefHadroTransp;       ///< is being run before or after hadron transport?
   bool   fForceCharmedHadronDecay; ///< force charmed hadron decays?
+  bool   fInhibitPi0Decay;         ///< inhibit pi0 decays?
 
   vector <const DecayModelI *> * fDecayers; ///< list of all specified decayers
   mutable const DecayModelI * fCurrDecayer; ///< current selected decayer
