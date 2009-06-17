@@ -522,8 +522,9 @@ void GHepParticle::AssertIsKnownParticle(void) const
   TParticlePDG * p = PDGLibrary::Instance()->Find(fPdgCode);
   if(!p) {
     LOG("GHepParticle", pFATAL)
-      << "\n** Found unknown particle [pdg-code = " << fPdgCode << "] !! "
-      << "One day you might get a Nobel prize but now get a core dump. Bye!";
+      << "\n** You are attempting to insert particle with PDG code = "
+      << fPdgCode << " into the event record."
+      << "\n** This particle can not be found in $GENIE/data/genie_pdg_table.txt";
     assert(p);
   }
 }
