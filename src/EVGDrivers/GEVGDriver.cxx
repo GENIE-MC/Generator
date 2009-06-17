@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory - August 06, 2004
 
  For the class documentation see the corresponding header file.
@@ -20,12 +20,14 @@
    factory rather than creating / configuring an instance on my own. 
    That is preventing the rare failure mode seen by Anselmo M. where the
    interaction selector configuration was silently failing.
- @ June 17, 2008 - CA
+ @ Jun 17, 2008 - CA
    Protect against round-off err in the cross section spline evaluation
- @ June 20, 2008 - CA
+ @ Jun 20, 2008 - CA
    Fix a memory leak in CreateXSecSumSpline. Arrays were not deleted after 
    spline instantiation.
-
+ @ Mar 11, 2009 - CA
+   In GenerateEvent() don't abort if no interaction is selected or if no
+   interaction can be generated after N attempts.
 */
 //____________________________________________________________________________
 
@@ -264,10 +266,15 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   //   InteractionList assembled by the EventGenerators) and bootstrap the
   //   event record
   LOG("GEVGDriver", pINFO)
-             << "Selecting an Interaction & Bootstraping the EventRecord";
+     << "Selecting an Interaction & Bootstraping the EventRecord";
   fCurrentRecord = fIntSelector->SelectInteraction(fIntGenMap, nu4p);
 
-  assert(fCurrentRecord); // abort if no interaction could be selected!
+  if(!fCurrentRecord) {
+     LOG("GEVGDriver", pWARN)
+         << "No interaction could be selected for: " 
+         << init_state.AsString() << " at E = " << nu4p.E() << " GeV";
+     return 0;
+  }
 
   //-- Get a ptr to the interaction summary
   LOG("GEVGDriver", pDEBUG) << "Getting the selected interaction";
@@ -340,10 +347,14 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
          LOG("GEVGDriver", pWARN) << "Attempting to regenerate the event.";
          return this->GenerateEvent(nu4p);
      } else {
-        LOG("GEVGDriver", pFATAL)
+        LOG("GEVGDriver", pERROR)
              << "Could not produce a physical event after "
-                      << kRecursiveModeMaxDepth << " attempts - Aborting!";
-        exit(1);
+                      << kRecursiveModeMaxDepth << " attempts!";
+        delete fCurrentRecord;
+        fCurrentRecord = 0;
+        fNRecLevel = 0;
+        return 0;
+//      exit(1);
      }
   }
 }
