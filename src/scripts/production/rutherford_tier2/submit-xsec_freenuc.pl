@@ -19,9 +19,9 @@
 #  (list of jobs) is a comma separated list of key names in the script hashes
 #
 # Examples:
-#  perl submit-xsection_jobs-freenuc.pl chm
-#  perl submit-xsection_jobs-freenuc.pl chm,nue,qel
-#  perl submit-xsection_jobs-freenuc.pl all
+#  perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset chm 
+#  perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset chm,nue,qel
+#  perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset all 
 #
 # Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
