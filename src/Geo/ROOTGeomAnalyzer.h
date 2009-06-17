@@ -6,11 +6,11 @@
 \brief    A ROOT/GEANT4 geometry driver
 
 \author   Anselmo Meregaglia <anselmo.meregaglia@cern.ch>, ETH Zurich
-          Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, STFC, Rutherford Lab
+          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, STFC, Rutherford Lab
 
 \created  May 24, 2005
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -31,6 +31,7 @@ class TGeoMaterial;
 class TGeoMixture;
 class TGeoElement;
 class TVector3;
+class TGeoHMatrix;
 
 using std::string;
 
@@ -106,6 +107,9 @@ private:
   void   Local2SI                (PathLengthList & pl);
   void   Local2SI                (TVector3 & v);
   void   SI2Local                (TVector3 & v);
+  void   Master2Top              (TVector3 & v);
+  void   Master2TopDir           (TVector3 & v);
+  void   Top2Master              (TVector3 & v);
 
   int              fMaterial;              ///< input selected material for vertex generation
   TGeoManager *    fGeometry;              ///< input detector geometry
@@ -124,6 +128,8 @@ private:
   PathLengthList * fCurrMaxPathLengthList; ///< current list of max path-lengths
   PDGCodeList *    fCurrPDGCodeList;       ///< current list of target nuclei
   TGeoVolume *     fTopVolume;             ///< top volume
+  TGeoHMatrix *    fMasterToTop;           ///< matrix connecting master coordinates to top volume coordinates
+  bool             fMasterToTopIsIdentity; ///< is fMasterToTop matrix the identity matrix?
 };
 
 }      // geometry namespace
