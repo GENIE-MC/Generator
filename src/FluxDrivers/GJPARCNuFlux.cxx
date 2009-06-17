@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory - Feb 04, 2008
 
  For the class documentation see the corresponding header file.
@@ -51,6 +51,13 @@
    Now pot = file_pot/max_wght rather than file_pot*(nneutrinos/sum_wght)
  @ June 19, 2008 - CA
    Removing some LOG() mesgs speeds up GenerateNext() by a factor of 20 (!)
+ @ June 18, 2009 - CA
+   Demote warning mesgs if the current flux neutrino is skipped because it 
+   is not in the list of neutrinos to be considered. 
+   Now this can be intentional (eg. if generating nu_e only).
+   In GenerateNext_weighted() Moved the code updating the number of neutrinos
+   and sum of weights higher so that force-rejected flux neutrinos still
+   count for normalization purposes.
 */
 //____________________________________________________________________________
 
@@ -173,6 +180,15 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
         return false;		
   }
 
+
+  //
+  // Handling neutrinos at specified detector location
+  //
+
+  // update the sum of weights & number of neutrinos
+  fSumWeight += this->Weight();
+  fNNeutrinos++;
+
   // Convert the current parent paticle decay mode into a neutrino pdg code
   // See:
   // http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/nemode.h
@@ -203,12 +219,11 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // initialization via GJPARCNuFlux::SetFluxParticles(const PDGCodeList &)
 
   if( ! fPdgCList->ExistsInPDGCodeList(fgPdgC) ) {
-     LOG("Flux", pWARN) 
-          << "Unknown decay mode or decay mode producing an undeclared neurtino species";
-     LOG("Flux", pWARN) 
-          << "Declared list of neutrino species: " << *fPdgCList;
-     LOG("Flux", pWARN) 
-          << "Decay mode: " << fLfMode;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+     LOG("Flux", pNOTICE) 
+       << "Current flux neutrino "
+       << "not at the list of neutrinos to be considered at this job.";
+#endif
      return false;	
   }
 
@@ -281,10 +296,6 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   fPassThroughInfo -> prodDirY  = fLfNpi0[1];
   fPassThroughInfo -> prodDirZ  = fLfNpi0[2];
   fPassThroughInfo -> prodNVtx  = (int) fLfNVtx0;
-
-  // update the sum of weights & number of neutrinos
-  fSumWeight += this->Weight();
-  fNNeutrinos++;
 
   return true;
 }
