@@ -42,7 +42,7 @@ GHepStatus_t;
 class GHepStatus {
  public:
 
-  static char * AsString(GHepStatus_t Ist) {
+  static const char * AsString(GHepStatus_t Ist) {
      switch (Ist) {
      case kIStUndefined:                
            return  "[undefined status]"; 

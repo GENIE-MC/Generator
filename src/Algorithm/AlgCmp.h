@@ -5,12 +5,12 @@
 
 \brief    Encapsulates an enumeration of possible algorithm comparisons
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  October 22, 2005
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE 
 */
@@ -39,7 +39,7 @@ class AlgCmp {
 
  public:
 
-  static char * AsString(AlgCmp_t alg) {
+  static const char * AsString(AlgCmp_t alg) {
      switch (alg) {
      case kAlgCmpIdentical:   return "Algorithm [same], configuration [same]";  break;
      case kAlgCmpDiffConfig:  return "Algorithm [same], configuration [diff]";  break;
