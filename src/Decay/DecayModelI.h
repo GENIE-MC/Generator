@@ -6,12 +6,12 @@
 \brief    Pure abstract base class. Defines the DecayModelI interface to be
           implemented by any algorithmic class decaying a particle.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  June 20, 2004
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE 
 */
@@ -38,10 +38,10 @@ public:
 
   //! define DecayModelI interface
 
-  virtual bool           IsHandled  (int pdgc)                    const = 0;
-  virtual void           Initialize (void)                        const = 0;  
-  virtual TClonesArray * Decay      (const DecayerInputs_t & inp) const = 0;
-  virtual double         Weight     (void)                        const = 0;
+  virtual bool           IsHandled  (int pdgc)                    const = 0; ///< can this particle be decayed?
+  virtual void           Initialize (void)                        const = 0; ///< decayer initialization
+  virtual TClonesArray * Decay      (const DecayerInputs_t & inp) const = 0; ///< return a TClonesArray of TMCParticle objects (NOTE: all TMCParticle units in GeV^n [hbar=c=1])
+  virtual double         Weight     (void)                        const = 0; ///< last decay weight
 
 protected:
 
