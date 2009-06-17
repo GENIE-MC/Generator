@@ -241,7 +241,8 @@ void ConvertToGST(void)
   bool   brIsQel       = false;  // Is QEL?
   bool   brIsRes       = false;  // Is RES?
   bool   brIsDis       = false;  // Is DIS?
-  bool   brIsCoh       = false;  // Is COH?
+  bool   brIsCoh       = false;  // Is Coherent?
+  bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
   bool   brIsNuEL      = false;  // Is ve elastic?
   bool   brIsCC        = false;  // Is CC?
@@ -337,6 +338,7 @@ void ConvertToGST(void)
   s_tree->Branch("res",	          &brIsRes,	    "res/O"	    );
   s_tree->Branch("dis",	          &brIsDis,	    "dis/O"	    );
   s_tree->Branch("coh",           &brIsCoh,         "coh/O"	    );
+  s_tree->Branch("dfr",           &brIsDfr,         "dfr/O"	    );
   s_tree->Branch("imd",	          &brIsImd,	    "imd/O"	    );
   s_tree->Branch("nuel",          &brIsNuEL,        "nuel/O"	    );
   s_tree->Branch("cc",	          &brIsCC,	    "cc/O"	    );
@@ -508,6 +510,7 @@ void ConvertToGST(void)
     bool is_res    = proc_info.IsResonant();
     bool is_dis    = proc_info.IsDeepInelastic();
     bool is_coh    = proc_info.IsCoherent();
+    bool is_dfr    = proc_info.IsDiffractive();
     bool is_imd    = proc_info.IsInverseMuDecay();
     bool is_nuel   = proc_info.IsNuElectronElastic();
     bool is_weakcc = proc_info.IsWeakCC();
@@ -541,7 +544,7 @@ void ConvertToGST(void)
     bool get_selected = true;
     double xs  = kine.x (get_selected);
     double ys  = kine.y (get_selected);
-    double ts  = (is_coh) ? kine.t (get_selected) : -1;
+    double ts  = (is_coh || is_dfr) ? kine.t (get_selected) : -1;
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
 
@@ -688,6 +691,7 @@ void ConvertToGST(void)
     brIsRes      = is_res;
     brIsDis      = is_dis;  
     brIsCoh      = is_coh;  
+    brIsDfr      = is_dfr;  
     brIsImd      = is_imd;  
     brIsNuEL     = is_nuel;  
     brIsCC       = is_weakcc;  
