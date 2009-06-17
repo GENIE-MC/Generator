@@ -52,7 +52,6 @@
 
 #include <cassert>
 
-#include <TLorentzVector.h>
 #include <TVector3.h>
 #include <TSystem.h>
 #include <TStopwatch.h>
