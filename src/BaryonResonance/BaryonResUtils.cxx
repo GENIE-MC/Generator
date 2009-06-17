@@ -13,12 +13,15 @@
  @ Dec 11, 2008 - CA
    Fixed a bug with the Delta- pdg code. It was incorrectly set to -2214.
    Now set to 1114. The bug affected the final state nubar RES events.
+ @ Jun 17, 2009 - CA
+   Used resonance codes from PDG/PDGCodes.h
 */
 //____________________________________________________________________________
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Interaction/Interaction.h"
 #include "PDG/PDGLibrary.h"
+#include "PDG/PDGCodes.h"
 
 using namespace genie;
 
@@ -105,82 +108,82 @@ Resonance_t genie::utils::res::FromPdgCode(int pdgc)
 
   switch(pdgc) {
 
-    case  (1114) : /* Delta-  */
-    case  (2114) : /* Delta0  */
-    case  (2214) : /* Delta+  */
-    case  (2224) : /* Delta++ */
+    case  (kPdgP33m1232_DeltaM ) : /* Delta-  */
+    case  (kPdgP33m1232_Delta0 ) : /* Delta0  */
+    case  (kPdgP33m1232_DeltaP ) : /* Delta+  */
+    case  (kPdgP33m1232_DeltaPP) : /* Delta++ */
                    return kP33_1232; break;
 
-    case (22112) : /* N0  */
-    case (22212) : /* N+  */
+    case (kPdgS11m1535_N0) :       /* N0  */
+    case (kPdgS11m1535_NP) :       /* N+  */
                    return kS11_1535; break;
 
-    case  (1214) : /* N0  */
-    case  (2124) : /* N+  */
+    case (kPdgD13m1520_N0) :       /* N0  */
+    case (kPdgD13m1520_NP) :       /* N+  */
                    return kD13_1520; break;
 
-    case (32112) : /* N0  */
-    case (32212) : /* N+  */
+    case (kPdgS11m1650_N0) :       /* N0  */
+    case (kPdgS11m1650_NP) :       /* N+  */
                    return kS11_1650; break;
 
-    case (21214) : /* N0  */
-    case (22124) : /* N+  */
+    case (kPdgD13m1700_N0) :       /* N0  */
+    case (kPdgD13m1700_NP) :       /* N+  */
                    return kD13_1700; break;
 
-    case  (2116) : /* N0  */
-    case  (2216) : /* N+  */
+    case (kPdgD15m1675_N0) :       /* N0  */
+    case (kPdgD15m1675_NP) :       /* N+  */
                    return kD15_1675; break;
 
-    case  (1112) : /* Delta-  */
-    case  (1212) : /* Delta0  */
-    case  (2122) : /* Delta+  */
-    case  (2222) : /* Delta++ */
+    case (kPdgS31m1620_DeltaM ) :  /* Delta-  */
+    case (kPdgS31m1620_Delta0 ) :  /* Delta0  */
+    case (kPdgS31m1620_DeltaP ) :  /* Delta+  */
+    case (kPdgS31m1620_DeltaPP) :  /* Delta++ */
                    return kS31_1620; break;
 
-    case (11114) : /* Delta-  */
-    case (12114) : /* Delta0  */
-    case (12214) : /* Delta+  */
-    case (12224) : /* Delta++ */
+    case (kPdgD33m1700_DeltaM ) :  /* Delta-  */
+    case (kPdgD33m1700_Delta0 ) :  /* Delta0  */
+    case (kPdgD33m1700_DeltaP ) :  /* Delta+  */
+    case (kPdgD33m1700_DeltaPP) :  /* Delta++ */
                    return kD33_1700; break;
 
-    case (12112) : /* N0  */
-    case (12212) : /* N+  */
+    case (kPdgP11m1440_N0) :       /* N0  */
+    case (kPdgP11m1440_NP) :       /* N+  */
                    return kP11_1440; break;
 
-    case (31214) : /* N0  */
-    case (32124) : /* N+  */
+    case (kPdgP13m1720_N0) :       /* N0  */
+    case (kPdgP13m1720_NP) :       /* N+  */
                    return kP13_1720; break;
 
-    case (12116) : /* N0  */
-    case (12216) : /* N+  */
+    case (kPdgF15m1680_N0) :       /* N0  */
+    case (kPdgF15m1680_NP) :       /* N+  */
                    return kF15_1680; break;
 
-    case (21112) : /* Delta-  */
-    case (21212) : /* Delta0  */
-    case (22122) : /* Delta+  */
-    case (22222) : /* Delta++ */
+    case (kPdgP31m1910_DeltaM ) :  /* Delta-  */
+    case (kPdgP31m1910_Delta0 ) :  /* Delta0  */
+    case (kPdgP31m1910_DeltaP ) :  /* Delta+  */
+    case (kPdgP31m1910_DeltaPP) :  /* Delta++ */
                    return kP31_1910; break;
 
-    case (21114) : /* Delta-  */
-    case (22114) : /* Delta0  */
-    case (22214) : /* Delta+  */
-    case (22224) : /* Delta++ */
+    case (kPdgP33m1920_DeltaM ) :  /* Delta-  */
+    case (kPdgP33m1920_Delta0 ) :  /* Delta0  */
+    case (kPdgP33m1920_DeltaP ) :  /* Delta+  */
+    case (kPdgP33m1920_DeltaPP) :  /* Delta++ */
                    return kP33_1920; break;
 
-    case  (1116) : /* Delta-  */
-    case  (1216) : /* Delta0  */
-    case  (2126) : /* Delta+  */
-    case  (2226) : /* Delta++ */
+    case (kPdgF35m1905_DeltaM ) :  /* Delta-  */
+    case (kPdgF35m1905_Delta0 ) :  /* Delta0  */
+    case (kPdgF35m1905_DeltaP ) :  /* Delta+  */
+    case (kPdgF35m1905_DeltaPP) :  /* Delta++ */
                    return kF35_1905; break;
 
-    case  (1118) : /* Delta-  */
-    case  (2118) : /* Delta0  */
-    case  (2218) : /* Delta+  */
-    case  (2228) : /* Delta++ */
+    case (kPdgF37m1950_DeltaM ) :  /* Delta-  */
+    case (kPdgF37m1950_Delta0 ) :  /* Delta0  */
+    case (kPdgF37m1950_DeltaP ) :  /* Delta+  */
+    case (kPdgF37m1950_DeltaPP) :  /* Delta++ */
                    return kF37_1950; break;
 
-    case (42112) : /* N0  */
-    case (42212) : /* N+  */
+    case (kPdgP11m1710_N0) :       /* N0  */
+    case (kPdgP11m1710_NP) :       /* N+  */
                    return kP11_1710; break;
   }
 
@@ -195,104 +198,104 @@ int genie::utils::res::PdgCode(Resonance_t res, int Q)
   switch(res) {
 
     case kP33_1232:
-        if(Q == -1) return  1114; /* Delta-  */
-        if(Q ==  0) return  2114; /* Delta0  */
-        if(Q ==  1) return  2214; /* Delta+  */
-        if(Q ==  2) return  2224; /* Delta++ */
+        if(Q == -1) return  kPdgP33m1232_DeltaM;  /* Delta-  */
+        if(Q ==  0) return  kPdgP33m1232_Delta0;  /* Delta0  */
+        if(Q ==  1) return  kPdgP33m1232_DeltaP;  /* Delta+  */
+        if(Q ==  2) return  kPdgP33m1232_DeltaPP; /* Delta++ */
         break;
 
     case kS11_1535:
-        if(Q ==  0) return  22112; /* N0  */
-        if(Q ==  1) return  22212; /* N+  */
+        if(Q ==  0) return  kPdgS11m1535_N0; /* N0  */
+        if(Q ==  1) return  kPdgS11m1535_NP; /* N+  */
         break;
 
     case kD13_1520:
-        if(Q ==  0) return  1214; /* N0  */
-        if(Q ==  1) return  2124; /* N+  */
+        if(Q ==  0) return  kPdgD13m1520_N0; /* N0  */
+        if(Q ==  1) return  kPdgD13m1520_NP; /* N+  */
         break;
 
     case kS11_1650:
-        if(Q ==  0) return  32112; /* N0  */
-        if(Q ==  1) return  32212; /* N+  */
+        if(Q ==  0) return  kPdgS11m1650_N0; /* N0  */
+        if(Q ==  1) return  kPdgS11m1650_NP; /* N+  */
         break;
 
     case kD13_1700:
-        if(Q ==  0) return  21214; /* N0  */
-        if(Q ==  1) return  22124; /* N+  */
+        if(Q ==  0) return  kPdgD13m1700_N0; /* N0  */
+        if(Q ==  1) return  kPdgD13m1700_NP; /* N+  */
         break;
 
     case kD15_1675:
-        if(Q ==  0) return  2116; /* N0  */
-        if(Q ==  1) return  2216; /* N+  */
+        if(Q ==  0) return  kPdgD15m1675_N0; /* N0  */
+        if(Q ==  1) return  kPdgD15m1675_NP; /* N+  */
         break;
 
     case kS31_1620:
-        if(Q == -1) return 1112; /* Delta-  */
-        if(Q ==  0) return 1212; /* Delta0  */
-        if(Q ==  1) return 2122; /* Delta+  */
-        if(Q ==  2) return 2222; /* Delta++ */
+        if(Q == -1) return  kPdgS31m1620_DeltaM;  /* Delta-  */
+        if(Q ==  0) return  kPdgS31m1620_Delta0;  /* Delta0  */
+        if(Q ==  1) return  kPdgS31m1620_DeltaP;  /* Delta+  */
+        if(Q ==  2) return  kPdgS31m1620_DeltaPP; /* Delta++ */
         break;
 
     case kD33_1700:
-        if(Q == -1) return 11114; /* Delta-  */
-        if(Q ==  0) return 12114; /* Delta0  */
-        if(Q ==  1) return 12214; /* Delta+  */
-        if(Q ==  2) return 12224; /* Delta++ */
+        if(Q == -1) return  kPdgD33m1700_DeltaM;  /* Delta-  */
+        if(Q ==  0) return  kPdgD33m1700_Delta0;  /* Delta0  */
+        if(Q ==  1) return  kPdgD33m1700_DeltaP;  /* Delta+  */
+        if(Q ==  2) return  kPdgD33m1700_DeltaPP; /* Delta++ */
         break;
 
     case kP11_1440:
-        if(Q ==  0) return  12112; /* N0  */
-        if(Q ==  1) return  12212; /* N+  */
+        if(Q ==  0) return  kPdgP11m1440_N0; /* N0  */
+        if(Q ==  1) return  kPdgP11m1440_NP; /* N+  */
         break;
 
     case kP33_1600:
-        return 0;   // ???????
+        return 0;   
 
     case kP13_1720:
-        if(Q ==  0) return  31214; /* N0  */
-        if(Q ==  1) return  32124; /* N+  */
+        if(Q ==  0) return  kPdgP13m1720_N0; /* N0  */
+        if(Q ==  1) return  kPdgP13m1720_NP; /* N+  */
         break;
 
     case kF15_1680:
-        if(Q ==  0) return  12116; /* N0  */
-        if(Q ==  1) return  12216; /* N+  */
+        if(Q ==  0) return  kPdgF15m1680_N0; /* N0  */
+        if(Q ==  1) return  kPdgF15m1680_NP; /* N+  */
         break;
 
     case kP31_1910:
-        if(Q == -1) return 21112; /* Delta-  */
-        if(Q ==  0) return 21212; /* Delta0  */
-        if(Q ==  1) return 22122; /* Delta+  */
-        if(Q ==  2) return 22222; /* Delta++ */
+        if(Q == -1) return  kPdgP31m1910_DeltaM;  /* Delta-  */
+        if(Q ==  0) return  kPdgP31m1910_Delta0;  /* Delta0  */
+        if(Q ==  1) return  kPdgP31m1910_DeltaP;  /* Delta+  */
+        if(Q ==  2) return  kPdgP31m1910_DeltaPP; /* Delta++ */
         break;
 
     case kP33_1920:
-        if(Q == -1) return 21114; /* Delta-  */
-        if(Q ==  0) return 22114; /* Delta0  */
-        if(Q ==  1) return 22214; /* Delta+  */
-        if(Q ==  2) return 22224; /* Delta++ */
+        if(Q == -1) return  kPdgP33m1920_DeltaM;  /* Delta-  */
+        if(Q ==  0) return  kPdgP33m1920_Delta0;  /* Delta0  */
+        if(Q ==  1) return  kPdgP33m1920_DeltaP;  /* Delta+  */
+        if(Q ==  2) return  kPdgP33m1920_DeltaPP; /* Delta++ */
         break;
 
     case kF35_1905:
-        if(Q == -1) return 1116; /* Delta-  */
-        if(Q ==  0) return 1216; /* Delta0  */
-        if(Q ==  1) return 2126; /* Delta+  */
-        if(Q ==  2) return 2226; /* Delta++ */
+        if(Q == -1) return  kPdgF35m1905_DeltaM;  /* Delta-  */
+        if(Q ==  0) return  kPdgF35m1905_Delta0;  /* Delta0  */
+        if(Q ==  1) return  kPdgF35m1905_DeltaP;  /* Delta+  */
+        if(Q ==  2) return  kPdgF35m1905_DeltaPP; /* Delta++ */
         break;
 
     case kF37_1950:
-        if(Q == -1) return 1118; /* Delta-  */
-        if(Q ==  0) return 2118; /* Delta0  */
-        if(Q ==  1) return 2218; /* Delta+  */
-        if(Q ==  2) return 2228; /* Delta++ */
+        if(Q == -1) return  kPdgF37m1950_DeltaM;  /* Delta-  */
+        if(Q ==  0) return  kPdgF37m1950_Delta0;  /* Delta0  */
+        if(Q ==  1) return  kPdgF37m1950_DeltaP;  /* Delta+  */
+        if(Q ==  2) return  kPdgF37m1950_DeltaPP; /* Delta++ */
         break;
 
     case kP11_1710:
-        if(Q ==  0) return  42112; /* N0  */
-        if(Q ==  1) return  42212; /* N+  */
+        if(Q ==  0) return  kPdgP11m1710_N0; /* N0  */
+        if(Q ==  1) return  kPdgP11m1710_NP; /* N+  */
         break;
 
     case kF17_1970:
-        return 0;   // ???????
+        return 0;   
         break;
 
     default:
@@ -310,104 +313,88 @@ bool genie::utils::res::IsBaryonResonance(int pdgc)
   switch(pdgc) {
 
     /* ------ P33(1232) ------*/
-
-    case  (1114) : /* Delta-  */
-    case  (2114) : /* Delta0  */
-    case  (2214) : /* Delta+  */
-    case  (2224) : /* Delta++ */
+    case  (kPdgP33m1232_DeltaM ) : /* Delta-  */
+    case  (kPdgP33m1232_Delta0 ) : /* Delta0  */
+    case  (kPdgP33m1232_DeltaP ) : /* Delta+  */
+    case  (kPdgP33m1232_DeltaPP) : /* Delta++ */
 
     /* ------ S11(1535) ------*/
-
-    case (22112) : /* N0  */
-    case (22212) : /* N+  */
+    case (kPdgS11m1535_N0) :       /* N0  */
+    case (kPdgS11m1535_NP) :       /* N+  */
 
     /* ------ D13(1520) ------*/
-
-    case  (1214) : /* N0  */
-    case  (2124) : /* N+  */
+    case (kPdgD13m1520_N0) :       /* N0  */
+    case (kPdgD13m1520_NP) :       /* N+  */
 
     /* ------ S11(1650) ------*/
-
-    case (32112) : /* N0  */
-    case (32212) : /* N+  */
+    case (kPdgS11m1650_N0) :       /* N0  */
+    case (kPdgS11m1650_NP) :       /* N+  */
 
     /* ------ D13(1700) ------*/
-
-    case (21214) : /* N0  */
-    case (22124) : /* N+  */
+    case (kPdgD13m1700_N0) :       /* N0  */
+    case (kPdgD13m1700_NP) :       /* N+  */
 
     /* ------ D15(1675) ------*/
-
-    case  (2116) : /* N0  */
-    case  (2216) : /* N+  */
+    case (kPdgD15m1675_N0) :       /* N0  */
+    case (kPdgD15m1675_NP) :       /* N+  */
 
     /* ------ S31(1620) ------*/
-
-    case  (1112) : /* Delta-  */
-    case  (1212) : /* Delta0  */
-    case  (2122) : /* Delta+  */
-    case  (2222) : /* Delta++ */
+    case (kPdgS31m1620_DeltaM ) :  /* Delta-  */
+    case (kPdgS31m1620_Delta0 ) :  /* Delta0  */
+    case (kPdgS31m1620_DeltaP ) :  /* Delta+  */
+    case (kPdgS31m1620_DeltaPP) :  /* Delta++ */
 
     /* ------ D33(1700) ------*/
-
-    case (11114) : /* Delta-  */
-    case (12114) : /* Delta0  */
-    case (12214) : /* Delta+  */
-    case (12224) : /* Delta++ */
+    case (kPdgD33m1700_DeltaM ) :  /* Delta-  */
+    case (kPdgD33m1700_Delta0 ) :  /* Delta0  */
+    case (kPdgD33m1700_DeltaP ) :  /* Delta+  */
+    case (kPdgD33m1700_DeltaPP) :  /* Delta++ */
 
     /* ------ P11(1440) ------*/
-
-    case (12112) : /* N0  */
-    case (12212) : /* N+  */
+    case (kPdgP11m1440_N0) :       /* N0  */
+    case (kPdgP11m1440_NP) :       /* N+  */
 
     /* ------ P33(1600) ------*/
-
+    // are you?
 
     /* ------ P13(1720) ------*/
-
-    case (31214) : /* N0  */
-    case (32124) : /* N+  */
+    case (kPdgP13m1720_N0) :       /* N0  */
+    case (kPdgP13m1720_NP) :       /* N+  */
 
     /* ------ F15(1680) ------*/
-
-    case (12116) : /* N0  */
-    case (12216) : /* N+  */
+    case (kPdgF15m1680_N0) :       /* N0  */
+    case (kPdgF15m1680_NP) :       /* N+  */
 
     /* ------ P31(1910) ------*/
-
-    case (21112) : /* Delta-  */
-    case (21212) : /* Delta0  */
-    case (22122) : /* Delta+  */
-    case (22222) : /* Delta++ */
+    case (kPdgP31m1910_DeltaM ) :  /* Delta-  */
+    case (kPdgP31m1910_Delta0 ) :  /* Delta0  */
+    case (kPdgP31m1910_DeltaP ) :  /* Delta+  */
+    case (kPdgP31m1910_DeltaPP) :  /* Delta++ */
 
     /* ------ P33(1920) ------*/
-
-    case (21114) : /* Delta-  */
-    case (22114) : /* Delta0  */
-    case (22214) : /* Delta+  */
-    case (22224) : /* Delta++ */
+    case (kPdgP33m1920_DeltaM ) :  /* Delta-  */
+    case (kPdgP33m1920_Delta0 ) :  /* Delta0  */
+    case (kPdgP33m1920_DeltaP ) :  /* Delta+  */
+    case (kPdgP33m1920_DeltaPP) :  /* Delta++ */
 
     /* ------ F35(1905) ------*/
-
-    case  (1116) : /* Delta-  */
-    case  (1216) : /* Delta0  */
-    case  (2126) : /* Delta+  */
-    case  (2226) : /* Delta++ */
+    case (kPdgF35m1905_DeltaM ) :  /* Delta-  */
+    case (kPdgF35m1905_Delta0 ) :  /* Delta0  */
+    case (kPdgF35m1905_DeltaP ) :  /* Delta+  */
+    case (kPdgF35m1905_DeltaPP) :  /* Delta++ */
 
     /* ------ F37(1950) ------*/
-
-    case  (1118) : /* Delta-  */
-    case  (2118) : /* Delta0  */
-    case  (2218) : /* Delta+  */
-    case  (2228) : /* Delta++ */
+    case (kPdgF37m1950_DeltaM ) :  /* Delta-  */
+    case (kPdgF37m1950_Delta0 ) :  /* Delta0  */
+    case (kPdgF37m1950_DeltaP ) :  /* Delta+  */
+    case (kPdgF37m1950_DeltaPP) :  /* Delta++ */
 
     /* ------ P11(1710) ------*/
-
-    case (42112) : /* N0  */
-    case (42212) : /* N+  */
+    case (kPdgP11m1710_N0) :       /* N0  */
+    case (kPdgP11m1710_NP) :       /* N+  */
 
     /* ------ F17(1970) ------*/
-
+    // are you?
 
         return true;
   }
