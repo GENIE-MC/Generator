@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Anselmo Meregaglia <anselmo.meregaglia@cern.ch>, ETH Zurich
-         Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>, STFC - Rutherford Lab
+         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, STFC - Rutherford Lab
          May 24, 2005
 
  For the class documentation see the corresponding header file.
@@ -33,6 +33,20 @@
    Modified code forming pdg codes in case of mixtures: Getting A from
    TGeoMixture::GetAmixt()[ielement] rather than TGeoElement::GetA().
    Updated code enables GENIE to see all isotopes in the fixed nd280 geometry.
+ @ August 29, 2008 - Pawel Guzowksi
+   Fixed a long-standing limitation: Now the top volume can be any geometry
+   volume and not just the master geometry volume. ROOT is placing the origin
+   of the coordinatee system at the centre of the top volume. On the other
+   hand GENIE assumed the the origin of the coordinate system is at the centre 
+   of the master geometry volume. So, if the top volume is to be set to anything
+   other than the master geometry volume, an appropriate transformation is 
+   required for the input flux neutrino positions/directions and the generated 
+   neutrino interaction vertices.
+   Added Master2Top(v), Master2TopDir(v) and Top2Master(v) methods and the
+   fMasterToTop TGeoHMatrix to store the transformation matrix between the 
+   master and top volume coordinates.
+ @ June 10, 2009 - Robert Hatcher
+   Fixed bug in the density weighting of the calculated path-lengths
 */
 //____________________________________________________________________________
 
@@ -44,6 +58,8 @@
 #include <TGeoShape.h>
 #include <TGeoMedium.h>
 #include <TGeoMaterial.h>
+#include <TGeoMatrix.h>
+#include <TGeoNode.h>
 #include <TObjArray.h>
 #include <TLorentzVector.h>
 #include <TVector3.h>
@@ -163,6 +179,30 @@ void ROOTGeomAnalyzer::SetTopVolName(string name)
      fTopVolumeName = "";
      return;
   }
+
+  // Get a matrix connecting coordinates of master and top volumes.
+  // The matrix will be used for transforming the coordinates of incoming 
+  // flux neutrinos & generated interaction vertices.
+  // This is needed (in case that the input top volume != master volume) 
+  // because ROOT always sets the coordinate system origin at the centre of 
+  // the specified top volume (whereas GENIE assumes that the global reference 
+  // frame is that of the master volume)
+
+  TGeoIterator next(fGeometry->GetMasterVolume());
+  TGeoNode *node;
+  TString nodeName, volNameStr;
+  const char* volName = fTopVolumeName.c_str();
+  while((node = next())) {
+    nodeName = node->GetVolume()->GetName();
+    if(nodeName.Contains(volName)) {
+      if(fMasterToTop) delete fMasterToTop;
+      fMasterToTop = new TGeoHMatrix(*next.GetCurrentMatrix());
+      fMasterToTopIsIdentity = fMasterToTop->IsIdentity();
+      break;
+    }
+  }
+
+  // set volume name
   fTopVolume = gvol;
   fGeometry->SetTopVolume(fTopVolume);
 }
@@ -230,11 +270,16 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
 
     TVector3 udir = p.Vect().Unit(); // unit vector along direction
     TVector3 pos = x.Vect();         // initial position
+    this->SI2Local(pos);             // SI -> curr geom units
 
-    this->SI2Local(pos); // SI -> curr geom units
+    if(!fMasterToTopIsIdentity) {
+      this->Master2Top(pos);         // transform position (master -> top)
+      this->Master2TopDir(udir);     // transform direction (master -> top)
+    }
 
     fCurrPathLengthList->AddPathLength(
-                       pdgc, this->ComputePathLengthPDG(pos,udir,pdgc));
+          pdgc, this->ComputePathLengthPDG(pos,udir,pdgc));
+
   }//materials
 
   this->Local2SI(*fCurrPathLengthList); // curr geom units -> SI
@@ -271,7 +316,13 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   // x and looking along the direction of p
   TVector3 dir = p.Vect().Unit();
   TVector3 r   = x.Vect();
-  this->SI2Local(r); // SI -> curr geom units
+
+  this->SI2Local(r);           // SI -> curr geom units
+
+  if(!fMasterToTopIsIdentity) {
+    this->Master2Top(r);       // transform position (master -> top)
+    this->Master2TopDir(dir);  // transform direction (master -> top)
+  }
 
   double max_dist = this->ComputePathLengthPDG(r, dir, tgtpdg);
   LOG("GROOTGeom", pNOTICE)
@@ -301,7 +352,12 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   TGeoMaterial * mat = 0;
 
   r.SetXYZ(x.X(), x.Y(), x.Z());
-  this->SI2Local(r); // SI -> curr geom units
+
+  this->SI2Local(r);   // SI -> curr geom units
+
+  if(!fMasterToTopIsIdentity) {
+     this->Master2Top(r); // transform position (master -> top)
+  }
 
   fGeometry -> SetCurrentPoint     (r[0],  r[1],  r[2]  );
   fGeometry -> SetCurrentDirection (dir[0],dir[1],dir[2]);
@@ -410,7 +466,12 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
        << "No material with code = " << tgtpdg << " could be found";
   }
 
-  this->Local2SI(r); // curr geom units -> SI
+  if(!fMasterToTopIsIdentity) {
+     this->Top2Master(r); // transform position (top -> master)
+  }
+
+  this->Local2SI(r);   // curr geom units -> SI
+
   fCurrVertex->SetXYZ(r[0],r[1],r[2]);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -444,6 +505,8 @@ void ROOTGeomAnalyzer::Initialize(void)
   this -> SetDensityUnits      (genie::units::kilogram/genie::units::meter3);
   this -> SetWeightWithDensity (true);
   this -> SetMixtureWeightsSum (-1.);
+
+  fMasterToTopIsIdentity = true;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::CleanUp(void)
@@ -453,6 +516,7 @@ void ROOTGeomAnalyzer::CleanUp(void)
   if( fCurrPathLengthList    ) delete fCurrPathLengthList;
   if( fCurrMaxPathLengthList ) delete fCurrMaxPathLengthList;
   if( fCurrPDGCodeList       ) delete fCurrPDGCodeList;
+  if( fMasterToTop           ) delete fMasterToTop;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::Load(string filename)
@@ -500,6 +564,10 @@ void ROOTGeomAnalyzer::Load(TGeoManager * gm)
       LOG("GROOTGeom", pFATAL) << "Could not get top volume!!!";
   }
   assert(fTopVolume);
+
+  // load matrix (identity) of top volume
+  fMasterToTop = new TGeoHMatrix(*fGeometry->GetCurrentMatrix());
+  fMasterToTopIsIdentity = true;
 }
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::BuildListOfTargetNuclei(void)
@@ -952,7 +1020,7 @@ double ROOTGeomAnalyzer::GetWeight(TGeoMixture* mixt, int ielement, int pdgc)
   if(wtot < 0) {
     wtot = 0;
     for(int i = 0; i < mixt->GetNelements(); i++) {
-      wtot += (mixt->GetWmixt()[ielement]);
+      wtot += (mixt->GetWmixt()[i]);
     }
   }
   assert(wtot>0);
@@ -1101,6 +1169,70 @@ void ROOTGeomAnalyzer::SI2Local(TVector3 & vec)
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("GROOTGeom", pDEBUG)
       << "Position (loc): " << utils::print::Vec3AsString(&vec);
+#endif
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::Master2Top(TVector3 & vec)
+{
+// transform the input position vector from the master volume coordinate
+// system to the specified top volume coordinate system
+//
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("GROOTGeom", pDEBUG)
+      << "Position (coord:master): " << utils::print::Vec3AsString(&vec);
+#endif
+
+    Double_t mast[3], top[3];
+    vec.GetXYZ(mast);
+    fMasterToTop->MasterToLocal(mast, top);
+    vec.SetXYZ(top[0], top[1], top[2]);
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("GROOTGeom", pDEBUG)
+      << "Position (coord:top): " << utils::print::Vec3AsString(&vec);
+#endif
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::Master2TopDir(TVector3 & vec)
+{
+// transform the input direction vector from the master volume coordinate
+// system to the specified top volume coordinate system
+//
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("GROOTGeom", pDEBUG)
+      << "Direction (coord:master): " << utils::print::Vec3AsString(&vec);
+#endif
+
+    Double_t mast[3], top[3];
+    vec.GetXYZ(mast);
+    fMasterToTop->MasterToLocalVect(mast, top);
+    vec.SetXYZ(top[0], top[1], top[2]);
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("GROOTGeom", pDEBUG)
+      << "Direction (coord:top): " << utils::print::Vec3AsString(&vec);
+#endif
+}
+//___________________________________________________________________________
+void ROOTGeomAnalyzer::Top2Master(TVector3 & vec)
+{
+// transform the input position vector from the specified top volume 
+// coordinate system to the master volume coordinate system
+//
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("GROOTGeom", pDEBUG)
+      << "Position (coord:top): " << utils::print::Vec3AsString(&vec);
+#endif
+
+    Double_t mast[3], top[3];
+    vec.GetXYZ(top);
+    fMasterToTop->LocalToMaster(top, mast);
+    vec.SetXYZ(mast[0], mast[1], mast[2]);
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("GROOTGeom", pDEBUG)
+      << "Position (coord:master): " << utils::print::Vec3AsString(&vec);
 #endif
 }
 //___________________________________________________________________________
