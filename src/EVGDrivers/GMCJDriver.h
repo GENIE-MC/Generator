@@ -26,6 +26,7 @@
 
 #include <TBits.h>
 #include <TH1D.h>
+#include <TLorentzVector.h>
 
 #include "EVGDrivers/PathLengthList.h"
 #include "PDG/PDGCodeList.h"
