@@ -886,9 +886,8 @@ void GetCommandLineArgs(int argc, char ** argv)
 
         // Extract the list of neutrinos to consider (if any).
         //
-        LOG("gT2Kevgen", pFATAL) << "**DEBUG** size(fluxv) = " << fluxv.size();
-        for(unsigned int inu = 2; inu < fluxv.size(); inu++) {
-           LOG("gT2Kevgen", pFATAL) << "**DEBUG** neutrino = " << atoi(fluxv[inu].c_str());
+        for(unsigned int inu = 2; inu < fluxv.size(); inu++) 
+        {
            gOptFluxNtpNuList.push_back( atoi(fluxv[inu].c_str()) );
         }
 
