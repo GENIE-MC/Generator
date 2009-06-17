@@ -13,7 +13,8 @@
  @ Jun 05, 2008 - CA
    Added option to force charmed hadron decays
  @ Oct 10, 2008 - CA
-   Added option to inhibit pi0 decays
+   Added option to inhibit pi0 decays. Convert all particle positions to fm
+   before adding them at the event record.
 */
 //____________________________________________________________________________
 
