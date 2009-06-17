@@ -4,7 +4,7 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory - Feb 05, 2008
 
  For the class documentation see the corresponding header file.
@@ -16,6 +16,8 @@
    driver.
 */
 //____________________________________________________________________________
+
+#include <cassert>
 
 #include <TH2D.h>
 #include <TMath.h>
