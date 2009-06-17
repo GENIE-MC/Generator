@@ -1378,7 +1378,7 @@ void ConvertToGTracker(void)
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
 //___________________________________________________________________
-// **** GENIE GHEP EVENT TREE FORMAT -> A T2K ROOTRACKER FORMAT ****
+//  **** GENIE GHEP EVENT TREE FORMAT -> ROOTRACKER FORMATS ****
 //___________________________________________________________________
 void ConvertToGRooTracker(void)
 {
