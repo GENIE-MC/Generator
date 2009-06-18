@@ -1551,7 +1551,7 @@ void ConvertToGRooTracker(void)
   }
 
   // extra branches of the numi rootracker variance
-  if(gOptOutFileFormat == kConvFmt_t2k_rootracker) 
+  if(gOptOutFileFormat == kConvFmt_numi_rootracker) 
   {
    // GNuMI pass-through info
    rootracker_tree->Branch("NumiFluxRun",      &brNumiFluxRun,       "NumiFluxRun/I");
