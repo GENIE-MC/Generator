@@ -19,12 +19,13 @@
 
          Syntax :
            gmxpl -f geom_file [-L length_units] [-D density_units] 
-                 [-o output_xml_file] [-n np] [-r nr]
+                 [-t top_vol_name] [-o output_xml_file] [-n np] [-r nr]
 
          Options :
            -f  a ROOT file containing a ROOT/GEANT geometry description
            -L  geometry length units       [ default: mm ]
            -D  geometry density units      [ default: gr/cm3 ]
+           -t  top volume name             [ default: "" ]
            -n  n scanning points / surface [ default: see geom driver's defaults ]
            -r  n scanning rays / point     [ default: see geom driver's defaults ]
            -o  output XML filename         [ default: maxpl.xml ]
@@ -42,12 +43,12 @@
            Results will be saved in the out.xml XML file at SI units.
            See $GENIE/src/Conventions/Units.h for GENIE unit definitions.
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created September 27, 2005
 
-\cpright Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -82,6 +83,7 @@ string kDefOptGeomDUnits   = "g_cm3";     // default geometry density units
 //User-specified options:
 string gOptGeomFilename    = "";          // input geometry file
 string gOptXMLFilename     = "";          // input xml filename
+string gOptRootGeomTopVol  = "";          // input root geometry top vol name
 double gOptGeomLUnits      = 0;           // input geometry length units
 double gOptGeomDUnits      = 0;           // input geometry density units
 int    gOptNPoints         = -1;          // input number of points / surf
@@ -100,6 +102,10 @@ int main(int argc, char ** argv)
   ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer(gOptGeomFilename);
   geom -> SetLengthUnits       (gOptGeomLUnits);
   geom -> SetDensityUnits      (gOptGeomDUnits);
+  geom -> SetWeightWithDensity (true);
+
+  //-- set the top volume name
+  geom -> SetTopVolName        (gOptRootGeomTopVol);
   geom -> SetWeightWithDensity (true);
 
   if(gOptNPoints > 0) geom->SetScannerNPoints(gOptNPoints);
@@ -157,6 +163,17 @@ void GetCommandLineArgs(int argc, char ** argv)
   gOptGeomLUnits = genie::utils::units::UnitFromString(lunits);
   gOptGeomDUnits = genie::utils::units::UnitFromString(dunits);
 
+  //root geometry top volume name:
+  try {
+    LOG("gmxpl", pDEBUG) << "Reading root geometry top volume name";
+    gOptRootGeomTopVol = genie::utils::clap::CmdLineArgAsString(argc,argv,'t');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gmxpl", pDEBUG) << "Unspecified geometry top volume - Using default";
+      gOptRootGeomTopVol = "";
+    }
+  } // -o
+  
   //number of scanning points / surface
   try {
     LOG("gmxpl", pDEBUG) << "Reading input number of scanning points/surface";
@@ -208,6 +225,7 @@ void PrintSyntax(void)
       << " -f geom_file"
       << " [-L length_units]"
       << " [-D density_units]" 
+      << " [-t top_volume_name]"
       << " [-o output_xml_file]";
 }
 //____________________________________________________________________________
