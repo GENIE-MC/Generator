@@ -10,7 +10,8 @@
  For documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Jul 14, 2009 - RH
+   Tweak PrintBanner() to fix problem with random garbage trailing the banner.
 */
 //____________________________________________________________________________
 
@@ -134,7 +135,11 @@ void genie::utils::print::PrintBanner(void)
       banner.seekg(0, ios::beg);
       banner.read(buffer, length);
 
-      cout << "\n\n" << buffer << "\n" << endl;
+      //cout << "\n\n" << buffer << "\n" << endl;
+      cout << "\n\n";
+      cout.write(buffer,length);
+      cout << "\n" << endl;
+
       delete [] buffer;
 
       gSystem->Sleep(1000); // watch the banner for 1 sec
