@@ -273,16 +273,17 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   RandomGen * rnd = RandomGen::Instance();
   double gen_dist(max_dist * rnd->RndGeom().Rndm());
 
-#ifdef RWH_DEBUG
   LOG("GROOTGeom", pINFO)
     << "Swim mass: Top Vol dir = " << utils::print::P3AsString(&udir)
     << ", pos = " << utils::print::Vec3AsString(&pos);
-  LOG("GROOTGeom", pNOTICE)
+  LOG("GROOTGeom", pINFO)
      << "Max {L x Density x Weight} given (init,dir) = " << max_dist;
-  LOG("GROOTGeom", pNOTICE)
+  LOG("GROOTGeom", pINFO)
        << "Generated 'distance' in selected material = " << gen_dist;
-  LOG("GROOTGeom", pNOTICE) << *fCurrPathSegmentList;  //RWH
+#ifdef RWH_DEBUG
+  LOG("GROOTGeom", pINFO) << *fCurrPathSegmentList;  //RWH
 #endif
+
 
   // compute the pdg weight for each material just once, then use a stl map 
   PathSegmentList::MaterialMap_t wgtmap;
@@ -1302,16 +1303,13 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 
   // don't swim if the current PathSegmentList is up-to-date
   if ( fCurrPathSegmentList->IsSameStart(r0,udir) ) return;
-  //if ( r0   == (*fCurrPathSegmentList).fStartPos &&
-  //     udir == (*fCurrPathSegmentList).fDirection   ) return;
 
+  // start fresh
   fCurrPathSegmentList->SetAllToZero();
 
-  // set it so next time we don't swim for the same ray 
+  // set start info so next time we don't swim for the same ray 
   fCurrPathSegmentList->SetStartInfo(r0,udir);
-  //fCurrPathSegmentList->fStartPos  = r0;
-  //fCurrPathSegmentList->fDirection = udir;
-
+ 
   PathSegment ps_curr;
 
   bool found_vol (false);
@@ -1488,7 +1486,7 @@ double ROOTGeomAnalyzer::StepUntilEntering(void)
   double step = this->StepToNextBoundary();
 
   while(!fGeometry->IsEntering()) {
-    step = this->Step();
+    step += this->Step();
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
