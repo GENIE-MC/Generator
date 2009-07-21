@@ -63,9 +63,9 @@ bool GMonoEnergeticFlux::GenerateNext(void)
   for(iter = fProb.begin(); iter != fProb.end(); ++iter) {
      int    nupdgc = iter->first;
      double prob   = iter->second;
-     if(p<prob) {
-	fgPdgC = nupdgc;
-	break;
+     if (p<prob) {
+       fgPdgC = nupdgc;
+       break;
      }
   }
 
@@ -111,5 +111,23 @@ void GMonoEnergeticFlux::CleanUp(void)
   LOG("Flux", pNOTICE) << "Cleaning up...";
 
   if (fPdgCList) delete fPdgCList;
+}
+//___________________________________________________________________________
+void GMonoEnergeticFlux::SetDirectionCos(double dx, double dy, double dz)
+{
+  TVector3 dircos1 = TVector3(dx,dy,dz).Unit();
+  LOG("Flux", pNOTICE) << "SetDirectionCos " 
+                       << utils::print::P3AsString(&dircos1);
+  double E = fgP4.E();
+  fgP4.SetVect(E*dircos1);
+
+}
+//___________________________________________________________________________
+void GMonoEnergeticFlux::SetRayOrigin(double x, double y, double z)
+{
+  TVector3 xyz(x,y,z);
+  LOG("Flux", pNOTICE) << "SetRayOrigin "
+                       << utils::print::Vec3AsString(&xyz);
+  fgX4.SetVect(xyz);
 }
 //___________________________________________________________________________
