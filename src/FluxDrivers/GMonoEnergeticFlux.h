@@ -53,6 +53,10 @@ public :
   const TLorentzVector & Position      (void) { return  fgX4;      }
   bool                   End           (void) { return  false;     }
 
+  // special setters for this class
+  void                   SetDirectionCos (double dx, double dy, double dz);
+  void                   SetRayOrigin    (double x,  double y,  double z);
+
 private:
 
   // private methods
