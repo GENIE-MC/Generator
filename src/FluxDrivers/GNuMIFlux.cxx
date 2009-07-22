@@ -23,6 +23,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <cassert>
 
 #include "libxml/xmlmemory.h"
 #include "libxml/parser.h"
@@ -130,7 +131,10 @@ bool GNuMIFlux::GenerateNext(void)
   while ( true ) {
      // Check for end of flux ntuple
      bool end = this->End();
-     if ( end ) return false;
+     if ( end ) {
+       LOG("Flux", pNOTICE) << "GenerateNext signaled End() ";
+       return false;
+     }
 
      // Get next weighted flux ntuple entry
      bool nextok = this->GenerateNext_weighted();
@@ -219,6 +223,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
           << "No more entries in input flux neutrino ntuple, cycle "
           << fICycle << " of " << fNCycles;
         fEnd = true;
+        //assert(0);
         return false;	
       }
     }
@@ -226,6 +231,11 @@ bool GNuMIFlux::GenerateNext_weighted(void)
     if ( fG3NuMI ) { 
       fG3NuMI->GetEntry(fIEntry); 
       fCurEntry->MakeCopy(fG3NuMI); 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+      LOG("Flux",pDEBUG) 
+        << "got " << fNNeutrinos << " new fIEntry " << fIEntry 
+        << " evtno " << fCurEntry->evtno;
+#endif
     } else { 
       fG4NuMI->GetEntry(fIEntry); 
       fCurEntry->MakeCopy(fG4NuMI); 
@@ -319,11 +329,19 @@ bool GNuMIFlux::GenerateNext_weighted(void)
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Flux", pINFO)
-	<< "Generated neutrino: "
-	<< "\n pdg-code: " << fgPdgC
-        << "\n p4: " << utils::print::P4AsShortString(&fgP4)
-        << "\n x4: " << utils::print::X4AsString(&fgX4);
+    << "Generated neutrino: " << fIEntry << " " << fCurEntry->evtno
+    << " nenergyn " << fCurEntry->nenergyn
+    << "\n pdg-code: " << fCurEntry->fgPdgC
+    << "\n p4: " << utils::print::P4AsShortString(&fCurEntry->fgP4)
+    << "\n x4: " << utils::print::X4AsString(&fCurEntry->fgX4);
 #endif
+  if ( Ev > fMaxEv ) {
+    LOG("Flux", pFATAL)
+      << "Generated neutrino had E_nu = " << Ev << " > " << fMaxEv 
+      << " maximum ";
+    assert(0);
+  }
+
 
   // update the # POTs, sum of weights & number of neutrinos 
   fAccumPOTs += fEffPOTsPerNu / fMaxWeight;
@@ -553,7 +571,7 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
 
   LOG("Flux",pNOTICE) << "about to CalcEffPOTsPerNu";
   this->CalcEffPOTsPerNu();
-
+  
 }
 //___________________________________________________________________________
 void GNuMIFlux::ScanForMaxWeight(void)
@@ -1474,21 +1492,24 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
   const double kKMASS  = 0.49368;
   const double kK0MASS = 0.49767;
   const double kMUMASS = 0.105658389;
+  const double kOMEGAMASS = 1.67245;
 
   const int kpdg_nue       =   12;  // extended Geant 53
   const int kpdg_nuebar    =  -12;  // extended Geant 52
   const int kpdg_numu      =   14;  // extended Geant 56
   const int kpdg_numubar   =  -14;  // extended Geant 55
 
-  const int kpdg_muplus    =  -13;  // Geant  5
-  const int kpdg_muminus   =   13;  // Geant  6
-  const int kpdg_pionplus  =  211;  // Geant  8
-  const int kpdg_pionminus = -211;  // Geant  9
-  const int kpdg_k0long    =  130;  // Geant 10  ( K0=311, K0S=310 )
-  const int kpdg_k0short   =  310;  // Geant 16
-  const int kpdg_k0mix     =  311;  
-  const int kpdg_kaonplus  =  321;  // Geant 11
-  const int kpdg_kaonminus = -321;  // Geant 12
+  const int kpdg_muplus     =   -13;  // Geant  5
+  const int kpdg_muminus    =    13;  // Geant  6
+  const int kpdg_pionplus   =   211;  // Geant  8
+  const int kpdg_pionminus  =  -211;  // Geant  9
+  const int kpdg_k0long     =   130;  // Geant 10  ( K0=311, K0S=310 )
+  const int kpdg_k0short    =   310;  // Geant 16
+  const int kpdg_k0mix      =   311;  
+  const int kpdg_kaonplus   =   321;  // Geant 11
+  const int kpdg_kaonminus  =  -321;  // Geant 12
+  const int kpdg_omegaminus =  3334;  // Geant 24
+  const int kpdg_omegaplus  = -3334;  // Geant 32
 
   const double kRDET = 100.0;   // set to flux per 100 cm radius
 
@@ -1521,9 +1542,15 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
   case kpdg_muminus:
     parent_mass = kMUMASS;
     break;
+  case kpdg_omegaminus:
+  case kpdg_omegaplus:
+    parent_mass = kOMEGAMASS;
+    break;
   default:
     std::cerr << "NU_REWGT unknown particle type " << this->ptype
-              << std::endl;
+              << std::endl << std::flush;
+    LOG("Flux",pFATAL) << "NU_REWGT unknown particle type " << this->ptype;
+    assert(0);
     return 1;
   }
 
