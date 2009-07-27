@@ -95,6 +95,7 @@ using namespace genie;
 using namespace genie::geometry;
 using namespace genie::controls;
 
+#define RWH_DEBUG
 //#define RWH_COUNTVOLS
 #ifdef RWH_COUNTVOLS
 // keep some statistics about how many volumes traversed for each box face
@@ -1355,6 +1356,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 #endif
 #endif
 
+     // find the start of top
      if (fGeometry->IsOutside() || !vol) {
         keep_on = false;
         if(found_vol) break;
@@ -1362,7 +1364,8 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
         raydist += step;
 
 #ifdef DUMP_SWIM
-        LOG("GROOTGeom", pDEBUG) << "Outside step: " << step;
+        LOG("GROOTGeom", pDEBUG) << "Outside step: " << step 
+                                 << " raydist: " << raydist;
 #endif
 
         while(!fGeometry->IsEntering()) {
@@ -1391,7 +1394,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
             return;
           }
         }
-     }
+     }  // outside or !vol
 
      if (keep_on) {
        if (!found_vol) found_vol = true;
@@ -1420,7 +1423,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
        LOG("GROOTGeom", pDEBUG)
          << "Step = " << step; // << ", weight = " << weight;
 #endif
-     }//keep on
+     } //keep on
   }
 
 #ifdef RWH_COUNTVOLS
@@ -1483,7 +1486,8 @@ double ROOTGeomAnalyzer::Step(void)
 //___________________________________________________________________________
 double ROOTGeomAnalyzer::StepUntilEntering(void)
 {
-  double step = this->StepToNextBoundary();
+  this->StepToNextBoundary();  // doesn't actually step, so don't include in sum
+  double step = 0; // 
 
   while(!fGeometry->IsEntering()) {
     step += this->Step();
