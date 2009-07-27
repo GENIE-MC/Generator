@@ -242,7 +242,8 @@ void PathSegmentList::Copy(const PathSegmentList & plist)
 void PathSegmentList::Print(ostream & stream) const
 {
   stream << "\nPathSegmentList [-]" << endl;
-
+  stream << "          start " << pathsegutils::Vec3AsString(&fStartPos)
+         << " dir " << pathsegutils::Vec3AsString(&fDirection) << endl;
   //vector<PathSegment>::const_iterator ps_iter;
   //for(ps_iter = fSegmentList.begin(); ps_iter != fSegmentList.end(); ++ps_iter) {
   //  stream << *ps_iter;
