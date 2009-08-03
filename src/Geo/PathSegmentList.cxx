@@ -74,24 +74,40 @@ namespace genie {
 
 //___________________________________________________________________________
 PathSegment::PathSegment(void) :
-  fEnter(), fExit(), fStepLength(0), fRayDist(0),
-  fVolume(0), fMedium(0), fMaterial(0)
+  fRayDist(0), fStepLength(0), fStepTrimLow(0), fStepTrimHigh(0), 
+  fVolume(0), fMedium(0), fMaterial(0),
+  fEnter(), fExit()
 {
+}
+
+void PathSegment::DoCrossCheck(const TVector3& startpos, 
+                               double& ddist, double& dstep) const
+{
+  double dist_recalc = (fEnter-startpos).Mag();
+  ddist = dist_recalc - fRayDist;
+
+  double step_recalc = (fExit-fEnter).Mag();
+  dstep = step_recalc - fStepLength;
 }
 
 void PathSegment::Print(ostream & stream) const
 {
+  const char* vname = (fVolume)   ? fVolume->GetName()   : "no volume";
+  const char* mname = (fMaterial) ? fMaterial->GetName() : "no material";
   stream << genie::pathsegutils::Vec3AsString(&fEnter) << " " 
-         << genie::pathsegutils::Vec3AsString(&fExit) 
+    //<< genie::pathsegutils::Vec3AsString(&fExit) 
          << " raydist " << std::setw(12) << fRayDist 
          << " step " << std::setw(12) << fStepLength << " "
-         << std::setw(16) << fVolume->GetName() << " '"
-         << std::setw(18) << fMaterial->GetName() << "'";
+         << "[" << std::setw(12) << fStepTrimLow << ":"
+         << std::setw(12) << fStepTrimHigh << "] "
+         << std::setw(16) << vname << " '"
+         << std::setw(18) << mname << "'";
 }
 
 //===========================================================================
 //___________________________________________________________________________
 PathSegmentList::PathSegmentList(void)
+  : fDoCrossCheck(false)
 {
 
 }
@@ -134,92 +150,19 @@ bool PathSegmentList::IsSameStart(const TVector3& pos, const TVector3& dir) cons
 void PathSegmentList::FillMatStepSum(void) 
 {
   fMatStepSum.clear();
-  for (unsigned int indx = 0; indx < fSegmentList.size(); ++indx) {
-    PathSegment & ps = fSegmentList[indx];
+
+  PathSegmentList::PathSegVCItr_t sitr = fSegmentList.begin();
+  PathSegmentList::PathSegVCItr_t sitr_end = fSegmentList.end();
+  for ( ; sitr != sitr_end ; ++sitr ) {
+    const PathSegment& ps = *sitr;
     const TGeoMaterial* mat  = ps.fMaterial;
-    double              step = ps.fStepLength;
+    // use the post-trim limits on how much material is stepped through
+    double              step = ( ps.fStepTrimHigh - ps.fStepTrimLow );
     fMatStepSum[mat] += step;
   }
 
 }
 
-
-
-#ifdef UNNEEDED_SEGFUNCS
-//___________________________________________________________________________
-void PathSegmentList::AddPathLength(int pdgc, double pl)
-{
-// Adds pl to the total path length for material with code = pdgc
-
-LOG("PathS", pFATAL)
-  << "AddPathLength not implemented";
-  //if (this->count(pdgc) == 1) { (*this)[pdgc] += pl; }
-  //else {
-  //   LOG("PathS", pWARN)
-  //       << "No material with PDG code = " << pdgc << " in path length list";
-  //}
-}
-//___________________________________________________________________________
-void PathSegmentList::SetPathLength(int pdgc, double pl)
-{
-// Sets the total path length for material with code = pdgc to be pl
-
-  LOG("PathS", pFATAL)
-    << "SetPathLength not implemented";
-  //if (this->count(pdgc) == 1) { (*this)[pdgc] = pl; }
-  //else {
-  //   LOG("PathS", pWARN)
-  //       << "No material with PDG code = " << pdgc << " in path length list";
-  //}
-}
-//___________________________________________________________________________
-void PathSegmentList::ScalePathLength(int pdgc, double scale)
-{
-// Scales pl for material with code = pdgc with the input scale factor
-
-  LOG("PathS", pFATAL)
-    << "ScalePathLength not implemented";
-  //if (this->count(pdgc) == 1) {
-  //   double pl = (*this)[pdgc];
-  //   pl *= scale;
-  //   (*this)[pdgc] = pl;
-  //} else {
-  //   LOG("PathS", pWARN)
-  //       << "No material with PDG code = " << pdgc << " in path length list";
-  //}
-}
-//___________________________________________________________________________
-double PathSegmentList::PathLength(int pdgc) const
-{
-// Gets the total path length for material with code = pdgc to be pl
-
-  LOG("PathS", pFATAL)
-    << "PathLength not implemented";
-  //if ( this->count(pdgc) == 1 ) {
-  //   map<int, double>::const_iterator pl_iter = this->find(pdgc);
-  //   return pl_iter->second;
-  //} else {
-  //   LOG("PathS", pWARN)
-  //       << "No material with PDG code = " << pdgc << " in path length list";
-  //}
-  return 0;
-}
-//___________________________________________________________________________
-bool PathSegmentList::AreAllZero(void) const
-{
-  bool allzero = true;
-
-  LOG("PathS", pFATAL)
-    << "AddPathLength not implemented";
-  //PathSegmentList::const_iterator pl_iter;
-  //
-  //for(pl_iter = this->begin(); pl_iter != this->end(); ++pl_iter) {
-  //  double pl = pl_iter->second;
-  //  allzero = allzero && (utils::math::AreEqual(pl,0.));
-  //}
-  return allzero;
-}
-#endif
 //___________________________________________________________________________
 void PathSegmentList::Copy(const PathSegmentList & plist)
 {
@@ -227,48 +170,72 @@ void PathSegmentList::Copy(const PathSegmentList & plist)
   fMatStepSum.clear();
 
   // copy the segments
-  vector<PathSegment>::const_iterator pl_iter;
-  for (pl_iter = plist.fSegmentList.begin(); pl_iter != plist.fSegmentList.end(); ++pl_iter) {
-    this->fSegmentList.push_back( *pl_iter );
-  }
+  //vector<PathSegment>::const_iterator pl_iter;
+  //for (pl_iter = plist.fSegmentList.begin(); pl_iter != plist.fSegmentList.end(); ++pl_iter) {
+  //  this->fSegmentList.push_back( *pl_iter );
+  //}
 
   // other elements
-  fStartPos   = plist.fStartPos;
-  fDirection  = plist.fDirection;
-  fMatStepSum = plist.fMatStepSum;
+  fStartPos     = plist.fStartPos;
+  fDirection    = plist.fDirection;
+  fSegmentList  = plist.fSegmentList;
+  fMatStepSum   = plist.fMatStepSum;
+  fDoCrossCheck = plist.fDoCrossCheck;
 
 }
+
+//___________________________________________________________________________
+void PathSegmentList::CrossCheck(double& mxddist, double& mxdstep) const
+{
+
+  double dstep, ddist;
+  mxdstep = 0;
+  mxddist = 0;
+  PathSegmentList::PathSegVCItr_t sitr = fSegmentList.begin();
+  PathSegmentList::PathSegVCItr_t sitr_end = fSegmentList.end();
+  for ( ; sitr != sitr_end ; ++sitr ) {
+    const PathSegment& ps = *sitr;
+    ps.DoCrossCheck(fStartPos,ddist,dstep);
+    double addist = TMath::Abs(ddist);
+    double adstep = TMath::Abs(dstep);
+    if ( addist > mxddist ) mxddist = addist;
+    if ( adstep > mxdstep ) mxdstep = adstep;
+  }
+
+}
+
 //___________________________________________________________________________
 void PathSegmentList::Print(ostream & stream) const
 {
   stream << "\nPathSegmentList [-]" << endl;
   stream << "          start " << pathsegutils::Vec3AsString(&fStartPos)
          << " dir " << pathsegutils::Vec3AsString(&fDirection) << endl;
-  //vector<PathSegment>::const_iterator ps_iter;
-  //for(ps_iter = fSegmentList.begin(); ps_iter != fSegmentList.end(); ++ps_iter) {
-  //  stream << *ps_iter;
-  //}
 
-  double mxdstep = 0;
-  double mxddist = 0;
-  size_t nps = fSegmentList.size();
-  for(unsigned int k = 0; k < nps ; ++k ) {
-    double raydist_recalc = (fSegmentList[k].fEnter - this->fStartPos).Mag();
-    double step_recalc = (fSegmentList[k].fExit - fSegmentList[k].fEnter).Mag();
-    double dstep = step_recalc-fSegmentList[k].fStepLength;
-    double ddist = raydist_recalc-fSegmentList[k].fRayDist;
-    if ( dstep > mxdstep ) mxdstep = dstep;
-    if ( ddist > mxddist ) mxddist = ddist;
-    stream << "[" << setw(4) << k << "] " << fSegmentList[k]
-           << " raydist_recalc " << std::setw(12) << raydist_recalc 
-           << " d " << std::setw(12) << ddist
-           << " step " << std::setw(12) << step_recalc 
-           << " " << std::setw(12) << dstep
-           << std::endl;
-
+  double dstep, ddist, mxdstep = 0, mxddist = 0;
+  int k = 0; 
+  PathSegmentList::PathSegVCItr_t sitr = fSegmentList.begin();
+  PathSegmentList::PathSegVCItr_t sitr_end = fSegmentList.end();
+  for ( ; sitr != sitr_end ; ++sitr, ++k ) {
+    const PathSegment& ps = *sitr;
+    stream << "[" << setw(4) << k << "] " << ps;
+    if ( fDoCrossCheck ) {
+      ps.DoCrossCheck(fStartPos,ddist,dstep);
+      double addist = TMath::Abs(ddist);
+      double adstep = TMath::Abs(dstep);
+      if ( addist > mxddist ) mxddist = addist;
+      if ( adstep > mxdstep ) mxdstep = adstep;
+      stream << " recalc diff" 
+             << " dist " << std::setw(12) << ddist
+             << " step " << std::setw(12) << dstep;
+        }
+    stream << std::endl;
   }
-  //rwh
-  stream << "PathSegmentList mxddist " << mxddist << " mxdstep " << mxdstep << endl;
+
+  if ( fDoCrossCheck )
+    stream << "PathSegmentList " 
+           << " mxddist " << mxddist 
+           << " mxdstep " << mxdstep 
+           << endl;
 }
 //___________________________________________________________________________
 #ifdef PATH_SEGMENT_SUPPORT_XML

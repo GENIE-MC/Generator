@@ -23,6 +23,7 @@
 #define _PATH_SEGMENT_LIST_H_
 
 #include <vector>
+#include <list>
 #include <ostream>
 #include <string>
 #include <map>
@@ -53,26 +54,37 @@ class PathSegment {
   void SetExit(const TVector3 & p3exit) { fExit = p3exit;  }
   void SetExit(const Double_t * p3exit) 
      { fExit.SetXYZ(p3exit[0],p3exit[1],p3exit[2]); }
-  void SetStep(Double_t step ) { fStepLength = step; }
+  void SetStep(Double_t step, bool setlimits = true );
   void SetGeo(const TGeoVolume * gvol, const TGeoMedium * gmed, 
               const TGeoMaterial * gmat)
   { fVolume = gvol; fMedium = gmed; fMaterial = gmat; }
+
+  void DoCrossCheck(const TVector3& startpos, double& ddist, double& dstep) const;
 
   //void Copy (const PathSegment & ps);
   //PathSegment& operator = (const PathSegment & ps);
 
   void Print (ostream & stream) const;
   friend ostream & operator << (ostream & stream, const PathSegment & list);
+  friend bool      operator <  (const PathSegment &lhs, const PathSegment &rhs);
+                                
 
-  TVector3               fEnter;      ///< top vol coordinates and units
-  TVector3               fExit;       ///< top vol coordinates and units
-  Double_t               fStepLength;
-  Double_t               fRayDist;    ///< distance from start of ray
-  const TGeoVolume *     fVolume;     ///< ref only ptr to TGeoVolume
-  const TGeoMedium *     fMedium;     ///< ref only ptr to TGeoMedium
-  const TGeoMaterial *   fMaterial;   ///< ref only ptr to TGeoMaterial
+  Double_t               fRayDist;      ///< distance from start of ray
+  Double_t               fStepLength;   ///< total step size in volume
+  Double_t               fStepTrimLow;  ///< trimmed low end
+  Double_t               fStepTrimHigh; ///< trimmed high end
+  const TGeoVolume *     fVolume;       ///< ref only ptr to TGeoVolume
+  const TGeoMedium *     fMedium;       ///< ref only ptr to TGeoMedium
+  const TGeoMaterial *   fMaterial;     ///< ref only ptr to TGeoMaterial
+  TVector3               fEnter;        ///< top vol coordinates and units
+  TVector3               fExit;         ///< top vol coordinates and units
 };
 
+inline void PathSegment::SetStep(Double_t step, bool setlimits) 
+  { fStepLength = step; if (setlimits) {fStepTrimLow=0; fStepTrimHigh=step;} }
+
+inline bool operator < (const PathSegment &lhs, const PathSegment &rhs)
+  { return ( lhs.fRayDist < rhs.fRayDist ); }
 
 class PathSegmentList {
 
@@ -81,13 +93,14 @@ public :
   PathSegmentList(const PathSegmentList & plist);
  ~PathSegmentList();
 
+  void    SetDoCrossCheck (bool doit = true) { fDoCrossCheck = doit; }
   void    SetAllToZero    (void);
   void    SetStartInfo    (const TVector3& pos = TVector3(0,0,1e37), 
-                          const TVector3& dir = TVector3(0,0,0)     );
+                           const TVector3& dir = TVector3(0,0,0)     );
   bool    IsSameStart     (const TVector3& pos, const TVector3& dir) const;
-  void    AddSegment      (PathSegment& ps) { fSegmentList.push_back(ps); }
+  void    AddSegment      (const PathSegment& ps) { fSegmentList.push_back(ps); }
 
-  typedef std::vector<PathSegment> PathSegmentV_t;
+  typedef std::list<PathSegment> PathSegmentV_t;
   typedef PathSegmentV_t::const_iterator PathSegVCItr_t;
 
   const   PathSegmentV_t&   GetPathSegmentV (void) { return fSegmentList; }  
@@ -99,16 +112,11 @@ public :
   void                      FillMatStepSum   (void);
   const   MaterialMap_t&    GetMatStepSumMap (void) { return fMatStepSum; };
 
-#ifdef UNNEEDED_SEGFUNCS
-  void   AddPathLength   (int pdgc, double pl); // path-legth(pdgc) += pl
-  void   SetPathLength   (int pdgc, double pl); // path-legth(pdgc)  = pl
-  bool   AreAllZero      (void) const;
-  void   ScalePathLength (int pdgc, double scale);
-  double PathLength      (int pdgc) const;
+  void                      CrossCheck(double& mxddist, double& mxdstep) const;
 
+#ifdef UNNEEDED_SEGFUNCS
   //  XmlParserStatus_t LoadFromXml (string filename);
   //  void              SaveAsXml   (string filename) const;
-
 #endif
 
   void Copy  (const PathSegmentList & plist);
@@ -128,6 +136,8 @@ public :
 
   /// Segment list re-evaluated by material for fast lookup of path lengths
   MaterialMap_t    fMatStepSum;
+
+  bool             fDoCrossCheck;
 
 };
 
