@@ -95,7 +95,7 @@ using namespace genie;
 using namespace genie::geometry;
 using namespace genie::controls;
 
-#define RWH_DEBUG
+//#define RWH_DEBUG
 //#define RWH_COUNTVOLS
 #ifdef RWH_COUNTVOLS
 // keep some statistics about how many volumes traversed for each box face
@@ -138,6 +138,12 @@ ROOTGeomAnalyzer::ROOTGeomAnalyzer(TGeoManager * gm)
 ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
 {
   this->CleanUp();
+
+  if ( fmxddist > 0 || fmxdstep > 0 )
+    LOG("GROOTGeom",pNOTICE)
+      << "ROOTGeomAnalyzer " 
+      << " mxddist " << fmxddist
+      << " mxdstep " << fmxdstep; 
 }
 
 //===========================================================================
@@ -282,7 +288,12 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   LOG("GROOTGeom", pINFO)
        << "Generated 'distance' in selected material = " << gen_dist;
 #ifdef RWH_DEBUG
+  fCurrPathSegmentList->SetDoCrossCheck(true);       //RWH
   LOG("GROOTGeom", pINFO) << *fCurrPathSegmentList;  //RWH
+  double mxddist = 0, mxdstep = 0;
+  fCurrPathSegmentList->CrossCheck(mxddist,mxdstep);
+  fmxddist = TMath::Max(fmxddist,mxddist);
+  fmxdstep = TMath::Max(fmxdstep,mxdstep);
 #endif
 
 
@@ -293,8 +304,11 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   PathSegmentList::MaterialMapCItr_t mitr_end = 
     fCurrPathSegmentList->GetMatStepSumMap().end();
   // loop over map to get tgt weight for each material (once)
+  // steps outside the geometry may have no assigned material
   for ( ; mitr != mitr_end; ++mitr ) {
-    wgtmap[mitr->first] = this->GetWeight(mitr->first,tgtpdg);
+    const TGeoMaterial* mat = mitr->first;
+    double wgt = ( mat ) ? this->GetWeight(mat,tgtpdg) : 0;
+    wgtmap[mat] = wgt;
   }
 
   // walk down the path to pick the vertex
@@ -305,13 +319,14 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   for ( sitr = segments.begin(); sitr != segments.end(); ++sitr) {
     const genie::PathSegment& seg = *sitr;
     const TGeoMaterial* mat = seg.fMaterial;
-    double wgtstep = seg.fStepLength * wgtmap[mat];
+    double trimmed_step = seg.fStepTrimHigh - seg.fStepTrimLow;
+    double wgtstep = trimmed_step * wgtmap[mat];
     double beyond = walked + wgtstep;
     if ( beyond > gen_dist ) {
 #ifdef RWH_DEBUG
       LOG("GROOTGeom", pINFO)
-        << " RWH Choose vertex pos walked " << walked << " wgtstep " << wgtstep
-        << " ( " << seg.fStepLength << "*" << wgtmap[mat] << ")"
+        << "Choose vertex pos walked " << walked << " wgtstep " << wgtstep
+        << " ( " << trimmed_step << "*" << wgtmap[mat] << ")"
         << " beyond " << beyond << " in " << seg.fVolume->GetName() << " "
         << mat->GetName() << " look for " << gen_dist;
 #endif
@@ -649,6 +664,9 @@ void ROOTGeomAnalyzer::Initialize(void)
   this -> SetMixtureWeightsSum (-1.);
 
   fMasterToTopIsIdentity = true;
+
+  fmxddist = 0;
+  fmxdstep = 0;
 }
 
 //___________________________________________________________________________
@@ -1259,18 +1277,7 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
 
   //  const TGeoVolume   * vol = 0;
   //  const TGeoMedium   * med = 0;
-  //  const TGeoMaterial * mat = 0;
-
-  //  for (unsigned int indx = 0; indx < fCurrPathSegmentList->size(); ++indx) {
-  //    PathSegment & ps = (*fCurrPathSegmentList)[indx];
-  //    vol = ps.fVolume;
-  //    med = ps.fMedium;
-  //    mat = ps.fMaterial;
-  //    step   = ps.fStepLength;
-  //    weight = this->GetWeight(mat, pdgc);
-  //
-  //    pl += (step*weight);
-  //  }
+  const TGeoMaterial * mat = 0;
 
   // loop over independent materials, which is shorter or equal to # of volumes
   PathSegmentList::MaterialMapCItr_t itr     = 
@@ -1278,8 +1285,10 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
   PathSegmentList::MaterialMapCItr_t itr_end = 
     fCurrPathSegmentList->GetMatStepSumMap().end();
   for ( ; itr != itr_end; ++itr ) {
+    mat  = itr->first;
+    if ( ! mat ) continue;  // segment outside geometry has no material
     step = itr->second;
-    weight = this->GetWeight(itr->first,pdgc);
+    weight = this->GetWeight(mat,pdgc);
     pl += (step*weight);
   }
 
@@ -1359,21 +1368,28 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
      // find the start of top
      if (fGeometry->IsOutside() || !vol) {
         keep_on = false;
-        if(found_vol) break;
-        step = this->StepToNextBoundary();
-        raydist += step;
+        if (found_vol) break;
+        step = 0;
+          this->StepToNextBoundary();
+        //rwh//raydist += step;  // STNB doesn't actually "step"
 
-#ifdef DUMP_SWIM
-        LOG("GROOTGeom", pDEBUG) << "Outside step: " << step 
+#ifdef RWH_DEBUG
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+        LOG("GROOTGeom", pDEBUG) << "Outside ToNextBoundary step: " << step 
                                  << " raydist: " << raydist;
+//#endif
 #endif
 
-        while(!fGeometry->IsEntering()) {
+        while (!fGeometry->IsEntering()) {
           step = this->Step();
           raydist += step;
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef RWH_DEBUG
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
           LOG("GROOTGeom", pDEBUG) 
               << "Stepping... [step size = " << step << "]";
+        LOG("GROOTGeom", pDEBUG) << "Outside step: " << step 
+                                 << " raydist: " << raydist;
+//#endif
 #endif
           if (this->WillNeverEnter(step)) {
 #ifdef RWH_COUNTVOLS
@@ -1393,7 +1409,13 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
             fCurrPathSegmentList->SetAllToZero();            
             return;
           }
-        }
+        } // finished while
+
+        ps_curr.SetExit(fGeometry->GetCurrentPoint());
+        ps_curr.SetStep(step);
+        ps_curr.SetGeo(vol,med,mat);
+        fCurrPathSegmentList->AddSegment(ps_curr);
+
      }  // outside or !vol
 
      if (keep_on) {
@@ -1441,6 +1463,9 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
   LOG("GROOTGeom", pDEBUG)
     << "PathSegmentList size " << fCurrPathSegmentList->size();
 #endif
+
+  // PathSegmentList trimming should occur here!
+
 
   fCurrPathSegmentList->FillMatStepSum();
 
