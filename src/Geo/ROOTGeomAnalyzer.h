@@ -155,6 +155,9 @@ protected:
   int              fiface, fipoint, firay;
   bool             fnewpnt;
   double           fdx, fdy, fdz, fox, foy, foz;  ///< top vol size/origin (top vol units)
+  
+  // test purposes
+  double           fmxddist, fmxdstep;   ///< max errors in pathsegmentlist
 
 };
 
