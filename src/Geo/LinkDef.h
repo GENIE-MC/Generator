@@ -12,4 +12,8 @@
 
 #pragma link C++ namespace genie::utils::geometry;
 
+#pragma link C++ class genie::PathSegment;
+#pragma link C++ class genie::PathSegmentList;
+
+
 #endif
