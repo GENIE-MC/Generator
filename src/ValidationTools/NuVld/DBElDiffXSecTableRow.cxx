@@ -17,8 +17,10 @@
 */
 //____________________________________________________________________________ 
 
-#include  "ValidationTools/NuVld/DBElDiffXSecTableRow.h"
-#include  "ValidationTools/NuVld/DBElDiffXSecTableFields.h"
+#include <cstdlib>
+
+#include "ValidationTools/NuVld/DBElDiffXSecTableRow.h"
+#include "ValidationTools/NuVld/DBElDiffXSecTableFields.h"
 
 using std::endl;
 using namespace genie::nuvld;

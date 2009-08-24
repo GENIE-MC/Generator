@@ -19,6 +19,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <typeinfo>
 
 #include "ValidationTools/NuVld/XmlNuXSecRecord.h"
 

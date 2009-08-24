@@ -17,6 +17,8 @@
 */
 //____________________________________________________________________________ 
 
+#include <typeinfo>
+
 #include "ValidationTools/NuVld/XmlRecord.h"
 #include "ValidationTools/NuVld/XmlNuXSecRecord.h"
 #include "ValidationTools/NuVld/XmlElDiffXSecRecord.h"
