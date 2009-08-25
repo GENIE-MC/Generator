@@ -22,7 +22,7 @@
 #include <TSQLResult.h>
 #include <TSQLRow.h>
 
-#include "ValidationTools/NuVld/ParserUtils.h"
+#include "Utils/StringUtils.h"
 
 using std::ostringstream;
 using std::string;
@@ -49,10 +49,10 @@ public:
 
    vector<string> vec_exp_names, vec_observables, vec_nu, vec_tgt;
 
-   vec_exp_names   = ParserUtils::split(experiments.c_str(),  ",");
-   vec_observables = ParserUtils::split(xsecs.c_str(),        ",");
-   vec_nu          = ParserUtils::split(nus.c_str(),          ",");
-   vec_tgt         = ParserUtils::split(targets.c_str(),      ",");
+   vec_exp_names   = utils::str::Split(experiments.c_str(),  ",");
+   vec_observables = utils::str::Split(xsecs.c_str(),        ",");
+   vec_nu          = utils::str::Split(nus.c_str(),          ",");
+   vec_tgt         = utils::str::Split(targets.c_str(),      ",");
 
    //-- add "experiments"-selection
 
@@ -63,11 +63,10 @@ public:
      for(str_iter = vec_exp_names.begin();
                               str_iter != vec_exp_names.end(); ++str_iter) {
 
-        conditional << "\""
-                    << ParserUtils::filter_string(" ", *str_iter) << "\"";
+      conditional << "\"" << utils::str::FilterString(" ", *str_iter) << "\"";
 
-        if(i < vec_exp_names.size()-1 ) conditional << ", ";
-        i++;
+      if(i < vec_exp_names.size()-1 ) conditional << ", ";
+      i++;
      }
      conditional << ")";
    } else if ( strcmp(experiments.c_str(), "*") == 0)  conditional << " 1 ";
@@ -80,13 +79,12 @@ public:
      conditional << " AND MEASUREMENT_HEADER.observable IN (";
 
      for(str_iter = vec_observables.begin();
-                            str_iter != vec_observables.end(); ++str_iter) {
+            str_iter != vec_observables.end(); ++str_iter) {
 
-         conditional << "\""
-                    << ParserUtils::filter_string(" ", *str_iter) << "\"";
+       conditional << "\"" << utils::str::FilterString(" ", *str_iter) << "\"";
 
-         if(i < vec_observables.size()-1 ) conditional << ", ";
-         i++;
+       if(i < vec_observables.size()-1 ) conditional << ", ";
+       i++;
      }
      conditional << ")";
    } else if (strcmp(xsecs.c_str(), "*") == 0) conditional << " AND 1 ";
@@ -101,7 +99,7 @@ public:
     for(str_iter = vec_nu.begin(); str_iter != vec_nu.end(); ++str_iter) {
 
        conditional << " MEASUREMENT_HEADER.reaction LIKE \"%"
-                   << ParserUtils::filter_string(" ", *str_iter) << " %\" ";
+                   << utils::str::FilterString(" ", *str_iter) << " %\" ";
 
        if(i < vec_nu.size()-1 ) conditional << " OR ";
        i++;
@@ -119,7 +117,7 @@ public:
     for(str_iter = vec_tgt.begin(); str_iter != vec_tgt.end(); ++str_iter) {
 
          conditional << "MEASUREMENT_HEADER.target LIKE \"%"
-                    << ParserUtils::filter_string(" ", *str_iter) << "%\"";
+                     << utils::str::FilterString(" ", *str_iter) << "%\"";
 
          if(i < vec_tgt.size()-1 ) conditional << " OR ";
          i++;
@@ -177,8 +175,8 @@ public:
 
    vector<string> vec_exp_names, vec_tgt;
 
-   vec_exp_names   = ParserUtils::split(experiments.c_str(),  ",");
-   vec_tgt         = ParserUtils::split(targets.c_str(),      ",");
+   vec_exp_names   = utils::str::Split(experiments.c_str(),  ",");
+   vec_tgt         = utils::str::Split(targets.c_str(),      ",");
 
    //-- add "experiments"-selection
 
@@ -187,13 +185,12 @@ public:
      i=0;
      conditional << "MEASUREMENT_HEADER.name IN (";
      for(str_iter = vec_exp_names.begin();
-                              str_iter != vec_exp_names.end(); ++str_iter) {
+           str_iter != vec_exp_names.end(); ++str_iter) {
 
-        conditional << "\""
-                    << ParserUtils::filter_string(" ", *str_iter) << "\"";
+      conditional << "\"" << utils::str::FilterString(" ", *str_iter) << "\"";
 
-        if(i < vec_exp_names.size()-1 ) conditional << ", ";
-        i++;
+      if(i < vec_exp_names.size()-1 ) conditional << ", ";
+      i++;
      }
      conditional << ")";
    } else if ( strcmp(experiments.c_str(), "*") == 0)  conditional << " 1 ";
@@ -208,7 +205,7 @@ public:
     for(str_iter = vec_tgt.begin(); str_iter != vec_tgt.end(); ++str_iter) {
 
          conditional << "MEASUREMENT_HEADER.target LIKE \"%"
-                    << ParserUtils::filter_string(" ", *str_iter) << "%\"";
+                     << utils::str::FilterString(" ", *str_iter) << "%\"";
 
          if(i < vec_tgt.size()-1 ) conditional << " OR ";
          i++;
@@ -265,9 +262,9 @@ public:
 
    vector<string>::iterator str_iter;
 
-   vector<string> vec_exp    = ParserUtils::split(experiments.c_str(),  ",");
-   vector<string> vec_probes = ParserUtils::split(probes.c_str(),       ",");
-   vector<string> vec_tgt    = ParserUtils::split(targets.c_str(),      ",");
+   vector<string> vec_exp    = utils::str::Split(experiments.c_str(),  ",");
+   vector<string> vec_probes = utils::str::Split(probes.c_str(),       ",");
+   vector<string> vec_tgt    = utils::str::Split(targets.c_str(),      ",");
 
    //-- add "experiments"-selection
 
@@ -277,11 +274,10 @@ public:
      conditional << "MEASUREMENT_HEADER.name IN (";
      for(str_iter = vec_exp.begin(); str_iter != vec_exp.end(); ++str_iter) {
 
-        conditional << "\""
-                    << ParserUtils::filter_string(" ", *str_iter) << "\"";
+      conditional << "\"" << utils::str::FilterString(" ", *str_iter) << "\"";
 
-        if(i < vec_exp.size()-1 ) conditional << ", ";
-        i++;
+      if(i < vec_exp.size()-1 ) conditional << ", ";
+      i++;
      }
      conditional << ")";
    } else if ( strcmp(experiments.c_str(), "*") == 0)  conditional << " 1 ";
@@ -296,7 +292,7 @@ public:
     for(str_iter = vec_probes.begin(); str_iter != vec_probes.end(); ++str_iter) {
 
        conditional << " MEASUREMENT_HEADER.reaction LIKE \"%"
-                   << ParserUtils::filter_string(" ", *str_iter) << " %\" ";
+                   << utils::str::FilterString(" ", *str_iter) << " %\" ";
 
        if(i < vec_probes.size()-1 ) conditional << " OR ";
        i++;
@@ -314,7 +310,7 @@ public:
     for(str_iter = vec_tgt.begin(); str_iter != vec_tgt.end(); ++str_iter) {
 
          conditional << "MEASUREMENT_HEADER.target LIKE \"%"
-                    << ParserUtils::filter_string(" ", *str_iter) << "%\"";
+                    << utils::str::FilterString(" ", *str_iter) << "%\"";
 
          if(i < vec_tgt.size()-1 ) conditional << " OR ";
          i++;

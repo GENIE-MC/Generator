@@ -14,6 +14,10 @@
    NuValidator package refurbishment. Removed the neugen3 dependency. 
    Moved all sources to $GENIE/src/ValidationTools/NuVld.
    Some clases have been renamed.
+ @ Aug 25, 2009 - CA
+   Removed redundant versions of ParserUtils.h and ParserStatus.h in favor of
+   the ones in $GENIE/Conventions and $GENIE/Utils. Updated code accordingly.
+
 */
 //____________________________________________________________________________ 
 
@@ -21,8 +25,8 @@
 #include <sstream>
 #include <vector>
 
+#include "Utils/StringUtils.h"
 #include "ValidationTools/NuVld/DBQueryString.h"
-#include "ValidationTools/NuVld/ParserUtils.h"
 
 using std::ostringstream;
 using std::vector;
@@ -115,7 +119,7 @@ string DBQueryString::ExtractFieldValue(string field_name) const
 
   if( query_str != 0 ) {
 
-    vector<string> selection_elements = ParserUtils::split(query_str,  "$");
+    vector<string> selection_elements = utils::str::Split(query_str, "$");
 
     vector<string>::iterator element_iter;
 
@@ -124,7 +128,7 @@ string DBQueryString::ExtractFieldValue(string field_name) const
 
        if ( element_iter->find(field_name) != string::npos ) {
 
-          vector<string> parts = ParserUtils::split( *element_iter,  ":");
+          vector<string> parts = utils::str::Split( *element_iter,  ":");
           if(parts.size()==2) field_value = parts[1];
        }
     }// selection string elements

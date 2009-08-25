@@ -25,6 +25,7 @@
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
 
+#include "Conventions/XmlParserStatus.h"
 #include "ValidationTools/NuVld/XmlObservable.h" 
 #include "ValidationTools/NuVld/XmlDataSet.h"
 #include "ValidationTools/NuVld/XmlExperimentMeasurements.h"
@@ -32,7 +33,6 @@
 #include "ValidationTools/NuVld/XmlExperimentInfo.h"
 #include "ValidationTools/NuVld/XmlCitation.h"
 #include "ValidationTools/NuVld/XmlRecord.h"
-#include "ValidationTools/NuVld/ParserStatus.h"
 
 using std::string;
 using std::map;

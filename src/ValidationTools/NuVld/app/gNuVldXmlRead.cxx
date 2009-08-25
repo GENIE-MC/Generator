@@ -17,9 +17,9 @@
 #include <iostream>
 #include <string>
 
+#include "Conventions/XmlParserStatus.h"
 #include "Messenger/Messenger.h"
 #include "ValidationTools/NuVld/NuVldXmlParser.h"
-#include "ValidationTools/NuVld/ParserStatus.h"
 
 using std::cout;
 using std::cerr;
@@ -41,7 +41,7 @@ int main(int argc, char ** argv)
  NuVldXmlParser xml_parser;
  xml_parser.ParseXmlDocument(filename);
 
- if(xml_parser.GetXmlParsingStatus() == eXml_OK) {
+ if(xml_parser.GetXmlParsingStatus() == kXmlOK) {
     LOG("NuVld", pNOTICE)  << "DONE!";
     return 0;
  } 
@@ -49,7 +49,7 @@ int main(int argc, char ** argv)
  LOG("NuVld", pERROR) 
    << "XML file parsing failed!";
  LOG("NuVld", pERROR) 
-   << "Parser status: " << ParserStatus::AsString( xml_parser.GetXmlParsingStatus());
+   << "Parser status: " << XmlParserStatus::AsString( xml_parser.GetXmlParsingStatus());
 
  return 1;
 }

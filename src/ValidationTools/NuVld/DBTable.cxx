@@ -14,6 +14,10 @@
    NuValidator package refurbishment. Removed the neugen3 dependency. 
    Moved all sources to $GENIE/src/ValidationTools/NuVld.
    Some clases have been renamed.
+ @ Aug 25, 2009 - CA
+   Removed redundant versions of ParserUtils.h and ParserStatus.h in favor of
+   the ones in $GENIE/Conventions and $GENIE/Utils. Updated code accordingly.
+
 */
 //____________________________________________________________________________ 
 
@@ -24,7 +28,6 @@
 #include <TObjArray.h>
 
 #include "Messenger/Messenger.h"
-#include "ValidationTools/NuVld/ParserUtils.h"
 #include "ValidationTools/NuVld/DBTable.h"
 #include "ValidationTools/NuVld/DBNuXSecTableRow.h"
 #include "ValidationTools/NuVld/DBNuXSecTableFields.h"
