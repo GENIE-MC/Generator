@@ -12,6 +12,10 @@
  Important revisions after version 2.0.0 :
  @ Jun 18, 2008 - CA
    Fix small memory leak - xmlFree the input XML doc
+ @ Aug 25, 2009 - RH
+   Use the GetXMLFilePath() to search the potential XML config file locations
+   and return the first actual file that can be found. Adapt code to use the
+   utils::xml namespace.
 */
 //____________________________________________________________________________
 
@@ -103,14 +107,8 @@ bool FermiMomentumTablePool::LoadTables(void)
 {
   bool loaded = true;
 
-  //-- get base GENIE config directory from the environment
-  //   (search for $GALGCONF or use the default: $GENIE/config)
-  string config_dir = (gSystem->Getenv("GALGCONF")) ?
-            string(gSystem->Getenv("GALGCONF")) :
-            string(gSystem->Getenv("GENIE")) + string("/config");
-
-  //-- Build the path Fermi momenta sets XML file
-  string filename = config_dir + string("/FermiMomentumTables.xml");
+  //-- Fermi momenta sets XML file using GXMLPATH + default locations
+  string filename = utils::xml::GetXMLFilePath("FermiMomentumTables.xml");
 
   LOG("FermiP", pINFO)  << "Loading Fermi momenta from file: " << filename;
 
@@ -151,7 +149,7 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
     if( (!xmlStrcmp(xml_kft->name, (const xmlChar *) "kf_table")) ) {
 
        string name = utils::str::TrimSpaces(
-                      XmlParserUtils::GetAttribute(xml_kft, "name"));
+                       utils::xml::GetAttribute(xml_kft, "name"));
 
        LOG("FermiP", pDEBUG) << "Reading Fermi momenta table: " << name;
 
@@ -163,7 +161,7 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
          if( (!xmlStrcmp(xml_kf->name, (const xmlChar *) "kf")) ) {
 
            string spdgc = utils::str::TrimSpaces(
-                       XmlParserUtils::GetAttribute(xml_kf, "nucleus_pdgc"));
+                       utils::xml::GetAttribute(xml_kf, "nucleus_pdgc"));
            int    pdgc = atoi (spdgc.c_str());
 
            xmlNodePtr xml_cur = xml_kf->xmlChildrenNode; // <kf> children
@@ -175,7 +173,7 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
              bool isp = !xmlStrcmp(xml_cur->name, ptag);
              bool isn = !xmlStrcmp(xml_cur->name, ntag);
              if(isn || isp) {
-               string skf = XmlParserUtils::TrimSpaces(
+               string skf = utils::xml::TrimSpaces(
                   xmlNodeListGetString(xml_doc, xml_cur->xmlChildrenNode, 1));
                kf = atof(skf.c_str());
              }
