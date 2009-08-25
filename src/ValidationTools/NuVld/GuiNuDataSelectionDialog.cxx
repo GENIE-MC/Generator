@@ -14,6 +14,10 @@
    NuValidator package refurbishment. Removed the neugen3 dependency. 
    Moved all sources to $GENIE/src/ValidationTools/NuVld.
    Some clases have been renamed.
+ @ Aug 25, 2009 - CA
+   Removed redundant versions of ParserUtils.h and ParserStatus.h in favor of
+   the ones in $GENIE/Conventions and $GENIE/Utils. Updated code accordingly.
+
 */
 //____________________________________________________________________________ 
 
@@ -32,10 +36,10 @@
 #include <TSQLRow.h>
 
 #include "Messenger/Messenger.h"
+#include "Utils/StringUtils.h"
 #include "ValidationTools/NuVld/DBConnection.h"
 #include "ValidationTools/NuVld/GuiNuDataSelectionDialog.h"
 #include "ValidationTools/NuVld/GuiSysLogSingleton.h"
-#include "ValidationTools/NuVld/ParserUtils.h"
 #include "Utils/GUIUtils.h"
 #include "Utils/StringUtils.h"
 
@@ -897,13 +901,11 @@ string GuiNuDataSelectionDialog::BundleKeyListInString(void)
 
   while( (entry = (TGTextLBEntry *) iter.Next()) ) {
 
-      vector<string> key_elem = ParserUtils::split(
-                                     entry->GetText()->GetString(),  ";");
-
+      vector<string> key_elem = 
+             utils::str::Split(entry->GetText()->GetString(),  ";");
       assert( key_elem.size() == 7 );
 
       key_list << key_elem[0] << "," << key_elem[1];
-
       if(ikey++ < nselected-1) key_list << ";";
   }
 

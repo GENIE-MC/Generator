@@ -23,7 +23,7 @@
 #include <TSQLResult.h>
 #include <TSQLRow.h>
 
-#include "ValidationTools/NuVld/ParserUtils.h"
+#include "Utils/StringUtils.h"
 
 using std::string;
 using std::cerr;
@@ -60,10 +60,7 @@ public:
     fclose(fp);
 
     string ssql = string(sql);
-
-    return ParserUtils::filter_string(";", ssql);
-
-    //return ssql;
+    return utils::str::FilterString(";", ssql);
   }
   //____________________________________________________________________________
   static void print_sql_result_in_data_viewer(TSQLResult * res)

@@ -14,6 +14,10 @@
    NuValidator package refurbishment. Removed the neugen3 dependency. 
    Moved all sources to $GENIE/src/ValidationTools/NuVld.
    Some clases have been renamed.
+ @ Aug 25, 2009 - CA
+   Removed redundant versions of ParserUtils.h and ParserStatus.h in favor of
+   the ones in $GENIE/Conventions and $GENIE/Utils. Updated code accordingly.
+
 */
 //____________________________________________________________________________ 
 
@@ -22,12 +26,12 @@
 #include <vector>
 
 #include "Messenger/Messenger.h"
+#include "Utils/StringUtils.h"
 #include "ValidationTools/NuVld/SqlQueryBuilder.h"
 #include "ValidationTools/NuVld/DBTableFields.h"
 #include "ValidationTools/NuVld/DBNuXSecTableFields.h"
 #include "ValidationTools/NuVld/DBElDiffXSecTableFields.h"
 #include "ValidationTools/NuVld/DBSFTableFields.h"
-#include "ValidationTools/NuVld/ParserUtils.h"
 
 using std::ostringstream;
 using std::vector;
@@ -89,7 +93,7 @@ string SqlQueryBuilder::AddKeyList(const DBQueryString & query_string)
        // where each (name,tag) pair is unique dbase key
 
        vector<string> keys;
-       keys = ParserUtils::split(key_list,  ";");
+       keys = utils::str::Split(key_list,  ";");
 
        if(keys.size() == 0) query << " 0 ";
        else {
@@ -100,7 +104,7 @@ string SqlQueryBuilder::AddKeyList(const DBQueryString & query_string)
           for(key_iter = keys.begin(); key_iter != keys.end(); ++key_iter) {
 
              vector<string> key_elem;
-             key_elem = ParserUtils::split( key_iter->c_str(),  ",");
+             key_elem = utils::str::Split( key_iter->c_str(),  ",");
 
              assert(key_elem.size() == 2);
 
@@ -142,7 +146,7 @@ string SqlQueryBuilder::AddCutList(const DBQueryString & query_string)
         DBTableType_t table_type = query_string.TableType();
         LOG("NuVld", pINFO) << "Table type: " << DBTableType::AsString(table_type);
 
-        vector<string> cuts = ParserUtils::split(cut_list,  ";");
+        vector<string> cuts = utils::str::Split(cut_list,  ";");
 
         vector<string>::iterator cut_iter;
 
@@ -277,12 +281,12 @@ string SqlQueryBuilder::AddCutList(const DBQueryString & query_string)
                  query << " AND (";
 
                  vector<string>::iterator str_iter;
-                 vector<string> R = ParserUtils::split(
+                 vector<string> R = utils::str::Split(
                                          this->CutValueStr(*cut_iter), ",");
                  unsigned int ir=0;
                  for(str_iter = R.begin(); str_iter != R.end(); ++str_iter) {
                     query << " STRUCTURE_FUNCTION.R = \"" 
-                          << ParserUtils::filter_string(" ", *str_iter) << "\"";
+                          << utils::str::FilterString(" ", *str_iter) << "\"";
                     if(ir++ < R.size()-1) query << " OR ";
                  }
                  query << ")";
@@ -378,7 +382,7 @@ double SqlQueryBuilder::CutValue(string cut_segment)
 // The cuts sector is a ; separated list of segments CUTS=cut1;cut2;...;cutN
 // Each segment is a name=pair string
 
-  vector<string> cut = ParserUtils::split(cut_segment, "=");
+  vector<string> cut = utils::str::Split(cut_segment, "=");
   assert(cut.size() == 2);
   return atof(cut[1].c_str());
 }
@@ -389,7 +393,7 @@ string SqlQueryBuilder::CutValueStr(string cut_segment)
 // The cuts sector is a ; separated list of segments CUTS=cut1;cut2;...;cutN
 // Each segment is a name=pair string
 
-  vector<string> cut = ParserUtils::split(cut_segment, "=");
+  vector<string> cut = utils::str::Split(cut_segment, "=");
   assert(cut.size() == 2);
   return cut[1];
 }

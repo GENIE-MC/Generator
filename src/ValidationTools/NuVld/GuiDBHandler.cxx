@@ -14,6 +14,10 @@
    NuValidator package refurbishment. Removed the neugen3 dependency. 
    Moved all sources to $GENIE/src/ValidationTools/NuVld.
    Some clases have been renamed.
+ @ Aug 25, 2009 - CA
+   Removed redundant versions of ParserUtils.h and ParserStatus.h in favor of
+   the ones in $GENIE/Conventions and $GENIE/Utils. Updated code accordingly.
+
 */
 //____________________________________________________________________________ 
 
@@ -39,7 +43,6 @@
 #include "ValidationTools/NuVld/GuiMsgBox.h"
 #include "ValidationTools/NuVld/GuiYNQuestionBox.h"
 #include "ValidationTools/NuVld/GuiTextEntryDialog.h"
-#include "ValidationTools/NuVld/ParserUtils.h"
 
 using std::cout;
 using std::endl;
@@ -328,7 +331,7 @@ string GuiDBHandler::ReadSqlQueryFromFile(string filename)
 
   string ssql = string(sql);
 
-  return ParserUtils::filter_string(";", ssql);
+  return utils::str::FilterString(";", ssql);
 }
 //______________________________________________________________________________
 void GuiDBHandler::PrintSqlResultInTGTextEdit(TSQLResult * res)

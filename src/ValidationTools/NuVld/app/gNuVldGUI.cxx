@@ -26,7 +26,6 @@ using namespace genie::nuvld;
 int main(int argc, char ** argv)
 {
   Messenger * msg = Messenger::Instance();
-
   msg->SetPriorityLevel("NuVld", pINFO);
 
   TApplication vld_gui("VLD", &argc, argv);
@@ -35,7 +34,6 @@ int main(int argc, char ** argv)
   config.AutoDetect();
 
   NuVldMainFrame main_window(gClient->GetRoot(), 800, 1100, config);
-
   vld_gui.Run();
 
   return 0;

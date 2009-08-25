@@ -20,16 +20,16 @@
 
 #include <TSQLServer.h>
 
+#include "Conventions/XmlParserStatus.h"
 #include "Messenger/Messenger.h"
-#include "ValidationTools/NuVld//DBI.h"
-#include "ValidationTools/NuVld//DBStatus.h"
-#include "ValidationTools/NuVld//NuVldXmlParser.h"
-#include "ValidationTools/NuVld//ParserStatus.h"
+#include "ValidationTools/NuVld/DBI.h"
+#include "ValidationTools/NuVld/DBStatus.h"
+#include "ValidationTools/NuVld/NuVldXmlParser.h"
 
 using std::ostringstream;
 using std::string;
 
-using genie::Messenger;
+using namespace genie;
 using namespace genie::nuvld;
 
 const char * get_argument(int argc, char ** argv, const char * marker);
@@ -57,12 +57,12 @@ int main(int argc, char ** argv)
 
  xml_parser.ParseXmlDocument( filename );
 
- if(xml_parser.GetXmlParsingStatus() == eXml_OK) {
+ if(xml_parser.GetXmlParsingStatus() == kXmlOK) {
     LOG("NuVld", pINFO) << "*** XML document successfully parsed";
  } else { 
     LOG("NuVld", pFATAL) 
           << "Problems parsing XML document: " 
-              << ParserStatus::AsString( xml_parser.GetXmlParsingStatus() );
+              << XmlParserStatus::AsString( xml_parser.GetXmlParsingStatus() );
     exit(1);
  }
 

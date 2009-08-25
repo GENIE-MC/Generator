@@ -14,6 +14,10 @@
    NuValidator package refurbishment. Removed the neugen3 dependency. 
    Moved all sources to $GENIE/src/ValidationTools/NuVld.
    Some clases have been renamed.
+ @ Aug 25, 2009 - CA
+   Removed redundant versions of ParserUtils.h and ParserStatus.h in favor of
+   the ones in $GENIE/Conventions and $GENIE/Utils. Updated code accordingly.
+
 */
 //____________________________________________________________________________ 
 
@@ -1316,7 +1320,7 @@ string NuVldMainFrame::PlotVariable(void)
   if (fTabSql->GetCurrent() == 2)
                       selections = fSFTab->BundleSelectionsInString();
 
-  vector<string> elements = ParserUtils::split(selections,  "$");
+  vector<string> elements = utils::str::Split(selections,  "$");
 
   vector<string>::iterator element_iter;
 
@@ -1325,7 +1329,7 @@ string NuVldMainFrame::PlotVariable(void)
 
     if( element_iter->find("DRAW_OPT") != string::npos) {
 
-         vector<string> opt = ParserUtils::split(*element_iter,  ";");
+         vector<string> opt = utils::str::Split(*element_iter,  ";");
 
          vector<string>::iterator opt_iter;
 
@@ -1333,7 +1337,7 @@ string NuVldMainFrame::PlotVariable(void)
 
              if(opt_iter->find("plot-var") != string::npos) {
 
-                   vector<string> parts = ParserUtils::split(*opt_iter, "=");
+                   vector<string> parts = utils::str::Split(*opt_iter, "=");
 
                    if(parts.size() == 2) return parts[1];
              }
