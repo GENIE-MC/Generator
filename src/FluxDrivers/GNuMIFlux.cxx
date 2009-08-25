@@ -4,19 +4,137 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
-
-         Robert Hatcher <rhatcher@fnal.gov>
+ Author: Robert Hatcher <rhatcher@fnal.gov>
          Fermi National Accelerator Laboratory
+
+         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ June 27, 2008 - CA
+ @ Jun 27, 2008 - CA
    The first implementation of this concrete flux driver was first added in
    the development version 2.5.1
-
+ @ Aug 26, 2008 - RH
+   A start at getting GNuMIFlux working.  Major problems included the wrong 
+   type for fLf_Ntype; a mismatch on capitalization for some of the branches
+   (Fortran has things like "NWtFar", but in the root file it ended up at 
+   "Nwtfar"); and a lack of the use of "Nimpwt" (importance weight) as a overall 
+   weight beyond the x-y position weights. Also lowered the max energy from 
+   200 GeV to 125 -- beam is 120 GeV so no neutrinos should be generated above 
+   that.  Begin generalizing so that one can have off axis x-y weights; not so
+   important for FarDet, but not ignorable for NearDet, especially in the case 
+   of rock events or higher beam energies.
+ @ Aug 29, 2008 - RH
+   Expand  GNuMIFluxPassThroughInfo to have all elements of the ntuple.	Use
+   copy of GNuMIFluxPassThroughInfo held by the GNuMIFlux as the repository of 
+   the leave elements. This avoids a bunch of duplication and generally makes 
+   the code more readable.
+ @ Dec 15, 2008 - RH
+   Progress on managing numi flux.  Make use of .h and .C files generated from 
+   the ntuples themselves via MakeClass to automate setting branches and 
+   creating  the proper leaves. Unfortunately the geant3 and geant4 GNuMI 
+   ntuples have different formats.  All the most important variables are there 
+   in each, but upper/lower case varies. A critical difference is the switch 
+   from Float_t to Double_t which means one can't simply use the same structure 
+   an change branch assignments. The common format GNuMIFluxPassThrough needs a 
+   Copy() function defined for each type of ntuple.
+   The g3 case has been implemented, but the g4 version is a skeleton. The retained 
+   variables could do with a review to ensure that we're not carrying more than 
+   necessary. The helper classes g3numi and g4numi srouce (.h + .C) live in a 
+   subdirectory GNuMINtuple that needn't otherwise be exposed to any GENIE user
+   -- the actual code gets into the library by having both #include "gXnumi.h" 
+   and #include "gXnumi.C".
+   The x-y reweight function has been integrated into GNuMIFluxPassThrough. This 
+   has been tested against the fortran version (this set of code still retains 
+   some of that testing code which should be purged in the next iteration).  
+   Generally the values are comparable at the expected precision (g3 32-bit
+   float ~2.5e-5 or better in general for the x-y weight, even better for the 
+   neutrino energy). There are some large outliers when calculating x-y weights 
+   for muon decays because the algorithm, as written, depends on taking the 
+   difference in two largish numbers (e.g. ~6 - ~6 = ~0.002) which results in a 
+   large loss of fractional error precision when starting with floats.
+   Some interfaces have been put in place for handling coordinate transformations 
+   between the detector and beam, but these are not fully implemented and/or tested.
+ @ Mar 13, 2009 - RH
+   Lots of changes. XML parsing of configuration file. Coord transformations.
+   All exchanges current in *user* coords.
+   XML config file might be in $GENIE/src/FluxDrivers/GNuMINtuple
+ @ Mar 27, 2009 - RH 
+   gNuMIExptEvGen expect flux driver method LoadBeamSimData to take two args 
+   (flux file, det config) not just one it did previously.  Added second arg
+   that then calls LoadConfig().  
+   Also add bogus POT_1cycle() method gNuMIExptEvGen expects ... I'm not sure 
+   what the function is exactly supposed to return so it's bogus but at least 
+   now the  EvtGen builds.
+ @ Apr 01, 2009 - RH 
+   Call ScanForMaxWeight() in GenerateNext() automatically if the user hasn't 
+   already done so. Comment out annoying debug messages deep in inner loop.
+   When calculating a starting point of the neutrino ray using the flux window 
+   vectors store it into fgX4 (beam coord position) NOT fgP4 (beam coord p4).
+   Don't try to store -1 in a size_t variable (though only some versions of 
+   gcc warn about this).  This was only relevant if the flux file was given 
+   without any path (ie. no "/").
+ @ Apr 02, 2009 - RH 
+   Improved scheme for estimating maximum weight - no longer depend solely on 
+   existing near/far weights, but calculate weights for some (configurable) 
+   number of entries and apply a (configurable) fudge factor. This allows 
+   off-axis detectors (NOvA-IPND) to get something more reasonable. 
+   Lower reported maximum energy from 125 to 120; no reason really to fudge this 
+   up as it just adds to the rejection fraction.
+   Accept GXMLPATH or GXMLPATHS as specifying locations.
+ @ Apr 03, 2009 - RH 
+   Internalize End() condition Remove SetFilePOT function (intent not mappable 
+   to GNuMI?). SetNumOfCycles() optional 2nd arg to allow immediate reuse of 
+   entries.  Do ScanForMaxWeight() at the end of the config so that MaxEv will 
+   be set *before* any generation of neutrinos (for GMCJDriver). Allow MaxEnergy 
+   (fMaxEv) to be set during ScanForMaxWeight() if the scan finds a value (*fudge 
+   factor) higher than previously set. New <enumax> in XML config allows user 
+   to set estimated enu maximum	and the fudge factor to use during the scan 
+   (1.0=use exactly scanned max). Remove GNuMIFluxXMLHelper::TokenizeString() 
+   in favor of existing genie::utils::str::Split() which I didn't know about.
+ @ Apr 10, 2009 - RH 
+   Fix coord transform code so that unit conversion doesn't screw it up.
+   Add PrintConfig() method for dumping current config/state.
+ @ Apr 13, 2009 - RH 
+   Generally make "meters" the default 'user' units -- genie expects this.  
+   Allow re-use of ntuple entry (don't reset it until moving on).  
+   Provide means of determining distance between ray origin and dk vertex.  
+   First entry depends on random # (ie. not always first ntuple entry).
+   Resetting unit scale w/out resetting window/transform should work. Best 
+   current guess for g4numi unpacking; currently still some unset variables 
+   in the passthrough class, but they don't look critical. Protection in x-y 
+   weight calculation for case where parent particle came to a stop 
+   (parentp==0) from Trish Vahle.  Remove POT_1cycle() method.
+ @ Apr 14, 2009 - RH 
+   Add public MoveToZ0(double) method for pushing ray origin to specified
+   user coordinate z Automatically call MoveToZ0() if SetUpstreamZ() has been 
+   called with sensible (abs(z) < 1.0e30) value. Split SetEntryReuse(int) 
+   function off from SetNumOfCycles(). In our case SetNumOfCycles probably 
+   is going to be deprecated. Rename GNuMIFluxPassThrougInfo::Copy() to 
+   ::MakeCopy()   so that we  don't confuse the issue w/ TObject::Copy() which 
+   has	completelydifferent symantics and to avoid a annoying compiler warning. 
+   XML parsing for <upstreamz> and <reuse> tags.
+ @ Apr 22, 2009 - RH 
+   Spin off AddFile() method where one can try to determine how many POTs each 
+   file represents. Change some vars to Long64_t.
+ @ Apr 23, 2009 - RH 
+   First attempt at proton-on-target accounting (POTs); should be right	for
+   unweighted neutrinos but probably isn't for weighted ones. Moved some 
+   generated entry info from GNuMIFlux class into the GNuMIFluxPassThroughInfo 
+   class so that it can be passed out for users to record or use.  
+   Some general cleanup and reordering.
+ @ May 13, 2009 - RH 
+   Calculate flux window area correctly zero out fSumWeight,fNNeutrinos,
+   fAccumPOTs after weight scan. Initialize fNuTot,fFilePots rather than 
+   accept random garbage. Initialize w/ SetUpstreamZ such that the default 
+   is the flux window. 
+   Make Print() signature look like ROOT's typical (const Option_t* opt=""). 
+   Tweak printout formats.
+ @ Jul 22, 2009 - RH 
+   New FLUGG flux ntuples have neutrinos from Omega parents; x-y reweight 
+   function needs to know about those as well.
  @ Aug 25, 2009 - CA
    Adapt code to use the new utils::xml namespace.
 */
