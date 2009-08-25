@@ -14,8 +14,12 @@
    This trivial case was added in 2.3.1 so that single energy neutrinos can
    be easily used with the event generation driver that can handle a 
    target mix or detailed geometries.
- @ June 2, 2008 - CA
+ @ Jun 02, 2008 - CA
    Fix bug in Initialize() where weight was used as int
+ @ Jul 21, 2009 - RH
+   Allow a bit more flexibility by giving the user the option to set the
+   neutrino ray's direction cosines and origin.
+
 */
 //____________________________________________________________________________
 
