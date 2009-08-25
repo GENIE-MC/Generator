@@ -201,8 +201,6 @@ namespace genie {
       // these should go in a more general package
        std::vector<double>   GetDoubleVector(std::string str);
        std::vector<long int> GetIntVector(std::string str);
-       std::string GetXMLPathList();
-       std::string GetXMLFilePath(std::string basename);
 
     private:
       void     ParseParamSet(xmlDocPtr&, xmlNodePtr&);
@@ -2158,47 +2156,6 @@ void GNuMIFlux::PrintConfig()
 //___________________________________________________________________________
 //___________________________________________________________________________
 
-std::string GNuMIFluxXMLHelper::GetXMLPathList()
-{
-  // Get a separated list of potential locations for xml files
-  // e.g. ".:$MYSITEXML:/path/to/exp/version:$GALGCONF:$GENIE"
-  string pathlist; 
-  const char* p = gSystem->Getenv("GXMLPATH");
-  if ( !p )   p = gSystem->Getenv("GXMLPATHS");
-  if (  p ) { pathlist = std::string(p) + ":"; }
-  // alternative path current supported
-  p = gSystem->Getenv("GALGCONF");
-  if ( p ) { pathlist = std::string(p) + ":"; }
-  pathlist += "$GENIE/config";  // standard path in case no env
-  pathlist += ":$GENIE/src/FluxDrivers/GNuMINtuple";
-  return pathlist;
-}
-
-std::string GNuMIFluxXMLHelper::GetXMLFilePath(std::string basename)
-{
-  // return a full path to a real XML file
-  // e.g. passing in "GNuMIFlux.xml"
-  //   will return   "/Users/rhatcher/Software/GENIE/HEAD/config/GNuMIFlux.xml"
-  // allow ::colon:: ::semicolon:: and ::comma:: as separators
-  std::string pathlist = GetXMLPathList();
-  std::vector<std::string> paths = genie::utils::str::Split(pathlist,":;,");
-  // expand any wildcards, etc.
-  size_t np = paths.size();
-  for ( size_t i=0; i< np; ++i ) {
-    const char* tmppath = paths[i].c_str();
-    std::string onepath = gSystem->ExpandPathName(tmppath);
-    onepath += "/";
-    onepath += basename;
-    bool noAccess = gSystem->AccessPathName(onepath.c_str());
-    if ( ! noAccess ) return onepath;  // found one
-  }
-  // didn't find it, return basename in case it is in "." and that
-  // wasn't listed in the XML path list.   If you want "." to take
-  // precedence then it needs to be explicitly listed in GXMLPATHS.
-  return basename;  
-
-}
-
 std::vector<double> GNuMIFluxXMLHelper::GetDoubleVector(std::string str)
 {
   // turn string into vector<double>
@@ -2247,13 +2204,7 @@ std::vector<long int> GNuMIFluxXMLHelper::GetIntVector(std::string str)
 
 bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
 {
-  //   (search at $GALGCONF or use the default at: $GENIE/config)
-  //string fname = (gSystem->Getenv("GALGCONF")) ?
-  //  string(gSystem->Getenv("GALGCONF")) + string("/") : 
-  //  string(gSystem->Getenv("GENIE")) + string("/config/");
-  //fname += "GNuMIFlux.xml";
-
-  string fname = GetXMLFilePath("GNuMIFlux.xml");
+  string fname = utils::xml::GetXMLFilePath("GNuMIFlux.xml");
 
   bool is_accessible = ! (gSystem->AccessPathName(fname.c_str()));
   if (!is_accessible) {
