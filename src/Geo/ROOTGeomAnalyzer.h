@@ -21,6 +21,7 @@
 #define _ROOT_GEOMETRY_ANALYZER_H_
 
 #include <string>
+#include <algorithm>
 
 #include <TGeoManager.h>
 #include <TVector3.h>
@@ -34,8 +35,6 @@ class TGeoMixture;
 class TGeoElement;
 class TGeoHMatrix;
 
-class PathSegmentList;
-
 using std::string;
 
 namespace genie    {
@@ -43,6 +42,9 @@ namespace genie    {
 class GFluxI;
 
 namespace geometry {
+
+class PathSegmentList;
+class GeomVolSelectorI;
 
 class ROOTGeomAnalyzer : public GeomAnalyzerI {
 
@@ -98,6 +100,12 @@ public :
   virtual void   Top2Master    (TVector3 & v) const;
   virtual void   Top2MasterDir (TVector3 & v) const;
 
+  /// configure processing to perform path segment trimming
+
+  virtual GeomVolSelectorI* AdoptGeomVolSelector (GeomVolSelectorI* selector) /// take ownership, return old
+  { std::swap(selector,fGeomVolSelector); return selector; }
+
+
 protected:
 
   virtual void   Initialize              (void);
@@ -148,6 +156,7 @@ protected:
   bool             fMasterToTopIsIdentity; ///< is fMasterToTop matrix the identity matrix?
 
   PathSegmentList* fCurrPathSegmentList;   ///< current list of path-segments
+  GeomVolSelectorI* fGeomVolSelector;      ///< optional path seg trimmer (owned)
 
   // used by GenBoxRay to retain history between calls
   TVector3         fGenBoxRayPos;

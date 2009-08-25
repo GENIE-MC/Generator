@@ -83,6 +83,7 @@
 #include "EVGDrivers/PathLengthList.h"
 #include "EVGDrivers/GFluxI.h"
 #include "Geo/ROOTGeomAnalyzer.h"
+#include "Geo/GeomVolSelectorI.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
@@ -197,6 +198,12 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
        << ", 4x (m,s) = " << utils::print::X4AsString(&x);
 #endif
 
+  // if trimming configure with neutrino ray's info
+  if ( fGeomVolSelector ) {
+    fGeomVolSelector->SetCurrentRay(x,p);
+    fGeomVolSelector->SetSI2Local(1/this->LengthUnits());
+  }
+
   TVector3 udir = p.Vect().Unit(); // unit vector along direction
   TVector3 pos = x.Vect();         // initial position
   this->SI2Local(pos);             // SI -> curr geom units
@@ -310,12 +317,12 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   }
 
   // walk down the path to pick the vertex
-  const genie::PathSegmentList::PathSegmentV_t& segments = 
+  const genie::geometry::PathSegmentList::PathSegmentV_t& segments = 
     fCurrPathSegmentList->GetPathSegmentV();
-  genie::PathSegmentList::PathSegVCItr_t sitr;
+  genie::geometry::PathSegmentList::PathSegVCItr_t sitr;
   double walked = 0;
   for ( sitr = segments.begin(); sitr != segments.end(); ++sitr) {
-    const genie::PathSegment& seg = *sitr;
+    const genie::geometry::PathSegment& seg = *sitr;
     const TGeoMaterial* mat = seg.fMaterial;
     double trimmed_step = seg.fStepTrimHigh - seg.fStepTrimLow;
     double wgtstep = trimmed_step * wgtmap[mat];
@@ -646,6 +653,7 @@ void ROOTGeomAnalyzer::Initialize(void)
   fCurrMaxPathLengthList = 0;
   fCurrPathLengthList    = 0;
   fCurrPathSegmentList   = 0;
+  fGeomVolSelector       = 0;
   fCurrPDGCodeList       = 0;
   fTopVolume             = 0;
   fTopVolumeName         = "";
@@ -1359,7 +1367,6 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
                              << " "     << fGeometry->GetCurrentDirection()[1]
                              << " "     << fGeometry->GetCurrentDirection()[2]
                              << "[path: " << fGeometry->GetPath() << "]";
-     }
 #endif
 #endif
 
@@ -1372,22 +1379,22 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
         //rwh//raydist += step;  // STNB doesn't actually "step"
 
 #ifdef RWH_DEBUG
-//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("GROOTGeom", pDEBUG) << "Outside ToNextBoundary step: " << step 
                                  << " raydist: " << raydist;
-//#endif
+#endif
 #endif
 
         while (!fGeometry->IsEntering()) {
           step = this->Step();
           raydist += step;
 #ifdef RWH_DEBUG
-//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
           LOG("GROOTGeom", pDEBUG) 
               << "Stepping... [step size = " << step << "]";
-        LOG("GROOTGeom", pDEBUG) << "Outside step: " << step 
-                                 << " raydist: " << raydist;
-//#endif
+          LOG("GROOTGeom", pDEBUG) << "Outside step: " << step 
+                                   << " raydist: " << raydist;
+#endif
 #endif
           if (this->WillNeverEnter(step)) {
 #ifdef RWH_COUNTVOLS
@@ -1412,6 +1419,9 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
         ps_curr.SetExit(fGeometry->GetCurrentPoint());
         ps_curr.SetStep(step);
         ps_curr.SetGeo(vol,med,mat);
+#ifdef PATHSEG_KEEP_PATH
+        ps_curr.SetPath(fGeometry->GetPath());
+#endif
         fCurrPathSegmentList->AddSegment(ps_curr);
 
      }  // outside or !vol
@@ -1433,10 +1443,10 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
        nvolswim++; //rwh
 
 #ifdef DUMP_SWIM
-         LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName() 
-                               << " step " << step << " in " << mat->GetName();
+       LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName() 
+                                << " step " << step << " in " << mat->GetName();
 #endif
-
+         
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("GROOTGeom", pDEBUG)
          << "Cur med.: " << med->GetName() << ", mat.: " << mat->GetName();
@@ -1463,7 +1473,12 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 #endif
 
   // PathSegmentList trimming should occur here!
-
+  if ( fGeomVolSelector ) {
+    PathSegmentList* altlist = 
+      fGeomVolSelector->GenerateTrimmedList(fCurrPathSegmentList);
+    std::swap(altlist,fCurrPathSegmentList);
+    delete altlist;  // after swap delete original
+  }
 
   fCurrPathSegmentList->FillMatStepSum();
 
