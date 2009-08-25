@@ -12,6 +12,9 @@
  Important revisions after version 2.0.0 :
  @ Mar 03, 2009 - CA
    Moved into the new RES package from its previous location (EVGModules).
+ @ Aug 25, 2009 - CA
+   The nunc_channels array was initialized with wrong size (n_nucc_channels
+   instead of n_nunc_channels).
 
 */
 //____________________________________________________________________________
@@ -73,7 +76,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
   const int n_nunc_channels = 4;
 
   SppChannel_t nucc_channels[n_nucc_channels] = {kSppNull};
-  SppChannel_t nunc_channels[n_nucc_channels] = {kSppNull};
+  SppChannel_t nunc_channels[n_nunc_channels] = {kSppNull};
 
   int nupdg  = init_state.ProbePdg();
 

@@ -204,7 +204,9 @@ bool genie::utils::kinematics::TransformMatched(
                            KinePhaseSpace_t a, KinePhaseSpace_t b, bool & fwd)
 {
   
-  bool matched = (a==inpa&&b==inpb || a==inpb&&b==inpa); // match a->b or b->a
+  // match a->b or b->a
+  bool matched = ( (a==inpa&&b==inpb) || (a==inpb&&b==inpa) ); 
+
   if(matched) {
     if(a==inpa&&b==inpb) fwd = true;  // matched forward transform: a->b
     else                 fwd = false; // matched reverse transform: b->a

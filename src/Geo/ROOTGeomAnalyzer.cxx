@@ -70,10 +70,11 @@
 #include <TGeoNode.h>
 #include <TObjArray.h>
 #include <TLorentzVector.h>
-#include <TVector3.h>
 #include <TList.h>
 #include <TSystem.h>
 #include <TMath.h>
+#include <TPolyMarker3D.h>
+#include <TGeoBBox.h>
 
 #include "Conventions/GBuild.h"
 #include "Conventions/Units.h"
@@ -83,13 +84,10 @@
 #include "EVGDrivers/GFluxI.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/PrintUtils.h"
-
-#include <TPolyMarker3D.h>
-#include <TGeoBBox.h>
-#include "Numerical/RandomGen.h"
 
 using namespace genie;
 using namespace genie::geometry;
@@ -1028,7 +1026,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
 
   PathLengthList::const_iterator pl_iter;
 
-  while ( ok = this->GenBoxRay(iparticle++,nux4,nup4) ) {
+  while ( (ok = this->GenBoxRay(iparticle++,nux4,nup4)) ) {
 
     //LOG("GMCJDriver", pNOTICE)
     //  << "\n [-] Generated flux neutrino: "

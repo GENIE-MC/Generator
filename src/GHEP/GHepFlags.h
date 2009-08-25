@@ -40,7 +40,7 @@ class GHepFlags {
 
  public:
   //__________________________________________________________________________
-  static char * Describe(GHepFlag_t flag) 
+  static const char * Describe(GHepFlag_t flag) 
   {
      switch (flag) {
      case kGenericErr :

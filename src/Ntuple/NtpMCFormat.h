@@ -48,7 +48,7 @@ class NtpMCFormat {
      return " ";
   }
 
-  static char * FilenameTag(NtpMCFormat_t fmt) {
+  static const char * FilenameTag(NtpMCFormat_t fmt) {
 
      // The output ROOT files containing GENIE ntuple are typically named as
      // gntp.[tag].root where TAG describes the tree format

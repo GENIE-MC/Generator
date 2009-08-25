@@ -46,7 +46,7 @@ class SqlTag {
 
      } SqlEnum_t;
 
-     char * as_string(SqlEnum_t sql) {
+     static const char * as_string(SqlEnum_t sql) {
        switch(sql) {
          case kCreateDatabase_NuScat:             return "create database NuScat"; break;
          case kUseDatabase_NuScat:                return "use database NuScat"; break;
@@ -65,7 +65,7 @@ class SqlTag {
        return "unrecognized default sql query";
      }
      
-     char * filename(SqlEnum_t sql) {     
+     static const char * filename(SqlEnum_t sql) {     
        switch(sql) {
          case kCreateDatabase_NuScat:             return "createDatabase_NuScat.sql"; break;
          case kUseDatabase_NuScat:                return "useDatabase_NuScat.sql"; break;
