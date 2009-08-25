@@ -19,6 +19,10 @@
    output clutter (caused by reporting singletons) and help spotting the fatal
    mesg more easily. In PriorityFromString() re-ordered the if-statements, 
    putting the most commonly used priorities on top, so to improve performance.
+ @ Aug 25, 2009 - RH
+   Use the GetXMLFilePath() to search the potential XML config file locations
+   and return the first actual file that can be found. Adapt code to use the
+   utils::xml namespace.
 */
 //____________________________________________________________________________
 
@@ -119,13 +123,10 @@ void Messenger::Configure(void)
 
   bool ok = false;
 
-  //-- get the default messenger configuration XML file
-  string base_dir = string( gSystem->Getenv("GENIE") ) + 
-                    string("/config/");
   string filename = gSystem->Getenv("GPRODMODE") ? 
                     "Messenger_production.xml" : "Messenger.xml";
 
-  string msg_config_file = base_dir + filename;
+  string msg_config_file = utils::xml::GetXMLFilePath(filename);
 
   // parse & set the default priority levels
   ok = this->SetPrioritiesFromXmlFile(msg_config_file);
@@ -197,9 +198,9 @@ bool Messenger::SetPrioritiesFromXmlFile(string filename)
      if( (!xmlStrcmp(xml_msgp->name, (const xmlChar *) "priority")) ) {
 
          string msgstream = utils::str::TrimSpaces(
-                  XmlParserUtils::GetAttribute(xml_msgp, "msgstream"));
+                  utils::xml::GetAttribute(xml_msgp, "msgstream"));
          string priority =
-                XmlParserUtils::TrimSpaces( xmlNodeListGetString(
+                utils::xml::TrimSpaces( xmlNodeListGetString(
                                xml_doc, xml_msgp->xmlChildrenNode, 1));
          SLOG("Messenger", pINFO)
                   << "Setting priority level: " << setfill('.')
