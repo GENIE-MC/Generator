@@ -38,7 +38,7 @@ typedef enum EGridSpacing {
 
 class GridSpacing {
  public:
-  static char * AsString(GridSpacing_t gsp) {
+  static const char * AsString(GridSpacing_t gsp) {
      switch (gsp) {
      case kGSpLinear:    return "Grid axis spacing: uniform in x";        break;
      case kGSpLoge:      return "Grid axis spacing: uniform in ln(x)";    break;

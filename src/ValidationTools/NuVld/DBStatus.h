@@ -32,8 +32,7 @@ class DBStatus {
 
 public:
 
-     static char * AsString(DBStatus_t status) {
-
+     static const char * AsString(DBStatus_t status) {
        switch(status) {
          case eDbu_OK:                 return "Successful SQL query";            break;
          case eDbu_SQL_ERROR:          return "SQL syntax error";                break;

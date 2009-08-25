@@ -30,8 +30,7 @@ class ParserStatus {
 
   public:
 
-     static char * AsString(XmlParserStatus_t status) {
-
+     static const char * AsString(XmlParserStatus_t status) {
        switch(status) {
          case eXml_OK:           return "XML document succesfully parsed";       break;
          case eXml_NOT_PARSED:   return "XML document parsing failed";           break;

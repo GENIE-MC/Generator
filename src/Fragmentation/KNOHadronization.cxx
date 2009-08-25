@@ -16,6 +16,10 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Aug 25, 2009 - CA
+   Fixed bug in `special mode' aiming to reproduce old NEUGEN limitation (max
+   multiplicity = 10) for GENIE/NEUGEN cross-comparisons. Boolean logic in if
+   statement was using '&' instead of a '&&'...
 
 */
 //____________________________________________________________________________
@@ -324,7 +328,7 @@ TH1D * KNOHadronization::MultiplicityProb(
 
   // If required force the NeuGEN maximum multiplicity limit (10)
   // Note: use for NEUGEN/GENIE comparisons, not physics MC production
-  if(fForceNeuGenLimit & maxmult>10) maxmult=10;
+  if(fForceNeuGenLimit && maxmult>10) maxmult=10;
 
   // Set maximum multiplicity so that it does not exceed the max number of
   // particles accepted by the ROOT phase space decayer (18)

@@ -23,6 +23,7 @@
 #include <string>
 
 #include <TGeoManager.h>
+#include <TVector3.h>
 
 #include "EVGDrivers/GeomAnalyzerI.h"
 #include "PDG/PDGUtils.h"
@@ -31,7 +32,6 @@ class TGeoVolume;
 class TGeoMaterial;
 class TGeoMixture;
 class TGeoElement;
-class TVector3;
 class TGeoHMatrix;
 
 class PathSegmentList;
