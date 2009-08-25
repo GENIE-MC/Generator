@@ -40,24 +40,28 @@ using std::setfill;
 using std::endl;
 
 using namespace genie;
+using namespace genie::geometry;
 
 //____________________________________________________________________________
 namespace genie {
- ostream & operator << (ostream & stream, const PathSegment & ps)
+namespace geometry {
+
+ostream & operator << (ostream & stream, const geometry::PathSegment & ps)
  {
    ps.Print(stream);
    return stream;
  }
-}
-//____________________________________________________________________________
-namespace genie {
- ostream & operator << (ostream & stream, const PathSegmentList & list)
+
+ostream & operator << (ostream & stream, const geometry::PathSegmentList & list)
  {
    list.Print(stream);
    return stream;
  }
-}
 
+} // namespace geometry
+} // namespace genie
+
+//____________________________________________________________________________
 namespace genie {
   namespace pathsegutils {
     string Vec3AsString (const TVector3 * vec)
@@ -101,7 +105,11 @@ void PathSegment::Print(ostream & stream) const
          << "[" << std::setw(12) << fStepTrimLow << ":"
          << std::setw(12) << fStepTrimHigh << "] "
          << std::setw(16) << vname << " '"
-         << std::setw(18) << mname << "'";
+         << std::setw(18) << mname << "'"
+#ifdef PATHSEG_KEEP_PATH
+         << " " << fPathString
+#endif
+    ;
 }
 
 //===========================================================================
