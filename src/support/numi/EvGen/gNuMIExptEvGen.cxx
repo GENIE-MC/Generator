@@ -184,7 +184,8 @@
                        -n 50000
 
          You can further control the GENIE behaviour by setting its standard 
-         environmental variables. Please read the GENIE user manual for more information.
+         environmental variables. 
+         Please read the GENIE user manual for more information.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
