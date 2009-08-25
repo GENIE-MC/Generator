@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::PathSegmentList
+\class   genie::geometry::PathSegmentList
 
 \brief   Object to be filled with the neutrino path-segments representing
          geometry volume steps (generally boundary-to-boundary) along with
@@ -22,6 +22,12 @@
 #ifndef _PATH_SEGMENT_LIST_H_
 #define _PATH_SEGMENT_LIST_H_
 
+/// --- for test purposes allow compilation of class without string member
+/// fetching/keeping the geometry path seems to add a negligable (<2%)
+/// overhead to swimming through the geometry.
+#define PATHSEG_KEEP_PATH
+//#undef  PATHSEG_KEEP_PATH
+
 #include <vector>
 #include <list>
 #include <ostream>
@@ -38,8 +44,7 @@ using std::ostream;
 using std::string;
 
 namespace genie {
-
-class PDGCodeList;
+namespace geometry {
 
 class PathSegment {
 
@@ -58,6 +63,9 @@ class PathSegment {
   void SetGeo(const TGeoVolume * gvol, const TGeoMedium * gmed, 
               const TGeoMaterial * gmat)
   { fVolume = gvol; fMedium = gmed; fMaterial = gmat; }
+#ifdef PATHSEG_KEEP_PATH
+  void SetPath(const char* path) { fPathString = path; }
+#endif
 
   void DoCrossCheck(const TVector3& startpos, double& ddist, double& dstep) const;
 
@@ -78,6 +86,9 @@ class PathSegment {
   const TGeoMaterial *   fMaterial;     ///< ref only ptr to TGeoMaterial
   TVector3               fEnter;        ///< top vol coordinates and units
   TVector3               fExit;         ///< top vol coordinates and units
+#ifdef PATHSEG_KEEP_PATH
+  std::string            fPathString;   ///< full path names
+#endif
 };
 
 inline void PathSegment::SetStep(Double_t step, bool setlimits) 
@@ -103,14 +114,14 @@ public :
   typedef std::list<PathSegment> PathSegmentV_t;
   typedef PathSegmentV_t::const_iterator PathSegVCItr_t;
 
-  const   PathSegmentV_t&   GetPathSegmentV (void) { return fSegmentList; }  
+  const   PathSegmentV_t&   GetPathSegmentV (void) const { return fSegmentList; }  
   size_t                    size(void) const { return fSegmentList.size(); }
 
   typedef std::map<const TGeoMaterial*,Double_t> MaterialMap_t;
   typedef MaterialMap_t::const_iterator MaterialMapCItr_t;
 
   void                      FillMatStepSum   (void);
-  const   MaterialMap_t&    GetMatStepSumMap (void) { return fMatStepSum; };
+  const   MaterialMap_t&    GetMatStepSumMap (void) const { return fMatStepSum; };
 
   void                      CrossCheck(double& mxddist, double& mxdstep) const;
 
@@ -141,6 +152,7 @@ public :
 
 };
 
-}      // genie namespace
+}      // geometry namespace
+}      // genie    namespace
 
 #endif // _PATH_SEGMENT_LIST_H_
