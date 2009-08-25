@@ -10,6 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Aug 25, 2009 - CA
+   Adapt code to use the new utils::xml namespace.
 
 */
 //____________________________________________________________________________
@@ -240,9 +242,9 @@ XmlParserStatus_t PathLengthList::LoadFromXml(string filename)
        xmlNodePtr xmlPlVal = xmlCur->xmlChildrenNode;
 
        string spdgc = utils::str::TrimSpaces(
-                         XmlParserUtils::GetAttribute(xmlCur, "pdgc"));
+                         utils::xml::GetAttribute(xmlCur, "pdgc"));
 
-       string spl = XmlParserUtils::TrimSpaces(
+       string spl = utils::xml::TrimSpaces(
                            xmlNodeListGetString(xml_doc, xmlPlVal, 1));
 
        LOG("PathL", pDEBUG) << "pdgc = " << spdgc << " --> pl = " << spl;

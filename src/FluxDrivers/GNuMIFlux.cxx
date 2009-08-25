@@ -16,6 +16,9 @@
  @ June 27, 2008 - CA
    The first implementation of this concrete flux driver was first added in
    the development version 2.5.1
+
+ @ Aug 25, 2009 - CA
+   Adapt code to use the new utils::xml namespace.
 */
 //____________________________________________________________________________
 
@@ -2176,7 +2179,7 @@ bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
     if ( ! xmlStrEqual(xml_pset->name, (const xmlChar*)"param_set") ) continue;
     // every time there is a 'param_set' tag
     string param_set_name = 
-      utils::str::TrimSpaces(XmlParserUtils::GetAttribute(xml_pset,"name"));
+      utils::str::TrimSpaces(utils::xml::GetAttribute(xml_pset,"name"));
     
     if ( param_set_name != cfg ) continue;
       
@@ -2199,10 +2202,10 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
     // handle basic gnumi_config/param_set
     // bad cast away const on next line, but function sig requires it
     string pname = 
-      XmlParserUtils::TrimSpaces(const_cast<xmlChar*>(xml_child->name));
+      utils::xml::TrimSpaces(const_cast<xmlChar*>(xml_child->name));
     if ( pname == "text" || pname == "comment" ) continue;
     string pval  = 
-      XmlParserUtils::TrimSpaces(
+      utils::xml::TrimSpaces(
               xmlNodeListGetString(xml_doc, xml_child->xmlChildrenNode, 1));
 
     if ( fVerbose > 1 ) 
@@ -2269,10 +2272,10 @@ void GNuMIFluxXMLHelper::ParseBeamDir(xmlDocPtr& xml_doc, xmlNodePtr& xml_beamdi
 
   string dirtype = 
     utils::str::TrimSpaces(
-      XmlParserUtils::GetAttribute(xml_beamdir,"type"));
+      utils::xml::GetAttribute(xml_beamdir,"type"));
 
   string pval  = 
-    XmlParserUtils::TrimSpaces(
+    utils::xml::TrimSpaces(
       xmlNodeListGetString(xml_doc, xml_beamdir->xmlChildrenNode, 1));
 
   if        ( dirtype == "series" ) {
@@ -2283,7 +2286,7 @@ void GNuMIFluxXMLHelper::ParseBeamDir(xmlDocPtr& xml_doc, xmlNodePtr& xml_beamdi
     // G3 style triplet of (theta,phi) pairs
     std::vector<double> thetaphi3 = GetDoubleVector(pval);
     string units = 
-      utils::str::TrimSpaces(XmlParserUtils::GetAttribute(xml_beamdir,"units"));
+      utils::str::TrimSpaces(utils::xml::GetAttribute(xml_beamdir,"units"));
     if ( thetaphi3.size() == 6 ) {
       TVector3 newX = AnglesToAxis(thetaphi3[0],thetaphi3[1],units);
       TVector3 newY = AnglesToAxis(thetaphi3[2],thetaphi3[3],units);
@@ -2396,18 +2399,17 @@ void GNuMIFluxXMLHelper::ParseRotSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset
     // in a <beamdir> of type "series"
     // should be a sequence of <rotation> entries
     string name = 
-      XmlParserUtils::TrimSpaces(const_cast<xmlChar*>(xml_child->name));
+      utils::xml::TrimSpaces(const_cast<xmlChar*>(xml_child->name));
     if ( name == "text" || name == "comment" ) continue;
 
     if ( name == "rotation" ) {
-      string val  = 
-        XmlParserUtils::TrimSpaces(
+      string val = utils::xml::TrimSpaces(
           xmlNodeListGetString(xml_doc, xml_child->xmlChildrenNode, 1));
       string axis = 
-        utils::str::TrimSpaces(XmlParserUtils::GetAttribute(xml_child,"axis"));
+        utils::str::TrimSpaces(utils::xml::GetAttribute(xml_child,"axis"));
 
       string units = 
-        utils::str::TrimSpaces(XmlParserUtils::GetAttribute(xml_child,"units"));
+        utils::str::TrimSpaces(utils::xml::GetAttribute(xml_child,"units"));
 
       double rot = atof(val.c_str());
       // assume radians unless given a hint that it's degrees
@@ -2442,15 +2444,15 @@ void GNuMIFluxXMLHelper::ParseWindowSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_p
     // in a <windowr> element
     // should be a sequence of <point> entries
     string name = 
-      XmlParserUtils::TrimSpaces(const_cast<xmlChar*>(xml_child->name));
+      utils::xml::TrimSpaces(const_cast<xmlChar*>(xml_child->name));
     if ( name == "text" || name == "comment" ) continue;
 
     if ( name == "point" ) {
       string val  = 
-        XmlParserUtils::TrimSpaces(
+        utils::xml::TrimSpaces(
           xmlNodeListGetString(xml_doc, xml_child->xmlChildrenNode, 1));
       string coord = 
-        utils::str::TrimSpaces(XmlParserUtils::GetAttribute(xml_child,"coord"));
+        utils::str::TrimSpaces(utils::xml::GetAttribute(xml_child,"coord"));
 
       std::vector<double> xyz = GetDoubleVector(val);
       if ( xyz.size() != 3 || coord != "det" ) {
