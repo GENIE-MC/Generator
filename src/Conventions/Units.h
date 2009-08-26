@@ -45,6 +45,7 @@ static const double second   = 1.52e+24 / GeV;
 
 //-- [L: length],[S: area],[V: volume]
 
+static const double kilometer   = 1000.*meter;
 static const double millimeter  = 0.001*meter;
 static const double millimeter2 = millimeter*millimeter;
 static const double millimeter3 = millimeter*millimeter2;
@@ -68,6 +69,7 @@ static const double microbarn   = 1.e-6 *barn;
 static const double nanobarn    = 1.e-9 *barn;
 static const double picobarn    = 1.e-12*barn;
 
+static const double km  = kilometer;
 static const double mm  = millimeter;
 static const double mm2 = millimeter2;
 static const double mm3 = millimeter3;
