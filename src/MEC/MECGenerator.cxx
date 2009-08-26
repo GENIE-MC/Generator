@@ -19,19 +19,28 @@
 
 #include <TMath.h>
 
+#include "Base/XSecAlgorithmI.h"
 #include "Conventions/Constants.h"
-#include "MEC/MECGenerator.h"
+#include "Conventions/Controls.h"
+#include "EVGCore/EVGThreadException.h"
+#include "EVGCore/RunningThreadInfo.h"
+#include "EVGCore/EventGeneratorI.h"
 #include "GHEP/GHepStatus.h"
+#include "GHEP/GHepFlags.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
+#include "MEC/MECGenerator.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
+#include "Utils/KineUtils.h"
 
 using namespace genie;
+using namespace genie::utils;
 using namespace genie::constants;
+using namespace genie::controls;
 
 //___________________________________________________________________________
 MECGenerator::MECGenerator() :
@@ -64,8 +73,89 @@ void MECGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 void MECGenerator::SelectKinematics(GHepRecord * evrec) const
 {
-  evrec->Summary()->KinePtr()->SetQ2(1.0, true);
-  evrec->Summary()->KinePtr()->Sety (0.5, true);
+  // Access cross section algorithm for running thread
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  fXSecModel = evg->CrossSectionAlg();
+
+  Interaction * interaction = evrec->Summary();
+
+  // Random num generator
+  RandomGen * rnd = RandomGen::Instance();
+
+  // Hardcode bogus limits for the time-being
+  double Q2min =  0.01;
+  double Q2max = 10.00;
+  double Wmin  =  0.50;
+  double Wmax  =  1.50;
+
+  // Scan for maximum differential cross section at current energy
+  const int nq=30;
+  const int nw=20;
+  double dQ2 = (Q2max-Q2min) / (nq-1);
+  double dW  = (Wmax-Wmin )  / (nw-1);
+  double xsec_max =  0;
+  for(int iw=0; iw<nw; iw++) {
+    for(int iq=0; iq<nq; iq++) {
+      double Q2 = Q2min + iq*dQ2;
+      double W  = Wmin  + iw*dW;
+      interaction->KinePtr()->SetQ2(Q2);  
+      interaction->KinePtr()->SetW (W);   
+      double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+      xsec_max = TMath::Max(xsec, xsec_max);
+    }
+  }
+  LOG("MEC", pNOTICE) << "xsec_max = " << xsec_max;
+
+  // Select kinematics
+  unsigned int iter = 0;
+  bool accept = false;
+  while(1) {
+     iter++;
+     if(iter > kRjMaxIterations) {
+        LOG("MEC", pWARN)
+           << "Couldn't select a valid W, Q^2 pair after " 
+           << iter << " iterations";
+        evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
+        genie::exceptions::EVGThreadException exception;
+        exception.SetReason("Couldn't select kinematics");
+        exception.SwitchOnFastForward();
+        throw exception;
+     }
+
+     // Generate next pair
+     double gQ2 = Q2min + (Q2max-Q2min) * rnd->RndKine().Rndm();
+     double gW  = Wmin  + (Wmax -Wmin ) * rnd->RndKine().Rndm();
+
+     // Calculate d2sigma/dQ2dW
+     interaction->KinePtr()->SetQ2(gQ2);  
+     interaction->KinePtr()->SetW (gW);   
+     double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+     
+     // Decide whether to accept the current kinematics
+     double t = xsec_max * rnd->RndKine().Rndm();
+     double J = 1; // jacobean
+     accept = (t < J*xsec);
+
+     // If the generated kinematics are accepted, finish-up module's job
+     if(accept) {
+        LOG("MEC", pINFO) << "Selected: Q^2 = " << gQ2 << ", W = " << gW;
+
+        double gx = 0;
+        double gy = 0;
+        double E  = evrec->Probe()->E();
+        kinematics::WQ2toXY(E,kNucleonMass,gW,gQ2,gx,gy);
+
+        // lock selected kinematics & clear running values
+        interaction->KinePtr()->SetQ2(gQ2, true);
+        interaction->KinePtr()->SetW (gW,  true);
+        interaction->KinePtr()->Setx (gx,  true);
+        interaction->KinePtr()->Sety (gy,  true);
+        interaction->KinePtr()->ClearRunningValues();
+        
+        return;
+     }//accepted?
+  }//iter
 }
 //___________________________________________________________________________
 void MECGenerator::AddFinalStateLepton(GHepRecord * evrec) const
@@ -88,7 +178,7 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * evrec) const
   double plp = El - 0.5*(Q2+ml2)/Ev;                          // p(//)
   double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
 
-  LOG("LeptonicVertex", pNOTICE)
+  LOG("MEC", pNOTICE)
           << "fsl: E = " << El << ", |p//| = " << plp << "[pT] = " << plt;
 
   // Randomize transverse components
@@ -210,5 +300,21 @@ void MECGenerator::DecayNucleonCluster(GHepRecord * evrec) const
   evrec->AddParticle(nuc2, kIStHadronInTheNucleus, mom,-1,-1,-1, p4_2, v4);  
 }
 //___________________________________________________________________________
+void MECGenerator::Configure(const Registry & config)   
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+} 
+//___________________________________________________________________________ 
+void MECGenerator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//___________________________________________________________________________
+void MECGenerator::LoadConfig(void)
+{
 
+}
+//___________________________________________________________________________
 

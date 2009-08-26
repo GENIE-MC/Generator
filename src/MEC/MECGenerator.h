@@ -23,6 +23,8 @@
 
 namespace genie {
 
+class XSecAlgorithmI;
+
 class MECGenerator : public EventRecordVisitorI {
 
 public :
@@ -30,16 +32,24 @@ public :
   MECGenerator(string config);
  ~MECGenerator();
 
-  //-- implement the EventRecordVisitorI interface
+  // implement the EventRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event_rec) const;
+
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
 
 private:
 
+  void LoadConfig          (void);
   void AddFinalStateLepton (GHepRecord * event_rec) const;
   void SelectKinematics    (GHepRecord * event_rec) const;
   void AddNucleonCluster   (GHepRecord * event_rec) const;
   void AddTargetRemnant    (GHepRecord * event_rec) const;
   void DecayNucleonCluster (GHepRecord * event_rec) const;
+
+  mutable const XSecAlgorithmI * fXSecModel;
 };
 
 }      // genie namespace
