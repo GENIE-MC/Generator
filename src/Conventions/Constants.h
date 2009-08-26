@@ -26,13 +26,15 @@
 namespace genie {
 namespace constants {
 
-//----- Basic constants
-
+//
+// Fundamental constants
+//
 static const double kLightSpeed    = 1.;
 static const double kPlankConstant = 1.;
 
-//----- pi, e,...
-
+//
+// pi, e,...
+//
 static const double kPi    = 3.1415927;
 static const double kPi2   = TMath::Power(kPi,2);
 static const double kPi3   = TMath::Power(kPi,3);
@@ -40,29 +42,30 @@ static const double kPi4   = TMath::Power(kPi,4);
 static const double ke     = 2.7182818;
 static const double kSqrte = TMath::Sqrt(ke);
 
-//----- Avogadro number, compton wavelength and such...
-
+//
+// Avogadro number, compton wavelength and such...
+//
 static const double kNA    = 6.02214179E+23;             
 static const double kLe    = 3.8616E-11 *units::cm;
 static const double kLe2   = TMath::Power(kLe,2);          
 
-//----- Coupling constants
-
-static const double kAem   = 1./137.03599976; // dimensionless - EM coupling const
+//
+// Coupling constants
+//
+static const double kAem   = 1./137.03599976;       // EM coupling const, dimensionless
 static const double kAem2  = TMath::Power(kAem,2);
-
-static const double kGF    = 1.16639E-5;      // GeV^-2 - Fermi const from b-decay
+static const double kGF    = 1.16639E-5;            // Fermi const from b-decay, in GeV^-2
 static const double kGF2   = TMath::Power(kGF,2);
 
-//----- Masses
-
-//      For simplicity, the most commonly used particle masses defined here.
-//      In general, however, particle masses in GENIE classes should be obtained
-//      through the genie::PDGLibrary as shown below:
-//           double mass = PDGLibrary::Instance()->Find(pdg_code)->Mass();
-//      For consistency, the values below must match whatever is used in
-//      PDGLibrary.
-
+//
+// Masses
+//
+// For simplicity, the most commonly used particle masses defined here.
+// In general, however, particle masses in GENIE classes should be obtained
+// through the genie::PDGLibrary as shown below:
+// double mass = PDGLibrary::Instance()->Find(pdg_code)->Mass();
+// For consistency, the values below must match whatever is used in PDGLibrary.
+//
 static const double kElectronMass   =  0.0005109989;        // GeV
 static const double kMuonMass       =  0.105658357;         // GeV
 static const double kTauMass        =  1.77703;             // GeV
@@ -86,8 +89,20 @@ static const double kMz             =  91.19;                // GeV - Z boson ma
 static const double kMw2            =  TMath::Power(kMw,2);  // GeV^2
 static const double kMz2            =  TMath::Power(kMz,2);  // GeV^2
 
-//----- sqrts frequently encountered in helicity amplitude calculations
+//
+// Misc constants for empirical formulas
+//
+static const double kNucRo      = 1.2E-15*units::m;             // Ro in nuclear radius formula R=Ro*A^(1/3), in GeV^-1
+static const double kNucDensity = 2.3E+17 *units::kg/units::m3; // Nuclear density (in nuclear core), in GeV^4
 
+//
+// Earth consts
+//
+static const double kREarth = 6371; // km
+
+//
+// Sqrts frequently encountered in helicity amplitude calculations
+//
 static const double kSqrt2     =  1.4142136;
 static const double kSqrt3     =  1.7320508;
 static const double kSqrt4     =  2.0;
@@ -158,13 +173,6 @@ static const double kSqrt18_35 =  0.71713717;
 static const double kSqrt24_35 =  0.82807867;
 static const double kSqrt27_10 =  1.6431677;
 static const double kSqrt27_40 =  0.82158384;
-
-//----- Misc constants for empirical formulas
-
-// Ro in nuclear radius formula R=Ro*A^(1/3), in GeV^-1
-static const double kNucRo = 1.2E-15*units::m;
-// Nuclear density (in nuclear core), in GeV^4
-static const double kNucDensity = 2.3E+17 *units::kg/units::m3;
 
 } // namespace constants
 } // namespace genie
