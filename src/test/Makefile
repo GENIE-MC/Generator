@@ -27,12 +27,12 @@ TGT =	gtestAlgorithms 	 \
  	gtestEventLoop 		 \
         gtestGiBUUData           \
 	gtestHadronization	 \
- 	gtestIntranuke		 \
 	gtestINukeHadroData      \
 	gtestMessenger		 \
 	gtestNumerical		 \
 	gtestNaturalIsotopes	 \
 	gtestPDFLIB		 \
+	gtestPREM		 \
 	gtestROOTGeometry	 \
 	gtestFermiP		 \
 	gtestRegistry		 \
@@ -42,6 +42,7 @@ TGT =	gtestAlgorithms 	 \
 	gtestReWeightP2P	 \
 	gtestReWeightLoop	 \
 	gtestKPhaseSpace	
+# 	gtestIntranuke		 
 
 all: $(TGT)
 
@@ -100,6 +101,10 @@ gtestXSec: FORCE
 gtestPDFLIB: FORCE
 	$(CXX) $(CXXFLAGS) -c testPDFLIB.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testPDFLIB.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPDFLIB
+
+gtestPREM: FORCE
+	$(CXX) $(CXXFLAGS) -c testPREM.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testPREM.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPREM
 
 gtestFermiP: FORCE
 	$(CXX) $(CXXFLAGS) -c testFermiP.cxx $(INCLUDES)
@@ -192,6 +197,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_PATH)/gtestNaturalIsotopes	
 	$(RM) $(GENIE_BIN_PATH)/gtestPDFLIB		
+	$(RM) $(GENIE_BIN_PATH)/gtestPREM		
 	$(RM) $(GENIE_BIN_PATH)/gtestFermiP		
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
@@ -224,6 +230,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNaturalIsotopes		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPDFLIB		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPREM		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFermiP		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
@@ -290,6 +297,9 @@ clean--gtestNaturalIsotopes: FORCE
 
 clean--gtestPDFLIB: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestPDFLIB
+
+clean--gtestPREM: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestPREM
 
 clean--gtestFermiP: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestFermiP
