@@ -18,6 +18,7 @@
 
 #include <TMath.h>
 
+#include "Conventions/Constants.h"
 #include "Utils/PREM.h"
 
 //___________________________________________________________________________
@@ -30,12 +31,10 @@ double genie::utils::prem::Density(double r)
 //   rho, Earth density (in gr/cm3)
 //
 
-  const double kREarth = 6371; // km
-
   r = TMath::Max(0., r);
 
   double rho = 0.;
-  double x   = r/kREarth;
+  double x   = r/constants::kREarth;
 
   if (r <= 1221.5 ) 
   { 
@@ -73,7 +72,7 @@ double genie::utils::prem::Density(double r)
   { 
     rho = 2.60; 
   } 
-  else if (r >  6368.0 && r <= kREarth) 
+  else if (r >  6368.0 && r <= constants::kREarth) 
   { 
     rho = 1.02; 
   } 
