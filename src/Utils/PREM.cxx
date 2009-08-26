@@ -19,19 +19,18 @@
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Utils/PREM.h"
 
 //___________________________________________________________________________
 double genie::utils::prem::Density(double r)
 {
 // Return the Earth density according to the PREM model
-// Inputs: 
-//   r, Distance from the centre of the Earth (in km)
-// Outputs: 
-//   rho, Earth density (in gr/cm3)
+// Inputs:  r,   Distance from the centre of the Earth (in std GENIE units)
+// Outputs: rho, Earth density (in std GENIE  units)
 //
 
-  r = TMath::Max(0., r);
+  r = TMath::Max(0., r/units::km); // convert to km
 
   double rho = 0.;
   double x   = r/constants::kREarth;
@@ -77,6 +76,8 @@ double genie::utils::prem::Density(double r)
     rho = 1.02; 
   } 
 
-  return rho;
+  rho = rho * units::g_cm3;
+
+  return rho; 
 }
 //___________________________________________________________________________
