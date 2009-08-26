@@ -10,7 +10,7 @@
 
 \author   
 
-\created  May 05, 2004
+\created  May 05, 2009
 
 \cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -45,10 +45,11 @@ public:
 private:
   void LoadConfig (void);
 
-  double fMaMEC;
-  double fMass;
-  double fWidth;
-  double fNorm;
+  double fMq2d;   ///< toy model param: `mass' in dipole (Q2 - dependence) form factor (GeV)
+  double fMass;   ///< toy model param: peak  of W distribution (GeV)
+  double fWidth;  ///< toy model param: width of W distribution (GeV)
+  double fEc;     ///< toy model param: low energy cutoff (GeV) 
+  double fNorm;   ///< toy model param: MEC rate / nucleon (in 1E-38cm^2)
 };
 
 }       // genie namespace
