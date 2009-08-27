@@ -11,9 +11,11 @@
 #
 # Options:
 #   --version       : GENIE version number
-#  [--production]   :
-#  [--cycle]        :
-#  [--use-valgrind] :
+#  [--arch]         : default: SL5_64bit
+#  [--production]   : default:
+#  [--cycle]        : default: 01
+#  [--use-valgrind] : default: off
+#  [--queue]        : default: prod
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
@@ -26,23 +28,27 @@ use File::Path;
 $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind = 0                             unless defined $use_valgrind;
-$production   = "t2k-splines\_$genie_version" unless defined $production;
-$cycle        = "01"                          unless defined $cycle;
+$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
 
-$GENIE_DIR     = "/opt/ppd/t2k/GENIE/";
-$GENIE_SETUP   = "$genie_version-setup";
-$JOBS_DIR      = "/opt/ppd/t2k/GENIE/scratch/xsec-$production\_$cycle/";
-$FREENUCSPL    = "/opt/ppd/t2k/GENIE/data/job_inputs/xspl/gxspl-freenuc-$genie_version.xml";
-$QUEUE         = "prod";
+$use_valgrind   = 0                             unless defined $use_valgrind;
+$arch           = "SL5_64bit"                   unless defined $arch;
+$production     = "t2k-splines\_$genie_version" unless defined $production;
+$cycle          = "01"                          unless defined $cycle;
+$queue          = "prod"                        unless defined $queue;
+
+$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
+$jobs_dir       = "$GENIE_TOP_DIR//scratch/xsec-$production\_$cycle/";
+$freenucsplines = "$GENIE_TOP_DIR/data/job_inputs/xspl/gxspl-freenuc-$genie_version.xml";
 
 $nkots     = 200;
 $emax      =  35;
@@ -88,14 +94,14 @@ $neutrinos = "12,-12,14,-14";
 
 # make the jobs directory
 #
-mkpath ($JOBS_DIR, {verbose => 1, mode=>0777});
+mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
 #
 # loop over nuclear targets & submit jobs
 #
 while( my ($tgt_name, $tgt_code) = each %targets ) {
 
-	$BATCH_SCRIPT = "$JOBS_DIR/job_$tgt_name.pbs";
+	$BATCH_SCRIPT = "$jobs_dir/job_$tgt_name.pbs";
 	open(PBS, ">$BATCH_SCRIPT") 
 	or die("Can not create the PBS batch script");
 
@@ -103,17 +109,16 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
 
 	print PBS "#!/bin/bash \n";
         print PBS "#PBS -N $tgt_name \n";
-        print PBS "#PBS -o $JOBS_DIR/job-$tgt_name.pbs_o \n";
-        print PBS "#PBS -e $JOBS_DIR/job-$tgt_name.pbs_e \n";
-	print PBS "cd $GENIE_DIR \n";
-	print PBS "source $GENIE_SETUP \n";
-	print PBS "cd $JOBS_DIR \n";
-	print PBS "export GSPLOAD=$FREENUCSPL\n";
+        print PBS "#PBS -o $jobs_dir/job-$tgt_name.pbs_o \n";
+        print PBS "#PBS -e $jobs_dir/job-$tgt_name.pbs_e \n";
+	print PBS "source $genie_setup \n";
+	print PBS "cd $jobs_dir \n";
+	print PBS "export GSPLOAD=$freenucsplines\n";
 	print PBS "$cmd \n";
 
 	print "EXEC: $cmd \n";
 
 	# submit job
-	`qsub -q $QUEUE $BATCH_SCRIPT`;
+	`qsub -q $queue $BATCH_SCRIPT`;
 }
 

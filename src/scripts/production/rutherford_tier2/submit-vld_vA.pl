@@ -9,9 +9,11 @@
 # Options:
 #  --run           : Comma separated list of run numbers
 #  --version       : GENIE version number
-# [--production]   :
-# [--cycle]        :
-# [--use-valgrind] :
+# [--arch]         : default: SL5_64bit
+# [--production]   : default: 
+# [--cycle]        : default: 01
+# [--use-valgrind] : default: off
+# [--queue]        : default: prod
 #
 # Examples:
 #  perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1001
@@ -57,9 +59,11 @@ $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--run')           { $runnu         = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined benchmark runs #. Use the --run option]")
@@ -67,15 +71,17 @@ unless defined $runnu;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind = 0                            unless defined $use_valgrind;
-$production   = "benchmarks\_$genie_version" unless defined $production;
-$cycle        = "01"                         unless defined $cycle;
+$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
 
-$queue          = "prod";
-$genie_inst_dir = "/opt/ppd/t2k/GENIE/";
-$genie_setup    = "$genie_inst_dir/$genie_version-setup";
-$jobs_dir       = "/opt/ppd/t2k/GENIE/scratch/vA-$production\_$cycle";
-$xspl_file      = "/opt/ppd/t2k/GENIE/data/job_inputs/xspl/gxspl-t2k-$genie_version.xml";
+$use_valgrind   = 0                            unless defined $use_valgrind;
+$arch           = "SL5_64bit"                  unless defined $arch;
+$production     = "benchmarks\_$genie_version" unless defined $production;
+$cycle          = "01"                         unless defined $cycle;
+$queue          = "prod"                       unless defined $queue;
+
+$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
+$jobs_dir       = "$GENIE_TOP_DIR/scratch/vA-$production\_$cycle";
+$xspl_file      = "$GENIE_TOP_DIR/data/job_inputs/xspl/gxspl-t2k-$genie_version.xml";
 $mcseed         = 210921029;
 
 %nevents_hash = ( 

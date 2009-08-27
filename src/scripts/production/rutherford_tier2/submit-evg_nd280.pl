@@ -10,9 +10,10 @@
 # Options:
 #  --fluxrun       : Input flux run number
 #  --version       : GENIE version
-# [--production]   :
-# [--cycle]        :
-# [--use-valgrind] : 
+# [--arch]         : default: SL5_64bit
+# [--production]   : default: noname
+# [--cycle]        : default: 01
+# [--use-valgrind] : default: off
 #
 # Example:
 # shell$ perl submit-evg_nd280.pl --fluxrun 180 --version v2.4.0  
@@ -32,30 +33,31 @@ $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--fluxrun')       { $fluxrun       = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
   $iarg++;
 }
-
 die("** Aborting [Undefined flux file run #. Use the --fluxrun option]")
 unless defined $fluxrun;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind = 0           unless defined $use_valgrind;
-$production   = "nd280test" unless defined $production;
-$cycle        = "01"        unless defined $cycle;
+$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
 
+$use_valgrind   = 0           unless defined $use_valgrind;
+$arch           = "SL5_64bit" unless defined $arch;
+$production     = "noname"    unless defined $production;
+$cycle          = "01"        unless defined $cycle;
 $job_pot        = "1E+18";
 $mcrun_base     = 10000000;
 $mcseed_base    = 210921029;
 $batch_queue    = "prod";
 $time_limit     = "30:00:00";
-$genie_inst_dir = "/opt/ppd/t2k/GENIE";
-$production_dir = "/opt/ppd/t2k/GENIE/scratch";
-$inputs_dir     = "/opt/ppd/t2k/GENIE/data/job_inputs";
-$genie_setup    = "$genie_inst_dir/$genie_version-setup";
+$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
+$production_dir = "$GENIE_TOP_DIR/scratch";
+$inputs_dir     = "$GENIE_TOP_DIR/data/job_inputs";
 $job_dir        = "$production_dir/nd280-$production\_$cycle";
 $flux_dir       = "$inputs_dir/t2k_flux/07a/nd";
 $flux_file_prfx = "nu.nd280.";
