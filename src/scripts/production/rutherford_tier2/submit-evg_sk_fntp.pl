@@ -10,10 +10,11 @@
 # Options:
 #    --fluxrun       : Input flux run number
 #    --version       : GENIE version 
-#   [--production]   :
-#   [--cycle]        :
-#   [--use-valgrind] :
-#
+#   [--arch]         : default: SL5_64bit
+#   [--production]   : default:
+#   [--cycle]        : default:
+#   [--use-valgrind] : default: off
+#   [--queue]        : default: prod
 #
 # Example:
 #  shell$ perl submit-evg_sk_fntp.pl --fluxrun 180 --version v2.4.0
@@ -33,9 +34,11 @@ $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--fluxrun')       { $fluxrun = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined run number. Use the --fluxrun option]")
@@ -43,19 +46,21 @@ unless defined $fluxrun;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind = 0         unless defined $use_valgrind;
-$production   = "sktest"  unless defined $production;
-$cycle        = "01"      unless defined $cycle;
+$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
+
+$use_valgrind = 0            unless defined $use_valgrind;
+$arch         = "SL5_64bit"  unless defined $arch;
+$production   = "sktest"     unless defined $production;
+$cycle        = "01"         unless defined $cycle;
+$queue        = "prod"       unless defined $queue;
 
 $nevents        = "50000";   
 $mcrun_base     = 10000000;
 $mcseed_base    = 210921029;
-$batch_queue    = "prod";
 $time_limit     = "25:00:00";
-$genie_inst_dir = "/opt/ppd/t2k/GENIE";
-$production_dir = "/opt/ppd/t2k/GENIE/scratch";
-$inputs_dir     = "/opt/ppd/t2k/GENIE/data/job_inputs";
-$genie_setup    = "$genie_inst_dir/$genie_version-setup";
+$production_dir = "$GENIE_TOP_DIR/scratch";
+$inputs_dir     = "$GENIE_TOP_DIR/data/job_inputs";
+$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
 $geom_tgt_mix   = "1000080160[0.8879],1000010010[0.1121]";
 $xspl_file      = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
 $flux_dir       = "$inputs_dir/t2k_flux/07a/sk";
@@ -115,4 +120,4 @@ print "@@@ exec: $evgen_cmd \n";
 
 # submit job
 #
-`qsub -q $batch_queue $batch_script`;
+`qsub -q $queue $batch_script`;

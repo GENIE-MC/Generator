@@ -11,9 +11,11 @@
 # Options:
 #   --xsplset       : set of splines to generate
 #   --version       : genie version number
-#  [--production]   :
-#  [--cycle]        :
-#  [--use-valgrind] :
+#  [--arch]         : default: SL5_64bit
+#  [--production]   : default:
+#  [--cycle]        : default: 01
+#  [--use-valgrind] : default: off
+#  [--queue]        : default: prod
 #
 #  where 
 #  (list of jobs) is a comma separated list of key names in the script hashes
@@ -35,9 +37,11 @@ $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--xsplset')       { $xsplset       = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined set of cross section splines #. Use the --xsplset option]")
@@ -45,14 +49,16 @@ unless defined $xsplset;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind = 0                         unless defined $use_valgrind;
-$production   = "splines\_$genie_version" unless defined $production;
-$cycle        = "01"                      unless defined $cycle;
+$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
 
-$GENIE_DIR      = "/opt/ppd/t2k/GENIE/";
-$GENIE_SETUP    = "$genie_version-setup";
-$JOBS_DIR       = "/opt/ppd/t2k/GENIE/scratch/xsec-$production\_$cycle/";
-$QUEUE          = "prod";
+$use_valgrind   = 0                         unless defined $use_valgrind;
+$arch           = "SL5_64bit"               unless defined $arch;
+$production     = "splines\_$genie_version" unless defined $production;
+$cycle          = "01"                      unless defined $cycle;
+$queue          = "prod"                    unless defined $queue;;
+
+$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
+$jobs_dir       = "$GENIE_TOP_DIR//scratch/xsec-$production\_$cycle/";
 
 $nkots = 500;
 $emax  = 200;
@@ -171,7 +177,7 @@ $emax  = 200;
 
 # make the jobs directory
 #
-mkpath ($JOBS_DIR, {verbose => 1, mode=>0777});
+mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
 for my $curr_xsplset (keys %OUTXML)  {
   if($xsplset=~m/$curr_xsplset/ || $xsplset eq "all") {
@@ -186,20 +192,19 @@ for my $curr_xsplset (keys %OUTXML)  {
     #
     # create the PBS script 
     #
-    $BATCH_SCRIPT = "$JOBS_DIR/job-$curr_xsplset.pbs";
+    $BATCH_SCRIPT = "$jobs_dir/job-$curr_xsplset.pbs";
     open(PBS, ">$BATCH_SCRIPT") or die("Can not create the PBS batch script");
 
-    $logfile_pbse  = "$JOBS_DIR/job-xspl-$curr_xsplset.pbs_e.log";
-    $logfile_pbso  = "$JOBS_DIR/job-xspl-$curr_xsplset.pbs_o.log";
+    $logfile_pbse  = "$jobs_dir/job-xspl-$curr_xsplset.pbs_e.log";
+    $logfile_pbso  = "$jobs_dir/job-xspl-$curr_xsplset.pbs_o.log";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
     $cmd           = "gmkspl -p $nu -t $tgt -n $nkots -e $emax -o $outxml &> job-$curr_xsplset.log";
 
     print PBS "#!/bin/bash \n";
     print PBS "#PBS -o $logfile_pbso \n";
     print PBS "#PBS -e $logfile_pbse \n";
-    print PBS "cd $GENIE_DIR \n";
-    print PBS "source $GENIE_SETUP \n";
-    print PBS "cd $JOBS_DIR \n";
+    print PBS "source $genie_setup \n";
+    print PBS "cd $jobs_dir \n";
     print PBS "unset GSPLOAD \n";
     print PBS "export GEVGL=$gevgl \n";
     print PBS "$cmd \n";
@@ -209,6 +214,6 @@ for my $curr_xsplset (keys %OUTXML)  {
     #
     # submit job 
     #
-    `qsub -q $QUEUE $BATCH_SCRIPT`;
+    `qsub -q $queue $BATCH_SCRIPT`;
   }
 }

@@ -8,8 +8,15 @@
 #  perl submit-evg_sk_fhst.pl --run run_number --neutrino nu_type
 #
 # where: 
-#   run_number: 1,2,3,...
-#   nu_type:    numu, numubar, nue, nuesig
+#
+#    --run           : 1,2,3,...
+#    --neutrino      : numu, numubar, nue, nuesig
+#    --version       : GENIE version
+#   [--arch]         : default: SL5_64bit
+#   [--production]   : default:
+#   [--cycle]        : default:
+#   [--use-valgrind] : default: off
+#   [--queue]        : default: prod
 #
 # Example:
 #  perl submit-evg_sk_fhst.pl --run 180 --neutrino numubar
@@ -26,27 +33,39 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--run'     )  { $run      = $ARGV[$iarg+1]; }
-  if($_ eq '--neutrino')  { $neutrino = $ARGV[$iarg+1]; }
+  if($_ eq '--run'     )      { $run           = $ARGV[$iarg+1]; }
+  if($_ eq '--neutrino')      { $neutrino      = $ARGV[$iarg+1]; }
+  if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
+  if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
+  if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined run number. Use the --run option]")
 unless defined $run;
 die("** Aborting [Undefined neutrino type. Use the --neutrino option]")
 unless defined $neutrino;
+die("** Aborting [Undefined GENIE version. Use the --version option]")
+unless defined $genie_version; 
 
-$production     = "test";
-$cycle          = "01";
+$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
+
+$use_valgrind   = 0           unless defined $use_valgrind;
+$arch           = "SL5_64bit" unless defined $arch;
+$production     = "test"      unless defined $production;
+$cycle          = "01"        unless defined $cycle;
+$queue          = "prod"      unless defined $queue;
+
 $nevents        = "2000";   
-$batch_queue    = "prod";
 $time_limit     = "05:00:00";
-$genie_inst_dir = "/opt/ppd/t2k/GENIE";
-$production_dir = "/opt/ppd/t2k/GENIE/scratch";
-$inputs_top_dir = "/opt/ppd/t2k/GENIE/data/job_inputs";
-$genie_setup    = "$genie_inst_dir/v2.4.0-setup";
+$production_dir = "$GENIE_TOP_DIR/scratch";
+$inputs_dir     = "$GENIE_TOP_DIR/data/job_inputs";
+$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
 $geom_tgt_mix   = "1000080160[0.8879],1000010010[0.1121]";
-$xspl_file      = "$inputs_top_dir/xspl/gxspl-t2k-2.4.0.xml";
-$flux_file      = "$inputs_top_dir/t2k_flux/07a/sk/hist.nu.sk.root";
+$xspl_file      = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
+$flux_file      = "$inputs_dir/t2k_flux/07a/sk/hist.nu.sk.root";
 $job_dir        = "$production_dir/sk-$production\_$cycle-$neutrino";
 $file_prefix    = "genie_sk";
 
@@ -118,4 +137,4 @@ print "@@@ exec: $evgen_cmd \n";
 
 # submit job
 #
-`qsub -q $batch_queue $batch_script`;
+`qsub -q $queue $batch_script`;
