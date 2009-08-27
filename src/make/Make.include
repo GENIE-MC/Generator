@@ -134,11 +134,12 @@ PDFLIB   = $(shell awk 'BEGIN {str="$(PPDFLIB)"; \
 LPDFLIB  = $(shell awk 'BEGIN { str="$(PDFLIB)"; \
 				sub(/lib/, "-l", str); print str}')
 
-CERN_LIBRARIES = -L$(CERN_LIB_DIR) \
-		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib -lg2c
+CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib \
+		 -L/usr/lib -L/usr/lib64 -lg2c
+
 ifeq ($(strip $(ARCH)),macosx) 
-CERN_LIBRARIES = -L$(CERN_LIB_DIR) \
-		 $(LPDFLIB) -lkernlib -lmathlib -lpacklib /usr/local/lib/libgfortran.dylib 
+CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib \
+		 /usr/local/lib/libgfortran.dylib 
 
 have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
 ifeq ($(strip $(have_g2c)),)
@@ -171,7 +172,7 @@ LHAPDF_LIBRARIES := $(LHAPDF_LIBRARIES) /usr/local/lib/libg2c.dylib
 endif
 
 else
-LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -lg2c
+LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -L/usr/lib -L/usr/lib64 -lg2c
 endif
 
 endif
