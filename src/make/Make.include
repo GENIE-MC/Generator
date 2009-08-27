@@ -359,11 +359,39 @@ CXXVRS_REV  = $(shell awk 'BEGIN {\
 GCC_GE_4_1_0  = $(shell awk 'BEGIN {\
 		if($(CXXVRS_MAJ)>=4 && $(CXXVRS_MIN)>0) print "YES"}') 
 
-# MAC OS X with gcc
+# MAC OS X with gcc, 32-bit mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ifeq ($(strip $(ARCH)),macosx) 
 ARCH_OK       = YES
 CXXFLAGS      = -pipe -W -Wall -Wno-long-double \
+		-fsigned-char -fno-common -flat_namespace \
+		$(GOPT_WITH_CXX_DEBUG_FLAG) \
+		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
+ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
+  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+endif
+LDFLAGS       = -bind_at_load
+SOFLAGS       = -dynamiclib -flat_namespace \
+		-single_module -undefined dynamic_lookup
+DllSuf       := dylib
+DllLinkSuf   := so
+StaticLibSuf := a
+ObjSuf       := o
+SrcSuf       := cxx
+FORT         := g77
+FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
+RANLIB       := ranlib
+SOCMD         = $(LD)
+OutPutOpt     = -o
+SOMINF =
+endif
+
+# MAC OS X with gcc, 64-bit mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ifeq ($(strip $(ARCH)),macosx64) 
+ARCH_OK       = YES
+CXXFLAGS      = -m64 -pipe -W -Wall -Wno-long-double \
 		-fsigned-char -fno-common -flat_namespace \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
