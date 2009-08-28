@@ -1,28 +1,29 @@
 #!/usr/bin/perl
 
-#----------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------
 # Submit standard vA event generation jobs for GENIE release validation
 #
 # Syntax:
-#   perl submit-vld_vA.pl <options>
+#   shell% perl submit-vld_vA.pl <options>
 #
 # Options:
-#  --run           : Comma separated list of run numbers
-#  --version       : GENIE version number
-# [--arch]         : default: SL5_64bit
-# [--production]   : default: 
-# [--cycle]        : default: 01
-# [--use-valgrind] : default: off
-# [--queue]        : default: prod
+#    --run           : Comma separated list of run numbers
+#    --version       : GENIE version number
+#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--production]   : default: vAtest_<version>
+#   [--cycle]        : default: 01
+#   [--use-valgrind] : default: off
+#   [--queue]        : default: prod
+#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
 # Examples:
-#  perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1001
-#  perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1000,1001,9203
-#  perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run all
+#   shell% perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1001
+#   shell% perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1000,1001,9203
+#   shell% perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run all
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
-#----------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------
 #
 # SAMPLES:
 #......................................................................
@@ -64,6 +65,7 @@ foreach (@ARGV) {
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }  
   $iarg++;
 }
 die("** Aborting [Undefined benchmark runs #. Use the --run option]")
@@ -71,17 +73,15 @@ unless defined $runnu;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
-
-$use_valgrind   = 0                            unless defined $use_valgrind;
-$arch           = "SL5_64bit"                  unless defined $arch;
-$production     = "benchmarks\_$genie_version" unless defined $production;
-$cycle          = "01"                         unless defined $cycle;
-$queue          = "prod"                       unless defined $queue;
-
-$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$GENIE_TOP_DIR/scratch/vA-$production\_$cycle";
-$xspl_file      = "$GENIE_TOP_DIR/data/job_inputs/xspl/gxspl-t2k-$genie_version.xml";
+$use_valgrind   = 0                        unless defined $use_valgrind;
+$arch           = "SL5_64bit"              unless defined $arch;
+$production     = "vAtest\_$genie_version" unless defined $production;
+$cycle          = "01"                     unless defined $cycle;
+$queue          = "prod"                   unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/GENIE"     unless defined $softw_topdir;
+$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
+$jobs_dir       = "$softw_topdir/scratch/vA-$production\_$cycle";
+$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-t2k-$genie_version.xml";
 $mcseed         = 210921029;
 
 %nevents_hash = ( 

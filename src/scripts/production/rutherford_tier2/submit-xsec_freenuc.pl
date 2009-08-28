@@ -1,33 +1,31 @@
 #!/usr/bin/perl
 
-#----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
 # Submit jobs for calculating GENIE free-nucleon cross section splines.
 #
 # For use at the RAL/PPD Tier2 PBS batch farm.
 #
 # Syntax:
-#   perl submit-xsec_freenuc.pl <options>
+#   shell% perl submit-xsec_freenuc.pl <options>
 #
 # Options:
-#   --xsplset       : set of splines to generate
-#   --version       : genie version number
-#  [--arch]         : default: SL5_64bit
-#  [--production]   : default:
-#  [--cycle]        : default: 01
-#  [--use-valgrind] : default: off
-#  [--queue]        : default: prod
-#
-#  where 
-#  (list of jobs) is a comma separated list of key names in the script hashes
+#    --xsplset       : set of splines to generate
+#    --version       : genie version number
+#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--production]   : default: freenucxspl_<version>
+#   [--cycle]        : default: 01
+#   [--use-valgrind] : default: off
+#   [--queue]        : default: prod
+#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
 # Examples:
-#  perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset chm 
-#  perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset chm,nue,qel
-#  perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset all 
+#   shell% perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset chm 
+#   shell% perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset chm,nue,qel
+#   shell% perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset all 
 #
 # Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
-#----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
 
 use File::Path;
 
@@ -42,6 +40,7 @@ foreach (@ARGV) {
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }           
   $iarg++;
 }
 die("** Aborting [Undefined set of cross section splines #. Use the --xsplset option]")
@@ -49,16 +48,14 @@ unless defined $xsplset;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
-
-$use_valgrind   = 0                         unless defined $use_valgrind;
-$arch           = "SL5_64bit"               unless defined $arch;
-$production     = "splines\_$genie_version" unless defined $production;
-$cycle          = "01"                      unless defined $cycle;
-$queue          = "prod"                    unless defined $queue;;
-
-$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$GENIE_TOP_DIR//scratch/xsec-$production\_$cycle/";
+$use_valgrind   = 0                             unless defined $use_valgrind;
+$arch           = "SL5_64bit"                   unless defined $arch;
+$production     = "freenucxspl\_$genie_version" unless defined $production;
+$cycle          = "01"                          unless defined $cycle;
+$queue          = "prod"                        unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/GENIE"          unless defined $softw_topdir;
+$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
+$jobs_dir       = "$softw_topdir/scratch/xsec-$production\_$cycle/";
 
 $nkots = 500;
 $emax  = 200;

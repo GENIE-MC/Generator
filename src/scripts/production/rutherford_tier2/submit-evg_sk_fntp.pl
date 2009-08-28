@@ -1,6 +1,5 @@
-#--------------------------------------------------------------------------
-# Submit a GENIE/SK event generation job using a JNUBEAM ntuple-based 
-# neutrino flux description.
+#--------------------------------------------------------------------------------------------------
+# Submit a GENIE/SK event generation job using a JNUBEAM ntuple-based neutrino flux description.
 #
 # For use at the RAL/PPD Tier2 PBS batch farm.
 #
@@ -10,19 +9,19 @@
 # Options:
 #    --fluxrun       : Input flux run number
 #    --version       : GENIE version 
-#   [--arch]         : default: SL5_64bit
-#   [--production]   : default:
-#   [--cycle]        : default:
+#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--production]   : default: superkmc_<version>
+#   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
 #   [--queue]        : default: prod
+#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
 # Example:
-#  shell$ perl submit-evg_sk_fntp.pl --fluxrun 180 --version v2.4.0
-#                                    --production mdc0 --cycle 01
+#   shell$ perl submit-evg_sk_fntp.pl --fluxrun 180 --version v2.4.0 --production mdc0 --cycle 01
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
-#--------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 
 #!/usr/bin/perl
 
@@ -39,6 +38,7 @@ foreach (@ARGV) {
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }   
   $iarg++;
 }
 die("** Aborting [Undefined run number. Use the --fluxrun option]")
@@ -46,21 +46,19 @@ unless defined $fluxrun;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
-
-$use_valgrind = 0            unless defined $use_valgrind;
-$arch         = "SL5_64bit"  unless defined $arch;
-$production   = "sktest"     unless defined $production;
-$cycle        = "01"         unless defined $cycle;
-$queue        = "prod"       unless defined $queue;
-
+$use_valgrind   = 0                          unless defined $use_valgrind;
+$arch           = "SL5_64bit"                unless defined $arch;
+$production     = "superkmc\_$genie_version" unless defined $production;
+$cycle          = "01"                       unless defined $cycle;
+$queue          = "prod"                     unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/GENIE"       unless defined $softw_topdir;
 $nevents        = "50000";   
 $mcrun_base     = 10000000;
 $mcseed_base    = 210921029;
 $time_limit     = "25:00:00";
-$production_dir = "$GENIE_TOP_DIR/scratch";
-$inputs_dir     = "$GENIE_TOP_DIR/data/job_inputs";
-$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
+$production_dir = "$softw_topdir/scratch";
+$inputs_dir     = "$softw_topdir/data/job_inputs";
+$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $geom_tgt_mix   = "1000080160[0.8879],1000010010[0.1121]";
 $xspl_file      = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
 $flux_dir       = "$inputs_dir/t2k_flux/07a/sk";

@@ -1,27 +1,28 @@
-#---------------------------------------------------------------------------
-# Submit GENIE/nd280 event generation job using the full geometry and a 
-# JNUBEAM ntuple-based flux description.
+#-------------------------------------------------------------------------------------------------
+# Submit GENIE/nd280 event generation job using the full geometry and a JNUBEAM ntuple-based flux 
+# description.
 # 
 # For use at the RAL/PPD Tier2 PBS batch farm.
 #
 # Syntax:
-# shell$ perl submit-evg_nd280.pl <options>
+#   shell$ perl submit-evg_nd280.pl <options>
 #
 # Options:
-#  --fluxrun       : Input flux run number
-#  --version       : GENIE version
-# [--arch]         : default: SL5_64bit
-# [--production]   : default: noname
-# [--cycle]        : default: 01
-# [--use-valgrind] : default: off
+#    --fluxrun       : Input flux run number
+#    --version       : GENIE version
+#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--production]   : default: nd280mc_<version>
+#   [--cycle]        : default: 01
+#   [--use-valgrind] : default: off
+#   [--queue]        : default: prod
+#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
 # Example:
-# shell$ perl submit-evg_nd280.pl --fluxrun 180 --version v2.4.0  
-#                                 --production mdc0 --cycle 01
+#   shell$ perl submit-evg_nd280.pl --fluxrun 180 --version v2.4.0 --production mdc0 --cycle 01
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------
 
 #!/usr/bin/perl
 
@@ -37,6 +38,8 @@ foreach (@ARGV) {
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; } 
   $iarg++;
 }
 die("** Aborting [Undefined flux file run #. Use the --fluxrun option]")
@@ -44,20 +47,19 @@ unless defined $fluxrun;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
-
-$use_valgrind   = 0           unless defined $use_valgrind;
-$arch           = "SL5_64bit" unless defined $arch;
-$production     = "noname"    unless defined $production;
-$cycle          = "01"        unless defined $cycle;
+$use_valgrind   = 0                         unless defined $use_valgrind;
+$arch           = "SL5_64bit"               unless defined $arch;
+$production     = "nd280mc\_$genie_version" unless defined $production;
+$cycle          = "01"                      unless defined $cycle;
+$queue          = "prod"                    unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/GENIE"      unless defined $softw_topdir;
 $job_pot        = "1E+18";
 $mcrun_base     = 10000000;
 $mcseed_base    = 210921029;
-$batch_queue    = "prod";
 $time_limit     = "30:00:00";
-$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
-$production_dir = "$GENIE_TOP_DIR/scratch";
-$inputs_dir     = "$GENIE_TOP_DIR/data/job_inputs";
+$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
+$production_dir = "$softw_topdir/scratch";
+$inputs_dir     = "$softw_topdir/data/job_inputs";
 $job_dir        = "$production_dir/nd280-$production\_$cycle";
 $flux_dir       = "$inputs_dir/t2k_flux/07a/nd";
 $flux_file_prfx = "nu.nd280.";
@@ -122,5 +124,5 @@ print "@@@ exec: $evgen_cmd \n";
 
 # submit job
 #
-`qsub -q $batch_queue $batch_script`;
+`qsub -q $queue $batch_script`;
 

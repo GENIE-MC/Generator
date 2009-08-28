@@ -7,15 +7,16 @@
 # For use at the RAL/PPD Tier2 PBS batch farm.
 #
 # Syntax:
-#   perl submit-xsec_t2k.pl <options>
+#   shell% perl submit-xsec_t2k.pl <options>
 #
 # Options:
-#   --version       : GENIE version number
-#  [--arch]         : default: SL5_64bit
-#  [--production]   : default:
-#  [--cycle]        : default: 01
-#  [--use-valgrind] : default: off
-#  [--queue]        : default: prod
+#    --version       : GENIE version number
+#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--production]   : default: t2kxspl_<version>
+#   [--cycle]        : default: 01
+#   [--use-valgrind] : default: off
+#   [--queue]        : default: prod
+#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
@@ -33,22 +34,21 @@ foreach (@ARGV) {
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$GENIE_TOP_DIR  = "/opt/ppd/t2k/GENIE";
-
-$use_valgrind   = 0                             unless defined $use_valgrind;
-$arch           = "SL5_64bit"                   unless defined $arch;
-$production     = "t2k-splines\_$genie_version" unless defined $production;
-$cycle          = "01"                          unless defined $cycle;
-$queue          = "prod"                        unless defined $queue;
-
-$genie_setup    = "$GENIE_TOP_DIR/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$GENIE_TOP_DIR//scratch/xsec-$production\_$cycle/";
-$freenucsplines = "$GENIE_TOP_DIR/data/job_inputs/xspl/gxspl-freenuc-$genie_version.xml";
+$use_valgrind   = 0                         unless defined $use_valgrind;
+$arch           = "SL5_64bit"               unless defined $arch;
+$production     = "t2kxspl\_$genie_version" unless defined $production;
+$cycle          = "01"                      unless defined $cycle;
+$queue          = "prod"                    unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/GENIE"      unless defined $softw_topdir;
+$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
+$jobs_dir       = "$softw_topdir/scratch/xsec-$production\_$cycle/";
+$freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-freenuc-$genie_version.xml";
 
 $nkots     = 200;
 $emax      =  35;
