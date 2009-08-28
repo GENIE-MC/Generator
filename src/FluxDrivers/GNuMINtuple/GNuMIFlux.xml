@@ -45,31 +45,45 @@
 
 <gnumi_config>
 
+<!--
+  ****************************************************************************
+  **   MINOS section
+  ****************************************************************************
+  -->
+
   <param_set name="MINOS-NearDet">
     <!-- verbosity of XML parsing -->
-    <verbose>99</verbose>
+    <verbose> 0 </verbose>
 
     <!-- setting user units should be first -->
     <units> m </units>
 
+    <!-- 
+      Jun'09 Wes Smart pointed out that the Earth is not round and 
+      other improvements, giving MINOS:
+           NearDet beam angle:    -0.058297760  rad =    -3.3402156 deg
+           FarDet  beam angle:    +0.057184957  rad =    +3.2764567 deg
+      old Near/Far beam angle: -/+ 0.0583496889 rad = -/+ 3.3419    deg 
+     -->
+
     <!-- beamdir must come before beam zero position -->
     <!-- rotation matrix created by sequence of rotations -->
     <beamdir type="series"> 
-       <rotation axis="x" units="rad"> -0.0583496888977241 </rotation>
+       <rotation axis="x" units="rad"> -0.0582977560 </rotation>
        <!-- for MINOS we don't need more than one rotation, 
             but others could follow to build up a more complex matrix -->
     </beamdir>
 
     <!-- rotation matrix set by 3 pairs of (theta,phi) for each axis, ala G3 -->
     <beamdir type="thetaphi3" units="deg">  
-      ( 90,        0 )  ( 93.34319, 90 ) ( -3.3419, 270 ) 
+      ( 90,        0 )  ( 93.3402156, 90 ) ( -3.3402156, 270 ) 
     </beamdir>
 
     <!-- rotation matrix set by 3 direction vectors, ala G4 -->
     <beamdir type="newxyz"> 
-     [ 1  0            0             ]
-     [ 0  0.99829814   0.0583165841  ]
-     [ 0 -0.0583165841 0.99829814    ]
+     [ 1  0            0            ]
+     [ 0  0.9983011558 0.0582647435 ]
+     [ 0 -0.0582647435 0.9983011668 ]
     </beamdir>
 
     <!-- position of beam origin in user coords -->
@@ -84,7 +98,7 @@
     <!-- need 3 positions to define a rectoid -->
     <!-- first point is the base, 2nd & 3rd should be orthogonal points
          (ie 2nd 3rd point should not be kitty-corner from 1st) -->
-    <!-- gminos distance to hall face to detector front 4907.2cm
+    <!-- gminos distance to near hall face to detector front 4907.2cm
          4888.85 - 4907.2 = -18.35,   4966.43 - 4907.2 = 59.23 -->
     <!-- not yet support beam coords, 
          but if/when must have already specified transform -->
@@ -98,32 +112,63 @@
     <!--
     default:  <enumax> 120. 1.05 1.05 2500000 </enumax>
     -->
-    <enumax> 120. 1.05 1.05 25000 </enumax>
+    <enumax> 120. 1.05 1.05 2500000 </enumax>
 
     <!-- allow entry to be reused 10 times before moving on -->
     <reuse> 10 </reuse>
 
-    <!-- force ray orgin from flux window to user coord z = -1.0 -->
+    <!-- force ray orgin from flux window to user coord z = -1.0 
     <upstreamz> -1.0 </upstreamz>
+    -->
+    <upstreamz> -400.0 </upstreamz>
 
   </param_set>
 
   <param_set name="MINOS-FarDet">
-    <units> cm </units>
-    <beamdir> 0.0, +0.058416, 1.0 </beamdir>
-    <beamdirpsi> 0.0 </beamdirpsi>
-    <beamcenter> 0, 0, 0 </beamcenter>
-    <beamdist> 73534000.0 </beamdist>
+    <units> m </units>
+    <beamdir type="series">
+      <rotation axis="x" units="rad"> +0.057184957 </rotation>
+    </beamdir>
+    <beampos> (0, 0, 0 ) = ( 0, 0, 735340.0 ) </beampos>
+    <!-- gminos distance to far hall face to detector front 1402.2cm -->
+    <!-- 54.24 - 1402.2 = -1347.96, -42.67 - 1402.2 = -1444.87 -->
+    <window>
+      <point coord="det"> -7.000, -9.474, -13.4796 </point>
+      <point coord="det">  7.000, -9.474, -13.4796 </point>
+      <point coord="det"> -7.000,  7.453, -14.4487 </point>
+    </window>
+    <enumax> 120. 1.05 1.05 2500000 </enumax>
+    <reuse> 10 </reuse>
+    <upstreamz> -400.0 </upstreamz>
   </param_set>
 
   <param_set name="MINOS-NearRock">
+    <using_param_set> MINOS-NearDet </using_param_set>
+    <!-- 4842.25 - 4907.2, 5012.97 - 4907.2 -->
+    <window>
+      <point coord="det"> -12.3579, -10.8894, -0.6495 </point>
+      <point coord="det">  12.7861, -10.8894, -0.6495 </point>
+      <point coord="det"> -12.3579,  18.3600,  1.0577 </point>
+    </window>
+    <upstreamz> -600.0 </upstreamz>
   </param_set>
 
   <param_set name="MINOS-FarRock">
+    <using_param_set> MINOS-FarDet </using_param_set>
+    <!-- 99.96 - 1402.2, -88.39 - 1402.2 -->
+    <window>
+      <point coord="det"> -15.0000, -17.4612, -13.0224 </point>
+      <point coord="det">  15.0000, -17.4612, -13.0224 </point>
+      <point coord="det"> -15.0000,  15.4402, -14.9059 </point>
+    </window>
+    <upstreamz> -600.0 </upstreamz>
   </param_set>
 
-  <param_set name="OtherExpt">
-  </param_set>
+<!--
+  ****************************************************************************
+  **   NOVA section
+  ****************************************************************************
+  -->
 
   <param_set name="NOvA-IPND">
     <!-- verbosity of XML parsing -->
@@ -143,11 +188,47 @@
     <!-- position of beam -->
     <!-- this is a translation from ( user coords ) to ( beam coords ) -->
     <!-- basically a statement of the origin in the detector coordinate system
-	 has the corresponding value in the beam coordinate system -->
+         has the corresponding value in the beam coordinate system -->
     <!-- XML config must have already set the rotation matrix -->
-    <!-- IPND in MINOS service building
+    <!-- IPND in MINOS service building -->
     <beampos> ( 0.0, 0.0, 0.0 ) = ( 13.81, 97.42, 913.34 ) </beampos>
-    -->
+ 
+    <!-- define flux window in detector coords -->
+    <!-- need 3 positions to define a rectoid -->
+    <!-- not yet support beam coords, 
+         but if/when must have already specified transform -->
+    <!-- make this window big enough to cover the ipnd, also offset it from 
+         the origin towards the beam in x and y -->
+    <window>
+      <point coord="det">  1.320,   1.970, 0.0 </point>
+      <point coord="det">  1.320,  -5.000, 0.0 </point>
+      <point coord="det"> -1.750,   1.970, 0.0 </point>
+    </window>
+
+    <enumax> 17. 1.05 </enumax> <!--first number is estimated max energy, second is
+                                    scale factor to multiply max scan energy by -->
+  </param_set>
+
+  <param_set name="NOvA-IPNDShed">
+    <!-- verbosity of XML parsing -->
+    <verbose>0</verbose>
+
+    <!-- setting user units should be first -->
+    <units> m </units>
+
+    <!-- beamdir must come before beam zero position -->
+    <!-- direction of the beam in the user coordinate system -->
+    <!-- beam goes down 3 degrees in the coordinate system of the IPND -->
+    <!-- rotation matrix created by sequence of rotations -->
+    <beamdir type="series"> 
+       <rotation axis="x" units="rad"> -0.0583497 </rotation>
+    </beamdir>
+
+    <!-- position of beam -->
+    <!-- this is a translation from ( user coords ) to ( beam coords ) -->
+    <!-- basically a statement of the origin in the detector coordinate system
+         has the corresponding value in the beam coordinate system -->
+    <!-- XML config must have already set the rotation matrix -->
     <!-- IPND in shed -->
     <beampos> ( 0.0, 0.0, 0.0 ) = ( 13.81, 93.72, 849.83 ) </beampos>
  
@@ -156,20 +237,20 @@
     <!-- not yet support beam coords, 
          but if/when must have already specified transform -->
     <!-- make this window big enough to cover the ipnd, also offset it from 
-	 the origin towards the beam in x and y -->
+         the origin towards the beam in x and y -->
     <window>
-      <point coord="det">  1.320,   1.970, 0.0 </point>
-      <point coord="det">  1.320,  -7.880, 0.0 </point>
-      <point coord="det"> -3.960,   1.970, 0.0 </point>
+      <point coord="det">  5.000,   1.970, -5. </point>
+      <point coord="det">  5.000,  -5.000, -5. </point>
+      <point coord="det"> -2.500,   1.970, -5. </point>
     </window>
 
-    <enumax> 17. 1.05 </enumax> <!--first number is estimated max energy, second is
-				    scale factor to multiply max scan energy by -->
+    <!--<enumax> 17. 1.05 </enumax> first number is estimated max energy, second is
+                                    scale factor to multiply max scan energy by -->
   </param_set>
 
   <param_set name="NOvA-ND">
     <!-- verbosity of XML parsing -->
-    <verbose>99</verbose>
+    <verbose>0</verbose>
 
     <!-- setting user units should be first -->
     <units> m </units>
@@ -185,7 +266,7 @@
     <!-- position of beam -->
     <!-- this is a translation from ( user coords ) to ( beam coords ) -->
     <!-- basically a statement of the origin in the detector coordinate system
-	 has the corresponding value in the beam coordinate system -->
+         has the corresponding value in the beam coordinate system -->
     <!-- XML config must have already set the rotation matrix -->
     <!-- ND in alcove -->
     <beampos> ( 0.0, 0.0, 0.0 ) = ( 11.415, -3.45218, 994.625 ) </beampos>
@@ -195,15 +276,13 @@
     <!-- not yet support beam coords, 
          but if/when must have already specified transform -->
     <!-- make this window big enough to cover the ipnd, also offset it from 
-	 the origin towards the beam in x and y -->
+         the origin towards the beam in x and y -->
     <window>
       <point coord="det">   1.320,  -1.970, 0.0 </point>
       <point coord="det"> -10.000,   4.000, 0.0 </point>
       <point coord="det"> -10.000,  -1.970, 0.0 </point>
     </window>
 
-    <enumax> 21. 1.05 </enumax> <!--first number is estimated max energy, second is
-				    scale factor to multiply max scan energy by -->
   </param_set>
 
   <param_set name="NOvA-FD">
@@ -223,7 +302,7 @@
 
     <!-- this is a translation from ( user coords ) to ( beam coords ) -->
     <!-- basically a statement of the origin in the detector coordinate system
-	 has the corresponding value in the beam coordinate system -->
+         has the corresponding value in the beam coordinate system -->
     <!-- XML config must have already set the rotation matrix -->
     <!-- FD, values from Mark Messier -->
     <beampos> ( 0.0, 0.0, 0.0 ) = ( 11129.00, -4.164, 810551.00 ) </beampos>
@@ -233,7 +312,7 @@
     <!-- not yet support beam coords, 
          but if/when must have already specified transform -->
     <!-- make this window big enough to cover the ipnd, also offset it from 
-	 the origin towards the beam in x and y -->
+         the origin towards the beam in x and y -->
     <window>
       <point coord="det">   7.8235,  -7.8235, 0.0 </point>
       <point coord="det">  -7.8235,  -7.8235, 0.0 </point>
@@ -243,7 +322,7 @@
 
   <param_set name="NOvA-ND-MINOSLOC">
     <!-- verbosity of XML parsing -->
-    <verbose>99</verbose>
+    <verbose>0</verbose>
 
     <!-- setting user units should be first -->
     <units> m </units>
@@ -272,5 +351,100 @@
     </window>
   </param_set>
 
+<!--
+  ****************************************************************************
+  **   MicroBooNe section
+  ****************************************************************************
+  -->
+
+  <param_set name="microboone-booster">
+    <!-- verbosity of XML parsing -->
+    <verbose>0</verbose>
+
+    <!-- setting user units should be first -->
+    <units> m </units>
+
+    <!-- beamdir must come before beam zero position -->
+    <!-- direction of the beam in the user coordinate system -->
+    <!-- beam is entirely in z direction  -->
+
+    <!-- position of beam -->
+    <!-- this is a translation from ( user coords ) to ( beam coords ) -->
+    <!-- basically a statement of the origin in the detector coordinate system
+         has the corresponding value in the beam coordinate system -->
+    <!-- XML config must have already set the rotation matrix -->
+    <!-- uboone with booster beam -->
+    <beampos> ( 0.0, 0.0, 0.0 ) = ( 0., 2.,  541.0) </beampos>
+ 
+    <!-- define flux window in detector coords -->
+    <!-- need 3 positions to define a rectoid -->
+    <!-- not yet support beam coords, 
+         but if/when must have already specified transform -->
+    <!-- make this window big enough to cover the detector, also offset it from 
+         the origin towards the beam in x and y -->
+    <window>
+      <point coord="det">  2.5,   2.5, 0.0 </point>
+      <point coord="det">  2.5,  -2.5, 0.0 </point>
+      <point coord="det"> -2.5,   2.5, 0.0 </point>
+    </window>
+
+    <enumax> 8. 1.05 </enumax> <!--first number is estimated max energy, second is
+                                    scale factor to multiply max scan energy by -->
+  </param_set>
+
+  <param_set name="microboone-numi">
+    <!-- verbosity of XML parsing -->
+    <verbose>0</verbose>
+
+    <!-- setting user units should be first -->
+    <units> m </units>
+
+    <!-- beamdir must come before beam zero position -->
+    <!-- direction of the beam in the user coordinate system -->
+    <!-- beam goes up 3 degrees in the coordinate system of the FD -->
+    <!-- rotation matrix created by sequence of rotations -->
+    <beamdir type="series"> 
+       <rotation axis="x" units="rad"> 0.0583497 </rotation>
+    </beamdir>
+
+    <!-- position of beam -->
+    <!-- this is a translation from ( user coords ) to ( beam coords ) -->
+    <!-- basically a statement of the origin in the detector coordinate system
+         has the corresponding value in the beam coordinate system -->
+    <!-- XML config must have already set the rotation matrix -->
+    <!-- uboone with numi beam - this puts uboone origin at miniboone origin
+         close enough for now -->
+    <beampos> ( 0.0, 0.0, 0.0 ) = ( 26.04, 78.65,  744.88) </beampos>
+
+    <!-- define flux window in detector coords -->
+    <!-- need 3 positions to define a rectoid -->
+    <!-- not yet support beam coords, 
+         but if/when must have already specified transform -->
+    <!-- make this window big enough to cover the detector, also offset it from 
+         the origin towards the beam in x and y -->
+    <window>
+      <point coord="det">  4.5,   4.5, 0.0 </point>
+      <point coord="det">  4.5,  -4.5, 0.0 </point>
+      <point coord="det"> -4.5,   4.5, 0.0 </point>
+    </window>
+
+    <enumax> 17. 1.05 </enumax> <!--first number is estimated max energy, second is
+                                    scale factor to multiply max scan energy by -->
+  </param_set>
+
+
+<!--
+  ****************************************************************************
+  **   MINERVA section
+  ****************************************************************************
+  -->
+
+<!--
+  ****************************************************************************
+  **   Other detectors
+  ****************************************************************************
+  -->
+
 </gnumi_config>
+
 
