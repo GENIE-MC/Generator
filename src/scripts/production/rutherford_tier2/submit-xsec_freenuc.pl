@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#--------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Submit jobs for calculating GENIE free-nucleon cross section splines.
 #
 # For use at the RAL/PPD Tier2 PBS batch farm.
@@ -19,13 +19,13 @@
 #   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
 # Examples:
-#   shell% perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset chm 
-#   shell% perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset chm,nue,qel
-#   shell% perl submit-xsection_jobs-freenuc.pl --version v2.6.0 --xsplset all 
+#   shell% perl submit-xsec_freenuc.pl --version v2.6.0 --xsplset chm 
+#   shell% perl submit-xsec_freenuc.pl --version v2.6.0 --xsplset chm,nue,qel
+#   shell% perl submit-xsec_freenuc.pl --version v2.6.0 --xsplset all 
 #
 # Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
-#--------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 use File::Path;
 
