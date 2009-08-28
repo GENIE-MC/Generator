@@ -203,6 +203,7 @@ namespace genie {
        std::vector<long int> GetIntVector(std::string str);
 
     private:
+      bool     LoadParamSet(xmlDocPtr&, std::string cfg);
       void     ParseParamSet(xmlDocPtr&, xmlNodePtr&);
       void     ParseBeamDir(xmlDocPtr&, xmlNodePtr&);
       void     ParseBeamPos(std::string);
@@ -2226,6 +2227,7 @@ bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
       << "The XML doc is empty! (filename: " << fname << ")";
     return false;
   }
+
   string rootele = "gnumi_config";
   if ( xmlStrcmp(xml_root->name, (const xmlChar*)rootele.c_str() ) ) {
     SLOG("GNuMIFlux", pERROR)
@@ -2234,12 +2236,23 @@ bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
     return false;
   }
 
+  SLOG("GNuMIFlux", pINFO) << "Attempt to load config \"" << cfg 
+                           << "\" from file: " << fname;
+
+  bool found = this->LoadParamSet(xml_doc,cfg);
+
+  xmlFree(xml_doc);
+  return found;
+
+}
+
+bool GNuMIFluxXMLHelper::LoadParamSet(xmlDocPtr& xml_doc, string cfg)
+{
+
+  xmlNodePtr xml_root = xmlDocGetRootElement( xml_doc );
 
   // loop over all xml tree nodes that are children of the root node
   // read the entries looking for "param_set" of the right name
-
-  SLOG("GNuMIFlux", pINFO) << "Attempt to load config \"" << cfg 
-                           << "\" from file: " << fname;
 
   // loop looking for particular config
   bool found = false;
@@ -2252,16 +2265,15 @@ bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
     
     if ( param_set_name != cfg ) continue;
       
-    SLOG("GNuMIFlux", pINFO) << "Found config \"" << cfg << "\" in file:"
-                               << fname;
+    SLOG("GNuMIFlux", pINFO) << "Found config \"" << cfg;
+
     this->ParseParamSet(xml_doc,xml_pset);
     found = true;
 
   } // loop over elements of root
   xmlFree(xml_pset);
-  xmlFree(xml_doc);
-  return found;
 
+  return found;
 }
 
 void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
@@ -2284,6 +2296,10 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
     if        ( pname == "verbose" ) {
       fVerbose = atoi(pval.c_str());
 
+    } else if ( pname == "using_param_set" ) {
+      SLOG("GNuMIFlux", pWARN) << "start using_param_set: \"" << pval << "\"";
+      this->LoadParamSet(xml_doc,pval); // recurse
+      SLOG("GNuMIFlux", pWARN) << "done using_param_set: \"" << pval << "\"";
     } else if ( pname == "units" ) {
       double scale = genie::utils::units::UnitFromString(pval);
       fGNuMI->SetLengthUnits(scale);
