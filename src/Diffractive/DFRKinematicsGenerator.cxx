@@ -190,8 +190,8 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          // ~exp(-bt). Now that the x,y kinematical variables have been selected
          // we can generate a t using the t-dependence as a PDF.
          double Epi   = gy*Ev; // pion energy
-         double tmin  = TMath::Power(0.5*kPionMass2/Epi,2.);
-         double tmax  = tmin + 10;
+         double tmax    = 1.0;
+         double tmin    = TMath::Min(tmax, TMath::Power(0.5*kPionMass2/Epi,2.));
          double b     = fBeta;
          double tsum  = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; 
          double rt    = tsum * rnd->RndKine().Rndm();
