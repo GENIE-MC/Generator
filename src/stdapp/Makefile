@@ -20,7 +20,6 @@ LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 TGT =    gEvGen		  \
 	 gEvDump          \
 	 ghAEvGen         \
-	 geAEvGen         \
 	 gEvGenGUI	  \
 	 gMakeSplines	  \
 	 gSplineAdd   	  \
@@ -48,12 +47,6 @@ gEvDump: FORCE
 ghAEvGen: FORCE
 	$(CXX) $(CXXFLAGS) -c ghAEvGen.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) ghAEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ghAevgen
-
-# geAgen program generating inclusive electron + nucleus interactions 
-#
-geAEvGen: FORCE
-	$(CXX) $(CXXFLAGS) -c geAEvGen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) geAEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/geAevgen
 
 # A gevgen GUI (in devel)
 #
@@ -110,7 +103,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_PATH)/ghAevgen
-	$(RM) $(GENIE_BIN_PATH)/geAevgen
 	$(RM) $(GENIE_BIN_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
@@ -123,7 +115,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/ghAevgen	
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/geAevgen	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
@@ -140,9 +131,6 @@ clean--gEvDump: FORCE
 
 clean--ghAEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen
-
-clean--geAEvGen: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/geAevgen
 
 clean--gEvGenGUI: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_gui
