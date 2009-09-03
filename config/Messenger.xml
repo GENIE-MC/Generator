@@ -24,7 +24,7 @@
 
   <priority msgstream="AlgFactory">          INFO   </priority>
   <priority msgstream="Algorithm">           WARN   </priority>
-  <priority msgstream="AlgConfigPool">       INFO   </priority>
+  <priority msgstream="AlgConfigPool">       NOTICE </priority>
   <priority msgstream="BardinIMD">           NOTICE </priority>
   <priority msgstream="BaryonResList">       WARN   </priority>
   <priority msgstream="BaseHad">             NOTICE </priority>
@@ -43,7 +43,7 @@
   <priority msgstream="DFRKinematics">       DEBUG  </priority>
   <priority msgstream="Decay">               INFO   </priority>
   <priority msgstream="DISSF">               NOTICE </priority>
-  <priority msgstream="DISXSec">             NOTICE </priority>
+  <priority msgstream="DISXSec">             NOTICE </priority> 
   <priority msgstream="DISCharmXSec">        INFO   </priority>
   <priority msgstream="DISPXSec">            NOTICE </priority>
   <priority msgstream="DISHadronicVtx">      INFO   </priority>
@@ -143,7 +143,6 @@
   <priority msgstream="XSecSplLst">          NOTICE </priority>
 
   <priority msgstream="gevgen">              INFO   </priority>
-  <priority msgstream="ngevgen">             INFO   </priority>
   <priority msgstream="gvldtest">            INFO   </priority>
   <priority msgstream="gntpc">               INFO   </priority>
   <priority msgstream="gmkspl">              INFO   </priority>
