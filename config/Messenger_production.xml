@@ -86,6 +86,7 @@
   <priority msgstream="Kinematics">          WARN   </priority>
   <priority msgstream="LeptonicVertex">      WARN   </priority>
   <priority msgstream="Math">                WARN   </priority>
+  <priority msgstream="MEC">                 WARN   </priority>
   <priority msgstream="Messenger">           WARN   </priority>
   <priority msgstream="MuELoss">             WARN   </priority>
   <priority msgstream="MultProb">            WARN   </priority>
@@ -142,11 +143,11 @@
   <priority msgstream="XSecSplLst">          WARN   </priority>
 
   <priority msgstream="gevgen">              WARN   </priority>
-  <priority msgstream="ngevgen">             WARN   </priority>
+  <priority msgstream="ghAevgen">            WARN   </priority>
+  <priority msgstream="gT2Kevgen">           WARN   </priority>
   <priority msgstream="gvldtest">            WARN   </priority>
   <priority msgstream="gntpc">               WARN   </priority>
   <priority msgstream="gmkspl">              WARN   </priority>
-  <priority msgstream="gT2Kevgen">           WARN   </priority>
 
 </messenger_config>
 
