@@ -1,0 +1,49 @@
+ To recycle the scripts @ another PBS batch farm, build the following directory structure:
+
+ <some_top_dir>
+     |
+     |
+     |------- builds/
+     |          |     
+     |          |--------- SL5_64bit/
+     |          |             |
+     |          |             |------- <version>       directory (<version> is of type v2.4.4, v2.6.0 etc / multiple versions can exist)
+     |          |             |------- <version>-setup script    (script to fully setup the environment for a specific version of GENIE)
+     |          |     
+     |          |--------- SL4_32bit/
+     |          |             |
+     |          |             |------- ....
+     |          |             |------- ....
+     |          |
+     |          |--------- <other_arch>/
+     |          
+     |-------- data/
+     |          |
+     |          |-------- job_inputs/
+     |                        |
+     |                        |----------- t2k_flux/
+     |                        |             |
+     |                        |             |---------- 07a/
+     |                        |                          |
+     |                        |                          |------- nd/
+     |                        |                          |         |------- nu.nd280.<run#>.root files
+     |                        |                          |
+     |                        |                          |------- sk/
+     |                        |                                    |------- nu.2.0deg.sk<run#>.root files
+     |                        |----------- t2k_geom/
+     |                        |              |
+     |                        |              |---------- ND280.root
+     |                        |              |---------- INGRID.root
+     |                        |              |---------- ....
+     |                        |
+     |                        |----------- xspl/
+     |                                      |
+     |                                      |---------- gxspl-freenuc-<version>.xml files (for each installed <version>)
+     |                                      |---------- gxspl-t2k-<version>.xml     files (for each installed <version>)
+     |    
+     |    
+     |    
+     |-------- scratch/
+     |
+     |
+     |
