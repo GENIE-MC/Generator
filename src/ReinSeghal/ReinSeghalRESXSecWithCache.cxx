@@ -17,19 +17,26 @@
    Modify the way knots are distributed in the cached free nucleon resonance
    neutrino production splines so that the energy threshold is treated more
    accurately (see also XSecSplineList.cxx).
+ @ Sep 07, 2009 - CA
+   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
+
 */
 //____________________________________________________________________________
 
 #include <sstream>
 
 #include <TMath.h>
+#include <Math/IFunction.h>
+#include <Math/IntegratorMultiDim.h>
 
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Controls.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "Conventions/KineVar.h"
 #include "CrossSections/GXSecFunc.h"
+#include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
@@ -39,6 +46,7 @@
 #include "Utils/KineUtils.h"
 #include "Utils/Cache.h"
 #include "Utils/CacheBranchFx.h"
+#include "Utils/GSLUtils.h"
 
 using std::ostringstream;
 
@@ -168,11 +176,26 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
      	          LOG("ReinSeghalResC", pINFO) 
                               << "** Not allowed kinematically, xsec=0";
                } else {
+
+#ifdef __GENIE_GSL_ENABLED__   
+                  ROOT::Math::IBaseFunctionMultiDim * func = 
+                      new utils::gsl::wrap::d2XSec_dWdQ2_E(fSingleResXSecModel, interaction);
+                  ROOT::Math::IntegrationMultiDim::Type ig_type = 
+                      utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+                  ROOT::Math::IntegratorMultiDim ig(ig_type);
+                  ig.SetRelTolerance(fGSLRelTol);   
+                  ig.SetFunction(*func);
+                  double kine_min[2] = { rW.min, rQ2.min };
+                  double kine_max[2] = { rW.max, rQ2.max };
+                  xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+
+#else
                   GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(
-                                      fSingleResXSecModel, interaction);
+                       fSingleResXSecModel, interaction);
                   func->SetParam(0,"W",  rW);
                   func->SetParam(1,"Q2", rQ2);
                   xsec = fIntegrator->Integrate(*func);
+#endif
                   delete func;
                }
              } else {

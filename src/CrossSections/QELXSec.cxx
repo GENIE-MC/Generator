@@ -12,21 +12,30 @@
  Important revisions after version 2.0.0 :
  @ Jan 18, 2008 - CA
    Add protection against unphysical Q2 limits
+ @ Sep 07, 2009 - CA
+   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
+
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <Math/IFunction.h>
+#include <Math/Integrator.h>
 
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Conventions/KineVar.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/QELXSec.h"
 #include "CrossSections/GXSecFunc.h"
+#include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
+#include "Utils/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -68,14 +77,28 @@ double QELXSec::Integrate(
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
+#ifdef __GENIE_GSL_ENABLED__
+  ROOT::Math::IBaseFunctionOneDim * func = new 
+      utils::gsl::wrap::dXSec_dQ2_E(model, interaction);
+  ROOT::Math::IntegrationOneDim::Type ig_type = 
+      utils::gsl::Integration1DimTypeFromString(fGSLIntgType);     
+  ROOT::Math::Integrator ig(ig_type);
+  ig.SetFunction(*func);
+  ig.SetRelTolerance(fGSLRelTol);
+  double xsec = ig.Integral(rQ2.min, rQ2.max) * (1E-38 * units::cm2);
+     
+#else
   GXSecFunc * func = new Integrand_DXSec_DQ2_E(model, interaction);
   func->SetParam(0,"Q2",rQ2);
   double xsec = fIntegrator->Integrate(*func);
 
+#endif
+
   //LOG("QELXSec", pDEBUG) << "XSec[QEL] (E = " << E << ") = " << xsec;
 
-  delete interaction;
   delete func;
+  delete interaction;
+
   return xsec;
 }
 //____________________________________________________________________________
@@ -93,9 +116,13 @@ void QELXSec::Configure(string config)
 //____________________________________________________________________________
 void QELXSec::LoadConfig(void)
 {
-  //-- get the specified integration algorithm
+  // Get the specified GENIE integration algorithm
   fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
   assert(fIntegrator);
+
+  // Get GSL integration type & relative tolerance
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
 }
 //____________________________________________________________________________
 

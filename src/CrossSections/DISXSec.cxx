@@ -14,17 +14,25 @@
    Modify the way knots are distributed in the cached free nucleon DIS cross
    section splines so that the energy threshold is treated more accurately 
    (see also XSecSplineList.cxx).
+ @ Sep 07, 2009 - CA
+   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
+
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
 #include <TSystem.h>
+#include <Math/IFunction.h>
+#include <Math/IntegratorMultiDim.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Controls.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "CrossSections/DISXSec.h"
 #include "CrossSections/GXSecFunc.h"
+#include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGCodes.h"
@@ -34,6 +42,7 @@
 #include "Utils/Cache.h"
 #include "Utils/CacheBranchFx.h"
 #include "Utils/XSecSplineList.h"
+#include "Utils/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::controls;
@@ -152,23 +161,25 @@ double DISXSec::Integrate(
      LOG("DISXSec", pINFO)  
          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
 
+#ifdef __GENIE_GSL_ENABLED__
+     ROOT::Math::IBaseFunctionMultiDim * func = 
+          new utils::gsl::wrap::d2XSec_dWdQ2_E(model, interaction);
+     ROOT::Math::IntegrationMultiDim::Type ig_type = 
+          utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+     ROOT::Math::IntegratorMultiDim ig(ig_type);
+     //ig.SetAbsTolerance(0.00001);
+     ig.SetRelTolerance(fGSLRelTol);
+     ig.SetFunction(*func);
+     double kine_min[2] = { Wl.min, Q2l.min };
+     double kine_max[2] = { Wl.max, Q2l.max };
+     double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+#else
      GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
      func->SetParam(0,"W", Wl);
      func->SetParam(1,"Q2",Q2l);
      double xsec = fIntegrator->Integrate(*func);
-/*
-     Range1D_t xl = kps.Limits(kKVx);
-     Range1D_t yl = kps.Limits(kKVy);
-     LOG("DISXSec", pINFO)  
-            << "x integration range = [" << xl.min << ", " << xl.max << "]";
-     LOG("DISXSec", pINFO)  
-            << "y integration range = [" << yl.min << ", " << yl.max << "]";
-
-     GXSecFunc * func = new Integrand_D2XSec_DxDy_E(model, interaction);
-     func->SetParam(0,"x",xl);
-     func->SetParam(1,"y",yl);
-     double xsec = fIntegrator->Integrate(*func);
-*/
+#endif
+   
      LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
 
      delete interaction;
@@ -192,11 +203,15 @@ void DISXSec::Configure(string config)
 //____________________________________________________________________________
 void DISXSec::LoadConfig(void)
 {
-  //-- get specified integration algorithm
+  // Get specified GENIE integration algorithm
   fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
 
-  //-- energy range for cached splines
+  // Get GSL integration type & relative tolerance
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.001);
+
+  // Energy range for cached splines
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
   fVldEmin = gc->GetDouble("GVLD-Emin");
@@ -217,9 +232,6 @@ void DISXSec::CacheFreeNucleonXSec(
   assert(!cache_branch);
   cache_branch = new CacheBranchFx("DIS XSec");
   cache->AddCacheBranch(key, cache_branch);
-
-  // Create the integrand
-  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
 
   // Tweak interaction to be on a free nucleon target
   Target * target = interaction->InitStatePtr()->TgtPtr();
@@ -256,6 +268,14 @@ void DISXSec::CacheFreeNucleonXSec(
       E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i * dEa);
   }
 
+  // Create the integrand
+#ifdef __GENIE_GSL_ENABLED__
+  ROOT::Math::IBaseFunctionMultiDim * func = 
+     new utils::gsl::wrap::d2XSec_dWdQ2_E(model, interaction);
+#else
+  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
+#endif
+
   // Compute the cross section at the given set of knots
   for(int ie=0; ie<nknots; ie++) {
     double Ev = E[ie];
@@ -263,7 +283,6 @@ void DISXSec::CacheFreeNucleonXSec(
     interaction->InitStatePtr()->SetProbeP4(p4);
     double xsec = 0.;
     if(Ev>Ethr+kASmallNum) {
-
        Range1D_t Wl  = kps.WLim();
        Range1D_t Q2l = kps.Q2Lim();
        LOG("DISXSec", pINFO)  
@@ -271,12 +290,24 @@ void DISXSec::CacheFreeNucleonXSec(
        LOG("DISXSec", pINFO)  
          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
 
+#ifdef __GENIE_GSL_ENABLED__
+       ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+       ROOT::Math::IntegratorMultiDim ig(ig_type);
+       //ig.SetAbsTolerance(0.00001);
+       ig.SetRelTolerance(fGSLRelTol);
+       ig.SetFunction(*func);
+       double kine_min[2] = { Wl.min, Q2l.min };
+       double kine_max[2] = { Wl.max, Q2l.max };
+       xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+#else
        func->SetParam(0,"W", Wl);
        func->SetParam(1,"Q2",Q2l);
        xsec = fIntegrator->Integrate(*func);
-    }
+#endif
+    }//Ev>threshold
+
     LOG("DISXSec", pNOTICE)  
-                << "Caching: XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
+       << "Caching: XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
     cache_branch->AddValues(Ev,xsec);
   }//ie
 
