@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::GlashowResXSec
+\class    genie::GlashowResonanceXSec
 
 \brief    Nuebar cross section at the Glashow resonance (nuebar + e- -> W-).\n
           Is a concrete implementation of the XSecAlgorithmI interface. \n
@@ -19,8 +19,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _GLASHOW_RES_XSEC_H_
-#define _GLASHOW_RES_XSEC_H_
+#ifndef _GLASHOW_RESONANCE_PXSEC_H_
+#define _GLASHOW_RESONANCE_PXSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
 
@@ -28,14 +28,14 @@ namespace genie {
 
 class IntegratorI;
 
-class GlashowResXSec : public XSecAlgorithmI {
+class GlashowResonancePXSec : public XSecAlgorithmI {
 
 public:
-  GlashowResXSec();
-  GlashowResXSec(string config);
-  virtual ~GlashowResXSec();
+  GlashowResonancePXSec ();
+  GlashowResonancePXSec (string config);
+  virtual ~GlashowResonancePXSec ();
 
-  //-- XSecAlgorithmI interface implementation
+  // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
