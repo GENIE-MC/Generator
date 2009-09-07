@@ -22,59 +22,61 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
-#include "VHE/GlashowResXSec.h"
+#include "VHE/GlashowResonancePXSec.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-GlashowResXSec::GlashowResXSec() :
-XSecAlgorithmI("genie::GlashowResXSec")
+GlashowResonancePXSec::GlashowResonancePXSec() :
+XSecAlgorithmI("genie::GlashowResonancePXSec")
 {
 
 }
 //____________________________________________________________________________
-GlashowResXSec::GlashowResXSec(string config) :
-XSecAlgorithmI("genie::GlashowResXSec", config)
+GlashowResonancePXSec::GlashowResonancePXSec(string config) :
+XSecAlgorithmI("genie::GlashowResonancePXSec", config)
 {
 
 }
 //____________________________________________________________________________
-GlashowResXSec::~GlashowResXSec()
+GlashowResonancePXSec::~GlashowResonancePXSec()
 {
 
 }
 //____________________________________________________________________________
-double GlashowResXSec::XSec(
-          const Interaction * /*interaction*/, KinePhaseSpace_t /*kps*/) const
+double GlashowResonancePXSec::XSec(
+   const Interaction * /*interaction*/, KinePhaseSpace_t /*kps*/) const
 {
   return 0;
 }
 //____________________________________________________________________________
-double GlashowResXSec::Integral(const Interaction * interaction) const
+double GlashowResonancePXSec::Integral(const Interaction * interaction) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //----- get initial & final state information
   const InitialState & init_state = interaction->InitState();
   double E = init_state.ProbeE(kRfLab);
 
-  double me   = kElectronMass;
-  double Mw   = kMw;
-  double Gw   = PDGLibrary::Instance()->Find(kPdgWM)->Width();
-  double Mw2  = TMath::Power(Mw,  2);
-  double Mw4  = TMath::Power(Mw2, 2);
-  double Gw2  = TMath::Power(Gw,  2);
-  double s    = 2*me*E;
-  double bw   = Mw4 / (TMath::Power(s-Mw2,2) + Gw2*Mw2);
-  double xsec = kGF2*s*bw / (3*kPi);
+  double gf    = kGF2/(3*kPi);
+  double me    = kElectronMass;
+  double Mw    = kMw;
+  double Gw    = PDGLibrary::Instance()->Find(kPdgWM)->Width();
+  double Mw2   = TMath::Power(Mw,  2);
+  double Mw4   = TMath::Power(Mw2, 2);
+  double Gw2   = TMath::Power(Gw,  2);
+
+  double s     = 2*me*E;
+  double bw    = Mw4 / (TMath::Power(s-Mw2,2) + Gw2*Mw2);
+  double xsec  = gf*s*bw;
 
   LOG("GlashowResXSec", pDEBUG) << "XSec (E = " << E << ") = " << xsec;
+
   return xsec;
 }
 //____________________________________________________________________________
-bool GlashowResXSec::ValidProcess(const Interaction * interaction) const
+bool GlashowResonancePXSec::ValidProcess(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -92,7 +94,7 @@ bool GlashowResXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
-bool GlashowResXSec::ValidKinematics(const Interaction * /*in*/) const
+bool GlashowResonancePXSec::ValidKinematics(const Interaction * /*in*/) const
 {
   return true;
 }

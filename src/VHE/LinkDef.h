@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::GlashowResXSec;
+#pragma link C++ class genie::GlashowResonancePXSec;
+#pragma link C++ class genie::GlashowResonanceGenerator;
 
 #endif
