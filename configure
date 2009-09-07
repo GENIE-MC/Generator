@@ -4,7 +4,8 @@
 #
 # For help, type ./configure --help
 #
-# C.Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
+# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+# STFC, Rutherford Appleton Laboratory
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # print out info & exit if any of the command-line arguments was --help
@@ -16,7 +17,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    FLAG              DESCRIPTION                                              DEFAULT\n\n";
   print "    --prefix          installation location (for 'make install')               /usr/local/\n";
   print "\n enable/disable options with either --enable- or --disable- (eg --enable-lhapdf --disable-flux-drivers)\n\n";
-  print "    profiler          GENIE code profiling using Google perftools              default: disabled \n";
+  print "    profiler          GENIE code profiling using Google PerfTools              default: disabled \n";
   print "    doxygen-doc       Generate doxygen documentation at build time             default: disabled \n";
   print "    dylibversion      Adds version number in library names (recommended)       default: enabled  \n";
   print "    lowlevel-mesg     Disable (rather than filter out at run time) prolific    default: disabled \n";
@@ -24,13 +25,14 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    debug             Adds -g in the compiler options to request debug info    default: disabled \n";
   print "    neut-cascade      Alt. intranuclear hadron transport MC, requires NEUT     default: disabled (T2K internal) \n";
   print "    lhapdf            Use the LHAPDF parton density function library           default: enabled  \n";
-  print "    cernlib           Use the CERN libraries                                   default: disabled (to be phased-out / please use LHAPDF instead)\n";
+  print "    cernlib           Use the CERN libraries                                   default: disabled (CERNLIBs to be phased-out. Please use LHAPDF instead)\n";
   print "    flux-drivers      Built-in flux drivers                                    default: enabled  \n";
   print "    geom-drivers      Built-in detector geometry drivers                       default: enabled  \n";
   print "    mueloss           Muon energy loss modeling                                default: enabled  \n";
   print "    validation-tools  GENIE physics model validation tools (requires MySQL)    default: disabled \n";
   print "    viewer            Event generation GUI (incomplete)                        default: disabled \n";
   print "    test              Build test programs                                      default: disabled \n";
+  print "    gsl               Enable use of the GSL math library (via ROOT MathMore)   default: disabled (Experimental. Don't use yet)\n";
   print "    t2k               Enable T2K-specific ev.gen. drivers and tools            default: disabled \n";
   print "    minos             Enable MINOS-specific ev.gen. drivers and tools          default: disabled \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf-lib=/some/path/)\n\n";
@@ -126,9 +128,9 @@ my $gopt_enable_mueloss          = "YES";
 my $gopt_enable_validation_tools = "NO";
 my $gopt_enable_viewer           = "NO";
 my $gopt_enable_test             = "NO";
+my $gopt_enable_gsl              = "NO";
 my $gopt_enable_minos            = "NO";
 my $gopt_enable_t2k              = "NO";
-#my $gopt_enable_neugen          = "NO";
 
 # Check configure's command line arguments for non-default values
 #
@@ -146,15 +148,15 @@ if(($match = grep(/--disable-mueloss/i,         @ARGV)) > 0) { $gopt_enable_muel
 if(($match = grep(/--enable-validation-tools/i, @ARGV)) > 0) { $gopt_enable_validation_tools = "YES"; }
 if(($match = grep(/--enable-viewer/i,           @ARGV)) > 0) { $gopt_enable_viewer           = "YES"; }
 if(($match = grep(/--enable-test/i,             @ARGV)) > 0) { $gopt_enable_test             = "YES"; }
+if(($match = grep(/--enable-gsl/i,              @ARGV)) > 0) { $gopt_enable_gsl              = "YES"; }
 if(($match = grep(/--enable-minos/i,            @ARGV)) > 0) { $gopt_enable_minos            = "YES"; }
 if(($match = grep(/--enable-t2k/i,              @ARGV)) > 0) { $gopt_enable_t2k              = "YES"; }
-#if(($match = grep(/--enable-neugen/i,          @ARGV)) > 0) { $gopt_enable_neugen           = "YES"; }
 
 my $gopt_with_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
 
 
-# A couple of warnings for recently modified configuration options
+# Warnings for recently modified configuration options
 #
 if($options=~m/--enable-minos-evserv/i) {
   print "\n";
@@ -169,7 +171,17 @@ if($options=~m/--enable-t2k-evgen/i) {
   print "*** Warning *** Please see './configure --help' for all config option updates \n\n";
 }
 
-# Check for --with options:
+# Check whether ROOT itself was build with GSL enabled
+# (GENIE uses GSL via ROOT's MathMore library.)
+#
+if($gopt_enable_gsl eq "YES") {
+  $mathmore_lib = "$ROOTSYS/lib/libMathMore.so";
+  if( ! -f $mathmore_lib ) {
+     print "*** Warning *** You can't use --enable-gsl because you didn't build ROOT with GSL/MathMore enabled.\n";
+     print "*** Warning *** Reverting back to the --disable-gsl option.\n";
+     $gopt_enable_gsl = "NO";
+  }
+}
 
 # Check compiler optimization level
 #
@@ -207,26 +219,7 @@ if($gopt_enable_doxygen_doc eq "YES") {
   }
 }
 
-# If --enable-neugen was set then the location to the neugen installation must be specified
-#
-#my $gopt_with_neugen_path = "";
-#if($gopt_enable_neugen eq "YES") {
-#  if(($match = grep(/--with-neugen-path/i, @ARGV)) > 0) { 
-#    $options=~m/--with-neugen-path=(\S*)/i;
-#    $gopt_with_neugen_path = $1;
-#  }
-#  # if it was not set, try to pick it up from the environment
-#  if($gopt_with_neugen_path eq "" && defined $ENV{'NEUGEN3PATH'}) { $gopt_with_neugen_path = $ENV{'NEUGEN3PATH'}; }
-#  # check
-#  my $file = "$gopt_with_neugen_path/lib/libneugen3.a";
-#  if(! -e $file) {
-#     print "*** Error *** You need to specify the top level neugen3 directory using --with-neugen-path=/some/path/\n";
-#     print "*** Error *** Otherwise, you should --disable-neugen\n\n";
-#     exit 1;
-#  }
-#}
-
-# If --enable-neut-cascade was set then the full path to the libNEUT.a library must be specified
+# If --enable-neut-cascade was set then the full path to the NEUT libraries must be specified
 #
 my $gopt_with_neut_lib = "";
 if($gopt_enable_neut_cascade eq "YES") {
@@ -390,9 +383,8 @@ if($gopt_enable_validation_tools eq "YES") {
 
 }
 
-# Get pythia6
+# Get pythia6 library path
 #
-
 my $gopt_with_pythia6_lib = "";	
 if($options=~m/--with-pythia6=\S*/i) {
     print "*** Error *** Note that the option --with-pythia6 has been renamed to --with-pythia6-lib \n";
@@ -518,7 +510,6 @@ print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
 print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
 print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
-#print MKCONF "GOPT_ENABLE_NEUGEN=$gopt_enable_neugen\n";
 print MKCONF "GOPT_ENABLE_NEUT_CASCADE=$gopt_enable_neut_cascade\n";
 print MKCONF "GOPT_ENABLE_LHAPDF=$gopt_enable_lhapdf\n";
 print MKCONF "GOPT_ENABLE_CERNLIB=$gopt_enable_cernlib\n";
@@ -527,6 +518,7 @@ print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
 print MKCONF "GOPT_ENABLE_MUELOSS=$gopt_enable_mueloss\n";
 print MKCONF "GOPT_ENABLE_VALIDATION_TOOLS=$gopt_enable_validation_tools\n"; 
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
+print MKCONF "GOPT_ENABLE_GSL=$gopt_enable_gsl\n";
 print MKCONF "GOPT_ENABLE_VIEWER=$gopt_enable_viewer\n";
 print MKCONF "GOPT_ENABLE_MINOS=$gopt_enable_minos\n";
 print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
@@ -534,7 +526,6 @@ print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
 print MKCONF "GOPT_WITH_PROFILER_LIB=$gopt_with_profiler_lib\n";
 print MKCONF "GOPT_WITH_DOXYGEN_PATH=$gopt_with_doxygen_path\n";
-#print MKCONF "GOPT_WITH_NEUGEN_PATH=$gopt_with_neugen_path\n";
 print MKCONF "GOPT_WITH_NEUT_LIB=$gopt_with_neut_lib\n";
 print MKCONF "GOPT_WITH_PYTHIA6_LIB=$gopt_with_pythia6_lib\n";
 print MKCONF "GOPT_WITH_CERN_LIB=$gopt_with_cern_lib\n";
