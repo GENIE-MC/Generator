@@ -37,6 +37,7 @@
    <config alg="genie::RSPPResonanceSelector">       RSPPResonanceSelector.xml       </config>
    <config alg="genie::AMNuGammaGenerator">          AMNuGammaGenerator.xml          </config>
    <config alg="genie::MECGenerator">                MECGenerator.xml                </config>
+   <config alg="genie::GlashowResonanceGenerator">   GlashowResonanceGenerator.xml   </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">       QELInteractionListGenerator.xml       </config>
@@ -117,7 +118,7 @@
    <config alg="genie::COHElasticPXSec">             COHElasticPXSec.xml             </config>
    <config alg="genie::NuNucElasticPXSec">           NuNucElasticPXSec.xml           </config>
    <config alg="genie::NuElectronPXSec">             NuElectronPXSec.xml             </config>
-   <config alg="genie::GlashowResXSec">              GlashowResXSec.xml              </config>
+   <config alg="genie::GlashowResonancePXSec">       GlashowResonancePXSec.xml       </config>
    <config alg="genie::ReinDFRPXSec">                ReinDFRPXSec.xml                </config>
    <config alg="genie::ReinSeghalCOHPiPXSec">        ReinSeghalCOHPiPXSec.xml        </config>
    <config alg="genie::ReinSeghalRESPXSec">          ReinSeghalRESPXSec.xml          </config>
