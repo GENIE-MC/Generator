@@ -89,6 +89,12 @@ string genie::utils::str::ToUpper(string input)
   return input;
 }
 //____________________________________________________________________________
+string genie::utils::str::ToLower(string input)
+{
+  for(unsigned int i=0; i<input.size(); i++) input[i] = tolower(input[i]);
+  return input;
+}
+//____________________________________________________________________________
 const char * genie::utils::str::Concat(
            const char * s1, const char * s2, const char * s3, const char * s4)
 {

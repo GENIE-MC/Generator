@@ -36,6 +36,7 @@ namespace str
   string         RemoveSuccessiveSpaces (string input);
   string         FilterString           (string filt, string input);
   string         ToUpper                (string input);
+  string         ToLower                (string input);
 
   //! concatenation methods used for NuValidator's TGTextEdit widgets
 
