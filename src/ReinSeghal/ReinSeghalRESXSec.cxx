@@ -1,24 +1,34 @@
 //____________________________________________________________________________
 /*
- See the corresponding header file for the class documentation.
-
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - March 09, 2006
-
  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
+
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
+ 
+ For the class documentation see the corresponding header file.
+
+ Important revisions after version 2.0.0 :
+ @ Sep 07, 2009 - CA
+   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
+
 */
 //____________________________________________________________________________
 
 #include <TSystem.h>
 #include <TMath.h>
+#include <Math/IFunction.h>
+#include <Math/IntegratorMultiDim.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Conventions/KineVar.h"
 #include "CrossSections/GXSecFunc.h"
+#include "CrossSections/GSLXSecFunc.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
@@ -30,6 +40,7 @@
 #include "Utils/Cache.h"
 #include "Utils/CacheBranchFx.h"
 #include "Utils/XSecSplineList.h"
+#include "Utils/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -170,12 +181,28 @@ double ReinSeghalRESXSec::Integrate(
           << "{W}   = " << rW.min  << ", " << rW.max;
     LOG("ReinSeghalResC", pINFO)
           << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
-         
+
+#ifdef __GENIE_GSL_ENABLED__   
+    ROOT::Math::IBaseFunctionMultiDim * func =
+        new utils::gsl::wrap::d2XSec_dWdQ2_E(model, interaction);
+    ROOT::Math::IntegrationMultiDim::Type ig_type = 
+        utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+    ROOT::Math::IntegratorMultiDim ig(ig_type);
+    ig.SetRelTolerance(fGSLRelTol);   
+    ig.SetFunction(*func);
+    double kine_min[2] = { rW.min, rQ2.min };
+    double kine_max[2] = { rW.max, rQ2.max };
+    double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+
+#else         
     GXSecFunc * func = 
          new Integrand_D2XSec_DWDQ2_E(fSingleResXSecModel, interaction);
     func->SetParam(0,"W",  rW);
     func->SetParam(1,"Q2", rQ2);
     double xsec = fIntegrator->Integrate(*func);
+
+#endif
+
     delete func;
     return xsec;
   }
@@ -203,17 +230,21 @@ void ReinSeghalRESXSec::LoadConfig(void)
        dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert (fIntegrator);
 
-  // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
+  // Get GSL integration type & relative tolerance
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
+
+  // Get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   fEMax = fConfig->GetDoubleDef("ESplineMax", 100);
   fEMax = TMath::Max(fEMax,20.); // don't accept user Emax if less than 20 GeV
 
-  // create the baryon resonance list specified in the config.
+  // Create the baryon resonance list specified in the config.
   fResList.Clear();
   string resonances = fConfig->GetStringDef(
                    "resonance-name-list", gc->GetString("ResonanceNameList"));
   fResList.DecodeFromNameList(resonances);
 
-  //-- Use algorithm within a DIS/RES join scheme. If yes get Wcut
+  // Use algorithm within a DIS/RES join scheme. If yes get Wcut
   fUsingDisResJoin = fConfig->GetBoolDef(
                            "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
   fWcut = 999999;

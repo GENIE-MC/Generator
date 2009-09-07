@@ -5,23 +5,31 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - February 14, 2005
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Sep 07, 2009 - CA
+   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
 
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <Math/IFunction.h>
+#include <Math/Integrator.h>
 
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/IMDXSec.h"
 #include "CrossSections/GXSecFunc.h"
+#include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/Simpson1D.h"
+#include "Numerical/IntegratorI.h"
+#include "Utils/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -60,14 +68,26 @@ double IMDXSec::Integrate(
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
 
+#ifdef __GENIE_GSL_ENABLED__
+  ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::wrap::dXSec_dy_E(model, interaction);
+  ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
+  ROOT::Math::Integrator ig(ig_type);
+  ig.SetFunction(*func);
+  ig.SetRelTolerance(fGSLRelTol);
+  double xsec = ig.Integral(yl.min, yl.max) * (1E-38 * units::cm2);
+
+#else
   GXSecFunc * func = new Integrand_DXSec_Dy_E(model, interaction);
   func->SetParam(0,"y",yl);
   double xsec = fIntegrator->Integrate(*func);
+
+#endif
 
   //LOG("IMDXSec", pDEBUG) << "XSec[IMD] (E = " << E << ") = " << xsec;
 
   delete interaction;
   delete func;
+
   return xsec;
 }
 //____________________________________________________________________________
@@ -85,10 +105,14 @@ void IMDXSec::Configure(string config)
 //____________________________________________________________________________
 void IMDXSec::LoadConfig(void)
 {
-  //-- get specified integration algorithm
+  // Get specified GENIE integration algorithm
   fIntegrator = 
      dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
+
+  // Get GSL integration type & relative tolerance
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
 }
 //____________________________________________________________________________
 

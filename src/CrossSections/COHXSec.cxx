@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 04, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -13,20 +13,28 @@
  @ Mar 03, 2009 - CA
    Renamed COHPiXSec -> COHXSec. Adapt to naming changes made to the coherent 
    generator for including coherent vector meson production.
+ @ Sep 07, 2009 - CA
+   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
 
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <Math/IFunction.h>
+#include <Math/IntegratorMultiDim.h>
 
+#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "CrossSections/COHXSec.h"
 #include "CrossSections/GXSecFunc.h"
+#include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
+#include "Utils/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -72,15 +80,29 @@ double COHXSec::Integrate(
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
 
+#ifdef __GENIE_GSL_ENABLED__
+  ROOT::Math::IBaseFunctionMultiDim * func = 
+      new utils::gsl::wrap::d2XSec_dxdy_E(model, interaction);
+  ROOT::Math::IntegrationMultiDim::Type ig_type = 
+      utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+  ROOT::Math::IntegratorMultiDim ig(ig_type);
+  ig.SetRelTolerance(fGSLRelTol);
+  ig.SetFunction(*func);
+  double kine_min[2] = { xl.min, yl.min };
+  double kine_max[2] = { xl.max, yl.max };
+  double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+
+#else
   GXSecFunc * func = new Integrand_D2XSec_DxDy_E(model, interaction);
   func->SetParam(0,"x",xl);
   func->SetParam(1,"y",yl);
   double xsec = fIntegrator->Integrate(*func);
 
+#endif
+
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfLab);
-  LOG("COHXSec", pINFO)  
-       << "XSec[COH] (E = " << Ev << " GeV) = " << xsec;
+  LOG("COHXSec", pINFO) << "XSec[COH] (E = " << Ev << " GeV) = " << xsec;
 
   delete interaction;
   delete func;
@@ -101,8 +123,12 @@ void COHXSec::Configure(string config)
 //____________________________________________________________________________
 void COHXSec::LoadConfig(void)
 {
-  //-- get specified integration algorithm
+  // Get specified GENIE integration algorithm
   fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
   assert(fIntegrator);
+
+  // Get GSL integration type & relative tolerance
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
 }
 //____________________________________________________________________________
