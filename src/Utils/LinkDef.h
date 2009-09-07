@@ -20,6 +20,7 @@
 #pragma link C++ namespace genie::utils::nuclear;
 #pragma link C++ namespace genie::utils::bwfunc;
 #pragma link C++ namespace genie::utils::prem;
+#pragma link C++ namespace genie::utils::gsl;
 
 #pragma link C++ class genie::Cache;
 #pragma link C++ class genie::CacheBranchI;
