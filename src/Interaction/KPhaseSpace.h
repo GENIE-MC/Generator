@@ -40,36 +40,33 @@ public:
 
   void UseInteraction(const Interaction * in);
 
-  //-- Energy threshold
+  //! Energy threshold
   double Threshold(void) const;
 
-  //-- Checks whether the interaction is above the energy threshold
+  //! Checks whether the interaction is above the energy threshold
   bool IsAboveThreshold(void) const;
 
-  //-- Check whether the running kinematics for the specified interaction
-  //-- are allowed. Takes into account all applied cuts.
+  //! Check whether the current kinematics is in the allowed phase space
   bool IsAllowed (void) const;
 
-  //-- Return the kinematical variable limits
-  Range1D_t Limits  (KineVar_t kvar) const;
-  double    Minimum (KineVar_t kvar) const;
-  double    Maximum (KineVar_t kvar) const;
+  //! Return the kinematical variable limits
+  Range1D_t  Limits  (KineVar_t kvar) const;
+  double     Minimum (KineVar_t kvar) const;
+  double     Maximum (KineVar_t kvar) const;
 
-  //-- Apply kinematical cuts
-  //void ApplyCut (const KPhaseSpaceCut & cut);
-  //void ApplyCut (KineVar_t kvar, Range1D_t narrower_range);
-
-  Range1D_t  WLim    (void) const;
-  Range1D_t  Q2Lim_W (void) const;
-  Range1D_t  q2Lim_W (void) const;
-  Range1D_t  Q2Lim   (void) const;
-  Range1D_t  q2Lim   (void) const;
-  Range1D_t  XLim    (void) const;
-  Range1D_t  YLim    (void) const;
-  Range1D_t  YLim_X  (void) const;
+  Range1D_t  WLim    (void) const;  ///< W  limits
+  Range1D_t  Q2Lim_W (void) const;  ///< Q2 limits @ fixed W
+  Range1D_t  q2Lim_W (void) const;  ///< q2 limits @ fixed W
+  Range1D_t  Q2Lim   (void) const;  ///< Q2 limits
+  Range1D_t  q2Lim   (void) const;  ///< q2 limits
+  Range1D_t  XLim    (void) const;  ///< x  limits
+  Range1D_t  YLim    (void) const;  ///< y  limits
+  Range1D_t  YLim_X  (void) const;  ///< y  limits @ fixed x
 
 private:
+
   void Init(void);
+
   const Interaction * fInteraction;
 
 ClassDef(KPhaseSpace,1)
