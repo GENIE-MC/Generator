@@ -1,40 +1,50 @@
-*******************************************************************************************
-*******************************************************************************************
-**                                                                                       **
-**     mu-                                         @@@@@@  @@@@@@  @    @  @  @@@@@@     **
-**        \                                        @       @       @@   @  @  @          **
-**         \                                       @   @   @@@@@   @ @  @  @  @@@@@@     **
-**          \                   ______ ===> jet    @   @   @       @  @ @  @  @          **
-**           \       W+       u/                   @@@@@@  @@@@@@  @    @  @  @@@@@@     **
-**            \_ _ _ _ _ _ _ _/                                                          **
-**            /               \         @                                                **
-**           /                d\______ @@@          NEUTRINO MONTE CARLO GENERATOR       **
-**          /                         @@@@@                                              **
-**         /           u  ____________@@@@@                     v2.5.1                   **
-**        /   jet <===               @@@@@@@                                             **
-**       /             u  ____________@@@@@                                              **
-**     nu_mu                          @@@@@            http://www.genie-mc.org           ** 
-**                                     @@@                                               **
-**                                      @  p                                             **
-**                                                                                       **
-**                                                                                       **
-**  (c) 2003-2009 GENIE Collaboration (see http://copyright.genie-mc.org)                **
-**                                                                                       **
-**  Costas Andreopoulos - STFC, Rutherford Appleton Laboratory (UK)                      **
-**  Flavio Cavanna      - INFN, L'Aquila University (Italy)                              **
-**  James Dobson        - Imperial College London (UK)                                   **
-**  Steve Dytman        - Pittsburgh University (USA)                                    **
-**  Hugh Gallagher      - Tufts University (USA)                                         **
-**  Pawel Guzowski      - Imperial College London (UK)                                   **
-**  Robert Hatcher      - Fermi National Accelerator Laboratory (USA)                    **
-**  Yoshinari Hayato    - Kamioka Observatory, ICRR, University of Tokyo (Japan)         **
-**  Pauli Kehayias      - Tufts University (USA)                                         **
-**  Anselmo Meregaglia  - IPHC - Strasbourg (France)                                     **
-**  Donna Naples        - Pittsburgh University (USA)                                    **
-**  Geoff Pearce        - STFC, Rutherford Appleton Laboratory (UK)                      **
-**  Andre Rubbia        - ETH Zurich (Switzerland)                                       **
-**  Mike Whalley        - Durham University (UK)                                         **
-**                                                                                       **
-*******************************************************************************************
-*******************************************************************************************
+***********************************************************************************************
+***********************************************************************************************
+**                                                                                           **
+**       mu-                                           @@@@@@  @@@@@@  @    @  @  @@@@@@     **
+**          \                                          @       @       @@   @  @  @          **
+**           \                                         @   @   @@@@@   @ @  @  @  @@@@@@     **
+**            \                   ______ ===> jet      @   @   @       @  @ @  @  @          **
+**             \       W+       u/                     @@@@@@  @@@@@@  @    @  @  @@@@@@     **
+**              \_ _ _ _ _ _ _ _/                                                            **
+**              /               \         @                                                  **
+**             /                d\______ @@@            NEUTRINO MONTE CARLO GENERATOR       **
+**            /                         @@@@@                                                **
+**           /           u  ____________@@@@@                       v2.5.1                   **
+**          /     jet <===               @@@@@@@                                             **
+**         /             u  ____________@@@@@                                                **
+**       nu_mu                          @@@@@              http://www.genie-mc.org           ** 
+**                                       @@@                                                 **
+**                                        @  p                                               **
+**                                                                                           **
+** Authors:                                                                                  **
+**    Costas Andreopoulos - STFC, Rutherford Appleton Laboratory (UK)                        **
+**    Flavio Cavanna      - INFN, L'Aquila University (Italy)                                **
+**    James Dobson        - Imperial College London (UK)                                     **
+**    Steve Dytman        - Pittsburgh University (USA)                                      **
+**    Hugh Gallagher      - Tufts University (USA)                                           **
+**    Pawel Guzowski      - Imperial College London (UK)                                     **
+**    Robert Hatcher      - Fermi National Accelerator Laboratory (USA)                      **
+**    Yoshinari Hayato    - Kamioka Observatory, ICRR, University of Tokyo (Japan)           **
+**    Pauli Kehayias      - Tufts University (USA)                                           **
+**    Anselmo Meregaglia  - IPHC - Strasbourg (France)                                       **
+**    Donna Naples        - Pittsburgh University (USA)                                      **
+**    Geoff Pearce        - STFC, Rutherford Appleton Laboratory (UK)                        **
+**    Andre Rubbia        - ETH Zurich (Switzerland)                                         **
+**    Mike Whalley        - Durham University (UK)                                           **
+**                                                                                           **
+**                                                                                           **
+** (c) 2003-2009 GENIE Collaboration                                                         **
+**                                                                                           **
+** This program is free software: you can redistribute it and/or modify it under the terms   **
+** of the GNU General Public License as published by the Free Software Foundation, either    **
+** version 3 of the License, or any later version.                                           **
+** This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; **
+** without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. ** 
+** See the GNU General Public License for more details.                                      **
+** You should have received a copy of the GNU General Public License along with this program.**  
+** If not, see <http://www.gnu.org/licenses/>.                                               **
+***********************************************************************************************
+***********************************************************************************************
+
 
