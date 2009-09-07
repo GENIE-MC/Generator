@@ -39,7 +39,10 @@ protected:
   XSecIntegratorI(string name);
   XSecIntegratorI(string name, string config);
 
-  const IntegratorI * fIntegrator; ///< numerical integrator used
+  const IntegratorI * fIntegrator; ///< GENIE numerical integrator 
+
+  string fGSLIntgType; ///< name of GSL numerical integrator
+  double fGSLRelTol;   ///< required relative tolerance (error)
 };
 
 }       // genie namespace
