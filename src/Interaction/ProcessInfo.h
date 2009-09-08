@@ -55,6 +55,7 @@ public:
   bool IsElectronScattering(void) const;
   bool IsNuElectronElastic (void) const;
   bool IsInverseMuDecay    (void) const;
+  bool IsInverseBetaDecay  (void) const;
   bool IsAMNuGamma         (void) const;
   bool IsMEC               (void) const;
   bool IsDiffractive       (void) const;
