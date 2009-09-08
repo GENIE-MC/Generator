@@ -9,6 +9,7 @@
 #pragma link C++ class genie::DISStructureFuncModel;
 #pragma link C++ class genie::DISStructureFuncModelNC;
 #pragma link C++ class genie::DISStructureFuncModelCC;
+#pragma link C++ class genie::DISStructureFuncModelEM;
 #pragma link C++ class genie::DISPartonModelPXSec;
 
 #endif
