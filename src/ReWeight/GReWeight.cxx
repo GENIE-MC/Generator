@@ -1,0 +1,151 @@
+//____________________________________________________________________________
+/*
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
+
+ Authors: Jim Dobson <J.Dobson07 \at imperial.ac.uk>
+          Imperial College London
+
+          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          STFC, Rutherford Appleton Laboratory 
+
+ For the class documentation see the corresponding header file.
+
+ Important revisions after version 2.0.0 :
+ @ Aug 01, 2009 - CA
+   Was adapted from Jim's and Costas' T2K-specific GENIE reweighting code.
+   First included in v2.5.1.
+
+*/
+//____________________________________________________________________________
+
+#include <vector>
+
+#include <TMath.h>
+#include <TString.h>
+
+#include "EVGCore/EventRecord.h"
+#include "Messenger/Messenger.h"
+#include "ReWeight/GReWeight.h"
+//#include "ReWeight/GReWeightNuXSec.h"
+//#include "ReWeight/GRwGenieINukeHA.h"
+
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::vector;
+using std::string;
+
+using namespace genie;
+using namespace genie::rew;
+
+//_______________________________________________________________________________________
+GReWeight::GReWeight()
+{
+  this->Init();
+}
+//_______________________________________________________________________________________
+GReWeight::~GReWeight()
+{
+  this->CleanUp();
+}
+//_______________________________________________________________________________________
+GSystSet & GReWeight::Systematics(void)
+{ 
+  return fSystSet; 
+}
+//_______________________________________________________________________________________
+void GReWeight::Reconfigure(void)
+{
+/*
+  LOG("ReW", pNOTICE) << "Reconfiguring ...";
+
+  fSystSet.PrintSummary();
+
+  vector<genie::rew::GSyst_t> svec = fSystSet.AllIncluded();
+
+  vector<genie::rew::GSyst_t>::const_iterator it = svec.begin();
+  for( ; it != svec.end(); ++it) {
+    GSyst_t syst = *it;
+    double val = fSystSet.CurValue(syst);
+
+    fReWeightNuXSec -> SetSystematic(syst, val);
+    fReWeightINuk -> SetSystematic(syst, val);
+  }
+
+  fReWeightNuXSec -> Reconfigure();
+  fReWeightINuk -> Reconfigure();
+
+  LOG("ReW", pNOTICE) << "Done reconfiguring";
+*/
+}
+//_______________________________________________________________________________________
+double GReWeight::CalcWeight(const genie::EventRecord & /*event*/) 
+{
+// calculate weight for all tweaked cross section and intranuke parameters
+//
+/*
+  double weight_xsec  = fReWeightNuXSec -> CalcWeight(event);  // cross sections
+  double weight_inuke = fReWeightINuk   -> CalcWeight(event);  // intranuke
+
+  double weight = weight_xsec * 
+                  weight_inuke;
+
+  return weight;
+*/
+  return 0;
+}
+//_______________________________________________________________________________________
+double GReWeight::CalcChisq(void) 
+{
+// calculate the sum of penalty terms for all tweaked flux, cross section and intranuke
+// parameters
+
+/*
+  double chisq_xsec  = fReWeightNuXSec -> CalcChisq();  // cross sections
+  double chisq_inuke = fReWeightINuk   -> CalcChisq();  // intranuke
+
+  double chisq = TMath::Max(0., chisq_xsec ) +
+                 TMath::Max(0., chisq_inuke);
+
+  return chisq;
+*/
+  return 0;
+}
+//_______________________________________________________________________________________
+void GReWeight::Init(void)
+{
+/*
+  fReWeightNuXSec = new GReWeightNuXSec;
+  fReWeightINuk   = new GRwGenieINukeHA;
+*/
+}
+//_______________________________________________________________________________________
+void GReWeight::CleanUp(void)
+{
+/*
+  delete fReWeightNuXSec; 
+  delete fReWeightINuk; 
+*/
+}
+//_______________________________________________________________________________________
+void GReWeight::Print()
+{
+  vector<genie::rew::GSyst_t> syst_vec = this->Systematics().AllIncluded();
+  int vec_size = syst_vec.size();
+	
+  cout << "\nCurrent list of tweaking parameter dials:"<< endl;
+  for(int i = 0 ; i < vec_size ; i ++){
+     LOG("ReW", pNOTICE) 
+         << "    "     << GSyst::AsString(syst_vec[i])
+         << " set at " << this->Systematics().CurValue(syst_vec[i]);
+  }		       	        
+
+  double chi2val = this->CalcChisq();
+
+  LOG("ReW", pNOTICE) << "Chisq_{penalty} = " << chi2val;
+}
+//_______________________________________________________________________________________
+
+

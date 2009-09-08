@@ -10,9 +10,12 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
  @ Oct 09, 2007 - CA
    This file was added in 2.0.1
+ @ Sep 08, 2009 - CA
+   Renamed from ReWeightCrossSection to GReWeightNuXSecHelper and included in
+   the genie::rew namespace. Integrated with new event reweighting framework.
+
 */
 //____________________________________________________________________________
 
@@ -22,24 +25,25 @@
 #include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GEVGDriver.h"
-#include "ReWeight/ReWeightCrossSection.h"
+#include "ReWeight/GReWeightNuXSecHelper.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;
+using namespace genie::rew;
 
 //___________________________________________________________________________
-ReWeightCrossSection::ReWeightCrossSection(void)
+GReWeightNuXSecHelper::GReWeightNuXSecHelper(void)
 {
   this->Initialize();
 }
 //___________________________________________________________________________
-ReWeightCrossSection::~ReWeightCrossSection(void)
+GReWeightNuXSecHelper::~GReWeightNuXSecHelper(void)
 {
 
 }
 //___________________________________________________________________________
-void ReWeightCrossSection::Initialize(void)
+void GReWeightNuXSecHelper::Initialize(void)
 {
   this->DiffCrossSecType( kScQuasiElastic,    kPSQ2fE  );
   this->DiffCrossSecType( kScDeepInelastic,   kPSxyfE  );
@@ -47,7 +51,7 @@ void ReWeightCrossSection::Initialize(void)
   this->DiffCrossSecType( kScCoherent,        kPSxyfE  );
 }
 //___________________________________________________________________________
-void ReWeightCrossSection::HandleInitState(const InitialState & is)
+void GReWeightNuXSecHelper::HandleInitState(const InitialState & is)
 {
   // form initial state filtering out any unwanted info
   InitialState init_state(is.TgtPdg(), is.ProbePdg()); 
@@ -57,7 +61,7 @@ void ReWeightCrossSection::HandleInitState(const InitialState & is)
 
   // if none was found  then create/configure/store one now
   if(!evg_driver) {
-    LOG("ReWeight", pNOTICE) 
+    LOG("ReW", pNOTICE) 
         << "Adding event generation driver for initial state = " 
         << init_state.AsString();
     evg_driver = new GEVGDriver;
@@ -66,34 +70,34 @@ void ReWeightCrossSection::HandleInitState(const InitialState & is)
   }
 }
 //___________________________________________________________________________
-void ReWeightCrossSection::DontReweight(const Interaction & interaction)
+void GReWeightNuXSecHelper::DontReweight(const Interaction & interaction)
 {
   Interaction * in = new Interaction(interaction);
   fNoRewProc.push_back(in);
 }
 //___________________________________________________________________________
-void ReWeightCrossSection::DiffCrossSecType(
-                     ScatteringType_t sct, KinePhaseSpace_t kps)
+void GReWeightNuXSecHelper::DiffCrossSecType(
+        ScatteringType_t sct, KinePhaseSpace_t kps)
 {
   fCrossSecModelPhSp.insert(
-               map<ScatteringType_t,KinePhaseSpace_t>::value_type(sct,kps));
+     map<ScatteringType_t,KinePhaseSpace_t>::value_type(sct,kps));
 }
 //___________________________________________________________________________
-double ReWeightCrossSection::NewWeight(const EventRecord & event)
+double GReWeightNuXSecHelper::NewWeight(const EventRecord & event)
 {
   // Get event summary (Interaction) from the input event
   assert(event.Summary());
   Interaction & interaction = * event.Summary();
 //  Interaction interaction(*event.Summary());
 
-  LOG("ReWeight", pDEBUG) << "Computing new weight for: \n" << interaction;
+  LOG("ReW", pDEBUG) << "Computing new weight for: \n" << interaction;
 
   // Reweight that process? (user can exclude specific processes)
   InteractionList::const_iterator iiter = fNoRewProc.begin();
   for( ; iiter != fNoRewProc.end(); ++iiter) {
     const Interaction & norewint = **iiter;
     if(interaction == norewint) {
-       LOG("ReWeight", pDEBUG) 
+       LOG("ReW", pDEBUG) 
         << "Skipping reweighting was requested for the current interaction";
        return 1.;  
     }
@@ -103,7 +107,7 @@ double ReWeightCrossSection::NewWeight(const EventRecord & event)
   const InitialState & init_state = interaction.InitState();
   GEVGDriver * evg_driver = fGPool.FindDriver(init_state);
   if(!evg_driver) {
-    LOG("ReWeight", pINFO)
+    LOG("ReW", pINFO)
       << "Adding generator driver for init state: " << init_state.AsString();
     evg_driver = new GEVGDriver;
     evg_driver->Configure(init_state);
@@ -114,7 +118,7 @@ double ReWeightCrossSection::NewWeight(const EventRecord & event)
   // Find the event generation thread that handles the given interaction
   const EventGeneratorI * evg_thread = evg_driver->FindGenerator(&interaction);
   if(!evg_thread) {
-    LOG("ReWeight", pERROR)
+    LOG("ReW", pERROR)
       << "No event generator thread for interaction: " << interaction;
     return 0;
   }
@@ -122,7 +126,7 @@ double ReWeightCrossSection::NewWeight(const EventRecord & event)
   // Get the cross section model associated with that thread
   const XSecAlgorithmI * xsec_model = evg_thread->CrossSectionAlg();
   if(!xsec_model) {
-    LOG("ReWeight", pERROR)
+    LOG("ReW", pERROR)
       << "No cross section model for interaction: " << interaction;
     return 0;
   }
@@ -157,9 +161,9 @@ double ReWeightCrossSection::NewWeight(const EventRecord & event)
   // Clear the 'running' kinematics buffer
   interaction.KinePtr()->ClearRunningValues();
 
-  LOG("ReWeight", pINFO)
+  LOG("ReW", pINFO)
      << "Event d{xsec}/dK : " << old_xsec   << " --> " << new_xsec;
-  LOG("ReWeight", pINFO)
+  LOG("ReW", pINFO)
      << "Event weight     : " << old_weight << " ---> " << new_weight;
 
   return new_weight;
