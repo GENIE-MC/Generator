@@ -121,7 +121,7 @@
   <priority msgstream="ReinSeghalSpp">       NOTICE </priority>
   <priority msgstream="RSHAmpl">             WARN   </priority>
   <priority msgstream="Registry">            WARN   </priority>
-  <priority msgstream="ReWeight">            DEBUG  </priority>
+  <priority msgstream="ReW">                 NOTICE </priority>
   <priority msgstream="RESHadronicVtx">      INFO   </priority>
   <priority msgstream="RESKinematics">       INFO   </priority>
   <priority msgstream="RESSelector">         NOTICE </priority>
