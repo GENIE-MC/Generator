@@ -38,7 +38,8 @@ typedef enum EScatteringType {
   kScInverseMuDecay,
   kScAMNuGamma,
   kScMEC,
-  kScCoherentElas
+  kScCoherentElas,
+  kScInverseBetaDecay
 
 } ScatteringType_t;
 
@@ -61,6 +62,7 @@ public:
       case(kScAMNuGamma) :         return "AMNuGamma"; break;
       case(kScMEC) :               return "MEC";       break;
       case(kScCoherentElas) :      return "COHEl";     break;
+      case(kScInverseBetaDecay) :  return "IBD";       break;
       default :                    return "Unknown";   break;
     }
     return "Unknown";
