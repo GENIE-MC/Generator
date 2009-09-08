@@ -1,10 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program gtestReWeightLoop
+\program gtestRwNuXSecHelperLoop
 
-\brief   A simple test program to illustrate how to use the GENIE event
-         reweighting package.
+\brief   A simple program to test the GReWeightNuXSecHelper class.
          The program will re-weight events generated/stored at some point
          during the generator evolution to take into account the effect of 
          the uncertainty at a set of physics parameters.
@@ -13,9 +12,8 @@
 	 Most continuous (user-space) physics parameters listed in 
          $GENIE/config/UserPhysicsOptions.xml can be included in the
          parameter loop.
-         Only cross section model reweighting is included.
 
-\syntax  gtestReWeightLoop -f filename
+\syntax  gtestRwNuXSecHelperLoop -f filename
          where the filename points to a ROOT file with a GENIE event tree
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -41,7 +39,7 @@
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
 #include "Messenger/Messenger.h"
-#include "ReWeight/ReWeightCrossSection.h"
+#include "ReWeight/GReWeightNuXSecHelper.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
 
@@ -55,13 +53,13 @@ string gOptInpFile; // input options (from command line arguments):
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
-  //-- get the command line arguments
+  // Get the command line arguments
   GetCommandLineArgs(argc, argv);
 
-  //-- create a weight calculator
-  ReWeightCrossSection wcalc;
+  // Create a weight calculator
+  rew::GReWeightNuXSecHelper wcalc;
 
-  //-- open the file and get the TTree & its header
+  // Open the file and get the TTree & its header
   TFile file(gOptInpFile.c_str(),"READ");
   TTree * tree = dynamic_cast <TTree *> ( file.Get("gtree")  );
   NtpMCTreeHeader * thdr = 
@@ -72,23 +70,22 @@ int main(int argc, char ** argv)
   NtpMCFormat_t format = thdr->format;
   assert(format == kNFGHEP); // only GHEP trees in this test
 
-  //-- set the branch address
+  // Set the branch address
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
 
-  //-- access the algorithm factory and the configuration pool
+  // Access the algorithm factory and the configuration pool
   AlgFactory *    algf = AlgFactory::Instance();
   AlgConfigPool * algc = AlgConfigPool::Instance();
 
-  //-- get the physics parameters that GENIE developers find meaningfull
-  //   for a user to tweak
+  // Get the physics parameters that GENIE developers find meaningfull
+  // for a user to tweak
   Registry * user_conf = algc->GlobalParameterList();
   user_conf->UnLock();
 
-  //-- loop over physics configuration parameters, tweak their value
-  //   and reconfigure the entire system of instantiated GENIE algorithms
-  //   (a simple case here - few values of a single parameter)
-  //   
+  // Loop over physics configuration parameters, tweak their value
+  // and reconfigure the entire system of instantiated GENIE algorithms
+  // (a simple case here - few values of a single parameter)
   const int npv = 3;
   double MaQEL[npv] = { 1.032, 1.111, 1.211 };
 
@@ -99,7 +96,7 @@ int main(int argc, char ** argv)
 
     LOG("test", pINFO) << "User options / current " << *user_conf;
 
-    //-- loop over the event tree (GHEP records) and reweight events
+    // Loop over the event tree (GHEP records) and reweight events
     for(int i = 0; i< tree->GetEntries(); i++) 
     {
       tree->GetEntry(i);
@@ -130,7 +127,7 @@ int main(int argc, char ** argv)
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  //get input ROOT file (containing a GENIE ER/GHEP ntuple)
+  // Get input ROOT file (containing a GENIE GHEP event tree)
   try {
     LOG("test", pINFO) << "Reading input filename";
     gOptInpFile = utils::clap::CmdLineArgAsString(argc,argv,'f');
@@ -143,7 +140,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
-  // check input GENIE ROOT file
+  // Check input GENIE ROOT file
   bool ok = !(gSystem->AccessPathName(gOptInpFile.c_str()));
   if (!ok) {
     LOG("test", pFATAL)
@@ -158,6 +155,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 void PrintSyntax(void)
 {
   LOG("test", pNOTICE)
-    << "\n\n" << "Syntax:" << "\n   test -f input_filename\n";
+    << "\n\n" << "Syntax:" 
+    << "\n gtestRwNuXSecHelperLoop -f ghep_file\n";
 }
 //___________________________________________________________________

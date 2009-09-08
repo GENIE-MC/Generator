@@ -1,17 +1,15 @@
 //____________________________________________________________________________
 /*!
 
-\program gtestReWeightP2P
+\program gtestRwNuXSecHelperP2P
 
-\brief   A simple test program to illustrate how to use the GENIE event
-         reweighting package.
+\brief   A simple program to test the GReWeightNuXSecHelper class.
 	 The program will re-weight events generated/stored at some point
 	 during the generator evolution to account for model changes in a
          subsequent improved / or tweaked / or bug-fixed version.
 	 So reweighting happens between two {model/configuration} choices.
-         Only cross section model reweighting is included.
 
-\syntax  gtestReWeightP2P -f filename
+\syntax  gtestRwNuXSecHelperP2P -f filename
          where the filename points to a ROOT file with a GENIE event tree
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -35,7 +33,7 @@
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
 #include "Messenger/Messenger.h"
-#include "ReWeight/ReWeightCrossSection.h"
+#include "ReWeight/GReWeightNuXSecHelper.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
 
@@ -49,13 +47,13 @@ string gOptInpFile; // input options (from command line arguments):
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
-  //-- get the command line arguments
+  // Get the command line arguments
   GetCommandLineArgs(argc, argv);
 
-  //-- create a weight calculator
-  ReWeightCrossSection wcalc;
+  // Create a weight calculator
+  rew::GReWeightNuXSecHelper wcalc;
 
-  //-- open the file and get the TTree & its header
+  // Open the file and get the TTree & its header
   TFile file(gOptInpFile.c_str(),"READ");
   TTree * tree = dynamic_cast <TTree *> ( file.Get("gtree")  );
   NtpMCTreeHeader * thdr = 
@@ -66,12 +64,11 @@ int main(int argc, char ** argv)
   NtpMCFormat_t format = thdr->format;
   assert(format == kNFGHEP); // only GHEP trees in this test
 
-  //-- set the branch address
+  // Set the branch address
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
 
-  //-- loop over the event tree (GHEP records) and reweight events
-
+  // Loop over the event tree (GHEP records) and reweight events
   for(int i = 0; i< tree->GetEntries(); i++) 
   {
     tree->GetEntry(i);
@@ -100,7 +97,7 @@ int main(int argc, char ** argv)
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  //get input ROOT file (containing a GENIE ER/GHEP ntuple)
+  // Get input ROOT file (containing a GENIE GHEP event tree)
   try {
     LOG("test", pINFO) << "Reading input filename";
     gOptInpFile = utils::clap::CmdLineArgAsString(argc,argv,'f');
@@ -113,7 +110,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
-  // check input GENIE ROOT file
+  // Check input GENIE ROOT file
   bool ok = !(gSystem->AccessPathName(gOptInpFile.c_str()));
   if (!ok) {
     LOG("test", pFATAL)
@@ -128,6 +125,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 void PrintSyntax(void)
 {
   LOG("test", pNOTICE)
-    << "\n\n" << "Syntax:" << "\n   test -f input_filename\n";
+    << "\n\n" << "Syntax:" 
+    << "\n gtestRwNuXSecHelperP2P -f ghep_file\n";
 }
 //___________________________________________________________________
