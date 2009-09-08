@@ -12,8 +12,9 @@
 #              [--topdir=...] 
 #              [--arch=linux|linuxx8664gcc|macosx|...]
 #
-# Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 #
+
+script_location="http://hepunx.rl.ac.uk/~candreop/generators/GENIE/devel/src/scripts/build/ext/"
 
 log4cpp_version=1.0
 gsl_version=1.8
@@ -43,38 +44,70 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-geniewww="http://hepunx.rl.ac.uk/~candreop/generators/GENIE/etc/installation"
-
 echo topdir $topdir
-
 if [ ! -d ${topdir} ] ; then
   mkdir $topdir
 fi
 cd $topdir
 
-for subdir in pythia6 lhapdf gsl root log4cpp stage; do
+for subdir in pythia6 lhapdf gsl root log4cpp; do
   if [ ! -d ${subdir} ] ; then
     mkdir ${subdir}
   fi
 done
 
+#
+# wget or curl for retreiving remote files?
+# (OS X doesn't generally have wget on it, so fall back on curl in that case)
+# 
+whichfetchit=`which wget | grep -v "no wget in"`
+if [ ! -z "${whichfetchit}" ] ; then
+  echo use \"wget\" for fetching files
+  fetchit='wget '
+else
+  whichfetchit=`which curl | grep -v "no curl in"`
+  if [ ! -z "${whichfetchit}" ] ; then
+    # -f = fail without creating dummy, -O output local named like remoteza
+    echo use \"curl -f -O\" for fetching files
+    fetchit='curl -f -O '
+  else
+    echo "Neither wget nor curl available -- can't download files"
+    exit 1
+  fi
+fi
+
+#
+# build pythia6
+#
 cd $topdir/pythia6
-curl -O $geniewww/build_pythia6.sh
+$fetchit $script_location/build_pythia6.sh
 source build_pythia6.sh $pythia6_version
 
+#
+# build lhapdf
+#
 cd $topdir/lhapdf
-curl -O $geniewww/build_lhapdf.sh
+$fetchit $script_location/build_lhapdf.sh
 source build_lhapdf.sh $lhapdf_version
 
+#
+# build GSL
+#
 cd $topdir/gsl
-curl -O $geniewww/build_gsl.sh
+$fetchit $script_location/build_gsl.sh
 source build_gsl.sh $gsl_version
 
+#
+# build ROOT
+#
 cd $topdir/root
-curl -O $geniewww/build_root.sh
+$fetchit $script_location/build_root.sh
 source build_root.sh $root_version --arch=$arch
 
+#
+# build log4cpp
+#
 cd $topdir/log4cpp
-curl -O $geniewww/build_log4cpp.sh
+$fetchit $script_location/build_log4cpp.sh
 source build_log4cpp.sh $log4cpp_version
 
