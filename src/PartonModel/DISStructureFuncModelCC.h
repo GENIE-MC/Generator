@@ -3,7 +3,7 @@
 
 \class    genie::DISStructureFuncModelCC
 
-\brief    Form Factors for neutrino - free nucleon DIS CC interactions.
+\brief    Structure functions for neutrino DIS CC.
           Is a concrete implementation of the DISStructureFuncModelI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
