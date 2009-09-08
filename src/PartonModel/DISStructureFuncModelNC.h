@@ -3,10 +3,8 @@
 
 \class    genie::DISStructureFuncModelNC
 
-\brief    Form Factors for neutrino - free nucleon DIS NC interactions.
+\brief    Structure functions for neutrino DIS NC.
           Is a concrete implementation of the DISStructureFuncModelI interface.
-
-\ref      E.A.Paschos and J.Y.Yu, Phys.Rev.D 65.033002
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
