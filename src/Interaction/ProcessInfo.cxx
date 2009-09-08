@@ -24,7 +24,8 @@
  @ Mar 03, 2009 - CA
    Adapt to naming changes made to the coherent generator for including
    coherent vector meson production.
-
+ @ Sep 08, 2009 - CR
+   Added IsInverseBetaDecay()
 */
 //____________________________________________________________________________
 
@@ -119,6 +120,11 @@ bool ProcessInfo::IsNuElectronElastic(void) const
 bool ProcessInfo::IsInverseMuDecay(void) const
 {
   return (fScatteringType == kScInverseMuDecay);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsInverseBetaDecay(void) const
+{
+  return (fScatteringType == kScInverseBetaDecay);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsAMNuGamma(void) const
