@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::ReWeightCrossSection
+\class   genie::rew::GReWeightNuXSecHelper
 
-\brief   A cross section model reweighting engine.
+\brief   Helper class for cross section model reweighting
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -13,8 +13,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REWEIGHT_CROSS_SECTION_H_
-#define _REWEIGHT_CROSS_SECTION_H_
+#ifndef _G_REWEIGHT_NEUTRINO_CROSS_SECTION_HELPER_H_
+#define _G_REWEIGHT_NEUTRINO_CROSS_SECTION_HELPER_H_
 
 #include <map>
 
@@ -29,22 +29,18 @@ namespace genie {
 
 class EventRecord;
 
-class ReWeightCrossSection {
+namespace rew {
+
+class GReWeightNuXSecHelper {
 
 public :
-  ReWeightCrossSection();
- ~ReWeightCrossSection();
+  GReWeightNuXSecHelper();
+ ~GReWeightNuXSecHelper();
 
-  // various configuration options for the cross section 
-  // re-weighting engine
-
-  void HandleInitState  (const InitialState & init_state);
-  void DiffCrossSecType (ScatteringType_t sct, KinePhaseSpace_t kps);
-  void DontReweight     (const Interaction & interaction);
-
-  // the actual re-weighting code
-
-  double NewWeight (const EventRecord & event);
+  void   HandleInitState  (const InitialState & init_state);            
+  void   DiffCrossSecType (ScatteringType_t sct, KinePhaseSpace_t kps); 
+  void   DontReweight     (const Interaction & interaction);            
+  double NewWeight        (const EventRecord & event);
 
 private:
 
@@ -55,6 +51,7 @@ private:
    InteractionList                         fNoRewProc;         ///<
 };
 
+}      // rew   namespace
 }      // genie namespace
 
-#endif // _REWEIGHT_CROSS_SECTION_H_
+#endif // _G_REWEIGHT_NEUTRINO_CROSS_SECTION_H_

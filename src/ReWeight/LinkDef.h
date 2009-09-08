@@ -5,7 +5,15 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
+#pragma link C++ namespace genie::rew;
 
-#pragma link C++ class genie::ReWeightCrossSection;
+#pragma link C++ class genie::rew::GSyst;
+#pragma link C++ class genie::rew::GSystSet;
+#pragma link C++ class genie::rew::GSystType;
+#pragma link C++ class genie::rew::GSystInfo;
+
+#pragma link C++ class genie::rew::GReWeight;
+#pragma link C++ class genie::rew::GReWeightNuXSec;
+#pragma link C++ class genie::rew::GReWeightNuXSecHelper;
 
 #endif
