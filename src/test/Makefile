@@ -39,8 +39,8 @@ TGT =	gtestAlgorithms 	 \
 	gtestRecoINukeHadroFates \
 	gtestInteraction	 \
 	gtestResonances		 \
-	gtestReWeightP2P	 \
-	gtestReWeightLoop	 \
+	gtestRwNuXSecHelperP2P	 \
+	gtestRwNuXSecHelperLoop	 \
 	gtestKPhaseSpace	
 # 	gtestIntranuke		 
 
@@ -150,13 +150,13 @@ gtestResonances: FORCE
 	$(CXX) $(CXXFLAGS) -c testResonances.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testResonances.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestResonances
 
-gtestReWeightP2P: FORCE
-	$(CXX) $(CXXFLAGS) -c testReWeightP2P.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testReWeightP2P.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestReWeightP2P
+gtestRwNuXSecHelperP2P: FORCE
+	$(CXX) $(CXXFLAGS) -c testRwNuXSecHelperP2P.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testRwNuXSecHelperP2P.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwNuXSecHelperP2P
 
-gtestReWeightLoop: FORCE
-	$(CXX) $(CXXFLAGS) -c testReWeightLoop.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testReWeightLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestReWeightLoop
+gtestRwNuXSecHelperLoop: FORCE
+	$(CXX) $(CXXFLAGS) -c testRwNuXSecHelperLoop.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testRwNuXSecHelperLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwNuXSecHelperLoop
 
 gtestRecoINukeHadroFates: FORCE
 	$(CXX) $(CXXFLAGS) -c testRecoINukeHadroFates.cxx $(INCLUDES)
@@ -202,8 +202,8 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
-	$(RM) $(GENIE_BIN_PATH)/gtestReWeightP2P	
-	$(RM) $(GENIE_BIN_PATH)/gtestReWeightLoop		
+	$(RM) $(GENIE_BIN_PATH)/gtestRwNuXSecHelperP2P	
+	$(RM) $(GENIE_BIN_PATH)/gtestRwNuXSecHelperLoop		
 	$(RM) $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
@@ -235,8 +235,8 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeightP2P		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReWeightLoop		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwNuXSecHelperP2P		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwNuXSecHelperLoop		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
@@ -316,11 +316,11 @@ clean--gtestInteraction: FORCE
 clean--gtestResonances: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestInteraction
 
-clean--gtestReWeightP2P: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestReWeightP2P
+clean--gtestRwNuXSecHelperP2P: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestRwNuXSecHelperP2P
 
-clean--gtestReWeightLoop: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestReWeightLoop
+clean--gtestRwNuXSecHelperLoop: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestRwNuXSecHelperLoop
 
 clean--gtestRecoINukeHadroFates: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates
