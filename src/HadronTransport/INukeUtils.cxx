@@ -15,15 +15,23 @@
  @ Mar 05, 2009 - CA
    Modified ReconstructHadronFateHA() to work with hadron+A event files in
    addition to neutrino event files.
+ @ Sep 10, 2009 - CA
+   Added MeanFreePath(), Dist2Exit(), Dist2ExitMFP()
 
 */
 //____________________________________________________________________________
 
+#include <TLorentzVector.h>
+#include <TMath.h>
+
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/Units.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "HadronTransport/INukeUtils.h"
+#include "HadronTransport/INukeHadroData.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/Spline.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
 #include "Registry/Registry.h"
@@ -31,6 +39,86 @@
 
 using namespace genie;
 
+//____________________________________________________________________________
+double genie::utils::intranuke::MeanFreePath(
+   int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
+   double A, double nRpi, double nRnuc)
+{
+// Calculate the mean free path (in fm) for a hadron in a nucleus
+// Inputs
+//  pdgc : Hadron PDG code
+//  x4   : Hadron 4-position in the nucleus coordinate system (units: fm)
+//  p4   : Hadron 4-momentum (units: GeV)
+//  A    : Nucleus atomic mass number
+//  nRpi : Controls the pion ring size in terms of de-Broglie wavelengths
+//  nRnuc: Controls the nuclepn ring size in terms of de-Broglie wavelengths
+//
+  bool is_pion    = pdgc == kPdgPiP || pdgc == kPdgPi0 || pdgc == kPdgPiM;
+  bool is_nucleon = pdgc == kPdgProton || pdgc == kPdgNeutron;
+        
+  // before getting the nuclear density at the current position
+  // check whether the nucleus has to become larger by const times the
+  // de Broglie wavelength -- that is somewhat empirical, but this
+  // is what is needed to get piA total cross sections right.
+  // The ring size is different for light nuclei (using gaus density) /
+  // heavy nuclei (using woods-saxon density).
+  // The ring size is different for pions / nucleons.
+  //
+  double momentum = p4.Vect().Mag(); // hadron momentum in GeV
+  double ring = (momentum>0) ? 1.240/momentum : 0; // de-Broglie wavelength
+ 
+  if(A<=20) { ring /= 2.; }
+ 
+  if      (is_pion   ) { ring *= nRpi;  }
+  else if (is_nucleon) { ring *= nRnuc; }
+
+  // get the nuclear density at the current position
+  double rnow = x4.Vect().Mag(); 
+  double rho  = A * utils::nuclear::Density(rnow,A,ring);
+
+  // get total xsection for the incident hadron at its current
+  // kinetic energy
+  double sigtot = 0;
+
+  // The hadron+nucleon cross section will be evaluated within the range
+  // of the cross sections spline
+  // The hadron cross section will be taken to be const outside that range
+  //
+
+  double ke = (p4.Energy() - p4.M()) / units::MeV;  // kinetic energy in MeV
+  ke = TMath::Max(INukeHadroData::fMinKinEnergy,   ke);
+  ke = TMath::Min(INukeHadroData::fMaxKinEnergyHN, ke);
+
+  INukeHadroData * fHadroData = INukeHadroData::Instance();
+
+  if (pdgc == kPdgPiP)
+      sigtot = fHadroData -> XSecPipN_Tot() -> Evaluate(ke);
+  else if (pdgc == kPdgPi0)
+      sigtot = fHadroData -> XSecPi0N_Tot() -> Evaluate(ke);
+  else if (pdgc == kPdgPiM)
+      sigtot = fHadroData -> XSecPimN_Tot() -> Evaluate(ke);
+  else if (pdgc == kPdgProton)
+      sigtot = fHadroData -> XSecPN_Tot()   -> Evaluate(ke);
+  else if (pdgc == kPdgNeutron)
+      sigtot = fHadroData -> XSecNN_Tot()   -> Evaluate(ke);
+  else {
+     return 0;
+  }
+
+  // the xsection splines in INukeHadroData return the hadron x-section in
+  // mb -> convert to fm^2
+  sigtot *= (units::mb / units::fm2);
+
+  // compute the mean free path
+  double lamda = 1. / (rho * sigtot);
+
+  // exits if lamda is InF (if cross section is 0)
+  if( ! TMath::Finite(lamda) ) {
+     return -1;
+  }
+
+  return lamda;
+}
 //____________________________________________________________________________
 INukeFateHA_t genie::utils::intranuke::ReconstructHadronFateHA(
    GHepRecord * event, int i, bool hA_mode)
@@ -287,5 +375,58 @@ INukeFateHA_t genie::utils::intranuke::ReconstructHadronFateHA(
       
   return hadron_fate;
 }
-//____________________________________________________________________________
+//_______________________________________________________________________________________
+double genie::utils::intranuke::Dist2Exit(
+   const TLorentzVector & x4, const TLorentzVector & p4, 
+   double A, double NR, double R0)
+{
+   double R    = NR * R0 * TMath::Power(A, 1./3.);
+   double step = 0.05; // fermi
+   
+   TVector3 dr3 = p4.Vect().Unit();  // unit vector along its direction
+   TLorentzVector dr4(dr3,0);
+
+   TLorentzVector x4_curr(x4); // current position
+  
+   double d=0;
+   while(1) {
+        double rnow  = x4_curr.Vect().Mag();
+        x4_curr += (step*dr4);
+        d+=step;
+        rnow = x4_curr.Vect().Mag();
+        if (rnow > R) break;
+   }
+   return d;
+}
+//_______________________________________________________________________________________
+double genie::utils::intranuke::Dist2ExitMFP(
+   int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
+   double A, double NR, double R0)
+{
+// distance before exiting in mean free path lengths
+// 
+   double R    = NR * R0 * TMath::Power(A, 1./3.);
+   double step = 0.05; // fermi
+
+   TVector3 dr3 = p4.Vect().Unit();  // unit vector along its direction
+   TLorentzVector dr4(dr3,0);
+
+   TLorentzVector x4_curr(x4); // current position
+
+   double d=0;
+   double d_mfp=0;
+   while(1) {
+        double rnow  = x4_curr.Vect().Mag();
+        x4_curr += (step*dr4);
+        d+=step;
+        rnow = x4_curr.Vect().Mag();
+
+        double lambda = genie::utils::intranuke::MeanFreePath(pdgc,x4_curr,p4,A);
+        d_mfp += (step/lambda);
+
+        if (rnow > R) break;
+   }
+   return d_mfp;
+}
+//_______________________________________________________________________________________
 

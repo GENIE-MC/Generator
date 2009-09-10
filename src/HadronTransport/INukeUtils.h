@@ -21,6 +21,8 @@
 
 #include "HadronTransport/INukeHadroFates.h"
 
+class TLorentzVector;
+
 namespace genie {
 
 class GHepRecord;
@@ -28,9 +30,24 @@ class GHepRecord;
 namespace utils {
 namespace intranuke
 {
+  //! Mean free path
+  double MeanFreePath(
+    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
+    double nRpi=0.5, double nRnuc=1.0);
 
   //! Reconstruct the INTRANUKE/hA model fate for the hadron at position i
-  INukeFateHA_t ReconstructHadronFateHA  (GHepRecord * event, int i, bool hA_mode=false); 
+  INukeFateHA_t ReconstructHadronFateHA (
+    GHepRecord * event, int i, bool hA_mode=false); 
+
+  //! Distance to exit
+  double Dist2Exit(
+    const TLorentzVector & x4, const TLorentzVector & p4, 
+    double A, double NR=3, double R0=1.4);
+
+  //! Distance to exit
+  double Dist2ExitMFP(
+    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
+    double A, double NR=3, double R0=1.4);
 
 }      // intranuke namespace
 }      // utils     namespace
