@@ -7,11 +7,14 @@
  Author: Jim Dobson <j.dobson07 \at imperial.ac.uk>
          Imperial College London
 
+         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
+
  For documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Mar 04, 2009 - JD
-   Was first added in v2.5.1.
+   Was first added in v2.5.1. Adapted from the T2K GENIE reweighting tool.
  @ Mar 05, 2009 - CA
    Modified ReconstructHadronFateHA() to work with hadron+A event files in
    addition to neutrino event files.
@@ -45,6 +48,7 @@ double genie::utils::intranuke::MeanFreePath(
    double A, double nRpi, double nRnuc)
 {
 // Calculate the mean free path (in fm) for a hadron in a nucleus
+//
 // Inputs
 //  pdgc : Hadron PDG code
 //  x4   : Hadron 4-position in the nucleus coordinate system (units: fm)
@@ -120,11 +124,57 @@ double genie::utils::intranuke::MeanFreePath(
   return lamda;
 }
 //____________________________________________________________________________
+double genie::utils::intranuke::ProbSurvival(
+  int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
+  double mfp_scale_factor, double nRpi, double nRnuc, double NR, double R0)
+{
+// Calculate the survival probability for a hadron inside a nucleus
+//
+// Inputs
+//  pdgc : Hadron PDG code
+//  x4 : Hadron 4-position in the nucleus coordinate system (units: fm)
+//  p4 : Hadron 4-momentum (units: GeV)
+//  A : Nucleus atomic mass number
+//  mfp_scale_factor: Tweaks the mean free path (mfp -> mfp*scale). Def: 1.0
+//  nRpi: Controls the pion ring size in terms of de-Broglie wavelengths
+//  nRnuc: Controls the nuclepn ring size in terms of de-Broglie wavelengths
+//  NR: How far away to track the hadron, in terms of the corresponding 
+//      nuclear radius. Def: 3
+//  R0: R0 in R=R0*A^1/3 (units:fm). Def. 1.4
+
+   double prob = 1.0;
+
+   double step = 0.05; // fermi
+   double R    = NR * R0 * TMath::Power(A, 1./3.);
+
+   TVector3 dr3 = p4.Vect().Unit();  // unit vector along its direction
+   TLorentzVector dr4(dr3,0);
+     
+   TLorentzVector x4_curr(x4); // current position
+
+   while(1) {
+     double rnow  = x4_curr.Vect().Mag();
+     if (rnow > (R+step)) break;
+
+     x4_curr += (step*dr4);
+     rnow = x4_curr.Vect().Mag();
+     double mfp = 
+       genie::utils::intranuke::MeanFreePath(pdgc,x4_curr,p4,A,nRpi,nRnuc);
+     mfp *= mfp_scale_factor;
+
+     double dprob = (mfp>0) ? TMath::Exp(-step/mfp) : 0.;
+     prob*=dprob;
+   }
+
+   return prob;
+}
+//____________________________________________________________________________
 INukeFateHA_t genie::utils::intranuke::ReconstructHadronFateHA(
    GHepRecord * event, int i, bool hA_mode)
 {
 // Reconstruct the INTRANUKE/hA model fate for the hadron at position i.
-// Returns one of
+//
+// Returns one of:
 // - kIHAFtUndefined  -> undefined (no re-interaction, or i not a hadron)   
 // - kIHAFtCEx        -> charge exchange            
 // - kIHAFtElas       -> elastic
@@ -138,7 +188,6 @@ INukeFateHA_t genie::utils::intranuke::ReconstructHadronFateHA(
 // - kIHAFtNPip       -> pi production : n pi+
 // - kIHAFtNPipPi0    -> pi production : n pi+ pi0
 //
-
 
   // get the particle from the event record
   GHepParticle * p = dynamic_cast<GHepParticle *>(event->Particle(i)) ;
@@ -375,11 +424,15 @@ INukeFateHA_t genie::utils::intranuke::ReconstructHadronFateHA(
       
   return hadron_fate;
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 double genie::utils::intranuke::Dist2Exit(
    const TLorentzVector & x4, const TLorentzVector & p4, 
    double A, double NR, double R0)
 {
+// Calculate distance within a nucleus (units: fm) before we stop tracking 
+// the hadron.
+// See previous functions for a description of inputs.
+//
    double R    = NR * R0 * TMath::Power(A, 1./3.);
    double step = 0.05; // fermi
    
@@ -398,11 +451,16 @@ double genie::utils::intranuke::Dist2Exit(
    }
    return d;
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 double genie::utils::intranuke::Dist2ExitMFP(
    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
    double A, double NR, double R0)
 {
+// Calculate distance within a nucleus (expressed in terms of 'mean free 
+// paths') before we stop tracking the hadron.
+// See previous functions for a description of inputs.
+//
+
 // distance before exiting in mean free path lengths
 // 
    double R    = NR * R0 * TMath::Power(A, 1./3.);
@@ -428,5 +486,5 @@ double genie::utils::intranuke::Dist2ExitMFP(
    }
    return d_mfp;
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 
