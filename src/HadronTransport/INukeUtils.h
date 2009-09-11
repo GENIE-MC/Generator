@@ -35,6 +35,12 @@ namespace intranuke
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
     double nRpi=0.5, double nRnuc=1.0);
 
+  //! Hadron survival probability
+  double ProbSurvival(
+    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
+    double mfp_scale_factor=1.0,
+    double nRpi=0.5, double nRnuc=1.0, double NR=3, double R0=1.4);
+ 
   //! Reconstruct the INTRANUKE/hA model fate for the hadron at position i
   INukeFateHA_t ReconstructHadronFateHA (
     GHepRecord * event, int i, bool hA_mode=false); 
