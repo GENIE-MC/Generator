@@ -69,14 +69,14 @@ typedef enum EGSyst {
 
   // Parameters controlling the rescattered hadron fate
   kSystINuke_CExTwk_pi,          ///< charge exchange probability tweaking factor for pions
-  kSystINuke_ElTwk_pi,           ///< elastic probability tweaking factor for pions
-  kSystINuke_InelTwk_pi,         ///< inelastic probability tweaking factor for pions
-  kSystINuke_AbsTwk_pi,          ///< absorption probability tweaking factor for pions
+  kSystINuke_ElTwk_pi,           ///< elastic         probability tweaking factor for pions
+  kSystINuke_InelTwk_pi,         ///< inelastic       probability tweaking factor for pions
+  kSystINuke_AbsTwk_pi,          ///< absorption      probability tweaking factor for pions
   kSystINuke_PiProdTwk_pi,       ///< pion production probability tweaking factor for pions
   kSystINuke_CExTwk_N,           ///< charge exchange probability tweaking factor for nucleons
-  kSystINuke_ElTwk_N,            ///< elastic probability tweaking factor for nucleons
-  kSystINuke_InelTwk_N,          ///< inelastic probability tweaking factor for nucleons
-  kSystINuke_AbsTwk_N,           ///< absorption probability tweaking factor for nucleons
+  kSystINuke_ElTwk_N,            ///< elastic         probability tweaking factor for nucleons
+  kSystINuke_InelTwk_N,          ///< inelastic       probability tweaking factor for nucleons
+  kSystINuke_AbsTwk_N,           ///< absorption      probability tweaking factor for nucleons
   kSystINuke_PiProdTwk_N         ///< pion production probability tweaking factor for nucleons
   //...
 
