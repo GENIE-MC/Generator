@@ -12,6 +12,7 @@
 #pragma link C++ class genie::rew::GSystSet;
 #pragma link C++ class genie::rew::GSystType;
 #pragma link C++ class genie::rew::GSystInfo;
+#pragma link C++ class genie::rew::GSystUncertainty;
 
 #pragma link C++ class genie::rew::GReWeight;
 #pragma link C++ class genie::rew::GReWeightNuXSec;
