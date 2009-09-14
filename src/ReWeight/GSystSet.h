@@ -47,12 +47,14 @@ public:
   int     NIncluded    (void) const;
   bool    IsIncluded   (GSyst_t syst) const;
   double  CurValue     (GSyst_t syst) const;
-  double  DefValue     (GSyst_t syst) const;
+  double  InitValue    (GSyst_t syst) const;
   double  MinValue     (GSyst_t syst) const;
   double  MaxValue     (GSyst_t syst) const;
+  double  Step         (GSyst_t syst) const;
   void    SetCurValue  (GSyst_t syst, double val);
-  void    SetDefValue  (GSyst_t syst, double val);
+  void    SetInitValue (GSyst_t syst, double val);
   void    SetRange     (GSyst_t syst, double min, double max);
+  void    SetStep      (GSyst_t syst, double step);
   void    PrintSummary (void);
   void    Copy         (const GSystSet & syst_set);
 
@@ -67,12 +69,12 @@ class GSystInfo {
 
 public:
   GSystInfo() : 
-     CurValue(0), DefValue(0), MinValue(0), MaxValue(0) 
+     CurValue(0), InitValue(0), MinValue(0), MaxValue(0), Step(0) 
   { 
 
   }
-  GSystInfo(double val, double def, double min, double max) : 
-     CurValue(val), DefValue(def), MinValue(min), MaxValue(max) 
+  GSystInfo(double init, double min, double max, double step) : 
+     CurValue(init), InitValue(init), MinValue(min), MaxValue(max), Step(step) 
   {
  
   }
@@ -82,9 +84,10 @@ public:
   }
 
   double CurValue;
-  double DefValue;
+  double InitValue;
   double MinValue;
   double MaxValue;
+  double Step;
 };
 
 } // rew   namespace

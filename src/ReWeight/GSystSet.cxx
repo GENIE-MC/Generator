@@ -85,9 +85,9 @@ double GSystSet::CurValue(GSyst_t syst) const
   else return 0.;
 }
 //_______________________________________________________________________________________
-double GSystSet::DefValue(GSyst_t syst) const
+double GSystSet::InitValue(GSyst_t syst) const
 {
-  if ( this->IsIncluded(syst) ) return fSystematics.find(syst)->second->DefValue;
+  if ( this->IsIncluded(syst) ) return fSystematics.find(syst)->second->InitValue;
   else return 0.;
 }
 //_______________________________________________________________________________________
@@ -103,6 +103,12 @@ double GSystSet::MaxValue(GSyst_t syst) const
   else return 0.;
 }
 //_______________________________________________________________________________________
+double GSystSet::Step(GSyst_t syst) const
+{
+  if ( this->IsIncluded(syst) ) return fSystematics.find(syst)->second->Step;
+  else return 0.;
+}
+//_______________________________________________________________________________________
 void GSystSet::SetCurValue(GSyst_t syst, double val)
 {
   if ( this->IsIncluded(syst) ) {
@@ -110,10 +116,10 @@ void GSystSet::SetCurValue(GSyst_t syst, double val)
   }
 }
 //_______________________________________________________________________________________
-void GSystSet::SetDefValue(GSyst_t syst, double val)
+void GSystSet::SetInitValue(GSyst_t syst, double val)
 {
   if ( this->IsIncluded(syst) ) {
-    fSystematics[syst]->DefValue = val;
+    fSystematics[syst]->InitValue = val;
   }
 }
 //_______________________________________________________________________________________
@@ -122,6 +128,13 @@ void GSystSet::SetRange(GSyst_t syst, double min, double max)
   if ( this->IsIncluded(syst) ) {
     fSystematics[syst]->MinValue = min;
     fSystematics[syst]->MaxValue = max;
+  }
+}
+//_______________________________________________________________________________________
+void GSystSet::SetStep(GSyst_t syst, double step)
+{
+  if ( this->IsIncluded(syst) ) {
+    fSystematics[syst]->Step = step;
   }
 }
 //_______________________________________________________________________________________
@@ -138,7 +151,6 @@ void GSystSet::PrintSummary(void)
     
     cout << " |--> " << syst_obj.AsString(syst) << endl;
   }
-
 }
 //_______________________________________________________________________________________
 void GSystSet::Copy(const GSystSet & syst_set)
@@ -150,15 +162,17 @@ void GSystSet::Copy(const GSystSet & syst_set)
     GSyst_t     syst       = it->first;
     GSystInfo * syst_info  = it->second;
 
-    double cur = syst_info->CurValue;
-    double def = syst_info->DefValue;
-    double min = syst_info->MinValue;
-    double max = syst_info->MaxValue;
+    double cur  = syst_info->CurValue;
+    double init = syst_info->InitValue;
+    double min  = syst_info->MinValue;
+    double max  = syst_info->MaxValue;
+    double step = syst_info->Step;
 
-    this->Include     (syst);
-    this->SetCurValue (syst, cur);
-    this->SetDefValue (syst, def);
-    this->SetRange    (syst, min, max);
+    this->Include      (syst);
+    this->SetCurValue  (syst, cur);
+    this->SetInitValue (syst, init);
+    this->SetRange     (syst, min, max);
+    this->SetStep      (syst, step);
   }
 }
 //_______________________________________________________________________________________
