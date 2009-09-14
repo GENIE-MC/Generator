@@ -54,7 +54,6 @@ namespace rew   {
 
    void Init (void);
 
-   GSystSet *            fSystSet;           ///<
    GReWeightNuXSecHelper fXSecRwHelper;      ///<
    GReWeightNuXSecParams fXSecRwParams;      ///<
  };
