@@ -153,7 +153,7 @@ void GReWeightNuXSec::Reconfigure(void)
   	user_config->Set("QEL-Ma", fXSecRwParams.CurValue(kSystNuXSec_MaQEL));
   }
   if(fXSecRwParams.IsIncluded(kSystNuXSec_MvQEL)) {
-  	user_config->Set("QEL-Mv", fXSecRwParams.CurValue(kSystNuXSec_MaQEL));
+  	user_config->Set("QEL-Mv", fXSecRwParams.CurValue(kSystNuXSec_MvQEL));
   }
   if(fXSecRwParams.IsIncluded(kSystNuXSec_MaRES)) {
   	user_config->Set("RES-Ma", fXSecRwParams.CurValue(kSystNuXSec_MaRES));
