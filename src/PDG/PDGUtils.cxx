@@ -11,8 +11,9 @@
 
  Important revisions after version 2.0.0 :
  @ Oct 01, 2008 - CA
- Added Is2NucleonCuster(pdg)
-
+   Added Is2NucleonCuster(pdg)
+ @ Sep 15, 2009 - CA
+   Added IsPseudoParticle(), IsParticle()
 */
 //____________________________________________________________________________
 
@@ -25,6 +26,21 @@
 
 using namespace genie;
 
+//____________________________________________________________________________
+bool genie::pdg::IsPseudoParticle(int pdgc)
+{
+// ROOT's rootino has PDG code=0
+// GENIE pseudoparticles are in the 2000000000-2000100000 range
+// Include PYTHIA's pseudoparticles
+
+  bool is_fake =
+     ( (pdgc == 0) ||
+       (pdgc > 2000000000 && pdgc < 2000100000) ||
+       (pdgc == kPdgCluster || pdgc == kPdgString || pdgc == kPdgIndep)
+     );
+      
+  return is_fake;
+}
 //____________________________________________________________________________
 int genie::pdg::IonPdgCodeToZ(int ion_pdgc)
 {
@@ -60,6 +76,14 @@ int genie::pdg::IonPdgCode(int A, int Z, int L, int I)
 bool genie::pdg::IsIon(int pdgc)
 {
   return (pdgc > 1000000000 && pdgc < 1999999999);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsParticle(int pdgc)
+{
+  if( genie::pdg::IsPseudoParticle (pdgc) ) return false;
+  if( genie::pdg::IsIon            (pdgc) ) return false;
+
+  return true;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNeutrino(int pdgc)
