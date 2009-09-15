@@ -14,7 +14,10 @@
    Remove redundant IsFake(), IsNucleus() and IsParticle() methods. Removed 
    the corresponding priv data members. Use pdg::IsPseudoParticle(), 
    pdg::IsIon() and pdg::IsParticle instead.
-
+ @ Sep 15, 2009 - CA   
+   Added 'rescattering code' to allow intranuclear hadron transport MCs to
+   store a hadronic reaction code which can not always be easily recreated
+   from the particle list.
 */
 //____________________________________________________________________________
 
@@ -78,6 +81,7 @@ fLastDaughter(daughter2)
   fP4 = new TLorentzVector(p);
   fX4 = new TLorentzVector(v);
 
+  fRescatterCode  = -1;
   fPolzTheta      = -999; 
   fPolzPhi        = -999;    
   fIsBound        = false;
@@ -101,6 +105,7 @@ fLastDaughter(daughter2)
   fP4 = new TLorentzVector(px,py,pz,E);
   fX4 = new TLorentzVector(x,y,z,t);
 
+  fRescatterCode  = -1;
   fPolzTheta      = -999; 
   fPolzPhi        = -999;   
   fIsBound        = false;
@@ -375,22 +380,19 @@ void GHepParticle::SetRemovalEnergy(double Erm)
 //___________________________________________________________________________
 void GHepParticle::Init(void)
 {
-  fPdgCode = 0;
-  fStatus  = kIStUndefined;
-
+  fPdgCode       = 0;
+  fStatus        = kIStUndefined;
+  fRescatterCode = -1;
   fFirstMother   = -1;
   fLastMother    = -1;
   fFirstDaughter = -1;
   fLastDaughter  = -1;
-
-  fPolzTheta = -999; 
-  fPolzPhi   = -999;    
-
-  fIsBound        = false;
-  fRemovalEnergy  = 0.;
-
-  fP4 = new TLorentzVector(0,0,0,0);
-  fX4 = new TLorentzVector(0,0,0,0);
+  fPolzTheta     = -999; 
+  fPolzPhi       = -999;    
+  fIsBound       = false;
+  fRemovalEnergy = 0.;
+  fP4            = new TLorentzVector(0,0,0,0);
+  fX4            = new TLorentzVector(0,0,0,0);
 }
 //___________________________________________________________________________
 void GHepParticle::CleanUp(void)
@@ -436,6 +438,12 @@ void GHepParticle::Print(ostream & stream) const
   stream << setfill(' ') << setw(6)  << this->Pz()             << " | ";
   stream << setfill(' ') << setw(6)  << this->E()              << " | ";
   stream << setfill(' ') << setw(6)  << this->Mass()           << " | ";
+  
+  int rescat_code = this->RescatterCode();
+  if( rescat_code != -1 ) 
+  {
+     stream << setfill(' ') << setw(5)  << rescat_code << " | ";
+  }
 }
 //___________________________________________________________________________
 void GHepParticle::Print(Option_t * /*opt*/) const
@@ -499,13 +507,13 @@ bool GHepParticle::CompareMomentum(const GHepParticle * p) const
 //___________________________________________________________________________
 void GHepParticle::Copy(const GHepParticle & particle)
 {
-  this->SetStatus  (particle.Status());
-  this->SetPdgCode (particle.Pdg());
-
-  this->SetFirstMother   (particle.FirstMother());
-  this->SetLastMother    (particle.LastMother());
-  this->SetFirstDaughter (particle.FirstDaughter());
-  this->SetLastDaughter  (particle.LastDaughter());
+  this->SetStatus           (particle.Status()          );
+  this->SetPdgCode          (particle.Pdg()             );
+  this->SetRescatterCode    (particle.RescatterCode()   );
+  this->SetFirstMother      (particle.FirstMother()     );
+  this->SetLastMother       (particle.LastMother()      );
+  this->SetFirstDaughter    (particle.FirstDaughter()   );
+  this->SetLastDaughter     (particle.LastDaughter()    );
 
   this->SetMomentum (*particle.P4());
   this->SetPosition (*particle.X4());
