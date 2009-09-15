@@ -1,31 +1,31 @@
 #!/usr/bin/perl
 
-#------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------
 # Submit jobs to generate requested samples for the NuINT09 `Confronting 
 # theory, models & data' session organized by S.Dytman and S.Boyd.
 # Script prepared for the RAL/PPD Tier2 batch farm.
 #
 # Syntax:
-#   shell% perl submit-nuint09_jobs.pl <options>
+#   perl submit-nuint09_jobs.pl <options>
 #
 # Options:
-#    --run           : Comma separated list of run numbers
-#    --version       : GENIE version number
-#   [--nsubruns]     : number of subruns per run
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : production name, default: nuint09_<version>
-#   [--cycle]        : cycle in current production, default 01
-#   [--use-valgrind] : default: off
-#   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
+#  --run           : Comma separated list of run numbers
+#  --version       : GENIE version number
+# [--nsubruns]     : number of subruns per run
+# [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+# [--production]   : production name, default: nuint09_<version>
+# [--cycle]        : cycle in current production, default: 01
+# [--use-valgrind] : default: off
+# [--queue]        : default: prod
+# [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
 # Examples:
-#  shell% perl submit-nuint09_jobs.pl --production nuint09 --cycle 01 --version v2.5.1 --run 1001 --nsubruns 5
-#  shell% perl submit-nuint09_jobs.pl --production nuint09 --cycle 01 --version v2.5.1 --run all  --nsubruns 5
+#  perl submit-nuint09_jobs.pl --production nuint09 --cycle 01 --version v2.5.1 --run 1001 --nsubruns 5
+#  perl submit-nuint09_jobs.pl --production nuint09 --cycle 01 --version v2.5.1 --run all  --nsubruns 5
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
-#------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------
 #
 # SAMPLES:
 #......................................................................
@@ -112,7 +112,7 @@ foreach (@ARGV) {
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }  
   $iarg++;
 }
 die("** Aborting [Undefined benchmark runs #. Use the --run option]")
@@ -127,8 +127,8 @@ $production     = "nuint09\_$genie_version" unless defined $production;
 $cycle          = "01"                      unless defined $cycle;
 $queue          = "prod"                    unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"      unless defined $softw_topdir;
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $time_limit     = "60:00:00";
+$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-t2k-$genie_version.xml";
 $mcseed         = 210921029;
