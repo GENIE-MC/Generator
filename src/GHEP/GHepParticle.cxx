@@ -5,11 +5,15 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - November 18, 2004
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Sep 15, 2009 - CA   
+   Remove redundant IsFake(), IsNucleus() and IsParticle() methods. Removed 
+   the corresponding priv data members. Use pdg::IsPseudoParticle(), 
+   pdg::IsIon() and pdg::IsParticle instead.
 
 */
 //____________________________________________________________________________
@@ -159,18 +163,20 @@ int GHepParticle::Z(void) const
 {
 // Decoding Z from the PDG code
 
-  if(!fIsNucleus) return -1;
+  if(!pdg::IsIon(fPdgCode)) 
+    return -1;
   else
-       return pdg::IonPdgCodeToZ(fPdgCode);
+    return pdg::IonPdgCodeToZ(fPdgCode);
 }
 //___________________________________________________________________________
 int GHepParticle::A(void) const
 {
 // Decoding A from the PDG code
 
-  if(!fIsNucleus) return -1;
+  if(!pdg::IsIon(fPdgCode)) 
+    return -1;
   else
-       return pdg::IonPdgCodeToA(fPdgCode);
+    return pdg::IonPdgCodeToA(fPdgCode);
 }
 //___________________________________________________________________________
 TLorentzVector * GHepParticle::GetP4(void) const 
@@ -211,22 +217,8 @@ TLorentzVector * GHepParticle::GetX4(void) const
 //___________________________________________________________________________
 void GHepParticle::SetPdgCode(int code)
 {
-// Always set PDG code through this method to make sure that the fIsNucleus
-// flag is set.
-
   fPdgCode = code;
   this->AssertIsKnownParticle();
-
-  // GENIE uses the PDG convenion for ions (10LZZZAAAI)]
-  fIsNucleus = pdg::IsIon(code);
-
-  // ROOT's rootino has PDG code=0
-  // GENIE pseudoparticles are in the 2000000000-2000100000 range
-  // Include JETSET's pseudoparticles
-  fIsFake = ( (code == 0) || 
-              (code>2000000000 && code < 2000100000) ||
-              (code==kPdgCluster || code == kPdgString || code == kPdgIndep)
-            );
 }
 //___________________________________________________________________________
 void GHepParticle::SetMomentum(const TLorentzVector & p4)
@@ -383,9 +375,6 @@ void GHepParticle::SetRemovalEnergy(double Erm)
 //___________________________________________________________________________
 void GHepParticle::Init(void)
 {
-  fIsNucleus = false;
-  fIsFake    = true;
-
   fPdgCode = 0;
   fStatus  = kIStUndefined;
 
