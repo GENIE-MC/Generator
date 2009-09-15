@@ -76,7 +76,7 @@ void nuint09_coh1(int isample)
      sig_cohcc = TMath::Max(0., sig_cohcc);
      sig_cohnc = TMath::Max(0., sig_cohnc);
 
-     out_stream << setw(15) << e << setw(15) << sig_cohcc << setw(15) << sig_cohcc << endl;
+     out_stream << setw(15) << e << setw(15) << sig_cohcc << setw(15) << sig_cohnc << endl;
   }
 
   out_stream.close();
