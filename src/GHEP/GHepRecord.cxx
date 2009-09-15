@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 1, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -20,6 +20,8 @@
    When checking for energy / momentum conservation in Print(), use the new
    kIStFinalStateNuclearRemnant status code for nuclear remnants (previously
    marked as kIStStableFinalState).
+ @ Sep 15, 2009 - CA
+   IsNucleus() is no longer available in GHepParticle. Use pdg::IsIon().
 */
 //____________________________________________________________________________
 
@@ -280,7 +282,8 @@ int GHepRecord::TargetNucleusPosition(void) const
   GHepParticle * p = this->Particle(1); // If exists, it will be at slot 1
   if(!p) return -1;
 
-  if(p->IsNucleus() && p->Status()==kIStInitialState) return 1; 
+  int pdgc = p->Pdg();
+  if(pdg::IsIon(pdgc) && p->Status()==kIStInitialState) return 1; 
 
   return -1;
 }
@@ -300,7 +303,8 @@ int GHepRecord::RemnantNucleusPosition(void) const
 
   for(int i=dau1; i<=dau2; i++) {
     GHepParticle * dp = this->Particle(i);
-    if(dp->IsNucleus() && dp->Status()==kIStStableFinalState) return i; 
+    int dpdgc = dp->Pdg();
+    if(pdg::IsIon(dpdgc) && dp->Status()==kIStStableFinalState) return i; 
   }
   return -1;
 }
