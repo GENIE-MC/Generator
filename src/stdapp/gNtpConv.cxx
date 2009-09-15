@@ -301,6 +301,7 @@ void ConvertToGST(void)
   double brPzf [kNPmax];         // Pz       of k^th final state particle in hadronic system @ LAB
   int    brNi          = 0;      // Nu. of particles in 'primary' hadronic system (before intranuclear rescattering)
   int    brPdgi[kNPmax];         // Pdg code of k^th particle in 'primary' hadronic system 
+  int    brResc[kNPmax];         // FSI code of k^th particle in 'primary' hadronic system 
   double brEi  [kNPmax];         // Energy   of k^th particle in 'primary' hadronic system @ LAB
   double brPxi [kNPmax];         // Px       of k^th particle in 'primary' hadronic system @ LAB
   double brPyi [kNPmax];         // Py       of k^th particle in 'primary' hadronic system @ LAB
@@ -391,6 +392,7 @@ void ConvertToGST(void)
   s_tree->Branch("niother",       &brNiOther,       "niother/I"     );
   s_tree->Branch("ni",	         &brNi,	            "ni/I"	    );
   s_tree->Branch("pdgi",          brPdgi,	    "pdgi[ni]/I "   );
+  s_tree->Branch("resc",          brResc,	    "resc[ni]/I "   );
   s_tree->Branch("Ei",	          brEi,	            "Ei[ni]/D"      );
   s_tree->Branch("pxi",	          brPxi,	    "pxi[ni]/D"     );
   s_tree->Branch("pyi",	          brPyi,	    "pyi[ni]/D"     );
@@ -461,16 +463,17 @@ void ConvertToGST(void)
     // clean-up arrays
     //
     for(int j=0; j<kNPmax; j++) {
-       brPdgi[j] = 0;     
-       brEi  [j] = 0;     
-       brPxi [j] = 0;     
-       brPyi [j] = 0;     
-       brPzi [j] = 0;     
-       brPdgf[j] = 0;     
-       brEf  [j] = 0;     
-       brPxf [j] = 0;     
-       brPyf [j] = 0;     
-       brPzf [j] = 0;     
+       brPdgi[j] =  0;     
+       brResc[j] = -1;     
+       brEi  [j] =  0;     
+       brPxi [j] =  0;     
+       brPyi [j] =  0;     
+       brPzi [j] =  0;     
+       brPdgf[j] =  0;     
+       brEf  [j] =  0;     
+       brPxf [j] =  0;     
+       brPyf [j] =  0;     
+       brPzf [j] =  0;     
     }
 
     // Computing event characteristics
@@ -737,6 +740,7 @@ void ConvertToGST(void)
       p = event.Particle(prim_had_syst[j]);
       assert(p);
       brPdgi[j] = p->Pdg();     
+      brResc[j] = p->RescatterCode();     
       brEi  [j] = p->Energy();     
       brPxi [j] = p->Px();     
       brPyi [j] = p->Py();     
@@ -969,6 +973,12 @@ void ConvertToGXML(void)
         output << " <ppolar> " << p->PolzPolarAngle()   << " </ppolar>";
         output << " <pazmth> " << p->PolzAzimuthAngle() << " </pazmth>";
         output << endl;
+      }
+
+      if(p->RescatterCode() != -1) {
+        output << "        ";
+        output << " <rescatter> " << p->RescatterCode()   << " </rescatter>";
+        output << endl;       
       }
 
       output << "     </p>" << endl;
@@ -1249,10 +1259,10 @@ void ConvertToGTracker(void)
       // $ info xsec_event diff_xsec_kinematics weight prob
       // $ info vtxx vtxy vtxz vtxt
       // $ info nparticles
-      // $ info 0 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz
-      // $ info 1 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz
+      // $ info 0 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz rescatter_code
+      // $ info 1 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz rescatter_code
       // ... ... ...
-      // $ info k pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz
+      // $ info k pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz rescatter_code
       // ... ... ...
       // $ info jnubeam_parent_pdg_code jnubeam_parent_decay_mode
       // $ info jnubeam_parent_decay_px jnubeam_parent_decay_py jnubeam_parent_decay_pz jnubeam_parent_decay_E
@@ -1317,6 +1327,8 @@ void ConvertToGTracker(void)
         } else {
             output << "0. 0. 0.";
         }
+        output << " ";
+        output << p->RescatterCode();
         output << endl;
         iparticle++;
       }
@@ -1399,6 +1411,7 @@ void ConvertToGRooTracker(void)
   // stdhep-like particle array:
   int         brStdHepPdg   [kNPmax];     // Pdg codes (& generator specific codes for pseudoparticles)
   int         brStdHepStatus[kNPmax];     // Generator-specific status code
+  int         brStdHepRescat[kNPmax];     // Hadron transport model - specific rescattering code
   double      brStdHepX4    [kNPmax][4];  // 4-x (x, y, z, t) of particle in hit nucleus frame (fm)
   double      brStdHepP4    [kNPmax][4];  // 4-p (px,py,pz,E) of particle in LAB frame (GeV)
   double      brStdHepPolz  [kNPmax][3];  // Polarization vector
@@ -1525,6 +1538,7 @@ void ConvertToGRooTracker(void)
   rootracker_tree->Branch("StdHepN",         &brStdHepN,         "StdHepN/I");              
   rootracker_tree->Branch("StdHepPdg",        brStdHepPdg,       "StdHepPdg[StdHepN]/I");  
   rootracker_tree->Branch("StdHepStatus",     brStdHepStatus,    "StdHepStatus[StdHepN]/I"); 
+  rootracker_tree->Branch("StdHepRescat",     brStdHepRescat,    "StdHepRescat[StdHepN]/I"); 
   rootracker_tree->Branch("StdHepX4",         brStdHepX4,        "StdHepX4[StdHepN][4]/D"); 
   rootracker_tree->Branch("StdHepP4",         brStdHepP4,        "StdHepP4[StdHepN][4]/D"); 
   rootracker_tree->Branch("StdHepPolz",       brStdHepPolz,      "StdHepPolz[StdHepN][3]/D"); 
@@ -1691,8 +1705,9 @@ void ConvertToGRooTracker(void)
     }
     brStdHepN = event.GetEntries(); 
     for(int i=0; i<kNPmax; i++) {
-       brStdHepPdg   [i] = 0;  
-       brStdHepStatus[i] = 0;  
+       brStdHepPdg   [i] =  0;  
+       brStdHepStatus[i] = -1;  
+       brStdHepRescat[i] = -1;  
        for(int k=0; k<4; k++) {
          brStdHepX4 [i][k] = 0;  
          brStdHepP4 [i][k] = 0;  
@@ -1741,6 +1756,7 @@ void ConvertToGRooTracker(void)
         assert(p);
         brStdHepPdg   [iparticle] = p->Pdg(); 
         brStdHepStatus[iparticle] = (int) p->Status(); 
+        brStdHepRescat[iparticle] = p->RescatterCode(); 
         brStdHepX4    [iparticle][0] = p->X4()->X(); 
         brStdHepX4    [iparticle][1] = p->X4()->Y(); 
         brStdHepX4    [iparticle][2] = p->X4()->Z(); 
