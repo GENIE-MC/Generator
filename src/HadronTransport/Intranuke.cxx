@@ -28,6 +28,10 @@
  @ Jan 28, 2009 - CA
    The nuclear remnant is now marked as a kIStFinalStateNuclearRemnant, not
    as a kIStStableFinalState.
+ @ Sep 15, 2009 - CA
+   IsFake() and IsNucleus() are no longer available in GHepParticle.
+   Use pdg::IsPseudoParticle() and pdg::IsIon().  
+
 */
 //____________________________________________________________________________
 
@@ -144,15 +148,16 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
   GHepParticle * p = 0;
   while( (p = (GHepParticle *) piter.Next()) )
   {
-    if(p->IsFake()   ) continue;
-    if(p->IsNucleus()) continue;
+    if(pdg::IsPseudoParticle(p->Pdg())) continue;
+    if(pdg::IsIon           (p->Pdg())) continue;
+
     p->SetPosition(vtx.x(), vtx.y(), vtx.z(), 0.);
   }
 }
 //___________________________________________________________________________
 void Intranuke::SetNuclearRadius(const GHepParticle * p) const
 {
-  assert(p && p->IsNucleus());
+  assert(p && pdg::IsIon(p->Pdg()));
   double A = p->A();
   fNuclRadius = fR0 * TMath::Power(A, 1./3.);
 
@@ -226,7 +231,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
      assert(nucltgt);
      for(int i=nucltgt->FirstDaughter(); i<=nucltgt->LastDaughter(); i++) {
        if(i<0) continue;
-       if(evrec->Particle(i)->IsNucleus()) {
+       if(pdg::IsIon(evrec->Particle(i)->Pdg())) {
           fRemnA = evrec->Particle(i)->A();
           fRemnZ = evrec->Particle(i)->Z();
           iremn  = i;

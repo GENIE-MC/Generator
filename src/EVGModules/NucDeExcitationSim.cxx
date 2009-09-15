@@ -4,8 +4,8 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
-         March 05, 2008
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -13,6 +13,8 @@
  @ March 05, 2008 - CA
    This event generation module was added in version 2.3.1. The initial
    implementation handles 16O only.
+ @ Sep 15, 2009 - CA
+   IsNucleus() is no longer available in GHepParticle. Use pdg::IsIon().
 */
 //____________________________________________________________________________
 
@@ -331,7 +333,7 @@ void NucDeExcitationSim::AddPhoton(
   for(int i = target->FirstDaughter(); i <= target->LastDaughter(); i++) {
     remnant  = evrec->Particle(i);
     iremnant = i;
-    if(remnant->IsNucleus()) break;
+    if(pdg::IsIon(remnant->Pdg())) break;
   }
 
   TLorentzVector x4(0,0,0,0);

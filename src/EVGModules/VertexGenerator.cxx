@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -16,6 +16,10 @@
  @ Dec 01, 2007 - CA
    For COH and ve- interactions setting the vertex on the nuclear boundary
    rather than inside the nucleus.
+ @ Sep 15, 2009 - CA
+   IsFake() and IsNucleus() are no longer available in GHepParticle. 
+   Use pdg::IsPseudoParticle() and pdg::IsIon().
+
 */
 //____________________________________________________________________________
 
@@ -32,6 +36,7 @@
 #include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+#include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
 
@@ -178,8 +183,9 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
   GHepParticle * p = 0;
   while( (p = (GHepParticle *) piter.Next()) )
   {
-    if(p->IsFake()   ) continue;
-    if(p->IsNucleus()) continue;
+    if(pdg::IsPseudoParticle(p->Pdg())) continue;
+    if(pdg::IsIon           (p->Pdg())) continue;
+
     LOG("Vtx", pNOTICE) << "Setting vertex position for: " << p->Name();
     p->SetPosition(vtx.x(), vtx.y(), vtx.z(), 0.);
   }

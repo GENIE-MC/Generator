@@ -598,7 +598,7 @@ void ConvertToGST(void)
       // don't count final state lepton as part hadronic system 
       //if(!is_coh && event.Particle(ip)->FirstMother()==0) continue;
       if(event.Particle(ip)->FirstMother()==0) continue;
-      if(p->IsFake()) continue;
+      if(pdg::IsPseudoParticle(p->Pdg())) continue;
       int pdgc = p->Pdg();
       int ist  = p->Status();
       if(ist==kIStStableFinalState) {
@@ -644,7 +644,7 @@ void ConvertToGST(void)
     vector<int> prim_had_syst;
     if(study_hadsyst) {
       // if coherent or free nucleon target set primary states equal to final states
-      if(!target->IsNucleus() || (is_coh)) {
+      if(!pdg::IsIon(target->Pdg()) || (is_coh)) {
          vector<int>::const_iterator hiter = final_had_syst.begin();
          for( ; hiter != final_had_syst.end(); ++hiter) {
            prim_had_syst.push_back(*hiter);
@@ -930,11 +930,10 @@ void ConvertToGXML(void)
     TIter event_iter(&event);
     while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
       string type = "U";
-      if(p->IsFake()) type = "F";
-      else {
-        if(p->IsParticle()) type = "P";
-        if(p->IsNucleus() ) type = "N";
-      }
+      if      (pdg::IsPseudoParticle(p->Pdg())) type = "F";
+      else if (pdg::IsParticle      (p->Pdg())) type = "P";
+      else if (pdg::IsIon           (p->Pdg())) type = "N";
+      
       output << "     <p idx=\"" << i << "\" type=\"" << type << "\">" << endl;
       output << "        ";
       output << " <pdg> " << p->Pdg()       << " </pdg>";
@@ -1092,11 +1091,11 @@ void ConvertToGTracker(void)
     {
        iparticle++;
 
-       // Neglect all GENIE pseudo-particles
-       if(p->IsFake()) continue;
-
        int          ghep_pdgc   = p->Pdg();
        GHepStatus_t ghep_ist    = (GHepStatus_t) p->Status();
+
+       // Neglect all GENIE pseudo-particles
+       if(pdg::IsPseudoParticle(ghep_pdgc)) continue;
 
        //  
        // Keep 'initial state', 'nucleon target', 'hadron in the nucleus' and 'final state' particles.
@@ -1136,7 +1135,7 @@ void ConvertToGTracker(void)
 
        // Apparently SKDETSIM chokes with O16 - Neglect the nuclear target in this case
        //
-       if (gOptOutFileFormat == kConvFmt_t2k_tracker && p->IsNucleus()) continue;
+       if (gOptOutFileFormat == kConvFmt_t2k_tracker && pdg::IsIon(p->Pdg())) continue;
 
        tracks.push_back(iparticle);
     }
@@ -1181,7 +1180,7 @@ void ConvertToGTracker(void)
          // For nuclei GENIE follows the PDG-convention: 10LZZZAAAI
          // NUANCE is using: ZZZAAA
          int pdgc = ghep_pdgc;
-         if ( p->IsNucleus() ) {
+         if ( pdg::IsIon(p->Pdg()) ) {
            int Z = pdg::IonPdgCodeToZ(ghep_pdgc);
            int A = pdg::IonPdgCodeToA(ghep_pdgc);
            pdgc = 1000*Z + A;
