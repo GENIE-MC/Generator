@@ -23,11 +23,15 @@ namespace genie {
 
 namespace pdg
 {
-  int  IonPdgCodeToZ   (int ion_pdgc);
-  int  IonPdgCodeToA   (int ion_pdgc);
+  bool IsPseudoParticle(int pdgc);
+
+  int  IonPdgCodeToZ   (int pdgc);
+  int  IonPdgCodeToA   (int pdgc);
   int  IonPdgCode      (int A, int Z);
   int  IonPdgCode      (int A, int Z, int L, int I);
   bool IsIon           (int pdgc);
+
+  bool IsParticle      (int pdgc); 
   
   bool IsNeutrino      (int pdgc);
   bool IsAntiNeutrino  (int pdgc);
