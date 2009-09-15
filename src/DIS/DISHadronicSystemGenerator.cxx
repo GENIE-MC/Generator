@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -21,6 +21,8 @@
    performed further upstream in the processing chain.  
  @ Mar 03, 2009 - CA
    Moved into the new DIS package from its previous location (EVGModules).
+ @ Sep 15, 2009 - CA
+   IsNucleus() is no longer available in GHepParticle. Use pdg::IsIon().
 
 */
 //____________________________________________________________________________
@@ -204,7 +206,7 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
   }
   // Compute the nuclear radius & how far away a particle is being tracked by
   // the intranuclear hadron transport
-  assert(nucltgt && nucltgt->IsNucleus());
+  assert(nucltgt && pdg::IsIon(nucltgt->Pdg()));
   double A = nucltgt->A();
   double R = fR0 * TMath::Power(A, 1./3.);
   R *= TMath::Max(fNR,1.); // particle is tracked much further outside the nuclear boundary as the density is non-zero

@@ -4,12 +4,14 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, STFC, Rutherford Lab
-         September 14, 2006
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Sep 15, 2009 - CA
+   IsFake() is no longer available in GHepParticle.Use pdg::IsPseudoParticle() 
 
 */
 //____________________________________________________________________________
@@ -26,6 +28,7 @@
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
+#include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
 
@@ -109,7 +112,7 @@ void HadronTransporter::GenerateVertex(GHepRecord * evrec) const
   GHepParticle * p = 0;
   while( (p = (GHepParticle *) piter.Next()) )
   {
-    if(p->IsFake()) continue;
+    if(pdg::IsPseudoParticle(p->Pdg())) continue;
     p->SetPosition(vtx.x(), vtx.y(), vtx.z(), 0.);
   }
 }
