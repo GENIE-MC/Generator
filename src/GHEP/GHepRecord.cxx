@@ -22,6 +22,7 @@
    marked as kIStStableFinalState).
  @ Sep 15, 2009 - CA
    IsNucleus() is no longer available in GHepParticle. Use pdg::IsIon().
+   Print-out the particle 'rescattering code' (if it was set).
 */
 //____________________________________________________________________________
 
@@ -955,7 +956,7 @@ void GHepRecord::Print(ostream & stream) const
      }
 
      if (p->RescatterCode() != -1) {
-       stream << "Resc = " << p->RescatterCode();
+       stream << "FSI = " << p->RescatterCode();
      }
 
      // plot particle position if requested
