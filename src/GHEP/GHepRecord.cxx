@@ -954,6 +954,10 @@ void GHepRecord::Print(ostream & stream) const
               << "," << polarization.z() << ")";
      }
 
+     if (p->RescatterCode() != -1) {
+       stream << "Resc = " << p->RescatterCode();
+     }
+
      // plot particle position if requested
      if(showpos) {
        stream << "\n| ";
