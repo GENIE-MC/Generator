@@ -53,6 +53,7 @@ public :
   // Basic properties
   int           Pdg            (void) const { return  fPdgCode;            }
   GHepStatus_t  Status         (void) const { return  fStatus;             }
+  int           RescatterCode  (void) const { return  fRescatterCode;      }
   int           FirstMother    (void) const { return  fFirstMother;        }
   int           LastMother     (void) const { return  fLastMother;         }
   int           FirstDaughter  (void) const { return  fFirstDaughter;      }
@@ -109,9 +110,14 @@ public :
   bool   PolzIsSet        (void) const;
   void   GetPolarization  (TVector3 & polz);
 
-  // Set pdg code / status / parent-children links
-  void SetPdgCode        (int c);
-  void SetStatus         (GHepStatus_t s) { fStatus        = s; }
+  // Set pdg code and status codes
+  void SetPdgCode  (int c);
+  void SetStatus   (GHepStatus_t s) { fStatus = s; }
+
+  // Set the rescattering code
+  void SetRescatterCode(int code) { fRescatterCode = code; }
+
+  // Set the mother/daughter links
   void SetFirstMother    (int m)          { fFirstMother   = m; }
   void SetLastMother     (int m)          { fLastMother    = m; }
   void SetFirstDaughter  (int d)          { fFirstDaughter = d; }
@@ -154,18 +160,19 @@ private:
   void Init(void);
   void AssertIsKnownParticle(void) const;
 
-  bool             fIsBound;        ///< 'is it a bound particle?' flag
   int              fPdgCode;        ///< particle PDG code
   GHepStatus_t     fStatus;         ///< particle status
+  int              fRescatterCode;  ///< rescattering code
   int              fFirstMother;    ///< first mother idx
   int              fLastMother;     ///< last mother idx
   int              fFirstDaughter;  ///< first daughter idx
   int              fLastDaughter;   ///< last daughter idx
   TLorentzVector * fP4;             ///< momentum 4-vector (GeV)
   TLorentzVector * fX4;             ///< position 4-vector (in the target nucleus coordinate system / x,y,z in fm / t=0)
-  double           fRemovalEnergy;  ///< removal energy for bound nucleons (GeV)
   double           fPolzTheta;      ///< polar polarization angle (rad)
   double           fPolzPhi;        ///< azimuthal polarization angle (rad)
+  double           fRemovalEnergy;  ///< removal energy for bound nucleons (GeV)
+  bool             fIsBound;        ///< 'is it a bound particle?' flag
 
 ClassDef(GHepParticle, 2)
 
