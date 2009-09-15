@@ -31,7 +31,9 @@
  @ Sep 15, 2009 - CA
    IsFake() and IsNucleus() are no longer available in GHepParticle.
    Use pdg::IsPseudoParticle() and pdg::IsIon().  
-
+ @ Sep 15, 2009 - CA
+   Store the rescattering code (hadron fate) in the GHEP record so as to
+   facilitate event reweighting.
 */
 //____________________________________________________________________________
 
@@ -543,6 +545,10 @@ void Intranuke::SimHadroProcHA(GHepRecord* ev, GHepParticle* p) const
 
   // select a fate for the input particle
   INukeFateHA_t fate = this->HadronFateHA(p);
+
+  // store the fate
+  ev->Particle(p->FirstMother())->SetRescatterCode((int)fate);
+
   if(fate == kIHAFtUndefined) {
      LOG("Intranuke", pERROR) << "** Couldn't select a fate";
      p->SetStatus(kIStStableFinalState);
@@ -553,7 +559,7 @@ void Intranuke::SimHadroProcHA(GHepRecord* ev, GHepParticle* p) const
     << "Selected " << p->Name() << " fate: " << INukeHadroFates::AsString(fate);
 
   // get the reaction products for the selected fate
-  if (fate == kIHAFtCEx || fate == kIHAFtElas  || fate == kIHAFtInelas) {
+   if (fate == kIHAFtCEx || fate == kIHAFtElas  || fate == kIHAFtInelas) {
    if (is_pion)   this->PiSlam(ev,p,fate);
    if (is_baryon) this->PnSlam(ev,p,fate);
   }
