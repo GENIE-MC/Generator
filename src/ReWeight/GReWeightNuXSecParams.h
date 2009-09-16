@@ -11,7 +11,7 @@
           Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
-\created  Sep 1, 2009
+\created  Sep 10, 2009
 
 \cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -37,27 +37,30 @@ namespace rew   {
    GReWeightNuXSecParams();
   ~GReWeightNuXSecParams();
 
-  double DefValue   (GSyst_t) const; ///< default value of a physics parameter
-  double CurValue   (GSyst_t) const; ///< current value of a physics parameter
-  double CurTwkDial (GSyst_t) const; ///< current phys param tweaking dial value
-  bool   IsIncluded (GSyst_t) const; ///< is included?
-  bool   IsTweaked  (GSyst_t) const; ///< is included & tweaked to non-default value?
-  bool   IsTweaked  (void)    const; ///< is any parameter tweaked?
-
-  void Reset          (GSyst_t);     ///< set cur=def, twk_dial=0, tweaked=false
-  void SetDefValue    (GSyst_t syst, double value);
-  void SetCurValue    (GSyst_t syst, double value);
-  void SetCurTwkDial  (GSyst_t syst, double value);
-  void SetTweakedFlag (GSyst_t syst, bool   value);
+  double DefValue       (GSyst_t s) const;       ///< default value of a physics parameter
+  double CurValue       (GSyst_t s) const;       ///< current value of a physics parameter
+  double CurTwkDial     (GSyst_t s) const;       ///< current phys param tweaking dial value
+  bool   IsIncluded     (GSyst_t s) const;       ///< is included?
+  bool   IsTweaked      (GSyst_t s) const;       ///< is included & tweaked to non-default value?
+  bool   IsTweaked      (void)      const;       ///< is any parameter tweaked?
+  double ChisqPenalty   (void)      const;       ///< chi^2_{penalty} for the current parameter shifts
+  void   ReconfigGenie  (void)      const;       ///< propagate the tweaked physics parameters to GENIE
+  void   LoadDefaults   (void);                  ///< load default params from GENIE
+  void   ResetAll       (void);                  ///< 
+  void   Reset          (GSyst_t);               ///< set cur=def, twk_dial=0, tweaked=false
+  void   SetDefValue    (GSyst_t s, double val); ///<
+  void   SetCurValue    (GSyst_t s, double val); ///<
+  void   SetCurTwkDial  (GSyst_t s, double val); ///<
+  void   SetTweakedFlag (GSyst_t s, bool   val); ///<
       
  private:
 
    void Init(void);
 
-   map<GSyst_t, double> fDefParams;
-   map<GSyst_t, double> fCurParams;
-   map<GSyst_t, double> fCurTwkDial;
-   map<GSyst_t, bool>   fIsTweaked;
+   map<GSyst_t, double> fDefParams;  ///< default values for all physics params supported by ReWeight
+   map<GSyst_t, double> fCurParams;  ///< current values for all physics params included by the user
+   map<GSyst_t, double> fCurTwkDial; ///< corresponding tweaking dial, current = default * (1 + dial * fractional_err)
+   map<GSyst_t, bool>   fIsTweaked;  ///<
  };
 
 } // rew   namespace
