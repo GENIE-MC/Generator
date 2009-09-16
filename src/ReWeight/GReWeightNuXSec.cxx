@@ -28,7 +28,6 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "ReWeight/GReWeightNuXSec.h"
-#include "ReWeight/GSystUncertainty.h"
 #include "ReWeight/GSystSet.h"
 
 using namespace genie;
@@ -53,19 +52,7 @@ void GReWeightNuXSec::Init(void)
 //_______________________________________________________________________________________
 void GReWeightNuXSec::SetSystematic(GSyst_t syst, double twk_dial)
 {
-  GSystUncertainty * syst_uncertainties = GSystUncertainty::Instance();
-  double sigma = syst_uncertainties->OneSigmaErr(syst);
-
-  double def_param = fXSecRwParams.DefValue(syst);
-  double cur_param = def_param * (1 + twk_dial * sigma);
-
-  fXSecRwParams.SetCurValue   (syst, cur_param);
   fXSecRwParams.SetCurTwkDial (syst, twk_dial );
-
-  double eta  = 1E-07;
-  if(TMath::Abs(twk_dial) > eta) {
-     fXSecRwParams.SetTweakedFlag (syst, true);
-  }
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSec::Reset(void)

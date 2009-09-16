@@ -48,19 +48,19 @@ namespace rew   {
   void   LoadDefaults   (void);                  ///< load default params from GENIE
   void   ResetAll       (void);                  ///< 
   void   Reset          (GSyst_t);               ///< set cur=def, twk_dial=0, tweaked=false
-  void   SetDefValue    (GSyst_t s, double val); ///<
-  void   SetCurValue    (GSyst_t s, double val); ///<
   void   SetCurTwkDial  (GSyst_t s, double val); ///<
-  void   SetTweakedFlag (GSyst_t s, bool   val); ///<
       
  private:
 
-   void Init(void);
+  void   SetDefValue    (GSyst_t s, double val); ///<
+  void   SetCurValue    (GSyst_t s, double val); ///<
+  void   SetTweakedFlag (GSyst_t s, bool   val); ///<
+  void   Init           (void);                  ///<
 
-   map<GSyst_t, double> fDefParams;  ///< default values for all physics params supported by ReWeight
-   map<GSyst_t, double> fCurParams;  ///< current values for all physics params included by the user
-   map<GSyst_t, double> fCurTwkDial; ///< corresponding tweaking dial, current = default * (1 + dial * fractional_err)
-   map<GSyst_t, bool>   fIsTweaked;  ///<
+  map<GSyst_t, double> fDefParams;  ///< default values for all physics params supported by ReWeight
+  map<GSyst_t, double> fCurParams;  ///< current values for all physics params included by the user
+  map<GSyst_t, double> fCurTwkDial; ///< corresponding tweaking dial, current = default * (1 + dial * fractional_err)
+  map<GSyst_t, bool>   fIsTweaked;  ///<
  };
 
 } // rew   namespace
