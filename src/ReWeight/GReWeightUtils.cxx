@@ -1,4 +1,4 @@
-//____________________________________________________________________________
+//____________________________________________________________________________ 
 /*
  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
@@ -24,6 +24,7 @@
 
 #include "Conventions/Units.h"
 #include "HadronTransport/INukeHadroData.h"
+#include "HadronTransport/INukeUtils.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 #include "ReWeight/GReWeightUtils.h"
@@ -31,15 +32,33 @@
 using namespace genie;
 
 //____________________________________________________________________________
-double genie::utils::rew::WeightTwkMeanFreePath(
-   double prob_def, double prob_twk, bool interacted)
+double genie::utils::rew::MeanFreePathWeight(
+  int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
+  double mfp_scale_factor, bool interacted,
+  double nRpi, double nRnuc, double NR, double R0)
+{
+   // Get the nominal survival probability
+   double pdef = utils::intranuke::ProbSurvival(pdgc,x4,p4,A,1.);
+   if(pdef<=0) return 1.;
+
+   // Get the survival probability for the tweaked mean free path
+   double ptwk = utils::intranuke::ProbSurvival(pdgc,x4,p4,A,mfp_scale_factor);
+   if(ptwk<=0) return 1.;
+
+   // Calculate weight
+   double w_mfp = utils::rew::MeanFreePathWeight(pdef, ptwk, interacted);
+   return w_mfp;
+}
+//____________________________________________________________________________
+double genie::utils::rew::MeanFreePathWeight(
+   double pdef, double ptwk, bool interacted)
 {
 // Returns a weight to account for a change in hadron mean free path inside
 // insidea nuclear medium.
 //
 // Inputs:
-//   prob_def   : nominal survival probability
-//   prob_twk   : survival probability for the tweaked mean free path
+//   pdef : nominal survival probability
+//   ptwk : survival probability for the tweaked mean free path
 //   interacted : flag indicating whether the hadron interacted or escaped
 //
 // See utils::intranuke::ProbSurvival() for the calculation of probabilities.
@@ -47,9 +66,9 @@ double genie::utils::rew::WeightTwkMeanFreePath(
   double w_mfp = 1.;
 
   if(interacted) {
-     w_mfp = (1-prob_def>0) ?  (1-prob_twk)  /   (1-prob_def)  : 1;
+     w_mfp = (1-pdef>0) ?  (1-ptwk)  /   (1-pdef)  : 1;
   } else {
-     w_mfp = (prob_def>0) ? prob_twk / prob_def : 1;
+     w_mfp = (pdef>0) ? ptwk / pdef : 1;
   }
   w_mfp = TMath::Max(0.,w_mfp);
 
