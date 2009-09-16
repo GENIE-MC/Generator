@@ -1,3 +1,4 @@
+
 //____________________________________________________________________________
 /*!
 
@@ -29,7 +30,14 @@ namespace utils {
 namespace rew   {
 
   //! Returns a weight to account for a change in hadron mean free path
-  double WeightTwkMeanFreePath(double prob_def, double prob_twk, bool interacted);
+
+  double MeanFreePathWeight(
+    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
+    double mfp_scale_factor, bool interacted,
+    double nRpi=0.5, double nRnuc=1.0, double NR=3, double R0=1.4);
+
+  double MeanFreePathWeight(
+      double prob_def, double prob_twk, bool interacted);
 
   //!
   double FateXSec(genie::rew::GSyst_t syst, double kinE);
