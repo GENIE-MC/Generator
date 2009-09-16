@@ -13,7 +13,7 @@
  @ Oct 01, 2008 - CA
    Added Is2NucleonCuster(pdg)
  @ Sep 15, 2009 - CA
-   Added IsPseudoParticle(), IsParticle()
+   Added IsPseudoParticle(), IsParticle(), IsPion(), IsNucleon()
 */
 //____________________________________________________________________________
 
@@ -262,6 +262,11 @@ bool genie::pdg::IsAntiCQuark(int pdgc)
   return (pdgc == kPdgAntiCQuark);
 }
 //____________________________________________________________________________
+bool genie::pdg::IsPion(int pdgc)
+{
+  return (pdgc == kPdgPiP || pdgc == kPdgPi0 || pdgc == kPdgPiM);
+}
+//____________________________________________________________________________
 bool genie::pdg::IsProton(int pdgc)
 {
   return (pdgc == kPdgProton);
@@ -270,6 +275,11 @@ bool genie::pdg::IsProton(int pdgc)
 bool genie::pdg::IsNeutron(int pdgc)
 {
   return (pdgc == kPdgNeutron);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsNucleon(int pdgc)
+{
+  return (pdgc == kPdgNeutron || pdgc == kPdgProton);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNeutronOrProton(int pdgc)
