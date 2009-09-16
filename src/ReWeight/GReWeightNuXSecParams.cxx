@@ -24,8 +24,10 @@
 
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/Controls.h"
 #include "Registry/Registry.h"
 #include "ReWeight/GReWeightNuXSecParams.h"
+#include "ReWeight/GSystUncertainty.h"
 
 using namespace genie;
 using namespace genie::rew;
@@ -230,7 +232,23 @@ void GReWeightNuXSecParams::SetCurValue(GSyst_t syst, double value)
 //____________________________________________________________________________
 void GReWeightNuXSecParams::SetCurTwkDial(GSyst_t syst, double value)
 {
+  // check size of tweaking dial
+  if(TMath::Abs(value) < controls::kASmallNum) return;
+
+  // update tweaking dial
   fCurTwkDial.insert( map<GSyst_t, double>::value_type(syst, value) );     
+
+  // set "tweaked" flag
+  this->SetTweakedFlag (syst, true);
+
+  // update current value of corresponding physics parameter
+  GSystUncertainty * syst_uncertainties = GSystUncertainty::Instance();
+  double sigma = syst_uncertainties->OneSigmaErr(syst);
+          
+  double def_param = this->DefValue(syst);
+  double cur_param = def_param * (1 + value * sigma);
+          
+  this->SetCurValue(syst, cur_param);
 }
 //____________________________________________________________________________
 void GReWeightNuXSecParams::SetTweakedFlag(GSyst_t syst, bool value)
