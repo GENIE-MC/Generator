@@ -1,14 +1,17 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::rew::GReWeightINukeHelper
+\class   genie::rew::GReWeightINukeParams
 
 \brief   Helper class for cross section model reweighting
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
-\created October 22, 2005
+         Jim Dobson <J.Dobson07 \at imperial.ac.uk>
+         Imperial College London
+
+\created Sep 10, 2009
 
 */
 //____________________________________________________________________________
