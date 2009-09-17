@@ -57,13 +57,13 @@ void GReWeightNuXSec::SetSystematic(GSyst_t syst, double twk_dial)
 //_______________________________________________________________________________________
 void GReWeightNuXSec::Reset(void)
 {
-  fXSecRwParams.ResetAll();
-  fXSecRwParams.ReconfigGenie();
+  fXSecRwParams.Reset();
+  fXSecRwParams.Reconfigure();
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSec::Reconfigure(void)
 {
-  fXSecRwParams.ReconfigGenie();
+  fXSecRwParams.Reconfigure();
 }
 //_______________________________________________________________________________________
 double GReWeightNuXSec::CalcWeight(const genie::EventRecord & event) 

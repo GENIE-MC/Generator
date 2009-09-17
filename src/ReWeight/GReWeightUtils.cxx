@@ -24,12 +24,16 @@
 
 #include "Conventions/Units.h"
 #include "HadronTransport/INukeHadroData.h"
+#include "HadronTransport/INukeHadroFates.h"
 #include "HadronTransport/INukeUtils.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
+#include "PDG/PDGUtils.h"
+#include "PDG/PDGCodes.h"
 #include "ReWeight/GReWeightUtils.h"
 
 using namespace genie;
+using namespace genie::rew;
 
 //____________________________________________________________________________
 double genie::utils::rew::MeanFreePathWeight(
@@ -51,7 +55,7 @@ double genie::utils::rew::MeanFreePathWeight(
 }
 //____________________________________________________________________________
 double genie::utils::rew::MeanFreePathWeight(
-   double pdef, double ptwk, bool interacted)
+       double pdef, double ptwk, bool interacted)
 {
 // Returns a weight to account for a change in hadron mean free path inside
 // insidea nuclear medium.
@@ -75,9 +79,10 @@ double genie::utils::rew::MeanFreePathWeight(
   return w_mfp;
 }
 //____________________________________________________________________________
-double genie::utils::rew::FateXSec(genie::rew::GSyst_t syst, double kinE)
+double genie::utils::rew::FateFraction(
+   genie::rew::GSyst_t syst, double kinE, double frac_scale_factor)
 {
-  double fate_xsec = 0.0;
+  double fate_frac = 0.0;
       
   INukeHadroData * hd = INukeHadroData::Instance();
 
@@ -94,43 +99,39 @@ double genie::utils::rew::FateXSec(genie::rew::GSyst_t syst, double kinE)
 
     case (genie::rew::kSystINuke_CExTwk_pi) :
     {
-      fate_xsec = hd->XSecPipA_CEx()->Evaluate(ke);
+      fate_frac = hd->Frac(kPdgPiP, kIHAFtCEx, ke);
     }
     break;
 
     case (genie::rew::kSystINuke_ElTwk_pi) :
     {
-      fate_xsec = hd->XSecPipA_Elas()->Evaluate(ke);
+      fate_frac = hd->Frac(kPdgPiP, kIHAFtElas, ke);
     }
     break;
 
     case (genie::rew::kSystINuke_InelTwk_pi) :
     {
-      fate_xsec = hd->XSecPipA_Inel()-> Evaluate(ke);
+      fate_frac = hd->Frac(kPdgPiP, kIHAFtInelas, ke);
     }
     break;
 
     case (genie::rew::kSystINuke_AbsTwk_pi) :
-    {   
-      double abs_pion_np   = hd->XSecPipA_NP  ()->Evaluate(ke);
-      double abs_pion_pp   = hd->XSecPipA_PP  ()->Evaluate(ke);
-      double abs_pion_npp  = hd->XSecPipA_NPP ()->Evaluate(ke);
-      double abs_pion_nnp  = hd->XSecPipA_NNP ()->Evaluate(ke);
-      double abs_pion_nnpp = hd->XSecPipA_NNPP()->Evaluate(ke);
-
-      double abs_pion  = abs_pion_np  + 
-                         abs_pion_pp  + 
-                         abs_pion_npp + 
-                         abs_pion_nnp + 
-                         abs_pion_nnpp;
-
-      fate_xsec = abs_pion;
+    {  
+      fate_frac = 0.; 
+      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsNP,   ke);
+      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsPP,   ke);
+      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsNPP,  ke);
+      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsNNP,  ke);
+      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbs2N2P, ke);
+      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbs2N3P, ke);
     }
     break;
 
     case (genie::rew::kSystINuke_PiProdTwk_pi) :
     {
-      fate_xsec = hd->XSecPipA_NPipPi0()->Evaluate(ke);
+      fate_frac = 0.; 
+      fate_frac += hd->Frac(kPdgPiP, kIHAFtNPip,    ke);
+      fate_frac += hd->Frac(kPdgPiP, kIHAFtNPipPi0, ke);
     }
     break;
  
@@ -140,64 +141,55 @@ double genie::utils::rew::FateXSec(genie::rew::GSyst_t syst, double kinE)
 
     case (genie::rew::kSystINuke_CExTwk_N) :
     {
-      fate_xsec = hd->XSecPA_CEx()->Evaluate(ke);
+      fate_frac = hd->Frac(kPdgProton, kIHAFtCEx, ke);
     }
     break;
 
     case (genie::rew::kSystINuke_ElTwk_N) :
     {
-      fate_xsec = hd->XSecPA_Elas()->Evaluate(ke);
+      fate_frac = hd->Frac(kPdgProton, kIHAFtElas, ke);
     }
     break;
 
     case (genie::rew::kSystINuke_InelTwk_N) :
     {
-      fate_xsec = hd->XSecPA_Inel()->Evaluate(ke);
+      fate_frac = hd->Frac(kPdgProton, kIHAFtInelas, ke);
     }
     break;
 
     case (genie::rew::kSystINuke_AbsTwk_N) :
     {
-      double abs_nucl_np   = hd->XSecPA_NP   ()->Evaluate(ke);
-      double abs_nucl_pp   = hd->XSecPA_PP   ()->Evaluate(ke);
-      double abs_nucl_npp  = hd->XSecPA_NPP  ()->Evaluate(ke);
-      double abs_nucl_nnp  = hd->XSecPA_NNP  ()->Evaluate(ke);
-      double abs_nucl_nnppp= hd->XSecPA_NNPPP()->Evaluate(ke);
-
-      double abs_nucl = abs_nucl_np  + 
-                        abs_nucl_pp  + 
-                        abs_nucl_npp + 
-                        abs_nucl_nnp + 
-                        abs_nucl_nnppp;
-
-      fate_xsec = abs_nucl;
+      fate_frac = 0.; 
+      fate_frac += hd->Frac(kPdgProton, kIHAFtAbsNP,   ke);
+      fate_frac += hd->Frac(kPdgProton, kIHAFtAbsPP,   ke);
+      fate_frac += hd->Frac(kPdgProton, kIHAFtAbsNPP,  ke);
+      fate_frac += hd->Frac(kPdgProton, kIHAFtAbsNNP,  ke);
+      fate_frac += hd->Frac(kPdgProton, kIHAFtAbs2N2P, ke);
+      fate_frac += hd->Frac(kPdgProton, kIHAFtAbs2N3P, ke);
     }
     break;
 
     case (genie::rew::kSystINuke_PiProdTwk_N) :
     {
-      double piprod_NPip    = hd->XSecPA_NPip   ()->Evaluate(ke);
-      double piprod_NPipPi0 = hd->XSecPA_NPipPi0()->Evaluate(ke);
-
-      fate_xsec = piprod_NPip + piprod_NPipPi0;
+      fate_frac = 0.; 
+      fate_frac += hd->Frac(kPdgProton, kIHAFtNPip,    ke);
+      fate_frac += hd->Frac(kPdgProton, kIHAFtNPipPi0, ke);
     }   
     break;
 
     default:
     {
       LOG("ReW", pDEBUG)
-        << "Have reached default case and assigning cross_section{fate} = 0";
-      fate_xsec = 0;
+        << "Have reached default case and assigning fraction{fate} = 0";
+      fate_frac = 0;
     }
     break;
 
   } // hadron_fate?
+
+  fate_frac *= frac_scale_factor;
                  
-  // the xsection splines in INukeHadroData return the hadron x-section in mb 
-  // -> convert to fm^2
-  fate_xsec *= (units::mb / units::fm2);
-                 
-  return fate_xsec;
+  return fate_frac;
 }
 //____________________________________________________________________________
 

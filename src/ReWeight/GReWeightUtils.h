@@ -29,8 +29,7 @@ namespace genie {
 namespace utils {
 namespace rew   {
 
-  //! Returns a weight to account for a change in hadron mean free path
-
+  // Returns a weight to account for a change in hadron mean free path
   double MeanFreePathWeight(
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
     double mfp_scale_factor, bool interacted,
@@ -39,9 +38,8 @@ namespace rew   {
   double MeanFreePathWeight(
       double prob_def, double prob_twk, bool interacted);
 
-  //!
-  double FateXSec(genie::rew::GSyst_t syst, double kinE);
-
+  //
+  double FateFraction(genie::rew::GSyst_t syst, double kinE, double frac_scale_factor=1.);
 
 }  // rew   namespace
 }  // utils namespace
