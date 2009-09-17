@@ -165,6 +165,8 @@
 #include "FluxDrivers/GNuMINtuple/g3numi.C"
 #include "FluxDrivers/GNuMINtuple/g4numi.h"
 #include "FluxDrivers/GNuMINtuple/g4numi.C"
+#include "FluxDrivers/GNuMINtuple/flugg.h"
+#include "FluxDrivers/GNuMINtuple/flugg.C"
 
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -314,7 +316,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
 //
 
   // Check whether a flux ntuple has been loaded
-  if ( ! fG3NuMI && ! fG4NuMI ) {
+  if ( ! fG3NuMI && ! fG4NuMI && ! fFlugg ) {
      LOG("Flux", pERROR)
           << "The flux driver has not been properly configured";
      return false;	
@@ -351,15 +353,23 @@ bool GNuMIFlux::GenerateNext_weighted(void)
     if ( fG3NuMI ) { 
       fG3NuMI->GetEntry(fIEntry); 
       fCurEntry->MakeCopy(fG3NuMI); 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("Flux",pDEBUG) 
-        << "got " << fNNeutrinos << " new fIEntry " << fIEntry 
-        << " evtno " << fCurEntry->evtno;
-#endif
-    } else { 
+    } else if ( fG4NuMI ) { 
       fG4NuMI->GetEntry(fIEntry); 
       fCurEntry->MakeCopy(fG4NuMI); 
+    } else if ( fFlugg ) { 
+      fFlugg->GetEntry(fIEntry); 
+      fCurEntry->MakeCopy(fFlugg); 
+    } else {
+      LOG("Flux", pERROR) << "No ntuple configured";
+      fEnd = true;
+      //assert(0);
+      return false;	
     }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("Flux",pDEBUG) 
+    << "got " << fNNeutrinos << " new fIEntry " << fIEntry 
+    << " evtno " << fCurEntry->evtno;
+#endif
 
     fIUse = 1; 
     fCurEntry->pcodes = 0;  // fetched entry has geant codes
@@ -590,34 +600,43 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
     gSystem->FreeDirectory(dirp);
     // sort the list
     std::sort(fnames.begin(),fnames.end());
+
     for (unsigned int indx=0; indx < fnames.size(); ++indx) {
       //std::cout << "  [" << std::setw(3) << indx << "]  \"" 
       //          << fnames[indx] << "\"" << std::endl;
       bool isok = ! (gSystem->AccessPathName(fnames[indx].c_str()));
       if ( isok ) {
         // open the file to see what it contains
+        // h10    => g3numi _or_ flugg
+        // nudata => g4numi
+        // for now distinguish between g3numi/flugg using file name
         TFile tf(fnames[indx].c_str());
+        int isflugg = ( fnames[indx].find("flugg") != string::npos ) ? 1 : 0;
         const std::string tnames[] = { "h10", "nudata" };
+        const std::string gnames[] = { "g3numi","g4numi","flugg","g4flugg"};
         for (int j = 0; j < 2 ; ++j ) { 
           TTree* atree = (TTree*)tf.Get(tnames[j].c_str());
           if ( atree ) {
+            const std::string tname_this = tnames[j];
+            const std::string gname_this = gnames[j+2*isflugg];
             // create chain if none exists
             if ( ! fNuFluxTree ) {
-              this->SetTreeName(tnames[j]);
+              this->SetTreeName(tname_this);
               fNuFluxTree = new TChain(fNuFluxTreeName.c_str());
+              fNuFluxGen = gname_this;
               // here we should scan for estimated POTs/file
               // also maybe the check on max weight
             }
-            // sanity check for mixing g3/g4 files
-            if ( fNuFluxTreeName !=  tnames[j] ) {
+            // sanity check for mixing g3/g4/flugg files
+            if ( fNuFluxTreeName !=  tname_this ||
+                 fNuFluxGen      !=  gname_this    ) {
               LOG("Flux", pFATAL) 
                 << "Inconsistent flux file types\n"
                 << "The input gnumi flux file \"" << fnames[indx] 
-                << "\"\ncontains a '" << tnames[j] << "' g" << int(j+3)
+                << "\"\ncontains a '" << tname_this << "' " << gname_this
                 << "numi ntuple " 
-                // 0->1  1->0 with 1-j,  0->4 1->3 with 4-j 
-                << "but a '" << tnames[1-j] << "' g" << int(4-j)
-                << "numi ntuple has alread been seen in the chain";
+                << "but a '" << fNuFluxTreeName << "' " << fNuFluxGen
+                << " numi ntuple has alread been seen in the chain";
               exit(1);
             } // sanity mix/match g3/g4
             // add the file to the chain
@@ -633,8 +652,9 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
      << "The input gnumi flux file doesn't exist! Initialization failed!";
     exit(1);
   }
-  if ( fNuFluxTreeName == "h10"    ) fG3NuMI = new g3numi(fNuFluxTree);
-  if ( fNuFluxTreeName == "nudata" ) fG4NuMI = new g4numi(fNuFluxTree);
+  if ( fNuFluxGen == "g3numi" ) fG3NuMI = new g3numi(fNuFluxTree);
+  if ( fNuFluxGen == "g4numi" ) fG4NuMI = new g4numi(fNuFluxTree);
+  if ( fNuFluxGen == "flugg"  ) fFlugg  = new flugg(fNuFluxTree);
 
 #ifdef OLD_STUFF
   bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
@@ -720,7 +740,7 @@ void GNuMIFlux::ScanForMaxWeight(void)
                                  "Nimpwt*NWtFar[0]"  };
     int strindx = 0;
     if ( ipos_estimator > 0 ) strindx = 1;
-    if ( ! fG3NuMI ) strindx += 2;
+    if ( fG4NuMI ) strindx += 2;
     // set upper limit on how many entries to scan
     Long64_t nscan = TMath::Min(fNEntries,200000LL);
     
@@ -1063,6 +1083,7 @@ void GNuMIFlux::Initialize(void)
   fG3NuMI          =  0;
   fG4NuMI          =  0;
   fNuFluxTreeName  = "";
+  fNuFluxGen       = "";
   fNFiles          =  0;
 
   fNEntries        =  0;
@@ -1141,6 +1162,7 @@ void GNuMIFlux::CleanUp(void)
 
   if ( fG3NuMI ) delete fG3NuMI;
   if ( fG4NuMI ) delete fG4NuMI;
+  if ( fFlugg  ) delete fFlugg;
 
   LOG("Flux", pNOTICE)
     << " flux file cycles: " << fICycle << " of " << fNCycles 
@@ -1171,7 +1193,7 @@ void GNuMIFlux::AddFile(TTree* thetree, string fname)
   LOG("Flux",pNOTICE) //INFO)
     << fNuFluxTreeName << "->AddFile() of " << nentries << " entries ["
     << evt_1 << ":" << evt_N << "(" <<  est_1 << ":" << est_N << ")=" 
-    << npots <<" POTs] in file: " << fname;
+    << npots <<" POTs] in {" << fNuFluxGen << "} file: " << fname;
   fNuTot    += nentries;
   fFilePOTs += npots;
   fNFiles++;
@@ -1558,6 +1580,76 @@ void GNuMIFluxPassThroughInfo::MakeCopy(const g4numi* g4 )
   beampx   = 0.; // g4->protonPx;
   beampy   = 0.; // g4->protonPy;
   beampz   = 0.; // g4->protonPz;
+
+}
+
+//___________________________________________________________________________
+void GNuMIFluxPassThroughInfo::MakeCopy(const flugg* f )
+{
+  run      = f->run;
+  evtno    = f->evtno;
+  ndxdz    = f->Ndxdz;
+  ndydz    = f->Ndydz;
+  npz      = f->Npz;
+  nenergy  = f->Nenergy;
+  ndxdznea = f->Ndxdznea;
+  ndydznea = f->Ndydznea;
+  nenergyn = f->Nenergyn;
+  nwtnear  = f->Nwtnear;
+  ndxdzfar = f->Ndxdzfar;
+  ndydzfar = f->Ndydzfar;
+  nenergyf = f->Nenergyf;
+  nwtfar   = f->Nwtfar;
+  norig    = f->Norig;
+  ndecay   = f->Ndecay;
+  ntype    = f->Ntype;
+  vx       = f->Vx;
+  vy       = f->Vy;
+  vz       = f->Vz;
+  pdpx     = f->pdPx;
+  pdpy     = f->pdPy;
+  pdpz     = f->pdPz;
+  ppdxdz   = f->ppdxdz;
+  ppdydz   = f->ppdydz;
+  pppz     = f->pppz;
+  ppenergy = f->ppenergy;
+  ppmedium = f->ppmedium;
+  ptype    = f->ptype;
+  ppvx     = f->ppvx;
+  ppvy     = f->ppvy;
+  ppvz     = f->ppvz;
+  muparpx  = f->muparpx;
+  muparpy  = f->muparpy;
+  muparpz  = f->muparpz;
+  mupare   = f->mupare;
+
+  necm     = f->Necm;
+  nimpwt   = f->Nimpwt;
+  xpoint   = f->xpoint;
+  ypoint   = f->ypoint;
+  zpoint   = f->zpoint;
+
+  tvx      = f->tvx;
+  tvy      = f->tvy;
+  tvz      = f->tvz;
+  tpx      = f->tpx;
+  tpy      = f->tpy;
+  tpz      = f->tpz;
+  tptype   = f->tptype;
+  tgen     = f->tgen;
+  tgptype  = f->tgptype;
+  tgppx    = f->tgppx;
+  tgppy    = f->tgppy;
+  tgppz    = f->tgppz;
+  tprivx   = f->tprivx;
+  tprivy   = f->tprivy;
+  tprivz   = f->tprivz;
+  beamx    = f->beamx;
+  beamy    = f->beamy;
+  beamz    = f->beamz;
+  beampx   = f->beampx;
+  beampy   = f->beampy;
+  beampz   = f->beampz;
 
 }
 
@@ -2148,9 +2240,12 @@ void GNuMIFlux::PrintConfig()
   LOG("Flux", pNOTICE)
     << "GNuMIFlux Config:"
     << "\n Enu_max " << fMaxEv 
-    << "\n pdg-codes: " << s.str()
-    << "\n " << (fG3NuMI?"g3numi":"") << (fG4NuMI?"g4numi":"") << "("
-    << fNuFluxTreeName << "), " << fNEntries << " entries " 
+    << "\n pdg-codes: " << s.str() << "\n "
+    << (fG3NuMI?"g3numi":"") 
+    << (fG4NuMI?"g4numi":"") 
+    << (fFlugg?"flugg":"")
+    << "/" << fNuFluxGen << " "
+    << "(" << fNuFluxTreeName << "), " << fNEntries << " entries" 
     << " (FilePOTs " << fFilePOTs << ") "
     <<  "in " << fNFiles << " files like: "
     << "\n " << fNuFluxFilePattern
