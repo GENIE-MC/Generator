@@ -369,6 +369,7 @@ private:
 #ifdef  GNUMI_TEST_XY_WGT
 class xypartials { 
   // intermediate partial info from xy reweighting for comparison w/ f77 version
+   friend ostream & operator << (ostream & stream, const xypartials & info);
 public:
   xypartials() { ; }
   void ReadStream(ifstream& myfile);

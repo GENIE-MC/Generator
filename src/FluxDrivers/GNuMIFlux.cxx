@@ -278,11 +278,11 @@ bool GNuMIFlux::GenerateNext(void)
      //LOG("Flux", pNOTICE)
      //   << "Curr flux neutrino fractional weight = " << f;
      if (f > 1.) {
+       fMaxWeight = this->Weight() * fMaxWgtFudge; // bump the weight
        LOG("Flux", pERROR)
          << "** Fractional weight = " << f 
-         << " > 1 !! Bump fMaxWeight estimate."
+         << " > 1 !! Bump fMaxWeight estimate to " << fMaxWeight
          << PassThroughInfo();
-       fMaxWeight = this->Weight() * fMaxWgtFudge; // bump the weight
      }
      double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
      bool accept = ( r < f );
@@ -523,7 +523,7 @@ void GNuMIFlux::CalcEffPOTsPerNu()
     flux_area = 1;
   }
   double area_ratio = TMath::Pi() * kRDET2 / flux_area;
-  fEffPOTsPerNu = area_ratio * ( fFilePOTs / fNEntries );
+  fEffPOTsPerNu = area_ratio * ( (double)fFilePOTs / (double)fNEntries );
 }
 
 //___________________________________________________________________________
@@ -1891,7 +1891,7 @@ namespace flux  {
              << "\n far00  dk: dx/dz " << info.ndxdzfar
              << " dy/dz " << info.ndydzfar
              << " E " <<  info.nenergyf << " wgt " << info.nwtfar
-             << "\n norg " << info.norig << " ndecay " << info.ndecay
+             << "\n norig " << info.norig << " ndecay " << info.ndecay
              << " ntype " << info.ntype
              << "\n had vtx " << info.vx << " " << info.vy << " " << info.vz
              << "\n parent p3 @ dk " << info.pdpx << " " << info.pdpy << " " << info.pdpz
@@ -1924,6 +1924,11 @@ namespace flux  {
              << "\n p4 (user): " << utils::print::P4AsShortString(&info.fgP4User)
              << "\n x4 (user): " << utils::print::X4AsString(&info.fgX4User);
         ;
+#ifdef GNUMI_TEST_XY_WGT
+      stream << "\n" << xypartials::GetStaticInstance();
+#endif
+        
+
   /*
   //std::cout << "GNuMIFlux::PrintCurrent ....." << std::endl;
   //LOG("Flux", pINFO) 
@@ -2073,30 +2078,51 @@ int xypartials::Compare(const xypartials& other) const
 
 void xypartials::Print(const Option_t* /* opt */) const
 {
-  std::cout << "GNuMIFlux xypartials " << std::endl;
-  std::cout << "  parent: mass=" << parent_mass << " p=" << parentp 
-            << " e=" << parent_energy << " gamma=" << gamma << " beta_mag=" << beta_mag << std::endl;
-  std::cout << "  enuzr=" << enuzr << " rad=" << rad 
-            << " costh_pardet=" << costh_pardet << std::endl;
-  std::cout << "  emrat=" << emrat << " sangdet=" << sangdet << " wgt=" << wgt << std::endl;
-  std::cout << "  ptype=" << ptype
-            << ((TMath::Abs(ptype) == 13)?"is-muon":"not-muon")
-            << std::endl;
-
-  if ( TMath::Abs(ptype)==13 ) {
-    std::cout << "  betanu: [" << betanu[0] << "," << betanu[1] << "," << betanu[2] << "]" << std::endl;
-    std::cout << "  p_nu: [" << p_nu[0] << "," << p_nu[1] << "," << p_nu[2] << "]" << std::endl;
-    std::cout << "  partial1=" << partial1 << std::endl;
-    std::cout << "  p_dcm_nu: [" << p_dcm_nu[0] << "," << p_dcm_nu[1] << "," << p_dcm_nu[2] << "," << p_dcm_nu[3] << "]" << std::endl;
-    std::cout << "  muparent_p: [" << muparent_px << "," << muparent_py << "," << muparent_pz << "]" << std::endl;
-    std::cout << "  gammamp=" << gammamp << std::endl;
-    std::cout << "  betamp: [" << betamp[0] << "," << betamp[1] << "," << betamp[2] << "]" << std::endl;
-    std::cout << "  partial2=" << partial2 << std::endl;
-    std::cout << "  p_pcm_mp: [" << p_pcm_mp[0] << "," << p_pcm_mp[1] << "," << p_pcm_mp[2] << "]  p_pcm=" << p_pcm << std::endl;
-    std::cout << "  ntype=" << ntype 
-              << " costhmu=" << costhmu << " wgt_ratio=" << wgt_ratio << std::endl;
-  }
+  std::cout << *this << std::endl;
 }
+
+namespace genie {
+namespace flux {
+  ostream & operator << (ostream & stream, const genie::flux::xypartials & xyp )
+  {
+    stream << "GNuMIFlux xypartials " << std::endl;
+    stream << "  parent: mass=" << xyp.parent_mass << " p=" << xyp.parentp 
+           << " e=" << xyp.parent_energy << " gamma=" << xyp.gamma 
+           << " beta_mag=" << xyp.beta_mag << std::endl;
+    stream << "  enuzr=" << xyp.enuzr << " rad=" << xyp.rad 
+           << " costh_pardet=" << xyp.costh_pardet << std::endl;
+    stream << "  emrat=" << xyp.emrat << " sangdet=" << xyp.sangdet 
+           << " wgt=" << xyp.wgt << std::endl;
+    stream << "  ptype=" << xyp.ptype << " "
+           << ((TMath::Abs(xyp.ptype) == 13)?"is-muon":"not-muon")
+           << std::endl;
+
+    if ( TMath::Abs(xyp.ptype)==13 ) {
+      stream << "  betanu: [" << xyp.betanu[0] << "," << xyp.betanu[1] 
+             << "," << xyp.betanu[2] << "]" << std::endl;
+      stream << "  p_nu: [" << xyp.p_nu[0] << "," << xyp.p_nu[1] 
+             << "," << xyp.p_nu[2] << "]" << std::endl;
+      stream << "  partial1=" << xyp.partial1 << std::endl;
+      stream << "  p_dcm_nu: [" << xyp.p_dcm_nu[0] << "," << xyp.p_dcm_nu[1] 
+             << "," << xyp.p_dcm_nu[2] 
+             << "," << xyp.p_dcm_nu[3] << "]" << std::endl;
+      stream << "  muparent_p: [" << xyp.muparent_px << "," << xyp.muparent_py 
+             << "," << xyp.muparent_pz << "]" << std::endl;
+      stream << "  gammamp=" << xyp.gammamp << std::endl;
+      stream << "  betamp: [" << xyp.betamp[0] << "," << xyp.betamp[1] << "," 
+             << xyp.betamp[2] << "]" << std::endl;
+      stream << "  partial2=" << xyp.partial2 << std::endl;
+      stream << "  p_pcm_mp: [" << xyp.p_pcm_mp[0] << "," << xyp.p_pcm_mp[1] 
+             << "," << xyp.p_pcm_mp[2] << "]  p_pcm=" 
+             << xyp.p_pcm << std::endl;
+      stream << "  ntype=" << xyp.ntype 
+             << " costhmu=" << xyp.costhmu 
+             << " wgt_ratio=" << xyp.wgt_ratio << std::endl;
+    }
+    return stream;
+  }
+} // flux
+} // genie
 
 xypartials& xypartials::GetStaticInstance()
 { return gpartials; }
