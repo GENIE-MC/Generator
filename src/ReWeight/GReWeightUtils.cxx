@@ -48,7 +48,7 @@ double genie::utils::rew::MeanFreePathWeight(
 
    // Get the survival probability for the tweaked mean free path
    double ptwk = utils::intranuke::ProbSurvival(
-      pdgc,x4,p4,A,mfp_scale_factorn,Rpi,nRnuc,NR,R0);
+      pdgc,x4,p4,A,mfp_scale_factor,nRpi,nRnuc,NR,R0);
    if(ptwk<=0) return 1.;
 
    // Calculate weight
