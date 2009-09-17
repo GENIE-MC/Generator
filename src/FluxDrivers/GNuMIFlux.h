@@ -41,6 +41,7 @@ class TBranch;
 // MakeClass created classes for handling NuMI flux files
 class g3numi;
 class g4numi;
+class flugg;
 
 using std::string;
 using std::ostream;
@@ -72,6 +73,7 @@ public:
 
    void MakeCopy(const g3numi*);  ///< pull in from g3 ntuple
    void MakeCopy(const g4numi*);  ///< pull in from g4 ntuple
+   void MakeCopy(const flugg*);   ///< pull in from flugg ntuple
 
    void ResetCopy();     // reset portion copied from ntuple
    void ResetCurrent();  // reset generated xy positioned info
@@ -316,8 +318,10 @@ private:
   string    fNuFluxFilePattern;   ///< wildcarded path
   string    fNuFluxTreeName;      ///< Tree name "h10" (g3) or "nudata" (g4)
   TChain*   fNuFluxTree;          ///< TTree in g3numi or g4numi // REF ONLY!
+  string    fNuFluxGen;           ///< "g3numi" "g4numi" or "flugg"
   g3numi*   fG3NuMI;              ///< g3numi ntuple
   g4numi*   fG4NuMI;              ///< g4numi ntuple
+  flugg*    fFlugg;               ///< flugg ntuple
   int       fNFiles;              ///< number of files in chain
   Long64_t  fNEntries;            ///< number of flux ntuple entries
   Long64_t  fIEntry;              ///< current flux ntuple entry
