@@ -56,6 +56,9 @@ public :
   // special setters for this class
   void                   SetDirectionCos (double dx, double dy, double dz);
   void                   SetRayOrigin    (double x,  double y,  double z);
+  // setters consistent w/ GCylindTH1Flux naming
+  void                   SetNuDirection  (const TVector3 & direction);
+  void                   SetBeamSpot     (const TVector3 & spot);
 
 private:
 
