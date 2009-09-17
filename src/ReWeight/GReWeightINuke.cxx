@@ -117,9 +117,10 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
      TLorentzVector p4 (p->Px(), p->Py(), p->Pz(), p->E());
 
      // Determine the interaction type for current hadron in nucleus, if any
-     INukeFateHA_t hadron_fate = (INukeFateHA_t) p->RescatterCode();
-     bool interacted = (kIHAFtUndefined != hadron_fate);
-
+     bool interacted = (p->RescatterCode() != -1);
+     INukeFateHA_t hadron_fate = (interacted) ?
+          (INukeFateHA_t) p->RescatterCode() : kIHAFtUndefined;
+    
      LOG("ReW", pDEBUG) 
         << "Hadron fate: " << INukeHadroFates::AsString(hadron_fate);
 
