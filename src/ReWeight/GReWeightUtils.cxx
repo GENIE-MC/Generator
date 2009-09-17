@@ -42,11 +42,13 @@ double genie::utils::rew::MeanFreePathWeight(
   double nRpi, double nRnuc, double NR, double R0)
 {
    // Get the nominal survival probability
-   double pdef = utils::intranuke::ProbSurvival(pdgc,x4,p4,A,1.);
+   double pdef = utils::intranuke::ProbSurvival(
+      pdgc,x4,p4,A,1.,nRpi,nRnuc,NR,R0);
    if(pdef<=0) return 1.;
 
    // Get the survival probability for the tweaked mean free path
-   double ptwk = utils::intranuke::ProbSurvival(pdgc,x4,p4,A,mfp_scale_factor);
+   double ptwk = utils::intranuke::ProbSurvival(
+      pdgc,x4,p4,A,mfp_scale_factorn,Rpi,nRnuc,NR,R0);
    if(ptwk<=0) return 1.;
 
    // Calculate weight
