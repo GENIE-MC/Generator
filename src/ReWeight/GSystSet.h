@@ -3,7 +3,7 @@
 
 \class    genie::rew::GSystSet
 
-\brief    Set of systematics to be considered 
+\brief    Set of systematics to be considered by the reweighting package.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
