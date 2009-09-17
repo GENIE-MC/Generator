@@ -53,11 +53,12 @@ namespace rew   {
    class Fates;
    class MFP;
 
-   Fates * FateParams         (int pdgc) const;
-   MFP *   MeanFreePathParams (int pdgc) const;
-   void    Reset              (void);
-   void    Reconfigure        (void);
-   void    SetCurTwkDial      (GSyst_t syst, double val);
+   Fates * FateParams         (int pdgc) const;         ///<
+   MFP *   MeanFreePathParams (int pdgc) const;         ///<
+   void    Reset              (void);                   ///<
+   void    Reconfigure        (void);                   ///<
+   double  ChisqPenalty       (void) const;             ///<
+   void    SetCurTwkDial      (GSyst_t s, double val);  ///<
 
    //.........................................................................
    //
@@ -70,7 +71,9 @@ namespace rew   {
      Fates(HadronType_t hadtype = kRwINukeUndefined);
     ~Fates();
 
-     double CurTwkDial    (GSyst_t s, double KE=-1.) const; ///< 
+     double ScaleFactor   (GSyst_t s, const TLorentzVector & p4) const; ///< see next
+     double ScaleFactor   (GSyst_t s, double KE=-1.) const; ///< fate fraction scale factor = 1 + twk_dial * fractional_err
+     double CurTwkDial    (GSyst_t s, double KE=-1.) const; ///< current tweaking dial
      bool   IsIncluded    (GSyst_t s) const;                ///< is included?
      bool   IsCushionTerm (GSyst_t s) const;                ///< is it a cushion term?
      bool   IsTweaked     (GSyst_t s) const;                ///< is included & tweaked to non-def value?
@@ -111,13 +114,13 @@ namespace rew   {
      MFP(HadronType_t hadtype = kRwINukeUndefined);
     ~MFP();
 
-     double ScaleFactor   (void) const;  ///< mean free path scale factor = 1 + twk_dial * frac_err
+     double ScaleFactor   (void) const;  ///< mean free path scale factor = 1 + twk_dial * fractional_err
      double CurTwkDial    (void) const;  ///< current value of mfp tweak dial
-     bool   IsIncluded    (void) const;  
-     bool   IsTweaked     (void) const; 
+     bool   IsIncluded    (void) const;  ///<
+     bool   IsTweaked     (void) const;  ///<
      double ChisqPenalty  (void) const;  ///<
-     void   Reset         (void);
-     void   SetCurTwkDial (double val);
+     void   Reset         (void);        ///<
+     void   SetCurTwkDial (double val);  ///<
 
    private:    
      HadronType_t fHadType;     ///<

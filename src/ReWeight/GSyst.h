@@ -22,7 +22,6 @@
 #include <string>
 
 #include "PDG/PDGUtils.h"
-#include "ReWeight/GSystType.h"
 #include "HadronTransport/INukeHadroFates.h"
 
 using std::string;
@@ -128,59 +127,6 @@ public:
        return "-";
    }
    return "";
- }
- //......................................................................................
- static GSystType_t Type(GSyst_t syst)
- {
-   // report the 'type of systematic'
-   //
-   switch(syst) {
-     case ( kSystNuXSec_MaQEL       ) : 
-     case ( kSystNuXSec_MvQEL       ) : 
-     case ( kSystNuXSec_MaRES       ) : 
-     case ( kSystNuXSec_MvRES       ) : 
-     case ( kSystNuXSec_MaCOHPi     ) : 
-     case ( kSystNuXSec_RvpCC1pi    ) : 
-     case ( kSystNuXSec_RvpCC2pi    ) : 
-     case ( kSystNuXSec_RvpNC1pi    ) : 
-     case ( kSystNuXSec_RvpNC2pi    ) : 
-     case ( kSystNuXSec_RvnCC1pi    ) : 
-     case ( kSystNuXSec_RvnCC2pi    ) : 
-     case ( kSystNuXSec_RvnNC1pi    ) : 
-     case ( kSystNuXSec_RvnNC2pi    ) : 
-     case ( kSystNuXSec_RvbarpCC1pi ) : 
-     case ( kSystNuXSec_RvbarpCC2pi ) : 
-     case ( kSystNuXSec_RvbarpNC1pi ) : 
-     case ( kSystNuXSec_RvbarpNC2pi ) : 
-     case ( kSystNuXSec_RvbarnCC1pi ) :  
-     case ( kSystNuXSec_RvbarnCC2pi ) :  
-     case ( kSystNuXSec_RvbarnNC1pi ) :  
-     case ( kSystNuXSec_RvbarnNC2pi ) :  
-
-       return kSystType_NuXSec;
-       break;
-
-     case ( kSystINuke_MFPTwk_pi    ) : 
-     case ( kSystINuke_MFPTwk_N     ) : 
-     case ( kSystINuke_CExTwk_pi    ) : 
-     case ( kSystINuke_ElTwk_pi     ) :
-     case ( kSystINuke_InelTwk_pi   ) :
-     case ( kSystINuke_AbsTwk_pi    ) :
-     case ( kSystINuke_PiProdTwk_pi ) :
-     case ( kSystINuke_CExTwk_N     ) : 
-     case ( kSystINuke_ElTwk_N      ) :
-     case ( kSystINuke_InelTwk_N    ) :
-     case ( kSystINuke_AbsTwk_N     ) :
-     case ( kSystINuke_PiProdTwk_N  ) :
-
-       return kSystType_INuke;
-       break;
-     
-     default:
-       return kSystType_Null;
-       break;
-   }
-   return kSystType_Null;
  }
  //......................................................................................
  static bool IsINukePionFateSystematic(GSyst_t syst) 
@@ -305,7 +251,7 @@ public:
     return kSystNull;
  }
  //......................................................................................
- GSyst_t INukeFate2GSyst(INukeFateHA_t fate, int pdgc)
+ static GSyst_t INukeFate2GSyst(INukeFateHA_t fate, int pdgc)
  {
   // get the corresponding GSyst_t systematic parameter enumeration from the
   // input intranuke fate enumeration and PDG code

@@ -23,6 +23,7 @@
 #include <cassert>
 
 #include <TMath.h>
+#include <TLorentzVector.h>
 
 #include "Conventions/Controls.h"
 #include "ReWeight/GReWeightINukeParams.h"
@@ -87,6 +88,18 @@ void GReWeightINukeParams::Reconfigure(void)
 {
   fParmPionFates -> Reconfigure();
   fParmNuclFates -> Reconfigure();
+}
+//___________________________________________________________________________ 
+double GReWeightINukeParams::ChisqPenalty(void) const
+{
+  double chisq = 0.;
+
+  chisq += (fParmPionFates -> ChisqPenalty());
+  chisq += (fParmNuclFates -> ChisqPenalty());
+  chisq += (fParmPionMFP   -> ChisqPenalty());
+  chisq += (fParmNuclMFP   -> ChisqPenalty());
+
+  return chisq;
 }
 //___________________________________________________________________________ 
 void GReWeightINukeParams::SetCurTwkDial(GSyst_t syst, double val)
@@ -156,6 +169,25 @@ void GReWeightINukeParams::Fates::SetCurTwkDial(GSyst_t syst, double val)
   // update tweaking dial
   fSystListMap[syst]  = val;
   fIsCushionMap[syst] = false;
+}
+//___________________________________________________________________________
+double GReWeightINukeParams::Fates::ScaleFactor(
+      GSyst_t syst, const TLorentzVector & p4) const
+{
+  double KE = p4.Energy() - p4.M(); // kinetic energy
+  return this->ScaleFactor(syst, KE);
+}
+//___________________________________________________________________________
+double GReWeightINukeParams::Fates::ScaleFactor(
+      GSyst_t syst, double KE) const
+{
+  GSystUncertainty * uncert = GSystUncertainty::Instance();
+
+  double fractional_error  = uncert->OneSigmaErr(syst);
+  double twk_dial          = this->CurTwkDial(syst, KE);
+
+  double fate_fraction_scale = 1. + twk_dial * fractional_error;
+  return fate_fraction_scale;
 }
 //___________________________________________________________________________
 double GReWeightINukeParams::Fates::CurTwkDial(GSyst_t syst, double KE) const
