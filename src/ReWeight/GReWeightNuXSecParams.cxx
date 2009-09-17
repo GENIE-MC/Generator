@@ -116,7 +116,7 @@ double GReWeightNuXSecParams::ChisqPenalty(void) const
   return chisq;
 }
 //____________________________________________________________________________
-void GReWeightNuXSecParams::ReconfigGenie(void) const
+void GReWeightNuXSecParams::Reconfigure(void) const
 {
   if (! this->IsTweaked() ) return;
 
@@ -199,16 +199,6 @@ void GReWeightNuXSecParams::LoadDefaults(void)
   this->SetDefValue(kSystNuXSec_RvbarnNC2pi, RvbarnNC2pi_def );
 }
 //____________________________________________________________________________
-void GReWeightNuXSecParams::ResetAll(void) 
-{
-  map<GSyst_t, bool>::const_iterator iter = fIsTweaked.begin();
-
-  for( ; iter != fIsTweaked.end(); ++iter) {
-     GSyst_t syst = iter->first;
-     this->Reset(syst);
-  }
-}
-//____________________________________________________________________________
 void GReWeightNuXSecParams::Reset(GSyst_t syst) 
 {
   if(this->IsIncluded(syst)) {
@@ -217,6 +207,16 @@ void GReWeightNuXSecParams::Reset(GSyst_t syst)
     this->SetCurValue    (syst, def_param);
     this->SetCurTwkDial  (syst, 0.);
     this->SetTweakedFlag (syst, false);
+  }
+}
+//____________________________________________________________________________
+void GReWeightNuXSecParams::Reset(void) 
+{
+  map<GSyst_t, bool>::const_iterator iter = fIsTweaked.begin();
+
+  for( ; iter != fIsTweaked.end(); ++iter) {
+     GSyst_t syst = iter->first;
+     this->Reset(syst);
   }
 }
 //____________________________________________________________________________

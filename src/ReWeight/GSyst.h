@@ -21,7 +21,9 @@
 
 #include <string>
 
+#include "PDG/PDGUtils.h"
 #include "ReWeight/GSystType.h"
+#include "HadronTransport/INukeHadroFates.h"
 
 using std::string;
 
@@ -181,7 +183,7 @@ public:
    return kSystType_Null;
  }
  //......................................................................................
- static bool IntranukePionFateSystematic(GSyst_t syst) 
+ static bool IsINukePionFateSystematic(GSyst_t syst) 
  {
    switch(syst) {
      case ( kSystINuke_CExTwk_pi   ) : 
@@ -198,7 +200,7 @@ public:
    return false;
  }
  //......................................................................................
- static bool IntranukeNucleonFateSystematic(GSyst_t syst) 
+ static bool IsINukeNuclFateSystematic(GSyst_t syst) 
  {
    switch(syst) {
      case ( kSystINuke_CExTwk_N   ) : 
@@ -213,6 +215,136 @@ public:
         break;
    }
    return false;
+ }
+ //......................................................................................
+ static bool IsINukeFateSystematic(GSyst_t syst)
+ {
+   switch(syst) {
+     case ( kSystINuke_CExTwk_pi    ) : 
+     case ( kSystINuke_ElTwk_pi     ) :
+     case ( kSystINuke_InelTwk_pi   ) :
+     case ( kSystINuke_AbsTwk_pi    ) :
+     case ( kSystINuke_PiProdTwk_pi ) :
+     case ( kSystINuke_CExTwk_N     ) : 
+     case ( kSystINuke_ElTwk_N      ) :
+     case ( kSystINuke_InelTwk_N    ) :
+     case ( kSystINuke_AbsTwk_N     ) :
+     case ( kSystINuke_PiProdTwk_N  ) :
+       return true;
+       break;
+     
+     default:
+       return false;
+       break;
+   }
+   return false;
+ }
+ //......................................................................................
+ static bool IsINukePionMeanFreePathSystematic(GSyst_t syst)
+ {
+   switch(syst) {
+     case ( kSystINuke_MFPTwk_pi ) : 
+       return true;
+       break;
+     
+     default:
+       return false;
+       break;
+   }
+   return false;
+ }
+ //......................................................................................
+ static bool IsINukeNuclMeanFreePathSystematic(GSyst_t syst)
+ {
+   switch(syst) {
+     case ( kSystINuke_MFPTwk_N  ) : 
+       return true;
+       break;
+     
+     default:
+       return false;
+       break;
+   }
+   return false;
+ }
+ //......................................................................................
+ static bool IsINukeMeanFreePathSystematic(GSyst_t syst)
+ {
+   switch(syst) {
+     case ( kSystINuke_MFPTwk_pi ) : 
+     case ( kSystINuke_MFPTwk_N  ) : 
+       return true;
+       break;
+     
+     default:
+       return false;
+       break;
+   }
+   return false;
+ }
+ //......................................................................................
+ static GSyst_t NextPionFateSystematic(int i)
+ {
+    if(i==0) return kSystINuke_CExTwk_pi;
+    if(i==1) return kSystINuke_ElTwk_pi;
+    if(i==2) return kSystINuke_InelTwk_pi;
+    if(i==3) return kSystINuke_AbsTwk_pi;
+    if(i==4) return kSystINuke_PiProdTwk_pi;
+
+    return kSystNull;
+ }
+ //......................................................................................
+ static GSyst_t NextNuclFateSystematic(int i)
+ {
+    if(i==0) return kSystINuke_CExTwk_N;
+    if(i==1) return kSystINuke_ElTwk_N;
+    if(i==2) return kSystINuke_InelTwk_N;
+    if(i==3) return kSystINuke_AbsTwk_N;
+    if(i==4) return kSystINuke_PiProdTwk_N;
+
+    return kSystNull;
+ }
+ //......................................................................................
+ GSyst_t INukeFate2GSyst(INukeFateHA_t fate, int pdgc)
+ {
+  // get the corresponding GSyst_t systematic parameter enumeration from the
+  // input intranuke fate enumeration and PDG code
+  //
+  if(pdg::IsPion(pdgc)) {
+     switch (fate) {
+      case kIHAFtUndefined : return kSystNull;                break;
+      case kIHAFtCEx       : return kSystINuke_CExTwk_pi;     break;
+      case kIHAFtElas      : return kSystINuke_ElTwk_pi;      break;
+      case kIHAFtInelas    : return kSystINuke_InelTwk_pi;    break;
+      case kIHAFtAbsNP     : return kSystINuke_AbsTwk_pi;     break;
+      case kIHAFtAbsPP     : return kSystINuke_AbsTwk_pi;     break;
+      case kIHAFtAbsNPP    : return kSystINuke_AbsTwk_pi;     break;
+      case kIHAFtAbsNNP    : return kSystINuke_AbsTwk_pi;     break;
+      case kIHAFtAbs2N2P   : return kSystINuke_AbsTwk_pi;     break;
+      case kIHAFtAbs2N3P   : return kSystINuke_AbsTwk_pi;     break;
+      case kIHAFtNPip      : return kSystINuke_PiProdTwk_pi;  break;
+      case kIHAFtNPipPi0   : return kSystINuke_PiProdTwk_pi;  break;
+      default              : return kSystNull;                break;
+     }
+  } else
+  if(pdg::IsNucleon(pdgc)) {
+     switch (fate) {
+      case kIHAFtUndefined : return kSystNull;               break;
+      case kIHAFtCEx       : return kSystINuke_CExTwk_N;     break;
+      case kIHAFtElas      : return kSystINuke_ElTwk_N;      break;
+      case kIHAFtInelas    : return kSystINuke_InelTwk_N;    break;
+      case kIHAFtAbsNP     : return kSystINuke_AbsTwk_N;     break;
+      case kIHAFtAbsPP     : return kSystINuke_AbsTwk_N;     break;
+      case kIHAFtAbsNPP    : return kSystINuke_AbsTwk_N;     break;
+      case kIHAFtAbsNNP    : return kSystINuke_AbsTwk_N;     break;
+      case kIHAFtAbs2N2P   : return kSystINuke_AbsTwk_N;     break;
+      case kIHAFtAbs2N3P   : return kSystINuke_AbsTwk_N;     break;
+      case kIHAFtNPip      : return kSystINuke_PiProdTwk_N;  break;
+      case kIHAFtNPipPi0   : return kSystINuke_PiProdTwk_N;  break;
+      default              : return kSystNull;               break;
+     }
+  }
+  return kSystNull;
  }
  //......................................................................................
 

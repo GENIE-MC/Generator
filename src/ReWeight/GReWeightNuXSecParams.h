@@ -44,10 +44,10 @@ namespace rew   {
   bool   IsTweaked      (GSyst_t s) const;       ///< is included & tweaked to non-default value?
   bool   IsTweaked      (void)      const;       ///< is any parameter tweaked?
   double ChisqPenalty   (void)      const;       ///< chi^2_{penalty} for the current parameter shifts
-  void   ReconfigGenie  (void)      const;       ///< propagate the tweaked physics parameters to GENIE
+  void   Reconfigure    (void)      const;       ///< propagate physics parameter changes to GENIE
   void   LoadDefaults   (void);                  ///< load default params from GENIE
-  void   ResetAll       (void);                  ///< 
-  void   Reset          (GSyst_t);               ///< set cur=def, twk_dial=0, tweaked=false
+  void   Reset          (GSyst_t s);             ///< set cur=def, twk_dial=0, tweaked=false
+  void   Reset          (void);                  ///< reset all cross section params
   void   SetCurTwkDial  (GSyst_t s, double val); ///<
       
  private:
