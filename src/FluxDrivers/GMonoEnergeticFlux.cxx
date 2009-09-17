@@ -135,3 +135,13 @@ void GMonoEnergeticFlux::SetRayOrigin(double x, double y, double z)
   fgX4.SetVect(xyz);
 }
 //___________________________________________________________________________
+void GMonoEnergeticFlux::SetNuDirection(const TVector3 & direction)
+{
+  SetDirectionCos(direction.x(), direction.y(), direction.z());
+}
+//___________________________________________________________________________
+void GMonoEnergeticFlux::SetBeamSpot(const TVector3 & spot)
+{
+  SetRayOrigin(spot.x(), spot.y(), spot.z());
+}
+//___________________________________________________________________________
