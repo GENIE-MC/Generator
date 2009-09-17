@@ -35,17 +35,26 @@
  gSystem->Load("libGCrossSections.so");	
  gSystem->Load("libGCharm.so");
  gSystem->Load("libGElas.so");
+ gSystem->Load("libGGiBUU.so");
  gSystem->Load("libGReinSeghal.so");
  gSystem->Load("libGPaschos.so");
- gSystem->Load("libGVHE.so");
  gSystem->Load("libGPartonModel.so");
  gSystem->Load("libGBodekYang.so");
- gSystem->Load("libGHEP.so");
  gSystem->Load("libGEVGCore.so");
+ gSystem->Load("libGHEP.so");
  gSystem->Load("libGEVGModules.so");
  gSystem->Load("libGEVGDrivers.so");
  gSystem->Load("libGNtuple.so");
-
+ gSystem->Load("libGQEL.so");
+ gSystem->Load("libGRES.so");
+ gSystem->Load("libGDIS.so");
+ gSystem->Load("libGCoh.so");
+ gSystem->Load("libGDfrc.so");
+ gSystem->Load("libGMEC.so");
+ gSystem->Load("libGNuE.so");
+ gSystem->Load("libGNuGamma.so");
+ gSystem->Load("libGVHE.so");
+ gSystem->Load("libGHadronTransp.so");
  gSystem->Load("libGGeo.so");
  gSystem->Load("libGFluxDrivers.so");
 }
