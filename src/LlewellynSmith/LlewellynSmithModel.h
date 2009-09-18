@@ -26,7 +26,7 @@
 #define _LLEWELLYN_SMITH_MODEL_H_
 
 #include "Base/QELFormFactorsModelI.h"
-#include "Base/ELFormFactors.h"
+#include "ElFF/ELFormFactors.h"
 
 namespace genie {
 

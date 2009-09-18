@@ -17,8 +17,8 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
-#include "Base/ELFormFactors.h"
-#include "Base/ELFormFactorsModelI.h"
+#include "ElFF/ELFormFactors.h"
+#include "ElFF/ELFormFactorsModelI.h"
 #include "Conventions/Constants.h"
 #include "LlewellynSmith/LlewellynSmithModel.h"
 #include "Messenger/Messenger.h"
