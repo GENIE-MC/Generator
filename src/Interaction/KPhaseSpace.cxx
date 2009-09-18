@@ -23,6 +23,9 @@
    Add threshold and kinematical limits for diffractive scattering.
    Adapt to naming changes made to the coherent generator for including 
    coherent vector meson production.
+ @ Sep 19, 2009 - CR
+   Add threshold and kinematical limits for inverse beta decay.
+
 */
 //____________________________________________________________________________
 
@@ -42,7 +45,6 @@
 using namespace genie;
 using namespace genie::utils;
 using namespace genie::constants;
-using namespace genie::controls;
 
 ClassImp(KPhaseSpace)
 
@@ -87,7 +89,12 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
 
-  if(pi.IsQuasiElastic() || pi.IsResonant() || pi.IsDeepInelastic() || pi.IsDiffractive()) {
+  if(pi.IsQuasiElastic()     || 
+     pi.IsInverseBetaDecay() ||
+     pi.IsResonant()         || 
+     pi.IsDeepInelastic()    || 
+     pi.IsDiffractive()) 
+  {
     assert(tgt.HitNucIsSet());
     double Mn   = tgt.HitNucP4Ptr()->M();
     double Mn2  = TMath::Power(Mn,2);
@@ -99,8 +106,8 @@ double KPhaseSpace::Threshold(void) const
        } else {
           int cpdg = xcls.CharmHadronPdg();
           double mchm = PDGLibrary::Instance()->Find(cpdg)->Mass();
-          if(pi.IsQuasiElastic()) { Wmin = mchm + kASmallNum; }
-          else                    { Wmin = kNeutronMass + mchm + kASmallNum; }
+          if(pi.IsQuasiElastic()) { Wmin = mchm + controls::kASmallNum; }
+          else                    { Wmin = kNeutronMass + mchm + controls::kASmallNum; }
        }
     }
     double smin = TMath::Power(Wmin+ml,2.);
@@ -179,10 +186,11 @@ bool KPhaseSpace::IsAboveThreshold(void) const
       E = init_state.ProbeE(kRfLab);
   }
 
-  if(pi.IsQuasiElastic()  || 
-     pi.IsResonant()      || 
-     pi.IsDeepInelastic() || 
-     pi.IsDiffractive()   || 
+  if(pi.IsQuasiElastic()     || 
+     pi.IsInverseBetaDecay() ||
+     pi.IsResonant()         || 
+     pi.IsDeepInelastic()    || 
+     pi.IsDiffractive()      || 
      pi.IsAMNuGamma()) 
   {
       E = init_state.ProbeE(kRfHitNucRest);
@@ -199,7 +207,7 @@ bool KPhaseSpace::IsAllowed(void) const
 
   // QEL: 
   //  Check the running Q2 vs the Q2 limits
-  if(pi.IsQuasiElastic()) {
+  if(pi.IsQuasiElastic() || pi.IsInverseBetaDecay()) {
     Range1D_t Q2l = this->Q2Lim();
     double    Q2  = kine.Q2();
     bool in_phys = math::IsWithinLimits(Q2, Q2l);
@@ -266,7 +274,7 @@ Range1D_t KPhaseSpace::WLim(void) const
   Wl.max = -1;
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
-  bool is_qel  = pi.IsQuasiElastic();
+  bool is_qel  = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
 
   if(is_qel) {
@@ -302,7 +310,7 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
   Q2l.max = -1;
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
-  bool is_qel  = pi.IsQuasiElastic();
+  bool is_qel  = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
 
   if(!is_qel && !is_inel) return Q2l;
@@ -316,7 +324,11 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
   if(is_qel) W = fInteraction->RecoilNucleon()->Mass();
   else       W = kinematics::W(fInteraction);
 
-  Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);  
+  if (pi.IsInverseBetaDecay()) {
+     Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W, controls::kMinQ2Limit_VLE);
+  } else {
+     Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);
+  }
   return Q2l;
 }
 //____________________________________________________________________________
@@ -342,7 +354,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   Q2l.max = -1;
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
-  bool is_qel  = pi.IsQuasiElastic();
+  bool is_qel  = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
 
   if(!is_qel && !is_inel) return Q2l;
@@ -354,15 +366,22 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
 
   const XclsTag & xcls = fInteraction->ExclTag();
 
+  // quasi-elastic
   if(is_qel) {
     double W = fInteraction->RecoilNucleon()->Mass();
     if(xcls.IsCharmEvent()) { 
       int charm_pdgc = xcls.CharmHadronPdg();           
       W = PDGLibrary::Instance()->Find(charm_pdgc)->Mass();
     }
-    Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);  
+    if (pi.IsInverseBetaDecay()) {
+       Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W,controls::kMinQ2Limit_VLE);
+    } else {
+       Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);
+    }
     return Q2l;
   }
+
+  // inelastic
   Q2l = kinematics::InelQ2Lim(Ev,M,ml);  
   return Q2l;
 }
@@ -405,7 +424,7 @@ Range1D_t KPhaseSpace::XLim(void) const
     return xl;
   }
   //QEL
-  bool is_qel = pi.IsQuasiElastic();
+  bool is_qel = pi.IsQuasiElastic() || pi.IsInverseBetaDecay();
   if(is_qel) {
     xl.min = 1;
     xl.max = 1;
@@ -413,8 +432,8 @@ Range1D_t KPhaseSpace::XLim(void) const
   }
   bool is_dfr = pi.IsDiffractive();
   if(is_dfr) {
-    xl.min = kASmallNum;
-    xl.max = 1.-kASmallNum;
+    xl.min =      controls::kASmallNum;
+    xl.max = 1. - controls::kASmallNum;
     return xl;
   }
 
@@ -450,8 +469,8 @@ Range1D_t KPhaseSpace::YLim(void) const
   }
   // IMD
   if(pi.IsInverseMuDecay() || pi.IsNuElectronElastic()) {
-    yl.min =   kASmallNum;
-    yl.max = 1-kASmallNum;
+    yl.min =      controls::kASmallNum;
+    yl.max = 1. - controls::kASmallNum;
     return yl;
   }
   bool is_dfr = pi.IsDiffractive();
@@ -459,8 +478,8 @@ Range1D_t KPhaseSpace::YLim(void) const
     const InitialState & init_state = fInteraction -> InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest); 
     double ml = fInteraction->FSPrimLepton()->Mass();
-    yl.min = kPionMass/Ev + kASmallNum;
-    yl.max = 1.-ml/Ev - kASmallNum;
+    yl.min = kPionMass/Ev + controls::kASmallNum;
+    yl.max = 1. -ml/Ev - controls::kASmallNum;
     return yl;
   }
   return yl;
