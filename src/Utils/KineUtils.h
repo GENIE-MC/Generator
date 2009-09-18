@@ -20,6 +20,7 @@
 #define _KINE_UTILS_H_
 
 #include "Conventions/KineVar.h"
+#include "Conventions/Controls.h"
 #include "Conventions/KinePhaseSpace.h"
 #include "Interaction/Interaction.h"
 #include "Utils/Range1.h"
@@ -39,10 +40,10 @@ namespace kinematics
 
   //-- kinematical limits
   Range1D_t  InelWLim    (double Ev, double M, double ml);
-  Range1D_t  InelQ2Lim_W (double Ev, double M, double ml, double W);
-  Range1D_t  Inelq2Lim_W (double Ev, double M, double ml, double W);
-  Range1D_t  InelQ2Lim   (double Ev, double M, double ml);
-  Range1D_t  Inelq2Lim   (double Ev, double M, double ml);
+  Range1D_t  InelQ2Lim_W (double Ev, double M, double ml, double W, double Q2min_cut =    controls::kMinQ2Limit);
+  Range1D_t  Inelq2Lim_W (double Ev, double M, double ml, double W, double q2min_cut = -1*controls::kMinQ2Limit);
+  Range1D_t  InelQ2Lim   (double Ev, double M, double ml, double Q2min_cut =    controls::kMinQ2Limit);
+  Range1D_t  Inelq2Lim   (double Ev, double M, double ml, double q2min_cut = -1*controls::kMinQ2Limit);
   Range1D_t  InelXLim    (double Ev, double M, double ml);
   Range1D_t  InelYLim    (double Ev, double M, double ml);
   Range1D_t  InelYLim_X  (double Ev, double M, double ml, double x);
