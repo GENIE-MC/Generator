@@ -23,6 +23,7 @@
  gSystem->Load("libGAlgorithm.so");
  gSystem->Load("libGNumerical.so");
  gSystem->Load("libGInteraction.so");
+ gSystem->Load("libGHEP.so");
  gSystem->Load("libGUtils.so");
  gSystem->Load("libGBase.so");
  gSystem->Load("libGPDG.so");
@@ -41,7 +42,6 @@
  gSystem->Load("libGPartonModel.so");
  gSystem->Load("libGBodekYang.so");
  gSystem->Load("libGEVGCore.so");
- gSystem->Load("libGHEP.so");
  gSystem->Load("libGEVGModules.so");
  gSystem->Load("libGEVGDrivers.so");
  gSystem->Load("libGNtuple.so");
