@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::LlewellynSmithModel
+\class    genie::LwlynSmithFF
 
 \brief    Abstract Base Class:
           implements the QELFormFactorsModelI interface but can not be
@@ -9,7 +9,7 @@
 
           Its sole purpose of existence is to transmit common implementation
           (related to the Llewellyn-Smith model for QEL vN scattering) to its
-          concrete subclasses: LlewellynSmithModelCC, LlewellynSmithModelNC.
+          concrete subclasses: LwlynSmithFFCC, LwlynSmithFFNC.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
@@ -32,28 +32,28 @@ namespace genie {
 
 class ELFormFactorsModelI;
 
-class LlewellynSmithModel : public QELFormFactorsModelI {
+class LwlynSmithFF : public QELFormFactorsModelI {
 
 public:
 
-  virtual ~LlewellynSmithModel();
+  virtual ~LwlynSmithFF();
 
-  //-- QELFormFactorModelI interface implementation
+  // QELFormFactorModelI interface implementation
   virtual double F1V     (const Interaction * interaction) const;
   virtual double xiF2V   (const Interaction * interaction) const;
   virtual double FA      (const Interaction * interaction) const;
   virtual double Fp      (const Interaction * interaction) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  // Overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   virtual void Configure(const Registry & config);
   virtual void Configure(string config);
 
 protected:
 
-  LlewellynSmithModel();
-  LlewellynSmithModel(string name);
-  LlewellynSmithModel(string name, string config);
+  LwlynSmithFF();
+  LwlynSmithFF(string name);
+  LwlynSmithFF(string name, string config);
 
   virtual void LoadConfig (void);
 
@@ -74,6 +74,5 @@ protected:
 };
 
 }       // genie namespace
-
 #endif  // _LLEWELLYN_SMITH_MODEL_H_
 

@@ -5,11 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 03, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Sep 19, 2009 - CA
+   Renamed LlewellynSmithModel -> LwlynSmithFF
 
 */
 //____________________________________________________________________________
@@ -20,37 +22,37 @@
 #include "ElFF/ELFormFactors.h"
 #include "ElFF/ELFormFactorsModelI.h"
 #include "Conventions/Constants.h"
-#include "LlewellynSmith/LlewellynSmithModel.h"
+#include "LlewellynSmith/LwlynSmithFF.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-LlewellynSmithModel::LlewellynSmithModel() :
+LwlynSmithFF::LwlynSmithFF() :
 QELFormFactorsModelI()
 {
 
 }
 //____________________________________________________________________________
-LlewellynSmithModel::LlewellynSmithModel(string name) :
+LwlynSmithFF::LwlynSmithFF(string name) :
 QELFormFactorsModelI(name)
 {
 
 }
 //____________________________________________________________________________
-LlewellynSmithModel::LlewellynSmithModel(string name, string config) :
+LwlynSmithFF::LwlynSmithFF(string name, string config) :
 QELFormFactorsModelI(name, config)
 {
 
 }
 //____________________________________________________________________________
-LlewellynSmithModel::~LlewellynSmithModel()
+LwlynSmithFF::~LwlynSmithFF()
 {
 
 }
 //____________________________________________________________________________
-double LlewellynSmithModel::F1V(const Interaction * interaction) const
+double LwlynSmithFF::F1V(const Interaction * interaction) const
 {
   double t   = this->tau(interaction);
   double gve = this->GVE(interaction);
@@ -60,7 +62,7 @@ double LlewellynSmithModel::F1V(const Interaction * interaction) const
   return F1V;
 }
 //____________________________________________________________________________
-double LlewellynSmithModel::xiF2V(const Interaction * interaction) const
+double LwlynSmithFF::xiF2V(const Interaction * interaction) const
 {
   double t   = this->tau(interaction);
   double gve = this->GVE(interaction);
@@ -70,7 +72,7 @@ double LlewellynSmithModel::xiF2V(const Interaction * interaction) const
   return xiF2V;
 }
 //____________________________________________________________________________
-double LlewellynSmithModel::FA(const Interaction * interaction) const
+double LwlynSmithFF::FA(const Interaction * interaction) const
 {
   // get scattering parameters
   const Kinematics & kine = interaction->Kine();
@@ -82,7 +84,7 @@ double LlewellynSmithModel::FA(const Interaction * interaction) const
   return FA;
 }
 //____________________________________________________________________________
-double LlewellynSmithModel::Fp(const Interaction * interaction) const
+double LwlynSmithFF::Fp(const Interaction * interaction) const
 {
   // get momentum transfer
   const Kinematics & kine = interaction->Kine();
@@ -103,19 +105,19 @@ double LlewellynSmithModel::Fp(const Interaction * interaction) const
   return Fp;
 }
 //____________________________________________________________________________
-void LlewellynSmithModel::Configure(const Registry & config)
+void LwlynSmithFF::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void LlewellynSmithModel::Configure(string config)
+void LwlynSmithFF::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void LlewellynSmithModel::LoadConfig(void)
+void LwlynSmithFF::LoadConfig(void)
 {
 // Load configuration data from its configuration Registry (or global defaults)
 // to private data members
@@ -150,7 +152,7 @@ void LlewellynSmithModel::LoadConfig(void)
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
 }
 //____________________________________________________________________________
-double LlewellynSmithModel::tau(const Interaction * interaction) const
+double LwlynSmithFF::tau(const Interaction * interaction) const
 {
 // computes q^2 / (4 * MNucl^2)
 
@@ -165,7 +167,7 @@ double LlewellynSmithModel::tau(const Interaction * interaction) const
   return q2/(4*Mnucl2);
 }
 //____________________________________________________________________________
-double LlewellynSmithModel::GVE(const Interaction * interaction) const
+double LwlynSmithFF::GVE(const Interaction * interaction) const
 {
   //-- compute GVE using CVC
 
@@ -174,7 +176,7 @@ double LlewellynSmithModel::GVE(const Interaction * interaction) const
   return gve;
 }
 //____________________________________________________________________________
-double LlewellynSmithModel::GVM(const Interaction * interaction) const
+double LwlynSmithFF::GVM(const Interaction * interaction) const
 {
   //-- compute GVM using CVC
 

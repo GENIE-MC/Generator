@@ -5,11 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 03, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Sep 19, 2009 - CA
+   Renamed LlewellynSmithModelNC -> LwlynSmithFFNC
 
 */
 //____________________________________________________________________________
@@ -19,37 +21,37 @@
 #include "Conventions/Constants.h"
 #include "ElFF/ELFormFactors.h"
 #include "ElFF/ELFormFactorsModelI.h"
-#include "LlewellynSmith/LlewellynSmithModelNC.h"
+#include "LlewellynSmith/LwlynSmithFFNC.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-LlewellynSmithModelNC::LlewellynSmithModelNC() :
-LlewellynSmithModel("genie::LlewellynSmithModelNC")
+LwlynSmithFFNC::LwlynSmithFFNC() :
+LwlynSmithFF("genie::LwlynSmithFFNC")
 {
 
 }
 //____________________________________________________________________________
-LlewellynSmithModelNC::LlewellynSmithModelNC(string config) :
-LlewellynSmithModel("genie::LlewellynSmithModelNC", config)
+LwlynSmithFFNC::LwlynSmithFFNC(string config) :
+LwlynSmithFF("genie::LwlynSmithFFNC", config)
 {
 
 }
 //____________________________________________________________________________
-LlewellynSmithModelNC::~LlewellynSmithModelNC()
+LwlynSmithFFNC::~LwlynSmithFFNC()
 {
 
 }
 //____________________________________________________________________________
-double LlewellynSmithModelNC::F1V(const Interaction * interaction) const
+double LwlynSmithFFNC::F1V(const Interaction * interaction) const
 {
   //-- calculate F1V-CC
-  double F1V_CC = LlewellynSmithModel::F1V(interaction);
+  double F1V_CC = LwlynSmithFF::F1V(interaction);
 
   //-- calculate F1p (see hep-ph/0107261)
   fELFF.Calculate(interaction);
-  double t   = LlewellynSmithModel::tau(interaction);
+  double t   = LwlynSmithFF::tau(interaction);
   double F1p = fELFF.Gep() - t * fELFF.Gmp();
 
   //-- calculate F1V-NC
@@ -57,10 +59,10 @@ double LlewellynSmithModelNC::F1V(const Interaction * interaction) const
   return F1V_NC;
 }
 //____________________________________________________________________________
-double LlewellynSmithModelNC::xiF2V(const Interaction * interaction) const
+double LwlynSmithFFNC::xiF2V(const Interaction * interaction) const
 {
   //-- calculate xiF2V_CC
-  double xiF2V_CC = LlewellynSmithModel::xiF2V(interaction);
+  double xiF2V_CC = LwlynSmithFF::xiF2V(interaction);
 
   //-- calculate F2p (see hep-ph/0107261)
   fELFF.Calculate(interaction);
@@ -71,17 +73,17 @@ double LlewellynSmithModelNC::xiF2V(const Interaction * interaction) const
   return xiF2V_NC;
 }
 //____________________________________________________________________________
-double LlewellynSmithModelNC::FA(const Interaction * interaction) const
+double LwlynSmithFFNC::FA(const Interaction * interaction) const
 {
   //-- calculate FA_CC(q2)
-  double FA_CC = LlewellynSmithModel::FA(interaction);
+  double FA_CC = LwlynSmithFF::FA(interaction);
 
   //-- calculate & return FA_NC(q2)
   double FA_NC = 0.5 * FA_CC;
   return FA_NC;
 }
 //____________________________________________________________________________
-double LlewellynSmithModelNC::Fp(const Interaction * interaction) const
+double LwlynSmithFFNC::Fp(const Interaction * interaction) const
 {
   //-- get the momentum transfer
   const Kinematics & kine = interaction->Kine();

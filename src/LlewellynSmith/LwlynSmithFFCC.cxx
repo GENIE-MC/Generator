@@ -5,58 +5,60 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 03, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Sep 19, 2009 - CA
+   Renamed LlewellynSmithModelCC -> LwlynSmithFFCC
 
 */
 //____________________________________________________________________________
 
 #include "Conventions/Constants.h"
-#include "LlewellynSmith/LlewellynSmithModelCC.h"
+#include "LlewellynSmith/LwlynSmithFFCC.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-LlewellynSmithModelCC::LlewellynSmithModelCC() :
-LlewellynSmithModel("genie::LlewellynSmithModelCC")
+LwlynSmithFFCC::LwlynSmithFFCC() :
+LwlynSmithFF("genie::LwlynSmithFFCC")
 {
 
 }
 //____________________________________________________________________________
-LlewellynSmithModelCC::LlewellynSmithModelCC(string config) :
-LlewellynSmithModel("genie::LlewellynSmithModelCC", config)
+LwlynSmithFFCC::LwlynSmithFFCC(string config) :
+LwlynSmithFF("genie::LwlynSmithFFCC", config)
 {
 
 }
 //____________________________________________________________________________
-LlewellynSmithModelCC::~LlewellynSmithModelCC()
+LwlynSmithFFCC::~LwlynSmithFFCC()
 {
 
 }
 //____________________________________________________________________________
-double LlewellynSmithModelCC::F1V(const Interaction * interaction) const
+double LwlynSmithFFCC::F1V(const Interaction * interaction) const
 {
-  return LlewellynSmithModel::F1V(interaction);
+  return LwlynSmithFF::F1V(interaction);
 }
 //____________________________________________________________________________
-double LlewellynSmithModelCC::xiF2V(const Interaction * interaction) const
+double LwlynSmithFFCC::xiF2V(const Interaction * interaction) const
 {
-  return LlewellynSmithModel::xiF2V(interaction);
+  return LwlynSmithFF::xiF2V(interaction);
 }
 //____________________________________________________________________________
-double LlewellynSmithModelCC::FA(const Interaction * interaction) const
+double LwlynSmithFFCC::FA(const Interaction * interaction) const
 {
-  return LlewellynSmithModel::FA(interaction);
+  return LwlynSmithFF::FA(interaction);
 }
 //____________________________________________________________________________
-double LlewellynSmithModelCC::Fp(const Interaction * interaction) const
+double LwlynSmithFFCC::Fp(const Interaction * interaction) const
 {
-  return LlewellynSmithModel::Fp(interaction);
+  return LwlynSmithFF::Fp(interaction);
 }
 //____________________________________________________________________________
 

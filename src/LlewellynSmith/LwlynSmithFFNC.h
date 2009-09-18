@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::LlewellynSmithModelNC
+\class    genie::LwlynSmithFFNC
 
 \brief    Concrete implementation of the QELFormFactorsModelI :
           Form Factors for Quasi Elastic NC vN scattering according to
@@ -23,20 +23,18 @@
 #ifndef _LLEWELLYN_SMITH_MODEL_NC_H_
 #define _LLEWELLYN_SMITH_MODEL_NC_H_
 
-#include "LlewellynSmith/LlewellynSmithModel.h"
+#include "LlewellynSmith/LwlynSmithFF.h"
 
 namespace genie {
 
-class LlewellynSmithModelNC : public LlewellynSmithModel {
+class LwlynSmithFFNC : public LwlynSmithFF {
 
 public:
+  LwlynSmithFFNC();
+  LwlynSmithFFNC(string config);
+  virtual ~LwlynSmithFFNC();
 
-  LlewellynSmithModelNC();
-  LlewellynSmithModelNC(string config);
-  virtual ~LlewellynSmithModelNC();
-
-  //-- QELFormFactorModelI interface implementation
-
+  // QELFormFactorModelI interface implementation
   double F1V     (const Interaction * interaction) const;
   double xiF2V   (const Interaction * interaction) const;
   double FA      (const Interaction * interaction) const;
@@ -44,6 +42,5 @@ public:
 };
 
 }       // genie namespace
-
 #endif  // _LLEWELLYN_SMITH_MODEL_NC_H_
 
