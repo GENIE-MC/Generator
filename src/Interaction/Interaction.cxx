@@ -29,7 +29,10 @@
    Adapted COH name ctors (COHPi -> COH) in anticipation of including coherent
    vector meson production.
  @ Aug 21, 2009 - CR
-   Added IBD (Inverse Beta Decay) interaction
+   Added IBD() named ctors for Inverse Beta Decay interactions
+ @ Sep 18, 2009 - CR
+   Added QELEM() named ctors for charged lepton QEL interactions. 
+   In RecoilNucleonPdg() allow EM interactions.
 */
 //____________________________________________________________________________
 
@@ -179,11 +182,14 @@ int Interaction::RecoilNucleonPdg(void) const
   int struck_nuc = target.HitNucPdg();
 
   if(fProcInfo->IsQuasiElastic()) {
-    assert(pdg::IsNeutronOrProton(struck_nuc) && fProcInfo->IsWeak());
+    bool struck_is_nuc = pdg::IsNeutronOrProton(struck_nuc);
+    bool is_weak = fProcInfo->IsWeak();
+    bool is_em   = fProcInfo->IsEM();
+    assert(struck_is_nuc && (is_weak || is_em));
     if(fProcInfo->IsWeakCC()) 
        recoil_nuc = pdg::SwitchProtonNeutron(struck_nuc); // CC
     else 
-       recoil_nuc = struck_nuc; // NC
+       recoil_nuc = struck_nuc; // NC, EM
   }
 
   LOG("Interaction", pDEBUG) << "Recoil nucleon PDG = " << recoil_nuc;
@@ -444,6 +450,31 @@ Interaction * Interaction::QELNC(
 {
   Interaction * interaction = 
      Interaction::Create(target,probe,kScQuasiElastic, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::QELEM(int target, int hitnuc, int probe, double E)
+{
+  Interaction * interaction = 
+     Interaction::Create(target,probe,kScQuasiElastic, kIntEM);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::QELEM(
+   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+     Interaction::Create(target,probe,kScQuasiElastic, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);

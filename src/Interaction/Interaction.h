@@ -103,6 +103,8 @@ public:
   static Interaction * QELCC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * QELNC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * QELNC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * QELEM     (int tgt, int nuc, int probe, double E=0);
+  static Interaction * QELEM     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * IBD       (int tgt, int nuc, int probe, double E=0);
   static Interaction * IBD       (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * RESCC     (int tgt, int nuc, int probe, double E=0);
