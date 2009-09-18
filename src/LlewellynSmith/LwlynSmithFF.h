@@ -22,8 +22,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _LLEWELLYN_SMITH_MODEL_H_
-#define _LLEWELLYN_SMITH_MODEL_H_
+#ifndef _LLEWELLYN_SMITH_FORM_FACTOR_MODEL_H_
+#define _LLEWELLYN_SMITH_FORM_FACTOR_MODEL_H_
 
 #include "Base/QELFormFactorsModelI.h"
 #include "ElFF/ELFormFactors.h"
@@ -74,5 +74,6 @@ protected:
 };
 
 }       // genie namespace
-#endif  // _LLEWELLYN_SMITH_MODEL_H_
+
+#endif  
 
