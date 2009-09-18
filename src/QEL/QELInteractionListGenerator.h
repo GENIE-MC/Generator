@@ -46,10 +46,12 @@ private:
 
   InteractionList * CreateInteractionListCC      (const InitialState & init) const;
   InteractionList * CreateInteractionListNC      (const InitialState & init) const;
+  InteractionList * CreateInteractionListEM      (const InitialState & init) const;
   InteractionList * CreateInteractionListCharmCC (const InitialState & init) const;
 
   bool fIsCC;
   bool fIsNC;
+  bool fIsEM;
   bool fIsCharm;
 };
 

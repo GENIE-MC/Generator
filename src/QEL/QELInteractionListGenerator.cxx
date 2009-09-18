@@ -5,13 +5,15 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 13, 2005
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Mar 03, 2009 - CA
    Moved into the new QEL package from its previous location (EVGModules)
+ @ Sep 15, 2009 - CA
+   Generate interaction lists for charged lepton scattering too.
 
 */
 //____________________________________________________________________________
@@ -44,17 +46,22 @@ QELInteractionListGenerator::~QELInteractionListGenerator()
 }
 //___________________________________________________________________________
 InteractionList * QELInteractionListGenerator::CreateInteractionList(
-                                       const InitialState & init_state) const
+   const InitialState & init_state) const
 {
   LOG("IntLst", pINFO)
      << "InitialState = " << init_state.AsString();
 
-  if      (fIsCC && !fIsCharm) 
-                return this->CreateInteractionListCC(init_state);
-  else if (fIsNC && !fIsCharm) 
-                return this->CreateInteractionListNC(init_state);
-  else if (fIsCC &&  fIsCharm) 
-                return this->CreateInteractionListCharmCC(init_state);
+  if (fIsCC && !fIsCharm) 
+     return this->CreateInteractionListCC(init_state);
+  else 
+  if (fIsNC && !fIsCharm) 
+     return this->CreateInteractionListNC(init_state);
+  else 
+  if (fIsEM) 
+     return this->CreateInteractionListEM(init_state);
+  else 
+  if (fIsCC &&  fIsCharm) 
+     return this->CreateInteractionListCharmCC(init_state);
   else {
      LOG("IntLst", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "
@@ -65,7 +72,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionList(
 }
 //___________________________________________________________________________
 InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
-                                       const InitialState & init_state) const
+   const InitialState & init_state) const
 {
   InteractionList * intlist = new InteractionList;
 
@@ -100,7 +107,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
 }
 //___________________________________________________________________________
 InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
-                                       const InitialState & init_state) const
+   const InitialState & init_state) const
 {
   InteractionList * intlist = new InteractionList;
 
@@ -149,9 +156,40 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
   return intlist;
 }
 //___________________________________________________________________________
+InteractionList * QELInteractionListGenerator::CreateInteractionListEM(
+   const InitialState & init_state) const
+{
+  InteractionList * intlist = new InteractionList;
+
+  int  ppdg   = init_state.ProbePdg();
+  bool ischgl = pdg::IsChargedLepton(ppdg);
+
+  if(!ischgl) {
+     LOG("IntLst", pWARN)
+       << "Can not handle probe! Returning NULL InteractionList "
+       << "for init-state: " << init_state.AsString();
+     delete intlist;
+     return 0;
+  }
+
+  bool hasP    = (init_state.Tgt().Z() > 0);
+
+  if(!hasP) {
+     delete intlist;
+     return 0;
+  }
+
+  int tgtpdg = init_state.Tgt().Pdg();
+
+  Interaction * interaction = Interaction::QELEM(tgtpdg,kPdgProton,ppdg);
+  intlist->push_back(interaction);
+
+  return intlist;
+}
+//___________________________________________________________________________
 InteractionList * 
   QELInteractionListGenerator::CreateInteractionListCharmCC(
-                                      const InitialState & init_state) const
+    const InitialState & init_state) const
 {
   //   vl + n --> l- + Lambda_{c}^{+} (2285)
   //   vl + n --> l- + Sigma_{c}^{+}  (2455)
@@ -215,6 +253,7 @@ void QELInteractionListGenerator::LoadConfigData(void)
 {
   fIsCC    = fConfig->GetBoolDef("is-CC",    false);
   fIsNC    = fConfig->GetBoolDef("is-NC",    false);
+  fIsEM    = fConfig->GetBoolDef("is-EM",    false);
   fIsCharm = fConfig->GetBoolDef("is-Charm", false);
 }
 //____________________________________________________________________________
