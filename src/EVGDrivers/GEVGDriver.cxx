@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - August 06, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -28,6 +28,9 @@
  @ Mar 11, 2009 - CA
    In GenerateEvent() don't abort if no interaction is selected or if no
    interaction can be generated after N attempts.
+ @ Sep 19, 2009 - CA
+   In AssertIsValidInitState() accept any lepton, not just neutrinos. 
+   Make Print() less neutrino-centric.
 */
 //____________________________________________________________________________
 
@@ -707,11 +710,9 @@ Range1D_t GEVGDriver::ValidEnergyRange(void) const
 void GEVGDriver::AssertIsValidInitState(void) const
 {
   assert(fInitState);
-
-  int nu_pdgc = fInitState->ProbePdg();
-
-  bool isnu = pdg::IsNeutrino(nu_pdgc) || pdg::IsAntiNeutrino(nu_pdgc);
-  assert(isnu);
+  int ppdgc = fInitState->ProbePdg();
+  bool isl = pdg::IsLepton(ppdgc);
+  assert(isl);
 }
 //___________________________________________________________________________
 void GEVGDriver::Print(ostream & stream) const
@@ -719,11 +720,11 @@ void GEVGDriver::Print(ostream & stream) const
   stream
     << "\n\n *********************** GEVGDriver ***************************";
 
-  int nupdg  = fInitState->ProbePdg();
+  int ppdg   = fInitState->ProbePdg();
   int tgtpdg = fInitState->Tgt().Pdg();
 
-  stream << "\n  |---o Neutrino PDG-code .........: " << nupdg;
-  stream << "\n  |---o Nuclear Target PDG-code ...: " << tgtpdg;
+  stream << "\n  |---o Probe PDG-code ......: " << ppdg;
+  stream << "\n  |---o Target PDG-code .....: " << tgtpdg;
 
   stream << "\n  |---o Using cross section splines is turned "
                                 << utils::print::BoolAsIOString(fUseSplines);
