@@ -28,6 +28,7 @@
  gSystem->Load("libGBase.so");
  gSystem->Load("libGPDG.so");
  gSystem->Load("libGPDF.so");
+ gSystem->Load("libGElFF.so");
  gSystem->Load("libGDecay.so");
  gSystem->Load("libGFragmentation.so");
  gSystem->Load("libGBaryonResonance.so");
