@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the QELPXSec xsec algorithm. [remove]
+Configuration for the LwlynSmithFFCC xsec algorithm.
 
 Configurable Parameters:
 .....................................................................................................

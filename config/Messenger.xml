@@ -85,6 +85,7 @@
   <priority msgstream="KineLimits">          INFO   </priority>
   <priority msgstream="Kinematics">          INFO   </priority>
   <priority msgstream="LeptonicVertex">      INFO   </priority>
+  <priority msgstream="LwlynSmith">          NOTICE </priority>
   <priority msgstream="Math">                NOTICE </priority>
   <priority msgstream="MEC">                 INFO   </priority>
   <priority msgstream="Messenger">           INFO   </priority>
@@ -107,8 +108,8 @@
   <priority msgstream="PDG">                 INFO   </priority>
   <priority msgstream="PathL">               NOTICE </priority>
   <priority msgstream="QELXSec">             NOTICE </priority>
-  <priority msgstream="QELCharmXSec">        NOTICE  </priority>
-  <priority msgstream="QELPXSec">            NOTICE </priority>
+  <priority msgstream="QELCharmXSec">        NOTICE </priority>
+  <priority msgstream="QELPXSec">            NOTICE </priority> <!-- remove -->
   <priority msgstream="QELHadronicVtx">      INFO   </priority>
   <priority msgstream="QELKinematics">       INFO   </priority>
   <priority msgstream="RESXSec">             INFO   </priority>
