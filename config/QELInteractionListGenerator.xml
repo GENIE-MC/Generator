@@ -19,6 +19,10 @@ Name             Type     Optional   Comment               Default
         <param type="bool" name="is-NC"> true  </param>
   </param_set>
 
+  <param_set name="EM-Default"> 
+        <param type="bool" name="is-EM"> true  </param>
+  </param_set>
+
   <param_set name="CC-Charm-Default"> 
         <param type="bool" name="is-CC">    true  </param>
         <param type="bool" name="is-Charm"> true  </param>
