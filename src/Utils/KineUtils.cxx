@@ -10,7 +10,15 @@
  For documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Sep 19, 2009 - CA
+   Removed the hardcoded Q2min cut to accomododate the group extending GENIE
+   to ~MeV range energies (They require the Q2min cut to go down from 1E-4
+   GeV^2 to 1E-10 GeV^2). Now all methods computing Q2 limits accept the cut
+   as argument. The argument has a default value (controls::kMinQ2Limit) that 
+   leaves the intermediate energy (~GeV) simulations unaffected.
+   Removed 'using namespace genie::controls' and added the controls namespace
+   qualifier at all relevent consts to clarify their source.
+   
 */
 //____________________________________________________________________________
 
@@ -19,7 +27,6 @@
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
-#include "Conventions/Controls.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
@@ -28,7 +35,6 @@
 
 using namespace genie;
 using namespace genie::constants;
-using namespace genie::controls;
 
 //____________________________________________________________________________
 double genie::utils::kinematics::PhaseSpaceVolume(
@@ -88,8 +94,8 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 
     const int    kNx = 100;  
     const int    kNy = 100;  
-    const double kdx = (kMaxX-kMinX)/(kNx-1);	
-    const double kdy = (kMaxY-kMinY)/(kNy-1);	
+    const double kdx = (controls::kMaxX - controls::kMinX) / (kNx-1);	
+    const double kdy = (controls::kMaxY - controls::kMinY) / (kNy-1);	
     const double kdV = kdx*kdy;
 
     double cW=-1, cQ2 = -1;
@@ -97,9 +103,9 @@ double genie::utils::kinematics::PhaseSpaceVolume(
     Interaction interaction(*in);
 
     for(int ix=0; ix<kNx; ix++) {
-      double x = kMinX+ix*kdx;
+      double x = controls::kMinX+ix*kdx;
       for(int iy=0; iy<kNy; iy++) {
-         double y = kMinY+iy*kdy;
+         double y = controls::kMinY+iy*kdy;
 
          XYtoWQ2(Ev, M, cW, cQ2, x, y);
          if(!math::IsWithinLimits(cW, W)) continue;
@@ -144,12 +150,12 @@ double genie::utils::kinematics::Jacobian(
   // ****** transformation: {Q2}|E -> {QD2}|E
   else if ( TransformMatched(fromps,tops,kPSQD2fE,kPSQ2fE,forward) ) 
   {
-    J = TMath::Power(1+kine.Q2()/kMQD2,-2)/kMQD2;
+    J = TMath::Power(1+kine.Q2()/controls::kMQD2,-2)/controls::kMQD2;
   } 
   // ****** transformation: {W,Q2}|E -> {W,QD2}|E
   else if ( TransformMatched(fromps,tops,kPSWQD2fE,kPSWQ2fE,forward) ) 
   {
-    J = TMath::Power(1+kine.Q2()/kMQD2,-2)/kMQD2;
+    J = TMath::Power(1+kine.Q2()/controls::kMQD2,-2)/controls::kMQD2;
   } 
   // ****** transformation: {x,y}|E -> {lnx,lny}|E
   else if ( TransformMatched(fromps,tops,kPSxyfE,kPSlogxlogyfE,forward) ) 
@@ -232,13 +238,13 @@ Range1D_t genie::utils::kinematics::InelWLim(double Ev, double M, double ml)
     W.max = -1;
     return W;
   }
-  W.min  += kASmallNum;
-  W.max  -= kASmallNum;
+  W.min  += controls::kASmallNum;
+  W.max  -= controls::kASmallNum;
   return W;
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::InelQ2Lim_W(
-                                 double Ev, double M, double ml, double W)
+     double Ev, double M, double ml, double W, double Q2min_cut)
 {
 // Computes Q2 limits (>0) @ the input W for inelastic v interactions
 
@@ -269,25 +275,26 @@ Range1D_t genie::utils::kinematics::InelQ2Lim_W(
   Q2.min = TMath::Max(0., Q2.min);
 
   // limit the minimum Q2
-  if(Q2.min < kMinQ2Limit) Q2.min = kMinQ2Limit;
-  if(Q2.max < Q2.min) {Q2.min = -1; Q2.max = -1;}
+  if(Q2.min < Q2min_cut) {Q2.min = Q2min_cut;     }
+  if(Q2.max < Q2.min   ) {Q2.min = -1; Q2.max = -1;}
 
   return Q2;
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::Inelq2Lim_W(
-                                 double Ev, double M, double ml, double W)
+    double Ev, double M, double ml, double W, double q2min_cut)
 {
 // Computes q2 (<0) limits @ the input W for inelastic v interactions
 
-  Range1D_t Q2 = utils::kinematics::InelQ2Lim_W(Ev,M,ml,W);
+  Range1D_t Q2 = utils::kinematics::InelQ2Lim_W(Ev,M,ml,W,-1.*q2min_cut);
   Range1D_t q2;
   q2.min = - Q2.max;
   q2.max = - Q2.min;
   return q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::InelQ2Lim(double Ev, double M, double ml)
+Range1D_t genie::utils::kinematics::InelQ2Lim(
+    double Ev, double M, double ml, double Q2min_cut)
 {
 // Computes Q2 (>0) limits irrespective of W for inelastic v interactions
 
@@ -298,15 +305,16 @@ Range1D_t genie::utils::kinematics::InelQ2Lim(double Ev, double M, double ml)
   Range1D_t W  = utils::kinematics::InelWLim(Ev,M,ml);
   if(W.min<0) return Q2;
 
-  Q2 = utils::kinematics::InelQ2Lim_W(Ev,M,ml,W.min);
+  Q2 = utils::kinematics::InelQ2Lim_W(Ev,M,ml,W.min,Q2min_cut);
   return Q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::Inelq2Lim(double Ev, double M, double ml)
+Range1D_t genie::utils::kinematics::Inelq2Lim(
+     double Ev, double M, double ml, double q2min_cut)
 {
 // Computes Q2 (>0) limits irrespective of W for inelastic v interactions
 
-  Range1D_t Q2 = utils::kinematics::InelQ2Lim(Ev,M,ml);
+  Range1D_t Q2 = utils::kinematics::InelQ2Lim(Ev,M,ml,-1.*q2min_cut);
   Range1D_t q2;
   q2.min = - Q2.max;
   q2.max = - Q2.min;
@@ -327,8 +335,8 @@ Range1D_t genie::utils::kinematics::InelXLim(double Ev, double M, double ml)
   assert (s>M2);
 
   Range1D_t x;
-  x.min = ml2/(s-M2) + kASmallNum;
-  x.max = 1.         - kASmallNum;  
+  x.min = ml2/(s-M2) + controls::kASmallNum;
+  x.max = 1.         - controls::kASmallNum;  
 
   return x;
 }
@@ -358,8 +366,8 @@ Range1D_t genie::utils::kinematics::InelYLim(double Ev, double M, double ml)
   }
 
   if(y.max >= 0 && y.max <= 1 && y.min >= 0 && y.min <= 1) {
-    y.min = TMath::Max(y.min,     kASmallNum);
-    y.max = TMath::Min(y.max, 1 - kASmallNum);  
+    y.min = TMath::Max(y.min,     controls::kASmallNum);
+    y.max = TMath::Min(y.max, 1 - controls::kASmallNum);  
   } else {
     y.min = -1;
     y.max = -1;
@@ -395,8 +403,8 @@ Range1D_t genie::utils::kinematics::InelYLim_X(
   double A = 0.5 * (1-a-0.5*b)/c;
   double B = 0.5 * TMath::Sqrt(d)/c;
 
-  y.min = TMath::Max(0., A-B) + kASmallNum;
-  y.max = TMath::Min(1., A+B) - kASmallNum;
+  y.min = TMath::Max(0., A-B) + controls::kASmallNum;
+  y.max = TMath::Min(1., A+B) - controls::kASmallNum;
 
   return y;
 }
@@ -405,7 +413,7 @@ Range1D_t genie::utils::kinematics::CohXLim(void)
 {
 // Computes x limits for coherent v interactions
 
-  Range1D_t x(kASmallNum, 1.-kASmallNum);
+  Range1D_t x(controls::kASmallNum, 1.-controls::kASmallNum);
   return x;
 }
 //____________________________________________________________________________
@@ -413,7 +421,8 @@ Range1D_t genie::utils::kinematics::CohYLim(double EvL, double ml)
 {
 // Computes y limits for coherent v interactions
 
-  Range1D_t y(kPionMass/EvL + kASmallNum, 1.-ml/EvL - kASmallNum);
+  Range1D_t y(kPionMass/EvL + controls::kASmallNum, 
+              1.-ml/EvL - controls::kASmallNum);
   return y;
 }
 //____________________________________________________________________________
@@ -426,13 +435,13 @@ double genie::utils::kinematics::Q2toQD2(double Q2)
 // kinematical selection.
 
   assert(Q2>0);
-  return TMath::Power(1+Q2/kMQD2, -1);
+  return TMath::Power(1+Q2/controls::kMQD2, -1);
 }
 //____________________________________________________________________________
 double genie::utils::kinematics::QD2toQ2(double QD2)
 {
   assert(QD2>0);
-  return kMQD2*(1/QD2-1);
+  return controls::kMQD2*(1/QD2-1);
 }
 //____________________________________________________________________________
 double genie::utils::kinematics::Q2(const Interaction * const interaction)
