@@ -74,6 +74,7 @@
   <priority msgstream="HadTransp">           INFO   </priority>
   <priority msgstream="HadronicVtx">         NOTICE </priority>
   <priority msgstream="HybridHad">           INFO   </priority>
+  <priority msgstream="IBD">                 NOTICE </priority>
   <priority msgstream="IMDXSec">             NOTICE </priority>
   <priority msgstream="IntSel">              NOTICE </priority>
   <priority msgstream="IntLst">              NOTICE </priority>
@@ -129,6 +130,7 @@
   <priority msgstream="RESSelector">         NOTICE </priority>
   <priority msgstream="Rndm">                INFO   </priority>
   <priority msgstream="Rosenbluth">          NOTICE </priority>
+  <priority msgstream="StrumiaVissani">      NOTICE </priority>
   <priority msgstream="SpectralFunc1">       NOTICE </priority>
   <priority msgstream="SpectralFunc">        NOTICE </priority>
   <priority msgstream="Simpson1D">           WARN   </priority>
