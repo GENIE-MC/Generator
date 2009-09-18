@@ -20,8 +20,8 @@
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/QELFormFactorsModelI.h"
-#include "Base/ELFormFactorsModelI.h"
 #include "Base/XSecAlgorithmI.h"
+#include "ElFF/ELFormFactorsModelI.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;

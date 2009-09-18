@@ -20,47 +20,39 @@
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/QELFormFactorsModelI.h"
-#include "Base/ELFormFactorsModelI.h"
+#include "ElFF/ELFormFactorsModelI.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;
 
 int main(int /*argc*/, char ** /*argv*/)
 {
-  //-- Get an instance of the ConfigPool
-
+  // Get an instance of the ConfigPool
   LOG("Main", pINFO) << "Get config pool instance";
   AlgConfigPool * pool = AlgConfigPool::Instance();
 
-  //-- Print the ConfigPool ( => print all its configuration registries )
-
+  // Print the ConfigPool ( => print all its configuration registries )
   LOG("Main", pINFO) << "Printing the config pool\n" << *pool;
 
-  //-- get the algorithm factory
-
+  // Get the algorithm factory
   AlgFactory * algf = AlgFactory::Instance();
 
-  //-- instantiate an algorithm
-
+  // Instantiate an algorithm
   LOG("Main", pINFO) << "Instantiate a concrete algorithm";
-
-  const Algorithm * alg0 = algf->GetAlgorithm(
-                                  "genie::LlewellynSmithModelCC","Default");
+  const Algorithm * alg0 = 
+       algf->GetAlgorithm("genie::LlewellynSmithModelCC","Default");
   const QELFormFactorsModelI * llewellyn_smith =
-                         dynamic_cast<const QELFormFactorsModelI *> (alg0);
+                  dynamic_cast<const QELFormFactorsModelI *> (alg0);
   LOG("Main", pINFO) << *alg0;
 
-
   LOG("Main", pINFO) << "Instantiate another concrete algorithm";
-
-  const Algorithm * alg1 = algf->GetAlgorithm(
-                             "genie::DipoleELFormFactorsModel","Default");
+  const Algorithm * alg1 = 
+     algf->GetAlgorithm("genie::DipoleELFormFactorsModel","Default");
   const ELFormFactorsModelI * dipole_elff =
-                         dynamic_cast<const ELFormFactorsModelI *> (alg1);
+                   dynamic_cast<const ELFormFactorsModelI *> (alg1);
   LOG("Main", pINFO) << *alg1;
 
-
-  //-- Ask the ConfigPool for this algorithm's config registry and print it
+  // Ask the ConfigPool for this algorithm's config registry and print it
 
   LOG("Main", pINFO) << "Find the configuration for both algorithms";
 
