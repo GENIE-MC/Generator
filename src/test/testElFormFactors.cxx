@@ -23,8 +23,8 @@
 
 #include "Algorithm/Algorithm.h"
 #include "Algorithm/AlgFactory.h"
-#include "Base/ELFormFactors.h"
-#include "Base/ELFormFactorsModelI.h"
+#include "ElFF/ELFormFactors.h"
+#include "ElFF/ELFormFactorsModelI.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
