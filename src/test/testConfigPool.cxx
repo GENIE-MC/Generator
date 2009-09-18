@@ -40,16 +40,16 @@ int main(int /*argc*/, char ** /*argv*/)
   // Instantiate an algorithm
   LOG("Main", pINFO) << "Instantiate a concrete algorithm";
   const Algorithm * alg0 = 
-       algf->GetAlgorithm("genie::LlewellynSmithModelCC","Default");
+       algf->GetAlgorithm("genie::LwlynSmithFFCC","Default");
   const QELFormFactorsModelI * llewellyn_smith =
-                  dynamic_cast<const QELFormFactorsModelI *> (alg0);
+       dynamic_cast<const QELFormFactorsModelI *> (alg0);
   LOG("Main", pINFO) << *alg0;
 
   LOG("Main", pINFO) << "Instantiate another concrete algorithm";
   const Algorithm * alg1 = 
-     algf->GetAlgorithm("genie::DipoleELFormFactorsModel","Default");
+       algf->GetAlgorithm("genie::DipoleELFormFactorsModel","Default");
   const ELFormFactorsModelI * dipole_elff =
-                   dynamic_cast<const ELFormFactorsModelI *> (alg1);
+        dynamic_cast<const ELFormFactorsModelI *> (alg1);
   LOG("Main", pINFO) << *alg1;
 
   // Ask the ConfigPool for this algorithm's config registry and print it
