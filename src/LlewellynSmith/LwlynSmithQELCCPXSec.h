@@ -20,8 +20,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _QEL_PARTIAL_XSEC_H_
-#define _QEL_PARTIAL_XSEC_H_
+#ifndef _LLEWELLYN_SMITH_QELCC_CROSS_SECTION_H_
+#define _LLEWELLYN_SMITH_QELCC_CROSS_SECTION_H_
 
 #include "Base/XSecAlgorithmI.h"
 #include "Base/QELFormFactors.h"
@@ -58,4 +58,5 @@ private:
 };
 
 }       // genie namespace
-#endif  // _QEL_PARTIAL_XSEC_H_
+
+#endif  
