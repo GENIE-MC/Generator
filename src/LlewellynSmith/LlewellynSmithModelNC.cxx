@@ -16,9 +16,9 @@
 
 #include <TMath.h>
 
-#include "Base/ELFormFactors.h"
-#include "Base/ELFormFactorsModelI.h"
 #include "Conventions/Constants.h"
+#include "ElFF/ELFormFactors.h"
+#include "ElFF/ELFormFactorsModelI.h"
 #include "LlewellynSmith/LlewellynSmithModelNC.h"
 
 using namespace genie;
