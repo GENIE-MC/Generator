@@ -49,10 +49,9 @@ namespace rew   {
    void CleanUp (void);
 
    GSystSet     fSystSet;         ///< set of enabled nuisance parameters
-/*
    GReWeightI * fReWeightNuXSec;  ///< handles all enabled GENIE cross section params
-   GReWeightI * fReWeightINuk;    ///< handles all enabled GENIE intranuclear rescattering params
-*/
+   GReWeightI * fReWeightAGKY;    ///< handles all enabled GENIE hadronization params
+   GReWeightI * fReWeightINuke;   ///< handles all enabled GENIE intranuclear rescattering params
  };
 
 } // rew   namespace

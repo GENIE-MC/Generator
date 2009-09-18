@@ -28,8 +28,9 @@
 #include "EVGCore/EventRecord.h"
 #include "Messenger/Messenger.h"
 #include "ReWeight/GReWeight.h"
-//#include "ReWeight/GReWeightNuXSec.h"
-//#include "ReWeight/GRwGenieINukeHA.h"
+#include "ReWeight/GReWeightNuXSec.h"
+#include "ReWeight/GReWeightAGKY.h"
+#include "ReWeight/GReWeightINuke.h"
 
 using std::cout;
 using std::cerr;
@@ -40,25 +41,24 @@ using std::string;
 using namespace genie;
 using namespace genie::rew;
 
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 GReWeight::GReWeight()
 {
   this->Init();
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 GReWeight::~GReWeight()
 {
   this->CleanUp();
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 GSystSet & GReWeight::Systematics(void)
 { 
   return fSystSet; 
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 void GReWeight::Reconfigure(void)
 {
-/*
   LOG("ReW", pNOTICE) << "Reconfiguring ...";
 
   fSystSet.PrintSummary();
@@ -71,65 +71,61 @@ void GReWeight::Reconfigure(void)
     double val = fSystSet.CurValue(syst);
 
     fReWeightNuXSec -> SetSystematic(syst, val);
-    fReWeightINuk -> SetSystematic(syst, val);
+    fReWeightAGKY   -> SetSystematic(syst, val);
+    fReWeightINuke  -> SetSystematic(syst, val);
   }
 
   fReWeightNuXSec -> Reconfigure();
-  fReWeightINuk -> Reconfigure();
+  fReWeightAGKY   -> Reconfigure();
+  fReWeightINuke  -> Reconfigure();
 
   LOG("ReW", pNOTICE) << "Done reconfiguring";
-*/
 }
-//_______________________________________________________________________________________
-double GReWeight::CalcWeight(const genie::EventRecord & /*event*/) 
+//____________________________________________________________________________
+double GReWeight::CalcWeight(const genie::EventRecord & event) 
 {
-// calculate weight for all tweaked cross section and intranuke parameters
+// calculate weight for all tweaked physics parameters
 //
-/*
   double weight_xsec  = fReWeightNuXSec -> CalcWeight(event);  // cross sections
-  double weight_inuke = fReWeightINuk   -> CalcWeight(event);  // intranuke
+  double weight_agky  = fReWeightAGKY   -> CalcWeight(event);  // hadronization
+  double weight_inuke = fReWeightINuke  -> CalcWeight(event);  // intranuke
 
   double weight = weight_xsec * 
+                  weight_agky *
                   weight_inuke;
 
   return weight;
-*/
-  return 0;
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 double GReWeight::CalcChisq(void) 
 {
-// calculate the sum of penalty terms for all tweaked flux, cross section and intranuke
-// parameters
+// calculate the sum of penalty terms for all tweaked physics parameters
 
-/*
   double chisq_xsec  = fReWeightNuXSec -> CalcChisq();  // cross sections
-  double chisq_inuke = fReWeightINuk   -> CalcChisq();  // intranuke
+  double chisq_agky  = fReWeightAGKY   -> CalcChisq();  // hadronization
+  double chisq_inuke = fReWeightINuke  -> CalcChisq();  // intranuke
 
   double chisq = TMath::Max(0., chisq_xsec ) +
+                 TMath::Max(0., chisq_agky ) +
                  TMath::Max(0., chisq_inuke);
 
   return chisq;
-*/
-  return 0;
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 void GReWeight::Init(void)
 {
-/*
   fReWeightNuXSec = new GReWeightNuXSec;
-  fReWeightINuk   = new GRwGenieINukeHA;
-*/
+  fReWeightAGKY   = new GReWeightAGKY;
+  fReWeightINuke  = new GReWeightINuke;
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 void GReWeight::CleanUp(void)
 {
-/*
   delete fReWeightNuXSec; 
-  delete fReWeightINuk; 
-*/
+  delete fReWeightAGKY; 
+  delete fReWeightINuke; 
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 void GReWeight::Print()
 {
   vector<genie::rew::GSyst_t> syst_vec = this->Systematics().AllIncluded();
@@ -146,6 +142,6 @@ void GReWeight::Print()
 
   LOG("ReW", pNOTICE) << "Chisq_{penalty} = " << chi2val;
 }
-//_______________________________________________________________________________________
+//____________________________________________________________________________
 
 
