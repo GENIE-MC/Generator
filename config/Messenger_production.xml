@@ -74,6 +74,7 @@
   <priority msgstream="HadTransp">           WARN   </priority>
   <priority msgstream="HadronicVtx">         WARN   </priority>
   <priority msgstream="HybridHad">           WARN   </priority>
+  <priority msgstream="IBD">                 WARN   </priority>
   <priority msgstream="IMDXSec">             WARN   </priority>
   <priority msgstream="IntSel">              WARN   </priority>
   <priority msgstream="IntLst">              WARN   </priority>
@@ -129,6 +130,7 @@
   <priority msgstream="RESSelector">         WARN   </priority>
   <priority msgstream="Rndm">                WARN   </priority>
   <priority msgstream="Rosenbluth">          WARN   </priority>
+  <priority msgstream="StrumiaVissani">      WARN   </priority>
   <priority msgstream="SpectralFunc1">       WARN   </priority>
   <priority msgstream="SpectralFunc">        WARN   </priority>
   <priority msgstream="Simpson1D">           WARN   </priority>
