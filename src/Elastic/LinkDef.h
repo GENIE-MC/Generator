@@ -6,6 +6,9 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::NuNucElasticPXSec;
+#pragma link C++ class genie::AhrensNCELPXSec;
+#pragma link C++ class genie::RosenbluthPXSec;
+
+#pragma link C++ class genie::NuNucElasticPXSec;  # remove
 
 #endif
