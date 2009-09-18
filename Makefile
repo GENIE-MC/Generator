@@ -102,6 +102,7 @@ evgen-models: FORCE
 	cd Diffractive;        make; cd ..; \
 	cd DIS;                make; cd ..; \
 	cd Elastic; 	       make; cd ..; \
+	cd ElFF; 	       make; cd ..; \
 	cd EVGModules;         make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
 	cd GiBUU;              make; cd ..; \
@@ -360,6 +361,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGDrivers
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/EVGModules
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Elastic
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/ElFF
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/FluxDrivers
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Fragmentation
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/GHEP
@@ -408,6 +410,7 @@ copy-install-files: FORCE
 	cd Diffractive; 	   make install; cd ..; \
 	cd DIS; 		   make install; cd ..; \
 	cd Elastic; 	           make install; cd ..; \
+	cd ElFF; 	           make install; cd ..; \
 	cd EVGCore;                make install; cd ..; \
 	cd EVGModules;             make install; cd ..; \
 	cd EVGDrivers;             make install; cd ..; \
@@ -456,6 +459,7 @@ purge: FORCE
 	cd Diffractive;                   make purge; cd ..; \
 	cd DIS; 	                  make purge; cd ..; \
 	cd Elastic; 	                  make purge; cd ..; \
+	cd ElFF; 	                  make purge; cd ..; \
 	cd EVGCore;                       make purge; cd ..; \
 	cd EVGModules;                    make purge; cd ..; \
 	cd EVGDrivers;                    make purge; cd ..; \
@@ -510,6 +514,7 @@ clean-files: FORCE
 	cd Diffractive; 	          make clean; cd ..; \
 	cd DIS;	 		          make clean; cd ..; \
 	cd Elastic; 	                  make clean; cd ..; \
+	cd ElFF; 	                  make clean; cd ..; \
 	cd EVGCore;                       make clean; cd ..; \
 	cd EVGModules;                    make clean; cd ..; \
 	cd EVGDrivers;                    make clean; cd ..; \
@@ -581,6 +586,7 @@ distclean: FORCE
 	cd Diffractive; 	           make distclean; cd ..; \
 	cd DIS;		 	           make distclean; cd ..; \
 	cd Elastic; 	                   make distclean; cd ..; \
+	cd ElFF; 	                   make distclean; cd ..; \
 	cd EVGCore;                        make distclean; cd ..; \
 	cd EVGModules;                     make distclean; cd ..; \
 	cd EVGDrivers;                     make distclean; cd ..; \
