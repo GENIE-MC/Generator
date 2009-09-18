@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the NuNucElasticPXSec xsec algorithm.  [remove]
+Configuration for the AhrensNCELPXSec xsec algorithm.
 
 Configurable Parameters:
 ..........................................................................................

@@ -22,6 +22,7 @@
     one found last is used
    -->
 
+  <priority msgstream="AhrensNCEL">          WARN   </priority>
   <priority msgstream="AlgFactory">          WARN   </priority>
   <priority msgstream="Algorithm">           WARN   </priority>
   <priority msgstream="AlgConfigPool">       WARN   </priority>
@@ -127,6 +128,7 @@
   <priority msgstream="RESKinematics">       WARN   </priority>
   <priority msgstream="RESSelector">         WARN   </priority>
   <priority msgstream="Rndm">                WARN   </priority>
+  <priority msgstream="Rosenbluth">          WARN   </priority>
   <priority msgstream="SpectralFunc1">       WARN   </priority>
   <priority msgstream="SpectralFunc">        WARN   </priority>
   <priority msgstream="Simpson1D">           WARN   </priority>
