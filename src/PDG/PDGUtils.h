@@ -35,6 +35,8 @@ namespace pdg
   
   bool IsNeutrino      (int pdgc);
   bool IsAntiNeutrino  (int pdgc);
+
+  bool IsLepton        (int pdgc);
   bool IsNeutralLepton (int pdgc);
   bool IsChargedLepton (int pdgc);
 

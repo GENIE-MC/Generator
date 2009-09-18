@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 02, 2004
+         STFC, Rutherford Appleton Laboratory
 
  For documentation see the corresponding header file.
 
@@ -14,6 +14,8 @@
    Added Is2NucleonCuster(pdg)
  @ Sep 15, 2009 - CA
    Added IsPseudoParticle(), IsParticle(), IsPion(), IsNucleon()
+ @ Sep 18, 2009 - CA
+   Added IsLepton()
 */
 //____________________________________________________________________________
 
@@ -101,6 +103,15 @@ bool genie::pdg::IsAntiNeutrino(int pdgc)
                   (pdgc == kPdgAntiNuTau);
 
   return is_nubar;
+}
+//____________________________________________________________________________
+bool genie::pdg::IsLepton(int pdgc)
+{
+  bool is_neutral_lepton = genie::pdg::IsNeutralLepton(pdgc);
+  bool is_charged_lepton = genie::pdg::IsChargedLepton(pdgc);
+
+  bool is_lepton = (is_neutral_lepton || is_charged_lepton);
+  return is_lepton;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNeutralLepton(int pdgc)
