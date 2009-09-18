@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for Very Low Energy QEL Strumia/Vissani calculation
+
+Configurable Parameters:
+.....................................................................................................
+Name               Type     Optional   Comment                          Default
+.....................................................................................................
+XSec-Integrator    alg      No
+CabbiboAngle       double   Yes        Cabbibo angle                    GPL value: CabbiboAngle
+G1of0              double   Yes        Axial form factor at Q2=0        GPL value: QEL-FA0
+Ma                 double   Yes        Axial Mass                       GPL value: QEL-Ma
+Mv                 double   Yes        Vector Mass                      GPL value: QEL-Mv
+MuP                double   Yes        p Anomalous Magn Moment          GPL value: AnomMagnMoment-P
+MuN                double   Yes        n Anomalous Magn Moment          GPL value: AnomMagnMoment-N
+EpsilonMag         int      Yes        1e-EPSILON (to compare w/ 0)     10
+-->
+
+  <param_set name="Default"> 
+     <param type="alg" name="XSec-Integrator"> genie::QELXSec/Default </param>
+     <param type="int" name="EpsilonMag">      10                     </param>
+  </param_set>
+
+</alg_conf>
+
