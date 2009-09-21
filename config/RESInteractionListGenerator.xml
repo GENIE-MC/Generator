@@ -10,6 +10,7 @@ Name                        Type    Opt  Comment                                
 ResonanceNameList           string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
 is-CC                       bool    Yes  set true for CC list                                  false
 is-NC                       bool    Yes  set true for NC list                                  false
+is-EM                       bool    Yes  set true for EM list                                  false
 -->
 
 <alg_conf>
@@ -20,6 +21,10 @@ is-NC                       bool    Yes  set true for NC list                   
 
   <param_set name="NC-Default">
     <param type="bool" name="is-NC"> true </param>
+ </param_set>
+
+  <param_set name="EM-Default">
+    <param type="bool" name="is-EM"> true </param>
  </param_set>
 
 </alg_conf>

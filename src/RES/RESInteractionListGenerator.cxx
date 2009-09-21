@@ -12,6 +12,8 @@
  Important revisions after version 2.0.0 :
  @ Mar 03, 2009 - CA
    Moved into the new RES package from its previous location (EVGModules)
+ @ Sep 21, 2009 - CA
+   Generate interaction lists for charge lepton scattering
 
 */
 //____________________________________________________________________________
@@ -69,13 +71,12 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
   // and then the resonance R should be allowed to decay to get the full
   // hadronic final state X. All decay channels kinematically accessible
   // to the (off the mass-shell produced) resonance can be allowed.
-  // Another similar thread exists (SPP) but there we generate exlusive
-  // single pion interactions from resonance production.
 
   // specify the requested interaction type
   InteractionType_t inttype;
   if      (fIsCC) inttype = kIntWeakCC;
   else if (fIsNC) inttype = kIntWeakNC;
+  else if (fIsEM) inttype = kIntEM;
   else {
      LOG("IntLst", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "
@@ -167,6 +168,7 @@ void RESInteractionListGenerator::LoadConfigData(void)
 
   fIsCC = fConfig->GetBoolDef("is-CC", false);
   fIsNC = fConfig->GetBoolDef("is-NC", false);
+  fIsEM = fConfig->GetBoolDef("is-EM", false);
 
   // Create the list with all the baryon resonances that the user wants me to
   // consider (from this algorithm's config file).
