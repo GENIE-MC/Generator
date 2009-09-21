@@ -10,6 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Sep 21, 2009 - CA
+   Remove SyncSeeds() function. Now the GENIE/PYTHIA6 random number generator
+   seed is synchonized at the genie::RandomGen() initialization.
 
 */
 //____________________________________________________________________________
@@ -71,14 +74,15 @@ bool PythiaDecayer::IsHandled(int code) const
 void PythiaDecayer::Initialize(void) const
 {
   fPythia = TPythia6::Instance();
+
+  // sync GENIE/PYTHIA6 seeds
+  RandomGen::Instance();
 }
 //____________________________________________________________________________
 TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
 {
   if ( ! this->IsHandled(inp.PdgCode) ) return 0;
   
-  this->SyncSeeds();
-
   //-- check whether we should inhibit some channels
   if(inp.InhibitedChannels)
        this->SwitchOffInhibitedChannels(inp.PdgCode, inp.InhibitedChannels);
@@ -251,15 +255,3 @@ void PythiaDecayer::LoadConfig(void)
   fForceDecay = fConfig->GetBoolDef("ForceDecay", false);
 }
 //____________________________________________________________________________
-void PythiaDecayer::SyncSeeds(void) const
-{
-// Keep PYTHIA6 random number seed in sync with GENIE's random number seed
-//
-  long int cs = RandomGen::Instance()->GetSeed();
-  if(fCurrSeed != cs) {
-     fCurrSeed = cs;
-     fPythia->SetMRPY(1,fCurrSeed);
-  }
-}
-//____________________________________________________________________________
-
