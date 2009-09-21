@@ -54,6 +54,7 @@ private:
 
   bool fIsCC;
   bool fIsNC;
+  bool fIsEM;
   bool fSetHitQuark;
   bool fIsCharm;
 };

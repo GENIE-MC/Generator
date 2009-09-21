@@ -12,6 +12,8 @@
  Important revisions after version 2.0.0 :
  @ Mar 03, 2009 - CA
    Moved into the new DIS package from its previous location (EVGModules).
+ @ Sep 21, 2009 - CA
+   Generate interaction lists for charge lepton scattering.
 
 */
 //____________________________________________________________________________
@@ -52,6 +54,7 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
   InteractionType_t inttype;
   if      (fIsCC) inttype = kIntWeakCC;
   else if (fIsNC) inttype = kIntWeakNC;
+  else if (fIsEM) inttype = kIntEM;
   else {
      LOG("IntLst", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "
@@ -147,6 +150,7 @@ void DISInteractionListGenerator::LoadConfigData(void)
 {
   fIsCC        = fConfig->GetBoolDef("is-CC",         false);
   fIsNC        = fConfig->GetBoolDef("is-NC",         false);
+  fIsEM        = fConfig->GetBoolDef("is-EM",         false);
   fIsCharm     = fConfig->GetBoolDef("is-Charm",      false);
   fSetHitQuark = fConfig->GetBoolDef("set-hit-quark", false);
 }
@@ -161,7 +165,7 @@ multimap<int,bool> DISInteractionListGenerator::GetHitQuarks(
 
   const ProcessInfo & proc = interaction->ProcInfo();
 
-  if(proc.IsWeakNC()) {
+  if(proc.IsWeakNC() || proc.IsEM()) {
     //
     // NC - includes both v+N, vbar+N
     //
