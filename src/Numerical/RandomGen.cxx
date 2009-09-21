@@ -17,6 +17,7 @@
 #include <cstdlib>
 
 #include <TSystem.h>
+#include <TPythia6.h>
 
 #include "Conventions/Controls.h"
 #include "Messenger/Messenger.h"
@@ -69,11 +70,39 @@ RandomGen * RandomGen::Instance()
 //____________________________________________________________________________
 void RandomGen::SetSeed(long int seed)
 {
-  gRandom  -> SetSeed (seed);
-  fRandom3 -> SetSeed (seed);
+  // Set the seed number for all internal GENIE random number generators
+  this->RndKine ().SetSeed(seed);
+  this->RndHadro().SetSeed(seed);
+  this->RndDec  ().SetSeed(seed); 
+  this->RndFsi  ().SetSeed(seed);
+  this->RndLep  ().SetSeed(seed);
+  this->RndISel ().SetSeed(seed);
+  this->RndGeom ().SetSeed(seed);
+  this->RndFlux ().SetSeed(seed);
+  this->RndEvg  ().SetSeed(seed);
+  this->RndNum  ().SetSeed(seed); 
+  this->RndGen  ().SetSeed(seed);
 
-  LOG("Rndm", pINFO) << "gRandom  seed = " << gRandom  -> GetSeed();
-  LOG("Rndm", pINFO) << "fRandom3 seed = " << fRandom3 -> GetSeed();
+  // Set the seed number for ROOT's gRandom
+  gRandom ->SetSeed (seed);
+
+  // Set the PYTHIA6 seed number
+  TPythia6 * pythia6 = TPythia6::Instance();
+  pythia6->SetMRPY(1, seed);
+
+  LOG("Rndm", pINFO) << "RndKine  seed = " << this->RndKine ().GetSeed();
+  LOG("Rndm", pINFO) << "RndHadro seed = " << this->RndHadro().GetSeed();
+  LOG("Rndm", pINFO) << "RndDec   seed = " << this->RndDec  ().GetSeed();
+  LOG("Rndm", pINFO) << "RndFsi   seed = " << this->RndFsi  ().GetSeed();
+  LOG("Rndm", pINFO) << "RndLep   seed = " << this->RndLep  ().GetSeed();
+  LOG("Rndm", pINFO) << "RndISel  seed = " << this->RndISel ().GetSeed();
+  LOG("Rndm", pINFO) << "RndGeom  seed = " << this->RndGeom ().GetSeed();
+  LOG("Rndm", pINFO) << "RndFlux  seed = " << this->RndFlux ().GetSeed();
+  LOG("Rndm", pINFO) << "RndEvg   seed = " << this->RndEvg  ().GetSeed();
+  LOG("Rndm", pINFO) << "RndNum   seed = " << this->RndNum  ().GetSeed();
+  LOG("Rndm", pINFO) << "RndGen   seed = " << this->RndGen  ().GetSeed();
+  LOG("Rndm", pINFO) << "gRandom  seed = " << gRandom->GetSeed();
+  LOG("Rndm", pINFO) << "PYTHIA6  seed = " << pythia6->GetMRPY(1);
 }
 //____________________________________________________________________________
 void RandomGen::InitRandomGenerators(long int seed)
