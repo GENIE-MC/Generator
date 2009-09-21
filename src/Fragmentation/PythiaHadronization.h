@@ -50,12 +50,10 @@ private:
 
   void LoadConfig     (void);
   bool AssertValidity (const Interaction * i) const;
-  void SyncSeeds      (void) const;
   void SwitchDecays   (int pdgc, bool on_off) const;
   void HandleDecays   (TClonesArray * plist) const;
 
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
-  mutable long int   fCurrSeed; ///< always keep PYTHIA's & GENIE's seeds in sync
 
   const DecayModelI * fDecayer;
 

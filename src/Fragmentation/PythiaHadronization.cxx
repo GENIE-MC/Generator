@@ -12,7 +12,11 @@
  Important revisions after version 2.0.0 :
  @ Dec 04, 2007 - CA
    Handle very rare failure mode where a bare quark or di-quark appears in
-   the final state
+   the final state.
+ @ Sep 21, 2009 - CA
+   Remove SyncSeeds() function. Now the GENIE/PYTHIA6 random number generator
+   seed is synchonized at the genie::RandomGen() initialization.
+
 */
 //____________________________________________________________________________
 
@@ -67,6 +71,9 @@ PythiaHadronization::~PythiaHadronization()
 void PythiaHadronization::Initialize(void) const
 {
   fPythia = TPythia6::Instance();
+
+  // sync GENIE/PYTHIA6 seed number
+  RandomGen::Instance();
 }
 //____________________________________________________________________________
 TClonesArray * PythiaHadronization::Hadronize(
@@ -78,7 +85,6 @@ TClonesArray * PythiaHadronization::Hadronize(
      LOG("PythiaHad", pWARN) << "Returning a null particle list!";
      return 0;
   }
-  this->SyncSeeds();
 
   //-- get kinematics / init-state / process-info
 
@@ -483,17 +489,6 @@ void PythiaHadronization::LoadConfig(void)
                      "R-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
 
   LOG("PythiaHad", pDEBUG) << *fConfig;
-}
-//____________________________________________________________________________
-void PythiaHadronization::SyncSeeds(void) const
-{
-// Keep PYTHIA6 random number seed in sync with GENIE's random number seed
-//
-  long int cs = RandomGen::Instance()->GetSeed();
-  if(fCurrSeed != cs) {
-     fCurrSeed = cs;
-     fPythia->SetMRPY(1,fCurrSeed);
-  }
 }
 //____________________________________________________________________________
 bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
