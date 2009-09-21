@@ -161,9 +161,10 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListEM(
 {
   InteractionList * intlist = new InteractionList;
 
-  int  ppdg   = init_state.ProbePdg();
-  bool ischgl = pdg::IsChargedLepton(ppdg);
+  int tgtpdg = init_state.Tgt().Pdg();
+  int ppdg   = init_state.ProbePdg();
 
+  bool ischgl = pdg::IsChargedLepton(ppdg);
   if(!ischgl) {
      LOG("IntLst", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
@@ -172,17 +173,21 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListEM(
      return 0;
   }
 
-  bool hasP    = (init_state.Tgt().Z() > 0);
+  bool hasP = (init_state.Tgt().Z() > 0);
+  if(hasP) {
+    Interaction * interaction = Interaction::QELEM(tgtpdg,kPdgProton,ppdg);
+    intlist->push_back(interaction);
+  }
+  bool hasN = (init_state.Tgt().N() > 0);
+  if(hasN) {
+    Interaction * interaction = Interaction::QELEM(tgtpdg,kPdgNeutron,ppdg);
+    intlist->push_back(interaction);
+  }
 
-  if(!hasP) {
+  if(intlist->size() == 0) {
      delete intlist;
      return 0;
   }
-
-  int tgtpdg = init_state.Tgt().Pdg();
-
-  Interaction * interaction = Interaction::QELEM(tgtpdg,kPdgProton,ppdg);
-  intlist->push_back(interaction);
 
   return intlist;
 }
