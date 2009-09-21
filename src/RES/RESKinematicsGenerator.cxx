@@ -12,7 +12,9 @@
  Important revisions after version 2.0.0 :
  @ Mar 03, 2009 - CA
    Moved into the new RES package from its previous location (EVGModules)
-
+ @ Sep 21, 2009 - CA
+   In ComputeMaxXSec() protect against NW=1 when calculating the step size dW
+   as pointed out by Robert.
 */
 //____________________________________________________________________________
 
@@ -410,7 +412,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
     if(Wmax-Wmin<0.05) { NW=1; Wmin=Wmax; }
 
-    double dW = (Wmax-Wmin)/(NW-1);
+    double dW = (NW>1) ? (Wmax-Wmin)/(NW-1) : 0.;
 
     for(int iw=0; iw<NW; iw++) {
       double W = Wmin + iw*dW;
