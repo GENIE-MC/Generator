@@ -23,6 +23,7 @@
 #include <TMath.h>
 
 #include "Conventions/Units.h"
+#include "GHEP/GHepParticle.h"
 #include "HadronTransport/INukeHadroData.h"
 #include "HadronTransport/INukeHadroFates.h"
 #include "HadronTransport/INukeUtils.h"
@@ -192,6 +193,56 @@ double genie::utils::rew::FateFraction(
   fate_frac *= frac_scale_factor;
                  
   return fate_frac;
+}
+//____________________________________________________________________________
+bool genie::utils::rew::HadronizedByAGKY(const EventRecord & event)
+{ 
+  Interaction * interaction = event.Summary();
+  assert(interaction);                                                     
+
+  bool is_dis  = interaction->ProcInfo().IsDeepInelastic();
+  bool charm   = interaction->ExclTag().IsCharmEvent();
+  bool by_agky = is_dis && !charm;
+
+  return by_agky;
+}
+//____________________________________________________________________________
+bool genie::utils::rew::HadronizedByAGKYPythia(const EventRecord & event) 
+{ 
+// Check whether the event was hadronized by AGKY/KNO or AGKY/PYTHIA
+   
+  GHepStatus_t prefragm = kIStDISPreFragmHadronicState;
+  bool found_string  = (event.FindParticle(kPdgString,  prefragm, 0) != 0);
+  bool found_cluster = (event.FindParticle(kPdgCluster, prefragm, 0) != 0);
+  bool handled_by_pythia = found_string || found_cluster;
+
+  return handled_by_pythia;
+}
+//____________________________________________________________________________
+TLorentzVector genie::utils::rew::Hadronic4pLAB(const EventRecord & event)
+{
+  GHepParticle * nu = event.Probe();                    // incoming v
+  GHepParticle * N  = event.HitNucleon();               // struck nucleon
+  GHepParticle * l  = event.FinalStatePrimaryLepton();  // f/s primary lepton
+ 
+  assert(nu);                                                              
+  assert(N);
+  assert(l);
+
+  // Compute the Final State Hadronic System 4p (PX = Pv + PN - Pl)
+
+  const TLorentzVector & p4nu = *(nu->P4());
+  const TLorentzVector & p4N  = *(N ->P4());
+  const TLorentzVector & p4l  = *(l ->P4());
+
+  TLorentzVector pX4 = p4nu + p4N - p4l;
+
+  return pX4;
+}
+//____________________________________________________________________________
+double genie::utils::rew::AGKYWeight(int /*pdgc*/, double /*xF*/, double /*pT2*/)
+{
+  return 1.0;
 }
 //____________________________________________________________________________
 

@@ -23,6 +23,9 @@
 #ifndef _RW_UTILS_H_
 #define _RW_UTILS_H_
 
+#include <TLorentzVector.h>
+
+#include "EVGCore/EventRecord.h"
 #include "ReWeight/GSyst.h"
 
 namespace genie {
@@ -34,12 +37,24 @@ namespace rew   {
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
     double mfp_scale_factor, bool interacted,
     double nRpi=0.5, double nRnuc=1.0, double NR=3, double R0=1.4);
-
   double MeanFreePathWeight(
       double prob_def, double prob_twk, bool interacted);
 
-  //
+  // Return the fraction of the hadron rescatering fate described by the input
+  // systematic enumeration at the input hadron kinetic energy
   double FateFraction(genie::rew::GSyst_t syst, double kinE, double frac_scale_factor=1.);
+
+  // Check whether the input event is hadronized by AGKY
+  bool  HadronizedByAGKY(const EventRecord & event);
+
+  // Check whether the input event is hadronized by AGKY/PYTHIA
+  bool  HadronizedByAGKYPythia(const EventRecord & event);
+  
+  // Compute the hadronic system 4-momentum @ LAB
+  TLorentzVector Hadronic4pLAB(const EventRecord & event);
+
+  //
+  double AGKYWeight(int pdgc, double xF, double pT2);
 
 }  // rew   namespace
 }  // utils namespace
