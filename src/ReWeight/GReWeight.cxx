@@ -30,6 +30,7 @@
 #include "ReWeight/GReWeight.h"
 #include "ReWeight/GReWeightNuXSec.h"
 #include "ReWeight/GReWeightAGKY.h"
+#include "ReWeight/GReWeightFZone.h"
 #include "ReWeight/GReWeightINuke.h"
 
 using std::cout;
@@ -72,11 +73,13 @@ void GReWeight::Reconfigure(void)
 
     fReWeightNuXSec -> SetSystematic(syst, val);
     fReWeightAGKY   -> SetSystematic(syst, val);
+    fReWeightFZone  -> SetSystematic(syst, val);
     fReWeightINuke  -> SetSystematic(syst, val);
   }
 
   fReWeightNuXSec -> Reconfigure();
   fReWeightAGKY   -> Reconfigure();
+  fReWeightFZone  -> Reconfigure();
   fReWeightINuke  -> Reconfigure();
 
   LOG("ReW", pNOTICE) << "Done reconfiguring";
@@ -88,10 +91,12 @@ double GReWeight::CalcWeight(const genie::EventRecord & event)
 //
   double weight_xsec  = fReWeightNuXSec -> CalcWeight(event);  // cross sections
   double weight_agky  = fReWeightAGKY   -> CalcWeight(event);  // hadronization
+  double weight_fzone = fReWeightFZone  -> CalcWeight(event);  // form. zone
   double weight_inuke = fReWeightINuke  -> CalcWeight(event);  // intranuke
 
   double weight = weight_xsec * 
                   weight_agky *
+                  weight_fzone *
                   weight_inuke;
 
   return weight;
@@ -101,12 +106,14 @@ double GReWeight::CalcChisq(void)
 {
 // calculate the sum of penalty terms for all tweaked physics parameters
 
-  double chisq_xsec  = fReWeightNuXSec -> CalcChisq();  // cross sections
-  double chisq_agky  = fReWeightAGKY   -> CalcChisq();  // hadronization
-  double chisq_inuke = fReWeightINuke  -> CalcChisq();  // intranuke
+  double chisq_xsec  = fReWeightNuXSec -> CalcChisq(); 
+  double chisq_agky  = fReWeightAGKY   -> CalcChisq();  
+  double chisq_fzone = fReWeightFZone  -> CalcChisq();  
+  double chisq_inuke = fReWeightINuke  -> CalcChisq(); 
 
   double chisq = TMath::Max(0., chisq_xsec ) +
                  TMath::Max(0., chisq_agky ) +
+                 TMath::Max(0., chisq_fzone) +
                  TMath::Max(0., chisq_inuke);
 
   return chisq;
@@ -116,6 +123,7 @@ void GReWeight::Init(void)
 {
   fReWeightNuXSec = new GReWeightNuXSec;
   fReWeightAGKY   = new GReWeightAGKY;
+  fReWeightFZone  = new GReWeightFZone;
   fReWeightINuke  = new GReWeightINuke;
 }
 //____________________________________________________________________________
@@ -123,6 +131,7 @@ void GReWeight::CleanUp(void)
 {
   delete fReWeightNuXSec; 
   delete fReWeightAGKY; 
+  delete fReWeightFZone; 
   delete fReWeightINuke; 
 }
 //____________________________________________________________________________
