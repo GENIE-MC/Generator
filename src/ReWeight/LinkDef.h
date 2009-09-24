@@ -17,10 +17,11 @@
 #pragma link C++ class genie::rew::GReWeightNuXSec;
 #pragma link C++ class genie::rew::GReWeightNuXSecParams;
 #pragma link C++ class genie::rew::GReWeightNuXSecHelper;
-#pragma link C++ class genie::rew::GReWeightAGKY;
 #pragma link C++ class genie::rew::GReWeightINuke;
 #pragma link C++ class genie::rew::GReWeightINukeParams;
 #pragma link C++ class genie::rew::GReWeightINukeParams::Fates;
 #pragma link C++ class genie::rew::GReWeightINukeParams::MFP;
+#pragma link C++ class genie::rew::GReWeightAGKY;
+#pragma link C++ class genie::rew::GReWeightFZone;
 
 #endif

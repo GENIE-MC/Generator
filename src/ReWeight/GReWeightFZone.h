@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::rew::GReWeightAGKY
+\class    genie::rew::GReWeightFZone
 
-\brief    Reweighting the GENIE AGKY (free-nucleon) hadronization model
+\brief    Reweighting the formation zone model
 
 \author   Jim Dobson <J.Dobson07 \at imperial.ac.uk>
           Imperial College London
@@ -11,7 +11,7 @@
           Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
-\created  Sep 10, 2009
+\created  Sep 20, 2009
 
 \cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -19,8 +19,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _G_REWEIGHT_AGKY_H_
-#define _G_REWEIGHT_AGKY_H_
+#ifndef _G_REWEIGHT_FZONE_H_
+#define _G_REWEIGHT_FZONE_H_
 
 #include "ReWeight/GReWeightI.h"
 
@@ -30,11 +30,11 @@ using namespace genie;
 namespace genie {
 namespace rew   {
 
- class GReWeightAGKY : public GReWeightI 
+ class GReWeightFZone : public GReWeightI 
  {
  public:
-   GReWeightAGKY();
-  ~GReWeightAGKY();
+   GReWeightFZone();
+  ~GReWeightFZone();
 
    // implement the GReWeightI interface
    void   SetSystematic  (GSyst_t syst, double val);
