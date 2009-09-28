@@ -31,6 +31,7 @@
   gROOT->ProcessLine(".x nuint09_qel3.C(0)");
   gROOT->ProcessLine(".x nuint09_qel4.C(0)");
   gROOT->ProcessLine(".x nuint09_qel5.C(0)");
+  gROOT->ProcessLine(".x nuint09_qel6.C(0)");
 
   // final state {X pi+}
   gROOT->ProcessLine(".x nuint09_1pi1.C(0,0,1)"); // all sources
