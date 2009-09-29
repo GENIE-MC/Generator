@@ -62,6 +62,11 @@ int kA[3] =
 void nuint09_qel2(int isample, int include_fsi=0)
 {
   cout << " ***** running: QEL.2" << endl;
+  if(include_fsi==0) { cout << "-FSI" << endl;  }
+  else 
+  if(include_fsi==1) { cout << "+FSI" << endl;  }
+  else
+   return;
 
   if(isample<0 || isample >= kNSamples) return;
 
@@ -100,7 +105,8 @@ void nuint09_qel2(int isample, int include_fsi=0)
   out_stream << "#  Cross section as a function of f/s proton kinetic energy at E_nu= 0.5, 1.0 GeV." << endl;
   out_stream << "#  " << endl;
   out_stream << "#  Note:" << endl;
-  if(include_fsi!=0){
+  if(include_fsi==1)
+  {
      out_stream << "#   - INCLUDING FSI " << endl;
   }
   out_stream << "#   - proton energies are _kinetic_ energies " << endl;
