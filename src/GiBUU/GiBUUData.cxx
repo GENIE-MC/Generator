@@ -12,6 +12,8 @@
  Important revisions after version 2.0.0 :
  @ May 30, 2009 - CA
    Was first added in v2.5.1
+ @ Sep 29, 2009 - CA
+   Add FormFactors nested class & re-organize code
 */
 //____________________________________________________________________________
 
@@ -41,9 +43,6 @@ using namespace genie::utils;
 //____________________________________________________________________________
 GiBUUData * GiBUUData::fInstance = 0;
 //____________________________________________________________________________
-double GiBUUData::fMinQ2 = 0.0; // GeV^2
-double GiBUUData::fMaxQ2 = 4.0; // GeV^2
-//____________________________________________________________________________
 GiBUUData::GiBUUData()
 {
   this->LoadTables();
@@ -52,8 +51,48 @@ GiBUUData::GiBUUData()
 //____________________________________________________________________________
 GiBUUData::~GiBUUData()
 {
+  delete fFormFactors;
+  fFormFactors = 0;
+}
+//____________________________________________________________________________
+GiBUUData * GiBUUData::Instance()
+{
+  if(fInstance == 0) {
+    LOG("GiBUUData", pINFO) << "GiBUUData late initialization";
+    static GiBUUData::Cleaner cleaner;
+    cleaner.DummyMethodAndSilentCompiler();
+    fInstance = new GiBUUData;
+  }
+  return fInstance;
+}
+//____________________________________________________________________________
+void GiBUUData::LoadTables(void)
+{
+  fFormFactors = new FormFactors;
+  fFormFactors->LoadTables();
+}
+//____________________________________________________________________________
+const GiBUUData::FormFactors & GiBUUData::FF(void) const
+{
+  return *fFormFactors;
+}
+//____________________________________________________________________________
+//
+// FormFactors nested class
+//
+//____________________________________________________________________________
+double GiBUUData::FormFactors::fMinQ2 = 0.0; // GeV^2
+double GiBUUData::FormFactors::fMaxQ2 = 4.0; // GeV^2
+//____________________________________________________________________________
+GiBUUData::FormFactors::FormFactors(void)
+{
+
+}
+//____________________________________________________________________________
+GiBUUData::FormFactors::~FormFactors(void)
+{
   if(!gAbortingInErr) {
-    cout << "GiBUUData singleton dtor: Deleting all splines" << endl;
+    cout << "GiBUUData singleton dtor: Deleting all f/f splines" << endl;
   }
 
   // resonance form factor splines
@@ -69,21 +108,9 @@ GiBUUData::~GiBUUData()
       }//j
     }//i   
   }//r 
-
 }
 //____________________________________________________________________________
-GiBUUData * GiBUUData::Instance()
-{
-  if(fInstance == 0) {
-    LOG("GiBUUData", pINFO) << "GiBUUData late initialization";
-    static GiBUUData::Cleaner cleaner;
-    cleaner.DummyMethodAndSilentCompiler();
-    fInstance = new GiBUUData;
-  }
-  return fInstance;
-}
-//____________________________________________________________________________
-void GiBUUData::LoadTables(void)
+void GiBUUData::FormFactors::LoadTables(void)
 {
 // Loads hadronic x-section data
 
@@ -204,108 +231,96 @@ void GiBUUData::LoadTables(void)
   }//r 
 
   LOG("GiBUUData", pINFO)  
-    << "Done loading all resonance form factor files...";
+     << "Done loading all resonance form factor files...";
 }
 //____________________________________________________________________________
-double GiBUUData::C3V (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::C3V(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsN(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,4);
 }
 //____________________________________________________________________________
-double GiBUUData::C4V (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::C4V(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsN(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,5);
 }
 //____________________________________________________________________________
-double GiBUUData::C5V (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::C5V(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsN(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,6);
 }
 //____________________________________________________________________________
-double GiBUUData::C6V (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::C6V(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsN(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,7);
 }
 //____________________________________________________________________________
-double GiBUUData::C3A (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::C3A(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsN(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,8);
 }
 //____________________________________________________________________________
-double GiBUUData::C4A (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::C4A(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsN(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,9);
 }
 //____________________________________________________________________________
-double GiBUUData::C5A (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::C5A(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsN(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,10);
 }
 //____________________________________________________________________________
-double GiBUUData::C6A (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::C6A(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsN(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,11);
 }
 //____________________________________________________________________________
-double GiBUUData::F1V (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::F1V(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsDelta(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,0);
 }
 //____________________________________________________________________________
-double GiBUUData::F2V (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::F2V(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsDelta(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,1);
 }
 //____________________________________________________________________________
-double GiBUUData::FA  (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::FA(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsDelta(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,2);
 }
 //____________________________________________________________________________
-double GiBUUData::FP  (
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it)
+double GiBUUData::FormFactors::FP(
+  double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it) const
 {
   if(!res::IsDelta(res)) return 0.;
-
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,3);
 }
 //____________________________________________________________________________
-double GiBUUData::FFRes ( 
+double GiBUUData::FormFactors::FFRes ( 
     double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it, 
-    int ffresid)
+    int ffresid) const
 {
   if(Q2 < fMinQ2 || Q2 > fMaxQ2) return 0.;
 
@@ -323,10 +338,11 @@ double GiBUUData::FFRes (
   if      (hit_nucleon_pdg == kPdgNeutron) { j = 0; }
   else if (hit_nucleon_pdg == kPdgProton ) { j = 1; }
 
-  Spline * spl = fFFRes[r][i][j][ffresid];
+  const Spline * spl = fFFRes[r][i][j][ffresid];
 
   if(!spl) return 0;
-  else
+  else {
    return spl->Evaluate(Q2);
+  }
 }
 //____________________________________________________________________________
