@@ -27,7 +27,8 @@
 
   // quasi-elastic
   gROOT->ProcessLine(".x nuint09_qel1.C(0)");
-  gROOT->ProcessLine(".x nuint09_qel2.C(0)");
+  gROOT->ProcessLine(".x nuint09_qel2.C(0,0)"); // -FSI
+  gROOT->ProcessLine(".x nuint09_qel2.C(0,1)"); // +FSI
   gROOT->ProcessLine(".x nuint09_qel3.C(0)");
   gROOT->ProcessLine(".x nuint09_qel4.C(0)");
   gROOT->ProcessLine(".x nuint09_qel5.C(0)");
@@ -68,7 +69,8 @@
 
   // quasi-elastic
   gROOT->ProcessLine(".x nuint09_qel1.C(1)");
-  gROOT->ProcessLine(".x nuint09_qel2.C(1)");
+  gROOT->ProcessLine(".x nuint09_qel2.C(1,0)"); // -FSI
+  gROOT->ProcessLine(".x nuint09_qel2.C(1,1");  // +FSI
   gROOT->ProcessLine(".x nuint09_qel3.C(1)");
   gROOT->ProcessLine(".x nuint09_qel4.C(1)");
   gROOT->ProcessLine(".x nuint09_qel5.C(1)");
@@ -80,7 +82,8 @@
 
   // quasi-elastic
   gROOT->ProcessLine(".x nuint09_qel1.C(2)");
-  gROOT->ProcessLine(".x nuint09_qel2.C(2)");
+  gROOT->ProcessLine(".x nuint09_qel2.C(2,0)"); // -FSI
+  gROOT->ProcessLine(".x nuint09_qel2.C(2,1)"); // +FSI
   gROOT->ProcessLine(".x nuint09_qel3.C(2)");
   gROOT->ProcessLine(".x nuint09_qel4.C(2)");
   gROOT->ProcessLine(".x nuint09_qel5.C(2)");
