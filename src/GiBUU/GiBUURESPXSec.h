@@ -25,8 +25,6 @@
 #define _GIBUU_RES_PXSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
-#include "BaryonResonance/BaryonResonance.h"
-#include "GiBUU/GiBUUData.h"
 
 namespace genie {
 

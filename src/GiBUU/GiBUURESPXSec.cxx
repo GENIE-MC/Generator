@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - Jun 03, 2009
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -22,6 +22,7 @@
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecIntegratorI.h"
+#include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
@@ -65,12 +66,12 @@ double GiBUURESPXSec::XSec(
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //-- Get kinematical parameters
+  // Get kinematical parameters
   const Kinematics & kinematics = interaction -> Kine();
   double W  = kinematics.W();
   double Q2 = kinematics.Q2();
 
-  //-- Under the DIS/RES joining scheme, xsec(RES)=0 for W>=Wcut
+  // Under the DIS/RES joining scheme, xsec(RES)=0 for W>=Wcut
   if(fUsingDisResJoin) {
     if(W>=fWcut) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -82,7 +83,7 @@ double GiBUURESPXSec::XSec(
     }
   }
 
-  // -- Get info about the initial state, and procces type
+  // Get info about the initial state, and procces type
   const InitialState & init_state = interaction -> InitState();
   const ProcessInfo &  proc_info  = interaction -> ProcInfo();
   const Target &       target     = init_state.Tgt();
@@ -96,7 +97,7 @@ double GiBUURESPXSec::XSec(
   bool is_p     = pdg::IsProton       (nucpdgc);
   InteractionType_t itype = proc_info.InteractionTypeId();
 
-  //-- Get the input baryon resonance
+  // Get the input baryon resonance
   Resonance_t resonance = interaction->ExclTag().Resonance();
   string      resname   = utils::res::AsString(resonance);
   bool        is_delta  = utils::res::IsDelta (resonance);
@@ -122,14 +123,16 @@ double GiBUURESPXSec::XSec(
 
   double xsec = 0;
 
+  const GiBUUData::FormFactors & ff = gibuu_data->FF();
+
   if(is_delta) {
     //
     // Delta resonances
     //
-    double F1V = gibuu_data -> F1V(Q2, resonance, nucpdgc, itype);
-    double F2V = gibuu_data -> F2V(Q2, resonance, nucpdgc, itype);
-    double FA  = gibuu_data -> FA (Q2, resonance, nucpdgc, itype);
-    double FP  = gibuu_data -> FP (Q2, resonance, nucpdgc, itype);
+    double F1V = ff.F1V(Q2, resonance, nucpdgc, itype);
+    double F2V = ff.F2V(Q2, resonance, nucpdgc, itype);
+    double FA  = ff.FA (Q2, resonance, nucpdgc, itype);
+    double FP  = ff.FP (Q2, resonance, nucpdgc, itype);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GiBUURes", pINFO) 
@@ -141,14 +144,14 @@ double GiBUURESPXSec::XSec(
     //
     // N resonances
     //
-    double C3V = gibuu_data -> C3V(Q2, resonance, nucpdgc, itype);
-    double C4V = gibuu_data -> C4V(Q2, resonance, nucpdgc, itype);
-    double C5V = gibuu_data -> C5V(Q2, resonance, nucpdgc, itype);
-    double C6V = gibuu_data -> C6V(Q2, resonance, nucpdgc, itype);
-    double C3A = gibuu_data -> C3A(Q2, resonance, nucpdgc, itype);
-    double C4A = gibuu_data -> C4A(Q2, resonance, nucpdgc, itype);
-    double C5A = gibuu_data -> C5A(Q2, resonance, nucpdgc, itype);
-    double C6A = gibuu_data -> C6A(Q2, resonance, nucpdgc, itype);
+    double C3V = ff.C3V(Q2, resonance, nucpdgc, itype);
+    double C4V = ff.C4V(Q2, resonance, nucpdgc, itype);
+    double C5V = ff.C5V(Q2, resonance, nucpdgc, itype);
+    double C6V = ff.C6V(Q2, resonance, nucpdgc, itype);
+    double C3A = ff.C3A(Q2, resonance, nucpdgc, itype);
+    double C4A = ff.C4A(Q2, resonance, nucpdgc, itype);
+    double C5A = ff.C5A(Q2, resonance, nucpdgc, itype);
+    double C6A = ff.C6A(Q2, resonance, nucpdgc, itype);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GiBUURes", pINFO) 
@@ -164,17 +167,17 @@ double GiBUURESPXSec::XSec(
           << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
 #endif
 
-  //-- The algorithm computes d^2xsec/dWdQ2
-  //   Check whether variable tranformation is needed
+  // The algorithm computes d^2xsec/dWdQ2
+  // Check whether variable tranformation is needed
   if(kps!=kPSWQ2fE) {
     double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
     xsec *= J;
   }
 
-  //-- If requested return the free nucleon xsec even for input nuclear tgt
+  // If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-  //-- number of scattering centers in the target
+  // Number of scattering centers in the target
   int NNucl = (is_p) ? target.Z() : target.N();
   xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
 
