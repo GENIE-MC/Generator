@@ -41,12 +41,18 @@ int main(int /*argc*/, char ** /*argv*/)
 
 void SaveToRootFile(void)
 {
+  //
   // get GiBUU data
   //
+
   GiBUUData * gd = GiBUUData::Instance();
 
+  const GiBUUData::FormFactors & ff = gd->FF();
+
+  //
   // define inputs
   //
+
   const int kNRes    =  13;
   const int kNNuc    =   2;
   const int kNIntTyp =   3;
@@ -67,8 +73,10 @@ void SaveToRootFile(void)
   double Q2max = 4;
   double dQ2   = (Q2max-Q2min)/(kNQ2-1);
 
+  //
   // define the output tree
   //
+
   int    bResId;        // resonance id
   int    bNucleon;      // nucleon pdg
   int    bIntType;      // interaction type (cc, nc, em)
@@ -107,8 +115,10 @@ void SaveToRootFile(void)
   gibuu_ffres -> Branch ("FA",     &bFA,       "FA/D"    );
   gibuu_ffres -> Branch ("FP",     &bFP,       "FP/D"    );
 
+  //
   // calculate(interpolate) resonance f/f and fill-in the tree
   //
+
   for(int r=0; r<kNRes; r++) {
     for(int i=0; i<kNNuc; i++) {
       for(int j=0; j<kNIntTyp; j++) {
@@ -122,18 +132,18 @@ void SaveToRootFile(void)
              double Q2 = Q2min + iq2 * dQ2;
 
              bQ2  = Q2;
-             bC3V = gd->C3V(Q2, resonance[r], nucleon[i], interaction[j]);
-             bC4V = gd->C4V(Q2, resonance[r], nucleon[i], interaction[j]);
-             bC5V = gd->C5V(Q2, resonance[r], nucleon[i], interaction[j]);
-             bC6V = gd->C6V(Q2, resonance[r], nucleon[i], interaction[j]);
-             bC3A = gd->C3A(Q2, resonance[r], nucleon[i], interaction[j]);
-             bC4A = gd->C4A(Q2, resonance[r], nucleon[i], interaction[j]);
-             bC5A = gd->C5A(Q2, resonance[r], nucleon[i], interaction[j]);
-             bC6A = gd->C6A(Q2, resonance[r], nucleon[i], interaction[j]);
-             bF1V = gd->F1V(Q2, resonance[r], nucleon[i], interaction[j]);
-             bF2V = gd->F2V(Q2, resonance[r], nucleon[i], interaction[j]);
-             bFA  = gd->FA (Q2, resonance[r], nucleon[i], interaction[j]);
-             bFP  = gd->FP (Q2, resonance[r], nucleon[i], interaction[j]);
+             bC3V = ff.C3V(Q2, resonance[r], nucleon[i], interaction[j]);
+             bC4V = ff.C4V(Q2, resonance[r], nucleon[i], interaction[j]);
+             bC5V = ff.C5V(Q2, resonance[r], nucleon[i], interaction[j]);
+             bC6V = ff.C6V(Q2, resonance[r], nucleon[i], interaction[j]);
+             bC3A = ff.C3A(Q2, resonance[r], nucleon[i], interaction[j]);
+             bC4A = ff.C4A(Q2, resonance[r], nucleon[i], interaction[j]);
+             bC5A = ff.C5A(Q2, resonance[r], nucleon[i], interaction[j]);
+             bC6A = ff.C6A(Q2, resonance[r], nucleon[i], interaction[j]);
+             bF1V = ff.F1V(Q2, resonance[r], nucleon[i], interaction[j]);
+             bF2V = ff.F2V(Q2, resonance[r], nucleon[i], interaction[j]);
+             bFA  = ff.FA (Q2, resonance[r], nucleon[i], interaction[j]);
+             bFP  = ff.FP (Q2, resonance[r], nucleon[i], interaction[j]);
 
              gibuu_ffres->Fill();
          }//Q2
@@ -141,6 +151,7 @@ void SaveToRootFile(void)
     }//nucleon
   }//res
 
+  //
   // save
   //
   TFile f("./gibuu_data.root", "recreate");
