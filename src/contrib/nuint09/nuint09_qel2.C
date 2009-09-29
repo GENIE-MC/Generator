@@ -5,7 +5,8 @@
 // Cross section as a function of proton kinetic energy at E_nu= 0.5, 1.0 GeV.
 //
 // Inputs:
-// - sample id: 0 (nu_mu+C12), 1 (nu_mu+O16), 2 (nu_mu+Fe56)
+// - sample id:    0 (nu_mu+C12), 1 (nu_mu+O16), 2 (nu_mu+Fe56)
+// - include_fsi:  0  (no), 1 (yes)
 //
 // Costas Andreopoulos, STFC / Rutherford Appleton Laboratory
 //
@@ -58,7 +59,7 @@ int kA[3] =
  /* 2 */  56 
 };
 
-void nuint09_qel2(int isample)
+void nuint09_qel2(int isample, int include_fsi=0)
 {
   cout << " ***** running: QEL.2" << endl;
 
@@ -86,7 +87,9 @@ void nuint09_qel2(int isample)
   // create output stream
 
   ostringstream out_filename;
-  out_filename << label << ".qel_2.dsig_dKEp.data";
+  if(include_fsi==0) { out_filename << label << ".qel_2.dsig_dKEp.data";         }
+  else               { out_filename << label << ".qel_2.dsig_dKEp_withFSI.data"; }
+
   ofstream out_stream(out_filename.str().c_str(), ios::out);
 
   // write out txt file
@@ -94,10 +97,13 @@ void nuint09_qel2(int isample)
   out_stream << "# [" << label << "]" << endl;
   out_stream << "#  " << endl;
   out_stream << "# [QEL.2]:" << endl;
-  out_stream << "#  Cross section as a function of proton kinetic energy at E_nu= 0.5, 1.0 GeV." << endl;
+  out_stream << "#  Cross section as a function of f/s proton kinetic energy at E_nu= 0.5, 1.0 GeV." << endl;
   out_stream << "#  " << endl;
   out_stream << "#  Note:" << endl;
-  out_stream << "#   - pion energies are _kinetic_ energies " << endl;
+  if(include_fsi!=0){
+     out_stream << "#   - INCLUDING FSI " << endl;
+  }
+  out_stream << "#   - proton energies are _kinetic_ energies " << endl;
   out_stream << "#   - proton kinetic energy KE in GeV, between KEmin = " << KEpmin << " GeV, KEmax = " << KEpmax << " GeV "  << endl;
   out_stream << "#   - cross sections in 1E-38 cm^2 / GeV" << endl;
   out_stream << "#   - quoted cross section is nuclear cross section per nucleon contributing in the scattering (eg only neutrons for nu_mu QELCC)" << endl;
@@ -145,8 +151,13 @@ void nuint09_qel2(int isample)
   //
   // fill histograms
   //
-  chain->Draw("(Ei-0.939)>>hst_dsig_dKEp_qelcc_0500MeV","qel&&cc&&Ev>0.49&&Ev<0.51&&pdgi==2212","GOFF");
-  chain->Draw("(Ei-0.939)>>hst_dsig_dKEp_qelcc_1000MeV","qel&&cc&&Ev>0.99&&Ev<1.01&&pdgi==2212","GOFF");
+  if(include_fsi==0) {
+    chain->Draw("(Ei-0.938)>>hst_dsig_dKEp_qelcc_0500MeV","qel&&cc&&Ev>0.49&&Ev<0.51&&pdgi==2212","GOFF");
+    chain->Draw("(Ei-0.938)>>hst_dsig_dKEp_qelcc_1000MeV","qel&&cc&&Ev>0.99&&Ev<1.01&&pdgi==2212","GOFF");
+  } else {
+    chain->Draw("(Ef-0.938)>>hst_dsig_dKEp_qelcc_0500MeV","qel&&cc&&Ev>0.49&&Ev<0.51&&pdgf==2212","GOFF");
+    chain->Draw("(Ef-0.938)>>hst_dsig_dKEp_qelcc_1000MeV","qel&&cc&&Ev>0.99&&Ev<1.01&&pdgf==2212","GOFF");
+  }
 
   //
   // normalize
