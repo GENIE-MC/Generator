@@ -226,5 +226,45 @@ int main(int /*argc*/, char ** /*argv*/)
 
  LOG("Main", pINFO) << "Printing registry after adding values with the += operator ";
  LOG("Main", pINFO) << "registry: \n" << registry5;
+
+ //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ // Test FindKeys()
+ //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ LOG("Main", pINFO) << "***** Testing FindKeys() *****";
+
+ LOG("Main", pINFO) << "Looking for all entries whose key contain the word `variable'";
+ RgKeyList klist = registry5.FindKeys("variable");
+
+ LOG("Main", pINFO) << "Found " << klist.size() << " entries";
+ RgKeyList::const_iterator kiter = klist.begin();
+ for( ; kiter != klist.end(); ++kiter) {
+    LOG("Main", pINFO) << "Matching key: " << *kiter;
+ }
+
+ //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ // Test ItemType()
+ //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ LOG("Main", pINFO) << " ";;
+ LOG("Main", pINFO) << "***** Testing ItemType() *****";
+
+ LOG("Main", pINFO) 
+   << "Type of var pointed to by key = `var-int-2' is: "
+      << RgType::AsString(registry5.ItemType("var-int-2"));
+ LOG("Main", pINFO) 
+   << "Type of var pointed to by key = `var-string-1' is: "
+      << RgType::AsString(registry5.ItemType("var-string-1"));
+ LOG("Main", pINFO) 
+   << "Type of var pointed to by key = `var-th1f-1' is: "
+      << RgType::AsString(registry5.ItemType("var-th1f-1"));
+ LOG("Main", pINFO) 
+   << "Type of var pointed to by key = `??&&bla bla ###@ :-)' is: "
+      << RgType::AsString(registry5.ItemType("??&&bla bla ###@ :-)"));
+ 
+
+ LOG("Main", pINFO) << "Done!!";
+
+ return 0;
 }
 
