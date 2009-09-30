@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "EVGCore/EventRecordVisitorI.h"
+#include "PDG/PDGCodeList.h"
 
 using std::vector;
 
@@ -43,11 +44,11 @@ public :
   UnstableParticleDecayer(string config);
   ~UnstableParticleDecayer();
 
-  //-- implement the EventRecordVisitorI interface
+  // implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
@@ -59,14 +60,12 @@ private:
   void  CopyToEventRecord (TClonesArray * dp, GHepRecord * ev, GHepParticle * p,
                            int mother_pos, bool in_nucleus) const;
 
-  double fMaxLifetime;             ///< define "unstable" particle
-  bool   fRunBefHadroTransp;       ///< is being run before or after hadron transport?
-  bool   fForceCharmedHadronDecay; ///< force charmed hadron decays?
-  bool   fInhibitPi0Decay;         ///< inhibit pi0 decays?
+  bool                           fRunBefHadroTransp; ///< is invoked before or after hadron transport?
+  PDGCodeList                    fParticlesToDecay;  ///< list of particles to be decayed
+  vector <const DecayModelI *> * fDecayers;          ///< list of all specified decayers
+  mutable const DecayModelI *    fCurrDecayer;       ///< current selected decayer
 
-  vector <const DecayModelI *> * fDecayers; ///< list of all specified decayers
-  mutable const DecayModelI * fCurrDecayer; ///< current selected decayer
-
+  //double fMaxLifetime; ///< define "unstable" particle
 };
 
 }      // genie namespace

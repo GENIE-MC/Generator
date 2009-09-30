@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - November 17, 2004
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -15,6 +15,12 @@
  @ Oct 10, 2008 - CA
    Added option to inhibit pi0 decays. Convert all particle positions to fm
    before adding them at the event record.
+ @ Sep 30, 2009 - CA
+   Requested to allow tau decays. Instead of providing yet another flag, 
+   I am now allowing the user to specify a complete list of particles to
+   be decayed by specifying a series of 
+   <param type="bool" name="DecayParticleWithCode=[pdgcode]"> true </param>  
+   parameters at UserPhysicsOptions.xml 
 */
 //____________________________________________________________________________
 
@@ -42,6 +48,8 @@
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Registry/Registry.h"
+#include "Utils/StringUtils.h"
 
 using std::count;
 using std::ostringstream;
@@ -172,46 +180,32 @@ bool UnstableParticleDecayer::IsUnstable(GHepParticle * particle) const
 {
   int pdg_code = particle->Pdg();
 
-  TParticlePDG * ppdg = PDGLibrary::Instance()->Find(pdg_code);
-  if( ppdg->Lifetime() < fMaxLifetime ) { /* ... */ };
-
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - temporary/
   // ROOT's TParticlepdg::Lifetime() does not work properly
   // do something else instead (temporarily)
+  //
+  // TParticlePDG * ppdg = PDGLibrary::Instance()->Find(pdg_code);
+  //if( ppdg->Lifetime() < fMaxLifetime ) { /* ... */ };
+  //
 
+  // <temp/>
   if( fRunBefHadroTransp ) {
-    /* run before the hadron transport MC */
-    if(utils::res::IsBaryonResonance(pdg_code)) return true;
-
-  } else {
-    /* run after the hadron transport MC - decay particles with ct<~0.1mm*/   
-    int particles_to_decay[] = {
-          kPdgEta, kPdgEtaPrm, 
-          kPdgRho0, kPdgRhoP, kPdgRhoM,
-          kPdgomega,kPdgPhi };
-
-    const int N = sizeof(particles_to_decay) / sizeof(int);
-    int matches = count (particles_to_decay, 
-                         particles_to_decay+N, pdg_code);
-
-    if(!fInhibitPi0Decay) {
-        matches += ( (pdg_code==kPdgPi0) ? 1 : 0 );
-    }
-
-    if(fForceCharmedHadronDecay) {
-       int charmed_particles_produced[] = {
-         kPdgDP, kPdgDM, 
-         kPdgD0, kPdgAntiD0,
-         kPdgDPs, kPdgDMs,
-         kPdgLambdaPc, kPdgSigmaPc, kPdgSigmaPPc };
-         const int Nc = sizeof(charmed_particles_produced) / sizeof(int);
-         matches += count (charmed_particles_produced, 
-                           charmed_particles_produced+Nc, pdg_code);
-    }
-
-    if(matches > 0 || utils::res::IsBaryonResonance(pdg_code)) return true;
+    //
+    // Run *before* the hadron transport MC 
+    // At this point we decay only baryon resonances
+    //
+    bool decay = utils::res::IsBaryonResonance(pdg_code);
+    return decay;
   } 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - /temporary
+  else {
+    //
+    // Run *after* the hadron transport MC 
+    // At this point we decay only particles in the fParticlesToDecay 
+    // PDGCodeList (filled in from config inputs)
+    //
+    bool decay = fParticlesToDecay.ExistsInPDGCodeList(pdg_code);
+    return decay;
+  } 
+  // </temp>
 
   return false;
 }
@@ -283,43 +277,44 @@ void UnstableParticleDecayer::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  //-- Get the specified maximum lifetime tmax (decay with lifetime < tmax)
+  // Get the specified maximum lifetime tmax (decay with lifetime < tmax)
   //
-  fMaxLifetime = fConfig->GetDoubleDef("MaxLifetime", 1e-9);
+  //fMaxLifetime = fConfig->GetDoubleDef("MaxLifetime", 1e-9);
 
-  //-- Check whether the module is being run before or after the hadron
-  //   transport (intranuclear rescattering) module.
+  // Check whether the module is being run before or after the hadron
+  // transport (intranuclear rescattering) module.
   //
-  //   If it is run before the hadron transport (and after the hadronization)
-  //   step it should decay only "unstable" particles (marked as hadrons in
-  //   the nucleus) which would typically decay within the time required to 
-  //   exit the nucleus - so, the algorithm wouldn't decay particles that 
-  //   have to be rescattered first. In case that the generated event is off
-  //   a free nucleon target, thi instance of the algorithm should do nothing.
-  //
-  //   If it is run after the hadon transport, then it should decay all the 
-  //   'unstable' particles marked as 'present in the final state' and which 
-  //   should be decay before the event is passed to the detector particle
-  //   transport MC.
+  // If it is run before the hadron transport (and after the hadronization)
+  // step it should decay only "unstable" particles (marked as hadrons in
+  // the nucleus) which would typically decay within the time required to 
+  // exit the nucleus - so, the algorithm wouldn't decay particles that 
+  // have to be rescattered first. In case that the generated event is off
+  // a free nucleon target, thi instance of the algorithm should do nothing.
+  //  
+  // If it is run after the hadon transport, then it should decay all the 
+  // 'unstable' particles marked as 'present in the final state' and which 
+  // should be decay before the event is passed to the detector particle
+  // transport MC.
   //
   fRunBefHadroTransp = fConfig->GetBool("RunBeforeHadronTransport");
 
-  //-- Force charmed meson decays?
-  //   Plain-vanilla Geant4 doesn't have decay tables for charmed hadrons
-  //   and decaying those hadrons may be expected from the generator
+  // Allow user to specify a list of particles to be decayed
   //
-  fForceCharmedHadronDecay = 
-            fConfig->GetBoolDef("force_charm_decay", 
-                                gc->GetBool("ForceCharmedHadronDecay"));
+  RgKeyList klist = gc->FindKeys("DecayParticleWithCode="); 
+  RgKeyList::const_iterator kiter = klist.begin();
+  for( ; kiter != klist.end(); ++kiter) { 
+    RgKey key = *kiter;
+    if(gc->GetBool(key)) {
+      vector<string> kv = utils::str::Split(key,"=");
+      assert(kv.size()==2);
+      int pdgc = atoi(kv[1].c_str());
+      fParticlesToDecay.push_back(pdgc);
+    }
+  }
 
-  //-- Inhibit pi0 decays?
-  fInhibitPi0Decay = 
-            fConfig->GetBoolDef("inhibit_pi0_decay", 
-                                gc->GetBool("InhibitPi0Decay"));
-
-  //-- Load particle decayers
-  //   Order is important if both decayers can handle a specific particle
-  //   as only the first would get the chance to decay it
+  // Load particle decayers
+  // Order is important if both decayers can handle a specific particle
+  // as only the first would get the chance to decay it
 
   int ndec = fConfig->GetIntDef("NDecayers",0);
   assert(ndec>0);
