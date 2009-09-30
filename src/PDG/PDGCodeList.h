@@ -42,9 +42,9 @@ public :
   void insert     (iterator pos, size_type n, const int& x);
 
   //! PDG code checks used by PDGCodeList
-  bool CheckPDGCode        (int pdg_code);
-  bool ExistsInPDGLibrary  (int pdg_code);
-  bool ExistsInPDGCodeList (int pdg_code);
+  bool CheckPDGCode        (int pdg_code) const;
+  bool ExistsInPDGLibrary  (int pdg_code) const;
+  bool ExistsInPDGCodeList (int pdg_code) const;
 
   //! copy / print
   void Copy  (const PDGCodeList & list);
