@@ -49,6 +49,7 @@ typedef pair<RgKey, RegistryItemI *>                 RgIMapPair;
 typedef map <RgKey, RegistryItemI *>::size_type      RgIMapSizeType;
 typedef map <RgKey, RegistryItemI *>::iterator       RgIMapIter;
 typedef map <RgKey, RegistryItemI *>::const_iterator RgIMapConstIter;
+typedef vector<RgKey>                                RgKeyList;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Templated utility methods to set/get registry items
 //
@@ -146,6 +147,9 @@ public:
   void   Append       (const Registry &, RgKey pfx=""); ///< append the input registry
   void   Clear        (bool force = false);             ///< clear the registry
   void   Init         (void);                           ///< initialize the registry
+
+  RgType_t  ItemType (RgKey key)      const;  ///< return item type
+  RgKeyList FindKeys (RgKey key_part) const;  ///< create list with all keys containing 'key_part'
 
   // Access key->item map
   //
