@@ -5,11 +5,14 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 13, 2005
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Sep 30, 2009 - CA
+   Const correctness: Methods CheckPDGCode(), ExistsInPDGLibrary() and
+   ExistsInPDGCodeList() were made const.
 
 */
 //____________________________________________________________________________
@@ -74,7 +77,7 @@ void PDGCodeList::insert(iterator pos, size_type n, const int& pdg_code)
   }
 }
 //___________________________________________________________________________
-bool PDGCodeList::CheckPDGCode(int pdg_code)
+bool PDGCodeList::CheckPDGCode(int pdg_code) const
 {
 // check whether the PDG code can be inserted
 
@@ -96,7 +99,7 @@ bool PDGCodeList::CheckPDGCode(int pdg_code)
   return true;
 }
 //___________________________________________________________________________
-bool PDGCodeList::ExistsInPDGLibrary(int pdg_code)
+bool PDGCodeList::ExistsInPDGLibrary(int pdg_code) const
 {
 // check whether the PDG code is a valid one (exists in PDGLibrary)
 
@@ -106,13 +109,21 @@ bool PDGCodeList::ExistsInPDGLibrary(int pdg_code)
   return true;
 }
 //___________________________________________________________________________
-bool PDGCodeList::ExistsInPDGCodeList(int pdg_code)
+bool PDGCodeList::ExistsInPDGCodeList(int pdg_code) const
 {
 // check whether the PDG code already exists in the list
 
+  PDGCodeList::const_iterator bci = this->begin();
+  PDGCodeList::const_iterator eci = this->end();
+
+  if(find(bci,eci,pdg_code) != eci) return true;
+  
+  return false;
+/*
   int n = count(this->begin(), this->end(), pdg_code);
   if(n!=0) return true;
   return false;
+*/
 }
 //___________________________________________________________________________
 void PDGCodeList::Print(ostream & stream) const
