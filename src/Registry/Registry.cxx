@@ -10,13 +10,16 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
  @ Oct 11, 2007 - CA
-  Added 'bool ItemIsLocal(RgKey) const', 'void OverrideGlobalDef(RgKey)', and 
-  'void LinkToGlobalDef(RgKey)' to handle the distinction between global/local
-  configuration items. The templated function 'GetValueOrUseDefault' was
-  modifed to mark items with global status & not return them so that an updated
-  default can be cascaded through the entire pool of instantiated algorithms.
+   Added 'bool ItemIsLocal(RgKey) const', 'void OverrideGlobalDef(RgKey)', 
+   and 'void LinkToGlobalDef(RgKey)' to handle the distinction between 
+   global/local configuration items. 
+   The templated function 'GetValueOrUseDefault' was modifed to mark items 
+   with global status & not return them so that an updated default can be 
+   cascaded through the entire pool of instantiated algorithms.
+ @ Sep 30, 2009 - CA
+   Added 'RgType_t ItemType(RgKey) const', 'RgKeyList FindKeys(RgKey) const'
+
 */
 //____________________________________________________________________________
 
@@ -816,6 +819,32 @@ void Registry::Append(const Registry & registry, RgKey prefix)
      RgIMapPair reg_entry(new_name, cri);
      fRegistry.insert(reg_entry);
    }
+}
+//____________________________________________________________________________
+RgType_t Registry::ItemType(RgKey key) const
+{
+  RgIMapConstIter reg_iter = fRegistry.find(key);
+  if(reg_iter != fRegistry.end()) {
+     RegistryItemI * ri = reg_iter->second;
+     RgType_t type  = ri->TypeInfo();
+     return type;
+  }
+  return kRgUndefined;
+}
+//____________________________________________________________________________
+RgKeyList Registry::FindKeys(RgKey key_part) const
+{
+  RgKeyList klist;
+
+  RgIMapConstIter reg_iter = fRegistry.begin();
+  for( ; reg_iter != fRegistry.end(); reg_iter++) {
+    RgKey key = reg_iter->first;
+    if (key.find(key_part) != string::npos) {
+      klist.push_back(key);
+    }
+  }
+
+  return klist;
 }
 //____________________________________________________________________________
 void Registry::Init(void)
