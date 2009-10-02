@@ -11,14 +11,15 @@
 
 \syntax  gtune_rijk -h host -u username -p password -d data_sets_to_fit
 
-         where
+         Options:
           -h specifies the MySQL hostname and dbase
           -u specifies the MySQL username
           -p specifies the MySQL password
           -d specifies which data sets to fit
              (see list below, input as a comma separated list)
 
-\example shell% export GDISABLECACHING=YES
+         Example:
+         shell% export GDISABLECACHING=YES
          shell% gtune_rijk -h mysql://localhost/NuScat -u costas -p pswd -d 0,1,2,3
                       
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>

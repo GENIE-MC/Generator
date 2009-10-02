@@ -13,7 +13,8 @@
          The general syntax is:
          model_name:file_name.root,another_file_name.root,...+another_model_name:file_name.root,...
 
-\example Assume that you have 2 hadronization models: `AGKY_v1' and `AGKY_v2'.
+         Example:
+         Assume that you have 2 hadronization models: `AGKY_v1' and `AGKY_v2'.
          You used the first one to generate the GHEP event files v1_1.root,
          v1_2.root and v1_3.root. Then you used the second one to generate
          the GHEP event files v2_1.root and v2_2.root. To process these files 
