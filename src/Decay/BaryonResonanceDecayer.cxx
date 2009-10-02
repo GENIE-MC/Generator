@@ -10,10 +10,15 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Oct 02, 2009 - CA
+   Add dummy `UnInhibitDecay(int,TDecayChannel*) const' and `InhibitDecay(int,
+   TDecayChannel*) const' methods to conform to the DecayModelI interface.
+   To implement soon.
 */
 //____________________________________________________________________________
 
+#include <TClonesArray.h>
+#include <TDecayChannel.h>
 #include <RVersion.h>
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
 #include <TMCParticle.h>
@@ -151,7 +156,7 @@ void BaryonResonanceDecayer::Initialize(void) const
 }
 //____________________________________________________________________________
 TClonesArray * BaryonResonanceDecayer::DecayExclusive(
-                   int pdg_code, TLorentzVector & p, TDecayChannel * ch) const
+     int pdg_code, TLorentzVector & p, TDecayChannel * ch) const
 {
   //-- Get the final state mass spectrum and the particle codes
   unsigned int nd = ch->NDaughters();
@@ -266,16 +271,32 @@ double BaryonResonanceDecayer::Weight(void) const
   return fWeight;
 }
 //____________________________________________________________________________
-double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * channel) const
+void BaryonResonanceDecayer::InhibitDecay(int pdgc, TDecayChannel * dc) const
+{
+  if(! this->IsHandled(pdgc)) return;
+
+  if(!dc) return;
+
+}
+//____________________________________________________________________________
+void BaryonResonanceDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
+{
+  if(! this->IsHandled(pdgc)) return;
+
+  if(!dc) return;
+
+}
+//____________________________________________________________________________
+double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * ch) const
 {
 // Computes the total mass of the final state system
 
   double mass = 0;
-  unsigned int nd = channel->NDaughters();
+  unsigned int nd = ch->NDaughters();
 
   for(unsigned int iparticle = 0; iparticle < nd; iparticle++) {
 
-     int daughter_code = channel->DaughterPdgCode(iparticle);
+     int daughter_code = ch->DaughterPdgCode(iparticle);
      TParticlePDG * daughter = PDGLibrary::Instance()->Find(daughter_code);
      assert(daughter);
 
