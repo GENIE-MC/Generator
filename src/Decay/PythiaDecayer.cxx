@@ -109,7 +109,7 @@ TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
   }
 
   double sumbr = this->SumBR(kc);
-  LOG("PythiaDec", pWARN) << "Sum{BR} = " << sumbr;
+  LOG("PythiaDec", pINFO) << "Sum{BR} = " << sumbr;
   if(sumbr <= 0) {
     LOG("PythiaDec", pNOTICE)
        << "The sum of enabled "
