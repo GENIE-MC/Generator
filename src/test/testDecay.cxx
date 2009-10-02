@@ -93,7 +93,7 @@ void TestPythiaTauDecays(void)
   // and perform some more decays
   LOG("Main",pINFO) 
     << "\n\n"
-    << " **** Inhibiting all bu the `tau- --> nu_mu_bar + mu- + nu_tau' decay channel"
+    << " **** Inhibiting all but the `tau- --> nu_mu_bar + mu- + nu_tau' decay channel"
     << "\n\n";
 
   PDGLibrary * pdglib = PDGLibrary::Instance();
