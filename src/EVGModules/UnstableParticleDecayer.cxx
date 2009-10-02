@@ -21,6 +21,16 @@
    be decayed by specifying a series of 
    <param type="bool" name="DecayParticleWithCode=[pdgcode]"> true </param>  
    parameters at UserPhysicsOptions.xml 
+ @ Oct 02, 2009 - CA
+   Requested to allow inhibiting decay channels. This is now possible by
+   specifying a series of 
+   <param type="bool" name="InhibitDecay/Particle=[code],Channel=[code]"> 
+   true </param> options at UserPhysicsOptions.xml.
+   Note that enabling this option results in **weighted** events.
+   Solved problem with, say, inhibiting pi0 decay at this module, but having 
+   other pi0 decayed deep in pythia when it decays hadrons (eg rho0) having
+   pi0 in their decay products.
+
 */
 //____________________________________________________________________________
 
@@ -96,8 +106,7 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
 
   while( (p = (GHepParticle *) piter.Next()) ) {
 
-        LOG("ParticleDecayer", pNOTICE)
-                   << "Checking: " << p->Name();
+     LOG("ParticleDecayer", pNOTICE) << "Checking: " << p->Name();
 
      if( this->ToBeDecayed(p) ) {
         LOG("ParticleDecayer", pNOTICE)
@@ -277,6 +286,27 @@ void UnstableParticleDecayer::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
+  // Load particle decayers
+  // Order is important if both decayers can handle a specific particle
+  // as only the first would get the chance to decay it
+
+  int ndec = fConfig->GetIntDef("NDecayers",0);
+  assert(ndec>0);
+
+  if(fDecayers) {
+    fDecayers->clear();
+    delete fDecayers;
+  }
+  fDecayers = new vector<const DecayModelI *>(ndec);
+
+  for(int idec = 0; idec < ndec; idec++) {
+     ostringstream alg_key;
+     alg_key     << "Decayer-" << idec;
+     const DecayModelI * decayer = 
+              dynamic_cast<const DecayModelI *> (this->SubAlg(alg_key.str()));
+     (*fDecayers)[idec] = decayer;
+  }
+
   // Get the specified maximum lifetime tmax (decay with lifetime < tmax)
   //
   //fMaxLifetime = fConfig->GetDoubleDef("MaxLifetime", 1e-9);
@@ -304,33 +334,56 @@ void UnstableParticleDecayer::LoadConfig(void)
   RgKeyList::const_iterator kiter = klist.begin();
   for( ; kiter != klist.end(); ++kiter) { 
     RgKey key = *kiter;
-    if(gc->GetBool(key)) {
-      vector<string> kv = utils::str::Split(key,"=");
-      assert(kv.size()==2);
-      int pdgc = atoi(kv[1].c_str());
-      fParticlesToDecay.push_back(pdgc);
+    bool decay = gc->GetBool(key);
+    vector<string> kv = utils::str::Split(key,"=");
+    assert(kv.size()==2);
+    int pdgc = atoi(kv[1].c_str());
+    TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
+    if(decay) {
+       LOG("ParticleDecayer", pNOTICE) 
+            << "Configured to decay " <<  p->GetName();
+       fParticlesToDecay.push_back(pdgc);
+       vector <const DecayModelI *>::iterator diter = fDecayers->begin();
+       for ( ; diter != fDecayers->end(); ++diter) {
+           const DecayModelI * decayer = *diter;
+           decayer->UnInhibitDecay(pdgc); 
+       }// decayer
     }
-  }
+    else {
+       LOG("ParticleDecayer", pNOTICE) 
+            << "Configured to inhibit decays for  " <<  p->GetName();
+       vector <const DecayModelI *>::iterator diter = fDecayers->begin();
+       for ( ; diter != fDecayers->end(); ++diter) {
+           const DecayModelI * decayer = *diter;
+           decayer->InhibitDecay(pdgc); 
+       }// decayer
+    }// decay? 
+  }// key iterator
 
-  // Load particle decayers
-  // Order is important if both decayers can handle a specific particle
-  // as only the first would get the chance to decay it
+  // Allow user to inhibit certain decay channels
+  //
+  klist = gc->FindKeys("InhibitDecay/"); 
+  kiter = klist.begin();
+  for( ; kiter != klist.end(); ++kiter) { 
+    RgKey key = *kiter;
+    if(gc->GetBool(key)) {
+      string filtkey = utils::str::FilterString("InhibitDecay/", key);
+      vector<string> kv = utils::str::Split(filtkey,",");
+      assert(kv.size()==2);
+      int pdgc = atoi(utils::str::FilterString("Particle=",kv[0]).c_str());
+      int dc   = atoi(utils::str::FilterString("Channel=", kv[1]).c_str());
+      TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
+      if(!p) continue;
+      LOG("ParticleDecayer", pNOTICE) 
+         << "Configured to inhibit " <<  p->GetName() 
+         << "'s decay channel " << dc;
+      vector <const DecayModelI *>::iterator diter = fDecayers->begin();
+      for ( ; diter != fDecayers->end(); ++diter) {
+         const DecayModelI * decayer = *diter;
+         decayer->InhibitDecay(pdgc, p->DecayChannel(dc));
+      }//decayer iterator
+    }//val[key]=true?
+  }//key iterator
 
-  int ndec = fConfig->GetIntDef("NDecayers",0);
-  assert(ndec>0);
-
-  if(fDecayers) {
-    fDecayers->clear();
-    delete fDecayers;
-  }
-  fDecayers = new vector<const DecayModelI *>(ndec);
-
-  for(int idec = 0; idec < ndec; idec++) {
-     ostringstream alg_key;
-     alg_key     << "Decayer-" << idec;
-     const DecayModelI * decayer = 
-              dynamic_cast<const DecayModelI *> (this->SubAlg(alg_key.str()));
-     (*fDecayers)[idec] = decayer;
-  }
 }
 //___________________________________________________________________________
