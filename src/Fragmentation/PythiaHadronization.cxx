@@ -16,7 +16,11 @@
  @ Sep 21, 2009 - CA
    Remove SyncSeeds() function. Now the GENIE/PYTHIA6 random number generator
    seed is synchonized at the genie::RandomGen() initialization.
-
+ @ Oct 02, 2009 - CA
+   Make sure that calling SetMDCY() doesn't interfere with the decayer to
+   be called later in the simulation thread. Store PYTHIA MDCY values for
+   particles considered and restore values once the hadronization is done.
+   Added Delta0 and Delta-.
 */
 //____________________________________________________________________________
 
@@ -242,29 +246,58 @@ TClonesArray * PythiaHadronization::Hadronize(
                       << "q = " << final_quark << ", qq = " << diquark;
   int ip = 0;
 
-  // Determine how jetset treats unsstable particles appearning in hadronization
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),        1,0); // don't decay pi0
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgK0),         1,0); // don't decay K0
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiK0),     1,0); // don't decay \bar{K0}
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),     1,0); // don't decay Lambda0
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda), 1,0); // don't decay \bar{Lambda0}
-  fPythia->SetMDCY(fPythia->Pycomp(2214),           1,1); // decay Delta+
-  fPythia->SetMDCY(fPythia->Pycomp(2224),           1,1); // decay Delta++
+  // Determine how jetset treats un-stable particles appearing in hadronization
+
+  int pi0_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgPi0),              1); 
+  int K0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgK0),               1); 
+  int K0b_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgAntiK0),           1); 
+  int L0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgLambda),           1); 
+  int L0b_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgAntiLambda),       1);
+  int Dm_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1); 
+  int D0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1); 
+  int Dp_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1); 
+  int Dpp_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1); 
+
+/*
+  LOG("PythiaHad", pINFO) << "Original decay flag for pi0           =  " << pi0_decflag;
+  LOG("PythiaHad", pINFO) << "Original decay flag for K0            =  " << K0_decflag;
+  LOG("PythiaHad", pINFO) << "Original decay flag for \bar{K0}      =  " << K0b_decflag;
+  LOG("PythiaHad", pINFO) << "Original decay flag for Lambda        =  " << L0_decflag;
+  LOG("PythiaHad", pINFO) << "Original decay flag for \bar{Lambda0} =  " << L0b_decflag;
+  LOG("PythiaHad", pINFO) << "Original decay flag for D-            =  " << Dm_decflag;
+  LOG("PythiaHad", pINFO) << "Original decay flag for D0            =  " << D0_decflag;
+  LOG("PythiaHad", pINFO) << "Original decay flag for D+            =  " << Dp_decflag;
+  LOG("PythiaHad", pINFO) << "Original decay flag for D++           =  " << Dpp_decflag;
+*/
+
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),               1,0); // don't decay pi0
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgK0),                1,0); // don't decay K0
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiK0),            1,0); // don't decay \bar{K0}
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),            1,0); // don't decay Lambda0
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda),        1,0); // don't decay \bar{Lambda0}
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),   1,1); // decay Delta-
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),   1,1); // decay Delta0
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),   1,1); // decay Delta+
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP),  1,1); // decay Delta++
 
   // -- hadronize --
   py2ent_(&ip, &final_quark, &diquark, &W); // hadronizer
 
-  // restore pythia settings
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),        1,1);
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgK0),         1,1);
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiK0),     1,1);
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),     1,1); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda), 1,1); 
+  // restore pythia decay settings so as not to interfere with decayer 
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),              1, pi0_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgK0),               1, K0_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiK0),           1, K0b_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),           1, L0_decflag); 
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda),       1, L0b_decflag); 
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1, Dm_decflag); 
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1, D0_decflag); 
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1, Dp_decflag); 
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1, Dpp_decflag); 
 
   // get LUJETS record
   fPythia->GetPrimaries();
   TClonesArray * pythia_particles =
-                      (TClonesArray *) fPythia->ImportParticles("All");
+       (TClonesArray *) fPythia->ImportParticles("All");
 
   // copy PYTHIA container to a new TClonesArray so as to transfer ownership
   // of the container and of its elements to the calling method
@@ -505,6 +538,7 @@ bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
+/*
 void PythiaHadronization::SwitchDecays(int pdgc, bool on_off) const
 {
   LOG("PythiaHad", pNOTICE)
@@ -518,7 +552,9 @@ void PythiaHadronization::SwitchDecays(int pdgc, bool on_off) const
 
   for(int ich = first_ch; ich < last_ch; ich++) fPythia->SetMDME(ich,1,flag);
 }
+*/
 //____________________________________________________________________________
+/*
 void PythiaHadronization::HandleDecays(TClonesArray * plist) const
 {
 // Handle decays of unstable particles if requested through the XML config.
@@ -624,5 +660,6 @@ void PythiaHadronization::HandleDecays(TClonesArray * plist) const
 
   fPythia->SetMSTJ(21,mstj21); // restore mstj(21)
 }
+*/
 //____________________________________________________________________________
 
