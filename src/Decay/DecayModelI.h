@@ -21,9 +21,7 @@
 #ifndef _DECAY_MODEL_I_H_
 #define _DECAY_MODEL_I_H_
 
-#include <TClonesArray.h>
-#include <TDecayChannel.h>
-#include <TLorentzVector.h>
+class TDecayChannel;
 
 #include "Algorithm/Algorithm.h"
 #include "Decay/DecayerInputs.h"
@@ -36,12 +34,27 @@ public:
 
   virtual ~DecayModelI();
 
-  //! define DecayModelI interface
+  //
+  // define the DecayModelI interface
+  //
 
-  virtual bool           IsHandled  (int pdgc)                    const = 0; ///< can this particle be decayed?
-  virtual void           Initialize (void)                        const = 0; ///< decayer initialization
-  virtual TClonesArray * Decay      (const DecayerInputs_t & inp) const = 0; ///< return a TClonesArray of TMCParticle objects (NOTE: all TMCParticle units in GeV^n [hbar=c=1])
-  virtual double         Weight     (void)                        const = 0; ///< last decay weight
+  //! can this particle be decayed?
+  virtual bool IsHandled  (int pdgc) const = 0; 
+
+  //! decayer initialization
+  virtual void Initialize (void) const = 0; 
+
+  //! return a TClonesArray of TMCParticle objects (NOTE: all TMCParticle units in GeV^n [hbar=c=1])
+  virtual TClonesArray * Decay (const DecayerInputs_t & inp) const = 0; 
+
+  //! last decay weight
+  virtual double Weight(void) const = 0; 
+
+  //! inhibit input decay channel for the input particle (inhibit all decays if dc is null)
+  virtual void InhibitDecay(int pdgc, TDecayChannel * dc = 0) const = 0;
+
+  //! clear inhibit flags & re-enable all decay channel (enable all if dc is null)
+  virtual void UnInhibitDecay(int pdgc, TDecayChannel * dc = 0) const = 0;
 
 protected:
 

@@ -5,11 +5,14 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - June 20, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Oct 02, 2009 - CA
+   Extended the decayer interface with the `UnInhibitDecay(int,TDecayChannel*) 
+   const' and `InhibitDecay(int,TDecayChannel*) const' pure virtual methods.
 
 */
 //____________________________________________________________________________
