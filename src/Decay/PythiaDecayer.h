@@ -35,27 +35,28 @@ public:
   PythiaDecayer(string config);
   virtual ~PythiaDecayer();
 
-  //! implement the DecayModelI interface
-  
-  bool           IsHandled  (int pdgc)                    const;
-  void           Initialize (void)                        const;
-  TClonesArray * Decay      (const DecayerInputs_t & inp) const;
-  double         Weight     (void)                        const;
+  // implement the DecayModelI interface  
+  bool           IsHandled      (int pdgc)                      const;
+  void           Initialize     (void)                          const;
+  TClonesArray * Decay          (const DecayerInputs_t & inp)   const;
+  double         Weight         (void)                          const;
+  void           InhibitDecay   (int pdg, TDecayChannel * dc=0) const;
+  void           UnInhibitDecay (int pdg, TDecayChannel * dc=0) const;
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //!  members from configuration options
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
 private:
 
-  void LoadConfig                 (void);
-  void SwitchOnAllChannels        (int pdgc) const;
-  void SwitchOffInhibitedChannels (int pdgc, const TClonesArray * inhibited) const;
-  bool MatchDecayChannel          (int ichannel, TDecayChannel & dc) const;
+  void   LoadConfig             (void);
+  double SumBR                  (int kc) const;
+  int    FindPythiaDecayChannel (int kc, TDecayChannel* dc) const;
+  bool   MatchDecayChannels     (int ichannel, TDecayChannel * dc) const;
 
-  mutable TPythia6 * fPythia;     ///< PYTHIA6 wrapper class
-
+  mutable TPythia6 * fPythia;  ///< PYTHIA6 wrapper class
+  mutable double fWeight;
   bool fForceDecay;
 };
 
