@@ -21,11 +21,9 @@
 #define _DECAYER_INPUTS_H_
 
 #include <TLorentzVector.h>
-#include <TClonesArray.h>
+#include <TVector3.h>
 
 namespace genie {
-
-const UInt_t kDChIsInhibited = 1<<17;
 
 class DecayerInputs_t {
 
@@ -34,16 +32,16 @@ public:
   DecayerInputs_t()  { this->Init(); }
   ~DecayerInputs_t() { }
 
-  int                    PdgCode;
-  const TLorentzVector * P4;
-  const TClonesArray *   InhibitedChannels;
+  int                    PdgCode; ///< pdg code
+  const TLorentzVector * P4;      ///< 4-momentum
+  const TVector3 *       Polz;    ///< polarization
 
 private:
 
   void Init(void) {
-    PdgCode           = 0;
-    P4                = 0;
-    InhibitedChannels = 0; 
+    PdgCode = 0;
+    P4      = 0;
+    Polz    = 0; 
   }
 
 };
